@@ -1,3 +1,10 @@
+2003-07-04 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* configure.in mk/config.mk.in mk/library.mk: Turned the
+	--list-packages into a parameter which is determined by
+	configure. The reason is that ghc 6 has a new semantic for
+	ghc-pkg's --list-packages option.
+	
 2003-07-03  Jens Petersen  <petersen@haskell.org>
 
 	* mogul/Makefile (INSTALLDIR): Set to mogul, so that mogul gets
@@ -52,6 +59,14 @@
 	* gtk/treeList/TreeView.chs: Changed the return type of the
 	onTestCollapseRow and onTestExpandRow signals. Patch submitted by
 	Duncan Coutts <duncan@coutts.uklinux.net>.
+	
+2003-05-19 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* configure.in, mk/config.mk.in: Changed SGML_CATALOG_FILES to
+	XML_CATALOG_FILES.
+
+	* gtk/general/Gtk.hs: removed the hiding clause from Image. Don't
+	know why it was there in the first place.
 	
 2003-05-18  Jens Petersen  <petersen@redhat.com>
 

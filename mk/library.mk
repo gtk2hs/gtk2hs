@@ -10,7 +10,7 @@ makeTextList		= $(addprefix \",$(addsuffix \",\
 			$(subst $(SPACE),\"$(COMMA)\",$(sort $(1)))))
 
 noinplace : inplaceinit
-	@if $(PKG) -f $(LOCALPKGCONF) -l | $(GREP) $(PACKAGENAME) \
+	@if $(PKG) -f $(LOCALPKGCONF) $(LISTLOCAL) | $(GREP) $(PACKAGENAME) \
 	  > /dev/null; then \
 	  echo Removing old local entry for \"$(PACKAGENAME)\".; \
           $(PKG) -f $(LOCALPKGCONF) -r $(PACKAGENAME) > /dev/null; \
