@@ -21,8 +21,8 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(VERSION)
-AM_INIT_AUTOMAKE(gtk2hs, 0.9.6pre)
+AC_INIT(gtk2hs, 0.9.7pre)
+AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
 dnl We need 2.50 due to the use of OBJEXT 
@@ -430,9 +430,6 @@ else
       } ;;
   esac;
 fi
-
-# Read the version file
-VERSION=`cat $TOP/VERSION`
 
 dnl Documentation
 AC_PATH_PROG(HADDOCK,haddock)

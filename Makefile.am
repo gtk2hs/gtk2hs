@@ -19,7 +19,7 @@ SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
 	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
 	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel
 
-EXTRA_DIST = VERSION \
+EXTRA_DIST = \
 	tools/callbackGen/Signal.chs-boot1	\
 	tools/callbackGen/Signal.chs-boot2	\
 	tools/callbackGen/gtkmarshal.list	\
