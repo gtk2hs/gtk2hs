@@ -2,6 +2,7 @@ module StringUtils where
 
 import Prelude hiding (lines)
 import Char   (toLower, toUpper, isSpace, isAlpha, isAlphaNum, isUpper)
+import List   (unfoldr)
 
 -------------------------------------------------------------------------------
 -- Helper functions
@@ -66,3 +67,10 @@ wrapText initialCol width = wrap initialCol []
         wrap col line (word:words) = wrap (col + length word + 1) (word:line) words
         wrap _ []   [] = []
         wrap _ line [] = [reverse line]
+
+splitOn :: Eq a => a -> [a] -> [[a]]
+splitOn sep = 
+  unfoldr (\s -> case break (sep==) s of
+                   ([],_) -> Nothing
+                   (w,_:r) -> Just (w,r)
+                   (w,[]) -> Just (w,[]))

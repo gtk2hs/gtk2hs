@@ -1,3 +1,19 @@
+2005-02-07 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/ModuleScan.hs: new module that scans the existing
+	module source files to pick out useful information so that we can
+	use that information to improve the generated modules.
+
+	* tools/apiGen/ApiGen.hs: take advantage of the new ModuleScan
+	information in the various module headder fields. Add a new
+	--scanmodules flag.
+
+	* tools/apiGen/Template.chs: add author and copyright variable.
+
+	* tools/apiGen/Makefile: use the new --scanmodules feature.
+
+	* tools/apiGen/StringUtils.hs: add extra utility function.
+
 2005-02-06 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: win32 fixes. Do not define WIN32 on windows since it

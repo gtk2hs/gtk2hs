@@ -76,8 +76,10 @@ gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen \
 		gdk-api.xml pango-api.xml atk-api.xml
 	@mkdir -p $@
 	./ApiGen $< Template.chs --doc=gtk-docs.xml --outdir=$@ \
-	--includeapi=gdk-api.xml --includeapi=pango-api.xml --includeapi=atk-api.xml \
-	--modprefix=Graphics.UI.Gtk.{-Category-}
+	--includeapi=gdk-api.xml --includeapi=pango-api.xml \
+	--includeapi=atk-api.xml \
+	--modprefix=Graphics.UI.Gtk.{-Category-} \
+	--scanmodules=../../gtk/Graphics/UI/Gtk
 
 
 ###################
@@ -132,7 +134,7 @@ gnomecanvas-modules : gnomecanvas-api.xml Template.chs ApiGen
 #	tools
 #
 ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs \
-	Marshal.hs CodeGen.hs StringUtils.hs 
+	Marshal.hs CodeGen.hs StringUtils.hs ModuleScan.hs
 	ghc --make $< -o $@
 
 gapi_format_xml : formatXml.c

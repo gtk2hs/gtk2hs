@@ -11,11 +11,13 @@ import Api
 import Docs
 import FormatDocs
 import CodeGen
-import StringUtils (ss, templateSubstitute)
+import StringUtils (ss, templateSubstitute, splitOn)
+import ModuleScan
 
 import Monad  (when)
-import List   (isPrefixOf)
+import List   (isPrefixOf, intersperse)
 import System (getArgs, exitWith, ExitCode(..))
+import Directory (doesDirectoryExist, createDirectory)
 
 import qualified Text.XML.HaXml.Parse as Xml
 
@@ -44,11 +46,14 @@ main = do
                  (prefix:_) -> prefix
   let modPrefix = case map (drop 12) (filter ("--modprefix=" `isPrefixOf`)  rem) of
                     [] -> ""
-		    (modPrefix:_) -> modPrefix ++ "."
+		    (modPrefix:_) -> modPrefix
   let outdir = case map (drop 9) (filter ("--outdir=" `isPrefixOf`)  rem) of
                  [] -> ""
                  (outdir:_) -> if last outdir == '/' then outdir else outdir ++ "/"
   let includeApiFiles = map (drop 13) (filter ("--includeapi=" `isPrefixOf`)  rem)
+  let moduleRoot = case map (drop 14) (filter ("--scanmodules=" `isPrefixOf`)  rem) of
+                     [] -> ""
+                     (moduleRoot:_) -> moduleRoot
 
   -----------------------------------------------------------------------------
   -- Read in the input files
@@ -83,6 +88,15 @@ main = do
                ++ [ (moduledoc_altname moduleDoc, moduleDoc) | moduleDoc <- apiDoc ]
 
   -----------------------------------------------------------------------------
+  -- Scan the existing modules if their root path is supplied
+  --
+  modulesInfo <- if null moduleRoot
+                   then return []
+                   else scanModules moduleRoot
+  let moduleInfoMap = [ (module_name moduleInfo, moduleInfo)
+                      | moduleInfo <- modulesInfo ]
+
+  -----------------------------------------------------------------------------
   -- A few values that are used in the template
   --
   time <- System.Time.getClockTime
@@ -96,31 +110,58 @@ main = do
   -- Write the result file(s) by substituting values into the template file
   --
   mapM 
-    (\(namespace, object, maybeModuleDoc) -> do
+    (\(namespace, object, maybeModuleDoc, maybeModuleInfo) -> do
       moduleDoc <- case maybeModuleDoc of
                      Nothing -> do when (not (null apiDoc)) $
 		                     putStrLn ("Warning: no documentation found for module "
 			                    ++ show (object_name object))
 			           return noModuleDoc
 		     Just moduleDoc -> return $ addVersionParagraphs namespace moduleDoc
-      writeFile (outdir ++ object_name object ++ ".chs") $
+      moduleInfo <-
+            case maybeModuleInfo of
+              Just moduleInfo -> do mkDirHier outdir (splitOn '.' (module_prefix moduleInfo))
+                                    return moduleInfo
+              Nothing -> do
+                when (not (null moduleRoot)) $
+                  putStrLn ("Warning: no existing module found for module "
+	                  ++ show (object_name object))
+                return ModuleInfo {
+                    module_name              = object_name object,
+                    module_prefix            = modPrefix,
+                    module_needspreproc      = False,
+                    module_filename          = object_name object ++ ".chs",
+                    module_authors           = ["[Insert your full name here]"],
+                    module_created           = date,
+                    module_copyright_dates   = Left year,
+                    module_copyright_holders = ["[Insert your full name here]"],
+                    module_imports           = [],
+                    module_context_lib       = if null lib then namespace_library namespace else lib,
+                    module_context_prefix    = if null prefix then namespace_library namespace else prefix,
+                    module_methods           = []
+                  }
+      writeFile (outdir ++ module_filename moduleInfo) $
         templateSubstitute template (\var ->
           case var of
-	    "YEAR"           -> ss year
-	    "DATE"           -> ss date
-	    "OBJECT_NAME"    -> ss (object_name object)
-	    "DESCRIPTION"    -> ss (moduledoc_summary moduleDoc)
+	    "YEAR"           -> ss $ formatCopyrightDates year (module_copyright_dates moduleInfo)
+	    "DATE"           -> ss $ module_created moduleInfo
+	    "OBJECT_NAME"    -> ss $ module_name moduleInfo
+	    "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors moduleInfo
+            "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders moduleInfo
+            "DESCRIPTION"    -> ss (moduledoc_summary moduleDoc)
 	    "DOCUMENTATION"  -> genModuleDocumentation moduleDoc
 	    "TODO"           -> genTodoItems object
-	    "MODULE_NAME"    -> ss (modPrefix ++ object_name object)
+	    "MODULE_NAME"    -> ss $ module_prefix moduleInfo ++ "." ++ module_name moduleInfo
 	    "EXPORTS"        -> genExports object moduleDoc
 	    "IMPORTS"        -> ss $ "{#import Graphics.UI.Gtk.Types#}\n"
                                   ++ "-- CHECKME: extra imports may be required\n"
-	    "CONTEXT_LIB"    -> ss (if null lib then namespace_library namespace else lib)
-	    "CONTEXT_PREFIX" -> ss (if null prefix then namespace_library namespace else  prefix)
+	    "CONTEXT_LIB"    -> ss $ module_context_lib moduleInfo
+	    "CONTEXT_PREFIX" -> ss $ module_context_prefix  moduleInfo
 	    "MODULE_BODY"    -> genModuleBody knownTypes object moduleDoc
 	    _ -> ss "" ) ""
-    ) [ (namespace, object, lookup (object_cname object) apiDocMap)
+    ) [ (namespace
+        ,object
+        ,lookup (object_cname object) apiDocMap
+        ,lookup (object_name object) moduleInfoMap)
       | namespace <- api
       , object <- namespace_objects namespace ]
     
@@ -131,7 +172,7 @@ usage = do
 	\ApiGen <apiFile> <templateFile>\n\
 	\         {--doc=<docFile>} {--lib=<lib>} {--prefix=<prefix>}\n\
 	\         {--outdir=<outDir>} {--modprefix=<modPrefix>}\n\
-	\         {--includeapi=<incApiFile>}\n\
+	\         {--includeapi=<incApiFile>} {--scanmodules=<modulesRoot>}\n\
 	\where\n\
 	\  <apiFile>       an xml api file produced by gapi_parser.pl\n\
 	\  <templateFile>  is the name and path of the output template file\n\
@@ -144,5 +185,20 @@ usage = do
 	\  <modPrefix>     specify module name prefix, eg if using\n\
 	\                  hierarchical module names\n\
 	\  <incApiFile>    the api xml file for a parent api, for example Gtk\n\
-	\                  uses types defined by Gdk and Pango.\n"
+	\                  uses types defined by Gdk and Pango.\n\
+        \  <modulesRoot>   the path to the existing modules.\n"
   exitWith $ ExitFailure 1
+
+formatCopyrightDates :: String -> Either String (String, String) -> String
+formatCopyrightDates currentYear (Left year) | year == currentYear = year
+                                             | otherwise = year ++ "-" ++ currentYear
+formatCopyrightDates currentYear (Right (from, to)) = from ++ "-" ++ currentYear
+
+mkDirHier :: String -> [String] -> IO ()
+mkDirHier base [] = return ()
+mkDirHier base (dir:dirs) = do
+  let dirPath = base ++ "/" ++ dir
+  exists <- doesDirectoryExist dirPath
+  when (not exists) $
+    createDirectory dirPath
+  mkDirHier dirPath dirs

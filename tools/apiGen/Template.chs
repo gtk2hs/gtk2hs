@@ -1,11 +1,11 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget @OBJECT_NAME@
 --
---  Author : [Insert your full name here]
+--  Author : @AUTHORS@
 --
 --  Created: @DATE@
 --
---  Copyright (C) @YEAR@ [Insert your full name here]
+--  Copyright (C) @YEAR@ @COPYRIGHT@
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
