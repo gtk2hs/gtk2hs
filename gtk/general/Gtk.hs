@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.21 $ from $Date: 2004/04/30 13:45:33 $
+--  Version $Revision: 1.22 $ from $Date: 2004/04/30 20:52:41 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -60,6 +60,11 @@ module Gtk(
   -- windows
   module Dialog,
   module FileSel,
+#if GTK_CHECK_VERSION(2,4,0)
+  module FileChooser,
+  module FileChooserDialog,
+  module FileChooserWidget,
+#endif
   module Window,
   -- display widgets,
   module AccelLabel,
@@ -201,6 +206,11 @@ import Gdk
 -- windows
 import Dialog
 import FileSel
+#if GTK_CHECK_VERSION(2,4,0)
+import FileChooser
+import FileChooserDialog
+import FileChooserWidget
+#endif
 import Window
 --import WindowGroup
 -- display widgets

@@ -21,6 +21,11 @@
 	* gtk/general/Structs.hsc: bug fix for toResponse. Can now get
 	response code back from dialogs ok.
 
+	* gtk/abstract/FileChooser.chs, gtk/misc/FileChooserWidget.chs,
+	gtk/windows/FileChooserDialog.chs, gtk/general/Gtk.hs,
+	demo/filechooser/Makefile, demo/filechooser/FileChooserDemo.hs:
+	added new FileChooser modules and a (unfinished) demo program
+
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Makefile: use standard $(CPP) variable
