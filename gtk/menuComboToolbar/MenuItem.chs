@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:05:21 $
+--  Version $Revision: 1.6 $ from $Date: 2004/08/03 04:01:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -40,13 +40,16 @@ module MenuItem(
   castToMenuItem,
   menuItemNew,
   menuItemNewWithLabel,
+  menuItemNewWithMnemonic,
   menuItemSetSubmenu,
+  menuItemGetSubmenu,
   menuItemRemoveSubmenu,
---  menuItemConfigure,
   menuItemSelect,
   menuItemDeselect,
   menuItemActivate,
   menuItemSetRightJustified,
+  menuItemGetRightJustified,
+  menuItemSetAccelPath,
   onActivateLeaf,
   afterActivateLeaf,
   onActivateItem,
@@ -77,13 +80,20 @@ menuItemNew :: IO MenuItem
 menuItemNew  = makeNewObject mkMenuItem $ 
   liftM castPtr {#call unsafe menu_item_new#}
 
--- | Create a new menu item and place a label
--- inside.
+-- | Create a new menu item and place a label inside.
 --
 menuItemNewWithLabel :: String -> IO MenuItem
 menuItemNewWithLabel label = withUTFString label $ \strPtr -> 
   makeNewObject mkMenuItem $ liftM castPtr $
   {#call unsafe menu_item_new_with_label#} strPtr
+
+-- | Create a new menu item and place a label inside. Underscores in the label
+-- text indicate the mnemonic for the menu item.
+--
+menuItemNewWithMnemonic :: String -> IO MenuItem
+menuItemNewWithMnemonic label = withUTFString label $ \strPtr -> 
+  makeNewObject mkMenuItem $ liftM castPtr $
+  {#call unsafe menu_item_new_with_mnemonic#} strPtr
 
 -- | Set the item's submenu.
 --
@@ -91,19 +101,18 @@ menuItemSetSubmenu :: (MenuItemClass mi, MenuClass m) => mi -> m -> IO ()
 menuItemSetSubmenu mi submenu = 
   {#call menu_item_set_submenu#} (toMenuItem mi) (toWidget submenu)
 
+-- | Gets the submenu underneath this menu item, if any.
+--
+menuItemGetSubmenu :: MenuItemClass mi => mi -> IO (Maybe Widget)
+menuItemGetSubmenu mi = do
+  wPtr <- {#call unsafe menu_item_get_submenu#} (toMenuItem mi)
+  if wPtr==nullPtr then return Nothing else liftM Just $
+    makeNewObject mkWidget (return wPtr)
+
 -- | Remove the item's submenu.
 --
 menuItemRemoveSubmenu :: MenuItemClass mi => mi -> IO ()
 menuItemRemoveSubmenu mi = {#call menu_item_remove_submenu#} (toMenuItem mi)
-
-
--- | Should the item display a submenu 
--- indicator (an arrow) if there is a
--- submenu?
---menuItemConfigure :: MenuItemClass mi => Bool -> mi -> IO ()
---menuItemConfigure subInd mi =
---  {#call unsafe menu_item_configure#} (toMenuItem mi) 0 (fromBool subInd)
-
 
 -- | Select the menu item.
 --
@@ -120,25 +129,48 @@ menuItemDeselect mi = {#call menu_item_deselect#} (toMenuItem mi)
 menuItemActivate :: MenuItemClass mi => mi -> IO ()
 menuItemActivate mi = {#call menu_item_activate#} (toMenuItem mi)
 
--- | Make the menu item right justified. Only
--- useful for menu bars.
+-- | Make the menu item right justified. Only useful for menu bars.
 --
-menuItemSetRightJustified :: MenuItemClass mi => Bool -> mi -> IO ()
-menuItemSetRightJustified yes mi = 
+menuItemSetRightJustified :: MenuItemClass mi => mi -> Bool -> IO ()
+menuItemSetRightJustified mi yes = 
   {#call menu_item_set_right_justified#} (toMenuItem mi) (fromBool yes)
+
+-- | Gets whether the menu item appears justified at the right side of the menu
+-- bar.
+--
+menuItemGetRightJustified :: MenuItemClass mi => mi -> IO Bool
+menuItemGetRightJustified mi = liftM toBool $
+  {#call unsafe menu_item_get_right_justified#} (toMenuItem mi)
+
+-- | Set the accelerator path on the menu item, through which runtime changes of
+-- the menu item's accelerator caused by the user can be identified and saved to
+-- persistant storage (see 'accelMapSave' on this). To setup a default
+-- accelerator for this menu item, call 'accelMapAddEntry' with the same accel
+-- path. See also 'accelMapAddEntry' on the specifics of accelerator paths, and
+-- 'menuSetAccelPath' for a more convenient variant of this function.
+--
+-- This function is basically a convenience wrapper that handles calling
+-- 'widgetSetAccelPath' with the appropriate accelerator group for the menu
+-- item.
+--
+-- * Note that you do need to set an accelerator on the parent menu with
+-- 'menuSetAccelGroup' for this to work.
+--
+menuItemSetAccelPath :: MenuItemClass mi => mi -> Maybe String -> IO ()
+menuItemSetAccelPath mi accelPath =
+  maybeWith withCString accelPath $ \strPtr ->
+  {#call menu_item_set_accel_path#} (toMenuItem mi) strPtr
 
 -- signals
 
--- | The user has chosen the menu item and the
--- item does not contain a submenu.
+-- | The user has chosen the menu item and the item does not contain a submenu.
 --
 onActivateLeaf, afterActivateLeaf :: MenuItemClass mi => mi -> IO () ->
                                      IO (ConnectId mi)
 onActivateLeaf = connect_NONE__NONE "activate" False
 afterActivateLeaf = connect_NONE__NONE "activate" True
 
--- | Emitted when the user chooses this item even
--- if it has submenus.
+-- | Emitted when the user chooses this item even if it has submenus.
 --
 onActivateItem, afterActivateItem :: MenuItemClass mi => mi -> IO () ->
                                      IO (ConnectId mi)
@@ -151,8 +183,7 @@ onSelect, afterSelect :: ItemClass i => i -> IO () -> IO (ConnectId i)
 onSelect = connect_NONE__NONE "select" False
 afterSelect = connect_NONE__NONE "select" True
 
--- | This signal is emitted when the item is
--- deselected.
+-- | This signal is emitted when the item is deselected.
 --
 onDeselect, afterDeselect :: ItemClass i => i -> IO () -> IO (ConnectId i)
 onDeselect = connect_NONE__NONE "deselect" False

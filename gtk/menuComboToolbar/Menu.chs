@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Menu
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:05:21 $
+--  Version $Revision: 1.8 $ from $Date: 2004/08/03 04:01:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -35,6 +36,8 @@
 --   to be shown is keept after the call returns. Maybe we could destroy
 --   this function pointer with a destory event?
 --
+#include <gtk/gtkversion.h>
+
 module Menu(
   Menu,
   MenuClass,
@@ -42,19 +45,33 @@ module Menu(
   menuNew,
   menuReorderChild,
   menuPopup,
+  menuSetAccelGroup,
+  menuGetAccelGroup,
+  menuSetAccelPath,
   menuSetTitle,
+  menuGetTitle,
   menuPopdown,
+  menuReposition,
   menuGetActive,
   menuSetActive,
   menuSetTearoffState,
+  menuGetTearoffState,
   menuAttachToWidget,
   menuDetach,
-  menuGetAttachWidget
+  menuGetAttachWidget,
+#if GTK_CHECK_VERSION(2,2,0)
+  menuSetScreen,
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+  menuSetMonitor,
+#endif
   ) where
 
 import Monad	(liftM)
+import Maybe  (fromMaybe)
 import FFI
 
+import GObject (makeNewGObject)
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -87,17 +104,71 @@ menuPopup m (Events.Button { time=t, button=b }) = {#call menu_popup#}
   nullPtr ((fromIntegral.fromEnum) b) (fromIntegral t)
 menuPopup _ _ = error "menuPopup: Button event expected."
 
--- | Set the @title@ of the menu. It is displayed
--- if the menu is shown as a tearoff menu.
+-- | Set the "AccelGroup" which holds global accelerators for the menu. This
+-- accelerator group needs to also be added to all windows that this menu is
+-- being used in with 'windowAddAccelGroup', in order for those windows to
+-- support all the accelerators contained in this group.
+--
+menuSetAccelGroup :: MenuClass m => m -> AccelGroup -> IO ()
+menuSetAccelGroup m accel =
+  {#call menu_set_accel_group#} (toMenu m) accel
+
+-- | Gets the "AccelGroup" which holds global accelerators for the menu. See
+-- 'menuSetAccelGroup'.
+--
+menuGetAccelGroup :: MenuClass m => m -> IO AccelGroup
+menuGetAccelGroup m =
+  makeNewGObject mkAccelGroup $
+  {#call unsafe menu_get_accel_group#} (toMenu m)
+
+-- | Sets an accelerator path for this menu from which accelerator paths for its
+-- immediate children, its menu items, can be constructed. The main purpose of
+-- this function is to spare the programmer the inconvenience of having to call
+-- 'menuItemSetAccelPath' on each menu item that should support runtime user
+-- changable accelerators. Instead, by just calling 'menuSetAccelPath' on their
+-- parent, each menu item of this menu, that contains a label describing its
+-- purpose, automatically gets an accel path assigned.
+--
+-- For example, a menu containing menu items \"New\" and \"Exit\", will, after
+-- calling
+--
+-- > menu `menuSetAccelPath` "<Gnumeric-Sheet>/File"
+--
+-- assign its items the accel paths: "<Gnumeric-Sheet>/File/New" and
+-- "<Gnumeric-Sheet>/File/Exit".
+--
+-- Assigning accel paths to menu items then enables the user to change their
+-- accelerators at runtime. More details about accelerator paths and their
+-- default setups can be found at 'accelMapAddEntry'.
+--
+menuSetAccelPath :: MenuClass m => m -> String -> IO ()
+menuSetAccelPath m accelPath =
+  withUTFString accelPath $ \strPtr ->
+  {#call menu_set_accel_path#} (toMenu m) strPtr
+
+-- | Set the title of the menu. It is displayed if the menu is shown as a
+-- tearoff menu.
 --
 menuSetTitle :: MenuClass m => m -> String -> IO ()
 menuSetTitle m title = withUTFString title $ \strPtr ->
   {#call unsafe menu_set_title#} (toMenu m) strPtr
 
+-- | Returns the title of the menu, orNothing if the menu has no title set on
+-- it.
+--
+menuGetTitle :: MenuClass m => m -> IO (Maybe String)
+menuGetTitle m =
+  {#call unsafe menu_get_title#} (toMenu m) >>= maybePeek peekUTFString
+
 -- | Remove a context or tearoff menu from the screen.
 --
 menuPopdown :: MenuClass m => m -> IO ()
 menuPopdown m = {#call menu_popdown#} (toMenu m)
+
+-- | Repositions the menu according to its position function.
+--
+menuReposition :: MenuClass m => m -> IO ()
+menuReposition m = {#call menu_reposition#} (toMenu m)
 
 -- | Return the currently selected menu item.
 --
@@ -111,16 +182,19 @@ menuGetActive m = makeNewObject mkMenuItem $
 menuSetActive :: MenuClass m => m -> Int -> IO ()
 menuSetActive m n = {#call menu_set_active#} (toMenu m) (fromIntegral n)
 
--- | Specify whether the menu is to be shown as a
--- tearoff menu.
+-- | Specify whether the menu is to be shown as a tearoff menu.
 --
 menuSetTearoffState :: MenuClass m => m -> Bool -> IO ()
 menuSetTearoffState m tornOff =
   {#call menu_set_tearoff_state#} (toMenu m) (fromBool tornOff)
 
--- | Attach this menu to another widget.
+-- | Returns whether the menu is torn off.
 --
--- * Should we support the DetachFunction?
+menuGetTearoffState :: MenuClass m => m -> IO Bool
+menuGetTearoffState m = liftM toBool $
+  {#call unsafe menu_get_tearoff_state#} (toMenu m)
+
+-- | Attach this menu to another widget.
 --
 menuAttachToWidget :: (MenuClass m, WidgetClass w) => m -> w -> IO ()
 menuAttachToWidget m w =
@@ -131,8 +205,8 @@ menuAttachToWidget m w =
 menuDetach :: MenuClass m => m -> IO ()
 menuDetach m = {#call menu_detach#} (toMenu m)
 
--- | Get the widget this menu is attached to.
--- Returns Nothing if this is a tearoff (context) menu.
+-- | Get the widget this menu is attached to. Returns Nothing if this is a
+-- tearoff (context) menu.
 --
 menuGetAttachWidget :: MenuClass m => m -> IO (Maybe Widget)
 menuGetAttachWidget m = do
@@ -140,3 +214,22 @@ menuGetAttachWidget m = do
   if wPtr==nullPtr then return Nothing else liftM Just $ 
     makeNewObject mkWidget (return wPtr)
 
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Sets the "Screen" on which the menu will be displayed.
+--
+menuSetScreen :: MenuClass m => m -> Maybe Screen -> IO ()
+menuSetScreen m screen =
+  {#call menu_set_screen#} (toMenu m)
+    (fromMaybe (Screen nullForeignPtr) screen)
+
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Informs GTK+ on which monitor a menu should be popped up.
+--
+menuSetMonitor :: MenuClass m => m
+               -> Int -- ^ The number of the monitor on which the menu
+                      --   should be popped up
+               -> IO ()
+menuSetMonitor m monitorNum =
+  {#call menu_set_monitor#} (toMenu m) (fromIntegral monitorNum)
+#endif

@@ -23,6 +23,15 @@
 	* tools/hierarchyGen/hierarchy.list: new classes for gtk-2.4, a few old
 	ones that were missing and some more Gdk classes.
 
+	* gtk/menuComboToolbar/ImageMenuItem.chs: fix type error introduced by
+	c2hs being able to 'see' new AccelGroup class. Also fiddle with docs.
+
+	* gtk/menuComboToolbar/Toolbar.chs, gtk/menuComboToolbar/MenuItem.chs
+	gtk/menuComboToolbar/Menu.chs: add missing functions, including
+	accelerator-related ones. Also tidy up documentation a bit.
+
+	* gtk/general/Structs.hsc: remove unneeded toolbar function.
+
 2004-08-1  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/entry/SpinButton.chs, gtk/layout/Table.chs, gtk/layout/Layout.chs

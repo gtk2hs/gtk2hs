@@ -5,7 +5,7 @@
 --          
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.5 $
+--  Version $Revision: 1.6 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -59,8 +59,7 @@ imageMenuItemSetImage imi wd =
   {#call unsafe image_menu_item_set_image#} (toImageMenuItem imi) 
                                             (toWidget wd)
 
--- | Get the image that is currently 
--- set a the image.
+-- | Get the image that is currently set a the image.
 --
 imageMenuItemGetImage :: ImageMenuItemClass imi => imi -> IO (Maybe Widget)
 imageMenuItemGetImage imi = do
@@ -68,31 +67,29 @@ imageMenuItemGetImage imi = do
    if imPtr==nullPtr then return Nothing else do
      liftM Just $ makeNewObject mkWidget $ return imPtr
 
--- | Create a new 'MenuItem' with a image
--- next to it.
+-- | Create a new 'MenuItem' with a image next to it.
 --
 imageMenuItemNew :: IO ImageMenuItem
 imageMenuItemNew  = makeNewObject mkImageMenuItem $ liftM castPtr $
   {#call unsafe image_menu_item_new#}
 
--- | Create a new 'MenuItem'
--- with a stock image.
+-- | Create a new 'MenuItem' with a stock image.
 --
 imageMenuItemNewFromStock :: String -> IO ImageMenuItem
 imageMenuItemNewFromStock str = withUTFString str $ \strPtr ->
   makeNewObject mkImageMenuItem $ liftM castPtr $ 
-  {#call unsafe image_menu_item_new_from_stock#} strPtr nullPtr
+  {#call unsafe image_menu_item_new_from_stock#} strPtr
+    (AccelGroup nullForeignPtr)
 
--- | Create a new 'MenuItem'
--- with a label.
+-- | Create a new 'MenuItem' with a label.
 --
 imageMenuItemNewWithLabel :: String -> IO ImageMenuItem
 imageMenuItemNewWithLabel str = withUTFString str $ \strPtr ->
   makeNewObject mkImageMenuItem $ liftM castPtr $ 
   {#call unsafe image_menu_item_new_with_label#} strPtr
 
--- | Create a new 'MenuItem'
--- with a label where underscored indicate the mnemonic.
+-- | Create a new 'MenuItem' with a label where underscored indicate the
+-- mnemonic.
 --
 imageMenuItemNewWithMnemonic :: String -> IO ImageMenuItem
 imageMenuItemNewWithMnemonic str = withUTFString str $ \strPtr ->

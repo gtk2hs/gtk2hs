@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.25 $ from $Date: 2004/07/30 16:38:52 $
+--  Version $Revision: 1.26 $ from $Date: 2004/08/03 04:01:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -63,7 +63,6 @@ module Structs(
   --XID,
   --socketGetXID,
   --socketHasPlug,
-  toolbarGetSize',
   toolbarChildButton,
   toolbarChildToggleButton,
   toolbarChildRadioButton,
@@ -562,14 +561,6 @@ type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
 --socketHasPlug socket = do
 --  plugPtr <- withForeignPtr (unSocket socket) #{peek GtkSocket, plug_window}
 --  return (plugPtr/=nullPtr)
-
--- method toolbarGetSize' Get the current size of the Buttons 
--- in a Toolbar.
---
--- * The value is not mangled (i.e. converted to a Haskell Int).
---
-toolbarGetSize' :: Toolbar -> IO IconSize
-toolbarGetSize' tb = withForeignPtr (unToolbar tb) #peek GtkToolbar, icon_size
 
 -- Static values for different Toolbar widgets.
 --
