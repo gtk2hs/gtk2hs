@@ -159,7 +159,7 @@ define runC2HS
 @if test -f .depend; then \
   echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend` && \
   ($(C2HSFLAGGED) -o : $(HEADER) `cat .depend` || \
-  (echo removing `cat .depend | $(SED) s/\(.*\)\.chs/\1.hs/`; \
+  (echo removing `cat .depend | "$(SED) s/\(.*\)\.chs/\1.hs/"`; \
   $(RM) `cat .depend | $(SED) "s/\(.*\)\.chs/\1.hs/"` .depend; \
   exit 1)) && \
   echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend` && \
@@ -197,7 +197,8 @@ $(STANDARD_HEADER:.chs=.hs) : %.hs : %.chs
 $(HSCFILES:.hsc=.hs) : %.hs : %.hsc
 	$(HSCFLAGGED) $<
 
-# Set up include file for either applications or libraries.
+
+# Goals for applications and libraries.
 
 .PHONY: errorNoTarget noTarget
 
@@ -205,7 +206,6 @@ errorNoTarget	:
 		@echo You need to set PACKAGENAME to build a library or
 		@echo APPNAME to build an executable. 
 
-inplace		: all
 
 inplaceinit	:
 	@if test ! -f $(LOCALPKGCONF); then \
@@ -229,10 +229,16 @@ ifneq ($(strip $(PACKAGENAME)),)
 
 include $(TOP)/mk/library.mk
 
+inplace	: $(TARGETOK)
+
+all	: inplace
+
 else
 ifneq ($(strip $(APPNAME)),)
 
 include $(TOP)/mk/application.mk
+
+all	: $(TARGETOK)
 
 else
 
@@ -241,8 +247,6 @@ TARGETOK		= errorNoTarget
 endif
 endif
 
-
-all	: $(TARGETOK)
 
 targets :
 	@echo all	in subdirs: builds libraries/applications

@@ -1,3 +1,12 @@
+2003-10-26 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* Makefile, mk/recurse.mk, mk/common.mk: Turn the top-level
+	Makefile into a bunch of variable declaration and put the real
+	work into mk/recurse.mk. There are three main directories: tools
+	which are built first and never installed, libraries which are
+	built after the tools installed and registered with ghc and
+	applications which are built last and installed.
+	
 2003-10-21 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* sourceview/Makefile, sourceview/SourceBuffer.chs,
