@@ -1,10 +1,10 @@
--- |GIMP Toolkit (GTK) Binding for Haskell: binding to Libglade   -*-haskell-*-
+-- GIMP Toolkit (GTK) Binding for Haskell: binding to Libglade   -*-haskell-*-
 --    for loading XML widget specifications
 --
 --  Author : Manuel M T Chakravarty
 --  Created: 13 March 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2004/04/30 12:50:15 $
+--  Version $Revision: 1.3 $ from $Date: 2004/05/25 00:38:48 $
 --
 --  Copyright (c) 2002 Manuel M T Chakravarty
 --  Modified 2003 by Duncan Coutts (gtk2hs port)
@@ -19,40 +19,38 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- Description ---------------------------------------------------------------
---
---  Language: Haskell 98 Binding Module
+-- |
 --
 --  Libglade facilitates loading of XML specifications of whole widget trees
 --  that have been interactively designed with the GUI builder Glade.  The
---  present module exports operations for manipulating `GladeXML' objects.
+--  present module exports operations for manipulating 'GladeXML' objects.
 --
---  `glade_xml_signal_autoconnect()' is not supported.  The C variant is not
---  suitable for Haskell as `-rdynamic' leads to huge executable and we
+--  @glade_xml_signal_autoconnect()@ is not supported. The C variant is not
+--  suitable for Haskell as @-rdynamic@ leads to huge executable and we
 --  usually don't want to connect staticly named functions, but closures.
 --
---  NB: `glade_xml_construct()' is not bound, as it doesn't seem to be useful
---	in Haskell.  As usual, the `signal_connect_data' variant for
---	registering signal handlers isn't bound either.  Moreover, the
---	`connect_full' functions are not bound.
+-- * @glade_xml_construct()@ is not bound, as it doesn't seem to be useful
+--   in Haskell.  As usual, the @signal_connect_data@ variant for
+--   registering signal handlers isn't bound either.  Moreover, the
+--   @connect_full@ functions are not bound.
 --
---  NB: This binding does not support Libglade functionality that is
---	exclusively meant for extending Libglade with new widgets.  Like new
---	widgets, such functionality is currently expected to be implemented in
---	C.
+-- * This binding does not support Libglade functionality that is
+--   exclusively meant for extending Libglade with new widgets.  Like new
+--   widgets, such functionality is currently expected to be implemented in
+--   C.
 --
 
 module Glade (
 
-  -- data types
+  -- * Data types
   --
   GladeXMLClass, GladeXML,
 
-  -- creation operations
+  -- * Creation operations
   --
   xmlNew, xmlNewWithRootAndDomain,
 
-  -- obtaining widget handles
+  -- * Obtaining widget handles
   --
   xmlGetWidget, xmlGetWidgetRaw
 
@@ -70,15 +68,9 @@ import GList
 {#context lib="glade" prefix ="glade"#}
 
 
--- |Operations
--- -----------
-
--- |Creation operations
--- -
-
--- @constructor xmlNew@ Create a new XML object (and the corresponding
+-- | Create a new XML object (and the corresponding
 -- widgets) from the given XML file; corresponds to
--- `xmlNewWithRootAndDomain', but without the ability to specify a root
+-- 'xmlNewWithRootAndDomain', but without the ability to specify a root
 -- widget or translation domain.
 --
 xmlNew :: FilePath -> IO (Maybe GladeXML)
@@ -88,15 +80,15 @@ xmlNew file =
   if xmlPtr==nullPtr then return Nothing
                      else liftM Just $ makeNewGObject mkGladeXML (return xmlPtr)
 
--- @constructor xmlNewWithRootAndDomain@ Create a new GladeXML object (and
+-- | Create a new GladeXML object (and
 -- the corresponding widgets) from the given XML file with an optional
 -- root widget and translation domain.
 --
--- * If the second argument is not `Nothing', the interface will only be built
+-- * If the second argument is not @Nothing@, the interface will only be built
 --   from the widget whose name is given.  This feature is useful if you only
 --   want to build say a toolbar or menu from the XML file, but not the window
 --   it is embedded in.  Note also that the XML parse tree is cached to speed
---   up creating another `XML' object for the same file.
+--   up creating another \'XML\' object for the same file.
 --
 xmlNewWithRootAndDomain :: FilePath -> Maybe String -> Maybe String -> IO (Maybe GladeXML)
 xmlNewWithRootAndDomain file rootWidgetName domain =
@@ -107,15 +99,12 @@ xmlNewWithRootAndDomain file rootWidgetName domain =
   if xmlPtr==nullPtr then return Nothing
                      else liftM Just $ makeNewGObject mkGladeXML (return xmlPtr)
 
--- |Obtaining widget handles
--- -
-
--- @method xmlGetWidget@ Get the widget that has the given name in
+-- | Get the widget that has the given name in
 -- the interface description. If the named widget cannot be found
 -- or is of the wrong type the result is an error.
 --
 -- * the second parameter is the ID of the widget in the glade xml
---   file, eg "button1".
+--   file, eg \"button1\".
 --
 -- * the third parameter should be a dynamic cast function that
 --   returns the type of object that you expect, eg castToButton

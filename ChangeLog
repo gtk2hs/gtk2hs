@@ -4,6 +4,8 @@
 	mogul/NewWidget.hs, mogul/TreeList.hs, mogul/WidgetTable.hs:
 	initial haddockification
 
+	* glade/Glade.chs: initial haddockification
+
 2004-05-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/Bin.chs, gtk/abstract/Box.chs,
