@@ -1,5 +1,11 @@
 2003-10-21 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* sourceview/Makefile, sourceview/SourceBuffer.chs,
+	sourceview/SourceLanguage.chs,
+	sourceview/SourceLanguagesManager.chs, sourceview/SourceView.chs,
+	AUTHORS: Added the GtkSourceView widget contributed by Duncan
+	Coutts.
+	
 	* mk/common.mk: Avoid message about several rules for the
 	top-level file which are .chs files. This happend since the
 	top-level file SourceView.chs is not removed form a list
