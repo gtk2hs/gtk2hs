@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.10 $ from $Date: 2003/02/09 10:42:13 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -32,7 +32,7 @@
 --- TODO ----------------------------------------------------------------------
 --
 --  * unimplemented methods that seem to be useful in user programs:
---      widgetSizeRequest, widgetAddAccelerator, widgetRemoveAccrelerator,
+--      widgetSizeRequest, widgetAddAccelerator, widgetRemoveAccelerator,
 --	widgetAcceleratorSignal, widgetIntersect, widgetGrabDefault,
 --	widgetGetPointer, widgetPath, widgetClassPath, getCompositeName,
 --	widgetSetCompositeName,
@@ -60,6 +60,7 @@ module Widget(
   widgetShowAll,
   widgetHideAll,
   widgetDestroy,
+  widgetCreateLayout,		-- Drawing text.
   widgetQueueDraw,		-- Functions to be used with DrawingArea.
   widgetHasIntersection,
   widgetActivate,		-- Manipulate widget state.
@@ -152,6 +153,7 @@ import Monad	(liftM, unless)
 import UTFCForeign
 import Foreign
 import Object	(makeNewObject)
+import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
 import GdkEnums
@@ -216,6 +218,28 @@ widgetDestroy  = {#call widget_destroy#}.toWidget
 
 -- Functions to be used with DrawingArea.
 
+-- @method widgetCreateLayout@ Prepare text for display.
+--
+-- * The @ref data Layout@ represents the rendered text. It can be shown on
+--   screen by calling @ref method drawLayout@.
+--
+-- * The returned @ref data Layout@ shares the same font information
+--   (@ref data Context@) as this widget. If this information changes,
+--   the @ref data Layout@ should change. The following code ensures that
+--   the displayed text always reflects the widget's settings:
+--   @prog
+--l <- widgetCreateLayout w "My Text."
+--let update = do
+--               layoutContextChanged l
+--		 <update the Drawables which show this layout>
+--w `onDirectionChanged` update
+--w `onStyleChanged` update@
+--
+widgetCreateLayout :: WidgetClass obj => obj -> String -> IO PangoLayout
+widgetCreateLayout obj txt = withCString txt $
+  \strPtr -> makeNewGObject mkPangoLayout
+    ({#call unsafe widget_create_pango_layout#} (toWidget obj) strPtr)
+  
 -- @method widgetQueueDraw@ Send a redraw request to a widget.
 --
 widgetQueueDraw :: WidgetClass w => w -> IO ()

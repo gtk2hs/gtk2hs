@@ -1,3 +1,10 @@
+2003-02-09  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/abstract/Widget.chs gtk/general/Gtk.hs
+	gtk/general/Structs.hsc gtk/glib/GList.chs gtk/pango/Markup.hs
+	gtk/pango/Rendering.chs gtk/pango/PangoLayout.chs: Started on the
+	layout functions of Pango to draw text.
+	
 2003-02-07  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* mk/config.mk.in: added the variable CC so that the C compiler
