@@ -1,4 +1,10 @@
 2004-11-28 Axel Simon <A.Simon@kent.ac.uk> 
+
+	* Makefile.am: Add all _stub.o files as library dependencies. This
+	seems to be enough to link the stub files into the archive.
+	
+	* tools/c2hs/base/sysdep/SysDep([GN]HC?|Posix{UN}AVAIL).hs: Tie
+	SysDep.hs and SysDepPosix.hs directly to the GHC 6 versions.
 	
 	* gtk/gtk2hs.pkg: Package file for gtk2hs.
 

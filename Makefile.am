@@ -17,8 +17,7 @@ SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
 	tools/c2hs/base/general tools/c2hs/base/graphs			     \
 	tools/c2hs/base/state tools/c2hs/base/syms			     \
 	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
-	tools/c2hs/chs tools/c2hs/gen tools/c2hs/lib tools/c2hs/state	     \
-	tools/c2hs/toplevel
+	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel
 
 EXTRA_DIST = VERSION \
 	tools/callbackGen/Signal.chs-boot1	\
@@ -318,6 +317,15 @@ libgtk2hs_a_SOURCES =			  \
 	gtk/pango/Markup.hs			  \
 	compat/LocalControl.hs			  \
 	compat/LocalData.hs
+
+libgtk2hs_a_LIBADD =						       \
+	gtk/abstract/Container_stub.o				       \
+	gtk/multiline/TextIter_stub.o gtk/entry/EntryCompletion_stub.o \
+        gtk/multiline/TextTagTable_stub.o gtk/general/General_stub.o   \
+        gtk/treeList/TreeModel_stub.o gtk/general/Signal_stub.o	       \
+        gtk/treeList/TreeSelection_stub.o gtk/glib/GObject_stub.o      \
+        gtk/treeList/TreeView_stub.o
+
 
 am_libgtk2hs_a_OBJECTS = \
   $(addsuffix .$(OBJEXT),$(basename $(basename $(libgtk2hs_a_SOURCES))))
