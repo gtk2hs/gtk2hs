@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/16 01:42:46 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Add tips to your widgets.
+-- Add tips to your widgets
 --
 module Graphics.UI.Gtk.Misc.Tooltips (
--- * Description
+-- * Detail
 -- 
 -- | Tooltips are the messages that appear next to a widget when the mouse
 -- pointer is held over it for a short amount of time. They are especially
@@ -97,51 +97,62 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- | Create a new goup of 'Tooltips'.
 --
 tooltipsNew :: IO Tooltips
-tooltipsNew  = makeNewObject mkTooltips $ 
-  liftM castPtr {#call unsafe tooltips_new#}
+tooltipsNew =
+  makeNewObject mkTooltips $ liftM castPtr $
+  {# call unsafe tooltips_new #}
 
 --------------------
 -- Methods
 
--- | Display the help the 'Tooltips' group
--- provides.
+-- | Allows the user to see your tooltips as they navigate your application.
 --
-tooltipsEnable :: TooltipsClass t => t -> IO ()
-tooltipsEnable t = {#call unsafe tooltips_enable#} (toTooltips t)
+tooltipsEnable :: TooltipsClass self => self -> IO ()
+tooltipsEnable self =
+  {# call unsafe tooltips_enable #}
+    (toTooltips self)
 
--- | Disable 'Tooltips' group.
+-- | Causes all tooltips in @tooltips@ to become inactive. Any widgets that
+-- have tips associated with that group will no longer display their tips until
+-- they are enabled again with 'tooltipsEnable'.
 --
--- * Causes all tooltips in tooltips to become inactive. Any widgets that have
---   tips associated with that group will no longer display their tips until
---   they are enabled again with 'tooltipsEnable'.
---
-tooltipsDisable :: TooltipsClass t => t -> IO ()
-tooltipsDisable t = {#call unsafe tooltips_disable#} (toTooltips t)
+tooltipsDisable :: TooltipsClass self => self -> IO ()
+tooltipsDisable self =
+  {# call unsafe tooltips_disable #}
+    (toTooltips self)
 
 #ifndef DISABLE_DEPRECATED
--- | Sets the time between the user moving the mouse
--- over a widget and the widget's tooltip appearing.
+-- | Sets the time between the user moving the mouse over a widget and the
+-- widget's tooltip appearing.
 --
--- * The @time@ parameter is in ms.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
-tooltipsSetDelay :: TooltipsClass t => t -> Int -> IO ()
-tooltipsSetDelay t time = {#call unsafe tooltips_set_delay#}
-  (toTooltips t) (fromIntegral time)
+tooltipsSetDelay :: TooltipsClass self => self
+ -> Int   -- ^ @delay@ - the delay in milliseconds
+ -> IO ()
+tooltipsSetDelay self delay =
+  {# call unsafe tooltips_set_delay #}
+    (toTooltips self)
+    (fromIntegral delay)
 #endif
 
--- | Adds a tooltip containing the message tipText to
--- the specified GtkWidget.
+-- | Adds a tooltip containing the message @tipText@ to the specified
+-- 'Widget'.
 --
--- * The @tipPrivate@ parameter is meant to give a thorough
---   explaination. This might someday be accessible to a questionmark cursor
---   (like MS Windows).
---
-tooltipsSetTip :: (TooltipsClass t, WidgetClass w) => t -> w -> String ->
-                  String -> IO ()
-tooltipsSetTip t w tipText tipPrivate = 
-  withUTFString tipPrivate $ \priPtr ->
-  withUTFString tipText $ \txtPtr ->
-  {#call unsafe tooltips_set_tip#} (toTooltips t) (toWidget w) txtPtr priPtr
+tooltipsSetTip :: (TooltipsClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - the 'Widget' you wish to associate the tip with.
+ -> String -- ^ @tipText@ - a string containing the tip itself.
+ -> String -- ^ @tipPrivate@ - a string of any further information that may be
+           -- useful if the user gets stuck.
+ -> IO ()
+tooltipsSetTip self widget tipText tipPrivate =
+  withUTFString tipPrivate $ \tipPrivatePtr ->
+  withUTFString tipText $ \tipTextPtr ->
+  {# call unsafe tooltips_set_tip #}
+    (toTooltips self)
+    (toWidget widget)
+    tipTextPtr
+    tipPrivatePtr
 
 {#pointer * TooltipsData#}
 

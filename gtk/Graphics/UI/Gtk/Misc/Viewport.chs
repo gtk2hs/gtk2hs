@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/16 01:42:47 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -86,53 +86,77 @@ import Graphics.UI.Gtk.General.Enums	(ShadowType(..))
 --------------------
 -- Constructors
 
--- | Create a new 'Viewport'.
+-- | Creates a new 'Viewport' with the given adjustments.
 --
-viewportNew :: Adjustment -> Adjustment -> IO Viewport
-viewportNew vAdj hAdj = makeNewObject mkViewport $ liftM castPtr $
-  {#call unsafe viewport_new#} hAdj vAdj
+viewportNew :: 
+    Adjustment  -- ^ @hadjustment@ - horizontal adjustment.
+ -> Adjustment  -- ^ @vadjustment@ - vertical adjustment.
+ -> IO Viewport
+viewportNew hadjustment vadjustment =
+  makeNewObject mkViewport $ liftM castPtr $
+  {# call unsafe viewport_new #}
+    hadjustment
+    vadjustment
 
 --------------------
 -- Methods
 
--- | Retrieve the horizontal
--- 'Adjustment' of the 'Viewport'.
+-- | Returns the horizontal adjustment of the viewport.
 --
-viewportGetHAdjustment :: ViewportClass v => v -> IO Adjustment
-viewportGetHAdjustment v = makeNewObject mkAdjustment $
-  {#call unsafe viewport_get_hadjustment#} (toViewport v)
+viewportGetHAdjustment :: ViewportClass self => self
+ -> IO Adjustment
+viewportGetHAdjustment self =
+  makeNewObject mkAdjustment $
+  {# call unsafe viewport_get_hadjustment #}
+    (toViewport self)
 
--- | Retrieve the vertical 'Adjustment'
--- of the 'Viewport'.
+-- | Returns the vertical adjustment of the viewport.
 --
-viewportGetVAdjustment :: ViewportClass v => v -> IO Adjustment
-viewportGetVAdjustment v = makeNewObject mkAdjustment $
-  {#call unsafe viewport_get_vadjustment#} (toViewport v)
+viewportGetVAdjustment :: ViewportClass self => self
+ -> IO Adjustment
+viewportGetVAdjustment self =
+  makeNewObject mkAdjustment $
+  {# call unsafe viewport_get_vadjustment #}
+    (toViewport self)
 
--- | Set the horizontal 'Adjustment' of
--- the 'Viewport'.
+-- | Sets the horizontal adjustment of the viewport.
 --
-viewportSetHAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
-viewportSetHAdjustment v adj = {#call viewport_set_hadjustment#}
-  (toViewport v) adj
+viewportSetHAdjustment :: ViewportClass self => self
+ -> Adjustment
+ -> IO ()
+viewportSetHAdjustment self adjustment =
+  {# call viewport_set_hadjustment #}
+    (toViewport self)
+    adjustment
 
--- | Set the vertical 'Adjustment' of the 'Viewport'.
+-- | Sets the vertical adjustment of the viewport.
 --
-viewportSetVAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
-viewportSetVAdjustment v adj = {#call viewport_set_vadjustment#}
-  (toViewport v) adj
+viewportSetVAdjustment :: ViewportClass self => self
+ -> Adjustment
+ -> IO ()
+viewportSetVAdjustment self adjustment =
+  {# call viewport_set_vadjustment #}
+    (toViewport self)
+    adjustment
 
--- | Specify if and how an outer frame should be drawn around the child.
+-- | Sets the shadow type of the viewport.
 --
-viewportSetShadowType :: ViewportClass v => v -> ShadowType -> IO ()
-viewportSetShadowType v st = {#call viewport_set_shadow_type#} (toViewport v)
-  ((fromIntegral.fromEnum) st)
+viewportSetShadowType :: ViewportClass self => self
+ -> ShadowType -- ^ @type@ - the new shadow type.
+ -> IO ()
+viewportSetShadowType self type_ =
+  {# call viewport_set_shadow_type #}
+    (toViewport self)
+    ((fromIntegral . fromEnum) type_)
 
--- | Get the current shadow type of the 'Viewport'.
+-- | Gets the shadow type of the 'Viewport'. See 'viewportSetShadowType'.
 --
-viewportGetShadowType :: ViewportClass v => v -> IO ShadowType
-viewportGetShadowType v = liftM (toEnum.fromIntegral) $
-  {#call unsafe viewport_get_shadow_type#} (toViewport v)
+viewportGetShadowType :: ViewportClass self => self
+ -> IO ShadowType -- ^ returns the shadow type
+viewportGetShadowType self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe viewport_get_shadow_type #}
+    (toViewport self)
 
 --------------------
 -- Properties

@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:35 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/16 01:42:46 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -27,7 +27,7 @@
 -- Grouping widgets so they request the same size
 --
 module Graphics.UI.Gtk.Misc.SizeGroup (
--- * Description
+-- * Detail
 -- 
 -- | 'SizeGroup' provides a mechanism for grouping a number of widgets
 -- together so they all request the same amount of space. This is typically
@@ -95,47 +95,65 @@ import System.Glib.GObject		(makeNewGObject)
 --------------------
 -- Constructors
 
--- | Create a new SizeGroup.
+-- | Create a new 'SizeGroup'.
 --
-sizeGroupNew :: SizeGroupMode -> IO SizeGroup
-sizeGroupNew mode = makeNewGObject mkSizeGroup $
-  {#call unsafe size_group_new#} ((fromIntegral.fromEnum) mode)
+sizeGroupNew :: 
+    SizeGroupMode -- ^ @mode@ - the mode for the new size group.
+ -> IO SizeGroup
+sizeGroupNew mode =
+  makeNewGObject mkSizeGroup $
+  {# call unsafe size_group_new #}
+    ((fromIntegral . fromEnum) mode)
 
 --------------------
 -- Methods
 
--- | Adds a widget to a SizeGroup. In the future, the requisition of the widget
--- will be determined as the maximum of its requisition and the requisition of
--- the other widgets in the size group. Whether this applies horizontally,
--- vertically, or in both directions depends on the mode of the size group. See
--- 'sizeGroupSetMode'.
+-- | Adds a widget to a 'SizeGroup'. In the future, the requisition of the
+-- widget will be determined as the maximum of its requisition and the
+-- requisition of the other widgets in the size group. Whether this applies
+-- horizontally, vertically, or in both directions depends on the mode of the
+-- size group. See 'sizeGroupSetMode'.
 --
-sizeGroupAddWidget :: (SizeGroupClass obj, WidgetClass widget) => obj
-                   -> widget -> IO ()
-sizeGroupAddWidget obj widget =
-  {#call size_group_add_widget#} (toSizeGroup obj) (toWidget widget)
+sizeGroupAddWidget :: (SizeGroupClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - the 'Widget' to add
+ -> IO ()
+sizeGroupAddWidget self widget =
+  {# call size_group_add_widget #}
+    (toSizeGroup self)
+    (toWidget widget)
 
--- | Gets the current mode of the size group.
+-- | Gets the current mode of the size group. See 'sizeGroupSetMode'.
 --
-sizeGroupGetMode :: SizeGroupClass obj => obj -> IO SizeGroupMode
-sizeGroupGetMode obj = liftM (toEnum.fromIntegral) $
-  {#call unsafe size_group_get_mode#} (toSizeGroup obj)
+sizeGroupGetMode :: SizeGroupClass self => self
+ -> IO SizeGroupMode -- ^ returns the current mode of the size group.
+sizeGroupGetMode self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe size_group_get_mode #}
+    (toSizeGroup self)
 
--- | Removes the widget from the SizeGroup.
+-- | Removes a widget from a 'SizeGroup'.
 --
-sizeGroupRemoveWidget :: (SizeGroupClass obj, WidgetClass widget) => obj -> widget -> IO ()
-sizeGroupRemoveWidget obj widget =
-  {#call size_group_remove_widget#} (toSizeGroup obj) (toWidget widget)
+sizeGroupRemoveWidget :: (SizeGroupClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - the 'Widget' to remove
+ -> IO ()
+sizeGroupRemoveWidget self widget =
+  {# call size_group_remove_widget #}
+    (toSizeGroup self)
+    (toWidget widget)
 
 -- | Sets the 'SizeGroupMode' of the size group. The mode of the size group
 -- determines whether the widgets in the size group should all have the same
--- horizontal requisition 'sizeGroupModeHorizontal' all have the same vertical
--- requisition 'sizeGroupModeVertical', or should all have the same requisition
--- in both directions 'sizeGroupModeBoth'.
+-- horizontal requisition 'SizeGroupModeHorizontal' all have the same vertical
+-- requisition 'SizeGroupModeVertical', or should all have the same requisition
+-- in both directions 'SizeGroupModeBoth'.
 --
-sizeGroupSetMode :: SizeGroupClass obj => obj -> SizeGroupMode -> IO ()
-sizeGroupSetMode obj mode =
-  {#call size_group_set_mode#} (toSizeGroup obj) ((fromIntegral.fromEnum) mode)
+sizeGroupSetMode :: SizeGroupClass self => self
+ -> SizeGroupMode -- ^ @mode@ - the mode to set for the size group.
+ -> IO ()
+sizeGroupSetMode self mode =
+  {# call size_group_set_mode #}
+    (toSizeGroup self)
+    ((fromIntegral . fromEnum) mode)
 
 --------------------
 -- Properties

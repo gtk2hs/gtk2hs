@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/16 01:42:46 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Display a calendar and\/or allow the user to select a date.
+-- Displays a calendar and allows the user to select a date
 --
 module Graphics.UI.Gtk.Misc.Calendar (
--- * Description
+-- * Detail
 -- 
 -- | 'Calendar' is a widget that displays a calendar, one month at a time. It
 -- can be created with 'calendarNew'.
@@ -110,108 +110,143 @@ import Graphics.UI.Gtk.General.Enums	(CalendarDisplayOptions(..), fromFlags, toF
 --------------------
 -- Constructors
 
--- | Create a new calendar widget.
---
--- * No sensible date will be set.
+-- | Creates a new calendar, with the current date being selected.
 --
 calendarNew :: IO Calendar
-calendarNew  = makeNewObject mkCalendar $ 
-  liftM castPtr {#call unsafe calendar_new#}
+calendarNew =
+  makeNewObject mkCalendar $ liftM castPtr $
+  {# call unsafe calendar_new #}
 
 --------------------
 -- Methods
 
--- | Flip the page to a month , 0 is January,.., 11
--- is December.
+-- | Shifts the calendar to a different month.
 --
--- * Returns True if the operation succeeded.
---
-calendarSelectMonth :: CalendarClass c => c -> Int -> Int -> IO Bool
-calendarSelectMonth cal month year = liftM toBool $
-  {#call calendar_select_month#} (toCalendar cal) (fromIntegral month)
-  (fromIntegral year)
+calendarSelectMonth :: CalendarClass self => self
+ -> Int     -- ^ @month@ - a month number between 0 and 11.
+ -> Int     -- ^ @year@ - the year the month is in.
+ -> IO Bool -- ^ returns @True@ if the operation succeeded.
+calendarSelectMonth self month year =
+  liftM toBool $
+  {# call calendar_select_month #}
+    (toCalendar self)
+    (fromIntegral month)
+    (fromIntegral year)
 
--- | Shift to a day, counted form 1 to 31 (depending
--- on the month of course).
+-- | Selects a day from the current month.
 --
-calendarSelectDay :: CalendarClass c => c -> Int -> IO ()
-calendarSelectDay cal day = 
-  {#call calendar_select_day#} (toCalendar cal) (fromIntegral day)
+calendarSelectDay :: CalendarClass self => self
+ -> Int   -- ^ @day@ - the day number between 1 and 31, or 0 to unselect the
+          -- currently selected day.
+ -> IO ()
+calendarSelectDay self day =
+  {# call calendar_select_day #}
+    (toCalendar self)
+    (fromIntegral day)
 
--- | Mark (select) a day in the current month.
+-- | Places a visual marker on a particular day.
 --
--- * Returns True if the argument was within bounds and the day was previously
---   deselected.
---
-calendarMarkDay :: CalendarClass c => c -> Int -> IO Bool
-calendarMarkDay cal day = liftM toBool $
-  {#call calendar_mark_day#} (toCalendar cal) (fromIntegral day)
+calendarMarkDay :: CalendarClass self => self
+ -> Int     -- ^ @day@ - the day number to mark between 1 and 31.
+ -> IO Bool -- ^ returns @True@ if the argument was within bounds and the day
+            -- was previously deselected.
+calendarMarkDay self day =
+  liftM toBool $
+  {# call calendar_mark_day #}
+    (toCalendar self)
+    (fromIntegral day)
 
--- | Unmark (deselect) a day in the current month.
+-- | Removes the visual marker from a particular day.
 --
--- * Returns True if the argument was within bounds and the day was previously
---   selected.
---
-calendarUnmarkDay :: CalendarClass c => c -> Int -> IO Bool
-calendarUnmarkDay cal day = liftM toBool $
-  {#call calendar_unmark_day#} (toCalendar cal) (fromIntegral day)
+calendarUnmarkDay :: CalendarClass self => self
+ -> Int     -- ^ @day@ - the day number to unmark between 1 and 31.
+ -> IO Bool -- ^ returns @True@ if the argument was within bounds and the day
+            -- was previously selected.
+calendarUnmarkDay self day =
+  liftM toBool $
+  {# call calendar_unmark_day #}
+    (toCalendar self)
+    (fromIntegral day)
 
--- | Unmark every day in the current page.
+-- | Remove all visual markers.
 --
-calendarClearMarks :: CalendarClass c => c -> IO ()
-calendarClearMarks cal = {#call calendar_clear_marks#} (toCalendar cal)
+calendarClearMarks :: CalendarClass self => self -> IO ()
+calendarClearMarks self =
+  {# call calendar_clear_marks #}
+    (toCalendar self)
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Specifies how the calendar should be displayed.
+-- | Sets display options (whether to display the heading and the month
+-- headings).
 --
-calendarSetDisplayOptions :: CalendarClass c => c
-                          -> [CalendarDisplayOptions] -> IO ()
-calendarSetDisplayOptions cal opts =
-  {#call calendar_set_display_options#} (toCalendar cal)
-    ((fromIntegral.fromFlags) opts)
+-- * Available since Gtk version 2.4
+--
+calendarSetDisplayOptions :: CalendarClass self => self
+ -> [CalendarDisplayOptions]
+ -> IO ()
+calendarSetDisplayOptions self flags =
+  {# call calendar_set_display_options #}
+    (toCalendar self)
+    ((fromIntegral . fromFlags) flags)
 
 -- | Returns the current display options for the calendar.
 --
-calendarGetDisplayOptions :: CalendarClass c => c
-                          -> IO [CalendarDisplayOptions]
-calendarGetDisplayOptions cal = liftM (toFlags.fromIntegral) $
-  {#call calendar_get_display_options#} (toCalendar cal)
-
--- | Depreciaded, use 'calendarSetDisplayOptions'.
+-- * Available since Gtk version 2.4
 --
-calendarDisplayOptions :: CalendarClass c => c
-                       -> [CalendarDisplayOptions] -> IO ()
-calendarDisplayOptions = calendarSetDisplayOptions
-#else
+calendarGetDisplayOptions :: CalendarClass self => self
+ -> IO [CalendarDisplayOptions]
+calendarGetDisplayOptions self =
+  liftM (toFlags . fromIntegral) $
+  {# call calendar_get_display_options #}
+    (toCalendar self)
+#endif
 
--- | Specifies how the calendar should be displayed.
+#ifndef DISABLE_DEPRECATED
+-- | Sets display options (whether to display the heading and the month
+-- headings).
 --
-calendarDisplayOptions :: CalendarClass c => c -> [CalendarDisplayOptions] ->
-                          IO ()
-calendarDisplayOptions cal opts = {#call calendar_display_options#}
-  (toCalendar cal) ((fromIntegral.fromFlags) opts)
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code. Use 'calendarSetDisplayOptions' instead.
+--
+calendarDisplayOptions :: CalendarClass self => self
+ -> [CalendarDisplayOptions]
+ -> IO ()
+calendarDisplayOptions self flags =
+  {# call calendar_display_options #}
+    (toCalendar self)
+    ((fromIntegral . fromFlags) flags)
 #endif
 
 -- | Retrieve the currently selected date.
 --
--- * Returns (year, month, day) of the selection.
---
-calendarGetDate :: CalendarClass c => c -> IO (Int,Int,Int)
-calendarGetDate cal = alloca $ \yearPtr -> alloca $ \monthPtr -> 
+calendarGetDate :: CalendarClass self => self
+ -> IO (Int,Int,Int) -- ^ @(year, month, day)@
+calendarGetDate self =
+  alloca $ \yearPtr ->
+  alloca $ \monthPtr -> 
   alloca $ \dayPtr -> do
-    {#call unsafe calendar_get_date#} (toCalendar cal) yearPtr monthPtr dayPtr
-    year  <- liftM fromIntegral $ peek yearPtr
-    month <- liftM fromIntegral $ peek monthPtr
-    day	  <- liftM fromIntegral	$ peek dayPtr
-    return (year,month,day)
+  {# call unsafe calendar_get_date #}
+    (toCalendar self)
+    yearPtr
+    monthPtr
+    dayPtr
+  year  <- liftM fromIntegral $ peek yearPtr
+  month <- liftM fromIntegral $ peek monthPtr
+  day   <- liftM fromIntegral $ peek dayPtr
+  return (year,month,day)
 
--- | Freeze the calender for several update operations.
+-- | Freeze the calender for several update operations. This prevents flicker
+-- that would otherwise result from a series of updates to the calendar.
 --
-calendarFreeze :: CalendarClass c => c -> IO a -> IO a
-calendarFreeze cal update = do
-  {#call unsafe calendar_freeze#} (toCalendar cal)
+calendarFreeze :: CalendarClass self => self
+ -> IO a -- ^ An action that performs several update operations on the
+         -- calendar. After the action finnishes all the changes made by it
+         -- are displayed.
+ -> IO a
+calendarFreeze self update = do
+  {# call unsafe calendar_freeze #} (toCalendar self)
   res <- update
-  {#call calendar_thaw#} (toCalendar cal)
+  {# call calendar_thaw #} (toCalendar self)
   return res
 
 --------------------
@@ -267,5 +302,3 @@ afterPrevMonth = connect_NONE__NONE "prev-month" True
 onPrevYear, afterPrevYear :: CalendarClass c => c -> IO () -> IO (ConnectId c)
 onPrevYear = connect_NONE__NONE "prev-year" False
 afterPrevYear = connect_NONE__NONE "prev-year" True
-
-  

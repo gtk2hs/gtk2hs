@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/16 01:42:46 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- A 'Object' representing an adjustable bounded value
 --
 module Graphics.UI.Gtk.Misc.Adjustment (
--- * Description
+-- * Detail
 -- 
 -- | The 'Adjustment' object represents a value which has an associated lower
 -- and upper bound, together with step and page increments, and a page size. It
@@ -74,6 +74,9 @@ module Graphics.UI.Gtk.Misc.Adjustment (
   adjustmentGetValue,
   adjustmentClampPage,
 
+-- * Properties
+  adjustmentValue,
+
 -- * Signals
   onAdjChanged,
   afterAdjChanged,
@@ -84,32 +87,43 @@ module Graphics.UI.Gtk.Misc.Adjustment (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
+{#import System.Glib.GValue#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject, objectSetProperty, objectGetProperty)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import System.Glib.GValue#}
 
 {# context lib="gtk" prefix="gtk" #}
 
 --------------------
 -- Constructors
 
--- | Create a new Adjustment object.
+-- | Creates a new 'Adjustment'.
 --
--- * The creation function take every value that is contained in the object:
---   @value@ is the initial value and should be between the
---   @upper@ and @lower@ bounds of the slider. Clicking on the
---   arrows increases this value by @stepIncrement@. Clicking in the
---   slider advances by @pageIncrement@. The @pageSize@ is
---   needed to determine if the end of the slider is still in the range.
+-- The creation function take every value that is contained in the object:
+-- @value@ is the initial value and should be between the @upper@ and @lower@
+-- bounds of the slider. Clicking on the arrows increases this value by
+-- @stepIncrement@. Clicking in the slider advances by @pageIncrement@. The
+-- @pageSize@ is needed to determine if the end of the slider is still in the
+-- range.
 --
-adjustmentNew :: Double -> Double -> Double -> Double -> Double -> Double ->
-                 IO Adjustment
-adjustmentNew pageSize value lower upper stepIncrement pageIncrement =
-  makeNewObject mkAdjustment $ liftM castPtr $ {#call unsafe adjustment_new#}
-  (realToFrac value) (realToFrac lower) (realToFrac upper) 
-  (realToFrac stepIncrement) (realToFrac pageIncrement) 
-  (realToFrac pageSize)
+adjustmentNew :: 
+    Double        -- ^ @value@ - the initial value.
+ -> Double        -- ^ @lower@ - the minimum value.
+ -> Double        -- ^ @upper@ - the maximum value.
+ -> Double        -- ^ @stepIncrement@ - the step increment.
+ -> Double        -- ^ @pageIncrement@ - the page increment.
+ -> Double        -- ^ @pageSize@ - the page size.
+ -> IO Adjustment
+adjustmentNew value lower upper stepIncrement pageIncrement pageSize =
+  makeNewObject mkAdjustment $ liftM castPtr $
+  {# call unsafe adjustment_new #}
+    (realToFrac value)
+    (realToFrac lower)
+    (realToFrac upper)
+    (realToFrac stepIncrement)
+    (realToFrac pageIncrement)
+    (realToFrac pageSize)
 
 --------------------
 -- Methods
@@ -166,45 +180,71 @@ adjustmentGetUpper a = do
   (GVdouble res) <- objectGetProperty a "upper"
   return res
 
--- | Set the current value of the Adjustment object.
+-- | Sets the current value of the Adjustment object. The value is clamped to
+-- lie between the adjustment's @lower@ and @upper@ values. See 'adjustmentNew'
+-- for details of these properties.
+--
+-- Note that for adjustments which are used in a 'Scrollbar', the effective
+-- range of allowed values goes from @lower@ to @upper - page_size@.
 --
 adjustmentSetValue :: Adjustment -> Double -> IO ()
-adjustmentSetValue adj value = 
-  {#call adjustment_set_value#} adj (realToFrac value)
+adjustmentSetValue self value =
+  {# call adjustment_set_value #}
+    self
+    (realToFrac value)
 
--- | Get the current value of the Adjustment object.
+-- | Gets the current value of the adjustment. See 'adjustmentSetValue'.
 --
 adjustmentGetValue :: Adjustment -> IO Double
-adjustmentGetValue adj =
-  liftM realToFrac $ {#call adjustment_get_value#} adj
+adjustmentGetValue self =
+  liftM realToFrac $
+  {# call adjustment_get_value #}
+    self
 
--- | Ensure that the alignment is within these bounds.
+-- | Updates the 'Adjustment' @value@ to ensure that the range between @lower@
+-- and @upper@ is in the current page (i.e. between @value@ and @value + 
+-- pageSize@). If the range is larger than the page size, then only the start
+-- of it will be in the current page. A \"changed\" signal will be emitted if
+-- the value is changed.
 --
--- * Updates the Adjustment value to ensure that the range between lower and
---   upper is in the current page (i.e. between value and value + page_size).
---   If the range is larger than the page size, then only the start of it will
---   be in the current page. A \"changed\" signal will be emitted if the value
---   is changed.
+adjustmentClampPage :: Adjustment
+ -> Double     -- ^ @lower@ - the lower value.
+ -> Double     -- ^ @upper@ - the upper value.
+ -> IO ()
+adjustmentClampPage self lower upper =
+  {# call adjustment_clamp_page #}
+    self
+    (realToFrac lower)
+    (realToFrac upper)
+
+--------------------
+-- Properties
+
+-- | The value of the adjustment.
 --
-adjustmentClampPage :: Adjustment -> Double -> Double -> IO ()
-adjustmentClampPage a lower upper = {#call adjustment_clamp_page#}
-  a (realToFrac lower) (realToFrac upper)
+-- Default value: 0
+--
+adjustmentValue :: Attr Adjustment Double
+adjustmentValue = Attr 
+  adjustmentGetValue
+  adjustmentSetValue
 
 --------------------
 -- Signals
 
--- | This signal is emitted if some value of
--- Adjustment except @value@ itself changes.
+-- | Emitted when one or more of the 'Adjustment' fields have been changed,
+-- other than the value field.
 --
-onAdjChanged, afterAdjChanged :: Adjustment -> IO () ->
-                                 IO (ConnectId Adjustment)
+onAdjChanged, afterAdjChanged :: Adjustment
+ -> IO ()
+ -> IO (ConnectId Adjustment)
 onAdjChanged = connect_NONE__NONE "changed" False
 afterAdjChanged = connect_NONE__NONE "changed" True
 
--- | This signal is emitted if the value of the
--- Alignment object changed.
+-- | Emitted when the 'Adjustment' value field has been changed.
 --
-onValueChanged, afterValueChanged :: Adjustment -> IO () ->
-                                     IO (ConnectId Adjustment)
+onValueChanged, afterValueChanged :: Adjustment
+ -> IO ()
+ -> IO (ConnectId Adjustment)
 onValueChanged = connect_NONE__NONE "value-changed" False
 afterValueChanged = connect_NONE__NONE "value-changed" True

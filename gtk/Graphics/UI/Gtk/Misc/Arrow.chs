@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/02/26 02:17:27 $
+--  Version $Revision: 1.2 $ from $Date: 2005/03/16 01:42:46 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- An Arrow pointing in one of the four cardinal directions.
+-- Displays an arrow
 --
 module Graphics.UI.Gtk.Misc.Arrow (
--- * Description
+-- * Detail
 -- 
 -- | 'Arrow' should be used to draw simple arrows that need to point in one of
 -- the four cardinal directions (up, down, left, or right). The style of the
@@ -79,7 +79,7 @@ import Graphics.UI.Gtk.General.Enums	(ArrowType(..), ShadowType(..))
 --------------------
 -- Constructors
 
--- | Creates a new arrow with display options.
+-- | Creates a new arrow widget.
 --
 arrowNew :: 
     ArrowType

@@ -1,3 +1,15 @@
+2005-03-16 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Misc/Adjustment.chs,
+	gtk/Graphics/UI/Gtk/Misc/Arrow.chs,
+	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs,
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs,
+	gtk/Graphics/UI/Gtk/Misc/Tooltips.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/Viewport.chs: documentation changes and code
+	formatting changes.
+
 2005-03-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/FFI.hs: add maybeNull function which is used by

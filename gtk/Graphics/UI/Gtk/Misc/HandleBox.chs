@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/16 01:42:46 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget for detachable window portions.
+-- a widget for detachable window portions
 --
 module Graphics.UI.Gtk.Misc.HandleBox (
--- * Description
+-- * Detail
 -- 
 -- | The 'HandleBox' widget allows a portion of a window to be \"torn off\".
 -- It is a bin widget which displays its child and a handle that the user can
@@ -107,57 +107,80 @@ import Graphics.UI.Gtk.General.Enums	(ShadowType(..), PositionType(..))
 -- | Create a new handle box.
 --
 handleBoxNew :: IO HandleBox
-handleBoxNew  = makeNewObject mkHandleBox $ 
-  liftM castPtr {#call unsafe handle_box_new#}
+handleBoxNew =
+  makeNewObject mkHandleBox $ liftM castPtr $
+  {# call unsafe handle_box_new #}
 
 --------------------
 -- Methods
 
--- | Set the shadow type of the detached box.
+-- | Sets the type of shadow to be drawn around the border of the handle box.
 --
-handleBoxSetShadowType :: HandleBoxClass hb => hb -> ShadowType -> IO ()
-handleBoxSetShadowType hb shadow = {#call handle_box_set_shadow_type#}
-  (toHandleBox hb) ((fromIntegral.fromEnum) shadow)
+handleBoxSetShadowType :: HandleBoxClass self => self -> ShadowType -> IO ()
+handleBoxSetShadowType self type_ =
+  {# call handle_box_set_shadow_type #}
+    (toHandleBox self)
+    ((fromIntegral . fromEnum) type_)
 
--- | Get the shadow type of the detached box.
+-- | Gets the type of shadow drawn around the handle box. See
+-- 'handleBoxSetShadowType'.
 --
-handleBoxGetShadowType :: HandleBoxClass hb => hb -> IO ShadowType
-handleBoxGetShadowType hb = liftM (toEnum.fromIntegral) $
-  {#call unsafe handle_box_get_shadow_type#} (toHandleBox hb)
+handleBoxGetShadowType :: HandleBoxClass self => self
+ -> IO ShadowType -- ^ returns the type of shadow currently drawn around the
+                  -- handle box.
+handleBoxGetShadowType self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe handle_box_get_shadow_type #}
+    (toHandleBox self)
 
--- | Set the position of the handle.
+-- | Sets the side of the handlebox where the handle is drawn.
 --
-handleBoxSetHandlePosition :: HandleBoxClass hb => hb -> PositionType -> IO ()
-handleBoxSetHandlePosition hb pos = {#call handle_box_set_handle_position#} 
-  (toHandleBox hb) ((fromIntegral.fromEnum) pos)
+handleBoxSetHandlePosition :: HandleBoxClass self => self
+ -> PositionType -- ^ @position@ - the side of the handlebox where the handle
+                 -- should be drawn.
+ -> IO ()
+handleBoxSetHandlePosition self position =
+  {# call handle_box_set_handle_position #}
+    (toHandleBox self)
+    ((fromIntegral . fromEnum) position)
 
--- | Get the position of the handle.
+-- | Gets the handle position of the handle box. See
+-- 'handleBoxSetHandlePosition'.
 --
-handleBoxGetHandlePosition :: HandleBoxClass hb => hb -> IO PositionType
-handleBoxGetHandlePosition hb = liftM (toEnum.fromIntegral) $
-  {#call unsafe handle_box_get_handle_position#} (toHandleBox hb)
+handleBoxGetHandlePosition :: HandleBoxClass self => self
+ -> IO PositionType -- ^ returns the current handle position.
+handleBoxGetHandlePosition self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe handle_box_get_handle_position #}
+    (toHandleBox self)
 
--- | Set the snap edge of the HandleBox.
+-- | Sets the snap edge of the HandleBox. The snap edge is the edge of the
+-- detached child that must be aligned with the corresponding edge of the
+-- \"ghost\" left behind when the child was detached to reattach the torn-off
+-- window. Usually, the snap edge should be chosen so that it stays in the same
+-- place on the screen when the handlebox is torn off.
 --
--- * The snap edge is the edge of the detached child that must be aligned with
---   the corresponding edge of the \"ghost\" left behind when the child was
---   detached to reattach the torn-off window. Usually, the snap edge should
---   be chosen so that it stays in the same place on the screen when the
---   handlebox is torn off. If the snap edge is not set, then an appropriate
---   value will be guessed from the handle position. If the handle position is
---   'PosRight' or 'PosLeft', then the snap edge will
---   be 'PosTop', otherwise it will be 'PosLeft'.
+-- If the snap edge is not set, then an appropriate value will be guessed
+-- from the handle position. If the handle position is 'PosRight' or 'PosLeft',
+-- then the snap edge will be 'PosTop', otherwise it will be 'PosLeft'.
 --
-handleBoxSetSnapEdge :: HandleBoxClass hb => hb -> PositionType -> IO ()
-handleBoxSetSnapEdge hb pos = {#call handle_box_set_snap_edge#}
-  (toHandleBox hb) ((fromIntegral.fromEnum) pos)
+handleBoxSetSnapEdge :: HandleBoxClass self => self
+ -> PositionType
+ -> IO ()
+handleBoxSetSnapEdge self edge =
+  {# call handle_box_set_snap_edge #}
+    (toHandleBox self)
+    ((fromIntegral . fromEnum) edge)
 
 -- | Gets the edge used for determining reattachment of the handle box. See
 -- 'handleBoxSetSnapEdge'.
 --
-handleBoxGetSnapEdge :: HandleBoxClass hb => hb -> IO PositionType
-handleBoxGetSnapEdge hb = liftM (toEnum.fromIntegral) $
-  {#call unsafe handle_box_get_snap_edge#} (toHandleBox hb)
+handleBoxGetSnapEdge :: HandleBoxClass self => self
+ -> IO PositionType
+handleBoxGetSnapEdge self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe handle_box_get_snap_edge #}
+    (toHandleBox self)
 
 --------------------
 -- Properties
@@ -193,22 +216,23 @@ handleBoxSnapEdge = Attr
 --------------------
 -- Signals
 
--- | Emitted when the contents of the handlebox
--- are reattached to the main window.
+-- Note: for these two signales we ignore the given Widget in the handler.
+
+-- | This signal is emitted when the contents of the handlebox are reattached
+-- to the main window.
 --
--- * (INTERNAL) We ignore the given Widget.
---
-onChildAttached, afterChildAttached :: HandleBoxClass hb => hb -> IO () ->
-                                       IO (ConnectId hb)
+onChildAttached, afterChildAttached :: HandleBoxClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onChildAttached = connect_NONE__NONE "child-attached" False
 afterChildAttached = connect_NONE__NONE "child-attached" True
 
-
--- | Emitted when the 'HandleBox' is
--- detached form the main window.
+-- | This signal is emitted when the contents of the handlebox are detached
+-- from the main window.
 --
-onChildDetached, afterChildDetached :: HandleBoxClass hb => hb -> IO () ->
-                                       IO (ConnectId hb)
+onChildDetached, afterChildDetached :: HandleBoxClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onChildDetached = connect_NONE__NONE "child-detached" False
 afterChildDetached = connect_NONE__NONE "child-detached" True
 
