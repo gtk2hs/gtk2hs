@@ -9,6 +9,8 @@
 	* mogul/mogul.pkg, glade/glade.pkg, gconf/gconf.pkg,
 	sourceview/sourceview.pkg: add new pkg files
 
+	* TODO: record a couple issues with the build
+
 2004-12-7  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: tiny tidyup

@@ -1,7 +1,41 @@
 TODO for gtk2hs
+
+8/12/2004  Duncan Coutts <duncan@coutts.uklinux.net>
+	
+	* automake issues, building targets that are pulled in by the
+	-include *.deps .depend lines somtimes seem to happen with the
+	wrong $(NAME), so the CFLAGS or other $(NAME)-dependant variables
+	come from the wrong package. To reproduce this problem set
+	libmogul_a_CPPFLAGS =	#nothing
+
+	* there sould be a rule to rebuild .chi files even if the corresponding
+	.hs file still exists. Otherwise the build can stick and you have to
+	delete the .hs file to unstick it. Each .chs file should depend on the
+	.hs file and (or perhaps instead of) the .chi file.
+
 24/10/2004 Axel Simon <A.Simon@kent.ac.uk>
 	* Hierarchy.chs: c2hs 0.13.1 produces a with<Object> functions for
 	every newtype definition. Import withForeignPtr for this.
+
+28/07/2004  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* new gtk 2.2 & 2.4 APIs that need to be bound:
+	action based manu API
+		GtkUIManager
+		GtkActionGroup
+		GtkAction
+		GtkToggleAction
+		GtkRadioAction
+		GtkToolItem
+		GtkToolButton
+		GtkSeparatorToolItem
+		GtkToggleToolButton
+		GtkRadioToolButton
+	file selector stuff
+		GtkFileFilter
+	GtkPlug new stuff in gtk 2.2
+		gtk_plug_construct_for_display (maybe)
+		gtk_plug_new_for_display
 
 21/01/2003 Axel Simon <A.Simon@ukc.ac.uk>
 
