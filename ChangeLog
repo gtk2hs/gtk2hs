@@ -19,6 +19,9 @@
 	it is unnecessary and breaks for modules that do not have
 	-I/usr/include/gtk-2.0 in their CPPFLAGS.
 
+	* demo/mozembed/TestEmbedMoz.hs, demo/mozembed/Makefile: add mozembed
+	test program.
+
 2004-12-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: quoting/escaping fix so that headers are -#include'd
