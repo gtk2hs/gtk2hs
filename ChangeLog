@@ -1,3 +1,7 @@
+2003-07-18 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* gtk/Makefile: Added the header file for gdk-pixbuf.
+
 2003-07-15  Jens Petersen  <petersen@haskell.org>
 
 	* mk/library.mk (install-without-pkg): New target that installs

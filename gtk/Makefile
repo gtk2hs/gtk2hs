@@ -159,7 +159,9 @@ CellRendererText-HEADER	= gtk/gtkcellrenderertext.h
 CellRendererPixbuf-HEADER = gtk/gtkcellrendererpixbuf.h
 CellRendererToggle-HEADER = gtk/gtkcellrenderertoggle.h
 ListStore-HEADER	= gtk/gtkliststore.h
-
+# extensions
+Pixbuf-HEADER		= gtk/gtk.h 
+# replace last line with gdk-pixbuf/gdk-pixbuf.h
 endif
 
 # These are .chi files that need to be created before any other .chs files.
