@@ -1,8 +1,0 @@
-
-#deprecated button box functions
-exclude gtk_[hv]button_box_[gs]et_spacing_default
-exclude gtk_[hv]button_box_[gs]et_layout_default
-
-#deprecated layout functions
-exclude gtk_layout_thaw
-exclude gtk_layout_freeze

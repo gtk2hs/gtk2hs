@@ -6,6 +6,12 @@
 	* tools/apiGen/format-docs.xsl: extract signal documentation, and
 	adjust for new formatting of property documentation.
 
+	* gtk/abstract, gtk/buttons, gtk/display, gtk/embedding, gtk/entry,
+	gtk/gdk, gtk/general, gtk/glib, gtk/layout, gtk/menuComboToolbar,
+	gtk/misc, gtk/multiline, gtk/ornaments, gtk/pango, gtk/scrolling,
+	gtk/selectors, gtk/signals, gtk/treeList, gtk/typehier, gtk/windows:
+	remove directories where the non-hierarchical modules used to live.
+
 2005-01-28 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: use sed to do the patching rather than an

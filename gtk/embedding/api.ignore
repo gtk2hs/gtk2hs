@@ -1,3 +1,0 @@
-
-#only required for derived classes of GtkPlug
-exclude gtk_plug_construct
