@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/17 16:00:41 $
+--  Version $Revision: 1.6 $ from $Date: 2002/07/23 13:47:10 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -65,7 +65,7 @@ import Maybe	(fromMaybe)
 import Foreign
 import UTFCForeign
 import Structs	(nullForeignPtr)
-import GObject	(objectRef, objectUnref)
+import GObject	(makeNewGObject, objectRef, objectUnref)
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -108,7 +108,7 @@ treeViewSetModel tv tm =
 -- holds the current selected nodes of the View.
 --
 treeViewGetSelection :: TreeViewClass tv => tv -> IO TreeSelection
-treeViewGetSelection tv = makeNewObject mkTreeSelection $
+treeViewGetSelection tv = makeNewGObject mkTreeSelection $
   {#call unsafe tree_view_get_selection#} (toTreeView tv)
 
 -- @method treeViewGetHadjustment@ Get the @ref arg Adjustment@ that

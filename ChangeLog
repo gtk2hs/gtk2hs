@@ -3,7 +3,10 @@
 	* gtk/treeList/TreeSelection.chs: Added the "changed"
 	signal. Realized that there are many other modules without
 	signals.
-	
+
+	* gtk/treeList/TreeView.chs(treeViewGetSelection): TreeSelection
+	is only a GObject, so generate it with makeNewGObject.
+
 2002-07-21  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/Makefile, mogul/Makefile, gtk/general/UTFCForeign.hs: Make
