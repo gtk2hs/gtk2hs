@@ -4,7 +4,7 @@
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.4 $ from $Date: 2003/02/10 09:04:21 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -33,6 +33,11 @@
 -- * if gdk_visuals are implemented, do: get_visual
 -- * if gdk_colormaps are implemented, do: set_colormap, get_colormap
 --
+-- * add the draw_pixbuf function for version 2.2
+--
+-- * add draw_glyphs if we are desparate
+--
+--
 module Drawable(
   Drawable,
   DrawableClass,
@@ -50,6 +55,10 @@ module Drawable(
   drawRectangle,
   drawArc,
   drawPolygon,
+  drawLayoutLine,
+  drawLayoutLineWithColors,
+  drawLayout,
+  drawLayoutWithColors,
   drawDrawable) where
 
 import Monad	(liftM)
@@ -59,6 +68,8 @@ import GObject	(makeNewGObject)
 import Structs  (Point)
 {#import Hierarchy#}
 {#import Region#}	(Region, makeNewRegion)
+import Structs		(Color)
+{#import PangoTypes#}
 
 {# context lib="gtk" prefix="gdk" #}
 
@@ -211,6 +222,70 @@ drawPolygon d gc filled points =
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr::Ptr {#type gint#}) -> {#call unsafe draw_polygon#} (toDrawable d)
   (toGC gc) (fromBool filled) (castPtr aPtr) (fromIntegral (length points))
+
+-- @method drawLayoutLine@ Draw a single line of text.
+--
+-- * The @ref arg x@ coordinate specifies the start of the string,
+--   the @ref arg y@ coordinate specifies the base line.
+--
+drawLayoutLine :: DrawableClass d => d -> GC -> Int -> Int -> LayoutLine ->
+				     IO ()
+drawLayoutLine d gc x y text =
+  {#call unsafe draw_layout_line#} (toDrawable d) (toGC gc)
+    (fromIntegral x) (fromIntegral y) text
+
+-- @method drawLayoutLineWithColors@ Draw a single line of text.
+--
+-- * The @ref arg x@ coordinate specifies the start of the string,
+--   the @ref arg y@ coordinate specifies the base line.
+--
+-- * If both colors are @literal Nothing@ this function will behave like
+--   @method drawLayoutLine@ in that it uses the default colors from
+--   the graphics context.
+--
+drawLayoutLineWithColors :: DrawableClass d => d -> GC -> Int -> Int ->
+			    LayoutLine -> Maybe Color -> Maybe Color -> IO ()
+drawLayoutLineWithColors d gc x y text foreground background = let
+    withMB :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b
+    withMB Nothing f = f nullPtr
+    withMB (Just x) f = with' x f
+  in
+    withMB foreground $ \fPtr -> withMB background $ \bPtr ->
+    {#call unsafe draw_layout_line_with_colors#} (toDrawable d) (toGC gc)
+      (fromIntegral x) (fromIntegral y) text (castPtr fPtr) (castPtr bPtr)
+
+
+-- @method drawLayout@ Draw a paragraph of text.
+--
+-- * The @ref arg x@ and @ref arg y@ values specify the upper left
+--   point of the layout. 
+--
+drawLayout :: DrawableClass d => d -> GC -> Int -> Int -> PangoLayout -> IO ()
+drawLayout d gc x y text =
+  {#call unsafe draw_layout#} (toDrawable d) (toGC gc)
+    (fromIntegral x) (fromIntegral y) (toPangoLayout text)
+
+-- @method drawLayoutWithColors@ Draw a paragraph of text.
+--
+-- * The @ref arg x@ and @ref arg y@ values specify the upper left
+--   point of the layout. 
+--
+-- * If both colors are @literal Nothing@ this function will behave like
+--   @method drawLayout@ in that it uses the default colors from
+--   the graphics context.
+--
+drawLayoutWithColors :: DrawableClass d => d -> GC -> Int -> Int ->
+			PangoLayout -> Maybe Color -> Maybe Color -> IO ()
+drawLayoutWithColors d gc x y text foreground background = let
+    withMB :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b
+    withMB Nothing f = f nullPtr
+    withMB (Just x) f = with' x f
+  in
+    withMB foreground $ \fPtr -> withMB background $ \bPtr ->
+    {#call unsafe draw_layout_with_colors#} (toDrawable d) (toGC gc)
+      (fromIntegral x) (fromIntegral y) (toPangoLayout text)
+      (castPtr fPtr) (castPtr bPtr)
+
 
 -- @method drawDrawable@ Copies another @ref type Drawable@.
 --

@@ -4,7 +4,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2003/02/09 10:43:01 $
+--  Version $Revision: 1.2 $ from $Date: 2003/02/10 09:04:22 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -36,17 +36,62 @@
 --   pango_layout_get_tabs, pango_layout_get_log_attrs, 
 --   pango_layout_iter_get_run
 --
--- * The following functions cannot be bound due to Unicode/UTF8 issues:
+-- * The following functions cannot be bound easily due to Unicode/UTF8 issues:
 --   pango_layout_xy_to_index, pango_layout_index_to_pos,
 --   pango_layout_get_cursor_pos, pango_layout_move_cursor_visually,
---   pango_layout_iter_get_index
+--   pango_layout_iter_get_index, pango_layout_line_index_to_x,
+--   pango_layout_line_x_to_index, pango_layout_line_get_x_ranges
 --
 -- * These functions are not bound, because they're too easy:
 --   pango_layout_get_size, pango_layout_get_pixel_size,
 --   pango_layout_get_line 
 --
 module PangoLayout(
-  PangoLayout
+  PangoLayout,
+  layoutCopy,
+  layoutGetContext,
+  layoutContextChanged,
+  layoutSetText,
+  layoutGetText,
+  layoutSetMarkup,
+  layoutSetMarkupWithAccel,
+  layoutSetWidth,
+  layoutGetWidth,
+  LayoutWrapMode(..),
+  layoutSetWrap,
+  layoutGetWrap,
+  layoutSetIndent,
+  layoutGetIndent,
+  layoutSetSpacing,
+  layoutGetSpacing,
+  layoutSetJustify,
+  layoutGetJustify,
+  LayoutAlignment(..),
+  layoutSetAlignment,
+  layoutGetAlignment,
+  layoutSetSingleParagraphMode,
+  layoutGetSingleParagraphMode,
+  layoutGetExtents,
+  layoutGetPixelExtents,
+  layoutGetLineCount,
+  layoutGetLines,
+  LayoutIter,
+  layoutGetIter,
+  layoutIterNextRun,
+  layoutIterNextChar,
+  layoutIterNextCluster,
+  layoutIterNextLine,
+  layoutIterAtLastLine,
+  layoutIterGetBaseline,
+  layoutIterGetLine,
+  layoutIterGetCharExtents,
+  layoutIterGetClusterExtents,
+  layoutIterGetRunExtents,
+  layoutIterGetLineYRange,
+  layoutIterGetLineExtents,
+  LayoutLine,
+  layoutLineGetExtents,
+  layoutLineGetPixelExtents
   ) where
 
 import Monad    (liftM)
@@ -59,6 +104,7 @@ import Char	(ord, chr)
 import Enums
 import Structs	(Rectangle)
 import GList	(readGSList)
+{#import PangoTypes#}
 
 {# context lib="pango" prefix="pango" #}
 
@@ -151,12 +197,26 @@ layoutGetWidth pl = liftM fromIntegral $ {#call unsafe layout_get_width#} pl
 
 -- @data LayoutWarpMode@ Enumerates how a line can be wrapped.
 --
--- @variant WrapWord@ Breaks lines only between words.
--- @variant WrapChar@ Break lines anywhere.
--- @variant WrapWordChar@ Wrap within a word if it is the only one on
+-- @variant WrapWholeWords@ Breaks lines only between words.
+--
+-- * This variant does not guarantee that the requested width is not
+--   exceeded. A word that is longer than the paragraph width is not
+--   split.
+
+-- @variant WrapAnywhere@ Break lines anywhere.
+--
+-- @variant WrapPartialWords@ Wrap within a word if it is the only one on
 -- this line.
 --
-{#enum PangoWrapMode as LayoutWrapMode {underscoreToCase}#}
+-- * This option acts like @ref variant WrapWholeWords@ but will split
+--   a word if it is the only one on this line and it exceeds the
+--   specified width.
+--
+{#enum PangoWrapMode as LayoutWrapMode 
+  {underscoreToCase,
+  PANGO_WRAP_WORD as WrapWholeWords,
+  PANGO_WRAP_CHAR as WrapAnywhere,
+  PANGO_WRAP_WORD_CHAR as WrapPartialWords}#}
 
 -- @method layoutSetWrap@ Set how this paragraph is wrapped.
 --
@@ -306,8 +366,8 @@ layoutGetPixelExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do
 
 -- @method layoutGetLineCount@ Ask for the number of lines in this layout.
 --
-layoutGetLineCound :: PangoLayout -> IO Int
-layoutGetLineCound pl = liftM fromIntegral $
+layoutGetLineCount :: PangoLayout -> IO Int
+layoutGetLineCount pl = liftM fromIntegral $
   {#call unsafe layout_get_line_count#} pl
 
 -- @method layoutGetLines@ Extract the single lines of the layout.
@@ -321,13 +381,6 @@ layoutGetLines pl = do
   listPtr <- {#call unsafe layout_get_lines#} pl
   list <- readGSList listPtr
   mapM mkLayoutLine list
-
--- @data LayoutIter@ An iterator to examine a layout.
---
-{#pointer *PangoLayoutIter as LayoutIter foreign newtype #}
-
-foreign import ccall "pango_layout_iter_free" unsafe
-  layout_iter_free :: Ptr LayoutIter -> IO ()
 
 -- @constructor layoutGetIter@ Create an iterator to examine a layout.
 --
@@ -382,6 +435,8 @@ layoutIterGetBaseline :: LayoutIter -> IO Int
 layoutIterGetBaseline = 
   liftM fromIntegral . {#call unsafe pango_layout_iter_get_baseline#}
 
+-- pango_layout_iter_get_run goes here
+
 -- @method layoutIterGetLine@ Extract the line under the iterator.
 --
 layoutIterGetLine :: LayoutIter -> IO (Maybe LayoutLine)
@@ -390,19 +445,124 @@ layoutIterGetLine li = do
   if (llPtr==nullPtr) then return Nothing else 
     liftM Just $ mkLayoutLine llPtr
 
-
-
--- @data LayoutLine@ A single line in a @ref data PangoLayout@.
+-- @method layoutIterGetCharExtents@ Retrieve a rectangle surrounding
+-- a character.
 --
-{#pointer *PangoLayoutLine as LayoutLine foreign newtype #}
+-- * Get the extents of the current character in layout cooridnates
+--   (origin is the top left of the entire layout). Only logical extents
+--   can sensibly be obtained for characters. 
+--
+layoutIterGetCharExtents :: LayoutIter -> IO Rectangle
+layoutIterGetCharExtents li = alloca $ \logPtr -> 
+  {#call unsafe layout_iter_get_char_extents#} li (castPtr logPtr) >>
+  peek logPtr
 
-foreign import ccall "pango_layout_line_ref" unsafe
-  layout_line_ref :: Ptr LayoutLine -> IO ()
+-- @method layoutIterGetClusterExtents@ Compute the physical size of the
+-- cluster.
+--
+-- * Computes the logical and the ink size of the cluster pointed to by
+--   @ref data LayoutIter@.
+--
+-- * All values are in layoutIter units. To get to device units (pixel for
+--   @ref data Drawable@s) divide by @ref constant pangoScale@.
+--
+layoutIterGetClusterExtents :: LayoutIter -> IO (Rectangle, Rectangle)
+layoutIterGetClusterExtents li = alloca $ \logPtr -> alloca $ \inkPtr -> do
+  {#call unsafe layout_iter_get_cluster_extents#} li (castPtr logPtr)
+    (castPtr inkPtr)
+  log <- peek logPtr
+  ink <- peek inkPtr
+  return (log,ink)
 
-foreign import ccall "pango_layout_line_unref" unsafe
-  layout_line_unref :: Ptr LayoutLine -> IO ()
+-- @method layoutIterGetRunExtents@ Compute the physical size of the run.
+--
+-- * Computes the logical and the ink size of the run pointed to by
+--   @ref data LayoutIter@.
+--
+-- * All values are in layoutIter units. To get to device units (pixel for
+--   @ref data Drawable@s) divide by @ref constant pangoScale@.
+--
+layoutIterGetRunExtents :: LayoutIter -> IO (Rectangle, Rectangle)
+layoutIterGetRunExtents li = alloca $ \logPtr -> alloca $ \inkPtr -> do
+  {#call unsafe layout_iter_get_run_extents#} li (castPtr logPtr)
+    (castPtr inkPtr)
+  log <- peek logPtr
+  ink <- peek inkPtr
+  return (log,ink)
 
-mkLayoutLine :: Ptr LayoutLine -> IO LayoutLine
-mkLayoutLine llPtr = do
-  layout_line_ref llPtr
-  liftM LayoutLine $ newForeignPtr llPtr (layout_line_unref llPtr)
+-- @method layoutIterGetLineYRange@ Retrieve vertical extent of this
+-- line.
+--
+-- * Divides the vertical space in the @ref data PangoLayout@ being
+--   iterated over between the lines in the layout, and returns the
+--   space belonging to the current line. A line's range includes the
+--   line's logical extents, plus half of the spacing above and below
+--   the line, if @ref method pangoLayoutSetSpacing@ has been called
+--   to set layout spacing. The y positions are in layout coordinates
+--   (origin at top left of the entire layout).
+--
+-- * The first element in the returned tuple is the start, the second is
+--   the end of this line.
+--
+layoutIterGetLineYRange :: LayoutIter -> IO (Int,Int)
+layoutIterGetLineYRange li = alloca $ \sPtr -> alloca $ \ePtr -> do
+  {#call unsafe layout_iter_get_line_extents#} li (castPtr sPtr) (castPtr ePtr)
+  start <- peek sPtr
+  end <- peek ePtr
+  return (start,end)
+
+-- @method layoutIterGetLineExtents@ Compute the physical size of the line.
+--
+-- * Computes the logical and the ink size of the line pointed to by
+--   @ref data LayoutIter@.
+--
+-- * Extents are in layout coordinates (origin is the top-left corner
+--   of the entire @ref data PangoLayout@). Thus the extents returned
+--   by this function will be the same width/height but not at the
+--   same x/y as the extents returned from @ref method
+--   pangoLayoutLineGetExtents@.
+--
+layoutIterGetLineExtents :: LayoutIter -> IO (Rectangle, Rectangle)
+layoutIterGetLineExtents li = alloca $ \logPtr -> alloca $ \inkPtr -> do
+  {#call unsafe layout_iter_get_line_extents#} li (castPtr logPtr)
+    (castPtr inkPtr)
+  log <- peek logPtr
+  ink <- peek inkPtr
+  return (log,ink)
+
+
+-- @method layoutLineGetExtents@ Compute the physical size of the line.
+--
+-- * Computes the logical and the ink size of the @ref data LayoutLine@. The
+--   logical layout is used for positioning, the ink size is the smallest
+--   bounding box that includes all character pixels. The ink size can be
+--   smaller or larger that the logical layout.
+--
+-- * All values are in layout units. To get to device units (pixel for
+--   @ref data Drawable@s) divide by @ref constant pangoScale@.
+--
+layoutLineGetExtents :: LayoutLine -> IO (Rectangle, Rectangle)
+layoutLineGetExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do
+  {#call unsafe layout_line_get_extents#} pl (castPtr logPtr) (castPtr inkPtr)
+  log <- peek logPtr
+  ink <- peek inkPtr
+  return (log,ink)
+
+-- @method layoutLineGetPixelExtents@ Compute the physical size of the line.
+--
+-- * Computes the logical and the ink size of the @ref data LayoutLine@. The
+--   logical layout is used for positioning, the ink size is the smallest
+--   bounding box that includes all character pixels. The ink size can be
+--   smaller or larger that the logical layout.
+--
+-- * All values are in device units. This function is a wrapper around
+--   @ref method layoutLineGetExtents@ with scaling.
+--
+layoutLineGetPixelExtents :: LayoutLine -> IO (Rectangle, Rectangle)
+layoutLineGetPixelExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do
+  {#call unsafe layout_line_get_pixel_extents#} pl
+    (castPtr logPtr) (castPtr inkPtr)
+  log <- peek logPtr
+  ink <- peek inkPtr
+  return (log,ink)
+

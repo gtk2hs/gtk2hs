@@ -1,3 +1,10 @@
+2003-02-10  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* demo/graphic/Drawing.hs gtk/gdk/Drawable.chs
+	gtk/pango/PangoLayout.chsgtk/typehier/hierarchy.list
+	gtk/pango/PangoTypes.chs: Completed PangoLayout as far as possible.
+	Make the Drawing demo display some text.
+
 2003-02-09  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/abstract/Widget.chs gtk/general/Gtk.hs
