@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- HookGenerator.hs -*-haskell-*-
 -- Takes a type list of possible hooks from the GTK+ distribution and produces
 -- Haskell functions to connect to these callbacks.
@@ -99,8 +100,8 @@ parseArg l (TokType ty: TokEOL:rem) = ([ty],rem)
 parseArg l (TokType ty: TokComma:rem) =
   let (args,rem') = parseArg l rem in
   (ty:args, rem')
-parseArg l rem = error ("parse error on line "++show l++": expected type\
-		       \ followed by comma or EOL, found\n"++ 
+parseArg l rem = error ("parse error on line "++show l++": expected type"++
+                        " followed by comma or EOL, found\n "++ 
 		       concatMap show (take 5 rem))
 
 scan :: String -> [Token]
@@ -388,13 +389,13 @@ mkMarshRet (ret,_) = marshRet ret
 
 
 usage = do
- putStr "Program to generate callback hook for Gtk signals. Usage:\n\
-	\HookGenerator <signatureFile> <bootPath> <outFile> [--broken]\n\
-	\where\n\
-	\  <signatureFile> is gtkmarshal.list from the the source Gtk+ tree\n\
-	\  <bootPath>	   the path where Signal.chs-boot? file can be found\n\
-	\  <outFile>	   is the name and path of the output file.\n\
-	\  --broken	   do not ask for callbacks with more than 4 words/n"
+ putStr $ "Program to generate callback hook for Gtk signals. Usage:\n"++
+   "HookGenerator <signatureFile> <bootPath> <outFile> [--broken]\n"++
+   "where\n"++
+   "  <signatureFile> is gtkmarshal.list from the the source Gtk+ tree\n"++
+   "  <bootPath>      the path where Signal.chs-boot? file can be found\n"++
+   "  <outFile>	      is the name and path of the output file.\n"++
+   "  --broken	      do not ask for callbacks with more than 4 words\n"
  exitWith $ ExitFailure 1
 
 main = do
@@ -434,7 +435,11 @@ generate bs sig = let ident = mkIdentifier sig in
   indent 1.mkRawtype sig.
   indent 0.
   (if fakeSignature bs sig then id else indent 0.ss "foreign".
+#if __GLASGOW_HASKELL__>=504
+    ss " import ccall \"wrapper\" ").ss "mkHandler_".ident.ss " ::".
+#else
     ss " export dynamic ").ss "mkHandler_".ident.ss " ::".
+#endif
   indent 1.ss "Tag_".ident.ss " -> ".
   indent 1.ss "IO (FunPtr ".ss "Tag_".ident.sc ')'.
   (if fakeSignature bs sig then 

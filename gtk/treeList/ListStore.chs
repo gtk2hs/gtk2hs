@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2003/01/21 15:53:26 $
+--  Version $Revision: 1.11 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -46,13 +46,13 @@ module ListStore(
 
 import Monad	(liftM)
 import Maybe	(fromMaybe)
-import Foreign
-import UTFCForeign
-import GObject	(makeNewGObject)
+import FFI
+
+import GObject	  (makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
 {#import TreeModel#}
-import Structs	(treeIterSize, nullForeignPtr)
+import Structs	  (treeIterSize)
 import StoreValue (TMType(..), GenericValue(..))
 {#import GValue#} (GValue, valueUnset)
 import GType	  (GType)
@@ -78,7 +78,7 @@ listStoreNew cols = makeNewGObject mkListStore $
 --
 listStoreSetValue :: (ListStoreClass ts) => ts -> TreeIter -> Int ->
                      GenericValue -> IO ()
-listStoreSetValue ts ti col val = with' val $ \vPtr -> do
+listStoreSetValue ts ti col val = with val $ \vPtr -> do
   {#call unsafe list_store_set_value#} (toListStore ts) ti 
     (fromIntegral col) vPtr
   valueUnset vPtr
@@ -120,7 +120,7 @@ listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
 listStoreInsert :: (ListStoreClass ts) => ts -> Int -> IO TreeIter
 listStoreInsert ts pos = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call list_store_insert#} (toListStore ts) iter (fromIntegral pos)
   return iter
 
@@ -131,7 +131,7 @@ listStoreInsert ts pos = do
 listStoreInsertBefore :: (ListStoreClass ts) => ts -> TreeIter -> IO TreeIter
 listStoreInsertBefore ts sibling = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call list_store_insert_before#} (toListStore ts) iter sibling
   return iter
 
@@ -141,7 +141,7 @@ listStoreInsertBefore ts sibling = do
 listStoreInsertAfter :: (ListStoreClass ts) => ts -> TreeIter -> IO TreeIter
 listStoreInsertAfter ts sibling = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call list_store_insert_after#} (toListStore ts) iter sibling
   return iter
 
@@ -152,7 +152,7 @@ listStoreInsertAfter ts sibling = do
 listStorePrepend :: (ListStoreClass ts) => ts -> IO TreeIter
 listStorePrepend ts = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call list_store_prepend#} (toListStore ts) iter 
   return iter
 
@@ -163,7 +163,7 @@ listStorePrepend ts = do
 listStoreAppend :: (ListStoreClass ts) => ts -> IO TreeIter
 listStoreAppend ts = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call list_store_append#} (toListStore ts) iter 
   return iter
 

@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry TreeModel@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2003/03/08 17:44:05 $
+--  Version $Revision: 1.10 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -41,6 +42,8 @@ module TreeModel(
   treeModelGetValue,
   TreePath(..),
   createTreePath,			-- internal
+  tree_path_copy,			-- internal
+  tree_path_free,			-- internal
   treePathNew,
   treePathNewFromString,
   treePathToString,
@@ -74,11 +77,10 @@ module TreeModel(
 
 import Monad	(liftM, when)
 import Maybe	(fromMaybe)
-import Foreign
-import UTFCForeign
+import FFI
 {#import Hierarchy#}
 {#import Signal#}
-import Structs	                (treeIterSize, nullForeignPtr)
+import Structs	                (treeIterSize)
 import StoreValue		(TMType)
 {#import GValue#}		(GValue, GenericValue, valueUnset)
 
@@ -132,8 +134,27 @@ createTreePath tpPtr = do
   tpPtr' <- tree_path_copy tpPtr
   liftM TreePath $ newForeignPtr tpPtr' (tree_path_free tpPtr')
 
-foreign import ccall "gtk_tree_path_copy" unsafe
-  tree_path_copy :: Ptr TreePath -> IO (Ptr TreePath)
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&gtk_tree_path_free"
+  tree_path_free' :: FinalizerPtr TreePath
+
+tree_path_free :: Ptr TreePath -> FinalizerPtr TreePath
+tree_path_free _ = tree_path_free'
+
+#elif __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gtk_tree_path_free"
+  tree_path_free :: Ptr TreePath -> IO ()
+
+#else
+
+foreign import ccall "gtk_tree_path_free" unsafe
+  tree_path_free :: Ptr TreePath -> IO ()
+
+#endif
+
+
 
 -- @constructor treePathNew@ Create a new @ref data TreePath@.
 --
@@ -145,16 +166,13 @@ treePathNew = do
   tpPtr <- {#call unsafe tree_path_new#} 
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
-foreign import ccall "gtk_tree_path_free" unsafe
-  tree_path_free :: Ptr TreePath -> IO ()
-
 -- @constructor treePathNewFromString@ Turn a @literal String@ into a
 -- @ref data TreePath@.
 --
 treePathNewFromString :: String -> IO TreePath
 treePathNewFromString path = do
   tpPtr <- throwIfNull "treePathNewFromString: invalid path given" $
-    withCString path {#call unsafe tree_path_new_from_string#}
+    withUTFString path {#call unsafe tree_path_new_from_string#}
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
 -- @method treePathToString@ Turn a @ref data TreePath@ into a 
@@ -163,7 +181,7 @@ treePathNewFromString path = do
 treePathToString :: TreePath -> IO String
 treePathToString tp = do
   strPtr <- {#call tree_path_to_string#} tp
-  str <- peekCString strPtr
+  str <- peekUTFString strPtr
   {#call unsafe g_free#} (castPtr strPtr)
   return str
 
@@ -203,6 +221,19 @@ treePathCopy tp = do
   tpPtr' <- {#call unsafe tree_path_copy#} tp
   liftM TreePath $ newForeignPtr tpPtr' (tree_path_free tpPtr')
 
+#if __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gtk_tree_path_copy"
+  tree_path_copy :: Ptr TreePath -> IO (Ptr TreePath)
+
+#else
+
+foreign import ccall "gtk_tree_path_copy" unsafe
+  tree_path_copy :: Ptr TreePath -> IO (Ptr TreePath)
+
+#endif
+
+
 treePathCompare :: TreePath -> TreePath -> IO Ordering
 treePathCompare tp1 tp2 = do
   res <- {#call unsafe tree_path_compare#} tp1 tp2
@@ -229,11 +260,38 @@ createTreeIter tiPtr = do
   tiPtr' <- tree_iter_copy tiPtr
   liftM TreeIter $ newForeignPtr tiPtr' (tree_iter_free tiPtr')
 
-foreign import ccall "gtk_tree_iter_free" unsafe
-  tree_iter_free :: Ptr TreeIter -> IO ()
+
+#if __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gtk_tree_iter_copy"
+  tree_iter_copy :: Ptr TreeIter -> IO (Ptr TreeIter)
+
+#else
 
 foreign import ccall "gtk_tree_iter_copy" unsafe
   tree_iter_copy :: Ptr TreeIter -> IO (Ptr TreeIter)
+
+#endif
+
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&gtk_tree_iter_free"
+  tree_iter_free' :: FinalizerPtr TreeIter
+
+tree_iter_free :: Ptr TreeIter -> FinalizerPtr TreeIter
+tree_iter_free _ = tree_iter_free'
+
+#elif __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gtk_tree_iter_free"
+  tree_iter_free :: Ptr TreeIter -> IO ()
+
+#else
+
+foreign import ccall "gtk_tree_iter_free" unsafe
+  tree_iter_free :: Ptr TreeIter -> IO ()
+
+#endif
 
 
 -- @method treeModelGetIter@ Turn a @ref data TreePath@ into a
@@ -244,7 +302,7 @@ foreign import ccall "gtk_tree_iter_copy" unsafe
 treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
 treeModelGetIter tm tp = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   res <- {#call unsafe tree_model_get_iter#} (toTreeModel tm) iter tp
   return $ if (toBool res) then Just iter else Nothing
   
@@ -257,8 +315,8 @@ treeModelGetIterFromString :: TreeModelClass tm => tm -> String ->
 						   IO (Maybe TreeIter)
 treeModelGetIterFromString tm str = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
-  res <- withCString str $ \strPtr ->
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
+  res <- withUTFString str $ \strPtr ->
     {#call unsafe tree_model_get_iter_from_string#} (toTreeModel tm) iter 
       strPtr
   return $ if (toBool res) then Just iter else Nothing
@@ -271,7 +329,7 @@ treeModelGetIterFromString tm str = do
 treeModelGetIterFirst :: TreeModelClass tm => tm -> IO (Maybe TreeIter)
 treeModelGetIterFirst tm = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   res <- {#call unsafe tree_model_get_iter_first#} (toTreeModel tm) iter
   return $ if (toBool res) then Just iter else Nothing
 
@@ -296,7 +354,7 @@ treeModelIterChildren :: TreeModelClass tm => tm -> TreeIter ->
 					      IO (Maybe TreeIter)
 treeModelIterChildren tm parent = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   res <- {#call unsafe tree_model_iter_children#} (toTreeModel tm) iter 
     parent
   return $ if (toBool res) then Just iter else Nothing
@@ -325,7 +383,7 @@ treeModelIterNthChild :: TreeModelClass tm =>
   tm -> Maybe TreeIter -> Int -> IO (Maybe TreeIter)
 treeModelIterNthChild tm parent n = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   res <- {#call unsafe tree_model_iter_nth_child#} (toTreeModel tm) iter 
     (fromMaybe (TreeIter nullForeignPtr) parent) (fromIntegral n)
   return $ if (toBool res) then Just iter else Nothing
@@ -336,7 +394,7 @@ treeModelIterParent :: TreeModelClass tm => tm ->
   TreeIter -> IO (Maybe TreeIter)
 treeModelIterParent tm child = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   res <- {#call unsafe tree_model_iter_parent#} (toTreeModel tm) iter child
   return $ if (toBool res) then Just iter else Nothing
 

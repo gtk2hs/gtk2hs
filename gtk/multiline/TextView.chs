@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.9 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -124,8 +124,8 @@ module TextView(
   afterToggleOverwrite) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 import GObject	(makeNewGObject)
 {#import Hierarchy#}

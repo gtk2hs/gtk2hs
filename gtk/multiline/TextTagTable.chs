@@ -5,7 +5,7 @@
 --          
 --  Created: 20 March 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@ module TextTagTable(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}

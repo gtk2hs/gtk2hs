@@ -5,7 +5,7 @@
 --          
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.3 $
+--  Version $Revision: 1.4 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -43,8 +43,8 @@ module ImageMenuItem(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -82,7 +82,7 @@ imageMenuItemNew  = makeNewObject mkImageMenuItem $ liftM castPtr $
 -- with a stock image.
 --
 imageMenuItemNewFromStock :: String -> IO ImageMenuItem
-imageMenuItemNewFromStock str = withCString str $ \strPtr ->
+imageMenuItemNewFromStock str = withUTFString str $ \strPtr ->
   makeNewObject mkImageMenuItem $ liftM castPtr $ 
   {#call unsafe image_menu_item_new_from_stock#} strPtr nullPtr
 
@@ -90,7 +90,7 @@ imageMenuItemNewFromStock str = withCString str $ \strPtr ->
 -- with a label.
 --
 imageMenuItemNewWithLabel :: String -> IO ImageMenuItem
-imageMenuItemNewWithLabel str = withCString str $ \strPtr ->
+imageMenuItemNewWithLabel str = withUTFString str $ \strPtr ->
   makeNewObject mkImageMenuItem $ liftM castPtr $ 
   {#call unsafe image_menu_item_new_with_label#} strPtr
 
@@ -98,6 +98,6 @@ imageMenuItemNewWithLabel str = withCString str $ \strPtr ->
 -- with a label where underscored indicate the mnemonic.
 --
 imageMenuItemNewWithMnemonic :: String -> IO ImageMenuItem
-imageMenuItemNewWithMnemonic str = withCString str $ \strPtr ->
+imageMenuItemNewWithMnemonic str = withUTFString str $ \strPtr ->
   makeNewObject mkImageMenuItem $ liftM castPtr $ 
   {#call unsafe image_menu_item_new_with_mnemonic#} strPtr

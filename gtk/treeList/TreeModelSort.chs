@@ -5,7 +5,7 @@
 --          
 --  Created: 9 July 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/12/03 13:42:35 $
+--  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -35,8 +35,8 @@ module TreeModelSort(
   ) where
 
 import Monad	(liftM, when)
-import Foreign
-import UTFCForeign
+import FFI
+
 {#import Hierarchy#}
 import Signal	    
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -33,8 +33,8 @@ module StoreValue(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Hierarchy
 import GValue	(GValue, GenericValue(..), valueInit)
 import GValueTypes

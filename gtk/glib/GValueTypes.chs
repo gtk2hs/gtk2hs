@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GValueTypes@
+--  GIMP Toolkit (GTK) GValueTypes
 --
 --  Author : Axel Simon
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:44 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -55,8 +55,7 @@ module GValueTypes(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
 import GObject
 {#import Hierarchy#}
 import GType	(GType)
@@ -119,7 +118,7 @@ valueGetDouble gv = liftM realToFrac $ {#call unsafe value_get_double#} gv
 
 valueSetString :: GValue -> Maybe String -> IO ()
 valueSetString gv (Just str) = do
-  strPtr <- newCString str
+  strPtr <- newUTFString str
   {#call unsafe value_set_static_string#} gv strPtr
 
 valueSetString gv Nothing = 
@@ -128,14 +127,13 @@ valueSetString gv Nothing =
 valueGetString :: GValue -> IO (Maybe String)
 valueGetString gv = do
   strPtr <- {#call unsafe value_get_string#} gv
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
+  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
 -- * for some weird reason the API says that gv is a gpointer, not a GObject
+--
 valueSetObject :: GValue -> GObject -> IO ()
-valueSetObject gv obj = g_value_set_object gv obj
-
-foreign import ccall "g_value_set_object" unsafe
-  g_value_set_object :: GValue -> GObject -> IO ()
+valueSetObject gv obj = withForeignPtr (unGObject obj) $ \objPtr ->
+  {#call unsafe g_value_set_object#} gv (castPtr objPtr)
 
 valueGetObject :: GValue -> IO GObject
 valueGetObject gv = makeNewGObject mkGObject $

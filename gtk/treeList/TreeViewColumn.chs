@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:22 $
+--  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -90,8 +90,8 @@ module TreeViewColumn(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -176,7 +176,7 @@ treeViewColumnGetCellRenderers tvc = do
 treeViewColumnAddAttribute :: (TreeViewColumnClass tvc, CellRendererClass cr)
 			      => tvc -> cr -> String -> Int -> IO ()
 treeViewColumnAddAttribute tvc cr attr col = 
-  withCString attr $ \cstr ->  {#call unsafe tree_view_column_add_attribute#} 
+  withUTFString attr $ \cstr ->  {#call unsafe tree_view_column_add_attribute#} 
     (toTreeViewColumn tvc) (toCellRenderer cr) cstr (fromIntegral col)
 
 -- @method treeViewColumnAddAttributes@ Insert attributes @ref arg attribs@
@@ -334,7 +334,7 @@ treeViewColumnClicked tvc =
 -- has not been set.
 --
 treeViewColumnSetTitle :: TreeViewColumnClass tvc => tvc -> String -> IO ()
-treeViewColumnSetTitle tvc title = withCString title $
+treeViewColumnSetTitle tvc title = withUTFString title $
   {#call tree_view_column_set_title#} (toTreeViewColumn tvc)
 
 -- @method treeViewColumnGetTitle@ Get the widget's title.
@@ -342,7 +342,7 @@ treeViewColumnSetTitle tvc title = withCString title $
 treeViewColumnGetTitle :: TreeViewColumnClass tvc => tvc -> IO (Maybe String)
 treeViewColumnGetTitle tvc = do
   strPtr <- {#call unsafe tree_view_column_get_title#} (toTreeViewColumn tvc)
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
+  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
 -- @method treeViewColumnSetClickable@ Set if the column should be sensitive
 -- to mouse clicks.

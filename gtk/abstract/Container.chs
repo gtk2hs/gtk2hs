@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/10/06 16:14:07 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -61,8 +61,8 @@ module Container(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import GObject	(objectRef, objectUnref)
 import Object	(makeNewObject)
 {#import Hierarchy#}
@@ -162,7 +162,7 @@ containerResizeChildren con =
 --  strPtr <- throwIfNull "containerChildCompositeName: illegal name returned" $
 --    {#call unsafe container_child_composite_name#} (toContainer con) 
 --    (toWidget widget)
---  str <- peekCString strPtr
+--  str <- peekUTFString strPtr
 --  {#call unsafe g_free#} (castPtr strPtr)
 --  return str
 

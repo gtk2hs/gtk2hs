@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -64,8 +64,8 @@ module Button(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -84,7 +84,7 @@ buttonNew  = makeNewObject mkButton $ liftM castPtr {#call unsafe button_new#}
 -- @constructor buttonNewWithLabel@ Create a button with a label in it.
 --
 buttonNewWithLabel :: String -> IO Button
-buttonNewWithLabel lbl = withCString lbl (\strPtr ->
+buttonNewWithLabel lbl = withUTFString lbl (\strPtr ->
   makeNewObject mkButton $ liftM castPtr $
   {#call unsafe button_new_with_label#} strPtr)
 
@@ -95,14 +95,14 @@ buttonNewWithLabel lbl = withCString lbl (\strPtr ->
 --   shortcut).
 --
 buttonNewWithMnemonic :: String -> IO Button
-buttonNewWithMnemonic lbl = withCString lbl (\strPtr ->
+buttonNewWithMnemonic lbl = withUTFString lbl (\strPtr ->
   makeNewObject mkButton $ liftM castPtr $ 
   {#call unsafe button_new_with_mnemonic#} strPtr)
 
 -- @constructor buttonNewFromStock@ Create a stock (predefined appearance) button.
 --
 buttonNewFromStock :: String -> IO Button
-buttonNewFromStock stockId = withCString stockId (\strPtr -> 
+buttonNewFromStock stockId = withUTFString stockId (\strPtr -> 
   makeNewObject mkButton $ liftM castPtr $
   throwIfNull "buttonNewFromStock: Invalid stock identifier." $ 
   {#call unsafe button_new_from_stock#} strPtr)
@@ -150,7 +150,7 @@ buttonGetRelief b = liftM (toEnum.fromIntegral) $
 -- @method buttonSetLabel@ Set the text of the button.
 --
 buttonSetLabel :: ButtonClass b => b -> String -> IO ()
-buttonSetLabel b lbl = withCString lbl $ \strPtr ->
+buttonSetLabel b lbl = withUTFString lbl $ \strPtr ->
   {#call button_set_label#} (toButton b) strPtr
 
 -- @method buttonGetLabel@ Get the current text on the button.
@@ -161,7 +161,7 @@ buttonSetLabel b lbl = withCString lbl $ \strPtr ->
 buttonGetLabel :: ButtonClass b => b -> IO String
 buttonGetLabel b = do
   strPtr <- {#call unsafe button_get_label#} (toButton b)
-  if strPtr==nullPtr then return "" else peekCString strPtr
+  if strPtr==nullPtr then return "" else peekUTFString strPtr
 
 -- @method buttonSetUseStock@ Set if the label is a stock identifier.
 --

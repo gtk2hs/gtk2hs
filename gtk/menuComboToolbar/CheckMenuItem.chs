@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -40,8 +40,8 @@ module CheckMenuItem(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -62,7 +62,7 @@ checkMenuItemNew  = makeNewObject mkCheckMenuItem $ liftM castPtr $
 -- with a @ref data Label@ inside.
 --
 checkMenuItemNewWithLabel :: String -> IO CheckMenuItem
-checkMenuItemNewWithLabel str = withCString str $ \strPtr ->
+checkMenuItemNewWithLabel str = withUTFString str $ \strPtr ->
   makeNewObject mkCheckMenuItem $ liftM castPtr $
   {#call unsafe check_menu_item_new_with_label#} strPtr
 

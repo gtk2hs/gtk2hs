@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/03/24 23:56:39 $
+--  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -88,14 +88,14 @@ module Toolbar(
 
 import Monad	(liftM)
 import Maybe	(fromJust, fromMaybe)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
 import Enums	(Orientation(..), ToolbarStyle(..))
 import Structs	(toolbarGetSize', toolbarChildButton, toolbarChildToggleButton,
-		 toolbarChildRadioButton, nullForeignPtr, IconSize, 
+		 toolbarChildRadioButton, IconSize, 
 		 iconSizeInvalid, iconSizeSmallToolbar, iconSizeLargeToolbar)
 import StockItems(stockLookupItem, siLabel, stockMissingImage) 
 import Image	(imageNewFromStock)
@@ -114,8 +114,8 @@ toolbarNew  = makeNewObject mkToolbar $ liftM castPtr
 --
 mkToolText :: Maybe (String,String) -> (CString -> CString -> IO a) -> IO a
 mkToolText Nothing               fun = fun nullPtr nullPtr
-mkToolText (Just (text,private)) fun = withCString text $ \txtPtr -> 
-  withCString private $ \prvPtr -> fun txtPtr prvPtr
+mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr -> 
+  withUTFString private $ \prvPtr -> fun txtPtr prvPtr
 
 -- @method toolbarInsertNewButton@ Insert a new @ref data Button@ into the
 -- @ref data Toolbar@.
@@ -137,7 +137,7 @@ mkToolText (Just (text,private)) fun = withCString text $ \txtPtr ->
 toolbarInsertNewButton :: ToolbarClass tb => tb -> Int -> String ->
                           Maybe (String,String) -> IO Button
 toolbarInsertNewButton tb pos stockId tooltips = 
-  withCString stockId $ \stockPtr ->
+  withUTFString stockId $ \stockPtr ->
   mkToolText tooltips $ \textPtr privPtr ->
   makeNewObject mkButton $ liftM castPtr $ 
   {#call unsafe toolbar_insert_stock#} (toToolbar tb) stockPtr textPtr privPtr
@@ -180,7 +180,7 @@ toolbarInsertNewToggleButton tb pos stockId tooltips = do
   size <- toolbarGetSize' (toToolbar tb)
   image <- imageNewFromStock stockId size
   makeNewObject mkToggleButton $ liftM castPtr $
-    withCString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
+    withUTFString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
     {#call unsafe toolbar_insert_element#} (toToolbar tb) 
     toolbarChildToggleButton (mkWidget nullForeignPtr) lblPtr 
     textPtr privPtr (toWidget image) nullFunPtr nullPtr (fromIntegral pos)
@@ -234,7 +234,7 @@ toolbarInsertNewRadioButton tb pos stockId tooltips rb = do
   size <- toolbarGetSize' (toToolbar tb)
   image <- imageNewFromStock stockId size
   makeNewObject mkRadioButton $ liftM castPtr $
-    withCString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
+    withUTFString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
     {#call unsafe toolbar_insert_element#} (toToolbar tb) 
     toolbarChildRadioButton (maybe (mkWidget nullForeignPtr) toWidget rb) 
       lblPtr  textPtr privPtr (toWidget image) nullFunPtr nullPtr

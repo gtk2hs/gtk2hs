@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -53,14 +53,13 @@ module ScrolledWindow(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
 import Enums	(PolicyType(..), CornerType(..), ShadowType(..))
 import Maybe    (fromMaybe)
-import Structs  (nullForeignPtr)
 
 {# context lib="gtk" prefix="gtk" #}
 

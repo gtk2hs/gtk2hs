@@ -5,7 +5,7 @@
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -41,8 +41,8 @@ module RadioMenuItem(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -61,7 +61,7 @@ radioMenuItemNew  = makeNewObject mkRadioMenuItem $ liftM castPtr $
 -- label in it.
 --
 radioMenuItemNewWithLabel :: String -> IO RadioMenuItem
-radioMenuItemNewWithLabel label = withCString label $ \strPtr ->
+radioMenuItemNewWithLabel label = withUTFString label $ \strPtr ->
   makeNewObject mkRadioMenuItem $ liftM castPtr $
   {#call unsafe radio_menu_item_new_with_label#} nullPtr strPtr
 
@@ -81,7 +81,7 @@ radioMenuItemNewJoinGroupWithLabel :: RadioMenuItem -> String ->
                                       IO RadioMenuItem
 radioMenuItemNewJoinGroupWithLabel rmi label = do
   groupPtr <- {#call unsafe radio_menu_item_get_group#} rmi
-  withCString label $ \strPtr -> 
+  withUTFString label $ \strPtr -> 
     makeNewObject mkRadioMenuItem $ liftM castPtr $ 
     {#call unsafe radio_menu_item_new_with_label#} groupPtr strPtr
 

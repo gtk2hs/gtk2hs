@@ -6,7 +6,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -55,8 +55,8 @@ module Label(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -73,13 +73,13 @@ labelNew :: Maybe String -> IO Label
 labelNew str = makeNewObject mkLabel $ liftM castPtr $
   case str of
     Nothing    -> {#call label_new#} nullPtr
-    (Just str) -> withCString str {#call label_new#}
+    (Just str) -> withUTFString str {#call label_new#}
 
 -- @method labelSetText@ set the text the label widget shows
 --
 labelSetText :: LabelClass l => l -> String -> IO ()
 labelSetText l str =
-  withCString str $ {#call label_set_text#} (toLabel l)
+  withUTFString str $ {#call label_set_text#} (toLabel l)
 
 -- @method labelSetAttributes@ Set the text attributes.
 --
@@ -90,21 +90,21 @@ labelSetText l str =
 --
 labelSetMarkup :: LabelClass l => l -> Markup -> IO ()
 labelSetMarkup l str =
-  withCString str $ {#call label_set_markup#} (toLabel l)
+  withUTFString str $ {#call label_set_markup#} (toLabel l)
 
 -- @method labelSetMarkupWithMnemonic@ set the label to a markup string and
 -- interpret keyboard accelerators
 --
 labelSetMarkupWithMnemonic :: LabelClass l => l -> Markup -> IO ()
 labelSetMarkupWithMnemonic l str =
-  withCString str $ {#call label_set_markup_with_mnemonic#} (toLabel l)
+  withUTFString str $ {#call label_set_markup_with_mnemonic#} (toLabel l)
 
 -- @method labelSetPattern@ underline parts of the text, odd indices of the
 -- list represent underlined parts
 --
 labelSetPattern :: LabelClass l => l -> [Int] -> IO ()
 labelSetPattern l list =
-  withCString str $ {#call label_set_pattern#} (toLabel l)
+  withUTFString str $ {#call label_set_pattern#} (toLabel l)
   where
     str = concat $ zipWith replicate list (cycle ['_',' '])
 
@@ -152,7 +152,7 @@ labelGetSelectable l = liftM toBool $
 -- @method labelGetText@ get the text stored in the label
 --
 labelGetText :: LabelClass l => l -> IO String
-labelGetText l = {#call unsafe label_get_text#} (toLabel l) >>= peekCString
+labelGetText l = {#call unsafe label_get_text#} (toLabel l) >>= peekUTFString
 
 
 -- @constructor labelNewWithMnemonic@ Create a new label widget with 
@@ -164,7 +164,7 @@ labelGetText l = {#call unsafe label_get_text#} (toLabel l) >>= peekCString
 --
 labelNewWithMnemonic :: String -> IO Label
 labelNewWithMnemonic str = makeNewObject mkLabel $ liftM castPtr $
-  withCString str {#call label_new_with_mnemonic#}
+  withUTFString str {#call label_new_with_mnemonic#}
 
 -- @method labelSelectRegion@ select a region in label
 --
@@ -191,5 +191,5 @@ labelSetSelectable l s =
 --
 labelSetTextWithMnemonic :: LabelClass l => l -> String -> IO ()
 labelSetTextWithMnemonic l str =
-  withCString str $ {#call label_set_text_with_mnemonic#} (toLabel l)
+  withUTFString str $ {#call label_set_text_with_mnemonic#} (toLabel l)
 

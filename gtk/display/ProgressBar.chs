@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -47,8 +47,8 @@ module ProgressBar(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -78,7 +78,7 @@ progressBarPulse pb = {#call unsafe progress_bar_pulse#} (toProgressBar pb)
 -- superimposed on the progress bar.
 --
 progressBarSetText :: ProgressBarClass pb => pb -> String -> IO ()
-progressBarSetText pb text = withCString text $
+progressBarSetText pb text = withUTFString text $
   {#call unsafe progress_bar_set_text#} (toProgressBar pb)
 
 -- @method progressBarSetFraction@ Causes the progress bar to `fill in' the
@@ -122,7 +122,7 @@ progressBarGetPulseStep pb = liftM realToFrac $
 progressBarGetText :: ProgressBarClass pb => pb -> IO (Maybe String)
 progressBarGetText pb = do
   strPtr <- {#call unsafe progress_bar_get_text#} (toProgressBar pb)
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
+  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
 -- @method progressBarSetOrientation@ Causes the progress bar to switch to a
 -- different orientation (left-to-right, right-to-left, top-to-bottom, or

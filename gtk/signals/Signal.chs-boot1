@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 -- ******************** automatically generated file - do not edit ************
 --  Callback installers for the GIMP Toolkit (GTK) Binding for Haskell
@@ -6,7 +7,7 @@
 --          
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  Copyright (c) 2000 Axel Simon
 --

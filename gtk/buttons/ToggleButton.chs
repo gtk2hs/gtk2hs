@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -46,8 +46,8 @@ module ToggleButton(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -66,7 +66,7 @@ toggleButtonNew  = makeNewObject mkToggleButton $ liftM castPtr
 -- @method toggleButtonNewWithLabel@ Create a toggleButton with a label in it.
 --
 toggleButtonNewWithLabel :: String -> IO ToggleButton
-toggleButtonNewWithLabel lbl = withCString lbl (\strPtr ->
+toggleButtonNewWithLabel lbl = withUTFString lbl (\strPtr ->
   makeNewObject mkToggleButton $ liftM castPtr $
   {#call unsafe toggle_button_new_with_label#} strPtr)
 

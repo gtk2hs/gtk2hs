@@ -41,7 +41,7 @@ inplace	: noinplace
           $(addprefix -Wl$(COMMA),\
 	  $(addprefix --subsystem$(SPACE),$(SUBSYSTEM))) \
 	  $(addprefix -u ,$(EXTRA_SYMBOLS)))]} | \
-	  $(PKG) --force -f $(LOCALPKGCONF) -a  > /dev/null
+	  $(PKG) --force -g -f $(LOCALPKGCONF) -a  > /dev/null
 
 installcheck :
 	@if $(PKG) -l | $(GREP) $(PACKAGENAME) > /dev/null; then \

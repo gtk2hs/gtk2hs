@@ -148,13 +148,13 @@ generate objs typeTable =
   indent 0.ss "--".
   indent 0.ss "module Hierarchy(".
 --  indent 1.ss "ObjectTag(..)".
-  foldl (.) id (map (\(n:_) -> ss ", ".indent 1.ss n.ss ", ".ss n.
-		ss "Class(..),".indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
+  foldl (.) id (map (\(n:_) -> ss ", ".
+		indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class(..),".
+		indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
 		indent 1.ss "castTo".ss n) objs).
   indent 1.ss ") where".
   indent 0.
-  indent 0.ss "import Foreign  (ForeignPtr, castForeignPtr, foreignPtrToPtr)".
-  indent 0.ss "import UTFCForeign (CULong)".
+  indent 0.ss "import FFI	(ForeignPtr, castForeignPtr, foreignPtrToPtr,".  ss " CULong)".
   indent 0.ss "import GType    (typeInstanceIsA)".
   indent 0.
   indent 0.ss "{#context lib=\"gtk\" prefix=\"gtk\" #}".

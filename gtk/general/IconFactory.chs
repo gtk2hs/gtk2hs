@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry IconFactory@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -73,8 +74,7 @@ module IconFactory(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -97,7 +97,7 @@ import Structs	(IconSize, iconSizeInvalid, iconSizeMenu, iconSizeSmallToolbar,
 --   default factories by iconFactoryAddDefault.
 --
 iconFactoryAdd :: IconFactory -> String -> IconSet -> IO ()
-iconFactoryAdd i stockId iconSet = withCString stockId $ \strPtr ->
+iconFactoryAdd i stockId iconSet = withUTFString stockId $ \strPtr ->
   {#call unsafe icon_factory_add#} i strPtr iconSet
 
 -- @method iconFactoryAddDefault@ Add all entries of the IconFactory to the
@@ -145,8 +145,26 @@ iconSetNew  = do
   isPtr <- {#call unsafe icon_set_new#}
   liftM IconSet $ newForeignPtr isPtr (icon_set_unref isPtr)
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&gtk_icon_set_unref"
+  icon_set_unref' :: FinalizerPtr IconSet
+
+icon_set_unref :: Ptr IconSet -> FinalizerPtr IconSet
+icon_set_unref _ = icon_set_unref'
+
+#elif __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gtk_icon_set_unref"
+  icon_set_unref :: Ptr IconSet -> IO ()
+
+#else
+
 foreign import ccall "gtk_icon_set_unref" unsafe
   icon_set_unref :: Ptr IconSet -> IO ()
+
+#endif
+
 
 -- @method iconSizeCheck@ Check if a given IconSize is registered.
 --
@@ -162,13 +180,13 @@ iconSizeCheck size = liftM toBool $
 --
 iconSizeRegister :: Int -> String -> Int -> IO IconSize
 iconSizeRegister height name width = liftM fromIntegral $
-  withCString name $ \strPtr -> {#call unsafe icon_size_register#} 
+  withUTFString name $ \strPtr -> {#call unsafe icon_size_register#} 
   strPtr (fromIntegral width) (fromIntegral height)
 
 -- @method iconSizeRegisterAlias@ Register an additional alias for a name.
 --
 iconSizeRegisterAlias :: IconSize -> String -> IO ()
-iconSizeRegisterAlias target alias = withCString alias $ \strPtr ->
+iconSizeRegisterAlias target alias = withUTFString alias $ \strPtr ->
   {#call unsafe icon_size_register_alias#} strPtr (fromIntegral target)
 
 -- @method iconSizeFromName@ Lookup an IconSize by name.
@@ -178,7 +196,7 @@ iconSizeRegisterAlias target alias = withCString alias $ \strPtr ->
 --
 iconSizeFromName :: String -> IO IconSize
 iconSizeFromName name = liftM fromIntegral $
-  withCString name {#call unsafe icon_size_from_name#}
+  withUTFString name {#call unsafe icon_size_from_name#}
 
 -- @method iconSizeGetName@ Lookup the name of an IconSize.
 --
@@ -187,7 +205,7 @@ iconSizeFromName name = liftM fromIntegral $
 iconSizeGetName :: IconSize -> IO (Maybe String)
 iconSizeGetName size = do
   strPtr <- {#call unsafe icon_size_get_name#} (fromIntegral size)
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
+  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
 -- @method iconSourceGetDirection@ Retrieve the @ref data TextDirection@ of
 -- this IconSource.
@@ -208,7 +226,7 @@ iconSourceGetDirection is = do
 iconSourceGetFilename :: IconSource -> IO (Maybe String)
 iconSourceGetFilename is = do
   strPtr <- {#call unsafe icon_source_get_filename#} is
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
+  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
 -- @method iconSourceGetSize@ Retrieve the @ref type IconSize@ of this
 -- IconSource.
@@ -245,8 +263,26 @@ iconSourceNew  = do
   isPtr <- {#call unsafe icon_source_new#}
   liftM IconSource $ newForeignPtr isPtr (icon_source_free isPtr)
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&gtk_icon_source_free"
+  icon_source_free' :: FinalizerPtr IconSource
+
+icon_source_free :: Ptr IconSource -> FinalizerPtr IconSource
+icon_source_free _ = icon_source_free'
+
+#elif __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gtk_icon_source_free"
+  icon_source_free :: Ptr IconSource -> IO ()
+
+#else
+
 foreign import ccall "gtk_icon_source_free" unsafe
   icon_source_free :: Ptr IconSource -> IO ()
+
+#endif
+
 
 -- @method iconSourceSetDirection@ Mark this @ref data IconSource@ that it
 -- should only apply to the specified @ref data TextDirection@.
@@ -266,7 +302,7 @@ iconSourceResetDirection is =
 --
 iconSourceSetFilename :: IconSource -> FilePath -> IO ()
 iconSourceSetFilename is name = 
-  withCString name $ {#call unsafe icon_source_set_filename#} is
+  withUTFString name $ {#call unsafe icon_source_set_filename#} is
 
 -- @method iconSourceSetSize@ Set this @ref data IconSource@ to a specific
 -- size.

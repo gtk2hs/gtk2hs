@@ -5,7 +5,7 @@
 --          
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -47,8 +47,8 @@ module DrawingArea(
   drawingAreaGetSize) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}

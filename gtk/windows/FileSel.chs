@@ -4,7 +4,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --  Copyright (c) 2002 Jens Petersen
@@ -45,8 +45,8 @@ module FileSel(
   ) where
 
 import Monad            (liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 {#import Hierarchy#}
 import Object		(makeNewObject)
 import Structs		(fileSelectionGetButtons)
@@ -62,7 +62,7 @@ import Structs		(fileSelectionGetButtons)
 --
 fileSelectionNew       :: String -> IO FileSelection
 fileSelectionNew title  = do
-  withCString title $ \strPtr -> 
+  withUTFString title $ \strPtr -> 
     makeNewObject mkFileSelection $ liftM castPtr $ 
 			{#call unsafe file_selection_new#} strPtr
 
@@ -71,7 +71,7 @@ fileSelectionNew title  = do
 --
 fileSelectionSetFilename :: FileSelectionClass fsel => fsel -> String -> IO ()
 fileSelectionSetFilename fsel str = 
-  withCString str $ \strPtr -> 
+  withUTFString str $ \strPtr -> 
     {#call unsafe file_selection_set_filename#} (toFileSelection fsel) strPtr
 
 -- @method fileSelectionGetFilename@ Get the filename currently selected by 
@@ -82,7 +82,7 @@ fileSelectionGetFilename fsel =
   do
     strPtr <- {#call unsafe file_selection_get_filename#} 
       (toFileSelection fsel)
-    peekCString strPtr
+    peekUTFString strPtr
 
 -- @method fileSelectionShowFileopButtons@ Show the file operation buttons 
 -- of the given file selection dialog.
@@ -118,5 +118,5 @@ fileSelectionHideFileopButtons  =
 --
 fileSelectionComplete :: FileSelectionClass fsel => fsel -> String -> IO ()
 fileSelectionComplete fsel pattern =
-  withCString pattern $ \patternPtr ->
+  withUTFString pattern $ \patternPtr ->
     {#call file_selection_complete#} (toFileSelection fsel) patternPtr

@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2003/03/08 17:44:00 $
+--  Version $Revision: 1.12 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -152,8 +152,8 @@ module Widget(
   ) where
 
 import Monad	(liftM, unless)
-import UTFCForeign
-import Foreign
+
+import FFI
 import Object	(makeNewObject)
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
@@ -239,7 +239,7 @@ widgetDestroy  = {#call widget_destroy#}.toWidget
 --w `onStyleChanged` update@
 --
 widgetCreateLayout :: WidgetClass obj => obj -> String -> IO PangoLayout
-widgetCreateLayout obj txt = withCString txt $
+widgetCreateLayout obj txt = withUTFString txt $
   \strPtr -> makeNewGObject mkPangoLayout
     ({#call unsafe widget_create_pango_layout#} (toWidget obj) strPtr)
   
@@ -296,13 +296,13 @@ widgetSetAppPaintable w p =
 --
 widgetSetName :: WidgetClass w => w -> String -> IO ()
 widgetSetName w name = 
-  withCString name ({#call widget_set_name#} (toWidget w))
+  withUTFString name ({#call widget_set_name#} (toWidget w))
 
 -- @method widgetGetName@ Get the name of a widget.
 --
 widgetGetName :: WidgetClass w => w -> IO String
 widgetGetName w = {#call unsafe widget_get_name#} (toWidget w) >>= 
-		  peekCString
+		  peekUTFString
 
 -- @method widgetAddEvents@ Enable event signals.
 --

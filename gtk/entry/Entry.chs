@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -78,8 +78,8 @@ module Entry(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -89,10 +89,10 @@ import Char	(ord)
 
 -- methods originating in the Editable base class which is not really a base
 -- class of in the Gtk Hierarchy (it is non-existant). I renamed
-{#pointer *Editable foreign#}
+{#pointer *Editable foreign newtype#}
 
 toEditable :: EntryClass ed => ed -> Editable
-toEditable = castForeignPtr.unEntry.toEntry
+toEditable = Editable . castForeignPtr . unEntry . toEntry
 
 -- @method entrySelectRegion@ Select a span of text.
 --
@@ -126,7 +126,7 @@ entryGetSelectionBounds ed = alloca $ \startPtr -> alloca $ \endPtr -> do
 --
 entryInsertText :: EntryClass ed => ed -> String -> Int -> IO Int
 entryInsertText ed str pos = withObject (fromIntegral pos) $ \posPtr ->
-  withCStringLen str $ \(strPtr,len) -> do
+  withUTFStringLen str $ \(strPtr,len) -> do
     {#call editable_insert_text#} (toEditable ed) strPtr (fromIntegral len) 
       posPtr
     liftM fromIntegral $ peek posPtr
@@ -150,7 +150,7 @@ entryGetChars :: EntryClass ed => ed -> Int -> Int -> IO String
 entryGetChars ed start end = do
   strPtr <- {#call unsafe editable_get_chars#} (toEditable ed) 
     (fromIntegral start) (fromIntegral end)
-  str <- peekCString strPtr
+  str <- peekUTFString strPtr
   {#call unsafe g_free#} (castPtr strPtr)
   return str
 
@@ -206,24 +206,24 @@ entryNew  = makeNewObject mkEntry $ liftM castPtr $ {#call unsafe entry_new#}
 -- @method entrySetText@ Set the text of the @ref type Entry@ widget.
 --
 entrySetText :: EntryClass ec => ec -> String -> IO ()
-entrySetText ec str = withCString str $ {#call entry_set_text#} (toEntry ec)
+entrySetText ec str = withUTFString str $ {#call entry_set_text#} (toEntry ec)
 
 -- @method entryGetText@ Get the text of the @ref type Entry@ widget.
 --
 entryGetText :: EntryClass ec => ec -> IO String
-entryGetText ec = {#call entry_get_text#} (toEntry ec) >>= peekCString
+entryGetText ec = {#call entry_get_text#} (toEntry ec) >>= peekUTFString
 
 -- @method entryAppendText@ Append to the text of the @ref type Entry@ widget.
 --
 entryAppendText :: EntryClass ec => ec -> String -> IO ()
 entryAppendText ec str = 
-  withCString str $ {#call entry_append_text#} (toEntry ec)
+  withUTFString str $ {#call entry_append_text#} (toEntry ec)
 
 -- @method entryPrependText@ Prepend the text of the @ref type Entry@ widget.
 --
 entryPrependText :: EntryClass ec => ec -> String -> IO ()
 entryPrependText ec str = 
-  withCString str $ {#call entry_prepend_text#} (toEntry ec)
+  withUTFString str $ {#call entry_prepend_text#} (toEntry ec)
 
 -- @method entrySetVisibility@ Set whether to use password mode (display stars
 -- instead of the text).

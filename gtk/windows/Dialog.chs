@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/01/10 07:51:35 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -49,8 +49,8 @@ module Dialog(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -96,7 +96,7 @@ dialogResponse dc resId =
 -- * The function returns the Button that resulted from the call.
 --
 dialogAddButton :: DialogClass dc => dc -> String -> ResponseId -> IO Button
-dialogAddButton dc button resId = withCString button $ \strPtr -> 
+dialogAddButton dc button resId = withUTFString button $ \strPtr -> 
   makeNewObject mkButton $ liftM castPtr $ {#call dialog_add_button#} 
   (toDialog dc) strPtr (fromResponse resId)
 

@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2003/01/21 15:53:26 $
+--  Version $Revision: 1.9 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -46,13 +46,13 @@ module TreeStore(
 
 import Monad	(liftM)
 import Maybe	(fromMaybe)
-import Foreign
-import UTFCForeign
+import FFI
+
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
 {#import TreeModel#}
-import Structs	(treeIterSize, nullForeignPtr)
+import Structs	(treeIterSize)
 import StoreValue (TMType(..), GenericValue(..))
 {#import GValue#} (GValue, valueUnset)
 import GType	  (GType)
@@ -77,7 +77,7 @@ treeStoreNew cols = makeNewGObject mkTreeStore $
 --
 treeStoreSetValue :: (TreeStoreClass ts) => ts -> TreeIter -> Int ->
                      GenericValue -> IO ()
-treeStoreSetValue ts ti col val = with' val $ \vPtr -> do
+treeStoreSetValue ts ti col val = with val $ \vPtr -> do
   {#call unsafe tree_store_set_value#} (toTreeStore ts) ti 
     (fromIntegral col) vPtr
   valueUnset vPtr
@@ -120,7 +120,7 @@ treeStoreInsert :: (TreeStoreClass ts) => ts -> Maybe TreeIter -> Int ->
                    IO TreeIter
 treeStoreInsert ts parent pos = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call tree_store_insert#} (toTreeStore ts) iter 
     (fromMaybe (TreeIter nullForeignPtr) parent) (fromIntegral pos)
   return iter
@@ -132,7 +132,7 @@ treeStoreInsert ts parent pos = do
 treeStoreInsertBefore :: (TreeStoreClass ts) => ts -> TreeIter -> IO TreeIter
 treeStoreInsertBefore ts sibling = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call tree_store_insert_before#} (toTreeStore ts) iter (TreeIter nullForeignPtr) sibling
   return iter
 
@@ -142,7 +142,7 @@ treeStoreInsertBefore ts sibling = do
 treeStoreInsertAfter :: (TreeStoreClass ts) => ts -> TreeIter -> IO TreeIter
 treeStoreInsertAfter ts sibling = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call tree_store_insert_after#} (toTreeStore ts) iter (TreeIter nullForeignPtr) sibling
   return iter
 
@@ -154,7 +154,7 @@ treeStoreInsertAfter ts sibling = do
 treeStorePrepend :: (TreeStoreClass ts) => ts -> Maybe TreeIter -> IO TreeIter
 treeStorePrepend ts parent = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call tree_store_prepend#} (toTreeStore ts) iter 
     (fromMaybe (TreeIter nullForeignPtr) parent)
   return iter
@@ -166,7 +166,7 @@ treeStorePrepend ts parent = do
 treeStoreAppend :: (TreeStoreClass ts) => ts -> Maybe TreeIter -> IO TreeIter
 treeStoreAppend ts parent = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   {#call tree_store_append#} (toTreeStore ts) iter 
     (fromMaybe (TreeIter nullForeignPtr) parent)
   return iter

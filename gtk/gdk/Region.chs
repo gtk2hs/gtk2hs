@@ -1,10 +1,11 @@
+{-# OPTIONS -cpp #-}
 --  -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry Region@
 --
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2002/11/03 20:35:42 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -34,7 +35,7 @@
 --
 module Region(
   makeNewRegion,
-  Region,
+  Region(Region),
   regionNew,
   FillRule(..),
   regionPolygon,
@@ -56,8 +57,7 @@ module Region(
   regionXor) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
 import Structs	(Point, Rectangle(..))
 import GdkEnums (FillRule(..), OverlapType(..))
 
@@ -69,11 +69,29 @@ import GdkEnums (FillRule(..), OverlapType(..))
 --
 makeNewRegion :: Ptr Region -> IO Region
 makeNewRegion rPtr = do
-  region <- newForeignPtr rPtr (regionDestroy rPtr)
+  region <- newForeignPtr rPtr (region_destroy rPtr)
   return (Region region)
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&gdk_region_destroy"
+  region_destroy' :: FinalizerPtr Region
+
+region_destroy :: Ptr Region -> FinalizerPtr Region
+region_destroy _ = region_destroy'
+
+#elif __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gdk_region_destroy"
+  region_destroy :: Ptr Region -> IO ()
+
+#else
+
 foreign import ccall "gdk_region_destroy" unsafe
-  regionDestroy :: Ptr Region -> IO ()
+  region_destroy :: Ptr Region -> IO ()
+
+#endif
+
 
 -- @constructor regionNew@ Create an empty region.
 --

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -63,8 +63,8 @@ module Statusbar(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -86,7 +86,7 @@ type ContextId = {#type guint#}
 -- Statusbar.
 --
 statusbarGetContextId :: StatusbarClass sb => sb -> String -> IO ContextId
-statusbarGetContextId sb description = withCString description $
+statusbarGetContextId sb description = withUTFString description $
   {#call unsafe statusbar_get_context_id#} (toStatusbar sb)
 
 
@@ -96,7 +96,7 @@ type MessageId = {#type guint#}
 -- be displayed as long as it is on top of the stack.
 --
 statusbarPush :: StatusbarClass sb => sb -> ContextId -> String -> IO MessageId
-statusbarPush sb context msg = withCString msg $ {#call statusbar_push#}
+statusbarPush sb context msg = withUTFString msg $ {#call statusbar_push#}
   (toStatusbar sb) context
 
 -- @method statusbarPop@ Pops the topmost message that has the correct

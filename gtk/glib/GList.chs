@@ -5,7 +5,7 @@
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2003/03/24 23:56:39 $
+--  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ module GList(
   ) where
 
 import Monad	(liftM)
-import Foreign
+import FFI
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}

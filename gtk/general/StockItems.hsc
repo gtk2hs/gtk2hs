@@ -5,7 +5,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2003/05/17 22:57:07 $
+--  Version $Revision: 1.9 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -123,8 +123,8 @@ module StockItems(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import LocalData(unsafePerformIO)	-- to read CStrings lazyly
 import GList	(GSList, fromGSListRev)
 import Events	(Modifier)
@@ -161,16 +161,16 @@ instance Storable StockItem where
 			    <- #{peek GtkStockItem, keyval} siPtr
     (transDom	:: CString) <- #{peek GtkStockItem, translation_domain} siPtr
     return $ StockItem {
-      siStockId  = unsafePerformIO $ peekCString' stockId,
-      siLabel	 = unsafePerformIO $ peekCString' label,
+      siStockId  = unsafePerformIO $ peekUTFString' stockId,
+      siLabel	 = unsafePerformIO $ peekUTFString' label,
       -- &%!?$ c2hs and hsc should agree on types
       siModifier = fromIntegral modifier, 
       siKeyval	 = fromIntegral keyval,
-      siTransDom = unsafePerformIO $ peekCString' transDom }
+      siTransDom = unsafePerformIO $ peekUTFString' transDom }
     where
-      peekCString' :: CString -> IO String
-      peekCString' strPtr | strPtr==nullPtr = return ""
-			  | otherwise	    = peekCString strPtr
+      peekUTFString' :: CString -> IO String
+      peekUTFString' strPtr | strPtr==nullPtr = return ""
+			  | otherwise	    = peekUTFString strPtr
 
   poke siPtr (StockItem {
     siStockId = stockId,
@@ -178,14 +178,14 @@ instance Storable StockItem where
     siModifier= modifier,
     siKeyval  = keyval,
     siTransDom= transDom }) = do
-    stockIdPtr <- newCString stockId
+    stockIdPtr <- newUTFString stockId
     #{poke GtkStockItem, stock_id} siPtr stockIdPtr
-    labelPtr   <- newCString label
+    labelPtr   <- newUTFString label
     #{poke GtkStockItem, label}	   siPtr labelPtr
     #{poke GtkStockItem, modifier} siPtr 
       ((fromIntegral modifier)::#{type GdkModifierType})
     #{poke GtkStockItem, keyval}   siPtr ((fromIntegral keyval)::#{type guint})
-    transDomPtr<- newCString transDom
+    transDomPtr<- newUTFString transDom
     #{poke GtkStockItem, translation_domain} siPtr transDomPtr
 
 
@@ -202,20 +202,14 @@ stockAddItem sis = let items = length sis in do
   pokeArray aPtr sis
   stock_add aPtr (fromIntegral items)
 
-foreign import ccall "gtk_stock_add" unsafe 
-  stock_add :: Ptr StockItem -> #{type guint} -> IO ()
-
 -- @method stockLookupItem@ Lookup an item in stock.
 --
 stockLookupItem :: StockId -> IO (Maybe StockItem)
 stockLookupItem stockId = 
   alloca $ \siPtr ->
-  withCString stockId $ \strPtr -> do
+  withUTFString stockId $ \strPtr -> do
   res <- stock_lookup strPtr siPtr
   if (toBool res) then liftM Just $ peek siPtr else return Nothing
-
-foreign import ccall "gtk_stock_lookup" unsafe
-  stock_lookup :: CString -> Ptr StockItem -> IO #type gboolean
 
 -- @function stockListIds@ Produce a list of all known stock identifiers.
 --
@@ -229,9 +223,31 @@ stockListIds :: IO [StockId]
 stockListIds = do
   lPtr <- stock_list_ids
   sPtrs <- fromGSListRev lPtr
-  res <- mapM peekCString sPtrs
+  res <- mapM peekUTFString sPtrs
   mapM_ g_free sPtrs
   return res
+
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "gtk_stock_add"
+  stock_add :: Ptr StockItem -> #{type guint} -> IO ()
+
+foreign import ccall unsafe "gtk_stock_lookup"
+  stock_lookup :: CString -> Ptr StockItem -> IO #type gboolean
+
+foreign import ccall unsafe "gtk_stock_list_ids"
+  stock_list_ids :: IO GSList
+
+foreign import ccall unsafe "g_free"
+  g_free :: Ptr a -> IO ()
+
+#else
+
+foreign import ccall "gtk_stock_add" unsafe 
+  stock_add :: Ptr StockItem -> #{type guint} -> IO ()
+
+foreign import ccall "gtk_stock_lookup" unsafe
+  stock_lookup :: CString -> Ptr StockItem -> IO #type gboolean
 
 foreign import ccall "gtk_stock_list_ids" unsafe
   stock_list_ids :: IO GSList
@@ -239,6 +255,7 @@ foreign import ccall "gtk_stock_list_ids" unsafe
 foreign import ccall "g_free" unsafe
   g_free :: Ptr a -> IO ()
 
+#endif
 -- @constant stockAdd@ Standard icon and menu entry.
 -- @constant stockApply@ Standard icon and menu entry.
 -- @constant stockBold@ Standard icon and menu entry.

@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry TreeSelection@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2003/05/08 07:25:33 $
+--  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -60,14 +61,14 @@ module TreeSelection(
 
 import Monad	(liftM)
 import LocalData(newIORef, readIORef, writeIORef)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
 import Enums    (SelectionMode(..))
 {#import TreeModel#}
-import Structs	(treeIterSize, nullForeignPtr)
+import Structs	(treeIterSize)
 import General	(mkDestructor)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -107,15 +108,17 @@ treeSelectionSetSelectFunction ts fun = do
 type TreeSelectionCB = TreePath -> IO ()
 {#pointer TreeSelectionFunc#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper"  mkTreeSelectionFunc ::
+  (Ptr () -> Ptr () -> Ptr TreePath -> Ptr () -> IO ())-> IO TreeSelectionFunc
+
+#else
+
 foreign export dynamic mkTreeSelectionFunc ::
   (Ptr () -> Ptr () -> Ptr TreePath -> Ptr () -> IO ())-> IO TreeSelectionFunc
 
-foreign import ccall "gtk_tree_path_free" unsafe
-  tree_path_free :: Ptr TreePath -> IO ()
-
-foreign import ccall "gtk_tree_path_copy" unsafe
-  tree_path_copy :: Ptr TreePath -> IO (Ptr TreePath)
-
+#endif
 
 -- @method treeSelectionGetTreeView@ Retrieve the TreeView widget that this
 -- TreeSelection works on.
@@ -131,7 +134,7 @@ treeSelectionGetSelected :: (TreeSelectionClass ts) => ts ->
                             IO (Maybe TreeIter)
 treeSelectionGetSelected ts = do
   iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   res <- {#call tree_selection_get_selected#} (toTreeSelection ts) 
     (nullPtr) iter
   return $ if (toBool res) then Just iter else Nothing
@@ -149,7 +152,7 @@ treeSelectionSelectedForeach ts fun = do
     -- a constant member of Selection this does not matter.
     iterPtr <- mallocBytes treeIterSize
     copyBytes iterPtr ti treeIterSize
-    iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+    iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
     fun iter
     )
   {#call tree_selection_selected_foreach#} (toTreeSelection ts) fPtr nullPtr

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2003/01/21 15:53:25 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -42,8 +42,8 @@ module Plug(
 
 import Monad	(liftM)
 import Maybe	(fromMaybe)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}

@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -49,8 +49,8 @@ module Combo(
   ) where
 
 import Monad	(liftM, mapM_)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 import Widget	(widgetShow)
 import Container(containerAdd)
@@ -76,7 +76,7 @@ comboSetPopdownStrings c strs = do
   {#call list_clear_items#} list  0 (-1)
   mapM_ (\str -> do
     li <- makeNewObject mkWidget $ liftM castPtr $ 
-      withCString str {#call unsafe list_item_new_with_label#}
+      withUTFString str {#call unsafe list_item_new_with_label#}
     widgetShow li
     containerAdd list li)
     strs

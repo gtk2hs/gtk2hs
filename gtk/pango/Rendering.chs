@@ -4,7 +4,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2003/02/09 10:43:01 $
+--  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -36,8 +36,8 @@ module Rendering(
   ) where
 
 import Monad    (liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 {#import Hierarchy#}
 import GObject  (makeNewGObject)
 

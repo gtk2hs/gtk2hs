@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry General@
 --
@@ -6,7 +7,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.10 $ from $Date: 2003/02/27 10:09:17 $
+--  Version $Revision: 1.11 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -58,8 +59,8 @@ import Prelude
        hiding   (init)
 import System   (getProgName, getArgs, ExitCode(ExitSuccess, ExitFailure))
 import Monad	(liftM, mapM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import LocalData(newIORef, readIORef, writeIORef)
 import Exception (ioError, Exception(ErrorCall))
 import Object	(makeNewObject)
@@ -77,7 +78,7 @@ import Structs	(priorityLow, priorityDefault, priorityHigh)
 --getDefaultLanguage :: IO String
 --getDefaultLanguage = do
 --  strPtr <- {#call unsafe get_default_language#}
---  str <- peekCString strPtr
+--  str <- peekUTFString strPtr
 --  destruct strPtr
 --  return str
 
@@ -97,7 +98,7 @@ initGUI = do
   args <- getArgs
   let allArgs = (prog:args)
       argc    = length allArgs
-  withMany withCString allArgs $ \addrs  ->
+  withMany withUTFString allArgs $ \addrs  ->
     withArray	       addrs   $ \argv ->
     withObject	       argv    $ \argvp ->
     withObject	       argc    $ \argcp -> do 
@@ -106,8 +107,8 @@ initGUI = do
         argc'   <- peek argcp
         argv'   <- peek argvp
         _:addrs'  <- peekArray argc' argv'  -- drop the program name
-        mapM peekCString addrs'
-        else ioError (ErrorCall "Cannot initialize GUI.")
+        mapM peekUTFString addrs'
+        else error "Cannot initialize GUI."
 
 -- @function eventsPending@ Inquire the number of events pending on the event
 -- queue
@@ -179,11 +180,21 @@ grabRemove  = {#call grab_remove#} . toWidget
 
 {#pointer Function#}
 
-foreign export dynamic mkHandler :: IO {#type gint#} -> IO Function
-
 {#pointer DestroyNotify#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper" mkHandler :: IO {#type gint#} -> IO Function
+
+foreign import ccall "wrapper" mkDestructor :: IO () -> IO DestroyNotify
+
+#else
+
+foreign export dynamic mkHandler :: IO {#type gint#} -> IO Function
+
 foreign export dynamic mkDestructor :: IO () -> IO DestroyNotify
+
+#endif
 
 type HandlerId = {#type guint#}
 

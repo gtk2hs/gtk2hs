@@ -89,7 +89,12 @@ else
   WIN32=yes;
 fi;
 
-
+dnl determine a temporary directory for c2hs
+TMPDIR="/tmp"
+if test "$WIN32" = "yes"; then
+  TMPDIR="C:\TMP"
+fi
+AC_SUBST(TMPDIR)
 
 dnl Check for libraries.
 
@@ -128,6 +133,13 @@ AC_MSG_RESULT([$GHC_VERSION])
 
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.2, [
   AC_MSG_ERROR([I need the FFI of GHC 5.02 upwards!])])
+
+dnl Calculate a version number with 3 digits (i.e. 502 for 5.2)
+GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/[[0-9]*\.\([0-9]]*\).*/0\1/"`
+GHC_VERSION_NUMBER=`echo $GHC_VERSION_NUMBER | $SED "s/[[0-9]*\([0-9][0-9]]\)/\1/"`
+GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/\([[0-9]]\).*/\1/"`$GHC_VERSION_NUMBER
+
+C2HSFLAGS="$C2HSFLAGS -C-D__GLASGOW_HASKELL__=$GHC_VERSION_NUMBER"
 
 dnl Check if the ghc compiler can generate dynamic callbacks with more than
 dnl 4 words worth of arguments. Hopefully one day the compiler will support
@@ -265,16 +277,16 @@ dnl Check if the user supplied a specific C->Haskell installation or wants to
 dnl use the version in the current search path (--with-c2hs-config=yes). 
 dnl The default is to use the built-in version.
 AC_ARG_WITH(c2hs, 
-  [  --with-c2hs=C2HS-CONFIG use an external C->Haskell installation (slower!)],
+  [  --with-c2hs=C2HS        use an external C->Haskell installation (slower!)],
   [
     case $withval in
       yes) {
 	BUILT_IN_C2HS=no;
-        AC_PATH_PROG(C2HS_CONFIG, c2hs-config, notfound)
-        if test $C2HS_CONFIG = notfound; then
+        AC_PATH_PROG(C2HS, c2hs, notfound)
+        if test $C2HS = notfound; then
           AC_MSG_ERROR([C->Haskell was not found in current search path.
 	          Try compiling with the built-in c2hs by omitting
-		  --with-c2hs-config=... when calling ./configure .])
+		  --with-c2hs=... when calling ./configure .])
 	fi
 	} ;;
       no) {
@@ -282,10 +294,10 @@ AC_ARG_WITH(c2hs,
 	} ;;
       *) {
 	BUILT_IN_C2HS=no;
-	AC_CHECK_FILE($withval,C2HS_CONFIG=$withval,
+	AC_CHECK_FILE($withval,C2HS=$withval,
           AC_MSG_ERROR([The specified C->Haskell tool was not found.
 	          Try compiling with the built-in c2hs by omitting
-		  --with-c2hs-config=... when calling ./configure .]))
+		  --with-c2hs=... when calling ./configure .]))
 	} ;;
     esac
   ],[BUILT_IN_C2HS=yes])
@@ -316,31 +328,13 @@ else
   dnl Find C->Haskell and check its version.
   dnl Check the version of c2hs
   AC_CACHE_CHECK([c2hs version], c2hs_version, [
-    c2hs_version=`$C2HS_CONFIG --version | $SED "s/[\([0-9.]*\) .*]/\1/"`;
+    c2hs_version=`$C2HS --version | $SED "s/[[^0-9.]*\([0-9.]*\) .*]/\1/"`;
   ])
-  GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.8.0,
-    AC_MSG_ERROR([You need C->Haskell version 0.8.0 upwards!
+  GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.11.6,
+    AC_MSG_ERROR([You need C->Haskell version 0.11.6 upwards!
       ** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
-  GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.10.13,
-    AC_MSG_WARN([
-      *************************************************************
-      * You may run into problems with this version of C->Haskell.*
-      * If c2hs stumbles over VARARG macros edit                  * 
-      * c2hs/toplevel/C2HSConfig.hs by changing the line          *
-      *   cppopts = ""                                            *
-      * to                                                        *
-      *   cppopts = "-x c"                                        *
-      * and recompile and reinstall c2hs. This problem is fixed   *
-      * in version 0.10.13 and above.                             *
-      *************************************************************]))
   dnl C->Haskell configuration.
-  C2HS=`$C2HS_CONFIG --c2hs`;
 fi
-
-dnl C2HS_CFLAGS="`$C2HS_CONFIG --cflags`"
-dnl AC_MSG_RESULT([Notice: C->Haskell induced compile time options: `$C2HS_CONFIG --cflags`])
-dnl LIBS="`$C2HS_CONFIG --libs` $LIBS"
-dnl AC_MSG_RESULT([Notice: C->Haskell induced link time options: `$C2HS_CONFIG --libs`])
 
 # Read the version file
 VERSION=`cat $TOP/VERSION`

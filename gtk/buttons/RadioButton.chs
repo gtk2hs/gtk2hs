@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -48,8 +48,8 @@ module RadioButton(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -69,7 +69,7 @@ radioButtonNew  = makeNewObject mkRadioButton $ liftM castPtr $
 -- label to the right of the button.
 --
 radioButtonNewWithLabel :: String -> IO RadioButton
-radioButtonNewWithLabel lbl = withCString lbl $ \strPtr -> 
+radioButtonNewWithLabel lbl = withUTFString lbl $ \strPtr -> 
   makeNewObject mkRadioButton $ liftM castPtr $
   {#call unsafe radio_button_new_with_label#} nullPtr strPtr
 
@@ -88,7 +88,7 @@ radioButtonNewJoinGroup rb = makeNewObject mkRadioButton $ liftM castPtr $
 -- label and group.
 --
 radioButtonNewJoinGroupWithLabel :: RadioButton -> String -> IO RadioButton
-radioButtonNewJoinGroupWithLabel rb lbl = withCString lbl $ \strPtr ->
+radioButtonNewJoinGroupWithLabel rb lbl = withUTFString lbl $ \strPtr ->
   makeNewObject mkRadioButton $ liftM castPtr $
   {#call radio_button_new_with_label_from_widget#} rb strPtr
 

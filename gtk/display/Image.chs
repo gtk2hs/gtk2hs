@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/10/06 16:14:07 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -54,8 +54,8 @@ module Image(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
@@ -71,13 +71,13 @@ import Structs	(IconSize, iconSizeInvalid, iconSizeMenu, iconSizeSmallToolbar,
 --
 imageNewFromFile :: FilePath -> IO Image
 imageNewFromFile path = makeNewObject mkImage $ liftM castPtr $ 
-  withCString path {#call unsafe image_new_from_file#}
+  withUTFString path {#call unsafe image_new_from_file#}
 
 -- @method imageNewFromStock@ Create a set of images by specifying a stock
 -- object.
 --
 imageNewFromStock :: String -> IconSize -> IO Image
-imageNewFromStock stock ic = withCString stock $ \strPtr -> 
+imageNewFromStock stock ic = withUTFString stock $ \strPtr -> 
   makeNewObject mkImage $ liftM castPtr $ {#call unsafe image_new_from_stock#}
   strPtr (fromIntegral ic)
 

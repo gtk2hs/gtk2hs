@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -62,8 +62,8 @@ module MenuItem(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -83,7 +83,7 @@ menuItemNew  = makeNewObject mkMenuItem $
 -- inside.
 --
 menuItemNewWithLabel :: String -> IO MenuItem
-menuItemNewWithLabel label = withCString label $ \strPtr -> 
+menuItemNewWithLabel label = withUTFString label $ \strPtr -> 
   makeNewObject mkMenuItem $ liftM castPtr $
   {#call unsafe menu_item_new_with_label#} strPtr
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2003/05/08 07:25:32 $
+--  Version $Revision: 1.8 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  Copyright (c) [2001..2002] Axel Simon
 --
@@ -128,13 +128,12 @@ module TextBuffer(
 
 import Monad	(liftM)
 import Maybe	(fromMaybe)
-import Foreign
-import UTFCForeign
+import FFI
+
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
 {#import TextIter#}
-import Structs	(nullForeignPtr)
 import TextMark	(TextMark, MarkName)
 import TextTag	(TextTag, TagName)
 
@@ -177,13 +176,13 @@ textBufferGetTagTable tb = makeNewGObject mkTextTagTable $ liftM castPtr $
 -- @ref type TextIter@.
 --
 textBufferInsert :: TextBuffer -> TextIter -> String -> IO ()
-textBufferInsert tb iter str = withCStringLen str $ \(cStr, len) ->
+textBufferInsert tb iter str = withUTFStringLen str $ \(cStr, len) ->
   {#call text_buffer_insert#} tb iter cStr (fromIntegral len)
 
 -- @method textBufferInsertAtCursor@ Insert text at the cursor.
 --
 textBufferInsertAtCursor :: TextBuffer -> String -> IO ()
-textBufferInsertAtCursor tb str = withCStringLen str $ \(cStr, len) ->
+textBufferInsertAtCursor tb str = withUTFStringLen str $ \(cStr, len) ->
   {#call text_buffer_insert_at_cursor#} tb cStr (fromIntegral len)
 
 -- @method textBufferInsertInteractive@ Insert text at the @ref type TextIter@
@@ -197,7 +196,7 @@ textBufferInsertAtCursor tb str = withCStringLen str $ \(cStr, len) ->
 --
 textBufferInsertInteractive :: TextBuffer -> TextIter -> String -> Bool ->
                                IO Bool
-textBufferInsertInteractive tb iter str def = withCStringLen str $ 
+textBufferInsertInteractive tb iter str def = withUTFStringLen str $ 
   \(cStr, len) -> liftM toBool $ {#call text_buffer_insert_interactive#} 
     tb iter cStr (fromIntegral len) (fromBool def)
 
@@ -205,7 +204,7 @@ textBufferInsertInteractive tb iter str def = withCStringLen str $
 -- a normal user would be able to do so as well.
 --
 textBufferInsertInteractiveAtCursor :: TextBuffer -> String -> Bool -> IO Bool
-textBufferInsertInteractiveAtCursor tb str def = withCStringLen str $ 
+textBufferInsertInteractiveAtCursor tb str def = withUTFStringLen str $ 
   \(cStr, len) -> liftM toBool $ 
   {#call text_buffer_insert_interactive_at_cursor #} tb cStr 
     (fromIntegral len) (fromBool def)
@@ -256,7 +255,7 @@ textBufferDeleteInteractive tb start end def = liftM toBool $
 -- @ref type TextBuffer@.
 --
 textBufferSetText :: TextBuffer -> String -> IO ()
-textBufferSetText tb str = withCStringLen str $ \(cStr, len) ->
+textBufferSetText tb str = withUTFStringLen str $ \(cStr, len) ->
   {#call text_buffer_set_text#} tb cStr (fromIntegral len)
 
 -- @method textBufferGetText@ Extract all the text between @ref arg start@ and
@@ -272,7 +271,7 @@ textBufferSetText tb str = withCStringLen str $ \(cStr, len) ->
 --
 textBufferGetText :: TextBuffer -> TextIter -> TextIter -> Bool -> IO String
 textBufferGetText tb start end incl = {#call unsafe text_buffer_get_text#} 
-  tb start end (fromBool incl) >>= peekCString
+  tb start end (fromBool incl) >>= peekUTFString
 
 -- @method textBufferGetSlice@ Extract text and special characters between
 -- @ref arg start@ and @ref arg end@.
@@ -284,7 +283,7 @@ textBufferGetText tb start end incl = {#call unsafe text_buffer_get_text#}
 --
 textBufferGetSlice :: TextBuffer -> TextIter -> TextIter -> Bool -> IO String
 textBufferGetSlice tb start end incl = {#call unsafe text_buffer_get_slice#}
-  tb start end (fromBool incl) >>= peekCString
+  tb start end (fromBool incl) >>= peekUTFString
 
 -- @method textBufferInsertPixbuf@ Insert an image into the
 -- @ref type TextBuffer@.
@@ -308,7 +307,7 @@ textBufferCreateMark :: TextBuffer -> Maybe MarkName -> TextIter -> Bool ->
 textBufferCreateMark tb Nothing iter gravity = makeNewGObject mkTextMark $
   {#call unsafe text_buffer_create_mark#} tb nullPtr iter (fromBool gravity)
 textBufferCreateMark tb (Just name) iter gravity = 
-  makeNewGObject mkTextMark $ withCString name $ \cStr ->
+  makeNewGObject mkTextMark $ withUTFString name $ \cStr ->
   {#call unsafe text_buffer_create_mark#} tb cStr iter (fromBool gravity)
 
 -- @method textBufferMoveMark@ Move a mark.
@@ -323,7 +322,7 @@ textBufferMoveMark tb tm iter = {#call text_buffer_move_mark#} tb tm iter
 -- * The mark should exist (otherwise a nasty warning is generated).
 --
 textBufferMoveMarkByName :: TextBuffer -> MarkName -> TextIter -> IO ()
-textBufferMoveMarkByName tb name iter = withCString name $ \cStr ->
+textBufferMoveMarkByName tb name iter = withUTFString name $ \cStr ->
   {#call text_buffer_move_mark_by_name#} tb cStr iter
 
 -- @method textBufferDeleteMark@ Delete a mark.
@@ -338,14 +337,14 @@ textBufferDeleteMark tb tm = {#call text_buffer_delete_mark#} tb tm
 -- * The mark should exist (otherwise a nasty warning is generated).
 --
 textBufferDeleteMarkByName :: TextBuffer -> MarkName -> IO ()
-textBufferDeleteMarkByName tb name = withCString name $ \cStr ->
+textBufferDeleteMarkByName tb name = withUTFString name $ \cStr ->
   {#call text_buffer_delete_mark_by_name#} tb cStr
 
 -- @method textBufferGetMark@ Retrieve a @ref type TextMark@ by name.
 --
 textBufferGetMark :: TextBuffer -> MarkName -> IO (Maybe TextMark)
 textBufferGetMark tb name = do
-  tm <- withCString name $ \cStr -> 
+  tm <- withUTFString name $ \cStr -> 
     {#call unsafe text_buffer_get_mark#} tb cStr
   if tm==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkTextMark (return tm)
@@ -389,14 +388,14 @@ textBufferRemoveTag tb tag start end =
 --
 textBufferApplyTagByName :: TextBuffer -> TagName -> TextIter -> TextIter ->
                             IO () 
-textBufferApplyTagByName tb tname start end = withCString tname $ \cStr ->
+textBufferApplyTagByName tb tname start end = withUTFString tname $ \cStr ->
   {#call text_buffer_apply_tag_by_name#} tb cStr start end
 
 -- @method textBufferRemoveTagByName@ Remove a tag from a range of text.
 --
 textBufferRemoveTagByName :: TextBuffer -> TagName -> TextIter -> TextIter ->
                              IO ()
-textBufferRemoveTagByName tb tname start end = withCString tname $ \cStr ->
+textBufferRemoveTagByName tb tname start end = withUTFString tname $ \cStr ->
   {#call text_buffer_remove_tag_by_name#} tb cStr start end
 
 -- @method textBufferRemoveAllTags@ Remove all tags within a range.
@@ -619,12 +618,12 @@ onInsertText, afterInsertText :: TextBufferClass tb => tb ->
 onInsertText tb user = 
   connect_BOXED_PTR_INT__NONE "insert_text" mkTextIter False tb $
     \iter strP strLen -> do
-      str <- peekCStringLen (strP,strLen)
+      str <- peekUTFStringLen (strP,strLen)
       user iter str 
 afterInsertText tb user = 
   connect_BOXED_PTR_INT__NONE "insert_text" mkTextIter True tb $
     \iter strP strLen -> do
-      str <- peekCStringLen (strP,strLen)
+      str <- peekUTFStringLen (strP,strLen)
       user iter str 
 
 -- @signal connectToMarkDeleted@ A @ref data TextMark@ within the buffer was

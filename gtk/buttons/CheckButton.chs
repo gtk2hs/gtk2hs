@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -37,8 +37,8 @@ module CheckButton(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -57,7 +57,7 @@ checkButtonNew  = makeNewObject mkCheckButton $
 -- the right of it.
 --
 checkButtonNewWithLabel :: String -> IO CheckButton
-checkButtonNewWithLabel lbl = withCString lbl (\strPtr ->
+checkButtonNewWithLabel lbl = withUTFString lbl (\strPtr ->
   makeNewObject mkCheckButton $ liftM castPtr $
   {#call unsafe check_button_new_with_label#} strPtr)
 
@@ -68,7 +68,7 @@ checkButtonNewWithLabel lbl = withCString lbl (\strPtr ->
 --   the label to a underlined character.
 --
 checkButtonNewWithMnemonic :: String -> IO CheckButton
-checkButtonNewWithMnemonic lbl = withCString lbl (\strPtr ->
+checkButtonNewWithMnemonic lbl = withUTFString lbl (\strPtr ->
   makeNewObject mkCheckButton $ liftM castPtr $ 
   {#call unsafe check_button_new_with_mnemonic#} strPtr)
 

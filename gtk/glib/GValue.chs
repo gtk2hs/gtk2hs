@@ -5,7 +5,7 @@
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:44 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -37,8 +37,8 @@ module GValue(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import GType	(GType)
 import Hierarchy(GObject)
 

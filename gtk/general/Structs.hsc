@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.19 $ from $Date: 2003/05/17 19:29:38 $
+--  Version $Revision: 1.20 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -33,6 +33,7 @@ module Structs(
   Rectangle(..),
   Color(..),
   GCValues(..),
+#if __GLASGOW_HASKELL__<600
   foreground,
   background,
   function,
@@ -50,6 +51,7 @@ module Structs(
   lineStyle,
   capStyle,
   joinStyle,
+#endif
   pokeGCValues,
   newGCValues,
   widgetGetState,
@@ -84,7 +86,6 @@ module Structs(
   priorityLow,
   priorityDefault,
   priorityHigh,
-  nullForeignPtr,
   drawingAreaGetDrawWindow,
   drawingAreaGetSize,
   pangoScale,
@@ -101,10 +102,9 @@ module Structs(
   ) where
 
 import Monad		(liftM)
-import Foreign
-import UTFCForeign
-import LocalData	(unsafePerformIO,	-- for nullForeignPtr
-			testBit)
+import FFI
+
+import LocalData	(testBit)
 import Object		(makeNewObject)
 import GObject		(makeNewGObject)
 import Hierarchy
@@ -167,12 +167,23 @@ instance Storable Color where
     gdkColormapAllocColor cPtr ptr 0 1
     return ()
 
+#if __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gdk_colormap_get_system"
+  gdkColormapGetSystem :: IO (Ptr ())
+
+foreign import ccall unsafe "gdk_colormap_alloc_color"
+  gdkColormapAllocColor :: Ptr () -> Ptr Color -> CInt -> CInt -> IO CInt
+
+#else
+
 foreign import ccall "gdk_colormap_get_system" unsafe
   gdkColormapGetSystem :: IO (Ptr ())
 
 foreign import ccall "gdk_colormap_alloc_color" unsafe
   gdkColormapAllocColor :: Ptr () -> Ptr Color -> CInt -> CInt -> IO CInt
 
+#endif
 
 -- @entry GC@
 
@@ -625,11 +636,6 @@ priorityLow :: Int
 priorityLow	= #const G_PRIORITY_LOW
 
 
--- helper function: nullForeignPtr
--- this must be a performance hit
-nullForeignPtr :: ForeignPtr a
-nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr (return ())
-
 -- @entry Widget FileSelection@
 
 -- @method fileSelectionGetButtons@ Extract the buttons of a fileselection.
@@ -804,6 +810,6 @@ instance Storable GError where
     (domain  :: GQuark)		<- #{peek GError, domain} ptr
     (code    :: #{type gint})	<- #{peek GError, code} ptr
     (msgPtr  :: CString)	<- #{peek GError, message} ptr
-    msg <- peekCString msgPtr
+    msg <- peekUTFString msgPtr
     return $ GError domain code msg
   poke _ = error "GError::poke: not implemented"

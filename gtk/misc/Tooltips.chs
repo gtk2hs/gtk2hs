@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/10/06 16:14:08 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -58,8 +58,8 @@ module Tooltips(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -108,7 +108,7 @@ tooltipsSetDelay t time = {#call unsafe tooltips_set_delay#}
 tooltipsSetTip :: (TooltipsClass t, WidgetClass w) => t -> w -> String ->
                   String -> IO ()
 tooltipsSetTip t w tipText tipPrivate = 
-  withCString tipPrivate $ \priPtr ->
-  withCString tipText $ \txtPtr ->
+  withUTFString tipPrivate $ \priPtr ->
+  withUTFString tipText $ \txtPtr ->
   {#call unsafe tooltips_set_tip#} (toTooltips t) (toWidget w) txtPtr priPtr
 

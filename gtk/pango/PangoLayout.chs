@@ -4,7 +4,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.5 $ from $Date: 2003/05/17 22:57:07 $
+--  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -95,8 +95,7 @@ module PangoLayout(
   ) where
 
 import Monad    (liftM)
-import Foreign
-import UTFCForeign
+import FFI
 {#import Hierarchy#}
 import GObject  (makeNewGObject)
 import Markup	(Markup)
@@ -134,20 +133,20 @@ layoutContextChanged pl = {#call unsafe layout_context_changed#} pl
 -- @method layoutSetText@ Set the string in the layout.
 --
 layoutSetText :: PangoLayout -> String -> IO ()
-layoutSetText pl txt = withCStringLen txt $ \(strPtr,len) ->
+layoutSetText pl txt = withUTFStringLen txt $ \(strPtr,len) ->
   {#call unsafe layout_set_text#} pl strPtr (fromIntegral len)
 
 -- @method layoutGetText@ Retrieve the string in the layout.
 --
 layoutGetText :: PangoLayout -> IO String
-layoutGetText pl = {#call unsafe layout_get_text#} pl >>= peekCString
+layoutGetText pl = {#call unsafe layout_get_text#} pl >>= peekUTFString
 
 -- @method layoutSetMarkup@ Set the string in the layout.
 --
 -- * The string may include @ref data Markup@.
 --
 layoutSetMarkup :: PangoLayout -> Markup -> IO ()
-layoutSetMarkup pl txt = withCStringLen txt $ \(strPtr,len) ->
+layoutSetMarkup pl txt = withUTFStringLen txt $ \(strPtr,len) ->
   {#call unsafe layout_set_markup#} pl strPtr (fromIntegral len)
 
 -- @method layoutSetMarkupWithAccel@ Set the string in the layout.
@@ -163,7 +162,7 @@ layoutSetMarkup pl txt = withCStringLen txt $ \(strPtr,len) ->
 layoutSetMarkupWithAccel :: PangoLayout -> Markup -> IO Char
 layoutSetMarkupWithAccel pl txt =
   alloca $ \chrPtr -> 
-  withCStringLen txt $ \(strPtr,len) -> do
+  withUTFStringLen txt $ \(strPtr,len) -> do
     {#call unsafe layout_set_markup_with_accel#} pl strPtr (fromIntegral len)
       (fromIntegral (ord '_')) chrPtr
     liftM (chr.fromIntegral) $ peek chrPtr

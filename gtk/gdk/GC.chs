@@ -4,7 +4,7 @@
 --  Author : Axel Simon
 --  Created: 28 September 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -35,7 +35,7 @@ module GC(
   GCClass,
   castToGC,
   gcNew,
-  GCValues(..),
+  GCValues(GCValues),
   newGCValues,
   Color(..),
   foreground,
@@ -71,14 +71,14 @@ module GC(
 import Monad	(liftM, when)
 import Maybe	(fromJust, isJust)
 import Exception(handle)
-import Foreign
-import UTFCForeign
+import FFI
+
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
 import Structs
 import Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..), 
 		 CapStyle(..), JoinStyle(..))
-{#import Region#}	(Region)
+{#import Region#}	(Region(Region))
 
 {# context lib="gtk" prefix="gdk" #}
 

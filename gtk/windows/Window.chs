@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 2001 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -71,8 +71,8 @@ module Window(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Enums	(WindowType(WindowToplevel), WindowPosition(..))
 import Object	(makeNewObject)
 {#import Hierarchy#}
@@ -93,7 +93,7 @@ windowNew = makeNewObject mkWindow $ liftM castPtr $
 --
 windowSetTitle :: WindowClass w => w -> String -> IO ()
 windowSetTitle w str = 
-  withCString str ({#call window_set_title#} (toWindow w))
+  withUTFString str ({#call window_set_title#} (toWindow w))
 
 -- @method windowSetResizable@ Sets whether the user can resize a window.
 --
@@ -225,7 +225,7 @@ windowSetFrameDimensions w left top right bottom =
 --
 windowSetRole :: WindowClass w => w -> String -> IO ()
 windowSetRole w str = 
-  withCString str ({#call window_set_role#} (toWindow w))
+  withUTFString str ({#call window_set_role#} (toWindow w))
 
 -- @method windowStick@ show the window on every workspace
 --

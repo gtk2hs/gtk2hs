@@ -5,7 +5,7 @@
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2003/07/03 05:19:36 $
+--  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -69,8 +69,8 @@ module Drawable(
   drawDrawable) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import GObject	(makeNewGObject)
 import Structs  (Point)
 {#import Hierarchy#}
@@ -282,7 +282,7 @@ drawLayoutLineWithColors :: DrawableClass d => d -> GC -> Int -> Int ->
 drawLayoutLineWithColors d gc x y text foreground background = let
     withMB :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b
     withMB Nothing f = f nullPtr
-    withMB (Just x) f = with' x f
+    withMB (Just x) f = with x f
   in
     withMB foreground $ \fPtr -> withMB background $ \bPtr ->
     {#call unsafe draw_layout_line_with_colors#} (toDrawable d) (toGC gc)
@@ -313,7 +313,7 @@ drawLayoutWithColors :: DrawableClass d => d -> GC -> Int -> Int ->
 drawLayoutWithColors d gc x y text foreground background = let
     withMB :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b
     withMB Nothing f = f nullPtr
-    withMB (Just x) f = with' x f
+    withMB (Just x) f = with x f
   in
     withMB foreground $ \fPtr -> withMB background $ \bPtr ->
     {#call unsafe draw_layout_with_colors#} (toDrawable d) (toGC gc)

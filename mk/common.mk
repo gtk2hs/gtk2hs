@@ -274,7 +274,7 @@ debug 	:
 	@echo incl: $(INST_INCLDIR) bin: $(INST_BINDIR)
 #	@echo user install dir: $(INSTALLDIR)
 	@echo subdirs: $(SUBDIRSOK)
-#	@echo $(ALLSOURCEFILES) > sourcefiles.txt
+	@echo $(ALLSOURCEFILES) > sourcefiles.txt
 #	@cvs status $(CLEANFILES) 2> /dev/null | $(GREP) File | $(GREP) Unknown
 
 # Create a source tar achive. Do this by adding files to the tar file in the

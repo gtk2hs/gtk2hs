@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2003/05/22 09:19:18 $
+--  Version $Revision: 1.15 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -146,10 +146,10 @@ module TreeView(
 import Monad	(liftM, mapM)
 import Maybe	(fromMaybe)
 import LocalData(newIORef, readIORef, writeIORef)
-import Foreign
-import UTFCForeign
+import FFI
+
 import General	(mkDestructor)
-import Structs	(nullForeignPtr, Point, Rectangle)
+import Structs	(Point, Rectangle)
 import GObject	(makeNewGObject, objectRef, objectUnref)
 import Object	(makeNewObject)
 import GList	(GList, fromGList)
@@ -430,9 +430,19 @@ treeViewSetColumnDragFunction tv (Just pred) = do
 
 {#pointer TreeViewColumnDropFunc#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper" mkTreeViewColumnDropFunc ::
+  (Ptr () -> Ptr TreeViewColumn -> Ptr TreeViewColumn -> Ptr TreeViewColumn ->
+  Ptr () -> IO {#type gboolean#}) -> IO TreeViewColumnDropFunc
+
+#else
+
 foreign export dynamic mkTreeViewColumnDropFunc ::
   (Ptr () -> Ptr TreeViewColumn -> Ptr TreeViewColumn -> Ptr TreeViewColumn ->
   Ptr () -> IO {#type gboolean#}) -> IO TreeViewColumnDropFunc
+
+#endif
 
 -- @method treeViewScrollToPoint@ Scroll to a coordinate.
 --
@@ -526,9 +536,6 @@ treeViewGetCursor tv = alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr -> do
     makeNewObject mkTreeViewColumn (return tvcPtr)
   return (tp,tvc)
 
-foreign import ccall "gtk_tree_path_free" unsafe
-  tree_path_free :: Ptr TreePath -> IO ()
-  
 -- @method treeViewRowActivated@ Emit the activated signal on a cell.
 --
 treeViewRowActivated :: TreeViewClass tv => tv -> TreePath -> 
@@ -590,9 +597,19 @@ treeViewMapExpandedRows tv func = do
 
 {#pointer TreeViewMappingFunc#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper" mkTreeViewMappingFunc ::
+  (Ptr TreeView -> Ptr TreePath -> Ptr () -> IO ()) ->
+  IO TreeViewMappingFunc
+
+#else
+
 foreign export dynamic mkTreeViewMappingFunc ::
   (Ptr TreeView -> Ptr TreePath -> Ptr () -> IO ()) ->
   IO TreeViewMappingFunc
+
+#endif
 
 -- @method treeViewRowExpanded@ Check if row is expanded.
 --
@@ -781,7 +798,7 @@ treeViewSetSearchEqualFunc :: TreeViewClass tv => tv ->
 			      IO ()
 treeViewSetSearchEqualFunc tv pred = do
   fPtr <- mkTreeViewSearchEqualFunc (\_ col keyPtr itPtr _ -> do
-    key <- peekCString keyPtr
+    key <- peekUTFString keyPtr
     iter <- createTreeIter itPtr
     liftM fromBool $ pred (fromIntegral col) key iter)
   dRef <- newIORef nullFunPtr
@@ -795,10 +812,19 @@ treeViewSetSearchEqualFunc tv pred = do
 
 {#pointer TreeViewSearchEqualFunc#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper" mkTreeViewSearchEqualFunc ::
+  (Ptr TreeModel -> {#type gint#} -> CString -> Ptr TreeIter -> Ptr () ->
+   IO {#type gboolean#}) -> IO TreeViewSearchEqualFunc
+
+#else
+
 foreign export dynamic mkTreeViewSearchEqualFunc ::
   (Ptr TreeModel -> {#type gint#} -> CString -> Ptr TreeIter -> Ptr () ->
    IO {#type gboolean#}) -> IO TreeViewSearchEqualFunc
 
+#endif
 
 -- @signal connectToColumnsChanged@ The user has dragged a column to another
 -- position.

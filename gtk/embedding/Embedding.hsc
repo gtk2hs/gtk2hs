@@ -5,7 +5,7 @@
 --          
 --  Created: 20 January 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2003/01/21 15:53:25 $
+--  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -35,8 +35,8 @@ module Embedding(
   NativeWindowId
   ) where
 
-import Foreign
-import UTFCForeign
+import FFI
+
 import Hierarchy
 import Exception
 

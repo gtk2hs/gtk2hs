@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry Object@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:43 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -44,8 +45,8 @@ module Object(
   objectGetProperty
   ) where
 
-import Foreign
-import UTFCForeign	(withCString, CChar)
+import FFI
+
 import GObject		(objectRef, objectUnref)
 {#import Signal#}
 {#import Hierarchy#}
@@ -69,8 +70,17 @@ import StoreValue
 objectSink :: ObjectClass obj => Ptr obj -> IO ()
 objectSink = object_sink.castPtr
 
+#if __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gtk_object_sink"
+  object_sink :: Ptr Object -> IO ()
+
+#else
+
 foreign import ccall "gtk_object_sink" unsafe 
   object_sink :: Ptr Object -> IO ()
+
+#endif
 
 -- This is a convenience function to generate a new widget. It adds the
 -- finalizer with the method described under objectSink.
@@ -96,7 +106,7 @@ makeNewObject constr generator = do
 --
 objectSetProperty :: GObjectClass gobj => gobj -> String -> GenericValue -> 
 					  IO ()
-objectSetProperty obj prop val = alloca $ \vaPtr -> withCString prop $ 
+objectSetProperty obj prop val = alloca $ \vaPtr -> withUTFString prop $ 
   \sPtr -> poke vaPtr val >> {#call unsafe g_object_set_property#} 
   (toGObject obj) sPtr vaPtr >> valueUnset vaPtr
   
@@ -107,7 +117,7 @@ objectSetProperty obj prop val = alloca $ \vaPtr -> withCString prop $
 --
 objectGetProperty :: GObjectClass gobj => gobj -> String -> 
 					IO GenericValue
-objectGetProperty obj prop = alloca $ \vaPtr -> withCString prop $ \str -> do
+objectGetProperty obj prop = alloca $ \vaPtr -> withUTFString prop $ \str -> do
   {#call unsafe g_object_get_property#} (toGObject obj) str vaPtr
   res <- peek vaPtr
   valueUnset vaPtr

@@ -1,3 +1,71 @@
+2003-07-09 Axel Simon <A.Simon@kent.ukc.ac.uk>
+	
+	* c2hs/gen/GBMonad.hs, c2hs/gen/GenBind.hs: Applied the patch I
+	wrote for c2hs 0.11.5 which created code for ForeignPtrs which is
+	compatible with the new FFI of GHC 6.0.
+
+	* abstract/Box.chs, abstract/Container.chs, abstract/Misc.chs,
+	abstract/Object.chs, abstract/Paned.chs, abstract/Range.chs,
+	abstract/Scale.chs, abstract/Scrollbar.hs, abstract/Separator.hs,
+	abstract/Widget.chs, buttons/Button.chs, buttons/CheckButton.chs,
+	buttons/RadioButton.chs, buttons/ToggleButton.chs,
+	display/AccelLabel.chs, display/Image.chs, display/Label.chs,
+	display/ProgressBar.chs, display/Statusbar.chs,
+	embedding/Embedding.hsc, embedding/Plug.chs, embedding/Socket.chs,
+	entry/Entry.chs, entry/HScale.chs, entry/SpinButton.chs,
+	entry/VScale.chs, gdk/DrawWindow.hs, gdk/Drawable.chs,
+	gdk/Events.hsc, gdk/GC.chs, gdk/Gdk.chs, gdk/GdkEnums.chs,
+	gdk/Keys.chs, gdk/Pixbuf.chs, gdk/Region.chs, general/Enums.chs,
+	general/General.chs, general/Gtk.hs, general/IconFactory.chs,
+	general/StockItems.hsc, general/Structs.hsc, general/Style.chs,
+	glib/GList.chs, glib/GObject.chs, glib/GType.chs, glib/GValue.chs,
+	glib/GValueTypes.chs, layout/Alignment.chs,
+	layout/AspectFrame.chs, layout/HBox.chs, layout/HPaned.chs,
+	layout/Layout.chs, layout/Notebook.chs, layout/Table.chs,
+	layout/VBox.chs, layout/VPaned.chs,
+	menuComboToolbar/CheckMenuItem.chs, menuComboToolbar/Combo.chs,
+	menuComboToolbar/ImageMenuItem.chs, menuComboToolbar/Menu.chs,
+	menuComboToolbar/MenuBar.chs, menuComboToolbar/MenuItem.chs,
+	menuComboToolbar/MenuShell.chs, menuComboToolbar/OptionMenu.chs,
+	menuComboToolbar/RadioMenuItem.chs,
+	menuComboToolbar/TearoffMenuItem.chs,
+	menuComboToolbar/Toolbar.chs, misc/Adjustment.chs, misc/Arrow.chs,
+	misc/Calendar.chs, misc/DrawingArea.chs, misc/EventBox.chs,
+	misc/HandleBox.chs, misc/Tooltips.chs, misc/Viewport.chs,
+	multiline/TextBuffer.chs, multiline/TextIter.chs,
+	multiline/TextMark.chs, multiline/TextTag.chs,
+	multiline/TextTagTable.chs, multiline/TextView.chs,
+	ornaments/Frame.chs, ornaments/HSeparator.chs,
+	ornaments/VSeparator.chs, pango/Markup.hs, pango/PangoLayout.chs,
+	pango/PangoTypes.chs, pango/Rendering.chs,
+	scrolling/HScrollbar.chs, scrolling/ScrolledWindow.chs,
+	scrolling/VScrollbar.chs, signals/HookGenerator.hs,
+	signals/Signal.chs-boot1, signals/Signal.chs-boot2,
+	treeList/CellRenderer.hs, treeList/CellRendererPixbuf.chs,
+	treeList/CellRendererText.chs, treeList/CellRendererToggle.chs,
+	treeList/ListStore.chs, treeList/StoreValue.hsc,
+	treeList/TreeModel.chs, treeList/TreeModelSort.chs,
+	treeList/TreeSelection.chs, treeList/TreeStore.chs,
+	treeList/TreeView.chs, treeList/TreeViewColumn.chs,
+	typehier/TypeGenerator.hs, windows/Dialog.chs,
+	windows/FileSel.chs, windows/Window.chs: Make compile with GHC
+	6.00. There are two major changes in the FFI which made me
+	separate everything that has to do with Foreign and Foreign.C into
+	a new file called general/FFI.hs. The file UTFCForeign.hs is now
+	obsolete as its string conversion functions are now in FFI.hs. The
+	nullForeignPtr function is also located here. All files now import
+	FFI instead of Foreign and UTFCForeign. The major changes are:
+	newForeignPtr now takes a pointer to a C function as
+	finalizer. Every destructor function is now defined differently
+	depending on whether the new GHC is used or not. In particular
+	there is now a function called free :: Ptr a -> IO () imported
+	from the Foreign library. In addition to that I defined a function
+	foreignFree which can be used as finalizer to a C data
+	structure. It is equivalent to free if GHC version <=5.04 is
+	used. The second change is that ForeignPtr are no longer accepted
+	as arguments to foreign calls. This change is mainly reflected in
+	c2hs, but also in some files which directly called functions.
+	
 2003-07-04 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* configure.in mk/config.mk.in mk/library.mk: Turned the

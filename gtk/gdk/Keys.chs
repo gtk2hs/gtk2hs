@@ -4,7 +4,7 @@
 --  Author : Jens Petersen
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/10/06 16:14:08 $
+--  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 2002 Jens Petersen
 --
@@ -34,17 +34,17 @@ module Keys(
   keyvalFromName
   ) where
 
-import UTFCForeign
-import Foreign
+
+import FFI
 import LocalData(unsafePerformIO)
 
 {#context lib="libgdk" prefix ="gdk"#}
 
 {#fun pure keyval_name as ^ {fromIntegral `Integer'} -> `Maybe String'
-    maybePeekCString#}
+    maybePeekUTFString#}
   where
-  maybePeekCString = unsafePerformIO . (maybePeek peekCString)
---   maybePeekCString = maybePeek peekCString
+  maybePeekUTFString = unsafePerformIO . (maybePeek peekCString)
+--   maybePeekUTFString = maybePeek peekCString
 
 {#fun pure keyval_from_name as ^ {`String'} -> `Integer' fromIntegral#}
 

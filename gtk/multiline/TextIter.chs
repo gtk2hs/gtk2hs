@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry TextIter TextBuffer@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.9 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -127,12 +128,11 @@ module TextIter(
 import Monad	(liftM)
 import Maybe	(fromMaybe)
 import Char	(chr)
-import Foreign
-import UTFCForeign
+import FFI
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Structs  (nullForeignPtr, textIterSize)
+import Structs  (textIterSize)
 import Enums	(TextSearchFlags, Flags(fromFlags))
 
 {# context lib="gtk" prefix="gtk" #}
@@ -145,20 +145,34 @@ import Enums	(TextSearchFlags, Flags(fromFlags))
 --
 mkTextIter :: Ptr TextIter -> IO TextIter
 mkTextIter iterPtr = liftM TextIter $ 
-  newForeignPtr iterPtr (textIterFree iterPtr)
+  newForeignPtr iterPtr (text_iter_free iterPtr)
+
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&gtk_text_iter_free"
+  text_iter_free' :: FinalizerPtr TextIter
+
+text_iter_free :: Ptr TextIter -> FinalizerPtr TextIter
+text_iter_free _ = text_iter_free'
+
+#elif __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "gtk_text_iter_free"
+  text_iter_free :: Ptr TextIter -> IO ()
+
+#else
+
+foreign import ccall "gtk_text_iter_free" unsafe
+  text_iter_free :: Ptr TextIter -> IO ()
+
+#endif
 
 -- Allocate memory to be filled with a TextIter.
 --
 makeEmptyTextIter :: IO TextIter
 makeEmptyTextIter = do
   iterPtr <- mallocBytes textIterSize
-  liftM TextIter $ newForeignPtr iterPtr (textIterFree iterPtr)
-
--- Free a TextIter pointer.
---
-foreign import ccall "gtk_text_iter_free" unsafe 
-  textIterFree :: Ptr TextIter -> IO ()
-
+  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
 
 -- @method textIterGetBuffer@ Return the @ref type TextBuffer@ this iterator
 -- is associated with.
@@ -172,7 +186,7 @@ textIterGetBuffer ti = makeNewGObject mkTextBuffer $
 textIterCopy :: TextIter -> IO TextIter
 textIterCopy ti = do
   iterPtr <- {#call unsafe text_iter_copy#} ti
-  liftM TextIter $ newForeignPtr iterPtr (textIterFree iterPtr)
+  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
 
 -- @method textIterGetOffset@ Extract the offset relative to the beginning of
 -- the buffer.
@@ -215,7 +229,7 @@ textIterGetChar ti = do
 textIterGetSlice :: TextIter -> TextIter -> IO String
 textIterGetSlice end start = do
   cStr <- {#call text_iter_get_slice#} start end
-  str <- peekCString cStr
+  str <- peekUTFString cStr
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
@@ -226,7 +240,7 @@ textIterGetSlice end start = do
 textIterGetText :: TextIter -> TextIter -> IO String
 textIterGetText start end = do
   cStr <- {#call text_iter_get_text#} start end
-  str <- peekCString cStr
+  str <- peekUTFString cStr
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
@@ -237,7 +251,7 @@ textIterGetText start end = do
 textIterGetVisibleSlice :: TextIter -> TextIter -> IO String
 textIterGetVisibleSlice start end = do
   cStr <- {#call text_iter_get_visible_slice#} start end
-  str <- peekCString cStr
+  str <- peekUTFString cStr
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
@@ -248,7 +262,7 @@ textIterGetVisibleSlice start end = do
 textIterGetVisibleText :: TextIter -> TextIter -> IO String
 textIterGetVisibleText start end = do
   cStr <- {#call text_iter_get_visible_text#} start end
-  str <- peekCString cStr
+  str <- peekUTFString cStr
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
@@ -742,7 +756,7 @@ textIterForwardSearch :: TextIter -> String -> [TextSearchFlags] ->
 textIterForwardSearch ti str flags limit = do
   start  <- makeEmptyTextIter
   end <- makeEmptyTextIter
-  found <- liftM toBool $ withCString str $ \cStr ->
+  found <- liftM toBool $ withUTFString str $ \cStr ->
     {#call unsafe text_iter_forward_search#} ti cStr 
     ((fromIntegral.fromFlags) flags) start end 
     (fromMaybe (TextIter nullForeignPtr) limit)
@@ -762,7 +776,7 @@ textIterBackwardSearch :: TextIter -> String -> [TextSearchFlags] ->
 textIterBackwardSearch ti str flags limit = do
   start  <- makeEmptyTextIter
   end <- makeEmptyTextIter
-  found <- liftM toBool $ withCString str $ \cStr ->
+  found <- liftM toBool $ withUTFString str $ \cStr ->
     {#call unsafe text_iter_backward_search#} ti cStr 
     ((fromIntegral.fromFlags) flags) start end 
     (fromMaybe (TextIter nullForeignPtr) limit)

@@ -5,8 +5,7 @@ SignalName,
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign	
+import FFI
 import LocalData
 import GObject	(objectRef, objectUnref)
 {#import Hierarchy#}
@@ -25,7 +24,15 @@ data GObjectClass o => ConnectId o = ConnectID {#type gulong#} o
 
 {#pointer GClosureNotify#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper" mkDestructor :: IO () -> IO GClosureNotify
+
+#else
+
 foreign export dynamic mkDestructor :: IO () -> IO GClosureNotify
+
+#endif
 
 disconnect :: GObjectClass obj => ConnectId obj -> IO ()
 disconnect (ConnectID handler obj) =

@@ -5,7 +5,7 @@
 --          
 --  Created: 13 February 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2003/05/16 22:25:16 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -62,8 +62,8 @@ module Style(
   ) where
 
 import Monad		(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 {#import GObject#}	(makeNewGObject)
 {#import Hierarchy#}
 import Enums		(StateType)

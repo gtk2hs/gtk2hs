@@ -5,7 +5,7 @@
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/11/03 20:35:44 $
+--  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -34,8 +34,9 @@ module GType(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
+import LocalData (unsafePerformIO)
 
 {# context lib="glib" prefix="g" #}
 
@@ -47,7 +48,7 @@ type GType = {#type GType#}
 -- * Internally used by Hierarchy.
 --
 typeInstanceIsA :: Ptr () -> GType -> Bool
-typeInstanceIsA obj p =
-  toBool ({#call fun unsafe g_type_check_instance_is_a#} obj p)
+typeInstanceIsA obj p = toBool $
+  unsafePerformIO ({#call unsafe g_type_check_instance_is_a#} obj p)
 
 

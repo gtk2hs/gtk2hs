@@ -5,7 +5,7 @@
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/12/01 14:09:51 $
+--  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -55,13 +55,12 @@ module Menu(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Events	(Event(..))
-import Structs	(nullForeignPtr)
+import Events	(Event(Button), time, button)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -85,16 +84,16 @@ menuReorderChild m child pos = {#call menu_reorder_child#}
 --
 --
 menuPopup :: MenuClass m => m -> Event -> IO ()
-menuPopup m (Button { time=t, button=b }) = {#call menu_popup#} (toMenu m) 
-  (mkWidget nullForeignPtr) (mkWidget nullForeignPtr) nullFunPtr nullPtr
-  ((fromIntegral.fromEnum) b) (fromIntegral t)
+menuPopup m (Events.Button { time=t, button=b }) = {#call menu_popup#}
+  (toMenu m) (mkWidget nullForeignPtr) (mkWidget nullForeignPtr) nullFunPtr
+  nullPtr ((fromIntegral.fromEnum) b) (fromIntegral t)
 menuPopup _ _ = error "menuPopup: Button event expected."
 
 -- @method menuSetTitle@ Set the @ref arg title@ of the menu. It is displayed
 -- if the menu is shown as a tearoff menu.
 --
 menuSetTitle :: MenuClass m => m -> String -> IO ()
-menuSetTitle m title = withCString title $ \strPtr ->
+menuSetTitle m title = withUTFString title $ \strPtr ->
   {#call unsafe menu_set_title#} (toMenu m) strPtr
 
 -- @method menuPopdown@ Remove a context or tearoff menu from the screen.

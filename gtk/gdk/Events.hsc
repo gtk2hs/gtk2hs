@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/03/21 10:52:24 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -43,6 +43,7 @@ module Events(
   hasButMiddle,
   Event(..),		-- information in event callbacks from Gdk
   -- selector functions
+#if __GLASGOW_HASKELL__<600
   sent,			-- True if this is event does not come from user input
   area,			-- Rectangle which is to be exposed, etc.
   count,		-- number of upcoming events
@@ -62,7 +63,7 @@ module Events(
   width, height,	-- new size of a widget
   visible,		-- state of visibility
   wMask, wState,	-- new (?possible? and) real state of a window
-
+#endif
   marshalEvent,		-- convert a pointer to an event data structure
   -- used data structures
   VisibilityState(..),
@@ -76,8 +77,8 @@ module Events(
   ) where
 
 
-import UTFCForeign
-import Foreign
+
+import FFI
 import LocalData((.&.))
 import GdkEnums	(VisibilityState(..),
 		 CrossingMode(..),
@@ -273,7 +274,7 @@ marshKey up ptr = do
   (modif_  ::#type guint)	<- #{peek GdkEventKey, state} ptr
   (keyval_ ::#type guint)	<- #{peek GdkEventKey, keyval} ptr
   (string_ ::CString)		<- #{peek GdkEventKey, string} ptr
-  str_				<- peekCString string_
+  str_				<- peekUTFString string_
   (length_ ::#type gint)	<- #{peek GdkEventKey, length} ptr
   return $ Key {
     release = up,

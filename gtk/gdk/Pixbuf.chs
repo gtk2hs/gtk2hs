@@ -4,7 +4,7 @@
 --  Author : Vincenzo Ciancia, Axel Simon
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2003/05/19 17:53:26 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -83,12 +83,12 @@ module Pixbuf(
   pixbufGetFromDrawable
   ) where
 
-import Foreign
+import FFI
 {#import Hierarchy#}
 import GObject
 import Monad
-import UTFCForeign
-import Structs		(GError(..), GQuark, nullForeignPtr, Rectangle(..))
+
+import Structs		(GError(..), GQuark, Rectangle(..))
 import LocalData	(unsafePerformIO)
 import Exception	(bracket)
 import LocalData	((.|.), shiftL)
@@ -162,10 +162,10 @@ pixbufGetRowstride pb = liftM fromIntegral $
 --   this image was saved.
 --
 pixbufGetOption :: Pixbuf -> String -> IO (Maybe String)
-pixbufGetOption pb key = withCString key $ \strPtr -> do
+pixbufGetOption pb key = withUTFString key $ \strPtr -> do
   resPtr <- {#call unsafe pixbuf_get_option#} pb strPtr
   if (resPtr==nullPtr) then return Nothing else
-    liftM Just $ peekCString resPtr
+    liftM Just $ peekUTFString resPtr
 
 -- pixbufErrorDomain -- helper function
 pixbufErrorDomain :: GQuark
@@ -181,7 +181,7 @@ pixbufErrorDomain = unsafePerformIO {#call unsafe pixbuf_error_quark#}
 --   those in @ref data PixbufError@, an exception is thrown.
 --
 pixbufNewFromFile :: FilePath -> IO (Either (PixbufError,String) Pixbuf)
-pixbufNewFromFile fname = withCString fname $ \strPtr ->
+pixbufNewFromFile fname = withUTFString fname $ \strPtr ->
   alloca $ \errPtrPtr -> do
   pbPtr <- {#call unsafe pixbuf_new_from_file#} strPtr (castPtr errPtrPtr)
   if pbPtr/=nullPtr then liftM Right $ makeNewGObject mkPixbuf (return pbPtr)
@@ -224,13 +224,13 @@ pixbufSave :: Pixbuf -> FilePath -> ImageType -> [(String, String)] ->
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
   let optLen = length keys in
-  withCString fname $ \fnPtr ->
-  withCString iType $ \tyPtr ->
+  withUTFString fname $ \fnPtr ->
+  withUTFString iType $ \tyPtr ->
   allocaArray0 optLen $ \keysPtr ->
   allocaArray optLen $ \valuesPtr ->
   alloca $ \errPtrPtr -> do
-    keyPtrs <- mapM newCString keys
-    valuePtrs <- mapM newCString values
+    keyPtrs <- mapM newUTFString keys
+    valuePtrs <- mapM newUTFString values
     pokeArray keysPtr keyPtrs
     pokeArray valuesPtr valuePtrs
     res <- {#call unsafe pixbuf_savev#} pb fnPtr tyPtr keysPtr valuesPtr
@@ -263,7 +263,7 @@ pixbufNew colorspace hasAlpha bitsPerSample width height =
 --
 pixbufNewFromXPMData :: [String] -> IO Pixbuf
 pixbufNewFromXPMData s =
-  bracket (mapM newCString s) (mapM free) $ \strPtrs ->
+  bracket (mapM newUTFString s) (mapM free) $ \strPtrs ->
     withArray0 nullPtr strPtrs $ \strsPtr ->
       makeNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
 

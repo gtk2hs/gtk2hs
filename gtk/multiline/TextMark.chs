@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@ module TextMark(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -77,7 +77,7 @@ textMarkGetDeleted tm = liftM toBool $
 textMarkGetName :: TextMarkClass tm => tm -> IO (Maybe String)
 textMarkGetName tm = do
   strPtr <- {#call unsafe text_mark_get_name#} (toTextMark tm)
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
+  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
 -- @method textMarkGetBuffer@ Extract the @ref type TextBuffer@ of the mark.
 --

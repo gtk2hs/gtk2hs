@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2002/12/16 22:25:34 $
+--  Version $Revision: 1.10 $ from $Date: 2003/07/09 22:42:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -50,13 +50,13 @@ module CellRendererText(
 
 import Maybe	(fromMaybe)
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
 {#import TreeModel#}
-import Structs	    (treeIterSize, nullForeignPtr)
+import Structs	    (treeIterSize)
 import CellRenderer (Attribute(..))
 import StoreValue   (GenericValue(..), TMType(..))
 
@@ -126,18 +126,21 @@ onEdited, afterEdited :: TreeModelClass tm => CellRendererText -> tm ->
 onEdited cr tm user = connect_PTR_STRING__NONE "edited" False cr $
   \strPtr string -> do
     iterPtr <- mallocBytes treeIterSize
-    iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
-    res <- liftM toBool $ gtk_tree_model_get_iter_from_string 
-			  (toTreeModel tm) iter strPtr
+    iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
+    res <- liftM toBool $ withForeignPtr ((unTreeModel . toTreeModel) tm) $
+      \tmPtr -> withForeignPtr (unTreeIter iter) $ \iterPtr ->
+	gtk_tree_model_get_iter_from_string tmPtr iterPtr strPtr
     if res then user iter string else
       putStrLn "edited signal: invalid tree path"
 
 afterEdited cr tm user = connect_PTR_STRING__NONE "edited" True cr $
   \strPtr string -> do
     iterPtr <- mallocBytes treeIterSize
-    iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
-    res <- liftM toBool $ gtk_tree_model_get_iter_from_string 
-			  (toTreeModel tm) iter strPtr
+    iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
+    res <- liftM toBool $ withForeignPtr ((unTreeModel . toTreeModel) tm) $
+      \tmPtr -> withForeignPtr (unTreeIter iter) $ \iterPtr ->
+	gtk_tree_model_get_iter_from_string tmPtr iterPtr strPtr
     if res then user iter string else
       putStrLn "edited signal: invalid tree path"
 
+unTreeIter (TreeIter iter) = iter

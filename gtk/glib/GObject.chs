@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry Widget GObject@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/11/03 20:35:44 $
+--  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:44 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -38,7 +39,7 @@ module GObject(
   ) where
 
 
-import Foreign
+import FFI
 import LocalData(newIORef, readIORef, writeIORef)
 import Hierarchy(GObjectClass, toGObject, unGObject)
 {#import GValue#}
@@ -54,8 +55,26 @@ objectRef obj = do
 
 -- decrease the reference counter of an object
 --
-objectUnref :: GObjectClass obj => Ptr obj -> IO ()
-objectUnref = {#call object_unref#} . castPtr
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&g_object_unref"
+  object_unref' :: FinalizerPtr a
+
+objectUnref :: Ptr a -> FinalizerPtr a
+objectUnref _ = object_unref'
+
+#elif __GLASGOW_HASKELL__>=504
+
+foreign import ccall unsafe "g_object_unref"
+  objectUnref :: Ptr a -> IO ()
+
+#else
+
+foreign import ccall "g_object_unref" unsafe
+  objectUnref :: Ptr a -> IO ()
+
+#endif
+
 
 -- This is a convenience function to generate an object that does not
 -- derive from Object. It adds objectUnref as finalizer.
@@ -72,7 +91,15 @@ makeNewGObject constr generator = do
 
 {#pointer GWeakNotify#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper" mkDestructor :: IO () -> IO GWeakNotify
+
+#else
+
 foreign export dynamic mkDestructor :: IO () -> IO GWeakNotify
+
+#endif
 
 -- @method objectWeakref@ attach a callback that will be called after the
 -- destroy hooks have been called

@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:45 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -43,8 +43,8 @@ module Frame(
   ) where
 
 import Monad	(liftM)
-import Foreign
-import UTFCForeign
+import FFI
+
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
@@ -65,7 +65,7 @@ frameNew  = makeNewObject mkFrame $
 -- @method frameSetLabel@ Replace the label of the frame.
 --
 frameSetLabel :: FrameClass f => f -> String -> IO ()
-frameSetLabel f label = withCString label $ \strPtr ->
+frameSetLabel f label = withUTFString label $ \strPtr ->
   {#call frame_set_label#} (toFrame f) strPtr
 
 -- @method frameSetLabelWidget@ Replace the label with a (label) widget.
@@ -98,7 +98,7 @@ frameGetLabel f = do
   strPtr <- throwIfNull 
     "frameGetLabel: the title of the frame was not a Label widget." $
     {#call unsafe frame_get_label#} (toFrame f)
-  res <- peekCString strPtr
+  res <- peekUTFString strPtr
   {#call unsafe g_free#} (castPtr strPtr)
   return res
 
