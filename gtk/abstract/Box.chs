@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/11 12:15:22 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/12 13:06:08 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -80,7 +80,7 @@ boxPackStart b w p pad = {#call box_pack_start#} (toBox b) (toWidget w)
 --
 boxPackEnd :: (BoxClass b, WidgetClass w) => b -> w -> Packing -> Int -> IO ()
 boxPackEnd b w p pad = {#call box_pack_end#} (toBox b) (toWidget w)
-  (fromBool $ p/=PackNatural) (fromBool $ p==PackFill) (fromIntegral pad)
+  (fromBool $ p/=PackNatural) (fromBool $ p==PackGrow) (fromIntegral pad)
 
 
 -- @method boxPackStartDefaults@ Like @ref method boxPackStart@ but uses the
@@ -135,8 +135,8 @@ boxQueryChildPacking b w = alloca $ \expandPtr -> alloca $ \fillPtr ->
     fill    <- liftM toBool $ peek fillPtr
     padding <- liftM fromIntegral $ peek paddingPtr
     pack    <- liftM (toEnum.fromIntegral) $ peek packPtr
-    return (if fill then PackFill else 
-            (if expand then PackExpand else PackNatural),
+    return (if fill then PackGrow else 
+            (if expand then PackRepel else PackNatural),
 	    padding,pack)
 
 -- @method boxSetChildPacking@ Set the packing parameter of a child.
@@ -144,7 +144,7 @@ boxQueryChildPacking b w = alloca $ \expandPtr -> alloca $ \fillPtr ->
 boxSetChildPacking :: (BoxClass b, WidgetClass w) => b -> w -> Packing ->
                       Int -> PackType -> IO ()
 boxSetChildPacking b w pack pad pt = {#call box_set_child_packing#} (toBox b) 
-  (toWidget w) (fromBool $ pack/=PackNatural) (fromBool $ pack==PackFill) 
+  (toWidget w) (fromBool $ pack/=PackNatural) (fromBool $ pack==PackGrow) 
   (fromIntegral pad) ((fromIntegral.fromEnum) pt)
 
 
