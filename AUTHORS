@@ -6,13 +6,20 @@ Manuel M. T. Chakravarty <chak@cse.unsw.edu.au>
 (c2hs and some sources and techniques)
 
 Duncan Coutts <duncan@coutts.uklinux.net>
-(GtkSourceView, libglade)
+(sourceview, glade, gconf, general hackery)
 
 Jens Petersen <petersen@haskell.org>
 (RPMs and tons of other stuff)
+
+Wolfram Kahl <kahl@cas.mcmaster.ca>
+with help from Scott West and Jonas Svensson
+(binding for GtkMozEmbed the mozilla rendering engine in a widget)
 
 JP Bernardy <jyp_7@yahoo.com>
 Jonas Svensson <d99josve@dtek.chalmers.se>
 Vincenzo Ciancia <ciancia@cli.di.unipi.it>
 Matthew Walton <matthew@alledora.co.uk>
 
+Much of the documentation is derived from the GTK+ documentation which is
+Copyright (c) 1995..2005 the GTK+ Team
+See the GTK+ AUTHORS & COPYING files for details.

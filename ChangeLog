@@ -13,6 +13,9 @@
 	* mk/chsDepend.in: the assertion can now be enabled since it no	longer
 	fails.
 
+	* AUTHORS: credit Wolfram Kahl and co for mozembed. Add note about
+	the documentation coming from Gtk sources. Update my entry.
+
 2005-01-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/chsDepend.in: do the extra check properly and make it a warning
