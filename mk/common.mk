@@ -33,7 +33,6 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 #file even though the object files will be in different directories.
 #Obviously the 'subdir-objects' option only works for C/C++ files.
 %.o : %.hs $(CONFIG_H)
-	@echo Building for $(PKG)
 	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
 	$(addprefix -package-name ,$(notdir $(basename $($(PKG)_PACKAGE)))) \
@@ -43,7 +42,6 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 .DELETE_ON_ERROR : %.deps
 
 %.deps :
-	@echo Checking if deps up to date for $@
 	$(strip if test -f $@; then touch $@; else \
 	  touch $@; $(MAKE) $(AM_MAKEFLAGS) NAME="$*" depend; fi;)
 
@@ -58,7 +56,7 @@ depend: $($(NAME)_BUILDSOURCES)
 	$($(NAME)_HSFILES))
 
 .chs.dep :
-	@$(CHSDEPEND) -i$(pkgVPATH) $<
+	$(CHSDEPEND) -i$(pkgVPATH) $<
 
 .hs.chi :
 	@:
@@ -91,7 +89,6 @@ debug	:
 	--precomp=$($(PKG)_PRECOMP) $($(PKG)_HEADER))
 
 .chs.pp.chs: $(CONFIG_H)
-	@echo Preprocessing for $(PKG)
 	$(strip $(HSCPP) $(AM_CPPFLAGS) \
 	$($(PKG)_CPPFLAGS) $($(PKG)_CFLAGS) \
 	$(addprefix -include ,$(CONFIG_H)) \
@@ -109,7 +106,6 @@ debug	:
         --cc=$(HC) --lflag=-no-hs-main $<)
 
 .chs.hs: 
-	@echo Building .hs file for $(PKG)
 	$(if $(subst no,,$(BUILT_IN_C2HS)),$(strip \
 	if test -x $(C2HS); then :; else \
 	  $(MAKE) $(AM_MAKEFLAGS) \
@@ -129,8 +125,8 @@ install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
+	prefix=$(prefix) exec_prefix=$(exec_prefix) pkglibdir=$(pkglibdir) \
 	$(GHCPKG) $(addprefix -f ,$(PKGCONF)) -u -g \
-	-Dprefix=$(prefix) -Dexec_prefix=$(exec_prefix) -Dpkglibdir=$(pkglibdir)\
 	-i $(call getVar,$(pkgname),PACKAGE);)
 
 uninstall-hook :

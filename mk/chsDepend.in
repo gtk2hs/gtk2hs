@@ -50,7 +50,7 @@ for FULLNAME in $@; do
     if test -n "$DEPNAMES"; then
       echo "$FULLNAMEHS : $DEPNAMES" >> $FULLNAMEDEP;
     fi;
-    echo Writing dependency information for $FULLNAME
+#    echo Writing dependency information for $FULLNAME
   else
     echo Warning: $FULLNAME not found.
   fi;

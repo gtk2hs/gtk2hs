@@ -21,6 +21,11 @@
 
 	* configure.ac: bump version to 0.9.7_rc1
 
+	* mk/common.mk: do the ghc-pkg registering in a way that works for
+	older ghc versions too. Make the build a little less chatty.
+
+	* mk/chsDepend.in: be less chatty.
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files
