@@ -6,6 +6,9 @@
 	is now necessary to accommodate the lack of some enum names in
 	Gtk 2.2.
 
+	* tools/hierarchyGen/hierarchy.list: Only create the FileChooser
+	interface object when building for Gtk 2.4 or higher.
+
 2005-01-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/hello/World.hs: update to work with the new module names.
