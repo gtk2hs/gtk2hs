@@ -8,6 +8,11 @@
 	gtk package only so far. Also move some defines from Makefile.am to
 	configure.ac as requested by a FIXME comment.
 
+	* mk/chsDepend.in: add extra check to the chsDepend script (disabled).
+	Dare anyone to enable it and watch the build break! We still have some
+	issues with the NAME make var being set incorrectly. I have a plan to
+	replace the cunning NAME hack with a different hack.
+
 2005-01-12 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,

@@ -37,6 +37,8 @@ for FULLNAME in $@; do
 	  DEPNAMES="$DEPNAMES $DEPNAME.chi";
 	  break;
         fi;
+#	echo could not find $DEP '('$DEPNAME.chs')' on search path $SEARCHPATH;
+#	exit 1;
       done;
       IFS=$OLDIFS;
     done;
