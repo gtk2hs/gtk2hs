@@ -1,3 +1,11 @@
+2004-07-17 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/glib/GError.chs: extra function for converting GError exceptions
+	to ordinary user errors.
+
+	* tools/callbackGen/HookGenerator.hs: wrap callbacks in GError
+	exception handler.
+
 2004-07-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/glib/GError.chs: new module for dealing with GErrors

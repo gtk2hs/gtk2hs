@@ -59,6 +59,7 @@ module GError (
   handleGErrorJust,
   handleGErrorJustDomain,
   
+  failOnGError,
   throwGError,
 
   -- * Checking for GErrors returned by glib\/gtk functions
@@ -271,3 +272,7 @@ handleGErrorJust code = flip (catchGErrorJust code)
 -- | A verson of 'handleGErrorJustDomain' with the arguments swapped around.
 handleGErrorJustDomain :: GErrorClass err => (err -> GErrorMessage -> IO a) -> IO a -> IO a
 handleGErrorJustDomain = flip catchGErrorJustDomain
+
+-- | Catch all GError exceptions and convert them into a general failure.
+failOnGError :: IO a -> IO a
+failOnGError action = catchGError action (\(GError dom code msg) -> fail msg)

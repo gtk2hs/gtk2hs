@@ -463,7 +463,7 @@ generate bs sig = let ident = mkIdentifier sig in
   indent 1.ss "after obj user =".
   indent 1.ss "do".
   indent 2.ss "hPtr <- mkHandler_".ident.
-  indent 3.ss "(\\_ ".mkLambdaArgs sig.ss "-> do".
+  indent 3.ss "(\\_ ".mkLambdaArgs sig.ss "-> failOnGError $ do".
   mkMarshExec sig.
   indent 4.ss "liftM ".mkMarshRet sig.ss " $".
   indent 5.ss "user".mkFuncArgs sig.
