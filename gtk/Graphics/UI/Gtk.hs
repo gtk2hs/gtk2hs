@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/02/26 02:54:35 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/05 18:29:53 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -55,6 +55,8 @@ module Graphics.UI.Gtk (
   -- * Windows
   module Graphics.UI.Gtk.Windows.Window,
   module Graphics.UI.Gtk.Windows.Dialog,
+  module Graphics.UI.Gtk.Windows.AboutDialog,
+  module Graphics.UI.Gtk.Windows.WindowGroup,
   -- * Display widgets,
   module Graphics.UI.Gtk.Display.AccelLabel,
   module Graphics.UI.Gtk.Display.Image,
@@ -85,6 +87,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.TreeList.TreeSelection,
   module Graphics.UI.Gtk.TreeList.TreeViewColumn,
   module Graphics.UI.Gtk.TreeList.TreeView,
+  module Graphics.UI.Gtk.TreeList.IconView,
+  module Graphics.UI.Gtk.TreeList.CellView,
 --  module TreeSortable,
   module Graphics.UI.Gtk.TreeList.TreeModelSort,
   module Graphics.UI.Gtk.TreeList.CellRenderer,
@@ -112,14 +116,18 @@ module Graphics.UI.Gtk (
   -- * Selectors (file\/font\/color)
   module Graphics.UI.Gtk.Selectors.ColorSelection,
   module Graphics.UI.Gtk.Selectors.ColorSelectionDialog,
+  module Graphics.UI.Gtk.Selectors.ColorButton,
   module Graphics.UI.Gtk.Selectors.FileSelection,
   module Graphics.UI.Gtk.Selectors.FontSelection,
   module Graphics.UI.Gtk.Selectors.FontSelectionDialog,
+  module Graphics.UI.Gtk.Selectors.FontButton,
 --  module InputDialog,
   -- ** File chooser
   module Graphics.UI.Gtk.Selectors.FileChooser,
   module Graphics.UI.Gtk.Selectors.FileChooserDialog,
   module Graphics.UI.Gtk.Selectors.FileChooserWidget,
+  module Graphics.UI.Gtk.Selectors.FileChooserButton,
+  module Graphics.UI.Gtk.Selectors.FileFilter,
   -- * Layout containers
   module Graphics.UI.Gtk.Layout.Alignment,
   module Graphics.UI.Gtk.Layout.AspectFrame,
@@ -196,7 +204,8 @@ import Graphics.UI.Gtk.Gdk.Gdk
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog
 import Graphics.UI.Gtk.Windows.Window
---import WindowGroup
+import Graphics.UI.Gtk.Windows.AboutDialog
+import Graphics.UI.Gtk.Windows.WindowGroup
 -- display widgets
 import Graphics.UI.Gtk.Display.AccelLabel
 import Graphics.UI.Gtk.Display.Image
@@ -235,6 +244,8 @@ import Graphics.UI.Gtk.TreeList.TreeModel hiding (NativeTreePath(..),
 import Graphics.UI.Gtk.TreeList.TreeSelection
 import Graphics.UI.Gtk.TreeList.TreeViewColumn
 import Graphics.UI.Gtk.TreeList.TreeView
+import Graphics.UI.Gtk.TreeList.IconView
+import Graphics.UI.Gtk.TreeList.CellView
 --import TreeSortable
 import Graphics.UI.Gtk.TreeList.TreeModelSort
 import Graphics.UI.Gtk.TreeList.CellRenderer
@@ -263,12 +274,16 @@ import Graphics.UI.Gtk.MenuComboToolbar.ToolItem
 -- selectors (file\/font\/color\/input device)
 import Graphics.UI.Gtk.Selectors.ColorSelection
 import Graphics.UI.Gtk.Selectors.ColorSelectionDialog
+import Graphics.UI.Gtk.Selectors.ColorButton
 import Graphics.UI.Gtk.Selectors.FileSelection
 import Graphics.UI.Gtk.Selectors.FileChooser
 import Graphics.UI.Gtk.Selectors.FileChooserDialog
 import Graphics.UI.Gtk.Selectors.FileChooserWidget
+import Graphics.UI.Gtk.Selectors.FileChooserButton
+import Graphics.UI.Gtk.Selectors.FileFilter
 import Graphics.UI.Gtk.Selectors.FontSelection
 import Graphics.UI.Gtk.Selectors.FontSelectionDialog
+import Graphics.UI.Gtk.Selectors.FontButton
 --import InputDialog
 -- layout containers
 import Graphics.UI.Gtk.Layout.Alignment

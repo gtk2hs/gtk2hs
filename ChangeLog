@@ -3,6 +3,20 @@
 	* glib/System/Glib/UTFString.hs: add some extra functions for
 	marshaling lists and arrays of UTF-8 strings.
 
+	* gtk/Graphics/UI/Gtk/Selectors/ColorButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FontButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs,
+	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs: add several new modules.
+	This adds ~2.6 Kloc.
+
+	* gtk/Graphics/UI/Gtk.hs: export the new modules.
+
+	* Makefile.am: add the new modules to libHSgtk_a_SOURCES.
+
 2005-04-4 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs,

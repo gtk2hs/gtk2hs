@@ -386,13 +386,18 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs			\
 	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs		\
 	gtk/Graphics/UI/Gtk/Scrolling/VScrollbar.chs			\
+	gtk/Graphics/UI/Gtk/Selectors/ColorButton.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/ColorSelection.chs		\
 	gtk/Graphics/UI/Gtk/Selectors/ColorSelectionDialog.chs		\
+	gtk/Graphics/UI/Gtk/Selectors/FontButton.chs.pp			\
 	gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs			\
 	gtk/Graphics/UI/Gtk/Selectors/FontSelectionDialog.chs		\
+	gtk/Graphics/UI/Gtk/Selectors/FileSelection.chs.pp              \
 	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp		\
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserButton.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp		\
+	gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererToggle.chs		\
@@ -401,9 +406,12 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
+	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs				\
-	gtk/Graphics/UI/Gtk/Selectors/FileSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
+	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs			\
 	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/GC.chs					\
 	gtk/Graphics/UI/Gtk/Gdk/Gdk.chs					\
