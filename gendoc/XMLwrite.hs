@@ -8,6 +8,7 @@ import List		(transpose)
 import Data.PackedString
 import Data.FiniteMap
 import Data.List	(nub, intersperse)
+import Debug.Trace
 
 hcat :: [Doc] -> Doc
 hcat [] = nil
@@ -95,10 +96,11 @@ instance Show XML where
 renderXML :: XML -> String
 renderXML = show
 
-docuToXML :: [Docu] -> [XML]
-docuToXML [] = []
-docuToXML [Paragraph] = []
-docuToXML docu = Element "para" [] (init (dTX para)):docuToXML rem
+docuToXML :: (Module,ModInfo) -> [Docu] -> [XML]
+docuToXML (mName,mI) [] = []
+docuToXML (mName,mI) [Paragraph] = []
+docuToXML (mName,mI) docu = 
+  Element "para" [] (init (dTX para)):docuToXML (mName,mI) rem
   where
     isPara :: Docu -> Bool
     isPara Paragraph = True
@@ -109,14 +111,26 @@ docuToXML docu = Element "para" [] (init (dTX para)):docuToXML rem
     dTX :: [Docu] -> [XML]
     dTX (Words ws:ds) =
       (concatMap (\x -> [Plain (unpackPS x),WhiteSpace]) ws)++dTX ds
-    dTX (RefArg var fol:ds) = Element "emphasis" [] [Plain (unpackPS var)]:
+    dTX (RefArg var fol:ds) = Element "varname" [] [Plain (unpackPS var)]:
       (if nullPS fol then id else (Plain (unpackPS fol):)) (WhiteSpace:dTX ds)
-    dTX (RefSym _ var fol:ds) = Element "emphasis" [] [Plain (unpackPS var)]:
-      (if nullPS fol then id else (Plain (unpackPS fol):)) (WhiteSpace:dTX ds)
-    dTX (RefTyp _ var fol:ds) = Element "emphasis" [] [Plain (unpackPS var)]:
-      (if nullPS fol then id else (Plain (unpackPS fol):)) (WhiteSpace:dTX ds)
-    dTX (RefVariant var fol:ds) = Element "emphasis" [] [Plain (unpackPS var)]:
-      (if nullPS fol then id else (Plain (unpackPS fol):)) (WhiteSpace:dTX ds)
+    dTX (RefSym _ var fol:ds) = 
+	Element "link"
+	 [Attribute "linkend" (unpackPS var)]
+	 [Element "varname" [] (Plain (unpackPS var):
+	  (if nullPS fol then [] else [Plain (unpackPS fol)]))]:
+	WhiteSpace:dTX ds
+    dTX (RefTyp _ var fol:ds) =
+	Element "link"
+	 [Attribute "linkend" (unpackPS var)]
+	 [Element "varname" [] (Plain (unpackPS var):
+	  (if nullPS fol then [] else [Plain (unpackPS fol)]))]:
+	WhiteSpace:dTX ds
+    dTX (RefVariant var fol:ds) = 
+	Element "link"
+	 [Attribute "linkend" (unpackPS var)]
+	 [Element "varname" [] (Plain (unpackPS var):
+	  (if nullPS fol then [] else [Plain (unpackPS fol)]))]:
+	WhiteSpace:dTX ds
     dTX (Verb multi str fol:ds) =
       (if multi then Element "literallayout" [Attribute "class" "monospaced"]
 	 else Element "literal" [])
@@ -125,14 +139,14 @@ docuToXML docu = Element "para" [] (init (dTX para)):docuToXML rem
     dTX	[] = []
 
 moduleToXML :: Module -> ModInfo -> XML
-moduleToXML mName (ModInfo { modCat=cat, modSynop=syn, modIntro=int,
+moduleToXML mName mI@(ModInfo { modCat=cat, modSynop=syn, modIntro=int,
   modTodo=todo, modSymTab=st, modTypTab=tt, modCtxt=ctxt }) =
   Element "refentry" [
     Attribute "id" (unpackPS mName)
   ] $ [
     Element "refnamediv" [] [
       Element "refname" [] [Plain (unpackPS mName)],
-      Element "refpurpose" [] (docuToXML syn)
+      Element "refpurpose" [] (docuToXML (mName,mI) syn)
     ],
     Element "refsynopsisdiv" [] [
       Element "informaltable" [
@@ -153,14 +167,14 @@ moduleToXML mName (ModInfo { modCat=cat, modSynop=syn, modIntro=int,
 	]
       ]
     ]
-  ]++makeSect "Introduction" (docuToXML int)
-  ++makeSect "Todo" (docuToXML todo)
-  ++makeSect "Datatypes" (map (makeTypeDescr mName) dataty)
-  ++makeSect "Constructors" (map (makeSymDescr mName ctxt) cons)
-  ++makeSect "Methods" (map (makeSymDescr mName ctxt) meth)
-  ++makeSect "Functions" (map (makeSymDescr mName ctxt) func)
-  ++makeSect "Constants" (map (makeSymDescr mName ctxt) const)
-  ++makeSect "Signals" (map (makeSymDescr mName ctxt) sign)
+  ]++makeSect "Introduction" (docuToXML (mName,mI) int)
+  ++makeSect "Todo" (docuToXML (mName,mI) todo)
+  ++makeSect "Datatypes" (map (makeTypeDescr mName mI) dataty)
+  ++makeSect "Constructors" (map (makeSymDescr mName mI) cons)
+  ++makeSect "Methods" (map (makeSymDescr mName mI) meth)
+  ++makeSect "Functions" (map (makeSymDescr mName mI) func)
+  ++makeSect "Constants" (map (makeSymDescr mName mI) const)
+  ++makeSect "Signals" (map (makeSymDescr mName mI) sign)
   where
     dataty = fmToList tt
     (cons, meth, func, const, sign) = partitionSym (fmToList st)
@@ -194,7 +208,7 @@ makeSynopsis mName contexts (var, SymInfo { symType=Just ty }) =
         Element "literallayout" [
 	  Attribute "class" "monospaced"] [
 	  Element "link" [
-	    Attribute "linkend" (unpackPS mName++"."++unpackPS var)
+	    Attribute "linkend" (unpackPS var)
 	  ] [
 	    Plain (unpackPS var)],
 	  Plain (":: "++showContext ctxt++show ty)
@@ -216,18 +230,12 @@ makeSynopsis mName contexts (var, _) =
     ]
   ]
 
--- Emphasise a keyword
-mkKeyword :: String -> XML
-mkKeyword kw = Element "literal" [] [
-	         Element "emphasis" [] [Plain kw],
-		 WhiteSpace
-	       ]
 
 -- Create the keyword from the ConInfo datatype.
 getKeyword :: ConInfo -> XML
-getKeyword (ConInfo { conNewType=True }) = mkKeyword "newtype"
-getKeyword (ConInfo { conNewType=False}) = mkKeyword "data"
-getKeyword (SynInfo { })		 = mkKeyword "type"
+getKeyword (ConInfo { conNewType=True }) = Plain "newtype"
+getKeyword (ConInfo { conNewType=False}) = Plain "data"
+getKeyword (SynInfo { })		 = Plain "type"
 
 -- The short description of an algebraic data type consists of "data Blah"
 -- without any constructors.
@@ -240,19 +248,19 @@ makeTypeSig mName (con, info) =
 	  getKeyword info,
 	  WhiteSpace,
 	  Element "link" [
-	    Attribute "linkend" (unpackPS mName++"."++unpackPS con)
+	    Attribute "linkend" (unpackPS con)
 	  ] [Plain (show (conSig info))]
 	]
     ]
   ]
 
-makeSymDescr :: Module -> FiniteMap TyVar TyCon -> (DaVar, SymInfo) -> XML
-makeSymDescr mName classMap (var, SymInfo { symKind=k, symDocu=doc, 
-					    symType=Just ty, symArgs=args }) =
+makeSymDescr :: Module -> ModInfo -> (DaVar, SymInfo) -> XML
+makeSymDescr mName mI@(ModInfo { modCtxt=classMap })
+  (var, SymInfo { symKind=k, symDocu=doc, symType=Just ty, symArgs=args }) =
   let (syn, thorough) = span (not . isParagraph) doc in
-  Element "refsect2" [Attribute "id" (unpackPS mName++"."++unpackPS var)] (
+  Element "refsect2" [Attribute "id" (unpackPS var)] (
     Element "title" [] [Plain (unpackPS var)]:
-    docuToXML syn++
+    docuToXML (mName,mI) syn++
     Element "informaltable" [
       Attribute "frame" "none",
       Attribute "colsep" "0",
@@ -277,7 +285,7 @@ makeSymDescr mName classMap (var, SymInfo { symKind=k, symDocu=doc,
 	  ):map argsToXML (transpose args)
 	)
       ]
-    ]):docuToXML thorough
+    ]):docuToXML (mName,mI) thorough
   )
   where
     noOfRows = case args of
@@ -299,13 +307,14 @@ makeSymDescr mName classMap (var, SymInfo { symKind=k, symDocu=doc,
 makeSymDescr mName _ (var, _) = Element "refsect2" [] 
    [Plain "no type info on symbol ", Plain (unpackPS var)]
 
-makeTypeDescr :: Module -> (TyCon, ConInfo) -> XML
-makeTypeDescr mName (con, info@ConInfo { conNewType=isNT, conDocu=doc, 
-					 conSig=ty, conDaCon=variants }) =
+makeTypeDescr :: Module -> ModInfo -> (TyCon, ConInfo) -> XML
+makeTypeDescr mName mI 
+  (con, info@ConInfo { conNewType=isNT, conDocu=doc, conSig=ty,
+		       conDaCon=variants }) =
   let (syn, thorough) = span (not . isParagraph) doc in
-  Element "refsect2" [Attribute "id" (unpackPS mName++"."++unpackPS con)] (
+  Element "refsect2" [Attribute "id" (unpackPS con)] (
     Element "title" [] [getKeyword info, WhiteSpace, Plain (unpackPS con)]:
-    docuToXML syn++
+    docuToXML (mName,mI) syn++
     Element "informaltable" [
       Attribute "frame" "none",
       Attribute "colsep" "0",
@@ -317,9 +326,9 @@ makeTypeDescr mName (con, info@ConInfo { conNewType=isNT, conDocu=doc,
 	Element "colspec" [] [],
 	Element "colspec" [] [],
 	Element "tbody" [Attribute "valign" "middle"]
-	  (doVariants first (eltsFM variants))
+	  (doVariants first (fmToList variants))
       ]
-    ]:docuToXML thorough
+    ]:docuToXML (mName,mI) thorough
   )
   where
     first :: XML
@@ -329,25 +338,25 @@ makeTypeDescr mName (con, info@ConInfo { conNewType=isNT, conDocu=doc,
     next = Element "entry" [Attribute "align" "right"] [Plain "|", WhiteSpace]
 
     -- Create the "data ..." entry this first time, after that procude "|"
-    doVariants :: XML -> [DaConInfo] -> [XML]
+    doVariants :: XML -> [(DaCon,DaConInfo)] -> [XML]
     doVariants left []       = []
     doVariants left (info:s) = doVariant left info:
 			       doVariants next s
 
-    doVariant :: XML -> DaConInfo -> XML
-    doVariant left (DaConSimple { daConDocu=doc, daConType=tys }) =
+    doVariant :: XML -> (DaCon,DaConInfo) -> XML
+    doVariant left (con,DaConSimple { daConDocu=doc, daConType=tys }) =
       Element "row" [] [left, Element "entry" []  
-        (intersperse WhiteSpace (flatten
+        (intersperse WhiteSpace (Plain (unpackPS con):flatten
 	  (concatMap (\t -> typeToXML (\_ -> Nothing) t Nothing) tys)))]
-    doVariant left (DaConRecord { daConDocu=doc, daConType=tys,
-				   daConSel=sels }) =
+    doVariant left (con, DaConRecord { daConDocu=doc, daConType=tys,
+				       daConSel=sels }) =
       Element "row" [] [left, Element "entry" []
-        (intersperse WhiteSpace (flatten
+        (intersperse WhiteSpace (Plain (unpackPS con):flatten
 	  (concatMap (\t -> typeToXML (\_ -> Nothing) t Nothing) tys)))]
 
-makeTypeDescr mName (con, info@SynInfo { conSig=new, conRHS=old,
-					 conDocu=doc }) = 
-  Element "refsect2" [Attribute "id" (unpackPS mName++"."++unpackPS con)] (
+makeTypeDescr mName mI (con, info@SynInfo { conSig=new, conRHS=old,
+					    conDocu=doc }) = 
+  Element "refsect2" [Attribute "id" (unpackPS con)] (
     Element "title" [] [Plain ("type "++unpackPS con)]:
     Element "informaltable" [
       Attribute "frame" "none",
@@ -366,7 +375,7 @@ makeTypeDescr mName (con, info@SynInfo { conSig=new, conRHS=old,
 	  ]
 	]
       ]
-    ]:docuToXML doc
+    ]:docuToXML (mName,mI) doc
   )
 
 -- Combine several consecutive Plain elements.

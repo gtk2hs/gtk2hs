@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.18 $ from $Date: 2003/05/16 22:25:16 $
+--  Version $Revision: 1.19 $ from $Date: 2003/05/17 19:29:38 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -667,7 +667,7 @@ drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
     return (fromIntegral width, fromIntegral height)
 
 
--- @entry pangoLayout@
+-- @entry PangoLayout@
 
 -- @constant pangoScale@ Internal unit of measuring sizes.
 --

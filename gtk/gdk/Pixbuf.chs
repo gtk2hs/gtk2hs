@@ -4,7 +4,7 @@
 --  Author : Vincenzo Ciancia, Axel Simon
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2003/05/16 22:25:16 $
+--  Version $Revision: 1.3 $ from $Date: 2003/05/17 19:29:38 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -193,7 +193,7 @@ pixbufNewFromFile fname = withCString fname $ \strPtr ->
        else
 	error msg
 
--- @type ImageType@ A string representing a image file format.
+-- @type ImageType@ A string representing an image file format.
 --
 type ImageType = String
 

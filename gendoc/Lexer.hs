@@ -276,6 +276,7 @@ lexDefn si = lD
     lD ('q':'u':'a':'l':'i':'f':'i':'e':'d':xs) | si==SIImport = lD xs
     lD (x:xs)	| isLower x = lexName DefVar [x] xs
 		| isUpper x = lexName DefCon [x] xs
+		| x=='-'    = lexName DefCon [x] xs
     lD xs = illChar "declaration" xs
 
     lexName :: (PackedString -> Token) -> String -> Lexer

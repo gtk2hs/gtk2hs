@@ -4,6 +4,12 @@
 	compiler when parsing the header files on PowerPC. I added a line
 	which stops c2hs from panicing without understanding what is going
 	on.
+
+	* gendoc/Lexer.hs, gendoc/Update.hs, gendoc/XMLwrite.hs: Improved
+	the documentation. It's still very rudimentary but might be
+	useful.
+
+	* gtk/gdk/Pixbuf.chs, gtk/general/Structs.hsc: Documentation fixes.
 	
 2003-05-16 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
@@ -17,6 +23,21 @@
 	configure script.
 
 	* gtk/general/Style.chs: Add some more elements.
+
+	* doc/Makefile: Remove -net. Oddly enough the whole translation
+	process falls over if the DTD cannot be found. Worse xsltproc
+	cannot read the CATALOG file, it seems to expect something in XML.
+
+	* doc/gtk2hs.xml: Require Docbook 4.2.
+
+	* gendoc/Abstract.hs, gendoc/Lexer.hs, gendoc/Parser.hs,
+	gendoc/State.hs, gendoc/Update.hs, gendoc/XMLwrite.hs: Fixed
+	layout and parser bugs, started to print data types.
+
+	* gtk/gdk/Pixbuf.chs, gtk/general/StockItems.hsc,
+	gtk/general/Structs.hsc, gtk/general/Style.chs,
+	gtk/pango/PangoTypes.chs, gtk/treeList/TreeView.chs: Fixed
+	documentation bugs.
 	
 2003-05-16  Jens Petersen  <petersen@redhat.com>
 

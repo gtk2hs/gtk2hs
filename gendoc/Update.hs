@@ -119,11 +119,13 @@ addType kind ty cons = withCurModule $
       conRHS = (\[CNorm _ [ty]] -> ty) cons,
       conDocu = [] })
     (Nothing, _) -> foldr (.) id (map execForward (tn:map getDaCon cons)) $
-		    doUpdate (ConInfo {
-      conNewType= kind==Newtype,
-      conDocu = [],
-      conSig  = ty,
-      conDaCon= listToFM (map createDaConDesc cons) })
+		    doUpdate 
+		    (ConInfo 
+		     {
+		      conNewType= kind==Newtype,
+		      conDocu = [],
+		      conSig  = ty,
+		      conDaCon= listToFM (map createDaConDesc cons) })
     (Just _, _) -> addError ("type constructor "++
 			     show tn++" was already present") state
 
