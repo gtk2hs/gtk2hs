@@ -1,0 +1,203 @@
+dnl Mogul - a monad based gui library
+dnl
+dnl Copyright (c) 2001 Axel Simon <simona@i2.informatik.rwth-aachen.de>
+dnl with parts stolen from Manuel Chakravaty, Sven Panne and Micheal Weber
+dnl
+dnl This library is free software; you can redistribute it and/or
+dnl modify it under the terms of the GNU Library General Public
+dnl License as published by the Free Software Foundation; either
+dnl version 2 of the License, or (at your option) any later version.
+dnl 
+dnl This library is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+dnl Library General Public License for more details.
+dnl 
+dnl You should have received a copy of the GNU Library General Public
+dnl License along with this library (COPYING.LIB); if not, write to the Free
+dnl Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+dnl ######################################################################
+dnl Process this file with autoconf to produce a configure script.
+dnl ######################################################################
+
+ 
+AC_INIT(mogul/Mogul.hs)
+
+dnl Where are we?
+TOP=`pwd`
+
+dnl Check system type.
+AC_CANONICAL_HOST
+
+dnl Checks for programs.
+
+dnl AC_PROG_CC
+AC_PROG_INSTALL
+AC_PATH_PROG(AR,ar)
+AC_PATH_PROG(BASENAME,basename)
+AC_PATH_PROG(GREP,grep)
+dnl AC_PATH_PROG(HSTAGS,hstags,no-hstags-available)
+dnl AC_PATH_PROG(LN,ln)
+AC_PATH_PROG(SED,sed)
+dnl AC_PATH_PROG(TAR,tar)
+AC_PATH_PROG(TOUCH,touch)
+
+
+dnl Check for libraries.
+
+dnl Is Manuel's Ports library present?
+AC_ARG_WITH(ports, 
+	    [  --with-ports=PORTS-CONFIG use this Haskell Ports Library],
+	    [PORTS_CONFIG=$withval])
+
+dnl Compile GtkGLArea extension.
+AC_ARG_ENABLE(gtkglarea,
+	      [  --enable-gtkglarea      generate binding for GtkGLArea],
+	      [ENABLE_GTKGLAREA=$enableval])
+AC_ARG_WITH(hopengl, 
+	    [  --with-hopengl=HOPENGL  location of HOpenGL library],
+	    [HOPENGL=$withval])
+
+dnl Select a specific Haskell compiler and/or flags.
+AC_ARG_WITH(hc, 
+            [  --with-hc=HC            use Haskell compiler HC (full path required)],
+	    [HC=$withval])
+
+AC_ARG_WITH(hcflags, 
+            [  --with-hcflags=HCFLAGS  specify flags for Haskell compiler],
+	    [HCFLAGS=$withval])
+
+dnl Select a specific C->Haskell installation.
+AC_ARG_WITH(c2hs, 
+            [  --with-c2hs=C2HS-CONFIG use the specified C->Haskell installation],
+	    [C2HS_CONFIG=$withval])
+
+dnl Due to the interdependencies between the different packages we need to
+dnl install one package before we can compile the next one. We do this by
+dnl using a local package file called localpackage.conf in the toplevel
+dnl directory the user may specify an alternative file.
+AC_ARG_WITH(pkgconf,
+	    [  --with-pkgconf=pkg.conf use a different package.conf file for building in-place],
+	    [LOCALPKGCONF=$withval],[LOCALPKGCONF=$TOP/localpackage.conf])
+
+dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
+dnl macro from the pkg-config program.
+
+PKG_CHECK_MODULES(GTK, glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0)
+
+dnl Have a special marshall list (available in the source tree of Gtk+ under
+dnl gtk/gtkmarshal.list)
+
+AC_MSG_CHECKING(marshal list)
+AC_ARG_WITH(mlist, 
+	    [  --with-mlist=GTK-SOURCE use special marshall list from GTK+ sources],
+	    [MARSHALLDEFS=$withval;
+	     AC_MSG_RESULT($withval)],
+	    [MARSHALLDEFS=$TOP/gtk/signals/gtkmarshal.list;
+	     AC_MSG_RESULT(built-in)])
+
+
+
+dnl Check for GHC-5.00 or greater.
+dnl (The next command is not executed, if $HC is already set.)
+AC_PATH_PROG(HC, ghc, ghc-not-found)
+if test $HC = ghc-not-found; then
+ AC_MSG_ERROR([
+Could not find GHC!  This is the only supported compiler.
+You need GHC 5.00 upwards.])
+fi
+
+GHC=$HC
+
+dnl Check GHC details.
+AC_MSG_CHECKING([version of GHC])
+GHC_VERSION=`$GHC --version | $SED "s/[[a-zA-Z ,]*\([0-9.]*\)[a-zA-Z ]]*/\1/"`
+AC_MSG_RESULT([$GHC_VERSION])
+
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.0, [
+  AC_MSG_ERROR([I need the FFI of GHC 5.00 upwards!])])
+
+GHCBARE=`basename $GHC`
+GHCPKGNAME=ghc-pkg`echo $GHCBARE | $SED s/ghc//`
+
+echo $GHCBARE, $GHCPKGNAME
+
+dnl Check for ghc-pkg. Use the one that is in the same directory and
+dnl version suffix as the specified compiler.
+AC_PATH_PROGS(GHCPKG, $GHCPKGNAME ghc-pkg, ghcpkg-not-found, `dirname $GHC`:$PATH)
+
+if test $GHCPKG = ghcpkg-not-found; then
+  AC_MSG_ERROR([ghc-pkg not found. (But ghc exists!?)]);
+fi
+
+dnl Optimise Haskell by default...
+if test -z "$HCFLAGS"; then
+  HCFLAGS="-O "
+fi
+
+dnl Find C->Haskell and check its version.
+AC_PATH_PROG(C2HS_CONFIG, c2hs-config)
+
+dnl Check the version of c2hs
+AC_CACHE_CHECK([c2hs version], c2hs_version, [
+  c2hs_version=`$C2HS_CONFIG --version`
+])
+
+GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.8.0,
+ AC_MSG_ERROR([You need C->Haskell version 0.8.0 upwards!
+** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
+
+dnl Enable separate invocation of c2hs for each .chs file 
+dnl (less memory, slower execution) ?
+
+AC_MSG_CHECKING(for copious memory)
+AC_ARG_ENABLE(ample-memory,
+	    [  --enable-ample-memory   quicker compilation for more than 250MB RAM],
+	    [MULTIPLE_CHS=$enableval],[MULTIPLE_CHS=no])
+AC_MSG_RESULT($MULTIPLE_CHS)
+
+GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.10.12,
+if test ! $MULTIPLE_CHS = no; then
+AC_MSG_ERROR([You need C->Haskell version 0.10.12 
+upwards to compile several .chs files at once. 
+Workaround: Use --enable-ample-memory=no for now.]);
+fi
+)
+
+
+
+dnl C->Haskell configuration.
+C2HS=`$C2HS_CONFIG --c2hs`
+
+dnl C2HS_CFLAGS="`$C2HS_CONFIG --cflags`"
+dnl AC_MSG_RESULT([Notice: C->Haskell induced compile time options: `$C2HS_CONFIG --cflags`])
+dnl LIBS="`$C2HS_CONFIG --libs` $LIBS"
+dnl AC_MSG_RESULT([Notice: C->Haskell induced link time options: `$C2HS_CONFIG --libs`])
+
+dnl Checks for libraries.
+
+dnl 
+
+dnl Needed substitution.
+AC_SUBST(GTK_LIBS)
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(TOP)
+AC_SUBST(CFLAGS)
+AC_SUBST(CPPFLAGS)
+AC_SUBST(MULTIPLE_CHS)
+AC_SUBST(LOCALPKGCONF)
+AC_SUBST(HCFLAGS)
+AC_SUBST(C2HS)
+AC_SUBST(MARSHALLDEFS)
+
+dnl write the results...
+AC_OUTPUT([
+  mk/config.mk
+])
+
+dnl ...and chat with the user
+echo "**************************************************"
+echo "Configuration completed successfully." 
+echo "Now do \"(g)make install\"."
+echo "**************************************************"

@@ -1,0 +1,56 @@
+gtk2hs: A binding of Gtk Version 2 for the programming language Haskell
+
+This binding make functions from the following libraries available (thus,
+these need to be installed):
+ * glib-2.0.0.tar.bz2
+ * atk-1.0.0.tar.bz2
+ * pango-1.0.0.tar.bz2
+ * gtk+-2.0.0.tar.bz2
+
+Furthermore, a working c2hs, version 0.8.0 or greater, and the GHC Haskell
+compiler, version 5.00 or greater, is required. If you have more than 250MB
+of physical memory at disposal and c2hs version 0.10.12 or later, you should
+specify --enable-ample-memory as an option to ./configure for a much quicker
+compilation. To use the library with GHCi, you need GHC 5.03.0 or later. i
+(The latter is untested.)
+
+Note: c2hs will most likely fail to preprocess the header files. If this is
+      the case change hipar/c2hs/toplevel/C2HSConfig.hs. Turn the line
+cppopts  = ""
+      into
+cppopts  = "-x c"
+      and do a make install at the hipar level.
+
+After checking out the sources you say
+
+~/gtk2hs:$ autoconf
+
+and 
+
+~/gtk2hs:$ ./configure
+
+. You might call configure with --help first, to see which options it supports.
+If you are using a globally installed ghc and have no priviliges to install
+new packages, you now say
+
+~/gtk2hs:$ make inplace
+
+where make should be GNU make. This will create a file called localpackage.conf
+in the current directory. To use it with your programs you need to specify
+-package-conf ~/gtk2hs/localpackage.conf -package mogul
+when building your programs. 
+
+If you can have the priviliges to alter GHC's packages, do
+
+~/gtk2hs:$ make install
+
+and simply specify
+-package mogul
+from that moment on.
+
+Report problems to A.Simon@ukc.ac.uk
+
+Good luck.
+
+ 
+GHC in a dir.  

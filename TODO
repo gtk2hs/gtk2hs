@@ -1,0 +1,19 @@
+TODO for gtk2hs
+
+* The version-check makro in configure.in does not seem to work on Solaris.
+
+* Compilation falls over on FreeBSD when c2hs reads the type modifier
+  __signed. I don't know if this is supposed to be replaced by cpp, for
+  the time being I've just added -D__signed=signed.. There probably should
+  be a autoconf test for this (and understanding of what's going on).
+
+* Figure out why ghc-pkg cannot install a package into localpackage.conf
+  when there are dependencies into GHC package.conf. The gtk2 package
+  depends on lang.
+
+* Add a makefile target to produce a tarball.
+
+* TextView is only half done.
+
+* Check all the files for additional functionality since 1.3.3.
+

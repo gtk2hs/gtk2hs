@@ -1,0 +1,106 @@
+TOP		= @TOP@
+
+AR		= @AR@
+GREP		= @GREP@
+SED		= @SED@
+TOUCH		= @TOUCH@
+INSTALL		= @INSTALL@
+
+# stolen from GHC's config.mk.in:
+
+prefix			= @prefix@
+exec_prefix		= @exec_prefix@
+bindir			= @bindir@
+datadir			= @datadir@
+#sysconfdir		= @datadir@
+#sharedstatedir		= @sharedstatedir@
+#localstatedir		= @localstatedir@
+libdir			= @libdir@
+includedir		= @includedir@
+oldincludedir		= @oldincludedir@
+mandir			= @mandir@
+
+#UNUSED, see below: libexecdir              = @libexecdir@
+#UNUSED:infodir		= @infodir@
+#UNUSED:srcdir          = @srcdir@
+
+# 
+# Default values for most of the above are only set if
+# they weren't configured to anything in particular
+# via the configure script. (i.e., we make no assumption
+# that the autoconf-generated script will assign defaults
+# to all of the above).
+#
+ifeq "$(strip $(exec_prefix))" ""
+exec_prefix		= $(prefix)
+endif
+ifeq "$(strip $(bindir))" ""
+bindir			= $(exec_prefix)/bin
+endif
+
+#
+# NOTE: by intention, libexecdir and libdir point to 
+# the same place.
+#  => Only way to override this is to set libexecdir= on the command line.
+#     (NOTE: configure script setting is ignored).
+libexecdir		= $(libdir)
+
+ifeq "$(strip $(datadir))" ""
+datadir		= $(prefix)/share
+endif
+ifeq "$(strip $(libdir))" ""
+libdir		= $(exec_prefix)/lib
+endif
+ifeq "$(strip $(includedir))" ""
+includedir	= $(prefix)/include
+endif
+ifeq "$(strip $(oldincludedir))" ""
+oldincludedir	= /usr/include
+endif
+ifeq "$(strip $(mandir))" ""
+mandir		= $(prefix)/man
+endif
+
+
+HC		= @HC@
+PKG		= @GHCPKG@
+
+# This should be libXXX.a and XXX for Unix and
+#		    XXX.dll and XXX.exe for Windows
+
+LIBPREFIX	= lib
+LIBSUFFIX	= .a
+OBJSUFFIX	= .o
+APPSUFFIX	=
+
+CFLAGS		= @CFLAGS@
+CPPFLAGS	= @CPPFLAGS@
+
+HC_FLAGS	= @HCFLAGS@
+
+HSC		= $(dir $(HC))hsc2hs
+
+MARSHALLDEFS	= @MARSHALLDEFS@
+C2HS_CONFIG	= @C2HS_CONFIG@
+C2HS		= @C2HS@
+C2HSFLAGS	= --old-ffi=no -C-D__signed=signed
+
+HSCFLAGS	=
+
+GTK_LIBS	= @GTK_LIBS@
+GTK_CFLAGS	= @GTK_CFLAGS@
+
+MULTIPLE_CHS	= @MULTIPLE_CHS@
+
+LOCALPKGCONF	= @LOCALPKGCONF@
+
+ifeq ($(strip $(MULTIPLE_CHS)),yes)
+HSTOOLFLAGS	= -H240m -M320m
+HC_FLAGS	+= -H240m
+endif
+
+
+.PHONY: default all install uninstall clean distclean mostlyclean \
+	maintainerclan inplace noinplace initlocal
+default		: all
+
