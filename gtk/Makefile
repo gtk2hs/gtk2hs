@@ -22,7 +22,8 @@ MAIN = general/Gtk.hs
 
 HEADER = gtk/gtk.h
 
-EXCLUDE_DOCS = general/FFI.hs ../compat/LocalControl.hs ../compat/LocalData.hs
+EXCLUDE_DOCS = general/FFI.hs general/Hierarchy.hs \
+		../compat/LocalControl.hs ../compat/LocalData.hs
 PREPROC_DOCS = general/Gtk.hs
 
 # Whenever a variable module-HEADER is defined, the file module.chs
