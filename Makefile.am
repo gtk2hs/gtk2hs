@@ -35,6 +35,13 @@ SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
 	tools/c2hs/chs tools/c2hs/gen tools/c2hs/lib tools/c2hs/state	     \
 	tools/c2hs/toplevel
 
+EXTRA_DIST = VERSION \
+	tools/callbackGen/Signal.chs-boot1	\
+	tools/callbackGen/Signal.chs-boot2	\
+	tools/callbackGen/gtkmarshal.list	\
+	tools/hierarchyGen/hierarchy.list	\
+	tools/c2hs/toplevel/c2hs_config.h
+
 # fixme: this should be in configure.ac:
 HSCPP = $(CPP) -x c -traditional-cpp -P
 

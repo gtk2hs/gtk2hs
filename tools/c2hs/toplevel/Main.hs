@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Derived: 12 August 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 21:05:42 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/26 15:08:10 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -645,7 +645,7 @@ preCompileHeader headerFile preCompFile =
     -- save the attributed C to disk
     --
     liftIO $ putBinFileWithDict preCompFile (WithNameSupply cheader)
-    printElapsedTime "finnished serialising header"
+    printElapsedTime "finished serialising header"
     --
     -- remove the pre-processed header
     --
@@ -653,7 +653,7 @@ preCompileHeader headerFile preCompFile =
     unless keep $
       removeFileCIO preprocFile
  
-    printElapsedTime "finnish"
+    printElapsedTime "finish"
     return ()
   where
     tracePreproc cmd = putTraceStr tracePhasesSW $
@@ -700,7 +700,7 @@ processPreComp preCompFile bndFile = do
       dumpCHI hsFile chi		-- different suffix will be appended
 
       -- CHS file did not contain C declarations, so return False
-      printElapsedTime "finnish"
+      printElapsedTime "finish"
       return False
   where
     traceCHSDump mod = do

@@ -1,3 +1,12 @@
+2004-11-26  Jens Petersen  <petersen@haskell.org>
+
+	* Makefile.am (EXTRA_DIST): Include Signal.chs-boot*,
+	gtkmarshal.list, hierarchy.list and c2hs_config.h in tarball.
+
+	* configure.ac: Output mk/config.mk.
+
+	* tools/c2hs/toplevel/Main.hs: Fix spelling of finish.
+
 2004-11-21 Axel Simon <A.Simon@kent.ac.uk> 
 
 	* Makefile.am, tools/c2hs/gen/GenBind.hs,
