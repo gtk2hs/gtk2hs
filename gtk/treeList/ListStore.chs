@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:08 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -38,7 +38,8 @@ module ListStore(
   listStoreInsertBefore,
   listStoreInsertAfter,
   listStorePrepend,
-  listStoreAppend
+  listStoreAppend,
+  listStoreClear
   ) where
 
 import Monad	(liftM)
@@ -50,7 +51,7 @@ import GObject	(makeNewGObject)
 {#import Signal#}
 {#import TreeModel#}
 import Structs	(treeIterSize, nullForeignPtr)
-import StoreValue (TMType(..), GenericValue(..), tmTypeInvalid)
+import StoreValue (TMType(..), GenericValue(..))
 {#import GValue#} (GValue)
 import GType	  (GType)
 
@@ -62,8 +63,9 @@ import GType	  (GType)
 --
 listStoreNew :: [TMType] -> IO ListStore
 listStoreNew cols = makeNewGObject mkListStore $ 
-  withArray0 tmTypeInvalid (map (fromIntegral.fromEnum) cols) $ \tPtr ->
-  {#call unsafe list_store_newv#} ((fromIntegral.length) cols) tPtr
+  withArray0 ((fromIntegral.fromEnum) TMinvalid) 
+  (map (fromIntegral.fromEnum) cols) $
+  {#call unsafe list_store_newv#} ((fromIntegral.length) cols)
 
 -- @method listStoreSetValue@ Set the data of a specific node. The supplied
 -- value must match the type that was set for the column.
@@ -132,3 +134,7 @@ listStoreAppend ts = do
   {#call list_store_append#} (toListStore ts) iter 
   return iter
 
+-- @method listStoreClear@ Clear all rows in this table.
+--
+listStoreClear :: (ListStoreClass ts) => ts -> IO ()
+listStoreClear = {#call list_store_clear#}.toListStore

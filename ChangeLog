@@ -1,3 +1,13 @@
+2002-07-08 Axel Simon <as49@ukc.ac.uk>
+
+        * Reinstantiated the TreeList.hs module in mogul/. Made up a new
+        concept to make the TreeView widget easier to use. To create a
+	TreeStore or ListStore object, the user now has to create a
+	skeleton that holds different attributes. The skeleton can then
+	be converted into a ListStore or TreeStore. This takes care of
+	the fact that columns cannot be added to the store objects on
+	the fly.
+
 2002-06-22 Axel Simon <as49@ukc.ac.uk>
 
 	* Changed the configure script to more reliably find GNU versions

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:08 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -29,8 +29,7 @@
 
 module StoreValue(
   TMType(..),
-  GenericValue(..),
-  tmTypeInvalid
+  GenericValue(..)
   ) where
 
 import Monad	(liftM)
@@ -40,12 +39,14 @@ import Hierarchy
 import GValue	(GValue, GenericValue(..), valueInit, valueUnset)
 import GValueTypes
 import GType	(GType)
+import Exception(throw, Exception(AssertionFailed))
 
 #include <glib-object.h>
 
 -- This is an enumeration of all @GType@s that can be used in a @TreeModel.
 --
-data TMType = TMuint
+data TMType = TMinvalid
+	    | TMuint
 	    | TMint
 	    | TMuchar
 	    | TMchar
@@ -59,12 +60,9 @@ data TMType = TMuint
 	    | TMobject
 	    | TMboxed
 
--- This is the number for the "invalid" type which does not appear in the
--- enumeration because it should not be used.
-tmTypeInvalid :: GType
-tmTypeInvalid = fromIntegral #const G_TYPE_INVALID
 
 instance Enum TMType where
+  fromEnum TMinvalid = #const G_TYPE_INVALID
   fromEnum TMuint    = #const G_TYPE_UINT
   fromEnum TMint     = #const G_TYPE_INT
   fromEnum TMuchar   = #const G_TYPE_UCHAR
@@ -78,6 +76,7 @@ instance Enum TMType where
   fromEnum TMstring  = #const G_TYPE_STRING
   fromEnum TMobject  = #const G_TYPE_OBJECT
   fromEnum TMboxed   = #const G_TYPE_BOXED
+  toEnum #{const G_TYPE_INVALID} = TMinvalid
   toEnum #{const G_TYPE_UINT}    = TMuint    
   toEnum #{const G_TYPE_INT}	 = TMint     
   toEnum #{const G_TYPE_UCHAR}	 = TMuchar   
@@ -92,7 +91,7 @@ instance Enum TMType where
   toEnum #{const G_TYPE_OBJECT}	 = TMobject  
   toEnum #{const G_TYPE_BOXED}	 = TMboxed
   toEnum _			 = 
-    error "toEnum(TMType): no such type in TreeModel allowed."
+    error "StoreValue.toEnum(TMType): no dynamic types allowed."
 
 
 instance Storable GenericValue where
@@ -102,6 +101,8 @@ instance Storable GenericValue where
     gtype <- liftM (toEnum.fromIntegral::#{type GType} -> TMType) $ 
 	     #{peek GValue, g_type} gvPtr
     case gtype of
+      TMinvalid	-> throw $ AssertionFailed 
+        "StoreValue.peek(GenericValue): invalid or unavailable value."
       TMuint    -> liftM GVuint			  $ valueGetUInt    gvPtr
       TMint	-> liftM GVint	                  $ valueGetInt	    gvPtr
       TMuchar	-> liftM GVuchar		  $ valueGetUChar   gvPtr

@@ -4,7 +4,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/07/08 09:15:09 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -169,8 +169,6 @@ module NewWidget(
   --newItemFactory,
   newTooltips,
   newTreeView,
-  newTreeStore,
-  newListStore,
   newIconFactory,
   ) where
 
@@ -1111,16 +1109,6 @@ newAdjustment value lower upper stepIncrement pageIncrement pageSize =
 newTooltips :: IO Tooltips
 newTooltips = tooltipsNew
 
-
--- @see treeStoreNew
---
-newTreeStore :: [TMType] -> IO TreeStore
-newTreeStore = treeStoreNew
-
--- @see listStoreNew
---
-newListStore :: [TMType] -> IO ListStore
-newListStore = listStoreNew
 
 -- @see name
 --

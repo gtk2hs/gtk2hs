@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/08 09:15:08 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -149,7 +149,9 @@ module Gtk(
   module Separator,
   module Widget,
   -- cross-process embedding
-  module Socket
+  module Socket,
+  -- non-widgets
+  module Hierarchy
   ) where
 
 -- general things, initialization
@@ -268,6 +270,7 @@ import Widget
 -- cross-process embedding
 import Socket
 
-
+-- non widgets
+import Hierarchy	(toCellRenderer)
 
 

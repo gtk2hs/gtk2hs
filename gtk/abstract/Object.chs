@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/08 09:15:08 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -29,10 +29,6 @@
 --   Each widget is a represented as a purely abstract data type. It can only 
 --   be accessed through and the special access functions that are defined
 --   in each widget file.
--- * Most attributes in a widget can be set and retrieved by passing the
---   name (as a string) and the value to special set/get functions. These
---   are not bound because each derived objects implements custom (and well-
---   typed) set and get functions for most attributes.
 --
 -- @todo@ ---------------------------------------------------------------------
 --
@@ -43,14 +39,18 @@ module Object(
   ObjectClass(..),
   castToObject,
   objectSink,
-  makeNewObject
+  makeNewObject,
+  objectSetProperty,
+  objectGetProperty
   ) where
 
 import Foreign
-import IOExts	(newIORef, readIORef, writeIORef)
+import CForeign	(withCString, CChar)
 import GObject	(objectRef, objectUnref)
 {#import Signal#}
 {#import Hierarchy#}
+{#import GValue#}
+import StoreValue
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -86,4 +86,27 @@ makeNewObject constr generator = do
   objectSink objPtr
   return $ constr obj
 
+
+-- @method private objectSetProperty@ Sets a specific attribute of this object.
+--
+-- * Most attributes in a widget can be set and retrieved by passing the
+--   name (as a string) and the value to special set/get functions. These
+--   are undocumented because each derived objects implements custom (and
+--   welltyped) set and get functions for most attributes.
+--
+objectSetProperty :: GObjectClass obj => obj -> String -> GenericValue -> IO ()
+objectSetProperty obj prop val = alloca $ \vaPtr -> withCString prop $ 
+  \sPtr -> poke vaPtr val >> {#call unsafe g_object_set_property#} 
+  (toGObject obj) sPtr vaPtr
+  
+
+-- @method private objectGetProperty@ Gets a specific attribute of this object.
+--
+-- * See @ref method objectSetProperty@.
+--
+objectGetProperty :: GObjectClass obj => obj -> String -> 
+					IO GenericValue
+objectGetProperty obj prop = alloca $ \vaPtr -> withCString prop $ \str ->
+  {#call unsafe g_object_get_property#} (toGObject obj) str vaPtr >> 
+  peek vaPtr
 

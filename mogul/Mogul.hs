@@ -5,7 +5,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/07/08 09:15:09 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -101,51 +101,24 @@ import Gtk hiding (
   tableNew,
   textViewNew,
   toolbarNew,
-  treeViewNew, {-
-  treeViewNewWithModel,
-  treeViewColumnSetVisible,
-  treeViewColumnGetVisible,
-  treeViewColumnSetSizing,
-  treeViewColumnGetSizing,
-  treeViewColumnGetWidth,
-  treeViewColumnSetMinWidth,
-  treeViewColumnGetMinWidth,
-  treeViewColumnSetMaxWidth,
-  treeViewColumnGetMaxWidth,
-  treeViewColumnSetTitle,
-  treeViewColumnGetTitle,
-  treeViewColumnSetClickable,
-  treeViewColumnSetWidget,
-  treeViewColumnGetWidget,
-  treeViewColumnSetAlignment,
-  treeViewColumnGetAlignment,
-  treeViewColumnClicked,
-  treeModelGetNColumns,
-  treeModelGetColumnType,
+  treeViewNew,
+  -- TreeModel
   treeModelGetValue,
   TreePath,
-  treePathNew,
-  treePathNewFromString,
-  treePathToString,
-  treePathNewFirst,
-  treePathAppendIndex,
-  treePathPrependIndex,
-  treePathGetDepth,
-  treePathGetIndices,
-  treePathCopy,
-  treePathCompare,
-  treePathNext,
-  treePathPrev,
-  treePathUp,
-  treePathDown,
   treeModelGetIter,
   treeModelGetPath,
-  treeStoreSetValue, 
+  -- ListStore
+  listStoreNew,
   listStoreSetValue,
-  treeViewAppendColumn, 
-  treeViewInsertColumn,
-  treeViewRemoveColumn,
-  treeViewGetColumn,  -}
+  -- TreeStore
+  treeStoreNew,
+  treeStoreSetValue,
+  -- TreeViewColumn
+  treeViewColumnAddAttribute,
+  CellRendererText,
+  CellRendererPixbuf,
+  CellRendererToggle,
+
   calendarNew,
   --drawingAreaNew,
   entryNew,

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:08 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -62,7 +62,7 @@ cellRendererTextNew  = makeNewObject mkCellRendererText $ liftM castPtr $
 
 -- helper function
 --
-strAttr str = AttrSingle str TMstring
+strAttr str = Attribute str TMstring
 	        (return.GVstring)
 		(\(GVstring str) -> return str)
 

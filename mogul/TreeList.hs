@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/07/08 09:15:09 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -53,403 +53,259 @@
 --
 --- DOCU ----------------------------------------------------------------------
 --
---  * This module is currently broken, because the Gtk 2 changed the functions
---    to build the tables....
 --
 --- TODO ----------------------------------------------------------------------
 
 module TreeList(
-{-
-  treeStoreCreateColumn,
-  listStoreCreateColumn,
-  StoreColumn,		-- abstract
-  storeColumnSetValue,
-  storeColumnGetValue,
-  newTreeViewTextColumn,
-  newTreeViewTextColumnAt,
-  newTreeViewPixbufColumn,
-  newTreeViewPixbufColumnAt,
-  newTreeViewTextPixbufColumn,
-  newTreeViewTextPixbufColumnAt,
-  newTreeViewToggleColumn,
-  newTreeViewToggleColumnAt,
-  treeViewRemoveColumn,
-  treeViewGetColumn,
-  ViewColumn,		-- abstract
-  viewColumnAssociate,
-  viewColumnSetVisible,
-  viewColumnGetVisible,
-  viewColumnSetSizing,
-  viewColumnGetSizing,
-  viewColumnGetWidth,
-  viewColumnSetWidth,
-  viewColumnSetMinWidth,
-  viewColumnGetMinWidth,
-  viewColumnSetMaxWidth,
-  viewColumnGetMaxWidth,
-  viewColumnSetTitle,
-  viewColumnGetTitle,
-  viewColumnSetClickable,
-  viewColumnSetWidget,
-  viewColumnGetWidget,
-  viewColumnSetAlignment,
-  viewColumnGetAlignment,
-  viewColumnClicked,
-  CellRenderer,
-  CellRendererClass,
+  ListSkel,
+  emptyListSkel,
+  listSkelAddAttribute,
+  newListStore,
+  TreeSkel,
+  emptyTreeSkel,
+  treeSkelAddAttribute,
+  newTreeStore,
+  Association,
+  TextRenderer,
+  treeViewColumnNewText,
+  PixbufRenderer,
+  treeViewColumnNewPixbuf,
+  ToggleRenderer,
+  treeViewColumnNewToggle,
+  treeViewColumnAssociate,
   TreePath,
   treeModelGetIter,
   treeModelGetPath
--}
   ) where
 
-{-
 import Monad	(liftM)
-import Hierarchy
 import GType	(typeInstanceIsA)
 import Gtk	hiding (
   -- TreeModel
-  treeModelGetNColumns,
-  treeModelGetColumnType,
   treeModelGetValue,
   TreePath,
   treeModelGetIter,
   treeModelGetPath,
-  -- TreeStore
-  treeStoreSetNColumns,
-  treeStoreSetColumnType,
-  treeStoreSetValue,
   -- ListStore
-  listStoreSetNColumns,
-  listStoreSetColumnType,
+  listStoreNew,
   listStoreSetValue,
-  -- TreeView
-  treeViewAppendColumn,
-  treeViewInsertColumn,
-  treeViewRemoveColumn,
-  treeViewGetColumn)
+  -- TreeStore
+  treeStoreNew,
+  treeStoreSetValue,
+  -- TreeViewColumn
+  treeViewColumnAddAttribute,
+  CellRendererText,
+  CellRendererPixbuf,
+  CellRendererToggle)
+import qualified Gtk
+import IOExts	(IORef(..), newIORef, readIORef, writeIORef)
+import Exception(throw, Exception(AssertionFailed))
 
-obj # meth = meth obj
-
--- The abstractly exported @StoreColumn data type. (EXPORTED)
+-- @data ListSkel@ A skeleton of a @ref type ListStore@ database.
 --
--- * Take a predefined @Attribute @cr @argType from a @CellRenderer @cr and 
---   call @treeStoreCreateColumn or @listStoreCreateColumn to get a 
---   @StoreColumn @cr @argType. This can then be used with 
---   @storeColumnSetValue to store some data value of type @argType.
+-- * This datastructure describes what columns the database will have when
+--   it is finally created by @ref method newListStore@
 --
-data (CellRendererClass cr) => StoreColumn cr argType
-  = StoreColumn Int TreeModel 
-    (TreeIter -> Int -> GenericValue -> TreeModel -> IO ()) 
-    (Attribute cr argType)
+newtype ListSkel = ListSkel (IORef ListSkelState)
+
+data ListSkelState = LSSPrepare [TMType]
+		   | LSSActive ListStore
 
 
--- Create a new column in the @TreeStore database. (EXPORTED)
+-- @method emptyListSkel@ Returns an empty @ref type ListSkel@.
 --
--- * The type of the column is determined by the @Attribute of the 
+emptyListSkel :: IO ListSkel
+emptyListSkel = liftM ListSkel (newIORef (LSSPrepare []))
+
+-- @method listSkelAddAttribute@ Reserve a new column in
+-- @ref type ListSkel@ to hold values for the given attribute.
+--
+-- * The type of the column is determined by the given @ref type Attribute@
+--   of the 
 --   @ViewColumn which should be stored here. It is possible to associate
 --   this column with several @ViewColumn@s.
 --
-treeStoreCreateColumn :: (TreeStoreClass ts, CellRendererClass cr) =>
-  Attribute cr argTy -> ts -> IO (StoreColumn cr argTy)
-treeStoreCreateColumn (attr@(AttrSingle _ ty _ _)) ts = do
-  col <- ts # Gtk.treeModelGetNColumns
-  ts # Gtk.treeStoreSetNColumns (col+1)
-  ts # Gtk.treeStoreSetColumnType col ty
-  return $ StoreColumn col (toTreeModel ts) (\iter col val tm ->
-	     Gtk.treeStoreSetValue iter col val 
-	     (fromTreeModel tm :: TreeStore)) attr
-treeStoreCreateColumn (attr@(AttrDouble _ ty1 _ ty2 _ _)) ts = do
-  col <- ts # Gtk.treeModelGetNColumns
-  ts # Gtk.treeStoreSetNColumns (col+2)
-  ts # Gtk.treeStoreSetColumnType col ty1
-  ts # Gtk.treeStoreSetColumnType (col+1) ty2
-  return $ StoreColumn col (toTreeModel ts) (\iter col val tm ->
-	     Gtk.treeStoreSetValue iter col val 
-	     (fromTreeModel tm :: TreeStore)) attr
+listSkelAddAttribute :: RendererClass cr => ListSkel -> 
+			Attribute cr argTy ->
+			IO (Association cr,
+			    TreeIter -> IO argTy,
+			    TreeIter -> argTy -> IO ())
+listSkelAddAttribute (ListSkel statusRef) 
+		     (Attribute prop ty toGen fromGen) = do
+  status <- readIORef statusRef
+  case status of 
+    LSSPrepare tList -> do
+      writeIORef statusRef (LSSPrepare (ty:tList))
+      let columnNo = 1+length tList
+      return (Association prop columnNo,
+	\ti -> do
+        status <- readIORef statusRef
+	case status of 
+	  LSSPrepare _ -> throw $ AssertionFailed 
+	    "Modul.ListStore<readValue>: \
+	    \skeleton was not converted to a ListStore before data access."
+	  LSSActive ls -> Gtk.treeModelGetValue ls ti columnNo >>= fromGen,
+	\ti arg -> do
+        status <- readIORef statusRef
+	case status of 
+	  LSSPrepare _ -> throw $ AssertionFailed 
+	    "Modul.ListStore<writeValue>: \
+	    \skeleton was not converted to a ListStore before data access."
+	  LSSActive ls -> toGen arg >>= Gtk.listStoreSetValue ls ti columnNo
+	)
 
--- Create a new column in the @ListStore database. (EXPORTED)
+
+-- @method newListStore@ Create a new @ref type ListStore@ database.
 --
--- * The type of the column is determined by the @Attribute of the 
+-- * This method throws an exception if the skeleton has been used before.
+--
+newListStore :: ListSkel -> IO ListStore
+newListStore (ListSkel statusRef) = do
+  status <- readIORef statusRef
+  case status of
+    LSSPrepare tList -> do
+      ls <- Gtk.listStoreNew (reverse tList)
+      writeIORef statusRef (LSSActive ls)
+      return ls
+    LSSActive _ -> throw $ AssertionFailed 
+      "Mogul.newListStore: tried to reuse a ListStore skeleton."
+
+-- @data TreeSkel@ A skeleton of a @ref type TreeStore@ database.
+--
+-- * This datastructure describes what columns the database will have when
+--   it is finally created by @ref method newTreeStore@
+--
+newtype TreeSkel = TreeSkel (IORef TreeSkelState)
+
+data TreeSkelState = TSSPrepare [TMType]
+		   | TSSActive TreeStore
+
+
+-- @method emptyTreeSkel@ Returns an empty @ref type TreeSkel@.
+--
+emptyTreeSkel :: IO TreeSkel
+emptyTreeSkel = liftM TreeSkel (newIORef (TSSPrepare []))
+
+-- @method treeSkelAddAttribute@ Reserve a new column in
+-- @ref type TreeSkel@ to hold values for the given attribute.
+--
+-- * The type of the column is determined by the given @ref type Attribute@
+--   of the 
 --   @ViewColumn which should be stored here. It is possible to associate
 --   this column with several @ViewColumn@s.
 --
-listStoreCreateColumn :: (ListStoreClass ls, CellRendererClass cr) =>
-  Attribute cr argTy -> ls -> IO (StoreColumn cr argTy)
-listStoreCreateColumn (attr@(AttrSingle _ ty _ _)) ls = do
-  col <- ls # Gtk.treeModelGetNColumns
-  ls # Gtk.listStoreSetNColumns (col+1)
-  ls # Gtk.listStoreSetColumnType col ty
-  return $ StoreColumn col (toTreeModel ls) (\iter col val tm ->
-	     Gtk.listStoreSetValue iter col val 
-	     (fromTreeModel tm :: ListStore)) attr
-listStoreCreateColumn (attr@(AttrDouble _ ty1 _ ty2 _ _)) ls = do
-  col <- ls # Gtk.treeModelGetNColumns
-  ls # Gtk.listStoreSetNColumns (col+2)
-  ls # Gtk.listStoreSetColumnType col ty1
-  ls # Gtk.listStoreSetColumnType (col+1) ty2
-  return $ StoreColumn col (toTreeModel ls) (\iter col val tm ->
-	     Gtk.listStoreSetValue iter col val 
-	     (fromTreeModel tm :: ListStore)) attr
+treeSkelAddAttribute :: RendererClass r => TreeSkel -> 
+			Attribute r argTy ->
+			IO (Association r,
+			    TreeIter -> IO argTy,
+			    TreeIter -> argTy -> IO ())
+treeSkelAddAttribute (TreeSkel statusRef) 
+		     (Attribute prop ty toGen fromGen) = do
+  status <- readIORef statusRef
+  case status of 
+    TSSPrepare tTree -> do
+      writeIORef statusRef (TSSPrepare (ty:tTree))
+      let columnNo = 1+length tTree
+      return (Association prop columnNo,
+	\ti -> do
+        status <- readIORef statusRef
+	case status of 
+	  TSSPrepare _ -> throw $ AssertionFailed 
+	    "Modul.TreeStore<readValue>: \
+	    \skeleton was not converted to a TreeStore before data access."
+	  TSSActive ls -> Gtk.treeModelGetValue ls ti columnNo >>= fromGen,
+	\ti arg -> do
+        status <- readIORef statusRef
+	case status of 
+	  TSSPrepare _ -> throw $ AssertionFailed 
+	    "Modul.TreeStore<writeValue>: \
+	    \skeleton was not converted to a TreeStore before data access."
+	  TSSActive ls -> toGen arg >>= Gtk.treeStoreSetValue ls ti columnNo
+	)
 
 
--- Set a value in a @StoreColumn. (EXPORTED)
+-- @method newTreeStore@ Create a new @ref type TreeStore@ database.
 --
-storeColumnSetValue :: (CellRendererClass cr) => 
-  TreeIter -> a -> StoreColumn cr a -> IO ()
-storeColumnSetValue iter val (StoreColumn col tm store
-  (AttrSingle _ _ toGen _)) = do
-  gval <- toGen val
-  tm # store iter col gval
-storeColumnSetValue iter val (StoreColumn col tm store
-  (AttrDouble _ _ _ _ toGen _)) = do
-  (gval1, gval2) <- toGen val
-  tm # store iter col gval1
-  tm # store iter (col+1) gval2
-   
--- Get the value from a @StoreColumn. (EXPORTED)
+-- * This method throws an exception if the skeleton has been used before.
 --
-storeColumnGetValue :: (CellRendererClass cr) =>
-  TreeIter -> StoreColumn cr a -> IO a
-storeColumnGetValue iter (StoreColumn col tm _
-  (AttrSingle _ _ _ fromGen)) = do
-  gval <- tm # Gtk.treeModelGetValue iter col
-  fromGen gval
-storeColumnGetValue iter (StoreColumn col tm _
-  (AttrDouble _ _ _ _ _ fromGen)) = do
-  gval1 <- tm # Gtk.treeModelGetValue iter col
-  gval2 <- tm # Gtk.treeModelGetValue iter (col+1)
-  fromGen gval1 gval2
+newTreeStore :: TreeSkel -> IO TreeStore
+newTreeStore (TreeSkel statusRef) = do
+  status <- readIORef statusRef
+  case status of
+    TSSPrepare tTree -> do
+      ls <- Gtk.treeStoreNew (reverse tTree)
+      writeIORef statusRef (TSSActive ls)
+      return ls
+    TSSActive _ -> throw $ AssertionFailed 
+      "Mogul.newTreeStore: tried to reuse a TreeStore skeleton."
 
--- A @TreeView can hold an arbitrary number of @ViewColumn@s which are defined
--- here. (EXPORTED)
+-- @data Association@ An abstract link between a store and a view.
 --
--- * A @ViewColumn is parameterized over the @CellRenderer it uses to display
---   the cells.
---
-newtype (CellRendererClass cr) => ViewColumn cr = ViewColumn TreeViewColumn
+data RendererClass cr => Association cr = Association String Int
 
--- Create a new @ViewColumn that displays text. (EXPORTED)
---
--- * Appends the column. To insert the column at a special place use the
---   @newTreeViewTextColumnAt function.
---
-newTreeViewTextColumn :: TreeView -> IO (ViewColumn CellRendererText)
-newTreeViewTextColumn tv = do
-  cr <- cellRendererTextNew
-  tvc <- Gtk.treeViewColumnNew
-  tvc # Gtk.treeViewColumnSetCellRenderer cr
-  tv # Gtk.treeViewAppendColumn tvc
-  return $ ViewColumn tvc
 
--- Insert a new @ViewColumn at a specific position. (EXPORTED)
---
-newTreeViewTextColumnAt :: Int -> TreeView -> IO (ViewColumn CellRendererText)
-newTreeViewTextColumnAt pos tv = do
-  cr <- cellRendererTextNew
-  tvc <- Gtk.treeViewColumnNew
-  tvc # Gtk.treeViewColumnSetCellRenderer cr
-  tv # Gtk.treeViewInsertColumn tvc pos
-  return $ ViewColumn tvc
+-- @class RendererClass@
+class RendererClass r where
+  getCellRenderer :: r -> CellRenderer
+  getTreeViewCol  :: r -> TreeViewColumn
 
--- Create a new @ViewColumn that displays pixbuf. (EXPORTED)
+-- @data TextRenderer@ A renderer for text in a @ref type TreeView@.
 --
--- * Appends the column. To insert the column at a special place use the
---   @newTreeViewPixbufColumnAt function.
---
-newTreeViewPixbufColumn :: TreeView -> IO (ViewColumn CellRendererPixbuf)
-newTreeViewPixbufColumn tv = do
-  cr <- cellRendererPixbufNew
-  tvc <- Gtk.treeViewColumnNew
-  tvc # Gtk.treeViewColumnSetCellRenderer cr
-  tv # Gtk.treeViewAppendColumn tvc
-  return $ ViewColumn tvc
+data TextRenderer = TextRenderer Gtk.CellRendererText TreeViewColumn
 
--- Insert a new @ViewColumn at a specific position. (EXPORTED)
---
-newTreeViewPixbufColumnAt :: Int -> TreeView -> 
-  IO (ViewColumn CellRendererPixbuf)
-newTreeViewPixbufColumnAt pos tv = do
-  cr <- cellRendererPixbufNew
-  tvc <- Gtk.treeViewColumnNew
-  tvc # Gtk.treeViewColumnSetCellRenderer cr
-  tv # Gtk.treeViewInsertColumn tvc pos
-  return $ ViewColumn tvc
+instance RendererClass TextRenderer where
+  getCellRenderer (TextRenderer ren _) = Gtk.toCellRenderer ren
+  getTreeViewCol  (TextRenderer _ tree) = tree
 
--- Create a new @ViewColumn that displays textPixbuf. (EXPORTED)
+-- @data PixbufRenderer@ A renderer for a bitmap in a @ref type TreeView@.
 --
--- * Appends the column. To insert the column at a special place use the
---   @newTreeViewTextPixbufColumnAt function.
---
-newTreeViewTextPixbufColumn :: TreeView -> 
-  IO (ViewColumn CellRendererTextPixbuf)
-newTreeViewTextPixbufColumn tv = do
-  cr <- cellRendererTextPixbufNew
-  tvc <- Gtk.treeViewColumnNew
-  tvc # Gtk.treeViewColumnSetCellRenderer cr
-  tv # Gtk.treeViewAppendColumn tvc
-  return $ ViewColumn tvc
+data PixbufRenderer = PixbufRenderer Gtk.CellRendererPixbuf TreeViewColumn
 
--- Insert a new @ViewColumn at a specific position. (EXPORTED)
---
-newTreeViewTextPixbufColumnAt :: Int -> TreeView -> 
-  IO (ViewColumn CellRendererTextPixbuf)
-newTreeViewTextPixbufColumnAt pos tv = do
-  cr <- cellRendererTextPixbufNew
-  tvc <- Gtk.treeViewColumnNew
-  tvc # Gtk.treeViewColumnSetCellRenderer cr
-  tv # Gtk.treeViewInsertColumn tvc pos
-  return $ ViewColumn tvc
+instance RendererClass PixbufRenderer where
+  getCellRenderer (PixbufRenderer ren _) = Gtk.toCellRenderer ren
+  getTreeViewCol  (PixbufRenderer _ tree) = tree
 
--- Create a new @ViewColumn that displays toggle. (EXPORTED)
+-- @data ToggleRenderer@ A Renderer for a toggle siwtch in a 
+-- @ref type TreeView@.
 --
--- * Appends the column. To insert the column at a special place use the
---   @newTreeViewToggleColumnAt function.
---
-newTreeViewToggleColumn :: TreeView ->IO (ViewColumn CellRendererToggle)
-newTreeViewToggleColumn tv = do
-  cr <- cellRendererToggleNew
-  tvc <- Gtk.treeViewColumnNew
-  tvc # Gtk.treeViewColumnSetCellRenderer cr
-  tv # Gtk.treeViewAppendColumn tvc
-  return $ ViewColumn tvc
+data ToggleRenderer = ToggleRenderer Gtk.CellRendererToggle TreeViewColumn
 
--- Insert a new @ViewColumn at a specific position. (EXPORTED)
---
-newTreeViewToggleColumnAt :: Int -> TreeView -> 
-  IO (ViewColumn CellRendererToggle)
-newTreeViewToggleColumnAt pos tv = do
-  cr <- cellRendererToggleNew
-  tvc <- Gtk.treeViewColumnNew
-  tvc # Gtk.treeViewColumnSetCellRenderer cr
-  tv # Gtk.treeViewInsertColumn tvc pos
-  return $ ViewColumn tvc
+instance RendererClass ToggleRenderer where
+  getCellRenderer (ToggleRenderer ren _) = Gtk.toCellRenderer ren
+  getTreeViewCol  (ToggleRenderer _ tree) = tree
 
--- Remove a @ViewColumn from a @TreeView widget. The number of remaining
--- columns is returned. (EXPORTED)
---
-treeViewRemoveColumn :: (CellRendererClass cr) => 
-  ViewColumn cr -> TreeView -> IO Int
-treeViewRemoveColumn (ViewColumn tvc) tv =
-  Gtk.treeViewRemoveColumn tvc tv
 
--- Retrieve the @ViewColumn at a specific position. (EXPORTED)
---
--- * The return value is of type @ViewColumn @CellRenderer so the only use
---   for this function is to call @treeViewRemoveColumn afterwards.
---
-treeViewGetColumn :: Int -> TreeView -> IO (Maybe (ViewColumn CellRenderer))
-treeViewGetColumn pos tv = 
-  liftM (fmap ViewColumn) $ Gtk.treeViewGetColumn pos tv
+treeViewColumnNewText :: TreeViewColumn -> Bool -> Bool -> IO TextRenderer
+treeViewColumnNewText tvc atStart expand = do
+  ren <- cellRendererTextNew
+  (if atStart then Gtk.treeViewColumnPackStart else Gtk.treeViewColumnPackEnd)
+    tvc ren expand
+  return $ TextRenderer ren tvc
 
--- Use the information in @StoreColumn to alter the displayed cell. (EXPORTED)
---
-viewColumnAssociate :: (CellRendererClass cr) => 
-  StoreColumn cr a -> ViewColumn cr -> IO ()
-viewColumnAssociate (StoreColumn col _ _ (AttrSingle attr _ _ _)) 
-  (ViewColumn tvc) = do
-    tvc # treeViewColumnAddAttribute attr col
-viewColumnAssociate (StoreColumn col _ _ (AttrDouble attr1 _ attr2 _ _ _)) 
-  (ViewColumn tvc) = do
-    tvc # treeViewColumnAddAttribute attr1 col
-    tvc # treeViewColumnAddAttribute attr2 (col+1)
+treeViewColumnNewPixbuf :: TreeViewColumn -> Bool -> Bool -> IO PixbufRenderer
+treeViewColumnNewPixbuf tvc atStart expand = do
+  ren <- cellRendererPixbufNew
+  (if atStart then Gtk.treeViewColumnPackStart else Gtk.treeViewColumnPackEnd)
+    tvc ren expand
+  return $ PixbufRenderer ren tvc
 
--- @see treeViewColumnSetVisible
---
-viewColumnSetVisible :: CellRendererClass cr => Bool -> ViewColumn cr -> IO ()
-viewColumnSetVisible vis (ViewColumn tvc) = treeViewColumnSetVisible vis tvc
+treeViewColumnNewToggle :: TreeViewColumn -> Bool -> Bool -> IO ToggleRenderer
+treeViewColumnNewToggle tvc atStart expand = do
+  ren <- cellRendererToggleNew
+  (if atStart then Gtk.treeViewColumnPackStart else Gtk.treeViewColumnPackEnd)
+    tvc ren expand
+  return $ ToggleRenderer ren tvc
 
--- @see treeViewColumnGetVisible
+-- @method treeViewColumnAssociate@ Create a link between the store and this
+-- model.
 --
-viewColumnGetVisible :: CellRendererClass cr => ViewColumn cr -> IO Bool
-viewColumnGetVisible (ViewColumn tvc) = treeViewColumnGetVisible tvc
-
--- @see treeViewColumnSetSizing
+-- * The results are undefined, if this @type TreeViewColumn@ was not created
+--   with the same @type TreeModel@ as the @type Association@s.
 --
-viewColumnSetSizing :: CellRendererClass cr => 
-  TreeViewColumnSizing -> ViewColumn cr -> IO ()
-viewColumnSetSizing size (ViewColumn tvc) = treeViewColumnSetSizing size tvc
-
--- @see treeViewColumnGetSizing
---
-viewColumnGetSizing :: CellRendererClass cr => 
-  ViewColumn cr -> IO TreeViewColumnSizing
-viewColumnGetSizing (ViewColumn tvc) = treeViewColumnGetSizing tvc
-
--- @see treeViewColumnGetWidth
---
-viewColumnGetWidth :: CellRendererClass cr => ViewColumn cr -> IO Int
-viewColumnGetWidth (ViewColumn tvc) = treeViewColumnGetWidth tvc
-
--- @see treeViewColumnSetWidth
---
-viewColumnSetWidth :: CellRendererClass cr => ViewColumn cr -> Int -> IO ()
-viewColumnSetWidth (ViewColumn tvc) = treeViewColumnSetWidth tvc
-
--- @see treeViewColumnSetMinWidth
---
-viewColumnSetMinWidth :: CellRendererClass cr => Int -> ViewColumn cr -> IO ()
-viewColumnSetMinWidth w (ViewColumn tvc) = treeViewColumnSetMinWidth w tvc
-
--- @see treeViewColumnGetMinWidth
---
-viewColumnGetMinWidth :: CellRendererClass cr => ViewColumn cr -> IO Int
-viewColumnGetMinWidth (ViewColumn tvc) = treeViewColumnGetMinWidth tvc
-
--- @see treeViewColumnSetMaxWidth
---
-viewColumnSetMaxWidth :: CellRendererClass cr => Int -> ViewColumn cr -> IO ()
-viewColumnSetMaxWidth w (ViewColumn tvc) = treeViewColumnSetMaxWidth w tvc
-
--- @see treeViewColumnGetMaxWidth
---
-viewColumnGetMaxWidth :: CellRendererClass cr => ViewColumn cr -> IO Int
-viewColumnGetMaxWidth (ViewColumn tvc) = treeViewColumnGetMaxWidth tvc
-
--- @see treeViewColumnSetTitle
---
-viewColumnSetTitle :: CellRendererClass cr => String -> ViewColumn cr -> IO ()
-viewColumnSetTitle t (ViewColumn tvc) = treeViewColumnSetTitle t tvc
-
--- @see treeViewColumnGetTitle
---
-viewColumnGetTitle :: CellRendererClass cr => 
-  ViewColumn cr -> IO (Maybe String)
-viewColumnGetTitle (ViewColumn tvc) = treeViewColumnGetTitle tvc
-
--- @see treeViewColumnSetClickable
---
-viewColumnSetClickable :: CellRendererClass cr => 
-  Bool -> ViewColumn cr -> IO ()
-viewColumnSetClickable c (ViewColumn tvc) = treeViewColumnSetClickable c tvc
-
--- @see treeViewColumnSetWidget
---
-viewColumnSetWidget :: (CellRendererClass cr, WidgetClass w) => 
-  w -> ViewColumn cr -> IO ()
-viewColumnSetWidget w (ViewColumn tvc) = treeViewColumnSetWidget w tvc
-
--- @see treeViewColumnGetWidget
---
-viewColumnGetWidget :: CellRendererClass cr => ViewColumn cr -> IO Widget
-viewColumnGetWidget (ViewColumn tvc) = treeViewColumnGetWidget tvc
-
--- @see treeViewColumnSetAlignment
---
-viewColumnSetAlignment :: CellRendererClass cr => 
-  Float -> ViewColumn cr -> IO ()
-viewColumnSetAlignment al (ViewColumn tvc) = treeViewColumnSetAlignment al tvc
-
--- @see treeViewColumnGetAlignment
---
-viewColumnGetAlignment :: CellRendererClass cr =>  ViewColumn cr -> IO Float
-viewColumnGetAlignment (ViewColumn tvc) = treeViewColumnGetAlignment tvc
-
--- @see treeViewColumnClicked
---
-viewColumnClicked :: CellRendererClass cr => ViewColumn cr -> IO ()
-viewColumnClicked (ViewColumn tvc) = treeViewColumnClicked tvc
-
+treeViewColumnAssociate :: RendererClass r => r -> [Association r] -> IO ()
+treeViewColumnAssociate ren assocs = mapM_ (\(Association attr col) ->
+  Gtk.treeViewColumnAddAttribute (getTreeViewCol ren) (getCellRenderer ren)
+  attr col) assocs
 
 -- TreePath: A casual way of addressing nodes in a hierarchical structure. 
 -- (EXPORTED)
@@ -469,4 +325,3 @@ treeModelGetPath :: TreeModelClass tm => TreeIter -> tm -> IO TreePath
 treeModelGetPath ti tm = do
   realPath <- Gtk.treeModelGetPath ti tm
   Gtk.treePathGetIndices realPath
--}
