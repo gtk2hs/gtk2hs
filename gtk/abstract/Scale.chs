@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.5 $ from $Date: 2004/08/01 16:08:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -30,9 +30,12 @@ module Scale(
   ScaleClass,
   castToScale,
   scaleSetDigits,
+  scaleGetDigits,
   scaleSetDrawValue,
+  scaleGetDrawValue,
   PositionType(..),
-  scaleSetValuePos
+  scaleSetValuePos,
+  scaleGetValuePos
   ) where
 
 import Monad	(liftM)
@@ -53,18 +56,33 @@ scaleSetDigits :: ScaleClass s => s -> Int -> IO ()
 scaleSetDigits s prec = 
   {#call scale_set_digits#} (toScale s) (fromIntegral prec)
 
--- | Specify if the current value is to be drawn next
--- to the slider.
+-- | Get the number of displayed digits after the comma.
+--
+scaleGetDigits :: ScaleClass s => s -> IO Int
+scaleGetDigits s =
+  liftM fromIntegral $ {#call unsafe scale_get_digits#} (toScale s)
+
+-- | Specify if the current value is to be drawn next to the slider.
 --
 scaleSetDrawValue :: ScaleClass s => s -> Bool -> IO ()
 scaleSetDrawValue s draw =
   {#call scale_set_draw_value#} (toScale s) (fromBool draw)
 
--- | Specify where the value is to be displayed
--- (relative to the slider).
+-- | Returns whether the current value is drawn next to the slider.
+--
+scaleGetDrawValue :: ScaleClass s => s -> IO Bool
+scaleGetDrawValue s =
+  liftM toBool $ {#call unsafe scale_get_draw_value#} (toScale s)
+
+-- | Specify where the value is to be displayed (relative to the slider).
 --
 scaleSetValuePos :: ScaleClass s => s -> PositionType -> IO ()
 scaleSetValuePos s pos =
   {#call scale_set_value_pos#} (toScale s) ((fromIntegral.fromEnum) pos)
 
+-- | Gets the position in which the current value is displayed.
+--
+scaleGetValuePos :: ScaleClass s => s -> IO PositionType
+scaleGetValuePos s =
+  liftM (toEnum.fromIntegral) $ {#call unsafe scale_get_value_pos#} (toScale s)
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:14:09 $
+--  Version $Revision: 1.8 $ from $Date: 2004/08/01 16:08:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -38,11 +38,14 @@ module ScrolledWindow(
   scrolledWindowGetVAdjustment,
   PolicyType(..),
   scrolledWindowSetPolicy,
+  scrolledWindowGetPolicy,
   scrolledWindowAddWithViewport,
   CornerType(..),
   scrolledWindowSetPlacement,
+  scrolledWindowGetPlacement,
   ShadowType(..),
   scrolledWindowSetShadowType,
+  scrolledWindowGetShadowType,
   scrolledWindowSetHAdjustment,
   scrolledWindowSetVAdjustment,
   ) where
@@ -69,22 +72,20 @@ scrolledWindowNew hAdj vAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
  fromMAdj :: Maybe Adjustment -> Adjustment
  fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
 
--- | Retrieve the horizontal
--- 'Adjustment' of the 'ScrolledWindow'.
+-- | Retrieve the horizontal 'Adjustment' of the 'ScrolledWindow'.
 --
 scrolledWindowGetHAdjustment :: ScrolledWindowClass w => w -> IO Adjustment
 scrolledWindowGetHAdjustment w = makeNewObject mkAdjustment $
   {#call unsafe scrolled_window_get_hadjustment#} (toScrolledWindow w)
 
--- | Retrieve the vertical
--- 'Adjustment' of the 'ScrolledWindow'.
+-- | Retrieve the vertical 'Adjustment' of the 'ScrolledWindow'.
 --
 scrolledWindowGetVAdjustment :: ScrolledWindowClass w => w -> IO Adjustment
 scrolledWindowGetVAdjustment w = makeNewObject mkAdjustment $
   {#call unsafe scrolled_window_get_vadjustment#} (toScrolledWindow w)
 
--- | Specify if the scrollbars should vanish if
--- the child size is sufficiently small.
+-- | Specify if the scrollbars should vanish if the child size is sufficiently
+-- small.
 --
 scrolledWindowSetPolicy :: ScrolledWindowClass w => w -> PolicyType ->
                            PolicyType -> IO ()
@@ -92,8 +93,21 @@ scrolledWindowSetPolicy w hPol vPol = {#call scrolled_window_set_policy#}
   (toScrolledWindow w) ((fromIntegral.fromEnum) hPol) 
   ((fromIntegral.fromEnum) vPol)
 
--- | Add a child widget without native
--- scrolling support to this 'ScrolledWindow'.
+-- | Retrieves the current policy values for the horizontal and vertical
+-- scrollbars.
+--
+scrolledWindowGetPolicy :: ScrolledWindowClass w => w
+                        -> IO (PolicyType, PolicyType)
+scrolledWindowGetPolicy w =
+  alloca $ \hPolPtr -> alloca $ \vPolPtr -> do
+  {#call unsafe scrolled_window_get_policy#} (toScrolledWindow w)
+    hPolPtr vPolPtr
+  hPol <- liftM (toEnum.fromIntegral) $ peek hPolPtr
+  vPol <- liftM (toEnum.fromIntegral) $ peek vPolPtr
+  return (hPol, vPol)
+
+-- | Add a child widget without native scrolling support to this
+-- 'ScrolledWindow'.
 --
 scrolledWindowAddWithViewport :: (ScrolledWindowClass w, WidgetClass wid) => 
                                  w -> wid -> IO ()
@@ -101,36 +115,44 @@ scrolledWindowAddWithViewport w wid =
   {#call scrolled_window_add_with_viewport#} (toScrolledWindow w) 
   (toWidget wid)
 
--- | Specify where the scrollbars should be
--- placed.
+-- | Specify where the scrollbars should be placed.
 --
 scrolledWindowSetPlacement :: ScrolledWindowClass w => w -> CornerType -> IO ()
 scrolledWindowSetPlacement w ct =
   {#call scrolled_window_set_placement#} (toScrolledWindow w)
   ((fromIntegral.fromEnum) ct)
 
--- | Specify if and how an outer frame
--- should be drawn around the child.
+-- | Gets the placement of the scrollbars for the scrolled window.
+--
+scrolledWindowGetPlacement :: ScrolledWindowClass w => w -> IO CornerType
+scrolledWindowGetPlacement w = liftM (toEnum.fromIntegral) $
+  {#call unsafe scrolled_window_get_placement#} (toScrolledWindow w)
+
+-- | Specify if and how an outer frame should be drawn around the child.
 --
 scrolledWindowSetShadowType :: ScrolledWindowClass w => w -> ShadowType ->
                                IO ()
 scrolledWindowSetShadowType w st = {#call scrolled_window_set_shadow_type#}
   (toScrolledWindow w) ((fromIntegral.fromEnum) st)
 
--- | Set the horizontal
--- 'Adjustment' of the 'ScrolledWindow'.
+-- | Gets the shadow type of the scrolled window.
+--
+scrolledWindowGetShadowType :: ScrolledWindowClass w => w -> IO ShadowType
+scrolledWindowGetShadowType w = liftM (toEnum.fromIntegral) $
+  {#call unsafe scrolled_window_get_shadow_type#} (toScrolledWindow w)
+
+-- | Set the horizontal 'Adjustment' of the 'ScrolledWindow'.
 --
 scrolledWindowSetHAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
                                 IO ()
 scrolledWindowSetHAdjustment w adj = {#call scrolled_window_set_hadjustment#}
   (toScrolledWindow w) adj
 
--- | Set the vertical 'Adjustment'
--- of the 'ScrolledWindow'.
+-- | Set the vertical 'Adjustment' of the 'ScrolledWindow'.
 --
 scrolledWindowSetVAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
                                 IO ()
-scrolledWindowSetVAdjustment w adj = {#call scrolled_window_set_hadjustment#}
+scrolledWindowSetVAdjustment w adj = {#call scrolled_window_set_vadjustment#}
   (toScrolledWindow w) adj
 
 

@@ -8,3 +8,10 @@ exclude gtk_adjustment_value_changed
 
 #as of 2.4 deprecated
 exclude gtk_calendar_display_options
+
+#deprecated
+always exclude gtk_drawing_area_size
+
+#internal
+exclude gtk_tooltips_force_window
+exclude gtk_tooltips_get_info_from_tip_window

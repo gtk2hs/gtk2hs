@@ -18,3 +18,29 @@ exclude gtk_scale_get_layout
 #somewhat internal api
 exclude gtk_container_child
 do not exclude gtk_container_child_[sg]et_property
+
+#internal function
+exclude gtk_paned_compute_position
+
+#deprecated widget functions
+exclude gtk_widget_set$
+exclude gtk_widget_draw$
+exclude gtk_widget_set_uposition
+exclude gtk_widget_set_usize
+exclude gtk_widget_queue_clear
+exclude gtk_widget_queue_clear_area
+
+#only for widget implementations
+exclude gtk_widget_unparent
+exclude gtk_widget_map
+exclude gtk_widget_unmap
+exclude gtk_widget_realize
+exclude gtk_widget_unrealize
+exclude gtk_widget_queue_resize
+exclude gtk_widget_get_child_requisition
+exclude gtk_widget_set_state
+exclude gtk_widget_queue_draw_area #TODO: might we want this one?
+exclude gtk_widget_child_focus
+exclude gtk_widget_get_child_visible
+exclude gtk_widget_set_child_visible
+

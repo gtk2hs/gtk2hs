@@ -20,3 +20,11 @@ exclude gtk_cell_view
 #a bit specialised, we dont need it
 exclude gtk_cell_renderer_text_set_fixed_height_from_font
 
+#vararg constructor func, we use newv instead
+always exclude gtk_list_store_new$
+
+#vararg set function
+always exclude gtk_list_store_set
+
+#debugging function
+always exclude gtk_list_store_iter_is_valid

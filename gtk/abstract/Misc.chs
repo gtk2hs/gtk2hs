@@ -6,7 +6,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.5 $ from $Date: 2004/08/01 16:08:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -28,7 +28,9 @@ module Misc(
   MiscClass,
   castToMisc,
   miscSetAlignment,
-  miscSetPadding
+  miscGetAlignment,
+  miscSetPadding,
+  miscGetPadding
   ) where
 
 import Monad	(liftM)
@@ -49,10 +51,29 @@ miscSetAlignment :: MiscClass m => m -> Double -> Double -> IO ()
 miscSetAlignment misc xalign yalign =  {#call misc_set_alignment#} 
   (toMisc misc) (realToFrac xalign) (realToFrac yalign) 
     
+-- | Get the alignment of the widget.
+--
+miscGetAlignment :: MiscClass m => m -> IO (Double, Double)
+miscGetAlignment misc = 
+  alloca $ \xalignPtr -> alloca $ \yalignPtr -> do
+  {#call unsafe misc_get_alignment#} (toMisc misc) xalignPtr yalignPtr
+  xalign <- peek xalignPtr
+  yalign <- peek yalignPtr
+  return (realToFrac xalign, realToFrac yalign)
 
 -- | Set the amount of space to add around the widget.
 --
 miscSetPadding :: MiscClass m => m -> Int -> Int -> IO ()
 miscSetPadding misc xpad ypad = {#call misc_set_padding#} 
   (toMisc misc) (fromIntegral xpad) (fromIntegral ypad) 
-    
+
+-- | Get the amount of space added around the widget.
+--
+miscGetPadding :: MiscClass m => m -> IO (Int, Int)
+miscGetPadding misc =
+  alloca $ \xpadPtr -> alloca $ \ypadPtr -> do
+  {#call unsafe misc_get_padding#} (toMisc misc) xpadPtr ypadPtr
+  xpad <- peek xpadPtr
+  ypad <- peek ypadPtr
+  return (fromIntegral xpad, fromIntegral ypad)
+

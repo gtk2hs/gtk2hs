@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:07:53 $
+--  Version $Revision: 1.7 $ from $Date: 2004/08/01 16:08:13 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -51,7 +51,8 @@ module Tooltips(
   tooltipsEnable,
   tooltipsDisable,
   tooltipsSetDelay,
-  tooltipsSetTip
+  tooltipsSetTip,
+  tooltipsDataGet
   ) where
 
 import Monad	(liftM)
@@ -108,4 +109,21 @@ tooltipsSetTip t w tipText tipPrivate =
   withUTFString tipPrivate $ \priPtr ->
   withUTFString tipText $ \txtPtr ->
   {#call unsafe tooltips_set_tip#} (toTooltips t) (toWidget w) txtPtr priPtr
+
+{#pointer * TooltipsData#}
+
+-- | Retrieves any 'Tooltips' previously associated with the given widget.
+--
+tooltipsDataGet :: WidgetClass w => w -> IO (Maybe (Tooltips, String, String))
+tooltipsDataGet w = do
+  tipDataPtr <- {#call unsafe tooltips_data_get#} (toWidget w)
+  if tipDataPtr == nullPtr
+    then return Nothing
+    else do --next line is a hack, tooltips struct member is at offset 0
+	   tooltips <- makeNewObject mkTooltips (return $ castPtr tipDataPtr)
+           tipText  <- {#get TooltipsData->tip_text#} tipDataPtr
+                   >>= peekUTFString
+           tipPrivate <- {#get TooltipsData->tip_private#} tipDataPtr
+                     >>= peekUTFString
+           return $ Just $ (tooltips, tipText, tipPrivate)
 

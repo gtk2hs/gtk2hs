@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:02:58 $
+--  Version $Revision: 1.7 $ from $Date: 2004/08/01 16:08:13 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -32,6 +32,7 @@ module Layout(
   layoutPut,
   layoutMove,
   layoutSetSize,
+  layoutGetSize,
   layoutGetHAdjustment,
   layoutGetVAdjustment,
   layoutSetHAdjustment,
@@ -80,15 +81,23 @@ layoutSetSize :: LayoutClass l => l -> Int -> Int -> IO ()
 layoutSetSize l width height = {#call layout_set_size#} (toLayout l)
   (fromIntegral width) (fromIntegral height)
 
--- | Retrieve the horizontal 'Adjustment'
--- object from the layout.
+-- | Get the size of the layout widget.
+--
+layoutGetSize :: LayoutClass l => l -> IO (Int, Int)
+layoutGetSize l =
+  alloca $ \widthPtr -> alloca $ \heightPtr -> do
+  {#call unsafe layout_get_size#} (toLayout l) widthPtr heightPtr
+  width <-peek widthPtr
+  height <- peek heightPtr
+  return (fromIntegral width, fromIntegral height)
+
+-- | Retrieve the horizontal 'Adjustment' object from the layout.
 --
 layoutGetHAdjustment :: LayoutClass l => l -> IO Adjustment
 layoutGetHAdjustment l = makeNewObject mkAdjustment $
   {#call unsafe layout_get_hadjustment#} (toLayout l)
 
--- | Retrieve the vertical 'Adjustment'
--- object from the layout.
+-- | Retrieve the vertical 'Adjustment' object from the layout.
 --
 layoutGetVAdjustment :: LayoutClass l => l -> IO Adjustment
 layoutGetVAdjustment l = makeNewObject mkAdjustment $

@@ -1,3 +1,16 @@
+2004-08-1  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/entry/SpinButton.chs, gtk/layout/Table.chs, gtk/layout/Layout.chs
+	gtk/misc/Viewport.chs, gtk/misc/Tooltips.chs,
+	gtk/scrolling/ScrolledWindow.chs, gtk/treeList/ListStore.chs,
+	gtk/display/Label.chs, gtk/abstract/Misc.chs, gtk/abstract/Paned.chs,
+	gtk/abstract/Range.chs, gtk/abstract/Scale.chs: add missing functions.
+	Also fix a couple typo bugs and tidy up some documentation.
+
+	* gtk/layout/api.ignore, gtk/misc/api.ignore, gtk/treeList/api.ignore
+	gtk/windows/api.ignore, gtk/abstract/api.ignore: updated with more
+	deprecated functions to ignore.
+
 2004-07-30  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/entry/Editable.chs, gtk/entry/Entry.chs: split off editable
@@ -17,7 +30,7 @@
 
 	* gtk/general/Structs.hsc: remove unneeded CheckMenuItem function.
 
-	* tk/misc/api.ignore, gtk/treeList/api.ignore, gtk/entry/api.ignore
+	* gtk/misc/api.ignore, gtk/treeList/api.ignore, gtk/entry/api.ignore
 	gtk/abstract/api.ignore, gtk/general/api.ignore, gtk/windows/api.ignore
 	gtk/menuComboToolbar/api.ignore, gtk/layout/api.ignore: new files to
 	mark unbound functions, for use with the api coverage tool.

@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:02:58 $
+--  Version $Revision: 1.6 $ from $Date: 2004/08/01 16:08:13 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -34,10 +34,15 @@ module Table(
   tableAttach,
   tableAttachDefaults,
   tableSetRowSpacing,
+  tableGetRowSpacing,
   tableSetColSpacing,
+  tableGetColSpacing,
   tableSetRowSpacings,
+  tableGetDefaultRowSpacing,
   tableSetColSpacings,
-  tableSetHomogeneous
+  tableGetDefaultColSpacing,
+  tableSetHomogeneous,
+  tableGetHomogeneous
   ) where
 
 import Monad	(liftM)
@@ -66,9 +71,9 @@ tableResize :: TableClass tb => tb -> Int -> Int -> IO ()
 tableResize tb rows columns = {#call table_resize#} (toTable tb)
   (fromIntegral rows) (fromIntegral columns)
 
--- | Put a new widget in the table container. The widget
--- should span the cells (leftAttach,topAttach) to (rightAttach,bottomAttach).
--- Further formatting options have to be specified.
+-- | Put a new widget in the table container. The widget should span the cells
+-- (leftAttach,topAttach) to (rightAttach,bottomAttach). Further formatting
+-- options have to be specified.
 --
 tableAttach :: (TableClass tb, WidgetClass w) => tb -> w -> Int -> Int ->
                Int -> Int -> [AttachOptions] -> [AttachOptions] -> Int ->
@@ -80,9 +85,8 @@ tableAttach tb child leftAttach rightAttach topAttach bottomAttach xoptions
   ((fromIntegral.fromFlags) xoptions) ((fromIntegral.fromFlags) yoptions) 
   (fromIntegral xpadding) (fromIntegral ypadding)
 
--- | Put a new widget in the table container. As
--- opposed to 'tableAttach' this function assumes default values
--- for the packing options.
+-- | Put a new widget in the table container. As opposed to 'tableAttach' this
+-- function assumes default values for the packing options.
 --
 tableAttachDefaults :: (TableClass tb, WidgetClass w) => tb -> w -> Int ->
                        Int -> Int -> Int -> IO ()
@@ -91,19 +95,36 @@ tableAttachDefaults tb child leftAttach rightAttach topAttach bottomAttach =
   (fromIntegral leftAttach) (fromIntegral rightAttach) 
   (fromIntegral topAttach) (fromIntegral bottomAttach)
 
--- | Set the amount of space (in pixels) between the
--- specified @row@ and its neighbours.
+-- | Set the amount of space (in pixels) between the specified row and its
+-- neighbours.
 --
-tableSetRowSpacing :: TableClass tb => tb -> Int -> Int -> IO ()
+tableSetRowSpacing :: TableClass tb => tb
+                   -> Int  -- ^ Row number, indexed from 0
+                   -> Int  -- ^ Spacing size in pixels
+                   -> IO ()
 tableSetRowSpacing tb row space = {#call table_set_row_spacing#}
   (toTable tb) (fromIntegral row) (fromIntegral space)
 
--- | Set the amount of space (in pixels) between the
--- specified column @col@ and its neighbours.
+-- | Get the amount of space (in pixels) between the specified row and the
+-- next row.
+--
+tableGetRowSpacing :: TableClass tb => tb -> Int -> IO Int
+tableGetRowSpacing tb row = liftM fromIntegral $
+  {#call unsafe table_get_row_spacing#} (toTable tb) (fromIntegral row)
+
+-- | Set the amount of space (in pixels) between the specified column and
+-- its neighbours.
 --
 tableSetColSpacing :: TableClass tb => tb -> Int -> Int -> IO ()
 tableSetColSpacing tb col space = {#call table_set_col_spacing#}
   (toTable tb) (fromIntegral col) (fromIntegral space)
+
+-- | Get the amount of space (in pixels) between the specified column and the
+-- next column.
+--
+tableGetColSpacing :: TableClass tb => tb -> Int -> IO Int
+tableGetColSpacing tb col = liftM fromIntegral $
+  {#call unsafe table_get_col_spacing#} (toTable tb) (fromIntegral col)
 
 -- | Set the amount of space between any two rows.
 --
@@ -111,12 +132,25 @@ tableSetRowSpacings :: TableClass tb => tb -> Int -> IO ()
 tableSetRowSpacings tb space = {#call table_set_row_spacings#}
   (toTable tb) (fromIntegral space)
 
--- | Set the amount of space between any two
--- columns.
+-- | Gets the default row spacing for the table. This is the spacing that will
+-- be used for newly added rows.
+--
+tableGetDefaultRowSpacing :: TableClass tb => tb -> IO Int
+tableGetDefaultRowSpacing tb = liftM fromIntegral $
+  {#call unsafe table_get_default_row_spacing#} (toTable tb)
+
+-- | Set the amount of space between any two columns.
 --
 tableSetColSpacings :: TableClass tb => tb -> Int -> IO ()
 tableSetColSpacings tb space = {#call table_set_col_spacings#}
   (toTable tb) (fromIntegral space)
+
+-- | Gets the default column spacing for the table. This is the spacing that
+-- will be used for newly added columns.
+--
+tableGetDefaultColSpacing :: TableClass tb => tb -> IO Int
+tableGetDefaultColSpacing tb = liftM fromIntegral $
+  {#call unsafe table_get_default_col_spacing#} (toTable tb)
 
 -- | Make all cells the same size.
 --
@@ -124,3 +158,9 @@ tableSetHomogeneous :: TableClass tb => tb -> Bool -> IO ()
 tableSetHomogeneous tb hom = 
   {#call table_set_homogeneous#} (toTable tb) (fromBool hom)
 
+-- | Returns whether the table cells are all constrained to the same width and
+-- height.
+--
+tableGetHomogeneous :: TableClass tb => tb -> IO Bool
+tableGetHomogeneous tb =
+  liftM toBool $ {#call unsafe table_get_homogeneous#} (toTable tb)

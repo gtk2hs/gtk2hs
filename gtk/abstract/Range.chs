@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.6 $ from $Date: 2004/08/01 16:08:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,10 +31,15 @@ module Range(
   rangeGetAdjustment,
   UpdateType(..),
   rangeSetUpdatePolicy,
+  rangeGetUpdatePolicy,
   rangeSetAdjustment,
   rangeGetInverted,
   rangeSetInverted,
   ScrollType(..),
+  rangeSetIncrements,
+  rangeSetRange,
+  rangeSetValue,
+  rangeGetValue,
   onMoveSlider,
   afterMoveSlider
   ) where
@@ -57,20 +62,24 @@ rangeGetAdjustment :: RangeClass r => r -> IO Adjustment
 rangeGetAdjustment r = makeNewObject mkAdjustment $
   {#call unsafe range_get_adjustment#} (toRange r)
 
--- | Set how the internal 'Adjustment'
--- object is updated.
+-- | Set how the internal 'Adjustment' object is updated.
 --
 rangeSetUpdatePolicy :: RangeClass r => r -> UpdateType -> IO ()
 rangeSetUpdatePolicy r up = {#call range_set_update_policy#}
   (toRange r) ((fromIntegral.fromEnum) up)
+
+-- | Get the update policy for the range widget.
+--
+rangeGetUpdatePolicy :: RangeClass r => r -> IO UpdateType
+rangeGetUpdatePolicy r = liftM (toEnum.fromIntegral) $
+  {#call unsafe range_get_update_policy#} (toRange r)
 
 -- | Insert a new 'Adjustment' object.
 --
 rangeSetAdjustment :: RangeClass r => r -> Adjustment -> IO ()
 rangeSetAdjustment r adj = {#call range_set_adjustment#} (toRange r) adj
 
--- | Get the inverted flag (determines if the range is
--- reversed).
+-- | Get the inverted flag (determines if the range is reversed).
 --
 rangeGetInverted :: RangeClass r => r -> IO Bool
 rangeGetInverted r = 
@@ -80,6 +89,43 @@ rangeGetInverted r =
 --
 rangeSetInverted :: RangeClass r => r -> Bool -> IO ()
 rangeSetInverted r inv = {#call range_set_inverted#} (toRange r) (fromBool inv)
+
+-- | Sets the step and page sizes for the range. The step size is used when the
+-- user clicks the "Scrollbar" arrows or moves "Scale" via arrow keys. The
+-- page size is used for example when moving via Page Up or Page Down keys.
+--
+rangeSetIncrements :: RangeClass r => r
+                   -> Double  -- ^ step size
+                   -> Double  -- ^ page size
+                   -> IO ()
+rangeSetIncrements r step page =
+ {#call range_set_increments#} (toRange r) (realToFrac step) (realToFrac page)
+
+-- | Sets the allowable values in the 'Range', and clamps the range value to be
+-- between min and max.
+--
+rangeSetRange :: RangeClass r => r
+              -> Double  -- ^ min
+              -> Double  -- ^ max
+              -> IO ()
+rangeSetRange r min max =
+ {#call range_set_range#} (toRange r) (realToFrac min) (realToFrac max)
+
+-- | Sets the current value of the range. The range emits the \"value_changed\"
+-- signal if the value changes.
+--
+-- * If the value is outside the minimum or maximum range values, it will be
+-- clamped to fit inside them.
+--
+rangeSetValue :: RangeClass r => r -> Double -> IO ()
+rangeSetValue r value =
+  {#call range_set_value#} (toRange r) (realToFrac value)
+
+-- | Gets the current value of the range.
+--
+rangeGetValue :: RangeClass r => r -> IO Double
+rangeGetValue r = liftM realToFrac $
+  {#call unsafe range_get_value#} (toRange r)
 
 -- signals
 

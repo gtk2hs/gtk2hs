@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Paned
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.6 $ from $Date: 2004/08/01 16:08:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -25,6 +26,7 @@
 -- used by the user to divide the given space between two widgets. The two
 -- concrete implementations are HPaned and VPaned.
 --
+#include <gtk/gtkversion.h>
 
 module Paned(
   Paned,
@@ -36,6 +38,10 @@ module Paned(
   panedPack2,
   panedSetPosition,
   panedGetPosition
+#if GTK_CHECK_VERSION(2,4,0)
+ ,panedGetChild1,
+  panedGetChild2
+#endif
   ) where
 
 import Monad	(liftM)
@@ -51,36 +57,31 @@ import Object	(makeNewObject)
 
 -- | Add a widget to the first (top or left) area.
 --
--- * The widget does not expand if 'Paned' expands. It does not
---   shrink either.
+-- * The widget does not expand if 'Paned' expands. It does not shrink either.
 --
 panedAdd1 :: (PanedClass p, WidgetClass w) => p -> w -> IO ()
 panedAdd1 p w = {#call paned_add1#} (toPaned p) (toWidget w)
 
 -- | Add a widget to the second (bottom or right) area.
 --
--- * The widget does not expand if 'Paned' expands. But it does
---   shrink.
+-- * The widget does not expand if 'Paned' expands. But it does shrink.
 --
 panedAdd2 :: (PanedClass p, WidgetClass w) => p -> w -> IO ()
 panedAdd2 p w = {#call paned_add2#} (toPaned p) (toWidget w)
 
--- | Add a widget to the first area and specify its resizing
--- behaviour.
+-- | Add a widget to the first area and specify its resizing behaviour.
 --
 panedPack1 :: (PanedClass p, WidgetClass w) => p -> w -> Bool -> Bool -> IO ()
 panedPack1 p w expand shrink = {#call paned_pack1#} 
   (toPaned p) (toWidget w) (fromBool expand) (fromBool shrink)
 
--- | Add a widget to the second area and specify its
--- resizing behaviour.
+-- | Add a widget to the second area and specify its resizing behaviour.
 --
 panedPack2 :: (PanedClass p, WidgetClass w) => p -> w -> Bool -> Bool -> IO ()
 panedPack2 p w expand shrink = {#call paned_pack2#} 
   (toPaned p) (toWidget w) (fromBool expand) (fromBool shrink)
 
--- | Set the gutter to the specified
--- @position@ (in pixels).
+-- | Set the gutter to the specified @position@ (in pixels).
 --
 panedSetPosition :: PanedClass p => p -> Int -> IO ()
 panedSetPosition p position = 
@@ -91,3 +92,17 @@ panedSetPosition p position =
 panedGetPosition :: PanedClass p => p -> IO Int
 panedGetPosition p = liftM fromIntegral $
   {#call unsafe paned_get_position#} (toPaned p)
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Obtains the first child of the paned widget.
+--
+panedGetChild1 :: PanedClass p => p -> IO Widget
+panedGetChild1 p =
+  makeNewObject mkWidget $ {#call unsafe paned_get_child1#} (toPaned p)
+
+-- | Obtains the second child of the paned widget.
+--
+panedGetChild2 :: PanedClass p => p -> IO Widget
+panedGetChild2 p =
+  makeNewObject mkWidget $ {#call unsafe paned_get_child2#} (toPaned p)
+#endif

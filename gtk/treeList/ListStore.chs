@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2004/05/23 16:16:43 $
+--  Version $Revision: 1.13 $ from $Date: 2004/08/01 16:08:14 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -24,6 +24,7 @@
 --
 -- The database for simple (non-hierarchical) tables.
 --
+#include <gtk/gtkversion.h>
 
 module ListStore(
   ListStore,
@@ -38,9 +39,15 @@ module ListStore(
   listStorePrepend,
   listStoreAppend,
   listStoreClear
+#if GTK_CHECK_VERSION(2,2,0)
+ ,listStoreReorder,
+  listStoreSwap,
+  listStoreMoveBefore,
+  listStoreMoveAfter
+#endif
   ) where
 
-import Monad	(liftM)
+import Monad	(liftM, when)
 import Maybe	(fromMaybe)
 import FFI
 
@@ -54,9 +61,6 @@ import StoreValue (TMType(..), GenericValue(..))
 import GType	  (GType)
 
 {# context lib="gtk" prefix="gtk" #}
-
--- Let's hope this file will always only contain macros.
-#include<gtk/gtkversion.h>
 
 -- methods
 
@@ -165,3 +169,57 @@ listStoreAppend ts = do
 --
 listStoreClear :: (ListStoreClass ts) => ts -> IO ()
 listStoreClear = {#call list_store_clear#}.toListStore
+
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Reorders store to follow the order indicated by the mapping. The list
+-- argument should be a mapping from the /new/ positions to the /old/
+-- positions. That is @newOrder !! newPos = oldPos@
+--
+-- * Note that this function only works with unsorted stores.
+--
+-- * You must make sure the mapping is the right size for the store, use
+-- @'treeModelIterNChildren' store Nothing@ to check.
+--
+listStoreReorder :: (ListStoreClass ts) => ts -> [Int] -> IO ()
+listStoreReorder ts newOrder = do
+  --check newOrder is the right length or it'll overrun
+  storeLength <- treeModelIterNChildren ts Nothing
+  when (storeLength /= length newOrder)
+       (fail "ListStore.listStoreReorder: mapping wrong length for store")
+  withArray (map fromIntegral newOrder) $ \newOrderArrPtr ->
+    {#call list_store_reorder#} (toListStore ts) newOrderArrPtr
+
+-- | Swaps the two items in the store.
+--
+-- * Note that this function only works with unsorted stores.
+--
+listStoreSwap :: (ListStoreClass ts) => ts -> TreeIter -> TreeIter -> IO ()
+listStoreSwap ts a b =
+  {#call list_store_swap#} (toListStore ts) a b
+
+-- | Moves the item in the store to before the given position. If the position
+-- is @Nothing@ the item will be moved to then end of the list.
+--
+-- * Note that this function only works with unsorted stores.
+--
+listStoreMoveBefore :: (ListStoreClass ts) => ts
+                    -> TreeIter       -- ^ Iter for the item to be moved
+		    -> Maybe TreeIter -- ^ Iter for the position or @Nothing@.
+		    -> IO ()
+listStoreMoveBefore ts iter maybePosition =
+   {#call list_store_move_before#} (toListStore ts) iter
+     (fromMaybe (TreeIter nullForeignPtr) maybePosition)
+
+-- | Moves the item in the store to after the given position. If the position
+-- is @Nothing@ the item will be moved to then start of the list.
+--
+-- * Note that this function only works with unsorted stores.
+--
+listStoreMoveAfter :: (ListStoreClass ts) => ts
+                   -> TreeIter       -- ^ Iter for the item to be moved
+		   -> Maybe TreeIter -- ^ Iter for the position or @Nothing@.
+		   -> IO ()
+listStoreMoveAfter ts iter maybePosition =
+  {#call list_store_move_after#} (toListStore ts) iter
+    (fromMaybe (TreeIter nullForeignPtr) maybePosition)
+#endif

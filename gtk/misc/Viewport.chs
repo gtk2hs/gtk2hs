@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:07:53 $
+--  Version $Revision: 1.7 $ from $Date: 2004/08/01 16:08:13 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -42,7 +42,8 @@ module Viewport(
   viewportSetHAdjustment,
   viewportSetVAdjustment,
   ShadowType(..),
-  viewportSetShadowType
+  viewportSetShadowType,
+  viewportGetShadowType
   ) where
 
 import Monad	(liftM)
@@ -84,19 +85,23 @@ viewportSetHAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
 viewportSetHAdjustment v adj = {#call viewport_set_hadjustment#}
   (toViewport v) adj
 
--- | Set the vertical 'Adjustment' of
--- the 'Viewport'.
+-- | Set the vertical 'Adjustment' of the 'Viewport'.
 --
 viewportSetVAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
-viewportSetVAdjustment v adj = {#call viewport_set_hadjustment#}
+viewportSetVAdjustment v adj = {#call viewport_set_vadjustment#}
   (toViewport v) adj
 
--- | Specify if and how an outer frame should be
--- drawn around the child.
+-- | Specify if and how an outer frame should be drawn around the child.
 --
 viewportSetShadowType :: ViewportClass v => v -> ShadowType -> IO ()
 viewportSetShadowType v st = {#call viewport_set_shadow_type#} (toViewport v)
   ((fromIntegral.fromEnum) st)
+
+-- | Get the current shadow type of the 'Viewport'.
+--
+viewportGetShadowType :: ViewportClass v => v -> IO ShadowType
+viewportGetShadowType v = liftM (toEnum.fromIntegral) $
+  {#call unsafe viewport_get_shadow_type#} (toViewport v)
 
 -- signals
 
