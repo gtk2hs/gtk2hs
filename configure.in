@@ -200,7 +200,7 @@ dnl directory. The user may specify an alternative file and using the complete
 dnl suite in-place.
 AC_ARG_WITH(pkgconf,
 	    [  --with-pkgconf=pkg.conf use another package.conf file for building in-place],
-	    [LOCALPKGCONF=$withval],[LOCALPKGCONF=$TOP/localpackage.conf])
+	    [LOCALPKGCONF=$withval],[LOCALPKGCONF='$(TOP)/localpackage.conf'])
 
 dnl Check for pkg-config which holds information about all Gtk related
 dnl libraries.
@@ -263,8 +263,14 @@ if test x$ENABLE_LIBGLADE = xyes; then
   PKG_CHECK_MODULES(LIBGLADE,[libglade-2.0 >= 2.0.0])
 fi
 if test x$ENABLE_GNOME = xyes; then
+  PKG_CHECK_MODULES(GCONF,[gconf-2.0 >= 2.0.0])
   PKG_CHECK_MODULES(SOURCEVIEW,[gtksourceview-1.0 >= 0.6.0])
 fi
+
+dnl Some APIs only appeared in later versions of libraries, so check if we're
+dnl using later than particular versions.
+GTK_VERSION_2_2=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.2 && echo yes || echo no`
+GTK_VERSION_2_4=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.4 && echo yes || echo no`
 
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
@@ -326,6 +332,26 @@ for FLAG in $TMPLIBGLADE_LIBS; do
   esac;
 done;
 
+TMPGCONF_CFLAGS=$GCONF_CFLAGS;
+GCONF_CFLAGS=;
+for FLAG in $TMPGCONF_CFLAGS; do
+  case $FLAG in
+    -I*) DIR=`echo $FLAG | $SED "s/-I//"`;
+         if test -d $DIR; then GCONF_CFLAGS="$GCONF_CFLAGS -I$DIR"; fi;;
+    *) GCONF_CFLAGS="$GCONF_CFLAGS $FLAG";;
+  esac;
+done;
+TMPGCONF_LIBS=$GCONF_LIBS;
+GCONF_LIBS=;
+for FLAG in $TMPGCONF_LIBS; do
+  case $FLAG in
+    -L*) DIR=`echo $FLAG | $SED "s/-L//"`;
+         if test -d $DIR; then GCONF_LIBS="$GCONF_LIBS -L$DIR"; fi;;
+     *) GCONF_LIBS="$GCONF_LIBS $FLAG";;
+  esac;
+done;
+
+
 dnl Have a special marshall list (available in the source tree of Gtk+ under
 dnl gtk/gtkmarshal.list)
 
@@ -334,7 +360,7 @@ AC_ARG_WITH(mlist,
 	    [  --with-mlist=GTK-SOURCE use special marshall list from GTK+ sources],
 	    [MARSHALLDEFS=$withval;
 	     AC_MSG_RESULT($withval)],
-	    [MARSHALLDEFS=$TOP/tools/callbackGen/gtkmarshal.list;
+	    [MARSHALLDEFS='$(TOP)/tools/callbackGen/gtkmarshal.list';
 	     AC_MSG_RESULT(built-in)])
 
 
@@ -383,7 +409,7 @@ AC_MSG_CHECKING([kind of C->Haskell])
 if test $BUILT_IN_C2HS = yes; then
   AC_MSG_RESULT([built-in])
   dnl Use the local c2hs.
-  C2HS=$TOP/c2hs/c2hs;
+  C2HS='$(TOP)/c2hs/c2hs';
   MULTIPLE_CHS=yes;
 
   dnl These are the settings needed to compile c2hs.
@@ -528,6 +554,9 @@ dnl Versionitis
 dnl AC_SUBST(GTK_MAJOR_VERSION)
 dnl AC_SUBST(GTK_MINOR_VERSION)
 dnl AC_SUBST(GTK_MICRO_VERSION)
+AC_SUBST(GTK_VERSION_2_2)
+AC_SUBST(GTK_VERSION_2_4)
+dnl Optional packages
 AC_SUBST(ENABLE_OPENGL)
 AC_SUBST(ENABLE_LIBGLADE)
 AC_SUBST(ENABLE_GNOME)
@@ -535,6 +564,8 @@ AC_SUBST(SOURCEVIEW_CFLAGS)
 AC_SUBST(SOURCEVIEW_LIBS)
 AC_SUBST(LIBGLADE_CFLAGS)
 AC_SUBST(LIBGLADE_LIBS)
+AC_SUBST(GCONF_CFLAGS)
+AC_SUBST(GCONF_LIBS)
 dnl Documentation
 AC_SUBST(BUILDDOCS)
 AC_SUBST(XSLTTRANS)

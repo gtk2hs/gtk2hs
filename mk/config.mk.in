@@ -2,8 +2,6 @@
 #
 # This Makefile contains all configuration data.
 
-TOP		= @TOP@
-
 AR		= @AR@
 LN		= @LN_S@
 PWD		= @PWD@
@@ -149,8 +147,14 @@ BUILT_IN_C2HS	= @BUILT_IN_C2HS@
 SOURCEVIEW_LIBS	= @SOURCEVIEW_LIBS@
 SOURCEVIEW_CFLAGS = @SOURCEVIEW_CFLAGS@
 
-LIBGLADE_LIBS = @LIBGLADE_LIBS@
-LIBGLADE_CFLAGS = @LIBGLADE_CFLAGS@
+LIBGLADE_LIBS 	= @LIBGLADE_LIBS@
+LIBGLADE_CFLAGS	= @LIBGLADE_CFLAGS@
+
+GCONF_LIBS	= @GCONF_LIBS@
+GCONF_CFLAGS	= @GCONF_CFLAGS@
+
+GTK_VERSION_2_2	= @GTK_VERSION_2_2@
+GTK_VERSION_2_4	= @GTK_VERSION_2_4@
 
 .PHONY: default all install installdirs installfiles installpackage \
 	installcheck uninstall uninstallfiles uninstallpackage \

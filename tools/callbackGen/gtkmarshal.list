@@ -82,3 +82,5 @@ VOID:BOXED,POINTER,INT
 VOID:INT,BOOL
 # This is for the "edited" signal in CellRendererText:
 VOID:POINTER,STRING
+# This is for the GConfClient value_changed signal
+VOID:STRING,POINTER

@@ -1,32 +1,28 @@
-## This list is the result of a copy-and-paste from the GtkObject hierarchy
-## html documentation. Deprecated widgets are uncommented. Some additional
-## object have been defined at the end of the copied list.
+# This list is the result of a copy-and-paste from the GtkObject hierarchy
+# html documentation. Deprecated widgets are uncommented. Some additional
+# object have been defined at the end of the copied list.
 
-## The Gtk prefix of every object is removed, the other prefixes are
-## kept.  The indentation implies the object hierarchy. In case the
-## type query function cannot be derived from the name or the type name
-## is different, an alternative name and type query function can be
-## specified by appending 'as typename, <query_func>'.  In case this
-## function is not specified, the <name> is converted to
-## gtk_<name'>_get_type where <name'> is <name> where each upperscore
-## letter is converted to an underscore and lowerletter. The underscore
-## is omitted if an upperscore letter preceeded: GtkHButtonBox ->
-## gtk_hbutton_box_get_type. The generation of a type can be
-## conditional by appending 'if <tag>'. Such types are only produces if
-## --only=<tag> is given on the command line of TypeGenerator.
-## This file is preprocessed so you can also generate types conditional
-## on the version of gtk by using the GTK_CHECK_VERSION(major,minor,micro)
-## macro.
+# The Gtk prefix of every object is removed, the other prefixes are
+# kept.  The indentation implies the object hierarchy. In case the
+# type query function cannot be derived from the name or the type name
+# is different, an alternative name and type query function can be
+# specified by appending 'as typename, <query_func>'.  In case this
+# function is not specified, the <name> is converted to
+# gtk_<name'>_get_type where <name'> is <name> where each upperscore
+# letter is converted to an underscore and lowerletter. The underscore
+# is omitted if an upperscore letter preceeded: GtkHButtonBox ->
+# gtk_hbutton_box_get_type. The generation of a type can be
+# conditional by appending 'if <tag>'. Such types are only produces if
+# --tag=<tag> is given on the command line of TypeGenerator.
 
-#include <gtk/gtkversion.h>
 
     GObject 
-        GdkDrawable 			as Drawable, gdk_drawable_get_type
+        GdkDrawable 
             GdkWindow		as DrawWindow, gdk_window_object_get_type
-##            GdkDrawableImplX11
-##                GdkWindowImplX11
-            GdkPixmap			as Pixmap, gdk_pixmap_get_type
-        GdkColormap			as Colormap, gdk_colormap_get_type
+#            GdkDrawableImplX11
+#                GdkWindowImplX11
+            GdkPixmap
+        GdkColormap
         GtkSettings
         GtkTextBuffer
             GtkSourceBuffer	if sourceview
@@ -35,8 +31,8 @@
         GtkTextTagTable
             GtkSourceTagTable	if sourceview
         GtkStyle
-        GdkDragContext		as DragContext, gdk_drag_context_get_type
-        GdkPixbuf			as Pixbuf, gdk_pixbuf_get_type
+        GdkDragContext
+        GdkPixbuf
         GtkTextChildAnchor
         GtkTextMark
 	    GtkSourceMarker	if sourceview
@@ -65,14 +61,12 @@
                                 GtkTearoffMenuItem
                                 GtkImageMenuItem
                             GtkListItem
-##			    GtkTreeItem
+#			    GtkTreeItem
                         GtkWindow
                             GtkDialog
                                 GtkColorSelectionDialog
                                 GtkFileSelection
-#if GTK_CHECK_VERSION(2,4,0)
-				GtkFileChooserDialog
-#endif
+				GtkFileChooserDialog	if gtk-2.4
                                 GtkFontSelectionDialog
                                 GtkInputDialog
                                 GtkMessageDialog
@@ -81,11 +75,9 @@
                         GtkHandleBox
                         GtkScrolledWindow
                         GtkViewport
-#if GTK_CHECK_VERSION(2,4,0)
-			GtkExpander
-			GtkComboBox
-			    GtkComboBoxEntry
-#endif
+			GtkExpander			if gtk-2.4
+			GtkComboBox			if gtk-2.4
+			    GtkComboBoxEntry		if gtk-2.4
                     GtkBox
                         GtkButtonBox
                             GtkHButtonBox
@@ -94,9 +86,7 @@
                             GtkColorSelection
                             GtkFontSelection
                             GtkGammaCurve
-#if GTK_CHECK_VERSION(2,4,0)
-			    GtkFileChooserWidget
-#endif
+			    GtkFileChooserWidget	if gtk-2.4
                         GtkHBox
                             GtkCombo
                             GtkStatusbar
@@ -112,7 +102,7 @@
                         GtkMenu
                         GtkMenuBar
                     GtkNotebook
-##                    GtkPacker
+#                    GtkPacker
                     GtkSocket		if plugNsocket
                     GtkTable
                     GtkTextView
@@ -138,11 +128,11 @@
                     GtkHSeparator
                     GtkVSeparator
                 GtkInvisible
-##                GtkOldEditable
-##                    GtkText
+#                GtkOldEditable
+#                    GtkText
                 GtkPreview
-## Progress is deprecated, ProgressBar contains everything necessary
-##                GtkProgress
+# Progress is deprecated, ProgressBar contains everything necessary
+#                GtkProgress
                 GtkProgressBar
             GtkAdjustment
             GtkIMContext
@@ -150,43 +140,40 @@
             GtkItemFactory
             GtkTooltips
 
-## These object were added by hand because they do not show up in the hierarchy
-## chart.
-## These are derived from GtkObject:
+# These object were added by hand because they do not show up in the hierarchy
+# chart.
+# These are derived from GtkObject:
 	    GtkTreeViewColumn
 	    GtkCellRenderer
 		GtkCellRendererPixbuf
 		GtkCellRendererText
-##		    GtkCellRendererTextPixbuf
+#		    GtkCellRendererTextPixbuf
 		GtkCellRendererToggle
 	    GtkFileFilter	
-## These are derived from GObject:
+# These are derived from GObject:
         GtkTreeSelection
         GtkTreeModel
             GtkTreeStore
             GtkListStore
 	GtkTreeModelSort
 	GtkIconFactory
-#if GTK_CHECK_VERSION(2,4,0)
-	GtkEntryCompletion
-#endif
+	GtkEntryCompletion		if gtk-2.4
         GtkSourceLanguage		if sourceview
         GtkSourceLanguagesManager	if sourceview
-	GladeXML                        as GladeXML, glade_xml_get_type if libglade
-## These ones are actualy interfaces, but all interface implementations must be GObjects
+	GladeXML			as GladeXML, glade_xml_get_type if libglade
+	GConfClient			as GConf if gconf
+# These ones are actualy interfaces, but interface implementations are GObjects
 	GtkSourceStyleScheme		if sourceview
-#if GTK_CHECK_VERSION(2,4,0)
-	GtkFileChooser
-#endif
-## This now became a GObject in version 2:
-	GdkGC				as GC, gdk_gc_get_type
-## These are Pango structures
-	PangoContext		as PangoContext, pango_context_get_type
-	PangoLayout		as PangoLayout, pango_layout_get_type
-	PangoFont		as Font, pango_font_get_type
-	PangoFontFamily		as FontFamiliy, pango_font_family_get_type
-	PangoFontFace		as FontFace, pango_font_face_get_type
-	PangoFontMap		as FontMap, pango_font_face_get_type
-	PangoFontset		as FontSet, pango_fontset_get_type
-## This type is only available for PANGO_ENABLE_BACKEND compiled source
-##	    PangoFontsetSimple	as FontSetSimple, pango_fontset_simple_get_type
+	GtkFileChooser			if gtk-2.4
+# This became a GObject in version 2:
+	GdkGC
+# These are Pango structures:
+	PangoContext
+	PangoLayout
+	PangoFont			as Font
+	PangoFontFamily			as FontFamiliy
+	PangoFontFace			as FontFace
+	PangoFontMap			as FontMap
+	PangoFontset			as FontSet
+# This type is only available for PANGO_ENABLE_BACKEND compiled source
+#	    PangoFontsetSimple	as FontSetSimple, pango_fontset_simple_get_type

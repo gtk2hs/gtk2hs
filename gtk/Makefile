@@ -207,9 +207,16 @@ else
 CREATE_TYPES = plugNsocket default
 endif
 
+ifeq ($(GTK_VERSION_2_2),yes)
+CREATE_TYPES += gtk-2.2
+endif
+ifeq ($(GTK_VERSION_2_4),yes)
+CREATE_TYPES += gtk-2.4
+endif
+
 general/Hierarchy.chs : $(TOP)/tools/hierarchyGen/hierarchy.list
-	$(CPP) $(GTK_CFLAGS) - < $(TOP)/tools/hierarchyGen/hierarchy.list | \
-	$(strip $(TOP)/tools/hierarchyGen/TypeGenerator - \
+	$(strip $(TOP)/tools/hierarchyGen/TypeGenerator \
+	$(TOP)/tools/hierarchyGen/hierarchy.list \
 	general/Hierarchy.chs $(addprefix --tag=,$(CREATE_TYPES)))
 
 include $(TOP)/mk/common.mk

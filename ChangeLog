@@ -1,5 +1,43 @@
 2004-07-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* configure.in: use relative $(TOP) variable rather than absolute $TOP
+	variable, so Makefiles use relative paths. Add test for gconf package.
+	Test for particular versions of gtk API.
+
+	* Makefile: add gconf to list of dirs to build
+
+	* tools/hierarchyGen/hierarchy.list: add GConf object.
+	Remove preprocessor annotations, build classes conditionally using
+	tags like 'gtk-2.4'. Remove unnecessary annotations by taking advantage
+	of changes in the TypeGenerator.
+
+	* tools/hierarchyGen/TypeGen.hs: be a bit cleverer with dealing with
+	type prefixes, less hard coded knowledge of Gtk types. No not require
+	_get_type annotations when they can be worked out automatically. Allow
+	tags like 'gtk-2.4'. Extra command line option to specify module name.
+
+	* tools/callbackGen/gtkmarshal.list: add callback spec needed by gconf
+
+	* sourceview/Makefile: do not run cpp over hierarchy.list
+
+	* mk/config.mk.in: remove absolute path TOP variable. Add gconf flags.
+	Add gtk version check flags.
+
+	* gtk/Makefile: do not run cpp over hierarchy.list. Add gtk-2.x tags
+	conditional on appropriate config flags.
+
+	* c2hs/chs/CHS.hs: parse hierarchical module names ok.
+
+	* c2hs/base/syntax/Parsers.hs, c2hs/c/CParser.hs: Manuel Chakravarty's
+	patch to fix the space leak I found. c2hs runs much faster now.
+
+	* gconf/Makefile, gconf/System/Gnome/GConf.hs,
+	gconf/System/Gnome/GConf/GConfClient.chs,
+	gconf/System/Gnome/GConf/GConfValue.chs: new binding to GConf config
+	system. Uses hierarchical module names.
+
+2004-07-24 Duncan Coutts <duncan@coutts.uklinux.net>
+
 	* gtk/glib/GError.chs, gtk/abstract/FileChooser.chs: spelling fix
 	propogateGError to propagateGError
 

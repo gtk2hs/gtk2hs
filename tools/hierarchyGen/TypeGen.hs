@@ -3,7 +3,7 @@
 -- Haskell class that reflect this hierarchy.
 module Main(main) where
 
-import Char(showLitChar, isAlpha, isAlphaNum, isSpace, toLower, isUpper)
+import Char(showLitChar, isAlpha, isAlphaNum, isSpace, toLower, toUpper, isUpper)
 import List(nub, isPrefixOf)
 import Maybe(catMaybes, fromMaybe)
 import Monad(when)
@@ -15,7 +15,8 @@ type ObjectSpec = [(Int,String)]
 
 -- This is a mapping from a type name to a) the type name in Haskell and
 -- b) the GTK blah_get_type function.
-type TypeQuery  = Maybe (String, (String, String))
+type TypeQuery  = (String, (String, Maybe String))
+type TypeTable  = [TypeQuery]
 
 -- A Tag is a string restricting the generation of type entries to
 -- those lines that have the appropriate "if <tag>" at the end.
@@ -41,32 +42,35 @@ pFreshLine ps input = pFL ps input
     pFL ps ('\n':rem)	 	= pFL (ps {line = line ps+1, col=1}) rem
     pFL ps (' ':rem)		= pFL (ps {col=col ps+1}) rem
     pFL ps ('\t':rem)		= pFL (ps {col=col ps+8}) rem
-    pFL ps ('G':'t':'k':rem) 	= pGetObject ps rem
+    pFL ps all@('G':'t':'k':rem)= pGetObject ps all rem
+    pFL ps all@('G':'d':'k':rem)= pGetObject ps all rem
+    pFL ps all@('G':'n':'o':'m':'e':rem)= pGetObject ps all rem
     pFL ps []			= []
-    pFL ps all			= pGetObject ps all
+    pFL ps all			= pGetObject ps all all
 
-pGetObject :: ParserState -> String -> [(ObjectSpec, TypeQuery)]
-pGetObject ps@ParserState { onlyTags=tags } txt = 
+pGetObject :: ParserState -> String -> String -> [(ObjectSpec, TypeQuery)]
+pGetObject ps@ParserState { onlyTags=tags } txt txt' = 
   (if readTag `elem` tags then (:) (spec, specialQuery) else id) $
   pFreshLine (ps { hierObjs=spec}) (dropWhile ((/=) '\n') rem'')
   where
     isBlank     c = c==' ' || c=='\t'
     isAlphaNum_ c = isAlphaNum c || c=='_'
-    (origName,rem) = span isAlphaNum txt
+    isTagName c = isAlphaNum_ c || c=='-' || c=='.'  --to allow tag 'gtk-2.4'
+    (origCName,rem) = span isAlphaNum txt
+    (origHsName,_) = span isAlphaNum txt'
     (name,specialQuery,rem') = case (dropWhile isBlank rem) of
       ('a':'s':r) ->
         let (tyName,r') = span isAlphaNum_ (dropWhile isBlank r) in
           case (dropWhile isBlank r') of
 	    (',':r) ->
 	      let (tyQuery,r') = span isAlphaNum_ (dropWhile isBlank r) in
-	        (tyName, Just (tyName, (origName, tyQuery)), r')
-	    r -> error ("line "++show (line ps)++
-		        ": Expected a comma, found:"++take 5 r)
-      r -> (origName, Nothing, r)
+	        (tyName, (tyName, (origCName, Just tyQuery)), r')
+	    r -> (tyName, (tyName, (origCName, Nothing)), r)
+      r -> (origHsName, (origHsName, (origCName, Nothing)), r)
     parents = dropWhile (\(c,_) -> c>=col ps) (hierObjs ps)
     spec = (col ps,name):parents
     (readTag, rem'') = case (dropWhile isBlank rem') of
-      ('i':'f':r) -> span isAlphaNum_ (dropWhile isBlank r)
+      ('i':'f':r) -> span isTagName (dropWhile isBlank r)
       r -> ("default",r)
 
 
@@ -96,25 +100,29 @@ main = do
   let prefix = case map (drop 9) (filter ("--prefix=" `isPrefixOf`)  rem) of
                  [] -> "gtk"
                  (prefix:_) -> prefix
+  let modName = case map (drop 10) (filter ("--modname=" `isPrefixOf`)  rem) of
+  		  [] -> bareFName goalFile
+		  (modName:_) -> modName
+        where bareFName = reverse .
+      			  takeWhile isAlphaNum .
+			  drop 1 .
+			  dropWhile isAlpha .
+			  reverse
   content <- if hierFile == "-"
                then getContents	      -- read stdin
 	       else readFile hierFile
   let (objs, specialQueries) = unzip $
 				 pFreshLine (freshParserState tags) content
-  let bareFName = reverse . 
-		  takeWhile isAlphaNum .
-		  drop 1 .
-		  dropWhile isAlpha .
-		  reverse		     
   writeFile goalFile $
-    generate (bareFName goalFile) lib prefix
-      (map (map snd) objs) (catMaybes specialQueries) ""
+    generate modName lib prefix
+      (map (map snd) objs) specialQueries ""
 
 
 usage = do
  putStr "\nProgram to generate Gtk's object hierarchy in Haskell. Usage:\n\
 	\TypeGenerator <hierFile> <outFile> {--tag=<tag>}\n\
 	\              {--lib=<lib>} {--prefix=<prefix>}\n\
+	\              {--modname=<modName>}\n\
 	\where\n\
 	\  <hierFile>	   a list of all possible objects, the hierarchy is\n\
 	\		   taken from the indentation\n\
@@ -124,7 +132,9 @@ usage = do
 	\  <lib>           set the lib to use in the c2hs {#context #}\n\
 	\                  declaration (the default is \"gtk\")\n\
 	\  <prefix>        set the prefix to use in the c2hs {#context #}\n\
-	\                  declaration (the default is \"gtk\")\n"
+	\                  declaration (the default is \"gtk\")\n\
+	\  <modName>       specify module name if it does not match the\n\
+	\                  file name, eg a hierarchical module name"
  exitWith $ ExitFailure 1
 
 
@@ -133,7 +143,7 @@ usage = do
 -- generate dynamic fragments
 -------------------------------------------------------------------------------
 
-generate :: String -> String -> String -> [[String]] -> [(String, (String, String))] -> ShowS
+generate :: String -> String -> String -> [[String]] -> TypeTable -> ShowS
 generate fname lib prefix objs typeTable = 
   let fillCol str = ss $ replicate 
 		    (maximum (map (length.head) objs)-length str) ' ' 
@@ -195,20 +205,23 @@ generate fname lib prefix objs typeTable =
 --    ss " = LT".
 --  indent 0.
   indent 0.
-  foldl (.) id (map (makeClass typeTable) objs)
+  foldl (.) id (map (makeClass prefix typeTable) objs)
 
 makeTypeTags :: Char -> [String] -> ShowS
 makeTypeTags c [] = ss "deriving Eq"
 makeTypeTags c (obj:ects) = sc c.sc ' '.ss obj.ss "Tag".indent 8.
 			    makeTypeTags '|' ects
 
+makeUpcast :: TypeTable -> [String] -> ShowS
 makeUpcast table [obj]	   = id -- no casting for GObject
 makeUpcast table (obj:_:_) = 
   indent 0.ss "castTo".ss obj.ss " :: GObjectClass obj => obj -> ".ss obj.
   indent 0.ss "castTo".ss obj.ss " obj =".
   indent 1.ss "if typeInstanceIsA ((foreignPtrToPtr.castForeignPtr.unGObject.toGObject) obj)".
   indent 2.ss "{#call fun unsafe ".
-    ss (maybe ("gtk"++c2u True obj++"_get_type") snd (lookup obj table)).
+    ss (case lookup obj table of 
+         (Just (_, Just get_type_func)) -> get_type_func
+	 (Just (cname, _)) -> tail $ c2u True cname++"_get_type").
     ss "#} then".
   indent 3.ss "(fromGObject.toGObject) obj else".
   indent 4.ss "error \"Cannot cast object to ".ss obj.ss ".\"".
@@ -234,12 +247,19 @@ makeOrd fill (obj:preds) = indent 1.ss "compare ".ss obj.ss "Tag ".
 			  fill obj.ss pr.ss "Tag".fill pr.
 			  ss " = GT".makeGT obj eds
 
-makeClass :: [(String,(String, String))] -> [String] -> ShowS
-makeClass table (name:parents) =
+makeClass :: String -> TypeTable -> [String] -> ShowS
+makeClass prefix table (name:parents) =
   indent 0.ss "-- ".ss (replicate (75-length name) '*').sc ' '.ss name.
   indent 0.
   indent 0.ss "{#pointer *".
-  maybe (ss name) (\s -> ss (fst s).ss " as ".ss name) (lookup name table).
+  (case lookup name table of
+        (Just (cname, _)) | stripPrefix cname == name -> ss name
+                          | otherwise     -> ss cname.ss " as ".ss name
+	  where stripPrefix s = if uCasePrefix `isPrefixOf` s
+	  	                  then drop (length prefix) s
+				  else s
+                uCasePrefix = toUpper (head prefix) : tail prefix -- gtk -> Gtk
+  	).
   ss " foreign newtype #}".
   indent 0.
   indent 0.ss "mk".ss name.ss " = ".ss name.

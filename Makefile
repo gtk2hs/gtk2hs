@@ -23,7 +23,7 @@ MAKE_LIBS += glade
 endif
 
 ifeq ($(strip $(ENABLE_GNOME)),yes)
-MAKE_LIBS += sourceview
+MAKE_LIBS += sourceview gconf
 endif
 
 MAKE_LIBS += mogul
