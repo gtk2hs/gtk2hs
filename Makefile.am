@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
-SUFFIXES = .chs.pp .chs .hsc .deps .dep
+SUFFIXES = .hs.uncpp .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES = *.deps.bak
 CLEANFILES =
 DISTCLEANFILES = */*.precomp
@@ -22,20 +22,20 @@ EXTRA_DIST = \
 CHSDEPEND = $(srcdir)/mk/chsDepend
 
 # all packages and applications
-lib_LIBRARIES =	\
+pkglib_LIBRARIES =	\
         libHSglib.a	\
 	libHSgtk.a	\
         libHSmogul.a
 if ENABLE_LIBGLADE
-lib_LIBRARIES += libHSglade.a
+pkglib_LIBRARIES += libHSglade.a
 endif
 if ENABLE_GNOME
-lib_LIBRARIES += 	\
+pkglib_LIBRARIES += 	\
         libHSgconf.a	\
         libHSsourceview.a
 endif
 if ENABLE_MOZEMBED
-lib_LIBRARIES += libHSmozembed.a
+pkglib_LIBRARIES += libHSmozembed.a
 endif
 
 noinst_PROGRAMS = \
@@ -474,9 +474,13 @@ libHSgtk_a_HSFILES  = \
 nobase_hi_SCRIPTS += $(libHSgtk_a_HSFILES:.hs=.hi)
 
 if BUILDDOCS
-htmldir = $(prefix)/html
-html_DATA = $(foreach HSFILE, $(libHSgtk_a_HSFILES), \
-		$(patsubst gtk.%.hs, doc/%.html, $(subst /,.,$(HSFILE))))
+htmldir = $(datadir)/doc/gtk2hs/html
+html_DATA = \
+	$(foreach HSFILE, $(libHSgtk_a_HSFILES), \
+	$(patsubst gtk.%.hs, doc/%.html, $(subst /,.,$(HSFILE)))) \
+	doc/index.html doc/haddock.css doc/haskell_icon.gif doc/doc-index.html \
+	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y, \
+		doc/doc-index-$(LETTER).html) #missing letters Q and Z
 EXCLUDE_DOCS = 
 PREPROC_DOCS = gtk/Graphics/UI/Gtk.hs
 

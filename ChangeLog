@@ -13,6 +13,12 @@
 	issues with the NAME make var being set incorrectly. I have a plan to
 	replace the cunning NAME hack with a different hack.
 
+	* configure.ac, Makefile.am: get everything to be installed under
+	$pkglibdir rather than $libdir (ie $prefix/gtk2hs/*).
+	Fix building of .hs.uncpp files needed for haddock (add to SUFFIXs).
+	Get all doc files to be installed. I'm not sure where the html docs
+	should be installed however, it's $(datadir)/doc/gtk2hs/html for now.
+
 2005-01-12 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,
