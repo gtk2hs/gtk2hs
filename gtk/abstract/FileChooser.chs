@@ -93,7 +93,7 @@ import FFI
 import Object		(makeNewObject)
 import Signal
 {#import GList#}
-import Structs (GError(..))
+import GError (propogateGError)
 
 {# context lib="gtk" prefix ="gtk" #}
 
@@ -364,14 +364,3 @@ toStringGSList :: [String] -> IO GSList
 toStringGSList strs = do
   strPtrs <- mapM newCString strs
   toGSList strPtrs
-
-propogateGError :: (Ptr (Ptr ()) -> IO a) -> IO a
-propogateGError action =
-  alloca $ \(errPtrPtr  :: Ptr (Ptr GError)) -> do
-  result <- action (castPtr errPtrPtr)
-  errPtr <- peek errPtrPtr
-  when (errPtr /= nullPtr)
-       (do (GError dom code msg) <- peek errPtr
-           {# call unsafe g_error_free #} (castPtr errPtr)
-           fail msg) --TODO perhaps we should throw the GError itself?
-  return result

@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.23 $ from $Date: 2004/05/23 15:58:48 $
+--  Version $Revision: 1.24 $ from $Date: 2004/07/16 15:12:59 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -90,8 +90,6 @@ module Structs(
   styleGetText,
   styleGetBase,
   styleGetAntiAliasing,
-  GQuark,
-  GError(..)
   ) where
 
 import Monad		(liftM)
@@ -459,50 +457,59 @@ dialogGetActionArea dc = makeNewObject mkHBox $ liftM castPtr $
 -- | Some constructors that can be used as response
 -- numbers for dialogs.
 --
--- DOCFIXME(constructor): ResponseNone GTK returns this if a response widget has no
--- response_id, or if the dialog gets programmatically hidden or destroyed.
---
--- DOCFIXME(constructor): ResponseReject GTK won't return these unless you pass them in as
--- the response for an action widget. They are for your convenience.
---
--- DOCFIXME(constructor): ResponseDeleteEvent If the dialog is deleted.
---
--- DOCFIXME(constructor): ResponseOk \"Ok\" was pressed.
---
--- * This value is returned from the \"Ok\" stock dialog button.
---
--- DOCFIXME(constructor): ResponseCancel \"Cancel\" was pressed.
---
--- * These value is returned from the \"Cancel\" stock dialog button.
---
--- DOCFIXME(constructor): ResponseClose \"Close\" was pressed.
---
--- * This value is returned from the \"Close\" stock dialog button.
---
--- DOCFIXME(constructor): ResponseYes \"Yes\" was pressed.
---
--- * This value is returned from the \"Yes\" stock dialog button.
---
--- DOCFIXME(constructor): ResponseNo \"No\" was pressed.
---
--- * This value is returned from the \"No\" stock dialog button.
---
--- DOCFIXME(constructor): ResponseApply \"Apply\" was pressed.
---
--- * This value is returned from the \"Apply\" stock dialog button.
---
--- DOCFIXME(constructor): ResponseHelp \"Help\" was pressed.
---
--- * This value is returned from the \"Help\" stock dialog button.
---
--- DOCFIXME(constructor): ResponseUser A user-defined response
---
--- * This value is returned from a user defined button
---
-data ResponseId = ResponseNone | ResponseReject | ResponseAccept
-		| ResponseDeleteEvent | ResponseOk | ResponseCancel
-		| ResponseClose | ResponseYes | ResponseNo
-		| ResponseApply | ResponseHelp | ResponseUser Int
+data ResponseId
+
+  -- | GTK returns this if a response widget has no @response_id@,
+  --   or if the dialog gets programmatically hidden or destroyed.
+  = ResponseNone
+
+  -- | GTK won't return these unless you pass them in as
+  --   the response for an action widget. They are for your convenience.
+  | ResponseReject
+  | ResponseAccept -- ^ (as above)
+
+  -- | If the dialog is deleted.
+  | ResponseDeleteEvent
+
+  -- | \"Ok\" was pressed.
+  --
+  -- * This value is returned from the \"Ok\" stock dialog button.
+  | ResponseOk
+
+  -- | \"Cancel\" was pressed.
+  --
+  -- * These value is returned from the \"Cancel\" stock dialog button.
+  | ResponseCancel
+
+  -- | \"Close\" was pressed.
+  --
+  -- * This value is returned from the \"Close\" stock dialog button.
+	| ResponseClose
+
+  -- | \"Yes\" was pressed.
+  --
+  -- * This value is returned from the \"Yes\" stock dialog button.
+  | ResponseYes
+
+  -- | \"No\" was pressed.
+  --
+  -- * This value is returned from the \"No\" stock dialog button.
+  | ResponseNo
+
+  -- | \"Apply\" was pressed.
+  --
+  -- * This value is returned from the \"Apply\" stock dialog button.
+	| ResponseApply
+
+  -- |  \"Help\" was pressed.
+  --
+  -- * This value is returned from the \"Help\" stock dialog button.
+  | ResponseHelp
+
+  -- | A user-defined response
+  --
+  -- * This value is returned from a user defined button
+  | ResponseUser Int
   deriving Show
 
 fromResponse :: Integral a => ResponseId -> a
@@ -789,20 +796,3 @@ styleGetBase ty st = withForeignPtr (unStyle st) $ \stPtr ->
 styleGetAntiAliasing :: StateType -> Style -> IO GC
 styleGetAntiAliasing ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, text_aa_gc} stPtr))
-
--- Error handling
-
-type GQuark = CUInt  -- again, c2hs and hsc2hs don't comply on types
-
-data GError = GError GQuark #{type gint} String
-
-instance Storable GError where
-  sizeOf _ = #{const sizeof(GError)}
-  alignment _ = alignment (undefined:: GQuark)
-  peek ptr = do
-    (domain  :: GQuark)		<- #{peek GError, domain} ptr
-    (code    :: #{type gint})	<- #{peek GError, code} ptr
-    (msgPtr  :: CString)	<- #{peek GError, message} ptr
-    msg <- peekUTFString msgPtr
-    return $ GError domain code msg
-  poke _ = error "GError::poke: not implemented"

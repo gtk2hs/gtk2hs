@@ -4,7 +4,7 @@
 --  Author : Vincenzo Ciancia, Axel Simon
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 15:55:36 $
+--  Version $Revision: 1.8 $ from $Date: 2004/07/16 15:13:00 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -86,7 +86,9 @@ import FFI
 import GObject
 import Monad
 
-import Structs		(GError(..), GQuark, Rectangle(..))
+import Structs		(Rectangle(..))
+import GError		(GError(..), GErrorClass(..), GErrorDomain,
+			checkGError, checkGErrorWithCont)
 import LocalData	(unsafePerformIO)
 import Exception	(bracket)
 import LocalData	((.|.), shiftL)
@@ -165,9 +167,18 @@ pixbufGetOption pb key = withUTFString key $ \strPtr -> do
   if (resPtr==nullPtr) then return Nothing else
     liftM Just $ peekUTFString resPtr
 
--- pixbufErrorDomain -- helper function
-pixbufErrorDomain :: GQuark
+-- helper functions
+pixbufErrorDomain :: GErrorDomain
 pixbufErrorDomain = unsafePerformIO {#call unsafe pixbuf_error_quark#}
+
+instance GErrorClass PixbufError where
+  gerrorDomain _ = pixbufErrorDomain
+
+handlePixbufError :: GError -> IO (PixbufError,String)
+handlePixbufError (GError dom code msg)
+  | dom == pixbufErrorDomain = return (toEnum code, msg)
+  | otherwise                = fail msg
+
 
 -- | Load an image synchonously.
 --
@@ -179,17 +190,13 @@ pixbufErrorDomain = unsafePerformIO {#call unsafe pixbuf_error_quark#}
 --   those in 'PixbufError', an exception is thrown.
 --
 pixbufNewFromFile :: FilePath -> IO (Either (PixbufError,String) Pixbuf)
-pixbufNewFromFile fname = withUTFString fname $ \strPtr ->
-  alloca $ \errPtrPtr -> do
-  pbPtr <- {#call unsafe pixbuf_new_from_file#} strPtr (castPtr errPtrPtr)
-  if pbPtr/=nullPtr then liftM Right $ makeNewGObject mkPixbuf (return pbPtr)
-    else do
-      errPtr <- peek errPtrPtr
-      (GError dom code msg) <- peek errPtr
-      if dom==pixbufErrorDomain then
-        return (Left (toEnum (fromIntegral code), msg))
-       else
-	error msg
+pixbufNewFromFile fname = 
+  checkGErrorWithCont
+    (\errPtrPtr -> 
+     withUTFString fname $ \strPtr ->
+     {#call unsafe pixbuf_new_from_file#} strPtr errPtrPtr)
+    (\gerror -> liftM Left $ handlePixbufError gerror)
+    (\pbPtr -> liftM Right $ makeNewGObject mkPixbuf (return pbPtr))
 
 -- | A string representing an image file format.
 --
@@ -222,26 +229,20 @@ pixbufSave :: Pixbuf -> FilePath -> ImageType -> [(String, String)] ->
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
   let optLen = length keys in
-  withUTFString fname $ \fnPtr ->
-  withUTFString iType $ \tyPtr ->
-  allocaArray0 optLen $ \keysPtr ->
-  allocaArray optLen $ \valuesPtr ->
-  alloca $ \errPtrPtr -> do
-    keyPtrs <- mapM newUTFString keys
-    valuePtrs <- mapM newUTFString values
-    pokeArray keysPtr keyPtrs
-    pokeArray valuesPtr valuePtrs
-    res <- {#call unsafe pixbuf_savev#} pb fnPtr tyPtr keysPtr valuesPtr
-					(castPtr errPtrPtr)
-    mapM_ free keyPtrs
-    mapM_ free valuePtrs
-    if not (toBool res) then return Nothing else do
-      errPtr <- peek errPtrPtr
-      (GError dom code msg) <- peek errPtr
-      if dom==pixbufErrorDomain then
-        return (Just (toEnum (fromIntegral code), msg))
-       else
-	error msg
+  checkGError (\errPtrPtr ->
+    withUTFString fname $ \fnPtr ->
+    withUTFString iType $ \tyPtr ->
+    allocaArray0 optLen $ \keysPtr ->
+    allocaArray optLen $ \valuesPtr -> do
+      keyPtrs <- mapM newUTFString keys
+      valuePtrs <- mapM newUTFString values
+      pokeArray keysPtr keyPtrs
+      pokeArray valuesPtr valuePtrs
+      {#call unsafe pixbuf_savev#} pb fnPtr tyPtr keysPtr valuesPtr errPtrPtr
+      mapM_ free keyPtrs
+      mapM_ free valuePtrs
+      return Nothing)
+  (\gerror -> liftM Just $ handlePixbufError gerror)
 
 -- | Create a new image in memory.
 --
@@ -335,24 +336,23 @@ pixbufCopy pb = makeNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 
 -- | How an image is scaled.
 --
---
--- * DOCFIXME(constructor): InterpNearest Nearest neighbor sampling; this is the
+-- [@InterpNearest@] Nearest neighbor sampling; this is the
 --   fastest and lowest quality mode. Quality is normally unacceptable when
 --   scaling down, but may be OK when scaling up.
 --
--- * DOCFIXME(constructor): InterpTiles This is an accurate simulation of the
+-- [@InterpTiles@] This is an accurate simulation of the
 --   PostScript image operator without any interpolation enabled. Each
 --   pixel is rendered as a tiny parallelogram of solid color, the edges of
 --   which are implemented with antialiasing. It resembles nearest neighbor
 --   for enlargement, and bilinear for reduction.
 --
--- * DOCFIXME(constructor): InterpBilinear Best quality\/speed balance; use this
+-- [@InterpBilinear@] Best quality\/speed balance; use this
 --   mode by default. Bilinear interpolation. For enlargement, it is
 --   equivalent to point-sampling the ideal bilinear-interpolated
 --   image. For reduction, it is equivalent to laying down small tiles and
 --   integrating over the coverage area.
 --
--- * DOCFIXME(constructor): InterpHyper This is the slowest and highest quality
+-- [@InterpHyper@] This is the slowest and highest quality
 --   reconstruction function. It is derived from the hyperbolic filters in
 --   Wolberg's \"Digital Image Warping\", and is formally defined as the
 --   hyperbolic-filter sampling the ideal hyperbolic-filter interpolated
@@ -367,10 +367,9 @@ pixbufCopy pb = makeNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 --   unaffected. 
 --
 -- * @interp@ affects the quality and speed of the scaling function.
---   DOCFIXME(constructor): InterpNearest is the fastest option but yields very poor
---   quality when scaling down. DOCFIXME(constructor): InterpBilinear is a good
---   trade-off between speed and quality and should thus be used as a
---   default.
+--   'InterpNearest' is the fastest option but yields very poor quality
+--   when scaling down. 'InterpBilinear' is a good trade-off between
+--   speed and quality and should thus be used as a default.
 --
 pixbufScaleSimple :: Pixbuf -> Int -> Int -> InterpType -> IO Pixbuf
 pixbufScaleSimple pb width height interp =

@@ -1,3 +1,15 @@
+2004-07-16 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/glib/GError.chs: new module for dealing with GErrors
+
+	* gtk/general/Structs.hsc: removed GError definition, also
+	documentation fixes.
+
+	* gtk/abstract/FileChooser.chs: use new GError module, remove own
+	definition of propogateGError
+
+	* gtk/gdk/Pixbuf.chs: use new GError module, also documentation fixes
+
 2004-06-04 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/gdk/Drawable.chs: fixed typo in drawLine. Thanks to Mats-Ola
