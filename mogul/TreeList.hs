@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/08 16:50:00 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/17 15:53:36 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -31,12 +31,12 @@
 --   Several widgets may use a single storage object. The data in the database
 --   may be what is directly displayed like strings and images or it may be
 --   some meta information like the padding or color of an item. Both the
---   database and the widget have columns, allthough several columns in the
+--   database and the widget have columns, although several columns in the
 --   storage object may be used to display one column in the widget. The
 --   database is called store, specifically for simple lists it's @ListStore
 --   and for hierachical data it is called @TreeStore. The widget that displays
 --   the data and that be inserted like any other Gtk widget in a container is
---   called @TreeView. Similary there are @StoreColumn@s and @TreeViewColumn@s
+--   called @TreeView. Similarly there are @StoreColumn@s and @TreeViewColumn@s
 --   to handle the association between storage and display. Each 
 --   @TreeViewColumn is parameterized by a derivation of @CellRenderer which
 --   can be one of @CellRendererText, @CellRendererTextPixmap, 
