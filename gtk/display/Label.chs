@@ -1,12 +1,12 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Label@
+--  GIMP Toolkit (GTK) Widget Label
 --
 --  Author : Manuel M. T. Chakravarty,
 --	     Axel Simon
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 15:50:26 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -20,13 +20,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Label(
   Label,
@@ -67,7 +62,7 @@ import Markup
 
 -- methods
 
--- @constructor labelNew@ create a new label widget
+-- | create a new label widget
 --
 labelNew :: Maybe String -> IO Label
 labelNew str = makeNewObject mkLabel $ liftM castPtr $
@@ -75,31 +70,32 @@ labelNew str = makeNewObject mkLabel $ liftM castPtr $
     Nothing    -> {#call label_new#} nullPtr
     (Just str) -> withUTFString str {#call label_new#}
 
--- @method labelSetText@ set the text the label widget shows
+-- | set the text the label widget shows
 --
 labelSetText :: LabelClass l => l -> String -> IO ()
 labelSetText l str =
   withUTFString str $ {#call label_set_text#} (toLabel l)
 
--- @method labelSetAttributes@ Set the text attributes.
+{-
+-- | Set the text attributes.
 --
 -- labelSetAttributes :: LabelClass l => PangoAttrList -> IO ()
+-}
 
-
--- @method labelSetMarkup@ set the label to a markup string
+-- | set the label to a markup string
 --
 labelSetMarkup :: LabelClass l => l -> Markup -> IO ()
 labelSetMarkup l str =
   withUTFString str $ {#call label_set_markup#} (toLabel l)
 
--- @method labelSetMarkupWithMnemonic@ set the label to a markup string and
+-- | set the label to a markup string and
 -- interpret keyboard accelerators
 --
 labelSetMarkupWithMnemonic :: LabelClass l => l -> Markup -> IO ()
 labelSetMarkupWithMnemonic l str =
   withUTFString str $ {#call label_set_markup_with_mnemonic#} (toLabel l)
 
--- @method labelSetPattern@ underline parts of the text, odd indices of the
+-- | underline parts of the text, odd indices of the
 -- list represent underlined parts
 --
 labelSetPattern :: LabelClass l => l -> [Int] -> IO ()
@@ -108,18 +104,18 @@ labelSetPattern l list =
   where
     str = concat $ zipWith replicate list (cycle ['_',' '])
 
--- @method labelSetJustify@ set the justification of the label
+-- | set the justification of the label
 --
 labelSetJustify :: LabelClass l => l -> Justification -> IO ()
 labelSetJustify l j = 
   {#call label_set_justify#} (toLabel l) ((fromIntegral.fromEnum) j)
 
--- @method labelSetLineWrap@ set wether lines should be wrapped or truncated
+-- | set wether lines should be wrapped or truncated
 --
 labelSetLineWrap :: LabelClass l => l -> Bool -> IO ()
 labelSetLineWrap l w = {#call label_set_line_wrap#} (toLabel l) (fromBool w)
 
--- @method labelGetLayoutOffsets@ get starting cooridinates of text rendering
+-- | get starting cooridinates of text rendering
 --
 labelGetLayoutOffsets :: LabelClass l => l -> IO (Int,Int)
 labelGetLayoutOffsets l =
@@ -132,61 +128,61 @@ labelGetLayoutOffsets l =
     )
   )
 
--- @type KeyVal@ KeyVal is a synonym for a hot key number.
+-- | KeyVal is a synonym for a hot key number.
 --
 type KeyVal = {#type guint#}
 
--- @method labelGetMnemonicKeyval@ get the keyval for the underlined character
+-- | get the keyval for the underlined character
 -- in the label
 --
 labelGetMnemonicKeyval :: LabelClass l => l -> IO KeyVal
 labelGetMnemonicKeyval l = 
   {#call unsafe label_get_mnemonic_keyval#} (toLabel l)
 
--- @method labelGetSelectable@ is the text selectable?
+-- | is the text selectable?
 --
 labelGetSelectable :: LabelClass l => l -> IO Bool
 labelGetSelectable l = liftM toBool $ 
   {#call unsafe label_get_selectable#} (toLabel l)
 
--- @method labelGetText@ get the text stored in the label
+-- | get the text stored in the label
 --
 labelGetText :: LabelClass l => l -> IO String
 labelGetText l = {#call unsafe label_get_text#} (toLabel l) >>= peekUTFString
 
 
--- @constructor labelNewWithMnemonic@ Create a new label widget with 
+-- | Create a new label widget with 
 -- accelerator key.
 --
--- * Each underscore in @ref arg str@ is converted into an underlined
+-- * Each underscore in @str@ is converted into an underlined
 --   character in the label. Entering this character will activate the label
---   widget or any other widget set with @ref method labelSetMnemonicWidget@.
+--   widget or any other widget set with 'labelSetMnemonicWidget'.
 --
 labelNewWithMnemonic :: String -> IO Label
 labelNewWithMnemonic str = makeNewObject mkLabel $ liftM castPtr $
   withUTFString str {#call label_new_with_mnemonic#}
 
--- @method labelSelectRegion@ select a region in label
+-- | select a region in label
 --
 labelSelectRegion :: LabelClass l => l -> Int -> Int -> IO ()
 labelSelectRegion l start end = {#call label_select_region#} (toLabel l) 
   (fromIntegral start) (fromIntegral end)
 
 
--- @method labelSetMnemonicWidget@ set an explicit widget for which to emit
+-- | set an explicit widget for which to emit
 -- the mnemonic_activate signal if an underlined character is pressed
 --
 labelSetMnemonicWidget :: (LabelClass l, WidgetClass w) => l -> w -> IO ()
 labelSetMnemonicWidget l w = 
   {#call unsafe label_set_mnemonic_widget#} (toLabel l) (toWidget w)
 
--- @method labelSetSelectable@ make a label text selectable
+-- | make a label text selectable
 --
 labelSetSelectable :: LabelClass l => l -> Bool -> IO ()
 labelSetSelectable l s =
   {#call unsafe label_set_selectable#} (toLabel l) (fromBool s)
 
--- @method labelSetTextWithMnemonic@ set the label to a markup string and
+-- | set the label to a markup string and
 -- interpret keyboard accelerators
 --
 labelSetTextWithMnemonic :: LabelClass l => l -> String -> IO ()

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Scale@
+--  GIMP Toolkit (GTK) Widget Scale
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:46:02 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,15 +19,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This is the abstract base class for HScale and VScale. It implements the
---   management of an adjustable value.
+-- This is the abstract base class for HScale and VScale. It implements the
+-- management of an adjustable value.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Scale(
   Scale,
@@ -51,20 +47,20 @@ import Enums	(PositionType(..))
 
 -- methods
 
--- @method scaleSetDigits@ Set the number of displayed digits after the comma.
+-- | Set the number of displayed digits after the comma.
 --
 scaleSetDigits :: ScaleClass s => s -> Int -> IO ()
 scaleSetDigits s prec = 
   {#call scale_set_digits#} (toScale s) (fromIntegral prec)
 
--- @method scaleSetDrawValue@ Specify if the current value is to be drawn next
+-- | Specify if the current value is to be drawn next
 -- to the slider.
 --
 scaleSetDrawValue :: ScaleClass s => s -> Bool -> IO ()
 scaleSetDrawValue s draw =
   {#call scale_set_draw_value#} (toScale s) (fromBool draw)
 
--- @method scaleSetValuePos@ Specify where the value is to be displayed
+-- | Specify where the value is to be displayed
 -- (relative to the slider).
 --
 scaleSetValuePos :: ScaleClass s => s -> PositionType -> IO ()

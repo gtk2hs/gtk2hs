@@ -1,3 +1,25 @@
+2004-05-23 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/abstract/Bin.chs, gtk/abstract/Box.chs,
+	gtk/abstract/ButtonBox.chs, gtk/abstract/Container.chs,
+	gtk/abstract/FileChooser.chs, gtk/abstract/Misc.chs,
+	gtk/abstract/Object.chs, gtk/abstract/Paned.chs,
+	gtk/abstract/Range.chs, gtk/abstract/Scale.chs,
+	gtk/abstract/Scrollbar.hs, gtk/abstract/Separator.hs,
+	gtk/abstract/Widget.chs: initial haddockification
+
+	* gtk/buttons/Button.chs, gtk/buttons/CheckButton.chs,
+	gtk/buttons/RadioButton.chs, gtk/buttons/ToggleButton.chs:
+	initial haddockification
+
+	* gtk/display/AccelLabel.chs, gtk/display/Image.chs,
+	gtk/display/Label.chs, gtk/display/ProgressBar.chs,
+	gtk/display/Statusbar.chs: initial haddockification
+
+	* gtk/entry/Entry.chs, gtk/entry/EntryCompletion.chs,
+	gtk/entry/HScale.chs, gtk/entry/SpinButton.chs,
+	gtk/entry/VScale.chs: initial haddockification
+
 2004-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/abstract/Widget.chs:

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget CheckButton@
+--  GIMP Toolkit (GTK) Widget CheckButton
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:48:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module CheckButton(
   CheckButton,
@@ -47,13 +42,13 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor checkButtonNew@ Create a new button with a check field.
+-- | Create a new button with a check field.
 --
 checkButtonNew :: IO CheckButton
 checkButtonNew  = makeNewObject mkCheckButton $ 
   liftM castPtr {#call unsafe check_button_new#}
 
--- @method checkButtonNewWithLabel@ Create a new CheckButton with a text to
+-- | Create a new CheckButton with a text to
 -- the right of it.
 --
 checkButtonNewWithLabel :: String -> IO CheckButton
@@ -61,10 +56,10 @@ checkButtonNewWithLabel lbl = withUTFString lbl (\strPtr ->
   makeNewObject mkCheckButton $ liftM castPtr $
   {#call unsafe check_button_new_with_label#} strPtr)
 
--- @method checkButtonNewWithMnemonic@ Create a checkButton with an
+-- | Create a checkButton with an
 -- accelerator key.
 --
--- * Like @ref method checkButtonNewWithLabel@ but turns every underscore in
+-- * Like 'checkButtonNewWithLabel' but turns every underscore in
 --   the label to a underlined character.
 --
 checkButtonNewWithMnemonic :: String -> IO CheckButton

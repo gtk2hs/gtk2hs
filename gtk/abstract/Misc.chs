@@ -1,12 +1,12 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Misc@
+--  GIMP Toolkit (GTK) Widget Misc
 --
 --  Author : Manuel M. T. Chakravarty,
 --	     Axel Simon
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:46:02 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -20,13 +20,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Misc(
   Misc,
@@ -48,14 +43,14 @@ import FFI
 
 -- methods
 
--- @method miscSetAlignment@ Set the alignment of the widget.
+-- | Set the alignment of the widget.
 --
 miscSetAlignment :: MiscClass m => m -> Double -> Double -> IO ()
 miscSetAlignment misc xalign yalign =  {#call misc_set_alignment#} 
   (toMisc misc) (realToFrac xalign) (realToFrac yalign) 
     
 
--- @method miscSetPadding@ Set the amount of space to add around the widget.
+-- | Set the amount of space to add around the widget.
 --
 miscSetPadding :: MiscClass m => m -> Int -> Int -> IO ()
 miscSetPadding misc xpad ypad = {#call misc_set_padding#} 

@@ -1,6 +1,6 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
--- |GIMP Toolkit (GTK) @entry Widget EntryCompletion@
+--  GIMP Toolkit (GTK) entry Widget EntryCompletion
 --
 --  Author : Duncan Coutts
 --  Created: 24 April 2004
@@ -17,13 +17,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- Description ---------------------------------------------------------------
+-- |
 --
---  Language: Haskell 98 Binding Module
+-- Completion functionality for the Entry widget.
 --
---  Completion functionality for the Entry widget.
---
---  Added in GTK+ 2.4
+-- * Added in GTK+ 2.4
 --
 
 module EntryCompletion (

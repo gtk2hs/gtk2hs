@@ -1,12 +1,12 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Object@
+--  GIMP Toolkit (GTK) Object
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/04/24 17:20:49 $
+--  Version $Revision: 1.9 $ from $Date: 2004/05/23 15:46:02 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -20,21 +20,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
-
+-- Widget representation
 --
--- @documentation@ ------------------------------------------------------------
---
--- * Widget representation
---   Each widget is a represented as a purely abstract data type. It can only 
+-- * Each widget is a represented as a purely abstract data type. It can only 
 --   be accessed through and the special access functions that are defined
 --   in each widget file.
 --
--- @todo@ ---------------------------------------------------------------------
---
---
---
+
 module Object(
   Object,
   ObjectClass,
@@ -59,7 +53,7 @@ import StoreValue
 
 -- turn the initial floating state to sunk
 --
--- * The floating/sunk concept of a GTK object is not very useful to us.
+-- * The floating\/sunk concept of a GTK object is not very useful to us.
 --   The following procedure circumvents the whole subject and ensures 
 --   proper cleanup:
 --     on creation:      objectRef, objectSink
@@ -100,7 +94,7 @@ makeNewObject constr generator = do
 -- method private objectSetProperty Sets a specific attribute of this object.
 --
 -- * Most attributes in a widget can be set and retrieved by passing the
---   name (as a string) and the value to special set/get functions. These
+--   name (as a string) and the value to special set\/get functions. These
 --   are undocumented because each derived objects implements custom (and
 --   welltyped) set and get functions for most attributes.
 --

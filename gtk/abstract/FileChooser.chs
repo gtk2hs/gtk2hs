@@ -16,17 +16,17 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- description ---------------------------------------------------------------
+-- |
 --
---  Language: Haskell 98 Binding Module
---
---  The file chooser dialog & widget is a replacement (introduced with gtk+ 2.4)
---  for the old and ugly GtkFileSelection dialog. It provides a better user
---  interface and an improved API
+--  The file chooser dialog and widget is a replacement
+--  for the old "FileSel"ection dialog. It provides a better user
+--  interface and an improved API.
 --
 --  The FileChooser (as opposed to the dialog or widget) is the interface that
---  the FileChooserDialog & FileChooserWidget implement, all the operations
---  except construction are on this interface
+--  the "FileChooserDialog" and "FileChooserWidget" implement, all the operations
+--  except construction are on this interface.
+--
+-- * Added in GTK+ 2.4
 --
 
 module FileChooser (

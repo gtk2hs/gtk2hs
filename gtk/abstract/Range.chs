@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Range@
+--  GIMP Toolkit (GTK) Widget Range
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:46:02 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * An abstract base class to handle widgets that represent some value range.
+-- An abstract base class to handle widgets that represent some value range.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Range(
   Range,
@@ -55,39 +51,39 @@ import Enums	(UpdateType(..), ScrollType(..))
 
 -- methods
 
--- @method rangeGetAdjustment@ Extract the @ref data Adjustment@ object.
+-- | Extract the 'Adjustment' object.
 --
 rangeGetAdjustment :: RangeClass r => r -> IO Adjustment
 rangeGetAdjustment r = makeNewObject mkAdjustment $
   {#call unsafe range_get_adjustment#} (toRange r)
 
--- @method rangeSetUpdatePolicy@ Set how the internal @ref data Adjustment@
+-- | Set how the internal 'Adjustment'
 -- object is updated.
 --
 rangeSetUpdatePolicy :: RangeClass r => r -> UpdateType -> IO ()
 rangeSetUpdatePolicy r up = {#call range_set_update_policy#}
   (toRange r) ((fromIntegral.fromEnum) up)
 
--- @method rangeSetAdjustment@ Insert a new @ref data Adjustment@ object.
+-- | Insert a new 'Adjustment' object.
 --
 rangeSetAdjustment :: RangeClass r => r -> Adjustment -> IO ()
 rangeSetAdjustment r adj = {#call range_set_adjustment#} (toRange r) adj
 
--- @method rangeGetInverted@ Get the inverted flag (determines if the range is
+-- | Get the inverted flag (determines if the range is
 -- reversed).
 --
 rangeGetInverted :: RangeClass r => r -> IO Bool
 rangeGetInverted r = 
   liftM toBool $ {#call unsafe range_get_inverted#} (toRange r)
 
--- @method rangeSetInverted@ Set the inverted flag.
+-- | Set the inverted flag.
 --
 rangeSetInverted :: RangeClass r => r -> Bool -> IO ()
 rangeSetInverted r inv = {#call range_set_inverted#} (toRange r) (fromBool inv)
 
 -- signals
 
--- @signal connectToMoveSlider@ The slide has moved. The arguments give
+-- | The slide has moved. The arguments give
 -- detailed information what happend.
 --
 onMoveSlider, afterMoveSlider :: RangeClass r => r -> (ScrollType -> IO ()) ->

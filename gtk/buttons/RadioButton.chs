@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget RadioButton@
+--  GIMP Toolkit (GTK) Widget RadioButton
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:48:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,19 +19,17 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A radio group is a set of check buttons where only one button can be 
---   checked.
---
--- @documentation@ ------------------------------------------------------------
+-- A radio group is a set of check buttons where only one button can be 
+-- checked.
 --
 -- * Each radio button has to be associated with a group. Generating a new
 --   radio button makes up a new group. Other group members can be added by
 --   generating radio buttons with the function 
---   @ref method radioButtonNewJoinGroup@.
+--   'radioButtonNewJoinGroup'.
 --
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * No function that directly accesses the group is bound. This is due to the
 --   difficulties assuring that these groups are valid as the group is a plain
@@ -58,14 +56,14 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor radioButtonNew@ Create a new RadioButton widget with a new
+-- | Create a new RadioButton widget with a new
 -- group.
 --
 radioButtonNew :: IO RadioButton
 radioButtonNew  = makeNewObject mkRadioButton $ liftM castPtr $
   {#call unsafe radio_button_new#} nullPtr
 
--- @method radioButtonNewWithLabel@ Like @ref type RadioButton@ but shows a
+-- | Like 'RadioButton' but shows a
 -- label to the right of the button.
 --
 radioButtonNewWithLabel :: String -> IO RadioButton
@@ -73,7 +71,7 @@ radioButtonNewWithLabel lbl = withUTFString lbl $ \strPtr ->
   makeNewObject mkRadioButton $ liftM castPtr $
   {#call unsafe radio_button_new_with_label#} nullPtr strPtr
 
--- @method radioButtonNewJoinGroup@ Creates a new RadioButton and attaches it
+-- | Creates a new RadioButton and attaches it
 -- to the group of another radio button.
 --
 -- * This function corresponds to gtk_radio_button_new_from_widget. The new
@@ -84,7 +82,7 @@ radioButtonNewJoinGroup :: RadioButton -> IO RadioButton
 radioButtonNewJoinGroup rb = makeNewObject mkRadioButton $ liftM castPtr $
   {#call radio_button_new_from_widget#} rb
 
--- @method radioButtonNewJoinGroupWithLabel@ Create a new RadioButton with a
+-- | Create a new RadioButton with a
 -- label and group.
 --
 radioButtonNewJoinGroupWithLabel :: RadioButton -> String -> IO RadioButton

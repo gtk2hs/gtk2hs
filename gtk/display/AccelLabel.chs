@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget AccelLabel@
+--  GIMP Toolkit (GTK) Widget AccelLabel
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:50:26 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,17 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This widget is a special version of @ref data Label@. It displays an 
---   accelerator
---   key next to the Label. The key name is not explicitly set but taken from
---   the key that is associated with the activation of another widget.
+-- This widget is a special version of 'Label'. It displays an 
+-- accelerator key next to the Label.
 --
--- @documentation@ ------------------------------------------------------------
+-- * The key name is not explicitly set but taken from the key that
+--   is associated with the activation of another widget.
 --
---
--- @todo@ ---------------------------------------------------------------------
 
 module AccelLabel(
   AccelLabel,
@@ -50,13 +47,13 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor accelLabelNew@ Create a new label with an accelerator key.
+-- | Create a new label with an accelerator key.
 --
 accelLabelNew :: String -> IO AccelLabel
 accelLabelNew str = withUTFString str $ \strPtr -> makeNewObject mkAccelLabel $ 
   liftM castPtr $ {#call unsafe accel_label_new#} strPtr
 
--- @method accelLabelSetAccelWidget@ Set the key name from the activation
+-- | Set the key name from the activation
 -- signal of another widget.
 --
 accelLabelSetAccelWidget :: (AccelLabelClass acl, WidgetClass w) => acl -> w ->

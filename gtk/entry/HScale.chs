@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget HScale@
+--  GIMP Toolkit (GTK) Widget HScale
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:51:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
 -- * The user may enter a value by moving the handle on the scale.
 --
--- @documentation@ ------------------------------------------------------------
 --
 --
--- @todo@ ---------------------------------------------------------------------
+-- * TODO
 
 module HScale(
   HScale,
@@ -46,7 +45,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor hScaleNew@ Create a new HScale widget.
+-- | Create a new HScale widget.
 --
 hScaleNew :: Adjustment -> IO HScale
 hScaleNew adj = makeNewObject mkHScale $ liftM castPtr $

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget StatusBar@
+--  GIMP Toolkit (GTK) Widget StatusBar
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:50:26 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,18 +19,17 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * GtkStatusbar -- report messages of minor importance to the user.
---
--- @documentation@ ------------------------------------------------------------
+-- Report messages of minor importance to the user.
 --
 -- * A Statusbar is usually placed along the bottom of an application's main
 --   Window. It may provide a regular commentary of the application's status 
 --   (as is usually the case in a web browser, for example), or may be used to
 --   simply output a message when the status changes, (when an upload is 
 --   complete in an FTP client, for example).
---   Status bars in Gtk+ maintain a stack of messages. The message at the top
+--
+-- * Status bars in Gtk+ maintain a stack of messages. The message at the top
 --   of the each bar's stack is the one that will currently be displayed.
 --   Any messages added to a statusbar's stack must specify a ContextId that
 --   is used to uniquely identify the source of a message. This ContextId can
@@ -43,7 +42,6 @@
 --   removed from anywhere in the stack if it's MessageId was recorded at the
 --   time it was added. This is done using statusbarRemove.
 --
--- @todo@ ---------------------------------------------------------------------
 
 module Statusbar(
   Statusbar,
@@ -73,7 +71,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor statusbarNew@ Create a new Statusbar.
+-- | Create a new Statusbar.
 --
 statusbarNew :: IO Statusbar
 statusbarNew  = makeNewObject mkStatusbar $ 
@@ -81,7 +79,7 @@ statusbarNew  = makeNewObject mkStatusbar $
 
 type ContextId = {#type guint#}
 
--- @method statusbarGetContextId@ Given a context description, this function
+-- | Given a context description, this function
 -- returns a ContextId. This id can be used to later remove entries form the
 -- Statusbar.
 --
@@ -92,32 +90,32 @@ statusbarGetContextId sb description = withUTFString description $
 
 type MessageId = {#type guint#}
 
--- @method statusbarPush@ Push a new message on the Statusbar stack. It will
+-- | Push a new message on the Statusbar stack. It will
 -- be displayed as long as it is on top of the stack.
 --
 statusbarPush :: StatusbarClass sb => sb -> ContextId -> String -> IO MessageId
 statusbarPush sb context msg = withUTFString msg $ {#call statusbar_push#}
   (toStatusbar sb) context
 
--- @method statusbarPop@ Pops the topmost message that has the correct
+-- | Pops the topmost message that has the correct
 -- context.
 --
 statusbarPop :: StatusbarClass sb => sb -> ContextId -> IO ()
 statusbarPop sb context = {#call statusbar_pop#} (toStatusbar sb) context
 
--- @method statusbarRemove@ Remove an entry within the stack.
+-- | Remove an entry within the stack.
 --
 statusbarRemove :: StatusbarClass sb => sb -> ContextId -> MessageId -> IO ()
 statusbarRemove sb context message = {#call statusbar_remove#} (toStatusbar sb)
   context message
 
--- @method statusbarSetHasResizeGrip@ Toggle the displaying of a resize grip.
+-- | Toggle the displaying of a resize grip.
 --
 statusbarSetHasResizeGrip :: StatusbarClass sb => sb -> Bool -> IO ()
 statusbarSetHasResizeGrip sb set = {#call statusbar_set_has_resize_grip#}
   (toStatusbar sb) (fromBool set)
 
--- @method statusbarGetHasResizeGrip@ Query the displaying of the resize grip.
+-- | Query the displaying of the resize grip.
 --
 statusbarGetHasResizeGrip :: StatusbarClass sb => sb -> IO Bool
 statusbarGetHasResizeGrip sb = liftM toBool $
@@ -125,7 +123,7 @@ statusbarGetHasResizeGrip sb = liftM toBool $
 
 -- signals
 
--- @signal connectToTextPopped@ Called if a message is removed.
+-- | Called if a message is removed.
 --
 onTextPopped, afterTextPopped :: StatusbarClass sb => sb ->
                                  (ContextId -> String -> IO ()) ->
@@ -133,7 +131,7 @@ onTextPopped, afterTextPopped :: StatusbarClass sb => sb ->
 onTextPopped = connect_WORD_STRING__NONE "text-popped" False
 afterTextPopped = connect_WORD_STRING__NONE "text-popped" True
 
--- @signal connectToTextPushed@ Called if a message is pushed on top of the
+-- | Called if a message is pushed on top of the
 -- stack.
 --
 onTextPushed, afterTextPushed :: StatusbarClass sb => sb ->

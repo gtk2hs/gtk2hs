@@ -1,12 +1,12 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Entry@
+--  GIMP Toolkit (GTK) Widget Entry
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/04/27 18:51:14 $
+--  Version $Revision: 1.9 $ from $Date: 2004/05/23 15:51:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -20,14 +20,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
 -- * This widget lets the user enter a single line of text.
 --
--- @documentation@ ------------------------------------------------------------
 --
 --
--- @todo@ ---------------------------------------------------------------------
+-- * TODO
 --
 -- * A couple of signals are not bound because I could not figure out what
 --   they mean. Some of them do not seem to be emitted at all.
@@ -102,19 +101,19 @@ import Char	(ord)
 toEditable :: EntryClass ed => ed -> Editable
 toEditable = Editable . castForeignPtr . unEntry . toEntry
 
--- @method entrySelectRegion@ Select a span of text.
+-- | Select a span of text.
 --
--- * A negative @ref arg end@ position will make the selection extend to the
+-- * A negative @end@ position will make the selection extend to the
 --   end of the buffer.
 --
--- * Calling this function with @ref arg start@=1 and @ref arg end@=4 it will
---   mark "ask" in the string "Haskell". (FIXME: verify)
+-- * Calling this function with @start@=1 and @end@=4 it will
+--   mark \"ask\" in the string \"Haskell\". (FIXME: verify)
 --
 entrySelectRegion :: EntryClass ed => ed -> Int -> Int -> IO ()
 entrySelectRegion ed start end = {#call editable_select_region#}
   (toEditable ed) (fromIntegral start) (fromIntegral end)
 
--- @method entryGetSelectionBounds@ Get the span of the current selection.
+-- | Get the span of the current selection.
 --
 -- * The returned tuple is not ordered. The second index represents the
 --   position of the cursor. The first index is the other end of the
@@ -127,7 +126,7 @@ entryGetSelectionBounds ed = alloca $ \startPtr -> alloca $ \endPtr -> do
   end	<- liftM fromIntegral $ peek endPtr
   return (start,end)
 
--- @method entryInsertText@ Insert new text at the specified position.
+-- | Insert new text at the specified position.
 --
 -- * If the position is invalid the text will be inserted at the end of the
 --   buffer. The returned value reflects the actual insertion point.
@@ -139,20 +138,20 @@ entryInsertText ed str pos = withObject (fromIntegral pos) $ \posPtr ->
       posPtr
     liftM fromIntegral $ peek posPtr
 
--- @method entryDeleteText@ Delete a given range of text.
+-- | Delete a given range of text.
 --
--- * If the @ref arg end@ position is invalid, it is set to the lenght of the
+-- * If the @end@ position is invalid, it is set to the lenght of the
 --   buffer.
 --
--- * @ref arg start@ is restricted to 0..@ref arg end@.
+-- * @start@ is restricted to 0..@end@.
 --
 entryDeleteText :: EntryClass ed => ed -> Int -> Int -> IO ()
 entryDeleteText ed start end = {#call editable_delete_text#} (toEditable ed)
   (fromIntegral start) (fromIntegral end)
 
--- @method entryGetChars@ Retrieve a range of characters.
+-- | Retrieve a range of characters.
 --
--- * Set @ref arg end@ to a negative value to reach the end of the buffer.
+-- * Set @end@ to a negative value to reach the end of the buffer.
 --
 entryGetChars :: EntryClass ed => ed -> Int -> Int -> IO String
 entryGetChars ed start end = do
@@ -162,40 +161,40 @@ entryGetChars ed start end = do
   {#call unsafe g_free#} (castPtr strPtr)
   return str
 
--- @method entryCutClipboard@ Cut the selected characters to the Clipboard.
+-- | Cut the selected characters to the Clipboard.
 --
 entryCutClipboard :: EntryClass ed => ed -> IO ()
 entryCutClipboard  = {#call editable_cut_clipboard#}.toEditable
 
--- @method entryCopyClipboard@ Copy the selected characters to the Clipboard.
+-- | Copy the selected characters to the Clipboard.
 --
 entryCopyClipboard :: EntryClass ed => ed -> IO ()
 entryCopyClipboard  = {#call editable_copy_clipboard#}.toEditable
 
--- @method entryPasteClipboard@ Paste the selected characters to the
+-- | Paste the selected characters to the
 -- Clipboard.
 --
 entryPasteClipboard :: EntryClass ed => ed -> IO ()
 entryPasteClipboard  = {#call editable_paste_clipboard#}.toEditable
 
--- @method entryDeleteSelection@ Delete the current selection.
+-- | Delete the current selection.
 --
 entryDeleteSelection :: EntryClass ed => ed -> IO ()
 entryDeleteSelection  = {#call editable_delete_selection#}.toEditable
 
--- @method entrySetPosition@ Set the cursor to a specific position.
+-- | Set the cursor to a specific position.
 --
 entrySetPosition :: EntryClass ed => ed -> Int -> IO ()
 entrySetPosition ed pos = 
   {#call editable_set_position#} (toEditable ed) (fromIntegral pos)
 
--- @method entryGetPosition@ Get the current cursor position.
+-- | Get the current cursor position.
 --
 entryGetPosition :: EntryClass ed => ed -> IO Int
 entryGetPosition ed = liftM fromIntegral $
   {#call unsafe editable_get_position#} (toEditable ed)
 
--- @method entrySetEditable@ Make an @ref type Entry@ insensitive.
+-- | Make an 'Entry' insensitive.
 --
 -- * Called with False will make the text uneditable.
 --
@@ -206,51 +205,51 @@ entrySetEditable ed isEditable = {#call editable_set_editable#}
 
 -- methods
 
--- @constructor entryNew@ Create a new @ref type Entry@ widget.
+-- | Create a new 'Entry' widget.
 --
 entryNew :: IO Entry
 entryNew  = makeNewObject mkEntry $ liftM castPtr $ {#call unsafe entry_new#}
 
--- @method entrySetText@ Set the text of the @ref type Entry@ widget.
+-- | Set the text of the 'Entry' widget.
 --
 entrySetText :: EntryClass ec => ec -> String -> IO ()
 entrySetText ec str = withUTFString str $ {#call entry_set_text#} (toEntry ec)
 
--- @method entryGetText@ Get the text of the @ref type Entry@ widget.
+-- | Get the text of the 'Entry' widget.
 --
 entryGetText :: EntryClass ec => ec -> IO String
 entryGetText ec = {#call entry_get_text#} (toEntry ec) >>= peekUTFString
 
--- @method entryAppendText@ Append to the text of the @ref type Entry@ widget.
+-- | Append to the text of the 'Entry' widget.
 --
 entryAppendText :: EntryClass ec => ec -> String -> IO ()
 entryAppendText ec str = 
   withUTFString str $ {#call entry_append_text#} (toEntry ec)
 
--- @method entryPrependText@ Prepend the text of the @ref type Entry@ widget.
+-- | Prepend the text of the 'Entry' widget.
 --
 entryPrependText :: EntryClass ec => ec -> String -> IO ()
 entryPrependText ec str = 
   withUTFString str $ {#call entry_prepend_text#} (toEntry ec)
 
--- @method entrySetVisibility@ Set whether to use password mode (display stars
+-- | Set whether to use password mode (display stars
 -- instead of the text).
 --
 -- * The replacement character can be changed with
---   @ref method entrySetInvisibleChar@.
+--   'entrySetInvisibleChar'.
 --
 entrySetVisibility :: EntryClass ec => ec -> Bool -> IO ()
 entrySetVisibility ec visible =
   {#call entry_set_visibility#} (toEntry ec) (fromBool visible)
 
--- @method entrySetInvisibleChar@ Set the replacement character for invisible
+-- | Set the replacement character for invisible
 -- text.
 --
 entrySetInvisibleChar :: EntryClass ec => ec -> Char -> IO ()
 entrySetInvisibleChar ec ch =
   {#call unsafe entry_set_invisible_char#} (toEntry ec) ((fromIntegral.ord) ch)
 
--- @method entrySetMaxLength@ Sets a maximum length the text may grow to.
+-- | Sets a maximum length the text may grow to.
 --
 -- * A negative number resets the restriction.
 --
@@ -258,45 +257,45 @@ entrySetMaxLength :: EntryClass ec => ec -> Int -> IO ()
 entrySetMaxLength ec max = 
   {#call entry_set_max_length#} (toEntry ec) (fromIntegral max)
 
--- @method entryGetActivatesDefault@ Query whether pressing return will
+-- | Query whether pressing return will
 -- activate the default widget.
 --
 entryGetActivatesDefault :: EntryClass ec => ec -> IO Bool
 entryGetActivatesDefault ec = liftM toBool $
   {#call unsafe entry_get_activates_default#} (toEntry ec)
 
--- @method entrySetActivatesDefault@ Specify if pressing return will activate
+-- | Specify if pressing return will activate
 -- the default widget.
 --
--- * This setting is useful in @ref data Dialog@ boxes where enter should press
+-- * This setting is useful in 'Dialog' boxes where enter should press
 --   the default button.
 --
 entrySetActivatesDefault :: EntryClass ec => ec -> Bool -> IO ()
 entrySetActivatesDefault ec setting = {#call entry_set_activates_default#}
   (toEntry ec) (fromBool setting)
 
--- @method entryGetHasFrame@ Query if the text @ref type Entry@ is displayed
+-- | Query if the text 'Entry' is displayed
 -- with a frame around it.
 --
 entryGetHasFrame :: EntryClass ec => ec -> IO Bool
 entryGetHasFrame ec = liftM toBool $
   {#call unsafe entry_get_has_frame#} (toEntry ec)
 
--- @method entrySetHasFrame@ Specifies whehter the @ref type Entry@ should be
+-- | Specifies whehter the 'Entry' should be
 -- in an etched-in frame.
 --
 entrySetHasFrame :: EntryClass ec => ec -> Bool -> IO ()
 entrySetHasFrame ec setting = {#call entry_set_has_frame#}
   (toEntry ec) (fromBool setting)
 
--- @method entryGetWidthChars@ Retrieve the number of characters the widget
+-- | Retrieve the number of characters the widget
 -- should ask for.
 --
 entryGetWidthChars :: EntryClass ec => ec -> IO Int
 entryGetWidthChars ec = liftM fromIntegral $ 
   {#call unsafe entry_get_width_chars#} (toEntry ec)
 
--- @method entrySetWidthChars@ Specifies how large the @ref type Entry@ should
+-- | Specifies how large the 'Entry' should
 -- be in characters.
 --
 -- * This setting is only considered when the widget formulates its size
@@ -308,7 +307,7 @@ entrySetWidthChars ec setting = {#call entry_set_width_chars#}
   (toEntry ec) (fromIntegral setting)
 
 #if GTK_CHECK_VERSION(2,4,0)
--- @method entrySetCompletion@ Sets the auxiliary completion object to use with
+-- | Sets the auxiliary completion object to use with
 -- the entry. All further configuration of the completion mechanism is done on
 -- completion using the GtkEntryCompletion API.
 --
@@ -318,7 +317,7 @@ entrySetCompletion :: EntryClass ec => ec -> EntryCompletion -> IO ()
 entrySetCompletion ec completion = {#call gtk_entry_set_completion#}
   (toEntry ec) completion
 
--- @method entryGetCompletion@ Returns the auxiliary completion object currently
+-- | Returns the auxiliary completion object currently
 -- in use by entry
 --
 -- * Since gtk 2.4
@@ -332,23 +331,23 @@ entryGetCompletion ec =
 
 -- signals
 
--- @signal connectToEntryActivate@ Emitted when the user presses return within
--- the @ref data Entry@ field.
+-- | Emitted when the user presses return within
+-- the 'Entry' field.
 --
 onEntryActivate, afterEntryActivate :: EntryClass ec => ec -> IO () ->
                                        IO (ConnectId ec)
 onEntryActivate = connect_NONE__NONE "activate" False
 afterEntryActivate = connect_NONE__NONE "activate" True
 
--- @signal connectToEntryChanged@ Emitted when the settings of the
--- @ref data Entry@ widget changes.
+-- | Emitted when the settings of the
+-- 'Entry' widget changes.
 --
 onEntryChanged, afterEntryChanged :: EntryClass ec => ec -> IO () ->
                                      IO (ConnectId ec)
 onEntryChanged = connect_NONE__NONE "changed" False
 afterEntryChanged = connect_NONE__NONE "changed" True
 
--- @signal connectToCopyClipboard@ Emitted when the current selection has been
+-- | Emitted when the current selection has been
 -- copied to the clipboard.
 --
 onCopyClipboard, afterCopyClipboard :: EntryClass ec => ec -> IO () ->
@@ -356,7 +355,7 @@ onCopyClipboard, afterCopyClipboard :: EntryClass ec => ec -> IO () ->
 onCopyClipboard = connect_NONE__NONE "copy_clipboard" False
 afterCopyClipboard = connect_NONE__NONE "copy_clipboard" True
 
--- @signal connectToCutClipboard@ Emitted when the current selection has been
+-- | Emitted when the current selection has been
 -- cut to the clipboard.
 --
 onCutClipboard, afterCutClipboard :: EntryClass ec => ec -> IO () ->
@@ -364,7 +363,7 @@ onCutClipboard, afterCutClipboard :: EntryClass ec => ec -> IO () ->
 onCutClipboard = connect_NONE__NONE "cut_clipboard" False
 afterCutClipboard = connect_NONE__NONE "cut_clipboard" True
 
--- @signal connectToPasteClipboard@ Emitted when the current selection has
+-- | Emitted when the current selection has
 -- been pasted from the clipboard.
 --
 onPasteClipboard, afterPasteClipboard :: EntryClass ec => ec -> IO () ->
@@ -372,15 +371,15 @@ onPasteClipboard, afterPasteClipboard :: EntryClass ec => ec -> IO () ->
 onPasteClipboard = connect_NONE__NONE "paste_clipboard" False
 afterPasteClipboard = connect_NONE__NONE "paste_clipboard" True
 
--- @signal connectToDeleteText@ Emitted when a piece of text is deleted from
--- the @ref data Entry@.
+-- | Emitted when a piece of text is deleted from
+-- the 'Entry'.
 --
 onDeleteText, afterDeleteText :: EntryClass ec => ec ->
                                  (Int -> Int -> IO ()) -> IO (ConnectId ec)
 onDeleteText = connect_INT_INT__NONE "delete_text" False
 afterDeleteText = connect_INT_INT__NONE "delete_text" True
 
--- @signal connectToInsertAtCursor@ Emitted when a piece of text is inserted
+-- | Emitted when a piece of text is inserted
 -- at the cursor position.
 --
 onInsertAtCursor, afterInsertAtCursor :: EntryClass ec => ec ->
@@ -389,7 +388,7 @@ onInsertAtCursor, afterInsertAtCursor :: EntryClass ec => ec ->
 onInsertAtCursor = connect_STRING__NONE "insert_at_cursor" False
 afterInsertAtCursor = connect_STRING__NONE "insert_at_cursor" True
 
--- @signal connectToToggleOverwrite@ Emitted when the user changes from
+-- | Emitted when the user changes from
 -- overwriting to inserting.
 --
 onToggleOverwrite, afterToggleOverwrite :: EntryClass ec => ec -> IO () ->

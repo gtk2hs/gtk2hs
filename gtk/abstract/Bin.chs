@@ -1,5 +1,5 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Bin@
+--  GIMP Toolkit (GTK) Widget Bin
 --
 --  Author : Duncan Coutts
 --          
@@ -17,9 +17,9 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This abstract widget implements a container with just one child.
+-- This abstract widget implements a container with just one child.
 --
 module Bin (
   Bin,
