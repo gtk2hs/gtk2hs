@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.10 $ from $Date: 2004/05/02 23:52:07 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -41,7 +41,8 @@ module TreeStore(
   treeStorePrepend,
   treeStoreAppend,
   treeStoreIsAncestor,
-  treeStoreIterDepth
+  treeStoreIterDepth,
+  treeStoreClear
   ) where
 
 import Monad	(liftM)
@@ -186,3 +187,9 @@ treeStoreIterDepth :: (TreeStoreClass ts) => ts -> TreeIter -> IO Int
 treeStoreIterDepth ts iter = liftM fromIntegral $
   {#call unsafe tree_store_iter_depth#} (toTreeStore ts) iter
 
+-- @method treeStoreClear@ Removes all rows from the store.
+--
+treeStoreClear :: (TreeStoreClass ts) => ts -> IO ()
+treeStoreClear ts =
+  {#call tree_store_clear#} (toTreeStore ts)
+  
