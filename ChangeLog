@@ -11,6 +11,10 @@
 	the MOSTLYCLEANFILES to reflect the changed location of the .deps
 	files.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs: remove
+	widgetLockAccelerators and widgetUnlockAccelerators as they do not
+	exist in Gtk+ anymore (probably since version 2.0).
+
 2005-03-01 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/CodeGen.hs: do deprecated and version ifdefs a bit

@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/04 22:10:44 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -108,8 +108,6 @@ module Graphics.UI.Gtk.Abstract.Widget (
   TextDirection(..),
   widgetSetDirection,		-- General Setup.
   widgetGetDirection,
---  widgetLockAccelerators,
---  widgetUnlockAccelerators,
 
 -- * Signals
   Event(..),
@@ -396,19 +394,6 @@ widgetSetDirection w td =
 widgetGetDirection :: WidgetClass w => w -> IO TextDirection
 widgetGetDirection w = liftM (toEnum.fromIntegral) $ 
   {#call widget_get_direction#} (toWidget w)
-
--- Accelerator handling.
-
--- Lock accelerators.
---
---widgetLockAccelerators :: WidgetClass w => w -> IO ()
---widgetLockAccelerators = {#call unsafe widget_lock_accelerators#}.toWidget
-
-
--- Unlock accelerators.
---
---widgetUnlockAccelerators :: WidgetClass w => w -> IO ()
---widgetUnlockAccelerators = {#call widget_unlock_accelerators#}.toWidget
 
 --------------------
 -- Signals
