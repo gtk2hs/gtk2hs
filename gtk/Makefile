@@ -24,6 +24,7 @@ GValue-HEADER		= glib-object.h
 GValueTypes-HEADER	= glib-object.h
 GList-HEADER		= glib.h
 GdkEnums-HEADER		= gdk/gdk.h
+GdkKeys-HEADER		= gdk/gdkkeys.h
 IconFactory-HEADER	= gtk/gtkiconfactory.h
 Signal-HEADER		= gtk/gtksignal.h
 Enums-HEADER		= gtk/gtk.h
@@ -34,6 +35,7 @@ Hierarchy-HEADER	= gtk/gtk.h
 Window-HEADER		= gtk/gtkwindow.h
 Dialog-HEADER		= gtk/gtkdialog.h
 Plug-HEADER		= gtk/gtkplug.h
+FileSel-HEADER		= gtk/gtkfilesel.h
 # abstract
 Object-HEADER		= gtk/gtkobject.h
 Widget-HEADER		= gtk/gtkwidget.h
