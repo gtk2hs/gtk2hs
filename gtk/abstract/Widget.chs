@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2002/10/21 02:45:53 $
+--  Version $Revision: 1.8 $ from $Date: 2002/10/21 11:58:05 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -465,7 +465,7 @@ afterFocusOut = event "focus_out_event" [FocusChangeMask] True
 onGrabFocus, afterGrabFocus :: WidgetClass w => w -> IO () ->
                                IO (ConnectId w)
 onGrabFocus = connect_NONE__NONE  "grab_focus" False
-afterGrabFocus = connect_NONE__NONE "grab_focus" [] True
+afterGrabFocus = connect_NONE__NONE "grab_focus" True
 
 -- @signal connectToDestroy@ The widget will be destroyed.
 --
