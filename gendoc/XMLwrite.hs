@@ -5,6 +5,7 @@ import Abstract
 import Text.PrettyPrint
 import Data.PackedString
 import Data.FiniteMap
+import Data.List	(nub)
 
 type Name  = String
 type Value = String
@@ -36,6 +37,20 @@ xmlToDoc (Element name attr []:Verbatim value:rem) =
 xmlToDoc (Element name attr []:rem) = 
   (lStart <> text name <+> sep (map attrToDoc attr) <> rStop):
   xmlToDoc rem
+xmlToDoc (Element name attr (Verbatim val1:con):Verbatim value:rem) = 
+  fcat [
+    (lStart <> text name <+> sep (map attrToDoc attr) <> rStart <>
+    val1),
+    nest 2 (fsep (xmlToDoc con)),
+    lStop <> text name <> rStart <> value
+  ]:xmlToDoc rem
+xmlToDoc (Element name attr (Verbatim val1:con):rem) = 
+  fcat [
+    (lStart <> text name <+> sep (map attrToDoc attr) <> rStart <> 
+    val1),
+    nest 2 (fsep (xmlToDoc con)),
+    lStop <> text name <> rStart
+  ]:xmlToDoc rem
 xmlToDoc (Element name attr con:Verbatim value:rem) = 
   fcat [
     (lStart <> text name <+> sep (map attrToDoc attr) <> rStart),
@@ -111,38 +126,36 @@ docuToXML docu = Element "para" [] (dTX para):docuToXML rem
 moduleToXML :: Module -> ModInfo -> XML
 moduleToXML mName (ModInfo { modCat=cat, modSynop=syn, modIntro=int,
   modTodo=todo, modSymTab=st, modCtxt=ctxt }) =
-  Element "refentry" [] [
+  Element "refentry" [] $ [
     Element "refnamediv" [] [
       Element "refname" [] [Plain (text (unpackPS mName))],
       Element "refpurpose" [] (docuToXML syn)
     ],
     Element "refsynopsisdiv" [] [
       Element "informaltable" [
-        Attribute "frame" "side",
+        Attribute "frame" "None",
 	Attribute "colsep" "0",
 	Attribute "rowsep" "0"] [
 	Element "tgroup" [
 	  Attribute "align" "left",
 	  Attribute "cols" "1"] [
 	  Element "tbody" [] (
-	    map makeSynopsis cons++
-	    map makeSynopsis const++
-	    map makeSynopsis func++
-	    map makeSynopsis meth++
-	    map makeSynopsis sign
+	    map (makeSynopsis ctxt) cons++
+	    map (makeSynopsis ctxt) const++
+	    map (makeSynopsis ctxt) func++
+	    map (makeSynopsis ctxt) meth++
+	    map (makeSynopsis ctxt) sign
 	  )
 	]
       ]
-    ],
-    Element "refsect1" [] (
-      Element "title" [] [Plain (text "Introduction")]:
-      docuToXML int
-    ),
-    Element "refsect1" [] (
-      Element "title" [] [Plain (text "Todo")]:
-      docuToXML todo
-    )
-  ]
+    ]
+  ]++makeSect "Introduction" (docuToXML int)
+  ++makeSect "Todo" (docuToXML todo)
+  ++makeSect "Constructors" (map makeSymDescr cons)
+  ++makeSect "Methods" (map makeSymDescr meth)
+  ++makeSect "Functions" (map makeSymDescr func)
+  ++makeSect "Constants" (map makeSymDescr const)
+  ++makeSect "Signals" (map makeSymDescr sign)
   where
     (cons, meth, func, const, sign) = partitionSym (fmToList st)
     partitionSym [] = ([],[],[],[],[])
@@ -161,16 +174,45 @@ moduleToXML mName (ModInfo { modCat=cat, modSynop=syn, modIntro=int,
     partitionSym (all@(_,SymInfo { symKind=Signal }):syms) = let
       (cons, meth, func, const, sign) = partitionSym syms
       in (cons, meth, func, const, all:sign)
+    makeSect :: String -> [XML] -> [XML]
+    makeSect name [] = []
+    makeSect name docu = [
+      Element "refsect1" [] (
+        Element "title" [] [Plain (text name)]:docu
+      )]
 
-makeSynopsis :: (DaVar,SymInfo) -> XML
-makeSynopsis (var, SymInfo { symType=mTy }) =
+makeSynopsis :: FiniteMap TyVar TyCon -> (DaVar,SymInfo) -> XML
+makeSynopsis contexts (var, SymInfo { symType=Just ty }) =
   Element "row" [] [
     Element "entry" [] [
-      Element "hafunsynopsis" [] [
-        Element "function" [] [Plain (text (unpackPS var))],
-	case mTy of
-	  (Just ty) -> hTypeToXML ty
-	  Nothing -> hTypeToXML (TyVar (packString "a")) -- no type declaration
-      ]
+        Element "programlisting" [] [
+	  Verbatim $ text $ unpackPS var++" :: "++showContext ctxt++show ty
+	]
     ]
   ]
+  where
+    ctxt = concatMap getContext (nub (getTyVars ty))
+    getContext :: TyVar -> HContext
+    getContext var = case contexts `lookupFM` var of
+      (Just con) -> [(var, con)]
+      Nothing -> []
+makeSynopsis contexts (var, _) =
+  Element "row" [] [
+    Element "entry" [] [
+        Element "programlisting" [] [
+	  Verbatim $ text $ unpackPS var++" &lt;no type information&gt;"
+	]
+    ]
+  ]
+
+    
+
+makeSymDescr :: (DaVar, SymInfo) -> XML
+makeSymDescr (var, SymInfo { symKind=k, symDocu=doc, 
+			     symType=Just ty, symArgs=args }) =
+  Element "refsect2" [] (
+    Element "title" [] [Plain $ text $ unpackPS var]:
+    docuToXML doc
+  )
+makeSymDescr (var, _) = Element "refsect2" [] 
+   [Plain $ text ("no type info on symbol "++unpackPS var)]

@@ -1,5 +1,6 @@
 <?xml version="1.0" standalone="no"?>
-<!DOCTYPE book SYSTEM "gtk2hs.dtd" [
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+           "http://www.oasis-open.org/docbook/xml/4.0/docbookx.dtd" [
 <!ENTITY apiref SYSTEM "reference.xml">
 ]> 
 

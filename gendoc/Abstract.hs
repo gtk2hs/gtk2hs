@@ -63,3 +63,17 @@ instance Show HType where
   showsPrec _ (TyLst t)     = showChar '[' . showsPrec 0 t . showChar ']'
   showsPrec _ t = showChar '(' . showsPrec 0 t . showChar ')'
 
+showContext :: HContext -> String
+showContext [] = ""
+showContext [(var, con)] = unpackPS con ++ ' ':unpackPS var ++ " => "
+showContext cons = '(': (concat $ intersperse ", " $ 
+		   map (\(var,con) -> unpackPS con ++ ' ':unpackPS var) cons)
+		   ++") => "
+
+getTyVars :: HType -> [TyVar]
+getTyVars (TyFun t1 t2) = getTyVars t1++getTyVars t2
+getTyVars (TyApp t1 t2) = getTyVars t1++getTyVars t2
+getTyVars (TyCon t) = []
+getTyVars (TyVar t) = [t]
+getTyVars (TyPar tys) = concatMap getTyVars tys
+getTyVars (TyLst t) = getTyVars t
