@@ -6,6 +6,14 @@
 	the old build system. This makefile will not build in-place it
 	requires everything to be installed.
 
+	* tools/apiGen/ApiGen.hs, tools/apiGen/format-docs.xsl,
+	tools/apiGen/gen-all.sh, tools/apiGen/Template.chs: add support for
+	documentation of function arguments. It's mostly and improvement I
+	think though it does add a lot of extra stuff to the final
+	documentation. On the other hand the gtk documentation for functions
+	often refer to argument names so the generated haddoc docs make more
+	sense now.
+
 2005-01-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/glib.pkg.in, gtk/gtk.pkg.in, mogul/mogul.pkg.in,

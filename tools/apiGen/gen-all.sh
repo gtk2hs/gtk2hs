@@ -28,10 +28,12 @@ do
 		xsltproc format-docs.xsl $DOCBOOKFILE > $DOCFILE || exit
 
 		echo ./ApiGen $APIFILE Template.chs --doc=$DOCFILE --outdir=modules
-		./ApiGen $APIFILE Template.chs --doc=$DOCFILE --outdir=modules || exit
+		./ApiGen $APIFILE Template.chs --doc=$DOCFILE \
+			--outdir=modules --modprefix=Graphics.UI.Gtk.[category] || exit
 	else
 		echo ./ApiGen $APIFILE Template.chs --outdir=modules
-		./ApiGen $APIFILE Template.chs --outdir=modules || exit
+		./ApiGen $APIFILE Template.chs --outdir=modules \
+			--modprefix=Graphics.UI.Gtk.[category]|| exit
 		echo $HEADDER: could not find $DOCBOOKFRAG >> modules/missing_docs
 	fi
 done

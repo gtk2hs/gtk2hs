@@ -29,7 +29,7 @@ module @MODULE_NAME@ (
 @EXPORTS@
   ) where
 
-import Monad (liftM)
+import Monad	(liftM)
 
 import System.Glib.FFI
 @IMPORTS@

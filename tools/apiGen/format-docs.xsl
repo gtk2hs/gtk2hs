@@ -98,6 +98,14 @@
       <doc>
 	<xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
       </doc>
+      <params>
+	<xsl:for-each select="variablelist/varlistentry">
+	  <param>
+	    <name><xsl:value-of select="term/parameter | term/emphasis"/></name>
+	    <xsl:apply-templates select="listitem/simpara"/>
+	  </param>
+	</xsl:for-each>
+      </params>
     </function>
   </xsl:for-each>
   </apidoc>
