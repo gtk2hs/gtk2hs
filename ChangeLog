@@ -21,6 +21,17 @@
 	.chs.pp files as well as .chs file when calculating the deps. This is
 	possibly a bit of a hack.
 
+	* gtk/Graphics/UI/Gtk/Misc/GArrow.chs,
+	  gtk/Graphics/UI/Gtk/Misc/Arrow.chs: rename module from GArrow.chs
+	and also make various documentation and formatting changes.
+
+	* gtk/Graphics/UI/Gtk/Windows/FileSel.chs.pp,
+	  gtk/Graphics/UI/Gtk/Selectors/FileSelection.chs.pp: rename module
+	and move it to a more appropriate category. Also make various
+	documentation and formatting changes.
+
+	* Makefile.am: change names of the two modules, GArrow and FileSel.
+
 2005-02-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,

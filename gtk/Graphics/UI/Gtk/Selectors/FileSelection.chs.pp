@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.1 $ from $Date: 2005/02/13 16:25:57 $
+--  Version $Revision: 1.1 $ from $Date: 2005/02/26 02:17:27 $
 --
 --  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
@@ -19,25 +19,66 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- Fix fileSelectionQueryButtons
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The file selection widget is a quick and simple way to display a File
--- dialog box.  It comes complete with Ok & Cancel buttons; optionally, it
--- can have file operation buttons.
+-- Prompt the user for a file or directory name.
 --
--- * As of gtk 2.4 this module has been deprecated in favour of "FileChooser"
+-- * As of Gtk+ 2.4 this module has been deprecated in favour of 'FileChooser'
 --
--- TODO
+module Graphics.UI.Gtk.Selectors.FileSelection (
+-- * Description
+-- 
+-- | 'FileSelection' should be used to retrieve file or directory names from
+-- the user. It will create a new dialog window containing a directory list,
+-- and a file list corresponding to the current working directory. The
+-- filesystem can be navigated using the directory list or the drop-down
+-- history menu. Alternatively, the TAB key can be used to navigate using
+-- filename completion - common in text based editors such as emacs and jed.
 --
--- * Fix fileSelectionQueryButtons
+-- File selection dialogs are created with a call to 'fileSelectionNew'.
 --
-module Graphics.UI.Gtk.Windows.FileSel (
-  FileSelectionClass,
+-- The default filename can be set using 'fileSelectionSetFilename' and the
+-- selected filename retrieved using 'fileSelectionGetFilename'.
+--
+-- Use 'fileSelectionComplete' to display files and directories that match a
+-- given pattern. This can be used for example, to show only *.txt files, or
+-- only files beginning with gtk*.
+--
+-- Simple file operations; create directory, delete file, and rename file,
+-- are available from buttons at the top of the dialog. These can be hidden
+-- using 'fileSelectionHideFileopButtons' and shown again using
+-- 'fileSelectionShowFileopButtons'.
+--
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Window'
+-- |                                 +----'Dialog'
+-- |                                       +----FileSelection
+-- @
+
+-- * Types
   FileSelection,
+  FileSelectionClass,
+  castToFileSelection,
+
+-- * Constructors
   fileSelectionNew,
+
+-- * Methods
   fileSelectionSetFilename,
   fileSelectionGetFilename,
   fileSelectionShowFileopButtons,
@@ -54,20 +95,25 @@ import System.Glib.UTFString
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 import Graphics.UI.Gtk.General.Structs		(fileSelectionGetButtons)
 
-{#context lib="libgtk" prefix ="gtk"#}
+{# context lib="libgtk" prefix="gtk" #}
 
-
--- operations
--- ----------
+--------------------
+-- Constructors
 
 -- | Create a new file selection dialog with 
 -- the given window title.
 --
-fileSelectionNew       :: String -> IO FileSelection
-fileSelectionNew title  = do
-  withUTFString title $ \strPtr -> 
-    makeNewObject mkFileSelection $ liftM castPtr $ 
-			{#call unsafe file_selection_new#} strPtr
+fileSelectionNew ::
+    String
+ -> IO FileSelection
+fileSelectionNew title =
+  makeNewObject mkFileSelection $ liftM castPtr $
+  withUTFString title $ \titlePtr ->
+  {# call unsafe file_selection_new #}
+    titlePtr
+
+--------------------
+-- Methods
 
 -- | Set the filename for the given file 
 -- selection dialog.
