@@ -1,3 +1,6 @@
+2002-12-03 Axel Simon <A.Simon@ukc.ac.uk>
+	* config.guess, config.sub: updated from GNU website
+
 2002-11-08 Axel Simon <A.Simon@ukc.ac.uk>
 	* gtk/menuComboToolbar/Menu.chs
 	gtk/treeList/ListStore.chs gtk/treeList/TreeModel.chs: Documentation
