@@ -1,4 +1,4 @@
-dnl Mogul - a monad based gui library
+dnl Gtk2hs - a wrapper around Gtk+ for Haskell 
 dnl
 dnl Copyright (c) 2001, 2002 Axel Simon <as49@ukc.ac.uk>
 dnl with parts stolen from Manuel Chakravaty, Sven Panne and Micheal Weber
@@ -64,66 +64,31 @@ dnl The binary serialisation in c2hs depends on the machine word size
 dnl FIXME: this should probably be taken from ghc's config.h
 AC_CHECK_SIZEOF(void *, 4)
 
-dnl On some systems (Solaris,...) asking sh for the current directory
-dnl (with a built-in pwd) and asking make for the current directory
-dnl gives different results. Thus, if possible, we use the same external
-dnl program for determining the current path.
-dnl The AC_PATH_PROG macro does not work because pwd is a built-in and
-dnl therefore evaluated in the body of the expanded macro.
-AC_MSG_CHECKING(for external pwd)
-PWD=`which pwd 2> /dev/null`
-if test -z "$PWD"; then
-  AC_MSG_RESULT([none found])
-  PWD="pwd";
-else
-  AC_MSG_RESULT($PWD)
-fi;
-
 dnl Figure out file extensions.
 AC_EXEEXT
 
 dnl Check for library pre- and suffixes.
 if test x$EXEEXT = x; then
   dnl must be unix
-  SLSUFFIX=".a";
-  SLPREFIX="lib";
-  DLSUFFIX=".so";
-  DLPREFIX="lib";
-  dnl the hash sign is a comment for sed
-  PATHSED=["\#"];
   HSCFLAGS=;
   C2HSFLAGS=" -C-D__signed=signed";
   dnl Where are we? (only used during configuration)
-  TOP=`$PWD`;
   CREATE_TYPES="plugNsocket default";
+  STARTUP_CODE=;
 else
   dnl must be Win32
-  SLSUFFIX=".lib";
-  SLPREFIX="";
-  DLSUFFIX=".dll";
-  DLPREFIX="";
-  dnl replace something like /c/ with c:/
-  case $host_os in
-    *cygwin* ) PATHSED=["s+/cygdrive/\([a-z]\)/+\1:/+"];;
-    *mingw32* ) PATHSED=["s+/\([a-z]\)/+\1:/+"];;
-    * ) PATHSED=["\#"];; 
-  esac;
   HSCFLAGS="-C -optc-mms-bitfields"
   C2HSFLAGS=;
   dnl Where are we? (only used during configuration)
-  TOP=`$PWD | $SED $PATHSED`;
   WIN32=yes;
   CREATE_TYPES=default;
+  # It would be nice to say -Wl,--subsystem,windows which seems to be the
+  # normal way. However, Solaris' sed is broken and won't deal with the
+  # commas correctly: Symptom: "./configure: Bad substitution"
+  STARTUP_CODE="-Xlinker --subsystem -Xlinker windows";
 fi;
 
 AM_CONDITIONAL(WIN32, test "$WIN32" = "yes")
-
-dnl determine a temporary directory for c2hs
-TMPDIR="/tmp"
-if test "$WIN32" = "yes"; then
-  TMPDIR="C:\TMP"
-fi
-AC_SUBST(TMPDIR)
 
 dnl Check for libraries.
 
@@ -411,23 +376,23 @@ dnl does not like that, so we need to filter out non-existent directories.
 dnl Furthermore we remove all libraries and directories for packages that
 dnl built on top of gtk so that they don't appear several times on the
 dnl command line.
-GLIB_CFLAGS=`tools/checkDirs.sh $GLIB_CFLAGS`;
-GLIB_LIBS=`tools/checkDirs.sh $GLIB_LIBS`;
+GLIB_CFLAGS=`SED=$SED GREP=$GREP tools/checkDirs.sh $GLIB_CFLAGS`;
+GLIB_LIBS=`SED=$SED GREP=$GREP tools/checkDirs.sh $GLIB_LIBS`;
 
-GTK_CFLAGS=`CFLAGS="$GLIB_CFLAGS" tools/checkDirs.sh $GTK_CFLAGS`;
-GTK_LIBS=`LDFLAGS="$GLIB_LIBS" tools/checkDirs.sh $GTK_LIBS`;
+GTK_CFLAGS=`CFLAGS="$GLIB_CFLAGS" SED=$SED GREP=$GREP tools/checkDirs.sh $GTK_CFLAGS`;
+GTK_LIBS=`LDFLAGS="$GLIB_LIBS" SED=$SED GREP=$GREP tools/checkDirs.sh $GTK_LIBS $STARTUP_CODE`;
 
-SOURCEVIEW_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" tools/checkDirs.sh $SOURCEVIEW_CFLAGS`;
-SOURCEVIEW_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" tools/checkDirs.sh $SOURCEVIEW_LIBS`;
+SOURCEVIEW_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" SED=$SED GREP=$GREP tools/checkDirs.sh $SOURCEVIEW_CFLAGS`;
+SOURCEVIEW_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" SED=$SED GREP=$GREP tools/checkDirs.sh $SOURCEVIEW_LIBS`;
 
-LIBGLADE_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" tools/checkDirs.sh $LIBGLADE_CFLAGS`;
-LIBGLADE_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" tools/checkDirs.sh $LIBGLADE_LIBS`;
+LIBGLADE_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" SED=$SED GREP=$GREP tools/checkDirs.sh $LIBGLADE_CFLAGS`;
+LIBGLADE_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" SED=$SED GREP=$GREP tools/checkDirs.sh $LIBGLADE_LIBS`;
 
-GCONF_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" tools/checkDirs.sh $GCONF_CFLAGS`;
-GCONF_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" tools/checkDirs.sh $GCONF_LIBS`;
+GCONF_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" SED=$SED GREP=$GREP tools/checkDirs.sh $GCONF_CFLAGS`;
+GCONF_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" SED=$SED GREP=$GREP tools/checkDirs.sh $GCONF_LIBS`;
 
 MOZEMBED_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" tools/checkDirs.sh $MOZEMBED_CFLAGS`;
-MOZEMBED_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" tools/checkDirs.sh $MOZEMBED_LIBS`;
+MOZEMBED_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" SED=$SED GREP=$GREP tools/checkDirs.sh $MOZEMBED_LIBS`;
 
 
 dnl Change the representation of these flags to "flag1","flag2". The
@@ -515,18 +480,12 @@ AC_ARG_WITH(mlist,
 	    [  --with-mlist=GTK-SOURCE use special marshall list from GTK+ sources],
 	    [MARSHALLDEFS=$withval;
 	     AC_MSG_RESULT($withval)],
-	    [MARSHALLDEFS='$(TOP)/tools/callbackGen/gtkmarshal.list';
+	    [MARSHALLDEFS='tools/callbackGen/gtkmarshal.list';
 	     AC_MSG_RESULT(built-in)])
 
 
 
 dnl c2hs Dilemma.
-dnl We provide a local copy of Manuel's c2hs which is patched so that is can
-dnl process several .chs files at the same invocation. This patch was not
-dnl incooperated into the main c2hs version since Manuel wants to do some
-dnl other fundamental changes first. The nice thing is that with the built-in
-dnl c2hs this whole package can be built without any other libraries.
-
 dnl Check if the user supplied a specific C->Haskell installation or wants to
 dnl use the version in the current search path (--with-c2hs-config=yes). 
 dnl The default is to use the built-in version.
@@ -564,7 +523,7 @@ AC_MSG_CHECKING([kind of C->Haskell])
 if test $BUILT_IN_C2HS = yes; then
   AC_MSG_RESULT([built-in])
   dnl Use the local c2hs.
-  C2HS='$(TOP)/tools/c2hs/c2hsLocal$(EXEEXT)';
+  C2HS='./tools/c2hs/c2hsLocal$(EXEEXT)';
 
   dnl These are the settings needed to compile c2hs.
   LEGACY_FFI=no;
@@ -631,8 +590,6 @@ AC_ARG_WITH(ghc-docdir,
 	    [GHC_DOCDIR=$withval])
 
 dnl Needed substitution.
-AC_SUBST(PWD)
-AC_SUBST(TOP)
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(FOUR_WORD_CALLBACK)
@@ -645,12 +602,6 @@ AC_SUBST(HSCPP)
 AC_SUBST(MARSHALLDEFS)
 AC_SUBST(VERSION)
 dnl Platform specific flags 
-AC_SUBST(DLPREFIX)
-AC_SUBST(DLSUFFIX)
-AC_SUBST(SLPREFIX)
-AC_SUBST(SLSUFFIX)
-AC_SUBST(WIN32)
-AC_SUBST(PATHSED)
 AC_SUBST(HSCFLAGS)
 AC_SUBST(C2HSFLAGS)
 AC_SUBST(EXTRA_HFILES)

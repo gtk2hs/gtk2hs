@@ -396,14 +396,14 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs				\
-	gtk/Graphics/UI/Gtk/Windows/FileSel.chs				\
+	gtk/Graphics/UI/Gtk/Windows/FileSel.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/GC.chs					\
 	gtk/Graphics/UI/Gtk/Gdk/Gdk.chs					\
 	gtk/Graphics/UI/Gtk/Gdk/Enums.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/Keys.chs				\
-	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs				\
+	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp				\
 	gtk/Graphics/UI/Gtk/Pango/Description.chs			\
 	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp				\
 	gtk/Graphics/UI/Gtk/Pango/Layout.chs				\

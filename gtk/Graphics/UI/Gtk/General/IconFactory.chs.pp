@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/13 16:25:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -295,7 +295,11 @@ iconSourceGetDirection is = do
 --
 iconSourceGetFilename :: IconSource -> IO (Maybe String)
 iconSourceGetFilename is = do
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) 
+  strPtr <- {#call unsafe icon_source_get_filename_utf8#} is
+#else
   strPtr <- {#call unsafe icon_source_get_filename#} is
+#endif
   if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
 -- | Retrieve the 'IconSize' of this
@@ -372,7 +376,11 @@ iconSourceResetDirection is =
 --
 iconSourceSetFilename :: IconSource -> FilePath -> IO ()
 iconSourceSetFilename is name = 
-  withUTFString name $ {#call unsafe icon_source_set_filename#} is
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0) 
+  withUTFString name $ {# call unsafe icon_source_set_filename_utf8 #} is
+#else
+  withUTFString name $ {# call unsafe icon_source_set_filename #} is
+#endif
 
 -- | Retrieves the source pixbuf, or Nothing if none is set.
 --

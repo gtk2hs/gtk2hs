@@ -1,25 +1,139 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Image
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/04 11:14:56 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/13 16:25:56 $
 --
---  Copyright (c) 1999..2002 Axel Simon
+--  Copyright (C) 2001-2005 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- This widget displays an image.
 --
@@ -73,7 +187,11 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid, iconSizeMenu,
 --
 imageNewFromFile :: FilePath -> IO Image
 imageNewFromFile path = makeNewObject mkImage $ liftM castPtr $ 
+
+
+
   withUTFString path {#call unsafe image_new_from_file#}
+
 
 -- | Create a set of images by specifying a stock
 -- object.

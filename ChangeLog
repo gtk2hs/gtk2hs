@@ -1,3 +1,22 @@
+2005-02-13 Axel Simon <A.Simon@kent.ac.uk>
+
+	* configure.ac: Removed some unnecessary tests and variable.
+
+	* tools/checkDir: Use $SED from the configure file instead of sed,
+	similar for grep. This helps on Solaris where the native sed cannot
+	cope with the expression in this file, giving a "Bad substitution".
+
+	* gtk/Graphics/UI/Gtk/General/IconFactory.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp: Conditionally
+	rename functions that take file names to match the special convention
+	of having a _utf8 ending on Windows.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/FileSel.chs.pp: As above. Furthermore
+	renamed from .chs to .chs.pp.
+
+	* Makefile.am: Rename the files from .chs to .chs.pp.
+ 
 2005-02-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,

@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/13 16:25:57 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -151,23 +151,42 @@ fileChooserSetCurrentName chooser name =
 
 fileChooserGetFilename :: FileChooserClass chooser => chooser -> IO (Maybe String)
 fileChooserGetFilename chooser = do
-  strPtr <- {# call gtk_file_chooser_get_filename #} (toFileChooser chooser)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  strPtr <- {# call gtk_file_chooser_get_filename_utf8 #}
+#else
+  strPtr <- {# call gtk_file_chooser_get_filename #} 
+#endif
+   (toFileChooser chooser)
   maybePeek readCString strPtr
 
 fileChooserSetFilename :: FileChooserClass chooser => chooser -> String -> IO Bool
 fileChooserSetFilename chooser filename = liftM toBool $
   withCString filename $ \strPtr ->
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  {# call gtk_file_chooser_set_filename_utf8 #} (toFileChooser chooser) strPtr
+#else
   {# call gtk_file_chooser_set_filename #} (toFileChooser chooser) strPtr
+#endif
 
 fileChooserSelectFilename :: FileChooserClass chooser => chooser -> String -> IO Bool
 fileChooserSelectFilename chooser filename = liftM toBool $
   withCString filename $ \strPtr ->
-  {# call gtk_file_chooser_select_filename #} (toFileChooser chooser) strPtr
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  {# call gtk_file_chooser_select_filename_utf8 #}
+#else
+  {# call gtk_file_chooser_select_filename #}
+#endif
+    (toFileChooser chooser) strPtr
 
 fileChooserUnselectFilename :: FileChooserClass chooser => chooser -> String -> IO ()
 fileChooserUnselectFilename chooser filename = 
   withCString filename $ \strPtr ->
-  {# call gtk_file_chooser_unselect_filename #} (toFileChooser chooser) strPtr
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  {# call gtk_file_chooser_unselect_filename_utf8 #}
+#else
+  {# call gtk_file_chooser_unselect_filename #}
+#endif
+    (toFileChooser chooser) strPtr
 
 fileChooserSelectAll :: FileChooserClass chooser => chooser -> IO ()
 fileChooserSelectAll chooser = 
@@ -179,17 +198,32 @@ fileChooserUnselectAll chooser =
 
 fileChooserGetFilenames :: FileChooserClass chooser => chooser -> IO [String]
 fileChooserGetFilenames chooser = do
-  strList <- {# call gtk_file_chooser_get_filenames #} (toFileChooser chooser)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  strList <- {# call gtk_file_chooser_get_filenames_utf8 #}
+#else
+  strList <- {# call gtk_file_chooser_get_filenames #}
+#endif
+    (toFileChooser chooser)
   fromStringGSList strList
 
 fileChooserSetCurrentFolder :: FileChooserClass chooser => chooser -> String -> IO Bool
 fileChooserSetCurrentFolder chooser foldername = liftM toBool $
   withCString foldername $ \strPtr ->
-  {# call gtk_file_chooser_set_current_folder #} (toFileChooser chooser) strPtr
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  {# call gtk_file_chooser_set_current_folder_utf8 #}
+#else
+  {# call gtk_file_chooser_set_current_folder #}
+#endif
+    (toFileChooser chooser) strPtr
 
 fileChooserGetCurrentFolder :: FileChooserClass chooser => chooser -> IO (Maybe String)
 fileChooserGetCurrentFolder chooser = do
-  strPtr <- {# call gtk_file_chooser_get_current_folder #} (toFileChooser chooser)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  strPtr <- {# call gtk_file_chooser_get_current_folder_utf8 #}
+#else
+  strPtr <- {# call gtk_file_chooser_get_current_folder #}
+#endif
+    (toFileChooser chooser)
   maybePeek readCString strPtr
 
 fileChooserGetURI :: FileChooserClass chooser => chooser -> IO (Maybe String)
@@ -258,7 +292,12 @@ fileChooserGetUsePreviewLabel chooser = liftM toBool $
 
 fileChooserGetPreviewFilename :: FileChooserClass chooser => chooser -> IO (Maybe String)
 fileChooserGetPreviewFilename chooser = do
-  strPtr <- {# call gtk_file_chooser_get_preview_filename #} (toFileChooser chooser)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  strPtr <- {# call gtk_file_chooser_get_preview_filename_utf8 #}
+#else
+  strPtr <- {# call gtk_file_chooser_get_preview_filename #}
+#endif
+    (toFileChooser chooser)
   maybePeek readCString strPtr
 
 fileChooserGetPreviewURI :: FileChooserClass chooser => chooser -> IO (Maybe String)
@@ -304,21 +343,33 @@ fileChooserAddShortcutFolder :: FileChooserClass chooser => chooser -> String ->
 fileChooserAddShortcutFolder chooser foldername =
   propagateGError $ \gerrorPtr ->
   withCString foldername $ \strPtr -> do
-  {# call gtk_file_chooser_add_shortcut_folder #} (toFileChooser chooser)
-    strPtr gerrorPtr
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  {# call gtk_file_chooser_add_shortcut_folder_utf8 #}
+#else
+  {# call gtk_file_chooser_add_shortcut_folder #}
+#endif
+   (toFileChooser chooser) strPtr gerrorPtr
   return ()
 
 fileChooserRemoveShortcutFolder :: FileChooserClass chooser => chooser -> String -> IO ()
 fileChooserRemoveShortcutFolder chooser foldername =
   propagateGError $ \gerrorPtr ->
   withCString foldername $ \strPtr -> do
-  {# call gtk_file_chooser_remove_shortcut_folder #} (toFileChooser chooser)
-    strPtr gerrorPtr
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  {# call gtk_file_chooser_remove_shortcut_folder_utf8 #}
+#else
+  {# call gtk_file_chooser_remove_shortcut_folder #}
+#endif
+    (toFileChooser chooser) strPtr gerrorPtr
   return ()
 
 fileChooserlistShortcutFolders :: FileChooserClass chooser => chooser -> IO [String]
 fileChooserlistShortcutFolders chooser = do
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  strList <- {# call gtk_file_chooser_list_shortcut_folders_utf8 #}
+#else
   strList <- {# call gtk_file_chooser_list_shortcut_folders #}
+#endif
     (toFileChooser chooser)
   fromStringGSList strList
 

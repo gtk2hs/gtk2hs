@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.1 $ from $Date: 2005/02/13 16:25:56 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -198,7 +198,12 @@ pixbufNewFromFile fname =
   checkGErrorWithCont
     (\errPtrPtr -> 
      withUTFString fname $ \strPtr ->
-     {#call unsafe pixbuf_new_from_file#} strPtr errPtrPtr)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+     {#call unsafe pixbuf_new_from_file_utf8#}
+#else
+     {#call unsafe pixbuf_new_from_file#}
+#endif
+    strPtr errPtrPtr)
     (\gerror -> liftM Left $ handlePixbufError gerror)
     (\pbPtr -> liftM Right $ makeNewGObject mkPixbuf (return pbPtr))
 

@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.1 $ from $Date: 2005/02/13 16:25:57 $
 --
 --  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
@@ -75,7 +75,12 @@ fileSelectionNew title  = do
 fileSelectionSetFilename :: FileSelectionClass fsel => fsel -> String -> IO ()
 fileSelectionSetFilename fsel str = 
   withUTFString str $ \strPtr -> 
-    {#call unsafe file_selection_set_filename#} (toFileSelection fsel) strPtr
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+    {#call unsafe file_selection_set_filename_utf8#}
+#else
+    {#call unsafe file_selection_set_filename#}
+#endif
+      (toFileSelection fsel) strPtr
 
 -- | Get the filename currently selected by 
 -- the given file selection dialog.
@@ -83,7 +88,11 @@ fileSelectionSetFilename fsel str =
 fileSelectionGetFilename :: FileSelectionClass fsel => fsel -> IO String
 fileSelectionGetFilename fsel = 
   do
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+    strPtr <- {#call unsafe file_selection_get_filename_utf8#} 
+#else
     strPtr <- {#call unsafe file_selection_get_filename#} 
+#endif
       (toFileSelection fsel)
     peekUTFString strPtr
 
