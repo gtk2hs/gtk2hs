@@ -1,3 +1,10 @@
+2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Makefile: added proprocessor pass to hierarchy.list before
+	so we can selectively generate types depending on the gtk version.
+
+	* tools/hierarchyGen/TypeGen.hs: allow to read stdin
+
 2004-04-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/Object.chs: fixed warning

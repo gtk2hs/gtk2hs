@@ -96,7 +96,9 @@ main = do
   let prefix = case map (drop 9) (filter ("--prefix=" `isPrefixOf`)  rem) of
                  [] -> "gtk"
                  (prefix:_) -> prefix
-  content <- readFile hierFile
+  content <- if hierFile == "-"
+               then getContents	      -- read stdin
+	       else readFile hierFile
   let (objs, specialQueries) = unzip $
 				 pFreshLine (freshParserState tags) content
   let bareFName = reverse . 
