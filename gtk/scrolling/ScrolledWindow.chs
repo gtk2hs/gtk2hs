@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/17 16:02:09 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -57,6 +57,8 @@ import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
 import Enums	(PolicyType(..), CornerType(..), ShadowType(..))
+import Maybe    (fromMaybe)
+import Structs  (nullForeignPtr)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -64,9 +66,12 @@ import Enums	(PolicyType(..), CornerType(..), ShadowType(..))
 
 -- @constructor scrolledWindowNew@ Create a new @ref type ScrolledWindow@.
 --
-scrolledWindowNew :: Adjustment -> Adjustment -> IO ScrolledWindow
-scrolledWindowNew vAdj hAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
-  {#call unsafe scrolled_window_new#} hAdj vAdj
+scrolledWindowNew :: Maybe Adjustment -> Maybe Adjustment -> IO ScrolledWindow
+scrolledWindowNew hAdj vAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
+  {#call unsafe scrolled_window_new#} (fromMAdj hAdj) (fromMAdj vAdj)
+ where
+ fromMAdj :: Maybe Adjustment -> Adjustment
+ fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
 
 -- @method scrolledWindowGetHAdjustment@ Retrieve the horizontal
 -- @ref arg Adjustment@ of the @ref type ScrolledWindow@.
