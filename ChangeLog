@@ -4,6 +4,8 @@
 	and found out that windowGetResizable and windowSetResizable were
 	missing, so I added them as well.
 
+	* mogul/TreeList.hs: fixed a bug in treeSkelAddAttribute
+
 2002-07-18  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/treeList/CellRendererText.chs: changed the attribute types

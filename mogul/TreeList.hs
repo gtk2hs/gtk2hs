@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/17 15:53:36 $
+--  Version $Revision: 1.6 $ from $Date: 2002/07/19 10:08:52 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -215,7 +215,7 @@ treeSkelAddAttribute (TreeSkel statusRef)
   case status of 
     TSSPrepare tTree -> do
       writeIORef statusRef (TSSPrepare (ty:tTree))
-      let columnNo = 1+length tTree
+      let columnNo = length tTree
       return (Association prop columnNo,
 	\ti -> do
         status <- readIORef statusRef
