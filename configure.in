@@ -81,7 +81,11 @@ else
   DLSUFFIX=".dll";
   DLPREFIX="";
   dnl replace something like /c/ with c:/
-  PATHSED=["s+/\([a-z]\)/+\1:/+"];
+  case $host_os in
+    *cygwin* ) PATHSED=["s+/cygdrive/\([a-z]\)/+\1:/+"];;
+    *mingw32* ) PATHSED=["s+/\([a-z]\)/+\1:/+"];;
+    * ) PATHSED=["\#"];; 
+  esac;
   HSCFLAGS=" -C -optc-fnative-struct";
   C2HSFLAGS=;
   dnl Where are we? (only used during configuration)
