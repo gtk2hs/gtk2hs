@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.23 $ from $Date: 2004/04/30 21:00:08 $
+--  Version $Revision: 1.24 $ from $Date: 2004/05/07 16:40:00 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -62,7 +62,7 @@ module Gtk(
   module FileSel,
 #if GTK_CHECK_VERSION(2,4,0)
   module FileChooser,
---  module FileChooserDialog,
+  module FileChooserDialog,
   module FileChooserWidget,
 #endif
   module Window,
@@ -208,7 +208,7 @@ import Dialog
 import FileSel
 #if GTK_CHECK_VERSION(2,4,0)
 import FileChooser
---import FileChooserDialog
+import FileChooserDialog
 import FileChooserWidget
 #endif
 import Window

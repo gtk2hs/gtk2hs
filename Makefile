@@ -29,7 +29,7 @@ endif
 MAKE_LIBS += mogul
 
 MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
-	     demo/hello demo/buttonbox
+	     demo/hello demo/buttonbox demo/filechooser
 
 ifeq ($(strip $(ENABLE_LIBGLADE)),yes)
 MAKE_APPS += demo/glade

@@ -1,3 +1,15 @@
+2004-05-6 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/glib/GParameter.hsc: new marshaling support module needed
+	for GObject.objectNew
+
+	* gtk/glib/GObject.chs: added constructor objectNew, this is
+	needed for FileChooserDialog
+
+	* gtk/general/Gtk.hs: re-enable building FileChooserDialog
+
+	* Makefile: enable building filechooser demo
+
 2004-05-4 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.in, Makefile, mk/config.mk.in: allow libglade to be

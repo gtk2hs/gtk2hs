@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/07 16:40:00 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -29,6 +29,7 @@
 --
 -- @todo@ ---------------------------------------------------------------------
 module GObject(
+  objectNew,
   objectRef,
   objectUnref,
   makeNewGObject,
@@ -39,12 +40,28 @@ module GObject(
   ) where
 
 
+import Monad (liftM)
 import FFI
-import LocalData(newIORef, readIORef, writeIORef)
-import Hierarchy(GObjectClass, toGObject, unGObject)
-{#import GValue#}
+import LocalData (newIORef, readIORef, writeIORef)
+import Hierarchy (GObjectClass, GObject(..),
+                  mkGObject, toGObject, unGObject)
+import GValue (GValue)
+import GType  (GType)
+import GParameter
 
 {# context lib="glib" prefix="g" #}
+
+{# pointer *GParameter as GParm -> GParameter #}
+
+-- construct a new object (should rairly be used directly)
+--
+objectNew :: GType -> [(String, GValue)] -> IO (Ptr GObject)
+objectNew objType parameters =
+  liftM castPtr $ --caller must makeNewGObject as we don't know
+                  --if it this a GObject or a GtkObject
+  withArray (map GParameter parameters) $ \paramArrayPtr ->
+  {# call g_object_newv #} objType
+  (fromIntegral $ length parameters) paramArrayPtr
 
 -- increase the reference counter of an object
 --
