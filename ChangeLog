@@ -2,6 +2,9 @@
 
 	* config.guess, config.sub: updated from GNU website
 
+	* gtk/treelist/TreeModelSort.chs, gtk/gdk/DrawWindow.hs:
+	  added, should have been there before!
+	
 2002-12-01 Axel Simon <A.Simon@ukc.ac.uk>
 
 	* demo/graphic/Drawing.hs demo/hello/World.hs
