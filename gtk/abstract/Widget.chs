@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.6 $ from $Date: 2002/08/19 22:57:26 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -64,6 +64,7 @@ module Widget(
   widgetHasIntersection,
   widgetActivate,		-- Manipulate widget state.
   widgetSetSensitivity,
+  widgetSetSizeRequest,
   widgetIsFocus,
   widgetGrabFocus,
   widgetSetAppPaintable,
@@ -242,6 +243,12 @@ widgetActivate w = liftM toBool $ {#call widget_activate#} (toWidget w)
 widgetSetSensitivity :: WidgetClass w => w -> Bool -> IO ()
 widgetSetSensitivity w b = 
   {#call widget_set_sensitive#} (toWidget w) (fromBool b)
+
+-- @method widgetSetSizeRequest@ Sets the minimum size of a widget.
+--
+widgetSetSizeRequest :: WidgetClass w => w -> Int -> Int -> IO ()
+widgetSetSizeRequest w width height =
+  {#call widget_set_size_request#} (toWidget w) (fromIntegral width) (fromIntegral height)
 
 -- @method widgetIsFocus@ Set and query the input focus of a widget.
 --
