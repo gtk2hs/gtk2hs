@@ -6,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/23 16:02:58 $
+--  Version $Revision: 1.9 $ from $Date: 2004/08/09 22:54:03 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -22,22 +22,17 @@
 --
 -- |
 --
--- This widget can display several pages of widgets. Each page can be 
--- selected by a tab at the top of the widget. It is useful in dialogs where
--- a lot of information has to be displayed.
+-- This widget can display several pages of widgets. Each page can be selected
+-- by a tab at the top of the widget. It is useful in dialogs where a lot of
+-- information has to be displayed.
 --
 -- TODO
---
--- * check if it is sensible and possible to have something else than a Label
---   widget in the context menu. If so, change the notebook*PageMenu function
---   and add notebookSetMenuLabel and notebookSetMenuText.
---
--- * notebookSetTabLabelText is not bound.
 --
 -- * The signals focus-tab and select-page are not bound because it is unclear
 --   what they mean. As far as I can see they are not emitted anywhere.
 --
-#include<gtk/gtkversion.h>
+#include <gtk/gtkversion.h>
+
 module Notebook(
   Notebook,
   NotebookClass,
@@ -57,25 +52,37 @@ module Notebook(
   notebookReorderChild,
   PositionType(..),
   notebookSetTabPos,
+  notebookGetTabPos,
   notebookSetShowTabs,
+  notebookGetShowTabs,
   notebookSetShowBorder,
   notebookSetScrollable,
+  notebookGetScrollable,
+#ifndef DISABLE_DEPRECATED
   notebookSetTabBorder,
   notebookSetTabHBorder,
   notebookSetTabVBorder,
+#endif
   notebookSetPopup,
   notebookGetCurrentPage,
+  notebookSetMenuLabel,
   notebookGetMenuLabel,
+  notebookSetMenuLabelText,
+  notebookGetMenuLabelText,
   notebookGetNthPage,
 #if GTK_CHECK_VERSION(2,2,0)
   notebookGetNPages,
 #endif
   notebookGetTabLabel,
+  notebookGetTabLabelText,
   Packing(..), PackType(..),
   notebookQueryTabLabelPacking,
   notebookSetTabLabelPacking,
+#ifndef DISABLE_DEPRECATED
   notebookSetHomogeneousTabs,
+#endif
   notebookSetTabLabel,
+  notebookSetTabLabelText,
   onSwitchPage,
   afterSwitchPage
   ) where
@@ -101,21 +108,22 @@ notebookNew  = makeNewObject mkNotebook $
   liftM castPtr {#call unsafe notebook_new#}
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Insert a new tab to the right of the existing
--- tabs.
+-- | Insert a new tab to the right of the existing tabs.
 --
--- * The @tabName@ will be inserted as a Label widget. In case the
---   context menu is enabled, this name will appear in the menu. If you want
---   to specify something else to go in the tab, use
---   'notebookAppendPageMenu' and specify some suitable widget for
---   @menuLabel@. Returns index (starting from 0) of the appended page
---   in the notebook, or -1 if function fails.
+-- * The given label will be used for the label widget of the new tab. In case
+-- the context menu is enabled, this name will also appear in the popup menu. If
+-- you want to specify something else to go in the tab, use
+-- 'notebookAppendPageMenu'.
 --
--- * This function returned @()@ in Gtk version
---   2.2.X and earlier
+-- * Returns index (starting from 0) of the appended page in the notebook, or -1
+-- if the function fails.
 --
-notebookAppendPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
-                      String -> IO Int
+-- * This function returned @()@ in Gtk version 2.2.X and earlier
+--
+notebookAppendPage :: (NotebookClass nb, WidgetClass child) => nb
+                   -> child   -- ^ Widget to use as the contents of the page
+                   -> String  -- ^ Label for the page.
+                   -> IO Int
 notebookAppendPage nb child tabLabel = do
   tab <- labelNew (Just tabLabel)
   liftM fromIntegral $
@@ -123,220 +131,245 @@ notebookAppendPage nb child tabLabel = do
       (toWidget tab)
 
 #else
--- | Insert a new tab to the right of the existing
--- tabs.
+-- | Insert a new tab to the right of the existing tabs.
 --
--- * The @tabName@ will be inserted as a Label widget. In case the
---   context menu is enabled, this name will appear in the menu. If you want
---   to specify something else to go in the tab, use
---   'notebookAppendPageMenu' and specify some suitable widget for
---   @menuLabel@.
+-- * The given label will be used for the label widget of the new tab. In case
+-- the context popup menu is enabled, this name will also appear in the menu. If
+-- you want to specify something else to go in the tab, use
+-- 'notebookAppendPageMenu'.
 --
--- * This function returns @Int@ in Gtk version
---   2.4.0 and later
+-- * This function returns @Int@ in Gtk version 2.4.0 and later.
 --
-notebookAppendPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
-                      String -> IO ()
+notebookAppendPage :: (NotebookClass nb, WidgetClass child) => nb ->
+                   -> child   -- ^ Widget to use as the contents of the page
+                   -> String  -- ^ Label for the page.
+                   -> IO ()
 notebookAppendPage nb child tabLabel = do
   tab <- labelNew (Just tabLabel)
-  {#call notebook_append_page#} (toNotebook nb) (toWidget child) 
+  {#call notebook_append_page#} (toNotebook nb) (toWidget child) (toWidget tab)
+#endif
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Insert a new tab to the right of the existing tabs.
+--
+-- Like 'notebookAppendPage' but allows any widget to be used for the label of
+-- the new tab and then entry in the page-switch popup menu.
+--
+-- * Returns the index (starting from 0) of the appended page in the notebook,
+-- or -1 if the function fails.
+--
+-- * This function returned @()@ in Gtk version 2.2.X and earlier
+--
+notebookAppendPageMenu :: (NotebookClass nb, WidgetClass child,
+   WidgetClass tab, WidgetClass menu) => nb
+  -> child  -- ^ Widget to use as the contents of the page
+  -> tab    -- ^ Tab label widget for the page.
+  -> menu   -- ^ Menu entry for this tab (usually a 'Label' widget).
+  -> IO Int
+notebookAppendPageMenu nb child tabWidget menuWidget = liftM fromIntegral $
+  {#call notebook_append_page_menu#} (toNotebook nb) (toWidget child)
+    (toWidget tabWidget) (toWidget menuWidget)
+
+#else
+-- | Insert a new tab to the right of the existing tabs.
+--
+-- Like 'notebookAppendPage' but allows any widget to be used for the label of
+-- the new tab and then entry in the page-switch popup menu.
+--
+-- * This function returns @Int@ in Gtk version 2.4.0 and later
+--
+notebookAppendPageMenu :: (NotebookClass nb, WidgetClass child,
+   WidgetClass tab, WidgetClass menu) => nb
+  -> child  -- ^ Widget to use as the contents of the page
+  -> tab    -- ^ Tab label widget for the page.
+  -> menu   -- ^ Menu entry for this tab (usually a 'Label' widget).
+  -> IO ()
+notebookAppendPageMenu nb child tabWidget menuWidget =
+  {#call notebook_append_page_menu#} (toNotebook nb) (toWidget child)
+    (toWidget tabWidget) (toWidget menuWidget)
+#endif
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Insert a new tab to the left of the existing tabs.
+--
+-- * The given label will be used for the label widget of the new tab. In case
+-- the context menu is enabled, this name will also appear in the popup menu. If
+-- you want to specify something else to go in the tab, use
+-- 'notebookPrependPageMenu'.
+--
+-- * Returns index (starting from 0) of the prepended page in the notebook, or -1
+-- if the function fails.
+--
+-- * This function returned @()@ in Gtk version 2.2.X and earlier
+--
+notebookPrependPage :: (NotebookClass nb, WidgetClass child) => nb
+                   -> child   -- ^ Widget to use as the contents of the page
+                   -> String  -- ^ Label for the page.
+                   -> IO Int
+notebookPrependPage nb child tabLabel = do
+  tab <- labelNew (Just tabLabel)
+  liftM fromIntegral $
+    {#call notebook_prepend_page#} (toNotebook nb) (toWidget child) 
+      (toWidget tab)
+
+#else
+-- | Insert a new tab to the left of the existing tabs.
+--
+-- * The given label will be used for the label widget of the new tab. In case
+-- the context popup menu is enabled, this name will also appear in the menu. If
+-- you want to specify something else to go in the tab, use
+-- 'notebookPrependPageMenu'.
+--
+-- * This function returns @Int@ in Gtk version 2.4.0 and later.
+--
+notebookPrependPage :: (NotebookClass nb, WidgetClass child) => nb ->
+                   -> child   -- ^ Widget to use as the contents of the page
+                   -> String  -- ^ Label for the page.
+                   -> IO ()
+notebookPrependPage nb child tabLabel = do
+  tab <- labelNew (Just tabLabel)
+  {#call notebook_prepend_page#} (toNotebook nb) (toWidget child) 
     (toWidget tab)
 #endif
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Insert a new tab to the right of the
--- existing tabs. @menuLabel@ is the label for the context menu
--- (useful if @tabLabel@ is not a Label widget). Return index
--- (starting from 0) of the appended page in the notebook, or -1 if 
--- function fails
+-- | Insert a new tab to the left of the existing tabs.
 --
--- * This function returned @()@ in Gtk version
---   2.2.X and earlier
+-- Like 'notebookPrependPage' but allows any widget to be used for the label of
+-- the new tab and then entry in the page-switch popup menu.
 --
-notebookAppendPageMenu ::(NotebookClass nb, WidgetClass child, 
-   WidgetClass tab) => nb -> child -> tab -> String -> IO Int
-notebookAppendPageMenu nb child tabWidget menuLabel = do
-  menu <- labelNew (Just menuLabel)
-  liftM fromIntegral $
-    {#call notebook_append_page_menu#} (toNotebook nb) (toWidget child)
-      (toWidget tabWidget) (toWidget menu)
-
-#else
--- | Insert a new tab to the right of the
--- existing tabs. @menuLabel@ is the label for the context menu
--- (useful if @tabLabel@ is not a Label widget).
+-- * Returns the index (starting from 0) of the prepended page in the notebook,
+-- or -1 if the function fails.
 --
--- * This function returns @Int@ in Gtk version
---   2.4.0 and later
+-- * This function returned @()@ in Gtk version 2.2.X and earlier
 --
-notebookAppendPageMenu ::(NotebookClass nb, WidgetClass child, 
-   WidgetClass tab) => nb -> child -> tab -> String -> IO ()
-notebookAppendPageMenu nb child tabWidget menuLabel = do
-  menu <- labelNew (Just menuLabel)
-  {#call notebook_append_page_menu#} (toNotebook nb) (toWidget child)
-    (toWidget tabWidget) (toWidget menu)
-#endif
-
-#if GTK_CHECK_VERSION(2,4,0)
--- | Insert a new tab to the left of the existing
--- tabs.
---
--- * The @tabName@ will be inserted as a Label widget. In case the
---   context menu is enabled, this name will appear in the menu. If you want
---   to specify something else to go in the tab, use
---   'notebookPrependPageMenu' and specify some suitable widget for
---   @menuLabel@. Return index (starting from 0) of the prepended page
---   in the notebook, or -1 if function fails
---
--- * This function returned @()@ in Gtk version
---   2.2.X and earlier
---
-notebookPrependPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
-                       String -> IO Int
-notebookPrependPage nb child tabLabel = do
-  tab <- labelNew (Just tabLabel)
-  liftM fromIntegral $
-    {#call notebook_prepend_page#} (toNotebook nb) (toWidget child)
-      (toWidget tab)
-
-#else
--- | Insert a new tab to the left of the existing
--- tabs.
---
--- * The @tabName@ will be inserted as a Label widget. In case the
---   context menu is enabled, this name will appear in the menu. If you want
---   to specify something else to go in the tab, use
---   'notebookPrependPageMenu' and specify some suitable widget for
---   @menuLabel@.
---
--- * This function returns @Int@ in Gtk version
---   2.4.0 and later
---
-notebookPrependPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
-                       String -> IO ()
-notebookPrependPage nb child tabLabel = do
-  tab <- labelNew (Just tabLabel)
-  {#call notebook_prepend_page#} (toNotebook nb) (toWidget child) (toWidget tab)
-#endif
-
-#if GTK_CHECK_VERSION(2,4,0)
--- | Insert a new tab to the left of the
--- existing tabs. @menuLabel@ is the label for the context menu
--- (useful if @tabLabel@ is not a Label widget). Return index
--- (starting from 0) of the prepended page in the notebook, or -1 if
---  function fails
---
--- * This function returned @()@ in Gtk version
---   2.2.X and earlier
---
-notebookPrependPageMenu ::(NotebookClass nb, WidgetClass child, 
-   WidgetClass tab) => nb -> child -> tab -> String -> IO Int
-notebookPrependPageMenu nb child tabWidget menuLabel = do
-  menu <- labelNew (Just menuLabel)
-  liftM fromIntegral $
-    {#call notebook_prepend_page_menu#} (toNotebook nb) (toWidget child)
-      (toWidget tabWidget) (toWidget menu)
-
-#else
--- | Insert a new tab to the left of the
--- existing tabs. @menuLabel@ is the label for the context menu
--- (useful if @tabLabel@ is not a Label widget).
---
--- * This function returns @Int@ in Gtk version
---   2.4.0 and later
---
-notebookPrependPageMenu ::(NotebookClass nb, WidgetClass child, 
-   WidgetClass tab) => nb -> child -> tab -> String -> IO ()
-notebookPrependPageMenu nb child tabWidget menuLabel = do
-  menu <- labelNew (Just menuLabel)
+notebookPrependPageMenu :: (NotebookClass nb, WidgetClass child,
+   WidgetClass tab, WidgetClass menu) => nb
+  -> child  -- ^ Widget to use as the contents of the page
+  -> tab    -- ^ Tab label widget for the page.
+  -> menu   -- ^ Menu entry for this tab (usually a 'Label' widget).
+  -> IO Int
+notebookPrependPageMenu nb child tabWidget menuWidget = liftM fromIntegral $
   {#call notebook_prepend_page_menu#} (toNotebook nb) (toWidget child)
-    (toWidget tabWidget) (toWidget menu)
+    (toWidget tabWidget) (toWidget menuWidget)
+
+#else
+-- | Insert a new tab to the left of the existing tabs.
+--
+-- Like 'notebookPrependPage' but allows any widget to be used for the label of
+-- the new tab and then entry in the page-switch popup menu.
+--
+-- * This function returns @Int@ in Gtk version 2.4.0 and later
+--
+notebookPrependPageMenu :: (NotebookClass nb, WidgetClass child,
+   WidgetClass tab, WidgetClass menu) => nb
+  -> child  -- ^ Widget to use as the contents of the page
+  -> tab    -- ^ Tab label widget for the page.
+  -> menu   -- ^ Menu entry for this tab (usually a 'Label' widget).
+  -> IO ()
+notebookPrependPageMenu nb child tabWidget menuWidget =
+  {#call notebook_prepend_page_menu#} (toNotebook nb) (toWidget child)
+    (toWidget tabWidget) (toWidget menuWidget)
 #endif
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Insert a new tab at the specified position.
+-- | Insert a new tab at the specified position. That is between @pos@ and
+-- @pos@+1, or -1 to append the page after all other pages.
 --
--- * The @tabName@ will be inserted as a Label widget. In case the
---   context menu is enabled, this name will appear in the menu. If you want
---   to specify something else to go in the tab, use
---   'notebookInsertPageMenu' and specify some suitable widget for
---   @menuLabel@. Return index (starting from 0) of the inserted page
---   in the notebook, or -1 if function fails
+-- * The given label will be used for the label widget of the new tab. In case
+-- the context menu is enabled, this name will also appear in the popup menu. If
+-- you want to specify something else to go in the tab, use
+-- 'notebookInsertPageMenu'.
 --
--- * <warning><para>This function returned @()@ in Gtk version
---   2.2.X and earlier<\/warning><para>
+-- * Returns index (starting from 0) of the inserted page in the notebook, or -1
+-- if the function fails.
 --
-notebookInsertPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
-                      String -> Int -> IO Int
+-- * This function returned @()@ in Gtk version 2.2.X and earlier
+--
+notebookInsertPage :: (NotebookClass nb, WidgetClass child) => nb
+                   -> child  -- ^ Widget to use as the contents of the page
+                   -> String -- ^ Label for the page.
+                   -> Int    -- ^ Position for the new page.
+                   -> IO Int
 notebookInsertPage nb child tabLabel pos = do
-  lbl <- labelNew (Just tabLabel)
+  tab <- labelNew (Just tabLabel)
   liftM fromIntegral $
     {#call notebook_insert_page#} (toNotebook nb) (toWidget child) 
-       (toWidget lbl) (fromIntegral pos)
+      (toWidget tab) (fromIntegral pos)
 
 #else
--- | Insert a new tab at the specified position.
+-- | Insert a new tab at the specified position. That is between @pos@ and
+-- @pos@+1, or -1 to append the page after all other pages.
 --
--- * The @tabName@ will be inserted as a Label widget. In case the
---   context menu is enabled, this name will appear in the menu. If you want
---   to specify something else to go in the tab, use
---   'notebookInsertPageMenu' and specify some suitable widget for
---   @menuLabel@.
+-- * The given label will be used for the label widget of the new tab. In case
+-- the context menu is enabled, this name will also appear in the popup menu. If
+-- you want to specify something else to go in the tab, use
+-- 'notebookInsertPageMenu'.
 --
--- * This function returns @Int@ in Gtk version
---   2.4.0 and later
+-- * This function returns @Int@ in Gtk version 2.4.0 and later.
 --
-notebookInsertPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
-                      String -> Int -> IO ()
+notebookInsertPage :: (NotebookClass nb, WidgetClass child) => nb
+                   -> child  -- ^ Widget to use as the contents of the page
+                   -> String -- ^ Label for the page.
+                   -> Int    -- ^ Position for the new page.
+                   -> IO ()
 notebookInsertPage nb child tabLabel pos = do
-  lbl <- labelNew (Just tabLabel)
+  tab <- labelNew (Just tabLabel)
   {#call notebook_insert_page#} (toNotebook nb) (toWidget child) 
-     (toWidget lbl) (fromIntegral pos)
+    (toWidget tab) (fromIntegral pos)
 #endif
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Insert a new tab between the tab no.
--- @pos@ and @pos@+1. @menuLabel@ is the label for the
--- context menu (useful if @tabLabel@ is not a Label widget). Return
--- index (starting from 0) of the inserted page in the notebook, or -1 if
--- function fails
+-- | Insert a new tab at the specified position. That is between @pos@ and
+-- @pos@+1, or -1 to append the page after all other pages.
 --
--- * This function returned @()@ in Gtk version
---   2.2.X and earlier
+-- Like 'notebookInsertPage' but allows any widget to be used for the label of
+-- the new tab and then entry in the page-switch popup menu.
+--
+-- * Returns the index (starting from 0) of the inserted page in the notebook,
+-- or -1 if the function fails.
+--
+-- * This function returned @()@ in Gtk version 2.2.X and earlier
 --
 notebookInsertPageMenu ::(NotebookClass nb, WidgetClass child, 
-   WidgetClass tab) => nb -> child -> tab -> String -> Int -> IO Int
-notebookInsertPageMenu nb child tabWidget menuLabel pos = do
-  menu <- labelNew (Just menuLabel)
-  liftM fromIntegral $
-    {#call notebook_insert_page_menu#} (toNotebook nb) (toWidget child)
-      (toWidget tabWidget) (toWidget menu) (fromIntegral pos)
+   WidgetClass tab, WidgetClass menu) => nb
+  -> child  -- ^ Widget to use as the contents of the page
+  -> tab    -- ^ Tab label widget for the page.
+  -> menu   -- ^ Menu entry for this tab (usually a 'Label' widget).
+  -> Int    -- ^ Position for the new page.
+  -> IO Int
+notebookInsertPageMenu nb child tabWidget menuWidget pos = liftM fromIntegral $
+  {#call notebook_insert_page_menu#} (toNotebook nb) (toWidget child)
+    (toWidget tabWidget) (toWidget menuWidget) (fromIntegral pos)
 
 #else
--- | Insert a new tab between the tab no.
--- @pos@ and @pos@+1. @menuLabel@ is the label for the
--- context menu (useful if @tabLabel@ is not a Label widget).
+-- | Insert a new tab at the specified position. That is between @pos@ and
+-- @pos@+1, or -1 to append the page after all other pages.
 --
--- * This function returns @Int@ in Gtk version
---   2.4.0 and later
+-- Like 'notebookInsertPage' but allows any widget to be used for the label of
+-- the new tab and then entry in the page-switch popup menu.
+--
+-- * This function returns @Int@ in Gtk version 2.4.0 and later
 --
 notebookInsertPageMenu ::(NotebookClass nb, WidgetClass child, 
-   WidgetClass tab) => nb -> child -> tab -> String -> Int -> IO ()
-notebookInsertPageMenu nb child tabWidget menuLabel pos = do
-  menu <- labelNew (Just menuLabel)
+   WidgetClass tab, WidgetClass menu) => nb
+  -> child  -- ^ Widget to use as the contents of the page
+  -> tab    -- ^ Tab label widget for the page.
+  -> menu   -- ^ Menu entry for this tab (usually a 'Label' widget).
+  -> Int    -- ^ Position for the new page.
+  -> IO ()
+notebookInsertPageMenu nb child tabWidget menuWidget pos =
   {#call notebook_insert_page_menu#} (toNotebook nb) (toWidget child)
-    (toWidget tabWidget) (toWidget menu) (fromIntegral pos)
+    (toWidget tabWidget) (toWidget menuWidget) (fromIntegral pos)
 #endif
 
--- | Remove a specific page from the notebook,
--- counting from 0.
+-- | Remove a specific page from the notebook, counting from 0.
 --
 notebookRemovePage :: NotebookClass nb => nb -> Int -> IO ()
 notebookRemovePage nb pos = 
   {#call notebook_remove_page#} (toNotebook nb) (fromIntegral pos)
 
--- | Query the page the @child@ widget is
--- contained in.
+-- | Query the page the child widget is contained in.
 --
 -- * The function returns the page number if the child was found, Nothing
 --   otherwise.
@@ -349,7 +382,7 @@ notebookPageNum nb child =
 
 -- | Move to the specified page of the notebook.
 --
--- * If @pos@ is out of range (e.g. negative) select the last page.
+-- * If the position is out of range (e.g. negative) select the last page.
 --
 notebookSetCurrentPage :: NotebookClass nb => nb -> Int -> IO ()
 notebookSetCurrentPage nb pos =
@@ -376,12 +409,18 @@ notebookReorderChild :: (NotebookClass nb, WidgetClass w) => nb -> w -> Int ->
 notebookReorderChild nb child pos = {#call notebook_reorder_child#}
   (toNotebook nb) (toWidget child) (fromIntegral pos)
 
--- | Specify at which border the tabs should be
--- drawn.
+-- | Specify at which border the tabs should be drawn.
 --
 notebookSetTabPos :: NotebookClass nb => nb -> PositionType -> IO ()
 notebookSetTabPos nb pt = {#call notebook_set_tab_pos#}
   (toNotebook nb) ((fromIntegral.fromEnum) pt)
+
+-- | Gets the edge at which the tabs for switching pages in the notebook are
+-- drawn.
+--
+notebookGetTabPos :: NotebookClass nb => nb -> IO PositionType
+notebookGetTabPos nb = liftM (toEnum.fromIntegral) $
+  {#call unsafe notebook_get_tab_pos#} (toNotebook nb)
 
 -- | Show or hide the tabs of a notebook.
 --
@@ -389,22 +428,40 @@ notebookSetShowTabs :: NotebookClass nb => nb -> Bool -> IO ()
 notebookSetShowTabs nb showTabs = {#call notebook_set_show_tabs#}
   (toNotebook nb) (fromBool showTabs)
 
--- | In case the tabs are not shown, specify
--- whether to draw a border around the notebook.
+-- | Returns whether the tabs of the notebook are shown.
+--
+notebookGetShowTabs :: NotebookClass nb => nb -> IO Bool
+notebookGetShowTabs nb =
+  liftM toBool $ {#call unsafe notebook_get_show_tabs#} (toNotebook nb)
+
+-- | In case the tabs are not shown, specify whether to draw a border around
+-- the notebook.
 --
 notebookSetShowBorder :: NotebookClass nb => nb -> Bool -> IO ()
 notebookSetShowBorder nb showBorder = {#call notebook_set_show_border#}
   (toNotebook nb) (fromBool showBorder)
 
--- | Set whether scroll bars will be added in
--- case the notebook has too many tabs to fit the widget size.
+-- | Returns whether a bevel will be drawn around the notebook pages.
+--
+notebookGetShowBorder :: NotebookClass nb => nb -> IO Bool
+notebookGetShowBorder nb =
+  liftM toBool $ {#call unsafe notebook_get_show_border#} (toNotebook nb)
+
+-- | Set whether scroll bars will be added in case the notebook has too many
+-- tabs to fit the widget size.
 --
 notebookSetScrollable :: NotebookClass nb => nb -> Bool -> IO ()
 notebookSetScrollable nb scrollable = {#call unsafe notebook_set_scrollable#}
   (toNotebook nb) (fromBool scrollable)
 
--- | Set the width of the borders of the tab
--- labels.
+-- | Returns whether the tab label area has arrows for scrolling.
+--
+notebookGetScrollable :: NotebookClass nb => nb -> IO Bool
+notebookGetScrollable nb = liftM toBool $
+  {#call unsafe notebook_get_scrollable#} (toNotebook nb)
+
+#ifndef DISABLE_DEPRECATED
+-- | Set the width of the borders of the tab labels.
 --
 -- * Sets both vertical and horizontal widths.
 --
@@ -412,8 +469,7 @@ notebookSetTabBorder :: NotebookClass nb => nb -> Int -> IO ()
 notebookSetTabBorder nb width = {#call notebook_set_tab_border#}
   (toNotebook nb) (fromIntegral width)
 
--- | Set the width of the borders of the tab
--- labels.
+-- | Set the width of the borders of the tab labels.
 --
 -- * Sets horizontal widths.
 --
@@ -421,17 +477,16 @@ notebookSetTabHBorder :: NotebookClass nb => nb -> Int -> IO ()
 notebookSetTabHBorder nb width = {#call notebook_set_tab_hborder#}
   (toNotebook nb) (fromIntegral width)
 
--- | Set the width of the borders of the tab
--- labels.
+-- | Set the width of the borders of the tab labels.
 --
 -- * Sets vertical widths.
 --
 notebookSetTabVBorder :: NotebookClass nb => nb -> Int -> IO ()
 notebookSetTabVBorder nb width = {#call notebook_set_tab_vborder#}
   (toNotebook nb) (fromIntegral width)
+#endif
 
--- | Enable or disable context menus with all tabs in
--- it.
+-- | Enable or disable context menus with all tabs in it.
 --
 notebookSetPopup :: NotebookClass nb => nb -> Bool -> IO ()
 notebookSetPopup nb enable = (if enable 
@@ -446,8 +501,15 @@ notebookGetCurrentPage :: NotebookClass nb => nb -> IO Int
 notebookGetCurrentPage nb = liftM fromIntegral $
   {#call unsafe notebook_get_current_page#} (toNotebook nb)
 
--- | Extract the menu label from the given
--- @child@.
+-- | Changes the menu label for the page containing the given child widget.
+--
+notebookSetMenuLabel :: (NotebookClass nb, WidgetClass ch, WidgetClass label)
+                     => nb -> ch -> Maybe label -> IO ()
+notebookSetMenuLabel nb child label =
+  {#call notebook_set_menu_label#} (toNotebook nb) (toWidget child)
+    (maybe (Widget nullForeignPtr) toWidget label)
+
+-- | Extract the menu label from the given @child@.
 --
 -- * Returns Nothing if @child@ was not found.
 --
@@ -459,8 +521,27 @@ notebookGetMenuLabel nb child = do
   if wPtr==nullPtr then return Nothing else liftM Just $
     makeNewObject mkLabel $ return $ castPtr wPtr
 
--- | Retrieve the child widget at positon
--- @pos@ (stating from 0).
+-- | Creates a new label and sets it as the menu label of the given child
+-- widget.
+--
+notebookSetMenuLabelText :: (NotebookClass nb, WidgetClass ch)
+                         => nb -> ch -> String -> IO ()
+notebookSetMenuLabelText nb child label =
+  withUTFString label $ \labelPtr ->
+  {#call notebook_set_menu_label_text#} (toNotebook nb)
+    (toWidget child) labelPtr
+
+-- | Retrieves the text of the menu label for the page containing the given
+-- child widget.
+--
+notebookGetMenuLabelText :: (NotebookClass nb, WidgetClass ch)
+                         => nb -> ch -> IO (Maybe String)
+notebookGetMenuLabelText nb child = do
+  labelPtr <- {#call unsafe notebook_get_menu_label_text#} (toNotebook nb)
+    (toWidget child)
+  maybePeek peekUTFString labelPtr
+
+-- | Retrieve the child widget at the given position (starting from 0).
 --
 -- * Returns Nothing if the index is out of bounds.
 --
@@ -483,19 +564,30 @@ notebookGetNPages nb = liftM fromIntegral $
 
 #endif
 
--- | Extract the tab label from the given
--- @child@.
+-- | Extract the tab label from the given @child@.
+--
+-- * Nothing is returned if no tab label has specifically been set for the
+-- child.
 --
 notebookGetTabLabel :: (NotebookClass nb, WidgetClass w) => nb -> w ->
-                       IO (Maybe Label)
+                       IO (Maybe Widget)
 notebookGetTabLabel nb child = do
   wPtr <- {#call unsafe notebook_get_tab_label#} 
     (toNotebook nb) (toWidget child)
   if wPtr==nullPtr then return Nothing else liftM Just $
-    makeNewObject mkLabel $ return $ castPtr wPtr
+    makeNewObject mkWidget $ return wPtr
 
--- | Query the packing attributes of the
--- given @child@.
+-- | Retrieves the text of the tab label for the page containing the given child
+-- widget.
+--
+notebookGetTabLabelText :: (NotebookClass nb, WidgetClass w) => nb -> w ->
+                       IO (Maybe String)
+notebookGetTabLabelText nb child = do
+  labelPtr <- {#call unsafe notebook_get_tab_label_text#} (toNotebook nb)
+    (toWidget child)
+  maybePeek peekUTFString labelPtr
+
+-- | Query the packing attributes of the given child.
 --
 notebookQueryTabLabelPacking :: (NotebookClass nb, WidgetClass w) => nb -> w ->
                                 IO (Packing,PackType)
@@ -510,8 +602,7 @@ notebookQueryTabLabelPacking nb child =
              (if expand then PackRepel else PackNatural),
 	    pt)
 
--- | Set the packing attributes of the given
--- @child@.
+-- | Set the packing attributes of the given child.
 --
 notebookSetTabLabelPacking :: (NotebookClass nb, WidgetClass w) => nb -> w ->
                               Packing -> PackType -> IO ()
@@ -520,21 +611,29 @@ notebookSetTabLabelPacking nb child pack pt =
     (fromBool $ pack/=PackNatural) (fromBool $ pack==PackGrow) 
     ((fromIntegral.fromEnum) pt)
 
--- | Sets whether the tabs must have all the
--- same size or not.
+#ifndef DISABLE_DEPRECATED
+-- | Sets whether the tabs must have all the same size or not.
 --
 notebookSetHomogeneousTabs :: NotebookClass nb => nb -> Bool -> IO ()
 notebookSetHomogeneousTabs nb hom = {#call notebook_set_homogeneous_tabs#}
   (toNotebook nb) (fromBool hom)
+#endif
 
-
--- | Set a new tab label for a given
--- @child@.
+-- | Set a new tab label for a given page.
 --
 notebookSetTabLabel :: (NotebookClass nb, WidgetClass ch, WidgetClass tab) => 
                        nb -> ch -> tab -> IO ()
 notebookSetTabLabel nb child tab = {#call notebook_set_tab_label#}
   (toNotebook nb) (toWidget child) (toWidget tab)
+
+-- | Creates a new label and sets it as the tab label for the given page.
+--
+notebookSetTabLabelText :: (NotebookClass nb, WidgetClass ch) => 
+                       nb -> ch -> String -> IO ()
+notebookSetTabLabelText nb child label =
+  withUTFString label $ \labelPtr ->
+  {#call notebook_set_tab_label_text#} (toNotebook nb) (toWidget child) labelPtr
+
 
 -- signals
 

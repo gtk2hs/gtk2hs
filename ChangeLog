@@ -1,3 +1,10 @@
+2004-08-9  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/layout/Notebook.chs: bind some new functions. Mark deprecated
+	functions. Generalise the notebook(Append|Prepend|Insert)PageMenu
+	functions to take an arbitrary widget for the popup menu. This is
+	a slight change in API. Quite a bit of docs cleanup.
+
 2004-08-8  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/library.mk, mk/common.mk: Axel's patches to change the way the
