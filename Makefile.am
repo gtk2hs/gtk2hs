@@ -19,12 +19,7 @@ EXTRA_DIST = \
 	tools/hierarchyGen/hierarchy.list	\
 	tools/hierarchyGen/Hierarchy.chs.template
 
-# fixme: this should be in configure.ac:
-HSCPP = $(CPP) -x c -traditional-cpp -P
-
 CHSDEPEND = $(srcdir)/mk/chsDepend
-
-HSC = hsc2hs
 
 # all packages and applications
 lib_LIBRARIES =	\
@@ -477,6 +472,27 @@ libHSgtk_a_HSFILES  = \
 	$(filter %.hs,$(libHSgtk_a_SOURCES))
 
 nobase_hi_SCRIPTS += $(libHSgtk_a_HSFILES:.hs=.hi)
+
+if BUILDDOCS
+htmldir = $(prefix)/html
+html_DATA = $(foreach HSFILE, $(libHSgtk_a_HSFILES), \
+		$(patsubst gtk.%.hs, doc/%.html, $(subst /,.,$(HSFILE))))
+EXCLUDE_DOCS = 
+PREPROC_DOCS = gtk/Graphics/UI/Gtk.hs
+
+$(html_DATA) : $(libHSgtk_a_HSFILES) $(PREPROC_DOCS:.hs=.hs.uncpp)
+	mkdir -p doc
+	$(HADDOCK) --html -o doc \
+		--title="Gtk2Hs" --package=$(libHSgtk_a_NAME) \
+		--dump-interface=doc/gtk.haddock \
+		$(filter-out $(EXCLUDE_DOCS) $(PREPROC_DOCS), $^)
+
+.hs.hs.uncpp : $(CONFIG_H)
+	$(HSCPP) -I. $< -o $@
+
+MOSTLYCLEANFILES += $(html_DATA)
+
+endif #BUILDDOCS
 
 MOSTLYCLEANFILES += $(am_libHSgtk_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)

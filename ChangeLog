@@ -3,6 +3,11 @@
 	* gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: fix whitespace problem that
 	caused compile failure.
 
+	* configure.ac, Makefile.am, mk/common.mk: Do detection of haddock and
+	add --enable-docs to configure. First hash at building haddock docs -
+	gtk package only so far. Also move some defines from Makefile.am to
+	configure.ac as requested by a FIXME comment.
+
 2005-01-12 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,

@@ -510,8 +510,33 @@ else
   esac;
 fi
 
+dnl The hsc2hs preprocessor
+AC_PATH_PROG(HSC2HS,hsc2hs)
+if test "$HSC2HS" = "no"; then
+  AC_MSG_ERROR([Could not find hsc2hs. This should be isntalled with GHC!])
+fi
+
+dnl The preprocessor to use on Haskell sources
+HSCPP='$(CPP) -x c -traditional-cpp -P'
+
 dnl Documentation
-AC_PATH_PROG(HADDOCK,haddock)
+AC_ARG_ENABLE(docs,
+              [  --enable-docs           build html documentation],
+              [BUILDDOCS=$enableval],[BUILDDOCS=no])
+if test "$BUILDDOCS" = "yes"; then
+  AC_PATH_PROG(HADDOCK,haddock, no)
+  if test "$HADDOCK" = "no"; then
+    AC_MSG_ERROR([Could not find haddock which is required to build the documentation.
+    Install haddock or re-run configure without --enable-docs])
+  fi
+  AC_MSG_CHECKING([version of haddock])
+  HADDOCK_VERSION=`$HADDOCK --version | $CUT -d' ' -f3 | $CUT -d, -f1`
+  AC_MSG_RESULT([$HADDOCK_VERSION])  
+  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -lt, 0.6, [
+    AC_MSG_ERROR([I need haddock 0.6 or later to build the documentation.
+    Upgrade your version of haddock or re-run configure without --enable-docs])])
+fi
+AM_CONDITIONAL(BUILDDOCS, test "$BUILDDOCS" = "yes")
 
 AC_ARG_WITH(ghc-docdir, 
             [  --with-ghc-docdir=GHC_DOCDIR  location of top of ghc haddockified html documentation],
@@ -527,6 +552,8 @@ AC_SUBST(GHCPKG_LISTLOCAL)
 AC_SUBST(PKGCONF)
 AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
+AC_SUBST(HSC2HS)
+AC_SUBST(HSCPP)
 AC_SUBST(MARSHALLDEFS)
 AC_SUBST(VERSION)
 dnl Platform specific flags 
@@ -585,11 +612,11 @@ dnl ...and chat with the user
 echo "**************************************************"
 echo "* Configuration completed successfully.          *"
 echo "*                                                *"
-if test -z "$HADDOCK"; then
-	echo "* Warning: The documentation will not be built:  *"
-	echo "*   - haddock was not found                      *"
-	echo "*                                                *"
-fi
+dnl if test x$BUILDDOCS = xyes && test -z "$HADDOCK"; then
+dnl 	echo "* Warning: The documentation will not be built:  *"
+dnl 	echo "*   - haddock was not found                      *"
+dnl 	echo "*                                                *"
+dnl fi
 dnl if test $BUILDDOCS = no; then
 dnl   echo "* Warning: The documentation will not be built:  *"
 dnl   if test $FOUNDTRANSLATOR = no; then

@@ -82,7 +82,7 @@ debug	:
 	$< -o $@)
 
 .hsc.hs: $(CONFIG_H)
-	$(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
+	$(strip $(HSC2HS) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
         $(addprefix -L-optl,\
 	$(AM_LDFLAGS) $($(NAME)_EXTRA_LIBS) $($(NAME)_LIBS)) \
         $(addprefix -C,	$(filter-out -I%,$(AM_CPPFLAGS)) \
