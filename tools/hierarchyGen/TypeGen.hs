@@ -178,12 +178,14 @@ generate fname lib prefix objs typeTable =
   indent 0.
   indent 0.ss "import FFI	(ForeignPtr, castForeignPtr, foreignPtrToPtr,".  ss " CULong)".
   indent 0.ss "import GType    (typeInstanceIsA)".
+  indent 0.ss "import GHC.Base (unsafeCoerce#)".
   -- this is a very bad hack to get the definition of the ancestors whenever
   -- these are not created in this file
   (if fname/="Hierarchy" then indent 0.ss "{#import Hierarchy#}" else id).
   indent 0.
   indent 0.ss "{#context lib=\"".ss lib.ss "\" prefix=\"".ss prefix.ss "\" #}".
   indent 0.
+  indent 0.ss "castToGObject :: GObjectClass obj => obj -> obj".
   indent 0.ss "castToGObject = id".
   indent 0.
   indent 0.ss "-- The usage of foreignPtrToPtr should be safe as the evaluation will only be".
@@ -250,31 +252,18 @@ makeClass table (name:parents) =
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".
   indent 0.
   (if null parents
-  then
-    indent 0.ss "class ".ss name.ss "Class o where".
-    indent 1.ss "to".ss name.ss "   :: o -> ".ss name.
-    indent 1.ss "from".ss name.ss " :: ".ss name.ss " -> o".
-    indent 0.
-    indent 0.ss "instance ".ss name.ss "Class ".ss name.ss " where".
-    indent 1.ss "to".ss name.ss "   = id".
-    indent 1.ss "from".ss name.ss " = id"
-  else
-    indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".
-    indent 0.ss "to".ss name.ss "   :: ".ss name.ss "Class o => o -> ".ss name.
-    indent 0.ss "to".ss name.ss "   = from".ss (last parents).ss " . to".ss (last parents).
-    indent 0.ss "from".ss name.ss " :: ".ss name.ss "Class o => ".ss name.ss " -> o".
-    indent 0.ss "from".ss name.ss " = from".ss (last parents).ss " . to".ss (last parents).
-    indent 0.
-    makeInstance name (name:parents)).
+     then indent 0.ss "class ".ss name.ss "Class o"
+     else indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o").
+  indent 0.ss "to".ss name.ss "   :: ".ss name.ss "Class o => o -> ".ss name.
+  indent 0.ss "to".ss name.ss "   = unsafeCoerce#".
+  indent 0.ss "from".ss name.ss " :: ".ss name.ss "Class o => ".ss name.ss " -> o".
+  indent 0.ss "from".ss name.ss " = unsafeCoerce#".
+  indent 0.
+  makeInstance name (name:parents).
   indent 0
 
 makeInstance :: String -> [String] -> ShowS
-makeInstance name [par] =
-  indent 0.
-  indent 0.ss "instance ".ss par.ss "Class ".ss name.ss " where".
-  indent 1.ss "to".ss par.ss "   = mk".ss par.ss ".castForeignPtr.un".ss name.
-  indent 1.ss "from".ss par.ss " = mk".ss name.ss ".castForeignPtr.un".ss par.
-  indent 0
+makeInstance name [] = indent 0
 makeInstance name (par:ents) =
   indent 0.ss "instance ".ss par.ss "Class ".ss name.
   makeInstance name ents

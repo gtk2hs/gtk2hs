@@ -3,6 +3,9 @@
 	* configure.in, Makefile, mk/config.mk.in: allow libglade to be
 	built without the gnome modules.
 
+	* tools/hierarchyGen/TypeGen.hs: remove class methods from
+	GObjectClass. Use unsafeCoerce instead.
+
 2004-05-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/treeList/TreeStore.chs: added method treeStoreClear
