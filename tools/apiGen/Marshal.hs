@@ -5,6 +5,8 @@ module Marshal (
   EnumKind(..),
   stripKnownPrefixes,
   knownMiscType,
+  maybeNullParameter,
+  maybeNullResult,
   genMarshalParameter,
   genMarshalResult,
   genMarshalProperty,
@@ -77,7 +79,32 @@ knownMiscType _ = False
 -- > AdjustmentClass adjustment => adjustment -> ...
 leafClass :: String -> Bool
 leafClass "GtkAdjustment" = True
+leafClass "GdkPixbuf"     = True
 leafClass _ = False
+
+-- This is a table of fixup information. It lists function parameters that
+-- can be null and so should therefore be converted to use a Maybe type.
+-- The perameters are identifed by C function name and parameter name.
+--
+-- Note that if you set this to True for any parameter then the docs for this
+-- function will use @Nothing@ in place of NULL rather than a FIXME message. So
+-- make sure all possibly-null parameters have been fixed since all NULLs in
+-- the function docs are suppressed (since there is no automatic way of working
+-- out which function doc NULLs correspond to which parameters).
+--
+maybeNullParameter :: String -> String -> Bool
+maybeNullParameter "gtk_entry_completion_set_model" "model" = True
+maybeNullParameter "gtk_label_new" "str" = True
+maybeNullParameter _ _ = False
+
+-- similarly for method return values/types.
+maybeNullResult :: String -> Bool
+maybeNullResult "gtk_entry_completion_get_entry" = True
+maybeNullResult "gtk_entry_completion_get_model" = True
+maybeNullResult "gtk_accel_label_get_accel_widget" = True
+maybeNullResult "gtk_progress_bar_get_text" = True
+maybeNullResult "gtk_bin_get_child" = True
+maybeNullResult _ = False
 
 -------------------------------------------------------------------------------
 -- Here's the interesting bit that generates the fragments of mashaling code
@@ -85,18 +112,19 @@ leafClass _ = False
 
 genMarshalParameter ::
         KnownSymbols -> --a collection of types we know to be objects or enums
+        String ->       --function name (useful to lookup per-func fixup info)
 	String ->	--parameter name suggestion (will be unique)
 	String -> 	--C type decleration for the parameter we will marshal
 	(Maybe String,	--parameter class constraints (or none)
 	Maybe String,	--parameter type (or none if the arg is not exposed)
 	ShowS -> ShowS)	--marshaling code (\body -> ... body ...)
 
-genMarshalParameter _ name "gboolean" =
+genMarshalParameter _ _ name "gboolean" =
 	(Nothing, Just "Bool",
 	\body -> body.
-                 indent 2. ss " (fromBool ". ss name. ss ")")
+                 indent 2. ss "(fromBool ". ss name. ss ")")
 
-genMarshalParameter _ name typeName
+genMarshalParameter _ _ name typeName
 			 | typeName == "guint"  --these two are unsigned types
 			|| typeName == "gint"
 			|| typeName == "int"
@@ -104,33 +132,38 @@ genMarshalParameter _ name typeName
 			|| typeName == "gssize" =
 	(Nothing, Just "Int",
 	\body -> body.
-                 indent 2. ss " (fromIntegral ". ss name. ss ")")
+                 indent 2. ss "(fromIntegral ". ss name. ss ")")
 
-genMarshalParameter _ name "gdouble" =
+genMarshalParameter _ _ name "gdouble" =
 	(Nothing, Just "Double",
 	\body -> body.
-                 indent 2. ss " (realToFrac ". ss name. ss ")")
+                 indent 2. ss "(realToFrac ". ss name. ss ")")
 
-genMarshalParameter _ name "gfloat" =
+genMarshalParameter _ _ name "gfloat" =
 	(Nothing, Just "Float",
 	\body -> body.
-                 indent 2. ss " (realToFrac ". ss name. ss ")")
+                 indent 2. ss "(realToFrac ". ss name. ss ")")
 
-genMarshalParameter _ name typeName | typeName == "const-gchar*"
-                                   || typeName == "const-char*" =
-	(Nothing, Just "String",
-	\body -> ss "withUTFString ". ss name. ss " $ \\". ss name. ss "Ptr ->".
-		 indent 1. body.
-                 indent 2. sc ' '. ss name. ss "Ptr")
+genMarshalParameter _ funcName name typeName | typeName == "const-gchar*"
+                                            || typeName == "const-char*" =
+  if maybeNullParameter funcName name
+    then (Nothing, Just "Maybe String",
+	 \body -> ss "maybeWith withUTFString ". ss name. ss " $ \\". ss name. ss "Ptr ->".
+		  indent 1. body.
+                  indent 2. ss name. ss "Ptr")
+    else (Nothing, Just "String",
+	 \body -> ss "withUTFString ". ss name. ss " $ \\". ss name. ss "Ptr ->".
+		  indent 1. body.
+                  indent 2. ss name. ss "Ptr")
 
-genMarshalParameter _ name "GError**" =
+genMarshalParameter _ _ name "GError**" =
 	(Nothing, Nothing,
 	\body -> ss "propagateGError $ \\". ss name. ss "Ptr ->".
 	         indent 1. body.
-                 indent 2. sc ' '. ss name. ss "Ptr")
+                 indent 2. ss name. ss "Ptr")
 
 -- Objects -----------------------------
-genMarshalParameter knownSymbols name typeName'
+genMarshalParameter knownSymbols funcName name typeName'
             | isUpper (head typeName')
            && last typeName' == '*'
            && last typeName /= '*'
@@ -139,99 +172,125 @@ genMarshalParameter knownSymbols name typeName'
           then (Nothing, Just shortTypeName,
                \body -> body.
                         indent 2. ss name)
+        else if maybeNullParameter funcName name
+          then (Just $ shortTypeName ++ "Class " ++ name, Just ("Maybe " ++ name),
+               \body -> body.
+                        indent 2. ss "(maybe (". ss shortTypeName. ss " nullForeignPtr) to".
+                                                  ss shortTypeName. sc ' '. ss name. ss ")")
           else (Just $ shortTypeName ++ "Class " ++ name, Just name,
                \body -> body.
-                        indent 2. ss " (to". ss shortTypeName. sc ' '. ss name. ss ")")
+                        indent 2. ss "(to". ss shortTypeName. sc ' '. ss name. ss ")")
   where typeName = init typeName'
         shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
 -- Enums -------------------------------
-genMarshalParameter knownSymbols name typeName
+genMarshalParameter knownSymbols _ name typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
 	(Nothing, Just shortTypeName,
 	\body -> body.
-                 indent 2. ss " ((fromIntegral . fromEnum) ". ss name. ss ")")
+                 indent 2. ss "((fromIntegral . fromEnum) ". ss name. ss ")")
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
 -- Flags -------------------------------
-genMarshalParameter knownSymbols name typeName
+genMarshalParameter knownSymbols _ name typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
 	(Nothing, Just shortTypeName,
 	\body -> body.
-                 indent 2. ss " ((fromIntegral . fromFlags) ". ss name. ss ")")
+                 indent 2. ss "((fromIntegral . fromFlags) ". ss name. ss ")")
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
-genMarshalParameter _ name textIter | textIter == "const-GtkTextIter*"
+genMarshalParameter _ _ name textIter | textIter == "const-GtkTextIter*"
                                    || textIter == "GtkTextIter*" =
 	(Nothing, Just "TextIter",
 	\body -> body.
-                 indent 2. sc ' '. ss name)
+                 indent 2. ss name)
 
-genMarshalParameter _ name "GtkTreeIter*" =
+genMarshalParameter _ _ name "GtkTreeIter*" =
 	(Nothing, Just "TreeIter",
 	\body -> body.
-                 indent 2. sc ' '. ss name)
+                 indent 2. ss name)
 
-genMarshalParameter _ name "GtkTreePath*" =
+genMarshalParameter _ _ name "GtkTreePath*" =
 	(Nothing, Just "TreePath",
 	\body -> ss "withTreePath ". ss name. ss " $ \\". ss name. ss " ->".
 		 indent 1. body.
-                 indent 2. sc ' '. ss name)
+                 indent 2. ss name)
 
-genMarshalParameter _ name unknownType =
+genMarshalParameter _ _ name unknownType =
 	(Nothing, Just $ "{-" ++ unknownType ++ "-}",
 	\body -> body.
-                 indent 2. ss " {-". ss name. ss "-}")
+                 indent 2. ss "{-". ss name. ss "-}")
 
 -- Takes the type string and returns the Haskell Type and the marshaling code
 --
-genMarshalResult :: KnownSymbols -> String -> (String, ShowS -> ShowS)
-genMarshalResult _ "gboolean" = ("IO Bool", \body -> ss "liftM toBool $". indent 1. body)
-genMarshalResult _ "gint"     = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
-genMarshalResult _ "guint"    = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
-genMarshalResult _ "gdouble"  = ("IO Double", \body -> ss "liftM realToFrac $". indent 1. body)
-genMarshalResult _ "gfloat"   = ("IO Float",  \body -> ss "liftM realToFrac $". indent 1. body)
-genMarshalResult _ "void"     = ("IO ()", id)
-genMarshalResult _ "const-gchar*"  = ("IO String", \body -> body.
-                                                            indent 1. ss  ">>= peekUTFString")
-genMarshalResult _ "gchar*"        = ("IO String", \body -> body.
-                                                            indent 1. ss  ">>= readUTFString")
-genMarshalResult _ "const-GSList*" =
+genMarshalResult :: 
+        KnownSymbols -> --a collection of types we know to be objects or enums
+        String ->       --function name (useful to lookup per-func fixup info)
+	String -> 	--C type decleration for the return value we will marshal
+	(String,	--Haskell return type 
+	ShowS -> ShowS)	--marshaling code (\body -> ... body ...)
+genMarshalResult _ _ "gboolean" = ("IO Bool", \body -> ss "liftM toBool $". indent 1. body)
+genMarshalResult _ _ "gint"     = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ "guint"    = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ "gdouble"  = ("IO Double", \body -> ss "liftM realToFrac $". indent 1. body)
+genMarshalResult _ _ "gfloat"   = ("IO Float",  \body -> ss "liftM realToFrac $". indent 1. body)
+genMarshalResult _ _ "void"     = ("IO ()", id)
+genMarshalResult _ funcName "const-gchar*" =
+  if maybeNullResult funcName
+    then ("IO (Maybe String)",
+         \body -> body.
+                  indent 1. ss  ">>= maybePeek peekUTFString")
+    else ("IO String",
+         \body -> body.
+                  indent 1. ss  ">>= peekUTFString")
+genMarshalResult _ funcName "gchar*" =
+  if maybeNullResult funcName
+    then ("IO (Maybe String)",
+         \body -> body.
+                  indent 1. ss  ">>= maybePeek readUTFString")
+    else ("IO String",
+         \body -> body.
+                  indent 1. ss  ">>= readUTFString")
+genMarshalResult _ _ "const-GSList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= readGSList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
-genMarshalResult _ "GSList*" =
+genMarshalResult _ _ "GSList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= fromGSList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
-genMarshalResult _ "GList*" =
+genMarshalResult _ _ "GList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= fromGList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
 
-genMarshalResult knownSymbols typeName'
+genMarshalResult knownSymbols funcName typeName'
             | isUpper (head typeName')
            && last typeName' == '*'
            && last typeName /= '*'
            && symbolIsObject typeKind =
-  ("IO " ++ shortTypeName,
-  \body -> ss constructor. ss " mk". ss shortTypeName. ss " $".
-           indent 1. body)
+  if maybeNullResult funcName
+    then ("IO (Maybe " ++ shortTypeName ++ ")",
+         \body -> ss "maybeNull (" .ss constructor. ss " mk". ss shortTypeName. ss ") $".
+                  indent 1. body)
+    else ("IO " ++ shortTypeName,
+         \body -> ss constructor. ss " mk". ss shortTypeName. ss " $".
+                  indent 1. body)
   where typeName = init typeName'
         shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
         constructor | symbolIsGObject typeKind = "makeNewGObject"
                     | symbolIsGtkObject typeKind = "makeNewObject"
         
-genMarshalResult knownSymbols typeName
+genMarshalResult knownSymbols _ typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
   ("IO " ++ shortTypeName,
@@ -240,7 +299,7 @@ genMarshalResult knownSymbols typeName
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
-genMarshalResult knownSymbols typeName
+genMarshalResult knownSymbols _ typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
   ("IO " ++ shortTypeName,
@@ -249,7 +308,7 @@ genMarshalResult knownSymbols typeName
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
-genMarshalResult _ unknownType = ("{-" ++ unknownType ++ "-}", id)
+genMarshalResult _ _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
 -- Takes the type string and returns the Haskell Type and the GValue constructor
 --

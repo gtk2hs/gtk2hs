@@ -39,7 +39,7 @@ genModuleDocumentation knownSymbols moduledoc =
      then id
      else comment.ss "* Description".nl.
           comment.nl.
-          comment.ss "| ".haddocFormatParas knownSymbols (moduledoc_description moduledoc).nl).
+          comment.ss "| ".haddocFormatParas knownSymbols False (moduledoc_description moduledoc).nl).
   (if null (moduledoc_sections moduledoc)
      then id
      else nl.comment.haddocFormatSections knownSymbols (moduledoc_sections moduledoc).nl.comment.nl).
@@ -56,7 +56,7 @@ haddocFormatHierarchy knownSymbols =
     sepBy "\n-- |"
   . map haddocTweakHierarchy
   . Prelude.lines
-  . concatMap (haddocFormatSpan knownSymbols)
+  . concatMap (haddocFormatSpan knownSymbols False)
 
 haddocTweakHierarchy :: String -> String
 haddocTweakHierarchy ('+':'-':'-':'-':'-':cs@(c:_)) | c /= ''' =
@@ -104,46 +104,46 @@ haddocFormatSections knownSymbols =
   . map (\section ->
          ss "** ". ss (section_title section). nl.
          comment.nl.
-         comment.ss "| ".haddocFormatParas knownSymbols (section_paras section))
+         comment.ss "| ".haddocFormatParas knownSymbols False (section_paras section))
 
-haddocFormatParas :: KnownSymbols -> [DocPara] -> ShowS
-haddocFormatParas knownSymbols =
+haddocFormatParas :: KnownSymbols -> Bool -> [DocPara] -> ShowS
+haddocFormatParas knownSymbols handleNULLs =
     sepBy' "\n--\n-- "
-  . map (haddocFormatPara knownSymbols)
+  . map (haddocFormatPara knownSymbols handleNULLs)
 
-haddocFormatPara :: KnownSymbols -> DocPara -> ShowS
-haddocFormatPara knownSymbols (DocParaText spans) = haddocFormatSpans knownSymbols 3 spans
-haddocFormatPara knownSymbols (DocParaProgram prog) =
+haddocFormatPara :: KnownSymbols -> Bool -> DocPara -> ShowS
+haddocFormatPara knownSymbols handleNULLs (DocParaText spans) = haddocFormatSpans knownSymbols handleNULLs 3 spans
+haddocFormatPara knownSymbols _ (DocParaProgram prog) =
     ((ss "* FIXME: if the follwing is a C code example, port it to Haskell or remove it".nl.
       comment).)
   . sepBy "\n-- > "
   . List.lines
   $ prog
-haddocFormatPara knownSymbols (DocParaTitle title) =
+haddocFormatPara knownSymbols _ (DocParaTitle title) =
     ss "* ". ss title
-haddocFormatPara knownSymbols (DocParaDefItem term spans) =
-  let def = (unwords . words . escape . concatMap (haddocFormatSpan knownSymbols)) term in
+haddocFormatPara knownSymbols handleNULLs (DocParaDefItem term spans) =
+  let def = (unwords . words . escape . concatMap (haddocFormatSpan knownSymbols handleNULLs)) term in
   sc '['. ss def. ss "] ".
-  haddocFormatSpans knownSymbols (length def + 6) spans
+  haddocFormatSpans knownSymbols handleNULLs (length def + 6) spans
   where escape [] = []
         escape (']':cs) = '\\': ']' : escape cs --we must escape ] in def terms
         escape (c:cs)   =        c  : escape cs
-haddocFormatPara knownSymbols (DocParaListItem spans) =
+haddocFormatPara knownSymbols handleNULLs (DocParaListItem spans) =
   ss "* ".
-  haddocFormatSpans knownSymbols 5 spans
+  haddocFormatSpans knownSymbols handleNULLs 5 spans
 
-haddocFormatSpans :: KnownSymbols -> Int -> [DocParaSpan] -> ShowS
-haddocFormatSpans knownSymbols initialCol =
+haddocFormatSpans :: KnownSymbols -> Bool -> Int -> [DocParaSpan] -> ShowS
+haddocFormatSpans knownSymbols handleNULLs initialCol =
     sepBy' "\n-- "
   . map (sepBy " ")
   . wrapText initialCol 77
-  . map (mungeWord knownSymbols)
+  . map (mungeWord knownSymbols handleNULLs)
   . words
-  . concatMap (haddocFormatSpan knownSymbols)
+  . concatMap (haddocFormatSpan knownSymbols handleNULLs)
 
-haddocFormatSpan :: KnownSymbols -> DocParaSpan -> String
-haddocFormatSpan _ (DocText text)       = escapeHaddockSpecialChars text
-haddocFormatSpan knownSymbols (DocTypeXRef text) =
+haddocFormatSpan :: KnownSymbols -> Bool -> DocParaSpan -> String
+haddocFormatSpan _ _ (DocText text)       = escapeHaddockSpecialChars text
+haddocFormatSpan knownSymbols handleNULLs (DocTypeXRef text) =
   case lookupFM knownSymbols text of
     Nothing | text == "TRUE"  -> "@True@"
             | text == "FALSE"          -> "@False@"
@@ -158,20 +158,22 @@ haddocFormatSpan knownSymbols (DocTypeXRef text) =
     Just SymClassType                  -> "{" ++ text ++ ", FIXME: class type}"
     Just SymTypeAlias                  -> "{" ++ text ++ ", FIXME: type alias}"
     Just SymCallbackType               -> "{" ++ text ++ ", FIXME: callback type}"
-haddocFormatSpan _ (DocFuncXRef text)   = "'" ++ cFuncNameToHsName text ++ "'"
-haddocFormatSpan _ (DocOtherXRef text)  = "'{FIXME: gtk-doc cross reference to:" ++ text ++ "}'"
-haddocFormatSpan _ (DocEmphasis text)   = "/" ++ text ++ "/"
-haddocFormatSpan _ (DocLiteral "TRUE")  = "@True@"
-haddocFormatSpan _ (DocLiteral "FALSE") = "@False@"
+haddocFormatSpan _ _ (DocFuncXRef text)   = "'" ++ cFuncNameToHsName text ++ "'"
+haddocFormatSpan _ _ (DocOtherXRef text)  = "'{FIXME: gtk-doc cross reference to:" ++ text ++ "}'"
+haddocFormatSpan _ _ (DocEmphasis text)   = "/" ++ text ++ "/"
+haddocFormatSpan _ _ (DocLiteral "TRUE")  = "@True@"
+haddocFormatSpan _ _ (DocLiteral "FALSE") = "@False@"
   --likely that something should be changed to a Maybe type if this is emitted:
-haddocFormatSpan _ (DocLiteral "NULL")  = "{@NULL@, FIXME: this should probably be converted"
-                                                      ++ " to a Maybe data type}"
-haddocFormatSpan knownSymbols (DocLiteral text) =
+haddocFormatSpan _ handleNULLs (DocLiteral "NULL") = 
+ if handleNULLs
+   then "@Nothing@"
+   else "{@NULL@, FIXME: this should probably be converted to a Maybe data type}"
+haddocFormatSpan knownSymbols _ (DocLiteral text) =
   case lookupFM knownSymbols text of
     Nothing                            -> "@" ++ escapeHaddockSpecialChars text ++ "@"
     Just SymEnumValue                  -> "'" ++ cConstNameToHsName text ++ "'"
     _ -> "{" ++ text ++ ", FIXME: unknown literal value}" --TODO fill in the other cases
-haddocFormatSpan _ (DocArg  text)       = "@" ++ cParamNameToHsName text ++ "@"
+haddocFormatSpan _ _ (DocArg  text)       = "@" ++ cParamNameToHsName text ++ "@"
 
 cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
@@ -212,14 +214,17 @@ escapeHaddockSpecialChars = escape
                       = '\\': c : escape cs
         escape (c:cs) =       c : escape cs
 
-mungeWord :: KnownSymbols -> String -> String
-mungeWord knownSymbols ('G':'T':'K':[])            = "Gtk+"
-mungeWord knownSymbols ('G':'T':'K':'+':remainder) = "Gtk+" ++ remainder
-mungeWord knownSymbols word
+mungeWord :: KnownSymbols -> Bool -> String -> String
+mungeWord knownSymbols _ ('G':'T':'K':[])            = "Gtk+"
+mungeWord knownSymbols _ ('G':'T':'K':'+':remainder) = "Gtk+" ++ remainder
+mungeWord knownSymbols handleNULLs word
                  | word' == "TRUE"       = "@True@"  ++ remainder
                  | word' == "FALSE"      = "@False@" ++ remainder
-                 | word' == "NULL" = "{@NULL@, FIXME: this should probably be converted to a Maybe data type}"
-                                                     ++ remainder
+                 | word' == "NULL" = if handleNULLs
+                                       then "@Nothing@" ++ remainder
+                                       else "{@NULL@, FIXME: this should probably "
+                                         ++ "be converted to a Maybe data type}" ++ remainder
+                 | word' == "G_MAXINT"   = "@('maxBound' :: Int)@" ++ remainder
                  | isJust e = case e of
                                 Just (SymObjectType _) -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder
                                 Just (SymEnumType _)   -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder

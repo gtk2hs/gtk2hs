@@ -1,3 +1,23 @@
+2005-02-21 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/Marshal.hs: pass function name to parameter and return
+	marshaling functions so that they can be used to lookup per-function
+	fixup information. Add per-function fixup info maps; one to say that a
+	function parameter can take a NULL pointer and one to say that the
+	function return value can be NULL. Use this info to marshal these
+	using Maybe types. Support Maybe for object parameters and returns and
+	Maybe for string parameters and returns.
+
+	* tools/apiGen/FormatDocs.hs: add parameter to say if NULLs should be
+	converted to Nothing or if they should generate FIXME messages.
+
+	* tools/apiGen/CodeGen.hs: include constructors in mapping of C
+	function names from original modules so unsafe tags are preserved for
+	constructors. Tell doc formatting functions when to ignore NULLs; do
+	it when any of the function parameters or return are a Maybe type.
+
+	* tools/apiGen/ApiGen.hs: trivial change
+
 2005-02-20 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Api.hs: add support for misc symbols: structs, boxed,

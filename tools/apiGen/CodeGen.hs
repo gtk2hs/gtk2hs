@@ -30,12 +30,12 @@ genFunction knownSymbols method doc info =
      then ss "-- * Warning this function is deprecated\n--\n"
      else id).
   ss functionName. ss " :: ". functionType. nl.
-  ss functionName. sc ' '. sepBy " " paramNames. ss " =".
+  ss functionName. sc ' '. formattedParamNames. sc '='.
   indent 1. body
 
   where functionName = cFuncNameToHsName (method_cname method)
 	(classConstraints', paramTypes', paramMarshalers) =
-	  unzip3 [ case genMarshalParameter knownSymbols
+	  unzip3 [ case genMarshalParameter knownSymbols (method_cname method)
                           (changeIllegalNames (cParamNameToHsName (parameter_name p)))
 	                  (parameter_type p) of
                      (c, ty, m) -> (c, (ty, parameter_name p), m)
@@ -45,8 +45,9 @@ genFunction knownSymbols method doc info =
                      | (Just paramType, name) <- paramTypes' ]
 	paramNames = [ changeIllegalNames (cParamNameToHsName (parameter_name p))
 		     | ((Just _, _), p) <- zip paramTypes' (method_parameters method) ]
+        formattedParamNames = cat (map (\name -> ss name.sc ' ') paramNames)
 	(returnType', returnMarshaler) =
-		genMarshalResult knownSymbols (method_return_type method)
+		genMarshalResult knownSymbols (method_cname method) (method_return_type method)
         returnType = (returnType', lookup "Returns" paramDocMap)
 	functionType = (case classConstraints of
 	                  []  -> id
@@ -61,8 +62,11 @@ genFunction knownSymbols method doc info =
                   Just info -> methodinfo_unsafe info
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas knownSymbols (funcdoc_paragraphs doc). nl.
+          Just doc -> ss "-- | ". haddocFormatParas knownSymbols docNullsAllFixed (funcdoc_paragraphs doc). nl.
                       ss "--\n"
+        docNullsAllFixed = maybeNullResult (method_cname method)
+                        || or [ maybeNullParameter (method_cname method) (parameter_name p)
+                              | p <- method_parameters method ]
         paramDocMap = case doc of
           Nothing  -> []
           Just doc -> [ (paramdoc_name paramdoc
@@ -97,9 +101,9 @@ genFunction knownSymbols method doc info =
                     sepBy' ("\n" ++ replicate (columnIndent+5) ' ' ++  "-- ")
                   . map (sepBy " ")
                   . wrapText 3 (80 - columnIndent - 8)
-                  . map (mungeWord knownSymbols)
+                  . map (mungeWord knownSymbols docNullsAllFixed)
                   . words
-                  . concatMap (haddocFormatSpan knownSymbols)
+                  . concatMap (haddocFormatSpan knownSymbols docNullsAllFixed)
                 columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
 
 genModuleBody :: KnownSymbols -> Object -> ModuleDoc -> ModuleInfo -> ShowS
@@ -129,7 +133,10 @@ mungeMethodInfo object modInfo =
                               }
                          else methodInfo) (module_methods modInfo)
   }
-  where shortMethodNames = map (stripPrefix . method_cname) (object_methods object)
+  where shortMethodNames = [ stripPrefix (constructor_cname constructor)
+                           | constructor <- object_constructors object]
+                        ++ [ stripPrefix (method_cname method)
+                           | method <- object_methods object]
         stripPrefix cname | prefix `isPrefixOf` cname = drop (length prefix) cname
                           | otherwise = cname
         prefix = module_context_prefix modInfo ++ "_"
@@ -154,7 +161,6 @@ methods object docs methodsInfo sortByExisting =
      in (index,(mungeMethod object method, doc, info))
   | method <- object_methods object
   , null [ () | VarArgs <- method_parameters method]   --exclude VarArgs methods
---  , not ("_get_type" `isSuffixOf` method_cname method && method_shared method)
   , not (method_deprecated method && isNothing (lookup (method_cname method) infomap)) ]
   where docmap =  [ (funcdoc_name doc, (doc,index))
                   | (doc,index) <- zip docs [1..] ]
@@ -229,7 +235,7 @@ genProperty knownSymbols object property doc =
         setter = ss "(\\obj val -> objectSetProperty obj \"". ss (property_cname property). ss "\" (". ss gvalueConstructor. ss " val))"
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas knownSymbols (propdoc_paragraphs doc). nl.
+          Just doc -> ss "-- | ". haddocFormatParas knownSymbols False (propdoc_paragraphs doc). nl.
                       ss "--\n"
         (propertyType, gvalueConstructor) = genMarshalProperty knownSymbols (property_type property)
 
@@ -265,7 +271,7 @@ genSignal knownSymbols object signal doc =
         signalCName = sc '"'. ss (signal_cname signal). sc '"'
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas knownSymbols (signaldoc_paragraphs doc). nl.
+          Just doc -> ss "-- | ". haddocFormatParas knownSymbols False (signaldoc_paragraphs doc). nl.
                       ss "--\n"
 
 canonicalSignalName :: String -> String
