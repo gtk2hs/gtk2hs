@@ -50,6 +50,8 @@
 	support building with older ghc versions that do not support "auto"
 	packages and so you have to specifiy -package gtk or whatever.
 
+	* configure.ac: bump version to 0.9.7_rc3
+
 2005-01-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add an extra option --without-pkgreg to allow

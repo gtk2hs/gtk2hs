@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.7_rc3pre)
+AC_INIT(gtk2hs, 0.9.7_rc3)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
