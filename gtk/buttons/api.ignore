@@ -1,0 +1,3 @@
+
+#not needed because other APIs cover it
+exclude gtk_radio_button_[gs]et_group

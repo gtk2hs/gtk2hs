@@ -46,6 +46,20 @@
 	* demo/profileviewer/Makefile, demo/profileviewer/ProfileViewer.hs: fix
 	bug in demo and rename executable to be consistent.
 
+	* gtk/buttons/api.ignore, gtk/display/api.ignore,
+	gtk/embedding/api.ignore: mark deprecated and unued functions (oops 
+	forgot to commit these before).
+
+	* demo/filechooser/.cvsignore, demo/gconf/.cvsignore,
+	demo/glade/.cvsignore, gconf/System/Gnome/GConf/.cvsignore,
+	glade/.cvsignore, gtk/selectors/.cvsignore, sourceview/.cvsignore,
+	tools/apicoverage/.cvsignore, tools/callbackGen/.cvsignore,
+	tools/hierarchyGen/.cvsignore, gtk/abstract/.cvsignore,
+	gtk/entry/.cvsignore, gtk/gdk/.cvsignore, gtk/glib/.cvsignore,
+	gtk/layout/.cvsignore, gtk/menuComboToolbar/.cvsignore,
+	gtk/misc/.cvsignore, gtk/windows/.cvsignore: add and update .cvsignore
+	files so our cvs updates are less noisy.
+
 2004-08-1  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/entry/SpinButton.chs, gtk/layout/Table.chs, gtk/layout/Layout.chs
