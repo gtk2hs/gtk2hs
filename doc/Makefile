@@ -1,6 +1,10 @@
 TOP = ..
 HERE = doc/
 
+# directories of interest
+CURDIR		= $(shell $(PWD))
+TARDIR		= $(subst $(TOP),$(TARNAME),$(CURDIR))/
+
 include $(TOP)/mk/config.mk
 
 EMPTY	=
@@ -69,3 +73,7 @@ all : htmlGTK htmlMOGUL
 
 clean :
 	rm -rf MOGUL GTK
+
+tarsource :
+	$(strip $(TAR) rf $(TOP)/$(TARNAME).tar -C $(TOP) \
+	  $(addprefix $(TARDIR), Makefile gtk2hs.xml mogul.xml))

@@ -96,6 +96,8 @@ dist :
 	$(MAKE) -Cdemo/unicode tarsource
 	$(MAKE) -Cdemo/graphic tarsource
 	$(MAKE) -Cdemo/treeList tarsource
+	$(MAKE) -Cgendoc tarsource
+	$(MAKE) -Cdoc tarsource
 	$(GZIP) $(TARNAME).tar
 	$(RM) $(TARNAME)
 
