@@ -4,7 +4,7 @@
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/10/06 16:14:07 $
+--  Version $Revision: 1.2 $ from $Date: 2002/10/20 14:29:26 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -25,8 +25,8 @@
 -- @documentation@ ------------------------------------------------------------
 --
 -- * This module defines drawing primitives that can operate on 
---   @ref object DrawWindow@s, @ref object Pixmap@s and 
---   @ref object Bitmap@s.
+--   @ref data DrawWindow@s, @ref data Pixmap@s and 
+--   @ref data Bitmap@s.
 --
 -- @todo@ ---------------------------------------------------------------------
 --
@@ -67,7 +67,7 @@ import Structs  (Point)
 -- @method drawableGetDepth@ Get the size of pixels.
 --
 -- * Returns the number of bits which are use to store information on each
---   pixels in this @ref object Drawable@.
+--   pixels in this @ref data Drawable@.
 --
 drawableGetDepth :: DrawableClass d => d -> IO Int
 drawableGetDepth d = liftM fromIntegral $ 
@@ -211,10 +211,10 @@ drawPolygon d gc filled points =
 -- @method drawDrawable@ Copies another @ref type Drawable@.
 --
 -- * Copies the (width,height) region of the @ref arg src@ at coordinates
---   (@ref arg xSrc@, @ref arg ySrc@) to coordinates (@ref arg xDest@, @ref
---   arg yDest@) in the @ref arg dest@. The @ref arg width@ and/or @ref arg
---   height@ may be given as -1, in which case the entire source drawable
---   will be copied.
+--   (@ref arg xSrc@, @ref arg ySrc@) to coordinates (@ref arg xDest@,
+--   @ref arg yDest@) in the @ref arg dest@. The @ref arg width@ and/or
+--   @ref arg height@ may be given as -1, in which case the entire source
+--   drawable will be copied.
 --
 -- * Most fields in @ref arg gc@ are not used for this operation, but
 --   notably the clip mask or clip region will be honored.  The source and
