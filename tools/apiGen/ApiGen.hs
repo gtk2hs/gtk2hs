@@ -13,6 +13,7 @@ import FormatDocs
 import CodeGen
 import StringUtils (ss, templateSubstitute, splitOn)
 import ModuleScan
+import ExcludeApi
 
 import Monad  (when, liftM)
 import List   (isPrefixOf, intersperse)
@@ -35,25 +36,27 @@ main = do
   -- Parse command line parameters
   --
   let (apiFile: templateFile: rem) = args
-  let docFile = case map (drop 6) (filter ("--doc=" `isPrefixOf`)  rem) of
+      docFile = case map (drop 6) (filter ("--doc=" `isPrefixOf`)  rem) of
                   [] -> ""
 		  (docFile:_) -> docFile
-  let lib = case map (drop 6) (filter ("--lib=" `isPrefixOf`)  rem) of
+      lib = case map (drop 6) (filter ("--lib=" `isPrefixOf`)  rem) of
               [] -> ""
 	      (lib:_) -> lib
-  let prefix = case map (drop 9) (filter ("--prefix=" `isPrefixOf`)  rem) of
+      prefix = case map (drop 9) (filter ("--prefix=" `isPrefixOf`)  rem) of
                  [] -> ""
                  (prefix:_) -> prefix
-  let modPrefix = case map (drop 12) (filter ("--modprefix=" `isPrefixOf`)  rem) of
+      modPrefix = case map (drop 12) (filter ("--modprefix=" `isPrefixOf`)  rem) of
                     [] -> ""
 		    (modPrefix:_) -> modPrefix
-  let outdir = case map (drop 9) (filter ("--outdir=" `isPrefixOf`)  rem) of
+      outdir = case map (drop 9) (filter ("--outdir=" `isPrefixOf`)  rem) of
                  [] -> ""
                  (outdir:_) -> if last outdir == '/' then outdir else outdir ++ "/"
-  let includeApiFiles = map (drop 13) (filter ("--includeapi=" `isPrefixOf`)  rem)
-  let moduleRoot = case map (drop 14) (filter ("--scanmodules=" `isPrefixOf`)  rem) of
+      includeApiFiles = map (drop 13) (filter ("--includeapi=" `isPrefixOf`)  rem)
+      excludeApiFiles = map (drop 13) (filter ("--excludeapi=" `isPrefixOf`)  rem)
+      moduleRoot = case map (drop 14) (filter ("--scanmodules=" `isPrefixOf`)  rem) of
                      [] -> ""
                      (moduleRoot:_) -> moduleRoot
+      excludePaths = map (drop 14) (filter ("--excludescan=" `isPrefixOf`)  rem)
 
   -----------------------------------------------------------------------------
   -- Read in the input files
@@ -92,10 +95,19 @@ main = do
   --
   modulesInfo <- if null moduleRoot
                    then return []
-                   else scanModules moduleRoot
+                   else scanModules moduleRoot excludePaths
   let moduleInfoMap = [ (module_name moduleInfo, moduleInfo)
                       | moduleInfo <- modulesInfo ]
 
+  -----------------------------------------------------------------------------
+  -- Load up any api.exclude files supplied to filter out unwanted APIs
+  --
+  excludeApiFilesContents <- mapM readFile excludeApiFiles
+  let filterSpecs = map parseFilterFile excludeApiFilesContents
+      okAPI :: String -> Bool   --returns False to exclude the C function name
+      okAPI | null (concat filterSpecs) = const True
+            | otherwise = matcher (concat filterSpecs)
+  
   -----------------------------------------------------------------------------
   -- A few values that are used in the template
   --
@@ -110,7 +122,12 @@ main = do
   -- Write the result file(s) by substituting values into the template file
   --
   mapM 
-    (\(namespace, object, maybeModuleDoc, maybeModuleInfo) -> do
+    (\(namespace, object', maybeModuleDoc, maybeModuleInfo) -> do
+      let object = object' {
+              object_methods = [ method
+                               | method <- object_methods object'
+                               , okAPI (method_cname method) ]
+            }
       moduleDoc <- case maybeModuleDoc of
                      Nothing -> do when (not (null apiDoc)) $
 		                     putStrLn ("Warning: no documentation found for module "
@@ -175,7 +192,8 @@ usage = do
 	\ApiGen <apiFile> <templateFile>\n\
 	\         {--doc=<docFile>} {--lib=<lib>} {--prefix=<prefix>}\n\
 	\         {--outdir=<outDir>} {--modprefix=<modPrefix>}\n\
-	\         {--includeapi=<incApiFile>} {--scanmodules=<modulesRoot>}\n\
+	\         {--includeapi=<incApiFile>} {--excludeapi=<exclApiFile>}\n\
+	\         {--scanmodules=<modulesRoot>} {--excludescan=<excludePath>}\n\
 	\where\n\
 	\  <apiFile>       an xml api file produced by gapi_parser.pl\n\
 	\  <templateFile>  is the name and path of the output template file\n\
@@ -189,7 +207,12 @@ usage = do
 	\                  hierarchical module names\n\
 	\  <incApiFile>    the api xml file for a parent api, for example Gtk\n\
 	\                  uses types defined by Gdk and Pango.\n\
-        \  <modulesRoot>   the path to the existing modules.\n"
+	\  <exclApiFile>   an 'api.ignore' file of regexps which can be used\n\
+	\                  to stop specific API bindings being generated.\n\
+        \  <modulesRoot>   the path to the existing modules.\n\
+        \  <excludePath>   path to existing modules that you do not want to\n\
+        \                  have scanned, perhaps because they are from a\n\
+        \                  different library than the one being generated.\n"
   exitWith $ ExitFailure 1
 
 formatCopyrightDates :: String -> Either String (String, String) -> String

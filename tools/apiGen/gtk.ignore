@@ -1,0 +1,8 @@
+# all functions matching these regexps are ignored when generating modules
+
+always exclude _get_type$
+always exclude _valist$
+
+#these are sometimes bound if necessary but otherwise we can ignore them
+exclude _ref$
+exclude _unref$

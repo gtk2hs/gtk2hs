@@ -148,7 +148,7 @@ methods object docs methodsInfo sortByExisting =
      in (index,(mungeMethod object method, doc, info))
   | method <- object_methods object
   , null [ () | VarArgs <- method_parameters method]   --exclude VarArgs methods
-  , not ("_get_type" `isSuffixOf` method_cname method && method_shared method)
+--  , not ("_get_type" `isSuffixOf` method_cname method && method_shared method)
   , not (method_deprecated method && isNothing (lookup (method_cname method) infomap)) ]
   where docmap =  [ (funcdoc_name doc, (doc,index))
                   | (doc,index) <- zip docs [1..] ]

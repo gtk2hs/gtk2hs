@@ -4,6 +4,34 @@
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp: fix display of
 	documentation by moving much of it inside the export list.
 
+	* tools/apiGen/ModuleScan.hs: add abality to exclude certain modules
+	when scanning existing modules. This is useful so that we do not
+	confuse some Gtk module with a Gdk or Pango module of the same name.
+
+	* tools/apiGen/FormatDocs.hs: more minor improements to the docs.
+	Format constants inside literal tags and do not escape "'" so much
+	when it is not necessary.
+
+	* tools/apiGen/ExcludeApi.hs: new module that can parse the api.ignore
+	files and filter on theri basis. It the same code as used in the
+	apicoverage system.
+
+	* tools/apiGen/ApiGen.hs: add new options --excludeapi and
+	--excludescan. Use the ExcludeApi stuff to filter the list of methods
+	in each object before doing code generation.
+
+	* tools/apiGen/CodeGen.hs: no need to exclude *_get_type functions
+	here since the ExcludeApi functionality now covers this.
+
+	* tools/apiGen/gtk.ignore: list a few functions regexps that we do not
+	want to bind including the  *_get_type ones but also the _valist and
+	_ref / _unref ones.
+
+	* tools/apiGen/Makefile: add --excludeapi and --excludescan commands
+	when generating gtk-modules. Also add a 'clean' target.
+
+	* tools/apiGen/glib-sources.xml: strip version numbers.
+
 2005-02-16 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Renamed TreeViewColumn.chs, TreeModelSort.chs,

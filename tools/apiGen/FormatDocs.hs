@@ -24,7 +24,7 @@ import Marshal (stripKnownPrefixes, KnownSymbols, CSymbol(..))
 import StringUtils
 
 import Maybe (isJust)
-import Char (toLower, isUpper, isAlpha)
+import Char (toLower, isUpper, isAlpha, isSpace)
 import qualified List (lines)
 import Data.FiniteMap
 
@@ -137,13 +137,13 @@ haddocFormatSpan :: KnownSymbols -> DocParaSpan -> String
 haddocFormatSpan _ (DocText text)       = escapeHaddockSpecialChars text
 haddocFormatSpan knownSymbols (DocTypeXRef text) =
   case lookupFM knownSymbols text of
-    Nothing -> "{" ++ text ++ ", FIXME: unknown type/value}"
-    Just (SymObjectType _) -> "\"" ++ stripKnownPrefixes text ++ "\""
-    Just (SymEnumType _)   -> "'" ++ stripKnownPrefixes text ++ "'"
-    Just SymEnumValue      -> "'" ++ cConstNameToHsName text ++ "'"
+    Nothing | text == "TRUE"  -> "@True@"
+            | text == "FALSE"          -> "@False@"
+            | otherwise                -> "{" ++ text ++ ", FIXME: unknown type/value}"
+    Just (SymObjectType _)             -> "\"" ++ stripKnownPrefixes text ++ "\""
+    Just (SymEnumType _)               -> "'" ++ stripKnownPrefixes text ++ "'"
+    Just SymEnumValue                  -> "'" ++ cConstNameToHsName text ++ "'"
     _ -> "{" ++ text ++ ", FIXME: unknown type/value}" --TODO fill in the other cases
---             | looksLikeConstant text = "'" ++ cConstNameToHsName text ++ "'"
---             | otherwise              = "\"" ++ stripKnownPrefixes text ++ "\""
 haddocFormatSpan _ (DocFuncXRef text)   = "'" ++ cFuncNameToHsName text ++ "'"
 haddocFormatSpan _ (DocOtherXRef text)  = "'{FIXME: gtk-doc cross reference to:" ++ text ++ "}'"
 haddocFormatSpan _ (DocEmphasis text)   = "/" ++ text ++ "/"
@@ -151,9 +151,13 @@ haddocFormatSpan _ (DocLiteral "TRUE")  = "@True@"
 haddocFormatSpan _ (DocLiteral "FALSE") = "@False@"
   --likely that something should be changed to a Maybe type if this is emitted:
 haddocFormatSpan _ (DocLiteral "NULL")  = "{@NULL@, FIXME: this should probably be converted"
-                                                     ++ " to a Maybe data type}"
-haddocFormatSpan _ (DocLiteral text) = "@" ++ escapeHaddockSpecialChars text ++ "@"
-haddocFormatSpan _ (DocArg  text)    = "@" ++ cParamNameToHsName text ++ "@"
+                                                      ++ " to a Maybe data type}"
+haddocFormatSpan knownSymbols (DocLiteral text) =
+  case lookupFM knownSymbols text of
+    Nothing                            -> "@" ++ escapeHaddockSpecialChars text ++ "@"
+    Just SymEnumValue                  -> "'" ++ cConstNameToHsName text ++ "'"
+    _ -> "{" ++ text ++ ", FIXME: unknown literal value}" --TODO fill in the other cases
+haddocFormatSpan _ (DocArg  text)       = "@" ++ cParamNameToHsName text ++ "@"
 
 cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
@@ -187,7 +191,8 @@ changeIllegalNames other = other
 
 escapeHaddockSpecialChars = escape
   where escape [] = []
-        escape (''':'s':cs) = ''' : 's' : escape cs --often don't need to escape
+        escape (''':'s':s:cs) | isSpace s = ''' : 's' : ' ' : escape cs --often don't need to escape
+        escape (''':'t':s:cs) | isSpace s = ''' : 't' : ' ' : escape cs --eg it's & don't
         escape (c:cs) | c == '/' || c == '`'
                      || c == '"' || c == '@'
                      || c == '<' || c == '''
@@ -195,6 +200,7 @@ escapeHaddockSpecialChars = escape
         escape (c:cs) =       c : escape cs
 
 mungeWord :: KnownSymbols -> String -> String
+mungeWord knownSymbols ('G':'T':'K':[])            = "Gtk+"
 mungeWord knownSymbols ('G':'T':'K':'+':remainder) = "Gtk+" ++ remainder
 mungeWord knownSymbols word
                  | word' == "TRUE"       = "@True@"  ++ remainder
@@ -207,28 +213,4 @@ mungeWord knownSymbols word
                                 Just SymEnumValue      -> "'" ++ cConstNameToHsName word' ++ "'" ++ remainder
                  | otherwise = word
   where e = lookupFM knownSymbols word'
-        (word', remainder) = span (\c -> isAlpha c || c == '_') word  
-{-
-mungeWord _ "GTK+"  = "Gtk+"
-mungeWord _ "GTK+,"  = "Gtk+,"
-mungeWord _ "GTK+."  = "Gtk+."
-mungeWord _ "TRUE"  = "@True@"
-mungeWord _ "FALSE" = "@False@"
-mungeWord _ "TRUE,"  = "@True@,"
-mungeWord _ "FALSE," = "@False@,"
-mungeWord _ "NULL" = "{@NULL@, FIXME: this should probably be converted to a Maybe data type}"
-mungeWord knownSymbols word | isJust e = case e of
-                              Just (SymObjectType _) -> "\"" ++ stripKnownPrefixes word' ++ "\"" ++ remainder
-                              Just (SymEnumType _)   -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder
-                              Just SymEnumValue      -> "'" ++ cConstNameToHsName word' ++ "'" ++ remainder
-  where e = lookupFM knownSymbols word'
         (word', remainder) = span (\c -> isAlpha c || c == '_') word
-mungeWord _ word = word
--}
-
--- eg C constants with names like GTK_UPDATE_DISCONTINUOUS
-looksLikeConstant :: String -> Bool
-looksLikeConstant ('G':'T':'K':'_':rest) = all (\c -> isUpper c || c == '_')  rest
-looksLikeConstant ('G':'D':'K':'_':rest) = all (\c -> isUpper c || c == '_')  rest
-looksLikeConstant ('P':'A':'N':'G':'O':'_':rest) = all (\c -> isUpper c || c == '_')  rest
-looksLikeConstant _ = False

@@ -50,21 +50,22 @@ usefulLine _    = True
 
 main = do
   [path] <- getArgs
-  modules <- findModules path
+  modules <- findModules [] path
   modInfos <- mapM (\moduleName -> do ppExists <- doesFileExist (moduleName ++ ".chs.pp")
                                       if ppExists then scanModule (moduleName ++ ".chs.pp")
                                                   else scanModule (moduleName ++ ".chs")) modules
   print modInfos
 
-scanModules :: FilePath -> IO [ModuleInfo]
-scanModules path = do
-  modules <- findModules path
+scanModules :: FilePath -> [FilePath] -> IO [ModuleInfo]
+scanModules path excludePaths = do
+  modules <- findModules excludePaths path
   mapM (\moduleName -> do ppExists <- doesFileExist (moduleName ++ ".chs.pp")
                           if ppExists then scanModule (moduleName ++ ".chs.pp")
                                       else scanModule (moduleName ++ ".chs")) modules
 
-findModules :: FilePath -> IO [FilePath]
-findModules path = do
+findModules :: [FilePath] -> FilePath -> IO [FilePath]
+findModules excludePaths path | path `elem` excludePaths = return []
+findModules excludePaths path = do
   files <- getDirectoryContents path
   let (chsFiles, maybeDirs) = partition (\file -> ".chs" `isSuffixOf` file
                                             || ".chs.pp" `isSuffixOf` file) files
@@ -84,7 +85,7 @@ findModules path = do
                          else filterDirs     ds  mds
            in filterDirs [] [ path ++ "/" ++ maybeDir
                             | maybeDir <- maybeDirs, maybeDir /= ".", maybeDir /= ".."]
-  subDirModules <- mapM findModules dirs
+  subDirModules <- mapM (findModules excludePaths) dirs
   return $ map ((path++"/")++) modules ++ concat subDirModules
 
 scanModule :: FilePath -> IO ModuleInfo

@@ -33,6 +33,7 @@ PANGO_VERSION = 1.4.1
 ATK_VERSION = 1.6.1
 GTK_VERSION = 2.4.14
 GLADE_VERSION = 2.0.1
+CANVAS_VERSION = 2.4.0
 
 DOWNLOADS = \
 	ftp://ftp.gtk.org/pub/gtk/v2.4/glib-$(GLIB_VERSION).tar.bz2				\
@@ -40,7 +41,7 @@ DOWNLOADS = \
 	ftp://ftp.gtk.org/pub/gtk/v2.4/atk-$(ATK_VERSION).tar.bz2				\
 	ftp://ftp.gtk.org/pub/gtk/v2.4/gtk+-$(GTK_VERSION).tar.bz2				\
 	http://ftp.gnome.org/pub/GNOME/desktop/2.4/2.4.2/sources/libglade-$(GLADE_VERSION).tar.bz2\
-	http://ftp.gnome.org/pub/GNOME/desktop/2.4/2.4.2/sources/libgnomecanvas-2.4.0.tar.bz2
+	http://ftp.gnome.org/pub/GNOME/desktop/2.4/2.4.2/sources/libgnomecanvas-$(CANVAS_VERSION).tar.bz2
 
 get-source-code:
 	for i in $(DOWNLOADS); do \
@@ -82,8 +83,11 @@ gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen \
 	./ApiGen $< Template.chs --doc=gtk-docs.xml --outdir=$@ \
 	--includeapi=gdk-api.xml --includeapi=pango-api.xml \
 	--includeapi=atk-api.xml --includeapi=glib-api.xml \
+	--excludeapi=gtk.ignore \
 	--modprefix=Graphics.UI.Gtk.{-Category-} \
-	--scanmodules=../../gtk/Graphics/UI/Gtk
+	--scanmodules=../../gtk/Graphics/UI/Gtk \
+	--excludescan=../../gtk/Graphics/UI/Gtk/Pango \
+	--excludescan=../../gtk/Graphics/UI/Gtk/Gdk
 
 
 ###################
@@ -145,3 +149,12 @@ ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs \
 
 gapi_format_xml : formatXml.c
 	gcc `pkg-config --cflags --libs libxml-2.0 glib-2.0` $< -o $@
+
+########################
+#
+#       other stuff
+#
+clean :
+	rm *.o *.hi ApiGen gapi_format_xml
+	rm *-api.xml *-docs.xml
+
