@@ -9,6 +9,8 @@
 	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs: documentation changes
 	and code formatting changes.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Range.chs: Haddock markup fixes.
+
 2005-03-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: segfault bug fix. Clear up

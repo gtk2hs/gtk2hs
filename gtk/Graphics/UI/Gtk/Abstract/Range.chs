@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/14 23:55:07 $
+--  Version $Revision: 1.7 $ from $Date: 2005/03/15 19:49:40 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -264,7 +264,7 @@ afterValueChanged = connect_NONE__NONE "value_changed" True
 -- | Emitted when the range is adjusted by user action. Note the value can be
 -- outside the bounds of the range since it depends on the mouse position.
 --
--- Usually you should use 'onValueChanged' / 'afterValueChanged' instead.
+-- Usually you should use 'onValueChanged' \/ 'afterValueChanged' instead.
 --
 onAdjustBounds, afterAdjustBounds :: RangeClass self => self
  -> (Double -> IO ())
@@ -275,7 +275,7 @@ afterAdjustBounds = connect_DOUBLE__NONE "adjust_bounds" True
 -- | Emitted when the user presses a key (e.g. Page Up, Home, Right Arrow) to
 -- move the slider. The 'ScrollType' parameter gives the key that was pressed.
 --
--- Usually you should use 'onValueChanged' / 'afterValueChanged' instead.
+-- Usually you should use 'onValueChanged' \/ 'afterValueChanged' instead.
 --
 onMoveSlider, afterMoveSlider :: RangeClass self => self
  -> (ScrollType -> IO ())
