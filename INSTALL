@@ -105,9 +105,7 @@ Note:
 
 3. If your compilation falls over saying
 
-	There must be exactly one header file (suffix .h)
-	followed by exactly one or more binding files (suffix .chs).
-	Try the option `--help' on its own for more information.
+	Foo.hs: file name does not match module name `Foo'
 
    you should check if running hsc2hs resulted in a message like
 
@@ -115,8 +113,10 @@ Note:
 	No such file or directory
 	Killed
 
-  which is an indicator that you have not set LD_LIBRARY_PATH to the path where the GTK dynamic
-  libraries live. It is a bug in the 5.02 distribution of GHC that hsc2hs does not stop here.
+  which is an indicator that you have not set LD_LIBRARY_PATH to the
+  path where the GTK dynamic libraries live. It is a bug in the 5.02
+  distribution of GHC that hsc2hs does not stop here. Delete Foo.hs
+  before you do a second attempt.
 
 Report problems to <as49@ukc.ac.uk>.
 

@@ -1,7 +1,16 @@
+2002-06-22 Axel Simon <as49@ukc.ac.uk>
+
+	* Changed the configure script to more reliably find GNU versions
+	of sed and grep. Improved the build system which now correctly
+	manages dependencies between .chs file. Changed the calling
+	convention of the functions such that the object is the first
+	argument as in gtk+hs. Prepared for generating automatic
+	documentation.
+
 2002-04-16 Axel Simon <as49@ukc.ac.uk>
 
 	* Created the "dist" goal to tar a source distribution. Introduced
-	  a VERSION file.
+	a VERSION file.
 
 2002-04-14 Axel Simon <as49@ukc.ac.uk>
 
