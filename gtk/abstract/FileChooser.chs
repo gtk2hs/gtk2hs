@@ -353,13 +353,6 @@ afterUpdatePreview = connect_NONE__NONE "update-preview" True
 ------------------------------------------------------
 -- Utility functions that really ought to go elsewhere
 
--- like peekCString but then frees the string using g_free
-readCString :: CString -> IO String
-readCString strPtr = do
-  str <- peekCString strPtr
-  {# call unsafe g_free #} (castPtr strPtr)
-  return str
-
 -- convenience functions for GSlists of strings
 fromStringGSList :: GSList -> IO [String]
 fromStringGSList strList = do

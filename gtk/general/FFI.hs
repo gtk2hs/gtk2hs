@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2004/05/23 15:58:48 $
+--  Version $Revision: 1.4 $ from $Date: 2004/08/03 02:36:39 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -36,6 +36,8 @@ module FFI(
   newUTFStringLen,
   peekUTFString,
   peekUTFStringLen,
+  readUTFString,
+  readCString,
   newForeignPtr,
   foreignPtrToPtr,
   module Foreign,
@@ -83,7 +85,7 @@ foreignPtrToPtr = unsafeForeignPtrToPtr
 #endif
 
 #if __GLASGOW_HASKELL__>=600
-foreign import ccall unsafe "&free"
+foreign import ccall unsafe "&free"	--TODO: should we be using g_free?
   free' :: FinalizerPtr a
 
 foreignFree :: Ptr a -> FinalizerPtr a
@@ -129,6 +131,22 @@ peekUTFString strPtr = liftM fromUTF $ peekCString strPtr
 --
 peekUTFStringLen :: CStringLen -> IO String
 peekUTFStringLen strPtr = liftM fromUTF $ peekCStringLen strPtr
+
+-- like peekUTFString but then frees the string using g_free
+--
+readUTFString :: CString -> IO String
+readUTFString strPtr = do
+  str <- peekUTFString strPtr
+  free (castPtr strPtr)
+  return str 
+
+-- like peekCString but then frees the string using g_free
+--
+readCString :: CString -> IO String
+readCString strPtr = do
+  str <- peekCString strPtr
+  free (castPtr strPtr)
+  return str
 
 -- Convert Unicode characters to UTF-8.
 --
