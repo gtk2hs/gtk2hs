@@ -557,6 +557,7 @@ libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGL
 libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 
 libHSglade_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) glade
+glade/libHSglade_a.deps	: gtk/libHSgtk_a.deps
 
 nodist_libHSglade_a_SOURCES =	\
 	glade/Graphics/UI/Gtk/Glade/Types.chs

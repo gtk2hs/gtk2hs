@@ -2,6 +2,8 @@
 
 	* INSTALL: update the install instructions
 
+	* Makefile.am: add missing dependency.
+
 2005-01-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/formatXml.c, tools/apiGen/gapi_parser.pl: add extra
