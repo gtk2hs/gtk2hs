@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2002/06/13 23:03:12 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -128,7 +128,7 @@ import Monad	(liftM)
 import Maybe	(fromMaybe)
 import Char	(chr)
 import Foreign
-import CForeign
+import UTFCForeign
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}

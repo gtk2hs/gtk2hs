@@ -17,7 +17,6 @@ noinplace : inplaceinit
 	fi
 
 inplace	: noinplace
-# should be in package-deps: $(call makeTextList,$(NEEDPACKAGES))
 	@echo Adding package description to local package file.
 	@echo Package {\
 	  name			= \"$(PACKAGENAME)\",\
@@ -41,7 +40,7 @@ inplace	: noinplace
 	  $(addprefix -u+,$(EXTRA_SYMBOLS))))]} | \
 	  $(PKG) -f $(LOCALPKGCONF) -a  > /dev/null
 
-installcheck : noinplace
+installcheck :
 	@if $(PKG) -l | $(GREP) $(PACKAGENAME) > /dev/null; then \
 	  echo There is already a global package of the name $(PACKAGENAME).; \
 	  echo Remove this package with \`make uninstall\' first.; \

@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 13:22:46 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -71,7 +71,7 @@ import UTFCForeign
 import Signal	    
 import Structs	                (treeIterSize, nullForeignPtr)
 import StoreValue		(TMType)
-{#import GValue#}		(GValue, GenericValue)
+{#import GValue#}		(GValue, GenericValue, valueUnset)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -109,7 +109,9 @@ treeModelGetValue :: TreeModelClass tm => tm -> TreeIter -> Int ->
 treeModelGetValue tm iter col = alloca $ \vaPtr -> do
   {#call unsafe tree_model_get_value#} (toTreeModel tm) iter 
     (fromIntegral col) vaPtr
-  peek vaPtr
+  val <- peek vaPtr
+  valueUnset vaPtr
+  return val
 
 -- utilities related to tree models
 

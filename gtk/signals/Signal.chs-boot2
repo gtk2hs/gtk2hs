@@ -6,7 +6,7 @@ SignalName,
 import Monad	(liftM)
 import Foreign
 import UTFCForeign	
-import IOExts
+import LocalData
 import GObject	(objectRef, objectUnref)
 {#import Hierarchy#}
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -67,10 +67,9 @@ module Events(
   ) where
 
 
-import CString	(CString, peekCString)
+import UTFCForeign
 import Foreign
-import Bits	((.&.))
-import Int
+import LocalData((.&.))
 import GdkEnums	(VisibilityState, CrossingMode, NotifyType, WindowState,
 		 ScrollDirection)
 import Enums	(Button(..), Click(..))

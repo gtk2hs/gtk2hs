@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -73,10 +73,10 @@ module Structs(
 import Monad		(liftM)
 import Foreign
 import UTFCForeign
-import IOExts		(unsafePerformIO)	-- for nullForeignPtr
+import LocalData	(unsafePerformIO,	-- for nullForeignPtr
+			testBit)
 import Object		(makeNewObject)
 import Hierarchy
-import Bits		(testBit)
 
 #include <gtk/gtk.h>
 
@@ -103,7 +103,6 @@ instance Storable Rectangle where
     #{poke GdkRectangle, y} ptr ((fromIntegral y)::#type gint)
     #{poke GdkRectangle, width} ptr ((fromIntegral width)::#type gint)
     #{poke GdkRectangle, height} ptr ((fromIntegral height)::#type gint)
-  destruct = free
 
 -- @type Allocation@ Allocation
 --
@@ -128,7 +127,6 @@ instance Storable Requisition where
   poke ptr (Requisition width height) = do
     #{poke GtkRequisition, width} ptr ((fromIntegral width)::#type gint)
     #{poke GtkRequisition, height} ptr ((fromIntegral height)::#type gint)
-  destruct = free
 
 -- If an invalid input has been put into a SpinButton the input function may
 -- reject this value by returning this value.

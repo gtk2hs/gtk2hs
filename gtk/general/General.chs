@@ -4,7 +4,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/17 16:07:50 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -30,7 +30,6 @@
 --
 {-# OPTIONS -optc-include gtk/gtk.h #-}
 module General(
-  setLocale,
 --  getDefaultLanguage,
   init,
   eventsPending,
@@ -56,23 +55,13 @@ import System   (getProgName, getArgs, ExitCode(ExitSuccess, ExitFailure))
 import Monad	(liftM, mapM)
 import Foreign
 import UTFCForeign
-import IOExts	(newIORef, readIORef, writeIORef)
+import LocalData(newIORef, readIORef, writeIORef)
 import Object	(makeNewObject)
 {#import Hierarchy#}	 
 {#import Signal#}
 import Enums    (InputCondition(..))
 
 {#context lib="gtk" prefix ="gtk"#}
-
--- @method setLocale@ Ensure that the current locale is read.
---
-setLocale :: IO String
-setLocale  = do
-  strPtr <- {#call unsafe set_locale#}
-  str <- peekCString strPtr
-  destruct strPtr
-  return str
-
 
 -- @dunno@Retreive the current language.
 -- * This function returns a String which's pointer can be used later on for

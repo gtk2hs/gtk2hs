@@ -4,7 +4,6 @@ import Gtk	hiding (main)
 import Char
 
 main = do
-  setLocale
   init Nothing
   dia <- dialogNew
   dialogAddButton dia stockButtonYes responseYes
@@ -21,7 +20,7 @@ main = do
 
 arabic :: Markup
 arabic = markSpan [FontSize $ FSPoint 240]  $
-  "Is Haskell a "++markSpan [FontForeground "red"] "fantastic"++" language?"++
+ --"Is Haskell a "++markSpan [FontForeground "red"] "fantastic"++" language?"++
  -- Do you find Haskell a fantastic language? (language has a grammatical
  -- mistake in it)
   map chr [0x647,0x644,32,0x62A,0x62C,0x62F,0x646,32,0x647,0x622,

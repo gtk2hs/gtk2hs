@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:18 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -37,10 +37,10 @@ module WidgetTable (
   ) where
 
 import Monad	(liftM)
-import IOExts	(unsafePerformIO)
 import Foreign
-import Concurrent (MVar, newMVar, takeMVar, putMVar, readMVar)
-import FiniteMap(FiniteMap, emptyFM, addToFM, delFromFM, lookupFM, elemFM)
+import LocalControl (MVar, newMVar, takeMVar, putMVar, readMVar)
+import LocalData  (unsafePerformIO, FiniteMap, emptyFM, addToFM, delFromFM,
+		  lookupFM, elemFM)
 import Object   (makeNewObject)
 import Hierarchy
 import Widget	(widgetSetName, onUnrealize)

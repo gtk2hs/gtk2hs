@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:08 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -52,7 +52,7 @@ import GObject	(makeNewGObject)
 {#import TreeModel#}
 import Structs	(treeIterSize, nullForeignPtr)
 import StoreValue (TMType(..), GenericValue(..))
-{#import GValue#} (GValue)
+{#import GValue#} (GValue, valueUnset)
 import GType	  (GType)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -72,8 +72,10 @@ listStoreNew cols = makeNewGObject mkListStore $
 --
 listStoreSetValue :: (ListStoreClass ts) => ts -> TreeIter -> Int ->
                      GenericValue -> IO ()
-listStoreSetValue ts ti col val = withObject val $
-  {#call unsafe list_store_set_value#} (toListStore ts) ti (fromIntegral col)
+listStoreSetValue ts ti col val = with val $ \vPtr -> do
+  {#call unsafe list_store_set_value#} (toListStore ts) ti 
+    (fromIntegral col) vPtr
+  valueUnset vPtr
 
 -- @method listStoreRemove@ Remove a specific node.
 --

@@ -137,7 +137,7 @@ generate objs typeTable =
   indent 1.ss ") where".
   indent 0.
   indent 0.ss "import Foreign  (ForeignPtr, castForeignPtr, foreignPtrToPtr)".
-  indent 0.ss "import CForeign (CULong)".
+  indent 0.ss "import UTFCForeign (CULong)".
   indent 0.ss "import GType    (typeInstanceIsA)".
   indent 0.
   indent 0.ss "{#context lib=\"gtk\" prefix=\"gtk\" #}".

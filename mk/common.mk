@@ -185,8 +185,6 @@ errorNoTarget	:
 
 inplace		: all
 
-all		: inplaceinit
-
 inplaceinit	:
 	@if test ! -f $(LOCALPKGCONF); then \
 	  echo [ Package {\

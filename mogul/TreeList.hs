@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/07/19 10:08:52 $
+--  Version $Revision: 1.7 $ from $Date: 2002/07/21 16:07:18 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -107,8 +107,8 @@ import Gtk	hiding (
   -- TreeViewColumn
   treeViewColumnAddAttribute)
 import qualified Gtk
-import IOExts	(IORef(..), newIORef, readIORef, writeIORef)
-import Exception(throw, Exception(AssertionFailed))
+import LocalData	(IORef(..), newIORef, readIORef, writeIORef)
+import LocalControl	(throw, Exception(AssertionFailed))
 
 -- @data ListSkel@ A skeleton of a @ref type ListStore@ database.
 --

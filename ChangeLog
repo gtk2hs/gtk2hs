@@ -1,8 +1,49 @@
 2002-07-21  Axel Simon <A.Simon@ukc.ac.uk>
 
-	* configure.in: Corrected the search path when searching for a
-	ghc-pkg which is not in the PATH.
+	* gtk/Makefile, gtk/general/UTFCForeign.hs: Make the library
+	compile with GHC 5.04 which introduces hierarchical modules.
 	
+	* gtk/general/General.chs(setLocale): remove
+
+	* demo/unicode/Arabic.hs: remove setLocale
+	
+	* modul/WidgetTable.hs: Change the dependency on FiniteMap to a
+	newly introduced impedance matcher module compat/LocalData.hs.
+	
+	* treeList/TreeSelection.chs, gdk/GdkKeys.chs, general/Stock.hsc,
+	general/General.chs, signal/Signal.chs-boot2, gdk/Events.hsc,
+	gdk/GdkEnums.hs, glib/GObject.hs, modul/WidgetTable.hs,
+	mogule/TreeList.hs: Changed the dependency on IOExts to a newly
+	introduced impedance matcher module compat/LocalData.hs.
+
+	* treeList/StoreValue.hs: Changed the dependency on Exception to a
+	newly introduced impedance matcher module compat/LocalControl.hs.
+
+	* multiline/TextMark.chs, multiline/TextIter.chs,
+	multiline/TextTag.chs, multiline/TextTagTable.chs,
+	multiline/TextView.chs, gdk/GdkKeys.chs, gdk/Events.hsc,
+	gtk/typehier/TypeGenerator.hs: Changed CForeign to UTFCForeign.
+
+	* gtk/glib/GList.chs: remove CForeign import
+	
+	* configure.in: Corrected the search path when searching for a
+	ghc-pkg which is not in the PATH. Remove all non-existant paths
+	from GTK_CFLAGS and from GTK_LIBS.
+
+	* mk/chsDepend.in: Removed the dependency .dep <- .chs to avoid
+	that automatic generated .chs files are built when doing a "make
+	distclean".
+
+	* gtk/Makefile: Changed the dependency on "lang" to "base" for GHC
+	versions with hierarchical module system.
+
+	* window/FileSel.chs: Changed chi import to normal Haskell import.
+
+	* mk/common.mk: "inplaceinit" is no longer prerequisite for "all"
+
+	* mk/library.mk: "noinplace" is no longer prerequisite for
+	"installcheck"
+
 2002-07-19  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/windows/Window.chs: added deprecated windowSetPolicy method

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:08 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -36,10 +36,10 @@ import Monad	(liftM)
 import Foreign
 import UTFCForeign
 import Hierarchy
-import GValue	(GValue, GenericValue(..), valueInit, valueUnset)
+import GValue	(GValue, GenericValue(..), valueInit)
 import GValueTypes
 import GType	(GType)
-import Exception(throw, Exception(AssertionFailed))
+import LocalControl	(throw, Exception(AssertionFailed))
 
 #include <glib-object.h>
 
@@ -159,5 +159,4 @@ instance Storable GenericValue where
       (GVboxed x) -> do
 	valueInit gvPtr ((fromIntegral.fromEnum) TMboxed)
 	valueSetPointer gvPtr x
-  
-  destruct gvPtr = valueUnset gvPtr
+

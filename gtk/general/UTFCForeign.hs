@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -35,19 +35,33 @@ module UTFCForeign(
   newCStringLen,
   peekCString,
   peekCStringLen,
+#if __GLASGOW_HASKELL__>=504
+  module Foreign.C
+#else
   module CForeign
+#endif
   ) where
 
 import Monad	(liftM)
 #if __GLASGOW_HASKELL__<=502
 import Bits
 #endif
+#if __GLASGOW_HASKELL__>=504
+import Data.Bits
+#endif
 import Char
 import Foreign
+#if __GLASGOW_HASKELL__>=504
+import qualified Foreign.C as CForeign
+import Foreign.C hiding (withCString, withCStringLen,
+		         newCString,  newCStringLen,
+		         peekCString, peekCStringLen)
+#else
 import qualified CForeign
 import CForeign hiding (withCString, withCStringLen,
 		        newCString,  newCStringLen,
 		        peekCString, peekCStringLen)
+#endif
 
 -- Convert withCString to emit UTF-8.
 --

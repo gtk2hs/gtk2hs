@@ -1,9 +1,9 @@
---  GIMP Toolkit (GTK) @entry Enumeration types     -*-haskell-*-@
+--  GIMP Toolkit (GTK) @entry Enumeration types@     -*-haskell-*-@
 --
 --  Author : Jens Petersen
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/07/17 15:52:22 $
+--  Version $Revision: 1.2 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 2002 Jens Petersen
 --
@@ -28,12 +28,14 @@
 --
 --  * Documentation
 --
-module GdkKeys (keyvalName, keyvalFromName)
-where
+module GdkKeys(
+  keyvalName,
+  keyvalFromName
+  ) where
 
-import CForeign
+import UTFCForeign
 import Foreign
-import IOExts (unsafePerformIO)
+import LocalData(unsafePerformIO)
 
 {#context lib="libgdk" prefix ="gdk"#}
 

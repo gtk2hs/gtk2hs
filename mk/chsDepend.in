@@ -39,7 +39,7 @@ for FULLNAME in $@; do
     done;
     if test -n "$DEPNAMES"; then
       echo "$FULLNAMEDEP :" > $FULLNAMEDEP
-      echo "$FULLNAMEHS $FULLNAMEDEP : $DEPNAMES" >> $FULLNAMEDEP;
+      echo "$FULLNAMEHS : $DEPNAMES" >> $FULLNAMEDEP;
     fi;
     echo Writing dependency information for $FULLNAME
   else

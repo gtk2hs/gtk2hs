@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -56,7 +56,7 @@ module TreeSelection(
   ) where
 
 import Monad	(liftM)
-import IOExts	(newIORef, readIORef, writeIORef)
+import LocalData(newIORef, readIORef, writeIORef)
 import Foreign
 import UTFCForeign
 import Object	(makeNewObject)

@@ -2,9 +2,9 @@ TOP = ..
 
 include $(TOP)/mk/config.mk
 
-SUBDIRS	= abstract buttons display  embedding entry features general \
+SUBDIRS	= abstract buttons display  embedding entry general \
 	  layout menuComboToolbar misc multiline ornaments scrolling \
-	  selectors treeList windows gdk glib pango
+	  treeList windows gdk glib pango ../compat
 
 #APPNAME = blah
 PACKAGENAME = gtk2
@@ -129,7 +129,9 @@ endif
 NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
 	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter
 
+ifneq ($(strip $(NEW_MODULE_SYS)),yes)
 NEEDPACKAGES = lang
+endif
 
 # options that are needed when compiling this or with this package:
 EXTRAHC_FLAGS = -fglasgow-exts 

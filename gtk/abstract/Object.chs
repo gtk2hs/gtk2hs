@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/08 09:15:08 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -45,8 +45,8 @@ module Object(
   ) where
 
 import Foreign
-import CForeign	(withCString, CChar)
-import GObject	(objectRef, objectUnref)
+import UTFCForeign	(withCString, CChar)
+import GObject		(objectRef, objectUnref)
 {#import Signal#}
 {#import Hierarchy#}
 {#import GValue#}
@@ -97,7 +97,7 @@ makeNewObject constr generator = do
 objectSetProperty :: GObjectClass obj => obj -> String -> GenericValue -> IO ()
 objectSetProperty obj prop val = alloca $ \vaPtr -> withCString prop $ 
   \sPtr -> poke vaPtr val >> {#call unsafe g_object_set_property#} 
-  (toGObject obj) sPtr vaPtr
+  (toGObject obj) sPtr vaPtr >> valueUnset vaPtr
   
 
 -- @method private objectGetProperty@ Gets a specific attribute of this object.
@@ -106,7 +106,9 @@ objectSetProperty obj prop val = alloca $ \vaPtr -> withCString prop $
 --
 objectGetProperty :: GObjectClass obj => obj -> String -> 
 					IO GenericValue
-objectGetProperty obj prop = alloca $ \vaPtr -> withCString prop $ \str ->
-  {#call unsafe g_object_get_property#} (toGObject obj) str vaPtr >> 
-  peek vaPtr
+objectGetProperty obj prop = alloca $ \vaPtr -> withCString prop $ \str -> do
+  {#call unsafe g_object_get_property#} (toGObject obj) str vaPtr
+  res <- peek vaPtr
+  valueUnset vaPtr
+  return res
 

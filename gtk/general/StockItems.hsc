@@ -5,7 +5,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -68,7 +68,7 @@ module StockItems(
 import Monad	(liftM)
 import Foreign
 import UTFCForeign
-import IOExts	(unsafePerformIO)	-- to read CStrings lazyly
+import LocalData(unsafePerformIO)	-- to read CStrings lazyly
 
 import Events	(Modifier)
 

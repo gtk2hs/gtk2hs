@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -39,7 +39,7 @@ module GObject(
 
 
 import Foreign
-import IOExts	(newIORef, readIORef, writeIORef)
+import LocalData(newIORef, readIORef, writeIORef)
 import Hierarchy(GObjectClass, toGObject, unGObject)
 {#import GValue#}
 

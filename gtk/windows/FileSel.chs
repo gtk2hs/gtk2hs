@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: File selection dialog
+--  GIMP Toolkit (GTK) Binding for Haskell: @entry Widget FileSel@
 --
 --  Author : Manuel M T Chakravarty
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.1 $ from $Date: 2002/07/17 15:52:23 $
+--  Version $Revision: 1.2 $ from $Date: 2002/07/21 16:07:17 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --  Copyright (c) 2002 Jens Petersen
@@ -27,26 +27,28 @@
 --
 --- DOCU ----------------------------------------------------------------------
 --
---  language: Haskell 98 Binding Module
 --
 --- TODO ----------------------------------------------------------------------
 --
 --  Fix fileSelectionQueryButtons
-
-module FileSel (
-  FileSelectionClass, FileSelection,
-  fileSelectionNew, fileSelectionSetFilename, fileSelectionGetFilename,
-  fileSelectionShowFileopButtons, fileSelectionHideFileopButtons,
-  {-fileSelectionQueryButtons,-} fileSelectionComplete
-) where
+--
+module FileSel(
+  FileSelectionClass,
+  FileSelection,
+  fileSelectionNew,
+  fileSelectionSetFilename,
+  fileSelectionGetFilename,
+  fileSelectionShowFileopButtons,
+  fileSelectionHideFileopButtons,
+  {-fileSelectionQueryButtons,-}
+  fileSelectionComplete
+  ) where
 
 import Monad            (liftM)
 import Foreign
 import UTFCForeign
-
 {#import Hierarchy#}
-{#import Object#}	(makeNewObject)
-{#import Button#}	(Button)
+import Object		(makeNewObject)
 
 {#context lib="libgtk" prefix ="gtk"#}
 
