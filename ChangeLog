@@ -1,3 +1,16 @@
+2003-11-03  Jens Petersen  <petersen@haskell.org>
+
+	* mk/recurse.mk (install-without-pkg): New target.
+
+	* mk/application.mk ($(TARGETOK)): Depend on inplaceinit to make
+	sure required localpackage.conf file exists.
+	(install-without-pkg): Alias to install.
+
+	* c2hs/c/CLexer.hs (linedir): Fix parsing for latest cpp #line
+	extensions. [upstream patch from Manuel M T Chakravarty]
+
+	* Makefile (EXTRA_TARFILES): Add mk/recurse.mk.
+
 2003-10-02 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* mk/common.mk: Change comments for "targets" help output.
