@@ -143,14 +143,12 @@ C2HSFLAGGED	= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 # How to build <blah.hs> from <blah.chs>: Since <blah.chs-HEADER> is defined
 # we will use the specified header file. We invoke c2hs for each .chs file
 # anew.
-# These line could be used to inform the user what is happening, but the
-# commands seem to be executed.
 $(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs
-	if test -f .depend; then \
-	  echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend`;\
-	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`; \
-	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend`;\
-	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`; \
+	@if test -f .depend; then \
+	  echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend` &&\
+	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend` && \
+	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend` &&\
+	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend` && \
 	  $(RM) .depend;\
 	fi
 	$(strip $(C2HSFLAGGED) -o : \
