@@ -567,5 +567,5 @@ if test $ENABLE_OPENGL = no; then
   fi;
   echo "*                                                *"
 fi;
-echo "* Now do \"(g)make install\".                      *"
+echo "* Now do \"(g)make\" followed by \"(g)make install\" *"
 echo "**************************************************"

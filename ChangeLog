@@ -1,5 +1,8 @@
 2003-11-16 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* configure.in, INSTALL: Documentation updates. In particular, the
+	user has to do a make and then a make install.
+	
 	* configure.in: Force Unix library names when using ghc <6.0.
 
 	* c2hs/C/CParser.hs: Fix the parsing of __attribute__, necessary
