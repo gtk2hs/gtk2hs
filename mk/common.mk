@@ -10,13 +10,13 @@ VPATH = $(subst $(SPACE),:,$(strip \
 	$(if $(subst .,,$(srcdir)),$(addprefix $(srcdir)/,$(SOURCEDIRS)), \
 	$(SOURCEDIRS))))
 
-LINK = 	$(strip $(HC) -o $@ $($(NAME)_HCFLAGS) \
+LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	$(AM_LDFLAGS) $($(NAME)_LDFLAGS))
 
 .hs.o: $(CONFIG_H)
 	@echo Building for $(NAME)
-	$(strip $(HC) -c $< -o $@ $($(NAME)_HCFLAGS) -i$(VPATH) \
+	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) -i$(VPATH) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	$(addprefix -package-name ,$(notdir $(basename $($(NAME)_PACKAGE)))) \
 	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
@@ -114,7 +114,7 @@ install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(lib_LIBRARIES), \
-	$(GHCPKG) $(addprefix -f ,$(PKGCONF)) -a -g \
+	$(GHCPKG) $(addprefix -f ,$(PKGCONF)) -u -g \
 	-Dprefix=$(prefix) -Dexec_prefix=$(exec_prefix) \
 	-i $(call getVar,$(pkgname),PACKAGE);)
 
