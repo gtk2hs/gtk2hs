@@ -4,6 +4,10 @@
 	module level documentation and produce contents list. Also note in the
 	documentation what gtk version the module as a whole and individual
 	functions are avaliable from, eg "available since Gtk version 2.4".
+
+	* tools/apiGen/format-docs.xsl: extract module level documentation,
+	the summary, description and any extra sections including program
+	listings. The object hierarchy has not yet been added.
 	
 	* tools/apiGen/Template.chs: added Haddock headers and rename some
 	template variables. Move major documentation section to export list.
