@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:29:41 $
+--  Version $Revision: 1.3 $ from $Date: 2005/03/15 19:45:01 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -28,6 +28,7 @@
 module System.Glib.FFI (
   with,
   nullForeignPtr,
+  maybeNull,
   foreignFree,
   newForeignPtr,
   foreignPtrToPtr,
@@ -77,3 +78,12 @@ foreignFree :: Ptr a -> IO ()
 foreignFree = free
 #endif
 
+-- A marshaling utility function that is used by the code produced by the code
+-- generator to marshal return values that can be null
+maybeNull :: (IO (Ptr a) -> IO a) -> IO (Ptr a) -> IO (Maybe a)
+maybeNull marshal genPtr = do
+  ptr <- genPtr
+  if ptr == nullPtr
+    then return Nothing
+    else do result <- marshal (return ptr)
+            return (Just result)

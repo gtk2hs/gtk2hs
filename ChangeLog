@@ -1,3 +1,9 @@
+2005-03-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/FFI.hs: add maybeNull function which is used by
+	marshaling functions to help marshal values that might be NULL into a
+	Maybe type where NULL gets mapped to Nothing.
+
 2005-03-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: segfault bug fix. Clear up
