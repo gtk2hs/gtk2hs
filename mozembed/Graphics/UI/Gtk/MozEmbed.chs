@@ -1,10 +1,11 @@
--- |GIMP Toolkit (GTK) Binding for Haskell: widget embedding the  -*-haskell-*-
---    Mozilla browser engine (Gecko)
+-- -*-haskell-*-
+-- GIMP Toolkit (GTK) Widget embedding the Mozilla browser engine (Gecko)
 --
 --  Author : Jonas Svensson
+--
 --  Created: 26 February 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2004/12/17 21:21:44 $
+--  Version $Revision: 1.2 $ from $Date: 2004/12/18 20:45:50 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -18,7 +19,6 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---
 --  Modified 2004 by Scott West for basic use in gtk2hs
 --
 --  Further modified 2004 by Wolfram Kahl:
@@ -26,18 +26,9 @@
 --  * added additional interface functions
 --  * circumvented render_data problem
 --
+-- | This widgets embeds Mozilla's browser engine (Gecko) into a GTK+ widget.
+-- See <http://www.mozilla.org/unix/gtk-embedding.html> for an API reference.
 --
---- DESCRIPTION ---------------------------------------------------------------
---
---  This widgets embeds Mozilla's browser engine (Gecko) into a GTK+ widget.
---
---- DOCU ----------------------------------------------------------------------
---
---  Language: Haskell 98 Binding Module
---
---- TODO ----------------------------------------------------------------------
---
-
 module Graphics.UI.Gtk.MozEmbed (
   MozEmbed, MozEmbedClass,
 
