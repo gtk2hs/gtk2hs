@@ -1,3 +1,13 @@
+2004-10-27  Axel Simon <A.Simon@kent.ac.uk>
+
+	* mk/mkDepend.in: Redirect dependencies into .dep/ directory.
+	
+	* Makefile.am: Now builds libgtk2hs.a. Managed to define rule to
+	turn .chs.cpp into .chs, hence renamed all files that need to be
+	pre-processed.
+
+	* gtk/*/*.chspp: Renamed to .chs.cpp
+	
 2004-10-25  Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac: Don't update mk/config.mk.in which no longer

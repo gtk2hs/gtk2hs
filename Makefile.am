@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
-
-SUFFIXES = .chspp .chs .hsc
+SUFFIXES = .chs.cpp .chs .hsc
+CLEANFILES = $(DEPDIR)*.dep
+DISTCLEANFILES = *.precomp
 
 SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline \
 	gtk/gdk gtk/abstract gtk/display gtk/entry gtk/misc gtk/multiline \
@@ -12,13 +13,9 @@ HSCPP = $(CPP) -x c -traditional-cpp -P
 
 CHSDEPEND = $(srcdir)/mk/chsDepend
 
-HSC = hsc2hs
+DEPDIR = $(addsuffix /,@DEPDIR@)
 
-# Flags for the C compiler and C pre-processor.
-# *_CFLAGS variables contain general flags for the C compiler. A subset of
-# these, namely just the -I flags, are always available in *_CPPFLAGS.
-# Breaking this convention is the automake built-in AM_CPPFLAGS to which
-# no AM_CFLAGS exit.
+HSC = hsc2hs
 
 # While building lib<name>, set the variable NAME to <name> so we can access
 # the package-specific variable <name>_HEADER, <name>_PACKAGE, etc. The
@@ -181,17 +178,22 @@ libgtk2hs_a_CHSFILES = $(filter %.chs %.chspp, $(libgtk2hs_a_SOURCES))
 libgtk2hs_a_CHSFILES_HS = $(patsubst %.chs,%.hs,\
 	$(patsubst %.chspp,%.hs,$(libgtk2hs_a_CHSFILES)))
 libgtk2hs_a_HSCFILES = $(filter %.hsc, $(libgtk2hs_a_SOURCES))
+libgtk2hs_a_HSCFILES_HS = $(libgtk2hs_a_HSCFILES:.hsc=.hs)
 libgtk2hs_a_BUILDSOURCES = \
 	$(libgtk2hs_a_CHSFILES_HS) \
-	$(libgtk2hs_a_HSCFILES:.hsc=.hs)
+	$(libgtk2hs_a_HSCFILES_HS)
 libgtk2hs_a_HSFILES  = \
 	$(libgtk2hs_a_BUILDSOURCES) \
 	$(filter %.hs,$(libgtk2hs_a_SOURCES))
+MOSTLYCLEANFILES = $(libgtk2hs_a_HSFILES:.hs=.$(OBJEXT))
+CLEANFILES+= $(libgtk2hs_a_BUILDSOURCES)
 
-
-
-
+# A file with CPP defines that reflect the current configuration.
 CONFIG_H = config.h
+
+# The local GHC package file for compiling files that depend on packages
+# that we have built but not yet installed.
+LOCALPACKAGE = localpackages.conf
 
 EMPTY =
 SPACE = $(EMPTY) $(EMPTY)
@@ -202,8 +204,8 @@ VPATH = $(subst $(SPACE),:,$(strip \
 BUILDSOURCES = $(libgtk2hs_a_BUILDSOURCES)
 
 .hs.o: $(CONFIG_H)
-	if test -f .depend; then \
-	$(strip $(HC) -c $< -o $@ $($(NAME)_HCFLAGS) -i$(VPATH) \
+	if test -f $(DEPDIR)$(NAME).dep; then \
+	  $(strip $(HC) -c $< -o $@ $($(NAME)_HCFLAGS) -i$(VPATH) \
 	  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	  $(addprefix -package-name ,$($(NAME)_PACKAGE)) \
 	  $(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
@@ -212,13 +214,21 @@ BUILDSOURCES = $(libgtk2hs_a_BUILDSOURCES)
 	; else \
 	  $(MAKE) $(AM_MAKEFLAGS) NAME="$(NAME)" $($(NAME)_BUILDSOURCES) \
 	  && \
-	  $(strip $(HC) -M $(addprefix -optdep,-f .depend) \
+	  $(strip $(HC) -M $(addprefix -optdep,-f $(DEPDIR)$(NAME).dep) \
 	  $($(NAME)_HCFLAGS) -i$(VPATH) \
 	  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	  $(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
 	  $($(NAME)_EXTRA_HFILES))) \
 	  $(AM_CPPFLAGS) $($(NAME)_EXTRA_CPPFLAGS) $($(NAME)_CPPFLAGS) \
 	  $($(NAME)_HSFILES)) \
+	  && \
+	  $(strip $(HC) --make $($(NAME)_TOPLEVEL) \
+	  $($(NAME)_HCFLAGS) -i$(VPATH) \
+	  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
+	  $(addprefix -package-name ,$($(NAME)_PACKAGE)) \
+	  $(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
+	  $($(NAME)_EXTRA_HFILES))) \
+	  $(AM_CPPFLAGS) $($(NAME)_EXTRA_CPPFLAGS) $($(NAME)_CPPFLAGS))\
 	; fi
 
 .o.hi:
@@ -235,7 +245,7 @@ debug	:
 	$(addprefix -C,$($(NAME)_CFLAGS) $($(NAME)_CPPFLAGS)) \
 	--precomp=$($(NAME)_PRECOMP) $($(NAME)_HEADER))
 
-.chspp.chs: $(CONFIG_H)
+.chs.cpp.chs: $(CONFIG_H)
 	$(strip $(HSCPP) $(AM_CPPFLAGS) \
 	$($(NAME)_EXTRA_CPPFLAGS) $($(NAME)_CPPFLAGS) \
 	$($(NAME)_EXTRA_CFLAGS) $($(NAME)_CFLAGS) \
@@ -259,7 +269,8 @@ debug	:
 	-i$(VPATH) --precomp=$($(NAME)_PRECOMP) -o $@ $<)
 	$(CHSDEPEND) -i$(VPATH) $<
 
--include .depend *.dep
+
+-include $(DEPDIR)*.dep
 
 
 #	$(ECHO) no header file associated with $@

@@ -6,6 +6,8 @@
 # in the colon-separated search path <searchPath>.
 SED=@SED@;
 GREP=@GREP@;
+DEPDIR=@DEPDIR@;
+DEPDIRSLASH=`if test -n "$DEPDIR"; then echo $DEPDIR/; fi`;
 
 SEARCHPATH=.;
 
@@ -20,6 +22,7 @@ esac
 for FULLNAME in $@; do
   FULLNAMEDEP=`echo "$FULLNAME" | $SED 's/\.chs/.dep/'`;
   FULLNAMEHS=`echo "$FULLNAME" | $SED 's/\.chs/.hs/'`;
+  TARGETNAMEDEP=$DEPDIRSLASH`basename $FULLNAMEDEP`;
   if test -f "$FULLNAME"; then
     DEPS=`$GREP "{#import" $FULLNAME 2> /dev/null | $SED 's/^{#import \([a-zA-Z1-9]*\)#}.*/\1.chs/'`;
     #echo Looking for dependent files: $DEPS
@@ -38,8 +41,8 @@ for FULLNAME in $@; do
       IFS=$OLDIFS;
     done;
     if test -n "$DEPNAMES"; then
-      echo "$FULLNAMEDEP :" > $FULLNAMEDEP
-      echo "$FULLNAMEHS : $DEPNAMES" >> $FULLNAMEDEP;
+      echo "$FULLNAMEDEP :" > $TARGETNAMEDEP;
+      echo "$FULLNAMEHS : $DEPNAMES" >> $TARGETNAMEDEP;
     fi;
     echo Writing dependency information for $FULLNAME
   else

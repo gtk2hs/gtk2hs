@@ -4,7 +4,7 @@
 --  Author : Axel Simon, Manuel Chakravarty
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.1 $ from $Date: 2004/10/24 17:19:21 $
+--  Version $Revision: 1.1 $ from $Date: 2004/10/27 13:21:39 $
 --
 --  Copyright (c) [1999..2001] Axel Simon
 --
