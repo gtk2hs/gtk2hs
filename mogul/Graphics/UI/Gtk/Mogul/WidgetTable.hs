@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 16:41:58 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:32:32 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -34,13 +34,12 @@ module Graphics.UI.Gtk.Mogul.WidgetTable (
   ) where
 
 import Monad	(liftM)
-import Foreign
-import Foreign.ForeignPtr	(unsafeForeignPtrToPtr)
 import Control.Concurrent.MVar	(MVar, newMVar, takeMVar, putMVar, readMVar)
 import System.IO.Unsafe		(unsafePerformIO)
 import Data.FiniteMap		(FiniteMap, emptyFM, addToFM, delFromFM,
 				lookupFM, elemFM)
 
+import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Types
 import Graphics.UI.Gtk.Abstract.Widget	(widgetSetName, onUnrealize)
@@ -83,7 +82,7 @@ newNamedWidget name new = do
   let wId = (mkWidgetId name)
   table <- takeMVar widgetTable
   putMVar widgetTable (addToFM table wId
-    ((unsafeForeignPtrToPtr.unWidget.toWidget) w))
+    ((foreignPtrToPtr.unWidget.toWidget) w))
   w `onUnrealize` (do
     table <- takeMVar widgetTable
     putMVar widgetTable (table `delFromFM` wId))

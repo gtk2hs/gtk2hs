@@ -5,7 +5,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2005/01/12 01:34:55 $
+--  Version $Revision: 1.3 $ from $Date: 2005/01/16 21:32:33 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -53,6 +53,7 @@ module Graphics.UI.Gtk.Pango.Description (
 
 import Monad    (liftM)
 import Data.Ratio
+import Data.Bits ((.&.))
 
 import System.Glib.FFI
 import System.Glib.UTFString
