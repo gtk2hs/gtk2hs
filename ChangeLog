@@ -1,5 +1,16 @@
 2003-11-11  Jens Petersen  <petersen@haskell.org>
 
+	* demo/sourceview: New directory for import of sourceview demo
+	program by Duncan Coutts <duncan.coutts@worcester.oxford.ac.uk>.
+
+	* demo/sourceview/haskell.lang: New file giving haskell
+	highlighting syntax for gtksourceview.
+
+	* demo/sourceview/SourceViewTest.hs: New file to demonstrate
+	sourceview.
+
+	* demo/sourceview/Makefile: New file.
+	
 	* sourceview/SourceTag.chs (sourceTagSetStyle): Fix docu typo.
 
 	* sourceview/Makefile (EXTRA_HFILES): Use relative path.
@@ -18,7 +29,7 @@
 	* mk/config.mk.in (SOURCEVIEW_LIBS): Define.
 	(SOURCEVIEW_CFLAGS): Ditto.
 
-	* mk/common.mk: Fixed so that per package INSTALLDIR works:
+	* mk/common.mk: Fixes so that per package INSTALLDIR works:
 	(INSTALLDIROK): Is now a deferred variable.
 	(INST_*): Not passed through SEDPIPE for now.
 
@@ -39,7 +50,7 @@
 	building the internal c2hs on every clean build.
 
 	* Makefile (MAKE_TOOLS): Only add c2hs when BUILT_IN_C2HS is no.
-	(MAKE_DOCS): gendoc doc targets moved here from MAKE_TOOLS since
+	(MAKE_DOCS): gendoc and doc targets moved here from MAKE_TOOLS since
 	doc must be done after gtk.
 	(MAKE_APPS): Add demo/sourceview.
 	(dist): Depend on gtk2hs.spec.
