@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:30:59 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,11 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This is a special version of 'Box'. This widget shows its child 
--- widgets in a horizontal line.
+-- A horizontal container box
 --
 module Graphics.UI.Gtk.Layout.HBox (
--- * Description
+-- * Detail
 -- 
 -- | 'HBox' is a container that organizes child widgets into a single row.
 --
@@ -47,6 +46,7 @@ module Graphics.UI.Gtk.Layout.HBox (
 -- |                     +----'Box'
 -- |                           +----HBox
 -- |                                 +----'Combo'
+-- |                                 +----'FileChooserButton'
 -- |                                 +----'Statusbar'
 -- @
 
@@ -71,12 +71,17 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | 
--- Create a container that shows several children horizontally. If 
--- @homogeneous@
--- is set all children will be allotted the same amount of space. There will be
--- @spacing@ pixel between each two children.
+-- | Creates a new 'HBox'.
 --
-hBoxNew :: Bool -> Int -> IO HBox
-hBoxNew homogeneous spacing = makeNewObject mkHBox $ liftM castPtr $
-  {#call unsafe hbox_new#} (fromBool homogeneous) (fromIntegral spacing)
+hBoxNew :: 
+    Bool    -- ^ @homogeneous@ - @True@ if all children are to be given equal
+            -- space allotments.
+ -> Int     -- ^ @spacing@ - the number of pixels to place by default between
+            -- children.
+ -> IO HBox
+hBoxNew homogeneous spacing =
+  makeNewObject mkHBox $
+  liftM (castPtr :: Ptr Widget -> Ptr HBox) $
+  {# call unsafe hbox_new #}
+    (fromBool homogeneous)
+    (fromIntegral spacing)

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:31:00 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,11 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This is a special version of 'Box'. This widget shows its child widgets
--- in a vertical line.
+-- A vertical container box
 --
 module Graphics.UI.Gtk.Layout.VBox (
--- * Description
+-- * Detail
 -- 
 -- | 'VBox' is a container that organizes child widgets into a single column.
 --
@@ -73,13 +72,17 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | 
--- Create a container that shows several children vertically. 
+-- | Creates a new 'VBox'.
 --
--- * If @homogeneous@
--- is set all children will be allotted the same amount of space. There will be
--- @spacing@ pixel between each two children.
---
-vBoxNew :: Bool -> Int -> IO VBox
-vBoxNew homogeneous spacing = makeNewObject mkVBox $ liftM castPtr $
-  {#call unsafe vbox_new#} (fromBool homogeneous) (fromIntegral spacing)
+vBoxNew :: 
+    Bool    -- ^ @homogeneous@ - @True@ if all children are to be given equal
+            -- space allotments.
+ -> Int     -- ^ @spacing@ - the number of pixels to place by default between
+            -- children.
+ -> IO VBox
+vBoxNew homogeneous spacing =
+  makeNewObject mkVBox $
+  liftM (castPtr :: Ptr Widget -> Ptr VBox) $
+  {# call unsafe vbox_new #}
+    (fromBool homogeneous)
+    (fromIntegral spacing)

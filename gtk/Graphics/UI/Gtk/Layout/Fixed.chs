@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/24 17:30:59 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -27,7 +27,7 @@
 -- A container which allows you to position widgets at fixed coordinates
 --
 module Graphics.UI.Gtk.Layout.Fixed (
--- * Description
+-- * Detail
 -- 
 -- | The 'Fixed' widget is a container which can place child widgets at fixed
 -- positions and with fixed sizes, given in pixels. 'Fixed' performs no
@@ -85,12 +85,16 @@ module Graphics.UI.Gtk.Layout.Fixed (
   fixedPut,
   fixedMove,
   fixedSetHasWindow,
-  fixedGetHasWindow
+  fixedGetHasWindow,
+
+-- * Properties
+  fixedHasWindow
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes			(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -103,40 +107,70 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- | Creates a new 'Fixed' container.
 --
 fixedNew :: IO Fixed
-fixedNew = makeNewObject mkFixed $ liftM castPtr $
-  {#call unsafe fixed_new#}
+fixedNew =
+  makeNewObject mkFixed $
+  liftM (castPtr :: Ptr Widget -> Ptr Fixed) $
+  {# call unsafe fixed_new #}
 
 --------------------
 -- Methods
 
 -- | Adds a widget to a 'Fixed' container at the given position.
 --
-fixedPut :: (FixedClass obj, WidgetClass widget) => obj
-         -> widget -> (Int, Int) -> IO ()
-fixedPut obj widget (x, y) =
-  {#call fixed_put#} (toFixed obj) (toWidget widget)
-    (fromIntegral x) (fromIntegral y)
+fixedPut :: (FixedClass self, WidgetClass widget) => self
+ -> widget     -- ^ @widget@ - the widget to add.
+ -> (Int, Int) -- ^ @(x,y)@ - the horizontal and vertical position to place
+               -- the widget at.
+ -> IO ()
+fixedPut self widget (x, y) =
+  {# call fixed_put #}
+    (toFixed self)
+    (toWidget widget)
+    (fromIntegral x)
+    (fromIntegral y)
 
 -- | Moves a child of a 'Fixed' container to the given position.
 --
-fixedMove :: (FixedClass obj, WidgetClass widget) => obj
-         -> widget -> (Int, Int) -> IO ()
-fixedMove obj widget (x, y) =
-  {#call fixed_move#} (toFixed obj) (toWidget widget)
-    (fromIntegral x) (fromIntegral y)
+fixedMove :: (FixedClass self, WidgetClass widget) => self
+ -> widget     -- ^ @widget@ - the child widget.
+ -> (Int, Int) -- ^ @(x,y)@ - the horizontal and vertical position to move the
+               -- widget to.
+ -> IO ()
+fixedMove self widget (x, y) =
+  {# call fixed_move #}
+    (toFixed self)
+    (toWidget widget)
+    (fromIntegral x)
+    (fromIntegral y)
 
--- | Sets whether the 'Fixed' widget is created with a separate "DrawWindow" for
+-- | Sets whether the 'Fixed' widget is created with a separate 'DrawWindow' for
 -- its window or not. (By default, it will be created with no separate
--- "DrawWindow"). This function must be called while the widget is not realized,
+-- 'DrawWindow'). This function must be called while the 'Fixed' is not realized,
 -- for instance, immediately after the window is created.
 --
-fixedSetHasWindow :: FixedClass obj => obj -> Bool -> IO ()
-fixedSetHasWindow obj hasWindow =
-  {#call fixed_set_has_window#} (toFixed obj) (fromBool hasWindow)
-
--- | Gets whether the 'Fixed' container has its own "DrawWindow". See
--- 'fixedSetHasWindow'.
+-- This function was added to provide an easy migration path for older
+-- applications which may expect 'Fixed' to have a separate window.
 --
-fixedGetHasWindow :: FixedClass obj => obj -> IO Bool
-fixedGetHasWindow obj = liftM toBool $
-  {#call unsafe fixed_get_has_window#} (toFixed obj)
+fixedSetHasWindow :: FixedClass self => self -> Bool -> IO ()
+fixedSetHasWindow self hasWindow =
+  {# call fixed_set_has_window #}
+    (toFixed self)
+    (fromBool hasWindow)
+
+-- | Gets whether the 'Fixed' has its own 'DrawWindow'. See 'fixedSetHasWindow'.
+--
+fixedGetHasWindow :: FixedClass self => self -> IO Bool
+fixedGetHasWindow self =
+  liftM toBool $
+  {# call unsafe fixed_get_has_window #}
+    (toFixed self)
+
+--------------------
+-- Properties
+
+-- | \'hasWindow\' property. See 'fixedGetHasWindow' and 'fixedSetHasWindow'
+--
+fixedHasWindow :: FixedClass self => Attr self Bool
+fixedHasWindow = Attr 
+  fixedGetHasWindow
+  fixedSetHasWindow

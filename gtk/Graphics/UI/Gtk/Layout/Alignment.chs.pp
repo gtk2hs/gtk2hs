@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:30:59 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- A widget which controls the alignment and size of its child
 --
 module Graphics.UI.Gtk.Layout.Alignment (
--- * Description
+-- * Detail
 -- 
 -- | The 'Alignment' widget controls the alignment and size of its child
 -- widget. It has four settings: xscale, yscale, xalign, and yalign.
@@ -81,48 +81,103 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create an alignment widget. This widget tells
--- its child widget how to use the given space.
+-- | Creates a new 'Alignment'.
 --
-alignmentNew :: Float -> Float -> Float -> Float -> IO Alignment
-alignmentNew yscale xalign yalign xscale = makeNewObject mkAlignment $
-  liftM castPtr $ {#call unsafe alignment_new#} (realToFrac xalign) 
-  (realToFrac yalign) (realToFrac xscale) (realToFrac yscale)
+alignmentNew :: 
+    Float        -- ^ @xalign@ - the horizontal alignment of the child widget,
+                 -- from 0 (left) to 1 (right).
+ -> Float        -- ^ @yalign@ - the vertical alignment of the child widget,
+                 -- from 0 (top) to 1 (bottom).
+ -> Float        -- ^ @xscale@ - the amount that the child widget expands
+                 -- horizontally to fill up unused space, from 0 to 1. A value
+                 -- of 0 indicates that the child widget should never expand. A
+                 -- value of 1 indicates that the child widget will expand to
+                 -- fill all of the space allocated for the 'Alignment'.
+ -> Float        -- ^ @yscale@ - the amount that the child widget expands
+                 -- vertically to fill up unused space, from 0 to 1. The values
+                 -- are similar to @xscale@.
+ -> IO Alignment
+alignmentNew xalign yalign xscale yscale =
+  makeNewObject mkAlignment $
+  liftM (castPtr :: Ptr Widget -> Ptr Alignment) $
+  {# call unsafe alignment_new #}
+    (realToFrac xalign)
+    (realToFrac yalign)
+    (realToFrac xscale)
+    (realToFrac yscale)
 
 --------------------
 -- Methods
 
--- | Change the space use behaviour of an 'Alignment'.
+-- | Sets the 'Alignment' values.
 --
-alignmentSet :: AlignmentClass al => al -> Float -> Float -> Float -> Float ->
-                IO ()
-alignmentSet al xalign yalign xscale yscale = {#call alignment_set#}
-  (toAlignment al) (realToFrac xalign) (realToFrac yalign)
-  (realToFrac xscale) (realToFrac yscale)
+alignmentSet :: AlignmentClass self => self
+ -> Float -- ^ @xalign@ - the horizontal alignment of the child widget, from 0
+          -- (left) to 1 (right).
+ -> Float -- ^ @yalign@ - the vertical alignment of the child widget, from 0
+          -- (top) to 1 (bottom).
+ -> Float -- ^ @xscale@ - the amount that the child widget expands
+          -- horizontally to fill up unused space, from 0 to 1. A value of 0
+          -- indicates that the child widget should never expand. A value of 1
+          -- indicates that the child widget will expand to fill all of the
+          -- space allocated for the 'Alignment'.
+ -> Float -- ^ @yscale@ - the amount that the child widget expands vertically
+          -- to fill up unused space, from 0 to 1. The values are similar to
+          -- @xscale@.
+ -> IO ()
+alignmentSet self xalign yalign xscale yscale =
+  {# call alignment_set #}
+    (toAlignment self)
+    (realToFrac xalign)
+    (realToFrac yalign)
+    (realToFrac xscale)
+    (realToFrac yscale)
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Sets the padding on the different sides of the widget.
+-- | Sets the padding on the different sides of the widget. The padding adds
+-- blank space to the sides of the widget. For instance, this can be used to
+-- indent the child widget towards the right by adding padding on the left.
 --
-alignmentSetPadding :: AlignmentClass al => al -> Int -> Int -> Int -> Int ->
-                       IO ()
-alignmentSetPadding al top bottom left right =
-  {# call gtk_alignment_set_padding #} (toAlignment al)
-    (fromIntegral top) (fromIntegral bottom)
-    (fromIntegral left) (fromIntegral right)
+-- * Available since Gtk version 2.4
+--
+alignmentSetPadding :: AlignmentClass self => self
+ -> Int   -- ^ @paddingTop@ - the padding at the top of the widget
+ -> Int   -- ^ @paddingBottom@ - the padding at the bottom of the widget
+ -> Int   -- ^ @paddingLeft@ - the padding at the left of the widget
+ -> Int   -- ^ @paddingRight@ - the padding at the right of the widget.
+ -> IO ()
+alignmentSetPadding self paddingTop paddingBottom paddingLeft paddingRight =
+  {# call gtk_alignment_set_padding #}
+    (toAlignment self)
+    (fromIntegral paddingTop)
+    (fromIntegral paddingBottom)
+    (fromIntegral paddingLeft)
+    (fromIntegral paddingRight)
 
--- | Gets the padding on the different sides of the widget.
+-- | Gets the padding on the different sides of the widget. See
+-- 'alignmentSetPadding'.
 --
-alignmentGetPadding :: AlignmentClass al => al -> IO (Int, Int, Int, Int)
-alignmentGetPadding al =
-  alloca $ \topPtr -> alloca $ \bottomPtr ->
-  alloca $ \leftPtr -> alloca $ \rightPtr -> do
-  {# call gtk_alignment_get_padding #} (toAlignment al)
-    topPtr bottomPtr leftPtr rightPtr
+-- * Available since Gtk version 2.4
+--
+alignmentGetPadding :: AlignmentClass self => self
+ -> IO (Int, Int, Int, Int) -- ^ @(paddingTop, paddingBottom, paddingLeft,
+                            -- paddingRight)@ - the padding at the top,
+                            -- bottom, left and right of the widget.
+alignmentGetPadding self =
+  alloca $ \topPtr ->
+  alloca $ \bottomPtr ->
+  alloca $ \leftPtr ->
+  alloca $ \rightPtr -> do
+  {# call gtk_alignment_get_padding #}
+    (toAlignment self)
+    topPtr
+    bottomPtr
+    leftPtr
+    rightPtr
   top    <- peek topPtr
   bottom <- peek bottomPtr
   left   <- peek leftPtr
   right  <- peek rightPtr
   return (fromIntegral top, fromIntegral bottom
          ,fromIntegral left, fromIntegral right)
-  
 #endif

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:34 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/24 17:31:00 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- Infinite scrollable area containing child widgets and\/or custom drawing
 --
 module Graphics.UI.Gtk.Layout.Layout (
--- * Description
+-- * Detail
 -- 
 -- | 'Layout' is similar to 'DrawingArea' in that it's a \"blank slate\" and
 -- doesn't do anything but paint a blank background by default. It's different
@@ -87,81 +87,148 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new layout widget.
+-- | Creates a new 'Layout'. Unless you have a specific adjustment you'd like
+-- the layout to use for scrolling, pass @Nothing@ for @hadjustment@ and
+-- @vadjustment@.
 --
-layoutNew :: Maybe Adjustment -> Maybe Adjustment -> IO Layout
-layoutNew vAdj hAdj = makeNewObject mkLayout $ liftM castPtr $
-  {#call unsafe layout_new#} (fromMAdj hAdj) (fromMAdj vAdj)
- where
- fromMAdj :: Maybe Adjustment -> Adjustment
- fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
+layoutNew :: 
+    Maybe Adjustment -- ^ @hadjustment@ - horizontal scroll adjustment, or
+                     -- @Nothing@
+ -> Maybe Adjustment -- ^ @vadjustment@ - vertical scroll adjustment, or
+                     -- @Nothing@
+ -> IO Layout
+layoutNew hadjustment vadjustment =
+  makeNewObject mkLayout $
+  liftM (castPtr :: Ptr Widget -> Ptr Layout) $
+  {# call unsafe layout_new #}
+    (fromMaybe (Adjustment nullForeignPtr) hadjustment)
+    (fromMaybe (Adjustment nullForeignPtr) vadjustment)
 
 --------------------
 -- Methods
 
--- | Insert a widget into the layout container.
+-- | Adds @childWidget@ to @layout@, at position @(x,y)@. @layout@ becomes
+-- the new parent container of @childWidget@.
 --
-layoutPut :: (LayoutClass l, WidgetClass w) => l -> w -> Int -> Int -> IO ()
-layoutPut l widget x y = {#call layout_put#} (toLayout l) (toWidget widget)
-  (fromIntegral x) (fromIntegral y)
+layoutPut :: (LayoutClass self, WidgetClass childWidget) => self
+ -> childWidget -- ^ @childWidget@ - child widget
+ -> Int         -- ^ @x@ - X position of child widget
+ -> Int         -- ^ @y@ - Y position of child widget
+ -> IO ()
+layoutPut self childWidget x y =
+  {# call layout_put #}
+    (toLayout self)
+    (toWidget childWidget)
+    (fromIntegral x)
+    (fromIntegral y)
 
--- | Move an existing widget within the container.
+-- | Moves a current child of @layout@ to a new position.
 --
-layoutMove :: (LayoutClass l, WidgetClass w) => l -> w -> Int -> Int -> IO ()
-layoutMove l widget x y = {#call layout_move#} (toLayout l) (toWidget widget)
-  (fromIntegral x) (fromIntegral y)
+layoutMove :: (LayoutClass self, WidgetClass childWidget) => self
+ -> childWidget -- ^ @childWidget@ - a current child of @layout@
+ -> Int         -- ^ @x@ - X position to move to
+ -> Int         -- ^ @y@ - Y position to move to
+ -> IO ()
+layoutMove self childWidget x y =
+  {# call layout_move #}
+    (toLayout self)
+    (toWidget childWidget)
+    (fromIntegral x)
+    (fromIntegral y)
 
--- | Set the size of the layout widget.
+-- | Sets the size of the scrollable area of the layout.
 --
-layoutSetSize :: LayoutClass l => l -> Int -> Int -> IO ()
-layoutSetSize l width height = {#call layout_set_size#} (toLayout l)
-  (fromIntegral width) (fromIntegral height)
+layoutSetSize :: LayoutClass self => self
+ -> Int   -- ^ @width@ - width of entire scrollable area
+ -> Int   -- ^ @height@ - height of entire scrollable area
+ -> IO ()
+layoutSetSize self width height =
+  {# call layout_set_size #}
+    (toLayout self)
+    (fromIntegral width)
+    (fromIntegral height)
 
--- | Get the size of the layout widget.
+-- | Gets the size that has been set on the layout, and that determines the
+-- total extents of the layout's scrollbar area. See 'layoutSetSize'.
 --
-layoutGetSize :: LayoutClass l => l -> IO (Int, Int)
-layoutGetSize l =
-  alloca $ \widthPtr -> alloca $ \heightPtr -> do
-  {#call unsafe layout_get_size#} (toLayout l) widthPtr heightPtr
+layoutGetSize :: LayoutClass self => self
+ -> IO (Int, Int) -- ^ @(width, height)@
+layoutGetSize self =
+  alloca $ \widthPtr ->
+  alloca $ \heightPtr -> do
+  {# call unsafe layout_get_size #}
+    (toLayout self)
+    widthPtr
+    heightPtr
   width <-peek widthPtr
   height <- peek heightPtr
   return (fromIntegral width, fromIntegral height)
 
--- | Retrieve the horizontal 'Adjustment' object from the layout.
+-- | This function should only be called after the layout has been placed in a
+-- 'ScrolledWindow' or otherwise configured for scrolling. It returns the
+-- 'Adjustment' used for communication between the horizontal scrollbar and
+-- @layout@.
 --
-layoutGetHAdjustment :: LayoutClass l => l -> IO Adjustment
-layoutGetHAdjustment l = makeNewObject mkAdjustment $
-  {#call unsafe layout_get_hadjustment#} (toLayout l)
+-- See 'ScrolledWindow', 'Scrollbar', 'Adjustment' for details.
+--
+layoutGetHAdjustment :: LayoutClass self => self
+ -> IO Adjustment -- ^ returns horizontal scroll adjustment
+layoutGetHAdjustment self =
+  makeNewObject mkAdjustment $
+  {# call unsafe layout_get_hadjustment #}
+    (toLayout self)
 
--- | Retrieve the vertical 'Adjustment' object from the layout.
+-- | This function should only be called after the layout has been placed in a
+-- 'ScrolledWindow' or otherwise configured for scrolling. It returns the
+-- 'Adjustment' used for communication between the vertical scrollbar and
+-- @layout@.
 --
-layoutGetVAdjustment :: LayoutClass l => l -> IO Adjustment
-layoutGetVAdjustment l = makeNewObject mkAdjustment $
-  {#call unsafe layout_get_vadjustment#} (toLayout l)
+-- See 'ScrolledWindow', 'Scrollbar', 'Adjustment' for details.
+--
+layoutGetVAdjustment :: LayoutClass self => self
+ -> IO Adjustment -- ^ returns vertical scroll adjustment
+layoutGetVAdjustment self =
+  makeNewObject mkAdjustment $
+  {# call unsafe layout_get_vadjustment #}
+    (toLayout self)
 
--- | Set the horizontal adjustment object.
+-- | Sets the horizontal scroll adjustment for the layout.
 --
-layoutSetHAdjustment :: LayoutClass l => l -> Adjustment -> IO ()
-layoutSetHAdjustment l adj = {#call layout_set_hadjustment#} (toLayout l) adj
+-- See 'ScrolledWindow', 'Scrollbar', 'Adjustment' for details.
+--
+layoutSetHAdjustment :: LayoutClass self => self
+ -> Adjustment -- ^ @adjustment@ - new scroll adjustment
+ -> IO ()
+layoutSetHAdjustment self adjustment =
+  {# call layout_set_hadjustment #}
+    (toLayout self)
+    adjustment
 
--- | Set the vertical adjustment object.
+-- | Sets the vertical scroll adjustment for the layout.
 --
-layoutSetVAdjustment :: LayoutClass l => l -> Adjustment -> IO ()
-layoutSetVAdjustment l adj = {#call layout_set_vadjustment#} (toLayout l) adj
+-- See 'ScrolledWindow', 'Scrollbar', 'Adjustment' for details.
+--
+layoutSetVAdjustment :: LayoutClass self => self
+ -> Adjustment -- ^ @adjustment@ - new scroll adjustment
+ -> IO ()
+layoutSetVAdjustment self adjustment =
+  {# call layout_set_vadjustment #}
+    (toLayout self)
+    adjustment
 
 --------------------
 -- Properties
 
 -- | The 'Adjustment' for the horizontal position.
 --
-layoutHAdjustment :: Attr Layout Adjustment
+layoutHAdjustment :: LayoutClass self => Attr self Adjustment
 layoutHAdjustment = Attr 
   layoutGetHAdjustment
   layoutSetHAdjustment
 
 -- | The 'Adjustment' for the vertical position.
 --
-layoutVAdjustment :: Attr Layout Adjustment
+layoutVAdjustment :: LayoutClass self => Attr self Adjustment
 layoutVAdjustment = Attr 
   layoutGetVAdjustment
   layoutSetVAdjustment
@@ -169,13 +236,10 @@ layoutVAdjustment = Attr
 --------------------
 -- Signals
 
--- | In case the adjustments are
--- replaced, this signal is emitted.
+-- | In case the adjustments are replaced, this signal is emitted.
 --
-onSetScrollAdjustments, afterSetScrollAdjustments :: LayoutClass l => l ->(Adjustment -> Adjustment -> IO ()) ->
-                                                     IO (ConnectId l)
-onSetScrollAdjustments = 
-  connect_OBJECT_OBJECT__NONE "set-scroll-adjustments" False
-afterSetScrollAdjustments = 
-  connect_OBJECT_OBJECT__NONE "set-scroll-adjustments" True
-
+onSetScrollAdjustments, afterSetScrollAdjustments :: LayoutClass self => self
+ -> (Adjustment -> Adjustment -> IO ())
+ -> IO (ConnectId self)
+onSetScrollAdjustments = connect_OBJECT_OBJECT__NONE "set-scroll-adjustments" False
+afterSetScrollAdjustments = connect_OBJECT_OBJECT__NONE "set-scroll-adjustments" True

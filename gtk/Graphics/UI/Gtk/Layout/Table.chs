@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:34 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/24 17:31:00 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- The table widget is a container in which widgets can be aligned in cells.
 --
 module Graphics.UI.Gtk.Layout.Table (
--- * Description
+-- * Detail
 -- 
 -- | The 'Table' functions allow the programmer to arrange widgets in rows and
 -- columns, making it easy to align many widgets next to each other,
@@ -100,116 +100,218 @@ import Graphics.UI.Gtk.General.Enums	(AttachOptions(..), fromFlags)
 --------------------
 -- Constructors
 
--- | Create a new table with the specified dimensions.
--- Set @homogeneous@ to True if all cells should be of the same size.
+-- | Used to create a new table widget. An initial size must be given by
+-- specifying how many rows and columns the table should have, although this
+-- can be changed later with 'tableResize'. @rows@ and @columns@ must both be
+-- in the range 0 .. 65535.
 --
-tableNew :: Int -> Int -> Bool -> IO Table
-tableNew rows columns homogeneous = makeNewObject mkTable $ liftM castPtr $
-  {#call unsafe table_new#} (fromIntegral rows) (fromIntegral columns)
-  (fromBool homogeneous)
+tableNew :: 
+    Int      -- ^ @rows@ - The number of rows the new table should have.
+ -> Int      -- ^ @columns@ - The number of columns the new table should have.
+ -> Bool     -- ^ @homogeneous@ - If set to @True@, all table cells are
+             -- resized to the size of the cell containing the largest widget.
+ -> IO Table
+tableNew rows columns homogeneous =
+  makeNewObject mkTable $
+  liftM (castPtr :: Ptr Widget -> Ptr Table) $
+  {# call unsafe table_new #}
+    (fromIntegral rows)
+    (fromIntegral columns)
+    (fromBool homogeneous)
 
 --------------------
 -- Methods
 
 -- | Change the dimensions of an already existing table.
 --
-tableResize :: TableClass tb => tb -> Int -> Int -> IO ()
-tableResize tb rows columns = {#call table_resize#} (toTable tb)
-  (fromIntegral rows) (fromIntegral columns)
+tableResize :: TableClass self => self
+ -> Int   -- ^ @rows@ - The new number of rows.
+ -> Int   -- ^ @columns@ - The new number of columns.
+ -> IO ()
+tableResize self rows columns =
+  {# call table_resize #}
+    (toTable self)
+    (fromIntegral rows)
+    (fromIntegral columns)
 
--- | Put a new widget in the table container. The widget should span the cells
--- (leftAttach,topAttach) to (rightAttach,bottomAttach). Further formatting
--- options have to be specified.
+-- | Adds a widget to a table. The number of \'cells\' that a widget will
+-- occupy is specified by @leftAttach@, @rightAttach@, @topAttach@ and
+-- @bottomAttach@. These each represent the leftmost, rightmost, uppermost and
+-- lowest column and row numbers of the table. (Columns and rows are indexed
+-- from zero).
 --
-tableAttach :: (TableClass tb, WidgetClass w) => tb -> w -> Int -> Int ->
-               Int -> Int -> [AttachOptions] -> [AttachOptions] -> Int ->
-               Int -> IO ()
-tableAttach tb child leftAttach rightAttach topAttach bottomAttach xoptions
-            yoptions xpadding ypadding = {#call table_attach#} (toTable tb)
-  (toWidget child) (fromIntegral leftAttach) (fromIntegral rightAttach) 
-  (fromIntegral topAttach) (fromIntegral bottomAttach) 
-  ((fromIntegral.fromFlags) xoptions) ((fromIntegral.fromFlags) yoptions) 
-  (fromIntegral xpadding) (fromIntegral ypadding)
+tableAttach :: (TableClass self, WidgetClass child) => self
+ -> child           -- ^ @child@ - The widget to add.
+ -> Int             -- ^ @leftAttach@ - the column number to attach the left
+                    -- side of a child widget to.
+ -> Int             -- ^ @rightAttach@ - the column number to attach the right
+                    -- side of a child widget to.
+ -> Int             -- ^ @topAttach@ - the row number to attach the top of a
+                    -- child widget to.
+ -> Int             -- ^ @bottomAttach@ - the row number to attach the bottom
+                    -- of a child widget to.
+ -> [AttachOptions] -- ^ @xoptions@ - Used to specify the properties of the
+                    -- child widget when the table is resized.
+ -> [AttachOptions] -- ^ @yoptions@ - The same as xoptions, except this field
+                    -- determines behaviour of vertical resizing.
+ -> Int             -- ^ @xpadding@ - An integer value specifying the padding
+                    -- on the left and right of the widget being added to the
+                    -- table.
+ -> Int             -- ^ @ypadding@ - The amount of padding above and below
+                    -- the child widget.
+ -> IO ()
+tableAttach self child leftAttach rightAttach topAttach bottomAttach xoptions
+            yoptions xpadding ypadding =
+  {# call table_attach #}
+    (toTable self)
+    (toWidget child)
+    (fromIntegral leftAttach)
+    (fromIntegral rightAttach)
+    (fromIntegral topAttach)
+    (fromIntegral bottomAttach)
+    ((fromIntegral . fromFlags) xoptions)
+    ((fromIntegral . fromFlags) yoptions)
+    (fromIntegral xpadding)
+    (fromIntegral ypadding)
 
--- | Put a new widget in the table container. As opposed to 'tableAttach' this
--- function assumes default values for the packing options.
+-- | As there are many options associated with 'tableAttach', this convenience
+-- function provides the programmer with a means to add children to a table
+-- with identical padding and expansion options. The values used for the
+-- 'AttachOptions' are @['Expand', 'Fill']@, and the padding is set to 0.
 --
-tableAttachDefaults :: (TableClass tb, WidgetClass w) => tb -> w -> Int ->
-                       Int -> Int -> Int -> IO ()
-tableAttachDefaults tb child leftAttach rightAttach topAttach bottomAttach =
-  {#call table_attach_defaults#} (toTable tb) (toWidget child) 
-  (fromIntegral leftAttach) (fromIntegral rightAttach) 
-  (fromIntegral topAttach) (fromIntegral bottomAttach)
+tableAttachDefaults :: (TableClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - The child widget to add.
+ -> Int    -- ^ @leftAttach@ - The column number to attach the left side of
+           -- the child widget to.
+ -> Int    -- ^ @rightAttach@ - The column number to attach the right side of
+           -- the child widget to.
+ -> Int    -- ^ @topAttach@ - The row number to attach the top of the child
+           -- widget to.
+ -> Int    -- ^ @bottomAttach@ - The row number to attach the bottom of the
+           -- child widget to.
+ -> IO ()
+tableAttachDefaults self widget leftAttach rightAttach topAttach bottomAttach =
+  {# call table_attach_defaults #}
+    (toTable self)
+    (toWidget widget)
+    (fromIntegral leftAttach)
+    (fromIntegral rightAttach)
+    (fromIntegral topAttach)
+    (fromIntegral bottomAttach)
 
--- | Set the amount of space (in pixels) between the specified row and its
--- neighbours.
+-- | Changes the space between a given table row and its surrounding rows.
 --
-tableSetRowSpacing :: TableClass tb => tb
-                   -> Int  -- ^ Row number, indexed from 0
-                   -> Int  -- ^ Spacing size in pixels
-                   -> IO ()
-tableSetRowSpacing tb row space = {#call table_set_row_spacing#}
-  (toTable tb) (fromIntegral row) (fromIntegral space)
+tableSetRowSpacing :: TableClass self => self
+ -> Int   -- ^ @row@ - row number whose spacing will be changed.
+ -> Int   -- ^ @spacing@ - number of pixels that the spacing should take up.
+ -> IO ()
+tableSetRowSpacing self row spacing =
+  {# call table_set_row_spacing #}
+    (toTable self)
+    (fromIntegral row)
+    (fromIntegral spacing)
 
--- | Get the amount of space (in pixels) between the specified row and the
--- next row.
+-- | Gets the amount of space between row @row@, and row @row@ + 1. See
+-- 'tableSetRowSpacing'.
 --
-tableGetRowSpacing :: TableClass tb => tb -> Int -> IO Int
-tableGetRowSpacing tb row = liftM fromIntegral $
-  {#call unsafe table_get_row_spacing#} (toTable tb) (fromIntegral row)
+tableGetRowSpacing :: TableClass self => self
+ -> Int    -- ^ @row@ - a row in the table, 0 indicates the first row
+ -> IO Int -- ^ returns the row spacing
+tableGetRowSpacing self row =
+  liftM fromIntegral $
+  {# call unsafe table_get_row_spacing #}
+    (toTable self)
+    (fromIntegral row)
 
--- | Set the amount of space (in pixels) between the specified column and
--- its neighbours.
+-- | Alters the amount of space between a given table column and the adjacent
+-- columns.
 --
-tableSetColSpacing :: TableClass tb => tb -> Int -> Int -> IO ()
-tableSetColSpacing tb col space = {#call table_set_col_spacing#}
-  (toTable tb) (fromIntegral col) (fromIntegral space)
+tableSetColSpacing :: TableClass self => self
+ -> Int   -- ^ @column@ - the column whose spacing should be changed.
+ -> Int   -- ^ @spacing@ - number of pixels that the spacing should take up.
+ -> IO ()
+tableSetColSpacing self column spacing =
+  {# call table_set_col_spacing #}
+    (toTable self)
+    (fromIntegral column)
+    (fromIntegral spacing)
 
--- | Get the amount of space (in pixels) between the specified column and the
--- next column.
+-- | Gets the amount of space between column @col@, and column @col@ + 1. See
+-- 'tableSetColSpacing'.
 --
-tableGetColSpacing :: TableClass tb => tb -> Int -> IO Int
-tableGetColSpacing tb col = liftM fromIntegral $
-  {#call unsafe table_get_col_spacing#} (toTable tb) (fromIntegral col)
+tableGetColSpacing :: TableClass self => self
+ -> Int    -- ^ @column@ - a column in the table, 0 indicates the first column
+ -> IO Int -- ^ returns the column spacing
+tableGetColSpacing self column =
+  liftM fromIntegral $
+  {# call unsafe table_get_col_spacing #}
+    (toTable self)
+    (fromIntegral column)
 
--- | Set the amount of space between any two rows.
+-- | Sets the space between every row in @table@ equal to @spacing@.
 --
-tableSetRowSpacings :: TableClass tb => tb -> Int -> IO ()
-tableSetRowSpacings tb space = {#call table_set_row_spacings#}
-  (toTable tb) (fromIntegral space)
+tableSetRowSpacings :: TableClass self => self
+ -> Int   -- ^ @spacing@ - the number of pixels of space to place between
+          -- every row in the table.
+ -> IO ()
+tableSetRowSpacings self spacing =
+  {# call table_set_row_spacings #}
+    (toTable self)
+    (fromIntegral spacing)
 
 -- | Gets the default row spacing for the table. This is the spacing that will
--- be used for newly added rows.
+-- be used for newly added rows. (See 'tableSetRowSpacings')
 --
-tableGetDefaultRowSpacing :: TableClass tb => tb -> IO Int
-tableGetDefaultRowSpacing tb = liftM fromIntegral $
-  {#call unsafe table_get_default_row_spacing#} (toTable tb)
+tableGetDefaultRowSpacing :: TableClass self => self
+ -> IO Int -- ^ returns the default row spacing
+tableGetDefaultRowSpacing self =
+  liftM fromIntegral $
+  {# call unsafe table_get_default_row_spacing #}
+    (toTable self)
 
--- | Set the amount of space between any two columns.
+-- | Sets the space between every column in @table@ equal to @spacing@.
 --
-tableSetColSpacings :: TableClass tb => tb -> Int -> IO ()
-tableSetColSpacings tb space = {#call table_set_col_spacings#}
-  (toTable tb) (fromIntegral space)
+tableSetColSpacings :: TableClass self => self
+ -> Int   -- ^ @spacing@ - the number of pixels of space to place between
+          -- every column in the table.
+ -> IO ()
+tableSetColSpacings self spacing =
+  {# call table_set_col_spacings #}
+    (toTable self)
+    (fromIntegral spacing)
 
 -- | Gets the default column spacing for the table. This is the spacing that
--- will be used for newly added columns.
+-- will be used for newly added columns. (See 'tableSetColSpacings')
 --
-tableGetDefaultColSpacing :: TableClass tb => tb -> IO Int
-tableGetDefaultColSpacing tb = liftM fromIntegral $
-  {#call unsafe table_get_default_col_spacing#} (toTable tb)
+tableGetDefaultColSpacing :: TableClass self => self
+ -> IO Int -- ^ returns the default column spacing
+tableGetDefaultColSpacing self =
+  liftM fromIntegral $
+  {# call unsafe table_get_default_col_spacing #}
+    (toTable self)
 
--- | Make all cells the same size.
+-- | Changes the homogenous property of table cells, ie. whether all cells are
+-- an equal size or not.
 --
-tableSetHomogeneous :: TableClass tb => tb -> Bool -> IO ()
-tableSetHomogeneous tb hom = 
-  {#call table_set_homogeneous#} (toTable tb) (fromBool hom)
+tableSetHomogeneous :: TableClass self => self
+ -> Bool  -- ^ @homogeneous@ - Set to @True@ to ensure all table cells are the
+          -- same size. Set to @False@ if this is not your desired behaviour.
+ -> IO ()
+tableSetHomogeneous self homogeneous =
+  {# call table_set_homogeneous #}
+    (toTable self)
+    (fromBool homogeneous)
 
 -- | Returns whether the table cells are all constrained to the same width and
--- height.
+-- height. (See 'tableSetHomogenous')
 --
-tableGetHomogeneous :: TableClass tb => tb -> IO Bool
-tableGetHomogeneous tb =
-  liftM toBool $ {#call unsafe table_get_homogeneous#} (toTable tb)
+tableGetHomogeneous :: TableClass self => self
+ -> IO Bool -- ^ returns @True@ if the cells are all constrained to the same
+            -- size
+tableGetHomogeneous self =
+  liftM toBool $
+  {# call unsafe table_get_homogeneous #}
+    (toTable self)
 
 --------------------
 -- Properties
@@ -218,7 +320,7 @@ tableGetHomogeneous tb =
 --
 -- Default value: @False@
 --
-tableHomogeneous :: Attr Table Bool
+tableHomogeneous :: TableClass self => Attr self Bool
 tableHomogeneous = Attr 
   tableGetHomogeneous
   tableSetHomogeneous

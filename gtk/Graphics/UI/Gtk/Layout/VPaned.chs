@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:31:00 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A container with two panes arranged vertically.
+-- A container with two panes arranged vertically
 --
 module Graphics.UI.Gtk.Layout.VPaned (
--- * Description
+-- * Detail
 -- 
 -- | The VPaned widget is a container widget with two children arranged
 -- vertically. The division between the two panes is adjustable by the user by
@@ -65,7 +65,10 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | 
+-- | Create a new 'VPaned'
 --
 vPanedNew :: IO VPaned
-vPanedNew = makeNewObject mkVPaned $ liftM castPtr {#call unsafe vpaned_new#}
+vPanedNew =
+  makeNewObject mkVPaned $
+  liftM (castPtr :: Ptr Widget -> Ptr VPaned) $
+  {# call unsafe vpaned_new #}

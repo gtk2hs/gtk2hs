@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:31:00 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A container with two panes arranged horizontally.
+-- A container with two panes arranged horizontally
 --
 module Graphics.UI.Gtk.Layout.HPaned (
--- * Description
+-- * Detail
 -- 
 -- | The HPaned widget is a container widget with two children arranged
 -- horizontally. The division between the two panes is adjustable by the user
@@ -65,7 +65,10 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | 
+-- | Create a new 'HPaned'
 --
 hPanedNew :: IO HPaned
-hPanedNew = makeNewObject mkHPaned $ liftM castPtr {#call unsafe hpaned_new#}
+hPanedNew =
+  makeNewObject mkHPaned $
+  liftM (castPtr :: Ptr Widget -> Ptr HPaned) $
+  {# call unsafe hpaned_new #}

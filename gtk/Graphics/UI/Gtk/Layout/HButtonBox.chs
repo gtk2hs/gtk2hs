@@ -5,7 +5,7 @@
 --
 --  Created: 29 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.3 $ from $Date: 2005/03/24 17:31:00 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -27,7 +27,7 @@
 -- A container for arranging buttons horizontally
 --
 module Graphics.UI.Gtk.Layout.HButtonBox (
--- * Description
+-- * Detail
 -- 
 -- | A button box should be used to provide a consistent layout of buttons
 -- throughout your application. The layout\/spacing can be altered by the
@@ -78,8 +78,10 @@ import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 --------------------
 -- Constructors
 
--- | 
+-- | Creates a new horizontal button box.
 --
 hButtonBoxNew :: IO HButtonBox
-hButtonBoxNew = makeNewObject mkHButtonBox $
-  liftM castPtr {#call unsafe hbutton_box_new#}
+hButtonBoxNew =
+  makeNewObject mkHButtonBox $
+  liftM (castPtr :: Ptr Widget -> Ptr HButtonBox) $
+  {# call unsafe hbutton_box_new #}

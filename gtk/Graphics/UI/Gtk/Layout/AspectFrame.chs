@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:30:59 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A frame that constrains its child to a particular aspect ratio.
+-- A frame that constrains its child to a particular aspect ratio
 --
 module Graphics.UI.Gtk.Layout.AspectFrame (
--- * Description
+-- * Detail
 -- 
 -- | The 'AspectFrame' is useful when you want pack a widget so that it can
 -- resize but always retains the same aspect ratio. For instance, one might be
@@ -72,26 +72,49 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create an AspectFrame widget.
+-- | Create a new 'AspectFrame'.
 --
--- * If ratio is not given, the aspect ratio is taken from the child widget.
+-- The frame may be augmented with a label which can be set by @frameSetLabel@.
 --
--- * The frame may be augmented with a label which can be set by
---   @frameSetLabel@.
---
-aspectFrameNew :: Float -> Float -> Maybe Float -> IO AspectFrame
-aspectFrameNew xalign yalign ratio = makeNewObject mkAspectFrame $
-  liftM castPtr $ {#call unsafe aspect_frame_new#} nullPtr (realToFrac xalign) 
-  (realToFrac yalign) (maybe 0.0 realToFrac ratio) (fromBool $ isNothing ratio)
+aspectFrameNew :: 
+    Float          -- ^ @xalign@ - Horizontal alignment of the child within
+                   -- the allocation of the 'AspectFrame'. This ranges from 0.0
+                   -- (left aligned) to 1.0 (right aligned)
+ -> Float          -- ^ @yalign@ - Vertical alignment of the child within the
+                   -- allocation of the 'AspectFrame'. This ranges from 0.0
+                   -- (left aligned) to 1.0 (right aligned)
+ -> Maybe Float    -- ^ @ratio@ - The desired aspect ratio. If @Nothing@ the
+                   -- aspect ratio is taken from the requistion of the child.
+ -> IO AspectFrame
+aspectFrameNew xalign yalign ratio =
+  makeNewObject mkAspectFrame $
+  liftM (castPtr :: Ptr Widget -> Ptr AspectFrame) $
+  {# call unsafe aspect_frame_new #}
+    nullPtr
+    (realToFrac xalign)
+    (realToFrac yalign)
+    (maybe 0.0 realToFrac ratio)
+    (fromBool $ isNothing ratio)
 
 --------------------
 -- Methods
 
--- | Change the space use behaviour of an
--- 'AspectFrame'.
+-- | Set parameters for an existing 'AspectFrame'.
 --
-aspectFrameSet :: AspectFrameClass af => af -> Float -> Float -> Maybe Float ->
-                  IO ()
-aspectFrameSet af xalign yalign ratio = {#call aspect_frame_set#} 
-  (toAspectFrame af) (realToFrac xalign) (realToFrac yalign) 
-  (maybe 0.0 realToFrac ratio) (fromBool $ isNothing ratio)
+aspectFrameSet :: AspectFrameClass self => self
+ -> Float -- ^ @xalign@ - Horizontal alignment of the child within the
+          -- allocation of the 'AspectFrame'. This ranges from 0.0 (left
+          -- aligned) to 1.0 (right aligned)
+ -> Float -- ^ @yalign@ - Vertical alignment of the child within the
+          -- allocation of the 'AspectFrame'. This ranges from 0.0 (left
+          -- aligned) to 1.0 (right aligned)
+ -> Maybe Float -- ^ @ratio@ - The desired aspect ratio. If @Nothing@ the
+                -- aspect ratio is taken from the requistion of the child.
+ -> IO ()
+aspectFrameSet self xalign yalign ratio =
+  {# call aspect_frame_set #}
+    (toAspectFrame self)
+    (realToFrac xalign)
+    (realToFrac yalign)
+    (maybe 0.0 realToFrac ratio)
+    (fromBool $ isNothing ratio)

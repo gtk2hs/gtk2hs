@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.3 $ from $Date: 2005/03/24 17:31:00 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -27,7 +27,7 @@
 -- A container for arranging buttons vertically
 --
 module Graphics.UI.Gtk.Layout.VButtonBox (
--- * Description
+-- * Detail
 -- 
 -- | A button box should be used to provide a consistent layout of buttons
 -- throughout your application. The layout\/spacing can be altered by the
@@ -78,8 +78,10 @@ import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 --------------------
 -- Constructors
 
--- | 
+-- | Creates a new vertical button box.
 --
 vButtonBoxNew :: IO VButtonBox
-vButtonBoxNew = makeNewObject mkVButtonBox $
-  liftM castPtr {#call unsafe vbutton_box_new#}
+vButtonBoxNew =
+  makeNewObject mkVButtonBox $
+  liftM (castPtr :: Ptr Widget -> Ptr VButtonBox) $
+  {# call unsafe vbutton_box_new #}

@@ -10,6 +10,21 @@
 	gtk/Graphics/UI/Gtk/Ornaments/VSeparator.chs: documentation changes
 	and code formatting changes.
 
+	* gtk/Graphics/UI/Gtk/Layout/Alignment.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/AspectFrame.chs,
+	gtk/Graphics/UI/Gtk/Layout/Expander.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Fixed.chs,
+	gtk/Graphics/UI/Gtk/Layout/HBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/HButtonBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/HPaned.chs,
+	gtk/Graphics/UI/Gtk/Layout/Layout.chs,
+	gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Table.chs,
+	gtk/Graphics/UI/Gtk/Layout/VBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/VButtonBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/VPaned.chs: documentation changes and code
+	formatting changes.
+
 2005-03-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/glib.cabal.in, gtk/gtk.cabal.in, mogul/mogul.cabal.in,

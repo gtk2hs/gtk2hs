@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:34 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/24 17:30:59 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -26,8 +26,10 @@
 --
 -- A container which can hide its child
 --
+-- * Module available since Gtk+ version 2.4
+--
 module Graphics.UI.Gtk.Layout.Expander (
--- * Description
+-- * Detail
 -- 
 -- | A 'Expander' allows the user to hide or show its child by clicking on an
 -- expander triangle similar to the triangles used in a 'TreeView'.
@@ -36,8 +38,6 @@ module Graphics.UI.Gtk.Layout.Expander (
 -- 'Bin'; you create the child widget and use 'containerAdd' to add it to the
 -- expander. When the expander is toggled, it will take care of showing and
 -- hiding the child automatically.
---
--- * Module available since Gtk version 2.4
 
 -- * Class Hierarchy
 -- |
@@ -87,8 +87,6 @@ module Graphics.UI.Gtk.Layout.Expander (
 #endif
   ) where
 
-#if GTK_CHECK_VERSION(2,4,0)
-
 import Monad (liftM)
 
 import System.Glib.FFI
@@ -100,74 +98,164 @@ import Graphics.UI.Gtk.Signals
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Constructors
 
+-- | Creates a new expander using @label@ as the text of the label.
+--
 expanderNew :: String -> IO Expander
-expanderNew label = 
- makeNewObject mkExpander $ liftM castPtr $
- withUTFString label $ \strPtr ->
- {# call gtk_expander_new #} strPtr
+expanderNew label =
+  makeNewObject mkExpander $
+  liftM (castPtr :: Ptr Widget -> Ptr Expander) $
+  withUTFString label $ \labelPtr ->
+  {# call gtk_expander_new #}
+    labelPtr
 
-expanderNewWithMnemonic :: String -> IO Expander
+-- | Creates a new expander using @label@ as the text of the label. If
+-- characters in @label@ are preceded by an underscore, they are underlined. If
+-- you need a literal underscore character in a label, use \'__\' (two
+-- underscores). The first underlined character represents a keyboard
+-- accelerator called a mnemonic. Pressing Alt and that key activates the
+-- button.
+--
+expanderNewWithMnemonic :: 
+    String      -- ^ @label@ - the text of the label with an underscore in
+                -- front of the mnemonic character
+ -> IO Expander
 expanderNewWithMnemonic label =
- makeNewObject mkExpander $ liftM castPtr $
- withUTFString label $ \strPtr -> 
- {# call gtk_expander_new_with_mnemonic #} strPtr
+  makeNewObject mkExpander $
+  liftM (castPtr :: Ptr Widget -> Ptr Expander) $
+  withUTFString label $ \labelPtr ->
+  {# call gtk_expander_new_with_mnemonic #}
+    labelPtr
 
 --------------------
 -- Methods
 
+-- | Sets the state of the expander. Set to @True@, if you want the child
+-- widget to be revealed, and @False@ if you want the child widget to be
+-- hidden.
+--
 expanderSetExpanded :: Expander -> Bool -> IO ()
-expanderSetExpanded expander expanded = 
- {# call gtk_expander_set_expanded #} expander (fromBool expanded)
+expanderSetExpanded self expanded =
+  {# call gtk_expander_set_expanded #}
+    self
+    (fromBool expanded)
 
+-- | Queries a 'Expander' and returns its current state. Returns @True@ if the
+-- child widget is revealed.
+--
+-- See 'expanderSetExpanded'.
+--
 expanderGetExpanded :: Expander -> IO Bool
-expanderGetExpanded expander = liftM toBool $
- {# call gtk_expander_get_expanded #} expander
+expanderGetExpanded self =
+  liftM toBool $
+  {# call gtk_expander_get_expanded #}
+    self
 
-expanderSetSpacing :: Expander -> Int -> IO ()
-expanderSetSpacing expander spacing = 
- {# call gtk_expander_set_spacing #} expander (fromIntegral spacing)
+-- | Sets the spacing field of @expander@, which is the number of pixels to
+-- place between expander and the child.
+--
+expanderSetSpacing :: Expander -> Int
+ -> IO ()
+expanderSetSpacing self spacing =
+  {# call gtk_expander_set_spacing #}
+    self
+    (fromIntegral spacing)
 
-expanderGetSpacing :: Expander -> IO Int
-expanderGetSpacing expander = liftM fromIntegral $
- {# call gtk_expander_get_spacing #} expander
+-- | Gets the value set by 'expanderSetSpacing'.
+--
+expanderGetSpacing :: Expander
+ -> IO Int   -- ^ returns spacing between the expander and child.
+expanderGetSpacing self =
+  liftM fromIntegral $
+  {# call gtk_expander_get_spacing #}
+    self
 
+-- | Sets the text of the label of the expander to @label@.
+--
+-- This will also clear any previously set labels.
+--
 expanderSetLabel :: Expander -> String -> IO ()
-expanderSetLabel expander label =
- withUTFString label $ \strPtr ->
- {# call gtk_expander_set_label #} expander strPtr
+expanderSetLabel self label =
+  withUTFString label $ \labelPtr ->
+  {# call gtk_expander_set_label #}
+    self
+    labelPtr
 
+-- | Fetches the text from the label of the expander, as set by
+-- 'expanderSetLabel'.
+--
 expanderGetLabel :: Expander -> IO String
-expanderGetLabel expander = do
- strPtr <- {# call gtk_expander_get_label #} expander
- peekUTFString strPtr
+expanderGetLabel self =
+  {# call gtk_expander_get_label #}
+    self
+  >>= peekUTFString
 
-expanderSetUseUnderline :: Expander -> Bool -> IO ()
-expanderSetUseUnderline expander useUnderline = 
- {# call gtk_expander_set_use_underline #} expander (fromBool useUnderline)
+-- | If true, an underline in the text of the expander label indicates the
+-- next character should be used for the mnemonic accelerator key.
+--
+expanderSetUseUnderline :: Expander
+ -> Bool     -- ^ @useUnderline@ - @True@ if underlines in the text indicate
+             -- mnemonics
+ -> IO ()
+expanderSetUseUnderline self useUnderline =
+  {# call gtk_expander_set_use_underline #}
+    self
+    (fromBool useUnderline)
 
-expanderGetUseUnderline :: Expander -> IO Bool
-expanderGetUseUnderline expander = liftM toBool $
- {# call gtk_expander_get_use_underline #} expander
+-- | Returns whether an embedded underline in the expander label indicates a
+-- mnemonic. See 'expanderSetUseUnderline'.
+--
+expanderGetUseUnderline :: Expander
+ -> IO Bool  -- ^ returns @True@ if an embedded underline in the expander
+             -- label indicates the mnemonic accelerator keys.
+expanderGetUseUnderline self =
+  liftM toBool $
+  {# call gtk_expander_get_use_underline #}
+    self
 
-expanderSetUseMarkup :: Expander -> Bool -> IO ()
-expanderSetUseMarkup expander useMarkup = 
- {# call gtk_expander_set_use_markup #} expander (fromBool useMarkup)
+-- | Sets whether the text of the label contains markup in Pango's text markup
+-- language. See 'labelSetMarkup'.
+--
+expanderSetUseMarkup :: Expander
+ -> Bool     -- ^ @useMarkup@ - @True@ if the label's text should be parsed
+             -- for markup
+ -> IO ()
+expanderSetUseMarkup self useMarkup =
+  {# call gtk_expander_set_use_markup #}
+    self
+    (fromBool useMarkup)
 
+-- | Returns whether the label's text is interpreted as marked up with the
+-- Pango text markup language. See 'expanderSetUseMarkup'.
+--
 expanderGetUseMarkup :: Expander -> IO Bool
-expanderGetUseMarkup expander = liftM toBool $
- {# call gtk_expander_get_use_markup #} expander
+expanderGetUseMarkup self =
+  liftM toBool $
+  {# call gtk_expander_get_use_markup #}
+    self
 
-expanderSetLabelWidget :: WidgetClass widget => Expander -> widget -> IO ()
-expanderSetLabelWidget expander widget = 
- {# call gtk_expander_set_label_widget #} expander (toWidget widget)
+-- | Set the label widget for the expander. This is the widget that will
+-- appear embedded alongside the expander arrow.
+--
+expanderSetLabelWidget :: WidgetClass labelWidget => Expander
+ -> labelWidget -- ^ @labelWidget@ - the new label widget
+ -> IO ()
+expanderSetLabelWidget self labelWidget =
+  {# call gtk_expander_set_label_widget #}
+    self
+    (toWidget labelWidget)
 
-expanderGetLabelWidget :: Expander -> IO Widget
-expanderGetLabelWidget expander = 
- makeNewObject mkWidget $
- {# call gtk_expander_get_label_widget #} expander
+-- | Retrieves the label widget for the frame. See 'expanderSetLabelWidget'.
+--
+expanderGetLabelWidget :: Expander
+ -> IO Widget -- ^ returns the label widget
+expanderGetLabelWidget self =
+  makeNewObject mkWidget $
+  {# call gtk_expander_get_label_widget #}
+    self
 
 --------------------
 -- Properties
@@ -221,9 +309,9 @@ expanderLabelWidget = Attr
 --------------------
 -- Signals
 
-onActivate :: Expander -> IO () -> IO (ConnectId Expander)
-afterActivate :: Expander -> IO () -> IO (ConnectId Expander)
+onActivate, afterActivate :: Expander
+ -> IO ()
+ -> IO (ConnectId Expander)
 onActivate = connect_NONE__NONE "activate" False
 afterActivate = connect_NONE__NONE "activate" True
-
 #endif
