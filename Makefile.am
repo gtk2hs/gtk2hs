@@ -12,7 +12,8 @@ EXTRA_DIST = \
 	tools/hierarchyGen/hierarchy.list	\
 	tools/hierarchyGen/Hierarchy.chs.template \
 	sourceview/sourceview.h			\
-	gtk/wingtk.h
+	gtk/wingtk.h				\
+        glib/System/Glib/hsgclosure.h
 
 # There are no other files in these dirs and tar excludes empty dirs
 dist-hook:
@@ -237,15 +238,26 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/GObject.chs.pp		\
 	glib/System/Glib/Attributes.hs		\
 	glib/System/Glib/GError.chs.pp		\
-	glib/System/Glib/GList.chs
+	glib/System/Glib/GList.chs              \
+	glib/System/Glib/Signals.chs            \
+	glib/System/Glib/hsgclosure.c
 
-html_HSFILES_EXCLUDE = glib/System/Glib/FFI.hs
+html_HSFILES_EXCLUDE =				\
+	glib/System/Glib/FFI.hs			\
+	glib/System/Glib/Signals.hs
 
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
+glib_System_Glib_Signals_hs_HCFLAGS	= '-\#include"hsgclosure.h"'
 
 libHSglib_a_LIBADD =	\
 	glib/System/Glib/GObject_stub.o
+
+# Special CFLAGS for building the closure implementation since it needs
+# to #include <Rts.h> from GHC's include directory.
+glib/System/Glib/hsgclosure.o : glib/System/Glib/hsgclosure.c
+	$(CC) -c $< -o $@ $(GLIB_CFLAGS) -I$(GHC_INCLUDEDIR) 	\
+	-Wall -Wextra -Werror -Wno-unused-parameter
 
 am_libHSglib_a_OBJECTS = $(libHSglib_a_HSFILES:.hs=.$(OBJEXT))
 

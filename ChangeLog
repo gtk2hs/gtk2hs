@@ -15,6 +15,12 @@
 	marshaling code. Basically adds connectGeneric which is used by all
 	the per-type marshaling functions.
 
+	* Makefile.am: build support for new marshalign modules. We need
+	GHC_INCLUDEDIR so we can get at the GHC rts headder files.
+
+	* configure.ac: provide GHC_INCLUDEDIR, which is bascially just 
+	`$GHC --print-libdir`/include
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for

@@ -143,6 +143,11 @@ __GLASGOW_HASKELL__=$GHC_VERSION_NUMBER
 AC_DEFINE_UNQUOTED(__GLASGOW_HASKELL__, $GHC_VERSION_NUMBER,
 	[Version number of GHC.])
 
+# Get ghc's lib and include dirs. We need the include dir since the HSGClosure
+# implementation needs to #include GHC's <Rts.h>
+GHC_LIBDIR=`$GHC --print-libdir`
+GHC_INCLUDEDIR=$GHC_LIBDIR/include
+
 dnl Check if the ghc compiler can generate dynamic callbacks with more than
 dnl 4 words worth of arguments. Hopefully one day the compiler will support
 dnl this.
@@ -609,6 +614,7 @@ AC_ARG_WITH(ghc-docdir,
 	    [GHC_DOCDIR=$withval])
 
 dnl Needed substitution.
+AC_SUBST(GHC_INCLUDEDIR)
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(FOUR_WORD_CALLBACK)
