@@ -1,3 +1,25 @@
+2005-02-20 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/Api.hs: add support for misc symbols: structs, boxed,
+	class, aliases and callbacks.
+
+	* tools/apiGen/FormatDocs.hs: format these extra misc types. Format
+	constants correctly. Format object names as symbol hyperlinks rather
+	than module hyperlinks. Format the class hierarchy better.
+
+	* tools/apiGen/Marshal.hs: add misc types. Add a list of known misc
+	types that do not need to generate FIXME's in the generated docs. Add
+	a list of types that are 'leaf' classes where we do not need to
+	generate code that allows for subclasses, eg GtkAdjustment. Add
+	marshaling for some extra simple types gdouble, gfloat and some boxed
+	types: TreeIter, TreePath and TextIter. Add a convertSignalType
+	function which maps C type names to signal type specs, eg OBJECT etc.
+
+	* tools/apiGen/CodeGen.hs: Add section names in the generated code.
+	Make generated constructors preserve 'unsafe' annotations. Do signal
+	generation more fully; produce the full connect_* name. Add misc types
+	to the symbols map.
+
 2005-02-19 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Repaired the uninstall-hook which somehow worked on
@@ -9,7 +31,7 @@
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp: fix display of
 	documentation by moving much of it inside the export list.
 
-	* tools/apiGen/ModuleScan.hs: add abality to exclude certain modules
+	* tools/apiGen/ModuleScan.hs: add ability to exclude certain modules
 	when scanning existing modules. This is useful so that we do not
 	confuse some Gtk module with a Gdk or Pango module of the same name.
 

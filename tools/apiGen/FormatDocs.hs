@@ -10,6 +10,7 @@ module FormatDocs (
   genModuleDocumentation,
   cFuncNameToHsName,
   cParamNameToHsName,
+  toStudlyCaps,
   haddocFormatParas,
   haddocFormatSpans,
   haddocFormatSpan,
@@ -20,7 +21,7 @@ module FormatDocs (
 
 import Api (NameSpace(namespace_name))
 import Docs
-import Marshal (stripKnownPrefixes, KnownSymbols, CSymbol(..))
+import Marshal (stripKnownPrefixes, knownMiscType, KnownSymbols, CSymbol(..))
 import StringUtils
 
 import Maybe (isJust)
@@ -53,8 +54,15 @@ genModuleDocumentation knownSymbols moduledoc =
 haddocFormatHierarchy :: KnownSymbols -> [DocParaSpan] -> ShowS
 haddocFormatHierarchy knownSymbols =
     sepBy "\n-- |"
+  . map haddocTweakHierarchy
   . Prelude.lines
   . concatMap (haddocFormatSpan knownSymbols)
+
+haddocTweakHierarchy :: String -> String
+haddocTweakHierarchy ('+':'-':'-':'-':'-':cs@(c:_)) | c /= ''' =
+  case span isAlpha cs of (word, rest) -> "+----" ++ stripKnownPrefixes word ++ rest
+haddocTweakHierarchy (c:cs) = c : haddocTweakHierarchy cs
+haddocTweakHierarchy [] = []
 
 addVersionParagraphs :: NameSpace -> ModuleDoc -> ModuleDoc
 addVersionParagraphs namespace apiDoc =
@@ -140,10 +148,16 @@ haddocFormatSpan knownSymbols (DocTypeXRef text) =
     Nothing | text == "TRUE"  -> "@True@"
             | text == "FALSE"          -> "@False@"
             | otherwise                -> "{" ++ text ++ ", FIXME: unknown type/value}"
-    Just (SymObjectType _)             -> "\"" ++ stripKnownPrefixes text ++ "\""
+    Just (SymObjectType _)             -> "'" ++ stripKnownPrefixes text ++ "'"
     Just (SymEnumType _)               -> "'" ++ stripKnownPrefixes text ++ "'"
     Just SymEnumValue                  -> "'" ++ cConstNameToHsName text ++ "'"
-    _ -> "{" ++ text ++ ", FIXME: unknown type/value}" --TODO fill in the other cases
+    Just SymStructType                 -> "{" ++ text ++ ", FIXME: struct type}"
+    Just SymBoxedType                  -> if knownMiscType text
+                                            then "'" ++ stripKnownPrefixes text ++ "'"
+                                            else "{" ++ text ++ ", FIXME: boxed type}"
+    Just SymClassType                  -> "{" ++ text ++ ", FIXME: class type}"
+    Just SymTypeAlias                  -> "{" ++ text ++ ", FIXME: type alias}"
+    Just SymCallbackType               -> "{" ++ text ++ ", FIXME: callback type}"
 haddocFormatSpan _ (DocFuncXRef text)   = "'" ++ cFuncNameToHsName text ++ "'"
 haddocFormatSpan _ (DocOtherXRef text)  = "'{FIXME: gtk-doc cross reference to:" ++ text ++ "}'"
 haddocFormatSpan _ (DocEmphasis text)   = "/" ++ text ++ "/"
@@ -172,9 +186,8 @@ cParamNameToHsName  =          --change "gtk_foo_bar" to "gtkFooBar"
   . toStudlyCaps
 
 cConstNameToHsName :: String -> String
-cConstNameToHsName  =          --change "GTK_UPDATE_DISCONTINUOUS" to "updateDiscontinuous"
-    lowerCaseFirstChar
-  . stripKnownPrefixes
+cConstNameToHsName  =          --change "GTK_UPDATE_DISCONTINUOUS" to "UpdateDiscontinuous"
+    stripKnownPrefixes
   . toStudlyCaps
   . map toLower
 
@@ -208,9 +221,16 @@ mungeWord knownSymbols word
                  | word' == "NULL" = "{@NULL@, FIXME: this should probably be converted to a Maybe data type}"
                                                      ++ remainder
                  | isJust e = case e of
-                                Just (SymObjectType _) -> "\"" ++ stripKnownPrefixes word' ++ "\"" ++ remainder
+                                Just (SymObjectType _) -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder
                                 Just (SymEnumType _)   -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder
                                 Just SymEnumValue      -> "'" ++ cConstNameToHsName word' ++ "'" ++ remainder
+                                Just SymStructType     -> "{" ++ word' ++ ", FIXME: struct type}"
+                                Just SymBoxedType      -> if knownMiscType word'
+                                                            then "'" ++ stripKnownPrefixes word' ++ "'"
+                                                            else "{" ++ word' ++ ", FIXME: boxed type}"
+                                Just SymClassType      -> "{" ++ word' ++ ", FIXME: class type}"
+                                Just SymTypeAlias      -> "{" ++ word' ++ ", FIXME: type alias}"
+                                Just SymCallbackType   -> "{" ++ word' ++ ", FIXME: callback type}"
                  | otherwise = word
   where e = lookupFM knownSymbols word'
         (word', remainder) = span (\c -> isAlpha c || c == '_') word

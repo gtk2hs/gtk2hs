@@ -62,7 +62,7 @@ genFunction knownSymbols method doc info =
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
           Just doc -> ss "-- | ". haddocFormatParas knownSymbols (funcdoc_paragraphs doc). nl.
-                      comment. nl
+                      ss "--\n"
         paramDocMap = case doc of
           Nothing  -> []
           Just doc -> [ (paramdoc_name paramdoc
@@ -105,10 +105,16 @@ genFunction knownSymbols method doc info =
 genModuleBody :: KnownSymbols -> Object -> ModuleDoc -> ModuleInfo -> ShowS
 genModuleBody knownSymbols object apiDoc modInfo =
   doVersionIfDefs (sepBy' "\n\n") $
-     genConstructors knownSymbols object (moduledoc_functions apiDoc)
-  ++ genMethods knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo)
-  ++ genProperties knownSymbols object (moduledoc_properties apiDoc)
-  ++ genSignals knownSymbols object (moduledoc_signals apiDoc)
+     sectionHeader "Constructors"
+     (genConstructors knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo))
+  ++ sectionHeader "Methods"
+     (genMethods      knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo))
+  ++ sectionHeader "Properties"
+     (genProperties   knownSymbols object (moduledoc_properties apiDoc))
+  ++ sectionHeader "Signals"
+     (genSignals      knownSymbols object (moduledoc_signals apiDoc))
+  where sectionHeader name []      = []
+        sectionHeader name entries = (ss "--------------------\n-- ". ss name, ("", False)):entries
 
 -- fixup the names of the C functions we got from scaning the original modules
 -- we want the fully qualified "gtk_foo_bar" rather than "foo_bar" so that the
@@ -169,17 +175,20 @@ mungeMethod object method =
         method_parameters = self : method_parameters method
       } 
 
-genConstructors :: KnownSymbols -> Object -> [FuncDoc] -> [(ShowS, (Since, Deprecated))]
-genConstructors knownSymbols object apiDoc =
-  [ (genFunction knownSymbols constructor doc Nothing, (maybe "" funcdoc_since doc, notDeprecated))
-  | (constructor, doc) <- constructors object apiDoc ]
+genConstructors :: KnownSymbols -> Object -> [FuncDoc] -> [MethodInfo] -> [(ShowS, (Since, Deprecated))]
+genConstructors knownSymbols object apiDoc methodsInfo =
+  [ (genFunction knownSymbols constructor doc info, (maybe "" funcdoc_since doc, notDeprecated))
+  | (constructor, doc, info) <- constructors object apiDoc methodsInfo ]
 
-constructors :: Object -> [FuncDoc] -> [(Method, Maybe FuncDoc)]
-constructors object docs =
-  [ (mungeConstructor object constructor, constructor_cname constructor `lookup` docmap)
+constructors :: Object -> [FuncDoc] -> [MethodInfo] -> [(Method, Maybe FuncDoc, Maybe MethodInfo)]
+constructors object docs methodsInfo =
+  [ (mungeConstructor object constructor
+    ,lookup (constructor_cname constructor) docmap
+    ,lookup (constructor_cname constructor) infomap)
   | constructor <- object_constructors object
   , null [ () | VarArgs <- constructor_parameters constructor] ]
-  where docmap = [ (funcdoc_name doc, doc) | doc <- docs ]
+  where docmap  = [ (funcdoc_name doc, doc) | doc <- docs ]
+        infomap = [ (methodinfo_cname info, info) | info <- methodsInfo ]
 
 mungeConstructor :: Object -> Constructor -> Method
 mungeConstructor object constructor =
@@ -221,17 +230,15 @@ genProperty knownSymbols object property doc =
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
           Just doc -> ss "-- | ". haddocFormatParas knownSymbols (propdoc_paragraphs doc). nl.
-                      comment. nl
+                      ss "--\n"
         (propertyType, gvalueConstructor) = genMarshalProperty knownSymbols (property_type property)
 
 signals :: Object -> [SignalDoc] -> [(Signal, Maybe SignalDoc)]
 signals object docs =
-  [ (signal, map dashToUnderscore (signal_cname signal) `lookup` docmap)
+  [ (signal, canonicalSignalName (signal_cname signal) `lookup` docmap)
   | signal <- object_signals object ]
-  where docmap = [ (map dashToUnderscore (signaldoc_name doc), doc)
+  where docmap = [ (canonicalSignalName (signaldoc_name doc), doc)
                  | doc <- docs ]
-        dashToUnderscore '-' = '_'
-        dashToUnderscore  c  =  c
 
 genSignals :: KnownSymbols -> Object -> [SignalDoc] -> [(ShowS, (Since, Deprecated))]
 genSignals knownSymbols object apiDoc = 
@@ -239,19 +246,32 @@ genSignals knownSymbols object apiDoc =
   | (signal, doc) <- signals object apiDoc ] 
 
 genSignal :: KnownSymbols -> Object -> Signal -> Maybe SignalDoc -> ShowS
-genSignal knownSymbols object property doc = 
+genSignal knownSymbols object signal doc = 
   formattedDoc.
   ss "on". signalName. ss ", after". signalName. ss " :: ". nl.
-  ss "on".    signalName. ss " = connect_{-type-}". connectType. sc ' '. signalCName. ss " False". nl.
-  ss "after". signalName. ss " = connect_{-type-}". connectType. sc ' '. signalCName. ss " True". nl
+  ss "on".    signalName. ss " = connect_". connectType. sc ' '. signalCName. ss " False". nl.
+  ss "after". signalName. ss " = connect_". connectType. sc ' '. signalCName. ss " True". nl
 
-  where connectType = id
-        signalName = ss (upperCaseFirstChar (cFuncNameToHsName (signal_cname property)))
-        signalCName = sc '"'. ss (signal_cname property). sc '"'
+  where connectType = sepBy "_" paramTypes . ss "__" . ss returnType
+        -- strip off the object arg to the signal handler
+        params = case signal_parameters signal of
+                   (param:params) | parameter_type param == object_cname object ++ "*" -> params
+                   params -> params
+        paramTypes | null params = ["NONE"]
+                   | otherwise = [ convertSignalType knownSymbols (parameter_type parameter)
+                                 | parameter <- params ]
+        returnType = convertSignalType knownSymbols (signal_return_type signal)
+        signalName = ss (toStudlyCaps . canonicalSignalName . signal_cname $ signal)
+        signalCName = sc '"'. ss (signal_cname signal). sc '"'
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
           Just doc -> ss "-- | ". haddocFormatParas knownSymbols (signaldoc_paragraphs doc). nl.
-                      comment. nl
+                      ss "--\n"
+
+canonicalSignalName :: String -> String
+canonicalSignalName = map dashToUnderscore
+  where dashToUnderscore '-' = '_'
+        dashToUnderscore  c  =  c
 
 makeKnownSymbolsMap :: API -> KnownSymbols
 makeKnownSymbolsMap api =
@@ -269,6 +289,8 @@ makeKnownSymbolsMap api =
  ++ [ (member_cname member, SymEnumValue)
     | enum <- namespace_enums namespace
     , member <- enum_members enum ]
+ ++ [ (misc_cname misc, miscToCSymbol misc )
+    | misc <- namespace_misc namespace ]
   | namespace <- api ]
 
         -- find if an object inherits via GtkObject or directly from GObject
@@ -289,6 +311,11 @@ makeKnownSymbolsMap api =
         objectMap = [ (object_cname object, object)
                     | namespace <- api
                     , object <- namespace_objects namespace ]
+        miscToCSymbol (Struct   _ _) = SymStructType
+        miscToCSymbol (Boxed    _ _) = SymBoxedType
+        miscToCSymbol (Class    _ _) = SymClassType
+        miscToCSymbol (Alias    _ _) = SymTypeAlias
+        miscToCSymbol (Callback _ _) = SymCallbackType
 
 genExports :: Object -> ModuleDoc -> ModuleInfo -> ShowS
 genExports object docs modInfo =
@@ -298,7 +325,7 @@ genExports object docs modInfo =
   indent 1.ss "castTo".ss (object_name object).sc ','.
   (case [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ','
           ,(maybe "" funcdoc_since doc, notDeprecated))
-        | (constructor, doc) <- constructors object (moduledoc_functions docs)] of
+        | (constructor, doc, _) <- constructors object (moduledoc_functions docs) []] of
      [] -> id
      cs -> nl.nl.comment.ss "* Constructors".nl.
            doVersionIfDefs lines cs).

@@ -10,6 +10,7 @@ module Api (
   Method(..),
   Property(..),
   Signal(..),
+  Misc(..),
   extractAPI
   ) where
 
@@ -27,7 +28,8 @@ data NameSpace = NameSpace {
     namespace_name :: String,
     namespace_library :: String,
     namespace_objects :: [Object],
-    namespace_enums :: [Enum]
+    namespace_enums :: [Enum],
+    namespace_misc :: [Misc]
   } deriving Show
 
 data Enum = Enum {
@@ -97,6 +99,29 @@ data Signal = Signal {
     signal_parameters :: [Parameter]    
   } deriving Show
 
+data Misc =
+    Struct {
+      misc_name :: String,
+      misc_cname :: String
+    }
+  | Boxed {
+      misc_name :: String,
+      misc_cname :: String
+    }
+  | Class {
+      misc_name :: String,
+      misc_cname :: String
+    }
+  | Alias {
+      misc_name :: String,
+      misc_cname :: String
+    }
+  | Callback {
+      misc_name :: String,
+      misc_cname :: String
+    }
+  deriving Show
+
 -------------------------------------------------------------------------------
 -- extract functions to convert the api xml file to the internal representation
 -------------------------------------------------------------------------------
@@ -112,7 +137,8 @@ extractNameSpace (Xml.CElem (Xml.Elem "namespace"
     namespace_name = Xml.verbatim name,
     namespace_library = Xml.verbatim lib,
     namespace_objects = catMaybes (map extractObject content),
-    namespace_enums = catMaybes (map extractEnum content)
+    namespace_enums = catMaybes (map extractEnum content),
+    namespace_misc = catMaybes (map extractMisc content)
   }
 extractNameSpace _ = Nothing
 
@@ -229,6 +255,14 @@ extractParameter (Xml.CElem (Xml.Elem "parameter"
     parameter_isArray = False
   }
 extractParameter (Xml.CElem (Xml.Elem "parameter"
+                        [("name", Xml.AttValue name),
+                         ("type", Xml.AttValue type_)] [])) =
+  Parameter {
+    parameter_type = Xml.verbatim type_,
+    parameter_name = Xml.verbatim name,
+    parameter_isArray = False
+  }
+extractParameter (Xml.CElem (Xml.Elem "parameter"
                         [("type", Xml.AttValue type_),
                          ("name", Xml.AttValue name),
                          ("printf_format" ,_)] [])) =
@@ -303,3 +337,32 @@ extractSignal (Xml.CElem (Xml.Elem "signal"
            -> map extractParameter parameters
   }
 extractSignal _ = Nothing
+
+extractMisc :: Xml.Content -> Maybe Misc
+extractMisc (Xml.CElem (Xml.Elem elem
+                  (("name", Xml.AttValue name):
+                   ("cname", Xml.AttValue cname):_) _))
+  | elem == "struct"   = Just Struct {
+                                misc_name = Xml.verbatim name,
+                                misc_cname = Xml.verbatim cname
+                              }
+  | elem == "boxed"    = Just Boxed {
+                                misc_name = Xml.verbatim name,
+                                misc_cname = Xml.verbatim cname
+                              }
+  | elem == "class"    = Just Class {
+                                misc_name = Xml.verbatim name,
+                                misc_cname = Xml.verbatim cname
+                              }
+  | elem == "alias"    = Just Alias {
+                                misc_name = Xml.verbatim name,
+                                misc_cname = Xml.verbatim cname
+                              }
+  | elem == "callback" = Just Callback {
+                                misc_name = Xml.verbatim name,
+                                misc_cname = Xml.verbatim cname
+                              }
+extractMisc (Xml.CElem (Xml.Elem "object" _ _))    = Nothing
+extractMisc (Xml.CElem (Xml.Elem "interface" _ _)) = Nothing
+extractMisc (Xml.CElem (Xml.Elem "enum" _ _))      = Nothing
+extractMisc other = error $ "extractMisc: " ++ Xml.verbatim other

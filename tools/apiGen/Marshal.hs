@@ -4,9 +4,11 @@ module Marshal (
   ObjectKind(..),
   EnumKind(..),
   stripKnownPrefixes,
+  knownMiscType,
   genMarshalParameter,
   genMarshalResult,
   genMarshalProperty,
+  convertSignalType,
   genCall
   ) where
 
@@ -20,6 +22,10 @@ data CSymbol = SymObjectType ObjectKind
              | SymEnumType   EnumKind
              | SymEnumValue
              | SymStructType
+             | SymBoxedType
+             | SymClassType
+             | SymTypeAlias
+             | SymCallbackType
   deriving Eq
 
 data ObjectKind = GObjectKind | GtkObjectKind
@@ -42,6 +48,9 @@ symbolIsEnum _                             = False
 symbolIsFlags (Just (SymEnumType FlagsKind)) = True
 symbolIsFlags _                              = False
 
+symbolIsBoxed (Just SymBoxedType) = True
+symbolIsBoxed _                   = False
+
 stripKnownPrefixes :: String -> String
 stripKnownPrefixes ('A':'t':'k':remainder) = remainder
 stripKnownPrefixes ('G':'t':'k':remainder) = remainder
@@ -49,6 +58,26 @@ stripKnownPrefixes ('G':'d':'k':remainder) = remainder
 stripKnownPrefixes ('P':'a':'n':'g':'o':remainder) = remainder
 stripKnownPrefixes ('G':'n':'o':'m':'e':remainder) = remainder
 stripKnownPrefixes other = other
+
+-- These are ones we have bound and so we can make documentation references to
+-- them. Otherwise we generate FIXME messages in the docs.
+knownMiscType :: String -> Bool
+knownMiscType "GtkTreePath" = True
+knownMiscType "GtkTreeIter" = True
+knownMiscType "GdkColor"    = True
+knownMiscType "GtkTextIter" = True
+knownMiscType "GtkIconSet"  = True
+knownMiscType _ = False
+
+-- These are classes from which no other class derives or is ever likely to
+-- derive. In this case we can use the actual type rather than the type class
+-- For example: GtkAdjustment we say
+-- > Adjustment -> ...
+-- rather than
+-- > AdjustmentClass adjustment => adjustment -> ...
+leafClass :: String -> Bool
+leafClass "GtkAdjustment" = True
+leafClass _ = False
 
 -------------------------------------------------------------------------------
 -- Here's the interesting bit that generates the fragments of mashaling code
@@ -100,18 +129,24 @@ genMarshalParameter _ name "GError**" =
 	         indent 1. body.
                  indent 2. sc ' '. ss name. ss "Ptr")
 
+-- Objects -----------------------------
 genMarshalParameter knownSymbols name typeName'
             | isUpper (head typeName')
            && last typeName' == '*'
            && last typeName /= '*'
            && symbolIsObject typeKind =
-	(Just $ shortTypeName ++ "Class " ++ name, Just name,
-	\body -> body.
-                 indent 2. ss " (to". ss shortTypeName. sc ' '. ss name. ss ")")
+	if leafClass typeName
+          then (Nothing, Just shortTypeName,
+               \body -> body.
+                        indent 2. ss name)
+          else (Just $ shortTypeName ++ "Class " ++ name, Just name,
+               \body -> body.
+                        indent 2. ss " (to". ss shortTypeName. sc ' '. ss name. ss ")")
   where typeName = init typeName'
         shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
+-- Enums -------------------------------
 genMarshalParameter knownSymbols name typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
@@ -121,6 +156,7 @@ genMarshalParameter knownSymbols name typeName
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
+-- Flags -------------------------------
 genMarshalParameter knownSymbols name typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
@@ -129,6 +165,23 @@ genMarshalParameter knownSymbols name typeName
                  indent 2. ss " ((fromIntegral . fromFlags) ". ss name. ss ")")
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
+
+genMarshalParameter _ name textIter | textIter == "const-GtkTextIter*"
+                                   || textIter == "GtkTextIter*" =
+	(Nothing, Just "TextIter",
+	\body -> body.
+                 indent 2. sc ' '. ss name)
+
+genMarshalParameter _ name "GtkTreeIter*" =
+	(Nothing, Just "TreeIter",
+	\body -> body.
+                 indent 2. sc ' '. ss name)
+
+genMarshalParameter _ name "GtkTreePath*" =
+	(Nothing, Just "TreePath",
+	\body -> ss "withTreePath ". ss name. ss " $ \\". ss name. ss " ->".
+		 indent 1. body.
+                 indent 2. sc ' '. ss name)
 
 genMarshalParameter _ name unknownType =
 	(Nothing, Just $ "{-" ++ unknownType ++ "-}",
@@ -141,6 +194,8 @@ genMarshalResult :: KnownSymbols -> String -> (String, ShowS -> ShowS)
 genMarshalResult _ "gboolean" = ("IO Bool", \body -> ss "liftM toBool $". indent 1. body)
 genMarshalResult _ "gint"     = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
 genMarshalResult _ "guint"    = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ "gdouble"  = ("IO Double", \body -> ss "liftM realToFrac $". indent 1. body)
+genMarshalResult _ "gfloat"   = ("IO Float",  \body -> ss "liftM realToFrac $". indent 1. body)
 genMarshalResult _ "void"     = ("IO ()", id)
 genMarshalResult _ "const-gchar*"  = ("IO String", \body -> body.
                                                             indent 1. ss  ">>= peekUTFString")
@@ -196,6 +251,8 @@ genMarshalResult knownSymbols typeName
 
 genMarshalResult _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
+-- Takes the type string and returns the Haskell Type and the GValue constructor
+--
 genMarshalProperty :: KnownSymbols -> String -> (String, String)
 genMarshalProperty _ "gint"      = ("Int",    "GVint")
 genMarshalProperty _ "guint"     = ("Int",    "GVuint")
@@ -227,6 +284,32 @@ genMarshalProperty knownSymbols typeName
 
 genMarshalProperty _ unknown = ("{-" ++ unknown ++ "-}", "{-" ++ unknown ++ "-}")
 
+-- Takes the type string and returns the signal marshaing category
+--
+convertSignalType :: KnownSymbols -> String -> String
+convertSignalType _ "void"     = "NONE"
+convertSignalType _ "gchar"    = "CHAR"
+convertSignalType _ "guchar"   = "UCHAR"
+convertSignalType _ "gboolean" = "BOOLEAN"
+convertSignalType _ "gint"     = "INT"
+convertSignalType _ "guint"    = "UINT"
+convertSignalType _ "glong"    = "LONG"
+convertSignalType _ "gulong"   = "ULONG"
+convertSignalType _ "gfloat"   = "FLOAT"
+convertSignalType _ "gdouble"  = "DOUBLE"
+convertSignalType _ "gchar*"   = "STRING"
+convertSignalType _ "const-gchar*" = "STRING"
+convertSignalType knownSymbols typeName
+  | symbolIsEnum   typeKind    = "ENUM"
+  | symbolIsFlags  typeKind    = "FLAGS"
+  where typeKind = lookupFM knownSymbols typeName
+convertSignalType knownSymbols typeName@(_:_)
+    | last typeName == '*'
+   && symbolIsBoxed  typeKind  = "BOXED"
+    | last typeName == '*'
+   && symbolIsObject typeKind  = "OBJECT"
+  where typeKind = lookupFM knownSymbols (init typeName)
+convertSignalType _ typeName   =  "{-" ++ typeName ++ "-}"
 
 -------------------------------------------------------------------------------
 -- Now for some special cases, we can override the generation of {# call #}'s
