@@ -26,9 +26,9 @@ lookup named widgets in a type safe way.
 %package ghc%{ghc_version}
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
 Group: Development/Languages/Haskell
-BuildRequires: ghc = %{ghc_version}, gtk2-devel, %{?_with_c2hs: c2hs >= 0.10.6}, %{_bindir}/hsc2hs
+BuildRequires: ghc = %{ghc_version}, gtk2-devel, gtksourceview-devel, %{?_with_c2hs: c2hs >= 0.10.6}, %{_bindir}/hsc2hs
 Requires: ghc = %{ghc_version}
-Requires: gtk2
+Requires: gtk2, gtksourceview
 Requires(post,preun): %{_bindir}/ghc-pkg-%{ghc_version}
 
 %description ghc%{ghc_version}
@@ -78,13 +78,15 @@ rm -rf %{buildroot}
 # perl -pi -e "s|%{buildroot}||" \
 #     %{_libdir}/ghc-%{ghc_version}/{%{name}/gtk2.conf,mogul.conf}
 
-ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/%{name}/gtk2.conf
-ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/mogul/mogul.conf
+ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/%{name}/gtk2/gtk2.conf
+ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/%{name}/sourceview/sourceview.conf
+ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/%{name}/mogul/mogul.conf
 
 %preun ghc%{ghc_version}
 if [ "$1" = 0 ]; then
-  rm -f %{_libdir}/ghc-%{ghc_version}/{%{name}/gtk2hs.o,mogul.o}
+  rm -f %{_libdir}/ghc-%{ghc_version}/%{name}/{gtk2/gtk2hs.o,mogul/mogul.o,spirceview/sourceview.o}
   ghc-pkg-%{ghc_version} -r mogul || :
+  ghc-pkg-%{ghc_version} -r sourceview || :
   ghc-pkg-%{ghc_version} -r gtk2 || :
 fi
 
