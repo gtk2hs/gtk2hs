@@ -6,7 +6,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.9 $ from $Date: 2002/12/16 16:27:14 $
+--  Version $Revision: 1.10 $ from $Date: 2003/02/27 10:09:17 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -44,6 +44,9 @@ module General(
   grabRemove,
   mkDestructor,
   DestroyNotify,
+  priorityLow,
+  priorityDefault,
+  priorityHigh,
   timeoutAdd,
   timeoutRemove,
   idleAdd,
@@ -63,6 +66,7 @@ import Object	(makeNewObject)
 {#import Hierarchy#}	 
 {#import Signal#}
 import Enums    (InputCondition(..))
+import Structs	(priorityLow, priorityDefault, priorityHigh)
 
 {#context lib="gtk" prefix ="gtk"#}
 
@@ -199,7 +203,7 @@ makeCallback fun = do
 -- @function timeoutAdd@ Register a function that is to be called after
 -- @ref arg interval@ ms have been elapsed.
 --
--- * If the function returns False it will be removed.
+-- * If the function returns @literal False@ it will be removed.
 --
 timeoutAdd :: IO Bool -> Int -> IO HandlerId
 timeoutAdd fun msec = do
@@ -216,7 +220,10 @@ timeoutRemove  = {#call unsafe timeout_remove#}
 -- @function idleAdd@ Add a callback that is called whenever the system is
 -- idle.
 --
--- * A priority can be specified.
+-- * A priority can be specified via an integer. This should usually be
+--   @ref constant priorityDefault@.
+--
+-- * If the function returns @literal False@ it will be removed.
 --
 idleAdd :: IO Bool -> Int -> IO HandlerId
 idleAdd fun pri = do
