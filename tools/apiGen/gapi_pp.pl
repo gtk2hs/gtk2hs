@@ -8,7 +8,7 @@
 #
 # Copyright (c) 2001 Mike Kestner
 # Copyright (c) 2003 Martin Willemoes Hansen
-# Copyright (c) 2003 Novell, Inc.
+# Copyright (c) 2003-2004 Novell, Inc.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of version 2 of the GNU General Public
@@ -25,8 +25,8 @@
 # Boston, MA 02111-1307, USA.
 
 $private_regex = "^#if.*(ENABLE_BACKEND|ENABLE_ENGINE)";
-$eatit_regex = "^#if.*(__cplusplus|DEBUG|DISABLE_(DEPRECATED|COMPAT)|ENABLE_BROKEN|COMPILATION)";
-$ignoreit_regex = '^\s+\*|#ident|#\s*include|#\s*else|#\s*endif|#\s*undef|G_(BEGIN|END)_DECLS|extern|GDKVAR|GTKVAR|GTKMAIN_C_VAR|GTKTYPEUTILS_VAR|VARIABLE|GTKTYPEBUILTIN';
+$eatit_regex = "^#if.*(__cplusplus|DEBUG|DISABLE_COMPAT|ENABLE_BROKEN)";
+$ignoreit_regex = '^\s+\*|#ident|#error|#\s*include|#\s*else|#\s*undef|G_(BEGIN|END)_DECLS|GDKVAR|GTKVAR|GTKMAIN_C_VAR|GTKTYPEUTILS_VAR|VARIABLE|GTKTYPEBUILTIN';
 
 foreach $arg (@ARGV) {
 	if (-d $arg && -e $arg) {
@@ -50,6 +50,8 @@ foreach $fname (@hdrs) {
 	open(INFILE, $fname) || die "Could open $fname\n";
 
 	$braces = 0;
+	$deprecated = -1;
+	$ifdeflevel = 0;
 	$prepend = "";
 	while ($line = <INFILE>) {
 		$braces++ if ($line =~ /{/ and $line !~ /}/);
@@ -57,8 +59,8 @@ foreach $fname (@hdrs) {
 		
 		next if ($line =~ /$ignoreit_regex/);
 
-		$line =~ s/\/\*.*?\*\///g;
-
+		$line =~ s/\/\*[^<].*?\*\///g;
+		
 		next if ($line !~ /\S/);
 
 		$line = $prepend . $line;
@@ -75,10 +77,10 @@ foreach $fname (@hdrs) {
 				$def =~ s/\\\n//g;
 				print $def;
 			}
-		} elsif ($line =~ /^\s*\/\*/) {
+		} elsif ($line =~ /^\s*\/\*[^<]/) {
 			while ($line !~ /\*\//) {$line = <INFILE>;}
-		} elsif ($line =~ /^#ifndef\s+\w+_H_*\b/) {
-			while ($line !~ /#define/) {$line = <INFILE>;}
+		} elsif ($line =~ /^extern/) {
+			while ($line !~ /;/) {$line = <INFILE>;}
 		} elsif ($line =~ /$private_regex/) {
 			$nested = 0;
 			while ($line = <INFILE>) {
@@ -107,7 +109,19 @@ foreach $fname (@hdrs) {
 				}
 			}
 		} elsif ($line =~ /^#\s*ifn?\s*\!?def/) {
-			#warn "Ignored #if:\n$line";
+			$ifdeflevel++;
+			#print "#ifn?def ($ifdeflevel): $line\n";
+			if ($line =~ /#ifndef.*DISABLE_DEPRECATED/) {
+				$deprecated = $ifdeflevel;
+			} elsif ($line =~ /#if !defined.*DISABLE_DEPRECATED/) {
+				$deprecated = $ifdeflevel;
+			}
+		} elsif ($line =~ /^#\s*endif/) {
+			#print "#endif   ($ifdeflevel): $line\n";
+			if ($deprecated == $ifdeflevel) {
+				$deprecated = -1;
+			}
+			$ifdeflevel--;
 		} elsif ($line =~ /typedef struct\s*\{/) {
 			my $first_line = $line;
 			my @lines = ();
@@ -130,6 +144,9 @@ foreach $fname (@hdrs) {
 			print "};\n";
 		} elsif ($line =~ /^enum\s+\{/) {
 			while ($line !~ /^};/) {$line = <INFILE>;}
+		} elsif ($line =~ /^(typedef\s+)?union/) {
+			next if ($line =~ /^typedef\s+union\s+\w+\s+\w+;/);
+			while ($line !~ /^};/) {$line = <INFILE>;}
 		} elsif ($line =~ /(\s+)union\s*{/) {
 			# this is a hack for now, but I need it for the fields to work
 			$indent = $1;
@@ -141,8 +158,12 @@ foreach $fname (@hdrs) {
 				$do_print = 0;
 			}
 		} else {
-			if ($braces or $line =~ /;/) {
-				print $line;
+			if ($braces or $line =~ /;|\/\*/) {
+				if ($deprecated == -1) {
+					print $line;
+				} else {
+					print "deprecated$line";
+				}
 			} else {
 				$prepend = $line;
 				$prepend =~ s/\n/ /g;
@@ -168,12 +189,15 @@ foreach $fname (@srcs, @privhdrs) {
 	}
 
 	while ($line = <INFILE>) {
-		#next if ($line !~ /^(struct|\w+_class_init)|g_boxed_type_register_static/);
-		next if ($line !~ /^(struct|\w+_class_init|\w+_base_init|\w+_get_type)/);
+		next if ($line !~ /^(struct|\w+_class_init|\w+_base_init|\w+_get_type\b)/);
 
 		if ($line =~ /^struct/) {
 			# need some of these to parse out parent types
 			print "private";
+			if ($line =~ /;/) {
+				print $line;
+				next;
+			}
 		}
 
 		$comment = 0;

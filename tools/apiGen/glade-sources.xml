@@ -2,7 +2,7 @@
   <api filename="glade-api.xml">
     <library name="glade">
       <namespace name="Glade">
-        <dir>libglade-2.0.0/glade</dir>
+        <dir>libglade-2.3.6/glade</dir>
       </namespace>
     </library>
   </api>

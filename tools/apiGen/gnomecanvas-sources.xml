@@ -2,7 +2,7 @@
   <api filename="gnomecanvas-api.xml">
     <library name="gnomecanvas">
       <namespace name="Gnome">
-        <dir>libgnomecanvas-2.2.1/libgnomecanvas</dir>
+        <dir>libgnomecanvas-2.6.0/libgnomecanvas</dir>
       </namespace>
     </library>
   </api>

@@ -2,7 +2,74 @@
   <api filename="gtk-api.xml">
     <library name="gtk">
       <namespace name="Gtk">
-        <dir>gtk+-2.2.2/gtk</dir>
+        <dir>gtk+-2.4.14/gtk</dir>
+        <!-- Internal stuff -->
+        <exclude>gtk+-2.4.14/gtk/gtkfilechooserdefault.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilechooserdefault.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilechooserentry.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilechooserentry.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilechooserutils.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilechooserutils.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilesystem.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilesystem.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilesystemmodel.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilesystemmodel.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilesystemunix.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilesystemunix.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilesystemwin32.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkfilesystemwin32.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkiconcache.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkiconcache.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkiconthemeparser.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkpathbar.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkpathbar.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkrbtree.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkrbtree.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtksequence.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtksequence.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktextbtree.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktextbtree.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktextsegment.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktextsegment.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktexttypes.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktexttypes.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktextutil.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktextutil.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkthemes.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkthemes.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktreedatalist.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktreedatalist.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkwindow-decorate.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkwindow-decorate.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkxembed.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/xembed.h</exclude>
+        <!-- Exclude all pre gtk+-2.2 deprecated widgets -->
+	<!-- on second thoughts don't exclude them
+        <exclude>gtk+-2.4.14/gtk/gtkclist.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkclist.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkctree.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkctree.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtklist.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtklist.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtklistitem.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtklistitem.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkoldeditable.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkoldeditable.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkpixmap.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkpixmap.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkpreview.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkpreview.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkprogress.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtkprogress.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktext.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktext.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktipsquery.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktipsquery.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktree.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktree.h</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktreeitem.c</exclude>
+        <exclude>gtk+-2.4.14/gtk/gtktreeitem.h</exclude>
+	-->
       </namespace>
     </library>
   </api>

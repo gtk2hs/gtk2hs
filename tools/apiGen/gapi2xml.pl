@@ -84,18 +84,18 @@ while ($line = <STDIN>) {
 		$types{$3} = $1 . $2;
 	} elsif ($line =~ /typedef\s+enum\s+(\w+)\s+(\w+);/) {
 		$etypes{$1} = $2;
-	} elsif ($line =~ /^(typedef\s+)?\benum\b/) {
+	} elsif ($line =~ /^((deprecated)?typedef\s+)?\benum\b/) {
 		$edef = $line;
 		while ($line = <STDIN>) {
 			$edef .= $line;
-			last if ($line =~ /^}\s*(\w+)?;/);
+			last if ($line =~ /^(deprecated)?}\s*(\w+)?;/);
 		}
 		$edef =~ s/\n\s*//g;
 		$edef =~ s|/\*.*?\*/||g;
 		if ($edef =~ /typedef.*}\s*(\w+);/) {
 			$ename = $1;
-		} elsif ($edef =~ /^enum\s+(\w+)\s*{/) {
-			$ename = $1;
+		} elsif ($edef =~ /^(deprecated)?enum\s+(\w+)\s*{/) {
+			$ename = $2;
 		} else {
 			print "Unexpected enum format\n$edef";
 			next;
@@ -111,15 +111,15 @@ while ($line = <STDIN>) {
 		$fdef .= $line;
 		$fdef =~ s/\n\s+//g;
 		$fpdefs{$fname} = $fdef;
-	} elsif ($line =~ /^(private)?struct\s+(\w+)/) {
+	} elsif ($line =~ /^(private|deprecated)?struct\s+(\w+)/) {
 		next if ($line =~ /;/);
 		$sname = $2;
 		$sdef = $line;
 		while ($line = <STDIN>) {
 			$sdef .= $line;
-			last if ($line =~ /^}/);
+			last if ($line =~ /^(deprecated)?}/);
 		}
-		$sdef =~ s!/\*.*?(\*/|\n)!!g;
+		$sdef =~ s!/\*[^<].*?(\*/|\n)!!g;
 		$sdef =~ s/\n\s*//g;
 		$sdefs{$sname} = $sdef;
 	} elsif ($line =~ /^(\w+)_(class|base)_init\b/) {
@@ -149,8 +149,8 @@ while ($line = <STDIN>) {
 			last if ($line =~ /^}/);
 		}
 		$typefuncs{lc($class)} = $pedef;
-	} elsif ($line =~ /^(const|G_CONST_RETURN)?\s*\w+\s*\**\s*(\w+)\s*\(/) {
-		$fname = $2;
+	} elsif ($line =~ /^(deprecated)?(const|G_CONST_RETURN)?\s*(struct\s+)?\w+\s*\**\s*(\w+)\s*\(/) {
+		$fname = $4;
 		$fdef = "";
 		while ($line !~ /;/) {
 			$fdef .= $line;
@@ -186,12 +186,14 @@ while ($line = <STDIN>) {
 		$boxdefs{$1} = $line;
 	} elsif ($line =~ /^BUILTIN\s*\{\s*\"(\w+)\".*GTK_TYPE_(ENUM|FLAGS)/) {
 		# ignoring these for now.
-	} elsif ($line =~ /^\#define/) {
+	} elsif ($line =~ /^(deprecated)?\#define/) {
 		my $test_ns = uc ($ns);
-		if ($line =~ /\#define\s+(\w+)\s+\"(.*)\"/) {
+		if ($line =~ /^deprecated\#define\s+(\w+)\s+\"(.*)\"/) {
+			$defines{"deprecated$1"} = $2;
+		} elsif ($line =~ /\#define\s+(\w+)\s+\"(.*)\"/) {
 			$defines{$1} = $2;
 		}
-	} else {
+	} elsif ($line !~ /\/\*/) {
 		print $line;
 	}
 }
@@ -207,6 +209,10 @@ foreach $cname (sort(keys(%edefs))) {
 	$cname = $etypes{$cname} if (exists($etypes{$cname}));
 	$enums{lc($cname)} = $cname;
 	$enum_elem = addNameElem($ns_elem, 'enum', $cname, $ns);
+	if ($def =~ /^deprecated/) {
+		$enum_elem->setAttribute("deprecated", "1");
+		$def =~ s/deprecated//g;
+	}
 	if ($def =~ /=\s*1\s*<<\s*\d+/) {
 		$enum_elem->setAttribute('type', "flags");
 	} else {
@@ -214,6 +220,7 @@ foreach $cname (sort(keys(%edefs))) {
 	}
 	$def =~ /\{(.*)\}/;
 	@vals = split(/,\s*/, $1);
+	$vals[0] =~ s/^\s+//;
 	@v0 = split(/_/, $vals[0]);
 	if (@vals > 1) {
 		$done = 0;
@@ -257,7 +264,7 @@ foreach $cname (sort(keys(%edefs))) {
 ##############################################################
 
 foreach $cbname (sort(keys(%fpdefs))) {
-	next if ($cbname !~ /$ns/);
+	next if ($cbname =~ /^_/);
 	$cbcnt++;
 	$fdef = $cb = $fpdefs{$cbname};
 	$cb_elem = addNameElem($ns_elem, 'callback', $cbname, $ns);
@@ -289,9 +296,10 @@ foreach $type (sort(keys(%ifaces))) {
 
 	$classdef = $sdefs{$1} if ($ifacetype =~ /struct\s+(\w+)/);
 	if ($initfunc) {
-		parseInitFunc($iface_el, $initfunc, 0);
+		parseInitFunc($iface_el, $initfunc);
 	} else {
 		warn "Don't have an init func for $inst.\n" if $debug;
+		addVirtualMethods ($classdef, $iface_el);
 	}
 }
 
@@ -312,7 +320,8 @@ foreach $type (sort(keys(%objects))) {
 	$instdef = $classdef = "";
 	$instdef = $sdefs{$1} if ($insttype =~ /struct\s+(\w+)/);
 	$classdef = $sdefs{$1} if ($classtype =~ /struct\s+(\w+)/);
-	$instdef =~ s/\s+(\*+)/\1 /g;
+	$classdef =~ s/deprecated//g;
+	$instdef =~ s/\s+(\*+)([^\/])/\1 \2/g;
 	warn "Strange Class $inst\n" if (!$instdef && $debug);
 
 	$classcnt++;
@@ -320,15 +329,21 @@ foreach $type (sort(keys(%objects))) {
 
 	$elem_table{lc($inst)} = $obj_el;
 
+	# Check if the object is deprecated
+	if ($instdef =~ /^deprecatedstruct/) {
+		$obj_el->setAttribute("deprecated", "1");
+		$instdef =~ s/deprecated//g;
+	}
+	
 	# Extract parent and fields from the struct
 	if ($instdef =~ /^struct/) {
 		$instdef =~ /\{(.*)\}/;
 		$fieldstr = $1;
-		$fieldstr =~ s|/\*.*?\*/||g;
+		$fieldstr =~ s|/\*[^<].*?\*/||g;
 		@fields = split(/;/, $fieldstr);
-		$fields[0] =~ /(\w+)/;
-		$obj_el->setAttribute('parent', "$1");
-		addFieldElems($obj_el, @fields[1..$#fields]);
+		addFieldElems($obj_el, 'private', @fields);
+		$obj_el->setAttribute('parent', $obj_el->firstChild->getAttribute('type'));
+		$obj_el->removeChild($obj_el->firstChild);
 	} elsif ($instdef =~ /privatestruct/) {
 		# just get the parent for private structs
 		$instdef =~ /\{\s*(\w+)/;
@@ -337,7 +352,7 @@ foreach $type (sort(keys(%objects))) {
 
 	# Get the props from the class_init func.
 	if ($initfunc) {
-		parseInitFunc($obj_el, $initfunc, 1);
+		parseInitFunc($obj_el, $initfunc);
 	} else {
 		warn "Don't have an init func for $inst.\n" if $debug;
 	}
@@ -388,6 +403,11 @@ foreach $key (sort (keys (%types))) {
 		$struct_el = addNameElem($ns_elem, 'struct', $key, $ns);
 	}
 
+	if ($def =~ /^deprecated/) {
+		$struct_el->setAttribute("deprecated", "1");
+		$def =~ s/deprecated//g;
+	}
+
 	$elem_table{lc($key)} = $struct_el;
 
 	$def =~ s/\s+/ /g;
@@ -395,7 +415,7 @@ foreach $key (sort (keys (%types))) {
 		$struct_el->setAttribute('opaque', 'true');
 	} else {
 		$def =~ /\{(.+)\}/;
-		addFieldElems($struct_el, split(/;/, $1));
+		addFieldElems($struct_el, 'public', split(/;/, $1));
 	}
 }
 
@@ -447,13 +467,18 @@ if ($ARGV[1]) {
 $scnt = keys(%sdefs); $fcnt = keys(%fdefs); $tcnt = keys(%types);
 print "structs: $scnt  enums: $ecnt  callbacks: $cbcnt\n";
 print "funcs: $fcnt types: $tcnt  classes: $classcnt\n";
-print "props: $propcnt signals: $sigcnt\n\n";
+print "props: $propcnt childprops: $childpropcnt signals: $sigcnt\n\n";
 
 sub addFieldElems
 {
-	my ($parent, @fields) = @_;
+	my ($parent, $defaultaccess, @fields) = @_;
+	my $access = $defaultaccess;
 
 	foreach $field (@fields) {
+		if ($field =~ m!^/\*< (public|private) >.*\*/(.*)$!) {
+			$access = $1;
+			$field = $2;
+		}
 		next if ($field !~ /\S/);
 		$field =~ s/\s+(\*+)/\1 /g;
 		$field =~ s/(\w+)\s+const /const \1 /g;
@@ -461,7 +486,7 @@ sub addFieldElems
 		$field =~ s/struct /struct\-/g;
 		$field =~ s/.*\*\///g;
 		next if ($field !~ /\S/);
-
+		
 		if ($field =~ /(\S+\s+\*?)\(\*\s*(.+)\)\s*\((.*)\)/) {
 			$elem = addNameElem($parent, 'callback', $2);
 			addReturnElem($elem, $1);
@@ -470,15 +495,19 @@ sub addFieldElems
 			my $type = $1 . $2; $symb = $3;
 			foreach $tok (split (/,\s*/, $symb)) {
 				if ($tok =~ /(\w+)\s*\[(.*)\]/) {
-					$elem = addNameElem($parent, 'field', $1);
+					$elem = addNameElem($parent, 'field', $1, "");
 					$elem->setAttribute('array_len', "$2");
 				} elsif ($tok =~ /(\w+)\s*\:\s*(\d+)/) {
-					$elem = addNameElem($parent, 'field', $1);
+					$elem = addNameElem($parent, 'field', $1, "");
 					$elem->setAttribute('bits', "$2");
 				} else {
-					$elem = addNameElem($parent, 'field', $tok);
+					$elem = addNameElem($parent, 'field', $tok, "");
 				}
 				$elem->setAttribute('type', "$type");
+
+				if ($access ne $defaultaccess) {
+					$elem->setAttribute('access', "$access");
+				}
 			}
 		} else {
 			die "$field\n";
@@ -518,12 +547,20 @@ sub addFuncElems
 		next if (!$obj_el);
 
 		$mdef = delete $fdefs{$mname};
-
+		
 		if ($mname =~ /$prefix(new)/) {
-			$el = addNameElem($obj_el, 'constructor', $mname); 
+			$el = addNameElem($obj_el, 'constructor', $mname);
+			if ($mdef =~ /^deprecated/) {
+				$el->setAttribute("deprecated", "1");
+				$mdef =~ s/deprecated//g;
+			}
 			$drop_1st = 0;
 		} else {
 			$el = addNameElem($obj_el, 'method', $mname, $prefix, $prepend);
+			if ($mdef =~ /^deprecated/) {
+				$el->setAttribute("deprecated", "1");
+				$mdef =~ s/deprecated//g;
+			}
 			$mdef =~ /(.*?)\w+\s*\(/;
 			addReturnElem($el, $1);
 			$mdef =~ /\(\s*(const)?\s*(\w+)/;
@@ -543,6 +580,13 @@ sub addFuncElems
 sub parseParms
 {
 	my ($el, $mdef, $drop_1st) = @_;
+
+	$fmt_args = 0;
+
+	if ($mdef =~ /G_GNUC_PRINTF.*\((\d+,\s*\d+)\s*\)/) {
+		$fmt_args = $1;
+		$mdef =~ s/\s*G_GNUC_PRINTF.*\)//;
+	}
 
 	if (($mdef =~ /\((.*)\)/) && ($1 ne "void")) {
 		@parms = ();
@@ -568,6 +612,15 @@ sub parseParms
 		($dump, @parms) = @parms if $drop_1st;
 		if (@parms > 0) {
 			addParamsElem($el, @parms);
+		}
+
+		if ($fmt_args != 0) {
+			$fmt_args =~ /(\d+),\s*(\d+)/;
+			$fmt = $1; $args = $2;
+			($params_el, @junk) = $el->getElementsByTagName ("parameters");
+			(@params) = $params_el->getElementsByTagName ("parameter");
+			$params[$fmt-1]->setAttribute ("printf_format", "true");
+			$params[$args-1]->setAttribute ("printf_format_args", "true");
 		}
 	}
 }
@@ -619,7 +672,7 @@ sub addStaticFuncElems
 			}
 			if ($cnt == 1) {
 				$mdef = delete $fdefs{$mname};
-
+				
 				if (!$global_el) {
 					$global_el = $doc->createElement('class');
 					$global_el->setAttribute('name', "Global");
@@ -627,6 +680,10 @@ sub addStaticFuncElems
 					$ns_elem->appendChild($global_el);
 				}
 				$el = addNameElem($global_el, 'method', $mname, $ns_prefix);
+				if ($mdef =~ /^deprecated/) {
+					$el->setAttribute("deprecated", "1");
+					$mdef =~ s/deprecated//g;
+				}
 				$mdef =~ /(.*?)\w+\s*\(/;
 				addReturnElem($el, $1);
 				$el->setAttribute("shared", "true");
@@ -640,8 +697,12 @@ sub addStaticFuncElems
 
 				for ($j = 0; $j < $cnt; $j++) {
 					$mdef = delete $fdefs{$mnames[$i+$j]};
-
+					
 					$el = addNameElem($class_el, 'method', $mnames[$i+$j], $prefix);
+					if ($mdef =~ /^deprecated/) {
+						$el->setAttribute("deprecated", "1");
+						$mdef =~ s/deprecated//g;
+					}
 					$mdef =~ /(.*?)\w+\s*\(/;
 					addReturnElem($el, $1);
 					$el->setAttribute("shared", "true");
@@ -660,7 +721,7 @@ sub addNameElem
 
 	my $elem = $doc->createElement($type);
 	$node->appendChild($elem);
-	if ($prefix) {
+	if (defined $prefix) {
 		my $match;
 		if ($cname =~ /$prefix(\w+)/) {
 			$match = $1;
@@ -742,7 +803,7 @@ sub addReturnElem
 
 sub addPropElem
 {
-	my ($spec, $node) = @_;
+	my ($spec, $node, $is_child) = @_;
 	my ($name, $mode, $docs);
 	$spec =~ /g_param_spec_(\w+)\s*\((.*)\s*\)\s*\)/;
 	my $type = $1;
@@ -757,7 +818,7 @@ sub addPropElem
 
 	$mode = $params[$#params];
 
-	if ($type =~ /boolean|float|double|^u?int|pointer/) {
+	if ($type =~ /boolean|float|double|^u?int|pointer|unichar/) {
 		$type = "g$type";
 	} elsif ($type =~ /string/) {
 		$type = "gchar*";
@@ -773,7 +834,7 @@ sub addPropElem
 		$type = StudlyCaps(lc($type));
 	}
 
-	$prop_elem = $doc->createElement('property');
+	$prop_elem = $doc->createElement($is_child ? "childprop" : "property");
 	$node->appendChild($prop_elem);
 	$prop_elem->setAttribute('name', StudlyCaps($name));
 	$prop_elem->setAttribute('cname', $name);
@@ -852,13 +913,13 @@ sub addSignalElem
 		return $class;
 	}
 
-	if ($class =~ /;\s*(G_CONST_RETURN)?\s*(\S+\s*\**)\s*\(\*\s*$method\)\s*\((.*?)\);/) {
+	if ($class =~ /;\s*(G_CONST_RETURN\s+)?(\w+\s*\**)\s*\(\*\s*$method\)\s*\((.*?)\);/) {
 		$ret = $2; $parms = $3;
 		addReturnElem($sig_elem, $ret);
 		if ($parms && ($parms ne "void")) {
 			addParamsElem($sig_elem, split(/,/, $parms));
 		}
-		$class =~ s/;\s*(G_CONST_RETURN)?\s*\S+\s*\**\s*\(\*\s*$method\)\s*\(.*?\);/;/;
+		$class =~ s/;\s*(G_CONST_RETURN\s+)?\w+\s*\**\s*\(\*\s*$method\)\s*\(.*?\);/;/;
 	} else {
 		die "$method $class";
 	}
@@ -870,9 +931,10 @@ sub addVirtualMethods
 {
 	my ($class, $node) = @_;
 	$class =~ s/\n\s*//g;
+	$class =~ s/\/\*.*?\*\///g;
 
-	while ($class =~ /;\s*(\S+\s*\**)\s*\(\*\s*(\w+)\)\s*\((.*?)\);/) {
-		$ret = $1; $cname = $2; $parms = $3;
+	while ($class =~ /;\s*(G_CONST_RETURN\s+)?(\S+\s*\**)\s*\(\*\s*(\w+)\)\s*\((.*?)\);/) {
+		$ret = $1 . $2; $cname = $3; $parms = $4;
 		if ($cname !~ /reserved/) {
 			$vm_elem = $doc->createElement('virtual_method');
 			$node->appendChild($vm_elem);
@@ -883,7 +945,7 @@ sub addVirtualMethods
 				addParamsElem($vm_elem, split(/,/, $parms));
 			}
 		}
-		$class =~ s/;\s*\S+\s*\**\s*\(\*\s*\w+\)\s*\(.*?\);//;
+		$class =~ s/;\s*(G_CONST_RETURN\s+)?\S+\s*\**\s*\(\*\s*\w+\)\s*\(.*?\);/;/;
 	}
 }
 
@@ -902,7 +964,7 @@ sub addImplementsElem
 
 sub parseInitFunc
 {
-	my ($obj_el, $initfunc, $is_obj) = @_;
+	my ($obj_el, $initfunc) = @_;
 
 	my @init_lines = split (/\n/, $initfunc);
 
@@ -918,8 +980,15 @@ sub parseInitFunc
 			do {
 				$prop .= $init_lines[++$linenum];
 			} until ($init_lines[$linenum] =~ /\)\s*;/);
-			addPropElem ($prop, $obj_el);
+			addPropElem ($prop, $obj_el, 0);
 			$propcnt++;
+		} elsif ($line =~ /gtk_container_class_install_child_property/) {
+			my $prop = $line;
+			do {
+				$prop .= $init_lines[++$linenum];
+			} until ($init_lines[$linenum] =~ /\)\s*;/);
+			addPropElem ($prop, $obj_el, 1);
+			$childpropcnt++;
 		} elsif ($line =~ /\bg.*_signal_new/) {
 			my $sig = $line;
 			do {
@@ -931,9 +1000,7 @@ sub parseInitFunc
 		$linenum++;
 	}
 
-	if ($is_obj) {
-		addVirtualMethods ($classdef, $obj_el);
-	}
+	addVirtualMethods ($classdef, $obj_el);
 }
 
 sub parseTypeFunc

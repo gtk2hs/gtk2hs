@@ -182,8 +182,20 @@ extractParameter :: Xml.Content -> Parameter
 extractParameter (Xml.CElem (Xml.Elem "parameter"
                         [("ellipsis", _)] [])) = VarArgs
 extractParameter (Xml.CElem (Xml.Elem "parameter"
+                        [("ellipsis", _)
+                        ,("printf_format_args", _)] [])) = VarArgs
+extractParameter (Xml.CElem (Xml.Elem "parameter"
                         [("type", Xml.AttValue type_),
                          ("name", Xml.AttValue name)] [])) =
+  Parameter {
+    parameter_type = Xml.verbatim type_,
+    parameter_name = Xml.verbatim name,
+    parameter_isArray = False
+  }
+extractParameter (Xml.CElem (Xml.Elem "parameter"
+                        [("type", Xml.AttValue type_),
+                         ("name", Xml.AttValue name),
+                         ("printf_format" ,_)] [])) =
   Parameter {
     parameter_type = Xml.verbatim type_,
     parameter_name = Xml.verbatim name,
@@ -600,10 +612,12 @@ cFuncNameToHsName =
     lowerCaseFirstChar
   . stripKnownPrefixes
   . concatMap upperCaseFirstChar
+  . filter (not.null) --to ignore leading underscores
   . splitBy '_'
   . takeWhile ('('/=)
 
 stripKnownPrefixes :: String -> String
+stripKnownPrefixes ('A':'t':'k':remainder) = remainder
 stripKnownPrefixes ('G':'t':'k':remainder) = remainder
 stripKnownPrefixes ('G':'d':'k':remainder) = remainder
 stripKnownPrefixes ('P':'a':'n':'g':'o':remainder) = remainder
@@ -833,6 +847,7 @@ makeKnownTypesMap api =
           where lookup [] = trace ( "Warning: " ++ object_name object
                                  ++ " does not inherit from GObject! "
                                  ++ show (objectParents object)) GObjectKind
+                lookup ("GTypeModule":os) = GObjectKind -- GTypeModule is a GObject
                 lookup ("GObject":os) = GObjectKind
                 lookup ("GtkObject":os) = GtkObjectKind
                 lookup (_:os) = lookup os

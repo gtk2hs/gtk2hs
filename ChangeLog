@@ -1,5 +1,20 @@
 2005-01-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* tools/apiGen/gapi2xml.pl, tools/apiGen/gapi_parser.pl,
+	tools/apiGen/gapi_pp.pl: sync up with the latest version of these tools
+	from the mono/gtk# project.
+
+	* tools/apiGen/ApiGen.hs: minor updates necessary to work with the
+	updated gapi tools.
+
+	* tools/apiGen/atk-sources.xml, tools/apiGen/gdk-sources.xml
+	tools/apiGen/glade-sources.xml,	tools/apiGen/gnomecanvas-sources.xml
+	tools/apiGen/gtk-sources.xml, tools/apiGen/pango-sources.xml,
+	tools/apiGen/Makefile : use later versions of Gtk+ and related libs,
+	now at 2.4.14 rather than 2.2.2.
+
+2005-01-26 Duncan Coutts <duncan@coutts.uklinux.net>
+
 	* tools/apiGen/ApiGen.hs: Several marshaling improvements. Extract
 	enums from the api file. Produce a list of objects and enums and use
 	it when deciding how to marshal types. Marshal floats and doubles,
