@@ -1,3 +1,25 @@
+2003-11-19 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/hierarchyGen/hierarchy.list: added GtkSourceMarker and
+	GtkSourceStyleScheme. The latter is actually an interface, but
+	everything implementing a glib-style interface must be a GObject.
+	
+	* sourceview/Makefile: added SourceStyleScheme-HEADER
+	
+	* sourceview/SourceMarker.chs: new module, requires recently
+	comitted changes to c2hs in order to build ok.
+	
+	* sourceview/sourceview.h: added missing #include for gtksourcemarker
+	
+	* sourceview/SourceStyleScheme.chs: removed unnecessary code, now
+	that GtkSourceStyleScheme has been added into the hierarchy.list
+	
+	* sourceview/SourceLanguage.chs: added bindings for more functions,
+	mostly related to SourceMarker
+	
+	* sourceview/SourceBuffer.chs: added remaining function bindings,
+	again mostly related to SourceMarker
+
 2003-11-18 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* demo/sourceview/Sourceview.hs: Give an error message if the
