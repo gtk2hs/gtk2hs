@@ -11,6 +11,10 @@
 	uses GHC's public rts api to invoke Haskell callbacks, passing
 	parameters of the appropriate types.
 
+	* glib/System/Glib/Signals.chs: add Haskell-side interface to the new
+	marshaling code. Basically adds connectGeneric which is used by all
+	the per-type marshaling functions.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for
