@@ -1,3 +1,8 @@
+2002-10-06 Axel Simon <A.Simon@ukc.ac.uk> 
+
+	* gtk/multiline/TextView.chs: Completed functionality and added
+	all signals.
+	
 2002-10-01 Axel Simon <A.Simon@ukc.ac.uk> 
 
 	* gtk/gdk/GdkEnums.chs, gtk/general/Gtk.hs,
