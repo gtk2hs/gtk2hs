@@ -71,6 +71,8 @@
 	* demo/profileviewer/ProfileViewer.hs: Whitespace fix. Not sure how
 	this got in.
 
+	* configure.ac: bump version to 0.9.7_rc2
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files
