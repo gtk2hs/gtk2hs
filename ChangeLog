@@ -184,6 +184,10 @@
 	* tools/callbackGen/Signal.chs-boot1,
 	tools/callbackGen/Signal.chs-boot2: fix module name and imports.
 
+	* mk/common.mk: bludgeon automake into submission. Stop it from
+	falsely detecting clashes between source modules producing the same
+	object file. Also --include the module header for .hsc files.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add

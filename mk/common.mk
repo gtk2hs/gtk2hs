@@ -12,7 +12,11 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	$(AM_LDFLAGS) $($(NAME)_LDFLAGS))
 
-.hs.o: $(CONFIG_H)
+#Using pattern rule here to prevent automake from understanding the rule
+#and falsely concluding that two source files will produce the same object
+#file even though the object files will be in different directories.
+#Obviously the 'subdir-objects' option only works for C/C++ files.
+%.o : %.hs $(CONFIG_H)
 	@echo Building for $(NAME)
 	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(call pkgVPATH,$(NAME)) \
@@ -85,7 +89,7 @@ debug	:
 	$($(NAME)_CFLAGS))\
         $(filter -I%,$(AM_CPPFLAGS)) \
 	$($(NAME)_CPPFLAGS)\
-	--include $(CONFIG_H) \
+	--include $(CONFIG_H) --include $($(NAME)_HEADER) \
         --cc=$(HC) --lflag=-no-hs-main $<)
 
 .chs.hs: 
