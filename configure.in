@@ -404,6 +404,7 @@ AC_SUBST(END_NOT_NHC)
 
 dnl write the results...
 AC_OUTPUT([
+  gtk2hs.spec
   mk/config.mk
   mk/chsDepend
   gtk/signals/HookGenerator.hs

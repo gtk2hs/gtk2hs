@@ -1,5 +1,11 @@
 2003-01-10  Jens Petersen  <petersen@haskell.org>
 
+	* configure.in: add gtk2hs.spec to output list
+
+	* gtk2hs.spec.in: new file to generate a project rpm spec file
+
+2003-01-10  Jens Petersen  <petersen@haskell.org>
+
 	* demo/unicode/Arabic.hs (main): use ResponseYes, ResponseCancel
 	and ResponseOk
 

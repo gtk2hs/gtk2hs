@@ -1,0 +1,102 @@
+# RPM spec file for Gtk2HS   -*-rpm-spec-*-
+#
+# Copyright [2001..2002] Manuel M T Chakravarty <chak@cse.unsw.edu.au>
+# Copyright 2002, 2003 Jens-Ulrik Holger petersen <petersen@haskell.org>
+
+%define _ghc_version 5.04.2
+
+Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
+Name: gtk2hs
+Version: @VERSION@
+Release: 1
+Copyright: LGPL
+Group: Development/Libraries
+Source: gtk2hs-%{version}.tar.gz
+URL: http://gtk2hs.sourceforge.net/
+BuildRoot: /var/tmp/gtk2hs-%{version}-%{release}-root
+Requires: gtk2
+PreReq: ghc = %{_ghc_version}
+BuildRequires: ghc = %{_ghc_version} gtk2-devel %{?_with_c2hs: c2hs >= 0.10.6}
+
+%description
+A Gtk2 binding for the functional language Haskell featuring
+automatic memory management, unicode support, and quite wide
+coverage of widget functions and their signals, including
+the new text and list widgets.  The convenience wrapper
+MoGuL (Monad Gui Library) makes it possible to create and
+lookup named widgets in a type safe way.
+
+%prep
+%setup -q
+
+%build
+./configure %{?_with_c2hs} --with-hcflags="-O"
+make
+
+%install
+make prefix=%{buildroot}%{_prefix} libdir=%{buildroot}%{_libdir}/ghc-%{_ghc_version} install
+
+# remove buildroot traces from package files
+perl -pi -e "s|%buildroot||" \
+    %{buildroot}%{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2.conf,mogul.conf}
+
+%clean
+rm -rf %{buildroot}
+
+%post
+ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/%{name}/gtk2.conf
+ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/mogul.conf
+
+%preun
+ghc-pkg-%{_ghc_version} -r gtk2 >/dev/null
+ghc-pkg-%{_ghc_version} -r mogul >/dev/null
+
+%files
+%defattr(-,root,root) 
+%doc ChangeLog TODO AUTHORS COPYING.LIB
+%doc demo/*/*.hs
+%{_prefix}/lib/*
+
+%changelog
+* Fri Jan 10 2003 Jens Petersen <petersen@haskell.org>
+- made into .spec.in file
+- let configure set the version
+- update description
+- introduce --with-c2hs rpmbuild option
+- use perl to remove buildroot traces from package conf files
+- simplify ghc-pkg update commands
+
+* Tue Dec 17 2002 Jens Petersen <petersen@haskell.org>
+- latest cvs with ghc 5.04.2
+
+* Thu Sep 26 2002 Jens Petersen
+- build with ghc-5.04.1
+
+* Fri Aug  2 2002 Jens Petersen
+- only include demo source in doc dir
+
+* Fri Jul 26 2002 Jens Petersen
+- build with ghc-5.04
+- cvs update
+
+* Wed Jul 10 2002 Jens Petersen
+- my current branch
+
+* Wed May  1 2002 Jens Petersen
+- patch TreeViewColumn.chs to make it usable
+
+* Tue Apr 23 2002 Jens Petersen
+- 0.9.0
+- update gtk2 and mogul ghc-pkg entries on upgrade
+
+* Fri Apr 12 2002 Jens Petersen
+- adapt for gtk2hs
+- fix mk files for buildroot install
+- post and postun scriptlets for pkg config
+
+* Tue Mar 12 2002 Manuel Chakravarty
+- require a specific Haskell compiler (namely, the one for which the packages 
+  was compiled)
+
+* Sat Feb 17 2001 Manuel Chakravarty
+- derived from C->Haskell's .spec file
