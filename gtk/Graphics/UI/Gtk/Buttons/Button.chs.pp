@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/15 19:47:31 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:08:00 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -126,7 +126,8 @@ import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
 --
 buttonNew :: IO Button
 buttonNew =
-  makeNewObject mkButton $ liftM castPtr $
+  makeNewObject mkButton $
+  liftM (castPtr :: Ptr Widget -> Ptr Button) $
   {# call unsafe button_new #}
 
 -- | Creates a 'Button' widget with a 'Label' child containing the given text.
@@ -135,7 +136,8 @@ buttonNewWithLabel ::
     String    -- ^ @label@ - The text you want the 'Label' to hold.
  -> IO Button
 buttonNewWithLabel label =
-  makeNewObject mkButton $ liftM castPtr $
+  makeNewObject mkButton $
+  liftM (castPtr :: Ptr Widget -> Ptr Button) $
   withUTFString label $ \labelPtr ->
   {# call unsafe button_new_with_label #}
     labelPtr
@@ -151,7 +153,8 @@ buttonNewWithMnemonic ::
               -- front of the mnemonic character
  -> IO Button
 buttonNewWithMnemonic label =
-  makeNewObject mkButton $ liftM castPtr $
+  makeNewObject mkButton $
+  liftM (castPtr :: Ptr Widget -> Ptr Button) $
   withUTFString label $ \labelPtr ->
   {# call unsafe button_new_with_mnemonic #}
     labelPtr
@@ -165,7 +168,8 @@ buttonNewFromStock ::
     String    -- ^ @stockId@ - the name of the stock item
  -> IO Button
 buttonNewFromStock stockId =
-  makeNewObject mkButton $ liftM castPtr $
+  makeNewObject mkButton $
+  liftM (castPtr :: Ptr Widget -> Ptr Button) $
   withUTFString stockId $ \stockIdPtr ->
   throwIfNull "buttonNewFromStock: Invalid stock identifier." $ 
   {# call unsafe button_new_from_stock #}
@@ -340,7 +344,7 @@ buttonGetFocusOnClick self =
     (toButton self)
 
 -- | Sets the alignment of the child. This has no effect unless the child
---   derives from 'Misc' 'Aligment'.
+-- derives from 'Misc' or 'Aligment'.
 --
 -- * Available since Gtk version 2.4
 --
@@ -361,7 +365,7 @@ buttonSetAlignment self (xalign, yalign) =
 -- * Available since Gtk version 2.4
 --
 buttonGetAlignment :: ButtonClass self => self
- -> IO (Float, Float) -- ^ @(xalign,yalign)@ - horizontal and vertical
+ -> IO (Float, Float) -- ^ @(xalign, yalign)@ - horizontal and vertical
                       -- alignment
 buttonGetAlignment self =
   alloca $ \xalignPtr ->
@@ -383,7 +387,7 @@ buttonGetAlignment self =
 --
 -- Default value: @False@
 --
-buttonUseUnderline :: Attr Button Bool
+buttonUseUnderline :: ButtonClass self => Attr self Bool
 buttonUseUnderline = Attr 
   buttonGetUseUnderline
   buttonSetUseUnderline
@@ -393,7 +397,7 @@ buttonUseUnderline = Attr
 --
 -- Default value: @False@
 --
-buttonUseStock :: Attr Button Bool
+buttonUseStock :: ButtonClass self => Attr self Bool
 buttonUseStock = Attr 
   buttonGetUseStock
   buttonSetUseStock
@@ -402,7 +406,7 @@ buttonUseStock = Attr
 --
 -- Default value: @True@
 --
-buttonFocusOnClick :: Attr Button Bool
+buttonFocusOnClick :: ButtonClass self => Attr self Bool
 buttonFocusOnClick = Attr 
   buttonGetFocusOnClick
   buttonSetFocusOnClick
@@ -411,7 +415,7 @@ buttonFocusOnClick = Attr
 --
 -- Default value: 'ReliefNormal'
 --
-buttonRelief :: Attr Button ReliefStyle
+buttonRelief :: ButtonClass self => Attr self ReliefStyle
 buttonRelief = Attr 
   buttonGetRelief
   buttonSetRelief

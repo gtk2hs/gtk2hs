@@ -38,6 +38,14 @@
 	* gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp: rename attribute
 	buttonBoxLayout to buttonBoxLayoutStyle.
 
+	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,
+	gtk/Graphics/UI/Gtk/Buttons/CheckButton.chs,
+	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs: minor changes.
+	Attributes and casts.
+
+	* gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs: code formatting
+	changes.
+
 2005-04-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs, tools/apiGen/ApiGen.hs,

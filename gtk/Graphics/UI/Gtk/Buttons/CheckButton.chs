@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:47:47 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:08:01 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -77,7 +77,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 checkButtonNew :: IO CheckButton
 checkButtonNew =
-  makeNewObject mkCheckButton $ liftM castPtr $
+  makeNewObject mkCheckButton $
+  liftM (castPtr :: Ptr Widget -> Ptr CheckButton) $
   {# call unsafe check_button_new #}
 
 -- | Creates a new 'CheckButton' with a 'Label' to the right of it.
@@ -86,7 +87,8 @@ checkButtonNewWithLabel ::
     String         -- ^ @label@ - the text for the check button.
  -> IO CheckButton
 checkButtonNewWithLabel label =
-  makeNewObject mkCheckButton $ liftM castPtr $
+  makeNewObject mkCheckButton $
+  liftM (castPtr :: Ptr Widget -> Ptr CheckButton) $
   withUTFString label $ \labelPtr ->
   {# call unsafe check_button_new_with_label #}
     labelPtr
@@ -100,7 +102,8 @@ checkButtonNewWithMnemonic ::
                    -- in front of the mnemonic character
  -> IO CheckButton
 checkButtonNewWithMnemonic label =
-  makeNewObject mkCheckButton $ liftM castPtr $
+  makeNewObject mkCheckButton $
+  liftM (castPtr :: Ptr Widget -> Ptr CheckButton) $
   withUTFString label $ \labelPtr ->
   {# call unsafe check_button_new_with_mnemonic #}
     labelPtr

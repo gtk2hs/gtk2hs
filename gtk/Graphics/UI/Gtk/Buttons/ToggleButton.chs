@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/15 19:47:47 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:08:01 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -104,7 +104,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 toggleButtonNew :: IO ToggleButton
 toggleButtonNew =
-  makeNewObject mkToggleButton $ liftM castPtr $
+  makeNewObject mkToggleButton $
+  liftM (castPtr :: Ptr Widget -> Ptr ToggleButton) $
   {# call unsafe toggle_button_new #}
 
 -- | Creates a new toggle button with a text label.
@@ -114,7 +115,8 @@ toggleButtonNewWithLabel ::
                     -- placed in the toggle button.
  -> IO ToggleButton
 toggleButtonNewWithLabel label =
-  makeNewObject mkToggleButton $ liftM castPtr $
+  makeNewObject mkToggleButton $
+  liftM (castPtr :: Ptr Widget -> Ptr ToggleButton) $
   withUTFString label $ \labelPtr ->
   {# call unsafe toggle_button_new_with_label #}
     labelPtr
@@ -128,7 +130,8 @@ toggleButtonNewWithMnemonic ::
                     -- in front of the mnemonic character
  -> IO ToggleButton
 toggleButtonNewWithMnemonic label =
-  makeNewObject mkToggleButton $ liftM castPtr $
+  makeNewObject mkToggleButton $
+  liftM (castPtr :: Ptr Widget -> Ptr ToggleButton) $
   withUTFString label $ \labelPtr ->
   {# call unsafe toggle_button_new_with_mnemonic #}
     labelPtr
@@ -176,8 +179,7 @@ toggleButtonToggled self =
 -- | Queries a 'ToggleButton' and returns its current state. Returns @True@ if
 -- the toggle button is pressed in and @False@ if it is raised.
 --
-toggleButtonGetActive :: ToggleButtonClass self => self
- -> IO Bool
+toggleButtonGetActive :: ToggleButtonClass self => self -> IO Bool
 toggleButtonGetActive self =
   liftM toBool $
   {# call unsafe toggle_button_get_active #}
@@ -229,7 +231,7 @@ toggleButtonSetInconsistent self setting =
 --
 -- Default value: @False@
 --
-toggleButtonActive :: Attr ToggleButton Bool
+toggleButtonActive :: ToggleButtonClass self => Attr self Bool
 toggleButtonActive = Attr 
   toggleButtonGetActive
   toggleButtonSetActive
@@ -238,14 +240,14 @@ toggleButtonActive = Attr
 --
 -- Default value: @False@
 --
-toggleButtonInconsistent :: Attr ToggleButton Bool
+toggleButtonInconsistent :: ToggleButtonClass self => Attr self Bool
 toggleButtonInconsistent = Attr 
   toggleButtonGetInconsistent
   toggleButtonSetInconsistent
 
 -- | \'mode\' property. See 'toggleButtonGetMode' and 'toggleButtonSetMode'
 --
-toggleButtonMode :: Attr ToggleButton Bool
+toggleButtonMode :: ToggleButtonClass self => Attr self Bool
 toggleButtonMode = Attr 
   toggleButtonGetMode
   toggleButtonSetMode

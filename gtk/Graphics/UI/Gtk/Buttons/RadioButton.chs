@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/02 19:08:01 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -30,10 +30,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A choice from multiple check buttons.
+-- A choice from multiple check buttons
 --
 module Graphics.UI.Gtk.Buttons.RadioButton (
--- * Description
+-- * Detail
 -- 
 -- | A single radio button performs the same basic function as a
 -- 'CheckButton', as its position in the object hierarchy reflects. It is only
@@ -97,23 +97,34 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- | Create a new RadioButton widget with a new group.
 --
 radioButtonNew :: IO RadioButton
-radioButtonNew  = makeNewObject mkRadioButton $ liftM castPtr $
-  {#call unsafe radio_button_new#} nullPtr
+radioButtonNew =
+  makeNewObject mkRadioButton $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioButton) $
+  {# call unsafe radio_button_new #}
+    nullPtr
 
 -- | Like 'radioButtonNew' but shows a label to the right of the button.
 --
 radioButtonNewWithLabel :: String -> IO RadioButton
-radioButtonNewWithLabel lbl = withUTFString lbl $ \strPtr -> 
-  makeNewObject mkRadioButton $ liftM castPtr $
-  {#call unsafe radio_button_new_with_label#} nullPtr strPtr
+radioButtonNewWithLabel label =
+  makeNewObject mkRadioButton $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioButton) $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe radio_button_new_with_label #}
+    nullPtr
+    labelPtr
 
 -- | Like 'radioButtonNew' but shows a label to the right of the button.
 -- Underscores in the label string indicate the mnemonic for the menu item.
 --
 radioButtonNewWithMnemonic :: String -> IO RadioButton
-radioButtonNewWithMnemonic lbl = withUTFString lbl $ \strPtr -> 
-  makeNewObject mkRadioButton $ liftM castPtr $
-  {#call unsafe radio_button_new_with_mnemonic#} nullPtr strPtr
+radioButtonNewWithMnemonic label =
+  makeNewObject mkRadioButton $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioButton) $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe radio_button_new_with_mnemonic #}
+    nullPtr
+    labelPtr
 
 -- | Creates a new RadioButton and attaches it to the group of another radio
 -- button.
@@ -123,23 +134,34 @@ radioButtonNewWithMnemonic lbl = withUTFString lbl $ \strPtr ->
 --   mechanism.
 --
 radioButtonNewJoinGroup :: RadioButton -> IO RadioButton
-radioButtonNewJoinGroup rb = makeNewObject mkRadioButton $ liftM castPtr $
-  {#call radio_button_new_from_widget#} rb
+radioButtonNewJoinGroup rb =
+  makeNewObject mkRadioButton $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioButton) $
+  {# call radio_button_new_from_widget #}
+    rb
 
 -- | Create a new RadioButton with a label and group.
 --
 radioButtonNewJoinGroupWithLabel :: RadioButton -> String -> IO RadioButton
-radioButtonNewJoinGroupWithLabel rb lbl = withUTFString lbl $ \strPtr ->
-  makeNewObject mkRadioButton $ liftM castPtr $
-  {#call radio_button_new_with_label_from_widget#} rb strPtr
+radioButtonNewJoinGroupWithLabel rb label =
+  makeNewObject mkRadioButton $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioButton) $
+  withUTFString label $ \labelPtr ->
+  {# call radio_button_new_with_label_from_widget #}
+    rb
+    labelPtr
 
 -- | Create a new RadioButton with a label and group. Underscores in the label
 -- string indicate the mnemonic for the menu item.
 --
 radioButtonNewJoinGroupWithMnemonic :: RadioButton -> String -> IO RadioButton
-radioButtonNewJoinGroupWithMnemonic rb lbl = withUTFString lbl $ \strPtr ->
-  makeNewObject mkRadioButton $ liftM castPtr $
-  {#call radio_button_new_with_mnemonic_from_widget#} rb strPtr
+radioButtonNewJoinGroupWithMnemonic rb label =
+  makeNewObject mkRadioButton $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioButton) $
+  withUTFString label $ \labelPtr ->
+  {# call radio_button_new_with_mnemonic_from_widget #}
+    rb
+    labelPtr
 
 
 -- | Alias for 'radioButtonNewJoinGroup'.
