@@ -166,8 +166,8 @@ main = do
 	    "OBJECT_KIND"    -> ss $ if object_isinterface object then "Interface" else "Widget"
 	    "OBJECT_NAME"    -> ss $ module_name moduleInfo
 	    "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors moduleInfo
-	    "RCS_VERSION"    -> ss $ module_rcs_version moduleInfo
-	    "RCS_TIMESTAMP"  -> ss $ module_rcs_timestamp moduleInfo
+	    "RCS_VERSION"    -> ss "$Revision: 1.23 $"
+	    "RCS_TIMESTAMP"  -> ss "$Date: 2005/04/06 22:03:58 $"
             "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders moduleInfo
             "DESCRIPTION"    -> haddocFormatParas knownTypes False (moduledoc_summary moduleDoc)
 	    "DOCUMENTATION"  -> genModuleDocumentation knownTypes moduleDoc

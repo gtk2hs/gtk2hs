@@ -63,6 +63,27 @@
 	* tools/apicoverage/gtk.ignore: ignore the _utf8 variants that exist
 	for some functions.
 
+	* tools/apiGen/ApiGen.hs, tools/apiGen/Template.chs: fix rcs tags.
+
+	* tools/apiGen/CodeGen.hs: minor bug fixes.
+
+	* tools/apiGen/FormatDocs.hs: rename a function. Allow us to fix when
+	a module is available from since the mechanism we use to detect this
+	does not always work.
+
+	* tools/apiGen/Marshal.hs: rename a function. Add marshaling support
+	for GdkColor and improve support for GtkTreePath.
+
+	* tools/apiGen/MarshalFixup.hs: add fixup info for the version when a
+	module is available from. Generalise stripKnownPrefixes to
+	cTypeNameToHSType so we can deal with the naming of
+	GdkWindow -> DrawWindow and PangoLayout remains PangoLayout rather
+	than having the Pango prefix stripped off. Add many more cases to the
+	other fixup tables.
+
+	* tools/apiGen/gtk.ignore: ignore more internal functions that we do
+	not want to bind.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for

@@ -5,7 +5,7 @@
 --
 --  Created: @DATE@
 --
---  Version $Revision: 1.10 $ from $Date: 2005/04/01 22:55:22 $
+--  Version @RCS_VERSION@ from @RCS_TIMESTAMP@
 --
 --  Copyright (C) @YEAR@ @COPYRIGHT@
 --

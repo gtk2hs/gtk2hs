@@ -13,7 +13,7 @@ import FormatDocs
 import Marshal
 import StringUtils
 import ModuleScan
-import MarshalFixup (stripKnownPrefixes, maybeNullParameter, maybeNullResult,
+import MarshalFixup (cTypeNameToHSType, maybeNullParameter, maybeNullResult,
                      fixCFunctionName, leafClass, nukeParameterDocumentation)
 
 import Prelude hiding (Enum, lines)
@@ -94,8 +94,9 @@ genFunction knownSymbols isConstructor method doc info =
                                 ,DocText " - "]
                          ) ++ paramdoc_paragraph paramdoc)
                       | paramdoc <- funcdoc_params doc
-		      , not (nukeParameterDocumentation (method_cname method)
-                                                        (paramdoc_name paramdoc))]
+		      , not $ nukeParameterDocumentation
+                                (method_cname method)
+                                (cParamNameToHsName (paramdoc_name paramdoc)) ]
         
         formatParamTypes :: [(String, Maybe [DocParaSpan])] -> ShowS
         formatParamTypes paramTypes = format True False paramTypes
@@ -207,8 +208,8 @@ methods object docs methodsInfo sortByExisting =
                   | (doc,index) <- zip docs [1..] ]
         infomap = [ (methodinfo_cname info, (info,index))
                   | (info,index) <- zip methodsInfo [1..] ]
-        endDocIndex = length docs
-        endInfoIndex = length methodsInfo
+        endDocIndex = length docs + 1
+        endInfoIndex = length methodsInfo + 1
 
 mungeMethod :: Object -> Method -> Method
 mungeMethod object method =
@@ -243,7 +244,7 @@ constructors object docs methodsInfo =
   where docmap  = [ (funcdoc_name doc, deleteReturnDoc doc) | doc <- docs ]
         infomap = [ (methodinfo_cname info, (info,index))
                   | (info,index) <- zip methodsInfo [1..] ]
-        endInfoIndex = length methodsInfo          
+        endInfoIndex = length methodsInfo + 1
         -- the documentation for the constructor return value is almost
         -- universally useless and pointless so remove it.
         deleteReturnDoc doc = doc { funcdoc_params = [ p | p <- funcdoc_params doc
@@ -422,7 +423,7 @@ genImplements object =
   | implement <- object_implements object ] 
 
 genImplement object implements =
-  ss "instance ".ss (stripKnownPrefixes implements). ss "Class ". ss (object_name object)
+  ss "instance ".ss (cTypeNameToHSType implements). ss "Class ". ss (object_name object)
 
 canonicalSignalName :: String -> String
 canonicalSignalName = map dashToUnderscore

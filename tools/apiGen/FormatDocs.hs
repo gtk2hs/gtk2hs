@@ -23,7 +23,8 @@ module FormatDocs (
 import Api (NameSpace(..), Object(..), Method(..))
 import Docs
 import Marshal (KnownSymbols, CSymbol(..))
-import MarshalFixup (stripKnownPrefixes, knownMiscType, fixCFunctionName)
+import MarshalFixup (cTypeNameToHSType, knownMiscType, fixCFunctionName
+                    ,fixModuleAvailableSince)
 import StringUtils
 
 import Maybe (isJust)
@@ -68,7 +69,7 @@ haddocFormatHierarchy knownSymbols =
 
 haddocTweakHierarchy :: String -> String
 haddocTweakHierarchy ('+':'-':'-':'-':'-':cs@(c:_)) | c /= ''' =
-  case span isAlpha cs of (word, rest) -> "+----" ++ stripKnownPrefixes word ++ rest
+  case span isAlpha cs of (word, rest) -> "+----" ++ cTypeNameToHSType word ++ rest
 haddocTweakHierarchy (c:cs) = c : haddocTweakHierarchy cs
 haddocTweakHierarchy [] = []
 
@@ -85,7 +86,8 @@ addVersionParagraphs namespace apiDoc =
           [ if funcdoc_since funcdoc > baseVersion
               then funcdoc {
                      funcdoc_paragraphs = funcdoc_paragraphs funcdoc ++
-                       let line = "Available since " ++ namespace_name namespace
+                       let line = "Available since " ++ (let name = namespace_name namespace
+                                                          in if name == "Gtk" then "Gtk+" else name)
                               ++ " version " ++ funcdoc_since funcdoc
                         in [DocParaListItem [DocText line]]
                    }
@@ -116,10 +118,12 @@ addVersionParagraphs namespace apiDoc =
         -- figure out if the whole module appeared in some version of gtk later 
         -- than the original version
         moduleVersion :: String
-        moduleVersion = case [ funcdoc_since funcdoc
-                             | funcdoc <- moduledoc_functions apiDoc ] of
-                          [] -> ""
-                          versions -> minimum versions
+        moduleVersion | null fixed = case [ funcdoc_since funcdoc
+                                          | funcdoc <- moduledoc_functions apiDoc ] of
+                                       [] -> ""
+                                       versions -> minimum versions
+                      | otherwise = fixed
+          where fixed = fixModuleAvailableSince (moduledoc_name apiDoc)
 
         moduleDeprecatedParagraph =
           if maybe False object_deprecated object
@@ -183,12 +187,12 @@ haddocFormatSpan knownSymbols handleNULLs (DocTypeXRef text) =
     Nothing | text == "TRUE"  -> "@True@"
             | text == "FALSE"          -> "@False@"
             | otherwise                -> "{" ++ text ++ ", FIXME: unknown type/value}"
-    Just (SymObjectType _)             -> "'" ++ stripKnownPrefixes text ++ "'"
-    Just (SymEnumType _)               -> "'" ++ stripKnownPrefixes text ++ "'"
+    Just (SymObjectType _)             -> "'" ++ cTypeNameToHSType text ++ "'"
+    Just (SymEnumType _)               -> "'" ++ cTypeNameToHSType text ++ "'"
     Just SymEnumValue                  -> "'" ++ cConstNameToHsName text ++ "'"
     Just SymStructType                 -> "{" ++ text ++ ", FIXME: struct type}"
     Just SymBoxedType                  -> if knownMiscType text
-                                            then "'" ++ stripKnownPrefixes text ++ "'"
+                                            then "'" ++ cTypeNameToHSType text ++ "'"
                                             else "{" ++ text ++ ", FIXME: boxed type}"
     Just SymClassType                  -> "{" ++ text ++ ", FIXME: class type}"
     Just SymTypeAlias                  -> "{" ++ text ++ ", FIXME: type alias}"
@@ -207,14 +211,14 @@ haddocFormatSpan knownSymbols _ (DocLiteral text) =
   case lookupFM knownSymbols text of
     Nothing                            -> "@" ++ escapeHaddockSpecialChars text ++ "@"
     Just SymEnumValue                  -> "'" ++ cConstNameToHsName text ++ "'"
-    Just (SymObjectType _)             -> "'" ++ stripKnownPrefixes text ++ "'"
+    Just (SymObjectType _)             -> "'" ++ cTypeNameToHSType text ++ "'"
     _ -> "{" ++ text ++ ", FIXME: unknown literal value}" --TODO fill in the other cases
 haddocFormatSpan _ _ (DocArg  text)       = "@" ++ cParamNameToHsName text ++ "@"
 
 cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
     lowerCaseFirstChar
-  . stripKnownPrefixes
+  . cTypeNameToHSType
   . toStudlyCapsWithFixups
   . takeWhile ('('/=)
 
@@ -225,7 +229,7 @@ cParamNameToHsName  =          --change "gtk_foo_bar" to "gtkFooBar"
 
 cConstNameToHsName :: String -> String
 cConstNameToHsName  =          --change "GTK_UPDATE_DISCONTINUOUS" to "UpdateDiscontinuous"
-    stripKnownPrefixes
+    cTypeNameToHSType
   . toStudlyCaps
   . map toLower
 
@@ -243,8 +247,8 @@ toStudlyCapsWithFixups =                 --change "gtk_foo_bar" to "GtkFooBar"
   . splitBy '_'
 
 changeIllegalNames :: String -> String
-changeIllegalNames "type" = "type_"  --this is a common variable name in C but of
-                                     --course a keyword in Haskell
+changeIllegalNames "type" = "type_"   --these are common variable names in C but
+changeIllegalNames "where" = "where_" --of course are keywords in Haskell
 changeIllegalNames other = other
 
 escapeHaddockSpecialChars = escape
@@ -269,12 +273,12 @@ mungeWord knownSymbols handleNULLs word
                                          ++ "be converted to a Maybe data type}" ++ remainder
                  | word' == "G_MAXINT"   = "@('maxBound' :: Int)@" ++ remainder
                  | isJust e = case e of
-                                Just (SymObjectType _) -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder
-                                Just (SymEnumType _)   -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder
+                                Just (SymObjectType _) -> "'" ++ cTypeNameToHSType word' ++ "'" ++ remainder
+                                Just (SymEnumType _)   -> "'" ++ cTypeNameToHSType word' ++ "'" ++ remainder
                                 Just SymEnumValue      -> "'" ++ cConstNameToHsName word' ++ "'" ++ remainder
                                 Just SymStructType     -> "{" ++ word' ++ ", FIXME: struct type}"
                                 Just SymBoxedType      -> if knownMiscType word'
-                                                            then "'" ++ stripKnownPrefixes word' ++ "'"
+                                                            then "'" ++ cTypeNameToHSType word' ++ "'"
                                                             else "{" ++ word' ++ ", FIXME: boxed type}"
                                 Just SymClassType      -> "{" ++ word' ++ ", FIXME: class type}"
                                 Just SymTypeAlias      -> "{" ++ word' ++ ", FIXME: type alias}"

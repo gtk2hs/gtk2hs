@@ -147,7 +147,7 @@ genMarshalParameter knownSymbols funcName name typeName'
       \body -> body.
                indent 2. implementation)
   where typeName = init typeName'
-        shortTypeName = stripKnownPrefixes typeName
+        shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 -- Enums -------------------------------
@@ -157,7 +157,7 @@ genMarshalParameter knownSymbols _ name typeName
 	(Nothing, InParam shortTypeName,
 	\body -> body.
                  indent 2. ss "((fromIntegral . fromEnum) ". ss name. ss ")")
-  where shortTypeName = stripKnownPrefixes typeName
+  where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 -- Flags -------------------------------
@@ -167,7 +167,7 @@ genMarshalParameter knownSymbols _ name typeName
 	(Nothing, InParam ("[" ++ shortTypeName ++ "]"),
 	\body -> body.
                  indent 2. ss "((fromIntegral . fromFlags) ". ss name. ss ")")
-  where shortTypeName = stripKnownPrefixes typeName
+  where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalParameter _ _ name textIter | textIter == "const-GtkTextIter*"
@@ -181,11 +181,22 @@ genMarshalParameter _ _ name "GtkTreeIter*" =
 	\body -> body.
                  indent 2. ss name)
 
-genMarshalParameter _ _ name "GtkTreePath*" =
-	(Nothing, InParam "TreePath",
-	\body -> ss "withTreePath ". ss name. ss " $ \\". ss name. ss " ->".
+genMarshalParameter _ funcName name "GtkTreePath*" =
+  if maybeNullParameter funcName name
+    then (Nothing, InParam "Maybe TreePath",
+	 \body -> ss "maybeWith withTreePath ". ss name. ss " $ \\". ss name. ss " ->".
+		  indent 1. body.
+                  indent 2. ss name)
+    else (Nothing, InParam "TreePath",
+	 \body -> ss "withTreePath ". ss name. ss " $ \\". ss name. ss " ->".
+		  indent 1. body.
+                  indent 2. ss name)
+
+genMarshalParameter _ _ name "const-GdkColor*" =
+	(Nothing, InParam "Color",
+	\body -> ss "with ". ss name. ss " $ \\". ss name. ss "Ptr ->".
 		 indent 1. body.
-                 indent 2. ss name)
+                 indent 2. ss name. ss "Ptr")
 
 -- Out parameters -------------------------------
 
@@ -216,6 +227,11 @@ genMarshalParameter _ _ name "gchar**" =
 	\body -> body.
                  indent 2. ss name. ss "Ptr")
 
+genMarshalParameter _ _ name "GdkColor*" =
+	(Nothing, OutParam "Color",
+	\body -> body.
+                 indent 2. ss name. ss "Ptr")
+
 -- Catch all case -------------------------------
 genMarshalParameter _ _ name unknownType =
 	(Nothing, InParam $ "{-" ++ unknownType ++ "-}",
@@ -240,6 +256,9 @@ genMarshalOutParameter "Double"  name = (ss "alloca $ \\". ss name. ss "Ptr ->".
                                         ,ss "realToFrac ". ss name)
 genMarshalOutParameter "String"  name = (ss "alloca $ \\". ss name. ss "Ptr ->". indent 1
                                         ,indent 1. ss "peek ". ss name. ss "Ptr >>= readUTFString >>= \\". ss name. ss " ->"
+                                        ,ss name)
+genMarshalOutParameter "Color"  name = (ss "alloca $ \\". ss name. ss "Ptr ->". indent 1
+                                        ,indent 1. ss "peek ". ss name. ss "Ptr >>= \\". ss name. ss " ->"
                                         ,ss name)
 
 genMarshalOutParameter paramType name = (id, id, ss name)
@@ -309,7 +328,7 @@ genMarshalResult knownSymbols funcName funcIsConstructor typeName'
          \body -> ss constructor. ss " mk". ss shortTypeName. ss " $". cast.
                   indent 1. body)
   where typeName = init typeName'
-        shortTypeName = stripKnownPrefixes typeName
+        shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
         constructor | "GtkObject" `elem` sym_object_parents (fromJust typeKind)
                                 = "makeNewObject"
@@ -317,8 +336,8 @@ genMarshalResult knownSymbols funcName funcIsConstructor typeName'
                                 = "makeNewGObject"
         cast | funcIsConstructor
             && constructorReturnType /= typeName = 
-            indent 1. ss "liftM (castPtr :: Ptr ". ss (stripKnownPrefixes constructorReturnType).
-                                    ss " -> Ptr ". ss (stripKnownPrefixes typeName). ss ") $"
+            indent 1. ss "liftM (castPtr :: Ptr ". ss (cTypeNameToHSType constructorReturnType).
+                                    ss " -> Ptr ". ss (cTypeNameToHSType typeName). ss ") $"
              | otherwise = id
           where constructorReturnType | "GtkWidget" `elem` sym_object_parents (fromJust typeKind)
                                                   = "GtkWidget"
@@ -330,7 +349,7 @@ genMarshalResult knownSymbols _ _ typeName
   (shortTypeName,
   \body -> ss "liftM (toEnum . fromIntegral) $".
            indent 1. body)
-  where shortTypeName = stripKnownPrefixes typeName
+  where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalResult knownSymbols _ _ typeName
@@ -339,7 +358,7 @@ genMarshalResult knownSymbols _ _ typeName
   ("[" ++ shortTypeName ++ "]",
   \body -> ss "liftM (toFlags . fromIntegral) $".
            indent 1. body)
-  where shortTypeName = stripKnownPrefixes typeName
+  where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalResult _ _ _ unknownType = ("{-" ++ unknownType ++ "-}", id)
@@ -358,21 +377,21 @@ genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsObject typeKind =
   (shortTypeName, "GVobject")
-  where shortTypeName = stripKnownPrefixes typeName
+  where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
   (shortTypeName, "GVenum")
-  where shortTypeName = stripKnownPrefixes typeName
+  where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
   (shortTypeName, "GVflags")
-  where shortTypeName = stripKnownPrefixes typeName
+  where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalProperty _ unknown = ("{-" ++ unknown ++ "-}", "{-" ++ unknown ++ "-}")
@@ -395,14 +414,14 @@ convertSignalType _ "gdouble"  = ("DOUBLE", "Double")
 convertSignalType _ "gchar*"   = ("STRING", "String")
 convertSignalType _ "const-gchar*" = ("STRING", "String")
 convertSignalType knownSymbols typeName
-  | symbolIsEnum   typeKind    = ("ENUM",  stripKnownPrefixes typeName)
-  | symbolIsFlags  typeKind    = ("FLAGS", stripKnownPrefixes typeName)
+  | symbolIsEnum   typeKind    = ("ENUM",  cTypeNameToHSType typeName)
+  | symbolIsFlags  typeKind    = ("FLAGS", cTypeNameToHSType typeName)
   where typeKind = lookupFM knownSymbols typeName
 convertSignalType knownSymbols typeName@(_:_)
     | last typeName == '*'
-   && symbolIsBoxed  typeKind  = ("BOXED",  stripKnownPrefixes (init typeName))
+   && symbolIsBoxed  typeKind  = ("BOXED",  cTypeNameToHSType (init typeName))
     | last typeName == '*'
-   && symbolIsObject typeKind  = ("OBJECT", stripKnownPrefixes (init typeName))
+   && symbolIsObject typeKind  = ("OBJECT", cTypeNameToHSType (init typeName))
   where typeKind = lookupFM knownSymbols (init typeName)
 convertSignalType _ typeName   =  ("{-" ++ typeName ++ "-}", "{-" ++ typeName ++ "-}")
 

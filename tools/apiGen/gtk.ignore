@@ -31,3 +31,14 @@ exclude gtk_widget_reset_rc_styles
 exclude gtk_widget_hide_on_delete
 exclude gtk_widget_destroyed
 
+#these function is mostly intended for use by accessibility technologies
+exclude gtk_combo_box_get_popup_accessible
+
+#internal or unnecessary GtkAaccelLabel methods
+exclude gtk_accel_label_get_accel_width
+exclude gtk_accel_label_refetch
+exclude gtk_accel_label_set_accel_closure
+
+#internal FileFilter methods
+exclude gtk_file_filter_get_needed
+exclude gtk_file_filter_filter
