@@ -5,7 +5,7 @@
 --
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:49 $
 --
 --  Copyright (C) 2002 Jonas Svensson
 --
@@ -28,10 +28,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This widget implements a 'MenuItem' with an image next to it 
+-- A menu item with an icon
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem (
--- * Description
+-- * Detail
 -- 
 -- | A 'ImageMenuItem' is a menu item which has an icon next to the text
 -- label.
@@ -81,50 +81,77 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new 'MenuItem' with a image next to it.
+-- | Creates a new 'ImageMenuItem' with an empty label.
 --
 imageMenuItemNew :: IO ImageMenuItem
-imageMenuItemNew  = makeNewObject mkImageMenuItem $ liftM castPtr $
-  {#call unsafe image_menu_item_new#}
+imageMenuItemNew =
+  makeNewObject mkImageMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr ImageMenuItem) $
+  {# call unsafe image_menu_item_new #}
 
--- | Create a new 'MenuItem' with a stock image.
+-- | Creates a new 'ImageMenuItem' containing the image and text from a stock
+-- item.
 --
-imageMenuItemNewFromStock :: String -> IO ImageMenuItem
-imageMenuItemNewFromStock str = withUTFString str $ \strPtr ->
-  makeNewObject mkImageMenuItem $ liftM castPtr $ 
-  {#call unsafe image_menu_item_new_from_stock#} strPtr
+imageMenuItemNewFromStock :: 
+    String           -- ^ @stockId@ - the name of the stock item.
+ -> IO ImageMenuItem
+imageMenuItemNewFromStock stockId =
+  makeNewObject mkImageMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr ImageMenuItem) $
+  withUTFString stockId $ \stockIdPtr ->
+  {# call unsafe image_menu_item_new_from_stock #}
+    stockIdPtr
     (AccelGroup nullForeignPtr)
 
--- | Create a new 'MenuItem' with a label.
+-- | Creates a new 'ImageMenuItem' containing a label.
 --
-imageMenuItemNewWithLabel :: String -> IO ImageMenuItem
-imageMenuItemNewWithLabel str = withUTFString str $ \strPtr ->
-  makeNewObject mkImageMenuItem $ liftM castPtr $ 
-  {#call unsafe image_menu_item_new_with_label#} strPtr
+imageMenuItemNewWithLabel :: 
+    String           -- ^ @label@ - the text of the menu item.
+ -> IO ImageMenuItem
+imageMenuItemNewWithLabel label =
+  makeNewObject mkImageMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr ImageMenuItem) $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe image_menu_item_new_with_label #}
+    labelPtr
 
--- | Create a new 'MenuItem' with a label where underscored indicate the
--- mnemonic.
+-- | Creates a new 'ImageMenuItem' containing a label. The label will be
+-- created using 'labelNewWithMnemonic', so underscores in @label@ indicate the
+-- mnemonic for the menu item.
 --
-imageMenuItemNewWithMnemonic :: String -> IO ImageMenuItem
-imageMenuItemNewWithMnemonic str = withUTFString str $ \strPtr ->
-  makeNewObject mkImageMenuItem $ liftM castPtr $ 
-  {#call unsafe image_menu_item_new_with_mnemonic#} strPtr
+imageMenuItemNewWithMnemonic :: 
+    String           -- ^ @label@ - the text of the menu item, with an
+                     -- underscore in front of the mnemonic character
+ -> IO ImageMenuItem
+imageMenuItemNewWithMnemonic label =
+  makeNewObject mkImageMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr ImageMenuItem) $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe image_menu_item_new_with_mnemonic #}
+    labelPtr
 
 --------------------
 -- Methods
 
--- | Sets the image for the ImageMenuItem.
+-- | Sets the image of the image menu item to the given widget. Note that it
+-- depends on the \"show-menu-images\" setting whether the image will be
+-- displayed or not.
 --
-imageMenuItemSetImage :: (ImageMenuItemClass imi,WidgetClass wd) =>
-                         imi -> wd -> IO ()
-imageMenuItemSetImage imi wd =
-  {#call unsafe image_menu_item_set_image#} (toImageMenuItem imi) 
-                                            (toWidget wd)
+imageMenuItemSetImage :: (ImageMenuItemClass self, WidgetClass image) => self
+ -> image -- ^ @image@ - a widget to set as the image for the menu item.
+ -> IO ()
+imageMenuItemSetImage self image =
+  {# call unsafe image_menu_item_set_image #}
+    (toImageMenuItem self)
+    (toWidget image)
 
--- | Get the image that is currently set a the image.
+-- | Gets the widget that is currently set as the image.
+-- See 'imageMenuItemSetImage'.
 --
-imageMenuItemGetImage :: ImageMenuItemClass imi => imi -> IO (Maybe Widget)
-imageMenuItemGetImage imi = do
-   imPtr <- {#call unsafe image_menu_item_get_image#} (toImageMenuItem imi)
-   if imPtr==nullPtr then return Nothing else do
-     liftM Just $ makeNewObject mkWidget $ return imPtr
+imageMenuItemGetImage :: ImageMenuItemClass self => self
+ -> IO (Maybe Widget) -- ^ returns the widget set as image of or @Nothing@ if
+                      -- none has been set.
+imageMenuItemGetImage self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call unsafe image_menu_item_get_image #}
+    (toImageMenuItem self)

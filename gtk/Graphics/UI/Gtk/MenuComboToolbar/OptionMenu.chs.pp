@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/02 16:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,13 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget used to choose from a list of valid choices.
+-- A widget used to choose from a list of valid choices
+--
+-- * Warning: this module is deprecated and should not be used in
+-- newly-written code.
 --
 module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
--- * Description
+-- * Detail
 -- 
 -- | A 'OptionMenu' is a widget that allows the user to choose from a list of
 -- valid choices. The 'OptionMenu' displays the selected choice. When activated
@@ -61,8 +64,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
   OptionMenuClass,
   castToOptionMenu,
 
--- * Methods
+-- * Constructors
   optionMenuNew,
+
+-- * Methods
   optionMenuGetMenu,
   optionMenuSetMenu,
   optionMenuRemoveMenu,
@@ -74,7 +79,6 @@ module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
   afterOMChanged
 #endif
   ) where
-#ifndef DISABLE_DEPRECATED
 
 import Monad	(liftM)
 
@@ -85,56 +89,79 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+#ifndef DISABLE_DEPRECATED
 --------------------
--- Methods
+-- Constructors
 
 -- | Create a new option menu.
 --
 optionMenuNew :: IO OptionMenu
-optionMenuNew  = makeNewObject mkOptionMenu $ 
-  liftM castPtr {#call unsafe option_menu_new#}
+optionMenuNew  =
+  makeNewObject mkOptionMenu $
+  liftM castPtr
+  {# call unsafe option_menu_new #}
 
--- | Get the menu that should be associated with this
--- option menu.
+--------------------
+-- Methods
+
+-- | Returns the 'Menu' associated with the 'OptionMenu'.
 --
-optionMenuGetMenu :: OptionMenuClass om => om -> IO Menu
-optionMenuGetMenu om = makeNewObject mkMenu $ liftM castPtr $
+optionMenuGetMenu :: OptionMenuClass self => self -> IO Menu
+optionMenuGetMenu self =
+  makeNewObject mkMenu $
+  liftM castPtr $
   throwIfNull "optionMenuGetMenu: no menu associated with this option menu." $
-  {#call unsafe option_menu_get_menu#} (toOptionMenu om)
+  {# call unsafe option_menu_get_menu #}
+    (toOptionMenu self)
 
--- | Set a menu to associate with this option menu.
+-- | Provides the 'Menu' that is popped up to allow the user to choose a new
+-- value. You should provide a simple menu avoiding the use of tearoff menu
+-- items, submenus, and accelerators.
 --
-optionMenuSetMenu :: (OptionMenuClass om, MenuClass m) => om -> m -> IO ()
-optionMenuSetMenu om m = {#call option_menu_set_menu#}
-  (toOptionMenu om) (toWidget m)
+optionMenuSetMenu :: (OptionMenuClass self, MenuClass menu) => self -> menu -> IO ()
+optionMenuSetMenu self menu =
+  {# call option_menu_set_menu #}
+    (toOptionMenu self)
+    (toWidget menu)
 
--- | Remove the association the menu.
+-- | Removes the menu from the option menu.
 --
-optionMenuRemoveMenu :: OptionMenuClass om => om -> IO ()
-optionMenuRemoveMenu om = 
-  {#call unsafe option_menu_remove_menu#} (toOptionMenu om)
+optionMenuRemoveMenu :: OptionMenuClass self => self -> IO ()
+optionMenuRemoveMenu self =
+  {# call unsafe option_menu_remove_menu #}
+    (toOptionMenu self)
 
--- | Set the state of the option menu. The options
--- are numbered from 0 up to n-1 for the nth item.
+-- | Selects the menu item specified by @index@ making it the newly selected
+-- value for the option menu.
 --
-optionMenuSetHistory :: OptionMenuClass om => om -> Int -> IO ()
-optionMenuSetHistory om item = {#call option_menu_set_history#}
-  (toOptionMenu om) (fromIntegral item)
+optionMenuSetHistory :: OptionMenuClass self => self
+ -> Int   -- ^ @index@ - the index of the menu item to select. Index values
+          -- are from 0 to n-1.
+ -> IO ()
+optionMenuSetHistory self index =
+  {# call option_menu_set_history #}
+    (toOptionMenu self)
+    (fromIntegral index)
 
--- | Retrieve the index of the selected item.
+-- | Retrieves the index of the currently selected menu item. The menu items
+-- are numbered from top to bottom, starting with 0.
 --
-optionMenuGetHistory :: OptionMenuClass om => om -> IO Int
-optionMenuGetHistory om = liftM fromIntegral $
-  {#call unsafe option_menu_get_history#} (toOptionMenu om)
+optionMenuGetHistory :: OptionMenuClass self => self
+ -> IO Int -- ^ returns index of the selected menu item, or -1 if there are no
+           -- menu items
+optionMenuGetHistory self =
+  liftM fromIntegral $
+  {# call unsafe option_menu_get_history #}
+    (toOptionMenu self)
 
 --------------------
 -- Signals
 
 -- | This signal is called if the selected option has changed.
 --
-onOMChanged, afterOMChanged :: OptionMenuClass om => om -> IO () ->
-                               IO (ConnectId om)
+onOMChanged, afterOMChanged :: OptionMenuClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onOMChanged = connect_NONE__NONE "changed" False
 afterOMChanged = connect_NONE__NONE "changed" True
-
 #endif

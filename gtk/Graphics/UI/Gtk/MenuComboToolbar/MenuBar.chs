@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/02 16:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- A subclass widget for 'MenuShell' which holds 'MenuItem' widgets
 --
 module Graphics.UI.Gtk.MenuComboToolbar.MenuBar (
--- * Description
+-- * Detail
 -- 
 -- | The 'MenuBar' is a subclass of 'MenuShell' which contains one to many
 -- 'MenuItem'. The result is a standard menu bar which can hold many menu
@@ -66,8 +66,10 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a horizontal bar that contains menu items.
+-- | Creates the new 'MenuBar'
 --
 menuBarNew :: IO MenuBar
-menuBarNew  = makeNewObject mkMenuBar $ 
-  liftM castPtr {#call unsafe menu_bar_new#}
+menuBarNew =
+  makeNewObject mkMenuBar $
+  liftM (castPtr :: Ptr Widget -> Ptr MenuBar) $
+  {# call unsafe menu_bar_new #}

@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/02 16:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,19 +19,19 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- Note: These are not the original Gtk functions as they involve handling a
+--  Gtk owned GList. The interface is rather oriented towards the RadioButton
+--  widget interface.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A choice from multiple check menu items.
---
--- * These are not the original Gtk functions as they involve handling a Gtk
---   owned GList. The interface is rather oriented towards the RadioButton
---   widget interface.
+-- A choice from multiple check menu items
 --
 module Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem (
--- * Description
+-- * Detail
 -- 
 -- | A radio menu item is a check menu item that belongs to a group. At each
 -- instant exactly one of the radio menu items from a group is selected.
@@ -82,41 +82,54 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new radio menu item.
+-- | Creates a new 'RadioMenuItem'.
 --
 radioMenuItemNew :: IO RadioMenuItem
-radioMenuItemNew  = makeNewObject mkRadioMenuItem $ liftM castPtr $
-  {#call unsafe radio_menu_item_new#} nullPtr
+radioMenuItemNew =
+  makeNewObject mkRadioMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
+  {# call unsafe radio_menu_item_new #}
+    nullPtr
 
--- | Create a new radio menu item with a label in it.
+-- | Creates a new 'RadioMenuItem' whose child is a simple 'Label'.
 --
 radioMenuItemNewWithLabel :: String -> IO RadioMenuItem
-radioMenuItemNewWithLabel label = withUTFString label $ \strPtr ->
-  makeNewObject mkRadioMenuItem $ liftM castPtr $
-  {#call unsafe radio_menu_item_new_with_label#} nullPtr strPtr
+radioMenuItemNewWithLabel label =
+  makeNewObject mkRadioMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe radio_menu_item_new_with_label #}
+    nullPtr
+    labelPtr
 
--- | Create a new radio menu item with a label in it. Underscores in the label
--- string indicate the mnemonic for the menu item.
+-- | Creates a new 'RadioMenuItem' containing a label. The label will be
+-- created using 'labelNewWithMnemonic', so underscores in @label@ indicate the
+-- mnemonic for the menu item.
 --
 radioMenuItemNewWithMnemonic :: String -> IO RadioMenuItem
-radioMenuItemNewWithMnemonic label = withUTFString label $ \strPtr ->
-  makeNewObject mkRadioMenuItem $ liftM castPtr $
-  {#call unsafe radio_menu_item_new_with_mnemonic#} nullPtr strPtr
+radioMenuItemNewWithMnemonic label =
+  makeNewObject mkRadioMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe radio_menu_item_new_with_mnemonic #}
+    nullPtr
+    labelPtr
 
 -- | Create a new radio button and attach it to the group of another radio
 -- button.
 --
 radioMenuItemNewJoinGroup :: RadioMenuItem -> IO RadioMenuItem
 radioMenuItemNewJoinGroup rmi = do
-  groupPtr <- {#call unsafe radio_menu_item_get_group#} rmi
+  groupPtr <- {# call unsafe radio_menu_item_get_group #} rmi
   makeNewObject mkRadioMenuItem $ liftM castPtr $
     {#call unsafe radio_menu_item_new#} groupPtr
 
 -- | Create a new radio button with a label and attach it to the group of
 -- another radio button.
 --
-radioMenuItemNewJoinGroupWithLabel :: RadioMenuItem -> String ->
-                                      IO RadioMenuItem
+radioMenuItemNewJoinGroupWithLabel :: RadioMenuItem
+ -> String
+ -> IO RadioMenuItem
 radioMenuItemNewJoinGroupWithLabel rmi label = do
   groupPtr <- {#call unsafe radio_menu_item_get_group#} rmi
   withUTFString label $ \strPtr -> 
@@ -127,8 +140,9 @@ radioMenuItemNewJoinGroupWithLabel rmi label = do
 -- another radio button. Underscores in the label string indicate the mnemonic
 -- for the menu item.
 --
-radioMenuItemNewJoinGroupWithMnemonic :: RadioMenuItem -> String ->
-                                      IO RadioMenuItem
+radioMenuItemNewJoinGroupWithMnemonic :: RadioMenuItem
+ -> String
+ -> IO RadioMenuItem
 radioMenuItemNewJoinGroupWithMnemonic rmi label = do
   groupPtr <- {#call unsafe radio_menu_item_get_group#} rmi
   withUTFString label $ \strPtr -> 

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:35 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 16:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -37,10 +37,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This widget represents a singe menu item.
+-- The widget used for item in menus
 --
 module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
--- * Description
+-- * Detail
 -- 
 -- | The 'MenuItem' widget and the derived widgets are the only valid childs
 -- for menus. Their function is to correctly handle highlighting, alignment,
@@ -85,15 +85,15 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   menuItemSetRightJustified,
   menuItemGetRightJustified,
   menuItemSetAccelPath,
-  onActivateLeaf,
-  afterActivateLeaf,
-  onActivateItem,
-  afterActivateItem,
 
 -- * Properties
   menuItemRightJustified,
 
 -- * Signals
+  onActivateItem,
+  afterActivateItem,
+  onActivateLeaf,
+  afterActivateLeaf,
   onSelect,
   afterSelect,
   onDeselect,
@@ -116,81 +116,118 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new menu item. This is the smallest part
--- of a menu that the user can click on or select with the keyboard.
+-- | Creates a new 'MenuItem'.
 --
 menuItemNew :: IO MenuItem
-menuItemNew  = makeNewObject mkMenuItem $ 
-  liftM castPtr {#call unsafe menu_item_new#}
+menuItemNew =
+  makeNewObject mkMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr MenuItem) $
+  {# call unsafe menu_item_new #}
 
--- | Create a new menu item and place a label inside.
+-- | Creates a new 'MenuItem' whose child is a 'Label'.
 --
-menuItemNewWithLabel :: String -> IO MenuItem
-menuItemNewWithLabel label = withUTFString label $ \strPtr -> 
-  makeNewObject mkMenuItem $ liftM castPtr $
-  {#call unsafe menu_item_new_with_label#} strPtr
+menuItemNewWithLabel :: 
+    String      -- ^ @label@ - the text for the label
+ -> IO MenuItem
+menuItemNewWithLabel label =
+  makeNewObject mkMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr MenuItem) $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe menu_item_new_with_label #}
+    labelPtr
 
--- | Create a new menu item and place a label inside. Underscores in the label
--- text indicate the mnemonic for the menu item.
+-- | Creates a new 'MenuItem' containing a label. The label will be created
+-- using 'labelNewWithMnemonic', so underscores in @label@ indicate the
+-- mnemonic for the menu item.
 --
-menuItemNewWithMnemonic :: String -> IO MenuItem
-menuItemNewWithMnemonic label = withUTFString label $ \strPtr -> 
-  makeNewObject mkMenuItem $ liftM castPtr $
-  {#call unsafe menu_item_new_with_mnemonic#} strPtr
+menuItemNewWithMnemonic :: 
+    String      -- ^ @label@ - The text of the label, with an underscore in
+                -- front of the mnemonic character
+ -> IO MenuItem
+menuItemNewWithMnemonic label =
+  makeNewObject mkMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr MenuItem) $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe menu_item_new_with_mnemonic #}
+    labelPtr
 
 --------------------
 -- Methods
 
--- | Set the item's submenu.
+-- | Sets the item's submenu, or changes it.
 --
-menuItemSetSubmenu :: (MenuItemClass mi, MenuClass m) => mi -> m -> IO ()
-menuItemSetSubmenu mi submenu = 
-  {#call menu_item_set_submenu#} (toMenuItem mi) (toWidget submenu)
+menuItemSetSubmenu :: (MenuItemClass self, MenuClass submenu) => self -> submenu -> IO ()
+menuItemSetSubmenu self submenu =
+  {# call menu_item_set_submenu #}
+    (toMenuItem self)
+    (toWidget submenu)
 
--- | Gets the submenu underneath this menu item, if any.
+-- | Gets the submenu underneath this menu item, if any. See
+-- 'menuItemSetSubmenu'.
 --
-menuItemGetSubmenu :: MenuItemClass mi => mi -> IO (Maybe Widget)
-menuItemGetSubmenu mi = do
-  wPtr <- {#call unsafe menu_item_get_submenu#} (toMenuItem mi)
-  if wPtr==nullPtr then return Nothing else liftM Just $
-    makeNewObject mkWidget (return wPtr)
+menuItemGetSubmenu :: MenuItemClass self => self
+ -> IO (Maybe Widget) -- ^ returns submenu for this menu item, or @Nothing@ if
+                      -- none.
+menuItemGetSubmenu self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call unsafe menu_item_get_submenu #}
+    (toMenuItem self)
 
--- | Remove the item's submenu.
+-- | Removes the item's submenu.
 --
-menuItemRemoveSubmenu :: MenuItemClass mi => mi -> IO ()
-menuItemRemoveSubmenu mi = {#call menu_item_remove_submenu#} (toMenuItem mi)
+menuItemRemoveSubmenu :: MenuItemClass self => self -> IO ()
+menuItemRemoveSubmenu self =
+  {# call menu_item_remove_submenu #}
+    (toMenuItem self)
 
--- | Select the menu item.
+-- | Select the menu item. Emits the \"select\" signal on the item.
 --
-menuItemSelect :: MenuItemClass mi => mi -> IO ()
-menuItemSelect mi = {#call menu_item_select#} (toMenuItem mi)
+menuItemSelect :: MenuItemClass self => self -> IO ()
+menuItemSelect self =
+  {# call menu_item_select #}
+    (toMenuItem self)
 
--- | Deselect the menu item.
+-- | Deselect the menu item. Emits the \"deselect\" signal on the item.
 --
-menuItemDeselect :: MenuItemClass mi => mi -> IO ()
-menuItemDeselect mi = {#call menu_item_deselect#} (toMenuItem mi)
+menuItemDeselect :: MenuItemClass self => self -> IO ()
+menuItemDeselect self =
+  {# call menu_item_deselect #}
+    (toMenuItem self)
 
--- | Simulate a click on the menu item.
+-- | Simulate a click on the menu item. Emits the \"activate\" signal on the item.
 --
-menuItemActivate :: MenuItemClass mi => mi -> IO ()
-menuItemActivate mi = {#call menu_item_activate#} (toMenuItem mi)
+menuItemActivate :: MenuItemClass self => self -> IO ()
+menuItemActivate self =
+  {# call menu_item_activate #}
+    (toMenuItem self)
 
--- | Make the menu item right justified. Only useful for menu bars.
+-- | Sets whether the menu item appears justified at the right side of a menu
+-- bar. This was traditionally done for \"Help\" menu items, but is now
+-- considered a bad idea. (If the widget layout is reversed for a right-to-left
+-- language like Hebrew or Arabic, right-justified-menu-items appear at the
+-- left.)
 --
-menuItemSetRightJustified :: MenuItemClass mi => mi -> Bool -> IO ()
-menuItemSetRightJustified mi yes = 
-  {#call menu_item_set_right_justified#} (toMenuItem mi) (fromBool yes)
+menuItemSetRightJustified :: MenuItemClass self => self
+ -> Bool  -- ^ @rightJustified@ - if @True@ the menu item will appear at the
+          -- far right if added to a menu bar.
+ -> IO ()
+menuItemSetRightJustified self rightJustified =
+  {# call menu_item_set_right_justified #}
+    (toMenuItem self)
+    (fromBool rightJustified)
 
--- | Gets whether the menu item appears justified at the right side of the menu
--- bar.
+-- | Gets whether the menu item appears justified at the right side of the
+-- menu bar.
 --
-menuItemGetRightJustified :: MenuItemClass mi => mi -> IO Bool
-menuItemGetRightJustified mi = liftM toBool $
-  {#call unsafe menu_item_get_right_justified#} (toMenuItem mi)
+menuItemGetRightJustified :: MenuItemClass self => self -> IO Bool
+menuItemGetRightJustified self =
+  liftM toBool $
+  {# call unsafe menu_item_get_right_justified #}
+    (toMenuItem self)
 
 -- | Set the accelerator path on the menu item, through which runtime changes of
--- the menu item's accelerator caused by the user can be identified and saved to
--- persistant storage (see 'accelMapSave' on this). To setup a default
+-- the menu item's accelerator caused by the user can be identified and saved
+-- to persistant storage (see 'accelMapSave' on this). To setup a default
 -- accelerator for this menu item, call 'accelMapAddEntry' with the same accel
 -- path. See also 'accelMapAddEntry' on the specifics of accelerator paths, and
 -- 'menuSetAccelPath' for a more convenient variant of this function.
@@ -199,13 +236,19 @@ menuItemGetRightJustified mi = liftM toBool $
 -- 'widgetSetAccelPath' with the appropriate accelerator group for the menu
 -- item.
 --
--- * Note that you do need to set an accelerator on the parent menu with
+-- Note that you do need to set an accelerator on the parent menu with
 -- 'menuSetAccelGroup' for this to work.
 --
-menuItemSetAccelPath :: MenuItemClass mi => mi -> Maybe String -> IO ()
-menuItemSetAccelPath mi accelPath =
-  maybeWith withCString accelPath $ \strPtr ->
-  {#call menu_item_set_accel_path#} (toMenuItem mi) strPtr
+menuItemSetAccelPath :: MenuItemClass self => self
+ -> Maybe String -- ^ @accelPath@ - accelerator path, corresponding to this
+                 -- menu item's functionality, or @Nothing@ to unset the
+                 -- current path.
+ -> IO ()
+menuItemSetAccelPath self accelPath =
+  maybeWith withUTFString accelPath $ \accelPathPtr ->
+  {# call menu_item_set_accel_path #}
+    (toMenuItem self)
+    accelPathPtr
 
 --------------------
 -- Properties
@@ -213,7 +256,7 @@ menuItemSetAccelPath mi accelPath =
 -- | \'rightJustified\' property. See 'menuItemGetRightJustified' and
 -- 'menuItemSetRightJustified'
 --
-menuItemRightJustified :: Attr MenuItem Bool
+menuItemRightJustified :: MenuItemClass self => Attr self Bool
 menuItemRightJustified = Attr 
   menuItemGetRightJustified
   menuItemSetRightJustified
@@ -223,33 +266,40 @@ menuItemRightJustified = Attr
 
 -- | The user has chosen the menu item and the item does not contain a submenu.
 --
-onActivateLeaf, afterActivateLeaf :: MenuItemClass mi => mi -> IO () ->
-                                     IO (ConnectId mi)
+onActivateLeaf, afterActivateLeaf :: MenuItemClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onActivateLeaf = connect_NONE__NONE "activate" False
 afterActivateLeaf = connect_NONE__NONE "activate" True
 
 -- | Emitted when the user chooses this item even if it has submenus.
 --
-onActivateItem, afterActivateItem :: MenuItemClass mi => mi -> IO () ->
-                                     IO (ConnectId mi)
+onActivateItem, afterActivateItem :: MenuItemClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onActivateItem = connect_NONE__NONE "activate-item" False
 afterActivateItem = connect_NONE__NONE "activate-item" True
 
 -- | This signal is emitted when the item is selected.
 --
-onSelect, afterSelect :: ItemClass i => i -> IO () -> IO (ConnectId i)
+onSelect, afterSelect :: ItemClass i => i
+ -> IO ()
+ -> IO (ConnectId i)
 onSelect = connect_NONE__NONE "select" False
 afterSelect = connect_NONE__NONE "select" True
 
 -- | This signal is emitted when the item is deselected.
 --
-onDeselect, afterDeselect :: ItemClass i => i -> IO () -> IO (ConnectId i)
+onDeselect, afterDeselect :: ItemClass i => i
+ -> IO ()
+ -> IO (ConnectId i)
 onDeselect = connect_NONE__NONE "deselect" False
 afterDeselect = connect_NONE__NONE "deselect" True
 
 -- | This signal is emitted when the item is toggled.
 --
-onToggle, afterToggle :: ItemClass i => i -> IO () -> IO (ConnectId i)
+onToggle, afterToggle :: ItemClass i => i
+ -> IO ()
+ -> IO (ConnectId i)
 onToggle = connect_NONE__NONE "toggled" False
 afterToggle = connect_NONE__NONE "toggled" True
-

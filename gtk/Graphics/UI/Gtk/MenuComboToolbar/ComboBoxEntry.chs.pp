@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:35 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 16:52:49 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -26,12 +26,23 @@
 --
 -- A text entry field with a dropdown list
 --
--- * Added in gtk 2.4
+-- * Module available since Gtk+ version 2.4
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
--- * Description
+-- * Detail
 -- 
--- | * Module available since Gtk version 2.4
+-- | A 'ComboBoxEntry' is a widget that allows the user to choose from a list
+-- of valid choices or enter a different value. It is very similar to a
+-- 'ComboBox', but it displays the selected value in an entry to allow
+-- modifying it.
+--
+-- In contrast to a 'ComboBox', the underlying model of a 'ComboBoxEntry'
+-- must always have a text column (see 'comboBoxEntrySetTextColumn'), and the
+-- entry will show the content of the text column in the selected row.
+--
+-- The convenience API to construct simple text-only 'ComboBox'es can also
+-- be used with 'ComboBoxEntry's which have been constructed with
+-- 'comboBoxEntryNewText'.
 
 -- * Class Hierarchy
 -- |
@@ -65,7 +76,6 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 #endif
   ) where
 
-#if GTK_CHECK_VERSION(2,4,0)
 import Monad	(liftM)
 
 import System.Glib.FFI
@@ -77,36 +87,71 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Constructors
 
+-- | Creates a new 'ComboBoxEntry' which has a 'Entry' as child. After
+-- construction, you should set a model using 'comboBoxSetModel' and a
+-- text column using 'comboBoxEntrySetTextColumn'.
+--
 comboBoxEntryNew :: IO ComboBoxEntry
 comboBoxEntryNew =
-  makeNewObject mkComboBoxEntry $ liftM castPtr $
+  makeNewObject mkComboBoxEntry $
+  liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
   {# call gtk_combo_box_entry_new #}
 
-comboBoxEntryNewWithModel :: TreeModel -> Int -> IO ComboBoxEntry
+-- | Creates a new 'ComboBoxEntry' which has a 'Entry' as child and a list of
+-- strings as popup. You can get the 'Entry' from a 'ComboBoxEntry' using
+-- 'binGetChild'. To add and remove strings from the list, just modify @model@
+-- using its data manipulation API.
+--
+comboBoxEntryNewWithModel :: TreeModelClass model => 
+    model            -- ^ @model@ - A 'TreeModel'.
+ -> Int              -- ^ @textColumn@ - A column in @model@ to get the
+                     -- strings from.
+ -> IO ComboBoxEntry
 comboBoxEntryNewWithModel model textColumn =
-  makeNewObject mkComboBoxEntry $ liftM castPtr $
-  {# call gtk_combo_box_entry_new_with_model #} model (fromIntegral textColumn)
+  makeNewObject mkComboBoxEntry $
+  liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
+  {# call gtk_combo_box_entry_new_with_model #}
+    (toTreeModel model)
+    (fromIntegral textColumn)
 
+-- | Convenience function which constructs a new editable text combo box,
+-- which is a 'ComboBoxEntry' just displaying strings. If you use this function
+-- to create a text combo box, you should only manipulate its data source with
+-- the following convenience functions: 'comboBoxAppendText',
+-- 'comboBoxInsertText', 'comboBoxPrependText' and 'comboBoxRemoveText'.
+--
 comboBoxEntryNewText :: IO ComboBoxEntry
 comboBoxEntryNewText =
-  makeNewObject mkComboBoxEntry $ liftM castPtr $
+  makeNewObject mkComboBoxEntry $
+  liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
   {# call gtk_combo_box_entry_new_text #}
 
 --------------------
 -- Methods
 
-comboBoxEntrySetTextColumn :: ComboBoxEntryClass combo => combo -> Int -> IO ()
-comboBoxEntrySetTextColumn combo textColumn =
-  {# call gtk_combo_box_entry_set_text_column #} (toComboBoxEntry combo)
+-- | Sets the model column which the entry box should use to get strings from to
+-- be @textColumn@.
+--
+comboBoxEntrySetTextColumn :: ComboBoxEntryClass self => self
+ -> Int   -- ^ @textColumn@ - A column in the model to get the strings from.
+ -> IO ()
+comboBoxEntrySetTextColumn self textColumn =
+  {# call gtk_combo_box_entry_set_text_column #}
+    (toComboBoxEntry self)
     (fromIntegral textColumn)
 
-comboBoxEntryGetTextColumn :: ComboBoxEntryClass combo => combo -> IO Int
-comboBoxEntryGetTextColumn combo =
-  liftM fromIntegral $ 
-  {# call gtk_combo_box_entry_get_text_column #} (toComboBoxEntry combo)
+-- | Returns the column which the entry box is using to get the strings from.
+--
+comboBoxEntryGetTextColumn :: ComboBoxEntryClass self => self
+ -> IO Int -- ^ returns a column in the data source model of the entry box.
+comboBoxEntryGetTextColumn self =
+  liftM fromIntegral $
+  {# call gtk_combo_box_entry_get_text_column #}
+    (toComboBoxEntry self)
 
 --------------------
 -- Properties
@@ -117,7 +162,7 @@ comboBoxEntryGetTextColumn combo =
 --
 -- Default value: -1
 --
-comboBoxEntryTextColumn :: Attr ComboBoxEntry Int
+comboBoxEntryTextColumn :: ComboBoxEntryClass self => Attr self Int
 comboBoxEntryTextColumn = Attr 
   comboBoxEntryGetTextColumn
   comboBoxEntrySetTextColumn

@@ -1,3 +1,22 @@
+2005-04-2 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/CheckMenuItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Combo.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBoxEntry.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ImageMenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/OptionMenu.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioMenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/TearoffMenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Toolbar.chs.pp: more merging from
+	the generated modules. Code formatting changes. Documentation changes.
+	One or two actual code changes but nothing that affects the API.
+
 2005-04-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs, tools/apiGen/ApiGen.hs,

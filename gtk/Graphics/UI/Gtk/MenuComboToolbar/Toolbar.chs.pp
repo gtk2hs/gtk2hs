@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Create bars of buttons and other widgets.
+-- Create bars of buttons and other widgets
 --
 module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
--- * Description
+-- * Detail
 -- 
 -- | This widget underwent a signficant overhaul in gtk 2.4 and the
 -- recommended api changed substantially. The old interface is still supported
@@ -37,28 +37,18 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 --
 -- A toolbar is created with a call to 'toolbarNew'.
 --
--- A toolbar can contain instances of a subclass of "ToolItem". To add a
--- "ToolItem" to the a toolbar, use 'toolbarInsert'. To remove an item from the
+-- A toolbar can contain instances of a subclass of 'ToolItem'. To add a
+-- 'ToolItem' to the a toolbar, use 'toolbarInsert'. To remove an item from the
 -- toolbar use 'containerRemove'. To add a button to the toolbar, add an
--- instance of "ToolButton".
+-- instance of 'ToolButton'.
 --
 -- Toolbar items can be visually grouped by adding instances of
--- "SeparatorToolItem" to the toolbar. If a "SeparatorToolItem" has the
--- \"expand\" property set to True and the \"draw\" property set to False
+-- 'SeparatorToolItem' to the toolbar. If a 'SeparatorToolItem' has the
+-- \"expand\" property set to @True@ and the \"draw\" property set to @False@
 -- the effect is to force all following items to the end of the toolbar.
 --
 -- Creating a context menu for the toolbar can be done using
 -- 'onPopupContextMenu'.
-
--- * Class Hierarchy
--- |
--- @
--- |  'GObject'
--- |   +----'Object'
--- |         +----'Widget'
--- |               +----'Container'
--- |                     +----Toolbar
--- @
 
 #ifndef DISABLE_DEPRECATED
 -- | * The following information applies to the old interface only.
@@ -79,6 +69,16 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 -- image lookup is done manually. A mnemonic in the labels is sadly not
 -- honored this way.
 #endif
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Toolbar
+-- @
 
 -- * Types
   Toolbar,
@@ -175,11 +175,13 @@ import Graphics.UI.Gtk.Display.Image	(imageNewFromStock)
 --------------------
 -- Constructors
 
--- | Create a new, empty toolbar.
+-- | Creates a new toolbar.
 --
 toolbarNew :: IO Toolbar
-toolbarNew  = makeNewObject mkToolbar $ liftM castPtr
-  {#call unsafe toolbar_new#}
+toolbarNew =
+  makeNewObject mkToolbar $
+  liftM (castPtr :: Ptr Widget -> Ptr Toolbar) $
+  {# call unsafe toolbar_new #}
 
 -- Make tooltips or not? 
 --
@@ -194,324 +196,446 @@ mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
 #ifndef DISABLE_DEPRECATED
 -- | Insert a new 'Button' into the 'Toolbar'.
 --
--- * The new 'Button' is created at position @pos@, counting
---   from 0.
+-- The new 'Button' is created at position @pos@, counting from 0.
 --
--- * The icon and label for the button is referenced by @stockId@
---   which must be a valid entry in the 'Toolbar's Style or the
---   default 'IconFactory'.
+-- The icon and label for the button is referenced by @stockId@
+-- which must be a valid entry in the 'Toolbar's Style or the
+-- default 'IconFactory'.
 --
--- * If you whish to have 'Tooltips' added to this button you can
---   specify @Just (tipText, tipPrivate)@ , otherwise specify
---   @Nothing@.
+-- If you whish to have 'Tooltips' added to this button you can
+-- specify @Just (tipText, tipPrivate)@ , otherwise specify @Nothing@.
 --
--- * The newly created 'Button' is returned. Use this button to 
---   add an action function with @\"connectToClicked\"@.
+-- The newly created 'Button' is returned. Use this button to 
+-- add an action function with @\"connectToClicked\"@.
 --
-toolbarInsertNewButton :: ToolbarClass tb => tb -> Int -> String ->
-                          Maybe (String,String) -> IO Button
-toolbarInsertNewButton tb pos stockId tooltips = 
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
+--
+toolbarInsertNewButton :: ToolbarClass self => self
+ -> Int
+ -> String
+ -> Maybe (String,String)
+ -> IO Button
+toolbarInsertNewButton self pos stockId tooltips = 
   withUTFString stockId $ \stockPtr ->
   mkToolText tooltips $ \textPtr privPtr ->
   makeNewObject mkButton $ liftM castPtr $ 
-  {#call unsafe toolbar_insert_stock#} (toToolbar tb) stockPtr textPtr privPtr
-    nullFunPtr nullPtr (fromIntegral pos)
+  {# call unsafe toolbar_insert_stock #}
+    (toToolbar self)
+    stockPtr
+    textPtr
+    privPtr
+    nullFunPtr
+    nullPtr
+    (fromIntegral pos)
 
 -- | Append a new 'Button' to the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
-toolbarAppendNewButton :: ToolbarClass tb => tb -> String ->
-                          Maybe (String,String) -> IO Button
-toolbarAppendNewButton tb = toolbarInsertNewButton tb (-1)
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
+--
+toolbarAppendNewButton :: ToolbarClass self => self
+ -> String
+ -> Maybe (String, String)
+ -> IO Button
+toolbarAppendNewButton self = toolbarInsertNewButton self (-1)
 
 -- | Prepend a new 'Button' to the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
-toolbarPrependNewButton :: ToolbarClass tb => tb -> String ->
-                           Maybe (String,String) -> IO Button
-toolbarPrependNewButton tb = toolbarInsertNewButton tb 0
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
+--
+toolbarPrependNewButton :: ToolbarClass self => self
+ -> String
+ -> Maybe (String, String)
+ -> IO Button
+toolbarPrependNewButton self = toolbarInsertNewButton self 0
 
 -- | Insert a new 'ToggleButton' into the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
--- * Mnemonics in the label of the 'StockItem' are removed as they do
---   not work due to the bad interface definition of GtkToolbar.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
-toolbarInsertNewToggleButton :: ToolbarClass tb => tb -> Int -> String ->
-                                Maybe (String,String) -> IO ToggleButton
-toolbarInsertNewToggleButton tb pos stockId tooltips = do
+toolbarInsertNewToggleButton :: ToolbarClass self => self
+ -> Int
+ -> String
+ -> Maybe (String, String)
+ -> IO ToggleButton
+toolbarInsertNewToggleButton self pos stockId tooltips = do
   mItem <- stockLookupItem stockId
   item <- case mItem of
     (Just item) -> return item
     Nothing	-> liftM fromJust $ stockLookupItem stockMissingImage
   let label = (filter (/= '_')) $ siLabel item
-  size <- toolbarGetIconSize (toToolbar tb)
+  size <- toolbarGetIconSize (toToolbar self)
   image <- imageNewFromStock stockId size
   makeNewObject mkToggleButton $ liftM castPtr $
     withUTFString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
-    {#call unsafe toolbar_insert_element#} (toToolbar tb) 
+    {#call unsafe toolbar_insert_element#} (toToolbar self) 
     toolbarChildToggleButton (mkWidget nullForeignPtr) lblPtr 
     textPtr privPtr (toWidget image) nullFunPtr nullPtr (fromIntegral pos)
 
 -- | Append a new 'ToggleButton' to the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
--- * Mnemonics in the label of the 'StockItem' are removed as they do
---   not work due to the bad interface definition of GtkToolbar.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
-toolbarAppendNewToggleButton :: ToolbarClass tb => tb -> String ->
-                                Maybe (String,String) -> IO ToggleButton
-toolbarAppendNewToggleButton tb = toolbarInsertNewToggleButton tb (-1)
+toolbarAppendNewToggleButton :: ToolbarClass self => self
+ -> String
+ -> Maybe (String, String)
+ -> IO ToggleButton
+toolbarAppendNewToggleButton self = toolbarInsertNewToggleButton self (-1)
 
 -- | Prepend a new 'ToggleButton' to the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
--- * Mnemonics in the label of the 'StockItem' are removed as they do
---   not work due to the bad interface definition of GtkToolbar.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
-toolbarPrependNewToggleButton :: ToolbarClass tb => tb -> String ->
-                                 Maybe (String,String) -> IO ToggleButton
-toolbarPrependNewToggleButton tb = toolbarInsertNewToggleButton tb 0
+toolbarPrependNewToggleButton :: ToolbarClass self => self
+ -> String
+ -> Maybe (String, String)
+ -> IO ToggleButton
+toolbarPrependNewToggleButton self = toolbarInsertNewToggleButton self 0
 
 -- | Insert a new 'RadioButton' into the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
--- * Mnemonics in the label of the 'StockItem' are removed as they do
---   not work due to the bad interface definition of GtkToolbar.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
--- * The @parent@ argument must be set to another
---   'RadioButton' in the group. If @Nothing@ is given, 
---   a new group is generated (which is the desired behavious for the
---   first button of a group).
+-- The @parent@ argument must be set to another
+-- 'RadioButton' in the group. If @Nothing@ is given, 
+-- a new group is generated (which is the desired behavious for the
+-- first button of a group).
 --
-toolbarInsertNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) => tb ->
-                               Int -> String -> Maybe (String,String) ->
-                               Maybe rb -> IO RadioButton
-toolbarInsertNewRadioButton tb pos stockId tooltips rb = do
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
+--
+toolbarInsertNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
+ -> Int
+ -> String
+ -> Maybe (String,String)
+ -> Maybe rb
+ -> IO RadioButton
+toolbarInsertNewRadioButton self pos stockId tooltips rb = do
   mItem <- stockLookupItem stockId
   item <- case mItem of
     (Just item) -> return item
     Nothing	-> liftM fromJust $ stockLookupItem stockMissingImage
   let label = (filter (/= '_')) $ siLabel item
-  size <- toolbarGetIconSize (toToolbar tb)
+  size <- toolbarGetIconSize (toToolbar self)
   image <- imageNewFromStock stockId size
   makeNewObject mkRadioButton $ liftM castPtr $
     withUTFString label $ \lblPtr -> mkToolText tooltips $ \textPtr privPtr ->
-    {#call unsafe toolbar_insert_element#} (toToolbar tb) 
+    {#call unsafe toolbar_insert_element#} (toToolbar self) 
     toolbarChildRadioButton (maybe (mkWidget nullForeignPtr) toWidget rb) 
       lblPtr  textPtr privPtr (toWidget image) nullFunPtr nullPtr
       (fromIntegral pos)
 
 -- | Append a new 'RadioButton' to the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
--- * Mnemonics in the label of the 'StockItem' are removed as they do
---   not work due to the bad interface definition of GtkToolbar.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
-toolbarAppendNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) => tb ->
-                               String -> Maybe (String,String) -> Maybe rb ->
-                               IO RadioButton
-toolbarAppendNewRadioButton tb = toolbarInsertNewRadioButton tb (-1)
+toolbarAppendNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
+ -> String
+ -> Maybe (String, String)
+ -> Maybe rb
+ -> IO RadioButton
+toolbarAppendNewRadioButton self = toolbarInsertNewRadioButton self (-1)
 
 -- | Prepend a new 'RadioButton' to the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
--- * Mnemonics in the label of the 'StockItem' are removed as they do
---   not work due to the bad interface definition of GtkToolbar.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
-toolbarPrependNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) => tb ->
-                                String -> Maybe (String,String) -> Maybe rb ->
-                                IO RadioButton
-toolbarPrependNewRadioButton tb = toolbarInsertNewRadioButton tb 0
-
+toolbarPrependNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
+ -> String
+ -> Maybe (String, String)
+ -> Maybe rb
+ -> IO RadioButton
+toolbarPrependNewRadioButton self = toolbarInsertNewRadioButton self 0
 
 -- | Insert an arbitrary widget to the 'Toolbar'.
 --
--- * The 'Widget' should not be a button. Adding 'Button's
---   with the 'toolbarInsertButton',... functions with stock
---   objects is much better as it takes care of theme handling.
+-- The 'Widget' should not be a button. Adding 'Button's
+-- with the 'toolbarInsertButton',... functions with stock
+-- objects is much better as it takes care of theme handling.
 --
-toolbarInsertNewWidget :: (ToolbarClass tb, WidgetClass w) => tb -> Int -> w ->
-                          Maybe (String,String) -> IO ()
-toolbarInsertNewWidget tb pos w tooltips = 
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
+--
+toolbarInsertNewWidget :: (ToolbarClass self, WidgetClass w) => self
+ -> Int
+ -> w
+ -> Maybe (String,String)
+ -> IO ()
+toolbarInsertNewWidget self pos w tooltips = 
   mkToolText tooltips $ \textPtr privPtr ->
-  {#call unsafe toolbar_insert_widget#} (toToolbar tb) (toWidget w)
-    textPtr privPtr (fromIntegral pos)
+  {# call unsafe toolbar_insert_widget #}
+    (toToolbar self)
+    (toWidget w)
+    textPtr
+    privPtr
+    (fromIntegral pos)
 
 -- | Append a new 'Widget' to the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
--- * Mnemonics in the label of the 'StockItem' are removed as they do
---   not work due to the bad interface definition of GtkToolbar.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
-toolbarAppendNewWidget :: (ToolbarClass tb, WidgetClass w) => tb -> w ->
-                          Maybe (String,String) -> IO ()
-toolbarAppendNewWidget tb = toolbarInsertNewWidget tb (-1)
+toolbarAppendNewWidget :: (ToolbarClass self, WidgetClass w) => self
+ -> w
+ -> Maybe (String, String)
+ -> IO ()
+toolbarAppendNewWidget self = toolbarInsertNewWidget self (-1)
 
 -- | Prepend a new 'Widget' to the 'Toolbar'.
 --
--- * See 'toolbarInsertNewButton' for details.
+-- See 'toolbarInsertNewButton' for details.
 --
--- * Mnemonics in the label of the 'StockItem' are removed as they do
---   not work due to the bad interface definition of GtkToolbar.
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
-toolbarPrependNewWidget :: (ToolbarClass tb, WidgetClass w) => tb -> w ->
-                           Maybe (String,String) -> IO ()
-toolbarPrependNewWidget tb = toolbarInsertNewWidget tb 0
+toolbarPrependNewWidget :: (ToolbarClass self, WidgetClass w) => self
+ -> w 
+ -> Maybe (String, String)
+ -> IO ()
+toolbarPrependNewWidget self = toolbarInsertNewWidget self 0
 #endif
 
-
--- | Set the direction of the 'Toolbar'.
+-- | Sets whether a toolbar should appear horizontally or vertically.
 --
-toolbarSetOrientation :: ToolbarClass tb => tb -> Orientation -> IO ()
-toolbarSetOrientation tb orientation = {#call toolbar_set_orientation#}
-  (toToolbar tb) ((fromIntegral.fromEnum) orientation)
+toolbarSetOrientation :: ToolbarClass self => self -> Orientation -> IO ()
+toolbarSetOrientation self orientation =
+  {# call toolbar_set_orientation #}
+    (toToolbar self)
+    ((fromIntegral . fromEnum) orientation)
 
--- | Get the direction of the 'Toolbar'.
+-- | Retrieves the current orientation of the toolbar. See
+-- 'toolbarSetOrientation'.
 --
-toolbarGetOrientation :: ToolbarClass tb => tb -> IO Orientation
-toolbarGetOrientation tb = liftM (toEnum.fromIntegral) $
-  {#call unsafe toolbar_get_orientation#} (toToolbar tb)
+toolbarGetOrientation :: ToolbarClass self => self -> IO Orientation
+toolbarGetOrientation self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe toolbar_get_orientation #}
+    (toToolbar self)
 
 -- | Alters the view of the toolbar to display either icons only, text only, or
 -- both.
 --
-toolbarSetStyle :: ToolbarClass tb => tb -> ToolbarStyle -> IO ()
-toolbarSetStyle tb style = {#call toolbar_set_style#}
-  (toToolbar tb) ((fromIntegral.fromEnum) style)
+toolbarSetStyle :: ToolbarClass self => self -> ToolbarStyle -> IO ()
+toolbarSetStyle self style =
+  {# call toolbar_set_style #}
+    (toToolbar self)
+    ((fromIntegral . fromEnum) style)
 
--- | Retrieves whether the toolbar has text, icons, or both.
+-- | Retrieves whether the toolbar has text, icons, or both. See
+-- 'toolbarSetStyle'.
 --
-toolbarGetStyle :: ToolbarClass tb => tb -> IO ToolbarStyle
-toolbarGetStyle tb = liftM (toEnum.fromIntegral) $
-  {#call toolbar_get_style#} (toToolbar tb)
+toolbarGetStyle :: ToolbarClass self => self -> IO ToolbarStyle
+toolbarGetStyle self =
+  liftM (toEnum . fromIntegral) $
+  {# call toolbar_get_style #}
+    (toToolbar self)
 
--- | Unsets a toolbar style set with 'toolbarSetStyle', so that user preferences
--- will be used to determine the toolbar style.
+-- | Unsets a toolbar style set with 'toolbarSetStyle', so that user
+-- preferences will be used to determine the toolbar style.
 --
-toolbarUnsetStyle :: ToolbarClass tb => tb -> IO ()
-toolbarUnsetStyle tb =
-  {#call toolbar_unset_style#} (toToolbar tb)
+toolbarUnsetStyle :: ToolbarClass self => self -> IO ()
+toolbarUnsetStyle self =
+  {# call toolbar_unset_style #}
+    (toToolbar self)
 
--- | Enable or disable the 'Tooltips'.
+-- | Sets if the tooltips of a toolbar should be active or not.
 --
-toolbarSetTooltips :: ToolbarClass tb => tb -> Bool -> IO ()
-toolbarSetTooltips tb enable = {#call toolbar_set_tooltips#}
-  (toToolbar tb) (fromBool enable)
+toolbarSetTooltips :: ToolbarClass self => self
+ -> Bool  -- ^ @enable@ - set to @False@ to disable the tooltips, or @True@ to
+          -- enable them.
+ -> IO ()
+toolbarSetTooltips self enable =
+  {# call toolbar_set_tooltips #}
+    (toToolbar self)
+    (fromBool enable)
 
--- | Enable or disable the 'Tooltips'.
+-- | Retrieves whether tooltips are enabled. See 'toolbarSetTooltips'.
 --
-toolbarGetTooltips :: ToolbarClass tb => tb -> IO Bool
-toolbarGetTooltips tb =
-  liftM toBool $ {#call unsafe toolbar_get_tooltips#} (toToolbar tb)
+toolbarGetTooltips :: ToolbarClass self => self -> IO Bool
+toolbarGetTooltips self =
+  liftM toBool $
+  {# call unsafe toolbar_get_tooltips #}
+    (toToolbar self)
 
 #ifndef DISABLE_DEPRECATED
--- | Set the size of the icons.
+-- | This function sets the size of stock icons in the toolbar. You can call
+-- it both before you add the icons and after they\'ve been added. The size you
+-- set will override user preferences for the default icon size.
 --
--- * It might be sensible to restrict oneself to 'IconSizeSmallToolbar' and
---   'IconSizeLargeToolbar'.
+-- It might be sensible to restrict oneself to 'IconSizeSmallToolbar' and
+-- 'IconSizeLargeToolbar'.
 --
-toolbarSetIconSize :: ToolbarClass tb => tb -> IconSize -> IO ()
-toolbarSetIconSize tb is = {#call toolbar_set_icon_size#} (toToolbar tb)
-  (fromIntegral is)
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
+--
+toolbarSetIconSize :: ToolbarClass self => self -> IconSize -> IO ()
+toolbarSetIconSize self iconSize =
+  {# call toolbar_set_icon_size #}
+    (toToolbar self)
+    (fromIntegral iconSize)
 #endif
 
--- | Retrieve the current icon size that the 'Toolbar' shows.
+-- | Retrieves the icon size for the toolbar. See 'toolbarSetIconSize'.
 --
-toolbarGetIconSize :: ToolbarClass tb => tb -> IO IconSize
-toolbarGetIconSize tb = liftM (toEnum.fromIntegral) $
-  {#call unsafe toolbar_get_icon_size#} (toToolbar tb)
+toolbarGetIconSize :: ToolbarClass self => self -> IO IconSize
+toolbarGetIconSize self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe toolbar_get_icon_size #}
+    (toToolbar self)
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Insert a "ToolItem" into the toolbar at the given position.
+-- | Insert a 'ToolItem' into the toolbar at position @pos@. If @pos@ is 0 the
+-- item is prepended to the start of the toolbar. If @pos@ is negative, the
+-- item is appended to the end of the toolbar.
 --
--- * If the position is 0 the item is prepended to the start of the toolbar.
--- If the position is negative, the item is appended to the end of the toolbar.
+-- * Available since Gtk version 2.4
 --
-toolbarInsert :: (ToolbarClass tb, ToolItemClass item) => tb
-              -> item -> Int -> IO ()
-toolbarInsert tb item pos =
-  {#call toolbar_insert#} (toToolbar tb) (toToolItem item) (fromIntegral pos)
+toolbarInsert :: (ToolbarClass self, ToolItemClass item) => self
+ -> item  -- ^ @item@ - a 'ToolItem'
+ -> Int   -- ^ @pos@ - the position of the new item
+ -> IO ()
+toolbarInsert self item pos =
+  {# call toolbar_insert #}
+    (toToolbar self)
+    (toToolItem item)
+    (fromIntegral pos)
 
--- | Returns the position of item on the toolbar, starting from 0.
+-- | Returns the position of @item@ on the toolbar, starting from 0. It is an
+-- error if @item@ is not a child of the toolbar.
 --
-toolbarGetItemIndex :: (ToolbarClass tb, ToolItemClass item) => tb
-                    -> item -> IO Int
-toolbarGetItemIndex tb item = liftM fromIntegral $
-  {#call unsafe toolbar_get_item_index#} (toToolbar tb) (toToolItem item)
+-- * Available since Gtk version 2.4
+--
+toolbarGetItemIndex :: (ToolbarClass self, ToolItemClass item) => self
+ -> item   -- ^ @item@ - a 'ToolItem' that is a child of @toolbar@
+ -> IO Int -- ^ returns the position of item on the toolbar.
+toolbarGetItemIndex self item =
+  liftM fromIntegral $
+  {# call unsafe toolbar_get_item_index #}
+    (toToolbar self)
+    (toToolItem item)
 
 -- | Returns the number of items on the toolbar.
 --
-toolbarGetNItems :: ToolbarClass tb => tb -> IO Int
-toolbarGetNItems tb = liftM fromIntegral $
-  {#call unsafe toolbar_get_n_items#} (toToolbar tb)
-
--- | Returns the n'th item on toolbar, or Nothing if the toolbar does not
--- contain an n'th item.
+-- * Available since Gtk version 2.4
 --
-toolbarGetNthItem :: ToolbarClass tb => tb -> Int -> IO (Maybe ToolItem)
-toolbarGetNthItem tb index = do
-  toolItemPtr <- {#call unsafe toolbar_get_nth_item#} (toToolbar tb)
-    (fromIntegral index)
-  if toolItemPtr==nullPtr then return Nothing else liftM Just $
-    makeNewObject mkToolItem $ return toolItemPtr
+toolbarGetNItems :: ToolbarClass self => self -> IO Int
+toolbarGetNItems self =
+  liftM fromIntegral $
+  {# call unsafe toolbar_get_n_items #}
+    (toToolbar self)
 
--- | Returns the position corresponding to the indicated point on toolbar. This
--- is useful when dragging items to the toolbar: this function returns the
+-- | Returns the @n@'th item on toolbar, or @Nothing@ if the toolbar does not
+-- contain an @n@'th item.
+--
+-- * Available since Gtk version 2.4
+--
+toolbarGetNthItem :: ToolbarClass self => self
+ -> Int                 -- ^ @n@ - A position on the toolbar
+ -> IO (Maybe ToolItem) -- ^ returns The @n@'th 'ToolItem' on the toolbar, or
+                        -- @Nothing@ if there isn't an @n@'th item.
+toolbarGetNthItem self n =
+  maybeNull (makeNewObject mkToolItem) $
+  {# call unsafe toolbar_get_nth_item #}
+    (toToolbar self)
+    (fromIntegral n)
+
+-- | Returns the position corresponding to the indicated point on toolbar.
+-- This is useful when dragging items to the toolbar: this function returns the
 -- position a new item should be inserted.
 --
--- * x and y are in toolbar coordinates.
+-- * Available since Gtk version 2.4
 --
-toolbarGetDropIndex :: ToolbarClass tb => tb
-                    -> (Int, Int)  -- ^ x,y coordinate of a point on the toolbar
-                    -> IO Int
-toolbarGetDropIndex tb (x,y) = liftM fromIntegral $
-  {#call unsafe toolbar_get_drop_index#} (toToolbar tb)
-    (fromIntegral x) (fromIntegral y)
+toolbarGetDropIndex :: ToolbarClass self => self
+ -> (Int, Int)  -- ^ @(x, y)@ - coordinate of a point on the toolbar. Note that
+           -- @(x, y)@ are in toolbar coordinates, not window coordinates.
+ -> IO Int -- ^ returns The position corresponding to the point @(x, y)@ on
+           -- the toolbar.
+toolbarGetDropIndex self (x,y) =
+  liftM fromIntegral $
+  {# call unsafe toolbar_get_drop_index #}
+    (toToolbar self)
+    (fromIntegral x)
+    (fromIntegral y)
 
--- | Highlights the toolbar to give an idea of what it would look like if item
--- was added to toolbar at the position indicated by the given index. If item is
--- Nothing, highlighting is turned off (and the index is ignored).
+-- | Highlights the toolbar to give an idea of what it would look like if @item@
+-- was added to toolbar at the position indicated by @index@. If @item@ is
+-- @Nothing@, highlighting is turned off (and the index is ignored).
 --
--- * Note: the ToolItem passed to this function must not be part of any widget
+-- The @toolItem@ passed to this function must not be part of any widget
 -- hierarchy. When an item is set as a drop highlight item it can not added to
 -- any widget hierarchy or used as highlight item for another toolbar.
 --
-toolbarSetDropHighlightItem :: ToolbarClass tb => tb
-                            -> Maybe ToolItem -- ^ A "ToolItem" or Nothing
-                            -> Int            -- ^ A position on the toolbar
-                            -> IO ()
-toolbarSetDropHighlightItem tb item pos =
-  {#call toolbar_set_drop_highlight_item#} (toToolbar tb)
-    (fromMaybe (ToolItem nullForeignPtr) item) (fromIntegral pos)
+-- * Available since Gtk version 2.4
+--
+toolbarSetDropHighlightItem :: (ToolbarClass self, ToolItemClass toolItem) => self
+ -> Maybe toolItem -- ^ @toolItem@ - a 'ToolItem', or @Nothing@ to turn of
+                   -- highlighting
+ -> Int            -- ^ @index@ - a position on the toolbar
+ -> IO ()
+toolbarSetDropHighlightItem self toolItem index =
+  {# call toolbar_set_drop_highlight_item #}
+    (toToolbar self)
+    (maybe (ToolItem nullForeignPtr) toToolItem toolItem)
+    (fromIntegral index)
 
 -- | Sets whether to show an overflow menu when the toolbar doesn't have room
--- for all items on it.
+-- for all items on it. If @True@, items that there are not room are available
+-- through an overflow menu.
 --
-toolbarSetShowArrow :: ToolbarClass tb => tb -> Bool -> IO ()
-toolbarSetShowArrow tb showArrow =
-  {#call toolbar_set_show_arrow#} (toToolbar tb) (fromBool showArrow)
+-- * Available since Gtk version 2.4
+--
+toolbarSetShowArrow :: ToolbarClass self => self -> Bool -> IO ()
+toolbarSetShowArrow self showArrow =
+  {# call toolbar_set_show_arrow #}
+    (toToolbar self)
+    (fromBool showArrow)
 
--- | Returns whether the toolbar has an overflow menu.
+-- | Returns whether the toolbar has an overflow menu. See
+-- 'toolbarSetShowArrow'
 --
-toolbarGetShowArrow :: ToolbarClass tb => tb -> IO Bool
-toolbarGetShowArrow tb = liftM toBool $
-  {#call unsafe toolbar_get_show_arrow#} (toToolbar tb)
+-- * Available since Gtk version 2.4
+--
+toolbarGetShowArrow :: ToolbarClass self => self -> IO Bool
+toolbarGetShowArrow self =
+  liftM toBool $
+  {# call unsafe toolbar_get_show_arrow #}
+    (toToolbar self)
 
 -- | Returns the relief style of buttons on the toolbar. See 'buttonSetRelief'.
 --
-toolbarGetReliefStyle :: ToolbarClass tb => tb -> IO ReliefStyle
-toolbarGetReliefStyle tb = liftM (toEnum.fromIntegral) $
-  {#call unsafe toolbar_get_relief_style#} (toToolbar tb)
+-- * Available since Gtk version 2.4
+--
+toolbarGetReliefStyle :: ToolbarClass self => self -> IO ReliefStyle
+toolbarGetReliefStyle self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe toolbar_get_relief_style #}
+    (toToolbar self)
 #endif
 
 --------------------
@@ -521,7 +645,7 @@ toolbarGetReliefStyle tb = liftM (toEnum.fromIntegral) $
 --
 -- Default value: 'OrientationHorizontal'
 --
-toolbarOrientation :: Attr Toolbar Orientation
+toolbarOrientation :: ToolbarClass self => Attr self Orientation
 toolbarOrientation = Attr 
   toolbarGetOrientation
   toolbarSetOrientation
@@ -530,21 +654,21 @@ toolbarOrientation = Attr
 --
 -- Default value: @True@
 --
-toolbarShowArrow :: Attr Toolbar Bool
+toolbarShowArrow :: ToolbarClass self => Attr self Bool
 toolbarShowArrow = Attr 
   toolbarGetShowArrow
   toolbarSetShowArrow
 
 -- | \'style\' property. See 'toolbarGetStyle' and 'toolbarSetStyle'
 --
-toolbarStyle :: Attr Toolbar ToolbarStyle
+toolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
 toolbarStyle = Attr 
   toolbarGetStyle
   toolbarSetStyle
 
 -- | \'tooltips\' property. See 'toolbarGetTooltips' and 'toolbarSetTooltips'
 --
-toolbarTooltips :: Attr Toolbar Bool
+toolbarTooltips :: ToolbarClass self => Attr self Bool
 toolbarTooltips = Attr 
   toolbarGetTooltips
   toolbarSetTooltips
@@ -552,29 +676,35 @@ toolbarTooltips = Attr
 --------------------
 -- Signals
 
--- | Emitted when toolbarSetOrientation is called.
+-- | Emitted when the orientation of the toolbar changes.
 --
-onOrientationChanged, afterOrientationChanged :: ToolbarClass tb => tb ->
-                                                 (Orientation -> IO ()) ->
-                                                 IO (ConnectId tb)
+onOrientationChanged, afterOrientationChanged :: ToolbarClass self => self
+ -> (Orientation -> IO ())
+ -> IO (ConnectId self)
 onOrientationChanged = connect_ENUM__NONE "orientation-changed" False
 afterOrientationChanged = connect_ENUM__NONE "orientation-changed" True
 
--- | Emitted when toolbarSetStyle is called.
+-- | Emitted when the style of the toolbar changes.
 --
-onStyleChanged, afterStyleChanged :: ToolbarClass tb => tb ->
-                                     (ToolbarStyle -> IO ()) ->
-                                     IO (ConnectId tb)
+onStyleChanged, afterStyleChanged :: ToolbarClass self => self
+ -> (ToolbarStyle -> IO ())
+ -> IO (ConnectId self)
 onStyleChanged = connect_ENUM__NONE "style-changed" False
 afterStyleChanged = connect_ENUM__NONE "style-changed" True
 
 -- | Emitted when the user right-clicks the toolbar or uses the keybinding to
 -- display a popup menu.
 --
--- * The handler should return True if the signal was handled, False if not.
+-- Application developers should handle this signal if they want to display
+-- a context menu on the toolbar. The context-menu should appear at the
+-- coordinates given by @x@ and @y@. The mouse button number is given by the
+-- @button@ parameter. If the menu was popped up using the keybaord, @button@
+-- is -1.
 --
-onPopupContextMenu, afterPopupContextMenu :: ToolbarClass tb => tb ->
-                                             (Int -> Int -> Int -> IO Bool) ->
-                                             IO (ConnectId tb)
+onPopupContextMenu, afterPopupContextMenu :: ToolbarClass self => self
+ -> (Int -> Int -> Int -> IO Bool) -- ^ @(\x y button -> ...)@ - The handler
+                                   -- should return True if the signal was
+                                   -- handled, False if not.
+ -> IO (ConnectId self)
 onPopupContextMenu = connect_INT_INT_INT__BOOL "popup-context-menu" False
 afterPopupContextMenu = connect_INT_INT_INT__BOOL "popup-context-menu" True

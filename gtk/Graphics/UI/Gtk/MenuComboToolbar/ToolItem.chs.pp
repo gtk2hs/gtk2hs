@@ -5,7 +5,7 @@
 --
 --  Created: 1 August 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:50 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,10 +24,12 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- 'ToolItem' is the base class of widgets that can be added to 'Toolbar'.
+-- The base class of widgets that can be added to 'Toolbar'
+--
+-- * Module available since Gtk+ version 2.4
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
--- * Description
+-- * Detail
 -- 
 -- | 'ToolItem's are widgets that can appear on a toolbar. To create a toolbar
 -- item that contain something else than a button, use 'toolItemNew'. Use
@@ -35,8 +37,6 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
 --
 -- For toolbar items that contain buttons, see the 'ToolButton',
 -- 'ToggleToolButton' and 'RadioToolButton' classes.
---
--- * Module available since Gtk version 2.4
 
 -- * Class Hierarchy
 -- |
@@ -96,8 +96,6 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
 #endif
   ) where
 
-#if GTK_CHECK_VERSION(2,4,0)
-
 import Monad	(liftM)
 
 import System.Glib.FFI
@@ -111,14 +109,16 @@ import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..), ReliefS
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Constructors
 
--- | Creates a new "ToolItem".
+-- | Creates a new 'ToolItem'
 --
 toolItemNew :: IO ToolItem
 toolItemNew =
-  makeNewObject mkToolItem {#call unsafe tool_item_new#}
+  makeNewObject mkToolItem $
+  {# call unsafe tool_item_new #}
 
 --------------------
 -- Methods
@@ -127,162 +127,220 @@ toolItemNew =
 -- homogeneous items. The effect is that all homogeneous items will have the
 -- same width as the widest of the items.
 --
-toolItemSetHomogeneous :: ToolItemClass item => item -> Bool -> IO ()
-toolItemSetHomogeneous item homogeneous =
-  {#call tool_item_set_homogeneous#} (toToolItem item) (fromBool homogeneous)
+toolItemSetHomogeneous :: ToolItemClass self => self
+ -> Bool  -- ^ @homogeneous@ - whether @toolItem@ is the same size as other
+          -- homogeneous items
+ -> IO ()
+toolItemSetHomogeneous self homogeneous =
+  {# call tool_item_set_homogeneous #}
+    (toToolItem self)
+    (fromBool homogeneous)
 
 -- | Returns whether the tool item is the same size as other homogeneous items.
+-- See 'toolItemSetHomogeneous'.
 --
-toolItemGetHomogeneous :: ToolItemClass item => item -> IO Bool
-toolItemGetHomogeneous item = liftM toBool $
-  {#call unsafe tool_item_get_homogeneous#} (toToolItem item)
+toolItemGetHomogeneous :: ToolItemClass self => self -> IO Bool
+toolItemGetHomogeneous self =
+  liftM toBool $
+  {# call unsafe tool_item_get_homogeneous #}
+    (toToolItem self)
 
 -- | Sets whether the tool item is allocated extra space when there is more room
 -- on the toolbar then needed for the items. The effect is that the item gets
 -- bigger when the toolbar gets bigger and smaller when the toolbar gets
 -- smaller.
 --
-toolItemSetExpand :: ToolItemClass item => item -> Bool -> IO ()
-toolItemSetExpand item expand = 
-  {#call tool_item_set_expand#} (toToolItem item) (fromBool expand)
+toolItemSetExpand :: ToolItemClass self => self -> Bool -> IO ()
+toolItemSetExpand self expand =
+  {# call tool_item_set_expand #}
+    (toToolItem self)
+    (fromBool expand)
 
--- | Returns whether the tool item is allocated extra space.
+-- | Returns whether the tool item is allocated extra space. See
+-- 'toolItemSetExpand'.
 --
-toolItemGetExpand :: ToolItemClass item => item -> IO Bool
-toolItemGetExpand item = liftM toBool $
-  {#call unsafe tool_item_get_expand#} (toToolItem item)
+toolItemGetExpand :: ToolItemClass self => self -> IO Bool
+toolItemGetExpand self =
+  liftM toBool $
+  {# call unsafe tool_item_get_expand #}
+    (toToolItem self)
 
--- | Sets the "Tooltips" object to be used for the tool item, the text to be
+-- | Sets the 'Tooltips' object to be used for the tool item, the text to be
 -- displayed as tooltip on the item and the private text to be used. See
 -- 'tooltipsSetTip'.
 --
-toolItemSetTooltip :: ToolItemClass item => item -> Tooltips
-                   -> String  -- ^ 
-                   -> String  -- ^ 
-                   -> IO ()
-toolItemSetTooltip item tips text private =
-  withUTFString text $ \strPtr1 ->
-  withUTFString private $ \strPtr2 ->
-  {#call tool_item_set_tooltip#} (toToolItem item) tips strPtr1 strPtr2
+toolItemSetTooltip :: ToolItemClass self => self
+ -> Tooltips -- ^ @tooltips@ - The 'Tooltips' object to be used
+ -> String   -- ^ @tipText@ - text to be used as tooltip text for @toolItem@
+ -> String   -- ^ @tipPrivate@ - text to be used as private tooltip text
+ -> IO ()
+toolItemSetTooltip self tooltips tipText tipPrivate =
+  withUTFString tipPrivate $ \tipPrivatePtr ->
+  withUTFString tipText $ \tipTextPtr ->
+  {# call tool_item_set_tooltip #}
+    (toToolItem self)
+    tooltips
+    tipTextPtr
+    tipPrivatePtr
 
--- | Sets whether toolitem has a drag window. When True the tool item can be
+-- | Sets whether toolitem has a drag window. When @True@ the tool item can be
 -- used as a drag source through 'dragSourceSet'. When the tool item has a drag
 -- window it will intercept all events, even those that would otherwise be sent
 -- to a child widget.
 --
-toolItemSetUseDragWindow :: ToolItemClass item => item -> Bool -> IO ()
-toolItemSetUseDragWindow item useDragWin = 
-  {#call tool_item_set_use_drag_window#} (toToolItem item) (fromBool useDragWin)
+toolItemSetUseDragWindow :: ToolItemClass self => self -> Bool -> IO ()
+toolItemSetUseDragWindow self useDragWindow =
+  {# call tool_item_set_use_drag_window #}
+    (toToolItem self)
+    (fromBool useDragWindow)
 
 -- | Returns whether the tool item has a drag window. See
 -- 'toolItemSetUseDragWindow'.
 --
-toolItemGetUseDragWindow :: ToolItemClass item => item -> IO Bool
-toolItemGetUseDragWindow item = liftM toBool $
-  {#call unsafe tool_item_get_use_drag_window#} (toToolItem item)
+toolItemGetUseDragWindow :: ToolItemClass self => self -> IO Bool
+toolItemGetUseDragWindow self =
+  liftM toBool $
+  {# call unsafe tool_item_get_use_drag_window #}
+    (toToolItem self)
 
 -- | Sets whether the tool item is visible when the toolbar is docked
 -- horizontally.
 --
-toolItemSetVisibleHorizontal :: ToolItemClass item => item -> Bool -> IO ()
-toolItemSetVisibleHorizontal item visible = 
-  {#call tool_item_set_visible_horizontal#} (toToolItem item) (fromBool visible)
+toolItemSetVisibleHorizontal :: ToolItemClass self => self -> Bool -> IO ()
+toolItemSetVisibleHorizontal self visibleHorizontal =
+  {# call tool_item_set_visible_horizontal #}
+    (toToolItem self)
+    (fromBool visibleHorizontal)
 
 -- | Returns whether the tool item is visible on toolbars that are docked
 -- horizontally.
 --
-toolItemGetVisibleHorizontal :: ToolItemClass item => item -> IO Bool
-toolItemGetVisibleHorizontal item = liftM toBool $
-  {#call unsafe tool_item_get_visible_horizontal#} (toToolItem item)
+toolItemGetVisibleHorizontal :: ToolItemClass self => self -> IO Bool
+toolItemGetVisibleHorizontal self =
+  liftM toBool $
+  {# call unsafe tool_item_get_visible_horizontal #}
+    (toToolItem self)
 
--- | Sets whether the tool item is visible when the toolbar is docked
--- vertically. Some tool items, such as text entries, are too wide to be useful
--- on a vertically docked toolbar. If False the tool item will not appear on
--- toolbars that are docked vertically.
+-- | Sets whether the tool item is visible when the toolbar is docked vertically.
+-- Some tool items, such as text entries, are too wide to be useful on a
+-- vertically docked toolbar. If @False@ the tool item will
+-- not appear on toolbars that are docked vertically.
 --
-toolItemSetVisibleVertical :: ToolItemClass item => item -> Bool -> IO ()
-toolItemSetVisibleVertical item visible = 
-  {#call tool_item_set_visible_vertical#} (toToolItem item) (fromBool visible)
+toolItemSetVisibleVertical :: ToolItemClass self => self -> Bool -> IO ()
+toolItemSetVisibleVertical self visibleVertical =
+  {# call tool_item_set_visible_vertical #}
+    (toToolItem self)
+    (fromBool visibleVertical)
 
 -- | Returns whether the tool item is visible when the toolbar is docked
--- vertically.
+-- vertically. See 'toolItemSetVisibleVertical'.
 --
-toolItemGetVisibleVertical :: ToolItemClass item => item -> IO Bool
-toolItemGetVisibleVertical item = liftM toBool $
-  {#call unsafe tool_item_get_visible_vertical#} (toToolItem item)
+toolItemGetVisibleVertical :: ToolItemClass self => self -> IO Bool
+toolItemGetVisibleVertical self =
+  liftM toBool $
+  {# call unsafe tool_item_get_visible_vertical #}
+    (toToolItem self)
 
 -- | Sets whether the tool item should be considered important. The "ToolButton"
 -- class uses this property to determine whether to show or hide its label when
--- the toolbar style is 'ToolbarBothHoriz'. The result is that only tool buttons
--- with the \"is important\" property set have labels, an effect known as
--- \"priority text\".
+-- the toolbar style is 'ToolbarBothHoriz'. The result is that only tool
+-- buttons with the \"is important\" property set have labels, an effect known
+-- as \"priority text\".
 --
-toolItemSetIsImportant :: ToolItemClass item => item -> Bool -> IO ()
-toolItemSetIsImportant item important = 
-  {#call tool_item_set_is_important#} (toToolItem item) (fromBool important)
+toolItemSetIsImportant :: ToolItemClass self => self -> Bool -> IO ()
+toolItemSetIsImportant self isImportant =
+  {# call tool_item_set_is_important #}
+    (toToolItem self)
+    (fromBool isImportant)
 
--- | Returns whether the tool item is considered important.
+-- | Returns whether the tool item is considered important. See
+-- 'toolItemSetIsImportant'
 --
-toolItemGetIsImportant :: ToolItemClass item => item -> IO Bool
-toolItemGetIsImportant item = liftM toBool $
-  {#call unsafe tool_item_get_is_important#} (toToolItem item)
+toolItemGetIsImportant :: ToolItemClass self => self -> IO Bool
+toolItemGetIsImportant self =
+  liftM toBool $
+  {# call unsafe tool_item_get_is_important #}
+    (toToolItem self)
 
 -- | Returns the icon size used for the tool item.
 --
-toolItemGetIconSize :: ToolItemClass item => item -> IO IconSize
-toolItemGetIconSize item = liftM (toEnum.fromIntegral) $
-  {#call unsafe tool_item_get_icon_size#} (toToolItem item)
+toolItemGetIconSize :: ToolItemClass self => self -> IO IconSize
+toolItemGetIconSize self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe tool_item_get_icon_size #}
+    (toToolItem self)
 
 -- | Returns the orientation used for the tool item.
 --
-toolItemGetOrientation :: ToolItemClass item => item -> IO Orientation
-toolItemGetOrientation item = liftM (toEnum.fromIntegral) $
-  {#call unsafe tool_item_get_orientation#} (toToolItem item)
+toolItemGetOrientation :: ToolItemClass self => self -> IO Orientation
+toolItemGetOrientation self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe tool_item_get_orientation #}
+    (toToolItem self)
 
 -- | Returns the toolbar style used for the tool item.
 --
-toolItemGetToolbarStyle :: ToolItemClass item => item -> IO ToolbarStyle
-toolItemGetToolbarStyle item = liftM (toEnum.fromIntegral) $
-  {#call unsafe tool_item_get_toolbar_style#} (toToolItem item)
+-- Possibilities are:
+-- ['ToolbarBoth'] meaning the tool item should show both an icon and a label,
+-- stacked vertically
+-- ['ToolbarIcons'] meaning the toolbar shows only icons
+-- ['ToolbarText'] meaning the tool item should only show text
+-- ['ToolbarBothHoriz'] meaning the tool item should show both an icon and a
+-- label, arranged horizontally
+--
+toolItemGetToolbarStyle :: ToolItemClass self => self -> IO ToolbarStyle
+toolItemGetToolbarStyle self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe tool_item_get_toolbar_style #}
+    (toToolItem self)
 
 -- | Returns the relief style of the tool item. See 'buttonSetReliefStyle'.
 --
-toolItemGetReliefStyle :: ToolItemClass item => item -> IO ReliefStyle
-toolItemGetReliefStyle item = liftM (toEnum.fromIntegral) $
-  {#call unsafe tool_item_get_relief_style#} (toToolItem item)
+toolItemGetReliefStyle :: ToolItemClass self => self -> IO ReliefStyle
+toolItemGetReliefStyle self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe tool_item_get_relief_style #}
+    (toToolItem self)
 
--- | Returns the "MenuItem" that was last set by 'toolItemSetProxyMenuItem',
--- ie. the "MenuItem" that is going to appear in the overflow menu.
+-- | Returns the 'MenuItem' that was last set by 'toolItemSetProxyMenuItem',
+-- ie. the 'MenuItem' that is going to appear in the overflow menu.
 --
-toolItemRetrieveProxyMenuItem :: ToolItemClass item => item -> IO (Maybe Widget)
-toolItemRetrieveProxyMenuItem item = do
-  wPtr <- {#call unsafe tool_item_retrieve_proxy_menu_item#} (toToolItem item)
-  if wPtr==nullPtr then return Nothing else liftM Just $
-    makeNewObject mkWidget $ return wPtr
+toolItemRetrieveProxyMenuItem :: ToolItemClass self => self -> IO (Maybe Widget)
+toolItemRetrieveProxyMenuItem self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call unsafe tool_item_retrieve_proxy_menu_item #}
+    (toToolItem self)
 
--- | If the menu item identifier string matches the string passed to
--- 'toolItemSetProxyMenuItem' the returns the corresponding "MenuItem".
+-- | If @menuItemId@ matches the string passed to 'toolItemSetProxyMenuItem'
+-- return the corresponding 'MenuItem'.
 --
-toolItemGetProxyMenuItem :: ToolItemClass item => item -> String -> IO (Maybe Widget)
-toolItemGetProxyMenuItem item itemId =
-  withCString itemId $ \strPtr -> do
-  wPtr <- {#call unsafe tool_item_get_proxy_menu_item#} (toToolItem item) strPtr
-  if wPtr==nullPtr then return Nothing else liftM Just $
-    makeNewObject mkWidget $ return wPtr
+toolItemGetProxyMenuItem :: ToolItemClass self => self
+ -> String            -- ^ @menuItemId@ - a string used to identify the menu
+                      -- item
+ -> IO (Maybe Widget) -- ^ returns The 'MenuItem' passed to
+                      -- 'toolItemSetProxyMenuItem', if the @menuItemId@s
+                      -- match.
+toolItemGetProxyMenuItem self menuItemId =
+  maybeNull (makeNewObject mkWidget) $
+  withCString menuItemId $ \menuItemIdPtr ->
+  {# call unsafe tool_item_get_proxy_menu_item #}
+    (toToolItem self)
+    menuItemIdPtr
 
--- | Sets the "MenuItem" used in the toolbar overflow menu. The menu item identifier
+-- | Sets the 'MenuItem' used in the toolbar overflow menu. The @menuItemId@
 -- is used to identify the caller of this function and should also be used with
 -- 'toolItemGetProxyMenuItem'.
 --
-toolItemSetProxyMenuItem :: (ToolItemClass item, MenuItemClass menuItem) => item
-                         -> String   -- ^ Menu item identifier string
-                         -> menuItem -- ^ A "MenuItem" to be used in the
-                                     -- overflow menu
-                         -> IO ()
-toolItemSetProxyMenuItem item menuItemId menuItem = 
-  withCString menuItemId $ \strPtr ->
-  {#call tool_item_set_proxy_menu_item#} (toToolItem item)
-    strPtr (toWidget menuItem)
+toolItemSetProxyMenuItem :: (ToolItemClass self, MenuItemClass menuItem) => self
+ -> String   -- ^ @menuItemId@ - a string used to identify @menuItem@
+ -> menuItem -- ^ @menuItem@ - a 'MenuItem' to be used in the overflow menu
+ -> IO ()
+toolItemSetProxyMenuItem self menuItemId menuItem =
+  withCString menuItemId $ \menuItemIdPtr ->
+  {# call tool_item_set_proxy_menu_item #}
+    (toToolItem self)
+    menuItemIdPtr
+    (toWidget menuItem)
 
 --------------------
 -- Properties
@@ -292,7 +350,7 @@ toolItemSetProxyMenuItem item menuItemId menuItem =
 --
 -- Default value: @True@
 --
-toolItemVisibleHorizontal :: Attr ToolItem Bool
+toolItemVisibleHorizontal :: ToolItemClass self => Attr self Bool
 toolItemVisibleHorizontal = Attr 
   toolItemGetVisibleHorizontal
   toolItemSetVisibleHorizontal
@@ -302,7 +360,7 @@ toolItemVisibleHorizontal = Attr
 --
 -- Default value: @True@
 --
-toolItemVisibleVertical :: Attr ToolItem Bool
+toolItemVisibleVertical :: ToolItemClass self => Attr self Bool
 toolItemVisibleVertical = Attr 
   toolItemGetVisibleVertical
   toolItemSetVisibleVertical
@@ -312,14 +370,14 @@ toolItemVisibleVertical = Attr
 --
 -- Default value: @False@
 --
-toolItemIsImportant :: Attr ToolItem Bool
+toolItemIsImportant :: ToolItemClass self => Attr self Bool
 toolItemIsImportant = Attr 
   toolItemGetIsImportant
   toolItemSetIsImportant
 
 -- | \'expand\' property. See 'toolItemGetExpand' and 'toolItemSetExpand'
 --
-toolItemExpand :: Attr ToolItem Bool
+toolItemExpand :: ToolItemClass self => Attr self Bool
 toolItemExpand = Attr 
   toolItemGetExpand
   toolItemSetExpand
@@ -327,7 +385,7 @@ toolItemExpand = Attr
 -- | \'homogeneous\' property. See 'toolItemGetHomogeneous' and
 -- 'toolItemSetHomogeneous'
 --
-toolItemHomogeneous :: Attr ToolItem Bool
+toolItemHomogeneous :: ToolItemClass self => Attr self Bool
 toolItemHomogeneous = Attr 
   toolItemGetHomogeneous
   toolItemSetHomogeneous
@@ -335,7 +393,7 @@ toolItemHomogeneous = Attr
 -- | \'useDragWindow\' property. See 'toolItemGetUseDragWindow' and
 -- 'toolItemSetUseDragWindow'
 --
-toolItemUseDragWindow :: Attr ToolItem Bool
+toolItemUseDragWindow :: ToolItemClass self => Attr self Bool
 toolItemUseDragWindow = Attr 
   toolItemGetUseDragWindow
   toolItemSetUseDragWindow
