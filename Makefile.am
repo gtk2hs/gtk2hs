@@ -134,7 +134,7 @@ $(tools_c2hs_c2hsLocal_NAME) : NAME = tools_c2hs_c2hsLocal
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
 tools_c2hs_c2hsLocal_PACKAGEDEPS	= 
 tools_c2hs_c2hsLocal_HEADER		= tools/c2hs/toplevel/c2hs_config.h
-tools_c2hs_c2hsLocal_HCFLAGS		= -fglasgow-exts -fffi
+tools_c2hs_c2hsLocal_HCFLAGS		= 
 
 tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/base/admin/BaseVersion.hs	\
@@ -185,6 +185,9 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/toplevel/Version.hs		\
 	tools/c2hs/toplevel/C2HSConfig.hs	\
 	tools/c2hs/toplevel/c2hs_config.c
+
+tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
+tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi
 
 tools_c2hs_c2hsLocal_HSFILES		= \
 	$(filter %.hs,$(tools_c2hs_c2hsLocal_SOURCES))

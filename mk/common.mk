@@ -16,7 +16,8 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 
 .hs.o: $(CONFIG_H)
 	@echo Building for $(NAME)
-	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) -i$(VPATH) \
+	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
+	$(call getVar,$<,HCFLAGS) -i$(VPATH) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	$(addprefix -package-name ,$(notdir $(basename $($(NAME)_PACKAGE)))) \
 	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
