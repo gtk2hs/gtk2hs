@@ -2,7 +2,8 @@ module CodeGen (
   genModuleBody,
   genExports,
   genTodoItems,
-  makeKnownTypesMap
+  makeKnownSymbolsMap,
+  mungeMethodInfo
   ) where
 
 import Api
@@ -13,23 +14,28 @@ import StringUtils
 import ModuleScan
 
 import Prelude hiding (Enum, lines)
-import List   (groupBy, sortBy, isPrefixOf)
+import List   (groupBy, sortBy, isPrefixOf, isSuffixOf)
+import Maybe  (isNothing)
+import Data.FiniteMap
 
 import Debug.Trace (trace)
 
 -------------------------------------------------------------------------------
 -- Now lets actually generate some code fragments based on the api info
 -------------------------------------------------------------------------------
-genFunction :: KnownTypes -> Method -> Maybe FuncDoc -> Maybe MethodInfo -> ShowS
-genFunction knownTypes method doc info =
+genFunction :: KnownSymbols -> Method -> Maybe FuncDoc -> Maybe MethodInfo -> ShowS
+genFunction knownSymbols method doc info =
   formattedDoc.
+  (if method_deprecated method
+     then ss "-- * Warning this function is deprecated\n--\n"
+     else id).
   ss functionName. ss " :: ". functionType. nl.
   ss functionName. sc ' '. sepBy " " paramNames. ss " =".
   indent 1. body
 
   where functionName = cFuncNameToHsName (method_cname method)
 	(classConstraints', paramTypes', paramMarshalers) =
-	  unzip3 [ case genMarshalParameter knownTypes
+	  unzip3 [ case genMarshalParameter knownSymbols
                           (changeIllegalNames (cParamNameToHsName (parameter_name p)))
 	                  (parameter_type p) of
                      (c, ty, m) -> (c, (ty, parameter_name p), m)
@@ -40,7 +46,7 @@ genFunction knownTypes method doc info =
 	paramNames = [ changeIllegalNames (cParamNameToHsName (parameter_name p))
 		     | ((Just _, _), p) <- zip paramTypes' (method_parameters method) ]
 	(returnType', returnMarshaler) =
-		genMarshalResult knownTypes (method_return_type method)
+		genMarshalResult knownSymbols (method_return_type method)
         returnType = (returnType', lookup "Returns" paramDocMap)
 	functionType = (case classConstraints of
 	                  []  -> id
@@ -55,7 +61,7 @@ genFunction knownTypes method doc info =
                   Just info -> if methodinfo_unsafe info then ss "unsafe " else id
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas (funcdoc_paragraphs doc). nl.
+          Just doc -> ss "-- | ". haddocFormatParas knownSymbols (funcdoc_paragraphs doc). nl.
                       comment. nl
         paramDocMap = case doc of
           Nothing  -> []
@@ -91,41 +97,44 @@ genFunction knownTypes method doc info =
                     sepBy' ("\n" ++ replicate (columnIndent+5) ' ' ++  "-- ")
                   . map (sepBy " ")
                   . wrapText 3 (80 - columnIndent - 8)
+                  . map (mungeWord knownSymbols)
                   . words
-                  . concatMap haddocFormatSpan
+                  . concatMap (haddocFormatSpan knownSymbols)
                 columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
 
-genModuleBody :: String -> KnownTypes -> Object -> ModuleDoc -> ModuleInfo -> ShowS
-genModuleBody modPrefix knownTypes object apiDoc modInfo =
+genModuleBody :: KnownSymbols -> Object -> ModuleDoc -> ModuleInfo -> ShowS
+genModuleBody knownSymbols object apiDoc modInfo =
   doVersionIfDefs (sepBy' "\n\n") $
-     genConstructors knownTypes object (moduledoc_functions apiDoc)
-  ++ genMethods knownTypes object (moduledoc_functions apiDoc)
-       (mungeMethodInfo modPrefix object (module_methods modInfo))
-  ++ genProperties knownTypes object (moduledoc_properties apiDoc)
-  ++ genSignals knownTypes object (moduledoc_signals apiDoc)
+     genConstructors knownSymbols object (moduledoc_functions apiDoc)
+  ++ genMethods knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo)
+  ++ genProperties knownSymbols object (moduledoc_properties apiDoc)
+  ++ genSignals knownSymbols object (moduledoc_signals apiDoc)
 
 -- fixup the names of the C functions we got from scaning the original modules
 -- we want the fully qualified "gtk_foo_bar" rather than "foo_bar" so that the
 -- names match up consistently with the ones from the API xml file.
-mungeMethodInfo :: String -> Object -> [MethodInfo] -> [MethodInfo]
-mungeMethodInfo nameSpacePrefix object =
-  map (\methodInfo -> if methodinfo_cname methodInfo `elem` shortMethodNames
-                        then methodInfo {
-                               methodinfo_cname = prefix ++ methodinfo_cname methodInfo
-                             }
-                        else methodInfo)
+mungeMethodInfo :: Object -> ModuleInfo -> ModuleInfo
+mungeMethodInfo object modInfo =
+  modInfo {
+    module_methods = map (\methodInfo -> 
+                       if methodinfo_cname methodInfo `elem` shortMethodNames
+                         then methodInfo {
+                                methodinfo_cname = prefix ++ methodinfo_cname methodInfo
+                              }
+                         else methodInfo) (module_methods modInfo)
+  }
   where shortMethodNames = map (stripPrefix . method_cname) (object_methods object)
         stripPrefix cname | prefix `isPrefixOf` cname = drop (length prefix) cname
                           | otherwise = cname
-        prefix = nameSpacePrefix ++ "_"
+        prefix = module_context_prefix modInfo ++ "_"
 
-genMethods :: KnownTypes -> Object -> [FuncDoc] -> [MethodInfo] -> [(ShowS, Since)]
-genMethods knownTypes object apiDoc methodInfo = 
-  [ (genFunction knownTypes method doc info, maybe "" funcdoc_since doc)
-  | (method, doc, info) <- methods object apiDoc methodInfo]
+genMethods :: KnownSymbols -> Object -> [FuncDoc] -> [MethodInfo] -> [(ShowS, (Since, Deprecated))]
+genMethods knownSymbols object apiDoc methodInfo = 
+  [ (genFunction knownSymbols method doc info, (maybe "" funcdoc_since doc, method_deprecated method))
+  | (method, doc, info) <- methods object apiDoc methodInfo True]
 
-methods :: Object -> [FuncDoc] -> [MethodInfo] -> [(Method, Maybe FuncDoc, Maybe MethodInfo)]
-methods object docs methodsInfo =
+methods :: Object -> [FuncDoc] -> [MethodInfo] -> Bool -> [(Method, Maybe FuncDoc, Maybe MethodInfo)]
+methods object docs methodsInfo sortByExisting =
   map snd $
   sortBy (comparing fst)
   [ let (doc, docIndex) = case lookup (method_cname method) docmap of
@@ -133,10 +142,14 @@ methods object docs methodsInfo =
                             Just (doc, index) -> (Just doc, index)
         (info,infoIndex)= case lookup (method_cname method) infomap of
                             Nothing -> (Nothing, endInfoIndex)
-                            Just (info, index) -> (Just info, index)                            
-     in ((infoIndex,docIndex),(mungeMethod object method, doc, info))
+                            Just (info, index) -> (Just info, index)
+        index | sortByExisting = (infoIndex, docIndex) --preserve order from existing module
+              | otherwise      = (docIndex, infoIndex) --use gtk-doc order
+     in (index,(mungeMethod object method, doc, info))
   | method <- object_methods object
-  , null [ () | VarArgs <- method_parameters method] ] --exclude VarArgs methods
+  , null [ () | VarArgs <- method_parameters method]   --exclude VarArgs methods
+  , not ("_get_type" `isSuffixOf` method_cname method && method_shared method)
+  , not (method_deprecated method && isNothing (lookup (method_cname method) infomap)) ]
   where docmap =  [ (funcdoc_name doc, (doc,index))
                   | (doc,index) <- zip docs [1..] ]
         infomap = [ (methodinfo_cname info, (info,index))
@@ -156,9 +169,9 @@ mungeMethod object method =
         method_parameters = self : method_parameters method
       } 
 
-genConstructors :: KnownTypes -> Object -> [FuncDoc] -> [(ShowS, Since)]
-genConstructors knownTypes object apiDoc =
-  [ (genFunction knownTypes constructor doc Nothing, maybe "" funcdoc_since doc)
+genConstructors :: KnownSymbols -> Object -> [FuncDoc] -> [(ShowS, (Since, Deprecated))]
+genConstructors knownSymbols object apiDoc =
+  [ (genFunction knownSymbols constructor doc Nothing, (maybe "" funcdoc_since doc, notDeprecated))
   | (constructor, doc) <- constructors object apiDoc ]
 
 constructors :: Object -> [FuncDoc] -> [(Method, Maybe FuncDoc)]
@@ -174,7 +187,9 @@ mungeConstructor object constructor =
     method_name = cFuncNameToHsName (constructor_cname constructor),
     method_cname = constructor_cname constructor,
     method_return_type = object_cname object ++ "*",
-    method_parameters = constructor_parameters constructor
+    method_parameters = constructor_parameters constructor,
+    method_shared = False,
+    method_deprecated = False
   }  
 
 properties :: Object -> [PropDoc] -> [(Property, Maybe PropDoc)]
@@ -186,13 +201,13 @@ properties object docs =
         dashToUnderscore '-' = '_'
         dashToUnderscore  c  =  c
 
-genProperties :: KnownTypes -> Object -> [PropDoc] -> [(ShowS, Since)]
-genProperties knownTypes object apiDoc = 
-  [ (genProperty knownTypes object property doc, maybe "" propdoc_since doc)
+genProperties :: KnownSymbols -> Object -> [PropDoc] -> [(ShowS, (Since, Deprecated))]
+genProperties knownSymbols object apiDoc = 
+  [ (genProperty knownSymbols object property doc, (maybe "" propdoc_since doc, notDeprecated))
   | (property, doc) <- properties object apiDoc ]
 
-genProperty :: KnownTypes -> Object -> Property -> Maybe PropDoc -> ShowS
-genProperty knownTypes object property doc = 
+genProperty :: KnownSymbols -> Object -> Property -> Maybe PropDoc -> ShowS
+genProperty knownSymbols object property doc = 
   formattedDoc.
   ss propertyName. ss " :: Attr ". objectType. sc ' '. ss propertyType. nl.
   ss propertyName. ss " = Attr ". 
@@ -201,13 +216,13 @@ genProperty knownTypes object property doc =
   where objectType = ss (object_name object)
         propertyName = cFuncNameToHsName (property_cname property)
         getter = ss "(\\obj -> do ". ss gvalueConstructor. ss " result <- objectGetProperty \"". ss (property_cname property). ss "\"".
-                 indent 7. ss "return result"
+                 indent 7. ss "return result)"
         setter = ss "(\\obj val -> objectSetProperty obj \"". ss (property_cname property). ss "\" (". ss gvalueConstructor. ss " val))"
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas (propdoc_paragraphs doc). nl.
+          Just doc -> ss "-- | ". haddocFormatParas knownSymbols (propdoc_paragraphs doc). nl.
                       comment. nl
-        (propertyType, gvalueConstructor) = genMarshalProperty knownTypes (property_type property)
+        (propertyType, gvalueConstructor) = genMarshalProperty knownSymbols (property_type property)
 
 signals :: Object -> [SignalDoc] -> [(Signal, Maybe SignalDoc)]
 signals object docs =
@@ -218,13 +233,13 @@ signals object docs =
         dashToUnderscore '-' = '_'
         dashToUnderscore  c  =  c
 
-genSignals :: KnownTypes -> Object -> [SignalDoc] -> [(ShowS, Since)]
-genSignals knownTypes object apiDoc = 
-  [ (genSignal object signal doc, maybe "" signaldoc_since doc)
+genSignals :: KnownSymbols -> Object -> [SignalDoc] -> [(ShowS, (Since, Deprecated))]
+genSignals knownSymbols object apiDoc = 
+  [ (genSignal knownSymbols object signal doc, (maybe "" signaldoc_since doc, notDeprecated))
   | (signal, doc) <- signals object apiDoc ] 
 
-genSignal :: Object -> Signal -> Maybe SignalDoc -> ShowS
-genSignal object property doc = 
+genSignal :: KnownSymbols -> Object -> Signal -> Maybe SignalDoc -> ShowS
+genSignal knownSymbols object property doc = 
   formattedDoc.
   ss "on". signalName. ss ", after". signalName. ss " :: ". nl.
   ss "on".    signalName. ss " = connect_{-type-}". connectType. sc ' '. signalCName. ss " False". nl.
@@ -235,30 +250,35 @@ genSignal object property doc =
         signalCName = sc '"'. ss (signal_cname property). sc '"'
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas (signaldoc_paragraphs doc). nl.
+          Just doc -> ss "-- | ". haddocFormatParas knownSymbols (signaldoc_paragraphs doc). nl.
                       comment. nl
 
-makeKnownTypesMap :: API -> KnownTypes
-makeKnownTypesMap api =
-  concat
-  [ [ (enum_name enum
+makeKnownSymbolsMap :: API -> KnownSymbols
+makeKnownSymbolsMap api =
+   (listToFM
+  . reverse
+  . concat)
+  [ [ (enum_cname enum
       ,case enum_variety enum of
-        "enum" -> EnumKind
-        "flags" -> FlagsKind)
+        EnumVariety -> SymEnumType EnumKind
+        FlagsVariety -> SymEnumType FlagsKind)
     | enum <- namespace_enums namespace ]
- ++ [ (object_name object, objectKind object)
+ ++ [ (object_cname object, objectKind object)
     | object <- namespace_objects namespace ]
+ ++ [ ("GObject", SymObjectType GObjectKind) ]
+ ++ [ (member_cname member, SymEnumValue)
+    | enum <- namespace_enums namespace
+    , member <- enum_members enum ]
   | namespace <- api ]
 
         -- find if an object inherits via GtkObject or directly from GObject
-  where objectKind :: Object -> CTypeKind
+  where objectKind :: Object -> CSymbol
         objectKind object = lookup (objectParents object)
           where lookup [] = trace ( "Warning: " ++ object_name object
                                  ++ " does not inherit from GObject! "
-                                 ++ show (objectParents object)) GObjectKind
-                lookup ("GTypeModule":os) = GObjectKind -- GTypeModule is a GObject
-                lookup ("GObject":os) = GObjectKind
-                lookup ("GtkObject":os) = GtkObjectKind
+                                 ++ show (objectParents object)) SymStructType
+                lookup ("GObject":os) = SymObjectType GObjectKind
+                lookup ("GtkObject":os) = SymObjectType GtkObjectKind
                 lookup (_:os) = lookup os
         objectParents :: Object -> [String]
         objectParents object = object_cname object :
@@ -270,26 +290,27 @@ makeKnownTypesMap api =
                     | namespace <- api
                     , object <- namespace_objects namespace ]
 
-genExports :: Object -> ModuleDoc -> ShowS
-genExports object docs =
+genExports :: Object -> ModuleDoc -> ModuleInfo -> ShowS
+genExports object docs modInfo =
   comment.ss "* Types".
   indent 1.ss (object_name object).sc ','.
   indent 1.ss (object_name object).ss "Class,".
   indent 1.ss "castTo".ss (object_name object).sc ','.
   (case [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ','
-          ,maybe "" funcdoc_since doc)
+          ,(maybe "" funcdoc_since doc, notDeprecated))
         | (constructor, doc) <- constructors object (moduledoc_functions docs)] of
      [] -> id
      cs -> nl.nl.comment.ss "* Constructors".nl.
            doVersionIfDefs lines cs).
   (case [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ','
-          ,maybe "" funcdoc_since doc)
-        | (method, doc, _) <- methods object (moduledoc_functions docs) []] of
+          ,(maybe "" funcdoc_since doc, method_deprecated method))
+        | (method, doc, _) <- methods object (moduledoc_functions docs)
+                                (module_methods modInfo) False] of
      [] -> id
      cs -> nl.nl.comment.ss "* Methods".nl.
            doVersionIfDefs lines cs).
   (case [ (ss "  ". ss (cFuncNameToHsName (property_cname property)). sc ','
-          ,maybe "" propdoc_since doc)
+          ,(maybe "" propdoc_since doc, notDeprecated))
         | (property, doc) <- properties object (moduledoc_properties docs)] of
      [] -> id
      cs -> nl.nl.comment.ss "* Properties".nl.
@@ -297,7 +318,7 @@ genExports object docs =
   (case [ let signalName = (upperCaseFirstChar . cFuncNameToHsName . signal_cname) signal in 
           (ss "  on".    ss signalName. sc ','.nl.
            ss "  after". ss signalName. sc ','
-          ,maybe "" signaldoc_since doc)
+          ,(maybe "" signaldoc_since doc, notDeprecated))
         | (signal, doc) <- signals object (moduledoc_signals docs)] of
      [] -> id
      cs -> nl.nl.comment.ss "* Signals".nl.
@@ -319,11 +340,16 @@ genTodoItems object =
              ss "TODO: the following varargs functions were not bound\n".
              lines (map (ss "-- * ".) varargsFunctions)
 
-doVersionIfDefs :: ([ShowS] -> ShowS) -> [(ShowS, Since)] -> ShowS
+type Deprecated = Bool
+notDeprecated = False
+
+doVersionIfDefs :: ([ShowS] -> ShowS) -> [(ShowS, (Since, Deprecated))] -> ShowS
 doVersionIfDefs lines =
     lines
-  . map (\group -> sinceVersion (snd (head group))
-                                (lines (map fst group)))
+  . map (\group@((_,(since, deprecated)):_) ->
+             sinceVersion since
+           . ifdefDeprecated deprecated
+           $ (lines (map fst group)))
   . groupBy (\(_,a) (_,b) -> a == b)
  
 sinceVersion :: Since -> ShowS -> ShowS
@@ -332,6 +358,13 @@ sinceVersion [major,'.',minor] body =
   body.
   ss "\n#endif"
 sinceVersion _ body = body
+
+ifdefDeprecated :: Deprecated -> ShowS -> ShowS
+ifdefDeprecated True body =
+  ss "#ifndef DISABLE_DEPRECATED\n".
+  body.
+  ss "\n#endif"
+ifdefDeprecated _ body = body
 
 comparing :: (Ord a) => (b -> a) -> b -> b -> Ordering
 comparing p x y = compare (p x) (p y)

@@ -2,6 +2,7 @@ module Api (
   API,
   NameSpace(..),
   Enum(..),
+  EnumVariety(..),
   Member(..),
   Object(..),
   Constructor(..),
@@ -32,9 +33,12 @@ data NameSpace = NameSpace {
 data Enum = Enum {
     enum_name :: String,
     enum_cname :: String,
-    enum_variety :: String,
+    enum_variety :: EnumVariety,
     enum_members :: [Member]
  } deriving Show
+
+data EnumVariety = EnumVariety | FlagsVariety
+   deriving Show
 
 data Member = Member {
     member_name :: String,
@@ -49,7 +53,9 @@ data Object = Object {
     object_constructors :: [Constructor],
     object_methods :: [Method],
     object_properties :: [Property],
-    object_signals :: [Signal]
+    object_signals :: [Signal],
+    object_deprecated :: Bool,
+    object_isinterface ::Bool
   } deriving Show
 
 data Constructor = Constructor {
@@ -69,7 +75,9 @@ data Method = Method {
     method_name :: String,
     method_cname :: String,
     method_return_type :: String,
-    method_parameters :: [Parameter]
+    method_parameters :: [Parameter],
+    method_shared :: Bool,            --TODO: figure out what this means!
+    method_deprecated :: Bool
   } deriving Show
 
 data Property = Property {
@@ -116,37 +124,47 @@ extractEnum (Xml.CElem (Xml.Elem "enum"
   Just $ Enum {
     enum_name = Xml.verbatim name,
     enum_cname = Xml.verbatim cname,
-    enum_variety = Xml.verbatim variety,
+    enum_variety = case Xml.verbatim variety of
+                     "enum" -> EnumVariety
+                     "flags" -> FlagsVariety,
     enum_members = map extractEnumMember members
   }
 extractEnum _ = Nothing
 
 extractEnumMember :: Xml.Content -> Member
-extractEnumMember (Xml.CElem (Xml.Elem "enum"
-                     (("name", Xml.AttValue name):
-                      ("cname", Xml.AttValue cname):value) [])) =
+extractEnumMember (Xml.CElem (Xml.Elem "member"
+                     (("cname", Xml.AttValue cname):
+                      ("name", Xml.AttValue name):value) [])) =
   Member {
     member_name = Xml.verbatim name,
     member_cname = Xml.verbatim cname,
     member_value =
       case value of
         [] -> ""
-        [("cname", Xml.AttValue value)] -> Xml.verbatim value
+        [("value", Xml.AttValue value)] -> Xml.verbatim value
   }
 
 extractObject :: Xml.Content -> Maybe Object
 extractObject (Xml.CElem (Xml.Elem "object"
-                     [("name", Xml.AttValue name),
-                      ("cname", Xml.AttValue cname),
-                      ("parent", Xml.AttValue parent)] content)) =
-  Just $ Object {
+                     (("name", Xml.AttValue name):
+                      ("cname", Xml.AttValue cname):
+                      remainder) content)) =
+  let (parent, deprecated) =
+        case remainder of
+          [] | Xml.verbatim cname == "GdkBitmap" -> ([Left "GdkDrawable"], False) --Hack
+          [("parent", Xml.AttValue parent)] -> (parent, False)
+          [("deprecated", Xml.AttValue deprecated),
+           ("parent", Xml.AttValue parent)] -> (parent, True)
+  in Just $ Object {
     object_name = Xml.verbatim name,
     object_cname = Xml.verbatim cname,
     object_parent = Xml.verbatim parent,
     object_constructors = catMaybes (map extractConstructor content),
     object_methods = catMaybes (map extractMethod content),
     object_properties = catMaybes (map extractProperty content),
-    object_signals = catMaybes (map extractSignal content)
+    object_signals = catMaybes (map extractSignal content),
+    object_deprecated = deprecated,
+    object_isinterface = False
   }
 extractObject (Xml.CElem (Xml.Elem "interface"
                      [("name", Xml.AttValue name),
@@ -158,18 +176,30 @@ extractObject (Xml.CElem (Xml.Elem "interface"
     object_constructors = catMaybes (map extractConstructor content),
     object_methods = catMaybes (map extractMethod content),
     object_properties = catMaybes (map extractProperty content),
-    object_signals = catMaybes (map extractSignal content)
+    object_signals = catMaybes (map extractSignal content),
+    object_deprecated = False,
+    object_isinterface = True
   }
+extractObject (Xml.CElem (Xml.Elem "object" [("name", Xml.AttValue name)] [])) | null (Xml.verbatim name) = Nothing
+extractObject other@(Xml.CElem (Xml.Elem "object" _ _)) = error $ "extractObject: " ++ Xml.verbatim other
+extractObject other@(Xml.CElem (Xml.Elem "interface" _ _)) = error $ "extractObject: " ++ Xml.verbatim other
 extractObject _ = Nothing
 
 extractMethod :: Xml.Content -> Maybe Method
 extractMethod (Xml.CElem (Xml.Elem "method"
-                     [("name", Xml.AttValue name),
-                      ("cname", Xml.AttValue cname)]
+                     (("name", Xml.AttValue name):
+                      ("cname", Xml.AttValue cname):
+                      remainder)
                      (Xml.CElem (Xml.Elem "return-type"
                             [("type", Xml.AttValue return_type)] [])
                       :content))) =
-  Just $ Method {
+  let (shared, deprecated) =
+        case remainder of 
+          []                                 -> (False, False)
+          [("shared", _)]                    -> (True,  False)
+          [("deprecated", _)]                -> (False, True)
+          [("deprecated", _), ("shared", _)] -> (True,  True)
+  in Just $ Method {
     method_name = Xml.verbatim name,
     method_cname = Xml.verbatim cname,
     method_return_type = Xml.verbatim return_type,
@@ -177,8 +207,11 @@ extractMethod (Xml.CElem (Xml.Elem "method"
       case content of
         [] -> []
         [Xml.CElem (Xml.Elem "parameters" [] parameters)]
-           -> map extractParameter parameters
+           -> map extractParameter parameters,
+   method_shared = shared,
+   method_deprecated = deprecated
   }
+extractMethod other@(Xml.CElem (Xml.Elem "method" _ _)) = error $ "extractMethod: " ++ Xml.verbatim other
 extractMethod _ = Nothing
 
 extractParameter :: Xml.Content -> Parameter

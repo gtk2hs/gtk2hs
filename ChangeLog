@@ -1,3 +1,29 @@
+2005-02-14 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/glib-sources.xml: add extra sources spec.
+
+	* tools/apiGen/gnomecanvas-sources.xml: refer to the correct version.
+
+	* tools/apiGen/format-docs.xsl: collect docs on "Style Properties" and
+	allow formatting in module summary.
+
+	* tools/apiGen/Api.hs, tools/apiGen/Docs.hs, tools/apiGen/Marshal.hs,
+	tools/apiGen/FormatDocs.hs, tools/apiGen/CodeGen.hs,
+	tools/apiGen/ApiGen.hs: lots of little improvements to the generated
+	documentation. Generalise the "KnownTypes" table to "KnownSymbols" and
+	use that in various places to make the recognition of things we should
+	hyperlink more accurate. Convert enum value names to Haskell style
+	names. Recognise type names and enum value names even when they are
+	not marked up in the original docs. Deal with deprecated objects and
+	methods, but only generate deprecated methods where they exist in the
+	original modules (ie don't add new deprecated methods). Handle
+	"shared" methods but ignore the *_get_type() ones. Cchange to using
+	FM's for the KnownSymbols map so it's not all quite so slow.
+
+	* tools/apiGen/Makefile: use the glib api when generating the gtk
+	modules, and similarly, use the gtk api when generating the
+	gnomecanvas modules.
+
 2005-02-13 Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac: Removed some unnecessary tests and variable.
@@ -16,7 +42,7 @@
 	renamed from .chs to .chs.pp.
 
 	* Makefile.am: Rename the files from .chs to .chs.pp.
- 
+
 2005-02-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,

@@ -23,7 +23,7 @@ type ApiDoc = [ModuleDoc]
 data ModuleDoc = ModuleDoc {
     moduledoc_name :: String,              -- these docs apply to this object
     moduledoc_altname :: String,           -- sometimes a better index entry
-    moduledoc_summary :: String,           -- a one line summary
+    moduledoc_summary :: [DocParaSpan],    -- a one line summary
     moduledoc_description :: [DocPara],    -- the main description
     moduledoc_sections :: [DocSection],    -- any additional titled subsections
     moduledoc_hierarchy :: [DocParaSpan],  -- a tree of parent objects (as text)
@@ -35,7 +35,7 @@ data ModuleDoc = ModuleDoc {
 noModuleDoc = ModuleDoc {
     moduledoc_name = "",
     moduledoc_altname = "",
-    moduledoc_summary = "",
+    moduledoc_summary = [],
     moduledoc_description = [],
     moduledoc_sections = [],
     moduledoc_hierarchy = [],
@@ -126,7 +126,7 @@ extractDocModuleinfo
    in ModuleDoc {
     moduledoc_name = Xml.verbatim name,
     moduledoc_altname = Xml.verbatim altname,
-    moduledoc_summary = Xml.verbatim summary,
+    moduledoc_summary = map extractDocParaSpan summary,
     moduledoc_description = concatMap extractDocPara paras,
     moduledoc_sections = map extractDocSection sections,
     moduledoc_hierarchy = map extractDocParaSpan objHierSpans,
@@ -241,6 +241,9 @@ extractDocParaOrSpan (Xml.CElem (Xml.Elem "definition" []
 extractDocParaOrSpan (Xml.CElem (Xml.Elem "programlisting" _ content)) =
   let listing = concat [ str | (Xml.CString _ str) <- content ] in
   Right $ DocParaProgram listing
+extractDocParaOrSpan para@(Xml.CElem (Xml.Elem "para" _ _)) = 
+  case extractDocPara para of
+    [para'] -> Right para'    --handle this special case, we do not expect nested paras very often
 extractDocParaOrSpan content@(Xml.CElem   _  ) = Left $ extractDocParaSpan content
 extractDocParaOrSpan content@(Xml.CString _ _) = Left $ extractDocParaSpan content
 extractDocParaOrSpan other = error $ "extractDocParaOrSpan: " ++ Xml.verbatim other

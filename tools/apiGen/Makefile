@@ -73,11 +73,11 @@ gtk-docs.xml : gtk+-$(GTK_VERSION)/docs/reference/gtk/xml format-docs.xsl
 	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
 gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen \
-		gdk-api.xml pango-api.xml atk-api.xml
+		gdk-api.xml pango-api.xml atk-api.xml glib-api.xml
 	@mkdir -p $@
 	./ApiGen $< Template.chs --doc=gtk-docs.xml --outdir=$@ \
 	--includeapi=gdk-api.xml --includeapi=pango-api.xml \
-	--includeapi=atk-api.xml \
+	--includeapi=atk-api.xml --includeapi=glib-api.xml \
 	--modprefix=Graphics.UI.Gtk.{-Category-} \
 	--scanmodules=../../gtk/Graphics/UI/Gtk
 
@@ -124,9 +124,11 @@ glade-modules : glade-api.xml Template.chs ApiGen
 #
 #	gnomecanvas modules
 #
-gnomecanvas-modules : gnomecanvas-api.xml Template.chs ApiGen
+gnomecanvas-modules : gnomecanvas-api.xml Template.chs ApiGen \
+	gtk-api.xml
 	@mkdir -p $@
-	./ApiGen $< Template.chs --outdir=$@
+	./ApiGen $< Template.chs --outdir=$@ \
+	--includeapi=gtk-api.xml
 
 
 ########################

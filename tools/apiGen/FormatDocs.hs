@@ -11,45 +11,50 @@ module FormatDocs (
   cFuncNameToHsName,
   cParamNameToHsName,
   haddocFormatParas,
+  haddocFormatSpans,
   haddocFormatSpan,
+  mungeWord,
   changeIllegalNames,
   addVersionParagraphs
 ) where
 
 import Api (NameSpace(namespace_name))
 import Docs
-import Marshal (stripKnownPrefixes)
+import Marshal (stripKnownPrefixes, KnownSymbols, CSymbol(..))
 import StringUtils
 
+import Maybe (isJust)
+import Char (toLower, isUpper, isAlpha)
 import qualified List (lines)
+import Data.FiniteMap
 
 -------------------------------------------------------------------------------
 -- Functions for formatting haddock documentation
 -------------------------------------------------------------------------------
 
-genModuleDocumentation :: ModuleDoc -> ShowS
-genModuleDocumentation moduledoc =
+genModuleDocumentation :: KnownSymbols -> ModuleDoc -> ShowS
+genModuleDocumentation knownSymbols moduledoc =
   (if null (moduledoc_description moduledoc)
      then id
      else comment.ss "* Description".nl.
           comment.nl.
-          comment.ss "| ".haddocFormatParas (moduledoc_description moduledoc).nl).
+          comment.ss "| ".haddocFormatParas knownSymbols (moduledoc_description moduledoc).nl).
   (if null (moduledoc_sections moduledoc)
      then id
-     else nl.comment.haddocFormatSections (moduledoc_sections moduledoc).nl.comment.nl).
+     else nl.comment.haddocFormatSections knownSymbols (moduledoc_sections moduledoc).nl.comment.nl).
   (if null (moduledoc_hierarchy moduledoc)
      then id
      else nl.comment.ss "* Class Hierarchy".nl.
           comment.ss "|".nl.
           comment.ss "@".nl.
-          comment.ss "|  ".haddocFormatHierarchy (moduledoc_hierarchy moduledoc).nl.
+          comment.ss "|  ".haddocFormatHierarchy knownSymbols (moduledoc_hierarchy moduledoc).nl.
           comment.ss "@".nl)
 
-haddocFormatHierarchy :: [DocParaSpan] -> ShowS
-haddocFormatHierarchy =
+haddocFormatHierarchy :: KnownSymbols -> [DocParaSpan] -> ShowS
+haddocFormatHierarchy knownSymbols =
     sepBy "\n-- |"
   . Prelude.lines
-  . concatMap haddocFormatSpan
+  . concatMap (haddocFormatSpan knownSymbols)
 
 addVersionParagraphs :: NameSpace -> ModuleDoc -> ModuleDoc
 addVersionParagraphs namespace apiDoc =
@@ -85,75 +90,93 @@ addVersionParagraphs namespace apiDoc =
                           [] -> ""
                           versions -> minimum versions
   
-haddocFormatSections :: [DocSection] -> ShowS
-haddocFormatSections = 
+haddocFormatSections :: KnownSymbols -> [DocSection] -> ShowS
+haddocFormatSections knownSymbols = 
     sepBy' "\n\n-- "
   . map (\section ->
          ss "** ". ss (section_title section). nl.
          comment.nl.
-         comment.ss "| ".haddocFormatParas (section_paras section))
+         comment.ss "| ".haddocFormatParas knownSymbols (section_paras section))
 
-haddocFormatParas :: [DocPara] -> ShowS
-haddocFormatParas =
+haddocFormatParas :: KnownSymbols -> [DocPara] -> ShowS
+haddocFormatParas knownSymbols =
     sepBy' "\n--\n-- "
-  . map haddocFormatPara
+  . map (haddocFormatPara knownSymbols)
 
-haddocFormatPara :: DocPara -> ShowS
-haddocFormatPara (DocParaText spans) = haddocFormatSpans 3 spans
-haddocFormatPara (DocParaProgram prog) =
+haddocFormatPara :: KnownSymbols -> DocPara -> ShowS
+haddocFormatPara knownSymbols (DocParaText spans) = haddocFormatSpans knownSymbols 3 spans
+haddocFormatPara knownSymbols (DocParaProgram prog) =
     ((ss "* FIXME: if the follwing is a C code example, port it to Haskell or remove it".nl.
       comment).)
   . sepBy "\n-- > "
   . List.lines
   $ prog
-haddocFormatPara (DocParaTitle title) =
+haddocFormatPara knownSymbols (DocParaTitle title) =
     ss "* ". ss title
-haddocFormatPara (DocParaDefItem term spans) =
-  let def = (unwords . words . escape . concatMap haddocFormatSpan) term in
+haddocFormatPara knownSymbols (DocParaDefItem term spans) =
+  let def = (unwords . words . escape . concatMap (haddocFormatSpan knownSymbols)) term in
   sc '['. ss def. ss "] ".
-  haddocFormatSpans (length def + 6) spans
+  haddocFormatSpans knownSymbols (length def + 6) spans
   where escape [] = []
         escape (']':cs) = '\\': ']' : escape cs --we must escape ] in def terms
         escape (c:cs)   =        c  : escape cs
-haddocFormatPara (DocParaListItem spans) =
+haddocFormatPara knownSymbols (DocParaListItem spans) =
   ss "* ".
-  haddocFormatSpans 5 spans
+  haddocFormatSpans knownSymbols 5 spans
 
-haddocFormatSpans :: Int -> [DocParaSpan] -> ShowS
-haddocFormatSpans initialCol =
+haddocFormatSpans :: KnownSymbols -> Int -> [DocParaSpan] -> ShowS
+haddocFormatSpans knownSymbols initialCol =
     sepBy' "\n-- "
   . map (sepBy " ")
   . wrapText initialCol 77
+  . map (mungeWord knownSymbols)
   . words
-  . concatMap haddocFormatSpan
+  . concatMap (haddocFormatSpan knownSymbols)
 
-haddocFormatSpan :: DocParaSpan -> String
-haddocFormatSpan (DocText text)    = escapeHaddockSpecialChars text
-haddocFormatSpan (DocTypeXRef text)    = "\"" ++ stripKnownPrefixes text ++ "\""
-haddocFormatSpan (DocFuncXRef text)    = "'" ++ cFuncNameToHsName text ++ "'"
-haddocFormatSpan (DocOtherXRef text)    = "'{FIXME: gtk-doc cross reference to:" ++ text ++ "}'"
-haddocFormatSpan (DocEmphasis text)  = "/" ++ text ++ "/"
-haddocFormatSpan (DocLiteral "TRUE")  = "@True@"
-haddocFormatSpan (DocLiteral "FALSE") = "@False@"
+haddocFormatSpan :: KnownSymbols -> DocParaSpan -> String
+haddocFormatSpan _ (DocText text)       = escapeHaddockSpecialChars text
+haddocFormatSpan knownSymbols (DocTypeXRef text) =
+  case lookupFM knownSymbols text of
+    Nothing -> "{" ++ text ++ ", FIXME: unknown type/value}"
+    Just (SymObjectType _) -> "\"" ++ stripKnownPrefixes text ++ "\""
+    Just (SymEnumType _)   -> "'" ++ stripKnownPrefixes text ++ "'"
+    Just SymEnumValue      -> "'" ++ cConstNameToHsName text ++ "'"
+    _ -> "{" ++ text ++ ", FIXME: unknown type/value}" --TODO fill in the other cases
+--             | looksLikeConstant text = "'" ++ cConstNameToHsName text ++ "'"
+--             | otherwise              = "\"" ++ stripKnownPrefixes text ++ "\""
+haddocFormatSpan _ (DocFuncXRef text)   = "'" ++ cFuncNameToHsName text ++ "'"
+haddocFormatSpan _ (DocOtherXRef text)  = "'{FIXME: gtk-doc cross reference to:" ++ text ++ "}'"
+haddocFormatSpan _ (DocEmphasis text)   = "/" ++ text ++ "/"
+haddocFormatSpan _ (DocLiteral "TRUE")  = "@True@"
+haddocFormatSpan _ (DocLiteral "FALSE") = "@False@"
   --likely that something should be changed to a Maybe type if this is emitted:
-haddocFormatSpan (DocLiteral "NULL")  = "{@NULL@, FIXME: this should probably be converted"
+haddocFormatSpan _ (DocLiteral "NULL")  = "{@NULL@, FIXME: this should probably be converted"
                                                      ++ " to a Maybe data type}"
-haddocFormatSpan (DocLiteral text) = "@" ++ escapeHaddockSpecialChars text ++ "@"
-haddocFormatSpan (DocArg  text)    = "@" ++ cParamNameToHsName text ++ "@"
+haddocFormatSpan _ (DocLiteral text) = "@" ++ escapeHaddockSpecialChars text ++ "@"
+haddocFormatSpan _ (DocArg  text)    = "@" ++ cParamNameToHsName text ++ "@"
 
 cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
     lowerCaseFirstChar
   . stripKnownPrefixes
-  . concatMap upperCaseFirstChar
-  . filter (not.null) --to ignore leading underscores
-  . splitBy '_'
+  . toStudlyCaps
   . takeWhile ('('/=)
 
 cParamNameToHsName :: String -> String
 cParamNameToHsName  =          --change "gtk_foo_bar" to "gtkFooBar"
     lowerCaseFirstChar
-  . concatMap upperCaseFirstChar
+  . toStudlyCaps
+
+cConstNameToHsName :: String -> String
+cConstNameToHsName  =          --change "GTK_UPDATE_DISCONTINUOUS" to "updateDiscontinuous"
+    lowerCaseFirstChar
+  . stripKnownPrefixes
+  . toStudlyCaps
+  . map toLower
+
+toStudlyCaps :: String -> String
+toStudlyCaps =                 --change "gtk_foo_bar" to "GtkFooBar"
+    concatMap upperCaseFirstChar
   . filter (not.null) --to ignore tailing underscores
   . splitBy '_'
 
@@ -169,4 +192,43 @@ escapeHaddockSpecialChars = escape
                      || c == '"' || c == '@'
                      || c == '<' || c == '''
                       = '\\': c : escape cs
-        escape (c:cs) =       c : escape cs              
+        escape (c:cs) =       c : escape cs
+
+mungeWord :: KnownSymbols -> String -> String
+mungeWord knownSymbols ('G':'T':'K':'+':remainder) = "Gtk+" ++ remainder
+mungeWord knownSymbols word
+                 | word' == "TRUE"       = "@True@"  ++ remainder
+                 | word' == "FALSE"      = "@False@" ++ remainder
+                 | word' == "NULL" = "{@NULL@, FIXME: this should probably be converted to a Maybe data type}"
+                                                     ++ remainder
+                 | isJust e = case e of
+                                Just (SymObjectType _) -> "\"" ++ stripKnownPrefixes word' ++ "\"" ++ remainder
+                                Just (SymEnumType _)   -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder
+                                Just SymEnumValue      -> "'" ++ cConstNameToHsName word' ++ "'" ++ remainder
+                 | otherwise = word
+  where e = lookupFM knownSymbols word'
+        (word', remainder) = span (\c -> isAlpha c || c == '_') word  
+{-
+mungeWord _ "GTK+"  = "Gtk+"
+mungeWord _ "GTK+,"  = "Gtk+,"
+mungeWord _ "GTK+."  = "Gtk+."
+mungeWord _ "TRUE"  = "@True@"
+mungeWord _ "FALSE" = "@False@"
+mungeWord _ "TRUE,"  = "@True@,"
+mungeWord _ "FALSE," = "@False@,"
+mungeWord _ "NULL" = "{@NULL@, FIXME: this should probably be converted to a Maybe data type}"
+mungeWord knownSymbols word | isJust e = case e of
+                              Just (SymObjectType _) -> "\"" ++ stripKnownPrefixes word' ++ "\"" ++ remainder
+                              Just (SymEnumType _)   -> "'" ++ stripKnownPrefixes word' ++ "'" ++ remainder
+                              Just SymEnumValue      -> "'" ++ cConstNameToHsName word' ++ "'" ++ remainder
+  where e = lookupFM knownSymbols word'
+        (word', remainder) = span (\c -> isAlpha c || c == '_') word
+mungeWord _ word = word
+-}
+
+-- eg C constants with names like GTK_UPDATE_DISCONTINUOUS
+looksLikeConstant :: String -> Bool
+looksLikeConstant ('G':'T':'K':'_':rest) = all (\c -> isUpper c || c == '_')  rest
+looksLikeConstant ('G':'D':'K':'_':rest) = all (\c -> isUpper c || c == '_')  rest
+looksLikeConstant ('P':'A':'N':'G':'O':'_':rest) = all (\c -> isUpper c || c == '_')  rest
+looksLikeConstant _ = False

@@ -14,7 +14,7 @@ import CodeGen
 import StringUtils (ss, templateSubstitute, splitOn)
 import ModuleScan
 
-import Monad  (when)
+import Monad  (when, liftM)
 import List   (isPrefixOf, intersperse)
 import System (getArgs, exitWith, ExitCode(..))
 import Directory (doesDirectoryExist, createDirectory)
@@ -75,7 +75,7 @@ main = do
       -- included from Gdk and Pango
       includeApi = [ extractAPI (Xml.xmlParse apiFile content)
                    | (apiFile, content) <- zip includeApiFiles includeApiFilesContents]  
-      knownTypes = makeKnownTypesMap (api ++ concat includeApi)
+      knownTypes = makeKnownSymbolsMap (api ++ concat includeApi)
 
   -----------------------------------------------------------------------------
   -- Read in the documentation xml file if supplied
@@ -118,6 +118,7 @@ main = do
 			           return noModuleDoc
 		     Just moduleDoc -> return $ addVersionParagraphs namespace moduleDoc
       moduleInfo <-
+            liftM (mungeMethodInfo object) $
             case maybeModuleInfo of
               Just moduleInfo -> do mkDirHier outdir (splitOn '.' (module_prefix moduleInfo))
                                     return moduleInfo
@@ -147,19 +148,18 @@ main = do
 	    "OBJECT_NAME"    -> ss $ module_name moduleInfo
 	    "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors moduleInfo
             "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders moduleInfo
-            "DESCRIPTION"    -> ss (moduledoc_summary moduleDoc)
-	    "DOCUMENTATION"  -> genModuleDocumentation moduleDoc
+            "DESCRIPTION"    -> haddocFormatSpans knownTypes 3 (moduledoc_summary moduleDoc)
+	    "DOCUMENTATION"  -> genModuleDocumentation knownTypes moduleDoc
 	    "TODO"           -> genTodoItems object
 	    "MODULE_NAME"    -> ss $ if null (module_prefix moduleInfo)
                                  then module_name moduleInfo
                                  else module_prefix moduleInfo ++ "." ++ module_name moduleInfo
-	    "EXPORTS"        -> genExports object moduleDoc
+	    "EXPORTS"        -> genExports object moduleDoc moduleInfo
 	    "IMPORTS"        -> ss $ "{#import Graphics.UI.Gtk.Types#}\n"
                                   ++ "-- CHECKME: extra imports may be required\n"
 	    "CONTEXT_LIB"    -> ss $ module_context_lib moduleInfo
 	    "CONTEXT_PREFIX" -> ss $ module_context_prefix  moduleInfo
-	    "MODULE_BODY"    -> genModuleBody (module_context_prefix moduleInfo)
-                                              knownTypes object moduleDoc moduleInfo
+	    "MODULE_BODY"    -> genModuleBody knownTypes object moduleDoc moduleInfo
 	    _ -> ss "" ) ""
     ) [ (namespace
         ,object

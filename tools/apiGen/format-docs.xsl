@@ -100,7 +100,7 @@
   <module-info>
     <name><xsl:value-of select="refentry/refnamediv/refname"/></name>
     <altname><xsl:value-of select="refentry/refsynopsisdiv/anchor/@id"/></altname>
-    <summary><xsl:value-of select="refentry/refnamediv/refpurpose"/></summary>
+    <summary><xsl:apply-templates select="refentry/refnamediv/refpurpose"/></summary>
     <description>
       <xsl:for-each select="refentry/refsect1[title='Description']">
         <xsl:apply-templates select="para | section | refsect2"/>
@@ -155,7 +155,7 @@
   </xsl:for-each>
 -->
   <!-- Properties documentation (new formatting) -->
-  <xsl:for-each select="refentry/refsect1[title='Properties']/refsect2">
+  <xsl:for-each select="refentry/refsect1[title='Properties' or title='Style Properties']/refsect2">
     <property>
       <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
       <since>
