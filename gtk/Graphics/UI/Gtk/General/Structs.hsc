@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/03/15 20:33:46 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -82,6 +82,8 @@ module Graphics.UI.Gtk.General.Structs (
   comboGetList,
 #endif
   priorityLow,
+  priorityDefaultIdle,
+  priorityHighIdle,
   priorityDefault,
   priorityHigh,
   drawingAreaGetDrawWindow,
@@ -612,10 +614,16 @@ comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
 -- | For installing idle callbacks: Priorities.
 --
 priorityHigh :: Int
-priorityHigh  = #const G_PRIORITY_HIGH_IDLE
+priorityHigh  = #const G_PRIORITY_HIGH
 
 priorityDefault :: Int
-priorityDefault = #const G_PRIORITY_DEFAULT_IDLE
+priorityDefault = #const G_PRIORITY_DEFAULT
+
+priorityHighIdle :: Int
+priorityHighIdle  = #const G_PRIORITY_HIGH_IDLE
+
+priorityDefaultIdle :: Int
+priorityDefaultIdle = #const G_PRIORITY_DEFAULT_IDLE
 
 priorityLow :: Int
 priorityLow	= #const G_PRIORITY_LOW

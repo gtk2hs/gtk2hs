@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/27 19:42:06 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/15 20:33:47 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -41,9 +41,12 @@ module Graphics.UI.Gtk.General.General (
   grabGetCurrent,
   grabRemove,
   priorityLow,
+  priorityDefaultIdle,
+  priorityHighIdle,
   priorityDefault,
   priorityHigh,
   timeoutAdd,
+  timeoutAddFull,
   timeoutRemove,
   idleAdd,
   idleRemove,
@@ -62,7 +65,9 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}	 
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums    (InputCondition(..))
-import Graphics.UI.Gtk.General.Structs	(priorityLow, priorityDefault, priorityHigh)
+import Graphics.UI.Gtk.General.Structs	(priorityLow, priorityDefaultIdle,
+					priorityHighIdle, priorityDefault,
+					priorityHigh)
 
 {#context lib="gtk" prefix ="gtk"#}
 
@@ -194,16 +199,40 @@ makeCallback fun = do
   dPtr <- mkFunPtrDestructor funPtr
   return (funPtr, dPtr)
 
--- | Register a function that is to be called after
--- @interval@ ms have been elapsed.
+-- | Sets a function to be called at regular intervals, with the default
+-- priority 'priorityDefault'. The function is called repeatedly until it
+-- returns @False@, after which point the timeout function will not be called
+-- again. The first call to the function will be at the end of the first interval.
 --
--- * If the function returns @False@ it will be removed.
+-- Note that timeout functions may be delayed, due to the processing of other
+-- event sources. Thus they should not be relied on for precise timing. After
+-- each call to the timeout function, the time of the next timeout is
+-- recalculated based on the current time and the given interval (it does not
+-- try to 'catch up' time lost in delays).
 --
 timeoutAdd :: IO Bool -> Int -> IO HandlerId
-timeoutAdd fun msec = do
+timeoutAdd fun msec = timeoutAddFull fun priorityDefault msec
+
+-- | Sets a function to be called at regular intervals, with the given
+-- priority. The function is called repeatedly until it returns @False@, after
+-- which point the timeout function will not be called again. The first call
+-- to the function will be at the end of the first interval.
+--
+-- Note that timeout functions may be delayed, due to the processing of other
+-- event sources. Thus they should not be relied on for precise timing. After
+-- each call to the timeout function, the time of the next timeout is
+-- recalculated based on the current time and the given interval (it does not
+-- try to 'catch up' time lost in delays).
+--
+timeoutAddFull :: IO Bool -> Int -> Int -> IO HandlerId
+timeoutAddFull fun pri msec = do
   (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
-  {#call unsafe g_timeout_add_full#} (fromIntegral priorityDefault)
-    (fromIntegral msec) funPtr nullPtr dPtr
+  {#call unsafe g_timeout_add_full#}
+    (fromIntegral pri)
+    (fromIntegral msec)
+    funPtr
+    nullPtr
+    dPtr
 
 -- | Remove a previously added timeout handler by its
 -- 'TimeoutId'.
@@ -215,7 +244,7 @@ timeoutRemove id = {#call unsafe g_source_remove#} id >> return ()
 -- idle.
 --
 -- * A priority can be specified via an integer. This should usually be
---   'priorityDefault'.
+--   'priorityDefaultIdle'.
 --
 -- * If the function returns @False@ it will be removed.
 --

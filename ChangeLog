@@ -26,6 +26,16 @@
 	gtk/Graphics/UI/Gtk/Entry/VScale.chs: documentation changes and code
 	formatting changes.
 
+	* gtk/Graphics/UI/Gtk/General/Structs.hsc: Define priorityHigh and
+	priorityDefault as the correct C constants. Add priorityHighIdle and
+	priorityDefaultIdle.
+
+	* gtk/Graphics/UI/Gtk/General/General.chs: export the two extra
+	priority values. Add timeoutAddFull binding which is like timeoutAdd
+	but allows you to specift the priority. Redfine timeoutAdd in terms of
+	timeoutAddFull. Add more extensive documentation for both functions.
+	Fix the documentation of idleAdd to reccomend the right priority.
+
 2005-03-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: segfault bug fix. Clear up
