@@ -13,8 +13,8 @@ MAIN = SourceView.hs
 HIDIRS = ../gtk/glib ../gtk/abstract ../gtk/general ../gtk/multiline
 
 HEADER = sourceview.h
-EXTRA_HFILES	= $(TOP)/sourceview/sourceview.h
-EXTRA_TARFILES	= sourceview.h
+EXTRA_HFILES	= sourceview.h
+#EXTRA_TARFILES	= sourceview.h
 
 ifneq (x$(MULTIPLE_CHS),xyes)
 SourceIter-HEADER		= gtksourceview/gtksourceiter.h
@@ -31,9 +31,9 @@ SourcePringJob-HEADER		= gtksourceview/gtksourceprintjob.h
 endif
 
 # Further options to the C preprocessor are passed verbatim:
-EXTRA_CPPFLAGS	= $(GTK_CFLAGS)
+EXTRA_CPPFLAGS	= $(SOURCEVIEW_CFLAGS)
 
-EXTRA_LIBS	= $(GTK_LIBS)
+EXTRA_LIBS	= $(SOURCEVIEW_LIBS)
 
 ifeq ($(strip $(NEW_MODULE_SYS)),yes)
 NEEDPACKAGES = gtk2
