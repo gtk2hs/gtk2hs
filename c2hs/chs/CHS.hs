@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 16 August 99
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/20 16:42:17 $
+--  Version $Revision: 1.5 $ from $Date: 2004/07/26 12:08:49 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --
@@ -743,13 +743,31 @@ parseImport :: Position -> [CHSToken] -> CST s [CHSFrag]
 parseImport pos toks = do
   (qual, modid, toks') <- 
     case toks of
-      CHSTokIdent _ ide                :toks -> return (False, ide, toks)
-      CHSTokQualif _: CHSTokIdent _ ide:toks -> return (True , ide, toks)
+      CHSTokIdent _ ide                :toks ->
+        let (ide', toks') = rebuildModuleId ide toks
+         in return (False, ide', toks')
+      CHSTokQualif _: CHSTokIdent _ ide:toks ->
+        let (ide', toks') = rebuildModuleId ide toks
+         in return (True , ide', toks')
       _					     -> syntaxError toks
-  chi <- loadCHI . identToLexeme $ modid
+  chi <- loadCHI . moduleNameToFileName . identToLexeme $ modid
   toks'' <- parseEndHook toks'
   frags <- parseFrags toks''
   return $ CHSHook (CHSImport qual modid chi pos) : frags
+
+-- Qualified module names do not get lexed as a single token so we need to
+-- reconstruct it from a sequence of identifer and dot tokens.
+--
+rebuildModuleId ide (CHSTokDot _ : CHSTokIdent _ ide' : toks) = 
+  let catIdent ide ide' = onlyPosIdent (posOf ide)  --FIXME: unpleasent hack
+                            (identToLexeme ide ++ '.' : identToLexeme ide')
+   in rebuildModuleId (catIdent ide ide') toks
+rebuildModuleId ide                                     toks  = (ide, toks)
+
+moduleNameToFileName :: String -> FilePath
+moduleNameToFileName = map dotToSlash
+  where dotToSlash '.' = '/'
+        dotToSlash c   = c
 
 parseContext          :: Position -> [CHSToken] -> CST s [CHSFrag]
 parseContext pos toks  = do
