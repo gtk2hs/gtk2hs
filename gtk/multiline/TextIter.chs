@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2002/10/06 16:14:09 $
+--  Version $Revision: 1.7 $ from $Date: 2002/11/03 20:35:45 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -383,13 +383,13 @@ textIterGetCharsInLine :: TextIter -> IO Int
 textIterGetCharsInLine ti = liftM fromIntegral $
   {#call unsafe text_iter_get_chars_in_line#} ti
 
--- @method textIterGetAttributes@Get the text attributes at the iterator.
--- * The @ref arg ta@ argument gives the default values if no specific 
---   attributes are
---   set at that specific location.
+-- @dunno textIterGetAttributes@ Get the text attributes at the iterator.
 --
--- * The function returns Nothing if the text at the iterator has the same
---   attributes.
+-- * The @ref arg ta@ argument gives the default values if no specific 
+--   attributes are set at that specific location.
+--
+-- * The function returns @prog Nothing@ if the text at the iterator has 
+--   the same attributes.
 
 -- @method textIterIsEnd@ Determine if @ref type TextIter@ is at the end of
 -- the buffer.

@@ -204,7 +204,7 @@ makeOrd fill (obj:preds) = indent 1.ss "compare ".ss obj.ss "Tag ".
 
 makeClass :: [(String,(String, String))] -> [String] -> ShowS
 makeClass table (name:parents) =
-  indent 0.ss (replicate (78-length name) '-').sc ' '.ss name.
+  indent 0.ss "-- ".ss (replicate (75-length name) '*').sc ' '.ss name.
   indent 0.
   indent 0.ss "{#pointer *".
   maybe (ss name) (\s -> ss (fst s).ss " as ".ss name) (lookup name table).

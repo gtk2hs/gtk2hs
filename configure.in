@@ -284,6 +284,87 @@ dnl AC_MSG_RESULT([Notice: C->Haskell induced link time options: `$C2HS_CONFIG -
 # Read the version file
 VERSION=`cat $TOP/VERSION`
 
+dnl Documentation
+
+BUILDDOCS=yes;
+
+dnl Check for the XSLT translator
+FOUNDTRANSLATOR=yes;
+
+AC_PATH_PROG(XSLTTRANS, xsltproc, no-translator)
+
+if test $XSLTTRANS = no-translator; then
+  BUILDDOCS=no;
+  FOUNDTRANSLATOR=no;
+fi
+
+AC_ARG_WITH(catalog,[an XML catalog file pointing to DocBook],
+  [SGML_CATALOG_FILES=$withval;], 
+  [if test -z $SGML_CATALOG_FILES; then
+    case "$target" in
+	*freebsd*) SGML_CATALOG_FILES=/usr/local/share/xml/catalog;;
+	*) SGML_CATALOG_FILES=/usr/share/xml/catalog;;
+    esac
+  fi])
+AC_MSG_CHECKING([files XML catalog])
+OLDIFS=$IFS;
+IFS=:;
+FOUNDCATALOG=no;
+for CATALOG in $SGML_CATALOG_FILES; do
+  if test -r $CATALOG; then FOUNDCATALOG=yes; fi;
+done;
+IFS=$OLDIFS;
+if test $FOUNDCATALOG = no; then
+  BUILDDOCS=no;
+fi;
+AC_MSG_RESULT([$FOUNDCATALOG]);
+
+dnl Check for XSLT translation descriptions
+FOUNDHTML=yes;
+FOUNDFO=yes;
+AC_ARG_WITH(html,[an XSLT file for generating (X)HTML],
+  [XSLTHTML=$withval;], 
+  [XSLTHTML=no;])
+AC_ARG_WITH(fo,[an XSLT file for generating formatting objects (FO)],
+  [XSLTFO=$withval;], 
+  [XSLTFO=no;])
+AC_MSG_CHECKING([XSLT translations])
+dnl if the user just says --with-html, we still have to search for it
+if test $XSLTHTML = yes; then XSLTHTML=no; fi;
+if test $XSLTFO = yes; then XSLTFO=no; fi;
+XSLTPATH=no-xslt;
+OLDIFS=$IFS;
+IFS=:;
+for DIR in $SGML_CATALOG_FILES; do
+  XSLTPATH=`dirname $DIR | $SED s/xml/xsl/`;
+  if test -r $XSLTPATH/docbook/xhtml/chunk.xsl; then
+    if test $XSLTHTML = no; then
+      XSLTHTML=$XSLTPATH/docbook/xhtml/chunk.xsl;
+    fi;
+  fi;
+  if test -r $XSLTPATH/docbook/fo/docbook.xsl; then
+    if test $XSLTFO = no; then
+      XSLTFO=$XSLTPATH/docbook/fo/docbook.xsl;
+    fi;
+  fi;
+done;
+IFS=$OLDIFS;
+if test ! -r $XSLTHTML; then
+  FOUNDHTML=no;
+fi;
+if test ! -r $XSLTFO; then
+  FOUNDFO=no;
+fi;
+if test $FOUNDHTML = no -a $FOUNDFO = no; then
+  BUILDDOCS=no;
+fi;
+AC_MSG_RESULT([HTML: $FOUNDHTML, FO: $FOUNDFO])
+if test $BUILDDOCS = yes; then
+  AC_MSG_RESULT([HTML: $XSLTHTML])
+  AC_MSG_RESULT([FO: $XSLTFO])
+fi;
+
+    
 dnl Needed substitution.
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
@@ -300,6 +381,14 @@ AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(MARSHALLDEFS)
 AC_SUBST(VERSION)
+dnl Documentation
+AC_SUBST(BUILDDOCS)
+AC_SUBST(XSLTTRANS)
+AC_SUBST(SGML_CATALOG_FILES)
+AC_SUBST(FOUNDHTML)
+AC_SUBST(XSLTHTML)
+AC_SUBST(FOUNDFO)
+AC_SUBST(XSLTFO)
 dnl The c2hs part.
 AC_SUBST(DLSUFFIX)
 AC_SUBST(CPP)
@@ -323,6 +412,23 @@ AC_OUTPUT([
 
 dnl ...and chat with the user
 echo "**************************************************"
-echo "Configuration completed successfully." 
-echo "Now do \"(g)make install\"."
+echo "* Configuration completed successfully.          *"
+if test $BUILDDOCS = no; then
+  echo "*                                                *"
+  echo "* Warning: The documentation will not be built:  *"
+  if test $FOUNDTRANSLATOR = no; then
+    echo "*   - the xsltproc translator was not found      *"
+  fi;
+  if test $FOUNDCATALOG = no; then
+    echo "*   - no XML catalog files were found            *"
+  fi;
+  if test $FOUNDHTML = no; then
+    echo "*   - no HTML XSL translation file was found     *"
+  fi;
+  if test $FOUNDFO = no; then
+    echo "*   - no FO XSL translation file was found       *"
+  fi;
+  echo "*                                                *"
+fi;
+echo "* Now do \"(g)make install\".                      *"
 echo "**************************************************"

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:45 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -95,7 +95,7 @@ handleBoxSetHandlePosition hb pos = {#call handle_box_set_handle_position#}
 
 -- @method handleBoxSetSnapEdge@ Set the snap edge of the HandleBox.
 --
--- * he snap edge is the edge of the detached child that must be aligned with
+-- * The snap edge is the edge of the detached child that must be aligned with
 --   the corresponding edge of the "ghost" left behind when the child was
 --   detached to reattach the torn-off window. Usually, the snap edge should
 --   be chosen so that it stays in the same place on the screen when the

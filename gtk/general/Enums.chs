@@ -4,7 +4,7 @@
 --  Author : Axel Simon, Manuel Chakravarty
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/03 20:35:42 $
 --
 --  Copyright (c) [1999..2001] Axel Simon
 --
@@ -69,11 +69,12 @@ module Enums(
   TextWindowType(..),
   ToolbarStyle(..),
   TreeViewColumnSizing(..),
---  TroughType(..),
+  --TroughType(..),
   UpdateType(..),
   Visibility(..),
   WindowPosition(..),
-  WindowType(..), 
+  WindowType(..),
+  WrapMode(..), 
   SortType(..),
   module GdkEnums
   ) where
@@ -294,8 +295,7 @@ instance Flags TextSearchFlags
 --
 {#enum TreeViewColumnSizing {underscoreToCase}#}
 
--- @dunno@hm... text editing?
--- *  @literal@
+-- hm... text editing?
 --{#enum TroughType {underscoreToCase}#}
 
 
@@ -315,6 +315,10 @@ instance Flags TextSearchFlags
 -- @data WindowType@ interaction of a window with window manager
 --
 {#enum WindowType {underscoreToCase}#}
+
+-- @data WrapMode@ Determine how lines are warpped in a @ref data TextView@.
+--
+{#enum WrapMode {underscoreToCase}#}
 
 -- sort in ascending or descending order (used in CList widget)
 --

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2002/10/06 16:14:09 $
+--  Version $Revision: 1.7 $ from $Date: 2002/11/03 20:35:45 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,12 @@ module TextView(
   TextChildAnchor,
   TextChildAnchorClass,
   castToTextView,
+  DeleteType(..),
+  DirectionType(..),
+  Justification(..),
+  MovementStep(..),
+  TextWindowType(..),
+  WrapMode(..),
   textViewNew,
   textViewNewWithBuffer,
   textViewSetBuffer,
@@ -78,10 +84,10 @@ module TextView(
   textViewGetEditable,
   textViewSetCursorVisible,
   textViewGetCursorVisible,
-  textViewSetPixelsAboveLine,
-  textViewGetPixelsAboveLine,
-  textViewSetPixelsBelowLine,
-  textViewGetPixelsBelowLine,
+  textViewSetPixelsAboveLines,
+  textViewGetPixelsAboveLines,
+  textViewSetPixelsBelowLines,
+  textViewGetPixelsBelowLines,
   textViewSetPixelsInsideWrap,
   textViewGetPixelsInsideWrap,
   textViewSetJustification,
@@ -125,7 +131,8 @@ import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
 {#import TextIter#}
-import Enums	(TextWindowType)
+import Enums (TextWindowType(..), DeleteType(..), DirectionType(..),
+	      Justification(..), MovementStep(..), WrapMode(..))
 import GList	(fromGList)
 import Structs	(Rectangle(..))
 
@@ -235,7 +242,7 @@ textViewPlaceCursorOnscreen tv = liftM toBool $
 --
 textViewGetVisibleRect :: TextViewClass tv => tv -> IO Rectangle
 textViewGetVisibleRect tv = alloca $ \rectPtr -> do
-  {#call unsafe text_view_visible_rect#} (toTextView tv) rect
+  {#call unsafe text_view_get_visible_rect#} (toTextView tv) (castPtr rectPtr)
   peek rectPtr
 
 
@@ -245,9 +252,10 @@ textViewGetVisibleRect tv = alloca $ \rectPtr -> do
 -- * Use @ref method textViewBufferToWindowCoords@ to convert into window 
 --   cooridnates.
 --
-textViewGetIterLocation :: TextViewClass tv => TextMark -> tv -> IO Rectangle
-textViewGetIterLocation tm tv = alloca $ \rectPtr -> do
-  {#call unsafe text_view_iter_location#} (toTextView tv) tm rect
+textViewGetIterLocation :: TextViewClass tv => tv -> TextIter -> IO Rectangle
+textViewGetIterLocation tv tm = alloca $ \rectPtr -> do
+  {#call unsafe text_view_get_iter_location#} (toTextView tv) tm 
+    (castPtr rectPtr)
   peek rectPtr
 
 
@@ -549,41 +557,41 @@ textViewGetCursorVisible :: TextViewClass tv => tv -> IO Bool
 textViewGetCursorVisible tv = liftM toBool $
   {#call unsafe text_view_get_cursor_visible#} (toTextView tv)
 
--- @method textViewSetPixelsAboveLine@ Set the number of pixels above each
+-- @method textViewSetPixelsAboveLines@ Set the number of pixels above each
 -- paragraph.
 --
 -- * Tags in the buffer may override this default.
 --
-textViewSetPixelsAboveLine :: TextViewClass tv => tv -> Int -> IO ()
-textViewSetPixelsAboveLine tv p = {#call text_view_set_pixels_above_line#}
+textViewSetPixelsAboveLines :: TextViewClass tv => tv -> Int -> IO ()
+textViewSetPixelsAboveLines tv p = {#call text_view_set_pixels_above_lines#}
   (toTextView tv) (fromIntegral p)
 
--- @method textViewGetPixelsAboveLine@ Get the number of pixels above each
+-- @method textViewGetPixelsAboveLines@ Get the number of pixels above each
 -- paragraph.
 --
 -- * Tags in the buffer may override this default.
 --
-textViewGetPixelsAboveLine :: TextViewClass tv => tv -> IO Int
-textViewGetPixelsAboveLine tv = liftM (fromIntegral) $
-  {#call unsafe text_view_get_pixels_above_line#} (toTextView tv)
+textViewGetPixelsAboveLines :: TextViewClass tv => tv -> IO Int
+textViewGetPixelsAboveLines tv = liftM (fromIntegral) $
+  {#call unsafe text_view_get_pixels_above_lines#} (toTextView tv)
 
--- @method textViewSetPixelsBelowLine@ Set the number of pixels below each
+-- @method textViewSetPixelsBelowLines@ Set the number of pixels below each
 -- paragraph.
 --
 -- * Tags in the buffer may override this default.
 --
-textViewSetPixelsBelowLine :: TextViewClass tv => tv -> Int -> IO ()
-textViewSetPixelsBelowLine tv p = {#call text_view_set_pixels_below_line#}
+textViewSetPixelsBelowLines :: TextViewClass tv => tv -> Int -> IO ()
+textViewSetPixelsBelowLines tv p = {#call text_view_set_pixels_below_lines#}
   (toTextView tv) (fromIntegral p)
 
--- @method textViewGetPixelsBelowLine@ Get the number of pixels below each
+-- @method textViewGetPixelsBelowLines@ Get the number of pixels below each
 -- paragraph.
 --
 -- * Tags in the buffer may override this default.
 --
-textViewGetPixelsBelowLine :: TextViewClass tv => tv -> IO Int
-textViewGetPixelsBelowLine tv = liftM (fromIntegral) $
-  {#call unsafe text_view_get_pixels_below_line#} (toTextView tv)
+textViewGetPixelsBelowLines :: TextViewClass tv => tv -> IO Int
+textViewGetPixelsBelowLines tv = liftM (fromIntegral) $
+  {#call unsafe text_view_get_pixels_below_lines#} (toTextView tv)
 
 -- @method textViewSetPixelsInsideWrap@ Set the number of pixels between
 -- lines inside a wraped paragraph.
@@ -676,8 +684,8 @@ textViewGetIndent tv = liftM (fromIntegral) $
 -- * The action itself happens when the @ref data TextView@ processes this
 --   signal.
 --
-onCopyClipboard, afterCopyClipboard :: TextView tv => tv -> IO () ->
-						      IO (ConnectId tv)
+onCopyClipboard, afterCopyClipboard :: TextViewClass tv => tv -> IO () ->
+							   IO (ConnectId tv)
 onCopyClipboard = connect_NONE__NONE "copy_clipboard" False
 afterCopyClipboard = connect_NONE__NONE "copy_clipboard" True
 
@@ -687,21 +695,20 @@ afterCopyClipboard = connect_NONE__NONE "copy_clipboard" True
 --   clipboard. The action itself happens when the textview processed this
 --   request.
 --
-onCutClipboard, afterCutClipboard :: TextView tv => tv -> IO () ->
-						    IO (ConnectId tv)
+onCutClipboard, afterCutClipboard :: TextViewClass tv => tv -> IO () ->
+							 IO (ConnectId tv)
 onCutClipboard = connect_NONE__NONE "cut_clipboard" False
 afterCutClipboard = connect_NONE__NONE "cut_clipboard" True
 
 -- @signal connectToDeleteFromCursor@ Deleting text.
 --
-
 -- * The widget will remove the specified number of units in the text where
 --   the meaning of units depends on the kind of deletion.
 --
 -- * The action itself happens when the @ref data TextView@ processes this
 --   signal.
 --
-onDeleteFromCursor, afterDeleteFromCursor :: TextView tv => tv ->
+onDeleteFromCursor, afterDeleteFromCursor :: TextViewClass tv => tv ->
 					     (DeleteType -> Int -> IO ()) ->
 					     IO (ConnectId tv)
 onDeleteFromCursor = connect_ENUM_INT__NONE "delete_from_cursor" False
@@ -715,7 +722,7 @@ afterDeleteFromCursor = connect_ENUM_INT__NONE "delete_from_cursor" True
 -- * The action itself happens when the @ref data TextView@ processes this
 --   signal.
 --
-onInsertAtCursor, afterInsertAtCursor :: TextView tv => tv ->
+onInsertAtCursor, afterInsertAtCursor :: TextViewClass tv => tv ->
 							(String -> IO ()) ->
 							IO (ConnectId tv)
 onInsertAtCursor = connect_STRING__NONE "insert_at_cursor" False
@@ -729,7 +736,7 @@ afterInsertAtCursor = connect_STRING__NONE "insert_at_cursor" True
 -- * The action itself happens when the @ref data TextView@ processes this
 --   signal.
 --
-onMoveCursor, afterMoveCursor :: TextView tv => tv ->
+onMoveCursor, afterMoveCursor :: TextViewClass tv => tv ->
 				 (MovementStep -> Int -> Bool -> IO ()) ->
 				 IO (ConnectId tv)
 onMoveCursor = connect_ENUM_INT_BOOL__NONE "move_cursor" False
@@ -740,7 +747,7 @@ afterMoveCursor = connect_ENUM_INT_BOOL__NONE "move_cursor" True
 -- * The action itself happens when the @ref data TextView@ processes this
 --   signal.
 --
-onMoveFocus, afterMoveFocus :: TextView tv => tv ->
+onMoveFocus, afterMoveFocus :: TextViewClass tv => tv ->
 			       (DirectionType -> IO ()) ->
 			       IO (ConnectId tv)
 onMoveFocus = connect_ENUM__NONE "move_focus" False
@@ -756,7 +763,7 @@ afterMoveFocus = connect_ENUM__NONE "move_focus" True
 --
 -- * Figure out why this signal is called horizontally, not vertically.
 --
-onPageHorizontally, afterPageHorizontally :: TextView tv => tv ->
+onPageHorizontally, afterPageHorizontally :: TextViewClass tv => tv ->
 					     (Int -> Bool -> IO ()) ->
 					     IO (ConnectId tv)
 onPageHorizontally = connect_INT_BOOL__NONE "page_horizontally" False
@@ -770,7 +777,7 @@ afterPageHorizontally = connect_INT_BOOL__NONE "page_horizontally" True
 -- * The action itself happens when the @ref data TextView@ processes this
 --   signal.
 --
-onPasteClipboard, afterPasteClipboard :: TextView tv => tv -> IO () ->
+onPasteClipboard, afterPasteClipboard :: TextViewClass tv => tv -> IO () ->
 							IO (ConnectId tv)
 onPasteClipboard = connect_NONE__NONE "paste_clipboard" False
 afterPasteClipboard = connect_NONE__NONE "paste_clipboard" True
@@ -781,7 +788,7 @@ afterPasteClipboard = connect_NONE__NONE "paste_clipboard" True
 --   is opened. This signal can be used to add application specific menu
 --   items to this popup.
 --
-onPopulatePopup, afterPopulatePopup :: TextView tv => tv ->
+onPopulatePopup, afterPopulatePopup :: TextViewClass tv => tv ->
 						      (Menu -> IO ()) ->
 						      IO (ConnectId tv)
 onPopulatePopup = connect_OBJECT__NONE "populate_popup" False
@@ -794,7 +801,7 @@ afterPopulatePopup = connect_OBJECT__NONE "populate_popup" True
 -- * The action itself happens when the @ref data TextView@ processes this
 --   signal.
 --
-onSetAnchor, afterSetAnchor :: TextView tv => tv -> IO () ->
+onSetAnchor, afterSetAnchor :: TextViewClass tv => tv -> IO () ->
 					      IO (ConnectId tv)
 onSetAnchor = connect_NONE__NONE "set_anchor" False
 afterSetAnchor = connect_NONE__NONE "set_anchor" True
@@ -803,7 +810,8 @@ afterSetAnchor = connect_NONE__NONE "set_anchor" True
 --
 --
 onSetScrollAdjustments, afterSetScrollAdjustments ::
-  TextView tv => tv -> (Adjustment -> Adjustment -> IO ()) -> IO (ConnectId tv)
+  TextViewClass tv => tv -> (Adjustment -> Adjustment -> IO ()) -> 
+  IO (ConnectId tv)
 onSetScrollAdjustments = 
   connect_OBJECT_OBJECT__NONE "set_scroll_adjustments" False
 afterSetScrollAdjustments = 
@@ -817,7 +825,7 @@ afterSetScrollAdjustments =
 -- * The action itself happens when the @ref data TextView@ processes this
 --   signal.
 --
-onToggleOverwrite, afterToggleOverwrite :: TextView tv => tv -> IO () ->
+onToggleOverwrite, afterToggleOverwrite :: TextViewClass tv => tv -> IO () ->
 							  IO (ConnectId tv)
 onToggleOverwrite = connect_NONE__NONE "toggle_overwrite" False
 afterToggleOverwrite = connect_NONE__NONE "toggle_overwrite" True

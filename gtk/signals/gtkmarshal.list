@@ -78,3 +78,5 @@ VOID:VOID
 # This marshaller is necessary to marshal a string with explicit length in a
 # callback "text-insert" in TextBuffer.
 VOID:BOXED,POINTER,INT
+# This one is needed in TextView:
+VOID:INT,BOOL

@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 17 August 99
 --
---  Version $Revision: 1.2 $ from $Date: 2002/10/01 15:17:07 $
+--  Version $Revision: 1.3 $ from $Date: 2002/11/03 20:35:41 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --
@@ -636,13 +636,13 @@ callImport hook isPure isUns ideLexeme hsLexeme cdecl pos =
 --
 foreignImport :: String -> String -> String -> Bool -> ExtType -> String
 foreignImport lib ident hsIdent isUnsafe ty  =
-  "foreign import ccall " ++ libName ++ "\"" ++ ident ++ "\"" ++ maybeUnsafe 
-  ++ "\n  " ++ hsIdent ++ " :: " ++ showExtType ty ++ "\n"
+  "foreign import ccall " ++ maybeUnsafe ++ "\"" ++ libName  ++ ' ':ident ++
+  "\"\n  " ++ hsIdent ++ " :: " ++ showExtType ty ++ "\n"
   where
 --    libName	= if null lib then "" else "\"" ++ lib ++ dlsuffix ++ "\" "
     libName = ""
 -- FIXME: libName removed until the new FFI conventions for libs are impl.
-    maybeUnsafe = if isUnsafe then " unsafe" else ""
+    maybeUnsafe = if isUnsafe then "unsafe " else ""
 
 -- produce a Haskell function definition for a fun hook
 --

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Coping with linked lists@
+--  GIMP Toolkit (GTK) @entry GList@
 --
 --  Author : Axel Simon
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:44 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by

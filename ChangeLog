@@ -1,3 +1,21 @@
+2002-11-04 Axel Simon <A.Simon@ukc.ac.uk> 
+
+	* gtk/multiline/TextView.chs, general/Enums.chs, general/Gtk.hs:
+	Completed TextView as far as possible.
+
+	* gendoc/ XMLwrite.hs Abstract.hs Lexer.hs Parser.hs PrettyLib.hs:
+	Switched to Olaf's Pretty Printing library. GHC's library seems to
+	be broken (combinators are not associative). The right combinators
+	still seem to be lacking.
+
+	* general/Structs.hsc glib/GList.chs glib/GObject.chs
+	glib/GType.chs glib/GValue.chs glib/GValueTypes.chs
+	menuComboToolbar/Menu.chs misc/DrawingArea.chs misc/HandleBox.chs
+	multiline/TextIter.chs typehier/TypeGenerator.hs
+	windows/Dialog.chs: documentation fixes
+
+	* mk/library.mk: Abort when c2hs raises an error.
+	
 2002-10-21  Jens Petersen  <petersen@haskell.org>
 
 	* mogul/NewWidget.hs (newLayout): Take Maybe Adjustment's.

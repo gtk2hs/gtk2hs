@@ -5,7 +5,7 @@
 --          
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/10/01 15:09:29 $
+--  Version $Revision: 1.2 $ from $Date: 2002/11/03 20:35:45 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -25,7 +25,7 @@
 --
 -- @documentation@ ------------------------------------------------------------
 --
--- * The @ref object DrawingArea@ widget is used for creating custom
+-- * The @ref data DrawingArea@ widget is used for creating custom
 --   user interface elements. It's essentially a blank widget. Drawing on
 --   the @ref type Drawable@ returned by @ref method drawingAreaGetWindow@
 --   has to be done each time the window manager sends @ref signal expose@
@@ -33,7 +33,7 @@
 --   the background color before sending the expose event, and that drawing
 --   is implicitly clipped to the exposed area. Other events which are
 --   interesting for interacting are mouse and butten events defined in
---   @ref widget Widget@. If the widget changes in size (which it does
+--   @ref data Widget@. If the widget changes in size (which it does
 --   initially), a @ref signal configure@ event is emitted.
 --
 -- @todo@ ---------------------------------------------------------------------

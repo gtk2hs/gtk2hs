@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2002/10/06 16:14:08 $
+--  Version $Revision: 1.10 $ from $Date: 2002/11/03 20:35:43 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -196,7 +196,12 @@ import TextMark
 import TextBuffer
 import TextTag
 import TextTagTable
-import TextView
+import qualified TextView
+import TextView hiding (afterSetScrollAdjustments,
+		onSetScrollAdjustments, afterCopyClipboard, onCopyClipboard,
+		afterCutClipboard, onCutClipboard, afterInsertAtCursor,
+		onInsertAtCursor, afterPasteClipboard, onPasteClipboard,
+		afterToggleOverwrite, onToggleOverwrite)
 -- tree and list widget
 import TreeModel
 import TreeSelection

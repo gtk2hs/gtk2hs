@@ -4,7 +4,7 @@
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/10/01 15:09:29 $
+--  Version $Revision: 1.2 $ from $Date: 2002/11/03 20:35:42 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -92,7 +92,7 @@ regionPolygon points rule =
 	    (fromIntegral (length points)) ((fromIntegral.fromEnum) rule)
     makeNewRegion rPtr
 
--- @method regionCopy@ Copy a @red data Region@.
+-- @method regionCopy@ Copy a @ref data Region@.
 --
 regionCopy :: Region -> IO Region
 regionCopy r = do

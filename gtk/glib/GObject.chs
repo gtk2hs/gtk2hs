@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry abstract GObject type@
+--  GIMP Toolkit (GTK) @entry Widget GObject@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.5 $ from $Date: 2002/11/03 20:35:44 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -58,9 +58,9 @@ objectUnref :: GObjectClass obj => Ptr obj -> IO ()
 objectUnref = {#call object_unref#} . castPtr
 
 -- This is a convenience function to generate an object that does not
--- derive from @Object. It adds objectUnref as finalizer.
+-- derive from Object. It adds objectUnref as finalizer.
 --
--- * The @constr argument is the contructor of the specific object.
+-- * The constr argument is the contructor of the specific object.
 --
 makeNewGObject :: GObjectClass obj => 
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj

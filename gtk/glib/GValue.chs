@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GValue (variant record)@
+--  GIMP Toolkit (GTK) @entry GValue@
 --
 --  Author : Axel Simon
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/18 18:14:30 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,12 +23,12 @@
 --
 -- * This module implements only the necessities for the GTK binding.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
--- * Everything here is only used by @TreeStore and friends.
+-- * Everything here is only used by @ref data TreeStore@ and friends.
 --
---- TODO ----------------------------------------------------------------------
-
+-- @todo@ ---------------------------------------------------------------------
+--
 module GValue(
   GenericValue(..),
   GValue,
@@ -46,10 +46,10 @@ import Hierarchy(GObject)
 
 {#pointer *GValue -> GenericValue#}
 
--- GenericValue (or GValue) is a union with information about the currently
+-- @data GenericValue@ A union with information about the currently
 -- stored type.
 --
--- * Internally used by @TreeStore.
+-- * Internally used by @ref data TreeStore@.
 --
 data GenericValue = GVuint    {#type guint#}
 		  | GVint     {#type gint#}
@@ -65,13 +65,13 @@ data GenericValue = GVuint    {#type guint#}
 		  | GVobject  GObject
 		  | GVboxed   (Ptr ())
 
--- Clear a GValue.
+-- @function valueInit@ Clear a GValue.
 --
 valueInit :: GValue -> GType -> IO ()
 valueInit gv gt = liftM (const ()) $ {#call unsafe value_init#} gv gt
 
 
--- Free the data in a GValue.
+-- @function valueUnset@ Free the data in a GValue.
 --
 valueUnset :: GValue -> IO ()
 valueUnset = {#call unsafe value_unset#}

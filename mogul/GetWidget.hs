@@ -5,7 +5,7 @@
 --          
 --  Created: 4 June 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/11/03 20:35:46 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -35,7 +35,6 @@ module GetWidget(
   getTipsQuery,
   getArrow,
   getImage,
-  getPixmap,
   getContainer,
   getBin,
   getAlignment,
@@ -146,10 +145,6 @@ getArrow name =
 getImage :: String -> IO Image
 getImage name = 
   widgetLookup name "Image" mkImage
-
-getPixmap :: String -> IO Pixmap
-getPixmap name = 
-  widgetLookup name "Pixmap" mkPixmap
 
 getContainer :: String -> IO Container
 getContainer name = 

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GType (dynamic type system)@
+--  GIMP Toolkit (GTK) @entry GType@
 --
 --  Author : Axel Simon
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/11/03 20:35:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,11 +23,11 @@
 --
 -- * This module implements only the necessities for the GTK binding.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
-
+-- @todo@ ---------------------------------------------------------------------
+--
 module GType(
   GType,
   typeInstanceIsA
@@ -47,7 +47,7 @@ type GType = {#type GType#}
 -- * Internally used by Hierarchy.
 --
 typeInstanceIsA :: Ptr () -> GType -> Bool
-typeInstanceIsA obj = 
-  toBool.{#call fun unsafe g_type_check_instance_is_a#} obj
+typeInstanceIsA obj p =
+  toBool ({#call fun unsafe g_type_check_instance_is_a#} obj p)
 
 

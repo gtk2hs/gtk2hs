@@ -5,7 +5,7 @@
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -70,11 +70,12 @@ import Structs	(nullForeignPtr)
 -- @constructor menuNew@ Make an empty Menu.
 --
 menuNew :: IO Menu
-menuNew  = makeNewObject mkMenu $
+menuNew = makeNewObject mkMenu $
   liftM castPtr {#call unsafe menu_new#}
 
 -- @method menuReorderChild@ Move a child to a new position within the menu.
--- The position is counted from 0 to n-1 if the menu contains n entries.
+--
+-- * The position is counted from 0 to n-1 if the menu contains n entries.
 --
 menuReorderChild :: (MenuClass m, MenuItemClass mi) => m -> mi -> Int -> IO ()
 menuReorderChild m child pos = {#call menu_reorder_child#}

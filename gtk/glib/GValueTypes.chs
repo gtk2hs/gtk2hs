@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GValueTypes (record access)@
+--  GIMP Toolkit (GTK) @entry GValueTypes@
 --
 --  Author : Axel Simon
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/18 18:14:30 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,11 +23,11 @@
 --
 -- * This module implements only the necessities for the GTK binding.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
--- * Everything here is only used by @TreeStore and friends.
+-- * Everything here is only used by @ref data TreeStore@ and friends.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * Replace POINTER with Stable Dynamic or something safe and Haskell like.
 --
@@ -64,7 +64,7 @@ import GType	(GType)
 
 {# context lib="glib" prefix="g" #}
 
--- Retrieve and set the data item in the @GenericValue.
+-- Retrieve and set the data item in the GenericValue.
 --
 
 valueSetUInt :: GValue -> {#type guint#} -> IO ()
@@ -130,7 +130,7 @@ valueGetString gv = do
   strPtr <- {#call unsafe value_get_string#} gv
   if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
 
--- * for some weird reason the API sais that @gv is a gpointer, not a GObject
+-- * for some weird reason the API says that gv is a gpointer, not a GObject
 valueSetObject :: GValue -> GObject -> IO ()
 valueSetObject gv obj = g_value_set_object gv obj
 

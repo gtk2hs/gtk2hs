@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2002/10/06 16:14:08 $
+--  Version $Revision: 1.9 $ from $Date: 2002/11/03 20:35:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -73,7 +73,7 @@ module Structs(
   responseApply,
   responseHelp,
   XID,
---  socketGetXID,
+  --socketGetXID,
   socketHasPlug,
   toolbarGetSize',
   toolbarChildButton,
@@ -470,9 +470,9 @@ responseHelp = -11
 type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
 			-- of NativeWindow (Word32 vs. CUInt)
 
--- @dunno@Query the XID field of the socket widget. This value needs to be
+-- Query the XID field of the socket widget. This value needs to be
 -- sent to the Plug widget of the other application.
--- *  @literal@
+-- *  
 --socketGetXID :: Socket -> IO XID
 --socketGetXID socket = do
 --  winPtr <- throwIfNull "socketGetXID: the socket widget is not realized" $
