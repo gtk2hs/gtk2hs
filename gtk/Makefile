@@ -200,7 +200,7 @@ general/Hierarchy.chs : typehier/TypeGenerator typehier/hierarchy.list
 	general/Hierarchy.chs $(IGNORE_TYPES))
 
 EXTRA_CLEANFILES += typehier/TypeGenerator typehier/TypeGenerator.o \
-		 typehier/Main.hi typehier/hierarchy.list
+		 typehier/Main.hi
 
 EXTRA_TARFILES	+= typehier/TypeGenerator.hs typehier/Makefile \
 		   typehier/hierarchy.list

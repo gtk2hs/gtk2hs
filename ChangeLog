@@ -1,3 +1,8 @@
+2003-01-21  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/Makefile: Inadvertently put hierarchy.list on the list of
+	files to be wiped with make clean.
+	
 2003-01-20  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* configure.in: Corrected wrongly escaped hash sign which serves as
