@@ -1,3 +1,8 @@
+2003-01-20  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* configure.in: Corrected wrongly escaped hash sign which serves as
+	a comment to sed.
+
 2003-01-19  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* configure.in, gtk/Makefile, gtk/general/Gtk.hs, mk/common.mk,
@@ -9,7 +14,7 @@
 
 	* demo/graphic/Drawing.hs: make sure that main has type IO ().
 
-	* doc/Makefile: Add docs to the tar ball.
+	* Makefile, doc/Makefile: Add docs to the tar ball.
 
 	* gtk/typehier/TypeGenerator.hs, gtk/Makefile: Selectively create
 	the types GtkPlug and GtkSocket, depending on whether we are

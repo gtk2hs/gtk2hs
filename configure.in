@@ -69,7 +69,7 @@ if test x$EXEEXT = x; then
   DLSUFFIX=".so";
   DLPREFIX="lib";
   dnl the hash sign is a comment for sed
-  PATHSED=[\#];
+  PATHSED=["\#"];
   HSCFLAGS=;
   C2HSFLAGS=" -C-D__signed=signed";
   dnl Where are we? (only used during configuration)
