@@ -139,7 +139,7 @@ generate fname lib prefix objs typeTable =
 		    (maximum (map (length.head) objs)-length str) ' ' 
   in
            ss "-- -*-haskell-*-".
-  indent 0.ss "-- ******************** automatically generated file - do not edit **********".
+  indent 0.ss "-- -------------------- automatically generated file - do not edit ----------".
   indent 0.ss "--  Object hierarchy for the GIMP Toolkit (GTK) Binding for Haskell".
   indent 0.ss "--".
   indent 0.ss "--  Author : Axel Simon".
@@ -156,18 +156,12 @@ generate fname lib prefix objs typeTable =
   indent 0.ss "--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the".
   indent 0.ss "--  GNU General Public License for more details.".
   indent 0.ss "--".
-  indent 0.ss "--- @description@ -------------------------------------------------------------".
-  indent 0.ss "--".
-  indent 0.ss "--  * This file reflects the Gtk object hierarchy in terms of Haskell classes.".
-  indent 0.ss "--".
-  indent 0.ss "--- @documentation@ -----------------------------------------------------------".
-  indent 0.ss "--".
-  indent 0.ss "--".
-  indent 0.ss "--- @todo@ --------------------------------------------------------------------".
-  indent 0.ss "--".
+  indent 0.ss "-- |".
+  indent 0.ss "-- This file reflects the Gtk object hierarchy in terms of Haskell classes.".
   indent 0.ss "--".
   indent 0.ss "module ".ss fname.sc '('.
 --  indent 1.ss "ObjectTag(..)".
+  tail.
   foldl (\s1 s2 -> s1.ss ", ".s2) id (map (\(n:_) -> 
 		indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
 		indent 1.ss "to".ss n.ss ", ".

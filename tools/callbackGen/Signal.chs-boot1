@@ -1,13 +1,13 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
--- ******************** automatically generated file - do not edit ************
+-- -------------------- automatically generated file - do not edit ------------
 --  Callback installers for the GIMP Toolkit (GTK) Binding for Haskell
 --
 --  Author : Axel Simon
 --          
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.1 $ from $Date: 2003/11/15 09:46:20 $
+--  Version $Revision: 1.2 $ from $Date: 2004/05/25 02:05:10 $
 --
 --  Copyright (c) 2000 Axel Simon
 --
@@ -21,14 +21,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
---
---  * These functions are used to connect signals to widgets. They are auto-
+-- |
+--    These functions are used to connect signals to widgets. They are auto-
 --    matically created through HookGenerator.hs which takes a list of possible
 --    function signatures that are included in the GTK sources 
 --    (gtkmarshal.list).
---
---- DOCU ----------------------------------------------------------------------
 --
 --  * The object system in the second version of GTK is based on GObject from
 --    GLIB. This base class is rather primitive in that it only implements
@@ -42,7 +39,7 @@
 --    user function directly. The latter is needed if a signal delivers a
 --    pointer to a string and its length in a separate integer.
 --
---- TODO ----------------------------------------------------------------------
+-- TODO
 --
 --  * Check if we need all prototypes mentioned in gtkmarshal.list.
 --

@@ -14,6 +14,12 @@
 	sourceview/SourceTagTable.chs, sourceview/SourceView.chs:
 	initial haddockification
 
+	* tools/hierarchyGen/TypeGen.hs: make prog generator produce
+	haddock compatible documentation
+
+	* tools/callbackGen/Signal.chs-boot1: make signals module header
+	haddock compatible
+
 2004-05-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/Bin.chs, gtk/abstract/Box.chs,
