@@ -25,6 +25,20 @@
 	5. Also add a work around for a broken development version of Gtk that
 	Sun decided to ship.
 
+	* Makefile.am:
+	1. Revert patch to build GHCi .o files ourselves, instead leave it up
+	to ghc-pkg -g as we did before.
+	2. Make building GHCi .o files conditional on the Soalris test from
+	configure.
+	3. Make sure to remove the previous GHCi .o file otherwise ghc-pkg does
+	not re-generate it which would lead to problems for people upgrading.
+	4. Arrandge for only the appropriate demos to be built and support
+	building them with a non-default package.conf location and with older
+	ghc versions that do not support "auto" packages.
+	5. Change the install location of gtk2hs.haddock from 
+	$(datadir)/doc/gtk2hs/html/ to just $(datadir)/doc/gtk2hs/ to conform
+	with the cabal haddock convention.
+
 2005-01-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add an extra option --without-pkgreg to allow

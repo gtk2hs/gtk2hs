@@ -879,13 +879,16 @@ html_DATA =									\
 	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, doc/%.html, 	\
 		$(subst /,.,$(HSFILE:.uncpp=))))				\
 	doc/haddock.css doc/haskell_icon.gif					\
-	doc/index.html doc/doc-index.html doc/gtk2hs.haddock			\
+	doc/index.html doc/doc-index.html					\
 	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y,	\
 		doc/doc-index-$(LETTER).html) #missing letters Q and Z
 
+haddockifacedir = $(datadir)/doc/gtk2hs
+haddockiface_DATA = doc/gtk2hs.haddock
+
 # --prologue=doc/prologue.txt
 
-$(html_DATA) : $(html_HSFILES)
+$(html_DATA) doc/gtk2hs.haddock : $(html_HSFILES)
 	mkdir -p doc
 	$(strip $(HADDOCK) --html --odir=doc \
 		--title="Gtk2Hs" \
@@ -904,10 +907,16 @@ endif #BUILDDOCS
 #
 ################################################################################
 
-DEMOS = demo/hello demo/buttonbox demo/concurrent demo/filechooser \
+DEMOS = demo/hello demo/buttonbox demo/concurrent \
 	demo/graphic demo/treeList demo/unicode
+if HAVE_GTK_VERSION_2_4
+DEMOS += demo/filechooser 
+endif
 if ENABLE_LIBGLADE
-DEMOS += demo/glade demo/profileviewer
+DEMOS += demo/glade
+if HAVE_GTK_VERSION_2_4
+DEMOS += demo/profileviewer
+endif
 endif
 if ENABLE_GNOME
 DEMOS += demo/gconf demo/sourceview
@@ -917,11 +926,14 @@ DEMOS += demo/mozembed
 endif
 
 # For the install check just make sure all the demo programs compile and link
+DEMO_MAKE_ARGS= $(if $(PKGCONF), HCFLAGS="-package-conf $(DESTDIR)$(PKGCONF)") \
+		$(if $(GHCPKG_USE_AUTOLIBS),, HCNEEDSPACKAGE=yes)
+
 installcheck-local:
 	$(foreach DEMO,$(DEMOS),$(strip	\
 		make -C $(DEMO) clean &&\
-		make -C $(DEMO) &&	\
-	)) echo ok
+		make -C $(DEMO) $(DEMO_MAKE_ARGS) &&	\
+	)) echo All demos compiled ok, now try running one or two...
 
 EXTRA_DIST +=								\
 	demo/buttonbox/ButtonBox.hs demo/buttonbox/Makefile		\
@@ -952,12 +964,6 @@ EXTRA_DIST +=								\
 # and if your installation gets corrupt you can re-register the packages from them.
 pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),PACKAGE))
 
-# Also build GHCI compatible .o files for each library.
-pkglib_DATA += $(foreach pkgname,$(pkglib_LIBRARIES), $(patsubst lib%.a,%.o,$(pkgname)))
-
-HS%.o : libHS%.a
-	ld --relocatable --discard-all --output=$@ --whole-archive $<
-
 if ENABLE_PKGREG
 
 # For distributors we usually do not want to register the packages using
@@ -968,14 +974,16 @@ install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
+	rm -f $(DESTDIR)$(pkglibdir)/$(patsubst lib%.a,%.o,$(pkgname)); \
 	prefix=$(prefix) exec_prefix=$(exec_prefix) pkglibdir=$(pkglibdir) \
-	$(GHCPKG) $(addprefix -f ,$(PKGCONF)) -u \
-	-i $(call getVar,$(pkgname),PACKAGE);)
+	$(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
+	--update-package $(GHCPKG_BUILD_GHCI_LIB) \
+	--input-file=$(call getVar,$(pkgname),PACKAGE);)
 
 uninstall-hook :
 	$(foreach pkgname,$(lib_LIBRARIES), \
-	  $(GHCPKG) $(addprefix -f ,$(PKGCONF)) \
-	  -r `cat $(call getVar,$(pkgname),PACKAGE) \
+	  $(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
+	  --remove-package=`cat $(call getVar,$(pkgname),PACKAGE) \
 	  | $(GREP) name | $(SED) "s/ *name *= *\"\([a-zA-Z0-9]*\)\",/\1/"`;) \
 	$(if $(PKGCONF),if test -f $(PKGCONF); then \
 	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
