@@ -2,6 +2,8 @@
 
 LIBNAME			?= $(PACKAGENAME)
 
+INSTALLDIR = $(COMMONINSTALLDIR)/$(PACKAGENAME)
+
 TARGETOK		= $(addprefix $(strip $(LIBPREFIX)),\
 			$(addsuffix $(LIBSUFFIX),$(strip $(LIBNAME))))
 
