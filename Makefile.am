@@ -232,6 +232,8 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/GError.chs.pp		\
 	glib/System/Glib/GList.chs
 
+html_HSFILES_EXCLUDE = glib/System/Glib/FFI.hs
+
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
 
@@ -417,6 +419,8 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.hs				\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs
 
+html_HSFILES_PREPROC = gtk/Graphics/UI/Gtk.hs
+
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Types_hs_HCFLAGS	        = -fglasgow-exts
@@ -476,31 +480,6 @@ libHSgtk_a_HSFILES  = \
 
 nobase_hi_SCRIPTS += $(libHSgtk_a_HSFILES:.hs=.hi)
 
-if BUILDDOCS
-htmldir = $(datadir)/doc/gtk2hs/html
-html_DATA = \
-	$(foreach HSFILE, $(libHSgtk_a_HSFILES), \
-	$(patsubst gtk.%.hs, doc/%.html, $(subst /,.,$(HSFILE)))) \
-	doc/index.html doc/haddock.css doc/haskell_icon.gif doc/doc-index.html \
-	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y, \
-		doc/doc-index-$(LETTER).html) #missing letters Q and Z
-EXCLUDE_DOCS = 
-PREPROC_DOCS = gtk/Graphics/UI/Gtk.hs
-
-$(html_DATA) : $(libHSgtk_a_HSFILES) $(PREPROC_DOCS:.hs=.hs.uncpp)
-	mkdir -p doc
-	$(HADDOCK) --html -o doc \
-		--title="Gtk2Hs" --package=$(libHSgtk_a_NAME) \
-		--dump-interface=doc/gtk.haddock \
-		$(filter-out $(EXCLUDE_DOCS) $(PREPROC_DOCS), $^)
-
-.hs.hs.uncpp : $(CONFIG_H)
-	$(HSCPP) -I. $< -o $@
-
-MOSTLYCLEANFILES += $(html_DATA)
-
-endif #BUILDDOCS
-
 MOSTLYCLEANFILES += $(am_libHSgtk_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += \
@@ -540,6 +519,11 @@ libHSmogul_a_SOURCES =		\
 	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs	\
 	mogul/Graphics/UI/Gtk/Mogul/TreeList.hs		\
 	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs
+
+html_HSFILES_PREPROC += 	\
+	mogul/Graphics/UI/Gtk/Mogul.hs			\
+	mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs	\
+	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs
 
 am_libHSmogul_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmogul_a_SOURCES))))
@@ -658,6 +642,9 @@ libHSgconf_a_SOURCES =					\
 	gconf/System/Gnome/GConf/GConfValue.chs		\
 	gconf/System/Gnome/GConf/GConfClient.chs	\
 	gconf/System/Gnome/GConf.hs
+
+libHSgconf_a_LIBADD =	\
+	gconf/System/Gnome/GConf/GConfClient_stub.o
 
 gconf/System/Gnome/GConf/Types.chs :			\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -866,5 +853,93 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
  endif
 
 endif #ENABLE_MOZEMBED
+
+#
+#	documentation
+#
+################################################################################
+
+if BUILDDOCS
+
+# For now just build all the docs together, we can think about doing it in a
+# more modular fashion later if it turns out to be useful.
+
+htmldir = $(datadir)/doc/gtk2hs/html
+
+PACKAGES = $(foreach PACKAGE,$(pkglib_LIBRARIES), $(patsubst libHS%.a,%,$(PACKAGE)))
+
+html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE) $(html_HSFILES_PREPROC),	\
+		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))	\
+		$(html_HSFILES_PREPROC:.hs=.hs.uncpp)
+
+html_DATA =									\
+	$(foreach HSFILE, $(html_HSFILES),					\
+	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, doc/%.html, 	\
+		$(subst /,.,$(HSFILE:.uncpp=))))				\
+	doc/haddock.css doc/haskell_icon.gif					\
+	doc/index.html doc/doc-index.html					\
+	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y,	\
+		doc/doc-index-$(LETTER).html) #missing letters Q and Z
+
+# --prologue=doc/prologue.txt
+
+$(html_DATA) : $(html_HSFILES)
+	mkdir -p doc
+	$(strip $(HADDOCK) --html --odir=doc \
+		--title="Gtk2Hs" \
+		--dump-interface=doc/gtk2hs.haddock \
+		$^)
+
+.hs.hs.uncpp : $(CONFIG_H)
+	$(HSCPP) -I. $< -o $@
+
+CLEANFILES += $(html_DATA)
+
+endif #BUILDDOCS
+
+#
+#	demos
+#
+################################################################################
+
+DEMOS = demo/hello demo/buttonbox demo/concurrent demo/filechooser \
+	demo/graphic demo/treeList demo/unicode
+if ENABLE_LIBGLADE
+DEMOS += demo/glade demo/profileviewer
+endif
+if ENABLE_GNOME
+DEMOS += demo/gconf demo/sourceview
+endif
+if ENABLE_MOZEMBED
+DEMOS += demo/mozembed
+endif
+
+# For the install check just make sure all the demo programs compile and link
+installcheck-local:
+	$(foreach DEMO,$(DEMOS),$(strip	\
+		make -C $(DEMO) clean &&\
+		make -C $(DEMO) &&	\
+	)) echo ok
+
+EXTRA_DIST +=								\
+	demo/buttonbox/ButtonBox.hs demo/buttonbox/Makefile		\
+	demo/concurrent/Progress.hs demo/concurrent/Makefile 		\
+	demo/filechooser/FileChooserDemo.hs demo/filechooser/Makefile	\
+		demo/filechooser/FileChooserDemo.glade			\
+	demo/gconf/GConfDemo.hs demo/gconf/Makefile			\
+	demo/glade/GladeTest.hs demo/glade/Makefile			\
+		demo/glade/simple.glade 				\
+	demo/graphic/Drawing.hs demo/graphic/Makefile			\
+	demo/hello/World.hs demo/hello/Makefile 			\
+	demo/mozembed/TestEmbedMoz.hs demo/mozembed/Makefile		\
+	demo/profileviewer/ProfileViewer.hs				\
+		demo/profileviewer/ParseProfile.hs			\
+		demo/profileviewer/ProfileViewer.glade			\
+		demo/profileviewer/Makefile				\
+	demo/sourceview/SourceViewTest.hs demo/sourceview/Makefile	\
+		demo/sourceview/haskell.lang				\
+	demo/treeList/ListTest.hs demo/treeList/Makefile		\
+	demo/unicode/Arabic.hs demo/unicode/Makefile
+
 
 include mk/common.mk
