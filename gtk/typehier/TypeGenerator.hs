@@ -4,7 +4,7 @@
 module Main(main) where
 
 import Char(showLitChar,isAlphaNum, isSpace, toLower, isUpper)
-import List(nub)
+import List(nub, isPrefixOf)
 import Maybe(catMaybes, fromMaybe)
 import System(getArgs, exitWith, ExitCode(..))
 
@@ -25,18 +25,26 @@ freshParserState = ParserState 1 1 []
 -- The parser returns a list of ObjectSpec and possibly a special type query
 -- function. Each ObjectSpec describes one object with all its parents.
 
-pFreshLine :: ParserState -> String -> [(ObjectSpec, TypeQuery)]
-pFreshLine ps ('#':rem)		= pFreshLine ps (dropWhile ((/=) '\n') rem)
-pFreshLine ps ('\n':rem)	= pFreshLine (ps {line = line ps+1, col=1}) rem
-pFreshLine ps (' ':rem)		= pFreshLine (ps {col=col ps+1}) rem
-pFreshLine ps ('\t':rem)	= pFreshLine (ps {col=col ps+8}) rem
-pFreshLine ps ('G':'t':'k':rem) = pGetObject ps rem
-pFreshLine ps []		= []
-pFreshLine ps all		= pGetObject ps all
+pFreshLine :: ParserState -> String -> [String] -> [(ObjectSpec, TypeQuery)]
+pFreshLine ps input omits = pFL ps input
+  where
+    pFL ps ('#':rem)		= pFL ps (dropWhile ((/=) '\n') rem)
+    pFL ps ('\n':rem)	 	= pFL (ps {line = line ps+1, col=1}) rem
+    pFL ps (' ':rem)		= pFL (ps {col=col ps+1}) rem
+    pFL ps ('\t':rem)		= pFL (ps {col=col ps+8}) rem
+    pFL ps ('G':'t':'k':rem) 	| isWanted rem = pGetObject ps rem omits 
+				| otherwise    = pFL ps (dropWhile 
+						 ((/=) '\n') rem)
+    pFL ps []			= []
+    pFL ps all			| isWanted all = pGetObject ps all omits
+				| otherwise    = pFL ps (dropWhile 
+						 ((/=) '\n') all)
+    isWanted :: String -> Bool
+    isWanted inp = not $ any (\ty -> inp `isPrefixOf` ty) omits
 
-pGetObject :: ParserState -> String -> [(ObjectSpec, TypeQuery)]
-pGetObject ps txt = (spec, specialQuery):
-  pFreshLine (ps { hierObjs=spec}) (dropWhile ((/=) '\n') rem')
+pGetObject :: ParserState -> String -> [String] -> [(ObjectSpec, TypeQuery)]
+pGetObject ps txt omits = (spec, specialQuery):
+  pFreshLine (ps { hierObjs=spec}) (dropWhile ((/=) '\n') rem') omits
   where
     isBlank     c = c==' ' || c=='\t'
     isAlphaNum_ c = isAlphaNum c || c=='_'
@@ -79,21 +87,24 @@ indent c = ss ("\n"++replicate (2*c) ' ')
 
 main = do
   args <- getArgs
-  if (length args/=2) then usage else do
-    let [hierFile, goalFile] = args
+  if (length args<2) then usage else do
+    let (hierFile: goalFile: omits) = args
     content <- readFile hierFile
     let (objs, specialQueries) = unzip $ pFreshLine freshParserState content
+					 omits
     writeFile goalFile $
       generate (map (map snd) objs) (catMaybes specialQueries) ""
 
 
 usage = do
  putStr "\nProgram to generate Gtk's object hierarchy in Haskell. Usage:\n\
-	\TypeGenerator <hierFile> <outFile>\n\
+	\TypeGenerator <hierFile> <outFile> [<type1> ... <typen>]\n\
 	\where\n\
 	\  <hierFile>	   a list of all possible objects, the hierarchy is\n\
 	\		   taken from the indentation\n\
-	\  <outFile>	   is the name and path of the output file\n"
+	\  <outFile>	   is the name and path of the output file\n\
+	\  <type1> ... <typen>\n\
+	\  		   types to omit\n"
  exitWith $ ExitFailure 1
 
 

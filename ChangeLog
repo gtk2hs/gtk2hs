@@ -1,3 +1,9 @@
+2003-01-19  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/typehier/TypeGenerator.hs, gtk/Makefile: Selectively create
+	the types GtkPlug and GtkSocket, depending on whether we are
+	compiling on Windows or not.
+
 2003-01-18  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/windows/Plug.chs, gtk/embedding/Plug.chs: Moved this file

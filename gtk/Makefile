@@ -2,11 +2,18 @@ TOP = ..
 
 include $(TOP)/mk/config.mk
 
-SUBDIRS	= abstract buttons display  embedding entry general \
-	  layout menuComboToolbar misc multiline ornaments scrolling \
+SUBDIRS	= abstract buttons display entry general layout menuComboToolbar \
+	  misc multiline ornaments scrolling \
 	  treeList windows gdk glib pango ../compat
 
-#APPNAME = blah
+ifeq (x$(WIN32),xyes)
+EXTRA_HFILES	= $(TOP)/gtk/wingtk.h
+else
+SUBDIRS += embedding
+endif
+
+EXTRA_TARFILES	= $(TOP)/gtk/wingtk.h
+
 PACKAGENAME = gtk2
 LIBNAME = gtk2hs
 
@@ -16,7 +23,7 @@ MAIN = general/Gtk.hs
 
 HEADER = gtk/gtk.h
 
-ifneq ($(MULTIPLE_CHS),yes)
+ifneq (x$(MULTIPLE_CHS),xyes)
 # general and non-Gtk
 GObject-HEADER		= glib-object.h
 GType-HEADER		= glib-object.h
@@ -137,7 +144,7 @@ NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
 	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter \
 	  gdk/Region
 
-ifneq ($(strip $(NEW_MODULE_SYS)),yes)
+ifneq (x$(NEW_MODULE_SYS),xyes)
 NEEDPACKAGES = data lang
 else
 NEEDPACKAGES = data
@@ -159,13 +166,20 @@ EXTRA_LIBS	= $(GTK_LIBS)
 EXTRA_CHSFILES	+= general/Signal.chs
 EXTRA_STUBFILES += general/Signal.chs
 
+ifeq (x$(BROKENCB),xyes)
+ENABLEBROKEN	= --broken
+else
+ENABLEBROKEN	=
+endif
+
 general/Signal.chs : signals/HookGenerator $(MARSHALLDEFS)\
 	    	  signals/Signal.chs-boot1 signals/Signal.chs-boot2
-	signals/HookGenerator $(MARSHALLDEFS) signals/ general/Signal.chs
+	$(strip signals/HookGenerator $(MARSHALLDEFS) signals/ \
+	general/Signal.chs $(ENABLEBROKEN))
 
 EXTRA_CLEANFILES += signals/HookGenerator signal/HookGenerator.o signal/Main.hi
 
-EXTRA_TARFILES	+= signals/HookGenerator.hs.in signals/Makefile \
+EXTRA_TARFILES	+= signals/HookGenerator.hs signals/Makefile \
 		   signals/gtkmarshal.list signals/Signal.chs-boot1 \
 		   signals/Signal.chs-boot2
 
@@ -174,10 +188,18 @@ signals/HookGenerator : signals/HookGenerator.hs
 
 EXTRA_CHSFILES	+=  general/Hierarchy.chs
 
-general/Hierarchy.chs : typehier/TypeGenerator typehier/hierarchy.list
-	typehier/TypeGenerator typehier/hierarchy.list general/Hierarchy.chs
+ifeq ($(WIN32),yes)
+IGNORE_TYPES	= Plug Socket
+else
+IGNORE_TYPES	=
+endif
 
-EXTRA_CLEANFILES += typehier/TypeGenerator typehier/TypeGenerator.o typehier/Main.hi
+general/Hierarchy.chs : typehier/TypeGenerator typehier/hierarchy.list
+	$(strip typehier/TypeGenerator typehier/hierarchy.list \
+	general/Hierarchy.chs $(IGNORE_TYPES))
+
+EXTRA_CLEANFILES += typehier/TypeGenerator typehier/TypeGenerator.o \
+		 typehier/Main.hi typehier/hierarchy.list
 
 EXTRA_TARFILES	+= typehier/TypeGenerator.hs typehier/Makefile \
 		   typehier/hierarchy.list
