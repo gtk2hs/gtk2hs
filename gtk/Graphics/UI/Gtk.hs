@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/17 00:13:20 $
+--  Version $Revision: 1.5 $ from $Date: 2005/02/26 02:54:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -55,7 +55,6 @@ module Graphics.UI.Gtk (
   -- * Windows
   module Graphics.UI.Gtk.Windows.Window,
   module Graphics.UI.Gtk.Windows.Dialog,
-  module Graphics.UI.Gtk.Windows.FileSel,
   -- * Display widgets,
   module Graphics.UI.Gtk.Display.AccelLabel,
   module Graphics.UI.Gtk.Display.Image,
@@ -113,7 +112,7 @@ module Graphics.UI.Gtk (
   -- * Selectors (file\/font\/color)
   module Graphics.UI.Gtk.Selectors.ColorSelection,
   module Graphics.UI.Gtk.Selectors.ColorSelectionDialog,
---  module FileSelection,
+  module Graphics.UI.Gtk.Selectors.FileSelection,
   module Graphics.UI.Gtk.Selectors.FontSelection,
   module Graphics.UI.Gtk.Selectors.FontSelectionDialog,
 --  module InputDialog,
@@ -145,7 +144,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Scrolling.VScrollbar,
   -- * Miscellaneous
   module Graphics.UI.Gtk.Misc.Adjustment,
-  module Graphics.UI.Gtk.Misc.GArrow,
+  module Graphics.UI.Gtk.Misc.Arrow,
   module Graphics.UI.Gtk.Misc.Calendar,
   module Graphics.UI.Gtk.Misc.DrawingArea,
   module Graphics.UI.Gtk.Misc.EventBox,
@@ -196,7 +195,6 @@ import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Gdk
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog
-import Graphics.UI.Gtk.Windows.FileSel
 import Graphics.UI.Gtk.Windows.Window
 --import WindowGroup
 -- display widgets
@@ -265,7 +263,7 @@ import Graphics.UI.Gtk.MenuComboToolbar.ToolItem
 -- selectors (file\/font\/color\/input device)
 import Graphics.UI.Gtk.Selectors.ColorSelection
 import Graphics.UI.Gtk.Selectors.ColorSelectionDialog
---import FileSelection
+import Graphics.UI.Gtk.Selectors.FileSelection
 import Graphics.UI.Gtk.Selectors.FileChooser
 import Graphics.UI.Gtk.Selectors.FileChooserDialog
 import Graphics.UI.Gtk.Selectors.FileChooserWidget
@@ -296,7 +294,7 @@ import Graphics.UI.Gtk.Scrolling.VScrollbar
 import Graphics.UI.Gtk.Scrolling.ScrolledWindow
 -- miscellaneous
 import Graphics.UI.Gtk.Misc.Adjustment
-import Graphics.UI.Gtk.Misc.GArrow
+import Graphics.UI.Gtk.Misc.Arrow
 import Graphics.UI.Gtk.Misc.Calendar
 import Graphics.UI.Gtk.Misc.DrawingArea
 import Graphics.UI.Gtk.Misc.EventBox

@@ -365,7 +365,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs			\
 	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp			\
-	gtk/Graphics/UI/Gtk/Misc/GArrow.chs				\
+	gtk/Graphics/UI/Gtk/Misc/Arrow.chs				\
 	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs				\
 	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs				\
 	gtk/Graphics/UI/Gtk/Misc/Tooltips.chs.pp			\
@@ -397,7 +397,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs				\
-	gtk/Graphics/UI/Gtk/Windows/FileSel.chs.pp			\
+	gtk/Graphics/UI/Gtk/Selectors/FileSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/GC.chs					\

@@ -32,6 +32,9 @@
 
 	* Makefile.am: change names of the two modules, GArrow and FileSel.
 
+	* gtk/Graphics/UI/Gtk.hs: change the names of the two modules, GArrow
+	and FileSel.
+
 2005-02-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,
