@@ -49,8 +49,8 @@ EXTRA_CLEANFILES+= SourceViewType.chs
 NEEDCHI = SourceViewType
 
 SourceViewType.chs : ../tools/hierarchyGen/hierarchy.list
-	$(strip ../tools/hierarchyGen/TypeGenerator \
-	../tools/hierarchyGen/hierarchy.list \
+	$(CPP) $(GTK_CFLAGS) - < $(TOP)/tools/hierarchyGen/hierarchy.list | \
+	$(strip ../tools/hierarchyGen/TypeGenerator - \
 	SourceViewType.chs \
 	$(addprefix --tag=,$(TYPE_TAGS)))
 

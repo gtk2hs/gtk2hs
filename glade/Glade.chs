@@ -4,7 +4,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 13 March 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2003/12/11 22:48:24 $
+--  Version $Revision: 1.2 $ from $Date: 2004/04/30 12:50:15 $
 --
 --  Copyright (c) 2002 Manuel M T Chakravarty
 --  Modified 2003 by Duncan Coutts (gtk2hs port)
@@ -67,7 +67,7 @@ import GObject  (makeNewGObject)
 {#import GladeType#}
 import GList
 
-{#context lib="libglade" prefix ="glade"#}
+{#context lib="glade" prefix ="glade"#}
 
 
 -- |Operations

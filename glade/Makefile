@@ -42,8 +42,8 @@ EXTRA_CLEANFILES+= GladeType.chs
 NEEDCHI = GladeType
 
 GladeType.chs : ../tools/hierarchyGen/hierarchy.list
-	$(strip ../tools/hierarchyGen/TypeGenerator \
-	../tools/hierarchyGen/hierarchy.list \
+	$(CPP) $(GTK_CFLAGS) - < $(TOP)/tools/hierarchyGen/hierarchy.list | \
+	$(strip ../tools/hierarchyGen/TypeGenerator - \
 	GladeType.chs \
 	$(addprefix --tag=,$(TYPE_TAGS))) --lib=glade --prefix=glade
 

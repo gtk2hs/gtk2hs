@@ -1,5 +1,12 @@
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* sourceview/Makefile,
+	* glade/Makefile: added proprocessor pass for hierarchy.list
+
+	* glade/Glade.chs: fix lib prefix
+
+2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
+
 	* gtk/Makefile: use standard $(CPP) variable
 
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
