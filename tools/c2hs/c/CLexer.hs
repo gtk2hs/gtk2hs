@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 6 March 99
 --
---  Version $Revision: 1.2 $ from $Date: 2005/01/18 22:06:34 $
+--  Version $Revision: 1.3 $ from $Date: 2005/01/19 18:34:46 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -164,6 +164,8 @@ data CToken = CTokLParen   Position		-- `('
 	    | CTokReturn   Position		-- `return'
 	    | CTokShort    Position		-- `short'
 	    | CTokSigned   Position		-- `signed'
+						-- (or `__signed', 
+						-- `__signed__')
 	    | CTokSizeof   Position		-- `sizeof'
 	    | CTokStatic   Position		-- `static'
 	    | CTokStruct   Position		-- `struct'
@@ -173,6 +175,8 @@ data CToken = CTokLParen   Position		-- `('
 	    | CTokUnsigned Position		-- `unsigned'
 	    | CTokVoid     Position		-- `void'
 	    | CTokVolatile Position		-- `volatile'
+						-- (or `__volatile', 
+						-- `__volatile__')
 	    | CTokWhile    Position		-- `while'
 	    | CTokCLit	   Position Char	-- character constant
 	    | CTokILit	   Position Integer	-- integer constant
@@ -594,6 +598,8 @@ identOrKW  =
     idkwtok pos "return"	_    = CTokReturn   pos
     idkwtok pos "short"		_    = CTokShort    pos
     idkwtok pos "signed"	_    = CTokSigned   pos
+    idkwtok pos "__signed"	_    = CTokSigned   pos
+    idkwtok pos "__signed__"	_    = CTokSigned   pos
     idkwtok pos "sizeof"	_    = CTokSizeof   pos
     idkwtok pos "static"	_    = CTokStatic   pos
     idkwtok pos "struct"	_    = CTokStruct   pos
@@ -603,6 +609,8 @@ identOrKW  =
     idkwtok pos "unsigned"	_    = CTokUnsigned pos
     idkwtok pos "void"		_    = CTokVoid     pos
     idkwtok pos "volatile"	_    = CTokVolatile pos
+    idkwtok pos "__volatile"	_    = CTokVolatile pos
+    idkwtok pos "__volatile__"	_    = CTokVolatile pos
     idkwtok pos "while"		_    = CTokWhile    pos
     idkwtok pos "__attribute__"	_    = CTokGnuC     GnuCAttrTok pos
     idkwtok pos "__extension__" _    = CTokGnuC     GnuCExtTok  pos

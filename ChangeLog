@@ -1,3 +1,8 @@
+2005-01-19 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/c2hs/c/CLexer.hs: make c2hs understand the __signed,
+	__signed__, __volatile and __volatile__ portability keyword synonyms.
+
 2005-01-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer.hs: trivial fix to allows c2hs to process the
