@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:22:10 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -45,20 +45,20 @@ import Hierarchy(GObjectClass, toGObject, unGObject)
 
 {# context lib="glib" prefix="g" #}
 
--- increase the reference counter of an object (EXPORTED)
+-- increase the reference counter of an object
 --
 objectRef :: GObjectClass obj => Ptr obj -> IO ()
 objectRef obj = do
   {#call unsafe object_ref#} (castPtr obj)
   return ()
 
--- decrease the reference counter of an object (EXPORTED)
+-- decrease the reference counter of an object
 --
 objectUnref :: GObjectClass obj => Ptr obj -> IO ()
 objectUnref = {#call object_unref#} . castPtr
 
 -- This is a convenience function to generate an object that does not
--- derive from @Object. It adds objectUnref as finalizer. (EXPORTED)
+-- derive from @Object. It adds objectUnref as finalizer.
 --
 -- * The @constr argument is the contructor of the specific object.
 --

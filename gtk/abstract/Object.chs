@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:22:09 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -56,7 +56,7 @@ import GObject	(objectRef, objectUnref)
 
 -- methods
 
--- turn the initial floating state to sunken
+-- turn the initial floating state to sunk
 --
 -- * The floating/sunk concept of a GTK object is not very useful to us.
 --   The following procedure circumvents the whole subject and ensures 
@@ -73,7 +73,7 @@ foreign import ccall "gtk_object_sink" unsafe
   object_sink :: Ptr Object -> IO ()
 
 -- This is a convenience function to generate a new widget. It adds the
--- finalizer with the method described under @objectSink. (EXPORTED)
+-- finalizer with the method described under @objectSink.
 --
 -- * The @constr argument is the contructor of the specific object.
 --
