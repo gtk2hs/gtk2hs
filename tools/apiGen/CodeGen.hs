@@ -229,7 +229,7 @@ genProperty knownSymbols object property doc =
   indent 1. getter.
   indent 1. setter
   where objectType = ss (object_name object)
-        propertyName = cFuncNameToHsName (property_cname property)
+        propertyName = lowerCaseFirstChar (property_name property)
         getter = ss "(\\obj -> do ". ss gvalueConstructor. ss " result <- objectGetProperty \"". ss (property_cname property). ss "\"".
                  indent 7. ss "return result)"
         setter = ss "(\\obj val -> objectSetProperty obj \"". ss (property_cname property). ss "\" (". ss gvalueConstructor. ss " val))"
@@ -342,13 +342,13 @@ genExports object docs modInfo =
      [] -> id
      cs -> nl.nl.comment.ss "* Methods".nl.
            doVersionIfDefs lines cs).
-  (case [ (ss "  ". ss (cFuncNameToHsName (property_cname property)). sc ','
+  (case [ (ss "  ". ss (lowerCaseFirstChar (property_name property)). sc ','
           ,(maybe "" propdoc_since doc, notDeprecated))
         | (property, doc) <- properties object (moduledoc_properties docs)] of
      [] -> id
      cs -> nl.nl.comment.ss "* Properties".nl.
            doVersionIfDefs lines cs).
-  (case [ let signalName = (upperCaseFirstChar . cFuncNameToHsName . signal_cname) signal in 
+  (case [ let signalName = (toStudlyCaps . canonicalSignalName . signal_cname) signal in 
           (ss "  on".    ss signalName. sc ','.nl.
            ss "  after". ss signalName. sc ','
           ,(maybe "" signaldoc_since doc, notDeprecated))

@@ -179,7 +179,10 @@ cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
     lowerCaseFirstChar
   . stripKnownPrefixes
-  . toStudlyCaps
+  . concatMap upperCaseFirstChar
+  . map fixNames
+  . filter (not.null) --to ignore tailing underscores
+  . splitBy '_'
   . takeWhile ('('/=)
 
 cParamNameToHsName :: String -> String
@@ -198,6 +201,24 @@ toStudlyCaps =                 --change "gtk_foo_bar" to "GtkFooBar"
     concatMap upperCaseFirstChar
   . filter (not.null) --to ignore tailing underscores
   . splitBy '_'
+
+-- some special cases 
+fixNames :: String -> String
+fixNames "hadjustment" = "HAdjustment"
+fixNames "vadjustment" = "VAdjustment"
+fixNames "hscale"  = "HScale"
+fixNames "vscale"  = "VScale"
+fixNames "hbox"    = "HBox"
+fixNames "vbox"    = "VBox"
+fixNames "hbutton" = "HButton"
+fixNames "vbutton" = "VButton"
+fixNames "hpaned"  = "HPaned"
+fixNames "vpaned"  = "VPaned"
+fixNames "hseparator" = "HSeparator"
+fixNames "vseparator" = "VSeparator"
+fixNames "hscrollbar" = "HScrollbar"
+fixNames "vscrollbar" = "VScrollbar"
+fixNames other = other
 
 changeIllegalNames :: String -> String
 changeIllegalNames "type" = "type_"  --this is a common variable name in C but of

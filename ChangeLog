@@ -1,3 +1,22 @@
+2005-02-23 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/MarshalFixup.hs: new module containing fixup
+	information about specials cases. This is existign tables of info
+	moved out of Marshal.hs and FormatDocs.hs so it is better seperated
+	and so it's esier to change for people who don't understand the rest
+	of the code. Also added some more leaf classes and some fnction with
+	maybe null return values.
+	
+	* tools/apiGen/Marshal.hs: move the tables of fixup info into their
+	own module.
+
+	* tools/apiGen/FormatDocs.hs: customise the C to Haskell function name
+	conversion with a bunch of special cases, eg "hadjustment" becomes
+	"HAdjustment" rather than "Hadjustment". The special cases go in the
+	new MarshalFixup.hs module.
+
+	* tools/apiGen/CodeGen.hs: fix generation of property and signal names
+
 2005-02-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Marshal.hs: pass function name to parameter and return
