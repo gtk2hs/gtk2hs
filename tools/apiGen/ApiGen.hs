@@ -312,8 +312,10 @@ addVersionParagraphs namespace apiDoc =
         -- figure out if the whole module appeared in some version of gtk later 
         -- than the original version
         moduleVersion :: Maybe String
-        moduleVersion = minimum [ funcdoc_since funcdoc
-                                | funcdoc <- apidoc_functions apiDoc ]
+        moduleVersion = case [ funcdoc_since funcdoc
+                             | funcdoc <- apidoc_functions apiDoc ] of
+                          [] -> Nothing
+                          versions -> minimum versions
   
 haddocFormatSections :: [DocSection] -> ShowS
 haddocFormatSections = 
@@ -634,10 +636,10 @@ main = do
                   [] -> ""
 		  (docFile:_) -> docFile
   let lib = case map (drop 6) (filter ("--lib=" `isPrefixOf`)  rem) of
-              [] -> "gtk"
+              [] -> ""
 	      (lib:_) -> lib
   let prefix = case map (drop 9) (filter ("--prefix=" `isPrefixOf`)  rem) of
-                 [] -> "gtk"
+                 [] -> ""
                  (prefix:_) -> prefix
   let modPrefix = case map (drop 12) (filter ("--modprefix=" `isPrefixOf`)  rem) of
                     [] -> ""
@@ -696,8 +698,8 @@ main = do
         "MODULE_NAME"    -> ss (modPrefix ++ object_name object)
         "EXPORTS"        -> genExports object (apidoc_functions apiDoc')
 	"IMPORTS"        -> ss "-- CHECKME: extra imports may be required\n"
-	"CONTEXT_LIB"    -> ss lib
-	"CONTEXT_PREFIX" -> ss prefix
+	"CONTEXT_LIB"    -> ss (if null lib then namespace_library namespace else lib)
+	"CONTEXT_PREFIX" -> ss (if null prefix then namespace_library namespace else  prefix)
 	"MODULE_BODY"    -> doVersionIfDefs (genConstructors object (apidoc_functions apiDoc')
                                           ++ genMethods object (apidoc_functions apiDoc'))
 	_ -> ss ""
@@ -718,9 +720,9 @@ usage = do
 	\  <outDir>        is the name and path of the output file\n\
 	\  <docFile>       api doc file output from format-doc.xsl\n\
 	\  <lib>           set the lib to use in the c2hs {#context #}\n\
-	\                  declaration (the default is \"gtk\")\n\
+	\                  declaration (the default is taken from the api file)\n\
 	\  <prefix>        set the prefix to use in the c2hs {#context #}\n\
-	\                  declaration (the default is \"gtk\")\n\
+	\                  declaration (the default is taken from the api file)\n\
 	\  <modPrefix>     specify module name prefix, eg if using\n\
 	\                  hierarchical module names\n"
   exitWith $ ExitFailure 1

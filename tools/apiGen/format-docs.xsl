@@ -59,7 +59,7 @@
     <function>
       <name><xsl:value-of select="indexterm/primary"/></name>
       <since>
-               <xsl:value-of select="number(substring-after(para[starts-with(text(),'Since')], 'Since  '))"/>
+               <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
       </since>
       <doc>
 	 <xsl:for-each select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']">

@@ -1,3 +1,12 @@
+2005-01-09 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/format-docs.xsl: fix generation of function version
+	numbers when they have no version given.
+
+	* tools/apiGen/ApiGen.hs: Fix for when no functions are defined in the
+	documentation file. Also, take the c2hs context prefix and lib values
+	from the api file be default.
+
 2005-01-08 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk.hs: commit the grand hierarchical namespace
