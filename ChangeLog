@@ -1,5 +1,9 @@
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* gtk/Makefile: use standard $(CPP) variable
+
+2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
+
 	* gtk/entry/Entry.chs: added new gtk 2.4 methods
 
 	* gtk/entry/EntryCompletion.chs,

@@ -208,7 +208,7 @@ CREATE_TYPES = plugNsocket default
 endif
 
 general/Hierarchy.chs : $(TOP)/tools/hierarchyGen/hierarchy.list
-	cpp $(GTK_CFLAGS) $(TOP)/tools/hierarchyGen/hierarchy.list | \
+	$(CPP) $(GTK_CFLAGS) - < $(TOP)/tools/hierarchyGen/hierarchy.list | \
 	$(strip $(TOP)/tools/hierarchyGen/TypeGenerator - \
 	general/Hierarchy.chs $(addprefix --tag=,$(CREATE_TYPES)))
 
