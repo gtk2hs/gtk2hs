@@ -1,3 +1,13 @@
+2005-01-25 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/format-docs.xsl: deal with another kind of list and
+	preserve formatting in definition list terms.
+
+	* tools/apiGen/ApiGen.hs: extract properties and events from the xml
+	api file (but don't use them yet). Improve the formatting of
+	definition lists. Escape things inside literals properly. Eliminate
+	an infinite loop bug in the line wrapping algorithm.
+
 2005-01-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* INSTALL: update the install instructions

@@ -53,7 +53,9 @@ data Object = Object {
     object_cname :: String,
     object_parent :: String,
     object_constructors :: [Constructor],
-    object_methods :: [Method]
+    object_methods :: [Method],
+    object_properties :: [Property],
+    object_signals :: [Signal]
   } deriving Show
 
 data Constructor = Constructor {
@@ -74,6 +76,23 @@ data Method = Method {
     method_cname :: String,
     method_return_type :: String,
     method_parameters :: [Parameter]
+  } deriving Show
+
+data Property = Property {
+    property_name :: String,
+    property_cname :: String,
+    property_type :: String,
+    property_readable :: Bool,
+    property_writable :: Bool,
+    property_constructonly :: Bool
+  } deriving Show
+
+data Signal = Signal {
+    signal_name :: String,
+    signal_cname :: String,
+    signal_when :: String,
+    signal_return_type :: String,
+    signal_parameters :: [Parameter]    
   } deriving Show
 
 -------------------------------------------------------------------------------
@@ -105,17 +124,20 @@ extractObject (Xml.CElem (Xml.Elem "object"
     object_cname = Xml.verbatim cname,
     object_parent = Xml.verbatim parent,
     object_constructors = catMaybes (map extractConstructor content),
-    object_methods = catMaybes (map extractMethod content)
+    object_methods = catMaybes (map extractMethod content),
+    object_properties = catMaybes (map extractProperty content),
+    object_signals = catMaybes (map extractSignal content)
   }
 extractObject _ = Nothing
 
 extractMethod :: Xml.Content -> Maybe Method
-extractMethod (Xml.CElem (Xml.Elem "method"
+extractMethod (Xml.CElem (Xml.Elem method
                      [("name", Xml.AttValue name),
                       ("cname", Xml.AttValue cname)]
                      (Xml.CElem (Xml.Elem "return-type"
                             [("type", Xml.AttValue return_type)] [])
-                      :content))) =
+                      :content))) | method == "method"
+                                 || method == "virtual_method" =
   Just $ Method {
     method_name = Xml.verbatim name,
     method_cname = Xml.verbatim cname,
@@ -156,7 +178,6 @@ extractParameter (Xml.CElem (Xml.Elem "callback"
      parameter_isArray = False
    }
   
-
 extractConstructor :: Xml.Content -> Maybe Constructor
 extractConstructor (Xml.CElem (Xml.Elem "constructor"
                      [("cname", Xml.AttValue cname)] content)) =
@@ -170,6 +191,42 @@ extractConstructor (Xml.CElem (Xml.Elem "constructor"
   }
 extractConstructor _ = Nothing
 
+extractProperty :: Xml.Content -> Maybe Property
+extractProperty (Xml.CElem (Xml.Elem "property"
+                     (("name", Xml.AttValue name):
+                      ("cname", Xml.AttValue cname):
+                      ("type", Xml.AttValue type_):others) [])) =
+  Just $ Property {
+    property_name = Xml.verbatim name,
+    property_cname = Xml.verbatim cname,
+    property_type = Xml.verbatim type_,
+    property_readable = (not.null) [ () | ("readable", _) <- others],
+    property_writable = (not.null) [ () | ("writable", _) <- others],
+    property_constructonly  = (not.null) [ () | ("construct-only", _) <- others]
+  }
+extractProperty _ = Nothing
+
+extractSignal :: Xml.Content -> Maybe Signal
+extractSignal (Xml.CElem (Xml.Elem "signal"
+                     (("name", Xml.AttValue name):
+                      ("cname", Xml.AttValue cname):when)
+                     (Xml.CElem (Xml.Elem "return-type"
+                            [("type", Xml.AttValue return_type)] [])
+                      :content))) =
+  Just $ Signal {
+    signal_name = Xml.verbatim name,
+    signal_cname = Xml.verbatim cname,
+    signal_when = case when of
+                    [] -> ""
+                    [("when", Xml.AttValue when)] -> Xml.verbatim when,
+    signal_return_type = Xml.verbatim return_type,
+    signal_parameters =
+      case content of
+        [] -> []
+        [Xml.CElem (Xml.Elem "parameters" [] parameters)]
+           -> map extractParameter parameters
+  }
+extractSignal _ = Nothing
 
 -------------------------------------------------------------------------------
 -- Types representing the content of the documentation XML file
@@ -217,7 +274,7 @@ data DocPara =
     DocParaText [DocParaSpan]           -- an ordinary word-wrapped paragraph
   | DocParaProgram String               -- a verbatum section
   | DocParaExample String String        -- a verbatum section with a title
-  | DocParaDefItem String [DocParaSpan] -- a definition list item
+  | DocParaDefItem [DocParaSpan] [DocParaSpan] -- a definition list item
   | DocParaListItem [DocParaSpan]       -- a itemisted list item
 
 data DocParaSpan = DocText String       -- just simple text
@@ -332,9 +389,9 @@ extractDocParaOrSpan :: Xml.Content -> Either DocParaSpan DocPara
 extractDocParaOrSpan (Xml.CElem (Xml.Elem "listitem" [] content)) =
   Right $ DocParaListItem (map extractDocParaSpan content)
 extractDocParaOrSpan (Xml.CElem (Xml.Elem "definition" []
-                       (Xml.CElem (Xml.Elem "term" [] [Xml.CString _ term])
+                       (Xml.CElem (Xml.Elem "term" [] term)
                        :content))) =
-  Right $ DocParaDefItem term (map extractDocParaSpan content)
+  Right $ DocParaDefItem (map extractDocParaSpan term) (map extractDocParaSpan content)
 extractDocParaOrSpan (Xml.CElem (Xml.Elem "programlisting" _ content)) =
   let listing = concat [ str | (Xml.CString _ str) <- content ] in
   Right $ DocParaProgram listing
@@ -438,7 +495,7 @@ haddocFormatParas =
   . map haddocFormatPara
 
 haddocFormatPara :: DocPara -> ShowS
-haddocFormatPara (DocParaText spans) = haddocFormatSpans spans
+haddocFormatPara (DocParaText spans) = haddocFormatSpans 3 spans
 haddocFormatPara (DocParaProgram prog) =
     ((ss "* FIXME: port the follwing code example from C to Haskell or remove it".nl.
       comment).)
@@ -452,17 +509,21 @@ haddocFormatPara (DocParaExample title prog) =
   . List.lines
   $ prog
 haddocFormatPara (DocParaDefItem term spans) =
-  sc '['. ss term. ss "] ".
-  haddocFormatSpans spans
+  let def = (unwords . words . escape . concatMap haddocFormatSpan) term in
+  sc '['. ss def. ss "] ".
+  haddocFormatSpans (length def + 6) spans
+  where escape [] = []
+        escape (']':cs) = '\\': ']' : escape cs --we must escape ] in def terms
+        escape (c:cs)   =        c  : escape cs
 haddocFormatPara (DocParaListItem spans) =
   ss "* ".
-  haddocFormatSpans spans
+  haddocFormatSpans 5 spans
 
-haddocFormatSpans :: [DocParaSpan] -> ShowS
-haddocFormatSpans =
+haddocFormatSpans :: Int -> [DocParaSpan] -> ShowS
+haddocFormatSpans initialCol =
     sepBy' "\n-- "
   . map (sepBy " ")
-  . wrapText 77
+  . wrapText initialCol 77
   . words
   . concatMap haddocFormatSpan
 
@@ -477,7 +538,7 @@ haddocFormatSpan (DocLiteral "FALSE") = "@False@"
   --likely that something should be changed to a Maybe type if this is emitted:
 haddocFormatSpan (DocLiteral "NULL")  = "{@NULL@, FIXME: this should probably be converted"
                                                      ++ " to a Maybe data type}"
-haddocFormatSpan (DocLiteral text) = "@" ++ text ++ "@"
+haddocFormatSpan (DocLiteral text) = "@" ++ escapeHaddockSpecialChars text ++ "@"
 haddocFormatSpan (DocArg  text)    = "@" ++ cParamNameToHsName text ++ "@"
 
 cFuncNameToHsName :: String -> String
@@ -516,10 +577,11 @@ escapeHaddockSpecialChars = escape
         escape (c:cs) =       c : escape cs              
 
 -- wraps a list of words to lines of words
-wrapText :: Int -> [String] -> [[String]]
-wrapText width = wrap 3 []
+wrapText :: Int -> Int -> [String] -> [[String]]
+wrapText initialCol width = wrap initialCol []
   
   where wrap :: Int -> [String] -> [String] -> [[String]]
+        wrap 0   []   (word:words) |       length word + 1 > width = wrap (length word) [word] words
         wrap col line (word:words) | col + length word + 1 > width = reverse line : wrap 0 [] (word:words)
         wrap col line (word:words) = wrap (col + length word + 1) (word:line) words
         wrap _ []   [] = []
@@ -595,7 +657,7 @@ genFunction object method doc =
                 formatDoc typeName =
                     sepBy' ("\n" ++ replicate (columnIndent+5) ' ' ++  "-- ")
                   . map (sepBy " ")
-                  . wrapText (80 - columnIndent - 8)
+                  . wrapText 3 (80 - columnIndent - 8)
                   . words
                   . concatMap haddocFormatSpan
                 columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
@@ -667,8 +729,7 @@ genExports object docs =
         | (constructor, doc) <- constructors object docs] of
      [] -> id
      cs -> comment.ss "* Constructors".nl.
-           doVersionIfDefs lines cs.nl).
-  nl.
+           doVersionIfDefs lines cs.nl.nl).
   (case [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ',', doc)
         | (method, doc) <- methods object docs] of
      [] -> id

@@ -44,12 +44,16 @@
 
 <xsl:template match="varlistentry">
 <definition>
-	<term><xsl:value-of select="term"/></term>
+	<term><xsl:apply-templates select="term"/></term>
 	<xsl:apply-templates select="listitem/para/child::node()"/>
 </definition>
 </xsl:template>
 
 <xsl:template match="itemizedlist/listitem/para">
+<listitem><xsl:apply-templates/></listitem>
+</xsl:template>
+
+<xsl:template match="simplelist/member">
 <listitem><xsl:apply-templates/></listitem>
 </xsl:template>
 
