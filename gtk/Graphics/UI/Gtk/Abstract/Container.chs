@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:20 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,9 +28,115 @@
 -- into one compound widget.
 --
 module Graphics.UI.Gtk.Abstract.Container (
+-- * Description
+-- 
+-- | A Gtk+ user interface is constructed by nesting widgets inside widgets.
+-- Container widgets are the inner nodes in the resulting tree of widgets: they
+-- contain other widgets. So, for example, you might have a 'Window' containing
+-- a 'Frame' containing a 'Label'. If you wanted an image instead of a textual
+-- label inside the frame, you might replace the 'Label' widget with a 'Image'
+-- widget.
+--
+-- There are two major kinds of container widgets in Gtk+. Both are
+-- subclasses of the abstract 'Container' base class.
+--
+-- The first type of container widget has a single child widget and derives
+-- from 'Bin'. These containers are decorators, which add some kind of
+-- functionality to the child. For example, a 'Button' makes its child into a
+-- clickable button; a 'Frame' draws a frame around its child and a 'Window'
+-- places its child widget inside a top-level window.
+--
+-- The second type of container can have more than one child; its purpose is
+-- to manage layout. This means that these containers assign sizes and
+-- positions to their children. For example, a 'HBox' arranges its children in
+-- a horizontal row, and a 'Table' arranges the widgets it contains in a
+-- two-dimensional grid.
+--
+-- To fulfill its task, a layout container must negotiate the size
+-- requirements with its parent and its children. This negotiation is carried
+-- out in two phases, size requisition and size allocation.
+
+-- ** Size Requisition
+-- 
+-- | The size requisition of a widget is it's desired width and height. This
+-- is represented by a 'Requisition'.
+--
+-- How a widget determines its desired size depends on the widget. A
+-- 'Label', for example, requests enough space to display all its text.
+-- Container widgets generally base their size request on the requisitions of
+-- their children.
+--
+-- The size requisition phase of the widget layout process operates
+-- top-down. It starts at a top-level widget, typically a 'Window'. The
+-- top-level widget asks its child for its size requisition by calling
+-- 'widgetSizeRequest'. To determine its requisition, the child asks its own
+-- children for their requisitions and so on. Finally, the top-level widget
+-- will get a requisition back from its child.
+
+-- ** Size Allocation
+-- 
+-- | When the top-level widget has determined how much space its child would
+-- like to have, the second phase of the size negotiation, size allocation,
+-- begins. Depending on its configuration (see 'windowSetResizable'), the
+-- top-level widget may be able to expand in order to satisfy the size request
+-- or it may have to ignore the size request and keep its fixed size. It then
+-- tells its child widget how much space it gets by calling
+-- 'widgetSizeAllocate'. The child widget divides the space among its children
+-- and tells each child how much space it got, and so on. Under normal
+-- circumstances, a 'Window' will always give its child the amount of space the
+-- child requested.
+--
+-- A child's size allocation is represented by an 'Allocation'.
+-- This contains not only a width and height, but also a
+-- position (i.e. X and Y coordinates), so that containers can tell their
+-- children not only how much space they have gotten, but also where they are
+-- positioned inside the space available to the container.
+--
+-- Widgets are required to honor the size allocation they receive; a size
+-- request is only a request, and widgets must be able to cope with any size.
+
+-- ** Child properties
+-- 
+-- | 'Container' introduces child properties - these are object properties
+-- that are not specific to either the container or the contained widget, but
+-- rather to their relation. Typical examples of child properties are the
+-- position or pack-type of a widget which is contained in a 'Box'.
+--
+-- To set the value of a child property, use 'containerChildSetProperty',
+-- 'containerChildSet' or 'containerChildSetValist'. To obtain the value of a
+-- child property, use 'containerChildGetProperty', 'containerChildGet' or
+-- 'containerChildGetValist'.
+-- 
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----Container
+-- |                     +----'Bin'
+-- |                     +----'Box'
+-- |                     +----'CList'
+-- |                     +----'Fixed'
+-- |                     +----'Paned'
+-- |                     +----'Layout'
+-- |                     +----'List'
+-- |                     +----'MenuShell'
+-- |                     +----'Notebook'
+-- |                     +----'Socket'
+-- |                     +----'Table'
+-- |                     +----'TextView'
+-- |                     +----'Toolbar'
+-- |                     +----'TreeView'
+-- @
+
+-- * Types
   Container,
   ContainerClass,
   castToContainer,
+
+-- * Methods
   containerAdd,
   containerRemove,
   containerForeach,
@@ -49,6 +155,8 @@ module Graphics.UI.Gtk.Abstract.Container (
   containerGetBorderWidth,
   containerChildSetProperty,
   containerChildGetProperty,
+
+-- * Signals
   onAdd,
   afterAdd,
   onCheckResize,
@@ -76,7 +184,8 @@ import Graphics.UI.Gtk.General.Enums	(DirectionType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- | Add a widget to the container.
 --
@@ -244,7 +353,8 @@ containerChildGetProperty con child prop =
   valueUnset valPtr
   return res
 
--- signals
+--------------------
+-- Signals
 
 -- | This signal is called each time a new widget is added
 -- to this container.

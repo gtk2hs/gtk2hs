@@ -2,30 +2,67 @@
 --  GIMP Toolkit (GTK) Widget HButtonBox
 --
 --  Author : Matthew Walton
---          
+--
 --  Created: 29 April 2004
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:23:11 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:34 $
 --
---  Copyright (c) 2004 Matthew Walton
+--  Copyright (C) 2004-2005 Matthew Walton
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
-
+-- A container for arranging buttons horizontally
+--
 module Graphics.UI.Gtk.Layout.HButtonBox (
+-- * Description
+-- 
+-- | A button box should be used to provide a consistent layout of buttons
+-- throughout your application. The layout\/spacing can be altered by the
+-- programmer, or if desired, by the user to alter the \'feel\' of a program to
+-- a small degree.
+--
+-- A 'HButtonBox' is created with 'hButtonBoxNew'. Buttons are packed into a
+-- button box the same way widgets are added to any other container, using
+-- 'containerAdd'. You can also use 'boxPackStart' or 'boxPackEnd', but for
+-- button boxes both these functions work just like 'containerAdd', ie., they
+-- pack the button in a way that depends on the current layout style and on
+-- whether the button has had 'buttonBoxSetChildSecondary' called on it.
+--
+-- The spacing between buttons can be set with 'boxSetSpacing'. The
+-- arrangement and layout of the buttons can be changed with
+-- 'buttonBoxSetLayout'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Box'
+-- |                           +----'ButtonBox'
+-- |                                 +----HButtonBox
+-- @
+
+-- * Types
   HButtonBox,
   HButtonBoxClass,
   castToHButtonBox,
+
+-- * Constructors
   hButtonBoxNew
   ) where
 
@@ -38,11 +75,11 @@ import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
---methods
+--------------------
+-- Constructors
 
 -- | 
 --
 hButtonBoxNew :: IO HButtonBox
 hButtonBoxNew = makeNewObject mkHButtonBox $
   liftM castPtr {#call unsafe hbutton_box_new#}
-

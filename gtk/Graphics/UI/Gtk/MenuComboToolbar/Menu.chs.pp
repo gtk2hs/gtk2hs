@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,6 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- The following not bound functions might be useful:
+--   menuSetAccelGroup, menuSetAccelGroup, menuReposition
+--
+-- The function menuPopup at a specific position is difficult to bind:
+--   The callback function that determines at which position the menu is
+--   to be shown is keept after the call returns. Maybe we could destroy
+--   this function pointer with a destory event?
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -28,21 +38,42 @@
 -- are two kinds: Those that are part of a 'MenuBar' and those 
 -- that appear as a context menu (within the work space). 
 --
--- TODO
---
--- * The following not bound functions might be useful:
---   menuSetAccelGroup, menuSetAccelGroup, menuReposition
---
--- * The function menuPopup at a specific position is difficult to bind:
---   The callback function that determines at which position the menu is
---   to be shown is keept after the call returns. Maybe we could destroy
---   this function pointer with a destory event?
---
 module Graphics.UI.Gtk.MenuComboToolbar.Menu (
+-- * Description
+-- 
+-- | A 'Menu' is a 'MenuShell' that implements a drop down menu consisting of
+-- a list of 'MenuItem' objects which can be navigated and activated by the
+-- user to perform application functions.
+--
+-- A 'Menu' is most commonly dropped down by activating a 'MenuItem' in a
+-- 'MenuBar' or popped up by activating a 'MenuItem' in another 'Menu'.
+--
+-- A 'Menu' can also be popped up by activating a 'OptionMenu'. Other
+-- composite widgets such as the 'Notebook' can pop up a 'Menu' as well.
+--
+-- Applications can display a 'Menu' as a popup menu by calling the
+-- 'menuPopup' function.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'MenuShell'
+-- |                           +----Menu
+-- @
+
+-- * Types
   Menu,
   MenuClass,
   castToMenu,
+
+-- * Constructors
   menuNew,
+
+-- * Methods
   menuReorderChild,
   menuPopup,
   menuSetAccelGroup,
@@ -80,13 +111,17 @@ import Graphics.UI.Gtk.Gdk.Events as Events (Event(Button), time, button)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Make an empty Menu.
 --
 menuNew :: IO Menu
 menuNew = makeNewObject mkMenu $
   liftM castPtr {#call unsafe menu_new#}
+
+--------------------
+-- Methods
 
 -- | Move a child to a new position within the menu.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,32 +24,54 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Tooltips are the messages that appear next to a widget when the mouse
+-- Add tips to your widgets.
+--
+module Graphics.UI.Gtk.Misc.Tooltips (
+-- * Description
+-- 
+-- | Tooltips are the messages that appear next to a widget when the mouse
 -- pointer is held over it for a short amount of time. They are especially
--- helpful for adding more verbose descriptions of things such as buttons
--- in a toolbar. 
+-- helpful for adding more verbose descriptions of things such as buttons in a
+-- toolbar.
 --
 -- An individual tooltip belongs to a group of tooltips. A group is created
--- with a call to 'tooltipsNew'. Every tooltip in the group can 
--- then be turned off with a call to 'tooltipsDisable' and enabled with 
--- 'tooltipsEnable'.
+-- with a call to 'tooltipsNew'. Every tooltip in the group can then be turned
+-- off with a call to 'tooltipsDisable' and enabled with 'tooltipsEnable'.
 --
 #ifndef DISABLE_DEPRECATED
--- The length of time the user must keep the mouse over a widget before the tip
--- is shown, can be altered with 'tooltipsSetDelay'. This is set on a 'per group
--- of tooltips' basis.
+-- The length of time the user must keep the mouse over a widget before the
+-- tip is shown, can be altered with 'tooltipsSetDelay'. This is set on a \'per
+-- group of tooltips\' basis.
 --
 #endif
--- To assign a tip to a particular widget, 'tooltipsSetTip' is used.
+-- To assign a tip to a particular 'Widget', 'tooltipsSetTip' is used.
 --
 -- To associate 'Tooltips' to a widget it is has to have its own 'DrawWindow'.
 -- Otherwise the widget must be set into an 'EventBox'.
 --
-module Graphics.UI.Gtk.Misc.Tooltips (
+-- The default appearance of all tooltips in a program is determined by the
+-- current Gtk+ theme that the user has selected.
+--
+-- Information about the tooltip (if any) associated with an arbitrary
+-- widget can be retrieved using 'tooltipsDataGet'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----Tooltips
+-- @
+
+-- * Types
   Tooltips,
   TooltipsClass,
   castToTooltips,
+
+-- * Constructors
   tooltipsNew,
+
+-- * Methods
   tooltipsEnable,
   tooltipsDisable,
 #ifndef DISABLE_DEPRECATED
@@ -69,13 +91,17 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new goup of 'Tooltips'.
 --
 tooltipsNew :: IO Tooltips
 tooltipsNew  = makeNewObject mkTooltips $ 
   liftM castPtr {#call unsafe tooltips_new#}
+
+--------------------
+-- Methods
 
 -- | Display the help the 'Tooltips' group
 -- provides.

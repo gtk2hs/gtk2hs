@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,13 +24,36 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This widget provides a stand-alone scrollbar. All interesting functions
--- can be found in 'Range', from which it is derived.
+-- A horizontal scrollbar
 --
 module Graphics.UI.Gtk.Scrolling.HScrollbar (
+-- * Description
+-- 
+-- | The 'HScrollbar' widget is a widget arranged horizontally creating a
+-- scrollbar. See 'Scrollbar' for details on scrollbars. An 'Adjustment'
+-- may be added to handle the adjustment of the scrollbar using
+-- 'hScrollbarNew' or you can use 'hScrollbarNewDefaults' in
+-- which case one will be created for you. See 'Adjustment' for details.
+--
+-- All interesting functions can be found in 'Range', from which it is derived.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Range'
+-- |                     +----'Scrollbar'
+-- |                           +----HScrollbar
+-- @
+
+-- * Types
   HScrollbar,
   HScrollbarClass,
   castToHScrollbar,
+
+-- * Constructors
   hScrollbarNew,
   hScrollbarNewDefaults
   ) where
@@ -44,7 +67,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new HScrollbar.
 --
@@ -57,5 +81,4 @@ hScrollbarNew adj = makeNewObject mkHScrollbar $ liftM castPtr $
 hScrollbarNewDefaults :: IO HScrollbar
 hScrollbarNewDefaults = makeNewObject mkHScrollbar $ liftM castPtr $
   {#call unsafe hscrollbar_new#} (mkAdjustment nullForeignPtr)
-
 

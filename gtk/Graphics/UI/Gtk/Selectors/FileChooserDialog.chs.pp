@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -32,14 +32,51 @@
 --
 -- * Added in GTK+ 2.4
 --
-module Graphics.UI.Gtk.Selectors.FileChooserDialog  (
+module Graphics.UI.Gtk.Selectors.FileChooserDialog (
+-- * Description
+-- 
+-- | 'FileChooserDialog' is a dialog box suitable for use with \"File\/Open\"
+-- or \"File\/Save as\" commands. This widget works by putting a
+-- 'FileChooserWidget' inside a 'Dialog'. It exposes the 'FileChooser',
+-- interface, so you can use all of the
+-- 'FileChooser' functions on the file chooser dialog as well as those for
+-- 'Dialog'.
+--
+-- Note that 'FileChooserDialog' does not have any methods of its own.
+-- Instead, you should use the functions that work on a 'FileChooser'.
+--
+-- * Module available since Gtk version 2.4
+
+-- ** Response Codes
+-- 
+-- | 'FileChooserDialog' inherits from 'Dialog', so buttons that go in its
+-- action area have response codes such as 'ResponseAccept' and
+-- 'ResponseCancel'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Window'
+-- |                                 +----'Dialog'
+-- |                                       +----FileChooserDialog
+-- @
+
 #if GTK_CHECK_VERSION(2,4,0)
-  FileChooserDialogClass,
+-- * Types
   FileChooserDialog,
+  FileChooserDialogClass,
+  castToFileChooserDialog,
+
+  -- * Constructors
   fileChooserDialogNew,
   fileChooserDialogNewWithBackend
 #endif
-) where
+  ) where
 
 #if GTK_CHECK_VERSION(2,4,0)
 

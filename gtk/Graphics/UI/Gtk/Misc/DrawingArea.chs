@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,24 +24,64 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A user-defined widget.
---
--- * The 'DrawingArea' widget is used for creating custom
---   user interface elements. It's essentially a blank widget. Drawing on
---   the 'Drawable' returned by 'drawingAreaGetWindow'
---   has to be done each time the window manager sends @\"expose\"@
---   events. Note that the library automatically clears the exposed area to
---   the background color before sending the expose event, and that drawing
---   is implicitly clipped to the exposed area. Other events which are
---   interesting for interacting are mouse and butten events defined in
---   'Widget'. If the widget changes in size (which it does
---   initially), a @\"configure\"@ event is emitted.
+-- A widget for custom user interface elements.
 --
 module Graphics.UI.Gtk.Misc.DrawingArea (
+-- * Description
+-- 
+-- | The 'DrawingArea' widget is used for creating custom user interface
+-- elements. It's essentially a blank widget; you can draw on
+-- the 'Drawable' returned by 'drawingAreaGetWindow'.
+--
+-- After creating a drawing area, the application may want to connect to:
+--
+-- * Mouse and button press signals to respond to input from the user. (Use
+-- 'widgetAddEvents' to enable events you wish to receive.)
+--
+-- * The \"realize\" signal to take any necessary actions when the widget is
+-- instantiated on a particular display. (Create GDK resources in response to
+-- this signal.)
+--
+-- * The \"configure_event\" signal to take any necessary actions when the
+-- widget changes size.
+--
+-- * The \"expose_event\" signal to handle redrawing the contents of the
+-- widget.
+--
+-- Expose events are normally delivered when a drawing area first comes
+-- onscreen, or when it's covered by another window and then uncovered
+-- (exposed). You can also force an expose event by adding to the \"damage
+-- region\" of the drawing area's window; 'widgetQueueDrawArea' and
+-- 'windowInvalidateRect' are equally good ways to do this. You\'ll then get an
+-- expose event for the invalid region.
+--
+-- The available routines for drawing are documented on the GDK Drawing
+-- Primitives page. See also 'pixbufRenderToDrawable' for drawing a 'Pixbuf'.
+--
+-- To receive mouse events on a drawing area, you will need to enable them
+-- with 'widgetAddEvents'. To receive keyboard events, you will need to set the
+-- 'CanFocus' flag on the drawing area, and should probably draw some
+-- user-visible indication that the drawing area is focused.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----DrawingArea
+-- |                     +----'Curve'
+-- @
+
+-- * Types
   DrawingArea,
   DrawingAreaClass,
   castToDrawingArea,
+
+-- * Constructors
   drawingAreaNew,
+
+-- * Methods
   drawingAreaGetDrawWindow,
   drawingAreaGetSize) where
 
@@ -55,11 +95,11 @@ import Graphics.UI.Gtk.General.Structs	(drawingAreaGetDrawWindow, drawingAreaGet
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new custom widget.
 --
 drawingAreaNew :: IO DrawingArea
 drawingAreaNew = makeNewObject mkDrawingArea $ 
   liftM castPtr {#call unsafe drawing_area_new#}
-

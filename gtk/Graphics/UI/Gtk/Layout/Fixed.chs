@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -34,24 +34,25 @@ module Graphics.UI.Gtk.Layout.Fixed (
 -- automatic layout management.
 --
 -- For most applications, you should not use this container! It keeps you
--- from having to learn about the other GTK+ containers, but it results in
--- broken applications.
+-- from having to learn about the other Gtk+ containers, but it results in
+-- broken applications. With 'Fixed', the following things will result in
+-- truncated text, overlapping widgets, and other display bugs:
 --
 -- * Themes, which may change widget sizes.
 --
 -- * Fonts other than the one you used to write the app will of course
 -- change the size of widgets containing text; keep in mind that users may use
 -- a larger font because of difficulty reading the default, or they may be
--- using Windows or the framebuffer port of GTK+, where different fonts are
+-- using Windows or the framebuffer port of Gtk+, where different fonts are
 -- available.
 --
 -- * Translation of text into other languages changes its size. Also,
 -- display of non-English text will use a different font in many cases.
 --
--- In addition, the fixed widget can\'t properly be mirrored in
--- right-to-left languages such as Hebrew and Arabic. i.e. normally GTK+ will
--- flip the interface to put labels to the right of the thing they label, but
--- it can\'t do that with "Fixed". So your application will not be usable in
+-- In addition, the fixed widget can't properly be mirrored in right-to-left
+-- languages such as Hebrew and Arabic. i.e. normally Gtk+ will flip the
+-- interface to put labels to the right of the thing they label, but it can't
+-- do that with "Fixed". So your application will not be usable in
 -- right-to-left languages.
 --
 -- Finally, fixed positioning makes it kind of annoying to add\/remove GUI
@@ -62,7 +63,25 @@ module Graphics.UI.Gtk.Layout.Fixed (
 -- prefer the simplicity of "Fixed", by all means use the widget. But you
 -- should be aware of the tradeoffs.
 
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Fixed
+-- @
+
+-- * Types
+  Fixed,
+  FixedClass,
+  castToFixed,
+
+-- * Constructors
   fixedNew,
+
+-- * Methods
   fixedPut,
   fixedMove,
   fixedSetHasWindow,
@@ -78,12 +97,17 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+--------------------
+-- Constructors
 
 -- | Creates a new 'Fixed' container.
 --
 fixedNew :: IO Fixed
 fixedNew = makeNewObject mkFixed $ liftM castPtr $
   {#call unsafe fixed_new#}
+
+--------------------
+-- Methods
 
 -- | Adds a widget to a 'Fixed' container at the given position.
 --

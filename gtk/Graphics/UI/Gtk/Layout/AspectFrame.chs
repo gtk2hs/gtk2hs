@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -26,20 +26,36 @@
 --
 -- A frame that constrains its child to a particular aspect ratio.
 --
--- * The 'AspectFrame' is useful when you want pack a widget so 
---   that it can 
---   resize but always retains the same aspect ratio. For instance, one might
---   be drawing a small preview of a larger image. 'AspectFrame'
---   derives from
---   'Frame', so it can draw a label and a frame around the child. 
---   The frame
---   will be \"shrink-wrapped\" to the size of the child.
---
 module Graphics.UI.Gtk.Layout.AspectFrame (
+-- * Description
+-- 
+-- | The 'AspectFrame' is useful when you want pack a widget so that it can
+-- resize but always retains the same aspect ratio. For instance, one might be
+-- drawing a small preview of a larger image. 'AspectFrame' derives from
+-- 'Frame', so it can draw a label and a frame around the child. The frame will
+-- be \"shrink-wrapped\" to the size of the child.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Frame'
+-- |                                 +----AspectFrame
+-- @
+
+-- * Types
   AspectFrame,
   AspectFrameClass,
   castToAspectFrame,
+
+-- * Constructors
   aspectFrameNew,
+
+-- * Methods
   aspectFrameSet
   ) where
 
@@ -53,7 +69,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create an AspectFrame widget.
 --
@@ -67,6 +84,8 @@ aspectFrameNew xalign yalign ratio = makeNewObject mkAspectFrame $
   liftM castPtr $ {#call unsafe aspect_frame_new#} nullPtr (realToFrac xalign) 
   (realToFrac yalign) (maybe 0.0 realToFrac ratio) (fromBool $ isNothing ratio)
 
+--------------------
+-- Methods
 
 -- | Change the space use behaviour of an
 -- 'AspectFrame'.

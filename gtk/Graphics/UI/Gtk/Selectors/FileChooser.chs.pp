@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/13 16:25:57 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -35,10 +35,102 @@
 -- * Added in GTK+ 2.4
 --
 module Graphics.UI.Gtk.Selectors.FileChooser (
+-- * Description
+-- 
+-- | 'FileChooser' is an interface that can be implemented by file selection
+-- widgets. In Gtk+, the main objects that implement this interface are
+-- 'FileChooserWidget' and 'FileChooserDialog'. You do not need to write an
+-- object that implements the 'FileChooser' interface unless you are trying to
+-- adapt an existing file selector to expose a standard programming interface.
+
+-- ** File Names and Encodings
+-- 
+-- | When the user is finished selecting files in a 'FileChooser', your
+-- program can get the selected names either as filenames or as URIs. For URIs,
+-- the normal escaping rules are applied if the URI contains non-ASCII
+-- characters. However, filenames are /always/ returned in the character set
+-- specified by the G_FILENAME_ENCODING environment variable. Please see the
+-- Glib documentation for more details about this variable.
+
+-- ** Adding a Preview Widget
+-- 
+-- | You can add a custom preview widget to a file chooser and then get
+-- notification about when the preview needs to be updated. To install a
+-- preview widget, use 'fileChooserSetPreviewWidget'. Then, connect to the
+-- updatePreview signal to get notified when you need to update
+-- the contents of the preview.
+--
+-- Your callback should use 'fileChooserGetPreviewFilename' to see what
+-- needs previewing. Once you have generated the preview for the corresponding
+-- file, you must call 'fileChooserSetPreviewWidgetActive' with a boolean flag
+-- that indicates whether your callback could successfully generate a preview.
+
+-- ** Adding Extra Widgets
+-- 
+-- | You can add extra widgets to a file chooser to provide options that are
+-- not present in the default design. For example, you can add a toggle button
+-- to give the user the option to open a file in read-only mode. You can use
+-- 'fileChooserSetExtraWidget' to insert additional widgets in a file chooser.
+
+-- ** Key Bindings
+-- 
+-- | Internally, Gtk+ implements a file chooser's graphical user interface
+-- with the private GtkFileChooserDefaultClass. This widget has several key
+-- bindings and their associated signals. This section describes the available
+-- key binding signals.
+--
+-- * GtkFileChooser key binding example
+--
+-- The default keys that activate the key-binding signals in
+-- GtkFileChooserDefaultClass are as follows:
+--
+-- [Signal name] Key
+--
+-- [location-popup] Control-L
+--
+-- [up-folder] Alt-Up
+--
+-- [down-folder] Alt-Down
+--
+-- [home-folder] Alt-Home
+--
+-- To change these defaults to something else, you could include the
+-- following fragment in your .gtkrc-2.0 file:
+--
+-- > binding "my-own-gtkfilechooser-bindings" {
+-- > 	bind "AltShiftl" {
+-- > 		"location-popup" ()
+-- > 	}
+-- > 	bind "AltShiftUp" {
+-- > 		"up-folder" ()
+-- > 	}
+-- > 	bind "AltShiftDown" {
+-- > 		"down-folder" ()
+-- > 	}
+-- > 	bind "AltShiftHome" {
+-- > 		"home-folder-folder" ()
+-- > 	}
+-- > }
+-- > 
+-- > class "GtkFileChooserDefault" binding "my-own-gtkfilechooser-bindings"
+-- > 	
+-- 
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  GInterface
+-- |   +----FileChooser
+-- @
+
 #if GTK_CHECK_VERSION(2,4,0)
-  FileChooserClass,
+-- * Types
   FileChooser,
+  FileChooserClass,
+  castToFileChooser,
   FileChooserAction(..),
+
+-- * Methods
   fileChooserSetAction,
   fileChooserGetAction,
   fileChooserSetLocalOnly,
@@ -83,6 +175,8 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   fileChooserAddShortcutFolderURI,
   fileChooserRemoveShortcutFolderURI,
   fileChooserListShortcutFolderURIs,
+
+-- * Signals
   onCurrentFolderChanged,
   afterCurrentFolderChanged,
   onFileActivated,
@@ -92,7 +186,7 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   onUpdatePreview,
   afterUpdatePreview
 #endif
-) where
+  ) where
 
 #if GTK_CHECK_VERSION(2,4,0)
 
@@ -110,6 +204,9 @@ import System.Glib.GError		(propagateGError, GErrorDomain, GErrorClass(..))
 
 {# enum FileChooserAction {underscoreToCase} #}
 {# enum FileChooserError {underscoreToCase} #}
+
+--------------------
+-- Methods
 
 fileChooserErrorDomain :: GErrorDomain
 fileChooserErrorDomain = unsafePerformIO {#call unsafe file_chooser_error_quark#}
@@ -394,6 +491,9 @@ fileChooserListShortcutFolderURIs chooser = do
   strList <- {# call gtk_file_chooser_list_shortcut_folder_uris #}
     (toFileChooser chooser)
   fromStringGSList strList
+
+--------------------
+-- Signals
 
 onCurrentFolderChanged, afterCurrentFolderChanged :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
 onCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" False

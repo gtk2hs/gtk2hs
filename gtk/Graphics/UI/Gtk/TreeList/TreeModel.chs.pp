@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/17 12:55:47 $
+--  Version $Revision: 1.5 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -86,7 +86,7 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
 -- * Class Hierarchy
 -- |
 -- @
--- |  "GInterface"
+-- |  GInterface
 -- |   +----TreeModel
 -- @
 
@@ -171,7 +171,8 @@ type TreePath = [Int]
 
 instance Flags TreeModelFlags
 
--- methods
+--------------------
+-- Methods
 
 -- | Returns a set of flags supported by this interface.
 --

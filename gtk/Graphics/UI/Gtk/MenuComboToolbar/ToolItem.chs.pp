@@ -5,7 +5,7 @@
 --
 --  Created: 1 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,22 +24,43 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- ToolItem is the base class of widgets that can be added to a "Toolbar".
---
--- * Added in GTK+ 2.4
+-- 'ToolItem' is the base class of widgets that can be added to 'Toolbar'.
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
 -- * Description
 -- 
--- | "ToolItem"s are widgets that can appear on a toolbar. To create a toolbar
+-- | 'ToolItem's are widgets that can appear on a toolbar. To create a toolbar
 -- item that contain something else than a button, use 'toolItemNew'. Use
 -- 'containerAdd' to add a child widget to the tool item.
 --
--- For toolbar items that contain buttons, see the "ToolButton",
--- "ToggleToolButton" and "RadioToolButton" classes.
+-- For toolbar items that contain buttons, see the 'ToolButton',
+-- 'ToggleToolButton' and 'RadioToolButton' classes.
 --
+-- * Module available since Gtk version 2.4
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----ToolItem
+-- |                                 +----'ToolButton'
+-- |                                 +----'SeparatorToolItem'
+-- @
+
 #if GTK_CHECK_VERSION(2,4,0)
+-- * Types
+  ToolItem,
+  ToolItemClass,
+  castToToolItem,
+
+-- * Constructors
   toolItemNew,
+
+-- * Methods
   toolItemSetHomogeneous,
   toolItemGetHomogeneous,
   toolItemSetExpand,
@@ -81,11 +102,17 @@ import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..), ReliefS
 
 {# context lib="gtk" prefix="gtk" #}
 
+--------------------
+-- Constructors
+
 -- | Creates a new "ToolItem".
 --
 toolItemNew :: IO ToolItem
 toolItemNew =
   makeNewObject mkToolItem {#call unsafe tool_item_new#}
+
+--------------------
+-- Methods
 
 -- | Sets whether the tool item is to be allocated the same size as other
 -- homogeneous items. The effect is that all homogeneous items will have the

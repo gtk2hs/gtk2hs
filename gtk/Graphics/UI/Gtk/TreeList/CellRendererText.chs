@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -32,15 +32,32 @@
 --   'treeViewAddAttribute' from 'TreeModelColumn'.
 --
 module Graphics.UI.Gtk.TreeList.CellRendererText (
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'CellRenderer'
+-- |               +----CellRendererText
+-- @
+
+-- * Types
   CellRendererText,
   CellRendererTextClass,
   castToCellRendererText,
+
+-- * Constructors
   cellRendererTextNew,
+
+-- * Attributes
   cellText,
   cellMarkup,
   cellBackground,
   cellForeground,
   cellEditable,
+
+-- * Signals
   onEdited,
   afterEdited
   ) where
@@ -59,7 +76,8 @@ import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new CellRendererText object.
 --
@@ -78,6 +96,9 @@ mStrAttr :: [String] -> Attribute CellRendererText (Maybe String)
 mStrAttr str = Attribute str [TMstring]
 	        (return . (\x -> [x]) . GVstring)
 		(\[GVstring str] -> return str)
+
+--------------------
+-- Properties
 
 -- | Define the attribute that specifies the text to be
 -- rendered.

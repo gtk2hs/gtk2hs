@@ -5,7 +5,7 @@
 --
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,29 +19,56 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- The combo_set_item_string function is not bound as we do not handle
+--   arbitrary widgets yet.
+--
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
 -- A Combo box is a text entry field with a drop down list of predefined
 -- alternatives.
 --
--- * The Combo widget allows to insert arbitrary widgets as alternatives. Due
---   to the deprecated ListItem object we currently make no use of this 
---   feature.
---
--- TODO
---
--- * The combo_set_item_string function is not bound as we do not handle
---   arbitrary widgets yet.
---
 module Graphics.UI.Gtk.MenuComboToolbar.Combo (
+-- * Description
+-- 
+-- | The 'Combo' widget consists of a single-line text entry field and a
+-- drop-down list. The drop-down list is displayed when the user clicks on a
+-- small arrow button to the right of the entry field.
+--
+-- List elements
+-- can contain arbitrary widgets, but if an element is not a plain label, then
+-- you must use the 'listSetItemString' function. This sets the string which
+-- will be placed in the text entry field when the item is selected.
+--
+-- By default, the user can step through the items in the list using the
+-- arrow (cursor) keys, though this behaviour can be turned off with
+-- 'comboSetUseArrows'.
+--
+-- As of Gtk+ 2.4, 'Combo' has been deprecated in favor of 'ComboBox'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Box'
+-- |                           +----'HBox'
+-- |                                 +----Combo
+-- @
 #ifndef DISABLE_DEPRECATED
+-- * Types
   Combo,
   ComboClass,
   castToCombo,
   comboNew,
+
+-- * Methods
   comboSetPopdownStrings,
   comboSetValueInList,
   comboSetUseArrows,
@@ -65,7 +92,8 @@ import Graphics.UI.Gtk.General.Structs		(comboGetList)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- Create a new Combo text entry field.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -50,6 +50,16 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 -- Creating a context menu for the toolbar can be done using
 -- 'onPopupContextMenu'.
 
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Toolbar
+-- @
+
 #ifndef DISABLE_DEPRECATED
 -- | * The following information applies to the old interface only.
 --
@@ -70,12 +80,17 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 -- honored this way.
 #endif
 
+-- * Types
   Toolbar,
   ToolbarClass,
   castToToolbar,
   Orientation(..),
   ToolbarStyle(..),
+
+-- * Constructors
   toolbarNew,
+
+-- * Methods
 #ifndef DISABLE_DEPRECATED
   toolbarInsertNewButton,
   toolbarAppendNewButton,
@@ -148,7 +163,8 @@ import Graphics.UI.Gtk.Display.Image	(imageNewFromStock)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new, empty toolbar.
 --
@@ -162,6 +178,9 @@ mkToolText :: Maybe (String,String) -> (CString -> CString -> IO a) -> IO a
 mkToolText Nothing               fun = fun nullPtr nullPtr
 mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr -> 
   withUTFString private $ \prvPtr -> fun txtPtr prvPtr
+
+--------------------
+-- Methods
 
 #ifndef DISABLE_DEPRECATED
 -- | Insert a new 'Button' into the 'Toolbar'.
@@ -486,7 +505,8 @@ toolbarGetReliefStyle tb = liftM (toEnum.fromIntegral) $
   {#call unsafe toolbar_get_relief_style#} (toToolbar tb)
 #endif
 
--- signals
+--------------------
+-- Signals
 
 -- | Emitted when toolbarSetOrientation is called.
 --

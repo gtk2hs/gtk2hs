@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,10 +27,46 @@
 -- The table widget is a container in which widgets can be aligned in cells.
 --
 module Graphics.UI.Gtk.Layout.Table (
+-- * Description
+-- 
+-- | The 'Table' functions allow the programmer to arrange widgets in rows and
+-- columns, making it easy to align many widgets next to each other,
+-- horizontally and vertically.
+--
+-- Tables are created with a call to 'tableNew', the size of which can later
+-- be changed with 'tableResize'.
+--
+-- Widgets can be added to a table using 'tableAttach' or the more
+-- convenient (but slightly less flexible) 'tableAttachDefaults'.
+--
+-- To alter the space next to a specific row, use 'tableSetRowSpacing', and
+-- for a column, 'tableSetColSpacing'.
+--
+-- The gaps between /all/ rows or columns can be changed by calling
+-- 'tableSetRowSpacings' or 'tableSetColSpacings' respectively.
+--
+-- 'tableSetHomogeneous', can be used to set whether all cells in the table
+-- will resize themselves to the size of the largest widget in the table.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Table
+-- @
+
+-- * Types
   Table,
   TableClass,
   castToTable,
+
+-- * Constructors
   tableNew,
+
+-- * Methods
   tableResize,
   AttachOptions(..),
   tableAttach,
@@ -57,7 +93,8 @@ import Graphics.UI.Gtk.General.Enums	(AttachOptions(..), fromFlags)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new table with the specified dimensions.
 -- Set @homogeneous@ to True if all cells should be of the same size.
@@ -66,6 +103,9 @@ tableNew :: Int -> Int -> Bool -> IO Table
 tableNew rows columns homogeneous = makeNewObject mkTable $ liftM castPtr $
   {#call unsafe table_new#} (fromIntegral rows) (fromIntegral columns)
   (fromBool homogeneous)
+
+--------------------
+-- Methods
 
 -- | Change the dimensions of an already existing table.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,9 +28,34 @@
 -- widgets in a horizontal line.
 --
 module Graphics.UI.Gtk.Layout.HBox (
+-- * Description
+-- 
+-- | 'HBox' is a container that organizes child widgets into a single row.
+--
+-- Use the 'Box' packing interface to determine the arrangement, spacing,
+-- width, and alignment of 'HBox' children.
+--
+-- All children are allocated the same height.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Box'
+-- |                           +----HBox
+-- |                                 +----'Combo'
+-- |                                 +----'Statusbar'
+-- @
+
+-- * Types
   HBox,
   HBoxClass,
   castToHBox,
+
+-- * Constructors
   hBoxNew
   ) where
 
@@ -43,7 +68,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | 
 -- Create a container that shows several children horizontally. If 
@@ -54,6 +80,3 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 hBoxNew :: Bool -> Int -> IO HBox
 hBoxNew homogeneous spacing = makeNewObject mkHBox $ liftM castPtr $
   {#call unsafe hbox_new#} (fromBool homogeneous) (fromIntegral spacing)
-
-
---

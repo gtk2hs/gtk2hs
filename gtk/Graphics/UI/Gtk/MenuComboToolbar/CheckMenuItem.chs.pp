@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,11 +27,40 @@
 -- This widget implements a 'MenuItem' with a check next to it.
 --
 module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
+-- * Description
+-- 
+-- | A 'CheckMenuItem' is a menu item that maintains the state of a boolean
+-- value in addition to a 'MenuItem''s usual role in activating application
+-- code.
+--
+-- A check box indicating the state of the boolean value is displayed at the
+-- left side of the 'MenuItem'. Activating the 'MenuItem' toggles the value.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Item'
+-- |                                 +----'MenuItem'
+-- |                                       +----CheckMenuItem
+-- |                                             +----'RadioMenuItem'
+-- @
+
+-- * Types
   CheckMenuItem,
   CheckMenuItemClass,
+  castToCheckMenuItem,
+
+-- * Constructors
   checkMenuItemNew,
   checkMenuItemNewWithLabel,
   checkMenuItemNewWithMnemonic,
+
+-- * Methods
   checkMenuItemSetActive,
   checkMenuItemGetActive,
   checkMenuItemToggled,
@@ -53,7 +82,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {#context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new 'MenuItem' with a check next to it.
 --
@@ -76,6 +106,9 @@ checkMenuItemNewWithMnemonic str =
   withUTFString str $ \strPtr ->
   makeNewObject mkCheckMenuItem $ liftM castPtr $
   {#call unsafe check_menu_item_new_with_mnemonic#} strPtr
+
+--------------------
+-- Methods
 
 -- | Sets the active state of the menu item's check box.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,16 +24,31 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The HSeparator widget is a horizontal separator, used to group the 
--- widgets within a window. It displays a horizontal line with a shadow 
--- to make it appear sunken into the interface.
---
--- * This has nothing to do with a menu separator.
+-- A horizontal separator.
 --
 module Graphics.UI.Gtk.Ornaments.HSeparator (
+-- * Description
+-- 
+-- | The 'HSeparator' widget is a horizontal separator, used to group the
+-- widgets within a window. It displays a horizontal line with a shadow to make
+-- it appear sunken into the interface.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Separator'
+-- |                     +----HSeparator
+-- @
+
+-- * Types
   HSeparator,
   HSeparatorClass,
   castToHSeparator,
+
+-- * Constructors
   hSeparatorNew
   ) where
 
@@ -46,7 +61,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 hSeparatorNew :: IO HSeparator
 hSeparatorNew = makeNewObject mkHSeparator $ 

@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,12 +24,33 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A subclass widget for "MenuShell" which holds "MenuItem" widgets
+-- A subclass widget for 'MenuShell' which holds 'MenuItem' widgets
 --
 module Graphics.UI.Gtk.MenuComboToolbar.MenuBar (
+-- * Description
+-- 
+-- | The 'MenuBar' is a subclass of 'MenuShell' which contains one to many
+-- 'MenuItem'. The result is a standard menu bar which can hold many menu
+-- items. 'MenuBar' allows for a shadow type to be set for aesthetic purposes.
+-- The shadow types are defined in the 'menuBarSetShadowType' function.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'MenuShell'
+-- |                           +----MenuBar
+-- @
+
+-- * Types
   MenuBar,
   MenuBarClass,
   castToMenuBar,
+
+-- * Constructors
   menuBarNew
   ) where
 
@@ -42,7 +63,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a horizontal bar that contains menu items.
 --

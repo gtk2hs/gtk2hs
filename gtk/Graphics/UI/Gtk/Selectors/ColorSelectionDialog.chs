@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,7 +24,34 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
+-- A standard dialog box for selecting a color.
+--
 module Graphics.UI.Gtk.Selectors.ColorSelectionDialog (
+-- * Description
+-- 
+-- | The 'ColorSelectionDialog' provides a standard dialog which allows the
+-- user to select a color much like the 'FileSelection' provides a standard
+-- dialog for file selection.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Window'
+-- |                                 +----'Dialog'
+-- |                                       +----ColorSelectionDialog
+-- @
+
+-- * Types
+  ColorSelectionDialog,
+  ColorSelectionDialogClass,
+  castToColorSelectionDialog,
+
+-- * Constructors
   colorSelectionDialogNew,
   ) where
 
@@ -38,6 +65,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+--------------------
+-- Constructors
 
 -- | Creates a new 'ColorSelectionDialog'.
 --

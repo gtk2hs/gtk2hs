@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -30,7 +30,34 @@
 -- standard color selection dialog box "ColorSelectionDialog".
 --
 module Graphics.UI.Gtk.Selectors.ColorSelection (
+-- * Description
+-- 
+-- | The 'ColorSelection' is a widget that is used to select a color. It
+-- consists of a color wheel and number of sliders and entry boxes for color
+-- parameters such as hue, saturation, value, red, green, blue, and opacity. It
+-- is found on the standard color selection dialog box 'ColorSelectionDialog'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Box'
+-- |                           +----'VBox'
+-- |                                 +----ColorSelection
+-- @
+
+-- * Types
+  ColorSelection,
+  ColorSelectionClass,
+  castToColorSelection,
+
+-- * Constructors
   colorSelectionNew,
+
+-- * Methods
   colorSelectionGetCurrentAlpha,
   colorSelectionSetCurrentAlpha,
   colorSelectionGetCurrentColor,
@@ -56,6 +83,8 @@ import Graphics.UI.Gtk.General.Structs (Color)
 
 {# context lib="gtk" prefix="gtk" #}
 
+--------------------
+-- Constructors
 
 -- | Creates a new ColorSelection widget.
 --
@@ -63,6 +92,9 @@ colorSelectionNew :: IO ColorSelection
 colorSelectionNew =
   makeNewObject mkColorSelection $ liftM castPtr $
   {#call unsafe color_selection_new#}
+
+--------------------
+-- Methods
 
 -- | Returns the current alpha value.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,10 +27,47 @@
 -- Display a calendar and\/or allow the user to select a date.
 --
 module Graphics.UI.Gtk.Misc.Calendar (
+-- * Description
+-- 
+-- | 'Calendar' is a widget that displays a calendar, one month at a time. It
+-- can be created with 'calendarNew'.
+--
+-- The month and year currently displayed can be altered with
+-- 'calendarSelectMonth'. The exact day can be selected from the displayed
+-- month using 'calendarSelectDay'.
+--
+-- To place a visual marker on a particular day, use 'calendarMarkDay' and
+-- to remove the marker, 'calendarUnmarkDay'. Alternative, all marks can be
+-- cleared with 'calendarClearMarks'.
+--
+-- The way in which the calendar itself is displayed can be altered using
+-- 'calendarSetDisplayOptions'.
+--
+-- The selected date can be retrieved from a 'Calendar' using
+-- 'calendarGetDate'.
+--
+-- If performing many \'mark\' operations, the calendar can be frozen to
+-- prevent flicker, using 'calendarFreeze', and \'thawed\' again using
+-- 'calendarThaw'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----Calendar
+-- @
+
+-- * Types
   Calendar,
   CalendarClass,
   castToCalendar,
+
+-- * Constructors
   calendarNew,
+
+-- * Methods
   calendarSelectMonth,
   calendarSelectDay,
   calendarMarkDay,
@@ -42,6 +79,8 @@ module Graphics.UI.Gtk.Misc.Calendar (
   calendarGetDisplayOptions,
 #endif
   calendarGetDate,
+
+-- * Signals
   onDaySelected,
   afterDaySelected,
   onDaySelectedDoubleClick,
@@ -68,7 +107,8 @@ import Graphics.UI.Gtk.General.Enums	(CalendarDisplayOptions(..), fromFlags, toF
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new calendar widget.
 --
@@ -77,6 +117,9 @@ import Graphics.UI.Gtk.General.Enums	(CalendarDisplayOptions(..), fromFlags, toF
 calendarNew :: IO Calendar
 calendarNew  = makeNewObject mkCalendar $ 
   liftM castPtr {#call unsafe calendar_new#}
+
+--------------------
+-- Methods
 
 -- | Flip the page to a month , 0 is January,.., 11
 -- is December.
@@ -171,7 +214,8 @@ calendarFreeze cal update = do
   {#call calendar_thaw#} (toCalendar cal)
   return res
 
--- signals
+--------------------
+-- Signals
 
 -- | Emitted when a day was selected.
 --

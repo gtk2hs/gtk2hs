@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -27,10 +27,29 @@
 -- Toplevel which can contain other widgets
 --
 module Graphics.UI.Gtk.Windows.Window (
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----Window
+-- |                                 +----'Dialog'
+-- |                                 +----'Plug'
+-- @
+
+-- * Types
   Window,
   WindowClass,
   castToWindow,
+
+-- * Constructors
   windowNew,
+
+-- * Methods
   windowSetTitle,
   windowSetResizable,
   windowGetResizable,
@@ -63,6 +82,8 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetRole,
   windowStick,
   windowUnstick,
+
+-- * Signals
   onFrameEvent,
   afterFrameEvent,
   onSetFocus,
@@ -81,13 +102,17 @@ import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new window of the given type.
 --
 windowNew :: IO Window
 windowNew = makeNewObject mkWindow $ liftM castPtr $
   {#call window_new#} ((fromIntegral.fromEnum) WindowToplevel)
+
+--------------------
+-- Methods
 
 -- | set the title string of the given window
 --
@@ -239,7 +264,8 @@ windowStick w = {#call window_stick#} (toWindow w)
 windowUnstick :: WindowClass w => w -> IO ()
 windowUnstick w = {#call window_unstick#} (toWindow w)
 
--- signals
+--------------------
+-- Signals
 
 -- | 
 --

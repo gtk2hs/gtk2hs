@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,13 +24,52 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- SizeGroup provides a mechanism for grouping a number of widgets together so
--- they all request the same amount of space. This is typically useful when you
--- want a column of widgets to have the same size, but you can't use a "Table"
--- widget.
+-- Grouping widgets so they request the same size
 --
 module Graphics.UI.Gtk.Misc.SizeGroup (
+-- * Description
+-- 
+-- | 'SizeGroup' provides a mechanism for grouping a number of widgets
+-- together so they all request the same amount of space. This is typically
+-- useful when you want a column of widgets to have the same size, but you
+-- can't use a 'Table' widget.
+--
+-- In detail, the size requested for each widget in a 'SizeGroup' is the
+-- maximum of the sizes that would have been requested for each widget in the
+-- size group if they were not in the size group. The mode of the size group
+-- (see 'sizeGroupSetMode') determines whether this applies to the horizontal
+-- size, the vertical size, or both sizes.
+--
+-- Note that size groups only affect the amount of space requested, not the
+-- size that the widgets finally receive. If you want the widgets in a
+-- 'SizeGroup' to actually be the same size, you need to pack them in such a
+-- way that they get the size they request and not more. For example, if you
+-- are packing your widgets into a table, you would not include the 'Fill'
+-- flag.
+--
+-- Widgets can be part of multiple size groups; Gtk+ will compute the
+-- horizontal size of a widget from the horizontal requisition of all widgets
+-- that can be reached from the widget by a chain of size groups of type
+-- 'SizeGroupHorizontal' or 'SizeGroupBoth', and the vertical size from the
+-- vertical requisition of all widgets that can be reached from the widget by a
+-- chain of size groups of type 'SizeGroupVertical' or 'SizeGroupBoth'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----SizeGroup
+-- @
+
+-- * Types
+  SizeGroup,
+  SizeGroupClass,
+  castToSizeGroup,
+
+-- * Constructors
   sizeGroupNew,
+
+-- * Methods
   SizeGroupMode(..),
   sizeGroupSetMode,
   sizeGroupGetMode,
@@ -49,11 +88,17 @@ import System.Glib.GObject	(makeNewGObject)
 
 {#enum SizeGroupMode {underscoreToCase}#}
 
+--------------------
+-- Constructors
+
 -- | Create a new SizeGroup.
 --
 sizeGroupNew :: SizeGroupMode -> IO SizeGroup
 sizeGroupNew mode = makeNewGObject mkSizeGroup $
   {#call unsafe size_group_new#} ((fromIntegral.fromEnum) mode)
+
+--------------------
+-- Methods
 
 -- | Adds a widget to a SizeGroup. In the future, the requisition of the widget
 -- will be determined as the maximum of its requisition and the requisition of

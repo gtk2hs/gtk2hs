@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,30 +24,70 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This widget provides the possibility that other application display their
--- widgets within this application.
---
--- * After creation of the Socket, you may retrieve the 
---   'NativeWindow' of the socket. 
---   For this to work, the socket must at least be realized (e.g. shown).
---
--- * The application has to make sure the 'Socket'
---   is not destroyed while the
---   other application tries to connect. If the 'NativeWindow' was 
---   transmitted, the
---   inviting application can check with 'socketHasPlug' if the 
---   plug has
---   already connected.
+-- Container for widgets from other processes.
 --
 module Graphics.UI.Gtk.Embedding.Socket (
+-- * Description
+-- 
+-- | Together with 'Plug', 'Socket' provides the ability to embed widgets from
+-- one process into another process in a fashion that is transparent to the
+-- user. One process creates a 'Socket' widget and, passes the that widget's
+-- window ID to the other process, which then creates a 'Plug' with that window
+-- ID. Any widgets contained in the 'Plug' then will appear inside the first
+-- applications window.
+--
+-- The socket's window ID is obtained by using 'socketGetId'. Before using
+-- this function, the socket must have been realized, and for hence, have been
+-- added to its parent.
+--
+-- Note that if you pass the window ID of the socket to another process that
+-- will create a plug in the socket, you must make sure that the socket widget
+-- is not destroyed until that plug is created. Violating this rule will cause
+-- unpredictable consequences, the most likely consequence being that the plug
+-- will appear as a separate toplevel window. You can check if the plug has
+-- been created by calling 'socketHasPlug'.
+-- If this returns @True@, then the plug has been successfully created inside
+--  of the socket.
+--
+-- When Gtk+ is notified that the embedded window has been destroyed, then
+-- it will destroy the socket as well. You should always, therefore, be
+-- prepared for your sockets to be destroyed at any time when the main event
+-- loop is running.
+--
+-- The communication between a 'Socket' and a 'Plug' follows the XEmbed
+-- protocol. This protocol has also been implemented in other toolkits, e.g.
+-- Qt, allowing the same level of integration when embedding a Qt widget in
+-- Gtk+ or vice versa.
+--
+-- A socket can also be used to swallow arbitrary pre-existing top-level
+-- windows using 'socketSteal', though the integration when this is done will
+-- not be as close as between a 'Plug' and a 'Socket'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Socket
+-- @
+
+-- * Types
   Socket,
   SocketClass,
   castToSocket,
   NativeWindowId,
+
+-- * Constructors
   socketNew,
+
+-- * Methods
   socketHasPlug,
   socketAddId,
   socketGetId,
+
+-- * Signals
   onPlugAdded,
   afterPlugAdded,
   onPlugRemoved,
@@ -64,7 +104,8 @@ import Graphics.UI.Gtk.Embedding.Embedding	(NativeWindowId, socketHasPlug)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a 'Container' for embedding.
 --
@@ -75,6 +116,9 @@ import Graphics.UI.Gtk.Embedding.Embedding	(NativeWindowId, socketHasPlug)
 --
 socketNew :: IO Socket
 socketNew = makeNewObject mkSocket $ liftM castPtr {#call unsafe socket_new#}
+
+--------------------
+-- Methods
 
 -- | Insert another application into this socket.
 --
@@ -96,6 +140,9 @@ socketAddId soc nwi = {#call unsafe socket_add_id#} (toSocket soc)
 socketGetId :: SocketClass s => s -> IO NativeWindowId
 socketGetId soc = liftM fromIntegral $
 		  {#call unsafe socket_get_id#} (toSocket soc)
+
+--------------------
+-- Signals
 
 -- | This socket was added into another application.
 --

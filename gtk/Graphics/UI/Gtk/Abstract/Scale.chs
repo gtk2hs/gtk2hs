@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,9 +28,36 @@
 -- management of an adjustable value.
 --
 module Graphics.UI.Gtk.Abstract.Scale (
+-- * Description
+-- 
+-- | A 'Scale' is a slider control used to select a numeric value. To use it,
+-- you'll probably want to investigate the methods on its base class, 'Range',
+-- in addition to the methods for 'Scale' itself. To set the value of a scale,
+-- you would normally use 'rangeSetValue'. To detect changes to the value, you
+-- would normally use the 'onValueVhanged' signal.
+--
+-- The 'Scale' widget is an abstract class, used only for deriving the
+-- subclasses 'HScale' and 'VScale'. To create a scale widget, call
+-- 'hScaleNewWithRange' or 'vScaleNewWithRange'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Range'
+-- |                     +----Scale
+-- |                           +----'HScale'
+-- |                           +----'VScale'
+-- @
+
+-- * Types
   Scale,
   ScaleClass,
   castToScale,
+
+-- * Methods
   scaleSetDigits,
   scaleGetDigits,
   scaleSetDrawValue,
@@ -50,7 +77,8 @@ import Graphics.UI.Gtk.General.Enums	(PositionType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- | Set the number of displayed digits after the comma.
 --

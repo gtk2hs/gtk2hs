@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,22 +24,43 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- An Expander allows the user to hide or show its child by clicking on an
--- expander triangle similar to the triangles used in a TreeView.
---
--- Normally you use an expander as you would use any other descendant of GtkBin
--- you create the child widget and use containerAdd to add it to the expander.
--- When the expander is toggled, it will take care of showing and hiding the
--- child automatically.
---
--- * Added in GTK+ 2.4
+-- A container which can hide its child
 --
 module Graphics.UI.Gtk.Layout.Expander (
+-- * Description
+-- 
+-- | A 'Expander' allows the user to hide or show its child by clicking on an
+-- expander triangle similar to the triangles used in a 'TreeView'.
+--
+-- Normally you use an expander as you would use any other descendant of
+-- 'Bin'; you create the child widget and use 'containerAdd' to add it to the
+-- expander. When the expander is toggled, it will take care of showing and
+-- hiding the child automatically.
+--
+-- * Module available since Gtk version 2.4
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----Expander
+-- @
+
 #if GTK_CHECK_VERSION(2,4,0)
+-- * Types
   Expander,
   ExpanderClass,
+  castToExpander,
+
+-- * Constructors
   expanderNew,
   expanderNewWithMnemonic,
+
+-- * Methods
   expanderSetExpanded,
   expanderGetExpanded,
   expanderSetSpacing,
@@ -52,6 +73,8 @@ module Graphics.UI.Gtk.Layout.Expander (
   expanderGetUseMarkup,
   expanderSetLabelWidget,
   expanderGetLabelWidget,
+
+-- * Signals
   onActivate,
   afterActivate
 #endif
@@ -69,6 +92,9 @@ import Graphics.UI.Gtk.Signals
 
 {# context lib="gtk" prefix ="gtk" #}
 
+--------------------
+-- Constructors
+
 expanderNew :: String -> IO Expander
 expanderNew label = 
  makeNewObject mkExpander $ liftM castPtr $
@@ -80,6 +106,9 @@ expanderNewWithMnemonic label =
  makeNewObject mkExpander $ liftM castPtr $
  withUTFString label $ \strPtr -> 
  {# call gtk_expander_new_with_mnemonic #} strPtr
+
+--------------------
+-- Methods
 
 expanderSetExpanded :: Expander -> Bool -> IO ()
 expanderSetExpanded expander expanded = 
@@ -131,6 +160,9 @@ expanderGetLabelWidget :: Expander -> IO Widget
 expanderGetLabelWidget expander = 
  makeNewObject mkWidget $
  {# call gtk_expander_get_label_widget #} expander
+
+--------------------
+-- Signals
 
 onActivate :: Expander -> IO () -> IO (ConnectId Expander)
 afterActivate :: Expander -> IO () -> IO (ConnectId Expander)

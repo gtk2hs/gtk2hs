@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -24,13 +24,35 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A tree-like data structure that can be used with the "TreeView"
+-- A tree-like data structure that can be used with the 'TreeView'
 -- 
 module Graphics.UI.Gtk.TreeList.TreeStore (
+-- * Description
+-- 
+-- | The 'TreeStore' object is a list model for use with a 'TreeView' widget.
+-- It implements the 'TreeModel' interface, and consequentialy, can use all of
+-- the methods available there. It also implements the 'TreeSortable' interface
+-- so it can be sorted by the view. Finally, it also implements the tree drag
+-- and drop interfaces.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----TreeStore
+-- @
+
+-- * Types
   TreeStore,
+  TreeStoreClass,
+  castToTreeStore,
   TMType(..),
   GenericValue(..),
+
+-- * Constructors
   treeStoreNew,
+
+-- * Methods
   treeStoreSetValue,
   treeStoreRemove,
   treeStoreInsert,
@@ -58,7 +80,8 @@ import System.Glib.GType			(GType)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Generate a new entity to store tree information.
 --
@@ -67,6 +90,9 @@ treeStoreNew cols = makeNewGObject mkTreeStore $
   withArray0 ((fromIntegral.fromEnum) TMinvalid) 
   (map (fromIntegral.fromEnum) cols) $
   {#call unsafe tree_store_newv#} ((fromIntegral.length) cols)
+
+--------------------
+-- Methods
 
 -- | Set the data of a specific node. The supplied
 -- value must match the type that was set for the column.

@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,15 +28,42 @@
 -- menu items.
 --
 module Graphics.UI.Gtk.MenuComboToolbar.MenuShell (
+-- * Description
+-- 
+-- | A 'MenuShell' is the abstract base class used to derive the 'Menu' and
+-- 'MenuBar' subclasses.
+--
+-- A 'MenuShell' is a container of 'MenuItem' objects arranged in a list
+-- which can be navigated, selected, and activated by the user to perform
+-- application functions. A 'MenuItem' can have a submenu associated with it,
+-- allowing for nested hierarchical menus.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----MenuShell
+-- |                           +----'MenuBar'
+-- |                           +----'Menu'
+-- @
+
+-- * Types
   MenuShell,
   MenuShellClass,
   castToMenuShell,
+
+-- * Methods
   menuShellAppend,
   menuShellPrepend,
   menuShellInsert,
   menuShellDeactivate,
   menuShellSelectItem,
   menuShellDeselect,
+
+-- * Signals
   onActivateCurrent,
   afterActivateCurrent,
   onCancel,
@@ -60,7 +87,8 @@ import Graphics.UI.Gtk.General.Enums	(MenuDirectionType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- | Append the new entry @child@ to a menu.
 --
@@ -110,7 +138,8 @@ menuShellDeselect :: MenuShellClass ms => ms -> IO ()
 menuShellDeselect ms =
   {#call menu_shell_deselect#} (toMenuShell ms)
 
--- signals
+--------------------
+-- Signals
 
 -- | This signal is called if an item is
 -- activated. The boolean flag @hide@ is True whenever the menu will

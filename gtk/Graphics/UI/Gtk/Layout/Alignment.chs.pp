@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,10 +27,41 @@
 -- A widget which controls the alignment and size of its child
 --
 module Graphics.UI.Gtk.Layout.Alignment (
+-- * Description
+-- 
+-- | The 'Alignment' widget controls the alignment and size of its child
+-- widget. It has four settings: xscale, yscale, xalign, and yalign.
+--
+-- The scale settings are used to specify how much the child widget should
+-- expand to fill the space allocated to the 'Alignment'. The values can range
+-- from 0 (meaning the child doesn't expand at all) to 1 (meaning the child
+-- expands to fill all of the available space).
+--
+-- The align settings are used to place the child widget within the
+-- available area. The values range from 0 (top or left) to 1 (bottom or
+-- right). Of course, if the scale settings are both set to 1, the alignment
+-- settings have no effect.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----Alignment
+-- @
+
+-- * Types
   Alignment,
   AlignmentClass,
   castToAlignment,
+
+-- * Constructors
   alignmentNew,
+
+-- * Methods
   alignmentSet
 #if GTK_CHECK_VERSION(2,4,0)
  ,alignmentSetPadding,
@@ -47,7 +78,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create an alignment widget. This widget tells
 -- its child widget how to use the given space.
@@ -57,6 +89,8 @@ alignmentNew yscale xalign yalign xscale = makeNewObject mkAlignment $
   liftM castPtr $ {#call unsafe alignment_new#} (realToFrac xalign) 
   (realToFrac yalign) (realToFrac xscale) (realToFrac yscale)
 
+--------------------
+-- Methods
 
 -- | Change the space use behaviour of an 'Alignment'.
 --

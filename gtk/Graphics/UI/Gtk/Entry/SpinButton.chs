@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,11 +28,37 @@
 -- the keyboard.
 --
 module Graphics.UI.Gtk.Entry.SpinButton (
+-- * Description
+-- 
+-- | A 'SpinButton' is an ideal way to allow the user to set the value of some
+-- attribute. Rather than having to directly type a number into a 'Entry',
+-- 'SpinButton' allows the user to click on one of two arrows to increment or
+-- decrement the displayed value. A value can still be typed in, with the bonus
+-- that it can be checked to ensure it is in a given range.
+--
+-- The main properties of a 'SpinButton' are through a 'Adjustment'. See the
+-- 'Adjustment' section for more details about an adjustment's properties.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Entry'
+-- |                     +----SpinButton
+-- @
+
+-- * Types
   SpinButton,
   SpinButtonClass,
   castToSpinButton,
+
+-- * Constructors
   spinButtonNew,
   spinButtonNewWithRange,
+
+-- * Methods
   spinButtonConfigure,
   spinButtonSetAdjustment,
   spinButtonGetAdjustment,
@@ -57,6 +83,8 @@ module Graphics.UI.Gtk.Entry.SpinButton (
   spinButtonSetSnapToTicks,
   spinButtonGetSnapToTicks,
   spinButtonUpdate,
+
+-- * Signals
   onInput,
   afterInput,
   onOutput,
@@ -79,7 +107,8 @@ import Graphics.UI.Gtk.General.Enums	(SpinButtonUpdatePolicy(..), SpinType(..))
 -- GtkSpinbutton implements the GtkEditable interface
 instance EditableClass SpinButton
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new SpinButton.
 --
@@ -104,6 +133,9 @@ spinButtonNewWithRange :: Double -> Double -> Double -> IO SpinButton
 spinButtonNewWithRange min max step = makeNewObject mkSpinButton $
   liftM castPtr $ {#call unsafe spin_button_new_with_range#}
   (realToFrac min) (realToFrac max) (realToFrac step)
+
+--------------------
+-- Methods
 
 -- | Change the settings of a SpinButton.
 --
@@ -258,7 +290,8 @@ spinButtonGetSnapToTicks sb = liftM toBool $
 spinButtonUpdate :: SpinButtonClass sb => sb -> IO ()
 spinButtonUpdate sb = {#call spin_button_update#} (toSpinButton sb)
 
--- signals
+--------------------
+-- Signals
 
 -- | Install a custom input handler.
 --

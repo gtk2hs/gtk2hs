@@ -5,7 +5,7 @@
 --
 --  Created: 13 February 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,6 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- It seems sensible to treat Styles as read only. The only way to modify
+--   a style should be for the programmer to apply the RcStyle patches directly
+--   to the widget.
+--
+-- Bind the draw... functions, they might be useful.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -26,32 +34,27 @@
 --
 -- Customization of widgets.
 --
--- * Styles are attached to widgets and determine how particular parts are
---   drawn and with what color. Thus they are should be seen as mandatory 
---   when one implements a new
---   custom widgets via 'DrawingArea'. Although the parameterized
---   drawing function don't have to be used, it is
---   strongly advisable (and more robust)
---   to make use of the predefined graphics contexts for the different
---   states of a widget (retrieved by 'widgetGetState').
---
--- * When creating complicated objects in 'DrawingArea' the predefined
---   graphics contexts and the single font in the canvas 
---   might not be enough to customize the rendering process. 
---   gtk_rc_get_style_by_paths is the solution for this.
---
---
--- TODO
---
--- * It seems sensible to treat Styles as read only. The only way to modify
---   a style should be for the programmer to apply the RcStyle patches directly
---   to the widget.
---
--- * Bind the draw... functions, they might be useful.
---
 module Graphics.UI.Gtk.General.Style (
+-- * Description
+-- 
+-- | Styles are attached to widgets and determine how particular parts are
+-- drawn and with what color. Thus they are should be seen as mandatory when
+-- one implements a new custom widgets via 'DrawingArea'. Although the
+-- parameterized drawing function don't have to be used, it is strongly
+-- advisable (and more robust) to make use of the predefined graphics contexts
+-- for the different states of a widget (retrieved by 'widgetGetState').
+--
+-- When creating complicated objects in 'DrawingArea' the predefined graphics
+-- contexts and the single font in the canvas might not be enough to customize
+-- the rendering process. gtk_rc_get_style_by_paths is the solution for this.
+--
+
+-- * Types
   Style,
   StyleClass,
+  castToStyle,
+
+-- * Methods
   styleGetForeground,
   styleGetBackground,
   styleGetLight,

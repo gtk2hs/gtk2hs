@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -27,7 +27,41 @@
 -- A dialog box for selecting fonts.
 --
 module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
+-- * Description
+-- 
+-- | The 'FontSelectionDialog' widget is a dialog box for selecting a font.
+--
+-- To set the font which is initially selected, use
+-- 'fontSelectionDialogSetFontName'.
+--
+-- To get the selected font use 'fontSelectionDialogGetFont' or
+-- 'fontSelectionDialogGetFontName'.
+--
+-- To change the text which is shown in the preview area, use
+-- 'fontSelectionDialogSetPreviewText'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Window'
+-- |                                 +----'Dialog'
+-- |                                       +----FontSelectionDialog
+-- @
+
+-- * Types
+  FontSelectionDialog,
+  FontSelectionDialogClass,
+  castToFontSelectionDialog,
+
+-- * Constructors
   fontSelectionDialogNew,
+
+-- * Methods
   fontSelectionDialogGetFontName,
   fontSelectionDialogSetFontName,
   fontSelectionDialogGetPreviewText,
@@ -44,6 +78,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+--------------------
+-- Constructors
 
 -- | Creates a new 'FontSelectionDialog'.
 --
@@ -52,6 +88,9 @@ fontSelectionDialogNew title =
   makeNewObject mkFontSelectionDialog $ liftM castPtr $
   withUTFString title $ \strPtr ->
   {#call unsafe font_selection_dialog_new#} strPtr
+
+--------------------
+-- Methods
 
 -- | Gets the currently-selected font name. Returns Nothing if no font is
 -- selected.

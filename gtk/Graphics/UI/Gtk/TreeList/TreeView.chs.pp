@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/17 12:55:48 $
+--  Version $Revision: 1.5 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -18,6 +18,34 @@
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
+--
+-- TODO
+--
+-- treeViewMoveColumnAfter and treeViewMoveColumnFirst are not dealt with in
+--   Mogul
+--
+-- gtk_tree_view_get_bin_window is to compare the GDK window from incoming
+--   events. We don't marshal that window parameter, so this function is not
+--   bound either.
+--
+-- All functions related to drag and drop are missing.
+--
+-- get_search_equal_func is missing: proper memory management is impossible
+--
+-- gtk_tree_view_set_destroy_count_func is not meant to be useful
+--
+-- expand-collapse-cursor-row needs to be bound if it is useful to expand
+--   and collapse rows in a user-defined manner. Would only work on Gtk 2.2
+--   and higher since the return parameter changed
+--
+-- move_cursor, select_all, select_cursor_parent, select_cursor_row
+--   toggle_cursor_row, unselect_all are not bound.
+--   These functions are only useful to change the widgets
+--   behaviour for these actions. Everything else can be done with
+--   cursor_changed and columns_changed
+--
+-- set_scroll_adjustment makes sense if the user monitors the scroll bars
+--   and the scroll bars can be replaced anytime (the latter is odd)
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -35,44 +63,15 @@
 --   are called widget coordinates while the letter are called tree 
 --   coordinates.
 --
--- TODO
---
--- * treeViewMoveColumnAfter and treeViewMoveColumnFirst are not dealt with in
---   Mogul
---
--- * gtk_tree_view_get_bin_window is to compare the GDK window from incoming
---   events. We don't marshal that window parameter, so this function is not
---   bound either.
---
--- * All functions related to drag and drop are missing.
---
--- * get_search_equal_func is missing: proper memory management is impossible
---
--- * gtk_tree_view_set_destroy_count_func is not meant to be useful
---
--- * expand-collapse-cursor-row needs to be bound if it is useful to expand
---   and collapse rows in a user-defined manner. Would only work on Gtk 2.2
---   and higher since the return parameter changed
---
--- * move_cursor, select_all, select_cursor_parent, select_cursor_row
---   toggle_cursor_row, unselect_all are not bound.
---   These functions are only useful to change the widgets
---   behaviour for these actions. Everything else can be done with
---   cursor_changed and columns_changed
---
--- * set_scroll_adjustment makes sense if the user monitors the scroll bars
---   *and* the scroll bars can be replaced anytime (the latter is odd)
---
-
 module Graphics.UI.Gtk.TreeList.TreeView (
 
 -- * Class Hierarchy
 -- |
 -- @
--- |  "GObject"
--- |   +----"Object"
--- |         +----"Widget"
--- |               +----"Container"
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
 -- |                     +----TreeView
 -- @
 
@@ -182,7 +181,8 @@ import System.Glib.GList		(GList, fromGList)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Make a new 'TreeView' widget.
 --
@@ -195,6 +195,9 @@ treeViewNew  = makeNewObject mkTreeView (liftM castPtr {#call tree_view_new#})
 treeViewNewWithModel :: TreeModelClass tm => tm -> IO TreeView
 treeViewNewWithModel tm = makeNewObject mkTreeView $ liftM castPtr $
   {#call tree_view_new_with_model#} (toTreeModel tm)
+
+--------------------
+-- Methods
 
 -- | Retrieve the TreeModel that supplies the data for
 -- this 'TreeView'. Returns Nothing if no model is currently set.
@@ -826,6 +829,9 @@ foreign import ccall "wrapper" mkTreeViewSearchEqualFunc ::
 -- helper to marshal native tree paths to TreePaths
 readNTP :: Ptr TreePath -> IO TreePath
 readNTP ptr = nativeTreePathGetIndices (NativeTreePath (castPtr ptr))
+
+--------------------
+-- Signals
 
 -- | The user has dragged a column to another
 -- position.

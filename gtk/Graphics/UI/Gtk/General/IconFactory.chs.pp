@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/13 16:25:57 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,6 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- The following functions are not bound:
+--   iconFactoryLookup, iconFactoryLookupDefault
+--   It is not a good idea to lookup an IconSet directly. If an Icon needs to
+--   be displayed it happends always in the context of a widget. The best
+--   practice is to get the widgets Style and call styleLookupIconSet.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -26,17 +34,45 @@
 --
 -- This module provides access to IconFactory, IconSet and IconSource.
 --
--- TODO
---
--- * The following functions are not bound:
---   iconFactoryLookup, iconFactoryLookupDefault
---   It is not a good idea to lookup an IconSet directly. If an Icon needs to
---   be displayed it happends always in the context of a widget. The best
---   practice is to get the widgets Style and call styleLookupIconSet.
---
 module Graphics.UI.Gtk.General.IconFactory (
+-- * Description
+-- 
+-- | Browse the available stock icons in the list of stock IDs found here. You
+-- can also use the gtk-demo application for this purpose.
+--
+-- An icon factory manages a collection of 'IconSet'; a 'IconSet' manages a
+-- set of variants of a particular icon (i.e. a 'IconSet' contains variants for
+-- different sizes and widget states). Icons in an icon factory are named by a
+-- stock ID, which is a simple string identifying the icon. Each 'Style' has a
+-- list of 'IconFactory' derived from the current theme; those icon factories
+-- are consulted first when searching for an icon. If the theme doesn't set a
+-- particular icon, Gtk+ looks for the icon in a list of default icon
+-- factories, maintained by 'iconFactoryAddDefault' and
+-- 'iconFactoryRemoveDefault'. Applications with icons should add a default
+-- icon factory with their icons, which will allow themes to override the icons
+-- for the application.
+--
+-- To display an icon, always use 'styleLookupIconSet' on the widget that
+-- will display the icon, or the convenience function 'widgetRenderIcon'. These
+-- functions take the theme into account when looking up the icon to use for a
+-- given stock ID.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----IconFactory
+-- @
+
+-- * Types
   IconFactory,
+  IconFactoryClass,
+  castToIconFactory,
+
+-- * Constructors
   iconFactoryNew,
+
+-- * Methods
   iconFactoryAdd,
   iconFactoryAddDefault,
   iconFactoryLookup,
@@ -97,8 +133,23 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid,
 
 {#pointer *IconSet foreign newtype#}
 
--- methods
+--------------------
+-- Constructors
 
+-- | Create a new IconFactory.
+--
+-- * An application should create a new 'IconFactory' and add all
+--   needed icons.
+--   By calling 'iconFactoryAddDefault' these icons become
+--   available as stock objects and can easily be displayed by
+--   'Image'. Furthermore, a theme can override the icons defined by
+--   the application.
+--
+iconFactoryNew :: IO IconFactory
+iconFactoryNew  = makeNewGObject mkIconFactory {#call unsafe icon_factory_new#}
+
+--------------------
+-- Methods
 
 -- | Add an IconSet to an IconFactory.
 --
@@ -141,18 +192,6 @@ iconFactoryLookupDefault stockId =
   iconSetPtr <- {#call unsafe icon_factory_lookup_default#} strPtr
   if iconSetPtr == nullPtr then return Nothing else liftM (Just . IconSet) $
     newForeignPtr iconSetPtr (icon_set_unref iconSetPtr)
-
--- | Create a new IconFactory.
---
--- * An application should create a new 'IconFactory' and add all
---   needed icons.
---   By calling 'iconFactoryAddDefault' these icons become
---   available as stock objects and can easily be displayed by
---   'Image'. Furthermore, a theme can override the icons defined by
---   the application.
---
-iconFactoryNew :: IO IconFactory
-iconFactoryNew  = makeNewGObject mkIconFactory {#call unsafe icon_factory_new#}
 
 -- | Remove an IconFactory from the
 -- application's stock database.

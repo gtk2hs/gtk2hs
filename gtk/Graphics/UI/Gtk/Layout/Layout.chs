@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -20,17 +20,41 @@
 --  Lesser General Public License for more details.
 --
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A layout widget can hold several widgets at arbitrary positions.
+-- Infinite scrollable area containing child widgets and\/or custom drawing
 --
 module Graphics.UI.Gtk.Layout.Layout (
+-- * Description
+-- 
+-- | 'Layout' is similar to 'DrawingArea' in that it's a \"blank slate\" and
+-- doesn't do anything but paint a blank background by default. It's different
+-- in that it supports scrolling natively (you can add it to a
+-- 'ScrolledWindow'), and it can contain child widgets, since it's a
+-- 'Container'. However if you\'re just going to draw, a 'DrawingArea' is a
+-- better choice since it has lower overhead.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Layout
+-- @
+
+-- * Types
   Layout,
   LayoutClass,
   castToLayout,
+
+-- * Constructors
   layoutNew,
+
+-- * Methods
   layoutPut,
   layoutMove,
   layoutSetSize,
@@ -39,6 +63,8 @@ module Graphics.UI.Gtk.Layout.Layout (
   layoutGetVAdjustment,
   layoutSetHAdjustment,
   layoutSetVAdjustment,
+
+-- * Signals
   onSetScrollAdjustments,
   afterSetScrollAdjustments
   ) where
@@ -53,7 +79,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new layout widget.
 --
@@ -64,6 +91,8 @@ layoutNew vAdj hAdj = makeNewObject mkLayout $ liftM castPtr $
  fromMAdj :: Maybe Adjustment -> Adjustment
  fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
 
+--------------------
+-- Methods
 
 -- | Insert a widget into the layout container.
 --
@@ -115,7 +144,8 @@ layoutSetHAdjustment l adj = {#call layout_set_hadjustment#} (toLayout l) adj
 layoutSetVAdjustment :: LayoutClass l => l -> Adjustment -> IO ()
 layoutSetVAdjustment l adj = {#call layout_set_vadjustment#} (toLayout l) adj
 
--- signals
+--------------------
+-- Signals
 
 -- | In case the adjustments are
 -- replaced, this signal is emitted.

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:20 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,10 +28,72 @@
 -- supplies all methods to add and remove children.
 --
 module Graphics.UI.Gtk.Abstract.Box (
+-- * Description
+-- 
+-- | 'Box' is an abstract widget which encapsulates functionallity for a
+-- particular kind of container, one that organizes a variable number of
+-- widgets into a rectangular area. 'Box' currently has two derived classes,
+-- 'HBox' and 'VBox'.
+--
+-- The rectangular area of a 'Box' is organized into either a single row or
+-- a single column of child widgets depending upon whether the box is of type
+-- 'HBox' or 'VBox', respectively. Thus, all children of a 'Box' are allocated
+-- one dimension in common, which is the height of a row, or the width of a
+-- column.
+--
+-- 'Box' uses a notion of /packing/. Packing refers to adding widgets with
+-- reference to a particular position in a 'Container'. For a 'Box', there are
+-- two reference positions: the /start/ and the /end/ of the box. For a 'VBox',
+-- the start is defined as the top of the box and the end is defined as the
+-- bottom. For a 'HBox' the start is defined as the left side and the end is
+-- defined as the right side.
+--
+-- Use repeated calls to 'boxPackStart' to pack widgets into a 'Box' from
+-- start to end. Use 'boxPackEnd' to add widgets from end to start. You may
+-- intersperse these calls and add widgets from both ends of the same 'Box'.
+--
+-- Use 'boxPackStartDefaults' or 'boxPackEndDefaults' to pack widgets into a
+-- 'Box' if you do not need to specify the expand, fill, or padding attributes
+-- of the child to be added.
+--
+-- Because 'Box' is a 'Container', you may also use 'containerAdd' to insert
+-- widgets into the box, and they will be packed as if with
+-- 'boxPackStartDefaults'. Use 'containerRemove' to remove widgets from the
+-- 'Box'.
+--
+-- Use 'boxSetHomogeneous' to specify whether or not all children of the
+-- 'Box' are forced to get the same amount of space.
+--
+-- Use 'boxSetSpacing' to determine how much space will be minimally placed
+-- between all children in the 'Box'.
+--
+-- Use 'boxReorderChild' to move a 'Box' child to a different place in the
+-- box.
+--
+-- Use 'boxSetChildPacking' to reset the expand, fill, and padding
+-- attributes of any 'Box' child. Use 'boxQueryChildPacking' to query these
+-- fields.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Box
+-- |                           +----'ButtonBox'
+-- |                           +----'VBox'
+-- |                           +----'HBox'
+-- @
+
+-- * Types
   Box,
   BoxClass,
   castToBox,
   Packing(..),
+
+-- * Methods
   boxPackStart,
   boxPackEnd,
   boxPackStartDefaults,
@@ -56,8 +118,8 @@ import Graphics.UI.Gtk.General.Enums	(PackType(..), Packing(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
-
+--------------------
+-- Methods
 
 -- | Insert a widget at the beginning of the box
 -- container.
@@ -87,7 +149,6 @@ boxPackStart b w p pad = {#call box_pack_start#} (toBox b) (toWidget w)
 boxPackEnd :: (BoxClass b, WidgetClass w) => b -> w -> Packing -> Int -> IO ()
 boxPackEnd b w p pad = {#call box_pack_end#} (toBox b) (toWidget w)
   (fromBool $ p/=PackNatural) (fromBool $ p==PackGrow) (fromIntegral pad)
-
 
 -- | Like 'boxPackStart' but uses the
 -- default parameters 'PackRepel' and 0 for padding.
@@ -167,7 +228,3 @@ boxSetChildPacking b w pack pad pt = {#call box_set_child_packing#} (toBox b)
 boxGetSpacing :: BoxClass b => b -> IO Int
 boxGetSpacing b = 
   liftM fromIntegral $ {#call unsafe box_get_spacing#} (toBox b)
-
-
-
-

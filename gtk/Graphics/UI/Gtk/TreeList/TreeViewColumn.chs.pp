@@ -2,12 +2,12 @@
 --  GIMP Toolkit (GTK) TreeViewColumn TreeView
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/02/17 00:13:20 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:37 $
 --
---  Copyright (c) 2001 Axel Simon
+--  Copyright (C) 2001-2005 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -40,11 +40,28 @@
 --   values to attributes of cell renderers.
 --
 module Graphics.UI.Gtk.TreeList.TreeViewColumn (
+-- * Description
+-- 
+-- | The 'TreeViewColumn' object is a visible column in a 'TreeView' widget.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----TreeViewColumn
+-- @
+
+-- * Types
   TreeViewColumn,
   TreeViewColumnClass,
   castToTreeViewColumn,
+
+-- * Constructors
   treeViewColumnNew,
   treeViewColumnNewWithAttributes,
+
+-- * Methods
   treeViewColumnPackStart,
   treeViewColumnPackEnd,
   treeViewColumnClear,
@@ -87,6 +104,8 @@ module Graphics.UI.Gtk.TreeList.TreeViewColumn (
   treeViewColumnSetSortOrder,
   treeViewColumnGetSortOrder,
   SortType(..),
+
+-- * Signals
   onColClicked,
   afterColClicked
   ) where
@@ -107,7 +126,8 @@ import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 
 -- TreeViewColumn type declaration
 
--- methods
+--------------------
+-- Constructors
 
 -- | Generate a new TreeViewColumn widget.
 --
@@ -127,6 +147,9 @@ treeViewColumnNewWithAttributes title cr attribs =
     treeViewColumnPackStart tvc  cr True
     treeViewColumnAddAttributes tvc cr attribs
     return tvc
+
+--------------------
+-- Methods
 
 -- | Add a cell renderer at the beginning of
 -- a column.
@@ -470,6 +493,9 @@ treeViewColumnSetSortOrder tvc sort =
 treeViewColumnGetSortOrder :: TreeViewColumnClass tvc => tvc -> IO SortType
 treeViewColumnGetSortOrder tvc = liftM (toEnum.fromIntegral) $
   {#call unsafe tree_view_column_get_sort_order#} (toTreeViewColumn tvc)
+
+--------------------
+-- Signals
 
 -- | Emitted when the header of this column has been
 -- clicked on.

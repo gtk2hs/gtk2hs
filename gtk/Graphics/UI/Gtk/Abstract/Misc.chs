@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,12 +24,41 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- a base class for widgets with alignments and padding.
+-- A base class for widgets with alignments and padding.
 --
 module Graphics.UI.Gtk.Abstract.Misc (
+-- * Description
+-- 
+-- | The 'Misc' widget is an abstract widget which is not useful itself, but
+-- is used to derive subclasses which have alignment and padding attributes.
+--
+-- The horizontal and vertical padding attributes allows extra space to be
+-- added around the widget.
+--
+-- The horizontal and vertical alignment attributes enable the widget to be
+-- positioned within its allocated area. Note that if the widget is added to a
+-- container in such a way that it expands automatically to fill its allocated
+-- area, the alignment settings will not alter the widgets position.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----Misc
+-- |                     +----'Label'
+-- |                     +----'Arrow'
+-- |                     +----'Image'
+-- |                     +----'Pixmap'
+-- @
+
+-- * Types
   Misc,
   MiscClass,
   castToMisc,
+
+-- * Methods
   miscSetAlignment,
   miscGetAlignment,
   miscSetPadding,
@@ -45,9 +74,8 @@ import System.Glib.FFI
 
 {# context lib="gtk" prefix="gtk" #}
 
--- Misc type declaration
-
--- methods
+--------------------
+-- Methods
 
 -- | Set the alignment of the widget.
 --

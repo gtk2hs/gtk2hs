@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,10 +27,25 @@
 -- Renders a toggle button in a cell
 --
 module Graphics.UI.Gtk.TreeList.CellRendererToggle (
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'CellRenderer'
+-- |               +----CellRendererToggle
+-- @
+
+-- * Types
   CellRendererToggle,
   CellRendererToggleClass,
   castToCellRendererToggle,
+
+-- * Constructors
   cellRendererToggleNew,
+
+-- * Methods
   cellRendererToggleGetRadio,
   cellRendererToggleSetRadio,
   cellRendererToggleGetActive,
@@ -50,13 +65,17 @@ import System.Glib.StoreValue   (GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new 'CellRenderer' that displays a 'ToggleButton'.
 --
 cellRendererToggleNew :: IO CellRendererToggle
 cellRendererToggleNew  = makeNewObject mkCellRendererToggle $
   liftM castPtr $ {#call unsafe cell_renderer_toggle_new#}
+
+--------------------
+-- Methods
 
 -- | Determine whether the button is drawn as 'RadioButton' or not.
 --

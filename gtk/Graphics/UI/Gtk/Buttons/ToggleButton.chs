@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,16 +24,49 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A ToggleButton is the base class for all buttons that have an inherit
--- state.
+-- Create buttons which retain their state.
 --
 module Graphics.UI.Gtk.Buttons.ToggleButton (
+-- * Description
+-- 
+-- | A 'ToggleButton' is a 'Button' which will remain \'pressed-in\' when
+-- clicked. Clicking again will cause the toggle button to return to its normal
+-- state.
+--
+-- A toggle button is created by calling either 'toggleButtonNew' or
+-- 'toggleButtonNewWithLabel'. If using the former, it is advisable to pack a
+-- widget, (such as a 'Label' and\/or a 'Pixmap'), into the toggle button's
+-- container. (See 'Button' for more information).
+--
+-- The state of a 'ToggleButton' can be set specifically using
+-- 'toggleButtonSetActive', and retrieved using 'toggleButtonGetActive'.
+--
+-- To simply switch the state of a toggle button, use 'toggleButtonToggled'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Button'
+-- |                                 +----ToggleButton
+-- |                                       +----'CheckButton'
+-- @
+
+-- * Types
   ToggleButton,
   ToggleButtonClass,
   castToToggleButton,
+
+-- * Constructors
   toggleButtonNew,
   toggleButtonNewWithLabel,
   toggleButtonNewWithMnemonic,
+
+-- * Methods
   toggleButtonSetMode,
   toggleButtonGetMode,
   toggleButtonToggled,
@@ -41,6 +74,8 @@ module Graphics.UI.Gtk.Buttons.ToggleButton (
   toggleButtonSetActive,
   toggleButtonGetInconsistent,
   toggleButtonSetInconsistent,
+
+-- * Signals
   onToggled,
   afterToggled
   ) where
@@ -55,7 +90,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new ToggleButton widget.
 --
@@ -78,6 +114,9 @@ toggleButtonNewWithMnemonic :: String -> IO ToggleButton
 toggleButtonNewWithMnemonic lbl = withUTFString lbl (\strPtr ->
   makeNewObject mkToggleButton $ liftM castPtr $
   {#call unsafe toggle_button_new_with_mnemonic#} strPtr)
+
+--------------------
+-- Methods
 
 -- | Sets whether the button is displayed as a separate indicator and label.
 -- You can call this function on a "CheckButton" or a "RadioButton" with @False@
@@ -126,8 +165,8 @@ toggleButtonSetInconsistent :: ToggleButtonClass tb => Bool -> tb -> IO ()
 toggleButtonSetInconsistent incon tb = 
   {#call toggle_button_set_inconsistent#} (toToggleButton tb) (fromBool incon)
 
--- signals
-
+--------------------
+-- Signals
 
 -- | Whenever the state of the button is changed, the toggled signal is emitted.
 --

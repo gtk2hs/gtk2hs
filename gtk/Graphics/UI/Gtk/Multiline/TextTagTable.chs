@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,11 +24,31 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
+-- Collection of tags that can be used together
+--
 module Graphics.UI.Gtk.Multiline.TextTagTable (
+-- * Description
+-- 
+-- | You may wish to begin by reading the text widget conceptual overview
+-- which gives an overview of all the objects and data types related to the
+-- text widget and how they work together.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----TextTagTable
+-- @
+
+-- * Types
   TextTagTable,
   TextTagTableClass,
   castToTextTagTable,
+
+-- * Constructors
   textTagTableNew,
+
+-- * Methods
   textTagTableAdd,
   textTagTableRemove,
   textTagTableLookup,
@@ -45,12 +65,18 @@ import System.Glib.GObject	(makeNewGObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+--------------------
+-- Constructors
+
 -- | Creates a new 'TextTagTable'. The table contains no tags by default.
 --
 textTagTableNew :: IO TextTagTable
 textTagTableNew =
   makeNewGObject mkTextTagTable $ 
   {#call unsafe text_tag_table_new#}
+
+--------------------
+-- Methods
 
 -- | Add a tag to the table. The tag is assigned the highest priority in the
 -- table.

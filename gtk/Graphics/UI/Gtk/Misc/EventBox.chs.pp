@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,13 +24,36 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget used to catch events for widgets which do not have their own window.
+-- A widget used to catch events for widgets which do not have their own
+-- window.
 --
 module Graphics.UI.Gtk.Misc.EventBox (
+-- * Description
+-- 
+-- | The 'EventBox' widget is a subclass of 'Bin' which also has its own
+-- window. It is useful since it allows you to catch events for widgets which
+-- do not have their own window.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----EventBox
+-- @
+
+-- * Types
   EventBox,
   EventBoxClass,
   castToEventBox,
+
+-- * Constructors
   eventBoxNew
+
+-- * Methods
 #if GTK_CHECK_VERSION(2,4,0)
  ,eventBoxSetVisibleWindow,
   eventBoxGetVisibleWindow,
@@ -48,13 +71,17 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new 'EventBox'.
 --
 eventBoxNew :: IO EventBox
 eventBoxNew  = makeNewObject mkEventBox $ 
   liftM castPtr {#call unsafe event_box_new#}
+
+--------------------
+-- Methods
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Set whether the event box uses a visible or invisible child window. The

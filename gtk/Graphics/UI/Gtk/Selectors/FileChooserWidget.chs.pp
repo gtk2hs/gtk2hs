@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -32,15 +32,44 @@
 --
 -- * Added in GTK+ 2.4
 --
-module Graphics.UI.Gtk.Selectors.FileChooserWidget  (
+module Graphics.UI.Gtk.Selectors.FileChooserWidget (
+-- * Description
+-- 
+-- | 'FileChooserWidget' is a widget suitable for selecting files. It is the
+-- main building block of a 'FileChooserDialog'. Most applications will only
+-- need to use the latter; you can use 'FileChooserWidget' as part of a larger
+-- window if you have special needs.
+--
+-- Note that 'FileChooserWidget' does not have any methods of its own.
+-- Instead, you should use the functions that work on a 'FileChooser'.
+--
+-- * Module available since Gtk version 2.4
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Box'
+-- |                           +----'VBox'
+-- |                                 +----FileChooserWidget
+-- @
+
+
 #if GTK_CHECK_VERSION(2,4,0)
-  FileChooserWidgetClass,
+-- * Types
   FileChooserWidget,
+  FileChooserWidgetClass,
+  castToFileChooserWidget,
+
+-- * Constructors
   FileChooserAction,
   fileChooserWidgetNew,
   fileChooserWidgetNewWithBackend,
 #endif
-) where
+  ) where
 
 #if GTK_CHECK_VERSION(2,4,0)
 
@@ -56,6 +85,9 @@ import Graphics.UI.Gtk.Abstract.Object
 -- The FileChooserWidget implements the FileChooser interface
 -- which we model in Haskell as another instance decleration
 instance FileChooserClass FileChooserWidget
+
+--------------------
+-- Constructors
 
 fileChooserWidgetNew ::  FileChooserAction -> IO FileChooserWidget
 fileChooserWidgetNew action =

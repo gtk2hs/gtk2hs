@@ -2,29 +2,70 @@
 --  GIMP Toolkit (GTK) Widget ButtonBox
 --
 --  Author : Matthew Walton
---          
+--
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:11:46 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:31 $
 --
---  Copyright (c) 2004 Matthew Walton
+--  Copyright (C) 2004-2005 Matthew Walton
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- Base class for 'HButtonBox' and 'VButtonBox'
 --
 module Graphics.UI.Gtk.Abstract.ButtonBox (
+-- * Description
+-- 
+-- | The primary purpose of this class is to keep track of the various
+-- properties of 'HButtonBox' and 'VButtonBox' widgets.
+--
+-- 'buttonBoxGetChildSize' retrieves the minimum width and height for
+-- widgets in a given button box. 'buttonBoxSetChildSize' allows those
+-- properties to be changed.
+--
+-- The internal padding of buttons can be retrieved and changed per button
+-- box using 'buttonBoxGetChildIpadding' and 'buttonBoxSetChildIpadding'
+-- respectively.
+--
+-- 'buttonBoxGetSpacing' and 'buttonBoxSetSpacing' retrieve and change
+-- default number of pixels between buttons, respectively.
+--
+-- 'buttonBoxGetLayout' and 'buttonBoxSetLayout' retrieve and alter the
+-- method used to spread the buttons in a button box across the container,
+-- respectively.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Box'
+-- |                           +----ButtonBox
+-- |                                 +----'HButtonBox'
+-- |                                 +----'VButtonBox'
+-- @
+
+-- * Types
   ButtonBox,
   ButtonBoxClass,
   castToButtonBox,
+
+-- * Methods
   buttonBoxGetLayout,
   buttonBoxSetLayout,
   buttonBoxSetChildSecondary,
@@ -45,7 +86,8 @@ import Graphics.UI.Gtk.General.Enums (ButtonBoxStyle)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- | Retrieve the method being used to
 -- arrange the buttons in the button box

@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -31,11 +31,37 @@
 -- * accessor functions for TextAttributes
 --
 module Graphics.UI.Gtk.Multiline.TextTag (
+-- * Description
+-- 
+-- | You may wish to begin by reading the text widget conceptual overview
+-- which gives an overview of all the objects and data types related to the
+-- text widget and how they work together.
+--
+-- Tags should be in the 'TextTagTable' for a given 'TextBuffer' before
+-- using them with that buffer.
+--
+-- 'textBufferCreateTag' is the best way to create tags.
+--
+-- The \"invisible\" property was not implemented for Gtk+ 2.0; it's planned
+-- to be implemented in future releases.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----TextTag
+-- @
+
+-- * Types
   TextTag,
   TextTagClass,
   castToTextTag,
   TagName,
+
+-- * Constructors
   textTagNew,
+
+-- * Methods
   textTagSetPriority,
   textTagGetPriority,
   TextAttributes(..),
@@ -54,7 +80,8 @@ import System.Glib.GObject	(makeNewGObject)
 
 type TagName = String
 
--- TextTag methods
+--------------------
+-- Constructors
 
 -- | Creates a 'TextTag'.
 --
@@ -62,6 +89,9 @@ textTagNew :: TagName -> IO TextTag
 textTagNew name =
   withCString name $ \strPtr ->
   makeNewGObject mkTextTag $ {#call unsafe text_tag_new#} strPtr
+
+--------------------
+-- Methods
 
 -- | Get the tag priority.
 --

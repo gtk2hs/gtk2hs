@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,23 +19,45 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- A couple of signals are not bound because I could not figure out what
+--   they mean. Some of them do not seem to be emitted at all.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- * This widget lets the user enter a single line of text.
---
--- * TODO
---
--- * A couple of signals are not bound because I could not figure out what
---   they mean. Some of them do not seem to be emitted at all.
+-- A single line text entry field.
 --
 module Graphics.UI.Gtk.Entry.Entry (
+-- * Description
+-- 
+-- | The 'Entry' widget is a single line text entry widget. A fairly large set
+-- of key bindings are supported by default. If the entered text is longer than
+-- the allocation of the widget, the widget will scroll so that the cursor
+-- position is visible.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----Entry
+-- |                     +----'SpinButton'
+-- @
+
+-- * Types
   Entry,
   EntryClass,
   castToEntry,
+
+-- * Constructors
   entryNew,
+
+-- * Methods
   entrySetText,
   entryGetText,
 #ifndef DISABLE_DEPRECATED
@@ -59,6 +81,8 @@ module Graphics.UI.Gtk.Entry.Entry (
   entrySetCompletion,
   entryGetCompletion,
 #endif
+
+-- * Signals
   onEntryActivate,
   afterEntryActivate,
   onCopyClipboard,
@@ -88,12 +112,16 @@ import Char	(ord, chr)
 -- GtkEntry implements the GtkEditable interface
 instance EditableClass Entry
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new 'Entry' widget.
 --
 entryNew :: IO Entry
 entryNew  = makeNewObject mkEntry $ liftM castPtr $ {#call unsafe entry_new#}
+
+--------------------
+-- Methods
 
 -- | Set the text of the 'Entry' widget.
 --
@@ -243,8 +271,8 @@ entryGetCompletion ec =
   {#call gtk_entry_get_completion#} (toEntry ec)
 #endif
 
-
--- signals
+--------------------
+-- Signals
 
 -- | Emitted when the user presses return within
 -- the 'Entry' field.

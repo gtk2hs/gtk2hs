@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,29 +19,55 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- No function that directly accesses the group is bound. This is due to the
+--   difficulties assuring that these groups are valid as the group is a plain
+--   GSList from Glib.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A radio group is a set of check buttons where only one button can be 
--- checked.
---
--- * Each radio button has to be associated with a group. Generating a new
---   radio button makes up a new group. Other group members can be added by
---   generating radio buttons with the function 
---   'radioButtonNewJoinGroup'.
---
--- TODO
---
--- * No function that directly accesses the group is bound. This is due to the
---   difficulties assuring that these groups are valid as the group is a plain
---   GSList from Glib.
+-- A choice from multiple check buttons.
 --
 module Graphics.UI.Gtk.Buttons.RadioButton (
+-- * Description
+-- 
+-- | A single radio button performs the same basic function as a
+-- 'CheckButton', as its position in the object hierarchy reflects. It is only
+-- when multiple radio buttons are grouped together that they become a
+-- different user interface component in their own right.
+--
+-- Every radio button is a member of some group of radio buttons. When one
+-- is selected, all other radio buttons in the same group are deselected. A
+-- 'RadioButton' is one way of giving the user a choice from many options.
+--
+-- Each radio button has to be associated with a group. Generating a new
+-- radio button makes up a new group. Other group members can be added by
+-- generating radio buttons with the function 'radioButtonNewJoinGroup'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Button'
+-- |                                 +----'ToggleButton'
+-- |                                       +----'CheckButton'
+-- |                                             +----RadioButton
+-- @
+
+-- * Types
   RadioButton,
   RadioButtonClass,
   castToRadioButton,
+
+-- * Constructors
   radioButtonNew,
   radioButtonNewWithLabel,
   radioButtonNewWithMnemonic,
@@ -65,7 +91,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new RadioButton widget with a new group.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,6 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- figure out what the signals \"toggle-size-allocate\" and 
+--   \"toggle-size-request\" are good for and bind them if useful
+--
+-- figure out if the connectToToggle signal is useful at all
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -30,20 +37,43 @@
 --   is the only child of that widget. The three signals defined by Item are
 --   therefore bound in this module.
 --
--- TODO
---
--- * figure out what the signals \"toggle-size-allocate\" and 
---   \"toggle-size-request\" are good for and bind them if useful
---
--- * figure out if the connectToToggle signal is useful at all
---
 module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
+-- * Description
+-- 
+-- | The 'MenuItem' widget and the derived widgets are the only valid childs
+-- for menus. Their function is to correctly handle highlighting, alignment,
+-- events and submenus.
+--
+-- As it derives from 'Bin' it can hold any valid child widget, altough only
+-- a few are really useful.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Item'
+-- |                                 +----MenuItem
+-- |                                       +----'CheckMenuItem'
+-- |                                       +----'ImageMenuItem'
+-- |                                       +----'SeparatorMenuItem'
+-- |                                       +----'TearoffMenuItem'
+-- @
+
+-- * Types
   MenuItem,
   MenuItemClass,
   castToMenuItem,
+
+-- * Constructors
   menuItemNew,
   menuItemNewWithLabel,
   menuItemNewWithMnemonic,
+
+-- * Methods
   menuItemSetSubmenu,
   menuItemGetSubmenu,
   menuItemRemoveSubmenu,
@@ -57,6 +87,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   afterActivateLeaf,
   onActivateItem,
   afterActivateItem,
+
+-- * Signals
   onSelect,
   afterSelect,
   onDeselect,
@@ -75,7 +107,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new menu item. This is the smallest part
 -- of a menu that the user can click on or select with the keyboard.
@@ -98,6 +131,9 @@ menuItemNewWithMnemonic :: String -> IO MenuItem
 menuItemNewWithMnemonic label = withUTFString label $ \strPtr -> 
   makeNewObject mkMenuItem $ liftM castPtr $
   {#call unsafe menu_item_new_with_mnemonic#} strPtr
+
+--------------------
+-- Methods
 
 -- | Set the item's submenu.
 --
@@ -165,7 +201,8 @@ menuItemSetAccelPath mi accelPath =
   maybeWith withCString accelPath $ \strPtr ->
   {#call menu_item_set_accel_path#} (toMenuItem mi) strPtr
 
--- signals
+--------------------
+-- Signals
 
 -- | The user has chosen the menu item and the item does not contain a submenu.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -29,12 +29,34 @@
 -- * Added in gtk 2.4
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
+-- * Description
+-- 
+-- | * Module available since Gtk version 2.4
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'ComboBox'
+-- |                                 +----ComboBoxEntry
+-- @
+
 #if GTK_CHECK_VERSION(2,4,0)
-  ComboBoxEntryClass,
+-- * Types
   ComboBoxEntry,
+  ComboBoxEntryClass,
+  castToComboBoxEntry,
+
+-- * Constructors
   comboBoxEntryNew,
   comboBoxEntryNewWithModel,
   comboBoxEntryNewText,
+
+-- * Methods
   comboBoxEntrySetTextColumn,
   comboBoxEntryGetTextColumn,
 #endif
@@ -51,6 +73,8 @@ import System.Glib.GObject (makeNewGObject)
 
 {# context lib="gtk" prefix ="gtk" #}
 
+--------------------
+-- Constructors
 
 comboBoxEntryNew :: IO ComboBoxEntry
 comboBoxEntryNew =
@@ -66,6 +90,9 @@ comboBoxEntryNewText :: IO ComboBoxEntry
 comboBoxEntryNewText =
   makeNewObject mkComboBoxEntry $ liftM castPtr $
   {# call gtk_combo_box_entry_new_text #}
+
+--------------------
+-- Methods
 
 comboBoxEntrySetTextColumn :: ComboBoxEntryClass combo => combo -> Int -> IO ()
 comboBoxEntrySetTextColumn combo textColumn =

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -26,16 +26,62 @@
 --
 -- 'ScrolledWindow' is a container that adds scroll bars to its child
 --
--- * Some widgets have native scrolling support, in which case the scrolling action
---   is performed by the child itself (e.g. a TreeView widget does this by only
---   moving the table part and not the titles of a table). If a widget does
---   not support native scrolling it can be put into a 'ScrolledWindow' widget.
---
 module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
+-- * Description
+-- 
+-- | 'ScrolledWindow' is a 'Bin' subclass: it's a container the accepts a
+-- single child widget. 'ScrolledWindow' adds scrollbars to the child widget
+-- and optionally draws a beveled frame around the child widget.
+--
+-- The scrolled window can work in two ways. Some widgets have native
+-- scrolling support; these widgets have \"slots\" for 'Adjustment' objects.
+-- Widgets with native scroll support include 'TreeView', 'TextView', and
+-- 'Layout'.
+--
+-- For widgets that lack native scrolling support, the 'Viewport' widget
+-- acts as an adaptor class, implementing scrollability for child widgets that
+-- lack their own scrolling capabilities. Use 'Viewport' to scroll child
+-- widgets such as 'Table', 'Box', and so on.
+--
+-- If a widget has native scrolling abilities, it can be added to the
+-- 'ScrolledWindow' with 'containerAdd'. If a widget does not, you must first
+-- add the widget to a 'Viewport', then add the 'Viewport' to the scrolled
+-- window. The convenience function 'scrolledWindowAddWithViewport' does
+-- exactly this, so you can ignore the presence of the viewport.
+--
+-- The position of the scrollbars is controlled by the scroll adjustments.
+-- See 'Adjustment' for the fields in an adjustment - for 'Scrollbar', used by
+-- 'ScrolledWindow', the \"value\" field represents the position of the
+-- scrollbar, which must be between the \"lower\" field and \"upper -
+-- page_size.\" The \"page_size\" field represents the size of the visible
+-- scrollable area. The \"step_increment\" and \"page_increment\" fields are
+-- used when the user asks to step down (using the small stepper arrows) or
+-- page down (using for example the PageDown key).
+--
+-- If a 'ScrolledWindow' doesn't behave quite as you would like, or doesn't
+-- have exactly the right layout, it's very possible to set up your own
+-- scrolling with 'Scrollbar' and for example a 'Table'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----ScrolledWindow
+-- @
+
+-- * Types
   ScrolledWindow,
   ScrolledWindowClass,
   castToScrolledWindow,
+
+-- * Constructors
   scrolledWindowNew,
+
+-- * Methods
   scrolledWindowGetHAdjustment,
   scrolledWindowGetVAdjustment,
   PolicyType(..),
@@ -63,7 +109,8 @@ import Maybe    (fromMaybe)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new 'ScrolledWindow'.
 --
@@ -73,6 +120,9 @@ scrolledWindowNew hAdj vAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
  where
  fromMAdj :: Maybe Adjustment -> Adjustment
  fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
+
+--------------------
+-- Methods
 
 -- | Retrieve the horizontal 'Adjustment' of the 'ScrolledWindow'.
 --

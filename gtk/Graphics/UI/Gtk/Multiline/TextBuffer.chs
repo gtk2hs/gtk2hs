@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -18,6 +18,29 @@
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
+--
+-- TODO
+--
+-- The functionality of inserting widgets (child anchors) is not implemented
+--   since there will probably some changes before the final release. The
+--   following functions are not bound:
+--     gtk_text_buffer_insert_child_anchor
+--     gtk_text_buffer_create_child_anchor
+--     gtk_text_buffer_get_iter_at_anchor
+--     connectToInsertChildAnchor
+--     
+-- Check 'textBufferGetInsert', in case there is no cursor in 
+--   the editor,
+--   is there a mark called \"insert\"? If not, the function needs to return
+--   Maybe TextMark. The same holds for 
+--   'textBufferGetSelectionBound'.
+--
+-- If Clipboards are bound, then these functions need to be bound as well:
+--     gtk_text_buffer_paste_clipboard
+--     gtk_text_buffer_copy_clipboard
+--     gtk_text_buffer_cut_clipboard
+--     gtk_text_buffer_add_selection_clipboard
+--     gtk_text_buffer_remove_selection_clipboard
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -43,34 +66,24 @@
 -- * The function gtk_text_buffer_get_selection_bounds is only used to test
 --   if there is a selection  (see 'textBufferHasSelection').
 --
--- TODO
---
--- * The functionality of inserting widgets (child anchors) is not implemented
---   since there will probably some changes before the final release. The
---   following functions are not bound:
---     gtk_text_buffer_insert_child_anchor
---     gtk_text_buffer_create_child_anchor
---     gtk_text_buffer_get_iter_at_anchor
---     connectToInsertChildAnchor
---     
--- * Check 'textBufferGetInsert', in case there is no cursor in 
---   the editor,
---   is there a mark called \"insert\"? If not, the function needs to return
---   Maybe TextMark. The same holds for 
---   'textBufferGetSelectionBound'.
---
--- * If Clipboards are bound, then these functions need to be bound as well:
---     gtk_text_buffer_paste_clipboard
---     gtk_text_buffer_copy_clipboard
---     gtk_text_buffer_cut_clipboard
---     gtk_text_buffer_add_selection_clipboard
---     gtk_text_buffer_remove_selection_clipboard
---
 module Graphics.UI.Gtk.Multiline.TextBuffer (
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----TextBuffer
+-- @
+
+-- * Types
   TextBuffer,
   TextBufferClass,
   castToTextBuffer,
+
+-- * Constructors
   textBufferNew,
+
+-- * Methods
   textBufferGetLineCount,
   textBufferGetCharCount,
   textBufferGetTagTable,
@@ -112,18 +125,30 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferHasSelection,
   textBufferBeginUserAction,
   textBufferEndUserAction,
-  onApplyTag, afterApplyTag,
-  onBeginUserAction, afterBeginUserAction,
-  onBufferChanged, afterBufferChanged,
-  onDeleteRange, afterDeleteRange,
-  onEndUserAction, afterEndUserAction,
-  onInsertPixbuf, afterInsertPixbuf,
-  onInsertText, afterInsertText,
-  onMarkDeleted, afterMarkDeleted,
-  onMarkSet, afterMarkSet,
-  onModifiedChanged, afterModifiedChanged,
-  onRemoveTag, afterRemoveTag,
-  
+
+-- * Signals
+  onApplyTag,
+  afterApplyTag,
+  onBeginUserAction,
+  afterBeginUserAction,
+  onBufferChanged,
+  afterBufferChanged,
+  onDeleteRange,
+  afterDeleteRange,
+  onEndUserAction,
+  afterEndUserAction,
+  onInsertPixbuf,
+  afterInsertPixbuf,
+  onInsertText,
+  afterInsertText,
+  onMarkDeleted,
+  afterMarkDeleted,
+  onMarkSet,
+  afterMarkSet,
+  onModifiedChanged,
+  afterModifiedChanged,
+  onRemoveTag,
+  afterRemoveTag
   ) where
 
 import Monad	(liftM)
@@ -140,7 +165,8 @@ import Graphics.UI.Gtk.Multiline.TextTag	(TextTag, TagName)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new text buffer, possibly taking a
 -- table of 'TextTag'.
@@ -149,6 +175,9 @@ textBufferNew :: Maybe TextTagTable -> IO TextBuffer
 textBufferNew tt = makeNewGObject mkTextBuffer $ liftM castPtr $
   {#call unsafe text_buffer_new#} 
   (fromMaybe (mkTextTagTable nullForeignPtr) tt)
+
+--------------------
+-- Methods
 
 -- | Obtain the number of lines in the buffer.
 --
@@ -567,8 +596,8 @@ textBufferEndUserAction :: TextBufferClass tb => tb -> IO ()
 textBufferEndUserAction  = {#call text_buffer_end_user_action#} .
 			   toTextBuffer
 
-
--- callbacks
+--------------------
+-- Signals
 
 -- | A 'TextTag' was applied to a region of
 -- text.

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,10 +28,50 @@
 -- patient while some time intensive task is going on.
 --
 module Graphics.UI.Gtk.Display.ProgressBar (
+-- * Description
+-- 
+-- | The 'ProgressBar' is typically used to display the progress of a long
+-- running operation. It provides a visual clue that processing is underway.
+-- The 'ProgressBar' can be used in two different modes: percentage mode and
+-- activity mode.
+--
+-- When an application can determine how much work needs to take place (e.g.
+-- read a fixed number of bytes from a file) and can monitor its progress, it
+-- can use the 'ProgressBar' in percentage mode and the user sees a growing bar
+-- indicating the percentage of the work that has been completed. In this mode,
+-- the application is required to call 'progressBarSetFraction' periodically to
+-- update the progress bar.
+--
+-- When an application has no accurate way of knowing the amount of work to
+-- do, it can use the 'ProgressBar' in activity mode, which shows activity by a
+-- block moving back and forth within the progress area. In this mode, the
+-- application is required to call 'progressBarPulse' perodically to update the
+-- progress bar.
+--
+-- There is quite a bit of flexibility provided to control the appearance of
+-- the 'ProgressBar'. Functions are provided to control the orientation of the
+-- bar, optional text can be displayed along with the bar, and the step size
+-- used in activity mode can be set.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Progress'
+-- |                     +----ProgressBar
+-- @
+
+-- * Types
   ProgressBar,
   ProgressBarClass,
   castToProgressBar,
+
+-- * Constructors
   progressBarNew,
+
+-- * Methods
   progressBarPulse,
   progressBarSetText,
   progressBarSetFraction,
@@ -55,13 +95,17 @@ import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new ProgreeBar.
 --
 progressBarNew :: IO ProgressBar
 progressBarNew  = makeNewObject mkProgressBar $ liftM castPtr $
   {#call unsafe progress_bar_new#}
+
+--------------------
+-- Methods
 
 -- | Indicates that some progress is made, but you
 -- don't know how much. Causes the progress bar to enter \`activity mode',
@@ -140,5 +184,4 @@ progressBarGetOrientation :: ProgressBarClass pb => pb ->
                              IO ProgressBarOrientation
 progressBarGetOrientation pb = liftM (toEnum.fromIntegral) $
   {#call unsafe progress_bar_get_orientation#} (toProgressBar pb)
-
 

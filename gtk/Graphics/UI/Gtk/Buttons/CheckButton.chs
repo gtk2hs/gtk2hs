@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,9 +27,34 @@
 -- create widgets with a discrete toggle button.
 --
 module Graphics.UI.Gtk.Buttons.CheckButton (
+-- * Description
+-- 
+-- | A 'CheckButton' places a discrete 'ToggleButton' next to a widget,
+-- (usually a 'Label'). See the section on 'ToggleButton' widgets for more
+-- information about toggle\/check buttons.
+--
+-- The important signal (\'toggled\') is also inherited from 'ToggleButton'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Button'
+-- |                                 +----'ToggleButton'
+-- |                                       +----CheckButton
+-- |                                             +----'RadioButton'
+-- @
+
+-- * Types
   CheckButton,
   CheckButtonClass,
   castToCheckButton,
+
+-- * Constructors
   checkButtonNew,
   checkButtonNewWithLabel,
   checkButtonNewWithMnemonic
@@ -45,7 +70,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new button with a check field.
 --
@@ -71,5 +97,3 @@ checkButtonNewWithMnemonic :: String -> IO CheckButton
 checkButtonNewWithMnemonic lbl = withUTFString lbl (\strPtr ->
   makeNewObject mkCheckButton $ liftM castPtr $ 
   {#call unsafe check_button_new_with_mnemonic#} strPtr)
-
-

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -29,9 +29,50 @@
 -- concrete implementations are HPaned and VPaned.
 --
 module Graphics.UI.Gtk.Abstract.Paned (
+-- * Description
+-- 
+-- | 'Paned' is the base class for widgets with two panes, arranged either
+-- horizontally ('HPaned') or vertically ('VPaned'). Child widgets are added to
+-- the panes of the widget with 'panedPack1' and 'panedPack2'. The division
+-- beween the two children is set by default from the size requests of the
+-- children, but it can be adjusted by the user.
+--
+-- A paned widget draws a separator between the two child widgets and a
+-- small handle that the user can drag to adjust the division. It does not draw
+-- any relief around the children or around the separator. (The space in which
+-- the separator is called the gutter.) Often, it is useful to put each child
+-- inside a 'Frame' with the shadow type set to 'ShadowIn' so that the gutter
+-- appears as a ridge.
+--
+-- Each child has two options that can be set, @resize@ and @shrink@. If
+-- @resize@ is true, then when the 'Paned' is resized, that child will expand
+-- or shrink along with the paned widget. If @shrink@ is true, then when that
+-- child can be made smaller than its requisition by the user. Setting @shrink@
+-- to @False@ allows the application to set a minimum size. If @resize@ is
+-- false for both children, then this is treated as if @resize@ is true for
+-- both children.
+--
+-- The application can set the position of the slider as if it were set by
+-- the user, by calling 'panedSetPosition'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Paned
+-- |                           +----'HPaned'
+-- |                           +----'VPaned'
+-- @
+
+-- * Types
   Paned,
   PanedClass,
   castToPaned,
+
+-- * Methods
   panedAdd1,
   panedAdd2,
   panedPack1,
@@ -53,7 +94,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- | Add a widget to the first (top or left) area.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -19,12 +19,23 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- If PangoTabArray is bound: do textViewSetTabs and textViewGetTabs
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Widget that displays a GtkTextBuffer
+-- Widget that displays a 'TextBuffer'
+--
+module Graphics.UI.Gtk.Multiline.TextView (
+-- * Description
+-- 
+-- | You may wish to begin by reading the text widget conceptual overview
+-- which gives an overview of all the objects and data types related to the
+-- text widget and how they work together.
 --
 -- * Throughout we distinguish between buffer coordinates which are pixels
 --   with the origin at the upper left corner of the first character on the
@@ -32,12 +43,22 @@
 --   is visible in the current 'TextView'. Coordinates from Events 
 --   are in the latter relation. The conversion can be done with 
 --   'textViewWindowToBufferCoords'.
---
--- TODO
---
--- * If PangoTabArray is bound: do textViewSetTabs and textViewGetTabs
---
-module Graphics.UI.Gtk.Multiline.TextView (
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----TextView
+-- |
+-- |
+-- |  'GObject'
+-- |   +----TextChildAnchor
+-- @
+
+-- * Types
   TextView,
   TextViewClass,
   TextChildAnchor,
@@ -49,8 +70,12 @@ module Graphics.UI.Gtk.Multiline.TextView (
   MovementStep(..),
   TextWindowType(..),
   WrapMode(..),
+
+-- * Constructors
   textViewNew,
   textViewNewWithBuffer,
+
+-- * Methods
   textViewSetBuffer,
   textViewGetBuffer,
   textViewScrollToMark,
@@ -102,6 +127,8 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewSetIndent,
   textViewGetIndent,
   textViewGetDefaultAttributes,
+
+-- * Signals
   onCopyClipboard,
   afterCopyClipboard,
   onCutClipboard,
@@ -145,8 +172,8 @@ import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
-
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new 'TextView' widget with a
 -- default 'TextBuffer'.
@@ -161,6 +188,9 @@ textViewNew  = makeNewGObject mkTextView $ liftM castPtr
 textViewNewWithBuffer :: TextBuffer -> IO TextView
 textViewNewWithBuffer tb = makeNewGObject mkTextView $ liftM castPtr $
   {#call unsafe text_view_new_with_buffer#} tb
+
+--------------------
+-- Methods
 
 -- | Set the 'TextBuffer' for a given 'TextView' widget.
 --

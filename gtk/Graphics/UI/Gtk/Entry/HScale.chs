@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,9 +27,31 @@
 -- A horizontal slider widget for selecting a value from a range.
 --
 module Graphics.UI.Gtk.Entry.HScale (
+-- * Description
+-- 
+-- | The 'HScale' widget is used to allow the user to select a value using a
+-- horizontal slider. To create one, use 'hScaleNewWithRange'.
+--
+-- The position to show the current value, and the number of decimal places
+-- shown can be set using the parent 'Scale' class's functions.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Range'
+-- |                     +----'Scale'
+-- |                           +----HScale
+-- @
+
+-- * Types
   HScale,
   HScaleClass,
   castToHScale,
+
+-- * Constructors
   hScaleNew,
   hScaleNewWithRange
   ) where
@@ -43,7 +65,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new HScale widget.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,9 +27,29 @@
 -- A container with two panes arranged vertically.
 --
 module Graphics.UI.Gtk.Layout.VPaned (
+-- * Description
+-- 
+-- | The VPaned widget is a container widget with two children arranged
+-- vertically. The division between the two panes is adjustable by the user by
+-- dragging a handle. See 'Paned' for details.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Paned'
+-- |                           +----VPaned
+-- @
+
+-- * Types
   VPaned,
   VPanedClass,
   castToVPaned,
+
+-- * Constructors
   vPanedNew
   ) where
 
@@ -42,7 +62,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | 
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -29,11 +29,34 @@
 -- * Added in Gtk 2.4
 --
 module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
+-- * Description
+-- 
+-- | * Module available since Gtk version 2.4
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----ComboBox
+-- |                                 +----'ComboBoxEntry'
+-- @
+
 #if GTK_CHECK_VERSION(2,4,0)
-  ComboBoxClass,
+-- * Types
   ComboBox,
+  ComboBoxClass,
+  castToComboBox,
+
+-- * Constructors
   comboBoxNew,
+  comboBoxNewText,
   comboBoxNewWithModel,
+
+-- * Methods
   comboBoxSetWrapWidth,
   comboBoxSetRowSpanColumn,
   comboBoxSetColumnSpanColumn,
@@ -43,7 +66,6 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   comboBoxSetActiveIter,
   comboBoxGetModel,
   comboBoxSetModel,
-  comboBoxNewText,
   comboBoxAppendText,
   comboBoxInsertText,
   comboBoxPrependText,
@@ -67,16 +89,26 @@ import System.Glib.GObject		(makeNewGObject)
 
 {# context lib="gtk" prefix ="gtk" #}
 
+--------------------
+-- Constructors
 
 comboBoxNew :: IO ComboBox
 comboBoxNew =
   makeNewObject mkComboBox $ liftM castPtr $
   {# call gtk_combo_box_new #}
 
+comboBoxNewText :: IO ComboBox
+comboBoxNewText =
+  makeNewObject mkComboBox $ liftM castPtr $
+  {# call gtk_combo_box_new_text #}
+
 comboBoxNewWithModel :: TreeModel -> IO ComboBox
 comboBoxNewWithModel model =
   makeNewObject mkComboBox $ liftM castPtr $
   {# call gtk_combo_box_new_with_model #} model
+
+--------------------
+-- Methods
 
 comboBoxSetWrapWidth :: ComboBoxClass combo => combo -> Int -> IO ()
 comboBoxSetWrapWidth combo width =
@@ -127,11 +159,6 @@ comboBoxGetModel combo = do
 comboBoxSetModel :: ComboBoxClass combo => combo -> TreeModel -> IO ()
 comboBoxSetModel combo model =
   {# call gtk_combo_box_set_model #} (toComboBox combo) model
-
-comboBoxNewText :: IO ComboBox
-comboBoxNewText =
-  makeNewObject mkComboBox $ liftM castPtr $
-  {# call gtk_combo_box_new_text #}
 
 comboBoxAppendText :: ComboBoxClass combo => combo -> String -> IO ()
 comboBoxAppendText combo text =

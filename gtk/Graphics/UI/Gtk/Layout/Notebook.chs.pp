@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,25 +19,50 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- The signals focus-tab and select-page are not bound because it is unclear
+--   what they mean. As far as I can see they are not emitted anywhere.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This widget can display several pages of widgets. Each page can be selected
--- by a tab at the top of the widget. It is useful in dialogs where a lot of
--- information has to be displayed.
---
--- TODO
---
--- * The signals focus-tab and select-page are not bound because it is unclear
---   what they mean. As far as I can see they are not emitted anywhere.
+-- A tabbed notebook container.
 --
 module Graphics.UI.Gtk.Layout.Notebook (
+-- * Description
+-- 
+-- | The 'Notebook' widget is a 'Container' whose children are pages that can
+-- be switched between using tab labels along one edge.
+--
+-- There are many configuration options for 'Notebook'. Among other things,
+-- you can choose on which edge the tabs appear (see 'notebookSetTabPos'),
+-- whether, if there are too many tabs to fit the noteobook should be made
+-- bigger or scrolling arrows added (see 'notebookSetScrollable'), and
+-- whether there will be a popup menu allowing the users to switch pages. (see
+-- 'notebookEnablePopup', 'noteobookDisablePopup')
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Notebook
+-- @
+
+-- * Types
   Notebook,
   NotebookClass,
   castToNotebook,
+
+-- * Constructors
   notebookNew,
+
+-- * Methods
   notebookAppendPage,
   notebookAppendPageMenu,
   notebookPrependPage,
@@ -83,6 +108,8 @@ module Graphics.UI.Gtk.Layout.Notebook (
 #endif
   notebookSetTabLabel,
   notebookSetTabLabelText,
+
+-- * Signals
   onSwitchPage,
   afterSwitchPage
   ) where
@@ -100,13 +127,17 @@ import Graphics.UI.Gtk.General.Enums	(Packing(..), PackType(..), PositionType(..
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new notebook.
 --
 notebookNew :: IO Notebook
 notebookNew  = makeNewObject mkNotebook $ 
   liftM castPtr {#call unsafe notebook_new#}
+
+--------------------
+-- Methods
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Insert a new tab to the right of the existing tabs.
@@ -635,8 +666,8 @@ notebookSetTabLabelText nb child label =
   withUTFString label $ \labelPtr ->
   {#call notebook_set_tab_label_text#} (toNotebook nb) (toWidget child) labelPtr
 
-
--- signals
+--------------------
+-- Signals
 
 -- | This signal is emitted when a new page is
 -- selected.
@@ -649,6 +680,3 @@ onSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page"
 afterSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page" 
 			 (const $ return ()) True nb 
 			 (\_ page -> fun (fromIntegral page))
-
-
- 

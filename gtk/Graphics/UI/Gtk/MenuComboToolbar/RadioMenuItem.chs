@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -31,9 +31,31 @@
 --   widget interface.
 --
 module Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem (
+-- * Description
+-- 
+-- | A radio menu item is a check menu item that belongs to a group. At each
+-- instant exactly one of the radio menu items from a group is selected.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Item'
+-- |                                 +----'MenuItem'
+-- |                                       +----'CheckMenuItem'
+-- |                                             +----RadioMenuItem
+-- @
+
+-- * Types
   RadioMenuItem,
   RadioMenuItemClass,
   castToRadioMenuItem,
+
+-- * Constructors
   radioMenuItemNew,
   radioMenuItemNewWithLabel,
   radioMenuItemNewWithMnemonic,
@@ -57,7 +79,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new radio menu item.
 --

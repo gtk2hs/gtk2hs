@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,17 +24,42 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- An adjustment is a bounded value controlled by the user.
---
--- An Adjustment object contains a value with maximum bounds and a step size.
--- It is used to represent the value of a scoll bar and similar widgets. In
--- particular it is contained in the abstract 'Range' widget.
+-- A 'Object' representing an adjustable bounded value
 --
 module Graphics.UI.Gtk.Misc.Adjustment (
+-- * Description
+-- 
+-- | The 'Adjustment' object represents a value which has an associated lower
+-- and upper bound, together with step and page increments, and a page size. It
+-- is used within several Gtk+ widgets, including 'SpinButton', 'Viewport', and
+-- 'Range' (which is a base class for 'HScrollbar', 'VScrollbar', 'HScale', and
+-- 'VScale').
+--
+-- The 'Adjustment' object does not update the value itself. Instead it is
+-- left up to the owner of the 'Adjustment' to control the value.
+--
+-- The owner of the 'Adjustment' typically calls the
+-- 'adjustmentValueChanged' and 'adjustmentChanged' functions after changing
+-- the value and its bounds. This results in the emission of the
+-- \"value_changed\" or \"changed\" signal respectively.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----Adjustment
+-- @
+
+-- * Types
   Adjustment,
   AdjustmentClass,
   castToAdjustment,
+
+-- * Constructors
   adjustmentNew,
+
+-- * Methods
   adjustmentSetLower,
   adjustmentGetLower,
   adjustmentSetPageIncrement,
@@ -48,6 +73,8 @@ module Graphics.UI.Gtk.Misc.Adjustment (
   adjustmentSetValue,
   adjustmentGetValue,
   adjustmentClampPage,
+
+-- * Signals
   onAdjChanged,
   afterAdjChanged,
   onValueChanged,
@@ -64,7 +91,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject, objectSetProperty, object
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new Adjustment object.
 --
@@ -82,6 +110,9 @@ adjustmentNew pageSize value lower upper stepIncrement pageIncrement =
   (realToFrac value) (realToFrac lower) (realToFrac upper) 
   (realToFrac stepIncrement) (realToFrac pageIncrement) 
   (realToFrac pageSize)
+
+--------------------
+-- Methods
 
 -- | Set the lower value.
 adjustmentSetLower :: Adjustment -> Double -> IO ()
@@ -159,7 +190,8 @@ adjustmentClampPage :: Adjustment -> Double -> Double -> IO ()
 adjustmentClampPage a lower upper = {#call adjustment_clamp_page#}
   a (realToFrac lower) (realToFrac upper)
 
--- signals
+--------------------
+-- Signals
 
 -- | This signal is emitted if some value of
 -- Adjustment except @value@ itself changes.

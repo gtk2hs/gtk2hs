@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -24,16 +24,41 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Widget representation
+-- The base class of the Gtk+ type hierarchy.
 --
 -- * Each widget is a represented as a purely abstract data type. It can only 
 --   be accessed through and the special access functions that are defined
 --   in each widget file.
 --
 module Graphics.UI.Gtk.Abstract.Object (
+-- * Description
+-- 
+-- | 'Object' is the base class for all widgets, and for a few non-widget
+-- objects such as 'Adjustment'. 'Object' predates 'GObject'; non-widgets that
+-- derive from 'Object' rather than 'GObject' do so for backward compatibility
+-- reasons.
+--
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----Object
+-- |         +----'Widget'
+-- |         +----'Adjustment'
+-- |         +----'CellRenderer'
+-- |         +----'FileFilter'
+-- |         +----'ItemFactory'
+-- |         +----'Tooltips'
+-- |         +----'TreeViewColumn'
+-- @
+
+-- * Types
   Object,
   ObjectClass,
   castToObject,
+
+-- * Methods
   objectSink,
   makeNewObject,
   objectSetProperty,
@@ -50,7 +75,8 @@ import System.Glib.StoreValue
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- turn the initial floating state to sunk
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:20 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -27,10 +27,45 @@
 -- This abstract widget implements a container with just one child.
 --
 module Graphics.UI.Gtk.Abstract.Bin (
+-- * Description
+-- 
+-- | The 'Bin' widget is a container with just one child. It is not very
+-- useful itself, but it is useful for deriving subclasses, since it provides
+-- common code needed for handling a single child widget.
+--
+-- Many Gtk+ widgets are subclasses of 'Bin', including 'Window', 'Button',
+-- 'Frame', 'HandleBox', and 'ScrolledWindow'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----Bin
+-- |                           +----'Alignment'
+-- |                           +----'Frame'
+-- |                           +----'Button'
+-- |                           +----'Item'
+-- |                           +----'Window'
+-- |                           +----'ComboBox'
+-- |                           +----'EventBox'
+-- |                           +----'Expander'
+-- |                           +----'HandleBox'
+-- |                           +----'ToolItem'
+-- |                           +----'ScrolledWindow'
+-- |                           +----'Viewport'
+-- @
+
+-- * Types
   Bin,
   BinClass,
+  castToBin,
+
+-- * Methods
   binGetChild
-) where
+  ) where
 
 import System.Glib.FFI
 
@@ -38,6 +73,9 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
+
+--------------------
+-- Methods
 
 binGetChild :: BinClass bin => bin -> IO Widget
 binGetChild bin =

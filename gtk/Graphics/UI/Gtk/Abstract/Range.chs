@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -30,9 +30,23 @@
 --   'Adjustment' which is contained in the 'Range' object.
 --
 module Graphics.UI.Gtk.Abstract.Range (
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----Range
+-- |                     +----'Scale'
+-- |                     +----'Scrollbar'
+-- @
+
+-- * Types
   Range,
   RangeClass,
   castToRange,
+
+-- * Methods
   rangeGetAdjustment,
   rangeSetAdjustment,
   UpdateType(..),
@@ -63,7 +77,8 @@ import Graphics.UI.Gtk.General.Enums	(UpdateType(..), ScrollType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- | Extract the 'Adjustment' object.
 --
@@ -140,7 +155,8 @@ rangeSetRange :: RangeClass r => r
 rangeSetRange r min max =
  {#call range_set_range#} (toRange r) (realToFrac min) (realToFrac max)
 
--- signals
+--------------------
+-- Signals
 
 -- | The slide has moved. The arguments give
 -- detailed information what happend.

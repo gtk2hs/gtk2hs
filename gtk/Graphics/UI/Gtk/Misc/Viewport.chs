@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,6 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- Issues:
+--
+-- The binding of this widget is superfluous as far as I can tell.
+--
+-- The only signal this widget registers is \"set-scroll-adjustments\". It is
+--   not bound because it is meant to be received by the 'Viewport'
+--   and sent by 'ScrolledWindow'.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -28,17 +36,28 @@
 -- widget, i.e. the widget becomes scrollable. It can then be put into 
 -- 'ScrolledWindow' and will behave as expected.
 --
--- * The binding of this widget is superfluous as far as I can tell.
---
--- * The only signal this widget registers is \"set-scroll-adjustments\". It is
---   not bound because it is meant to be received by the 'Viewport'
---   and sent by 'ScrolledWindow'.
---
 module Graphics.UI.Gtk.Misc.Viewport (
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----Viewport
+-- @
+
+-- * Types
   Viewport,
   ViewportClass,
   castToViewport,
+
+-- * Constructors
   viewportNew,
+
+-- * Methods
   viewportGetHAdjustment,
   viewportGetVAdjustment,
   viewportSetHAdjustment,
@@ -58,13 +77,17 @@ import Graphics.UI.Gtk.General.Enums	(ShadowType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new 'Viewport'.
 --
 viewportNew :: Adjustment -> Adjustment -> IO Viewport
 viewportNew vAdj hAdj = makeNewObject mkViewport $ liftM castPtr $
   {#call unsafe viewport_new#} hAdj vAdj
+
+--------------------
+-- Methods
 
 -- | Retrieve the horizontal
 -- 'Adjustment' of the 'Viewport'.
@@ -105,6 +128,6 @@ viewportGetShadowType :: ViewportClass v => v -> IO ShadowType
 viewportGetShadowType v = liftM (toEnum.fromIntegral) $
   {#call unsafe viewport_get_shadow_type#} (toViewport v)
 
--- signals
-
+--------------------
+-- Signals
 

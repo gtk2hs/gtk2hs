@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,13 +27,43 @@
 -- A widget that creates a signal when clicked on.
 --
 module Graphics.UI.Gtk.Buttons.Button (
+-- * Description
+-- 
+-- | The 'Button' widget is generally used to attach a function to that is
+-- called when the button is pressed. The various signals and how to use them
+-- are outlined below.
+--
+-- The 'Button' widget can hold any valid child widget. That is it can hold
+-- most any other standard 'Widget'. The most commonly used child is the
+-- 'Label'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----Button
+-- |                                 +----'ToggleButton'
+-- |                                 +----'ColorButton'
+-- |                                 +----'FontButton'
+-- |                                 +----'OptionMenu'
+-- @
+
+-- * Types
   Button,
   ButtonClass,
   castToButton,
+
+-- * Constructors
   buttonNew,
   buttonNewWithLabel,
   buttonNewWithMnemonic,
   buttonNewFromStock,
+
+-- * Methods
   buttonPressed,
   buttonReleased,
   buttonClicked,
@@ -54,6 +84,8 @@ module Graphics.UI.Gtk.Buttons.Button (
   buttonSetAlignment,
   buttonGetAlignment,
 #endif
+
+-- * Signals
   onButtonActivate,
   afterButtonActivate,
   onClicked,
@@ -79,7 +111,8 @@ import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new Button widget.
 --
@@ -112,6 +145,9 @@ buttonNewFromStock stockId = withUTFString stockId (\strPtr ->
   makeNewObject mkButton $ liftM castPtr $
   throwIfNull "buttonNewFromStock: Invalid stock identifier." $ 
   {#call unsafe button_new_from_stock#} strPtr)
+
+--------------------
+-- Methods
 
 -- | Depress the button, i.e. emit the pressed signal.
 --
@@ -234,8 +270,8 @@ buttonGetAlignment b =
   return (realToFrac xalign, realToFrac yalign)
 #endif
 
-
--- signals
+--------------------
+-- Signals
 
 -- | The button has been depressed (but not
 -- necessarily released yet). See @clicked@ signal.

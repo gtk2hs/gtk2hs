@@ -5,7 +5,7 @@
 --
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -31,14 +31,41 @@
 -- * imageMenuItemNewFromSock should also have a AccelGroup argument
 -- 
 module Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem (
+-- * Description
+-- 
+-- | A 'ImageMenuItem' is a menu item which has an icon next to the text
+-- label.
+--
+-- Note that the user can disable display of menu icons, so make sure to
+-- still fill in the text label.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Item'
+-- |                                 +----'MenuItem'
+-- |                                       +----ImageMenuItem
+-- @
+
+-- * Types
   ImageMenuItem,
   ImageMenuItemClass,
-  imageMenuItemSetImage,
-  imageMenuItemGetImage,
+  castToImageMenuItem,
+
+-- * Constructors
   imageMenuItemNew,
   imageMenuItemNewFromStock,
   imageMenuItemNewWithLabel,
-  imageMenuItemNewWithMnemonic
+  imageMenuItemNewWithMnemonic,
+
+-- * Methods
+  imageMenuItemSetImage,
+  imageMenuItemGetImage
   ) where
 
 import Monad	(liftM)
@@ -51,24 +78,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {#context lib="gtk" prefix="gtk" #}
 
--- methods
-
-
--- | Sets the image for the ImageMenuItem.
---
-imageMenuItemSetImage :: (ImageMenuItemClass imi,WidgetClass wd) =>
-                         imi -> wd -> IO ()
-imageMenuItemSetImage imi wd =
-  {#call unsafe image_menu_item_set_image#} (toImageMenuItem imi) 
-                                            (toWidget wd)
-
--- | Get the image that is currently set a the image.
---
-imageMenuItemGetImage :: ImageMenuItemClass imi => imi -> IO (Maybe Widget)
-imageMenuItemGetImage imi = do
-   imPtr <- {#call unsafe image_menu_item_get_image#} (toImageMenuItem imi)
-   if imPtr==nullPtr then return Nothing else do
-     liftM Just $ makeNewObject mkWidget $ return imPtr
+--------------------
+-- Constructors
 
 -- | Create a new 'MenuItem' with a image next to it.
 --
@@ -98,3 +109,22 @@ imageMenuItemNewWithMnemonic :: String -> IO ImageMenuItem
 imageMenuItemNewWithMnemonic str = withUTFString str $ \strPtr ->
   makeNewObject mkImageMenuItem $ liftM castPtr $ 
   {#call unsafe image_menu_item_new_with_mnemonic#} strPtr
+
+--------------------
+-- Methods
+
+-- | Sets the image for the ImageMenuItem.
+--
+imageMenuItemSetImage :: (ImageMenuItemClass imi,WidgetClass wd) =>
+                         imi -> wd -> IO ()
+imageMenuItemSetImage imi wd =
+  {#call unsafe image_menu_item_set_image#} (toImageMenuItem imi) 
+                                            (toWidget wd)
+
+-- | Get the image that is currently set a the image.
+--
+imageMenuItemGetImage :: ImageMenuItemClass imi => imi -> IO (Maybe Widget)
+imageMenuItemGetImage imi = do
+   imPtr <- {#call unsafe image_menu_item_get_image#} (toImageMenuItem imi)
+   if imPtr==nullPtr then return Nothing else do
+     liftM Just $ makeNewObject mkWidget $ return imPtr

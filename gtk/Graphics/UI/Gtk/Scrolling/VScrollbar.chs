@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,13 +24,36 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This widget provides a stand-alone scrollbar. All interesting functions
--- can be found in 'Range', from which it is derived.
+-- A vertical scrollbar
 --
 module Graphics.UI.Gtk.Scrolling.VScrollbar (
+-- * Description
+-- 
+-- | The 'VScrollbar' widget is a widget arranged vertically creating a
+-- scrollbar. See 'Scrollbar' for details on scrollbars. An 'Adjustment'
+-- may be added to handle the adjustment of the scrollbar using
+-- 'vScrollbarNew' or you can use 'vScrollbarNewDefaults' in
+-- which case one will be created for you. See 'Adjustment' for details.
+--
+-- All interesting functions can be found in 'Range', from which it is derived.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Range'
+-- |                     +----'Scrollbar'
+-- |                           +----VScrollbar
+-- @
+
+-- * Types
   VScrollbar,
   VScrollbarClass,
   castToVScrollbar,
+
+-- * Constructors
   vScrollbarNew,
   vScrollbarNewDefaults
   ) where
@@ -44,7 +67,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new HScrollbar.
 --

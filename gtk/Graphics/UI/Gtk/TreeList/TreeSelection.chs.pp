@@ -2,12 +2,12 @@
 --  GIMP Toolkit (GTK) Widget TreeSelection
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/02/17 00:13:20 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:37 $
 --
---  Copyright (c) 1999..2005 Axel Simon
+--  Copyright (C) 1999-2005 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -24,22 +24,23 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The selection object for GtkTreeView
+-- The selection object for 'TreeView'
+--
 module Graphics.UI.Gtk.TreeList.TreeSelection (
 -- * Description
 -- 
--- | The "TreeSelection" object is a helper object to manage the selection for
--- a "TreeView" widget. The "TreeSelection" object is automatically created
--- when a new "TreeView" widget is created, and cannot exist independentally of
--- this widget. The primary reason the "TreeSelection" objects exists is for
+-- | The 'TreeSelection' object is a helper object to manage the selection for
+-- a 'TreeView' widget. The 'TreeSelection' object is automatically created
+-- when a new 'TreeView' widget is created, and cannot exist independentally of
+-- this widget. The primary reason the 'TreeSelection' objects exists is for
 -- cleanliness of code and API. That is, there is no conceptual reason all
--- these functions could not be methods on the "TreeView" widget instead of a
+-- these functions could not be methods on the 'TreeView' widget instead of a
 -- separate function.
 --
--- The "TreeSelection" object is gotten from a "TreeView" by calling
+-- The 'TreeSelection' object is gotten from a 'TreeView' by calling
 -- 'treeViewGetSelection'. It can be manipulated to check the selection status
 -- of the tree, as well as select and deselect individual rows. Selection is
--- done completely on the "TreeView" side.
+-- done completely on the 'TreeView' side.
 -- As a result, multiple views of the same model can
 -- have completely different selections. Additionally, you cannot change the
 -- selection of a row on the model that is not currently displayed by the view
@@ -54,8 +55,8 @@ module Graphics.UI.Gtk.TreeList.TreeSelection (
 -- * Class Hierarchy
 -- |
 -- @
--- |  "GObject"
--- |   +----GtkTreeSelection
+-- |  'GObject'
+-- |   +----TreeSelection
 -- @
 
 -- * Types
@@ -110,7 +111,8 @@ import Graphics.UI.Gtk.General.General	(mkDestructor)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- | Set single or multiple choice.
 --
@@ -330,6 +332,8 @@ treeSelectionUnselectRange ts start end = do
   nativeTreePathFree nP2
 #endif
 
+--------------------
+-- Signals
 
 -- | Emitted each time the user changes the selection.
 --

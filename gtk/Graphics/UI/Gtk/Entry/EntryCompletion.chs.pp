@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -29,10 +29,51 @@
 -- * Added in GTK+ 2.4
 --
 module Graphics.UI.Gtk.Entry.EntryCompletion (
+-- * Description
+-- 
+-- | 'EntryCompletion' is an auxiliary object to be used in conjunction with
+-- 'Entry' to provide the completion functionality. It implements the
+-- 'CellLayout' interface, to allow the user to add extra cells to the
+-- 'TreeView' with completion matches.
+--
+-- \"Completion functionality\" means that when the user modifies the text
+-- in the entry, 'EntryCompletion' checks which rows in the model match the
+-- current content of the entry, and displays a list of matches. By default,
+-- the matching is done by comparing the entry text case-insensitively against
+-- the text column of the model (see 'entryCompletionSetTextColumn'), but this
+-- can be overridden with a custom match function (see
+-- 'entryCompletionSetMatchFunc').
+--
+-- When the user selects a completion, the content of the entry is updated.
+-- By default, the content of the entry is replaced by the text column of the
+-- model, but this can be overridden by connecting to the ::match-selected
+-- signal and updating the entry in the signal handler. Note that you should
+-- return @True@ from the signal handler to suppress the default behaviour.
+--
+-- To add completion functionality to an entry, use 'entrySetCompletion'.
+--
+-- In addition to regular completion matches, which will be inserted into
+-- the entry when they are selected, 'EntryCompletion' also allows to display
+-- \"actions\" in the popup window. Their appearance is similar to menuitems,
+-- to differentiate them clearly from completion strings. When an action is
+-- selected, the ::action-activated signal is emitted.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----EntryCompletion
+-- @
+
 #if GTK_CHECK_VERSION(2,4,0)
+-- * Types
   EntryCompletion,
   EntryCompletionClass,
+
+-- * Constructors
   entryCompletionNew,
+
+-- * Methods
   entryCompletionGetEntry,
   entryCompletionSetModel,
   entryCompletionGetModel,
@@ -62,10 +103,16 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+--------------------
+-- Constructors
+
 entryCompletionNew :: IO EntryCompletion
 entryCompletionNew =
   makeNewGObject mkEntryCompletion $ liftM castPtr $
   {# call gtk_entry_completion_new #}
+
+--------------------
+-- Methods
 
 entryCompletionGetEntry :: EntryCompletion -> IO (Maybe Entry)
 entryCompletionGetEntry ec = do

@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -27,10 +27,42 @@
 -- The database for simple (non-hierarchical) tables.
 --
 module Graphics.UI.Gtk.TreeList.ListStore (
+-- * Description
+-- 
+-- | The 'ListStore' object is a list model for use with a 'TreeView' widget.
+-- It implements the 'TreeModel' interface, and consequentialy, can use all of
+-- the methods available there. It also implements the 'TreeSortable' interface
+-- so it can be sorted by the view. Finally, it also implements the tree drag
+-- and drop interfaces.
+
+-- ** Performance Considerations
+-- 
+-- | Internally, the 'ListStore' is implemented with a linked list with a tail
+-- pointer. As a result, it is fast at data insertion and deletion, and not as
+-- fast at random data access. The 'ListStore' sets the 'TreeModelItersPersist'
+-- flag, which means that 'TreeIter's can be cached while the row exists. Thus,
+-- if access to a particular row is needed often, it is worth keeping the iter
+-- around.
+-- 
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----ListStore
+-- @
+
+-- * Types
   ListStore,
+  ListStoreClass,
+  castToListStore,
   TMType(..),
   GenericValue(..),
+
+-- * Constructors
   listStoreNew,
+
+-- * Methods
   listStoreSetValue,
   listStoreRemove,
   listStoreInsert,
@@ -62,7 +94,8 @@ import System.Glib.GType			(GType)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Generate a new entity to store tree information.
 --
@@ -71,6 +104,9 @@ listStoreNew cols = makeNewGObject mkListStore $
   withArray0 ((fromIntegral.fromEnum) TMinvalid) 
   (map (fromIntegral.fromEnum) cols) $
   {#call unsafe list_store_newv#} ((fromIntegral.length) cols)
+
+--------------------
+-- Methods
 
 -- | Set the data of a specific node.
 --

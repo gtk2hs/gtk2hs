@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,9 +28,36 @@
 -- in a vertical line.
 --
 module Graphics.UI.Gtk.Layout.VBox (
+-- * Description
+-- 
+-- | 'VBox' is a container that organizes child widgets into a single column.
+--
+-- Use the 'Box' packing interface to determine the arrangement, spacing,
+-- height, and alignment of 'VBox' children.
+--
+-- All children are allocated the same width.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Box'
+-- |                           +----VBox
+-- |                                 +----'ColorSelection'
+-- |                                 +----'FileChooserWidget'
+-- |                                 +----'FontSelection'
+-- |                                 +----'GammaCurve'
+-- @
+
+-- * Types
   VBox,
   VBoxClass,
   castToVBox,
+
+-- * Constructors
   vBoxNew
   ) where
 
@@ -43,7 +70,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | 
 -- Create a container that shows several children vertically. 
@@ -55,6 +83,3 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 vBoxNew :: Bool -> Int -> IO VBox
 vBoxNew homogeneous spacing = makeNewObject mkVBox $ liftM castPtr $
   {#call unsafe vbox_new#} (fromBool homogeneous) (fromIntegral spacing)
-
-
-

@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -19,20 +19,9 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- |
--- Maintainer  : gtk2hs-users@lists.sourceforge.net
--- Stability   : provisional
--- Portability : portable (depends on GHC)
---
---  Widget is the base class of all widgets. It provides the methods to
---  attach and detach signals.
---
---  * This modules reexports everything a normal widget needs from GObject
---    and Object.
---
 -- TODO
 --
--- * unimplemented methods that seem to be useful in user programs:
+-- unimplemented methods that seem to be useful in user programs:
 --      widgetSizeRequest, widgetAddAccelerator, widgetRemoveAccelerator,
 --	widgetAcceleratorSignal, widgetIntersect, widgetGrabDefault,
 --	widgetGetPointer, widgetPath, widgetClassPath, getCompositeName,
@@ -42,13 +31,50 @@
 --	widgetPango*, widgetSetAdjustments
 --	
 --
--- * implement the following methods in GtkWindow object:
+-- implement the following methods in GtkWindow object:
 --      widget_set_uposition, widget_set_usize
 --
--- * implement the following methods in GtkDrawingArea object:
+-- implement the following methods in GtkDrawingArea object:
 --      widgetQueueDrawArea, widgetSetDoubleBufferd, widgetRegionIntersect
 --
+-- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- Base class for all widgets
+-- 
 module Graphics.UI.Gtk.Abstract.Widget (
+-- * Description
+-- 
+-- | 'Widget' introduces style properties - these are basically object
+-- properties that are stored not on the object, but in the style object
+-- associated to the widget. Style properties are set in resource files. This
+-- mechanism is used for configuring such things as the location of the
+-- scrollbar arrows through the theme, giving theme authors more control over
+-- the look of applications without the need to write a theme engine in C.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----Widget
+-- |               +----'Misc'
+-- |               +----'Container'
+-- |               +----'Calendar'
+-- |               +----'DrawingArea'
+-- |               +----'Entry'
+-- |               +----'Ruler'
+-- |               +----'Range'
+-- |               +----'Separator'
+-- |               +----'Invisible'
+-- |               +----'OldEditable'
+-- |               +----'Preview'
+-- |               +----'Progress'
+-- @
+
+-- * Types
   Widget,
   WidgetClass,
   castToWidget,
@@ -170,7 +196,8 @@ import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Methods
 
 -- | Queue a show request.
 --
@@ -379,10 +406,8 @@ widgetGetDirection w = liftM (toEnum.fromIntegral) $
 --widgetUnlockAccelerators :: WidgetClass w => w -> IO ()
 --widgetUnlockAccelerators = {#call widget_unlock_accelerators#}.toWidget
 
-
-
-
--- signals
+--------------------
+-- Signals
 
 -- Because there are so many similar signals (those that take an Event and
 -- return a Bool) we will abstract out the skeleton. As some of these events

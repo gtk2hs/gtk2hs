@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,10 +27,77 @@
 -- A dialog is a smaller window that is used to ask the user for input.
 --
 module Graphics.UI.Gtk.Windows.Dialog (
+-- * Description
+-- 
+-- | Dialog boxes are a convenient way to prompt the user for a small amount
+-- of input, eg. to display a message, ask a question, or anything else that
+-- does not require extensive effort on the user's part.
+--
+-- Gtk+ treats a dialog as a window split vertically. The top section is a
+-- 'VBox', and is where widgets such as a 'Label' or a 'Entry' should be
+-- packed. The bottom area is known as the action_area. This is generally used
+-- for packing buttons into the dialog which may perform functions such as
+-- cancel, ok, or apply. The two areas are separated by a 'HSeparator'.
+--
+-- 'Dialog' boxes are created with a call to 'dialogNew' or
+-- 'dialogNewWithButtons'. 'dialogNewWithButtons' is recommended; it allows you
+-- to set the dialog title, some convenient flags, and add simple buttons.
+--
+-- If \'dialog\' is a newly created dialog, the two primary areas of the
+-- window can be accessed using 'dialogGetUpper' and
+-- 'dialogGetActionArea', as can be seen from the example, below.
+--
+-- A \'modal\' dialog (that is, one which freezes the rest of the
+-- application from user input), can be created by calling 'windowSetModal' on
+-- the dialog. When using 'dialogNewWithButtons' you can also
+-- pass the 'DialogModal' flag to make a dialog modal.
+--
+-- If you add buttons to 'Dialog' using 'dialogNewWithButtons',
+-- 'dialogAddButton', 'dialogAddButtons', or 'dialogAddActionWidget', clicking
+-- the button will emit a signal called \"response\" with a response ID that
+-- you specified. Gtk+ will never assign a meaning to positive response IDs;
+-- these are entirely user-defined. But for convenience, you can use the
+-- response IDs in the 'ResponseType' enumeration (these all have values less
+-- than zero). If a dialog receives a delete event, the \"response\" signal
+-- will be emitted with a response ID of 'ResponseNone'.
+--
+-- If you want to block waiting for a dialog to return before returning
+-- control flow to your code, you can call 'dialogRun'. This function enters a
+-- recursive main loop and waits for the user to respond to the dialog,
+-- returning the response ID corresponding to the button the user clicked.
+--
+-- For the simple dialog in the following example, in reality you'd
+-- probably use 'MessageDialog' to save yourself some effort. But you'd need
+-- to create the dialog contents manually if you had more than a simple message
+-- in the dialog.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Window'
+-- |                                 +----Dialog
+-- |                                       +----'ColorSelectionDialog'
+-- |                                       +----'FileChooserDialog'
+-- |                                       +----'FileSelection'
+-- |                                       +----'FontSelectionDialog'
+-- |                                       +----'InputDialog'
+-- |                                       +----'MessageDialog'
+-- @
+
+-- * Types
   Dialog,
   DialogClass,
   castToDialog,
+
+-- * Constructors
   dialogNew,
+
+-- * Methods
   dialogGetUpper,
   dialogGetActionArea,
   dialogRun,
@@ -42,6 +109,8 @@ module Graphics.UI.Gtk.Windows.Dialog (
   dialogSetDefaultResponse,
   dialogSetHasSeparator,
   dialogSetResponseSensitive,
+
+-- * Signals
   onResponse,
   afterResponse
   ) where
@@ -57,12 +126,16 @@ import Graphics.UI.Gtk.General.Structs	(dialogGetUpper, dialogGetActionArea, Res
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new Dialog.
 --
 dialogNew :: IO Dialog
 dialogNew  = makeNewObject mkDialog $ liftM castPtr {#call unsafe dialog_new#}
+
+--------------------
+-- Methods
 
 -- | Run the dialog by entering a new main loop.
 --
@@ -142,7 +215,8 @@ dialogSetResponseSensitive dc resId sensitive =
   {#call dialog_set_response_sensitive#} (toDialog dc) (fromResponse resId)
   (fromBool sensitive)
 
--- signals
+--------------------
+-- Signals
 
 -- | This signal is sent when a widget in the action
 -- area was activated, the dialog is received a destory event or the user

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -28,10 +28,34 @@
 -- logically separate items in a dialog box.
 --
 module Graphics.UI.Gtk.Ornaments.Frame (
+-- * Description
+-- 
+-- | The frame widget is a Bin that surrounds its child with a decorative
+-- frame and an optional label. If present, the label is drawn in a gap in the
+-- top side of the frame. The position of the label can be controlled with
+-- 'frameSetLabelAlign'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----Frame
+-- |                                 +----'AspectFrame'
+-- @
+
+-- * Types
   Frame,
   FrameClass,
   castToFrame,
+
+-- * Constructors
   frameNew,
+
+-- * Methods
   frameSetLabel,
   frameGetLabel,
   frameSetLabelWidget,
@@ -54,7 +78,8 @@ import Graphics.UI.Gtk.General.Enums	(ShadowType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new frame without a label.
 --
@@ -63,6 +88,9 @@ import Graphics.UI.Gtk.General.Enums	(ShadowType(..))
 frameNew :: IO Frame
 frameNew  = makeNewObject mkFrame $
   liftM castPtr $ {#call unsafe frame_new#} nullPtr
+
+--------------------
+-- Methods
 
 -- | Replace the label of the frame.
 --
@@ -128,5 +156,3 @@ frameGetLabel f = do
   {#call unsafe g_free#} (castPtr strPtr)
   return res
 
-
-   

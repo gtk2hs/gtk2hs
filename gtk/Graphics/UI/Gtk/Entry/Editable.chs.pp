@@ -5,7 +5,7 @@
 --
 --  Created: 30 July 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon, Duncan Coutts
 --
@@ -19,26 +19,46 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- Find out if \"insert-text\" signal is useful and how to bind it. It is
+--   tricky because it has an in-out parameter.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- * This is an interface for simple single-line text editing widgets. It is
---   implemented by "Entry" and "SpinButton".
---
--- * TODO
---
--- * Find out if \"insert-text\" signal is useful and how to bind it. It is
---   tricky because it has an in-out parameter.
+-- This is an interface for simple single-line text editing widgets. It is
+-- implemented by "Entry" and "SpinButton".
 --
 module Graphics.UI.Gtk.Entry.Editable (
-  -- * Data types
+-- * Description
+-- 
+-- | The 'Editable' interface is an interface which should be implemented by
+-- text editing widgets, such as 'Entry'.
+-- It contains functions for generically manipulating an editable
+-- widget, a large number of action signals used for key bindings, and several
+-- signals that an application can connect to to modify the behavior of a
+-- widget.
+--
+-- As an example of the latter usage, by connecting the following handler to
+-- \"insert_text\", an application can convert all entry into a widget into
+-- uppercase.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  GInterface
+-- |   +----Editable
+-- @
+
+-- * Types
   Editable,
   EditableClass,
   castToEditable,
 
-  -- * Methods
+-- * Methods
   editableSelectRegion,
   editableGetSelectionBounds,
   editableInsertText,
@@ -52,8 +72,8 @@ module Graphics.UI.Gtk.Entry.Editable (
   editableGetEditable,
   editableSetPosition,
   editableGetPosition,
-  
-  -- * Signals
+
+-- * Signals
   onEditableChanged,
   afterEditableChanged,
   onDeleteText,
@@ -70,6 +90,9 @@ import System.Glib.GObject (makeNewGObject)
 {#import Graphics.UI.Gtk.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
+
+--------------------
+-- Methods
 
 -- | Select a span of text.
 --
@@ -180,7 +203,8 @@ editableGetEditable ed =
   liftM toBool $ {#call editable_get_editable#} (toEditable ed)
   
 
--- signals
+--------------------
+-- Signals
 
 -- | Emitted when the settings of the 'Editable' widget changes.
 --

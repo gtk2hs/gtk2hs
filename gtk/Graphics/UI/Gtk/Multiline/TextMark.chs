@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -27,10 +27,44 @@
 -- A position in the buffer preserved across buffer modifications
 --
 module Graphics.UI.Gtk.Multiline.TextMark (
+-- * Description
+-- 
+-- | You may wish to begin by reading the text widget conceptual overview
+-- which gives an overview of all the objects and data types related to the
+-- text widget and how they work together.
+--
+-- A 'TextMark' is like a bookmark in a text buffer; it preserves a position
+-- in the text. You can convert the mark to an iterator using
+-- 'textBufferGetIterAtMark'. Unlike iterators, marks remain valid across
+-- buffer mutations, because their behavior is defined when text is inserted or
+-- deleted. When text containing a mark is deleted, the mark remains in the
+-- position originally occupied by the deleted text. When text is inserted at a
+-- mark, a mark with left gravity will be moved to the beginning of the
+-- newly-inserted text, and a mark with right gravity will be moved to the end.
+--
+-- Marks can be deleted from the buffer at any time
+-- with 'textBufferDeleteMark'. Once deleted from the buffer, a mark is
+-- essentially useless.
+--
+-- Marks optionally have names; these can be convenient to avoid passing the
+-- 'TextMark' object around.
+--
+-- Marks are typically created using the 'textBufferCreateMark' function.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----TextMark
+-- @
+
+-- * Types
   TextMark,
   TextMarkClass,
   castToTextMark,
   MarkName,
+
+-- * Methods
   textMarkSetVisible,
   textMarkGetVisible,
   textMarkGetDeleted,
@@ -51,7 +85,8 @@ import System.Glib.GObject	(makeNewGObject)
 
 type MarkName = String
 
--- methods
+--------------------
+-- Methods
 
 -- | Set the visibility of a 'TextMark'.
 --
@@ -101,5 +136,3 @@ textMarkGetLeftGravity :: TextMarkClass tm => tm -> IO Bool
 textMarkGetLeftGravity tm = liftM toBool $
   {#call unsafe text_mark_get_left_gravity#} (toTextMark tm)
 
-
- 

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,17 +24,40 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Plug is a window that is to be attached to the window of another
--- application. If you have managed to receive the 'XID' from
--- the inviting application you can construct the Plug and add your widgets
--- to it.
+-- Toplevel for embedding into other processes.
 --
 module Graphics.UI.Gtk.Embedding.Plug (
+-- * Description
+-- 
+-- | Together with 'Socket', 'Plug' provides the ability to embed widgets from
+-- one process into another process in a fashion that is transparent to the
+-- user. One process creates a 'Socket' widget and, passes the ID of that
+-- widgets window to the other process, which then creates a 'Plug' with that
+-- window ID. Any widgets contained in the 'Plug' then will appear inside the
+-- first applications window.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Container'
+-- |                     +----'Bin'
+-- |                           +----'Window'
+-- |                                 +----Plug
+-- @
+
+-- * Types
   Plug,
   PlugClass,
   castToPlug,
   NativeWindowId,
+
+-- * Constructors
   plugNew,
+
+-- * Methods
   plugGetId
   ) where
 
@@ -49,7 +72,8 @@ import Graphics.UI.Gtk.Embedding.Embedding (NativeWindowId)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new 'Window' to hold another
 -- application.
@@ -64,6 +88,9 @@ plugNew :: Maybe NativeWindowId -> IO Plug
 plugNew mnw = makeNewObject mkPlug $ liftM castPtr $
   {#call unsafe plug_new#} (fromIntegral (fromMaybe 0 mnw))
 
+--------------------
+-- Methods
+
 -- | Retrieve the 'NativeWindowId'.
 --
 -- * The result should be passed to the application which is to be embedded.
@@ -71,6 +98,9 @@ plugNew mnw = makeNewObject mkPlug $ liftM castPtr $
 --
 plugGetId :: PlugClass p => p -> IO NativeWindowId
 plugGetId p = liftM fromIntegral $ {#call unsafe plug_get_id#} (toPlug p)
+
+--------------------
+-- Signals
 
 -- | This plug received another application.
 --

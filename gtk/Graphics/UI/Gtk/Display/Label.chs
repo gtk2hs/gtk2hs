@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,11 +27,100 @@
 -- A widget that displays a small to medium amount of text.
 --
 module Graphics.UI.Gtk.Display.Label (
+-- * Description
+-- 
+-- | The 'Label' widget displays a small amount of text. As the name implies,
+-- most labels are used to label another widget such as a 'Button', a
+-- 'MenuItem', or a 'OptionMenu'.
+
+-- ** Mnemonics
+-- 
+-- | Labels may contain mnemonics. Mnemonics are underlined characters in the
+-- label, used for keyboard navigation. Mnemonics are created by providing a
+-- string with an underscore before the mnemonic character, such as
+-- @\"_File\"@, to the functions 'labelNewWithMnemonic' or
+-- 'labelSetTextWithMnemonic'.
+--
+-- Mnemonics automatically activate any activatable widget the label is
+-- inside, such as a 'Button'; if the label is not inside the mnemonic's target
+-- widget, you have to tell the label about the target using
+-- 'labelSetMnemonicWidget'. Here's a simple example where the label is inside
+-- a button: There's a convenience function to create buttons with a mnemonic
+-- label already inside: To create a mnemonic for a widget alongside the label,
+-- such as a 'Entry', you have to point the label at the entry with
+-- 'labelSetMnemonicWidget':
+-- 
+-- >   -- Pressing Alt+H will activate this button
+-- >   button <- buttonNew
+-- >   label <- labelNewWithMnemonic "_Hello"
+-- >   containerAdd button label
+--
+-- >   -- Pressing Alt+H will activate this button
+-- >   button <- buttonNewWithMnemonic "_Hello"
+--
+-- >   -- Pressing Alt+H will focus the entry
+-- >   entry <- entryNew
+-- >   label <- labelNewWithMnemonic "_Hello"
+-- >   labelSetMnemonicWidget label entry
+
+-- ** Markup (styled text)
+-- 
+-- | To make it easy to format text in a label (changing colors, fonts, etc.),
+-- label text can be provided in a simple markup format. Here's how to create a
+-- label with a small font: (See complete documentation of available tags in
+-- the Pango manual.)
+--
+-- >   label <- labelNew Nothing
+-- >   labelSetMarkup label "<small>Small text</small>"
+--
+-- The markup passed to 'labelSetMarkup' must be valid; for example, literal
+-- \<\/>\/& characters must be escaped as @\"&lt;\"@, @\"&gt;\"@, and
+-- @\"&amp;@\". If you pass
+-- text obtained from the user, file, or a network to 'labelSetMarkup', you\'ll
+-- want to escape it with 'gMarkupEscapeText'.
+
+-- ** Selectable labels
+-- 
+-- | Labels can be made selectable with 'labelSetSelectable'. Selectable
+-- labels allow the user to copy the label contents to the clipboard. Only
+-- labels that contain useful-to-copy information - such as error messages -
+-- should be made selectable.
+
+-- ** Text layout
+-- 
+-- | A label can contain any number of paragraphs, but will have performance
+-- problems if it contains more than a small number. Paragraphs are separated
+-- by newlines or other paragraph separators understood by Pango.
+--
+-- Labels can automatically wrap text if you call 'labelSetLineWrap'.
+--
+-- 'labelSetJustify' sets how the lines in a label align with one another.
+-- If you want to set how the label as a whole aligns in its available space,
+-- see 'miscSetAlignment'.
+-- 
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Misc'
+-- |                     +----Label
+-- |                           +----'AccelLabel'
+-- |                           +----'TipsQuery'
+-- @
+
+-- * Types
   Label,
   LabelClass,
   castToLabel,
+
+-- * Constructors
   labelNew,
   labelNewWithMnemonic,
+
+-- * Methods
   labelSetText,
   labelSetLabel,
   labelSetTextWithMnemonic,
@@ -74,8 +163,8 @@ import Graphics.UI.Gtk.General.Enums	(Justification(..))
 import Graphics.UI.Gtk.Pango.Markup
 {# context lib="gtk" prefix="gtk" #}
 
-
--- methods
+--------------------
+-- Constructors
 
 -- | Create a new label widget.
 --
@@ -84,6 +173,19 @@ labelNew str = makeNewObject mkLabel $ liftM castPtr $
   case str of
     Nothing    -> {#call label_new#} nullPtr
     (Just str) -> withUTFString str {#call label_new#}
+
+-- | Create a new label widget with accelerator key.
+--
+-- * Each underscore in @str@ is converted into an underlined character in the
+--   label. Entering this character will activate the label widget or any other
+--   widget set with 'labelSetMnemonicWidget'.
+--
+labelNewWithMnemonic :: String -> IO Label
+labelNewWithMnemonic str = makeNewObject mkLabel $ liftM castPtr $
+  withUTFString str {#call label_new_with_mnemonic#}
+
+--------------------
+-- Methods
 
 -- | Set the text the label widget shows. 
 --
@@ -221,16 +323,6 @@ labelGetText l = {#call unsafe label_get_text#} (toLabel l) >>= peekUTFString
 --
 labelGetLabel :: LabelClass l => l -> IO String
 labelGetLabel l = {#call unsafe label_get_label#} (toLabel l) >>= peekUTFString
-
--- | Create a new label widget with accelerator key.
---
--- * Each underscore in @str@ is converted into an underlined character in the
---   label. Entering this character will activate the label widget or any other
---   widget set with 'labelSetMnemonicWidget'.
---
-labelNewWithMnemonic :: String -> IO Label
-labelNewWithMnemonic str = makeNewObject mkLabel $ liftM castPtr $
-  withUTFString str {#call label_new_with_mnemonic#}
 
 -- | Select a region in the label.
 --
