@@ -1,0 +1,20 @@
+Package {
+     name            = "sourceview",
+     auto            = False,
+     import_dirs     = ["@hidir@"],
+     source_dirs     = [],
+     library_dirs    = [],
+     hs_libraries    = ["sourceview"],
+     extra_libraries = [@GCONF_LIBS@],
+     include_dirs    = [@GCONF_CFLAGS@],
+     c_includes      = ["gtksourceview/gtksourceview.h",
+                        "gtksourceview/gtksourcemarker.h",
+			"gtksourceview/gtksourcelanguagesmanager.h",
+			"gtksourceview/gtksourcetag.h",
+			"gtksourceview/gtksourcemarker.h",
+			"gtksourceview/gtksourceiter.h"]
+     package_deps    = ["gtk2hs"],
+     extra_ghc_opts  = [],
+     extra_cc_opts   = [],
+     extra_ld_opts   = []
+}

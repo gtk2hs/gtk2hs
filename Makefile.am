@@ -3,8 +3,9 @@ SUFFIXES = .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES =
 CLEANFILES =
 DISTCLEANFILES = *.precomp
-CPPFLAGS+= $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS) $(LIBGLADE_CFLAGS) \
-	   $(GCONF_CFLAGS)
+CPPFLAGS += $(filter -I% -D%, \
+	$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS) \
+	$(LIBGLADE_CFLAGS) $(GCONF_CFLAGS))
 
 # Build c2hs before anything else.
 
@@ -17,7 +18,9 @@ SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
 	tools/c2hs/base/general tools/c2hs/base/graphs			     \
 	tools/c2hs/base/state tools/c2hs/base/syms			     \
 	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
-	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel
+	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel   \
+        mogul glade gconf gconf/System/Gnome gconf/System/Gnome/GConf	     \
+        sourceview
 
 EXTRA_DIST = \
 	tools/callbackGen/Signal.chs-boot1	\
@@ -35,7 +38,13 @@ CHSDEPEND = $(srcdir)/mk/chsDepend
 HSC = hsc2hs
 
 # all packages and applications
-lib_LIBRARIES = libgtk2hs.a
+lib_LIBRARIES =		\
+        libgtk2hs.a	\
+        libmogul.a	\
+        libglade.a	\
+        libgconf.a	\
+        libsourceview.a
+        
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
 	tools/callbackGen/HookGenerator \
@@ -182,8 +191,8 @@ libgtk2hs_a_HEADER 		= gtk/gtk.h
 libgtk2hs_a_PRECOMP		= gtk/gtk.precomp
 libgtk2hs_a_LIBS		= @GTK_LIBS@
 libgtk2hs_a_HCFLAGS		= -fglasgow-exts
-libgtk2hs_a_CFLAGS 		= $(filter-out -I%,$(GTK_CFLAGS))
-libgtk2hs_a_CPPFLAGS 		= $(filter -I%,$(GTK_CFLAGS))
+libgtk2hs_a_CFLAGS 		= $(filter-out -I% -D%,$(GTK_CFLAGS))
+libgtk2hs_a_CPPFLAGS 		= $(filter -I% -D%,$(GTK_CFLAGS))
 
 libgtk2hs_a_SOURCES =			  \
 	gtk/general/Hierarchy.chs		  \
@@ -366,7 +375,207 @@ DISTCLEANFILES+= libgtk2hs_a.deps $(libgtk2hs_a_CHSFILES_HS:.hs=.dep)
 -include libgtk2hs_a.deps $(libgtk2hs_a_CHSFILES_HS:.hs=.dep)
 
 
+# mogul package
+libmogul_a_NAME = libmogul.a
+$(libmogul_a_NAME) : NAME = libmogul_a
+
+libmogul_a_PACKAGE	= mogul/mogul.pkg
+libmogul_a_PACKAGEDEPS	= 
+libmogul_a_LIBS		= 
+libmogul_a_HCFLAGS	= 
+libmogul_a_CFLAGS 	= 
+libmogul_a_CPPFLAGS 	= $(CPPFLAGS)
+
+libmogul_a_SOURCES =		\
+	mogul/GetWidget.hs	\
+	mogul/MDialog.hs	\
+	mogul/Mogul.hs		\
+	mogul/NewWidget.hs	\
+	mogul/TreeList.hs	\
+	mogul/WidgetTable.hs
+
+libmogul_a_LIBADD = libgtk2hs.a
+
+am_libmogul_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libmogul_a_SOURCES))))
+
+libmogul_a_HSFILES = $(libmogul_a_SOURCES)
+.PRECIOUS: $(libmogul_a_HSFILES:.hs=hi)
+
+MOSTLYCLEANFILES+ = $(am_libmogul_a_OBJECTS)
+MOSTLYCLEANFILES+ = $(libmogul_a_HSFILES:.hs=.hi)
+
+DISTCLEANFILES+= libmogul_a.deps
+-include libmogul_a.deps
+
+# glade package
+libglade_a_NAME = libglade.a
+$(libglade_a_NAME) : NAME = libglade_a
+
+libglade_a_PACKAGE	= glade/glade.pkg
+libglade_a_PACKAGEDEPS	= 
+libglade_a_HEADER 	= glade/glade.h
+libglade_a_PRECOMP	= glade/glade.precomp
+libglade_a_LIBS		= $(LIBGLADE_LIBS)
+libglade_a_HCFLAGS	= -fglasgow-exts
+libglade_a_CFLAGS	= $(filter-out -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
+libglade_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
+
+libglade_a_SOURCES =	        \
+	glade/GladeType.chs	\
+        glade/Glade.chs
+
+libglade_a_LIBADD = libgtk2hs.a
+        
+glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
+		      $(srcdir)/tools/hierarchyGen/TypeGenerator
+		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
+		      $@ --tag=libglade --lib=glade --prefix=glade)
+
+am_libglade_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libglade_a_SOURCES))))
+
+libglade_a_CHSPPFILES = $(filter %.chs.pp,$(libglade_a_SOURCES))
+libglade_a_CHSFILES = \
+  $(filter %.chs,$(libglade_a_SOURCES:.chs.pp=.chs))
+libglade_a_CHSFILES_HS = $(libglade_a_CHSFILES:.chs=.hs)
+libglade_a_HSCFILES = $(filter %.hsc, $(libglade_a_SOURCES))
+libglade_a_HSCFILES_HS = $(libglade_a_HSCFILES:.hsc=.hs)
+libglade_a_BUILDSOURCES = \
+	$(libglade_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libglade_a_CHSFILES_HS) \
+        glade/GladeType.chs
+libglade_a_HSFILES  = \
+	$(filter %.hs,$(libglade_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libglade_a_SOURCES))
+
+MOSTLYCLEANFILES += $(am_libglade_a_OBJECTS)
+MOSTLYCLEANFILES += $(libglade_a_HSFILES:.hs=.hi)
+CLEANFILES += $(libglade_a_BUILDSOURCES) 
+
+DISTCLEANFILES+= libglade_a.deps $(libglade_a_CHSFILES_HS:.hs=.dep)
+-include libglade_a.deps $(libglade_a_CHSFILES:.chs=.dep)
+
+# gconf package
+libgconf_a_NAME = libgconf.a
+$(libgconf_a_NAME) : NAME = libgconf_a
+
+libgconf_a_PACKAGE	= gconf/gconf.pkg
+libgconf_a_PACKAGEDEPS	= 
+libgconf_a_HEADER 	= gconf/gconf-client.h
+libgconf_a_PRECOMP	= gconf/gconf.precomp
+libgconf_a_LIBS		= $(GCONF_LIBS)
+libgconf_a_HCFLAGS	= -fglasgow-exts -fallow-overlapping-instances
+libgconf_a_CFLAGS	= $(filter-out -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
+libgconf_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
+
+libgconf_a_SOURCES =	        			\
+	gconf/System/Gnome/GConf/GConfType.chs		\
+        gconf/System/Gnome/GConf/GConfValue.chs		\
+        gconf/System/Gnome/GConf/GConfClient.chs	\
+        gconf/System/Gnome/GConf.hs
+
+libgconf_a_LIBADD = libgtk2hs.a
+        
+gconf/System/Gnome/GConf/GConfType.chs :	\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$@ --tag=gconf --lib=gconf --prefix=gconf \
+	--modname=System.Gnome.GConf.GConfType)
+
+am_libgconf_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libgconf_a_SOURCES))))
+
+libgconf_a_CHSPPFILES = $(filter %.chs.pp,$(libgconf_a_SOURCES))
+libgconf_a_CHSFILES = \
+  $(filter %.chs,$(libgconf_a_SOURCES:.chs.pp=.chs))
+libgconf_a_CHSFILES_HS = $(libgconf_a_CHSFILES:.chs=.hs)
+libgconf_a_HSCFILES = $(filter %.hsc, $(libgconf_a_SOURCES))
+libgconf_a_HSCFILES_HS = $(libgconf_a_HSCFILES:.hsc=.hs)
+libgconf_a_BUILDSOURCES = \
+	$(libgconf_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libgconf_a_CHSFILES_HS) \
+        gconf/System/Gnome/GConf/GConfType.chs
+libgconf_a_HSFILES  = \
+	$(filter %.hs,$(libgconf_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libgconf_a_SOURCES))
+
+MOSTLYCLEANFILES += $(am_libgconf_a_OBJECTS)
+MOSTLYCLEANFILES += $(libgconf_a_HSFILES:.hs=.hi)
+CLEANFILES += $(libgconf_a_BUILDSOURCES) 
+
+DISTCLEANFILES+= libgconf_a.deps $(libgconf_a_CHSFILES_HS:.hs=.dep)
+-include libgconf_a.deps $(libgconf_a_CHSFILES:.chs=.dep)
+
+
+# sourceview package
+libsourceview_a_NAME = libsourceview.a
+$(libsourceview_a_NAME) : NAME = libsourceview_a
+
+libsourceview_a_PACKAGE		= sourceview/sourceview.pkg
+libsourceview_a_PACKAGEDEPS	= data
+libsourceview_a_HEADER 		= sourceview.h
+libsourceview_a_PRECOMP		= sourceview/sourceview.precomp
+libsourceview_a_LIBS		= $(SOURCEVIEW_LIBS)
+libsourceview_a_HCFLAGS		= -fglasgow-exts
+libsourceview_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
+libsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
+
+libsourceview_a_SOURCES =			\
+	sourceview/SourceViewType.chs		\
+	sourceview/SourceBuffer.chs		\
+	sourceview/SourceIter.chs		\
+	sourceview/SourceLanguage.chs		\
+	sourceview/SourceLanguagesManager.chs	\
+	sourceview/SourceMarker.chs		\
+	sourceview/SourceStyleScheme.chs	\
+	sourceview/SourceTag.chs		\
+        sourceview/SourceTagStyle.hsc		\
+	sourceview/SourceTagTable.chs		\
+	sourceview/SourceView.chs
+
+libsourceview_a_LIBADD = libgtk2hs.a
+
+sourceview/SourceViewType.chs :	\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$@ --tag=sourceview)
+
+am_libsourceview_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libsourceview_a_SOURCES))))
+
+libsourceview_a_CHSPPFILES = $(filter %.chs.pp,$(libsourceview_a_SOURCES))
+libsourceview_a_CHSFILES = \
+  $(filter %.chs,$(libsourceview_a_SOURCES:.chs.pp=.chs))
+libsourceview_a_CHSFILES_HS = $(libsourceview_a_CHSFILES:.chs=.hs)
+libsourceview_a_HSCFILES = $(filter %.hsc, $(libsourceview_a_SOURCES))
+libsourceview_a_HSCFILES_HS = $(libsourceview_a_HSCFILES:.hsc=.hs)
+libsourceview_a_BUILDSOURCES = \
+	$(libsourceview_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libsourceview_a_CHSFILES_HS) \
+        $(libsourceview_a_HSCFILES_HS) \
+        sourceview/SourceViewType.chs
+libsourceview_a_HSFILES  = \
+	$(filter %.hs,$(libsourceview_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libsourceview_a_SOURCES))
+
+MOSTLYCLEANFILES += $(am_libsourceview_a_OBJECTS)
+MOSTLYCLEANFILES += $(libsourceview_a_HSFILES:.hs=.hi)
+CLEANFILES += $(libsourceview_a_BUILDSOURCES) 
+
+DISTCLEANFILES+= libsourceview_a.deps $(libsourceview_a_CHSFILES_HS:.hs=.dep)
+-include libsourceview_a.deps $(libsourceview_a_CHSFILES:.chs=.dep)
+
+
 # All generated source files go here.
-BUILDSOURCES = $(libgtk2hs_a_BUILDSOURCES)
+BUILDSOURCES =	$(libgtk2hs_a_BUILDSOURCES)	\
+		$(libglade_a_BUILDSOURCES)	\
+		$(libgconf_a_BUILDSOURCES)	\
+		$(libsourceview_a_BUILDSOURCES)
 
 include mk/common.mk

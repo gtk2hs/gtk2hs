@@ -1,3 +1,14 @@
+2004-12-8  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* acinclude.m4: fix an automake warning about underquoted definitions
+
+	* Makefile.am: build glade, gconf, sourceview & mogul packages
+
+	* configure.ac: add new .pkg files to AC_OUTPUT list
+
+	* mogul/mogul.pkg, glade/glade.pkg, gconf/gconf.pkg,
+	sourceview/sourceview.pkg: add new pkg files
+
 2004-12-7  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: tiny tidyup

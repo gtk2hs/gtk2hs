@@ -502,7 +502,11 @@ AC_OUTPUT([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
-  gtk/gtk2hs.pkg],
+  gtk/gtk2hs.pkg
+  mogul/mogul.pkg
+  glade/glade.pkg
+  gconf/gconf.pkg
+  sourceview/sourceview.pkg],
   [chmod a+x mk/chsDepend && chmod a+x install-sh])
 
 dnl ...and chat with the user

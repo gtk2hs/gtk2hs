@@ -1,0 +1,15 @@
+Package {
+     name            = "glade",
+     auto            = False,
+     import_dirs     = ["@hidir@"],
+     source_dirs     = [],
+     library_dirs    = [],
+     hs_libraries    = ["glade"],
+     extra_libraries = [@LIBGLADE_LIBS@],
+     include_dirs    = [@LIBGLADE_CFLAGS@],
+     c_includes      = ["glade/glade.h"],
+     package_deps    = ["gtk2hs"],
+     extra_ghc_opts  = [],
+     extra_cc_opts   = [],
+     extra_ld_opts   = []
+}

@@ -12,7 +12,7 @@ dnl
 dnl NB: Don't use `+' in sed regexps; Jonas Svensson reports problems with it
 dnl     on Solaris 8.
 dnl
-AC_DEFUN(GTKHS_GHC_VERSION,
+AC_DEFUN([GTKHS_GHC_VERSION],
 [define([GTKHS_CV_GHC_VERSION], [gtkhs_cv_ghc_version])dnl
 AC_CACHE_CHECK([version of ghc], GTKHS_CV_GHC_VERSION, [dnl
 ${GHC-ghc} --version > conftestghc 2>&1
@@ -69,7 +69,7 @@ dnl
 dnl NOTE: the loop could be unrolled within autoconf, but the
 dnl       macro code would be a) longer and b) harder to debug... ;)
 dnl
-AC_DEFUN(GTKHS_PROG_CHECK_VERSION,
+AC_DEFUN([GTKHS_PROG_CHECK_VERSION],
 [if ( IFS=".";
       a="[$1]";  b="[$3]";
       while test -n "$a$b"
