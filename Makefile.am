@@ -197,10 +197,9 @@ am_tools_c2hs_c2hsLocal_OBJECTS = \
 MOSTLYCLEANFILES+= $(am_tools_c2hs_c2hsLocal_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
 CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)
-DISTCLEANFILES+= tools_c2hs_c2hsLocal.deps
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
--include tools_c2hs_c2hsLocal.deps
- endif
+DISTCLEANFILES+= tools/c2hs/c2hsLocal.deps
+-include tools/c2hs/c2hsLocal.deps
+
 
 #
 #	glib package
@@ -269,12 +268,10 @@ MOSTLYCLEANFILES += \
 	$(libHSglib_a_CHSFILES:.chs=_stub.c)
 CLEANFILES += $(libHSglib_a_BUILDSOURCES)
 
-DISTCLEANFILES+= libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
+DISTCLEANFILES+= glib/libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSglib_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES)
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
--include libHSglib_a.deps $(libHSglib_a_CHSFILES:.chs=.dep)
- endif
+-include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
 
 #
 #	gtk package
@@ -293,6 +290,7 @@ libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
 libHSgtk_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) gtk
+gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
 
 nodist_libHSgtk_a_SOURCES =						\
 	gtk/Graphics/UI/Gtk/Types.chs					\
@@ -491,12 +489,10 @@ MOSTLYCLEANFILES += \
 	$(libHSgtk_a_CHSFILES:.chs=_stub.c)
 CLEANFILES+= $(libHSgtk_a_BUILDSOURCES)
 
-DISTCLEANFILES+= libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+DISTCLEANFILES+= gtk/libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES)
-ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
- endif
+-include $(libHSgtk_a_CHSFILES_HS:.hs=.dep) gtk/libHSgtk_a.deps
 
 #
 #	mogul package
@@ -513,6 +509,7 @@ libHSmogul_a_CFLAGS 		=
 libHSmogul_a_CPPFLAGS 		= 
 
 libHSmogul_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mogul
+mogul/libHSmogul_a.deps	: gtk/libHSgtk_a.deps
 
 libHSmogul_a_SOURCES =		\
 	mogul/Graphics/UI/Gtk/Mogul.hs			\
@@ -538,10 +535,8 @@ nobase_hi_SCRIPTS += $(libHSmogul_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += $(am_libHSmogul_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSmogul_a_HSFILES:.hs=.hi)
 
-DISTCLEANFILES+= libHSmogul_a.deps
-ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include libHSmogul_a.deps
- endif
+DISTCLEANFILES+= mogul/libHSmogul_a.deps
+-include mogul/libHSmogul_a.deps
 
 #
 #	glade package
@@ -608,12 +603,10 @@ MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += $(libHSglade_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSglade_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
+DISTCLEANFILES+= glade/libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSglade_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSglade_a_CHSFILES)
-ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include libHSglade_a.deps $(libHSglade_a_CHSFILES:.chs=.dep)
- endif
+-include $(libHSglade_a_CHSFILES:.chs=.dep) glade/libHSglade_a.deps
 
 endif #ENABLE_LIBGLADE
 
@@ -636,6 +629,7 @@ libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF
 libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_CFLAGS))
 
 libHSgconf_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gconf
+gconf/libHSgconf_a.deps	: gtk/libHSgtk_a.deps
 
 nodist_libHSgconf_a_SOURCES =				\
 	gconf/System/Gnome/GConf/Types.chs
@@ -689,12 +683,10 @@ MOSTLYCLEANFILES += \
 	$(libHSgconf_a_CHSFILES:.chs=_stub.c)
 CLEANFILES += $(libHSgconf_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
+DISTCLEANFILES+= gconf/libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgconf_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSgconf_a_CHSFILES)
-ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include libHSgconf_a.deps $(libHSgconf_a_CHSFILES:.chs=.dep)
- endif
+-include $(libHSgconf_a_CHSFILES:.chs=.dep) gconf/libHSgconf_a.deps
 
 endif #ENABLE_GNOME
 
@@ -717,6 +709,7 @@ libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(S
 libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
 
 libHSsourceview_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) sourceview
+sourceview/libHSsourceview_a.deps	: gtk/libHSgtk_a.deps
 
 nodist_libHSsourceview_a_SOURCES =						\
 	sourceview/Graphics/UI/Gtk/SourceView/Types.chs
@@ -774,12 +767,10 @@ MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += $(libHSsourceview_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSsourceview_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
+DISTCLEANFILES+= sourceview/libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSsourceview_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSsourceview_a_CHSFILES)
-ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES:.chs=.dep)
- endif
+-include $(libHSsourceview_a_CHSFILES:.chs=.dep) sourceview/libHSsourceview_a.deps
 
 endif #ENABLE_GNOME
 
@@ -802,6 +793,7 @@ libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MO
 libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 
 libHSmozembed_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mozembed
+mozembed/libHSmozembed_a.deps	: gtk/libHSgtk_a.deps
 
 nodist_libHSmozembed_a_SOURCES =			\
 	mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs
@@ -847,12 +839,10 @@ MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += $(libHSmozembed_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSmozembed_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
+DISTCLEANFILES+= mozembed/libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSmozembed_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSmozembed_a_CHSFILES)
-ifeq (,$(findstring clean, $(MAKECMDGOALS)))
--include libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES:.chs=.dep)
- endif
+-include $(libHSmozembed_a_CHSFILES:.chs=.dep) mozembed/libHSmozembed_a.deps
 
 endif #ENABLE_MOZEMBED
 

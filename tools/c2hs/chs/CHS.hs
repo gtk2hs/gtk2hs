@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 16 August 99
 --
---  Version $Revision: 1.2 $ from $Date: 2004/12/08 00:08:20 $
+--  Version $Revision: 1.3 $ from $Date: 2005/01/23 15:44:36 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -404,12 +404,14 @@ showCHSModule (CHSModule frags) pureHaskell  =
 	(Position fname line _) = pos
 	generated	 = isBuiltinPos pos
 	emitNow		 = state == Emit || 
-			   (state == Wait && not (null s) && head s == '\n')
+			   (state == Wait && not (null s) && nlStart)
+	nlStart		 = head s == '\n'
 	nextState	 = if generated then Wait else NoLine
       in
 	(if emitNow then
 	   showString ("\n{-# LINE " ++ show (line `max` 0) ++ " " ++ 
-		       show fname ++ " #-}")
+		       show fname ++ " #-}" ++
+		       (if nlStart then "" else "\n"))
 	 else id)
       . showString s
       . showFrags pureHs nextState frags

@@ -1,3 +1,17 @@
+2005-01-23 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am, mk/common.mk: Resurrect dependency generation under
+	the new scheme of inferring the current package. Dependency files
+	are now always loaded but only recreated if we are not cleaning or
+	already building dependencies.
+
+	* mk/common.mk: Set the initial heap size for tools to 400m to
+	accommodate for less fortunate people.
+
+	* tools/c2hs/chs/CHS.hs: Emit a newline after a LINE directive if
+	the next verbatim text does not start with one. This fixes a
+	problem with gcc on Mac OS.
+
 2005-01-20 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: make each package's LIBS include the LIBS of its

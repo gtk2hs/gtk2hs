@@ -42,19 +42,33 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 
 .DELETE_ON_ERROR : %.deps
 
+# A string that is non-empty if dependencies should not be calculated. 
+# All but the "clean" target are run during dependencies calculation
+# and hence are listed here to avoid nasty recursion.
+noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
+		    $(findstring c2hsLocal,$(MAKECMDGOALS)) \
+		    $(findstring .hs,$(MAKECMDGOALS)) \
+		    $(findstring .precomp,$(MAKECMDGOALS)))
+
+# Dependencies are only calculated if the .deps files does not exist. 
+# Thereafter it is never updated. A fix that likely works is to
+# recalculate the dependencies of a .hs file each time it is
+# recompiled. This does not work if some module reexports entities of
+# another module. A sound fix would be to calculate dependencies each
+# time which is too time consuming.
+
 %.deps :
+	$(if $(strip \
+	  $(if $(findstring c2hs,$@),\
+	  $(findstring clean,$(MAKECMDGOALS)),$(noDeps))),,\
 	$(strip if test -f $@; then touch $@; else \
-	  touch $@; $(MAKE) $(AM_MAKEFLAGS) NAME="$*" depend; fi;)
-
-.PHONY: depend
-
-depend: $($(NAME)_BUILDSOURCES)
-	$(if $(word 2,$($(NAME)_HSFILES)),\
-	$(HC) -M $(addprefix -optdep,-f $(NAME).deps) \
-	$($(NAME)_HCFLAGS) -i$(subst $(SPACE),:,$($(NAME)_SOURCESDIRS)) \
-	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-	$(AM_CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS) \
-	$($(NAME)_HSFILES))
+	touch $@; \
+	$(if $(word 2,$($(PKG)_HSFILES)),\
+	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
+	  $(HC) -M $(addprefix -optdep,-f $@) \
+	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(pkgVPATH) \
+	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
+	fi;))
 
 .chs.dep :
 	$(CHSDEPEND) -i$(pkgVPATH) $<
@@ -73,7 +87,7 @@ depend: $($(NAME)_BUILDSOURCES)
 # Same for .chi
 .PRECIOUS: %.chi
 
-HSTOOLFLAGS = -H500m -M650m
+HSTOOLFLAGS = -H400m -M650m
 
 .PHONY: debug
 debug	:
