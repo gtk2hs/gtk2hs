@@ -5,10 +5,8 @@ CONFIG_H = config.h
 
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
-COMMA := ,
-VPATH = $(subst $(SPACE),:,$(strip \
-	$(if $(subst .,,$(srcdir)),$(addprefix $(srcdir)/,$(SOURCEDIRS)), \
-	$(SOURCEDIRS))))
+
+pkgVPATH = $(subst $(SPACE),:,$($(1)_SOURCESDIRS))
 
 LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
@@ -17,8 +15,7 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 .hs.o: $(CONFIG_H)
 	@echo Building for $(NAME)
 	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
-	$(call getVar,$<,HCFLAGS) -i$(VPATH) \
-	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
+	$(call getVar,$<,HCFLAGS) -i$(call pkgVPATH,$(NAME)) \
 	$(addprefix -package-name ,$(notdir $(basename $($(NAME)_PACKAGE)))) \
 	$(addprefix '-#include<,$(addsuffix >', $($(NAME)_HEADER))) \
 	$(AM_CPPFLAGS) $($(NAME)_CPPFLAGS))
@@ -35,15 +32,13 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 depend: $($(NAME)_BUILDSOURCES)
 	$(if $(word 2,$($(NAME)_HSFILES)),\
 	$(HC) -M $(addprefix -optdep,-f $(NAME).deps) \
-	$($(NAME)_HCFLAGS) -i$(VPATH) \
+	$($(NAME)_HCFLAGS) -i$(call pkgVPATH,$(NAME)) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
-	$($(NAME)_HEADER))) \
 	$(AM_CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS) \
 	$($(NAME)_HSFILES))
 
 .chs.dep :
-	$(CHSDEPEND) -i$(VPATH) $<
+	@$(CHSDEPEND) -i$(call pkgVPATH,$(NAME)) $<
 
 .hs.chi :
 	@:
@@ -72,6 +67,7 @@ debug	:
 	$(strip $(C2HS) $(C2HS_FLAGS)		\
 	+RTS $(HSTOOLFLAGS) $(PROFFLAGS) -RTS		\
 	$(addprefix -C,$($(NAME)_CFLAGS) $($(NAME)_CPPFLAGS))		\
+	--cppopts='-include "$(CONFIG_H)"' \
 	--precomp=$($(NAME)_PRECOMP) $($(NAME)_HEADER))
 
 .chs.pp.chs: $(CONFIG_H)
@@ -102,8 +98,7 @@ debug	:
 	  $(MAKE) $(AM_MAKEFLAGS) NAME="$(NAME)" $($(NAME)_PRECOMP); fi;)
 	$(strip $(C2HS) $(C2HS_FLAGS) \
 	+RTS $(HSTOOLFLAGS) -RTS \
-	-i$(VPATH) --precomp=$($(NAME)_PRECOMP) -o $@ $<)
-	$(CHSDEPEND) -i$(VPATH) $<
+	-i$(call pkgVPATH,$(NAME)) --precomp=$($(NAME)_PRECOMP) -o $@ $<)
 
 
 # installation of packages

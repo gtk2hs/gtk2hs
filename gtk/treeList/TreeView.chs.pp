@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2004/12/09 18:26:02 $
+--  Version $Revision: 1.3 $ from $Date: 2004/12/20 03:30:59 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -58,10 +58,6 @@
 -- * set_scroll_adjustment makes sense if the user monitors the scroll bars
 --   *and* the scroll bars can be replaced anytime (the latter is odd)
 --
-
-#include<gtk/gtkversion.h>
--- Let's hope this file will always only contain macros.
-
 module TreeView(
   TreeView,
   TreeViewClass,

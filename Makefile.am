@@ -7,20 +7,9 @@ CPPFLAGS += $(filter -I% -D%, \
 	$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS) \
 	$(LIBGLADE_CFLAGS) $(GCONF_CFLAGS) \
 	$(MOZEMBED_CFLAGS))
+nobase_hi_SCRIPTS = #hack 'til gtk uses it
 
 # Build c2hs before anything else.
-
-SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
-	gtk/gdk gtk/abstract gtk/display gtk/entry gtk/misc gtk/multiline    \
-	gtk/ornaments gtk/scrolling gtk/treeList gtk/selectors gtk/embedding \
-	gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows		     \
-	tools/hierarchyGen tools/callbackGen tools/apicoverage		     \
-	tools/c2hs/base/admin tools/c2hs/base/errors			     \
-	tools/c2hs/base/general tools/c2hs/base/graphs			     \
-	tools/c2hs/base/state tools/c2hs/base/syms			     \
-	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
-	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel   \
-	mogul glade gconf sourceview mozembed
 
 EXTRA_DIST = \
 	tools/callbackGen/Signal.chs-boot1	\
@@ -39,13 +28,20 @@ CHSDEPEND = $(srcdir)/mk/chsDepend
 HSC = hsc2hs
 
 # all packages and applications
-lib_LIBRARIES =		\
-        libHSgtk.a	\
-        libHSmogul.a	\
-        libHSglade.a	\
+lib_LIBRARIES =	\
+	libHSgtk.a	\
+        libHSmogul.a
+if ENABLE_LIBGLADE
+lib_LIBRARIES += libHSglade.a
+endif
+if ENABLE_GNOME
+lib_LIBRARIES += 	\
         libHSgconf.a	\
-        libHSsourceview.a	\
-	libHSmozembed.a
+        libHSsourceview.a
+endif
+if ENABLE_MOZEMBED
+lib_LIBRARIES += libHSmozembed.a
+endif
 
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
@@ -68,6 +64,7 @@ $(TypeGenerator_NAME) : NAME = tools_hierarchyGen_TypeGenerator
 tools_hierarchyGen_TypeGenerator_MAIN = \
   $(tools_hierarchyGen_TypeGenerator_SOURCES)
 tools_hierarchyGen_TypeGenerator_PACKAGEDEPS = 
+tools_hierarchyGen_TypeGenerator_SOURCESDIRS = tools/hierarchyGen
 tools_hierarchyGen_TypeGenerator_SOURCES = \
   tools/hierarchyGen/TypeGen.hs
 # Fix automake - the subdir-objects option doesn't work here.
@@ -87,6 +84,7 @@ $(HookGenerator_NAME) : NAME = tools_callbackGen_HookGenerator
 tools_callbackGen_HookGenerator_MAIN = \
   $(tools_callbackGen_HookGenerator_SOURCES)
 tools_callbackGen_HookGenerator_PACKAGEDEPS = 
+tools_callbackGen_HookGenerator_SOURCESDIRS = tools/callbackGen
 tools_callbackGen_HookGenerator_SOURCES = \
   tools/callbackGen/HookGenerator.hs
 am_tools_callbackGen_HookGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
@@ -114,6 +112,7 @@ $(Exclude_NAME) : NAME = tools_apicoverage_Exclude
 tools_apicoverage_Exclude_MAIN = \
   $(tools_apicoverage_Exclude_SOURCES)
 tools_apicoverage_Exclude_PACKAGEDEPS = 
+tools_apicoverage_Exclude_SOURCESDIRS = tools/apicoverage
 tools_apicoverage_Exclude_SOURCES = \
   tools/apicoverage/Exclude.hs
 am_tools_apicoverage_Exclude_OBJECTS = $(addsuffix .$(OBJEXT),\
@@ -133,6 +132,13 @@ tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
 tools_c2hs_c2hsLocal_PACKAGEDEPS	= 
 tools_c2hs_c2hsLocal_HEADER		= 
 tools_c2hs_c2hsLocal_HCFLAGS		= 
+
+tools_c2hs_c2hsLocal_SOURCESDIRS = 					     \
+	tools/c2hs/base/admin tools/c2hs/base/errors			     \
+	tools/c2hs/base/general tools/c2hs/base/graphs			     \
+	tools/c2hs/base/state tools/c2hs/base/syms			     \
+	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
+	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel
 
 tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/base/admin/BaseVersion.hs	\
@@ -217,6 +223,12 @@ libHSgtk_a_LIBS			= $(GTK_LIBS)
 libHSgtk_a_HCFLAGS		= -fglasgow-exts
 libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GTK_CFLAGS))
 libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GTK_CFLAGS))
+
+libHSgtk_a_SOURCESDIRS = \
+	gtk/glib gtk/general gtk/pango gtk/treeList gtk/multiline gtk/gdk	\
+	gtk/abstract gtk/display gtk/entry gtk/misc gtk/multiline		\
+	gtk/ornaments gtk/scrolling gtk/treeList gtk/selectors gtk/embedding	\
+	gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows
 
 libHSgtk_a_SOURCES =				  \
 	gtk/general/Hierarchy.chs		  \
@@ -425,7 +437,9 @@ libHSmogul_a_PACKAGEDEPS	=
 libHSmogul_a_LIBS		= 
 libHSmogul_a_HCFLAGS		= 
 libHSmogul_a_CFLAGS 		= 
-libHSmogul_a_CPPFLAGS 		= $(CPPFLAGS)
+libHSmogul_a_CPPFLAGS 		= 
+
+libHSmogul_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mogul
 
 libHSmogul_a_SOURCES =		\
 	mogul/GetWidget.hs	\
@@ -434,8 +448,6 @@ libHSmogul_a_SOURCES =		\
 	mogul/NewWidget.hs	\
 	mogul/TreeList.hs	\
 	mogul/WidgetTable.hs
-
-libHSmogul_a_DEPENDENCIES = libHSgtk.a
 
 am_libHSmogul_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmogul_a_SOURCES))))
@@ -458,6 +470,8 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 #
 ################################################################################
 
+if ENABLE_LIBGLADE
+
 libHSglade_a_NAME = libHSglade.a
 $(libHSglade_a_NAME) : NAME = libHSglade_a
 
@@ -470,13 +484,13 @@ libHSglade_a_HCFLAGS		= -fffi
 libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 
+libHSglade_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) glade
+
 libHSglade_a_SOURCES =	        \
 	glade/GladeType.chs	\
         glade/Glade.chs
 
 glade_GladeType_hs_HCFLAGS	= -fglasgow-exts
-
-libHSglade_a_DEPENDENCIES = libHSgtk.a
 
 glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/TypeGenerator  \
@@ -516,10 +530,14 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSglade_a.deps $(libHSglade_a_CHSFILES:.chs=.dep)
  endif
 
+endif #ENABLE_LIBGLADE
+
 #
 #	gconf package
 #
 ################################################################################
+
+if ENABLE_GNOME
 
 libHSgconf_a_NAME = libHSgconf.a
 $(libHSgconf_a_NAME) : NAME = libHSgconf_a
@@ -533,13 +551,13 @@ libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances
 libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
 libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
 
+libHSgconf_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gconf
+
 libHSgconf_a_SOURCES =	        			\
 	gconf/System/Gnome/GConf/GConfType.chs		\
         gconf/System/Gnome/GConf/GConfValue.chs		\
         gconf/System/Gnome/GConf/GConfClient.chs	\
         gconf/System/Gnome/GConf.hs
-
-libHSgconf_a_DEPENDENCIES = libHSgtk.a
 
 gconf/System/Gnome/GConf/GConfType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -568,7 +586,7 @@ libHSgconf_a_HSFILES  = \
 	$(filter %.hs,$(libHSgconf_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgconf_a_SOURCES))
 
-nobase_hi_SCRIPTS = $(libHSgconf_a_HSFILES:.hs=.hi)
+nobase_hi_SCRIPTS += $(libHSgconf_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSgconf_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
@@ -585,10 +603,14 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSgconf_a.deps $(libHSgconf_a_CHSFILES:.chs=.dep)
  endif
 
+endif #ENABLE_GNOME
+
 #
 #	sourceview package
 #
 ################################################################################
+
+if ENABLE_GNOME
 
 libHSsourceview_a_NAME = libHSsourceview.a
 $(libHSsourceview_a_NAME) : NAME = libHSsourceview_a
@@ -601,6 +623,8 @@ libHSsourceview_a_LIBS		= $(SOURCEVIEW_LIBS)
 libHSsourceview_a_HCFLAGS	= -fffi
 libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
 libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
+
+libHSsourceview_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) sourceview
 
 libHSsourceview_a_SOURCES =			\
 	sourceview/SourceViewType.chs		\
@@ -617,8 +641,6 @@ libHSsourceview_a_SOURCES =			\
 
 sourceview_SourceViewType_hs_HCFLAGS = -fglasgow-exts
 sourceview_SourceTagStyle_hs_HCFLAGS = -fglasgow-exts
-
-libHSsourceview_a_DEPENDENCIES = libHSgtk.a
 
 sourceview/SourceViewType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -660,10 +682,14 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES:.chs=.dep)
  endif
 
+endif #ENABLE_GNOME
+
 #
 #	mozembed package
 #
 ################################################################################
+
+if ENABLE_MOZEMBED
 
 libHSmozembed_a_NAME = libHSmozembed.a
 $(libHSmozembed_a_NAME) : NAME = libHSmozembed_a
@@ -677,13 +703,14 @@ libHSmozembed_a_HCFLAGS		= -fffi
 libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 
+libHSmozembed_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mozembed
+
 libHSmozembed_a_SOURCES =				\
 	mozembed/Graphics/UI/Gtk/MozEmbedType.chs	\
 	mozembed/Graphics/UI/Gtk/MozEmbed.chs
 
 mozembed_Graphics_UI_Gtk_MozEmbedType_hs_HCFLAGS = -fglasgow-exts
 
-libHSmozembed_a_DEPENDENCIES = libHSgtk.a
 
 mozembed/Graphics/UI/Gtk/MozEmbedType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -726,12 +753,6 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES:.chs=.dep)
  endif
 
-
-# All generated source files go here.
-BUILDSOURCES =	$(libHSgtk_a_BUILDSOURCES)	\
-		$(libHSglade_a_BUILDSOURCES)	\
-		$(libHSgconf_a_BUILDSOURCES)	\
-		$(libHSsourceview_a_BUILDSOURCES) \
-		$(libHSmozembed_a_BUILDSOURCES)
+endif #ENABLE_MOZEMBED
 
 include mk/common.mk

@@ -32,7 +32,14 @@ dnl Check system type.
 AC_CANONICAL_HOST
 
 AM_CONFIG_HEADER(config.h)
-AH_TOP([#include<gtk/gtkversion.h>])
+AH_TOP([
+/* Hack to suppress warnings that these symbols clash with
+   the ones from ghc's version of config.h */
+#undef /**/ PACKAGE_NAME
+#undef /**/ PACKAGE_STRING
+#undef /**/ PACKAGE_TARNAME
+#undef /**/ PACKAGE_VERSION
+])
 
 dnl Checks for programs.
 AM_PROG_CC_C_O
@@ -48,6 +55,7 @@ AC_PATH_PROG(GZIP,gzip)
 AC_PATH_PROG(SED,gnused)
 AC_PATH_PROG(SED,gsed)
 AC_PATH_PROG(SED,sed)
+AC_PATH_PROG(CUT,cut)
 AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
 AC_PROG_RANLIB
@@ -191,12 +199,12 @@ fi
 
 dnl Optimise Haskell by default and give sufficient space.
 if test -z "$HCFLAGS"; then
-  HCFLAGS=" -O -H180m "
+  HCFLAGS="-O -H180m"
 fi
 
 dnl Check whether to use a local package file.
 AC_ARG_WITH(pkgconf,
-	    [  --with-pkgconf=FILE   GHC package file to install packages],
+	    [  --with-pkgconf=FILE     GHC package file to install packages],
 	    [PKGCONF=$withval;],[PKGCONF=;])
 
 dnl Check for pkg-config which holds information about all Gtk related
@@ -240,6 +248,7 @@ AC_ARG_ENABLE(libglade,
               [ENABLE_LIBGLADE=$enableval],[ENABLE_LIBGLADE=yes])
 
 AC_MSG_RESULT($ENABLE_LIBGLADE)
+AM_CONDITIONAL(ENABLE_LIBGLADE, test x$ENABLE_LIBGLADE = xyes)
 
 dnl Check if user wants the various gnome modules. Defaults to yes.
 AC_MSG_CHECKING([whether to build gnome bindings])
@@ -249,12 +258,17 @@ AC_ARG_ENABLE(gnome,
               [ENABLE_GNOME=$enableval],[ENABLE_GNOME=yes])
 
 AC_MSG_RESULT($ENABLE_GNOME)
+AM_CONDITIONAL(ENABLE_GNOME, test x$ENABLE_GNOME = xyes)
+
+dnl Check if user wants the Mozilla's browser engine widget. Defaults to yes.
+AC_MSG_CHECKING([whether to build mozembed bindings])
 
 AC_ARG_ENABLE(mozilla,
               [  --disable-mozilla       do not generate bindings for the Mozilla display widget],
               [ENABLE_MOZEMBED=$enableval],[ENABLE_MOZEMBED=yes])
 
 AC_MSG_RESULT($ENABLE_MOZEMBED)
+AM_CONDITIONAL(ENABLE_MOZEMBED, test x$ENABLE_MOZEMBED = xyes)
 
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
@@ -277,6 +291,24 @@ dnl Some APIs only appeared in later versions of libraries. Generate only
 dnl Haskell types for the available C types.
 CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.2 && echo gtk-2.2`"
 CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.4 && echo gtk-2.4`"
+CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.6 && echo gtk-2.6`"
+
+dnl Also allow us to conditionally compile binding to the new Gtk+ APIs.
+GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
+GTK_MAJOR_VERSION=`echo $GTK_VERSION | $CUT -d. -f1`
+GTK_MINOR_VERSION=`echo $GTK_VERSION | $CUT -d. -f2`
+GTK_MICRO_VERSION=`echo $GTK_VERSION | $CUT -d. -f3`
+AC_DEFINE_UNQUOTED(GTK_MAJOR_VERSION, ($GTK_MAJOR_VERSION), [Gtk major version number])
+AC_DEFINE_UNQUOTED(GTK_MINOR_VERSION, ($GTK_MINOR_VERSION), [Gtk minor version number])
+AC_DEFINE_UNQUOTED(GTK_MICRO_VERSION, ($GTK_MICRO_VERSION), [Gtk minor patch level])
+AH_BOTTOM([
+/* Allow code to be compiled differently for different versions of GTK+ */
+#define GTK_CHECK_VERSION(major,minor,micro)    \
+    (GTK_MAJOR_VERSION > (major) || \
+     (GTK_MAJOR_VERSION == (major) && GTK_MINOR_VERSION > (minor)) || \
+     (GTK_MAJOR_VERSION == (major) && GTK_MINOR_VERSION == (minor) && \
+      GTK_MICRO_VERSION >= (micro)))
+])
 
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
@@ -340,7 +372,7 @@ AC_SUBST(MOZEMBED_LIBDIR_CQ)
 AC_SUBST(MOZEMBED_LIBEXTRA_CQ)
 
 AC_ARG_WITH(hidir,
-	[  --with-hidir=DIR		specify install dir for .hi files],
+	[  --with-hidir=DIR        specify install dir for .hi files],
 	[hidir=$withval],
 	[hidir=$libdir/hi])
 AC_SUBST(hidir)
@@ -487,17 +519,8 @@ AC_SUBST(HSCFLAGS)
 AC_SUBST(C2HSFLAGS)
 AC_SUBST(EXTRA_HFILES)
 dnl Versionitis
-dnl AC_SUBST(GTK_MAJOR_VERSION)
-dnl AC_SUBST(GTK_MINOR_VERSION)
-dnl AC_SUBST(GTK_MICRO_VERSION)
-AC_SUBST(GTK_VERSION_2_2)
-AC_SUBST(GTK_VERSION_2_4)
-AC_SUBST(DISABLE_DEPRECATED)
 AC_SUBST(CREATE_TYPES)
 dnl Optional packages
-dnl AC_SUBST(ENABLE_OPENGL)
-AC_SUBST(ENABLE_LIBGLADE)
-AC_SUBST(ENABLE_GNOME)
 AC_SUBST(SOURCEVIEW_CFLAGS)
 AC_SUBST(SOURCEVIEW_LIBS)
 AC_SUBST(LIBGLADE_CFLAGS)

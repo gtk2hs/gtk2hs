@@ -1,3 +1,29 @@
+2004-12-19 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.ac: add support for conditionals in Makefile.am so that
+	--disable-gnome, --disable-libglade will work again.
+	Instead of doing #include<gtk/gtkversion.h> in config.h just define the
+	GTK_CHECK_VERSION in config.h. It's a simple macro and it means that
+	now config.h does not depend on any -I include paths so can be used in
+	any module. Also added hack to stop warnings about PACKAGE_* variables
+	clashing with the ones from ghc's version of config.h.
+
+	* gtk/treeList/TreeView.chs.pp: do not #include<gtk/gtkversion.h>,
+	the GTK_CHECK_VERSION macro is now defined in config.h
+
+	* mk/common.mk: include config.h when building .precomp files since
+	config.h has the *_DISABLE_DEPRECATED #defines which modify the gtk
+	headers. Also, use a per-library search path. Possibly controversial,
+	revert it if you don't like the idea.
+
+	* Makefile.am: Use per-library / per-program search paths. Make the
+	glade, gconf, sourceview and mozembed packages build conditionally on
+	ENABLE_* variables set by ./configure --disable-*. Also, ditch the use
+	of BUILDSOURCES, having re-read the automake manual I concluded it's
+	not helpful.
+
+	* tools/callbackGen/HookGenerator.hs: remove support for pre-5.04 ghc.
+
 2004-12-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/toplevel/Main.hs: remove performance debuging output when
