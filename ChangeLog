@@ -1,3 +1,9 @@
+2002-07-19  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/windows/Window.chs: added deprecated windowSetPolicy method
+	and found out that windowGetResizable and windowSetResizable were
+	missing, so I added them as well.
+
 2002-07-18  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/treeList/CellRendererText.chs: changed the attribute types

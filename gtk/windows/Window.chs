@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/19 09:09:31 $
 --
 --  Copyright (c) 2001 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -35,6 +35,8 @@ module Window(
   castToWindow,
   windowNew,
   windowSetTitle,
+  windowSetResizable,
+  windowGetResizable,
 --  windowAddAccelGroup, 
 --  windowRemoveAccelGroup,
   windowActivateFocus,
@@ -42,6 +44,7 @@ module Window(
   windowSetModal,
   windowSetDefaultSize,
 --  windowSetGeometryHints,
+  windowSetPolicy,
   windowSetPosition,
   WindowPosition(..),
   windowSetTransientFor,
@@ -92,6 +95,21 @@ windowSetTitle :: WindowClass w => w -> String -> IO ()
 windowSetTitle w str = 
   withCString str ({#call window_set_title#} (toWindow w))
 
+-- @method windowSetResizable@ Sets whether the user can resize a window.
+--
+-- * Windows are user resizable by default.
+--
+windowSetResizable :: WindowClass w => w -> Bool -> IO ()
+windowSetResizable w res = 
+  {#call window_set_resizable#} (toWindow w) (fromBool res)
+
+-- @method windowGetResizable@ Retrieve the value set by
+-- @ref method windowSetResizable@.
+--
+windowGetResizable :: WindowClass w => w -> IO Bool
+windowGetResizable w = liftM toBool $ 
+  {#call unsafe window_get_resizable#} (toWindow w)
+
 -- @method windowActivateFocus@ dunno
 --
 windowActivateFocus :: WindowClass w => w -> IO Bool
@@ -104,6 +122,13 @@ windowActivateDefault :: WindowClass w => w -> IO Bool
 windowActivateDefault w = 
   liftM toBool $ {#call window_activate_default#} (toWindow w)
 
+{-# DEPRECATED windowSetPolicy "Use windowSetResizable instead." #-}
+-- windowSetPolicy: set the window policy
+--
+windowSetPolicy :: WindowClass w => w -> Bool -> Bool -> Bool -> IO ()
+windowSetPolicy w shrink grow auto = {#call window_set_policy#} 
+  (toWindow w) (fromBool shrink) (fromBool grow) (fromBool auto)
+
 -- @method windowSetModal@ make a window application modal
 --
 windowSetModal :: WindowClass w => w -> Bool -> IO ()
@@ -114,8 +139,9 @@ windowSetModal w m = {#call window_set_modal#} (toWindow w) (fromBool m)
 -- * Sets the default size of a window. If the window's "natural" size (its
 --   size request) is larger than the default, the default will be ignored.
 --   More generally, if the default size does not obey the geometry hints for
---   the window (@windowSetGeometryHints can be used to set these explicitly),
---   the default size will be clamped to the nearest permitted size.
+--   the window (@method windowSetGeometryHints@ can be used to set these
+--   explicitly), the default size will be clamped to the nearest permitted
+--   size.
 --
 -- * Unlike @ref arg widgetSetSizeRequest@, which sets a size request for a
 --   widget and thus would keep users from shrinking the window, this function
