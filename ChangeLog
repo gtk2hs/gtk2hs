@@ -37,11 +37,14 @@
 	gtk/selectors/FontSelectionDialog.chs, gtk/layout/Fixed.chs,
 	gtk/misc/SizeGroup.chs, gtk/menuComboToolbar/ToolItem.chs: new modules
 
-	* gtk/selectors/api.ignore: new api.ignore file
+	* gtk/selectors/api.ignore: new file, mark deprecated functions.
 
 	* gtk/Makefile: add new directory 'selectors' to SUBDIRS.
 
 	* gtk/general/Gtk.hs: export new modules
+
+	* demo/profileviewer/Makefile, demo/profileviewer/ProfileViewer.hs: fix
+	bug in demo and rename executable to be consistent.
 
 2004-08-1  Duncan Coutts <duncan@coutts.uklinux.net>
 

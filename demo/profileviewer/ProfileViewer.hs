@@ -150,9 +150,11 @@ openFileDialog parentWindow = do
 	      [("gtk-cancel", ResponseCancel)
 	      ,("gtk-open", ResponseAccept)]
   widgetShow dialog
-  dialogRun dialog
+  response <- dialogRun dialog
   widgetHide dialog
-  fileChooserGetFilename dialog
+  case response of
+      ResponseAccept -> fileChooserGetFilename dialog
+      _ -> return Nothing
  
 -- just to display a number using thousand seperators
 -- eg "3,456,235,596"
