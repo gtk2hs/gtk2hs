@@ -39,7 +39,7 @@ The configure script has several useful options, particularly:
 --with-c2hs=yes
   Search for a c2hs installation in the current PATH.
 
---with-c2hs=<patch to your c2hs-config>
+--with-c2hs=<path to your c2hs-config>
   Use this specific installation of c2hs. Make sure you specify the c2hs-config
   program, not c2hs itself.
 
