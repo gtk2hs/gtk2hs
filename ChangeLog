@@ -55,6 +55,9 @@
 	* configure.ac: change the gconf flags so that they inherit from glib
 	rather than gtk.
 
+	* tools/callbackGen/gtkmarshal.list: remove the marhsaler that was
+	only needed by gconf.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for

@@ -103,7 +103,5 @@ VOID:BOXED,POINTER,INT
 VOID:INT,BOOLEAN
 # This is for the "edited" signal in CellRendererText:
 VOID:POINTER,STRING
-# This is for the GConfClient value_changed signal
-VOID:STRING,POINTER
 # This is for GtkMozEmbed
 BOOLEAN:STRING
