@@ -1,6 +1,6 @@
 module Main (Main.main) where
 
-import Gtk
+import Graphics.UI.Gtk
 
 -- If you return False in the "delete_event" signal handler, GTK will
 -- emit the "destroy" signal.  

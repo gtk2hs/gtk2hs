@@ -1,3 +1,11 @@
+2005-01-12 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/hello/World.hs: update to work with the new module names.
+
+	* demo/hello/Makefile: a simple makefile. The old makefile relied on
+	the old build system. This makefile will not build in-place it
+	requires everything to be installed.
+
 2005-01-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/glib.pkg.in, gtk/gtk.pkg.in, mogul/mogul.pkg.in,

@@ -1,11 +1,6 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+helloworld : World.hs
+	ghc --make $< -o $@
 
-MAIN = World.hs
-
-APPNAME = helloWorld
-
-NEEDPACKAGES = gtk2
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f World.hi World.o helloworld
