@@ -51,6 +51,7 @@
                                 GtkCheckMenuItem
                                     GtkRadioMenuItem
                                 GtkTearoffMenuItem
+                                GtkImageMenuItem
                             GtkListItem
 #			    GtkTreeItem
                         GtkWindow

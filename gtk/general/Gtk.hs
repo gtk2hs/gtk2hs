@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.7 $ from $Date: 2002/08/13 12:06:07 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -99,6 +99,7 @@ module Gtk(
   module MenuItem,
   module MenuShell,
   module OptionMenu,
+  module ImageMenuItem,
   module RadioMenuItem,
   module TearoffMenuItem,
   module Toolbar,
@@ -212,7 +213,7 @@ import MenuBar
 import MenuItem
 import MenuShell
 import OptionMenu
---import ImageMenuItem
+import ImageMenuItem
 import RadioMenuItem
 import CheckMenuItem
 import TearoffMenuItem

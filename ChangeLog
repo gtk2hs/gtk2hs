@@ -1,3 +1,15 @@
+2002-08-13  Axel Simon <A.Simon@ukc.ac.uk> on behalf of 
+	    Jonas Svensson <d99josve@dtek.chalmers.se>
+	
+        * gtk/Makefile: Added ImageMenuItem to list of moduels
+
+        * gtk/typehier/hierarchy.list: Added GtkImageMenuItem
+ 
+        * gtk/general/Gtk.hs: Now imports and exports ImageMenuItem
+
+        * gtk/menuComboToolbar/ImageMenuItem.chs: Implementation of
+          the GtkImageMenuItem widget.
+	
 2002-08-12  Axel Simon <A.Simon@ukc.ac.uk>
 	* gtk/multiline/TextView.chs: Added SetEditable, GetEditable,
 	SetCursorVisible, GetCursorVisible which was a patch from Jonas

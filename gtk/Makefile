@@ -77,6 +77,7 @@ MenuShell-HEADER	= gtk/gtkmenushell.h
 MenuBar-HEADER		= gtk/gtkmenubar.h
 Menu-HEADER		= gtk/gtkmenu.h
 MenuItem-HEADER		= gtk/gtkmenuitem.h
+ImageMenuItem-HEADER	= gtk/gtkimagemenuitem.h
 RadioMenuItem-HEADER	= gtk/gtkradiomenuitem.h
 OptionMenu-HEADER	= gtk/gtkoptionmenu.h
 TearoffMenuItem-HEADER	= gtk/gtktearoffmenuitem.h
