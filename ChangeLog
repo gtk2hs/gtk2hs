@@ -3,6 +3,7 @@
 	* gtk/Graphics/UI/Gtk/Misc/Adjustment.chs,
 	gtk/Graphics/UI/Gtk/Misc/Arrow.chs,
 	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs,
 	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp,
 	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs,
 	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs,

@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/16 02:32:27 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget for custom user interface elements.
+-- A widget for custom user interface elements
 --
 module Graphics.UI.Gtk.Misc.DrawingArea (
--- * Description
+-- * Detail
 -- 
 -- | The 'DrawingArea' widget is used for creating custom user interface
 -- elements. It's essentially a blank widget; you can draw on
@@ -99,8 +99,9 @@ import Graphics.UI.Gtk.General.Structs	(drawingAreaGetDrawWindow, drawingAreaGet
 --------------------
 -- Constructors
 
--- | Create a new custom widget.
+-- | Creates a new drawing area.
 --
 drawingAreaNew :: IO DrawingArea
-drawingAreaNew = makeNewObject mkDrawingArea $ 
-  liftM castPtr {#call unsafe drawing_area_new#}
+drawingAreaNew =
+  makeNewObject mkDrawingArea $ liftM castPtr $
+  {# call unsafe drawing_area_new #}
