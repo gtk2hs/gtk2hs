@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.7 $ from $Date: 2005/03/27 12:51:38 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -29,13 +29,12 @@
 --	widgetModifyStyle, widgetGetModifierStyle, widgetModifyFg,
 --	widgetModifyBG, widgetModifyText, widgetModifyBase, widgetModifyFont,
 --	widgetPango*, widgetSetAdjustments
---	
 --
 -- implement the following methods in GtkWindow object:
 --      widget_set_uposition, widget_set_usize
 --
 -- implement the following methods in GtkDrawingArea object:
---      widgetQueueDrawArea, widgetSetDoubleBufferd, widgetRegionIntersect
+--      widgetRegionIntersect
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -108,6 +107,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   TextDirection(..),
   widgetSetDirection,		-- General Setup.
   widgetGetDirection,
+  widgetQueueDrawArea,
+  widgetSetDoubleBuffered,
+  widgetSetRedrawOnAllocate,
 
 -- * Properties
   widgetExtensionEvents,
@@ -206,199 +208,422 @@ import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..))
 --------------------
 -- Methods
 
--- | Queue a show request.
+-- | Flags a widget to be displayed. Any widget that isn't shown will not
+-- appear on the screen. If you want to show all the widgets in a container,
+-- it's easier to call 'widgetShowAll' on the container, instead of
+-- individually showing the widgets.
 --
--- * Flags a widget to be displayed. Any widget that isn't shown will not
---   appear on the screen. If you want to show all the widgets in a container,
---   it's easier to call 'widgetShowAll' on the container, instead
---   of individually showing the widgets. Note that you have to show the
---   containers containing a widget, in addition to the widget itself, before
---   it will appear onscreen. When a toplevel container is shown, it is
---   immediately realized and mapped; other shown widgets are realized and
---   mapped when their toplevel container is realized and mapped.
+-- Remember that you have to show the containers containing a widget, in
+-- addition to the widget itself, before it will appear onscreen.
 --
-widgetShow :: WidgetClass w => w -> IO ()
-widgetShow  = {#call widget_show#}.toWidget
+-- When a toplevel container is shown, it is immediately realized and
+-- mapped; other shown widgets are realized and mapped when their toplevel
+-- container is realized and mapped.
+--
+widgetShow :: WidgetClass self => self -> IO ()
+widgetShow self =
+  {# call widget_show #}
+    (toWidget self)
 
--- | Queue a show event and wait for it to be executed.
+-- | Shows a widget. If the widget is an unmapped toplevel widget (i.e. a
+-- 'Window' that has not yet been shown), enter the main loop and wait for the
+-- window to actually be mapped. Be careful; because the main loop is running,
+-- anything can happen during this function.
 --
--- * If the widget is an unmapped toplevel widget (i.e. a 'Window'
---   that has not yet been shown), enter the main loop and wait for the window
---   to actually be mapped. Be careful; because the main loop is running,
---   anything can happen during this function.
---
-widgetShowNow :: WidgetClass w => w -> IO ()
-widgetShowNow  = {#call widget_show_now#}.toWidget
+widgetShowNow :: WidgetClass self => self -> IO ()
+widgetShowNow self =
+  {# call widget_show_now #}
+    (toWidget self)
 
--- | Queue a hide request.
+-- | Reverses the effects of 'widgetShow', causing the widget to be hidden
+-- (invisible to the user).
 --
--- * Reverses the effects of 'widgetShow', causing the widget to be
---   hidden (make invisible to the user).
---
-widgetHide :: WidgetClass w => w -> IO ()
-widgetHide  = {#call widget_hide#}.toWidget
+widgetHide :: WidgetClass self => self -> IO ()
+widgetHide self =
+  {# call widget_hide #}
+    (toWidget self)
 
--- | Show this and all child widgets.
+-- | Recursively shows a widget, and any child widgets (if the widget is a
+-- container).
 --
-widgetShowAll :: WidgetClass w => w -> IO ()
-widgetShowAll  = {#call widget_show_all#}.toWidget
+widgetShowAll :: WidgetClass self => self -> IO ()
+widgetShowAll self =
+  {# call widget_show_all #}
+    (toWidget self)
 
--- | Hide this and all child widgets.
+-- | Recursively hides a widget and any child widgets.
 --
-widgetHideAll :: WidgetClass w => w -> IO ()
-widgetHideAll  = {#call widget_hide_all#}.toWidget
+widgetHideAll :: WidgetClass self => self -> IO ()
+widgetHideAll self =
+  {# call widget_hide_all #}
+    (toWidget self)
 
--- | Destroy a widget.
+-- | Destroys a widget. Equivalent to 'objectDestroy'.
 --
--- * The 'widgetDestroy' function is used to shutdown an object,
---   i.e. a widget will be removed from the screen and unrealized. Resources
---   will be freed when all references are released.
+-- When a widget is destroyed it will be removed from the screen and
+-- unrealized. When a widget is destroyed, it will break any references it
+-- holds to other objects.If the widget is inside a container, the widget will
+-- be removed from the container. The widget will be garbage collected
+-- (finalized) time after your last reference to the widget dissapears.
 --
-widgetDestroy :: WidgetClass obj => obj -> IO ()
-widgetDestroy  = {#call widget_destroy#}.toWidget
+-- In most cases, only toplevel widgets (windows) require explicit
+-- destruction, because when you destroy a toplevel its children will be
+-- destroyed as well.
+--
+widgetDestroy :: WidgetClass self => self -> IO ()
+widgetDestroy self =
+  {# call widget_destroy #}
+    (toWidget self)
 
 -- Functions to be used with DrawingArea.
 
 -- | Prepare text for display.
 --
--- * The 'Layout' represents the rendered text. It can be shown on
---   screen by calling 'drawLayout'.
+-- The 'PangoLayout' represents the rendered text. It can be shown on screen
+-- by calling 'drawLayout'.
 --
--- * The returned 'Layout' shares the same font information
---   ('Context') as this widget. If this information changes,
---   the 'Layout' should change. The following code ensures that
---   the displayed text always reflects the widget's settings:
---   
+-- The returned 'Layout' shares the same font information ('Context') as this
+-- widget. If this information changes, the 'Layout' should change. The
+-- following code ensures that the displayed text always reflects the widget's
+-- settings:
+--
 -- > l <- widgetCreateLayout w "My Text."
 -- > let update = do
 -- >                layoutContextChanged l
--- > 		    <update the Drawables which show this layout>
+-- > 		    -- update the Drawables which show this layout
 -- > w `onDirectionChanged` update
 -- > w `onStyleChanged` update
 --
-widgetCreateLayout :: WidgetClass obj => obj -> String -> IO PangoLayout
-widgetCreateLayout obj txt = withUTFString txt $
-  \strPtr -> makeNewGObject mkPangoLayout
-    ({#call unsafe widget_create_pango_layout#} (toWidget obj) strPtr)
-  
--- | Send a redraw request to a widget.
---
-widgetQueueDraw :: WidgetClass w => w -> IO ()
-widgetQueueDraw  = {#call widget_queue_draw#}.toWidget
+widgetCreateLayout :: WidgetClass self => self
+ -> String    -- ^ @text@ - text to set on the layout
+ -> IO PangoLayout
+widgetCreateLayout self text =
+  makeNewGObject mkPangoLayout $
+  withUTFString text $ \textPtr ->
+  {# call unsafe widget_create_pango_layout #}
+    (toWidget self)
+    textPtr
 
--- | Check if the widget intersects with a given
--- area.
+-- | Send a redraw request to a widget. Equivalent to calling
+-- 'widgetQueueDrawArea' for the entire area of a widget.
 --
-widgetHasIntersection :: WidgetClass w => w -> Rectangle -> IO Bool
-widgetHasIntersection w r = 
+widgetQueueDraw :: WidgetClass self => self -> IO ()
+widgetQueueDraw self =
+  {# call widget_queue_draw #}
+    (toWidget self)
+
+-- | Check if the widget intersects with a given area.
+--
+widgetHasIntersection :: WidgetClass self => self
+ -> Rectangle -- ^ @area@ - a rectangle
+ -> IO Bool   -- ^ returns @True@ if there was an intersection
+widgetHasIntersection self area = 
   liftM toBool $
-  withObject r $ \r' ->
-  {#call unsafe widget_intersect#} (toWidget w) (castPtr r') (castPtr nullPtr)
+  withObject area $ \areaPtr ->
+  {# call unsafe widget_intersect #}
+    (toWidget self)
+    (castPtr areaPtr)
+    (castPtr nullPtr)
 
 -- Manipulate widget state.
 
--- | Activate the widget (e.g. clicking a button).
+-- | For widgets that can be \"activated\" (buttons, menu items, etc.) this
+-- function activates them. Activation is what happens when you press Enter on
+-- a widget during key navigation. If @widget@ isn't activatable, the function
+-- returns @False@.
 --
-widgetActivate :: WidgetClass w => w -> IO Bool
-widgetActivate w = liftM toBool $ {#call widget_activate#} (toWidget w)
+widgetActivate :: WidgetClass self => self
+ -> IO Bool -- ^ returns @True@ if the widget was activatable
+widgetActivate self =
+  liftM toBool $
+  {# call widget_activate #}
+    (toWidget self)
 
--- | Set the widgets sensitivity (Grayed or
--- Usable).
+-- | Sets the sensitivity of a widget. A widget is sensitive if the user can
+-- interact with it. Insensitive widgets are \"grayed out\" and the user can't
+-- interact with them. Insensitive widgets are known as \"inactive\",
+-- \"disabled\", or \"ghosted\" in some other toolkits.
 --
-widgetSetSensitivity :: WidgetClass w => w -> Bool -> IO ()
-widgetSetSensitivity w b = 
-  {#call widget_set_sensitive#} (toWidget w) (fromBool b)
+widgetSetSensitivity :: WidgetClass self => self
+ -> Bool  -- ^ @sensitive@ - @True@ to make the widget sensitive
+ -> IO ()
+widgetSetSensitivity self sensitive =
+  {# call widget_set_sensitive #}
+    (toWidget self)
+    (fromBool sensitive)
 
--- | Sets the minimum size of a widget.
+-- | Sets the minimum size of a widget; that is, the widget's size request
+-- will be @width@ by @height@. You can use this function to force a widget to
+-- be either larger or smaller than it normally would be.
 --
-widgetSetSizeRequest :: WidgetClass w => w -> Int -> Int -> IO ()
-widgetSetSizeRequest w width height =
-  {#call widget_set_size_request#} (toWidget w) (fromIntegral width) (fromIntegral height)
-
--- | Set and query the input focus of a widget.
+-- In most cases, 'windowSetDefaultSize' is a better choice for toplevel
+-- windows than this function; setting the default size will still allow users
+-- to shrink the window. Setting the size request will force them to leave the
+-- window at least as large as the size request. When dealing with window
+-- sizes, 'windowSetGeometryHints' can be a useful function as well.
 --
-widgetIsFocus :: WidgetClass w => w -> IO Bool
-widgetIsFocus w = liftM toBool $ 
-  {#call unsafe widget_is_focus#} (toWidget w)
+-- Note the inherent danger of setting any fixed size - themes, translations
+-- into other languages, different fonts, and user action can all change the
+-- appropriate size for a given widget. So, it's basically impossible to
+-- hardcode a size that will always be correct.
+--
+-- The size request of a widget is the smallest size a widget can accept
+-- while still functioning well and drawing itself correctly. However in some
+-- strange cases a widget may be allocated less than its requested size, and in
+-- many cases a widget may be allocated more space than it requested.
+--
+-- If the size request in a given direction is -1 (unset), then the
+-- \"natural\" size request of the widget will be used instead.
+--
+-- Widgets can't actually be allocated a size less than 1 by 1, but you can
+-- pass 0,0 to this function to mean \"as small as possible.\"
+--
+widgetSetSizeRequest :: WidgetClass self => self
+ -> Int   -- ^ @width@ - width @widget@ should request, or -1 to unset
+ -> Int   -- ^ @height@ - height @widget@ should request, or -1 to unset
+ -> IO ()
+widgetSetSizeRequest self width height =
+  {# call widget_set_size_request #}
+    (toWidget self)
+    (fromIntegral width)
+    (fromIntegral height)
 
-widgetGrabFocus :: WidgetClass w => w -> IO ()
-widgetGrabFocus = {#call widget_grab_focus#}.toWidget
+-- | Determines if the widget is the focus widget within its toplevel.
+--
+widgetIsFocus :: WidgetClass self => self
+ -> IO Bool -- ^ returns @True@ if the widget is the focus widget.
+widgetIsFocus self =
+  liftM toBool $
+  {# call unsafe widget_is_focus #}
+    (toWidget self)
+
+-- | Causes the widget to have the keyboard focus for the 'Window' it's inside.
+-- The widget must be a focusable widget, such as a 'Entry'; something like
+-- 'Frame' won't work. (More precisely, it must have the 'CanFocus' flag set.)
+--
+widgetGrabFocus :: WidgetClass self => self -> IO ()
+widgetGrabFocus self =
+  {# call widget_grab_focus #}
+    (toWidget self)
 
 -- | Sets some weired flag in the widget.
 --
-widgetSetAppPaintable :: WidgetClass w => w -> Bool -> IO ()
-widgetSetAppPaintable w p = 
-  {#call widget_set_app_paintable#} (toWidget w) (fromBool p)
+widgetSetAppPaintable :: WidgetClass self => self
+ -> Bool  -- ^ @appPaintable@ -
+ -> IO ()
+widgetSetAppPaintable self appPaintable =
+  {# call widget_set_app_paintable #}
+    (toWidget self)
+    (fromBool appPaintable)
 
--- | Set the name of a widget.
+-- | Widgets can be named, which allows you to refer to them from a gtkrc
+-- file. You can apply a style to widgets with a particular name in the gtkrc
+-- file. See the documentation for gtkrc files.
 --
-widgetSetName :: WidgetClass w => w -> String -> IO ()
-widgetSetName w name = 
-  withUTFString name ({#call widget_set_name#} (toWidget w))
+-- Note that widget names are separated by periods in paths (see
+-- 'widgetPath'), so names with embedded periods may cause confusion.
+--
+widgetSetName :: WidgetClass self => self
+ -> String -- ^ @name@ - name for the widget
+ -> IO ()
+widgetSetName self name =
+  withUTFString name $ \namePtr ->
+  {# call widget_set_name #}
+    (toWidget self)
+    namePtr
 
--- | Get the name of a widget.
+-- | Retrieves the name of a widget. See 'widgetSetName' for the significance
+-- of widget names.
 --
-widgetGetName :: WidgetClass w => w -> IO String
-widgetGetName w = {#call unsafe widget_get_name#} (toWidget w) >>= 
-		  peekUTFString
+widgetGetName :: WidgetClass self => self
+ -> IO String
+widgetGetName self =
+  {# call unsafe widget_get_name #}
+    (toWidget self)
+  >>= peekUTFString
 
 -- | Enable event signals.
 --
-widgetAddEvents :: WidgetClass w => w -> [EventMask] -> IO ()
-widgetAddEvents w em = 
-  {#call widget_add_events#} (toWidget w) (fromIntegral $ fromFlags em)
+widgetAddEvents :: WidgetClass self => self -> [EventMask] -> IO ()
+widgetAddEvents self events =
+  {# call widget_add_events #}
+    (toWidget self)
+    (fromIntegral $ fromFlags events)
 
--- | Get enabled event signals.
+-- | Get enabled event signals. These are the events that the widget will
+-- receive.
 --
-widgetGetEvents :: WidgetClass w => w -> IO [EventMask]
-widgetGetEvents w = liftM (toFlags.fromIntegral) $ 
-  {#call unsafe widget_get_events#} (toWidget w)
+widgetGetEvents :: WidgetClass self => self -> IO [EventMask]
+widgetGetEvents self =
+  liftM (toFlags . fromIntegral) $
+  {# call unsafe widget_get_events #}
+    (toWidget self)
 
--- | Set extension events.
+-- | Sets the extension events.
 --
-widgetSetExtensionEvents :: WidgetClass w => w -> [ExtensionMode] -> IO ()
-widgetSetExtensionEvents w em = 
-  {#call widget_set_extension_events#} (toWidget w) 
-    (fromIntegral $ fromFlags em)
+widgetSetExtensionEvents :: WidgetClass self => self
+ -> [ExtensionMode]
+ -> IO ()
+widgetSetExtensionEvents self mode =
+  {# call widget_set_extension_events #}
+    (toWidget self)
+    ((fromIntegral . fromFlags) mode)
 
--- | Get extension events.
+-- | Retrieves the extension events the widget will receive; see
+-- 'inputSetExtensionEvents'.
 --
-widgetGetExtensionEvents :: WidgetClass w => w -> IO [ExtensionMode]
-widgetGetExtensionEvents w = liftM (toFlags.fromIntegral) $ 
-  {#call widget_get_extension_events#} (toWidget w)
+widgetGetExtensionEvents :: WidgetClass self => self
+ -> IO [ExtensionMode]
+widgetGetExtensionEvents self =
+  liftM (toFlags . fromIntegral) $
+  {# call widget_get_extension_events #}
+    (toWidget self)
 
 -- Widget browsing.
 
--- | Retrieves the topmost widget in this tree.
+-- | This function returns the topmost widget in the container hierarchy
+-- @widget@ is a part of. If @widget@ has no parent widgets, it will be
+-- returned as the topmost widget.
 --
-widgetGetToplevel :: WidgetClass w => w -> IO Widget
-widgetGetToplevel w = makeNewObject mkWidget $
-  {#call unsafe widget_get_toplevel#} (toWidget w)
+widgetGetToplevel :: WidgetClass self => 
+    self      -- ^ @widget@ - the widget in question
+ -> IO Widget -- ^ returns the topmost ancestor of @widget@, or @widget@
+              -- itself if there's no ancestor.
+widgetGetToplevel self =
+  makeNewObject mkWidget $
+  {# call unsafe widget_get_toplevel #}
+    (toWidget self)
 
--- | Return True if the second widget is (possibly
--- indirectly) held by the first.
+-- | Determines whether @widget@ is somewhere inside @ancestor@, possibly with
+-- intermediate containers.
 --
-widgetIsAncestor :: (WidgetClass w, WidgetClass anc) => anc -> w -> IO Bool
-widgetIsAncestor anc w = liftM toBool $  
- {#call unsafe widget_is_ancestor#} (toWidget w) (toWidget anc)
+widgetIsAncestor :: (WidgetClass self, WidgetClass ancestor) =>
+    self     -- ^ @widget@ - the widget in question
+ -> ancestor -- ^ @ancestor@ - another 'Widget'
+ -> IO Bool  -- ^ returns @True@ if @ancestor@ contains @widget@ as a child,
+             -- grandchild, great grandchild, etc.
+widgetIsAncestor self ancestor =
+  liftM toBool $
+  {# call unsafe widget_is_ancestor #}
+    (toWidget self)
+    (toWidget ancestor)
 
--- | Move a widget to a new parent.
+-- | Moves a widget from one 'Container' to another.
 --
-widgetReparent :: (WidgetClass w, WidgetClass par) => w -> par -> IO ()
-widgetReparent w par = 
-  {#call widget_reparent#} (toWidget w) (toWidget par)
+widgetReparent :: (WidgetClass self, WidgetClass newParent) => self
+ -> newParent -- ^ @newParent@ - a 'Container' to move the widget into
+ -> IO ()
+widgetReparent self newParent =
+  {# call widget_reparent #}
+    (toWidget self)
+    (toWidget newParent)
 
--- | Setting packaging and writing direction.
+-- | Sets the reading direction on a particular widget. This direction
+-- controls the primary direction for widgets containing text, and also the
+-- direction in which the children of a container are packed. The ability to
+-- set the direction is present in order so that correct localization into
+-- languages with right-to-left reading directions can be done. Generally,
+-- applications will let the default reading direction present, except for
+-- containers where the containers are arranged in an order that is explicitely
+-- visual rather than logical (such as buttons for text justification).
 --
-widgetSetDirection :: WidgetClass w => w -> TextDirection -> IO ()
-widgetSetDirection w td = 
-  {#call widget_set_direction#} (toWidget w) ((fromIntegral.fromEnum) td)
+-- If the direction is set to 'TextDirNone', then the value set by
+-- 'widgetSetDefaultDirection' will be used.
+--
+widgetSetDirection :: WidgetClass self => self
+ -> TextDirection
+ -> IO ()
+widgetSetDirection self dir =
+  {# call widget_set_direction #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) dir)
 
--- | Retrieve the default direction of text writing.
+-- | Gets the reading direction for a particular widget. See
+-- 'widgetSetDirection'.
 --
-widgetGetDirection :: WidgetClass w => w -> IO TextDirection
-widgetGetDirection w = liftM (toEnum.fromIntegral) $ 
-  {#call widget_get_direction#} (toWidget w)
+widgetGetDirection :: WidgetClass self => self
+ -> IO TextDirection
+widgetGetDirection self =
+  liftM (toEnum . fromIntegral) $
+  {# call widget_get_direction #}
+    (toWidget self)
+
+-- | Invalidates the rectangular area of @widget@ defined by @x@, @y@, @width@
+-- and @height@ by calling 'windowInvalidateRect' on the widget's window and
+-- all its child windows. Once the main loop becomes idle (after the current
+-- batch of events has been processed, roughly), the window will receive expose
+-- events for the union of all regions that have been invalidated.
+--
+-- Normally you would only use this function in widget implementations. You
+-- might also use it, or 'windowInvalidateRect' directly, to schedule a redraw
+-- of a 'DrawingArea' or some portion thereof.
+--
+-- Frequently you can just call 'windowInvalidateRect' or
+-- 'windowInvalidateRegion' instead of this function. Those functions will
+-- invalidate only a single window, instead of the widget and all its children.
+--
+-- The advantage of adding to the invalidated region compared to simply
+-- drawing immediately is efficiency; using an invalid region ensures that you
+-- only have to redraw one time.
+--
+widgetQueueDrawArea :: WidgetClass self => self
+ -> Int   -- ^ @x@ - x coordinate of upper-left corner of rectangle to redraw
+ -> Int   -- ^ @y@ - y coordinate of upper-left corner of rectangle to redraw
+ -> Int   -- ^ @width@ - width of region to draw
+ -> Int   -- ^ @height@ - height of region to draw
+ -> IO ()
+widgetQueueDrawArea self x y width height =
+  {# call gtk_widget_queue_draw_area #}
+    (toWidget self)
+    (fromIntegral x)
+    (fromIntegral y)
+    (fromIntegral width)
+    (fromIntegral height)
+
+-- | Widgets are double buffered by default; you can use this function to turn
+-- off the buffering. \"Double buffered\" simply means that
+-- 'windowBeginPaintRegion' and 'windowEndPaint' are called automatically
+-- around expose events sent to the widget. 'windowBeginPaint' diverts all
+-- drawing to a widget's window to an offscreen buffer, and 'windowEndPaint'
+-- draws the buffer to the screen. The result is that users see the window
+-- update in one smooth step, and don't see individual graphics primitives
+-- being rendered.
+--
+-- In very simple terms, double buffered widgets don't flicker, so you would
+-- only use this function to turn off double buffering if you had special needs
+-- and really knew what you were doing.
+--
+widgetSetDoubleBuffered :: WidgetClass self => self
+ -> Bool  -- ^ @doubleBuffered@ - @True@ to double-buffer a widget
+ -> IO ()
+widgetSetDoubleBuffered self doubleBuffered =
+  {# call gtk_widget_set_double_buffered #}
+    (toWidget self)
+    (fromBool doubleBuffered)
+
+-- | Sets whether when a widgets size allocation changes, the entire widget
+-- is queued for drawing. By default, this setting is @True@ and the entire
+-- widget is redrawn on every size change. If your widget leaves the upper left
+-- unchanged when made bigger, turning this setting on will improve
+-- performance.
+--
+-- Note that for \"no window\" widgets setting this flag to @False@ turns off
+-- all allocation on resizing: the widget will not even redraw if its position
+-- changes; this is to allow containers that don't draw anything to avoid
+-- excess invalidations. If you set this flag on a \"no window\" widget that
+-- /does/ draw its window, you are responsible for invalidating both
+-- the old and new allocation of the widget when the widget is moved and
+-- responsible for invalidating regions newly when the widget increases size.
+--
+widgetSetRedrawOnAllocate :: WidgetClass self => self
+ -> Bool  -- ^ @redrawOnAllocate@ - if @True@, the entire widget will be
+          -- redrawn when it is allocated to a new size. Otherwise, only the
+          -- new portion of the widget will be redrawn.
+ -> IO ()
+widgetSetRedrawOnAllocate self redrawOnAllocate =
+  {# call gtk_widget_set_redraw_on_allocate #}
+    (toWidget self)
+    (fromBool redrawOnAllocate)
 
 --------------------
 -- Properties

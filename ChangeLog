@@ -1,11 +1,15 @@
 2005-03-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: documentation changes
-	and code formattign changes. Also added a few extra functions and a
+	and code formatting changes. Also added a few extra functions and a
 	couple properties.
 
 	* gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: added bindings for 22
 	extra functions (most of which are probably useful!).
+
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs: documentation changes
+	and code formatting changes. Also added a few extra functions, in
+	particular the ones I needed for my simulation visualiser.
 
 2005-03-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
