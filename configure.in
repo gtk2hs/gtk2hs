@@ -603,7 +603,7 @@ AC_OUTPUT([
   mk/config.mk
   mk/chsDepend
   c2hs/toplevel/C2HSConfig.hs
-],[chmod a+x mk/chsDepend])
+],[chmod a+x mk/chsDepend && chmod a+x install-sh])
 
 dnl ...and chat with the user
 echo "**************************************************"
@@ -625,16 +625,16 @@ if test $BUILDDOCS = no; then
   fi;
   echo "*                                                *"
 fi;
-if test $ENABLE_OPENGL = no; then
-  echo "* Warning: OpenGL support is not available:      *"
-  if test x$FOUNDGLEXT = xno; then
-    echo "*   - the GtkGLExt widget is not installed       *"
-  fi;
-  if test x$FOUNDHOPENGL = xno; then
-    echo "*   - HOpenGL is not installed in the specified  *"
-    echo "*     GHC installation                           *"
-  fi;
-  echo "*                                                *"
-fi;
+dnl if test $ENABLE_OPENGL = no; then
+dnl  echo "* Warning: OpenGL support is not available:      *"
+dnl  if test x$FOUNDGLEXT = xno; then
+dnl    echo "*   - the GtkGLExt widget is not installed       *"
+dnl  fi;
+dnl  if test x$FOUNDHOPENGL = xno; then
+dnl    echo "*   - HOpenGL is not installed in the specified  *"
+dnl    echo "*     GHC installation                           *"
+dnl  fi;
+dnl  echo "*                                                *"
+dnl fi;
 echo "* Now do \"(g)make\" followed by \"(g)make install\" *"
 echo "**************************************************"

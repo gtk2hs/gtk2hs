@@ -1,3 +1,8 @@
+2004-08-11  Axel Simon <A.Simon@kent.ac.uk>
+
+	* configure.in: Make install-sh executable and don't inform about
+	OpenGL status since it doesn't work anyway.
+
 2004-08-10  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.in: require autoconf 2.50 or greater, 2.13 doesn't work.
