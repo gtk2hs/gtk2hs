@@ -38,7 +38,6 @@ module System.Gnome.GConf.GConfValue (
  marshalToGConfValue,
  GConfValue(GConfValue),
  GConfValueDyn(..),
- GConfSchema
  ) where
 
 import Monad (liftM, when)
@@ -51,7 +50,6 @@ import GList (toGSList, readGSList)
 {# enum GConfValueType {underscoreToCase} deriving (Eq, Show) #}
 
 {# pointer *GConfValue newtype #}
-{# pointer *GConfSchema foreign newtype #}
 
 -- | Class of types which can be kept by GConf
 class GConfValueClass value where
@@ -80,7 +78,6 @@ data GConfValueDyn = GConfValueString String
                    | GConfValueInt Int
                    | GConfValueFloat Double
                    | GConfValueBool Bool
-                   | GConfValueSchema GConfSchema
                    | GConfValueList [GConfValueDyn] --must all be of same primitive type
                    | GConfValuePair (GConfValueDyn, GConfValueDyn)  --must both be primitive
 
@@ -148,19 +145,6 @@ instance GConfValueClass String where
       (fromIntegral $ fromEnum GconfValueString)
     withCString s $ \strPtr ->
       {# call unsafe gconf_value_set_string #} value strPtr
-    return value
-
-instance GConfValueClass GConfSchema where
-  typeofGConfValue _ = GconfValueString
-
-  unsafeMarshalFromGConfValue value = do
-    ptr <- {# call unsafe gconf_value_get_schema #} value
-    liftM GConfSchema $ newForeignPtr_ ptr
-
-  marshalToGConfValue s = do
-    value <- {# call unsafe gconf_value_new #}
-      (fromIntegral $ fromEnum GconfValueSchema)
-    {# call unsafe gconf_value_set_schema #} value s
     return value
 
 instance (GConfPrimitiveValueClass a, GConfPrimitiveValueClass b) => GConfValueClass (a,b) where
@@ -322,7 +306,6 @@ instance GConfValueClass GConfValueDyn where
       GconfValueInt    -> liftM GConfValueInt    $ unsafeMarshalFromGConfValue value
       GconfValueFloat  -> liftM GConfValueFloat  $ unsafeMarshalFromGConfValue value
       GconfValueBool   -> liftM GConfValueBool   $ unsafeMarshalFromGConfValue value
-      GconfValueSchema -> liftM GConfValueSchema $ unsafeMarshalFromGConfValue value
       GconfValueList   -> liftM GConfValueList   $ unsafeMarshalGConfValueDynListFromGConfValue value
       GconfValuePair   -> liftM GConfValuePair   $ unsafeMarshalGConfValueDynPairFromGConfValue value
   
@@ -335,7 +318,6 @@ instance GConfValueClass GConfValueDyn where
     (GConfValueInt    v') -> marshalToGConfValue v'
     (GConfValueFloat  v') -> marshalToGConfValue v'
     (GConfValueBool   v') -> marshalToGConfValue v'
-    (GConfValueSchema v') -> marshalToGConfValue v'
     (GConfValueList   v') -> marshalGConfValueDynListToGConfValue v'
     (GConfValuePair   v') -> marshalGConfValueDynPairToGConfValue v'
 
@@ -344,6 +326,5 @@ gconfValueDynGetType (GConfValueString _) = GconfValueString
 gconfValueDynGetType (GConfValueInt    _) = GconfValueInt
 gconfValueDynGetType (GConfValueFloat  _) = GconfValueFloat
 gconfValueDynGetType (GConfValueBool   _) = GconfValueBool
-gconfValueDynGetType (GConfValueSchema _) = GconfValueSchema
 gconfValueDynGetType (GConfValueList   _) = GconfValueList
 gconfValueDynGetType (GConfValuePair   _) = GconfValuePair

@@ -20,6 +20,11 @@
 	* gtk/abstract/ButtonBox.chs, gtk/entry/Entry.chs: make them build with
 	gtk-2.0 & 2.2.
 
+	* gconf/System/Gnome/GConf/GConfValue.chs,
+	gconf/System/Gnome/GConf/GConfClient.chs: remove GConfSchema type. It
+	was never bound properly. This also fixes compatability with ghc 6.0
+	and ghc 5.04.x.
+
 2004-08-5  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/treeList/TreeView.chs, gtk/multiline/TextTag.chs,

@@ -82,12 +82,11 @@ module System.Gnome.GConf.GConfClient (
   GConfPrimitiveValueClass,
   GConfValue,
   GConfValueDyn(..),
-  GConfSchema
   
 ) where
 
 import Monad	(liftM, when)
-import LocalData (newIORef, readIORef, writeIORef)
+import LocalData (newIORef, readIORef, writeIORef, unsafePerformIO)
 import FFI
 {#import Hierarchy#}
 {#import Signal#}
@@ -273,9 +272,6 @@ gconfGetFloat = gconfGet
 gconfGetString :: GConf -> String -> IO String
 gconfGetString = gconfGet
 
-gconfGetSchema :: GConf -> String -> IO GConfSchema
-gconfGetSchema = gconfGet
-
 gconfGetPair :: GConfValueClass (a,b) =>
                 GConf -> String -> IO (a, b)
 gconfGetPair = gconfGet
@@ -309,9 +305,6 @@ gconfSetFloat = gconfSet
 
 gconfSetString :: GConf -> String -> String -> IO ()
 gconfSetString = gconfSet
-
-gconfSetSchema :: GConf -> String -> GConfSchema -> IO ()
-gconfSetSchema = gconfSet
 
 gconfSetPair :: GConfValueClass (a,b) =>
                 GConf -> String -> (a, b) -> IO ()
