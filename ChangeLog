@@ -1,4 +1,18 @@
-2005-01-09 Duncan Coutts <duncan@coutts.uklinux.net>
+2005-01-11 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/glib.pkg.in, gtk/gtk.pkg.in, mogul/mogul.pkg.in,
+	glade/glade.pkg.in, gconf/gconf.pkg.in, sourceview/sourceview.pkg.in,
+	mozembed/mozembed.pkg.in: correct import_dirs. Each module has its own
+	directory under the hi difrectory. Also, since all packages now use
+	the hierachrical module namespace we can install all packages as 'Auto'
+	packages which means that users do not have to specify -package to ghc
+	most of the time.
+
+	* Makefile.am: correct the install location for glib package's .hi
+	files. Correct a linker error caused by a missing _stub.o file.
+	Everything should install correctly now and the demos should build ok.
+
+2005-01-10 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/format-docs.xsl: nicer code and more comprehensively
 	deal with various sorts of paragrahps, lists, sections and examples.

@@ -1,7 +1,7 @@
 Package {
      name            = "sourceview",
-     auto            = False,
-     import_dirs     = ["@hidir@"],
+     auto            = True,
+     import_dirs     = ["@hidir@/sourceview"],
      source_dirs     = [],
      library_dirs    = [@SOURCEVIEW_LIBDIR_CQ@],
      hs_libraries    = ["HSsourceview"],

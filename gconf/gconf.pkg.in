@@ -1,7 +1,7 @@
 Package {
      name            = "gconf",
-     auto            = False,
-     import_dirs     = ["@hidir@"],
+     auto            = True,
+     import_dirs     = ["@hidir@/gconf"],
      source_dirs     = [],
      library_dirs    = [@GCONF_LIBDIR_CQ@],
      hs_libraries    = ["HSgconf"],

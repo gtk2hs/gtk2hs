@@ -1,7 +1,7 @@
 Package {
      name            = "mozembed",
-     auto            = False,
-     import_dirs     = ["@hidir@"],
+     auto            = True,
+     import_dirs     = ["@hidir@/mozembed"],
      source_dirs     = [],
      library_dirs    = [@MOZEMBED_LIBDIR_CQ@],
      hs_libraries    = ["HSmozembed"],

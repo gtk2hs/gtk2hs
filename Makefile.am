@@ -244,6 +244,9 @@ libHSglib_a_SOURCES =	        		\
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
 
+libHSglib_a_LIBADD =	\
+	glib/System/Glib/GObject_stub.o
+
 am_libHSglib_a_OBJECTS = $(libHSglib_a_HSFILES:.hs=.$(OBJEXT))
 
 libHSglib_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglib_a_SOURCES))
@@ -260,7 +263,7 @@ libHSglib_a_HSFILES  = \
 	$(filter %.hs,$(libHSglib_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSglib_a_SOURCES))
 
-nobase_pkglib_SCRIPTS = $(libHSglib_a_HSFILES:.hs=.hi)
+nobase_hi_SCRIPTS = $(libHSglib_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSglib_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.hi)
@@ -473,7 +476,7 @@ libHSgtk_a_HSFILES  = \
 	$(filter %.hs,$(libHSgtk_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgtk_a_SOURCES))
 
-nobase_hi_SCRIPTS = $(libHSgtk_a_HSFILES:.hs=.hi)
+nobase_hi_SCRIPTS += $(libHSgtk_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSgtk_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)

@@ -1,7 +1,7 @@
 Package {
      name            = "mogul",
-     auto            = False,
-     import_dirs     = ["@hidir@"],
+     auto            = True,
+     import_dirs     = ["@hidir@/mogul"],
      source_dirs     = [],
      library_dirs    = [],
      hs_libraries    = ["HSmogul"],
