@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/27 19:42:06 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -97,17 +97,16 @@ module Graphics.UI.Gtk.TreeList.TreeSelection (
   ) where
 
 import Monad	(liftM)
-import Data.IORef (newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.GList                (GList, fromGList, toGList)
+import System.Glib.GObject		(mkFunPtrDestructor)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums    (SelectionMode(..))
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 import Graphics.UI.Gtk.General.Structs	(treeIterSize)
-import Graphics.UI.Gtk.General.General	(mkDestructor)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -140,12 +139,7 @@ treeSelectionSetSelectFunction ts fun = do
     path <- nativeTreePathGetIndices (NativeTreePath (castPtr tp))
     liftM fromBool $ fun path
     )
-  dRef <- newIORef nullFunPtr
-  dPtr <- mkDestructor $ do
-    dPtr <- readIORef dRef
-    freeHaskellFunPtr dPtr
-    freeHaskellFunPtr fPtr
-  writeIORef dRef dPtr
+  dPtr <- mkFunPtrDestructor fPtr
   {#call tree_selection_set_select_function#} (toTreeSelection ts) fPtr 
     nullPtr dPtr
 

@@ -463,12 +463,7 @@ generate bs sig = let ident = mkIdentifier sig in
   indent 4.ss "liftM ".mkMarshRet sig.ss " $".
   indent 5.ss "user".mkFuncArgs sig.
   indent 3.sc ')'.
-  indent 2.ss "dRef <- newIORef nullFunPtr".
-  indent 2.ss "dPtr <- mkDestructor $ do".
-  indent 3.ss "freeHaskellFunPtr hPtr".
-  indent 3.ss "dPtr <- readIORef dRef".
-  indent 3.ss "freeHaskellFunPtr dPtr".
-  indent 2.ss "writeIORef dRef dPtr".
+  indent 2.ss "dPtr <- mkFunPtrDestructor hPtr".
   indent 2.ss "sigId <- withCString signal $ \\nPtr ->".
   indent 3.ss "withForeignPtr ((unGObject.toGObject) obj) $ \\objPtr ->".
   indent 4.ss "{#call unsafe g_signal_connect_data#} (castPtr objPtr)".

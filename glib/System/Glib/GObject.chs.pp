@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 17:46:16 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/27 19:42:06 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -35,8 +35,9 @@ module System.Glib.GObject (
   objectRef,
   objectUnref,
   makeNewGObject,
+  DestroyNotify,
+  mkFunPtrDestructor,
   GWeakNotify,
-  mkDestructor,
   objectWeakref,
   objectWeakunref
   ) where
@@ -84,14 +85,9 @@ foreign import ccall unsafe "&g_object_unref"
 objectUnref :: Ptr a -> FinalizerPtr a
 objectUnref _ = object_unref'
 
-#elif __GLASGOW_HASKELL__>=504
-
-foreign import ccall unsafe "g_object_unref"
-  objectUnref :: Ptr a -> IO ()
-
 #else
 
-foreign import ccall "g_object_unref" unsafe
+foreign import ccall unsafe "g_object_unref"
   objectUnref :: Ptr a -> IO ()
 
 #endif
@@ -109,6 +105,25 @@ makeNewGObject constr generator = do
   objectRef objPtr
   obj <- newForeignPtr objPtr (objectUnref objPtr)
   return $ constr obj
+
+{#pointer GDestroyNotify as DestroyNotify#}
+
+foreign import ccall "wrapper" mkDestroyNotifyPtr :: IO () -> IO DestroyNotify
+
+-- | Many methods in classes derived from GObject take a callback function and
+-- a destructor function which is called to free that callback function when
+-- it is no longer required. This function constructs a DestroyNotify function
+-- pointer which when called from C land will free the given Haskell function
+-- pointer (and itself).
+mkFunPtrDestructor :: FunPtr a -> IO DestroyNotify
+mkFunPtrDestructor hPtr = do
+  dRef <- newIORef nullFunPtr
+  dPtr <- mkDestroyNotifyPtr $ do
+    freeHaskellFunPtr hPtr
+    dPtr <- readIORef dRef
+    freeHaskellFunPtr dPtr
+  writeIORef dRef dPtr
+  return dPtr
 
 {#pointer GWeakNotify#}
 

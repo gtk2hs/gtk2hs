@@ -1,3 +1,25 @@
+2005-02-27 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/GObject.chs.pp: change mkDestructor into
+	mkFunPtrDestructor which is a tad more abstract (hiding the use of
+	IORefs). Also this reduces the amount of code in client modules.
+
+	* gtk/Graphics/UI/Gtk/General/General.chs: change use of mkDestructor
+	to mkFunPtrDestructor and no longer export mkDestructor.
+
+	* gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp: change use of
+	mkDestructor to mkFunPtrDestructor.
+
+	* tools/callbackGen/Signal.chs-boot2: Following	the same pattern for
+	GClosureNotify as for GDestroyNotify above define a local copy of
+	mkFunPtrDestructor for use in signal connection	functions.
+
+	* tools/callbackGen/HookGenerator.hs: change use of mkDestructor to
+	mkFunPtrDestructor following the same pattern as before. This reduces
+	code duplication a bit (saves about 350 lines of code).
+
 2005-02-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/Signal.chs-boot1: add #hide Haddock annotation so

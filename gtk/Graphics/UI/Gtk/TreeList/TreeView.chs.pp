@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.7 $ from $Date: 2005/02/27 19:42:06 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -166,15 +166,13 @@ module Graphics.UI.Gtk.TreeList.TreeView (
 
 import Monad	(liftM, mapM)
 import Maybe	(fromMaybe)
-import Data.IORef (newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import Graphics.UI.Gtk.General.General	(mkDestructor)
-import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
-import System.Glib.GObject		(makeNewGObject)
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GList		(GList, fromGList)
+import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
+import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
+import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
@@ -811,12 +809,7 @@ treeViewSetSearchEqualFunc tv pred = do
     key <- peekUTFString keyPtr
     iter <- createTreeIter itPtr
     liftM fromBool $ pred (fromIntegral col) key iter)
-  dRef <- newIORef nullFunPtr
-  dPtr <- mkDestructor $ do
-    dPtr <- readIORef dRef
-    freeHaskellFunPtr dPtr
-    freeHaskellFunPtr fPtr
-  writeIORef dRef dPtr
+  dPtr <- mkFunPtrDestructor fPtr
   {#call tree_view_set_search_equal_func#} (toTreeView tv) fPtr 
     nullPtr dPtr
 

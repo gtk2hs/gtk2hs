@@ -9,7 +9,7 @@ import Data.IORef
 
 import System.Glib.FFI
 import System.Glib.GError   (failOnGError)
-{#import System.Glib.GObject#} hiding (mkDestructor)
+{#import System.Glib.GObject#} hiding (mkFunPtrDestructor)
 
 {#context lib="gtk" prefix="gtk" #}
 
@@ -26,6 +26,16 @@ data GObjectClass o => ConnectId o = ConnectID {#type gulong#} o
 {#pointer GClosureNotify#}
 
 foreign import ccall "wrapper" mkDestructor :: IO () -> IO GClosureNotify
+
+mkFunPtrDestructor :: FunPtr a -> IO GClosureNotify
+mkFunPtrDestructor hPtr = do
+  dRef <- newIORef nullFunPtr
+  dPtr <- mkDestructor $ do
+    freeHaskellFunPtr hPtr
+    dPtr <- readIORef dRef
+    freeHaskellFunPtr dPtr
+  writeIORef dRef dPtr
+  return dPtr
 
 disconnect :: GObjectClass obj => ConnectId obj -> IO ()
 disconnect (ConnectID handler obj) =

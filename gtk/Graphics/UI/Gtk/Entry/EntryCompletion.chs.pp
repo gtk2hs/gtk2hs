@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/02/27 19:42:06 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -26,7 +26,7 @@
 --
 -- Completion functionality for the 'Entry' widget.
 --
--- * Added in GTK+ 2.4
+-- * Available since Gtk version 2.4
 --
 module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- * Description
@@ -95,7 +95,7 @@ import Data.IORef (newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -172,9 +172,6 @@ entryCompletionSetTextColumn ec column =
 -------------------------------------------------
 -- Callback stuff for entryCompletionSetMatchFunc
 --
-{#pointer GDestroyNotify#}
-
-foreign import ccall "wrapper" mkDestructor :: IO () -> IO GDestroyNotify
 
 type GtkEntryCompletionMatchFunc =
   Ptr EntryCompletion -> --GtkEntryCompletion *completion
@@ -195,12 +192,7 @@ connect_GtkEntryCompletionMatchFunc ec user = do
     (\_ keyPtr iterPtr _ -> do key <- peekUTFString keyPtr
                                iter <- createTreeIter iterPtr
                                user key iter)
-  dRef <- newIORef nullFunPtr
-  dPtr <- mkDestructor $ do
-    freeHaskellFunPtr hPtr
-    dPtr <- readIORef dRef
-    freeHaskellFunPtr dPtr
-  writeIORef dRef dPtr
+  dPtr <- mkFunPtrDestructor hPtr
   {# call gtk_entry_completion_set_match_func #} ec
     (castFunPtr hPtr) nullPtr dPtr
 #endif

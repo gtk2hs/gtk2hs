@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/27 19:42:06 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -40,8 +40,6 @@ module Graphics.UI.Gtk.General.General (
   grabAdd,
   grabGetCurrent,
   grabRemove,
-  mkDestructor,
-  DestroyNotify,
   priorityLow,
   priorityDefault,
   priorityHigh,
@@ -59,6 +57,7 @@ import Control.Exception (ioError, Exception(ErrorCall))
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.GObject		(DestroyNotify, mkFunPtrDestructor)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}	 
 {#import Graphics.UI.Gtk.Signals#}
@@ -183,11 +182,7 @@ grabRemove  = {#call grab_remove#} . toWidget
 
 {#pointer GSourceFunc as Function#}
 
-{#pointer GDestroyNotify as DestroyNotify#}
-
 foreign import ccall "wrapper" mkHandler :: IO {#type gint#} -> IO Function
-
-foreign import ccall "wrapper" mkDestructor :: IO () -> IO DestroyNotify
 
 type HandlerId = {#type guint#}
 
@@ -196,12 +191,7 @@ type HandlerId = {#type guint#}
 makeCallback :: IO {#type gint#} -> IO (Function, DestroyNotify)
 makeCallback fun = do
   funPtr <- mkHandler fun
-  dRef <- newIORef nullFunPtr
-  dPtr <- mkDestructor $ do
-    freeHaskellFunPtr funPtr
-    dPtr <- readIORef dRef
-    freeHaskellFunPtr dPtr
-  writeIORef dRef dPtr
+  dPtr <- mkFunPtrDestructor funPtr
   return (funPtr, dPtr)
 
 -- | Register a function that is to be called after
