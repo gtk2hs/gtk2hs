@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/11 12:15:22 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -65,14 +65,14 @@ import Enums	(PackType(..), Packing(..))
 -- * The @ref arg Packing@ parameter determines how the child behaves in the
 --   horizontal or vertical way in an HBox or VBox, respectively.
 --   @ref arg Natural@ means the child is as big as it reqests. All children
---   that have choosen @ref arg Expand@ for @ref arg p@ will be padded with
---   the remaining space. @ref arg Fill@ is the same as @ref arg Expand@
+--   that have choosen @ref arg Repel@ for @ref arg p@ will be padded with
+--   the remaining space. @ref arg Grow@ is the same as @ref arg Expand@
 --   except that the child will receive the superfluous space.
 --
 boxPackStart :: (BoxClass b, WidgetClass w) => b -> w -> Packing -> Int ->
                 IO ()
 boxPackStart b w p pad = {#call box_pack_start#} (toBox b) (toWidget w)
-  (fromBool $ p/=PackNatural) (fromBool $ p==PackFill) (fromIntegral pad)
+  (fromBool $ p/=PackNatural) (fromBool $ p==PackGrow) (fromIntegral pad)
 
 -- @method boxPackEnd@ Insert a widget at the end of the box container.
 --

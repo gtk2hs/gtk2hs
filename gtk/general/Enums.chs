@@ -4,7 +4,7 @@
 --  Author : Axel Simon, Manuel Chakravarty
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/11 12:15:25 $
 --
 --  Copyright (c) [1999..2001] Axel Simon
 --
@@ -184,8 +184,8 @@ data Click = SingleClick
 
 -- @data Packing@ packing parameters of a widget
 --
-data Packing = PackExpand
-	     | PackFill
+data Packing = PackRepel
+	     | PackGrow
 	     | PackNatural
 	     deriving (Enum,Eq)
 
