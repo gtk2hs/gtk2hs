@@ -66,7 +66,7 @@ module GError (
   -- | * Note, these functions are only useful to implementors
   --
   --   If you are wrapping a new API that reports 'GError's you should probably use
-  --   'propogateGError' to convert the GError into an exception. You should also
+  --   'propagateGError' to convert the GError into an exception. You should also
   --   note in the documentation for the function that it throws GError exceptions
   --   and the Haskell enumeration for the expected glib GError domain(s), so that
   --   users know what exceptions they might want to catch.
@@ -75,7 +75,7 @@ module GError (
   --   Either\/Maybe) then you should use 'checkGError' or 'checkGErrorWithCont'.
 
   GErrorClass(..),
-  propogateGError,
+  propagateGError,
   checkGError,
   checkGErrorWithCont
   
@@ -144,13 +144,13 @@ class Enum err => GErrorClass err where
 --   
 -- Example of use:
 --
--- > propogateGError $ \gerrorPtr ->
+-- > propagateGError $ \gerrorPtr ->
 -- > {# call g_some_function_that_might_return_an_error #} a b gerrorPtr
 --
-propogateGError :: (Ptr (Ptr ()) -> IO a) -> IO a
-propogateGError action = checkGError action throwGError
+propagateGError :: (Ptr (Ptr ()) -> IO a) -> IO a
+propagateGError action = checkGError action throwGError
 
--- | Like 'propogateGError' but instead of throwing the GError as an exception
+-- | Like 'propagateGError' but instead of throwing the GError as an exception
 --   handles the error immediately using the supplied error handler.
 --
 -- Example of use:

@@ -93,7 +93,7 @@ import FFI
 import Object		(makeNewObject)
 import Signal
 {#import GList#}
-import GError (propogateGError)
+import GError (propagateGError)
 
 {# context lib="gtk" prefix ="gtk" #}
 
@@ -285,7 +285,7 @@ fileChooserGetFilter chooser = do
 
 fileChooserAddShortcutFolder :: FileChooserClass chooser => chooser -> String -> IO ()
 fileChooserAddShortcutFolder chooser foldername =
-  propogateGError $ \gerrorPtr ->
+  propagateGError $ \gerrorPtr ->
   withCString foldername $ \strPtr -> do
   {# call gtk_file_chooser_add_shortcut_folder #} (toFileChooser chooser)
     strPtr gerrorPtr
@@ -293,7 +293,7 @@ fileChooserAddShortcutFolder chooser foldername =
 
 fileChooserRemoveShortcutFolder :: FileChooserClass chooser => chooser -> String -> IO ()
 fileChooserRemoveShortcutFolder chooser foldername =
-  propogateGError $ \gerrorPtr ->
+  propagateGError $ \gerrorPtr ->
   withCString foldername $ \strPtr -> do
   {# call gtk_file_chooser_remove_shortcut_folder #} (toFileChooser chooser)
     strPtr gerrorPtr
@@ -307,7 +307,7 @@ fileChooserlistShortcutFolders chooser = do
 
 fileChooserAddShortcutFolderURI :: FileChooserClass chooser => chooser -> String -> IO ()
 fileChooserAddShortcutFolderURI chooser folderuri =
-  propogateGError $ \gerrorPtr ->
+  propagateGError $ \gerrorPtr ->
   withCString folderuri $ \strPtr -> do
   {# call gtk_file_chooser_add_shortcut_folder_uri #} (toFileChooser chooser)
     strPtr gerrorPtr
@@ -315,7 +315,7 @@ fileChooserAddShortcutFolderURI chooser folderuri =
 
 fileChooserRemoveShortcutFolderURI :: FileChooserClass chooser => chooser -> String -> IO ()
 fileChooserRemoveShortcutFolderURI chooser folderuri =
-  propogateGError $ \gerrorPtr ->
+  propagateGError $ \gerrorPtr ->
   withCString folderuri $ \strPtr -> do
   {# call gtk_file_chooser_remove_shortcut_folder_uri #}
     (toFileChooser chooser) strPtr gerrorPtr
