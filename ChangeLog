@@ -1,3 +1,9 @@
+2002-08-15  Jonas Svensson <d99josve@dtek.chalmers.se>
+
+        * gtk/menuComboToolbar/ImageMenuItem.chs: Changed type from
+        Image to Widget on get/setImage functions. Changed getImage
+        to return IO (Maybe Widget).
+
 2002-08-13  Axel Simon <A.Simon@ukc.ac.uk> on behalf of 
 	    Jonas Svensson <d99josve@dtek.chalmers.se>
 	

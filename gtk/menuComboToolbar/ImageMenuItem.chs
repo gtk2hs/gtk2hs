@@ -5,7 +5,7 @@
 --          
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.1 $
+--  Version $Revision: 1.2 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -56,8 +56,8 @@ import Object	(makeNewObject)
 
 -- @method imageMenuItemSetImage@ Sets the image for the ImageMenuItem.
 --
-imageMenuItemSetImage :: (ImageMenuItemClass imi,ImageClass im) =>
-                         imi -> im -> IO ()
+imageMenuItemSetImage :: (ImageMenuItemClass imi,WidgetClass wd) =>
+                         imi -> wd -> IO ()
 imageMenuItemSetImage imi wd =
   {#call unsafe image_menu_item_set_image#} (toImageMenuItem imi) 
                                             (toWidget wd)
@@ -65,9 +65,11 @@ imageMenuItemSetImage imi wd =
 -- @method imageMenuItemGetImage@ Get the image that is currently 
 -- set a the image.
 --
-imageMenuItemGetImage :: ImageMenuItemClass imi => imi -> IO Image
-imageMenuItemGetImage imi = makeNewObject mkImage $ liftM castPtr $
-  {#call unsafe image_menu_item_get_image#} (toImageMenuItem imi)
+imageMenuItemGetImage :: ImageMenuItemClass imi => imi -> IO (Maybe Widget)
+imageMenuItemGetImage imi = do
+   imPtr <- {#call unsafe image_menu_item_get_image#} (toImageMenuItem imi)
+   if imPtr==nullPtr then return Nothing else do
+     liftM Just $ makeNewObject mkWidget $ return imPtr
 
 -- @constructor imageMenuItemNew@ Create a new @ref arg MenuItem@ with a image
 -- next to it.
