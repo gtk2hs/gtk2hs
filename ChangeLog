@@ -1,3 +1,16 @@
+2003-05-16 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* AUTHORS: Add Vincenzo.
+
+	* gtk/Makefile, gtk/gdk/Drawable.chs, gtk/gdk/GdkEnums.chs,
+	gtk/general/Gtk.hs, gtk/general/Structs.hsc, gtk/gdk/Pixbuf.chs,
+	configure.in, mk/config.mk.in: Add a good share of the pixbuf
+	functions. Realize that the pixbuf library is always available
+	when Gtk is installed, thus removed its detection from the
+	configure script.
+
+	* gtk/general/Style.chs: Add some more elements.
+	
 2003-05-16  Jens Petersen  <petersen@redhat.com>
 
 	* doc/Makefile (html%): Just write dependency as reference%.xml.

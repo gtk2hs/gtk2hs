@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.16 $ from $Date: 2003/05/16 05:53:33 $
+--  Version $Revision: 1.17 $ from $Date: 2003/05/16 18:45:23 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -88,7 +88,16 @@ module Structs(
   drawingAreaGetDrawWindow,
   drawingAreaGetSize,
   pangoScale,
-  styleGetForeground
+  styleGetForeground,
+  styleGetBackground,
+  styleGetLight,
+  styleGetMiddle,
+  styleGetDark,
+  styleGetText,
+  styleGetBase,
+  styleGetAntiAliasing,
+  GQuark,
+  GError(..)
   ) where
 
 import Monad		(liftM)
@@ -683,7 +692,8 @@ index off ptr = return
 -- @method styleGetForeground@ Retrieve the @ref data GC@ for the foreground
 -- color.
 --
--- * The parameter @ref arg state@ determines for which @ref data StateType@.
+-- * The parameter @ref arg state@ determines for which widget
+--   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
 --   Use @ref method widgetGetState@ to determine the current state of the
 --   widget.
 --
@@ -691,3 +701,109 @@ styleGetForeground :: StateType -> Style -> IO GC
 styleGetForeground ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, fg_gc} stPtr))
 
+-- @method styleGetBackground@ Retrieve the @ref data GC@ for the background
+-- color.
+--
+-- * The parameter @ref arg state@ determines for which widget
+--   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
+--   Use @ref method widgetGetState@ to determine the current state of the
+--   widget.
+--
+styleGetBackground :: StateType -> Style -> IO GC
+styleGetBackground ty st = withForeignPtr (unStyle st) $ \stPtr ->
+  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, bg_gc} stPtr))
+
+-- @method styleGetLight@ Retrieve the @ref data GC@ for a light
+-- color.
+--
+-- * The parameter @ref arg state@ determines for which widget
+--   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
+--   Use @ref method widgetGetState@ to determine the current state of the
+--   widget.
+--
+styleGetLight :: StateType -> Style -> IO GC
+styleGetLight ty st = withForeignPtr (unStyle st) $ \stPtr ->
+  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, light_gc} stPtr))
+
+-- @method styleGetMiddle@ Retrieve the @ref data GC@ for a middle
+-- color.
+--
+-- * The parameter @ref arg state@ determines for which widget
+--   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
+--   Use @ref method widgetGetState@ to determine the current state of the
+--   widget.
+--
+styleGetMiddle :: StateType -> Style -> IO GC
+styleGetMiddle ty st = withForeignPtr (unStyle st) $ \stPtr ->
+  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, mid_gc} stPtr))
+
+-- @method styleGetDark@ Retrieve the @ref data GC@ for a dark
+-- color.
+--
+-- * The parameter @ref arg state@ determines for which widget
+--   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
+--   Use @ref method widgetGetState@ to determine the current state of the
+--   widget.
+--
+styleGetDark :: StateType -> Style -> IO GC
+styleGetDark ty st = withForeignPtr (unStyle st) $ \stPtr ->
+  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, dark_gc} stPtr))
+
+-- @method styleGetText@ Retrieve the @ref data GC@ for the text
+-- color.
+--
+-- * The parameter @ref arg state@ determines for which widget
+--   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
+--   Use @ref method widgetGetState@ to determine the current state of the
+--   widget.
+--
+styleGetText :: StateType -> Style -> IO GC
+styleGetText ty st = withForeignPtr (unStyle st) $ \stPtr ->
+  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, text_gc} stPtr))
+
+-- @method styleGetBase@ Retrieve the @ref data GC@ for the base
+-- color.
+--
+-- * The base color is the standard text background of a widget.
+--
+-- * The parameter @ref arg state@ determines for which widget
+--   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
+--   Use @ref method widgetGetState@ to determine the current state of the
+--   widget.
+--
+styleGetBase :: StateType -> Style -> IO GC
+styleGetBase ty st = withForeignPtr (unStyle st) $ \stPtr ->
+  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, base_gc} stPtr))
+
+-- @method styleGetAntiAliasing@ Retrieve the @ref data GC@ for drawing
+-- anti-aliased text.
+--
+-- * The anti-aliasing color is the color which is used when the rendering
+--   of a character does not make it clear if a certain pixel shoud be set
+--   or not. This color is between the text and the base color.
+--
+-- * The parameter @ref arg state@ determines for which widget
+--   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
+--   Use @ref method widgetGetState@ to determine the current state of the
+--   widget.
+--
+styleGetAntiAliasing :: StateType -> Style -> IO GC
+styleGetAntiAliasing ty st = withForeignPtr (unStyle st) $ \stPtr ->
+  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, text_aa_gc} stPtr))
+
+-- Error handling
+
+type GQuark = CUInt  -- again, c2hs and hsc2hs don't comply on types
+
+data GError = GError GQuark #{type gint} String
+
+instance Storable GError where
+  sizeOf _ = #{const sizeof(GError)}
+  alignment _ = alignment (undefined:: GQuark)
+  peek ptr = do
+    (domain  :: GQuark)		<- #{peek GError, domain} ptr
+    (code    :: #{type gint})	<- #{peek GError, code} ptr
+    (msgPtr  :: CString)	<- #{peek GError, message} ptr
+    msg <- peekCString msgPtr
+    return $ GError domain code msg
+  poke _ = error "GError::poke: not implemented"

@@ -80,9 +80,6 @@ PKG		= @GHCPKG@
 
 # Compile different extensions
 
-# Provide image manipulation functions.
-ENABLE_PIXBUF	= @ENABLE_PIXBUF@
-
 # Provide an OpenGL widget.
 ENABLE_OPENGL	= @ENABLE_OPENGL@
 

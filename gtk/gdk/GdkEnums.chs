@@ -4,7 +4,7 @@
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.5 $ from $Date: 2002/10/01 15:09:28 $
+--  Version $Revision: 1.6 $ from $Date: 2003/05/16 18:45:23 $
 --
 --  Copyright (c) [1999..2001] Manuel M. T. Chakravarty
 --
@@ -32,6 +32,7 @@
 module GdkEnums(
   CapStyle(..),
   CrossingMode(..),
+  Dither(..),
   EventMask(..),
   ExtensionMode(..),
   Fill(..),
@@ -74,6 +75,10 @@ class  (Enum a, Bounded a) => Flags a where
 -- window
 --
 {#enum CrossingMode {underscoreToCase}#}
+
+-- @data Dither@ Specify how to dither colors onto the screen.
+--
+{#enum RgbDither as Dither {underscoreToCase}#}
 
 -- @data EventMask@ specify which events a widget will emit signals on
 --

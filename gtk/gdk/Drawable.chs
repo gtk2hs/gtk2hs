@@ -1,10 +1,11 @@
+{-# OPTIONS -cpp #-}
 --  -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry Drawable@
 --
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2003/02/10 09:04:21 $
+--  Version $Revision: 1.5 $ from $Date: 2003/05/16 18:45:23 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -31,13 +32,15 @@
 -- @todo@ ---------------------------------------------------------------------
 --
 -- * if gdk_visuals are implemented, do: get_visual
--- * if gdk_colormaps are implemented, do: set_colormap, get_colormap
 --
--- * add the draw_pixbuf function for version 2.2
+-- * if gdk_colormaps are implemented, do: set_colormap, get_colormap
 --
 -- * add draw_glyphs if we are desparate
 --
 --
+
+#include<gtk/gtkversion.h>
+
 module Drawable(
   Drawable,
   DrawableClass,
@@ -51,6 +54,10 @@ module Drawable(
   drawPoints,
   drawLine,
   drawLines,
+#if GTK_CHECK_VERSION(2,2,0)
+  Dither(..),
+  drawPixbuf,
+#endif
   drawSegments,
   drawRectangle,
   drawArc,
@@ -70,6 +77,7 @@ import Structs  (Point)
 {#import Region#}	(Region, makeNewRegion)
 import Structs		(Color)
 {#import PangoTypes#}
+import GdkEnums         (Dither(..))
 
 {# context lib="gtk" prefix="gdk" #}
 
@@ -163,6 +171,32 @@ drawLines d gc points =
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr :: Ptr {#type gint#}) -> {#call unsafe draw_lines#} (toDrawable d)
     (toGC gc) (castPtr aPtr) (fromIntegral (length points))
+
+#if GTK_CHECK_VERSION(2,2,0)
+-- @method drawPixbuf@ Render a @ref data Pixbuf@.
+--
+-- * Renders a rectangular portion of a @ref data Pixbuf@ to a
+--   @ref data Drawable@. The @ref arg srcX@, @ref arg srcY@,
+--   @ref arg srcWidth@ and @ref arg srcHeight@ specify what part of the
+--   @ref data Pixbuf@ should be rendered. The latter two values may be
+--   @literal -1@ in which case the width and height are taken from
+--   @ref arg src@. The image is placed at @ref arg destX@, @ref arg destY@.
+--   If you render parts of an image at a time, set @ref arg ditherX@ and
+--   @ref arg ditherY@ to the origin of the image you are rendering.
+--
+-- * Since 2.2.
+--
+drawPixbuf :: DrawableClass d => d -> GC -> Pixbuf -> Int -> Int ->
+				 Int -> Int -> Int -> Int -> Dither ->
+				 Int -> Int -> IO ()
+drawPixbuf d gc pb srcX srcY destX destY srcWidth srcHeight dither
+  xDither yDither = {#call unsafe draw_pixbuf#} (toDrawable d)
+    gc pb (fromIntegral srcX) (fromIntegral srcY) (fromIntegral destX)
+    (fromIntegral destY) (fromIntegral srcWidth) (fromIntegral srcHeight)
+    ((fromIntegral . fromEnum) dither) (fromIntegral xDither)
+    (fromIntegral yDither)
+
+#endif
 
 -- @method drawSegments@ Draw several unconnected lines.
 --

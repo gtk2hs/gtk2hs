@@ -6,10 +6,6 @@ SUBDIRS	= abstract buttons display entry general layout menuComboToolbar \
 	  misc multiline ornaments scrolling \
 	  treeList windows gdk glib pango ../compat
 
-ifeq ($(ENABLE_PIXBUF),yes)
-SUBDIRS += pixbuf
-endif
-
 ifeq ($(ENABLE_OPENGL),yes)
 SUBDIRS += glext
 endif
