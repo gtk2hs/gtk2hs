@@ -1,10 +1,11 @@
+{-# OPTIONS -cpp #-}
 --  The Monad GUI Library (Mogul): Creation of new widgets.
 --
 --  Author : Axel Simon
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/25 00:33:35 $
+--  Version $Revision: 1.9 $ from $Date: 2004/08/08 20:29:00 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -71,8 +72,10 @@ module NewWidget(
   newNamedRadioButtonJoinGroup,
   newRadioButtonJoinGroupWithLabel,
   newNamedRadioButtonJoinGroupWithLabel,
+#ifndef DISABLE_DEPRECATED
   newOptionMenu,
   newNamedOptionMenu,
+#endif
   newMenuItem,
   newNamedMenuItem,
   newMenuItemWithLabel,
@@ -114,8 +117,10 @@ module NewWidget(
   --newFontSelection,
   newHBox,
   newNamedHBox,
+#ifndef DISABLE_DEPRECATED
   newCombo,
   newNamedCombo,
+#endif
   newStatusbar,
   newNamedStatusbar,
   newHPaned,
@@ -467,6 +472,7 @@ newRadioButtonJoinGroupWithLabel ::
 newRadioButtonJoinGroupWithLabel grp lbl = 
   radioButtonNewJoinGroupWithLabel grp lbl
 
+#ifndef DISABLE_DEPRECATED
 -- | see 'optionMenuNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
@@ -479,6 +485,7 @@ newNamedOptionMenu name = newNamedWidget name $ optionMenuNew
 --
 newOptionMenu :: IO OptionMenu
 newOptionMenu = optionMenuNew
+#endif
 
 -- | see 'menuItemNew'
 --
@@ -751,6 +758,7 @@ newNamedHBox name homogeneous spacing = newNamedWidget name $
 newHBox :: Bool -> Int -> IO HBox
 newHBox homogeneous spacing = hBoxNew homogeneous spacing
 
+#ifndef DISABLE_DEPRECATED
 -- | see 'comboNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
@@ -763,6 +771,7 @@ newNamedCombo name = newNamedWidget name $ comboNew
 --
 newCombo :: IO Combo
 newCombo = comboNew
+#endif
 
 -- | see 'statusbarNew'
 --

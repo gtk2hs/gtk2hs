@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  The Monad GUI Library (Mogul): Retrieving a widget from the global store.
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 4 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/25 00:33:35 $
+--  Version $Revision: 1.5 $ from $Date: 2004/08/08 20:29:00 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -28,7 +29,9 @@ module GetWidget(
   getMisc,
   getLabel,
   getAccelLabel,
+#ifndef DISABLE_DEPRECATED
   getTipsQuery,
+#endif
   getArrow,
   getImage,
   getContainer,
@@ -40,13 +43,17 @@ module GetWidget(
   getToggleButton,
   getCheckButton,
   getRadioButton,
+#ifndef DISABLE_DEPRECATED
   getOptionMenu,
+#endif
   getItem,
   getMenuItem,
   getCheckMenuItem,
   getRadioMenuItem,
   getTearoffMenuItem,
+#ifndef DISABLE_DEPRECATED
   getListItem,
+#endif
   getWindow,
   getDialog,
   getColorSelectionDialog,
@@ -68,16 +75,22 @@ module GetWidget(
   getFontSelection,
   getGammaCurve,
   getHBox,
+#ifndef DISABLE_DEPRECATED
   getCombo,
+#endif
   getStatusbar,
+#ifndef DISABLE_DEPRECATED
   getCList,
   getCTree,
+#endif
   getFixed,
   getPaned,
   getHPaned,
   getVPaned,
   getLayout,
+#ifndef DISABLE_DEPRECATED
   getList,
+#endif
   getMenuShell,
   getMenu,
   getMenuBar,
@@ -106,7 +119,9 @@ module GetWidget(
   getHSeparator,
   getVSeparator,
   getInvisible,
+#ifndef DISABLE_DEPRECATED
   getPreview,
+#endif
   getProgressBar
   ) where
 
@@ -130,9 +145,11 @@ getAccelLabel :: String -> IO AccelLabel
 getAccelLabel name = 
   widgetLookup name "AccelLabel" mkAccelLabel
 
+#ifndef DISABLE_DEPRECATED
 getTipsQuery :: String -> IO TipsQuery
 getTipsQuery name = 
   widgetLookup name "TipsQuery" mkTipsQuery
+#endif
 
 getArrow :: String -> IO Arrow
 getArrow name = 
@@ -178,9 +195,11 @@ getRadioButton :: String -> IO RadioButton
 getRadioButton name = 
   widgetLookup name "RadioButton" mkRadioButton
 
+#ifndef DISABLE_DEPRECATED
 getOptionMenu :: String -> IO OptionMenu
 getOptionMenu name = 
   widgetLookup name "OptionMenu" mkOptionMenu
+#endif
 
 getItem :: String -> IO Item
 getItem name = 
@@ -202,9 +221,11 @@ getTearoffMenuItem :: String -> IO TearoffMenuItem
 getTearoffMenuItem name = 
   widgetLookup name "TearoffMenuItem" mkTearoffMenuItem
 
+#ifndef DISABLE_DEPRECATED
 getListItem :: String -> IO ListItem
 getListItem name = 
   widgetLookup name "ListItem" mkListItem
+#endif
 
 getWindow :: String -> IO Window
 getWindow name = 
@@ -290,14 +311,17 @@ getHBox :: String -> IO HBox
 getHBox name = 
   widgetLookup name "HBox" mkHBox
 
+#ifndef DISABLE_DEPRECATED
 getCombo :: String -> IO Combo
 getCombo name = 
   widgetLookup name "Combo" mkCombo
+#endif
 
 getStatusbar :: String -> IO Statusbar
 getStatusbar name = 
   widgetLookup name "Statusbar" mkStatusbar
 
+#ifndef DISABLE_DEPRECATED
 getCList :: String -> IO CList
 getCList name = 
   widgetLookup name "CList" mkCList
@@ -305,6 +329,7 @@ getCList name =
 getCTree :: String -> IO CTree
 getCTree name = 
   widgetLookup name "CTree" mkCTree
+#endif
 
 getFixed :: String -> IO Fixed
 getFixed name = 
@@ -326,9 +351,11 @@ getLayout :: String -> IO Layout
 getLayout name = 
   widgetLookup name "Layout" mkLayout
 
+#ifndef DISABLE_DEPRECATED
 getList :: String -> IO List
 getList name = 
   widgetLookup name "List" mkList
+#endif
 
 getMenuShell :: String -> IO MenuShell
 getMenuShell name = 
@@ -442,9 +469,11 @@ getInvisible :: String -> IO Invisible
 getInvisible name = 
   widgetLookup name "Invisible" mkInvisible
 
+#ifndef DISABLE_DEPRECATED
 getPreview :: String -> IO Preview
 getPreview name = 
   widgetLookup name "Preview" mkPreview
+#endif
 
 getProgressBar :: String -> IO ProgressBar
 getProgressBar name = 

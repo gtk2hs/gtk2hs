@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  The Monad GUI Library (Mogul): The all importing main file.
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/25 00:33:35 $
+--  Version $Revision: 1.8 $ from $Date: 2004/08/08 20:29:00 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -61,7 +62,9 @@ import Gtk hiding (
   radioButtonNewWithLabel,
   radioButtonNewJoinGroup,
   radioButtonNewJoinGroupWithLabel,
+#ifndef DISABLE_DEPRECATED
   optionMenuNew,
+#endif
   menuItemNew,
   menuItemNewWithLabel,
   checkMenuItemNew,
@@ -85,7 +88,9 @@ import Gtk hiding (
   --colorSelectionNew,
   --fontSelectionNew,
   hBoxNew,
+#ifndef DISABLE_DEPRECATED
   comboNew,
+#endif
   statusbarNew,
   hPanedNew,
   vPanedNew,

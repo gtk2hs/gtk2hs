@@ -20,6 +20,15 @@
 	* gconf/System/Gnome/GConf/GConfClient.chs: Make documantation Haddock
 	compatible.
 
+	* gtk/entry/Entry.chs, gtk/general/Enums.chs, gtk/general/Structs.hsc,
+	gtk/menuComboToolbar/Combo.chs, gtk/menuComboToolbar/OptionMenu.chs,
+	gtk/menuComboToolbar/Toolbar.chs, gtk/misc/Tooltips.chs,
+	gtk/windows/Window.chs, configure.in: add #ifndef DISABLE_DEPRECATED
+	exclusions. Everything should build now with --disabled-deprecated.
+
+	* mogul/Makefile, mogul/Mogul.hs, mogul/NewWidget.hs,
+	mogul/GetWidget.hs: make mogul build with --disabled-deprecated.
+
 2004-08-6  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.in, mk/config.mk.in, gtk/Makefile, mogul/Makefile,
