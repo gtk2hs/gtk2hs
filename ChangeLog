@@ -53,6 +53,13 @@
 	gtk/Graphics/UI/Gtk/Entry/SpinButton.chs,
 	gtk/Graphics/UI/Gtk/Entry/VScale.chs: various minor changes.
 
+	* gtk/Graphics/UI/Gtk/Display/AccelLabel.chs,
+	gtk/Graphics/UI/Gtk/Display/Image.chs.pp,
+	gtk/Graphics/UI/Gtk/Display/Label.chs,
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs,
+	gtk/Graphics/UI/Gtk/Display/Statusbar.chs: various minor changes
+	merged from the generated module.
+
 2005-04-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs, tools/apiGen/ApiGen.hs,

@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/15 19:59:09 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:38:29 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -180,14 +180,15 @@ import Graphics.UI.Gtk.Pango.Markup
 --
 labelNew :: Maybe String -> IO Label
 labelNew str =
-  makeNewObject mkLabel $ liftM castPtr $
+  makeNewObject mkLabel $
+  liftM (castPtr :: Ptr Widget -> Ptr Label) $
   maybeWith withUTFString str $ \strPtr ->
   {# call label_new #}
     strPtr
 
--- | Creates a new 'Label', containing the given text.
+-- | Creates a new 'Label', containing the text in @str@.
 --
--- If characters in @text@ are preceded by an underscore, they are
+-- If characters in @str@ are preceded by an underscore, they are
 -- underlined. If you need a literal underscore character in a label, use
 -- \'__\' (two underscores). The first underlined character represents a
 -- keyboard accelerator called a mnemonic. The mnemonic key can be used to
@@ -200,11 +201,12 @@ labelNew str =
 -- automatically become the mnemonic widget and be activated by the mnemonic.
 --
 labelNewWithMnemonic :: 
-    String   -- ^ @text@ - The text of the label, with an underscore in front
+    String   -- ^ @str@ - The text of the label, with an underscore in front
              -- of the mnemonic character
  -> IO Label
 labelNewWithMnemonic str =
-  makeNewObject mkLabel $ liftM castPtr $
+  makeNewObject mkLabel $
+  liftM (castPtr :: Ptr Widget -> Ptr Label) $
   withUTFString str $ \strPtr ->
   {# call label_new_with_mnemonic #}
     strPtr
@@ -343,7 +345,7 @@ labelGetLineWrap self =
 -- receive the events, and pack the label inside it, since labels are a
 -- \'NoWindow\' widget.
 --
-labelGetLayoutOffsets :: LabelClass self => self -> IO (Int,Int)
+labelGetLayoutOffsets :: LabelClass self => self -> IO (Int, Int)
 labelGetLayoutOffsets self =
   alloca $ \xPtr ->
   alloca $ \yPtr -> do
@@ -353,7 +355,7 @@ labelGetLayoutOffsets self =
     yPtr
   x <- peek xPtr
   y <- peek yPtr
-  return (fromIntegral x,fromIntegral y)
+  return (fromIntegral x, fromIntegral y)
 
 -- | KeyVal is a synonym for a hot key number.
 --
@@ -536,7 +538,7 @@ labelSetTextWithMnemonic self str =
 --
 -- Default value: @False@
 --
-labelUseMarkup :: Attr Label Bool
+labelUseMarkup :: LabelClass self => Attr self Bool
 labelUseMarkup = Attr 
   labelGetUseMarkup
   labelSetUseMarkup
@@ -546,7 +548,7 @@ labelUseMarkup = Attr
 --
 -- Default value: @False@
 --
-labelUseUnderline :: Attr Label Bool
+labelUseUnderline :: LabelClass self => Attr self Bool
 labelUseUnderline = Attr 
   labelGetUseUnderline
   labelSetUseUnderline
@@ -557,7 +559,7 @@ labelUseUnderline = Attr
 --
 -- Default value: 'JustifyLeft'
 --
-labelJustify :: Attr Label Justification
+labelJustify :: LabelClass self => Attr self Justification
 labelJustify = Attr 
   labelGetJustify
   labelSetJustify
@@ -566,14 +568,14 @@ labelJustify = Attr
 --
 -- Default value: @False@
 --
-labelSelectable :: Attr Label Bool
+labelSelectable :: LabelClass self => Attr self Bool
 labelSelectable = Attr 
   labelGetSelectable
   labelSetSelectable
 
 -- | \'lineWrap\' property. See 'labelGetLineWrap' and 'labelSetLineWrap'
 --
-labelLineWrap :: Attr Label Bool
+labelLineWrap :: LabelClass self => Attr self Bool
 labelLineWrap = Attr 
   labelGetLineWrap
   labelSetLineWrap

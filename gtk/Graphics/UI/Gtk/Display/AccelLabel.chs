@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:59:09 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:38:29 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -92,9 +92,12 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'AccelLabel'.
 --
-accelLabelNew :: String -> IO AccelLabel
+accelLabelNew :: 
+    String        -- ^ @string@ - the label string.
+ -> IO AccelLabel
 accelLabelNew string =
-  makeNewObject mkAccelLabel $ liftM castPtr $
+  makeNewObject mkAccelLabel $
+  liftM (castPtr :: Ptr Widget -> Ptr AccelLabel) $
   withUTFString string $ \stringPtr ->
   {# call unsafe accel_label_new #}
     stringPtr

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:59:10 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:38:29 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,6 +83,9 @@ module Graphics.UI.Gtk.Display.Statusbar (
   statusbarSetHasResizeGrip,
   statusbarGetHasResizeGrip,
 
+-- * Properties
+  statusbarHasResizeGrip,
+
 -- * Signals
   onTextPopped,
   afterTextPopped,
@@ -94,6 +97,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -107,7 +111,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 statusbarNew :: IO Statusbar
 statusbarNew =
-  makeNewObject mkStatusbar $ liftM castPtr $
+  makeNewObject mkStatusbar $
+  liftM (castPtr :: Ptr Widget -> Ptr Statusbar) $
   {# call unsafe statusbar_new #}
 
 --------------------
@@ -189,6 +194,18 @@ statusbarGetHasResizeGrip self =
     (toStatusbar self)
 
 --------------------
+-- Properties
+
+-- | Whether the statusbar has a grip for resizing the toplevel window.
+--
+-- Default value: @True@
+--
+statusbarHasResizeGrip :: StatusbarClass self => Attr self Bool
+statusbarHasResizeGrip = Attr 
+  statusbarGetHasResizeGrip
+  statusbarSetHasResizeGrip
+
+--------------------
 -- Signals
 
 -- | Called if a message is removed.
@@ -196,8 +213,8 @@ statusbarGetHasResizeGrip self =
 onTextPopped, afterTextPopped :: StatusbarClass self => self
  -> (ContextId -> String -> IO ())
  -> IO (ConnectId self)
-onTextPopped = connect_WORD_STRING__NONE "text-popped" False
-afterTextPopped = connect_WORD_STRING__NONE "text-popped" True
+onTextPopped self user = connect_WORD_STRING__NONE "text-popped" False self (user . fromIntegral)
+afterTextPopped self user = connect_WORD_STRING__NONE "text-popped" True self (user . fromIntegral)
 
 -- | Called if a message is pushed on top of the
 -- stack.
@@ -205,5 +222,5 @@ afterTextPopped = connect_WORD_STRING__NONE "text-popped" True
 onTextPushed, afterTextPushed :: StatusbarClass self => self
  -> (ContextId -> String -> IO ())
  -> IO (ConnectId self)
-onTextPushed = connect_WORD_STRING__NONE "text-pushed" False
-afterTextPushed = connect_WORD_STRING__NONE "text-pushed" True
+onTextPushed self user = connect_WORD_STRING__NONE "text-pushed" False self (user . fromIntegral)
+afterTextPushed self user = connect_WORD_STRING__NONE "text-pushed" True self (user . fromIntegral)

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/15 19:59:09 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:38:29 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -141,7 +141,8 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid, iconSizeMenu,
 --
 imageNewFromFile :: FilePath -> IO Image
 imageNewFromFile filename =
-  makeNewObject mkImage $ liftM castPtr $
+  makeNewObject mkImage $
+  liftM (castPtr :: Ptr Widget -> Ptr Image) $
   withUTFString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call unsafe gtk_image_new_from_file_utf8 #}
@@ -158,7 +159,8 @@ imageNewFromFile filename =
 --
 imageNewFromPixbuf :: Pixbuf -> IO Image
 imageNewFromPixbuf pixbuf =
-  makeNewObject mkImage $ liftM castPtr $
+  makeNewObject mkImage $
+  liftM (castPtr :: Ptr Widget -> Ptr Image) $
   {# call unsafe image_new_from_pixbuf #}
     pixbuf
 
@@ -170,7 +172,8 @@ imageNewFromStock ::
  -> IconSize -- ^ @size@ - a stock icon size
  -> IO Image
 imageNewFromStock stockId size =
-  makeNewObject mkImage $ liftM castPtr $
+  makeNewObject mkImage $
+  liftM (castPtr :: Ptr Widget -> Ptr Image) $
   withUTFString stockId $ \stockIdPtr ->
   {# call unsafe image_new_from_stock #}
     stockIdPtr

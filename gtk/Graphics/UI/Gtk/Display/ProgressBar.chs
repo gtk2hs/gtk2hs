@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/15 19:59:10 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:38:29 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -107,7 +107,8 @@ import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
 --
 progressBarNew :: IO ProgressBar
 progressBarNew =
-  makeNewObject mkProgressBar $ liftM castPtr $
+  makeNewObject mkProgressBar $
+  liftM (castPtr :: Ptr Widget -> Ptr ProgressBar) $
   {# call unsafe progress_bar_new #}
 
 --------------------
@@ -186,9 +187,7 @@ progressBarGetText self =
 -- | Causes the progress bar to switch to a different orientation
 -- (left-to-right, right-to-left, top-to-bottom, or bottom-to-top).
 --
-progressBarSetOrientation :: ProgressBarClass self => self
- -> ProgressBarOrientation
- -> IO ()
+progressBarSetOrientation :: ProgressBarClass self => self -> ProgressBarOrientation -> IO ()
 progressBarSetOrientation self orientation =
   {# call progress_bar_set_orientation #}
     (toProgressBar self)
@@ -196,8 +195,7 @@ progressBarSetOrientation self orientation =
 
 -- | Retrieves the current progress bar orientation.
 --
-progressBarGetOrientation :: ProgressBarClass self => self
- -> IO ProgressBarOrientation
+progressBarGetOrientation :: ProgressBarClass self => self -> IO ProgressBarOrientation
 progressBarGetOrientation self =
   liftM (toEnum . fromIntegral) $
   {# call unsafe progress_bar_get_orientation #}
@@ -210,7 +208,7 @@ progressBarGetOrientation self =
 --
 -- Default value: 'ProgressLeftToRight'
 --
-progressBarOrientation :: Attr ProgressBar ProgressBarOrientation
+progressBarOrientation :: ProgressBarClass self => Attr self ProgressBarOrientation
 progressBarOrientation = Attr 
   progressBarGetOrientation
   progressBarSetOrientation
@@ -221,7 +219,7 @@ progressBarOrientation = Attr
 --
 -- Default value: 0
 --
-progressBarFraction :: Attr ProgressBar Double
+progressBarFraction :: ProgressBarClass self => Attr self Double
 progressBarFraction = Attr 
   progressBarGetFraction
   progressBarSetFraction
@@ -232,7 +230,7 @@ progressBarFraction = Attr
 --
 -- Default value: 0.1
 --
-progressBarPulseStep :: Attr ProgressBar Double
+progressBarPulseStep :: ProgressBarClass self => Attr self Double
 progressBarPulseStep = Attr 
   progressBarGetPulseStep
   progressBarSetPulseStep
