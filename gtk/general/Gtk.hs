@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.28 $ from $Date: 2004/08/08 19:04:39 $
+--  Version $Revision: 1.29 $ from $Date: 2004/10/24 17:19:21 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -39,7 +39,7 @@
 --
 -- * Every module that is commented out and not mentioned above.
 --
-#include <gtk/gtkversion.h>
+#include <config.h>
 
 module Gtk(
   -- * General things, initialization

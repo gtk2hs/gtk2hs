@@ -134,7 +134,7 @@ usage = do
 	\  <prefix>        set the prefix to use in the c2hs {#context #}\n\
 	\                  declaration (the default is \"gtk\")\n\
 	\  <modName>       specify module name if it does not match the\n\
-	\                  file name, eg a hierarchical module name"
+	\                  file name, eg a hierarchical module name\n"
  exitWith $ ExitFailure 1
 
 
@@ -154,7 +154,7 @@ generate fname lib prefix objs typeTable =
   indent 0.ss "--".
   indent 0.ss "--  Author : Axel Simon".
   indent 0.ss "--".
-  indent 0.ss "--  Copyright (c) 2001-2003 Axel Simon".
+  indent 0.ss "--  Copyright (c) 2001-2004 Axel Simon".
   indent 0.ss "--".
   indent 0.ss "--  This file is free software; you can redistribute it and/or modify".
   indent 0.ss "--  it under the terms of the GNU General Public License as published by".
@@ -180,7 +180,8 @@ generate fname lib prefix objs typeTable =
 		indent 1.ss "castTo".ss n) objs).
   indent 1.ss ") where".
   indent 0.
-  indent 0.ss "import FFI	(ForeignPtr, castForeignPtr, foreignPtrToPtr,".  ss " CULong)".
+  indent 0.ss "import FFI	(ForeignPtr, castForeignPtr, foreignPtrToPtr,".
+  indent 8.ss " CULong, withForeignPtr)".
   indent 0.ss "import GType    (typeInstanceIsA)".
   indent 0.ss "import GHC.Base (unsafeCoerce#)".
   -- this is a very bad hack to get the definition of the ancestors whenever

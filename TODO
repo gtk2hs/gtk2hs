@@ -1,4 +1,7 @@
 TODO for gtk2hs
+24/10/2004 Axel Simon <A.Simon@kent.ac.uk>
+	* Hierarchy.chs: c2hs 0.13.1 produces a with<Object> functions for
+	every newtype definition. Import withForeignPtr for this.
 
 21/01/2003 Axel Simon <A.Simon@ukc.ac.uk>
 

@@ -327,16 +327,16 @@ tarsource :
 .PHONY: clean distclean mostlyclean maintainer-clean
 
 mostlyclean : noinplace
-	$(strip $(RM) $(TARGETOK) $(ALLHSFILES:.hs=.o) $(ALLHSFILES:.hs=.hi) \
+	-$(strip $(RM) -rf $(TARGETOK) $(ALLHSFILES:.hs=.o) $(ALLHSFILES:.hs=.hi) \
 	  $(EXTRA_CFILES:.c=.o) $(ALLHSFILES:.hs=_stub.*) .depend \
 	  $(ALLCHSFILES:.chs=.dep))
 
 clean	: mostlyclean
-	$(strip $(RM) $(ALLCHSFILES:.chs=.hs) $(ALLCHSFILES:.chs=.chi) \
+	-$(strip $(RM) -rf $(ALLCHSFILES:.chs=.hs) $(ALLCHSFILES:.chs=.chi) \
 	  $(HSCFILES:.hsc=.hs) $(EXTRA_CLEANFILES))
 
 distclean : clean
-	$(strip $(RM) $(EXTRA_HSFILES) $(EXTRA_CHSFILES) \
+	-$(strip $(RM) -rf $(EXTRA_HSFILES) $(EXTRA_CHSFILES) \
 	  $(ALLCHSFILES:.chs=.dep) $(LOCALPKGCONF) $(LOCALPKGCONF).old \
 	  $(EXTRA_DISTCLEANFILES))
 
