@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2002/11/08 10:39:22 $
+--  Version $Revision: 1.9 $ from $Date: 2002/12/16 22:25:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,15 +21,16 @@
 --
 -- @description@ --------------------------------------------------------------
 --
+-- * A @ref data CellRenderer@ which displays a single-line text.
+--
+-- @documentation@ ------------------------------------------------------------
+--
 -- * This widget derives from @ref data CellRenderer@. It provides the 
 --   possibility to
 --   display some text by setting the @ref data Attribute@ 
 --   @ref function cellText@ to the column
 --   of a @ref data TreeModel@ by means of 
 --   @ref method treeViewAddAttribute@ from @ref data TreeModelColumn@.
---
--- @documentation@ ------------------------------------------------------------
---
 --
 -- @todo@ ---------------------------------------------------------------------
 
@@ -126,9 +127,17 @@ onEdited cr tm user = connect_PTR_STRING__NONE "edited" False cr $
   \strPtr string -> do
     iterPtr <- mallocBytes treeIterSize
     iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
-    res <- liftM toBool $ {#call unsafe tree_model_get_iter_from_string#} 
+    res <- liftM toBool $ gtk_tree_model_get_iter_from_string 
 			  (toTreeModel tm) iter strPtr
     if res then user iter string else
       putStrLn "edited signal: invalid tree path"
 
-afterEdited cr user = undefined
+afterEdited cr tm user = connect_PTR_STRING__NONE "edited" True cr $
+  \strPtr string -> do
+    iterPtr <- mallocBytes treeIterSize
+    iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+    res <- liftM toBool $ gtk_tree_model_get_iter_from_string 
+			  (toTreeModel tm) iter strPtr
+    if res then user iter string else
+      putStrLn "edited signal: invalid tree path"
+

@@ -1,5 +1,26 @@
-2002-12-10 Axel Simon <A.Simon@ukc.ac.uk>
+2002-12-16 Axel Simon <A.Simon@ukc.ac.uk>
 
+	* gtk/treeList/TreeModel.chs: Added two functions and export the
+	function gtk_tree_model_get_iter_from_string for
+	CellRendererText.chs
+
+	* gtk/treeList/CellRendererText.chs: use the bare function from
+	TreeModel.chs to avoid converting the C string to Haskell and
+	back.
+	
+	* configure.in: Changed the test for c2hs, so that it can cope with:
+	"0.10.17 [compiled for GHC 5.04]", urk.
+
+	* mk/comon.mk: repaired building with external c2hs, specifically,
+	the -o : option is not understood by normal c2hs.
+
+	* gtk/Makefile: added the -HEADER definition for all the files
+	which where added since the last time someone compiled with
+	external c2hs (most notably Region.chs, where the build falls
+	over).
+	
+2002-12-10 Axel Simon <A.Simon@ukc.ac.uk>
+	
 	* mk/config.mk.in, mk/library.mk: Separated out targets for
 	installing packages and files. This is an attempt to simplify the
 	creation of RPMs and Debian packages. Removed interactiveInstall

@@ -252,7 +252,7 @@ else
   dnl Find C->Haskell and check its version.
   dnl Check the version of c2hs
   AC_CACHE_CHECK([c2hs version], c2hs_version, [
-    c2hs_version=`$C2HS_CONFIG --version`
+    c2hs_version=`$C2HS_CONFIG --version | $SED "s/[\([0-9.]*\) .*]/\1/"`;
   ])
   GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.8.0,
     AC_MSG_ERROR([You need C->Haskell version 0.8.0 upwards!

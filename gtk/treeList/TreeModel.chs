@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2002/12/01 14:09:51 $
+--  Version $Revision: 1.8 $ from $Date: 2002/12/16 22:25:38 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -53,6 +53,8 @@ module TreeModel(
   treePathDown,
   TreeIter(..),
   treeModelGetIter,
+  treeModelGetIterFromString,
+  gtk_tree_model_get_iter_from_string,
   treeModelGetIterFirst,
   treeModelGetPath,
   treeModelIterNext,
@@ -206,6 +208,33 @@ treePathUp tp = liftM toBool $ {#call unsafe tree_path_up#} tp
 treePathDown :: TreePath -> IO ()
 treePathDown = {#call unsafe tree_path_down#}
 
+-- @method treeModelGetIter@ Turn a @ref data TreePath@ into a
+-- @ref data TreeIter@.
+--
+-- * Returns @literal Nothing@ if the @ref arg tp@ is invalid.
+--
+treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
+treeModelGetIter tm tp = do
+  iterPtr <- mallocBytes treeIterSize
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  res <- {#call unsafe tree_model_get_iter#} (toTreeModel tm) iter tp
+  return $ if (toBool res) then Just iter else Nothing
+  
+-- @method treeModelGetIterFromString@ Turn a @literal String@ into a
+-- @ref data TreeIter@.
+--
+-- * Returns @literal Nothing@ if the table is empty.
+--
+treeModelGetIterFromString :: TreeModelClass tm => tm -> String -> 
+						   IO (Maybe TreeIter)
+treeModelGetIterFromString tm str = do
+  iterPtr <- mallocBytes treeIterSize
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  res <- withCString str $ \strPtr ->
+    {#call unsafe tree_model_get_iter_from_string#} (toTreeModel tm) iter 
+      strPtr
+  return $ if (toBool res) then Just iter else Nothing
+
 -- @method treeModelGetIterFirst@ Retrieves an @ref data TreeIter@ to the
 -- first entry.
 --
@@ -218,18 +247,6 @@ treeModelGetIterFirst tm = do
   res <- {#call unsafe tree_model_get_iter_first#} (toTreeModel tm) iter
   return $ if (toBool res) then Just iter else Nothing
 
--- @method treeModelGetIter@ Turn a @ref data TreePath@ into a
--- @ref data TreeIter@.
---
--- * Returns @literal Nothing@ if the table is empty.
---
-treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
-treeModelGetIter tm tp = do
-  iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
-  res <- {#call unsafe tree_model_get_iter#} (toTreeModel tm) iter tp
-  return $ if (toBool res) then Just iter else Nothing
-  
 treeModelGetPath :: TreeModelClass tm => tm -> TreeIter -> IO TreePath
 treeModelGetPath tm iter =  do
   tpPtr <- throwIfNull "treeModelGetPath: illegal iterator" $

@@ -151,9 +151,9 @@ $(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs
 	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend` && \
 	  $(RM) .depend;\
 	fi
-	$(strip $(C2HSFLAGGED) -o : \
+	$(strip $(C2HSFLAGGED) -o $(addsuffix .hs,$(basename $<)) \
 	  $($(addsuffix -HEADER,$(notdir $(basename $@)))) $<)
-	$(TOP)/mk/chsDepend -i$(HIDIRSOK) $@
+	$(TOP)/mk/chsDepend -i$(HIDIRSOK) $<
 
 # As above, but <blah.chs-HEADER> is not defined so we use the variable
 # HEADER which contains the name of the header file common to all
