@@ -7,6 +7,11 @@
 
 	* demo/sourceview/SourceViewTest.hs: remove Mogul dependancy
 
+	* gtk/abstract/FileChooser.chs: add signals & change some return
+	types to Maybe
+
+	* demo/filechooser/FileChooserDemo: flesh out demo
+
 2004-04-30 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/Makefile,

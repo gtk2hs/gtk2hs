@@ -76,13 +76,22 @@ module FileChooser (
   fileChooserlistShortcutFolders,
   fileChooserAddShortcutFolderURI,
   fileChooserRemoveShortcutFolderURI,
-  fileChooserListShortcutFolderURIs
+  fileChooserListShortcutFolderURIs,
+  onCurrentFolderChanged,
+  afterCurrentFolderChanged,
+  onFileActivated,
+  afterFileActivated,
+--  onSelectionChanged,
+--  afterSelectionChanged,
+  onUpdatePreview,
+  afterUpdatePreview
 ) where
 
 import Monad (liftM, when)
 import FFI
 {#import Hierarchy#}
 import Object		(makeNewObject)
+import Signal
 {#import GList#}
 import Structs (GError(..))
 
@@ -123,10 +132,10 @@ fileChooserSetCurrentName chooser name =
   withCString name $ \strPtr ->
   {# call gtk_file_chooser_set_current_name #} (toFileChooser chooser) strPtr
 
-fileChooserGetFilename :: FileChooserClass chooser => chooser -> IO String
+fileChooserGetFilename :: FileChooserClass chooser => chooser -> IO (Maybe String)
 fileChooserGetFilename chooser = do
   strPtr <- {# call gtk_file_chooser_get_filename #} (toFileChooser chooser)
-  readCString strPtr
+  maybePeek readCString strPtr
 
 fileChooserSetFilename :: FileChooserClass chooser => chooser -> String -> IO Bool
 fileChooserSetFilename chooser filename = liftM toBool $
@@ -161,15 +170,15 @@ fileChooserSetCurrentFolder chooser foldername = liftM toBool $
   withCString foldername $ \strPtr ->
   {# call gtk_file_chooser_set_current_folder #} (toFileChooser chooser) strPtr
 
-fileChooserGetCurrentFolder :: FileChooserClass chooser => chooser -> IO String
+fileChooserGetCurrentFolder :: FileChooserClass chooser => chooser -> IO (Maybe String)
 fileChooserGetCurrentFolder chooser = do
   strPtr <- {# call gtk_file_chooser_get_current_folder #} (toFileChooser chooser)
-  readCString strPtr
+  maybePeek readCString strPtr
 
-fileChooserGetURI :: FileChooserClass chooser => chooser -> IO String
+fileChooserGetURI :: FileChooserClass chooser => chooser -> IO (Maybe String)
 fileChooserGetURI chooser = do
   strPtr <- {# call gtk_file_chooser_get_uri #} (toFileChooser chooser)
-  readCString strPtr
+  maybePeek readCString strPtr
 
 fileChooserSetURI :: FileChooserClass chooser => chooser -> String -> IO Bool
 fileChooserSetURI chooser uri = liftM toBool $
@@ -207,10 +216,10 @@ fileChooserSetPreviewWidget chooser widget =
   {# call gtk_file_chooser_set_preview_widget #} (toFileChooser chooser)
     (toWidget widget)
 
-fileChooserGetPreviewWidget :: FileChooserClass chooser => chooser -> IO Widget
-fileChooserGetPreviewWidget chooser =
-  makeNewObject mkWidget $
-  {# call gtk_file_chooser_get_preview_widget #} (toFileChooser chooser)
+fileChooserGetPreviewWidget :: FileChooserClass chooser => chooser -> IO (Maybe Widget)
+fileChooserGetPreviewWidget chooser = do
+  ptr <- {# call gtk_file_chooser_get_preview_widget #} (toFileChooser chooser)
+  maybePeek (makeNewObject mkWidget . return) ptr
 
 fileChooserSetPreviewWidgetActive :: FileChooserClass chooser => chooser -> Bool -> IO ()
 fileChooserSetPreviewWidgetActive chooser active = 
@@ -230,15 +239,15 @@ fileChooserGetUsePreviewLabel :: FileChooserClass chooser => chooser -> IO Bool
 fileChooserGetUsePreviewLabel chooser = liftM toBool $
   {# call gtk_file_chooser_get_use_preview_label #} (toFileChooser chooser)
 
-fileChooserGetPreviewFilename :: FileChooserClass chooser => chooser -> IO String
+fileChooserGetPreviewFilename :: FileChooserClass chooser => chooser -> IO (Maybe String)
 fileChooserGetPreviewFilename chooser = do
   strPtr <- {# call gtk_file_chooser_get_preview_filename #} (toFileChooser chooser)
-  readCString strPtr
+  maybePeek readCString strPtr
 
-fileChooserGetPreviewURI :: FileChooserClass chooser => chooser -> IO String
+fileChooserGetPreviewURI :: FileChooserClass chooser => chooser -> IO (Maybe String)
 fileChooserGetPreviewURI chooser = do
   strPtr <- {# call gtk_file_chooser_get_preview_uri #} (toFileChooser chooser)
-  readCString strPtr
+  maybePeek readCString strPtr
 
 fileChooserSetExtraWidget :: (FileChooserClass chooser, WidgetClass widget) =>
                              chooser -> widget -> IO ()
@@ -246,10 +255,10 @@ fileChooserSetExtraWidget chooser widget =
   {# call gtk_file_chooser_set_extra_widget #} (toFileChooser chooser)
     (toWidget widget)
 
-fileChooserGetExtraWidget :: FileChooserClass chooser => chooser -> IO Widget
-fileChooserGetExtraWidget chooser = 
-  makeNewObject mkWidget $
-  {# call gtk_file_chooser_get_extra_widget #} (toFileChooser chooser)
+fileChooserGetExtraWidget :: FileChooserClass chooser => chooser -> IO (Maybe Widget)
+fileChooserGetExtraWidget chooser = do
+  ptr <- {# call gtk_file_chooser_get_extra_widget #} (toFileChooser chooser)
+  maybePeek (makeNewObject mkWidget . return) ptr
 
 fileChooserAddFilter :: FileChooserClass chooser => chooser -> FileFilter -> IO ()
 fileChooserAddFilter chooser filter = 
@@ -269,10 +278,10 @@ fileChooserSetFilter :: FileChooserClass chooser => chooser -> FileFilter -> IO 
 fileChooserSetFilter chooser filter = 
   {# call gtk_file_chooser_set_filter #} (toFileChooser chooser) filter
 
-fileChooserGetFilter :: FileChooserClass chooser => chooser -> IO FileFilter
-fileChooserGetFilter chooser = 
-  makeNewObject mkFileFilter $
-  {# call gtk_file_chooser_get_filter #} (toFileChooser chooser)
+fileChooserGetFilter :: FileChooserClass chooser => chooser -> IO (Maybe FileFilter)
+fileChooserGetFilter chooser = do
+  ptr <- {# call gtk_file_chooser_get_filter #} (toFileChooser chooser)
+  maybePeek (makeNewObject mkFileFilter . return) ptr
 
 fileChooserAddShortcutFolder :: FileChooserClass chooser => chooser -> String -> IO ()
 fileChooserAddShortcutFolder chooser foldername =
@@ -317,6 +326,22 @@ fileChooserListShortcutFolderURIs chooser = do
   strList <- {# call gtk_file_chooser_list_shortcut_folder_uris #}
     (toFileChooser chooser)
   fromStringGSList strList
+
+onCurrentFolderChanged, afterCurrentFolderChanged :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
+onCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" False
+afterCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" True
+
+onFileActivated, afterFileActivated :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
+onFileActivated = connect_NONE__NONE "file-activated" False
+afterFileActivated = connect_NONE__NONE "file-activated" True
+
+--onSelectionChanged, afterSelectionChanged :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
+--onSelectionChanged = connect_NONE__NONE "selection-changed" False
+--afterSelectionChanged = connect_NONE__NONE "selection-changed" True
+
+onUpdatePreview, afterUpdatePreview :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
+onUpdatePreview = connect_NONE__NONE "update-preview" False
+afterUpdatePreview = connect_NONE__NONE "update-preview" True
 
 
 ------------------------------------------------------
