@@ -151,6 +151,8 @@ VERSION		= @VERSION@
 
 TARNAME		= gtk2hs-$(VERSION)
 
+COMMONINSTALLDIR = gtk2hs
+
 # Documentation
 
 BUILDDOCS	= @BUILDDOCS@
