@@ -63,12 +63,18 @@ This package contains the gtk2hs documentation.
 %setup -q
 
 %build
-./configure %{?_with_c2hs} --with-hc=ghc-%{ghc_version} --with-hcflags="-O" --with-catalog=%{_datadir}/sgml/docbook/xmlcatalog --with-html=%{_datadir}/sgml/docbook/xsl-stylesheets/xhtml/chunk.xsl # --with-fo=%{_datadir}/sgml/docbook/xsl-stylesheets/fo/docbook.xsl
+./configure %{?c2hs: --with-c2hs=%{c2hs}} --with-hc=ghc-%{ghc_version} --with-hcflags="-O" --with-catalog=%{_datadir}/sgml/docbook/xmlcatalog --with-html=%{_datadir}/sgml/docbook/xsl-stylesheets/xhtml/chunk.xsl # --with-fo=%{_datadir}/sgml/docbook/xsl-stylesheets/fo/docbook.xsl
 make prefix=%{_prefix} libdir=%{_libdir}/ghc-%{ghc_version}
 
 %install
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} prefix=%{_prefix} libdir=%{_libdir}/ghc-%{ghc_version} install-without-pkg
+
+mkdirhier %{buildroot}%{_datadir}/gtksourceview-1.0/language-specs
+cp -p demo/sourceview/haskell.lang %{buildroot}%{_datadir}/gtksourceview-1.0/language-specs
+
+# hack to avoid demo binaries in docs 
+make clean MAKE_GOALS="demo/concurrent demo/treeList demo/graphic demo/unicode demo/hello demo/sourceview"
 
 %clean
 rm -rf %{buildroot}
@@ -93,6 +99,7 @@ fi
 %files ghc%{ghc_version}
 %defattr(-,root,root) 
 %{_prefix}/lib/*
+%{_datadir}/gtksourceview-1.0/language-specs/haskell.lang
 %doc ChangeLog TODO AUTHORS COPYING.LIB
 
 %files doc
@@ -102,6 +109,14 @@ fi
 %doc doc/MOGUL
 
 %changelog
+* Tue Nov 11 2003 Jens Petersen <petersen@haskell.org>
+- use %%c2hs instead of "--with c2hs" to configure c2hs program
+- clean demo to avoid binary files in docs dir
+
+* Mon Nov  3 2003 Jens Petersen <petersen@haskell.org>
+- add sourceview package to %%post and %%preun
+- install gtksourceview haskell.lang language-spec
+
 * Thu Jul 31 2003 Jens Petersen <petersen@haskell.org>
 - build with ghc-6.0.1
 - put demo dir in docs dir rather than individual source files
