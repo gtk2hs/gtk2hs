@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.7 $ from $Date: 2002/10/01 15:13:13 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -29,7 +29,29 @@
 --
 --
 module Structs(
+  Point,
   Rectangle(..),	-- data type providing a rectangle
+  Color(..),
+  GCValues(..),
+  foreground,
+  background,
+  function,
+  fill,
+  tile,
+  stipple,
+  clipMask,
+  subwindowMode,
+  tsXOrigin,
+  tsYOrigin,
+  clipXOrigin,
+  clipYOrigin,
+  graphicsExposure,
+  lineWidth,
+  lineStyle,
+  capStyle,
+  joinStyle,
+  pokeGCValues,
+  newGCValues,
   Allocation,
   Requisition(..),
   treeIterSize,
@@ -69,7 +91,9 @@ module Structs(
   priorityLow,
   priorityDefault,
   priorityHigh,
-  nullForeignPtr
+  nullForeignPtr,
+  drawingAreaGetWindow,
+  drawingAreaGetSize
   ) where
 
 import Monad		(liftM)
@@ -78,9 +102,17 @@ import UTFCForeign
 import LocalData	(unsafePerformIO,	-- for nullForeignPtr
 			testBit)
 import Object		(makeNewObject)
+import GObject		(makeNewGObject)
 import Hierarchy
+import GdkEnums	(Function, Fill, SubwindowMode, LineStyle, CapStyle, JoinStyle)
+import IORef
+import Exception
 
 #include <gtk/gtk.h>
+
+-- @type Point@ Represents the x and y coordinate of a point.
+--
+type Point = (Int, Int)
 
 -- @data Rectangle@ Rectangle
 --
@@ -105,6 +137,226 @@ instance Storable Rectangle where
     #{poke GdkRectangle, y} ptr ((fromIntegral y)::#type gint)
     #{poke GdkRectangle, width} ptr ((fromIntegral width)::#type gint)
     #{poke GdkRectangle, height} ptr ((fromIntegral height)::#type gint)
+
+-- @data Color@ Color
+--
+-- * Specifies a color with three integer values for red, green and blue.
+--   All values range from 0 (least intense) to 65535 (highest intensity).
+--
+data Color = Color (#type guint16) (#type guint16) (#type guint16)
+
+instance Storable Color where
+  sizeOf _ = #{const sizeof(GdkColor)}
+  alignment _ = alignment (undefined::#type guint32)
+  peek ptr = do
+    red	   <- #{peek GdkColor, red} ptr
+    green  <- #{peek GdkColor, green} ptr
+    blue   <- #{peek GdkColor, blue} ptr
+    return $ Color red green blue
+  poke ptr (Color red green blue) = do
+    #{poke GdkColor, pixel} ptr (0::#{type gint32})
+    #{poke GdkColor, red}   ptr red
+    #{poke GdkColor, green} ptr green
+    #{poke GdkColor, blue}  ptr blue
+    cPtr <- gdkColormapGetSystem
+    gdkColormapAllocColor cPtr ptr 0 1
+    return ()
+
+foreign import ccall "gdk_colormap_get_system" unsafe
+  gdkColormapGetSystem :: IO (Ptr ())
+
+foreign import ccall "gdk_colormap_alloc_color" unsafe
+  gdkColormapAllocColor :: Ptr () -> Ptr Color -> CInt -> CInt -> IO CInt
+
+
+
+-- @data GCValues@ Intermediate data structure for @ref data GdkGC@s.
+--
+-- * If @ref arg graphicsExposure@ is set then copying portions into a
+--   drawable will generate an @ref signal exposure@ event, even if the
+--   destination area is not currently visible.
+--
+data GCValues = GCValues {
+  foreground :: Color,
+  background :: Color,
+  function   :: Function,
+  fill       :: Fill,
+  tile       :: Maybe GdkPixmap,
+  stipple    :: Maybe GdkPixmap,
+  clipMask   :: Maybe GdkPixmap,
+  subwindowMode :: SubwindowMode,
+  tsXOrigin  :: Int,
+  tsYOrigin  :: Int,
+  clipXOrigin:: Int,
+  clipYOrigin:: Int,
+  graphicsExposure :: Bool,
+  lineWidth  :: Int,
+  lineStyle  :: LineStyle,
+  capStyle   :: CapStyle,
+  joinStyle  :: JoinStyle
+  }
+
+instance Storable GCValues where
+  sizeOf _ = #{const sizeof(GdkGCValues)}
+  alignment _ = alignment (undefined::Color)
+  peek ptr = do
+    foreground_ <- peek (#{ptr GdkGCValues, foreground} ptr)
+    background_ <- peek (#{ptr GdkGCValues, background} ptr)
+    (function_	:: #{type GdkFunction}) <- #{peek GdkGCValues, function} ptr
+    (fill_	:: #{type GdkFill}) <- #{peek GdkGCValues, fill} ptr
+    tile_	<- do
+		     pPtr <- #{peek GdkGCValues, tile} ptr
+		     if (pPtr==nullPtr) then return Nothing else
+		       liftM Just $ makeNewGObject mkGdkPixmap $ return pPtr
+    stipple_	<- do
+		     pPtr <- #{peek GdkGCValues, stipple} ptr
+		     if (pPtr==nullPtr) then return Nothing else
+		       liftM Just $ makeNewGObject mkGdkPixmap $ return pPtr
+    clipMask_	<- do
+		     pPtr <- #{peek GdkGCValues, clip_mask} ptr
+		     if (pPtr==nullPtr) then return Nothing else
+		       liftM Just $ makeNewGObject mkGdkPixmap $ return pPtr
+    (subwindow_	:: #{type GdkSubwindowMode}) 
+		<- #{peek GdkGCValues, subwindow_mode} ptr
+    (tsXOrigin_	:: #{type gint}) 
+		<- #{peek GdkGCValues, ts_x_origin} ptr
+    (tsYOrigin_	:: #{type gint}) 
+		<- #{peek GdkGCValues, ts_y_origin} ptr
+    (clipXOrigin_:: #{type gint}) 
+		<- #{peek GdkGCValues, clip_x_origin} ptr
+    (clipYOrigin_:: #{type gint}) 
+		<- #{peek GdkGCValues, clip_y_origin} ptr
+    (graphics_	:: #{type gint})
+		<- #{peek GdkGCValues, graphics_exposures} ptr
+    (lineWidth_	:: #{type gint})
+		<- #{peek GdkGCValues, line_width} ptr
+    (lineStyle_	:: #{type GdkLineStyle}) 
+		<- #{peek GdkGCValues, line_style} ptr
+    (capStyle_	:: #{type GdkCapStyle}) 
+		<- #{peek GdkGCValues, cap_style} ptr
+    (joinStyle_	:: #{type GdkJoinStyle}) 
+		<- #{peek GdkGCValues, join_style} ptr
+    return $ GCValues {
+      foreground = foreground_,
+      background = background_,
+      function   = (toEnum.fromIntegral) function_,
+      fill       = (toEnum.fromIntegral) fill_,
+      tile       = tile_,
+      stipple    = stipple_,
+      clipMask   = clipMask_,
+      subwindowMode = (toEnum.fromIntegral) subwindow_,
+      tsXOrigin  = fromIntegral tsXOrigin_,
+      tsYOrigin  = fromIntegral tsYOrigin_,
+      clipXOrigin= fromIntegral clipXOrigin_,
+      clipYOrigin= fromIntegral clipYOrigin_,
+      graphicsExposure = toBool graphics_,
+      lineWidth  = fromIntegral lineWidth_,
+      lineStyle  = (toEnum.fromIntegral) lineStyle_,
+      capStyle   = (toEnum.fromIntegral) capStyle_,
+      joinStyle  = (toEnum.fromIntegral) joinStyle_
+    }
+
+pokeGCValues :: Ptr GCValues -> GCValues -> IO CInt
+pokeGCValues ptr (GCValues {
+    foreground = foreground_,
+    background = background_,
+    function   = function_,
+    fill       = fill_,
+    tile       = tile_,
+    stipple    = stipple_,
+    clipMask   = clipMask_,
+    subwindowMode = subwindow_,
+    tsXOrigin  = tsXOrigin_,
+    tsYOrigin  = tsYOrigin_,
+    clipXOrigin= clipXOrigin_,
+    clipYOrigin= clipYOrigin_,
+    graphicsExposure = graphics_,
+    lineWidth  = lineWidth_,
+    lineStyle  = lineStyle_,
+    capStyle   = capStyle_,
+    joinStyle  = joinStyle_
+  }) = do
+    r <- newIORef 0
+    add r #{const GDK_GC_FOREGROUND } $ 
+      poke (#{ptr GdkGCValues, foreground} ptr) foreground_
+    add r #{const GDK_GC_BACKGROUND } $ 
+      poke (#{ptr GdkGCValues, background} ptr) background_
+    add r #{const GDK_GC_FUNCTION } $ 
+      #{poke GdkGCValues, function} ptr 
+      (fromIntegral (fromEnum function_):: #{type GdkFunction})
+    add r #{const GDK_GC_FILL } $
+      #{poke GdkGCValues, fill} ptr 
+      (fromIntegral (fromEnum fill_):: #{type GdkFill})
+    add r #{const GDK_GC_TILE} $
+      #{poke GdkGCValues, tile} ptr $
+        maybe nullPtr (foreignPtrToPtr.unGdkPixmap) tile_
+    add r #{const GDK_GC_STIPPLE} $
+      #{poke GdkGCValues, stipple} ptr $
+        maybe nullPtr (foreignPtrToPtr.unGdkPixmap) stipple_
+    add r #{const GDK_GC_CLIP_MASK } $
+      #{poke GdkGCValues, clip_mask} ptr $
+        maybe nullPtr (foreignPtrToPtr.unGdkPixmap) clipMask_
+    add r #{const GDK_GC_SUBWINDOW } $
+      #{poke GdkGCValues, subwindow_mode} ptr
+      (fromIntegral (fromEnum subwindow_):: #{type GdkSubwindowMode})
+    add r #{const GDK_GC_TS_X_ORIGIN } $
+      #{poke GdkGCValues, ts_x_origin } ptr
+      (fromIntegral tsXOrigin_:: #{type gint})
+    add r #{const GDK_GC_TS_Y_ORIGIN } $
+      #{poke GdkGCValues, ts_y_origin } ptr
+      (fromIntegral tsYOrigin_:: #{type gint})
+    add r #{const GDK_GC_CLIP_X_ORIGIN } $ 
+      #{poke GdkGCValues, clip_x_origin } ptr
+      (fromIntegral clipXOrigin_:: #{type gint})
+    add r #{const GDK_GC_CLIP_Y_ORIGIN } $
+      #{poke GdkGCValues, clip_y_origin } ptr
+      (fromIntegral clipYOrigin_:: #{type gint})
+    add r #{const GDK_GC_EXPOSURES } $
+      #{poke GdkGCValues, graphics_exposures } ptr
+      (fromBool graphics_:: #{type gint})
+    add r #{const GDK_GC_LINE_WIDTH } $
+      #{poke GdkGCValues, line_width } ptr
+      (fromIntegral lineWidth_:: #{type gint})
+    add r #{const GDK_GC_LINE_STYLE } $
+      #{poke GdkGCValues, line_style } ptr
+      (fromIntegral (fromEnum lineStyle_):: #{type GdkLineStyle})
+    add r #{const GDK_GC_CAP_STYLE } $ 
+      #{poke GdkGCValues, cap_style } ptr
+      (fromIntegral (fromEnum capStyle_):: #{type GdkCapStyle})
+    add r #{const GDK_GC_JOIN_STYLE } $ 
+      #{poke GdkGCValues, join_style } ptr
+      (fromIntegral (fromEnum joinStyle_):: #{type GdkJoinStyle})
+    readIORef r
+  where
+    add :: IORef CInt -> CInt -> IO () -> IO ()
+    add r mVal act = handle (const $ return ()) $ do
+      act
+      modifyIORef r (\val -> val+mVal)
+
+-- @constant newGCValues@ An empty record of @ref data GCValues@.
+--
+-- * Use this value instead of the constructor to avoid compiler wanings
+--   about uninitialized fields.
+--
+newGCValues = GCValues {
+    foreground = undefined,
+    background = undefined,
+    function   = undefined,
+    fill       = undefined,
+    tile       = undefined,
+    stipple    = undefined,
+    clipMask   = undefined,
+    subwindowMode = undefined,
+    tsXOrigin  = undefined,
+    tsYOrigin  = undefined,
+    clipXOrigin= undefined,
+    clipYOrigin= undefined,
+    graphicsExposure = undefined,
+    lineWidth  = undefined,
+    lineStyle  = undefined,
+    capStyle   = undefined,
+    joinStyle  = undefined
+  }
 
 -- @type Allocation@ Allocation
 --
@@ -319,3 +571,24 @@ fileSelectionGetButtons fsel =
   where
   butPtrToButton bp = makeNewObject mkButton $ liftM castPtr $
       withForeignPtr ((unFileSelection . toFileSelection) fsel) bp
+
+-- @method drawingAreaGetWindow@ Retrieves the @ref type Drawable@ part.
+--
+drawingAreaGetWindow :: DrawingArea -> IO GdkWindow
+drawingAreaGetWindow da = makeNewGObject mkGdkWindow $
+  withForeignPtr (unDrawingArea da) $ 
+  \da' -> liftM castPtr $ #{peek GtkWidget, window} da'
+
+-- @method drawingAreaGetSize@ Returns the current size.
+--
+-- * This information may be out of date if the use is resizing the window.
+--
+drawingAreaGetSize :: DrawingArea -> IO (Int, Int)
+drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
+    (width :: #{type gint}) <- #{peek GtkAllocation, width} 
+			       (#{ptr GtkWidget, allocation} wPtr)
+    (height :: #{type gint}) <- #{peek GtkAllocation, height}
+				(#{ptr GtkWidget, allocation} wPtr)
+    return (fromIntegral width, fromIntegral height)
+
+

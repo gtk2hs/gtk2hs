@@ -140,5 +140,9 @@
         GtkTreeModel
             GtkTreeStore
             GtkListStore
+	GtkTreeModelSort
 	GtkIconFactory
+# This now became a GObject in version 2:
+	GdkGC				query gdk_gc_get_type
+
 
