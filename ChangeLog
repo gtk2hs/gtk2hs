@@ -11,6 +11,14 @@
 	gtk/Graphics/UI/Gtk/Misc/Viewport.chs: documentation changes and code
 	formatting changes.
 
+	* Makefile.am: specify AUTOMAKE_OPTIONS = 1.8 to require that version
+	of automake.
+
+	* mozembed/Graphics/UI/Gtk/MozEmbed/.cvsignore: add .cvsignore file,
+	but mainly this file being present will force a normal CVS checkout to
+	create the directory, the lack of which will break the build. On the
+	quest to make a clean CVS checkout build "just work"!
+
 2005-03-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/FFI.hs: add maybeNull function which is used by
