@@ -12,6 +12,9 @@
 	* tools/apiGen/Template.chs: import System.Glib.FFI rather than
 	Foreign, also a couple cosmetic improvements.
 
+	* tools/apicoverage/Makefile: update regexps to match the output of
+	current versions of c2hs. The apicoverage tool should now be accurate.
+
 2005-01-09 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/format-docs.xsl: fix generation of function version

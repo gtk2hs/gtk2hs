@@ -1,9 +1,9 @@
 # system to help check gtk2hs's api coverage
 
-# which vesion of gtk+ to compare against, eg 2.0.9, 2.2.4, 2.4.4
+# which vesion of gtk+ to compare against, eg 2.0.9, 2.2.4, 2.4.13
 GTK_MAJOR_VERSION = 2
-GTK_MINOR_VERSION = 2
-GTK_MICRO_VERSION = 0
+GTK_MINOR_VERSION = 6
+GTK_MICRO_VERSION = 1
 
 GTK_VERSION = $(GTK_MAJOR_VERSION).$(GTK_MINOR_VERSION).$(GTK_MICRO_VERSION)
 
@@ -20,8 +20,9 @@ gtk.def : tars/gtk+-$(GTK_VERSION).tar.bz2
 GTK_CHS_FILES = $(shell find ../../gtk -name '*.chs')
 
 gtk.coverage : $(GTK_CHS_FILES)
-	grep -h 'foreign import ccall \(unsafe \)\?" \?&\?.*"' `find ../../gtk -name '*.hs'` | \
-	sed 's:foreign import ccall \(unsafe \)\?" \?&\?\(.*\)".*:\2:' | \
+	grep -h 'foreign import ccall \(safe \|unsafe \)\?" \?&\?.*"' \
+		`find ../../gtk -name '*.hs'` | \
+	sed 's:foreign import ccall \(safe \|unsafe \)\?" \?&\?\(.*\)".*:\2:' | \
 	sort -u | grep '^gtk_' | grep --invert-match '_get_type$$' > gtk.coverage
 
 # We can have (optional) api.ignore files in the gtk directories to have a
