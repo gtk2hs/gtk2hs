@@ -1,3 +1,7 @@
+2005-01-24 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* INSTALL: update the install instructions
+
 2005-01-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/formatXml.c, tools/apiGen/gapi_parser.pl: add extra

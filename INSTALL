@@ -1,10 +1,13 @@
-gtk2hs: A binding of Gtk Version 2 for the programming language Haskell
+Gtk2Hs: A binding of Gtk+ Version 2.x for the programming language Haskell
+
+http://gtk2hs.sourceforge.net/
 
 The library currently wraps most functions for GUI programming from
-the gtk 2.0 libraries. Furthermore there is support for the Pixbuf
-functions and the SourceView widget.
+the gtk 2.4 libraries. Furthermore there is support for the Pixbuf
+functions, the libglade UI loader, the SourceView widget, the GConf
+configuration system, and the Mozilla rendering engine embeded in a widget.
 
-The GHC Haskell compiler, version 5.02 or greater, is required. Some
+The GHC Haskell compiler, version 5.04 or greater, is required. Some
 callback (those with more than 4 words of arguments...) cannot be used
 on Solaris due to a limitation in GHC. Gtk2hs has been compiled
 successfully on FreeBSD, Linux, Solaris, Darwin and Windows (MinGW).
@@ -12,15 +15,19 @@ successfully on FreeBSD, Linux, Solaris, Darwin and Windows (MinGW).
 Building
 --------
 
-If you build on Windows, read "Building on Windows" first.
+Check the gtk2hs web page to see if there is a pre-prepared package for your
+system. They make everying much easier. If there is not you will need to build
+from sources yourself.
+
+If you are building on Windows, read "Building on Windows" first.
 
 The following assumes that the sources are in ~/gtk2hs.
 1. Produce a configure file.
 
-~/gtk2hs:$ autoconf
+~/gtk2hs:$ autoreconf
 
 You may omit this step if you've downloaded the source tarball. If, however,
-step 2 fails for no obvious reason you should run autoconf. (I've seen
+step 2 fails for no obvious reason you should run autoreconf. (I've seen
 ghc-pkg not being found when copying ./configure from FreeBSD, autoconf 2.53
 to Solaris, autoconf 2.52.)
 
@@ -31,13 +38,20 @@ The configure script has several useful options, particularly:
 --with-hc=<path to your ghc>
   Uses the specified GHC for compilation and for installation of the package.
 
+--with-hcflags=<path to your ghc>
+  If you find that you need to pass any special flags to the Haskell compiler
+  then use this option to specify them. This overrides the default flags which
+  is just "-O" to compile using optimisations.
+
 --with-c2hs=no
   Uses the c2hs binding tool that comes with gtk2hs. This special version
-  works much faster than the normal c2hs form Manuel's website. See
+  works much faster than the normal c2hs from Manuel's website. See
   configure.in for more details. This setting is the default.
 
 --with-c2hs=yes
   Search for a c2hs installation in the current PATH.
+
+NOTE: using an external version of c2hs is not currently working!
 
 --with-c2hs=<path to your c2hs-config>
   Use this specific installation of c2hs. Make sure you specify the c2hs-config
@@ -45,6 +59,36 @@ The configure script has several useful options, particularly:
 
 --with-pkgconf=<your pkg.conf file>
   Use a local package.conf file to install the gtk2hs package in. See below.
+
+--without-pkgreg
+  This option disables registering the packages in any package.conf file. This
+  is useful to people building on one machine but wanting to install on
+  another, eg people packaging gtk2hs for use with a package management system.
+
+--disable-libglade
+  By default, bindings for the libglade library will be built. If you do not
+  have this library installed you will need to use this option.
+
+--disable-gnome
+  By default, bindings for some Gnome modules will be built. At the moment
+  these are GConf and GtksourceView. If you do not have all these libraries
+  installed you will need to use this option.
+
+--disable-mozilla
+  By default, bindings for GtkMozEmbed, the Mozilla regnering engine in a
+  widget, will be built. You need Mozilla 1.4 or later installed for this,
+  othersie you will need to use this option to not build these bindings.
+
+--disable-deprecated
+  There are many Gtk+ APIs that have been deprecated as new versions of Gtk+
+  have come out. This option makes sure that no deprecated APIs are used. You
+  might want to use this option to make sure that you are not using deprecated
+  APIs in your new programs.
+
+--enable-docs
+  This builds reference documentation in html format. These are also available
+  from the website but you may prefer to keep a local copy. You will need
+  haddock version 0.6 or later tob build the documentation.
 
 With --help you can ask ./configure what options it supports.
 
@@ -63,11 +107,13 @@ To build the sources you issue:
 
 This will build the package "in place" which means all library files
 stay in the source tree. If you have used --with-pkgconf=mypkg.conf in
-step two, the gtk2hs and mogul package will be available through this
+step two, the gtk and other packages will be available through this
 file. The default name for this file is localpackage.conf in the root
 of the source tree. To use an "in place" installation you say:
 
-ghc --make MyProg.hs -package-conf ~/gtk2hs/localpackage.conf -package mogul
+ghc --make MyProg.hs -package-conf ~/gtk2hs/localpackage.conf
+
+(If you are using ghc 6.0 or earlier you also need to use -package gtk)
 
 If you are happy with this solution or if you don't have the
 privileges to write to the location where GHC lives, you stop here.
@@ -82,61 +128,41 @@ root first. To install the library say:
 
 Now you can compile your programs simply by saying:
 
-ghc --make MyProg.hs -package mogul
+ghc --make MyProg.hs
+
+(If you are using ghc 6.0 or earlier you also need to use -package gtk)
 
 5. Documentation
 
-The documentation is only preliminary, as such it cannot yet be
-installed, only built. You need to have xsltproc installed,
-furthermore Docbook XML and XSLT in the version 4.1.2. There is no
-propper way to find the DTD and the stylesheet, so you need to tell
-configure where to find them. You say
+The documentation is avaliable on the website. You can also build the
+documentation locally. You say
 
-~/gtk2hs:$ ./configure --with-catalog=/usr/local/share/xml/catalog
+~/gtk2hs:$ ./configure --enable-docs
 
-for a system which has a XML catalog file (with a pointer to the
-Docbook DTD) installed in the mentioned place. The configure script
-now tries to be clever and searches for translators to html in
-/usr/local/share/xsl/. If that is not successful, you need to
-explicitly state --with-html=/usr/local/share/xsl/xhtml/chunk.xsl or
-similar. If all is ok you find some html files in ~/gtk2hs/doc/MOGUL
-and ~/gtk2hs/doc/GTK .
+By default the documentation is installed into $(datadir)/doc/gtk2hs/html
 
 Note:
 
-1. Do not delete the source tree if you intend to deinstall the package at
-   some point. You do this by saying
+*  So long as you do not delete the source tree if you can easily uninstall
+   everything that gtk2hs installed by saying
 
    ~/gtk2hs:$ make uninstall
 
    in the root of the source tree. This will properly remove the package from
    GHC and remove any installed file.
 
-2. After installing the sources, the packages are not available anymore from
-   the local package file. At the time of writing GHC has a problem with the
-   same package being available in the global and the local package.conf file.
-   If this should be fixed in the future, you can say
+   Alteratively, if you do not keep the source tree around then you can
+   uninstall by unregistering the packages with ghc-pkg and deleting all the
+   isntalled files. Assuming that you installed in the default location
+   (ie did not specify --prefix= during ./configure) then that would mean
+   doing the following:
 
-   ~/gtk2hs:$ make inplace
+   # for pkg in glib gtk mogul glade gconf sourceview mozembed; \
+   > do ghc-pkg -r $pkg; done
+   # rm -rf /usr/local/lib/gtk2hs/
+   # rm -rf /usr/local/share/doc/gtk2hs/  #if you installed the docs
 
-   to install the package locally again.
-
-3. If your compilation falls over saying
-
-	Foo.hs: file name does not match module name `Foo'
-
-   you should check if running hsc2hs resulted in a message like
-
-	ld.so.1: general/StockItems_hsc_make: fatal: libgtk-x11-2.0.so.0: open failed: 
-	No such file or directory
-	Killed
-
-  which is an indicator that you have not set LD_LIBRARY_PATH to the
-  path where the GTK dynamic libraries live. It is a bug in the 5.02
-  distribution of GHC that hsc2hs does not stop here. Delete Foo.hs
-  before you do a second attempt.
-
-Building on Window
+Building on Windows
 --------------------
 
 Install MSYS and MinGW.  Download the following files from
