@@ -142,6 +142,15 @@
 	* compat/LocalControl.hs, compat/LocalData.hs: remove old compat
 	modules.
 
+	* tools/c2hs/toplevel/.cvsignore, tools/c2hs/.cvsignore,
+	tools/apiGen/.cvsignore, mozembed/.cvsignore, glib/.cvsignore,
+	glade/Graphics/UI/Gtk/Glade/.cvsignore,
+	glade/Graphics/UI/Gtk/.cvsignore, gconf/.cvsignore,
+	gconf/System/Gnome/GConf/.cvsignore, glade/.cvsignore, gtk/.cvsignore,
+	mogul/.cvsignore, sourceview/.cvsignore, tools/callbackGen/.cvsignore,
+	tools/hierarchyGen/.cvsignore, .cvsignore: add and update some of the
+	cvsignore files.
+
 2005-02-12 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Let the pre-processor run over Image.chs by renaming
