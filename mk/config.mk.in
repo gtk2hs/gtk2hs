@@ -89,6 +89,9 @@ ENABLE_OPENGL	= @ENABLE_OPENGL@
 # Provide a SourceView widget.
 ENABLE_SOURCEVIEW = @ENABLE_SOURCEVIEW@
 
+# Provide libglade bindings.
+ENABLE_LIBGLADE = @ENABLE_LIBGLADE@
+
 # This should be libXXX.a and XXX for Unix and
 #		    XXX.lib and XXX.exe for Windows
 
@@ -145,6 +148,9 @@ BUILT_IN_C2HS	= @BUILT_IN_C2HS@
 
 SOURCEVIEW_LIBS	= @SOURCEVIEW_LIBS@
 SOURCEVIEW_CFLAGS = @SOURCEVIEW_CFLAGS@
+
+LIBGLADE_LIBS = @LIBGLADE_LIBS@
+LIBGLADE_CFLAGS = @LIBGLADE_CFLAGS@
 
 .PHONY: default all install installdirs installfiles installpackage \
 	installcheck uninstall uninstallfiles uninstallpackage \

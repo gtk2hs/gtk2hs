@@ -6,6 +6,24 @@
 	functions with a class constraint. This saves carrying around
 	so many class dictionaries per object - now only one.
 
+	* configure.in: added libglade detection
+
+	* Makefile: added glade and demo/glade targets
+
+	* mk/config.mk.in: added LIBGLADE_* variables
+
+	* tools/hierarchyGen/hierarchy.list: added GladeXML class
+
+	* glade/Glade.chs: new libglade binding module
+
+	* glade/Makefile: new file
+
+	* demo/glade/Makefile: new file
+
+	* demo/glade/GladeTest.hs: simple demo of Glade functionality
+
+	* demo/glade/simple.glade: glade file used by the demo program
+
 2003-11-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/TypeGen.hs: added extra commandline parameters
