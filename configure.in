@@ -22,30 +22,29 @@ dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
  
-AC_INIT(VERSION)
+AC_INIT(mogul/Mogul.hs)
+
+dnl Where are we?
+TOP=`pwd`
 
 dnl Check system type.
 AC_CANONICAL_HOST
 
 dnl Checks for programs.
+
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
-AC_PROG_LN_S
 AC_PATH_PROG(AR,ar)
 AC_PATH_PROG(BASENAME,basename)
+AC_PATH_PROG(GREP,ggrep)
 AC_PATH_PROG(GREP,grep)
-AC_PATH_PROG(GZIP,gzip)
+dnl AC_PATH_PROG(HSTAGS,hstags,no-hstags-available)
+dnl AC_PATH_PROG(LN,ln)
+AC_PATH_PROG(SED,gsed)
 AC_PATH_PROG(SED,sed)
-AC_PATH_PROG(TAR,tar)
+dnl AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
-AC_MSG_CHECKING(for external pwd)
-PWD=`which pwd`
-AC_MSG_RESULT($PWD)
-
-dnl Where are we?
-TOP=`$PWD`
-
 
 dnl Figure out file extensions.
 
@@ -130,23 +129,12 @@ AC_MSG_RESULT([$GHC_VERSION])
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.0, [
   AC_MSG_ERROR([I need the FFI of GHC 5.00 upwards!])])
 
-dnl Check if the ghc compiler can generate dynamic callbacks with more than
-dnl 4 words worth of arguments. Hopefully one day the compiler will support
-dnl this.
-AC_MSG_CHECKING([broken dynamic callbacks])
-FOUR_WORD_CALLBACK=no
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 9.9.9, [
-  if test $host_cpu = sparc; then FOUR_WORD_CALLBACK=yes; fi
-])
-AC_MSG_RESULT([$FOUR_WORD_CALLBACK])
-
 GHCBARE=`basename $GHC`
-GHCDIR=`dirname $GHC`
 GHCPKGNAME=ghc-pkg`echo $GHCBARE | $SED s/ghc//`
 
 dnl Check for ghc-pkg. Use the one that is in the same directory and
 dnl version suffix as the specified compiler.
-AC_PATH_PROGS(GHCPKG, $GHCPKGNAME ghc-pkg, ghcpkg-not-found, $GHCDIR:$PATH)
+AC_PATH_PROGS(GHCPKG, $GHCPKGNAME ghc-pkg, ghcpkg-not-found, `dirname $GHC`:$PATH)
 
 if test $GHCPKG = ghcpkg-not-found; then
   AC_MSG_ERROR([ghc-pkg not found. (But ghc exists!?)]);
@@ -161,8 +149,8 @@ dnl c2hs Dilemma.
 dnl We provide a local copy of Manuel's c2hs which is patched so that is can
 dnl process several .chs files at the same invocation. This patch was not
 dnl incooperated into the main c2hs version since Manuel wants to do some
-dnl other fundamental changes first. The nice thing is that with the built-in
-dnl c2hs this whole package can be built without any other libraries.
+dnl other fundamental changes first. On the other with the built-in c2hs this
+dnl whole package can be built without any other libraries.
 
 dnl Check if the user supplied a specific C->Haskell installation or wants to
 dnl use the version in the current search path (--with-c2hs-config=yes). 
@@ -248,24 +236,19 @@ dnl AC_MSG_RESULT([Notice: C->Haskell induced compile time options: `$C2HS_CONFI
 dnl LIBS="`$C2HS_CONFIG --libs` $LIBS"
 dnl AC_MSG_RESULT([Notice: C->Haskell induced link time options: `$C2HS_CONFIG --libs`])
 
-# Read the version file
-VERSION=`cat $TOP/VERSION`
 
 dnl Needed substitution.
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
-AC_SUBST(PWD)
 AC_SUBST(TOP)
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
-AC_SUBST(FOUR_WORD_CALLBACK)
 AC_SUBST(LOCALPKGCONF)
 AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(MARSHALLDEFS)
-AC_SUBST(VERSION)
 dnl The c2hs part.
 AC_SUBST(DLSUFFIX)
 AC_SUBST(CPP)
@@ -282,7 +265,6 @@ AC_SUBST(END_NOT_NHC)
 dnl write the results...
 AC_OUTPUT([
   mk/config.mk
-  gtk/signals/HookGenerator.hs
   c2hs/toplevel/C2HSConfig.hs
 ])
 
