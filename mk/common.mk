@@ -136,7 +136,7 @@ HCINCLUDES		:= $(addprefix '-\#include<,$(addsuffix >',$(HEADER) \
 # Specify how hsc should be run.
 HSCFLAGGED	:= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 		$(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I) \
-		$(addprefix --lflag=,$(EXTRA_LIBS_ONLY_Ll) $(CFLAGS)\
+		$(addprefix --lflag=,$(EXTRA_LIBS_ONLY_Ll) $(LIBS_ONLY_L)\
 		$(addprefix --cflag=,$(CPPFLAGS) $(EXTRA_CPP_FLAGS)))\
 		--cc=$(HC))
 

@@ -1,3 +1,9 @@
+2003-05-09 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* mk/common.mk: Run hsc2hs only with the libraries in CFLAGS not
+	with other optimization/debugging options happening to be in
+	there.
+
 2003-05-08  Jens Petersen  <petersen@redhat.com>
 
 	* gtk/treeList/TreeSelection.chs (onChanged): Renamed
