@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Derived: 11 March 1999 (from SysDepGHC3.hs)
 --
---  Version $Revision: 1.2 $ from $Date: 2004/12/09 18:26:03 $
+--  Version $Revision: 1.3 $ from $Date: 2004/12/13 21:45:52 $
 --
 --  Copyright (c) [1996..2000] Manuel M. T. Chakravarty
 --
@@ -89,7 +89,7 @@ module SysDep (
 import Ix         (Ix)
 import Monad	  (when)
 
-import Control.Monad.Fix (mfix)
+import System.IO	 (fixIO)
 import System.IO.Unsafe  (unsafePerformIO, unsafeInterleaveIO)
 import Data.IORef	 (IORef, newIORef, readIORef, writeIORef)
 import Data.Array.IO	 (IOArray, newArray, bounds, readArray, writeArray)
@@ -101,9 +101,6 @@ import SysDepPosix
 
 -- re-export some things with different names
 --
-fixIO :: (a -> IO a) -> IO a
-fixIO = mfix
-
 newIOArray :: Ix i => (i, i) -> e -> IO (IOArray i e)
 newIOArray = newArray
 boundsIOArray :: Ix i => IOArray i e -> (i, i)
