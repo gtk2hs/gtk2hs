@@ -148,21 +148,28 @@ C2HSFLAGGED	:= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 # Read in all extra dependencies between .chs files.
 -include $(ALLCHSFILES:.chs=.dep)
 
-# Quick and dirty dependency to force the compilation of .chs file if a current version of the
-# .chi file is needed.
+# Quick and dirty dependency to force the compilation of .chs file if
+# a current version of the .chi file is needed.
 %.chi : %.hs
  
+define runC2HS
+if test -f .depend; then \
+  echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend` && \
+  ($(C2HSFLAGGED) -o : $(HEADER) `cat .depend` || \
+  (echo removing `cat .depend | $(SED) s/\(.*\)\.chs/\1.hs/`; \
+  $(RM) `cat .depend | $(SED) "s/\(.*\)\.chs/\1.hs/"` .depend; \
+  exit 1)) && \
+  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend` && \
+  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend` && \
+  $(RM) .depend; \
+fi
+endef
+
 # How to build <blah.hs> from <blah.chs>: Since <blah.chs-HEADER> is defined
 # we will use the specified header file. We invoke c2hs for each .chs file
 # anew.
 $(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs
-	@if test -f .depend; then \
-	  echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend` &&\
-	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend` && \
-	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend` &&\
-	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend` && \
-	  $(RM) .depend;\
-	fi
+	$(runC2HS)
 	$(strip $(C2HSFLAGGED) -o $(addsuffix .hs,$(basename $<)) \
 	  $($(addsuffix -HEADER,$(notdir $(basename $@)))) $<)
 	$(TOP)/mk/chsDepend -i$(HIDIRSOK) $<

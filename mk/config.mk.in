@@ -84,7 +84,7 @@ PKG		= @GHCPKG@
 ENABLE_PIXBUF	= @ENABLE_PIXBUF@
 
 # Provide an OpenGL widget.
-ENABLE_GLAREA	= @ENABLE_GLAREA@
+ENABLE_OPENGL	= @ENABLE_OPENGL@
 
 
 # This should be libXXX.a and XXX for Unix and
