@@ -1,3 +1,9 @@
+2003-11-26 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/hierarchyGen/TypeGen.hs: added extra commandline parameters
+	--lib=<lib> --prefix=<prefix>, which set the c2hs context directive.
+	This is needed for libglade bindings.
+
 2003-11-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/hierarchy.list: added GtkSourceMarker and

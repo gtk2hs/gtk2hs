@@ -90,6 +90,12 @@ main = do
   when (length args<2) usage
   let (hierFile: goalFile: rem) = args
   let tags = map (drop 6) (filter ("--tag=" `isPrefixOf`)  rem)
+  let lib = case map (drop 6) (filter ("--lib=" `isPrefixOf`)  rem) of
+              [] -> "gtk"
+	      (lib:_) -> lib
+  let prefix = case map (drop 9) (filter ("--prefix=" `isPrefixOf`)  rem) of
+                 [] -> "gtk"
+                 (prefix:_) -> prefix
   content <- readFile hierFile
   let (objs, specialQueries) = unzip $
 				 pFreshLine (freshParserState tags) content
@@ -99,19 +105,24 @@ main = do
 		  dropWhile isAlpha .
 		  reverse		     
   writeFile goalFile $
-    generate (bareFName goalFile)
+    generate (bareFName goalFile) lib prefix
       (map (map snd) objs) (catMaybes specialQueries) ""
 
 
 usage = do
  putStr "\nProgram to generate Gtk's object hierarchy in Haskell. Usage:\n\
 	\TypeGenerator <hierFile> <outFile> {--tag=<tag>}\n\
+	\              {--lib=<lib>} {--prefix=<prefix>}\n\
 	\where\n\
 	\  <hierFile>	   a list of all possible objects, the hierarchy is\n\
 	\		   taken from the indentation\n\
 	\  <outFile>	   is the name and path of the output file\n\
 	\  <tag>           generate entries that have the tag <tag>\n\
-	\		   specify `default' for types without tags\n"
+	\		   specify `default' for types without tags\n\
+	\  <lib>           set the lib to use in the c2hs {#context #}\n\
+	\                  declaration (the default is \"gtk\")\n\
+	\  <prefix>        set the prefix to use in the c2hs {#context #}\n\
+	\                  declaration (the default is \"gtk\")\n"
  exitWith $ ExitFailure 1
 
 
@@ -120,8 +131,8 @@ usage = do
 -- generate dynamic fragments
 -------------------------------------------------------------------------------
 
-generate :: String -> [[String]] -> [(String, (String, String))] -> ShowS
-generate fname objs typeTable = 
+generate :: String -> String -> String -> [[String]] -> [(String, (String, String))] -> ShowS
+generate fname lib prefix objs typeTable = 
   let fillCol str = ss $ replicate 
 		    (maximum (map (length.head) objs)-length str) ' ' 
   in
@@ -167,7 +178,7 @@ generate fname objs typeTable =
   -- these are not created in this file
   (if fname/="Hierarchy" then indent 0.ss "{#import Hierarchy#}" else id).
   indent 0.
-  indent 0.ss "{#context lib=\"gtk\" prefix=\"gtk\" #}".
+  indent 0.ss "{#context lib=\"".ss lib.ss "\" prefix=\"".ss prefix.ss "\" #}".
   indent 0.
   indent 0.ss "castToGObject = id".
   indent 0.
