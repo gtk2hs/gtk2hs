@@ -23,6 +23,9 @@ clean : make-clean
 install : MAKE_GOALS=$(MAKE_LIBS) $(MAKE_APPS)
 install : make-install
 
+install-without-pkg : MAKE_GOALS=$(MAKE_LIBS) $(MAKE_APPS)
+install-without-pkg : make-install-without-pkg
+
 uninstall : MAKE_GOALS=$(MAKE_LIBS) $(MAKE_APPS)
 uninstall : make-uninstall
 
