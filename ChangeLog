@@ -193,8 +193,8 @@
 	glib/System/Glib/GObject.chs.pp, glib/System/Glib/GParameter.hsc
 	glib/System/Glib/GType.chs, glib/System/Glib/GValue.chs,
 	glib/System/Glib/GValueTypes.chs, glib/System/Glib/StoreValue.hsc
-	glib/System/Glib/UTFString.hs: move glib modules to a seperate
-	package and use hierarchical namespace names.
+	glib/System/Glib/UTFString.hs, glib/System/Glib/Types.chs: move glib
+	modules to a seperate package and use hierarchical namespace names.
 
 	* configure.ac: add glib tests and flags stuff. Emit the result of the
 	win32 test into config.h so it'll be used.
