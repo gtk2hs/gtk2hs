@@ -1,3 +1,13 @@
+2004-10-25  Axel Simon <A.Simon@kent.ac.uk>
+
+	* configure.ac: Don't update mk/config.mk.in which no longer
+	exists.
+
+	* Makefile.am: Repair automake: Force object files to be in
+	subdirectories.
+
+	* aclocal.m4: Removed. This file is regenerated automatically.
+	
 2004-10-24  Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.in, configure.ac, Makefile, Makefile.am: Removed old

@@ -40,7 +40,6 @@ libgtk2hs_a_HCFLAGS	= -fglasgow-exts
 
 lib_LIBRARIES = libgtk2hs.a
 
-
 libgtk2hs_a_SOURCES = \
 	gtk/general/Hierarchy.chs \
 	gtk/general/Signal.chs \
@@ -174,6 +173,9 @@ libgtk2hs_a_SOURCES = \
 	gtk/pango/Markup.hs \
 	compat/LocalControl.hs \
 	compat/LocalData.hs
+
+am_libgtk2hs_a_OBJECTS = \
+  $(addsuffix .$(OBJEXT),$(basename $(libgtk2hs_a_SOURCES)))
 
 libgtk2hs_a_CHSFILES = $(filter %.chs %.chspp, $(libgtk2hs_a_SOURCES))
 libgtk2hs_a_CHSFILES_HS = $(patsubst %.chs,%.hs,\

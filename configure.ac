@@ -530,7 +530,6 @@ dnl write the results...
 AC_OUTPUT([
   Makefile
   gtk2hs.spec
-  mk/config.mk
   mk/chsDepend
   c2hs/toplevel/C2HSConfig.hs
 ],[chmod a+x mk/chsDepend && chmod a+x install-sh])
