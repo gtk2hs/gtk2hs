@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 5 February 01
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 21:05:41 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:31:21 $
 --
 --  Copyright (c) 2001 Manuel M T Chakravarty
 --
@@ -59,7 +59,7 @@ module CInfo (
   bitfieldDirection, bitfieldPadding, bitfieldIntSigned, bitfieldAlignment
 ) where 
 
-import CForeign
+import Foreign.C
 
 -- we can't rely on the compiler used to compile c2hs already having the new
 -- FFI, so this is system dependent

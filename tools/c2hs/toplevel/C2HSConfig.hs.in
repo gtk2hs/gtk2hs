@@ -6,7 +6,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 27 September 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 21:05:42 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:31:22 $
 --
 --  Copyright (c) [1999..2003] Manuel M T Chakravarty
 --
@@ -49,7 +49,7 @@ import Array (Array, array)
 import 
  Foreign (Ptr, FunPtr)  -- on an extra line to trick the stupid `mkdependHS'
 import Foreign  (Storable(sizeOf, alignment), toBool)
-import CForeign (CInt)
+import Foreign.C (CInt)
 
 -- program settings
 -- ----------------
