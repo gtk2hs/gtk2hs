@@ -1,4 +1,3 @@
-{-# OPTIONS -cpp #-}
 -- HookGenerator.hs -*-haskell-*-
 -- Takes a type list of possible hooks from the GTK+ distribution and produces
 -- Haskell functions to connect to these callbacks.
@@ -440,11 +439,7 @@ generate bs sig = let ident = mkIdentifier sig in
   indent 1.mkRawtype sig.
   indent 0.
   (if fakeSignature bs sig then id else indent 0.ss "foreign".
-#if __GLASGOW_HASKELL__>=504
     ss " import ccall \"wrapper\" ").ss "mkHandler_".ident.ss " ::".
-#else
-    ss " export dynamic ").ss "mkHandler_".ident.ss " ::".
-#endif
   indent 1.ss "Tag_".ident.ss " -> ".
   indent 1.ss "IO (FunPtr ".ss "Tag_".ident.sc ')'.
   (if fakeSignature bs sig then 
