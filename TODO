@@ -2,6 +2,10 @@ TODO for gtk2hs
 
 * The version-check makro in configure.in does not seem to work on Solaris.
 
+* ghc on Solaris cannot generate dynamic callbacks with more than 4 
+  (3 actually) parameters. Either complain or cpp-out all these
+  connect functions.
+
 * Compilation falls over on FreeBSD when c2hs reads the type modifier
   __signed. I don't know if this is supposed to be replaced by cpp, for
   the time being I've just added -D__signed=signed.. There probably should
