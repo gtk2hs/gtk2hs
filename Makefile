@@ -20,11 +20,6 @@ ifeq ($(BUILT_IN_C2HS),yes)
 endif
 	$(MAKE) -Cgtk $@ 
 	$(MAKE)	-Cmogul $@ 
-	$(MAKE) -Cdemo/hello $@ 
-	$(MAKE) -Cdemo/unicode $@ 
-	$(MAKE) -Cdemo/graphic $@ 
-	$(MAKE) -Cdemo/treeList $@ 
-	$(MAKE) -Cdemo/concurrent $@ 
 ifeq ($(BUILDDOCS),yes)
 	$(MAKE) -Cdoc all
 endif
@@ -32,6 +27,8 @@ endif
 noinplace :
 	$(MAKE) -Cmogul $@ 
 	$(MAKE) -Cgtk $@
+
+demo : noinplace
 	$(MAKE) -Cdemo/concurrent $@ 
 	$(MAKE) -Cdemo/treeList $@ 
 	$(MAKE) -Cdemo/graphic $@ 
@@ -41,20 +38,10 @@ noinplace :
 install install-without-pkg : all
 	$(MAKE) -Cgtk  $@
 	$(MAKE) -Cmogul  $@
-	$(MAKE) -Cdemo/hello install
-	$(MAKE) -Cdemo/unicode install
-	$(MAKE) -Cdemo/graphic install
-	$(MAKE) -Cdemo/treeList install
-	$(MAKE) -Cdemo/concurrent install
 
 uninstall :
 	$(MAKE) -Cmogul  $@
 	$(MAKE) -Cgtk  $@
-	$(MAKE) -Cdemo/concurrent $@ 
-	$(MAKE) -Cdemo/treeList $@ 
-	$(MAKE) -Cdemo/graphic $@ 
-	$(MAKE) -Cdemo/unicode $@ 
-	$(MAKE) -Cdemo/hello $@ 
 
 clean	: noinplace
 ifeq ($(BUILT_IN_C2HS),yes)

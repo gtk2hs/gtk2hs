@@ -3,8 +3,7 @@
 # Copyright [2001..2002] Manuel M T Chakravarty <chak@cse.unsw.edu.au>
 # Copyright 2002, 2003 Jens-Ulrik Holger Petersen <petersen@haskell.org>
 
-%define ghc_version 6.0
-#%%define ghc_version 5.04.3
+%define ghc_version 6.0.1
 
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
 Name: gtk2hs
@@ -96,11 +95,15 @@ fi
 
 %files doc
 %defattr(-,root,root) 
-%doc demo/*/*.hs
+%doc demo
 %doc doc/GTK
 %doc doc/MOGUL
 
 %changelog
+* Thu Jul 31 2003 Jens Petersen <petersen@haskell.org>
+- build with ghc-6.0.1
+- put demo dir in docs dir rather than individual source files
+
 * Thu Jul 10 2003 Jens Petersen <petersen@haskell.org>
 - build with ghc-6.0
 - name ghc subpackage "ghc%%{ghc_version}"
