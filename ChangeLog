@@ -1,3 +1,16 @@
+2005-04-1 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/ModuleScan.hs, tools/apiGen/ApiGen.hs,
+	tools/apiGen/Template.chs: do rcs version and timestamps.
+
+	* tools/apiGen/README: update to reflect recent changes.
+
+	* tools/apiGen/CodeGen.hs, tools/apiGen/MarshalFixup.hs: add support
+	for ignoring documentation of selected parameters or return values.
+	Often the docs for these in the original C docs are rather pointless.
+
+	* tools/apiGen/gapi2xml.pl: minor change from upstream.
+
 2005-03-31 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: update to latest versions of source code for

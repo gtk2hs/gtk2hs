@@ -104,6 +104,59 @@ maybeNullResult "gtk_notebook_get_tab_label" = True
 maybeNullResult "gtk_notebook_get_tab_label_text" = True
 maybeNullResult _ = False
 
+-- Often the documentation for parameters or the return value of functions
+-- that is included in the gtk-doc docs are just pointless. So this table
+-- lists the function and parameter names for which we do not want to use the
+-- gtk-doc documentation.
+nukeParameterDocumentation :: String -> String -> Bool
+nukeParameterDocumentation "gtk_button_box_get_layout" "Returns"	= True
+nukeParameterDocumentation "gtk_button_set_label" "label"		= True
+nukeParameterDocumentation "gtk_button_get_label" "Returns" 		= True
+nukeParameterDocumentation "gtk_toggle_button_get_active" "Returns"	= True
+nukeParameterDocumentation "gtk_image_new_from_file" "filename"		= True
+nukeParameterDocumentation "gtk_image_new_from_pixbuf" "pixbuf"		= True
+nukeParameterDocumentation "gtk_label_new" "str"			= True
+nukeParameterDocumentation "gtk_label_set_text" "str"			= True
+nukeParameterDocumentation "gtk_label_set_label" "str"			= True
+nukeParameterDocumentation "gtk_label_set_justify" "jtype"		= True
+nukeParameterDocumentation "gtk_label_get_justify" "Returns"		= True
+nukeParameterDocumentation "gtk_label_set_use_underline" "setting"	= True
+nukeParameterDocumentation "gtk_label_get_use_underline" "Returns"	= True
+nukeParameterDocumentation "gtk_label_get_text" "Returns"		= True
+nukeParameterDocumentation "gtk_label_get_label" "Returns"		= True
+nukeParameterDocumentation "gtk_label_set_text_with_mnemonic" "str"	= True
+nukeParameterDocumentation "gtk_progress_bar_set_text" "text"		= True
+nukeParameterDocumentation "gtk_progress_bar_get_orientation" "Returns"	= True
+nukeParameterDocumentation "gtk_progress_bar_set_orientation" "orientation"	= True
+nukeParameterDocumentation "gtk_statusbar_set_has_resize_grip" "setting"	= True
+nukeParameterDocumentation "gtk_statusbar_get_has_resize_grip" "Returns"	= True	
+nukeParameterDocumentation "gtk_editable_get_editable" "Returns"	= True
+nukeParameterDocumentation "gtk_entry_set_text" "text"			= True
+nukeParameterDocumentation "gtk_entry_get_text" "Returns"		= True
+nukeParameterDocumentation "gtk_entry_append_text" "text"		= True
+nukeParameterDocumentation "gtk_entry_prepend_text" "text"		= True
+nukeParameterDocumentation "gtk_entry_set_invisible_char" "ch"		= True
+nukeParameterDocumentation "gtk_entry_set_has_frame" "setting"		= True
+nukeParameterDocumentation "gtk_entry_set_completion" "completion"	= True
+nukeParameterDocumentation "spin_button_get_value" "Returns"		= True
+nukeParameterDocumentation "spin_button_get_value_as_int" "Returns"	= True
+nukeParameterDocumentation "spin_button_set_value" "value"		= True
+nukeParameterDocumentation "gtk_expander_new" "label"			= True
+nukeParameterDocumentation "gtk_expander_set_expanded" "expanded"	= True
+nukeParameterDocumentation "gtk_expander_get_expanded" "Returns"	= True
+nukeParameterDocumentation "gtk_expander_set_spacing" "spacing"		= True
+nukeParameterDocumentation "gtk_expander_set_label" "label"		= True
+nukeParameterDocumentation "gtk_expander_get_label" "Returns"		= True
+nukeParameterDocumentation "gtk_expander_get_use_markup" "Returns"	= True
+nukeParameterDocumentation "gtk_fixed_set_has_window" "hasWindow"	= True
+nukeParameterDocumentation "gtk_fixed_get_has_window" "Returns"		= True
+nukeParameterDocumentation "gtk_notebook_get_n_pages" "Returns"		= True
+nukeParameterDocumentation "gtk_adjustment_set_value" "value"		= True
+nukeParameterDocumentation "gtk_adjustment_get_value" "Returns"		= True
+nukeParameterDocumentation "gtk_arrow_new" "arrowType"			= True
+nukeParameterDocumentation "gtk_arrow_new" "shadowType"			= True
+nukeParameterDocumentation _ _ = False
+
 -- On win32 for glib/gtk 2.6 they changed the interpretation of functions that
 -- take or return system file names (as opposed to user displayable
 -- representations of file names). Previously the string encoding of the file

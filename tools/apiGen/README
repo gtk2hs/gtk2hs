@@ -16,9 +16,6 @@ Some things that may need to be edited by hand:
       eg for possibly NULL Strings you would want to change to use Maybe String
       also it is not possible to automatically determine the element type of
       GLists so this will have to be determined manually.
-  * Some functions have multiple out parameters which would be better done in
-    Haskell by returning a tuple (this may be possible to do automatically but
-    currently it is not).
   * Documentation. This is converted directly from the C documentation so there
     are usually things that you would want to change to make things make sense
     in Haskell. Code samples should be converted for example.
@@ -56,8 +53,3 @@ they bind.
 
 Some improvements that would be good:
  * Complete marshaling code for more types
- * Emit signal and property bindings with documentation
- * Deal with Enums, Flags, and Interfaces properly
-   - make objects instances of interfaces they implement
-   - make a note of structs and boxed types
-   - allow import of parent api files for reference to known types

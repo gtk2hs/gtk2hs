@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Widget @OBJECT_NAME@
+--  GIMP Toolkit (GTK) @OBJECT_KIND@ @OBJECT_NAME@
 --
 --  Author : @AUTHORS@
 --
 --  Created: @DATE@
 --
---  Version $Revision: 1.9 $ from $Date: 2005/02/27 20:02:14 $
+--  Version $Revision: 1.10 $ from $Date: 2005/04/01 22:55:22 $
 --
 --  Copyright (C) @YEAR@ @COPYRIGHT@
 --

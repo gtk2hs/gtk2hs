@@ -23,6 +23,8 @@ data ModuleInfo = ModuleInfo {
     module_filename          :: String,
     module_authors           :: [String],
     module_created           :: String,
+    module_rcs_version       :: String,
+    module_rcs_timestamp     :: String,
     module_copyright_dates   :: Either String (String, String),
                                 -- eg "2004" or "2004-2005"
     module_copyright_holders :: [String],
@@ -42,6 +44,7 @@ data MethodInfo = MethodInfo {
 data Line = None
           | Authors [String]
           | Created String
+	  | Version String String String String
           | Copyright (Either String (String, String)) [String]
           | Module String String
           | Export String
@@ -133,6 +136,10 @@ scanModuleContent content filename =
     module_filename          = "",
     module_authors           = head $ [ authors | Authors authors     <- headerLines ] ++ [[missing]],
     module_created           = head $ [ created | Created created     <- headerLines ] ++ [missing],
+    module_rcs_version       = head $ [ major ++ "." ++ minor
+                                      | Version major minor _ _       <- headerLines ] ++ [""],
+    module_rcs_timestamp     = head $ [ date ++ " " ++ time
+                                      | Version _ _ date time         <- headerLines ] ++ [""],
     module_copyright_dates   = head $ [ dates   | Copyright dates _   <- headerLines ] ++ [Left missing],
     module_copyright_holders = head $ [ authors | Copyright _ authors <- headerLines ] ++ [[missing]],
     module_exports           = let exportLines = takeWhile (not.isExportEndLine)
@@ -156,6 +163,7 @@ moduleNameToFileName name prefix preproc c2hs =
 scanLine :: String -> [String] -> Line
 scanLine _ ("--":"Author":":":author)   = scanAuthor author
 scanLine _ ("--":"Created:":created)    = Created (unwords created)
+scanLine _ ["--","Version",_,major,".",minor,_,_,_,date,time,_] = Version major minor date time
 scanLine _ ("--":"Copyright":"(":c:")":copyright) = scanCopyright copyright
 scanLine (' ':' ':_) ("module":moduleName) = Export (concat moduleName)
 scanLine _ ("module":moduleName)        = scanModuleName moduleName

@@ -14,7 +14,7 @@ import Marshal
 import StringUtils
 import ModuleScan
 import MarshalFixup (stripKnownPrefixes, maybeNullParameter, maybeNullResult,
-                     fixCFunctionName, leafClass)
+                     fixCFunctionName, leafClass, nukeParameterDocumentation)
 
 import Prelude hiding (Enum, lines)
 import List   (groupBy, sortBy, isPrefixOf, isSuffixOf, partition, find)
@@ -57,7 +57,10 @@ genFunction knownSymbols isConstructor method doc info =
 				     let types | returnType' == "()" = types'
 				               | otherwise           = returnType' : types'
 					 docs = mergeParamDocs (lookup "Returns" paramDocMap) docs'
-				      in ("IO (" ++ sepBy ", " types "" ++ ")", docs)
+				      in (case types of
+				            [t] -> "IO " ++ t
+					    ts  -> "IO (" ++ sepBy ", " types "" ++ ")"
+					 ,docs)
 	(outParamMarshalersBefore, outParamMarshalersAfter, returnOutParamFragments) =
              unzip3 [ genMarshalOutParameter outParamType (changeIllegalNames (cParamNameToHsName name))
                     | (OutParam outParamType, name) <- paramTypes' ]
@@ -90,7 +93,9 @@ genFunction knownSymbols isConstructor method doc info =
                            else [DocArg (paramdoc_name paramdoc)
                                 ,DocText " - "]
                          ) ++ paramdoc_paragraph paramdoc)
-                      | paramdoc <- funcdoc_params doc ]
+                      | paramdoc <- funcdoc_params doc
+		      , not (nukeParameterDocumentation (method_cname method)
+                                                        (paramdoc_name paramdoc))]
         
         formatParamTypes :: [(String, Maybe [DocParaSpan])] -> ShowS
         formatParamTypes paramTypes = format True False paramTypes

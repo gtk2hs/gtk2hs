@@ -148,7 +148,9 @@ main = do
                     module_filename          = object_name object ++ ".chs",
                     module_authors           = ["[Insert your full name here]"],
                     module_created           = date,
-                    module_copyright_dates   = Left year,
+                    module_rcs_version       = "",
+		    module_rcs_timestamp     = "",
+		    module_copyright_dates   = Left year,
                     module_copyright_holders = ["[Insert your full name here]"],
                     module_exports           = [],
                     module_imports           = [],
@@ -161,8 +163,11 @@ main = do
           case var of
 	    "YEAR"           -> ss $ formatCopyrightDates year (module_copyright_dates moduleInfo)
 	    "DATE"           -> ss $ module_created moduleInfo
+	    "OBJECT_KIND"    -> ss $ if object_isinterface object then "Interface" else "Widget"
 	    "OBJECT_NAME"    -> ss $ module_name moduleInfo
 	    "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors moduleInfo
+	    "RCS_VERSION"    -> ss $ module_rcs_version moduleInfo
+	    "RCS_TIMESTAMP"  -> ss $ module_rcs_timestamp moduleInfo
             "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders moduleInfo
             "DESCRIPTION"    -> haddocFormatParas knownTypes False (moduledoc_summary moduleDoc)
 	    "DOCUMENTATION"  -> genModuleDocumentation knownTypes moduleDoc
