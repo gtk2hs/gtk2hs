@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GC@
+--  GIMP Toolkit (GTK) GC
 --
 --  Author : Axel Simon
 --  Created: 28 September 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:55:36 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -18,17 +18,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  Graphics contexts.
---
--- @documentation@ ------------------------------------------------------------
+-- Graphics contexts.
 --
 -- * This module supplies graphics contexts (GCs) which are a convenient way
 --   to pass attributes to drawing functions.
---
--- @todo@ ---------------------------------------------------------------------
---
 --
 module GC(
   GC,
@@ -82,7 +77,7 @@ import Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..),
 
 {# context lib="gtk" prefix="gdk" #}
 
--- @constructor gcNew@ Create an empty graphics context.
+-- | Create an empty graphics context.
 --
 gcNew :: DrawableClass d => d -> IO GC
 gcNew d = do
@@ -91,7 +86,7 @@ gcNew d = do
 		      else makeNewGObject mkGC (return gcPtr)
 
 
--- @constructor gcNewWithValues@ Creates a graphics context with specific 
+-- | Creates a graphics context with specific 
 -- values.
 --
 gcNewWithValues :: DrawableClass d => d -> GCValues -> IO GC
@@ -107,7 +102,7 @@ gcNewWithValues d gcv = allocaBytes (sizeOf gcv) $ \vPtr -> do
     touchForeignPtr ((unPixmap.fromJust.clipMask) gcv)
   return gc
 
--- @method gcSetValues@ Change some of the values of a graphics context.
+-- | Change some of the values of a graphics context.
 --
 gcSetValues :: GC -> GCValues -> IO ()
 gcSetValues gc gcv = allocaBytes (sizeOf gcv) $ \vPtr -> do
@@ -121,14 +116,14 @@ gcSetValues gc gcv = allocaBytes (sizeOf gcv) $ \vPtr -> do
     touchForeignPtr ((unPixmap.fromJust.clipMask) gcv)
   return gc
 
--- @method gcGetValues@ Retrieve the values in a graphics context.
+-- | Retrieve the values in a graphics context.
 --
 gcGetValues :: GC -> IO GCValues
 gcGetValues gc = alloca $ \vPtr -> do
   {#call unsafe gc_get_values#} gc (castPtr vPtr)
   peek vPtr
 
--- @method gcSetClipRectangle@ Set a clipping rectangle.
+-- | Set a clipping rectangle.
 --
 -- * All drawing operations are restricted to this rectangle. This rectangle
 --   is interpreted relative to the clip origin.
@@ -137,7 +132,7 @@ gcSetClipRectangle :: GC -> Rectangle -> IO ()
 gcSetClipRectangle gc r = withObject r $ \rPtr ->
   {#call unsafe gc_set_clip_rectangle#} gc (castPtr rPtr)
 
--- @method gcSetClipRegion@ Set a clipping region.
+-- | Set a clipping region.
 --
 -- * All drawing operations are restricted to this region. This region
 --   is interpreted relative to the clip origin.
@@ -145,13 +140,13 @@ gcSetClipRectangle gc r = withObject r $ \rPtr ->
 gcSetClipRegion :: GC -> Region -> IO ()
 gcSetClipRegion = {#call unsafe gc_set_clip_region#}
 
--- @method gcSetDashes@ Specify the pattern with which lines are drawn.
+-- | Specify the pattern with which lines are drawn.
 --
 -- *  Every tuple in the list contains an even and an odd segment. Even
---    segments are drawn normally, whereby the @ref function lineStyle@
+--    segments are drawn normally, whereby the 'lineStyle'
 --    member of the graphics context defines if odd segements are drawn
---    or not. A @ref arg phase@ argument greater than 0 will drop
---    @ref arg phase@ pixels before starting to draw.
+--    or not. A @phase@ argument greater than 0 will drop
+--    @phase@ pixels before starting to draw.
 --
 gcSetDashes :: GC -> Int -> [(Int,Int)] -> IO ()
 gcSetDashes gc phase onOffList = do

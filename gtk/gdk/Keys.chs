@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Keys@
+--  GIMP Toolkit (GTK) Keys
 --
 --  Author : Jens Petersen
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.3 $ from $Date: 2004/05/23 15:55:36 $
 --
 --  Copyright (c) 2002 Jens Petersen
 --
@@ -18,14 +18,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  Gdk keyval functions.
+-- Gdk keyval functions.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 --  * Documentation
 --

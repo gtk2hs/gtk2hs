@@ -1,11 +1,11 @@
 {-# OPTIONS -cpp #-}
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Region@
+--  GIMP Toolkit (GTK) Region
 --
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:55:36 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -19,16 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  A set of rectangles describing areas to be redrawn.
---
--- @documentation@ ------------------------------------------------------------
+-- A set of rectangles describing areas to be redrawn.
 --
 -- * Regions consist of a set of non-overlapping rectangles. They are used to
 --   specify the area of a window which needs updating.
 --
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * The Span functions and callbacks are not implemented since retrieving
 --   a set of rectangles and working on them within Haskell seems to be easier.
@@ -93,14 +91,14 @@ foreign import ccall "gdk_region_destroy" unsafe
 #endif
 
 
--- @constructor regionNew@ Create an empty region.
+-- | Create an empty region.
 --
 regionNew :: IO Region
 regionNew = do
   rPtr <- {#call unsafe region_new#}
   makeNewRegion rPtr
 
--- @constructor regionPolygon@ Convert a polygon into a @ref data Region@.
+-- | Convert a polygon into a 'Region'.
 --
 regionPolygon :: [Point] -> FillRule -> IO Region
 regionPolygon points rule =
@@ -110,31 +108,31 @@ regionPolygon points rule =
 	    (fromIntegral (length points)) ((fromIntegral.fromEnum) rule)
     makeNewRegion rPtr
 
--- @method regionCopy@ Copy a @ref data Region@.
+-- | Copy a 'Region'.
 --
 regionCopy :: Region -> IO Region
 regionCopy r = do
   rPtr <- {#call unsafe region_copy#} r
   makeNewRegion rPtr
 
--- @constructor regionRectangle@ Convert a rectangle to a @ref data Region@.
+-- | Convert a rectangle to a 'Region'.
 --
 regionRectangle :: Rectangle -> IO Region
 regionRectangle rect = withObject rect $ \rectPtr -> do
   regPtr <- {#call unsafe region_rectangle#} (castPtr rectPtr)
   makeNewRegion regPtr
 
--- @method regionGetClipbox@ Smallest rectangle including the 
--- @ref data Region@.
+-- | Smallest rectangle including the 
+-- 'Region'.
 --
 regionGetClipbox :: Region -> IO Rectangle
 regionGetClipbox r = alloca $ \rPtr -> do
   {#call unsafe region_get_clipbox#} r (castPtr rPtr)
   peek rPtr
 
--- @method regionGetRectangles@ Turn the @ref data Region@ into its rectangles.
+-- | Turn the 'Region' into its rectangles.
 --
--- * A @ref data Region@ is a set of horizontal bands. Each band
+-- * A 'Region' is a set of horizontal bands. Each band
 --   consists of one or more rectangles of the same height. No rectangles
 --   in a band touch.
 --
@@ -148,35 +146,35 @@ regionGetRectangles r =
     {#call unsafe g_free#} (castPtr aPtr)
     return regs
 
--- @method regionEmpty@ Test if a @ref data Region@ is empty.
+-- | Test if a 'Region' is empty.
 --
 regionEmpty :: Region -> IO Bool
 regionEmpty r = liftM toBool $ {#call unsafe region_empty#} r
 
--- @method regionEqual@ Compares two @ref data Region@s for equality.
+-- | Compares two 'Region's for equality.
 --
 regionEqual :: Region -> Region -> IO Bool
 regionEqual r1 r2 = liftM toBool $ {#call unsafe region_equal#} r1 r2
 
--- @method regionPointIn@ Checks if a point it is within a region.
+-- | Checks if a point it is within a region.
 --
 regionPointIn :: Region -> Point -> IO Bool
 regionPointIn r (x,y) = liftM toBool $ 
   {#call unsafe region_point_in#} r (fromIntegral x) (fromIntegral y)
 
--- @method regionRectIn@ Check if a rectangle is within a region.
+-- | Check if a rectangle is within a region.
 --
 regionRectIn :: Region -> Rectangle -> IO OverlapType
 regionRectIn reg rect = liftM (toEnum.fromIntegral) $ withObject rect $
   \rPtr -> {#call unsafe region_rect_in#} reg (castPtr rPtr)
 
--- @method regionOffset@ Move a region.
+-- | Move a region.
 --
 regionOffset :: Region -> Int -> Int -> IO ()
 regionOffset r dx dy = 
   {#call unsafe region_offset#} r (fromIntegral dx) (fromIntegral dy)
 
--- @method regionShrink@ Move a region.
+-- | Move a region.
 --
 -- * Positive values shrink the region, negative values expand it.
 --
@@ -184,36 +182,36 @@ regionShrink :: Region -> Int -> Int -> IO ()
 regionShrink r dx dy = 
   {#call unsafe region_shrink#} r (fromIntegral dx) (fromIntegral dy)
 
--- @method regionUnionWithRect@ Updates the region to include the rectangle.
+-- | Updates the region to include the rectangle.
 --
 regionUnionWithRect :: Region -> Rectangle -> IO ()
 regionUnionWithRect reg rect = withObject rect $ \rPtr ->
   {#call unsafe region_union_with_rect#} reg (castPtr rPtr)
 
--- @method regionInterset@ Intersects one region with another.
+-- | Intersects one region with another.
 --
--- * Changes @ref arg reg1@ to include the common areas of @ref arg reg1@
---   and @ref arg reg2@.
+-- * Changes @reg1@ to include the common areas of @reg1@
+--   and @reg2@.
 --
 regionIntersect :: Region -> Region -> IO ()
 regionIntersect reg1 reg2 = {#call unsafe region_intersect#} reg1 reg2
 
--- @method regionInterset@ Unions one region with another.
+-- | Unions one region with another.
 --
--- * Changes @ref arg reg1@ to include @ref arg reg1@ and @ref arg reg2@.
+-- * Changes @reg1@ to include @reg1@ and @reg2@.
 --
 regionUnion :: Region -> Region -> IO ()
 regionUnion reg1 reg2 = {#call unsafe region_union#} reg1 reg2
 
--- @method regionSubtract@ Removes pars of a @ref data Region@.
+-- | Removes pars of a 'Region'.
 --
--- * Reduces the region @ref arg reg1@ so that is does not include any areas
---   of @ref arg reg2@.
+-- * Reduces the region @reg1@ so that is does not include any areas
+--   of @reg2@.
 --
 regionSubtract :: Region -> Region -> IO ()
 regionSubtract reg1 reg2 = {#call unsafe region_subtract#} reg1 reg2
 
--- @method regionXor@ XORs two @ref data Region@s.
+-- | XORs two 'Region's.
 --
 -- * The exclusive or of two regions contains all areas which were not
 --   overlapping. In other words, it is the union of the regions minus

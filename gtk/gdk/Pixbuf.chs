@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Pixbuf@
+--  GIMP Toolkit (GTK) Pixbuf
 --
 --  Author : Vincenzo Ciancia, Axel Simon
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/20 16:53:58 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/23 15:55:36 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -18,21 +18,19 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  @ref data Pixbuf@s are bitmap images in memory.
---
--- @documentation@ ------------------------------------------------------------
+-- 'Pixbuf's are bitmap images in memory.
 --
 -- * A Pixbuf is used to represent images. It contains information
 --   about the image's pixel data, its color space, bits per sample, width
 --   and height, and the rowstride or number of bytes between rows.
 --
 -- * This module contains functions to scale and crop
---   @ref data Pixbuf@s and to scale and crop a @ref data Pixbuf@ and 
+--   'Pixbuf's and to scale and crop a 'Pixbuf' and 
 --   compose the result with an existing image.
 --
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * if there is a portable way of modifying external arrays in Haskell do:
 --	gdk_pixbuf_get_pixels, gdk_pixbuf_new_from_data, everything in
@@ -95,30 +93,30 @@ import LocalData	((.|.), shiftL)
 
 {#context prefix="gdk" #}
 
--- @data PixbufError@ Error codes for loading image files.
+-- | Error codes for loading image files.
 --
 {#enum PixbufError {underscoreToCase} #}
 
 
--- @data Colorspace@ Enumerate all supported color spaces.
+-- | Enumerate all supported color spaces.
 --
 -- * Only RGB is supported right now.
 --
 {#enum Colorspace {underscoreToCase} #}
 
--- @method pixbufGetColorSpace@ Queries the color space of a pixbuf.
+-- | Queries the color space of a pixbuf.
 --
 pixbufGetColorSpace :: Pixbuf -> IO Colorspace
 pixbufGetColorSpace pb = liftM (toEnum . fromIntegral) $
   {#call unsafe pixbuf_get_colorspace#} pb
 
--- @method pixbufGetNChannels@ Queries the number of colors for each pixel.
+-- | Queries the number of colors for each pixel.
 --
 pixbufGetNChannels :: Pixbuf -> IO Int
 pixbufGetNChannels pb = liftM fromIntegral $
   {#call unsafe pixbuf_get_n_channels#} pb
 
--- @method pixbufGetHasAlpha@ Query if the image has an alpha channel.
+-- | Query if the image has an alpha channel.
 --
 -- * The alpha channel determines the opaqueness of the pixel.
 --
@@ -126,7 +124,7 @@ pixbufGetHasAlpha :: Pixbuf -> IO Bool
 pixbufGetHasAlpha pb =
   liftM toBool $ {#call unsafe pixbuf_get_has_alpha#} pb
 
--- @method pixbufGetBitsPerSample@ Queries the number of bits for each color.
+-- | Queries the number of bits for each color.
 --
 -- * Each pixel is has a number of cannels for each pixel, each channel
 --   has this many bits.
@@ -135,19 +133,19 @@ pixbufGetBitsPerSample :: Pixbuf -> IO Int
 pixbufGetBitsPerSample pb = liftM fromIntegral $
   {#call unsafe pixbuf_get_bits_per_sample#} pb
 
--- @method pixbufGetWidth@ Queries the width of this image.
+-- | Queries the width of this image.
 --
 pixbufGetWidth :: Pixbuf -> IO Int
 pixbufGetWidth pb = liftM fromIntegral $
   {#call unsafe pixbuf_get_width#} pb
 
--- @method pixbufGetHeight@ Queries the height of this image.
+-- | Queries the height of this image.
 --
 pixbufGetHeight :: Pixbuf -> IO Int
 pixbufGetHeight pb = liftM fromIntegral $
   {#call unsafe pixbuf_get_height#} pb
 
--- @method pixbufGetRowstride@ Queries the rowstride of this image.
+-- | Queries the rowstride of this image.
 --
 -- * Queries the rowstride of a pixbuf, which is the number of bytes between
 --   rows. Use this value to caculate the offset to a certain row.
@@ -156,9 +154,9 @@ pixbufGetRowstride :: Pixbuf -> IO Int
 pixbufGetRowstride pb = liftM fromIntegral $
   {#call unsafe pixbuf_get_rowstride#} pb
 
--- @method pixbufGetOption@ Returns an attribut of an image.
+-- | Returns an attribut of an image.
 --
--- * Looks up if some information was stored under the @ref arg key@ when
+-- * Looks up if some information was stored under the @key@ when
 --   this image was saved.
 --
 pixbufGetOption :: Pixbuf -> String -> IO (Maybe String)
@@ -171,14 +169,14 @@ pixbufGetOption pb key = withUTFString key $ \strPtr -> do
 pixbufErrorDomain :: GQuark
 pixbufErrorDomain = unsafePerformIO {#call unsafe pixbuf_error_quark#}
 
--- @constructor pixbufNewFromFile@ Load an image synchonously.
+-- | Load an image synchonously.
 --
 -- * Use this function to load only small images as this call will block.
 --
--- * The function will return @literal Left (err,msg)@ where @ref arg err@
---   is the error code and @ref arg msg@ is a human readable description
+-- * The function will return @Left (err,msg)@ where @err@
+--   is the error code and @msg@ is a human readable description
 --   of the error. If an error occurs which is not captured by any of
---   those in @ref data PixbufError@, an exception is thrown.
+--   those in 'PixbufError', an exception is thrown.
 --
 pixbufNewFromFile :: FilePath -> IO (Either (PixbufError,String) Pixbuf)
 pixbufNewFromFile fname = withUTFString fname $ \strPtr ->
@@ -193,31 +191,31 @@ pixbufNewFromFile fname = withUTFString fname $ \strPtr ->
        else
 	error msg
 
--- @type ImageType@ A string representing an image file format.
+-- | A string representing an image file format.
 --
 type ImageType = String
 
--- @constant pixbufGetFormats@ A list of valid image file formats.
+-- constant pixbufGetFormats A list of valid image file formats.
 --
 pixbufGetFormats :: [ImageType]
 
 pixbufGetFormats = ["png","bmp","wbmp", "gif","ico","ani","jpeg","pnm",
 		    "ras","tiff","xpm","xbm","tga"]
 
--- @method pixbufSave@ Save an image to disk.
+-- | Save an image to disk.
 --
 -- * The function takes a list of key - value pairs to specify
 --   either how an image is saved or to actually save this additional
---   data with the image. JPEG images can be saved with a "quality"
+--   data with the image. JPEG images can be saved with a \"quality\"
 --   parameter; its value should be in the range [0,100]. Text chunks
 --   can be attached to PNG images by specifying parameters of the form
---   "tEXt::key", where key is an ASCII string of length 1-79.
+--   \"tEXt::key\", where key is an ASCII string of length 1-79.
 --   The values are Unicode strings.
 --
--- * The function returns @literal Nothing@ if writing was successful.
+-- * The function returns @Nothing@ if writing was successful.
 --   Otherwise the error code and a description is returned or,
 --   if the error is not captured by one of the error codes in
---   @ref data PixbufError@, an exception is thrown.
+--   'PixbufError', an exception is thrown.
 --
 pixbufSave :: Pixbuf -> FilePath -> ImageType -> [(String, String)] ->
 	      IO (Maybe (PixbufError, String))
@@ -245,7 +243,7 @@ pixbufSave pb fname iType options =
        else
 	error msg
 
--- @constructor pixbufNew@ Create a new image in memory.
+-- | Create a new image in memory.
 --
 -- * Creates a new pixbuf structure and allocates a buffer for
 --   it. Note that the buffer is not cleared initially.
@@ -257,7 +255,7 @@ pixbufNew colorspace hasAlpha bitsPerSample width height =
       (fromBool hasAlpha) (fromIntegral bitsPerSample) (fromIntegral width)
       (fromIntegral height)
 
--- @constructor pixbufNewFromXPMData@ Create a new image from a String.
+-- | Create a new image from a String.
 --
 -- * Creates a new pixbuf from a string description.
 --
@@ -267,37 +265,37 @@ pixbufNewFromXPMData s =
     withArray0 nullPtr strPtrs $ \strsPtr ->
       makeNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
 
--- @data InlineImage@ A dymmy type for inline picture data.
+-- | A dymmy type for inline picture data.
 --
 -- * This dummy type is used to declare pointers to image data
 --   that is embedded in the executable. See
---   @ref constructor pixbufNewFromInline@ for an example.
+--   'pixbufNewFromInline' for an example.
 --
 data InlineImage = InlineImage
 
--- @constructor pixbufNewFromInline@ Create a new image from a static pointer.
+-- | Create a new image from a static pointer.
 --
--- * Like @ref constructor pixbufNewFromXPMData@, this function allows to
+-- * Like 'pixbufNewFromXPMData', this function allows to
 --   include images in the final binary program. The method used by this
 --   function uses a binary representation and therefore needs less space
 --   in the final executable. Save the image you want to include as
---   @literal png@ and run @prog
---   echo #include "my_image.h" > my_image.c
+--   @png@ and run: 
+--   @echo #include \"my_image.h\" > my_image.c@
 --   gdk-pixbuf-csource --raw --extern --name=my_image myimage.png >> my_image.c
---   @ on it. Write a header file @literal my_image.h@ containing @prog
---   #include <gdk/gdk.h>
---   extern guint8 my_image\[\];
---   @ and save it in the current directory.
---   The created file can be compiled with @prog
---   cc -c my_image.c `pkg-config --cflags gdk-2.0`
---   @ into an object file which must be linked into your Haskell program by
---   specifying @literal my_image.o@ and @literal "-#include my_image.h"@ on
+--    on it. Write a header file @my_image.h@ containing:
+--   @#include <gdk\/gdk.h>
+--   extern guint8 my_image\[\];@
+--    and save it in the current directory.
+--   The created file can be compiled with: 
+--   @cc -c my_image.c \`pkg-config --cflags gdk-2.0\`@
+--    into an object file which must be linked into your Haskell program by
+--   specifying @my_image.o@ and @"-#include my_image.h"@ on
 --   the command line of GHC.
---   Within you application you delcare a pointer to this image: @prog
---   foreign label "my_image" myImage :: Ptr InlineImage
---   @ Calling @ref constructor pixbufNewFromInline@ with this pointer will
+--   Within you application you delcare a pointer to this image: 
+--   @foreign label \"my_image\" myImage :: Ptr InlineImage@
+--    Calling 'pixbufNewFromInline' with this pointer will
 --   return the image in the object file. Creating the C file with
---   the @literal --raw@ flag will result in a non-compressed image in the
+--   the @--raw@ flag will result in a non-compressed image in the
 --   object file. The advantage is that the picture will not be
 --   copied when this function is called.
 --
@@ -312,9 +310,9 @@ pixbufNewFromInline iPtr = alloca $ \errPtrPtr -> do
       (GError dom code msg) <- peek errPtr
       error msg
 
--- @method pixbufNewSubpixbuf@ Create a restricted view of an image.
+-- | Create a restricted view of an image.
 --
--- * This function returns a @ref data Pixbuf@ object which shares
+-- * This function returns a 'Pixbuf' object which shares
 --   the image of the original one but only shows a part of it.
 --   Modifying either buffer will affect the other.
 --
@@ -329,48 +327,48 @@ pixbufNewSubpixbuf pb srcX srcY height width =
     if pbPtr==nullPtr then error "pixbufNewSubpixbuf: invalid bounds"
       else return pbPtr
 
--- @constructor pixbufCopy@ Create a deep copy of an image.
+-- | Create a deep copy of an image.
 --
 pixbufCopy :: Pixbuf -> IO Pixbuf
 pixbufCopy pb = makeNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 
 
--- @data InterpType@ How an image is scaled.
+-- | How an image is scaled.
 --
 --
--- * @variant InterpNearest@ Nearest neighbor sampling; this is the
+-- * DOCFIXME(constructor): InterpNearest Nearest neighbor sampling; this is the
 --   fastest and lowest quality mode. Quality is normally unacceptable when
 --   scaling down, but may be OK when scaling up.
 --
--- * @variant InterpTiles@ This is an accurate simulation of the
+-- * DOCFIXME(constructor): InterpTiles This is an accurate simulation of the
 --   PostScript image operator without any interpolation enabled. Each
 --   pixel is rendered as a tiny parallelogram of solid color, the edges of
 --   which are implemented with antialiasing. It resembles nearest neighbor
 --   for enlargement, and bilinear for reduction.
 --
--- * @variant InterpBilinear@ Best quality/speed balance; use this
+-- * DOCFIXME(constructor): InterpBilinear Best quality\/speed balance; use this
 --   mode by default. Bilinear interpolation. For enlargement, it is
 --   equivalent to point-sampling the ideal bilinear-interpolated
 --   image. For reduction, it is equivalent to laying down small tiles and
 --   integrating over the coverage area.
 --
--- * @variant InterpHyper@ This is the slowest and highest quality
+-- * DOCFIXME(constructor): InterpHyper This is the slowest and highest quality
 --   reconstruction function. It is derived from the hyperbolic filters in
---   Wolberg's "Digital Image Warping", and is formally defined as the
+--   Wolberg's \"Digital Image Warping\", and is formally defined as the
 --   hyperbolic-filter sampling the ideal hyperbolic-filter interpolated
 --   image (the filter is designed to be idempotent for 1:1 pixel mapping).
 --
 {#enum InterpType {underscoreToCase} #}
 
--- @method pixbufScaleSimple@ Scale an image.
+-- | Scale an image.
 --
--- * Creates a new @ref data GdkPixbuf@ containing a copy of 
---   @ref arg src@ scaled to the given measures. Leaves @ref arg src@
+-- * Creates a new 'GdkPixbuf' containing a copy of 
+--   @src@ scaled to the given measures. Leaves @src@
 --   unaffected. 
 --
--- * @ref arg interp@ affects the quality and speed of the scaling function.
---   @variant InterpNearest@ is the fastest option but yields very poor
---   quality when scaling down. @variant InterpBilinear@ is a good
+-- * @interp@ affects the quality and speed of the scaling function.
+--   DOCFIXME(constructor): InterpNearest is the fastest option but yields very poor
+--   quality when scaling down. DOCFIXME(constructor): InterpBilinear is a good
 --   trade-off between speed and quality and should thus be used as a
 --   default.
 --
@@ -381,17 +379,17 @@ pixbufScaleSimple pb width height interp =
 	(fromIntegral width) (fromIntegral height)
 	(fromIntegral $ fromEnum interp)
 
--- @method pixbufScale@ Copy a scaled image part to another image.
+-- | Copy a scaled image part to another image.
 --
--- * This function is the generic version of @ref method pixbufScaleSimple@.
---   It scales @ref arg src@ by @ref arg scaleX@ and @ref arg scaleY@ and
---   translate the image by @ref arg offsetX@ and @ref arg offsetY@. Whatever
---   is in the intersection with the rectangle @ref arg destX@,
---   @ref arg destY@, @ref arg destWidth@, @ref arg destHeight@ will be
---   rendered into @ref arg dest@.
+-- * This function is the generic version of 'pixbufScaleSimple'.
+--   It scales @src@ by @scaleX@ and @scaleY@ and
+--   translate the image by @offsetX@ and @offsetY@. Whatever
+--   is in the intersection with the rectangle @destX@,
+--   @destY@, @destWidth@, @destHeight@ will be
+--   rendered into @dest@.
 --
 -- * The rectangle in the destination is simply overwritten. Use
---   @ref method pixbufComposite@ if you need to blend the source
+--   'pixbufComposite' if you need to blend the source
 --   image onto the destination.
 --
 pixbufScale :: Pixbuf -> Pixbuf -> Int -> Int -> Int -> Int ->
@@ -403,14 +401,14 @@ pixbufScale src dest destX destY destWidth destHeight offsetX offsetY
   (realToFrac scaleX) (realToFrac scaleY)
   ((fromIntegral . fromEnum) interp)
 
--- @method pixbufComposite@ Blend a scaled image part onto another image.
+-- | Blend a scaled image part onto another image.
 --
--- * This function is similar to @ref method pixbufScale@ but allows the
---   original image to "shine through". The @ref arg alpha@ value determines
---   how opaque the source image is. Passing @literal 0@ is
+-- * This function is similar to 'pixbufScale' but allows the
+--   original image to \"shine through\". The @alpha@ value determines
+--   how opaque the source image is. Passing @0@ is
 --   equivalent to not calling this function at all, passing
---   @literal 255@ has the
---   same effect as calling @ref method pixbufScale@.
+--   @255@ has the
+--   same effect as calling 'pixbufScale'.
 --
 pixbufComposite :: Pixbuf -> Pixbuf -> Int -> Int -> Int -> Int ->
 		   Double -> Double -> Double -> Double -> InterpType ->
@@ -423,17 +421,17 @@ pixbufComposite src dest destX destY destWidth destHeight
   (realToFrac scaleX) (realToFrac scaleY)
   ((fromIntegral . fromEnum) interp) (fromIntegral alpha)
 
--- @method pixbufAddAlpha@ Add an opacity layer to the @ref data Pixbuf@.
+-- | Add an opacity layer to the 'Pixbuf'.
 --
--- * This function returns a copy of the given @ref arg src@
---   @ref data Pixbuf@, leaving @ref arg src@ unmodified.
---   The new @ref data Pixbuf@ has an alpha (opacity)
---   channel which defaults to @literal 255@ (fully opaque pixels)
---   unless @ref arg src@ already had an alpha channel in which case
+-- * This function returns a copy of the given @src@
+--   'Pixbuf', leaving @src@ unmodified.
+--   The new 'Pixbuf' has an alpha (opacity)
+--   channel which defaults to @255@ (fully opaque pixels)
+--   unless @src@ already had an alpha channel in which case
 --   the original values are kept.
---   Passing in a color triple @literal (r,g,b)@ makes all
+--   Passing in a color triple @(r,g,b)@ makes all
 --   pixels that have this color fully transparent
---   (opacity of @literal 0@). The pixel color itself remains unchanged
+--   (opacity of @0@). The pixel color itself remains unchanged
 --   during this substitution.
 --
 pixbufAddAlpha :: Pixbuf -> Maybe (Word8, Word8, Word8) -> IO Pixbuf
@@ -443,10 +441,10 @@ pixbufAddAlpha pb (Just (r,g,b)) = makeNewGObject mkPixbuf $
   {#call unsafe pixbuf_add_alpha#} pb (fromBool True)
     (fromIntegral r) (fromIntegral g) (fromIntegral b)
 
--- @method pixbufCopyArea@ Copy a rectangular portion into another
--- @ref data Pixbuf@.
+-- | Copy a rectangular portion into another
+-- 'Pixbuf'.
 --
--- * The source @ref data Pixbuf@ remains unchanged. Converion between
+-- * The source 'Pixbuf' remains unchanged. Converion between
 --   different formats is done automatically.
 --
 pixbufCopyArea :: Pixbuf -> Int -> Int -> Int -> Int ->
@@ -456,10 +454,10 @@ pixbufCopyArea src srcX srcY srcWidth srcHeight dest destX destY =
     (fromIntegral srcY) (fromIntegral srcHeight) (fromIntegral srcWidth)
     dest (fromIntegral destX) (fromIntegral destY)
 
--- @method pixbufFill@ Fills a @ref data Pixbuf@ with a color.
+-- | Fills a 'Pixbuf' with a color.
 --
 -- * The passed-in color is a quadruple consisting of the red, green, blue
---   and alpha component of the pixel. If the @ref data Pixbuf@ does not
+--   and alpha component of the pixel. If the 'Pixbuf' does not
 --   have an alpha channel, the alpha value is ignored.
 --
 pixbufFill :: Pixbuf -> Word8 -> Word8 -> Word8 -> Word8 -> IO ()
@@ -469,16 +467,16 @@ pixbufFill pb red green blue alpha = {#call unsafe pixbuf_fill#} pb
    (fromIntegral blue)  `shiftL`  8 .|.
    (fromIntegral alpha))
 
--- @method pixbufGetFromDrawable@ Take a screenshot of a @ref data Drawable@.
+-- | Take a screenshot of a 'Drawable'.
 --
--- * This function creates a @ref data Pixbuf@ and fills it with the image
---   currently in the @ref data Drawable@ (which might be invalid if the
+-- * This function creates a 'Pixbuf' and fills it with the image
+--   currently in the 'Drawable' (which might be invalid if the
 --   window is obscured or minimized). Note that this transfers data from
 --   the server to the client on X Windows.
 --
--- * This function will return a @ref data Pixbuf@ with no alpha channel
---   containing the part of the @ref data Drawable@ specified by the
---   rectangle. The function will return @literal Nothing@ if the window
+-- * This function will return a 'Pixbuf' with no alpha channel
+--   containing the part of the 'Drawable' specified by the
+--   rectangle. The function will return @Nothing@ if the window
 --   is not currently visible.
 --
 pixbufGetFromDrawable :: DrawableClass d => d -> Rectangle -> IO (Maybe Pixbuf)

@@ -20,6 +20,12 @@
 	gtk/entry/HScale.chs, gtk/entry/SpinButton.chs,
 	gtk/entry/VScale.chs: initial haddockification
 
+	* gtk/gdk/DrawWindow.hs, gtk/gdk/Drawable.chs,
+	gtk/gdk/Events.hsc, gtk/gdk/GC.chs,
+	gtk/gdk/Gdk.chs, gtk/gdk/GdkEnums.chs,
+	gtk/gdk/Keys.chs, gtk/gdk/Pixbuf.chs,
+	gtk/gdk/Region.chs: initial haddockification
+
 2004-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/abstract/Widget.chs:

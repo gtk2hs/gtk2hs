@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @Gdk@
+--  GIMP Toolkit (GTK) Gdk
 --
 --  Author : Jens Petersen <petersen@haskell.org>
 --  Created: 2003-06-06
 --
---  Version $Revision: 1.1 $ from $Date: 2003/07/03 05:19:36 $
+--  Version $Revision: 1.2 $ from $Date: 2004/05/23 15:55:36 $
 --
 --  Copyright (c) 2003 Jens-Ulrik Holger Petersen
 --
@@ -18,14 +18,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  Gdk general functions.
+-- Gdk general functions.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 --  * Documentation
 --

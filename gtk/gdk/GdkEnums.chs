@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Enumerations@
+--  GIMP Toolkit (GTK) Enumerations
 --
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.6 $ from $Date: 2003/05/16 18:45:23 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/23 15:55:36 $
 --
 --  Copyright (c) [1999..2001] Manuel M. T. Chakravarty
 --
@@ -18,14 +18,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  General enumeration types.
+-- General enumeration types.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 --  * Documentation
 --
@@ -67,57 +64,57 @@ class  (Enum a, Bounded a) => Flags a where
 
 {#context lib="libgdk" prefix ="gdk"#}
 
--- @data CapStyle@ Specify the how the ends of a line is drawn.
+-- | Specify the how the ends of a line is drawn.
 --
 {#enum CapStyle {underscoreToCase}#}
 
--- @data CrossingMode@ provide additionl information if cursor crosses a
+-- | provide additionl information if cursor crosses a
 -- window
 --
 {#enum CrossingMode {underscoreToCase}#}
 
--- @data Dither@ Specify how to dither colors onto the screen.
+-- | Specify how to dither colors onto the screen.
 --
 {#enum RgbDither as Dither {underscoreToCase}#}
 
--- @data EventMask@ specify which events a widget will emit signals on
+-- | specify which events a widget will emit signals on
 --
 {#enum EventMask {underscoreToCase} deriving (Bounded)#}
 
 instance Flags EventMask
 
--- @data ExtensionMode@ specify which input extension a widget desires
+-- | specify which input extension a widget desires
 --
 {#enum ExtensionMode {underscoreToCase} deriving(Bounded)#}
 
 instance Flags ExtensionMode
 
--- @data Fill@ How objects are filled.
+-- | How objects are filled.
 --
 {#enum Fill {underscoreToCase}#}
 
--- @data Function@ Determine how bitmap operations are carried out.
+-- | Determine how bitmap operations are carried out.
 --
 {#enum Function {underscoreToCase}#}
 
--- @data FillRule@ Specify how to interpret a polygon.
+-- | Specify how to interpret a polygon.
 --
 -- * The flag determines what happens if a polygon has overlapping areas.
 --
 {#enum FillRule {underscoreToCase}#}
 
--- @data InputCondition@ Specify on what file condition a callback should be
+-- | Specify on what file condition a callback should be
 -- done.
 --
 {#enum InputCondition {underscoreToCase} deriving(Bounded) #}
 
 instance Flags InputCondition
 
--- @data JoinStyle@ Determines how adjacent line ends are drawn.
+-- | Determines how adjacent line ends are drawn.
 --
 {#enum JoinStyle {underscoreToCase}#}
 
--- @data LineStyle@ Determines if a line is solid or dashed.
+-- | Determines if a line is solid or dashed.
 --
 {#enum LineStyle {underscoreToCase}#}
 
@@ -125,24 +122,24 @@ instance Flags InputCondition
 --
 {#enum NotifyType {underscoreToCase}#}
 
--- @data OverlapType@ How a rectangle is contained in a @ref data Region@.
+-- | How a rectangle is contained in a 'Region'.
 --
 {#enum OverlapType {underscoreToCase}#}
 
--- @data ScrollDirection@ in which direction was scrolled?
+-- | in which direction was scrolled?
 --
 {#enum ScrollDirection {underscoreToCase}#}
 
--- @data SubwindowMode@ Determine if child widget may be overdrawn.
+-- | Determine if child widget may be overdrawn.
 --
 {#enum SubwindowMode {underscoreToCase}#}
 
--- @data VisibilityState@ visibility of a window
+-- | visibility of a window
 --
 {#enum VisibilityState {underscoreToCase,
 			VISIBILITY_PARTIAL as VisibilityPartialObscured}#}
 
--- @data WindowState@ the state a GDK window is in
+-- | the state a GDK window is in
 --
 {#enum WindowState {underscoreToCase} deriving (Bounded)#}
 

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Datastructure@
+--  GIMP Toolkit (GTK) Datastructure
 --
 --  Author : Axel Simon
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 15:55:36 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Events(
   Modifier,		-- a mask of control keys
@@ -91,7 +86,7 @@ import Structs	(Rectangle(..))
 #include <gdk/gdk.h>
 
 
--- @type Modifier@ modifier key flags
+-- | modifier key flags
 --
 type Modifier = #{type guint}
 

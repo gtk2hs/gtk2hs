@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @entry DrawWindow@
+--  GIMP Toolkit (GTK) DrawWindow
 --
 --  Author : Axel Simon
 --  Created: 5 November 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/12/03 13:45:43 $
+--  Version $Revision: 1.2 $ from $Date: 2004/05/23 15:55:36 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -18,23 +18,21 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  A primitive window.
---
--- @documentation@ ------------------------------------------------------------
+-- A primitive window.
 --
 --  * This abstract type represents an on-screen window. Since it is derived
---    from @ref data Drawable@, all methods defined there can be used.
+--    from 'Drawable', all methods defined there can be used.
 --
---  * Every widget usually has a @ref data DrawWindow@ into which it draws its
---    content. @ref data DrawWindow@s become useful when the user creates
---    custom widgets using the @ref data DrawingArea@ skeleton.
+--  * Every widget usually has a 'DrawWindow' into which it draws its
+--    content. 'DrawWindow's become useful when the user creates
+--    custom widgets using the 'DrawingArea' skeleton.
 --
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
---  * This abstract type corresponds to a gdk_window. There seems to be no
---    functions of interest that operate on gdk_windows.
+--  * This abstract type corresponds to a @gdk_window@. There seems to be no
+--    functions of interest that operate on @gdk_window@s.
 --
 module DrawWindow(
   DrawWindow,
