@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:14:09 $
+--  Version $Revision: 1.6 $ from $Date: 2004/12/12 18:09:50 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -29,7 +29,8 @@ module HScrollbar(
   HScrollbar,
   HScrollbarClass,
   castToHScrollbar,
-  hScrollbarNew
+  hScrollbarNew,
+  hScrollbarNewDefaults
   ) where
 
 import Monad	(liftM)
@@ -48,3 +49,11 @@ import Object	(makeNewObject)
 hScrollbarNew :: Adjustment -> IO HScrollbar
 hScrollbarNew adj = makeNewObject mkHScrollbar $ liftM castPtr $
   {#call unsafe hscrollbar_new#} adj
+
+-- | Create a new HScrollbar without an 'Adjustment'.
+--
+hScrollbarNewDefaults :: IO HScrollbar
+hScrollbarNewDefaults = makeNewObject mkHScrollbar $ liftM castPtr $
+  {#call unsafe hscrollbar_new#} (mkAdjustment nullForeignPtr)
+
+

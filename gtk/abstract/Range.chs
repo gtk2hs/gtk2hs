@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/08/01 16:08:14 $
+--  Version $Revision: 1.7 $ from $Date: 2004/12/12 18:09:39 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,18 +23,24 @@
 --
 -- An abstract base class to handle widgets that represent some value range.
 --
-
+-- * For signals regarding a change in the range or increments, refer to
+--   'Adjustment' which is contained in the 'Range' object.
+--
 module Range(
   Range,
   RangeClass,
   castToRange,
   rangeGetAdjustment,
-  UpdateType(..),
-  rangeSetUpdatePolicy,
-  rangeGetUpdatePolicy,
   rangeSetAdjustment,
+  UpdateType(..),
+  rangeGetUpdatePolicy,
+  rangeSetUpdatePolicy,
   rangeGetInverted,
   rangeSetInverted,
+  rangeGetValue,
+  rangeSetValue,
+  rangeSetIncrements,
+  rangeSetRange,
   ScrollType(..),
   rangeSetIncrements,
   rangeSetRange,
@@ -62,11 +68,10 @@ rangeGetAdjustment :: RangeClass r => r -> IO Adjustment
 rangeGetAdjustment r = makeNewObject mkAdjustment $
   {#call unsafe range_get_adjustment#} (toRange r)
 
--- | Set how the internal 'Adjustment' object is updated.
+-- | Insert a new 'Adjustment' object.
 --
-rangeSetUpdatePolicy :: RangeClass r => r -> UpdateType -> IO ()
-rangeSetUpdatePolicy r up = {#call range_set_update_policy#}
-  (toRange r) ((fromIntegral.fromEnum) up)
+rangeSetAdjustment :: RangeClass r => r -> Adjustment -> IO ()
+rangeSetAdjustment r adj = {#call range_set_adjustment#} (toRange r) adj
 
 -- | Get the update policy for the range widget.
 --
@@ -74,10 +79,14 @@ rangeGetUpdatePolicy :: RangeClass r => r -> IO UpdateType
 rangeGetUpdatePolicy r = liftM (toEnum.fromIntegral) $
   {#call unsafe range_get_update_policy#} (toRange r)
 
--- | Insert a new 'Adjustment' object.
+-- | Set how the internal 'Adjustment' object is updated.
 --
-rangeSetAdjustment :: RangeClass r => r -> Adjustment -> IO ()
-rangeSetAdjustment r adj = {#call range_set_adjustment#} (toRange r) adj
+-- * The value of 'UpdateType' determines how frequently value-changed 
+--   signals are emitted on the internal 'Adjustment' object.
+--
+rangeSetUpdatePolicy :: RangeClass r => r -> UpdateType -> IO ()
+rangeSetUpdatePolicy r up = {#call range_set_update_policy#}
+  (toRange r) ((fromIntegral.fromEnum) up)
 
 -- | Get the inverted flag (determines if the range is reversed).
 --
@@ -90,7 +99,24 @@ rangeGetInverted r =
 rangeSetInverted :: RangeClass r => r -> Bool -> IO ()
 rangeSetInverted r inv = {#call range_set_inverted#} (toRange r) (fromBool inv)
 
--- | Sets the step and page sizes for the range. The step size is used when the
+-- | Gets the current value of the range.
+--
+rangeGetValue :: RangeClass r => r -> IO Double
+rangeGetValue r = liftM realToFrac $
+  {#call unsafe range_get_value#} (toRange r)
+
+-- | Sets the current value of the range. The range emits the \"value_changed\"
+-- signal if the value changes.
+--
+-- * If the value is outside the minimum or maximum range values, it will be
+-- clamped to fit inside them.
+--
+rangeSetValue :: RangeClass r => r -> Double -> IO ()
+rangeSetValue r value =
+  {#call range_set_value#} (toRange r) (realToFrac value)
+
+-- | Sets the step and page sizes for the range. 
+-- The step size is used when the
 -- user clicks the "Scrollbar" arrows or moves "Scale" via arrow keys. The
 -- page size is used for example when moving via Page Up or Page Down keys.
 --
@@ -110,22 +136,6 @@ rangeSetRange :: RangeClass r => r
               -> IO ()
 rangeSetRange r min max =
  {#call range_set_range#} (toRange r) (realToFrac min) (realToFrac max)
-
--- | Sets the current value of the range. The range emits the \"value_changed\"
--- signal if the value changes.
---
--- * If the value is outside the minimum or maximum range values, it will be
--- clamped to fit inside them.
---
-rangeSetValue :: RangeClass r => r -> Double -> IO ()
-rangeSetValue r value =
-  {#call range_set_value#} (toRange r) (realToFrac value)
-
--- | Gets the current value of the range.
---
-rangeGetValue :: RangeClass r => r -> IO Double
-rangeGetValue r = liftM realToFrac $
-  {#call unsafe range_get_value#} (toRange r)
 
 -- signals
 

@@ -6,7 +6,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/08/06 01:31:42 $
+--  Version $Revision: 1.9 $ from $Date: 2004/12/12 18:09:49 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -20,9 +20,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- |
+-- | A label is a piece of static text in a user interface.
 --
-
 module Label(
   Label,
   LabelClass,
@@ -32,7 +31,6 @@ module Label(
   labelSetText,
   labelSetLabel,
   labelSetTextWithMnemonic,
-  module Markup,
   labelSetMarkup,
   labelSetMarkupWithMnemonic,
   labelSetMnemonicWidget,

@@ -1,5 +1,9 @@
 2004-12-12 Axel Simon <A.Simon@kent.ac.uk> 
 
+	* gtk/abstract/Range.chs, abstract/Widget.chs,
+	display/Label.chs, misc/Adjustment.chs, scrolling/HScrollbar.chs,
+	scrolling/VScrollbar.chs: Add some more functions.
+
 	* Makefile.am, mk/common.mk: Avoid building dependencies when
 	saying "make clean".
 
@@ -23,6 +27,7 @@
 
 	* sourceview/sourceview.pkg.in: Added forgotten comma.
 	
+
 2004-12-9  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/embedding/Embedding.hsc, gtk/entry/EntryCompletion.chs.pp,

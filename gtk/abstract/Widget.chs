@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.15 $ from $Date: 2004/12/12 18:09:49 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -128,6 +128,8 @@ module Widget(
   afterProximityIn,
   onProximityOut,
   afterProximityOut,
+  onRealize,
+  afterRealize,
   onScroll,
   afterScroll,
   onShow,
@@ -591,6 +593,13 @@ onProximityOut, afterProximityOut :: WidgetClass w => w ->
                                      (Event -> IO Bool) -> IO (ConnectId w)
 onProximityOut = event "proximity_out_event" [ProximityOutMask] False
 afterProximityOut = event "proximity_out_event" [ProximityOutMask] True
+
+-- | This widget's drawing area is about to be
+-- destroyed.
+--
+onRealize, afterRealize :: WidgetClass w => w -> IO () -> IO (ConnectId w)
+onRealize = connect_NONE__NONE "realize" False
+afterRealize = connect_NONE__NONE "realize" True
 
 -- | The mouse wheel has turned.
 --

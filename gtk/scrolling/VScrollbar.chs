@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:14:09 $
+--  Version $Revision: 1.6 $ from $Date: 2004/12/12 18:09:50 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -29,7 +29,8 @@ module VScrollbar(
   VScrollbar,
   VScrollbarClass,
   castToVScrollbar,
-  vScrollbarNew
+  vScrollbarNew,
+  vScrollbarNewDefaults
   ) where
 
 import Monad	(liftM)
@@ -48,3 +49,12 @@ import Object	(makeNewObject)
 vScrollbarNew :: Adjustment -> IO VScrollbar
 vScrollbarNew adj = makeNewObject mkVScrollbar $ liftM castPtr $
   {#call unsafe vscrollbar_new#} adj
+
+-- | Create a new HScrollbar with a default 'Adjustment'.
+--
+vScrollbarNewDefaults :: IO VScrollbar
+vScrollbarNewDefaults = makeNewObject mkVScrollbar $ liftM castPtr $
+  {#call unsafe vscrollbar_new#} (mkAdjustment nullForeignPtr)
+
+
+
