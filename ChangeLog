@@ -1,3 +1,18 @@
+2004-07-27  Jens Petersen  <petersen@haskell.org>
+
+	* mk/config.mk.in (INSTALL_DIR): Define ABS_TOP.
+
+	* mk/common.mk: Sedpipe ABS_TOP and use it for TARDIR to fix
+	tarsource target. 
+
+	* glade/Makefile: Use TOP.  Generate GladeType.chs with the same
+	invocation used by sourceview and gtk.
+
+	* doc/Makefile: Use common.mk and EXTRA_TARFILES, drop own
+	tarsource target and no longer set CURDIR and TARDIR.
+
+	* VERSION: Up to 0.9.5.50
+
 2004-07-26 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/abstract/ButtonBox.chs: Remove buttonBoxGetChildSecondary
