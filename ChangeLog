@@ -6,6 +6,14 @@
 
 	* glade/Glade.chs: initial haddockification
 
+	* sourceview/SourceBuffer.chs, sourceview/SourceIter.chs,
+	sourceview/SourceLanguage.chs,
+	sourceview/SourceLanguagesManager.chs,
+	sourceview/SourceMarker.chs, sourceview/SourceStyleScheme.chs,
+	sourceview/SourceTag.chs, sourceview/SourceTagStyle.hsc,
+	sourceview/SourceTagTable.chs, sourceview/SourceView.chs:
+	initial haddockification
+
 2004-05-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/Bin.chs, gtk/abstract/Box.chs,

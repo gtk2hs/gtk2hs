@@ -1,5 +1,5 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry SourceTagStyle@
+--  GIMP Toolkit (GTK) SourceTagStyle
 --
 --  Author : Duncan Coutts
 --  derived from GtkTextView bindings by Axel Simon
@@ -16,14 +16,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
---
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
+-- |
 --
 module SourceTagStyle (
   SourceTagStyle(..),

@@ -1,5 +1,5 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry SourceTagTable@
+--  GIMP Toolkit (GTK) SourceTagTable
 --
 --  Author : Duncan Coutts
 --  derived from GtkTextView bindings by Axel Simon
@@ -16,14 +16,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
---
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
+-- |
 --
 module SourceTagTable (
   SourceTagTable,
@@ -46,14 +39,14 @@ import GList	(fromGSList, toGSList)
 
 -- methods
 
--- @constructor sourceTagTableNew@ Create a new @ref type SourceTagTable@
+-- | Create a new 'SourceTagTable'
 --
 sourceTagTableNew :: IO SourceTagTable
 sourceTagTableNew = makeNewGObject mkSourceTagTable
   {#call unsafe source_tag_table_new#} 
 
 
--- @method sourceTagTableAddTags@ Add a list of tag to the table.
+-- | Add a list of tag to the table.
 -- 
 -- * The added tags are assigned the highest priority in the table. If a tag is
 --   already present in table or has the same name as an already-added tag, then
@@ -69,13 +62,13 @@ sourceTagTableAddTags tt tags = do
   -- make sure the ForeignPtrs are not gc'd while we are still using the Ptrs
   mapM_ touchForeignPtr tagForeignPtrs
 
--- @method sourceTagTableRemoveSourceTags@
+-- | 
 -- 
 sourceTagTableRemoveSourceTags :: SourceTagTable -> IO ()
 sourceTagTableRemoveSourceTags tt =
   {#call source_tag_table_remove_source_tags#} tt 
 
--- @signal onTagChanged@ The source tag table has changed.
+-- | The source tag table has changed.
 --
 onTagChanged, afterTagChanged :: 
   SourceTagTableClass stt => stt -> IO () -> IO (ConnectId stt)

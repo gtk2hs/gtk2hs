@@ -1,5 +1,5 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry SourceTag@
+--  GIMP Toolkit (GTK) SourceTag
 --
 --  Author : Duncan Coutts
 --  derived from GtkTextView bindings by Axel Simon
@@ -16,14 +16,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
---
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
+-- |
 --
 module SourceTag (
   SourceTag,
@@ -49,7 +42,7 @@ import GList   (toGSList, fromGSList)
 
 -- methods
 
--- @constructor syntaxTagNew@ Create a new @ref type SourceTag@
+-- | Create a new 'SourceTag'
 --
 syntaxTagNew :: String -> String -> String -> String -> IO SourceTag
 syntaxTagNew id name patternStart patternEnd =
@@ -60,7 +53,7 @@ syntaxTagNew id name patternStart patternEnd =
   withCString patternEnd   $ \strPtr4 -> 
   {#call syntax_tag_new#} strPtr1 strPtr2 strPtr3 strPtr4
 
--- @constructor patternTagNew@ Create a new @ref type SourceTag@
+-- | Create a new 'SourceTag'
 --
 patternTagNew :: String -> String -> String -> IO SourceTag
 patternTagNew id name pattern =
@@ -71,7 +64,7 @@ patternTagNew id name pattern =
   {#call unsafe pattern_tag_new#} strPtr1 strPtr2 strPtr3
 
 
--- @constructor keywordListTagNew@ Create a new @ref type SourceTag@.
+-- | Create a new 'SourceTag'.
 --
 keywordListTagNew :: String -> String -> [String] -> Bool -> Bool -> Bool ->
 		     String -> String -> IO SourceTag
@@ -97,12 +90,12 @@ keywordListTagNew id name keywords
   mapM_ free keywordPtrs
   return obj
 
--- @constructor blockCommentTagNew@ Create a new @ref type SourceTag@
+-- | Create a new 'SourceTag'
 --
 blockCommentTagNew :: String -> String -> String -> String -> IO SourceTag
 blockCommentTagNew = syntaxTagNew --in the C header this is just a macro
 
--- @constructor lineCommentTagNew@ Create a new @ref type SourceTag@
+-- | Create a new 'SourceTag'
 --
 lineCommentTagNew :: String -> String -> String -> IO SourceTag
 lineCommentTagNew id name pattern =
@@ -112,7 +105,7 @@ lineCommentTagNew id name pattern =
   withCString pattern $ \strPtr3 ->
   {#call unsafe line_comment_tag_new#} strPtr1 strPtr2 strPtr3
 
--- @constructor stringTagNew@ Create a new @ref type SourceTag@
+-- | Create a new 'SourceTag'
 --
 stringTagNew :: String -> String -> String -> String -> Bool -> IO SourceTag
 stringTagNew id name patternStart patternEnd endAtLineEnd =
@@ -124,7 +117,7 @@ stringTagNew id name patternStart patternEnd endAtLineEnd =
   {#call unsafe string_tag_new#} strPtr1 strPtr2 strPtr3 strPtr4 (fromBool endAtLineEnd)
 
 
--- @method sourceTagGetStyle@
+-- | 
 -- 
 sourceTagGetStyle :: SourceTag -> IO SourceTagStyle
 sourceTagGetStyle tag = do
@@ -133,7 +126,7 @@ sourceTagGetStyle tag = do
   {#call unsafe g_free#} tsPtr
   return ts
 
--- @method sourceTagSetStyle@
+-- | 
 -- 
 sourceTagSetStyle :: SourceTag -> SourceTagStyle -> IO ()
 sourceTagSetStyle tag ts = alloca $ \tsPtr -> do

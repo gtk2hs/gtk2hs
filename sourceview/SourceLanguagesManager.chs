@@ -1,5 +1,5 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry SourceLanguagesManager@
+--  GIMP Toolkit (GTK) SourceLanguagesManager
 --
 --  Author : Duncan Coutts
 --  derived from GtkTextView bindings by Axel Simon
@@ -16,14 +16,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
---
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
+-- |
 --
 module SourceLanguagesManager (
   SourceLanguagesManager,
@@ -46,14 +39,13 @@ import GList	(readGSList)
 
 -- methods
 
--- @constructor sourceLanguagesManagerNew@ Create a new
--- @ref type SourceLanguagesManager@.
+-- | Create a new 'SourceLanguagesManager'.
 --
 sourceLanguagesManagerNew :: IO SourceLanguagesManager
 sourceLanguagesManagerNew = makeNewGObject mkSourceLanguagesManager
   {#call source_languages_manager_new#} 
 
--- @method sourceLanguagesManagerGetAvailableLanguages@
+-- | 
 -- 
 sourceLanguagesManagerGetAvailableLanguages :: SourceLanguagesManager -> 
 					       IO [SourceLanguage]
@@ -62,7 +54,7 @@ sourceLanguagesManagerGetAvailableLanguages lm = do
   wList <- readGSList gList
   mapM (makeNewGObject mkSourceLanguage) (map return wList)
 
--- @method sourceLanguagesManagerGetLanguageFromMimeType@
+-- | 
 -- 
 sourceLanguagesManagerGetLanguageFromMimeType :: SourceLanguagesManager -> String -> IO (Maybe SourceLanguage)
 sourceLanguagesManagerGetLanguageFromMimeType lm mimeType = do
@@ -71,8 +63,7 @@ sourceLanguagesManagerGetLanguageFromMimeType lm mimeType = do
   if langPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkSourceLanguage (return langPtr)
 
--- @method sourceLanguagesManagerGetLangFilesDirs@ Retrieve filenames with
--- language specifications.
+-- | Retrieve filenames with language specifications.
 -- 
 sourceLanguagesManagerGetLangFilesDirs :: SourceLanguagesManager -> 
 					  IO [FilePath]

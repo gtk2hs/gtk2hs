@@ -1,5 +1,5 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry SourceStyleScheme@
+--  GIMP Toolkit (GTK) SourceStyleScheme
 --
 --  Author : Duncan Coutts
 --  derived from the GtkTextView bindings by Axel Simon
@@ -16,14 +16,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
---
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
+-- |
 --
 module SourceStyleScheme (
   SourceStyleScheme,
@@ -43,7 +36,7 @@ import SourceTagStyle
 
 -- methods
 
--- @method sourceStyleSchemeGetTagStyle@
+-- | 
 -- 
 sourceStyleSchemeGetTagStyle :: SourceStyleScheme -> String -> IO SourceTagStyle
 sourceStyleSchemeGetTagStyle ss styleName =
@@ -53,13 +46,13 @@ sourceStyleSchemeGetTagStyle ss styleName =
     {#call unsafe g_free#} tsPtr
     return ts
 
--- @method sourceStyleSchemeGetName@
+-- | 
 -- 
 sourceStyleSchemeGetName :: SourceStyleScheme -> IO String
 sourceStyleSchemeGetName ss =
   {#call source_style_scheme_get_name#} ss >>= peekUTFString
 
--- @method sourceStyleSchemeGetDefault@
+-- | 
 -- 
 sourceStyleSchemeGetDefault :: IO SourceStyleScheme
 sourceStyleSchemeGetDefault =

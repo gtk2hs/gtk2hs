@@ -1,5 +1,5 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry SourceIter@
+--  GIMP Toolkit (GTK) SourceIter
 --
 --  Author : Duncan Coutts
 --          
@@ -15,17 +15,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- Adds extra useful methods for GtkTextIter for searching forwards and
+-- Adds extra useful methods for "TextIter" for searching forwards and
 -- backwards within a region in the buffer and matching brackets.
 --
--- @documentation@ ------------------------------------------------------------
---
--- There is no SourceIter object, just extra methods for TextIter
---
--- @todo@ ---------------------------------------------------------------------
---
+-- * There is no SourceIter object, just extra methods for "TextIter"
 --
 module SourceIter (
 
@@ -52,7 +47,7 @@ instance Flags SourceSearchFlags
 
 -- methods
 
--- @method sourceIterForwardSearch@ same as textIterForwardSearch but allows
+-- | same as 'textIterForwardSearch' but allows
 -- case insensitive search and possibly in the future regular expressions.
 --
 sourceIterForwardSearch :: TextIter -> String -> [SourceSearchFlags] -> 
@@ -66,7 +61,7 @@ sourceIterForwardSearch ti str flags limit = do
        (fromMaybe (TextIter nullForeignPtr) limit)
    return $ if found then Just (start,end) else Nothing
 
--- @method sourceIterForwardSearch@ same as textIterForwardSearch but allows
+-- | same as 'textIterForwardSearch' but allows
 -- case insensitive search and possibly in the future regular expressions.
 --
 sourceIterBackwardSearch :: TextIter -> String -> [SourceSearchFlags] -> 
@@ -80,11 +75,11 @@ sourceIterBackwardSearch ti str flags limit = do
        (fromMaybe (TextIter nullForeignPtr) limit)
    return $ if found then Just (start,end) else Nothing
 
--- @method sourceIterFindMatchingBracket@ Tries to match the bracket character
--- currently at the given iter with its opening/closing counterpart, and if
+-- | Tries to match the bracket character
+-- currently at the given iter with its opening\/closing counterpart, and if
 -- found moves iter to the position where it was found.
 --
--- * the TextIter must belong to a SourceBuffer
+-- * the 'TextIter' must belong to a 'SourceBuffer'
 --
 sourceIterFindMatchingBracket :: TextIter -> IO Bool
 sourceIterFindMatchingBracket ti =

@@ -1,5 +1,5 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry SourceMarker@
+--  GIMP Toolkit (GTK) SourceMarker
 --
 --  Author : Duncan Coutts
 --  derived from GtkTextView bindings by Axel Simon
@@ -16,14 +16,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
---
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
+-- |
 --
 module SourceMarker (
   SourceMarker,
@@ -46,14 +39,14 @@ import GObject	(makeNewGObject)
 
 -- methods
 
--- @method sourceMarkerSetMarkerType@
+-- | 
 -- 
 sourceMarkerSetMarkerType :: SourceMarker -> String -> IO ()
 sourceMarkerSetMarkerType mark markType =
   withCString markType $ \strPtr1 ->
   {#call unsafe source_marker_set_marker_type#} mark strPtr1
 
--- @method sourceMarkerGetMarkerType@
+-- | 
 -- 
 sourceMarkerGetMarkerType :: SourceMarker -> IO String
 sourceMarkerGetMarkerType mark = do
@@ -62,31 +55,31 @@ sourceMarkerGetMarkerType mark = do
   {#call unsafe g_free#} (castPtr strPtr)
   return markType
 
--- @method sourceMarkerGetLine@
+-- | 
 -- 
 sourceMarkerGetLine :: SourceMarker -> IO Int
 sourceMarkerGetLine mark = liftM fromIntegral $
   {#call unsafe source_marker_get_line#} mark
 
--- @method sourceMarkerGetName@
+-- | 
 -- 
 sourceMarkerGetName :: SourceMarker -> IO String
 sourceMarkerGetName mark =
   {#call unsafe source_marker_get_name#} mark >>= peekUTFString
 
--- @method sourceMarkerGetBuffer@
+-- | 
 -- 
 sourceMarkerGetBuffer :: SourceMarker -> IO SourceBuffer
 sourceMarkerGetBuffer mark = makeNewGObject mkSourceBuffer $
   {#call unsafe source_marker_get_buffer#} mark
 
--- @method sourceMarkerNext@
+-- | 
 -- 
 sourceMarkerNext :: SourceMarker -> IO SourceMarker
 sourceMarkerNext mark = makeNewGObject mkSourceMarker $
   {#call unsafe source_marker_next#} mark
 
--- @method sourceMarkerPrev@
+-- | 
 -- 
 sourceMarkerPrev :: SourceMarker -> IO SourceMarker
 sourceMarkerPrev mark = makeNewGObject mkSourceMarker $
