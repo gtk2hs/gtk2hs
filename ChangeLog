@@ -2,6 +2,8 @@
 
 	* gtk/treeList/TreeStore.chs: added method treeStoreClear
 
+	* Makefile: fix typo
+
 2004-05-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/buttonbox/Makefile, demo/concurrent/Makefile,

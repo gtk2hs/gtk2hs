@@ -25,7 +25,7 @@ endif
 MAKE_LIBS += mogul
 
 MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
-	     demo/hello demo/butonbox
+	     demo/hello demo/buttonbox
 
 ifeq ($(strip $(ENABLE_GNOME)),yes)
 MAKE_APPS += demo/sourceview demo/glade
