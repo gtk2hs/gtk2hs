@@ -3,7 +3,8 @@
 	* mk/library.mk: Install one file and one directory at a time. The
 	local install-sh script cannot cope with more.
 	
-	* configure.in: Mange Cygwin paths properly. Not tested.
+	* configure.in: Mange Cygwin paths properly. Not tested. Remove
+	unused substitutions.
 	
 	* tools/hierarchyGen/TypeGen.hs: Make parser accept both "if" and
 	"as" statements.
