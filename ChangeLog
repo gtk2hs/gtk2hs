@@ -1,3 +1,8 @@
+2005-03-06 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/CodeGen.hs: Prefix property names with their object.
+	Make sure all properties are in the export list.
+
 2005-03-04 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: Fix one of the GHC 6.4 build failures by changing the

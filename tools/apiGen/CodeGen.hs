@@ -210,43 +210,46 @@ mungeConstructor object constructor =
     method_deprecated = False
   }  
 
-properties :: Object -> [PropDoc] -> [(Property, Maybe PropDoc)]
+properties :: Object -> [PropDoc] -> [(Either Property (Method, Method), Maybe PropDoc)]
 properties object docs =
-  [ (property, property_cname property `lookup` docmap)
-  | property <- object_properties object ]
+  map snd $
+  sortBy (comparing fst) $    --sort into the order as they appear in the gtk-docs
+    [ (maxBound :: Int
+      ,(Right methods
+       ,Just $ extraPropDocumentation getter setter))
+    | methods@(getter, setter) <- extraProps ]
+
+ ++ [ (index :: Int
+      ,(Right (getter, setter)
+       ,lookup (property_cname property) docmap))
+    | ((property, index), (getter, setter)) <- directProps ]
+
+ ++ [ (index :: Int
+      ,(Left property
+       ,lookup (property_cname property) docmap))
+    | (property, index) <- genericProps ]
+
   where docmap = [ (map dashToUnderscore (propdoc_name doc), doc)
                  | doc <- docs ]
         dashToUnderscore '-' = '_'
         dashToUnderscore  c  =  c
+        
+        (genericProps, -- existing GObject properties with generic implementation
+         directProps,  -- existing GObject properties but with direct implementation
+         extraProps)   -- extra properties with direct implementation
+          = mergeBy (\(prop, _) (method, _) ->
+                      property_name prop `compare` drop 3 (method_name method))
+                    (sortBy (comparing (property_name.fst)) (zip (object_properties object) [1..]))
+                    (sortBy (comparing (method_name.fst)) (methodsThatLookLikeProperties object))
 
 genProperties :: KnownSymbols -> Object -> [PropDoc] -> [(ShowS, (Since, Deprecated))]
 genProperties knownSymbols object apiDoc = 
-  map snd $
-  sortBy (comparing fst) $    --sort into the order as they appear in the gtk-docs
-
-    [ (0
-      ,let doc = extraPropDocumentation getter setter in
-       (genAtterFromGetterSetter knownSymbols object getter setter (Just doc)
-      ,(propdoc_since doc, notDeprecated)))
-    | (getter, setter) <- extraProps ]
-
- ++ [ (index
-      ,(genAtterFromGetterSetter knownSymbols object getter setter doc
-      ,(maybe "" propdoc_since doc, notDeprecated)))
-    | (((_, doc), index), (getter, setter)) <- directProps ]
-
- ++ [ (index
-      ,(genAtterFromProperty knownSymbols object property doc
-      ,(maybe "" propdoc_since doc, notDeprecated)))
-    | ((property, doc), index) <- genericProps ]
-
-  where (genericProps, -- existing GObject properties with generic implementation
-         directProps,  -- existing GObject properties but with direct implementation
-         extraProps)   -- extra properties with direct implementation
-          = mergeBy (\((prop,_), _) (method, _) ->
-                      property_name prop `compare` drop 3 (method_name method))
-                    (sortBy (comparing (property_name.fst.fst)) (zip (properties object apiDoc) [1..]))
-                    (sortBy (comparing (method_name.fst)) (methodsThatLookLikeProperties object))
+  [ let implementation = case property of
+          Left property          -> genAtterFromProperty knownSymbols object property doc
+          Right (getter, setter) -> genAtterFromGetterSetter knownSymbols object getter setter doc
+     in (implementation
+        ,(maybe "" propdoc_since doc, notDeprecated))
+  | (property, doc) <- properties object apiDoc ]
 
 extraPropDocumentation :: Method -> Method -> PropDoc
 extraPropDocumentation getter setter =
@@ -275,7 +278,7 @@ genAtterFromProperty :: KnownSymbols -> Object -> Property -> Maybe PropDoc -> S
 genAtterFromProperty knownSymbols object property doc = 
   genAtter knownSymbols object doc propertyName propertyType (getter "") (setter "")
 
-  where propertyName = lowerCaseFirstChar (property_name property)
+  where propertyName = lowerCaseFirstChar (object_name object ++ property_name property)
         (propertyType, gvalueConstructor) = genMarshalProperty knownSymbols (property_type property)
         getter = ss "(\\obj -> do ". ss gvalueConstructor. ss " result <- objectGetProperty \"". ss (property_cname property). ss "\"".
                  indent 7. ss "return result)"
@@ -286,7 +289,7 @@ genAtterFromGetterSetter knownSymbols object getterMethod setterMethod doc =
   genAtter knownSymbols object doc propertyName propertyType getter setter
 
   where --propertyName = cFuncNameToHsPropName (method_cname getterMethod)
-        propertyName = lowerCaseFirstChar (drop 3 (method_name getterMethod))
+        propertyName = lowerCaseFirstChar (object_name object ++ drop 3 (method_name getterMethod))
         (propertyType, _) = genMarshalResult knownSymbols (method_cname getterMethod)
                               (method_return_type getterMethod)
         getter = cFuncNameToHsName (method_cname getterMethod)
@@ -441,7 +444,8 @@ genExports object docs modInfo =
      | (method, doc, _) <- methods object (moduledoc_functions docs)
                              (module_methods modInfo) False]
   ++ sectionHeader "Properties"
-     [ (ss "  ". ss (lowerCaseFirstChar (property_name property)). sc ','
+     [ (let propertyName = either property_name (drop 3.method_name.fst) property in
+        ss "  ". ss (lowerCaseFirstChar (object_name object ++ propertyName)). sc ','
        ,(maybe "" propdoc_since doc, notDeprecated))
      | (property, doc) <- properties object (moduledoc_properties docs)]
   ++ (sectionHeader "Signals"
