@@ -1,3 +1,7 @@
+2003-01-22  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gendoc/Makefile: forgot to add this file.
+	
 2003-01-21  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/wingtk.h: This file is needed for building on Windows. It
@@ -6,8 +10,6 @@
 	where we mangle structure but false for c2hs where we call this
 	function.)
 	
-2003-01-21  Axel Simon <A.Simon@ukc.ac.uk>
-
 	* gtk/Makefile: Inadvertently put hierarchy.list on the list of
 	files to be wiped with make clean. Removed that again.
 
