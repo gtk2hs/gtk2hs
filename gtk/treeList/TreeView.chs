@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2003/04/11 15:14:07 $
+--  Version $Revision: 1.12 $ from $Date: 2003/05/16 05:53:33 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -397,14 +397,14 @@ treeViewGetExpanderColumn tv = makeNewObject mkTreeViewColumn $
 -- * Sets a user function for determining where a column may be dropped when
 --   dragged.  This function is called on every column pair in turn at the
 --   beginning of a column drag to determine where a drop can take place.
--- * The callback function take the @ref TreeViewColum@ to be moved, the
---   second and third areguments are the columns on the left and right side
+-- * The callback function take the @ref type TreeViewColumn@ to be moved, the
+--   second and third arguments are the columns on the left and right side
 --   of the new location. At most one of them might be @ref literal Nothing@
 --   which indicates that the column is about to be dropped at the left or
 --   right end of the @ref data TreeView@.
 -- * The predicate @ref arg pred@ should return @literal True@ if it is ok
 --   to insert the column at this place.
--- * Use @Nothing@ for the predicate if columns can be inserted anywhere.
+-- * Use @literal Nothing@ for the predicate if columns can be inserted anywhere.
 --
 treeViewSetColumnDragFunction :: TreeViewClass tv => tv -> 
 				 Maybe (TreeViewColumn ->
@@ -450,8 +450,8 @@ treeViewScrollToPoint tv treeX treeY =
 
 -- @method treeViewScrollToCell@ Scroll to a cell.
 --
--- * Scroll to a cell as specified by @ref arg path@ and @ref arg
---   tvc@. The cell is aligned within the @ref data TreeView@ widget as
+-- * Scroll to a cell as specified by @ref arg path@ and @ref arg tvc@. 
+--   The cell is aligned within the @ref data TreeView@ widget as
 --   follows: horizontally by @ref arg hor@ from left (@literal 0.0@) to
 --   right (@literal 1.0@) and vertically by @ref arg ver@ from top
 --   (@literal 0.0@) to buttom (@literal 1.0@).
@@ -472,11 +472,12 @@ treeViewScrollToCell tv path tvc Nothing =
 --   selects it.  This is useful when you want to focus the user's
 --   attention on a particular row.  If @ref arg focusColumn@ is given,
 --   then the input focus is given to the column specified by
---   it. Additionally, if @ref arg focusColumn@ is specified, and @ref arg
---   startEditing@ is @ref literal@, then editing will be started in the
---   specified cell.  This function is often followed by a @ref method
---   widgetGrabFocus@ to the @ref data TreeView@ in order to give keyboard
---   focus to the widget.
+--   it. Additionally, if @ref arg focusColumn@ is specified, and 
+--   @ref arg startEditing@ is @literal True@,
+--   then editing will be started in the
+--   specified cell.  This function is often followed by a
+--   @ref method widgetGrabFocus@ to the @ref data TreeView@ in order
+--   to give keyboard focus to the widget.
 --
 treeViewSetCursor :: TreeViewClass tv => tv -> TreePath ->
 					 (Maybe (TreeViewColumn, Bool)) ->
@@ -609,8 +610,8 @@ treeViewGetReorderable tv = liftM toBool $
 -- @method treeViewSetReorderable@ Check if rows can be moved around.
 --
 -- * Set whether the user can use drag and drop (DND) to reorder the
---   rows in the store. This works on both @ref data TreeStore@ and @ref
---   data ListStore@ models. If @ref arg ro@ is @literal True@, then the
+--   rows in the store. This works on both @ref data TreeStore@ and
+--   @ref data ListStore@ models. If @ref arg ro@ is @literal True@, then the
 --   user can reorder the model by dragging and dropping rows.  The
 --   developer can listen to these changes by connecting to the model's
 --   signals.  This function does not give you any degree of control over

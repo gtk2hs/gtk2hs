@@ -4,7 +4,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2003/02/10 09:04:22 $
+--  Version $Revision: 1.3 $ from $Date: 2003/05/16 05:53:33 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -176,7 +176,7 @@ layoutSetMarkupWithAccel pl txt =
 -- * Sets the width to which the lines of the @ref data PangoLayout@
 --   should be wrapped.
 --
--- * @ref arg width$ is the desired width, or @literal -1@ to indicate that
+-- * @ref arg width@ is the desired width, or @literal -1@ to indicate that
 --   no wrapping should be performed.
 --
 layoutSetWidth :: PangoLayout -> Int -> IO ()

@@ -8,7 +8,7 @@
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
 Name: gtk2hs
 Version: @VERSION@
-Release: 1
+Release: 1.%(date +%%Y%%m%%d)
 Copyright: LGPL
 Group: Development/Libraries
 Source: gtk2hs-%{version}.tar.gz
@@ -31,33 +31,42 @@ lookup named widgets in a type safe way.
 
 %build
 ./configure %{?_with_c2hs} --with-hcflags="-O"
-make
+make BUILDDOCS=no prefix=%{_prefix} libdir=%{_libdir}/ghc-%{_ghc_version}
+#make -Cdoc htmlGTK
 
 %install
-make prefix=%{buildroot}%{_prefix} libdir=%{buildroot}%{_libdir}/ghc-%{_ghc_version} install
+rm -rf %{buildroot}
+make DESTDIR=%{buildroot} prefix=%{_prefix} libdir=%{_libdir}/ghc-%{_ghc_version} install
 
 %clean
 rm -rf %{buildroot}
 
 %post
-# remove buildroot traces from package files
-perl -pi -e "s|%{buildroot}||" \
-    %{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2.conf,mogul.conf}
+# # remove buildroot traces from package files
+# perl -pi -e "s|%{buildroot}||" \
+#     %{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2.conf,mogul.conf}
 
 ghc-pkg-%{_ghc_version} -u -i %{_libdir}/ghc-%{_ghc_version}/%{name}/gtk2.conf
 ghc-pkg-%{_ghc_version} -u -i %{_libdir}/ghc-%{_ghc_version}/mogul.conf
 
 %preun
-ghc-pkg-%{_ghc_version} -r gtk2 >/dev/null
-ghc-pkg-%{_ghc_version} -r mogul >/dev/null
+if [ "$1" = 0 ]; then
+  ghc-pkg-%{_ghc_version} -r mogul
+  ghc-pkg-%{_ghc_version} -r gtk2
+fi
 
 %files
 %defattr(-,root,root) 
 %doc ChangeLog TODO AUTHORS COPYING.LIB
 %doc demo/*/*.hs
+#%doc doc/GTK
 %{_prefix}/lib/*
 
 %changelog
+* Thu May 15 2003 Jens Petersen <petersen@redhat.com>
+- use new DESTDIR make variable, so no longer need to fix config files in post
+- remove buildroot before install
+
 * Fri Jan 10 2003 Jens Petersen <petersen@haskell.org>
 - made into .spec.in file
 - let configure set the version

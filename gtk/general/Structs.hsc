@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.15 $ from $Date: 2003/03/08 17:44:05 $
+--  Version $Revision: 1.16 $ from $Date: 2003/05/16 05:53:33 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -446,43 +446,43 @@ dialogGetActionArea dc = makeNewObject mkHBox $ liftM castPtr $
 -- @type ResponseId@ Some constructors that can be used as response
 -- numbers for dialogs.
 --
--- @con ResponseNone@ GTK returns this if a response widget has no
+-- @constructor ResponseNone@ GTK returns this if a response widget has no
 -- response_id, or if the dialog gets programmatically hidden or destroyed.
 --
--- @con ResponseReject@ GTK won't return these unless you pass them in as
+-- @constructor ResponseReject@ GTK won't return these unless you pass them in as
 -- the response for an action widget. They are for your convenience.
 --
--- @con ResponseDeleteEvent@ If the dialog is deleted.
+-- @constructor ResponseDeleteEvent@ If the dialog is deleted.
 --
--- @con ResponseOk@ "Ok" was pressed.
+-- @constructor ResponseOk@ "Ok" was pressed.
 --
 -- * This value is returned from the "Ok" stock dialog button.
 --
--- @con ResponseCancel@ "Cancel" was pressed.
+-- @constructor ResponseCancel@ "Cancel" was pressed.
 --
 -- * These value is returned from the "Cancel" stock dialog button.
 --
--- @con ResponseClose@ "Close" was pressed.
+-- @constructor ResponseClose@ "Close" was pressed.
 --
 -- * This value is returned from the "Close" stock dialog button.
 --
--- @con ResponseYes@ "Yes" was pressed.
+-- @constructor ResponseYes@ "Yes" was pressed.
 --
 -- * This value is returned from the "Yes" stock dialog button.
 --
--- @con ResponseNo@ "No" was pressed.
+-- @constructor ResponseNo@ "No" was pressed.
 --
 -- * This value is returned from the "No" stock dialog button.
 --
--- @con ResponseApply@ "Apply" was pressed.
+-- @constructor ResponseApply@ "Apply" was pressed.
 --
 -- * This value is returned from the "Apply" stock dialog button.
 --
--- @con ResponseHelp@ "Help" was pressed.
+-- @constructor ResponseHelp@ "Help" was pressed.
 --
 -- * This value is returned from the "Help" stock dialog button.
 --
--- @con ResponseUser@ A user-defined response
+-- @constructor ResponseUser@ A user-defined response
 --
 -- * This value is returned from a user defined button
 --

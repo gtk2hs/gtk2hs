@@ -51,18 +51,18 @@ installcheck :
 	fi
 
 installdirs :
-	$(INSTALL) -d $(INST_HIDIR) $(INST_LIBDIR) $(INST_INCLDIR)
+	$(INSTALL) -d $(DESTDIR)$(INST_HIDIR) $(DESTDIR)$(INST_LIBDIR) $(DESTDIR)$(INST_INCLDIR)
 
 install : $(TARGETOK) installdirs installfiles
 
 installfiles : $(PACKAGENAME).conf
-	$(INSTALL) -m644 $(ALLHSFILES:.hs=.hi) $(INST_HIDIR)
-	$(INSTALL) -m644 $(TARGETOK) $(INST_LIBDIR)
-	$(TOUCH) -r $(TARGETOK) $(INST_LIBDIR)/$(TARGETOK)
+	$(INSTALL) -m644 $(ALLHSFILES:.hs=.hi) $(DESTDIR)$(INST_HIDIR)
+	$(INSTALL) -m644 $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)
+	$(TOUCH) -r $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)/$(TARGETOK)
 ifneq ($(strip $(STUBHFILES) $(EXTRA_HFILESOK)),)
-	$(INSTALL) -m644 $(STUBHFILES) $(EXTRA_HFILESOK) $(INST_INCLDIR)
+	$(INSTALL) -m644 $(STUBHFILES) $(EXTRA_HFILESOK) $(DESTDIR)$(INST_INCLDIR)
 endif
-	$(INSTALL) -m644 $(PACKAGENAME).conf $(INST_LIBDIR)
+	$(INSTALL) -m644 $(PACKAGENAME).conf $(DESTDIR)$(INST_LIBDIR)
 
 $(PACKAGENAME).conf :
 	@echo Package {\
@@ -98,12 +98,12 @@ uninstall-pkg : uninstall
 uninstall : uninstallfiles uninstallpackage
 
 uninstallfiles :
-	$(RM) $(addprefix $(INST_INCLDIR)/,$(notdir $(ALLHSFILES:.hs=.hi)))
-	$(RM) $(addprefix $(INST_LIBDIR)/,$(TARGETOK))
-	$(RM) $(addprefix $(INST_INCLDIR)/,$(notdir $(STUBHFILES)\
+	$(RM) $(addprefix $(DESTDIR)$(INST_INCLDIR)/,$(notdir $(ALLHSFILES:.hs=.hi)))
+	$(RM) $(addprefix $(DESTDIR)$(INST_LIBDIR)/,$(TARGETOK))
+	$(RM) $(addprefix $(DESTDIR)$(INST_INCLDIR)/,$(notdir $(STUBHFILES)\
 	  ) $(EXTRA_CFILES:.c=.h))
-	$(strip rmdir -p $(sort $(INST_HIDIR) $(INST_LIBDIR) \
-	  $(INST_INCLDIR)) 2> /dev/null || true)
+	$(strip rmdir -p $(sort $(DESTDIR)$(INST_HIDIR) $(DESTDIR)$(INST_LIBDIR) \
+	  $(DESTDIR)$(INST_INCLDIR)) 2> /dev/null || true)
 
 #	  echo $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`\
 #	  echo $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`\

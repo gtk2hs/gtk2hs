@@ -1,3 +1,31 @@
+2003-05-16  Jens Petersen  <petersen@redhat.com>
+
+	* mk/library.mk: Introduce DESTDIR variable for installing into a
+	staging area or buildroot.
+	(installdirs): Prefix dirs with DESTDIR.
+	(installfiles): Prefix DESTDIR to destinations.
+	(uninstallfiles): Add DESTDIR here too for good measure.
+
+	* gtk/treeList/TreeView.chs: Documentation formatting fixes.
+
+	* gtk/pango/PangoLayout.chs (layoutSetWidth): Fix doc typo.
+
+	* gtk/general/Structs.hsc: Documentation fixes: s/@con/@constructor/.
+
+	* doc/Makefile (html%): Only depend on the xml file for the target
+	to be transformed.
+
+	* gtk2hs.spec.in (Release): Append date for snapshot packages.
+	(install): Use DESTDIR.
+	(post): Hence no longer need to filter out buildroot prefix from
+	pkg config files.
+	(preun): Only remove ghc pkg configs when removing rpm package.
+
+	* Makefile (dist): Add spec file as dependency.
+	(rpm): Depend on dist target not tarball.
+	(srpm): Ditto.
+	(gtk2hs.spec): Target to generate spec file.
+
 2003-05-10  Jens Petersen  <petersen@redhat.com>
 
 	* mk/library.mk (install): Weaken to an install suitable for
