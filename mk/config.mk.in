@@ -140,6 +140,9 @@ HSTOOLFLAGS	= $(filter -H%,$(HC_FLAGS)) -M350m
 
 BUILT_IN_C2HS	= @BUILT_IN_C2HS@
 
+SOURCEVIEW_LIBS	= @SOURCEVIEW_LIBS@
+SOURCEVIEW_CFLAGS = @SOURCEVIEW_CFLAGS@
+
 .PHONY: default all install installdirs installfiles installpackage \
 	installcheck uninstall uninstallfiles uninstallpackage \
 	clean distclean maintainerclan mostlyclean \
