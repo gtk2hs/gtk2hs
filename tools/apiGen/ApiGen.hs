@@ -140,9 +140,6 @@ main = do
               Just moduleInfo -> do mkDirHier outdir (splitOn '.' (module_prefix moduleInfo))
                                     return moduleInfo
               Nothing -> do
-                when (not (null moduleRoot) && not (object_deprecated object)) $
-                  putStrLn ("Warning: no existing module found for module "
-	                  ++ show (object_name object))
                 return ModuleInfo {
                     module_name              = object_name object,
                     module_prefix            = modPrefix,
@@ -152,6 +149,7 @@ main = do
                     module_created           = date,
                     module_copyright_dates   = Left year,
                     module_copyright_holders = ["[Insert your full name here]"],
+                    module_exports           = [],
                     module_imports           = [],
                     module_context_lib       = if null lib then namespace_library namespace else lib,
                     module_context_prefix    = if null prefix then namespace_library namespace else prefix,

@@ -113,18 +113,23 @@ genMarshalParameter knownSymbols funcName name typeName'
            && last typeName' == '*'
            && last typeName /= '*'
            && symbolIsObject typeKind =
-	if leafClass typeName
-          then (Nothing, Just shortTypeName,
-               \body -> body.
-                        indent 2. ss name)
-        else if maybeNullParameter funcName name
-          then (Just $ shortTypeName ++ "Class " ++ name, Just ("Maybe " ++ name),
-               \body -> body.
-                        indent 2. ss "(maybe (". ss shortTypeName. ss " nullForeignPtr) to".
-                                                  ss shortTypeName. sc ' '. ss name. ss ")")
-          else (Just $ shortTypeName ++ "Class " ++ name, Just name,
-               \body -> body.
-                        indent 2. ss "(to". ss shortTypeName. sc ' '. ss name. ss ")")
+  let classContext
+        | leafClass typeName = Nothing
+        | otherwise          = Just $ shortTypeName ++ "Class " ++ name
+      argType = Just $ (if maybeNullParameter funcName name then "Maybe " else "")
+                    ++ (if leafClass typeName then shortTypeName else name)
+      implementation
+        | leafClass typeName && maybeNullParameter funcName name
+                             = ss "(fromMaybe (". ss shortTypeName. ss " nullForeignPtr) ".
+                                                  ss name. ss ")"
+        | leafClass typeName = ss name
+        | maybeNullParameter funcName name
+                             = ss "(maybe (". ss shortTypeName. ss " nullForeignPtr) to".
+                                              ss shortTypeName. sc ' '. ss name. sc ')'
+        | otherwise          = ss "(to". ss shortTypeName. sc ' '. ss name. sc ')'
+   in (classContext, argType,
+      \body -> body.
+               indent 2. implementation)
   where typeName = init typeName'
         shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
@@ -288,32 +293,33 @@ genMarshalProperty knownSymbols typeName
 
 genMarshalProperty _ unknown = ("{-" ++ unknown ++ "-}", "{-" ++ unknown ++ "-}")
 
--- Takes the type string and returns the signal marshaing category
+-- Takes the type string and returns the signal marshaing category and the
+-- Haskell type
 --
-convertSignalType :: KnownSymbols -> String -> String
-convertSignalType _ "void"     = "NONE"
-convertSignalType _ "gchar"    = "CHAR"
-convertSignalType _ "guchar"   = "UCHAR"
-convertSignalType _ "gboolean" = "BOOLEAN"
-convertSignalType _ "gint"     = "INT"
-convertSignalType _ "guint"    = "UINT"
-convertSignalType _ "glong"    = "LONG"
-convertSignalType _ "gulong"   = "ULONG"
-convertSignalType _ "gfloat"   = "FLOAT"
-convertSignalType _ "gdouble"  = "DOUBLE"
-convertSignalType _ "gchar*"   = "STRING"
-convertSignalType _ "const-gchar*" = "STRING"
+convertSignalType :: KnownSymbols -> String -> (String, String)
+convertSignalType _ "void"     = ("NONE",   "()")
+convertSignalType _ "gchar"    = ("CHAR",   "Char")
+convertSignalType _ "guchar"   = ("UCHAR",  "Char")
+convertSignalType _ "gboolean" = ("BOOL",   "Bool")
+convertSignalType _ "gint"     = ("INT",    "Int")
+convertSignalType _ "guint"    = ("UINT",   "Int")
+convertSignalType _ "glong"    = ("LONG",   "Int")
+convertSignalType _ "gulong"   = ("ULONG",  "Int")
+convertSignalType _ "gfloat"   = ("FLOAT",  "Float")
+convertSignalType _ "gdouble"  = ("DOUBLE", "Double")
+convertSignalType _ "gchar*"   = ("STRING", "String")
+convertSignalType _ "const-gchar*" = ("STRING", "String")
 convertSignalType knownSymbols typeName
-  | symbolIsEnum   typeKind    = "ENUM"
-  | symbolIsFlags  typeKind    = "FLAGS"
+  | symbolIsEnum   typeKind    = ("ENUM",  stripKnownPrefixes typeName)
+  | symbolIsFlags  typeKind    = ("FLAGS", stripKnownPrefixes typeName)
   where typeKind = lookupFM knownSymbols typeName
 convertSignalType knownSymbols typeName@(_:_)
     | last typeName == '*'
-   && symbolIsBoxed  typeKind  = "BOXED"
+   && symbolIsBoxed  typeKind  = ("BOXED",  stripKnownPrefixes (init typeName))
     | last typeName == '*'
-   && symbolIsObject typeKind  = "OBJECT"
+   && symbolIsObject typeKind  = ("OBJECT", stripKnownPrefixes (init typeName))
   where typeKind = lookupFM knownSymbols (init typeName)
-convertSignalType _ typeName   =  "{-" ++ typeName ++ "-}"
+convertSignalType _ typeName   =  ("{-" ++ typeName ++ "-}", "{-" ++ typeName ++ "-}")
 
 -------------------------------------------------------------------------------
 -- Now for some special cases, we can override the generation of {# call #}'s

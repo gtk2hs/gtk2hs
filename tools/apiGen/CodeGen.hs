@@ -17,7 +17,7 @@ import MarshalFixup (stripKnownPrefixes, maybeNullParameter, maybeNullResult, fi
 
 import Prelude hiding (Enum, lines)
 import List   (groupBy, sortBy, isPrefixOf, isSuffixOf, partition, find)
-import Maybe  (isNothing)
+import Maybe  (isNothing, fromMaybe)
 import Data.FiniteMap
 
 import Debug.Trace (trace)
@@ -339,19 +339,24 @@ genSignals knownSymbols object apiDoc =
 genSignal :: KnownSymbols -> Object -> Signal -> Maybe SignalDoc -> ShowS
 genSignal knownSymbols object signal doc = 
   formattedDoc.
-  ss "on". signalName. ss ", after". signalName. ss " :: ". nl.
-  ss "on".    signalName. ss " = connect_". connectType. sc ' '. signalCName. ss " False". nl.
-  ss "after". signalName. ss " = connect_". connectType. sc ' '. signalCName. ss " True". nl
+  ss "on". signalName. ss ", after". signalName. ss " :: ". signalType.
+  ss "on".    signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " False". nl.
+  ss "after". signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " True"
 
-  where connectType = sepBy "_" paramTypes . ss "__" . ss returnType
+  where connectCall = let paramCategories' = if null paramCategories then ["NONE"] else paramCategories
+                       in sepBy "_" paramCategories' . ss "__" . ss returnCategory
         -- strip off the object arg to the signal handler
         params = case signal_parameters signal of
                    (param:params) | parameter_type param == object_cname object ++ "*" -> params
                    params -> params
-        paramTypes | null params = ["NONE"]
-                   | otherwise = [ convertSignalType knownSymbols (parameter_type parameter)
-                                 | parameter <- params ]
-        returnType = convertSignalType knownSymbols (signal_return_type signal)
+        (paramCategories, paramTypes) = unzip [ convertSignalType knownSymbols (parameter_type parameter)
+                                              | parameter <- params ]
+        (returnCategory, returnType) = convertSignalType knownSymbols (signal_return_type signal)
+        signalType = ss (object_name object). ss "Class self => self\n".
+                     ss " -> ". (if null paramTypes
+                                  then ss "IO ". ss returnType
+                                  else sc '('. sepBy " -> " (paramTypes ++ ["IO " ++ returnType]). sc ')').
+                     ss "\n -> IO (ConnectId self)\n"
         signalName = ss (toStudlyCaps . canonicalSignalName . signal_cname $ signal)
         signalCName = sc '"'. ss (signal_cname signal). sc '"'
         formattedDoc = haddocFormatDeclaration knownSymbols False signaldoc_paragraphs doc
@@ -416,9 +421,9 @@ makeKnownSymbolsMap api =
 
 genExports :: Object -> ModuleDoc -> ModuleInfo -> ShowS
 genExports object docs modInfo =
-  doVersionIfDefs lines $
-  map adjustDeprecatedAndSinceVersion $
-     [(ss "-- * Types", defaultAttrs)
+    doVersionIfDefs lines
+  . map adjustDeprecatedAndSinceVersion
+  $  [(ss "-- * Types", defaultAttrs)
      ,(ss "  ".ss (object_name object).sc ',', defaultAttrs)
      ,(ss "  ".ss (object_name object).ss "Class,", defaultAttrs)
      ,(ss "  ".ss "castTo".ss (object_name object).sc ',', defaultAttrs)] 
@@ -426,20 +431,27 @@ genExports object docs modInfo =
      [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ','
        ,(maybe "" funcdoc_since doc, notDeprecated))
      | (constructor, doc, _) <- constructors object (moduledoc_functions docs) []]
-  ++ sectionHeader "Methods"
-     [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ','
+  ++ (sectionHeader "Methods"
+    . map fst
+    . sortBy (comparing snd))
+     [ let functionName = cFuncNameToHsName (method_cname method) in
+       ((ss "  ". ss functionName. sc ','
        ,(maybe "" funcdoc_since doc, method_deprecated method))
+       ,fromMaybe (maxBound::Int) (lookup functionName exportIndexMap))
      | (method, doc, _) <- methods object (moduledoc_functions docs)
                              (module_methods modInfo) False]
   ++ sectionHeader "Properties"
      [ (ss "  ". ss (lowerCaseFirstChar (property_name property)). sc ','
        ,(maybe "" propdoc_since doc, notDeprecated))
      | (property, doc) <- properties object (moduledoc_properties docs)]
-  ++ sectionHeader "Signals"
+  ++ (sectionHeader "Signals"
+    . map fst
+    . sortBy (comparing snd))
      [ let signalName = (toStudlyCaps . canonicalSignalName . signal_cname) signal in 
-       (ss "  on".    ss signalName. sc ','.nl.
+       ((ss "  on".    ss signalName. sc ','.nl.
         ss "  after". ss signalName. sc ','
        ,(maybe "" signaldoc_since doc, notDeprecated))
+       ,fromMaybe (maxBound::Int) (lookup ("on"++signalName) exportIndexMap))
      | (signal, doc) <- signals object (moduledoc_signals docs)]
 
   where defaultAttrs = ("", notDeprecated)
@@ -447,6 +459,7 @@ genExports object docs modInfo =
         sectionHeader name entries = (id, defaultAttrs):(ss "-- * ". ss name, defaultAttrs):entries
         adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
           (doc, (moduledoc_since docs `max` since, object_deprecated object || deprecated))
+        exportIndexMap = zip (module_exports modInfo) [1..]
 
 genImports :: ModuleInfo -> ShowS
 genImports modInfo = 

@@ -15,6 +15,22 @@
 	widgetLockAccelerators and widgetUnlockAccelerators as they do not
 	exist in Gtk+ anymore (probably since version 2.0).
 
+	* tools/apiGen/ApiGen.hs: remove pointless and verbose warnings.
+
+	* tools/apiGen/ModuleScan.hs: collect export list from existing
+	modules.
+
+	* tools/apiGen/CodeGen.hs: generate signals and methods export lists
+	in the same order as in the original modules. Also, improve the signal
+	code generaton - though it's still not quite there yet for object
+	types.
+
+	* tools/apiGen/Marshal.hs: For signals, produce the Haskell type as
+	well as the signal handler tag. For object types this is not right yet
+	because it uses the object type rather than the object class. Also
+	change the marshaling of object parameter types to cover all four
+	possibilities of: (leaf class/non-leaf class) x (ordinary/maybe type).
+
 2005-03-01 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/CodeGen.hs: do deprecated and version ifdefs a bit

@@ -25,6 +25,7 @@ data ModuleInfo = ModuleInfo {
     module_copyright_dates   :: Either String (String, String),
                                 -- eg "2004" or "2004-2005"
     module_copyright_holders :: [String],
+    module_exports           :: [String],
     module_imports           :: [(String, String)], -- mod name and the whole line
     module_context_lib       :: String,
     module_context_prefix    :: String,
@@ -42,12 +43,22 @@ data Line = None
           | Created String
           | Copyright (Either String (String, String)) [String]
           | Module String String
+          | Export String
+          | ExportEnd
           | Import String String
           | Context String String
           | CCall MethodInfo
+  deriving Show
 
 usefulLine None = False
 usefulLine _    = True
+
+isModuleLine (Module _ _) = True
+isModuleLine _            = False
+isExportEndLine ExportEnd = True
+isExportEndLine _         = False
+isCCallLine (CCall _) = True
+isCCallLine _         = False
 
 main = do
   [path] <- getArgs
@@ -101,20 +112,27 @@ scanModule file = do
 
 scanModuleContent :: String -> String -> ModuleInfo
 scanModuleContent content filename =
-  let usefulLines = filter usefulLine [ scanLine line (tokenise line) | line <- lines content ] in
-  ModuleInfo {
-    module_name              = head $ [ name    | Module name prefix  <- usefulLines ] ++ [missing],
-    module_prefix            = head $ [ prefix  | Module name prefix  <- usefulLines ] ++ [missing],
+  let (headerLines, bodyLines) =
+         break isCCallLine
+       . filter usefulLine
+       $ [ scanLine line (tokenise line) | line <- lines content ]
+  in ModuleInfo {
+    module_name              = head $ [ name    | Module name prefix  <- headerLines ] ++ [missing],
+    module_prefix            = head $ [ prefix  | Module name prefix  <- headerLines ] ++ [missing],
     module_needspreproc      = ".chs.pp" `isSuffixOf` filename,
     module_filename          = "",
-    module_authors           = head $ [ authors | Authors authors     <- usefulLines ] ++ [[missing]],
-    module_created           = head $ [ created | Created created     <- usefulLines ] ++ [missing],
-    module_copyright_dates   = head $ [ dates   | Copyright dates _   <- usefulLines ] ++ [Left missing],
-    module_copyright_holders = head $ [ authors | Copyright _ authors <- usefulLines ] ++ [[missing]],
-    module_imports           = [ (name, line)   | Import name line    <- usefulLines ],
-    module_context_lib       = head $ [ lib     | Context lib prefix  <- usefulLines ] ++ [missing],
-    module_context_prefix    = head $ [ prefix  | Context lib prefix  <- usefulLines ] ++ [missing],
-    module_methods           =        [ call    | CCall call  <- usefulLines ]
+    module_authors           = head $ [ authors | Authors authors     <- headerLines ] ++ [[missing]],
+    module_created           = head $ [ created | Created created     <- headerLines ] ++ [missing],
+    module_copyright_dates   = head $ [ dates   | Copyright dates _   <- headerLines ] ++ [Left missing],
+    module_copyright_holders = head $ [ authors | Copyright _ authors <- headerLines ] ++ [[missing]],
+    module_exports           = let exportLines = takeWhile (not.isExportEndLine)
+                                               . dropWhile (not.isModuleLine)
+                                               $ headerLines
+                                in [ name       | Export name         <- exportLines ],
+    module_imports           = [ (name, line)   | Import name line    <- headerLines ],
+    module_context_lib       = head $ [ lib     | Context lib prefix  <- headerLines ] ++ [missing],
+    module_context_prefix    = head $ [ prefix  | Context lib prefix  <- headerLines ] ++ [missing],
+    module_methods           =        [ call    | CCall call  <- bodyLines ]
   }
   where missing = "{-missing-}"
 
@@ -128,10 +146,15 @@ scanLine :: String -> [String] -> Line
 scanLine _ ("--":"Author":":":author)   = scanAuthor author
 scanLine _ ("--":"Created:":created)    = Created (unwords created)
 scanLine _ ("--":"Copyright":"(":c:")":copyright) = scanCopyright copyright
+scanLine (' ':' ':_) ("module":moduleName) = Export (concat moduleName)
 scanLine _ ("module":moduleName)        = scanModuleName moduleName
+scanLine (' ':' ':_) (export:",":[])    = Export export
+scanLine (' ':' ':_) (export:",":"--":_)= Export export
+scanLine (' ':' ':_) (export:[])        = Export export
+scanLine _ (")":"where":[])             = ExportEnd
 scanLine _ ("{#":"context":context)     = scanContext context
-scanLine line ("import":moduleName)      = scanImport line moduleName
-scanLine line ("{#":"import":moduleName) = scanImport line moduleName
+scanLine line ("import":moduleName)     = scanImport line moduleName
+scanLine line ("{#":"import":moduleName)= scanImport line moduleName
 scanLine _ tokens | "{#" `elem` tokens  = scanCCall tokens
 
 scanLine _ _ = None
