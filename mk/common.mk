@@ -23,6 +23,7 @@ PKG = \
 tools_PKGNAME = $(call tools_$(word 2,$(subst /, ,$(1)))_PKGNAME,$(1))
 
 pkgVPATH = $(subst $(SPACE),:,$($(PKG)_SOURCESDIRS))
+getVar   = $($(subst .,_,$(subst /,_,$(1)))_$(2))
 
 LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(addprefix -package ,$($(PKG)_PACKAGEDEPS)) \
@@ -115,26 +116,4 @@ debug	:
 	$(strip $(C2HS) $(C2HS_FLAGS) \
 	+RTS $(HSTOOLFLAGS) -RTS \
 	-i$(pkgVPATH) --precomp=$($(PKG)_PRECOMP) -o $@ $<)
-
-
-# installation of packages
-
-getVar			= $($(subst .,_,$(subst /,_,$(1)))_$(2))
-
-install-data-hook :
-	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
-	else echo "[]" > $(PKGCONF); fi;)
-	$(foreach pkgname,$(pkglib_LIBRARIES), \
-	prefix=$(prefix) exec_prefix=$(exec_prefix) pkglibdir=$(pkglibdir) \
-	$(GHCPKG) $(addprefix -f ,$(PKGCONF)) -u -g \
-	-i $(call getVar,$(pkgname),PACKAGE);)
-
-uninstall-hook :
-	$(foreach pkgname,$(lib_LIBRARIES), \
-	  $(GHCPKG) $(addprefix -f ,$(PKGCONF)) \
-	  -r `cat $(call getVar,$(pkgname),PACKAGE) | $(GREP) name | $(SED) "s/ *name *= *\"\([a-zA-Z0-9]*\)\",/\1/"`;) \
-	$(if $(PKGCONF),if test -f $(PKGCONF); then \
-	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
-	  $(RM) $(PKGCONF) $(PKGCONF).old; fi; \
-	fi)
 

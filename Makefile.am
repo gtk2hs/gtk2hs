@@ -943,5 +943,49 @@ EXTRA_DIST +=								\
 	demo/treeList/ListTest.hs demo/treeList/Makefile		\
 	demo/unicode/Arabic.hs demo/unicode/Makefile
 
+#
+#       installing and registering packages with the Haskell compiler
+#
+################################################################################
+
+# Include all the .pkg files in the install set, they're useful to distributors
+# and if your installation gets corrupt you can re-register the packages from them.
+pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),PACKAGE))
+
+# Also build GHCI compatible .o files for each library.
+pkglib_DATA += $(foreach pkgname,$(pkglib_LIBRARIES), $(patsubst lib%.a,%.o,$(pkgname)))
+
+HS%.o : libHS%.a
+	ld --relocatable --discard-all --output=$@ --whole-archive $<
+
+if ENABLE_PKGREG
+
+# For distributors we usually do not want to register the packages using
+# ghc-pkg at install time. That is usually left for a post-install action.
+# Therefore these actions can be disabled by ./configure --without-pkgreg
+
+install-data-hook :
+	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
+	else echo "[]" > $(PKGCONF); fi;)
+	$(foreach pkgname,$(pkglib_LIBRARIES), \
+	prefix=$(prefix) exec_prefix=$(exec_prefix) pkglibdir=$(pkglibdir) \
+	$(GHCPKG) $(addprefix -f ,$(PKGCONF)) -u \
+	-i $(call getVar,$(pkgname),PACKAGE);)
+
+uninstall-hook :
+	$(foreach pkgname,$(lib_LIBRARIES), \
+	  $(GHCPKG) $(addprefix -f ,$(PKGCONF)) \
+	  -r `cat $(call getVar,$(pkgname),PACKAGE) \
+	  | $(GREP) name | $(SED) "s/ *name *= *\"\([a-zA-Z0-9]*\)\",/\1/"`;) \
+	$(if $(PKGCONF),if test -f $(PKGCONF); then \
+	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
+	  $(RM) $(PKGCONF) $(PKGCONF).old; fi; \
+	fi)
+else
+
+install-data-hook :
+uninstall-hook :
+
+endif
 
 include mk/common.mk

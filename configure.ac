@@ -220,6 +220,14 @@ if test -z "$HCFLAGS"; then
   HCFLAGS="-O -H180m"
 fi
 
+dnl Check whether to register the packages with ghc-pkg
+dnl Distributors usuall want install into a temp directory without registering
+dnl anything and leave the registering phase for a post-install action.
+AC_ARG_WITH(pkgreg,
+            [  --without-pkgreg        Do not reigster Haskell packages (useful for distributors)],
+	    [PKGREG=$withval;],[PKGREG=yes;])
+AM_CONDITIONAL(ENABLE_PKGREG, test "$PKGREG" = "yes")
+
 dnl Check whether to use a local package file.
 AC_ARG_WITH(pkgconf,
 	    [  --with-pkgconf=FILE     GHC package file to install packages],
@@ -290,7 +298,7 @@ AM_CONDITIONAL(ENABLE_MOZEMBED, test x$ENABLE_MOZEMBED = xyes)
 
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
-PKG_CHECK_MODULES(GLIB,[glib-2.0 >= 2.0.0])
+PKG_CHECK_MODULES(GLIB,[gobject-2.0 >= 2.0.0])
 PKG_CHECK_MODULES(GTK,[gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
 dnl if test x$ENABLE_OPENGL = xyes; then
 dnl   PKG_CHECK_MODULES(GTKGLEXT,[gtkglext-1.0 >= 0.7.1])

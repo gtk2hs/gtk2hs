@@ -1,3 +1,17 @@
+2005-01-17 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.ac: add an extra option --without-pkgreg to allow
+	distributors to install without registering any packages with ghc-pkg.
+	Also a fix for the C library deps of the glib package which was
+	stopping ghci from loading the glib package (and thus all our other
+	packages).
+
+	* Makefile.am: move the register package hook to this file from
+	mk/common.mk and make it conditional on the new configure flag. Also
+	install all the .pkg files and install ghci .o files for each .a lib.
+
+	* mk/common.mk: the register package hook has moved to Makefile.am
+
 2005-01-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/buttonbox/ButtonBox.hs demo/buttonbox/Makefile
