@@ -5,7 +5,7 @@
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:44 $
+--  Version $Revision: 1.5 $ from $Date: 2002/12/01 14:09:51 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -109,7 +109,7 @@ menuGetActive m = makeNewObject mkMenuItem $
   throwIfNull "menuGetActive: menu contains no menu items." $
   liftM castPtr $ {#call menu_get_active#} (toMenu m)
 
--- @method menuSetActive@ Select the @ref arg n@ th item of the menu.
+-- @method menuSetActive@ Select the @ref arg n@th item of the menu.
 --
 menuSetActive :: MenuClass m => m -> Int -> IO ()
 menuSetActive m n = {#call menu_set_active#} (toMenu m) (fromIntegral n)

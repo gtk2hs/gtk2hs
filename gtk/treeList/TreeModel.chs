@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:22 $
+--  Version $Revision: 1.7 $ from $Date: 2002/12/01 14:09:51 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -119,19 +119,30 @@ treeModelGetValue tm iter col = alloca $ \vaPtr -> do
 
 -- utilities related to tree models
 
+-- @constructor treePathNew@ Create a new @ref data TreePath@.
+--
+-- * A @ref data TreePath@ is an hierarchical index. It is independant of
+--   a specific @ref data TreeModel@.
+-- 
 treePathNew :: IO TreePath
 treePathNew = do
-  tpPtr <- {#call unsafe tree_path_new#}
+  tpPtr <- {#call unsafe tree_path_new#} 
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
 foreign import ccall "gtk_tree_path_free" unsafe
   tree_path_free :: Ptr TreePath -> IO ()
 
+-- @constructor treePathNewFromString@ Turn a @literal String@ into a
+-- @ref data TreePath@.
+--
 treePathNewFromString :: String -> IO TreePath
 treePathNewFromString path = do
   tpPtr <- withCString path {#call unsafe tree_path_new_from_string#}
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
+-- @method treePathToString@ Turn a @ref data TreePath@ into a 
+-- @literal String@.
+--
 treePathToString :: TreePath -> IO String
 treePathToString tp = do
   strPtr <- {#call tree_path_to_string#} tp
@@ -139,14 +150,20 @@ treePathToString tp = do
   {#call unsafe g_free#} (castPtr strPtr)
   return str
 
+-- @method treePathNewFirst@ Create a @ref data TreePath@.
+--
+-- * The returned @ref data TreePath@ is an index to the first element.
+--
 treePathNewFirst :: IO TreePath
 treePathNewFirst = do
   tpPtr <- {#call unsafe tree_path_new_first#}
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
+-- @method treePathAppendIndex@ Add an index on the next level.
 treePathAppendIndex :: TreePath -> Int -> IO ()
 treePathAppendIndex tp ind = 
   {#call unsafe tree_path_append_index#} tp (fromIntegral ind)
+
 
 treePathPrependIndex :: TreePath -> Int -> IO ()
 treePathPrependIndex tp ind =
@@ -201,6 +218,11 @@ treeModelGetIterFirst tm = do
   res <- {#call unsafe tree_model_get_iter_first#} (toTreeModel tm) iter
   return $ if (toBool res) then Just iter else Nothing
 
+-- @method treeModelGetIter@ Turn a @ref data TreePath@ into a
+-- @ref data TreeIter@.
+--
+-- * Returns @literal Nothing@ if the table is empty.
+--
 treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
 treeModelGetIter tm tp = do
   iterPtr <- mallocBytes treeIterSize
@@ -214,11 +236,17 @@ treeModelGetPath tm iter =  do
     {#call unsafe tree_model_get_path#} (toTreeModel tm) iter
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
+-- @method treeModelIterNext@ Advance the iterator to the next element.
+--
+-- * If there is no other element on this hierarchy level, return 
+--   @literal False@.
+--
 treeModelIterNext :: TreeModelClass tm => tm -> TreeIter -> IO Bool
 treeModelIterNext tm iter = liftM toBool $
  {#call unsafe tree_model_iter_next#} (toTreeModel tm) iter
 
-
+-- @method treeModelIterChildren@ Retrieve an iterator to the first child.
+--
 treeModelIterChildren :: TreeModelClass tm => tm -> TreeIter -> 
 					      IO (Maybe TreeIter)
 treeModelIterChildren tm parent = do
@@ -228,20 +256,26 @@ treeModelIterChildren tm parent = do
     parent
   return $ if (toBool res) then Just iter else Nothing
 
-
+-- @method treeModeliterHasChild@ Test if this is the last hierarchy level.
 treeModelIterHasChild :: TreeModelClass tm => tm -> TreeIter -> IO Bool
 treeModelIterHasChild tm iter = liftM toBool $
   {#call unsafe tree_model_iter_has_child#} (toTreeModel tm) iter
 
--- The following functions take a (Maybe TreeIter) for the child parameter.
--- If Nothing is specified for this argument, the function will work on
--- the toplevel instead of a child.
-
+-- @method treeModelIterNChildren@ Return the number of children.
+--
+-- * If @literal Nothing@ is specified for the @ref arg tm@ argument, the
+--   function will work on toplevel elements.
+--
 treeModelIterNChildren :: TreeModelClass tm => tm -> Maybe TreeIter -> IO Int
 treeModelIterNChildren tm iter = liftM fromIntegral $
   {#call unsafe tree_model_iter_n_children#} (toTreeModel tm) 
     (fromMaybe (TreeIter nullForeignPtr) iter)
 
+-- @method treeModelIterNthChild@ Retrieve the @ref arg n@th child.
+--
+-- * If @literal Nothing@ is specified for the @ref arg tm@ argument, the
+--   function will work on toplevel elements.
+--
 treeModelIterNthChild :: TreeModelClass tm => 
   tm -> Maybe TreeIter -> Int -> IO (Maybe TreeIter)
 treeModelIterNthChild tm parent n = do
@@ -251,6 +285,8 @@ treeModelIterNthChild tm parent n = do
     (fromMaybe (TreeIter nullForeignPtr) parent) (fromIntegral n)
   return $ if (toBool res) then Just iter else Nothing
 
+-- @method treeModelIterParent@ Retrieve the parent of this iterator.
+--
 treeModelIterParent :: TreeModelClass tm => tm -> 
   TreeIter -> IO (Maybe TreeIter)
 treeModelIterParent tm child = do
@@ -259,10 +295,14 @@ treeModelIterParent tm child = do
   res <- {#call unsafe tree_model_iter_parent#} (toTreeModel tm) iter child
   return $ if (toBool res) then Just iter else Nothing
 
+-- @method treeModelRefNode@ No clue.
+--
 treeModelRefNode :: TreeModelClass tm => tm -> TreeIter -> IO ()
 treeModelRefNode tm iter = 
   {#call unsafe tree_model_ref_node#} (toTreeModel tm) iter
 
+-- @method treeModelUnrefNode@ No clue either.
+--
 treeModelUnrefNode :: TreeModelClass tm => tm -> TreeIter -> IO ()
 treeModelUnrefNode tm iter = 
   {#call unsafe tree_model_unref_node#} (toTreeModel tm) iter

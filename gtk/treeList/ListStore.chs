@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.7 $ from $Date: 2002/12/01 14:09:51 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -21,6 +21,7 @@
 --
 -- @description@ --------------------------------------------------------------
 --
+-- * The database for simple (non-hierarchical) tables.
 --
 -- @documentation@ ------------------------------------------------------------
 --
@@ -67,8 +68,9 @@ listStoreNew cols = makeNewGObject mkListStore $
   (map (fromIntegral.fromEnum) cols) $
   {#call unsafe list_store_newv#} ((fromIntegral.length) cols)
 
--- @method listStoreSetValue@ Set the data of a specific node. The supplied
--- value must match the type that was set for the column.
+-- @method listStoreSetValue@ Set the data of a specific node.
+--
+-- * The supplied value must match the type that was set for the column.
 --
 listStoreSetValue :: (ListStoreClass ts) => ts -> TreeIter -> Int ->
                      GenericValue -> IO ()
@@ -82,8 +84,11 @@ listStoreSetValue ts ti col val = with' val $ \vPtr -> do
 listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO ()
 listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
 
--- @method listStoreInsert@ Insert a new row into the list. The pos parameter
--- determines the row number where the row should be inserted. Set this to -1
+-- @method listStoreInsert@ Insert a new row into the list.
+--
+-- * The @ref arg pos@ parameter
+-- determines the row number where the row should be inserted. Set this to
+-- @ref literal -1@
 -- to insert at the end of the list.
 --
 listStoreInsert :: (ListStoreClass ts) => ts -> Int -> IO TreeIter
@@ -116,7 +121,7 @@ listStoreInsertAfter ts sibling = do
 
 -- @method listStorePrepend@ Insert a row in front of every other row.
 --
--- * This is equivalent to @ref method listStoreInsert@ 0.
+-- * This is equivalent to @ref method listStoreInsert@ @literal 0@.
 --
 listStorePrepend :: (ListStoreClass ts) => ts -> IO TreeIter
 listStorePrepend ts = do
