@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:35:19 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/18 22:19:13 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -80,7 +80,7 @@ listStoreSetValue ts ti col val = with val $ \vPtr -> do
     (fromIntegral col) vPtr
   valueUnset vPtr
 
-#if GTK_CHECK_VERSION(2,2,0)
+#if GTK_CHECK_VERSION(2,1,0)
 -- | Remove a specific node.
 --
 -- * The 'TreeIter' will point to the entry following the one which

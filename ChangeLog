@@ -3,6 +3,11 @@
 	* tools/c2hs/c/CLexer.hs: trivial fix to allows c2hs to process the
 	glib/gtk 2.6 headders.
 
+	* gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp: cope with building
+	against Gtk+ version 2.1.0 which is a version that Sun shipped with
+	its version of Gnome 2.
+
 2005-01-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add an extra option --without-pkgreg to allow
