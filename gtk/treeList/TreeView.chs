@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/08 13:22:46 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/17 16:00:41 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -52,6 +52,7 @@ module TreeView(
   treeViewAppendColumn,
   treeViewRemoveColumn,
   treeViewInsertColumn,
+  treeViewInsertColumnWithAttributes,
   treeViewGetColumn,
   treeViewScrollToCell,
   treeViewExpandAll,
@@ -69,6 +70,7 @@ import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
 {#import TreeModel#}
+{#import TreeViewColumn#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -198,6 +200,23 @@ treeViewInsertColumn :: TreeViewClass tv => tv -> TreeViewColumn -> Int ->
 treeViewInsertColumn tv tvc pos = liftM fromIntegral $ 
   {#call tree_view_insert_column#} (toTreeView tv) tvc (fromIntegral pos)
 
+
+-- @method treeViewInsertColumnWithAttributes@ Inserts new column into the
+-- TreeView @ref arg tv@ at position @ref arg pos@ with title
+-- @ref argtitle@, cell renderer @ref arg cr@ and attributes
+-- @ref arg attribs@. Specify -1 for @ref arg pos@ to insert the column at
+-- the end.
+--
+treeViewInsertColumnWithAttributes :: (TreeViewClass tv, CellRendererClass cr)
+   => tv -> Int -> String -> cr -> [(String,Int)] -> IO ()
+treeViewInsertColumnWithAttributes tv pos title cr attribs = 
+    do
+    column <- treeViewColumnNew
+    treeViewColumnSetTitle column title
+    treeViewColumnPackStart column cr True
+    treeViewColumnAddAttributes column cr attribs
+    treeViewInsertColumn tv column pos
+    return ()
 
 -- @method treeViewGetColumn@ Retrieve the @ref arg pos@ th columns of
 -- TreeView. If the index is out of range Nothing is returned.
