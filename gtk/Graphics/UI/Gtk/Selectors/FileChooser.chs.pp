@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/03 12:56:07 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/03 14:15:35 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -195,8 +195,8 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 import Monad (liftM, when)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 import System.Glib.Attributes		(Attr(..))
-import System.Glib.UTFString		(readCString)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Signals
@@ -754,7 +754,7 @@ fileChooserRemoveShortcutFolder :: FileChooserClass self => self
  -> IO ()
 fileChooserRemoveShortcutFolder self folder =
   propagateGError $ \errorPtr ->
-  withCString folder $ \folderPtr ->
+  withCString folder $ \folderPtr -> do
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call gtk_file_chooser_remove_shortcut_folder_utf8 #}
 #else
