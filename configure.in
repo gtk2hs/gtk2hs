@@ -242,16 +242,16 @@ dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
 PKG_CHECK_MODULES(GTK,[glib-2.0 >= 2.0.0 gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
 if test x$ENABLE_OPENGL = xyes; then
-  PKG_CHECK_MODULES(GTK,[gtkglext-1.0 >= 0.7.1])
+  PKG_CHECK_MODULES(GTKGLEXT,[gtkglext-1.0 >= 0.7.1])
 fi
 if test x$ENABLE_SOURCEVIEW = xyes; then
-  PKG_CHECK_MODULES(GTK,[gtksourceview-1.0 >= 0.6.0])
+  PKG_CHECK_MODULES(SOURCEVIEW,[gtksourceview-1.0 >= 0.6.0])
 fi
 
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
 dnl does not like that, so we need to filter out non-existent directories.
-TMPGTK_CFLAGS=$GTK_CFLAGS $PIXBUF_CFLAGS;
+TMPGTK_CFLAGS=$GTK_CFLAGS;
 GTK_CFLAGS=;
 for FLAG in $TMPGTK_CFLAGS; do
   case $FLAG in
@@ -260,13 +260,32 @@ for FLAG in $TMPGTK_CFLAGS; do
     *) GTK_CFLAGS="$GTK_CFLAGS $FLAG";;
   esac;
 done;
-TMPGTK_LIBS=$GTK_LIBS $PIXBUF_LIBS;
+TMPGTK_LIBS=$GTK_LIBS;
 GTK_LIBS=;
 for FLAG in $TMPGTK_LIBS; do
   case $FLAG in
     -L*) DIR=`echo $FLAG | $SED "s/-L//"`;
 	 if test -d $DIR; then GTK_LIBS="$GTK_LIBS -L$DIR"; fi;;
     *) GTK_LIBS="$GTK_LIBS $FLAG";;
+  esac;
+done;
+
+TMPSOURCEVIEW_CFLAGS=$SOURCEVIEW_CFLAGS;
+SOURCEVIEW_CFLAGS=;
+for FLAG in $TMPSOURCEVIEW_CFLAGS; do
+  case $FLAG in
+    -I*) DIR=`echo $FLAG | $SED "s/-I//"`;
+	 if test -d $DIR; then SOURCEVIEW_CFLAGS="$SOURCEVIEW_CFLAGS -I$DIR"; fi;;
+    *) SOURCEVIEW_CFLAGS="$SOURCEVIEW_CFLAGS $FLAG";;
+  esac;
+done;
+TMPSOURCEVIEW_LIBS=$SOURCEVIEW_LIBS;
+SOURCEVIEW_LIBS=;
+for FLAG in $TMPSOURCEVIEW_LIBS; do
+  case $FLAG in
+    -L*) DIR=`echo $FLAG | $SED "s/-L//"`;
+	 if test -d $DIR; then SOURCEVIEW_LIBS="$SOURCEVIEW_LIBS -L$DIR"; fi;;
+    *) SOURCEVIEW_LIBS="$SOURCEVIEW_LIBS $FLAG";;
   esac;
 done;
 
@@ -311,10 +330,12 @@ AC_ARG_WITH(c2hs,
 	} ;;
       *) {
 	BUILT_IN_C2HS=no;
-	AC_CHECK_FILE($withval,C2HS=$withval,
-          AC_MSG_ERROR([The specified C->Haskell tool was not found.
+	AC_PATH_PROG(C2HS, $withval, notfound)
+        if test $C2HS = notfound; then
+	  AC_MSG_ERROR([The specified C->Haskell tool was not found.
 	          Try compiling with the built-in c2hs by omitting
-		  --with-c2hs=... when calling ./configure .]))
+		  --with-c2hs=... when calling ./configure .])
+	fi
 	} ;;
     esac
   ],[BUILT_IN_C2HS=yes])
@@ -341,16 +362,22 @@ if test $BUILT_IN_C2HS = yes; then
 
 else
   AC_MSG_RESULT([external])
-  MULTIPLE_CHS=no;
-  dnl Find C->Haskell and check its version.
-  dnl Check the version of c2hs
-  AC_CACHE_CHECK([c2hs version], c2hs_version, [
-    c2hs_version=`$C2HS --version | $SED "s/[[^0-9.]*\([0-9.]*\) .*]/\1/"`;
-  ])
-  GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.11.6,
-    AC_MSG_ERROR([You need C->Haskell version 0.11.6 upwards!
-      ** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
-  dnl C->Haskell configuration.
+  case $C2HS in
+    c2hs-gtk2hs) {
+      MULTIPLE_CHS=yes;
+      } ;;
+    *) {
+      MULTIPLE_CHS=no;
+      dnl Find C->Haskell and check its version.
+      dnl Check the version of c2hs
+      AC_CACHE_CHECK([c2hs version], c2hs_version, [
+        c2hs_version=`$C2HS --version | $SED "s/[[^0-9.]*\([0-9.]*\) .*]/\1/"`;
+      ])
+      GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.11.6,
+        AC_MSG_ERROR([You need C->Haskell version 0.11.6 upwards!
+          ** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
+      dnl C->Haskell configuration.
+      } ;;
 fi
 
 # Read the version file
@@ -473,6 +500,8 @@ dnl AC_SUBST(GTK_MINOR_VERSION)
 dnl AC_SUBST(GTK_MICRO_VERSION)
 AC_SUBST(ENABLE_OPENGL)
 AC_SUBST(ENABLE_SOURCEVIEW)
+AC_SUBST(SOURCEVIEW_CFLAGS)
+AC_SUBST(SOURCEVIEW_LIBS)
 dnl Documentation
 AC_SUBST(BUILDDOCS)
 AC_SUBST(XSLTTRANS)
