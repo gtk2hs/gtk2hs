@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.13 $ from $Date: 2004/05/21 13:26:33 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -365,13 +365,13 @@ widgetGetDirection w = liftM (toEnum.fromIntegral) $
 -- Accelerator handling.
 
 -- Lock accelerators.
--- *  
+--
 --widgetLockAccelerators :: WidgetClass w => w -> IO ()
 --widgetLockAccelerators = {#call unsafe widget_lock_accelerators#}.toWidget
 
 
 -- Unlock accelerators.
--- * 
+--
 --widgetUnlockAccelerators :: WidgetClass w => w -> IO ()
 --widgetUnlockAccelerators = {#call widget_unlock_accelerators#}.toWidget
 

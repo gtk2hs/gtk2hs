@@ -1,4 +1,4 @@
--- |GIMP Toolkit (GTK) Binding for Haskell: binding to GConf   -*-haskell-*-
+-- GIMP Toolkit (GTK) Binding for Haskell: binding to GConf   -*-haskell-*-
 --    for storing and retrieving configuartion information
 --
 --  Author : Duncan Coutts
@@ -16,7 +16,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- Description ---------------------------------------------------------------
+-- description ---------------------------------------------------------------
 --
 --  Language: Haskell 98 Binding Module
 --
