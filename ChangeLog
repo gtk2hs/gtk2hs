@@ -9,7 +9,8 @@
 	* tools/hierarchyGen/hierarchy.list: add GConf object.
 	Remove preprocessor annotations, build classes conditionally using
 	tags like 'gtk-2.4'. Remove unnecessary annotations by taking advantage
-	of changes in the TypeGenerator.
+	of changes in the TypeGenerator. Only create GtkFileFilter when
+	building against gtk 2.4 or later.
 
 	* tools/hierarchyGen/TypeGen.hs: be a bit cleverer with dealing with
 	type prefixes, less hard coded knowledge of Gtk types. No not require

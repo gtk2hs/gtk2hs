@@ -149,7 +149,7 @@
 		GtkCellRendererText
 #		    GtkCellRendererTextPixbuf
 		GtkCellRendererToggle
-	    GtkFileFilter	
+	    GtkFileFilter		if gtk-2.4
 # These are derived from GObject:
         GtkTreeSelection
         GtkTreeModel
