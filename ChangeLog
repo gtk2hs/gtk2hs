@@ -1,5 +1,9 @@
 2003-07-18 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* mk/common.mk: Make hsc2hs pass -no-hs-main to ghc when linking.
+	This avoids an undefined symbol error the the Haskell main
+	function on Apple and Solaris.
+
 	* gtk/Makefile: Added the header file for gdk-pixbuf.
 
 2003-07-15  Jens Petersen  <petersen@haskell.org>

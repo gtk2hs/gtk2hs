@@ -138,7 +138,7 @@ HSCFLAGGED	:= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 		$(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I) \
 		$(addprefix --lflag=,$(EXTRA_LIBS_ONLY_Ll) $(LIBS_ONLY_L)\
 		$(addprefix --cflag=,$(CPPFLAGS) $(EXTRA_CPP_FLAGS)))\
-		--cc=$(HC))
+		--cc=$(HC) --lflag=-no-hs-main)
 
 # Specify how c2hs should be run.
 C2HSFLAGGED	:= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
