@@ -1,3 +1,12 @@
+2004-07-28  Jens Petersen  <petersen@haskell.org>
+
+	* mk/library.mk (installfiles): Install lib.a as is, ie not mod
+	644 and	don't reset timestamp.
+
+	* mk/common.mk: Define INST_HIDIR, INST_LIBDIR, INST_INCLDIR and
+	INST_BINDIR directly as normal make variables, so that lib
+	packages get installed in separate subdirs.
+
 2004-07-27  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/gconf/GConfDemo.hs, demo/gconf/Makefile: new gconf demo/test
@@ -6,7 +15,7 @@
 
 2004-07-27  Jens Petersen  <petersen@haskell.org>
 
-	* mk/config.mk.in (INSTALL_DIR): Define ABS_TOP.  No longer define CPP.
+	* mk/config.mk.in: Define ABS_TOP.  No longer define CPP.
 
 	* mk/common.mk: Sedpipe ABS_TOP and use it for TARDIR to fix
 	tarsource target. 
