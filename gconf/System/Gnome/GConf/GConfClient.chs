@@ -222,7 +222,7 @@ gconfNotifyAdd gc key handler =
           keyStrPtr <- {# call unsafe gconf_entry_get_key #} entry
           valuePtr <- {# call unsafe gconf_entry_get_value #} entry
           key <- peekUTFString keyStrPtr
-          value <- marshalFromGConfValue valuePtr
+          value <- marshalFromGConfValue (GConfValue valuePtr)
           handler key value
 
 gconfNotifyRemove :: GConf -> GConfConnectId -> IO ()
@@ -241,7 +241,7 @@ gconfGet gc key = do
   value <- propagateGError $ \gerrorPtr ->
            withCString key $ \strPtr ->
            {# call gconf_client_get #} gc strPtr gerrorPtr
-  marshalFromGConfValue value
+  marshalFromGConfValue (GConfValue value)
   
 gconfGetInt :: GConf -> String -> IO Int
 gconfGetInt = gconfGet
@@ -308,7 +308,7 @@ gconfGetWithoutDefault gc key = do
   value <- propagateGError $ \gerrorPtr ->
            withCString key $ \strPtr ->
            {# call gconf_client_get_without_default #} gc strPtr gerrorPtr
-  marshalFromGConfValue value
+  marshalFromGConfValue (GConfValue value)
 
 -- | Returns the default value stored in the key's schema, if the key has a
 -- schema associated and the schema exists and the schema contains a default
@@ -321,7 +321,7 @@ gconfGetDefaultFromSchema gc key = do
   value <- propagateGError $ \gerrorPtr ->
            withCString key $ \strPtr ->
            {# call gconf_client_get_default_from_schema #} gc strPtr gerrorPtr
-  marshalFromGConfValue value
+  marshalFromGConfValue (GConfValue value)
 
 -- | Unsets the value of key; if key is already unset, has no effect. An error
 -- of note is 'GConfOverridden', indicating that the system administrator has
@@ -375,7 +375,7 @@ gconfAllEntries gc dir = do
                      keyStrPtr <- {# call unsafe gconf_entry_get_key #} entry'
                      valuePtr <- {# call unsafe gconf_entry_get_value #} entry'
                      key <- peekUTFString keyStrPtr
-                     value <- marshalFromGConfValue valuePtr
+                     value <- marshalFromGConfValue (GConfValue valuePtr)
                      -- gconf_entry_free is depreciated, use gconf_entry_unref
                      -- however gconf_entry_unref is not documented and docs
                      -- still say to use gconf_entry_free. Confusing.

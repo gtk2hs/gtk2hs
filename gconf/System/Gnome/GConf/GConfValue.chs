@@ -110,8 +110,8 @@ instance GConfValueClass Int where
   marshalToGConfValue n = do
     value <- {# call unsafe gconf_value_new #}
       (fromIntegral $ fromEnum GconfValueInt)
-    {# call unsafe gconf_value_set_int #} value (fromIntegral n)
-    return value
+    {# call unsafe gconf_value_set_int #} (GConfValue value) (fromIntegral n)
+    return (GConfValue value)
 
 instance GConfValueClass Bool where
   typeofGConfValue _ = GconfValueBool
@@ -119,8 +119,8 @@ instance GConfValueClass Bool where
   marshalToGConfValue b = do
     value <- {# call unsafe gconf_value_new #}
       (fromIntegral $ fromEnum GconfValueBool)
-    {# call unsafe gconf_value_set_bool #} value (fromBool b)
-    return value
+    {# call unsafe gconf_value_set_bool #} (GConfValue value) (fromBool b)
+    return (GConfValue value)
 
 instance GConfValueClass Double where
   typeofGConfValue _ = GconfValueFloat
@@ -128,8 +128,8 @@ instance GConfValueClass Double where
   marshalToGConfValue f = do
     value <- {# call unsafe gconf_value_new #}
       (fromIntegral $ fromEnum GconfValueFloat)
-    {# call unsafe gconf_value_set_float #} value (realToFrac f)
-    return value
+    {# call unsafe gconf_value_set_float #} (GConfValue value) (realToFrac f)
+    return (GConfValue value)
 
 -- Now unfortunately String & [a] overlap, although really they don't since Char
 -- is not an instance of GConfPrimitiveValueClass, however classes are open so
@@ -145,8 +145,8 @@ instance GConfValueClass String where
     value <- {# call unsafe gconf_value_new #}
       (fromIntegral $ fromEnum GconfValueString)
     withCString s $ \strPtr ->
-      {# call unsafe gconf_value_set_string #} value strPtr
-    return value
+      {# call unsafe gconf_value_set_string #} (GConfValue value) strPtr
+    return (GConfValue value)
 
 instance (GConfPrimitiveValueClass a, GConfPrimitiveValueClass b) => GConfValueClass (a,b) where
   typeofGConfValue _ = GconfValuePair
@@ -154,8 +154,8 @@ instance (GConfPrimitiveValueClass a, GConfPrimitiveValueClass b) => GConfValueC
   unsafeMarshalFromGConfValue value = do
     a <- {# call unsafe gconf_value_get_car #} value
     b <- {# call unsafe gconf_value_get_cdr #} value
-    a' <- marshalFromGConfValue a
-    b' <- marshalFromGConfValue b
+    a' <- marshalFromGConfValue (GConfValue a)
+    b' <- marshalFromGConfValue (GConfValue b)
     return (a',b')
 
   marshalToGConfValue (a,b) = do
@@ -163,9 +163,9 @@ instance (GConfPrimitiveValueClass a, GConfPrimitiveValueClass b) => GConfValueC
       (fromIntegral $ fromEnum GconfValuePair)
     a' <- marshalToGConfValue a
     b' <- marshalToGConfValue b
-    {# call unsafe gconf_value_set_car_nocopy #} value a'
-    {# call unsafe gconf_value_set_cdr_nocopy #} value b'
-    return value
+    {# call unsafe gconf_value_set_car_nocopy #} (GConfValue value) a'
+    {# call unsafe gconf_value_set_cdr_nocopy #} (GConfValue value) b'
+    return (GConfValue value)
 
 
 instance GConfPrimitiveValueClass a => GConfValueClass [a] where
@@ -189,10 +189,10 @@ instance GConfPrimitiveValueClass a => GConfValueClass [a] where
       (fromIntegral $ fromEnum GconfValueList)
     valuesPtrs <- mapM (liftM (\(GConfValue ptr) -> ptr) . marshalToGConfValue) list
     valuesList <- toGSList valuesPtrs
-    {# call unsafe gconf_value_set_list_type #} value
+    {# call unsafe gconf_value_set_list_type #} (GConfValue value)
       (fromIntegral $ fromEnum $ typeofGConfValue (undefined::a))
-    {# call unsafe gconf_value_set_list_nocopy #} value valuesList
-    return value
+    {# call unsafe gconf_value_set_list_nocopy #} (GConfValue value) valuesList
+    return (GConfValue value)
 
 ----------------
 -- For convenience and best practice, an instance for Enum 
@@ -273,19 +273,19 @@ marshalGConfValueDynListToGConfValue as = do
     (fromIntegral $ fromEnum GconfValueList)
   valuesPtrs <- mapM (liftM (\(GConfValue ptr) -> ptr) . marshalToGConfValue) as
   valuesList <- toGSList valuesPtrs
-  {# call unsafe gconf_value_set_list_type #} value
+  {# call unsafe gconf_value_set_list_type #} (GConfValue value)
     (fromIntegral $ fromEnum $ (case as of
                                   []    -> GconfValueInvalid  --unknown type
                                   (a:_) -> gconfValueDynGetType (head as)))
-  {# call unsafe gconf_value_set_list_nocopy #} value valuesList
-  return value
+  {# call unsafe gconf_value_set_list_nocopy #} (GConfValue value) valuesList
+  return (GConfValue value)
 
 unsafeMarshalGConfValueDynPairFromGConfValue :: GConfValue -> IO (GConfValueDyn, GConfValueDyn)
 unsafeMarshalGConfValueDynPairFromGConfValue value = do
   a <- {# call unsafe gconf_value_get_car #} value
   b <- {# call unsafe gconf_value_get_cdr #} value
-  a' <- marshalFromGConfValue a
-  b' <- marshalFromGConfValue b
+  a' <- marshalFromGConfValue (GConfValue a)
+  b' <- marshalFromGConfValue (GConfValue b)
   return (a', b')
 
 marshalGConfValueDynPairToGConfValue :: (GConfValueDyn, GConfValueDyn) -> IO GConfValue
@@ -294,9 +294,9 @@ marshalGConfValueDynPairToGConfValue (a,b) = do
     (fromIntegral $ fromEnum GconfValuePair)
   a' <- marshalToGConfValue a
   b' <- marshalToGConfValue b
-  {# call unsafe gconf_value_set_car_nocopy #} value a'
-  {# call unsafe gconf_value_set_cdr_nocopy #} value b'
-  return value
+  {# call unsafe gconf_value_set_car_nocopy #} (GConfValue value) a'
+  {# call unsafe gconf_value_set_cdr_nocopy #} (GConfValue value) b'
+  return (GConfValue value)
 
 instance GConfValueClass GConfValueDyn where
   typeofGConfValue _ = undefined -- will never be used

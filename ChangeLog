@@ -1,3 +1,18 @@
+2004-12-7  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mk/common.mk: tiny tidyup
+
+	* tools/c2hs/chs/CHS.hs: apply old patch to our new c2hs, makes c2hs
+	deal with hierarchical module names.
+
+	* tools/c2hs/gen/GenBind.hs: apply old patch to our new c2hs, fix
+	handling of typedef'ed C types. Needed for SourceMarker.chs.
+
+	* gconf/System/Gnome/GConf/GConfClient.chs,
+	gconf/System/Gnome/GConf/GConfValue.chs: make these work with our
+	current version of c2hs. It's not entirely obvious to me if this is
+	an improvement in c2hs or a regression. Could do with investigating.
+
 2004-12-02  Jens Petersen  <petersen@haskell.org>
 
 	* configure.ac: Use modern invocation of AC_INIT with name and

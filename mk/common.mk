@@ -11,8 +11,8 @@ VPATH = $(subst $(SPACE),:,$(strip \
 	$(SOURCEDIRS))))
 
 LINK = 	$(strip $(HC) -o $@ $($(NAME)_HCFLAGS) \
-  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-  $(AM_LDFLAGS) $($(NAME)_LDFLAGS))
+	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
+	$(AM_LDFLAGS) $($(NAME)_LDFLAGS))
 
 .hs.o: $(CONFIG_H)
 	@echo Building for $(NAME)
@@ -75,7 +75,7 @@ debug	:
 	--precomp=$($(NAME)_PRECOMP) $($(NAME)_HEADER))
 
 .chs.pp.chs: $(CONFIG_H)
-	echo Preprocessing for $(NAME)
+	@echo Preprocessing for $(NAME)
 	$(strip $(HSCPP) $(AM_CPPFLAGS) \
 	$(if $(NAME),$($(NAME)_CPPFLAGS) $($(NAME)_CFLAGS),$(CPPFLAGS)) \
 	$(addprefix -include ,$(CONFIG_H)) \
