@@ -2,7 +2,7 @@
 
 LIBNAME			?= $(PACKAGENAME)
 
-INSTALLDIR = $(COMMONINSTALLDIR)/$(PACKAGENAME)
+INSTALLDIR 		= $(COMMONINSTALLDIR)/$(PACKAGENAME)
 
 TARGETOK		= $(addprefix $(strip $(LIBPREFIX)),\
 			$(addsuffix $(LIBSUFFIX),$(strip $(LIBNAME))))
@@ -53,7 +53,7 @@ installcheck :
 	fi
 
 installdirs :
-	$(INSTALL) -d $(DESTDIR)$(INST_HIDIR) $(DESTDIR)$(INST_LIBDIR) $(DESTDIR)$(INST_INCLDIR)
+	$(INSTALL) -d $(DESTDIR)$(INST_LIBDIR) $(DESTDIR)$(INST_HIDIR) $(DESTDIR)$(INST_INCLDIR)
 
 install-without-pkg : $(TARGETOK) installdirs installfiles
 
