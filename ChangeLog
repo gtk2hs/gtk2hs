@@ -1,3 +1,9 @@
+2002-10-20 Axel Simon <A.Simon@ukc.ac.uk> 
+
+	* gendoc/Abstract.hs XMLwrite.hs gtk2hs.xml: This version uses the
+	unmodified version of Docbook. I'm still haveing trouble with the
+	pretty-printer library (and with Docbook itself, of course).
+	
 2002-10-19 Axel Simon <A.Simon@ukc.ac.uk> 
 
 	* gendoc/ Abstract.hs Driver.hs Lexer.hs Parser.hs State.hs
