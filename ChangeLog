@@ -1,3 +1,25 @@
+2004-08-8  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mk/library.mk, mk/common.mk: Axel's patches to change the way the
+	_stub.o files are found so new gtk-2.4 modules don't cause link errors
+	whe building for gtk-2.2 or 2.0. With a slight change so the _stub.o
+	files are looked for after compiling rather than before.
+
+	* gtk/misc/FileChooserWidget.chs, gtk/menuComboToolbar/ToolItem.chs,
+	gtk/menuComboToolbar/ComboBoxEntry.chs,
+	gtk/menuComboToolbar/ComboBox.chs, gtk/layout/Expander.chs,
+	gtk/entry/EntryCompletion.chs, gtk/abstract/FileChooser.chs,
+	gtk/windows/FileChooserDialog.chs, gtk/general/Gtk.hs: Axel's patches
+	to change the way gtk-2.4 modules are excluded when building for
+	earlier versions. Instead of not importing them into Gtk.hs, make them
+	have empty bodies. That way c2hs doesn't see the new functions.
+
+	* gconf/System/Gnome/GConf/GConfValue.chs: Add back partial support for
+	the GConfSchema type so getting a schema key will not fail.
+
+	* gconf/System/Gnome/GConf/GConfClient.chs: Make documantation Haddock
+	compatible.
+
 2004-08-6  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.in, mk/config.mk.in, gtk/Makefile, mogul/Makefile,

@@ -73,13 +73,14 @@ class GConfValueClass value where
 -- The code that uses marshalTo must ensure that it hands the value off to a
 -- function that is prepared to asume ownership of the value.
 
--- dynamic version for when the type is not known statically
+-- | Dynamic version for when the type is not known statically.
 data GConfValueDyn = GConfValueString String
                    | GConfValueInt Int
                    | GConfValueFloat Double
                    | GConfValueBool Bool
-                   | GConfValueList [GConfValueDyn] --must all be of same primitive type
-                   | GConfValuePair (GConfValueDyn, GConfValueDyn)  --must both be primitive
+                   | GConfValueSchema               -- ^ Not supported
+                   | GConfValueList [GConfValueDyn] -- ^ Must all be of same primitive type
+                   | GConfValuePair (GConfValueDyn, GConfValueDyn) -- ^ Must both be primitive
 
 -- Allow variant using Maybe, where Nothing means the value was not set
 -- Use this variant when you expect the gconf key to not be set somethimes;
@@ -306,6 +307,7 @@ instance GConfValueClass GConfValueDyn where
       GconfValueInt    -> liftM GConfValueInt    $ unsafeMarshalFromGConfValue value
       GconfValueFloat  -> liftM GConfValueFloat  $ unsafeMarshalFromGConfValue value
       GconfValueBool   -> liftM GConfValueBool   $ unsafeMarshalFromGConfValue value
+      GconfValueSchema -> return GConfValueSchema
       GconfValueList   -> liftM GConfValueList   $ unsafeMarshalGConfValueDynListFromGConfValue value
       GconfValuePair   -> liftM GConfValuePair   $ unsafeMarshalGConfValueDynPairFromGConfValue value
   
@@ -318,6 +320,7 @@ instance GConfValueClass GConfValueDyn where
     (GConfValueInt    v') -> marshalToGConfValue v'
     (GConfValueFloat  v') -> marshalToGConfValue v'
     (GConfValueBool   v') -> marshalToGConfValue v'
+    (GConfValueSchema   ) -> fail "GConf: setting schema types not supported"
     (GConfValueList   v') -> marshalGConfValueDynListToGConfValue v'
     (GConfValuePair   v') -> marshalGConfValueDynPairToGConfValue v'
 

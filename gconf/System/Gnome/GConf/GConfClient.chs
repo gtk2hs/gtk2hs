@@ -65,7 +65,7 @@ module System.Gnome.GConf.GConfClient (
   gconfGetDefaultFromSchema,
   gconfUnset,
 
-  -- * caching control
+  -- * Caching control
   --
   gconfClearCache, gconfPreload,
   gconfSuggestSync,
@@ -86,7 +86,8 @@ module System.Gnome.GConf.GConfClient (
 ) where
 
 import Monad	(liftM, when)
-import LocalData (newIORef, readIORef, writeIORef, unsafePerformIO)
+import Data.IORef (newIORef, readIORef, writeIORef)
+import System.IO.Unsafe (unsafePerformIO)
 import FFI
 {#import Hierarchy#}
 {#import Signal#}
@@ -111,31 +112,28 @@ instance GErrorClass GConfError where
 
 {# pointer *GConfEntry newtype #}
 
--- |Operations
--- -----------
+-- Operations
 
--- |Creation operations
--- -
+-- Creation operations
 
--- @constructor gconfGetDefault@ Create a new GConf object
--- using the default configuration engine.
+-- | Create a new GConf object using the default configuration engine.
 --
 gconfGetDefault :: IO GConf
 gconfGetDefault =
   makeNewGObject mkGConf {# call gconf_client_get_default #}
 
 
--- |Registering for change notifications
--- -
+-- Registering for change notifications
 
--- @method gconfAddDir@ Add a directory to the list of directories the
+-- | Add a directory to the list of directories the
 -- GConf will watch. You should use gconfNotifyAdd to associate
 -- change handlers with specific keys.
 --
--- * Added directories may not overlap. That is, if you add "/foo", you may not
---   add "/foo/bar". However you can add "/foo" and "/bar". You can also add
---   "/foo" multiple times; if you add a directory multiple times, it will not
---   be removed until you call gconfRemoveDir an equal number of times.
+-- * Added directories may not overlap. That is, if you add \"\/foo\", you may
+-- not add \"\/foo\/bar\". However you can add \"\/foo\" and \"\/bar\". You can
+-- also add \"\/foo\" multiple times; if you add a directory multiple times, it
+-- will not be removed until you call 'gconfRemoveDir' an equal number of
+-- times.
 --
 -- * Note that the watch is recursive, all keys below the given directory will
 --   be watched. So it would be a bad idea to watch the root "/".
@@ -143,8 +141,7 @@ gconfGetDefault =
 gconfAddDir :: GConf -> String -> IO ()
 gconfAddDir gc key = gconfAddDirWithPreload gc key PreloadNone
 
--- @method gconfAddDirWithPreload@ Like gconfAddDir but with the
--- option to specify a preload mode.
+-- | Like 'gconfAddDir' but with the option to specify a preload mode.
 --
 -- As a rule of thumb, if you plan to get the value of almost all the keys in a
 -- directory, preloading that directory will probably enhance performance. If
@@ -162,13 +159,12 @@ gconfAddDirWithPreload gc key preload =
   {# call gconf_client_add_dir #} gc strPtr
     (fromIntegral $ fromEnum preload) gerrorPtr
 
--- @method gconfRemoveDir@ Remove a directory from the list created with
--- gconfAddDir. If any notifications have been added below this directory
--- with gconfNotifyAdd, those notifications will be disabled until you
--- re-add the removed directory.
+-- | Remove a directory from the list created with 'gconfAddDir'. If any
+-- notifications have been added below this directory with 'gconfNotifyAdd',
+-- those notifications will be disabled until you re-add the removed directory.
 --
 -- * Note that if a directory has been added multiple times, you must remove it
---   the same number of times before the remove takes effect.
+-- the same number of times before the remove takes effect.
 --
 gconfRemoveDir :: GConf -> String -> IO ()
 gconfRemoveDir gc key =
@@ -193,12 +189,10 @@ type GConfClientNotifyFunc = Ptr () ->         --GConfClient *client
 
 #if __GLASGOW_HASKELL__>=504
 foreign import ccall "wrapper" mkHandler_GConfClientNotifyFunc ::
-  GConfClientNotifyFunc -> 
-  IO (FunPtr GConfClientNotifyFunc)
+  GConfClientNotifyFunc -> IO (FunPtr GConfClientNotifyFunc)
 #else
 foreign export dynamic mkHandler_GConfClientNotifyFunc ::
-  GConfClientNotifyFunc -> 
-  IO (FunPtr GConfClientNotifyFunc)
+  GConfClientNotifyFunc -> IO (FunPtr GConfClientNotifyFunc)
 #endif
 
 connect_GConfClientNotifyFunc :: 
@@ -245,15 +239,13 @@ gconfNotifyRemove gc (GConfConnectId cxid) =
   {# call gconf_client_notify_remove #} gc cxid
 
 
--- |Getting and setting configuration values
--- -
+-- Getting and setting configuration values
 
--- @method gconfGet@ Gets the value of a configuration key.
+-- | Gets the value of a configuration key.
 --
--- * the second parameter is name of the key
---
-gconfGet :: GConfValueClass value =>
-                  GConf -> String -> IO value
+gconfGet :: GConfValueClass value => GConf
+         -> String   -- ^ Name of the key
+	 -> IO value
 gconfGet gc key = do
   value <- propagateGError $ \gerrorPtr ->
            withCString key $ \strPtr ->
@@ -280,12 +272,12 @@ gconfGetList :: GConfValueClass [a] =>
                 GConf -> String -> IO [a]
 gconfGetList = gconfGet
 
--- @method gconfSet@ Sets the value of a configuration key.
+-- | Sets the value of a configuration key.
 --
--- * the second parameter is name of the key, the third is the new value
---
-gconfSet :: GConfValueClass value =>
-                  GConf -> String -> value -> IO ()
+gconfSet :: GConfValueClass value => GConf
+         -> String  -- ^ Name of the key
+	 -> value   -- ^ New value
+	 -> IO ()
 gconfSet gc key val = do
   value@(GConfValue ptr) <- marshalToGConfValue val
   if ptr == nullPtr
@@ -314,8 +306,9 @@ gconfSetList :: GConfValueClass [a] =>
                 GConf -> String -> [a] -> IO ()
 gconfSetList = gconfSet
 
--- @method gconfGetWithoutDefault@ Gets the value of a configuration key.
--- Same as  gconfGet, but doesn't look for a default value if the key is
+-- | Gets the value of a configuration key.
+--
+-- Same as 'gconfGet', but doesn't look for a default value if the key is
 -- unset.
 --
 gconfGetWithoutDefault :: GConfValueClass value =>
@@ -326,11 +319,10 @@ gconfGetWithoutDefault gc key = do
            {# call gconf_client_get_without_default #} gc strPtr gerrorPtr
   marshalFromGConfValue value
 
--- @method gconfGetDefaultFromSchema@ Returns the default value stored in
--- the key's schema, if the key has a schema associated and the schema exists
--- and the schema contains a default value. Note that gconfSet already
--- returns the default value if no other value is found, so normally you do not
--- need this function.
+-- | Returns the default value stored in the key's schema, if the key has a
+-- schema associated and the schema exists and the schema contains a default
+-- value. Note that 'gconfSet' already returns the default value if no other
+-- value is found, so normally you do not need this function.
 --
 gconfGetDefaultFromSchema :: GConfValueClass value =>
                              GConf -> String -> IO value
@@ -340,9 +332,9 @@ gconfGetDefaultFromSchema gc key = do
            {# call gconf_client_get_default_from_schema #} gc strPtr gerrorPtr
   marshalFromGConfValue value
 
--- @method gconfGetWithoutDefault@ Unsets the value of key; if key is
--- already unset, has no effect. An error of note is GCONF_OVERRIDDEN,
--- indicating that the system administrator has "forced" a value for this key.
+-- | Unsets the value of key; if key is already unset, has no effect. An error
+-- of note is 'GConfOverridden', indicating that the system administrator has
+-- \"forced\" a value for this key.
 --
 gconfUnset :: GConf -> String -> IO ()
 gconfUnset gc key =
@@ -351,16 +343,16 @@ gconfUnset gc key =
   {# call gconf_client_unset #} gc strPtr gerrorPtr
   return ()
 
--- @method gconfClearCache@ Dumps everything out of the GConf
--- client-side cache. If you know you're done using the GConf for a while,
--- you can call this function to save some memory.
+-- | Dumps everything out of the GConf client-side cache. If you know you're
+-- done using the GConf for a while, you can call this function to save some
+-- memory.
 --
 gconfClearCache :: GConf -> IO ()
 gconfClearCache gc = {# call gconf_client_clear_cache #} gc
 
--- @method gconfPreload@ Preloads a directory. Normally you do this when
--- you call gconfAddDirWithPreload, but if you've called
--- gconfClearCache there may be a reason to do it again.
+-- | Preloads a directory. Normally you do this when you call
+-- 'gconfAddDirWithPreload', but if you've called 'gconfClearCache' there may
+-- be a reason to do it again.
 --
 gconfPreload :: GConf -> String -> GConfPreloadType -> IO ()
 gconfPreload gc key preload =
@@ -369,18 +361,18 @@ gconfPreload gc key preload =
   {# call gconf_client_preload #} gc strPtr
     (fromIntegral $ fromEnum preload) gerrorPtr
 
--- @method gconfSuggestSync@ Suggests to gconfd that you've just finished
--- a block of changes, and it would be an optimal time to sync to permanent
--- storage. This is only a suggestion; and gconfd will eventually sync even if
--- you don't call gconfSuggestSync. This function is just a "hint"
--- provided to gconfd to maximize efficiency and minimize data loss.
+-- | Suggests to gconfd that you've just finished a block of changes, and it
+-- would be an optimal time to sync to permanent storage. This is only a
+-- suggestion; and gconfd will eventually sync even if you don't call 
+-- 'gconfSuggestSync'. This function is just a "hint" provided to gconfd to
+-- maximize efficiency and minimize data loss.
 --
 gconfSuggestSync :: GConf -> IO ()
 gconfSuggestSync gc =
   propagateGError $ \gerrorPtr ->
   {# call gconf_client_suggest_sync #} gc gerrorPtr
 
--- @method gconfAllEntries@ 
+-- |  
 --
 gconfAllEntries :: GConf -> String -> IO [(String, GConfValueDyn)]
 gconfAllEntries gc dir = do
@@ -400,7 +392,7 @@ gconfAllEntries gc dir = do
                      return (key,value))
        entryList
 
--- @method gconfAllDirs@ 
+-- | 
 --
 gconfAllDirs :: GConf -> String -> IO [String]
 gconfAllDirs gc dir = do
@@ -412,7 +404,7 @@ gconfAllDirs gc dir = do
                       return str)
        dirList
 
--- @method gconfDirExists@ 
+-- | 
 --
 gconfDirExists :: GConf -> String -> IO Bool
 gconfDirExists gc dir =
@@ -420,8 +412,7 @@ gconfDirExists gc dir =
   liftM toBool $ {# call gconf_client_dir_exists #} gc strPtr nullPtr
 
 
--- |Signals
--- -
+-- Signals
 
 onValueChanged, afterValueChanged :: GConf ->
                                      (String -> Maybe GConfValueDyn -> IO ()) ->
