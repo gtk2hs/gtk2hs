@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 6 March 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:40 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:53 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -49,6 +49,12 @@
 --    `--output' option and `outDirSB' contains arguments to the
 --    `--output-dir' option.
 --
+--  * The pre-compiled header switch is unset if no pre-compiled header should
+--    be read or generated. If the option is set and a header file is given
+--    a concise version of the header will be written to the FilePath. If
+--    a binding file is given, the pre-compiled header is used to expand the
+--    module unless the binding file contains itself C declarations.
+--
 --- TODO ----------------------------------------------------------------------
 --
 
@@ -73,6 +79,7 @@ data SwitchBoard = SwitchBoard {
 		     outputSB  :: FilePath,	-- basename of generated files
 		     outDirSB  :: FilePath,	-- dir where generated files go
 		     headerSB  :: FilePath,	-- generated header file
+		     preCompSB :: Maybe FilePath,-- optional binary header r/w
 		     oldFFI    :: Bool,		-- GHC 4.XX compatible code
 		     chiPathSB :: [FilePath]	-- .chi file directories
 		   }
@@ -89,6 +96,7 @@ initialSwitchBoard  = SwitchBoard {
 			outputSB  = "",
 			outDirSB  = "",
 			headerSB  = "",
+			preCompSB = Nothing,
 			oldFFI	  = False,
 			chiPathSB = ["."]
 		      }

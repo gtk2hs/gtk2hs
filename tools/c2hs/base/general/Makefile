@@ -3,7 +3,7 @@
 #  Author : Manuel M. T. Chakravarty
 #  Created: 22 October 1997
 #
-#  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:47 $
+#  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:50 $
 #
 #  Copyright (C) [1997..1999] Manuel M. T. Chakravarty
 #
@@ -30,8 +30,8 @@
 PACKAGE = base
 PCKNAME = ctk
 PART    = general
-SRCS	= DLists.hs FiniteMaps.hs FNameOps.hs FileOps.hs GetOpt.hs Sets.hs\
-	  UNames.hs Utils.hs
+SRCS	= DLists.hs FNameOps.hs FileOps.hs GetOpt.hs UNames.hs Utils.hs \
+	  FastMutInt.hs Binary.hs
 OBJS	= $(patsubst %.hs,%.o,$(SRCS))
 
 include ../../mk/common.mk

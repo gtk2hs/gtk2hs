@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 6 December 1999
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:49 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:50 $
 --
 --  Copyright (c) 1999 Manuel M. T. Chakravarty
 --
@@ -42,7 +42,7 @@
 module Marks (Marks, newMarks, mark, isMarked) 
 where
 
-import Sets	  (Set, zeroSet, addToSet, elemSet)
+import Data.Set	  (Set, emptySet, addToSet, elementOf)
 import Attributes (Attrs, Attributed(..))
 
 
@@ -55,15 +55,15 @@ data Attributed a => Marks a = Marks (Set Attrs)
 -- get a new collection of marks (EXPORTED)
 --
 newMarks :: Attributed a => Marks a
-newMarks  = Marks zeroSet
+newMarks  = Marks emptySet
 
 -- mark an entity in a specific collection of marks (EXPORTED)
 --
 mark              :: Attributed a => Marks a -> a -> Marks a
-mark (Marks ms) e  = Marks $ addToSet (attrsOf e) ms
+mark (Marks ms) e  = Marks $ addToSet ms (attrsOf e)
 
 -- test whether a given entity is marked in a given collection of marks
 -- (EXPORTED) 
 --
 isMarked              :: Attributed a => Marks a -> a -> Bool
-isMarked (Marks ms) e  = (attrsOf e) `elemSet` ms
+isMarked (Marks ms) e  = (attrsOf e) `elementOf` ms

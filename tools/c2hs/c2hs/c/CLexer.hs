@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 6 March 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:27 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:52 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -69,7 +69,7 @@ import List	 ((\\))
 import Monad	 (liftM)
 import Numeric   (readDec, readOct, readHex)
 
-import Common    (Position, Pos(posOf), incPos, retPos)
+import Common    (Position(Position), Pos(posOf), incPos, retPos)
 import Utils     (Tag(tag))
 import Errors    (Error)
 import UNames	 (NameSupply, Name, names)
@@ -526,7 +526,7 @@ linedir  = char '#' +> ppwhite +> int +> ppwhite +> (fname +> ppwhite)`quest`
 	     int     = digitNZ +> digit`star` epsilon
 	     fname   = char '"' +> infname`star` char '"'
 	     --
-	     adjustPos str (fname, row, _) = (fname', row', 0)
+	     adjustPos str (Position fname row _) = (Position fname' row' 0)
 	       where
 	         str'            = dropWhite . drop 1 $ str
 		 (rowStr, str'') = span isDigit str'

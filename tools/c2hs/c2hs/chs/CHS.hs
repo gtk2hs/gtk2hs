@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 16 August 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:35 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:52 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -98,7 +98,7 @@ import List	 (intersperse)
 import Monad	 (when)
 
 -- Compiler Toolkit
-import Common    (Position, Pos(posOf), nopos, isBuiltinPos)
+import Common    (Position(Position), Pos(posOf), nopos, isBuiltinPos)
 import Errors	 (interr)
 import Idents    (Ident, identToLexeme, onlyPosIdent)
 
@@ -327,7 +327,7 @@ loadCHS fname  = do
 		   -- parse
 		   --
 		   traceInfoParse
-		   mod <- parseCHSModule (fullname, 1, 1) contents
+		   mod <- parseCHSModule (Position fullname 1 1) contents
 
 		   -- check for errors and finalize
 		   --
@@ -401,7 +401,7 @@ showCHSModule (CHSModule frags) pureHaskell  =
     showFrags _      _     []                           = id
     showFrags pureHs state (CHSVerb s      pos : frags) = 
       let
-	(fname, line, _) = pos
+	(Position fname line _) = pos
 	generated	 = isBuiltinPos pos
 	emitNow		 = state == Emit || 
 			   (state == Wait && not (null s) && head s == '\n')

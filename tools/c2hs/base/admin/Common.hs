@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 16 February 95
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:44 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:50 $
 --
 --  Copyright (c) [1995..2000] Manuel M. T. Chakravarty
 --
@@ -38,7 +38,7 @@ module Common (
   --
   -- source text positions
   --
-  Position, Pos (posOf), nopos, isNopos, dontCarePos,  isDontCarePos,
+  Position(Position), Pos (posOf), nopos, isNopos, dontCarePos,  isDontCarePos,
   builtinPos, isBuiltinPos, internalPos, isInternalPos,
   incPos, tabPos, retPos,
   --
@@ -52,6 +52,7 @@ module Common (
 ) where
 
 import Config      (assertEnabled)
+import Binary      (Binary(..), putSharedString, getSharedString)
 
 
 -- error codes
@@ -75,44 +76,61 @@ errorCodeFatal  = 2
 -- is important as it leads to the desired ordering of source positions
 -- (EXPORTED) 
 --
-type Position = (String,	-- file name
-		 Int,		-- row
-		 Int)		-- column
+data Position = Position !String	-- file name
+			 !Int		-- row
+			 !Int		-- column
+  deriving (Eq, Ord)
+
+instance Show Position where
+  show (Position fname row col) = show (fname, row, col)
+
+instance Binary Position where
+  put_ bh (Position fname row col) = do
+    putSharedString bh fname
+--    put_ bh fname
+    put_ bh row
+    put_ bh col
+  get bh = do
+    fname <- getSharedString bh
+--    aa <- get bh
+    row <- get bh
+    col <- get bh
+    return (Position fname row col)				    
 
 -- no position (for unknown position information) (EXPORTED)
 --
 nopos :: Position
-nopos  = ("<no file>", -1, -1)
+nopos  = Position "<no file>"  (-1) (-1)
 
 isNopos	            :: Position -> Bool
-isNopos (_, -1, -1)  = True
+isNopos (Position _ (-1) (-1))  = True
 isNopos _	     = False
 
 -- don't care position (to be used for invalid position information) (EXPORTED)
 --
 dontCarePos :: Position
-dontCarePos  = ("<invalid>", -2, -2)
+dontCarePos  = Position "<invalid>" (-2) (-2)
 
 isDontCarePos	          :: Position -> Bool
-isDontCarePos (_, -2, -2)  = True
+isDontCarePos (Position _ (-2) (-2))  = True
 isDontCarePos _		   = False
 
 -- position attached to objects that are hard-coded into the toolkit (EXPORTED)
 --
 builtinPos :: Position
-builtinPos  = ("<built into the compiler>", -3, -3)
+builtinPos  = Position "<built into the compiler>" (-3) (-3)
 
 isBuiltinPos	         :: Position -> Bool
-isBuiltinPos (_, -3, -3)  = True
+isBuiltinPos (Position _  (-3) (-3))  = True
 isBuiltinPos _		  = False
 
 -- position used for internal errors (EXPORTED)
 --
 internalPos :: Position
-internalPos  = ("<internal error>", -4, -4)
+internalPos  = Position "<internal error>" (-4) (-4)
 
 isInternalPos	          :: Position -> Bool
-isInternalPos (_, -4, -4)  = True
+isInternalPos (Position _ (-4) (-4))  = True
 isInternalPos _		   = False
 
 -- instances of the class `Pos' are associated with some source text position
@@ -124,17 +142,17 @@ class Pos a where
 -- advance column
 --
 incPos                     :: Position -> Int -> Position
-incPos (fname, row, col) n  = (fname, row, col + n)
+incPos (Position fname row col) n  = Position fname row (col + n)
 
 -- advance column to next tab positions (tabs are at every 8th column)
 --
 tabPos                   :: Position -> Position
-tabPos (fname, row, col)  = (fname, row, (col + 8 - (col - 1) `mod` 8))
+tabPos (Position fname row col)  = Position fname row (col + 8 - (col - 1) `mod` 8)
 
 -- advance to next line
 --
 retPos                   :: Position -> Position
-retPos (fname, row, col)  = (fname, row + 1, 1)
+retPos (Position fname row col)  = Position fname (row + 1) 1
 
 
 -- Miscellaneous stuff for pretty printing 

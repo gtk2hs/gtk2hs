@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Derived: 18 February 2 (extracted from GenBind.hs)
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:39 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:53 $
 --
 --  Copyright (c) [2002..2003] Manuel M T Chakravarty
 --
@@ -80,8 +80,8 @@ import Maybe	  (fromMaybe)
 import Common     (Position, Pos(posOf), nopos, builtinPos)
 import Errors	  (interr)
 import Idents     (Ident, identToLexeme, onlyPosIdent)
-import FiniteMaps (FiniteMap, zeroFM, addToFM, lookupFM, joinFM, toListFM,
-		   listToFM)
+import Data.FiniteMap (FiniteMap, emptyFM, addToFM, lookupFM, plusFM,
+		       fmToList, listToFM)
 
 -- C -> Haskell
 import C	  (CT, readCT, transCT, raiseErrorCTExc)
@@ -237,8 +237,8 @@ initialGBState  = GBState {
 		    lib    = "",
 		    prefix = "",
 		    frags  = [],
-		    ptrmap = zeroFM,
-		    objmap = zeroFM
+		    ptrmap = emptyFM,
+		    objmap = emptyFM
 		  }
 
 -- set the dynamic library and library prefix
@@ -299,7 +299,7 @@ getDelayedCode  = readCT (map snd . frags)
 ptrMapsTo :: (Bool, Ident) -> (String, String) -> GB ()
 (isStar, cName) `ptrMapsTo` hsRepr =
   transCT (\state -> (state { 
-		        ptrmap = addToFM (isStar, cName) hsRepr (ptrmap state)
+		        ptrmap = addToFM (ptrmap state) (isStar, cName) hsRepr
 		      }, ()))
 
 -- query the pointer map
@@ -314,7 +314,7 @@ queryPtr pcName  = do
 objIs :: Ident -> HsObject -> GB ()
 hsName `objIs` obj =
   transCT (\state -> (state { 
-		        objmap = addToFM hsName obj (objmap state)
+		        objmap = addToFM (objmap state) hsName obj
 		      }, ()))
 
 -- query the Haskell object map
@@ -367,8 +367,8 @@ queryPointer hsName  = do
 mergeMaps     :: String -> GB ()
 mergeMaps str  =
   transCT (\state -> (state { 
-		        ptrmap = joinFM readPtrMap (ptrmap state),
-		        objmap = joinFM readObjMap (objmap state)
+		        ptrmap = plusFM readPtrMap (ptrmap state),
+		        objmap = plusFM readObjMap (objmap state)
 		      }, ()))
   where
     (ptrAssoc, objAssoc) = read str
@@ -384,9 +384,9 @@ dumpMaps  = do
 	      ptrFM <- readCT ptrmap
 	      objFM <- readCT objmap
 	      let dumpable = ([((isStar, identToLexeme ide), repr)
-			      | ((isStar, ide), repr) <- toListFM ptrFM],
+			      | ((isStar, ide), repr) <- fmToList ptrFM],
 			      [(identToLexeme ide, obj)
-			      | (ide, obj)            <- toListFM objFM])
+			      | (ide, obj)            <- fmToList objFM])
 	      return $ show dumpable
 
 

@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 12 August 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:21 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:51 $
 --
 --  Copyright (c) 1999 Manuel M. T. Chakravarty
 --
@@ -35,10 +35,6 @@ module C (-- interface to KL for all non-KL modules
 	  -- stuff from `Common' (reexported)
 	  --
 	  Pos(posOf), 
-	  --
-	  -- reexported from `FiniteMaps'
-	  --
-	  FiniteMap,
 	  --	      
 	  -- structure tree
 	  --
@@ -70,8 +66,7 @@ module C (-- interface to KL for all non-KL modules
 	  csuffix, hsuffix, isuffix)
 where
 
-import Common     (Position, Pos(posOf))
-import FiniteMaps (FiniteMap)
+import Common     (Position(Position), Pos(posOf))
 import Idents	  (Ident, lexemeToIdent)
 import Attributes (Attrs, Attr(..))
 
@@ -114,7 +109,7 @@ loadAttrC fname  = do
 		     -- parse
 		     --
 		     traceInfoParse
-		     rawHeader <- parseC contents (fname, 1, 1)
+		     rawHeader <- parseC contents (Position fname 1 1)
 		     let header = attrC rawHeader
 
 		     -- name analysis

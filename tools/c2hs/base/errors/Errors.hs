@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 20 February 95
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:47 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:50 $
 --
 --  Copyright (c) [1995..2000] Manuel M. T. Chakravarty
 --
@@ -42,7 +42,7 @@ module Errors (
 ) where
 
 import Config (assertEnabled)
-import Common (Position, isInternalPos)
+import Common (Position(Position), isInternalPos)
 import Utils  (indentMultilineString)
 
 
@@ -128,7 +128,7 @@ showError (Error _   pos               (l:ls))  | isInternalPos pos =
   "INTERNAL ERROR!\n" 
   ++ "  >>> " ++ l ++ "\n"
   ++ (indentMultilineString 2 . unlines) ls  
-showError (Error lvl (fname, row, col) (l:ls))  =
+showError (Error lvl (Position fname row col) (l:ls))  =
   let
     prefix = fname ++ ":" ++ show (row::Int) ++ ": "
 	     ++ "(column " 

@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 7 March 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:28 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:52 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -85,7 +85,7 @@ where
 import Maybe      (catMaybes)
 
 import Common	  (Position, Pos(..), nopos)
-import Sets	  (Set, listToSet, joinSet, elemSet)
+import Data.Set	  (Set, mkSet, union, elementOf)
 import Utils      (Tag(tag))
 import UNames     (Name, NameSupply, names)
 import Idents     (Ident)
@@ -281,7 +281,7 @@ parseCHeader pos tokens  =
     nameSupply <- getNameSupply
     let name          = (head . names) nameSupply
 	at            = newAttrs pos name
-	predefTypeIds = listToSet . map fst $ builtinTypeNames
+	predefTypeIds = mkSet . map fst $ builtinTypeNames
     decls <- parseCExtDeclList [] predefTypeIds tokens
     return (CHeader decls at)
   where
@@ -304,7 +304,7 @@ parseCHeader pos tokens  =
 	-- raise the errors first, in case any of them is fatal
 	--
 	mapM raise errs
-	let tdefNames' = tdefNames `joinSet` (listToSet $ getTDefNames decl)
+	let tdefNames' = tdefNames `union` (mkSet $ getTDefNames decl)
 	parseCExtDeclList (decl:decls) tdefNames' toks'
 
     -- extract all identifiers turned into `typedef-name's
@@ -330,7 +330,7 @@ parseCHeader pos tokens  =
     --
     morphTypeNames :: Set Ident -> CToken -> CToken
     morphTypeNames tides (CTokIdent pos ide)
-      | ide `elemSet` tides  = CTokTypeName pos ide
+      | ide `elementOf` tides  = CTokTypeName pos ide
     morphTypeNames tides tok = tok
 
 -- parse external C declaration (K&R A10)

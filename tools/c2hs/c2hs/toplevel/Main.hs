@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Derived: 12 August 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:41 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:54 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -110,6 +110,14 @@
 --        Print (on standard error output) the version and copyright
 --	  information of the compiler (before doing anything else).
 --
+--  -p FILE
+--  --precomp=FILE
+--        Use or generate a precompiled header. If a header file is
+--        given write a condensed version of the header file into
+--        FILE. If a binding file is given that does not contain any C
+--        declarations itself, use the condensed information in FILE
+--        to generate the binding. Using a precompiled header file will
+--        significantly speed up the translation of a binding module.
 --
 --  --old-ffi [=yes|=no]
 --	  Generate hooks using pre-standard FFI libraries.  This currently
@@ -126,6 +134,7 @@ where
 import List	  (isPrefixOf)
 import IO	  ()
 import Monad      (when, unless, mapM)
+import Maybe      (fromJust)
 
 -- base libraries
 import Common     (errorCodeFatal)
@@ -133,6 +142,8 @@ import GetOpt     (ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo,
 		   getOpt)
 import FNameOps   (suffix, basename, dirname, stripSuffix, addPath)
 import Errors	  (interr)
+import UNames     (saveRootNameSupply, restoreRootNameSupply)
+import Binary	  (Binary(..), putBinFileWithDict, getBinFileWithDict)
 
 -- c2hs modules
 import C2HSState  (CST, nop, runC2HS, fatal, fatalsHandledBy, getId,
@@ -148,6 +159,11 @@ import GenHeader  (genHeader)
 import GenBind	  (expandHooks)
 import Version    (version, copyright, disclaimer)
 import C2HSConfig (cpp, cppopts, hpaths, tmpdir)
+
+-- for debug:
+import System.CPUTime (getCPUTime)
+import Numeric    (showFFloat)
+import StateBase  (liftIO)
 
 
 -- wrapper running the compiler
@@ -189,6 +205,7 @@ data Flag = CPPOpts String      -- additional options for C preprocessor
 	  | Include String	-- list of directories to search .chi files
 	  | Output  String      -- file where the generated file should go
 	  | OutDir  String      -- directory where generates files should go
+	  | PreComp String      -- write or read a precompiled header
 	  | Version	        -- print version information on stderr
 	  | Error   String      -- error occured during processing of options
 	  deriving Eq
@@ -235,6 +252,10 @@ options  = [
 	 ["output-dir"] 
 	 (ReqArg OutDir "PATH") 
 	 "place generated files in PATH",
+  Option ['p']
+         ["precomp"]
+         (ReqArg PreComp "FILE")
+         "generate or read precompiled header file FILE",
   Option ['v'] 
 	 ["version"] 
 	 (NoArg Version) 
@@ -263,14 +284,19 @@ compile  =
       ([Help]   , []  , []) -> doExecute [Help]    []
       ([Version], []  , []) -> doExecute [Version] []
       (opts     , args, []) 
-        | properArgs args -> doExecute opts args
-        | otherwise       -> raiseErrs [wrongNoOfArgsErr]
-      (_   , _   , errs)  -> raiseErrs errs
+        | properArgs (hasPreCompFlag opts) args -> doExecute opts args
+        | otherwise                             -> raiseErrs [wrongNoOfArgsErr]
+      (_   , _   , errs)    -> raiseErrs errs
   where
-    properArgs [bnd]         = suffix bnd == chssuffix 
-    properArgs [header, bnd] = suffix header == hsuffix 
-			       && suffix bnd == chssuffix 
-    properArgs _             = False
+    properArgs preComp [file]         = suffix file == chssuffix ||
+					suffix file == hsuffix && preComp
+    properArgs preComp [file1, file2] = suffix file1 == hsuffix 
+					&& suffix file2 == chssuffix 
+    properArgs _       _              = False
+    --
+    hasPreCompFlag (PreComp _:fs) = True
+    hasPreCompFlag (f:fs) = hasPreCompFlag fs
+    hasPreCompFlag [] = False
     --
     doExecute opts args = do
 			    execute opts args
@@ -278,8 +304,9 @@ compile  =
 			    exitWithCIO ExitSuccess
     --
     wrongNoOfArgsErr = 
-      "There must be exactly one binding file (suffix .chs), possibly\n\
-      \preceded by one header file (suffix .h).\n"
+      "Supply the header file followed by the binding file.\n\
+      \The header file can be omitted if it is supplied in the binding file.\n\
+      \The binding file can be omitted if the --precomp flag is given.\n"
     --
     -- exception handler
     --
@@ -325,22 +352,39 @@ execute opts args | Help `elem` opts = help
     let vs      = filter (== Version) opts
 	opts'   = filter (/= Version) opts
     mapM_ processOpt (atMostOne vs ++ opts')
-    when (length args `elem` [1, 2]) $
-      let (headerFile, bndFile) = case args of
-				    [       bfile] -> (""   , bfile)
-				    [hfile, bfile] -> (hfile, bfile)
-          bndFileWithoutSuffix  = stripSuffix bndFile
-      in do
+
+    let (headerFile, bndFile) = determineFileTypes args
+
+    preCompFile <- getSwitch preCompSB
+
+    unless (preCompFile==Nothing || null headerFile) $
+      preCompileHeader headerFile (fromJust preCompFile)
+        `fatalsHandledBy` ioErrorHandler
+
+    let bndFileWithoutSuffix  = stripSuffix bndFile
+    unless (null bndFile) $ do
       computeOutputName bndFileWithoutSuffix
-      process headerFile bndFileWithoutSuffix
-	`fatalsHandledBy` 
-	  \ioerr -> do
-		      name <- getProgNameCIO
-		      putStrCIO $
-		        name ++ ": " ++ ioeGetErrorString ioerr ++ "\n"
-		      exitWithCIO $ ExitFailure 1
+      if preCompFile==Nothing
+	then process headerFile bndFileWithoutSuffix
+	       `fatalsHandledBy` ioErrorHandler
+        else do
+	     containsHeaderInfo <-
+	       processPreComp (fromJust preCompFile) bndFileWithoutSuffix
+	     when containsHeaderInfo $ process headerFile bndFileWithoutSuffix
+	  `fatalsHandledBy` ioErrorHandler
   where
     atMostOne = (foldl (\_ x -> [x]) [])
+
+    determineFileTypes [hfile, bfile]                = (hfile, bfile)
+    determineFileTypes [file] | suffix file==hsuffix = (file, "")
+			      | otherwise            = ("", file)
+    determineFileTypes []                            = ("", "")
+
+    ioErrorHandler ioerr = do
+			     name <- getProgNameCIO
+			     putStrCIO $
+			       name ++ ": " ++ ioeGetErrorString ioerr ++ "\n"
+			     exitWithCIO $ ExitFailure 1
 
 -- emit help message
 --
@@ -362,6 +406,7 @@ processOpt (Keep           )  = setKeep
 processOpt (Include dirs   )  = setInclude dirs
 processOpt (Output  fname  )  = setOutput  fname
 processOpt (OutDir  fname  )  = setOutDir  fname
+processOpt (PreComp fname  )  = setPreComp fname
 processOpt Version            = do
 			          (version, _, _) <- getId 
 			          putStrCIO (version ++ "\n")
@@ -476,6 +521,11 @@ setOutDir fname  = setSwitch $ \sb -> sb {outDirSB = fname}
 setHeader       :: FilePath -> CST s ()
 setHeader fname  = setSwitch $ \sb -> sb {headerSB = fname}
 
+-- set the file name in which the precompiled header ends up
+--
+setPreComp      :: FilePath -> CST s ()
+setPreComp fname = setSwitch $ \sb -> sb { preCompSB = Just fname }
+
 
 -- compilation process
 -- -------------------
@@ -560,3 +610,124 @@ process headerFile bndFile  =
 			      dumpCHS chsName mod False)
 
     chsName = basename bndFile ++ ".dump"
+
+preCompileHeader :: FilePath -> FilePath -> CST s ()
+preCompileHeader headerFile preCompFile =
+  do
+    printElapsedTime "start"
+    let preprocFile  = basename headerFile ++ isuffix
+    hpaths          <- getSwitch hpathsSB
+    realHeaderFile  <- headerFile `fileFindInCIO` hpaths
+
+    --
+    -- run C preprocessor over the header
+    --
+    cpp     <- getSwitch cppSB
+    cppOpts <- getSwitch cppOptsSB
+    let cmd  = unwords [cpp, cppOpts, realHeaderFile, ">" ++ preprocFile]
+    tracePreproc cmd
+    printElapsedTime "about to run cpp"
+    exitCode <- systemCIO cmd
+    case exitCode of
+      ExitFailure _ -> fatal "Error during preprocessing"
+      _             -> nop
+    printElapsedTime "about to parse headder"
+    --
+    -- load and analyse the C header file
+    --
+    (cheader, warnmsgs) <- loadAttrC preprocFile
+    printElapsedTime "about to emit warnings"
+    putStrCIO warnmsgs
+    
+    printElapsedTime "about to serialise header"
+
+    --
+    -- save the attributed C to disk
+    --
+    liftIO $ putBinFileWithDict preCompFile (WithNameSupply cheader)
+    printElapsedTime "finnished serialising header"
+    --
+    -- remove the pre-processed header
+    --
+    keep <- getSwitch keepSB
+    unless keep $
+      removeFileCIO preprocFile
+ 
+    printElapsedTime "finnish"
+    return ()
+  where
+    tracePreproc cmd = putTraceStr tracePhasesSW $
+                         "Invoking cpp as `" ++ cmd ++ "'...\n"
+
+processPreComp :: FilePath -> FilePath -> CST s Bool
+processPreComp preCompFile bndFile = do
+    printElapsedTime "start"
+    
+    -- load the Haskell binding module
+    --
+    printElapsedTime "about to read .chs file"
+    (chsMod , warnmsgs) <- loadCHS bndFile
+    putStrCIO warnmsgs
+    traceCHSDump chsMod
+    --
+    -- extract CPP and inline-C embedded in the .chs file (all CPP and
+    -- inline-C fragments are removed from the .chs tree and conditionals are
+    -- replaced by structured conditionals)
+    --
+    printElapsedTime "extracting cpp stuff from .chs file"
+    (header, strippedCHSMod, warnmsgs) <- genHeader chsMod
+    if not (null header) then return True else do
+      putStrCIO warnmsgs
+      --
+      -- load and analyse the C header file
+      --
+      printElapsedTime "about to deserialise header"
+      WithNameSupply cheader <- liftIO $ getBinFileWithDict preCompFile
+
+      --
+      -- expand binding hooks into plain Haskell
+      --
+      printElapsedTime "about to expand hooks in .chs file"
+      (hsMod, chi, warnmsgs) <- expandHooks cheader strippedCHSMod
+      putStrCIO warnmsgs
+      --
+      -- output the result
+      --
+      printElapsedTime "about to dump .hs and .chi files"
+      outFName <- getSwitch outputSB
+      let hsFile  = if null outFName then basename bndFile else outFName
+      dumpCHS hsFile hsMod True
+      dumpCHI hsFile chi		-- different suffix will be appended
+
+      -- CHS file did not contain C declarations, so return False
+      printElapsedTime "finnish"
+      return False
+  where
+    traceCHSDump mod = do
+			 flag <- traceSet dumpCHSSW
+			 when flag $
+			   (do
+			      putStrCIO ("Reading CHS for `" ++ chsName 
+					 ++ "'...\n")
+			      dumpCHS chsName mod False)
+
+    chsName = basename bndFile ++ ".dump"
+
+printElapsedTime :: String -> CST s ()
+printElapsedTime msg = do
+  time <- liftIO getCPUTime
+  hPutStrCIO stderr $ "elapsed time: " ++ Numeric.showFFloat (Just 2) ((fromIntegral time) / 10^12) " (" ++ msg ++ ")\n"
+
+-- dummy type so we can save and restore the name supply
+data WithNameSupply a = WithNameSupply a
+
+instance Binary a => Binary (WithNameSupply a) where
+  put_ bh (WithNameSupply x) = do
+    put_ bh x
+    nameSupply <- saveRootNameSupply
+    put_ bh nameSupply
+  get bh = do
+    x <- get bh
+    nameSupply <- get bh
+    restoreRootNameSupply nameSupply
+    return (WithNameSupply x)

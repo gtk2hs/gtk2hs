@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 27 February 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/13 16:42:50 $
+--  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:51 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -83,7 +83,7 @@ where
 import List       (sort)
 
 import Common     (Position, Pos (posOf), nopos)
-import FiniteMaps (FiniteMap, unitFM, joinCombFM, mapFM, lookupFM, toListFM)
+import Data.FiniteMap (FiniteMap, unitFM, plusFM_C, mapFM, lookupFM, fmToList)
 import Errors     (interr, ErrorLvl(..), Error, makeError)
 
 infix  5 `opt`
@@ -207,7 +207,7 @@ p                       <|> (Parser _ Done)          = p
 (Parser a (Empty x p))  <|> q                        = mergeEpsilon a  x p q
 p                       <|> (Parser a' (Empty x q))  = mergeEpsilon a' x q p
 (Parser a (Alts alts1)) <|> (Parser a' (Alts alts2)) = 
-  Parser (a `joinActions` a') $ Alts (joinCombFM (<|>) alts1' alts2')
+  Parser (a `joinActions` a') $ Alts (plusFM_C (<|>) alts1' alts2')
   where
     alts1' = mapFM (\_ p -> Left  $> p) alts1
     alts2' = mapFM (\_ p -> Right $> p) alts2
@@ -470,12 +470,12 @@ first (Parser _ (Alts  alts)) =   show
 				. sort 
 				. map show 
 				. map fst 
-				. toListFM 
+				. fmToList
 				$ alts
 
-instance Token t => Show (Parser a t r) where
-  showsPrec _ (Parser a c) = shows c
+--instance Token t => Show (Parser a t r) where
+--  showsPrec _ (Parser a c) = shows c
 
-instance Token t => Show (Cont a t r) where
-  showsPrec _ (Empty r p ) = showString "*" . shows p
-  showsPrec _ (Alts  alts) = shows alts
+--instance Token t => Show (Cont a t r) where
+--  showsPrec _ (Empty r p ) = showString "*" . shows p
+--  showsPrec _ (Alts  alts) = shows alts
