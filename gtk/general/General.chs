@@ -4,7 +4,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:13:09 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/17 16:07:50 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -26,8 +26,7 @@
 --
 -- @todo@ ---------------------------------------------------------------------
 -- 
---  * quitAddDestroy, quitAdd, quitRemove, timeoutAdd, timeoutRemove, idleAdd,
---    idleRemove, inputAdd, inputRemove
+--  * quitAddDestroy, quitAdd, quitRemove, inputAdd, inputRemove
 --
 {-# OPTIONS -optc-include gtk/gtk.h #-}
 module General(
@@ -43,7 +42,12 @@ module General(
   grabGetCurrent,
   grabRemove,
   mkDestructor,
-  DestroyNotify
+  DestroyNotify,
+  timeoutAdd,
+  timeoutRemove,
+  idleAdd,
+  idleRemove,
+  HandlerId
   ) where
 
 import Prelude
