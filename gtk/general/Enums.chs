@@ -4,7 +4,7 @@
 --  Author : Axel Simon, Manuel Chakravarty
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.6 $ from $Date: 2002/11/03 20:35:42 $
+--  Version $Revision: 1.7 $ from $Date: 2003/07/31 11:13:55 $
 --
 --  Copyright (c) [1999..2001] Axel Simon
 --
@@ -316,7 +316,7 @@ instance Flags TextSearchFlags
 --
 {#enum WindowType {underscoreToCase}#}
 
--- @data WrapMode@ Determine how lines are warpped in a @ref data TextView@.
+-- @data WrapMode@ Determine how lines are wrapped in a @ref data TextView@.
 --
 {#enum WrapMode {underscoreToCase}#}
 

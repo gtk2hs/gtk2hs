@@ -1,9 +1,21 @@
+2003-07-31  Jens Petersen  <petersen@haskell.org>
+
+	* gtk2hs.spec.in: Default to ghc-6.0.1.
+	(%files): Include demo as dir in docs rather than individual
+	source files.
+
+	* Makefile (inplace): Do not build the demos by default.
+	(noinplace): Ditto.
+	(demo): New separate target to build demos.
+	(install*): Drop no-op for demos.
+	(uninstall): Ditto.
+
 2003-07-18 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* VERSION: Bumped to 0.9.4, prepare to do a ghc-6.0 release.
 	
 	* mk/common.mk: Make hsc2hs pass -no-hs-main to ghc when linking.
-	This avoids an undefined symbol error the the Haskell main
+	This avoids an undefined symbol error for the Haskell main
 	function on Apple and Solaris.
 
 	* gtk/Makefile: Added the header file for gdk-pixbuf.
