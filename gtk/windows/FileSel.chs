@@ -4,7 +4,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/21 14:00:33 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --  Copyright (c) 2002 Jens Petersen
@@ -27,6 +27,7 @@
 --
 --- DOCU ----------------------------------------------------------------------
 --
+--  As of gtk 2.4 this module has been deprecated in favour of FileChooser
 --
 --- TODO ----------------------------------------------------------------------
 --

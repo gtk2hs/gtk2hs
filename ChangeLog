@@ -3,6 +3,8 @@
 	* gtk/abstract/FileChooser.chs, gtk/abstract/Widget.chs:
 	more minor doc fixes
 
+	* gtk/windows/FileSel.chs: document as depreciated as of gtk 2.4
+
 2004-05-20 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/gdk/Pixbuf.chs, gtk/general/Structs.hsc,
