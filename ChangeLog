@@ -68,6 +68,9 @@
 	to build haddock documentation that references the our docs. Also,
 	clean up the .hs.uncpp files.
 
+	* demo/profileviewer/ProfileViewer.hs: Whitespace fix. Not sure how
+	this got in.
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files

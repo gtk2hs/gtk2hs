@@ -141,7 +141,7 @@ main = do
   when (not (null commands))
        (do profile <- parseProfileFile (head commands)
            writeIORef profileVar (Just profile)
-          repopulateTreeStore)
+           repopulateTreeStore)
 
   -- The final step is to display the main window and run the main loop
   widgetShowAll mainWindow
