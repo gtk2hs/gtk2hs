@@ -1,3 +1,12 @@
+2004-01-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* c2hs/c/Attrs.hs: Remove a superfluous comma.
+
+	* gtk/general/FFI.hs: Rename unsafeForeignPtrToPtr to
+	foreignPtrToPtr for GHC 6.2. 
+
+	* AUTHORS: Mention JP Bernardy who supplied the patch.
+
 2003-12-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/TypeGen.hs: changed the way the object

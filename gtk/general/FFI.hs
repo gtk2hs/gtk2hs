@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2003/07/10 08:20:25 $
+--  Version $Revision: 1.2 $ from $Date: 2004/01/07 09:37:47 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -40,6 +40,8 @@ module FFI(
   newUTFStringLen,
   peekUTFString,
   peekUTFStringLen,
+  newForeignPtr,
+  foreignPtrToPtr,
   module Foreign,
 #if __GLASGOW_HASKELL__>=504
   module Foreign.C
@@ -56,7 +58,12 @@ import LocalData(unsafePerformIO)
 import Data.Bits
 import Foreign.C
 import qualified Foreign
+# if __GLASGOW_HASKELL__>=602
+import Foreign	 hiding (with, newForeignPtr)
+import qualified Foreign hiding (newForeignPtr)
+# else
 import Foreign	 hiding (with)
+# endif
 #else
 import Bits
 import CForeign
@@ -71,6 +78,12 @@ with = Foreign.with
 #else
 with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
 with = Foreign.withObject
+#endif
+
+#if __GLASGOW_HASKELL__>=602
+newForeignPtr = flip Foreign.newForeignPtr
+
+foreignPtrToPtr = unsafeForeignPtrToPtr
 #endif
 
 #if __GLASGOW_HASKELL__>=600
