@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:38:29 $
+--  Version $Revision: 1.1 $ from $Date: 2005/04/06 22:20:02 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --

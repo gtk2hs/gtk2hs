@@ -84,6 +84,20 @@
 	* tools/apiGen/gtk.ignore: ignore more internal functions that we do
 	not want to bind.
 
+	* Makefile.am,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
+	gtk/Graphics/UI/Gtk/Display/Label.chs,
+	gtk/Graphics/UI/Gtk/Display/Label.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs.pp: rename several modules
+	to .pp (without changing module content) in preparation for adding new
+	functions from later Gtk+ versions.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for
