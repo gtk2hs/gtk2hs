@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) GError API
 --
@@ -86,13 +87,20 @@ import Monad (when)
 
 import Control.Exception
 import Data.Dynamic
-import Data.Typeable
 
 {# context lib="gtk" prefix ="gtk" #}
 
 -- | A GError consists of a domain, code and a human readable message.
 data GError = GError !GErrorDomain !GErrorCode !GErrorMessage
+# if __GLASGOW_HASKELL__>=600
   deriving Typeable
+#else
+{-# NOINLINE gerrorTypeRep #-}
+gerrorTypeRep :: TypeRep
+gerrorTypeRep = mkAppTy (mkTyCon "Graphics.UI.Gtk.GError.GError") []
+instance Typeable GError where
+  typeOf _ = gerrorTypeRep
+#endif
 
 type GQuark = {#type GQuark #}
 
@@ -198,7 +206,7 @@ checkGErrorWithCont action handler cont =
 -- | Use this if you need to explicitly throw a GError or re-throw an existing
 --   GError that you do not wish to handle.
 throwGError :: GError -> IO a
-throwGError gerror = throwIO (DynException (toDyn gerror))
+throwGError gerror = evaluate (throwDyn gerror)
 
 -- | This will catch any GError exception. The handler function will receive the
 --   raw GError. This is probably only useful when you want to take some action

@@ -7,6 +7,19 @@
 	* gtk/menuComboToolbar/Menu.chs, gtk/layout/Fixed.chs,
 	gtk/display/Label.chs: haddock markup fixes.
 
+	* gtk/glib/GError.chs, gtk/multiline/TextTagTable.chs: ghc 5.04.x
+	compatability fixes.
+
+	* gtk/treeList/TreeModel.chs: ghc 5.04.x compatability and C symbol name
+	typo fix.
+
+	* tools/hierarchyGen/hierarchy.list: gtk_clipboard_get_type() was
+	missing	from gtk-2.0, it apeared in gtk-2.2 so we can only bind
+	GtkClipboard from gtk-2.2 onwards.
+
+	* gtk/abstract/ButtonBox.chs, gtk/entry/Entry.chs: make them build with
+	gtk-2.0 & 2.2.
+
 2004-08-5  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/treeList/TreeView.chs, gtk/multiline/TextTag.chs,

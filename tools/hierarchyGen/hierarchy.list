@@ -165,7 +165,7 @@
 	GtkTreeModelSort
 	GtkIconFactory
 	GtkSizeGroup
-	GtkClipboard
+	GtkClipboard			if gtk-2.2
 	GtkAccelGroup
 	GtkAccelMap			if gtk-2.4
 	GtkEntryCompletion		if gtk-2.4

@@ -6,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2004/08/04 18:42:00 $
+--  Version $Revision: 1.14 $ from $Date: 2004/08/06 01:48:03 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -171,7 +171,7 @@ foreign import ccall "wrapper"  mkTreeModelForeachFunc ::
 #else
 
 foreign export dynamic mkTreeModelForeachFunc ::
-  (Ptr () -> Ptr () -> Ptr TreePath -> Ptr () -> IO CInt)-> IO TreeModelForeachFunc
+  (Ptr () -> Ptr () -> Ptr TreeIter -> Ptr () -> IO CInt)-> IO TreeModelForeachFunc
 
 #endif
 
@@ -342,10 +342,23 @@ treeRowReferenceNew :: TreeModelClass tm => tm -> TreePath -> IO TreeRowReferenc
 treeRowReferenceNew tm path = do
   rowRefPtr <- throwIfNull "treeRowReferenceNew: invalid path given" $
     {#call unsafe gtk_tree_row_reference_new#} (toTreeModel tm) path
-  liftM TreeRowReference $ newForeignPtr rowRefPtr tree_row_reference_free
+  liftM TreeRowReference $
+    newForeignPtr rowRefPtr (tree_row_reference_free rowRefPtr)
 
-foreign import ccall unsafe "&tree_row_reference_free"
-  tree_row_reference_free :: FinalizerPtr TreeRowReference
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&gtk_tree_row_reference_free"
+  tree_row_reference_free' :: FinalizerPtr TreeRowReference
+
+tree_row_reference_free :: Ptr TreeRowReference -> FinalizerPtr TreeRowReference
+tree_row_reference_free _ = tree_row_reference_free'
+
+#else
+
+foreign import ccall unsafe "gtk_tree_row_reference_free"
+  tree_row_reference_free :: Ptr TreeRowReference -> IO ()
+
+#endif
 
 -- | Returns a path that the row reference currently points to, or @Nothing@ if
 -- the path pointed to is no longer valid.

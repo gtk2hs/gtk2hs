@@ -6,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2004/08/04 19:11:21 $
+--  Version $Revision: 1.12 $ from $Date: 2004/08/06 01:48:04 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -52,6 +52,8 @@ module Entry(
   entryGetWidthChars,
   entrySetWidthChars,
 #if GTK_CHECK_VERSION(2,4,0)
+  entrySetAlignment,
+  entryGetAlignment,
   entrySetCompletion,
   entryGetCompletion,
 #endif
@@ -197,6 +199,7 @@ entrySetWidthChars :: EntryClass ec => ec -> Int -> IO ()
 entrySetWidthChars ec setting = {#call entry_set_width_chars#}
   (toEntry ec) (fromIntegral setting)
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | Sets the alignment for the contents of the entry. This controls the
 -- horizontal positioning of the contents when the displayed text is shorter
 -- than the width of the entry.
@@ -211,7 +214,6 @@ entryGetAlignment :: EntryClass ec => ec -> IO Float
 entryGetAlignment ec =
   liftM realToFrac $ {#call unsafe entry_get_alignment#} (toEntry ec)
 
-#if GTK_CHECK_VERSION(2,4,0)
 -- | Sets the auxiliary completion object to use with the entry. All further
 -- configuration of the completion mechanism is done on completion using the
 -- "EntryCompletion" API.

@@ -6,7 +6,7 @@
 --          
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2004/07/26 16:12:43 $
+--  Version $Revision: 1.4 $ from $Date: 2004/08/06 01:48:04 $
 --
 --  Copyright (c) 2004 Matthew Walton
 --
@@ -29,10 +29,10 @@ module ButtonBox(
   ButtonBoxClass,
   castToButtonBox,
   buttonBoxGetLayout,
-  buttonBoxGetChildSecondary,
   buttonBoxSetLayout,
+  buttonBoxSetChildSecondary,
 #if GTK_CHECK_VERSION(2,4,0)
-  buttonBoxSetChildSecondary
+  buttonBoxGetChildSecondary
 #endif
   ) where
 

@@ -94,7 +94,7 @@ foreign import ccall "wrapper" mkTextTagTableForeach ::
 #else
 
 foreign export dynamic mkTextTagTableForeach ::
-  (Ptr Widget -> Ptr () -> IO ()) -> IO TextTagTableForeach
+  (Ptr TextTag -> Ptr () -> IO ()) -> IO TextTagTableForeach
 
 #endif
 
