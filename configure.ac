@@ -31,7 +31,7 @@ AC_PREREQ(2.50)
 dnl Check system type.
 AC_CANONICAL_HOST
 
-AC_CONFIG_HEADERS(config.h)
+AM_CONFIG_HEADER(config.h)
 AH_TOP([#include<gtk/gtkversion.h>])
 
 dnl Checks for programs.
