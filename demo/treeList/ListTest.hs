@@ -1,12 +1,12 @@
 -- Test file for the ListView widget.
-module Main(Main.main) where
+module Main(main) where
 
 import Mogul
 
 main = do
-  Mogul.init Nothing
+  initGUI
   win <- newWindow
-  win `onDestroy` Mogul.mainQuit
+  win `onDestroy` mainQuit
 
   -- create a new TextView Widget
   (store, r, w, attrs) <- createStore
@@ -32,7 +32,7 @@ main = do
   -- show the widget and run the main loop
   widgetShow tv
   widgetShow win
-  Mogul.main
+  mainGUI 
 
 
 createStore = do

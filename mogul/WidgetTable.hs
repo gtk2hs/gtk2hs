@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:18 $
+--  Version $Revision: 1.4 $ from $Date: 2002/12/03 13:20:07 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -44,8 +44,6 @@ import LocalData  (unsafePerformIO, FiniteMap, emptyFM, addToFM, delFromFM,
 import Object   (makeNewObject)
 import Hierarchy
 import Widget	(widgetSetName, onUnrealize)
-
-obj # meth = obj meth
 
 -- We define a synonym for the name of a widget. (EXPORTED)
 --

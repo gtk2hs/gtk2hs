@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2002/12/01 14:09:51 $
+--  Version $Revision: 1.8 $ from $Date: 2002/12/03 13:20:07 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -88,8 +88,7 @@ listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
 --
 -- * The @ref arg pos@ parameter
 -- determines the row number where the row should be inserted. Set this to
--- @ref literal -1@
--- to insert at the end of the list.
+-- @literal -1@ to insert at the end of the list.
 --
 listStoreInsert :: (ListStoreClass ts) => ts -> Int -> IO TreeIter
 listStoreInsert ts pos = do

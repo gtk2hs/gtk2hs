@@ -1,10 +1,10 @@
 -- Example of an international dialog box.
-import Prelude 	hiding (init)
-import Gtk	hiding (main)	
+import Prelude 
+import Gtk
 import Char
 
 main = do
-  init Nothing
+  initGUI
   dia <- dialogNew
   dialogAddButton dia stockButtonYes responseYes
   noBut <- buttonNewFromStock stockButtonNo

@@ -6,7 +6,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.7 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.8 $ from $Date: 2002/12/03 13:20:07 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -32,12 +32,13 @@
 --
 module General(
 --  getDefaultLanguage,
-  init,
+  initGUI,
   eventsPending,
-  main,
+  mainGUI,
   mainLevel,
   mainQuit,
   mainIteration,
+  mainIterationDo,
   grabAdd,
   grabGetCurrent,
   grabRemove,
@@ -57,6 +58,7 @@ import Monad	(liftM, mapM)
 import Foreign
 import UTFCForeign
 import LocalData(newIORef, readIORef, writeIORef)
+import Exception (ioError, Exception(ErrorCall))
 import Object	(makeNewObject)
 {#import Hierarchy#}	 
 {#import Signal#}
@@ -76,30 +78,33 @@ import Enums    (InputCondition(..))
 --  return str
 
 
--- @function init@ initialize GTK+
+-- @function initGUI@ Initialize the GUI binding.
 --
--- * extracts all GTK+ specific arguments from the given options list
+
+-- * This function initialized the GUI toolkit and parses all Gtk
+--   specific arguments. The remaining arguments are returned. If the
+--   initialization of the toolkit fails for whatever reason, an exception
+--   is thrown.
 --
-init :: Maybe (String, [String]) -> IO (String, [String])
-init Nothing = do
+-- * Throws: @literal ErrorCall "Cannot initialize GUI."@
+--
+initGUI :: IO [String]
+initGUI = do
   prog <- getProgName
   args <- getArgs
-  init $ Just (prog, args)
-init (Just (prog, args)) = do
   let allArgs = (prog:args)
       argc    = length allArgs
   withMany withCString allArgs $ \addrs  ->
     withArray	       addrs   $ \argv ->
     withObject	       argv    $ \argvp ->
-    withObject	       argc    $ \argcp ->
-    do 
---      {#call unsafe init#} argcp argvp
-      {#call unsafe init#} (castPtr argcp) (castPtr argvp)
-      argc'   <- peek argcp
-      argv'   <- peek argvp
-      addrs'  <- peekArray argc' argv'
-      _:args' <- mapM peekCString addrs'  -- drop the program name
-      return (prog, args')
+    withObject	       argc    $ \argcp -> do 
+      res <- {#call unsafe init_check#} (castPtr argcp) (castPtr argvp)
+      if (toBool res) then do
+        argc'   <- peek argcp
+        argv'   <- peek argvp
+        _:addrs'  <- peekArray argc' argv'  -- drop the program name
+        mapM peekCString addrs'
+        else ioError (ErrorCall "Cannot initialize GUI.")
 
 -- @function eventsPending@ Inquire the number of events pending on the event
 -- queue
@@ -107,27 +112,45 @@ init (Just (prog, args)) = do
 eventsPending :: IO Int
 eventsPending  = liftM fromIntegral {#call unsafe events_pending#}
 
--- @function main@ GTK+'s main event loop
+-- @function mainGUI@ Run GTK+'s main event loop.
 --
-main :: IO ()
-main  = {#call main#}
+mainGUI :: IO ()
+mainGUI  = {#call main#}
 
--- @function mainLevel@ Inquire the main level
+-- @function mainLevel@ Inquire the main loop level.
+--
+-- * Callbacks that take more time to process can call 
+--   @ref function loopIteration@ to keep the GUI responsive. Each time
+--   the main loop is restarted this way, the main loop counter is
+--   increased. This function returns this counter.
 --
 mainLevel :: IO Int
 mainLevel  = liftM (toEnum.fromEnum) {#call unsafe main_level#}
 
--- @function mainQuit@ Exit the main event loop
+-- @function mainQuit@ Exit the main event loop.
 --
 mainQuit :: IO ()
 mainQuit  = {#call main_quit#}
 
--- @function mainIteration@ process events
+-- @function mainIteration@ Process an event, block if necessary.
+--
+-- * Returns @literal True@ if the @ref function loopQuit@ was called while
+--   processing the event.
 --
 mainIteration :: IO Bool
 mainIteration  = liftM toBool {#call main_iteration#}
 
--- @function mainIterationDo@ process events
+-- @function mainIterationDo@ Process a single event.
+--
+-- * Called with @literal True@, this function behaves as
+--   @ref function loopIteration@ in that it waits until an event is available
+--   for processing. The function will return immediately, if passed
+--   @literal False@.
+--
+-- * Returns @literal True@ if the @ref function loopQuit@ was called while
+--   processing the event.
+--
+
 --
 mainIterationDo :: Bool -> IO Bool
 mainIterationDo blocking = 

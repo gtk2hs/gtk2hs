@@ -1,9 +1,9 @@
 -- Example of an drawing graphics onto a canvas.
-import Prelude 	hiding (init)
-import Gtk	hiding (main)	
+import Prelude 
+import Gtk
 
 main = do
-  init Nothing
+  initGUI
   dia <- dialogNew
   dialogAddButton dia stockButtonOk responseOk
   contain <- dialogGetUpper dia
@@ -16,7 +16,7 @@ main = do
 
 updateCanvas :: DrawingArea -> Event -> IO Bool
 updateCanvas canvas (Expose { area=rect }) = do
-  win <- drawingAreaGetWindow canvas
+  win <- drawingAreaGetDrawWindow canvas
   (width,height) <- drawingAreaGetSize canvas
   gc <- gcNew win
   gcSetValues gc $ newGCValues {

@@ -2,11 +2,18 @@
 
 	* config.guess, config.sub: updated from GNU website
 
+2002-12-01 Axel Simon <A.Simon@ukc.ac.uk>
+
+	* demo/graphic/Drawing.hs demo/hello/World.hs
+	demo/treeList/ListTest.hs demo/unicode/Arabic.hs
+	gtk/general/General.chs gtk/treeList/ListStore.chs
+	mogul/WidgetTable.hs: Changed the initialization and the main loop
+	function again.
+	
 2002-11-08 Axel Simon <A.Simon@ukc.ac.uk>
 
-	* gtk/menuComboToolbar/Menu.chs
-	gtk/treeList/ListStore.chs gtk/treeList/TreeModel.chs: Documentation
-	changes.
+	* gtk/menuComboToolbar/Menu.chs gtk/treeList/ListStore.chs
+	gtk/treeList/TreeModel.chs: Documentation changes.
 
 2002-11-11 Axel Simon <A.Simon@ukc.ac.uk> 
 

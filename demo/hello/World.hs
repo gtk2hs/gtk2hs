@@ -22,10 +22,7 @@ destroyEvent = do
 
 main :: IO ()
 main = do
-  -- This is called in all Gtk2hs applications. Arguments are parsed
-  -- from the command line and are returned to the application if
-  -- Nothing is specified.
-  Gtk.init Nothing	
+  initGUI
   -- Create a new window
   window <- windowNew
   -- When the window is given the "delete_event" signal (this is given 
@@ -58,6 +55,6 @@ main = do
   -- All GTK applications must have a Gtk.main. Control ends here
   -- and waits for an event to occur (like a key press or
   -- mouse event).
-  Gtk.main
-  putStrLn "Gtk.main Returned"
+  mainGUI 
+  putStrLn "runLoop returned"
 
