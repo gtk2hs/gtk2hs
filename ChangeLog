@@ -1,7 +1,22 @@
+2003-07-15  Jens Petersen  <petersen@haskell.org>
+
+	* mk/library.mk (install-without-pkg): New target that installs
+	library without installing ghc package.
+	(install): Use it.
+
+	* gtk2hs.spec.in: Default to ghc-6.0 now.  Split binary package
+	into -ghc%{ghc_version} and -doc subpackages.  Disable building of
+	debuginfo subpackage.
+	(%install) Use install-without-pkg.
+	(%preun) Only remove object files when uninstalling.
+
+	* Makefile (install-without-pkg): New target; like install but it
+	does not install the ghc library packages.
+
 2003-07-13 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* gtk/misc/Arrow.chs, gtk/general/Gtk.hs: Changed the name of the
-	file to GArrow.chs to avoid the clash wich Arrow in hslibs of GHC.
+	file to GArrow.chs to avoid the clash with Arrow in hslibs of GHC.
 
 	* mk/library.mk: Remove the target install from install-pkg and
 	add the target install-pkg to install. Without this, the files are
