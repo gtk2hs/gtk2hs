@@ -213,6 +213,15 @@ CREATE_TYPES += gtk-2.2
 endif
 ifeq ($(GTK_VERSION_2_4),yes)
 CREATE_TYPES += gtk-2.4
+endif
+ifeq ($(DISABLE_DEPRECATED),no)
+CREATE_TYPES += deprecated
+endif
+
+ifeq ($(DISABLE_DEPRECATED),yes)
+C2HSFLAGS += -C-DG_DISABLE_DEPRECATED -C-DGDK_PIXBUF_DISABLE_DEPRECATED\
+ -C-DGDK_DISABLE_DEPRECATED -C-DGTK_DISABLE_DEPRECATED
+endif
 
 general/Hierarchy.chs : $(TOP)/tools/hierarchyGen/hierarchy.list
 	$(strip $(TOP)/tools/hierarchyGen/TypeGenerator \

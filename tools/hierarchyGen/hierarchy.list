@@ -43,7 +43,7 @@
                 GtkMisc
                     GtkLabel
                         GtkAccelLabel
-                        GtkTipsQuery
+                        GtkTipsQuery	if deprecated
                     GtkArrow
                     GtkImage
                 GtkContainer
@@ -55,14 +55,14 @@
                             GtkToggleButton
                                 GtkCheckButton
                                     GtkRadioButton
-                            GtkOptionMenu
+                            GtkOptionMenu		if deprecated
                         GtkItem
                             GtkMenuItem
                                 GtkCheckMenuItem
                                     GtkRadioMenuItem
                                 GtkTearoffMenuItem
                                 GtkImageMenuItem
-                            GtkListItem
+                            GtkListItem			if deprecated
 #			    GtkTreeItem
                         GtkWindow
                             GtkDialog
@@ -95,16 +95,16 @@
                             GtkGammaCurve
 			    GtkFileChooserWidget	if gtk-2.4
                         GtkHBox
-                            GtkCombo
+                            GtkCombo	if deprecated
                             GtkStatusbar
-                    GtkCList
-                        GtkCTree
+                    GtkCList		if deprecated
+                        GtkCTree	if deprecated
                     GtkFixed
                     GtkPaned
                         GtkHPaned
                         GtkVPaned
                     GtkLayout
-                    GtkList
+                    GtkList		if deprecated
                     GtkMenuShell
                         GtkMenu
                         GtkMenuBar
@@ -137,14 +137,14 @@
                 GtkInvisible
 #                GtkOldEditable
 #                    GtkText
-                GtkPreview
+                GtkPreview		if deprecated
 # Progress is deprecated, ProgressBar contains everything necessary
 #                GtkProgress
                 GtkProgressBar
             GtkAdjustment
             GtkIMContext
                 GtkIMMulticontext
-            GtkItemFactory
+            GtkItemFactory		if deprecated
             GtkTooltips
 
 # These object were added by hand because they do not show up in the hierarchy

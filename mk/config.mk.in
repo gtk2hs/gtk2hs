@@ -92,6 +92,9 @@ ENABLE_LIBGLADE = @ENABLE_LIBGLADE@
 # Provide gnome bindings.
 ENABLE_GNOME = @ENABLE_GNOME@
 
+# Do not provide depricated bindings
+DISABLE_DEPRECATED = @DISABLE_DEPRECATED@
+
 # This should be libXXX.a and XXX for Unix and
 #		    XXX.lib and XXX.exe for Windows
 
