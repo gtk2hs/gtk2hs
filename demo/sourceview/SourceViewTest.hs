@@ -15,7 +15,13 @@ main = do
 
   -- create the appropriate language
   lm <- sourceLanguagesManagerNew
-  Just lang <- sourceLanguagesManagerGetLanguageFromMimeType lm "text/x-haskell"
+  langM <- sourceLanguagesManagerGetLanguageFromMimeType lm "text/x-haskell"
+  lang <- case langM of
+    (Just lang) -> return lang
+    Nothing -> do
+      langDirs <- sourceLanguagesManagerGetLangFilesDirs lm
+      error ("please copy haskell.lang to one of the following directories:\n"
+	     ++unlines langDirs)
 
   -- create a new SourceBuffer object
   buffer <- sourceBufferNewWithLanguage lang
