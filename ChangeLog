@@ -1,3 +1,7 @@
+2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* tools/typehier/TypeGen.hs: Renamed file to sort out CVS problem.
+	
 2003-11-11  Jens Petersen  <petersen@haskell.org>
 
 	* demo/sourceview: New directory for import of sourceview demo
