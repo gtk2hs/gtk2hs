@@ -412,17 +412,22 @@ generateHooks :: String -> String -> String -> BrokenSolaris -> IO ()
 generateHooks typesFile bootPath outFile brokenSolaris = do
     content <- readFile typesFile
     let sigs = parseSignatures content
-    boot1 <- readFile (bootPath++"Signal.chs-boot1")
-    boot2 <- readFile (bootPath++"Signal.chs-boot2")
-    let result = ss boot1. 
-		 genExport sigs.
-		 ss boot2.
-		 foldl (.) id (map (generate brokenSolaris) sigs)
-    writeFile outFile (result "")
+    template <- readFile (bootPath++"Signal.chs.template")
+    writeFile outFile $
+      templateSubstitute template (\var ->
+        case var of
+          "MODULE_EXPORTS" -> genExport sigs
+          "MODULE_BODY"    -> foldl (.) id (map (generate brokenSolaris) sigs)
+          _ -> error var 
+      ) ""
 
-    
-
-
+templateSubstitute :: String -> (String -> ShowS) -> ShowS
+templateSubstitute template varSubst = doSubst template 
+  where doSubst [] = id
+        doSubst ('\\':'@':cs) = sc '@' . doSubst cs
+        doSubst ('@':cs) = let (var,_:cs') = span ('@'/=) cs
+                            in varSubst var . doSubst cs'
+        doSubst (c:cs) = sc c . doSubst cs
 
 -------------------------------------------------------------------------------
 -- generate dynamic fragments

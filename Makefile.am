@@ -5,8 +5,7 @@ CLEANFILES =
 DISTCLEANFILES = */*.precomp
 
 EXTRA_DIST = \
-	tools/callbackGen/Signal.chs-boot1	\
-	tools/callbackGen/Signal.chs-boot2	\
+	tools/callbackGen/Signal.chs.template	\
 	tools/callbackGen/gtkmarshal.list	\
 	tools/checkDirs.sh			\
 	tools/c2hs/toplevel/c2hs_config.h	\
@@ -89,8 +88,7 @@ MOSTLYCLEANFILES+= $(tools_callbackGen_HookGenerator_SOURCES:.hs=.hi)
 
 
 gtk/Graphics/UI/Gtk/Signals.chs : \
-	$(srcdir)/tools/callbackGen/Signal.chs-boot1 \
-	$(srcdir)/tools/callbackGen/Signal.chs-boot2 \
+	$(srcdir)/tools/callbackGen/Signal.chs.template \
 	$(srcdir)/tools/callbackGen/gtkmarshal.list \
 	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
 	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) $(MARSHALLDEFS) \

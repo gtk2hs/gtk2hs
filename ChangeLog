@@ -23,6 +23,13 @@
 	since ghc-pkg no longer does substitution. Also substitute for
 	${modules} the list of modules in the package.
 
+	* tools/callbackGen/HookGenerator.hs,
+	tools/callbackGen/Signal.chs.template: use template substitution
+	mechanism like the other code generators do.
+
+	* Makefile.am: use tools/callbackGen/Signal.chs.template rather than
+	tools/callbackGen/Signal.chs-boot1 and 2.
+
 2005-03-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: temporary fix for building with GHC 6.4. Temporary
