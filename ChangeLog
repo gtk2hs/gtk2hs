@@ -1,3 +1,19 @@
+2004-12-18 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/c2hs/toplevel/Main.hs: remove performance debuging output when
+	processing .chs files. Keep debugging output for generating .precomp
+	files to remind us how slow it is and to bug me to fix it!
+
+	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: tidy up module header.
+
+	* mk/chsDepend.in: make chsDepend understand hierarchical modules names
+	and change the dependency of .hs files to be on the .chi files rather
+	than the .chs files. This is how it is done for .o and .hs files, that
+	is, the	.o file depends on the .hi files.
+
+	* Makefile.am: make the various 'clean' targets more thorough. Also
+	get the .hi files to be installed for the other packages.
+
 2004-12-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: new bindings to GtkMozEmbed

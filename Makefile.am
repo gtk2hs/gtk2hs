@@ -1,11 +1,12 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 SUFFIXES = .chs.pp .chs .hsc .deps .dep
-MOSTLYCLEANFILES =
+MOSTLYCLEANFILES = *.deps.bak
 CLEANFILES =
-DISTCLEANFILES = *.precomp
+DISTCLEANFILES = */*.precomp
 CPPFLAGS += $(filter -I% -D%, \
 	$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS) \
-	$(LIBGLADE_CFLAGS) $(GCONF_CFLAGS))
+	$(LIBGLADE_CFLAGS) $(GCONF_CFLAGS) \
+	$(MOZEMBED_CFLAGS))
 
 # Build c2hs before anything else.
 
@@ -19,8 +20,7 @@ SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
 	tools/c2hs/base/state tools/c2hs/base/syms			     \
 	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
 	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel   \
-	mogul glade gconf gconf/System/Gnome gconf/System/Gnome/GConf	     \
-	sourceview mozembed
+	mogul glade gconf sourceview mozembed
 
 EXTRA_DIST = \
 	tools/callbackGen/Signal.chs-boot1	\
@@ -28,7 +28,8 @@ EXTRA_DIST = \
 	tools/callbackGen/gtkmarshal.list	\
 	tools/checkDirs.sh			\
 	tools/c2hs/toplevel/c2hs_config.h	\
-	tools/hierarchyGen/hierarchy.list
+	tools/hierarchyGen/hierarchy.list	\
+	tools/hierarchyGen/Hierarchy.chs.template
 
 # fixme: this should be in configure.ac:
 HSCPP = $(CPP) -x c -traditional-cpp -P
@@ -73,13 +74,7 @@ tools_hierarchyGen_TypeGenerator_SOURCES = \
 am_tools_hierarchyGen_TypeGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_hierarchyGen_TypeGenerator_SOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_hierarchyGen_TypeGenerator_OBJECTS)
-
-gtk/general/Hierarchy.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
-			    $(srcdir)/tools/hierarchyGen/TypeGenerator
-	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
-        $(srcdir)/tools/hierarchyGen/hierarchy.list \
-        $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-        $@ $(addprefix --tag=,$(CREATE_TYPES)))
+MOSTLYCLEANFILES+= $(tools_hierarchyGen_TypeGenerator_SOURCES:.hs=.hi)
 
 #
 #	HookGenerator Tool
@@ -97,6 +92,7 @@ tools_callbackGen_HookGenerator_SOURCES = \
 am_tools_callbackGen_HookGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_callbackGen_HookGenerator_SOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_callbackGen_HookGenerator_OBJECTS)
+MOSTLYCLEANFILES+= $(tools_callbackGen_HookGenerator_SOURCES:.hs=.hi)
 
 
 gtk/general/Signal.chs : $(srcdir)/tools/callbackGen/Signal.chs-boot1 \
@@ -123,6 +119,7 @@ tools_apicoverage_Exclude_SOURCES = \
 am_tools_apicoverage_Exclude_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_apicoverage_Exclude_SOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_apicoverage_Exclude_OBJECTS)
+MOSTLYCLEANFILES+= $(tools_apicoverage_Exclude_SOURCES:.hs=.hi)
 
 #
 #	c2hs interface generator
@@ -134,7 +131,7 @@ $(tools_c2hs_c2hsLocal_NAME) : NAME = tools_c2hs_c2hsLocal
 
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
 tools_c2hs_c2hsLocal_PACKAGEDEPS	= 
-tools_c2hs_c2hsLocal_HEADER		= tools/c2hs/toplevel/c2hs_config.h
+tools_c2hs_c2hsLocal_HEADER		= 
 tools_c2hs_c2hsLocal_HCFLAGS		= 
 
 tools_c2hs_c2hsLocal_SOURCES =			\
@@ -188,7 +185,8 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/toplevel/c2hs_config.c
 
 tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
-tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi
+tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi -fvia-C \
+	'-\#include<tools/c2hs/toplevel/c2hs_config.h>'
 
 tools_c2hs_c2hsLocal_HSFILES		= \
 	$(filter %.hs,$(tools_c2hs_c2hsLocal_SOURCES))
@@ -199,7 +197,7 @@ MOSTLYCLEANFILES+= $(am_tools_c2hs_c2hsLocal_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
 CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)
 DISTCLEANFILES+= tools_c2hs_c2hsLocal.deps
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include tools_c2hs_c2hsLocal.deps
  endif
 
@@ -372,6 +370,13 @@ gtk/abstract/Container_stub.o				       \
 	touch $(@:.o=.c)
 	$(CC) -c -o $@ $(@:.o=.c)
 
+gtk/general/Hierarchy.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
+			    $(srcdir)/tools/hierarchyGen/TypeGenerator  \
+			    $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+        $(srcdir)/tools/hierarchyGen/hierarchy.list \
+        $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+        $@ $(addprefix --tag=,$(CREATE_TYPES)))
 
 am_libHSgtk_a_OBJECTS = \
   $(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtk_a_SOURCES))))
@@ -393,12 +398,17 @@ libHSgtk_a_HSFILES  = \
 # add prefix nobase_ when changing to hierarchical module namespace
 hi_SCRIPTS = $(libHSgtk_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES+ = $(am_libHSgtk_a_OBJECTS)
-MOSTLYCLEANFILES+ = $(libHSgtk_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += $(am_libHSgtk_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += \
+	$(libHSgtk_a_CHSFILES:.chs=.chi)	\
+	$(libHSgtk_a_CHSFILES:.chs=_stub.h)	\
+	$(libHSgtk_a_CHSFILES:.chs=_stub.o)	\
+	$(libHSgtk_a_CHSFILES:.chs=_stub.c)
 CLEANFILES+= $(libHSgtk_a_BUILDSOURCES)
 
 DISTCLEANFILES+= libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
  endif
 
@@ -433,11 +443,13 @@ am_libHSmogul_a_OBJECTS = \
 libHSmogul_a_HSFILES = $(libHSmogul_a_SOURCES)
 .PRECIOUS: $(libHSmogul_a_HSFILES:.hs=hi)
 
-MOSTLYCLEANFILES+ = $(am_libHSmogul_a_OBJECTS)
-MOSTLYCLEANFILES+ = $(libHSmogul_a_HSFILES:.hs=.hi)
+hi_SCRIPTS += $(libHSmogul_a_HSFILES:.hs=.hi)
+
+MOSTLYCLEANFILES += $(am_libHSmogul_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSmogul_a_HSFILES:.hs=.hi)
 
 DISTCLEANFILES+= libHSmogul_a.deps
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSmogul_a.deps
  endif
 
@@ -467,7 +479,8 @@ glade_GladeType_hs_HCFLAGS	= -fglasgow-exts
 libHSglade_a_DEPENDENCIES = libHSgtk.a
 
 glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
-		      $(srcdir)/tools/hierarchyGen/TypeGenerator
+		      $(srcdir)/tools/hierarchyGen/TypeGenerator  \
+		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
 		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
@@ -491,12 +504,15 @@ libHSglade_a_HSFILES  = \
 	$(filter %.hs,$(libHSglade_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSglade_a_SOURCES))
 
+hi_SCRIPTS += $(libHSglade_a_HSFILES:.hs=.hi)
+
 MOSTLYCLEANFILES += $(am_libHSglade_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += $(libHSglade_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSglade_a_BUILDSOURCES) 
 
 DISTCLEANFILES+= libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSglade_a.deps $(libHSglade_a_CHSFILES:.chs=.dep)
  endif
 
@@ -527,7 +543,8 @@ libHSgconf_a_DEPENDENCIES = libHSgtk.a
 
 gconf/System/Gnome/GConf/GConfType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
-	$(srcdir)/tools/hierarchyGen/TypeGenerator
+	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
@@ -551,13 +568,20 @@ libHSgconf_a_HSFILES  = \
 	$(filter %.hs,$(libHSgconf_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgconf_a_SOURCES))
 
+nobase_hi_SCRIPTS = $(libHSgconf_a_HSFILES:.hs=.hi)
+
 MOSTLYCLEANFILES += $(am_libHSgconf_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += \
+	$(libHSgconf_a_CHSFILES:.chs=.chi)	\
+	$(libHSgconf_a_CHSFILES:.chs=_stub.h)	\
+	$(libHSgconf_a_CHSFILES:.chs=_stub.o)	\
+	$(libHSgconf_a_CHSFILES:.chs=_stub.c)
 CLEANFILES += $(libHSgconf_a_BUILDSOURCES) 
 
 DISTCLEANFILES+= libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSgconf_a.deps $(libHSgconf_a_CHSFILES:.chs=.dep)
  endif
 
@@ -598,7 +622,8 @@ libHSsourceview_a_DEPENDENCIES = libHSgtk.a
 
 sourceview/SourceViewType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
-	$(srcdir)/tools/hierarchyGen/TypeGenerator
+	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
@@ -622,13 +647,16 @@ libHSsourceview_a_HSFILES  = \
 	$(filter %.hs,$(libHSsourceview_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSsourceview_a_SOURCES))
 
+hi_SCRIPTS += $(libHSsourceview_a_HSFILES:.hs=.hi)
+
 MOSTLYCLEANFILES += $(am_libHSsourceview_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += $(libHSsourceview_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSsourceview_a_BUILDSOURCES) 
 
 DISTCLEANFILES+= libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES:.chs=.dep)
  endif
 
@@ -659,7 +687,8 @@ libHSmozembed_a_DEPENDENCIES = libHSgtk.a
 
 mozembed/Graphics/UI/Gtk/MozEmbedType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
-	$(srcdir)/tools/hierarchyGen/TypeGenerator
+	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
@@ -684,13 +713,16 @@ libHSmozembed_a_HSFILES  = \
 	$(filter %.hs,$(libHSmozembed_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSmozembed_a_SOURCES))
 
+nobase_hi_SCRIPTS += $(libHSmozembed_a_HSFILES:.hs=.hi)
+
 MOSTLYCLEANFILES += $(am_libHSmozembed_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += $(libHSmozembed_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSmozembed_a_BUILDSOURCES) 
 
 DISTCLEANFILES+= libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES:.chs=.dep)
  endif
 
