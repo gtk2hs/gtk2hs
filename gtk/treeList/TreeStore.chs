@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/21 16:59:05 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -73,7 +73,7 @@ treeStoreNew cols = makeNewGObject mkTreeStore $
 --
 treeStoreSetValue :: (TreeStoreClass ts) => ts -> TreeIter -> Int ->
                      GenericValue -> IO ()
-treeStoreSetValue ts ti col val = with val $ \vPtr -> do
+treeStoreSetValue ts ti col val = with' val $ \vPtr -> do
   {#call unsafe tree_store_set_value#} (toTreeStore ts) ti 
     (fromIntegral col) vPtr
   valueUnset vPtr

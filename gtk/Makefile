@@ -130,7 +130,7 @@ NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
 	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter
 
 ifneq ($(strip $(NEW_MODULE_SYS)),yes)
-NEEDPACKAGES = lang
+NEEDPACKAGES = data lang
 endif
 
 # options that are needed when compiling this or with this package:

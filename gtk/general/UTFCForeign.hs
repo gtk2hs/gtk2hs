@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:59:05 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -29,6 +29,7 @@
 --- TODO ----------------------------------------------------------------------
 
 module UTFCForeign(
+  with',
   withCString,
   withCStringLen,
   newCString,
@@ -50,17 +51,28 @@ import Bits
 import Data.Bits
 #endif
 import Char
-import Foreign
 #if __GLASGOW_HASKELL__>=504
 import qualified Foreign.C as CForeign
 import Foreign.C hiding (withCString, withCStringLen,
 		         newCString,  newCStringLen,
 		         peekCString, peekCStringLen)
+
+import qualified Foreign
+import Foreign	 hiding (with)
+
+with' :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
+with' = Foreign.with
 #else
 import qualified CForeign
 import CForeign hiding (withCString, withCStringLen,
 		        newCString,  newCStringLen,
 		        peekCString, peekCStringLen)
+
+import qualified Foreign
+import Foreign	 hiding (withObject)
+
+with' :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
+with' = Foreign.withObject
 #endif
 
 -- Convert withCString to emit UTF-8.

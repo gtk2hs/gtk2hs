@@ -1,7 +1,8 @@
 2002-07-21  Axel Simon <A.Simon@ukc.ac.uk>
 
-	* gtk/Makefile, gtk/general/UTFCForeign.hs: Make the library
-	compile with GHC 5.04 which introduces hierarchical modules.
+	* gtk/Makefile, mogul/Makefile, gtk/general/UTFCForeign.hs: Make
+	the library compile with GHC 5.04 which introduces hierarchical
+	modules.
 	
 	* gtk/general/General.chs(setLocale): remove
 

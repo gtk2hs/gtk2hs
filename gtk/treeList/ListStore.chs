@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/21 16:59:05 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -72,7 +72,7 @@ listStoreNew cols = makeNewGObject mkListStore $
 --
 listStoreSetValue :: (ListStoreClass ts) => ts -> TreeIter -> Int ->
                      GenericValue -> IO ()
-listStoreSetValue ts ti col val = with val $ \vPtr -> do
+listStoreSetValue ts ti col val = with' val $ \vPtr -> do
   {#call unsafe list_store_set_value#} (toListStore ts) ti 
     (fromIntegral col) vPtr
   valueUnset vPtr

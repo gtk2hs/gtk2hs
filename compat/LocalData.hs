@@ -5,7 +5,7 @@
 --          
 --  Created: 21 July 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.2 $ from $Date: 2002/07/21 16:59:05 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -36,7 +36,9 @@ module LocalData(
   module Data.FiniteMap,
   module System.IO.Unsafe
 #else
-  module IOExts
+  module IOExts,
+  module Bits,
+  module FiniteMap
 #endif
   ) where
 
@@ -48,5 +50,5 @@ import System.IO.Unsafe
 #else
 import IOExts
 import Bits
-import Data.FiniteMap
+import FiniteMap
 #endif
