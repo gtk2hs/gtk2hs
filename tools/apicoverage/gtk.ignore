@@ -65,6 +65,10 @@ exclude gtk_vruler
 exclude gtk_input_dialog
 
 
+#we do not need to count the _utf8 variants too
+exclude _utf8$
+
+
 #low level
 exclude gtk_marshal
 exclude gtk_false

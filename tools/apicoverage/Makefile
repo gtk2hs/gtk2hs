@@ -14,10 +14,11 @@ tars/gtk+-$(GTK_VERSION).tar.bz2 :
 	  --directory-prefix=tars
 
 gtk.def : tars/gtk+-$(GTK_VERSION).tar.bz2
-	tar --file tars/gtk+-$(GTK_VERSION).tar.bz2 -j --get gtk+-$(GTK_VERSION)/gtk/gtk.def -O > gtk.def
-	sed -i 's:\(\t\|EXPORTS\)::' gtk.def
+	tar --file tars/gtk+-$(GTK_VERSION).tar.bz2 -j \
+	    --get gtk+-$(GTK_VERSION)/gtk/gtk.def -O \
+	| sed 's:\(\t\|EXPORTS\)::' | cut -d' ' -f 1 | sort > gtk.def
 
-GTK_CHS_FILES = $(shell find ../../gtk -name '*.chs')
+GTK_CHS_FILES = $(shell find ../../gtk -name '*.chs' -o -name '*.chs.pp')
 
 gtk.coverage : $(GTK_CHS_FILES)
 	grep -h 'foreign import ccall \(safe \|unsafe \)\?" \?&\?.*"' \
@@ -71,6 +72,10 @@ summary3: gtk.def.filtered gtk.coverage.filtered
 	@diff gtk.def.filtered gtk.coverage.filtered | \
 	awk '$$1 == "<" { print $$2 }' | \
 	awk -F _ '{ printf("%s_%s_%s\n", $$1, $$2, $$3) }' | uniq -c | sort -n
+
+full: gtk.def.filtered gtk.coverage.filtered
+	@diff gtk.def.filtered gtk.coverage.filtered | \
+	awk '$$1 == "<" { print $$2 }' | sort
 
 debug:
 	@echo GTK_IGNORE_FILES = $(GTK_IGNORE_FILES)

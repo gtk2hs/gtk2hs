@@ -58,6 +58,11 @@
 	* tools/callbackGen/gtkmarshal.list: remove the marhsaler that was
 	only needed by gconf.
 
+	* tools/apicoverage/Makefile: cure bit rot in apicoverage tool
+
+	* tools/apicoverage/gtk.ignore: ignore the _utf8 variants that exist
+	for some functions.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for
