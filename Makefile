@@ -29,7 +29,11 @@ endif
 MAKE_LIBS += mogul
 
 MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
-	     demo/hello demo/buttonbox demo/filechooser
+	     demo/hello demo/buttonbox
+
+ifeq ($(GTK_VERSION_2_4),yes)
+MAKE_APPS += demo/filechooser
+endif
 
 ifeq ($(strip $(ENABLE_LIBGLADE)),yes)
 MAKE_APPS += demo/glade
