@@ -18,8 +18,12 @@ endif
 
 MAKE_LIBS  = gtk 
 
+ifeq ($(strip $(ENABLE_LIBGLADE)),yes) 	 
+MAKE_LIBS += glade
+endif
+
 ifeq ($(strip $(ENABLE_GNOME)),yes)
-MAKE_LIBS += sourceview glade
+MAKE_LIBS += sourceview
 endif
 
 MAKE_LIBS += mogul
@@ -27,8 +31,12 @@ MAKE_LIBS += mogul
 MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
 	     demo/hello demo/buttonbox
 
+ifeq ($(strip $(ENABLE_LIBGLADE)),yes)
+MAKE_APPS += demo/glade
+endif
+
 ifeq ($(strip $(ENABLE_GNOME)),yes)
-MAKE_APPS += demo/sourceview demo/glade
+MAKE_APPS += demo/sourceview
 endif
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \

@@ -86,6 +86,9 @@ PKG		= @GHCPKG@
 # Provide an OpenGL widget.
 ENABLE_OPENGL	= @ENABLE_OPENGL@
 
+# Provide libglade bindings.
+ENABLE_LIBGLADE = @ENABLE_LIBGLADE@
+
 # Provide gnome bindings.
 ENABLE_GNOME = @ENABLE_GNOME@
 
