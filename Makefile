@@ -17,7 +17,7 @@ MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 TODO VERSION aclocal.m4 acinclude.m4 \
-			 configure.in configure \
+			 configure.in configure mk/recurse.mk \
 			 mk/config.mk.in mk/common.mk mk/application.mk \
 		 	 mk/library.mk mk/chsDepend.in install-sh \
 			 config.sub config.guess gtk2hs.spec.in gtk2hs.spec )
