@@ -31,7 +31,6 @@ dnl Check system type.
 AC_CANONICAL_HOST
 
 dnl Checks for programs.
-
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
@@ -43,6 +42,7 @@ dnl AC_PATH_PROG(LN,ln)
 AC_PATH_PROG(SED,sed)
 dnl AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
+
 
 dnl Figure out file extensions.
 
@@ -126,6 +126,16 @@ AC_MSG_RESULT([$GHC_VERSION])
 
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.0, [
   AC_MSG_ERROR([I need the FFI of GHC 5.00 upwards!])])
+
+dnl Check if the ghc compiler can generate dynamic callbacks with more than
+dnl 4 words worth of arguments. Hopefully one day the compiler will support
+dnl this.
+AC_MSG_CHECKING([broken dynamic callbacks])
+FOUR_WORD_CALLBACK=no
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 9.9.9, [
+  if test $host_cpu = sparc; then FOUR_WORD_CALLBACK=yes; fi
+])
+AC_MSG_RESULT([$FOUR_WORD_CALLBACK])
 
 GHCBARE=`basename $GHC`
 GHCPKGNAME=ghc-pkg`echo $GHCBARE | $SED s/ghc//`
@@ -243,6 +253,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
+AC_SUBST(FOUR_WORD_CALLBACK)
 AC_SUBST(LOCALPKGCONF)
 AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
