@@ -1,3 +1,22 @@
+2003-05-23  Jens Petersen  <petersen@redhat.com>
+
+	* gendoc/XMLwrite.hs (makeSymDescr): Move colspecs inside the
+	tgroup.
+
+	* doc/Makefile (html%): Make xsltproc write output directly to
+	subdirectory.  Create the directory first if necessary.
+	(fo%): Ditto.
+	(clean): Remove reference xml files.
+
+	* gtk2hs.spec.in (build): Pass docbook catalog and html xsl to
+	configure and build html docs.
+	(post): Give "-g" option to ghc-pkg to have ghci object files
+	generated.
+	(preun): Always remove any old ghci object files.
+	(files): Include gtk and mogul docs in doc dir.
+	
+	* Makefile (EXTRA_TARFILES): Include gtk2hs.spec after all.
+
 2003-05-22 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* gtk/treeList/TreeView.chs: Changed the return type of the
@@ -6,7 +25,7 @@
 	
 2003-05-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
-	* gtk/gdk/Pixbuf.chs: Fixed dcumentation on creating inline pictures.
+	* gtk/gdk/Pixbuf.chs: Fixed documentation on creating inline pictures.
 
 2003-05-18  Jens Petersen  <petersen@redhat.com>
 

@@ -53,16 +53,14 @@ reference%.xml	: $(TOP)/$(GENDOC)
 	  $(addprefix -x,$(EXCLUDE_$*)) $(OPTIONS_$*) $(TOPLEVEL_$*))
 
 html%	: reference%.xml
+	mkdir -p $*
 	$(strip XML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) \
-	  --param use.id.as.filename 1 $(XSLTHTML) $(INPUT_$*))
-	mkdir $* || exit 0
-	mv *.html $*
+	  --param use.id.as.filename 1 -o $*/ $(XSLTHTML) $(INPUT_$*))
 
 fo%	: reference%.xml
+	mkdir -p $*
 	$(strip XML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) \
-	  -o $(OUTPUT_$*) $(XSLTFO) $(INPUT_$*))
-	mkdir $* || exit 0
-	mv *.fo $*
+	  -o $*/ $(XSLTFO) $(INPUT_$*))
 
 .PHONY: $(TOP)/$(GENDOC)
 
@@ -73,6 +71,7 @@ all : htmlGTK htmlMOGUL
 
 clean :
 	rm -rf MOGUL GTK
+	rm -f referenceGTK.xml referenceMOGUL.xml
 
 tarsource :
 	$(strip $(TAR) rf $(TOP)/$(TARNAME).tar -C $(TOP) \

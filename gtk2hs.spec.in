@@ -30,9 +30,8 @@ lookup named widgets in a type safe way.
 %setup -q
 
 %build
-./configure %{?_with_c2hs} --with-hcflags="-O"
-make BUILDDOCS=no prefix=%{_prefix} libdir=%{_libdir}/ghc-%{_ghc_version}
-#make -Cdoc htmlGTK
+./configure %{?_with_c2hs} --with-hcflags="-O" --with-catalog=%{_datadir}/sgml/docbook/xmlcatalog --with-html=%{_datadir}/sgml/docbook/xsl-stylesheets/xhtml/chunk.xsl # --with-fo=%{_datadir}/sgml/docbook/xsl-stylesheets/fo/docbook.xsl
+make prefix=%{_prefix} libdir=%{_libdir}/ghc-%{_ghc_version}
 
 %install
 rm -rf %{buildroot}
@@ -46,10 +45,11 @@ rm -rf %{buildroot}
 # perl -pi -e "s|%{buildroot}||" \
 #     %{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2.conf,mogul.conf}
 
-ghc-pkg-%{_ghc_version} -u -i %{_libdir}/ghc-%{_ghc_version}/%{name}/gtk2.conf
-ghc-pkg-%{_ghc_version} -u -i %{_libdir}/ghc-%{_ghc_version}/mogul.conf
+ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/%{name}/gtk2.conf
+ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/mogul.conf
 
 %preun
+rm -f %{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2hs.o,mogul.o}
 if [ "$1" = 0 ]; then
   ghc-pkg-%{_ghc_version} -r mogul
   ghc-pkg-%{_ghc_version} -r gtk2
@@ -59,13 +59,20 @@ fi
 %defattr(-,root,root) 
 %doc ChangeLog TODO AUTHORS COPYING.LIB
 %doc demo/*/*.hs
-#%doc doc/GTK
+%doc doc/GTK
+%doc doc/MOGUL
 %{_prefix}/lib/*
 
 %changelog
+* Wed May 21 2003 Jens Petersen <petersen@redhat.com>
+- add -g option to ghc-pkg -u so that ghci object gets generated
+- delete them when uninstalling
+- build and include mogul documentation
+
 * Thu May 15 2003 Jens Petersen <petersen@redhat.com>
 - use new DESTDIR make variable, so no longer need to fix config files in post
 - remove buildroot before install
+- build and include gtk docs
 
 * Fri Jan 10 2003 Jens Petersen <petersen@haskell.org>
 - made into .spec.in file

@@ -266,14 +266,15 @@ makeSymDescr mName mI@(ModInfo { modCtxt=classMap })
       Attribute "colsep" "0",
       Attribute "rowsep" "0"
     ] (
-      Element "colspec" [] []:
-      replicate noOfCols 
-        (Element "colspec" [Attribute "colwidth" "100pt"] [])++[
+      [
       Element "tgroup" [
 	Attribute "align" "center",
 	Attribute "cols" (show noOfCols)
-      ] [
-	Element "tbody" [
+      ] (
+	[Element "colspec" [] []] ++
+        (replicate noOfCols 
+           (Element "colspec" [Attribute "colwidth" "100pt"] [])) ++
+	[Element "tbody" [
 	  Attribute "valign" "middle"
 	] (
 	  Element "row" [] (
@@ -284,7 +285,7 @@ makeSymDescr mName mI@(ModInfo { modCtxt=classMap })
 	    ]:typeToXML (\_ -> Nothing) ty (Just formatter)
 	  ):map argsToXML (transpose args)
 	)
-      ]
+      ])
     ]):docuToXML (mName,mI) thorough
   )
   where

@@ -89,7 +89,7 @@ EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 configure.in configure \
 			 mk/config.mk.in mk/common.mk mk/application.mk \
 		 	 mk/library.mk mk/chsDepend.in install-sh \
-			 config.sub config.guess gtk2hs.spec.in )
+			 config.sub config.guess gtk2hs.spec.in gtk2hs.spec )
 
 dist :
 	$(RM) -r $(TARNAME)
