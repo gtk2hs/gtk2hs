@@ -43,25 +43,53 @@ AC_PATH_PROG(SED,gsed)
 AC_PATH_PROG(SED,sed)
 AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
+dnl On some systems (Solaris,...) asking sh for the current directory
+dnl (with a built-in pwd) and asking make for the current directory
+dnl gives different results. Thus, if possible, we use the same external
+dnl program for determining the current path.
+dnl The AC_PATH_PROG macro does not work because pwd is a built-in and
+dnl therefore evaluated in the body of the expanded macro.
 AC_MSG_CHECKING(for external pwd)
-PWD=`which pwd`
-AC_MSG_RESULT($PWD)
-
-dnl Where are we?
-TOP=`$PWD`
-
+PWD=`which pwd 2> /dev/null`
+if test -z "$PWD"; then
+  AC_MSG_RESULT([none found])
+  PWD="pwd";
+else
+  AC_MSG_RESULT($PWD)
+fi;
 
 dnl Figure out file extensions.
+AC_EXEEXT
 
-dnl Check for OS and set dynamic library suffix (for c2hs).
-DLSUFFIX=".so"
-AC_CYGWIN
-if test -n "$CYGWIN"; then
-  DLSUFFIX=".dll"
-fi
+dnl Check for library pre- and suffixes.
+if test x$EXEEXT = x; then
+  dnl must be unix
+  SLSUFFIX=".a";
+  SLPREFIX="lib";
+  DLSUFFIX=".so";
+  DLPREFIX="lib";
+  dnl the hash sign is a comment for sed
+  PATHSED=[\#];
+  HSCFLAGS=;
+  C2HSFLAGS=" -C-D__signed=signed";
+  dnl Where are we? (only used during configuration)
+  TOP=`$PWD`;
+else
+  dnl must be Win32
+  SLSUFFIX=".lib";
+  SLPREFIX="";
+  DLSUFFIX=".dll";
+  DLPREFIX="";
+  dnl replace something like /c/ with c:/
+  PATHSED=["s+/\([a-z]\)/+\1:/+"];
+  HSCFLAGS=" -C -optc-fnative-struct";
+  C2HSFLAGS=;
+  dnl Where are we? (only used during configuration)
+  TOP=`$PWD | $SED $PATHSED`;
+  WIN32=yes;
+fi;
 
-dnl Static library pre- and postfixed.
-dnl * not yet
+
 
 dnl Check for libraries.
 
@@ -102,9 +130,10 @@ dnl macro from the pkg-config program.
 
 PKG_CHECK_MODULES(GTK, glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0)
 
+dnl use a more sensible installation path on windows
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
-dnl does not like that, so we need to filter non-existent directories out.
+dnl does not like that, so we need to filter out non-existent directories.
 TMPGTK_CFLAGS=$GTK_CFLAGS;
 GTK_CFLAGS=;
 for FLAG in $TMPGTK_CFLAGS; do
@@ -381,6 +410,16 @@ AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(MARSHALLDEFS)
 AC_SUBST(VERSION)
+dnl Platform specific flags 
+AC_SUBST(DLPREFIX)
+AC_SUBST(DLSUFFIX)
+AC_SUBST(SLPREFIX)
+AC_SUBST(SLSUFFIX)
+AC_SUBST(WIN32)
+AC_SUBST(PATHSED)
+AC_SUBST(HSCFLAGS)
+AC_SUBST(C2HSFLAGS)
+AC_SUBST(EXTRA_HFILES)
 dnl Documentation
 AC_SUBST(BUILDDOCS)
 AC_SUBST(XSLTTRANS)
@@ -390,7 +429,6 @@ AC_SUBST(XSLTHTML)
 AC_SUBST(FOUNDFO)
 AC_SUBST(XSLTFO)
 dnl The c2hs part.
-AC_SUBST(DLSUFFIX)
 AC_SUBST(CPP)
 AC_SUBST(LEGACY_FFI)
 AC_SUBST(BEGIN_LEGACY_FFI)
@@ -407,7 +445,6 @@ AC_OUTPUT([
   gtk2hs.spec
   mk/config.mk
   mk/chsDepend
-  gtk/signals/HookGenerator.hs
   c2hs/toplevel/C2HSConfig.hs
 ],[chmod a+x mk/chsDepend])
 
