@@ -10,7 +10,7 @@ for FLAG in $@; do
 	-L*) DIR=`echo $FLAG | sed "s/-L//"`;
 	     if test -d $DIR; then 
 		if test -z "`echo $LDFLAGS | grep -e $FLAG`"; then 
-	 	  RES="$RES $FLAG"i; fi;
+	 	  RES="$RES $FLAG"; fi;
 	     fi;;
 	-I*) DIR=`echo $FLAG | sed "s/-I//"`;
              if test -d $DIR; then
