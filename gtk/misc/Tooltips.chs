@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2002/10/06 16:14:08 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -40,8 +40,8 @@
 -- @documentation@ ------------------------------------------------------------
 --
 -- * To associate @ref data Tooltips@ to a widget it is has to have its own 
---   GdkWindow.
---   Otherwise the widget must be set into a EventBox. Can this be done
+--   @ref data DrawWindow@. Otherwise the widget must be set into an
+--   @ref data EventBox@. Can this be done
 --   automatically? Perhaps even with tooltips_force_window()?
 --
 -- @todo@ ---------------------------------------------------------------------

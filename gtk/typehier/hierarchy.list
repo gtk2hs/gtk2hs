@@ -11,20 +11,19 @@
 #   GtkHButtonBox -> gtk_hbutton_box_get_type
 
     GObject 
-        GdkDrawable 			query gdk_drawable_get_type
-            GdkWindow			query gdk_window_object_get_type
+        GdkDrawable 			as Drawable, gdk_drawable_get_type
+            GdkWindow		as DrawWindow, gdk_window_object_get_type
 #            GdkDrawableImplX11
 #                GdkWindowImplX11
-            GdkPixmap			query gdk_pixmap_get_type
-        GdkColormap			query gdk_colormap_get_type
+            GdkPixmap			as Pixmap, gdk_pixmap_get_type
+        GdkColormap			as Colormap, gdk_colormap_get_type
         GtkSettings
         GtkTextBuffer
         GtkTextTag
         GtkTextTagTable
         GtkStyle
-        GdkDragContext			query gdk_drag_context_get_type
-        GdkImage			query gdk_image_get_type
-        GdkPixbuf			query gdk_pixbuf_get_type
+        GdkDragContext		as DragContext, gdk_drag_context_get_type
+        GdkPixbuf			as Pixbuf, gdk_pixbuf_get_type
         GtkTextChildAnchor
         GtkTextMark
         GtkObject
@@ -35,7 +34,6 @@
                         GtkTipsQuery
                     GtkArrow
                     GtkImage
-                    GtkPixmap
                 GtkContainer
                     GtkBin
                         GtkAlignment
@@ -143,6 +141,6 @@
 	GtkTreeModelSort
 	GtkIconFactory
 # This now became a GObject in version 2:
-	GdkGC				query gdk_gc_get_type
+	GdkGC				as GC, gdk_gc_get_type
 
 

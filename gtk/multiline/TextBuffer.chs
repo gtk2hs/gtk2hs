@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.5 $ from $Date: 2002/10/06 16:14:08 $
 --
 --  Copyright (c) [2001..2002] Axel Simon
 --
@@ -279,7 +279,7 @@ textBufferGetSlice tb start end incl = {#call unsafe text_buffer_get_slice#}
 --
 -- * See @ref method textBufferGetSlice@ and @ref method textBufferGetText@.
 --
-textBufferInsertPixbuf :: TextBuffer -> TextIter -> GdkPixbuf -> IO ()
+textBufferInsertPixbuf :: TextBuffer -> TextIter -> Pixbuf -> IO ()
 textBufferInsertPixbuf tb pos img = 
   {#call text_buffer_insert_pixbuf#} tb pos img
 
@@ -583,18 +583,16 @@ afterEndUserAction = connect_NONE__NONE "end_user_action" True
 
 -- @signal connectToInsertChildAnchor@ A widgets is inserted into the buffer.
 --connectToInsertChildAnchor :: TextBufferClass tb =>
---  (TextIter -> TextChildAnchor -> IO ()) -> ConnectAfter -> tb -> 
+-- (TextIter -> TextChildAnchor -> IO ()) -> ConnectAfter -> tb -> 
 --  IO (ConnectId tb)
 --connectToInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor"
 --  mkTextIter
-
-
 
 -- @signal connectToInsertPixbuf@ A @ref arg Pixbuf@ is inserted into the
 -- buffer.
 --
 onInsertPixbuf, afterInsertPixbuf :: TextBufferClass tb => tb ->
-                                     (TextIter -> GdkPixbuf -> IO ()) ->
+                                     (TextIter -> Pixbuf -> IO ()) ->
                                      IO (ConnectId tb)
 onInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIter False
 afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIter True

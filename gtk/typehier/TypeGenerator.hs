@@ -10,8 +10,9 @@ import System(getArgs, exitWith, ExitCode(..))
 
 type ObjectSpec = [(Int,String)]
 
--- This is a mapping from a type name to the GTK blah_get_type function.
-type TypeQuery  = Maybe (String, String)
+-- This is a mapping from a type name to a) the type name in Haskell and
+-- b) the GTK blah_get_type function.
+type TypeQuery  = Maybe (String, (String, String))
 
 data ParserState = ParserState {
   line		:: Int,
@@ -39,12 +40,17 @@ pGetObject ps txt = (spec, specialQuery):
   where
     isBlank     c = c==' ' || c=='\t'
     isAlphaNum_ c = isAlphaNum c || c=='_'
-    (name,rem) = span isAlphaNum txt
-    (specialQuery,rem') = case (dropWhile isBlank rem) of
-      ('q':'u':'e':'r':'y':r) ->
-        let (tyQuery,r') = span isAlphaNum_ (dropWhile isBlank r) in
-          (Just (name, tyQuery), r')
-      r -> (Nothing, r)
+    (origName,rem) = span isAlphaNum txt
+    (name,specialQuery,rem') = case (dropWhile isBlank rem) of
+      ('a':'s':r) ->
+        let (tyName,r') = span isAlphaNum_ (dropWhile isBlank r) in
+          case (dropWhile isBlank r') of
+	    (',':r) ->
+	      let (tyQuery,r') = span isAlphaNum_ (dropWhile isBlank r) in
+	        (tyName, Just (tyName, (origName, tyQuery)), r')
+	    r -> error ("line "++show (line ps)++
+		        ": Expected a comma, found:"++take 5 r)
+      r -> (origName, Nothing, r)
     parents = dropWhile (\(c,_) -> c>=col ps) (hierObjs ps)
     spec = (col ps,name):parents
 
@@ -96,7 +102,7 @@ usage = do
 -- generate dynamic fragments
 -------------------------------------------------------------------------------
 
-generate :: [[String]] -> [(String, String)] -> ShowS
+generate :: [[String]] -> [(String, (String, String))] -> ShowS
 generate objs typeTable = 
   let fillCol str = ss $ replicate 
 		    (maximum (map (length.head) objs)-length str) ' ' 
@@ -157,7 +163,7 @@ generate objs typeTable =
 --    ss " = LT".
 --  indent 0.
   indent 0.
-  foldl (.) id (map makeClass objs)
+  foldl (.) id (map (makeClass typeTable) objs)
 
 makeTypeTags :: Char -> [String] -> ShowS
 makeTypeTags c [] = ss "deriving Eq"
@@ -170,7 +176,7 @@ makeUpcast table (obj:_:_) =
   indent 0.ss "castTo".ss obj.ss " obj =".
   indent 1.ss "if typeInstanceIsA ((foreignPtrToPtr.castForeignPtr.unGObject.toGObject) obj)".
   indent 2.ss "{#call fun unsafe ".
-    ss (fromMaybe ("gtk"++c2u True obj++"_get_type") (lookup obj table)).
+    ss (maybe ("gtk"++c2u True obj++"_get_type") snd (lookup obj table)).
     ss "#} then".
   indent 3.ss "(fromGObject.toGObject) obj else".
   indent 4.ss "error \"Cannot cast object to ".ss obj.ss ".\"".
@@ -196,11 +202,13 @@ makeOrd fill (obj:preds) = indent 1.ss "compare ".ss obj.ss "Tag ".
 			  fill obj.ss pr.ss "Tag".fill pr.
 			  ss " = GT".makeGT obj eds
 
-makeClass :: [String] -> ShowS
-makeClass (name:parents) =
+makeClass :: [(String,(String, String))] -> [String] -> ShowS
+makeClass table (name:parents) =
   indent 0.ss (replicate (78-length name) '-').sc ' '.ss name.
   indent 0.
-  indent 0.ss "{#pointer *".ss name.ss " foreign newtype #}".
+  indent 0.ss "{#pointer *".
+  maybe (ss name) (\s -> ss (fst s).ss " as ".ss name) (lookup name table).
+  ss " foreign newtype #}".
   indent 0.
   indent 0.ss "mk".ss name.ss " = ".ss name.
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".

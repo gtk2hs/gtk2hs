@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.8 $ from $Date: 2002/10/06 16:14:09 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -30,7 +30,7 @@
 -- @todo@ ---------------------------------------------------------------------
 --
 -- * treeViewGetPathAtPos is surely useful but has to be used with events in
---   order not to pass GdkWindows around.
+--   order not to pass @ref data DrawWindow@s around.
 --
 module TreeView(
   TreeView,
@@ -167,10 +167,6 @@ treeViewColumnsAutosize tv =
 
 -- @method treeViewSetHeadersClickable@ Set wether the columns headers are
 -- sensitive to mouse clicks.
---
--- *  @literal@
--- 
-
 --
 treeViewSetHeadersClickable :: TreeViewClass tv => tv -> Bool -> IO ()
 treeViewSetHeadersClickable tv click = {#call tree_view_set_headers_clickable#}

@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2002/10/01 15:09:29 $
+--  Version $Revision: 1.9 $ from $Date: 2002/10/06 16:14:08 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -48,10 +48,10 @@ module Gtk(
   module General,
   module IconFactory,
   module StockItems,
-  module GdkKeys,
-  module GdkDrawable,
+  module Keys,
+  module Drawable,
   module Region,
-  module GdkGC,
+  module GC,
   -- windows
   module Dialog,
   module FileSel,
@@ -164,10 +164,10 @@ module Gtk(
 import General
 import IconFactory
 import StockItems
-import GdkKeys
-import GdkDrawable
+import Keys
+import Drawable
 import Region		hiding (makeNewRegion)
-import GdkGC
+import GC
 -- windows
 import Dialog
 import FileSel

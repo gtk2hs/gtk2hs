@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2002/10/01 15:13:13 $
+--  Version $Revision: 1.8 $ from $Date: 2002/10/06 16:14:08 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -170,7 +170,7 @@ foreign import ccall "gdk_colormap_alloc_color" unsafe
 
 
 
--- @data GCValues@ Intermediate data structure for @ref data GdkGC@s.
+-- @data GCValues@ Intermediate data structure for @ref data GC@s.
 --
 -- * If @ref arg graphicsExposure@ is set then copying portions into a
 --   drawable will generate an @ref signal exposure@ event, even if the
@@ -181,9 +181,9 @@ data GCValues = GCValues {
   background :: Color,
   function   :: Function,
   fill       :: Fill,
-  tile       :: Maybe GdkPixmap,
-  stipple    :: Maybe GdkPixmap,
-  clipMask   :: Maybe GdkPixmap,
+  tile       :: Maybe Pixmap,
+  stipple    :: Maybe Pixmap,
+  clipMask   :: Maybe Pixmap,
   subwindowMode :: SubwindowMode,
   tsXOrigin  :: Int,
   tsYOrigin  :: Int,
@@ -207,15 +207,15 @@ instance Storable GCValues where
     tile_	<- do
 		     pPtr <- #{peek GdkGCValues, tile} ptr
 		     if (pPtr==nullPtr) then return Nothing else
-		       liftM Just $ makeNewGObject mkGdkPixmap $ return pPtr
+		       liftM Just $ makeNewGObject mkPixmap $ return pPtr
     stipple_	<- do
 		     pPtr <- #{peek GdkGCValues, stipple} ptr
 		     if (pPtr==nullPtr) then return Nothing else
-		       liftM Just $ makeNewGObject mkGdkPixmap $ return pPtr
+		       liftM Just $ makeNewGObject mkPixmap $ return pPtr
     clipMask_	<- do
 		     pPtr <- #{peek GdkGCValues, clip_mask} ptr
 		     if (pPtr==nullPtr) then return Nothing else
-		       liftM Just $ makeNewGObject mkGdkPixmap $ return pPtr
+		       liftM Just $ makeNewGObject mkPixmap $ return pPtr
     (subwindow_	:: #{type GdkSubwindowMode}) 
 		<- #{peek GdkGCValues, subwindow_mode} ptr
     (tsXOrigin_	:: #{type gint}) 
@@ -289,13 +289,13 @@ pokeGCValues ptr (GCValues {
       (fromIntegral (fromEnum fill_):: #{type GdkFill})
     add r #{const GDK_GC_TILE} $
       #{poke GdkGCValues, tile} ptr $
-        maybe nullPtr (foreignPtrToPtr.unGdkPixmap) tile_
+        maybe nullPtr (foreignPtrToPtr.unPixmap) tile_
     add r #{const GDK_GC_STIPPLE} $
       #{poke GdkGCValues, stipple} ptr $
-        maybe nullPtr (foreignPtrToPtr.unGdkPixmap) stipple_
+        maybe nullPtr (foreignPtrToPtr.unPixmap) stipple_
     add r #{const GDK_GC_CLIP_MASK } $
       #{poke GdkGCValues, clip_mask} ptr $
-        maybe nullPtr (foreignPtrToPtr.unGdkPixmap) clipMask_
+        maybe nullPtr (foreignPtrToPtr.unPixmap) clipMask_
     add r #{const GDK_GC_SUBWINDOW } $
       #{poke GdkGCValues, subwindow_mode} ptr
       (fromIntegral (fromEnum subwindow_):: #{type GdkSubwindowMode})
@@ -468,7 +468,7 @@ responseHelp = -11
 #include<gdk/gdkx.h>
 
 type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
-			-- of GdkNativeWindow (Word32 vs. CUInt)
+			-- of NativeWindow (Word32 vs. CUInt)
 
 -- @dunno@Query the XID field of the socket widget. This value needs to be
 -- sent to the Plug widget of the other application.
@@ -477,7 +477,7 @@ type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
 --socketGetXID socket = do
 --  winPtr <- throwIfNull "socketGetXID: the socket widget is not realized" $
 --    withForeignPtr (unSocket socket) #{peek GtkWidget, window}
---  implPtr <- throwIfNull "socketGetXID: no GdkDrawable defined" $
+--  implPtr <- throwIfNull "socketGetXID: no Drawable defined" $
 --    #{peek GdkWindowObject, impl} winPtr
 --  #{peek GdkDrawableImplX11, xid} implPtr
 
@@ -574,8 +574,8 @@ fileSelectionGetButtons fsel =
 
 -- @method drawingAreaGetWindow@ Retrieves the @ref type Drawable@ part.
 --
-drawingAreaGetWindow :: DrawingArea -> IO GdkWindow
-drawingAreaGetWindow da = makeNewGObject mkGdkWindow $
+drawingAreaGetWindow :: DrawingArea -> IO DrawWindow
+drawingAreaGetWindow da = makeNewGObject mkDrawWindow $
   withForeignPtr (unDrawingArea da) $ 
   \da' -> liftM castPtr $ #{peek GtkWidget, window} da'
 

@@ -2,7 +2,19 @@
 
 	* gtk/multiline/TextView.chs: Completed functionality and added
 	all signals.
-	
+
+	* gtk/abstract/Container.chs gtk/display/Image.chs
+	gtk/general/Gtk.hs gtk/general/Structs.hsc gtk/misc/Tooltips.chs
+	gtk/multiline/TextBuffer.chs gtk/multiline/TextIter.chs
+	gtk/multiline/TextView.chs gtk/treeList/TreeView.chs
+	gtk/typehier/TypeGenerator.hs gtk/typehier/hierarchy.list 
+
+	Added Files: gtk/gdk/Drawable.chs gtk/gdk/GC.chs gtk/gdk/Keys.chs
+
+	Removed Files: gtk/gdk/GdkDrawable.chs gtk/gdk/GdkGC.chs
+	gtk/gdk/GdkKeys.chs: Get rid of any Gdk prefix in types and module
+	names.
+
 2002-10-01 Axel Simon <A.Simon@ukc.ac.uk> 
 
 	* gtk/gdk/GdkEnums.chs, gtk/general/Gtk.hs,

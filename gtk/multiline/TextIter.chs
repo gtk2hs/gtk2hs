@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.6 $ from $Date: 2002/10/06 16:14:09 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -252,13 +252,13 @@ textIterGetVisibleText start end = do
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
--- @method textIterGetPixbuf@ Get the @ref arg GdkPixbuf@ under the iterator.
+-- @method textIterGetPixbuf@ Get the @ref arg Pixbuf@ under the iterator.
 --
-textIterGetPixbuf :: TextIter -> IO (Maybe GdkPixbuf)
+textIterGetPixbuf :: TextIter -> IO (Maybe Pixbuf)
 textIterGetPixbuf it = do
   pbPtr <- {#call unsafe text_iter_get_pixbuf#} it
   if pbPtr==nullPtr then return Nothing else liftM Just $
-    makeNewGObject mkGdkPixbuf (return pbPtr)
+    makeNewGObject mkPixbuf (return pbPtr)
 
 
 -- @method textIterBeginsTag@ Query whether a @ref type TextIter@ is at the

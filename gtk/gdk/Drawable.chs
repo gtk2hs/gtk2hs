@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GdkDrawable@
+--  GIMP Toolkit (GTK) @entry Drawable@
 --
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/10/01 15:09:29 $
+--  Version $Revision: 1.1 $ from $Date: 2002/10/06 16:14:07 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -25,8 +25,8 @@
 -- @documentation@ ------------------------------------------------------------
 --
 -- * This module defines drawing primitives that can operate on 
---   @ref object GdkWindow@s, @ref object GdkPixmap@s and 
---   @ref object GdkBitmap@s.
+--   @ref object DrawWindow@s, @ref object Pixmap@s and 
+--   @ref object Bitmap@s.
 --
 -- @todo@ ---------------------------------------------------------------------
 --
@@ -34,10 +34,10 @@
 -- * if gdk_colormaps are implemented, do: set_colormap, get_colormap
 -- * text drawing functions
 --
-module GdkDrawable(
-  GdkDrawable,
-  GdkDrawableClass,
-  castToGdkDrawable,
+module Drawable(
+  Drawable,
+  DrawableClass,
+  castToDrawable,
   drawableGetDepth,
   drawableGetSize,
   drawableGetClipRegion,
@@ -67,20 +67,20 @@ import Structs  (Point)
 -- @method drawableGetDepth@ Get the size of pixels.
 --
 -- * Returns the number of bits which are use to store information on each
---   pixels in this @ref object GdkDrawable@.
+--   pixels in this @ref object Drawable@.
 --
-drawableGetDepth :: GdkDrawableClass d => d -> IO Int
+drawableGetDepth :: DrawableClass d => d -> IO Int
 drawableGetDepth d = liftM fromIntegral $ 
-		     {#call unsafe drawable_get_depth#} (toGdkDrawable d)
+		     {#call unsafe drawable_get_depth#} (toDrawable d)
 
--- @method drawableGetSize@ Retrieve the size of the @ref type GdkDrawable@.
+-- @method drawableGetSize@ Retrieve the size of the @ref type Drawable@.
 --
 -- * The result might not be up-to-date if there are still resizing messages
 --   to be processed.
 --
-drawableGetSize :: GdkDrawableClass d => d -> IO (Int, Int)
+drawableGetSize :: DrawableClass d => d -> IO (Int, Int)
 drawableGetSize d = alloca $ \wPtr -> alloca $ \hPtr -> do
-  {#call unsafe drawable_get_size#} (toGdkDrawable d) wPtr hPtr
+  {#call unsafe drawable_get_size#} (toDrawable d) wPtr hPtr
   (w::{#type gint#}) <- peek wPtr
   (h::{#type gint#}) <- peek hPtr
   return (fromIntegral w, fromIntegral h)
@@ -93,9 +93,9 @@ drawableGetSize d = alloca $ \wPtr -> alloca $ \hPtr -> do
 --   factors such as if the window is obscured by other windows, but no
 --   area outside of this region will be affected by drawing primitives.
 --
-drawableGetClipRegion :: GdkDrawableClass d => d -> IO Region
+drawableGetClipRegion :: DrawableClass d => d -> IO Region
 drawableGetClipRegion d = do
-  rPtr <- {#call unsafe drawable_get_clip_region#} (toGdkDrawable d)
+  rPtr <- {#call unsafe drawable_get_clip_region#} (toDrawable d)
   makeNewRegion rPtr
 
 -- @method drawableGetVisibleRegion@ Determine what not to redraw.
@@ -104,39 +104,39 @@ drawableGetClipRegion d = do
 -- This does not necessarily take into account if the window is obscured
 -- by other windows, but no area outside of this region is visible.
 --
-drawableGetVisibleRegion :: GdkDrawableClass d => d -> IO Region
+drawableGetVisibleRegion :: DrawableClass d => d -> IO Region
 drawableGetVisibleRegion d = do
-  rPtr <- {#call unsafe drawable_get_visible_region#} (toGdkDrawable d)
+  rPtr <- {#call unsafe drawable_get_visible_region#} (toDrawable d)
   makeNewRegion rPtr
 
--- @method drawPoint@ Draw a point into a @ref type GdkDrawable@.
+-- @method drawPoint@ Draw a point into a @ref type Drawable@.
 --
-drawPoint :: GdkDrawableClass d => d -> GdkGC -> Point -> IO ()
-drawPoint d gc (x,y) = {#call unsafe draw_point#} (toGdkDrawable d)
-  (toGdkGC gc) (fromIntegral x) (fromIntegral y)
+drawPoint :: DrawableClass d => d -> GC -> Point -> IO ()
+drawPoint d gc (x,y) = {#call unsafe draw_point#} (toDrawable d)
+  (toGC gc) (fromIntegral x) (fromIntegral y)
 
 
--- @method drawPoints@ Draw several points into a @ref type GdkDrawable@.
+-- @method drawPoints@ Draw several points into a @ref type Drawable@.
 --
 -- * This function is more efficient than calling @ref method drawPoint@ on
 --   several points.
 --
-drawPoints :: GdkDrawableClass d => d -> GdkGC -> [Point] -> IO ()
+drawPoints :: DrawableClass d => d -> GC -> [Point] -> IO ()
 drawPoints d gc points = 
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
-  \(aPtr :: Ptr {#type gint#}) -> {#call unsafe draw_points#} (toGdkDrawable d)
-    (toGdkGC gc) (castPtr aPtr) (fromIntegral (length points))
+  \(aPtr :: Ptr {#type gint#}) -> {#call unsafe draw_points#} (toDrawable d)
+    (toGC gc) (castPtr aPtr) (fromIntegral (length points))
 
--- @method drawLine@ Draw a line into a @ref type GdkDrawable@.
+-- @method drawLine@ Draw a line into a @ref type Drawable@.
 --
 -- * The parameters are x1, y1, x2, y2.
 --
 -- * Drawing several separate lines can be done more efficiently by
 --   @ref method drawSegments@.
 --
-drawLine :: GdkDrawableClass d => d -> GdkGC -> Point -> Point -> IO ()
-drawLine d gc (x1,y1) (x2,y2) = {#call unsafe draw_line#} (toGdkDrawable d)
-  (toGdkGC gc) (fromIntegral x1) (fromIntegral y1) (fromIntegral x2) 
+drawLine :: DrawableClass d => d -> GC -> Point -> Point -> IO ()
+drawLine d gc (x1,y1) (x2,y2) = {#call unsafe draw_line#} (toDrawable d)
+  (toGC gc) (fromIntegral x1) (fromIntegral y1) (fromIntegral x2) 
   (fromIntegral x2)
 
 -- @method drawLines@ Draw several lines.
@@ -145,27 +145,27 @@ drawLine d gc (x1,y1) (x2,y2) = {#call unsafe draw_line#} (toGdkDrawable d)
 --   joining specification in the graphics context (in contrast to
 --   @ref method drawSegments@.
 --
-drawLines :: GdkDrawableClass d => d -> GdkGC -> [Point] -> IO ()
+drawLines :: DrawableClass d => d -> GC -> [Point] -> IO ()
 drawLines d gc points =
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
-  \(aPtr :: Ptr {#type gint#}) -> {#call unsafe draw_lines#} (toGdkDrawable d)
-    (toGdkGC gc) (castPtr aPtr) (fromIntegral (length points))
+  \(aPtr :: Ptr {#type gint#}) -> {#call unsafe draw_lines#} (toDrawable d)
+    (toGC gc) (castPtr aPtr) (fromIntegral (length points))
 
 -- @method drawSegments@ Draw several unconnected lines.
 --
 -- * This method draws several unrelated lines.
 --
-drawSegments :: GdkDrawableClass d => d -> GdkGC -> [(Point,Point)] -> IO ()
+drawSegments :: DrawableClass d => d -> GC -> [(Point,Point)] -> IO ()
 drawSegments d gc pps = withArray (concatMap (\((x1,y1),(x2,y2)) -> 
   [fromIntegral x1, fromIntegral y1, fromIntegral x2, fromIntegral y2])
   pps) $ \(aPtr :: Ptr {#type gint#}) ->
-    {#call unsafe draw_segments#} (toGdkDrawable d) (toGdkGC gc)
+    {#call unsafe draw_segments#} (toDrawable d) (toGC gc)
     (castPtr aPtr) (fromIntegral (length pps))
 
 -- @method drawRectangle@ Draw a rectangular object.
 --
 -- * Draws a rectangular outline or filled rectangle, using the
---   foreground color and other attributes of the @ref type GdkGC@.
+--   foreground color and other attributes of the @ref type GC@.
 --
 -- * A rectangle drawn filled is 1 pixel smaller in both dimensions
 --   than a rectangle outlined. Calling @ref method drawRectangle@ w gc
@@ -174,10 +174,10 @@ drawSegments d gc pps = withArray (concatMap (\((x1,y1),(x2,y2)) ->
 --   results in an outlined rectangle with corners at (0, 0), (0, 20), (20,
 --   20), and (20, 0), which makes it 21 pixels wide and 21 pixels high.
 --
-drawRectangle :: GdkDrawableClass d => d -> GdkGC -> Bool -> Int -> Int ->
+drawRectangle :: DrawableClass d => d -> GC -> Bool -> Int -> Int ->
 				       Int -> Int -> IO ()
 drawRectangle d gc filled x y width height = {#call unsafe draw_rectangle#}
-  (toGdkDrawable d) (toGdkGC gc) (fromBool filled) (fromIntegral x)
+  (toDrawable d) (toGC gc) (fromBool filled) (fromIntegral x)
   (fromIntegral y) (fromIntegral width) (fromIntegral height)
 
 -- @method drawArc@ Draws an arc or a filled 'pie slice'.
@@ -190,10 +190,10 @@ drawRectangle d gc filled x y width height = {#call unsafe draw_rectangle#}
 --   position, counter-clockwise, in 1/64ths of a degree. @ref arg aEnd@
 --   is measured similarly, but relative to @ref arg aStart@.
 --
-drawArc :: GdkDrawableClass d => d -> GdkGC -> Bool -> Int -> Int ->
+drawArc :: DrawableClass d => d -> GC -> Bool -> Int -> Int ->
 				 Int -> Int -> Int -> Int -> IO ()
 drawArc d gc filled x y width height aStart aEnd =
-  {#call unsafe draw_arc#} (toGdkDrawable d) (toGdkGC gc) (fromBool filled)
+  {#call unsafe draw_arc#} (toDrawable d) (toGC gc) (fromBool filled)
   (fromIntegral x) (fromIntegral y) (fromIntegral width) (fromIntegral height)
   (fromIntegral aStart) (fromIntegral aEnd)
 
@@ -202,13 +202,13 @@ drawArc d gc filled x y width height aStart aEnd =
 -- * The polygon is closed automatically, connecting the last point to
 --   the first point if necessary.
 --
-drawPolygon :: GdkDrawableClass d => d -> GdkGC -> Bool -> [Point] -> IO ()
+drawPolygon :: DrawableClass d => d -> GC -> Bool -> [Point] -> IO ()
 drawPolygon d gc filled points = 
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
-  \(aPtr::Ptr {#type gint#}) -> {#call unsafe draw_polygon#} (toGdkDrawable d)
-  (toGdkGC gc) (fromBool filled) (castPtr aPtr) (fromIntegral (length points))
+  \(aPtr::Ptr {#type gint#}) -> {#call unsafe draw_polygon#} (toDrawable d)
+  (toGC gc) (fromBool filled) (castPtr aPtr) (fromIntegral (length points))
 
--- @method drawDrawable@ Copies another @ref type GdkDrawable@.
+-- @method drawDrawable@ Copies another @ref type Drawable@.
 --
 -- * Copies the (width,height) region of the @ref arg src@ at coordinates
 --   (@ref arg xSrc@, @ref arg ySrc@) to coordinates (@ref arg xDest@, @ref
@@ -223,15 +223,15 @@ drawPolygon d gc filled points =
 --   in a BadMatch error from the X server.)  A common cause of this
 --   problem is an attempt to draw a bitmap to a color drawable. The way to
 --   draw a bitmap is to set the bitmap as a clip mask on your
---   @ref type GdkGC@, then use @ref method drawRectangle@ to draw a 
+--   @ref type GC@, then use @ref method drawRectangle@ to draw a 
 --   rectangle clipped to the bitmap.
 --
-drawDrawable :: (GdkDrawableClass src, GdkDrawableClass dest) => 
-		dest -> GdkGC -> src -> Int -> Int -> Int -> Int -> 
+drawDrawable :: (DrawableClass src, DrawableClass dest) => 
+		dest -> GC -> src -> Int -> Int -> Int -> Int -> 
 		Int -> Int -> IO ()
 drawDrawable dest gc src xSrc ySrc xDest yDest width height =
-  {#call unsafe draw_drawable#} (toGdkDrawable dest) (toGdkGC gc)
-  (toGdkDrawable src)
+  {#call unsafe draw_drawable#} (toDrawable dest) (toGC gc)
+  (toDrawable src)
   (fromIntegral xSrc) (fromIntegral ySrc) (fromIntegral xDest)
   (fromIntegral yDest) (fromIntegral width) (fromIntegral height)
 

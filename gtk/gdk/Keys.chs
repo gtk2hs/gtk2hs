@@ -4,7 +4,7 @@
 --  Author : Jens Petersen
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.1 $ from $Date: 2002/10/06 16:14:08 $
 --
 --  Copyright (c) 2002 Jens Petersen
 --
@@ -29,7 +29,7 @@
 --
 --  * Documentation
 --
-module GdkKeys(
+module Keys(
   keyvalName,
   keyvalFromName
   ) where

@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:33 $
+--  Version $Revision: 1.4 $ from $Date: 2002/10/06 16:14:07 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -74,7 +74,9 @@ import Enums	(DirectionType(..))
 
 -- methods
 
--- @method containerAdd@ Add a widget to the container. Only useful for simple
+-- @method containerAdd@ Add a widget to the container.
+--
+-- * Only useful for simple
 -- containers like Window. Use boxPackStart or tableAttach in other cases. A
 -- widget may not be added to more than one container.
 --

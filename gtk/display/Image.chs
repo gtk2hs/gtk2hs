@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2002/10/06 16:14:07 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -29,7 +29,7 @@
 --   only functions are bound that allow loading images from disc or by stock
 --   names.
 --
--- * Another function for extracting the @ref data GdkPixbuf@ is added for 
+-- * Another function for extracting the @ref data Pixbuf@ is added for 
 --   @ref data CellRenderer@.
 --
 -- @todo@ ---------------------------------------------------------------------
@@ -81,17 +81,17 @@ imageNewFromStock stock ic = withCString stock $ \strPtr ->
   makeNewObject mkImage $ liftM castPtr $ {#call unsafe image_new_from_stock#}
   strPtr (fromIntegral ic)
 
--- @method imageGetPixbuf@ Extract the GdkPixbuf from the @ref data Image@.
+-- @method imageGetPixbuf@ Extract the Pixbuf from the @ref data Image@.
 --
-imageGetPixbuf :: Image -> IO GdkPixbuf
-imageGetPixbuf img = makeNewGObject mkGdkPixbuf $ liftM castPtr $
-  throwIfNull "Image.imageGetPixbuf: The image contains no GdkPixbuf object." $
+imageGetPixbuf :: Image -> IO Pixbuf
+imageGetPixbuf img = makeNewGObject mkPixbuf $ liftM castPtr $
+  throwIfNull "Image.imageGetPixbuf: The image contains no Pixbuf object." $
   {#call unsafe image_get_pixbuf#} img
 
 
 -- @method imageNewFromPixbuf@ Create an @ref data Image@ from a 
 -- @ref data Pixbuf@.
 --
-imageNewFromPixbuf :: GdkPixbuf -> IO Image
+imageNewFromPixbuf :: Pixbuf -> IO Image
 imageNewFromPixbuf pbuf = makeNewObject mkImage $ liftM castPtr $
   {#call unsafe image_new_from_pixbuf#} pbuf
