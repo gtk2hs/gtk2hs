@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/17 16:09:05 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -47,6 +47,7 @@ module Entry(
   entrySetEditable,
   entryNew,
   entrySetText,
+  entryGetText,
   entryAppendText,
   entryPrependText,
   entrySetVisibility,
@@ -202,12 +203,15 @@ entrySetEditable ed isEditable = {#call editable_set_editable#}
 entryNew :: IO Entry
 entryNew  = makeNewObject mkEntry $ liftM castPtr $ {#call unsafe entry_new#}
 
-
-
 -- @method entrySetText@ Set the text of the @ref type Entry@ widget.
 --
 entrySetText :: EntryClass ec => ec -> String -> IO ()
 entrySetText ec str = withCString str $ {#call entry_set_text#} (toEntry ec)
+
+-- @method entryGetText@ Get the text of the @ref type Entry@ widget.
+--
+entryGetText :: EntryClass ec => ec -> IO String
+entryGetText ec = {#call entry_get_text#} (toEntry ec) >>= peekCString
 
 -- @method entryAppendText@ Append to the text of the @ref type Entry@ widget.
 --
