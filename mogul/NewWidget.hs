@@ -4,7 +4,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/15 14:44:33 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/17 15:55:26 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -694,13 +694,13 @@ newHandleBox = handleBoxNew
 --   store.
 --
 newNamedScrolledWindow :: 
-  WidgetName -> Adjustment -> Adjustment -> IO ScrolledWindow
+  WidgetName -> Maybe Adjustment -> Maybe Adjustment -> IO ScrolledWindow
 newNamedScrolledWindow name hAdj vAdj = newNamedWidget name $ 
   scrolledWindowNew hAdj vAdj 
 
 -- @see scrolledWindowNew
 --
-newScrolledWindow :: Adjustment -> Adjustment -> IO ScrolledWindow
+newScrolledWindow :: Maybe Adjustment -> Maybe Adjustment -> IO ScrolledWindow
 newScrolledWindow hAdj vAdj = scrolledWindowNew hAdj vAdj 
 
 -- @see viewportNew
