@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.7 $ from $Date: 2003/05/08 07:25:32 $
 --
 --  Copyright (c) [2001..2002] Axel Simon
 --
@@ -111,7 +111,19 @@ module TextBuffer(
   textBufferDeleteSelection,
   textBufferHasSelection,
   textBufferBeginUserAction,
-  textBufferEndUserAction
+  textBufferEndUserAction,
+  onApplyTag, afterApplyTag,
+  onBeginUserAction, afterBeginUserAction,
+  onBufferChanged, afterBufferChanged,
+  onDeleteRange, afterDeleteRange,
+  onEndUserAction, afterEndUserAction,
+  onInsertPixbuf, afterInsertPixbuf,
+  onInsertText, afterInsertText,
+  onMarkDeleted, afterMarkDeleted,
+  onMarkSet, afterMarkSet,
+  onModifiedChanged, afterModifiedChanged,
+  onRemoveTag, afterRemoveTag,
+  
   ) where
 
 import Monad	(liftM)
@@ -556,12 +568,13 @@ onBeginUserAction, afterBeginUserAction :: TextBufferClass tb => tb -> IO () ->
 onBeginUserAction = connect_NONE__NONE "begin_user_action" False
 afterBeginUserAction = connect_NONE__NONE "begin_user_action" True
 
+--- renamed from Changed to BufferChanged, since the former conflicts with TreeSelection
 -- @signal connectToChanged@ Emitted when the contents of the buffer change.
 --
-onChanged, afterChanged :: TextBufferClass tb => tb -> IO () ->
+onBufferChanged, afterBufferChanged :: TextBufferClass tb => tb -> IO () ->
                            IO (ConnectId tb)
-onChanged = connect_NONE__NONE "changed" False
-afterChanged = connect_NONE__NONE "changed" True
+onBufferChanged = connect_NONE__NONE "changed" False
+afterBufferChanged = connect_NONE__NONE "changed" True
 
 -- @signal connectToDeleteRange@ A range of text is about to be deleted.
 --

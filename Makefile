@@ -89,10 +89,11 @@ EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 configure.in configure \
 			 mk/config.mk.in mk/common.mk mk/application.mk \
 		 	 mk/library.mk mk/chsDepend.in install-sh \
-			 config.sub config.guess)
+			 config.sub config.guess gtk2hs.spec.in gtk2hs.spec )
 
 dist :
-	$(RM) $(TARNAME) $(TARNAME).tar $(TARNAME).tar.gz
+	$(RM) -r $(TARNAME)
+	$(RM) $(TARNAME).tar $(TARNAME).tar.gz
 	$(LN) -s . $(TARNAME)
 	$(strip $(TAR) cf $(addsuffix .tar,$(TARNAME)) \
 	  $(addprefix $(TARNAME)/,$(EXTRA_TARFILES)))
@@ -109,3 +110,8 @@ dist :
 	$(GZIP) $(TARNAME).tar
 	$(RM) $(TARNAME)
 
+rpm: $(TARNAME).tar.gz
+	rpmbuild -tb $(TARNAME).tar.gz
+
+srpm: $(TARNAME).tar.gz
+	rpmbuild -ts $(TARNAME).tar.gz

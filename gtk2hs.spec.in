@@ -1,9 +1,9 @@
 # RPM spec file for Gtk2HS   -*-rpm-spec-*-
 #
 # Copyright [2001..2002] Manuel M T Chakravarty <chak@cse.unsw.edu.au>
-# Copyright 2002, 2003 Jens-Ulrik Holger petersen <petersen@haskell.org>
+# Copyright 2002, 2003 Jens-Ulrik Holger Petersen <petersen@haskell.org>
 
-%define _ghc_version 5.04.2
+%define _ghc_version 5.04.3
 
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
 Name: gtk2hs
@@ -36,16 +36,16 @@ make
 %install
 make prefix=%{buildroot}%{_prefix} libdir=%{buildroot}%{_libdir}/ghc-%{_ghc_version} install
 
-# remove buildroot traces from package files
-perl -pi -e "s|%buildroot||" \
-    %{buildroot}%{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2.conf,mogul.conf}
-
 %clean
 rm -rf %{buildroot}
 
 %post
-ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/%{name}/gtk2.conf
-ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/mogul.conf
+# remove buildroot traces from package files
+perl -pi -e "s|%{buildroot}||" \
+    %{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2.conf,mogul.conf}
+
+ghc-pkg-%{_ghc_version} -u -i %{_libdir}/ghc-%{_ghc_version}/%{name}/gtk2.conf
+ghc-pkg-%{_ghc_version} -u -i %{_libdir}/ghc-%{_ghc_version}/mogul.conf
 
 %preun
 ghc-pkg-%{_ghc_version} -r gtk2 >/dev/null

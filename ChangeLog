@@ -1,3 +1,31 @@
+2003-05-08  Jens Petersen  <petersen@redhat.com>
+
+	* gtk/treeList/TreeSelection.chs (onChanged): Renamed
+	to onSelectionChanged since it conflicted with TextBuffer export.
+	(afterChanged): Ditto to afterSelectionChanged.
+
+	* gtk/multiline/TextBuffer.chs: Export all the signal event
+	handling functions: onApplyTag, afterApplyTag, onBeginUserAction,
+	afterBeginUserAction, onBufferChanged, afterBufferChanged,
+	onDeleteRange, afterDeleteRange, onEndUserAction,
+	afterEndUserAction, onInsertPixbuf, afterInsertPixbuf,
+	onInsertText, afterInsertText, onMarkDeleted, afterMarkDeleted,
+	onMarkSet, afterMarkSet, onModifiedChanged, afterModifiedChanged,
+	onRemoveTag, afterRemoveTag.
+	Rename onChanged and afterChanged to onBufferChanged and
+	afterBufferChanged respectively.
+
+	* gtk2hs.spec.in: Use ghc 5.04.3.
+	Move perl buildroot prefix cleaning of package conf files into
+	post-install script.
+
+	* Makefile (EXTRA_TARFILES): Add gtk2hs.spec.in and gtk2hs.spec.
+	(dist): Remove dist dir recursively.
+	(rpm): New target.
+	(srpm): Ditto.
+
+	* AUTHORS: Update.
+
 2003-05-15  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* configure.in, mk/config.mk.in: Improved detection of OpenGl and

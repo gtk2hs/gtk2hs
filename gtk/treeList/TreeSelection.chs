@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.6 $ from $Date: 2003/05/08 07:25:33 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -54,8 +54,8 @@ module TreeSelection(
   treeSelectionSelectAll,
   treeSelectionUnselectAll,
   treeSelectionSelectRange,
-  onChanged,
-  afterChanged
+  onSelectionChanged,
+  afterSelectionChanged
   ) where
 
 import Monad	(liftM)
@@ -214,10 +214,10 @@ treeSelectionSelectRange ts start end =
 
 -- @signal onChanged@ Emitted each time the user changes the selection.
 --
-onChanged, afterChanged :: TreeSelectionClass ts => ts -> (IO ()) ->
+onSelectionChanged, afterSelectionChanged :: TreeSelectionClass ts => ts -> (IO ()) ->
 			   IO (ConnectId ts)
-onChanged = connect_NONE__NONE "changed" False
-afterChanged = connect_NONE__NONE "changed" True
+onSelectionChanged = connect_NONE__NONE "changed" False
+afterSelectionChanged = connect_NONE__NONE "changed" True
 
 
 
