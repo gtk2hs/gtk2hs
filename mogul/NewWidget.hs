@@ -4,7 +4,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/17 15:55:26 $
+--  Version $Revision: 1.6 $ from $Date: 2002/10/21 02:45:53 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -811,13 +811,13 @@ newVPaned = vPanedNew
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
 --
-newNamedLayout :: WidgetName -> Adjustment -> Adjustment -> IO Layout
+newNamedLayout :: WidgetName -> Maybe Adjustment -> Maybe Adjustment -> IO Layout
 newNamedLayout name hadjustment vadjustment = newNamedWidget name $ 
   layoutNew hadjustment vadjustment
 
 -- @see layoutNew
 --
-newLayout :: Adjustment -> Adjustment -> IO Layout
+newLayout :: Maybe Adjustment -> Maybe Adjustment -> IO Layout
 newLayout hadjustment vadjustment = layoutNew hadjustment vadjustment
 
 -- @see menuNew

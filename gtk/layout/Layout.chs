@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/10/21 02:45:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -44,10 +44,12 @@ module Layout(
   afterSetScrollAdjustments
   ) where
 
+import Maybe	(fromMaybe)
 import Monad	(liftM)
 import Foreign
 import UTFCForeign
 import Object	(makeNewObject)
+import Structs	(nullForeignPtr)
 {#import Hierarchy#}
 {#import Signal#}
 
@@ -57,9 +59,13 @@ import Object	(makeNewObject)
 
 -- @constructor layoutNew@ Create a new layout widget.
 --
-layoutNew :: Adjustment -> Adjustment -> IO Layout
-layoutNew vadjustment hadjustment = makeNewObject mkLayout $ liftM castPtr $
-  {#call unsafe layout_new#} hadjustment vadjustment
+layoutNew :: Maybe Adjustment -> Maybe Adjustment -> IO Layout
+layoutNew vAdj hAdj = makeNewObject mkLayout $ liftM castPtr $
+  {#call unsafe layout_new#} (fromMAdj hAdj) (fromMAdj vAdj)
+ where
+ fromMAdj :: Maybe Adjustment -> Adjustment
+ fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
+
 
 -- @method layoutPut@ Insert a widget into the layout container.
 --

@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/08/19 22:57:26 $
+--  Version $Revision: 1.7 $ from $Date: 2002/10/21 02:45:53 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -462,10 +462,10 @@ afterFocusOut = event "focus_out_event" [FocusChangeMask] True
 --   user to use only this widget. Such a situation is initiated by
 --   @ref arg addGrab@.
 --
-onGrabFocus, afterGrabFocus :: WidgetClass w => w -> (Event -> IO Bool) ->
+onGrabFocus, afterGrabFocus :: WidgetClass w => w -> IO () ->
                                IO (ConnectId w)
-onGrabFocus = event "grab_focus" [] False
-afterGrabFocus = event "grab_focus" [] True
+onGrabFocus = connect_NONE__NONE  "grab_focus" False
+afterGrabFocus = connect_NONE__NONE "grab_focus" [] True
 
 -- @signal connectToDestroy@ The widget will be destroyed.
 --

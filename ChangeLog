@@ -1,3 +1,14 @@
+2002-10-21  Jens Petersen  <petersen@haskell.org>
+
+	* mogul/NewWidget.hs (newLayout): Take Maybe Adjustment's.
+
+	* gtk/layout/Layout.chs: Import fromMaybe and nullForeignPtr.
+	(layoutNew): Use them for Maybe Adjustment arguments.
+
+	* gtk/abstract/Widget.chs (onGrabFocus, afterGrabFocus):
+	Fix to use connect_NONE__NONE, since "grab_focus" event handler
+	is just IO ().
+
 2002-10-20 Axel Simon <A.Simon@ukc.ac.uk> 
 
 	* gendoc/Abstract.hs XMLwrite.hs gtk2hs.xml: This version uses the
