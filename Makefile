@@ -20,26 +20,34 @@ ifeq ($(BUILT_IN_C2HS),yes)
 endif
 	$(MAKE) -Cgtk $@ 
 	$(MAKE)	-Cmogul $@ 
+	$(MAKE) -Cdemo/hello $@ 
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
+	$(MAKE) -Cdemo/treeList $@ 
 
 noinplace :
-	$(MAKE) -Cdemo/graphic $@ 
-	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cmogul $@ 
 	$(MAKE) -Cgtk $@ 
+	$(MAKE) -Cdemo/treeList $@ 
+	$(MAKE) -Cdemo/graphic $@ 
+	$(MAKE) -Cdemo/unicode $@ 
+	$(MAKE) -Cdemo/hello $@ 
 
 install : all
 	$(MAKE) -Cgtk  $@
 	$(MAKE) -Cmogul  $@
+	$(MAKE) -Cdemo/hello $@ 
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
+	$(MAKE) -Cdemo/treeList $@ 
 
 uninstall :
-	$(MAKE) -Cdemo/graphic $@ 
-	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cmogul  $@
 	$(MAKE) -Cgtk  $@
+	$(MAKE) -Cdemo/treeList $@ 
+	$(MAKE) -Cdemo/graphic $@ 
+	$(MAKE) -Cdemo/unicode $@ 
+	$(MAKE) -Cdemo/hello $@ 
 
 clean	: noinplace
 ifeq ($(BUILT_IN_C2HS),yes)
@@ -47,8 +55,10 @@ ifeq ($(BUILT_IN_C2HS),yes)
 endif
 	$(MAKE) -Cgtk $@
 	$(MAKE) -Cmogul $@
+	$(MAKE) -Cdemo/hello $@ 
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
+	$(MAKE) -Cdemo/treeList $@ 
 
 distclean : clean
 ifeq ($(BUILT_IN_C2HS),yes)
@@ -56,8 +66,10 @@ ifeq ($(BUILT_IN_C2HS),yes)
 endif
 	$(MAKE) -Cgtk $@
 	$(MAKE) -Cmogul $@
+	$(MAKE) -Cdemo/hello $@ 
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
+	$(MAKE) -Cdemo/treeList $@ 
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 TODO VERSION aclocal.m4 configure.in configure \
@@ -73,8 +85,10 @@ dist :
 	$(MAKE) -Cc2hs tarsource
 	$(MAKE) -Cgtk tarsource
 	$(MAKE) -Cmogul tarsource
+	$(MAKE) -Cdemo/hello tarsource
 	$(MAKE) -Cdemo/unicode tarsource
 	$(MAKE) -Cdemo/graphic tarsource
+	$(MAKE) -Cdemo/treeList tarsource
 	$(GZIP) $(TARNAME).tar
 	$(RM) $(TARNAME)
 

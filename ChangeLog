@@ -1,11 +1,25 @@
 2002-12-03 Axel Simon <A.Simon@ukc.ac.uk>
+
 	* config.guess, config.sub: updated from GNU website
 
 2002-11-08 Axel Simon <A.Simon@ukc.ac.uk>
+
 	* gtk/menuComboToolbar/Menu.chs
 	gtk/treeList/ListStore.chs gtk/treeList/TreeModel.chs: Documentation
 	changes.
 
+2002-11-11 Axel Simon <A.Simon@ukc.ac.uk> 
+
+	* gtk/general/General.chs: Changed the initialization and main
+	loop functions. They now have names which do not clash with the
+	Prelude.
+
+	* Makefile: Include the two demos "graphics" and "treeList".
+
+	* demo/graphic/Drawing.hs demo/hello/World.hs
+	demo/treeList/ListTest.hs demo/unicode/Arabic.hs: Reflect the
+	change to the main loop functions.
+	
 2002-11-08 Axel Simon <A.Simon@ukc.ac.uk> 
 
 	* gendoc/Abstract.hs gendoc/Driver.hs gendoc/Lexer.hs
