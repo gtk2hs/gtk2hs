@@ -5,7 +5,7 @@
 --
 --  Created: 30 July 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon, Duncan Coutts
 --
@@ -73,6 +73,10 @@ module Graphics.UI.Gtk.Entry.Editable (
   editableSetPosition,
   editableGetPosition,
 
+-- * Properties
+  editablePosition,
+  editableEditable,
+
 -- * Signals
   onEditableChanged,
   afterEditableChanged,
@@ -84,6 +88,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -201,7 +206,25 @@ editableSetEditable ed isEditable = {#call editable_set_editable#}
 editableGetEditable :: EditableClass ed => ed -> IO Bool
 editableGetEditable ed =
   liftM toBool $ {#call editable_get_editable#} (toEditable ed)
-  
+
+--------------------
+-- Properties
+
+-- | \'position\' property. See 'editableGetPosition' and
+-- 'editableSetPosition'
+--
+editablePosition :: Attr Editable Int
+editablePosition = Attr 
+  editableGetPosition
+  editableSetPosition
+
+-- | \'editable\' property. See 'editableGetEditable' and
+-- 'editableSetEditable'
+--
+editableEditable :: Attr Editable Bool
+editableEditable = Attr 
+  editableGetEditable
+  editableSetEditable
 
 --------------------
 -- Signals

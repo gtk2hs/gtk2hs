@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -66,12 +66,16 @@ module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
   fontSelectionDialogSetFontName,
   fontSelectionDialogGetPreviewText,
   fontSelectionDialogSetPreviewText,
+
+-- * Properties
+  fontSelectionDialogPreviewText,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -125,3 +129,14 @@ fontSelectionDialogSetPreviewText obj text =
   withUTFString text $ \strPtr ->
   {#call font_selection_dialog_set_preview_text#} (toFontSelectionDialog obj)
     strPtr
+
+--------------------
+-- Properties
+
+-- | \'previewText\' property. See 'fontSelectionDialogGetPreviewText' and
+-- 'fontSelectionDialogSetPreviewText'
+--
+fontSelectionDialogPreviewText :: Attr FontSelectionDialog String
+fontSelectionDialogPreviewText = Attr 
+  fontSelectionDialogGetPreviewText
+  fontSelectionDialogSetPreviewText

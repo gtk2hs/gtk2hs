@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:36 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -70,14 +70,18 @@ module Graphics.UI.Gtk.Multiline.TextMark (
   textMarkGetDeleted,
   textMarkGetName,
   textMarkGetBuffer,
-  textMarkGetLeftGravity
+  textMarkGetLeftGravity,
+
+-- * Properties
+  textMarkVisible
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject	(makeNewGObject)
+import System.Glib.Attributes		(Attr(..))
+import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -136,3 +140,12 @@ textMarkGetLeftGravity :: TextMarkClass tm => tm -> IO Bool
 textMarkGetLeftGravity tm = liftM toBool $
   {#call unsafe text_mark_get_left_gravity#} (toTextMark tm)
 
+--------------------
+-- Properties
+
+-- | \'visible\' property. See 'textMarkGetVisible' and 'textMarkSetVisible'
+--
+textMarkVisible :: Attr TextMark Bool
+textMarkVisible = Attr 
+  textMarkGetVisible
+  textMarkSetVisible

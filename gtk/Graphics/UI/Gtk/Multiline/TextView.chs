@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:36 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -128,6 +128,19 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewGetIndent,
   textViewGetDefaultAttributes,
 
+-- * Properties
+  textViewPixelsAboveLines,
+  textViewPixelsBelowLines,
+  textViewPixelsInsideWrap,
+  textViewEditable,
+  textViewWrapMode,
+  textViewJustification,
+  textViewLeftMargin,
+  textViewRightMargin,
+  textViewIndent,
+  textViewCursorVisible,
+  textViewBuffer,
+
 -- * Signals
   onCopyClipboard,
   afterCopyClipboard,
@@ -159,6 +172,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -731,6 +745,120 @@ textViewGetDefaultAttributes tv =
    >>= makeNewTextAttributes
 
 
+--------------------
+-- Properties
+
+-- | Pixels of blank space above paragraphs.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+textViewPixelsAboveLines :: Attr TextView Int
+textViewPixelsAboveLines = Attr 
+  textViewGetPixelsAboveLines
+  textViewSetPixelsAboveLines
+
+-- | Pixels of blank space below paragraphs.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+textViewPixelsBelowLines :: Attr TextView Int
+textViewPixelsBelowLines = Attr 
+  textViewGetPixelsBelowLines
+  textViewSetPixelsBelowLines
+
+-- | Pixels of blank space between wrapped lines in a paragraph.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+textViewPixelsInsideWrap :: Attr TextView Int
+textViewPixelsInsideWrap = Attr 
+  textViewGetPixelsInsideWrap
+  textViewSetPixelsInsideWrap
+
+-- | Whether the text can be modified by the user.
+--
+-- Default value: @True@
+--
+textViewEditable :: Attr TextView Bool
+textViewEditable = Attr 
+  textViewGetEditable
+  textViewSetEditable
+
+-- | Whether to wrap lines never, at word boundaries, or at character
+-- boundaries.
+--
+-- Default value: 'WrapNone'
+--
+textViewWrapMode :: Attr TextView WrapMode
+textViewWrapMode = Attr 
+  textViewGetWrapMode
+  textViewSetWrapMode
+
+-- | Left, right, or center justification.
+--
+-- Default value: 'JustifyLeft'
+--
+textViewJustification :: Attr TextView Justification
+textViewJustification = Attr 
+  textViewGetJustification
+  textViewSetJustification
+
+-- | Width of the left margin in pixels.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+textViewLeftMargin :: Attr TextView Int
+textViewLeftMargin = Attr 
+  textViewGetLeftMargin
+  textViewSetLeftMargin
+
+-- | Width of the right margin in pixels.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+textViewRightMargin :: Attr TextView Int
+textViewRightMargin = Attr 
+  textViewGetRightMargin
+  textViewSetRightMargin
+
+-- | Amount to indent the paragraph, in pixels.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+textViewIndent :: Attr TextView Int
+textViewIndent = Attr 
+  textViewGetIndent
+  textViewSetIndent
+
+-- | If the insertion cursor is shown.
+--
+-- Default value: @True@
+--
+textViewCursorVisible :: Attr TextView Bool
+textViewCursorVisible = Attr 
+  textViewGetCursorVisible
+  textViewSetCursorVisible
+
+-- | The buffer which is displayed.
+--
+textViewBuffer :: Attr TextView TextBuffer
+textViewBuffer = Attr 
+  textViewGetBuffer
+  textViewSetBuffer
+
+--------------------
 -- Signals
 
 -- | Copying to the clipboard.

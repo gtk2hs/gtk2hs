@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:40 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -104,12 +104,17 @@ module Graphics.UI.Gtk.Abstract.Box (
   boxSetSpacing,
   boxReorderChild,
   boxQueryChildPacking,
-  boxSetChildPacking
+  boxSetChildPacking,
+
+-- * Properties
+  boxSpacing,
+  boxHomogeneous
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -221,9 +226,31 @@ boxSetChildPacking b w pack pad pt = {#call box_set_child_packing#} (toBox b)
   (toWidget w) (fromBool $ pack/=PackNatural) (fromBool $ pack==PackGrow) 
   (fromIntegral pad) ((fromIntegral.fromEnum) pt)
 
-
 -- | Retrieves the standard spacing between widgets.
 --
 boxGetSpacing :: BoxClass b => b -> IO Int
 boxGetSpacing b = 
   liftM fromIntegral $ {#call unsafe box_get_spacing#} (toBox b)
+
+--------------------
+-- Properties
+
+-- | The amount of space between children.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+boxSpacing :: Attr Box Int
+boxSpacing = Attr 
+  boxGetSpacing
+  boxSetSpacing
+
+-- | Whether the children should all be the same size.
+--
+-- Default value: @False@
+--
+boxHomogeneous :: Attr Box Bool
+boxHomogeneous = Attr 
+  boxGetHomogeneous
+  boxSetHomogeneous

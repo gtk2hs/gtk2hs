@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/13 19:34:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -176,6 +176,13 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   fileChooserRemoveShortcutFolderURI,
   fileChooserListShortcutFolderURIs,
 
+-- * Properties
+  fileChooserUsePreviewLabel,
+  fileChooserSelectMultiple,
+  fileChooserPreviewWidgetActive,
+  fileChooserLocalOnly,
+  fileChooserAction,
+
 -- * Signals
   onCurrentFolderChanged,
   afterCurrentFolderChanged,
@@ -193,6 +200,7 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 import Monad (liftM, when)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import System.Glib.UTFString		(readCString)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -491,6 +499,49 @@ fileChooserListShortcutFolderURIs chooser = do
   strList <- {# call gtk_file_chooser_list_shortcut_folder_uris #}
     (toFileChooser chooser)
   fromStringGSList strList
+
+--------------------
+-- Properties
+
+-- | \'usePreviewLabel\' property. See 'fileChooserGetUsePreviewLabel' and
+-- 'fileChooserSetUsePreviewLabel'
+--
+fileChooserUsePreviewLabel :: Attr FileChooser Bool
+fileChooserUsePreviewLabel = Attr 
+  fileChooserGetUsePreviewLabel
+  fileChooserSetUsePreviewLabel
+
+-- | \'selectMultiple\' property. See 'fileChooserGetSelectMultiple' and
+-- 'fileChooserSetSelectMultiple'
+--
+fileChooserSelectMultiple :: Attr FileChooser Bool
+fileChooserSelectMultiple = Attr 
+  fileChooserGetSelectMultiple
+  fileChooserSetSelectMultiple
+
+-- | \'previewWidgetActive\' property. See 'fileChooserGetPreviewWidgetActive'
+-- and 'fileChooserSetPreviewWidgetActive'
+--
+fileChooserPreviewWidgetActive :: Attr FileChooser Bool
+fileChooserPreviewWidgetActive = Attr 
+  fileChooserGetPreviewWidgetActive
+  fileChooserSetPreviewWidgetActive
+
+-- | \'localOnly\' property. See 'fileChooserGetLocalOnly' and
+-- 'fileChooserSetLocalOnly'
+--
+fileChooserLocalOnly :: Attr FileChooser Bool
+fileChooserLocalOnly = Attr 
+  fileChooserGetLocalOnly
+  fileChooserSetLocalOnly
+
+-- | \'action\' property. See 'fileChooserGetAction' and
+-- 'fileChooserSetAction'
+--
+fileChooserAction :: Attr FileChooser FileChooserAction
+fileChooserAction = Attr 
+  fileChooserGetAction
+  fileChooserSetAction
 
 --------------------
 -- Signals

@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:36 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -67,12 +67,16 @@ module Graphics.UI.Gtk.Multiline.TextTag (
   TextAttributes(..),
   textAttributesNew,
   makeNewTextAttributes,  --internal
+
+-- * Properties
+  textTagPriority
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GObject	(makeNewGObject)
+import System.Glib.Attributes		(Attr(..))
+import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -150,3 +154,13 @@ foreign import ccall "gtk_text_attributes_unref" unsafe
   text_attributes_unref :: Ptr TextAttributes -> IO ()
                                                                                 
 #endif
+
+--------------------
+-- Properties
+
+-- | \'priority\' property. See 'textTagGetPriority' and 'textTagSetPriority'
+--
+textTagPriority :: Attr TextTag Int
+textTagPriority = Attr 
+  textTagGetPriority
+  textTagSetPriority

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:43 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -96,12 +96,19 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   scrolledWindowGetShadowType,
   scrolledWindowSetHAdjustment,
   scrolledWindowSetVAdjustment,
+
+-- * Properties
+  scrolledWindowHAdjustment,
+  scrolledWindowVAdjustment,
+  scrolledWindowShadowType,
+  scrolledWindowPlacement
   ) where
 
 import Monad	(liftM)
 import Maybe    (fromMaybe)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -207,4 +214,36 @@ scrolledWindowSetVAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
 scrolledWindowSetVAdjustment w adj = {#call scrolled_window_set_vadjustment#}
   (toScrolledWindow w) adj
 
+--------------------
+-- Properties
 
+-- | The 'Adjustment' for the horizontal position.
+--
+scrolledWindowHAdjustment :: Attr ScrolledWindow Adjustment
+scrolledWindowHAdjustment = Attr 
+  scrolledWindowGetHAdjustment
+  scrolledWindowSetHAdjustment
+
+-- | The 'Adjustment' for the vertical position.
+--
+scrolledWindowVAdjustment :: Attr ScrolledWindow Adjustment
+scrolledWindowVAdjustment = Attr 
+  scrolledWindowGetVAdjustment
+  scrolledWindowSetVAdjustment
+
+-- | Style of bevel around the contents.
+--
+-- Default value: 'ShadowNone'
+--
+scrolledWindowShadowType :: Attr ScrolledWindow ShadowType
+scrolledWindowShadowType = Attr 
+  scrolledWindowGetShadowType
+  scrolledWindowSetShadowType
+
+-- | \'placement\' property. See 'scrolledWindowGetPlacement' and
+-- 'scrolledWindowSetPlacement'
+--
+scrolledWindowPlacement :: Attr ScrolledWindow CornerType
+scrolledWindowPlacement = Attr 
+  scrolledWindowGetPlacement
+  scrolledWindowSetPlacement

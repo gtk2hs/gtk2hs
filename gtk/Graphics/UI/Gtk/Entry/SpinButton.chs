@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -84,6 +84,15 @@ module Graphics.UI.Gtk.Entry.SpinButton (
   spinButtonGetSnapToTicks,
   spinButtonUpdate,
 
+-- * Properties
+  spinButtonAdjustment,
+  spinButtonDigits,
+  spinButtonSnapToTicks,
+  spinButtonNumeric,
+  spinButtonWrap,
+  spinButtonUpdatePolicy,
+  spinButtonValue,
+
 -- * Signals
   onInput,
   afterInput,
@@ -96,6 +105,7 @@ module Graphics.UI.Gtk.Entry.SpinButton (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -291,6 +301,74 @@ spinButtonGetSnapToTicks sb = liftM toBool $
 --
 spinButtonUpdate :: SpinButtonClass sb => sb -> IO ()
 spinButtonUpdate sb = {#call spin_button_update#} (toSpinButton sb)
+
+--------------------
+-- Properties
+
+-- | The adjustment that holds the value of the spinbutton.
+--
+spinButtonAdjustment :: Attr SpinButton Adjustment
+spinButtonAdjustment = Attr 
+  spinButtonGetAdjustment
+  spinButtonSetAdjustment
+
+-- | The number of decimal places to display.
+--
+-- Allowed values: \<= 20
+--
+-- Default value: 0
+--
+spinButtonDigits :: Attr SpinButton Int
+spinButtonDigits = Attr 
+  spinButtonGetDigits
+  spinButtonSetDigits
+
+-- | Whether erroneous values are automatically changed to a spin button's
+-- nearest step increment.
+--
+-- Default value: @False@
+--
+spinButtonSnapToTicks :: Attr SpinButton Bool
+spinButtonSnapToTicks = Attr 
+  spinButtonGetSnapToTicks
+  spinButtonSetSnapToTicks
+
+-- | Whether non-numeric characters should be ignored.
+--
+-- Default value: @False@
+--
+spinButtonNumeric :: Attr SpinButton Bool
+spinButtonNumeric = Attr 
+  spinButtonGetNumeric
+  spinButtonSetNumeric
+
+-- | Whether a spin button should wrap upon reaching its limits.
+--
+-- Default value: @False@
+--
+spinButtonWrap :: Attr SpinButton Bool
+spinButtonWrap = Attr 
+  spinButtonGetWrap
+  spinButtonSetWrap
+
+-- | Whether the spin button should update always, or only when the value is
+-- legal.
+--
+-- Default value: 'UpdateAlways'
+--
+spinButtonUpdatePolicy :: Attr SpinButton SpinButtonUpdatePolicy
+spinButtonUpdatePolicy = Attr 
+  spinButtonGetUpdatePolicy
+  spinButtonSetUpdatePolicy
+
+-- | Reads the current value, or sets a new value.
+--
+-- Default value: 0
+--
+spinButtonValue :: Attr SpinButton Double
+spinButtonValue = Attr 
+  spinButtonGetValue
+  spinButtonSetValue
 
 --------------------
 -- Signals

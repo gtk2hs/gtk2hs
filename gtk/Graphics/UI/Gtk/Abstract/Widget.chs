@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/04 22:10:44 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/13 19:34:32 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -109,6 +109,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetDirection,		-- General Setup.
   widgetGetDirection,
 
+-- * Properties
+  widgetExtensionEvents,
+  widgetDirection,
+
 -- * Signals
   Event(..),
   onButtonPress,
@@ -186,8 +190,9 @@ import Monad	(liftM, unless)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import System.Glib.Attributes		(Attr(..))
 import System.Glib.GObject		(makeNewGObject)
+import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Enums
@@ -394,6 +399,25 @@ widgetSetDirection w td =
 widgetGetDirection :: WidgetClass w => w -> IO TextDirection
 widgetGetDirection w = liftM (toEnum.fromIntegral) $ 
   {#call widget_get_direction#} (toWidget w)
+
+--------------------
+-- Properties
+
+-- | The mask that decides what kind of extension events this widget gets.
+--
+-- Default value: 'ExtensionEventsNone'
+--
+widgetExtensionEvents :: Attr Widget [ExtensionMode]
+widgetExtensionEvents = Attr 
+  widgetGetExtensionEvents
+  widgetSetExtensionEvents
+
+-- | \'direction\' property. See 'widgetGetDirection' and 'widgetSetDirection'
+--
+widgetDirection :: Attr Widget TextDirection
+widgetDirection = Attr 
+  widgetGetDirection
+  widgetSetDirection
 
 --------------------
 -- Signals

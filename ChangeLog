@@ -1,3 +1,71 @@
+2005-03-13 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/Attributes.hs: new file defining Attr data type
+
+	* Makefile.am: add glib/System/Glib/Attributes.hs to glib sources list
+	
+	* gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scale.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs	: add a few properties.
+	For the first round, just the easy properties that are implemented in
+	terms of existing getter/setter functions and where there are no
+	issues with NULL/Maybe types.
+
+	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,
+	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs: add properties. For
+	ToggleButton, change the argument order of toggleButtonSetActive and
+	toggleButtonSetInconsistent so they take the object first like every
+	other method and so that they match the type for an Attr.
+
+	* gtk/Graphics/UI/Gtk/Display/Label.chs,
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs: add properties.
+
+	* gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/SpinButton.chs: add properties.
+
+	* gtk/Graphics/UI/Gtk/Layout/Expander.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Layout.chs,
+	gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Table.chs: add properties.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/CheckMenuItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBoxEntry.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Toolbar.chs.pp: add properties.
+
+	* gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs,
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs,
+	gtk/Graphics/UI/Gtk/Misc/Viewport.chs: add properties.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs: add properties.
+
+	* gtk/Graphics/UI/Gtk/Ornaments/Frame.chs: add properties.
+
+	* gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs: add properties.
+
+	* gtk/Graphics/UI/Gtk/Selectors/ColorSelection.chs,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs,
+	gtk/Graphics/UI/Gtk/Selectors/FontSelectionDialog.chs: add properties.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp: add properties.
+
+	* gtk/Graphics/UI/Gtk/Windows/Dialog.chs,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: add properties.
+
 2005-03-06 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/CodeGen.hs: Prefix property names with their object.

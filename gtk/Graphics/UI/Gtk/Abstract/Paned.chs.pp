@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -76,16 +76,20 @@ module Graphics.UI.Gtk.Abstract.Paned (
   panedPack1,
   panedPack2,
   panedSetPosition,
-  panedGetPosition
+  panedGetPosition,
 #if GTK_CHECK_VERSION(2,4,0)
- ,panedGetChild1,
-  panedGetChild2
+  panedGetChild1,
+  panedGetChild2,
 #endif
+
+-- * Properties
+  panedPosition
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -146,3 +150,18 @@ panedGetChild2 :: PanedClass p => p -> IO Widget
 panedGetChild2 p =
   makeNewObject mkWidget $ {#call unsafe paned_get_child2#} (toPaned p)
 #endif
+
+--------------------
+-- Properties
+
+-- | Position of paned separator in pixels (0 means all the way to the
+-- left\/top).
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+panedPosition :: Attr Paned Int
+panedPosition = Attr 
+  panedGetPosition
+  panedSetPosition

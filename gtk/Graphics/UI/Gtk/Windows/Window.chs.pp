@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:39 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -83,6 +83,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowStick,
   windowUnstick,
 
+-- * Properties
+  windowResizable,
+
 -- * Signals
   onFrameEvent,
   afterFrameEvent,
@@ -94,6 +97,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.General.Enums	(WindowType(WindowToplevel), WindowPosition(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -263,6 +267,18 @@ windowStick w = {#call window_stick#} (toWindow w)
 --
 windowUnstick :: WindowClass w => w -> IO ()
 windowUnstick w = {#call window_unstick#} (toWindow w)
+
+--------------------
+-- Properties
+
+-- | If @True@, users can resize the window.
+--
+-- Default value: @True@
+--
+windowResizable :: Attr Window Bool
+windowResizable = Attr 
+  windowGetResizable
+  windowSetResizable
 
 --------------------
 -- Signals

@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/02/27 19:42:06 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/13 19:34:33 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -69,6 +69,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- * Types
   EntryCompletion,
   EntryCompletionClass,
+  castToEntryCompletion,
 
 -- * Constructors
   entryCompletionNew,
@@ -84,8 +85,11 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionInsertActionText,
   entryCompletionInsertActionMarkup,
   entryCompletionDeleteAction,
-  entryCompletionSetTextColumn
+  entryCompletionSetTextColumn,
 #endif
+
+-- * Properties
+  entryCompletionMinimumKeyLength
 ) where
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -95,6 +99,7 @@ import Data.IORef (newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -195,4 +200,18 @@ connect_GtkEntryCompletionMatchFunc ec user = do
   dPtr <- mkFunPtrDestructor hPtr
   {# call gtk_entry_completion_set_match_func #} ec
     (castFunPtr hPtr) nullPtr dPtr
+
+--------------------
+-- Properties
+
+-- | Minimum length of the search key in order to look up matches.
+--
+-- Allowed values: >= -1
+--
+-- Default value: 1
+--
+entryCompletionMinimumKeyLength :: Attr EntryCompletion Int
+entryCompletionMinimumKeyLength = Attr 
+  entryCompletionGetMinimumKeyLength
+  entryCompletionSetMinimumKeyLength
 #endif

@@ -237,6 +237,7 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/GParameter.hsc		\
 	glib/System/Glib/StoreValue.hsc		\
 	glib/System/Glib/GObject.chs.pp		\
+	glib/System/Glib/Attributes.hs		\
 	glib/System/Glib/GError.chs.pp		\
 	glib/System/Glib/GList.chs
 

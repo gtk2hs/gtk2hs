@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -132,6 +132,14 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   ReliefStyle(..),
   toolbarGetReliefStyle,
 #endif
+
+-- * Properties
+  toolbarOrientation,
+  toolbarShowArrow,
+  toolbarStyle,
+  toolbarTooltips,
+
+-- * Signals
   onOrientationChanged,
   afterOrientationChanged,
   onStyleChanged,
@@ -145,6 +153,7 @@ import Maybe	(fromJust, fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -504,6 +513,41 @@ toolbarGetReliefStyle :: ToolbarClass tb => tb -> IO ReliefStyle
 toolbarGetReliefStyle tb = liftM (toEnum.fromIntegral) $
   {#call unsafe toolbar_get_relief_style#} (toToolbar tb)
 #endif
+
+--------------------
+-- Properties
+
+-- | The orientation of the toolbar.
+--
+-- Default value: 'OrientationHorizontal'
+--
+toolbarOrientation :: Attr Toolbar Orientation
+toolbarOrientation = Attr 
+  toolbarGetOrientation
+  toolbarSetOrientation
+
+-- | If an arrow should be shown if the toolbar doesn't fit.
+--
+-- Default value: @True@
+--
+toolbarShowArrow :: Attr Toolbar Bool
+toolbarShowArrow = Attr 
+  toolbarGetShowArrow
+  toolbarSetShowArrow
+
+-- | \'style\' property. See 'toolbarGetStyle' and 'toolbarSetStyle'
+--
+toolbarStyle :: Attr Toolbar ToolbarStyle
+toolbarStyle = Attr 
+  toolbarGetStyle
+  toolbarSetStyle
+
+-- | \'tooltips\' property. See 'toolbarGetTooltips' and 'toolbarSetTooltips'
+--
+toolbarTooltips :: Attr Toolbar Bool
+toolbarTooltips = Attr 
+  toolbarGetTooltips
+  toolbarSetTooltips
 
 --------------------
 -- Signals

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -75,6 +75,11 @@ module Graphics.UI.Gtk.Buttons.ToggleButton (
   toggleButtonGetInconsistent,
   toggleButtonSetInconsistent,
 
+-- * Properties
+  toggleButtonActive,
+  toggleButtonInconsistent,
+  toggleButtonMode,
+
 -- * Signals
   onToggled,
   afterToggled
@@ -84,6 +89,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -148,8 +154,8 @@ toggleButtonGetActive tb = liftM toBool $
 -- | Sets the state of the ToggleButton. True means the button should be
 -- depressed.
 --
-toggleButtonSetActive :: ToggleButtonClass tb => Bool -> tb -> IO ()
-toggleButtonSetActive active tb = 
+toggleButtonSetActive :: ToggleButtonClass tb => tb -> Bool -> IO ()
+toggleButtonSetActive tb active =
   {#call toggle_button_set_active#} (toToggleButton tb) (fromBool active)
 
 -- | Retrieve the inconsistent flag of the button. An inconsistent state only
@@ -161,9 +167,37 @@ toggleButtonGetInconsistent tb = liftM toBool $
 
 -- | Sets the inconsistent flag of the ToggleButton.
 --
-toggleButtonSetInconsistent :: ToggleButtonClass tb => Bool -> tb -> IO ()
-toggleButtonSetInconsistent incon tb = 
+toggleButtonSetInconsistent :: ToggleButtonClass tb => tb -> Bool -> IO ()
+toggleButtonSetInconsistent tb incon =
   {#call toggle_button_set_inconsistent#} (toToggleButton tb) (fromBool incon)
+
+--------------------
+-- Properties
+
+-- | If the toggle button should be pressed in or not.
+--
+-- Default value: @False@
+--
+toggleButtonActive :: Attr ToggleButton Bool
+toggleButtonActive = Attr 
+  toggleButtonGetActive
+  toggleButtonSetActive
+
+-- | If the toggle button is in an \"in between\" state.
+--
+-- Default value: @False@
+--
+toggleButtonInconsistent :: Attr ToggleButton Bool
+toggleButtonInconsistent = Attr 
+  toggleButtonGetInconsistent
+  toggleButtonSetInconsistent
+
+-- | \'mode\' property. See 'toggleButtonGetMode' and 'toggleButtonSetMode'
+--
+toggleButtonMode :: Attr ToggleButton Bool
+toggleButtonMode = Attr 
+  toggleButtonGetMode
+  toggleButtonSetMode
 
 --------------------
 -- Signals

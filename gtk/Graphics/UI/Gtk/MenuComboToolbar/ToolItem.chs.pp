@@ -5,7 +5,7 @@
 --
 --  Created: 1 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -84,7 +84,15 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
   toolItemGetReliefStyle,
   toolItemRetrieveProxyMenuItem,
   toolItemGetProxyMenuItem,
-  toolItemSetProxyMenuItem
+  toolItemSetProxyMenuItem,
+
+-- * Properties
+  toolItemVisibleHorizontal,
+  toolItemVisibleVertical,
+  toolItemIsImportant,
+  toolItemExpand,
+  toolItemHomogeneous,
+  toolItemUseDragWindow
 #endif
   ) where
 
@@ -94,6 +102,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -275,4 +284,59 @@ toolItemSetProxyMenuItem item menuItemId menuItem =
   {#call tool_item_set_proxy_menu_item#} (toToolItem item)
     strPtr (toWidget menuItem)
 
+--------------------
+-- Properties
+
+-- | Whether the toolbar item is visible when the toolbar is in a horizontal
+-- orientation.
+--
+-- Default value: @True@
+--
+toolItemVisibleHorizontal :: Attr ToolItem Bool
+toolItemVisibleHorizontal = Attr 
+  toolItemGetVisibleHorizontal
+  toolItemSetVisibleHorizontal
+
+-- | Whether the toolbar item is visible when the toolbar is in a vertical
+-- orientation.
+--
+-- Default value: @True@
+--
+toolItemVisibleVertical :: Attr ToolItem Bool
+toolItemVisibleVertical = Attr 
+  toolItemGetVisibleVertical
+  toolItemSetVisibleVertical
+
+-- | Whether the toolbar item is considered important. When @True@, toolbar
+-- buttons show text in 'ToolbarBothHoriz' mode.
+--
+-- Default value: @False@
+--
+toolItemIsImportant :: Attr ToolItem Bool
+toolItemIsImportant = Attr 
+  toolItemGetIsImportant
+  toolItemSetIsImportant
+
+-- | \'expand\' property. See 'toolItemGetExpand' and 'toolItemSetExpand'
+--
+toolItemExpand :: Attr ToolItem Bool
+toolItemExpand = Attr 
+  toolItemGetExpand
+  toolItemSetExpand
+
+-- | \'homogeneous\' property. See 'toolItemGetHomogeneous' and
+-- 'toolItemSetHomogeneous'
+--
+toolItemHomogeneous :: Attr ToolItem Bool
+toolItemHomogeneous = Attr 
+  toolItemGetHomogeneous
+  toolItemSetHomogeneous
+
+-- | \'useDragWindow\' property. See 'toolItemGetUseDragWindow' and
+-- 'toolItemSetUseDragWindow'
+--
+toolItemUseDragWindow :: Attr ToolItem Bool
+toolItemUseDragWindow = Attr 
+  toolItemGetUseDragWindow
+  toolItemSetUseDragWindow
 #endif

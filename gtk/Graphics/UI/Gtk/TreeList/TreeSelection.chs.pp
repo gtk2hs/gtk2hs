@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/27 19:42:06 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:38 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -91,6 +91,9 @@ module Graphics.UI.Gtk.TreeList.TreeSelection (
   treeSelectionUnselectRange,
 #endif
 
+-- * Properties
+  treeSelectionMode,
+
 -- * Signals
   onSelectionChanged,
   afterSelectionChanged
@@ -100,6 +103,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GList                (GList, fromGList, toGList)
+import System.Glib.Attributes		(Attr(..))
 import System.Glib.GObject		(mkFunPtrDestructor)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -325,6 +329,16 @@ treeSelectionUnselectRange ts start end = do
   nativeTreePathFree nP1
   nativeTreePathFree nP2
 #endif
+
+--------------------
+-- Properties
+
+-- | \'mode\' property. See 'treeSelectionGetMode' and 'treeSelectionSetMode'
+--
+treeSelectionMode :: Attr TreeSelection SelectionMode
+treeSelectionMode = Attr 
+  treeSelectionGetMode
+  treeSelectionSetMode
 
 --------------------
 -- Signals

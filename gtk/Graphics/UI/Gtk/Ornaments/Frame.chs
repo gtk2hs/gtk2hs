@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -64,13 +64,18 @@ module Graphics.UI.Gtk.Ornaments.Frame (
   frameGetLabelAlign,
   ShadowType(..),
   frameSetShadowType,
-  frameGetShadowType
+  frameGetShadowType,
+
+-- * Properties
+  frameLabel,
+  frameShadowType
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -153,6 +158,23 @@ frameGetLabel f = do
     "frameGetLabel: the title of the frame was not a Label widget." $
     {#call unsafe frame_get_label#} (toFrame f)
   res <- peekUTFString strPtr
-  {#call unsafe g_free#} (castPtr strPtr)
   return res
 
+--------------------
+-- Properties
+
+-- | Text of the frame's label.
+--
+frameLabel :: Attr Frame String
+frameLabel = Attr 
+  frameGetLabel
+  frameSetLabel
+
+-- | Appearance of the frame border.
+--
+-- Default value: 'ShadowEtchedIn'
+--
+frameShadowType :: Attr Frame ShadowType
+frameShadowType = Attr 
+  frameGetShadowType
+  frameSetShadowType

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -90,6 +90,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   onActivateItem,
   afterActivateItem,
 
+-- * Properties
+  menuItemRightJustified,
+
 -- * Signals
   onSelect,
   afterSelect,
@@ -103,6 +106,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -202,6 +206,17 @@ menuItemSetAccelPath :: MenuItemClass mi => mi -> Maybe String -> IO ()
 menuItemSetAccelPath mi accelPath =
   maybeWith withCString accelPath $ \strPtr ->
   {#call menu_item_set_accel_path#} (toMenuItem mi) strPtr
+
+--------------------
+-- Properties
+
+-- | \'rightJustified\' property. See 'menuItemGetRightJustified' and
+-- 'menuItemSetRightJustified'
+--
+menuItemRightJustified :: Attr MenuItem Bool
+menuItemRightJustified = Attr 
+  menuItemGetRightJustified
+  menuItemSetRightJustified
 
 --------------------
 -- Signals

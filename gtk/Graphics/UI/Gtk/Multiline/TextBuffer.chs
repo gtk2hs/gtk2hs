@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:35 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -130,6 +130,9 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferBeginUserAction,
   textBufferEndUserAction,
 
+-- * Properties
+  textBufferModified,
+
 -- * Signals
   onApplyTag,
   afterApplyTag,
@@ -160,6 +163,7 @@ import Maybe	(fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes			(Attr(..))
 import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -599,6 +603,17 @@ textBufferBeginUserAction  = {#call text_buffer_begin_user_action#} .
 textBufferEndUserAction :: TextBufferClass tb => tb -> IO ()
 textBufferEndUserAction  = {#call text_buffer_end_user_action#} .
 			   toTextBuffer
+
+--------------------
+-- Properties
+
+-- | \'modified\' property. See 'textBufferGetModified' and
+-- 'textBufferSetModified'
+--
+textBufferModified :: Attr TextBuffer Bool
+textBufferModified = Attr 
+  textBufferGetModified
+  textBufferSetModified
 
 --------------------
 -- Signals

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -82,6 +82,17 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryGetCompletion,
 #endif
 
+-- * Properties
+  entryMaxLength,
+  entryVisibility,
+  entryHasFrame,
+  entryInvisibleChar,
+  entryActivatesDefault,
+  entryWidthChars,
+  entryText,
+  entryAlignment,
+  entryCompletion,
+
 -- * Signals
   onEntryActivate,
   afterEntryActivate,
@@ -102,8 +113,9 @@ import Char	(ord, chr)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
+import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import System.Glib.GObject (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -272,6 +284,93 @@ entryGetCompletion ec =
   makeNewGObject mkEntryCompletion $
   {#call gtk_entry_get_completion#} (toEntry ec)
 #endif
+
+--------------------
+-- Properties
+
+-- | Maximum number of characters for this entry. Zero if no maximum.
+--
+-- Allowed values: [0,65535]
+--
+-- Default value: 0
+--
+entryMaxLength :: Attr Entry Int
+entryMaxLength = Attr 
+  entryGetMaxLength
+  entrySetMaxLength
+
+-- | @False@ displays the \"invisible char\" instead of the actual text
+-- (password mode).
+--
+-- Default value: @True@
+--
+entryVisibility :: Attr Entry Bool
+entryVisibility = Attr 
+  entryGetVisibility
+  entrySetVisibility
+
+-- | @False@ removes outside bevel from entry.
+--
+-- Default value: @True@
+--
+entryHasFrame :: Attr Entry Bool
+entryHasFrame = Attr 
+  entryGetHasFrame
+  entrySetHasFrame
+
+-- | The character to use when masking entry contents (in \"password mode\").
+--
+-- Default value: \'*\'
+--
+entryInvisibleChar :: Attr Entry Char
+entryInvisibleChar = Attr 
+  entryGetInvisibleChar
+  entrySetInvisibleChar
+
+-- | Whether to activate the default widget (such as the default button in a
+-- dialog) when Enter is pressed.
+--
+-- Default value: @False@
+--
+entryActivatesDefault :: Attr Entry Bool
+entryActivatesDefault = Attr 
+  entryGetActivatesDefault
+  entrySetActivatesDefault
+
+-- | Number of characters to leave space for in the entry.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+entryWidthChars :: Attr Entry Int
+entryWidthChars = Attr 
+  entryGetWidthChars
+  entrySetWidthChars
+
+-- | The contents of the entry.
+--
+-- Default value: \"\"
+--
+entryText :: Attr Entry String
+entryText = Attr 
+  entryGetText
+  entrySetText
+
+-- | \'alignment\' property. See 'entryGetAlignment' and 'entrySetAlignment'
+--
+entryAlignment :: Attr Entry Float
+entryAlignment = Attr 
+  entryGetAlignment
+  entrySetAlignment
+
+-- | \'completion\' property. See 'entryGetCompletion' and
+-- 'entrySetCompletion'
+--
+entryCompletion :: Attr Entry EntryCompletion
+entryCompletion = Attr 
+  entryGetCompletion
+  entrySetCompletion
 
 --------------------
 -- Signals

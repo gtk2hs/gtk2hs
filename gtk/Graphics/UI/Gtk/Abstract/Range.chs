@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -66,6 +66,12 @@ module Graphics.UI.Gtk.Abstract.Range (
   rangeSetValue,
   rangeGetValue,
 
+-- * Properties
+  rangeUpdatePolicy,
+  rangeAdjustment,
+  rangeInverted,
+  rangeValue,
+
 -- * Signals
   onMoveSlider,
   afterMoveSlider
@@ -74,6 +80,7 @@ module Graphics.UI.Gtk.Abstract.Range (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -158,6 +165,41 @@ rangeSetRange :: RangeClass r => r
               -> IO ()
 rangeSetRange r min max =
  {#call range_set_range#} (toRange r) (realToFrac min) (realToFrac max)
+
+--------------------
+-- Properties
+
+-- | How the range should be updated on the screen.
+--
+-- Default value: 'UpdateContinuous'
+--
+rangeUpdatePolicy :: Attr Range UpdateType
+rangeUpdatePolicy = Attr 
+  rangeGetUpdatePolicy
+  rangeSetUpdatePolicy
+
+-- | The 'Adjustment' that contains the current value of this range object.
+--
+rangeAdjustment :: Attr Range Adjustment
+rangeAdjustment = Attr 
+  rangeGetAdjustment
+  rangeSetAdjustment
+
+-- | Invert direction slider moves to increase range value.
+--
+-- Default value: @False@
+--
+rangeInverted :: Attr Range Bool
+rangeInverted = Attr 
+  rangeGetInverted
+  rangeSetInverted
+
+-- | \'value\' property. See 'rangeGetValue' and 'rangeSetValue'
+--
+rangeValue :: Attr Range Double
+rangeValue = Attr 
+  rangeGetValue
+  rangeSetValue
 
 --------------------
 -- Signals

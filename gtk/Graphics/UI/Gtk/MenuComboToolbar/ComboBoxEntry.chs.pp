@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:35 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -59,15 +59,19 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 -- * Methods
   comboBoxEntrySetTextColumn,
   comboBoxEntryGetTextColumn,
+
+-- * Properties
+  comboBoxEntryTextColumn
 #endif
-) where
+  ) where
 
 #if GTK_CHECK_VERSION(2,4,0)
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
+import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import System.Glib.GObject (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -104,4 +108,17 @@ comboBoxEntryGetTextColumn combo =
   liftM fromIntegral $ 
   {# call gtk_combo_box_entry_get_text_column #} (toComboBoxEntry combo)
 
+--------------------
+-- Properties
+
+-- | A column in the data source model to get the strings from.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+comboBoxEntryTextColumn :: Attr ComboBoxEntry Int
+comboBoxEntryTextColumn = Attr 
+  comboBoxEntryGetTextColumn
+  comboBoxEntrySetTextColumn
 #endif

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -65,17 +65,23 @@ module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
   checkMenuItemGetActive,
   checkMenuItemToggled,
   checkMenuItemSetInconsistent,
-  checkMenuItemGetInconsistent
+  checkMenuItemGetInconsistent,
 #if GTK_CHECK_VERSION(2,4,0)
- ,checkMenuItemGetDrawAsRadio,
-  checkMenuItemSetDrawAsRadio
+  checkMenuItemGetDrawAsRadio,
+  checkMenuItemSetDrawAsRadio,
 #endif
+
+-- * Properties
+  checkMenuItemActive,
+  checkMenuItemInconsistent,
+  checkMenuItemDrawAsRadio
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -156,3 +162,32 @@ checkMenuItemGetDrawAsRadio mi = liftM toBool $
   {#call unsafe check_menu_item_get_draw_as_radio#} (toCheckMenuItem mi)
 #endif
 
+--------------------
+-- Properties
+
+-- | Whether the menu item is checked.
+--
+-- Default value: @False@
+--
+checkMenuItemActive :: Attr CheckMenuItem Bool
+checkMenuItemActive = Attr 
+  checkMenuItemGetActive
+  checkMenuItemSetActive
+
+-- | Whether to display an \"inconsistent\" state.
+--
+-- Default value: @False@
+--
+checkMenuItemInconsistent :: Attr CheckMenuItem Bool
+checkMenuItemInconsistent = Attr 
+  checkMenuItemGetInconsistent
+  checkMenuItemSetInconsistent
+
+-- | Whether the menu item looks like a radio menu item.
+--
+-- Default value: @False@
+--
+checkMenuItemDrawAsRadio :: Attr CheckMenuItem Bool
+checkMenuItemDrawAsRadio = Attr 
+  checkMenuItemGetDrawAsRadio
+  checkMenuItemSetDrawAsRadio

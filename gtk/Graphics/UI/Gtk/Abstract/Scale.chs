@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -64,12 +64,18 @@ module Graphics.UI.Gtk.Abstract.Scale (
   scaleGetDrawValue,
   PositionType(..),
   scaleSetValuePos,
-  scaleGetValuePos
+  scaleGetValuePos,
+
+-- * Properties
+  scaleDigits,
+  scaleDrawValue,
+  scaleValuePos
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -116,3 +122,34 @@ scaleGetValuePos :: ScaleClass s => s -> IO PositionType
 scaleGetValuePos s =
   liftM (toEnum.fromIntegral) $ {#call unsafe scale_get_value_pos#} (toScale s)
 
+--------------------
+-- Properties
+
+-- | The number of decimal places that are displayed in the value.
+--
+-- Allowed values: [-1,64]
+--
+-- Default value: 1
+--
+scaleDigits :: Attr Scale Int
+scaleDigits = Attr 
+  scaleGetDigits
+  scaleSetDigits
+
+-- | Whether the current value is displayed as a string next to the slider.
+--
+-- Default value: @False@
+--
+scaleDrawValue :: Attr Scale Bool
+scaleDrawValue = Attr 
+  scaleGetDrawValue
+  scaleSetDrawValue
+
+-- | The position in which the current value is displayed.
+--
+-- Default value: 'PosLeft'
+--
+scaleValuePos :: Attr Scale PositionType
+scaleValuePos = Attr 
+  scaleGetValuePos
+  scaleSetValuePos

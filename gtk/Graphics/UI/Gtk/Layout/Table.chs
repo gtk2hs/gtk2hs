@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -80,12 +80,16 @@ module Graphics.UI.Gtk.Layout.Table (
   tableSetColSpacings,
   tableGetDefaultColSpacing,
   tableSetHomogeneous,
-  tableGetHomogeneous
+  tableGetHomogeneous,
+
+-- * Properties
+  tableHomogeneous
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -206,3 +210,15 @@ tableSetHomogeneous tb hom =
 tableGetHomogeneous :: TableClass tb => tb -> IO Bool
 tableGetHomogeneous tb =
   liftM toBool $ {#call unsafe table_get_homogeneous#} (toTable tb)
+
+--------------------
+-- Properties
+
+-- | If @True@ this means the table cells are all the same width\/height.
+--
+-- Default value: @False@
+--
+tableHomogeneous :: Attr Table Bool
+tableHomogeneous = Attr 
+  tableGetHomogeneous
+  tableSetHomogeneous

@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:38 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -109,6 +109,22 @@ module Graphics.UI.Gtk.TreeList.TreeViewColumn (
   treeViewColumnGetSortOrder,
   SortType(..),
 
+-- * Properties
+  treeViewColumnVisible,
+  treeViewColumnResizable,
+  treeViewColumnSpacing,
+  treeViewColumnSizing,
+  treeViewColumnFixedWidth,
+  treeViewColumnMinWidth,
+  treeViewColumnMaxWidth,
+  treeViewColumnClickable,
+  treeViewColumnWidget,
+  treeViewColumnAlignment,
+  treeViewColumnReorderable,
+  treeViewColumnSortIndicator,
+  treeViewColumnSortOrder,
+  treeViewColumnSortColumnId,
+
 -- * Signals
   onColClicked,
   afterColClicked
@@ -118,13 +134,14 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+{#import System.Glib.GList#}			(fromGList)
+import System.Glib.Attributes			(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..), SortType(..))
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
-{#import System.Glib.GList#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -495,6 +512,142 @@ treeViewColumnSetSortOrder tvc sort =
 treeViewColumnGetSortOrder :: TreeViewColumnClass tvc => tvc -> IO SortType
 treeViewColumnGetSortOrder tvc = liftM (toEnum.fromIntegral) $
   {#call unsafe tree_view_column_get_sort_order#} (toTreeViewColumn tvc)
+
+--------------------
+-- Properties
+
+-- | Whether to display the column.
+--
+-- Default value: @True@
+--
+treeViewColumnVisible :: Attr TreeViewColumn Bool
+treeViewColumnVisible = Attr 
+  treeViewColumnGetVisible
+  treeViewColumnSetVisible
+
+-- | Column is user-resizable.
+--
+-- Default value: @False@
+--
+treeViewColumnResizable :: Attr TreeViewColumn Bool
+treeViewColumnResizable = Attr 
+  treeViewColumnGetResizable
+  treeViewColumnSetResizable
+
+-- | Space which is inserted between cells.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+treeViewColumnSpacing :: Attr TreeViewColumn Int
+treeViewColumnSpacing = Attr 
+  treeViewColumnGetSpacing
+  treeViewColumnSetSpacing
+
+-- | Resize mode of the column.
+--
+-- Default value: 'TreeViewColumnGrowOnly'
+--
+treeViewColumnSizing :: Attr TreeViewColumn TreeViewColumnSizing
+treeViewColumnSizing = Attr 
+  treeViewColumnGetSizing
+  treeViewColumnSetSizing
+
+-- | Current fixed width of the column.
+--
+-- Allowed values: >= 1
+--
+-- Default value: 1
+--
+treeViewColumnFixedWidth :: Attr TreeViewColumn Int
+treeViewColumnFixedWidth = Attr 
+  treeViewColumnGetFixedWidth
+  treeViewColumnSetFixedWidth
+
+-- | Minimum allowed width of the column.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+treeViewColumnMinWidth :: Attr TreeViewColumn Int
+treeViewColumnMinWidth = Attr 
+  treeViewColumnGetMinWidth
+  treeViewColumnSetMinWidth
+
+-- | Maximum allowed width of the column.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+treeViewColumnMaxWidth :: Attr TreeViewColumn Int
+treeViewColumnMaxWidth = Attr 
+  treeViewColumnGetMaxWidth
+  treeViewColumnSetMaxWidth
+
+-- | Whether the header can be clicked.
+--
+-- Default value: @False@
+--
+treeViewColumnClickable :: Attr TreeViewColumn Bool
+treeViewColumnClickable = Attr 
+  treeViewColumnGetClickable
+  treeViewColumnSetClickable
+
+-- | Widget to put in column header button instead of column title.
+--
+treeViewColumnWidget :: Attr TreeViewColumn Widget
+treeViewColumnWidget = Attr 
+  treeViewColumnGetWidget
+  treeViewColumnSetWidget
+
+-- | X Alignment of the column header text or widget.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0
+--
+treeViewColumnAlignment :: Attr TreeViewColumn Float
+treeViewColumnAlignment = Attr 
+  treeViewColumnGetAlignment
+  treeViewColumnSetAlignment
+
+-- | Whether the column can be reordered around the headers.
+--
+-- Default value: @False@
+--
+treeViewColumnReorderable :: Attr TreeViewColumn Bool
+treeViewColumnReorderable = Attr 
+  treeViewColumnGetReorderable
+  treeViewColumnSetReorderable
+
+-- | Whether to show a sort indicator.
+--
+-- Default value: @False@
+--
+treeViewColumnSortIndicator :: Attr TreeViewColumn Bool
+treeViewColumnSortIndicator = Attr 
+  treeViewColumnGetSortIndicator
+  treeViewColumnSetSortIndicator
+
+-- | Sort direction the sort indicator should indicate.
+--
+-- Default value: 'SortAscending'
+--
+treeViewColumnSortOrder :: Attr TreeViewColumn SortType
+treeViewColumnSortOrder = Attr 
+  treeViewColumnGetSortOrder
+  treeViewColumnSetSortOrder
+
+-- | \'sortColumnId\' property. See 'treeViewColumnGetSortColumnId' and
+-- 'treeViewColumnSetSortColumnId'
+--
+treeViewColumnSortColumnId :: Attr TreeViewColumn Int
+treeViewColumnSortColumnId = Attr 
+  treeViewColumnGetSortColumnId
+  treeViewColumnSetSortColumnId
 
 --------------------
 -- Signals

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -78,6 +78,11 @@ module Graphics.UI.Gtk.Misc.HandleBox (
   handleBoxSetSnapEdge,
   handleBoxGetSnapEdge,
 
+-- * Properties
+  handleBoxShadowType,
+  handleBoxHandlePosition,
+  handleBoxSnapEdge,
+
 -- * Signals
   onChildAttached,
   afterChildAttached,
@@ -88,6 +93,7 @@ module Graphics.UI.Gtk.Misc.HandleBox (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -154,6 +160,37 @@ handleBoxGetSnapEdge hb = liftM (toEnum.fromIntegral) $
   {#call unsafe handle_box_get_snap_edge#} (toHandleBox hb)
 
 --------------------
+-- Properties
+
+-- | Appearance of the shadow that surrounds the container.
+--
+-- Default value: 'ShadowEtchedOut'
+--
+handleBoxShadowType :: Attr HandleBox ShadowType
+handleBoxShadowType = Attr 
+  handleBoxGetShadowType
+  handleBoxSetShadowType
+
+-- | Position of the handle relative to the child widget.
+--
+-- Default value: 'PosLeft'
+--
+handleBoxHandlePosition :: Attr HandleBox PositionType
+handleBoxHandlePosition = Attr 
+  handleBoxGetHandlePosition
+  handleBoxSetHandlePosition
+
+-- | Side of the handlebox that's lined up with the docking point to dock the
+-- handlebox.
+--
+-- Default value: 'PosTop'
+--
+handleBoxSnapEdge :: Attr HandleBox PositionType
+handleBoxSnapEdge = Attr 
+  handleBoxGetSnapEdge
+  handleBoxSetSnapEdge
+
+--------------------
 -- Signals
 
 -- | Emitted when the contents of the handlebox
@@ -174,5 +211,4 @@ onChildDetached, afterChildDetached :: HandleBoxClass hb => hb -> IO () ->
                                        IO (ConnectId hb)
 onChildDetached = connect_NONE__NONE "child-detached" False
 afterChildDetached = connect_NONE__NONE "child-detached" True
-
 

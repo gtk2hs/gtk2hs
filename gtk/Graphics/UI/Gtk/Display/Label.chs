@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -148,14 +148,22 @@ module Graphics.UI.Gtk.Display.Label (
   labelGetSelectable,
   labelSelectRegion,
   labelGetSelectionBounds,
-  labelGetLayoutOffsets
+  labelGetLayoutOffsets,
+
+-- * Properties
+  labelUseMarkup,
+  labelUseUnderline,
+  labelJustify,
+  labelSelectable,
+  labelLineWrap
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject   (makeNewGObject)
+import System.Glib.Attributes		(Attr(..))
+import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -375,3 +383,52 @@ labelSetTextWithMnemonic :: LabelClass l => l -> String -> IO ()
 labelSetTextWithMnemonic l str =
   withUTFString str $ {#call label_set_text_with_mnemonic#} (toLabel l)
 
+
+--------------------
+-- Properties
+
+-- | The text of the label includes XML markup. See pango_parse_markup().
+--
+-- Default value: @False@
+--
+labelUseMarkup :: Attr Label Bool
+labelUseMarkup = Attr 
+  labelGetUseMarkup
+  labelSetUseMarkup
+
+-- | If set, an underline in the text indicates the next character should be
+-- used for the mnemonic accelerator key.
+--
+-- Default value: @False@
+--
+labelUseUnderline :: Attr Label Bool
+labelUseUnderline = Attr 
+  labelGetUseUnderline
+  labelSetUseUnderline
+
+-- | The alignment of the lines in the text of the label relative to each
+-- other. This does NOT affect the alignment of the label within its
+-- allocation. See 'Misc'::xalign for that.
+--
+-- Default value: 'JustifyLeft'
+--
+labelJustify :: Attr Label Justification
+labelJustify = Attr 
+  labelGetJustify
+  labelSetJustify
+
+-- | Whether the label text can be selected with the mouse.
+--
+-- Default value: @False@
+--
+labelSelectable :: Attr Label Bool
+labelSelectable = Attr 
+  labelGetSelectable
+  labelSetSelectable
+
+-- | \'lineWrap\' property. See 'labelGetLineWrap' and 'labelSetLineWrap'
+--
+labelLineWrap :: Attr Label Bool
+labelLineWrap = Attr 
+  labelGetLineWrap
+  labelSetLineWrap

@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -96,6 +96,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.Menu (
 #if GTK_CHECK_VERSION(2,4,0)
   menuSetMonitor,
 #endif
+
+-- * Properties
+  menuTearoffState,
+  menuAccelGroup,
   ) where
 
 import Monad	(liftM)
@@ -103,6 +107,7 @@ import Maybe  (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -269,3 +274,20 @@ menuSetMonitor :: MenuClass m => m
 menuSetMonitor m monitorNum =
   {#call menu_set_monitor#} (toMenu m) (fromIntegral monitorNum)
 #endif
+
+--------------------
+-- Properties
+
+-- | 
+--
+menuTearoffState :: Attr Menu Bool
+menuTearoffState = Attr 
+  menuGetTearoffState
+  menuSetTearoffState
+
+-- | \'accelGroup\' property. See 'menuGetAccelGroup' and 'menuSetAccelGroup'
+--
+menuAccelGroup :: Attr Menu AccelGroup
+menuAccelGroup = Attr 
+  menuGetAccelGroup
+  menuSetAccelGroup

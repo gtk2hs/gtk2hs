@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -85,6 +85,12 @@ module Graphics.UI.Gtk.Buttons.Button (
   buttonGetAlignment,
 #endif
 
+-- * Properties
+  buttonUseUnderline,
+  buttonUseStock,
+  buttonFocusOnClick,
+  buttonRelief,
+
 -- * Signals
   onButtonActivate,
   afterButtonActivate,
@@ -104,6 +110,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -118,7 +125,6 @@ import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
 --
 buttonNew :: IO Button
 buttonNew  = makeNewObject mkButton $ liftM castPtr {#call unsafe button_new#}
-
 
 -- | Create a button with a label in it.
 --
@@ -269,6 +275,47 @@ buttonGetAlignment b =
   yalign <- peek yalignPtr
   return (realToFrac xalign, realToFrac yalign)
 #endif
+
+--------------------
+-- Properties
+
+-- | If set, an underline in the text indicates the next character should be
+-- used for the mnemonic accelerator key.
+--
+-- Default value: @False@
+--
+buttonUseUnderline :: Attr Button Bool
+buttonUseUnderline = Attr 
+  buttonGetUseUnderline
+  buttonSetUseUnderline
+
+-- | If set, the label is used to pick a stock item instead of being
+-- displayed.
+--
+-- Default value: @False@
+--
+buttonUseStock :: Attr Button Bool
+buttonUseStock = Attr 
+  buttonGetUseStock
+  buttonSetUseStock
+
+-- | Whether the button grabs focus when it is clicked with the mouse.
+--
+-- Default value: @True@
+--
+buttonFocusOnClick :: Attr Button Bool
+buttonFocusOnClick = Attr 
+  buttonGetFocusOnClick
+  buttonSetFocusOnClick
+
+-- | The border relief style.
+--
+-- Default value: 'ReliefNormal'
+--
+buttonRelief :: Attr Button ReliefStyle
+buttonRelief = Attr 
+  buttonGetRelief
+  buttonSetRelief
 
 --------------------
 -- Signals

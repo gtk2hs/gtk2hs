@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/02/27 19:42:06 $
+--  Version $Revision: 1.8 $ from $Date: 2005/03/13 19:34:38 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -145,6 +145,13 @@ module Graphics.UI.Gtk.TreeList.TreeView (
   treeViewSetSearchColumn,
   treeViewSetSearchEqualFunc,
 
+-- * Properties
+  treeViewHeadersVisible,
+  treeViewReorderable,
+  treeViewRulesHint,
+  treeViewEnableSearch,
+  treeViewSearchColumn,
+
 -- * Signals
   onColumnsChanged,
   afterColumnsChanged,
@@ -170,6 +177,7 @@ import Maybe	(fromMaybe)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList		(GList, fromGList)
+import System.Glib.Attributes		(Attr(..))
 import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -823,6 +831,56 @@ foreign import ccall "wrapper" mkTreeViewSearchEqualFunc ::
 -- helper to marshal native tree paths to TreePaths
 readNTP :: Ptr TreePath -> IO TreePath
 readNTP ptr = nativeTreePathGetIndices (NativeTreePath (castPtr ptr))
+
+--------------------
+-- Properties
+
+-- | Show the column header buttons.
+--
+-- Default value: @True@
+--
+treeViewHeadersVisible :: Attr TreeView Bool
+treeViewHeadersVisible = Attr 
+  treeViewGetHeadersVisible
+  treeViewSetHeadersVisible
+
+-- | View is reorderable.
+--
+-- Default value: @False@
+--
+treeViewReorderable :: Attr TreeView Bool
+treeViewReorderable = Attr 
+  treeViewGetReorderable
+  treeViewSetReorderable
+
+-- | Set a hint to the theme engine to draw rows in alternating colors.
+--
+-- Default value: @False@
+--
+treeViewRulesHint :: Attr TreeView Bool
+treeViewRulesHint = Attr 
+  treeViewGetRulesHint
+  treeViewSetRulesHint
+
+-- | View allows user to search through columns interactively.
+--
+-- Default value: @True@
+--
+treeViewEnableSearch :: Attr TreeView Bool
+treeViewEnableSearch = Attr 
+  treeViewGetEnableSearch
+  treeViewSetEnableSearch
+
+-- | Model column to search through when searching through code.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+treeViewSearchColumn :: Attr TreeView Int
+treeViewSearchColumn = Attr 
+  treeViewGetSearchColumn
+  treeViewSetSearchColumn
 
 --------------------
 -- Signals

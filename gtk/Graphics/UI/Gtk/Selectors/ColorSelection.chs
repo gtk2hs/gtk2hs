@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -67,12 +67,19 @@ module Graphics.UI.Gtk.Selectors.ColorSelection (
   colorSelectionSetPreviousAlpha,
   colorSelectionGetPreviousColor,
   colorSelectionSetPreviousColor,
-  colorSelectionIsAdjusting
+  colorSelectionIsAdjusting,
+
+-- * Properties
+  colorSelectionHasOpacityControl,
+  colorSelectionHasPalette,
+  colorSelectionCurrentAlpha,
+  colorSelectionPreviousAlpha
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -205,3 +212,43 @@ colorSelectionSetPreviousColor obj color =
 colorSelectionIsAdjusting :: ColorSelectionClass obj => obj -> IO Bool
 colorSelectionIsAdjusting obj = liftM toBool $
   {#call unsafe color_selection_is_adjusting#} (toColorSelection obj)
+
+--------------------
+-- Properties
+
+-- | Whether the color selector should allow setting opacity.
+--
+-- Default value: @False@
+--
+colorSelectionHasOpacityControl :: Attr ColorSelection Bool
+colorSelectionHasOpacityControl = Attr 
+  colorSelectionGetHasOpacityControl
+  colorSelectionSetHasOpacityControl
+
+-- | Whether a palette should be used.
+--
+-- Default value: @False@
+--
+colorSelectionHasPalette :: Attr ColorSelection Bool
+colorSelectionHasPalette = Attr 
+  colorSelectionGetHasPalette
+  colorSelectionSetHasPalette
+
+-- | The current opacity value (0 fully transparent, 65535 fully opaque).
+--
+-- Allowed values: \<= 65535
+--
+-- Default value: 65535
+--
+colorSelectionCurrentAlpha :: Attr ColorSelection Int
+colorSelectionCurrentAlpha = Attr 
+  colorSelectionGetCurrentAlpha
+  colorSelectionSetCurrentAlpha
+
+-- | \'previousAlpha\' property. See 'colorSelectionGetPreviousAlpha' and
+-- 'colorSelectionSetPreviousAlpha'
+--
+colorSelectionPreviousAlpha :: Attr ColorSelection Int
+colorSelectionPreviousAlpha = Attr 
+  colorSelectionGetPreviousAlpha
+  colorSelectionSetPreviousAlpha

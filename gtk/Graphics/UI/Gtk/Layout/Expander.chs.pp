@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:34 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -74,6 +74,13 @@ module Graphics.UI.Gtk.Layout.Expander (
   expanderSetLabelWidget,
   expanderGetLabelWidget,
 
+-- * Properties
+  expanderExpanded,
+  expanderUseUnderline,
+  expanderUseMarkup,
+  expanderSpacing,
+  expanderLabelWidget,
+
 -- * Signals
   onActivate,
   afterActivate
@@ -86,6 +93,7 @@ import Monad (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Signals
@@ -160,6 +168,55 @@ expanderGetLabelWidget :: Expander -> IO Widget
 expanderGetLabelWidget expander = 
  makeNewObject mkWidget $
  {# call gtk_expander_get_label_widget #} expander
+
+--------------------
+-- Properties
+
+-- | Whether the expander has been opened to reveal the child widget.
+--
+-- Default value: @False@
+--
+expanderExpanded :: Attr Expander Bool
+expanderExpanded = Attr 
+  expanderGetExpanded
+  expanderSetExpanded
+
+-- | If set, an underline in the text indicates the next character should be
+-- used for the mnemonic accelerator key.
+--
+-- Default value: @False@
+--
+expanderUseUnderline :: Attr Expander Bool
+expanderUseUnderline = Attr 
+  expanderGetUseUnderline
+  expanderSetUseUnderline
+
+-- | The text of the label includes XML markup. See pango_parse_markup().
+--
+-- Default value: @False@
+--
+expanderUseMarkup :: Attr Expander Bool
+expanderUseMarkup = Attr 
+  expanderGetUseMarkup
+  expanderSetUseMarkup
+
+-- | Space to put between the label and the child.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+expanderSpacing :: Attr Expander Int
+expanderSpacing = Attr 
+  expanderGetSpacing
+  expanderSetSpacing
+
+-- | A widget to display in place of the usual expander label.
+--
+expanderLabelWidget :: Attr Expander Widget
+expanderLabelWidget = Attr 
+  expanderGetLabelWidget
+  expanderSetLabelWidget
 
 --------------------
 -- Signals

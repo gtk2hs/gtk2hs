@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -64,12 +64,18 @@ module Graphics.UI.Gtk.Misc.Viewport (
   viewportSetVAdjustment,
   ShadowType(..),
   viewportSetShadowType,
-  viewportGetShadowType
+  viewportGetShadowType,
+
+-- * Properties
+  viewportHAdjustment,
+  viewportVAdjustment,
+  viewportShadowType
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -127,6 +133,34 @@ viewportSetShadowType v st = {#call viewport_set_shadow_type#} (toViewport v)
 viewportGetShadowType :: ViewportClass v => v -> IO ShadowType
 viewportGetShadowType v = liftM (toEnum.fromIntegral) $
   {#call unsafe viewport_get_shadow_type#} (toViewport v)
+
+--------------------
+-- Properties
+
+-- | The 'Adjustment' that determines the values of the horizontal position
+-- for this viewport.
+--
+viewportHAdjustment :: Attr Viewport Adjustment
+viewportHAdjustment = Attr 
+  viewportGetHAdjustment
+  viewportSetHAdjustment
+
+-- | The 'Adjustment' that determines the values of the vertical position for
+-- this viewport.
+--
+viewportVAdjustment :: Attr Viewport Adjustment
+viewportVAdjustment = Attr 
+  viewportGetVAdjustment
+  viewportSetVAdjustment
+
+-- | Determines how the shadowed box around the viewport is drawn.
+--
+-- Default value: 'ShadowIn'
+--
+viewportShadowType :: Attr Viewport ShadowType
+viewportShadowType = Attr 
+  viewportGetShadowType
+  viewportSetShadowType
 
 --------------------
 -- Signals

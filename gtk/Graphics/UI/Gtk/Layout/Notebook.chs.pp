@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -109,6 +109,13 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookSetTabLabel,
   notebookSetTabLabelText,
 
+-- * Properties
+  notebookTabPos,
+  notebookShowTabs,
+  notebookShowBorder,
+  notebookScrollable,
+  notebookCurrentPage,
+
 -- * Signals
   onSwitchPage,
   afterSwitchPage
@@ -119,6 +126,7 @@ import Maybe	(maybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -665,6 +673,53 @@ notebookSetTabLabelText :: (NotebookClass nb, WidgetClass ch) =>
 notebookSetTabLabelText nb child label =
   withUTFString label $ \labelPtr ->
   {#call notebook_set_tab_label_text#} (toNotebook nb) (toWidget child) labelPtr
+
+--------------------
+-- Properties
+
+-- | Which side of the notebook holds the tabs.
+--
+-- Default value: 'PosTop'
+--
+notebookTabPos :: Attr Notebook PositionType
+notebookTabPos = Attr 
+  notebookGetTabPos
+  notebookSetTabPos
+
+-- | Whether tabs should be shown or not.
+--
+-- Default value: @True@
+--
+notebookShowTabs :: Attr Notebook Bool
+notebookShowTabs = Attr 
+  notebookGetShowTabs
+  notebookSetShowTabs
+
+-- | Whether the border should be shown or not.
+--
+-- Default value: @True@
+--
+notebookShowBorder :: Attr Notebook Bool
+notebookShowBorder = Attr 
+  notebookGetShowBorder
+  notebookSetShowBorder
+
+-- | If @True@, scroll arrows are added if there are too many tabs to fit.
+--
+-- Default value: @False@
+--
+notebookScrollable :: Attr Notebook Bool
+notebookScrollable = Attr 
+  notebookGetScrollable
+  notebookSetScrollable
+
+-- | \'currentPage\' property. See 'notebookGetCurrentPage' and
+-- 'notebookSetCurrentPage'
+--
+notebookCurrentPage :: Attr Notebook Int
+notebookCurrentPage = Attr 
+  notebookGetCurrentPage
+  notebookSetCurrentPage
 
 --------------------
 -- Signals
