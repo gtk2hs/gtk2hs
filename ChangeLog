@@ -33,6 +33,18 @@
 	idle priority. This is a knock-on change from fixing the priority
 	constants in gtk/Graphics/UI/Gtk/General/Structs.hsc.
 
+	* demo/buttonbox/Makefile, demo/calc/Makefile,
+	demo/concurrent/Makefile, demo/filechooser/Makefile,
+	demo/gconf/Makefile, demo/glade/Makefile, demo/graphic/Makefile,
+	demo/hello/Makefile, demo/mozembed/Makefile,
+	demo/profileviewer/Makefile, demo/sourceview/Makefile,
+	demo/treeList/Makefile, demo/unicode/Makefile: add HC variable so that
+	the ghc version can be overridden, eg by make installcheck.
+
+	* Makefile.am: add the calc demo to the distribution and have it built
+	with make isntallcheck. Override HC=$(HC) when making the demos so the
+	right version of ghc is used.
+
 2005-03-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs,

@@ -950,7 +950,7 @@ if HAVE_GTK_VERSION_2_4
 DEMOS += demo/filechooser 
 endif
 if ENABLE_LIBGLADE
-DEMOS += demo/glade
+DEMOS += demo/glade demo/calc
 if HAVE_GTK_VERSION_2_4
 DEMOS += demo/profileviewer
 endif
@@ -964,7 +964,7 @@ endif
 
 # For the install check just make sure all the demo programs compile and link
 DEMO_MAKE_ARGS= $(if $(PKGCONF), HCFLAGS="-package-conf $(DESTDIR)$(PKGCONF)") \
-		$(if $(GHCPKG_USE_AUTOLIBS),, HCNEEDSPACKAGE=yes)
+		$(if $(GHCPKG_USE_AUTOLIBS),, HCNEEDSPACKAGE=yes) HC=$(HC)
 
 installcheck-local:
 	$(foreach DEMO,$(DEMOS),$(strip	\
@@ -990,7 +990,8 @@ EXTRA_DIST +=								\
 	demo/sourceview/SourceViewTest.hs demo/sourceview/Makefile	\
 		demo/sourceview/haskell.lang				\
 	demo/treeList/ListTest.hs demo/treeList/Makefile		\
-	demo/unicode/Arabic.hs demo/unicode/Makefile
+	demo/unicode/Arabic.hs demo/unicode/Makefile			\
+	demo/calc/CalcModel.hs demo/calc/Calc.hs demo/calc/Makefile
 
 #
 #       installing and registering packages with the Haskell compiler
