@@ -250,6 +250,12 @@ AC_ARG_ENABLE(gnome,
 
 AC_MSG_RESULT($ENABLE_GNOME)
 
+AC_ARG_ENABLE(mozilla,
+              [  --disable-mozilla       do not generate bindings for the Mozilla display widget],
+              [ENABLE_MOZEMBED=$enableval],[ENABLE_MOZEMBED=yes])
+
+AC_MSG_RESULT($ENABLE_MOZEMBED)
+
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
 PKG_CHECK_MODULES(GTK,[glib-2.0 >= 2.0.0 gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
@@ -262,6 +268,9 @@ fi
 if test x$ENABLE_GNOME = xyes; then
   PKG_CHECK_MODULES(GCONF,[gconf-2.0 >= 2.0.0])
   PKG_CHECK_MODULES(SOURCEVIEW,[gtksourceview-1.0 >= 0.6.0])
+fi
+if test x$ENABLE_MOZEMBED = xyes; then
+  PKG_CHECK_MODULES(MOZEMBED,[mozilla-gtkmozembed >= 1.4])
 fi
 
 dnl Some APIs only appeared in later versions of libraries. Generate only
@@ -283,6 +292,8 @@ LIBGLADE_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $LIBGLADE_CFLAGS`;
 LIBGLADE_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $LIBGLADE_LIBS`;
 GCONF_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $GCONF_CFLAGS`;
 GCONF_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $GCONF_LIBS`;
+MOZEMBED_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $MOZEMBED_CFLAGS`;
+MOZEMBED_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $MOZEMBED_LIBS`;
 
 
 dnl Change the representation of these flags to "flag1","flag2". The
@@ -319,6 +330,14 @@ AC_SUBST(GCONF_CFLAGS_CQ)
 AC_SUBST(GCONF_LIBS_CQ)
 AC_SUBST(GCONF_LIBDIR_CQ)
 AC_SUBST(GCONF_LIBEXTRA_CQ)
+
+GTKHS_REFORMAT_PACKAGE_CFLAGS(MOZEMBED_CFLAGS, MOZEMBED_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(MOZEMBED_LIBS, MOZEMBED_LIBS_CQ,
+                            MOZEMBED_LIBDIR_CQ, MOZEMBED_LIBEXTRA_CQ)
+AC_SUBST(MOZEMBED_CFLAGS_CQ)
+AC_SUBST(MOZEMBED_LIBS_CQ)
+AC_SUBST(MOZEMBED_LIBDIR_CQ)
+AC_SUBST(MOZEMBED_LIBEXTRA_CQ)
 
 AC_ARG_WITH(hidir,
 	[  --with-hidir=DIR		specify install dir for .hi files],
@@ -513,7 +532,8 @@ AC_OUTPUT([
   mogul/mogul.pkg
   glade/glade.pkg
   gconf/gconf.pkg
-  sourceview/sourceview.pkg],
+  sourceview/sourceview.pkg
+  mozembed/mozembed.pkg],
   [chmod a+x mk/chsDepend && chmod a+x install-sh])
 
 dnl ...and chat with the user

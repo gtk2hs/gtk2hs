@@ -1,3 +1,24 @@
+2004-12-17 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: new bindings to GtkMozEmbed
+	contributed by Wolfram Kahl <kahl@cas.mcmaster.ca> (with previous work
+	by Scott West and Jonas Svensson).
+
+	* mozembed/mozembed.pkg.in: new package file
+
+	* tools/hierarchyGen/hierarchy.list,
+	tools/callbackGen/gtkmarshal.list: class definition and extra signal
+	prototype for GtkMozEmbed.
+
+	* configure.ac: checks for version of mozilla-gtkmozembed and get
+	CFLAGS etc.
+
+	* Makefile.am: add support for building the mozembed package.
+
+	* mk/common.mk: do not -#include<config.h> when compiling .hs to .o as
+	it is unnecessary and breaks for modules that do not have
+	-I/usr/include/gtk-2.0 in their CPPFLAGS.
+
 2004-12-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: quoting/escaping fix so that headers are -#include'd

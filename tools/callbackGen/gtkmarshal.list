@@ -104,3 +104,5 @@ VOID:INT,BOOL
 VOID:POINTER,STRING
 # This is for the GConfClient value_changed signal
 VOID:STRING,POINTER
+# This is for GtkMozEmbed
+BOOLEAN:STRING

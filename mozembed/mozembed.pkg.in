@@ -1,0 +1,15 @@
+Package {
+     name            = "mozembed",
+     auto            = False,
+     import_dirs     = ["@hidir@"],
+     source_dirs     = [],
+     library_dirs    = [@MOZEMBED_LIBDIR_CQ@],
+     hs_libraries    = ["HSmozembed"],
+     extra_libraries = [@MOZEMBED_LIBS_CQ@],
+     include_dirs    = [@MOZEMBED_CFLAGS_CQ@],
+     c_includes      = ["gtkmozembed.h"],
+     package_deps    = ["gtk"],
+     extra_ghc_opts  = [],
+     extra_cc_opts   = [],
+     extra_ld_opts   = [@MOZEMBED_LIBEXTRA_CQ@]
+}

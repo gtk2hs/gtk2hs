@@ -20,7 +20,7 @@ SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
 	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
 	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel   \
 	mogul glade gconf gconf/System/Gnome gconf/System/Gnome/GConf	     \
-	sourceview
+	sourceview mozembed
 
 EXTRA_DIST = \
 	tools/callbackGen/Signal.chs-boot1	\
@@ -43,7 +43,8 @@ lib_LIBRARIES =		\
         libHSmogul.a	\
         libHSglade.a	\
         libHSgconf.a	\
-        libHSsourceview.a
+        libHSsourceview.a	\
+	libHSmozembed.a
 
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
@@ -631,11 +632,74 @@ ifneq ($(MAKECMDGOALS),clean)
 -include libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES:.chs=.dep)
  endif
 
+#
+#	mozembed package
+#
+################################################################################
+
+libHSmozembed_a_NAME = libHSmozembed.a
+$(libHSmozembed_a_NAME) : NAME = libHSmozembed_a
+
+libHSmozembed_a_PACKAGE		= mozembed/mozembed.pkg
+libHSmozembed_a_PACKAGEDEPS	= 
+libHSmozembed_a_HEADER 		= gtkmozembed.h
+libHSmozembed_a_PRECOMP		= mozembed/mozembed.precomp
+libHSmozembed_a_LIBS		= $(MOZEMBED_LIBS)
+libHSmozembed_a_HCFLAGS		= -fffi
+libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
+libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
+
+libHSmozembed_a_SOURCES =				\
+	mozembed/Graphics/UI/Gtk/MozEmbedType.chs	\
+	mozembed/Graphics/UI/Gtk/MozEmbed.chs
+
+mozembed_Graphics_UI_Gtk_MozEmbedType_hs_HCFLAGS = -fglasgow-exts
+
+libHSmozembed_a_DEPENDENCIES = libHSgtk.a
+
+mozembed/Graphics/UI/Gtk/MozEmbedType.chs :	\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+	$@ --tag=mozembed --parentname=Hierarchy \
+	--modname=Graphics.UI.Gtk.MozEmbedType)
+
+am_libHSmozembed_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmozembed_a_SOURCES))))
+
+libHSmozembed_a_CHSPPFILES = $(filter %.chs.pp,$(libHSmozembed_a_SOURCES))
+libHSmozembed_a_CHSFILES = \
+  $(filter %.chs,$(libHSmozembed_a_SOURCES:.chs.pp=.chs))
+libHSmozembed_a_CHSFILES_HS = $(libHSmozembed_a_CHSFILES:.chs=.hs)
+libHSmozembed_a_HSCFILES = $(filter %.hsc, $(libHSmozembed_a_SOURCES))
+libHSmozembed_a_HSCFILES_HS = $(libHSmozembed_a_HSCFILES:.hsc=.hs)
+libHSmozembed_a_BUILDSOURCES = \
+	$(libHSmozembed_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSmozembed_a_CHSFILES_HS) \
+        $(libHSmozembed_a_HSCFILES_HS) \
+        mozembed/Graphics/UI/Gtk/MozEmbedType.chs
+libHSmozembed_a_HSFILES  = \
+	$(filter %.hs,$(libHSmozembed_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSmozembed_a_SOURCES))
+
+MOSTLYCLEANFILES += $(am_libHSmozembed_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
+CLEANFILES += $(libHSmozembed_a_BUILDSOURCES) 
+
+DISTCLEANFILES+= libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
+
+ifneq ($(MAKECMDGOALS),clean)
+-include libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES:.chs=.dep)
+ endif
+
 
 # All generated source files go here.
 BUILDSOURCES =	$(libHSgtk_a_BUILDSOURCES)	\
 		$(libHSglade_a_BUILDSOURCES)	\
 		$(libHSgconf_a_BUILDSOURCES)	\
-		$(libHSsourceview_a_BUILDSOURCES)
+		$(libHSsourceview_a_BUILDSOURCES) \
+		$(libHSmozembed_a_BUILDSOURCES)
 
 include mk/common.mk

@@ -85,6 +85,7 @@
 				GtkToggleToolButton	if gtk-2.4
 				    GtkRadioToolButton	if gtk-2.4
 			    GtkSeparatorToolItem	if gtk-2.4
+			GtkMozEmbed		if mozembed
                     GtkBox
                         GtkButtonBox
                             GtkHButtonBox
