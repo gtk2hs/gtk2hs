@@ -2,6 +2,8 @@
 #
 # This Makefile contains all configuration data.
 
+ABS_TOP            = @TOP@
+
 AR		= @AR@
 LN		= @LN_S@
 PWD		= @PWD@
@@ -14,7 +16,7 @@ INSTALL		= @INSTALL@
 INSTALL_PROGRAM	= @INSTALL_PROGRAM@
 INSTALL_DATA	= @INSTALL_DATA@
 INSTALL_DIR	= @INSTALL@ -d
-CPP		= @CPP@
+#CPP		= @CPP@
 CC		= @CC@
 
 PATHSED		= '@PATHSED@'
