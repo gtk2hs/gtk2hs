@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 7 March 99
 --
---  Version $Revision: 1.2 $ from $Date: 2002/10/01 15:17:05 $
+--  Version $Revision: 1.3 $ from $Date: 2003/01/18 17:53:59 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --
@@ -346,10 +346,11 @@ parseCExtDecl  = parseCDecl
 --
 parseCDecl :: CParser CDecl
 parseCDecl  = 
+  list (
       ctoken_ (CTokGnuC GnuCExtTok) `opt` ()      -- ignore GCC's __extension__
-  -*> list parseCDeclSpec 
+  -*> parseCDeclSpec 
   *-> optMaybe parseGnuCAttr			  -- ignore GCC's __attribute__
-   *> seplist comma_ parseCInitDecl *-> semic_
+  )*> seplist comma_ parseCInitDecl *-> semic_
   `actionAttrs`
     (\(specs, declrs) -> 
       head (map posOf specs ++ map (posOf . fst) declrs ++ [nopos])) $
