@@ -1,3 +1,8 @@
+2003-03-20  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* mk/common.mk: Removed ./ and blah/.. in file names when creating
+	tar balls.
+
 2003-03-10  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/signals/Signal.chs-boot2, gtk/general/Gtk.hs: Added a

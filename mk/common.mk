@@ -273,12 +273,14 @@ debug 	:
 # Create a source tar achive. Do this by adding files to the tar file in the
 # top-level directory.
 tarsource :
-	$(strip $(TAR) rf $(TOP)/$(TARNAME).tar -C $(TOP) \
-	  $(addprefix $(TARDIR), Makefile\
-	    $(CHSFILES)\
+	$(strip $(TAR) rf $(TOP)/$(TARNAME).tar -C $(TOP)\
+	  $(foreach FILE,Makefile $(CHSFILES)\
 	    $(filter-out $(EXTRA_HSCFILES), $(HSCFILES))\
 	    $(filter-out $(EXTRA_HSFILES), $(HSFILES))\
-	    $(EXTRA_CFILES) $(EXTRA_HFILESOK) $(EXTRA_TARFILES)))
+	    $(EXTRA_CFILES) $(EXTRA_HFILESOK) $(EXTRA_TARFILES),\
+	    $(shell echo $(TARDIR)$(FILE) | $(SEDPIPE))))
+	  
+
 
 .PHONY: install installdirs installcheck uninstall
 
