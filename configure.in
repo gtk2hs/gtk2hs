@@ -297,7 +297,7 @@ AC_ARG_WITH(mlist,
 	    [  --with-mlist=GTK-SOURCE use special marshall list from GTK+ sources],
 	    [MARSHALLDEFS=$withval;
 	     AC_MSG_RESULT($withval)],
-	    [MARSHALLDEFS=$TOP/tools/signals/gtkmarshal.list;
+	    [MARSHALLDEFS=$TOP/tools/callbackGen/gtkmarshal.list;
 	     AC_MSG_RESULT(built-in)])
 
 
@@ -378,6 +378,7 @@ else
           ** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
       dnl C->Haskell configuration.
       } ;;
+  esac;
 fi
 
 # Read the version file
@@ -397,16 +398,12 @@ if test $XSLTTRANS = no-translator; then
   FOUNDTRANSLATOR=no;
 fi
 
+XML_CATALOG_FILES=/usr/local/share/xml/catalog:/usr/share/xml/catalog;
 AC_ARG_WITH(catalog,
   [  --with-catalog=catalog  an XML catalog file pointing to DocBook],
-  [XML_CATALOG_FILES=$withval;], 
-  [if test -z $XML_CATALOG_FILES; then
-    case "$target" in
-	*freebsd*) XML_CATALOG_FILES=/usr/local/share/xml/catalog;;
-	*) XML_CATALOG_FILES=/usr/share/xml/catalog;;
-    esac
-  fi])
-AC_MSG_CHECKING([files XML catalog])
+  [XML_CATALOG_FILES=$withval:$XML_CATALOG_FILES])
+
+AC_MSG_CHECKING([for XML catalog])
 OLDIFS=$IFS;
 IFS=:;
 FOUNDCATALOG=no;

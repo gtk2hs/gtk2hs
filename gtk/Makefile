@@ -198,10 +198,10 @@ else
 ENABLEBROKEN	=
 endif
 
-general/Signal.chs : $(TOP)/tools/signals/Signal.chs-boot1 \
-		     $(TOP)/tools/signals/Signal.chs-boot2
-	$(strip $(TOP)/tools/signals/HookGenerator $(MARSHALLDEFS) \
-	$(TOP)/tools/signals/ general/Signal.chs $(ENABLEBROKEN))
+general/Signal.chs : $(TOP)/tools/callbackGen/Signal.chs-boot1 \
+		     $(TOP)/tools/callbackGen/Signal.chs-boot2
+	$(strip $(TOP)/tools/callbackGen/HookGenerator $(MARSHALLDEFS) \
+	$(TOP)/tools/callbackGen/ general/Signal.chs $(ENABLEBROKEN))
 
 EXTRA_CHSFILES	+=  general/Hierarchy.chs
 
@@ -211,9 +211,9 @@ else
 CREATE_TYPES = plugNsocket default
 endif
 
-general/Hierarchy.chs : $(TOP)/tools/typehier/hierarchy.list
-	$(strip $(TOP)/tools/typehier/TypeGenerator \
-	$(TOP)/tools/typehier/hierarchy.list \
+general/Hierarchy.chs : $(TOP)/tools/hierarchyGen/hierarchy.list
+	$(strip $(TOP)/tools/hierarchyGen/TypeGenerator \
+	$(TOP)/tools/hierarchyGen/hierarchy.list \
 	general/Hierarchy.chs $(addprefix --tag=,$(CREATE_TYPES)))
 
 include $(TOP)/mk/common.mk

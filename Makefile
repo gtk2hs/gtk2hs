@@ -2,7 +2,7 @@ TOP = .
 
 include $(TOP)/mk/config.mk
 
-MAKE_TOOLS = tools/typehier tools/signals
+MAKE_TOOLS = tools/hierarchyGen tools/callbackGen
 
 ifeq ($(strip $(BUILT_IN_C2HS)),no)
 MAKE_VERB  += c2hs

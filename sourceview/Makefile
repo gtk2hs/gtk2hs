@@ -46,9 +46,9 @@ TYPE_TAGS += sourceview
 EXTRA_CLEANFILES+= SourceViewType.chs
 NEEDCHI = SourceViewType
 
-SourceViewType.chs : ../tools/typehier/hierarchy.list
-	$(strip ../tools/typehier/TypeGenerator \
-	../tools/typehier/hierarchy.list \
+SourceViewType.chs : ../tools/hierarchyGen/hierarchy.list
+	$(strip ../tools/hierarchyGen/TypeGenerator \
+	../tools/hierarchyGen/hierarchy.list \
 	SourceViewType.chs \
 	$(addprefix --tag=,$(TYPE_TAGS)))
 

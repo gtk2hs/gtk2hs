@@ -1,5 +1,11 @@
 2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* configure.in: Closed a case expression. Simplified and corrected
+	the search for XML catalog files.
+
+	* gtk/Makefile, sourceview/Makefile: Make them use the tools in
+	tools/callbackGen and tools/hierarchyGen.
+	
 	* tools/typehier, tools/signals, tools/hierarchyGen,
 	tools/callbackGen: Moved this files to a different
 	directory. Reason: Everytime I remove the two directories typehier
