@@ -1,5 +1,8 @@
 2003-07-03  Jens Petersen  <petersen@haskell.org>
 
+	* mogul/Makefile (INSTALLDIR): Set to mogul, so that mogul gets
+	installed in its own subdir.
+
 	* gtk/layout/Notebook.chs (notebookGetNPages): New function.
 	Export it.
 
