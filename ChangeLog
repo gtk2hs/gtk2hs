@@ -1,5 +1,10 @@
 2003-11-03  Jens Petersen  <petersen@haskell.org>
 
+	* gtk2hs.spec.in (BuildRequires): Require gtksourceview-devel.
+	(Requires): Require gtksourceview.
+	(%post): Install sourceview package.
+	(%preun): Remove sourceview package.
+
 	* mk/recurse.mk (install-without-pkg): New target.
 
 	* mk/application.mk ($(TARGETOK)): Depend on inplaceinit to make
