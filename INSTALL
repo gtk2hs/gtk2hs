@@ -139,8 +139,7 @@ Note:
 Building on Window
 --------------------
 
-Install MSYS and MinGW (you might get away without MinGW, I haven't
-tried).  Download the following files from
+Install MSYS and MinGW.  Download the following files from
 http://www.gimp.org/~tml/gimp/win32/downloads.html : atk-1.4.0.zip,
 atk-dev-1.4.0.zip, gettext-runtime-0.12.1.bin.woe32.zip,
 glib-2.2.3.zip, glib-dev-2.2.3.zip, gtk+-2.2.4.zip,
@@ -149,12 +148,14 @@ pango-dev-1.2.5.zip, pkgconfig-0.15.zip. Unpack these files in a
 *separate* (1) directory from MinGW. Add the bin/ and the /lib
 directory to your path via the Control Panel (or right-clicking My
 Computer, Properties, Advanced). Make sure GHC is in your
-path. Proceed with the general instructions.
+path. Proceed with the general instructions. If you have the right to
+modify the global package file, then I recommend to install the
+library into the ghc directory by using configure's --prefix= option.
 
 (1) If you don't use a separate directory, GHC's local gcc might pick
 up libraries from MinGW, resulting in link errors or worse.
 
-Report problems to the Gtk2hs mailing list
+Please report problems to the Gtk2hs mailing list
 <gtk2hs-users@lists.sourceforge.net>.
 
 Have fun,
