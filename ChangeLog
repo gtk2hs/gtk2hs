@@ -1,5 +1,9 @@
 2005-02-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* configure.ac: Bump version to 0.9.7.1
+
+2005-02-23 Duncan Coutts <duncan@coutts.uklinux.net>
+
 	* tools/apiGen/MarshalFixup.hs: new module containing fixup
 	information about specials cases. This is existign tables of info
 	moved out of Marshal.hs and FormatDocs.hs so it is better seperated
