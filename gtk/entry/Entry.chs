@@ -6,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2004/08/06 01:48:04 $
+--  Version $Revision: 1.13 $ from $Date: 2004/08/08 19:34:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -38,8 +38,10 @@ module Entry(
   entryNew,
   entrySetText,
   entryGetText,
+#ifndef DISABLE_DEPRECATED
   entryAppendText,
   entryPrependText,
+#endif
   entrySetVisibility,
   entryGetVisibility,
   entrySetInvisibleChar,
@@ -102,6 +104,7 @@ entrySetText ec str = withUTFString str $ {#call entry_set_text#} (toEntry ec)
 entryGetText :: EntryClass ec => ec -> IO String
 entryGetText ec = {#call entry_get_text#} (toEntry ec) >>= peekUTFString
 
+#ifndef DISABLE_DEPRECATED
 -- | Append to the text of the 'Entry' widget.
 --
 entryAppendText :: EntryClass ec => ec -> String -> IO ()
@@ -113,6 +116,7 @@ entryAppendText ec str =
 entryPrependText :: EntryClass ec => ec -> String -> IO ()
 entryPrependText ec str = 
   withUTFString str $ {#call entry_prepend_text#} (toEntry ec)
+#endif
 
 -- | Set whether to use password mode (display stars instead of the text).
 --
@@ -204,11 +208,15 @@ entrySetWidthChars ec setting = {#call entry_set_width_chars#}
 -- horizontal positioning of the contents when the displayed text is shorter
 -- than the width of the entry.
 --
+-- * Since gtk 2.4
+--
 entrySetAlignment :: EntryClass ec => ec -> Float -> IO ()
 entrySetAlignment ec xalign =
   {#call entry_set_alignment#} (toEntry ec) (realToFrac xalign)
 
 -- | Gets the value set by 'entrySetAlignment'.
+--
+-- * Since gtk 2.4
 --
 entryGetAlignment :: EntryClass ec => ec -> IO Float
 entryGetAlignment ec =

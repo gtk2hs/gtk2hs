@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Window
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:17:53 $
+--  Version $Revision: 1.8 $ from $Date: 2004/08/08 19:34:15 $
 --
 --  Copyright (c) 2001 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -40,7 +41,9 @@ module Window(
   windowSetModal,
   windowSetDefaultSize,
 --  windowSetGeometryHints,
+#ifndef DISABLE_DEPRECATED
   windowSetPolicy,
+#endif
   windowSetPosition,
   WindowPosition(..),
   windowSetTransientFor,
@@ -118,12 +121,14 @@ windowActivateDefault :: WindowClass w => w -> IO Bool
 windowActivateDefault w = 
   liftM toBool $ {#call window_activate_default#} (toWindow w)
 
+#ifndef DISABLE_DEPRECATED
 {-# DEPRECATED windowSetPolicy "Use windowSetResizable instead." #-}
 -- windowSetPolicy: set the window policy
 --
 windowSetPolicy :: WindowClass w => w -> Bool -> Bool -> Bool -> IO ()
 windowSetPolicy w shrink grow auto = {#call window_set_policy#} 
   (toWindow w) (fromBool shrink) (fromBool grow) (fromBool auto)
+#endif
 
 -- | make a window application modal
 --

@@ -6,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/08/03 04:01:52 $
+--  Version $Revision: 1.9 $ from $Date: 2004/08/08 19:34:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -43,6 +43,7 @@
 -- Creating a context menu for the toolbar can be done using
 -- 'onPopupContextMenu'.
 --
+#ifndef DISABLE_DEPRECATED
 -- * The following information applies to the /old/ interface only.
 --
 -- 'Button's, 'RadioButton's and 'ToggleButton's can be added by refering to
@@ -61,6 +62,7 @@
 -- image lookup is done manually. A mnemonic in the labels is sadly not
 -- honored this way.
 --
+#endif
 #include <gtk/gtkversion.h>
 
 module Toolbar(
@@ -95,7 +97,9 @@ module Toolbar(
   iconSizeInvalid,
   iconSizeSmallToolbar,
   iconSizeLargeToolbar,
+#ifndef DISABLE_DEPRECATED
   toolbarSetIconSize,
+#endif
   toolbarGetIconSize,
 #if GTK_CHECK_VERSION(2,4,0)
   toolbarInsert,
@@ -148,6 +152,7 @@ mkToolText Nothing               fun = fun nullPtr nullPtr
 mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr -> 
   withUTFString private $ \prvPtr -> fun txtPtr prvPtr
 
+#ifndef DISABLE_DEPRECATED
 -- | Insert a new 'Button' into the 'Toolbar'.
 --
 -- * The new 'Button' is created at position @pos@, counting
@@ -323,6 +328,7 @@ toolbarAppendNewWidget tb = toolbarInsertNewWidget tb (-1)
 toolbarPrependNewWidget :: (ToolbarClass tb, WidgetClass w) => tb -> w ->
                            Maybe (String,String) -> IO ()
 toolbarPrependNewWidget tb = toolbarInsertNewWidget tb 0
+#endif
 
 
 -- | Set the direction of the 'Toolbar'.
@@ -369,6 +375,7 @@ toolbarGetTooltips :: ToolbarClass tb => tb -> IO Bool
 toolbarGetTooltips tb =
   liftM toBool $ {#call unsafe toolbar_get_tooltips#} (toToolbar tb)
 
+#ifndef DISABLE_DEPRECATED
 -- | Set the size of the icons.
 --
 -- * It might be sensible to restrict oneself to 'IconSizeSmallToolbar' and
@@ -377,6 +384,7 @@ toolbarGetTooltips tb =
 toolbarSetIconSize :: ToolbarClass tb => tb -> IconSize -> IO ()
 toolbarSetIconSize tb is = {#call toolbar_set_icon_size#} (toToolbar tb)
   (fromIntegral is)
+#endif
 
 -- | Retrieve the current icon size that the 'Toolbar' shows.
 --

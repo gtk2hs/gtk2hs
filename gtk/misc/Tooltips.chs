@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Tooltips
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/08/01 16:08:13 $
+--  Version $Revision: 1.8 $ from $Date: 2004/08/08 19:34:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,26 +22,26 @@
 --
 -- |
 --
--- * Tooltips are the messages that appear next to a widget when the mouse
---   pointer is held over it for a short amount of time. They are especially
---   helpful for adding more verbose descriptions of things such as buttons
---   in a toolbar. 
---   An individual tooltip belongs to a group of tooltips. A group is created
---   with a call to 'tooltipsNew'. Every tooltip in the group can 
---   then be 
---   turned off with a call to 'tooltipsDisable' and enabled with 
---   'tooltipsEnable'. The length of time the user must keep the
---   mouse over a 
---   widget before the tip is shown, can be altered with 
---   'tooltipsSetDelay'.
---   This is set on a 'per group of tooltips' basis.
---   To assign a tip to a particular widget, 'tooltipsSetTip'
---   is used.
+-- Tooltips are the messages that appear next to a widget when the mouse
+-- pointer is held over it for a short amount of time. They are especially
+-- helpful for adding more verbose descriptions of things such as buttons
+-- in a toolbar. 
 --
--- * To associate 'Tooltips' to a widget it is has to have its own 
---   'DrawWindow'. Otherwise the widget must be set into an
---   'EventBox'. Can this be done
---   automatically? Perhaps even with tooltips_force_window()?
+-- An individual tooltip belongs to a group of tooltips. A group is created
+-- with a call to 'tooltipsNew'. Every tooltip in the group can 
+-- then be turned off with a call to 'tooltipsDisable' and enabled with 
+-- 'tooltipsEnable'.
+--
+#ifndef DISABLE_DEPRECATED
+-- The length of time the user must keep the mouse over a widget before the tip
+-- is shown, can be altered with 'tooltipsSetDelay'. This is set on a 'per group
+-- of tooltips' basis.
+--
+#endif
+-- To assign a tip to a particular widget, 'tooltipsSetTip' is used.
+--
+-- To associate 'Tooltips' to a widget it is has to have its own 'DrawWindow'.
+-- Otherwise the widget must be set into an 'EventBox'.
 --
 
 module Tooltips(
@@ -50,7 +51,9 @@ module Tooltips(
   tooltipsNew,
   tooltipsEnable,
   tooltipsDisable,
+#ifndef DISABLE_DEPRECATED
   tooltipsSetDelay,
+#endif
   tooltipsSetTip,
   tooltipsDataGet
   ) where
@@ -87,6 +90,7 @@ tooltipsEnable t = {#call unsafe tooltips_enable#} (toTooltips t)
 tooltipsDisable :: TooltipsClass t => t -> IO ()
 tooltipsDisable t = {#call unsafe tooltips_disable#} (toTooltips t)
 
+#ifndef DISABLE_DEPRECATED
 -- | Sets the time between the user moving the mouse
 -- over a widget and the widget's tooltip appearing.
 --
@@ -95,6 +99,7 @@ tooltipsDisable t = {#call unsafe tooltips_disable#} (toTooltips t)
 tooltipsSetDelay :: TooltipsClass t => t -> Int -> IO ()
 tooltipsSetDelay t time = {#call unsafe tooltips_set_delay#}
   (toTooltips t) (fromIntegral time)
+#endif
 
 -- | Adds a tooltip containing the message tipText to
 -- the specified GtkWidget.

@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Combo
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:05:21 $
+--  Version $Revision: 1.5 $ from $Date: 2004/08/08 19:34:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -34,6 +35,7 @@
 --   arbitrary widgets yet.
 --
 module Combo(
+#ifndef DISABLE_DEPRECATED
   Combo,
   ComboClass,
   castToCombo,
@@ -44,7 +46,9 @@ module Combo(
   comboSetUseArrowsAlways,
   comboSetCaseSensitive,
   comboDisableActivate
+#endif
   ) where
+#ifndef DISABLE_DEPRECATED
 
 import Monad	(liftM, mapM_)
 import FFI
@@ -117,3 +121,4 @@ comboSetCaseSensitive c val = {#call unsafe combo_set_case_sensitive#}
 comboDisableActivate :: ComboClass c => c -> IO ()
 comboDisableActivate  = {#call unsafe combo_disable_activate#}.toCombo
 
+#endif

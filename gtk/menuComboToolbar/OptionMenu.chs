@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget OptionMenu
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:05:21 $
+--  Version $Revision: 1.5 $ from $Date: 2004/08/08 19:34:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,6 +24,7 @@
 --
 
 module OptionMenu(
+#ifndef DISABLE_DEPRECATED
   OptionMenu,
   OptionMenuClass,
   castToOptionMenu,
@@ -34,7 +36,9 @@ module OptionMenu(
   optionMenuGetHistory,
   onOMChanged,
   afterOMChanged
+#endif
   ) where
+#ifndef DISABLE_DEPRECATED
 
 import Monad	(liftM)
 import FFI
@@ -88,10 +92,11 @@ optionMenuGetHistory om = liftM fromIntegral $
 
 -- signals
 
--- | This signal is called if the selected option
--- has changed.
+-- | This signal is called if the selected option has changed.
 --
 onOMChanged, afterOMChanged :: OptionMenuClass om => om -> IO () ->
                                IO (ConnectId om)
 onOMChanged = connect_NONE__NONE "changed" False
 afterOMChanged = connect_NONE__NONE "changed" True
+
+#endif

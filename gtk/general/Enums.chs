@@ -1,10 +1,11 @@
+{-# OPTIONS -cpp #-}
 --  -*-haskell-*-
 --  GIMP Toolkit (GTK) Enumerations
 --
 --  Author : Axel Simon, Manuel Chakravarty
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/23 15:58:48 $
+--  Version $Revision: 1.9 $ from $Date: 2004/08/08 19:34:14 $
 --
 --  Copyright (c) [1999..2001] Axel Simon
 --
@@ -39,7 +40,9 @@ module Enums(
   DeleteType(..),
   DirectionType(..),
   Justification(..),
+#ifndef DISABLE_DEPRECATED
   MatchType(..),
+#endif
   MenuDirectionType(..),
   MetricType(..),
   MovementStep(..),
@@ -57,8 +60,10 @@ module Enums(
   SelectionMode(..),
   ShadowType(..),
   StateType(..),
+#ifndef DISABLE_DEPRECATED
   SubmenuDirection(..),
   SubmenuPlacement(..),
+#endif
   SpinButtonUpdatePolicy(..),
   SpinType(..),
   TextDirection(..),
@@ -160,9 +165,11 @@ data Click = SingleClick
 --
 {#enum Justification {underscoreToCase}#}
 
+#ifndef DISABLE_DEPRECATED
 -- | some kind of string search options
 --
 {#enum MatchType {underscoreToCase}#}
+#endif
 
 -- | From where was a menu item entered?
 --
@@ -251,6 +258,7 @@ data SelectionMode = SelectionNone
 --
 {#enum StateType {underscoreToCase}#}
 
+#ifndef DISABLE_DEPRECATED
 -- | Submenu direction policies
 --
 {#enum SubmenuDirection {underscoreToCase}#}
@@ -258,6 +266,7 @@ data SelectionMode = SelectionNone
 -- | Submenu placement policies
 --
 {#enum SubmenuPlacement {underscoreToCase}#}
+#endif
 
 -- | Whether to clamp or ignore illegal values.
 --

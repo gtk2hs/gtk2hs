@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.26 $ from $Date: 2004/08/03 04:01:52 $
+--  Version $Revision: 1.27 $ from $Date: 2004/08/08 19:34:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -73,7 +73,9 @@ module Structs(
   iconSizeLargeToolbar,
   iconSizeButton,
   iconSizeDialog,
+#ifndef DISABLE_DEPRECATED
   comboGetList,
+#endif
   priorityLow,
   priorityDefault,
   priorityHigh,
@@ -591,12 +593,13 @@ iconSizeDialog	     = #const GTK_ICON_SIZE_DIALOG
 
 -- entry Widget Combo
 
--- | Extract the List container from a 'Combo'
--- box.
+#ifndef DISABLE_DEPRECATED
+-- | Extract the List container from a 'Combo' box.
 --
 comboGetList :: Combo -> IO List
 comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
   makeNewObject mkList $ #{peek GtkCombo, list} cPtr
+#endif
 
 -- General related constants
 
