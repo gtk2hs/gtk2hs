@@ -5,7 +5,7 @@
 --
 --  Created: 30 July 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:33 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/15 20:19:56 $
 --
 --  Copyright (C) 1999-2005 Axel Simon, Duncan Coutts
 --
@@ -29,11 +29,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This is an interface for simple single-line text editing widgets. It is
--- implemented by 'Entry' and 'SpinButton'.
+-- Interface for text-editing widgets
 --
 module Graphics.UI.Gtk.Entry.Editable (
--- * Description
+-- * Detail
 -- 
 -- | The 'Editable' interface is an interface which should be implemented by
 -- text editing widgets, such as 'Entry'.
@@ -99,113 +98,167 @@ import System.Glib.GObject (makeNewGObject)
 --------------------
 -- Methods
 
--- | Select a span of text.
+-- | Selects a region of text. The characters that are selected are those
+-- characters at positions from @startPos@ up to, but not including @endPos@.
+-- If @endPos@ is negative, then the the characters selected will be those
+-- characters from @startPos@ to the end of the text.
 --
--- * A negative @end@ position will make the selection extend to the
---   end of the buffer.
+-- Calling this function with @start@=1 and @end@=4 it will mark \"ask\" in
+-- the string \"Haskell\". (FIXME: verify)
 --
--- * Calling this function with @start@=1 and @end@=4 it will
---   mark \"ask\" in the string \"Haskell\". (FIXME: verify)
---
-editableSelectRegion :: EditableClass ed => ed -> Int -> Int -> IO ()
-editableSelectRegion ed start end =
-  {#call editable_select_region#} (toEditable ed)
-    (fromIntegral start) (fromIntegral end)
+editableSelectRegion :: EditableClass self => self
+ -> Int   -- ^ @start@ - the starting position.
+ -> Int   -- ^ @end@ - the end position.
+ -> IO ()
+editableSelectRegion self start end =
+  {# call editable_select_region #}
+    (toEditable self)
+    (fromIntegral start)
+    (fromIntegral end)
 
--- | Get the span of the current selection.
+-- | Gets the current selection bounds, if there is a selection.
 --
--- * The returned tuple is not ordered. The second index represents the
---   position of the cursor. The first index is the other end of the
---   selection. If both numbers are equal there is in fact no selection.
---
-editableGetSelectionBounds :: EditableClass ed => ed -> IO (Int,Int)
-editableGetSelectionBounds ed = alloca $ \startPtr -> alloca $ \endPtr -> do
-  {#call unsafe editable_get_selection_bounds#} (toEditable ed) startPtr endPtr
+editableGetSelectionBounds :: EditableClass self => self
+ -> IO (Int,Int) -- ^ @(start, end)@ - the starting and end positions. This
+                 -- pair is not ordered. The @end@ index represents the
+                 -- position of the cursor. The @start@ index is the other end
+                 -- of the selection. If both numbers are equal there is in
+                 -- fact no selection.
+editableGetSelectionBounds self =
+  alloca $ \startPtr ->
+  alloca $ \endPtr -> do
+  {# call unsafe editable_get_selection_bounds #}
+    (toEditable self)
+    startPtr
+    endPtr
   start <- liftM fromIntegral $ peek startPtr
   end	<- liftM fromIntegral $ peek endPtr
   return (start,end)
 
--- | Insert new text at the specified position.
+-- | Inserts text at a given position.
 --
--- * If the position is invalid the text will be inserted at the end of the
---   buffer. The returned value reflects the actual insertion point.
---
-editableInsertText :: EditableClass ed => ed -> String -> Int -> IO Int
-editableInsertText ed str pos = withObject (fromIntegral pos) $ \posPtr ->
-  withUTFStringLen str $ \(strPtr,len) -> do
-    {#call editable_insert_text#} (toEditable ed) strPtr (fromIntegral len) 
-      posPtr
-    liftM fromIntegral $ peek posPtr
+editableInsertText :: EditableClass self => self
+ -> String    -- ^ @newText@ - the text to insert.
+ -> Int       -- ^ @position@ - the position at which to insert the text.
+ -> IO Int    -- ^ returns the position after the newly inserted text.
+editableInsertText self newText position = 
+  withObject (fromIntegral position) $ \positionPtr ->
+  withUTFStringLen newText $ \(newTextPtr, newTextLength) -> do
+  {# call editable_insert_text #}
+    (toEditable self)
+    newTextPtr
+    (fromIntegral newTextLength)
+    positionPtr
+  liftM fromIntegral $ peek positionPtr
 
--- | Delete a given range of text.
+-- | Deletes a sequence of characters. The characters that are deleted are
+-- those characters at positions from @startPos@ up to, but not including
+-- @endPos@. If @endPos@ is negative, then the the characters deleted will be
+-- those characters from @startPos@ to the end of the text.
 --
--- * If the @end@ position is invalid, it is set to the lenght of the
---   buffer.
---
--- * @start@ is restricted to 0..@end@.
---
-editableDeleteText :: EditableClass ed => ed -> Int -> Int -> IO ()
-editableDeleteText ed start end = {#call editable_delete_text#} (toEditable ed)
-  (fromIntegral start) (fromIntegral end)
+editableDeleteText :: EditableClass self => self
+ -> Int   -- ^ @startPos@ - the starting position.
+ -> Int   -- ^ @endPos@ - the end position.
+ -> IO ()
+editableDeleteText self startPos endPos =
+  {# call editable_delete_text #}
+    (toEditable self)
+    (fromIntegral startPos)
+    (fromIntegral endPos)
 
--- | Retrieve a range of characters.
+-- | Retrieves a sequence of characters. The characters that are retrieved are
+-- those characters at positions from @startPos@ up to, but not including
+-- @endPos@. If @endPos@ is negative, then the the characters retrieved will be
+-- those characters from @startPos@ to the end of the text.
 --
--- * Set @end@ to a negative value to reach the end of the buffer.
---
-editableGetChars :: EditableClass ed => ed -> Int -> Int -> IO String
-editableGetChars ed start end = do
-  strPtr <- {#call unsafe editable_get_chars#} (toEditable ed) 
-    (fromIntegral start) (fromIntegral end)
-  str <- peekUTFString strPtr
-  {#call unsafe g_free#} (castPtr strPtr)
-  return str
+editableGetChars :: EditableClass self => self
+ -> Int       -- ^ @startPos@ - the starting position.
+ -> Int       -- ^ @endPos@ - the end position.
+ -> IO String -- ^ returns the characters in the indicated region.
+editableGetChars self startPos endPos =
+  {# call unsafe editable_get_chars #}
+    (toEditable self)
+    (fromIntegral startPos)
+    (fromIntegral endPos)
+  >>= readUTFString
 
--- | Cut the selected characters to the Clipboard.
+-- | Causes the characters in the current selection to be copied to the
+-- clipboard and then deleted from the widget.
 --
-editableCutClipboard :: EditableClass ed => ed -> IO ()
-editableCutClipboard  = {#call editable_cut_clipboard#}.toEditable
+editableCutClipboard :: EditableClass self => self -> IO ()
+editableCutClipboard self =
+  {# call editable_cut_clipboard #}
+    (toEditable self)
 
--- | Copy the selected characters to the Clipboard.
+-- | Causes the characters in the current selection to be copied to the
+-- clipboard.
 --
-editableCopyClipboard :: EditableClass ed => ed -> IO ()
-editableCopyClipboard  = {#call editable_copy_clipboard#}.toEditable
+editableCopyClipboard :: EditableClass self => self -> IO ()
+editableCopyClipboard self =
+  {# call editable_copy_clipboard #}
+    (toEditable self)
 
--- | Paste the selected characters to the
--- Clipboard.
+-- | Causes the contents of the clipboard to be pasted into the given widget
+-- at the current cursor position.
 --
-editablePasteClipboard :: EditableClass ed => ed -> IO ()
-editablePasteClipboard  = {#call editable_paste_clipboard#}.toEditable
+editablePasteClipboard :: EditableClass self => self -> IO ()
+editablePasteClipboard self =
+  {# call editable_paste_clipboard #}
+    (toEditable self)
 
--- | Delete the current selection.
+-- | Deletes the current contents of the widgets selection and disclaims the
+-- selection.
 --
-editableDeleteSelection :: EditableClass ed => ed -> IO ()
-editableDeleteSelection  = {#call editable_delete_selection#}.toEditable
+editableDeleteSelection :: EditableClass self => self -> IO ()
+editableDeleteSelection self =
+  {# call editable_delete_selection #}
+    (toEditable self)
 
--- | Set the cursor to a specific position.
+-- | Sets the cursor position.
 --
-editableSetPosition :: EditableClass ed => ed -> Int -> IO ()
-editableSetPosition ed pos = 
-  {#call editable_set_position#} (toEditable ed) (fromIntegral pos)
+editableSetPosition :: EditableClass self => self
+ -> Int   -- ^ @position@ - the position of the cursor. The cursor is
+          -- displayed before the character with the given (base 0) index in
+          -- the widget. The value must be less than or equal to the number of
+          -- characters in the widget. A value of -1 indicates that the
+          -- position should be set after the last character in the entry.
+ -> IO ()
+editableSetPosition self position =
+  {# call editable_set_position #}
+    (toEditable self)
+    (fromIntegral position)
 
--- | Get the current cursor position.
+-- | Retrieves the current cursor position.
 --
-editableGetPosition :: EditableClass ed => ed -> IO Int
-editableGetPosition ed = liftM fromIntegral $
-  {#call unsafe editable_get_position#} (toEditable ed)
+editableGetPosition :: EditableClass self => self
+ -> IO Int -- ^ returns the position of the cursor. The cursor is displayed
+           -- before the character with the given (base 0) index in the widget.
+           -- The value will be less than or equal to the number of characters
+           -- in the widget. Note that this position is in characters, not in
+           -- bytes.
+editableGetPosition self =
+  liftM fromIntegral $
+  {# call unsafe editable_get_position #}
+    (toEditable self)
 
--- | Make the widget insensitive.
+-- | Determines if the user can edit the text in the editable widget or not.
 --
--- * Called with False will make the text uneditable.
---
-editableSetEditable :: EditableClass ed => ed -> Bool -> IO ()
-editableSetEditable ed isEditable = {#call editable_set_editable#}
-  (toEditable ed) (fromBool isEditable)
+editableSetEditable :: EditableClass self => self
+ -> Bool  -- ^ @isEditable@ - @True@ if the user is allowed to edit the text
+          -- in the widget.
+ -> IO ()
+editableSetEditable self isEditable =
+  {# call editable_set_editable #}
+    (toEditable self)
+    (fromBool isEditable)
 
--- | Retrieves whether the text is editable.
+-- | Retrieves whether the text is editable. See 'editableSetEditable'.
 --
-editableGetEditable :: EditableClass ed => ed -> IO Bool
-editableGetEditable ed =
-  liftM toBool $ {#call editable_get_editable#} (toEditable ed)
+editableGetEditable :: EditableClass self => self -> IO Bool
+editableGetEditable self =
+  liftM toBool $
+  {# call editable_get_editable #}
+    (toEditable self)
 
 --------------------
 -- Properties
@@ -238,8 +291,9 @@ afterEditableChanged = connect_NONE__NONE "changed" True
 
 -- | Emitted when a piece of text is deleted from the 'Editable' widget.
 --
-onDeleteText, afterDeleteText :: EditableClass ec => ec ->
-                                 (Int -> Int -> IO ()) -> IO (ConnectId ec)
+onDeleteText, afterDeleteText :: EditableClass self => self
+ -> (Int -> Int -> IO ()) -- ^ @(\startPos endPos -> ...)@
+ -> IO (ConnectId self)
 onDeleteText = connect_INT_INT__NONE "delete_text" False
 afterDeleteText = connect_INT_INT__NONE "delete_text" True
 
