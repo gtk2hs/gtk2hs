@@ -1,3 +1,9 @@
+2005-03-26 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: use Int in the signal
+	handler return type rather than (Num n, Integral n) => n since there's
+	no need to be so general (and it breaks my new signals system!)
+
 2005-03-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs: match up against existing .hs modules if

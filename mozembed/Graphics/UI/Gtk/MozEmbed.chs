@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/01/14 19:04:50 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/26 00:09:27 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -248,8 +248,9 @@ http://www.mozilla.org/unix/gtk-embedding.html
 onKeyDown, onKeyPress, onKeyUp,
  onMouseDown, onMouseUp, onMouseClick, onMouseDoubleClick,
  onMouseOver, onMouseOut
- :: (Num n, Integral n, MozEmbedClass m)
- => m -> (Ptr a -> IO n) -> IO (ConnectId m)
+ :: MozEmbedClass self => self
+ -> (Ptr a -> IO Int)
+ -> IO (ConnectId self)
 onKeyDown          = connect_PTR__INT "dom_key_down" False
 onKeyPress         = connect_PTR__INT "dom_key_press" False
 onKeyUp            = connect_PTR__INT "dom_key_up" False
