@@ -166,8 +166,8 @@ gnomecanvas-modules : gnomecanvas-api.xml Template.chs ApiGen \
 #
 #	tools
 #
-ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs \
-	Marshal.hs CodeGen.hs StringUtils.hs ModuleScan.hs MarshalFixup.hs
+ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs CodeGen.hs Marshal.hs \
+	MarshalFixup.hs ModuleScan.hs ExcludeApi.hs StringUtils.hs
 	$(HC) --make $< -o $@
 HC=ghc
 

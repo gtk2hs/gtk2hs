@@ -6,3 +6,28 @@ always exclude _valist$
 #these are sometimes bound if necessary but otherwise we can ignore them
 exclude _ref$
 exclude _unref$
+
+#now just a whole bunch of specific ones:
+exclude gtk_window_set_wmclass
+
+#internal widget functions:
+exclude gtk_widget_unparent
+exclude gtk_widget_map
+exclude gtk_widget_unmap
+exclude gtk_widget_realize
+exclude gtk_widget_unrealize
+exclude gtk_widget_queue_resize
+exclude gtk_widget_queue_resize_no_redraw
+exclude gtk_widget_size_request
+exclude gtk_widget_get_child_requisition
+exclude gtk_widget_size_allocate
+exclude gtk_widget_event
+exclude gtk_widget_set_state
+exclude gtk_widget_set_parent
+exclude gtk_widget_ensure_style
+exclude gtk_widget_reset_rc_styles
+
+# C convenience functions
+exclude gtk_widget_hide_on_delete
+exclude gtk_widget_destroyed
+

@@ -66,5 +66,11 @@ summary : gtk.def.filtered gtk.coverage.filtered
 	awk '$$1 == "<" { print $$2 }' | \
 	awk -F _ '{ printf("%s_%s\n", $$1, $$2) }' | uniq -c | sort -n
 
+summary3: gtk.def.filtered gtk.coverage.filtered
+	@echo "**** unbound gtk functions by group ****"
+	@diff gtk.def.filtered gtk.coverage.filtered | \
+	awk '$$1 == "<" { print $$2 }' | \
+	awk -F _ '{ printf("%s_%s_%s\n", $$1, $$2, $$3) }' | uniq -c | sort -n
+
 debug:
 	@echo GTK_IGNORE_FILES = $(GTK_IGNORE_FILES)

@@ -25,10 +25,18 @@ parseFilterFile = catMaybes . map parseLine . lines
         trim = takeWhile (not . isSpace) . dropWhile isSpace
 
 matcher :: [FilterSpec] -> (String -> Bool)
-matcher spec = match
-  where excludeRegex       = mkRegex $ concat $ intersperse "|" [ regex | Exclude       regex <- spec ]
-        noExcludeRegex     = mkRegex $ concat $ intersperse "|" [ regex | NotExclude    regex <- spec ]
-        alwaysExcludeRegex = mkRegex $ concat $ intersperse "|" [ regex | AlwaysExclude regex <- spec ]
-        match line = not $ ((isJust $ matchRegex excludeRegex line)
-                        && (not $ isJust $ matchRegex noExcludeRegex line))
-                        || (isJust $ matchRegex alwaysExcludeRegex line)
+matcher spec line = match line
+  where excludeRegexFragments       = [ regex | Exclude       regex <- spec ]
+        noExcludeRegexFragments     = [ regex | NotExclude    regex <- spec ]
+        alwaysExcludeRegexFragments = [ regex | AlwaysExclude regex <- spec ]
+  
+        excludeRegex       = mkRegex $ concat $ intersperse "|" excludeRegexFragments
+        noExcludeRegex     = mkRegex $ concat $ intersperse "|" noExcludeRegexFragments
+        alwaysExcludeRegex = mkRegex $ concat $ intersperse "|" alwaysExcludeRegexFragments
+        
+        matchExclude       line = isJust (matchRegex excludeRegex line) && not (null excludeRegexFragments)
+        matchNotExclude    line = isJust (matchRegex noExcludeRegex line) && not (null noExcludeRegexFragments)
+        matchAlwaysExclude line = isJust (matchRegex alwaysExcludeRegex line) && not (null alwaysExcludeRegexFragments)
+        
+        match line = not $ (matchExclude line && (not $ matchNotExclude line))
+                        || matchAlwaysExclude line

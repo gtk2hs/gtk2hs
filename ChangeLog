@@ -11,6 +11,15 @@
 	and code formatting changes. Also added a few extra functions, in
 	particular the ones I needed for my simulation visualiser.
 
+	* tools/apiGen/ExcludeApi.hs: fix exclude regex matcher.
+
+	* tools/apiGen/Makefile: add ExcludeApi.hs as a dependency of ApiGen.
+
+	* tools/apiGen/gtk.ignore: add a bunch of internal functions to ignore
+	when generating binding modules.
+
+	* tools/apicoverage/Makefile: add a more detailed summary report.
+
 2005-03-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: use Int in the signal
