@@ -1,3 +1,9 @@
+2004-12-14 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mk/common.mk: quoting/escaping fix so that headers are -#include'd
+	properly. This allows a build using ./configure --with-hcflags=-fvia-C
+	to get further.
+
 2004-12-13 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/TypeGen.hs: make the tool use an external template

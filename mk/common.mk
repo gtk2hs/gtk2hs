@@ -20,7 +20,7 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(VPATH) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	$(addprefix -package-name ,$(notdir $(basename $($(NAME)_PACKAGE)))) \
-	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
+	$(addprefix '-#include<,$(addsuffix >',$(CONFIG_H) \
 	$($(NAME)_HEADER))) \
 	$(AM_CPPFLAGS) $($(NAME)_CPPFLAGS))
 
