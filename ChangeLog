@@ -1,3 +1,8 @@
+2005-02-3 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/calc/CalcModel.hs: fix a bug in formatting numbers for display.
+	I was stripping off trailing 0's too enthusiasticly.
+
 2005-01-31 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/glade/simple.glade: remove libgnome requirement, it was

@@ -113,13 +113,15 @@ digitsToNumber digits | last digits == DecimalPoint
 precision = Just 5  --digits of precision, or Nothing for as much as possible
 
 showNumber :: Number -> String
-showNumber =
-    (\num -> if num == [] then "0" else num)
-  . reverse
-  . dropWhile (\c -> c=='0' || c=='.') --strip trailing 0's
-  . reverse 
-  . (\num -> showGFloat precision num "")
-
+showNumber num =
+  if '.' `elem` numStr then stripTrailingZeros numStr
+                       else numStr
+  where numStr = showGFloat precision num ""
+        stripTrailingZeros =
+            reverse
+          . (\str -> if head str == '.' then tail str else str)
+          . dropWhile (\c -> c=='0')
+          . reverse
 
 testProg :: IO ()
 testProg = do
