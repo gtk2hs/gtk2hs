@@ -169,6 +169,10 @@
 	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs,
 	mogul/Graphics/UI/Gtk/Mogul.hs: mogul package namespace conversion.
 
+	* gconf/System/Gnome/GConf/GConfValue.chs,
+	gconf/System/Gnome/GConf/GConfClient.chs: fixup names of imported
+	modules.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add

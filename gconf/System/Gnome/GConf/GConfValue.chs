@@ -41,8 +41,10 @@ module System.Gnome.GConf.GConfValue (
  ) where
 
 import Monad (liftM, when)
-import FFI
-import GList (toGSList, readGSList)
+
+import System.Glib.FFI
+import System.Glib.UTFString
+import System.Glib.GList (toGSList, readGSList)
 
 --{# context lib="gconf" prefix ="gconf_value" #}
 {# context lib="gconf" #}

@@ -88,12 +88,13 @@ module System.Gnome.GConf.GConfClient (
 import Monad	(liftM, when)
 import Data.IORef (newIORef, readIORef, writeIORef)
 import System.IO.Unsafe (unsafePerformIO)
-import FFI
-{#import Hierarchy#}
-{#import Signal#}
-import GObject  (makeNewGObject)
-import GList
-import GError (GErrorDomain, GErrorClass(..), propagateGError)
+
+import System.Glib.FFI
+import System.Glib.UTFString
+import System.Glib.GList
+import System.Glib.GError   (GErrorDomain, GErrorClass(..), propagateGError)
+import System.Glib.GObject  (makeNewGObject)
+{#import Graphics.UI.Gtk.Signals#}
 {#import System.Gnome.GConf.GConfType#}
 {#import System.Gnome.GConf.GConfValue#}
 
