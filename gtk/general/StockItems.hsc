@@ -5,7 +5,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2003/05/16 22:25:16 $
+--  Version $Revision: 1.8 $ from $Date: 2003/05/17 22:57:07 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -189,7 +189,7 @@ instance Storable StockItem where
     #{poke GtkStockItem, translation_domain} siPtr transDomPtr
 
 
--- @method stockAdd@ Add new stock items to Gtk.
+-- @method stockAddItem@ Add new stock items to Gtk.
 --
 
 -- Using stock_add_static would be possible if we used g_malloc to reserve
@@ -220,7 +220,7 @@ foreign import ccall "gtk_stock_lookup" unsafe
 -- @function stockListIds@ Produce a list of all known stock identifiers.
 --
 -- * Retrieve a list of all known stock identifiers. These can either be
---   added by @ref method stockAdd@ or by adding items to a
+--   added by @ref method stockAddItem@ or by adding items to a
 --   @ref data IconFactory@.
 --
 -- * The list is sorted alphabetically (sorting is not Unicode aware).

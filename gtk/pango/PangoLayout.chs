@@ -4,7 +4,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.4 $ from $Date: 2003/05/17 14:53:11 $
+--  Version $Revision: 1.5 $ from $Date: 2003/05/17 22:57:07 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -108,7 +108,7 @@ import GList	(readGSList)
 
 {# context lib="pango" prefix="pango" #}
 
--- @method layoutCopy@ Create a copy of the @ref data layout@.
+-- @method layoutCopy@ Create a copy of the @ref data Layout@.
 --
 layoutCopy :: PangoLayout -> IO PangoLayout
 layoutCopy pl = makeNewGObject mkPangoLayout 
@@ -519,8 +519,8 @@ layoutIterGetLineYRange li = alloca $ \sPtr -> alloca $ \ePtr -> do
 -- * Extents are in layout coordinates (origin is the top-left corner
 --   of the entire @ref data PangoLayout@). Thus the extents returned
 --   by this function will be the same width/height but not at the
---   same x/y as the extents returned from @ref method
---   pangoLayoutLineGetExtents@.
+--   same x/y as the extents returned from
+--   @ref method pangoLayoutLineGetExtents@.
 --
 layoutIterGetLineExtents :: LayoutIter -> IO (Rectangle, Rectangle)
 layoutIterGetLineExtents li = alloca $ \logPtr -> alloca $ \inkPtr -> do

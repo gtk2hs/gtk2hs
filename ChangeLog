@@ -1,3 +1,13 @@
+2003-05-18  Jens Petersen  <petersen@redhat.com>
+
+	* gtk/pango/PangoLayout.chs (layoutIterGetLineExtents): Keep last
+	doc ref on one line.
+	(layoutCopy): Fix doc typo in data ref.
+
+	* gtk/general/StockItems.hsc: s/method stockAdd/method stockAddItem/.
+
+	* doc/mogul.xml: Docbook 4.2.
+
 2003-05-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* c2hs/base/syntax/Lexer.hs: There is a bug in either c2hs or the
