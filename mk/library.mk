@@ -53,7 +53,7 @@ installcheck :
 installdirs :
 	$(INSTALL) -d $(DESTDIR)$(INST_HIDIR) $(DESTDIR)$(INST_LIBDIR) $(DESTDIR)$(INST_INCLDIR)
 
-install : $(TARGETOK) installdirs installfiles
+install : $(TARGETOK) installdirs installfiles install-pkg
 
 installfiles : $(PACKAGENAME).conf
 	$(INSTALL) -m644 $(ALLHSFILES:.hs=.hi) $(DESTDIR)$(INST_HIDIR)
@@ -89,8 +89,8 @@ $(PACKAGENAME).conf :
 	  $(addprefix -u ,$(EXTRA_SYMBOLS)))]} \
 	> $(PACKAGENAME).conf
 
-install-pkg : installcheck install
-	$(PKG) -i $(PACKAGENAME).conf -a 
+install-pkg : installcheck
+	$(PKG) -i $(PACKAGENAME).conf -a -g
 
 uninstall-pkg : uninstall
 	$(PKG) -r $(PACKAGENAME)

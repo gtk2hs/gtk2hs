@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Arrow@
+--  GIMP Toolkit (GTK) @entry Widget GArrow@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.1 $ from $Date: 2003/07/13 11:34:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -28,7 +28,7 @@
 --
 -- @todo@ ---------------------------------------------------------------------
 
-module Arrow(
+module GArrow(
   Arrow,
   ArrowClass,
   castToArrow,

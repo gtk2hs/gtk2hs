@@ -1,3 +1,16 @@
+2003-07-13 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* gtk/misc/Arrow.chs, gtk/general/Gtk.hs: Changed the name of the
+	file to GArrow.chs to avoid the clash wich Arrow in hslibs of GHC.
+
+	* mk/library.mk: Remove the target install from install-pkg and
+	add the target install-pkg to install. Without this, the files are
+	copied but the package file is not updated.
+
+	* gtk/signals/HookGenerator.hs.in: Removed this file which should
+	have happened a long time ago. HookGenerator.hs is the only file
+	needed.
+	
 2003-07-09 Axel Simon <A.Simon@kent.ukc.ac.uk>
 	
 	* c2hs/gen/GBMonad.hs, c2hs/gen/GenBind.hs: Applied the patch I

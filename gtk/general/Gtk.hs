@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.18 $ from $Date: 2003/07/03 05:19:36 $
+--  Version $Revision: 1.19 $ from $Date: 2003/07/13 11:34:52 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -138,7 +138,7 @@ module Gtk(
   module VScrollbar,
   -- miscellaneous
   module Adjustment,
-  module Arrow,
+  module GArrow,
   module Calendar,
   module DrawingArea,
   module EventBox,
@@ -277,7 +277,7 @@ import VScrollbar
 import ScrolledWindow
 -- miscellaneous
 import Adjustment
-import Arrow
+import GArrow
 import Calendar
 import DrawingArea
 import EventBox
