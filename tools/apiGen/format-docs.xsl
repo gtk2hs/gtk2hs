@@ -81,6 +81,7 @@
   <apidoc>
   <xsl:for-each select="book">
   <module>
+  <!-- top level module information -->
   <module-info>
     <name><xsl:value-of select="refentry/refnamediv/refname"/></name>
     <altname><xsl:value-of select="refentry/refsynopsisdiv/anchor/@id"/></altname>
@@ -104,6 +105,7 @@
       </xsl:for-each>
     </object-hierarchy>
   </module-info>
+  <!-- Function documentation -->
   <xsl:for-each select="refentry/refsect1[title='Details']/refsect2[contains(title,' ()')]">
     <function>
       <name><xsl:value-of select="indexterm/primary"/></name>
@@ -123,6 +125,8 @@
       </params>
     </function>
   </xsl:for-each>
+  <!-- Properties documentation -->
+<!--
   <xsl:for-each select="refentry/refsect1[title='Properties']/variablelist/varlistentry">
     <property>
       <name><xsl:value-of select="term/literal"/></name>
@@ -133,6 +137,39 @@
         <xsl:apply-templates select="listitem/para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
       </doc>
     </property>
+  </xsl:for-each>
+-->
+  <!-- Properties documentation (new formatting) -->
+  <xsl:for-each select="refentry/refsect1[title='Properties']/refsect2">
+    <property>
+      <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
+      <since>
+        <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
+      </since>
+      <doc>
+        <xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
+      </doc>
+    </property>
+  </xsl:for-each>
+  <!-- Signals documentation -->
+  <xsl:for-each select="refentry/refsect1[title='Signals']/refsect2">
+    <signal>
+      <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
+      <since>
+        <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
+      </since>
+      <doc>
+        <xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
+      </doc>
+      <params>
+        <xsl:for-each select="variablelist/varlistentry">
+          <param>
+            <name><xsl:value-of select="term/parameter"/></name>
+            <xsl:apply-templates select="listitem/simpara"/>
+          </param>
+        </xsl:for-each>
+      </params>
+    </signal>
   </xsl:for-each>
   </module>
   </xsl:for-each>

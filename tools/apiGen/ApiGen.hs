@@ -159,13 +159,12 @@ extractObject (Xml.CElem (Xml.Elem "object"
 extractObject _ = Nothing
 
 extractMethod :: Xml.Content -> Maybe Method
-extractMethod (Xml.CElem (Xml.Elem method
+extractMethod (Xml.CElem (Xml.Elem "method"
                      [("name", Xml.AttValue name),
                       ("cname", Xml.AttValue cname)]
                      (Xml.CElem (Xml.Elem "return-type"
                             [("type", Xml.AttValue return_type)] [])
-                      :content))) | method == "method"
-                                 || method == "virtual_method" =
+                      :content))) =
   Just $ Method {
     method_name = Xml.verbatim name,
     method_cname = Xml.verbatim cname,
@@ -281,7 +280,8 @@ data ModuleDoc = ModuleDoc {
     moduledoc_sections :: [DocSection],    -- any additional titled subsections
     moduledoc_hierarchy :: [DocParaSpan],  -- a tree of parent objects (as text)
     moduledoc_functions :: [FuncDoc],      -- documentation for each function
-    moduledoc_properties :: [PropDoc]      -- documentation for each property
+    moduledoc_properties :: [PropDoc],     -- documentation for each property
+    moduledoc_signals :: [SignalDoc]       -- documentation for each signal
   }
 
 noModuleDoc = ModuleDoc {
@@ -292,7 +292,8 @@ noModuleDoc = ModuleDoc {
     moduledoc_sections = [],
     moduledoc_hierarchy = [],
     moduledoc_functions = [],
-    moduledoc_properties = []
+    moduledoc_properties = [],
+    moduledoc_signals = []
   }
 
 data DocSection = DocSection {
@@ -318,6 +319,13 @@ data PropDoc = PropDoc {
     propdoc_name :: String,		-- property name
     propdoc_paragraphs :: [DocPara],	-- documentation markup
     propdoc_since :: Since		-- which version of the api the
+  }					-- function is available from, eg "2.4"
+
+data SignalDoc = SignalDoc {
+    signaldoc_name :: String,		-- C signal name
+    signaldoc_paragraphs :: [DocPara],	-- documentation markup
+    signaldoc_params :: [ParamDoc],	-- parameter documentation
+    signaldoc_since :: Since		-- which version of the api the
   }					-- function is available from, eg "2.4"
 
 data DocPara =
@@ -347,9 +355,11 @@ extractDocModule :: Xml.Content -> ModuleDoc
 extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:rest))) =
   let functions = [ e | e@(Xml.CElem (Xml.Elem "function" _ _)) <- rest ]
       properties = [ e | e@(Xml.CElem (Xml.Elem "property" _ _)) <- rest ]
+      signals = [ e | e@(Xml.CElem (Xml.Elem "signal" _ _)) <- rest ]
   in (extractDocModuleinfo moduleinfo) {
     moduledoc_functions = map extractDocFunc functions,
-    moduledoc_properties = map extractDocProp properties
+    moduledoc_properties = map extractDocProp properties,
+    moduledoc_signals = map extractDocSignal signals
   }
 
 extractDocModuleinfo :: Xml.Content -> ModuleDoc
@@ -373,7 +383,8 @@ extractDocModuleinfo
     moduledoc_sections = map extractDocSection sections,
     moduledoc_hierarchy = map extractDocParaSpan objHierSpans,
     moduledoc_functions = undefined,
-    moduledoc_properties = undefined
+    moduledoc_properties = undefined,
+    moduledoc_signals = undefined
   }
 
 extractDocSection :: Xml.Content -> DocSection
@@ -429,6 +440,24 @@ extractDocProp
         propdoc_name = name,
 	propdoc_paragraphs = concatMap extractDocPara paras,
 	propdoc_since = since
+      }
+
+extractDocSignal :: Xml.Content -> SignalDoc
+extractDocSignal
+  (Xml.CElem (Xml.Elem "signal" []
+    [Xml.CElem (Xml.Elem "name" [] [Xml.CString _ name])
+    ,Xml.CElem (Xml.Elem "since" [] since')
+    ,Xml.CElem (Xml.Elem "doc" [] paras)
+    ,Xml.CElem (Xml.Elem "params" [] params)]
+  )) =
+  let since = case since' of
+                [] -> ""
+		[Xml.CString _ since] -> since
+   in SignalDoc {
+        signaldoc_name = name,
+	signaldoc_paragraphs = concatMap extractDocPara paras,
+        signaldoc_params = map extractParamDoc params,
+	signaldoc_since = since
       }
 
 extractDocPara :: Xml.Content -> [DocPara]
@@ -563,7 +592,7 @@ haddocFormatParas =
 haddocFormatPara :: DocPara -> ShowS
 haddocFormatPara (DocParaText spans) = haddocFormatSpans 3 spans
 haddocFormatPara (DocParaProgram prog) =
-    ((ss "* FIXME: port the follwing code example from C to Haskell or remove it".nl.
+    ((ss "* FIXME: if the follwing is a C code example, port it to Haskell or remove it".nl.
       comment).)
   . sepBy "\n-- > "
   . List.lines
@@ -737,6 +766,7 @@ genModuleBody knownTypes object apiDoc =
      genConstructors knownTypes object (moduledoc_functions apiDoc)
   ++ genMethods knownTypes object (moduledoc_functions apiDoc)
   ++ genProperties knownTypes object (moduledoc_properties apiDoc)
+  ++ genSignals knownTypes object (moduledoc_signals apiDoc)
 
 genMethods :: KnownTypes -> Object -> [FuncDoc] -> [(ShowS, Since)]
 genMethods knownTypes object apiDoc = 
@@ -819,6 +849,36 @@ genProperty object property doc =
           Just doc -> ss "-- | ". haddocFormatParas (propdoc_paragraphs doc). nl.
                       comment. nl
 
+signals :: Object -> [SignalDoc] -> [(Signal, Maybe SignalDoc)]
+signals object docs =
+  [ (signal, map dashToUnderscore (signal_cname signal) `lookup` docmap)
+  | signal <- object_signals object ]
+  where docmap = [ (map dashToUnderscore (signaldoc_name doc), doc)
+                 | doc <- docs ]
+        dashToUnderscore '-' = '_'
+        dashToUnderscore  c  =  c
+
+genSignals :: KnownTypes -> Object -> [SignalDoc] -> [(ShowS, Since)]
+genSignals knownTypes object apiDoc = 
+  [ (genSignal object signal doc, maybe "" signaldoc_since doc)
+  | (signal, doc) <- signals object apiDoc ] 
+
+genSignal :: Object -> Signal -> Maybe SignalDoc -> ShowS
+genSignal object property doc = 
+  formattedDoc.
+  ss "on". signalName. ss ", after". signalName. ss " :: ". nl.
+  ss "on".    signalName. ss " = connect_{-type-}". connectType. sc ' '. signalCName. ss " False". nl.
+  ss "after". signalName. ss " = connect_{-type-}". connectType. sc ' '. signalCName. ss " True". nl
+
+  where connectType = id
+        signalName = ss (upperCaseFirstChar (cFuncNameToHsName (signal_cname property)))
+        signalCName = sc '"'. ss (signal_cname property). sc '"'
+        formattedDoc = case doc of
+          Nothing  -> ss "-- | \n-- \n"
+          Just doc -> ss "-- | ". haddocFormatParas (signaldoc_paragraphs doc). nl.
+                      comment. nl
+
+
 -- We would like to be able to look up a type name and find out if it is a
 -- known class or enum so we can marshal it properly
 type KnownTypes = [(String, CTypeKind)]
@@ -861,7 +921,7 @@ makeKnownTypesMap api =
                     | namespace <- api
                     , object <- namespace_objects namespace ]
 
-genExports :: Object -> [FuncDoc] -> ShowS
+genExports :: Object -> ModuleDoc -> ShowS
 genExports object docs =
   comment.ss "* Types".
   indent 1.ss (object_name object).sc ','.
@@ -869,26 +929,30 @@ genExports object docs =
   indent 1.ss "castTo".ss (object_name object).sc ','.
   (case [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ','
           ,maybe "" funcdoc_since doc)
-        | (constructor, doc) <- constructors object docs] of
+        | (constructor, doc) <- constructors object (moduledoc_functions docs)] of
      [] -> id
      cs -> nl.nl.comment.ss "* Constructors".nl.
            doVersionIfDefs lines cs).
   (case [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ','
           ,maybe "" funcdoc_since doc)
-        | (method, doc) <- methods object docs] of
+        | (method, doc) <- methods object (moduledoc_functions docs)] of
      [] -> id
      cs -> nl.nl.comment.ss "* Methods".nl.
            doVersionIfDefs lines cs).
-  (case [ ss "  ". ss (cFuncNameToHsName (property_cname property)). sc ','
-        | property {-, doc-} <- object_properties object {-docs-}] of
+  (case [ (ss "  ". ss (cFuncNameToHsName (property_cname property)). sc ','
+          ,maybe "" propdoc_since doc)
+        | (property, doc) <- properties object (moduledoc_properties docs)] of
      [] -> id
      cs -> nl.nl.comment.ss "* Properties".nl.
-           lines cs).
-  (case [ ss "  ". ss (cFuncNameToHsName (signal_cname signal)). sc ','
-        | signal {-, doc-} <- object_signals object {-docs-}] of
+           doVersionIfDefs lines cs).
+  (case [ let signalName = (upperCaseFirstChar . cFuncNameToHsName . signal_cname) signal in 
+          (ss "  on".    ss signalName. sc ','.nl.
+           ss "  after". ss signalName. sc ','
+          ,maybe "" signaldoc_since doc)
+        | (signal, doc) <- signals object (moduledoc_signals docs)] of
      [] -> id
      cs -> nl.nl.comment.ss "* Signals".nl.
-           lines cs)
+           doVersionIfDefs lines cs)
 
 genTodoItems :: Object -> ShowS
 genTodoItems object =
@@ -1166,7 +1230,7 @@ main = do
 	    "DOCUMENTATION"  -> genModuleDocumentation moduleDoc
 	    "TODO"           -> genTodoItems object
 	    "MODULE_NAME"    -> ss (modPrefix ++ object_name object)
-	    "EXPORTS"        -> genExports object (moduledoc_functions moduleDoc)
+	    "EXPORTS"        -> genExports object moduleDoc
 	    "IMPORTS"        -> ss $ "{#import Graphics.UI.Gtk.Types#}\n"
                                   ++ "-- CHECKME: extra imports may be required\n"
 	    "CONTEXT_LIB"    -> ss (if null lib then namespace_library namespace else lib)

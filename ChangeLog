@@ -1,4 +1,18 @@
-2005-01-26 Duncan Coutts <duncan@coutts.uklinux.net>
+2005-01-30 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/ApiGen.hs: first go at generating signals including
+	documentation. Ignore virstual methods as they are internal.
+
+	* tools/apiGen/format-docs.xsl: extract signal documentation, and
+	adjust for new formatting of property documentation.
+
+2005-01-28 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/Makefile: use sed to do the patching rather than an
+	external patch file (which I'd never added to cvs anyway). This time
+	it should work for other people "out of the box".
+
+2005-01-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/gapi2xml.pl, tools/apiGen/gapi_parser.pl,
 	tools/apiGen/gapi_pp.pl: sync up with the latest version of these tools
