@@ -11,6 +11,8 @@
 	gtk/Makefile: add --disable-deprecated config option. Note that this
 	configuration will not build sucessfully yet.
 
+	* gtk/abstract/Object.chs, gtk/entry/Entry.chs: minor doc fixes.
+
 2004-08-3  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/general/FFI.hs: move a couple of

@@ -6,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2004/07/30 16:32:01 $
+--  Version $Revision: 1.11 $ from $Date: 2004/08/04 19:11:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -212,9 +212,9 @@ entryGetAlignment ec =
   liftM realToFrac $ {#call unsafe entry_get_alignment#} (toEntry ec)
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Sets the auxiliary completion object to use with
--- the entry. All further configuration of the completion mechanism is done on
--- completion using the GtkEntryCompletion API.
+-- | Sets the auxiliary completion object to use with the entry. All further
+-- configuration of the completion mechanism is done on completion using the
+-- "EntryCompletion" API.
 --
 -- * Since gtk 2.4
 --
@@ -222,8 +222,7 @@ entrySetCompletion :: EntryClass ec => ec -> EntryCompletion -> IO ()
 entrySetCompletion ec completion = {#call gtk_entry_set_completion#}
   (toEntry ec) completion
 
--- | Returns the auxiliary completion object currently
--- in use by entry
+-- | Returns the auxiliary completion object currently in use by the entry.
 --
 -- * Since gtk 2.4
 --

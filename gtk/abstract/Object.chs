@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.10 $ from $Date: 2004/08/04 19:11:20 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -91,7 +91,7 @@ makeNewObject constr generator = do
   return $ constr obj
 
 
--- method private objectSetProperty Sets a specific attribute of this object.
+-- Sets a specific attribute of this object.
 --
 -- * Most attributes in a widget can be set and retrieved by passing the
 --   name (as a string) and the value to special set\/get functions. These
@@ -105,9 +105,9 @@ objectSetProperty obj prop val = alloca $ \vaPtr -> withUTFString prop $
   (toGObject obj) sPtr vaPtr >> valueUnset vaPtr
   
 
--- method private objectGetProperty Gets a specific attribute of this object.
+-- Gets a specific attribute of this object.
 --
--- * See objectSetProperty.
+-- * See 'objectSetProperty'.
 --
 objectGetProperty :: GObjectClass gobj => gobj -> String -> 
 					IO GenericValue
