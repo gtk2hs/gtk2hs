@@ -1,3 +1,10 @@
+2005-03-24 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs,
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs,
+	gtk/Graphics/UI/Gtk/Scrolling/VScrollbar.chs: documentation changes
+	and code formatting changes.
+
 2005-03-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/glib.cabal.in, gtk/gtk.cabal.in, mogul/mogul.cabal.in,

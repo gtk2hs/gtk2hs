@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 15:16:18 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- A horizontal scrollbar
 --
 module Graphics.UI.Gtk.Scrolling.HScrollbar (
--- * Description
+-- * Detail
 -- 
 -- | The 'HScrollbar' widget is a widget arranged horizontally creating a
 -- scrollbar. See 'Scrollbar' for details on scrollbars. An 'Adjustment'
@@ -70,15 +70,19 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new HScrollbar.
+-- | Creates a new horizontal scrollbar.
 --
-hScrollbarNew :: Adjustment -> IO HScrollbar
-hScrollbarNew adj = makeNewObject mkHScrollbar $ liftM castPtr $
-  {#call unsafe hscrollbar_new#} adj
+hScrollbarNew :: 
+    Adjustment    -- ^ @adjustment@ - the 'Adjustment' to use.
+ -> IO HScrollbar
+hScrollbarNew adjustment =
+  makeNewObject mkHScrollbar $
+  liftM (castPtr :: Ptr Widget -> Ptr HScrollbar) $
+  {# call unsafe hscrollbar_new #}
+    adjustment
 
--- | Create a new HScrollbar without an 'Adjustment'.
+-- | Create a new HScrollbar without specifying an existing 'Adjustment'. A
+-- new one will be created instead.
 --
 hScrollbarNewDefaults :: IO HScrollbar
-hScrollbarNewDefaults = makeNewObject mkHScrollbar $ liftM castPtr $
-  {#call unsafe hscrollbar_new#} (mkAdjustment nullForeignPtr)
-
+hScrollbarNewDefaults = hScrollbarNew (mkAdjustment nullForeignPtr)

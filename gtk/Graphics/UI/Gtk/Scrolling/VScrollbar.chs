@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 15:16:18 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- A vertical scrollbar
 --
 module Graphics.UI.Gtk.Scrolling.VScrollbar (
--- * Description
+-- * Detail
 -- 
 -- | The 'VScrollbar' widget is a widget arranged vertically creating a
 -- scrollbar. See 'Scrollbar' for details on scrollbars. An 'Adjustment'
@@ -70,17 +70,19 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new HScrollbar.
+-- | Creates a new vertical scrollbar.
 --
-vScrollbarNew :: Adjustment -> IO VScrollbar
-vScrollbarNew adj = makeNewObject mkVScrollbar $ liftM castPtr $
-  {#call unsafe vscrollbar_new#} adj
+vScrollbarNew :: 
+    Adjustment    -- ^ @adjustment@ - the 'Adjustment' to use.
+ -> IO VScrollbar
+vScrollbarNew adjustment =
+  makeNewObject mkVScrollbar $
+  liftM (castPtr :: Ptr Widget -> Ptr VScrollbar) $
+  {# call unsafe vscrollbar_new #}
+    adjustment
 
--- | Create a new HScrollbar with a default 'Adjustment'.
+-- | Create a new HScrollbar without specifying an existing 'Adjustment'. A
+-- new one will be created instead.
 --
 vScrollbarNewDefaults :: IO VScrollbar
-vScrollbarNewDefaults = makeNewObject mkVScrollbar $ liftM castPtr $
-  {#call unsafe vscrollbar_new#} (mkAdjustment nullForeignPtr)
-
-
-
+vScrollbarNewDefaults = vScrollbarNew (mkAdjustment nullForeignPtr)

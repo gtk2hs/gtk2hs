@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/24 15:16:18 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- 'ScrolledWindow' is a container that adds scroll bars to its child
+-- Adds scrollbars to its child widget
 --
 module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
--- * Description
+-- * Detail
 -- 
 -- | 'ScrolledWindow' is a 'Bin' subclass: it's a container the accepts a
 -- single child widget. 'ScrolledWindow' adds scrollbars to the child widget
@@ -119,11 +119,22 @@ import Graphics.UI.Gtk.General.Enums	(PolicyType(..), CornerType(..), ShadowType
 --------------------
 -- Constructors
 
--- | Create a new 'ScrolledWindow'.
+-- | Creates a new scrolled window. The two arguments are the scrolled
+-- window's adjustments; these will be shared with the scrollbars and the child
+-- widget to keep the bars in sync with the child. Usually you want to pass
+-- @Nothing@ for the adjustments, which will cause the scrolled window to
+-- create them for you.
 --
-scrolledWindowNew :: Maybe Adjustment -> Maybe Adjustment -> IO ScrolledWindow
-scrolledWindowNew hAdj vAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
-  {#call unsafe scrolled_window_new#} (fromMAdj hAdj) (fromMAdj vAdj)
+scrolledWindowNew :: 
+    Maybe Adjustment  -- ^ @hadjustment@ - Horizontal adjustment.
+ -> Maybe Adjustment  -- ^ @vadjustment@ - Vertical adjustment.
+ -> IO ScrolledWindow
+scrolledWindowNew hadjustment vadjustment =
+  makeNewObject mkScrolledWindow $
+  liftM (castPtr :: Ptr Widget -> Ptr ScrolledWindow) $
+  {# call unsafe scrolled_window_new #}
+    (fromMAdj hadjustment)
+    (fromMAdj vadjustment)
  where
  fromMAdj :: Maybe Adjustment -> Adjustment
  fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
@@ -131,102 +142,156 @@ scrolledWindowNew hAdj vAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
 --------------------
 -- Methods
 
--- | Retrieve the horizontal 'Adjustment' of the 'ScrolledWindow'.
+-- | Returns the horizontal scrollbar's adjustment, used to connect the
+-- horizontal scrollbar to the child widget's horizontal scroll functionality.
 --
-scrolledWindowGetHAdjustment :: ScrolledWindowClass w => w -> IO Adjustment
-scrolledWindowGetHAdjustment w = makeNewObject mkAdjustment $
-  {#call unsafe scrolled_window_get_hadjustment#} (toScrolledWindow w)
+scrolledWindowGetHAdjustment :: ScrolledWindowClass self => self
+ -> IO Adjustment
+scrolledWindowGetHAdjustment self =
+  makeNewObject mkAdjustment $
+  {# call unsafe scrolled_window_get_hadjustment #}
+    (toScrolledWindow self)
 
--- | Retrieve the vertical 'Adjustment' of the 'ScrolledWindow'.
+-- | Returns the vertical scrollbar's adjustment, used to connect the vertical
+-- scrollbar to the child widget's vertical scroll functionality.
 --
-scrolledWindowGetVAdjustment :: ScrolledWindowClass w => w -> IO Adjustment
-scrolledWindowGetVAdjustment w = makeNewObject mkAdjustment $
-  {#call unsafe scrolled_window_get_vadjustment#} (toScrolledWindow w)
+scrolledWindowGetVAdjustment :: ScrolledWindowClass self => self
+ -> IO Adjustment
+scrolledWindowGetVAdjustment self =
+  makeNewObject mkAdjustment $
+  {# call unsafe scrolled_window_get_vadjustment #}
+    (toScrolledWindow self)
 
--- | Specify if the scrollbars should vanish if the child size is sufficiently
--- small.
+-- | Sets the scrollbar policy for the horizontal and vertical scrollbars. The
+-- policy determines when the scrollbar should appear; it is a value from the
+-- 'PolicyType' enumeration. If 'PolicyAlways', the scrollbar is always
+-- present; if 'PolicyNever', the scrollbar is never present; if
+-- 'PolicyAutomatic', the scrollbar is present only if needed (that is, if the
+-- slider part of the bar would be smaller than the trough - the display is
+-- larger than the page size).
 --
-scrolledWindowSetPolicy :: ScrolledWindowClass w => w -> PolicyType ->
-                           PolicyType -> IO ()
-scrolledWindowSetPolicy w hPol vPol = {#call scrolled_window_set_policy#}
-  (toScrolledWindow w) ((fromIntegral.fromEnum) hPol) 
-  ((fromIntegral.fromEnum) vPol)
+scrolledWindowSetPolicy :: ScrolledWindowClass self => self
+ -> PolicyType -- ^ @hscrollbarPolicy@ - Policy for horizontal bar.
+ -> PolicyType -- ^ @vscrollbarPolicy@ - Policy for vertical bar.
+ -> IO ()
+scrolledWindowSetPolicy self hscrollbarPolicy vscrollbarPolicy =
+  {# call scrolled_window_set_policy #}
+    (toScrolledWindow self)
+    ((fromIntegral . fromEnum) hscrollbarPolicy)
+    ((fromIntegral . fromEnum) vscrollbarPolicy)
 
 -- | Retrieves the current policy values for the horizontal and vertical
--- scrollbars.
+-- scrollbars. See 'scrolledWindowSetPolicy'.
 --
-scrolledWindowGetPolicy :: ScrolledWindowClass w => w
-                        -> IO (PolicyType, PolicyType)
-scrolledWindowGetPolicy w =
-  alloca $ \hPolPtr -> alloca $ \vPolPtr -> do
-  {#call unsafe scrolled_window_get_policy#} (toScrolledWindow w)
+scrolledWindowGetPolicy :: ScrolledWindowClass self => self
+ -> IO (PolicyType, PolicyType) -- ^ @(hscrollbarPolicy, vscrollbarPolicy)@
+scrolledWindowGetPolicy self =
+  alloca $ \hPolPtr ->
+  alloca $ \vPolPtr -> do
+  {# call unsafe scrolled_window_get_policy #}
+    (toScrolledWindow self)
     hPolPtr vPolPtr
   hPol <- liftM (toEnum.fromIntegral) $ peek hPolPtr
   vPol <- liftM (toEnum.fromIntegral) $ peek vPolPtr
   return (hPol, vPol)
 
--- | Add a child widget without native scrolling support to this
--- 'ScrolledWindow'.
+-- | Used to add children without native scrolling capabilities. This is
+-- simply a convenience function; it is equivalent to adding the unscrollable
+-- child to a viewport, then adding the viewport to the scrolled window. If a
+-- child has native scrolling, use 'containerAdd' instead of this function.
 --
-scrolledWindowAddWithViewport :: (ScrolledWindowClass w, WidgetClass wid) => 
-                                 w -> wid -> IO ()
-scrolledWindowAddWithViewport w wid = 
-  {#call scrolled_window_add_with_viewport#} (toScrolledWindow w) 
-  (toWidget wid)
+-- The viewport scrolls the child by moving its 'Window', and takes the size
+-- of the child to be the size of its toplevel 'Window'. This will be very
+-- wrong for most widgets that support native scrolling; for example, if you
+-- add a widget such as 'TreeView' with a viewport, the whole widget will
+-- scroll, including the column headings. Thus, widgets with native scrolling
+-- support should not be used with the 'Viewport' proxy.
+--
+scrolledWindowAddWithViewport :: (ScrolledWindowClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - Widget you want to scroll.
+ -> IO ()
+scrolledWindowAddWithViewport self child =
+  {# call scrolled_window_add_with_viewport #}
+    (toScrolledWindow self)
+    (toWidget child)
 
--- | Specify where the scrollbars should be placed.
+-- | Determines the location of the child widget with respect to the
+-- scrollbars. The default is 'CornerTopLeft', meaning the child is in the top
+-- left, with the scrollbars underneath and to the right. Other values in
+-- 'CornerType' are 'CornerTopRight', 'CornerBottomLeft', and
+-- 'CornerBottomRight'.
 --
-scrolledWindowSetPlacement :: ScrolledWindowClass w => w -> CornerType -> IO ()
-scrolledWindowSetPlacement w ct =
-  {#call scrolled_window_set_placement#} (toScrolledWindow w)
-  ((fromIntegral.fromEnum) ct)
+scrolledWindowSetPlacement :: ScrolledWindowClass self => self
+ -> CornerType -- ^ @windowPlacement@ - Position of the child window.
+ -> IO ()
+scrolledWindowSetPlacement self windowPlacement =
+  {# call scrolled_window_set_placement #}
+    (toScrolledWindow self)
+    ((fromIntegral . fromEnum) windowPlacement)
 
--- | Gets the placement of the scrollbars for the scrolled window.
+-- | Gets the placement of the scrollbars for the scrolled window. See
+-- 'scrolledWindowSetPlacement'.
 --
-scrolledWindowGetPlacement :: ScrolledWindowClass w => w -> IO CornerType
-scrolledWindowGetPlacement w = liftM (toEnum.fromIntegral) $
-  {#call unsafe scrolled_window_get_placement#} (toScrolledWindow w)
+scrolledWindowGetPlacement :: ScrolledWindowClass self => self
+ -> IO CornerType
+scrolledWindowGetPlacement self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe scrolled_window_get_placement #}
+    (toScrolledWindow self)
 
--- | Specify if and how an outer frame should be drawn around the child.
+-- | Changes the type of shadow drawn around the contents of @scrolledWindow@.
 --
-scrolledWindowSetShadowType :: ScrolledWindowClass w => w -> ShadowType ->
-                               IO ()
-scrolledWindowSetShadowType w st = {#call scrolled_window_set_shadow_type#}
-  (toScrolledWindow w) ((fromIntegral.fromEnum) st)
+scrolledWindowSetShadowType :: ScrolledWindowClass self => self
+ -> ShadowType
+ -> IO ()
+scrolledWindowSetShadowType self type_ =
+  {# call scrolled_window_set_shadow_type #}
+    (toScrolledWindow self)
+    ((fromIntegral . fromEnum) type_)
 
--- | Gets the shadow type of the scrolled window.
+-- | Gets the shadow type of the scrolled window. See
+-- 'scrolledWindowSetShadowType'.
 --
-scrolledWindowGetShadowType :: ScrolledWindowClass w => w -> IO ShadowType
-scrolledWindowGetShadowType w = liftM (toEnum.fromIntegral) $
-  {#call unsafe scrolled_window_get_shadow_type#} (toScrolledWindow w)
+scrolledWindowGetShadowType :: ScrolledWindowClass self => self
+ -> IO ShadowType
+scrolledWindowGetShadowType self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe scrolled_window_get_shadow_type #}
+    (toScrolledWindow self)
 
--- | Set the horizontal 'Adjustment' of the 'ScrolledWindow'.
+-- | Sets the 'Adjustment' for the horizontal scrollbar.
 --
-scrolledWindowSetHAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
-                                IO ()
-scrolledWindowSetHAdjustment w adj = {#call scrolled_window_set_hadjustment#}
-  (toScrolledWindow w) adj
+scrolledWindowSetHAdjustment :: ScrolledWindowClass self => self
+ -> Adjustment
+ -> IO ()
+scrolledWindowSetHAdjustment self hadjustment =
+  {# call scrolled_window_set_hadjustment #}
+    (toScrolledWindow self)
+    hadjustment
 
--- | Set the vertical 'Adjustment' of the 'ScrolledWindow'.
+-- | Sets the 'Adjustment' for the vertical scrollbar.
 --
-scrolledWindowSetVAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
-                                IO ()
-scrolledWindowSetVAdjustment w adj = {#call scrolled_window_set_vadjustment#}
-  (toScrolledWindow w) adj
+scrolledWindowSetVAdjustment :: ScrolledWindowClass self => self
+ -> Adjustment
+ -> IO ()
+scrolledWindowSetVAdjustment self vadjustment =
+  {# call scrolled_window_set_vadjustment #}
+    (toScrolledWindow self)
+    vadjustment
 
 --------------------
 -- Properties
 
 -- | The 'Adjustment' for the horizontal position.
 --
-scrolledWindowHAdjustment :: Attr ScrolledWindow Adjustment
+scrolledWindowHAdjustment :: ScrolledWindowClass self => Attr self Adjustment
 scrolledWindowHAdjustment = Attr 
   scrolledWindowGetHAdjustment
   scrolledWindowSetHAdjustment
 
 -- | The 'Adjustment' for the vertical position.
 --
-scrolledWindowVAdjustment :: Attr ScrolledWindow Adjustment
+scrolledWindowVAdjustment :: ScrolledWindowClass self => Attr self Adjustment
 scrolledWindowVAdjustment = Attr 
   scrolledWindowGetVAdjustment
   scrolledWindowSetVAdjustment
@@ -235,7 +300,7 @@ scrolledWindowVAdjustment = Attr
 --
 -- Default value: 'ShadowNone'
 --
-scrolledWindowShadowType :: Attr ScrolledWindow ShadowType
+scrolledWindowShadowType :: ScrolledWindowClass self => Attr self ShadowType
 scrolledWindowShadowType = Attr 
   scrolledWindowGetShadowType
   scrolledWindowSetShadowType
@@ -243,7 +308,7 @@ scrolledWindowShadowType = Attr
 -- | \'placement\' property. See 'scrolledWindowGetPlacement' and
 -- 'scrolledWindowSetPlacement'
 --
-scrolledWindowPlacement :: Attr ScrolledWindow CornerType
+scrolledWindowPlacement :: ScrolledWindowClass self => Attr self CornerType
 scrolledWindowPlacement = Attr 
   scrolledWindowGetPlacement
   scrolledWindowSetPlacement
