@@ -162,6 +162,13 @@
 	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: fixup names of imported
 	modules.
 
+	* mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs,
+	mogul/Graphics/UI/Gtk/Mogul/MDialog.hs,
+	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs,
+	mogul/Graphics/UI/Gtk/Mogul/TreeList.hs,
+	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs,
+	mogul/Graphics/UI/Gtk/Mogul.hs: mogul package namespace conversion.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add
