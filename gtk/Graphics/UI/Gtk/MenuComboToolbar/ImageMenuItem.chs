@@ -5,19 +5,23 @@
 --
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
---  Copyright (c) 2002 Jonas Svensson
+--  Copyright (C) 2002 Jonas Svensson
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
+--
+-- TODO
+--
+-- imageMenuItemNewFromSock should also have a AccelGroup argument
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -26,10 +30,6 @@
 --
 -- This widget implements a 'MenuItem' with an image next to it 
 --
--- TODO
---
--- * imageMenuItemNewFromSock should also have a AccelGroup argument
--- 
 module Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem (
 -- * Description
 -- 
@@ -76,7 +76,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
-{#context lib="gtk" prefix="gtk" #}
+{# context lib="gtk" prefix="gtk" #}
 
 --------------------
 -- Constructors

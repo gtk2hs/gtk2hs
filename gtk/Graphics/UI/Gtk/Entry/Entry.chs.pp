@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -98,6 +98,7 @@ module Graphics.UI.Gtk.Entry.Entry (
   ) where
 
 import Monad	(liftM)
+import Char	(ord, chr)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -105,11 +106,12 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Char	(ord, chr)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- GtkEntry implements the GtkEditable interface
+--------------------
+-- Interfaces
+
 instance EditableClass Entry
 
 --------------------

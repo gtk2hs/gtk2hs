@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -54,16 +54,17 @@
 --
 -- A widget for displaying both trees and lists.
 --
--- Widget that displays any object that implements the GtkTreeModel
+module Graphics.UI.Gtk.TreeList.TreeView (
+-- * Description
+-- 
+-- | Widget that displays any object that implements the 'TreeModel'
 -- interface.
 --
--- * The widget supports scrolling natively. This implies that pixel 
---   coordinates can be given in two formats: relative to the current view's
---   upper left corner or relative to the whole list's coordinates. The former
---   are called widget coordinates while the letter are called tree 
---   coordinates.
---
-module Graphics.UI.Gtk.TreeList.TreeView (
+-- The widget supports scrolling natively. This implies that pixel 
+-- coordinates can be given in two formats: relative to the current view's
+-- upper left corner or relative to the whole list's coordinates. The former
+-- are called widget coordinates while the letter are called tree 
+-- coordinates.
 
 -- * Class Hierarchy
 -- |

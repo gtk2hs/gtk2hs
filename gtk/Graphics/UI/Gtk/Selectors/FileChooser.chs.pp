@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -25,11 +25,11 @@
 -- Portability : portable (depends on GHC)
 --
 --  The file chooser dialog and widget is a replacement
---  for the old "FileSel"ection dialog. It provides a better user
+--  for the old 'FileSel'ection dialog. It provides a better user
 --  interface and an improved API.
 --
 --  The FileChooser (as opposed to the dialog or widget) is the interface that
---  the "FileChooserDialog" and "FileChooserWidget" implement, all the operations
+--  the 'FileChooserDialog' and 'FileChooserWidget' implement, all the operations
 --  except construction are on this interface.
 --
 -- * Added in GTK+ 2.4
@@ -200,7 +200,7 @@ import Graphics.UI.Gtk.Signals
 {#import System.Glib.GList#}
 import System.Glib.GError		(propagateGError, GErrorDomain, GErrorClass(..))
 
-{# context lib="gtk" prefix ="gtk" #}
+{# context lib="gtk" prefix="gtk" #}
 
 {# enum FileChooserAction {underscoreToCase} #}
 {# enum FileChooserError {underscoreToCase} #}

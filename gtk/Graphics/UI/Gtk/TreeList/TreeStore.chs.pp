@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -25,7 +25,7 @@
 -- Portability : portable (depends on GHC)
 --
 -- A tree-like data structure that can be used with the 'TreeView'
--- 
+--
 module Graphics.UI.Gtk.TreeList.TreeStore (
 -- * Description
 -- 

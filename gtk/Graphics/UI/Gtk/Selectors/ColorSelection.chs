@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,10 +24,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The ColorSelection is a widget that is used to select a color. It consists of
--- a color wheel and number of sliders and entry boxes for color parameters such
--- as hue, saturation, value, red, green, blue, and opacity. It is found on the
--- standard color selection dialog box "ColorSelectionDialog".
+-- A widget used to select a color.
 --
 module Graphics.UI.Gtk.Selectors.ColorSelection (
 -- * Description

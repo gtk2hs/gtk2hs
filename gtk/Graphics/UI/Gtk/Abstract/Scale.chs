@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,8 +24,8 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This is the abstract base class for HScale and VScale. It implements the
--- management of an adjustable value.
+-- This is the abstract base class for 'HScale' and 'VScale'. It implements
+-- the management of an adjustable value.
 --
 module Graphics.UI.Gtk.Abstract.Scale (
 -- * Description
@@ -34,7 +34,7 @@ module Graphics.UI.Gtk.Abstract.Scale (
 -- you'll probably want to investigate the methods on its base class, 'Range',
 -- in addition to the methods for 'Scale' itself. To set the value of a scale,
 -- you would normally use 'rangeSetValue'. To detect changes to the value, you
--- would normally use the 'onValueVhanged' signal.
+-- would normally use the 'onValueChanged' signal.
 --
 -- The 'Scale' widget is an abstract class, used only for deriving the
 -- subclasses 'HScale' and 'VScale'. To create a scale widget, call

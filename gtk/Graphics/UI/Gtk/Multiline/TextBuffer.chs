@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -42,31 +42,35 @@
 --     gtk_text_buffer_add_selection_clipboard
 --     gtk_text_buffer_remove_selection_clipboard
 --
--- |
--- Maintainer  : gtk2hs-users@lists.sourceforge.net
--- Stability   : provisional
--- Portability : portable (depends on GHC)
+-- NOTES
 --
--- This storage object holds text to be displayed by one or more 
--- 'TextView' widgets.
---
--- * See \"Text Widget Overview\" in the Gtk+ docs.
---
--- * The following convenience functions are omitted: 
+-- The following convenience functions are omitted: 
 --     gtk_text_buffer_insert_with_tags
 --     gtk_text_buffer_insert_with_tags_by_name
 --     gtk_text_buffer_create_tag
 --     gtk_text_buffer_get_bounds
 --     gtk_text_buffer_get_selection_bounds
 --
--- * The following functions do not make sense due to Haskell's wide character
+-- The following functions do not make sense due to Haskell's wide character
 --   representation of Unicode:
 --     gtk_text_buffer_get_iter_at_line_index
 --
--- * The function gtk_text_buffer_get_selection_bounds is only used to test
+-- The function gtk_text_buffer_get_selection_bounds is only used to test
 --   if there is a selection  (see 'textBufferHasSelection').
 --
+-- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- Stores attributed text for display in a 'TextView'
+--
 module Graphics.UI.Gtk.Multiline.TextBuffer (
+-- * Description
+-- 
+-- | You may wish to begin by reading the text widget conceptual overview
+-- which gives an overview of all the objects and data types related to the
+-- text widget and how they work together.
 
 -- * Class Hierarchy
 -- |

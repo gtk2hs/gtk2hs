@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,12 +24,14 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- An abstract base class to handle widgets that represent some value range.
---
--- * For signals regarding a change in the range or increments, refer to
---   'Adjustment' which is contained in the 'Range' object.
+-- Base class for widgets which visualize an 'Adjustment'
 --
 module Graphics.UI.Gtk.Abstract.Range (
+-- * Description
+--
+-- | For signals regarding a change in the range or increments, refer to
+-- 'Adjustment' which is contained in the 'Range' object.
+
 -- * Class Hierarchy
 -- |
 -- @
@@ -63,6 +65,8 @@ module Graphics.UI.Gtk.Abstract.Range (
   rangeSetRange,
   rangeSetValue,
   rangeGetValue,
+
+-- * Signals
   onMoveSlider,
   afterMoveSlider
   ) where

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -18,6 +18,12 @@
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
+--
+-- NOTES
+--
+-- This widget derives from 'Item'. Since CList and CTree are deprecated, it
+--   is the only child of that widget. The three signals defined by Item are
+--   therefore bound in this module.
 --
 -- TODO
 --
@@ -32,10 +38,6 @@
 -- Portability : portable (depends on GHC)
 --
 -- This widget represents a singe menu item.
---
--- * The widget derives from Item. Since CList and CTree are deprecated, it
---   is the only child of that widget. The three signals defined by Item are
---   therefore bound in this module.
 --
 module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
 -- * Description

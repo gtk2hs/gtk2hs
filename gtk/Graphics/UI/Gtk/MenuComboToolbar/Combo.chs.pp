@@ -5,7 +5,7 @@
 --
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -29,8 +29,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A Combo box is a text entry field with a drop down list of predefined
--- alternatives.
+-- A Combo is a text entry field with a dropdown list.
 --
 module Graphics.UI.Gtk.MenuComboToolbar.Combo (
 -- * Description

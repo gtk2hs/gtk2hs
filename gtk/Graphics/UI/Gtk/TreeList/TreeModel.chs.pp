@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,14 +24,14 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The tree interface used by "TreeView"
+-- The tree interface used by 'TreeView'
 --
 module Graphics.UI.Gtk.TreeList.TreeModel (
 -- * Description
 -- 
--- | The "TreeModel" interface defines a generic storage object for use by the
--- "TreeView" widget. It is purely abstract, concrete implementations that
--- store data for a list or tree widget are e.g. "ListStore" and "TreeStore".
+-- | The 'TreeModel' interface defines a generic storage object for use by the
+-- 'TreeView' widget. It is purely abstract, concrete implementations that
+-- store data for a list or tree widget are e.g. 'ListStore' and 'TreeStore'.
 --
 -- The model is represented as a hierarchical tree of strongly-typed,
 -- columned data. In other words, the model can be seen as a tree where every
@@ -43,44 +43,44 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
 -- The implementation of each individual model decides how and if changes are
 -- made.
 --
--- Two generic models are provided that implement the "TreeModel" interface:
+-- Two generic models are provided that implement the 'TreeModel' interface:
 -- the
--- "TreeStore" and the "ListStore". To use these, the developer simply pushes
+-- 'TreeStore' and the 'ListStore'. To use these, the developer simply pushes
 -- data into these models as necessary. These models provide the data 
--- structure as well as the "TreeModel" interface. In fact, they implement
+-- structure as well as the 'TreeModel' interface. In fact, they implement
 -- other interfaces making drag
--- and drop, sorting, and storing data  trivial.
+-- and drop, sorting, and storing data trivial.
 --
 -- Models are accessed on a node\/column level of granularity. One can query
 -- for the value of a model at a certain node and a certain column on that
 -- node. There are two structures used to reference a particular node in a
--- model. They are the "TreePath" and the "TreeIter" Most of the interface
--- consists of operations on a "TreeIter".
+-- model. They are the 'TreePath' and the 'TreeIter' Most of the interface
+-- consists of operations on a 'TreeIter'.
 --
 -- A path is essentially a potential node. It is a location on a model that
 -- may or may not actually correspond to a node on a specific model. A
--- "TreePath" is in fact just a list of "Int"s and hence are easy to
+-- 'TreePath' is in fact just a list of 'Int's and hence are easy to
 -- manipulate. Each number refers to the offset at that level. Thus, the 
 -- path @[0]@ refers to the
 -- root node and the path @[2,4]@ refers to the fifth child of the third node.
 --
--- By contrast, a "TreeIter" is a reference to a specific node on a specific
+-- By contrast, a 'TreeIter' is a reference to a specific node on a specific
 -- model. It is an abstract data type filled in by the model. One can convert a
 -- path to an iterator by calling 'treeModelGetIter'. These iterators are the
 -- primary way of accessing a model and are similar to the iterators used by
--- "TextBuffer". The model interface defines a set of operations using
+-- 'TextBuffer'. The model interface defines a set of operations using
 -- them for navigating the model.
 --
 -- The lifecycle of an iterator can be a little confusing at first.
 -- Iterators are expected to always be valid for as long as the model is
 -- unchanged (and doesn't emit a signal). 
--- Additionally, the "TreeStore" and "ListStore" models guarantee that 
+-- Additionally, the 'TreeStore' and 'ListStore' models guarantee that 
 -- an iterator is valid for as long as the node it refers to is valid.
 -- Although generally uninteresting, as one
 -- always has to allow for the case where iterators do not persist beyond a
 -- signal, some very important performance enhancements were made in the sort
--- model. As a result, the \"TreeModelItersPersist\" flag was added to
--- indicate this behavior.
+-- model. As a result, the 'TreeModelItersPersist' flag was added to indicate
+-- this behavior.
 --
 
 -- * Class Hierarchy

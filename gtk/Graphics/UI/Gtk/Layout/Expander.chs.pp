@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -78,7 +78,7 @@ module Graphics.UI.Gtk.Layout.Expander (
   onActivate,
   afterActivate
 #endif
-) where
+  ) where
 
 #if GTK_CHECK_VERSION(2,4,0)
 
@@ -90,7 +90,7 @@ import Graphics.UI.Gtk.Abstract.Object
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Signals
 
-{# context lib="gtk" prefix ="gtk" #}
+{# context lib="gtk" prefix="gtk" #}
 
 --------------------
 -- Constructors

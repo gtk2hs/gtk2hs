@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:43 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -99,13 +99,13 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   ) where
 
 import Monad	(liftM)
+import Maybe    (fromMaybe)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(PolicyType(..), CornerType(..), ShadowType(..))
-import Maybe    (fromMaybe)
 
 {# context lib="gtk" prefix="gtk" #}
 

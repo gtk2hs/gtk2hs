@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -29,8 +29,8 @@
 module Graphics.UI.Gtk.Layout.Fixed (
 -- * Description
 -- 
--- | The "Fixed" widget is a container which can place child widgets at fixed
--- positions and with fixed sizes, given in pixels. "Fixed" performs no
+-- | The 'Fixed' widget is a container which can place child widgets at fixed
+-- positions and with fixed sizes, given in pixels. 'Fixed' performs no
 -- automatic layout management.
 --
 -- For most applications, you should not use this container! It keeps you
@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.Layout.Fixed (
 -- In addition, the fixed widget can't properly be mirrored in right-to-left
 -- languages such as Hebrew and Arabic. i.e. normally Gtk+ will flip the
 -- interface to put labels to the right of the thing they label, but it can't
--- do that with "Fixed". So your application will not be usable in
+-- do that with 'Fixed'. So your application will not be usable in
 -- right-to-left languages.
 --
 -- Finally, fixed positioning makes it kind of annoying to add\/remove GUI
@@ -60,7 +60,7 @@ module Graphics.UI.Gtk.Layout.Fixed (
 -- long-term maintenance problem for your application.
 --
 -- If you know none of these things are an issue for your application, and
--- prefer the simplicity of "Fixed", by all means use the widget. But you
+-- prefer the simplicity of 'Fixed', by all means use the widget. But you
 -- should be aware of the tradeoffs.
 
 -- * Class Hierarchy

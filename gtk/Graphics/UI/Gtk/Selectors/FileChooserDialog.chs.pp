@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -28,7 +28,7 @@
 -- for the old "FileSel"ection dialog. It provides a better user
 -- interface and an improved API.
 --
--- * This is the dialog variant of the "FileChooser"
+-- * This is the dialog variant of the 'FileChooser'
 --
 -- * Added in GTK+ 2.4
 --
@@ -93,11 +93,15 @@ import Graphics.UI.Gtk.Windows.Dialog
 import System.Glib.GValue
 import System.Glib.StoreValue
 
-{# context lib="gtk" prefix ="gtk" #}
+{# context lib="gtk" prefix="gtk" #}
 
--- The FileChooserDialog implements the FileChooser interface
--- which we model in Haskell as another instance decleration
+--------------------
+-- Interfaces
+
 instance FileChooserClass FileChooserDialog
+
+--------------------
+-- Constructors
 
 fileChooserDialogNew
   :: Maybe String            -- ^ Title of the dialog (or default)
@@ -107,7 +111,6 @@ fileChooserDialogNew
   -> IO FileChooserDialog
 fileChooserDialogNew title parent action buttons =
   internalFileChooserDialogNew title parent action buttons Nothing
-
 
 fileChooserDialogNewWithBackend
   :: Maybe String              -- ^ Title of the dialog (or default)

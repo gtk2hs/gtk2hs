@@ -5,7 +5,7 @@
 --
 --  Created: 13 February 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -66,7 +66,6 @@ module Graphics.UI.Gtk.General.Style (
   ) where
 
 import Monad		(liftM)
-
 
 {#import System.Glib.GObject#}	(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}

@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -19,25 +19,29 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- NOTES
+--
+-- tree_view_column_new_with_attributes and tree_view_column_set_attributes 
+--   are variadic and the funcitonality can be achieved through other 
+--   functions.
+--
+-- tree_view_column_set_cell_data and tree_view_column_cell_get_size are not
+--   bound because I am not sure what they do and when they are useful
+--
+-- TODO
+--
+-- treeViewColumnSetCellData is not bound. With this function the user has
+--   control over how data in the store is mapped to the attributes of a
+--   cell renderer. This functin should be bound in the future to allow the
+--   user to insert Haskell data types into the store and convert these
+--   values to attributes of cell renderers.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- * tree_view_column_new_with_attributes and tree_view_column_set_attributes 
---   are variadic and the funcitonality can be achieved through other 
---   functions.
---
--- * tree_view_column_set_cell_data and tree_view_column_cell_get_size are not
---   bound because I am not sure what they do and when they are useful
---
--- TODO
---
--- * treeViewColumnSetCellData is not bound. With this function the user has
---   control over how data in the store is mapped to the attributes of a
---   cell renderer. This functin should be bound in the future to allow the
---   user to insert Haskell data types into the store and convert these
---   values to attributes of cell renderers.
+-- A visible column in a 'TreeView' widget
 --
 module Graphics.UI.Gtk.TreeList.TreeViewColumn (
 -- * Description
@@ -123,8 +127,6 @@ import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 {#import System.Glib.GList#}
 
 {# context lib="gtk" prefix="gtk" #}
-
--- TreeViewColumn type declaration
 
 --------------------
 -- Constructors

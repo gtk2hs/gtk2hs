@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts, Axel Simon
 --
@@ -73,6 +73,11 @@ import System.Glib.GObject			(makeNewGObject)
 import Graphics.UI.Gtk.General.Structs		(treeIterSize)
 
 {# context lib="gtk" prefix="gtk" #}
+
+--------------------
+-- Interfaces
+
+instance TreeModelClass TreeModelSort
 
 --------------------
 -- Constructors

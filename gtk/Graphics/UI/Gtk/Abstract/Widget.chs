@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -43,7 +43,7 @@
 -- Portability : portable (depends on GHC)
 --
 -- Base class for all widgets
--- 
+--
 module Graphics.UI.Gtk.Abstract.Widget (
 -- * Description
 -- 
@@ -81,6 +81,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   Allocation,
   Requisition(..),
   Rectangle(..),
+
+-- * Methods
   widgetGetState,
   widgetGetSavedState,
   widgetShow,			-- Showing and hiding a widget.
@@ -108,6 +110,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetDirection,
 --  widgetLockAccelerators,
 --  widgetUnlockAccelerators,
+
+-- * Signals
   Event(..),
   onButtonPress,
   afterButtonPress,

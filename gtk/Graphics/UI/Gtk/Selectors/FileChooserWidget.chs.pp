@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:43 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -25,10 +25,10 @@
 -- Portability : portable (depends on GHC)
 --
 --  The file chooser dialog and widget is a replacement
---  for the old "FileSel"ection dialog. It provides a better user
+--  for the old 'FileSel'ection dialog. It provides a better user
 --  interface and an improved API.
 --
--- * This is the widget variant of the "FileChooser"
+-- * This is the widget variant of the 'FileChooser'
 --
 -- * Added in GTK+ 2.4
 --
@@ -80,10 +80,11 @@ import Graphics.UI.Gtk.Abstract.Object
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction)
 
-{# context lib="gtk" prefix ="gtk" #}
+{# context lib="gtk" prefix="gtk" #}
 
--- The FileChooserWidget implements the FileChooser interface
--- which we model in Haskell as another instance decleration
+--------------------
+-- Interfaces
+
 instance FileChooserClass FileChooserWidget
 
 --------------------

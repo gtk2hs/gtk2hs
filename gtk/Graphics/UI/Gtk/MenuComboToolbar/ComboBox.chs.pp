@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -87,7 +87,7 @@ import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#} (TreeIter(..), createTreeIter)
 
-{# context lib="gtk" prefix ="gtk" #}
+{# context lib="gtk" prefix="gtk" #}
 
 --------------------
 -- Constructors

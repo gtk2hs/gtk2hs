@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,7 +83,8 @@ module Graphics.UI.Gtk.Misc.DrawingArea (
 
 -- * Methods
   drawingAreaGetDrawWindow,
-  drawingAreaGetSize) where
+  drawingAreaGetSize
+  ) where
 
 import Monad	(liftM)
 

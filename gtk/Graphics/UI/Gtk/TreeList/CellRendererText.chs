@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -26,12 +26,13 @@
 --
 -- A 'CellRenderer' which displays a single-line text.
 --
--- * This widget derives from 'CellRenderer'. It provides the 
---   possibility to display some text by setting the 'Attribute' 
---   'cellText' to the column of a 'TreeModel' by means of 
---   'treeViewAddAttribute' from 'TreeModelColumn'.
---
 module Graphics.UI.Gtk.TreeList.CellRendererText (
+-- * Description
+--
+-- | This widget derives from 'CellRenderer'. It provides the 
+-- possibility to display some text by setting the 'Attribute' 
+-- 'cellText' to the column of a 'TreeModel' by means of 
+-- 'treeViewAddAttribute' from 'TreeModelColumn'.
 
 -- * Class Hierarchy
 -- |

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,8 +24,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The ProgressBar provides a means for an application to keep the user
--- patient while some time intensive task is going on.
+-- A widget which indicates progress visually.
 --
 module Graphics.UI.Gtk.Display.ProgressBar (
 -- * Description
@@ -98,7 +97,7 @@ import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
 --------------------
 -- Constructors
 
--- | Create a new ProgreeBar.
+-- | Creates a new 'ProgressBar'.
 --
 progressBarNew :: IO ProgressBar
 progressBarNew  = makeNewObject mkProgressBar $ liftM castPtr $

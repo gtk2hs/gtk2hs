@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,7 +24,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Completion functionality for the "Entry" widget.
+-- Completion functionality for the 'Entry' widget.
 --
 -- * Added in GTK+ 2.4
 --

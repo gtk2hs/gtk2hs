@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -104,7 +104,9 @@ import Graphics.UI.Gtk.General.Enums	(SpinButtonUpdatePolicy(..), SpinType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
--- GtkSpinbutton implements the GtkEditable interface
+--------------------
+-- Interfaces
+
 instance EditableClass SpinButton
 
 --------------------

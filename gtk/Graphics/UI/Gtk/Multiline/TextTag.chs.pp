@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -19,16 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- accessor functions for TextAttributes
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A tag that can be applied to text in a "TextBuffer".
---
--- TODO
---
--- * accessor functions for TextAttributes
+-- A tag that can be applied to text in a 'TextBuffer'.
 --
 module Graphics.UI.Gtk.Multiline.TextTag (
 -- * Description

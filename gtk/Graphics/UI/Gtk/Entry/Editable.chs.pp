@@ -5,7 +5,7 @@
 --
 --  Created: 30 July 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
 --
 --  Copyright (C) 1999-2005 Axel Simon, Duncan Coutts
 --
@@ -30,7 +30,7 @@
 -- Portability : portable (depends on GHC)
 --
 -- This is an interface for simple single-line text editing widgets. It is
--- implemented by "Entry" and "SpinButton".
+-- implemented by 'Entry' and 'SpinButton'.
 --
 module Graphics.UI.Gtk.Entry.Editable (
 -- * Description

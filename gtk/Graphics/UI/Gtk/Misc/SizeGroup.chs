@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -86,7 +86,7 @@ import System.Glib.GObject	(makeNewGObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
-{#enum SizeGroupMode {underscoreToCase}#}
+{# enum SizeGroupMode {underscoreToCase} #}
 
 --------------------
 -- Constructors

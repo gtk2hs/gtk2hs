@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/25 01:11:31 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/25 22:53:40 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -75,13 +75,11 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
   ) where
 
 import Monad (liftM)
+
 import System.Glib.FFI
-
-
 import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-
 import Graphics.UI.Gtk.General.Enums (ButtonBoxStyle)
 
 {# context lib="gtk" prefix="gtk" #}

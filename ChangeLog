@@ -145,6 +145,57 @@
 
 	* tools/apiGen/Makefile: add MarshalFixup.hs dep.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Misc.chs,
+	gtk/Graphics/UI/Gtk/Display/Label.chs,
+	gtk/Graphics/UI/Gtk/General/Style.chs,
+	gtk/Graphics/UI/Gtk/Layout/Expander.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/CheckMenuItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBoxEntry.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs,
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs,
+	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp: trivial white space
+	changes to better match the generated code.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scale.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs,
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs,
+	gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Fixed.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Combo.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuItem.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/ColorSelection.chs,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs,
+	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp: minor
+	documentation changes
+
+	* gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/SpinButton.chs,
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs: other trivial
+	changes to better match the generated code.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeModelSort.chs.pp: since
+	GtkTreeModelSort implementes the GtkTreeModel interface, make
+	TreeModelSort an instance of TreeModelClass.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/ImageMenuItem.chs: relicense to
+	LGPL with permission of Jonas Svensson.
+
 2005-02-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: Bump version to 0.9.7.1

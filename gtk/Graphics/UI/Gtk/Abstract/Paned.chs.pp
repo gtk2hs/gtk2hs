@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:41 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,9 +24,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This abstract widget provides a division line with a handle that can be
--- used by the user to divide the given space between two widgets. The two
--- concrete implementations are HPaned and VPaned.
+-- Base class for widgets with two adjustable panes
 --
 module Graphics.UI.Gtk.Abstract.Paned (
 -- * Description

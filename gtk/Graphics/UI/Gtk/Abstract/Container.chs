@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:40 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -102,10 +102,8 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- rather to their relation. Typical examples of child properties are the
 -- position or pack-type of a widget which is contained in a 'Box'.
 --
--- To set the value of a child property, use 'containerChildSetProperty',
--- 'containerChildSet' or 'containerChildSetValist'. To obtain the value of a
--- child property, use 'containerChildGetProperty', 'containerChildGet' or
--- 'containerChildGetValist'.
+-- To set the value of a child property, use 'containerChildSetProperty'.
+-- To obtain the value of a child property, use 'containerChildGetProperty'.
 -- 
 
 -- * Class Hierarchy
@@ -180,7 +178,6 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GList		(fromGList, toGList)
 {#import System.Glib.GValue#}		(GValue, GenericValue, valueUnset)
 import Graphics.UI.Gtk.General.Enums	(DirectionType(..))
-
 
 {# context lib="gtk" prefix="gtk" #}
 
