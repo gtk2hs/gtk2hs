@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/06/13 23:03:12 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -224,7 +224,7 @@ textIterGetSlice end start = do
 -- * Pictures (and other objects) are stripped form the output.
 --
 textIterGetText :: TextIter -> TextIter -> IO String
-textIterGetText end start = do
+textIterGetText start end = do
   cStr <- {#call text_iter_get_text#} start end
   str <- peekCString cStr
   {#call unsafe g_free#} (castPtr cStr)
@@ -235,7 +235,7 @@ textIterGetText end start = do
 -- * Pictures (and other objects) are represented by 0xFFFC.
 --
 textIterGetVisibleSlice :: TextIter -> TextIter -> IO String
-textIterGetVisibleSlice end start = do
+textIterGetVisibleSlice start end = do
   cStr <- {#call text_iter_get_visible_slice#} start end
   str <- peekCString cStr
   {#call unsafe g_free#} (castPtr cStr)
@@ -246,7 +246,7 @@ textIterGetVisibleSlice end start = do
 -- * Pictures (and other objects) are stripped form the output.
 --
 textIterGetVisibleText :: TextIter -> TextIter -> IO String
-textIterGetVisibleText end start = do
+textIterGetVisibleText start end = do
   cStr <- {#call text_iter_get_visible_text#} start end
   str <- peekCString cStr
   {#call unsafe g_free#} (castPtr cStr)
