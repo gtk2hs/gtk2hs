@@ -90,6 +90,9 @@
 	gtk/windows/FileSel.chs, gtk/windows/Window.chs:
 	initial haddockification
 
+	* embedding/Embedding.hsc, embedding/Plug.hs,
+	embedding/Socket.chs: initial haddockification
+
 2004-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/abstract/Widget.chs:

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Socket@
+--  GIMP Toolkit (GTK) Widget Socket
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/23 17:04:07 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,26 +19,23 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This widget provides the possibility that other application display their
---   widgets within this application.
---
--- @documentation@ ------------------------------------------------------------
+-- This widget provides the possibility that other application display their
+-- widgets within this application.
 --
 -- * After creation of the Socket, you may retrieve the 
---   @ref data NativeWindow@ of the socket. 
+--   'NativeWindow' of the socket. 
 --   For this to work, the socket must at least be realized (e.g. shown).
 --
--- * The application has to make sure the @ref data Socket@
+-- * The application has to make sure the 'Socket'
 --   is not destroyed while the
---   other application tries to connect. If the @ref data NativeWindow@ was 
+--   other application tries to connect. If the 'NativeWindow' was 
 --   transmitted, the
---   inviting application can check with @ref method socketHasPlug@ if the 
+--   inviting application can check with 'socketHasPlug' if the 
 --   plug has
 --   already connected.
 --
--- @todo@ ---------------------------------------------------------------------
 
 module Socket(
   Socket,
@@ -67,44 +64,44 @@ import Embedding	(NativeWindowId, socketHasPlug)
 
 -- methods
 
--- @constructor socketNew@ Create a @ref data Container@ for embedding.
+-- | Create a 'Container' for embedding.
 --
--- * @ref data Socket@ is a @ref data Container@ for foreign applications
+-- * 'Socket' is a 'Container' for foreign applications
 --   that support the XEMBED protocol. To connect two applications the
---   @ref data NativeWindowId@ has to be passed either from this socket
---   to the other application's @ref data Plug@ or vice versa.
+--   'NativeWindowId' has to be passed either from this socket
+--   to the other application's 'Plug' or vice versa.
 --
 socketNew :: IO Socket
 socketNew = makeNewObject mkSocket $ liftM castPtr {#call unsafe socket_new#}
 
--- @method socketAddId@ Insert another application into this socket.
+-- | Insert another application into this socket.
 --
 -- * Inserts the other application into this plug. The
---   @ref data NativeWindowId@ comes from the other application.
+--   'NativeWindowId' comes from the other application.
 --
--- * The @ref data Socket@ must have already be added into a toplevel
+-- * The 'Socket' must have already be added into a toplevel
 --   window before you can make this call.
 --
 socketAddId :: SocketClass s => s -> NativeWindowId -> IO ()
 socketAddId soc nwi = {#call unsafe socket_add_id#} (toSocket soc) 
 		      (fromIntegral nwi)
 
--- @method socketGetId@ Prepare to insert this application into another.
+-- | Prepare to insert this application into another.
 --
--- * The extracted @ref data NativeWindowId@ can be passed to another
---   application which can then embed this socket @ref data Container@.
+-- * The extracted 'NativeWindowId' can be passed to another
+--   application which can then embed this socket 'Container'.
 --
 socketGetId :: SocketClass s => s -> IO NativeWindowId
 socketGetId soc = liftM fromIntegral $
 		  {#call unsafe socket_get_id#} (toSocket soc)
 
--- @signal connectToPlugAdded@ This socket was added into another application.
+-- | This socket was added into another application.
 --
 onPlugAdded, afterPlugAdded :: SocketClass s => s -> IO () -> IO (ConnectId s)
 onPlugAdded = connect_NONE__NONE "plug-added" False
 afterPlugAdded = connect_NONE__NONE "plug-added" True
 
--- @signal connectToPlugRemoved@ This socket was removed from another
+-- | This socket was removed from another
 -- application.
 --
 onPlugRemoved, afterPlugRemoved :: SocketClass s => s -> IO () -> 

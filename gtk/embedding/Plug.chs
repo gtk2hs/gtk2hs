@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Plug@
+--  GIMP Toolkit (GTK) Widget Plug
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 17:04:07 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,17 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * Plug is a window that is to be attached to the window of another
---   application. If you have managed to receive the @ref type XID@ from
---   the inviting application you can construct the Plug and add your widgets
---   to it.
+-- Plug is a window that is to be attached to the window of another
+-- application. If you have managed to receive the 'XID' from
+-- the inviting application you can construct the Plug and add your widgets
+-- to it.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Plug(
   Plug,
@@ -53,28 +49,28 @@ import Embedding (NativeWindowId)
 
 -- methods
 
--- @constructor plugNew@ Create a new @ref data Window@ to hold another
+-- | Create a new 'Window' to hold another
 -- application.
 --
--- * The Plug may be constructed with a @ref data NativeWindowId@. In this
---   the foreign application will immediatly appear in this @ref data Plug@
---   once it is shown. If @literal Nothing@ is passed for @ref arg nmw@ a
---   @ref data NativeWindowId@ can be extracted from this @ref data Plug@
+-- * The Plug may be constructed with a 'NativeWindowId'. In this
+--   the foreign application will immediatly appear in this 'Plug'
+--   once it is shown. If @Nothing@ is passed for @nmw@ a
+--   'NativeWindowId' can be extracted from this 'Plug'
 --   and be passed to the application which is to be embedded.
 --
 plugNew :: Maybe NativeWindowId -> IO Plug
 plugNew mnw = makeNewObject mkPlug $ liftM castPtr $
   {#call unsafe plug_new#} (fromIntegral (fromMaybe 0 mnw))
 
--- @method plugGetId@ Retrieve the @ref data NativeWindowId@.
+-- | Retrieve the 'NativeWindowId'.
 --
 -- * The result should be passed to the application which is to be embedded.
---   See @ref constructor plugNew@.
+--   See 'plugNew'.
 --
 plugGetId :: PlugClass p => p -> IO NativeWindowId
 plugGetId p = liftM fromIntegral $ {#call unsafe plug_get_id#} (toPlug p)
 
--- @signal connectToEmbedded@ This plug received another application.
+-- | This plug received another application.
 --
 onEmbedded, afterEmbedded :: PlugClass p => p -> IO () -> IO (ConnectId p)
 onEmbedded = connect_NONE__NONE "embedded" False

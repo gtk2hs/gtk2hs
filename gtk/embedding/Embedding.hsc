@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Socket@
+--  GIMP Toolkit (GTK) Widget Socket
 --
 --  Author : Axel Simon
 --          
 --  Created: 20 January 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.3 $ from $Date: 2004/05/23 17:04:07 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -19,13 +19,9 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * NativeWindowId is a CUInt for c2hs and a Word32 for hsc2hs. I used
 --   fromIntegral to make it work, but it doesn't feel right.
@@ -42,11 +38,11 @@ import Exception
 
 #include<gtk/gtk.h>
 
--- @type NativeWindowId@ The identifer of a window to be embedded.
+-- | The identifer of a window to be embedded.
 --
 type NativeWindowId = #type GdkNativeWindow
 
--- @method socketHasPlug@ Test if a Plug is connected to the socket.
+-- | Test if a Plug is connected to the socket.
 -- 
 socketHasPlug :: SocketClass s => s -> IO Bool
 socketHasPlug socket = do
