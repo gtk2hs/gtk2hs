@@ -153,7 +153,7 @@ C2HSFLAGGED	:= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 %.chi : %.hs
 
 define runC2HS
-if test -f .depend; then \
+@if test -f .depend; then \
   echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend` && \
   ($(C2HSFLAGGED) -o : $(HEADER) `cat .depend` || \
   (echo removing `cat .depend | $(SED) s/\(.*\)\.chs/\1.hs/`; \
