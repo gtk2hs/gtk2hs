@@ -1,4 +1,4 @@
-2004-07-24 Duncan Coutts <duncan@coutts.uklinux.net>
+2004-07-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.in: use relative $(TOP) variable rather than absolute $TOP
 	variable, so Makefiles use relative paths. Add test for gconf package.
