@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:09 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/17 15:59:19 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -44,11 +44,15 @@ module TreeViewColumn(
   TreeViewColumnClass,
   castToTreeViewColumn,
   treeViewColumnNew,
+  treeViewColumnNewWithAttributes,
   treeViewColumnPackStart,
   treeViewColumnPackEnd,
   treeViewColumnClear,
   treeViewColumnGetCellRenderers,
   treeViewColumnAddAttribute,
+  treeViewColumnAddAttributes,
+  treeViewColumnSetAttributes,
+  treeViewColumnClearAttributes,
   treeViewColumnSetSpacing,
   treeViewColumnGetSpacing,
   treeViewColumnSetVisible,
@@ -108,6 +112,20 @@ treeViewColumnNew :: IO TreeViewColumn
 treeViewColumnNew  = makeNewObject mkTreeViewColumn 
   {#call tree_view_column_new#}
 
+-- @method treeViewColumnNewWithAttributes@ Returns a new TreeViewColumn with
+-- title @ref arg title@, cell renderer @ref arg cr@, and attributes
+-- @ref arg attribs@.
+--
+treeViewColumnNewWithAttributes :: CellRendererClass cr => String -> cr -> 
+				   [(String, Int)] -> IO TreeViewColumn
+treeViewColumnNewWithAttributes title cr attribs =
+    do
+    tvc <- treeViewColumnNew
+    treeViewColumnSetTitle tvc title
+    treeViewColumnPackStart tvc  cr True
+    treeViewColumnAddAttributes tvc cr attribs
+    return tvc
+
 -- @method treeViewColumnPackStart@ Add a cell renderer at the beginning of
 -- a column.
 --
@@ -160,6 +178,40 @@ treeViewColumnAddAttribute :: (TreeViewColumnClass tvc, CellRendererClass cr)
 treeViewColumnAddAttribute tvc cr attr col = 
   withCString attr $ \cstr ->  {#call unsafe tree_view_column_add_attribute#} 
     (toTreeViewColumn tvc) (toCellRenderer cr) cstr (fromIntegral col)
+
+-- @method treeViewColumnAddAttributes@ Insert attributes @ref arg attribs@
+-- to change the behaviour of column @ref arg tvc@'s cell renderer
+-- @ref arg cr@.
+--
+treeViewColumnAddAttributes :: 
+  (TreeViewColumnClass tvc, CellRendererClass cr) => 
+  tvc -> cr -> [(String,Int)] -> IO ()
+treeViewColumnAddAttributes tvc cr attribs = 
+    mapM_ (\ (attr, col) -> treeViewColumnAddAttribute tvc cr attr col) attribs
+
+-- @method treeViewColumnSetAttributes@ Set the attributes of
+-- the cell renderer @ref arg cr@ in the tree column @ref arg tvc@
+-- be  @red arg attribs@.
+-- The attributes are given as a list of attribute/column pairs.
+-- All existing attributes are removed, and replaced with the new attributes.
+--
+treeViewColumnSetAttributes :: 
+    (TreeViewColumnClass tvc, CellRendererClass cr)  =>
+    tvc -> cr -> [(String, Int)] -> IO ()
+treeViewColumnSetAttributes tvc cr attribs =
+    do
+    treeViewColumnClearAttributes tvc cr
+    treeViewColumnAddAttributes tvc cr attribs
+
+-- @method treeViewColumnClearAttributes@ Clears all existing attributes
+-- of the column @ref arg tvc@.
+--
+treeViewColumnClearAttributes :: 
+    (TreeViewColumnClass tvc, CellRendererClass cr) =>
+    tvc -> cr -> IO ()
+treeViewColumnClearAttributes tvc cr =
+  {#call tree_view_column_clear_attributes#} (toTreeViewColumn tvc)
+    (toCellRenderer cr)
 
 
 -- @method treeViewColumnSetSpacing@ Set the number of pixels between two
