@@ -4,7 +4,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 13:22:46 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/15 14:44:33 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -138,6 +138,7 @@ module NewWidget(
   newTable,
   newNamedTable,
   newTextView,
+  newNamedTextView,
   newToolbar,
   newNamedToolbar,
   newCalendar,
