@@ -1,10 +1,17 @@
 2005-02-05 Duncan Coutts <duncan@coutts.uklinux.net>
 
-	* tools/apiGen/ApiGen.hs: addsupport for interfaces, deal with
+	* tools/apiGen/ApiGen.hs: add support for interfaces, deal with
 	examples in a more general way and improve the generation of
 	properties.
 
 	* tools/apiGen/format-docs.xsl: deal with another kind of table.
+
+	* tools/apiGen/ApiGen.hs, tools/apiGen/Api.hs, tools/apiGen/Docs.hs,
+	tools/apiGen/FormatDocs.hs, tools/apiGen/Marshal.hs,
+	tools/apiGen/CodeGen.hs, tools/apiGen/StringUtils.hs: split ApiGen.hs
+	into several modules to make it easier to manage and understand.
+
+	* tools/apiGen/Makefile: update the Makefile accordingly
 
 2005-02-04 Axel Simon <A.Simon@kent.ac.uk>
 
