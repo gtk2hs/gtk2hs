@@ -33,14 +33,14 @@ LINK = 	$(strip $(HC) -o $@ $($(NAME)_HCFLAGS) \
 .PHONY: depend
 
 depend: $($(NAME)_BUILDSOURCES)
-	$(strip $(if $($(NAME)_BUILDSOURCES),\
+	$(if $(word 2,$($(NAME)_HSFILES)),\
 	$(HC) -M $(addprefix -optdep,-f $(NAME).deps) \
 	$($(NAME)_HCFLAGS) -i$(VPATH) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
 	$($(NAME)_HEADER))) \
 	$(AM_CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS) \
-	$($(NAME)_HSFILES)))
+	$($(NAME)_HSFILES))
 
 .chs.dep :
 	$(CHSDEPEND) -i$(VPATH) $<
