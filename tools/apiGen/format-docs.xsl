@@ -57,6 +57,21 @@
 <listitem><xsl:apply-templates/></listitem>
 </xsl:template>
 
+<xsl:template match="informaltable[tgroup/tbody/row]">
+<para><xsl:apply-templates/></para>
+</xsl:template>
+
+<xsl:template match="tgroup/tbody/row">
+<definition>
+	<term><xsl:apply-templates select="entry[1]"/></term>
+	<xsl:apply-templates select="entry[position()>1]"/>
+</definition>
+</xsl:template>
+
+<xsl:template match="keycombo">
+<xsl:value-of select="keycap[1]"/>-<xsl:value-of select="keycap[2]"/>
+</xsl:template>
+
 <xsl:template match="section | refsect2">
 <section>
 	<title><xsl:value-of select="title"/></title>
@@ -67,7 +82,7 @@
 <xsl:template match="example">
 <example>
 	<title><xsl:value-of select="title"/></title>
-	<xsl:apply-templates select="para | programlisting"/>
+	<xsl:apply-templates select="para | programlisting | informaltable"/>
 </example>
 </xsl:template>
 

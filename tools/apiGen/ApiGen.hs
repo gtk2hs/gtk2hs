@@ -156,6 +156,18 @@ extractObject (Xml.CElem (Xml.Elem "object"
     object_properties = catMaybes (map extractProperty content),
     object_signals = catMaybes (map extractSignal content)
   }
+extractObject (Xml.CElem (Xml.Elem "interface"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname)] content)) =
+  Just $ Object {
+    object_name = Xml.verbatim name,
+    object_cname = Xml.verbatim cname,
+    object_parent = "GObject",
+    object_constructors = catMaybes (map extractConstructor content),
+    object_methods = catMaybes (map extractMethod content),
+    object_properties = catMaybes (map extractProperty content),
+    object_signals = catMaybes (map extractSignal content)
+  }
 extractObject _ = Nothing
 
 extractMethod :: Xml.Content -> Maybe Method
@@ -331,7 +343,7 @@ data SignalDoc = SignalDoc {
 data DocPara =
     DocParaText [DocParaSpan]           -- an ordinary word-wrapped paragraph
   | DocParaProgram String               -- a verbatum section
-  | DocParaExample String String        -- a verbatum section with a title
+  | DocParaTitle String                 -- a title to a subsection eg an example
   | DocParaDefItem [DocParaSpan] [DocParaSpan] -- a definition list item
   | DocParaListItem [DocParaSpan]       -- a itemisted list item
 
@@ -468,10 +480,9 @@ extractDocPara (Xml.CElem (Xml.Elem "programlisting" _ content)) =
   let listing = concat [ str | (Xml.CString _ str) <- content ] in
   [DocParaProgram listing]
 extractDocPara (Xml.CElem (Xml.Elem "example" _
-                 [Xml.CElem (Xml.Elem "title" [] [Xml.CString _ title])
-                 ,(Xml.CElem (Xml.Elem "programlisting" _ content))])) =
-  let listing = concat [ str | (Xml.CString _ str) <- content ] in                 
-  [DocParaExample title listing]
+                 (Xml.CElem (Xml.Elem "title" [] [Xml.CString _ title])
+                 :content) )) =
+  [DocParaTitle title] ++ concatMap extractDocPara content 
 extractDocPara other = error $ "extractDocPara: " ++ Xml.verbatim other
 
 extractDocPara' :: [Xml.Content] -> [DocPara]
@@ -597,12 +608,8 @@ haddocFormatPara (DocParaProgram prog) =
   . sepBy "\n-- > "
   . List.lines
   $ prog
-haddocFormatPara (DocParaExample title prog) =
-    ((ss "* ". ss title.nl.
-      comment).)
-  . sepBy "\n-- > "
-  . List.lines
-  $ prog
+haddocFormatPara (DocParaTitle title) =
+    ss "* ". ss title
 haddocFormatPara (DocParaDefItem term spans) =
   let def = (unwords . words . escape . concatMap haddocFormatSpan) term in
   sc '['. ss def. ss "] ".
@@ -829,25 +836,27 @@ properties object docs =
 
 genProperties :: KnownTypes -> Object -> [PropDoc] -> [(ShowS, Since)]
 genProperties knownTypes object apiDoc = 
-  [ (genProperty object property doc, maybe "" propdoc_since doc)
+  [ (genProperty knownTypes object property doc, maybe "" propdoc_since doc)
   | (property, doc) <- properties object apiDoc ]
 
-genProperty :: Object -> Property -> Maybe PropDoc -> ShowS
-genProperty object property doc = 
+genProperty :: KnownTypes -> Object -> Property -> Maybe PropDoc -> ShowS
+genProperty knownTypes object property doc = 
   formattedDoc.
-  ss propertyName. ss " :: Attr ". objectType. sc ' '.propertyType. nl.
+  ss propertyName. ss " :: Attr ". objectType. sc ' '. ss propertyType. nl.
   ss propertyName. ss " = Attr ". 
   indent 1. getter.
   indent 1. setter
   where objectType = ss (object_name object)
         propertyName = cFuncNameToHsName (property_cname property)
-        propertyType = ss "{- ". ss (property_type property). ss " -}"
-        getter = ss "(\\obj -> {-unmarshal result-} objectGetProperty \"". ss (property_cname property). ss "\")"
-        setter = ss "(\\obj val -> objectSetProperty obj \"". ss (property_cname property). ss "\" {- marshal val-})"
+--        propertyType = ss "{- ". ss (property_type property). ss " -}"
+        getter = ss "(\\obj -> do ". ss gvalueConstructor. ss " result <- objectGetProperty \"". ss (property_cname property). ss "\"".
+                 indent 7. ss "return result"
+        setter = ss "(\\obj val -> objectSetProperty obj \"". ss (property_cname property). ss "\" (". ss gvalueConstructor. ss " val))"
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
           Just doc -> ss "-- | ". haddocFormatParas (propdoc_paragraphs doc). nl.
                       comment. nl
+        (propertyType, gvalueConstructor) = genMarshalProperty knownTypes (property_type property)
 
 signals :: Object -> [SignalDoc] -> [(Signal, Maybe SignalDoc)]
 signals object docs =
@@ -1138,6 +1147,38 @@ genMarshalResult knownTypes typeName
 
 genMarshalResult _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
+genMarshalProperty :: KnownTypes -> String -> (String, String)
+genMarshalProperty _ "gint"      = ("Int",    "GVint")
+genMarshalProperty _ "guint"     = ("Int",    "GVuint")
+genMarshalProperty _ "gfloat"    = ("Float",  "GVfloat")
+genMarshalProperty _ "gdouble"   = ("Double", "GVdouble")
+genMarshalProperty _ "gboolean"  = ("Bool",   "GVboolean")
+genMarshalProperty _ "gchar*"    = ("String", "GVstring")
+
+genMarshalProperty knownTypes typeName
+            | isUpper (head typeName)
+           && (typeKind == Just GObjectKind
+           ||  typeKind == Just GtkObjectKind) =
+  (shortTypeName, "GVobject")
+  where shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
+
+genMarshalProperty knownTypes typeName
+            | isUpper (head typeName)
+           && typeKind == Just EnumKind =
+  (shortTypeName, "GVenum")
+  where shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
+
+genMarshalProperty knownTypes typeName
+            | isUpper (head typeName)
+           && typeKind == Just FlagsKind =
+  (shortTypeName, "GVflags")
+  where shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
+
+genMarshalProperty _ unknown = ("{-" ++ unknown ++ "-}", "{-" ++ unknown ++ "-}")
+
 -------------------------------------------------------------------------------
 -- Top level stuff
 -------------------------------------------------------------------------------
@@ -1261,7 +1302,7 @@ usage = do
 	\  <modPrefix>     specify module name prefix, eg if using\n\
 	\                  hierarchical module names\n\
 	\  <incApiFile>    the api xml file for a parent api, for example Gtk\n\
-	\                  uses types defined by Gdk and Pango."
+	\                  uses types defined by Gdk and Pango.\n"
   exitWith $ ExitFailure 1
 
 

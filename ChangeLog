@@ -1,3 +1,11 @@
+2005-02-05 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/ApiGen.hs: addsupport for interfaces, deal with
+	examples in a more general way and improve the generation of
+	properties.
+
+	* tools/apiGen/format-docs.xsl: deal with another kind of table.
+
 2005-02-04 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Display/Image.chs: Added imageSetFromPixbuf.
