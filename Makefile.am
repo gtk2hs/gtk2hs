@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 SUFFIXES = .hs.uncpp .chs.pp .chs .hsc .deps .dep
-MOSTLYCLEANFILES = *.deps.bak
+MOSTLYCLEANFILES = */*.deps.bak tools/*/*.deps.bak
 CLEANFILES =
 DISTCLEANFILES = */*.precomp
 
@@ -181,20 +181,26 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/state/Switches.hs		\
 	tools/c2hs/toplevel/Main.hs		\
 	tools/c2hs/toplevel/Version.hs		\
-	tools/c2hs/toplevel/C2HSConfig.hs	\
 	tools/c2hs/toplevel/c2hs_config.c
+
+nodist_tools_c2hs_c2hsLocal_SOURCES =		\
+	tools/c2hs/toplevel/C2HSConfig.hs
+
+tools_c2hs_c2hsLocal_ALLSOURCES =		\
+	$(tools_c2hs_c2hsLocal_SOURCES)		\
+	$(nodist_tools_c2hs_c2hsLocal_SOURCES)
 
 tools_c2hs_base_general_Binary_hs_HCFLAGS = -O -funbox-strict-fields
 tools_c2hs_base_general_FastMutInt_hs_HCFLAGS = -O
 tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
 tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi -fvia-C \
-	'-\#include<tools/c2hs/toplevel/c2hs_config.h>'
+	'-\#include<c2hs_config.h>'
 
 tools_c2hs_c2hsLocal_HSFILES		= \
-	$(filter %.hs,$(tools_c2hs_c2hsLocal_SOURCES))
+	$(filter %.hs,$(tools_c2hs_c2hsLocal_ALLSOURCES))
 # Fix automake - the subdir-objects option doesn't work here.
 am_tools_c2hs_c2hsLocal_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(tools_c2hs_c2hsLocal_SOURCES)))
+	$(addsuffix .$(OBJEXT),$(basename $(tools_c2hs_c2hsLocal_ALLSOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_c2hs_c2hsLocal_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
 CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)

@@ -1,3 +1,16 @@
+2005-03-04 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: Fix one of the GHC 6.4 build failures by changing the
+	root path that c2hs_config.h gets #include'ed from. Previously it was
+	ok to #include relative to the build root whereas GHC 6.4 only allows
+	it to be relative to the source file being compiled. Move
+	tools/c2hs/toplevel/C2HSConfig.hs from tools_c2hs_c2hsLocal_SOURCES
+	to nodist_tools_c2hs_c2hsLocal_SOURCES so that the file does not end
+	up in the .tar.gz distribution. It is generated from C2HSConfig.hs.in
+	so C2HSConfig.hs should not be present in a clean tree. Also change
+	the MOSTLYCLEANFILES to reflect the changed location of the .deps
+	files.
+
 2005-03-01 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/CodeGen.hs: do deprecated and version ifdefs a bit
@@ -10,7 +23,7 @@
 
 	* tools/apiGen/ApiGen.hs: trivial follow on change.
 
-	* tools/apiGen/FormatDocs.hs: for deprecated module, instead of
+	* tools/apiGen/FormatDocs.hs: for deprecated modules, instead of
 	anotating every function with a deprecation warning, just add a note
 	to the module summary. Also put version notes in the module summary
 	rather than at the end of the detail section.
