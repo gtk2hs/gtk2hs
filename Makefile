@@ -22,19 +22,19 @@ ifeq ($(strip $(ENABLE_GNOME)),yes)
 MAKE_LIBS += sourceview gconf
 endif
 
-MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
+MAKE_DEMOS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
 	     demo/hello demo/buttonbox
 
 ifeq ($(GTK_VERSION_2_4),yes)
-MAKE_APPS += demo/filechooser
+# MAKE_DEMOS += demo/filechooser # uncomment when file is commited
 endif
 
 ifeq ($(strip $(ENABLE_LIBGLADE)),yes)
-MAKE_APPS += demo/glade
+MAKE_DEMOS += demo/glade
 endif
 
 ifeq ($(strip $(ENABLE_GNOME)),yes)
-MAKE_APPS += demo/sourceview demo/gconf
+MAKE_DEMOS += demo/sourceview demo/gconf
 endif
 
 EXTRA_DISTCLEANFILES = $(strip mk/config.mk mk/chsDepend config.status \

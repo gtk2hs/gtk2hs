@@ -1,3 +1,11 @@
+2004-09-04  Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile, mk/recurse.mk: Set MAKE_APPS to empty and introduce
+	MAKE_DEMOS. Demos are only built on "make all" not on "make
+	inplace". Demos are never installed, applications are. The latter
+	never did anything since mk/application.mk does not provide an
+	install target.
+	
 2004-08-19  Jens Petersen  <petersen@haskell.org>
 
 	* configure.in (GHC_DOCDIR): Default to unset.
