@@ -1,3 +1,26 @@
+2005-03-01 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/CodeGen.hs: do deprecated and version ifdefs a bit
+	better especialy if the whole module is new or deprecated.
+
+	* tools/apiGen/Docs.hs: seperate documentation of callbacks from
+	documentation of methods. Generalise the summary field to be list of
+	paragraphs rather than just a single paragraph so that we can add
+	things to the summary documentations like deprecation notices.
+
+	* tools/apiGen/ApiGen.hs: trivial follow on change.
+
+	* tools/apiGen/FormatDocs.hs: for deprecated module, instead of
+	anotating every function with a deprecation warning, just add a note
+	to the module summary. Also put version notes in the module summary
+	rather than at the end of the detail section.
+
+	* tools/apiGen/gapi2xml.pl, tools/apiGen/gtk-sources.xml: merge
+	upstream changes to the gapi parser tool and adjust the sources spec
+	file so that it will now work with gtk+-2.6.1. (There seems to be an
+	additional problem with 2.6.2 and 2.6.3 in the filechooser modules
+	which I have not yet tracked down)
+
 2005-02-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GObject.chs.pp: change mkDestructor into

@@ -165,7 +165,7 @@ main = do
 	    "OBJECT_NAME"    -> ss $ module_name moduleInfo
 	    "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors moduleInfo
             "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders moduleInfo
-            "DESCRIPTION"    -> haddocFormatSpans knownTypes False 3 (moduledoc_summary moduleDoc)
+            "DESCRIPTION"    -> haddocFormatParas knownTypes False (moduledoc_summary moduleDoc)
 	    "DOCUMENTATION"  -> genModuleDocumentation knownTypes moduleDoc
 	    "TODO"           -> genTodoItems object
 	    "MODULE_NAME"    -> ss $ if null (module_prefix moduleInfo)

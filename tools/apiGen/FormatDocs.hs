@@ -20,7 +20,7 @@ module FormatDocs (
   addVersionParagraphs
 ) where
 
-import Api (NameSpace(namespace_name))
+import Api (NameSpace(..), Object(..), Method(..))
 import Docs
 import Marshal (KnownSymbols, CSymbol(..))
 import MarshalFixup (stripKnownPrefixes, knownMiscType, fixCFunctionName)
@@ -75,28 +75,43 @@ haddocTweakHierarchy [] = []
 addVersionParagraphs :: NameSpace -> ModuleDoc -> ModuleDoc
 addVersionParagraphs namespace apiDoc =
   apiDoc {
-    moduledoc_description = moduledoc_description apiDoc ++ moduleVersionParagraph,
-    moduledoc_functions = functionVersionParagraphs moduleVersion (moduledoc_functions apiDoc)
+    moduledoc_summary = moduledoc_summary apiDoc ++ moduleVersionParagraph
+                                                 ++ moduleDeprecatedParagraph,
+    moduledoc_functions = functionVersionParagraphs moduleVersion (moduledoc_functions apiDoc),
+    moduledoc_since = moduleVersion
   }
   where functionVersionParagraphs :: String -> [FuncDoc] -> [FuncDoc]
         functionVersionParagraphs baseVersion funcdocs =
           [ if funcdoc_since funcdoc > baseVersion
               then funcdoc {
                      funcdoc_paragraphs = funcdoc_paragraphs funcdoc ++
-                       let line = "* Available since " ++ namespace_name namespace
+                       let line = "Available since " ++ namespace_name namespace
                               ++ " version " ++ funcdoc_since funcdoc
-                        in [DocParaText [DocText line]]
+                        in [DocParaListItem [DocText line]]
                    }
-              else funcdoc
+              else let method = lookup (funcdoc_name funcdoc) methodMap
+                       methodDeprecated = maybe False method_deprecated method
+                       objectDeprecated = maybe False object_deprecated object
+                   in if methodDeprecated && not objectDeprecated
+                        then funcdoc {
+                               funcdoc_paragraphs = funcdoc_paragraphs funcdoc ++
+                                 let line = "Warning: this function is deprecated "
+                                         ++ "and should not be used in newly-written code."
+                                  in [DocParaListItem [DocText line]]
+                             }
+                        else funcdoc
           | funcdoc <- funcdocs ]
+          where methodMap = [ (method_cname method, method)
+                            | method <- maybe [] object_methods object ]
   
         moduleVersionParagraph =
           case moduleVersion of
             "" -> []
             since ->
-              let line = "* Module available since " ++ namespace_name namespace
+              let line = "Module available since " ++ (let name = namespace_name namespace
+                                                          in if name == "Gtk" then "Gtk+" else name)
                       ++ " version " ++ since
-               in [DocParaText [DocText line]]
+               in [DocParaListItem [DocText line]]       
   
         -- figure out if the whole module appeared in some version of gtk later 
         -- than the original version
@@ -105,6 +120,18 @@ addVersionParagraphs namespace apiDoc =
                              | funcdoc <- moduledoc_functions apiDoc ] of
                           [] -> ""
                           versions -> minimum versions
+
+        moduleDeprecatedParagraph =
+          if maybe False object_deprecated object
+            then let line = "Warning: this module is deprecated "
+                         ++ "and should not be used in newly-written code."
+            
+                  in [DocParaListItem [DocText line]]
+            else []
+        
+        object = lookup (moduledoc_name apiDoc)
+                   [ (object_cname object, object)
+                   | object <- namespace_objects namespace ]
   
 haddocFormatSections :: KnownSymbols -> [DocSection] -> ShowS
 haddocFormatSections knownSymbols = 

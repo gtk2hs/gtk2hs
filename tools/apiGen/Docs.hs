@@ -15,6 +15,9 @@ module Docs (
 
 import qualified Text.XML.HaXml as Xml
 
+import Char (isUpper)
+import List (partition)
+
 -------------------------------------------------------------------------------
 -- Types representing the content of the documentation XML file
 -------------------------------------------------------------------------------
@@ -23,14 +26,16 @@ type ApiDoc = [ModuleDoc]
 data ModuleDoc = ModuleDoc {
     moduledoc_name :: String,              -- these docs apply to this object
     moduledoc_altname :: String,           -- sometimes a better index entry
-    moduledoc_summary :: [DocParaSpan],    -- a one line summary
+    moduledoc_summary :: [DocPara],        -- usually a one line summary
     moduledoc_description :: [DocPara],    -- the main description
     moduledoc_sections :: [DocSection],    -- any additional titled subsections
     moduledoc_hierarchy :: [DocParaSpan],  -- a tree of parent objects (as text)
     moduledoc_functions :: [FuncDoc],      -- documentation for each function
+    moduledoc_callbacks :: [FuncDoc],      -- documentation for callback types
     moduledoc_properties :: [PropDoc],     -- documentation for each property
-    moduledoc_signals :: [SignalDoc]       -- documentation for each signal
-  }
+    moduledoc_signals :: [SignalDoc],      -- documentation for each signal
+    moduledoc_since :: String              -- which version of the api the
+  }  					   -- module is available from, eg "2.4"
 
 noModuleDoc = ModuleDoc {
     moduledoc_name = "",
@@ -40,8 +45,10 @@ noModuleDoc = ModuleDoc {
     moduledoc_sections = [],
     moduledoc_hierarchy = [],
     moduledoc_functions = [],
+    moduledoc_callbacks = [],
     moduledoc_properties = [],
-    moduledoc_signals = []
+    moduledoc_signals = [],
+    moduledoc_since = ""
   }
 
 data DocSection = DocSection {
@@ -104,8 +111,11 @@ extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:rest))) =
   let functions = [ e | e@(Xml.CElem (Xml.Elem "function" _ _)) <- rest ]
       properties = [ e | e@(Xml.CElem (Xml.Elem "property" _ _)) <- rest ]
       signals = [ e | e@(Xml.CElem (Xml.Elem "signal" _ _)) <- rest ]
+      (callbacks, functions') = partition (isUpper.head.funcdoc_name)
+                                         (map extractDocFunc functions)
   in (extractDocModuleinfo moduleinfo) {
-    moduledoc_functions = map extractDocFunc functions,
+    moduledoc_functions = functions',
+    moduledoc_callbacks = callbacks,
     moduledoc_properties = map extractDocProp properties,
     moduledoc_signals = map extractDocSignal signals
   }
@@ -126,13 +136,15 @@ extractDocModuleinfo
    in ModuleDoc {
     moduledoc_name = Xml.verbatim name,
     moduledoc_altname = Xml.verbatim altname,
-    moduledoc_summary = map extractDocParaSpan summary,
+    moduledoc_summary = [DocParaText (map extractDocParaSpan summary)],
     moduledoc_description = concatMap extractDocPara paras,
     moduledoc_sections = map extractDocSection sections,
     moduledoc_hierarchy = map extractDocParaSpan objHierSpans,
     moduledoc_functions = undefined,
+    moduledoc_callbacks = undefined,
     moduledoc_properties = undefined,
-    moduledoc_signals = undefined
+    moduledoc_signals = undefined,
+    moduledoc_since = ""
   }
 
 extractDocSection :: Xml.Content -> DocSection
@@ -156,7 +168,8 @@ extractDocFunc
   )) =
   let since = case since' of
                 [] -> ""
-		[Xml.CString _ since] -> since
+		[Xml.CString _ since] | last since == '.' -> init since
+                                      | otherwise         -> since
    in FuncDoc {
         funcdoc_name = name,
 	funcdoc_paragraphs = concatMap extractDocPara paras,

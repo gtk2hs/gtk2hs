@@ -28,9 +28,6 @@ import Debug.Trace (trace)
 genFunction :: KnownSymbols -> Method -> Maybe FuncDoc -> Maybe MethodInfo -> ShowS
 genFunction knownSymbols method doc info =
   formattedDoc.
-  (if method_deprecated method
-     then ss "-- * Warning this function is deprecated\n--\n"
-     else id).
   ss functionName. ss " :: ". functionType. nl.
   ss functionName. sc ' '. formattedParamNames. sc '='.
   indent 1. body
@@ -108,6 +105,7 @@ genFunction knownSymbols method doc info =
 genModuleBody :: KnownSymbols -> Object -> ModuleDoc -> ModuleInfo -> ShowS
 genModuleBody knownSymbols object apiDoc modInfo =
   doVersionIfDefs (sepBy' "\n\n") $
+  map adjustDeprecatedAndSinceVersion $
      sectionHeader "Interfaces"
      (genImplements object)
   ++ sectionHeader "Constructors"
@@ -119,7 +117,11 @@ genModuleBody knownSymbols object apiDoc modInfo =
   ++ sectionHeader "Signals"
      (genSignals      knownSymbols object (moduledoc_signals apiDoc))
   where sectionHeader name []      = []
-        sectionHeader name entries = (ss "--------------------\n-- ". ss name, ("", False)):entries
+        sectionHeader name entries =
+          let header = (ss "--------------------\n-- ". ss name, ("", notDeprecated))
+           in header : entries
+        adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
+          (doc, (moduledoc_since apiDoc `max` since, object_deprecated object || deprecated))
 
 -- fixup the names of the C functions we got from scaning the original modules
 -- we want the fully qualified "gtk_foo_bar" rather than "foo_bar" so that the
@@ -414,37 +416,37 @@ makeKnownSymbolsMap api =
 
 genExports :: Object -> ModuleDoc -> ModuleInfo -> ShowS
 genExports object docs modInfo =
-  comment.ss "* Types".
-  indent 1.ss (object_name object).sc ','.
-  indent 1.ss (object_name object).ss "Class,".
-  indent 1.ss "castTo".ss (object_name object).sc ','.
-  (case [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ','
-          ,(maybe "" funcdoc_since doc, notDeprecated))
-        | (constructor, doc, _) <- constructors object (moduledoc_functions docs) []] of
-     [] -> id
-     cs -> nl.nl.comment.ss "* Constructors".nl.
-           doVersionIfDefs lines cs).
-  (case [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ','
-          ,(maybe "" funcdoc_since doc, method_deprecated method))
-        | (method, doc, _) <- methods object (moduledoc_functions docs)
-                                (module_methods modInfo) False] of
-     [] -> id
-     cs -> nl.nl.comment.ss "* Methods".nl.
-           doVersionIfDefs lines cs).
-  (case [ (ss "  ". ss (lowerCaseFirstChar (property_name property)). sc ','
-          ,(maybe "" propdoc_since doc, notDeprecated))
-        | (property, doc) <- properties object (moduledoc_properties docs)] of
-     [] -> id
-     cs -> nl.nl.comment.ss "* Properties".nl.
-           doVersionIfDefs lines cs).
-  (case [ let signalName = (toStudlyCaps . canonicalSignalName . signal_cname) signal in 
-          (ss "  on".    ss signalName. sc ','.nl.
-           ss "  after". ss signalName. sc ','
-          ,(maybe "" signaldoc_since doc, notDeprecated))
-        | (signal, doc) <- signals object (moduledoc_signals docs)] of
-     [] -> id
-     cs -> nl.nl.comment.ss "* Signals".nl.
-           doVersionIfDefs lines cs)
+  doVersionIfDefs lines $
+  map adjustDeprecatedAndSinceVersion $
+     [(ss "-- * Types", defaultAttrs)
+     ,(ss "  ".ss (object_name object).sc ',', defaultAttrs)
+     ,(ss "  ".ss (object_name object).ss "Class,", defaultAttrs)
+     ,(ss "  ".ss "castTo".ss (object_name object).sc ',', defaultAttrs)] 
+  ++ sectionHeader "Constructors"
+     [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ','
+       ,(maybe "" funcdoc_since doc, notDeprecated))
+     | (constructor, doc, _) <- constructors object (moduledoc_functions docs) []]
+  ++ sectionHeader "Methods"
+     [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ','
+       ,(maybe "" funcdoc_since doc, method_deprecated method))
+     | (method, doc, _) <- methods object (moduledoc_functions docs)
+                             (module_methods modInfo) False]
+  ++ sectionHeader "Properties"
+     [ (ss "  ". ss (lowerCaseFirstChar (property_name property)). sc ','
+       ,(maybe "" propdoc_since doc, notDeprecated))
+     | (property, doc) <- properties object (moduledoc_properties docs)]
+  ++ sectionHeader "Signals"
+     [ let signalName = (toStudlyCaps . canonicalSignalName . signal_cname) signal in 
+       (ss "  on".    ss signalName. sc ','.nl.
+        ss "  after". ss signalName. sc ','
+       ,(maybe "" signaldoc_since doc, notDeprecated))
+     | (signal, doc) <- signals object (moduledoc_signals docs)]
+
+  where defaultAttrs = ("", notDeprecated)
+        sectionHeader name []      = []
+        sectionHeader name entries = (id, defaultAttrs):(ss "-- * ". ss name, defaultAttrs):entries
+        adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
+          (doc, (moduledoc_since docs `max` since, object_deprecated object || deprecated))
 
 genImports :: ModuleInfo -> ShowS
 genImports modInfo = 

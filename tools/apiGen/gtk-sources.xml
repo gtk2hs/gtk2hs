@@ -3,6 +3,8 @@
     <library name="gtk">
       <namespace name="Gtk">
         <dir>gtk+/gtk</dir>
+      	<!-- Stuff that breaks the gapi parser -->
+	<exclude>gtk+/gtk/gtkclipboard.c</exclude>
         <!-- Internal stuff -->
         <exclude>gtk+/gtk/gtkfilechooserdefault.c</exclude>
         <exclude>gtk+/gtk/gtkfilechooserdefault.h</exclude>

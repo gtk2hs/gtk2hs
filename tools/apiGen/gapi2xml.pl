@@ -169,11 +169,18 @@ while ($line = <STDIN>) {
 		}
 		$cast_macro =~ s/\\\n\s*//g;
 		$cast_macro =~ s/\s+/ /g;
-		if ($cast_macro =~ /G_TYPE_CHECK_(\w+)_CAST.*,\s*(\w+),\s*(\w+)/) {
+		if ($cast_macro =~ /G_TYPE_CHECK_(\w+)_CAST.*,\s*(\w+),\s*(\w+)\)/) {
 			if ($1 eq "INSTANCE") {
 				$objects{$2} = $3 . $objects{$2};
 			} else {
 				$objects{$2} .= ":$3";
+			}
+		} elsif ($cast_macro =~ /G_TYPE_CHECK_(\w+)_CAST.*,\s*([a-zA-Z0-9]+)_(\w+)_get_type\s*\(\),\s*(\w+)\)/) {
+			$typename = uc ("$2_type_$3");
+			if ($1 eq "INSTANCE") {
+				$objects{$typename} = $4 . $objects{$typename};
+			} else {
+				$objects{$typename} .= ":$4";
 			}
 		} elsif ($cast_macro =~ /GTK_CHECK_CAST.*,\s*(\w+),\s*(\w+)/) {
 			$objects{$1} = $2 . $objects{$1};
@@ -309,7 +316,6 @@ foreach $type (sort(keys(%ifaces))) {
 ##############################################################
 
 foreach $type (sort(keys(%objects))) {
-	
 	($inst, $class) = split(/:/, $objects{$type});
 	$class = $inst . "Class" if (!$class);
 	$initfunc = $pedefs{lc($inst)};
@@ -619,8 +625,9 @@ sub parseParms
 			$fmt = $1; $args = $2;
 			($params_el, @junk) = $el->getElementsByTagName ("parameters");
 			(@params) = $params_el->getElementsByTagName ("parameter");
-			$params[$fmt-1]->setAttribute ("printf_format", "true");
-			$params[$args-1]->setAttribute ("printf_format_args", "true");
+			$offset = 1 + $drop_1st;
+			$params[$fmt-$offset]->setAttribute ("printf_format", "true");
+			$params[$args-$offset]->setAttribute ("printf_format_args", "true");
 		}
 	}
 }
@@ -754,6 +761,7 @@ sub addParamsElem
 		$parm =~ s/(\w+)\s+const /const \1 /g;
 		$parm =~ s/(\*+)\s*const\s+/\1 /g;
 		$parm =~ s/const\s+/const-/g;
+		$parm =~ s/unsigned\s+/unsigned-/g;
 		if ($parm =~ /(.*)\(\s*\**\s*(\w+)\)\s+\((.*)\)/) {
 			my $ret = $1; my $cbn = $2; my $params = $3;
 			$cb_elem = addNameElem($parms_elem, 'callback', $cbn);
@@ -869,7 +877,7 @@ sub parseTypeToken
 	} else {
 		$tok =~ s/_TYPE//; 
 		$tok =~ s/\|.*STATIC_SCOPE//; 
-		$tok =~ s/\s+//g;
+		$tok =~ s/\W+//g;
 		return StudlyCaps (lc($tok));
 	}
 }
