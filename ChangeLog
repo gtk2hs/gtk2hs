@@ -1,3 +1,10 @@
+2004-07-29  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/general/General.chs: don't use depreciated gtk main loop
+	functions to install timout and idle handlers, use glib equivalents.
+
+	* demo/filechooser/Makefile: FileChooserDemo.glade in EXTRA_TARFILES.
+
 2004-07-28  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile: only build filechooser demo with gtk-2.4

@@ -7,7 +7,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.12 $ from $Date: 2004/05/23 15:58:48 $
+--  Version $Revision: 1.13 $ from $Date: 2004/07/29 00:53:40 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -175,9 +175,9 @@ grabGetCurrent  = do
 grabRemove :: WidgetClass w => w -> IO ()
 grabRemove  = {#call grab_remove#} . toWidget
 
-{#pointer Function#}
+{#pointer GSourceFunc as Function#}
 
-{#pointer DestroyNotify#}
+{#pointer GDestroyNotify as DestroyNotify#}
 
 #if __GLASGOW_HASKELL__>=600
 
@@ -216,14 +216,14 @@ makeCallback fun = do
 timeoutAdd :: IO Bool -> Int -> IO HandlerId
 timeoutAdd fun msec = do
   (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
-  {#call unsafe timeout_add_full#} (fromIntegral msec) funPtr nullFunPtr 
-    nullPtr dPtr
+  {#call unsafe g_timeout_add_full#} (fromIntegral priorityDefault)
+    (fromIntegral msec) funPtr nullPtr dPtr
 
 -- | Remove a previously added timeout handler by its
 -- 'TimeoutId'.
 --
 timeoutRemove :: HandlerId -> IO ()
-timeoutRemove  = {#call unsafe timeout_remove#}
+timeoutRemove id = {#call unsafe g_source_remove#} id >> return ()
 
 -- | Add a callback that is called whenever the system is
 -- idle.
@@ -236,12 +236,12 @@ timeoutRemove  = {#call unsafe timeout_remove#}
 idleAdd :: IO Bool -> Int -> IO HandlerId
 idleAdd fun pri = do
   (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
-  {#call unsafe idle_add_full#} (fromIntegral pri) funPtr nullFunPtr
+  {#call unsafe g_idle_add_full#} (fromIntegral pri) funPtr
     nullPtr dPtr
 
 -- | Remove a previously added idle handler by its
 -- 'TimeoutId'.
 --
 idleRemove :: HandlerId -> IO ()
-idleRemove  = {#call unsafe idle_remove#}
+idleRemove id = {#call unsafe g_source_remove#} id >> return ()
 
