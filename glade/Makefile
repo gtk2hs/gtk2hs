@@ -2,7 +2,11 @@ TOP = ..
 
 include $(TOP)/mk/config.mk
 
-PACKAGENAME = glade2hs
+PACKAGENAME = glade
+
+# Choose a name for the library that is not libglade.a which is the 
+# C library.
+LIBNAME = glade2hs
 
 MAIN = Glade.hs
 

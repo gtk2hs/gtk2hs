@@ -6,6 +6,6 @@ MAIN = GladeTest.hs
 
 APPNAME = gladetest
 
-NEEDPACKAGES = lang gtk2 glade2hs
+NEEDPACKAGES = lang gtk2 glade
 
 include $(TOP)/mk/common.mk
