@@ -8,6 +8,11 @@
 
 	* tools/apiGen/gen-all.sh: retire previous automation script
 
+	* tools/apiGen/Template.chs, tools/apiGen/format-docs.xsl,
+	tools/apiGen/ApiGen.hs: updates to the code generation tool. Change
+	the style from single module per file to having every module in a
+	single file since this is the way the gapi tools work.
+
 2005-01-23 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, mk/common.mk: Resurrect dependency generation under

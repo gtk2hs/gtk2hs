@@ -20,7 +20,7 @@
 -- |
 -- Maintainer  : gtk2hs-users\@lists.sourceforge.net
 -- Stability   : provisional
--- Portability : non-portable (uses gtk+ C library)
+-- Portability : non-portable (uses Gtk+ C library)
 --
 -- @DESCRIPTION@@TODO@
 --

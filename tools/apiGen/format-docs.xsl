@@ -73,23 +73,34 @@
 
 <xsl:template match="footnote"></xsl:template>
 
-<xsl:template match="/">
+<xsl:template match="/apidoc">
   <apidoc>
+  <xsl:for-each select="book">
   <module>
-    <name><xsl:value-of select="/book/refentry/refnamediv/refname"/></name>
-    <summary><xsl:value-of select="/book/refentry/refnamediv/refpurpose"/></summary>
+  <module-info>
+    <name><xsl:value-of select="refentry/refnamediv/refname"/></name>
+    <altname><xsl:value-of select="refentry/refsynopsisdiv/anchor/@id"/></altname>
+    <summary><xsl:value-of select="refentry/refnamediv/refpurpose"/></summary>
     <description>
-      <xsl:for-each select="/book/refentry/refsect1[title='Description']">
+      <xsl:for-each select="refentry/refsect1[title='Description']">
         <xsl:apply-templates select="para | section | refsect2"/>
       </xsl:for-each>
     </description>
     <object-hierarchy>
-      <xsl:for-each select="/book/refentry/refsect1[title='Object Hierarchy']/synopsis">
-        <xsl:copy-of select="text() | link"/>
+      <xsl:for-each select="refentry/refsect1[title='Object Hierarchy']/synopsis/node()">
+        <xsl:choose>
+	  <xsl:when test="name(.)='link'">
+	    <xref-type><xsl:value-of select="."/></xref-type>
+	  </xsl:when>
+	  <xsl:otherwise>
+	    <xsl:value-of select="."/>
+	    <xsl:value-of select="name(.)"/>
+	  </xsl:otherwise>
+	</xsl:choose>
       </xsl:for-each>
     </object-hierarchy>
-  </module>
-  <xsl:for-each select="/book/refentry/refsect1[title='Details']/refsect2[contains(title,' ()')]">
+  </module-info>
+  <xsl:for-each select="refentry/refsect1[title='Details']/refsect2[contains(title,' ()')]">
     <function>
       <name><xsl:value-of select="indexterm/primary"/></name>
       <since>
@@ -107,6 +118,8 @@
 	</xsl:for-each>
       </params>
     </function>
+  </xsl:for-each>
+  </module>
   </xsl:for-each>
   </apidoc>
 </xsl:template>

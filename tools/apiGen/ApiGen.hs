@@ -9,6 +9,7 @@
 module Main (main) where
 
 import Prelude hiding (Enum, lines)
+import qualified Prelude (lines)
 import Monad  (when)
 import Maybe  (catMaybes, fromJust)
 import Char   (toLower, toUpper, isSpace, isAlpha, isAlphaNum, isUpper)
@@ -147,7 +148,14 @@ extractParameter (Xml.CElem (Xml.Elem "parameter"
      parameter_name = Xml.verbatim name,
      parameter_isArray = True
    }
-								 
+extractParameter (Xml.CElem (Xml.Elem "callback"
+                        [("cname", Xml.AttValue cname)] _)) =
+   Parameter {
+     parameter_type = "callback",
+     parameter_name = Xml.verbatim cname,
+     parameter_isArray = False
+   }
+  
 
 extractConstructor :: Xml.Content -> Maybe Constructor
 extractConstructor (Xml.CElem (Xml.Elem "constructor"
@@ -166,20 +174,26 @@ extractConstructor _ = Nothing
 -------------------------------------------------------------------------------
 -- Types representing the content of the documentation XML file
 -------------------------------------------------------------------------------
-data ApiDoc = ApiDoc {
-    apidoc_name :: String,                 -- these docs apply to this object
-    apidoc_summary :: String,              -- a one line summary
-    apidoc_description :: [DocPara],       -- the main description
-    apidoc_sections :: [DocSection],       -- any additional titled subsections
-    apidoc_functions :: [FuncDoc]          -- documentation for each function
+type ApiDoc = [ModuleDoc]
+
+data ModuleDoc = ModuleDoc {
+    moduledoc_name :: String,              -- these docs apply to this object
+    moduledoc_altname :: String,           -- sometimes a better index entry
+    moduledoc_summary :: String,           -- a one line summary
+    moduledoc_description :: [DocPara],    -- the main description
+    moduledoc_sections :: [DocSection],    -- any additional titled subsections
+    moduledoc_hierarchy :: [DocParaSpan],  -- a tree of parent objects (as text)
+    moduledoc_functions :: [FuncDoc]       -- documentation for each function
   }
 
-noApiDoc = ApiDoc {
-    apidoc_name = "",
-    apidoc_summary = "",
-    apidoc_description = [],
-    apidoc_sections = [],
-    apidoc_functions = []
+noModuleDoc = ModuleDoc {
+    moduledoc_name = "",
+    moduledoc_altname = "",
+    moduledoc_summary = "",
+    moduledoc_description = [],
+    moduledoc_sections = [],
+    moduledoc_hierarchy = [],
+    moduledoc_functions = []
   }
 
 data DocSection = DocSection {
@@ -219,29 +233,36 @@ data DocParaSpan = DocText String       -- just simple text
 -- extract functions to convert the doc xml file to the internal representation
 -------------------------------------------------------------------------------
 extractDocumentation :: Xml.Document -> ApiDoc
-extractDocumentation (Xml.Document _ _ (Xml.Elem "apidoc" [] (moduleinfo:functions))) =
+extractDocumentation (Xml.Document _ _ (Xml.Elem "apidoc" [] modules)) =
+  map extractDocModule modules
+
+extractDocModule :: Xml.Content -> ModuleDoc
+extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:functions))) =
   (extractDocModuleinfo moduleinfo) {
-    apidoc_functions = map extractDocFunc functions
+    moduledoc_functions = map extractDocFunc functions
   }
 
-extractDocModuleinfo :: Xml.Content -> ApiDoc
+extractDocModuleinfo :: Xml.Content -> ModuleDoc
 extractDocModuleinfo 
-  (Xml.CElem (Xml.Elem "module" []
+  (Xml.CElem (Xml.Elem "module-info" []
     [Xml.CElem (Xml.Elem "name" [] name)
+    ,Xml.CElem (Xml.Elem "altname" [] altname)
     ,Xml.CElem (Xml.Elem "summary" [] summary)
     ,Xml.CElem (Xml.Elem "description" [] parasAndSections)
-    ,Xml.CElem (Xml.Elem "object-hierarchy" [] _)]
+    ,Xml.CElem (Xml.Elem "object-hierarchy" [] objHierSpans)]
   )) = 
   let (paras, sections) = span (\elem ->
         case elem of
           Xml.CElem (Xml.Elem "section" _ _) -> False
           _ -> True) parasAndSections
-   in ApiDoc {
-    apidoc_name = Xml.verbatim name,
-    apidoc_summary = Xml.verbatim summary,
-    apidoc_description = concatMap extractDocPara paras,
-    apidoc_sections = map extractDocSection sections,
-    apidoc_functions = undefined
+   in ModuleDoc {
+    moduledoc_name = Xml.verbatim name,
+    moduledoc_altname = Xml.verbatim altname,
+    moduledoc_summary = Xml.verbatim summary,
+    moduledoc_description = concatMap extractDocPara paras,
+    moduledoc_sections = map extractDocSection sections,
+    moduledoc_hierarchy = map extractDocParaSpan objHierSpans,
+    moduledoc_functions = undefined
   }
 
 extractDocSection :: Xml.Content -> DocSection
@@ -333,28 +354,47 @@ extractDocParaSpan (Xml.CElem (Xml.Elem tag [] content)) =
     "literal"    -> DocLiteral text
     "arg"        -> DocArg text
     other -> error $ "extractDocParaSpan: other tag " ++ tag
+
+extractDocParaSpan other@(Xml.CRef (Xml.RefEntity entity)) = DocText (Xml.verbatim other)
 extractDocParaSpan other = error $ "extractDocParaSpan: " ++ Xml.verbatim other
  
 -------------------------------------------------------------------------------
 -- Functions for formatting haddock documentation
 -------------------------------------------------------------------------------
 
-genModuleDocumentation :: ApiDoc -> ShowS
-genModuleDocumentation apidoc =
-  (if null (apidoc_description apidoc)
+genModuleDocumentation :: ModuleDoc -> ShowS
+genModuleDocumentation moduledoc =
+  (if null (moduledoc_description moduledoc)
      then id
      else comment.ss "* Description".nl.
           comment.nl.
-          comment.ss "| ".haddocFormatParas (apidoc_description apidoc).nl).
-  (if null (apidoc_sections apidoc)
+          comment.ss "| ".haddocFormatParas (moduledoc_description moduledoc).nl).
+  (if null (moduledoc_sections moduledoc)
      then id
-     else nl.comment.haddocFormatSections (apidoc_sections apidoc).nl.comment)
+     else nl.comment.haddocFormatSections (moduledoc_sections moduledoc).nl.comment)
+  -- Getting decent formatting for the class hierarchy does not seem to be
+  -- possible with the available haddock markup. So disabling for now.
+  --
+  .nl.
+  (if null (moduledoc_hierarchy moduledoc)
+     then id
+     else nl.comment.ss "* Class Hierarchy".nl.
+          comment.ss "|".nl.
+          comment.ss "@".nl.
+          comment.ss "|  ".haddocFormatHierarchy (moduledoc_hierarchy moduledoc).nl.
+          comment.ss "@".nl)
 
-addVersionParagraphs :: NameSpace -> ApiDoc -> ApiDoc
+haddocFormatHierarchy :: [DocParaSpan] -> ShowS
+haddocFormatHierarchy =
+    sepBy "\n-- |"
+  . Prelude.lines
+  . concatMap haddocFormatSpan
+
+addVersionParagraphs :: NameSpace -> ModuleDoc -> ModuleDoc
 addVersionParagraphs namespace apiDoc =
   apiDoc {
-    apidoc_description = apidoc_description apiDoc ++ moduleVersionParagraph,
-    apidoc_functions = functionVersionParagraphs moduleVersion (apidoc_functions apiDoc)
+    moduledoc_description = moduledoc_description apiDoc ++ moduleVersionParagraph,
+    moduledoc_functions = functionVersionParagraphs moduleVersion (moduledoc_functions apiDoc)
   }
   where functionVersionParagraphs :: Maybe String -> [FuncDoc] -> [FuncDoc]
         functionVersionParagraphs baseVersion funcdocs =
@@ -380,7 +420,7 @@ addVersionParagraphs namespace apiDoc =
         -- than the original version
         moduleVersion :: Maybe String
         moduleVersion = case [ funcdoc_since funcdoc
-                             | funcdoc <- apidoc_functions apiDoc ] of
+                             | funcdoc <- moduledoc_functions apiDoc ] of
                           [] -> Nothing
                           versions -> minimum versions
   
@@ -560,11 +600,11 @@ genFunction object method doc =
                   . concatMap haddocFormatSpan
                 columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
 
-genModuleBody :: Object -> ApiDoc -> ShowS
+genModuleBody :: Object -> ModuleDoc -> ShowS
 genModuleBody object apiDoc =
   doVersionIfDefs (sepBy' "\n\n") $
-     genConstructors object (apidoc_functions apiDoc)
-  ++ genMethods object (apidoc_functions apiDoc)
+     genConstructors object (moduledoc_functions apiDoc)
+  ++ genMethods object (moduledoc_functions apiDoc)
 
 genMethods :: Object -> [FuncDoc] -> [(ShowS, Maybe FuncDoc)]
 genMethods object apiDoc = 
@@ -618,17 +658,22 @@ mungeConstructor object constructor =
 
 genExports :: Object -> [FuncDoc] -> ShowS
 genExports object docs =
+  comment.ss "* Types".
+  indent 1.ss (object_name object).sc ','.
+  indent 1.ss (object_name object).ss "Class,".
+  indent 1.ss "castTo".ss (object_name object).sc ','.nl.
   nl.
-  comment.ss "* Constructors".nl.
-  doVersionIfDefs lines
-    [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ',', doc)
-    | (constructor, doc) <- constructors object docs].
+  (case [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ',', doc)
+        | (constructor, doc) <- constructors object docs] of
+     [] -> id
+     cs -> comment.ss "* Constructors".nl.
+           doVersionIfDefs lines cs.nl).
   nl.
-  nl.
-  comment.ss "* Methods".nl.
-  doVersionIfDefs lines
-    [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ',', doc)
-    | (method, doc) <- methods object docs]
+  (case [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ',', doc)
+        | (method, doc) <- methods object docs] of
+     [] -> id
+     cs -> comment.ss "* Methods".nl.
+           doVersionIfDefs lines cs)
 
 genTodoItems :: Object -> ShowS
 genTodoItems object =
@@ -795,9 +840,11 @@ main = do
   -- Read in the documentation xml file if supplied
   --
   apiDoc <- if null docFile
-              then return noApiDoc
+              then return []
               else do content <- readFile docFile
                       return $ extractDocumentation (Xml.xmlParse docFile content)
+  let apiDocMap = [ (moduledoc_name    moduleDoc, moduleDoc) | moduleDoc <- apiDoc ]
+               ++ [ (moduledoc_altname moduleDoc, moduleDoc) | moduleDoc <- apiDoc ]
 
   -----------------------------------------------------------------------------
   -- A few values that are used in the template
@@ -813,27 +860,33 @@ main = do
   -- Write the result file(s) by substituting values into the template file
   --
   mapM 
-    (\(namespace, object) ->
-    let apiDoc' = addVersionParagraphs namespace apiDoc in
-    writeFile (outdir ++ object_name object ++ ".chs") $
-    templateSubstitute template (\var ->
-      case var of
-	"YEAR"           -> ss year
-	"DATE"           -> ss date
-	"OBJECT_NAME"    -> ss (object_name object)
-        "DESCRIPTION"    -> ss (apidoc_summary apiDoc')
-	"DOCUMENTATION"  -> genModuleDocumentation apiDoc'
-        "TODO"           -> genTodoItems object
-        "MODULE_NAME"    -> ss (modPrefix ++ object_name object)
-        "EXPORTS"        -> genExports object (apidoc_functions apiDoc')
-	"IMPORTS"        -> ss "-- CHECKME: extra imports may be required\n"
-	"CONTEXT_LIB"    -> ss (if null lib then namespace_library namespace else lib)
-	"CONTEXT_PREFIX" -> ss (if null prefix then namespace_library namespace else  prefix)
-	"MODULE_BODY"    -> genModuleBody object apiDoc'
-	_ -> ss ""
-    ) "") [ (namespace, object)
-          | namespace <- api
-	  , object <- namespace_objects namespace ]
+    (\(namespace, object, maybeModuleDoc) -> do
+      moduleDoc <- case maybeModuleDoc of
+                     Nothing -> do when (not (null apiDoc)) $
+		                     putStrLn ("Warning: no documentation found for module "
+			                    ++ show (object_name object))
+			           return noModuleDoc
+		     Just moduleDoc -> return $ addVersionParagraphs namespace moduleDoc
+      writeFile (outdir ++ object_name object ++ ".chs") $
+        templateSubstitute template (\var ->
+          case var of
+	    "YEAR"           -> ss year
+	    "DATE"           -> ss date
+	    "OBJECT_NAME"    -> ss (object_name object)
+	    "DESCRIPTION"    -> ss (moduledoc_summary moduleDoc)
+	    "DOCUMENTATION"  -> genModuleDocumentation moduleDoc
+	    "TODO"           -> genTodoItems object
+	    "MODULE_NAME"    -> ss (modPrefix ++ object_name object)
+	    "EXPORTS"        -> genExports object (moduledoc_functions moduleDoc)
+	    "IMPORTS"        -> ss $ "{#import Graphics.UI.Gtk.Types#}\n"
+                                  ++ "-- CHECKME: extra imports may be required\n"
+	    "CONTEXT_LIB"    -> ss (if null lib then namespace_library namespace else lib)
+	    "CONTEXT_PREFIX" -> ss (if null prefix then namespace_library namespace else  prefix)
+	    "MODULE_BODY"    -> genModuleBody object moduleDoc
+	    _ -> ss "" ) ""
+    ) [ (namespace, object, lookup (object_cname object) apiDocMap)
+      | namespace <- api
+      , object <- namespace_objects namespace ]
     
 
 usage = do
