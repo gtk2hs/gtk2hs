@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/17 00:13:20 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/17 12:55:47 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,8 +24,9 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The tree interface used by GtkTreeView
+-- The tree interface used by "TreeView"
 --
+module Graphics.UI.Gtk.TreeList.TreeModel (
 -- * Description
 -- 
 -- | The "TreeModel" interface defines a generic storage object for use by the
@@ -72,24 +73,23 @@
 --
 -- The lifecycle of an iterator can be a little confusing at first.
 -- Iterators are expected to always be valid for as long as the model is
--- unchanged (and doesn\'t emit a signal). 
+-- unchanged (and doesn't emit a signal). 
 -- Additionally, the "TreeStore" and "ListStore" models guarantee that 
 -- an iterator is valid for as long as the node it refers to is valid.
 -- Although generally uninteresting, as one
 -- always has to allow for the case where iterators do not persist beyond a
 -- signal, some very important performance enhancements were made in the sort
--- model. As a result, the "TreeModelItersPersist" flag was added to
+-- model. As a result, the \"TreeModelItersPersist\" flag was added to
 -- indicate this behavior.
 --
---
--- Class Hierarchy
+
+-- * Class Hierarchy
 -- |
 -- @
 -- |  "GInterface"
--- |   +----GtkTreeModel
+-- |   +----TreeModel
 -- @
---
-module Graphics.UI.Gtk.TreeList.TreeModel (
+
 -- * Types
   TreeModel,
   TreeModelClass,

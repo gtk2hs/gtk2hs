@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/17 00:13:20 $
+--  Version $Revision: 1.4 $ from $Date: 2005/02/17 12:55:48 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -63,17 +63,19 @@
 -- * set_scroll_adjustment makes sense if the user monitors the scroll bars
 --   *and* the scroll bars can be replaced anytime (the latter is odd)
 --
--- Class Hierarchy
+
+module Graphics.UI.Gtk.TreeList.TreeView (
+
+-- * Class Hierarchy
 -- |
 -- @
 -- |  "GObject"
 -- |   +----"Object"
 -- |         +----"Widget"
 -- |               +----"Container"
--- |                     +----GtkTreeView
+-- |                     +----TreeView
 -- @
 
-module Graphics.UI.Gtk.TreeList.TreeView (
 -- * Types
   TreeView,
   TreeViewClass,

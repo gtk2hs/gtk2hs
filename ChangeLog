@@ -1,3 +1,9 @@
+2005-02-17 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp: fix display of
+	documentation by moving much of it inside the export list.
+
 2005-02-16 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Renamed TreeViewColumn.chs, TreeModelSort.chs,
