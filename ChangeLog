@@ -42,6 +42,14 @@
 	* gtk2hs.spec.in: revert to building the GHCi .o files in a
 	post-install action and removing them in a uninstall action.
 
+	* demo/buttonbox/Makefile, demo/concurrent/Makefile,
+	demo/filechooser/Makefile, demo/gconf/Makefile, demo/glade/Makefile
+	demo/graphic/Makefile, demo/hello/Makefile, demo/mozembed/Makefile
+	demo/profileviewer/Makefile, demo/sourceview/Makefile,
+	demo/treeList/Makefile, demo/unicode/Makefile: make all the demos
+	support building with older ghc versions that do not support "auto"
+	packages and so you have to specifiy -package gtk or whatever.
+
 2005-01-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add an extra option --without-pkgreg to allow
