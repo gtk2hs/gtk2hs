@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/04 10:44:47 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -88,8 +88,8 @@ module Widget(
   afterConfigure,
   onDelete,
   afterDelete,
-  onDestroy,
-  afterDestroy,
+  onDestroyEvent,		-- you probably want onDestroy
+  afterDestroyEvent,
   onDirectionChanged,
   afterDirectionChanged,
   onEnterNotify,
@@ -104,6 +104,8 @@ module Widget(
   afterFocusOut,
   onGrabFocus,
   afterGrabFocus,
+  onDestroy,
+  afterDestroy,
   onHide,
   afterHide,
   onHierarchyChanged,
@@ -394,14 +396,15 @@ onDelete, afterDelete :: WidgetClass w => w -> (Event -> IO Bool) ->
 onDelete = event "delete_event" [] False
 afterDelete = event "delete_event" [] True
 
--- @signal connectToDestroy@ The widget will be destroyed.
+-- @signal connectToDestroyEvent@ The widget will be destroyed.
 --
--- * This is the last signal this widget will receive.
+-- * The widget received a destroy event from the window manager.
 --
-onDestroy, afterDestroy :: WidgetClass w => w -> (Event -> IO Bool) ->
-                           IO (ConnectId w)
-onDestroy = event "destroy_event" [] False
-afterDestroy = event "destroy_event" [] True
+onDestroyEvent, afterDestroyEvent :: WidgetClass w => 
+				     w -> (Event -> IO Bool) ->
+				     IO (ConnectId w)
+onDestroyEvent = event "destroy_event" [] False
+afterDestroyEvent = event "destroy_event" [] True
 
 -- @signal connectToDirectionChanged@ The default text direction was changed.
 --
@@ -456,6 +459,15 @@ onGrabFocus, afterGrabFocus :: WidgetClass w => w -> (Event -> IO Bool) ->
                                IO (ConnectId w)
 onGrabFocus = event "grab_focus" [] False
 afterGrabFocus = event "grab_focus" [] True
+
+-- @signal connectToDestroy@ The widget will be destroyed.
+--
+-- * This is the last signal this widget will receive.
+--
+onDestroy, afterDestroy :: WidgetClass w => w -> (IO ()) ->
+                           IO (ConnectId w)
+onDestroy = connect_NONE__NONE "destroy" False
+afterDestroy = connect_NONE__NONE "destroy" True
 
 -- @signal connectToHide@ The widget was asked to hide itself.
 --
