@@ -77,6 +77,7 @@ gtk/general/Hierarchy.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 			    $(srcdir)/tools/hierarchyGen/TypeGenerator
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
         $(srcdir)/tools/hierarchyGen/hierarchy.list \
+        $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
         $@ $(addprefix --tag=,$(CREATE_TYPES)))
 
 #
@@ -463,7 +464,9 @@ glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/TypeGenerator
 		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
-		      $@ --tag=libglade --lib=glade --prefix=glade)
+		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+		      $@ --tag=libglade --lib=glade --prefix=glade \
+		      --parentname=Hierarchy)
 
 am_libHSglade_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglade_a_SOURCES))))
@@ -521,8 +524,9 @@ gconf/System/Gnome/GConf/GConfType.chs :	\
 	$(srcdir)/tools/hierarchyGen/TypeGenerator
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gconf --lib=gconf --prefix=gconf \
-	--modname=System.Gnome.GConf.GConfType)
+	--modname=System.Gnome.GConf.GConfType --parentname=Hierarchy)
 
 am_libHSgconf_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_SOURCES))))
@@ -588,7 +592,8 @@ sourceview/SourceViewType.chs :	\
 	$(srcdir)/tools/hierarchyGen/TypeGenerator
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
-	$@ --tag=sourceview)
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+	$@ --tag=sourceview --parentname=Hierarchy)
 
 am_libHSsourceview_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsourceview_a_SOURCES))))

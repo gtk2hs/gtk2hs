@@ -1,3 +1,16 @@
+2004-12-13 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/hierarchyGen/TypeGen.hs: make the tool use an external template
+	file rather than embeding all the module text. Also added a
+	--parentname parameter to allow modules to inherit definitions from
+	other modules - this replaces the 'if fname/="Hierarchy" then' hack.
+
+	* tools/hierarchyGen/Hierarchy.chs.template: new file. Template for
+	class hierarchy definition modules. Used by the TypeGenerator program.
+	
+	* Makefile.am: modify invocation of TypeGenerator to pass template file
+	and pass --parentname=Hierarchy for all packages other than gtk.
+
 2004-12-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/gtk.pkg.in: change package_deps to haskell98 rather than base to

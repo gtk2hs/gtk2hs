@@ -1,0 +1,42 @@
+{-# OPTIONS -fglasgow-exts #-}  --due to use of unsafeCoerce#
+-- -*-haskell-*-
+-- -------------------- automatically generated file - do not edit ----------
+--  Object hierarchy for the GIMP Toolkit (GTK) Binding for Haskell
+--
+--  Author : Axel Simon
+--
+--  Copyright (c) 2001-2004 Axel Simon
+--
+--  This file is free software; you can redistribute it and/or modify
+--  it under the terms of the GNU General Public License as published by
+--  the Free Software Foundation; either version 2 of the License, or
+--  (at your option) any later version.
+--
+--  This file is distributed in the hope that it will be useful,
+--  but WITHOUT ANY WARRANTY; without even the implied warranty of
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+--  GNU General Public License for more details.
+--
+-- |
+-- This file reflects the Gtk object hierarchy in terms of Haskell classes.
+--
+module @MODULE_NAME@ (
+@MODULE_EXPORTS@
+  ) where
+
+import FFI	(ForeignPtr, castForeignPtr, foreignPtrToPtr,
+                 CULong, withForeignPtr)
+import GType    (typeInstanceIsA)
+import GHC.Base (unsafeCoerce#)
+@IMPORT_PARENT@
+
+{#context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
+
+castToGObject :: GObjectClass obj => obj -> obj
+castToGObject = id
+
+-- The usage of foreignPtrToPtr should be safe as the evaluation will only be
+-- forced if the object is used afterwards
+@CASTING_FUNCTIONS@
+
+@CLASS_DECLERATIONS@

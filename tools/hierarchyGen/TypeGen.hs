@@ -4,7 +4,7 @@
 module Main(main) where
 
 import Char(showLitChar, isAlpha, isAlphaNum, isSpace, toLower, toUpper, isUpper)
-import List(nub, isPrefixOf)
+import List(nub, isPrefixOf, partition)
 import Maybe(catMaybes, fromMaybe)
 import Monad(when)
 import System(getArgs, exitWith, ExitCode(..))
@@ -92,7 +92,11 @@ indent c = ss ("\n"++replicate (2*c) ' ')
 main = do
   args <- getArgs
   when (length args<2) usage
-  let (hierFile: goalFile: rem) = args
+
+  -----------------------------------------------------------------------------
+  -- Parse command line parameters
+  --
+  let (hierFile: templateFile: goalFile: rem) = args
   let tags = map (drop 6) (filter ("--tag=" `isPrefixOf`)  rem)
   let lib = case map (drop 6) (filter ("--lib=" `isPrefixOf`)  rem) of
               [] -> "gtk"
@@ -108,33 +112,64 @@ main = do
 			  drop 1 .
 			  dropWhile isAlpha .
 			  reverse
+  let parentName = case map (drop 13) (filter ("--parentname=" `isPrefixOf`) rem) of
+  		     [] -> ""
+		     (parentName:_) -> parentName
+
+  -----------------------------------------------------------------------------
+  -- Read in the input files
+  --
   content <- if hierFile == "-"
                then getContents	      -- read stdin
 	       else readFile hierFile
-  let (objs, specialQueries) = unzip $
+  template <- readFile templateFile
+
+  -----------------------------------------------------------------------------
+  -- Parse the contents of the hierarchy file
+  --
+  let (objs', specialQueries) = unzip $
 				 pFreshLine (freshParserState tags) content
+      objs = map (map snd) objs'
+
+  -----------------------------------------------------------------------------
+  -- Write the result file by substituting values into the template file
+  --
   writeFile goalFile $
-    generate modName lib prefix
-      (map (map snd) objs) specialQueries ""
+    templateSubstitute template (\var ->
+      case var of
+        "MODULE_NAME"    -> ss modName
+        "MODULE_EXPORTS" -> generateExports objs
+	"IMPORT_PARENT"  -> if null parentName
+	                      then ss ""
+	                      else ss "{#import " .ss parentName .ss "#}"
+	"CONTEXT_LIB"    -> ss lib
+	"CONTEXT_PREFIX" -> ss prefix
+	"CASTING_FUNCTIONS"  -> generateCastFunctions            objs specialQueries
+	"CLASS_DECLERATIONS" -> generateClassDeclerations prefix objs specialQueries
+	_ -> ss ""
+    ) ""
 
 
 usage = do
  putStr "\nProgram to generate Gtk's object hierarchy in Haskell. Usage:\n\
-	\TypeGenerator <hierFile> <outFile> {--tag=<tag>}\n\
+	\TypeGenerator <hierFile> <templateFile> <outFile> {--tag=<tag>}\n\
 	\              {--lib=<lib>} {--prefix=<prefix>}\n\
-	\              {--modname=<modName>}\n\
+	\              {--modname=<modName>} {--parentname=<parentName>}\n\
 	\where\n\
-	\  <hierFile>	   a list of all possible objects, the hierarchy is\n\
-	\		   taken from the indentation\n\
-	\  <outFile>	   is the name and path of the output file\n\
+	\  <hierFile>      a list of all possible objects, the hierarchy is\n\
+	\                  taken from the indentation\n\
+	\  <templateFile>  is the name and path of the output template file\n\
+	\  <outFile>       is the name and path of the output file\n\
 	\  <tag>           generate entries that have the tag <tag>\n\
-	\		   specify `default' for types without tags\n\
+	\                  specify `default' for types without tags\n\
 	\  <lib>           set the lib to use in the c2hs {#context #}\n\
 	\                  declaration (the default is \"gtk\")\n\
 	\  <prefix>        set the prefix to use in the c2hs {#context #}\n\
 	\                  declaration (the default is \"gtk\")\n\
 	\  <modName>       specify module name if it does not match the\n\
-	\                  file name, eg a hierarchical module name\n"
+	\                  file name, eg a hierarchical module name\n\
+	\  <parentName>    specify the name of the module that defines any\n\
+	\                  parent classes eg Hierarchy (default is none)\n"
  exitWith $ ExitFailure 1
 
 
@@ -143,75 +178,21 @@ usage = do
 -- generate dynamic fragments
 -------------------------------------------------------------------------------
 
-generate :: String -> String -> String -> [[String]] -> TypeTable -> ShowS
-generate fname lib prefix objs typeTable = 
-  let fillCol str = ss $ replicate 
-		    (maximum (map (length.head) objs)-length str) ' ' 
-  in
-           ss "-- -*-haskell-*-".
-  indent 0.ss "-- -------------------- automatically generated file - do not edit ----------".
-  indent 0.ss "--  Object hierarchy for the GIMP Toolkit (GTK) Binding for Haskell".
-  indent 0.ss "--".
-  indent 0.ss "--  Author : Axel Simon".
-  indent 0.ss "--".
-  indent 0.ss "--  Copyright (c) 2001-2004 Axel Simon".
-  indent 0.ss "--".
-  indent 0.ss "--  This file is free software; you can redistribute it and/or modify".
-  indent 0.ss "--  it under the terms of the GNU General Public License as published by".
-  indent 0.ss "--  the Free Software Foundation; either version 2 of the License, or".
-  indent 0.ss "--  (at your option) any later version.".
-  indent 0.ss "--".
-  indent 0.ss "--  This file is distributed in the hope that it will be useful,".
-  indent 0.ss "--  but WITHOUT ANY WARRANTY; without even the implied warranty of".
-  indent 0.ss "--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the".
-  indent 0.ss "--  GNU General Public License for more details.".
-  indent 0.ss "--".
-  indent 0.ss "-- |".
-  indent 0.ss "-- This file reflects the Gtk object hierarchy in terms of Haskell classes.".
-  indent 0.ss "--".
-  indent 0.ss "module ".ss fname.sc '('.
---  indent 1.ss "ObjectTag(..)".
+generateExports :: [[String]] -> ShowS
+generateExports objs =
   tail.
   foldl (\s1 s2 -> s1.ss ", ".s2) id (map (\(n:_) -> 
 		indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
 		indent 1.ss "to".ss n.ss ", ".
 		indent 1.ss "from".ss n.ss ", ".
 		indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
-		indent 1.ss "castTo".ss n) objs).
-  indent 1.ss ") where".
-  indent 0.
-  indent 0.ss "import FFI	(ForeignPtr, castForeignPtr, foreignPtrToPtr,".
-  indent 8.ss " CULong, withForeignPtr)".
-  indent 0.ss "import GType    (typeInstanceIsA)".
-  indent 0.ss "import GHC.Base (unsafeCoerce#)".
-  -- this is a very bad hack to get the definition of the ancestors whenever
-  -- these are not created in this file
-  (if fname/="Hierarchy" then indent 0.ss "{#import Hierarchy#}" else id).
-  indent 0.
-  indent 0.ss "{#context lib=\"".ss lib.ss "\" prefix=\"".ss prefix.ss "\" #}".
-  indent 0.
-  indent 0.ss "castToGObject :: GObjectClass obj => obj -> obj".
-  indent 0.ss "castToGObject = id".
-  indent 0.
-  indent 0.ss "-- The usage of foreignPtrToPtr should be safe as the evaluation will only be".
-  indent 0.ss "-- forced if the object is used afterwards".
-  indent 0.
-  foldl (.) id (map (makeUpcast typeTable) objs).
-  indent 0.
---  indent 0.ss "data ObjectTag  ".makeTypeTags '=' (map head objs).
---  indent 0.
---  indent 0.ss "instance Ord ObjectTag where".
---  foldl (.) id (map (makeOrd fillCol) objs).
---  indent 1.ss "compare ".ss "_   ".fillCol "_".ss " _   ".fillCol "_".
---    ss " = LT".
---  indent 0.
-  indent 0.
-  foldl (.) id (map (makeClass prefix typeTable) objs)
+		indent 1.ss "castTo".ss n) objs)
 
-makeTypeTags :: Char -> [String] -> ShowS
-makeTypeTags c [] = ss "deriving Eq"
-makeTypeTags c (obj:ects) = sc c.sc ' '.ss obj.ss "Tag".indent 8.
-			    makeTypeTags '|' ects
+generateCastFunctions :: [[String]] -> TypeTable -> ShowS
+generateCastFunctions objs typeTable = foldl (.) id (map (makeUpcast typeTable) objs)
+
+generateClassDeclerations :: String -> [[String]] -> TypeTable -> ShowS
+generateClassDeclerations prefix objs typeTable = foldl (.) id (map (makeClass prefix typeTable) objs)
 
 makeUpcast :: TypeTable -> [String] -> ShowS
 makeUpcast table [obj]	   = id -- no casting for GObject
@@ -285,3 +266,9 @@ makeInstance name (par:ents) =
 
  
   
+templateSubstitute :: String -> (String -> ShowS) -> ShowS
+templateSubstitute template varSubst = doSubst template 
+  where doSubst [] = id
+        doSubst ('@':cs) = let (var,_:cs') = span ('@'/=) cs
+                            in varSubst var . doSubst cs'
+        doSubst (c:cs) = sc c . doSubst cs
