@@ -1,0 +1,16 @@
+<gapi-parser-input>
+  <api filename="gobject-api.xml">
+    <library name="gobject">
+      <namespace name="GObject">
+        <dir>glib/gobject</dir>
+	<!-- exclude programs -->
+	<exclude>glib/gobject/glib-genmarshal.c</exclude>
+	<exclude>glib/gobject/gobject-query.c</exclude>
+	<exclude>glib/gobject/stamp-gmarshal.h</exclude>
+	<exclude>glib/gobject/testgobject.c</exclude>
+	<!-- this file causes the gapi parser to go into a infinite loop -->
+	<exclude>glib/gobject/gvalue.h</exclude>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

@@ -78,11 +78,13 @@ gtk-docs.xml : gtk+/docs/reference/gtk/xml format-docs.xsl
 	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
 gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen \
-		gdk-api.xml pango-api.xml atk-api.xml glib-api.xml
+		gdk-api.xml pango-api.xml atk-api.xml \
+		gobject-api.xml glib-api.xml
 	@mkdir -p $@
 	./ApiGen $< Template.chs --doc=gtk-docs.xml --outdir=$@ \
 	--includeapi=gdk-api.xml --includeapi=pango-api.xml \
-	--includeapi=atk-api.xml --includeapi=glib-api.xml \
+	--includeapi=atk-api.xml --includeapi=gobject-api.xml \
+	--includeapi=glib-api.xml \
 	--excludeapi=gtk.ignore \
 	--modprefix=Graphics.UI.Gtk.{-Category-} \
 	--scanmodules=../../gtk/Graphics/UI/Gtk \
@@ -118,6 +120,27 @@ pango-modules : pango-api.xml pango-docs.xml Template.chs ApiGen
 	@mkdir -p $@
 	./ApiGen $< Template.chs --doc=pango-docs.xml --outdir=$@
 
+###################
+#
+#       Glib modules
+#
+#
+glib-docs.xml : glib/docs/reference/glib/xml format-docs.xsl
+	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
+
+## Note: this is currently pointless since the code generator only produces
+## modules for 'object's and not 'class'es which is all glib contains.
+glib-modules : glib-api.xml glib-docs.xml Template.chs ApiGen
+	@mkdir -p $@
+	./ApiGen $< Template.chs --doc=glib-docs.xml --outdir=$@
+
+gobject-docs.xml : glib/docs/reference/gobject/xml format-docs.xsl
+	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
+
+## Note: again this is mostly pointless
+gobject-modules : gobject-api.xml gobject-docs.xml Template.chs ApiGen
+	@mkdir -p $@
+	./ApiGen $< Template.chs --doc=gobject-docs.xml --outdir=$@
 
 ########################
 #
@@ -145,7 +168,8 @@ gnomecanvas-modules : gnomecanvas-api.xml Template.chs ApiGen \
 #
 ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs \
 	Marshal.hs CodeGen.hs StringUtils.hs ModuleScan.hs MarshalFixup.hs
-	ghc --make $< -o $@
+	$(HC) --make $< -o $@
+HC=ghc
 
 gapi_format_xml : formatXml.c
 	gcc `pkg-config --cflags --libs libxml-2.0 glib-2.0` $< -o $@

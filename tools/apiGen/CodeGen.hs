@@ -13,7 +13,8 @@ import FormatDocs
 import Marshal
 import StringUtils
 import ModuleScan
-import MarshalFixup (stripKnownPrefixes, maybeNullParameter, maybeNullResult, fixCFunctionName)
+import MarshalFixup (stripKnownPrefixes, maybeNullParameter, maybeNullResult,
+                     fixCFunctionName, leafClass)
 
 import Prelude hiding (Enum, lines)
 import List   (groupBy, sortBy, isPrefixOf, isSuffixOf, partition, find)
@@ -25,8 +26,8 @@ import Debug.Trace (trace)
 -------------------------------------------------------------------------------
 -- Now lets actually generate some code fragments based on the api info
 -------------------------------------------------------------------------------
-genFunction :: KnownSymbols -> Method -> Maybe FuncDoc -> Maybe MethodInfo -> ShowS
-genFunction knownSymbols method doc info =
+genFunction :: KnownSymbols -> Bool -> Method -> Maybe FuncDoc -> Maybe MethodInfo -> ShowS
+genFunction knownSymbols isConstructor method doc info =
   formattedDoc.
   ss functionName. ss " :: ". functionType. nl.
   ss functionName. sc ' '. formattedParamNames. sc '='.
@@ -46,7 +47,8 @@ genFunction knownSymbols method doc info =
 		     | ((Just _, _), p) <- zip paramTypes' (method_parameters method) ]
         formattedParamNames = cat (map (\name -> ss name.sc ' ') paramNames)
 	(returnType', returnMarshaler) =
-		genMarshalResult knownSymbols (method_cname method) (method_return_type method)
+		genMarshalResult knownSymbols (method_cname method)
+                                  isConstructor (method_return_type method)
         returnType = ("IO " ++ returnType', lookup "Returns" paramDocMap)
 	functionType = (case classConstraints of
 	                  []  -> id
@@ -61,7 +63,7 @@ genFunction knownSymbols method doc info =
                   Just info -> methodinfo_unsafe info
         formattedDoc = haddocFormatDeclaration knownSymbols docNullsAllFixed funcdoc_paragraphs doc
         docNullsAllFixed = maybeNullResult (method_cname method)
-                        || or [ maybeNullParameter (method_cname method) (parameter_name p)
+                        || or [ maybeNullParameter (method_cname method) (cParamNameToHsName (parameter_name p))
                               | p <- method_parameters method ]
         paramDocMap = case doc of
           Nothing  -> []
@@ -146,7 +148,7 @@ mungeMethodInfo object modInfo =
 
 genMethods :: KnownSymbols -> Object -> [FuncDoc] -> [MethodInfo] -> [(ShowS, (Since, Deprecated))]
 genMethods knownSymbols object apiDoc methodInfo = 
-  [ (genFunction knownSymbols method doc info, (maybe "" funcdoc_since doc, method_deprecated method))
+  [ (genFunction knownSymbols False method doc info, (maybe "" funcdoc_since doc, method_deprecated method))
   | (method, doc, info) <- methods object apiDoc methodInfo True]
 
 methods :: Object -> [FuncDoc] -> [MethodInfo] -> Bool -> [(Method, Maybe FuncDoc, Maybe MethodInfo)]
@@ -186,18 +188,28 @@ mungeMethod object method =
 
 genConstructors :: KnownSymbols -> Object -> [FuncDoc] -> [MethodInfo] -> [(ShowS, (Since, Deprecated))]
 genConstructors knownSymbols object apiDoc methodsInfo =
-  [ (genFunction knownSymbols constructor doc info, (maybe "" funcdoc_since doc, notDeprecated))
+  [ (genFunction knownSymbols True constructor doc info, (maybe "" funcdoc_since doc, notDeprecated))
   | (constructor, doc, info) <- constructors object apiDoc methodsInfo ]
 
 constructors :: Object -> [FuncDoc] -> [MethodInfo] -> [(Method, Maybe FuncDoc, Maybe MethodInfo)]
 constructors object docs methodsInfo =
-  [ (mungeConstructor object constructor
-    ,lookup (constructor_cname constructor) docmap
-    ,lookup (constructor_cname constructor) infomap)
+  map snd $
+  sortBy (comparing fst)
+  [ let doc = lookup (constructor_cname constructor) docmap
+        (info,infoIndex)= case lookup (constructor_cname constructor) infomap of
+                            Nothing -> (Nothing, endInfoIndex)
+                            Just (info, index) -> (Just info, index)
+     in (infoIndex,(mungeConstructor object constructor, doc, info))
   | constructor <- object_constructors object
   , null [ () | VarArgs <- constructor_parameters constructor] ]
-  where docmap  = [ (funcdoc_name doc, doc) | doc <- docs ]
-        infomap = [ (methodinfo_cname info, info) | info <- methodsInfo ]
+  where docmap  = [ (funcdoc_name doc, deleteReturnDoc doc) | doc <- docs ]
+        infomap = [ (methodinfo_cname info, (info,index))
+                  | (info,index) <- zip methodsInfo [1..] ]
+        endInfoIndex = length methodsInfo          
+        -- the documentation for the constructor return value is almost
+        -- universally useless and pointless so remove it.
+        deleteReturnDoc doc = doc { funcdoc_params = [ p | p <- funcdoc_params doc
+                                                         , paramdoc_name p /= "Returns" ] }
 
 mungeConstructor :: Object -> Constructor -> Method
 mungeConstructor object constructor =
@@ -208,7 +220,7 @@ mungeConstructor object constructor =
     method_parameters = constructor_parameters constructor,
     method_shared = False,
     method_deprecated = False
-  }  
+  }
 
 properties :: Object -> [PropDoc] -> [(Either Property (Method, Method), Maybe PropDoc)]
 properties object docs =
@@ -267,7 +279,9 @@ extraPropDocumentation getter setter =
 genAtter :: KnownSymbols -> Object -> Maybe PropDoc -> String -> String -> String -> String -> ShowS
 genAtter knownSymbols object doc propertyName propertyType getter setter = 
   formattedDoc.
-  ss propertyName. ss " :: Attr ". objectType. sc ' '. ss propertyType. nl.
+  (if leafClass (object_cname object)
+     then ss propertyName. ss " :: Attr ". objectType. sc ' '. ss propertyType. nl
+     else ss propertyName. ss " :: ". objectType. ss "Class self => Attr self ". ss propertyType. nl).
   ss propertyName. ss " = Attr ". 
   indent 1. ss getter.
   indent 1. ss setter
@@ -290,7 +304,7 @@ genAtterFromGetterSetter knownSymbols object getterMethod setterMethod doc =
 
   where --propertyName = cFuncNameToHsPropName (method_cname getterMethod)
         propertyName = lowerCaseFirstChar (object_name object ++ drop 3 (method_name getterMethod))
-        (propertyType, _) = genMarshalResult knownSymbols (method_cname getterMethod)
+        (propertyType, _) = genMarshalResult knownSymbols (method_cname getterMethod) False
                               (method_return_type getterMethod)
         getter = cFuncNameToHsName (method_cname getterMethod)
         setter = cFuncNameToHsName (method_cname setterMethod)
@@ -389,7 +403,6 @@ makeKnownSymbolsMap api =
     | enum <- namespace_enums namespace ]
  ++ [ (object_cname object, objectKind object)
     | object <- namespace_objects namespace ]
- ++ [ ("GObject", SymObjectType GObjectKind) ]
  ++ [ (member_cname member, SymEnumValue)
     | enum <- namespace_enums namespace
     , member <- enum_members enum ]
@@ -399,14 +412,9 @@ makeKnownSymbolsMap api =
 
         -- find if an object inherits via GtkObject or directly from GObject
   where objectKind :: Object -> CSymbol
-        objectKind object = lookup (objectParents object)
-          where lookup [] = trace ( "Warning: " ++ object_name object
-                                 ++ " does not inherit from GObject! "
-                                 ++ show (objectParents object)) SymStructType
-                lookup ("GObject":os) = SymObjectType GObjectKind
-                lookup ("GtkObject":os) = SymObjectType GtkObjectKind
-                lookup ("GdkBitmap":os) = SymObjectType GObjectKind -- Hack!
-                lookup (_:os) = lookup os
+        objectKind object | "GObject" `elem` parents = SymObjectType parents
+                          | otherwise                = SymStructType
+          where parents = objectParents object
         objectParents :: Object -> [String]
         objectParents object = object_cname object :
           case object_parent object `lookup` objectMap of
@@ -430,9 +438,13 @@ genExports object docs modInfo =
      ,(ss "  ".ss (object_name object).sc ',', defaultAttrs)
      ,(ss "  ".ss (object_name object).ss "Class,", defaultAttrs)
      ,(ss "  ".ss "castTo".ss (object_name object).sc ',', defaultAttrs)] 
-  ++ sectionHeader "Constructors"
-     [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ','
+  ++ (sectionHeader "Constructors"
+    . map fst
+    . sortBy (comparing snd))
+     [ let constructorName = cFuncNameToHsName (method_cname constructor) in
+       ((ss "  ". ss constructorName. sc ','
        ,(maybe "" funcdoc_since doc, notDeprecated))
+       ,fromMaybe (maxBound::Int) (lookup constructorName exportIndexMap))
      | (constructor, doc, _) <- constructors object (moduledoc_functions docs) []]
   ++ (sectionHeader "Methods"
     . map fst

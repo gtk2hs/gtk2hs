@@ -144,6 +144,7 @@ main = do
                     module_name              = object_name object,
                     module_prefix            = modPrefix,
                     module_needspreproc      = False,
+                    module_needsc2hs         = True,
                     module_filename          = object_name object ++ ".chs",
                     module_authors           = ["[Insert your full name here]"],
                     module_created           = date,

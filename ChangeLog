@@ -1,3 +1,34 @@
+2005-03-25 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/ModuleScan.hs: match up against existing .hs modules if
+	there is no .chs or .chs.pp files.
+
+	* tools/apiGen/ApiGen.hs: minor knock-on change from above.
+
+	* tools/apiGen/MarshalFixup.hs: more fixup info.
+
+	* tools/apiGen/CodeGen.hs: pass whether the function is a constructor
+	on to the marshaling functions. This allows them to add castPtr for
+	constructors. Output the constructors in the same order as they occur
+	in the original module (same as we do for functions). Change
+	KnownSymbols map to include the full chaing of parents of each class
+	rather than just a clasification of whether they inherit from GObject
+	or GtkObject. For leaf classes, generate the properties with the
+	specific type rather than it's corresponding typeclass.
+
+	* tools/apiGen/Marshal.hs: The KnownSymbols map change described
+	above. Add castPtr for constructors and include the specific types
+	that we are casting from and to, just for safty in case the code
+	generator gets it wrong and disagrees with c2hs on types. Add
+	marshaling for gunichar.
+
+	* tools/apiGen/Makefile: add gobject-api.xml to the --includeapi list
+	so we don't need a special case for GObject in the code generator.
+
+	* tools/apiGen/glib-sources.xml: make this into glib not gobject.
+
+	* tools/apiGen/gobject-sources.xml: add gobject seperately.
+
 2005-03-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs,

@@ -1,15 +1,17 @@
 <gapi-parser-input>
   <api filename="glib-api.xml">
-    <library name="gobject">
-      <namespace name="GObject">
-        <dir>glib/gobject</dir>
-	<!-- exclude programs -->
-	<exclude>glib/gobject/glib-genmarshal.c</exclude>
-	<exclude>glib/gobject/gobject-query.c</exclude>
-	<exclude>glib/gobject/stamp-gmarshal.h</exclude>
-	<exclude>glib/gobject/testgobject.c</exclude>
-	<!-- this file causes the gapi parser to go into a infinite loop -->
-	<exclude>glib/gobject/gvalue.h</exclude>
+    <library name="glib">
+      <namespace name="G">
+        <dir>glib/glib</dir>
+      	<!-- exclude huge static arrays -->
+        <exclude>glib/glib/gscanner.h</exclude>
+        <exclude>glib/glib/gunibreak.h</exclude>
+        <exclude>glib/glib/gunichartables.h</exclude>
+        <exclude>glib/glib/gunicomp.h</exclude>
+        <exclude>glib/glib/gunidecomp.h</exclude>
+
+        <!-- this file causes the gapi parser to go into a infinite loop -->
+        <exclude>glib/glib/gbsearcharray.h</exclude>
       </namespace>
     </library>
   </api>

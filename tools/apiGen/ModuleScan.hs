@@ -19,6 +19,7 @@ data ModuleInfo = ModuleInfo {
     module_name              :: String,
     module_prefix            :: String,
     module_needspreproc      :: Bool,
+    module_needsc2hs         :: Bool,
     module_filename          :: String,
     module_authors           :: [String],
     module_created           :: String,
@@ -72,21 +73,28 @@ scanModules :: FilePath -> [FilePath] -> IO [ModuleInfo]
 scanModules path excludePaths = do
   modules <- findModules excludePaths path
   mapM (\moduleName -> do ppExists <- doesFileExist (moduleName ++ ".chs.pp")
-                          if ppExists then scanModule (moduleName ++ ".chs.pp")
-                                      else scanModule (moduleName ++ ".chs")) modules
+                          chsExists <- doesFileExist (moduleName ++ ".chs")
+                          if ppExists
+                            then scanModule (moduleName ++ ".chs.pp")
+                            else if chsExists
+                                   then scanModule (moduleName ++ ".chs")
+                                   else scanModule (moduleName ++ ".hs")
+       ) modules
 
 findModules :: [FilePath] -> FilePath -> IO [FilePath]
 findModules excludePaths path | path `elem` excludePaths = return []
 findModules excludePaths path = do
   files <- getDirectoryContents path
-  let (chsFiles, maybeDirs) = partition (\file -> ".chs" `isSuffixOf` file
-                                            || ".chs.pp" `isSuffixOf` file) files
+  let (chsFiles, maybeDirs) = partition (\file -> ".chs.pp" `isSuffixOf` file
+                                               || ".chs"    `isSuffixOf` file
+                                               || ".hs"     `isSuffixOf` file) files
       modules = map head
               . group
               . sort
               . map extractModule
               $ chsFiles
       extractModule [] = []
+      extractModule ('.':'h':'s':[]) = []
       extractModule ('.':'c':'h':'s':[]) = []
       extractModule ('.':'c':'h':'s':'.':'p':'p':[]) = []
       extractModule (c:cs) = c : extractModule cs
@@ -108,6 +116,7 @@ scanModule file = do
       module_filename = moduleNameToFileName (module_name moduleInfo)
                                              (module_prefix moduleInfo)
                                              (module_needspreproc moduleInfo)
+                                             (module_needsc2hs moduleInfo)
     }
 
 scanModuleContent :: String -> String -> ModuleInfo
@@ -120,6 +129,7 @@ scanModuleContent content filename =
     module_name              = head $ [ name    | Module name prefix  <- headerLines ] ++ [missing],
     module_prefix            = head $ [ prefix  | Module name prefix  <- headerLines ] ++ [missing],
     module_needspreproc      = ".chs.pp" `isSuffixOf` filename,
+    module_needsc2hs         = ".chs" `isSuffixOf` filename,
     module_filename          = "",
     module_authors           = head $ [ authors | Authors authors     <- headerLines ] ++ [[missing]],
     module_created           = head $ [ created | Created created     <- headerLines ] ++ [missing],
@@ -136,9 +146,10 @@ scanModuleContent content filename =
   }
   where missing = "{-missing-}"
 
-moduleNameToFileName :: String -> String -> Bool -> String
-moduleNameToFileName name prefix preproc  = map dotToSlash prefix ++ "/" ++ name
-                                         ++ if preproc then ".chs.pp" else ".chs"
+moduleNameToFileName :: String -> String -> Bool -> Bool -> String
+moduleNameToFileName name prefix preproc c2hs =
+  map dotToSlash prefix ++ "/" ++ name
+  ++ if preproc then ".chs.pp" else if c2hs then ".chs" else ".hs"
   where dotToSlash '.' = '/'
         dotToSlash  c  =  c
 

@@ -1,7 +1,6 @@
 module Marshal (
   KnownSymbols,
   CSymbol(..),
-  ObjectKind(..),
   EnumKind(..),
   genMarshalParameter,
   genMarshalResult,
@@ -14,11 +13,12 @@ import MarshalFixup
 
 import StringUtils
 import Char (isUpper)
+import Maybe (fromJust)
 import Data.FiniteMap
 
 type KnownSymbols = FiniteMap String CSymbol
 
-data CSymbol = SymObjectType ObjectKind
+data CSymbol = SymObjectType { sym_object_parents :: [String] }
              | SymEnumType   EnumKind
              | SymEnumValue
              | SymStructType
@@ -26,21 +26,13 @@ data CSymbol = SymObjectType ObjectKind
              | SymClassType
              | SymTypeAlias
              | SymCallbackType
-  deriving Eq
+  deriving (Eq, Show)
 
-data ObjectKind = GObjectKind | GtkObjectKind
-  deriving Eq
 data EnumKind = EnumKind | FlagsKind
-  deriving Eq
+  deriving (Eq, Show)
 
 symbolIsObject (Just (SymObjectType _)) = True
 symbolIsObject _                        = False
-
-symbolIsGObject (Just (SymObjectType GObjectKind)) = True
-symbolIsGObject _                                  = False
-
-symbolIsGtkObject (Just (SymObjectType GtkObjectKind)) = True
-symbolIsGtkObject _                                    = False
 
 symbolIsEnum (Just (SymEnumType EnumKind)) = True
 symbolIsEnum _                             = False
@@ -88,6 +80,11 @@ genMarshalParameter _ _ name "gfloat" =
 	(Nothing, Just "Float",
 	\body -> body.
                  indent 2. ss "(realToFrac ". ss name. ss ")")
+
+genMarshalParameter _ _ name "gunichar" =
+	(Nothing, Just "Char",
+	\body -> body.
+                 indent 2. ss "((fromIntegral . ord) ". ss name. ss ")")
 
 genMarshalParameter _ funcName name typeName | typeName == "const-gchar*"
                                             || typeName == "const-char*" =
@@ -181,16 +178,18 @@ genMarshalParameter _ _ name unknownType =
 genMarshalResult :: 
         KnownSymbols -> --a collection of types we know to be objects or enums
         String ->       --function name (useful to lookup per-func fixup info)
+        Bool ->         --is the function a constructor or ordinary method?
 	String -> 	--C type decleration for the return value we will marshal
 	(String,	--Haskell return type 
 	ShowS -> ShowS)	--marshaling code (\body -> ... body ...)
-genMarshalResult _ _ "gboolean" = ("Bool", \body -> ss "liftM toBool $". indent 1. body)
-genMarshalResult _ _ "gint"     = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
-genMarshalResult _ _ "guint"    = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
-genMarshalResult _ _ "gdouble"  = ("Double", \body -> ss "liftM realToFrac $". indent 1. body)
-genMarshalResult _ _ "gfloat"   = ("Float",  \body -> ss "liftM realToFrac $". indent 1. body)
-genMarshalResult _ _ "void"     = ("()", id)
-genMarshalResult _ funcName "const-gchar*" =
+genMarshalResult _ _ _ "gboolean" = ("Bool", \body -> ss "liftM toBool $". indent 1. body)
+genMarshalResult _ _ _ "gint"     = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ _ "guint"    = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ _ "gdouble"  = ("Double", \body -> ss "liftM realToFrac $". indent 1. body)
+genMarshalResult _ _ _ "gfloat"   = ("Float",  \body -> ss "liftM realToFrac $". indent 1. body)
+genMarshalResult _ _ _ "gunichar" = ("Char", \body -> ss "liftM (chr . fromIntegral) $". indent 1. body)
+genMarshalResult _ _ _ "void"     = ("()", id)
+genMarshalResult _ funcName _ "const-gchar*" =
   if maybeNullResult funcName
     then ("(Maybe String)",
          \body -> body.
@@ -198,7 +197,7 @@ genMarshalResult _ funcName "const-gchar*" =
     else ("String",
          \body -> body.
                   indent 1. ss  ">>= peekUTFString")
-genMarshalResult _ funcName "gchar*" =
+genMarshalResult _ funcName _ "gchar*" =
   if maybeNullResult funcName
     then ("(Maybe String)",
          \body -> body.
@@ -206,41 +205,51 @@ genMarshalResult _ funcName "gchar*" =
     else ("String",
          \body -> body.
                   indent 1. ss  ">>= readUTFString")
-genMarshalResult _ _ "const-GSList*" =
+genMarshalResult _ _ _ "const-GSList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= readGSList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
-genMarshalResult _ _ "GSList*" =
+genMarshalResult _ _ _ "GSList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= fromGSList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
-genMarshalResult _ _ "GList*" =
+genMarshalResult _ _ _ "GList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= fromGList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
 
-genMarshalResult knownSymbols funcName typeName'
+genMarshalResult knownSymbols funcName funcIsConstructor typeName'
             | isUpper (head typeName')
            && last typeName' == '*'
            && last typeName /= '*'
            && symbolIsObject typeKind =
   if maybeNullResult funcName
     then ("(Maybe " ++ shortTypeName ++ ")",
-         \body -> ss "maybeNull (" .ss constructor. ss " mk". ss shortTypeName. ss ") $".
+         \body -> ss "maybeNull (" .ss constructor. ss " mk". ss shortTypeName. ss ") $". cast.
                   indent 1. body)
     else (shortTypeName,
-         \body -> ss constructor. ss " mk". ss shortTypeName. ss " $".
+         \body -> ss constructor. ss " mk". ss shortTypeName. ss " $". cast.
                   indent 1. body)
   where typeName = init typeName'
         shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
-        constructor | symbolIsGObject typeKind = "makeNewGObject"
-                    | symbolIsGtkObject typeKind = "makeNewObject"
-        
-genMarshalResult knownSymbols _ typeName
+        constructor | "GtkObject" `elem` sym_object_parents (fromJust typeKind)
+                                = "makeNewObject"
+                    | "GObject" `elem` sym_object_parents (fromJust typeKind)
+                                = "makeNewGObject"
+        cast | funcIsConstructor
+            && constructorReturnType /= typeName = 
+            indent 1. ss "liftM (castPtr :: Ptr ". ss (stripKnownPrefixes constructorReturnType).
+                                    ss " -> Ptr ". ss (stripKnownPrefixes typeName). ss ") $"
+             | otherwise = id
+          where constructorReturnType | "GtkWidget" `elem` sym_object_parents (fromJust typeKind)
+                                                  = "GtkWidget"
+                                      | otherwise = typeName
+            
+genMarshalResult knownSymbols _ _ typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
   (shortTypeName,
@@ -249,7 +258,7 @@ genMarshalResult knownSymbols _ typeName
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
-genMarshalResult knownSymbols _ typeName
+genMarshalResult knownSymbols _ _ typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
   ("[" ++ shortTypeName ++ "]",
@@ -258,7 +267,7 @@ genMarshalResult knownSymbols _ typeName
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
-genMarshalResult _ _ unknownType = ("{-" ++ unknownType ++ "-}", id)
+genMarshalResult _ _ _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
 -- Takes the type string and returns the Haskell Type and the GValue constructor
 --

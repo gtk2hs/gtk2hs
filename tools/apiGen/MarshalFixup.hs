@@ -28,6 +28,8 @@ fixCFunctionName "hbutton" = "HButton"
 fixCFunctionName "vbutton" = "VButton"
 fixCFunctionName "hpaned"  = "HPaned"
 fixCFunctionName "vpaned"  = "VPaned"
+fixCFunctionName "hborder"    = "HBorder"
+fixCFunctionName "vborder"    = "VBorder"
 fixCFunctionName "hseparator" = "HSeparator"
 fixCFunctionName "vseparator" = "VSeparator"
 fixCFunctionName "hscrollbar" = "HScrollbar"
@@ -53,9 +55,14 @@ knownMiscType _ = False
 leafClass :: String -> Bool
 leafClass "GtkAdjustment" = True
 leafClass "GdkPixbuf"     = True
+leafClass "GtkImage"      = True
 leafClass "GtkIconFactory"  = True
 leafClass "GtkEntryCompletion" = True
 leafClass "GtkFileFilter" = True
+leafClass "GtkUIManager"    = True
+leafClass "GtkRadioButton"  = True
+leafClass "GtkEventBox"     = True
+leafClass "GtkExpander"     = True
 leafClass _ = False
 
 -- This is a table of fixup information. It lists function parameters that
@@ -71,6 +78,11 @@ leafClass _ = False
 maybeNullParameter :: String -> String -> Bool
 maybeNullParameter "gtk_entry_completion_set_model" "model" = True
 maybeNullParameter "gtk_label_new" "str" = True
+maybeNullParameter "gtk_about_dialog_set_license" "license" = True
+maybeNullParameter "gtk_about_dialog_set_logo" "logo" = True
+maybeNullParameter "gtk_about_dialog_set_logo_icon_name" "logo" = True
+maybeNullParameter "gtk_layout_new" _ = True
+maybeNullParameter "gtk_notebook_set_menu_label" "menuLabel" = True
 maybeNullParameter _ _ = False
 
 -- similarly for method return values/types.
@@ -84,6 +96,12 @@ maybeNullResult "gtk_container_get_focus_hadjustment" = True
 maybeNullResult "gtk_container_get_focus_vadjustment" = True
 maybeNullResult "gtk_paned_get_child1" = True
 maybeNullResult "gtk_paned_get_child2" = True
+maybeNullResult "gtk_label_get_mnemonic_widget" = True
+maybeNullResult "gtk_notebook_get_menu_label" = True
+maybeNullResult "gtk_notebook_get_menu_label_text" = True
+maybeNullResult "gtk_notebook_get_nth_page" = True
+maybeNullResult "gtk_notebook_get_tab_label" = True
+maybeNullResult "gtk_notebook_get_tab_label_text" = True
 maybeNullResult _ = False
 
 -- On win32 for glib/gtk 2.6 they changed the interpretation of functions that
