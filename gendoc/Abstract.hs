@@ -23,6 +23,7 @@ data Constr = CNorm TyCon [HType]
 
 data HFunction = FunDecl [DaVar] HContext HType
 	       | FunDefn DaVar [HPat]
+	       deriving Show
 
 data HPat = PatAt DaVar HPat
 	  | PatVar DaVar

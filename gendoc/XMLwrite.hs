@@ -2,13 +2,20 @@ module XMLwrite where
 
 import State
 import Abstract
-import Text.PrettyPrint
+import PrettyLib
 import Data.PackedString
 import Data.FiniteMap
-import Data.List	(nub)
+import Data.List	(nub, intersperse)
+
+hcat :: [Doc] -> Doc
+hcat [] = nil
+hcat ls = foldr1 (<>) ls
+
+fsep :: [Doc] -> Doc
+fsep = group . hcat  .intersperse (delimiter " ")
 
 type Name  = String
-type Value = String
+type Value = PackedString
 data Attribute  = Attribute Name Value deriving Show
 
 data XML
@@ -17,110 +24,105 @@ data XML
     attributes :: [Attribute],
     content    :: [XML] } 
   | Plain {
-    value      :: Doc
-  }
-  | Verbatim {
-    value      :: Doc
-  }
+    value      :: Value }
+  | WhiteSpace
+
 --  deriving Show
+isElement :: XML -> Bool
+isElement (Element _ _ _) = True
+isElement _		   = False
 
-isVerbatim :: [XML] -> Bool
-isVerbatim (Verbatim _:_) = True
-isVerbatim _ = False
+allElement :: [XML] -> Bool
+allElement = and . map isElement
 
-xmlToDoc :: [XML] -> [Doc]
-xmlToDoc (Plain value:rem) = value:xmlToDoc rem
-xmlToDoc (Verbatim value:rem) = value:xmlToDoc rem
-xmlToDoc (Element name attr []:Verbatim value:rem) = 
-  (lStart <> text name <+> sep (map attrToDoc attr) <> rStop <> value):
-  xmlToDoc rem
-xmlToDoc (Element name attr []:rem) = 
-  (lStart <> text name <+> sep (map attrToDoc attr) <> rStop):
-  xmlToDoc rem
-xmlToDoc (Element name attr (Verbatim val1:con):Verbatim value:rem) = 
-  fcat [
-    (lStart <> text name <+> sep (map attrToDoc attr) <> rStart <>
-    val1),
-    nest 2 (fsep (xmlToDoc con)),
-    lStop <> text name <> rStart <> value
-  ]:xmlToDoc rem
-xmlToDoc (Element name attr (Verbatim val1:con):rem) = 
-  fcat [
-    (lStart <> text name <+> sep (map attrToDoc attr) <> rStart <> 
-    val1),
-    nest 2 (fsep (xmlToDoc con)),
-    lStop <> text name <> rStart
-  ]:xmlToDoc rem
-xmlToDoc (Element name attr con:Verbatim value:rem) = 
-  fcat [
-    (lStart <> text name <+> sep (map attrToDoc attr) <> rStart),
-    nest 2 (fsep (xmlToDoc con)),
-    lStop <> text name <> rStart <> value
-  ]:xmlToDoc rem
-xmlToDoc (Element name attr con:rem) = 
-  fcat [
-    (lStart <> text name <+> sep (map attrToDoc attr) <> rStart),
-    nest 2 (fsep (xmlToDoc con)),
-    lStop <> text name <> rStart
-  ]:xmlToDoc rem
-xmlToDoc [] = []
+
+xmlToDoc :: XML -> Doc
+xmlToDoc (WhiteSpace) =  fdelimiter " "
+xmlToDoc (Plain value) =  text value
+xmlToDoc (Element name attr []) = 
+  group (
+    lStart <> text (packString name) <> 
+    (if null attr then nil else
+      groupNest 2 (delimiter " " <> fsep (map attrToDoc attr))) <>
+    rStop)
+xmlToDoc (Element name attr con) = group (
+  group (
+    lStart <> text (packString name) <>
+    (if null attr then nil else 
+      groupNest 2 (delimiter " " <> fsep (map attrToDoc attr))) <>
+    rStart
+  ) <> 
+  groupNest 1 (hcat (
+    (if allElement con then intersperse line else id)
+    (map xmlToDoc con))) <> 
+  group (
+    lStop <> text (packString name) <> rStart
+  ))
+
+
+-- fsep (text (packString name):map attrToDoc attr)
 
 attrToDoc :: Attribute -> Doc
-attrToDoc (Attribute name val) = text name <> equals <> doubleQuotes (text val)
+attrToDoc (Attribute name val) = text (packString name) <> equals <> 
+				 doubleQuotes (text val)
 
-lStart, lStop, rStart, rStop :: Doc
-lStart = text "<"
-lStop  = text "</"
-rStart = text ">"
-rStop  = text "/>"
+lStart, lStop, rStart, rStop, equals :: Doc
+lStart = text (packString "<")
+lStop  = text (packString "</")
+rStart = text (packString ">")
+rStop  = text (packString "/>")
+equals = text (packString "=")
+
+doubleQuotes :: Doc -> Doc
+doubleQuotes d = q <> d <> q
+  where
+    q = text (packString "\"")
 
 instance Show XML where
-  show = render.fsep.xmlToDoc.(\x -> [x])
-  showList = (++).render.fsep.xmlToDoc
+  show = pretty 80 . group . xmlToDoc
+  showList = (++) . pretty 80 . group . hcat . map xmlToDoc 
 
-renderXML :: Style -> [XML] -> String
-renderXML s = renderStyle s.fsep.xmlToDoc
+renderXML :: XML -> String
+renderXML = show
 
 test = Element "hafunsynopsis" [] [
-  Element "function" [] [Plain $ text "textViewNewWithAttributes"],
+  Element "function" [] [Plain (packString "textViewNewWithAttributes")],
   Element "hatyfun" [] [
-    Element "hatycon" [] [Plain $ text "Int"],
-    Element "hatyvar" [] [Plain $ text "cr"]]]
+    Element "hatycon" [] [Plain (packString "Int")],
+    Element "hatyvar" [] [Plain (packString "cr")]]]
 
 hTypeToXML :: HType -> XML
 hTypeToXML (TyFun t1 t2) = Element "hatyfun" [] [hTypeToXML t1,hTypeToXML t2]
 hTypeToXML (TyApp t1 t2) = Element "hatyapp" [] [hTypeToXML t1,hTypeToXML t2]
-hTypeToXML (TyCon con)   = Element "hatycon" [] [Plain $ text $ unpackPS con]
-hTypeToXML (TyVar var)   = Element "hatyvar" [] [Plain $ text $ unpackPS var]
+hTypeToXML (TyCon con)   = Element "hatycon" [] [Plain con]
+hTypeToXML (TyVar var)   = Element "hatyvar" [] [Plain var]
 hTypeToXML (TyPar tys)   = Element "hatypar" [] (map hTypeToXML tys)
 hTypeToXML (TyLst t)     = Element "hatylst" [] [hTypeToXML t]
 
 docuToXML :: [Docu] -> [XML]
 docuToXML [] = []
 docuToXML [Paragraph] = []
-docuToXML docu = Element "para" [] (dTX para):docuToXML rem
+docuToXML docu = Element "para" [] (init (dTX para)):
+		 docuToXML rem
   where
     isPara :: Docu -> Bool
     isPara Paragraph = True
     isPara _	     = False
     (para,rem) = break isPara (dropWhile isPara docu)
-	         
+    -- Generate XML that always has a trailing WhiteSpace. The latter is
+    -- removed by the call to init above.
     dTX :: [Docu] -> [XML]
-    dTX (Words ws:ds) = map (\t -> Plain ((text.unpackPS) t)) ws++dTX ds
-    dTX (RefArg var fol:ds) = Element "emphasis" [] 
-			       [Plain ((text.unpackPS) var)]:
-			       if nullPS fol then dTX ds else 
-			         Verbatim ((text.unpackPS) fol):dTX ds
-    dTX (RefSym _ var fol:ds) = Element "emphasis" [] 
-			       [Plain ((text.unpackPS) var)]:
-			       if nullPS fol then dTX ds else 
-			         Verbatim ((text.unpackPS) fol):dTX ds
-    dTX (RefTyp _ var fol:ds) = Element "emphasis" [] 
-			       [Plain ((text.unpackPS) var)]:
-			       if nullPS fol then dTX ds else 
-			         Verbatim ((text.unpackPS) fol):dTX ds
-    dTX (Verb str:ds) = Element "programlisting" []
-			  [Verbatim ((text.unpackPS) str)]:dTX ds
+    dTX (Words ws:ds) = (concatMap (\x -> [Plain x,WhiteSpace]) ws)++dTX ds
+    dTX (RefArg var fol:ds) = Element "emphasis" [] [Plain var]:
+			       (if nullPS fol then id else (Plain fol:))
+			       (WhiteSpace:dTX ds)
+    dTX (RefSym _ var fol:ds) = Element "emphasis" [] [Plain var]:
+			       (if nullPS fol then id else (Plain fol:))
+			       (WhiteSpace:dTX ds)
+    dTX (RefTyp _ var fol:ds) = Element "emphasis" [] [Plain var]:
+			       (if nullPS fol then id else (Plain fol:))
+			       (WhiteSpace:dTX ds)
+    dTX (Verb str:ds) = Element "programlisting" [] [Plain str]:dTX ds
     dTX	[] = []
 
 moduleToXML :: Module -> ModInfo -> XML
@@ -128,17 +130,17 @@ moduleToXML mName (ModInfo { modCat=cat, modSynop=syn, modIntro=int,
   modTodo=todo, modSymTab=st, modCtxt=ctxt }) =
   Element "refentry" [] $ [
     Element "refnamediv" [] [
-      Element "refname" [] [Plain (text (unpackPS mName))],
+      Element "refname" [] [Plain mName],
       Element "refpurpose" [] (docuToXML syn)
     ],
     Element "refsynopsisdiv" [] [
       Element "informaltable" [
-        Attribute "frame" "none",
-	Attribute "colsep" "0",
-	Attribute "rowsep" "0"] [
+        Attribute "frame" (packString "none"),
+	Attribute "colsep" (packString "0"),
+	Attribute "rowsep" (packString "0")] [
 	Element "tgroup" [
-	  Attribute "align" "left",
-	  Attribute "cols" "1"] [
+	  Attribute "align" (packString "left"),
+	  Attribute "cols" (packString "1")] [
 	  Element "tbody" [] (
 	    map (makeSynopsis ctxt) cons++
 	    map (makeSynopsis ctxt) const++
@@ -178,7 +180,7 @@ moduleToXML mName (ModInfo { modCat=cat, modSynop=syn, modIntro=int,
     makeSect name [] = []
     makeSect name docu = [
       Element "refsect1" [] (
-        Element "title" [] [Plain (text name)]:docu
+        Element "title" [] [Plain (packString name)]:docu
       )]
 
 makeSynopsis :: FiniteMap TyVar TyCon -> (DaVar,SymInfo) -> XML
@@ -186,7 +188,8 @@ makeSynopsis contexts (var, SymInfo { symType=Just ty }) =
   Element "row" [] [
     Element "entry" [] [
         Element "programlisting" [] [
-	  Verbatim $ text $ unpackPS var++" :: "++showContext ctxt++show ty
+	  Plain (var `appendPS` 
+		packString  (":: "++showContext ctxt++show ty))
 	]
     ]
   ]
@@ -200,7 +203,7 @@ makeSynopsis contexts (var, _) =
   Element "row" [] [
     Element "entry" [] [
         Element "programlisting" [] [
-	  Verbatim $ text $ unpackPS var++" &lt;no type information&gt;"
+	  Plain (var `appendPS` packString " &lt;no type information&gt;")
 	]
     ]
   ]
@@ -211,8 +214,8 @@ makeSymDescr :: (DaVar, SymInfo) -> XML
 makeSymDescr (var, SymInfo { symKind=k, symDocu=doc, 
 			     symType=Just ty, symArgs=args }) =
   Element "refsect2" [] (
-    Element "title" [] [Plain $ text $ unpackPS var]:
+    Element "title" [] [Plain var]:
     docuToXML doc
   )
 makeSymDescr (var, _) = Element "refsect2" [] 
-   [Plain $ text ("no type info on symbol "++unpackPS var)]
+   [Plain (packString "no type info on symbol"), Plain var]

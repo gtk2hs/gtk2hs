@@ -205,6 +205,19 @@ runParser p tok state = case (unParser p) tok state of
     ++concatMap show (take 5 ts)) state
   (Failed state) -> addError "parsing finished unsuccessful." state
 
+tP :: Show a => Int -> Int -> Parser a -> String -> IO ()
+tP b e p inp = putStrLn (testParser b e p inp)
+
+testParser :: Show a => Int -> Int -> Parser a -> String -> String
+testParser b e p inp = case (unParser p) tok initialState of
+  (Running x _ state) -> "Token: "++show tok++
+			 "\nResult:\n"++show x++"\nErrors:\n"++
+			 show (errors state)
+  (Failed state) -> "Token:\n"++show tok++
+		    "\nFailed:\n"++show (errors state)
+  where
+    tok = (drop b (reverse (drop e (reverse (lexer inp)))))
+
 -- Consume the next Token if possible.
 token :: Token -> Parser ()
 token tok = Parser $ checkToken
@@ -253,8 +266,9 @@ toplevel [] = Running () []
 toplevel (NewLine: ts) = \s -> toplevel ts (s { curPos=curPos s+1})
 toplevel (TLComment:ts) = stripParser ts $
   parseComIgnore >> parseToplevel
-toplevel (TLImport: DefCon mod: DefEnd:ts) = \state ->
-  toplevel ts (addImport (unpackPS mod) state)
+toplevel (TLImport: DefCon mod: ts) = \state ->
+  toplevel (dropWhile (`elem` [DefEnd,NewLine]) ts)
+    (addImport (unpackPS mod) state)
 toplevel (TLType Type:ts) = 
   stripParser ts (tTS `mplus` parseCheck "type synonym")
     where
@@ -533,7 +547,7 @@ parseAPat = Parser pAP
       apat <- parseAPat
       return (PatAt var apat)
     pAP (DefVar var: ts) = Running (PatVar var) ts
-    pAP (DefCon con: DefParCurlyOp: ts) = stripParser ts $ liftM PatRec $
+    pAP (DefParCurlyOp: ts) = stripParser ts $ liftM PatRec $
       parseTupel DefComma DefParCurlyCl $ do
         var <- parseVar
 	token DefEquals
@@ -544,6 +558,7 @@ parseAPat = Parser pAP
     pAP (DefParRoundOp: DefParRoundCl: ts) = Running (PatParen []) ts
     pAP (DefParRoundOp: ts) = stripParser ts $ liftM PatParen $
       parseTupel DefComma DefParRoundCl parsePat
+    pAP (DefParSquareOp: DefParSquareCl: ts) = Running (PatList []) ts
     pAP (DefParSquareOp: ts) = stripParser ts $ liftM PatList $
       parseTupel DefComma DefParSquareCl parsePat
     pAP ts = Failed

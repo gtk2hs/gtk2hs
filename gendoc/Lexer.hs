@@ -107,7 +107,7 @@ instance Show Token where
   show (DefParSquareOp)	= "["
   show (DefParSquareCl)	= "]"
   show (DefParCurlyOp)	= "{"
-  show (DefParCurlyCl)	= "{"
+  show (DefParCurlyCl)	= "}"
   show (DefEquals)	= "="
   show (DefComma)	= ", "
   show (DefDoubleColon)	= " :: "
@@ -200,7 +200,7 @@ lexHook ('d':'a':'t':'a':xs) = HookType Data: lexDefn SIHook xs
 lexHook ('d':'u':'n':'n':'o':xs) = lexHook xs
 lexHook ('f':'u':'n':'c':'t':'i':'o':'n':xs) = HookSymbol Function: 
 					       lexDefn SIHook xs
-lexHook ('t':'y':'p':'e':xs) = HookType Data: lexDefn SIHook xs
+lexHook ('t':'y':'p':'e':' ':xs) = HookType Data: lexDefn SIHook xs
 lexHook ('n':'e':'w':'t':'y':'p':'e':xs) = 
   HookType Data: lexDefn SIHook xs
 lexHook ('d':'o':'c':'u':'m':'e':'n':'t':'a':'t':'i':'o':'n':xs) = 
@@ -277,6 +277,7 @@ lexDefn si = lD
 	lN var []		     = illChar "name" []
         lN var (x:xs) | isAlphaNum x = lN (x:var) xs
 		      | x=='\''	     = lN (x:var) xs
+		      | x=='_'	     = lN (x:var) xs
 		      | otherwise    = con (packString (reverse var)):
 				       lD (x:xs)
 
