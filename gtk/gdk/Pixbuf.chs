@@ -4,7 +4,7 @@
 --  Author : Vincenzo Ciancia, Axel Simon
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/20 16:53:58 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -286,7 +286,7 @@ data InlineImage = InlineImage
 --   gdk-pixbuf-csource --raw --extern --name=my_image myimage.png >> my_image.c
 --   @ on it. Write a header file @literal my_image.h@ containing @prog
 --   #include <gdk/gdk.h>
---   extern guint8 my_image[];
+--   extern guint8 my_image\[\];
 --   @ and save it in the current directory.
 --   The created file can be compiled with @prog
 --   cc -c my_image.c `pkg-config --cflags gdk-2.0`
