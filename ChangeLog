@@ -3,6 +3,8 @@
 	* Makefile.am: make each package's LIBS include the LIBS of its
 	dependent packages, which is the same as we do for the CFLAGS.
 
+	* configure.ac: bump version to 0.9.7_rc4
+
 2005-01-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer.hs: make c2hs understand the __signed,
