@@ -5,6 +5,12 @@
 
 	* tools/hierarchyGen/hierarchy.list: add an extra class to hierarchy.
 
+	* glib/System/Glib/hsgclosure.c, glib/System/Glib/hsgclosure.h: add
+	support for an alternative way of doing signals. We have one single
+	'generic' marshaler implemented in C using glib's GClosure system. It
+	uses GHC's public rts api to invoke Haskell callbacks, passing
+	parameters of the appropriate types.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for
