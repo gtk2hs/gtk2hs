@@ -25,7 +25,12 @@ endif
 MAKE_LIBS += mogul
 
 MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
-	     demo/hello demo/sourceview
+	     demo/hello 
+
+ifeq ($(strip $(ENABLE_SOURCEVIEW)),yes)
+MAKE_APPS += demo/sourceview
+endif
+
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 TODO VERSION aclocal.m4 acinclude.m4 \
