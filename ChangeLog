@@ -159,6 +159,9 @@
 	sourceview/Graphics/UI/Gtk/SourceView.hs: sourceview package
 	hierarchical namespace conversion.
 
+	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: fixup names of imported
+	modules.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add

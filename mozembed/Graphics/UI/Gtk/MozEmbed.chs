@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2004/12/18 20:45:50 $
+--  Version $Revision: 1.3 $ from $Date: 2005/01/08 16:08:58 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -55,14 +55,15 @@ module Graphics.UI.Gtk.MozEmbed (
 ) where
 
 import Monad		(liftM)
-import FFI
-import ForeignPtr
-import Foreign.Marshal.Utils (toBool)
 
-{#import Object#}    (makeNewObject)
-{#import Signal#}    (ConnectId, connect_STRING__BOOL, connect_PTR__INT)
+import System.Glib.FFI
+import System.Glib.UTFString
+{#import Graphics.UI.Gtk.Abstract.Object#}	(makeNewObject)
+{#import Graphics.UI.Gtk.Signals#}		(ConnectId,
+						connect_STRING__BOOL,
+						connect_PTR__INT)
 {#import Graphics.UI.Gtk.MozEmbedType #}
-import Widget (Widget)
+import Graphics.UI.Gtk.Abstract.Widget		(Widget)
 
 {#context lib="gtkembedmoz" prefix ="gtk"#}
 
