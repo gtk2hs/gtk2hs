@@ -124,8 +124,8 @@ endif
 # These are .chi files that need to be created before any other .chs files.
 # This is a very poor way of expressing dependencies.
 
-NEEDCHI = general/Hierarchy general/Signal glib/GValue treeList/TreeModel \
-	  multiline/TextIter
+NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
+	  treeList/TreeModel multiline/TextIter
 
 NEEDPACKAGES = lang
 
