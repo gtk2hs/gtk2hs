@@ -36,7 +36,7 @@ MAKE_APPS += demo/glade
 endif
 
 ifeq ($(strip $(ENABLE_GNOME)),yes)
-MAKE_APPS += demo/sourceview
+MAKE_APPS += demo/sourceview demo/gconf
 endif
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \

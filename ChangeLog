@@ -1,3 +1,9 @@
+2004-07-27  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/gconf/GConfDemo.hs, demo/gconf/Makefile: new gconf demo/test
+
+	* Makefile: build gconf demo
+
 2004-07-27  Jens Petersen  <petersen@haskell.org>
 
 	* mk/config.mk.in (INSTALL_DIR): Define ABS_TOP.  No longer define CPP.
