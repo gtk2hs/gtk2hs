@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget VButtonBox@
+--  GIMP Toolkit (GTK) Widget VButtonBox
 --
 --  Author : Matthew Walton
 --          
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.1 $ from $Date: 2004/04/30 13:45:32 $
+--  Version $Revision: 1.2 $ from $Date: 2004/05/23 16:02:58 $
 --
 --  Copyright (c) 2004 Matthew Walton
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module VButtonBox (
   VButtonBox,
@@ -45,7 +40,7 @@ import Object (makeNewObject)
 
 --methods
 
--- @constructor vButtonBoxNew@
+-- | 
 --
 vButtonBoxNew :: IO VButtonBox
 vButtonBoxNew = makeNewObject mkVButtonBox $

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget AspectFrame@
+--  GIMP Toolkit (GTK) Widget AspectFrame
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:02:58 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,22 +19,19 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A frame that constrains its child to a particular aspect ratio.
+-- A frame that constrains its child to a particular aspect ratio.
 --
--- @documentation@ ------------------------------------------------------------
---
--- * The @ref data AspectFrame@ is useful when you want pack a widget so 
+-- * The 'AspectFrame' is useful when you want pack a widget so 
 --   that it can 
 --   resize but always retains the same aspect ratio. For instance, one might
---   be drawing a small preview of a larger image. @ref data AspectFrame@
+--   be drawing a small preview of a larger image. 'AspectFrame'
 --   derives from
---   @ref data Frame@, so it can draw a label and a frame around the child. 
+--   'Frame', so it can draw a label and a frame around the child. 
 --   The frame
---   will be "shrink-wrapped" to the size of the child.
+--   will be \"shrink-wrapped\" to the size of the child.
 --
--- @todo@ ---------------------------------------------------------------------
 
 module AspectFrame(
   AspectFrame,
@@ -56,12 +53,12 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor aspectFrameNew@ Create an AspectFrame widget.
+-- | Create an AspectFrame widget.
 --
 -- * If ratio is not given, the aspect ratio is taken from the child widget.
 --
 -- * The frame may be augmented with a label which can be set by
---   @ref arg frameSetLabel@.
+--   @frameSetLabel@.
 --
 aspectFrameNew :: Float -> Float -> Maybe Float -> IO AspectFrame
 aspectFrameNew xalign yalign ratio = makeNewObject mkAspectFrame $
@@ -69,8 +66,8 @@ aspectFrameNew xalign yalign ratio = makeNewObject mkAspectFrame $
   (realToFrac yalign) (maybe 0.0 realToFrac ratio) (fromBool $ isNothing ratio)
 
 
--- @method aspectFrameSet@ Change the space use behaviour of an
--- @ref type AspectFrame@.
+-- | Change the space use behaviour of an
+-- 'AspectFrame'.
 --
 aspectFrameSet :: AspectFrameClass af => af -> Float -> Float -> Maybe Float ->
                   IO ()

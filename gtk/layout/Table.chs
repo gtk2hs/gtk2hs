@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Table@
+--  GIMP Toolkit (GTK) Widget Table
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:02:58 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * The table widget is a container in which widgets can be aligned in cells.
+-- The table widget is a container in which widgets can be aligned in cells.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Table(
   Table,
@@ -56,21 +52,21 @@ import Enums	(AttachOptions(..), fromFlags)
 
 -- methods
 
--- @constructor tableNew@ Create a new table with the specified dimensions.
--- Set @ref arg homogeneous@ to True if all cells should be of the same size.
+-- | Create a new table with the specified dimensions.
+-- Set @homogeneous@ to True if all cells should be of the same size.
 --
 tableNew :: Int -> Int -> Bool -> IO Table
 tableNew rows columns homogeneous = makeNewObject mkTable $ liftM castPtr $
   {#call unsafe table_new#} (fromIntegral rows) (fromIntegral columns)
   (fromBool homogeneous)
 
--- @method tableResize@ Change the dimensions of an already existing table.
+-- | Change the dimensions of an already existing table.
 --
 tableResize :: TableClass tb => tb -> Int -> Int -> IO ()
 tableResize tb rows columns = {#call table_resize#} (toTable tb)
   (fromIntegral rows) (fromIntegral columns)
 
--- @method tableAttach@ Put a new widget in the table container. The widget
+-- | Put a new widget in the table container. The widget
 -- should span the cells (leftAttach,topAttach) to (rightAttach,bottomAttach).
 -- Further formatting options have to be specified.
 --
@@ -84,8 +80,8 @@ tableAttach tb child leftAttach rightAttach topAttach bottomAttach xoptions
   ((fromIntegral.fromFlags) xoptions) ((fromIntegral.fromFlags) yoptions) 
   (fromIntegral xpadding) (fromIntegral ypadding)
 
--- @method tableAttachDefaults@ Put a new widget in the table container. As
--- opposed to @ref method tableAttach@ this function assumes default values
+-- | Put a new widget in the table container. As
+-- opposed to 'tableAttach' this function assumes default values
 -- for the packing options.
 --
 tableAttachDefaults :: (TableClass tb, WidgetClass w) => tb -> w -> Int ->
@@ -95,34 +91,34 @@ tableAttachDefaults tb child leftAttach rightAttach topAttach bottomAttach =
   (fromIntegral leftAttach) (fromIntegral rightAttach) 
   (fromIntegral topAttach) (fromIntegral bottomAttach)
 
--- @method tableSetRowSpacing@ Set the amount of space (in pixels) between the
--- specified @ref arg row@ and its neighbours.
+-- | Set the amount of space (in pixels) between the
+-- specified @row@ and its neighbours.
 --
 tableSetRowSpacing :: TableClass tb => tb -> Int -> Int -> IO ()
 tableSetRowSpacing tb row space = {#call table_set_row_spacing#}
   (toTable tb) (fromIntegral row) (fromIntegral space)
 
--- @method tableSetColSpacing@ Set the amount of space (in pixels) between the
--- specified column @ref arg col@ and its neighbours.
+-- | Set the amount of space (in pixels) between the
+-- specified column @col@ and its neighbours.
 --
 tableSetColSpacing :: TableClass tb => tb -> Int -> Int -> IO ()
 tableSetColSpacing tb col space = {#call table_set_col_spacing#}
   (toTable tb) (fromIntegral col) (fromIntegral space)
 
--- @method tableSetRowSpacings@ Set the amount of space between any two rows.
+-- | Set the amount of space between any two rows.
 --
 tableSetRowSpacings :: TableClass tb => tb -> Int -> IO ()
 tableSetRowSpacings tb space = {#call table_set_row_spacings#}
   (toTable tb) (fromIntegral space)
 
--- @method tableSetColSpacings@ Set the amount of space between any two
+-- | Set the amount of space between any two
 -- columns.
 --
 tableSetColSpacings :: TableClass tb => tb -> Int -> IO ()
 tableSetColSpacings tb space = {#call table_set_col_spacings#}
   (toTable tb) (fromIntegral space)
 
--- @method tableSetHomogeneous@ Make all cells the same size.
+-- | Make all cells the same size.
 --
 tableSetHomogeneous :: TableClass tb => tb -> Bool -> IO ()
 tableSetHomogeneous tb hom = 

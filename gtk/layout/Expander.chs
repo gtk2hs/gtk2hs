@@ -1,5 +1,5 @@
 -- -*-haskell-*-
--- |GIMP Toolkit (GTK) @entry Widget Expander@
+--  GIMP Toolkit (GTK) Widget Expander
 --
 --  Author : Duncan Coutts
 --  Created: 24 April 2004
@@ -16,9 +16,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- Description ---------------------------------------------------------------
---
---  Language: Haskell 98 Binding Module
+-- |
 --
 -- An Expander allows the user to hide or show its child by clicking on an
 -- expander triangle similar to the triangles used in a TreeView.
@@ -28,7 +26,7 @@
 -- When the expander is toggled, it will take care of showing and hiding the
 -- child automatically.
 --
--- Added in GTK+ 2.4
+-- * Added in GTK+ 2.4
 --
 
 module Expander (

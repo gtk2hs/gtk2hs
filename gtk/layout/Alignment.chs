@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Alignment@
+--  GIMP Toolkit (GTK) Widget Alignment
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:02:58 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Alignment(
   Alignment,
@@ -46,7 +41,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor alignmentNew@ Create an alignment widget. This widget tells
+-- | Create an alignment widget. This widget tells
 -- its child widget how to use the given space.
 --
 alignmentNew :: Float -> Float -> Float -> Float -> IO Alignment
@@ -55,8 +50,8 @@ alignmentNew yscale xalign yalign xscale = makeNewObject mkAlignment $
   (realToFrac yalign) (realToFrac xscale) (realToFrac yscale)
 
 
--- @method alignmentSet@ Change the space use behaviour of an
--- @ref type Alignment@.
+-- | Change the space use behaviour of an
+-- 'Alignment'.
 --
 alignmentSet :: AlignmentClass al => al -> Float -> Float -> Float -> Float ->
                 IO ()

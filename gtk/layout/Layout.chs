@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Layout@
+--  GIMP Toolkit (GTK) Widget Layout
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:02:58 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A layout widget can hold several widgets at arbitrary positions.
+-- A layout widget can hold several widgets at arbitrary positions.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Layout(
   Layout,
@@ -56,7 +52,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor layoutNew@ Create a new layout widget.
+-- | Create a new layout widget.
 --
 layoutNew :: Maybe Adjustment -> Maybe Adjustment -> IO Layout
 layoutNew vAdj hAdj = makeNewObject mkLayout $ liftM castPtr $
@@ -66,51 +62,51 @@ layoutNew vAdj hAdj = makeNewObject mkLayout $ liftM castPtr $
  fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
 
 
--- @method layoutPut@ Insert a widget into the layout container.
+-- | Insert a widget into the layout container.
 --
 layoutPut :: (LayoutClass l, WidgetClass w) => l -> w -> Int -> Int -> IO ()
 layoutPut l widget x y = {#call layout_put#} (toLayout l) (toWidget widget)
   (fromIntegral x) (fromIntegral y)
 
--- @method layoutMove@ Move an existing widget within the container.
+-- | Move an existing widget within the container.
 --
 layoutMove :: (LayoutClass l, WidgetClass w) => l -> w -> Int -> Int -> IO ()
 layoutMove l widget x y = {#call layout_move#} (toLayout l) (toWidget widget)
   (fromIntegral x) (fromIntegral y)
 
--- @method layoutSetSize@ Set the size of the layout widget.
+-- | Set the size of the layout widget.
 --
 layoutSetSize :: LayoutClass l => l -> Int -> Int -> IO ()
 layoutSetSize l width height = {#call layout_set_size#} (toLayout l)
   (fromIntegral width) (fromIntegral height)
 
--- @method layoutGetHAdjustment@ Retrieve the horizontal @ref data Adjustment@
+-- | Retrieve the horizontal 'Adjustment'
 -- object from the layout.
 --
 layoutGetHAdjustment :: LayoutClass l => l -> IO Adjustment
 layoutGetHAdjustment l = makeNewObject mkAdjustment $
   {#call unsafe layout_get_hadjustment#} (toLayout l)
 
--- @method layoutGetVAdjustment@ Retrieve the vertical @ref data Adjustment@
+-- | Retrieve the vertical 'Adjustment'
 -- object from the layout.
 --
 layoutGetVAdjustment :: LayoutClass l => l -> IO Adjustment
 layoutGetVAdjustment l = makeNewObject mkAdjustment $
   {#call unsafe layout_get_vadjustment#} (toLayout l)
 
--- @method layoutSetHAdjustment@ Set the horizontal adjustment object.
+-- | Set the horizontal adjustment object.
 --
 layoutSetHAdjustment :: LayoutClass l => l -> Adjustment -> IO ()
 layoutSetHAdjustment l adj = {#call layout_set_hadjustment#} (toLayout l) adj
 
--- @method layoutSetVAdjustment@ Set the vertical adjustment object.
+-- | Set the vertical adjustment object.
 --
 layoutSetVAdjustment :: LayoutClass l => l -> Adjustment -> IO ()
 layoutSetVAdjustment l adj = {#call layout_set_vadjustment#} (toLayout l) adj
 
 -- signals
 
--- @signal connectToSetScrollAdjustments@ In case the adjustments are
+-- | In case the adjustments are
 -- replaced, this signal is emitted.
 --
 onSetScrollAdjustments, afterSetScrollAdjustments :: LayoutClass l => l ->(Adjustment -> Adjustment -> IO ()) ->

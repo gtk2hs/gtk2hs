@@ -36,6 +36,14 @@
 	gtk/glib/GValue.chs, gtk/glib/GValueTypes.chs:
 	initial haddockification
 
+	* gtk/layout/Alignment.chs, gtk/layout/AspectFrame.chs,
+	gtk/layout/Expander.chs, gtk/layout/HBox.chs,
+	gtk/layout/HButtonBox.chs, gtk/layout/HPaned.chs,
+	gtk/layout/Layout.chs, gtk/layout/Notebook.chs,
+	gtk/layout/Table.chs, gtk/layout/VBox.chs,
+	gtk/layout/VButtonBox.chs, gtk/layout/VPaned.chs:
+	initial haddockification
+
 2004-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/abstract/Widget.chs:

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget VBox@
+--  GIMP Toolkit (GTK) Widget VBox
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:02:58 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,16 +19,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This is a special version of @ref data Box@. 
---   This widget shows its child widgets
---   in a vertical line.
+-- This is a special version of 'Box'. 
+-- This widget shows its child widgets
+-- in a vertical line.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module VBox(
   VBox,
@@ -48,12 +44,12 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor vBoxNew@ 
+-- | 
 -- Create a container that shows several children vertically. 
 --
--- * If @ref arg homogeneous@
+-- * If @homogeneous@
 -- is set all children will be allotted the same amount of space. There will be
--- @ref arg spacing@ pixel between each two children.
+-- @spacing@ pixel between each two children.
 --
 vBoxNew :: Bool -> Int -> IO VBox
 vBoxNew homogeneous spacing = makeNewObject mkVBox $ liftM castPtr $

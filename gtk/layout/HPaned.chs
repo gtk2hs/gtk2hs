@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget HPaned@
+--  GIMP Toolkit (GTK) Widget HPaned
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:02:58 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module HPaned(
   HPaned,
@@ -45,7 +40,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor hPanedNew@
+-- | 
 --
 hPanedNew :: IO HPaned
 hPanedNew = makeNewObject mkHPaned $ liftM castPtr {#call unsafe hpaned_new#}
