@@ -1,4 +1,12 @@
 2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* tools/signals/HookGenerator.hs, tools/signals/Makefile,
+	tools/signals/Signal.chs-boot1, tools/signals/Signal.chs-boot2,
+	tools/signals/gtkmarshal.list, tools/typehier/Makefile,
+	tools/typehier/hierarchy.list: Dah. Removed the wrong files in the
+	last commit. Resurrect the right ones.
+
+2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
 	* tools/typehier/TypeGenerator.hs: Correct typo that caused
 	Hierarchy.chs to include itself.
 
