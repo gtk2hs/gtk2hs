@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.20 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.21 $ from $Date: 2004/04/30 20:32:44 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -527,17 +527,17 @@ fromResponse ResponseHelp = -11
 fromResponse (ResponseUser i) | i > 0 = fromIntegral i
 
 toResponse :: Integral a => a -> ResponseId
-toResponse -1 = ResponseNone
-toResponse -2 = ResponseReject
-toResponse -3 = ResponseAccept
-toResponse -4 = ResponseDeleteEvent
-toResponse -5 = ResponseOk
-toResponse -6 = ResponseCancel
-toResponse -7 = ResponseClose
-toResponse -8 = ResponseYes
-toResponse -9 = ResponseNo
-toResponse -10 = ResponseApply
-toResponse -11 = ResponseHelp
+toResponse (-1) = ResponseNone
+toResponse (-2) = ResponseReject
+toResponse (-3) = ResponseAccept
+toResponse (-4) = ResponseDeleteEvent
+toResponse (-5) = ResponseOk
+toResponse (-6) = ResponseCancel
+toResponse (-7) = ResponseClose
+toResponse (-8) = ResponseYes
+toResponse (-9) = ResponseNo
+toResponse (-10) = ResponseApply
+toResponse (-11) = ResponseHelp
 toResponse i | i > 0  = ResponseUser $ fromIntegral i
 
 -- include<gdk/gdkx.h>

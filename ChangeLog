@@ -18,6 +18,9 @@
 
 	* gtk/general/Gtk.hs: export new modules
 
+	* gtk/general/Structs.hsc: bug fix for toResponse. Can now get
+	response code back from dialogs ok.
+
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Makefile: use standard $(CPP) variable
