@@ -1,6 +1,6 @@
 dnl Mogul - a monad based gui library
 dnl
-dnl Copyright (c) 2001 Axel Simon <simona@i2.informatik.rwth-aachen.de>
+dnl Copyright (c) 2001, 2002 Axel Simon <as49@ukc.ac.uk>
 dnl with parts stolen from Manuel Chakravaty, Sven Panne and Micheal Weber
 dnl
 dnl This library is free software; you can redistribute it and/or
@@ -32,7 +32,8 @@ AC_CANONICAL_HOST
 
 dnl Checks for programs.
 
-dnl AC_PROG_CC
+AC_PROG_CC
+AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PATH_PROG(AR,ar)
 AC_PATH_PROG(BASENAME,basename)
@@ -43,21 +44,32 @@ AC_PATH_PROG(SED,sed)
 dnl AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
 
+dnl Figure out file extensions.
+
+dnl Check for OS and set dynamic library suffix (for c2hs).
+DLSUFFIX=".so"
+AC_CYGWIN
+if test -n "$CYGWIN"; then
+  DLSUFFIX=".dll"
+fi
+
+dnl Static library pre- and postfixed.
+dnl * not yet
 
 dnl Check for libraries.
 
 dnl Is Manuel's Ports library present?
-AC_ARG_WITH(ports, 
-	    [  --with-ports=PORTS-CONFIG use this Haskell Ports Library],
-	    [PORTS_CONFIG=$withval])
+dnl AC_ARG_WITH(ports, 
+dnl	    [  --with-ports=PORTS-CONFIG use this Haskell Ports Library],
+dnl	    [PORTS_CONFIG=$withval])
 
 dnl Compile GtkGLArea extension.
-AC_ARG_ENABLE(gtkglarea,
-	      [  --enable-gtkglarea      generate binding for GtkGLArea],
-	      [ENABLE_GTKGLAREA=$enableval])
-AC_ARG_WITH(hopengl, 
-	    [  --with-hopengl=HOPENGL  location of HOpenGL library],
-	    [HOPENGL=$withval])
+dnl AC_ARG_ENABLE(gtkglarea,
+dnl	      [  --enable-gtkglarea      generate binding for GtkGLArea],
+dnl	      [ENABLE_GTKGLAREA=$enableval])
+dnl AC_ARG_WITH(hopengl, 
+dnl	    [  --with-hopengl=HOPENGL  location of HOpenGL library],
+dnl	    [HOPENGL=$withval])
 
 dnl Select a specific Haskell compiler and/or flags.
 AC_ARG_WITH(hc, 
@@ -65,20 +77,17 @@ AC_ARG_WITH(hc,
 	    [HC=$withval])
 
 AC_ARG_WITH(hcflags, 
-            [  --with-hcflags=HCFLAGS  specify flags for Haskell compiler],
+            [  --with-hcflags=HCFLAGS  flags for Haskell tools, default: -O -H250m],
 	    [HCFLAGS=$withval])
 
-dnl Select a specific C->Haskell installation.
-AC_ARG_WITH(c2hs, 
-            [  --with-c2hs=C2HS-CONFIG use the specified C->Haskell installation],
-	    [C2HS_CONFIG=$withval])
 
 dnl Due to the interdependencies between the different packages we need to
 dnl install one package before we can compile the next one. We do this by
 dnl using a local package file called localpackage.conf in the toplevel
-dnl directory the user may specify an alternative file.
+dnl directory. The user may specify an alternative file and using the complete
+dnl suite in-place.
 AC_ARG_WITH(pkgconf,
-	    [  --with-pkgconf=pkg.conf use a different package.conf file for building in-place],
+	    [  --with-pkgconf=pkg.conf use another package.conf file for building in-place],
 	    [LOCALPKGCONF=$withval],[LOCALPKGCONF=$TOP/localpackage.conf])
 
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
@@ -121,8 +130,6 @@ GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.0, [
 GHCBARE=`basename $GHC`
 GHCPKGNAME=ghc-pkg`echo $GHCBARE | $SED s/ghc//`
 
-echo $GHCBARE, $GHCPKGNAME
-
 dnl Check for ghc-pkg. Use the one that is in the same directory and
 dnl version suffix as the specified compiler.
 AC_PATH_PROGS(GHCPKG, $GHCPKGNAME ghc-pkg, ghcpkg-not-found, `dirname $GHC`:$PATH)
@@ -131,53 +138,102 @@ if test $GHCPKG = ghcpkg-not-found; then
   AC_MSG_ERROR([ghc-pkg not found. (But ghc exists!?)]);
 fi
 
-dnl Optimise Haskell by default...
+dnl Optimise Haskell by default and give sufficient space.
 if test -z "$HCFLAGS"; then
-  HCFLAGS="-O "
+  HCFLAGS=" -O -H250m "
 fi
 
-dnl Find C->Haskell and check its version.
-AC_PATH_PROG(C2HS_CONFIG, c2hs-config)
+dnl c2hs Dilemma.
+dnl We provide a local copy of Manuel's c2hs which is patched so that is can
+dnl process several .chs files at the same invocation. This patch was not
+dnl incooperated into the main c2hs version since Manuel wants to do some
+dnl other fundamental changes first. On the other with the built-in c2hs this
+dnl whole package can be built without any other libraries.
 
-dnl Check the version of c2hs
-AC_CACHE_CHECK([c2hs version], c2hs_version, [
-  c2hs_version=`$C2HS_CONFIG --version`
-])
+dnl Check if the user supplied a specific C->Haskell installation or wants to
+dnl use the version in the current search path (--with-c2hs-config=yes). 
+dnl The default is to use the built-in version.
+AC_ARG_WITH(c2hs, 
+  [  --with-c2hs=C2HS-CONFIG use an external C->Haskell installation (slower!)],
+  [
+    case $withval in
+      yes) {
+	BUILT_IN_C2HS=no;
+        AC_PATH_PROG(C2HS_CONFIG, c2hs-config, notfound)
+        if test $C2HS_CONFIG = notfound; then
+          AC_MSG_ERROR([C->Haskell was not found in current search path.
+	          Try compiling with the built-in c2hs by omitting
+		  --with-c2hs-config=... when calling ./configure .])
+	fi
+	} ;;
+      no) {
+	BUILT_IN_C2HS=yes
+	} ;;
+      *) {
+	BUILT_IN_C2HS=no;
+	AC_CHECK_FILE($withval,C2HS_CONFIG=$withval,
+          AC_MSG_ERROR([The specified C->Haskell tool was not found.
+	          Try compiling with the built-in c2hs by omitting
+		  --with-c2hs-config=... when calling ./configure .]))
+	} ;;
+    esac
+  ],[BUILT_IN_C2HS=yes])
 
-GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.8.0,
- AC_MSG_ERROR([You need C->Haskell version 0.8.0 upwards!
-** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
+dnl The big switch differing between built-in and external c2hs.
 
-dnl Enable separate invocation of c2hs for each .chs file 
-dnl (less memory, slower execution) ?
+AC_MSG_CHECKING([kind of C->Haskell])
+if test $BUILT_IN_C2HS = yes; then
+  AC_MSG_RESULT([built-in])
+  dnl Use the local c2hs.
+  C2HS=$TOP/c2hs/c2hs;
+  MULTIPLE_CHS=yes;
 
-AC_MSG_CHECKING(for copious memory)
-AC_ARG_ENABLE(ample-memory,
-	    [  --enable-ample-memory   quicker compilation for more than 250MB RAM],
-	    [MULTIPLE_CHS=$enableval],[MULTIPLE_CHS=no])
-AC_MSG_RESULT($MULTIPLE_CHS)
+  dnl These are the settings needed to compile c2hs.
+  LEGACY_FFI=no;
+  BEGIN_LEGACY_FFI="{- for systems including the Legacy FFI";
+  END_LEGACY_FFI="-}";
+  BEGIN_NEW_FFI=;
+  END_NEW_FFI=;
+  BEGIN_NHC="{- NHC does some things differently...";
+  END_NHC="-}";
+  BEGIN_NOT_NHC=;
+  END_NOT_NHC=;
 
-GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.10.12,
-if test ! $MULTIPLE_CHS = no; then
-AC_MSG_ERROR([You need C->Haskell version 0.10.12 
-upwards to compile several .chs files at once. 
-Workaround: Use --enable-ample-memory=no for now.]);
+else
+  AC_MSG_RESULT([external])
+  MULTIPLE_CHS=no;
+  dnl Find C->Haskell and check its version.
+  dnl Check the version of c2hs
+  AC_CACHE_CHECK([c2hs version], c2hs_version, [
+    c2hs_version=`$C2HS_CONFIG --version`
+  ])
+  GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.8.0,
+    AC_MSG_ERROR([You need C->Haskell version 0.8.0 upwards!
+      ** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
+  GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.10.13,
+    AC_MSG_WARN([
+      *************************************************************
+      * You may run into problems with this version of C->Haskell.*
+      * If c2hs stumbles over VARARG macros edit                  * 
+      * c2hs/toplevel/C2HSConfig.hs by changing the line          *
+      *   cppopts = ""                                            *
+      * to                                                        *
+      *   cppopts = "-x c"                                        *
+      * and recompile and reinstall c2hs. This problem is fixed   *
+      * in version 0.10.13 and above.                             *
+      *************************************************************]))
+  dnl C->Haskell configuration.
+  C2HS=`$C2HS_CONFIG --c2hs`;
 fi
-)
 
 
 
-dnl C->Haskell configuration.
-C2HS=`$C2HS_CONFIG --c2hs`
 
 dnl C2HS_CFLAGS="`$C2HS_CONFIG --cflags`"
 dnl AC_MSG_RESULT([Notice: C->Haskell induced compile time options: `$C2HS_CONFIG --cflags`])
 dnl LIBS="`$C2HS_CONFIG --libs` $LIBS"
 dnl AC_MSG_RESULT([Notice: C->Haskell induced link time options: `$C2HS_CONFIG --libs`])
 
-dnl Checks for libraries.
-
-dnl 
 
 dnl Needed substitution.
 AC_SUBST(GTK_LIBS)
@@ -185,15 +241,29 @@ AC_SUBST(GTK_CFLAGS)
 AC_SUBST(TOP)
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
+AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(LOCALPKGCONF)
 AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(MARSHALLDEFS)
+dnl The c2hs part.
+AC_SUBST(DLSUFFIX)
+AC_SUBST(CPP)
+AC_SUBST(LEGACY_FFI)
+AC_SUBST(BEGIN_LEGACY_FFI)
+AC_SUBST(END_LEGACY_FFI)
+AC_SUBST(BEGIN_NEW_FFI)
+AC_SUBST(END_NEW_FFI)
+AC_SUBST(BEGIN_NHC)
+AC_SUBST(END_NHC)
+AC_SUBST(BEGIN_NOT_NHC)
+AC_SUBST(END_NOT_NHC)
 
 dnl write the results...
 AC_OUTPUT([
   mk/config.mk
+  c2hs/toplevel/C2HSConfig.hs
 ])
 
 dnl ...and chat with the user

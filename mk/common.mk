@@ -84,8 +84,11 @@ STUBOFILES		= $(strip \
 	$(HSCFILES),$(shell $(GREP) -l "foreign export" $(FILE))))\
 	$(patsubst %.chs,%_stub.o, $(EXTRA_STUBFILES)))
 
-
+# Not needed at the moment: We only include the header file in $(HEADER) and
+# clean the tree through a wildcard.
 STUBHFILES		= $(STUBOFILES:.o=.h)
+
+EXTRA_HFILESOK		= $(sort $(EXTRA_HFILES) $(EXTRA_CFILES:.c=.h))
 
 # C include file paths and other options to CPP.
 EXTRA_CPPFLAGS_ONLY_I	= $(filter -I%,$(EXTRA_CPPFLAGS))
@@ -97,10 +100,11 @@ CPPFLAGS_ONLY_I		= $(filter -I%,$(CPPFLAGS))
 CFLAGS_ONLY_L		= $(filter -L%,$(CFLAGS))
 
 
-# Ensure that the user-supplied target is valid.
-MAIN			?= $(APPNAME).hs
+# Ensure that the user-supplied target is valid. If there is a nice way to
+# capitalize the first letter, do that to $(APPNAME).hs and add that here.
+MAIN			?= Main.hs $(APPNAME).hs
 
-MAINOK			= $(filter $(MAIN) $(strip $(MAIN)).hs,\
+MAINOK			= $(filter $(MAIN) $(addsuffix $(MAIN),$(SUBDIRSOK)),\
 			  $(patsubst ./%,%,$(ALLHSFILES)))
 
 EMPTY			=
@@ -115,7 +119,8 @@ HIDIRSOK		= $(subst $(SPACE),:,$(strip \
 
 NEEDPACKAGESOK		= $(addprefix -package ,$(strip $(NEEDPACKAGES)))
 
-HCINCLUDES		= $(addprefix '-\#include<,$(addsuffix >',$(HEADER)))
+HCINCLUDES		= $(addprefix '-\#include<,$(addsuffix >',$(HEADER) \
+			  $(EXTRA_HFILESOK)))
 
 
 
@@ -155,7 +160,9 @@ $(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs $(addsuffix .chi, $(NEEDCHI))
 # c2hs has to parse the header file only once in order to translate
 # several .chs files.
 $(STANDARD_HEADER:.chs=.hs) : $(STANDARD_HEADER) $(addsuffix .chi, $(NEEDCHI))
-	$(strip $(C2HSFLAGGED) -o : $(HEADER) $(filter %.chs,$?))
+	$(if $(filter %.chs,$?),\
+	$(strip $(C2HSFLAGGED) -o : $(HEADER) $(filter %.chs,$?)),\
+	$(TOUCH) $?);
 
 # The same cases doubled for the NEEDCHS files.
 $(NEEDCHS_EXPLICIT:.chs=.hs) : %.hs : %.chs
@@ -241,16 +248,16 @@ debug 	:
 	@echo Library: $(LIBNAME)
 	@echo Application: $(APPNAME)
 	@echo EXTRA_CPPFLAGS: $(EXTRA_CPPFLAGS_ONLY_I)
-#	@echo all CHS files: $(CHSFILES)
-#	@echo all HSC files: $(HSCFILES)
-#	@echo all other HS files: $(HSFILES)
-#	@echo all files generating stubs: $(STUBOFILES)
+	@echo all CHS files: $(CHSFILES)
+	@echo all HSC files: $(HSCFILES)
+	@echo all other HS files: $(HSFILES)
+	@echo all files generating stubs: $(STUBOFILES)
 #	@echo hi: $(INST_HIDIR) lib: $(INST_LIBDIR) 
 #	@echo incl: $(INST_INCLDIR) bin: $(INST_BINDIR)
 #	@echo user install dir: $(INSTALLDIR)
-#	@echo subdirs: $(SUBDIRSOK)
+	@echo subdirs: $(SUBDIRSOK)
 #	@echo $(ALLSOURCEFILES) > sourcefiles.txt
-	@cvs status $(CLEANFILES) 2> /dev/null | $(GREP) File | $(GREP) Unknown
+#	@cvs status $(CLEANFILES) 2> /dev/null | $(GREP) File | $(GREP) Unknown
 
 .PHONY: install installdirs installcheck uninstall
 

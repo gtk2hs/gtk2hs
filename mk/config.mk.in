@@ -94,11 +94,9 @@ MULTIPLE_CHS	= @MULTIPLE_CHS@
 
 LOCALPKGCONF	= @LOCALPKGCONF@
 
-ifeq ($(strip $(MULTIPLE_CHS)),yes)
-HSTOOLFLAGS	= -H240m -M320m
-HC_FLAGS	+= -H240m
-endif
+HSTOOLFLAGS	= $(filter -H%,$(HC_FLAGS)) -M300m
 
+BUILT_IN_C2HS	= @BUILT_IN_C2HS@
 
 .PHONY: default all install uninstall clean distclean mostlyclean \
 	maintainerclan inplace noinplace initlocal
