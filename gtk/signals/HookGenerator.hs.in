@@ -435,8 +435,8 @@ generate sig = let ident = mkIdentifier sig in
   indent 1.ss "Tag_".ident.ss " -> ".
   indent 1.ss "IO (FunPtr ".ss "Tag_".ident.sc ')'.
   (if fakeSignature sig then 
-  indent 0.ss "mkHandler".(ss $ concat $ replicate ((length.snd) sig) " _").
-  ss " =".
+  indent 0.ss "mkHandler_".ident.
+  (ss $ concat $ replicate ((length.snd) sig) " _").ss " =".
   indent 1.ss "error \"Callbacks of signature ".ident.ss "\\n\\".
   indent 1.ss "\\are not supported on this architecture.\"" else id).
   indent 0.
