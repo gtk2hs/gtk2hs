@@ -1,3 +1,22 @@
+2005-01-08 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk.hs: commit the grand hierarchical namespace
+	conversion. If it all goes wrong, revert back to the tag
+	'pre-hierarchical-names-conversion'.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Container.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Misc.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scale.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs,
+	gtk/Graphics/UI/Gtk/Abstract/Separator.hs,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs: add abstract category
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add
