@@ -274,6 +274,7 @@ AC_SUBST(END_NOT_NHC)
 dnl write the results...
 AC_OUTPUT([
   mk/config.mk
+  gtk/signals/HookGenerator.hs
   c2hs/toplevel/C2HSConfig.hs
 ])
 

@@ -1,4 +1,4 @@
--- HookGenerator.hs
+-- HookGenerator.hs -*-haskell-*-
 -- Takes a type list of possible hooks from the GTK+ distribution and produces
 -- Haskell functions to connect to these callbacks.
 module Main(main) where
@@ -30,6 +30,40 @@ data Types = Tunit		-- ()
 
 type Signature = (Types,[Types])
 type Signatures = [Signature]
+
+-------------------------------------------------------------------------------
+-- Handle broken Solaris
+-------------------------------------------------------------------------------
+
+-- If this placeholder is replaced with "yes" then we are compiling for
+-- Sparc Solaris for which ghc does not know how to generate dynamic callbacks
+-- with more than four arguments.
+brokenSolaris :: Bool
+brokenSolaris = words "@FOUR_WORD_CALLBACK@" == ["yes"]
+
+fakeSignature :: Signature -> Bool
+fakeSignature (_,args) = brokenSolaris && sum (map sizeOf args) > 4
+  where
+    sizeOf Tunit   = 0
+    sizeOf Tbool   = 1
+    sizeOf Tchar   = 1
+    sizeOf Tuchar  = 1
+    sizeOf Tint    = 1
+    sizeOf Tuint   = 1
+    sizeOf Tlong   = 2
+    sizeOf Tulong  = 1
+    sizeOf Tenum   = 1
+    sizeOf Tflags  = 1
+    sizeOf Tfloat  = 2
+    sizeOf Tdouble = 4
+    sizeOf Tstring = 1
+    sizeOf Tboxed  = 1
+    sizeOf Tptr	   = 1
+    sizeOf Tobject = 1
+
+-------------------------------------------------------------------------------
+-- Parsing
+-------------------------------------------------------------------------------
      
 parseSignatures :: String -> Signatures
 parseSignatures content = (nub.parseSig 1.scan) content
@@ -394,11 +428,17 @@ genExport sigs = foldl (.) id (map mkId sigs)
 generate :: Signature -> ShowS
 generate sig = let ident = mkIdentifier sig in
   indent 0.ss "type Tag_".ident.ss " =".
-  indent 1.ss "Ptr () -> ".mkRawtype sig.
+  indent 1.mkRawtype sig.
   indent 0.
-  indent 0.ss "foreign".ss " export dynamic mkHandler_".ident.ss " ::".
+  (if fakeSignature sig then id else indent 0.ss "foreign".
+    ss " export dynamic ").ss "mkHandler_".ident.ss " ::".
   indent 1.ss "Tag_".ident.ss " -> ".
   indent 1.ss "IO (FunPtr ".ss "Tag_".ident.sc ')'.
+  (if fakeSignature sig then 
+  indent 0.ss "mkHandler".(ss $ concat $ replicate ((length.snd) sig) " _").
+  ss " =".
+  indent 1.ss "error \"Callbacks of signature ".ident.ss "\\n\\".
+  indent 1.ss "\\are not supported on this architecture.\"" else id).
   indent 0.
   indent 0.ss "connect_".ident.ss " :: ".
   indent 1.mkContext sig.ss " SignalName ->".
@@ -410,7 +450,7 @@ generate sig = let ident = mkIdentifier sig in
   indent 1.ss "user after obj =".
   indent 1.ss "do".
   indent 2.ss "hPtr <- mkHandler_".ident.
-  indent 3.ss "(\\_ ".mkLambdaArgs sig.ss "-> do".
+  indent 3.ss "(\\".mkLambdaArgs sig.ss "-> do".
   mkMarshExec sig.
   indent 4.ss "liftM ".mkMarshRet sig.ss " $".
   indent 5.ss "user".mkFuncArgs sig.
