@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/12 10:43:56 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,8 @@
 --     gtk_text_view_get_visible_rect
 --     gtk_text_view_get_iter_location
 --
--- * Everyting after textChildAnchorGetDeleted
+-- * Everyting after textChildAnchorGetDeleted, except SetEditable, GetEditable,
+--   SetCursorVisible, GetCursorVisible
 --
 module TextView(
   TextView,
@@ -66,6 +67,10 @@ module TextView(
   textViewBackwardDisplayLineStart,
   textViewMoveVisually,
   textViewAddChildAtAnchor,
+  textViewSetEditable,
+  textViewGetEditable,
+  textViewSetCursorVisible,
+  textViewGetCursorVisible,
   textChildAnchorNew,
   textChildAnchorGetWidgets,
   textChildAnchorGetDeleted
@@ -412,6 +417,33 @@ textViewAddChildAtAnchor tv w anchor =
   {#call unsafe text_view_add_child_at_anchor#} (toTextView tv) (toWidget w) 
     anchor
 
+-- @method textViewSetEditable@ Toggle whether the text in the
+-- @ref type TextView@ is editable or not.
+--
+textViewSetEditable :: TextViewClass tv => tv -> Bool -> IO ()
+textViewSetEditable tv editable =
+  {#call text_view_set_editable#} (toTextView tv) (fromBool editable)
+
+-- @method textViewGetEditable@ Retrieve information whether a
+-- @ref type TextView@ is editable or not.
+--
+textViewGetEditable :: TextViewClass tv => tv -> IO Bool
+textViewGetEditable tv = liftM toBool $
+  {#call unsafe text_view_get_editable#} (toTextView tv)
+
+-- @method textViewSetCursorVisible@ Toggle whether the cursor in the
+-- @ref type TextView@ is visible or not.
+--
+textViewSetCursorVisible :: TextViewClass tv => tv -> Bool -> IO ()
+textViewSetCursorVisible tv editable =
+  {#call text_view_set_cursor_visible#} (toTextView tv) (fromBool editable)
+
+-- @method textViewGetCursorVisible@ Retrieve information whether the cursor
+-- in a @ref type TextView@ is visible or not.
+--
+textViewGetCursorVisible :: TextViewClass tv => tv -> IO Bool
+textViewGetCursorVisible tv = liftM toBool $
+  {#call unsafe text_view_get_cursor_visible#} (toTextView tv)
 
 -- @constructor textChildAnchorNew@ Create a new @ref type TextChildAnchor@.
 --
