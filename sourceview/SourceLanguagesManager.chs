@@ -34,7 +34,6 @@ module SourceLanguagesManager (
 
 import Monad	(liftM)
 import FFI
-import Object	(makeNewObject)
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import SourceViewType#}

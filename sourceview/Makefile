@@ -24,6 +24,9 @@ SourceViewType-HEADER		= sourceview.h
 SourceBuffer-HEADER		= gtksourceview/gtksourceview.h
 SourceLanguage-HEADER		= gtksourceview/gtksourceview.h
 SourceLanguagesManager-HEADER	= gtksourceview/gtksourceviewlanguagesmanager.h
+SourceTag-HEADER		= gtksourceview/gtksourcetag.h
+SourceTagTable-HEADER		= gtksourceview/gtktagtable.h
+SourceStyleScheme-HEADER	= gtksourceview/gtkstlyescheme.h
 endif
 
 # Further options to the C preprocessor are passed verbatim:

@@ -30,10 +30,31 @@ module SourceBuffer (
   SourceBufferClass,
   sourceBufferNew,
   sourceBufferNewWithLanguage,
-  sourceViewSetCheckBrackets,
-  sourceViewGetCheckBrackets,
+  sourceBufferSetCheckBrackets,
+  sourceBufferGetCheckBrackets,
+--  sourceBufferSetBracketsMatchStyle,
   sourceBufferSetHighlight,
   sourceBufferGetHighlight
+{-
+  sourceBufferSetEscapeChar,
+  sourceBufferGetEscapeChar,
+  sourceBufferCanUndo,
+  sourceBufferCanRedo,
+  sourceBufferUndo,
+  sourceBufferRedo,
+  sourceBufferBeginNotUndoableAction,
+  sourceBufferEndNotUndoableAction,
+  sourceBufferCreateMarker,
+  sourceBufferMoveMarker,
+  sourceBufferDeleteMarker,
+  sourceBufferGetMarker,
+  sourceBufferGetMarkersInRegion,
+  sourceBufferGetFirstMarker,
+  sourceBufferGetLastMarker,
+  sourceBufferGetIterAtMarker,
+  sourceBufferGetNextMarker,
+  sourceBufferGetPrevMarker
+-}
 ) where
 
 import Monad	(liftM)
@@ -44,6 +65,7 @@ import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import SourceViewType#}
 {#import Signal#}
+import SourceTagStyle
 import GList	(fromGList)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -65,17 +87,25 @@ sourceBufferNewWithLanguage :: SourceLanguage -> IO SourceBuffer
 sourceBufferNewWithLanguage lang = makeNewGObject mkSourceBuffer $
   {#call unsafe source_buffer_new_with_language#} lang
 
--- @method sourceViewSetCheckBrackets@
+-- @method sourceBufferSetCheckBrackets@
 --
-sourceViewSetCheckBrackets :: SourceBuffer -> Bool -> IO ()
-sourceViewSetCheckBrackets sb newVal =
+sourceBufferSetCheckBrackets :: SourceBuffer -> Bool -> IO ()
+sourceBufferSetCheckBrackets sb newVal =
   {#call unsafe source_buffer_set_check_brackets#} sb (fromBool newVal)
   
--- @method sourceViewGetCheckBrackets@
+-- @method sourceBufferGetCheckBrackets@
 --
-sourceViewGetCheckBrackets :: SourceBuffer -> IO Bool 
-sourceViewGetCheckBrackets sb = liftM toBool $
+sourceBufferGetCheckBrackets :: SourceBuffer -> IO Bool 
+sourceBufferGetCheckBrackets sb = liftM toBool $
   {#call unsafe source_buffer_get_check_brackets#} sb
+
+{-
+-- @method sourceBufferSetBracketsMatchStyle@
+--
+sourceBufferSetBracketsMatchStyle :: SourceBuffer -> SourceTagStyle -> IO () 
+sourceBufferSetBracketsMatchStyle sb ts = liftM toBool $
+  {#call unsafe source_buffer_set_bracket_match_style#} sb ts
+-}
 
 -- @method sourceBufferSetHighlight@
 --
@@ -88,3 +118,27 @@ sourceBufferSetHighlight sb newVal =
 sourceBufferGetHighlight :: SourceBuffer -> IO Bool 
 sourceBufferGetHighlight sb = liftM toBool $
   {#call unsafe source_buffer_get_highlight#} sb
+
+-- @method sourceBufferSetMaxUndoLevels@
+--
+sourceBufferSetMaxUndoLevels :: SourceBuffer -> Int -> IO ()
+sourceBufferSetMaxUndoLevels sb newVal =
+  {#call unsafe source_buffer_set_max_undo_levels#} sb (fromIntegral newVal)
+  
+-- @method sourceBufferGetMaxUndoLevels@
+--
+sourceBufferGetMaxUndoLevels :: SourceBuffer -> IO Int
+sourceBufferGetMaxUndoLevels sb = liftM fromIntegral $
+  {#call unsafe source_buffer_get_max_undo_levels#} sb
+
+-- @method sourceBufferSetLanguage@
+--
+sourceBufferSetLanguage :: SourceBuffer -> SourceLanguage -> IO ()
+sourceBufferSetLanguage sb lang =
+  {#call unsafe source_buffer_set_language#} sb lang
+  
+-- @method sourceBufferGetLanguage@
+--
+sourceBufferGetLanguage :: SourceBuffer -> IO SourceLanguage
+sourceBufferGetLanguage sb = makeNewGObject mkSourceLanguage $
+  {#call unsafe source_buffer_get_language#} sb

@@ -6,6 +6,16 @@
 	which are built first and never installed, libraries which are
 	built after the tools installed and registered with ghc and
 	applications which are built last and installed.
+
+	* demo/sourceview/Makefile, demo/sourceview/SourceViewTest.hs,
+	demo/sourceview/haskell.lang: Added the example for the SourceView
+	binding.
+
+	* sourceview/Makefile, sourceview/SourceBuffer.chs,
+	SourceLanguagesManager.chs, sourceview/SourceView.chs,
+	sourceview/SourceStyleScheme.chs, sourceview/SourceTag.chs,
+	sourceview/SourceTagStyle.hsc, sourceview/SourceTagTable.chs: New
+	files and patches from Duncan.
 	
 2003-10-21 Axel Simon <A.Simon@kent.ukc.ac.uk>
 

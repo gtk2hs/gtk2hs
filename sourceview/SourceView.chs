@@ -50,7 +50,11 @@ module SourceView (
   sourceViewGetSmartHomeEnd,
   module SourceBuffer,
   module SourceLanguage,
-  module SourceLanguagesManager
+  module SourceLanguagesManager,
+  module SourceTag,
+  module SourceTagTable,
+  module SourceTagStyle,
+  module SourceStyleScheme
 ) where
 
 import Monad	(liftM)
@@ -63,6 +67,10 @@ import GObject	(makeNewGObject)
 import SourceBuffer
 import SourceLanguage
 import SourceLanguagesManager
+import SourceStyleScheme
+import SourceTag
+import SourceTagTable
+import SourceTagStyle
 
 {# context lib="gtk" prefix="gtk" #}
 
