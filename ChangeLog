@@ -118,6 +118,18 @@
 	* gtk/Graphics/UI/Gtk/Windows/Dialog.chs,
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: same for Windows modules.
 
+	* tools/hierarchyGen/Hierarchy.chs.template: update template to use
+	LGPL and add '#hide' Haddock annotation so the Types modules will not
+	be included in the generated documentation. With the current cvs
+	version of Haddock this makes everything work nicely.
+
+	* tools/hierarchyGen/TypeGen.hs: fix templateSubstitute function to
+	cope with escaped '@' symbols.
+
+	* Makefile.am: since hidden modules do not have corresponding html
+	docs generated for them we need to exclude the hidden modules from the
+	html_DATA variable.
+
 2005-02-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: Bump version to 0.9.7.1

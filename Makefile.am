@@ -430,6 +430,7 @@ EXTRA_libHSgtk_a_SOURCES =						\
 	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
 
 html_HSFILES_PREPROC = gtk/Graphics/UI/Gtk.hs
+html_HSFILES_HIDDEN  = gtk/Graphics/UI/Gtk/Types.hs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
@@ -580,6 +581,8 @@ nodist_libHSglade_a_SOURCES =	\
 libHSglade_a_SOURCES =	        \
         glade/Graphics/UI/Gtk/Glade.chs
 
+html_HSFILES_HIDDEN += glade/Graphics/UI/Gtk/Glade/Types.hs
+
 glade_Graphics_UI_Gtk_Glade_Types_hs_HCFLAGS	= -fglasgow-exts
 
 glade/Graphics/UI/Gtk/Glade/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -654,6 +657,8 @@ libHSgconf_a_SOURCES =					\
 	gconf/System/Gnome/GConf/GConfValue.chs		\
 	gconf/System/Gnome/GConf/GConfClient.chs	\
 	gconf/System/Gnome/GConf.hs
+
+html_HSFILES_HIDDEN += gconf/System/Gnome/GConf/Types.hs
 
 libHSgconf_a_LIBADD =	\
 	gconf/System/Gnome/GConf/GConfClient_stub.o
@@ -743,6 +748,8 @@ libHSsourceview_a_SOURCES =							\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs		\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceView.chs
 
+html_HSFILES_HIDDEN += sourceview/Graphics/UI/Gtk/SourceView/Types.hs
+
 sourceview_Graphics_UI_Gtk_SourceView_Types_hs_HCFLAGS	= -fglasgow-exts
 sourceview_Graphics_UI_Gtk_SourceView_SourceTagStyle_hs_HCFLAGS	= -fglasgow-exts
 
@@ -817,6 +824,8 @@ nodist_libHSmozembed_a_SOURCES =			\
 libHSmozembed_a_SOURCES =				\
 	mozembed/Graphics/UI/Gtk/MozEmbed.chs
 
+html_HSFILES_HIDDEN += mozembed/Graphics/UI/Gtk/MozEmbed/Types.hs
+
 mozembed_Graphics_UI_Gtk_MozEmbed_Types_hs_HCFLAGS = -fglasgow-exts
 
 mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs :	\
@@ -881,7 +890,7 @@ html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE) $(html_HSFILES_PREPROC),	\
 		$(html_HSFILES_PREPROC:.hs=.hs.uncpp)
 
 html_DATA =									\
-	$(foreach HSFILE, $(html_HSFILES),					\
+	$(foreach HSFILE, $(filter-out $(html_HSFILES_HIDDEN),$(html_HSFILES)),	\
 	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, doc/%.html, 	\
 		$(subst /,.,$(HSFILE:.uncpp=))))				\
 	doc/haddock.css doc/haskell_icon.gif					\
