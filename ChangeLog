@@ -1,3 +1,11 @@
+2003-02-07  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* mk/config.mk.in: added the variable CC so that the C compiler
+	can be overridden with CC=blah ./configure
+
+	* configure.in: don't call SUBST on GTK_CFLAGS and GTK_LIBS since
+	it's done by the GTK macros earlier
+
 2003-01-22  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gendoc/Makefile: forgot to add this file.
