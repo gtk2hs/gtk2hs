@@ -53,18 +53,22 @@ installcheck :
 	fi
 
 installdirs :
-	$(INSTALL_DIR) $(DESTDIR)$(INST_LIBDIR) $(DESTDIR)$(INST_HIDIR) $(DESTDIR)$(INST_INCLDIR)
+	$(INSTALL_DIR) $(DESTDIR)$(INST_LIBDIR)
+	$(INSTALL_DIR) $(DESTDIR)$(INST_HIDIR)
+	$(INSTALL_DIR) $(DESTDIR)$(INST_INCLDIR)
 
 install-without-pkg : $(TARGETOK) installdirs installfiles
 
 install : install-without-pkg install-pkg
 
 installfiles : $(PACKAGENAME).conf
-	$(INSTALL_DATA) $(ALLHSFILES:.hs=.hi) $(DESTDIR)$(INST_HIDIR)
+	for file in $(ALLHSFILES:.hs=.hi); do \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(INST_HIDIR); done;
 	$(INSTALL_DATA) $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)
 	$(TOUCH) -r $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)/$(TARGETOK)
 ifneq ($(strip $(STUBHFILES) $(EXTRA_HFILESOK)),)
-	$(INSTALL_DATA) $(STUBHFILES) $(EXTRA_HFILESOK) $(DESTDIR)$(INST_INCLDIR)
+	for file in $(STUBHFILES) $(EXTRA_HFILESOK); do \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(INST_INCLDIR); done;
 endif
 	$(INSTALL_DATA) $(PACKAGENAME).conf $(DESTDIR)$(INST_LIBDIR)
 
