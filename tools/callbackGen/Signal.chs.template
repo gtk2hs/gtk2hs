@@ -1,4 +1,3 @@
-{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 -- -------------------- automatically generated file - do not edit ------------
 --  Callback installers for the GIMP Toolkit (GTK) Binding for Haskell
@@ -7,7 +6,7 @@
 --          
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.1 $ from $Date: 2005/03/23 19:34:55 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/06 20:47:00 $
 --
 --  Copyright (c) 2000 Axel Simon
 --
@@ -23,73 +22,38 @@
 --
 -- #hide
 
--- |
---    These functions are used to connect signals to widgets. They are auto-
---    matically created through HookGenerator.hs which takes a list of possible
---    function signatures that are included in the GTK sources 
---    (gtkmarshal.list).
+-- | These functions are used to connect signals to widgets. They are auto-
+-- matically created through HookGenerator.hs which takes a list of possible
+-- function signatures that are included in the GTK sources (gtkmarshal.list).
 --
---  * The object system in the second version of GTK is based on GObject from
---    GLIB. This base class is rather primitive in that it only implements
---    ref and unref methods (and others that are not interesting to us). If
---    the marshall list mentions OBJECT it refers to an instance of this 
---    GObject which is automatically wrapped with a ref and unref call.
---    Structures which are not derived from GObject have to be passed as
---    BOXED which gives the signal connect function a possiblity to do the
---    conversion into a proper ForeignPtr type. In special cases the signal
---    connect function use a PTR type which will then be mangled in the
---    user function directly. The latter is needed if a signal delivers a
---    pointer to a string and its length in a separate integer.
+-- The object system in the second version of GTK is based on GObject from
+-- GLIB. This base class is rather primitive in that it only implements
+-- ref and unref methods (and others that are not interesting to us). If
+-- the marshall list mentions OBJECT it refers to an instance of this 
+-- GObject which is automatically wrapped with a ref and unref call.
+-- Structures which are not derived from GObject have to be passed as
+-- BOXED which gives the signal connect function a possiblity to do the
+-- conversion into a proper ForeignPtr type. In special cases the signal
+-- connect function use a PTR type which will then be mangled in the
+-- user function directly. The latter is needed if a signal delivers a
+-- pointer to a string and its length in a separate integer.
 --
--- TODO
---
---  * Check if we need all prototypes mentioned in gtkmarshal.list.
---
-module Graphics.UI.Gtk.Signals (
+module @MODULE_NAME@ (
+  module System.Glib.Signals,
 
-  @MODULE_EXPORTS@SignalName,
-  ConnectAfter,
-  ConnectId,
-  disconnect
+  @MODULE_EXPORTS@
   ) where
 
 import Monad	(liftM)
-import Data.IORef
 
 import System.Glib.FFI
-import System.Glib.GError   (failOnGError)
-{#import System.Glib.GObject#} hiding (mkFunPtrDestructor)
+import System.Glib.UTFString   (peekUTFString, newUTFString)
+import System.Glib.GError      (failOnGError)
+{#import System.Glib.Signals#}
+{#import System.Glib.GObject#}
 
 {#context lib="gtk" prefix="gtk" #}
 
-
--- Specify if the handler is to run before (False) or after (True) the
--- default handler.
-
-type ConnectAfter = Bool
-
-type SignalName = String
-
-data GObjectClass o => ConnectId o = ConnectID {#type gulong#} o
-
-{#pointer GClosureNotify#}
-
-foreign import ccall "wrapper" mkDestructor :: IO () -> IO GClosureNotify
-
-mkFunPtrDestructor :: FunPtr a -> IO GClosureNotify
-mkFunPtrDestructor hPtr = do
-  dRef <- newIORef nullFunPtr
-  dPtr <- mkDestructor $ do
-    freeHaskellFunPtr hPtr
-    dPtr <- readIORef dRef
-    freeHaskellFunPtr dPtr
-  writeIORef dRef dPtr
-  return dPtr
-
-disconnect :: GObjectClass obj => ConnectId obj -> IO ()
-disconnect (ConnectID handler obj) =
-  withForeignPtr  ((unGObject.toGObject) obj) $ \objPtr ->
-  {#call unsafe g_signal_handler_disconnect#} (castPtr objPtr) handler
 
 -- Here are the generators that turn a Haskell function into
 -- a C function pointer. The fist Argument is always the widget,

@@ -21,6 +21,15 @@
 	* configure.ac: provide GHC_INCLUDEDIR, which is bascially just 
 	`$GHC --print-libdir`/include
 
+	* tools/callbackGen/HookGenerator.hs,
+	tools/callbackGen/Signal.chs.template: modify the callback marshaler
+	code generator to generate marshalers that use the new GClosure-based
+	marshaling system. Change the signals template so that it import the
+	System.Glib.Signals code rather than defining everything locally. Also
+	parameterise by the module name so we can have more than a single
+	global Signals module. The code dealing with the Sparc 4 word marshaling
+	restriction has been dropped as it is no longer a problem.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for
