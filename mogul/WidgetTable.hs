@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/12/03 13:20:07 $
+--  Version $Revision: 1.5 $ from $Date: 2004/04/15 18:02:16 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -38,6 +38,7 @@ module WidgetTable (
 
 import Monad	(liftM)
 import Foreign
+import FFI (foreignPtrToPtr)
 import LocalControl (MVar, newMVar, takeMVar, putMVar, readMVar)
 import LocalData  (unsafePerformIO, FiniteMap, emptyFM, addToFM, delFromFM,
 		  lookupFM, elemFM)

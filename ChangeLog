@@ -1,3 +1,8 @@
+2004-04-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* modul/WidgetTable.hs: added import of FFI (foreignPtrToPtr)
+	for GHC 6.2
+
 2004-01-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* c2hs/c/Attrs.hs: Remove a superfluous comma.
