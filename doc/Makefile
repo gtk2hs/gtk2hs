@@ -52,13 +52,13 @@ reference%.xml	: $(TOP)/$(GENDOC)
 	  -I$(subst $(SPACE),:,$(strip $(addprefix $(TOP)/,$(SUBDIRS_$*)))) \
 	  $(addprefix -x,$(EXCLUDE_$*)) $(OPTIONS_$*) $(TOPLEVEL_$*))
 
-html%	: $(OUTPUT_$*)
+html%	: reference%.xml
 	$(strip SGML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) --catalogs \
 	  -nonet --param use.id.as.filename 1 $(XSLTHTML) $(INPUT_$*))
 	mkdir $* || exit 0
 	mv *.html $*
 
-fo%	: $(OUTPUT_$*)
+fo%	: reference%.xml
 	$(strip SGML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) --catalogs \
 	  -o $(OUTPUT_$*) -nonet $(XSLTFO) $(INPUT_$*))
 	mkdir $* || exit 0
