@@ -8,6 +8,7 @@ import Monad	(liftM)
 import FFI
 import LocalData
 import GObject	(objectRef, objectUnref)
+import GError   (failOnGError)
 {#import Hierarchy#}
 
 {#context lib="gtk" prefix="gtk" #}

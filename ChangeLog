@@ -6,6 +6,8 @@
 	* tools/callbackGen/HookGenerator.hs: wrap callbacks in GError
 	exception handler.
 
+	* tools/callbackGen/Signal.chs-boot2: import GError
+
 2004-07-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/glib/GError.chs: new module for dealing with GErrors
