@@ -19,6 +19,7 @@ esac
 
 for FULLNAME in $@; do
   FULLNAMEDEP=`echo "$FULLNAME" | $SED 's/\.chs/.dep/'`;
+  FULLNAMEHS=`echo "$FULLNAME" | $SED 's/\.chs/.hs/'`;
   if test -f "$FULLNAME"; then
     DEPS=`$GREP "{#import" $FULLNAME 2> /dev/null | $SED 's/^{#import \([a-zA-Z1-9]*\)#}.*/\1.chs/'`;
     #echo Looking for dependent files: $DEPS
@@ -38,7 +39,7 @@ for FULLNAME in $@; do
     done;
     if test -n "$DEPNAMES"; then
       echo "$FULLNAMEDEP :" > $FULLNAMEDEP
-      echo "$FULLNAME $FULLNAMEDEP : $DEPNAMES" >> $FULLNAMEDEP;
+      echo "$FULLNAMEHS $FULLNAMEDEP : $DEPNAMES" >> $FULLNAMEDEP;
     fi;
     echo Writing dependency information for $FULLNAME
   else
