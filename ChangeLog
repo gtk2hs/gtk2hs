@@ -1,3 +1,22 @@
+2004-11-28 Axel Simon <A.Simon@kent.ac.uk> 
+
+	* configure.ac, tools/checkDir.sh: Determine CFLAGS and LDFLAGS
+	for each of the libraries, in particular remove directories that
+	are already present in Gtk from more derived libraries.
+
+	* Makefile.am, mk/common.mk: Add a new goal for calculating
+	dependencies for Haskell files. This new target allows the
+	recursive invocation with the name of the library/application for
+	which dependencies are generated. This allows for choosing the
+	correct CFLAGS for doing pre-processing. Furthermore, fixed the
+	installation of a package.
+
+	* mk/applicatoin.mk, config.mk.in, library.mk, recurse.mk: Remove.
+	
+2004-11-26 Axel Simon <A.Simon@kent.ac.uk> 
+
+	* configure.ac: Changed AC_CONFIG_HEADERS to AM_CONFIG_HEADER.
+	
 2004-11-26  Jens Petersen  <petersen@haskell.org>
 
 	* Makefile.am (EXTRA_DIST): Include Signal.chs-boot*,

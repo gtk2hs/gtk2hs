@@ -22,7 +22,7 @@ dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
 AC_INIT(VERSION)
-AM_INIT_AUTOMAKE(gtk2hs, 0.9.9)
+AM_INIT_AUTOMAKE(gtk2hs, 0.9.6pre)
 
 dnl * We require autoconf version 2.50
 dnl We need 2.50 due to the use of OBJEXT 
@@ -189,24 +189,15 @@ if test $GHCPKG = ghcpkg-not-found; then
   AC_MSG_ERROR([ghc-pkg not found. (But ghc exists!?)]);
 fi
 
-dnl Determine how to list local packages with ghc-pkg.
-GHCPKG_LISTLOCAL="-l";
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.00.0, [GHCPKG_LISTLOCAL="-L"])
-
 dnl Optimise Haskell by default and give sufficient space.
 if test -z "$HCFLAGS"; then
   HCFLAGS=" -O -H180m "
 fi
 
-
-dnl Due to the interdependencies between the different packages we need to
-dnl install one package before we can compile the next one. We do this by
-dnl using a local package file called localpackage.conf in the toplevel
-dnl directory. The user may specify an alternative file and using the complete
-dnl suite in-place.
+dnl Check whether to use a local package file.
 AC_ARG_WITH(pkgconf,
-	    [  --with-pkgconf=pkg.conf use another package.conf file for building in-place],
-	    [LOCALPKGCONF=$withval],[LOCALPKGCONF='$(TOP)/localpackage.conf'])
+	    [  --with-pkgconf=FILE   GHC package file to install packages],
+	    [PKGCONF=$withval;],[PKGCONF=;])
 
 dnl Check for pkg-config which holds information about all Gtk related
 dnl libraries.
@@ -281,81 +272,52 @@ CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.4 && echo 
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
 dnl does not like that, so we need to filter out non-existent directories.
-TMPGTK_CFLAGS=$GTK_CFLAGS;
-GTK_CFLAGS=;
-for FLAG in $TMPGTK_CFLAGS; do
-  case $FLAG in
-    -I*) DIR=`echo $FLAG | $SED "s/-I//"`;
-	 if test -d $DIR; then GTK_CFLAGS="$GTK_CFLAGS -I$DIR"; fi;;
-    *) GTK_CFLAGS="$GTK_CFLAGS $FLAG";;
-  esac;
-done;
-TMPGTK_LIBS=$GTK_LIBS;
-GTK_LIBS=;
-for FLAG in $TMPGTK_LIBS; do
-  case $FLAG in
-    -L*) DIR=`echo $FLAG | $SED "s/-L//"`;
-	 if test -d $DIR; then GTK_LIBS="$GTK_LIBS -L$DIR"; fi;;
-    *) GTK_LIBS="$GTK_LIBS $FLAG";;
-  esac;
-done;
+dnl Furthermore we remove all libraries and directories for packages that
+dnl built on top of gtk so that they don't appear several times on the
+dnl command line.
+GTK_CFLAGS=`tools/checkDirs.sh $GTK_CFLAGS`;
+GTK_LIBS=`tools/checkDirs.sh $GTK_LIBS`;
+SOURCEVIEW_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $SOURCEVIEW_CFLAGS`;
+SOURCEVIEW_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $SOURCEVIEW_LIBS`;
+LIBGLADE_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $LIBGLADE_CFLAGS`;
+LIBGLADE_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $LIBGLADE_LIBS`;
+GCONF_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $GCONF_CFLAGS`;
+GCONF_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $GCONF_LIBS`;
 
-TMPSOURCEVIEW_CFLAGS=$SOURCEVIEW_CFLAGS;
-SOURCEVIEW_CFLAGS=;
-for FLAG in $TMPSOURCEVIEW_CFLAGS; do
-  case $FLAG in
-    -I*) DIR=`echo $FLAG | $SED "s/-I//"`;
-	 if test -d $DIR; then SOURCEVIEW_CFLAGS="$SOURCEVIEW_CFLAGS -I$DIR"; fi;;
-    *) SOURCEVIEW_CFLAGS="$SOURCEVIEW_CFLAGS $FLAG";;
-  esac;
-done;
-TMPSOURCEVIEW_LIBS=$SOURCEVIEW_LIBS;
-SOURCEVIEW_LIBS=;
-for FLAG in $TMPSOURCEVIEW_LIBS; do
-  case $FLAG in
-    -L*) DIR=`echo $FLAG | $SED "s/-L//"`;
-	 if test -d $DIR; then SOURCEVIEW_LIBS="$SOURCEVIEW_LIBS -L$DIR"; fi;;
-    *) SOURCEVIEW_LIBS="$SOURCEVIEW_LIBS $FLAG";;
-  esac;
-done;
+dnl Fix for ghc-pkg in that it doesn't differ between paths to extra
+dnl libraries and paths to Haskell libraries. We have to append the
+dnl path to where the Haskell libraries are going to be installed in
+dnl case they go into a non-standard directory. If they go into a
+dnl standard directory then we duplicate a path here. Dough.
+GTK_LIBS="$GTK_LIBS -L$libdir";
 
-TMPLIBGLADE_CFLAGS=$LIBGLADE_CFLAGS;
-LIBGLADE_CFLAGS=;
-for FLAG in $TMPLIBGLADE_CFLAGS; do
+dnl Change the representation of these flags to "flag1","flag2". The
+dnl letters CQ stand for Comma, Quote.
+C=; GTK_CFLAGS_CQ=;
+for FLAG in $GTK_CFLAGS; do
   case $FLAG in
-    -I*) DIR=`echo $FLAG | $SED "s/-I//"`;
-	 if test -d $DIR; then LIBGLADE_CFLAGS="$LIBGLADE_CFLAGS -I$DIR"; fi;;
-    *) LIBGLADE_CFLAGS="$LIBGLADE_CFLAGS $FLAG";;
+    -I*) TMP=${FLAG#-I};
+	 GTK_CFLAGS_CQ="$GTK_CFLAGS_CQ$C\"$TMP\""; C=",";;
   esac;
 done;
-TMPLIBGLADE_LIBS=$LIBGLADE_LIBS;
-LIBGLADE_LIBS=;
-for FLAG in $TMPLIBGLADE_LIBS; do
+AC_SUBST(GTK_CFLAGS_CQ)
+C_LIBS=; GTK_LIBS_CQ=; C_LDIR=; GTK_LIBDIR_CQ=; C_XTRA=; GTK_LIBEXTRA_CQ=;
+for FLAG in $GTK_LIBS; do 
   case $FLAG in
-    -L*) DIR=`echo $FLAG | $SED "s/-L//"`;
-	 if test -d $DIR; then LIBGLADE_LIBS="$LIBGLADE_LIBS -L$DIR"; fi;;
-    *) LIBGLADE_LIBS="$LIBGLADE_LIBS $FLAG";;
+    -l*) GTK_LIBS_CQ="$GTK_LIBS_CQ$C_LIBS\"${FLAG#-l}\""; C_LIBS=",";;
+    -L*) GTK_LIBDIR_CQ="$GTK_LIBDIR_CQ$C_LDIR\"${FLAG#-L}\""; C_LDIR=",";;
+    *) GTK_LIBEXTRA_CQ="$GTK_LIBEXTRA_CQ$C_XTRA\"$FLAG\""; C_XTRA=",";;
   esac;
 done;
+AC_SUBST(GTK_LIBS_CQ)
+AC_SUBST(GTK_LIBDIR_CQ)
+AC_SUBST(GTK_LIBEXTRA_CQ)
 
-TMPGCONF_CFLAGS=$GCONF_CFLAGS;
-GCONF_CFLAGS=;
-for FLAG in $TMPGCONF_CFLAGS; do
-  case $FLAG in
-    -I*) DIR=`echo $FLAG | $SED "s/-I//"`;
-         if test -d $DIR; then GCONF_CFLAGS="$GCONF_CFLAGS -I$DIR"; fi;;
-    *) GCONF_CFLAGS="$GCONF_CFLAGS $FLAG";;
-  esac;
-done;
-TMPGCONF_LIBS=$GCONF_LIBS;
-GCONF_LIBS=;
-for FLAG in $TMPGCONF_LIBS; do
-  case $FLAG in
-    -L*) DIR=`echo $FLAG | $SED "s/-L//"`;
-         if test -d $DIR; then GCONF_LIBS="$GCONF_LIBS -L$DIR"; fi;;
-     *) GCONF_LIBS="$GCONF_LIBS $FLAG";;
-  esac;
-done;
+AC_ARG_WITH(hidir,
+	[  --with-hidir=DIR		specify install dir for .hi files],
+	[hidir=$withval],
+	[hidir=$libdir/hi])
+AC_SUBST(hidir)
 
 dnl Check if user wants bindings for deprecated APIs. Defaults to yes.
 AC_MSG_CHECKING([whether to build deprecated bindings])
@@ -486,7 +448,7 @@ AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(FOUR_WORD_CALLBACK)
 AC_SUBST(GHCPKG_LISTLOCAL)
-AC_SUBST(LOCALPKGCONF)
+AC_SUBST(PKGCONF)
 AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(MARSHALLDEFS)
@@ -543,9 +505,8 @@ AC_OUTPUT([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
-  mk/config.mk
-],
-	[chmod a+x mk/chsDepend && chmod a+x install-sh])
+  gtk/gtk2hs.pkg],
+  [chmod a+x mk/chsDepend && chmod a+x install-sh])
 
 dnl ...and chat with the user
 echo "**************************************************"

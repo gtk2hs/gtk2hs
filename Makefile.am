@@ -3,23 +3,8 @@ SUFFIXES = .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES =
 CLEANFILES =
 DISTCLEANFILES = *.precomp
-
-# Before chaning anything on dependency calculation:
-# - Note that the initial dependencies are computed when make checks if
-#   the include files are up to date.
-# - CFLAGS and CPPFLAGS are not package/application specific. This is due
-#   to the initial dependency calculation where it is not clear which
-#   package a particular file belongs to. But the CPPFLAGS are needed for
-#   the .chs.pp rule which runs files through the pre-processor.
-# - Dependencies between Haskell .hs modules are stored in
-#   .deps/<pkg-name>.deps . To calculate these dependencies, c2hs must be
-#   run on the .chs and the header file belonging to the package to which
-#   the .chs file belongs to. But since the dependencies for a package are
-#   stored in a file with the package's name, set the NAME variable to the
-#   file name of the target .deps/<pkg-name>.deps and then run c2hs.
-
-CFLAGS = $(filter-out -I%,$(GTK_CFLAGS))
-CPPFLAGS = $(filter -I%,$(GTK_CFLAGS))
+CPPFLAGS+= $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS) $(LIBGLADE_CFLAGS) \
+	   $(GCONF_CFLAGS)
 
 # Build c2hs before anything else.
 
@@ -50,7 +35,7 @@ CHSDEPEND = $(srcdir)/mk/chsDepend
 HSC = hsc2hs
 
 # all packages and applications
-lib_LIBRARIES = gtk/libgtk2hs.a
+lib_LIBRARIES = libgtk2hs.a
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
 	tools/callbackGen/HookGenerator \
@@ -188,19 +173,19 @@ DISTCLEANFILES+= tools_c2hs_c2hsLocal.deps
 -include tools_c2hs_c2hsLocal.deps
 
 # gtk2hs GUI library
-gtk_libgtk2hs_a_NAME = gtk/libgtk2hs.a
-$(gtk_libgtk2hs_a_NAME) : NAME = gtk_libgtk2hs_a
+libgtk2hs_a_NAME = libgtk2hs.a
+$(libgtk2hs_a_NAME) : NAME = libgtk2hs_a
 
-gtk_libgtk2hs_a : tools/c2hs/c2hs
-gtk_libgtk2hs_a_PACKAGECONF	= libgtk2hs.conf
-gtk_libgtk2hs_a_PACKAGE		= gtk2hs
-gtk_libgtk2hs_a_PACKAGEDEPS	= data
-gtk_libgtk2hs_a_HEADER 		= gtk/gtk.h
-gtk_libgtk2hs_a_PRECOMP		= gtk/gtk.precomp
-gtk_libgtk2hs_a_LIBS		= @GTK_LIBS@
-gtk_libgtk2hs_a_HCFLAGS		= -fglasgow-exts
+libgtk2hs_a_PACKAGE		= gtk/gtk2hs.pkg
+libgtk2hs_a_PACKAGEDEPS		= data
+libgtk2hs_a_HEADER 		= gtk/gtk.h
+libgtk2hs_a_PRECOMP		= gtk/gtk.precomp
+libgtk2hs_a_LIBS		= @GTK_LIBS@
+libgtk2hs_a_HCFLAGS		= -fglasgow-exts
+libgtk2hs_a_CFLAGS 		= $(filter-out -I%,$(GTK_CFLAGS))
+libgtk2hs_a_CPPFLAGS 		= $(filter -I%,$(GTK_CFLAGS))
 
-gtk_libgtk2hs_a_SOURCES =			  \
+libgtk2hs_a_SOURCES =			  \
 	gtk/general/Hierarchy.chs		  \
 	gtk/general/Signal.chs			  \
 	gtk/glib/GValue.chs			  \
@@ -334,33 +319,35 @@ gtk_libgtk2hs_a_SOURCES =			  \
 	compat/LocalControl.hs			  \
 	compat/LocalData.hs
 
-am_gtk_libgtk2hs_a_OBJECTS = \
-  $(addsuffix .$(OBJEXT),$(basename $(basename $(gtk_libgtk2hs_a_SOURCES))))
+am_libgtk2hs_a_OBJECTS = \
+  $(addsuffix .$(OBJEXT),$(basename $(basename $(libgtk2hs_a_SOURCES))))
 
-gtk_libgtk2hs_a_CHSPPFILES = $(filter %.chs.pp,$(gtk_libgtk2hs_a_SOURCES))
-gtk_libgtk2hs_a_CHSFILES = \
-  $(filter %.chs,$(gtk_libgtk2hs_a_SOURCES:.chs.pp=.chs))
-gtk_libgtk2hs_a_CHSFILES_HS = $(gtk_libgtk2hs_a_CHSFILES:.chs=.hs)
-gtk_libgtk2hs_a_HSCFILES = $(filter %.hsc, $(gtk_libgtk2hs_a_SOURCES))
-gtk_libgtk2hs_a_HSCFILES_HS = $(gtk_libgtk2hs_a_HSCFILES:.hsc=.hs)
-gtk_libgtk2hs_a_BUILDSOURCES = \
-	$(gtk_libgtk2hs_a_CHSPPFILES:.chs.pp=.chs) \
-	$(gtk_libgtk2hs_a_CHSFILES_HS) \
-	$(gtk_libgtk2hs_a_HSCFILES_HS)
-gtk_libgtk2hs_a_HSFILES  = \
-	$(filter %.hs,$(gtk_libgtk2hs_a_BUILDSOURCES)) \
-	$(filter %.hs,$(gtk_libgtk2hs_a_SOURCES))
-.PRECIOUS: $(gtk_libgtk2hs_a_HSFILES:.hs=hi)
+libgtk2hs_a_CHSPPFILES = $(filter %.chs.pp,$(libgtk2hs_a_SOURCES))
+libgtk2hs_a_CHSFILES = \
+  $(filter %.chs,$(libgtk2hs_a_SOURCES:.chs.pp=.chs))
+libgtk2hs_a_CHSFILES_HS = $(libgtk2hs_a_CHSFILES:.chs=.hs)
+libgtk2hs_a_HSCFILES = $(filter %.hsc, $(libgtk2hs_a_SOURCES))
+libgtk2hs_a_HSCFILES_HS = $(libgtk2hs_a_HSCFILES:.hsc=.hs)
+libgtk2hs_a_BUILDSOURCES = \
+	$(libgtk2hs_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libgtk2hs_a_CHSFILES_HS) \
+	$(libgtk2hs_a_HSCFILES_HS)
+libgtk2hs_a_HSFILES  = \
+	$(filter %.hs,$(libgtk2hs_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libgtk2hs_a_SOURCES))
 
-MOSTLYCLEANFILES+ = $(am_gtk_libgtk2hs_a_OBJECTS)
-MOSTLYCLEANFILES+ = $(gtk_libgtk2hs_a_HSFILES:.hs=.hi)
-CLEANFILES+= $(gtk_libgtk2hs_a_BUILDSOURCES)
+# add prefix nobase_ when changing to hierarchical module namespace
+hi_SCRIPTS = $(libgtk2hs_a_HSFILES:.hs=.hi)
 
-DISTCLEANFILES+= gtk_libgtk2hs_a.deps $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
--include gtk_libgtk2hs_a.deps $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
+MOSTLYCLEANFILES+ = $(am_libgtk2hs_a_OBJECTS)
+MOSTLYCLEANFILES+ = $(libgtk2hs_a_HSFILES:.hs=.hi)
+CLEANFILES+= $(libgtk2hs_a_BUILDSOURCES)
+
+DISTCLEANFILES+= libgtk2hs_a.deps $(libgtk2hs_a_CHSFILES_HS:.hs=.dep)
+-include libgtk2hs_a.deps $(libgtk2hs_a_CHSFILES_HS:.hs=.dep)
 
 
 # All generated source files go here.
-BUILDSOURCES = $(gtk_libgtk2hs_a_BUILDSOURCES)
+BUILDSOURCES = $(libgtk2hs_a_BUILDSOURCES)
 
 include mk/common.mk
