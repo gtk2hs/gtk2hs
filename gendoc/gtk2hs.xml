@@ -1,0 +1,49 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE book SYSTEM "gtk2hs.dtd" [
+<!ENTITY apiref SYSTEM "reference.xml">
+]> 
+
+<book>
+<bookinfo>
+  <title>A Haskell binding for the Gimp Toolkit</title>
+  <author><firstname>Axel</firstname><surname>Simon</surname></author>
+  <copyright><year>2002</year><holder>Axel Simon</holder></copyright>
+</bookinfo>
+
+<part><title>GUI Elements</title>
+
+<chapter><title>Trees and Lists</title>
+
+<section><title>Storage and Display</title>
+</section>
+
+<section><title>Representing nested structures</title>
+</section>
+
+<section><title>Editing</title>
+</section>
+
+<section><title>Sorting</title>
+</section>
+
+<section><title>Storing custom data</title>
+</section>
+
+</chapter>
+</part>
+
+<part><title>Beyond Widgets</title>
+<chapter><title>Internationalization</title>
+
+</chapter>
+
+</part>
+
+<part><title>Reference</title>
+<reference><title>The Mogul API</title>
+
+&apiref;
+
+</reference>
+</part>
+</book>

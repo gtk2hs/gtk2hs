@@ -1,3 +1,12 @@
+2002-10-19 Axel Simon <A.Simon@ukc.ac.uk> 
+
+	* gendoc/ Abstract.hs Driver.hs Lexer.hs Parser.hs State.hs
+	Update.hs XMLwrite.hs gtk2hs.xml: Machinery to generate
+	documentation from the comments in the binding. I just decided to
+	use the original Docbook without any Haskell specific
+	additions. So this first version tries to define and use a
+	modified version of Docbook.
+	
 2002-10-06 Axel Simon <A.Simon@ukc.ac.uk> 
 
 	* gtk/multiline/TextView.chs: Completed functionality and added
