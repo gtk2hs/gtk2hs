@@ -12,6 +12,9 @@
 
 	* demo/filechooser/FileChooserDemo: flesh out demo
 
+	* configure.in, Makefile, mk/config.mk.in: change gnome modules
+	to be enabled as a group rather than being individually enabled
+
 2004-04-30 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/Makefile,
