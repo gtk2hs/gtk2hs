@@ -57,6 +57,8 @@ Drawable-HEADER		= gdk/gdkdrawable.h
 GC-HEADER		= gdk/gdkgc.h
 Keys-HEADER		= gdk/gdkkeys.h
 Drawable-HEADER		= gdk/gdkdrawable.h
+Pixbuf-HEADER		= gdk/gdkpixbuf.h
+Gdk-HEADER		= gdk/gdk.h
 # general Gtk modules
 IconFactory-HEADER	= gtk/gtkiconfactory.h
 Signal-HEADER		= gtk/gtksignal.h

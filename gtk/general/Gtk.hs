@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.17 $ from $Date: 2003/05/19 16:36:36 $
+--  Version $Revision: 1.18 $ from $Date: 2003/07/03 05:19:36 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -56,6 +56,7 @@ module Gtk(
   module Region,
   module GC,
   module Pixbuf,
+  module Gdk,
   -- windows
   module Dialog,
   module FileSel,
@@ -183,6 +184,7 @@ import DrawWindow
 import Region		hiding (makeNewRegion)
 import GC
 import Pixbuf
+import Gdk
 -- windows
 import Dialog
 import FileSel

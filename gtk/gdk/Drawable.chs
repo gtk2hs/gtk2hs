@@ -5,7 +5,7 @@
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2003/05/16 18:45:23 $
+--  Version $Revision: 1.6 $ from $Date: 2003/07/03 05:19:36 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -180,7 +180,7 @@ drawLines d gc points =
 --   @ref arg srcWidth@ and @ref arg srcHeight@ specify what part of the
 --   @ref data Pixbuf@ should be rendered. The latter two values may be
 --   @literal -1@ in which case the width and height are taken from
---   @ref arg src@. The image is placed at @ref arg destX@, @ref arg destY@.
+--   @ref arg pb@. The image is placed at @ref arg destX@, @ref arg destY@.
 --   If you render parts of an image at a time, set @ref arg ditherX@ and
 --   @ref arg ditherY@ to the origin of the image you are rendering.
 --

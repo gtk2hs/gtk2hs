@@ -8,15 +8,16 @@
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
 Name: gtk2hs
 Version: @VERSION@
-Release: 1.%(date +%%Y%%m%%d)
+Release: 0.%(date +%%Y%%m%%d)
 Copyright: LGPL
 Group: Development/Libraries
 Source: gtk2hs-%{version}.tar.gz
 URL: http://gtk2hs.sourceforge.net/
 BuildRoot: /var/tmp/gtk2hs-%{version}-%{release}-root
+Requires: ghc5 = %{_ghc_version}
 Requires: gtk2
-PreReq: ghc = %{_ghc_version}
-BuildRequires: ghc = %{_ghc_version} gtk2-devel %{?_with_c2hs: c2hs >= 0.10.6}
+Requires(post,preun): %{_bindir}/ghc-pkg-%{_ghc_version}
+BuildRequires: ghc5 = %{_ghc_version} gtk2-devel %{?_with_c2hs: c2hs >= 0.10.6}
 
 %description
 A Gtk2 binding for the functional language Haskell featuring
@@ -30,7 +31,7 @@ lookup named widgets in a type safe way.
 %setup -q
 
 %build
-./configure %{?_with_c2hs} --with-hcflags="-O" --with-catalog=%{_datadir}/sgml/docbook/xmlcatalog --with-html=%{_datadir}/sgml/docbook/xsl-stylesheets/xhtml/chunk.xsl # --with-fo=%{_datadir}/sgml/docbook/xsl-stylesheets/fo/docbook.xsl
+./configure %{?_with_c2hs} --with-hc=ghc-%{_ghc_version} --with-hcflags="-O" --with-catalog=%{_datadir}/sgml/docbook/xmlcatalog --with-html=%{_datadir}/sgml/docbook/xsl-stylesheets/xhtml/chunk.xsl # --with-fo=%{_datadir}/sgml/docbook/xsl-stylesheets/fo/docbook.xsl
 make prefix=%{_prefix} libdir=%{_libdir}/ghc-%{_ghc_version}
 
 %install
@@ -51,8 +52,8 @@ ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/mogul.conf
 %preun
 rm -f %{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2hs.o,mogul.o}
 if [ "$1" = 0 ]; then
-  ghc-pkg-%{_ghc_version} -r mogul
-  ghc-pkg-%{_ghc_version} -r gtk2
+  ghc-pkg-%{_ghc_version} -r mogul || :
+  ghc-pkg-%{_ghc_version} -r gtk2 || :
 fi
 
 %files

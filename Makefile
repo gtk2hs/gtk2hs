@@ -94,7 +94,7 @@ EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 dist :
 	$(RM) -r $(TARNAME)
 	$(RM) $(TARNAME).tar $(TARNAME).tar.gz
-	$(LN) -s . $(TARNAME)
+	$(LN) . $(TARNAME)
 	$(strip $(TAR) cf $(addsuffix .tar,$(TARNAME)) \
 	  $(addprefix $(TARNAME)/,$(EXTRA_TARFILES)))
 	$(MAKE) -Cc2hs tarsource

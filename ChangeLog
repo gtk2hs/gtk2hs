@@ -1,3 +1,30 @@
+2003-07-03  Jens Petersen  <petersen@haskell.org>
+
+	* gtk/layout/Notebook.chs (notebookGetNPages): New function.
+	Export it.
+
+	* gtk/general/Gtk.hs: Import and re-export Gdk.
+
+	* gtk/gdk/Gdk.chs: New module for gdk.h.  Currently just provides beep.
+
+	* gtk/gdk/Drawable.chs (drawPixbuf): Doc fix: s/arg src/arg pb/.
+
+	* gtk/Makefile: Define Pixbuf-HEADER and Gdk-HEADER.
+
+	* gtk2hs.spec.in (Requires): Require ghc5.  Post and preun require
+	ghc-pkg.
+	(build): Configure --with-hc.
+	(preun): Ignore package removal errors.
+
+	* configure.in: --with-hc no longer requires a full-path, when
+	requested compiler is in path.  When looking for HOpenGL pass "-l"
+	to ghc-pkg, since "--list-packages" confuses ghc-pkg-6.0 built
+	with ghc5.
+
+	* VERSION: Bump version to 0.9.3.50.
+
+	* Makefile (dist): LN already includes the "-s" option.
+
 2003-05-23  Jens Petersen  <petersen@redhat.com>
 
 	* gendoc/XMLwrite.hs (makeSymDescr): Move colspecs inside the
@@ -23,10 +50,6 @@
 	onTestCollapseRow and onTestExpandRow signals. Patch submitted by
 	Duncan Coutts <duncan@coutts.uklinux.net>.
 	
-2003-05-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
-
-	* gtk/gdk/Pixbuf.chs: Fixed documentation on creating inline pictures.
-
 2003-05-18  Jens Petersen  <petersen@redhat.com>
 
 	* gtk/pango/PangoLayout.chs (layoutIterGetLineExtents): Keep last
@@ -38,6 +61,12 @@
 	* doc/mogul.xml: Docbook 4.2.
 
 2003-05-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* gtk/gdk/Pixbuf.chs: Fixed documentation on creating inline pictures.
+
+2003-05-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	0.9.3 release.
 
 	* c2hs/base/syntax/Lexer.hs: There is a bug in either c2hs or the
 	compiler when parsing the header files on PowerPC. I added a line

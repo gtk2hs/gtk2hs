@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/12 13:09:23 $
+--  Version $Revision: 1.4 $ from $Date: 2003/07/03 05:19:36 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -68,6 +68,7 @@ module Notebook(
   notebookGetCurrentPage,
   notebookGetMenuLabel,
   notebookGetNthPage,
+  notebookGetNPages,
   notebookGetTabLabel,
   Packing(..), PackType(..),
   notebookQueryTabLabelPacking,
@@ -320,6 +321,12 @@ notebookGetNthPage nb pos = do
     (toNotebook nb) (fromIntegral pos)
   if wPtr==nullPtr then return Nothing else liftM Just $
     makeNewObject mkWidget $ return wPtr
+
+-- @method notebookGetNPages@ Get the number of pages in a notebook.
+--
+notebookGetNPages :: NotebookClass nb => nb -> IO Int
+notebookGetNPages nb = liftM fromIntegral $
+  {#call unsafe notebook_get_n_pages#} (toNotebook nb)
 
 -- @method notebookGetTabLabel@ Extract the tab label from the given
 -- @ref arg child@.

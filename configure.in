@@ -101,7 +101,7 @@ dnl	    [PORTS_CONFIG=$withval])
 
 dnl Select a specific Haskell compiler and/or flags.
 AC_ARG_WITH(hc, 
-            [  --with-hc=HC            use Haskell compiler HC (full path required)],
+            [  --with-hc=HC            use Haskell compiler HC],
 	    [HC=$withval])
 
 AC_ARG_WITH(hcflags, 
@@ -112,7 +112,7 @@ AC_ARG_WITH(hcflags,
 
 dnl Check for GHC-5.02 or greater.
 dnl (The next command is not executed, if $HC is already set.)
-AC_PATH_PROG(HC, ghc, ghc-not-found)
+AC_PATH_PROG(HC, [$HC ghc], ghc-not-found)
 if test $HC = ghc-not-found; then
  AC_MSG_ERROR([
 Could not find GHC!  This is the only supported compiler.
@@ -201,7 +201,7 @@ if test x$FOUNDGLEXT = xno; then ENABLE_OPENGL=no;fi;
 
 dnl Reset the flag if HOpenGL is not installed
 FOUNDHOPENGL=yes;
-$GHCPKG --list-packages | $GREP OpenGL > /dev/null || FOUNDHOPENGL=no;
+$GHCPKG -l | $GREP OpenGL > /dev/null || FOUNDHOPENGL=no;
 if test x$FOUNDHOPENGL = xno; then ENABLE_OPENGL=no;fi;
 
 AC_MSG_RESULT($ENABLE_OPENGL)
