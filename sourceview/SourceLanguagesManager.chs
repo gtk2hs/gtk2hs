@@ -45,7 +45,8 @@ import GList	(readGSList)
 
 -- methods
 
--- @constructor sourceLanguagesManagerNew@ Create a new @ref type SourceLanguagesManager@
+-- @constructor sourceLanguagesManagerNew@ Create a new
+-- @ref type SourceLanguagesManager@
 --
 sourceLanguagesManagerNew :: IO SourceLanguagesManager
 sourceLanguagesManagerNew = makeNewGObject mkSourceLanguagesManager
@@ -53,7 +54,8 @@ sourceLanguagesManagerNew = makeNewGObject mkSourceLanguagesManager
 
 -- @method sourceLanguagesManagerGetAvailableLanguages@
 -- 
-sourceLanguagesManagerGetAvailableLanguages :: SourceLanguagesManager -> IO [SourceLanguage]
+sourceLanguagesManagerGetAvailableLanguages :: SourceLanguagesManager -> 
+					       IO [SourceLanguage]
 sourceLanguagesManagerGetAvailableLanguages lm = do
   gList <- {#call source_languages_manager_get_available_languages#} lm
   wList <- readGSList gList

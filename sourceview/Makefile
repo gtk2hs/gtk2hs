@@ -19,14 +19,17 @@ EXTRA_HFILES	= $(TOP)/sourceview/sourceview.h
 EXTRA_TARFILES	= sourceview.h
 
 ifneq (x$(MULTIPLE_CHS),xyes)
-# glib modules
-SourceViewType-HEADER		= sourceview.h
-SourceBuffer-HEADER		= gtksourceview/gtksourceview.h
-SourceLanguage-HEADER		= gtksourceview/gtksourceview.h
-SourceLanguagesManager-HEADER	= gtksourceview/gtksourceviewlanguagesmanager.h
+SourceIter-HEADER		= gtksourceview/gtksourceiter.h
+SourceBuffer-HEADER		= gtksourceview/gtksourcebuffer.h
+SourceMarker-HEADER		= gtksourceview/gtksourcemarker.h
+SourceView-HEADER		= gtksourceview/gtksourceview.h
+SourceLanguage-HEADER		= gtksourceview/gtksourcelanguage.h
+SourceLanguagesManager-HEADER	= gtksourceview/gtksourcelanguagesmanager.h
+SourceStyleScheme-HEADER	= gtksourceview/gtksourcestylescheme.h
 SourceTag-HEADER		= gtksourceview/gtksourcetag.h
-SourceTagTable-HEADER		= gtksourceview/gtktagtable.h
-SourceStyleScheme-HEADER	= gtksourceview/gtkstlyescheme.h
+SourceTagTable-HEADER		= gtksourceview/gtksourcetagtable.h
+SourceTagStyle-HEADER		= gtksourceview/gtksourcetagstyle.h
+SourcePringJob-HEADER		= gtksourceview/gtksourceprintjob.h
 endif
 
 # Further options to the C preprocessor are passed verbatim:

@@ -29,7 +29,7 @@ module SourceTagTable (
   SourceTagTable,
   SourceTagTableClass,
   sourceTagTableNew,
---  sourceTagTableAddTags,          --requires toGSList
+  sourceTagTableAddTags,
   sourceTagTableRemoveSourceTags
 ) where
 
@@ -39,8 +39,8 @@ import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import SourceViewType#}
 {#import Signal#}
-{#import SourceTag#}
-import GList	(readGSList)
+import SourceTag
+import GList	(fromGSList, toGSList)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -52,16 +52,32 @@ sourceTagTableNew :: IO SourceTagTable
 sourceTagTableNew = makeNewGObject mkSourceTagTable
   {#call unsafe source_tag_table_new#} 
 
-{-
--- @method sourceTagTableAddTags@
+
+-- @method sourceTagTableAddTags@ Add a list of tag to the table.
+-- 
+-- * The added tags are assigned the highest priority in the table. If a tag is
+--   already present in table or has the same name as an already-added tag, then
+--   it is not added to the table.
 -- 
 sourceTagTableAddTags :: SourceTagTable -> [SourceTag] -> IO ()
-sourceTagTableAddTags tt tags =
-  {#call source_tag_table_add_tags#} tt {- make GSList of SourceTag from tags -}
--}
+sourceTagTableAddTags tt tags = do
+  let tagForeignPtrs = map (unSourceTag . toSourceTag) tags
+  tagList <- toGSList (map foreignPtrToPtr tagForeignPtrs)
+  {#call source_tag_table_add_tags#} tt tagList
+  -- destroy the list
+  fromGSList tagList
+  -- make sure the ForeignPtrs are not gc'd while we are still using the Ptrs
+  mapM_ touchForeignPtr tagForeignPtrs
 
 -- @method sourceTagTableRemoveSourceTags@
 -- 
 sourceTagTableRemoveSourceTags :: SourceTagTable -> IO ()
 sourceTagTableRemoveSourceTags tt =
   {#call source_tag_table_remove_source_tags#} tt 
+
+-- @signal onTagChanged@ The source tag table has changed.
+--
+onTagChanged, afterTagChanged :: 
+  SourceTagTableClass stt => stt -> IO () -> IO (ConnectId stt)
+onTagChanged = connect_NONE__NONE "changed" False
+afterTagChanged = connect_NONE__NONE "changed" True

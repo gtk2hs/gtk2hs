@@ -250,7 +250,7 @@ endif
 
 targets :
 	@echo all	in subdirs: builds libraries/applications
-	@echo		in toplevel: equivalent to "inplace" in all subdirs
+	@echo		in toplevel: equivalent to "make all" in all subdirs
 	@echo inplace	"all" in all subdirs and entry to local package file
 	@echo noinplace removes the entry from the local package file
 	@echo install	"all", installs files, add entry to GHC's package file

@@ -1,3 +1,16 @@
+2003-10-02 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* mk/common.mk: Change comments for "targets" help output.
+
+	* sourceview/Makefile: Corrected header file declaration (unused
+	at the moment). 
+
+	* gtk/glib/GList.chs: Added methods to marshal from GLists and
+	GSLists.
+	
+	* sourceview/SourceLanguagesManager.chs, sourceview/SourceTag.chs,
+	sourceview/SourceTagTable.chs: Added 
+	
 2003-10-26 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* Makefile, mk/recurse.mk, mk/common.mk: Turn the top-level

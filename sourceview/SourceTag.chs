@@ -29,13 +29,13 @@ module SourceTag (
   SourceTag,
   syntaxTagNew,
   patternTagNew,
---  keywordListTagNew,
+  keywordListTagNew,
   blockCommentTagNew,
   lineCommentTagNew,
   stringTagNew,
   sourceTagGetStyle,
   sourceTagSetStyle
-) where
+  ) where
 
 import Monad	(liftM)
 import FFI
@@ -43,6 +43,7 @@ import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import SourceViewType#}
 import SourceTagStyle
+import GList   (toGSList, fromGSList)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -69,27 +70,32 @@ patternTagNew id name pattern =
   withCString pattern $ \strPtr3 -> 
   {#call unsafe pattern_tag_new#} strPtr1 strPtr2 strPtr3
 
-{-
--- @constructor keywordListTagNew@ Create a new @ref type SourceTag@
+
+-- @constructor keywordListTagNew@ Create a new @ref type SourceTag@.
 --
-keywordListTagNew :: String -> String -> [String] -> Bool -> Bool -> Bool -> String -> String -> IO SourceTag
-keywordListTagNew = id name keywords
-                    caseSensitive
-                    matchEmptyStringAtBeginning
-                    matchEmptyStringAtEnd
-                    beginningRegex
-                    endRegex
-  makeNewGObject mkSourceTag $ liftM castPtr $
-  withCString  id      $ \strPtr1 -> 
-  withCString  name    $ \strPtr2 -> 
-  withCString  beginningRegex $ \strPtr3 -> 
-  withCString  endRegex $ \strPtr4 -> 
-  {#call unsafe keyword_list_tag_new#} strPtr1 strPtr2 {- makeGSList of strings from keywords -}
-                                       (fromBool caseSensitive)
-                                       (fromBool matchEmptyStringAtBeginning)
-                                       (fromBool matchEmptyStringAtEnd)
-                                       strPtr3 strPtr4
--}
+keywordListTagNew :: String -> String -> [String] -> Bool -> Bool -> Bool ->
+		     String -> String -> IO SourceTag
+keywordListTagNew id name keywords
+                  caseSensitive
+                  matchEmptyStringAtBeginning
+                  matchEmptyStringAtEnd
+                  beginningRegex
+                  endRegex = do
+  keywordPtrs <- mapM newUTFString keywords
+  keywordList <- toGSList keywordPtrs
+  obj <- makeNewGObject mkSourceTag $ liftM castPtr $
+	 withCString  id      $ \strPtr1 -> 
+	 withCString  name    $ \strPtr2 -> 
+	 withCString  beginningRegex $ \strPtr3 -> 
+	 withCString  endRegex $ \strPtr4 -> {#call unsafe keyword_list_tag_new#}
+	   strPtr1 strPtr2 keywordList (fromBool caseSensitive)
+	   (fromBool matchEmptyStringAtBeginning) (fromBool matchEmptyStringAtEnd)
+	   strPtr3 strPtr4
+  -- destory the list
+  fromGSList keywordList
+  -- destory the elements
+  mapM_ free keywordPtrs
+  return obj
 
 -- @constructor blockCommentTagNew@ Create a new @ref type SourceTag@
 --
