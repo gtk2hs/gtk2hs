@@ -53,6 +53,7 @@ installdirs :
 install : installcheck $(TARGETOK) installdirs interactiveInstall 
 	$(INSTALL) -c -m644 $(ALLHSFILES:.hs=.hi) $(INST_HIDIR)
 	$(INSTALL) -c -m644 $(TARGETOK) $(INST_LIBDIR)
+	$(TOUCH) -r $(TARGETOK) $(INST_LIBDIR)/$(TARGETOK)
 ifneq ($(strip $(EXTRA_CFILES) $(STUBHFILES)),)
 	$(INSTALL) -c -m644 $(STUBHFILES) $(EXTRA_CFILES:.c=.h) $(INST_INCLDIR)
 endif
