@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2002/11/03 20:35:45 $
+--  Version $Revision: 1.8 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -252,7 +252,7 @@ textIterGetVisibleText start end = do
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
--- @method textIterGetPixbuf@ Get the @ref arg Pixbuf@ under the iterator.
+-- @method textIterGetPixbuf@ Get the @ref data Pixbuf@ under the iterator.
 --
 textIterGetPixbuf :: TextIter -> IO (Maybe Pixbuf)
 textIterGetPixbuf it = do
@@ -383,13 +383,14 @@ textIterGetCharsInLine :: TextIter -> IO Int
 textIterGetCharsInLine ti = liftM fromIntegral $
   {#call unsafe text_iter_get_chars_in_line#} ti
 
--- @dunno textIterGetAttributes@ Get the text attributes at the iterator.
+-- @method textIterGetAttributes@ Get the text attributes at the iterator.
 --
 -- * The @ref arg ta@ argument gives the default values if no specific 
 --   attributes are set at that specific location.
 --
--- * The function returns @prog Nothing@ if the text at the iterator has 
+-- * The function returns @literal Nothing@ if the text at the iterator has 
 --   the same attributes.
+textIterGetAttributes = undefined
 
 -- @method textIterIsEnd@ Determine if @ref type TextIter@ is at the end of
 -- the buffer.

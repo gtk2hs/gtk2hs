@@ -36,6 +36,7 @@ data Token
   | HookArg
   | HookSymbol SymKind
   | HookType ConKind
+  | HookVariant		-- a data constructor
   | HookDescription
   | HookSynopsis
   | HookImplementation
@@ -91,6 +92,7 @@ instance Show Token where
   show (HookType Data)  = "data "
   show (HookType Newtype)= "newtype "
   show (HookType Type)  = "type "
+  show (HookVariant)	= "variant "
   show (HookDescription)= "description"
   show (HookSynopsis)   = "synopsis"
   show (HookImplementation) = "implementation"
@@ -137,17 +139,17 @@ lexToplevel [] = []
 lexToplevel ('-':'-':xs) = TLComment: lexComment xs
 lexToplevel ('{':'-':xs) = dropComment 1 xs
 lexToplevel ('#':xs) = lexToplevel (skipTillEOL xs)
-lexToplevel ('d':'a':'t':'a':xs) = TLType Data:lexDefn SIData xs
-lexToplevel ('t':'y':'p':'e':xs) = TLType Type:lexDefn SIData xs
-lexToplevel ('n':'e':'w':'t':'y':'p':'e':xs) = TLType Newtype:
-					       lexDefn SIData xs 
-lexToplevel ('i':'m':'p':'o':'r':'t':xs) = TLImport:
-					   lexDefn SIImport xs
-lexToplevel ('i':'n':'s':'t':'a':'n':'c':'e':xs) = TLInstance:
-						   lexDefn SIInstance xs
-lexToplevel ('c':'l':'a':'s':'s':xs) = TLClass:lexDefn SIInstance xs
-lexToplevel ('m':'o':'d':'u':'l':'e':xs) = lexToplevel (skipTillEOL xs)
-lexToplevel ('f':'o':'r':'e':'i':'g':'n':xs) = lexToplevel (skipTillEOL xs)
+lexToplevel ('d':'a':'t':'a':' ':xs) = TLType Data:lexDefn SIData xs
+lexToplevel ('t':'y':'p':'e':' ':xs) = TLType Type:lexDefn SIData xs
+lexToplevel ('n':'e':'w':'t':'y':'p':'e':' ':xs) = TLType Newtype:
+						   lexDefn SIData xs 
+lexToplevel ('i':'m':'p':'o':'r':'t':' ':xs) = TLImport:
+					       lexDefn SIImport xs
+lexToplevel ('i':'n':'s':'t':'a':'n':'c':'e':' ':xs) = TLInstance:
+						       lexDefn SIInstance xs
+lexToplevel ('c':'l':'a':'s':'s':' ':xs) = TLClass:lexDefn SIInstance xs
+lexToplevel ('m':'o':'d':'u':'l':'e':' ':xs) = lexToplevel (skipTillEOL xs)
+lexToplevel ('f':'o':'r':'e':'i':'g':'n':' ':xs) = lexToplevel (skipTillEOL xs)
 lexToplevel ('\n':xs) = NewLine: lexToplevel xs
 lexToplevel (' ':xs) = lexToplevel (skipTillEOL xs)
 lexToplevel ('\t':xs) = lexToplevel (skipTillEOL xs)
@@ -200,7 +202,7 @@ lexHook ('d':'a':'t':'a':xs) = HookType Data: lexDefn SIHook xs
 lexHook ('d':'u':'n':'n':'o':xs) = lexHook xs
 lexHook ('f':'u':'n':'c':'t':'i':'o':'n':xs) = HookSymbol Function: 
 					       lexDefn SIHook xs
-lexHook ('t':'y':'p':'e':' ':xs) = HookType Data: lexDefn SIHook xs
+lexHook ('t':'y':'p':'e':xs) = HookType Data: lexDefn SIHook xs
 lexHook ('n':'e':'w':'t':'y':'p':'e':xs) = 
   HookType Data: lexDefn SIHook xs
 lexHook ('d':'o':'c':'u':'m':'e':'n':'t':'a':'t':'i':'o':'n':xs) = 
@@ -221,6 +223,7 @@ lexHook ('s':'i':'g':'n':'a':'l':' ':'c':'o':'n':'n':'e':'c':'t':'T':'o':xs) =
   HookSymbol Signal: lexDefn SIHook ('o':'n':xs)
 lexHook ('s':'i':'g':'n':'a':'l':xs) = 
   HookSymbol Signal: lexDefn SIHook xs
+lexHook ('v':'a':'r':'i':'a':'n':'t':xs) = HookVariant: lexDefn SIHook xs
 lexHook ('d':'e':'s':'c':'r':'i':'p':'t':'i':'o':'n':xs) = 
   HookSynopsis: lexDefn SIHook xs
 lexHook xs = illChar "doc hook" xs
@@ -267,6 +270,7 @@ lexDefn si = lD
     lD ('d':'e':'r':'i':'v':'i':'n':'g':xs) = DefDeriving: lD xs
     lD ('h':'i':'d':'i':'n':'g':xs)
        | si==SIImport = DefEnd: lexToplevel (skipTillEOL xs)
+    lD ('q':'u':'a':'l':'i':'f':'i':'e':'d':xs) | si==SIImport = lD xs
     lD (x:xs)	| isLower x = lexName DefVar [x] xs
 		| isUpper x = lexName DefCon [x] xs
     lD xs = illChar "declaration" xs

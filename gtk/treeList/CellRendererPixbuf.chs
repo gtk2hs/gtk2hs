@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/08 16:50:00 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:22 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -56,9 +56,9 @@ cellRendererPixbufNew  = makeNewObject mkCellRendererPixbuf $ liftM castPtr $
   {#call unsafe cell_renderer_pixbuf_new#}
 
 -- @method cellPixbuf@ Define the attribute that specifies the
--- @ref arg Pixbuf@ to be rendered.
+-- @ref data Pixbuf@ to be rendered.
 --
 cellPixbuf :: Attribute CellRendererPixbuf Image
-cellPixbuf  = Attribute "pixbuf" TMobject 
-  (\img -> liftM (GVobject . toGObject) $ imageGetPixbuf img)
-  (\(GVobject obj) -> imageNewFromPixbuf (fromGObject obj))
+cellPixbuf  = Attribute ["pixbuf"] [TMobject]
+  (liftM ((\x -> [x]) . GVobject . toGObject) . imageGetPixbuf)
+  (\[GVobject obj] -> imageNewFromPixbuf (fromGObject obj))

@@ -80,3 +80,5 @@ VOID:VOID
 VOID:BOXED,POINTER,INT
 # This one is needed in TextView:
 VOID:INT,BOOL
+# This is for the "edited" signal in CellRendererText:
+VOID:POINTER,STRING

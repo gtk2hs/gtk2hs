@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -260,7 +260,7 @@ entryGetActivatesDefault ec = liftM toBool $
 -- @method entrySetActivatesDefault@ Specify if pressing return will activate
 -- the default widget.
 --
--- * This setting is useful in @ref arg Dialog@ boxes where enter should press
+-- * This setting is useful in @ref data Dialog@ boxes where enter should press
 --   the default button.
 --
 entrySetActivatesDefault :: EntryClass ec => ec -> Bool -> IO ()
@@ -303,7 +303,7 @@ entrySetWidthChars ec setting = {#call entry_set_width_chars#}
 -- signals
 
 -- @signal connectToEntryActivate@ Emitted when the user presses return within
--- the @ref arg Entry@ field.
+-- the @ref data Entry@ field.
 --
 onEntryActivate, afterEntryActivate :: EntryClass ec => ec -> IO () ->
                                        IO (ConnectId ec)
@@ -311,7 +311,7 @@ onEntryActivate = connect_NONE__NONE "activate" False
 afterEntryActivate = connect_NONE__NONE "activate" True
 
 -- @signal connectToEntryChanged@ Emitted when the settings of the
--- @ref arg Entry@ widget changes.
+-- @ref data Entry@ widget changes.
 --
 onEntryChanged, afterEntryChanged :: EntryClass ec => ec -> IO () ->
                                      IO (ConnectId ec)
@@ -343,7 +343,7 @@ onPasteClipboard = connect_NONE__NONE "paste_clipboard" False
 afterPasteClipboard = connect_NONE__NONE "paste_clipboard" True
 
 -- @signal connectToDeleteText@ Emitted when a piece of text is deleted from
--- the @ref arg Entry@.
+-- the @ref data Entry@.
 --
 onDeleteText, afterDeleteText :: EntryClass ec => ec ->
                                  (Int -> Int -> IO ()) -> IO (ConnectId ec)

@@ -18,8 +18,8 @@ type DWord  = PackedString
 
 type HContext = [(TyVar, TyCon)]
 
-data Constr = CNorm TyCon [HType]
-	    | CRec TyCon [(TyVar, HType)]
+data Constr = CNorm DaCon [HType]
+	    | CRec DaCon [(DaVar, HType)]
 
 data HFunction = FunDecl [DaVar] HContext HType
 	       | FunDefn DaVar [HPat]
@@ -61,7 +61,8 @@ instance Show HType where
   showsPrec _ (TyPar tys)   = showChar '(' . foldr (.) id  
 			      (intersperse (showChar ',') (map shows tys)) .
 			      showChar ')'
-  showsPrec _ (TyLst t)     = showChar '[' . showsPrec 0 t . showChar ']'
+  showsPrec _ (TyLst t)     = showString "&lsqb;" . showsPrec 0 t .
+			      showString "&rsqb;"
   showsPrec _ t = showChar '(' . showsPrec 0 t . showChar ')'
 
 showContext :: HContext -> String

@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -43,6 +43,12 @@ module Button(
   ReliefStyle(..),
   buttonSetRelief,
   buttonGetRelief,
+  buttonSetLabel,
+  buttonGetLabel,
+  buttonSetUseStock,
+  buttonGetUseStock,
+  buttonSetUseUnderline,
+  buttonGetUseUnderline,
   onButtonActivate,
   afterButtonActivate,
   onClicked,
@@ -75,24 +81,25 @@ buttonNew :: IO Button
 buttonNew  = makeNewObject mkButton $ liftM castPtr {#call unsafe button_new#}
 
 
--- @method buttonNewWithLabel@ Create a button with a label in it.
+-- @constructor buttonNewWithLabel@ Create a button with a label in it.
 --
 buttonNewWithLabel :: String -> IO Button
 buttonNewWithLabel lbl = withCString lbl (\strPtr ->
   makeNewObject mkButton $ liftM castPtr $
   {#call unsafe button_new_with_label#} strPtr)
 
--- @method buttonNewWithMnemonic@ Create a button with an accelerator key.
+-- @constructor buttonNewWithMnemonic@ Create a button with an accelerator key.
 --
--- * Like @ref method buttonNewWithLabel@ but turns every underscore in the
---   label to a underlined character.
+-- * Like @ref constructor buttonNewWithLabel@ but turns every underscore in the
+--   label to a underlined character which then acts as a mnemonic (keyboard
+--   shortcut).
 --
 buttonNewWithMnemonic :: String -> IO Button
 buttonNewWithMnemonic lbl = withCString lbl (\strPtr ->
   makeNewObject mkButton $ liftM castPtr $ 
   {#call unsafe button_new_with_mnemonic#} strPtr)
 
--- @method buttonNewFromStock@ Create a stock (predefined appearance) button.
+-- @constructor buttonNewFromStock@ Create a stock (predefined appearance) button.
 --
 buttonNewFromStock :: String -> IO Button
 buttonNewFromStock stockId = withCString stockId (\strPtr -> 
@@ -139,6 +146,56 @@ buttonSetRelief b rs =
 buttonGetRelief :: ButtonClass b => b -> IO ReliefStyle
 buttonGetRelief b = liftM (toEnum.fromIntegral) $
   {#call unsafe button_get_relief#} (toButton b)
+
+-- @method buttonSetLabel@ Set the text of the button.
+--
+buttonSetLabel :: ButtonClass b => b -> String -> IO ()
+buttonSetLabel b lbl = withCString lbl $ \strPtr ->
+  {#call button_set_label#} (toButton b) strPtr
+
+-- @method buttonGetLabel@ Get the current text on the button.
+--
+-- * The method returns the empty string in case the button does not have
+--   a label (e.g. it was created with @ref method buttonNew@.
+--
+buttonGetLabel :: ButtonClass b => b -> IO String
+buttonGetLabel b = do
+  strPtr <- {#call unsafe button_get_label#} (toButton b)
+  if strPtr==nullPtr then return "" else peekCString strPtr
+
+-- @method buttonSetUseStock@ Set if the label is a stock identifier.
+--
+-- * Setting this property to @literal True@ will make the button lookup
+--   its label in the table of stock items. If there is a match, the button
+--   will use the stock item instead of the label.  You need to set this
+--   flag before you change the label.
+--
+buttonSetUseStock :: ButtonClass b => b -> Bool -> IO ()
+buttonSetUseStock b flag = 
+  {#call button_set_use_stock#} (toButton b) (fromBool flag)
+
+-- @method buttonGetUseStock@ Get the current flag for stock lookups.
+--
+buttonGetUseStock :: ButtonClass b => b -> IO Bool
+buttonGetUseStock b = liftM toBool $
+  {#call unsafe button_get_use_stock#} (toButton b)
+
+-- @method buttonSetUseUnderline@ Set if the label has accelerators.
+--
+-- * Setting this property will make the button join any underline character
+--   into the following letter and inserting this letter as a keyboard
+--   shortcut. You need to set this flag before you change the label.
+--
+buttonSetUseUnderline :: ButtonClass b => b -> Bool -> IO ()
+buttonSetUseUnderline b flag = 
+  {#call button_set_use_underline#} (toButton b) (fromBool flag)
+
+-- @method buttonGetUseUnderline@ Query if the underlines are mnemonics.
+--
+buttonGetUseUnderline :: ButtonClass b => b -> IO Bool
+buttonGetUseUnderline b = liftM toBool $
+  {#call unsafe button_get_use_underline#} (toButton b)
+
 
 -- signals
 

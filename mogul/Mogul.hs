@@ -5,7 +5,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 13:22:46 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:22 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -131,6 +131,8 @@ import Gtk hiding (
   -- TreeViewColumn
   treeViewColumnAddAttribute,
   CellRendererText,
+  onEdited,
+  afterEdited,
   CellRendererPixbuf,
   CellRendererToggle,
 

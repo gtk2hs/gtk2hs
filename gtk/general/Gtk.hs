@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2002/11/03 20:35:43 $
+--  Version $Revision: 1.11 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -50,6 +50,7 @@ module Gtk(
   module StockItems,
   module Keys,
   module Drawable,
+  module DrawWindow,
   module Region,
   module GC,
   -- windows
@@ -157,7 +158,8 @@ module Gtk(
   -- cross-process embedding
   module Socket,
   -- non-widgets
-  module Hierarchy
+  module Hierarchy,
+  ConnectId
   ) where
 
 -- general things, initialization
@@ -166,6 +168,7 @@ import IconFactory
 import StockItems
 import Keys
 import Drawable
+import DrawWindow
 import Region		hiding (makeNewRegion)
 import GC
 -- windows
@@ -288,4 +291,4 @@ import Socket
 
 -- non widgets
 import Hierarchy	(toCellRenderer)
-
+import Signal		(ConnectId)

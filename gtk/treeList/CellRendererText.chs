@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.8 $ from $Date: 2002/11/08 10:39:22 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -41,7 +41,10 @@ module CellRendererText(
   cellText,
   cellMarkup,
   cellBackground,
-  cellForeground
+  cellForeground,
+  cellEditable,
+  onEdited,
+  afterEdited
   ) where
 
 import Maybe	(fromMaybe)
@@ -51,6 +54,8 @@ import UTFCForeign
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
+{#import TreeModel#}
+import Structs	    (treeIterSize, nullForeignPtr)
 import CellRenderer (Attribute(..))
 import StoreValue   (GenericValue(..), TMType(..))
 
@@ -66,36 +71,64 @@ cellRendererTextNew  = makeNewObject mkCellRendererText $ liftM castPtr $
 
 -- helper function
 --
-strAttr :: String -> Attribute CellRendererText String
-strAttr str = Attribute str TMstring
-	        (return . GVstring . Just)
-		(\(GVstring str) -> return (fromMaybe "" str))
+strAttr :: [String] -> Attribute CellRendererText String
+strAttr str = Attribute str [TMstring]
+	        (return . (\x -> [x]) . GVstring . Just)
+		(\[GVstring str] -> return (fromMaybe "" str))
 
-mStrAttr :: String -> Attribute CellRendererText (Maybe String)
-mStrAttr str = Attribute str TMstring
-	        (return . GVstring)
-		(\(GVstring str) -> return str)
+mStrAttr :: [String] -> Attribute CellRendererText (Maybe String)
+mStrAttr str = Attribute str [TMstring]
+	        (return . (\x -> [x]) . GVstring)
+		(\[GVstring str] -> return str)
 
--- @method cellText@ Define the attribute that specifies the text to be
+-- @constant cellText@ Define the attribute that specifies the text to be
 -- rendered.
 --
 cellText :: Attribute CellRendererText String
-cellText  = strAttr "text"
+cellText  = strAttr ["text"]
 
--- @method cellMarkup@ Define a markup string instead of a text.
+-- @constant cellMarkup@ Define a markup string instead of a text.
 --
 cellMarkup :: Attribute CellRendererText String
-cellMarkup  = strAttr "markup"
+cellMarkup  = strAttr ["markup"]
 
--- @method cellBackground@ A named color for the background paint.
+-- @constant cellBackground@ A named color for the background paint.
 --
 cellBackground :: Attribute CellRendererText (Maybe String)
-cellBackground  = mStrAttr "background"
+cellBackground  = mStrAttr ["background"]
 
--- @method cellForeground@ A named color for the foreground paint.
+-- @constant cellForeground@ A named color for the foreground paint.
 --
 cellForeground :: Attribute CellRendererText (Maybe String)
-cellForeground  = mStrAttr "foreground"
+cellForeground  = mStrAttr ["foreground"]
 
+-- @constant cellEditable@ Determines wether the content can be altered.
+--
+-- * If this flag is set, the user can alter the cell.
+--
+cellEditable :: Attribute CellRendererText (Maybe Bool)
+cellEditable = Attribute ["editable","editable-set"] [TMboolean,TMboolean]
+	         (\mb -> return $ case mb of
+		   (Just bool) -> [GVboolean bool, GVboolean True]
+		   Nothing     -> [GVboolean True, GVboolean True])
+		 (\[GVboolean e, GVboolean s] -> return $
+		   if s then Just e else Nothing)
 
+-- @signal connectToEdited@ Emitted when the user finished editing a cell.
+--
+-- * This signal is not emitted when editing is disabled (see 
+--   @ref constant cellEditable@) or when the user aborts editing.
+--
+onEdited, afterEdited :: TreeModelClass tm => CellRendererText -> tm ->
+			 (TreeIter -> String -> IO ()) ->
+			 IO (ConnectId CellRendererText)
+onEdited cr tm user = connect_PTR_STRING__NONE "edited" False cr $
+  \strPtr string -> do
+    iterPtr <- mallocBytes treeIterSize
+    iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+    res <- liftM toBool $ {#call unsafe tree_model_get_iter_from_string#} 
+			  (toTreeModel tm) iter strPtr
+    if res then user iter string else
+      putStrLn "edited signal: invalid tree path"
 
+afterEdited cr user = undefined

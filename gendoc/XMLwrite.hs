@@ -122,7 +122,12 @@ docuToXML docu = Element "para" [] (init (dTX para)):
     dTX (RefTyp _ var fol:ds) = Element "emphasis" [] [Plain var]:
 			       (if nullPS fol then id else (Plain fol:))
 			       (WhiteSpace:dTX ds)
-    dTX (Verb str:ds) = Element "programlisting" [] [Plain str]:dTX ds
+    dTX (RefVariant var fol:ds) = Element "emphasis" [] [Plain var]:
+			       (if nullPS fol then id else (Plain fol:))
+			       (WhiteSpace:dTX ds)
+    dTX (Verb str fol:ds) = Element "programlisting" [] [Plain str]:
+			       (if nullPS fol then id else (Plain fol:))
+			       (WhiteSpace:dTX ds)
     dTX	[] = []
 
 moduleToXML :: Module -> ModInfo -> XML

@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:22 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -53,6 +53,7 @@ module TreeModel(
   treePathDown,
   TreeIter(..),
   treeModelGetIter,
+  treeModelGetIterFirst,
   treeModelGetPath,
   treeModelIterNext,
   treeModelIterChildren,
@@ -69,27 +70,27 @@ import Maybe	(fromMaybe)
 import Foreign
 import UTFCForeign
 {#import Hierarchy#}
-import Signal	    
+{#import Signal#}
 import Structs	                (treeIterSize, nullForeignPtr)
 import StoreValue		(TMType)
 {#import GValue#}		(GValue, GenericValue, valueUnset)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- @type TreeIter@ Tree Iterator : A pointer to an entry in a
--- @ref type TreeStore@ or @ref arg ListStore@.
+-- @data TreeIter@ Tree Iterator : A pointer to an entry in a
+-- @ref data TreeStore@ or @ref data ListStore@.
 --
 {#pointer * TreeIter foreign newtype#}
 
--- @type TreePath@ TreePath : a list of indices to specify a subtree or node
--- in the hierarchical @ref type TreeStore@ database.
+-- @data TreePath@ TreePath : a list of indices to specify a subtree or node
+-- in the hierarchical @ref data TreeStore@ database.
 --
 {#pointer * TreePath foreign newtype#}
 
 -- methods
 
 -- @method treeModelGetNColumns@ Read the number of columns this
--- @ref type TreeModel@ currently stores.
+-- @ref data TreeModel@ currently stores.
 --
 treeModelGetNColumns :: TreeModelClass tm => tm -> IO Int
 treeModelGetNColumns tm = liftM fromIntegral $ 
@@ -103,11 +104,13 @@ treeModelGetColumnType tm col = liftM (toEnum.fromIntegral) $
   (fromIntegral col)
 
 -- @method treeModelGetValue@ Read the value of at a specific column and
--- @ref arg Iterator@.
+-- @ref data Iterator@.
 --
 treeModelGetValue :: TreeModelClass tm => tm -> TreeIter -> Int ->
                      IO GenericValue
 treeModelGetValue tm iter col = alloca $ \vaPtr -> do
+  -- don't know if this is necessary, see treeList/StoreValue.hsc
+  poke (castPtr vaPtr) (0:: {#type GType#})
   {#call unsafe tree_model_get_value#} (toTreeModel tm) iter 
     (fromIntegral col) vaPtr
   val <- peek vaPtr
@@ -186,6 +189,18 @@ treePathUp tp = liftM toBool $ {#call unsafe tree_path_up#} tp
 treePathDown :: TreePath -> IO ()
 treePathDown = {#call unsafe tree_path_down#}
 
+-- @method treeModelGetIterFirst@ Retrieves an @ref data TreeIter@ to the
+-- first entry.
+--
+-- * Returns @literal Nothing@ if the table is empty.
+--
+treeModelGetIterFirst :: TreeModelClass tm => tm -> IO (Maybe TreeIter)
+treeModelGetIterFirst tm = do
+  iterPtr <- mallocBytes treeIterSize
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
+  res <- {#call unsafe tree_model_get_iter_first#} (toTreeModel tm) iter
+  return $ if (toBool res) then Just iter else Nothing
+
 treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
 treeModelGetIter tm tp = do
   iterPtr <- mallocBytes treeIterSize
@@ -199,8 +214,8 @@ treeModelGetPath tm iter =  do
     {#call unsafe tree_model_get_path#} (toTreeModel tm) iter
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
-treeModelIterNext :: TreeModelClass tm => TreeIter -> tm -> IO Bool
-treeModelIterNext iter tm = liftM toBool $
+treeModelIterNext :: TreeModelClass tm => tm -> TreeIter -> IO Bool
+treeModelIterNext tm iter = liftM toBool $
  {#call unsafe tree_model_iter_next#} (toTreeModel tm) iter
 
 

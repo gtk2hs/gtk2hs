@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -70,27 +70,27 @@ viewportNew vAdj hAdj = makeNewObject mkViewport $ liftM castPtr $
   {#call unsafe viewport_new#} hAdj vAdj
 
 -- @method viewportGetHAdjustment@ Retrieve the horizontal
--- @ref arg Adjustment@ of the @ref type Viewport@.
+-- @ref data Adjustment@ of the @ref type Viewport@.
 --
 viewportGetHAdjustment :: ViewportClass v => v -> IO Adjustment
 viewportGetHAdjustment v = makeNewObject mkAdjustment $
   {#call unsafe viewport_get_hadjustment#} (toViewport v)
 
--- @method viewportGetVAdjustment@ Retrieve the vertical @ref arg Adjustment@
+-- @method viewportGetVAdjustment@ Retrieve the vertical @ref data Adjustment@
 -- of the @ref type Viewport@.
 --
 viewportGetVAdjustment :: ViewportClass v => v -> IO Adjustment
 viewportGetVAdjustment v = makeNewObject mkAdjustment $
   {#call unsafe viewport_get_vadjustment#} (toViewport v)
 
--- @method viewportSetHAdjustment@ Set the horizontal @ref arg Adjustment@ of
+-- @method viewportSetHAdjustment@ Set the horizontal @ref data Adjustment@ of
 -- the @ref type Viewport@.
 --
 viewportSetHAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
 viewportSetHAdjustment v adj = {#call viewport_set_hadjustment#}
   (toViewport v) adj
 
--- @method viewportSetVAdjustment@ Set the vertical @ref arg Adjustment@ of
+-- @method viewportSetVAdjustment@ Set the vertical @ref data Adjustment@ of
 -- the @ref type Viewport@.
 --
 viewportSetVAdjustment :: ViewportClass v => v -> Adjustment -> IO ()

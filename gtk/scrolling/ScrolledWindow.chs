@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.5 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -66,7 +66,7 @@ import Structs  (nullForeignPtr)
 
 -- methods
 
--- @constructor scrolledWindowNew@ Create a new @ref type ScrolledWindow@.
+-- @constructor scrolledWindowNew@ Create a new @ref data ScrolledWindow@.
 --
 scrolledWindowNew :: Maybe Adjustment -> Maybe Adjustment -> IO ScrolledWindow
 scrolledWindowNew hAdj vAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
@@ -76,14 +76,14 @@ scrolledWindowNew hAdj vAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
  fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
 
 -- @method scrolledWindowGetHAdjustment@ Retrieve the horizontal
--- @ref arg Adjustment@ of the @ref type ScrolledWindow@.
+-- @ref data Adjustment@ of the @ref data ScrolledWindow@.
 --
 scrolledWindowGetHAdjustment :: ScrolledWindowClass w => w -> IO Adjustment
 scrolledWindowGetHAdjustment w = makeNewObject mkAdjustment $
   {#call unsafe scrolled_window_get_hadjustment#} (toScrolledWindow w)
 
 -- @method scrolledWindowGetVAdjustment@ Retrieve the vertical
--- @ref arg Adjustment@ of the @ref type ScrolledWindow@.
+-- @ref data Adjustment@ of the @ref data ScrolledWindow@.
 --
 scrolledWindowGetVAdjustment :: ScrolledWindowClass w => w -> IO Adjustment
 scrolledWindowGetVAdjustment w = makeNewObject mkAdjustment $
@@ -99,7 +99,7 @@ scrolledWindowSetPolicy w hPol vPol = {#call scrolled_window_set_policy#}
   ((fromIntegral.fromEnum) vPol)
 
 -- @method scrolledWindowAddWithViewport@ Add a child widget without native
--- scrolling support to this @ref type ScrolledWindow@.
+-- scrolling support to this @ref data ScrolledWindow@.
 --
 scrolledWindowAddWithViewport :: (ScrolledWindowClass w, WidgetClass wid) => 
                                  w -> wid -> IO ()
@@ -124,15 +124,15 @@ scrolledWindowSetShadowType w st = {#call scrolled_window_set_shadow_type#}
   (toScrolledWindow w) ((fromIntegral.fromEnum) st)
 
 -- @method scrolledWindowSetHAdjustment@ Set the horizontal
--- @ref arg Adjustment@ of the @ref type ScrolledWindow@.
+-- @ref data Adjustment@ of the @ref data ScrolledWindow@.
 --
 scrolledWindowSetHAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
                                 IO ()
 scrolledWindowSetHAdjustment w adj = {#call scrolled_window_set_hadjustment#}
   (toScrolledWindow w) adj
 
--- @method scrolledWindowSetVAdjustment@ Set the vertical @ref arg Adjustment@
--- of the @ref type ScrolledWindow@.
+-- @method scrolledWindowSetVAdjustment@ Set the vertical @ref data Adjustment@
+-- of the @ref data ScrolledWindow@.
 --
 scrolledWindowSetVAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
                                 IO ()

@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2002/10/06 16:14:09 $
+--  Version $Revision: 1.9 $ from $Date: 2002/11/08 10:39:22 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -24,7 +24,6 @@
 -- * This widget constitutes the main widget for displaying lists and other
 --   structured data.
 --
--- @documentation@ ------------------------------------------------------------
 --
 --
 -- @todo@ ---------------------------------------------------------------------
@@ -111,7 +110,7 @@ treeViewGetSelection :: TreeViewClass tv => tv -> IO TreeSelection
 treeViewGetSelection tv = makeNewGObject mkTreeSelection $
   {#call unsafe tree_view_get_selection#} (toTreeView tv)
 
--- @method treeViewGetHadjustment@ Get the @ref arg Adjustment@ that
+-- @method treeViewGetHadjustment@ Get the @ref data Adjustment@ that
 -- represents the horizontal aspect.
 --
 treeViewGetHadjustment :: TreeViewClass tv => tv -> IO (Maybe Adjustment)
@@ -120,7 +119,7 @@ treeViewGetHadjustment tv = do
   if adjPtr==nullPtr then return Nothing else do
     liftM Just $ makeNewObject mkAdjustment (return adjPtr)
 
--- @method treeViewSetHadjustment@ Set the @ref arg Adjustment@ that controls
+-- @method treeViewSetHadjustment@ Set the @ref data Adjustment@ that controls
 -- the horizontal aspect. If @ref arg adj@ is Nothing then set no Adjustment
 -- widget.
 --
@@ -128,7 +127,7 @@ treeViewSetHadjustment :: TreeViewClass tv => (Maybe Adjustment) -> tv -> IO ()
 treeViewSetHadjustment adj tv = {#call tree_view_set_hadjustment#} 
   (toTreeView tv) (fromMaybe (mkAdjustment nullForeignPtr) adj)
 
--- @method treeViewGetVadjustment@ Get the @ref arg Adjustment@ that
+-- @method treeViewGetVadjustment@ Get the @ref data Adjustment@ that
 -- represents the vertical aspect.
 --
 treeViewGetVadjustment :: TreeViewClass tv => tv -> IO (Maybe Adjustment)
@@ -137,9 +136,9 @@ treeViewGetVadjustment tv = do
   if adjPtr==nullPtr then return Nothing else do
     liftM Just $ makeNewObject mkAdjustment (return adjPtr)
 
--- @method treeViewSetVadjustment@ Set the @ref arg Adjustment@ that controls
--- the vertical aspect. If @ref arg adj@ is Nothing then set no Adjustment
--- widget.
+-- @method treeViewSetVadjustment@ Set the @ref data Adjustment@ that controls
+-- the vertical aspect. If @ref arg adj@ is @literal Nothing@ then set no
+-- @ref data Adjustment@ widget.
 --
 treeViewSetVadjustment :: TreeViewClass tv => (Maybe Adjustment) -> tv -> IO ()
 treeViewSetVadjustment adj tv = {#call tree_view_set_vadjustment#} 

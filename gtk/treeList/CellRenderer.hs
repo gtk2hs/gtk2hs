@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:22 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -44,18 +44,45 @@ module CellRenderer(
   CellRenderer,
   CellRendererClass,
   Attribute(..),
+  cellRendererSet,
+  cellRendererGet
   ) where
 
 import Hierarchy
 import StoreValue	(GenericValue, TMType)
+import Object		(objectSetProperty, objectGetProperty)
 
--- @data CellRendererClass@ Definition of the @ref arg Attribute@ data type.
+-- @data CellRendererClass@ Definition of the @ref data Attribute@ data type.
 --
 -- * Each @ref type CellRenderer@ defines a set of attributes. They are used
 --   by the Mogul layer to generate columns in a @ref data TreeStore@ or
 --   @ref data ListStore@.
 --
-data CellRendererClass cr => Attribute cr a = Attribute String TMType 
-					      (a -> IO GenericValue) 
-					      (GenericValue -> IO a)
+data CellRendererClass cr => Attribute cr a = Attribute [String] [TMType]
+					      (a -> IO [GenericValue]) 
+					      ([GenericValue] -> IO a)
 
+-- @method cellRendererSet@ Set a property statically.
+--
+-- * Instead of using a @ref data TreeStore@ or @ref data ListStore@ to set
+--   properties of a @ref data CellRenderer@ this method allows to set such
+--   a property for the whole column.
+--
+cellRendererSet :: CellRendererClass cr => 
+		   cr -> Attribute cr val -> val -> IO ()
+cellRendererSet cr (Attribute names _ write _) val = do
+  values <- write val
+  mapM_ (uncurry $ objectSetProperty cr) (zip names values)
+
+-- @method cellRendererGet@ Get a static property.
+--
+-- * See @ref method cellRendererSet@. Note that calling this function on a
+--   property of a @ref data CellRenderer@ object which retrieves its values
+--   from a @ref data ListStore@ or @ref data TreeStore@ will result in an
+--   abitrary value.
+--
+cellRendererGet :: CellRendererClass cr =>
+		   cr -> Attribute cr val -> IO val
+cellRendererGet cr (Attribute names _ _ read) = do
+  values <- mapM (objectGetProperty cr) names
+  read values

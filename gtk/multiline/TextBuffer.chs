@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2002/10/06 16:14:08 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) [2001..2002] Axel Simon
 --
@@ -265,10 +265,10 @@ textBufferGetText tb start end incl = {#call unsafe text_buffer_get_text#}
 -- @method textBufferGetSlice@ Extract text and special characters between
 -- @ref arg start@ and @ref arg end@.
 --
--- * As opposed to @ref method textBufferGetText@, this function returns (chr
---   0xFFFC) for images, so offsets within the returned string correspond to
---   offsets in the @ref type TextBuffer@. Note the (chr 0xFFFC) can occur in
---   normal text without images as well.
+-- * As opposed to @ref method textBufferGetText@, this function returns 
+--   @literal (chr 0xFFFC)@ for images, so offsets within the returned 
+--   string correspond to offsets in the @ref type TextBuffer@. Note the
+--   @literal (chr 0xFFFC)@ can occur in normal text without images as well.
 --
 textBufferGetSlice :: TextBuffer -> TextIter -> TextIter -> Bool -> IO String
 textBufferGetSlice tb start end incl = {#call unsafe text_buffer_get_slice#}
@@ -286,7 +286,8 @@ textBufferInsertPixbuf tb pos img =
 -- @method textBufferCreateMark@ Create a @ref type TextMark@ from an
 -- iterator.
 --
--- * Pass @ref arg Nothing@ as mark name for an anonymous @ref type TextMark@.
+-- * Pass @literal Nothing@ as mark name for an anonymous 
+--   @ref type TextMark@.
 --
 -- * Set @ref arg gravity@ to True if the mark should keep left.
 --
@@ -534,7 +535,7 @@ textBufferEndUserAction  = {#call text_buffer_end_user_action#}
 
 -- callbacks
 
--- @signal connectToApplyTag@ A @ref arg TextTag@ was applied to a region of
+-- @signal connectToApplyTag@ A @ref data TextTag@ was applied to a region of
 -- text.
 --
 onApplyTag, afterApplyTag :: TextBufferClass tb => tb ->
@@ -588,7 +589,7 @@ afterEndUserAction = connect_NONE__NONE "end_user_action" True
 --connectToInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor"
 --  mkTextIter
 
--- @signal connectToInsertPixbuf@ A @ref arg Pixbuf@ is inserted into the
+-- @signal connectToInsertPixbuf@ A @ref data Pixbuf@ is inserted into the
 -- buffer.
 --
 onInsertPixbuf, afterInsertPixbuf :: TextBufferClass tb => tb ->
@@ -613,7 +614,7 @@ afterInsertText tb user =
       str <- peekCStringLen (strP,strLen)
       user iter str 
 
--- @signal connectToMarkDeleted@ A @ref arg TextMark@ within the buffer was
+-- @signal connectToMarkDeleted@ A @ref data TextMark@ within the buffer was
 -- deleted.
 --
 onMarkDeleted, afterMarkDeleted :: TextBufferClass tb => tb ->
@@ -621,7 +622,7 @@ onMarkDeleted, afterMarkDeleted :: TextBufferClass tb => tb ->
 onMarkDeleted = connect_OBJECT__NONE "mark_deleted" False
 afterMarkDeleted = connect_OBJECT__NONE "mark_deleted" True
 
--- @signal connectToMarkSet@ A @ref arg TextMark@ was inserted into the
+-- @signal connectToMarkSet@ A @ref data TextMark@ was inserted into the
 -- buffer.
 --
 onMarkSet, afterMarkSet :: TextBufferClass tb => tb ->
@@ -637,7 +638,7 @@ onModifiedChanged, afterModifiedChanged :: TextBufferClass tb => tb -> IO () ->
 onModifiedChanged = connect_NONE__NONE "modified_changed" False
 afterModifiedChanged = connect_NONE__NONE "modified_changed" True
 
--- @signal connectToRemoveTag@ A @ref arg TextTag@ was removed.
+-- @signal connectToRemoveTag@ A @ref data TextTag@ was removed.
 --
 onRemoveTag, afterRemoveTag :: TextBufferClass tb => tb ->
                                (TextTag -> TextIter -> TextIter -> IO ()) ->

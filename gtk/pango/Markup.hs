@@ -4,7 +4,7 @@
 --          
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -50,29 +50,68 @@ module Markup(
 --
 type Markup = String
 
--- @data SpanAttribute@ These are all the attributes the @ref arg markSpan@
--- function can express.
+-- @data SpanAttribute@ These are all the attributes the
+-- @ref function markSpan@ function can express.
 --
--- * The following alternatives are avaliable: @ref arg FontDescr@ takes a
---   string to completly describe the font, example: @ref arg FontDescr@ "Sans
---   Italic 12" @ref arg FontFamily@ takes a name of a family of fonts
---   example: @ref arg FontFamily@ "Sans" @ref arg FontSize@ takes the size in
---   points (pt) or as textual representation example: @ref arg FontSize@
---   (FSPoint 12.5) : absolute size 12.5pt @ref arg FontSize@ FSXXSmall :
---   predefined absolute size @ref arg FontSize@ FSSmaler : predefined
---   relative size see @ref arg FontSizeDef@ for all alternatives.
---   @ref arg FontStyle@ takes one of three styles: FYnormal, FYoblique or
---   FYitalic @ref arg FontWeight@ takes one of six predefined weights
---   example: @ref arg FontWeight@ FWbold @ref arg FontVariant@ takes either
---   FVnormal or FVsmallcaps @ref arg FontStretch@ takes one of nine font
---   widths example: @ref arg FontStretch@ FTcondensed
---   @ref arg FontForeground@ @ref arg FontBackground@ take both a description
---   of the color to be used example: @ref arg FontForeground@ "#00FF00"
---   @ref arg FontForeground@ "red" @ref arg FontUnderline@ takes one of
---   FUnone, FUsingle, FUdouble or FUlow @ref arg FontRise@ takes the vertical
---   displacement in em (with of the 'm' character in the current font)
---   example: @ref arg FontRise@ (-0.2) : make subscript @ref arg FontLang@
---   takes the language of the text to display
+-- @variant FontDescr@ Choose a font by textual description.
+--
+-- * Takes a
+--   string to completely describe the font, example: @ref variant FontDescr@ 
+--   @literal "Sans Italic 12"@
+--
+-- @variant FontFamily@ Specify the family of font to use.
+--
+-- * Example: @ref variant FontFamily@ @literal "Sans"@
+--
+-- @variant FontSize@ Change the size of the current font.
+--
+-- * The constuctor takes the size in points (pt) or as predefined
+--   sizes. Setting the absolute size 12.5pt can be achieved by passing
+--   @ref variant FontSize@ @literal (@ @ref variant FSPoint@ 
+--   @literal 12.5)@ to @ref function markSpan@. Next to predefined absolute
+--   sizes such as @ref variant FSsmall@ the size can be changed by asking for
+--   the next larger or smaller front with @ref variant FSlarger@ and
+--   @ref variant FSsmaller@, respectively.
+--
+-- @variant FontStyle@ Change the slant of the current font.
+--
+-- * The constructor takes one of three styles: @ref variant FYnormal@,
+--   @ref variant FYoblique@ or @ref variant FYitalic@.
+--
+-- @variant FontWeight@ Change the thickness of the current font.
+--
+-- * The constructor takes one of the six predefined weights. Most likely to
+--   be supported: @ref variant FWbold@.
+--
+-- @variant FontVariant@ Choosing an alternative rendering for lower case
+-- letters.
+--
+-- * The argument @ref variant FVsmallcaps@ will display lower case letters
+--   as smaller upper case letters, if this option is available.
+--
+-- @variant FontStretch@ Choose a different width.
+--
+-- * Takes one of nine font widths, e.g. @ref variant FTcondensed@ or
+--   @ref variant FTexpanded@.
+--
+-- @variant FontForeground@ Foreground color.
+--
+-- * This constructor and @ref variant FontBackground@ take both a description
+--   of the color to be used for rendering.
+--
+-- @variant FontBackground@ Background color.
+--
+-- @variant FontUnderline@ Specify underlining of text.
+--
+-- * @ref variant FUnone@, @ref variant FUsingle@, @ref variant FUdouble@ or
+--   @ref variant  FUlow@ are possible choices.
+--
+-- @variant FontRise@ Specify a vertical displacement.
+--
+-- * Takes the vertical displacement in em (the width of the 'm' character
+--   in the current font).
+--
+-- @variant FontLang@ Give a hint about the language to be displayed.
 --
 data SpanAttribute
   = FontDescr   String

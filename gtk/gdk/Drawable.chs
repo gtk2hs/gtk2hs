@@ -4,7 +4,7 @@
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2002/10/20 14:29:26 $
+--  Version $Revision: 1.3 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -32,7 +32,6 @@
 --
 -- * if gdk_visuals are implemented, do: get_visual
 -- * if gdk_colormaps are implemented, do: set_colormap, get_colormap
--- * text drawing functions
 --
 module Drawable(
   Drawable,
@@ -42,6 +41,7 @@ module Drawable(
   drawableGetSize,
   drawableGetClipRegion,
   drawableGetVisibleRegion,
+  Point,
   drawPoint,
   drawPoints,
   drawLine,
@@ -122,6 +122,7 @@ drawPoint d gc (x,y) = {#call unsafe draw_point#} (toDrawable d)
 --   several points.
 --
 drawPoints :: DrawableClass d => d -> GC -> [Point] -> IO ()
+drawPoints d gc []     = return ()
 drawPoints d gc points = 
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr :: Ptr {#type gint#}) -> {#call unsafe draw_points#} (toDrawable d)
@@ -146,6 +147,7 @@ drawLine d gc (x1,y1) (x2,y2) = {#call unsafe draw_line#} (toDrawable d)
 --   @ref method drawSegments@.
 --
 drawLines :: DrawableClass d => d -> GC -> [Point] -> IO ()
+drawLines d gc []     = return ()
 drawLines d gc points =
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr :: Ptr {#type gint#}) -> {#call unsafe draw_lines#} (toDrawable d)
@@ -156,6 +158,7 @@ drawLines d gc points =
 -- * This method draws several unrelated lines.
 --
 drawSegments :: DrawableClass d => d -> GC -> [(Point,Point)] -> IO ()
+drawSegments d gc []  = return ()
 drawSegments d gc pps = withArray (concatMap (\((x1,y1),(x2,y2)) -> 
   [fromIntegral x1, fromIntegral y1, fromIntegral x2, fromIntegral y2])
   pps) $ \(aPtr :: Ptr {#type gint#}) ->
@@ -203,6 +206,7 @@ drawArc d gc filled x y width height aStart aEnd =
 --   the first point if necessary.
 --
 drawPolygon :: DrawableClass d => d -> GC -> Bool -> [Point] -> IO ()
+drawPolygon _ _ _ [] = return ()
 drawPolygon d gc filled points = 
   withArray (concatMap (\(x,y) -> [fromIntegral x, fromIntegral y]) points) $
   \(aPtr::Ptr {#type gint#}) -> {#call unsafe draw_polygon#} (toDrawable d)

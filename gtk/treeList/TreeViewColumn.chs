@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:22 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -360,7 +360,7 @@ treeViewColumnSetWidget tvc w =
 
 -- @method treeViewColumnGetWidget@ Retrieve the widget responsible for
 -- showing the column title. In case only a text title was set this will be a
--- @ref arg Alignment@ widget with a @ref arg Label@ inside.
+-- @ref data Alignment@ widget with a @ref data Label@ inside.
 --
 treeViewColumnGetWidget :: TreeViewColumnClass tvc => tvc -> IO Widget
 treeViewColumnGetWidget tvc = makeNewObject mkWidget $

@@ -14,6 +14,7 @@
 --	arg		HookArg
 --	hSymKind	HookSymbol
 --	hConKind	HookType
+--	variant		HookVariant
 --	description	HookDescription
 --	synopsis	HookSynopsis
 --	implementation	HookImplementation
@@ -57,6 +58,9 @@
 --		| instance MContext con end Toplevel
 --		| var Function end Toplevel
 --
+-- Comments are either ignored (state ComIgnore) or parsed as part of a
+-- definition (state ComExtract).
+--
 -- ComIgnore	: blah ComIgnore
 --		| para ComIgnore
 --		| '@..' description '..@' ComExtract
@@ -67,6 +71,7 @@
 --		| '@..' hModule con con'..@' ComIgnore
 --		| '@..' hSymKind var '..@' ComExtract
 --		| '@..' hConKind con '..@' ComExtract
+--		| '@..' variant con '..@' ComExtract
 --		| '/--'
 --
 -- ComExtract	: blah ComExtract
@@ -77,8 +82,8 @@
 --		| '@..' ref hConKind con '..@' ComExtract
 --		| '@..' ref arg var '..@' '@blah' ComExtract
 --		| '@..' ref arg var '..@' ComExtract
---		| '@..' ref arg con '..@' '@blah' ComExtract
---		| '@..' ref arg con '..@' ComExtract
+--		| '@..' ref variant con '..@' '@blah' ComExtract
+--		| '@..' ref variant con '..@' ComExtract
 --		| '@..' literal '..@' ComExtract
 --		| ComIgnore
 --
@@ -116,7 +121,7 @@
 --
 -- APat		: var '@' APat
 --		| var
---		| con '{' Tuple<',';'}',var '=' Pat>
+--		| '{' Tuple<',';'}',var '=' Pat>
 --		| con
 --		| literal *******************************not yet
 --		| '_'
@@ -162,20 +167,15 @@ instance MonadPlus Parser where
       (Failed state) -> (unParser p2) tok state
 
 processFiles :: State -> IO State
-processFiles state = pF (length (errors state)) state
-  where
-    pF errs state = do
-      let todo = filesTodo state
-      let files = setToList todo
-      case files of
-        [] -> return state
-	(file:_) -> do
-	  putStr ("\ncompiling module "++file++":")
-	  state' <- parseFile (state { filesTodo = todo `delFromSet` file}) 
-			      file
-	  let newLen = length (errors state')
-	  putStr (showErrors (newLen-errs) (errors state'))
-	  pF newLen (state' { filesDone = (filesDone state') `addToSet` file})
+processFiles state = do
+  let todo = filesTodo state
+  let files = setToList todo
+  case files of
+    [] -> return state
+    (file:_) -> do
+      putStr ("\ncompiling module "++file++":")
+      state' <- parseFile (state { filesTodo = todo `delFromSet` file}) file
+      processFiles (state' { filesDone = (filesDone state') `addToSet` file})
 
 parseFile :: State -> HsModule -> IO State
 parseFile state mName = do
@@ -357,6 +357,11 @@ parseComIgnore = Parser cI
         doc <- parseComExtract
         --update $ addTypeComm kind con
         parseComIgnore
+    cI (ComHook: HookVariant: DefCon con: HookEnd: ts) =
+      stripParser ts $ do
+        doc <- parseComExtract
+	--update $ addVariantComm con doc
+	parseComIgnore
     cI (ComEnd: ts) = Running () ts
     cI ts = check "comment" ts
 
@@ -382,12 +387,14 @@ parseComExtract = Parser $ \ts -> pCE ts [] []
       [] = \docs -> pCE ts [] (RefArg var fol:docs)
     pCE (ComHook: HookRef: HookArg: DefVar var: HookEnd:ts) [] =
       \docs -> pCE ts [] (RefArg var nilPS:docs)
-    pCE (ComHook: HookRef: HookArg: DefCon var: HookEnd: HookFollow fol:ts)
-      [] = \docs -> pCE ts [] (RefArg var fol:docs)
-    pCE (ComHook: HookRef: HookArg: DefCon var: HookEnd:ts) [] =
-      \docs -> pCE ts [] (RefArg var nilPS:docs)
+    pCE (ComHook: HookRef: HookVariant: DefCon con: HookEnd: HookFollow fol:ts)
+      [] = \docs -> pCE ts [] (RefVariant con fol:docs)
+    pCE (ComHook: HookRef: HookVariant: DefCon con: HookEnd:ts) [] =
+      \docs -> pCE ts [] (RefVariant con nilPS:docs)
+    pCE (ComHook: HookLiteral txt: HookEnd: HookFollow fol:ts) [] =
+      \docs -> pCE ts [] (Verb txt fol:docs)
     pCE (ComHook: HookLiteral txt: HookEnd:ts) [] =
-      \docs -> pCE ts [] (Verb txt:docs)
+      \docs -> pCE ts [] (Verb txt nilPS:docs)
     pCE ts [] = \docs -> Running (reverse docs) ts
     pCE ts ws = \docs -> pCE ts [] (Words (reverse ws):docs)
       
@@ -431,7 +438,7 @@ parseAType = Parser pAT
     pAT (DefParSquareOp:ts) = stripParser ts $ do
       t <- parseType
       token DefParSquareCl
-      return t
+      return (TyLst t)
     pAT ts = Failed
 
 -- Parse a generic enumeration.

@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2002/10/21 11:58:05 $
+--  Version $Revision: 1.9 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -179,7 +179,7 @@ widgetShow  = {#call widget_show#}.toWidget
 
 -- @method widgetShowNow@ Queue a show event and wait for it to be executed.
 --
--- * If the widget is an unmapped toplevel widget (i.e. a @ref arg Window@
+-- * If the widget is an unmapped toplevel widget (i.e. a @ref data Window@
 --   that has not yet been shown), enter the main loop and wait for the window
 --   to actually be mapped. Be careful; because the main loop is running,
 --   anything can happen during this function.
@@ -366,7 +366,7 @@ event name eMask after obj fun = do
 -- @signal connectToButtonPress@ A Button was pressed.
 --
 -- * This widget is part of a button which was just pressed. The event passed
---   to the user function is a @ref arg Button@ event.
+--   to the user function is a @ref data Button@ event.
 --
 onButtonPress, afterButtonPress :: WidgetClass w => w -> (Event -> IO Bool) ->
                                    IO (ConnectId w)
@@ -396,7 +396,7 @@ afterConfigure = event "configure_event" []  True
 
 -- @signal connectToDelete@ This signal is emitted when the close icon on the
 -- surrounding window is pressed. The default action is to emit the
--- @ref arg destroy@ signal.
+-- @ref signal destroy@ signal.
 --
 onDelete, afterDelete :: WidgetClass w => w -> (Event -> IO Bool) ->
                          IO (ConnectId w)
@@ -460,7 +460,7 @@ afterFocusOut = event "focus_out_event" [FocusChangeMask] True
 --
 -- * It is possible to redirect all input events to one widget to force the
 --   user to use only this widget. Such a situation is initiated by
---   @ref arg addGrab@.
+--   @ref method addGrab@.
 --
 onGrabFocus, afterGrabFocus :: WidgetClass w => w -> IO () ->
                                IO (ConnectId w)
@@ -478,7 +478,7 @@ afterDestroy = connect_NONE__NONE "destroy" True
 
 -- @signal connectToHide@ The widget was asked to hide itself.
 --
--- * This signal is emitted each time @ref arg widgetHide@ is called. Use
+-- * This signal is emitted each time @ref method widgetHide@ is called. Use
 --   @ref method connectToUnmap@ when your application needs to be informed
 --   when the widget is actually removed from screen.
 --
@@ -525,7 +525,7 @@ afterMnemonicActivate = connect_BOOL__BOOL "mnemonic_activate" True
 --   generated. To avoid a backlog of mouse messages, it is usually sufficient
 --   to sent @ref arg hint@ to True, generating only one event. The
 --   application now has to state that it is ready for the next message by
---   calling @ref arg gdkWindowGetPointer@.
+--   calling @ref method drawWindowGetPointer@.
 --
 onMotionNotify, afterMotionNotify :: WidgetClass w => w -> Bool ->
                                      (Event -> IO Bool) -> 
@@ -569,7 +569,7 @@ afterProximityOut = event "proximity_out_event" [ProximityOutMask] True
 
 -- @signal connectToScroll@ The mouse wheel has turned.
 --
--- * The @ref arg Event@ is always @ref arg Scroll@.
+-- * The @ref data Event@ is always @ref variant Scroll@.
 --
 onScroll, afterScroll :: WidgetClass w => w -> (Event -> IO Bool) ->
                          IO (ConnectId w)
@@ -578,7 +578,7 @@ afterScroll = event "scroll_event" [ScrollMask] True
 
 -- @signal connectToShow@ The widget was asked to show itself.
 --
--- * This signal is emitted each time @ref arg widgetShow@ is called. Use
+-- * This signal is emitted each time @ref method widgetShow@ is called. Use
 --   @ref method connectToMap@ when your application needs to be informed when
 --   the widget is actually shown.
 --
@@ -589,7 +589,7 @@ afterShow = connect_NONE__NONE "show" True
 -- @signal connectToSizeAllocate@ Inform widget about the size it has.
 --
 -- * After querying a widget for the size it wants to have (through emitting
---   the @ref arg sizeRequest@ signal) a container will emit this signal to
+--   the @ref signal sizeRequest@ signal) a container will emit this signal to
 --   inform the widget about the real size it should occupy.
 --
 onSizeAllocate, afterSizeAllocate :: WidgetClass w => w ->

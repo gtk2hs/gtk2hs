@@ -6,7 +6,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -155,11 +155,12 @@ labelGetText :: LabelClass l => l -> IO String
 labelGetText l = {#call unsafe label_get_text#} (toLabel l) >>= peekCString
 
 
--- @method labelNewWithMnemonic@ create a new label widget with accelerator
+-- @constructor labelNewWithMnemonic@ Create a new label widget with 
+-- accelerator key.
 --
 -- * Each underscore in @ref arg str@ is converted into an underlined
 --   character in the label. Entering this character will activate the label
---   widget or any other widget set with labelSetMnemonicWidget.
+--   widget or any other widget set with @ref method labelSetMnemonicWidget@.
 --
 labelNewWithMnemonic :: String -> IO Label
 labelNewWithMnemonic str = makeNewObject mkLabel $ liftM castPtr $

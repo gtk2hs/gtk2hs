@@ -1,3 +1,33 @@
+2002-11-08 Axel Simon <A.Simon@ukc.ac.uk> 
+
+	* gendoc/Abstract.hs gendoc/Driver.hs gendoc/Lexer.hs
+	gendoc/Parser.hs gendoc/State.hs gendoc/Update.hs
+	gendoc/XMLwrite.hs gtk/abstract/Box.chs gtk/abstract/Range.chs
+	gtk/abstract/Widget.chs gtk/buttons/Button.chs
+	gtk/display/Label.chs gtk/entry/Entry.chs gtk/gdk/Drawable.chs
+	gtk/gdk/Events.hsc gtk/gdk/GC.chs gtk/general/General.chs
+	gtk/general/Gtk.hs gtk/general/IconFactory.chs
+	gtk/general/Structs.hsc gtk/layout/Layout.chs
+	gtk/menuComboToolbar/CheckMenuItem.chs
+	gtk/menuComboToolbar/ImageMenuItem.chs
+	gtk/menuComboToolbar/Toolbar.chs gtk/misc/DrawingArea.chs
+	gtk/misc/HandleBox.chs gtk/misc/Viewport.chs
+	gtk/multiline/TextBuffer.chs gtk/multiline/TextIter.chs
+	gtk/multiline/TextView.chs gtk/pango/Markup.hs
+	gtk/scrolling/ScrolledWindow.chs gtk/windows/Window.chs: More
+	documentation fixes.
+
+	* gtk/signals/gtkmarshal.list gtk/treeList/CellRenderer.hs
+	gtk/treeList/CellRendererPixbuf.chs
+	gtk/treeList/CellRendererText.chs
+	gtk/treeList/CellRendererToggle.chs gtk/treeList/TreeModel.chs
+	gtk/treeList/TreeView.chs gtk/treeList/TreeViewColumn.chs
+	mogul/Mogul.hs mogul/TreeList.hs: Changed the internals of
+	Attributes in CellRenderer. This now allows to set Just
+	<something> for e.g. a color or the editable flag (for which both
+	"editable" and "editable-set" have to be modified). Added the
+	onEdited signal.
+	
 2002-11-04 Axel Simon <A.Simon@ukc.ac.uk> 
 
 	* gtk/multiline/TextView.chs, general/Enums.chs, general/Gtk.hs:
@@ -14,7 +44,7 @@
 	multiline/TextIter.chs typehier/TypeGenerator.hs
 	windows/Dialog.chs: documentation fixes
 
-	* mk/library.mk: Abort when c2hs raises an error.
+	* mk/library.mk: i
 	
 2002-10-21  Jens Petersen  <petersen@haskell.org>
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2002/11/03 20:35:43 $
+--  Version $Revision: 1.10 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -92,7 +92,7 @@ module Structs(
   priorityDefault,
   priorityHigh,
   nullForeignPtr,
-  drawingAreaGetWindow,
+  drawingAreaGetDrawWindow,
   drawingAreaGetSize
   ) where
 
@@ -169,6 +169,7 @@ foreign import ccall "gdk_colormap_alloc_color" unsafe
   gdkColormapAllocColor :: Ptr () -> Ptr Color -> CInt -> CInt -> IO CInt
 
 
+-- @entry GC@
 
 -- @data GCValues@ Intermediate data structure for @ref data GC@s.
 --
@@ -338,6 +339,7 @@ pokeGCValues ptr (GCValues {
 -- * Use this value instead of the constructor to avoid compiler wanings
 --   about uninitialized fields.
 --
+newGCValues :: GCValues
 newGCValues = GCValues {
     foreground = undefined,
     background = undefined,
@@ -357,6 +359,8 @@ newGCValues = GCValues {
     capStyle   = undefined,
     joinStyle  = undefined
   }
+
+-- @entry Widget Widget@
 
 -- @type Allocation@ Allocation
 --
@@ -382,10 +386,14 @@ instance Storable Requisition where
     #{poke GtkRequisition, width} ptr ((fromIntegral width)::#type gint)
     #{poke GtkRequisition, height} ptr ((fromIntegral height)::#type gint)
 
+
+-- @entry Widget SpinButton@
+
 -- If an invalid input has been put into a SpinButton the input function may
 -- reject this value by returning this value.
 inputError :: #{type gint}
 inputError = #{const GTK_INPUT_ERROR}
+
 
 -- The TreeIter struct is not used by itself. But we have to allocate space
 -- for it in module TreeModel.
@@ -399,8 +407,12 @@ treeIterSize = #{const sizeof(GtkTreeIter)}
 textIterSize :: Int
 textIterSize = #{const sizeof(GtkTextIter)}
 
--- Get the upper part of a dialog where interaction widget should be added.
--- (EXPORTED).
+-- @entry Widget Dialog@
+
+-- @method dialogGetUpper@ Get the upper part of a dialog.
+--
+-- * The upper part of a dialog window consists of a @ref data VBox@.
+--   Add the required widgets into this box.
 --
 dialogGetUpper :: DialogClass dc => dc -> IO VBox
 dialogGetUpper dc = makeNewObject mkVBox $ liftM castPtr $
@@ -421,13 +433,13 @@ dialogGetActionArea dc = makeNewObject mkHBox $ liftM castPtr $
 --
 type ResponseId = Int
 
--- @method responseNone@ GTK returns this if a response widget has no
+-- @constant responseNone@ GTK returns this if a response widget has no
 -- response_id, or if the dialog gets programmatically hidden or destroyed.
 --
 responseNone :: ResponseId
 responseNone  = -1
 
--- @method responseReject@ GTK won't return these unless you pass them in as
+-- @constant responseReject@ GTK won't return these unless you pass them in as
 -- the response for an action widget. They are for your convenience.
 --
 responseReject :: ResponseId
@@ -436,32 +448,57 @@ responseReject  = -2
 responseAccept :: ResponseId
 responseAccept = -3
 
--- @method responseDeleteEvent@ If the dialog is deleted.
+-- @constant responseDeleteEvent@ If the dialog is deleted.
 --
 responseDeleteEvent :: ResponseId
 responseDeleteEvent  = -4
 
--- @method responseOk@ These are returned from GTK dialogs, and you can also
--- use them yourself if you like.
+-- @constant responseOk@ "Ok" was pressed.
+--
+-- * These value is returned from the "Ok" stock dialog button.
 --
 responseOk :: ResponseId
 responseOk  = -5
 
+-- @constant responseCancel@ "Cancel" was pressed.
+--
+-- * These value is returned from the "Cancel" stock dialog button.
+--
 responseCancel :: ResponseId
 responseCancel = -6
 
+-- @constant responseClose@ "Close" was pressed.
+--
+-- * These value is returned from the "Close" stock dialog button.
+--
 responseClose :: ResponseId
 responseClose = -7 
 
+-- @constant responseYes@ "Yes" was pressed.
+--
+-- * These value is returned from the "Yes" stock dialog button.
+--
 responseYes :: ResponseId
 responseYes = -8
 
+-- @constant responseNo@ "No" was pressed.
+--
+-- * These value is returned from the "No" stock dialog button.
+--
 responseNo :: ResponseId
 responseNo = -9
 
+-- @constant responseApply@ "Apply" was pressed.
+--
+-- * These value is returned from the "Apply" stock dialog button.
+--
 responseApply :: ResponseId
 responseApply = -10
 
+-- @constant responseHelp@ "Help" was pressed.
+--
+-- * These value is returned from the "Help" stock dialog button.
+--
 responseHelp :: ResponseId
 responseHelp = -11
 
@@ -524,8 +561,12 @@ iconSizeButton	     = #const GTK_ICON_SIZE_BUTTON
 iconSizeDialog	     :: IconSize
 iconSizeDialog	     = #const GTK_ICON_SIZE_DIALOG
 
--- @method checkMenuItemGetActive@ Return the current state of the check of
--- the @ref type CheckMenuItem@.
+-- @entry Widget CheckMenuItem@
+
+-- @method checkMenuItemGetActive@ Return the current checked state.
+--
+-- * Return the state of the check of
+--   the @ref data CheckMenuItem@.
 --
 checkMenuItemGetActive :: CheckMenuItemClass mi => mi -> IO Bool
 checkMenuItemGetActive mi = 
@@ -534,12 +575,16 @@ checkMenuItemGetActive mi =
     act <- peek (actPtr::Ptr #type guint)
     return $ testBit act 1
 
+-- @entry Widget Combo@
+
 -- @method comboGetList@ Extract the List container from a @ref type Combo@
 -- box.
 --
 comboGetList :: Combo -> IO List
 comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
   makeNewObject mkList $ #{peek GtkCombo, list} cPtr
+
+-- @entry General@
 
 -- @constant priorityHigh@ For installing idle callbacks: Priorities.
 --
@@ -558,11 +603,12 @@ priorityLow	= #const G_PRIORITY_LOW
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr (return ())
 
+-- @entry Widget FileSelection@
+
 -- @method fileSelectionGetButtons@ Extract the buttons of a fileselection.
 --
-fileSelectionGetButtons :: FileSelectionClass fsel 
-			  => fsel
-			  -> IO (Button, Button)
+fileSelectionGetButtons :: FileSelectionClass fsel => fsel -> 
+			   IO (Button, Button)
 fileSelectionGetButtons fsel =
     do
     ok <- butPtrToButton #{peek GtkFileSelection, ok_button}
@@ -572,10 +618,12 @@ fileSelectionGetButtons fsel =
   butPtrToButton bp = makeNewObject mkButton $ liftM castPtr $
       withForeignPtr ((unFileSelection . toFileSelection) fsel) bp
 
--- @method drawingAreaGetWindow@ Retrieves the @ref type Drawable@ part.
+-- @entry Widget DrawingArea@
+
+-- @method drawingAreaGetDrawWindow@ Retrieves the @ref data Drawable@ part.
 --
-drawingAreaGetWindow :: DrawingArea -> IO DrawWindow
-drawingAreaGetWindow da = makeNewGObject mkDrawWindow $
+drawingAreaGetDrawWindow :: DrawingArea -> IO DrawWindow
+drawingAreaGetDrawWindow da = makeNewGObject mkDrawWindow $
   withForeignPtr (unDrawingArea da) $ 
   \da' -> liftM castPtr $ #{peek GtkWidget, window} da'
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2002/11/03 20:35:45 $
+--  Version $Revision: 1.8 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -169,7 +169,7 @@ textViewSetBuffer tv tb =
 --   the @ref data TextMark@ within screen bounds. 0,0 means left, top and
 --   1.0,1.0 means right, bottom.
 --
--- * Supply @ref arg Nothing@ if the goal is to bring the position into 
+-- * Supply @literal Nothing@ if the goal is to bring the position into 
 --   view with the minimum of scrolling.
 --
 -- * @ref arg withinMargin@ is within [0.0 .. 0.5) and imposes an extra margin
@@ -265,7 +265,7 @@ textViewGetIterLocation tv tm = alloca $ \rectPtr -> do
 --
 -- * @ref arg y@ is in buffer coordinates.
 --
--- * Returns the @ref type TextIter@ and the top of the line.
+-- * Returns the @ref data TextIter@ and the top of the line.
 --
 textViewGetLineAtY :: TextViewClass tv => tv -> Int -> IO (TextIter,Int)
 textViewGetLineAtY tv y = do
@@ -325,12 +325,12 @@ textViewWindowToBufferCoords tv wt (x,y) =
     return (fromIntegral x', fromIntegral y')
 
 
--- @method textViewGetWindow@ Get the underlying @ref arg DrawWindow@.
+-- @method textViewGetWindow@ Get the underlying @ref data DrawWindow@.
 --
--- * The @ref type TextWindowType@ determines which window of the
+-- * The @ref data TextWindowType@ determines which window of the
 --   @ref type TextWidget@ we would like to receive.
 --
--- * Returns Nothing if there is no @ref arg DrawWindow@ of the specified type.
+-- * Returns Nothing if there is no @ref data DrawWindow@ of the specified type.
 --
 textViewGetWindow :: TextViewClass tv => tv -> TextWindowType ->
                      IO (Maybe DrawWindow)
@@ -345,7 +345,7 @@ textViewGetWindow tv wt = do
 --
 -- * Usually used to find out which window an event corresponds to. An
 --   emission of an event signal of @ref type TextView@ yields a
---   @ref arg DrawWindow@. This function can be used to see if the event
+--   @ref data DrawWindow@. This function can be used to see if the event
 --   actually belongs to the main text window.
 --
 textViewGetWindowType :: TextViewClass tv => tv -> DrawWindow ->
@@ -477,7 +477,7 @@ textChildAnchorNew  = makeNewGObject mkTextChildAnchor
   {#call unsafe text_child_anchor_new#}
 
 
--- @method textChildAnchorGetWidgets@ Retrieve all @ref arg Widget@s at this
+-- @method textChildAnchorGetWidgets@ Retrieve all @ref data Widget@s at this
 -- @ref type TextChildAnchor@.
 --
 -- * The widgets in the returned list need to be upcasted to what they were.

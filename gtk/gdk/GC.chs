@@ -4,7 +4,7 @@
 --  Author : Axel Simon
 --  Created: 28 September 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/10/06 16:14:08 $
+--  Version $Revision: 1.2 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -85,7 +85,10 @@ import Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..),
 -- @constructor gcNew@ Create an empty graphics context.
 --
 gcNew :: DrawableClass d => d -> IO GC
-gcNew d = makeNewGObject mkGC $ {#call unsafe gc_new#} (toDrawable d)
+gcNew d = do
+  gcPtr <- {#call unsafe gc_new#} (toDrawable d)
+  if (gcPtr==nullPtr) then return (error "gcNew: null graphics context.")
+		      else makeNewGObject mkGC (return gcPtr)
 
 
 -- @constructor gcNewWithValues@ Creates a graphics context with specific 

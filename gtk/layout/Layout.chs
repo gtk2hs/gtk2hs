@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/10/21 02:45:53 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -85,14 +85,14 @@ layoutSetSize :: LayoutClass l => l -> Int -> Int -> IO ()
 layoutSetSize l width height = {#call layout_set_size#} (toLayout l)
   (fromIntegral width) (fromIntegral height)
 
--- @method layoutGetHAdjustment@ Retrieve the horizontal @ref arg Adjustment@
+-- @method layoutGetHAdjustment@ Retrieve the horizontal @ref data Adjustment@
 -- object from the layout.
 --
 layoutGetHAdjustment :: LayoutClass l => l -> IO Adjustment
 layoutGetHAdjustment l = makeNewObject mkAdjustment $
   {#call unsafe layout_get_hadjustment#} (toLayout l)
 
--- @method layoutGetVAdjustment@ Retrieve the vertical @ref arg Adjustment@
+-- @method layoutGetVAdjustment@ Retrieve the vertical @ref data Adjustment@
 -- object from the layout.
 --
 layoutGetVAdjustment :: LayoutClass l => l -> IO Adjustment

@@ -43,9 +43,10 @@ data Docu
   = Words [DWord]
   | Paragraph
   | RefArg DaVar DWord
+  | RefVariant DaCon DWord
   | RefSym SymKind DaVar DWord
   | RefTyp ConKind TyCon DWord
-  | Verb PackedString
+  | Verb PackedString DWord
   deriving Show
 
 data SymKind
@@ -72,15 +73,17 @@ data ConInfo
   = ConInfo {
     conModule :: Module,
     conKind   :: ConKind,
-    conContxt :: [String],
-    conDaCon  :: [DaConInfo]}
+    conContxt :: Set TyVar,
+    conDaCon  :: FiniteMap DaCon DaConInfo}
 
 data DaConInfo 
   = DaConSimple {
-    daConType :: TyCon }
+    daConDocu :: [Docu],
+    daConType :: [HType] }
   | DaConRecord {
-    daConType :: TyCon,
-    daConSel  :: DaVar}
+    daConDocu :: [Docu],
+    daConType :: [HType],
+    daConSel  :: [DaVar] }
   deriving Show
 
 initialState :: State

@@ -5,7 +5,7 @@
 --          
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.2 $
+--  Version $Revision: 1.3 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -71,14 +71,14 @@ imageMenuItemGetImage imi = do
    if imPtr==nullPtr then return Nothing else do
      liftM Just $ makeNewObject mkWidget $ return imPtr
 
--- @constructor imageMenuItemNew@ Create a new @ref arg MenuItem@ with a image
+-- @constructor imageMenuItemNew@ Create a new @ref data MenuItem@ with a image
 -- next to it.
 --
 imageMenuItemNew :: IO ImageMenuItem
 imageMenuItemNew  = makeNewObject mkImageMenuItem $ liftM castPtr $
   {#call unsafe image_menu_item_new#}
 
--- @constructor imageMenuItemNewFromStock@ Create a new @ref arg MenuItem@
+-- @constructor imageMenuItemNewFromStock@ Create a new @ref data MenuItem@
 -- with a stock image.
 --
 imageMenuItemNewFromStock :: String -> IO ImageMenuItem
@@ -86,7 +86,7 @@ imageMenuItemNewFromStock str = withCString str $ \strPtr ->
   makeNewObject mkImageMenuItem $ liftM castPtr $ 
   {#call unsafe image_menu_item_new_from_stock#} strPtr nullPtr
 
--- @constructor imageMenuItemNewWithLabel@ Create a new @ref arg MenuItem@
+-- @constructor imageMenuItemNewWithLabel@ Create a new @ref data MenuItem@
 -- with a label.
 --
 imageMenuItemNewWithLabel :: String -> IO ImageMenuItem
@@ -94,7 +94,7 @@ imageMenuItemNewWithLabel str = withCString str $ \strPtr ->
   makeNewObject mkImageMenuItem $ liftM castPtr $ 
   {#call unsafe image_menu_item_new_with_label#} strPtr
 
--- @constructor imageMenuItemNewWithMnemonic@ Create a new @ref arg MenuItem@
+-- @constructor imageMenuItemNewWithMnemonic@ Create a new @ref data MenuItem@
 -- with a label where underscored indicate the mnemonic.
 --
 imageMenuItemNewWithMnemonic :: String -> IO ImageMenuItem

@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:33 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -62,12 +62,16 @@ import Enums	(PackType(..), Packing(..))
 -- @method boxPackStart@ Insert a widget at the beginning of the box
 -- container.
 --
--- * The @ref arg Packing@ parameter determines how the child behaves in the
+-- * The @ref data Packing@ parameter determines how the child behaves in the
 --   horizontal or vertical way in an HBox or VBox, respectively.
---   @ref arg Natural@ means the child is as big as it reqests. All children
---   that have choosen @ref arg Repel@ for @ref arg p@ will be padded with
---   the remaining space. @ref arg Grow@ is the same as @ref arg Expand@
---   except that the child will receive the superfluous space.
+--   @ref variant PackNatural@ means the child is as big as it reqests. It will
+--   move to the left in an @ref data HBox@ or to the top in an
+--   @ref data VBox@ if there is more space availble.
+--   All children
+--   that have choosen @ref variant PackRepel@ for @ref arg p@ will be padded 
+--   on both sides with
+--   additional space. @ref variant PackGrow@ will increase the size of the
+--   so that is covers the available space.
 --
 boxPackStart :: (BoxClass b, WidgetClass w) => b -> w -> Packing -> Int ->
                 IO ()
@@ -76,7 +80,9 @@ boxPackStart b w p pad = {#call box_pack_start#} (toBox b) (toWidget w)
 
 -- @method boxPackEnd@ Insert a widget at the end of the box container.
 --
--- * See @ref method boxPackStart@.
+-- * See @ref method boxPackStart@. The option @ref variant Natural@ will
+--   move a child to the right in an @ref data HBox@ or to the bottom in an
+--   @ref data VBox@ if there is more space availble.
 --
 boxPackEnd :: (BoxClass b, WidgetClass w) => b -> w -> Packing -> Int -> IO ()
 boxPackEnd b w p pad = {#call box_pack_end#} (toBox b) (toWidget w)
@@ -84,14 +90,14 @@ boxPackEnd b w p pad = {#call box_pack_end#} (toBox b) (toWidget w)
 
 
 -- @method boxPackStartDefaults@ Like @ref method boxPackStart@ but uses the
--- default parameters @ref arg Fill@ and 0 for @ref arg Padding@.
+-- default parameters @ref variant PackRepel@ and 0 for padding.
 --
 boxPackStartDefaults :: (BoxClass b, WidgetClass w) => b -> w -> IO ()
 boxPackStartDefaults b w = 
   {#call box_pack_start_defaults#} (toBox b) (toWidget w)
 
 -- @method boxPackEndDefaults@ Like @ref method boxPackEnd@ but uses the
--- default parameters @ref arg Fill@ and 0 for @ref arg Padding@.
+-- default parameters @ref variant PackRepel@ and 0 for padding.
 --
 boxPackEndDefaults :: (BoxClass b, WidgetClass w) => b -> w -> IO ()
 boxPackEndDefaults b w = 
@@ -122,9 +128,10 @@ boxReorderChild b w position =
 
 -- @method boxQueryChildPacking@ Query the packing parameter of a child.
 --
--- * Returns the behavious if free space is available (@ref arg Packing@),
--- the additional padding for this widget (@ref arg Int@) and if the widget
--- was inserted at the start or end of the container (@ref arg PackType@).
+-- * Returns information on the behaviour if free space is available 
+-- (in @ref data Packing@), the additional padding for this widget and
+-- if the widget
+-- was inserted at the start or end of the container (@ref data PackType@).
 --
 boxQueryChildPacking :: (BoxClass b, WidgetClass w) => b -> w ->
                         IO (Packing,Int,PackType)

@@ -2,7 +2,7 @@ module Main(main) where
 
 import Parser
 import State
-import Update	(addImport)
+import Update	(addImport, showErrors)
 import XMLwrite
 import System.Exit
 import System.Environment
@@ -10,7 +10,7 @@ import System.Console.GetOpt
 import Data.Set
 import Data.FiniteMap
 import Data.PackedString
-
+import Monad
 
 main = do
   args <- getArgs
@@ -20,6 +20,7 @@ main = do
 		  (transs++map (addImport.dropExt.dropPath) files)
 		  initialState
       state' <- processFiles state
+      unless (errors state'==[]) $ putStrLn (showErrors (errors state'))
       writeContent state'
     (_, _, errs) -> fatal errs
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:45 $
+--  Version $Revision: 1.5 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -101,8 +101,8 @@ handleBoxSetHandlePosition hb pos = {#call handle_box_set_handle_position#}
 --   be chosen so that it stays in the same place on the screen when the
 --   handlebox is torn off. If the snap edge is not set, then an appropriate
 --   value will be guessed from the handle position. If the handle position is
---   @ref arg PosRight@ or @ref arg PosLeft@, then the snap edge will be
---   @ref arg PosTop@, otherwise it will be @ref arg PosLeft@.
+--   @ref variant PosRight@ or @ref variant PosLeft@, then the snap edge will
+--   be @ref variant PosTop@, otherwise it will be @ref variant PosLeft@.
 --
 handleBoxSetSnapEdge :: HandleBoxClass hb => hb -> PositionType -> IO ()
 handleBoxSetSnapEdge hb pos = {#call handle_box_set_snap_edge#}
@@ -121,7 +121,7 @@ onChildAttached = connect_NONE__NONE "child-attached" False
 afterChildAttached = connect_NONE__NONE "child-attached" True
 
 
--- @signal connectToChildDetached@ Emitted when the @ref arg HandleBox@ is
+-- @signal connectToChildDetached@ Emitted when the @ref data HandleBox@ is
 -- detached form the main window.
 --
 onChildDetached, afterChildDetached :: HandleBoxClass hb => hb -> IO () ->

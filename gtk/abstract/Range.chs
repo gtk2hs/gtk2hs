@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -55,20 +55,20 @@ import Enums	(UpdateType(..), ScrollType(..))
 
 -- methods
 
--- @method rangeGetAdjustment@ Extract the @ref arg Adjustment@ object.
+-- @method rangeGetAdjustment@ Extract the @ref data Adjustment@ object.
 --
 rangeGetAdjustment :: RangeClass r => r -> IO Adjustment
 rangeGetAdjustment r = makeNewObject mkAdjustment $
   {#call unsafe range_get_adjustment#} (toRange r)
 
--- @method rangeSetUpdatePolicy@ Set how the internal @ref arg Adjustment@
+-- @method rangeSetUpdatePolicy@ Set how the internal @ref data Adjustment@
 -- object is updated.
 --
 rangeSetUpdatePolicy :: RangeClass r => r -> UpdateType -> IO ()
 rangeSetUpdatePolicy r up = {#call range_set_update_policy#}
   (toRange r) ((fromIntegral.fromEnum) up)
 
--- @method rangeSetAdjustment@ Insert a new @ref arg Adjustment@ object.
+-- @method rangeSetAdjustment@ Insert a new @ref data Adjustment@ object.
 --
 rangeSetAdjustment :: RangeClass r => r -> Adjustment -> IO ()
 rangeSetAdjustment r adj = {#call range_set_adjustment#} (toRange r) adj

@@ -155,8 +155,8 @@ addPackedError txt s = s { errors=(curPos s, curFile s, txt):errors s }
 
 
 -- Show errors.
-showErrors :: Int -> ErrSpec -> String
-showErrors limit errs = concatMap showErr (reverse (take limit errs))
+showErrors :: ErrSpec -> String
+showErrors errs = concatMap showErr (reverse errs)
   where
     showErr (-1,_,e) = "\n"++"toplevel:\n"++unpackPS e
     showErr (l,f,e) = "\n"++f++'(':show l++"):\n"++unpackPS e
@@ -170,7 +170,7 @@ instance Show State where
 	  concatMap (\(n,si) -> "\n"++unpackPS n++":: "++
             show si) (fmToList (modSymTab mi))
 
-  show (State { errors=err }) = showErrors 1000 (reverse err)
+  show (State { errors=err }) = showErrors err
 
 instance Show SymInfo where
   show (SymInfo { symKind=kind, symType=typ, symArgs=args }) =

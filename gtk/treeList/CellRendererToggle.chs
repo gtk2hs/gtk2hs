@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/08 16:50:00 $
+--  Version $Revision: 1.6 $ from $Date: 2002/11/08 10:39:22 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -52,15 +52,15 @@ import StoreValue   (GenericValue(..), TMType(..))
 
 -- methods
 
--- @constructor cellRendererToggleNew@ Create a new @ref type CellRenderer@
--- that displays a @ref arg ToggleButton@.
+-- @constructor cellRendererToggleNew@ Create a new @ref data CellRenderer@
+-- that displays a @ref data ToggleButton@.
 --
 cellRendererToggleNew :: IO CellRendererToggle
 cellRendererToggleNew  = makeNewObject mkCellRendererToggle $
   liftM castPtr $ {#call unsafe cell_renderer_toggle_new#}
 
 -- @method cellRendererToggleSetRadio@ Determine whether the button is drawn
--- as @ref arg RadioButton@ or not.
+-- as @ref data RadioButton@ or not.
 --
 cellRendererToggleSetRadio :: CellRendererToggleClass crt => crt -> Bool ->
                               IO ()
@@ -84,19 +84,19 @@ cellRendererToggleSetActive crt act = {#call cell_renderer_toggle_set_active#}
 
 -- helper function
 --
-binAttr :: String -> Attribute CellRendererToggle Bool
-binAttr str = Attribute str TMboolean
-		(return.GVboolean)
-	        (\(GVboolean b) -> return b)
+binAttr :: [String] -> Attribute CellRendererToggle Bool
+binAttr str = Attribute str [TMboolean]
+		(return.(\x -> [x]).GVboolean)
+	        (\[GVboolean b] -> return b)
 
 -- @method cellActive@ Define the attribute that reflects the state of the
 -- button.
 --
 cellActive :: Attribute CellRendererToggle Bool
-cellActive  = binAttr "active"
+cellActive  = binAttr ["active"]
 
 -- @method cellRadio@ Define an attribute that determines whether this button
--- is shown as a @ref arg RadioButton@ or as a normal @ref arg ToggleButton@.
+-- is shown as a @ref data RadioButton@ or as a normal @ref data ToggleButton@.
 --
 cellRadio :: Attribute CellRendererToggle Bool
-cellRadio  = binAttr "radio"
+cellRadio  = binAttr ["radio"]

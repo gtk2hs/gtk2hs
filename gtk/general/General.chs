@@ -6,7 +6,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.7 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -191,7 +191,8 @@ timeoutAdd fun msec = do
 timeoutRemove :: HandlerId -> IO ()
 timeoutRemove  = {#call unsafe timeout_remove#}
 
--- @function idleAdd@ Add a callback that is called whenever the system is idle.
+-- @function idleAdd@ Add a callback that is called whenever the system is
+-- idle.
 --
 -- * A priority can be specified.
 --
@@ -202,7 +203,7 @@ idleAdd fun pri = do
     nullPtr dPtr
 
 -- @function idleRemove@ Remove a previously added idle handler by its
--- @ref arg TimeoutId@.
+-- @ref type TimeoutId@.
 --
 idleRemove :: HandlerId -> IO ()
 idleRemove  = {#call unsafe idle_remove#}

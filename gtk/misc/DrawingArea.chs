@@ -5,7 +5,7 @@
 --          
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2002/11/03 20:35:45 $
+--  Version $Revision: 1.3 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -43,7 +43,7 @@ module DrawingArea(
   DrawingAreaClass,
   castToDrawingArea,
   drawingAreaNew,
-  drawingAreaGetWindow,
+  drawingAreaGetDrawWindow,
   drawingAreaGetSize) where
 
 import Monad	(liftM)
@@ -52,7 +52,7 @@ import UTFCForeign
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Structs	(drawingAreaGetWindow, drawingAreaGetSize)
+import Structs	(drawingAreaGetDrawWindow, drawingAreaGetSize)
 
 {# context lib="gtk" prefix="gtk" #}
 

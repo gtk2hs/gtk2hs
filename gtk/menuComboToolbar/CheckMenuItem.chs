@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -51,7 +51,7 @@ import Structs  (checkMenuItemGetActive)
 
 -- methods
 
--- @constructor checkMenuItemNew@ Create a new @ref arg MenuItem@ with a check
+-- @constructor checkMenuItemNew@ Create a new @ref data MenuItem@ with a check
 -- next to it.
 --
 checkMenuItemNew :: IO CheckMenuItem
@@ -59,7 +59,7 @@ checkMenuItemNew  = makeNewObject mkCheckMenuItem $ liftM castPtr $
   {#call unsafe check_menu_item_new#}
 
 -- @method checkMenuItemNewWithLabel@ Create a new @ref type CheckMenuItem@
--- with a @ref arg Label@ inside.
+-- with a @ref data Label@ inside.
 --
 checkMenuItemNewWithLabel :: String -> IO CheckMenuItem
 checkMenuItemNewWithLabel str = withCString str $ \strPtr ->
