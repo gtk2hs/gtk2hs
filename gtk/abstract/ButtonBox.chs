@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget ButtonBox
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.3 $ from $Date: 2004/07/26 16:12:43 $
 --
 --  Copyright (c) 2004 Matthew Walton
 --
@@ -21,6 +22,7 @@
 --
 -- |
 --
+#include<gtk/gtkversion.h>
 
 module ButtonBox(
   ButtonBox,
@@ -29,7 +31,9 @@ module ButtonBox(
   buttonBoxGetLayout,
   buttonBoxGetChildSecondary,
   buttonBoxSetLayout,
+#if GTK_CHECK_VERSION(2,4,0)
   buttonBoxSetChildSecondary
+#endif
   ) where
 
 import Monad (liftM)
@@ -52,12 +56,15 @@ buttonBoxGetLayout :: ButtonBoxClass b => b -> IO ButtonBoxStyle
 buttonBoxGetLayout b = liftM (toEnum . fromIntegral) $
   {#call gtk_button_box_get_layout#} (toButtonBox b)
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | Returns whether child should appear
 -- in a secondary group of children
 --
+-- * Since Gtk 2.4.
 buttonBoxGetChildSecondary :: (ButtonBoxClass b, WidgetClass w) => b -> w -> IO Bool
 buttonBoxGetChildSecondary b w = liftM toBool $
   {#call gtk_button_box_get_child_secondary#} (toButtonBox b) (toWidget w)
+#endif
 
 -- | Changes the way buttons are arranged in their container
 --
