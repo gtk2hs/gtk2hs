@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/03/15 19:59:12 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/02 19:22:04 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,7 +24,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Completion functionality for the 'Entry' widget.
+-- Completion functionality for 'Entry'
 --
 -- * Module available since Gtk+ version 2.4
 --
@@ -114,7 +114,7 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 --
 entryCompletionNew :: IO EntryCompletion
 entryCompletionNew =
-  makeNewGObject mkEntryCompletion $ liftM castPtr $
+  makeNewGObject mkEntryCompletion $
   {# call gtk_entry_completion_new #}
 
 --------------------
@@ -275,7 +275,7 @@ entryCompletionSetTextColumn self column =
 
 -- | Minimum length of the search key in order to look up matches.
 --
--- Allowed values: >= -1
+-- Allowed values: >= 0
 --
 -- Default value: 1
 --

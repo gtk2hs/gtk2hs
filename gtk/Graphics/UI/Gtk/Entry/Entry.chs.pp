@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/15 19:59:12 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:22:04 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -133,7 +133,8 @@ instance EditableClass Entry
 --
 entryNew :: IO Entry
 entryNew =
-  makeNewObject mkEntry $ liftM castPtr $
+  makeNewObject mkEntry $
+  liftM (castPtr :: Ptr Widget -> Ptr Entry) $
   {# call unsafe entry_new #}
 
 --------------------
@@ -306,7 +307,7 @@ entrySetHasFrame self setting =
     (toEntry self)
     (fromBool setting)
 
--- | Retrieve the number of characters the widget should ask for.
+-- | Gets the value set by 'entrySetWidthChars'.
 --
 entryGetWidthChars :: EntryClass self => self
  -> IO Int -- ^ returns number of chars to request space for, or negative if
@@ -394,7 +395,7 @@ entryGetCompletion self =
 --
 -- Default value: 0
 --
-entryMaxLength :: Attr Entry Int
+entryMaxLength :: EntryClass self => Attr self Int
 entryMaxLength = Attr 
   entryGetMaxLength
   entrySetMaxLength
@@ -404,7 +405,7 @@ entryMaxLength = Attr
 --
 -- Default value: @True@
 --
-entryVisibility :: Attr Entry Bool
+entryVisibility :: EntryClass self => Attr self Bool
 entryVisibility = Attr 
   entryGetVisibility
   entrySetVisibility
@@ -413,7 +414,7 @@ entryVisibility = Attr
 --
 -- Default value: @True@
 --
-entryHasFrame :: Attr Entry Bool
+entryHasFrame :: EntryClass self => Attr self Bool
 entryHasFrame = Attr 
   entryGetHasFrame
   entrySetHasFrame
@@ -422,7 +423,7 @@ entryHasFrame = Attr
 --
 -- Default value: \'*\'
 --
-entryInvisibleChar :: Attr Entry Char
+entryInvisibleChar :: EntryClass self => Attr self Char
 entryInvisibleChar = Attr 
   entryGetInvisibleChar
   entrySetInvisibleChar
@@ -432,7 +433,7 @@ entryInvisibleChar = Attr
 --
 -- Default value: @False@
 --
-entryActivatesDefault :: Attr Entry Bool
+entryActivatesDefault :: EntryClass self => Attr self Bool
 entryActivatesDefault = Attr 
   entryGetActivatesDefault
   entrySetActivatesDefault
@@ -443,7 +444,7 @@ entryActivatesDefault = Attr
 --
 -- Default value: -1
 --
-entryWidthChars :: Attr Entry Int
+entryWidthChars :: EntryClass self => Attr self Int
 entryWidthChars = Attr 
   entryGetWidthChars
   entrySetWidthChars
@@ -452,14 +453,14 @@ entryWidthChars = Attr
 --
 -- Default value: \"\"
 --
-entryText :: Attr Entry String
+entryText :: EntryClass self => Attr self String
 entryText = Attr 
   entryGetText
   entrySetText
 
 -- | \'alignment\' property. See 'entryGetAlignment' and 'entrySetAlignment'
 --
-entryAlignment :: Attr Entry Float
+entryAlignment :: EntryClass self => Attr self Float
 entryAlignment = Attr 
   entryGetAlignment
   entrySetAlignment
@@ -467,7 +468,7 @@ entryAlignment = Attr
 -- | \'completion\' property. See 'entryGetCompletion' and
 -- 'entrySetCompletion'
 --
-entryCompletion :: Attr Entry EntryCompletion
+entryCompletion :: EntryClass self => Attr self EntryCompletion
 entryCompletion = Attr 
   entryGetCompletion
   entrySetCompletion

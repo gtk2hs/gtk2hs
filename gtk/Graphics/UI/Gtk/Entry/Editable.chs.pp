@@ -5,7 +5,7 @@
 --
 --  Created: 30 July 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/15 20:19:56 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:22:03 $
 --
 --  Copyright (C) 1999-2005 Axel Simon, Duncan Coutts
 --
@@ -138,18 +138,19 @@ editableGetSelectionBounds self =
 -- | Inserts text at a given position.
 --
 editableInsertText :: EditableClass self => self
- -> String    -- ^ @newText@ - the text to insert.
- -> Int       -- ^ @position@ - the position at which to insert the text.
- -> IO Int    -- ^ returns the position after the newly inserted text.
+ -> String -- ^ @newText@ - the text to insert.
+ -> Int    -- ^ @position@ - the position at which to insert the text.
+ -> IO Int -- ^ returns the position after the newly inserted text.
 editableInsertText self newText position = 
-  withObject (fromIntegral position) $ \positionPtr ->
+  with (fromIntegral position) $ \positionPtr ->
   withUTFStringLen newText $ \(newTextPtr, newTextLength) -> do
   {# call editable_insert_text #}
     (toEditable self)
     newTextPtr
     (fromIntegral newTextLength)
     positionPtr
-  liftM fromIntegral $ peek positionPtr
+  position <- peek positionPtr
+  return (fromIntegral position)
 
 -- | Deletes a sequence of characters. The characters that are deleted are
 -- those characters at positions from @startPos@ up to, but not including
@@ -266,7 +267,7 @@ editableGetEditable self =
 -- | \'position\' property. See 'editableGetPosition' and
 -- 'editableSetPosition'
 --
-editablePosition :: Attr Editable Int
+editablePosition :: EditableClass self => Attr self Int
 editablePosition = Attr 
   editableGetPosition
   editableSetPosition
@@ -274,7 +275,7 @@ editablePosition = Attr
 -- | \'editable\' property. See 'editableGetEditable' and
 -- 'editableSetEditable'
 --
-editableEditable :: Attr Editable Bool
+editableEditable :: EditableClass self => Attr self Bool
 editableEditable = Attr 
   editableGetEditable
   editableSetEditable

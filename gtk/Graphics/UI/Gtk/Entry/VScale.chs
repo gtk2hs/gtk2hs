@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:59:12 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:22:04 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -75,7 +75,8 @@ vScaleNew ::
                -- the scale.
  -> IO VScale
 vScaleNew adjustment =
-  makeNewObject mkVScale $ liftM castPtr $
+  makeNewObject mkVScale $
+  liftM (castPtr :: Ptr Widget -> Ptr VScale) $
   {# call unsafe vscale_new #}
     adjustment
 
@@ -91,7 +92,8 @@ vScaleNewWithRange ::
               -- shortcuts. Must be nonzero.
  -> IO VScale
 vScaleNewWithRange min max step =
-  makeNewObject mkVScale $ liftM castPtr $
+  makeNewObject mkVScale $
+  liftM (castPtr :: Ptr Widget -> Ptr VScale) $
   {# call unsafe vscale_new_with_range #}
     (realToFrac min)
     (realToFrac max)

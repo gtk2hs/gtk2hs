@@ -46,6 +46,13 @@
 	* gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs: code formatting
 	changes.
 
+	* gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/HScale.chs,
+	gtk/Graphics/UI/Gtk/Entry/SpinButton.chs,
+	gtk/Graphics/UI/Gtk/Entry/VScale.chs: various minor changes.
+
 2005-04-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs, tools/apiGen/ApiGen.hs,

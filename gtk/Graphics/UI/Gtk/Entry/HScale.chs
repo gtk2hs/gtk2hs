@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:59:12 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:22:04 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -75,7 +75,8 @@ hScaleNew ::
                -- the scale.
  -> IO HScale
 hScaleNew adjustment =
-  makeNewObject mkHScale $ liftM castPtr $
+  makeNewObject mkHScale $
+  liftM (castPtr :: Ptr Widget -> Ptr HScale) $
   {# call unsafe hscale_new #}
     adjustment
 
@@ -91,7 +92,8 @@ hScaleNewWithRange ::
               -- shortcuts
  -> IO HScale
 hScaleNewWithRange min max step =
-  makeNewObject mkHScale $ liftM castPtr $
+  makeNewObject mkHScale $
+  liftM (castPtr :: Ptr Widget -> Ptr HScale) $
   {# call unsafe hscale_new_with_range #}
     (realToFrac min)
     (realToFrac max)

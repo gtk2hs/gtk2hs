@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/15 19:59:12 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:22:04 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,11 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A spin button provides the possiblity to enter a numeric value without using
--- the keyboard.
+-- Retrieve an integer or floating-point number from the user
 --
 module Graphics.UI.Gtk.Entry.SpinButton (
--- * Description
+-- * Detail
 -- 
 -- | A 'SpinButton' is an ideal way to allow the user to set the value of some
 -- attribute. Rather than having to directly type a number into a 'Entry',
@@ -132,7 +131,8 @@ spinButtonNew ::
  -> Int           -- ^ @digits@ - the number of decimal places to display.
  -> IO SpinButton
 spinButtonNew adjustment climbRate digits =
-  makeNewObject mkSpinButton $ liftM castPtr $
+  makeNewObject mkSpinButton $
+  liftM (castPtr :: Ptr Widget -> Ptr SpinButton) $
   {# call unsafe spin_button_new #}
     adjustment
     (realToFrac climbRate)
@@ -150,7 +150,8 @@ spinButtonNewWithRange ::
                   -- widget
  -> IO SpinButton
 spinButtonNewWithRange min max step =
-  makeNewObject mkSpinButton $ liftM castPtr $
+  makeNewObject mkSpinButton $
+  liftM (castPtr :: Ptr Widget -> Ptr SpinButton) $
   {# call unsafe spin_button_new_with_range #}
     (realToFrac min)
     (realToFrac max)
@@ -234,7 +235,7 @@ spinButtonSetIncrements self step page =
 -- 'spinButtonSetIncrements'.
 --
 spinButtonGetIncrements :: SpinButtonClass self => self
- -> IO (Double, Double) -- ^ @(step, page)@
+ -> IO (Double, Double) -- ^ @(step, page)@ - step increment and page increment
 spinButtonGetIncrements self =
   alloca $ \stepPtr ->
   alloca $ \pagePtr -> do
@@ -261,7 +262,7 @@ spinButtonSetRange self min max =
 -- | Gets the range allowed for the spin button. See 'spinButtonSetRange'.
 --
 spinButtonGetRange :: SpinButtonClass self => self
- -> IO (Double, Double) -- ^ @(min, max)@
+ -> IO (Double, Double) -- ^ @(min, max)@ - minimum and maximum allowed value
 spinButtonGetRange self =
   alloca $ \minPtr ->
   alloca $ \maxPtr -> do
@@ -273,7 +274,7 @@ spinButtonGetRange self =
   max <- peek maxPtr
   return (realToFrac min, realToFrac max)
 
--- | Retrieve the current value of the spin button as a floating point value.
+-- | Get the value of the spin button as a floating point value.
 --
 spinButtonGetValue :: SpinButtonClass self => self -> IO Double
 spinButtonGetValue self =
@@ -281,7 +282,7 @@ spinButtonGetValue self =
   {# call unsafe spin_button_get_value #}
     (toSpinButton self)
 
--- | Retrieve the current value of the spin button as an integral value.
+-- | Get the value of the spin button as an integral value.
 --
 spinButtonGetValueAsInt :: SpinButtonClass self => self -> IO Int
 spinButtonGetValueAsInt self =
@@ -289,7 +290,7 @@ spinButtonGetValueAsInt self =
   {# call unsafe spin_button_get_value_as_int #}
     (toSpinButton self)
 
--- | Set the value of the SpinButton.
+-- | Set the value of the spin button.
 --
 spinButtonSetValue :: SpinButtonClass self => self -> Double -> IO ()
 spinButtonSetValue self value =
@@ -409,7 +410,7 @@ spinButtonUpdate self =
 
 -- | The adjustment that holds the value of the spinbutton.
 --
-spinButtonAdjustment :: Attr SpinButton Adjustment
+spinButtonAdjustment :: SpinButtonClass self => Attr self Adjustment
 spinButtonAdjustment = Attr 
   spinButtonGetAdjustment
   spinButtonSetAdjustment
@@ -420,7 +421,7 @@ spinButtonAdjustment = Attr
 --
 -- Default value: 0
 --
-spinButtonDigits :: Attr SpinButton Int
+spinButtonDigits :: SpinButtonClass self => Attr self Int
 spinButtonDigits = Attr 
   spinButtonGetDigits
   spinButtonSetDigits
@@ -430,7 +431,7 @@ spinButtonDigits = Attr
 --
 -- Default value: @False@
 --
-spinButtonSnapToTicks :: Attr SpinButton Bool
+spinButtonSnapToTicks :: SpinButtonClass self => Attr self Bool
 spinButtonSnapToTicks = Attr 
   spinButtonGetSnapToTicks
   spinButtonSetSnapToTicks
@@ -439,7 +440,7 @@ spinButtonSnapToTicks = Attr
 --
 -- Default value: @False@
 --
-spinButtonNumeric :: Attr SpinButton Bool
+spinButtonNumeric :: SpinButtonClass self => Attr self Bool
 spinButtonNumeric = Attr 
   spinButtonGetNumeric
   spinButtonSetNumeric
@@ -448,7 +449,7 @@ spinButtonNumeric = Attr
 --
 -- Default value: @False@
 --
-spinButtonWrap :: Attr SpinButton Bool
+spinButtonWrap :: SpinButtonClass self => Attr self Bool
 spinButtonWrap = Attr 
   spinButtonGetWrap
   spinButtonSetWrap
@@ -458,7 +459,7 @@ spinButtonWrap = Attr
 --
 -- Default value: 'UpdateAlways'
 --
-spinButtonUpdatePolicy :: Attr SpinButton SpinButtonUpdatePolicy
+spinButtonUpdatePolicy :: SpinButtonClass self => Attr self SpinButtonUpdatePolicy
 spinButtonUpdatePolicy = Attr 
   spinButtonGetUpdatePolicy
   spinButtonSetUpdatePolicy
@@ -467,7 +468,7 @@ spinButtonUpdatePolicy = Attr
 --
 -- Default value: 0
 --
-spinButtonValue :: Attr SpinButton Double
+spinButtonValue :: SpinButtonClass self => Attr self Double
 spinButtonValue = Attr 
   spinButtonGetValue
   spinButtonSetValue
@@ -489,14 +490,14 @@ onInput sb user = connect_PTR__INT "input" False sb $ \dPtr -> do
     (Just val) -> do
       poke dPtr ((realToFrac val)::{#type gdouble#})
       return 0
-    Nothing -> return (toInteger inputError)
+    Nothing -> return (fromIntegral inputError)
 afterInput sb user = connect_PTR__INT "input" True sb $ \dPtr -> do
   mVal <- user
   case mVal of
     (Just val) -> do
       poke dPtr ((realToFrac val)::{#type gdouble#})
       return 0
-    Nothing -> return (toInteger inputError)
+    Nothing -> return (fromIntegral inputError)
 
 -- | Install a custom output handler.
 --
