@@ -326,6 +326,15 @@ libgtk2hs_a_LIBADD =						       \
         gtk/treeList/TreeSelection_stub.o gtk/glib/GObject_stub.o      \
         gtk/treeList/TreeView_stub.o
 
+# Pretend these stub files can be created by a simple rule.
+gtk/abstract/Container_stub.o				       \
+	gtk/multiline/TextIter_stub.o gtk/entry/EntryCompletion_stub.o \
+        gtk/multiline/TextTagTable_stub.o gtk/general/General_stub.o   \
+        gtk/treeList/TreeModel_stub.o gtk/general/Signal_stub.o	       \
+        gtk/treeList/TreeSelection_stub.o gtk/glib/GObject_stub.o      \
+        gtk/treeList/TreeView_stub.o:
+	touch $@
+
 
 am_libgtk2hs_a_OBJECTS = \
   $(addsuffix .$(OBJEXT),$(basename $(basename $(libgtk2hs_a_SOURCES))))
