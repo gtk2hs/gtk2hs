@@ -2,12 +2,12 @@
 --  GIMP Toolkit (GTK) TreeViewColumn TreeView
 --
 --  Author : Axel Simon
---
+--          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.1 $ from $Date: 2005/02/17 00:13:20 $
 --
---  Copyright (C) 2001-2005 Axel Simon
+--  Copyright (c) 2001 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -24,8 +24,6 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A visible column in a "TreeView" widget
--- 
 -- * tree_view_column_new_with_attributes and tree_view_column_set_attributes 
 --   are variadic and the funcitonality can be achieved through other 
 --   functions.

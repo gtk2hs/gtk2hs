@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/17 00:13:20 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,47 +24,95 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A 'TreeModel' is the abstract base class for 
--- 'TreeStore' and 'ListStore'.
+-- The tree interface used by GtkTreeView
 --
--- * Most functions are defined in the latter two classes. This module
---   provides the 'TreeIter' and 'TreePath' objects.
+-- * Description
+-- 
+-- | The "TreeModel" interface defines a generic storage object for use by the
+-- "TreeView" widget. It is purely abstract, concrete implementations that
+-- store data for a list or tree widget are e.g. "ListStore" and "TreeStore".
+--
+-- The model is represented as a hierarchical tree of strongly-typed,
+-- columned data. In other words, the model can be seen as a tree where every
+-- node has different values depending on which column is being queried. The
+-- type of data found in a column can be arbitrary, ranging from basic
+-- types like 'String's or 'Int' to user specific types. The types are
+-- homogeneous per column across all nodes. It is important to note that this
+-- interface only provides a way of examining a model and observing changes.
+-- The implementation of each individual model decides how and if changes are
+-- made.
+--
+-- Two generic models are provided that implement the "TreeModel" interface:
+-- the
+-- "TreeStore" and the "ListStore". To use these, the developer simply pushes
+-- data into these models as necessary. These models provide the data 
+-- structure as well as the "TreeModel" interface. In fact, they implement
+-- other interfaces making drag
+-- and drop, sorting, and storing data  trivial.
+--
+-- Models are accessed on a node\/column level of granularity. One can query
+-- for the value of a model at a certain node and a certain column on that
+-- node. There are two structures used to reference a particular node in a
+-- model. They are the "TreePath" and the "TreeIter" Most of the interface
+-- consists of operations on a "TreeIter".
+--
+-- A path is essentially a potential node. It is a location on a model that
+-- may or may not actually correspond to a node on a specific model. A
+-- "TreePath" is in fact just a list of "Int"s and hence are easy to
+-- manipulate. Each number refers to the offset at that level. Thus, the 
+-- path @[0]@ refers to the
+-- root node and the path @[2,4]@ refers to the fifth child of the third node.
+--
+-- By contrast, a "TreeIter" is a reference to a specific node on a specific
+-- model. It is an abstract data type filled in by the model. One can convert a
+-- path to an iterator by calling 'treeModelGetIter'. These iterators are the
+-- primary way of accessing a model and are similar to the iterators used by
+-- "TextBuffer". The model interface defines a set of operations using
+-- them for navigating the model.
+--
+-- The lifecycle of an iterator can be a little confusing at first.
+-- Iterators are expected to always be valid for as long as the model is
+-- unchanged (and doesn\'t emit a signal). 
+-- Additionally, the "TreeStore" and "ListStore" models guarantee that 
+-- an iterator is valid for as long as the node it refers to is valid.
+-- Although generally uninteresting, as one
+-- always has to allow for the case where iterators do not persist beyond a
+-- signal, some very important performance enhancements were made in the sort
+-- model. As a result, the "TreeModelItersPersist" flag was added to
+-- indicate this behavior.
+--
+--
+-- Class Hierarchy
+-- |
+-- @
+-- |  "GInterface"
+-- |   +----GtkTreeModel
+-- @
 --
 module Graphics.UI.Gtk.TreeList.TreeModel (
+-- * Types
   TreeModel,
   TreeModelClass,
   castToTreeModel,
+  TreeModelFlags(..),
+  TreePath,
+  NativeTreePath(NativeTreePath),	-- internal
+  TreeRowReference(..),
+  TreeIter(..),
+
+-- * Methods
+  treeModelGetFlags,
   treeModelGetNColumns,
   treeModelGetColumnType,
   treeModelGetValue,
-  TreeModelFlags(..),
-  treeModelGetFlags,
-  TreePath(..),
-  createTreePath,			-- internal
-  tree_path_copy,			-- internal
-  tree_path_free,			-- internal
-  treePathNew,
-  treePathNewFromString,
-  treePathNewFromIndicies,
-  treePathToString,
-  treePathNewFirst,
-  treePathAppendIndex,
-  treePathPrependIndex,
-  treePathGetDepth,
-  treePathGetIndices,
-  treePathCopy,
-  treePathCompare,
-  treePathNext,
-  treePathPrev,
-  treePathUp,
-  treePathDown,
-  treePathIsAncestor,
-  treePathIsDescendant,
-  TreeRowReference(..),
+  nativeTreePathFree,			-- internal
+  nativeTreePathNew,			-- internal
+  withTreePath,				-- internal
+  nativeTreePathGetIndices,		-- internal
+  fromTreePath,				-- internal
   treeRowReferenceNew,
   treeRowReferenceGetPath,
   treeRowReferenceValid,
-  TreeIter(..),
   createTreeIter,			-- internal
   treeModelGetIter,
   treeModelGetIterFromString,
@@ -76,9 +124,7 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
   treeModelIterHasChild,
   treeModelIterNChildren,
   treeModelIterNthChild,
-  treeModelIterParent,
-  treeModelRefNode,
-  treeModelUnrefNode
+  treeModelIterParent
   ) where
 
 import Monad	(liftM, when)
@@ -103,7 +149,9 @@ import System.Glib.StoreValue		(TMType)
 -- | TreePath : a list of indices to specify a subtree or node in the
 -- hierarchical 'TreeStore' database.
 --
-{#pointer * TreePath foreign newtype#}
+type TreePath = [Int]
+
+{#pointer * TreePath as NativeTreePath newtype#}
 
 -- | Tree Row Reference : like a 'TreePath' it points to a subtree or node, but
 -- it is persistent. It identifies the same node (so long as it exists) even
@@ -111,9 +159,13 @@ import System.Glib.StoreValue		(TMType)
 --
 {#pointer * TreeRowReference foreign newtype#}
 
--- | These flags indicate various properties of a 'TreeModel'. These are
--- probably not terribly interesting for app developers. See the C documentation
--- for details.
+-- | These flags indicate various properties of a 'TreeModel'.
+--
+-- * If a model has "TreeModelItersPersist" set, iterators remain valid
+--   after a "TreeModel" signal was emitted.
+--
+-- * The "TreeModelListOnly" flag is set if the rows are arranged in a
+--   simple flat list. This is set in the "ListStore" implementation.
 --
 {#enum TreeModelFlags {underscoreToCase} deriving(Bounded)#}
 
@@ -121,11 +173,25 @@ instance Flags TreeModelFlags
 
 -- methods
 
--- | Read the number of columns this 'TreeModel' currently stores.
+-- | Returns a set of flags supported by this interface.
 --
-treeModelGetNColumns :: TreeModelClass tm => tm -> IO Int
-treeModelGetNColumns tm = liftM fromIntegral $ 
-  {#call unsafe tree_model_get_n_columns#} (toTreeModel tm)
+-- * The returned flags do not
+-- change during the lifecycle of the tree_model.
+-- 
+treeModelGetFlags :: TreeModelClass self => self -> IO [TreeModelFlags]
+treeModelGetFlags self =
+  liftM (toFlags . fromIntegral) $
+  {# call unsafe gtk_tree_model_get_flags #}
+     (toTreeModel self)
+
+-- | Returns the number of columns supported by the "TreeModel".
+-- 
+treeModelGetNColumns :: TreeModelClass self => self
+ -> IO Int -- ^ returns The number of columns.
+treeModelGetNColumns self =
+  liftM fromIntegral $
+  {# call gtk_tree_model_get_n_columns #}
+     (toTreeModel self)
 
 -- | Retrieves the type of a specific column.
 --
@@ -170,170 +236,42 @@ treeModelForeach tm fun = do
 foreign import ccall "wrapper"  mkTreeModelForeachFunc ::
   (Ptr () -> Ptr () -> Ptr TreeIter -> Ptr () -> IO CInt) -> IO TreeModelForeachFunc
 
--- | Returns a set of flags supported by this interface. The flags supported
--- should not change during the lifecycle of the model.
---
-treeModelGetFlags :: TreeModelClass tm => tm -> IO [TreeModelFlags]
-treeModelGetFlags tm = liftM (toFlags.fromIntegral) $
-  {#call unsafe tree_model_get_flags#} (toTreeModel tm)
-
 -- utilities related to tree models
 
--- Create a TreePath from a pointer.
-createTreePath :: Ptr TreePath -> IO TreePath
-createTreePath tpPtr = do
-  tpPtr' <- tree_path_copy tpPtr
-  liftM TreePath $ newForeignPtr tpPtr' (tree_path_free tpPtr')
+nativeTreePathFree :: NativeTreePath -> IO ()
+nativeTreePathFree = {#call unsafe tree_path_free#}
 
-#if __GLASGOW_HASKELL__>=600
+nativeTreePathNew :: IO NativeTreePath
+nativeTreePathNew = liftM NativeTreePath {#call unsafe tree_path_new#} 
 
-foreign import ccall unsafe "&gtk_tree_path_free"
-  tree_path_free' :: FinalizerPtr TreePath
+withTreePath :: TreePath -> (NativeTreePath -> IO a) -> IO a
+withTreePath tp act = do
+  nativePath <- nativeTreePathNew
+  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) tp
+  res <- act nativePath
+  nativeTreePathFree nativePath
+  return res
 
-tree_path_free :: Ptr TreePath -> FinalizerPtr TreePath
-tree_path_free _ = tree_path_free'
-
-#elif __GLASGOW_HASKELL__>=504
-
-foreign import ccall unsafe "gtk_tree_path_free"
-  tree_path_free :: Ptr TreePath -> IO ()
-
-#else
-
-foreign import ccall "gtk_tree_path_free" unsafe
-  tree_path_free :: Ptr TreePath -> IO ()
-
-#endif
-
-
-
--- | Create a new 'TreePath'.
---
--- * A 'TreePath' is an hierarchical index. It is independent of a specific
--- 'TreeModel'.
--- 
-treePathNew :: IO TreePath
-treePathNew = do
-  tpPtr <- {#call unsafe tree_path_new#} 
-  liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
-
--- | Turn a @String@ into a 'TreePath'.
---
--- * For example, the string \"10:4:0\" would create a path of depth 3 pointing
--- to the 11th child of the root node, the 5th child of that 11th child, and the
--- 1st child of that 5th child.
---
-treePathNewFromString :: String -> IO TreePath
-treePathNewFromString path = do
-  tpPtr <- throwIfNull "treePathNewFromString: invalid path given" $
-    withUTFString path {#call unsafe tree_path_new_from_string#}
-  liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
-
--- | Turn a list of indicies into a 'TreePath'. See 'treePathNewFromString' for
--- the meaning of these indicies.
---
-treePathNewFromIndicies :: [Int] ->  IO TreePath
-treePathNewFromIndicies =
-  treePathNewFromString . concat . intersperse ":" . map show
-
--- | Turn a 'TreePath' into a @String@.
---
-treePathToString :: TreePath -> IO String
-treePathToString tp = do
-  strPtr <- {#call tree_path_to_string#} tp
-  str <- peekUTFString strPtr
-  {#call unsafe g_free#} (castPtr strPtr)
-  return str
-
--- | Create a 'TreePath'.
---
--- * The returned 'TreePath' is an index to the first element.
---
-treePathNewFirst :: IO TreePath
-treePathNewFirst = do
-  tpPtr <- {#call unsafe tree_path_new_first#}
-  liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
-
--- | Add an index on the next level.
-treePathAppendIndex :: TreePath -> Int -> IO ()
-treePathAppendIndex tp ind = 
-  {#call unsafe tree_path_append_index#} tp (fromIntegral ind)
-
-
-treePathPrependIndex :: TreePath -> Int -> IO ()
-treePathPrependIndex tp ind =
-  {#call unsafe tree_path_prepend_index#} tp (fromIntegral ind)
-
-treePathGetDepth :: TreePath -> IO Int
-treePathGetDepth tp = liftM fromIntegral $ 
-  {#call unsafe tree_path_get_depth#} tp
-
-treePathGetIndices :: TreePath -> IO [Int]
-treePathGetIndices tp = do
-  depth <- treePathGetDepth tp
+nativeTreePathGetIndices :: NativeTreePath -> IO [Int]
+nativeTreePathGetIndices tp = do
+  depth <- liftM fromIntegral $ {#call unsafe tree_path_get_depth#} tp
   arrayPtr <- {#call unsafe tree_path_get_indices#} tp
   if (depth==0 || arrayPtr==nullPtr) then return [] else
     sequence [liftM fromIntegral $ peekElemOff arrayPtr e 
 	     | e <- [0..depth-1]]
 
-treePathCopy :: TreePath -> IO TreePath
-treePathCopy tp = do
-  tpPtr' <- {#call unsafe tree_path_copy#} tp
-  liftM TreePath $ newForeignPtr tpPtr' (tree_path_free tpPtr')
-
-#if __GLASGOW_HASKELL__>=504
-
-foreign import ccall unsafe "gtk_tree_path_copy"
-  tree_path_copy :: Ptr TreePath -> IO (Ptr TreePath)
-
-#else
-
-foreign import ccall "gtk_tree_path_copy" unsafe
-  tree_path_copy :: Ptr TreePath -> IO (Ptr TreePath)
-
-#endif
-
-
-treePathCompare :: TreePath -> TreePath -> IO Ordering
-treePathCompare tp1 tp2 = do
-  res <- {#call unsafe tree_path_compare#} tp1 tp2
-  return $ case res of
-    (-1)   -> LT
-    0	   -> EQ
-    1	   -> GT
-
-treePathNext :: TreePath -> IO ()
-treePathNext = {#call unsafe tree_path_next#}
-
-treePathPrev :: TreePath -> IO Bool
-treePathPrev tp = liftM toBool $ {#call unsafe tree_path_prev#} tp
-
-treePathUp :: TreePath -> IO Bool
-treePathUp tp = liftM toBool $ {#call unsafe tree_path_up#} tp
-
-treePathDown :: TreePath -> IO ()
-treePathDown = {#call unsafe tree_path_down#}
-
--- | Returns True if the second path is a descendant of the first.
---
-treePathIsAncestor :: TreePath -- ^ A 'TreePath'
-                   -> TreePath -- ^ A possible descendant
-                   -> IO Bool
-treePathIsAncestor path descendant = liftM toBool $
-  {#call unsafe tree_path_is_ancestor#} path descendant
-
--- | Returns True if the first path is a descendant of the second.
---
-treePathIsDescendant :: TreePath -- ^ A possible descendant
-                     -> TreePath -- ^ A 'TreePath' 
-                     -> IO Bool
-treePathIsDescendant path ancestor = liftM toBool $
-  {#call unsafe tree_path_is_descendant#} path ancestor
+fromTreePath :: Ptr NativeTreePath -> IO TreePath
+fromTreePath tpPtr | tpPtr==nullPtr = return []
+		   | otherwise = do
+  path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
+  nativeTreePathFree (NativeTreePath tpPtr)
+  return path
 
 -- | Creates a row reference based on a path. This reference will keep pointing
 -- to the node pointed to by the given path, so long as it exists.
 --
-treeRowReferenceNew :: TreeModelClass tm => tm -> TreePath -> IO TreeRowReference
+treeRowReferenceNew :: TreeModelClass tm => tm -> NativeTreePath ->
+		       IO TreeRowReference
 treeRowReferenceNew tm path = do
   rowRefPtr <- throwIfNull "treeRowReferenceNew: invalid path given" $
     {#call unsafe gtk_tree_row_reference_new#} (toTreeModel tm) path
@@ -355,14 +293,17 @@ foreign import ccall unsafe "gtk_tree_row_reference_free"
 
 #endif
 
--- | Returns a path that the row reference currently points to, or @Nothing@ if
--- the path pointed to is no longer valid.
+-- | Returns a path that the row reference currently points to.
 --
-treeRowReferenceGetPath :: TreeRowReference -> IO (Maybe TreePath)
+-- * The returned path may be the empty list if the reference was invalid.
+--
+treeRowReferenceGetPath :: TreeRowReference -> IO TreePath
 treeRowReferenceGetPath ref = do
-  pathPtr <- {#call unsafe tree_row_reference_get_path#} ref
-  if pathPtr == nullPtr then return Nothing else
-    liftM (Just . TreePath) $ newForeignPtr pathPtr (tree_path_free pathPtr)
+  tpPtr <- {#call unsafe tree_row_reference_get_path#} ref
+  if tpPtr==nullPtr then return [] else do
+  path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
+  nativeTreePathFree (NativeTreePath tpPtr)
+  return path
 
 -- | Returns True if the reference refers to a current valid path.
 --
@@ -408,34 +349,35 @@ foreign import ccall "gtk_tree_iter_free" unsafe
 
 #endif
 
-
--- | Turn a 'TreePath' into a
--- 'TreeIter'.
+-- | Turn a @String@ into a 'TreeIter'.
 --
--- * Returns @Nothing@ if the @tp@ is invalid.
+-- * Returns @Nothing@ if the string is not a colon separated list of numbers
+--   that references a valid node.
 --
-treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
-treeModelGetIter tm tp = do
-  iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-  res <- {#call unsafe tree_model_get_iter#} (toTreeModel tm) iter tp
-  return $ if (toBool res) then Just iter else Nothing
-  
--- | Turn a @String@ into a
--- 'TreeIter'.
---
--- * Returns @Nothing@ if the table is empty.
---
-treeModelGetIterFromString :: TreeModelClass tm => tm -> String -> 
-						   IO (Maybe TreeIter)
+treeModelGetIterFromString :: TreeModelClass tm => tm -> String ->
+                                                   IO (Maybe TreeIter)
 treeModelGetIterFromString tm str = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   res <- withUTFString str $ \strPtr ->
-    {#call unsafe tree_model_get_iter_from_string#} (toTreeModel tm) iter 
+    {#call unsafe tree_model_get_iter_from_string#} (toTreeModel tm) iter
       strPtr
   return $ if (toBool res) then Just iter else Nothing
 
+-- | Turn a 'TreePath' into a 'TreeIter'.
+--
+-- * Returns "Nothing" if the given "TreePath" was invalid. The empty list
+--   is always invalid. The root node of a tree can be accessed by passing
+--   @[0]@ as "TreePath".
+--
+treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
+treeModelGetIter _  [] = return Nothing
+treeModelGetIter tm tp = withTreePath tp $ \nativePath -> do
+  iterPtr <- mallocBytes treeIterSize
+  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
+  res <- {#call unsafe tree_model_get_iter#} (toTreeModel tm) iter nativePath
+  return $ if (toBool res) then Just iter else Nothing
+  
 -- | Retrieves an 'TreeIter' to the
 -- first entry.
 --
@@ -448,11 +390,17 @@ treeModelGetIterFirst tm = do
   res <- {#call unsafe tree_model_get_iter_first#} (toTreeModel tm) iter
   return $ if (toBool res) then Just iter else Nothing
 
+-- | Turn an abstract "TreeIter" into a "TreePath".
+--
+-- * In case the given "TreeIter" was invalid, an empty list is returned.
+--
 treeModelGetPath :: TreeModelClass tm => tm -> TreeIter -> IO TreePath
 treeModelGetPath tm iter =  do
-  tpPtr <- throwIfNull "treeModelGetPath: illegal iterator" $
-    {#call unsafe tree_model_get_path#} (toTreeModel tm) iter
-  liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
+  tpPtr <- {#call unsafe tree_model_get_path#} (toTreeModel tm) iter
+  if tpPtr==nullPtr then return [] else do
+  path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
+  nativeTreePathFree (NativeTreePath tpPtr)
+  return path
 
 -- | Advance the iterator to the next element.
 --
@@ -512,16 +460,4 @@ treeModelIterParent tm child = do
   iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
   res <- {#call unsafe tree_model_iter_parent#} (toTreeModel tm) iter child
   return $ if (toBool res) then Just iter else Nothing
-
--- | No clue.
---
-treeModelRefNode :: TreeModelClass tm => tm -> TreeIter -> IO ()
-treeModelRefNode tm iter = 
-  {#call unsafe tree_model_ref_node#} (toTreeModel tm) iter
-
--- | No clue either.
---
-treeModelUnrefNode :: TreeModelClass tm => tm -> TreeIter -> IO ()
-treeModelUnrefNode tm iter = 
-  {#call unsafe tree_model_unref_node#} (toTreeModel tm) iter
 

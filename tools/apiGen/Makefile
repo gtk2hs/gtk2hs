@@ -32,23 +32,27 @@ GLIB_VERSION = 2.4.8
 PANGO_VERSION = 1.4.1
 ATK_VERSION = 1.6.1
 GTK_VERSION = 2.4.14
-GLADE_VERSION = 2.3.6
+GLADE_VERSION = 2.0.1
 
 DOWNLOADS = \
-	ftp://ftp.gtk.org/pub/gtk/v2.4/glib-$(GLIB_VERSION).tar.gz				\
-	ftp://ftp.gtk.org/pub/gtk/v2.4/pango-$(PANGO_VERSION).tar.gz				\
-	ftp://ftp.gtk.org/pub/gtk/v2.4/atk-$(ATK_VERSION).tar.gz				\
-	ftp://ftp.gtk.org/pub/gtk/v2.4/gtk+-$(GTK_VERSION).tar.gz				\
-	http://ftp.gnome.org/pub/GNOME/desktop/2.6/2.6.2/sources/libglade-$(GLADE_VERSION).tar.gz\
-	http://ftp.gnome.org/pub/GNOME/desktop/2.6/2.6.2/sources/libgnomecanvas-2.6.1.1.tar.gz
+	ftp://ftp.gtk.org/pub/gtk/v2.4/glib-$(GLIB_VERSION).tar.bz2				\
+	ftp://ftp.gtk.org/pub/gtk/v2.4/pango-$(PANGO_VERSION).tar.bz2				\
+	ftp://ftp.gtk.org/pub/gtk/v2.4/atk-$(ATK_VERSION).tar.bz2				\
+	ftp://ftp.gtk.org/pub/gtk/v2.4/gtk+-$(GTK_VERSION).tar.bz2				\
+	http://ftp.gnome.org/pub/GNOME/desktop/2.4/2.4.2/sources/libglade-$(GLADE_VERSION).tar.bz2\
+	http://ftp.gnome.org/pub/GNOME/desktop/2.4/2.4.2/sources/libgnomecanvas-2.4.0.tar.bz2
 
 get-source-code:
-	for i in $(DOWNLOADS); do                          \
-		wget $$i --output-document=- | tar -xz ;   \
+	for i in $(DOWNLOADS); do \
+	  UNPACKDIR=`echo $$i | sed 's:.*/\([a-z+]*\)-\([0-9.]*\).tar.bz2:\1-\2:'`;\
+	  FINALDIR=`echo $$i | sed 's:.*/\([a-z+]*\)-\([0-9.]*\).tar.bz2:\1:'`;\
+	  if ! test -d $$FINALDIR ; then \
+	    wget $$i --output-document=- | tar -xj && mv $$UNPACKDIR $$FINALDIR; \
+	  fi; \
 	done;
 	# following fixes borrowed from Gtk#
-	ln -f -s gtkfilechooserprivate.h gtk+-$(GTK_VERSION)/gtk/gtkfilechooserpriv.h
-	sed -i 's:( \*link_activated):(\* link_activated):' atk-1.6.1/atk/atkhyperlink.h
+	ln -f -s gtkfilechooserprivate.h gtk+/gtk/gtkfilechooserpriv.h
+	sed -i 's:( \*link_activated):(\* link_activated):' atk/atk/atkhyperlink.h
 
 #############################
 #
@@ -69,7 +73,7 @@ get-source-code:
 #prep-gtk-docs : gtk+-$(GTK_VERSION)
 #	cd $< && ./configure --enable-gtk-doc && make
 
-gtk-docs.xml : gtk+-$(GTK_VERSION)/docs/reference/gtk/xml format-docs.xsl
+gtk-docs.xml : gtk+/docs/reference/gtk/xml format-docs.xsl
 	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
 gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen \
@@ -86,8 +90,8 @@ gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen \
 #
 #	Gdk modules
 #
-gdk-docs.xml :	gtk+-$(GTK_VERSION)/docs/reference/gdk/xml \
-		gtk+-$(GTK_VERSION)/docs/reference/gdk-pixbuf/xml \
+gdk-docs.xml :	gtk+/docs/reference/gdk/xml \
+		gtk+/docs/reference/gdk-pixbuf/xml \
 		format-docs.xsl
 	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
@@ -103,7 +107,7 @@ gdk-modules : gdk-api.xml gdk-docs.xml Template.chs ApiGen
 #prep-pango-docs : pango-$(PANGO_VERSION)
 #	cd $< && ./configure --enable-gtk-doc && make
 
-pango-docs.xml : pango-$(PANGO_VERSION)/docs/xml format-docs.xsl
+pango-docs.xml : pango/docs/xml format-docs.xsl
 	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
 pango-modules : pango-api.xml pango-docs.xml Template.chs ApiGen

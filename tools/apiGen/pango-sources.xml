@@ -2,16 +2,16 @@
   <api filename="pango-api.xml">
     <library name="pango">
       <namespace name="Pango">
-        <dir>pango-1.4.1/pango</dir>
-	<exclude>pango-1.4.1/pango/pangox-fontcache.c</exclude>
-	<exclude>pango-1.4.1/pango/pangox-fontmap.c</exclude>
-	<exclude>pango-1.4.1/pango/pangox-private.h</exclude>
-	<exclude>pango-1.4.1/pango/pangox.h</exclude>
-	<exclude>pango-1.4.1/pango/pangox.c</exclude>
-	<exclude>pango-1.4.1/pango/pangoxft.h</exclude>
-	<exclude>pango-1.4.1/pango/pangoxft-font.h</exclude>
-	<exclude>pango-1.4.1/pango/pangoxft-fontmap.h</exclude>
-	<exclude>pango-1.4.1/pango/pangoxft-private.h</exclude>
+        <dir>pango/pango</dir>
+	<exclude>pango/pango/pangox-fontcache.c</exclude>
+	<exclude>pango/pango/pangox-fontmap.c</exclude>
+	<exclude>pango/pango/pangox-private.h</exclude>
+	<exclude>pango/pango/pangox.h</exclude>
+	<exclude>pango/pango/pangox.c</exclude>
+	<exclude>pango/pango/pangoxft.h</exclude>
+	<exclude>pango/pango/pangoxft-font.h</exclude>
+	<exclude>pango/pango/pangoxft-fontmap.h</exclude>
+	<exclude>pango/pango/pangoxft-private.h</exclude>
       </namespace>
     </library>
   </api>

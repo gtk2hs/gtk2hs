@@ -1,3 +1,31 @@
+2005-02-16 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am: Renamed TreeViewColumn.chs, TreeModelSort.chs,
+	TreeSelection.chs, DrawWindow.hs to .chs.pp files.
+
+	* demo/unicode/Arabic.hs: Make the font sensibly large.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Enums.chs: Docu fix.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp,
+	mogul/Graphics/UI/Gtk/Mogul.hs,
+	mogul/Graphics/UI/Gtk/Mogul/TreeList.hs: Changed the type TreePath
+	to list of integers and got rid of the C-side TreePath type. The
+	Mogul TreePath type is now integrated into TreeModel. Completed
+	TreeModel and TreeView binding.
+	
+	* gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp: Bind all sensible
+	functions (i.e. those that are not in gtk_window).
+
+	* tools/apiGen/atk-sources.xml, tools/apiGen/gdk-sources.xml,
+	tools/apiGen/glade-sources.xml,
+	tools/apiGen/gnomecanvas-sources.xml,
+	tools/apiGen/gtk-sources.xml, tools/apiGen/pango-sources.xml,
+	tools/apiGen/Makefile: Make the build work for different version
+	numbers by renaming the source trees to names without version
+	numbers.
+	
 2005-02-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Display/Image.chs.pp: fix an #if test so that it

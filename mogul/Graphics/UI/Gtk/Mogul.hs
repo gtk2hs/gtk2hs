@@ -6,7 +6,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 16:42:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/17 00:13:21 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -106,23 +106,6 @@ import Graphics.UI.Gtk hiding (
   treeViewNew,
   -- TreeModel
   treeModelGetValue,
-  TreePath,
-  treePathNew,
-  treePathNewFromString,
-  treePathToString,
-  treePathNewFirst,
-  treePathAppendIndex,
-  treePathPrependIndex,
-  treePathGetDepth,
-  treePathGetIndices,
-  treePathCopy,
-  treePathCompare,
-  treePathNext,
-  treePathPrev,
-  treePathUp,
-  treePathDown,
-  treeModelGetIter,
-  treeModelGetPath,
   -- ListStore
   listStoreNew,
   listStoreSetValue,
@@ -136,8 +119,6 @@ import Graphics.UI.Gtk hiding (
   afterEdited,
   CellRendererPixbuf,
   CellRendererToggle,
-  -- TreeView
-  treeViewGetPathAtPos,
 
   calendarNew,
   --drawingAreaNew,

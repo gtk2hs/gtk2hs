@@ -2,7 +2,7 @@
   <api filename="atk-api.xml">
     <library name="atk">
       <namespace name="Atk">
-        <dir>atk-1.6.1/atk</dir>
+        <dir>atk/atk</dir>
       </namespace>
     </library>
   </api>

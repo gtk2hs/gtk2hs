@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 16:40:16 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/17 00:13:21 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -79,17 +79,12 @@ module Graphics.UI.Gtk.Mogul.TreeList (
   treeViewColumnNewPixbuf,
   treeViewColumnNewToggle,
   treeViewColumnAssociate,
-  treeViewGetPathAtPos,
   -- * CellRenderer
   cellRendererSetAttribute,
   cellRendererGetAttribute,
   -- * CellRendererText
   onEdited,
   afterEdited,  
-  -- * TreeModel
-  TreePath,
-  treeModelGetIter,
-  treeModelGetPath
   ) where
 
 import Monad	(liftM, mapM, mapM_, foldM)
@@ -97,21 +92,6 @@ import System.Glib.GType	(typeInstanceIsA)
 import Graphics.UI.Gtk	hiding (
   -- TreeModel
   treeModelGetValue,
-  TreePath,
-  treePathNew,
-  treePathNewFromString,
-  treePathToString,
-  treePathNewFirst,
-  treePathAppendIndex,
-  treePathPrependIndex,
-  treePathGetDepth,
-  treePathGetIndices,
-  treePathCopy,
-  treePathCompare,
-  treePathNext,
-  treePathPrev,
-  treePathUp,
-  treePathDown,
   treeModelGetIter,
   treeModelGetPath,
   -- ListStore
@@ -345,31 +325,6 @@ treeViewColumnAssociate (Renderer ren  tvc) assocs = do
   mapM_ (\(attr,col) ->
     Gtk.treeViewColumnAddAttribute tvc ren attr col) assocs'
 
--- | Map a pixel to the specific cell.
---
--- * Finds the path at the 'Point' @(x, y)@. The
---   coordinates @x@ and @y@ are relative to the top left
---   corner of the 'TreeView' drawing window. As such, coordinates
---   in a mouse click event can be used directly to determine the cell
---   which the user clicked on. This is therefore a way to realize for
---   popup menus.
---
--- * The returned point is the input point relative to the cell's upper
---   left corner. The whole 'TreeView' is divided between all cells.
---   The returned point is relative to the rectangle this cell occupies
---   within the 'TreeView'.
---
-treeViewGetPathAtPos :: TreeViewClass tv => tv -> Point ->
-			IO (Maybe (TreePath, TreeViewColumn, Point))
-treeViewGetPathAtPos tv pt = do
-  maybePath <- Gtk.treeViewGetPathAtPos tv pt
-  case maybePath of
-    Nothing -> return Nothing
-    Just (realPath, col, relPt) -> do
-      -- convert path component to mogul's TreePath representation
-      path <- Gtk.treePathGetIndices realPath
-      return $ Just (path, col, relPt)
-
 -- | Set an 'Attribute' globally.
 --
 -- * An 'Attribute' of a 'Renderer' can either be set
@@ -400,27 +355,3 @@ onEdited, afterEdited :: TreeModelClass tm =>
 			 IO (ConnectId CellRendererText)
 onEdited (Renderer ren _) = Gtk.onEdited ren
 afterEdited (Renderer ren _) = Gtk.afterEdited ren
-
--- | A simple way of addressing nodes.
---
--- These integer lists are used to address nodes in a hierarchical 
--- 'ListStore' structure. 
---
-type TreePath = [Int]
-
--- | Turn a 'TreePath' into an abstract 'TreeIter'ator.
---
-treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
-treeModelGetIter _  [] = throw $ AssertionFailed "Mogul.treeModelGetIter: \
-			 \a path must contain at least one element."
-treeModelGetIter tm tp = do
-  realPath <- Gtk.treePathNew
-  mapM_ (Gtk.treePathAppendIndex realPath) tp
-  Gtk.treeModelGetIter tm realPath
-
--- | Turn an abstract 'TreeIter' into a 'TreePath'.
---
-treeModelGetPath :: TreeModelClass tm => tm -> TreeIter -> IO TreePath
-treeModelGetPath tm ti = do
-  realPath <- Gtk.treeModelGetPath tm ti
-  Gtk.treePathGetIndices realPath

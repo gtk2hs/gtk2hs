@@ -21,7 +21,7 @@ main = do
     _ -> return ()
 
 arabic :: Markup
-arabic = markSpan [FontSize SizeGiant]  $
+arabic = markSpan [FontSize (SizePoint 36)]  $
  --"Is Haskell a "++markSpan [FontForeground "red"] "fantastic"++" language?"++
  -- Do you find Haskell a fantastic language? (language has a grammatical
  -- mistake in it)

@@ -5,7 +5,7 @@
 --
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/17 00:13:20 $
 --
 --  Copyright (C) 1999-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -139,7 +139,7 @@ instance Flags InputCondition
 {#enum VisibilityState {underscoreToCase,
 			VISIBILITY_PARTIAL as VisibilityPartialObscured}#}
 
--- | the state a GDK window is in
+-- | The state a @DrawWindow@ is in.
 --
 {#enum WindowState {underscoreToCase} deriving (Bounded)#}
 
