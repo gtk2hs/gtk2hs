@@ -1,3 +1,19 @@
+2003-05-10  Jens Petersen  <petersen@redhat.com>
+
+	* mk/library.mk (install): Weaken to an install suitable for
+	packaging in a buildroot, ie do not install the package config
+	file into the buildroot.
+	(installfiles): Install package config file too.
+	(installpackage): Rename to "$(PACKAGENAME).conf".  Write pkg config
+	to target, rather than installing directly in compiler's packages
+	list.
+	(install-pkg): New target.  Installs pkg config file into
+	compiler's packages list.
+	(uninstall): New target.  Unstalls files and removes package from
+	compiler's packages list.
+	($(TARGETOK)): Remove $(PACKAGENAME).conf so that it will be
+	regenerated.
+
 2003-05-09 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* mk/common.mk: Run hsc2hs only with the libraries in CFLAGS not

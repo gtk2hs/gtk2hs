@@ -53,18 +53,18 @@ installcheck :
 installdirs :
 	$(INSTALL) -d $(INST_HIDIR) $(INST_LIBDIR) $(INST_INCLDIR)
 
-install : installcheck $(TARGETOK) installdirs installfiles \
-	  installpackage #interactiveInstall
+install : $(TARGETOK) installdirs installfiles
 
-installfiles :
+installfiles : $(PACKAGENAME).conf
 	$(INSTALL) -m644 $(ALLHSFILES:.hs=.hi) $(INST_HIDIR)
 	$(INSTALL) -m644 $(TARGETOK) $(INST_LIBDIR)
 	$(TOUCH) -r $(TARGETOK) $(INST_LIBDIR)/$(TARGETOK)
 ifneq ($(strip $(STUBHFILES) $(EXTRA_HFILESOK)),)
 	$(INSTALL) -m644 $(STUBHFILES) $(EXTRA_HFILESOK) $(INST_INCLDIR)
 endif
+	$(INSTALL) -m644 $(PACKAGENAME).conf $(INST_LIBDIR)
 
-installpackage :
+$(PACKAGENAME).conf :
 	@echo Package {\
 	  name			= \"$(PACKAGENAME)\",\
 	  import_dirs		= [\"$(INST_HIDIR)\"],\
@@ -86,8 +86,14 @@ installpackage :
 	  extra_ld_opts		= [$(call makeTextList,\
           $(addprefix -Wl$(COMMA),\
 	  $(addprefix --subsystem$(SPACE),$(SUBSYSTEM))) \
-	  $(addprefix -u ,$(EXTRA_SYMBOLS)))]} | \
-	  $(PKG) --force -a
+	  $(addprefix -u ,$(EXTRA_SYMBOLS)))]} \
+	> $(PACKAGENAME).conf
+
+install-pkg : installcheck install
+	$(PKG) -i $(PACKAGENAME).conf -a 
+
+uninstall-pkg : uninstall
+	$(PKG) -r $(PACKAGENAME)
 
 uninstall : uninstallfiles uninstallpackage
 
@@ -107,6 +113,7 @@ uninstallpackage :
 
 $(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
 	      $(LIBSUFFIX)=$(OBJSUFFIX)) $(GHCIOBJS)
+	$(RM) $(PACKAGENAME).conf
 	$(runC2HS)
 	$(RM) $@
 	$(strip $(HC) --make $(MAINOK) -package-name $(PACKAGENAME) \

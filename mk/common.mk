@@ -151,7 +151,7 @@ C2HSFLAGGED	:= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 # Quick and dirty dependency to force the compilation of .chs file if
 # a current version of the .chi file is needed.
 %.chi : %.hs
- 
+
 define runC2HS
 if test -f .depend; then \
   echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend` && \
