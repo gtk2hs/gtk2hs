@@ -54,7 +54,7 @@
 	
 	* Makefile: No longer build gendoc or doc.  Build mogul after gtk2.
 
-2004-08-15  Axel Simon <A.Simon@kent.ac.uk>
+2004-08-16  Axel Simon <A.Simon@kent.ac.uk>
 
 	* mk/common.mk, mk/library.mk, mk/recurse.mk, Makefile: Make clean
 	and make distclean remove more files now.
