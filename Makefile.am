@@ -215,12 +215,12 @@ DISTCLEANFILES+= tools/c2hs/c2hsLocal.deps
 
 glib_PKGNAME = libHSglib_a
 
-libHSglib_a_PACKAGE		= glib/glib.pkg
+libHSglib_a_PACKAGE		= glib/glib.$(PKGEXT)
 libHSglib_a_PACKAGEDEPS		= 
 libHSglib_a_HEADER 		= glib-object.h
 libHSglib_a_PRECOMP		= glib/glib.precomp
 libHSglib_a_LIBS		= $(GLIB_LIBS)
-libHSglib_a_HCFLAGS		= -fffi
+libHSglib_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
 libHSglib_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS))
 libHSglib_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS))
 
@@ -287,12 +287,12 @@ DISTCLEANFILES+= glib/libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
 
 gtk_PKGNAME = libHSgtk_a
 
-libHSgtk_a_PACKAGE		= gtk/gtk.pkg
+libHSgtk_a_PACKAGE		= gtk/gtk.$(PKGEXT)
 libHSgtk_a_PACKAGEDEPS		= 
 libHSgtk_a_HEADER 		= gtk/gtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
 libHSgtk_a_LIBS			= $(GLIB_LIBS) $(GTK_LIBS)
-libHSgtk_a_HCFLAGS		= -fffi
+libHSgtk_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
 libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
@@ -524,10 +524,10 @@ $(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
 
 mogul_PKGNAME = libHSmogul_a
 
-libHSmogul_a_PACKAGE		= mogul/mogul.pkg
+libHSmogul_a_PACKAGE		= mogul/mogul.$(PKGEXT)
 libHSmogul_a_PACKAGEDEPS	= 
 libHSmogul_a_LIBS		= 
-libHSmogul_a_HCFLAGS		= 
+libHSmogul_a_HCFLAGS		= $(if $(USE_CABAL),-ignore-package glib)
 libHSmogul_a_CFLAGS 		= 
 libHSmogul_a_CPPFLAGS 		= 
 
@@ -570,12 +570,12 @@ if ENABLE_LIBGLADE
 
 glade_PKGNAME = libHSglade_a
 
-libHSglade_a_PACKAGE		= glade/glade.pkg
+libHSglade_a_PACKAGE		= glade/glade.$(PKGEXT)
 libHSglade_a_PACKAGEDEPS	= 
 libHSglade_a_HEADER 		= glade/glade.h
 libHSglade_a_PRECOMP		= glade/glade.precomp
 libHSglade_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(LIBGLADE_LIBS)
-libHSglade_a_HCFLAGS		= -fffi
+libHSglade_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
 libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 
@@ -649,12 +649,13 @@ if ENABLE_GNOME
 
 gconf_PKGNAME = libHSgconf_a
 
-libHSgconf_a_PACKAGE		= gconf/gconf.pkg
+libHSgconf_a_PACKAGE		= gconf/gconf.$(PKGEXT)
 libHSgconf_a_PACKAGEDEPS	= 
 libHSgconf_a_HEADER 		= gconf/gconf-client.h
 libHSgconf_a_PRECOMP		= gconf/gconf.precomp
 libHSgconf_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(GCONF_LIBS)
-libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances
+libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances \
+                                   $(if $(USE_CABAL),-ignore-package glib)
 libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_CFLAGS))
 libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_CFLAGS))
 
@@ -735,12 +736,12 @@ if ENABLE_GNOME
 
 sourceview_PKGNAME = libHSsourceview_a
 
-libHSsourceview_a_PACKAGE	= sourceview/sourceview.pkg
+libHSsourceview_a_PACKAGE	= sourceview/sourceview.$(PKGEXT)
 libHSsourceview_a_PACKAGEDEPS	= 
 libHSsourceview_a_HEADER 	= sourceview.h
 libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
 libHSsourceview_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(SOURCEVIEW_LIBS)
-libHSsourceview_a_HCFLAGS	= -fffi
+libHSsourceview_a_HCFLAGS	= -fffi $(if $(USE_CABAL),-ignore-package glib)
 libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
 libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
 
@@ -825,12 +826,12 @@ if ENABLE_MOZEMBED
 
 mozembed_PKGNAME = libHSmozembed_a
 
-libHSmozembed_a_PACKAGE		= mozembed/mozembed.pkg
+libHSmozembed_a_PACKAGE		= mozembed/mozembed.$(PKGEXT)
 libHSmozembed_a_PACKAGEDEPS	= 
 libHSmozembed_a_HEADER 		= gtkmozembed.h
 libHSmozembed_a_PRECOMP		= mozembed/mozembed.precomp
 libHSmozembed_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(MOZEMBED_LIBS)
-libHSmozembed_a_HCFLAGS		= -fffi
+libHSmozembed_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
 libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 
@@ -1002,6 +1003,16 @@ EXTRA_DIST +=								\
 # and if your installation gets corrupt you can re-register the packages from them.
 pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),PACKAGE))
 
+COMMA := ,
+getModules =									\
+	$(subst $(SPACE),$(COMMA) ,$(sort					\
+		$(foreach HSFILE,$(call getVar,$(1),HSFILES), 			\
+			$(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, %,	\
+				$(subst /,.,$(HSFILE))				\
+			)							\
+		)								\
+	))
+
 if ENABLE_PKGREG
 
 # For distributors we usually do not want to register the packages using
@@ -1013,10 +1024,10 @@ install-data-hook :
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	rm -f $(DESTDIR)$(pkglibdir)/$(patsubst lib%.a,%.o,$(pkgname)); \
-	prefix=$(prefix) exec_prefix=$(exec_prefix) pkglibdir=$(pkglibdir) \
-	$(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
-	--update-package $(GHCPKG_BUILD_GHCI_LIB) \
-	--input-file=$(call getVar,$(pkgname),PACKAGE);)
+	sed 's:$${pkglibdir}:$(pkglibdir):g' $(call getVar,$(pkgname),PACKAGE) \
+	| sed 's:$${modules}:$(call getModules,$(pkgname)):' \
+	| $(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
+	--update-package $(GHCPKG_BUILD_GHCI_LIB);)
 
 uninstall-hook :
 	$(foreach pkgname,$(pkglib_LIBRARIES), \

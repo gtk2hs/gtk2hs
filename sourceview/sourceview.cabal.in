@@ -1,0 +1,20 @@
+name: sourceview
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://gtk2hs.sourceforge.net/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: @hidir@/sourceview
+library-dirs: @SOURCEVIEW_LIBDIR_CQ@
+hs-libraries: HSsourceview
+extra-libraries: @SOURCEVIEW_LIBS_CQ@
+include-dirs: @SOURCEVIEW_CFLAGS_CQ@
+includes: gtksourceview/gtksourceview.h, gtksourceview/gtksourcemarker.h,
+          gtksourceview/gtksourcelanguagesmanager.h,
+          gtksourceview/gtksourcetag.h, gtksourceview/gtksourcemarker.h,
+          gtksourceview/gtksourceiter.h
+depends: gtk-@PACKAGE_VERSION@
+extra-ld-opts: @SOURCEVIEW_LIBEXTRA_CQ@

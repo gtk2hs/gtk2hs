@@ -98,9 +98,14 @@ dnl
 AC_DEFUN([GTKHS_REFORMAT_PACKAGE_CFLAGS],
 [
 C=; [$2]=;
+if test "$USE_CABAL" = "yes"; then
+  SEP=", "; QUOTE=""
+else
+  SEP=","; QUOTE="\""
+fi
 for FLAG in [$][$1]; do
   case [$]FLAG in
-    -I*) [$2]="[$][$2][$]C\"[$]{FLAG#-I}\""; C=",";;
+    -I*) [$2]="[$][$2][$]C[$]QUOTE[$]{FLAG#-I}$QUOTE"; C=$SEP;;
   esac;
 done;
 ])dnl
@@ -117,11 +122,16 @@ dnl
 AC_DEFUN([GTKHS_REFORMAT_PACKAGE_LIBS],
 [
 C_LIBS=; [$2]=; C_LDIR=; [$3]=; C_XTRA=; [$4]=; 
+if test "$USE_CABAL" = "yes"; then
+  SEP=", "; QUOTE=""
+else
+  SEP=","; QUOTE="\""
+fi
 for FLAG in [$][$1]; do
   case [$]FLAG in
-    -l*) [$2]="[$][$2][$]C_LIBS\"[$]{FLAG#-l}\""; C_LIBS=",";;
-    -L*) [$3]="[$][$3][$]C_LDIR\"[$]{FLAG#-L}\""; C_LDIR=",";;
-    *)   [$4]="[$][$4][$]C_XTRA\"[$]FLAG\""; C_XTRA=",";;
+    -l*) [$2]="[$][$2][$]C_LIBS[$]QUOTE[$]{FLAG#-l}$QUOTE"; C_LIBS=$SEP;;
+    -L*) [$3]="[$][$3][$]C_LDIR[$]QUOTE[$]{FLAG#-L}$QUOTE"; C_LDIR=$SEP;;
+    *)   [$4]="[$][$4][$]C_XTRA[$]QUOTE[$]FLAG[$]QUOTE"; C_XTRA=$SEP;;
   esac;
 done;
 dnl Fix for ghc-pkg in that it doesn't differ between paths to extra
@@ -129,7 +139,7 @@ dnl libraries and paths to Haskell libraries. We have to append the
 dnl path to where the Haskell libraries are going to be installed in
 dnl case they go into a non-standard directory. If they go into a
 dnl standard directory then we duplicate a path here. Dough.
-[$3]="[$][$3][$]C_LDIR\"\${pkglibdir}\"";
+[$3]="[$][$3][$]C_LDIR[$]QUOTE\${pkglibdir}[$]QUOTE";
 ])dnl
 
 dnl Another hack, on glibc systems GHCi cannot load the pthread library,

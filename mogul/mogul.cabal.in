@@ -1,0 +1,13 @@
+name: mogul
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://gtk2hs.sourceforge.net/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: @hidir@/mogul
+library-dirs: @GTK_LIBDIR_CQ@
+hs-libraries: HSmogul
+depends: gtk-@PACKAGE_VERSION@

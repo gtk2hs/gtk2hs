@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.7.1)
+AC_INIT(gtk2hs, 0.9.7.9)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
@@ -162,6 +162,19 @@ dnl hence this test which only enables it for ghc 6 onwards.
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.0.0, [
 GHCPKG_USE_AUTOLIBS="auto            = True,"
 ])
+
+dnl From ghc 6.4 onwards, ghc-pkg only understands the cabal package format
+dnl so we must produce and register .cabal files instead of the old .pkg
+dnl files.
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4.0, [
+USE_CABAL=yes
+])
+AM_CONDITIONAL(USE_CABAL, test "$USE_CABAL" = "yes")
+if test "$USE_CABAL" = "yes"; then
+  PKGEXT=cabal
+else
+  PKGEXT=pkg
+fi
 
 dnl ghc-pkg 5 searches for libxxx.a, even on Windows. Hence, we need to
 dnl create libraries with these names instead of the windows names.
@@ -599,8 +612,9 @@ dnl Needed substitution.
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(FOUR_WORD_CALLBACK)
-AC_SUBST(GHCPKG_LISTLOCAL)
 AC_SUBST(PKGCONF)
+AC_SUBST(USE_CABAL)
+AC_SUBST(PKGEXT)
 AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(HSC2HS)
@@ -646,13 +660,13 @@ AC_OUTPUT([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
-  glib/glib.pkg
-  gtk/gtk.pkg
-  mogul/mogul.pkg
-  glade/glade.pkg
-  gconf/gconf.pkg
-  sourceview/sourceview.pkg
-  mozembed/mozembed.pkg],
+  glib/glib.pkg			glib/glib.cabal
+  gtk/gtk.pkg			gtk/gtk.cabal
+  mogul/mogul.pkg		mogul/mogul.cabal
+  glade/glade.pkg		glade/glade.cabal
+  gconf/gconf.pkg		gconf/gconf.cabal
+  sourceview/sourceview.pkg	sourceview/sourceview.cabal
+  mozembed/mozembed.pkg		mozembed/mozembed.cabal],
   [chmod a+x mk/chsDepend && chmod a+x install-sh])
 
 dnl ...and chat with the user
