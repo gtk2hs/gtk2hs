@@ -12,15 +12,15 @@ CPPFLAGS += $(filter -I% -D%, \
 SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
 	gtk/gdk gtk/abstract gtk/display gtk/entry gtk/misc gtk/multiline    \
 	gtk/ornaments gtk/scrolling gtk/treeList gtk/selectors gtk/embedding \
-	compat gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows	     \
+	gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows		     \
 	tools/hierarchyGen tools/callbackGen tools/apicoverage		     \
 	tools/c2hs/base/admin tools/c2hs/base/errors			     \
 	tools/c2hs/base/general tools/c2hs/base/graphs			     \
 	tools/c2hs/base/state tools/c2hs/base/syms			     \
 	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
 	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel   \
-        mogul glade gconf gconf/System/Gnome gconf/System/Gnome/GConf	     \
-        sourceview
+	mogul glade gconf gconf/System/Gnome gconf/System/Gnome/GConf	     \
+	sourceview
 
 EXTRA_DIST = \
 	tools/callbackGen/Signal.chs-boot1	\
@@ -39,11 +39,11 @@ HSC = hsc2hs
 
 # all packages and applications
 lib_LIBRARIES =		\
-        libgtk2hs.a	\
-        libmogul.a	\
-        libglade.a	\
-        libgconf.a	\
-        libsourceview.a
+        libHSgtk.a	\
+        libHSmogul.a	\
+        libHSglade.a	\
+        libHSgconf.a	\
+        libHSsourceview.a
         
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
@@ -51,7 +51,10 @@ noinst_PROGRAMS = \
 	tools/apicoverage/Exclude \
 	tools/c2hs/c2hsLocal
 
-# TypeGenerator
+#
+#	TypeGenerator Tool
+#
+################################################################################
 
 # While building the program <name>, set the variable NAME to <name> so
 # we can access program-specific variables like <name>_PACKAGEDEPS. The
@@ -62,7 +65,7 @@ $(TypeGenerator_NAME) : NAME = tools_hierarchyGen_TypeGenerator
 
 tools_hierarchyGen_TypeGenerator_MAIN = \
   $(tools_hierarchyGen_TypeGenerator_SOURCES)
-tools_hierarchyGen_TypeGenerator_PACKAGEDEPS = data
+tools_hierarchyGen_TypeGenerator_PACKAGEDEPS = 
 tools_hierarchyGen_TypeGenerator_SOURCES = \
   tools/hierarchyGen/TypeGen.hs
 # Fix automake - the subdir-objects option doesn't work here.
@@ -76,13 +79,17 @@ gtk/general/Hierarchy.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
         $(srcdir)/tools/hierarchyGen/hierarchy.list \
         $@ $(addprefix --tag=,$(CREATE_TYPES)))
 
-# HookGenerator
+#
+#	HookGenerator Tool
+#
+################################################################################
+
 HookGenerator_NAME = tools/callbackGen/HookGenerator
 $(HookGenerator_NAME) : NAME = tools_callbackGen_HookGenerator
 
 tools_callbackGen_HookGenerator_MAIN = \
   $(tools_callbackGen_HookGenerator_SOURCES)
-tools_callbackGen_HookGenerator_PACKAGEDEPS = data
+tools_callbackGen_HookGenerator_PACKAGEDEPS = 
 tools_callbackGen_HookGenerator_SOURCES = \
   tools/callbackGen/HookGenerator.hs
 am_tools_callbackGen_HookGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
@@ -98,25 +105,33 @@ gtk/general/Signal.chs : $(srcdir)/tools/callbackGen/Signal.chs-boot1 \
 	$(srcdir)/tools/callbackGen/ gtk/general/Signal.chs \
 	$(if $(subst yes,,$(BROKENCB)),--broken))
 
-# API Coverage Tool
+#
+#	API Coverage Tool
+#
+################################################################################
+
 Exclude_NAME = tools/apicoverage/Exclude
 $(Exclude_NAME) : NAME = tools_apicoverage_Exclude
 
 tools_apicoverage_Exclude_MAIN = \
   $(tools_apicoverage_Exclude_SOURCES)
-tools_apicoverage_Exclude_PACKAGEDEPS = data
+tools_apicoverage_Exclude_PACKAGEDEPS = 
 tools_apicoverage_Exclude_SOURCES = \
   tools/apicoverage/Exclude.hs
 am_tools_apicoverage_Exclude_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_apicoverage_Exclude_SOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_apicoverage_Exclude_OBJECTS)
 
-# c2hs interface generator
+#
+#	c2hs interface generator
+#
+################################################################################
+
 tools_c2hs_c2hsLocal_NAME = tools/c2hs/c2hsLocal
 $(tools_c2hs_c2hsLocal_NAME) : NAME = tools_c2hs_c2hsLocal
 
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
-tools_c2hs_c2hsLocal_PACKAGEDEPS	= lang
+tools_c2hs_c2hsLocal_PACKAGEDEPS	= 
 tools_c2hs_c2hsLocal_HEADER		= tools/c2hs/toplevel/c2hs_config.h
 tools_c2hs_c2hsLocal_HCFLAGS		= -fglasgow-exts -fffi
 
@@ -181,20 +196,24 @@ CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)
 DISTCLEANFILES+= tools_c2hs_c2hsLocal.deps
 -include tools_c2hs_c2hsLocal.deps
 
-# gtk2hs GUI library
-libgtk2hs_a_NAME = libgtk2hs.a
-$(libgtk2hs_a_NAME) : NAME = libgtk2hs_a
+#
+#	gtk package
+#
+################################################################################
 
-libgtk2hs_a_PACKAGE		= gtk/gtk2hs.pkg
-libgtk2hs_a_PACKAGEDEPS		= data
-libgtk2hs_a_HEADER 		= gtk/gtk.h
-libgtk2hs_a_PRECOMP		= gtk/gtk.precomp
-libgtk2hs_a_LIBS		= @GTK_LIBS@
-libgtk2hs_a_HCFLAGS		= -fglasgow-exts
-libgtk2hs_a_CFLAGS 		= $(filter-out -I% -D%,$(GTK_CFLAGS))
-libgtk2hs_a_CPPFLAGS 		= $(filter -I% -D%,$(GTK_CFLAGS))
+libHSgtk_a_NAME = libHSgtk.a
+$(libHSgtk_a_NAME) : NAME = libHSgtk_a
 
-libgtk2hs_a_SOURCES =			  \
+libHSgtk_a_PACKAGE		= gtk/gtk.pkg
+libHSgtk_a_PACKAGEDEPS		= 
+libHSgtk_a_HEADER 		= gtk/gtk.h
+libHSgtk_a_PRECOMP		= gtk/gtk.precomp
+libHSgtk_a_LIBS			= @GTK_LIBS@
+libHSgtk_a_HCFLAGS		= -fglasgow-exts
+libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GTK_CFLAGS))
+libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GTK_CFLAGS))
+
+libHSgtk_a_SOURCES =			  \
 	gtk/general/Hierarchy.chs		  \
 	gtk/general/Signal.chs			  \
 	gtk/glib/GValue.chs			  \
@@ -324,11 +343,9 @@ libgtk2hs_a_SOURCES =			  \
 	gtk/general/Gtk.hs			  \
 	gtk/treeList/CellRenderer.hs		  \
 	gtk/gdk/DrawWindow.hs			  \
-	gtk/pango/Markup.hs			  \
-	compat/LocalControl.hs			  \
-	compat/LocalData.hs
+	gtk/pango/Markup.hs
 
-libgtk2hs_a_LIBADD =						       \
+libHSgtk_a_LIBADD =						       \
 	gtk/abstract/Container_stub.o				       \
 	gtk/multiline/TextIter_stub.o gtk/entry/EntryCompletion_stub.o \
         gtk/multiline/TextTagTable_stub.o gtk/general/General_stub.o   \
@@ -347,46 +364,49 @@ gtk/abstract/Container_stub.o				       \
 	$(CC) -c -o $@ $(@:.o=.c)
 
 
-am_libgtk2hs_a_OBJECTS = \
-  $(addsuffix .$(OBJEXT),$(basename $(basename $(libgtk2hs_a_SOURCES))))
+am_libHSgtk_a_OBJECTS = \
+  $(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtk_a_SOURCES))))
 
-libgtk2hs_a_CHSPPFILES = $(filter %.chs.pp,$(libgtk2hs_a_SOURCES))
-libgtk2hs_a_CHSFILES = \
-  $(filter %.chs,$(libgtk2hs_a_SOURCES:.chs.pp=.chs))
-libgtk2hs_a_CHSFILES_HS = $(libgtk2hs_a_CHSFILES:.chs=.hs)
-libgtk2hs_a_HSCFILES = $(filter %.hsc, $(libgtk2hs_a_SOURCES))
-libgtk2hs_a_HSCFILES_HS = $(libgtk2hs_a_HSCFILES:.hsc=.hs)
-libgtk2hs_a_BUILDSOURCES = \
-	$(libgtk2hs_a_CHSPPFILES:.chs.pp=.chs) \
-	$(libgtk2hs_a_CHSFILES_HS) \
-	$(libgtk2hs_a_HSCFILES_HS)
-libgtk2hs_a_HSFILES  = \
-	$(filter %.hs,$(libgtk2hs_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libgtk2hs_a_SOURCES))
+libHSgtk_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtk_a_SOURCES))
+libHSgtk_a_CHSFILES = \
+  $(filter %.chs,$(libHSgtk_a_SOURCES:.chs.pp=.chs))
+libHSgtk_a_CHSFILES_HS = $(libHSgtk_a_CHSFILES:.chs=.hs)
+libHSgtk_a_HSCFILES = $(filter %.hsc, $(libHSgtk_a_SOURCES))
+libHSgtk_a_HSCFILES_HS = $(libHSgtk_a_HSCFILES:.hsc=.hs)
+libHSgtk_a_BUILDSOURCES = \
+	$(libHSgtk_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSgtk_a_CHSFILES_HS) \
+	$(libHSgtk_a_HSCFILES_HS)
+libHSgtk_a_HSFILES  = \
+	$(filter %.hs,$(libHSgtk_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSgtk_a_SOURCES))
 
 # add prefix nobase_ when changing to hierarchical module namespace
-hi_SCRIPTS = $(libgtk2hs_a_HSFILES:.hs=.hi)
+hi_SCRIPTS = $(libHSgtk_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES+ = $(am_libgtk2hs_a_OBJECTS)
-MOSTLYCLEANFILES+ = $(libgtk2hs_a_HSFILES:.hs=.hi)
-CLEANFILES+= $(libgtk2hs_a_BUILDSOURCES)
+MOSTLYCLEANFILES+ = $(am_libHSgtk_a_OBJECTS)
+MOSTLYCLEANFILES+ = $(libHSgtk_a_HSFILES:.hs=.hi)
+CLEANFILES+= $(libHSgtk_a_BUILDSOURCES)
 
-DISTCLEANFILES+= libgtk2hs_a.deps $(libgtk2hs_a_CHSFILES_HS:.hs=.dep)
--include libgtk2hs_a.deps $(libgtk2hs_a_CHSFILES_HS:.hs=.dep)
+DISTCLEANFILES+= libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+-include libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
 
+#
+#	mogul package
+#
+################################################################################
 
-# mogul package
-libmogul_a_NAME = libmogul.a
-$(libmogul_a_NAME) : NAME = libmogul_a
+libHSmogul_a_NAME = libHSmogul.a
+$(libHSmogul_a_NAME) : NAME = libHSmogul_a
 
-libmogul_a_PACKAGE	= mogul/mogul.pkg
-libmogul_a_PACKAGEDEPS	= 
-libmogul_a_LIBS		= 
-libmogul_a_HCFLAGS	= 
-libmogul_a_CFLAGS 	= 
-libmogul_a_CPPFLAGS 	= $(CPPFLAGS)
+libHSmogul_a_PACKAGE		= mogul/mogul.pkg
+libHSmogul_a_PACKAGEDEPS	= 
+libHSmogul_a_LIBS		= 
+libHSmogul_a_HCFLAGS		= 
+libHSmogul_a_CFLAGS 		= 
+libHSmogul_a_CPPFLAGS 		= $(CPPFLAGS)
 
-libmogul_a_SOURCES =		\
+libHSmogul_a_SOURCES =		\
 	mogul/GetWidget.hs	\
 	mogul/MDialog.hs	\
 	mogul/Mogul.hs		\
@@ -394,38 +414,42 @@ libmogul_a_SOURCES =		\
 	mogul/TreeList.hs	\
 	mogul/WidgetTable.hs
 
-libmogul_a_LIBADD = libgtk2hs.a
+libHSmogul_a_LIBADD = libHSgtk.a
 
-am_libmogul_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libmogul_a_SOURCES))))
+am_libHSmogul_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmogul_a_SOURCES))))
 
-libmogul_a_HSFILES = $(libmogul_a_SOURCES)
-.PRECIOUS: $(libmogul_a_HSFILES:.hs=hi)
+libHSmogul_a_HSFILES = $(libHSmogul_a_SOURCES)
+.PRECIOUS: $(libHSmogul_a_HSFILES:.hs=hi)
 
-MOSTLYCLEANFILES+ = $(am_libmogul_a_OBJECTS)
-MOSTLYCLEANFILES+ = $(libmogul_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES+ = $(am_libHSmogul_a_OBJECTS)
+MOSTLYCLEANFILES+ = $(libHSmogul_a_HSFILES:.hs=.hi)
 
-DISTCLEANFILES+= libmogul_a.deps
--include libmogul_a.deps
+DISTCLEANFILES+= libHSmogul_a.deps
+-include libHSmogul_a.deps
 
-# glade package
-libglade_a_NAME = libglade.a
-$(libglade_a_NAME) : NAME = libglade_a
+#
+#	glade package
+#
+################################################################################
 
-libglade_a_PACKAGE	= glade/glade.pkg
-libglade_a_PACKAGEDEPS	= 
-libglade_a_HEADER 	= glade/glade.h
-libglade_a_PRECOMP	= glade/glade.precomp
-libglade_a_LIBS		= $(LIBGLADE_LIBS)
-libglade_a_HCFLAGS	= -fglasgow-exts
-libglade_a_CFLAGS	= $(filter-out -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
-libglade_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
+libHSglade_a_NAME = libHSglade.a
+$(libHSglade_a_NAME) : NAME = libHSglade_a
 
-libglade_a_SOURCES =	        \
+libHSglade_a_PACKAGE		= glade/glade.pkg
+libHSglade_a_PACKAGEDEPS	= 
+libHSglade_a_HEADER 		= glade/glade.h
+libHSglade_a_PRECOMP		= glade/glade.precomp
+libHSglade_a_LIBS		= $(LIBGLADE_LIBS)
+libHSglade_a_HCFLAGS		= -fglasgow-exts
+libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
+libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
+
+libHSglade_a_SOURCES =	        \
 	glade/GladeType.chs	\
         glade/Glade.chs
 
-libglade_a_LIBADD = libgtk2hs.a
+libHSglade_a_LIBADD = libHSgtk.a
         
 glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/TypeGenerator
@@ -433,50 +457,54 @@ glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $@ --tag=libglade --lib=glade --prefix=glade)
 
-am_libglade_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libglade_a_SOURCES))))
+am_libHSglade_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglade_a_SOURCES))))
 
-libglade_a_CHSPPFILES = $(filter %.chs.pp,$(libglade_a_SOURCES))
-libglade_a_CHSFILES = \
-  $(filter %.chs,$(libglade_a_SOURCES:.chs.pp=.chs))
-libglade_a_CHSFILES_HS = $(libglade_a_CHSFILES:.chs=.hs)
-libglade_a_HSCFILES = $(filter %.hsc, $(libglade_a_SOURCES))
-libglade_a_HSCFILES_HS = $(libglade_a_HSCFILES:.hsc=.hs)
-libglade_a_BUILDSOURCES = \
-	$(libglade_a_CHSPPFILES:.chs.pp=.chs) \
-	$(libglade_a_CHSFILES_HS) \
+libHSglade_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglade_a_SOURCES))
+libHSglade_a_CHSFILES = \
+  $(filter %.chs,$(libHSglade_a_SOURCES:.chs.pp=.chs))
+libHSglade_a_CHSFILES_HS = $(libHSglade_a_CHSFILES:.chs=.hs)
+libHSglade_a_HSCFILES = $(filter %.hsc, $(libHSglade_a_SOURCES))
+libHSglade_a_HSCFILES_HS = $(libHSglade_a_HSCFILES:.hsc=.hs)
+libHSglade_a_BUILDSOURCES = \
+	$(libHSglade_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSglade_a_CHSFILES_HS) \
         glade/GladeType.chs
-libglade_a_HSFILES  = \
-	$(filter %.hs,$(libglade_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libglade_a_SOURCES))
+libHSglade_a_HSFILES  = \
+	$(filter %.hs,$(libHSglade_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSglade_a_SOURCES))
 
-MOSTLYCLEANFILES += $(am_libglade_a_OBJECTS)
-MOSTLYCLEANFILES += $(libglade_a_HSFILES:.hs=.hi)
-CLEANFILES += $(libglade_a_BUILDSOURCES) 
+MOSTLYCLEANFILES += $(am_libHSglade_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
+CLEANFILES += $(libHSglade_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= libglade_a.deps $(libglade_a_CHSFILES_HS:.hs=.dep)
--include libglade_a.deps $(libglade_a_CHSFILES:.chs=.dep)
+DISTCLEANFILES+= libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
+-include libHSglade_a.deps $(libHSglade_a_CHSFILES:.chs=.dep)
 
-# gconf package
-libgconf_a_NAME = libgconf.a
-$(libgconf_a_NAME) : NAME = libgconf_a
+#
+#	gconf package
+#
+################################################################################
 
-libgconf_a_PACKAGE	= gconf/gconf.pkg
-libgconf_a_PACKAGEDEPS	= 
-libgconf_a_HEADER 	= gconf/gconf-client.h
-libgconf_a_PRECOMP	= gconf/gconf.precomp
-libgconf_a_LIBS		= $(GCONF_LIBS)
-libgconf_a_HCFLAGS	= -fglasgow-exts -fallow-overlapping-instances
-libgconf_a_CFLAGS	= $(filter-out -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
-libgconf_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
+libHSgconf_a_NAME = libHSgconf.a
+$(libHSgconf_a_NAME) : NAME = libHSgconf_a
 
-libgconf_a_SOURCES =	        			\
+libHSgconf_a_PACKAGE		= gconf/gconf.pkg
+libHSgconf_a_PACKAGEDEPS	= 
+libHSgconf_a_HEADER 		= gconf/gconf-client.h
+libHSgconf_a_PRECOMP		= gconf/gconf.precomp
+libHSgconf_a_LIBS		= $(GCONF_LIBS)
+libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances
+libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
+libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
+
+libHSgconf_a_SOURCES =	        			\
 	gconf/System/Gnome/GConf/GConfType.chs		\
         gconf/System/Gnome/GConf/GConfValue.chs		\
         gconf/System/Gnome/GConf/GConfClient.chs	\
         gconf/System/Gnome/GConf.hs
 
-libgconf_a_LIBADD = libgtk2hs.a
+libHSgconf_a_LIBADD = libHSgtk.a
         
 gconf/System/Gnome/GConf/GConfType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -486,45 +514,48 @@ gconf/System/Gnome/GConf/GConfType.chs :	\
 	$@ --tag=gconf --lib=gconf --prefix=gconf \
 	--modname=System.Gnome.GConf.GConfType)
 
-am_libgconf_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libgconf_a_SOURCES))))
+am_libHSgconf_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_SOURCES))))
 
-libgconf_a_CHSPPFILES = $(filter %.chs.pp,$(libgconf_a_SOURCES))
-libgconf_a_CHSFILES = \
-  $(filter %.chs,$(libgconf_a_SOURCES:.chs.pp=.chs))
-libgconf_a_CHSFILES_HS = $(libgconf_a_CHSFILES:.chs=.hs)
-libgconf_a_HSCFILES = $(filter %.hsc, $(libgconf_a_SOURCES))
-libgconf_a_HSCFILES_HS = $(libgconf_a_HSCFILES:.hsc=.hs)
-libgconf_a_BUILDSOURCES = \
-	$(libgconf_a_CHSPPFILES:.chs.pp=.chs) \
-	$(libgconf_a_CHSFILES_HS) \
+libHSgconf_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgconf_a_SOURCES))
+libHSgconf_a_CHSFILES = \
+  $(filter %.chs,$(libHSgconf_a_SOURCES:.chs.pp=.chs))
+libHSgconf_a_CHSFILES_HS = $(libHSgconf_a_CHSFILES:.chs=.hs)
+libHSgconf_a_HSCFILES = $(filter %.hsc, $(libHSgconf_a_SOURCES))
+libHSgconf_a_HSCFILES_HS = $(libHSgconf_a_HSCFILES:.hsc=.hs)
+libHSgconf_a_BUILDSOURCES = \
+	$(libHSgconf_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSgconf_a_CHSFILES_HS) \
         gconf/System/Gnome/GConf/GConfType.chs
-libgconf_a_HSFILES  = \
-	$(filter %.hs,$(libgconf_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libgconf_a_SOURCES))
+libHSgconf_a_HSFILES  = \
+	$(filter %.hs,$(libHSgconf_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSgconf_a_SOURCES))
 
-MOSTLYCLEANFILES += $(am_libgconf_a_OBJECTS)
-MOSTLYCLEANFILES += $(libgconf_a_HSFILES:.hs=.hi)
-CLEANFILES += $(libgconf_a_BUILDSOURCES) 
+MOSTLYCLEANFILES += $(am_libHSgconf_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
+CLEANFILES += $(libHSgconf_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= libgconf_a.deps $(libgconf_a_CHSFILES_HS:.hs=.dep)
--include libgconf_a.deps $(libgconf_a_CHSFILES:.chs=.dep)
+DISTCLEANFILES+= libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
+-include libHSgconf_a.deps $(libHSgconf_a_CHSFILES:.chs=.dep)
 
+#
+#	sourceview package
+#
+################################################################################
 
-# sourceview package
-libsourceview_a_NAME = libsourceview.a
-$(libsourceview_a_NAME) : NAME = libsourceview_a
+libHSsourceview_a_NAME = libHSsourceview.a
+$(libHSsourceview_a_NAME) : NAME = libHSsourceview_a
 
-libsourceview_a_PACKAGE		= sourceview/sourceview.pkg
-libsourceview_a_PACKAGEDEPS	= data
-libsourceview_a_HEADER 		= sourceview.h
-libsourceview_a_PRECOMP		= sourceview/sourceview.precomp
-libsourceview_a_LIBS		= $(SOURCEVIEW_LIBS)
-libsourceview_a_HCFLAGS		= -fglasgow-exts
-libsourceview_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
-libsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
+libHSsourceview_a_PACKAGE	= sourceview/sourceview.pkg
+libHSsourceview_a_PACKAGEDEPS	= 
+libHSsourceview_a_HEADER 	= sourceview.h
+libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
+libHSsourceview_a_LIBS		= $(SOURCEVIEW_LIBS)
+libHSsourceview_a_HCFLAGS	= -fglasgow-exts
+libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
+libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
 
-libsourceview_a_SOURCES =			\
+libHSsourceview_a_SOURCES =			\
 	sourceview/SourceViewType.chs		\
 	sourceview/SourceBuffer.chs		\
 	sourceview/SourceIter.chs		\
@@ -537,7 +568,7 @@ libsourceview_a_SOURCES =			\
 	sourceview/SourceTagTable.chs		\
 	sourceview/SourceView.chs
 
-libsourceview_a_LIBADD = libgtk2hs.a
+libHSsourceview_a_LIBADD = libHSgtk.a
 
 sourceview/SourceViewType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -546,36 +577,36 @@ sourceview/SourceViewType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$@ --tag=sourceview)
 
-am_libsourceview_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libsourceview_a_SOURCES))))
+am_libHSsourceview_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsourceview_a_SOURCES))))
 
-libsourceview_a_CHSPPFILES = $(filter %.chs.pp,$(libsourceview_a_SOURCES))
-libsourceview_a_CHSFILES = \
-  $(filter %.chs,$(libsourceview_a_SOURCES:.chs.pp=.chs))
-libsourceview_a_CHSFILES_HS = $(libsourceview_a_CHSFILES:.chs=.hs)
-libsourceview_a_HSCFILES = $(filter %.hsc, $(libsourceview_a_SOURCES))
-libsourceview_a_HSCFILES_HS = $(libsourceview_a_HSCFILES:.hsc=.hs)
-libsourceview_a_BUILDSOURCES = \
-	$(libsourceview_a_CHSPPFILES:.chs.pp=.chs) \
-	$(libsourceview_a_CHSFILES_HS) \
-        $(libsourceview_a_HSCFILES_HS) \
+libHSsourceview_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsourceview_a_SOURCES))
+libHSsourceview_a_CHSFILES = \
+  $(filter %.chs,$(libHSsourceview_a_SOURCES:.chs.pp=.chs))
+libHSsourceview_a_CHSFILES_HS = $(libHSsourceview_a_CHSFILES:.chs=.hs)
+libHSsourceview_a_HSCFILES = $(filter %.hsc, $(libHSsourceview_a_SOURCES))
+libHSsourceview_a_HSCFILES_HS = $(libHSsourceview_a_HSCFILES:.hsc=.hs)
+libHSsourceview_a_BUILDSOURCES = \
+	$(libHSsourceview_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSsourceview_a_CHSFILES_HS) \
+        $(libHSsourceview_a_HSCFILES_HS) \
         sourceview/SourceViewType.chs
-libsourceview_a_HSFILES  = \
-	$(filter %.hs,$(libsourceview_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libsourceview_a_SOURCES))
+libHSsourceview_a_HSFILES  = \
+	$(filter %.hs,$(libHSsourceview_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSsourceview_a_SOURCES))
 
-MOSTLYCLEANFILES += $(am_libsourceview_a_OBJECTS)
-MOSTLYCLEANFILES += $(libsourceview_a_HSFILES:.hs=.hi)
-CLEANFILES += $(libsourceview_a_BUILDSOURCES) 
+MOSTLYCLEANFILES += $(am_libHSsourceview_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
+CLEANFILES += $(libHSsourceview_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= libsourceview_a.deps $(libsourceview_a_CHSFILES_HS:.hs=.dep)
--include libsourceview_a.deps $(libsourceview_a_CHSFILES:.chs=.dep)
+DISTCLEANFILES+= libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
+-include libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES:.chs=.dep)
 
 
 # All generated source files go here.
-BUILDSOURCES =	$(libgtk2hs_a_BUILDSOURCES)	\
-		$(libglade_a_BUILDSOURCES)	\
-		$(libgconf_a_BUILDSOURCES)	\
-		$(libsourceview_a_BUILDSOURCES)
+BUILDSOURCES =	$(libHSgtk_a_BUILDSOURCES)	\
+		$(libHSglade_a_BUILDSOURCES)	\
+		$(libHSgconf_a_BUILDSOURCES)	\
+		$(libHSsourceview_a_BUILDSOURCES)
 
 include mk/common.mk

@@ -1,4 +1,4 @@
-dnl Gtk+HS - Additional macros for `autoconf'
+dnl gtk2hs - Additional macros for `autoconf'
 
 dnl -- Pinched from FPTOOLS/GHC
 dnl
@@ -86,7 +86,42 @@ then ifelse([$4],,[:],[
 ifelse([$5],,,
 [else
   $5])
-fi])])dnl
+fi])dnl
 
+dnl GTKHS_REFORMAT_PACKAGE_CFLAGS(CFLAGS, CFLAGS_CQ)
+dnl 
+dnl for ghc package.conf files, we need to convert from
+dnl   CFLAGS = -DFOO -I/usr/include/bar -I/usr/include/baz
+dnl to
+dnl   CFLAGS_CQ = "/usr/include/bar","/usr/include/baz"
+dnl
+AC_DEFUN([GTKHS_REFORMAT_PACKAGE_CFLAGS],
+[
+C=; [$2]=;
+for FLAG in [$][$1]; do
+  case [$]FLAG in
+    -I*) [$2]="[$][$2][$]C\"[$]{FLAG#-I}\""; C=",";;
+  esac;
+done;
+])dnl
 
-
+dnl GTKHS_REFORMAT_PACKAGE_LIBS(LIBS, LIBS_CQ, LIBDIR_CQ, LIBEXTRA_CQ)
+dnl 
+dnl for ghc package.conf files, we need to convert from
+dnl   LIBS = -Wl,--export-dynamic -lfoo -lbar -I/usr/lib/foo -I/usr/lib/bar
+dnl to
+dnl   LIBS_CQ = "foo", "bar"
+dnl   LIBDIR_CQ = "/usr/lib/bar","/usr/lib/bar"
+dnl   LIBEXTRA_CQ = "-Wl,--export-dynamic"
+dnl
+AC_DEFUN([GTKHS_REFORMAT_PACKAGE_LIBS],
+[
+C_LIBS=; [$2]=; C_LDIR=; [$3]=; C_XTRA=; [$4]=; 
+for FLAG in [$][$1]; do
+  case [$]FLAG in
+    -l*) [$2]="[$][$2][$]C_LIBS\"[$]{FLAG#-l}\""; C_LIBS=",";;
+    -L*) [$3]="[$][$3][$]C_LDIR\"[$]{FLAG#-I}\""; C_LDIR=",";;
+    *)   [$4]="[$][$4][$]C_XTRA\"[$]FLAG\""; C_XTRA=",";;
+  esac;
+done;
+])dnl

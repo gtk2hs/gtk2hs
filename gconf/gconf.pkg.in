@@ -1,15 +1,15 @@
 Package {
      name            = "gconf",
-     auto            = True,
+     auto            = False,
      import_dirs     = ["@hidir@"],
      source_dirs     = [],
-     library_dirs    = [],
-     hs_libraries    = ["gconf"],
-     extra_libraries = [@GCONF_LIBS@],
-     include_dirs    = [@GCONF_CFLAGS@],
+     library_dirs    = [@GCONF_LIBDIR_CQ@],
+     hs_libraries    = ["HSgconf"],
+     extra_libraries = [@GCONF_LIBS_CQ@],
+     include_dirs    = [@GCONF_CFLAGS_CQ@],
      c_includes      = ["gconf/gconf-client.h"],
-     package_deps    = ["gtk2hs"],
+     package_deps    = ["gtk"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],
-     extra_ld_opts   = []
+     extra_ld_opts   = [@GCONF_LIBEXTRA_CQ@]
 }

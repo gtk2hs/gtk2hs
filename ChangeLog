@@ -13,6 +13,23 @@
 	packages. This should still work all the way back to ghc 5.04.x, though
 	this needs testing.
 
+	* mk/common.mk: make install-data-hook more likely to work by adding a
+	';' after each command to execute. Also limit tools memory hunger.
+
+	* acinclude.m4, configure.ac: add two new macros for changing the
+	representation of the *_CFLAGS so they can be stuck into the *.pkg
+	files. The macros do exactly the same thing as the existing code in
+	configure.ac but we now	want to do it for all the packages.
+
+	* gtk/gtk.pkg.in, mogul/mogul.pkg.in, sourceview/sourceview.pkg.in,
+	glade/glade.pkg.in, gconf/gconf.pkg.in: update these to use the new
+	variables set by the above macros. Also change the name of the gtk2hs
+	package to be just gtk and prefix all package lib names with HS.
+
+	* Makefile.am: make package library names start with HS, ie libHSgtk.a
+	Also eliminate the compat/* modules and package deps on the data and
+	lang packages as they are all no longer needed.
+
 2004-12-8  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: fix an automake warning about underquoted definitions

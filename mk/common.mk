@@ -59,7 +59,7 @@ depend: $($(NAME)_BUILDSOURCES)
 # Same for .chi
 .PRECIOUS: %.chi
 
-HSTOOLFLAGS = -H500m
+HSTOOLFLAGS = -H500m -M650m
 
 .PHONY: debug
 debug	:
@@ -116,7 +116,7 @@ install-data-hook :
 	$(foreach pkgname,$(lib_LIBRARIES), \
 	$(GHCPKG) $(addprefix -f ,$(PKGCONF)) -a -g \
 	-Dprefix=$(prefix) -Dexec_prefix=$(exec_prefix) \
-	-i $(call getVar,$(pkgname),PACKAGE))
+	-i $(call getVar,$(pkgname),PACKAGE);)
 
 uninstall-hook :
 	$(foreach pkgname,$(lib_LIBRARIES), \
