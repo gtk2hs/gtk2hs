@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:08 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/08 13:22:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -69,22 +69,22 @@ strAttr str = Attribute str TMstring
 -- @method cellText@ Define the attribute that specifies the text to be
 -- rendered.
 --
-cellText :: Attribute CellRendererText String
+cellText :: Attribute rendererText String
 cellText  = strAttr "text"
 
 -- @method cellMarkup@ Define a markup string instead of a text.
 --
-cellMarkup :: Attribute CellRendererText String
+cellMarkup :: Attribute rendererText String
 cellMarkup  = strAttr "markup"
 
 -- @method cellBackground@ A named color for the background paint.
 --
-cellBackground :: Attribute CellRendererText String
+cellBackground :: Attribute rendererText String
 cellBackground  = strAttr "background"
 
 -- @method cellForeground@ A named color for the foreground paint.
 --
-cellForeground :: Attribute CellRendererText String
+cellForeground :: Attribute rendererText String
 cellForeground  = strAttr "foreground"
 
 

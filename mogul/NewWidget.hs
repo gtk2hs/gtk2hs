@@ -4,7 +4,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/07/08 09:15:09 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/08 13:22:46 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -169,6 +169,10 @@ module NewWidget(
   --newItemFactory,
   newTooltips,
   newTreeView,
+  newNamedTreeView,
+  newTreeViewWithModel,
+  newNamedTreeViewWithModel,
+  newTreeViewColumn,
   newIconFactory,
   ) where
 
@@ -922,6 +926,26 @@ newNamedTreeView name tm = newNamedWidget name $ treeViewNewWithModel tm
 --
 newTreeView :: TreeModelClass tm => tm -> IO TreeView
 newTreeView tm = treeViewNewWithModel tm
+
+-- @see textViewNewWithModel
+--
+-- * The supplied name can later be used to lookup the widget in the global
+--   store.
+--
+newNamedTreeViewWithModel :: TreeModelClass tm => WidgetName -> tm -> 
+						  IO TreeView
+newNamedTreeViewWithModel name tm = 
+  newNamedWidget name $ treeViewNewWithModel tm
+
+-- @see textViewNewWithModel
+--
+newTreeViewWithModel :: TreeModelClass tm => tm -> IO TreeView
+newTreeViewWithModel = treeViewNewWithModel
+
+-- @see treeViewColumnNew
+--
+newTreeViewColumn :: IO TreeViewColumn
+newTreeViewColumn = treeViewColumnNew
 
 -- @see calendarNew
 --

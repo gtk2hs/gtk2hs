@@ -5,7 +5,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/07/08 09:15:09 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/08 13:22:46 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -101,10 +101,25 @@ import Gtk hiding (
   tableNew,
   textViewNew,
   toolbarNew,
+  -- the following functions and types are replaced in TreeList.hs
   treeViewNew,
   -- TreeModel
   treeModelGetValue,
   TreePath,
+  treePathNew,
+  treePathNewFromString,
+  treePathToString,
+  treePathNewFirst,
+  treePathAppendIndex,
+  treePathPrependIndex,
+  treePathGetDepth,
+  treePathGetIndices,
+  treePathCopy,
+  treePathCompare,
+  treePathNext,
+  treePathPrev,
+  treePathUp,
+  treePathDown,
   treeModelGetIter,
   treeModelGetPath,
   -- ListStore

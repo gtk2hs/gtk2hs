@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:08 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/08 13:22:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -91,11 +91,11 @@ binAttr str = Attribute str TMboolean
 -- @method cellActive@ Define the attribute that reflects the state of the
 -- button.
 --
-cellActive :: Attribute CellRendererToggle Bool
+cellActive :: Attribute rendererToggle Bool
 cellActive  = binAttr "active"
 
 -- @method cellRadio@ Define an attribute that determines whether this button
 -- is shown as a @ref arg RadioButton@ or as a normal @ref arg ToggleButton@.
 --
-cellRadio :: Attribute CellRendererToggle Bool
+cellRadio :: Attribute rendererToggle Bool
 cellRadio  = binAttr "radio"

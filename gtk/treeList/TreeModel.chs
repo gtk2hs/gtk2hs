@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/08 13:22:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -138,12 +138,12 @@ treePathNewFirst = do
   tpPtr <- {#call unsafe tree_path_new_first#}
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
-treePathAppendIndex :: Int -> TreePath -> IO ()
-treePathAppendIndex ind tp = 
+treePathAppendIndex :: TreePath -> Int -> IO ()
+treePathAppendIndex tp ind = 
   {#call unsafe tree_path_append_index#} tp (fromIntegral ind)
 
-treePathPrependIndex :: Int -> TreePath -> IO ()
-treePathPrependIndex ind tp =
+treePathPrependIndex :: TreePath -> Int -> IO ()
+treePathPrependIndex tp ind =
   {#call unsafe tree_path_prepend_index#} tp (fromIntegral ind)
 
 treePathGetDepth :: TreePath -> IO Int
@@ -183,15 +183,15 @@ treePathUp tp = liftM toBool $ {#call unsafe tree_path_up#} tp
 treePathDown :: TreePath -> IO ()
 treePathDown = {#call unsafe tree_path_down#}
 
-treeModelGetIter :: TreeModelClass tm => TreePath -> tm -> IO (Maybe TreeIter)
-treeModelGetIter tp tm = do
+treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
+treeModelGetIter tm tp = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
   res <- {#call unsafe tree_model_get_iter#} (toTreeModel tm) iter tp
   return $ if (toBool res) then Just iter else Nothing
   
-treeModelGetPath :: TreeModelClass tm => TreeIter -> tm -> IO TreePath
-treeModelGetPath iter tm =  do
+treeModelGetPath :: TreeModelClass tm => tm -> TreeIter -> IO TreePath
+treeModelGetPath tm iter =  do
   tpPtr <- throwIfNull "treeModelGetPath: illegal iterator" $
     {#call unsafe tree_model_get_path#} (toTreeModel tm) iter
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
@@ -201,9 +201,9 @@ treeModelIterNext iter tm = liftM toBool $
  {#call unsafe tree_model_iter_next#} (toTreeModel tm) iter
 
 
-treeModelIterChildren :: TreeModelClass tm => 
-  TreeIter -> tm -> IO (Maybe TreeIter)
-treeModelIterChildren parent tm = do
+treeModelIterChildren :: TreeModelClass tm => tm -> TreeIter -> 
+					      IO (Maybe TreeIter)
+treeModelIterChildren tm parent = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
   res <- {#call unsafe tree_model_iter_children#} (toTreeModel tm) iter 
@@ -211,41 +211,41 @@ treeModelIterChildren parent tm = do
   return $ if (toBool res) then Just iter else Nothing
 
 
-treeModelIterHasChild :: TreeModelClass tm => TreeIter -> tm -> IO Bool
-treeModelIterHasChild iter tm = liftM toBool $
+treeModelIterHasChild :: TreeModelClass tm => tm -> TreeIter -> IO Bool
+treeModelIterHasChild tm iter = liftM toBool $
   {#call unsafe tree_model_iter_has_child#} (toTreeModel tm) iter
 
 -- The following functions take a (Maybe TreeIter) for the child parameter.
 -- If Nothing is specified for this argument, the function will work on
 -- the toplevel instead of a child.
 
-treeModelIterNChildren :: TreeModelClass tm => Maybe TreeIter -> tm -> IO Int
-treeModelIterNChildren iter tm = liftM fromIntegral $
+treeModelIterNChildren :: TreeModelClass tm => tm -> Maybe TreeIter -> IO Int
+treeModelIterNChildren tm iter = liftM fromIntegral $
   {#call unsafe tree_model_iter_n_children#} (toTreeModel tm) 
     (fromMaybe (TreeIter nullForeignPtr) iter)
 
 treeModelIterNthChild :: TreeModelClass tm => 
-  Maybe TreeIter -> Int -> tm -> IO (Maybe TreeIter)
-treeModelIterNthChild parent n tm = do
+  tm -> Maybe TreeIter -> Int -> IO (Maybe TreeIter)
+treeModelIterNthChild tm parent n = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
   res <- {#call unsafe tree_model_iter_nth_child#} (toTreeModel tm) iter 
     (fromMaybe (TreeIter nullForeignPtr) parent) (fromIntegral n)
   return $ if (toBool res) then Just iter else Nothing
 
-treeModelIterParent :: TreeModelClass tm => 
-  TreeIter -> tm -> IO (Maybe TreeIter)
-treeModelIterParent child tm = do
+treeModelIterParent :: TreeModelClass tm => tm -> 
+  TreeIter -> IO (Maybe TreeIter)
+treeModelIterParent tm child = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
   res <- {#call unsafe tree_model_iter_parent#} (toTreeModel tm) iter child
   return $ if (toBool res) then Just iter else Nothing
 
-treeModelRefNode :: TreeModelClass tm => TreeIter -> tm -> IO ()
-treeModelRefNode iter tm = 
+treeModelRefNode :: TreeModelClass tm => tm -> TreeIter -> IO ()
+treeModelRefNode tm iter = 
   {#call unsafe tree_model_ref_node#} (toTreeModel tm) iter
 
-treeModelUnrefNode :: TreeModelClass tm => TreeIter -> tm -> IO ()
-treeModelUnrefNode iter tm = 
+treeModelUnrefNode :: TreeModelClass tm => tm -> TreeIter -> IO ()
+treeModelUnrefNode tm iter = 
   {#call unsafe tree_model_unref_node#} (toTreeModel tm) iter
 

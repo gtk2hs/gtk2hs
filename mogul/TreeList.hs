@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/07/08 09:15:09 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/08 13:22:47 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -84,6 +84,20 @@ import Gtk	hiding (
   -- TreeModel
   treeModelGetValue,
   TreePath,
+  treePathNew,
+  treePathNewFromString,
+  treePathToString,
+  treePathNewFirst,
+  treePathAppendIndex,
+  treePathPrependIndex,
+  treePathGetDepth,
+  treePathGetIndices,
+  treePathCopy,
+  treePathCompare,
+  treePathNext,
+  treePathPrev,
+  treePathUp,
+  treePathDown,
   treeModelGetIter,
   treeModelGetPath,
   -- ListStore
@@ -136,7 +150,7 @@ listSkelAddAttribute (ListSkel statusRef)
   case status of 
     LSSPrepare tList -> do
       writeIORef statusRef (LSSPrepare (ty:tList))
-      let columnNo = 1+length tList
+      let columnNo = length tList
       return (Association prop columnNo,
 	\ti -> do
         status <- readIORef statusRef
@@ -315,13 +329,15 @@ type TreePath = [Int]
 -- Retreive non-abstract position of a node in a @TreeList/@TreeStore. 
 -- (EXPORTED)
 --
-treeModelGetIter :: TreeModelClass tm => TreePath -> tm -> IO (Maybe TreeIter)
-treeModelGetIter tp tm = do
+treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
+treeModelGetIter _  [] = throw $ AssertionFailed "Mogul.treeModelGetIter: \
+			 \a path must contain at least one element."
+treeModelGetIter tm tp = do
   realPath <- Gtk.treePathNew
-  mapM_ (\i -> Gtk.treePathAppendIndex i realPath) tp
-  Gtk.treeModelGetIter realPath tm
+  mapM_ (Gtk.treePathAppendIndex realPath) tp
+  Gtk.treeModelGetIter tm realPath
 
-treeModelGetPath :: TreeModelClass tm => TreeIter -> tm -> IO TreePath
-treeModelGetPath ti tm = do
-  realPath <- Gtk.treeModelGetPath ti tm
+treeModelGetPath :: TreeModelClass tm => tm -> TreeIter -> IO TreePath
+treeModelGetPath tm ti = do
+  realPath <- Gtk.treeModelGetPath tm ti
   Gtk.treePathGetIndices realPath
