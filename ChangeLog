@@ -1,3 +1,12 @@
+2005-01-26 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/ApiGen.hs: Several marshaling improvements. Extract
+	enums from the api file. Produce a list of objects and enums and use
+	it when deciding how to marshal types. Marshal floats and doubles,
+	flags and enums. Distinguish between GObjects and GtkObjects. Extract
+	documentation of properties. Initial go at producing property
+	definitions.
+
 2005-01-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/format-docs.xsl: deal with another kind of list and

@@ -11,9 +11,9 @@ module Main (main) where
 import Prelude hiding (Enum, lines)
 import qualified Prelude (lines)
 import Monad  (when)
-import Maybe  (catMaybes, fromJust)
+import Maybe  (catMaybes)
 import Char   (toLower, toUpper, isSpace, isAlpha, isAlphaNum, isUpper)
-import List   (isPrefixOf, groupBy, sortBy)
+import List   (isPrefixOf, groupBy, sortBy, unfoldr)
 import qualified List (lines)
 import System (getArgs, exitWith, ExitCode(..))
 
@@ -22,6 +22,8 @@ import qualified Text.XML.HaXml.Parse as Xml
 import qualified Text.XML.HaXml.Escape as Xml
 
 import qualified System.Time
+
+import Debug.Trace (trace)
 
 -------------------------------------------------------------------------------
 -- Types representing the content of the API XML file
@@ -110,9 +112,35 @@ extractNameSpace (Xml.CElem (Xml.Elem "namespace"
     namespace_name = Xml.verbatim name,
     namespace_library = Xml.verbatim lib,
     namespace_objects = catMaybes (map extractObject content),
-    namespace_enums = []
+    namespace_enums = catMaybes (map extractEnum content)
   }
 extractNameSpace _ = Nothing
+
+extractEnum :: Xml.Content -> Maybe Enum
+extractEnum (Xml.CElem (Xml.Elem "enum"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname),
+                      ("type", Xml.AttValue variety)] members)) =
+  Just $ Enum {
+    enum_name = Xml.verbatim name,
+    enum_cname = Xml.verbatim cname,
+    enum_variety = Xml.verbatim variety,
+    enum_members = map extractEnumMember members
+  }
+extractEnum _ = Nothing
+
+extractEnumMember :: Xml.Content -> Member
+extractEnumMember (Xml.CElem (Xml.Elem "enum"
+                     (("name", Xml.AttValue name):
+                      ("cname", Xml.AttValue cname):value) [])) =
+  Member {
+    member_name = Xml.verbatim name,
+    member_cname = Xml.verbatim cname,
+    member_value =
+      case value of
+        [] -> ""
+        [("cname", Xml.AttValue value)] -> Xml.verbatim value
+  }
 
 extractObject :: Xml.Content -> Maybe Object
 extractObject (Xml.CElem (Xml.Elem "object"
@@ -240,7 +268,8 @@ data ModuleDoc = ModuleDoc {
     moduledoc_description :: [DocPara],    -- the main description
     moduledoc_sections :: [DocSection],    -- any additional titled subsections
     moduledoc_hierarchy :: [DocParaSpan],  -- a tree of parent objects (as text)
-    moduledoc_functions :: [FuncDoc]       -- documentation for each function
+    moduledoc_functions :: [FuncDoc],      -- documentation for each function
+    moduledoc_properties :: [PropDoc]      -- documentation for each property
   }
 
 noModuleDoc = ModuleDoc {
@@ -250,7 +279,8 @@ noModuleDoc = ModuleDoc {
     moduledoc_description = [],
     moduledoc_sections = [],
     moduledoc_hierarchy = [],
-    moduledoc_functions = []
+    moduledoc_functions = [],
+    moduledoc_properties = []
   }
 
 data DocSection = DocSection {
@@ -258,17 +288,25 @@ data DocSection = DocSection {
     section_paras :: [DocPara]
   }
 
+type Since = String
+
 data FuncDoc = FuncDoc {
     funcdoc_name :: String,		-- C function name
     funcdoc_paragraphs :: [DocPara],	-- documentation markup
     funcdoc_params :: [ParamDoc],	-- parameter documentation
-    funcdoc_since :: Maybe String	-- which version of the api the
+    funcdoc_since :: Since		-- which version of the api the
   }					-- function is available from, eg "2.4"
 
 data ParamDoc = ParamDoc {
     paramdoc_name :: String,            -- parameter name or "Returns"
     paramdoc_paragraph :: [DocParaSpan] -- a simple paragraph
   }
+
+data PropDoc = PropDoc {
+    propdoc_name :: String,		-- property name
+    propdoc_paragraphs :: [DocPara],	-- documentation markup
+    propdoc_since :: Since		-- which version of the api the
+  }					-- function is available from, eg "2.4"
 
 data DocPara =
     DocParaText [DocParaSpan]           -- an ordinary word-wrapped paragraph
@@ -294,9 +332,12 @@ extractDocumentation (Xml.Document _ _ (Xml.Elem "apidoc" [] modules)) =
   map extractDocModule modules
 
 extractDocModule :: Xml.Content -> ModuleDoc
-extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:functions))) =
-  (extractDocModuleinfo moduleinfo) {
-    moduledoc_functions = map extractDocFunc functions
+extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:rest))) =
+  let functions = [ e | e@(Xml.CElem (Xml.Elem "function" _ _)) <- rest ]
+      properties = [ e | e@(Xml.CElem (Xml.Elem "property" _ _)) <- rest ]
+  in (extractDocModuleinfo moduleinfo) {
+    moduledoc_functions = map extractDocFunc functions,
+    moduledoc_properties = map extractDocProp properties
   }
 
 extractDocModuleinfo :: Xml.Content -> ModuleDoc
@@ -319,7 +360,8 @@ extractDocModuleinfo
     moduledoc_description = concatMap extractDocPara paras,
     moduledoc_sections = map extractDocSection sections,
     moduledoc_hierarchy = map extractDocParaSpan objHierSpans,
-    moduledoc_functions = undefined
+    moduledoc_functions = undefined,
+    moduledoc_properties = undefined
   }
 
 extractDocSection :: Xml.Content -> DocSection
@@ -342,14 +384,14 @@ extractDocFunc
     ,Xml.CElem (Xml.Elem "params" [] params)]
   )) =
   let since = case since' of
-                [] -> Nothing
-		[Xml.CString _ since] -> Just since
+                [] -> ""
+		[Xml.CString _ since] -> since
    in FuncDoc {
-          funcdoc_name = name,
-	  funcdoc_paragraphs = concatMap extractDocPara paras,
-          funcdoc_params = map extractParamDoc params,
-	  funcdoc_since = since
-        }
+        funcdoc_name = name,
+	funcdoc_paragraphs = concatMap extractDocPara paras,
+        funcdoc_params = map extractParamDoc params,
+	funcdoc_since = since
+      }
 
 extractParamDoc :: Xml.Content -> ParamDoc
 extractParamDoc 
@@ -360,6 +402,22 @@ extractParamDoc
     paramdoc_name = name,
     paramdoc_paragraph = map extractDocParaSpan spans
   }
+
+extractDocProp :: Xml.Content -> PropDoc
+extractDocProp
+  (Xml.CElem (Xml.Elem "property" []
+    [Xml.CElem (Xml.Elem "name" [] [Xml.CString _ name])
+    ,Xml.CElem (Xml.Elem "since" [] since')
+    ,Xml.CElem (Xml.Elem "doc" [] paras)]
+  )) =
+  let since = case since' of
+                [] -> ""
+		[Xml.CString _ since] -> since
+   in PropDoc {
+        propdoc_name = name,
+	propdoc_paragraphs = concatMap extractDocPara paras,
+	propdoc_since = since
+      }
 
 extractDocPara :: Xml.Content -> [DocPara]
 extractDocPara (Xml.CElem elem@(Xml.Elem "para" [] _)) =
@@ -428,11 +486,7 @@ genModuleDocumentation moduledoc =
           comment.ss "| ".haddocFormatParas (moduledoc_description moduledoc).nl).
   (if null (moduledoc_sections moduledoc)
      then id
-     else nl.comment.haddocFormatSections (moduledoc_sections moduledoc).nl.comment)
-  -- Getting decent formatting for the class hierarchy does not seem to be
-  -- possible with the available haddock markup. So disabling for now.
-  --
-  .nl.
+     else nl.comment.haddocFormatSections (moduledoc_sections moduledoc).nl.comment.nl).
   (if null (moduledoc_hierarchy moduledoc)
      then id
      else nl.comment.ss "* Class Hierarchy".nl.
@@ -453,13 +507,13 @@ addVersionParagraphs namespace apiDoc =
     moduledoc_description = moduledoc_description apiDoc ++ moduleVersionParagraph,
     moduledoc_functions = functionVersionParagraphs moduleVersion (moduledoc_functions apiDoc)
   }
-  where functionVersionParagraphs :: Maybe String -> [FuncDoc] -> [FuncDoc]
+  where functionVersionParagraphs :: String -> [FuncDoc] -> [FuncDoc]
         functionVersionParagraphs baseVersion funcdocs =
           [ if funcdoc_since funcdoc > baseVersion
               then funcdoc {
                      funcdoc_paragraphs = funcdoc_paragraphs funcdoc ++
                        let line = "* Available since " ++ namespace_name namespace
-                              ++ " version " ++ fromJust (funcdoc_since funcdoc)
+                              ++ " version " ++ funcdoc_since funcdoc
                         in [DocParaText [DocText line]]
                    }
               else funcdoc
@@ -467,18 +521,18 @@ addVersionParagraphs namespace apiDoc =
   
         moduleVersionParagraph =
           case moduleVersion of
-            Nothing -> []
-            Just since ->
+            "" -> []
+            since ->
               let line = "* Module available since " ++ namespace_name namespace
                       ++ " version " ++ since
                in [DocParaText [DocText line]]
   
         -- figure out if the whole module appeared in some version of gtk later 
         -- than the original version
-        moduleVersion :: Maybe String
+        moduleVersion :: String
         moduleVersion = case [ funcdoc_since funcdoc
                              | funcdoc <- moduledoc_functions apiDoc ] of
-                          [] -> Nothing
+                          [] -> ""
                           versions -> minimum versions
   
 haddocFormatSections :: [DocSection] -> ShowS
@@ -553,6 +607,7 @@ stripKnownPrefixes :: String -> String
 stripKnownPrefixes ('G':'t':'k':remainder) = remainder
 stripKnownPrefixes ('G':'d':'k':remainder) = remainder
 stripKnownPrefixes ('P':'a':'n':'g':'o':remainder) = remainder
+stripKnownPrefixes ('G':'n':'o':'m':'e':remainder) = remainder
 stripKnownPrefixes other = other
 
 cParamNameToHsName :: String -> String
@@ -590,8 +645,8 @@ wrapText initialCol width = wrap initialCol []
 -------------------------------------------------------------------------------
 -- Now lets actually generate some code fragments based on the api info
 -------------------------------------------------------------------------------
-genFunction :: Object -> Method -> Maybe FuncDoc -> ShowS
-genFunction object method doc =
+genFunction :: KnownTypes -> Method -> Maybe FuncDoc -> ShowS
+genFunction knownTypes method doc =
   formattedDoc.
   ss functionName. ss " :: ". functionType. nl.
   ss functionName. sc ' '. sepBy " " paramNames. ss " =".
@@ -599,7 +654,7 @@ genFunction object method doc =
 
   where functionName = cFuncNameToHsName (method_cname method)
 	(classConstraints', paramTypes', paramMarshalers) =
-	  unzip3 [ case genMarshalParameter
+	  unzip3 [ case genMarshalParameter knownTypes
                           (changeIllegalNames (cParamNameToHsName (parameter_name p)))
 	                  (parameter_type p) of
                      (c, ty, m) -> (c, (ty, parameter_name p), m)
@@ -610,7 +665,7 @@ genFunction object method doc =
 	paramNames = [ changeIllegalNames (cParamNameToHsName (parameter_name p))
 		     | ((Just _, _), p) <- zip paramTypes' (method_parameters method) ]
 	(returnType', returnMarshaler) =
-		genMarshalResult (method_return_type method)
+		genMarshalResult knownTypes (method_return_type method)
         returnType = (returnType', lookup "Returns" paramDocMap)
 	functionType = (case classConstraints of
 	                  []  -> id
@@ -662,15 +717,16 @@ genFunction object method doc =
                   . concatMap haddocFormatSpan
                 columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
 
-genModuleBody :: Object -> ModuleDoc -> ShowS
-genModuleBody object apiDoc =
+genModuleBody :: KnownTypes -> Object -> ModuleDoc -> ShowS
+genModuleBody knownTypes object apiDoc =
   doVersionIfDefs (sepBy' "\n\n") $
-     genConstructors object (moduledoc_functions apiDoc)
-  ++ genMethods object (moduledoc_functions apiDoc)
+     genConstructors knownTypes object (moduledoc_functions apiDoc)
+  ++ genMethods knownTypes object (moduledoc_functions apiDoc)
+  ++ genProperties knownTypes object (moduledoc_properties apiDoc)
 
-genMethods :: Object -> [FuncDoc] -> [(ShowS, Maybe FuncDoc)]
-genMethods object apiDoc = 
-  [ (genFunction object method doc, doc)
+genMethods :: KnownTypes -> Object -> [FuncDoc] -> [(ShowS, Since)]
+genMethods knownTypes object apiDoc = 
+  [ (genFunction knownTypes method doc, maybe "" funcdoc_since doc)
   | (method, doc) <- methods object apiDoc ]
 
 methods :: Object -> [FuncDoc] -> [(Method, Maybe FuncDoc)]
@@ -697,9 +753,9 @@ mungeMethod object method =
         method_parameters = self : method_parameters method
       } 
 
-genConstructors :: Object -> [FuncDoc] -> [(ShowS, Maybe FuncDoc)]
-genConstructors object apiDoc =
-  [ (genFunction object constructor doc, doc)
+genConstructors :: KnownTypes -> Object -> [FuncDoc] -> [(ShowS, Since)]
+genConstructors knownTypes object apiDoc =
+  [ (genFunction knownTypes constructor doc, maybe "" funcdoc_since doc)
   | (constructor, doc) <- constructors object apiDoc ]
 
 constructors :: Object -> [FuncDoc] -> [(Method, Maybe FuncDoc)]
@@ -718,23 +774,106 @@ mungeConstructor object constructor =
     method_parameters = constructor_parameters constructor
   }  
 
+properties :: Object -> [PropDoc] -> [(Property, Maybe PropDoc)]
+properties object docs =
+  [ (property, property_cname property `lookup` docmap)
+  | property <- object_properties object ]
+  where docmap = [ (map dashToUnderscore (propdoc_name doc), doc)
+                 | doc <- docs ]
+        dashToUnderscore '-' = '_'
+        dashToUnderscore  c  =  c
+
+genProperties :: KnownTypes -> Object -> [PropDoc] -> [(ShowS, Since)]
+genProperties knownTypes object apiDoc = 
+  [ (genProperty object property doc, maybe "" propdoc_since doc)
+  | (property, doc) <- properties object apiDoc ]
+
+genProperty :: Object -> Property -> Maybe PropDoc -> ShowS
+genProperty object property doc = 
+  formattedDoc.
+  ss propertyName. ss " :: Attr ". objectType. sc ' '.propertyType. nl.
+  ss propertyName. ss " = Attr ". 
+  indent 1. getter.
+  indent 1. setter
+  where objectType = ss (object_name object)
+        propertyName = cFuncNameToHsName (property_cname property)
+        propertyType = ss "{- ". ss (property_type property). ss " -}"
+        getter = ss "(\\obj -> {-unmarshal result-} objectGetProperty \"". ss (property_cname property). ss "\")"
+        setter = ss "(\\obj val -> objectSetProperty obj \"". ss (property_cname property). ss "\" {- marshal val-})"
+        formattedDoc = case doc of
+          Nothing  -> ss "-- | \n-- \n"
+          Just doc -> ss "-- | ". haddocFormatParas (propdoc_paragraphs doc). nl.
+                      comment. nl
+
+-- We would like to be able to look up a type name and find out if it is a
+-- known class or enum so we can marshal it properly
+type KnownTypes = [(String, CTypeKind)]
+
+data CTypeKind = GObjectKind
+               | GtkObjectKind
+               | EnumKind
+               | FlagsKind
+  deriving (Eq, Show)
+
+makeKnownTypesMap :: API -> KnownTypes
+makeKnownTypesMap api =
+  concat
+  [ [ (enum_name enum
+      ,case enum_variety enum of
+        "enum" -> EnumKind
+        "flags" -> FlagsKind)
+    | enum <- namespace_enums namespace ]
+ ++ [ (object_name object, objectKind object)
+    | object <- namespace_objects namespace ]
+  | namespace <- api ]
+
+        -- find if an object inherits via GtkObject or directly from GObject
+  where objectKind :: Object -> CTypeKind
+        objectKind object = lookup (objectParents object)
+          where lookup [] = trace ( "Warning: " ++ object_name object
+                                 ++ " does not inherit from GObject! "
+                                 ++ show (objectParents object)) GObjectKind
+                lookup ("GObject":os) = GObjectKind
+                lookup ("GtkObject":os) = GtkObjectKind
+                lookup (_:os) = lookup os
+        objectParents :: Object -> [String]
+        objectParents object = object_cname object :
+          case object_parent object `lookup` objectMap of
+            Nothing -> [object_parent object]
+            Just parent -> objectParents parent
+        objectMap :: [(String, Object)]
+        objectMap = [ (object_cname object, object)
+                    | namespace <- api
+                    , object <- namespace_objects namespace ]
+
 genExports :: Object -> [FuncDoc] -> ShowS
 genExports object docs =
   comment.ss "* Types".
   indent 1.ss (object_name object).sc ','.
   indent 1.ss (object_name object).ss "Class,".
-  indent 1.ss "castTo".ss (object_name object).sc ','.nl.
-  nl.
-  (case [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ',', doc)
+  indent 1.ss "castTo".ss (object_name object).sc ','.
+  (case [ (ss "  ". ss (cFuncNameToHsName (method_cname constructor)). sc ','
+          ,maybe "" funcdoc_since doc)
         | (constructor, doc) <- constructors object docs] of
      [] -> id
-     cs -> comment.ss "* Constructors".nl.
-           doVersionIfDefs lines cs.nl.nl).
-  (case [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ',', doc)
+     cs -> nl.nl.comment.ss "* Constructors".nl.
+           doVersionIfDefs lines cs).
+  (case [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ','
+          ,maybe "" funcdoc_since doc)
         | (method, doc) <- methods object docs] of
      [] -> id
-     cs -> comment.ss "* Methods".nl.
-           doVersionIfDefs lines cs)
+     cs -> nl.nl.comment.ss "* Methods".nl.
+           doVersionIfDefs lines cs).
+  (case [ ss "  ". ss (cFuncNameToHsName (property_cname property)). sc ','
+        | property {-, doc-} <- object_properties object {-docs-}] of
+     [] -> id
+     cs -> nl.nl.comment.ss "* Properties".nl.
+           lines cs).
+  (case [ ss "  ". ss (cFuncNameToHsName (signal_cname signal)). sc ','
+        | signal {-, doc-} <- object_signals object {-docs-}] of
+     [] -> id
+     cs -> nl.nl.comment.ss "* Signals".nl.
+           lines cs)
 
 genTodoItems :: Object -> ShowS
 genTodoItems object =
@@ -752,15 +891,15 @@ genTodoItems object =
              ss "TODO: the following varargs functions were not bound\n".
              lines (map (ss "-- * ".) varargsFunctions)
 
-doVersionIfDefs :: ([ShowS] -> ShowS) -> [(ShowS, Maybe FuncDoc)] -> ShowS
+doVersionIfDefs :: ([ShowS] -> ShowS) -> [(ShowS, Since)] -> ShowS
 doVersionIfDefs lines =
     lines
   . map (\group -> sinceVersion (snd (head group))
                                 (lines (map fst group)))
-  . groupBy (\(_,a) (_,b) -> fmap funcdoc_since a == fmap funcdoc_since b)
+  . groupBy (\(_,a) (_,b) -> a == b)
  
-sinceVersion :: Maybe FuncDoc -> ShowS -> ShowS
-sinceVersion (Just (FuncDoc _ _ _ (Just (major:'.':minor:[])))) body =
+sinceVersion :: Since -> ShowS -> ShowS
+sinceVersion [major,'.',minor] body =
   ss "#if GTK_CHECK_VERSION(". sc major. ss ",". sc minor. ss ",0)\n".
   body.
   ss "\n#endif"
@@ -777,83 +916,148 @@ splitBy sep str =
 -------------------------------------------------------------------------------
 
 genMarshalParameter ::
+        KnownTypes ->   --a collection of types we know to be objects or enums
 	String ->	--parameter name suggestion (will be unique)
 	String -> 	--C type decleration for the parameter we will marshal
 	(Maybe String,	--parameter class constraints (or none)
 	Maybe String,	--parameter type (or none if the arg is not exposed)
 	ShowS -> ShowS)	--marshaling code (\body -> ... body ...)
 
-genMarshalParameter name "gboolean" =
+genMarshalParameter _ name "gboolean" =
 	(Nothing, Just "Bool",
-	\body -> body. ss " (fromBool ". ss name. ss ")")
+	\body -> body.
+                 indent 2. ss " (fromBool ". ss name. ss ")")
 
-genMarshalParameter name typeName | typeName == "guint"  --these two are unsigned types
-				 || typeName == "gint"
-				 || typeName == "gsize"  --should they be Word or Int?
-				 || typeName == "gssize" =
+genMarshalParameter _ name typeName
+			 | typeName == "guint"  --these two are unsigned types
+			|| typeName == "gint"
+			|| typeName == "int"
+			|| typeName == "gsize"  --should they be Word or Int?
+			|| typeName == "gssize" =
 	(Nothing, Just "Int",
 	\body -> body.
                  indent 2. ss " (fromIntegral ". ss name. ss ")")
 
-genMarshalParameter name typeName | typeName == "const-gchar*"
-                                 || typeName == "const-char*" =
+genMarshalParameter _ name "gdouble" =
+	(Nothing, Just "Double",
+	\body -> body.
+                 indent 2. ss " (realToFrac ". ss name. ss ")")
+
+genMarshalParameter _ name "gfloat" =
+	(Nothing, Just "Float",
+	\body -> body.
+                 indent 2. ss " (realToFrac ". ss name. ss ")")
+
+genMarshalParameter _ name typeName | typeName == "const-gchar*"
+                                   || typeName == "const-char*" =
 	(Nothing, Just "String",
 	\body -> ss "withUTFString ". ss name. ss " $ \\". ss name. ss "Ptr ->".
-		 indent 1. body. sc ' '. ss name. ss "Ptr")
+		 indent 1. body.
+                 indent 2. sc ' '. ss name. ss "Ptr")
 
-genMarshalParameter name "GError**" =
+genMarshalParameter _ name "GError**" =
 	(Nothing, Nothing,
 	\body -> ss "propagateGError $ \\". ss name. ss "Ptr ->".
-	         indent 1. body. sc ' '. ss name. ss "Ptr")
+	         indent 1. body.
+                 indent 2. sc ' '. ss name. ss "Ptr")
 
-genMarshalParameter name typeName | isUpper (head typeName)
-                                 && last typeName == '*'
-                                 && last (init typeName) /= '*'  = --then assume it is an object
-	let typeName' = stripKnownPrefixes (init typeName) in
-	(Just $ typeName' ++ "Class " ++ name, Just name,
-	\body -> body. ss " (to". ss typeName'. sc ' '. ss name. ss ")")
+genMarshalParameter knownTypes name typeName'
+            | isUpper (head typeName')
+           && last typeName' == '*'
+           && last typeName /= '*'
+           && (typeKind == Just GObjectKind
+           ||  typeKind == Just GtkObjectKind) =
+	(Just $ shortTypeName ++ "Class " ++ name, Just name,
+	\body -> body.
+                 indent 2. ss " (to". ss shortTypeName. sc ' '. ss name. ss ")")
+  where typeName = init typeName'
+        shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
 
-genMarshalParameter name unknownType =
+genMarshalParameter knownTypes name typeName
+            | isUpper (head typeName)
+           && typeKind == Just EnumKind =
+	(Nothing, Just shortTypeName,
+	\body -> body.
+                 indent 2. ss " ((fromIntegral . fromEnum) ". ss name. ss ")")
+  where shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
+
+genMarshalParameter knownTypes name typeName
+            | isUpper (head typeName)
+           && typeKind == Just FlagsKind =
+	(Nothing, Just shortTypeName,
+	\body -> body.
+                 indent 2. ss " ((fromIntegral . fromFlags) ". ss name. ss ")")
+  where shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
+
+genMarshalParameter _ name unknownType =
 	(Nothing, Just $ "{-" ++ unknownType ++ "-}",
-	\body -> body. ss " {-". ss name. ss "-}")
+	\body -> body.
+                 indent 2. ss " {-". ss name. ss "-}")
 
 -- Takes the type string and returns the Haskell Type and the marshaling code
 --
-genMarshalResult :: String -> (String, ShowS -> ShowS)
-genMarshalResult "gboolean" = ("IO Bool", \body -> ss "liftM toBool $". indent 1. body)
-genMarshalResult "gint"     = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
-genMarshalResult "guint"    = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
-genMarshalResult "void"     = ("IO ()", id)
-genMarshalResult "const-gchar*"  = ("IO String", \body -> body.
-                                                          indent 1. ss  ">>= peekUTFString")
-genMarshalResult "gchar*"        = ("IO String", \body -> body.
-                                                          indent 1. ss  ">>= readUTFString")
-genMarshalResult "const-GSList*" =
+genMarshalResult :: KnownTypes -> String -> (String, ShowS -> ShowS)
+genMarshalResult _ "gboolean" = ("IO Bool", \body -> ss "liftM toBool $". indent 1. body)
+genMarshalResult _ "gint"     = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ "guint"    = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ "void"     = ("IO ()", id)
+genMarshalResult _ "const-gchar*"  = ("IO String", \body -> body.
+                                                            indent 1. ss  ">>= peekUTFString")
+genMarshalResult _ "gchar*"        = ("IO String", \body -> body.
+                                                            indent 1. ss  ">>= readUTFString")
+genMarshalResult _ "const-GSList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= readGSList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
-genMarshalResult "GSList*" =
+genMarshalResult _ "GSList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= fromGSList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
-genMarshalResult "GList*" =
+genMarshalResult _ "GList*" =
   ("[{- element type -}]",
   \body -> body.
            indent 1. ss ">>= fromGList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
 
-genMarshalResult typeName | isUpper (head typeName)
-                         && last typeName == '*'
-                         && last (init typeName) /= '*'  = --then assume it is an object
-  
-  let typeName' = stripKnownPrefixes (init typeName) in
-  ("IO " ++ typeName',
-  \body -> ss "makeNewGObject mk". ss typeName'. ss " $".
+genMarshalResult knownTypes typeName'
+            | isUpper (head typeName')
+           && last typeName' == '*'
+           && last typeName /= '*'
+           && (typeKind == Just GObjectKind
+           ||  typeKind == Just GtkObjectKind) =
+  ("IO " ++ shortTypeName,
+  \body -> ss constructor. ss " mk". ss shortTypeName. ss " $".
            indent 1. body)
+  where typeName = init typeName'
+        shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
+        constructor | typeKind == Just GObjectKind = "makeNewGObject"
+                    | typeKind == Just GtkObjectKind = "makeNewObject"
+        
+genMarshalResult knownTypes typeName
+            | isUpper (head typeName)
+           && typeKind == Just EnumKind =
+  ("IO " ++ shortTypeName,
+  \body -> ss "liftM (toEnum . fromIntegral) $".
+           indent 1. body)
+  where shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
 
-genMarshalResult unknownType = ("{-" ++ unknownType ++ "-}", id)
+genMarshalResult knownTypes typeName
+            | isUpper (head typeName)
+           && typeKind == Just FlagsKind =
+  ("IO " ++ shortTypeName,
+  \body -> ss "liftM (toFlags . fromIntegral) $".
+           indent 1. body)
+  where shortTypeName = stripKnownPrefixes typeName
+        typeKind = shortTypeName `lookup` knownTypes
+
+genMarshalResult _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
 -------------------------------------------------------------------------------
 -- Top level stuff
@@ -882,6 +1086,7 @@ main = do
   let outdir = case map (drop 9) (filter ("--outdir=" `isPrefixOf`)  rem) of
                  [] -> ""
                  (outdir:_) -> if last outdir == '/' then outdir else outdir ++ "/"
+  let includeApiFiles = map (drop 13) (filter ("--includeapi=" `isPrefixOf`)  rem)
 
   -----------------------------------------------------------------------------
   -- Read in the input files
@@ -890,12 +1095,20 @@ main = do
                then getContents	      -- read stdin
 	       else readFile apiFile
   template <- readFile templateFile
+  
+  includeApiFilesContents <- mapM readFile includeApiFiles
 
   -----------------------------------------------------------------------------
   -- Parse the contents of the xml api file
   --
   let document = Xml.xmlParse apiFile content
       api = extractAPI document
+  
+      -- For example whe processing Gtk we'd like to know about the types
+      -- included from Gdk and Pango
+      includeApi = [ extractAPI (Xml.xmlParse apiFile content)
+                   | (apiFile, content) <- zip includeApiFiles includeApiFilesContents]  
+      knownTypes = makeKnownTypesMap (api ++ concat includeApi)
 
   -----------------------------------------------------------------------------
   -- Read in the documentation xml file if supplied
@@ -943,7 +1156,7 @@ main = do
                                   ++ "-- CHECKME: extra imports may be required\n"
 	    "CONTEXT_LIB"    -> ss (if null lib then namespace_library namespace else lib)
 	    "CONTEXT_PREFIX" -> ss (if null prefix then namespace_library namespace else  prefix)
-	    "MODULE_BODY"    -> genModuleBody object moduleDoc
+	    "MODULE_BODY"    -> genModuleBody knownTypes object moduleDoc
 	    _ -> ss "" ) ""
     ) [ (namespace, object, lookup (object_cname object) apiDocMap)
       | namespace <- api
@@ -953,11 +1166,12 @@ main = do
 usage = do
   putStr "\nProgram to generate a .chs Haskell binding module from an xml\n\
 	\description of a GObject-style API. Usage:\n\
-	\ApiGen <xmlFile> <templateFile>\n\
+	\ApiGen <apiFile> <templateFile>\n\
 	\         {--doc=<docFile>} {--lib=<lib>} {--prefix=<prefix>}\n\
 	\         {--outdir=<outDir>} {--modprefix=<modPrefix>}\n\
+	\         {--includeapi=<incApiFile>}\n\
 	\where\n\
-	\  <apiFile>       an xml api file produced by gapi2xml\n\
+	\  <apiFile>       an xml api file produced by gapi_parser.pl\n\
 	\  <templateFile>  is the name and path of the output template file\n\
 	\  <outDir>        is the name and path of the output file\n\
 	\  <docFile>       api doc file output from format-doc.xsl\n\
@@ -966,7 +1180,9 @@ usage = do
 	\  <prefix>        set the prefix to use in the c2hs {#context #}\n\
 	\                  declaration (the default is taken from the api file)\n\
 	\  <modPrefix>     specify module name prefix, eg if using\n\
-	\                  hierarchical module names\n"
+	\                  hierarchical module names\n\
+	\  <incApiFile>    the api xml file for a parent api, for example Gtk\n\
+	\                  uses types defined by Gdk and Pango."
   exitWith $ ExitFailure 1
 
 
