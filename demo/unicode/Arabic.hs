@@ -1,8 +1,9 @@
 -- Example of an international dialog box.
-import Prelude 
 import Gtk
 import Char
+import Exception
 
+main :: IO ()
 main = do
   initGUI
   dia <- dialogNew
@@ -17,9 +18,10 @@ main = do
   widgetShow theText
   noBut `onClicked` yell
   dialogRun dia
+  return ()
 
 arabic :: Markup
-arabic = markSpan [FontSize $ FSPoint 240]  $
+arabic = markSpan [FontSize $ FSPoint 48]  $
  --"Is Haskell a "++markSpan [FontForeground "red"] "fantastic"++" language?"++
  -- Do you find Haskell a fantastic language? (language has a grammatical
  -- mistake in it)
