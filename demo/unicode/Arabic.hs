@@ -8,17 +8,16 @@ main = do
   initGUI
   dia <- dialogNew
   dialogAddButton dia stockYes ResponseYes
-  noBut <- buttonNewFromStock stockNo
-  dialogAddActionWidget dia noBut ResponseCancel
-  widgetShow noBut
+  dialogAddButton dia stockNo ResponseNo
   contain <- dialogGetUpper dia
   theText <- labelNew Nothing 
   labelSetMarkup theText arabic
   boxPackStartDefaults contain theText
-  widgetShow theText
-  noBut `onClicked` yell
-  dialogRun dia
-  return ()
+  widgetShowAll dia
+  res <- dialogRun dia
+  case res of
+    ResponseNo -> yell
+    _ -> return ()
 
 arabic :: Markup
 arabic = markSpan [FontSize $ FSPoint 48]  $
