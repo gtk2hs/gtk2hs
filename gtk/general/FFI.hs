@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/08/03 02:36:39 $
+--  Version $Revision: 1.5 $ from $Date: 2004/08/10 14:51:46 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -41,18 +41,13 @@ module FFI(
   newForeignPtr,
   foreignPtrToPtr,
   module Foreign,
-#if __GLASGOW_HASKELL__>=504
   module Foreign.C
-#else
-  module CForeign
-#endif
   ) where
 
 import Monad	(liftM)
 import Char
 import LocalData(unsafePerformIO)
 
-#if __GLASGOW_HASKELL__>=504
 import Data.Bits
 import Foreign.C
 import qualified Foreign
@@ -62,21 +57,9 @@ import qualified Foreign hiding (newForeignPtr)
 # else
 import Foreign	 hiding (with)
 # endif
-#else
-import Bits
-import CForeign
-import qualified Foreign
-import Foreign	 hiding (withObject)
-#endif
 
-
-#if __GLASGOW_HASKELL__>=504
 with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
 with = Foreign.with
-#else
-with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
-with = Foreign.withObject
-#endif
 
 #if __GLASGOW_HASKELL__>=602
 newForeignPtr = flip Foreign.newForeignPtr

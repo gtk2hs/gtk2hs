@@ -6,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2004/08/06 01:48:03 $
+--  Version $Revision: 1.15 $ from $Date: 2004/08/10 14:51:48 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -163,17 +163,8 @@ treeModelForeach tm fun = do
 
 {#pointer TreeModelForeachFunc#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper"  mkTreeModelForeachFunc ::
   (Ptr () -> Ptr () -> Ptr TreeIter -> Ptr () -> IO CInt) -> IO TreeModelForeachFunc
-
-#else
-
-foreign export dynamic mkTreeModelForeachFunc ::
-  (Ptr () -> Ptr () -> Ptr TreeIter -> Ptr () -> IO CInt)-> IO TreeModelForeachFunc
-
-#endif
 
 -- | Returns a set of flags supported by this interface. The flags supported
 -- should not change during the lifecycle of the model.

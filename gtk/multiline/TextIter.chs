@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.12 $ from $Date: 2004/05/23 16:09:08 $
+--  Version $Revision: 1.13 $ from $Date: 2004/08/10 14:51:47 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -702,17 +702,8 @@ type TextCharPredicateCB = Char -> Bool
 
 {#pointer TextCharPredicate#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper" mkTextCharPredicate ::
   ({#type gunichar#} -> Ptr () -> {#type gboolean#}) -> IO TextCharPredicate
-
-#else
-
-foreign export dynamic mkTextCharPredicate ::
-  ({#type gunichar#} -> Ptr () -> {#type gboolean#}) -> IO TextCharPredicate
-
-#endif
 
 -- | Move 'TextIter' forward until a
 -- predicate function returns True.

@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/23 16:00:53 $
+--  Version $Revision: 1.9 $ from $Date: 2004/08/10 14:51:47 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -104,15 +104,7 @@ makeNewGObject constr generator = do
 
 {#pointer GWeakNotify#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper" mkDestructor :: IO () -> IO GWeakNotify
-
-#else
-
-foreign export dynamic mkDestructor :: IO () -> IO GWeakNotify
-
-#endif
 
 -- | attach a callback that will be called after the
 -- destroy hooks have been called

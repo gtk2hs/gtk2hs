@@ -6,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/08/04 18:41:43 $
+--  Version $Revision: 1.9 $ from $Date: 2004/08/10 14:51:47 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -108,17 +108,8 @@ containerForeach con fun = do
 type ContainerForeachCB = Widget -> IO ()
 {#pointer Callback#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper" mkContainerForeachFunc ::
   (Ptr Widget -> Ptr () -> IO ()) -> IO Callback
-
-#else
-
-foreign export dynamic mkContainerForeachFunc ::
-  (Ptr Widget -> Ptr () -> IO ()) -> IO Callback
-
-#endif
 
 -- | Returns the the container's children.
 --

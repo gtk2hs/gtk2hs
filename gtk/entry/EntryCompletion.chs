@@ -124,11 +124,7 @@ entryCompletionSetTextColumn ec column =
 --
 {#pointer GDestroyNotify#}
 
-#if __GLASGOW_HASKELL__>=504
 foreign import ccall "wrapper" mkDestructor :: IO () -> IO GDestroyNotify
-#else
-foreign export dynamic mkDestructor :: IO () -> IO GDestroyNotify
-#endif
 
 type GtkEntryCompletionMatchFunc =
   Ptr EntryCompletion -> --GtkEntryCompletion *completion
@@ -137,15 +133,9 @@ type GtkEntryCompletionMatchFunc =
   Ptr () ->              --gpointer user_data
   IO ()
 
-#if __GLASGOW_HASKELL__>=504
 foreign import ccall "wrapper" mkHandler_GtkEntryCompletionMatchFunc ::
   GtkEntryCompletionMatchFunc -> 
   IO (FunPtr GtkEntryCompletionMatchFunc)
-#else
-foreign export dynamic mkHandler_GtkEntryCompletionMatchFunc ::
-  GtkEntryCompletionMatchFunc -> 
-  IO (FunPtr GtkEntryCompletionMatchFunc)
-#endif
 
 connect_GtkEntryCompletionMatchFunc :: EntryCompletion ->
                                        (String -> TreeIter -> IO ()) ->

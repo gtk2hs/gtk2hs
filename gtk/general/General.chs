@@ -7,7 +7,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.13 $ from $Date: 2004/07/29 00:53:40 $
+--  Version $Revision: 1.14 $ from $Date: 2004/08/10 14:51:46 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -179,19 +179,9 @@ grabRemove  = {#call grab_remove#} . toWidget
 
 {#pointer GDestroyNotify as DestroyNotify#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper" mkHandler :: IO {#type gint#} -> IO Function
 
 foreign import ccall "wrapper" mkDestructor :: IO () -> IO DestroyNotify
-
-#else
-
-foreign export dynamic mkHandler :: IO {#type gint#} -> IO Function
-
-foreign export dynamic mkDestructor :: IO () -> IO DestroyNotify
-
-#endif
 
 type HandlerId = {#type guint#}
 

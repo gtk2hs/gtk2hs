@@ -6,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2004/08/04 18:42:00 $
+--  Version $Revision: 1.11 $ from $Date: 2004/08/10 14:51:48 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -113,17 +113,8 @@ treeSelectionSetSelectFunction ts fun = do
 type TreeSelectionCB = TreePath -> IO ()
 {#pointer TreeSelectionFunc#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper"  mkTreeSelectionFunc ::
   (Ptr () -> Ptr () -> Ptr TreePath -> Ptr () -> IO ())-> IO TreeSelectionFunc
-
-#else
-
-foreign export dynamic mkTreeSelectionFunc ::
-  (Ptr () -> Ptr () -> Ptr TreePath -> Ptr () -> IO ())-> IO TreeSelectionFunc
-
-#endif
 
 -- | Retrieve the TreeView widget that this
 -- TreeSelection works on.
@@ -168,17 +159,8 @@ treeSelectionSelectedForeach ts fun = do
 type TreeSelectionForeachCB = TreeIter -> IO ()
 {#pointer TreeSelectionForeachFunc#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper"  mkTreeSelectionForeachFunc ::
   (Ptr () -> Ptr TreeIter -> Ptr () -> IO ()) -> IO TreeSelectionForeachFunc
-
-#else
-
-foreign export dynamic mkTreeSelectionForeachFunc ::
-  (Ptr () -> Ptr TreeIter -> Ptr () -> IO ()) -> IO TreeSelectionForeachFunc
-
-#endif
 
 -- | Select a specific item by TreePath.
 --

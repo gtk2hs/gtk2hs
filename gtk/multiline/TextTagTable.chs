@@ -86,17 +86,8 @@ textTagTableForeach obj func = do
 
 {#pointer TextTagTableForeach#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper" mkTextTagTableForeach ::
   (Ptr TextTag -> Ptr () -> IO ()) -> IO TextTagTableForeach
-
-#else
-
-foreign export dynamic mkTextTagTableForeach ::
-  (Ptr TextTag -> Ptr () -> IO ()) -> IO TextTagTableForeach
-
-#endif
 
 -- | Returns the size of the table (the number of tags).
 --

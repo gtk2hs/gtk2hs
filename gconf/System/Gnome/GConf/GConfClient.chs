@@ -175,11 +175,7 @@ gconfRemoveDir gc key =
 
 {#pointer GFreeFunc#}
 
-#if __GLASGOW_HASKELL__>=504
 foreign import ccall "wrapper" mkDestructor :: IO () -> IO GFreeFunc
-#else
-foreign export dynamic mkDestructor :: IO () -> IO GFreeFunc
-#endif
 
 type GConfClientNotifyFunc = Ptr () ->         --GConfClient *client
                              {#type guint#} -> --guint cnxn_id
@@ -187,13 +183,8 @@ type GConfClientNotifyFunc = Ptr () ->         --GConfClient *client
                              Ptr () ->         --gpointer user_data
                              IO ()
 
-#if __GLASGOW_HASKELL__>=504
 foreign import ccall "wrapper" mkHandler_GConfClientNotifyFunc ::
   GConfClientNotifyFunc -> IO (FunPtr GConfClientNotifyFunc)
-#else
-foreign export dynamic mkHandler_GConfClientNotifyFunc ::
-  GConfClientNotifyFunc -> IO (FunPtr GConfClientNotifyFunc)
-#endif
 
 connect_GConfClientNotifyFunc :: 
   GConf ->

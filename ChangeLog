@@ -4,6 +4,17 @@
 
 	* gtk/layout/Notebook.chs: fix typos.
 
+	* compat/LocalControl.hs, compat/LocalData.hs, gtk/general/FFI.hs:
+	remove support for versions of ghc pre 5.04.
+
+	* gconf/System/Gnome/GConf/GConfClient.chs, gtk/abstract/Container.chs
+	gtk/entry/EntryCompletion.chs, gtk/general/General.chs,
+	gtk/glib/GObject.chs, gtk/multiline/TextIter.chs,
+	gtk/multiline/TextTagTable.chs, gtk/treeList/TreeModel.chs,
+	gtk/treeList/TreeSelection.chs, gtk/treeList/TreeView.chs,
+	tools/callbackGen/Signal.chs-boot2: ghc 5.04 supports the new FFI
+	syntax so remove old-style "foreign export dynamic" versions.
+
 2004-08-9  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/layout/Notebook.chs: bind some new functions. Mark deprecated

@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.17 $ from $Date: 2004/08/05 14:24:27 $
+--  Version $Revision: 1.18 $ from $Date: 2004/08/10 14:51:48 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -429,19 +429,9 @@ treeViewSetColumnDragFunction tv (Just pred) = do
 
 {#pointer TreeViewColumnDropFunc#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper" mkTreeViewColumnDropFunc ::
   (Ptr () -> Ptr TreeViewColumn -> Ptr TreeViewColumn -> Ptr TreeViewColumn ->
   Ptr () -> IO {#type gboolean#}) -> IO TreeViewColumnDropFunc
-
-#else
-
-foreign export dynamic mkTreeViewColumnDropFunc ::
-  (Ptr () -> Ptr TreeViewColumn -> Ptr TreeViewColumn -> Ptr TreeViewColumn ->
-  Ptr () -> IO {#type gboolean#}) -> IO TreeViewColumnDropFunc
-
-#endif
 
 -- | Scroll to a coordinate.
 --
@@ -596,19 +586,9 @@ treeViewMapExpandedRows tv func = do
 
 {#pointer TreeViewMappingFunc#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper" mkTreeViewMappingFunc ::
   (Ptr TreeView -> Ptr TreePath -> Ptr () -> IO ()) ->
   IO TreeViewMappingFunc
-
-#else
-
-foreign export dynamic mkTreeViewMappingFunc ::
-  (Ptr TreeView -> Ptr TreePath -> Ptr () -> IO ()) ->
-  IO TreeViewMappingFunc
-
-#endif
 
 -- | Check if row is expanded.
 --
@@ -815,19 +795,9 @@ treeViewSetSearchEqualFunc tv pred = do
 
 {#pointer TreeViewSearchEqualFunc#}
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall "wrapper" mkTreeViewSearchEqualFunc ::
   (Ptr TreeModel -> {#type gint#} -> CString -> Ptr TreeIter -> Ptr () ->
    IO {#type gboolean#}) -> IO TreeViewSearchEqualFunc
-
-#else
-
-foreign export dynamic mkTreeViewSearchEqualFunc ::
-  (Ptr TreeModel -> {#type gint#} -> CString -> Ptr TreeIter -> Ptr () ->
-   IO {#type gboolean#}) -> IO TreeViewSearchEqualFunc
-
-#endif
 
 -- | The user has dragged a column to another
 -- position.
