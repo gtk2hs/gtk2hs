@@ -1,3 +1,52 @@
+2003-11-11  Jens Petersen  <petersen@haskell.org>
+
+	* sourceview/SourceTag.chs (sourceTagSetStyle): Fix docu typo.
+
+	* sourceview/Makefile (EXTRA_HFILES): Use relative path.
+	(EXTRA_TARFILES): Not needed.
+	(EXTRA_CPPFLAGS): Use SOURCEVIEW_CFLAGS instead.
+	(EXTRA_LIBS): Use SOURCEVIEW_LIBS instead.
+
+	* mk/recurse.mk (all): Add MAKE_DOCS.
+	(inplace): Ditto.
+	(noinplace): Ditto.
+	(tarsource): Ditto.
+	(clean): Ditto.
+
+	* mk/library.mk	(installdirs): Reorder directories.
+
+	* mk/config.mk.in (SOURCEVIEW_LIBS): Define.
+	(SOURCEVIEW_CFLAGS): Ditto.
+
+	* mk/common.mk: Fixed so that per package INSTALLDIR works:
+	(INSTALLDIROK): Is now a deferred variable.
+	(INST_*): Not passed through SEDPIPE for now.
+
+	* gtk2hs.spec.in (%build): Instead of "--with c2hs" rpmbuild
+	option, if %c2hs defined then pass it with --with-c2hs= to
+	configure.
+	(%install): Install sourceview haskell.lang file.  Clean demo
+	to prevent binary files in doc dir.
+
+	* configure.in: Only use GTK for gtk2 package check.  Use GTKGLEXT
+	for gtkglext and SOURCEVIEW for gtksourceview, so that sourceview
+	cflags and link options do not appear in ghc gtk2 package.  Drop
+	unused PIXBUF config vars from GTK config vars.  Process
+	SOURCEVIEW config vars in the same way as GTK ones.
+	Search for specific external c2hs in PATH, like c2hs is searched
+	with --with-c2hs=yes.  Treat "c2hs-gtk2hs" as a exceptional external
+	c2hs which supports multiple chs files, allowing one to avoid
+	building the internal c2hs on every clean build.
+
+	* Makefile (MAKE_TOOLS): Only add c2hs when BUILT_IN_C2HS is no.
+	(MAKE_DOCS): gendoc doc targets moved here from MAKE_TOOLS since
+	doc must be done after gtk.
+	(MAKE_APPS): Add demo/sourceview.
+	(dist): Depend on gtk2hs.spec.
+	(rpm): dist now depends on gtk2hs.spec.
+	(srpm): Ditto.
+	Include Makefile.local if present for local build configuration.
+
 2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* tools/signals/HookGenerator.hs, tools/signals/Makefile,
@@ -23,7 +72,7 @@
 	* mk/library.mk (INSTALLDIR): Define default package install dir to
 	be under COMMONINSTALLDIR.
 
-	* gtk/Makefile (INSTALLDIR): Drop local def and use default.
+	* gtk/Makefile (INSTALLDIR): Drop local definition and use default.
 
 	* mogul/Makefile (INSTALLDIR): Ditto.
 	
