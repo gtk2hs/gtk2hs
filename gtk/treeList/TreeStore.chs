@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:35 $
+--  Version $Revision: 1.7 $ from $Date: 2003/01/11 02:42:51 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -80,8 +80,8 @@ treeStoreSetValue ts ti col val = with' val $ \vPtr -> do
 
 -- @method treeStoreRemove@ Remove a specific node.
 --
-treeStoreRemove :: (TreeStoreClass ts) => ts -> TreeIter -> IO ()
-treeStoreRemove ts ti = {#call tree_store_remove#} (toTreeStore ts) ti
+treeStoreRemove :: (TreeStoreClass ts) => ts -> TreeIter -> IO Bool
+treeStoreRemove ts ti = liftM toBool $ {#call tree_store_remove#} (toTreeStore ts) ti
 
 -- @method treeStoreInsert@ Insert a child node into the tree. If the parent
 -- is Nothing the insert at the root of the tree. The pos parameter determines

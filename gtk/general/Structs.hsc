@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2003/01/10 07:51:35 $
+--  Version $Revision: 1.12 $ from $Date: 2003/01/11 02:42:50 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -480,7 +480,7 @@ fromResponse ResponseYes = -8
 fromResponse ResponseNo = -9
 fromResponse ResponseApply = -10
 fromResponse ResponseHelp = -11
-fromResponse ResponseUser i | i > 0 = i
+fromResponse (ResponseUser i) | i > 0 = fromIntegral i
 
 toResponse :: Integral a => a -> ResponseId
 toResponse -1 = ResponseNone
@@ -494,7 +494,7 @@ toResponse -8 = ResponseYes
 toResponse -9 = ResponseNo
 toResponse -10 = ResponseApply
 toResponse -11 = ResponseHelp
-toResponse i | i > 0  = ResponseUser i
+toResponse i | i > 0  = ResponseUser $ fromIntegral i
 
 #include<gdk/gdkx.h>
 

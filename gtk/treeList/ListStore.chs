@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2002/12/03 13:20:07 $
+--  Version $Revision: 1.9 $ from $Date: 2003/01/11 02:42:51 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -81,8 +81,8 @@ listStoreSetValue ts ti col val = with' val $ \vPtr -> do
 
 -- @method listStoreRemove@ Remove a specific node.
 --
-listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO ()
-listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
+listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO Bool
+listStoreRemove ts ti = liftM toBool $ {#call list_store_remove#} (toListStore ts) ti
 
 -- @method listStoreInsert@ Insert a new row into the list.
 --

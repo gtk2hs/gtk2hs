@@ -1,3 +1,15 @@
+2003-01-11  Jens Petersen  <petersen@haskell.org>
+
+	* gtk/treeList/TreeStore.chs (treeStoreRemove): lift to Bool
+
+	* gtk/treeList/ListStore.chs (listStoreRemove): lift to Bool
+
+	* gtk/general/Structs.hsc (fromResponse): parenthesize
+	ResponseUser i and add fromIntegral on rhs
+	(toResponse): add fromIntegral for ResponseUser
+
+	* demo/graphic/Drawing.hs (main): use ResponseOk
+
 2003-01-10  Jens Petersen  <petersen@haskell.org>
 
 	* configure.in: add gtk2hs.spec to output list
