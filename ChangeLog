@@ -1,3 +1,8 @@
+2005-02-19 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am: Repaired the uninstall-hook which somehow worked on
+	the wrong variable thereby not removing any packages.
+
 2005-02-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp,

@@ -987,7 +987,7 @@ install-data-hook :
 	--input-file=$(call getVar,$(pkgname),PACKAGE);)
 
 uninstall-hook :
-	$(foreach pkgname,$(lib_LIBRARIES), \
+	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	  $(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
 	  --remove-package=`cat $(call getVar,$(pkgname),PACKAGE) \
 	  | $(GREP) name | $(SED) "s/ *name *= *\"\([a-zA-Z0-9]*\)\",/\1/"`;) \
