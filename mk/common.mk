@@ -6,23 +6,39 @@ CONFIG_H = config.h
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-pkgVPATH = $(subst $(SPACE),:,$($(1)_SOURCESDIRS))
+# Cunning make hackery, this function translates from a file name to the
+# package variable name prefix, eg
+#   "gtk/Graphics/UI/Gtk.hs" to "libHSgtk_a"
+# using a make var
+#   gtk_PKGNAME = libHSgtk_a
+# the second argument is the package variable you're after, eg
+#   $(call getPkgVar,HCFLAGS)
+#
+PKG = \
+  $(if $(call $(firstword $(subst /, ,$@))_PKGNAME,$@),$(strip \
+       $(call $(firstword $(subst /, ,$@))_PKGNAME,$@)), \
+     $(error PKG: cannot find PKGNAME for "$@", $(1) flag requested))
 
-LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
-	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-	$(AM_LDFLAGS) $($(NAME)_LDFLAGS))
+# necessary so support packages under the tools directory
+tools_PKGNAME = $(call tools_$(word 2,$(subst /, ,$(1)))_PKGNAME,$(1))
+
+pkgVPATH = $(subst $(SPACE),:,$($(PKG)_SOURCESDIRS))
+
+LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
+	$(addprefix -package ,$($(PKG)_PACKAGEDEPS)) \
+	$(AM_LDFLAGS) $($(PKG)_LDFLAGS))
 
 #Using pattern rule here to prevent automake from understanding the rule
 #and falsely concluding that two source files will produce the same object
 #file even though the object files will be in different directories.
 #Obviously the 'subdir-objects' option only works for C/C++ files.
 %.o : %.hs $(CONFIG_H)
-	@echo Building for $(NAME)
-	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
-	$(call getVar,$<,HCFLAGS) -i$(call pkgVPATH,$(NAME)) \
-	$(addprefix -package-name ,$(notdir $(basename $($(NAME)_PACKAGE)))) \
-	$(addprefix '-#include<,$(addsuffix >', $($(NAME)_HEADER))) \
-	$(AM_CPPFLAGS) $($(NAME)_CPPFLAGS))
+	@echo Building for $(PKG)
+	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
+	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
+	$(addprefix -package-name ,$(notdir $(basename $($(PKG)_PACKAGE)))) \
+	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
+	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
 
 .DELETE_ON_ERROR : %.deps
 
@@ -36,13 +52,13 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(NAME)_HCFLAGS) \
 depend: $($(NAME)_BUILDSOURCES)
 	$(if $(word 2,$($(NAME)_HSFILES)),\
 	$(HC) -M $(addprefix -optdep,-f $(NAME).deps) \
-	$($(NAME)_HCFLAGS) -i$(call pkgVPATH,$(NAME)) \
+	$($(NAME)_HCFLAGS) -i$(subst $(SPACE),:,$($(NAME)_SOURCESDIRS)) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
 	$(AM_CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS) \
 	$($(NAME)_HSFILES))
 
 .chs.dep :
-	@$(CHSDEPEND) -i$(call pkgVPATH,$(NAME)) $<
+	@$(CHSDEPEND) -i$(pkgVPATH) $<
 
 .hs.chi :
 	@:
@@ -70,39 +86,39 @@ debug	:
 %.precomp :
 	$(strip $(C2HS) $(C2HS_FLAGS)		\
 	+RTS $(HSTOOLFLAGS) $(PROFFLAGS) -RTS		\
-	$(addprefix -C,$($(NAME)_CFLAGS) $($(NAME)_CPPFLAGS))		\
+	$(addprefix -C,$($(PKG)_CFLAGS) $($(PKG)_CPPFLAGS))		\
 	--cppopts='-include "$(CONFIG_H)"' \
-	--precomp=$($(NAME)_PRECOMP) $($(NAME)_HEADER))
+	--precomp=$($(PKG)_PRECOMP) $($(PKG)_HEADER))
 
 .chs.pp.chs: $(CONFIG_H)
-	@echo Preprocessing for $(NAME)
+	@echo Preprocessing for $(PKG)
 	$(strip $(HSCPP) $(AM_CPPFLAGS) \
-	$(if $(NAME),$($(NAME)_CPPFLAGS) $($(NAME)_CFLAGS),$(CPPFLAGS)) \
+	$($(PKG)_CPPFLAGS) $($(PKG)_CFLAGS) \
 	$(addprefix -include ,$(CONFIG_H)) \
 	$< -o $@)
 
 .hsc.hs: $(CONFIG_H)
 	$(strip $(HSC2HS) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
         $(addprefix -L-optl,\
-	$(AM_LDFLAGS) $($(NAME)_EXTRA_LIBS) $($(NAME)_LIBS)) \
+	$(AM_LDFLAGS) $($(PKG)_LIBS)) \
         $(addprefix -C,	$(filter-out -I%,$(AM_CPPFLAGS)) \
-	$($(NAME)_CFLAGS))\
+	$($(PKG)_CFLAGS))\
         $(filter -I%,$(AM_CPPFLAGS)) \
-	$($(NAME)_CPPFLAGS)\
-	--include $(CONFIG_H) --include $($(NAME)_HEADER) \
+	$($(PKG)_CPPFLAGS)\
+	--include $(CONFIG_H) --include $($(PKG)_HEADER) \
         --cc=$(HC) --lflag=-no-hs-main $<)
 
 .chs.hs: 
-	@echo Building .hs file for $(NAME)
+	@echo Building .hs file for $(PKG)
 	$(if $(subst no,,$(BUILT_IN_C2HS)),$(strip \
 	if test -x $(C2HS); then :; else \
-	  $(MAKE) $(AM_MAKEFLAGS) NAME="tools_c2hs_c2hsLocal" \
+	  $(MAKE) $(AM_MAKEFLAGS) \
 	  tools/c2hs/c2hsLocal; fi;))
-	$(strip if test -f $($(NAME)_PRECOMP); then :; else \
-	  $(MAKE) $(AM_MAKEFLAGS) NAME="$(NAME)" $($(NAME)_PRECOMP); fi;)
+	$(strip if test -f $($(PKG)_PRECOMP); then :; else \
+	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_PRECOMP); fi;)
 	$(strip $(C2HS) $(C2HS_FLAGS) \
 	+RTS $(HSTOOLFLAGS) -RTS \
-	-i$(call pkgVPATH,$(NAME)) --precomp=$($(NAME)_PRECOMP) -o $@ $<)
+	-i$(pkgVPATH) --precomp=$($(PKG)_PRECOMP) -o $@ $<)
 
 
 # installation of packages

@@ -54,8 +54,7 @@ noinst_PROGRAMS = \
 # we can access program-specific variables like <name>_PACKAGEDEPS. The
 # following is a hack to prevent automake from assuming that we are overriding
 # the tools/hierarchyGen/TypeGenerator goal.
-TypeGenerator_NAME = tools/hierarchyGen/TypeGenerator
-$(TypeGenerator_NAME) : NAME = tools_hierarchyGen_TypeGenerator
+tools_hierarchyGen_PKGNAME = tools_hierarchyGen_TypeGenerator
 
 tools_hierarchyGen_TypeGenerator_MAIN = \
   $(tools_hierarchyGen_TypeGenerator_SOURCES)
@@ -74,8 +73,7 @@ MOSTLYCLEANFILES+= $(tools_hierarchyGen_TypeGenerator_SOURCES:.hs=.hi)
 #
 ################################################################################
 
-HookGenerator_NAME = tools/callbackGen/HookGenerator
-$(HookGenerator_NAME) : NAME = tools_callbackGen_HookGenerator
+tools_callbackGen_PKGNAME = tools_callbackGen_HookGenerator
 
 tools_callbackGen_HookGenerator_MAIN = \
   $(tools_callbackGen_HookGenerator_SOURCES)
@@ -103,8 +101,7 @@ gtk/Graphics/UI/Gtk/Signals.chs : \
 #
 ################################################################################
 
-#Exclude_NAME = tools/apicoverage/Exclude
-#$(Exclude_NAME) : NAME = tools_apicoverage_Exclude
+#tools_apicoverage_PKGNAME = tools_apicoverage_Exclude
 #
 #tools_apicoverage_Exclude_MAIN = \
 #  $(tools_apicoverage_Exclude_SOURCES)
@@ -122,8 +119,7 @@ gtk/Graphics/UI/Gtk/Signals.chs : \
 #
 ################################################################################
 
-tools_c2hs_c2hsLocal_NAME = tools/c2hs/c2hsLocal
-$(tools_c2hs_c2hsLocal_NAME) : NAME = tools_c2hs_c2hsLocal
+tools_c2hs_PKGNAME = tools_c2hs_c2hsLocal
 
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
 tools_c2hs_c2hsLocal_PACKAGEDEPS	= 
@@ -209,8 +205,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 #
 ################################################################################
 
-libHSglib_a_NAME = libHSglib.a
-$(libHSglib_a_NAME) : NAME = libHSglib_a
+glib_PKGNAME = libHSglib_a
 
 libHSglib_a_PACKAGE		= glib/glib.pkg
 libHSglib_a_PACKAGEDEPS		= 
@@ -271,6 +266,8 @@ MOSTLYCLEANFILES += \
 CLEANFILES += $(libHSglib_a_BUILDSOURCES)
 
 DISTCLEANFILES+= libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
+
+$(libHSglib_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES)
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include libHSglib_a.deps $(libHSglib_a_CHSFILES:.chs=.dep)
  endif
@@ -280,8 +277,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 #
 ################################################################################
 
-libHSgtk_a_NAME = libHSgtk.a
-$(libHSgtk_a_NAME) : NAME = libHSgtk_a
+gtk_PKGNAME = libHSgtk_a
 
 libHSgtk_a_PACKAGE		= gtk/gtk.pkg
 libHSgtk_a_PACKAGEDEPS		= 
@@ -294,10 +290,12 @@ libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
 libHSgtk_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) gtk
 
+nodist_libHSgtk_a_SOURCES =						\
+	gtk/Graphics/UI/Gtk/Types.chs					\
+	gtk/Graphics/UI/Gtk/Signals.chs
+
 libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk.hs						\
-	gtk/Graphics/UI/Gtk/Types.chs				        \
-	gtk/Graphics/UI/Gtk/Signals.chs				        \
 	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp				\
 	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs			\
@@ -455,13 +453,15 @@ gtk/Graphics/UI/Gtk/Types.chs : \
 	--modname=Graphics.UI.Gtk.Types \
         --parentname=System.Glib.GObject)
 
-am_libHSgtk_a_OBJECTS = \
-  $(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtk_a_SOURCES))))
+libHSgtk_a_ALLSOURCES = $(libHSgtk_a_SOURCES) $(nodist_libHSgtk_a_SOURCES)
 
-libHSgtk_a_CHSPPFILES   = $(filter %.chs.pp,$(libHSgtk_a_SOURCES))
-libHSgtk_a_CHSFILES     = $(filter %.chs,$(libHSgtk_a_SOURCES:.chs.pp=.chs))
+am_libHSgtk_a_OBJECTS = \
+  $(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtk_a_ALLSOURCES))))
+
+libHSgtk_a_CHSPPFILES   = $(filter %.chs.pp,$(libHSgtk_a_ALLSOURCES))
+libHSgtk_a_CHSFILES     = $(filter %.chs,$(libHSgtk_a_ALLSOURCES:.chs.pp=.chs))
 libHSgtk_a_CHSFILES_HS  = $(libHSgtk_a_CHSFILES:.chs=.hs)
-libHSgtk_a_HSCFILES     = $(filter %.hsc, $(libHSgtk_a_SOURCES))
+libHSgtk_a_HSCFILES     = $(filter %.hsc, $(libHSgtk_a_ALLSOURCES))
 libHSgtk_a_HSCFILES_HS  = $(libHSgtk_a_HSCFILES:.hsc=.hs)
 
 libHSgtk_a_BUILDSOURCES = \
@@ -472,7 +472,7 @@ libHSgtk_a_BUILDSOURCES = \
 	gtk/Graphics/UI/Gtk/Signals.chs
 libHSgtk_a_HSFILES  = \
 	$(filter %.hs,$(libHSgtk_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libHSgtk_a_SOURCES))
+	$(filter %.hs,$(libHSgtk_a_ALLSOURCES))
 
 nobase_hi_SCRIPTS += $(libHSgtk_a_HSFILES:.hs=.hi)
 
@@ -511,6 +511,8 @@ MOSTLYCLEANFILES += \
 CLEANFILES+= $(libHSgtk_a_BUILDSOURCES)
 
 DISTCLEANFILES+= libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+
+$(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES)
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
  endif
@@ -520,8 +522,7 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 #
 ################################################################################
 
-libHSmogul_a_NAME = libHSmogul.a
-$(libHSmogul_a_NAME) : NAME = libHSmogul_a
+mogul_PKGNAME = libHSmogul_a
 
 libHSmogul_a_PACKAGE		= mogul/mogul.pkg
 libHSmogul_a_PACKAGEDEPS	= 
@@ -563,8 +564,7 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 
 if ENABLE_LIBGLADE
 
-libHSglade_a_NAME = libHSglade.a
-$(libHSglade_a_NAME) : NAME = libHSglade_a
+glade_PKGNAME = libHSglade_a
 
 libHSglade_a_PACKAGE		= glade/glade.pkg
 libHSglade_a_PACKAGEDEPS	= 
@@ -577,8 +577,10 @@ libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLAD
 
 libHSglade_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) glade
 
+nodist_libHSglade_a_SOURCES =	\
+	glade/Graphics/UI/Gtk/Glade/Types.chs
+
 libHSglade_a_SOURCES =	        \
-	glade/Graphics/UI/Gtk/Glade/Types.chs	\
         glade/Graphics/UI/Gtk/Glade.chs
 
 glade_Graphics_UI_Gtk_Glade_Types_hs_HCFLAGS	= -fglasgow-exts
@@ -593,14 +595,16 @@ glade/Graphics/UI/Gtk/Glade/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.l
                       --modname=Graphics.UI.Gtk.Glade.Types \
 		      --parentname=Graphics.UI.Gtk.Types)
 
-am_libHSglade_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglade_a_SOURCES))))
+libHSglade_a_ALLSOURCES = $(libHSglade_a_SOURCES) $(nodist_libHSglade_a_SOURCES)
 
-libHSglade_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglade_a_SOURCES))
+am_libHSglade_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglade_a_ALLSOURCES))))
+
+libHSglade_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglade_a_ALLSOURCES))
 libHSglade_a_CHSFILES = \
-  $(filter %.chs,$(libHSglade_a_SOURCES:.chs.pp=.chs))
+  $(filter %.chs,$(libHSglade_a_ALLSOURCES:.chs.pp=.chs))
 libHSglade_a_CHSFILES_HS = $(libHSglade_a_CHSFILES:.chs=.hs)
-libHSglade_a_HSCFILES = $(filter %.hsc, $(libHSglade_a_SOURCES))
+libHSglade_a_HSCFILES = $(filter %.hsc, $(libHSglade_a_ALLSOURCES))
 libHSglade_a_HSCFILES_HS = $(libHSglade_a_HSCFILES:.hsc=.hs)
 libHSglade_a_BUILDSOURCES = \
 	$(libHSglade_a_CHSPPFILES:.chs.pp=.chs) \
@@ -609,7 +613,7 @@ libHSglade_a_BUILDSOURCES = \
         glade/Graphics/UI/Gtk/Glade/Types.chs
 libHSglade_a_HSFILES  = \
 	$(filter %.hs,$(libHSglade_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libHSglade_a_SOURCES))
+	$(filter %.hs,$(libHSglade_a_ALLSOURCES))
 
 nobase_hi_SCRIPTS += $(libHSglade_a_HSFILES:.hs=.hi)
 
@@ -619,6 +623,8 @@ MOSTLYCLEANFILES += $(libHSglade_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSglade_a_BUILDSOURCES) 
 
 DISTCLEANFILES+= libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
+
+$(libHSglade_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSglade_a_CHSFILES)
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSglade_a.deps $(libHSglade_a_CHSFILES:.chs=.dep)
  endif
@@ -632,8 +638,7 @@ endif #ENABLE_LIBGLADE
 
 if ENABLE_GNOME
 
-libHSgconf_a_NAME = libHSgconf.a
-$(libHSgconf_a_NAME) : NAME = libHSgconf_a
+gconf_PKGNAME = libHSgconf_a
 
 libHSgconf_a_PACKAGE		= gconf/gconf.pkg
 libHSgconf_a_PACKAGEDEPS	= 
@@ -646,11 +651,13 @@ libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_C
 
 libHSgconf_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gconf
 
-libHSgconf_a_SOURCES =	        			\
-	gconf/System/Gnome/GConf/Types.chs		\
-        gconf/System/Gnome/GConf/GConfValue.chs		\
-        gconf/System/Gnome/GConf/GConfClient.chs	\
-        gconf/System/Gnome/GConf.hs
+nodist_libHSgconf_a_SOURCES =				\
+	gconf/System/Gnome/GConf/Types.chs
+
+libHSgconf_a_SOURCES =					\
+	gconf/System/Gnome/GConf/GConfValue.chs		\
+	gconf/System/Gnome/GConf/GConfClient.chs	\
+	gconf/System/Gnome/GConf.hs
 
 gconf/System/Gnome/GConf/Types.chs :			\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -662,14 +669,16 @@ gconf/System/Gnome/GConf/Types.chs :			\
 	$@ --tag=gconf --lib=gconf --prefix=gconf \
 	--modname=System.Gnome.GConf.Types --parentname=System.Glib.GObject)
 
-am_libHSgconf_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_SOURCES))))
+libHSgconf_a_ALLSOURCES = $(libHSgconf_a_SOURCES) $(nodist_libHSgconf_a_SOURCES)
 
-libHSgconf_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgconf_a_SOURCES))
+am_libHSgconf_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_ALLSOURCES))))
+
+libHSgconf_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgconf_a_ALLSOURCES))
 libHSgconf_a_CHSFILES = \
-  $(filter %.chs,$(libHSgconf_a_SOURCES:.chs.pp=.chs))
+  $(filter %.chs,$(libHSgconf_a_ALLSOURCES:.chs.pp=.chs))
 libHSgconf_a_CHSFILES_HS = $(libHSgconf_a_CHSFILES:.chs=.hs)
-libHSgconf_a_HSCFILES = $(filter %.hsc, $(libHSgconf_a_SOURCES))
+libHSgconf_a_HSCFILES = $(filter %.hsc, $(libHSgconf_a_ALLSOURCES))
 libHSgconf_a_HSCFILES_HS = $(libHSgconf_a_HSCFILES:.hsc=.hs)
 libHSgconf_a_BUILDSOURCES = \
 	$(libHSgconf_a_CHSPPFILES:.chs.pp=.chs) \
@@ -678,7 +687,7 @@ libHSgconf_a_BUILDSOURCES = \
         gconf/System/Gnome/GConf/Types.chs
 libHSgconf_a_HSFILES  = \
 	$(filter %.hs,$(libHSgconf_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libHSgconf_a_SOURCES))
+	$(filter %.hs,$(libHSgconf_a_ALLSOURCES))
 
 nobase_hi_SCRIPTS += $(libHSgconf_a_HSFILES:.hs=.hi)
 
@@ -693,6 +702,7 @@ CLEANFILES += $(libHSgconf_a_BUILDSOURCES)
 
 DISTCLEANFILES+= libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
+$(libHSgconf_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSgconf_a_CHSFILES)
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSgconf_a.deps $(libHSgconf_a_CHSFILES:.chs=.dep)
  endif
@@ -706,8 +716,7 @@ endif #ENABLE_GNOME
 
 if ENABLE_GNOME
 
-libHSsourceview_a_NAME = libHSsourceview.a
-$(libHSsourceview_a_NAME) : NAME = libHSsourceview_a
+sourceview_PKGNAME = libHSsourceview_a
 
 libHSsourceview_a_PACKAGE	= sourceview/sourceview.pkg
 libHSsourceview_a_PACKAGEDEPS	= 
@@ -720,9 +729,11 @@ libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOU
 
 libHSsourceview_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) sourceview
 
-libHSsourceview_a_SOURCES =			\
+nodist_libHSsourceview_a_SOURCES =						\
+	sourceview/Graphics/UI/Gtk/SourceView/Types.chs
+
+libHSsourceview_a_SOURCES =							\
 	sourceview/Graphics/UI/Gtk/SourceView.hs				\
-	sourceview/Graphics/UI/Gtk/SourceView/Types.chs				\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceBuffer.chs			\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceIter.chs			\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceLanguage.chs		\
@@ -747,14 +758,16 @@ sourceview/Graphics/UI/Gtk/SourceView/Types.chs :	\
 	$@ --tag=sourceview --parentname=Graphics.UI.Gtk.Types \
         --modname=Graphics.UI.Gtk.SourceView.Types)
 
-am_libHSsourceview_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsourceview_a_SOURCES))))
+libHSsourceview_a_ALLSOURCES = $(libHSsourceview_a_SOURCES) $(nodist_libHSsourceview_a_SOURCES)
 
-libHSsourceview_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsourceview_a_SOURCES))
+am_libHSsourceview_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsourceview_a_ALLSOURCES))))
+
+libHSsourceview_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsourceview_a_ALLSOURCES))
 libHSsourceview_a_CHSFILES = \
-  $(filter %.chs,$(libHSsourceview_a_SOURCES:.chs.pp=.chs))
+  $(filter %.chs,$(libHSsourceview_a_ALLSOURCES:.chs.pp=.chs))
 libHSsourceview_a_CHSFILES_HS = $(libHSsourceview_a_CHSFILES:.chs=.hs)
-libHSsourceview_a_HSCFILES = $(filter %.hsc, $(libHSsourceview_a_SOURCES))
+libHSsourceview_a_HSCFILES = $(filter %.hsc, $(libHSsourceview_a_ALLSOURCES))
 libHSsourceview_a_HSCFILES_HS = $(libHSsourceview_a_HSCFILES:.hsc=.hs)
 libHSsourceview_a_BUILDSOURCES = \
 	$(libHSsourceview_a_CHSPPFILES:.chs.pp=.chs) \
@@ -763,7 +776,7 @@ libHSsourceview_a_BUILDSOURCES = \
         sourceview/Graphics/UI/Gtk/SourceView/Types.chs
 libHSsourceview_a_HSFILES  = \
 	$(filter %.hs,$(libHSsourceview_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libHSsourceview_a_SOURCES))
+	$(filter %.hs,$(libHSsourceview_a_ALLSOURCES))
 
 nobase_hi_SCRIPTS += $(libHSsourceview_a_HSFILES:.hs=.hi)
 
@@ -774,6 +787,7 @@ CLEANFILES += $(libHSsourceview_a_BUILDSOURCES)
 
 DISTCLEANFILES+= libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
 
+$(libHSsourceview_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSsourceview_a_CHSFILES)
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES:.chs=.dep)
  endif
@@ -787,8 +801,7 @@ endif #ENABLE_GNOME
 
 if ENABLE_MOZEMBED
 
-libHSmozembed_a_NAME = libHSmozembed.a
-$(libHSmozembed_a_NAME) : NAME = libHSmozembed_a
+mozembed_PKGNAME = libHSmozembed_a
 
 libHSmozembed_a_PACKAGE		= mozembed/mozembed.pkg
 libHSmozembed_a_PACKAGEDEPS	= 
@@ -801,8 +814,10 @@ libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEM
 
 libHSmozembed_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mozembed
 
+nodist_libHSmozembed_a_SOURCES =			\
+	mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs
+
 libHSmozembed_a_SOURCES =				\
-	mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs	\
 	mozembed/Graphics/UI/Gtk/MozEmbed.chs
 
 mozembed_Graphics_UI_Gtk_MozEmbed_Types_hs_HCFLAGS = -fglasgow-exts
@@ -817,14 +832,15 @@ mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs :	\
 	$@ --tag=mozembed --parentname=Graphics.UI.Gtk.Types \
 	--modname=Graphics.UI.Gtk.MozEmbed.Types)
 
-am_libHSmozembed_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmozembed_a_SOURCES))))
+libHSmozembed_a_ALLSOURCES = $(libHSmozembed_a_SOURCES) $(nodist_libHSmozembed_a_SOURCES)
 
-libHSmozembed_a_CHSPPFILES = $(filter %.chs.pp,$(libHSmozembed_a_SOURCES))
-libHSmozembed_a_CHSFILES = \
-  $(filter %.chs,$(libHSmozembed_a_SOURCES:.chs.pp=.chs))
+am_libHSmozembed_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmozembed_a_ALLSOURCES))))
+
+libHSmozembed_a_CHSPPFILES = $(filter %.chs.pp,$(libHSmozembed_a_ALLSOURCES))
+libHSmozembed_a_CHSFILES = $(filter %.chs,$(libHSmozembed_a_ALLSOURCES:.chs.pp=.chs))
 libHSmozembed_a_CHSFILES_HS = $(libHSmozembed_a_CHSFILES:.chs=.hs)
-libHSmozembed_a_HSCFILES = $(filter %.hsc, $(libHSmozembed_a_SOURCES))
+libHSmozembed_a_HSCFILES = $(filter %.hsc, $(libHSmozembed_a_ALLSOURCES))
 libHSmozembed_a_HSCFILES_HS = $(libHSmozembed_a_HSCFILES:.hsc=.hs)
 libHSmozembed_a_BUILDSOURCES = \
 	$(libHSmozembed_a_CHSPPFILES:.chs.pp=.chs) \
@@ -833,7 +849,7 @@ libHSmozembed_a_BUILDSOURCES = \
         mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs
 libHSmozembed_a_HSFILES  = \
 	$(filter %.hs,$(libHSmozembed_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libHSmozembed_a_SOURCES))
+	$(filter %.hs,$(libHSmozembed_a_ALLSOURCES))
 
 nobase_hi_SCRIPTS += $(libHSmozembed_a_HSFILES:.hs=.hi)
 
@@ -844,6 +860,7 @@ CLEANFILES += $(libHSmozembed_a_BUILDSOURCES)
 
 DISTCLEANFILES+= libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
 
+$(libHSmozembed_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSmozembed_a_CHSFILES)
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES:.chs=.dep)
  endif

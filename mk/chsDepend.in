@@ -42,7 +42,7 @@ for FULLNAME in $@; do
       done;
       if test $FOUND = no; then
         echo could not find $DEP.chs on search path $SEARCHPATH;
-#        exit 1;
+        exit 1;
       fi;
       IFS=$OLDIFS;
     done;

@@ -1,3 +1,18 @@
+2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mk/common.mk: change the way we find pacakge variables for files
+	being built. It's now based only on the file name rather than through
+	an inherited variable. Hopefully this will be less fragile.
+
+	* Makefile.am: supply the new PKGNAME variables, remove the NAME
+	variables required under the previous scheme. Add dependencies to make
+	sure all appropriate .chs files exist before .dep files are generated.
+	Put some built sources into nodist_<module>_SOURCES so they are not
+	included in the tarball and fixup other rules affected by this.
+
+	* mk/chsDepend.in: the assertion can now be enabled since it no	longer
+	fails.
+
 2005-01-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/chsDepend.in: do the extra check properly and make it a warning
