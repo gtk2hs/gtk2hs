@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 17:45:41 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:40:33 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -37,9 +37,8 @@ module System.Glib.UTFString (
 
 import Monad	(liftM)
 import Char
-import Foreign (unsafePerformIO)
-
 import Data.Bits
+
 import System.Glib.FFI
 
 -- Define withUTFString to emit UTF-8.

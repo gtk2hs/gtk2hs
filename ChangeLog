@@ -26,7 +26,8 @@
 
 	* mk/chsDepend.in: be less chatty.
 
-	* glib/System/Glib/FFI.hs, glib/System/Glib/GType.chs: in older ghc
+	* glib/System/Glib/FFI.hs, glib/System/Glib/GType.chs,
+	glib/System/Glib/UTFString.hs: in older ghc
 	versions Foreign does not export unsafePerformIO, so import it from
 	System.IO.Unsafe instead. Also conditionally export unsafePerformIO
 	since older ghc versions do not export it from module Foreign.
