@@ -3,7 +3,8 @@
 # Copyright [2001..2002] Manuel M T Chakravarty <chak@cse.unsw.edu.au>
 # Copyright 2002, 2003 Jens-Ulrik Holger Petersen <petersen@haskell.org>
 
-%define _ghc_version 5.04.3
+%define ghc_version 6.0
+#%%define ghc_version 5.04.3
 
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
 Name: gtk2hs
@@ -14,10 +15,6 @@ Group: Development/Libraries
 Source: gtk2hs-%{version}.tar.gz
 URL: http://gtk2hs.sourceforge.net/
 BuildRoot: /var/tmp/gtk2hs-%{version}-%{release}-root
-Requires: ghc5 = %{_ghc_version}
-Requires: gtk2
-Requires(post,preun): %{_bindir}/ghc-pkg-%{_ghc_version}
-BuildRequires: ghc5 = %{_ghc_version} gtk2-devel %{?_with_c2hs: c2hs >= 0.10.6}
 
 %description
 A Gtk2 binding for the functional language Haskell featuring
@@ -27,50 +24,96 @@ the new text and list widgets.  The convenience wrapper
 MoGuL (Monad Gui Library) makes it possible to create and
 lookup named widgets in a type safe way.
 
+%package ghc%{ghc_version}
+Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
+Group: Development/Languages/Haskell
+BuildRequires: ghc = %{ghc_version}, gtk2-devel, %{?_with_c2hs: c2hs >= 0.10.6}, %{_bindir}/hsc2hs
+Requires: ghc = %{ghc_version}
+Requires: gtk2
+Requires(post,preun): %{_bindir}/ghc-pkg-%{ghc_version}
+
+%description ghc%{ghc_version}
+A Gtk2 binding for the functional language Haskell featuring
+automatic memory management, unicode support, and quite wide
+coverage of widget functions and their signals, including
+the new text and list widgets.  The convenience wrapper
+MoGuL (Monad Gui Library) makes it possible to create and
+lookup named widgets in a type safe way.
+
+This package contains the libraries compiled for ghc-%{ghc_version}.
+
+%package doc
+Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
+Group: Development/Languages/Haskell
+
+%description doc
+A Gtk2 binding for the functional language Haskell featuring
+automatic memory management, unicode support, and quite wide
+coverage of widget functions and their signals, including
+the new text and list widgets.  The convenience wrapper
+MoGuL (Monad Gui Library) makes it possible to create and
+lookup named widgets in a type safe way.
+
+This package contains the gtk2hs documentation.
+
+# the debuginfo subpackage is currently empty anyway, so don't generate it
+%define debug_package %{nil}
+%define __spec_install_post /usr/lib/rpm/brp-compress
+
 %prep
 %setup -q
 
 %build
-./configure %{?_with_c2hs} --with-hc=ghc-%{_ghc_version} --with-hcflags="-O" --with-catalog=%{_datadir}/sgml/docbook/xmlcatalog --with-html=%{_datadir}/sgml/docbook/xsl-stylesheets/xhtml/chunk.xsl # --with-fo=%{_datadir}/sgml/docbook/xsl-stylesheets/fo/docbook.xsl
-make prefix=%{_prefix} libdir=%{_libdir}/ghc-%{_ghc_version}
+./configure %{?_with_c2hs} --with-hc=ghc-%{ghc_version} --with-hcflags="-O" --with-catalog=%{_datadir}/sgml/docbook/xmlcatalog --with-html=%{_datadir}/sgml/docbook/xsl-stylesheets/xhtml/chunk.xsl # --with-fo=%{_datadir}/sgml/docbook/xsl-stylesheets/fo/docbook.xsl
+make prefix=%{_prefix} libdir=%{_libdir}/ghc-%{ghc_version}
 
 %install
 rm -rf %{buildroot}
-make DESTDIR=%{buildroot} prefix=%{_prefix} libdir=%{_libdir}/ghc-%{_ghc_version} install
+make DESTDIR=%{buildroot} prefix=%{_prefix} libdir=%{_libdir}/ghc-%{ghc_version} install-without-pkg
 
 %clean
 rm -rf %{buildroot}
 
-%post
+%post ghc%{ghc_version}
 # # remove buildroot traces from package files
 # perl -pi -e "s|%{buildroot}||" \
-#     %{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2.conf,mogul.conf}
+#     %{_libdir}/ghc-%{ghc_version}/{%{name}/gtk2.conf,mogul.conf}
 
-ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/%{name}/gtk2.conf
-ghc-pkg-%{_ghc_version} -u -g -i %{_libdir}/ghc-%{_ghc_version}/mogul.conf
+ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/%{name}/gtk2.conf
+ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/mogul/mogul.conf
 
-%preun
-rm -f %{_libdir}/ghc-%{_ghc_version}/{%{name}/gtk2hs.o,mogul.o}
+%preun ghc%{ghc_version}
 if [ "$1" = 0 ]; then
-  ghc-pkg-%{_ghc_version} -r mogul || :
-  ghc-pkg-%{_ghc_version} -r gtk2 || :
+  rm -f %{_libdir}/ghc-%{ghc_version}/{%{name}/gtk2hs.o,mogul.o}
+  ghc-pkg-%{ghc_version} -r mogul || :
+  ghc-pkg-%{ghc_version} -r gtk2 || :
 fi
 
-%files
+%files ghc%{ghc_version}
 %defattr(-,root,root) 
+%{_prefix}/lib/*
 %doc ChangeLog TODO AUTHORS COPYING.LIB
+
+%files doc
+%defattr(-,root,root) 
 %doc demo/*/*.hs
 %doc doc/GTK
 %doc doc/MOGUL
-%{_prefix}/lib/*
 
 %changelog
-* Wed May 21 2003 Jens Petersen <petersen@redhat.com>
+* Thu Jul 10 2003 Jens Petersen <petersen@haskell.org>
+- build with ghc-6.0
+- name ghc subpackage "ghc%%{ghc_version}"
+
+* Wed Jun 18 2003 Jens Petersen <petersen@haskell.org>
+- require and buildrequire %{_bindir}/ghc-%%{ghc_version}
+
+* Wed May 21 2003 Jens Petersen <petersen@haskell.org>
 - add -g option to ghc-pkg -u so that ghci object gets generated
 - delete them when uninstalling
 - build and include mogul documentation
 
-* Thu May 15 2003 Jens Petersen <petersen@redhat.com>
+* Thu May 15 2003 Jens Petersen <petersen@haskell.org>
 - use new DESTDIR make variable, so no longer need to fix config files in post
 - remove buildroot before install
 - build and include gtk docs
