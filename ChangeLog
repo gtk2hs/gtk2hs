@@ -1,5 +1,7 @@
 2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* INSTALL: Add instructions for Windows.
+	
 	* Makefile: Only build Sourceview if ENABLE_SOURCEVIEW is set.
 	
 	* mk/recurse.mk: Add a distclean goal that removes the

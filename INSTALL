@@ -1,17 +1,18 @@
 gtk2hs: A binding of Gtk Version 2 for the programming language Haskell
 
-This binding makes functions from the following libraries available:
- * glib-2.0.0
- * atk-1.0.0
- * pango-1.0.0
- * gtk+-2.0.0
+The library currently wraps most functions for GUI programming from
+the gtk 2.0 libraries. Furthermore there is support for the Pixbuf
+functions and the SourceView widget.
 
-Furthermore the GHC Haskell compiler, version 5.02 or greater, is
-required. The library cannot be used with GHCi at the moment due to some
-linking problems which we haven't quite figured out.
+The GHC Haskell compiler, version 5.02 or greater, is required. Some
+callback (those with more than 4 words of arguments...) cannot be used
+on Solaris due to a limitation in GHC. Gtk2hs has been compiled
+successfully on FreeBSD, Linux, Solaris, Darwin and Windows (MinGW).
 
-INSTALLATION
-------------
+Building
+--------
+
+If you build on Windows, read "Building on Windows" first.
 
 The following assumes that the sources are in ~/gtk2hs.
 1. Produce a configure file.
@@ -134,6 +135,24 @@ Note:
   path where the GTK dynamic libraries live. It is a bug in the 5.02
   distribution of GHC that hsc2hs does not stop here. Delete Foo.hs
   before you do a second attempt.
+
+Building on Window
+--------------------
+
+Install MSYS and MinGW (you might get away without MinGW, I haven't
+tried).  Download the following files from
+http://www.gimp.org/~tml/gimp/win32/downloads.html : atk-1.4.0.zip,
+atk-dev-1.4.0.zip, gettext-runtime-0.12.1.bin.woe32.zip,
+glib-2.2.3.zip, glib-dev-2.2.3.zip, gtk+-2.2.4.zip,
+gtk+-dev-2.2.4.zip, libiconv-1.9.1.bin.woe32.zip, pango-1.2.5.zip,
+pango-dev-1.2.5.zip, pkgconfig-0.15.zip. Unpack these files in a
+*separate* (1) directory from MinGW. Add the bin/ and the /lib
+directory to your path via the Control Panel (or right-clicking My
+Computer, Properties, Advanced). Make sure GHC is in your
+path. Proceed with the general instructions.
+
+(1) If you don't use a separate directory, GHC's local gcc might pick
+up libraries from MinGW, resulting in link errors or worse.
 
 Report problems to the Gtk2hs mailing list
 <gtk2hs-users@lists.sourceforge.net>.
