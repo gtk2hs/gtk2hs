@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 6 March 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 21:05:27 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/18 22:06:34 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -253,6 +253,7 @@ instance Pos CToken where
   posOf (CTokFor      pos  ) = pos
   posOf (CTokGoto     pos  ) = pos
   posOf (CTokInt      pos  ) = pos
+  posOf (CTokInline   pos  ) = pos
   posOf (CTokIf       pos  ) = pos
   posOf (CTokLong     pos  ) = pos
   posOf (CTokRegister pos  ) = pos
