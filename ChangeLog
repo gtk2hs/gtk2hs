@@ -1,5 +1,13 @@
 2003-01-21  Axel Simon <A.Simon@ukc.ac.uk>
 
+	* gtk/wingtk.h: This file is needed for building on Windows. It
+	disables a check of gtk_init_check to see whether the header has
+	been compiled with Microsoft bitfields (which is true for hsc2hs
+	where we mangle structure but false for c2hs where we call this
+	function.)
+	
+2003-01-21  Axel Simon <A.Simon@ukc.ac.uk>
+
 	* gtk/Makefile: Inadvertently put hierarchy.list on the list of
 	files to be wiped with make clean. Removed that again.
 
