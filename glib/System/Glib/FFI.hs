@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 17:45:06 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:29:41 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,11 +31,16 @@ module System.Glib.FFI (
   foreignFree,
   newForeignPtr,
   foreignPtrToPtr,
+# if __GLASGOW_HASKELL__<600
+  -- ghc 6 exports unsafePerformIO from module Foreign
+  -- provide it here for ghc 5
+  unsafePerformIO,
+# endif
   module Foreign,
   module Foreign.C
   ) where
 
-import Foreign (unsafePerformIO)
+import System.IO.Unsafe (unsafePerformIO)
 
 import Foreign.C
 import qualified Foreign

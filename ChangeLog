@@ -26,6 +26,11 @@
 
 	* mk/chsDepend.in: be less chatty.
 
+	* glib/System/Glib/FFI.hs, glib/System/Glib/GType.chs: in older ghc
+	versions Foreign does not export unsafePerformIO, so import it from
+	System.IO.Unsafe instead. Also conditionally export unsafePerformIO
+	since older ghc versions do not export it from module Foreign.
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files

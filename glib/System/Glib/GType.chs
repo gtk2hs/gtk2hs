@@ -5,7 +5,7 @@
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 17:46:16 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:29:41 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -29,10 +29,7 @@ module System.Glib.GType (
   ) where
 
 import Monad	(liftM)
-import Foreign
-import Foreign.C
-
-import Foreign (unsafePerformIO)
+import System.Glib.FFI
 
 {# context lib="glib" prefix="g" #}
 
