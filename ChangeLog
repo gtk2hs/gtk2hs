@@ -1,6 +1,6 @@
 2004-07-27  Jens Petersen  <petersen@haskell.org>
 
-	* mk/config.mk.in (INSTALL_DIR): Define ABS_TOP.
+	* mk/config.mk.in (INSTALL_DIR): Define ABS_TOP.  No longer define CPP.
 
 	* mk/common.mk: Sedpipe ABS_TOP and use it for TARDIR to fix
 	tarsource target. 
