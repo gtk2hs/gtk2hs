@@ -39,6 +39,19 @@
 	gtk/Graphics/UI/Gtk/Pango/Description.chs: more import tweaks for
 	compatability with older versions of ghc.
 
+	* tools/c2hs/base/general/FastMutInt.hs,
+	tools/c2hs/base/general/Binary.hs: allow these to compile with older
+	ghc versions 5.04.x and 6.0.x, that lack openBinaryFile and
+	Data.HashTable and that do not like you to put optimisation flags in
+	an {-# OPTIONS #-} pragma. Also define SIZEOF_HSINT more portably.
+
+	* Makefile.am: fix libHSgtk_a_SOURCES, we were distributing
+	preprocessed sources for some files which is wrong of course, we
+	should distribute the original. Add missing dependency that caused
+	build failure on an older gmake version. Add some HCFLAGS for a couple
+	sources since older ghc versions do not like them to be given in the
+	source file in a an {-# OPTIONS #-} pragma.
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files

@@ -183,6 +183,8 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/toplevel/C2HSConfig.hs	\
 	tools/c2hs/toplevel/c2hs_config.c
 
+tools_c2hs_base_general_Binary_hs_HCFLAGS = -O -funbox-strict-fields
+tools_c2hs_base_general_FastMutInt_hs_HCFLAGS = -O
 tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
 tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi -fvia-C \
 	'-\#include<tools/c2hs/toplevel/c2hs_config.h>'
@@ -309,7 +311,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Container.chs			\
 	gtk/Graphics/UI/Gtk/Abstract/Misc.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp			\
-	gtk/Graphics/UI/Gtk/Abstract/Paned.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/Range.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Scale.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Widget.chs				\
@@ -322,7 +324,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Display/Label.chs				\
 	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs			\
 	gtk/Graphics/UI/Gtk/Display/Statusbar.chs			\
-	gtk/Graphics/UI/Gtk/Entry/Editable.chs				\
+	gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp			\
 	gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp				\
 	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp		\
 	gtk/Graphics/UI/Gtk/Entry/HScale.chs				\
@@ -383,7 +385,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Selectors/ColorSelectionDialog.chs		\
 	gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs			\
 	gtk/Graphics/UI/Gtk/Selectors/FontSelectionDialog.chs		\
-	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs			\
+	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs		\
@@ -608,7 +610,7 @@ CLEANFILES += $(libHSglade_a_BUILDSOURCES)
 
 DISTCLEANFILES+= libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
 
-$(libHSglade_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSglade_a_CHSFILES)
+$(libHSglade_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSglade_a_CHSFILES)
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
 -include libHSglade_a.deps $(libHSglade_a_CHSFILES:.chs=.dep)
  endif
