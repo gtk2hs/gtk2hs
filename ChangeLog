@@ -1,3 +1,18 @@
+2005-03-31 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/Makefile: update to latest versions of source code for
+	all packages.
+
+	* tools/apiGen/CodeGen.hs: generalise parameter marshaling to include
+	'out' parameters as well as ordinary 'in' parameters and hidden /
+	internal parameters. Also deal with 'shared' methods. These methods
+	are like Java static methods. They take no self/object parameter.
+
+	* tools/apiGen/Marshal.hs: add support for marshaling the most common
+	out parameter types: gboolean*, gint*, guint*, gfloat*, gdouble* and
+	gchar**. Also add 'in' and return marshaling for a couple other misc
+	types like fixed width integral types: guint16 and guint32.
+
 2005-03-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: documentation changes

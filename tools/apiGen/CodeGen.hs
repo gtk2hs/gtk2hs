@@ -18,7 +18,7 @@ import MarshalFixup (stripKnownPrefixes, maybeNullParameter, maybeNullResult,
 
 import Prelude hiding (Enum, lines)
 import List   (groupBy, sortBy, isPrefixOf, isSuffixOf, partition, find)
-import Maybe  (isNothing, fromMaybe)
+import Maybe  (isNothing, fromMaybe, catMaybes)
 import Data.FiniteMap
 
 import Debug.Trace (trace)
@@ -41,22 +41,39 @@ genFunction knownSymbols isConstructor method doc info =
                      (c, ty, m) -> (c, (ty, parameter_name p), m)
 		 | p <- method_parameters method ]
 	classConstraints = [ c | Just c <- classConstraints' ]
-	paramTypes = [ (paramType, lookup name paramDocMap)
-                     | (Just paramType, name) <- paramTypes' ]
-	paramNames = [ changeIllegalNames (cParamNameToHsName (parameter_name p))
-		     | ((Just _, _), p) <- zip paramTypes' (method_parameters method) ]
-        formattedParamNames = cat (map (\name -> ss name.sc ' ') paramNames)
+	inParamTypes = [ (paramType, lookup name paramDocMap)
+                     | (InParam paramType, name) <- paramTypes' ]
+	inParamNames = [ changeIllegalNames (cParamNameToHsName (parameter_name p))
+		     | ((InParam _, _), p) <- zip paramTypes' (method_parameters method) ]
+	outParamTypes = [ (paramType, lookup name paramDocMap)
+                        | (OutParam paramType, name) <- paramTypes' ]
+        formattedParamNames = cat (map (\name -> ss name.sc ' ') inParamNames)
 	(returnType', returnMarshaler) =
 		genMarshalResult knownSymbols (method_cname method)
                                   isConstructor (method_return_type method)
-        returnType = ("IO " ++ returnType', lookup "Returns" paramDocMap)
-	functionType = (case classConstraints of
+        returnType | null outParamTypes  = ("IO " ++ returnType', lookup "Returns" paramDocMap)
+		   | otherwise = case unzip outParamTypes of
+                                   (types', docs') ->
+				     let types | returnType' == "()" = types'
+				               | otherwise           = returnType' : types'
+					 docs = mergeParamDocs (lookup "Returns" paramDocMap) docs'
+				      in ("IO (" ++ sepBy ", " types "" ++ ")", docs)
+	(outParamMarshalersBefore, outParamMarshalersAfter, returnOutParamFragments) =
+             unzip3 [ genMarshalOutParameter outParamType (changeIllegalNames (cParamNameToHsName name))
+                    | (OutParam outParamType, name) <- paramTypes' ]
+        returnOutParams body | null outParamTypes = body
+                             | otherwise = body
+                                         . indent 1. ss "return (". sepBy' ", " returnOutParamFragments. ss ")"
+        functionType = (case classConstraints of
 	                  []  -> id
 			  [c] -> ss c. ss " => "
 			  cs  -> sc '('. sepBy ", " classConstraints. ss ") => ").
-                       formatParamTypes (paramTypes ++ [returnType])
+                       formatParamTypes (inParamTypes ++ [returnType])
 	body = foldl (\body marshaler -> marshaler body)
-                     call (paramMarshalers++[returnMarshaler])
+                     call (paramMarshalers
+                       ++ [ (\body -> frag. body) | frag <- reverse outParamMarshalersBefore ]
+                       ++ [ (\body -> body. frag) | frag <- outParamMarshalersAfter ]
+                       ++ [returnMarshaler,returnOutParams])
 	call = ss (genCall (maybe (method_cname method) methodinfo_shortcname info) safety)
         safety = case info of
                   Nothing -> False
@@ -103,6 +120,20 @@ genFunction knownSymbols isConstructor method doc info =
                   . words
                   . concatMap (haddocFormatSpan knownSymbols docNullsAllFixed)
                 columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
+
+mergeParamDocs :: Maybe [DocParaSpan] -> [Maybe [DocParaSpan]] -> Maybe [DocParaSpan]
+mergeParamDocs doc docs =
+  case catMaybes (doc:docs) of
+    [] -> Nothing
+    [doc] -> Just doc
+    docs -> let (varNames, paramDocs) =
+                  unzip [ case doc of 
+                            doc@(DocArg varName : _) -> (cParamNameToHsName varName, doc)
+			    _                        -> ("_", doc)
+			| doc <- docs ]
+		returnValName = DocLiteral ("(" ++ sepBy ", " varNames "" ++ ")")
+                fixmeMessage  = DocText " {FIXME: merge return value docs} "
+             in Just $ returnValName : fixmeMessage : concat paramDocs
 
 genModuleBody :: KnownSymbols -> Object -> ModuleDoc -> ModuleInfo -> ShowS
 genModuleBody knownSymbols object apiDoc modInfo =
@@ -183,7 +214,9 @@ mungeMethod object method =
              }
    in method {
         method_name = object_name object ++ method_name method,
-        method_parameters = self : method_parameters method
+        method_parameters = if method_shared method
+	                      then        method_parameters method
+			      else self : method_parameters method
       } 
 
 genConstructors :: KnownSymbols -> Object -> [FuncDoc] -> [MethodInfo] -> [(ShowS, (Since, Deprecated))]

@@ -28,20 +28,22 @@ default :
 #
 #	source code
 #
-GLIB_VERSION = 2.4.8
-PANGO_VERSION = 1.4.1
-ATK_VERSION = 1.6.1
-GTK_VERSION = 2.4.14
-GLADE_VERSION = 2.0.1
-CANVAS_VERSION = 2.4.0
+GLIB_VERSION = 2.6.3
+PANGO_VERSION = 1.8.1
+ATK_VERSION = 1.9.1
+GTK_VERSION = 2.6.4
+GLADE_VERSION = 2.5.1
+CANVAS_VERSION = 2.10.0
 
+GNOME_PLATFORM_URL = http://ftp.gnome.org/pub/gnome/platform/2.10/2.10.0/sources
+GNOME_DESKTOP_URL  = http://ftp.gnome.org/pub/gnome/desktop/2.10/2.10.0/sources
 DOWNLOADS = \
-	ftp://ftp.gtk.org/pub/gtk/v2.4/glib-$(GLIB_VERSION).tar.bz2				\
-	ftp://ftp.gtk.org/pub/gtk/v2.4/pango-$(PANGO_VERSION).tar.bz2				\
-	ftp://ftp.gtk.org/pub/gtk/v2.4/atk-$(ATK_VERSION).tar.bz2				\
-	ftp://ftp.gtk.org/pub/gtk/v2.4/gtk+-$(GTK_VERSION).tar.bz2				\
-	http://ftp.gnome.org/pub/GNOME/desktop/2.4/2.4.2/sources/libglade-$(GLADE_VERSION).tar.bz2\
-	http://ftp.gnome.org/pub/GNOME/desktop/2.4/2.4.2/sources/libgnomecanvas-$(CANVAS_VERSION).tar.bz2
+	$(GNOME_PLATFORM_URL)/glib-$(GLIB_VERSION).tar.bz2		\
+	$(GNOME_PLATFORM_URL)/pango-$(PANGO_VERSION).tar.bz2		\
+	$(GNOME_PLATFORM_URL)/atk-$(ATK_VERSION).tar.bz2		\
+	$(GNOME_PLATFORM_URL)/gtk+-$(GTK_VERSION).tar.bz2		\
+	$(GNOME_PLATFORM_URL)/libglade-$(GLADE_VERSION).tar.bz2		\
+	$(GNOME_PLATFORM_URL)/libgnomecanvas-$(CANVAS_VERSION).tar.bz2
 
 get-source-code:
 	for i in $(DOWNLOADS); do \

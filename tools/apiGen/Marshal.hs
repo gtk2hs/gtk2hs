@@ -2,7 +2,9 @@ module Marshal (
   KnownSymbols,
   CSymbol(..),
   EnumKind(..),
+  ParameterKind(..),
   genMarshalParameter,
+  genMarshalOutParameter,
   genMarshalResult,
   genMarshalProperty,
   convertSignalType,
@@ -47,59 +49,76 @@ symbolIsBoxed _                   = False
 -- Here's the interesting bit that generates the fragments of mashaling code
 -------------------------------------------------------------------------------
 
+data ParameterKind = InParam  String
+                   | OutParam String
+                   | UnusedParam
+
 genMarshalParameter ::
         KnownSymbols -> --a collection of types we know to be objects or enums
         String ->       --function name (useful to lookup per-func fixup info)
 	String ->	--parameter name suggestion (will be unique)
 	String -> 	--C type decleration for the parameter we will marshal
 	(Maybe String,	--parameter class constraints (or none)
-	Maybe String,	--parameter type (or none if the arg is not exposed)
+	ParameterKind,	--parameter type (or UnusedParam if the arg is not exposed)
 	ShowS -> ShowS)	--marshaling code (\body -> ... body ...)
 
 genMarshalParameter _ _ name "gboolean" =
-	(Nothing, Just "Bool",
+	(Nothing, InParam "Bool",
 	\body -> body.
                  indent 2. ss "(fromBool ". ss name. ss ")")
 
 genMarshalParameter _ _ name typeName
-			 | typeName == "guint"  --these two are unsigned types
-			|| typeName == "gint"
-			|| typeName == "int"
-			|| typeName == "gsize"  --should they be Word or Int?
-			|| typeName == "gssize" =
-	(Nothing, Just "Int",
+			   | typeName == "guint"  --these two are unsigned types
+			  || typeName == "gint"
+			  || typeName == "glong"
+			  || typeName == "int"
+			  || typeName == "gsize"  --should they be Word or Int?
+			  || typeName == "gssize" =
+	(Nothing, InParam "Int",
 	\body -> body.
                  indent 2. ss "(fromIntegral ". ss name. ss ")")
 
-genMarshalParameter _ _ name "gdouble" =
-	(Nothing, Just "Double",
+genMarshalParameter _ _ name "guint16" =
+	(Nothing, InParam "Word16",
+	\body -> body.
+                 indent 2. ss "(fromIntegral ". ss name. ss ")")
+
+genMarshalParameter _ _ name "guint32" =
+	(Nothing, InParam "Word32",
+	\body -> body.
+                 indent 2. ss "(fromIntegral ". ss name. ss ")")
+
+genMarshalParameter _ _ name typeName
+                           | typeName == "gdouble"
+                          || typeName == "double" =
+	(Nothing, InParam "Double",
 	\body -> body.
                  indent 2. ss "(realToFrac ". ss name. ss ")")
 
 genMarshalParameter _ _ name "gfloat" =
-	(Nothing, Just "Float",
+	(Nothing, InParam "Float",
 	\body -> body.
                  indent 2. ss "(realToFrac ". ss name. ss ")")
 
 genMarshalParameter _ _ name "gunichar" =
-	(Nothing, Just "Char",
+	(Nothing, InParam "Char",
 	\body -> body.
                  indent 2. ss "((fromIntegral . ord) ". ss name. ss ")")
 
 genMarshalParameter _ funcName name typeName | typeName == "const-gchar*"
                                             || typeName == "const-char*" =
   if maybeNullParameter funcName name
-    then (Nothing, Just "Maybe String",
+    then (Nothing, InParam "Maybe String",
 	 \body -> ss "maybeWith withUTFString ". ss name. ss " $ \\". ss name. ss "Ptr ->".
 		  indent 1. body.
                   indent 2. ss name. ss "Ptr")
-    else (Nothing, Just "String",
+    else (Nothing, InParam "String",
 	 \body -> ss "withUTFString ". ss name. ss " $ \\". ss name. ss "Ptr ->".
 		  indent 1. body.
                   indent 2. ss name. ss "Ptr")
 
 genMarshalParameter _ _ name "GError**" =
-	(Nothing, Nothing,
+	(Nothing, UnusedParam,
 	\body -> ss "propagateGError $ \\". ss name. ss "Ptr ->".
 	         indent 1. body.
                  indent 2. ss name. ss "Ptr")
@@ -113,8 +132,8 @@ genMarshalParameter knownSymbols funcName name typeName'
   let classContext
         | leafClass typeName = Nothing
         | otherwise          = Just $ shortTypeName ++ "Class " ++ name
-      argType = Just $ (if maybeNullParameter funcName name then "Maybe " else "")
-                    ++ (if leafClass typeName then shortTypeName else name)
+      argType = (if maybeNullParameter funcName name then "Maybe " else "")
+             ++ (if leafClass typeName then shortTypeName else name)
       implementation
         | leafClass typeName && maybeNullParameter funcName name
                              = ss "(fromMaybe (". ss shortTypeName. ss " nullForeignPtr) ".
@@ -124,7 +143,7 @@ genMarshalParameter knownSymbols funcName name typeName'
                              = ss "(maybe (". ss shortTypeName. ss " nullForeignPtr) to".
                                               ss shortTypeName. sc ' '. ss name. sc ')'
         | otherwise          = ss "(to". ss shortTypeName. sc ' '. ss name. sc ')'
-   in (classContext, argType,
+   in (classContext, InParam argType,
       \body -> body.
                indent 2. implementation)
   where typeName = init typeName'
@@ -135,7 +154,7 @@ genMarshalParameter knownSymbols funcName name typeName'
 genMarshalParameter knownSymbols _ name typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
-	(Nothing, Just shortTypeName,
+	(Nothing, InParam shortTypeName,
 	\body -> body.
                  indent 2. ss "((fromIntegral . fromEnum) ". ss name. ss ")")
   where shortTypeName = stripKnownPrefixes typeName
@@ -145,33 +164,85 @@ genMarshalParameter knownSymbols _ name typeName
 genMarshalParameter knownSymbols _ name typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
-	(Nothing, Just ("[" ++ shortTypeName ++ "]"),
+	(Nothing, InParam ("[" ++ shortTypeName ++ "]"),
 	\body -> body.
                  indent 2. ss "((fromIntegral . fromFlags) ". ss name. ss ")")
   where shortTypeName = stripKnownPrefixes typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalParameter _ _ name textIter | textIter == "const-GtkTextIter*"
-                                   || textIter == "GtkTextIter*" =
-	(Nothing, Just "TextIter",
+                                     || textIter == "GtkTextIter*" =
+	(Nothing, InParam "TextIter",
 	\body -> body.
                  indent 2. ss name)
 
 genMarshalParameter _ _ name "GtkTreeIter*" =
-	(Nothing, Just "TreeIter",
+	(Nothing, InParam "TreeIter",
 	\body -> body.
                  indent 2. ss name)
 
 genMarshalParameter _ _ name "GtkTreePath*" =
-	(Nothing, Just "TreePath",
+	(Nothing, InParam "TreePath",
 	\body -> ss "withTreePath ". ss name. ss " $ \\". ss name. ss " ->".
 		 indent 1. body.
                  indent 2. ss name)
 
+-- Out parameters -------------------------------
+
+genMarshalParameter _ _ name "gboolean*" =
+	(Nothing, OutParam "Boolean",
+	\body -> body.
+                 indent 2. ss name. ss "Ptr")
+
+genMarshalParameter _ _ name typeName
+			   | typeName == "gint*"
+			  || typeName == "guint*" =
+	(Nothing, OutParam "Int",
+	\body -> body.
+                 indent 2. ss name. ss "Ptr")
+
+genMarshalParameter _ _ name "gfloat*" =
+	(Nothing, OutParam "Float",
+	\body -> body.
+                 indent 2. ss name. ss "Ptr")
+
+genMarshalParameter _ _ name "gdouble*" =
+	(Nothing, OutParam "Double",
+	\body -> body.
+                 indent 2. ss name. ss "Ptr")
+
+genMarshalParameter _ _ name "gchar**" =
+	(Nothing, OutParam "String",
+	\body -> body.
+                 indent 2. ss name. ss "Ptr")
+
+-- Catch all case -------------------------------
 genMarshalParameter _ _ name unknownType =
-	(Nothing, Just $ "{-" ++ unknownType ++ "-}",
+	(Nothing, InParam $ "{-" ++ unknownType ++ "-}",
 	\body -> body.
                  indent 2. ss "{-". ss name. ss "-}")
+
+genMarshalOutParameter :: String -> String -> (ShowS, ShowS, ShowS)
+genMarshalOutParameter "Boolean" name = (ss "alloca $ \\". ss name. ss "Ptr ->". indent 1
+                                        ,indent 1. ss "peek ". ss name. ss "Ptr >>= \\". ss name. ss " ->"
+                                        ,ss "toBool ". ss name)
+
+genMarshalOutParameter "Int"     name = (ss "alloca $ \\". ss name. ss "Ptr ->". indent 1
+                                        ,indent 1. ss "peek ". ss name. ss "Ptr >>= \\". ss name. ss " ->"
+                                        ,ss "fromIntegral ". ss name)
+
+genMarshalOutParameter "Float"   name = (ss "alloca $ \\". ss name. ss "Ptr ->". indent 1
+                                        ,indent 1. ss "peek ". ss name. ss "Ptr >>= \\". ss name. ss " ->"
+                                        ,ss "realToFrac ". ss name)
+
+genMarshalOutParameter "Double"  name = (ss "alloca $ \\". ss name. ss "Ptr ->". indent 1
+                                        ,indent 1. ss "peek ". ss name. ss "Ptr >>= \\". ss name. ss " ->"
+                                        ,ss "realToFrac ". ss name)
+genMarshalOutParameter "String"  name = (ss "alloca $ \\". ss name. ss "Ptr ->". indent 1
+                                        ,indent 1. ss "peek ". ss name. ss "Ptr >>= readUTFString >>= \\". ss name. ss " ->"
+                                        ,ss name)
+
+genMarshalOutParameter paramType name = (id, id, ss name)
 
 -- Takes the type string and returns the Haskell Type and the marshaling code
 --
@@ -185,6 +256,8 @@ genMarshalResult ::
 genMarshalResult _ _ _ "gboolean" = ("Bool", \body -> ss "liftM toBool $". indent 1. body)
 genMarshalResult _ _ _ "gint"     = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
 genMarshalResult _ _ _ "guint"    = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ _ "guint16"  = ("Word16", \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ _ "guint32"  = ("Word32", \body -> ss "liftM fromIntegral $". indent 1. body)
 genMarshalResult _ _ _ "gdouble"  = ("Double", \body -> ss "liftM realToFrac $". indent 1. body)
 genMarshalResult _ _ _ "gfloat"   = ("Float",  \body -> ss "liftM realToFrac $". indent 1. body)
 genMarshalResult _ _ _ "gunichar" = ("Char", \body -> ss "liftM (chr . fromIntegral) $". indent 1. body)
@@ -197,7 +270,9 @@ genMarshalResult _ funcName _ "const-gchar*" =
     else ("String",
          \body -> body.
                   indent 1. ss  ">>= peekUTFString")
-genMarshalResult _ funcName _ "gchar*" =
+genMarshalResult _ funcName _ typeName 
+                            | typeName == "gchar*"
+			   || typeName == "char*" =
   if maybeNullResult funcName
     then ("(Maybe String)",
          \body -> body.
@@ -312,6 +387,7 @@ convertSignalType _ "guchar"   = ("UCHAR",  "Char")
 convertSignalType _ "gboolean" = ("BOOL",   "Bool")
 convertSignalType _ "gint"     = ("INT",    "Int")
 convertSignalType _ "guint"    = ("UINT",   "Int")
+convertSignalType _ "guint32"  = ("UINT",   "Int")
 convertSignalType _ "glong"    = ("LONG",   "Int")
 convertSignalType _ "gulong"   = ("ULONG",  "Int")
 convertSignalType _ "gfloat"   = ("FLOAT",  "Float")
