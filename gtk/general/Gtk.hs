@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.19 $ from $Date: 2003/07/13 11:34:52 $
+--  Version $Revision: 1.20 $ from $Date: 2004/04/27 18:51:16 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -44,6 +44,8 @@
 --
 -- * Every module that is commented out and not mentioned above.
 --
+#include <gtk/gtkversion.h>
+
 module Gtk(
   -- general things, initialization
   module General,
@@ -74,6 +76,9 @@ module Gtk(
   module ToggleButton,
   -- numeric/text data entry
   module Entry,
+#if GTK_CHECK_VERSION(2,4,0)
+  module EntryCompletion,
+#endif
   module HScale,
   module VScale,
   module SpinButton,
@@ -101,6 +106,10 @@ module Gtk(
   -- menus, combo box, toolbar
   module CheckMenuItem,
   module Combo,
+#if GTK_CHECK_VERSION(2,4,0)
+  module ComboBox,
+  module ComboBoxEntry,
+#endif
   module Menu,
   module MenuBar,
   module MenuItem,
@@ -125,6 +134,9 @@ module Gtk(
   module HPaned,
   module Layout,
   module Notebook,
+#if GTK_CHECK_VERSION(2,4,0)
+  module Expander,
+#endif
   module Table,
   module VBox,
   module VPaned,
@@ -203,6 +215,9 @@ import RadioButton
 import ToggleButton
 -- numeric/text data entry
 import Entry
+#if GTK_CHECK_VERSION(2,4,0)
+import EntryCompletion
+#endif
 import HScale
 import VScale
 import SpinButton
@@ -236,6 +251,10 @@ import ListStore
 import TreeStore
 -- menus, combo box, toolbar
 import Combo
+#if GTK_CHECK_VERSION(2,4,0)
+import ComboBox
+import ComboBoxEntry
+#endif
 -- import ItemFactory
 import Menu
 import MenuBar
@@ -266,6 +285,9 @@ import HPaned
 import VPaned
 import Layout
 import Notebook
+#if GTK_CHECK_VERSION(2,4,0)
+import Expander
+#endif
 import Table
 -- ornaments
 import Frame

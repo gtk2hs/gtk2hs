@@ -1,5 +1,14 @@
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* gtk/entry/Entry.chs: added new gtk 2.4 methods
+
+	* gtk/entry/EntryCompletion.chs,
+	* gtk/layout/Expander.chs,
+	* gtk/menuComboToolbar/ComboBox.chs,
+	* gtk/menuComboToolbar/ComboBoxEntry.chs: new gtk 2.4 modules
+
+	* gtk/general/Gtk.hs: export new gtk 2.4 modules
+
 	* gtk/Makefile: added proprocessor pass to hierarchy.list before
 	so we can selectively generate types depending on the gtk version.
 

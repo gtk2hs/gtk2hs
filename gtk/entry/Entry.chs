@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry Widget Entry@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.8 $ from $Date: 2004/04/27 18:51:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,6 +32,8 @@
 -- * A couple of signals are not bound because I could not figure out what
 --   they mean. Some of them do not seem to be emitted at all.
 --
+#include <gtk/gtkversion.h>
+
 module Entry(
   Entry,
   EntryClass,
@@ -59,6 +62,10 @@ module Entry(
   entrySetHasFrame,
   entryGetWidthChars,
   entrySetWidthChars,
+#if GTK_CHECK_VERSION(2,4,0)
+  entrySetCompletion,
+  entryGetCompletion,
+#endif
   onEntryActivate,
   afterEntryActivate,
   onEntryChanged,
@@ -81,6 +88,7 @@ import Monad	(liftM)
 import FFI
 
 import Object	(makeNewObject)
+import GObject (makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
 import Char	(ord)
@@ -298,6 +306,28 @@ entryGetWidthChars ec = liftM fromIntegral $
 entrySetWidthChars :: EntryClass ec => ec -> Int -> IO ()
 entrySetWidthChars ec setting = {#call entry_set_width_chars#}
   (toEntry ec) (fromIntegral setting)
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- @method entrySetCompletion@ Sets the auxiliary completion object to use with
+-- the entry. All further configuration of the completion mechanism is done on
+-- completion using the GtkEntryCompletion API.
+--
+-- * Since gtk 2.4
+--
+entrySetCompletion :: EntryClass ec => ec -> EntryCompletion -> IO ()
+entrySetCompletion ec completion = {#call gtk_entry_set_completion#}
+  (toEntry ec) completion
+
+-- @method entryGetCompletion@ Returns the auxiliary completion object currently
+-- in use by entry
+--
+-- * Since gtk 2.4
+--
+entryGetCompletion :: EntryClass ec => ec -> IO EntryCompletion
+entryGetCompletion ec =
+  makeNewGObject mkEntryCompletion $
+  {#call gtk_entry_get_completion#} (toEntry ec)
+#endif
 
 
 -- signals
