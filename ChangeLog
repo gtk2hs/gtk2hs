@@ -11,7 +11,11 @@
 	* tools/apiGen/Template.chs, tools/apiGen/format-docs.xsl,
 	tools/apiGen/ApiGen.hs: updates to the code generation tool. Change
 	the style from single module per file to having every module in a
-	single file since this is the way the gapi tools work.
+	single file since this is the way the gapi tool works.
+
+	* tools/apiGen/gtk-sources.xml, tools/apiGen/gdk-sources.xml,
+	tools/apiGen/pango-sources.xml, tools/apiGen/glade-sources.xml: add
+	gapi-parser input files for an initial set of modules.
 
 2005-01-23 Axel Simon <A.Simon@kent.ac.uk>
 

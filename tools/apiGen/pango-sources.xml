@@ -1,0 +1,18 @@
+<gapi-parser-input>
+  <api filename="pango-api.xml">
+    <library name="libpango">
+      <namespace name="Pango">
+        <dir>pango-1.2.3/pango</dir>
+	<exclude>pango-1.2.3/pango/pangox-fontcache.c</exclude>
+	<exclude>pango-1.2.3/pango/pangox-fontmap.c</exclude>
+	<exclude>pango-1.2.3/pango/pangox-private.h</exclude>
+	<exclude>pango-1.2.3/pango/pangox.h</exclude>
+	<exclude>pango-1.2.3/pango/pangox.c</exclude>
+	<exclude>pango-1.2.3/pango/pangoxft.h</exclude>
+	<exclude>pango-1.2.3/pango/pangoxft-font.h</exclude>
+	<exclude>pango-1.2.3/pango/pangoxft-fontmap.h</exclude>
+	<exclude>pango-1.2.3/pango/pangoxft-private.h</exclude>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

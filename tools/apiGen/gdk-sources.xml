@@ -1,0 +1,14 @@
+<gapi-parser-input>
+  <api filename="gdk-api.xml">
+    <library name="libgdk">
+      <namespace name="Gdk">
+        <dir>gtk+-2.2.2/gdk</dir>
+      </namespace>
+    </library>
+    <library name="libgdk-pixbuf">
+      <namespace name="Gdk">
+        <dir>gtk+-2.2.2/gdk-pixbuf</dir>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>
