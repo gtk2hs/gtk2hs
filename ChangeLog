@@ -1,3 +1,12 @@
+2005-03-27 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: documentation changes
+	and code formattign changes. Also added a few extra functions and a
+	couple properties.
+
+	* gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: added bindings for 22
+	extra functions (most of which are probably useful!).
+
 2005-03-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: use Int in the signal

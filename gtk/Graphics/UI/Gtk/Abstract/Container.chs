@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:40 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/27 11:54:52 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,11 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This abstract widget implements the basis for turning serveral widgets
--- into one compound widget.
+-- Base class for widgets which contain other widgets
 --
 module Graphics.UI.Gtk.Abstract.Container (
--- * Description
+-- * Detail
 -- 
 -- | A Gtk+ user interface is constructed by nesting widgets inside widgets.
 -- Container widgets are the inner nodes in the resulting tree of widgets: they
@@ -118,6 +117,7 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- |                     +----'CList'
 -- |                     +----'Fixed'
 -- |                     +----'Paned'
+-- |                     +----'IconView'
 -- |                     +----'Layout'
 -- |                     +----'List'
 -- |                     +----'MenuShell'
@@ -138,6 +138,7 @@ module Graphics.UI.Gtk.Abstract.Container (
   containerAdd,
   containerRemove,
   containerForeach,
+  containerForall,
   containerGetChildren,
   DirectionType(..),
   containerSetFocusChild,
@@ -151,8 +152,14 @@ module Graphics.UI.Gtk.Abstract.Container (
   containerResizeChildren,
   containerSetBorderWidth,
   containerGetBorderWidth,
+  containerGetResizeMode,
+  containerSetResizeMode,
   containerChildSetProperty,
   containerChildGetProperty,
+
+-- * Properties
+  containerResizeMode,
+  containerBorderWidth,
 
 -- * Signals
   onAdd,
@@ -171,46 +178,63 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import System.Glib.GObject		(objectRef, objectUnref)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import System.Glib.GList		(fromGList, toGList)
 {#import System.Glib.GValue#}		(GValue, GenericValue, valueUnset)
-import Graphics.UI.Gtk.General.Enums	(DirectionType(..))
+import Graphics.UI.Gtk.General.Enums	(DirectionType(..), ResizeMode(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
 --------------------
 -- Methods
 
--- | Add a widget to the container.
+-- | Adds @widget@ to the container. Typically used for simple containers such
+-- as 'Window', 'Frame', or 'Button'; for more complicated layout containers
+-- such as 'Box' or 'Table', this function will pick default packing parameters
+-- that may not be correct. So consider functions such as 'boxPackStart' and
+-- 'tableAttach' as an alternative to 'containerAdd' in those cases. A widget
+-- may be added to only one container at a time; you can't place the same
+-- widget inside two different containers.
 --
--- * Only useful for simple
--- containers like Window. Use boxPackStart or tableAttach in other cases. A
--- widget may not be added to more than one container.
+containerAdd :: (ContainerClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - a widget to be placed inside @container@
+ -> IO ()
+containerAdd self widget =
+  {# call container_add #}
+    (toContainer self)
+    (toWidget widget)
+
+-- | Removes @widget@ from @container@. @widget@ must be inside @container@.
 --
-containerAdd :: (ContainerClass c, WidgetClass w) => c -> w -> IO ()
-containerAdd con widget = 
-  {#call container_add#} (toContainer con) (toWidget widget)
+containerRemove :: (ContainerClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - a current child of @container@
+ -> IO ()
+containerRemove self widget =
+  {# call container_remove #}
+    (toContainer self)
+    (toWidget widget)
 
-
--- | Removes a present widget from the container.
+-- | Maps @callback@ over each non-internal child of @container@. See
+-- 'containerForall' for details on what constitutes an \"internal\" child.
+-- Most applications should use 'containerForeach', rather than
+-- 'containerForall'.
 --
-containerRemove :: (ContainerClass c, WidgetClass w) => c -> w -> IO ()
-containerRemove con widget =
-  {#call container_remove#} (toContainer con) (toWidget widget)
-
-
--- | Do something for each widget in the container.
---
-containerForeach :: ContainerClass c => c -> ContainerForeachCB -> IO ()
-containerForeach con fun = do
+containerForeach :: ContainerClass self => self
+ -> ContainerForeachCB
+ -> IO ()
+containerForeach self fun = do
   fPtr <- mkContainerForeachFunc (\wPtr _ -> do
     objectRef wPtr
     w <- liftM mkWidget $ newForeignPtr wPtr (objectUnref wPtr)
     fun w)
-  {#call container_foreach#} (toContainer con) fPtr nullPtr
+  {# call container_foreach #}
+    (toContainer self)
+    fPtr
+    nullPtr
   freeHaskellFunPtr fPtr
 
 type ContainerForeachCB = Widget -> IO ()
@@ -219,29 +243,64 @@ type ContainerForeachCB = Widget -> IO ()
 foreign import ccall "wrapper" mkContainerForeachFunc ::
   (Ptr Widget -> Ptr () -> IO ()) -> IO Callback
 
--- | Returns the the container's children.
+-- | Maps @callback@ over each child of @container@, including children that
+-- are considered \"internal\" (implementation details of the container).
+-- \"Internal\" children generally weren't added by the user of the container,
+-- but were added by the container implementation itself. Most applications
+-- should use 'containerForeach', rather than 'containerForall'.
 --
-containerGetChildren :: ContainerClass c => c -> IO [Widget]
-containerGetChildren con = do
-  glist <- {#call container_get_children#} (toContainer con)
+containerForall :: ContainerClass self => self
+ -> ContainerForeachCB -- ^ @callback@ - a callback
+ -> IO ()
+containerForall self fun = do
+  fPtr <- mkContainerForeachFunc (\wPtr _ -> do
+    objectRef wPtr
+    w <- liftM mkWidget $ newForeignPtr wPtr (objectUnref wPtr)
+    fun w)
+  {# call container_forall #}
+    (toContainer self)
+    fPtr
+    nullPtr
+  freeHaskellFunPtr fPtr
+
+-- | Returns the the container's non-internal children. See 'containerForall'
+-- for details on what constitutes an \"internal\" child.
+--
+containerGetChildren :: ContainerClass self => self
+ -> IO [Widget]
+containerGetChildren self = do
+  glist <- {# call container_get_children #} (toContainer self)
   widgetPtrs <- fromGList glist
   mapM (makeNewObject mkWidget . return) widgetPtrs
 
--- | Give the focus to a specific child of the
--- container.
+-- | Give the focus to a specific child of the container.
 --
-containerSetFocusChild :: (ContainerClass c, WidgetClass w) => c -> w -> IO ()
-containerSetFocusChild con widget =
-  {#call container_set_focus_child#} (toContainer con) (toWidget widget)
+containerSetFocusChild :: (ContainerClass self, WidgetClass child) => self
+ -> child -- ^ @child@
+ -> IO ()
+containerSetFocusChild self child =
+  {# call container_set_focus_child #}
+    (toContainer self)
+    (toWidget child)
 
--- | Sets a focus chain, overriding the one computed automatically by GTK+.
+-- | Sets a focus chain, overriding the one computed automatically by Gtk+.
 --
-containerSetFocusChain :: ContainerClass c => c -> [Widget] -> IO ()
-containerSetFocusChain con chain =
+-- In principle each widget in the chain should be a descendant of the
+-- container, but this is not enforced by this method, since it's allowed to
+-- set the focus chain before you pack the widgets, or have a widget in the
+-- chain that isn't always packed. The necessary checks are done when the focus
+-- chain is actually traversed.
+--
+containerSetFocusChain :: ContainerClass self => self
+ -> [Widget] -- ^ @focusableWidgets@ - the new focus chain.
+ -> IO ()
+containerSetFocusChain self chain =
   let wForeignPtrs = map (\w -> case toWidget w of Widget ptr -> ptr) chain in
   withForeignPtrs wForeignPtrs $ \wPtrs -> do
   glist <- toGList wPtrs
-  {#call container_set_focus_chain#} (toContainer con) glist
+  {# call container_set_focus_chain #}
+    (toContainer self)
+    glist
 
 withForeignPtrs :: [ForeignPtr a] -> ([Ptr a] -> IO b) -> IO b
 withForeignPtrs = withForeignPtrs' []
@@ -249,12 +308,18 @@ withForeignPtrs = withForeignPtrs' []
         withForeignPtrs' accum (p:ps) cont = withForeignPtr p $ \p' ->
                                              withForeignPtrs' (p':accum) ps cont
 
--- | Retrieves the focus chain of the container, if one has been set explicitly.
+-- | Retrieves the focus chain of the container, if one has been set
+-- explicitly. If no focus chain has been explicitly set, Gtk+ computes the
+-- focus chain based on the positions of the children. In that case the
+-- function returns @Nothing@.
 --
-containerGetFocusChain :: ContainerClass c => c -> IO (Maybe [Widget])
-containerGetFocusChain con =
+containerGetFocusChain :: ContainerClass self => self
+ -> IO (Maybe [Widget])
+containerGetFocusChain self =
   alloca $ \glistPtr -> do
-  {#call container_get_focus_chain#} (toContainer con) glistPtr
+  {# call container_get_focus_chain #}
+    (toContainer self)
+    glistPtr
   if glistPtr == nullPtr then return Nothing else liftM Just $ do
     glist <- peek glistPtr
     widgetPtrs <- fromGList glist
@@ -262,110 +327,204 @@ containerGetFocusChain con =
 
 -- | Removes a focus chain explicitly set with 'containerSetFocusChain'.
 --
-containerUnsetFocusChain :: ContainerClass c => c -> IO ()
-containerUnsetFocusChain con =
-  {#call container_unset_focus_chain#} (toContainer con)
+containerUnsetFocusChain :: ContainerClass self => self -> IO ()
+containerUnsetFocusChain self =
+  {# call container_unset_focus_chain #}
+    (toContainer self)
 
--- | Install an adjustment widget that is queried when focus is changed.
+-- | Hooks up an adjustment to focus handling in a container, so when a child
+-- of the container is focused, the adjustment is scrolled to show that widget.
+-- This function sets the vertical alignment. See
+-- 'scrolledWindowGetVAdjustment' for a typical way of obtaining the adjustment
+-- and 'containerSetFocusHAdjustment' for setting the horizontal adjustment.
 --
-containerSetFocusVAdjustment :: (ContainerClass c, AdjustmentClass a) => c ->
-                                a -> IO ()
-containerSetFocusVAdjustment con adj =
-  {#call container_set_focus_vadjustment#} (toContainer con) (toAdjustment adj)
+-- The adjustments have to be in pixel units and in the same coordinate
+-- system as the allocation for immediate children of the container.
+--
+containerSetFocusVAdjustment :: ContainerClass self => self
+ -> Adjustment -- ^ @adjustment@ - an adjustment which should be adjusted when
+               -- the focus is moved among the descendents of @container@
+ -> IO ()
+containerSetFocusVAdjustment self adjustment =
+  {# call container_set_focus_vadjustment #}
+    (toContainer self)
+    adjustment
 
--- | Retrieves the vertical focus adjustment for the container, or Nothing if
--- none has been set.
+-- | Retrieves the vertical focus adjustment for the container. See
+-- 'containerSetFocusVAdjustment'.
 --
-containerGetFocusVAdjustment :: ContainerClass c => c -> IO (Maybe Adjustment)
-containerGetFocusVAdjustment con = do
-  aPtr <- {#call unsafe container_get_focus_vadjustment#} (toContainer con)
-  if aPtr==nullPtr then return Nothing else liftM Just $
-    makeNewObject mkAdjustment (return aPtr)
+containerGetFocusVAdjustment :: ContainerClass self => self
+ -> IO (Maybe Adjustment) -- ^ returns the vertical focus adjustment, or
+                          -- @Nothing@ if none has been set.
+containerGetFocusVAdjustment self =
+  maybeNull (makeNewObject mkAdjustment) $
+  {# call unsafe container_get_focus_vadjustment #}
+    (toContainer self)
 
--- | Install an adjustment widget that is queried when focus is changed.
+-- | Hooks up an adjustment to focus handling in a container, so when a child
+-- of the container is focused, the adjustment is scrolled to show that widget.
+-- This function sets the horizontal alignment. See
+-- 'scrolledWindowGetHAdjustment' for a typical way of obtaining the adjustment
+-- and 'containerSetFocusVAdjustment' for setting the vertical adjustment.
 --
-containerSetFocusHAdjustment :: (ContainerClass c, AdjustmentClass a) => c ->
-                                a -> IO ()
-containerSetFocusHAdjustment con adj =
-  {#call container_set_focus_hadjustment#} (toContainer con) (toAdjustment adj)
+-- The adjustments have to be in pixel units and in the same coordinate
+-- system as the allocation for immediate children of the container.
+--
+containerSetFocusHAdjustment :: ContainerClass self => self
+ -> Adjustment -- ^ @adjustment@ - an adjustment which should be adjusted when
+               -- the focus is moved among the descendents of @container@
+ -> IO ()
+containerSetFocusHAdjustment self adjustment =
+  {# call container_set_focus_hadjustment #}
+    (toContainer self)
+    adjustment
 
--- | Retrieves the horizontal focus adjustment for the container, or Nothing if
--- none has been set.
+-- | Retrieves the horizontal focus adjustment for the container. See
+-- 'containerSetFocusHAdjustment'.
 --
-containerGetFocusHAdjustment :: ContainerClass c => c -> IO (Maybe Adjustment)
-containerGetFocusHAdjustment con = do
-  aPtr <- {#call unsafe container_get_focus_hadjustment#} (toContainer con)
-  if aPtr==nullPtr then return Nothing else liftM Just $
-    makeNewObject mkAdjustment (return aPtr)
+containerGetFocusHAdjustment :: ContainerClass self => self
+ -> IO (Maybe Adjustment) -- ^ returns the horizontal focus adjustment, or
+                          -- @Nothing@ if none has been set.
+containerGetFocusHAdjustment self =
+  maybeNull (makeNewObject mkAdjustment) $
+  {# call unsafe container_get_focus_hadjustment #}
+    (toContainer self)
 
 -- | Make the container resize its children.
 --
-containerResizeChildren :: ContainerClass c => c -> IO ()
-containerResizeChildren con =
-  {#call container_resize_children#} (toContainer con)
+containerResizeChildren :: ContainerClass self => self -> IO ()
+containerResizeChildren self =
+  {# call container_resize_children #}
+    (toContainer self)
 
--- | Set the amount of empty space around the outside of the container.
+-- | Sets the border width of the container.
 --
--- The border width of a container is the amount of space to leave around the
--- outside of the container. The border is added on all sides of the container.
+-- The border width of a container is the amount of space to leave around
+-- the outside of the container. The only exception to this is 'Window';
+-- because toplevel windows can't leave space outside, they leave the space
+-- inside. The border is added on all sides of the container. To add space to
+-- only one side, one approach is to create a 'Alignment' widget, call
+-- 'widgetSetUsize' to give it a size, and place it on the side of the
+-- container as a spacer.
 --
-containerSetBorderWidth :: ContainerClass c => c -> Int -> IO ()
-containerSetBorderWidth con width =
-  {#call container_set_border_width#} (toContainer con) (fromIntegral width)
+containerSetBorderWidth :: ContainerClass self => self
+ -> Int   -- ^ @borderWidth@ - amount of blank space to leave /outside/ the
+          -- container. Valid values are in the range 0-65535 pixels.
+ -> IO ()
+containerSetBorderWidth self borderWidth =
+  {# call container_set_border_width #}
+    (toContainer self)
+    (fromIntegral borderWidth)
 
--- | Retrieves the border width of the container. See 'containerSetBorderWidth'.
+-- | Retrieves the border width of the container. See
+-- 'containerSetBorderWidth'.
 --
-containerGetBorderWidth :: ContainerClass c => c -> IO Int
-containerGetBorderWidth con = liftM fromIntegral $
-  {#call unsafe container_get_border_width#} (toContainer con)
+containerGetBorderWidth :: ContainerClass self => self
+ -> IO Int -- ^ returns the current border width
+containerGetBorderWidth self =
+  liftM fromIntegral $
+  {# call unsafe container_get_border_width #}
+    (toContainer self)
+
+-- | Returns the resize mode for the container. See 'containerSetResizeMode'.
+--
+containerGetResizeMode :: ContainerClass self => self
+ -> IO ResizeMode -- ^ returns the current resize mode
+containerGetResizeMode self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_container_get_resize_mode #}
+    (toContainer self)
+
+-- | Sets the resize mode for the container.
+--
+-- The resize mode of a container determines whether a resize request will
+-- be passed to the container's parent, queued for later execution or executed
+-- immediately.
+--
+containerSetResizeMode :: ContainerClass self => self
+ -> ResizeMode -- ^ @resizeMode@ - the new resize mode.
+ -> IO ()
+containerSetResizeMode self resizeMode =
+  {# call gtk_container_set_resize_mode #}
+    (toContainer self)
+    ((fromIntegral . fromEnum) resizeMode)
 
 -- TODO add doc on what child properties are
 
--- | Sets a child property for child and container.
+-- | Sets a child property for @child@ and the container.
 --
-containerChildSetProperty :: (ContainerClass c, WidgetClass widget) => c
-                          -> widget       -- ^ Chile widget
-                          -> String       -- ^ Property name
-                          -> GenericValue -- ^ Property value
-                          -> IO ()
-containerChildSetProperty con child prop val =
-  alloca $ \valPtr ->
-  withUTFString prop $ \strPtr -> do
-  poke valPtr val
-  {#call container_child_set_property#} (toContainer con)
-    (toWidget child) strPtr valPtr
+containerChildSetProperty :: (ContainerClass self, WidgetClass child) => self
+ -> child             -- ^ @child@ - a widget which is a child of the container
+ -> String            -- ^ @propertyName@ - the name of the property to set
+ -> GenericValue      -- ^ @value@ - the value to set the property to
+ -> IO ()
+containerChildSetProperty self child propertyName value =
+  alloca $ \valuePtr ->
+  withUTFString propertyName $ \propertyNamePtr -> do
+  poke valuePtr value
+  {# call container_child_set_property #}
+    (toContainer self)
+    (toWidget child)
+    propertyNamePtr
+    valuePtr
 
--- | Gets the value of a child property for the given child and container.
+-- | Gets the value of a child property for @child@ and the container.
 --
-containerChildGetProperty :: (ContainerClass c, WidgetClass widget) => c
-                          -> widget  -- ^ Child widget
-                          -> String  -- ^ Property name
-                          -> IO GenericValue
-containerChildGetProperty con child prop =
-  alloca $ \valPtr ->
-  withUTFString prop $ \strPtr -> do
-  {#call unsafe container_child_get_property#} (toContainer con)
-    (toWidget child) strPtr valPtr
-  res <- peek valPtr
-  valueUnset valPtr
+containerChildGetProperty :: (ContainerClass self, WidgetClass child) => self
+ -> child       -- ^ @child@ - a widget which is a child of the container
+ -> String      -- ^ @propertyName@ - the name of the property to get
+ -> IO GenericValue
+containerChildGetProperty self child propertyName =
+  alloca $ \valuePtr ->
+  withUTFString propertyName $ \propertyNamePtr -> do
+  {# call unsafe container_child_get_property #}
+    (toContainer self)
+    (toWidget child)
+    propertyNamePtr
+    valuePtr
+  res <- peek valuePtr
+  valueUnset valuePtr
   return res
+
+--------------------
+-- Properties
+
+-- | Specify how resize events are handled.
+--
+-- Default value: 'ResizeParent'
+--
+containerResizeMode :: ContainerClass self => Attr self ResizeMode
+containerResizeMode = Attr 
+  containerGetResizeMode
+  containerSetResizeMode
+
+-- | The width of the empty border outside the containers children.
+--
+-- Allowed values: \<= @('maxBound' :: Int)@
+--
+-- Default value: 0
+--
+containerBorderWidth :: ContainerClass self => Attr self Int
+containerBorderWidth = Attr 
+  containerGetBorderWidth
+  containerSetBorderWidth
 
 --------------------
 -- Signals
 
--- | This signal is called each time a new widget is added
--- to this container.
+-- | This signal is called each time a new widget is added to this container.
 --
-onAdd, afterAdd :: ContainerClass con => con -> (Widget -> IO ()) ->
-                   IO (ConnectId con)
+onAdd, afterAdd :: ContainerClass self => self
+ -> (Widget -> IO ())
+ -> IO (ConnectId self)
 onAdd = connect_OBJECT__NONE "add" False
 afterAdd = connect_OBJECT__NONE "add" True
 
--- | This signal is called when the widget is
--- resized.
+-- | This signal is called when the widget is resized.
 --
-onCheckResize, afterCheckResize :: ContainerClass con => con -> (IO ()) ->
-                                   IO (ConnectId con)
+onCheckResize, afterCheckResize :: ContainerClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onCheckResize = connect_NONE__NONE "check-resize" False
 afterCheckResize = connect_NONE__NONE "check-resize" True
 
@@ -378,24 +537,19 @@ onFocus, afterFocus :: ContainerClass con => con ->
 onFocus = connect_ENUM__ENUM "focus" False
 afterFocus = connect_ENUM__ENUM "focus" True
 
--- | This signal is called for each widget that is
--- removed from the container.
+-- | This signal is called for each widget that is removed from the container.
 --
-onRemove, afterRemove :: ContainerClass con => con -> (Widget -> IO ()) ->
-                         IO (ConnectId con)
+onRemove, afterRemove :: ContainerClass self => self
+ -> (Widget -> IO ())
+ -> IO (ConnectId self)
 onRemove = connect_OBJECT__NONE "remove" False
 afterRemove = connect_OBJECT__NONE "remove" True
 
-
--- | This signal is called if a child in the
--- container receives the input focus.
+-- | This signal is called if a child in the container receives the input
+-- focus.
 --
-onSetFocusChild, afterSetFocusChild :: ContainerClass con => con ->
-                                       (Widget -> IO ()) -> IO (ConnectId con)
+onSetFocusChild, afterSetFocusChild :: ContainerClass self => self
+ -> (Widget -> IO ())
+ -> IO (ConnectId self)
 onSetFocusChild = connect_OBJECT__NONE "set-focus-child" False
 afterSetFocusChild = connect_OBJECT__NONE "set-focus-child" True
-
-
-
-
-

@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/26 00:11:42 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/27 11:54:52 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -67,14 +67,40 @@ module Graphics.UI.Gtk.Windows.Window (
   WindowPosition(..),
   windowSetTransientFor,
   windowSetDestroyWithParent,
+  windowGetDestroyWithParent,
+  windowIsActive,
+  windowHasToplevelFocus,
 -- windowListToplevels,
 -- windowAddMnemonic,
 -- windowRemoveMnemonic,
 -- windowSetMnemonicModifier,
+  windowPresent,
   windowDeiconify,
   windowIconify,
   windowMaximize,
   windowUnmaximize,
+#if GTK_CHECK_VERSION(2,2,0)
+  windowFullscreen,
+  windowUnfullscreen,
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+  windowSetKeepAbove,
+  windowSetKeepBelow,
+#endif
+#if GTK_CHECK_VERSION(2,2,0)
+  windowSetSkipTaskbarHint,
+  windowGetSkipTaskbarHint,
+  windowSetSkipPagerHint,
+  windowGetSkipPagerHint,
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+  windowSetAcceptFocus,
+  windowGetAcceptFocus,
+#endif
+#if GTK_CHECK_VERSION(2,6,0)
+  windowSetFocusOnMap,
+  windowGetFocusOnMap,
+#endif
   windowSetDecorated,
 -- windowSetDecorationsHint,
   windowSetFrameDimensions,
@@ -82,6 +108,14 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetRole,
   windowStick,
   windowUnstick,
+  windowAddAccelGroup,
+  windowRemoveAccelGroup,
+  windowSetIcon,
+#if GTK_CHECK_VERSION(2,6,0)
+  windowSetIconName,
+  windowGetIconName,
+  windowSetDefaultIconName,
+#endif
 
 -- * Properties
   windowResizable,
@@ -280,6 +314,66 @@ windowSetDestroyWithParent self setting =
     (toWindow self)
     (fromBool setting)
 
+-- | Returns whether the window will be destroyed with its transient parent.
+-- See 'windowSetDestroyWithParent'.
+--
+windowGetDestroyWithParent :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if the window will be destroyed with its
+            -- transient parent.
+windowGetDestroyWithParent self =
+  liftM toBool $
+  {# call gtk_window_get_destroy_with_parent #}
+    (toWindow self)
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Returns whether the window is part of the current active toplevel. (That
+-- is, the toplevel window receiving keystrokes.) The return value is @True@ if
+-- the window is active toplevel itself, but also if it is, say, a 'Plug'
+-- embedded in the active toplevel. You might use this function if you wanted
+-- to draw a widget differently in an active window from a widget in an
+-- inactive window. See 'windowHasToplevelFocus'
+--
+-- * Available since Gtk version 2.4
+--
+windowIsActive :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if the window part of the current active
+            -- window.
+windowIsActive self =
+  liftM toBool $
+  {# call gtk_window_is_active #}
+    (toWindow self)
+
+-- | Returns whether the input focus is within this 'Window'. For real
+-- toplevel windows, this is identical to 'windowIsActive', but for embedded
+-- windows, like 'Plug', the results will differ.
+--
+-- * Available since Gtk version 2.4
+--
+windowHasToplevelFocus :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if the the input focus is within this 'Window'
+windowHasToplevelFocus self =
+  liftM toBool $
+  {# call gtk_window_has_toplevel_focus #}
+    (toWindow self)
+#endif
+
+-- | Presents a window to the user. This may mean raising the window in the
+-- stacking order, deiconifying it, moving it to the current desktop, and\/or
+-- giving it the keyboard focus, possibly dependent on the user's platform,
+-- window manager, and preferences.
+--
+-- If @window@ is hidden, this function calls 'widgetShow' as well.
+--
+-- This function should be used when the user tries to open a window that's
+-- already open. Say for example the preferences dialog is currently open, and
+-- the user chooses Preferences from the menu a second time; use
+-- 'windowPresent' to move the already-open dialog where the user can see it.
+--
+windowPresent :: WindowClass self => self -> IO ()
+windowPresent self =
+  {# call gtk_window_present #}
+    (toWindow self)
+
 -- | Asks to deiconify (i.e. unminimize) the specified @window@. Note that you
 -- shouldn't assume the window is definitely deiconified afterward, because
 -- other entities (e.g. the user or window manager) could iconify it again
@@ -341,6 +435,205 @@ windowUnmaximize :: WindowClass self => self -> IO ()
 windowUnmaximize self =
   {# call window_unmaximize #}
     (toWindow self)
+
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Asks to place @window@ in the fullscreen state. Note that you shouldn't
+-- assume the window is definitely full screen afterward, because other
+-- entities (e.g. the user or window manager) could unfullscreen it again, and
+-- not all window managers honor requests to fullscreen windows. But normally
+-- the window will end up fullscreen. Just don't write code that crashes if
+-- not.
+--
+-- You can track the fullscreen state via the \"window_state_event\" signal
+-- on 'Widget'.
+--
+-- * Available since Gtk version 2.2
+--
+windowFullscreen :: WindowClass self => self -> IO ()
+windowFullscreen self =
+  {# call gtk_window_fullscreen #}
+    (toWindow self)
+
+-- | Asks to toggle off the fullscreen state for @window@. Note that you
+-- shouldn't assume the window is definitely not full screen afterward, because
+-- other entities (e.g. the user or window manager) could fullscreen it again,
+-- and not all window managers honor requests to unfullscreen windows. But
+-- normally the window will end up restored to its normal state. Just don't
+-- write code that crashes if not.
+--
+-- You can track the fullscreen state via the \"window_state_event\" signal
+-- on 'Widget'.
+--
+-- * Available since Gtk version 2.2
+--
+windowUnfullscreen :: WindowClass self => self -> IO ()
+windowUnfullscreen self =
+  {# call gtk_window_unfullscreen #}
+    (toWindow self)
+#endif
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Asks to keep @window@ above, so that it stays on top. Note that you
+-- shouldn't assume the window is definitely above afterward, because other
+-- entities (e.g. the user or window manager) could not keep it above, and not
+-- all window managers support keeping windows above. But normally the window
+-- will end kept above. Just don't write code that crashes if not.
+--
+-- It's permitted to call this function before showing a window, in which
+-- case the window will be kept above when it appears onscreen initially.
+--
+-- You can track the above state via the \"window_state_event\" signal on
+-- 'Widget'.
+--
+-- Note that, according to the Extended Window Manager Hints specification,
+-- the above state is mainly meant for user preferences and should not be used
+-- by applications e.g. for drawing attention to their dialogs.
+--
+-- * Available since Gtk version 2.4
+--
+windowSetKeepAbove :: WindowClass self => self
+ -> Bool  -- ^ @setting@ - whether to keep @window@ above other windows
+ -> IO ()
+windowSetKeepAbove self setting =
+  {# call gtk_window_set_keep_above #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Asks to keep @window@ below, so that it stays in bottom. Note that you
+-- shouldn't assume the window is definitely below afterward, because other
+-- entities (e.g. the user or window manager) could not keep it below, and not
+-- all window managers support putting windows below. But normally the window
+-- will be kept below. Just don't write code that crashes if not.
+--
+-- It's permitted to call this function before showing a window, in which
+-- case the window will be kept below when it appears onscreen initially.
+--
+-- You can track the below state via the \"window_state_event\" signal on
+-- 'Widget'.
+--
+-- Note that, according to the Extended Window Manager Hints specification,
+-- the above state is mainly meant for user preferences and should not be used
+-- by applications e.g. for drawing attention to their dialogs.
+--
+-- * Available since Gtk version 2.4
+--
+windowSetKeepBelow :: WindowClass self => self
+ -> Bool  -- ^ @setting@ - whether to keep @window@ below other windows
+ -> IO ()
+windowSetKeepBelow self setting =
+  {# call gtk_window_set_keep_below #}
+    (toWindow self)
+    (fromBool setting)
+#endif
+
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Windows may set a hint asking the desktop environment not to display the
+-- window in the task bar. This function sets this hint.
+--
+-- * Available since Gtk version 2.2
+--
+windowSetSkipTaskbarHint :: WindowClass self => self
+ -> Bool  -- ^ @setting@ - @True@ to keep this window from appearing in the
+          -- task bar
+ -> IO ()
+windowSetSkipTaskbarHint self setting =
+  {# call gtk_window_set_skip_taskbar_hint #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Gets the value set by 'windowSetSkipTaskbarHint'
+--
+-- * Available since Gtk version 2.2
+--
+windowGetSkipTaskbarHint :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if window shouldn't be in taskbar
+windowGetSkipTaskbarHint self =
+  liftM toBool $
+  {# call gtk_window_get_skip_taskbar_hint #}
+    (toWindow self)
+
+-- | Windows may set a hint asking the desktop environment not to display the
+-- window in the pager. This function sets this hint. (A \"pager\" is any
+-- desktop navigation tool such as a workspace switcher that displays a
+-- thumbnail representation of the windows on the screen.)
+--
+-- * Available since Gtk version 2.2
+--
+windowSetSkipPagerHint :: WindowClass self => self
+ -> Bool  -- ^ @setting@ - @True@ to keep this window from appearing in the
+          -- pager
+ -> IO ()
+windowSetSkipPagerHint self setting =
+  {# call gtk_window_set_skip_pager_hint #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Gets the value set by 'windowSetSkipPagerHint'.
+--
+-- * Available since Gtk version 2.2
+--
+windowGetSkipPagerHint :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if window shouldn't be in pager
+windowGetSkipPagerHint self =
+  liftM toBool $
+  {# call gtk_window_get_skip_pager_hint #}
+    (toWindow self)
+#endif
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Windows may set a hint asking the desktop environment not to receive the
+-- input focus. This function sets this hint.
+--
+-- * Available since Gtk version 2.4
+--
+windowSetAcceptFocus :: WindowClass self => self
+ -> Bool  -- ^ @setting@ - @True@ to let this window receive input focus
+ -> IO ()
+windowSetAcceptFocus self setting =
+  {# call gtk_window_set_accept_focus #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Gets the value set by 'windowSetAcceptFocus'.
+--
+-- * Available since Gtk version 2.4
+--
+windowGetAcceptFocus :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if window should receive the input focus
+windowGetAcceptFocus self =
+  liftM toBool $
+  {# call gtk_window_get_accept_focus #}
+    (toWindow self)
+#endif
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Windows may set a hint asking the desktop environment not to receive the
+-- input focus when the window is mapped. This function sets this hint.
+--
+-- * Available since Gtk version 2.6
+--
+windowSetFocusOnMap :: WindowClass self => self
+ -> Bool  -- ^ @setting@ - @True@ to let this window receive input focus on
+          -- map
+ -> IO ()
+windowSetFocusOnMap self setting =
+  {# call gtk_window_set_focus_on_map #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Gets the value set by 'windowSetFocusOnMap'.
+--
+-- * Available since Gtk version 2.6
+--
+windowGetFocusOnMap :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if window should receive the input focus when
+            -- mapped.
+windowGetFocusOnMap self =
+  liftM toBool $
+  {# call gtk_window_get_focus_on_map #}
+    (toWindow self)
+#endif
+
 
 -- | By default, windows are decorated with a title bar, resize controls, etc.
 -- Some window managers allow Gtk+ to disable these decorations, creating a
@@ -433,6 +726,102 @@ windowUnstick :: WindowClass self => self -> IO ()
 windowUnstick self =
   {# call window_unstick #}
     (toWindow self)
+
+-- | Associate @accelGroup@ with @window@, such that calling
+-- 'accelGroupsActivate' on @window@ will activate accelerators in
+-- @accelGroup@.
+--
+windowAddAccelGroup :: (WindowClass self, AccelGroupClass accelGroup) => self
+ -> accelGroup -- ^ @accelGroup@ - a 'AccelGroup'
+ -> IO ()
+windowAddAccelGroup self accelGroup =
+  {# call gtk_window_add_accel_group #}
+    (toWindow self)
+    (toAccelGroup accelGroup)
+
+-- | Reverses the effects of 'windowAddAccelGroup'.
+--
+windowRemoveAccelGroup :: (WindowClass self, AccelGroupClass accelGroup) => self
+ -> accelGroup -- ^ @accelGroup@ - a 'AccelGroup'
+ -> IO ()
+windowRemoveAccelGroup self accelGroup =
+  {# call gtk_window_remove_accel_group #}
+    (toWindow self)
+    (toAccelGroup accelGroup)
+
+-- | Sets up the icon representing a 'Window'. This icon is used when the
+-- window is minimized (also known as iconified). Some window managers or
+-- desktop environments may also place it in the window frame, or display it in
+-- other contexts.
+--
+-- The icon should be provided in whatever size it was naturally drawn; that
+-- is, don't scale the image before passing it to Gtk+. Scaling is postponed
+-- until the last minute, when the desired final size is known, to allow best
+-- quality.
+--
+-- If you have your icon hand-drawn in multiple sizes, use
+-- 'windowSetIconList'. Then the best size will be used.
+--
+-- This function is equivalent to calling 'windowSetIconList' with a
+-- 1-element list.
+--
+-- See also 'windowSetDefaultIconList' to set the icon for all windows in
+-- your application in one go.
+--
+windowSetIcon :: WindowClass self => self
+ -> Pixbuf -- ^ @icon@ - icon image
+ -> IO ()
+windowSetIcon self icon =
+  {# call gtk_window_set_icon #}
+    (toWindow self)
+    icon
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Sets the icon for the window from a named themed icon. See the docs for
+-- 'IconTheme' for more details.
+--
+-- Note that this has nothing to do with the WM_ICON_NAME property which is
+-- mentioned in the ICCCM.
+--
+-- * Available since Gtk version 2.6
+--
+windowSetIconName :: WindowClass self => self
+ -> String -- ^ @name@ - the name of the themed icon
+ -> IO ()
+windowSetIconName self name =
+  withUTFString name $ \namePtr ->
+  {# call gtk_window_set_icon_name #}
+    (toWindow self)
+    namePtr
+
+-- | Returns the name of the themed icon for the window, see
+-- 'windowSetIconName'.
+--
+-- * Available since Gtk version 2.6
+--
+windowGetIconName :: WindowClass self => self
+ -> IO String -- ^ returns the icon name or {@NULL@, FIXME: this should
+              -- probably be converted to a Maybe data type} if the window has
+              -- no themed icon
+windowGetIconName self =
+  {# call gtk_window_get_icon_name #}
+    (toWindow self)
+  >>= peekUTFString
+
+-- | Sets an icon to be used as fallback for windows that haven't had
+-- 'windowSetIconList' called on them from a named themed icon, see
+-- 'windowSetIconName'.
+--
+-- * Available since Gtk version 2.6
+--
+windowSetDefaultIconName ::
+    String -- ^ @name@ - the name of the themed icon
+ -> IO ()
+windowSetDefaultIconName name =
+  withUTFString name $ \namePtr ->
+  {# call gtk_window_set_default_icon_name #}
+    namePtr
+#endif
 
 --------------------
 -- Properties
