@@ -1,0 +1,9 @@
+<gapi-parser-input>
+  <api filename="gnomecanvas-api.xml">
+    <library name="gnomecanvas">
+      <namespace name="Gnome">
+        <dir>libgnomecanvas-2.2.1/libgnomecanvas</dir>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>	    

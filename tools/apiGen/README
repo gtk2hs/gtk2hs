@@ -57,3 +57,7 @@ they bind.
 Some improvements that would be good:
  * Complete marshaling code for more types
  * Emit signal and property bindings with documentation
+ * Deal with Enums, Flags, and Interfaces properly
+   - make objects instances of interfaces they implement
+   - make a note of structs and boxed types
+   - allow import of parent api files for reference to known types

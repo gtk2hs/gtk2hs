@@ -1,6 +1,6 @@
 <gapi-parser-input>
   <api filename="pango-api.xml">
-    <library name="libpango">
+    <library name="pango">
       <namespace name="Pango">
         <dir>pango-1.2.3/pango</dir>
 	<exclude>pango-1.2.3/pango/pangox-fontcache.c</exclude>

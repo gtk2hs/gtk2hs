@@ -123,6 +123,17 @@
       </params>
     </function>
   </xsl:for-each>
+  <xsl:for-each select="refentry/refsect1[title='Properties']/variablelist/varlistentry">
+    <property>
+      <name><xsl:value-of select="term/literal"/></name>
+      <since>
+        <xsl:value-of select="normalize-space(substring-after(listitem/para[starts-with(text(),'Since')], 'Since'))"/>
+      </since>
+      <doc>
+        <xsl:apply-templates select="listitem/para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
+      </doc>
+    </property>
+  </xsl:for-each>
   </module>
   </xsl:for-each>
   </apidoc>

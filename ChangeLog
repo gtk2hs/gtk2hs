@@ -7,6 +7,17 @@
 	documentation of properties. Initial go at producing property
 	definitions.
 
+	* tools/apiGen/format-docs.xsl: extract documentation of properties.
+
+	* tools/apiGen/Makefile: include parent api files to scan for types.
+
+	 * tools/apiGen/README: note some todo items.
+
+	 * tools/apiGen/atk-sources.xml, tools/apiGen/gdk-sources.xml
+	 tools/apiGen/glade-sources.xml, tools/apiGen/gnomecanvas-sources.xml
+	 tools/apiGen/gtk-sources.xml, tools/apiGen/pango-sources.xml: add and
+	 update sources spec files.
+
 2005-01-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/format-docs.xsl: deal with another kind of list and

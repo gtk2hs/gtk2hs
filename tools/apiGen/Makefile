@@ -26,7 +26,7 @@ default :
 	@echo "make prep-pango-docs pango-modules"
 	@echo "  as above but for Pango"
 	@echo
-	@echo "make prep-glade-docs glade-modules"
+	@echo "make glade-modules"
 	@echo "  as above but for libglade"
 
 ########################
@@ -67,12 +67,13 @@ get-source-code:
 prep-gtk-docs : gtk+-$(GTK_VERSION)
 	cd $< && ./configure --enable-gtk-doc && make
 
-gtk-docs.xml : gtk+-$(GTK_VERSION)/docs/reference/gtk/xml
+gtk-docs.xml : gtk+-$(GTK_VERSION)/docs/reference/gtk/xml format-docs.xsl
 	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
-gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen
+gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen gdk-api.xml pango-api.xml
 	@mkdir -p $@
-	./ApiGen $< Template.chs --doc=gtk-docs.xml --outdir=$@
+	./ApiGen $< Template.chs --doc=gtk-docs.xml --outdir=$@ \
+	--includeapi=gdk-api.xml --includeapi=pango-api.xml --includeapi=atk-api.xml
 
 
 ###################
@@ -80,7 +81,8 @@ gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen
 #	Gdk modules
 #
 gdk-docs.xml :	gtk+-$(GTK_VERSION)/docs/reference/gdk/xml \
-		gtk+-$(GTK_VERSION)/docs/reference/gdk-pixbuf/xml
+		gtk+-$(GTK_VERSION)/docs/reference/gdk-pixbuf/xml \
+		format-docs.xsl
 	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
 gdk-modules : gdk-api.xml gdk-docs.xml Template.chs ApiGen
@@ -95,7 +97,7 @@ gdk-modules : gdk-api.xml gdk-docs.xml Template.chs ApiGen
 prep-pango-docs : pango-$(PANGO_VERSION)
 	cd $< && ./configure --enable-gtk-doc && make
 
-pango-docs.xml : pango-$(PANGO_VERSION)/docs/xml
+pango-docs.xml : pango-$(PANGO_VERSION)/docs/xml format-docs.xsl
 	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
 pango-modules : pango-api.xml pango-docs.xml Template.chs ApiGen
@@ -107,10 +109,16 @@ pango-modules : pango-api.xml pango-docs.xml Template.chs ApiGen
 #
 #	libglade modules
 #
-prep-glade-docs : libglade-$(GLADE_VERSION)
-	cd $< && ./configure --enable-gtk-doc && make
-
 glade-modules : glade-api.xml Template.chs ApiGen
+	@mkdir -p $@
+	./ApiGen $< Template.chs --outdir=$@
+
+
+########################
+#
+#	gnomecanvas modules
+#
+gnomecanvas-modules : gnomecanvas-api.xml Template.chs ApiGen
 	@mkdir -p $@
 	./ApiGen $< Template.chs --outdir=$@
 

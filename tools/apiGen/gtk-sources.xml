@@ -1,6 +1,6 @@
 <gapi-parser-input>
   <api filename="gtk-api.xml">
-    <library name="libgtk">
+    <library name="gtk">
       <namespace name="Gtk">
         <dir>gtk+-2.2.2/gtk</dir>
       </namespace>
