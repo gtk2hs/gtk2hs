@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/14 23:55:07 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:02:21 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -323,7 +323,7 @@ boxGetSpacing self =
 --
 -- Default value: 0
 --
-boxSpacing :: Attr Box Int
+boxSpacing :: BoxClass self => Attr self Int
 boxSpacing = Attr 
   boxGetSpacing
   boxSetSpacing
@@ -332,7 +332,7 @@ boxSpacing = Attr
 --
 -- Default value: @False@
 --
-boxHomogeneous :: Attr Box Bool
+boxHomogeneous :: BoxClass self => Attr self Bool
 boxHomogeneous = Attr 
   boxGetHomogeneous
   boxSetHomogeneous

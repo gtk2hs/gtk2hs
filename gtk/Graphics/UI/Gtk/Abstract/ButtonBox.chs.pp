@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/14 23:55:07 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:02:23 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -74,7 +74,7 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
 #endif
 
 -- * Properties
-  buttonBoxLayout
+  buttonBoxLayoutStyle
   ) where
 
 import Monad (liftM)
@@ -93,8 +93,7 @@ import Graphics.UI.Gtk.General.Enums (ButtonBoxStyle)
 
 -- | Retrieves the method being used to arrange the buttons in the button box.
 --
-buttonBoxGetLayout :: ButtonBoxClass self => self
- -> IO ButtonBoxStyle
+buttonBoxGetLayout :: ButtonBoxClass self => self -> IO ButtonBoxStyle
 buttonBoxGetLayout self =
   liftM (toEnum . fromIntegral) $
   {# call gtk_button_box_get_layout #}
@@ -130,9 +129,9 @@ buttonBoxSetLayout self layoutStyle =
 -- typical use of a secondary child is the help button in a dialog.
 --
 -- This group appears after the other children if the style is
--- 'ButtonboxStart', 'ButtonboxSpread' or 'ButtonboxEdge', and before the the
--- other children if the style is 'ButtonboxEnd'. For horizontal button boxes,
--- the definition of before\/after depends on direction of the widget (see
+-- 'ButtonboxStart', 'ButtonboxSpread' or 'ButtonboxEdge', and before the other
+-- children if the style is 'ButtonboxEnd'. For horizontal button boxes, the
+-- definition of before\/after depends on direction of the widget (see
 -- 'widgetSetDirection'). If the style is 'ButtonboxStart' or 'ButtonboxEnd',
 -- then the secondary children are aligned at the other end of the button box
 -- from the main children. For the other styles, they appear immediately next
@@ -157,7 +156,7 @@ buttonBoxSetChildSecondary self child isSecondary =
 --
 -- Default value: 'ButtonboxDefaultStyle'
 --
-buttonBoxLayout :: Attr ButtonBox ButtonBoxStyle
-buttonBoxLayout = Attr 
+buttonBoxLayoutStyle :: ButtonBoxClass self => Attr self ButtonBoxStyle
+buttonBoxLayoutStyle = Attr 
   buttonBoxGetLayout
   buttonBoxSetLayout

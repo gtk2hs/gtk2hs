@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/14 23:55:07 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:02:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -158,7 +158,7 @@ scaleGetValuePos self =
 --
 -- Default value: 1
 --
-scaleDigits :: Attr Scale Int
+scaleDigits :: ScaleClass self => Attr self Int
 scaleDigits = Attr 
   scaleGetDigits
   scaleSetDigits
@@ -167,7 +167,7 @@ scaleDigits = Attr
 --
 -- Default value: @False@
 --
-scaleDrawValue :: Attr Scale Bool
+scaleDrawValue :: ScaleClass self => Attr self Bool
 scaleDrawValue = Attr 
   scaleGetDrawValue
   scaleSetDrawValue
@@ -176,7 +176,7 @@ scaleDrawValue = Attr
 --
 -- Default value: 'PosLeft'
 --
-scaleValuePos :: Attr Scale PositionType
+scaleValuePos :: ScaleClass self => Attr self PositionType
 scaleValuePos = Attr 
   scaleGetValuePos
   scaleSetValuePos

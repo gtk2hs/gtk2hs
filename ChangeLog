@@ -28,6 +28,16 @@
 	* gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp: add property, export extra
 	function as well as trivial code changes.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scale.chs: minor changes. Mostly
+	generalising the types of attributes.
+
+	* gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp: rename attribute
+	buttonBoxLayout to buttonBoxLayoutStyle.
+
 2005-04-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs, tools/apiGen/ApiGen.hs,

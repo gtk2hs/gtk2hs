@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:31 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/02 19:02:22 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -31,7 +31,7 @@
 --   in each widget file.
 --
 module Graphics.UI.Gtk.Abstract.Object (
--- * Description
+-- * Detail
 -- 
 -- | 'Object' is the base class for all widgets, and for a few non-widget
 -- objects such as 'Adjustment'. 'Object' predates 'GObject'; non-widgets that

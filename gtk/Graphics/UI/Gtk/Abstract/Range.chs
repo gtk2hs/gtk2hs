@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/03/15 19:49:40 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/02 19:02:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -221,14 +221,14 @@ rangeSetRange self min max =
 --
 -- Default value: 'UpdateContinuous'
 --
-rangeUpdatePolicy :: Attr Range UpdateType
+rangeUpdatePolicy :: RangeClass self => Attr self UpdateType
 rangeUpdatePolicy = Attr 
   rangeGetUpdatePolicy
   rangeSetUpdatePolicy
 
 -- | The 'Adjustment' that contains the current value of this range object.
 --
-rangeAdjustment :: Attr Range Adjustment
+rangeAdjustment :: RangeClass self => Attr self Adjustment
 rangeAdjustment = Attr 
   rangeGetAdjustment
   rangeSetAdjustment
@@ -237,14 +237,14 @@ rangeAdjustment = Attr
 --
 -- Default value: @False@
 --
-rangeInverted :: Attr Range Bool
+rangeInverted :: RangeClass self => Attr self Bool
 rangeInverted = Attr 
   rangeGetInverted
   rangeSetInverted
 
 -- | \'value\' property. See 'rangeGetValue' and 'rangeSetValue'
 --
-rangeValue :: Attr Range Double
+rangeValue :: RangeClass self => Attr self Double
 rangeValue = Attr 
   rangeGetValue
   rangeSetValue

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/14 23:55:07 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:02:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -205,7 +205,7 @@ panedGetChild2 self =
 --
 -- Default value: 0
 --
-panedPosition :: Attr Paned Int
+panedPosition :: PanedClass self => Attr self Int
 panedPosition = Attr 
   panedGetPosition
   panedSetPosition
