@@ -90,9 +90,11 @@ insertSymbol (FunDefn fun pats) = withCurModule $
   \mI@(ModInfo { modSymTab=st }) state -> case st `lookupFM` fun of
     Nothing -> state
     (Just si@(SymInfo { symArgs=args })) -> replaceModInfo (mI {
-      modSymTab=addToFM st fun (si { symArgs=merge pats args }) })
+      modSymTab=addToFM st fun (si { symArgs=zipWith (:) pats
+			(if args==[] then repeat [] else args) }) })
       state
-  where
+
+{-  where
     merge :: [HPat] -> [[HPat]] -> [[HPat]]
     merge ps [] = map (\x -> [x]) ps
     merge [] as = as
@@ -100,6 +102,7 @@ insertSymbol (FunDefn fun pats) = withCurModule $
     merge (p:ps) ([PatAny]:as) = [p]:(merge ps as)
     merge (p:ps) (a:as) | p `elem` a = a:(merge ps as)
 			| otherwise  = (p:a):(merge ps as)
+-}
 
 -- Insert the commentary for a symbol.
 addSymComm :: SymKind -> DaVar -> [Docu] -> State -> State

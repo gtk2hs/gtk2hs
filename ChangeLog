@@ -1,5 +1,12 @@
 2002-12-16 Axel Simon <A.Simon@ukc.ac.uk>
 
+	* gendoc/PrettyLib.hs: convert from PackedString to normal String
+
+	* gendoc/Update.hs, gendoc/XMLwrite.hs: add hyperlinks between
+	from synopsis and tried to link arguments to types.
+	
+	* doc/Makefile doc/gtk2hs.xml doc/mogul.xml: Added documentation.
+
 	* gtk/treeList/TreeModel.chs: Added two functions and export the
 	function gtk_tree_model_get_iter_from_string for
 	CellRendererText.chs

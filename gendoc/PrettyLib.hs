@@ -24,8 +24,6 @@ module PrettyLib (nil,(<>),text,line,delimiter,fdelimiter,group,nest,groupNest
                  ,parens,brackets,braces,string
                  ,pretty,simple) where
 
-import Data.PackedString
-
 {- Exported definitions ================================================== -}
 -- Core pretty printer combinators ------------------------------------------
 
@@ -37,11 +35,8 @@ nil = NIL
 (<>) :: Doc -> Doc -> Doc
 (<>) = (:<>)
 
-text :: PackedString -> Doc
+text :: String -> Doc
 text = TEXT
-
-ptext :: String -> Doc
-ptext = TEXT . packString
 
 delimiter :: String -> Doc
 delimiter = DELIMITER
@@ -75,19 +70,19 @@ groupNest indentation doc = group (nest indentation doc)
 
 
 doubleQuotes :: String -> Doc
-doubleQuotes s = ptext ('"' : s ++ "\"")
+doubleQuotes s = text ('"' : s ++ "\"")
 
 parens :: Doc -> Doc
-parens doc = ptext "(" <> doc <> ptext ")"
+parens doc = text "(" <> doc <> text ")"
 
 brackets :: Doc -> Doc
-brackets doc = ptext "[" <> doc <> ptext "]"
+brackets doc = text "[" <> doc <> text "]"
 
 braces :: Doc -> Doc
-braces doc = ptext "{" <> doc <> ptext "}"
+braces doc = text "{" <> doc <> text "}"
 
 string :: String -> Doc
-string s = ptext ('\"' : s ++ "\"")
+string s = text ('\"' : s ++ "\"")
 
 {- Optimally pretty print the document within the given line width. -}
 pretty :: Int -> Doc -> String
@@ -102,7 +97,7 @@ simple = token2String . flatten
 {- Implementation ========================================================= -}
 
 data Doc = NIL | Doc :<> Doc 
-         | TEXT PackedString | DELIMITER String | FDELIMITER String | LINE 
+         | TEXT String | DELIMITER String | FDELIMITER String | LINE 
          | GROUP Doc | NEST Int Doc
          deriving Show
 
@@ -140,7 +135,7 @@ flatten doc = go 0 doc []
   {- use accumulator to perform flattening in linear time -}
   go i NIL rest = rest
   go i (d1 :<> d2) rest = go i d1 (go i d2 rest)
-  go i (TEXT s) rest = Text (unpackPS s) (lengthPS s) : rest
+  go i (TEXT s) rest = Text s (length s) : rest
   go i (DELIMITER s) rest = Delimiter s (length s) i : rest
   go i (FDELIMITER s) rest = FDelimiter s (length s) i : rest
   go i LINE rest = Line i : rest
