@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry Widget Container@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.6 $ from $Date: 2003/10/21 21:28:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -106,8 +107,17 @@ containerForeach con fun = do
 type ContainerForeachCB = Widget -> IO ()
 {#pointer Callback#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper" mkContainerForeachFunc ::
+  (Ptr Widget -> Ptr () -> IO ()) -> IO Callback
+
+#else
+
 foreign export dynamic mkContainerForeachFunc ::
   (Ptr Widget -> Ptr () -> IO ()) -> IO Callback
+
+#endif
 
 -- @method containerFocus@ Give the focus to the container.
 -- * The @ref arg direction@ argument determines what kind of focus 

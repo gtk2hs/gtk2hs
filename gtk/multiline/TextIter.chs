@@ -6,7 +6,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.9 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.10 $ from $Date: 2003/10/21 21:28:53 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -705,8 +705,17 @@ type TextCharPredicateCB = Char -> Bool
 
 {#pointer TextCharPredicate#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper" mkTextCharPredicate ::
+  ({#type gunichar#} -> Ptr () -> {#type gboolean#}) -> IO TextCharPredicate
+
+#else
+
 foreign export dynamic mkTextCharPredicate ::
   ({#type gunichar#} -> Ptr () -> {#type gboolean#}) -> IO TextCharPredicate
+
+#endif
 
 -- @method textIterForwardFindChar@ Move @ref type TextIter@ forward until a
 -- predicate function returns True.

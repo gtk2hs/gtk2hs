@@ -1,3 +1,8 @@
+2003-10-21 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* gtk/abstract/Container.chs gtk/multiline/TextIter.chs: Fix
+	warning about deprecated FFI construct for GHC 6.0.
+
 2003-08-09  Jens Petersen  <petersen@haskell.org>
 
 	* gtk/multiline/TextView.chs (textViewGetVisibleRect): Fix docu typo.
