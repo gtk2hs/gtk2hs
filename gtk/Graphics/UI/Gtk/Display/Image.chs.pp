@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/15 17:54:57 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -76,7 +76,7 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid, iconSizeMenu,
 --
 imageNewFromFile :: FilePath -> IO Image
 imageNewFromFile path = makeNewObject mkImage $ liftM castPtr $ 
-#ifdef WIN32 && GTK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   withUTFString path {#call unsafe image_new_from_file_utf8#}
 #else
   withUTFString path {#call unsafe image_new_from_file#}

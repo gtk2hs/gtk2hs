@@ -1,3 +1,8 @@
+2005-02-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Display/Image.chs.pp: fix an #if test so that it
+	works correctly and is consistent with the other similar ones.
+
 2005-02-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/glib-sources.xml: add extra sources spec.
