@@ -44,7 +44,8 @@ INPL_INCLDIR		:= $(INPL_HIDIR)
 # is extracted from the files themselves (and generated files don't exist
 # in a clean tree).
 CHSFILES 		:= $(filter-out $(EXTRA_CHSFILES),\
-			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.chs)))
+			$(patsubst ./%,%,\
+			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.chs))))
 
 ALLCHSFILES		:= $(NEEDCHI:=.chs) $(filter-out $(NEEDCHI:=.chs), \
 			$(CHSFILES) $(EXTRA_CHSFILES))
@@ -60,13 +61,15 @@ STANDARD_HEADER         := $(filter-out $(EXPLICIT_HEADER),$(ALLCHSFILES))
 
 # HSC files
 HSCFILES                := $(filter-out $(EXTRA_HSCFILES),\
-                        $(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hsc)))\
+			$(patsubst ./%,%,\
+                        $(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hsc))))\
                         $(EXTRA_HSCFILES)
 
 # These are all .hs files that are not generated in any way.
 HSFILES  		:= $(filter-out $(ALLCHSFILES:.chs=.hs)\
 			$(HSCFILES:.hsc=.hs) $(EXTRA_HSFILES),\
-			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hs)))
+			$(patsubst ./%,%,\
+			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hs))))
 
 # These are all .hs files in the project. This is not the same as *.hs in
 # all subdirs because in a clean tree there is e.g. no .hs for a .chs file.
@@ -265,8 +268,8 @@ debug 	:
 #	@echo Application: $(APPNAME)
 	@echo EXTRA_CPPFLAGS: $(EXTRA_CPPFLAGS_ONLY_I)
 #	@echo all CHS files: $(CHSFILES)
-#	@echo Standard header: $(STANDARD_HEADER)
-#	@echo Explicit header: $(EXPLICIT_HEADER)
+	@echo Standard header: $(STANDARD_HEADER)
+	@echo Explicit header: $(EXPLICIT_HEADER)
 #	@echo all HSC files: $(HSCFILES)
 #	@echo all other HS files: $(HSFILES)
 #	@echo all files generating stubs: $(STUBOFILES)

@@ -1,9 +1,24 @@
 2003-10-21 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* mk/common.mk: Avoid message about several rules for the
+	top-level file which are .chs files. This happend since the
+	top-level file SourceView.chs is not removed form a list
+	containing ./SourceView.chs which is what the wild-card searching
+	gives. Solved by stripping the ./ prefix.
+	
+	* gtk/Makefile, tools/signals/HookGenerator.hs,
+	tools/signals/Makefile, tools/signals/Signal.chs-boot1,
+	tools/signals/Signal.chs-boot2, tools/signals/gtkmarshal.list,
+	tools/typehier/Makefile, tools/typehier/TypeGenerator.hs,
+	tools/typehier/hierarchy.list: Moved these file to a new directory
+	tools/. The reason for this is that parts of the type hierarchy
+	may only be generated if a specific widget is built, in this case
+	it's GtkSourceview.
+	
 	* gtk/multiline/TextBuffer.chs: Use TextBufferClass tb => tb
 	instead of TextBuffer as type for the Textbuffer.
 	
-	* gtk/abstract/Container.chs gtk/multiline/TextIter.chs: Fix
+	* gtk/abstract/Container.chs, gtk/multiline/TextIter.chs: Fix
 	warning about deprecated FFI construct for GHC 6.0.
 
 2003-08-09  Jens Petersen  <petersen@haskell.org>
