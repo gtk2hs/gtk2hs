@@ -21,8 +21,10 @@ endif
 	$(MAKE) -Cgtk $@ 
 	$(MAKE)	-Cmogul $@ 
 	$(MAKE) -Cdemo/unicode $@ 
+	$(MAKE) -Cdemo/graphic $@ 
 
 noinplace :
+	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cmogul $@ 
 	$(MAKE) -Cgtk $@ 
@@ -31,8 +33,10 @@ install : all
 	$(MAKE) -Cgtk  $@
 	$(MAKE) -Cmogul  $@
 	$(MAKE) -Cdemo/unicode $@ 
+	$(MAKE) -Cdemo/graphic $@ 
 
 uninstall :
+	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cmogul  $@
 	$(MAKE) -Cgtk  $@
@@ -44,6 +48,7 @@ endif
 	$(MAKE) -Cgtk $@
 	$(MAKE) -Cmogul $@
 	$(MAKE) -Cdemo/unicode $@ 
+	$(MAKE) -Cdemo/graphic $@ 
 
 distclean : clean
 ifeq ($(BUILT_IN_C2HS),yes)
@@ -52,6 +57,7 @@ endif
 	$(MAKE) -Cgtk $@
 	$(MAKE) -Cmogul $@
 	$(MAKE) -Cdemo/unicode $@ 
+	$(MAKE) -Cdemo/graphic $@ 
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 TODO VERSION aclocal.m4 configure.in configure \
@@ -68,6 +74,7 @@ dist :
 	$(MAKE) -Cgtk tarsource
 	$(MAKE) -Cmogul tarsource
 	$(MAKE) -Cdemo/unicode tarsource
+	$(MAKE) -Cdemo/graphic tarsource
 	$(GZIP) $(TARNAME).tar
 	$(RM) $(TARNAME)
 

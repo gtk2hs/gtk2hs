@@ -3,9 +3,13 @@
 	* gtk/gdk/GdkEnums.chs, gtk/general/Gtk.hs,
 	gtk/general/Structs.hsc, gtk/Makefile, gtk/gdk/GdkGC.chs,
 	gtk/gdk/GdkDrawable.chs,gtk/gdk/Region.chs,
+	gtk/general/Structs.hsc, gtk/typehier/hierarchy.list,
 	gtk/misc/DrawingArea.chs: Added the capabilities to do user
 	specified widgets.
 
+	* demo/graphic/Drawing.hs demo/graphic/Makefile Makefile: Added a
+	demonstration of how to use the DrawingArea widget.
+	
 2002-08-20  Jonas Svensson <d99josve@dtek.chalmers.se>
 
         * gtk/abstract/Widget.chs: Added widgetSetSizeRequest function.
