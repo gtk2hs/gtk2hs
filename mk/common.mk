@@ -65,7 +65,7 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	touch $@; \
 	$(if $(word 2,$($(PKG)_HSFILES)),\
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
-	  $(HC) -M $(addprefix -optdep,-f $@) \
+	  $(HC) -M $(addprefix -optdep,-f $@) -fglasgow-exts \
 	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(pkgVPATH) \
 	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
 	fi;))

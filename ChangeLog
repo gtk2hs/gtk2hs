@@ -1,3 +1,9 @@
+2005-03-18 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mk/common.mk: temporary fix for building with GHC 6.4. Temporary
+	until we fix c2hs to not override the pragmas at the top of generated
+	files.
+
 2005-03-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Misc/Adjustment.chs,
