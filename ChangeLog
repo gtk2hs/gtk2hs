@@ -14,6 +14,15 @@
 
 	* tools/apiGen/StringUtils.hs: add extra utility function.
 
+	* mk/common.mk: Add $(EXEEXT) when trying to build c2hsLocal. Set
+	HSTOOLFLAGS = -H350m -M400m for the release so more people can build
+	ok. On windows we need more memory for some reaons so set
+	HSTOOLFLAGS = -H400m -M650m 
+
+	* configure.ac: Add $(EXEEXT) to C2HS name. Do define WIN32 afterall
+	since ghc does not define it (though gcc does so it'll give a warning)
+	Bumb the version to 0.9.7.1_rc1
+
 2005-02-06 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: win32 fixes. Do not define WIN32 on windows since it

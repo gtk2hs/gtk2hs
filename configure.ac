@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.8_pre)
+AC_INIT(gtk2hs, 0.9.7.1_rc1)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
@@ -116,6 +116,9 @@ else
   CREATE_TYPES=default;
 fi;
 
+if test "$WIN32" = "yes"; then
+  AC_DEFINE(WIN32, [], [Are we building on a Win32 system])
+fi
 AM_CONDITIONAL(WIN32, test "$WIN32" = "yes")
 
 dnl determine a temporary directory for c2hs
@@ -552,7 +555,7 @@ AC_MSG_CHECKING([kind of C->Haskell])
 if test $BUILT_IN_C2HS = yes; then
   AC_MSG_RESULT([built-in])
   dnl Use the local c2hs.
-  C2HS='$(TOP)/tools/c2hs/c2hsLocal';
+  C2HS='$(TOP)/tools/c2hs/c2hsLocal$(EXEEXT)';
 
   dnl These are the settings needed to compile c2hs.
   LEGACY_FFI=no;

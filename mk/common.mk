@@ -27,7 +27,7 @@ getVar   = $($(subst .,_,$(subst /,_,$(1)))_$(2))
 
 LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(addprefix -package ,$($(PKG)_PACKAGEDEPS)) \
-	$(AM_LDFLAGS) $($(PKG)_LDFLAGS))
+	$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LDFLAGS))
 
 #Using pattern rule here to prevent automake from understanding the rule
 #and falsely concluding that two source files will produce the same object
@@ -87,7 +87,13 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 # Same for .chi
 .PRECIOUS: %.chi
 
+if WIN32
+#It seems to take considerably more memory on win32. Not sure why.
 HSTOOLFLAGS = -H400m -M650m
+else
+#change this to -H350m -M400m for a release so more people can build ok
+HSTOOLFLAGS = -H350m -M400m
+endif
 
 .PHONY: debug
 debug	:
@@ -124,7 +130,7 @@ debug	:
 	$(if $(subst no,,$(BUILT_IN_C2HS)),$(strip \
 	if test -x $(C2HS); then :; else \
 	  $(MAKE) $(AM_MAKEFLAGS) \
-	  tools/c2hs/c2hsLocal; fi;))
+	  tools/c2hs/c2hsLocal$(EXEEXT); fi;))
 	$(strip if test -f $($(PKG)_PRECOMP); then :; else \
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_PRECOMP); fi;)
 	$(strip $(C2HS) $(C2HS_FLAGS) \
