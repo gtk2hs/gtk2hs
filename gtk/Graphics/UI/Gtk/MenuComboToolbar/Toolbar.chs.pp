@@ -2,65 +2,74 @@
 --  GIMP Toolkit (GTK) Widget Toolbar
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:25:01 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
 --
---  Copyright (c) 1999..2002 Axel Simon
+--  Copyright (C) 1999-2005 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
-{- | Create bars of buttons and other widgets.
- 
-  * This widget underwent a signficant overhaul in gtk 2.4 and the recommended
-    api changed substantially. The old interface is still supported but it is
-    not recommended.
- 
-  * The following information applies to the new interface only.
- 
-  A toolbar is created using 'toolbarNew'. A toolbar can contain instances of
-  a subclass of "ToolItem". To add a "ToolItem" to the a toolbar, use
-  'toolbarInsert'. To remove an item from the toolbar use 'containerRemove'.
-  To add a button to the toolbar, add an instance of "ToolButton".
- 
-  Toolbar items can be visually grouped by adding instances of
-  "SeparatorToolItem" to the toolbar. If a "SeparatorToolItem" has the
-  \"expand\" property set to True and the \"draw\" property set to False the
-  effect is to force all following items to the end of the toolbar.
- 
-  Creating a context menu for the toolbar can be done using
-  'onPopupContextMenu'.
- 
-#ifndef DISABLE_DEPRECATED
-  * The following information applies to the old interface only.
- 
-  'Button's, 'RadioButton's and 'ToggleButton's can be added by refering to
-  stock images. Their size can be changed by calling 'toolbarSetIconSize'. In
-  contrast, normal widget cannot be added. Due to the bad interface of
-  GtkToolbar mnemonics of 'RadioButton's and 'ToggleButton's are not honored.
- 
-  All the append, insert and prepend functions use an internal function to
-  do the actual work. In fact the interface is pretty skrewed up: To insert
-  icons by using stock items is definitely the best practice as all other
-  images cannot react to 'toolbarSetIconSize' and other theming actions. On
-  the other hand 'toolbarInsertStock' always generates simple 'Button's
-  but is the only function that is able to insert 'Mnemonic's on the label.
-  Our solution is to use 'StockItem's to specify all 'Images' of the
-  'Buttons'. If the user inserts 'RadioButton's or 'ToggleButton's, the stock
-  image lookup is done manually. A mnemonic in the labels is sadly not
-  honored this way.
-#endif
--}
+-- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- Create bars of buttons and other widgets.
+--
 module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
+-- * Description
+-- 
+-- | This widget underwent a signficant overhaul in gtk 2.4 and the
+-- recommended api changed substantially. The old interface is still supported
+-- but it is not recommended.
+--
+-- * The following information applies to the new interface only.
+--
+-- A toolbar is created with a call to 'toolbarNew'.
+--
+-- A toolbar can contain instances of a subclass of "ToolItem". To add a
+-- "ToolItem" to the a toolbar, use 'toolbarInsert'. To remove an item from the
+-- toolbar use 'containerRemove'. To add a button to the toolbar, add an
+-- instance of "ToolButton".
+--
+-- Toolbar items can be visually grouped by adding instances of
+-- "SeparatorToolItem" to the toolbar. If a "SeparatorToolItem" has the
+-- \"expand\" property set to True and the \"draw\" property set to False
+-- the effect is to force all following items to the end of the toolbar.
+--
+-- Creating a context menu for the toolbar can be done using
+-- 'onPopupContextMenu'.
+
+#ifndef DISABLE_DEPRECATED
+-- | * The following information applies to the old interface only.
+--
+-- 'Button's, 'RadioButton's and 'ToggleButton's can be added by refering to
+-- stock images. Their size can be changed by calling 'toolbarSetIconSize'. In
+-- contrast, normal widget cannot be added. Due to the bad interface of
+-- "Toolbar" mnemonics of 'RadioButton's and 'ToggleButton's are not honored.
+--
+-- All the append, insert and prepend functions use an internal function to
+-- do the actual work. In fact the interface is pretty skrewed up: To insert
+-- icons by using stock items is definitely the best practice as all other
+-- images cannot react to 'toolbarSetIconSize' and other theming actions. On
+-- the other hand 'toolbarInsertStock' always generates simple 'Button's
+-- but is the only function that is able to insert 'Mnemonic's on the label.
+-- Our solution is to use 'StockItem's to specify all 'Images' of the
+-- 'Buttons'. If the user inserts 'RadioButton's or 'ToggleButton's, the stock
+-- image lookup is done manually. A mnemonic in the labels is sadly not
+-- honored this way.
+#endif
+
   Toolbar,
   ToolbarClass,
   castToToolbar,

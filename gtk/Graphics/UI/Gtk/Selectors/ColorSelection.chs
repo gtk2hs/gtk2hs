@@ -1,31 +1,35 @@
 -- -*-haskell-*-
--- GIMP Toolkit (GTK) Widget ColorSelection
+--  GIMP Toolkit (GTK) Widget ColorSelection
 --
 --  Author : Duncan Coutts
+--
 --  Created: 2 August 2004
 --
---  Copyright (c) 2004 Duncan Coutts
---  documentation Copyright (c) 1995..2000 the GTK+ Team
+--  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--
+--  Copyright (C) 2004-2005 Duncan Coutts
 --
 --  This library is free software; you can redistribute it and/or
---  modify it under the terms of the GNU Library General Public
+--  modify it under the terms of the GNU Lesser General Public
 --  License as published by the Free Software Foundation; either
---  version 2 of the License, or (at your option) any later version.
+--  version 2.1 of the License, or (at your option) any later version.
 --
 --  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
---  Library General Public License for more details.
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- The ColorSelection is a widget that is used to select a color. It consists of
 -- a color wheel and number of sliders and entry boxes for color parameters such
 -- as hue, saturation, value, red, green, blue, and opacity. It is found on the
 -- standard color selection dialog box "ColorSelectionDialog".
 --
-
-module Graphics.UI.Gtk.Selectors.ColorSelection  (
+module Graphics.UI.Gtk.Selectors.ColorSelection (
   colorSelectionNew,
   colorSelectionGetCurrentAlpha,
   colorSelectionSetCurrentAlpha,

@@ -2,10 +2,10 @@
 --  GIMP Toolkit (GTK) Widget ImageMenuItem
 --
 --  Author : Jonas Svensson
---          
+--
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.1 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -20,6 +20,9 @@
 --  GNU General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- This widget implements a 'MenuItem' with an image next to it 
 --
@@ -27,7 +30,6 @@
 --
 -- * imageMenuItemNewFromSock should also have a AccelGroup argument
 -- 
-
 module Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem (
   ImageMenuItem,
   ImageMenuItemClass,

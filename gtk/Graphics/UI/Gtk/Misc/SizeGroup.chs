@@ -1,31 +1,35 @@
 -- -*-haskell-*-
--- GIMP Toolkit (GTK) Widget SizeGroup
+--  GIMP Toolkit (GTK) Widget SizeGroup
 --
 --  Author : Duncan Coutts
+--
 --  Created: 2 August 2004
 --
---  Copyright (c) 2004 Duncan Coutts
---  documentation Copyright (c) 1995..2000 the GTK+ Team
+--  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--
+--  Copyright (C) 2004-2005 Duncan Coutts
 --
 --  This library is free software; you can redistribute it and/or
---  modify it under the terms of the GNU Library General Public
+--  modify it under the terms of the GNU Lesser General Public
 --  License as published by the Free Software Foundation; either
---  version 2 of the License, or (at your option) any later version.
+--  version 2.1 of the License, or (at your option) any later version.
 --
 --  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
---  Library General Public License for more details.
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- SizeGroup provides a mechanism for grouping a number of widgets together so
 -- they all request the same amount of space. This is typically useful when you
 -- want a column of widgets to have the same size, but you can't use a "Table"
 -- widget.
 --
-
-module Graphics.UI.Gtk.Misc.SizeGroup  (
+module Graphics.UI.Gtk.Misc.SizeGroup (
   sizeGroupNew,
   SizeGroupMode(..),
   sizeGroupSetMode,

@@ -1,38 +1,43 @@
 -- -*-haskell-*-
--- GIMP Toolkit (GTK) Widget ToolItem
+--  GIMP Toolkit (GTK) Widget ToolItem
 --
 --  Author : Duncan Coutts
+--
 --  Created: 1 August 2004
 --
---  Copyright (c) 2004 Duncan Coutts
+--  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:23 $
+--
+--  Copyright (C) 2004-2005 Duncan Coutts
 --
 --  This library is free software; you can redistribute it and/or
---  modify it under the terms of the GNU Library General Public
+--  modify it under the terms of the GNU Lesser General Public
 --  License as published by the Free Software Foundation; either
---  version 2 of the License, or (at your option) any later version.
+--  version 2.1 of the License, or (at your option) any later version.
 --
 --  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
---  Library General Public License for more details.
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
--- ToolItem is the base class of widgets that can be added to "Toolbar".
---
--- ToolItems are widgets that can appear on a toolbar.
---
--- * For toolbar items that contain buttons, see the 'ToolButton',
--- 'ToggleToolButton' and 'RadioToolButton' widgets.
---
--- * To create a toolbar item that contain something else than a button, use
--- 'toolItemNew'. Use 'containerAdd' to add a child widget to the tool item.
---
--- See the "Toolbar" for a description of the toolbar widget.
+-- ToolItem is the base class of widgets that can be added to a "Toolbar".
 --
 -- * Added in GTK+ 2.4
 --
-module Graphics.UI.Gtk.MenuComboToolbar.ToolItem  (
+module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
+-- * Description
+-- 
+-- | "ToolItem"s are widgets that can appear on a toolbar. To create a toolbar
+-- item that contain something else than a button, use 'toolItemNew'. Use
+-- 'containerAdd' to add a child widget to the tool item.
+--
+-- For toolbar items that contain buttons, see the "ToolButton",
+-- "ToggleToolButton" and "RadioToolButton" classes.
+--
 #if GTK_CHECK_VERSION(2,4,0)
   toolItemNew,
   toolItemSetHomogeneous,

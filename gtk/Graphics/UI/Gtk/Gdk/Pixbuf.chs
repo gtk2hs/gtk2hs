@@ -1,24 +1,28 @@
---  -*-haskell-*-
+-- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pixbuf
 --
 --  Author : Vincenzo Ciancia, Axel Simon
+--
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:17:26 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
 --
---  Copyright (c) 2002 Axel Simon
+--  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
 --  This library is free software; you can redistribute it and/or
---  modify it under the terms of the GNU Library General Public
+--  modify it under the terms of the GNU Lesser General Public
 --  License as published by the Free Software Foundation; either
---  version 2 of the License, or (at your option) any later version.
+--  version 2.1 of the License, or (at your option) any later version.
 --
 --  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
---  Library General Public License for more details.
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- 'Pixbuf's are bitmap images in memory.
 --
@@ -284,13 +288,13 @@ data InlineImage = InlineImage
 --   @echo #include \"my_image.h\" > my_image.c@
 --   gdk-pixbuf-csource --raw --extern --name=my_image myimage.png >> my_image.c
 --    on it. Write a header file @my_image.h@ containing:
---   @#include <gdk\/gdk.h>
+--   @#include <gdk\gdk.h>
 --   extern guint8 my_image\[\];@
 --    and save it in the current directory.
 --   The created file can be compiled with: 
 --   @cc -c my_image.c \`pkg-config --cflags gdk-2.0\`@
 --    into an object file which must be linked into your Haskell program by
---   specifying @my_image.o@ and @"-#include my_image.h"@ on
+--   specifying @my_image.o@ and @\"-#include my_image.h\"@ on
 --   the command line of GHC.
 --   Within you application you delcare a pointer to this image: 
 --   @foreign label \"my_image\" myImage :: Ptr InlineImage@

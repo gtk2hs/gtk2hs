@@ -1,25 +1,28 @@
---  -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget FileSel
+-- -*-haskell-*-
+--  GIMP Toolkit (GTK) Widget FileSelection
 --
 --  Author : Manuel M T Chakravarty
+--
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:37:33 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
 --
---  Copyright (c) [1999..2002] Manuel M T Chakravarty
---  Copyright (c) 2002 Jens Petersen
+--  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
 --  This library is free software; you can redistribute it and/or
---  modify it under the terms of the GNU Library General Public
+--  modify it under the terms of the GNU Lesser General Public
 --  License as published by the Free Software Foundation; either
---  version 2 of the License, or (at your option) any later version.
+--  version 2.1 of the License, or (at your option) any later version.
 --
 --  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
---  Library General Public License for more details.
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- The file selection widget is a quick and simple way to display a File
 -- dialog box.  It comes complete with Ok & Cancel buttons; optionally, it

@@ -2,24 +2,27 @@
 --  GIMP Toolkit (GTK) Widget ScrolledWindow
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:32:12 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
 --
---  Copyright (c) 1999..2002 Axel Simon
+--  Copyright (C) 1999-2005 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- 'ScrolledWindow' is a container that adds scroll bars to its child
 --
@@ -28,7 +31,6 @@
 --   moving the table part and not the titles of a table). If a widget does
 --   not support native scrolling it can be put into a 'ScrolledWindow' widget.
 --
-
 module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   ScrolledWindow,
   ScrolledWindowClass,
