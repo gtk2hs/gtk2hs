@@ -5,7 +5,7 @@
 --          
 --  Created: 4 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/01/19 19:20:47 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/25 00:33:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- |
 --
--- * Retrieve a widget by name from the global store.
+-- Retrieve a widget by name from the global store.
 --
---- DOCU ----------------------------------------------------------------------
---
---
---- TODO ----------------------------------------------------------------------
 
 module GetWidget(
   getMisc,

@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2004/05/25 00:33:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- |
 --
--- * Simplify the construction of a non-modal dialog.
+-- Simplify the construction of a non-modal dialog.
 --
---- DOCU ----------------------------------------------------------------------
---
---
---- TODO ----------------------------------------------------------------------
 
 module MDialog(
   assureDialog

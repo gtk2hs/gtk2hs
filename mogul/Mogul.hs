@@ -5,7 +5,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2003/03/10 17:07:41 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/25 00:33:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- |
 --
--- * This module re-exports all unchanged Gtk and Mogul entities.
+-- This module re-exports all unchanged Gtk and Mogul entities.
 --
---- DOCU ----------------------------------------------------------------------
---
---
---- TODO ----------------------------------------------------------------------
 
 module Mogul(
   module NewWidget,

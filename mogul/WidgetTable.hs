@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/04/15 18:02:16 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/25 00:33:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,15 +19,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- |
 --
--- * This module provides the possibility to lookup a widget by name.
---
---- DOCU ----------------------------------------------------------------------
+-- This module provides the possibility to lookup a widget by name.
 --
 -- * This module uses a global variable (unsafePerformIO is lurking).
 --
---- TODO ----------------------------------------------------------------------
 
 module WidgetTable (
   WidgetName,

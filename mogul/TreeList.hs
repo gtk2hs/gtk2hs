@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  The Monad GUI Library (Mogul): @entry Widget TreeView@
+--  The Monad GUI Library (Mogul): Widget TreeView
 --
 --  Author : Axel Simon
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2003/03/10 17:07:41 $
+--  Version $Revision: 1.10 $ from $Date: 2004/05/25 00:33:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,10 +19,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @documentation@ ------------------------------------------------------------
+-- |
 --
--- * This module provides all object for a widget displaying data organized
---   in a table. There are two flavors: A simple list organizes
+-- This module provides all object for a widget displaying data organized
+-- in a table. 
+--
+-- * There are two flavors: A simple list organizes
 --   data in rows and a tree which provides the possibility to impose a
 --   hierarchical structure on the entries of one column.
 --
@@ -36,38 +38,41 @@
 --   in the widget.
 --
 -- * The widget that displays the data and can be inserted like any other
---   into a container is called @ref data TreeView@. This widget is itself
---   a container for @ref data TreeViewColumn@s which has a title at the top
---   of the column. Each @ref data TreeViewColumn@ in turn can contain
---   several @ref data Renderer@. There are currently three
---   @ref data Renderer@, one for each of the following items: 
---   text, @ref data Pixbuf@ and @ref data ToggleButton@.
+--   into a container is called 'TreeView'. This widget is itself
+--   a container for 'TreeViewColumn's which has a title at the top
+--   of the column. Each 'TreeViewColumn' in turn can contain
+--   several 'Renderer'. There are currently three
+--   'Renderer', one for each of the following items: 
+--   text, 'Pixbuf' and 'ToggleButton'.
 --
 -- * The database is called store, specifically for simple lists it is
---   @ref data ListStore@ and for hierachical data it is called 
---   @ref data TreeStore@. A store is created from a skeleton. 
---   @ref data  Attribute@s can be added to an empty 
---   @ref data ListSkel@ or @ref data TreeSkel@ skeleton which yields
---   a functions to access the attribute and an @ref data Association@.
+--   'ListStore' and for hierachical data it is called 
+--   'TreeStore'. A store is created from a skeleton. 
+--   '' Attributes can be added to an empty 
+--   'ListSkel' or 'TreeSkel' skeleton which yields
+--   a functions to access the attribute and an 'Association'.
 --   After the skeleton is turned into a store by calling either
---   @ref constructor newListStore@ or @ref constructor newTreeStore@, 
---   @ref data Association@s can be inserted together with an appropriate
---   @ref data Renderer@ into a @ref data TreeViewColumn@.
+--   'newListStore' or 'newTreeStore', 
+--   'Association's can be inserted together with an appropriate
+--   'Renderer' into a 'TreeViewColumn'.
 --
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * Figure out if properties in the store have priority over global
 --   properties when both are set.
 --
 module TreeList(
+  -- * ListStore
   ListSkel,
   emptyListSkel,
   listSkelAddAttribute,
   newListStore,
+  -- * TreeStore
   TreeSkel,
   emptyTreeSkel,
   treeSkelAddAttribute,
   newTreeStore,
+  -- * Widget
   Association,
   Renderer,
   treeViewColumnNewText,
@@ -75,10 +80,13 @@ module TreeList(
   treeViewColumnNewToggle,
   treeViewColumnAssociate,
   treeViewGetPathAtPos,
+  -- * CellRenderer
   cellRendererSetAttribute,
   cellRendererGetAttribute,
+  -- * CellRendererText
   onEdited,
   afterEdited,  
+  -- * TreeModel
   TreePath,
   treeModelGetIter,
   treeModelGetPath
@@ -123,12 +131,10 @@ import qualified Gtk
 import LocalData	(IORef(..), newIORef, readIORef, writeIORef)
 import LocalControl	(throw, Exception(AssertionFailed))
 
--- @entry ListStore TreeModel@
-
--- @data ListSkel@ A skeleton of a @ref data ListStore@ database.
+-- | A skeleton of a 'ListStore' database.
 --
 -- * This datastructure describes what columns the database will have when
---   it is finally created by @ref constructor newListStore@.
+--   it is finally created by 'newListStore'.
 --
 newtype ListSkel = ListSkel (IORef ListSkelState)
 
@@ -136,17 +142,17 @@ data ListSkelState = LSSPrepare [TMType]
 		   | LSSActive ListStore
 
 
--- @method emptyListSkel@ Returns an empty @ref data ListSkel@.
+-- | Returns an empty 'ListSkel'.
 --
 emptyListSkel :: IO ListSkel
 emptyListSkel = liftM ListSkel (newIORef (LSSPrepare []))
 
--- @method listSkelAddAttribute@ Reserve a new column in
--- @ref data ListSkel@ to hold values for the given attribute.
+-- | Reserve a new column in
+-- 'ListSkel' to hold values for the given attribute.
 --
--- * The type of the column is determined by the given @ref data Attribute@
---   of the @ref data ViewColumn@ which should be stored here. It is possible
---   to associate this column with several @ref data ViewColumn@s.
+-- * The type of the column is determined by the given 'Attribute'
+--   of the 'ViewColumn' which should be stored here. It is possible
+--   to associate this column with several 'ViewColumn's.
 --
 listSkelAddAttribute :: CellRendererClass cr => 
 			ListSkel -> 
@@ -183,7 +189,7 @@ listSkelAddAttribute (ListSkel statusRef)
 	)
 
 
--- @constructor newListStore@ Create a new @ref data ListStore@ database.
+-- | Create a new 'ListStore' database.
 --
 -- * This method throws an exception if the skeleton has been used before.
 --
@@ -198,12 +204,11 @@ newListStore (ListSkel statusRef) = do
     LSSActive _ -> throw $ AssertionFailed 
       "Mogul.newListStore: tried to reuse a ListStore skeleton."
 
--- @entry TreeStore@
 
--- @data TreeSkel@ A skeleton of a @ref data TreeStore@ database.
+-- | A skeleton of a 'TreeStore' database.
 --
 -- * This datastructure describes what columns the database will have when
---   it is finally created by @ref constructor newTreeStore@
+--   it is finally created by 'newTreeStore'
 --
 newtype TreeSkel = TreeSkel (IORef TreeSkelState)
 
@@ -211,17 +216,17 @@ data TreeSkelState = TSSPrepare [TMType]
 		   | TSSActive TreeStore
 
 
--- @method emptyTreeSkel@ Returns an empty @ref data TreeSkel@.
+-- | Returns an empty 'TreeSkel'.
 --
 emptyTreeSkel :: IO TreeSkel
 emptyTreeSkel = liftM TreeSkel (newIORef (TSSPrepare []))
 
--- @method treeSkelAddAttribute@ Reserve a new column in
--- @ref data TreeSkel@ to hold values for the given attribute.
+-- | Reserve a new column in
+-- 'TreeSkel' to hold values for the given attribute.
 --
--- * The type of the column is determined by the given @ref data Attribute@
---   of the @ref data ViewColumn@ which should be stored here. It is possible
---   to associate this column with several @ref data ViewColumn@s.
+-- * The type of the column is determined by the given 'Attribute'
+--   of the 'ViewColumn' which should be stored here. It is possible
+--   to associate this column with several 'ViewColumn's.
 --
 treeSkelAddAttribute :: CellRendererClass r => TreeSkel -> 
 			Attribute r argTy ->
@@ -256,7 +261,7 @@ treeSkelAddAttribute (TreeSkel statusRef)
 			  mapM_ (uncurry $Gtk.treeStoreSetValue ls ti)
 	)
 
--- @constructor newTreeStore@ Create a new @ref data TreeStore@ database.
+-- | Create a new 'TreeStore' database.
 --
 -- * This method throws an exception if the skeleton has been used before.
 --
@@ -271,22 +276,20 @@ newTreeStore (TreeSkel statusRef) = do
     TSSActive _ -> throw $ AssertionFailed 
       "Mogul.newTreeStore: tried to reuse a TreeStore skeleton."
 
--- @entry Widget TreeView@
-
--- @data Association@ An abstract link between a store and a view.
+-- | An abstract link between a store and a view.
 --
 data CellRendererClass cr => Association cr = Association [String] Int
 
--- @data TextRenderer@ A renderer for text in a @ref data TreeView@.
+-- | A renderer for text in a 'TreeView'.
 --
 data CellRendererClass cr => Renderer cr = Renderer cr TreeViewColumn
 
--- @method treeViewColumnNewText@ Create a new rederer showing text.
+-- | Create a new rederer showing text.
 --
--- * There can be several @ref data Renderer@ in each 
---   @ref data TreeViewColumn@. Each @ref data Renderer@ can reflect
---   several @ref data Attributes@ from a @ref data ListStore@ or
---   @ref data TreeStore@.
+-- * There can be several 'Renderer' in each 
+--   'TreeViewColumn'. Each 'Renderer' can reflect
+--   several 'Attributes' from a 'ListStore' or
+--   'TreeStore'.
 --
 treeViewColumnNewText :: TreeViewColumn -> Bool -> Bool -> 
 			 IO (Renderer CellRendererText)
@@ -296,14 +299,13 @@ treeViewColumnNewText tvc atStart expand = do
     tvc ren expand
   return $ Renderer ren tvc
 
--- @method treeViewColumnNewPixbuf@ Create a new renderer showing a
--- @ref data Pixbuf@.
+-- | Create a new renderer showing a 'Pixbuf'.
 --
 --
--- * There can be several @ref data Renderer@ in each 
---   @ref data TreeViewColumn@. Each @ref data Renderer@ can reflect
---   several @ref data Attributes@ from a @ref data ListStore@ or
---   @ref data TreeStore@.
+-- * There can be several 'Renderer' in each 
+--   'TreeViewColumn'. Each 'Renderer' can reflect
+--   several 'Attributes' from a 'ListStore' or
+--   'TreeStore'.
 --
 treeViewColumnNewPixbuf :: TreeViewColumn -> Bool -> Bool -> 
 			   IO (Renderer CellRendererPixbuf)
@@ -313,14 +315,12 @@ treeViewColumnNewPixbuf tvc atStart expand = do
     tvc ren expand
   return $ Renderer ren tvc
 
--- @method treeViewColumnNewPixbuf@ Create a new renderer showing a
--- @ref data ToggleButton@.
+-- | Create a new renderer showing a 'ToggleButton'.
 --
---
--- * There can be several @ref data Renderer@ in each 
---   @ref data TreeViewColumn@. Each @ref data Renderer@ can reflect
---   several @ref data Attributes@ from a @ref data ListStore@ or
---   @ref data TreeStore@.
+-- * There can be several 'Renderer' in each 
+--   'TreeViewColumn'. Each 'Renderer' can reflect
+--   several 'Attributes' from a 'ListStore' or
+--   'TreeStore'.
 --
 treeViewColumnNewToggle :: TreeViewColumn -> Bool -> Bool ->
 			   IO (Renderer CellRendererToggle)
@@ -330,11 +330,10 @@ treeViewColumnNewToggle tvc atStart expand = do
     tvc ren expand
   return $ Renderer ren tvc
 
--- @method treeViewColumnAssociate@ Create a link between the store and this
--- model.
+-- | Create a link between the store and this model.
 --
--- * The results are undefined, if this @ref data TreeViewColumn@ was not
---   created with the same @ref data TreeModel@ as the @ref data Association@s.
+-- * The results are undefined, if this 'TreeViewColumn' was not
+--   created with the same 'TreeModel' as the 'Association's.
 --
 treeViewColumnAssociate :: CellRendererClass r => Renderer r -> 
 						  [Association r] -> IO ()
@@ -343,19 +342,19 @@ treeViewColumnAssociate (Renderer ren  tvc) assocs = do
   mapM_ (\(attr,col) ->
     Gtk.treeViewColumnAddAttribute tvc ren attr col) assocs'
 
--- @method treeViewGetPathAtPos@ Map a pixel to the specific cell.
+-- | Map a pixel to the specific cell.
 --
--- * Finds the path at the @ref type Point@ @ref arg (x, y)@. The
---   coordinates @literal x@ and @literal y@ are relative to the top left
---   corner of the @ref data TreeView@ drawing window. As such, coordinates
+-- * Finds the path at the 'Point' @(x, y)@. The
+--   coordinates @x@ and @y@ are relative to the top left
+--   corner of the 'TreeView' drawing window. As such, coordinates
 --   in a mouse click event can be used directly to determine the cell
 --   which the user clicked on. This is therefore a way to realize for
 --   popup menus.
 --
 -- * The returned point is the input point relative to the cell's upper
---   left corner. The whole @ref data TreeView@ is divided between all cells.
+--   left corner. The whole 'TreeView' is divided between all cells.
 --   The returned point is relative to the rectangle this cell occupies
---   within the @ref data TreeView@.
+--   within the 'TreeView'.
 --
 treeViewGetPathAtPos :: TreeViewClass tv => tv -> Point ->
 			IO (Maybe (TreePath, TreeViewColumn, Point))
@@ -368,32 +367,29 @@ treeViewGetPathAtPos tv pt = do
       path <- Gtk.treePathGetIndices realPath
       return $ Just (path, col, relPt)
 
--- @entry CellRenderer TreeView@
-
--- @method cellRendererSetAttribute@ Set an @ref data Attribute@ globally.
+-- | Set an 'Attribute' globally.
 --
--- * An @ref data Attribute@ of a @ref data Renderer@ can either be set
---   on a row-by-row basis using @ref method listSkelAddAttribute@ and
---   @ref method treeSkelAddAttribute@ or globally through this function.
+-- * An 'Attribute' of a 'Renderer' can either be set
+--   on a row-by-row basis using 'listSkelAddAttribute' and
+--   'treeSkelAddAttribute' or globally through this function.
 --   
 cellRendererSetAttribute :: CellRendererClass cr => Renderer cr ->
 						    Attribute cr val ->
 						    val -> IO ()
 cellRendererSetAttribute (Renderer ren _) = Gtk.cellRendererSet ren
 
--- @method cellRendererGetAttribute@ Get an global @ref data Attribute@.
+-- | Get an global 'Attribute'.
 --
 cellRendererGetAttribute :: CellRendererClass cr => Renderer cr ->
 						    Attribute cr val ->
 						    IO val
 cellRendererGetAttribute (Renderer ren _) = Gtk.cellRendererGet ren
 
--- @entry CellRendererText TreeView@
 
--- @signal edited@ Emitted when the user finished editing a cell.
+-- | Emitted when the user finished editing a cell.
 --
 -- * This signal is not emitted when editing is disabled (see 
---   @ref constant cellEditable@) or when the user aborts editing.
+--   'cellEditable') or when the user aborts editing.
 --
 onEdited, afterEdited :: TreeModelClass tm =>
 			 Renderer CellRendererText -> tm ->
@@ -402,17 +398,14 @@ onEdited, afterEdited :: TreeModelClass tm =>
 onEdited (Renderer ren _) = Gtk.onEdited ren
 afterEdited (Renderer ren _) = Gtk.afterEdited ren
 
--- @entry TreeModel@
-
--- @type TreePath@ A simple way of addressing nodes.
+-- | A simple way of addressing nodes.
 --
 -- These integer lists are used to address nodes in a hierarchical 
--- @ref data ListStore@ structure. 
+-- 'ListStore' structure. 
 --
 type TreePath = [Int]
 
--- @method treeModelGetIter@ Turn a @ref type TreePath@ into an abstract
--- @ref data TreeIter@ator.
+-- | Turn a 'TreePath' into an abstract 'TreeIter'ator.
 --
 treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
 treeModelGetIter _  [] = throw $ AssertionFailed "Mogul.treeModelGetIter: \
@@ -422,8 +415,7 @@ treeModelGetIter tm tp = do
   mapM_ (Gtk.treePathAppendIndex realPath) tp
   Gtk.treeModelGetIter tm realPath
 
--- @method treeModelGetPath@ Turn an abstract @ref data TreeIter@ into a
--- @ref type TreePath@.
+-- | Turn an abstract 'TreeIter' into a 'TreePath'.
 --
 treeModelGetPath :: TreeModelClass tm => tm -> TreeIter -> IO TreePath
 treeModelGetPath tm ti = do

@@ -4,7 +4,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2003/01/19 19:20:47 $
+--  Version $Revision: 1.8 $ from $Date: 2004/05/25 00:33:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -18,17 +18,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- |
 --
--- * These functions generate a new widget with a name.
---
---- DOCU ----------------------------------------------------------------------
+-- These functions generate a new widget with a name.
 --
 -- * The widget can later be lookup up by its name from the global store. As
 --   soon as the widget is destroyed it is deleted from the store. If a given
---   name is still available can be tested by the @isValidName function.
+--   name is still available can be tested by the 'isValidName' function.
 --
---- TODO ----------------------------------------------------------------------
 
 module NewWidget(
   newTextBuffer,
@@ -180,22 +177,22 @@ module NewWidget(
 import Gtk
 import WidgetTable	(WidgetName, newNamedWidget)
 
--- @see textBufferNew
+-- | see 'textBufferNew'
 --
 newTextBuffer :: Maybe TextTagTable -> IO TextBuffer
 newTextBuffer = textBufferNew
 
--- @see textTagNew
+-- | see 'textTagNew'
 --
 --newTextTag :: IO TextTag
 --newTextTag = textTagNew
 
--- @see textTagTableNew
+-- | see 'textTagTableNew'
 --
 --newTextTagTable :: IO TextTagTable
 --newTextTagTable = textTagTableNew
 
--- @see labelNew
+-- | see 'labelNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -203,12 +200,12 @@ newTextBuffer = textBufferNew
 newNamedLabel :: WidgetName -> Maybe String -> IO Label
 newNamedLabel name str = newNamedWidget name $ labelNew str
 
--- @see labelNew
+-- | see 'labelNew'
 --
 newLabel :: Maybe String -> IO Label
 newLabel = labelNew
 
--- @see accelLabelNew
+-- | see 'accelLabelNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -216,12 +213,12 @@ newLabel = labelNew
 newNamedAccelLabel :: WidgetName -> String -> IO AccelLabel
 newNamedAccelLabel name str = newNamedWidget name $ accelLabelNew str
 
--- @see accelLabelNew
+-- | see 'accelLabelNew'
 --
 newAccelLabel :: String -> IO AccelLabel
 newAccelLabel = accelLabelNew
 
--- @see arrowNew
+-- | see 'arrowNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -229,12 +226,12 @@ newAccelLabel = accelLabelNew
 newNamedArrow :: WidgetName -> ArrowType -> ShadowType -> IO Arrow
 newNamedArrow name at st = newNamedWidget name $ arrowNew at st 
 
--- @see arrowNew
+-- | see 'arrowNew'
 --
 newArrow :: ArrowType -> ShadowType -> IO Arrow
 newArrow = arrowNew
 
--- @see imageNewFromFile
+-- | see 'imageNewFromFile'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -242,12 +239,12 @@ newArrow = arrowNew
 newNamedImageFromFile :: WidgetName -> FilePath -> IO Image
 newNamedImageFromFile name fname = newNamedWidget name $ imageNewFromFile fname
 
--- @see imageNewFromFile
+-- | see 'imageNewFromFile'
 --
 newImageFromFile :: FilePath -> IO Image
 newImageFromFile fname = imageNewFromFile fname
 
--- @see alignmentNew
+-- | see 'alignmentNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -257,12 +254,12 @@ newNamedAlignment ::
 newNamedAlignment name xalign yalign xscale yscale = 
   newNamedWidget name $ alignmentNew xalign yalign xscale yscale 
 
--- @see alignmentNew
+-- | see 'alignmentNew'
 --
 newAlignment :: Float -> Float -> Float -> Float -> IO Alignment
 newAlignment = alignmentNew
 
--- @see frameNew
+-- | see 'frameNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -270,12 +267,12 @@ newAlignment = alignmentNew
 newNamedFrame :: WidgetName -> IO Frame
 newNamedFrame name = newNamedWidget name $ frameNew
 
--- @see frameNew
+-- | see 'frameNew'
 --
 newFrame :: IO Frame
 newFrame = frameNew
 
--- @see aspectFrameNew
+-- | see 'aspectFrameNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -285,12 +282,12 @@ newNamedAspectFrame ::
 newNamedAspectFrame name xalign yalign ratio = newNamedWidget name $
   aspectFrameNew xalign yalign ratio
 
--- @see aspectFrameNew
+-- | see 'aspectFrameNew'
 --
 newAspectFrame :: Float -> Float -> Maybe Float -> IO AspectFrame
 newAspectFrame = aspectFrameNew
  
--- @see buttonNew
+-- | see 'buttonNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -298,12 +295,12 @@ newAspectFrame = aspectFrameNew
 newNamedButton :: WidgetName -> IO Button
 newNamedButton name = newNamedWidget name $ buttonNew
 
--- @see buttonNew
+-- | see 'buttonNew'
 --
 newButton :: IO Button
 newButton = buttonNew
 
--- @see buttonNewWithLabel
+-- | see 'buttonNewWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -311,12 +308,12 @@ newButton = buttonNew
 newNamedButtonWithLabel :: WidgetName -> String -> IO Button
 newNamedButtonWithLabel name lbl = newNamedWidget name $ buttonNewWithLabel lbl
 
--- @see buttonNewWithLabel
+-- | see 'buttonNewWithLabel'
 --
 newButtonWithLabel :: String -> IO Button
 newButtonWithLabel lbl = buttonNewWithLabel lbl
 
--- @see buttonNewWithMnemonic
+-- | see 'buttonNewWithMnemonic'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -324,12 +321,12 @@ newButtonWithLabel lbl = buttonNewWithLabel lbl
 newNamedButtonWithMnemonic :: WidgetName -> String -> IO Button
 newNamedButtonWithMnemonic name mn = newNamedWidget name $ buttonNewWithMnemonic mn
 
--- @see buttonNewWithMnemonic
+-- | see 'buttonNewWithMnemonic'
 --
 newButtonWithMnemonic :: String -> IO Button
 newButtonWithMnemonic mn = buttonNewWithMnemonic mn
 
--- @see buttonNewFromStock
+-- | see 'buttonNewFromStock'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -337,12 +334,12 @@ newButtonWithMnemonic mn = buttonNewWithMnemonic mn
 newNamedButtonFromStock :: WidgetName -> String -> IO Button
 newNamedButtonFromStock name stock = newNamedWidget name $ buttonNewFromStock stock
 
--- @see buttonNewFromStock
+-- | see 'buttonNewFromStock'
 --
 newButtonFromStock :: String -> IO Button
 newButtonFromStock stock = buttonNewFromStock stock
 
--- @see toggleButtonNew
+-- | see 'toggleButtonNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -350,12 +347,12 @@ newButtonFromStock stock = buttonNewFromStock stock
 newNamedToggleButton :: WidgetName -> IO ToggleButton
 newNamedToggleButton name = newNamedWidget name $ toggleButtonNew
 
--- @see toggleButtonNew
+-- | see 'toggleButtonNew'
 --
 newToggleButton :: IO ToggleButton
 newToggleButton = toggleButtonNew
 
--- @see toggleButtonNewWithLabel
+-- | see 'toggleButtonNewWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -364,13 +361,13 @@ newNamedToggleButtonWithLabel :: WidgetName -> String -> IO ToggleButton
 newNamedToggleButtonWithLabel name lbl = newNamedWidget name $ 
   toggleButtonNewWithLabel lbl
 
--- @see toggleButtonNewWithLabel
+-- | see 'toggleButtonNewWithLabel'
 --
 newToggleButtonWithLabel :: String -> IO ToggleButton
 newToggleButtonWithLabel lbl = 
   toggleButtonNewWithLabel lbl
 
--- @see checkButtonNew
+-- | see 'checkButtonNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -378,12 +375,12 @@ newToggleButtonWithLabel lbl =
 newNamedCheckButton :: WidgetName -> IO CheckButton
 newNamedCheckButton name = newNamedWidget name $ checkButtonNew
 
--- @see checkButtonNew
+-- | see 'checkButtonNew'
 --
 newCheckButton :: IO CheckButton
 newCheckButton = checkButtonNew
 
--- @see checkButtonNewWithLabel
+-- | see 'checkButtonNewWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -392,12 +389,12 @@ newNamedCheckButtonWithLabel :: WidgetName -> String -> IO CheckButton
 newNamedCheckButtonWithLabel name lbl = newNamedWidget name $ 
   checkButtonNewWithLabel lbl
 
--- @see checkButtonNewWithLabel
+-- | see 'checkButtonNewWithLabel'
 --
 newCheckButtonWithLabel :: String -> IO CheckButton
 newCheckButtonWithLabel lbl = checkButtonNewWithLabel lbl
 
--- @see checkButtonNewWithMnemonic
+-- | see 'checkButtonNewWithMnemonic'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -406,12 +403,12 @@ newNamedCheckButtonWithMnemonic :: WidgetName -> String -> IO CheckButton
 newNamedCheckButtonWithMnemonic name mn = newNamedWidget name $ 
   checkButtonNewWithMnemonic mn
 
--- @see checkButtonNewWithMnemonic
+-- | see 'checkButtonNewWithMnemonic'
 --
 newCheckButtonWithMnemonic :: String -> IO CheckButton
 newCheckButtonWithMnemonic mn = checkButtonNewWithMnemonic mn
 
--- @see radioButtonNew
+-- | see 'radioButtonNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -419,12 +416,12 @@ newCheckButtonWithMnemonic mn = checkButtonNewWithMnemonic mn
 newNamedRadioButton :: WidgetName -> IO RadioButton
 newNamedRadioButton name = newNamedWidget name $ radioButtonNew
 
--- @see radioButtonNew
+-- | see 'radioButtonNew'
 --
 newRadioButton :: IO RadioButton
 newRadioButton = radioButtonNew
 
--- @see radioButtonNewWithLabel
+-- | see 'radioButtonNewWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -433,12 +430,12 @@ newNamedRadioButtonWithLabel :: WidgetName -> String -> IO RadioButton
 newNamedRadioButtonWithLabel name lbl = newNamedWidget name $ 
   radioButtonNewWithLabel lbl
 
--- @see radioButtonNewWithLabel
+-- | see 'radioButtonNewWithLabel'
 --
 newRadioButtonWithLabel :: String -> IO RadioButton
 newRadioButtonWithLabel lbl = radioButtonNewWithLabel lbl
 
--- @see radioButtonNewJoinGroup
+-- | see 'radioButtonNewJoinGroup'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -447,13 +444,13 @@ newNamedRadioButtonJoinGroup :: WidgetName -> RadioButton -> IO RadioButton
 newNamedRadioButtonJoinGroup name grp = newNamedWidget name $ 
   radioButtonNewJoinGroup grp
 
--- @see radioButtonNewJoinGroup
+-- | see 'radioButtonNewJoinGroup'
 --
 newRadioButtonJoinGroup :: RadioButton -> IO RadioButton
 newRadioButtonJoinGroup grp = 
   radioButtonNewJoinGroup grp
 
--- @see radioButtonNewJoinGroupWithLabel
+-- | see 'radioButtonNewJoinGroupWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -463,14 +460,14 @@ newNamedRadioButtonJoinGroupWithLabel ::
 newNamedRadioButtonJoinGroupWithLabel name grp lbl = newNamedWidget name $ 
   radioButtonNewJoinGroupWithLabel grp lbl
 
--- @see radioButtonNewJoinGroupWithLabel
+-- | see 'radioButtonNewJoinGroupWithLabel'
 --
 newRadioButtonJoinGroupWithLabel :: 
   RadioButton -> String -> IO RadioButton
 newRadioButtonJoinGroupWithLabel grp lbl = 
   radioButtonNewJoinGroupWithLabel grp lbl
 
--- @see optionMenuNew
+-- | see 'optionMenuNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -478,12 +475,12 @@ newRadioButtonJoinGroupWithLabel grp lbl =
 newNamedOptionMenu :: WidgetName -> IO OptionMenu
 newNamedOptionMenu name = newNamedWidget name $ optionMenuNew
 
--- @see optionMenuNew
+-- | see 'optionMenuNew'
 --
 newOptionMenu :: IO OptionMenu
 newOptionMenu = optionMenuNew
 
--- @see menuItemNew
+-- | see 'menuItemNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -491,12 +488,12 @@ newOptionMenu = optionMenuNew
 newNamedMenuItem :: WidgetName -> IO MenuItem
 newNamedMenuItem name = newNamedWidget name $ menuItemNew
 
--- @see menuItemNew
+-- | see 'menuItemNew'
 --
 newMenuItem :: IO MenuItem
 newMenuItem = menuItemNew
 
--- @see menuItemNewWithLabel
+-- | see 'menuItemNewWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -504,12 +501,12 @@ newMenuItem = menuItemNew
 newNamedMenuItemWithLabel :: WidgetName -> String -> IO MenuItem
 newNamedMenuItemWithLabel name lbl = newNamedWidget name $ menuItemNewWithLabel lbl
 
--- @see menuItemNewWithLabel
+-- | see 'menuItemNewWithLabel'
 --
 newMenuItemWithLabel :: String -> IO MenuItem
 newMenuItemWithLabel lbl = menuItemNewWithLabel lbl
 
--- @see checkMenuItemNew
+-- | see 'checkMenuItemNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -517,12 +514,12 @@ newMenuItemWithLabel lbl = menuItemNewWithLabel lbl
 newNamedCheckMenuItem :: WidgetName -> IO CheckMenuItem
 newNamedCheckMenuItem name = newNamedWidget name $ checkMenuItemNew
 
--- @see checkMenuItemNew
+-- | see 'checkMenuItemNew'
 --
 newCheckMenuItem :: IO CheckMenuItem
 newCheckMenuItem = checkMenuItemNew
 
--- @see checkMenuItemNewWithLabel
+-- | see 'checkMenuItemNewWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -531,13 +528,13 @@ newNamedCheckMenuItemWithLabel :: WidgetName -> String -> IO CheckMenuItem
 newNamedCheckMenuItemWithLabel name lbl = newNamedWidget name $ 
   checkMenuItemNewWithLabel lbl
 
--- @see checkMenuItemNewWithLabel
+-- | see 'checkMenuItemNewWithLabel'
 --
 newCheckMenuItemWithLabel :: String -> IO CheckMenuItem
 newCheckMenuItemWithLabel lbl = 
   checkMenuItemNewWithLabel lbl
 
--- @see radioMenuItemNew
+-- | see 'radioMenuItemNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -545,12 +542,12 @@ newCheckMenuItemWithLabel lbl =
 newNamedRadioMenuItem :: WidgetName -> IO RadioMenuItem
 newNamedRadioMenuItem name = newNamedWidget name $ radioMenuItemNew
 
--- @see radioMenuItemNew
+-- | see 'radioMenuItemNew'
 --
 newRadioMenuItem :: IO RadioMenuItem
 newRadioMenuItem = radioMenuItemNew
 
--- @see radioMenuItemNewWithLabel
+-- | see 'radioMenuItemNewWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -559,12 +556,12 @@ newNamedRadioMenuItemWithLabel :: WidgetName -> String -> IO RadioMenuItem
 newNamedRadioMenuItemWithLabel name lbl = newNamedWidget name $ 
   radioMenuItemNewWithLabel lbl
 
--- @see radioMenuItemNewWithLabel
+-- | see 'radioMenuItemNewWithLabel'
 --
 newRadioMenuItemWithLabel :: String -> IO RadioMenuItem
 newRadioMenuItemWithLabel lbl = radioMenuItemNewWithLabel lbl
 
--- @see radioMenuNewItemJoinGroup
+-- | see 'radioMenuNewItemJoinGroup'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -573,12 +570,12 @@ newNamedRadioMenuItemJoinGroup :: WidgetName -> RadioMenuItem -> IO RadioMenuIte
 newNamedRadioMenuItemJoinGroup name grp = newNamedWidget name $ 
   radioMenuItemNewJoinGroup grp
 
--- @see radioMenuNewItemJoinGroup
+-- | see 'radioMenuNewItemJoinGroup'
 --
 newRadioMenuItemJoinGroup :: RadioMenuItem -> IO RadioMenuItem
 newRadioMenuItemJoinGroup grp = radioMenuItemNewJoinGroup grp
 
--- @see radioMenuItemNewJoinGroupWithLabel
+-- | see 'radioMenuItemNewJoinGroupWithLabel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -588,14 +585,14 @@ newNamedRadioMenuItemJoinGroupWithLabel ::
 newNamedRadioMenuItemJoinGroupWithLabel name lbl grp = newNamedWidget name $ 
   radioMenuItemNewJoinGroupWithLabel lbl grp
 
--- @see radioMenuItemNewJoinGroupWithLabel
+-- | see 'radioMenuItemNewJoinGroupWithLabel'
 --
 newRadioMenuItemJoinGroupWithLabel :: 
   RadioMenuItem -> String -> IO RadioMenuItem
 newRadioMenuItemJoinGroupWithLabel lbl grp = 
   radioMenuItemNewJoinGroupWithLabel lbl grp
 
--- @see tearoffMenuItemNew
+-- | see 'tearoffMenuItemNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -603,12 +600,12 @@ newRadioMenuItemJoinGroupWithLabel lbl grp =
 newNamedTearoffMenuItem :: WidgetName -> IO TearoffMenuItem
 newNamedTearoffMenuItem name = newNamedWidget name $ tearoffMenuItemNew
 
--- @see tearoffMenuItemNew
+-- | see 'tearoffMenuItemNew'
 --
 newTearoffMenuItem :: IO TearoffMenuItem
 newTearoffMenuItem = tearoffMenuItemNew
 
--- @see windowNew
+-- | see 'windowNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -616,12 +613,12 @@ newTearoffMenuItem = tearoffMenuItemNew
 newNamedWindow :: WidgetName -> IO Window
 newNamedWindow name = newNamedWidget name $ windowNew
 
--- @see windowNew
+-- | see 'windowNew'
 --
 newWindow :: IO Window
 newWindow = windowNew
 
--- @see dialogNew
+-- | see 'dialogNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -629,27 +626,27 @@ newWindow = windowNew
 newNamedDialog :: WidgetName -> IO Dialog
 newNamedDialog name = newNamedWidget name $ dialogNew
 
--- @see dialogNew
+-- | see 'dialogNew'
 --
 newDialog :: IO Dialog
 newDialog = dialogNew
 
--- @see colorSelectionDialogNew
+-- | see 'colorSelectionDialogNew'
 --
 --newColorSelectionDialog :: WidgetName -> IO ColorSelectionDialog
 --newColorSelectionDialog name = newNamedWidget name $ colorSelectionDialogNew
 
--- @see fileSelectionNew
+-- | see 'fileSelectionNew'
 --
 --newFileSelection :: WidgetName -> IO FileSelection
 --newFileSelection name = newNamedWidget name $ fileSelectionNew
 
--- @see fontSelectionDialogNew
+-- | see 'fontSelectionDialogNew'
 --
 --newFontSelectionDialog :: WidgetName -> IO FontSelectionDialog
 --newFontSelectionDialog name = newNamedWidget name $ fontSelectionDialogNew
 
--- @see plugNew
+-- | see 'plugNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -657,12 +654,12 @@ newDialog = dialogNew
 --newNamedPlug :: WidgetName -> XID -> IO Plug
 --newNamedPlug name wn = newNamedWidget name $ plugNew wn
 
--- @see plugNew
+-- | see 'plugNew'
 --
 --newPlug :: XID -> IO Plug
 --newPlug = plugNew 
 
--- @see eventBoxNew
+-- | see 'eventBoxNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -670,12 +667,12 @@ newDialog = dialogNew
 newNamedEventBox :: WidgetName -> IO EventBox
 newNamedEventBox name = newNamedWidget name $ eventBoxNew
 
--- @see eventBoxNew
+-- | see 'eventBoxNew'
 --
 newEventBox :: IO EventBox
 newEventBox = eventBoxNew
 
--- @see handleBoxNew
+-- | see 'handleBoxNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -683,12 +680,12 @@ newEventBox = eventBoxNew
 newNamedHandleBox :: WidgetName -> IO HandleBox
 newNamedHandleBox name = newNamedWidget name $ handleBoxNew
 
--- @see handleBoxNew
+-- | see 'handleBoxNew'
 --
 newHandleBox :: IO HandleBox
 newHandleBox = handleBoxNew
 
--- @see scrolledWindowNew
+-- | see 'scrolledWindowNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -698,12 +695,12 @@ newNamedScrolledWindow ::
 newNamedScrolledWindow name hAdj vAdj = newNamedWidget name $ 
   scrolledWindowNew hAdj vAdj 
 
--- @see scrolledWindowNew
+-- | see 'scrolledWindowNew'
 --
 newScrolledWindow :: Maybe Adjustment -> Maybe Adjustment -> IO ScrolledWindow
 newScrolledWindow hAdj vAdj = scrolledWindowNew hAdj vAdj 
 
--- @see viewportNew
+-- | see 'viewportNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -711,12 +708,12 @@ newScrolledWindow hAdj vAdj = scrolledWindowNew hAdj vAdj
 newNamedViewport :: WidgetName -> Adjustment -> Adjustment -> IO Viewport
 newNamedViewport name hAdj vAdj = newNamedWidget name $ viewportNew hAdj vAdj 
 
--- @see viewportNew
+-- | see 'viewportNew'
 --
 newViewport :: Adjustment -> Adjustment -> IO Viewport
 newViewport hAdj vAdj = viewportNew hAdj vAdj 
 
--- @see vBoxNew
+-- | see 'vBoxNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -725,22 +722,22 @@ newNamedVBox :: WidgetName -> Bool -> Int -> IO VBox
 newNamedVBox name homogeneous spacing = newNamedWidget name $ 
   vBoxNew homogeneous spacing
 
--- @see vBoxNew
+-- | see 'vBoxNew'
 --
 newVBox :: Bool -> Int -> IO VBox
 newVBox homogeneous spacing = vBoxNew homogeneous spacing
 
--- @see colorSelectionNew
+-- | see 'colorSelectionNew'
 --
 --newColorSelection :: WidgetName -> IO colorSelection
 --newColorSelection name = newNamedWidget name $ colorSelectionNew
 
--- @see fontSelectionNew
+-- | see 'fontSelectionNew'
 --
 --newFontSelection :: WidgetName -> IO FontSelection
 --newFontSelection name = newNamedWidget name $ fontSelectionNew
 
--- @see hBoxNew
+-- | see 'hBoxNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -749,12 +746,12 @@ newNamedHBox :: WidgetName -> Bool -> Int -> IO HBox
 newNamedHBox name homogeneous spacing = newNamedWidget name $ 
   hBoxNew homogeneous spacing
 
--- @see hBoxNew
+-- | see 'hBoxNew'
 --
 newHBox :: Bool -> Int -> IO HBox
 newHBox homogeneous spacing = hBoxNew homogeneous spacing
 
--- @see comboNew
+-- | see 'comboNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -762,12 +759,12 @@ newHBox homogeneous spacing = hBoxNew homogeneous spacing
 newNamedCombo :: WidgetName -> IO Combo
 newNamedCombo name = newNamedWidget name $ comboNew
 
--- @see comboNew
+-- | see 'comboNew'
 --
 newCombo :: IO Combo
 newCombo = comboNew
 
--- @see statusbarNew
+-- | see 'statusbarNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -775,12 +772,12 @@ newCombo = comboNew
 newNamedStatusbar :: WidgetName -> IO Statusbar
 newNamedStatusbar name = newNamedWidget name $ statusbarNew
 
--- @see statusbarNew
+-- | see 'statusbarNew'
 --
 newStatusbar :: IO Statusbar
 newStatusbar = statusbarNew
 
--- @see hPanedNew
+-- | see 'hPanedNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -788,12 +785,12 @@ newStatusbar = statusbarNew
 newNamedHPaned :: WidgetName -> IO HPaned
 newNamedHPaned name = newNamedWidget name $ hPanedNew
 
--- @see hPanedNew
+-- | see 'hPanedNew'
 --
 newHPaned :: IO HPaned
 newHPaned = hPanedNew
 
--- @see vPanedNew
+-- | see 'vPanedNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -801,12 +798,12 @@ newHPaned = hPanedNew
 newNamedVPaned :: WidgetName -> IO VPaned
 newNamedVPaned name = newNamedWidget name $ vPanedNew
 
--- @see vPanedNew
+-- | see 'vPanedNew'
 --
 newVPaned :: IO VPaned
 newVPaned = vPanedNew
 
--- @see layoutNew
+-- | see 'layoutNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -815,12 +812,12 @@ newNamedLayout :: WidgetName -> Maybe Adjustment -> Maybe Adjustment -> IO Layou
 newNamedLayout name hadjustment vadjustment = newNamedWidget name $ 
   layoutNew hadjustment vadjustment
 
--- @see layoutNew
+-- | see 'layoutNew'
 --
 newLayout :: Maybe Adjustment -> Maybe Adjustment -> IO Layout
 newLayout hadjustment vadjustment = layoutNew hadjustment vadjustment
 
--- @see menuNew
+-- | see 'menuNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -828,12 +825,12 @@ newLayout hadjustment vadjustment = layoutNew hadjustment vadjustment
 newNamedMenu :: WidgetName -> IO Menu
 newNamedMenu name = newNamedWidget name $ menuNew
 
--- @see menuNew
+-- | see 'menuNew'
 --
 newMenu :: IO Menu
 newMenu = menuNew
 
--- @see menuBarNew
+-- | see 'menuBarNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -841,12 +838,12 @@ newMenu = menuNew
 newNamedMenuBar :: WidgetName -> IO MenuBar
 newNamedMenuBar name = newNamedWidget name $ menuBarNew
 
--- @see menuBarNew
+-- | see 'menuBarNew'
 --
 newMenuBar :: IO MenuBar
 newMenuBar = menuBarNew
 
--- @see notebookNew
+-- | see 'notebookNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -854,12 +851,12 @@ newMenuBar = menuBarNew
 newNamedNotebook :: WidgetName -> IO Notebook
 newNamedNotebook name = newNamedWidget name $ notebookNew
 
--- @see notebookNew
+-- | see 'notebookNew'
 --
 newNotebook :: IO Notebook
 newNotebook = notebookNew
 
--- @see socketNew
+-- | see 'socketNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -867,12 +864,12 @@ newNotebook = notebookNew
 --newNamedSocket :: WidgetName -> IO Socket
 --newNamedSocket name = newNamedWidget name $ socketNew
 
--- @see socketNew
+-- | see 'socketNew'
 --
 --newSocket :: IO Socket
 --newSocket = socketNew
 
--- @see tableNew
+-- | see 'tableNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -881,13 +878,13 @@ newNamedTable :: WidgetName -> Int -> Int -> Bool -> IO Table
 newNamedTable name rows columns homogeneous = newNamedWidget name $ 
   tableNew rows columns homogeneous
 
--- @see tableNew
+-- | see 'tableNew'
 --
 newTable :: Int -> Int -> Bool -> IO Table
 newTable rows columns homogeneous = 
   tableNew rows columns homogeneous
 
--- @see textViewNew
+-- | see 'textViewNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -895,12 +892,12 @@ newTable rows columns homogeneous =
 newNamedTextView :: WidgetName -> IO TextView
 newNamedTextView name = newNamedWidget name $ textViewNew
 
--- @see textViewNew
+-- | see 'textViewNew'
 --
 newTextView :: IO TextView
 newTextView = textViewNew
 
--- @see toolbarNew
+-- | see 'toolbarNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -908,13 +905,13 @@ newTextView = textViewNew
 newNamedToolbar :: WidgetName -> IO Toolbar
 newNamedToolbar name = newNamedWidget name toolbarNew 
 
--- @see toolbarNew
+-- | see 'toolbarNew'
 --
 newToolbar :: IO Toolbar
 newToolbar = toolbarNew
 
--- Create a new @TreeView that displays that data of a @TreeModel (which
--- may either be a @TreeStore or a @ListStore. (EXPORTED)
+-- Create a new 'TreeView' that displays that data of a 'TreeModel' (which
+-- may either be a 'TreeStore' or a 'ListStore'.
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -922,13 +919,13 @@ newToolbar = toolbarNew
 newNamedTreeView :: TreeModelClass tm => WidgetName -> tm -> IO TreeView
 newNamedTreeView name tm = newNamedWidget name $ treeViewNewWithModel tm
 
--- Create a new @TreeView that displays that data of a @TreeModel (which
--- may either be a @TreeStore or a @ListStore. (EXPORTED)
+-- Create a new 'TreeView' that displays that data of a 'TreeModel' (which
+-- may either be a 'TreeStore' or a 'ListStore'.
 --
 newTreeView :: TreeModelClass tm => tm -> IO TreeView
 newTreeView tm = treeViewNewWithModel tm
 
--- @see textViewNewWithModel
+-- | see 'textViewNewWithModel'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -938,17 +935,17 @@ newNamedTreeViewWithModel :: TreeModelClass tm => WidgetName -> tm ->
 newNamedTreeViewWithModel name tm = 
   newNamedWidget name $ treeViewNewWithModel tm
 
--- @see textViewNewWithModel
+-- | see 'textViewNewWithModel'
 --
 newTreeViewWithModel :: TreeModelClass tm => tm -> IO TreeView
 newTreeViewWithModel = treeViewNewWithModel
 
--- @see treeViewColumnNew
+-- | see 'treeViewColumnNew'
 --
 newTreeViewColumn :: IO TreeViewColumn
 newTreeViewColumn = treeViewColumnNew
 
--- @see calendarNew
+-- | see 'calendarNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -956,12 +953,12 @@ newTreeViewColumn = treeViewColumnNew
 newNamedCalendar :: WidgetName -> IO Calendar
 newNamedCalendar name = newNamedWidget name $ calendarNew
 
--- @see calendarNew
+-- | see 'calendarNew'
 --
 newCalendar :: IO Calendar
 newCalendar = calendarNew
 
--- @see drawingAreaNew
+-- | see 'drawingAreaNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -969,12 +966,12 @@ newCalendar = calendarNew
 --newNamedDrawingArea :: WidgetName -> IO DrawingArea
 --newNamedDrawingArea name = newNamedWidget name $ drawingAreaNew
 
--- @see drawingAreaNew
+-- | see 'drawingAreaNew'
 --
 --newDrawingArea :: IO DrawingArea
 --newDrawingArea = drawingAreaNew
 
--- @see entryNew
+-- | see 'entryNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -982,12 +979,12 @@ newCalendar = calendarNew
 newNamedEntry :: WidgetName -> IO Entry
 newNamedEntry name = newNamedWidget name $ entryNew
 
--- @see entryNew
+-- | see 'entryNew'
 --
 newEntry :: IO Entry
 newEntry = entryNew
 
--- @see spinButtonNew
+-- | see 'spinButtonNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -996,12 +993,12 @@ newNamedSpinButton :: String -> Adjustment -> Double -> Int -> IO SpinButton
 newNamedSpinButton name adj climbRate digits = newNamedWidget name $ 
  spinButtonNew adj climbRate digits
 
--- @see spinButtonNew
+-- | see 'spinButtonNew'
 --
 newSpinButton :: Adjustment -> Double -> Int -> IO SpinButton
 newSpinButton adj climbRate digits = spinButtonNew adj climbRate digits
 
--- @see spinButtonNewWithRange
+-- | see 'spinButtonNewWithRange'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -1011,12 +1008,12 @@ newNamedSpinButtonWithRange ::
 newNamedSpinButtonWithRange name min max step = newNamedWidget name $
   spinButtonNewWithRange min max step
 
--- @see spinButtonNewWithRange
+-- | see 'spinButtonNewWithRange'
 --
 newSpinButtonWithRange :: Double -> Double -> Double -> IO SpinButton
 newSpinButtonWithRange min max step = spinButtonNewWithRange min max step
 
--- @see hScaleNew
+-- | see 'hScaleNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -1024,12 +1021,12 @@ newSpinButtonWithRange min max step = spinButtonNewWithRange min max step
 newNamedHScale :: WidgetName -> Adjustment -> IO HScale
 newNamedHScale name adj = newNamedWidget name $ hScaleNew adj
 
--- @see hScaleNew
+-- | see 'hScaleNew'
 --
 newHScale :: Adjustment -> IO HScale
 newHScale adj = hScaleNew adj
 
--- @see vScaleNew
+-- | see 'vScaleNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -1037,12 +1034,12 @@ newHScale adj = hScaleNew adj
 newNamedVScale :: WidgetName -> Adjustment -> IO VScale
 newNamedVScale name adj = newNamedWidget name $ vScaleNew adj
 
--- @see vScaleNew
+-- | see 'vScaleNew'
 --
 newVScale :: Adjustment -> IO VScale
 newVScale adj = vScaleNew adj
 
--- @see hScrollbarNew
+-- | see 'hScrollbarNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -1050,12 +1047,12 @@ newVScale adj = vScaleNew adj
 newNamedHScrollbar :: WidgetName -> Adjustment -> IO HScrollbar
 newNamedHScrollbar name adj = newNamedWidget name $ hScrollbarNew adj
 
--- @see hScrollbarNew
+-- | see 'hScrollbarNew'
 --
 newHScrollbar :: Adjustment -> IO HScrollbar
 newHScrollbar adj = hScrollbarNew adj
 
--- @see vScrollbarNew
+-- | see 'vScrollbarNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -1063,12 +1060,12 @@ newHScrollbar adj = hScrollbarNew adj
 newNamedVScrollbar :: WidgetName -> Adjustment -> IO VScrollbar
 newNamedVScrollbar name adj = newNamedWidget name $ vScrollbarNew adj
 
--- @see vScrollbarNew
+-- | see 'vScrollbarNew'
 --
 newVScrollbar :: Adjustment -> IO VScrollbar
 newVScrollbar adj = vScrollbarNew adj
 
--- @see hSeparatorNew
+-- | see 'hSeparatorNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -1076,12 +1073,12 @@ newVScrollbar adj = vScrollbarNew adj
 newNamedHSeparator :: WidgetName -> IO HSeparator
 newNamedHSeparator name = newNamedWidget name $ hSeparatorNew
 
--- @see hSeparatorNew
+-- | see 'hSeparatorNew'
 --
 newHSeparator :: IO HSeparator
 newHSeparator = hSeparatorNew
 
--- @see vSeparatorNew
+-- | see 'vSeparatorNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -1089,12 +1086,12 @@ newHSeparator = hSeparatorNew
 newNamedVSeparator :: WidgetName -> IO VSeparator
 newNamedVSeparator name = newNamedWidget name $ vSeparatorNew
 
--- @see vSeparatorNew
+-- | see 'vSeparatorNew'
 --
 newVSeparator :: IO VSeparator
 newVSeparator = vSeparatorNew
 
--- @see progressBarNew
+-- | see 'progressBarNew'
 --
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
@@ -1102,40 +1099,40 @@ newVSeparator = vSeparatorNew
 newNamedProgressBar :: WidgetName -> IO ProgressBar
 newNamedProgressBar name = newNamedWidget name $ progressBarNew
 
--- @see progressBarNew
+-- | see 'progressBarNew'
 --
 newProgressBar :: IO ProgressBar
 newProgressBar = progressBarNew
 
--- @see adjustmentNew
+-- | see 'adjustmentNew'
 --
 newAdjustment :: Double -> Double -> Double -> Double -> Double -> Double -> 
 		 IO Adjustment
 newAdjustment value lower upper stepIncrement pageIncrement pageSize = 
   adjustmentNew value lower upper stepIncrement pageIncrement pageSize
 
--- @see iMContextNew
+-- | see 'iMContextNew'
 --
 --newIMContext :: IO iMContext
 --newIMContext = iMContextNew
 
--- @see iMMulticontextNew
+-- | see 'iMMulticontextNew'
 --
 --newIMMulticontext :: IO iMMulticontext
 --newIMMulticontext = iMMulticontextNew
 
--- @see itemFactoryNew
+-- | see 'itemFactoryNew'
 --
 --newItemFactory :: IO ItemFactory
 --newItemFactory = itemFactoryNew
 
--- @see tooltipsNew
+-- | see 'tooltipsNew'
 --
 newTooltips :: IO Tooltips
 newTooltips = tooltipsNew
 
 
--- @see name
+-- | see 'name'
 --
 newIconFactory :: IO IconFactory
 newIconFactory = iconFactoryNew
