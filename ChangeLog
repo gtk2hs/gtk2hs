@@ -1,5 +1,14 @@
 2003-11-16 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* configure.in: Force Unix library names when using ghc <6.0.
+
+	* c2hs/C/CParser.hs: Fix the parsing of __attribute__, necessary
+	for Windows.
+
+	* mk/library.mk: Uncomment the path mangeling. On Windows this
+	is still mandatory as /d/ has to be turned into d:/ when generating
+	package.conf files.
+
 	* mk/config.in, mk/library.mk, install-sh: Make sure the package
 	installs if the local install-sh script is used. Added different
 	variables for the install command, depending on what is installed.

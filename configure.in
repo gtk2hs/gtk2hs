@@ -151,6 +151,15 @@ GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 9.9.9, [
 ])
 AC_MSG_RESULT([$FOUR_WORD_CALLBACK])
 
+dnl ghc-pkg 5 searches for libxxx.a, even on Windows. Hence, we need to
+dnl create libraries with these names instead of the windows names.
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 6.0.0, [
+  SLSUFFIX=".a";
+  SLPREFIX="lib";
+  DLSUFFIX=".so";
+  DLPREFIX="lib";
+])
+
 dnl Check if this ghc uses the new hierachical module system. If so, we don't
 dnl need to depend on the "lang" or "data" package (which don't exist anymore).
 AC_MSG_CHECKING([new module system])

@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 7 March 99
 --
---  Version $Revision: 1.3 $ from $Date: 2003/01/18 17:53:59 $
+--  Version $Revision: 1.4 $ from $Date: 2003/11/16 13:30:55 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --
@@ -346,10 +346,11 @@ parseCExtDecl  = parseCDecl
 --
 parseCDecl :: CParser CDecl
 parseCDecl  = 
-  list (
       ctoken_ (CTokGnuC GnuCExtTok) `opt` ()      -- ignore GCC's __extension__
-  -*> parseCDeclSpec 
-  *-> optMaybe parseGnuCAttr			  -- ignore GCC's __attribute__
+  -*> optMaybe parseGnuCAttr
+  -*> list (
+        parseCDeclSpec *-> 
+	optMaybe parseGnuCAttr			  -- ignore GCC's __attribute__
   )*> seplist comma_ parseCInitDecl *-> semic_
   `actionAttrs`
     (\(specs, declrs) -> 
@@ -532,7 +533,7 @@ parseCEnum  =
 --
 parseCDeclr :: CParser CDeclr
 parseCDeclr  =
-      (pointer `opt` id)
+      ((pointer *-> optMaybe parseGnuCAttr) `opt` id)
   *>  base
   *>  many (flip (.)) id (arrayType <|> newStyleFun <|> oldStyleFun)
   *-> optMaybe parseGnuCAttr			  -- ignore GCC's __attribute__
