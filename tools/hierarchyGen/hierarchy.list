@@ -1,0 +1,164 @@
+# This list is the result of a copy-and-paste from the GtkObject hierarchy
+# html documentation. Deprecated widgets are uncommented. Some additional
+# object have been defined at the end of the copied list.
+
+# The Gtk prefix of every object is removed, the other prefixes are
+# kept.  The indentation implies the object hierarchy. In case the
+# type query function cannot be derived from the name or the type name
+# is different, an alternative name and type query function can be
+# specified by appending `as typename, <query_func>'.  In case this
+# function is not specified, the <name> is converted to
+# gtk_<name'>_get_type where <name'> is <name> where each upperscore
+# letter is converted to an underscore and lowerletter. The underscore
+# is omitted if an upperscore letter preceeded: GtkHButtonBox ->
+# gtk_hbutton_box_get_type. The generation of a type can be
+# conditional by appending `if <tag>'. Such types are only produces if
+# --only=<tag> is given on the command line of TypeGenerator.
+    GObject 
+        GdkDrawable 			as Drawable, gdk_drawable_get_type
+            GdkWindow		as DrawWindow, gdk_window_object_get_type
+#            GdkDrawableImplX11
+#                GdkWindowImplX11
+            GdkPixmap			as Pixmap, gdk_pixmap_get_type
+        GdkColormap			as Colormap, gdk_colormap_get_type
+        GtkSettings
+        GtkTextBuffer
+            GtkSourceBuffer	if sourceview
+        GtkTextTag
+            GtkSourceTag	if sourceview
+        GtkTextTagTable
+            GtkSourceTagTable	if sourceview
+        GtkStyle
+        GdkDragContext		as DragContext, gdk_drag_context_get_type
+        GdkPixbuf			as Pixbuf, gdk_pixbuf_get_type
+        GtkTextChildAnchor
+        GtkTextMark
+        GtkObject
+            GtkWidget
+                GtkMisc
+                    GtkLabel
+                        GtkAccelLabel
+                        GtkTipsQuery
+                    GtkArrow
+                    GtkImage
+                GtkContainer
+                    GtkBin
+                        GtkAlignment
+                        GtkFrame
+                            GtkAspectFrame
+                        GtkButton
+                            GtkToggleButton
+                                GtkCheckButton
+                                    GtkRadioButton
+                            GtkOptionMenu
+                        GtkItem
+                            GtkMenuItem
+                                GtkCheckMenuItem
+                                    GtkRadioMenuItem
+                                GtkTearoffMenuItem
+                                GtkImageMenuItem
+                            GtkListItem
+#			    GtkTreeItem
+                        GtkWindow
+                            GtkDialog
+                                GtkColorSelectionDialog
+                                GtkFileSelection
+                                GtkFontSelectionDialog
+                                GtkInputDialog
+                                GtkMessageDialog
+                            GtkPlug	if plugNsocket
+                        GtkEventBox
+                        GtkHandleBox
+                        GtkScrolledWindow
+                        GtkViewport
+                    GtkBox
+                        GtkButtonBox
+                            GtkHButtonBox
+                            GtkVButtonBox
+                        GtkVBox
+                            GtkColorSelection
+                            GtkFontSelection
+                            GtkGammaCurve
+                        GtkHBox
+                            GtkCombo
+                            GtkStatusbar
+                    GtkCList
+                        GtkCTree
+                    GtkFixed
+                    GtkPaned
+                        GtkHPaned
+                        GtkVPaned
+                    GtkLayout
+                    GtkList
+                    GtkMenuShell
+                        GtkMenu
+                        GtkMenuBar
+                    GtkNotebook
+#                    GtkPacker
+                    GtkSocket		if plugNsocket
+                    GtkTable
+                    GtkTextView
+                        GtkSourceView	if sourceview
+                    GtkToolbar
+                    GtkTreeView
+                GtkCalendar
+                GtkDrawingArea
+                    GtkCurve
+                GtkEntry
+                    GtkSpinButton
+                GtkRuler
+                    GtkHRuler
+                    GtkVRuler
+                GtkRange
+                    GtkScale
+                        GtkHScale
+                        GtkVScale
+                    GtkScrollbar
+                        GtkHScrollbar
+                        GtkVScrollbar
+                GtkSeparator
+                    GtkHSeparator
+                    GtkVSeparator
+                GtkInvisible
+#                GtkOldEditable
+#                    GtkText
+                GtkPreview
+# Progress is deprecated, ProgressBar contains everything necessary
+#                GtkProgress
+                GtkProgressBar
+            GtkAdjustment
+            GtkIMContext
+                GtkIMMulticontext
+            GtkItemFactory
+            GtkTooltips
+
+# These object were added by hand because they do not show up in the hierarchy
+# chart.
+# These are derived from GtkObject:
+	    GtkTreeViewColumn
+	    GtkCellRenderer
+		GtkCellRendererPixbuf
+		GtkCellRendererText
+#		    GtkCellRendererTextPixbuf
+		GtkCellRendererToggle
+# These are derived from GObject:
+        GtkTreeSelection
+        GtkTreeModel
+            GtkTreeStore
+            GtkListStore
+	GtkTreeModelSort
+	GtkIconFactory
+        GtkSourceLanguage		if sourceview
+        GtkSourceLanguagesManager	if sourceview
+# This now became a GObject in version 2:
+	GdkGC				as GC, gdk_gc_get_type
+# These are Pango structures
+	PangoContext		as PangoContext, pango_context_get_type
+	PangoLayout		as PangoLayout, pango_layout_get_type
+	PangoFont		as Font, pango_font_get_type
+	PangoFontFamily		as FontFamiliy, pango_font_family_get_type
+	PangoFontFace		as FontFace, pango_font_face_get_type
+	PangoFontMap		as FontMap, pango_font_face_get_type
+	PangoFontset		as FontSet, pango_fontset_get_type
+# This type is only available for PANGO_ENABLE_BACKEND compiled source
+#	    PangoFontsetSimple	as FontSetSimple, pango_fontset_simple_get_type
