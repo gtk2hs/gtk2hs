@@ -136,7 +136,7 @@ make DESTDIR=%{buildroot} install
 %clean
 rm -rf %{buildroot}
 
-%define ghcpkg_inst env pkglibdir=%{gtk2hsdir} ghc-pkg-%{ghc_version} -u -i
+%define ghcpkg_inst env pkglibdir=%{gtk2hsdir} ghc-pkg-%{ghc_version} -u -g -i
 
 %post -n gtk2hs-%{ghcver}
 %{ghcpkg_inst} %{gtk2hsdir}/gtk.pkg
@@ -159,32 +159,38 @@ rm -rf %{buildroot}
 
 %preun -n gtk2hs-%{ghcver}
 if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/{HSgtk,HSmogul}.o
   ghc-pkg-%{ghc_version} -r mogul || :
   ghc-pkg-%{ghc_version} -r gtk || :
 fi
 
 %preun gconf-%{ghcver}
 if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/HSgconf.o
   ghc-pkg-%{ghc_version} -r gconf || :
 fi
 
 %preun glade-%{ghcver}
 if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/HSglade.o
   ghc-pkg-%{ghc_version} -r glade || :
 fi
 
 %preun glib-%{ghcver}
 if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/HSglib.o
   ghc-pkg-%{ghc_version} -r glib || :
 fi
 
 %preun mozembed-%{ghcver}
 if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/HSmozembed.o
   ghc-pkg-%{ghc_version} -r mozembed || :
 fi
 
 %preun sourceview-%{ghcver}
 if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/HSsourceview.o
   ghc-pkg-%{ghc_version} -r sourceview || :
 fi
 

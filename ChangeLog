@@ -39,6 +39,9 @@
 	$(datadir)/doc/gtk2hs/html/ to just $(datadir)/doc/gtk2hs/ to conform
 	with the cabal haddock convention.
 
+	* gtk2hs.spec.in: revert to building the GHCi .o files in a
+	post-install action and removing them in a uninstall action.
+
 2005-01-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add an extra option --without-pkgreg to allow
