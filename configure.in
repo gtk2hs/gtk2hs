@@ -148,9 +148,11 @@ GHCBARE=`basename $GHC`
 GHCDIR=`dirname $GHC`
 GHCPKGNAME=ghc-pkg`echo $GHCBARE | $SED s/ghc//`
 
+echo ghc : $GHCBARE ghcdir: $GHCDIR
+
 dnl Check for ghc-pkg. Use the one that is in the same directory and
 dnl version suffix as the specified compiler.
-AC_PATH_PROGS(GHCPKG, $GHCPKGNAME ghc-pkg, ghcpkg-not-found, $GHCDIR:$PATH)
+AC_PATH_PROGS(GHCPKG, $GHCPKGNAME ghc-pkg, ghcpkg-not-found, $PATH:$GHCDIR)
 
 if test $GHCPKG = ghcpkg-not-found; then
   AC_MSG_ERROR([ghc-pkg not found. (But ghc exists!?)]);

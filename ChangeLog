@@ -1,3 +1,8 @@
+2002-07-21  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* configure.in: Corrected the search path when searching for a
+	ghc-pkg which is not in the PATH.
+	
 2002-07-19  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/windows/Window.chs: added deprecated windowSetPolicy method
