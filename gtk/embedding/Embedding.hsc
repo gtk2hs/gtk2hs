@@ -5,7 +5,7 @@
 --          
 --  Created: 20 January 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2004/05/23 17:04:07 $
+--  Version $Revision: 1.4 $ from $Date: 2004/12/09 18:25:45 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -34,7 +34,7 @@ module Embedding(
 import FFI
 
 import Hierarchy
-import Exception
+import Control.Exception
 
 #include<gtk/gtk.h>
 

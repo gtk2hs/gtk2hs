@@ -5,7 +5,7 @@
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:00:53 $
+--  Version $Revision: 1.6 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,7 +31,7 @@ module GType(
 import Monad	(liftM)
 import FFI
 
-import LocalData (unsafePerformIO)
+import Foreign (unsafePerformIO)
 
 {# context lib="glib" prefix="g" #}
 

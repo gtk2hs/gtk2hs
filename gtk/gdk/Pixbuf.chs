@@ -4,7 +4,7 @@
 --  Author : Vincenzo Ciancia, Axel Simon
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2004/07/16 15:13:00 $
+--  Version $Revision: 1.9 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -89,9 +89,9 @@ import Monad
 import Structs		(Rectangle(..))
 import GError		(GError(..), GErrorClass(..), GErrorDomain,
 			checkGError, checkGErrorWithCont)
-import LocalData	(unsafePerformIO)
-import Exception	(bracket)
-import LocalData	((.|.), shiftL)
+import Foreign		(unsafePerformIO)
+import Control.Exception(bracket)
+import Data.Bits	((.|.), shiftL)
 
 {#context prefix="gdk" #}
 

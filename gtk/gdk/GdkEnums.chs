@@ -4,7 +4,7 @@
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 15:55:36 $
+--  Version $Revision: 1.8 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) [1999..2001] Manuel M. T. Chakravarty
 --
@@ -47,7 +47,7 @@ module GdkEnums(
   Flags(fromFlags,toFlags)
   ) where
 
-import LocalData((.|.))
+import Data.Bits ((.|.))
 
 class  (Enum a, Bounded a) => Flags a where
   fromFlags ::  [a] -> Int

@@ -5,7 +5,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2004/05/23 15:58:48 $
+--  Version $Revision: 1.11 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -124,7 +124,7 @@ module StockItems(
 import Monad	(liftM)
 import FFI
 
-import LocalData(unsafePerformIO)	-- to read CStrings lazyly
+import Foreign	(unsafePerformIO)	-- to read CStrings lazyly
 import GList	(GSList, fromGSListRev)
 import Events	(Modifier)
 

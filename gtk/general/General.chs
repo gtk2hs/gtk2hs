@@ -7,7 +7,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.14 $ from $Date: 2004/08/10 14:51:46 $
+--  Version $Revision: 1.15 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -57,8 +57,8 @@ import System   (getProgName, getArgs, ExitCode(ExitSuccess, ExitFailure))
 import Monad	(liftM, mapM)
 import FFI
 
-import LocalData(newIORef, readIORef, writeIORef)
-import Exception (ioError, Exception(ErrorCall))
+import Data.IORef	 (newIORef, readIORef, writeIORef)
+import Control.Exception (ioError, Exception(ErrorCall))
 import Object	(makeNewObject)
 {#import Hierarchy#}	 
 {#import Signal#}

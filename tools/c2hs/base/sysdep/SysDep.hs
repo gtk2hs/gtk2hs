@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Derived: 11 March 1999 (from SysDepGHC3.hs)
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/28 21:19:52 $
+--  Version $Revision: 1.2 $ from $Date: 2004/12/09 18:26:03 $
 --
 --  Copyright (c) [1996..2000] Manuel M. T. Chakravarty
 --
@@ -89,16 +89,29 @@ module SysDep (
 import Ix         (Ix)
 import Monad	  (when)
 
-import IOExts	  (fixIO, unsafePerformIO,
-		   IORef, newIORef, readIORef, writeIORef,
-		   IOArray, newIOArray, boundsIOArray, readIOArray,
-		   writeIOArray, 
-		   trace)
+import Control.Monad.Fix (mfix)
+import System.IO.Unsafe  (unsafePerformIO, unsafeInterleaveIO)
+import Data.IORef	 (IORef, newIORef, readIORef, writeIORef)
+import Data.Array.IO	 (IOArray, newArray, bounds, readArray, writeArray)
+import Debug.Trace	 (trace)
 
 -- other system-dependent components
 --
 import SysDepPosix
 
+-- re-export some things with different names
+--
+fixIO :: (a -> IO a) -> IO a
+fixIO = mfix
+
+newIOArray :: Ix i => (i, i) -> e -> IO (IOArray i e)
+newIOArray = newArray
+boundsIOArray :: Ix i => IOArray i e -> (i, i)
+boundsIOArray = bounds 
+readIOArray :: Ix i => IOArray i e -> i -> IO e
+readIOArray = readArray 
+writeIOArray :: Ix i => IOArray i e -> i -> e -> IO ()
+writeIOArray = writeArray 
 
 -- UNSAFE mutable variables
 -- ------------------------

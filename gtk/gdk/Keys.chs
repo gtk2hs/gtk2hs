@@ -4,7 +4,7 @@
 --  Author : Jens Petersen
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2004/05/23 15:55:36 $
+--  Version $Revision: 1.4 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) 2002 Jens Petersen
 --
@@ -33,7 +33,7 @@ module Keys(
 
 
 import FFI
-import LocalData(unsafePerformIO)
+import Foreign (unsafePerformIO)
 
 {#context lib="libgdk" prefix ="gdk"#}
 

@@ -6,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2004/08/10 14:51:48 $
+--  Version $Revision: 1.12 $ from $Date: 2004/12/09 18:26:02 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -59,7 +59,7 @@ module TreeSelection(
   ) where
 
 import Monad	(liftM)
-import LocalData(newIORef, readIORef, writeIORef)
+import Data.IORef (newIORef, readIORef, writeIORef)
 import FFI
 
 import Object	(makeNewObject)

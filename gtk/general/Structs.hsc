@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.27 $ from $Date: 2004/08/08 19:34:14 $
+--  Version $Revision: 1.28 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -95,14 +95,14 @@ module Structs(
 import Monad		(liftM)
 import FFI
 
-import LocalData	(testBit)
+import Data.Bits	(testBit)
 import Object		(makeNewObject)
 import GObject		(makeNewGObject)
 import Hierarchy
 import GdkEnums	(Function, Fill, SubwindowMode, LineStyle, CapStyle, JoinStyle)
 import Enums	(StateType)
-import IORef
-import Exception
+import Data.IORef
+import Control.Exception
 
 #include <gtk/gtk.h>
 

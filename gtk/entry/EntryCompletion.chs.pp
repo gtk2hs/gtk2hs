@@ -45,7 +45,7 @@ module EntryCompletion (
 
 import Monad	(liftM)
 import FFI
-import LocalData (newIORef, readIORef, writeIORef)
+import Data.IORef (newIORef, readIORef, writeIORef)
 
 import GObject (makeNewGObject)
 import Object  (makeNewObject)

@@ -6,7 +6,7 @@ SignalName,
 
 import Monad	(liftM)
 import FFI
-import LocalData
+import Data.IORef
 import GObject	(objectRef, objectUnref)
 import GError   (failOnGError)
 {#import Hierarchy#}

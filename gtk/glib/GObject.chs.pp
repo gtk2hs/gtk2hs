@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 15:06:14 $
+--  Version $Revision: 1.2 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -37,7 +37,7 @@ module GObject(
 
 import Monad (liftM)
 import FFI
-import LocalData (newIORef, readIORef, writeIORef)
+import Data.IORef (newIORef, readIORef, writeIORef)
 import Hierarchy (GObjectClass, GObject(..),
                   mkGObject, toGObject, unGObject)
 import GValue (GValue)

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:16:43 $
+--  Version $Revision: 1.8 $ from $Date: 2004/12/09 18:26:02 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -34,7 +34,7 @@ import Hierarchy
 import GValue	(GValue, GenericValue(..), valueInit)
 import GValueTypes
 import GType	(GType)
-import LocalControl	(throw, Exception(AssertionFailed))
+import Control.Exception  (throw, Exception(AssertionFailed))
 
 #include <glib-object.h>
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/23 15:55:36 $
+--  Version $Revision: 1.7 $ from $Date: 2004/12/09 18:25:45 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -74,7 +74,7 @@ module Events(
 
 
 import FFI
-import LocalData((.&.))
+import Data.Bits ((.&.))
 import GdkEnums	(VisibilityState(..),
 		 CrossingMode(..),
 		 NotifyType(..),

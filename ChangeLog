@@ -1,3 +1,18 @@
+2004-12-9  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/embedding/Embedding.hsc, gtk/entry/EntryCompletion.chs.pp,
+	gtk/gdk/Events.hsc, gtk/gdk/GC.chs, gtk/gdk/GdkEnums.chs,
+	gtk/gdk/Keys.chs, gtk/gdk/Pixbuf.chs, gtk/general/FFI.hs,
+	gtk/general/General.chs, gtk/general/StockItems.hsc,
+	gtk/general/Structs.hsc, gtk/glib/GObject.chs.pp, gtk/glib/GType.chs
+	gtk/treeList/StoreValue.hsc, gtk/treeList/TreeSelection.chs,
+	gtk/treeList/TreeView.chs.pp, mogul/TreeList.hs, mogul/WidgetTable.hs,
+	tools/callbackGen/Signal.chs-boot2, tools/c2hs/base/sysdep/SysDep.hs:
+	change some import modules to use modern hierarchical modules so we no
+	longer need the LocalData or LocalControl modules, nor the data or lang
+	packages. This should still work all the way back to ghc 5.04.x, though
+	this needs testing.
+
 2004-12-8  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: fix an automake warning about underquoted definitions

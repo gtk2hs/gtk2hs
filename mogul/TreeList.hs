@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2004/05/25 00:33:35 $
+--  Version $Revision: 1.11 $ from $Date: 2004/12/09 18:26:03 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -128,8 +128,8 @@ import Gtk	hiding (
   -- TreeView
   treeViewGetPathAtPos)
 import qualified Gtk
-import LocalData	(IORef(..), newIORef, readIORef, writeIORef)
-import LocalControl	(throw, Exception(AssertionFailed))
+import Data.IORef		(IORef(..), newIORef, readIORef, writeIORef)
+import Control.Exception	(throw, Exception(AssertionFailed))
 
 -- | A skeleton of a 'ListStore' database.
 --

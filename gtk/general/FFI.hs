@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/08/10 14:51:46 $
+--  Version $Revision: 1.6 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -46,7 +46,7 @@ module FFI(
 
 import Monad	(liftM)
 import Char
-import LocalData(unsafePerformIO)
+import Foreign (unsafePerformIO)
 
 import Data.Bits
 import Foreign.C

@@ -4,7 +4,7 @@
 --  Author : Axel Simon
 --  Created: 28 September 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:55:36 $
+--  Version $Revision: 1.5 $ from $Date: 2004/12/09 18:26:01 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -65,7 +65,7 @@ module GC(
 
 import Monad	(liftM, when)
 import Maybe	(fromJust, isJust)
-import Exception(handle)
+import Control.Exception (handle)
 import FFI
 
 import GObject	(makeNewGObject)

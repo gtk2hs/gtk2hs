@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/25 00:33:35 $
+--  Version $Revision: 1.7 $ from $Date: 2004/12/09 18:26:03 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -36,9 +36,10 @@ module WidgetTable (
 import Monad	(liftM)
 import Foreign
 import FFI (foreignPtrToPtr)
-import LocalControl (MVar, newMVar, takeMVar, putMVar, readMVar)
-import LocalData  (unsafePerformIO, FiniteMap, emptyFM, addToFM, delFromFM,
-		  lookupFM, elemFM)
+import Control.Concurrent.MVar	(MVar, newMVar, takeMVar, putMVar, readMVar)
+import System.IO.Unsafe		(unsafePerformIO)
+import Data.FiniteMap		(FiniteMap, emptyFM, addToFM, delFromFM,
+				lookupFM, elemFM)
 import Object   (makeNewObject)
 import Hierarchy
 import Widget	(widgetSetName, onUnrealize)
