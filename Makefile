@@ -38,14 +38,14 @@ noinplace :
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/hello $@ 
 
-install : all
+install install-without-pkg : all
 	$(MAKE) -Cgtk  $@
 	$(MAKE) -Cmogul  $@
-	$(MAKE) -Cdemo/hello $@ 
-	$(MAKE) -Cdemo/unicode $@ 
-	$(MAKE) -Cdemo/graphic $@ 
-	$(MAKE) -Cdemo/treeList $@ 
-	$(MAKE) -Cdemo/concurrent $@ 
+	$(MAKE) -Cdemo/hello install
+	$(MAKE) -Cdemo/unicode install
+	$(MAKE) -Cdemo/graphic install
+	$(MAKE) -Cdemo/treeList install
+	$(MAKE) -Cdemo/concurrent install
 
 uninstall :
 	$(MAKE) -Cmogul  $@
