@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:40:33 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/05 18:13:42 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -33,6 +33,9 @@ module System.Glib.UTFString (
   peekUTFStringLen,
   readUTFString,
   readCString,
+  withUTFStrings,
+  withUTFStringArray,
+  withUTFStringArray0,
   ) where
 
 import Monad	(liftM)
@@ -86,6 +89,29 @@ readCString strPtr = do
   str <- peekCString strPtr
   free (castPtr strPtr)
   return str
+
+-- Temporarily allocate a list of UTF-8 Strings.
+--
+withUTFStrings :: [String] -> ([CString] -> IO a) -> IO a
+withUTFStrings hsStrs = withUTFStrings' hsStrs []
+  where withUTFStrings' :: [String] -> [CString] -> ([CString] -> IO a) -> IO a
+        withUTFStrings' []     cs body = body (reverse cs)
+        withUTFStrings' (s:ss) cs body = withUTFString s $ \c ->
+                                         withUTFStrings' ss (c:cs) body
+
+-- Temporarily allocate an array of UTF-8 Strings.
+--
+withUTFStringArray :: [String] -> (Ptr CString -> IO a) -> IO a
+withUTFStringArray hsStr body =
+  withUTFStrings hsStr $ \cStrs -> do
+  withArray cStrs body
+
+-- Temporarily allocate a null-terminated array of UTF-8 Strings.
+--
+withUTFStringArray0 :: [String] -> (Ptr CString -> IO a) -> IO a
+withUTFStringArray0 hsStr body =
+  withUTFStrings hsStr $ \cStrs -> do
+  withArray0 nullPtr cStrs body
 
 -- Convert Unicode characters to UTF-8.
 --
