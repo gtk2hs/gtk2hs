@@ -175,7 +175,7 @@ DISTCLEANFILES+= tools_c2hs_c2hsLocal.deps
 libgtk2hs_a_NAME = libgtk2hs.a
 $(libgtk2hs_a_NAME) : NAME = libgtk2hs_a
 
-libgtk2hs_a_PACKAGE		= gtk2hs
+libgtk2hs_a_PACKAGE		= gtk/gtk2hs.pkg
 libgtk2hs_a_PACKAGEDEPS		= data
 libgtk2hs_a_HEADER 		= gtk/gtk.h
 libgtk2hs_a_PRECOMP		= gtk/gtk.precomp

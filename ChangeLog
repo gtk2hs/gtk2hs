@@ -1,11 +1,10 @@
 2004-12-01 Axel Simon <A.Simon@kent.ac.uk> 
 
-	* Makefile.am: Renamed the package back to gtk2hs.
-
 	* gtk/menuComboToolbar/Toolbar.chs.pp: Removed two slashes that
 	confused haddock.
 
-	* mk/common.mk: Removed a bogus variable during linking.
+	* mk/common.mk: Build the package with the correct name, not the
+	name of the package file. Removed a bogus variable during linking.
 	
 2004-11-28 Axel Simon <A.Simon@kent.ac.uk> 
 

@@ -18,7 +18,7 @@ LINK = 	$(strip $(HC) -o $@ $($(NAME)_HCFLAGS) \
 	@echo Building for $(NAME)
 	$(strip $(HC) -c $< -o $@ $($(NAME)_HCFLAGS) -i$(VPATH) \
 	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-	$(addprefix -package-name ,$($(NAME)_PACKAGE)) \
+	$(addprefix -package-name ,$(notdir $(basename $($(NAME)_PACKAGE)))) \
 	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
 	$($(NAME)_HEADER))) \
 	$(AM_CPPFLAGS) $($(NAME)_CPPFLAGS))
