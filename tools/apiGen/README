@@ -2,7 +2,7 @@ The tool in this directory are to semi-automatically generate binding modules
 complete with haddock format documentation for all gtk modules. With a little
 modification it should work for any other GObject-based api.
 
-It works by extracting an api description from the C headder files and
+It works by extracting an api description from the C source files and
 extracting documentation from the docbook documentation produced by gtk-doc.
 
 It is semi-automatic in the sense that the resulting binding module will need
@@ -24,39 +24,25 @@ Some things that may need to be edited by hand:
     in Haskell. Code samples should be converted for example.
 
 == For users: ==
-At the moment you will need to edit the gen-all.sh script and adjust the
-DOCBOOKDIR and HEADDERS variables to your system.
+There is a Makefile to automate much of the process. Type just "make" to get a
+list of make targets and a brief description.
 
-The HEADDERS variable should be a list of .h headder files to scan and generate
-bindings for. It is probably better to use the installed headder files since
-there are many private headder files in the gtk source directory.
+There are a few stages that the Makefile helps to automate:
+* downloading and unpacking the source code for the right versions of packages
+* configuring and building each package and their DocBook documentation
+* running the tools that scan the various files and generate .chs modules
 
-The DOCBOOKDIR should be a directory containing docbook xml files coresponding
-to the HEADDERS. The gen-all.sh script will look for an $FOO.xml file for every
-$FOO.h file in HEADDERS. To generate the docbook format documentation you will
-need to build (but not install) a version of gtk (preferably the same version
-as the .h files came from). The gtk+-$VER/docs/reference/gtk/xml directory is
-where the docbook files end up for gtk (there is also gdk and gtk-pixbuf).
-
-The documentation is optional. If no docbook xml file is found the binding file
-will still be generated but without any haddock documentation.
-
-When this is done just run
-./gen-all.sh
-The final .chs binding files are put in the modules/ directory.
-Intermediate api description files and documentation files are left under api/
-and doc/.
+You will libxslt installed (since that provides the program "xsltproc")
 
 == For hackers: ==
 There are a few components to the system:
 
-There are a couple perl scripts written by the mono/gtk-sharp authors. These
-extract information from GObject-based .h files and generate xml descriptions.
-To read these files you may want to build the gapi_format_xml tool also from
-the gtk-sharp source tree. The xml files assume an object oreinted target
-language (C#) but it does preserve all the information ok. These scripts are
-GPL so should probably not be distributed in tarballs, just left in cvs.
-Besides they're just gtk2hs hacker tools.
+There are a few perl scripts written by the mono/gtk-sharp authors. These
+extract information from GObject-based .h & .c files and generate xml
+descriptions. The xml files assume an object oreinted target language (C#) but
+it does preserve all the information ok. These scripts are GPL so should
+probably not be distributed in tarballs, just left in cvs. Besides they're
+just gtk2hs hacker tools.
 
 There is an XSLT program to extract per function documentation from docbook xml
 files into a more convenient format. It is pretty specific to the format of
@@ -70,6 +56,4 @@ they bind.
 
 Some improvements that would be good:
  * Complete marshaling code for more types
- * Emit top level module documentation, including:
-    - object heirarchy
  * Emit signal and property bindings with documentation

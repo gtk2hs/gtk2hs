@@ -17,6 +17,8 @@
 	tools/apiGen/pango-sources.xml, tools/apiGen/glade-sources.xml: add
 	gapi-parser input files for an initial set of modules.
 
+	* tools/apiGen/README: update the description and intructions.
+
 2005-01-23 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, mk/common.mk: Resurrect dependency generation under
