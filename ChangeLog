@@ -173,6 +173,14 @@
 	gconf/System/Gnome/GConf/GConfClient.chs: fixup names of imported
 	modules.
 
+	* tools/hierarchyGen/TypeGen.hs: Do not generate top of hierarchy, ie
+	GObject. Let it be imported instead. This allows it to me moved to the
+	glib package.
+	
+	* tools/hierarchyGen/Hierarchy.chs.template: fixup names of imported
+	modules. Also castToGObject will be imported so need not be defined
+	locally.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add

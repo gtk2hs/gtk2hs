@@ -91,7 +91,7 @@ indent c = ss ("\n"++replicate (2*c) ' ')
 
 main = do
   args <- getArgs
-  when (length args<2) usage
+  when (length args<3) usage
 
   -----------------------------------------------------------------------------
   -- Parse command line parameters
@@ -230,6 +230,7 @@ makeOrd fill (obj:preds) = indent 1.ss "compare ".ss obj.ss "Tag ".
 			  ss " = GT".makeGT obj eds
 
 makeClass :: String -> TypeTable -> [String] -> ShowS
+makeClass prefix table (name:[])      = id
 makeClass prefix table (name:parents) =
   indent 0.ss "-- ".ss (replicate (75-length name) '*').sc ' '.ss name.
   indent 0.
@@ -247,9 +248,7 @@ makeClass prefix table (name:parents) =
   indent 0.ss "mk".ss name.ss " = ".ss name.
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".
   indent 0.
-  (if null parents
-     then indent 0.ss "class ".ss name.ss "Class o"
-     else indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o").
+  indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".
   indent 0.ss "to".ss name.ss "   :: ".ss name.ss "Class o => o -> ".ss name.
   indent 0.ss "to".ss name.ss "   = unsafeCoerce#".
   indent 0.ss "from".ss name.ss " :: ".ss name.ss "Class o => ".ss name.ss " -> o".
@@ -264,8 +263,6 @@ makeInstance name (par:ents) =
   indent 0.ss "instance ".ss par.ss "Class ".ss name.
   makeInstance name ents
 
- 
-  
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
 templateSubstitute template varSubst = doSubst template 
   where doSubst [] = id

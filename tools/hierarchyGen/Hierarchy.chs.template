@@ -24,16 +24,13 @@ module @MODULE_NAME@ (
 @MODULE_EXPORTS@
   ) where
 
-import FFI	(ForeignPtr, castForeignPtr, foreignPtrToPtr,
-                 CULong, withForeignPtr)
-import GType    (typeInstanceIsA)
-import GHC.Base (unsafeCoerce#)
+import System.Glib.FFI		(ForeignPtr, castForeignPtr, foreignPtrToPtr,
+                                 CULong, withForeignPtr)
+import System.Glib.GType	(typeInstanceIsA)
+import GHC.Base			(unsafeCoerce#)
 @IMPORT_PARENT@
 
 {#context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
-
-castToGObject :: GObjectClass obj => obj -> obj
-castToGObject = id
 
 -- The usage of foreignPtrToPtr should be safe as the evaluation will only be
 -- forced if the object is used afterwards
