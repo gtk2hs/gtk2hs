@@ -1,3 +1,8 @@
+2004-04-16 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/layout/Notebook.chs: added ifdef's for compatibility
+	with gtk 2.4 as well as 2.2 & 2.0
+
 2004-04-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* modul/WidgetTable.hs: added import of FFI (foreignPtrToPtr)
