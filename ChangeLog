@@ -1,3 +1,28 @@
+2005-03-23 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/glib.cabal.in, gtk/gtk.cabal.in, mogul/mogul.cabal.in,
+	glade/glade.cabal.in, sourceview/sourceview.cabal.in,
+	gconf/gconf.cabal.in, mozembed/mozembed.cabal.in: add new cabal
+	package file templates.
+
+	* configure.ac: bump version to make it clear we're in a development
+	mode (we can no longer use _pre since cabal does not like that as a
+	version number). Add test for cabal support (ghc >= 6.4). Add
+	*.cabal.in files to the list of files that need substitution in
+	AC_OUTPUT.
+
+	* acinclude.m4: modify the way the flags are formatted depending on
+	whether USE_CABAL is set. The old package format used " quotes around
+	elements in string lists, the new cabal package format does not.
+
+	* Makefile.am: use $(PKGEXT) to specify which package file to use, the
+	.cabal one or the .pkg one. Add -ignore-package glib when compiling
+	modules in each package (conditionally on USE_CABAL) since otheriwse
+	if the package is already installed the compilation would fail. Modify
+	the package registering code. Use sed to substitute for ${pkglibdir}
+	since ghc-pkg no longer does substitution. Also substitute for
+	${modules} the list of modules in the package.
+
 2005-03-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: temporary fix for building with GHC 6.4. Temporary
