@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2003/01/18 18:16:51 $
+--  Version $Revision: 1.14 $ from $Date: 2003/02/09 10:43:01 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -84,7 +84,8 @@ module Structs(
   priorityHigh,
   nullForeignPtr,
   drawingAreaGetDrawWindow,
-  drawingAreaGetSize
+  drawingAreaGetSize,
+  pangoScale
   ) where
 
 import Monad		(liftM)
@@ -634,3 +635,16 @@ drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
     return (fromIntegral width, fromIntegral height)
 
 
+-- @entry pangoLayout@
+
+-- @constant pangoScale@ Internal unit of measuring sizes.
+--
+-- * The @ref constant pangoScale@ constant represents the scale between
+--   dimensions used for distances in text rendering and device units. (The
+--   definition of device units is dependent on the output device; it will
+--   typically be pixels for a screen, and points for a printer.)  When
+--   setting font sizes, device units are always considered to be points
+--   (as in "12 point font"), rather than pixels.
+--
+pangoScale :: Int
+pangoScale = #const PANGO_SCALE

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GList@
+--  GIMP Toolkit (GTK)
 --
 --  Author : Axel Simon
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/03 20:35:44 $
+--  Version $Revision: 1.5 $ from $Date: 2003/02/09 10:43:01 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 -- * Define functions to extract data from a GList and to produce a GList from
 --   a list of pointers.
 --
+-- * Define functions to extract data from a GSList.
+--
 -- @documentation@ ------------------------------------------------------------
 --
 --
@@ -32,7 +34,8 @@
 module GList(
   GList,
   ptrToInt,
-  fromGList
+  fromGList,
+  readGSList
   ) where
 
 import Monad	(liftM)
@@ -61,13 +64,22 @@ fromGList glist = do
   where
     extractList gl xs
       | gl==nullPtr = do
-	{#call unsafe list_free#} gl
+	{#call unsafe list_free#} glist
 	return xs
       | otherwise	   = do
 	x <- {#get GList.data#} gl
 	gl' <- {#call unsafe list_delete_link#} gl gl
 	extractList gl' ((castPtr x):xs)
 
+-- Turn a GSList into a list of pointers but don't destroy the list.
+--
+readGSList :: GList -> IO [Ptr a]
+readGSList gslist | gslist==nullPtr = return []
+		  | otherwise	    = do
+    x <- {#get GSList->data#} gslist
+    gslist <- {#get GSList->next#} gslist
+    xs <- readGSList gslist
+    return (castPtr x:xs)
 
 -- Convert an Int into a pointer.
 --

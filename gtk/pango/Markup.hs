@@ -4,7 +4,7 @@
 --          
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.5 $ from $Date: 2003/02/09 10:43:01 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,10 +23,10 @@
 -- * This module defines some helper functions for generating texts with
 --   embedded attributes.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * Add a numeric value to @ref data FontWeightDef@.
 --
@@ -45,8 +45,8 @@ module Markup(
 
 -- @type Markup@ Define a synonym for text with embedded markup commands.
 --
--- * Markup strings are just simple strings. But its easier to tell if a
---   method expecs text with or without markup.
+-- * Markup strings are just simple strings. But it's easier to tell if a
+--   method expects text with or without markup.
 --
 type Markup = String
 

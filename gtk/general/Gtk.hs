@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2003/01/19 19:20:46 $
+--  Version $Revision: 1.13 $ from $Date: 2003/02/09 10:43:01 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -162,7 +162,12 @@ module Gtk(
 #endif
   -- non-widgets
   module Hierarchy,
-  ConnectId
+  ConnectId,
+
+  -- pango modules
+  module Markup,
+  module PangoLayout,
+  module Rendering
   ) where
 
 -- general things, initialization
@@ -297,3 +302,8 @@ import Socket
 -- non widgets
 import Hierarchy	(toCellRenderer)
 import Signal		(ConnectId)
+
+-- pango modules
+import Markup
+import PangoLayout
+import Rendering
