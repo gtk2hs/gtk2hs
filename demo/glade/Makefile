@@ -8,4 +8,6 @@ APPNAME = gladeDemo
 
 NEEDPACKAGES = gtk2 glade
 
+EXTRA_TARFILES += simple.glade
+
 include $(TOP)/mk/common.mk
