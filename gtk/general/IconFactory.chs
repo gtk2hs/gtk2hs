@@ -6,7 +6,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/23 15:58:48 $
+--  Version $Revision: 1.7 $ from $Date: 2004/08/03 02:58:26 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -37,10 +37,15 @@ module IconFactory(
   iconFactoryNew,
   iconFactoryAdd,
   iconFactoryAddDefault,
+  iconFactoryLookup,
+  iconFactoryLookupDefault,
   iconFactoryRemoveDefault,
   IconSet,
   iconSetNew,
+  iconSetNewFromPixbuf,
   iconSetAddSource,
+  iconSetRenderIcon,
+  iconSetGetSizes,
   IconSource,
   iconSourceNew,
   TextDirection(..),
@@ -49,11 +54,12 @@ module IconFactory(
   iconSourceResetDirection,
   iconSourceGetFilename,
   iconSourceSetFilename,
+  iconSourceGetPixbuf,
+  iconSourceSetPixbuf,
   iconSourceGetSize,
   iconSourceSetSize,
   iconSourceResetSize,
   StateType(..),
-  iconSourceGetState,
   iconSourceGetState,
   iconSourceSetState,
   iconSourceResetState,
@@ -103,6 +109,33 @@ iconFactoryAdd i stockId iconSet = withUTFString stockId $ \strPtr ->
 iconFactoryAddDefault :: IconFactory -> IO ()
 iconFactoryAddDefault  = {#call unsafe icon_factory_add_default#}
 
+-- | Looks up the stock id in the icon factory, returning an icon set if found,
+-- otherwise Nothing.
+--
+-- * For display to the user, you should use 'styleLookupIconSet' on the "Style"
+-- for the widget that will display the icon, instead of using this function
+-- directly, so that themes are taken into account.
+--
+iconFactoryLookup :: IconFactory -> String -> IO (Maybe IconSet)
+iconFactoryLookup i stockId =
+  withUTFString stockId $ \strPtr -> do
+  iconSetPtr <- {#call unsafe icon_factory_lookup#} i strPtr
+  if iconSetPtr == nullPtr then return Nothing else liftM (Just . IconSet) $
+    newForeignPtr iconSetPtr (icon_set_unref iconSetPtr)
+
+-- | Looks for an icon in the list of default icon factories.
+--
+-- * For display to the user, you should use 'styleLookupIconSet' on the "Style"
+-- for the widget that will display the icon, instead of using this function
+-- directly, so that themes are taken into account.
+--
+iconFactoryLookupDefault :: String -> IO (Maybe IconSet)
+iconFactoryLookupDefault stockId =
+  withUTFString stockId $ \strPtr -> do
+  iconSetPtr <- {#call unsafe icon_factory_lookup_default#} strPtr
+  if iconSetPtr == nullPtr then return Nothing else liftM (Just . IconSet) $
+    newForeignPtr iconSetPtr (icon_set_unref iconSetPtr)
+
 -- | Create a new IconFactory.
 --
 -- * An application should create a new 'IconFactory' and add all
@@ -131,6 +164,17 @@ iconFactoryRemoveDefault  = {#call unsafe icon_factory_remove_default#}
 iconSetAddSource :: IconSet -> IconSource -> IO ()
 iconSetAddSource set source = {#call unsafe icon_set_add_source#} set source
 
+iconSetRenderIcon :: WidgetClass widget => IconSet
+                  -> TextDirection
+                  -> StateType
+                  -> IconSize
+                  -> widget
+                  -> IO Pixbuf
+iconSetRenderIcon set dir state size widget = makeNewGObject mkPixbuf $
+  {#call icon_set_render_icon#} set (Style nullForeignPtr)
+    ((fromIntegral.fromEnum) dir) ((fromIntegral.fromEnum) state)
+    ((fromIntegral.fromEnum) size) (toWidget widget) nullPtr
+
 -- | Create a new IconSet.
 --
 -- * Each icon in an application is contained in an 'IconSet'. The
@@ -141,6 +185,29 @@ iconSetNew :: IO IconSet
 iconSetNew  = do
   isPtr <- {#call unsafe icon_set_new#}
   liftM IconSet $ newForeignPtr isPtr (icon_set_unref isPtr)
+
+-- | Creates a new 'IconSet' with the given pixbuf as the default\/fallback
+-- source image. If you don't add any additional "IconSource" to the icon set,
+-- all variants of the icon will be created from the pixbuf, using scaling,
+-- pixelation, etc. as required to adjust the icon size or make the icon look
+-- insensitive\/prelighted.
+--
+iconSetNewFromPixbuf :: Pixbuf -> IO IconSet
+iconSetNewFromPixbuf pixbuf = do
+  isPtr <- {#call unsafe icon_set_new_from_pixbuf#} pixbuf
+  liftM IconSet $ newForeignPtr isPtr (icon_set_unref isPtr)
+
+-- | Obtains a list of icon sizes this icon set can render.
+--
+iconSetGetSizes :: IconSet -> IO [IconSize]
+iconSetGetSizes set =
+  alloca $ \sizesArrPtr -> alloca $ \lenPtr -> do
+  {#call unsafe icon_set_get_sizes#} set sizesArrPtr lenPtr
+  len <- peek lenPtr
+  sizesArr <- peek sizesArrPtr
+  list <- peekArray (fromIntegral len) sizesArr
+  {#call unsafe g_free#} (castPtr sizesArr)
+  return $ map (toEnum.fromIntegral) list
 
 #if __GLASGOW_HASKELL__>=600
 
@@ -300,6 +367,21 @@ iconSourceResetDirection is =
 iconSourceSetFilename :: IconSource -> FilePath -> IO ()
 iconSourceSetFilename is name = 
   withUTFString name $ {#call unsafe icon_source_set_filename#} is
+
+-- | Retrieves the source pixbuf, or Nothing if none is set.
+--
+iconSourceGetPixbuf :: IconSource -> IO (Maybe Pixbuf)
+iconSourceGetPixbuf is = do
+  pixbufPtr <- {#call unsafe icon_source_get_pixbuf#} is
+  if pixbufPtr==nullPtr then return Nothing else liftM Just $
+    makeNewGObject mkPixbuf (return pixbufPtr)
+
+-- | Sets a pixbuf to use as a base image when creating icon variants for
+-- 'IconSet'.
+--
+iconSourceSetPixbuf :: IconSource -> Pixbuf -> IO ()
+iconSourceSetPixbuf is pb = do
+  {#call icon_source_set_pixbuf#} is pb
 
 -- | Set this 'IconSource' to a specific
 -- size.

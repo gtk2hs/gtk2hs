@@ -7,6 +7,15 @@
 
 	* tools/apicoverage/gtk.ignore: add a few more APIs to ignore.
 
+	* gtk/buttons/ToggleButton.chs, gtk/buttons/RadioButton.chs,
+	gtk/display/AccelLabel.chs, gtk/general/IconFactory.chs,
+	gtk/menuComboToolbar/CheckMenuItem.chs,
+	gtk/menuComboToolbar/RadioMenuItem.chs:	add missing functions. Also
+	tidy up documentation a bit.
+
+	* gtk/menuComboToolbar/api.ignore: exclude deprecated and internal
+	radio_menu_item and toolbar functions.
+
 2004-08-1  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/entry/SpinButton.chs, gtk/layout/Table.chs, gtk/layout/Layout.chs

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:50:26 $
+--  Version $Revision: 1.6 $ from $Date: 2004/08/03 02:58:25 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -33,7 +33,8 @@ module AccelLabel(
   AccelLabelClass,
   castToAccelLabel,
   accelLabelNew,
-  accelLabelSetAccelWidget
+  accelLabelSetAccelWidget,
+  accelLabelGetAccelWidget
   ) where
 
 import Monad	(liftM)
@@ -61,3 +62,11 @@ accelLabelSetAccelWidget :: (AccelLabelClass acl, WidgetClass w) => acl -> w ->
 accelLabelSetAccelWidget acl w = {#call accel_label_set_accel_widget#}
   (toAccelLabel acl) (toWidget w)
 
+-- | Fetches the widget monitored by this accelerator label, or Nothing if it
+-- has not bee set.
+--
+accelLabelGetAccelWidget :: AccelLabelClass acl => acl -> IO (Maybe Widget)
+accelLabelGetAccelWidget acl = do
+  wPtr <- {#call unsafe accel_label_get_accel_widget#} (toAccelLabel acl)
+  if wPtr==nullPtr then return Nothing else liftM Just $
+    makeNewObject mkWidget (return wPtr)

@@ -6,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/07/30 16:38:54 $
+--  Version $Revision: 1.8 $ from $Date: 2004/08/03 02:58:26 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -34,6 +34,7 @@ module CheckMenuItem(
   checkMenuItemNewWithMnemonic,
   checkMenuItemSetActive,
   checkMenuItemGetActive,
+  checkMenuItemToggled,
   checkMenuItemSetInconsistent,
   checkMenuItemGetInconsistent
 #if GTK_CHECK_VERSION(2,4,0)
@@ -86,6 +87,12 @@ checkMenuItemSetActive mi active = {#call check_menu_item_set_active#}
 checkMenuItemGetActive :: CheckMenuItemClass mi => mi -> IO Bool
 checkMenuItemGetActive mi =
   liftM toBool $ {#call unsafe check_menu_item_get_active#} (toCheckMenuItem mi)
+
+-- | Emits the toggled signal.
+--
+checkMenuItemToggled :: CheckMenuItemClass mi => mi -> IO ()
+checkMenuItemToggled mi =
+  {#call check_menu_item_toggled#} (toCheckMenuItem mi)
 
 -- | Set the state of the menu item check to \`inconsistent'.
 --

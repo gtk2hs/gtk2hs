@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:48:35 $
+--  Version $Revision: 1.6 $ from $Date: 2004/08/03 02:58:25 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -41,8 +41,15 @@ module RadioButton(
   castToRadioButton,
   radioButtonNew,
   radioButtonNewWithLabel,
+  radioButtonNewWithMnemonic,
   radioButtonNewJoinGroup,
-  radioButtonNewJoinGroupWithLabel
+  radioButtonNewJoinGroupWithLabel,
+  radioButtonNewJoinGroupWithMnemonic,
+
+  -- * Compatibilty aliases
+  radioButtonNewFromWidget,
+  radioButtonNewWithLabelFromWidget,
+  radioButtonNewWithMnemonicFromWidget
   ) where
 
 import Monad	(liftM)
@@ -56,23 +63,29 @@ import Object	(makeNewObject)
 
 -- methods
 
--- | Create a new RadioButton widget with a new
--- group.
+-- | Create a new RadioButton widget with a new group.
 --
 radioButtonNew :: IO RadioButton
 radioButtonNew  = makeNewObject mkRadioButton $ liftM castPtr $
   {#call unsafe radio_button_new#} nullPtr
 
--- | Like 'RadioButton' but shows a
--- label to the right of the button.
+-- | Like 'radioButtonNew' but shows a label to the right of the button.
 --
 radioButtonNewWithLabel :: String -> IO RadioButton
 radioButtonNewWithLabel lbl = withUTFString lbl $ \strPtr -> 
   makeNewObject mkRadioButton $ liftM castPtr $
   {#call unsafe radio_button_new_with_label#} nullPtr strPtr
 
--- | Creates a new RadioButton and attaches it
--- to the group of another radio button.
+-- | Like 'radioButtonNew' but shows a label to the right of the button.
+-- Underscores in the label string indicate the mnemonic for the menu item.
+--
+radioButtonNewWithMnemonic :: String -> IO RadioButton
+radioButtonNewWithMnemonic lbl = withUTFString lbl $ \strPtr -> 
+  makeNewObject mkRadioButton $ liftM castPtr $
+  {#call unsafe radio_button_new_with_mnemonic#} nullPtr strPtr
+
+-- | Creates a new RadioButton and attaches it to the group of another radio
+-- button.
 --
 -- * This function corresponds to gtk_radio_button_new_from_widget. The new
 --   name makes more sense because we do not handle any other grouping
@@ -82,11 +95,27 @@ radioButtonNewJoinGroup :: RadioButton -> IO RadioButton
 radioButtonNewJoinGroup rb = makeNewObject mkRadioButton $ liftM castPtr $
   {#call radio_button_new_from_widget#} rb
 
--- | Create a new RadioButton with a
--- label and group.
+-- | Create a new RadioButton with a label and group.
 --
 radioButtonNewJoinGroupWithLabel :: RadioButton -> String -> IO RadioButton
 radioButtonNewJoinGroupWithLabel rb lbl = withUTFString lbl $ \strPtr ->
   makeNewObject mkRadioButton $ liftM castPtr $
   {#call radio_button_new_with_label_from_widget#} rb strPtr
 
+-- | Create a new RadioButton with a label and group. Underscores in the label
+-- string indicate the mnemonic for the menu item.
+--
+radioButtonNewJoinGroupWithMnemonic :: RadioButton -> String -> IO RadioButton
+radioButtonNewJoinGroupWithMnemonic rb lbl = withUTFString lbl $ \strPtr ->
+  makeNewObject mkRadioButton $ liftM castPtr $
+  {#call radio_button_new_with_mnemonic_from_widget#} rb strPtr
+
+
+-- | Alias for 'radioButtonNewJoinGroup'.
+radioButtonNewFromWidget = radioButtonNewJoinGroup
+
+-- | Alias for 'radioButtonNewJoinGroupWithLabel'.
+radioButtonNewWithLabelFromWidget = radioButtonNewJoinGroupWithLabel
+
+-- | Alias for 'radioButtonNewJoinGroupWithMnemonic'.
+radioButtonNewWithMnemonicFromWidget = radioButtonNewJoinGroupWithMnemonic
