@@ -28,32 +28,66 @@
 <arg><xsl:value-of select="."/></arg>
 </xsl:template>
 
+<xsl:template match="para[not(example) and not(informalexample)]">
+<para><xsl:apply-templates/></para>
+</xsl:template>
+
+<xsl:template match="para[informalexample]">
+<para><xsl:apply-templates select="node()[name()!='informalexample']"/></para>
+<xsl:apply-templates select="informalexample"/>
+</xsl:template>
+
+<xsl:template match="para[example]">
+<para><xsl:apply-templates select="node()[name()!='example']"/></para>
+<xsl:apply-templates select="example"/>
+</xsl:template>
+
+<xsl:template match="varlistentry">
+<definition>
+	<term><xsl:value-of select="term"/></term>
+	<xsl:apply-templates select="listitem/para/child::node()"/>
+</definition>
+</xsl:template>
+
+<xsl:template match="itemizedlist/listitem/para">
+<listitem><xsl:apply-templates/></listitem>
+</xsl:template>
+
+<xsl:template match="section | refsect2">
+<section>
+	<title><xsl:value-of select="title"/></title>
+	<xsl:apply-templates select="para | programlisting | example"/>
+</section>
+</xsl:template>
+
+<xsl:template match="example">
+<example>
+	<title><xsl:value-of select="title"/></title>
+	<xsl:apply-templates select="para | programlisting"/>
+</example>
+</xsl:template>
+
+<xsl:template match="programlisting">
+<programlisting><xsl:value-of select="."/></programlisting>
+</xsl:template>
+
+<xsl:template match="footnote"></xsl:template>
+
 <xsl:template match="/">
   <apidoc>
   <module>
     <name><xsl:value-of select="/book/refentry/refnamediv/refname"/></name>
     <summary><xsl:value-of select="/book/refentry/refnamediv/refpurpose"/></summary>
     <description>
-      <xsl:for-each select="/book/refentry/refsect1[title='Description']/para">
-        <para><xsl:apply-templates/></para>
+      <xsl:for-each select="/book/refentry/refsect1[title='Description']">
+        <xsl:apply-templates select="para | section | refsect2"/>
       </xsl:for-each>
     </description>
-    <extra-sections>
-      <xsl:for-each select="/book/refentry/refsect1[title='Description']/section">
-        <section>
-            <title><xsl:value-of select="title"/></title>
-          <xsl:for-each select="para | programlisting">
-            <xsl:if test="name()='para'">
-              <para><xsl:apply-templates/></para>
-            </xsl:if>
-            <xsl:if test="name()='programlisting'">
-              <xsl:copy-of select="."/>
-            </xsl:if>
-          </xsl:for-each>
-        </section>
+    <object-hierarchy>
+      <xsl:for-each select="/book/refentry/refsect1[title='Object Hierarchy']/synopsis">
+        <xsl:copy-of select="text() | link"/>
       </xsl:for-each>
-    </extra-sections>
-    <object-hierarchy></object-hierarchy>
+    </object-hierarchy>
   </module>
   <xsl:for-each select="/book/refentry/refsect1[title='Details']/refsect2[contains(title,' ()')]">
     <function>
@@ -62,10 +96,7 @@
                <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
       </since>
       <doc>
-	 <xsl:for-each select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']">
-	    <!--<xsl:copy-of select="."/>-->
-	    <para><xsl:apply-templates/></para>
-	 </xsl:for-each>
+	<xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
       </doc>
     </function>
   </xsl:for-each>

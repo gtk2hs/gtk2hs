@@ -1,7 +1,7 @@
 #!/bin/bash
 
-DOCBOOKDIR=../apicoverage/tars/gtk+-2.4.13/docs/reference/gtk/xml
-HEADDERS=/usr/include/gtk-2.0/gtk/*.h
+DOCBOOKDIR=../apicoverage/tars/gtk+-2.6.1/docs/reference/gtk/xml
+HEADDERS=../apicoverage/tars/image/usr/local/include/gtk-2.0/gtk/*.h
 
 mkdirhier doc api modules
 echo > modules/missing_docs
@@ -14,7 +14,7 @@ do
 	DOCFILE=doc/$(basename ${HEADDER%.h}).xml
 	echo Processing $HEADDER
 	
-	./gapi_pp.pl $HEADDER | ./gapi2xml.pl Gtk $APIFILE gtk+ >> /dev/null || exit
+	./gapi_pp.pl $HEADDER | ./gapi2xml.pl Gtk $APIFILE gtk >> /dev/null || exit
 #	./gapi_format_xml $APIFILE.tmp $APIFILE || exit
 #	rm  $APIFILE.tmp
 

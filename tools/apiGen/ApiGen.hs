@@ -162,18 +162,18 @@ extractConstructor _ = Nothing
 -------------------------------------------------------------------------------
 
 data ApiDoc = ApiDoc {
-    apidoc_name :: String,
-    apidoc_summary :: String,
-    apidoc_description :: [DocPara],
-    apidoc_extrasections :: [DocSection],
-    apidoc_functions :: [FuncDoc]
+    apidoc_name :: String,                 -- these docs apply to this object
+    apidoc_summary :: String,              -- a one line summary
+    apidoc_description :: [DocPara],       -- the main description
+    apidoc_sections :: [DocSection],       -- any additional titled subsections
+    apidoc_functions :: [FuncDoc]          -- documentation for each function
   }
 
 noApiDoc = ApiDoc {
     apidoc_name = "",
     apidoc_summary = "",
     apidoc_description = [],
-    apidoc_extrasections = [],
+    apidoc_sections = [],
     apidoc_functions = []
   }
 
@@ -188,8 +188,12 @@ data FuncDoc = FuncDoc {
     funcdoc_since :: Maybe String	-- which version of the api the
   }					-- function is avaliable from, eg "2.4"
 
-data DocPara = TextPara [DocParaSpan]
-             | ProgramListing String
+data DocPara =
+    DocParaText [DocParaSpan]           -- an ordinary word-wrapped paragraph
+  | DocParaProgram String               -- a verbatum section
+  | DocParaExample String String        -- a verbatum section with a title
+  | DocParaDefItem String [DocParaSpan] -- a definition list item
+  | DocParaListItem [DocParaSpan]       -- a itemisted list item
 
 data DocParaSpan = DocText String       -- just simple text
                  | DocFuncXRef String   -- cross reference to a function name
@@ -210,14 +214,18 @@ extractDocModuleinfo
   (Xml.CElem (Xml.Elem "module" []
     [Xml.CElem (Xml.Elem "name" [] name)
     ,Xml.CElem (Xml.Elem "summary" [] summary)
-    ,Xml.CElem (Xml.Elem "description" [] paras)
-    ,Xml.CElem (Xml.Elem "extra-sections" [] sections)
+    ,Xml.CElem (Xml.Elem "description" [] parasAndSections)
     ,Xml.CElem (Xml.Elem "object-hierarchy" [] _)]
-  )) = ApiDoc {
+  )) = 
+  let (paras, sections) = span (\elem ->
+        case elem of
+          Xml.CElem (Xml.Elem "section" _ _) -> False
+          _ -> True) parasAndSections
+   in ApiDoc {
     apidoc_name = Xml.verbatim name,
     apidoc_summary = Xml.verbatim summary,
-    apidoc_description = map extractDocPara paras,
-    apidoc_extrasections = map extractDocSection sections,
+    apidoc_description = concatMap extractDocPara paras,
+    apidoc_sections = map extractDocSection sections,
     apidoc_functions = undefined
   }
 
@@ -228,7 +236,7 @@ extractDocSection
     :paras))) =
   DocSection {
     section_title = title,
-    section_paras = map extractDocPara paras
+    section_paras = concatMap extractDocPara paras
   }
 extractDocSection other = error $ "extractDocSection: " ++ Xml.verbatim other
 
@@ -244,16 +252,51 @@ extractDocFunc
 		[Xml.CString _ since] -> Just since
    in FuncDoc {
           funcdoc_name = name,
-	  funcdoc_paragraphs = map extractDocPara paras,
+	  funcdoc_paragraphs = concatMap extractDocPara paras,
 	  funcdoc_since = since
         }
   
-extractDocPara :: Xml.Content -> DocPara
+extractDocPara :: Xml.Content -> [DocPara]
 extractDocPara (Xml.CElem elem@(Xml.Elem "para" [] _)) =
   case Xml.xmlUnEscape Xml.stdXmlEscaper elem of
-    (Xml.Elem _ [] spans) -> TextPara (map extractDocParaSpan spans)
-extractDocPara (Xml.CElem (Xml.Elem "programlisting" _ [Xml.CString _ listing])) =
-  ProgramListing listing
+    (Xml.Elem _ [] spans) -> extractDocPara' spans
+extractDocPara (Xml.CElem (Xml.Elem "programlisting" _ content)) =
+  let listing = concat [ str | (Xml.CString _ str) <- content ] in
+  [DocParaProgram listing]
+extractDocPara (Xml.CElem (Xml.Elem "example" _
+                 [Xml.CElem (Xml.Elem "title" [] [Xml.CString _ title])
+                 ,(Xml.CElem (Xml.Elem "programlisting" _ content))])) =
+  let listing = concat [ str | (Xml.CString _ str) <- content ] in                 
+  [DocParaExample title listing]
+{-extractDocPara (Xml.CElem (Xml.Elem "example" _
+                 [Xml.CElem (Xml.Elem "title" [] [Xml.CString _ title])
+                 ,(Xml.CElem (Xml.Elem "programlisting" _ other))])) = error $ "extractDocPara: example1:\n" ++ Prelude.unlines (map ((++ "\n\n\nFOOBAR\n\n\n") . Xml.verbatim) other) ++ "\n len = " ++ show (length other)
+extractDocPara (Xml.CElem (Xml.Elem "example" _ other)) = error $ "extractDocPara: example2:\n" ++ Xml.verbatim other ++ "\n len = " ++ show (length other)-}
+extractDocPara other = error $ "extractDocPara: " ++ Xml.verbatim other
+
+extractDocPara' :: [Xml.Content] -> [DocPara]
+extractDocPara' = reconstructParas [] . map extractDocParaOrSpan
+  where reconstructParas :: [DocParaSpan] -> [Either DocParaSpan DocPara] -> [DocPara]
+        reconstructParas []    [] = []
+        reconstructParas spans [] = [DocParaText (reverse spans)]
+        reconstructParas spans (Left  span:rest) = reconstructParas (span:spans) rest
+        reconstructParas []    (Right para:rest) = para : reconstructParas [] rest
+        reconstructParas spans (Right para:rest) = DocParaText (reverse spans)
+                                                 : para : reconstructParas [] rest
+
+extractDocParaOrSpan :: Xml.Content -> Either DocParaSpan DocPara 
+extractDocParaOrSpan (Xml.CElem (Xml.Elem "listitem" [] content)) =
+  Right $ DocParaListItem (map extractDocParaSpan content)
+extractDocParaOrSpan (Xml.CElem (Xml.Elem "definition" []
+                       (Xml.CElem (Xml.Elem "term" [] [Xml.CString _ term])
+                       :content))) =
+  Right $ DocParaDefItem term (map extractDocParaSpan content)
+extractDocParaOrSpan (Xml.CElem (Xml.Elem "programlisting" _ content)) =
+  let listing = concat [ str | (Xml.CString _ str) <- content ] in
+  Right $ DocParaProgram listing
+extractDocParaOrSpan content@(Xml.CElem   _  ) = Left $ extractDocParaSpan content
+extractDocParaOrSpan content@(Xml.CString _ _) = Left $ extractDocParaSpan content
+extractDocParaOrSpan other = error $ "extractDocParaOrSpan: " ++ Xml.verbatim other
 
 extractDocParaSpan :: Xml.Content -> DocParaSpan
 extractDocParaSpan (Xml.CString _ text) = DocText text
@@ -266,6 +309,7 @@ extractDocParaSpan (Xml.CElem (Xml.Elem tag [] content)) =
     "emphasis"   -> DocEmphasis text
     "literal"    -> DocLiteral text
     "arg"        -> DocArg text
+    other -> error $ "extractDocParaSpan: other tag " ++ tag
 extractDocParaSpan other = error $ "extractDocParaSpan: " ++ Xml.verbatim other
  
 -------------------------------------------------------------------------------
@@ -279,9 +323,9 @@ genModuleDocumentation apidoc =
      else comment.ss "* Description".nl.
           comment.nl.
           comment.ss "| ".haddocFormatParas (apidoc_description apidoc).nl).
-  (if null (apidoc_extrasections apidoc)
+  (if null (apidoc_sections apidoc)
      then id
-     else nl.comment.haddocFormatSections (apidoc_extrasections apidoc).nl.comment)
+     else nl.comment.haddocFormatSections (apidoc_sections apidoc).nl.comment)
 
 addVersionParagraphs :: NameSpace -> ApiDoc -> ApiDoc
 addVersionParagraphs namespace apiDoc =
@@ -296,7 +340,7 @@ addVersionParagraphs namespace apiDoc =
                      funcdoc_paragraphs = funcdoc_paragraphs funcdoc ++
                        let line = "Available since " ++ namespace_name namespace
                               ++ " version " ++ fromJust (funcdoc_since funcdoc)
-                        in [TextPara [DocText line]]
+                        in [DocParaText [DocText line]]
                    }
               else funcdoc
           | funcdoc <- funcdocs ]
@@ -307,7 +351,7 @@ addVersionParagraphs namespace apiDoc =
             Just since ->
               let line = "Module available since " ++ namespace_name namespace
                       ++ " version " ++ since
-               in [TextPara [DocText line]]
+               in [DocParaText [DocText line]]
   
         -- figure out if the whole module appeared in some version of gtk later 
         -- than the original version
@@ -331,19 +375,33 @@ haddocFormatParas =
   . map haddocFormatPara
 
 haddocFormatPara :: DocPara -> ShowS
-haddocFormatPara (TextPara spans) =
-    sepBy' "\n-- "
-  . map (sepBy " ")
-  . wrapText 77
-  . words
-  . concatMap haddocFormatSpan
-  $ spans
-haddocFormatPara (ProgramListing prog) =
+haddocFormatPara (DocParaText spans) = haddocFormatSpans spans
+haddocFormatPara (DocParaProgram prog) =
     ((ss "* FIXME: port the follwing code example from C to Haskell or remove it".nl.
       comment).)
   . sepBy "\n-- > "
   . List.lines
   $ prog
+haddocFormatPara (DocParaExample title prog) =
+    ((ss "* ". ss title.nl.
+      comment).)
+  . sepBy "\n-- > "
+  . List.lines
+  $ prog
+haddocFormatPara (DocParaDefItem term spans) =
+  sc '['. ss term. sc ']'.
+  haddocFormatSpans spans
+haddocFormatPara (DocParaListItem spans) =
+  ss "* ".
+  haddocFormatSpans spans
+
+haddocFormatSpans :: [DocParaSpan] -> ShowS
+haddocFormatSpans =
+    sepBy' "\n-- "
+  . map (sepBy " ")
+  . wrapText 77
+  . words
+  . concatMap haddocFormatSpan
 
 haddocFormatSpan :: DocParaSpan -> String
 haddocFormatSpan (DocText text)    = escapeHaddockSpecialChars text
@@ -378,7 +436,7 @@ escapeHaddockSpecialChars = escape
 
 -- wraps a list of words to lines of words
 wrapText :: Int -> [String] -> [[String]]
-wrapText width = wrap 0 []
+wrapText width = wrap 3 []
   
   where wrap :: Int -> [String] -> [String] -> [[String]]
         wrap col line (word:words) | col + length word + 1 > width = reverse line : wrap 0 [] (word:words)
@@ -394,7 +452,7 @@ genFunction object method doc =
   formattedDoc.
   ss functionName. ss " :: ". functionType. nl.
   ss functionName. sc ' '. sepBy " " paramNames. ss " =".
-  indent 1. body. nl
+  indent 1. body
 
   where functionName = lowerCaseFirstChar (method_name method)
 	(classConstraints', paramTypes', paramMarshalers) =
@@ -418,6 +476,12 @@ genFunction object method doc =
           Nothing -> ss "-- | \n-- \n"
           Just doc -> ss "-- | ". haddocFormatParas (funcdoc_paragraphs doc). nl.
                       comment. nl
+
+genModuleBody :: Object -> ApiDoc -> ShowS
+genModuleBody object apiDoc =
+  doVersionIfDefs (sepBy' "\n\n") $
+     genConstructors object (apidoc_functions apiDoc)
+  ++ genMethods object (apidoc_functions apiDoc)
 
 genMethods :: Object -> [FuncDoc] -> [(ShowS, Maybe FuncDoc)]
 genMethods object apiDoc = 
@@ -478,13 +542,13 @@ genExports :: Object -> [FuncDoc] -> ShowS
 genExports object docs =
   nl.
   comment.ss "* Constructors".nl.
-  doVersionIfDefs
+  doVersionIfDefs lines
     [ (ss "  ". ss (lowerCaseFirstChar (method_name constructor)). sc ',', doc)
     | (constructor, doc) <- constructors object docs].
   nl.
   nl.
   comment.ss "* Methods".nl.
-  doVersionIfDefs
+  doVersionIfDefs lines
     [ (ss "  ". ss (lowerCaseFirstChar (method_name method)). sc ',', doc)
     | (method, doc) <- methods object docs]
 
@@ -504,8 +568,8 @@ genTodoItems object =
              ss "TODO: the following varargs functions were not bound\n".
              lines (map (ss "-- * ".) varargsFunctions)
 
-doVersionIfDefs :: [(ShowS, Maybe FuncDoc)] -> ShowS
-doVersionIfDefs =
+doVersionIfDefs :: ([ShowS] -> ShowS) -> [(ShowS, Maybe FuncDoc)] -> ShowS
+doVersionIfDefs lines =
     lines
   . map (\group -> sinceVersion (snd (head group))
                                 (lines (map fst group)))
@@ -700,8 +764,7 @@ main = do
 	"IMPORTS"        -> ss "-- CHECKME: extra imports may be required\n"
 	"CONTEXT_LIB"    -> ss (if null lib then namespace_library namespace else lib)
 	"CONTEXT_PREFIX" -> ss (if null prefix then namespace_library namespace else  prefix)
-	"MODULE_BODY"    -> doVersionIfDefs (genConstructors object (apidoc_functions apiDoc')
-                                          ++ genMethods object (apidoc_functions apiDoc'))
+	"MODULE_BODY"    -> genModuleBody object apiDoc'
 	_ -> ss ""
     ) "") [ (namespace, object)
           | namespace <- api

@@ -22,7 +22,7 @@
 -- Stability   : provisional
 -- Portability : non-portable (uses gtk+ C library)
 --
--- @DESCRIPTION@ @TODO@
+-- @DESCRIPTION@@TODO@
 --
 module @MODULE_NAME@ (
 @DOCUMENTATION@
@@ -30,9 +30,9 @@ module @MODULE_NAME@ (
   ) where
 
 import Monad (liftM)
-import Foreign
-import Foreign.C
+
+import System.Glib.FFI
 @IMPORTS@
-{#context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
+{# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
 
 @MODULE_BODY@

@@ -1,5 +1,19 @@
 2005-01-09 Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* tools/apiGen/format-docs.xsl: nicer code and more comprehensively
+	deal with various sorts of paragrahps, lists, sections and examples.
+
+	* tools/apiGen/ApiGen.hs: deal with more complicated formatting,
+	definition lists, itemised lists, subsections, inline and titled
+	program listing examples.
+
+	* tools/apiGen/gen-all.sh: now works with the latest version of gtk
+
+	* tools/apiGen/Template.chs: import System.Glib.FFI rather than
+	Foreign, also a couple cosmetic improvements.
+
+2005-01-09 Duncan Coutts <duncan@coutts.uklinux.net>
+
 	* tools/apiGen/format-docs.xsl: fix generation of function version
 	numbers when they have no version given.
 
