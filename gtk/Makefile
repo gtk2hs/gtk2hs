@@ -166,11 +166,7 @@ NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
 	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter \
 	  gdk/Region
 
-ifneq (x$(NEW_MODULE_SYS),xyes)
-NEEDPACKAGES = data lang
-else
 NEEDPACKAGES = data
-endif
 
 # options that are needed when compiling this or with this package:
 EXTRAHC_FLAGS = -fglasgow-exts 

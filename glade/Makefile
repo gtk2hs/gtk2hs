@@ -30,11 +30,7 @@ EXTRA_CPPFLAGS	= $(LIBGLADE_CFLAGS)
 
 EXTRA_LIBS	= $(LIBGLADE_LIBS)
 
-ifeq ($(strip $(NEW_MODULE_SYS)),yes)
 NEEDPACKAGES = gtk2
-else
-NEEDPACKAGES = gtk2 lang data
-endif
 
 EXTRA_CHSFILES	+=  GladeType.chs
 TYPE_TAGS += libglade

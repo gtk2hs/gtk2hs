@@ -37,11 +37,7 @@ EXTRA_CPPFLAGS	= $(SOURCEVIEW_CFLAGS)
 
 EXTRA_LIBS	= $(SOURCEVIEW_LIBS)
 
-ifeq ($(strip $(NEW_MODULE_SYS)),yes)
 NEEDPACKAGES = gtk2
-else
-NEEDPACKAGES = gtk2 lang data
-endif
 
 EXTRA_CHSFILES	+=  SourceViewType.chs
 TYPE_TAGS += sourceview

@@ -119,13 +119,13 @@ AC_ARG_WITH(hcflags,
 
 
 
-dnl Check for GHC-5.02 or greater.
+dnl Check for GHC-5.04 or greater.
 dnl (The next command is not executed, if $HC is already set.)
 AC_PATH_PROG(HC, [$HC ghc], ghc-not-found)
 if test $HC = ghc-not-found; then
  AC_MSG_ERROR([
 Could not find GHC!  This is the only supported compiler.
-You need GHC 5.02 upwards.])
+You need GHC 5.04 upwards.])
 fi
 
 GHC=$HC
@@ -135,8 +135,8 @@ AC_MSG_CHECKING([version of GHC])
 GHC_VERSION=`$GHC --version | $SED "s/[[a-zA-Z ,]*\([0-9.]*\)[a-zA-Z ]]*/\1/"`
 AC_MSG_RESULT([$GHC_VERSION])
 
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.2, [
-  AC_MSG_ERROR([I need the FFI of GHC 5.02 upwards!])])
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.4, [
+  AC_MSG_ERROR([I need the FFI of GHC 5.04 upwards!])])
 
 dnl Calculate a version number with 3 digits (i.e. 502 for 5.2)
 GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/[[0-9]*\.\([0-9]]*\).*/0\1/"`
@@ -163,13 +163,6 @@ GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 6.0.0, [
   DLSUFFIX=".so";
   DLPREFIX="lib";
 ])
-
-dnl Check if this ghc uses the new hierachical module system. If so, we don't
-dnl need to depend on the "lang" or "data" package (which don't exist anymore).
-AC_MSG_CHECKING([new module system])
-NEW_MODULE_SYSTEM=no;
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 5.04.0,[NEW_MODULE_SYSTEM=yes;]);
-AC_MSG_RESULT([$NEW_MODULE_SYSTEM])
 
 GHCBARE=`basename $GHC`
 GHCDIR=`dirname $GHC`
@@ -542,7 +535,6 @@ AC_SUBST(TOP)
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(FOUR_WORD_CALLBACK)
-AC_SUBST(NEW_MODULE_SYSTEM)
 AC_SUBST(GHCPKG_LISTLOCAL)
 AC_SUBST(LOCALPKGCONF)
 AC_SUBST(HCFLAGS)

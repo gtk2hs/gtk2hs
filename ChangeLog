@@ -1,4 +1,10 @@
-2004-08-4  Duncan Coutts <duncan@coutts.uklinux.net>
+2004-08-6  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.in, mk/config.mk.in, gtk/Makefile, mogul/Makefile,
+	glade/Makefile, sourceview/Makefile: drop support for ghc 5.02.x.
+	the minimum version required is now 5.04.x.
+
+2004-08-5  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/treeList/TreeView.chs, gtk/multiline/TextTag.chs,
 	gtk/multiline/TextTagTable.chs, gtk/multiline/TextView.chs: add missing
