@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/08 13:22:46 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/08 16:50:00 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -62,6 +62,7 @@ cellRendererTextNew  = makeNewObject mkCellRendererText $ liftM castPtr $
 
 -- helper function
 --
+strAttr :: String -> Attribute CellRendererText String
 strAttr str = Attribute str TMstring
 	        (return.GVstring)
 		(\(GVstring str) -> return str)
@@ -69,26 +70,23 @@ strAttr str = Attribute str TMstring
 -- @method cellText@ Define the attribute that specifies the text to be
 -- rendered.
 --
-cellText :: Attribute rendererText String
+cellText :: Attribute CellRendererText String
 cellText  = strAttr "text"
 
 -- @method cellMarkup@ Define a markup string instead of a text.
 --
-cellMarkup :: Attribute rendererText String
+cellMarkup :: Attribute CellRendererText String
 cellMarkup  = strAttr "markup"
 
 -- @method cellBackground@ A named color for the background paint.
 --
-cellBackground :: Attribute rendererText String
+cellBackground :: Attribute CellRendererText String
 cellBackground  = strAttr "background"
 
 -- @method cellForeground@ A named color for the foreground paint.
 --
-cellForeground :: Attribute rendererText String
+cellForeground :: Attribute CellRendererText String
 cellForeground  = strAttr "foreground"
 
 
 
-
-
--- Define the markup

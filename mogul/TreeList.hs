@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 13:22:47 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/08 16:50:00 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -66,11 +66,9 @@ module TreeList(
   treeSkelAddAttribute,
   newTreeStore,
   Association,
-  TextRenderer,
+  Renderer,
   treeViewColumnNewText,
-  PixbufRenderer,
   treeViewColumnNewPixbuf,
-  ToggleRenderer,
   treeViewColumnNewToggle,
   treeViewColumnAssociate,
   TreePath,
@@ -107,10 +105,7 @@ import Gtk	hiding (
   treeStoreNew,
   treeStoreSetValue,
   -- TreeViewColumn
-  treeViewColumnAddAttribute,
-  CellRendererText,
-  CellRendererPixbuf,
-  CellRendererToggle)
+  treeViewColumnAddAttribute)
 import qualified Gtk
 import IOExts	(IORef(..), newIORef, readIORef, writeIORef)
 import Exception(throw, Exception(AssertionFailed))
@@ -139,7 +134,8 @@ emptyListSkel = liftM ListSkel (newIORef (LSSPrepare []))
 --   @ViewColumn which should be stored here. It is possible to associate
 --   this column with several @ViewColumn@s.
 --
-listSkelAddAttribute :: RendererClass cr => ListSkel -> 
+listSkelAddAttribute :: CellRendererClass cr => 
+			ListSkel -> 
 			Attribute cr argTy ->
 			IO (Association cr,
 			    TreeIter -> IO argTy,
@@ -208,7 +204,7 @@ emptyTreeSkel = liftM TreeSkel (newIORef (TSSPrepare []))
 --   @ViewColumn which should be stored here. It is possible to associate
 --   this column with several @ViewColumn@s.
 --
-treeSkelAddAttribute :: RendererClass r => TreeSkel -> 
+treeSkelAddAttribute :: CellRendererClass r => TreeSkel -> 
 			Attribute r argTy ->
 			IO (Association r,
 			    TreeIter -> IO argTy,
@@ -255,60 +251,35 @@ newTreeStore (TreeSkel statusRef) = do
 
 -- @data Association@ An abstract link between a store and a view.
 --
-data RendererClass cr => Association cr = Association String Int
-
-
--- @class RendererClass@
-class RendererClass r where
-  getCellRenderer :: r -> CellRenderer
-  getTreeViewCol  :: r -> TreeViewColumn
+data CellRendererClass cr => Association cr = Association String Int
 
 -- @data TextRenderer@ A renderer for text in a @ref type TreeView@.
 --
-data TextRenderer = TextRenderer Gtk.CellRendererText TreeViewColumn
+data CellRendererClass cr => Renderer cr = Renderer cr TreeViewColumn
 
-instance RendererClass TextRenderer where
-  getCellRenderer (TextRenderer ren _) = Gtk.toCellRenderer ren
-  getTreeViewCol  (TextRenderer _ tree) = tree
-
--- @data PixbufRenderer@ A renderer for a bitmap in a @ref type TreeView@.
---
-data PixbufRenderer = PixbufRenderer Gtk.CellRendererPixbuf TreeViewColumn
-
-instance RendererClass PixbufRenderer where
-  getCellRenderer (PixbufRenderer ren _) = Gtk.toCellRenderer ren
-  getTreeViewCol  (PixbufRenderer _ tree) = tree
-
--- @data ToggleRenderer@ A Renderer for a toggle siwtch in a 
--- @ref type TreeView@.
---
-data ToggleRenderer = ToggleRenderer Gtk.CellRendererToggle TreeViewColumn
-
-instance RendererClass ToggleRenderer where
-  getCellRenderer (ToggleRenderer ren _) = Gtk.toCellRenderer ren
-  getTreeViewCol  (ToggleRenderer _ tree) = tree
-
-
-treeViewColumnNewText :: TreeViewColumn -> Bool -> Bool -> IO TextRenderer
+treeViewColumnNewText :: TreeViewColumn -> Bool -> Bool -> 
+			 IO (Renderer CellRendererText)
 treeViewColumnNewText tvc atStart expand = do
   ren <- cellRendererTextNew
   (if atStart then Gtk.treeViewColumnPackStart else Gtk.treeViewColumnPackEnd)
     tvc ren expand
-  return $ TextRenderer ren tvc
+  return $ Renderer ren tvc
 
-treeViewColumnNewPixbuf :: TreeViewColumn -> Bool -> Bool -> IO PixbufRenderer
+treeViewColumnNewPixbuf :: TreeViewColumn -> Bool -> Bool -> 
+			   IO (Renderer CellRendererPixbuf)
 treeViewColumnNewPixbuf tvc atStart expand = do
   ren <- cellRendererPixbufNew
   (if atStart then Gtk.treeViewColumnPackStart else Gtk.treeViewColumnPackEnd)
     tvc ren expand
-  return $ PixbufRenderer ren tvc
+  return $ Renderer ren tvc
 
-treeViewColumnNewToggle :: TreeViewColumn -> Bool -> Bool -> IO ToggleRenderer
+treeViewColumnNewToggle :: TreeViewColumn -> Bool -> Bool ->
+			   IO (Renderer CellRendererToggle)
 treeViewColumnNewToggle tvc atStart expand = do
   ren <- cellRendererToggleNew
   (if atStart then Gtk.treeViewColumnPackStart else Gtk.treeViewColumnPackEnd)
     tvc ren expand
-  return $ ToggleRenderer ren tvc
+  return $ Renderer ren tvc
 
 -- @method treeViewColumnAssociate@ Create a link between the store and this
 -- model.
@@ -316,10 +287,11 @@ treeViewColumnNewToggle tvc atStart expand = do
 -- * The results are undefined, if this @type TreeViewColumn@ was not created
 --   with the same @type TreeModel@ as the @type Association@s.
 --
-treeViewColumnAssociate :: RendererClass r => r -> [Association r] -> IO ()
-treeViewColumnAssociate ren assocs = mapM_ (\(Association attr col) ->
-  Gtk.treeViewColumnAddAttribute (getTreeViewCol ren) (getCellRenderer ren)
-  attr col) assocs
+treeViewColumnAssociate :: CellRendererClass r => Renderer r -> 
+						  [Association r] -> IO ()
+treeViewColumnAssociate (Renderer ren  tvc) assocs = 
+  mapM_ (\(Association attr col) ->
+    Gtk.treeViewColumnAddAttribute tvc ren attr col) assocs
 
 -- TreePath: A casual way of addressing nodes in a hierarchical structure. 
 -- (EXPORTED)

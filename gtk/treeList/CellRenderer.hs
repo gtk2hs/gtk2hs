@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:15:08 $
+--  Version $Revision: 1.4 $ from $Date: 2002/07/08 16:50:00 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -49,7 +49,7 @@ import StoreValue	(GenericValue, TMType)
 --   by the Mogul layer to generate columns in a @ref arg TreeStore@ or
 --   @ref arg ListStore@.
 --
-data Attribute cr a = Attribute String TMType 
-				(a -> IO GenericValue) 
-				(GenericValue -> IO a)
+data CellRendererClass cr => Attribute cr a = Attribute String TMType 
+					      (a -> IO GenericValue) 
+					      (GenericValue -> IO a)
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/08 13:22:46 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/08 16:50:00 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -84,6 +84,7 @@ cellRendererToggleSetActive crt act = {#call cell_renderer_toggle_set_active#}
 
 -- helper function
 --
+binAttr :: String -> Attribute CellRendererToggle Bool
 binAttr str = Attribute str TMboolean
 		(return.GVboolean)
 	        (\(GVboolean b) -> return b)
@@ -91,11 +92,11 @@ binAttr str = Attribute str TMboolean
 -- @method cellActive@ Define the attribute that reflects the state of the
 -- button.
 --
-cellActive :: Attribute rendererToggle Bool
+cellActive :: Attribute CellRendererToggle Bool
 cellActive  = binAttr "active"
 
 -- @method cellRadio@ Define an attribute that determines whether this button
 -- is shown as a @ref arg RadioButton@ or as a normal @ref arg ToggleButton@.
 --
-cellRadio :: Attribute rendererToggle Bool
+cellRadio :: Attribute CellRendererToggle Bool
 cellRadio  = binAttr "radio"
