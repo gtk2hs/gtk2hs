@@ -18,6 +18,9 @@
 
 	* tools/c2hs/base/sysdep/SysDep.hs: simplify import and re-export.
 
+	* Makefile.am: build glade and sourceview with more targeted use of
+	-fglasgow-exts
+
 2004-12-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/gtk.pkg.in: change package_deps to haskell98 rather than base to

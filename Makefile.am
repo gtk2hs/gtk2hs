@@ -453,13 +453,15 @@ libHSglade_a_PACKAGEDEPS	=
 libHSglade_a_HEADER 		= glade/glade.h
 libHSglade_a_PRECOMP		= glade/glade.precomp
 libHSglade_a_LIBS		= $(LIBGLADE_LIBS)
-libHSglade_a_HCFLAGS		= -fglasgow-exts
+libHSglade_a_HCFLAGS		= -fffi
 libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 
 libHSglade_a_SOURCES =	        \
 	glade/GladeType.chs	\
         glade/Glade.chs
+
+glade_GladeType_hs_HCFLAGS	= -fglasgow-exts
 
 libHSglade_a_DEPENDENCIES = libHSgtk.a
 
@@ -571,7 +573,7 @@ libHSsourceview_a_PACKAGEDEPS	=
 libHSsourceview_a_HEADER 	= sourceview.h
 libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
 libHSsourceview_a_LIBS		= $(SOURCEVIEW_LIBS)
-libHSsourceview_a_HCFLAGS	= -fglasgow-exts
+libHSsourceview_a_HCFLAGS	= -fffi
 libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
 libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
 
@@ -587,6 +589,8 @@ libHSsourceview_a_SOURCES =			\
         sourceview/SourceTagStyle.hsc		\
 	sourceview/SourceTagTable.chs		\
 	sourceview/SourceView.chs
+
+sourceview_SourceViewType_hs_HCFLAGS = -fglasgow-exts
 
 libHSsourceview_a_DEPENDENCIES = libHSgtk.a
 
