@@ -1,10 +1,19 @@
 Manuel M. T. Chakravarty <chak@cse.unsw.edu.au>
-Sven Panne <Sven.Panne@informatik.uni-muenchen.de> wrote `general/GetOpt.hs'
 
-Thanks to Simon L. Peyton Jones <simonpj@microsoft.com> and Roman Lechtchinsky
-<wolfro@cs.tu-berlin.de> for their helpful suggestions that improved the
-design and implementation of the `Lexers' module.  Thanks also to Roman for
-comments on other modules in the Compiler Toolkit.
+with contributions from (alphabetical order)
 
-** This file covers only the Compiler Toolkit, see compiler subdirectories for
-** authors information regarding compilers built with the toolkit.
+Ian Lynagh		 <igloo@earth.li>
+Jens-Ulrik Petersen	 <petersen@haskell.org>
+Armin Sander		 <armin@mindwalker.org>
+Sean Seefried		 <sseefried@cse.unsw.edu.au>
+Axel Simon               <A.Simon@ukc.ac.uk>
+Michael Weber		 <michaelw@debian.org>
+
+Thanks for comments and suggestions to 
+
+Jan Kort		 <kort@science.uva.nl>
+Seth Kurtzberg		 <seth@cql.com>
+Simon Marlow		 <simonmar@microsoft.com>
+Matthias Neubauer	 <neubauer@informatik.uni-freiburg.de>
+Sven Panne		 <Sven.Panne@informatik.uni-muenchen.de>
+Volker Wysk		 <post@volker-wysk.de>

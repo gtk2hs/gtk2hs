@@ -1,9 +1,11 @@
 #!/bin/sh
 # Write dependency information for a c2hs file.
 # Usage:
-# chsDepend [-i<seachPath>] [File1.chs [File2.chs [...]]]
-# Generate dependency information for FileN.chs looking for dependant files
-# in the colon-separated search path <searchPath>.
+# chsDepend [-i<seachPath>] {<file>(.hs|.chs|.chs.pp)}
+
+# Generate dependency information for the given files looking for
+# dependant files in the colon-separated search path <searchPath>.
+
 SED=@SED@;
 GREP=@GREP@;
 DEPDIR=@DEPDIR@;
@@ -17,7 +19,6 @@ OLDIFS=$IFS;
 case $1 in
  -[iI]*) SEARCHPATH=`echo "$1" | $SED 's/-[iI]//'`; shift ;;
 esac
-
 
 for FULLNAME in $@; do
   FULLNAMEDEP=`echo "$FULLNAME" | $SED 's/\.chs/.dep/'`;

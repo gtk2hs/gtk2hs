@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2004/10/27 13:21:42 $
+--  Version $Revision: 1.1 $ from $Date: 2004/11/21 15:06:15 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by

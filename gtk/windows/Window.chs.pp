@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2004/10/27 13:21:43 $
+--  Version $Revision: 1.1 $ from $Date: 2004/11/21 15:06:16 $
 --
 --  Copyright (c) 2001 Manuel M. T. Chakravarty, Axel Simon
 --

@@ -35,7 +35,7 @@ AC_CONFIG_HEADERS(config.h)
 AH_TOP([#include<gtk/gtkversion.h>])
 
 dnl Checks for programs.
-AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -435,8 +435,7 @@ AC_MSG_CHECKING([kind of C->Haskell])
 if test $BUILT_IN_C2HS = yes; then
   AC_MSG_RESULT([built-in])
   dnl Use the local c2hs.
-  C2HS='$(TOP)/c2hs/c2hs';
-  MULTIPLE_CHS=yes;
+  C2HS='$(TOP)/tools/c2hs/c2hsLocal';
 
   dnl These are the settings needed to compile c2hs.
   LEGACY_FFI=no;
@@ -462,8 +461,8 @@ else
       AC_CACHE_CHECK([c2hs version], c2hs_version, [
         c2hs_version=`$C2HS --version | $SED "s/[[^0-9.]*\([0-9.]*\) .*]/\1/"`;
       ])
-      GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.11.6,
-        AC_MSG_ERROR([You need C->Haskell version 0.11.6 upwards!
+      GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.13.4,
+        AC_MSG_ERROR([You need C->Haskell version 0.13.4 upwards!
           ** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
       dnl C->Haskell configuration.
       } ;;
@@ -536,12 +535,17 @@ AC_SUBST(BEGIN_NOT_NHC)
 AC_SUBST(END_NOT_NHC)
 
 dnl write the results...
-AC_OUTPUT([
+AC_CONFIG_FILES([
   Makefile
+  tools/Makefile
+  tools/c2hs/Makefile
+])
+
+AC_OUTPUT([
+  tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
-  mk/chsDepend
-  c2hs/toplevel/C2HSConfig.hs
-],[chmod a+x mk/chsDepend && chmod a+x install-sh])
+  mk/chsDepend],
+	[chmod a+x mk/chsDepend && chmod a+x install-sh])
 
 dnl ...and chat with the user
 echo "**************************************************"

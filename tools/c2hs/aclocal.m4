@@ -1,39 +1,102 @@
-dnl CTK - Additional macros for `autoconf'
+dnl C->Haskell - Additional macros for `autoconf'
 
-dnl ######################################################################
-dnl This was stolen from Sven Panne's <Sven.Panne@informatik.uni-muenchen.de>
-dnl HOpenGL library.
-dnl ######################################################################
-dnl GHC syslib versionitis
+
+dnl ### Checking compiler characteristics
+
+dnl Currently NOT used anymore.
 dnl
-dnl CTK_LIB_SYSLIB(Foo, bar baz bing) tests in which of
-dnl the packages bar, baz, and bing the module Foo resides and
-dnl calls AC_SUBST(syslib_Foo) on it.
-dnl ######################################################################
+dnl C2HS_CHECK_SIZEOF(TYPE [, CROSS-SIZE]) - Compute the size of a type
+dnl
+dnl * Adapted from `acgeneral.m4'; AC_PROVIDES the feature and sets the 
+dnl   shell variable of the same name and calls AC_SUBST on it.
 
-AC_DEFUN(CTK_LIB_SYSLIB, [
-dnl The syslib variable name.
-define(CTK_SYSLIB_NAME, syslib_$1)dnl
+AC_DEFUN(C2HS_CHECK_SIZEOF,
+[changequote(<<, >>)dnl
+dnl The name to #define.
+define(<<C2HS_TYPE_NAME>>, translit(sizeof_$1, [a-z *], [A-Z_P]))dnl
 dnl The cache variable name.
-define(CTK_CV_NAME, ctk_cv_syslib_$1)dnl
-AC_CACHE_CHECK(syslib for $1, CTK_CV_NAME, [
-for ctk_syslib in $2 not-found ; do
-rm -rf conftest*
-cat > conftest.hs <<EOF
-import $1
-EOF
-$HC -M -optdep-f -optdepconftest.dep -package [$]ctk_syslib conftest.hs  > /dev/null 2> /dev/null && break
-done
-rm -rf conftest*
-CTK_CV_NAME=[$]ctk_syslib
-])
-CTK_SYSLIB_NAME=$CTK_CV_NAME
-AC_SUBST(CTK_SYSLIB_NAME)dnl
-undefine([CTK_CV_NAME])dnl
-undefine([CTK_SYSLIB_NAME])dnl
+define(<<C2HS_CV_NAME>>, translit(c2hs_cv_sizeof_$1, [ *], [_p]))dnl
+changequote([, ])dnl
+AC_MSG_CHECKING(size of $1)
+AC_CACHE_VAL(C2HS_CV_NAME,
+[AC_TRY_RUN([#include <stdio.h>
+main()
+{
+  FILE *f=fopen("conftestval", "w");
+  if (!f) exit(1);
+  fprintf(f, "%d\n", sizeof($1));
+  exit(0);
+}], C2HS_CV_NAME=`cat conftestval`, C2HS_CV_NAME=0, 
+    ifelse([$2], , , C2HS_CV_NAME=$2))])dnl
+AC_MSG_RESULT($C2HS_CV_NAME)
+AC_DEFINE_UNQUOTED(C2HS_TYPE_NAME, $C2HS_CV_NAME)
+C2HS_TYPE_NAME=$C2HS_CV_NAME
+AC_SUBST(C2HS_TYPE_NAME)dnl
+AC_PROVIDE($C2HS_TYPE_NAME)
+undefine([C2HS_TYPE_NAME])dnl
+undefine([C2HS_CV_NAME])dnl
 ])
 
-dnl -- Pinched back from FPTOOLS/GHC
+dnl Currently NOT used anymore.
+dnl
+dnl C2HS_CHECK_ALIGNOF(TYPE) - Compute the alignment restriction of a type
+dnl
+dnl * Adapted from the corresponding test in the Glasgow Haskell Compiler's
+dnl   `fptools' configuration written by Simon Marlow(?)
+dnl
+dnl * This sets the preprocessor symbol ALIGNOF_<type> as well as sets the 
+dnl   shell variable of the same name and calls AC_SUBST on it.
+dnl
+dnl * requires SIZEOF test but AC_CHECK_SIZEOF doesn't call PROVIDE so we 
+dnl   can't call REQUIRE)
+
+AC_DEFUN(C2HS_CHECK_ALIGNOF,
+[changequote(<<, >>)dnl
+dnl The name to #define and to substitute.
+define(<<C2HS_TYPE_NAME>>, translit(alignof_$1, [a-z *], [A-Z_P]))dnl
+dnl The cache variable name.
+define(<<C2HS_CV_NAME>>, translit(c2hs_cv_alignof_$1, [ *], [_p]))dnl
+dnl The name of the corresponding size.
+define(<<C2HS_SIZEOF_TYPE_NAME>>, translit(sizeof_$1, [a-z *], [A-Z_P]))dnl
+dnl The cache variable name of the corresponding size.
+define(<<C2HS_CV_SIZEOF_NAME>>, translit(c2hs_cv_sizeof_$1, [ *], [_p]))dnl
+changequote([, ])dnl
+AC_REQUIRE($C2HS_SIZEOF_TYPE_NAME)
+AC_MSG_CHECKING(alignment of $1)
+AC_CACHE_VAL(C2HS_CV_NAME,
+[AC_TRY_RUN([
+#include <stdio.h>
+#if HAVE_STDDEF_H
+#include <stddef.h>
+#endif
+#ifndef offsetof
+#define offsetof(ty,field) ((size_t)((char *)&((ty *)0)->field - (char *)(ty *)0))
+#endif
+int
+main()
+{
+  FILE *f=fopen("conftestval", "w");
+  if (!f) exit(1);
+  fprintf(f, "%d\n", offsetof(struct { char c; $1 ty;},ty));
+  exit(0);
+}],
+C2HS_CV_NAME=`cat conftestval`,
+C2HS_CV_NAME=$C2HS_CV_SIZEOF_NAME,
+C2HS_CV_NAME=$C2HS_CV_SIZEOF_NAME)])
+AC_MSG_RESULT($C2HS_CV_NAME)
+AC_DEFINE_UNQUOTED(C2HS_TYPE_NAME, $C2HS_CV_NAME)
+C2HS_TYPE_NAME=$C2HS_CV_NAME
+AC_SUBST(C2HS_TYPE_NAME)dnl
+AC_PROVIDE($C2HS_TYPE_NAME)
+undefine([C2HS_TYPE_NAME])dnl
+undefine([C2HS_CV_NAME])dnl
+undefine([AC_CV_SIZEOF_NAME])dnl
+])
+
+dnl -- Pinched from FPTOOLS/GHC
+dnl
+dnl We keep the CTK_ prefix as this test is shared with CTK and we want to get 
+dnl the cache value.
 dnl
 dnl CTK_GHC_VERSION(version)
 dnl CTK_GHC_VERSION(major, minor [, patchlevel])
@@ -91,6 +154,8 @@ undefine([CTK_CV_GHC_VERSION])dnl
 
 dnl -- Pinched from Michael Weber's HaskellMPI
 dnl
+dnl We keep the CTK_ prefix as this test is shared with CTK.
+dnl
 dnl CTK_PROG_CHECK_VERSION(VERSIONSTR1, TEST, VERSIONSTR2,
 dnl                        ACTION-IF-TRUE [, ACTION-IF-FALSE])
 dnl
@@ -120,3 +185,43 @@ ifelse([$5],,,
 [else
   $5])
 fi])])dnl
+
+dnl Obtain the value of a C constant.
+dnl The value will be `(-1)' if the constant is undefined.
+dnl
+dnl This is set up so that the argument can be a shell variable.
+dnl
+AC_DEFUN(C2HS_CHECK_CCONST,
+[
+eval "def_name=CCONST_$1"
+eval "cv_name=ac_cv_cconst_$1"
+AC_MSG_CHECKING(value of $1)
+AC_CACHE_VAL($cv_name,
+[AC_TRY_RUN([#include <stdio.h>
+#include <errno.h>
+main()
+{
+  FILE *f=fopen("conftestval", "w");
+  if (!f) exit(1);
+  fprintf(f, "%d\n", $1);
+  exit(0);
+}], 
+eval "$cv_name=`cat conftestval`",
+eval "$cv_name=-1",
+ifelse([$2], , , eval "$cv_name=$2"))])dnl
+eval "c2hs_check_cconst_result=`echo '$'{$cv_name}`"
+AC_MSG_RESULT($c2hs_check_cconst_result)
+AC_DEFINE_UNQUOTED($def_name, $c2hs_check_cconst_result)
+eval "$def_name=$c2hs_check_cconst_result"
+unset c2hs_check_cconst_result
+])
+
+dnl ** Invoke AC_CHECK_CCONST on each argument (which have to separate with 
+dnl    spaces)
+dnl
+AC_DEFUN(C2HS_CHECK_CCONSTS,
+[for ac_const_name in $1
+do
+C2HS_CHECK_CCONST($ac_const_name)dnl
+done
+])

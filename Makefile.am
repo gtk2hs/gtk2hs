@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
-SUFFIXES = .chs.cpp .chs .hsc .deps .dep
-DEPDIR = $(addsuffix /,@DEPDIR@)
-CLEANFILES = $(DEPDIR)*.dep
+SUFFIXES = .chs.pp .chs .hsc .deps .dep
+MOSTLYCLEANFILES =
+CLEANFILES =
 DISTCLEANFILES = *.precomp
 
 # Before chaning anything on dependency calculation:
@@ -9,8 +9,8 @@ DISTCLEANFILES = *.precomp
 #   the include files are up to date.
 # - CFLAGS and CPPFLAGS are not package/application specific. This is due
 #   to the initial dependency calculation where it is not clear which
-#   package a particular file belongs to. But the CPPFLAGS are needed to
-#   run .chs.cpp files through the pre-processor.
+#   package a particular file belongs to. But the CPPFLAGS are needed for
+#   the .chs.pp rule which runs files through the pre-processor.
 # - Dependencies between Haskell .hs modules are stored in
 #   .deps/<pkg-name>.deps . To calculate these dependencies, c2hs must be
 #   run on the .chs and the header file belonging to the package to which
@@ -21,11 +21,19 @@ DISTCLEANFILES = *.precomp
 CFLAGS = $(filter-out -I%,$(GTK_CFLAGS))
 CPPFLAGS = $(filter -I%,$(GTK_CFLAGS))
 
-SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline \
-	gtk/gdk gtk/abstract gtk/display gtk/entry gtk/misc gtk/multiline \
+# Build c2hs before anything else.
+
+SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline	     \
+	gtk/gdk gtk/abstract gtk/display gtk/entry gtk/misc gtk/multiline    \
 	gtk/ornaments gtk/scrolling gtk/treeList gtk/selectors gtk/embedding \
-	compat gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows \
-	tools/hierarchyGen tools/callbackGen tools/apicoverage
+	compat gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows	     \
+	tools/hierarchyGen tools/callbackGen tools/apicoverage		     \
+	tools/c2hs/base/admin tools/c2hs/base/errors			     \
+	tools/c2hs/base/general tools/c2hs/base/graphs			     \
+	tools/c2hs/base/state tools/c2hs/base/syms			     \
+	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
+	tools/c2hs/chs tools/c2hs/gen tools/c2hs/lib tools/c2hs/state	     \
+	tools/c2hs/toplevel
 
 # fixme: this should be in configure.ac:
 HSCPP = $(CPP) -x c -traditional-cpp -P
@@ -36,10 +44,11 @@ HSC = hsc2hs
 
 # all packages and applications
 lib_LIBRARIES = gtk/libgtk2hs.a
-bin_PROGRAMS = \
+noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
 	tools/callbackGen/HookGenerator \
-	tools/apicoverage/Exclude
+	tools/apicoverage/Exclude \
+	tools/c2hs/c2hsLocal
 
 # TypeGenerator
 
@@ -58,6 +67,7 @@ tools_hierarchyGen_TypeGenerator_SOURCES = \
 # Fix automake - the subdir-objects option doesn't work here.
 am_tools_hierarchyGen_TypeGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_hierarchyGen_TypeGenerator_SOURCES)))
+MOSTLYCLEANFILES+= $(am_tools_hierarchyGen_TypeGenerator_OBJECTS)
 
 gtk/general/Hierarchy.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 			    $(srcdir)/tools/hierarchyGen/TypeGenerator
@@ -76,6 +86,7 @@ tools_callbackGen_HookGenerator_SOURCES = \
   tools/callbackGen/HookGenerator.hs
 am_tools_callbackGen_HookGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_callbackGen_HookGenerator_SOURCES)))
+MOSTLYCLEANFILES+= $(am_tools_callbackGen_HookGenerator_OBJECTS)
 
 
 gtk/general/Signal.chs : $(srcdir)/tools/callbackGen/Signal.chs-boot1 \
@@ -97,15 +108,83 @@ tools_apicoverage_Exclude_SOURCES = \
   tools/apicoverage/Exclude.hs
 am_tools_apicoverage_Exclude_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_apicoverage_Exclude_SOURCES)))
+MOSTLYCLEANFILES+= $(am_tools_apicoverage_Exclude_OBJECTS)
 
+# c2hs interface generator
+tools_c2hs_c2hsLocal_NAME = tools/c2hs/c2hsLocal
+$(tools_c2hs_c2hsLocal_NAME) : NAME = tools_c2hs_c2hsLocal
 
-# While building lib<name>, set the variable NAME to <name> so we can access
-# the package-specific variable <name>_HEADER, <name>_PACKAGE, etc. The
-# following is a hack to prevent automake from assuming that we are overriding
-# the libgtk2hs.a goal.
+tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
+tools_c2hs_c2hsLocal_PACKAGEDEPS	= lang
+tools_c2hs_c2hsLocal_HEADER		= tools/c2hs/toplevel/c2hs_config.h
+tools_c2hs_c2hsLocal_HCFLAGS		= -fglasgow-exts -fffi
+
+tools_c2hs_c2hsLocal_SOURCES =			\
+	tools/c2hs/base/admin/BaseVersion.hs	\
+	tools/c2hs/base/admin/Common.hs		\
+	tools/c2hs/base/admin/Config.hs		\
+	tools/c2hs/base/errors/Errors.hs	\
+	tools/c2hs/base/general/DLists.hs	\
+	tools/c2hs/base/general/FileOps.hs	\
+	tools/c2hs/base/general/FNameOps.hs	\
+	tools/c2hs/base/general/GetOpt.hs	\
+	tools/c2hs/base/general/UNames.hs	\
+	tools/c2hs/base/general/Utils.hs	\
+	tools/c2hs/base/general/Binary.hs	\
+	tools/c2hs/base/general/FastMutInt.hs	\
+	tools/c2hs/base/graphs/Marks.hs		\
+	tools/c2hs/base/state/CIO.hs		\
+	tools/c2hs/base/state/DynArrays.hs	\
+	tools/c2hs/base/state/StateBase.hs	\
+	tools/c2hs/base/state/State.hs		\
+	tools/c2hs/base/state/StateTrans.hs	\
+	tools/c2hs/base/syms/Attributes.hs	\
+	tools/c2hs/base/syms/Idents.hs		\
+	tools/c2hs/base/syms/NameSpaces.hs	\
+	tools/c2hs/base/syntax/Lexers.hs	\
+	tools/c2hs/base/syntax/ParserMonad.hs	\
+	tools/c2hs/base/syntax/Parsers.hs	\
+	tools/c2hs/base/syntax/Pretty.hs	\
+	tools/c2hs/base/sysdep/SysDep.hs	\
+	tools/c2hs/base/sysdep/SysDepPosix.hs	\
+	tools/c2hs/c/CAST.hs			\
+	tools/c2hs/c/CAttrs.hs			\
+	tools/c2hs/c/CBuiltin.hs		\
+	tools/c2hs/c/C.hs			\
+	tools/c2hs/c/CLexer.hs			\
+	tools/c2hs/c/CNames.hs			\
+	tools/c2hs/c/CParser.hs			\
+	tools/c2hs/c/CPretty.hs			\
+	tools/c2hs/c/CTrav.hs			\
+	tools/c2hs/chs/CHS.hs			\
+	tools/c2hs/chs/CHSLexer.hs		\
+	tools/c2hs/gen/CInfo.hs			\
+	tools/c2hs/gen/GBMonad.hs		\
+	tools/c2hs/gen/GenBind.hs		\
+	tools/c2hs/gen/GenHeader.hs		\
+	tools/c2hs/state/C2HSState.hs		\
+	tools/c2hs/state/Switches.hs		\
+	tools/c2hs/toplevel/Main.hs		\
+	tools/c2hs/toplevel/Version.hs		\
+	tools/c2hs/toplevel/C2HSConfig.hs	\
+	tools/c2hs/toplevel/c2hs_config.c
+
+tools_c2hs_c2hsLocal_HSFILES		= \
+	$(filter %.hs,$(tools_c2hs_c2hsLocal_SOURCES))
+# Fix automake - the subdir-objects option doesn't work here.
+am_tools_c2hs_c2hsLocal_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(tools_c2hs_c2hsLocal_SOURCES)))
+MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.$(OBJEXT))
+CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)
+CLEANFILES+=$(am_tools_c2hs_c2hsLocal_OBJECTS)
+DISTCLEANFILES+= tools_c2hs_c2hsLocal.deps
+-include tools_c2hs_c2hsLocal.deps
+
+# gtk2hs GUI library
 gtk_libgtk2hs_a_NAME = gtk/libgtk2hs.a
 $(gtk_libgtk2hs_a_NAME) : NAME = gtk_libgtk2hs_a
 
+gtk_libgtk2hs_a : tools/c2hs/c2hs
 gtk_libgtk2hs_a_PACKAGECONF	= libgtk2hs.conf
 gtk_libgtk2hs_a_PACKAGE		= gtk2hs
 gtk_libgtk2hs_a_PACKAGEDEPS	= data
@@ -114,146 +193,146 @@ gtk_libgtk2hs_a_PRECOMP		= gtk/gtk.precomp
 gtk_libgtk2hs_a_LIBS		= @GTK_LIBS@
 gtk_libgtk2hs_a_HCFLAGS		= -fglasgow-exts
 
-gtk_libgtk2hs_a_SOURCES = \
-	gtk/general/Hierarchy.chs \
-	gtk/general/Signal.chs \
-	gtk/glib/GValue.chs \
-	gtk/glib/GList.chs \
-	gtk/glib/GObject.chspp \
-	gtk/pango/PangoTypes.chspp \
-	gtk/treeList/TreeModel.chspp \
-	gtk/treeList/TreeViewColumn.chs \
-	gtk/multiline/TextIter.chspp \
-	gtk/gdk/Region.chspp \
-	gtk/abstract/Bin.chs \
-	gtk/abstract/Box.chs \
-	gtk/abstract/ButtonBox.chspp \
-	gtk/abstract/Container.chs \
-	gtk/abstract/FileChooser.chs \
-	gtk/abstract/Misc.chs \
-	gtk/abstract/Object.chspp \
-	gtk/abstract/Paned.chs \
-	gtk/abstract/Range.chs \
-	gtk/abstract/Scale.chs \
-	gtk/abstract/Widget.chs \
-	gtk/buttons/Button.chspp \
-	gtk/buttons/CheckButton.chs \
-	gtk/buttons/RadioButton.chs \
-	gtk/buttons/ToggleButton.chs \
-	gtk/display/AccelLabel.chs \
-	gtk/display/Image.chs \
-	gtk/display/Label.chs \
-	gtk/display/ProgressBar.chs \
-	gtk/display/Statusbar.chs \
-	gtk/entry/Editable.chs \
-	gtk/entry/Entry.chspp \
-	gtk/entry/EntryCompletion.chspp \
-	gtk/entry/HScale.chs \
-	gtk/entry/SpinButton.chs \
-	gtk/entry/VScale.chs \
-	gtk/general/Enums.chspp \
-	gtk/general/General.chs \
-	gtk/general/IconFactory.chspp \
-	gtk/general/Style.chs \
-	gtk/layout/Alignment.chspp \
-	gtk/layout/AspectFrame.chs \
-	gtk/layout/Expander.chspp \
-	gtk/layout/Fixed.chs \
-	gtk/layout/HBox.chs \
-	gtk/layout/HButtonBox.chs \
-	gtk/layout/HPaned.chs \
-	gtk/layout/Layout.chs \
-	gtk/layout/Notebook.chspp \
-	gtk/layout/Table.chs \
-	gtk/layout/VBox.chs \
-	gtk/layout/VButtonBox.chs \
-	gtk/layout/VPaned.chs \
-	gtk/menuComboToolbar/CheckMenuItem.chspp \
-	gtk/menuComboToolbar/Combo.chspp \
-	gtk/menuComboToolbar/ComboBox.chspp \
-	gtk/menuComboToolbar/ComboBoxEntry.chspp \
-	gtk/menuComboToolbar/ImageMenuItem.chs \
-	gtk/menuComboToolbar/Menu.chspp \
-	gtk/menuComboToolbar/MenuBar.chs \
-	gtk/menuComboToolbar/MenuItem.chs \
-	gtk/menuComboToolbar/MenuShell.chs \
-	gtk/menuComboToolbar/OptionMenu.chspp \
-	gtk/menuComboToolbar/RadioMenuItem.chs \
-	gtk/menuComboToolbar/TearoffMenuItem.chs \
-	gtk/menuComboToolbar/ToolItem.chspp \
-	gtk/menuComboToolbar/Toolbar.chspp \
-	gtk/misc/Adjustment.chs \
-	gtk/misc/Calendar.chspp \
-	gtk/misc/DrawingArea.chs \
-	gtk/misc/EventBox.chspp \
-	gtk/misc/FileChooserWidget.chspp \
-	gtk/misc/GArrow.chs \
-	gtk/misc/HandleBox.chs \
-	gtk/misc/SizeGroup.chs \
-	gtk/misc/Tooltips.chspp \
-	gtk/misc/Viewport.chs \
-	gtk/multiline/TextBuffer.chs \
-	gtk/multiline/TextMark.chs \
-	gtk/multiline/TextTag.chspp \
-	gtk/multiline/TextTagTable.chs \
-	gtk/multiline/TextView.chs \
-	gtk/ornaments/Frame.chs \
-	gtk/ornaments/HSeparator.chs \
-	gtk/ornaments/VSeparator.chs \
-	gtk/scrolling/HScrollbar.chs \
-	gtk/scrolling/ScrolledWindow.chs \
-	gtk/scrolling/VScrollbar.chs \
-	gtk/selectors/ColorSelection.chs \
-	gtk/selectors/ColorSelectionDialog.chs \
-	gtk/selectors/FontSelection.chs \
-	gtk/selectors/FontSelectionDialog.chs \
-	gtk/treeList/CellRendererPixbuf.chs \
-	gtk/treeList/CellRendererText.chs \
-	gtk/treeList/CellRendererToggle.chs \
-	gtk/treeList/ListStore.chspp \
-	gtk/treeList/TreeModelSort.chs \
-	gtk/treeList/TreeSelection.chs \
-	gtk/treeList/TreeStore.chspp \
-	gtk/treeList/TreeView.chspp \
-	gtk/windows/Dialog.chs \
-	gtk/windows/FileChooserDialog.chspp \
-	gtk/windows/FileSel.chs \
-	gtk/windows/Window.chspp \
-	gtk/gdk/Drawable.chspp \
-	gtk/gdk/GC.chs \
-	gtk/gdk/Gdk.chs \
-	gtk/gdk/GdkEnums.chs \
-	gtk/gdk/Keys.chs \
-	gtk/gdk/Pixbuf.chs \
-	gtk/glib/GError.chspp \
-	gtk/glib/GType.chs \
-	gtk/glib/GValueTypes.chs \
-	gtk/pango/PangoLayout.chs \
-	gtk/pango/Rendering.chs \
-	gtk/embedding/Plug.chs \
-	gtk/embedding/Socket.chs \
-	gtk/general/StockItems.hsc \
-	gtk/general/Structs.hsc \
-	gtk/treeList/StoreValue.hsc \
-	gtk/gdk/Events.hsc \
-	gtk/glib/GParameter.hsc \
-	gtk/embedding/Embedding.hsc \
-	gtk/abstract/Scrollbar.hs \
-	gtk/abstract/Separator.hs \
-	gtk/general/FFI.hs \
-	gtk/general/Gtk.hs \
-	gtk/treeList/CellRenderer.hs \
-	gtk/gdk/DrawWindow.hs \
-	gtk/pango/Markup.hs \
-	compat/LocalControl.hs \
+gtk_libgtk2hs_a_SOURCES =			  \
+	gtk/general/Hierarchy.chs		  \
+	gtk/general/Signal.chs			  \
+	gtk/glib/GValue.chs			  \
+	gtk/glib/GList.chs			  \
+	gtk/glib/GObject.chs.pp			  \
+	gtk/pango/PangoTypes.chs.pp		  \
+	gtk/treeList/TreeModel.chs.pp		  \
+	gtk/treeList/TreeViewColumn.chs		  \
+	gtk/multiline/TextIter.chs.pp		  \
+	gtk/gdk/Region.chs.pp			  \
+	gtk/abstract/Bin.chs			  \
+	gtk/abstract/Box.chs			  \
+	gtk/abstract/ButtonBox.chs.pp		  \
+	gtk/abstract/Container.chs		  \
+	gtk/abstract/FileChooser.chs		  \
+	gtk/abstract/Misc.chs			  \
+	gtk/abstract/Object.chs.pp		  \
+	gtk/abstract/Paned.chs			  \
+	gtk/abstract/Range.chs			  \
+	gtk/abstract/Scale.chs			  \
+	gtk/abstract/Widget.chs			  \
+	gtk/buttons/Button.chs.pp		  \
+	gtk/buttons/CheckButton.chs		  \
+	gtk/buttons/RadioButton.chs		  \
+	gtk/buttons/ToggleButton.chs		  \
+	gtk/display/AccelLabel.chs		  \
+	gtk/display/Image.chs			  \
+	gtk/display/Label.chs			  \
+	gtk/display/ProgressBar.chs		  \
+	gtk/display/Statusbar.chs		  \
+	gtk/entry/Editable.chs			  \
+	gtk/entry/Entry.chs.pp			  \
+	gtk/entry/EntryCompletion.chs.pp	  \
+	gtk/entry/HScale.chs			  \
+	gtk/entry/SpinButton.chs		  \
+	gtk/entry/VScale.chs			  \
+	gtk/general/Enums.chs.pp		  \
+	gtk/general/General.chs			  \
+	gtk/general/IconFactory.chs.pp		  \
+	gtk/general/Style.chs			  \
+	gtk/layout/Alignment.chs.pp		  \
+	gtk/layout/AspectFrame.chs		  \
+	gtk/layout/Expander.chs.pp		  \
+	gtk/layout/Fixed.chs			  \
+	gtk/layout/HBox.chs			  \
+	gtk/layout/HButtonBox.chs		  \
+	gtk/layout/HPaned.chs			  \
+	gtk/layout/Layout.chs			  \
+	gtk/layout/Notebook.chs.pp		  \
+	gtk/layout/Table.chs			  \
+	gtk/layout/VBox.chs			  \
+	gtk/layout/VButtonBox.chs		  \
+	gtk/layout/VPaned.chs			  \
+	gtk/menuComboToolbar/CheckMenuItem.chs.pp \
+	gtk/menuComboToolbar/Combo.chs.pp	  \
+	gtk/menuComboToolbar/ComboBox.chs.pp	  \
+	gtk/menuComboToolbar/ComboBoxEntry.chs.pp \
+	gtk/menuComboToolbar/ImageMenuItem.chs	  \
+	gtk/menuComboToolbar/Menu.chs.pp	  \
+	gtk/menuComboToolbar/MenuBar.chs	  \
+	gtk/menuComboToolbar/MenuItem.chs	  \
+	gtk/menuComboToolbar/MenuShell.chs	  \
+	gtk/menuComboToolbar/OptionMenu.chs.pp	  \
+	gtk/menuComboToolbar/RadioMenuItem.chs	  \
+	gtk/menuComboToolbar/TearoffMenuItem.chs  \
+	gtk/menuComboToolbar/ToolItem.chs.pp	  \
+	gtk/menuComboToolbar/Toolbar.chs.pp	  \
+	gtk/misc/Adjustment.chs			  \
+	gtk/misc/Calendar.chs.pp		  \
+	gtk/misc/DrawingArea.chs		  \
+	gtk/misc/EventBox.chs.pp		  \
+	gtk/misc/FileChooserWidget.chs.pp	  \
+	gtk/misc/GArrow.chs			  \
+	gtk/misc/HandleBox.chs			  \
+	gtk/misc/SizeGroup.chs			  \
+	gtk/misc/Tooltips.chs.pp		  \
+	gtk/misc/Viewport.chs			  \
+	gtk/multiline/TextBuffer.chs		  \
+	gtk/multiline/TextMark.chs		  \
+	gtk/multiline/TextTag.chs.pp		  \
+	gtk/multiline/TextTagTable.chs		  \
+	gtk/multiline/TextView.chs		  \
+	gtk/ornaments/Frame.chs			  \
+	gtk/ornaments/HSeparator.chs		  \
+	gtk/ornaments/VSeparator.chs		  \
+	gtk/scrolling/HScrollbar.chs		  \
+	gtk/scrolling/ScrolledWindow.chs	  \
+	gtk/scrolling/VScrollbar.chs		  \
+	gtk/selectors/ColorSelection.chs	  \
+	gtk/selectors/ColorSelectionDialog.chs	  \
+	gtk/selectors/FontSelection.chs		  \
+	gtk/selectors/FontSelectionDialog.chs	  \
+	gtk/treeList/CellRendererPixbuf.chs	  \
+	gtk/treeList/CellRendererText.chs	  \
+	gtk/treeList/CellRendererToggle.chs	  \
+	gtk/treeList/ListStore.chs.pp		  \
+	gtk/treeList/TreeModelSort.chs		  \
+	gtk/treeList/TreeSelection.chs		  \
+	gtk/treeList/TreeStore.chs.pp		  \
+	gtk/treeList/TreeView.chs.pp		  \
+	gtk/windows/Dialog.chs			  \
+	gtk/windows/FileChooserDialog.chs.pp	  \
+	gtk/windows/FileSel.chs			  \
+	gtk/windows/Window.chs.pp		  \
+	gtk/gdk/Drawable.chs.pp			  \
+	gtk/gdk/GC.chs				  \
+	gtk/gdk/Gdk.chs				  \
+	gtk/gdk/GdkEnums.chs			  \
+	gtk/gdk/Keys.chs			  \
+	gtk/gdk/Pixbuf.chs			  \
+	gtk/glib/GError.chs.pp			  \
+	gtk/glib/GType.chs			  \
+	gtk/glib/GValueTypes.chs		  \
+	gtk/pango/PangoLayout.chs		  \
+	gtk/pango/Rendering.chs			  \
+	gtk/embedding/Plug.chs			  \
+	gtk/embedding/Socket.chs		  \
+	gtk/general/StockItems.hsc		  \
+	gtk/general/Structs.hsc			  \
+	gtk/treeList/StoreValue.hsc		  \
+	gtk/gdk/Events.hsc			  \
+	gtk/glib/GParameter.hsc			  \
+	gtk/embedding/Embedding.hsc		  \
+	gtk/abstract/Scrollbar.hs		  \
+	gtk/abstract/Separator.hs		  \
+	gtk/general/FFI.hs			  \
+	gtk/general/Gtk.hs			  \
+	gtk/treeList/CellRenderer.hs		  \
+	gtk/gdk/DrawWindow.hs			  \
+	gtk/pango/Markup.hs			  \
+	compat/LocalControl.hs			  \
 	compat/LocalData.hs
 
 am_gtk_libgtk2hs_a_OBJECTS = \
   $(addsuffix .$(OBJEXT),$(basename $(gtk_libgtk2hs_a_SOURCES)))
 
-gtk_libgtk2hs_a_CHSFILES = $(filter %.chs %.chspp, $(gtk_libgtk2hs_a_SOURCES))
+gtk_libgtk2hs_a_CHSFILES = $(filter %.chs %.chs.pp, $(gtk_libgtk2hs_a_SOURCES))
 gtk_libgtk2hs_a_CHSFILES_HS = $(patsubst %.chs,%.hs,\
-	$(patsubst %.chspp,%.hs,$(gtk_libgtk2hs_a_CHSFILES)))
+	$(patsubst %.chs.pp,%.hs,$(gtk_libgtk2hs_a_CHSFILES)))
 gtk_libgtk2hs_a_HSCFILES = $(filter %.hsc, $(gtk_libgtk2hs_a_SOURCES))
 gtk_libgtk2hs_a_HSCFILES_HS = $(gtk_libgtk2hs_a_HSCFILES:.hsc=.hs)
 gtk_libgtk2hs_a_BUILDSOURCES = \
@@ -262,96 +341,15 @@ gtk_libgtk2hs_a_BUILDSOURCES = \
 gtk_libgtk2hs_a_HSFILES  = \
 	$(gtk_libgtk2hs_a_BUILDSOURCES) \
 	$(filter %.hs,$(gtk_libgtk2hs_a_SOURCES))
-MOSTLYCLEANFILES = $(gtk_libgtk2hs_a_HSFILES:.hs=.$(OBJEXT))
+
+MOSTLYCLEANFILES+ = $(am_gtk_libgtk2hs_a_OBJECTS)
 CLEANFILES+= $(gtk_libgtk2hs_a_BUILDSOURCES) $(gtk_libgtk2hs_a_HSFILES:.hs=.hi)
-CLEANFILES+= $(DEPDIR)gtk_libgtk2hs_a.deps
-CLEANFILES+= $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
 
--include $(DEPDIR)gtk_libgtk2hs_a.deps $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
+DISTCLEANFILES+= gtk_libgtk2hs_a.deps $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
+-include gtk_libgtk2hs_a.deps $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
 
-# A file with CPP defines that reflect the current configuration.
-CONFIG_H = config.h
 
-# The local GHC package file for compiling files that depend on packages
-# that we have built but not yet installed.
-LOCALPACKAGE = localpackages.conf
-
-EMPTY =
-SPACE = $(EMPTY) $(EMPTY)
-VPATH = $(subst $(SPACE),:,$(strip \
-	$(if $(subst .,,$(srcdir)),$(addprefix $(srcdir)/,$(SOURCEDIRS)), \
-	$(SOURCEDIRS))))
-
+# All generated source files go here.
 BUILDSOURCES = $(gtk_libgtk2hs_a_BUILDSOURCES)
 
-LINK = $(strip $(HC) -o $@ $($(NAME)_HCFLAGS) \
-  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-  $(AM_LDFLAGS) $($(NAME)_EXTRA_LDFLAGS) $($(NAME)_LDFLAGS))
-
-.hs.o: $(CONFIG_H)
-	$(strip $(HC) -c $< -o $@ $($(NAME)_HCFLAGS) -i$(VPATH) \
-	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-	$(addprefix -package-name ,$($(NAME)_PACKAGE)) \
-	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
-	$($(NAME)_EXTRA_HFILES))) \
-	$(AM_CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS))
-
-.DELETE_ON_ERROR : $(DEPDIR)%.deps
-
-$(DEPDIR)%.deps :
-	touch $@
-	$(if $($*_BUILDSOURCES),$(strip \
-	$(MAKE) $(AM_MAKEFLAGS) NAME="$*" $($*_BUILDSOURCES) \
-	&&))\
-	$(strip $(HC) -M $(addprefix -optdep,-f $(DEPDIR)$*.deps) \
-	$($*_HCFLAGS) -i$(VPATH) \
-	$(addprefix -package ,$($*_PACKAGEDEPS)) \
-	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
-	$($*_EXTRA_HFILES))) \
-	$(AM_CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS) \
-	$($*_HSFILES))
-
-.chs.dep :
-	@if test -f $@; then touch $@; else $(CHSDEPEND) -i$(VPATH) $<; fi;
-
-.o.hi:
-	@:
-
-HSTOOLFLAGS = -H500m
-
-.PHONY: debug
-debug	:
-	@echo VPATH: $(VPATH)
-	@echo dep files: $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
-
-%.precomp :
-	$(strip $(C2HS) $(C2HS_FLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-	$(addprefix -C,$(CFLAGS) $(CPPFLAGS)) \
-	--precomp=$($(NAME)_PRECOMP) $($(NAME)_HEADER))
-
-.chs.cpp.chs: $(CONFIG_H)
-	$(strip $(HSCPP) $(AM_CPPFLAGS) \
-	$(EXTRA_CPPFLAGS) $(CPPFLAGS) \
-	$(EXTRA_CFLAGS) $(CFLAGS) \
-	$(addprefix -include ,$(CONFIG_H) $($(NAME)_EXTRA_HFILES)) \
-	$< -o $@)
-
-.hsc.hs: $(CONFIG_H)
-	$(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-        $(addprefix -L-optl,\
-	$(AM_LDFLAGS) $($(NAME)_EXTRA_LIBS) $($(NAME)_LIBS)) \
-        $(addprefix -C,	$(filter-out -I%,$(AM_CPPFLAGS)) \
-	$(EXTRA_CFLAGS) $(CFLAGS))\
-        $(filter -I%,$(AM_CPPFLAGS)) \
-	$(EXTRA_CPPFLAGS) $(CPPFLAGS)\
-	--include $(CONFIG_H) \
-        --cc=$(HC) --lflag=-no-hs-main $<)
-
-.chs.hs:
-	if test -f $($(NAME)_PRECOMP); then :; else \
-	  $(MAKE) $(AM_MAKEFLAGS) NAME="$(NAME)" $($(NAME)_PRECOMP); fi;
-	$(strip $(C2HS) $(C2HS_FLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-	-i$(VPATH) --precomp=$($(NAME)_PRECOMP) -o $@ $<)
-	$(CHSDEPEND) -i$(VPATH) $<
-
-
+include mk/common.mk

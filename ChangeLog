@@ -1,3 +1,12 @@
+2004-11-21 Axel Simon <A.Simon@kent.ac.uk> 
+
+	* Makefile.am, configure.ac: Generating dependencies now involves
+	building c2hs on the fly. This is bad for saying make clean on a
+	clean tree, but so far I this is the cleanest solution.
+
+	* gtk/*/*.chs.cpp: Renamed all these files to .chs.pp since
+	automake otherwise thinks they are C++ sources.
+
 2004-10-28  Axel Simon <A.Simon@kent.ac.uk>
 
 	* mk/mkDepend.in: Undo changes. Dependencies are again where the
