@@ -1,10 +1,10 @@
---  GIMP Toolkit (GTK) @entry Markup helper@
+--  GIMP Toolkit (GTK) @entry Markup@
 --
 --  Author : Axel Simon
 --          
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -28,7 +28,7 @@
 --
 --- TODO ----------------------------------------------------------------------
 --
--- * Add a numeric value to @FontWeightDef.
+-- * Add a numeric value to @ref data FontWeightDef@.
 --
 module Markup(
   Markup,

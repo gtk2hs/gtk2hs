@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -99,9 +99,9 @@ menuItemRemoveSubmenu :: MenuItemClass mi => mi -> IO ()
 menuItemRemoveSubmenu mi = {#call menu_item_remove_submenu#} (toMenuItem mi)
 
 
--- @dunno@Should the item display a submenu indicator (an arrow) if there is a
+-- @method menuItemConfigure@ Should the item display a submenu 
+-- indicator (an arrow) if there is a
 -- submenu?
--- *  @literal@
 --menuItemConfigure :: MenuItemClass mi => Bool -> mi -> IO ()
 --menuItemConfigure subInd mi =
 --  {#call unsafe menu_item_configure#} (toMenuItem mi) 0 (fromBool subInd)

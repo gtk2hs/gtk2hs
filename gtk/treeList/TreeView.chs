@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/07/23 13:47:10 $
+--  Version $Revision: 1.7 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -254,9 +254,10 @@ treeViewCollapseAll :: TreeViewClass tv => tv -> IO ()
 treeViewCollapseAll tv =
   {#call tree_view_collapse_all#} (toTreeView tv)
 
--- Expand a node that is specified by @path. If the flag @all is True every
+-- @method treeViewExpandRow@ Expand a node that is specified by 
+-- @ref arg path@. If the @ref arg all@ is True every
 -- child will be expanded recursively. Returns True if the row existed and
--- had children.(EXPORTED)
+-- had children.
 --
 treeViewExpandRow :: TreeViewClass tv => TreePath -> Bool -> tv -> IO Bool
 treeViewExpandRow path all tv = liftM toBool $

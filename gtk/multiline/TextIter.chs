@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry TextIter abstract datatype@
+--  GIMP Toolkit (GTK) @entry TextIter TextBuffer@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 -- @description@ --------------------------------------------------------------
 --
 --   * An iterator is an abstract datatype representing a pointer into a 
---     @TextBuffer.
+--     @ref data TextBuffer@.
 --
 -- @documentation@ ------------------------------------------------------------
 --
@@ -46,7 +46,7 @@
 --     gtk_text_iter_get_tags
 --
 -- * Bind the following functions when we are sure about anchors 
---   (see @TextBuffer):
+--   (see @ref data TextBuffer@):
 --     gtk_text_iter_get_anchor
 --
 -- * Bind TextAttribute functions when I am clear how to model them. 
@@ -141,20 +141,20 @@ import Enums	(TextSearchFlags, Flags(fromFlags))
 
 {#pointer *TextIter foreign newtype #}
 
--- Create a @TextIter from a pointer.
+-- Create a TextIter from a pointer.
 --
 mkTextIter :: Ptr TextIter -> IO TextIter
 mkTextIter iterPtr = liftM TextIter $ 
   newForeignPtr iterPtr (textIterFree iterPtr)
 
--- Allocate memory to be filled with a @TextIter.
+-- Allocate memory to be filled with a TextIter.
 --
 makeEmptyTextIter :: IO TextIter
 makeEmptyTextIter = do
   iterPtr <- mallocBytes textIterSize
   liftM TextIter $ newForeignPtr iterPtr (textIterFree iterPtr)
 
--- Free a @TextIter pointer.
+-- Free a TextIter pointer.
 --
 foreign import ccall "gtk_text_iter_free" unsafe 
   textIterFree :: Ptr TextIter -> IO ()
@@ -383,8 +383,9 @@ textIterGetCharsInLine :: TextIter -> IO Int
 textIterGetCharsInLine ti = liftM fromIntegral $
   {#call unsafe text_iter_get_chars_in_line#} ti
 
--- @dunno@Get the text attributes at the iterator.
--- * The @ta argument gives the default values if no specific attributes are
+-- @method textIterGetAttributes@Get the text attributes at the iterator.
+-- * The @ref arg ta@ argument gives the default values if no specific 
+--   attributes are
 --   set at that specific location.
 --
 -- * The function returns Nothing if the text at the iterator has the same

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,7 +21,8 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * This widget is a special version of @Label. It displays an accelerator
+-- * This widget is a special version of @ref data Label@. It displays an 
+--   accelerator
 --   key next to the Label. The key name is not explicitly set but taken from
 --   the key that is associated with the activation of another widget.
 --

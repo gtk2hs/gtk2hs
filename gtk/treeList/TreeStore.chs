@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry TreeStore (a TreeModel)@
+--  GIMP Toolkit (GTK) @entry TreeStore TreeModel@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/21 16:59:05 $
+--  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -121,10 +121,7 @@ treeStoreInsertAfter ts sibling = do
 -- @method treeStorePrepend@ Insert a child node in front of every other
 -- sibling.
 --
--- *  @literal@
--- This is equivalent to @treeStoreInsert parent 0.
---
-
+-- * This is equivalent to @ref method treeStoreInsert@ @literal parent 0@ .
 --
 treeStorePrepend :: (TreeStoreClass ts) => ts -> Maybe TreeIter -> IO TreeIter
 treeStorePrepend ts parent = do
@@ -136,10 +133,7 @@ treeStorePrepend ts parent = do
 
 -- @method treeStoreAppend@ Insert a child node behind other siblings.
 --
--- *  @literal@
--- This is equivalent to @treeStoreInsert parent (-1).
---
-
+-- * This is equivalent to @ref method treeStoreInsert@ @literal parent (-1)@ .
 --
 treeStoreAppend :: (TreeStoreClass ts) => ts -> Maybe TreeIter -> IO TreeIter
 treeStoreAppend ts parent = do

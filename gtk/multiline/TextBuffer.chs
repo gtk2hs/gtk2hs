@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) [2001..2002] Axel Simon
 --
@@ -21,8 +21,8 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * This storage object holds text to be displayed by one or more @TextView
---   widgets.
+-- * This storage object holds text to be displayed by one or more 
+--   @ref data TextView@ widgets.
 --
 -- @documentation@ ------------------------------------------------------------
 --
@@ -40,7 +40,7 @@
 --     gtk_text_buffer_get_iter_at_line_index
 --
 -- * The function gtk_text_buffer_get_selection_bounds is only used to test
---   if there is a selection  (see @textBufferHasSelection).
+--   if there is a selection  (see @ref method textBufferHasSelection@).
 --
 -- @todo@ ---------------------------------------------------------------------
 --
@@ -52,9 +52,11 @@
 --     gtk_text_buffer_get_iter_at_anchor
 --     connectToInsertChildAnchor
 --     
--- * Check @textBufferGetInsert, in case there is no cursor in the editor,
+-- * Check @ref method textBufferGetInsert@, in case there is no cursor in 
+--   the editor,
 --   is there a mark called "insert"? If not, the function needs to return
---   Maybe TextMark. The same holds for @textBufferGetSelectionBound.
+--   Maybe TextMark. The same holds for 
+--   @ref method textBufferGetSelectionBound@.
 --
 -- * If Clipboards are bound, then these functions need to be bound as well:
 --     gtk_text_buffer_paste_clipboard
@@ -284,7 +286,7 @@ textBufferInsertPixbuf tb pos img =
 -- @method textBufferCreateMark@ Create a @ref type TextMark@ from an
 -- iterator.
 --
--- * Pass Nothing as @ref arg name@ for an anonymous @ref type TextMark@.
+-- * Pass @ref arg Nothing@ as mark name for an anonymous @ref type TextMark@.
 --
 -- * Set @ref arg gravity@ to True if the mark should keep left.
 --
@@ -423,9 +425,9 @@ textBufferGetIterAtOffset tb offset = do
     tb iter (fromIntegral offset)
   return iter
   
--- Create an iterator at a specific line. (EXPORTED)
+-- @method textBufferGetIterAtLine@ Create an iterator at a specific line.
 --
--- * The @line arguments must be valid.
+-- * The @ref arg line@ arguments must be valid.
 --
 textBufferGetIterAtLine :: Int -> TextBuffer -> IO TextIter
 textBufferGetIterAtLine line tb = do
@@ -579,8 +581,7 @@ onEndUserAction, afterEndUserAction :: TextBufferClass tb => tb -> IO () ->
 onEndUserAction = connect_NONE__NONE "end_user_action" False
 afterEndUserAction = connect_NONE__NONE "end_user_action" True
 
--- @dunno@A widgets is inserted into the buffer.
--- *  @literal@
+-- @signal connectToInsertChildAnchor@ A widgets is inserted into the buffer.
 --connectToInsertChildAnchor :: TextBufferClass tb =>
 --  (TextIter -> TextChildAnchor -> IO ()) -> ConnectAfter -> tb -> 
 --  IO (ConnectId tb)

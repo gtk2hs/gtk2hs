@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -22,7 +22,7 @@
 -- @description@ --------------------------------------------------------------
 --
 -- * Plug is a window that is to be attached to the window of another
---   application. If you have managed to receive the @XID from
+--   application. If you have managed to receive the @ref type XID@ from
 --   the inviting application you can construct the Plug and add your widgets
 --   to it.
 --

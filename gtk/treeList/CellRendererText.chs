@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry CellRendererText@
+--  GIMP Toolkit (GTK) @entry CellRendererText TreeView@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/07/18 18:14:30 $
+--  Version $Revision: 1.7 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,9 +21,12 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * This widget derives from @CellRenderer. It provides the possibility to
---   display some text by setting the @Attribute @cellText to the column
---   of a @TreeModel by means of @treeViewAddAttribute from @TreeModelColumn.
+-- * This widget derives from @ref data CellRenderer@. It provides the 
+--   possibility to
+--   display some text by setting the @ref data Attribute@ 
+--   @ref function cellText@ to the column
+--   of a @ref data TreeModel@ by means of 
+--   @ref method treeViewAddAttribute@ from @ref data TreeModelColumn@.
 --
 -- @documentation@ ------------------------------------------------------------
 --

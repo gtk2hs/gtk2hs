@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,8 +21,8 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * This is a special version of @Box. This widget shows its child widgets
---   in a horizontal line.
+-- * This is a special version of @ref data Box@. This widget shows its child 
+--   widgets in a horizontal line.
 --
 -- @documentation@ ------------------------------------------------------------
 --
@@ -47,9 +47,11 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Create a container that shows several children horizontally. If @homogeneous
+-- @constructor hBoxNew@
+-- Create a container that shows several children horizontally. If 
+-- @ref arg homogeneous@
 -- is set all children will be allotted the same amount of space. There will be
--- @spacing pixel between each two children.
+-- @ref arg spacing@ pixel between each two children.
 --
 hBoxNew :: Bool -> Int -> IO HBox
 hBoxNew homogeneous spacing = makeNewObject mkHBox $ liftM castPtr $

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Stock Items@
+--  GIMP Toolkit (GTK) @entry StockItems@
 --
 --  Author : Axel Simon
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -22,7 +22,8 @@
 -- @description@ --------------------------------------------------------------
 --
 -- * A StockItem is a resource that is know throughout Gtk. Defineing you own
---   @IconSet@s as @StockItem@s will make it possible for Gtk to choose
+--   @ref data IconSet@s as @ref data StockItem@s will make it possible for 
+--   Gtk to choose
 --   the most appropriate sizes and enables themes to override you built in
 --   icons. A couple of constants are defined here as well. They are useful 
 --   in accessing Gtk's predefined items.

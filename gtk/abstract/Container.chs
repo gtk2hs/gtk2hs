@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:33 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -107,14 +107,14 @@ type ContainerForeachCB = Widget -> IO ()
 foreign export dynamic mkContainerForeachFunc ::
   (Ptr Widget -> Ptr () -> IO ()) -> IO Callback
 
--- @dunno@Give the focus to the container.
--- * The @direction argument determines what kind of focus change is to be
+-- @method containerFocus@ Give the focus to the container.
+-- * The @ref arg direction@ argument determines what kind of focus 
+-- change is to be
 --   simulated.
 --
--- * The returned boolean value is the value returned fromm the @focus signal
---   emission.
+-- * The returned boolean value is the value returned from the 
+-- @ref signal focus@ signal emission.
 --
--- *  @literal@
 --containerFocus :: ContainerClass c => DirectionType -> c -> IO Bool
 --containerFocus direction con = liftM toBool $ {#call container_focus#} 
 --  (toContainer con) ((fromIntegral.fromEnum) direction)
@@ -151,8 +151,9 @@ containerResizeChildren con =
   {#call container_resize_children#} (toContainer con)
 
 
--- @dunno@Query the composite name of a widget in this container.
--- *  @literal@
+-- @method containerChildCompositeName@ Query the composite name of a 
+-- widget in this container.
+-- *  
 --containerChildCompositeName :: (ContainerClass c, WidgetClass w) =>
 --  w -> c -> IO String
 --containerChildCompositeName widget con = do

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Root of the object hierarchy@
+--  GIMP Toolkit (GTK) @entry Object@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -73,9 +73,9 @@ foreign import ccall "gtk_object_sink" unsafe
   object_sink :: Ptr Object -> IO ()
 
 -- This is a convenience function to generate a new widget. It adds the
--- finalizer with the method described under @objectSink.
+-- finalizer with the method described under objectSink.
 --
--- * The @constr argument is the contructor of the specific object.
+-- * The constr argument is the contructor of the specific object.
 --
 makeNewObject :: ObjectClass obj => 
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
@@ -87,24 +87,25 @@ makeNewObject constr generator = do
   return $ constr obj
 
 
--- @method private objectSetProperty@ Sets a specific attribute of this object.
+-- method private objectSetProperty Sets a specific attribute of this object.
 --
 -- * Most attributes in a widget can be set and retrieved by passing the
 --   name (as a string) and the value to special set/get functions. These
 --   are undocumented because each derived objects implements custom (and
 --   welltyped) set and get functions for most attributes.
 --
-objectSetProperty :: GObjectClass obj => obj -> String -> GenericValue -> IO ()
+objectSetProperty :: GObjectClass gobj => gobj -> String -> GenericValue -> 
+					  IO ()
 objectSetProperty obj prop val = alloca $ \vaPtr -> withCString prop $ 
   \sPtr -> poke vaPtr val >> {#call unsafe g_object_set_property#} 
   (toGObject obj) sPtr vaPtr >> valueUnset vaPtr
   
 
--- @method private objectGetProperty@ Gets a specific attribute of this object.
+-- method private objectGetProperty Gets a specific attribute of this object.
 --
--- * See @ref method objectSetProperty@.
+-- * See objectSetProperty.
 --
-objectGetProperty :: GObjectClass obj => obj -> String -> 
+objectGetProperty :: GObjectClass gobj => gobj -> String -> 
 					IO GenericValue
 objectGetProperty obj prop = alloca $ \vaPtr -> withCString prop $ \str -> do
   {#call unsafe g_object_get_property#} (toGObject obj) str vaPtr

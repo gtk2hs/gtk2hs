@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/23 11:16:08 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,7 +21,8 @@
 --
 -- @description@ --------------------------------------------------------------
 --
---  * A TreeSelection is a data type belonging to a TreeModel. As the name
+--  * A @ref data TreeSelection@ is a data type belonging to a 
+--    @ref data TreeModel@. As the name
 --    suggests it holds the current selection which can even be a multiple
 --    choice.
 --
@@ -211,7 +212,7 @@ treeSelectionSelectRange ts start end =
   {#call tree_selection_select_range#} (toTreeSelection ts) start end
 
 
--- @signal Changed@ Emitted each time the user changes the selection.
+-- @signal onChanged@ Emitted each time the user changes the selection.
 --
 onChanged, afterChanged :: TreeSelectionClass ts => ts -> (IO ()) ->
 			   IO (ConnectId ts)

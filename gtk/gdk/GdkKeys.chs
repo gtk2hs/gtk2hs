@@ -1,9 +1,10 @@
---  GIMP Toolkit (GTK) @entry Enumeration types@     -*-haskell-*-@
+--  -*-haskell-*-
+--  GIMP Toolkit (GTK) @entry Keys@
 --
 --  Author : Jens Petersen
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 2002 Jens Petersen
 --

@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -25,10 +25,13 @@
 --
 -- @documentation@ ------------------------------------------------------------
 --
--- * The @AspectFrame is useful when you want pack a widget so that it can 
+-- * The @ref data AspectFrame@ is useful when you want pack a widget so 
+--   that it can 
 --   resize but always retains the same aspect ratio. For instance, one might
---   be drawing a small preview of a larger image. @AspectFrame derives from
---   @Frame, so it can draw a label and a frame around the child. The frame
+--   be drawing a small preview of a larger image. @ref data AspectFrame@
+--   derives from
+--   @ref data Frame@, so it can draw a label and a frame around the child. 
+--   The frame
 --   will be "shrink-wrapped" to the size of the child.
 --
 -- @todo@ ---------------------------------------------------------------------

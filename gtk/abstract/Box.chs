@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/12 13:06:08 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:33 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -121,9 +121,10 @@ boxReorderChild b w position =
   {#call box_reorder_child#} (toBox b) (toWidget w) (fromIntegral position)
 
 -- @method boxQueryChildPacking@ Query the packing parameter of a child.
--- Returns the behavious if free space is available (@Packing), the additional
--- padding for this widget (@Int) and if the widget was inserted at the start
--- or end of the container (@PackType).
+--
+-- * Returns the behavious if free space is available (@ref arg Packing@),
+-- the additional padding for this widget (@ref arg Int@) and if the widget
+-- was inserted at the start or end of the container (@ref arg PackType@).
 --
 boxQueryChildPacking :: (BoxClass b, WidgetClass w) => b -> w ->
                         IO (Packing,Int,PackType)

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -90,7 +90,7 @@ spinButtonNew adj climbRate digits = makeNewObject mkSpinButton $
 -- range.
 --
 -- * This is a convenience function because the user does not have to create
---   an Adjustment first. Page increments are set to 10*@step.
+--   an Adjustment first. Page increments are set to 10 * @ref arg step@.
 --
 spinButtonNewWithRange :: Double -> Double -> Double -> IO SpinButton
 spinButtonNewWithRange min max step = makeNewObject mkSpinButton $

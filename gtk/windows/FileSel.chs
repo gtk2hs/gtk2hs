@@ -4,7 +4,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.3 $ from $Date: 2002/08/02 06:10:03 $
+--  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --  Copyright (c) 2002 Jens Petersen
@@ -57,7 +57,8 @@ import Structs		(fileSelectionGetButtons)
 -- operations
 -- ----------
 
--- create a new file selection dialog with the given window title (EXPORTED)
+-- @constructor fileSelectionNew@ Create a new file selection dialog with 
+-- the given window title.
 --
 fileSelectionNew       :: String -> IO FileSelection
 fileSelectionNew title  = do
@@ -65,42 +66,35 @@ fileSelectionNew title  = do
     makeNewObject mkFileSelection $ liftM castPtr $ 
 			{#call unsafe file_selection_new#} strPtr
 
--- set the filename for the given file selection dialog (EXPORTED)
+-- @method fileSelectionSetFilename@ Set the filename for the given file 
+-- selection dialog.
 --
-fileSelectionSetFilename :: FileSelectionClass fsel 
-			 => fsel 
-			 -> String 
-			 -> IO ()
+fileSelectionSetFilename :: FileSelectionClass fsel => fsel -> String -> IO ()
 fileSelectionSetFilename fsel str = 
   withCString str $ \strPtr -> 
     {#call unsafe file_selection_set_filename#} (toFileSelection fsel) strPtr
 
--- get the filename currently selected by the given file selection dialog
--- (EXPORTED) 
+-- @method fileSelectionGetFilename@ Get the filename currently selected by 
+-- the given file selection dialog.
 --
-fileSelectionGetFilename :: FileSelectionClass fsel 
-			 => fsel 
-			 -> IO String
+fileSelectionGetFilename :: FileSelectionClass fsel => fsel -> IO String
 fileSelectionGetFilename fsel = 
   do
-    strPtr <- {#call unsafe file_selection_get_filename#} (toFileSelection fsel)
+    strPtr <- {#call unsafe file_selection_get_filename#} 
+      (toFileSelection fsel)
     peekCString strPtr
 
--- show the file operation buttons of the given file selection dialog
--- (EXPORTED)  
+-- @method fileSelectionShowFileopButtons@ Show the file operation buttons 
+-- of the given file selection dialog.
 --
-fileSelectionShowFileopButtons :: FileSelectionClass fsel 
-			       => fsel 
-			       -> IO ()
+fileSelectionShowFileopButtons :: FileSelectionClass fsel => fsel -> IO ()
 fileSelectionShowFileopButtons  =
   {#call file_selection_show_fileop_buttons#} . toFileSelection
 
--- hide the file operation buttons of the given file selection dialog
--- (EXPORTED)  
+-- @method fileSelectionHideFileopButtons@ Hide the file operation buttons 
+-- of the given file selection dialog.
 --
-fileSelectionHideFileopButtons :: FileSelectionClass fsel 
-			       => fsel
-			       -> IO ()
+fileSelectionHideFileopButtons :: FileSelectionClass fsel => fsel -> IO ()
 fileSelectionHideFileopButtons  =
   {#call file_selection_hide_fileop_buttons#} . toFileSelection
 
@@ -120,11 +114,9 @@ fileSelectionHideFileopButtons  =
 --       cancel <- {#get FileSelection.cancel_button#} ptr
 --       return (castToButton ok, castToButton cancel)
 
--- Only show files matching pattern
+-- @method fileSelectionComplete@ Only show files matching pattern.
 --
-fileSelectionComplete :: FileSelectionClass fsel
-                      => fsel -> String
-                      -> IO ()
+fileSelectionComplete :: FileSelectionClass fsel => fsel -> String -> IO ()
 fileSelectionComplete fsel pattern =
   withCString pattern $ \patternPtr ->
     {#call file_selection_complete#} (toFileSelection fsel) patternPtr

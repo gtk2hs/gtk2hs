@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,8 +21,10 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * A @Viewport a helper widget that adds Adjustment slots to a widget, i.e.
---   the widget becomes scrollable. It can then be put into @ScrolledWindow
+-- * A @ref data Viewport@ a helper widget that adds Adjustment slots to a 
+--   widget, i.e.
+--   the widget becomes scrollable. It can then be put into 
+--   @ref data ScrolledWindow@
 --   and will behave as expected.
 --
 -- @documentation@ ------------------------------------------------------------
@@ -30,8 +32,9 @@
 -- * The binding of this widget is superfluous as far as I can tell.
 --
 -- * The only signal this widget registers is "set-scroll-adjustments". It is
---   not bound because it is meant to be received by the @Viewport and sent
---   by @ScrolledWindow.
+--   not bound because it is meant to be received by the @ref data Viewport@
+--    and sent
+--   by @ref data ScrolledWindow@.
 --
 -- @todo@ ---------------------------------------------------------------------
 

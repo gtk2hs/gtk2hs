@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget TreeViewColumn@
+--  GIMP Toolkit (GTK) @entry TreeViewColumn TreeView@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/17 15:59:19 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -130,7 +130,7 @@ treeViewColumnNewWithAttributes title cr attribs =
 -- a column.
 --
 -- * Excess space is divided equally among all renderers which have
---   @arg expand@ set to True.
+--   @ref arg expand@ set to True.
 --
 treeViewColumnPackStart :: (TreeViewColumnClass tvc, CellRendererClass cr) =>
 			   tvc -> cr -> Bool -> IO ()
@@ -141,7 +141,7 @@ treeViewColumnPackStart tvc cr expand =
 -- @method treeViewColumnPackEnd@ Add a cell renderer at the end of a column.
 --
 -- * Excess space is divided equally among all renderers which have
---   @arg expand@ set to True.
+--   @ref arg expand@ set to True.
 --
 treeViewColumnPackEnd :: (TreeViewColumnClass tvc, CellRendererClass cr) =>
 			 tvc -> cr -> Bool -> IO ()
@@ -150,7 +150,7 @@ treeViewColumnPackEnd tvc cr expand =
   (toCellRenderer cr) (fromBool expand)
 
 -- @method treeViewColumnClear@ Remove the associations of attributes
--- to a store for all @ref type CellRenderers@.
+-- to a store for all @ref data CellRenderers@.
 --
 treeViewColumnClear :: TreeViewColumnClass tvc => tvc -> IO ()
 treeViewColumnClear tvc = 
@@ -191,7 +191,7 @@ treeViewColumnAddAttributes tvc cr attribs =
 
 -- @method treeViewColumnSetAttributes@ Set the attributes of
 -- the cell renderer @ref arg cr@ in the tree column @ref arg tvc@
--- be  @red arg attribs@.
+-- be  @ref arg attribs@.
 -- The attributes are given as a list of attribute/column pairs.
 -- All existing attributes are removed, and replaced with the new attributes.
 --

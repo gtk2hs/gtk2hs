@@ -5,7 +5,7 @@
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -22,8 +22,8 @@
 -- @description@ --------------------------------------------------------------
 --
 -- * A Menu is a vertically aligned set of options that can be selected. There
---   are two kinds: Those that are part of a @MenuBar and those that appear
---   as a context menu (within the work space). 
+--   are two kinds: Those that are part of a @ref data MenuBar@ and those 
+--   that appear as a context menu (within the work space). 
 --
 -- @documentation@ ------------------------------------------------------------
 --
@@ -80,7 +80,8 @@ menuReorderChild :: (MenuClass m, MenuItemClass mi) => m -> mi -> Int -> IO ()
 menuReorderChild m child pos = {#call menu_reorder_child#}
   (toMenu m) (toWidget child) (fromIntegral pos)
 
--- @method menuPopup@ Popup a context menu where a button press occurred. --
+-- @method menuPopup@ Popup a context menu where a button press occurred. 
+--
 --
 menuPopup :: MenuClass m => m -> Event -> IO ()
 menuPopup m (Button { time=t, button=b }) = {#call menu_popup#} (toMenu m) 

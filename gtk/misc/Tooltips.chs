@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -26,16 +26,21 @@
 --   helpful for adding more verbose descriptions of things such as buttons
 --   in a toolbar. 
 --   An individual tooltip belongs to a group of tooltips. A group is created
---   with a call to @tooltipsNew. Every tooltip in the group can then be 
---   turned off with a call to @tooltipsDisable and enabled with 
---   @tooltipsEnable. The length of time the user must keep the mouse over a 
---   widget before the tip is shown, can be altered with @tooltipsSetDelay.
+--   with a call to @ref method tooltipsNew@. Every tooltip in the group can 
+--   then be 
+--   turned off with a call to @ref method tooltipsDisable@ and enabled with 
+--   @ref method tooltipsEnable@. The length of time the user must keep the
+--   mouse over a 
+--   widget before the tip is shown, can be altered with 
+--   @ref method tooltipsSetDelay@.
 --   This is set on a 'per group of tooltips' basis.
---   To assign a tip to a particular @Widget, @tooltipsSetTip is used.
+--   To assign a tip to a particular widget, @ref method tooltipsSetTip@
+--   is used.
 --
 -- @documentation@ ------------------------------------------------------------
 --
--- * To associate @Tooltips to a widget is has to have its own GdkWindow.
+-- * To associate @ref data Tooltips@ to a widget it is has to have its own 
+--   GdkWindow.
 --   Otherwise the widget must be set into a EventBox. Can this be done
 --   automatically? Perhaps even with tooltips_force_window()?
 --

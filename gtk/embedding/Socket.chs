@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -26,12 +26,15 @@
 --
 -- @documentation@ ------------------------------------------------------------
 --
--- * After creation of the Socket, you may retrieve the @XID of the socket. 
+-- * After creation of the Socket, you may retrieve the @ref data XID@ of the
+--   socket. 
 --   For this to work, the socket must at least be realized (e.g. shown).
 --
 -- * The application has to make sure the Socket is not destroyed while the
---   other application tries to connect. If the @XID was transmitted, the
---   inviting application can check with @socketHasPlug if the plug has
+--   other application tries to connect. If the @ref data XID@ was 
+--   transmitted, the
+--   inviting application can check with @ref method socketHasPlug@ if the 
+--   plug has
 --   already connected.
 --
 -- @todo@ ---------------------------------------------------------------------

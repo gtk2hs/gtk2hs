@@ -27,7 +27,7 @@ inplace	: noinplace
 	  $(LIBS_ONLY_L))))],\
 	  hs_libraries		= [\"$(LIBNAME)\"],\
 	  extra_libraries	= [$(call makeTextList,\
-	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS_ONLY_L) \
+	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS_ONLY_Ll) \
 	  $(LIBS_ONLY_L))))],\
 	  include_dirs		= [$(call makeTextList, $(INPL_INCLDIR)\
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
@@ -38,7 +38,7 @@ inplace	: noinplace
 	  extra_cc_opts		= [],\
 	  extra_ld_opts		= [$(subst +,$(SPACE),$(call makeTextList,\
 	  $(addprefix -u+,$(EXTRA_SYMBOLS))))]} | \
-	  $(PKG) -f $(LOCALPKGCONF) -a  > /dev/null
+	  $(PKG) --force -f $(LOCALPKGCONF) -a  > /dev/null
 
 installcheck :
 	@if $(PKG) -l | $(GREP) $(PACKAGENAME) > /dev/null; then \
@@ -64,7 +64,7 @@ endif
 	  $(patsubst -L%,%,$(EXTRA_LIBS_ONLY_L)))],\
 	  hs_libraries		= [\"$(LIBNAME)\"],\
 	  extra_libraries	= [$(call makeTextList,\
-	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS_ONLY_L) \
+	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS_ONLY_Ll) \
 	  $(LIBS_ONLY_L))))],\
 	  include_dirs		= [$(call makeTextList, $(INPL_INCLDIR)\
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
@@ -74,7 +74,7 @@ endif
 	  extra_ghc_opts	= [$(call makeTextList,$(EXTRAHC_FLAGS))],\
 	  extra_cc_opts		= [],\
 	  extra_ld_opts		= [$(subst +,$(SPACE),$(call makeTextList,\
-	  $(addprefix -u+,$(EXTRA_SYMBOLS))))]} | $(PKG) -a
+	  $(addprefix -u+,$(EXTRA_SYMBOLS))))]} | $(PKG) --force -a
 
 uninstall : interactiveUninstall
 	$(PKG) -r $(PACKAGENAME)
@@ -100,7 +100,7 @@ $(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
 	$(RM) $@
 	$(strip $(HC) --make $(MAINOK) -package-name $(PACKAGENAME) \
 	  -package-conf $(LOCALPKGCONF) $(HCINCLUDES) \
-	  $(EXTRA_CPPFLAGS_ONLY_I) $(EXTRA_LIBS_ONLY_L) \
+	  $(EXTRA_CPPFLAGS_ONLY_I) $(EXTRA_LIBS_ONLY_Ll) \
 	  $(LIBS_ONLY_L) $(CPPFLAGS_ONLY_I) \
 	  $(HC_FLAGS) $(EXTRAHC_FLAGS) -i$(HIDIRSOK) $(NEEDPACKAGESOK))
 	$(strip $(AR) crs $@ $(STUBOFILES) $(ALLHSFILES:.hs=$(OBJSUFFIX)) \

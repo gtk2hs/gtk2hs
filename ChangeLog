@@ -1,3 +1,11 @@
+2002-08-05  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/Makefile, mk/library.mk, mk/common.mk: Smaller fixed for the
+	broken ghc-pkg of ghc version 5.04. ghci still doesn't work.
+
+	* most .chs files in gtk/: Slight changes of documentation to make
+	the documentation tools work (the latter are not yet in CVS).
+	
 2002-08-02  Jens Petersen <petersen@haskell.org>
 
 	* gtk/windows/FileSel.chs: Re-export fileSelectionGetButtons.

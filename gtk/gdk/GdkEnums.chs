@@ -1,9 +1,10 @@
---  GIMP Toolkit (GTK) @entry Enumeration types     -*-haskell-*-@
+--  -*-haskell-*-
+--  GIMP Toolkit (GTK) @entry Enumerations@
 --
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) [1999..2001] Manuel M. T. Chakravarty
 --

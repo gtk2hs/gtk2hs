@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry CellRenderer@
+--  GIMP Toolkit (GTK) @entry CellRenderer TreeView@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/08 16:50:00 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,13 +21,19 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * A @CellRenderer is an object that determines how the cell of a @TreeView
---   widget is displayed. Each @TreeViewColumn has exactly one accociated
---   @CellRenderer. The data supply for a cell is contained in a @TreeStore
---   or a @ListStore (both subclasses of @TreeModel). Each @CellRenderer may
---   have several attributes. Each @Attribute is associated with one column
---   of the @TreeModel database. Thus several columns of a @TreeModel may be
---   the supply for one @TreeViewColumn.
+-- * A @ref data CellRenderer@ is an object that determines how the cell of a
+--   @ref data TreeView@
+--   widget is displayed. Each @ref data TreeViewColumn@
+--    has exactly one accociated
+--   @ref data CellRenderer@. The data supply for a cell is contained in a 
+--   @ref data TreeStore@
+--   or a @ref data ListStore@ (both subclasses of @ref data TreeModel@).
+--   Each @ref data CellRenderer@ may
+--   have several attributes. Each @ref data Attribute@ is associated with 
+--   one column
+--   of the @ref data TreeModel@ database. Thus several columns of a 
+--   @ref data TreeModel@ may be
+--   the supply for one @ref data TreeViewColumn@.
 --
 -- @documentation@ ------------------------------------------------------------
 --
@@ -46,8 +52,8 @@ import StoreValue	(GenericValue, TMType)
 -- @data CellRendererClass@ Definition of the @ref arg Attribute@ data type.
 --
 -- * Each @ref type CellRenderer@ defines a set of attributes. They are used
---   by the Mogul layer to generate columns in a @ref arg TreeStore@ or
---   @ref arg ListStore@.
+--   by the Mogul layer to generate columns in a @ref data TreeStore@ or
+--   @ref data ListStore@.
 --
 data CellRendererClass cr => Attribute cr a = Attribute String TMType 
 					      (a -> IO GenericValue) 

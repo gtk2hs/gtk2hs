@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry abstract (usually toplevel) Window@
+--  GIMP Toolkit (GTK) @entry Window@
 --
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/19 09:09:31 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) 2001 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -83,8 +83,8 @@ import Events	(Event, marshalEvent)
 
 -- methods
 
--- @dunno@create a new window of the given type
-
+-- @constructor windowNew@ Create a new window of the given type.
+--
 windowNew :: IO Window
 windowNew = makeNewObject mkWindow $ liftM castPtr $
   {#call window_new#} ((fromIntegral.fromEnum) WindowToplevel)

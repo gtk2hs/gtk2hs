@@ -89,7 +89,9 @@ EXTRA_HFILESOK		= $(sort $(EXTRA_HFILES) $(EXTRA_CFILES:.c=.h))
 # C include file paths and other options to CPP.
 EXTRA_CPPFLAGS_ONLY_I	= $(filter -I%,$(EXTRA_CPPFLAGS))
 
-EXTRA_LIBS_ONLY_L	= $(filter -L% -l%,$(EXTRA_LIBS))
+EXTRA_LIBS_ONLY_Ll	= $(filter -L% -l%,$(EXTRA_LIBS))
+
+EXTRA_LIBS_ONLY_L	= $(filter -L%,$(EXTRA_LIBS_ONLY_Ll))
 
 CPPFLAGS_ONLY_I		= $(filter -I%,$(CPPFLAGS))
 
@@ -122,7 +124,7 @@ HCINCLUDES		= $(addprefix '-\#include<,$(addsuffix >',$(HEADER) \
 # Specify how hsc should be run.
 HSCFLAGGED	= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 		  $(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I) \
-		  $(addprefix --lflag=,$(EXTRA_LIBS_ONLY_L) $(CFLAGS)\
+		  $(addprefix --lflag=,$(EXTRA_LIBS_ONLY_Ll) $(CFLAGS)\
 		  $(addprefix --cflag=,$(CPPFLAGS) $(EXTRA_CPP_FLAGS)))\
 		  --cc=$(HC))
 

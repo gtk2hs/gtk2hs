@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@
 -- * Through out we distinguish between buffer cooridinates which are pixels
 --   with the origin at the upper left corner of the first character on the
 --   first line. Window coordinates are relative to the top left pixel which
---   is visible in the current @TextView. Coordinates from Events are in the
---   latter relation. The conversion can be done with 
---   textViewWindowToBufferCoords.
+--   is visible in the current @ref data TextView@. Coordinates from Events 
+--   are in the latter relation. The conversion can be done with 
+--   @ref method textViewWindowToBufferCoords@.
 --
 -- @todo@ ---------------------------------------------------------------------
 --
@@ -35,7 +35,7 @@
 --     gtk_text_view_get_visible_rect
 --     gtk_text_view_get_iter_location
 --
--- * Everyting after @textChildAnchorGetDeleted
+-- * Everyting after textChildAnchorGetDeleted
 --
 module TextView(
   TextView,
@@ -109,14 +109,14 @@ textViewSetBuffer tv tb =
   {#call unsafe text_view_set_buffer#} (toTextView tv) tb
 
 -- @method textViewScrollToMark@ Scroll to the position of the supplied
--- @ref type TextMark@.
+-- @ref data TextMark@.
 --
--- * Just (@xalign, @ref arg yalign@) gives a goal position of the
---   @ref type TextMark@ within screen bounds. 0,0 means left, top and 1.0,1.0
---   means right, bottom.
+-- * Supplying @ref arg xalign@, @ref arg yalign@ gives a goal position of
+--   the @ref data TextMark@ within screen bounds. 0,0 means left, top and
+--   1.0,1.0 means right, bottom.
 --
--- * Supply Nothing if the goal is to bring the position into view with the
---   minimum of scrolling.
+-- * Supply @ref arg Nothing@ if the goal is to bring the position into 
+--   view with the minimum of scrolling.
 --
 -- * @ref arg withinMargin@ is within [0.0 .. 0.5) and imposes an extra margin
 --   at all four sides of the window within which @ref arg xalign@ and
@@ -181,20 +181,23 @@ textViewPlaceCursorOnscreen :: TextViewClass tv => tv -> IO Bool
 textViewPlaceCursorOnscreen tv = liftM toBool $ 
   {#call unsafe text_view_place_cursor_onscreen#} (toTextView tv)
 
--- @dunno@Get the currently visible rectangle.
--- * Use @textViewBufferToWindowCoords to convert into window cooridnates.
+-- @method textViewGetVisible@ Get the currently visible rectangle.
 --
--- *  @literal@
+-- * Use @ref method textViewBufferToWindowCoords@ to convert into window 
+-- cooridnates.
+--
 --textViewGetVisibleRect :: TextViewClass tv => tv -> IO GdkRectangle
 --textViewGetVisibleRect tv = alloca $ \rectPtr -> do
 --  {#call unsafe text_view_visible_rect#} (toTextView tv) rect
 --  peek rectPtr
 
 
--- @dunno@Get a rectangle that roughly contains the character at @TextIter.
--- * Use @textViewBufferToWindowCoords to convert into window cooridnates.
+-- @method textViewGetIterLocation@ Get a rectangle that roughly contains the 
+-- character at @ref data TextIter@.
 --
--- *  @literal@
+-- * Use @ref method textViewBufferToWindowCoords@ to convert into window 
+--   cooridnates.
+--
 --textViewGetIterLocation :: TextViewClass tv => TextMark -> tv -> IO GdkRectangle
 --textViewGetIterLocation tm tv = alloca $ \rectPtr -> do
 --  {#call unsafe text_view_iter_location#} (toTextView tv) tm rect
@@ -348,9 +351,11 @@ textViewBackwardDisplayLine :: TextViewClass tv => tv -> TextIter -> IO Bool
 textViewBackwardDisplayLine tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line#} (toTextView tv) ti
  
--- Move the iterator forwards and to the end. (EXPORTED)
+-- @method textViewForwardDisplayLineEnd@ Move the iterator forwards and to
+-- the end.
 --
--- * Like @textViewForwardDisplayLine but moves to the end of the line as well.
+-- * Like @ref method textViewForwardDisplayLine@ but moves to the end of 
+--   the line as well.
 --
 textViewForwardDisplayLineEnd :: TextViewClass tv => TextIter -> tv -> IO Bool
 textViewForwardDisplayLineEnd ti tv = liftM toBool $

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,8 +21,8 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * This container can be used to receive @Event@s for a widget that has
---   no window on its own.
+-- * This container can be used to receive @ref data Event@s for a widget
+--   that has no window on its own.
 --
 -- @documentation@ ------------------------------------------------------------
 --

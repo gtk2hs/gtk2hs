@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -39,10 +39,11 @@
 --   To make detaching and reattaching the handlebox as minimally confusing 
 --   as possible to the user, it is important to set the snap edge so that 
 --   the snap edge does not move when the handlebox is deattached. For 
---   instance, if the handlebox is packed at the bottom of a VBox, then when 
+--   instance, if the handlebox is packed at the bottom of a @ref data VBox@,
+--   then when 
 --   the handlebox is detached, the bottom edge of the handlebox's allocation 
 --   will remain fixed as the height of the handlebox shrinks, so the snap 
---   edge should be set to @PosBottom.
+--   edge should be set to @ref data PosBottom@.
 --
 -- @todo@ ---------------------------------------------------------------------
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/17 16:02:09 $
+--  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,11 +21,13 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * @ScrolledWindow is a container that adds scroll bars to its child. Some
+-- * @ref data ScrolledWindow@ is a container that adds scroll bars to its 
+--   child. Some
 --   widgets have native scrolling support, in which case the scrolling action
 --   is performed by the child itself (e.g. a TreeView widget does this by only
 --   moving the table part and not the titles of a table). If a widget does
---   not support native scrolling it has to be put into a @TreeView widget.
+--   not support native scrolling it can be put into a 
+--   @ref data ScrolledWindow@ widget.
 --
 -- @documentation@ ------------------------------------------------------------
 --

@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -28,7 +28,8 @@
 --
 -- * Each radio button has to be associated with a group. Generating a new
 --   radio button makes up a new group. Other group members can be added by
---   generating radio buttons with the function @radioButtonNewJoinGroup.
+--   generating radio buttons with the function 
+--   @ref method radioButtonNewJoinGroup@.
 --
 -- @todo@ ---------------------------------------------------------------------
 --

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,11 +21,14 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * Toolbar: create bars of buttons and derived widget. @Button@s, 
---   @RadioButton@s and @ToggleButton@s can be added by refering to stock
---   images. Their size can be changed by calling @toolbarSetIconSize. In
+-- * Toolbar: create bars of buttons and derived widget. @ref data Button@s, 
+--   @ref data RadioButton@s and @ref data ToggleButton@s can be added by 
+--   refering to stock
+--   images. Their size can be changed by calling 
+--   @ref method toolbarSetIconSize@. In
 --   contrast, normal widget cannot be added. Due to the bad interface of
---   GtkToolbar Mnemonics of @RadioButton@s and @ToggleButton@s are not
+--   GtkToolbar Mnemonics of @ref data RadioButton@s and 
+--   @ref data ToggleButton@s are not
 --   honored.
 --
 -- @documentation@ ------------------------------------------------------------
@@ -33,11 +36,17 @@
 -- * All the append, insert and prepend functions use an internal function to
 --   do the actual work. In fact the interface is pretty skrewed up: To insert
 --   icons by using stock items is definitely the best practice as all other
---   images cannot react to @toolbarSetIconSize and other theming actions. On
---   the other hand toolbar_insert_stock() always generates simple @Button@s
---   but is the only function that is able to insert @Mnemonic@s on the label.
---   Our solution is to use @StockItem@s to specify all @Images of the 
---   @Buttons. If the user inserts @RadioButton@s or @ToggleButton@s, the
+--   images cannot react to @ref method toolbarSetIconSize@
+--    and other theming actions. On
+--   the other hand toolbar_insert_stock() always generates simple 
+--   @ref data Button@s
+--   but is the only function that is able to insert @ref data Mnemonic@s 
+--   on the label.
+--   Our solution is to use @ref data StockItem@s to specify all 
+--   @ref data Images@ of the 
+--   @ref data Buttons@. 
+--   If the user inserts @ref data RadioButton@s or @ref data ToggleButton@s, 
+--   the
 --   stock image lookup is done manually. A mnemonic in the labels is sadly
 --   not honored this way.
 --

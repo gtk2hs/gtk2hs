@@ -131,6 +131,8 @@ NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
 
 ifneq ($(strip $(NEW_MODULE_SYS)),yes)
 NEEDPACKAGES = data lang
+else
+NEEDPACKAGES = data
 endif
 
 # options that are needed when compiling this or with this package:

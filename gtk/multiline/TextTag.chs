@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry TextTag for the editor widget@
+--  GIMP Toolkit (GTK) @entry TextTag TextBuffer@
 --
 --  Author : Axel Simon
 --          
 --  Created: 24 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by

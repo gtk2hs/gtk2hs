@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/17 16:09:05 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -136,7 +136,7 @@ entryInsertText ed str pos = withObject (fromIntegral pos) $ \posPtr ->
 -- * If the @ref arg end@ position is invalid, it is set to the lenght of the
 --   buffer.
 --
--- * @ref arg start@ is restricted to 0..@end.
+-- * @ref arg start@ is restricted to 0..@ref arg end@.
 --
 entryDeleteText :: EntryClass ed => ed -> Int -> Int -> IO ()
 entryDeleteText ed start end = {#call editable_delete_text#} (toEditable ed)

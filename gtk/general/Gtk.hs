@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry gathering of all definitions@
+--  GIMP Toolkit (GTK)
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/17 16:03:36 $
+--  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- DESCRIPTION --------------------------------------------------------------
 --
 -- * This module gathers all publicly available functions from the Gtk binding.
 --
@@ -30,14 +30,14 @@
 --
 -- * The following modules are not bound:
 --   DialogMessage : has only one variadic function which cannot be bound.
---		     The same functionality can be simulated with @Dialog.
---   Item :	     The only child of this abstract class is @MenuItem. The
---		     three signal Item defines are therefore bound in 
---		     @MenuItem.
+--		     The same functionality can be simulated with Dialog.
+--   Item :	     The only child of this abstract class is MenuItem. The
+--		     three signals Item defines are therefore bound in 
+--		     MenuItem.
 --   Bin :	     This abstract widget is of no use to the user. We should
---		     not need the @Bin and @BinClass entities either.
---   Editable :	     This should be the base class of @Entry, but it is not.
---		     I moved everything into @Entry.
+--		     not need the Bin and BinClass entities either.
+--   Editable :	     This should be the base class of Entry, but it is not.
+--		     I moved everything into Entry.
 --
 --- TODO ----------------------------------------------------------------------
 --

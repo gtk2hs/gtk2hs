@@ -1,10 +1,12 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry General initialization@
+--  GIMP Toolkit (GTK) @entry General@
 --
---  Author : Manuel M. T. Chakravarty
+--  Author : Axel Simon
+--	     Manuel M. T. Chakravarty
+--
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -28,7 +30,6 @@
 -- 
 --  * quitAddDestroy, quitAdd, quitRemove, inputAdd, inputRemove
 --
-{-# OPTIONS -optc-include gtk/gtk.h #-}
 module General(
 --  getDefaultLanguage,
   init,
@@ -63,11 +64,10 @@ import Enums    (InputCondition(..))
 
 {#context lib="gtk" prefix ="gtk"#}
 
--- @dunno@Retreive the current language.
+-- @function getDefaultLanguage@ Retreive the current language.
 -- * This function returns a String which's pointer can be used later on for
 --   comarisions.
 --
--- *  @literal@
 --getDefaultLanguage :: IO String
 --getDefaultLanguage = do
 --  strPtr <- {#call unsafe get_default_language#}
@@ -76,7 +76,7 @@ import Enums    (InputCondition(..))
 --  return str
 
 
--- @method init@ initialize GTK+
+-- @function init@ initialize GTK+
 --
 -- * extracts all GTK+ specific arguments from the given options list
 --
@@ -101,44 +101,44 @@ init (Just (prog, args)) = do
       _:args' <- mapM peekCString addrs'  -- drop the program name
       return (prog, args')
 
--- @method eventsPending@ Inquire the number of events pending on the event
+-- @function eventsPending@ Inquire the number of events pending on the event
 -- queue
 --
 eventsPending :: IO Int
 eventsPending  = liftM fromIntegral {#call unsafe events_pending#}
 
--- @method main@ GTK+'s main event loop
+-- @function main@ GTK+'s main event loop
 --
 main :: IO ()
 main  = {#call main#}
 
--- @method mainLevel@ Inquire the main level
+-- @function mainLevel@ Inquire the main level
 --
 mainLevel :: IO Int
 mainLevel  = liftM (toEnum.fromEnum) {#call unsafe main_level#}
 
--- @method mainQuit@ Exit the main event loop
+-- @function mainQuit@ Exit the main event loop
 --
 mainQuit :: IO ()
 mainQuit  = {#call main_quit#}
 
--- @method mainIteration@ process events
+-- @function mainIteration@ process events
 --
 mainIteration :: IO Bool
 mainIteration  = liftM toBool {#call main_iteration#}
 
--- @method mainIterationDo@ process events
+-- @function mainIterationDo@ process events
 --
 mainIterationDo :: Bool -> IO Bool
 mainIterationDo blocking = 
   liftM toBool $ {#call main_iteration_do#} (fromBool blocking)
 
--- @method grabAdd@ add a grab widget
+-- @function grabAdd@ add a grab widget
 --
 grabAdd :: WidgetClass wd => wd -> IO ()
 grabAdd  = {#call grab_add#} . toWidget
 
--- @method grabGetCurrent@ inquire current grab widget
+-- @function grabGetCurrent@ inquire current grab widget
 --
 grabGetCurrent :: IO (Maybe Widget)
 grabGetCurrent  = do
@@ -146,7 +146,7 @@ grabGetCurrent  = do
   if (wPtr==nullPtr) then return Nothing else 
     liftM Just $ makeNewObject mkWidget (return wPtr)
 
--- @method grabRemove@ remove a grab widget
+-- @function grabRemove@ remove a grab widget
 --
 grabRemove :: WidgetClass w => w -> IO ()
 grabRemove  = {#call grab_remove#} . toWidget
@@ -174,7 +174,7 @@ makeCallback fun = do
   writeIORef dRef dPtr
   return (funPtr, dPtr)
 
--- @method timeoutAdd@ Register a function that is to be called after
+-- @function timeoutAdd@ Register a function that is to be called after
 -- @ref arg interval@ ms have been elapsed.
 --
 -- * If the function returns False it will be removed.
@@ -185,13 +185,13 @@ timeoutAdd fun msec = do
   {#call unsafe timeout_add_full#} (fromIntegral msec) funPtr nullFunPtr 
     nullPtr dPtr
 
--- @method timeoutRemove@ Remove a previously added timeout handler by its
+-- @function timeoutRemove@ Remove a previously added timeout handler by its
 -- @ref type TimeoutId@.
 --
 timeoutRemove :: HandlerId -> IO ()
 timeoutRemove  = {#call unsafe timeout_remove#}
 
--- @method idleAdd@ Add a callback that is called whenever the system is idle.
+-- @function idleAdd@ Add a callback that is called whenever the system is idle.
 --
 -- * A priority can be specified.
 --
@@ -201,7 +201,7 @@ idleAdd fun pri = do
   {#call unsafe idle_add_full#} (fromIntegral pri) funPtr nullFunPtr
     nullPtr dPtr
 
--- @method idleRemove@ Remove a previously added idle handler by its
+-- @function idleRemove@ Remove a previously added idle handler by its
 -- @ref arg TimeoutId@.
 --
 idleRemove :: HandlerId -> IO ()

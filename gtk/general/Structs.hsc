@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Marshaling of structures@
+--  GIMP Toolkit (GTK) @entry Structures@
 --
 --  Author : Axel Simon
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/08/02 06:10:03 $
+--  Version $Revision: 1.6 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -26,7 +26,8 @@
 --
 --
 -- @todo@ ---------------------------------------------------------------------
-
+--
+--
 module Structs(
   Rectangle(..),	-- data type providing a rectangle
   Allocation,
@@ -134,13 +135,13 @@ instance Storable Requisition where
 inputError :: #{type gint}
 inputError = #{const GTK_INPUT_ERROR}
 
--- The @TreeIter struct is not used by itself. But we have to allocate space
+-- The TreeIter struct is not used by itself. But we have to allocate space
 -- for it in module TreeModel.
 treeIterSize :: Int
 treeIterSize = #{const sizeof(GtkTreeIter)}
 
 
--- The @TextIter struct can be a local variable in a C program. We have to
+-- The TextIter struct can be a local variable in a C program. We have to
 -- store it on the heap.
 --
 textIterSize :: Int
@@ -153,7 +154,9 @@ dialogGetUpper :: DialogClass dc => dc -> IO VBox
 dialogGetUpper dc = makeNewObject mkVBox $ liftM castPtr $
   withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, vbox}
 
--- @method dialogGetActionArea@ Extract the action area of a dialog box. This
+-- @method dialogGetActionArea@ Extract the action area of a dialog box.
+--
+-- * This
 -- is useful to add some special widgets that cannot be added with
 -- dialogAddActionWidget.
 --
@@ -234,13 +237,15 @@ socketHasPlug socket = do
   plugPtr <- withForeignPtr (unSocket socket) #{peek GtkSocket, plug_window}
   return (plugPtr/=nullPtr)
 
--- Get the current size of the @Button@s in a @Toolbar. The value is not
--- mangled.
+-- method toolbarGetSize' Get the current size of the Buttons 
+-- in a Toolbar.
+--
+-- * The value is not mangled (i.e. converted to a Haskell Int).
 --
 toolbarGetSize' :: Toolbar -> IO IconSize
 toolbarGetSize' tb = withForeignPtr (unToolbar tb) #peek GtkToolbar, icon_size
 
--- Static values for different @Toolbar widgets.
+-- Static values for different Toolbar widgets.
 --
 -- * c2hs and hsc should agree on types!
 --
@@ -284,7 +289,7 @@ comboGetList :: Combo -> IO List
 comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
   makeNewObject mkList $ #{peek GtkCombo, list} cPtr
 
--- @method priorityHigh@ For installing idle callbacks: Priorities.
+-- @constant priorityHigh@ For installing idle callbacks: Priorities.
 --
 priorityHigh :: Int
 priorityHigh  = #const G_PRIORITY_HIGH_IDLE

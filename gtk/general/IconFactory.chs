@@ -5,7 +5,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -135,8 +135,8 @@ iconSetAddSource set source = {#call unsafe icon_set_add_source#} set source
 
 -- @constructor iconSetNew@ Create a new IconSet.
 --
--- * Each icon in an application is contained in an @ref type IconSet@. The
---   @ref type IconSet@ contains several variants (@IconSource@s) to
+-- * Each icon in an application is contained in an @ref data IconSet@. The
+--   @ref data IconSet@ contains several variants (@ref data IconSource@s) to
 --   accomodate for different sizes and states.
 --
 iconSetNew :: IO IconSet

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget class@
+--  GIMP Toolkit (GTK) @entry Widget Widget@
 --
 --  Author : Axel Simon
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/04 10:44:47 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -330,14 +330,14 @@ widgetGetDirection w = liftM (toEnum.fromIntegral) $
 
 -- Accelerator handling.
 
--- @dunno@Lock accelerators.
--- *  @literal@
+-- Lock accelerators.
+-- *  
 --widgetLockAccelerators :: WidgetClass w => w -> IO ()
 --widgetLockAccelerators = {#call unsafe widget_lock_accelerators#}.toWidget
 
 
--- @dunno@Unlock accelerators.
--- *  @literal@
+-- Unlock accelerators.
+-- * 
 --widgetUnlockAccelerators :: WidgetClass w => w -> IO ()
 --widgetUnlockAccelerators = {#call widget_unlock_accelerators#}.toWidget
 

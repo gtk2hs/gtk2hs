@@ -6,7 +6,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -69,7 +69,7 @@ import Markup
 
 -- @constructor labelNew@ create a new label widget
 --
-labelNew :: (Maybe String) -> IO Label
+labelNew :: Maybe String -> IO Label
 labelNew str = makeNewObject mkLabel $ liftM castPtr $
   case str of
     Nothing    -> {#call label_new#} nullPtr
@@ -81,8 +81,8 @@ labelSetText :: LabelClass l => l -> String -> IO ()
 labelSetText l str =
   withCString str $ {#call label_set_text#} (toLabel l)
 
--- @dunno@set the text attribute
--- *  @literal@
+-- @method labelSetAttributes@ Set the text attributes.
+--
 -- labelSetAttributes :: LabelClass l => PangoAttrList -> IO ()
 
 

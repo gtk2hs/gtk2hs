@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry TreeStore helper functions@
+--  GIMP Toolkit (GTK) @entry StoreValue TreeStore@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -43,7 +43,7 @@ import LocalControl	(throw, Exception(AssertionFailed))
 
 #include <glib-object.h>
 
--- This is an enumeration of all @GType@s that can be used in a @TreeModel.
+-- This is an enumeration of all GTypes that can be used in a TreeModel.
 --
 data TMType = TMinvalid
 	    | TMuint

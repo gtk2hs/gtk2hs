@@ -1,11 +1,11 @@
 {-# OPTIONS -cpp #-}
---  GIMP Toolkit (GTK) @entry Character conversion to UTF.@
+--  GIMP Toolkit (GTK) @entry UTF@
 --
 --  Author : Axel Simon
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:59:05 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/05 16:41:34 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
