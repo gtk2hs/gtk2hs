@@ -5,6 +5,8 @@
 --
 --  Created: @DATE@
 --
+--  Version $Revision: 1.7 $ from $Date: 2005/02/11 18:03:14 $
+--
 --  Copyright (C) @YEAR@ @COPYRIGHT@
 --
 --  This library is free software; you can redistribute it and/or
@@ -20,7 +22,7 @@
 -- |
 -- Maintainer  : gtk2hs-users\@lists.sourceforge.net
 -- Stability   : provisional
--- Portability : non-portable (uses Gtk+ C library)
+-- Portability : portable (depends on GHC)
 --
 -- @DESCRIPTION@@TODO@
 --

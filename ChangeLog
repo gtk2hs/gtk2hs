@@ -18,6 +18,9 @@
 	* configure.ac: oops, forgot to set HSCFLAGS="-C -optc-mms-bitfields"
 	Bump version to 0.9.7.1_rc3
 
+	* tools/apiGen/Template.chs: describe our modules as "portable" and
+	include rcs tags in generated modules.
+
 2005-02-10 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/CodeGen.hs: make use of the information from scanning
