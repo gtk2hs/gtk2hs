@@ -28,6 +28,7 @@ SourceTag-HEADER		= gtksourceview/gtksourcetag.h
 SourceTagTable-HEADER		= gtksourceview/gtksourcetagtable.h
 SourceTagStyle-HEADER		= gtksourceview/gtksourcetagstyle.h
 SourcePringJob-HEADER		= gtksourceview/gtksourceprintjob.h
+SourceStyleScheme-HEADER        = gtksourceview/gtksourcestylescheme.h
 endif
 
 # Further options to the C preprocessor are passed verbatim:

@@ -41,15 +41,6 @@ import SourceTagStyle
 
 {# context lib="gtk" prefix="gtk" #}
 
-{#pointer *SourceStyleScheme foreign newtype #}
-
-mkSourceStyleScheme = SourceStyleScheme
-unSourceStyleScheme (SourceStyleScheme o) = o
-
-instance GObjectClass SourceStyleScheme where
-  toGObject   = mkGObject.castForeignPtr.unSourceStyleScheme
-  fromGObject = mkSourceStyleScheme.castForeignPtr.unGObject
-
 -- methods
 
 -- @method sourceStyleSchemeGetTagStyle@
@@ -66,7 +57,7 @@ sourceStyleSchemeGetTagStyle ss styleName =
 -- 
 sourceStyleSchemeGetName :: SourceStyleScheme -> IO String
 sourceStyleSchemeGetName ss =
-  {#call source_style_scheme_get_name#} ss >>= peekCString
+  {#call source_style_scheme_get_name#} ss >>= peekUTFString
 
 -- @method sourceStyleSchemeGetDefault@
 -- 

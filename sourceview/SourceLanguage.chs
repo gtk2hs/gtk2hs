@@ -31,13 +31,13 @@ module SourceLanguage (
   sourceLanguageGetSection,
   sourceLanguageGetTags,
   sourceLanguageGetEscapeChar,
---  sourceLanguageGetMimeTypes,
---  sourceLanguageSetMimeTypes,
---  sourceLanguageGetStyleScheme,
---  sourceLanguageSetStyleScheme,
---  sourceLanguageGetTagStyle,
---  sourceLanguageSetTagStyle,
---  sourceLanguageGetTagDefaultStyle
+  sourceLanguageGetMimeTypes,
+  sourceLanguageSetMimeTypes,
+  sourceLanguageGetStyleScheme,
+  sourceLanguageSetStyleScheme,
+  sourceLanguageGetTagStyle,
+  sourceLanguageSetTagStyle,
+  sourceLanguageGetTagDefaultStyle
 ) where
 
 import Monad	(liftM)
@@ -47,7 +47,9 @@ import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import SourceViewType#}
 {#import Signal#}
-import GList	(readGSList)
+import SourceStyleScheme
+import SourceTagStyle
+import GList	(fromGSList, toGSList)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -58,20 +60,20 @@ import GList	(readGSList)
 --
 sourceLanguageGetName :: SourceLanguage -> IO String
 sourceLanguageGetName sl =
-  {#call unsafe source_language_get_name#} sl >>= peekCString
+  {#call unsafe source_language_get_name#} sl >>= peekUTFString
 
 -- @method sourceLanguageGetSection@
 --
 sourceLanguageGetSection :: SourceLanguage -> IO String
 sourceLanguageGetSection sl =
-  {#call unsafe source_language_get_section#} sl >>= peekCString
+  {#call unsafe source_language_get_section#} sl >>= peekUTFString
 
 -- @method sourceLanguageGetTags@
 --
 sourceLanguageGetTags :: SourceLanguage -> IO [SourceTag]
 sourceLanguageGetTags sl = do
   gList <- {#call unsafe source_language_get_tags#} sl
-  wList <- readGSList gList
+  wList <- fromGSList gList
   mapM (makeNewGObject mkSourceTag) (map return wList)
 
 -- @method sourceLanguageGetEscapeChar@
@@ -80,7 +82,19 @@ sourceLanguageGetEscapeChar :: SourceLanguage -> IO Char
 sourceLanguageGetEscapeChar sl = liftM (toEnum . fromEnum) $
   {#call unsafe source_language_get_escape_char#} sl
 
-{-
+sourceLanguageGetMimeTypes :: SourceLanguage -> IO [String]
+sourceLanguageGetMimeTypes sl = do
+  mimeTypesList <- {#call unsafe source_language_get_mime_types#} sl
+  mimeTypesPtrs <- fromGSList mimeTypesList
+  mapM peekUTFString mimeTypesPtrs
+
+sourceLanguageSetMimeTypes :: SourceLanguage -> [String] -> IO ()
+sourceLanguageSetMimeTypes sl mimeTypes = do
+  mimeTypesPtrs <- mapM newUTFString mimeTypes
+  mimeTypesList <- toGSList mimeTypesPtrs
+  {#call unsafe source_language_set_mime_types#} sl mimeTypesList
+  {#call unsafe g_slist_free#} mimeTypesList
+
 -- @method sourceLanguageGetStyleScheme@
 --
 sourceLanguageGetStyleScheme :: SourceLanguage -> IO SourceStyleScheme
@@ -91,23 +105,29 @@ sourceLanguageGetStyleScheme sl = makeNewGObject mkSourceStyleScheme $
 --
 sourceLanguageSetStyleScheme :: SourceLanguage -> SourceStyleScheme -> IO ()
 sourceLanguageSetStyleScheme sl ss =
-  {#call unsafe source_language_get_style_scheme#} sl ss
+  {#call unsafe source_language_set_style_scheme#} sl ss
 
 -- @method sourceLanguageGetTagStyle@
 --
 sourceLanguageGetTagStyle :: SourceLanguage -> String -> IO SourceTagStyle
-sourceLanguageGetTagStyle sl tag = makeNewGObject mkSourceTagStyle $
-  {#call unsafe source_language_get_tag_style#} sl tag
+sourceLanguageGetTagStyle sl tag =
+  withCString  tag  $ \strPtr1 -> do
+  sts <- {#call unsafe source_language_get_tag_style#} sl strPtr1
+  peek (castPtr sts)
 
 -- @method sourceLanguageSetTagStyle@
 --
 sourceLanguageSetTagStyle :: SourceLanguage -> String -> SourceTagStyle -> IO ()
-sourceLanguageSetTagStyle sl tag sts =
-  {#call unsafe source_language_set_tag_style#} sl tag sts
+sourceLanguageSetTagStyle sl tag sts =  
+  withCString  tag  $ \strPtr1 ->
+  alloca            $ \sts' -> do
+  poke sts' sts
+  {#call unsafe source_language_set_tag_style#} sl strPtr1 (castPtr sts')
 
 -- @method sourceLanguageGetTagDefaultStyle@
 --
 sourceLanguageGetTagDefaultStyle :: SourceLanguage -> String -> IO SourceTagStyle
-sourceLanguageGetTagDefaultStyle sl tag = makeNewGObject mkSourceTagStyle $
-  {#call unsafe source_language_get_tag_default_style#} sl tag 
--}
+sourceLanguageGetTagDefaultStyle sl tag =
+  withCString  tag  $ \strPtr1 -> do
+  sts <- {#call unsafe source_language_get_tag_default_style#} sl strPtr1
+  peek (castPtr sts)

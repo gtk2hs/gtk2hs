@@ -32,10 +32,13 @@ module SourceBuffer (
   sourceBufferNewWithLanguage,
   sourceBufferSetCheckBrackets,
   sourceBufferGetCheckBrackets,
---  sourceBufferSetBracketsMatchStyle,
+  sourceBufferSetBracketsMatchStyle,
   sourceBufferSetHighlight,
-  sourceBufferGetHighlight
-{-
+  sourceBufferGetHighlight,
+  sourceBufferSetMaxUndoLevels,
+  sourceBufferGetMaxUndoLevels,
+  sourceBufferSetLanguage,
+  sourceBufferGetLanguage,
   sourceBufferSetEscapeChar,
   sourceBufferGetEscapeChar,
   sourceBufferCanUndo,
@@ -54,7 +57,6 @@ module SourceBuffer (
   sourceBufferGetIterAtMarker,
   sourceBufferGetNextMarker,
   sourceBufferGetPrevMarker
--}
 ) where
 
 import Monad	(liftM)
@@ -66,7 +68,9 @@ import GObject	(makeNewGObject)
 {#import SourceViewType#}
 {#import Signal#}
 import SourceTagStyle
-import GList	(fromGList)
+import SourceMarker
+{#import TextIter#}
+import GList	(fromGSList)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -99,13 +103,13 @@ sourceBufferGetCheckBrackets :: SourceBuffer -> IO Bool
 sourceBufferGetCheckBrackets sb = liftM toBool $
   {#call unsafe source_buffer_get_check_brackets#} sb
 
-{-
 -- @method sourceBufferSetBracketsMatchStyle@
 --
 sourceBufferSetBracketsMatchStyle :: SourceBuffer -> SourceTagStyle -> IO () 
-sourceBufferSetBracketsMatchStyle sb ts = liftM toBool $
-  {#call unsafe source_buffer_set_bracket_match_style#} sb ts
--}
+sourceBufferSetBracketsMatchStyle sb ts =
+  alloca $ \tsPtr -> do
+  poke tsPtr ts
+  {#call unsafe source_buffer_set_bracket_match_style#} sb (castPtr tsPtr)
 
 -- @method sourceBufferSetHighlight@
 --
@@ -142,3 +146,126 @@ sourceBufferSetLanguage sb lang =
 sourceBufferGetLanguage :: SourceBuffer -> IO SourceLanguage
 sourceBufferGetLanguage sb = makeNewGObject mkSourceLanguage $
   {#call unsafe source_buffer_get_language#} sb
+
+-- @method sourceBufferSetEscapeChar@
+--
+sourceBufferSetEscapeChar :: SourceBuffer -> Char -> IO ()
+sourceBufferSetEscapeChar sb char =
+  {#call unsafe source_buffer_set_escape_char#} sb ((toEnum . fromEnum) char)
+  
+-- @method sourceBufferGetEscapeChar@
+--
+sourceBufferGetEscapeChar :: SourceBuffer -> IO Char
+sourceBufferGetEscapeChar sb = liftM (toEnum . fromEnum) $
+  {#call unsafe source_buffer_get_escape_char#} sb
+
+-- @method sourceBufferCanUndo@
+--
+sourceBufferCanUndo :: SourceBuffer -> IO Bool
+sourceBufferCanUndo sb = liftM toBool $
+  {#call unsafe source_buffer_can_undo#} sb
+  
+-- @method sourceBufferCanRedo@
+--
+sourceBufferCanRedo :: SourceBuffer -> IO Bool
+sourceBufferCanRedo sb = liftM toBool $
+  {#call unsafe source_buffer_can_redo#} sb
+
+-- @method sourceBufferUndo@
+--
+sourceBufferUndo :: SourceBuffer -> IO ()
+sourceBufferUndo sb =
+  {#call source_buffer_undo#} sb
+  
+-- @method sourceBufferRedo@
+--
+sourceBufferRedo :: SourceBuffer -> IO ()
+sourceBufferRedo sb =
+  {#call source_buffer_redo#} sb
+
+-- @method sourceBufferBeginNotUndoableAction@
+--
+sourceBufferBeginNotUndoableAction :: SourceBuffer -> IO ()
+sourceBufferBeginNotUndoableAction sb =
+  {#call source_buffer_begin_not_undoable_action#} sb
+  
+-- @method sourceBufferEndNotUndoableAction@
+--
+sourceBufferEndNotUndoableAction :: SourceBuffer -> IO ()
+sourceBufferEndNotUndoableAction sb =
+  {#call source_buffer_end_not_undoable_action#} sb
+
+-- @method sourceBufferCreateMarker@
+--
+sourceBufferCreateMarker :: SourceBuffer -> String -> String -> TextIter -> IO SourceMarker
+sourceBufferCreateMarker sb name markerType iter =
+  makeNewGObject mkSourceMarker $
+  withCString name       $ \strPtr1 ->
+  withCString markerType $ \strPtr2 ->
+  {#call source_buffer_create_marker#} sb strPtr1 strPtr2 iter
+
+-- @method sourceBufferMoveMarker@
+--
+sourceBufferMoveMarker :: SourceBuffer -> SourceMarker -> TextIter -> IO ()
+sourceBufferMoveMarker sb mark iter =
+  {#call source_buffer_move_marker#} sb mark iter
+
+-- @method sourceBufferDeleteMarker@
+--
+sourceBufferDeleteMarker :: SourceBuffer -> SourceMarker -> IO ()
+sourceBufferDeleteMarker sb mark =
+  {#call source_buffer_delete_marker#} sb mark
+
+-- @method sourceBufferGetMarker@
+--
+sourceBufferGetMarker :: SourceBuffer -> String -> IO SourceMarker
+sourceBufferGetMarker sb name =
+  makeNewGObject mkSourceMarker $
+  withCString name $ \strPtr1 ->
+  {#call unsafe source_buffer_get_marker#} sb strPtr1
+
+-- @method sourceBufferGetMarkersInRegion@
+--
+sourceBufferGetMarkersInRegion :: SourceBuffer -> TextIter -> TextIter -> IO [SourceMarker]
+sourceBufferGetMarkersInRegion sb begin end = do
+  gList <- {#call unsafe source_buffer_get_markers_in_region#} sb begin end
+  wList <- fromGSList gList
+  mapM (makeNewGObject mkSourceMarker) (map return wList)
+
+-- @method sourceBufferGetFirstMarker@
+--
+sourceBufferGetFirstMarker :: SourceBuffer -> IO SourceMarker
+sourceBufferGetFirstMarker sb =
+  makeNewGObject mkSourceMarker $
+  {#call unsafe source_buffer_get_first_marker#} sb
+
+-- @method sourceBufferGetLastMarker@
+--
+sourceBufferGetLastMarker :: SourceBuffer -> IO SourceMarker
+sourceBufferGetLastMarker sb =
+  makeNewGObject mkSourceMarker $
+  {#call unsafe source_buffer_get_last_marker#} sb
+
+-- @method sourceBufferGetIterAtMarker@
+--
+sourceBufferGetIterAtMarker :: SourceBuffer -> SourceMarker -> IO TextIter
+sourceBufferGetIterAtMarker sb mark = do
+  iter <- makeEmptyTextIter
+  {#call unsafe source_buffer_get_iter_at_marker#} sb iter mark
+  return iter
+
+-- @method sourceBufferGetNextMarker@
+--
+sourceBufferGetNextMarker :: SourceBuffer -> TextIter -> IO (Maybe SourceMarker)
+sourceBufferGetNextMarker sb iter = do
+  markPtr <- {#call unsafe source_buffer_get_next_marker#} sb iter
+  if markPtr==nullPtr then return Nothing
+                      else liftM Just $ makeNewGObject mkSourceMarker (return markPtr)
+
+-- @method sourceBufferGetPrevMarker@
+--
+sourceBufferGetPrevMarker :: SourceBuffer -> TextIter -> IO (Maybe SourceMarker)
+sourceBufferGetPrevMarker sb iter = do
+  markPtr <- {#call unsafe source_buffer_get_prev_marker#} sb iter
+  if markPtr==nullPtr then return Nothing
+                      else liftM Just $ makeNewGObject mkSourceMarker (return markPtr)
