@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/12/12 18:09:50 $
+--  Version $Revision: 1.7 $ from $Date: 2004/12/12 18:23:59 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -143,13 +143,7 @@ adjustmentGetValue :: Adjustment -> IO Double
 adjustmentGetValue adj =
   liftM realToFrac $ {#call adjustment_get_value#} adj
 
--- | Retrieve the current value.
-adjustmentGetValue :: Adjustment -> IO Double
-adjustmentGetValue a =
-  liftM realToFrac $ {#call adjustment_get_value#} (toAdjustment a)
-
--- | Ensure that the alignment is within these
--- bounds.
+-- | Ensure that the alignment is within these bounds.
 --
 -- * Updates the Adjustment value to ensure that the range between lower and
 --   upper is in the current page (i.e. between value and value + page_size).

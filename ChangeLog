@@ -1,5 +1,10 @@
 2004-12-12 Axel Simon <A.Simon@kent.ac.uk> 
 
+	* gtk/menuComboToolbar/Toolbar.chs.pp: Change comments in order
+	not to confuse haddock. The pre-processor leaves blank lines which
+	makes haddock assume the comment has ended. Use mult-line
+	comments.
+	
 	* gtk/abstract/Range.chs, abstract/Widget.chs,
 	display/Label.chs, misc/Adjustment.chs, scrolling/HScrollbar.chs,
 	scrolling/VScrollbar.chs: Add some more functions.

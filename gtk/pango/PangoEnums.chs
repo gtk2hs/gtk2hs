@@ -1,10 +1,11 @@
+-- -*-haskell-*-
 --  GIMP Toolkit (GTK) Enumerations for Pango.
 --
 --  Author : Axel Simon
 --          
 --  Created: 12 September 2004
 --
---  Version $Revision: 1.1 $ from $Date: 2004/12/12 11:18:41 $
+--  Version $Revision: 1.2 $ from $Date: 2004/12/12 18:24:09 $
 --
 --  Copyright (c) 1999..2004 Axel Simon
 --
