@@ -4,7 +4,7 @@
 --  Author : Vincenzo Ciancia, Axel Simon
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2003/05/17 19:29:38 $
+--  Version $Revision: 1.4 $ from $Date: 2003/05/19 17:53:26 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -282,23 +282,30 @@ data InlineImage = InlineImage
 --   function uses a binary representation and therefore needs less space
 --   in the final executable. Save the image you want to include as
 --   @literal png@ and run @prog
---   gdk-pixbuf-csource --raw --name=my_image myimage.png > my_image.c
---   @ on it. The created file can be compiled with @prog
---   cc -c image.c -include <gdk/gdk.h> `pkg-config --cflags gdk-2.0`
---   @ into an object file which must be linked into your Haskell program.
+--   echo #include "my_image.h" > my_image.c
+--   gdk-pixbuf-csource --raw --extern --name=my_image myimage.png >> my_image.c
+--   @ on it. Write a header file @literal my_image.h@ containing @prog
+--   #include <gdk/gdk.h>
+--   extern guint8 my_image[];
+--   @ and save it in the current directory.
+--   The created file can be compiled with @prog
+--   cc -c my_image.c `pkg-config --cflags gdk-2.0`
+--   @ into an object file which must be linked into your Haskell program by
+--   specifying @literal my_image.o@ and @literal "-#include my_image.h"@ on
+--   the command line of GHC.
 --   Within you application you delcare a pointer to this image: @prog
---   foreign import ccall "my_image" myImage :: Ptr InlineImage
---   @ Call @ref constructor pixbufNewFromInline@ with this pointer will
+--   foreign label "my_image" myImage :: Ptr InlineImage
+--   @ Calling @ref constructor pixbufNewFromInline@ with this pointer will
 --   return the image in the object file. Creating the C file with
 --   the @literal --raw@ flag will result in a non-compressed image in the
---   object file. The advantage is that the picture does not need to be
---   copied (set @ref arg copyPixels@ to @literal False@).
+--   object file. The advantage is that the picture will not be
+--   copied when this function is called.
 --
 --
-pixbufNewFromInline :: Ptr InlineImage -> Bool -> IO Pixbuf
-pixbufNewFromInline iPtr copyPixels = alloca $ \errPtrPtr -> do
+pixbufNewFromInline :: Ptr InlineImage -> IO Pixbuf
+pixbufNewFromInline iPtr = alloca $ \errPtrPtr -> do
   pbPtr <- {#call unsafe pixbuf_new_from_inline#} (-1) (castPtr iPtr)
-    (fromBool copyPixels) (castPtr errPtrPtr)
+    (fromBool False) (castPtr errPtrPtr)
   if pbPtr/=nullPtr then makeNewGObject mkPixbuf (return pbPtr)
     else do
       errPtr <- peek errPtrPtr

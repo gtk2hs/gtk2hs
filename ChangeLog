@@ -1,3 +1,7 @@
+2003-05-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* gtk/gdk/Pixbuf.chs: Fixed dcumentation on creating inline pictures.
+
 2003-05-18  Jens Petersen  <petersen@redhat.com>
 
 	* gtk/pango/PangoLayout.chs (layoutIterGetLineExtents): Keep last
