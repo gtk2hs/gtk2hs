@@ -1,3 +1,12 @@
+2004-12-01 Axel Simon <A.Simon@kent.ac.uk> 
+
+	* Makefile.am: Renamed the package back to gtk2hs.
+
+	* gtk/menuComboToolbar/Toolbar.chs.pp: Removed two slashes that
+	confused haddock.
+
+	* mk/common.mk: Removed a bogus variable during linking.
+	
 2004-11-28 Axel Simon <A.Simon@kent.ac.uk> 
 
 	* Makefile.am: Add all _stub.o files as library dependencies. This

@@ -12,7 +12,7 @@ VPATH = $(subst $(SPACE),:,$(strip \
 
 LINK = 	$(strip $(HC) -o $@ $($(NAME)_HCFLAGS) \
   $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-  $(AM_LDFLAGS) $($(NAME)_EXTRA_LDFLAGS) $($(NAME)_LDFLAGS))
+  $(AM_LDFLAGS) $($(NAME)_LDFLAGS))
 
 .hs.o: $(CONFIG_H)
 	@echo Building for $(NAME)
@@ -64,8 +64,8 @@ HSTOOLFLAGS = -H500m
 .PHONY: debug
 debug	:
 	@echo VPATH: $(VPATH)
-	@echo dep files: $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
-	@echo $(gtk_libgtk2hs_a_HSFILES)
+	@echo hs files: $(libgtk2hs_a_HSFILES)
+
 
 
 %.precomp :

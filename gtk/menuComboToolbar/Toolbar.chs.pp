@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 15:06:15 $
+--  Version $Revision: 1.2 $ from $Date: 2004/12/01 10:12:39 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -43,7 +43,7 @@
 -- 'onPopupContextMenu'.
 --
 #ifndef DISABLE_DEPRECATED
--- * The following information applies to the /old/ interface only.
+-- * The following information applies to the old interface only.
 --
 -- 'Button's, 'RadioButton's and 'ToggleButton's can be added by refering to
 -- stock images. Their size can be changed by calling 'toolbarSetIconSize'. In
