@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:59:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A label which displays an accelerator key on the right of the text.
+-- A label which displays an accelerator key on the right of the text
 --
 module Graphics.UI.Gtk.Display.AccelLabel (
--- * Description
+-- * Detail
 -- 
 -- | The 'AccelLabel' widget is a subclass of 'Label' that also displays an
 -- accelerator key on the right of the label text, e.g. \'Ctl+S\'. It is
@@ -90,28 +90,35 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new label with an accelerator key.
+-- | Creates a new 'AccelLabel'.
 --
 accelLabelNew :: String -> IO AccelLabel
-accelLabelNew str = withUTFString str $ \strPtr -> makeNewObject mkAccelLabel $ 
-  liftM castPtr $ {#call unsafe accel_label_new#} strPtr
+accelLabelNew string =
+  makeNewObject mkAccelLabel $ liftM castPtr $
+  withUTFString string $ \stringPtr ->
+  {# call unsafe accel_label_new #}
+    stringPtr
 
 --------------------
 -- Methods
 
--- | Set the key name from the activation
--- signal of another widget.
+-- | Sets the widget to be monitored by this accelerator label.
 --
-accelLabelSetAccelWidget :: (AccelLabelClass acl, WidgetClass w) => acl -> w ->
-                            IO ()
-accelLabelSetAccelWidget acl w = {#call accel_label_set_accel_widget#}
-  (toAccelLabel acl) (toWidget w)
+accelLabelSetAccelWidget :: (AccelLabelClass self, WidgetClass accelWidget) => self
+ -> accelWidget -- ^ @accelWidget@ - the widget to be monitored.
+ -> IO ()
+accelLabelSetAccelWidget self accelWidget =
+  {# call accel_label_set_accel_widget #}
+    (toAccelLabel self)
+    (toWidget accelWidget)
 
--- | Fetches the widget monitored by this accelerator label, or Nothing if it
--- has not bee set.
+-- | Fetches the widget monitored by this accelerator label. See
+-- 'accelLabelSetAccelWidget'.
 --
-accelLabelGetAccelWidget :: AccelLabelClass acl => acl -> IO (Maybe Widget)
-accelLabelGetAccelWidget acl = do
-  wPtr <- {#call unsafe accel_label_get_accel_widget#} (toAccelLabel acl)
-  if wPtr==nullPtr then return Nothing else liftM Just $
-    makeNewObject mkWidget (return wPtr)
+accelLabelGetAccelWidget :: AccelLabelClass self => self
+ -> IO (Maybe Widget) -- ^ returns the object monitored by the accelerator
+                      -- label, or @Nothing@.
+accelLabelGetAccelWidget self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call unsafe accel_label_get_accel_widget #}
+    (toAccelLabel self)

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Widget StatusBar
+--  GIMP Toolkit (GTK) Widget Statusbar
 --
 --  Author : Axel Simon
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:59:10 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Report messages of minor importance to the user.
+-- Report messages of minor importance to the user
 --
 module Graphics.UI.Gtk.Display.Statusbar (
--- * Description
+-- * Detail
 -- 
 -- | A 'Statusbar' is usually placed along the bottom of an application's main
 -- 'Window'. It may provide a regular commentary of the application's status
@@ -103,76 +103,107 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new Statusbar.
+-- | Creates a new 'Statusbar' ready for messages.
 --
 statusbarNew :: IO Statusbar
-statusbarNew  = makeNewObject mkStatusbar $ 
-  liftM castPtr {#call unsafe statusbar_new#}
+statusbarNew =
+  makeNewObject mkStatusbar $ liftM castPtr $
+  {# call unsafe statusbar_new #}
 
 --------------------
 -- Methods
 
 type ContextId = {#type guint#}
 
--- | Given a context description, this function
--- returns a ContextId. This id can be used to later remove entries form the
--- Statusbar.
+-- | Returns a new context identifier, given a description of the actual
+-- context. This id can be used to later remove entries form the Statusbar.
 --
-statusbarGetContextId :: StatusbarClass sb => sb -> String -> IO ContextId
-statusbarGetContextId sb description = withUTFString description $
-  {#call unsafe statusbar_get_context_id#} (toStatusbar sb)
-
+statusbarGetContextId :: StatusbarClass self => self
+ -> String       -- ^ @contextDescription@ - textual description of what context the
+                 -- new message is being used in.
+ -> IO ContextId -- ^ returns an id that can be used to later remove entries
+                 -- ^ from the Statusbar.
+statusbarGetContextId self contextDescription =
+  withUTFString contextDescription $ \contextDescriptionPtr ->
+  {# call unsafe statusbar_get_context_id #}
+    (toStatusbar self)
+    contextDescriptionPtr
 
 type MessageId = {#type guint#}
 
--- | Push a new message on the Statusbar stack. It will
+-- | Pushes a new message onto the Statusbar's stack. It will
 -- be displayed as long as it is on top of the stack.
 --
-statusbarPush :: StatusbarClass sb => sb -> ContextId -> String -> IO MessageId
-statusbarPush sb context msg = withUTFString msg $ {#call statusbar_push#}
-  (toStatusbar sb) context
+statusbarPush :: StatusbarClass self => self
+ -> ContextId    -- ^ @contextId@ - the message's context id, as returned by
+                 -- 'statusbarGetContextId'.
+ -> String       -- ^ @text@ - the message to add to the statusbar.
+ -> IO MessageId -- ^ returns the message's new message id for use with
+                 -- 'statusbarRemove'.
+statusbarPush self contextId text =
+  withUTFString text $ \textPtr ->
+  {# call statusbar_push #}
+    (toStatusbar self)
+    contextId
+    textPtr
 
--- | Pops the topmost message that has the correct
--- context.
+-- | Removes the topmost message that has the correct context.
 --
-statusbarPop :: StatusbarClass sb => sb -> ContextId -> IO ()
-statusbarPop sb context = {#call statusbar_pop#} (toStatusbar sb) context
+statusbarPop :: StatusbarClass self => self
+ -> ContextId   -- ^ @contextId@ - the context identifier used when the
+                -- message was added.
+ -> IO ()
+statusbarPop self contextId =
+  {# call statusbar_pop #}
+    (toStatusbar self)
+     contextId
 
--- | Remove an entry within the stack.
+-- | Forces the removal of a message from a statusbar's stack. The exact
+-- @contextId@ and @messageId@ must be specified.
 --
-statusbarRemove :: StatusbarClass sb => sb -> ContextId -> MessageId -> IO ()
-statusbarRemove sb context message = {#call statusbar_remove#} (toStatusbar sb)
-  context message
+statusbarRemove :: StatusbarClass self => self
+ -> ContextId -- ^ @contextId@ - a context identifier.
+ -> MessageId -- ^ @messageId@ - a message identifier, as returned by
+              -- 'statusbarPush'.
+ -> IO ()
+statusbarRemove self contextId messageId =
+  {# call statusbar_remove #}
+    (toStatusbar self)
+    contextId
+    messageId
 
--- | Toggle the displaying of a resize grip.
+-- | Sets whether the statusbar has a resize grip. @True@ by default.
 --
-statusbarSetHasResizeGrip :: StatusbarClass sb => sb -> Bool -> IO ()
-statusbarSetHasResizeGrip sb set = {#call statusbar_set_has_resize_grip#}
-  (toStatusbar sb) (fromBool set)
+statusbarSetHasResizeGrip :: StatusbarClass self => self -> Bool -> IO ()
+statusbarSetHasResizeGrip self setting =
+  {# call statusbar_set_has_resize_grip #}
+    (toStatusbar self)
+    (fromBool setting)
 
--- | Query the displaying of the resize grip.
+-- | Returns whether the statusbar has a resize grip.
 --
-statusbarGetHasResizeGrip :: StatusbarClass sb => sb -> IO Bool
-statusbarGetHasResizeGrip sb = liftM toBool $
-  {#call unsafe statusbar_get_has_resize_grip#} (toStatusbar sb)
+statusbarGetHasResizeGrip :: StatusbarClass self => self -> IO Bool
+statusbarGetHasResizeGrip self =
+  liftM toBool $
+  {# call unsafe statusbar_get_has_resize_grip #}
+    (toStatusbar self)
 
 --------------------
 -- Signals
 
 -- | Called if a message is removed.
 --
-onTextPopped, afterTextPopped :: StatusbarClass sb => sb ->
-                                 (ContextId -> String -> IO ()) ->
-                                 IO (ConnectId sb)
+onTextPopped, afterTextPopped :: StatusbarClass self => self
+ -> (ContextId -> String -> IO ())
+ -> IO (ConnectId self)
 onTextPopped = connect_WORD_STRING__NONE "text-popped" False
 afterTextPopped = connect_WORD_STRING__NONE "text-popped" True
 
 -- | Called if a message is pushed on top of the
 -- stack.
 --
-onTextPushed, afterTextPushed :: StatusbarClass sb => sb ->
-                                 (ContextId -> String -> IO ()) ->
-                                 IO (ConnectId sb)
+onTextPushed, afterTextPushed :: StatusbarClass self => self
+ -> (ContextId -> String -> IO ())
+ -> IO (ConnectId self)
 onTextPushed = connect_WORD_STRING__NONE "text-pushed" False
 afterTextPushed = connect_WORD_STRING__NONE "text-pushed" True
-

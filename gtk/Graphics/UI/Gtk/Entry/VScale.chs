@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:59:12 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A vertical slider widget for selecting a value from a range.
+-- A vertical slider widget for selecting a value from a range
 --
 module Graphics.UI.Gtk.Entry.VScale (
--- * Description
+-- * Detail
 -- 
 -- | The 'VScale' widget is used to allow the user to select a value using a
 -- vertical slider. To create one, use 'hScaleNewWithRange'.
@@ -68,21 +68,31 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new VScale widget.
+-- | Creates a new 'VScale'.
 --
-vScaleNew :: Adjustment -> IO VScale
-vScaleNew adj = makeNewObject mkVScale $ liftM castPtr $
-  {#call unsafe vscale_new#} adj
+vScaleNew :: 
+    Adjustment -- ^ @adjustment@ - the 'Adjustment' which sets the range of
+               -- the scale.
+ -> IO VScale
+vScaleNew adjustment =
+  makeNewObject mkVScale $ liftM castPtr $
+  {# call unsafe vscale_new #}
+    adjustment
 
--- | Create a new VScale widget with @min@, @max@ and @step@ values rather than
--- an "Adjustment" object.
+-- | Creates a new vertical scale widget that lets the user input a number
+-- between @min@ and @max@ (including @min@ and @max@) with the increment
+-- @step@. @step@ must be nonzero; it's the distance the slider moves when
+-- using the arrow keys to adjust the scale value.
 --
-vScaleNewWithRange :: Double -- ^ Minimum value
-                   -> Double -- ^ Maximum value
-                   -> Double -- ^ Step increment (tick size) used with keyboard
-                             --   shortcuts. Must be nonzero.
-                   -> IO VScale
+vScaleNewWithRange :: 
+    Double    -- ^ @min@ - minimum value
+ -> Double    -- ^ @max@ - maximum value
+ -> Double    -- ^ @step@ - step increment (tick size) used with keyboard
+              -- shortcuts. Must be nonzero.
+ -> IO VScale
 vScaleNewWithRange min max step =
   makeNewObject mkVScale $ liftM castPtr $
-  {#call unsafe vscale_new_with_range#} (realToFrac min) (realToFrac max)
+  {# call unsafe vscale_new_with_range #}
+    (realToFrac min)
+    (realToFrac max)
     (realToFrac step)

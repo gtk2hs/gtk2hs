@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/15 19:59:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget that displays a small to medium amount of text.
+-- A widget that displays a small to medium amount of text
 --
 module Graphics.UI.Gtk.Display.Label (
--- * Description
+-- * Detail
 -- 
 -- | The 'Label' widget displays a small amount of text. As the name implies,
 -- most labels are used to label another widget such as a 'Button', a
@@ -175,39 +175,65 @@ import Graphics.UI.Gtk.Pango.Markup
 --------------------
 -- Constructors
 
--- | Create a new label widget.
+-- | Creates a new label with the given text inside it. You can pass @Nothing@
+-- to get an empty label widget.
 --
 labelNew :: Maybe String -> IO Label
-labelNew str = makeNewObject mkLabel $ liftM castPtr $
-  case str of
-    Nothing    -> {#call label_new#} nullPtr
-    (Just str) -> withUTFString str {#call label_new#}
+labelNew str =
+  makeNewObject mkLabel $ liftM castPtr $
+  maybeWith withUTFString str $ \strPtr ->
+  {# call label_new #}
+    strPtr
 
--- | Create a new label widget with accelerator key.
+-- | Creates a new 'Label', containing the given text.
 --
--- * Each underscore in @str@ is converted into an underlined character in the
---   label. Entering this character will activate the label widget or any other
---   widget set with 'labelSetMnemonicWidget'.
+-- If characters in @text@ are preceded by an underscore, they are
+-- underlined. If you need a literal underscore character in a label, use
+-- \'__\' (two underscores). The first underlined character represents a
+-- keyboard accelerator called a mnemonic. The mnemonic key can be used to
+-- activate another widget, chosen automatically, or explicitly using
+-- 'labelSetMnemonicWidget'.
 --
-labelNewWithMnemonic :: String -> IO Label
-labelNewWithMnemonic str = makeNewObject mkLabel $ liftM castPtr $
-  withUTFString str {#call label_new_with_mnemonic#}
+-- If 'labelSetMnemonicWidget' is not called, then the first activatable
+-- ancestor of the 'Label' will be chosen as the mnemonic widget. For instance,
+-- if the label is inside a button or menu item, the button or menu item will
+-- automatically become the mnemonic widget and be activated by the mnemonic.
+--
+labelNewWithMnemonic :: 
+    String   -- ^ @text@ - The text of the label, with an underscore in front
+             -- of the mnemonic character
+ -> IO Label
+labelNewWithMnemonic str =
+  makeNewObject mkLabel $ liftM castPtr $
+  withUTFString str $ \strPtr ->
+  {# call label_new_with_mnemonic #}
+    strPtr
 
 --------------------
 -- Methods
 
--- | Set the text the label widget shows. 
+-- | Sets the text within the 'Label' widget. It overwrites any text that was
+-- there before.
 --
-labelSetText :: LabelClass l => l -> String -> IO ()
-labelSetText l str =
-  withUTFString str $ {#call label_set_text#} (toLabel l)
+-- This will also clear any previously set mnemonic accelerators.
+--
+labelSetText :: LabelClass self => self -> String -> IO ()
+labelSetText self str =
+  withUTFString str $ \strPtr ->
+  {# call label_set_text #}
+    (toLabel self)
+    strPtr
 
--- | The label is interpreted as including embedded underlines and\/or Pango
--- markup depending on the markup and underline properties.
+-- | Sets the text of the label. The label is interpreted as including
+-- embedded underlines and\/or Pango markup depending on the markup and
+-- underline properties.
 --
-labelSetLabel :: LabelClass l => l -> String -> IO ()
-labelSetLabel l str =
-  withUTFString str $ {#call label_set_label#} (toLabel l)
+labelSetLabel :: LabelClass self => self -> String -> IO ()
+labelSetLabel self str =
+  withUTFString str $ \strPtr ->
+  {# call label_set_label #}
+    (toLabel self)
+    strPtr
 
 {-
 -- | Set the text attributes.
@@ -215,174 +241,293 @@ labelSetLabel l str =
 -- labelSetAttributes :: LabelClass l => PangoAttrList -> IO ()
 -}
 
--- | Set the label to a markup string.
+-- | Parses @str@ which is marked up with the Pango text markup language,
+-- setting the label's text and attribute list based on the parse results. If
+-- the @str@ is external data, you may need to escape it.
 --
-labelSetMarkup :: LabelClass l => l -> Markup -> IO ()
-labelSetMarkup l str =
-  withUTFString str $ {#call label_set_markup#} (toLabel l)
+labelSetMarkup :: LabelClass self => self
+ -> Markup -- ^ @str@ - a markup string (see Pango markup format)
+ -> IO ()
+labelSetMarkup self str =
+  withUTFString str $ \strPtr ->
+  {# call label_set_markup #}
+    (toLabel self)
+    strPtr
 
--- | Set the label to a markup string and interpret keyboard accelerators.
+-- | Parses @str@ which is marked up with the Pango text markup language,
+-- setting the label's text and attribute list based on the parse results. If
+-- characters in @str@ are preceded by an underscore, they are underlined
+-- indicating that they represent a keyboard accelerator called a mnemonic.
 --
-labelSetMarkupWithMnemonic :: LabelClass l => l -> Markup -> IO ()
-labelSetMarkupWithMnemonic l str =
-  withUTFString str $ {#call label_set_markup_with_mnemonic#} (toLabel l)
+-- The mnemonic key can be used to activate another widget, chosen
+-- automatically, or explicitly using 'labelSetMnemonicWidget'.
+--
+labelSetMarkupWithMnemonic :: LabelClass self => self
+ -> Markup -- ^ @str@ - a markup string (see Pango markup format)
+ -> IO ()
+labelSetMarkupWithMnemonic self str =
+  withUTFString str $ \strPtr ->
+  {# call label_set_markup_with_mnemonic #}
+    (toLabel self)
+    strPtr
 
 -- | Underline parts of the text, odd indices of the list represent underlined
 -- parts.
 --
 labelSetPattern :: LabelClass l => l -> [Int] -> IO ()
-labelSetPattern l list =
-  withUTFString str $ {#call label_set_pattern#} (toLabel l)
+labelSetPattern self list =
+  withUTFString str $
+  {# call label_set_pattern #}
+    (toLabel self)
   where
     str = concat $ zipWith replicate list (cycle ['_',' '])
 
--- | Set the justification of the label.
+-- | Sets the alignment of the lines in the text of the label relative to each
+-- other. 'JustifyLeft' is the default value when the widget is first created
+-- with 'labelNew'. If you instead want to set the alignment of the label as a
+-- whole, use 'miscSetAlignment' instead. 'labelSetJustify' has no effect on
+-- labels containing only a single line.
 --
-labelSetJustify :: LabelClass l => l -> Justification -> IO ()
-labelSetJustify l j = 
-  {#call label_set_justify#} (toLabel l) ((fromIntegral.fromEnum) j)
+labelSetJustify :: LabelClass self => self -> Justification -> IO ()
+labelSetJustify self jtype =
+  {# call label_set_justify #}
+    (toLabel self)
+    ((fromIntegral . fromEnum) jtype)
 
--- | Get the justification of the label.
+-- | Returns the justification of the label. See 'labelSetJustify'.
 --
-labelGetJustify :: LabelClass l => l -> IO Justification
-labelGetJustify l =
-  liftM (toEnum.fromIntegral) $ {#call unsafe label_get_justify#} (toLabel l)
+labelGetJustify :: LabelClass self => self -> IO Justification
+labelGetJustify self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe label_get_justify #}
+    (toLabel self)
 
--- | Gets the "PangoLayout" used to display the label.
+-- | Gets the 'Layout' used to display the label. The layout is useful to e.g.
+-- convert text positions to pixel positions, in combination with
+-- 'labelGetLayoutOffsets'.
 --
-labelGetLayout :: LabelClass l => l -> IO PangoLayout
-labelGetLayout l =
-  makeNewGObject mkPangoLayout $ {#call unsafe label_get_layout#} (toLabel l)
+labelGetLayout :: LabelClass self => self
+ -> IO PangoLayout -- ^ returns the 'Layout' for this label
+labelGetLayout self =
+  makeNewGObject mkPangoLayout $
+  {# call unsafe label_get_layout #}
+    (toLabel self)
 
--- | Set wether lines should be wrapped (@True@) or truncated (@False@).
+-- | Toggles line wrapping within the 'Label' widget. @True@ makes it break
+-- lines if text exceeds the widget's size. @False@ lets the text get cut off
+-- by the edge of the widget if it exceeds the widget size.
 --
-labelSetLineWrap :: LabelClass l => l -> Bool -> IO ()
-labelSetLineWrap l w = {#call label_set_line_wrap#} (toLabel l) (fromBool w)
+labelSetLineWrap :: LabelClass self => self
+ -> Bool  -- ^ @wrap@ - the setting
+ -> IO ()
+labelSetLineWrap self wrap =
+  {# call label_set_line_wrap #}
+    (toLabel self)
+    (fromBool wrap)
 
--- | Returns whether lines in the label are automatically wrapped.
+-- | Returns whether lines in the label are automatically wrapped. See
+-- 'labelSetLineWrap'.
 --
-labelGetLineWrap :: LabelClass l => l -> IO Bool
-labelGetLineWrap l = liftM toBool $
-  {#call unsafe label_get_line_wrap#} (toLabel l)
+labelGetLineWrap :: LabelClass self => self
+ -> IO Bool -- ^ returns @True@ if the lines of the label are automatically
+            -- wrapped.
+labelGetLineWrap self =
+  liftM toBool $
+  {# call unsafe label_get_line_wrap #}
+    (toLabel self)
 
--- | Get starting cooridinates of text rendering.
+-- | Obtains the coordinates where the label will draw the 'Layout'
+-- representing the text in the label; useful to convert mouse events into
+-- coordinates inside the 'Layout', e.g. to take some action if some part of
+-- the label is clicked. Of course you will need to create a 'EventBox' to
+-- receive the events, and pack the label inside it, since labels are a
+-- \'NoWindow\' widget.
 --
-labelGetLayoutOffsets :: LabelClass l => l -> IO (Int,Int)
-labelGetLayoutOffsets l =
-  alloca (\xPtr ->
-    alloca (\yPtr -> do
-      {#call unsafe label_get_layout_offsets#} (toLabel l) xPtr yPtr
-      x <- peek xPtr
-      y <- peek yPtr
-      return (fromIntegral x,fromIntegral y)
-    )
-  )
+labelGetLayoutOffsets :: LabelClass self => self -> IO (Int,Int)
+labelGetLayoutOffsets self =
+  alloca $ \xPtr ->
+  alloca $ \yPtr -> do
+  {# call unsafe label_get_layout_offsets #}
+    (toLabel self)
+    xPtr
+    yPtr
+  x <- peek xPtr
+  y <- peek yPtr
+  return (fromIntegral x,fromIntegral y)
 
 -- | KeyVal is a synonym for a hot key number.
 --
 type KeyVal = {#type guint#}
 
--- | Get the keyval for the underlined character in the label.
+-- | If the label has been set so that it has an mnemonic key this function
+-- returns the keyval used for the mnemonic accelerator.
 --
-labelGetMnemonicKeyval :: LabelClass l => l -> IO KeyVal
-labelGetMnemonicKeyval l = 
-  {#call unsafe label_get_mnemonic_keyval#} (toLabel l)
+labelGetMnemonicKeyval :: LabelClass self => self -> IO KeyVal
+labelGetMnemonicKeyval self =
+  {# call unsafe label_get_mnemonic_keyval #}
+    (toLabel self)
 
--- | Get whether the text selectable.
+-- | Gets whether the text selectable.
 --
-labelGetSelectable :: LabelClass l => l -> IO Bool
-labelGetSelectable l = liftM toBool $ 
-  {#call unsafe label_get_selectable#} (toLabel l)
+labelGetSelectable :: LabelClass self => self
+ -> IO Bool -- ^ returns @True@ if the user can copy text from the label
+labelGetSelectable self =
+  liftM toBool $
+  {# call unsafe label_get_selectable #}
+    (toLabel self)
 
 -- | Sets whether the text of the label contains markup in Pango's text markup
--- language.
+-- language. See 'labelSetMarkup'.
 --
-labelSetUseMarkup :: LabelClass l => l -> Bool -> IO ()
-labelSetUseMarkup l useMarkup =
-  {#call label_set_use_markup#} (toLabel l) (fromBool useMarkup)
+labelSetUseMarkup :: LabelClass self => self
+ -> Bool  -- ^ @setting@ - @True@ if the label's text should be parsed for
+          -- markup.
+ -> IO ()
+labelSetUseMarkup self setting =
+  {# call label_set_use_markup #}
+    (toLabel self)
+    (fromBool setting)
 
 -- | Returns whether the label's text is interpreted as marked up with the
--- Pango text markup language.
+-- Pango text markup language. See 'labelSetUseMarkup'.
 --
-labelGetUseMarkup :: LabelClass l => l -> IO Bool
-labelGetUseMarkup l = liftM toBool $
-  {#call unsafe label_get_use_markup#} (toLabel l)
+labelGetUseMarkup :: LabelClass self => self
+ -> IO Bool -- ^ returns @True@ if the label's text will be parsed for markup.
+labelGetUseMarkup self =
+  liftM toBool $
+  {# call unsafe label_get_use_markup #}
+    (toLabel self)
 
--- | If @True@, an underline in the text indicates the next character should
--- be used for the mnemonic accelerator key.
+-- | If @True@, an underline in the text indicates the next character should be
+-- used for the mnemonic accelerator key.
 --
-labelSetUseUnderline :: LabelClass l => l -> Bool -> IO ()
-labelSetUseUnderline l useUnderline =
-  {#call label_set_use_underline#} (toLabel l) (fromBool useUnderline)
+labelSetUseUnderline :: LabelClass self => self -> Bool -> IO ()
+labelSetUseUnderline self useUnderline =
+  {# call label_set_use_underline #}
+    (toLabel self)
+    (fromBool useUnderline)
 
 -- | Returns whether an embedded underline in the label indicates a mnemonic.
+-- See 'labelSetUseUnderline'.
 --
-labelGetUseUnderline :: LabelClass l => l -> IO Bool
-labelGetUseUnderline l = liftM toBool $
-  {#call unsafe label_get_use_underline#} (toLabel l)
+labelGetUseUnderline :: LabelClass self => self -> IO Bool
+labelGetUseUnderline self =
+  liftM toBool $
+  {# call unsafe label_get_use_underline #}
+    (toLabel self)
 
--- | Get the text stored in the label. This does not include any embedded
--- underlines indicating mnemonics or Pango markup.
+-- | Gets the text from a label widget, as displayed on the screen. This
+-- does not include any embedded underlines indicating mnemonics or Pango
+-- markup. (See 'labelGetLabel')
 --
-labelGetText :: LabelClass l => l -> IO String
-labelGetText l = {#call unsafe label_get_text#} (toLabel l) >>= peekUTFString
+labelGetText :: LabelClass self => self -> IO String
+labelGetText self =
+  {# call unsafe label_get_text #}
+    (toLabel self)
+  >>= peekUTFString
 
--- | Get the text from a label widget including any embedded underlines
--- indicating mnemonics and Pango markup.
+-- | Gets the text from a label widget including any embedded underlines
+-- indicating mnemonics and Pango markup. (See 'labelGetText').
 --
-labelGetLabel :: LabelClass l => l -> IO String
-labelGetLabel l = {#call unsafe label_get_label#} (toLabel l) >>= peekUTFString
+labelGetLabel :: LabelClass self => self -> IO String
+labelGetLabel self =
+  {# call unsafe label_get_label #}
+    (toLabel self)
+  >>= peekUTFString
 
--- | Select a region in the label.
+-- | Selects a range of characters in the label, if the label is selectable.
+-- See 'labelSetSelectable'. If the label is not selectable, this function has
+-- no effect. If @startOffset@ or @endOffset@ are -1, then the end of the label
+-- will be substituted.
 --
-labelSelectRegion :: LabelClass l => l -> Int -> Int -> IO ()
-labelSelectRegion l start end = {#call label_select_region#} (toLabel l) 
-  (fromIntegral start) (fromIntegral end)
+labelSelectRegion :: LabelClass self => self
+ -> Int   -- ^ @startOffset@ - start offset
+ -> Int   -- ^ @endOffset@ - end offset
+ -> IO ()
+labelSelectRegion self startOffset endOffset =
+  {# call label_select_region #}
+    (toLabel self)
+    (fromIntegral startOffset)
+    (fromIntegral endOffset)
 
 -- | Gets the selected range of characters in the label, if any. If there is
 -- a range selected the result is the start and end of the selection as
 -- character offsets.
 --
-labelGetSelectionBounds :: LabelClass l => l -> IO (Maybe (Int, Int))
-labelGetSelectionBounds l =
-  alloca $ \startPtr -> alloca $ \endPtr -> do
+labelGetSelectionBounds :: LabelClass self => self
+ -> IO (Maybe (Int, Int))
+labelGetSelectionBounds self =
+  alloca $ \startPtr ->
+  alloca $ \endPtr -> do
   isSelection <-
-    {#call unsafe label_get_selection_bounds#} (toLabel l) startPtr endPtr
-  if toBool isSelection
+    liftM toBool $
+    {# call unsafe label_get_selection_bounds #}
+    (toLabel self)
+    startPtr
+    endPtr
+  if isSelection
     then do start <- peek startPtr
             end <- peek endPtr
 	    return $ Just $ (fromIntegral start, fromIntegral end)
     else return Nothing
 
--- | Set an explicit widget for which to emit the \"mnemonic_activate\" signal
--- if an underlined character is pressed.
+-- | If the label has been set so that it has an mnemonic key (using i.e.
+-- 'labelSetMarkupWithMnemonic', 'labelSetTextWithMnemonic',
+-- 'labelNewWithMnemonic' or the \"use_underline\" property) the label can be
+-- associated with a widget that is the target of the mnemonic. When the label
+-- is inside a widget (like a 'Button' or a 'Notebook' tab) it is automatically
+-- associated with the correct widget, but sometimes (i.e. when the target is a
+-- 'Entry' next to the label) you need to set it explicitly using this
+-- function.
 --
-labelSetMnemonicWidget :: (LabelClass l, WidgetClass w) => l -> w -> IO ()
-labelSetMnemonicWidget l w = 
-  {#call unsafe label_set_mnemonic_widget#} (toLabel l) (toWidget w)
-
--- | Retrieves the target of the mnemonic (keyboard shortcut) of this label,
--- or Nothing if none has been set and the default algorithm will be used.
+-- The target widget will be accelerated by emitting \"mnemonic_activate\"
+-- on it. The default handler for this signal will activate the widget if there
+-- are no mnemonic collisions and toggle focus between the colliding widgets
+-- otherwise.
 --
-labelGetMnemonicWidget :: LabelClass l => l -> IO (Maybe Widget)
-labelGetMnemonicWidget l = do
-  widgetPtr <- {#call unsafe label_get_mnemonic_widget#} (toLabel l)
-  if widgetPtr == nullPtr
-    then return Nothing
-    else liftM Just $ makeNewObject mkWidget (return widgetPtr)
+labelSetMnemonicWidget :: (LabelClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - the target 'Widget'
+ -> IO ()
+labelSetMnemonicWidget self widget =
+  {# call unsafe label_set_mnemonic_widget #}
+    (toLabel self)
+    (toWidget widget)
 
--- | Make a label text selectable.
+-- | Retrieves the target of the mnemonic (keyboard shortcut) of this label.
+-- See 'labelSetMnemonicWidget'.
 --
-labelSetSelectable :: LabelClass l => l -> Bool -> IO ()
-labelSetSelectable l s =
-  {#call unsafe label_set_selectable#} (toLabel l) (fromBool s)
+labelGetMnemonicWidget :: LabelClass self => self
+ -> IO (Maybe Widget) -- ^ returns the target of the label's mnemonic, or
+                      -- @Nothing@ if none has been set and the default
+                      -- algorithm will be used.
+labelGetMnemonicWidget self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call unsafe label_get_mnemonic_widget #}
+    (toLabel self)
 
--- | Set the label to a markup string and interpret keyboard accelerators.
+-- | Selectable labels allow the user to select text from the label, for
+-- copy-and-paste.
 --
-labelSetTextWithMnemonic :: LabelClass l => l -> String -> IO ()
-labelSetTextWithMnemonic l str =
-  withUTFString str $ {#call label_set_text_with_mnemonic#} (toLabel l)
+labelSetSelectable :: LabelClass self => self
+ -> Bool  -- ^ @setting@ - @True@ to allow selecting text in the label
+ -> IO ()
+labelSetSelectable self setting =
+  {# call unsafe label_set_selectable #}
+    (toLabel self)
+    (fromBool setting)
 
+-- | Sets the label's text from the given string. If characters in the string are
+-- preceded by an underscore, they are underlined indicating that they
+-- represent a keyboard accelerator called a mnemonic. The mnemonic key can be
+-- used to activate another widget, chosen automatically, or explicitly using
+-- 'labelSetMnemonicWidget'.
+--
+labelSetTextWithMnemonic :: LabelClass self => self -> String -> IO ()
+labelSetTextWithMnemonic self str =
+  withUTFString str $ \strPtr ->
+  {# call label_set_text_with_mnemonic #}
+    (toLabel self)
+    strPtr
 
 --------------------
 -- Properties

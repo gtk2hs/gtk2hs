@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:32 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/15 19:59:09 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -126,42 +126,73 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid, iconSizeMenu,
 --------------------
 -- Constructors
 
--- | Create an image by loading a file.
+-- | Creates a new 'Image' displaying the file @filename@. If the file isn't
+-- found or can't be loaded, the resulting 'Image' will display a \"broken
+-- image\" icon.
+--
+-- If the file contains an animation, the image will contain an animation.
+--
+-- If you need to detect failures to load the file, use 'pixbufNewFromFile'
+-- to load the file yourself, then create the 'Image' from the pixbuf. (Or for
+-- animations, use 'pixbufAnimationNewFromFile').
+--
+-- The storage type ('imageGetStorageType') of the returned image is not
+-- defined, it will be whatever is appropriate for displaying the file.
 --
 imageNewFromFile :: FilePath -> IO Image
-imageNewFromFile path = makeNewObject mkImage $ liftM castPtr $ 
+imageNewFromFile filename =
+  makeNewObject mkImage $ liftM castPtr $
+  withUTFString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-  withUTFString path {#call unsafe image_new_from_file_utf8#}
+  {# call unsafe gtk_image_new_from_file_utf8 #}
 #else
-  withUTFString path {#call unsafe image_new_from_file#}
+  {# call unsafe gtk_image_new_from_file #}
 #endif
+    filenamePtr
 
--- | Create an 'Image' from a 
--- 'Pixbuf'.
+-- | Creates a new 'Image' displaying a 'Pixbuf'.
+--
+-- Note that this function just creates an 'Image' from the pixbuf. The
+-- 'Image' created will not react to state changes. Should you want that, you
+-- should use 'imageNewFromIconSet'.
 --
 imageNewFromPixbuf :: Pixbuf -> IO Image
-imageNewFromPixbuf pbuf = makeNewObject mkImage $ liftM castPtr $
-  {#call unsafe image_new_from_pixbuf#} pbuf
+imageNewFromPixbuf pixbuf =
+  makeNewObject mkImage $ liftM castPtr $
+  {# call unsafe image_new_from_pixbuf #}
+    pixbuf
 
--- | Create a set of images by specifying a stock
--- object.
+-- | Creates a 'Image' displaying a stock icon. If the stock icon name isn't
+-- known, a \"broken image\" icon will be displayed instead.
 --
-imageNewFromStock :: String -> IconSize -> IO Image
-imageNewFromStock stock ic = withUTFString stock $ \strPtr -> 
-  makeNewObject mkImage $ liftM castPtr $ {#call unsafe image_new_from_stock#}
-  strPtr (fromIntegral ic)
+imageNewFromStock :: 
+    String   -- ^ @stockId@ - a stock icon name
+ -> IconSize -- ^ @size@ - a stock icon size
+ -> IO Image
+imageNewFromStock stockId size =
+  makeNewObject mkImage $ liftM castPtr $
+  withUTFString stockId $ \stockIdPtr ->
+  {# call unsafe image_new_from_stock #}
+    stockIdPtr
+    (fromIntegral size)
 
 --------------------
 -- Methods
 
--- | Extract the Pixbuf from the 'Image'.
+-- | Gets the 'Pixbuf' being displayed by the 'Image'. The storage type of the
+-- image must be 'ImageEmpty' or 'ImagePixbuf' (see 'imageGetStorageType').
 --
 imageGetPixbuf :: Image -> IO Pixbuf
-imageGetPixbuf img = makeNewGObject mkPixbuf $ liftM castPtr $
+imageGetPixbuf self =
+  makeNewGObject mkPixbuf $ liftM castPtr $
   throwIfNull "Image.imageGetPixbuf: The image contains no Pixbuf object." $
-  {#call unsafe image_get_pixbuf#} img
+  {# call unsafe image_get_pixbuf #}
+    self
 
 -- | Overwrite the current content of the 'Image' with a new 'Pixbuf'.
 --
 imageSetFromPixbuf :: Image -> Pixbuf -> IO ()
-imageSetFromPixbuf img pb = {#call unsafe gtk_image_set_from_pixbuf#} img pb
+imageSetFromPixbuf self pixbuf =
+  {# call unsafe gtk_image_set_from_pixbuf #}
+    self
+    pixbuf

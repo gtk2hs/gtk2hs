@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/13 19:34:33 $
+--  Version $Revision: 1.7 $ from $Date: 2005/03/15 19:59:12 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -26,10 +26,10 @@
 --
 -- Completion functionality for the 'Entry' widget.
 --
--- * Available since Gtk version 2.4
+-- * Module available since Gtk+ version 2.4
 --
 module Graphics.UI.Gtk.Entry.EntryCompletion (
--- * Description
+-- * Detail
 -- 
 -- | 'EntryCompletion' is an auxiliary object to be used in conjunction with
 -- 'Entry' to provide the completion functionality. It implements the
@@ -90,9 +90,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 
 -- * Properties
   entryCompletionMinimumKeyLength
-) where
-
-#if GTK_CHECK_VERSION(2,4,0)
+  ) where
 
 import Monad	(liftM)
 import Data.IORef (newIORef, readIORef, writeIORef)
@@ -108,9 +106,12 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Constructors
 
+-- | Creates a new 'EntryCompletion' object.
+--
 entryCompletionNew :: IO EntryCompletion
 entryCompletionNew =
   makeNewGObject mkEntryCompletion $ liftM castPtr $
@@ -119,60 +120,52 @@ entryCompletionNew =
 --------------------
 -- Methods
 
-entryCompletionGetEntry :: EntryCompletion -> IO (Maybe Entry)
-entryCompletionGetEntry ec = do
-  entryPtr <- {# call gtk_entry_completion_get_entry #} ec
-  if entryPtr == nullPtr
-    then return Nothing
-    else liftM Just $ makeNewObject mkEntry $ return (castPtr entryPtr)
+-- | Gets the entry @completion@ has been attached to.
+--
+entryCompletionGetEntry :: EntryCompletion
+ -> IO (Maybe Widget) -- ^ returns the entry @completion@ has been attached
+                      -- to.
+entryCompletionGetEntry self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call gtk_entry_completion_get_entry #}
+    self
 
-entryCompletionSetModel :: EntryCompletion ->  TreeModel -> IO ()
-entryCompletionSetModel ec tm =
-  {# call gtk_entry_completion_set_model #} ec tm
+-- | Sets the model for a 'EntryCompletion'. If @completion@ already has a
+-- model set, it will remove it before setting the new model. If model is
+-- @Nothing@, then it will unset the model.
+--
+entryCompletionSetModel :: TreeModelClass model => EntryCompletion
+ -> Maybe model     -- ^ @model@ - The 'TreeModel'.
+ -> IO ()
+entryCompletionSetModel self model =
+  {# call gtk_entry_completion_set_model #}
+    self
+    (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
-entryCompletionGetModel :: EntryCompletion -> IO TreeModel
-entryCompletionGetModel ec =
-  makeNewGObject mkTreeModel $
-  {# call gtk_entry_completion_get_model #} ec
+-- | Returns the model the 'EntryCompletion' is using as data source. Returns
+-- @Nothing@ if the model is unset.
+--
+entryCompletionGetModel :: EntryCompletion
+ -> IO (Maybe TreeModel) -- ^ returns A 'TreeModel', or @Nothing@ if none is
+                         -- currently being used.
+entryCompletionGetModel self =
+  maybeNull (makeNewGObject mkTreeModel) $
+  {# call gtk_entry_completion_get_model #}
+    self
 
+-- | Sets the match function for @completion@ to be @func@. The match function
+-- is used to determine if a row should or should not be in the completion
+-- list.
+--
 entryCompletionSetMatchFunc :: EntryCompletion -> (String -> TreeIter -> IO ()) -> IO ()
-entryCompletionSetMatchFunc ec handler =
-  connect_GtkEntryCompletionMatchFunc ec handler
-
-entryCompletionSetMinimumKeyLength :: EntryCompletion -> Int -> IO ()
-entryCompletionSetMinimumKeyLength ec minLength =
-  {# call gtk_entry_completion_set_minimum_key_length #} ec
-    (fromIntegral minLength)
-
-entryCompletionGetMinimumKeyLength :: EntryCompletion -> IO Int
-entryCompletionGetMinimumKeyLength ec =
-  liftM fromIntegral $
-  {# call gtk_entry_completion_get_minimum_key_length #} ec
-
-entryCompletionComplete :: EntryCompletion -> IO ()
-entryCompletionComplete ec =
-  {# call gtk_entry_completion_complete #} ec
-
-entryCompletionInsertActionText :: EntryCompletion -> Int -> String -> IO ()
-entryCompletionInsertActionText ec index text =
-  withUTFString text $ \strPtr ->
-  {# call gtk_entry_completion_insert_action_text #} ec
-    (fromIntegral index) strPtr
-
-entryCompletionInsertActionMarkup :: EntryCompletion -> Int -> String -> IO ()
-entryCompletionInsertActionMarkup ec index markup =
-  withUTFString markup $ \strPtr ->
-  {# call gtk_entry_completion_insert_action_markup #} ec
-    (fromIntegral index) strPtr 
-
-entryCompletionDeleteAction :: EntryCompletion -> Int -> IO ()
-entryCompletionDeleteAction ec index =
-  {# call gtk_entry_completion_delete_action #} ec (fromIntegral index)
-
-entryCompletionSetTextColumn :: EntryCompletion -> Int -> IO ()
-entryCompletionSetTextColumn ec column =
-  {# call gtk_entry_completion_set_text_column #} ec (fromIntegral column)
-
+entryCompletionSetMatchFunc ec handler = do
+  hPtr <- mkHandler_GtkEntryCompletionMatchFunc
+    (\_ keyPtr iterPtr _ -> do key <- peekUTFString keyPtr
+                               iter <- createTreeIter iterPtr
+                               handler key iter)
+  dPtr <- mkFunPtrDestructor hPtr
+  {# call gtk_entry_completion_set_match_func #} ec
+    (castFunPtr hPtr) nullPtr dPtr
 
 -------------------------------------------------
 -- Callback stuff for entryCompletionSetMatchFunc
@@ -189,17 +182,93 @@ foreign import ccall "wrapper" mkHandler_GtkEntryCompletionMatchFunc ::
   GtkEntryCompletionMatchFunc -> 
   IO (FunPtr GtkEntryCompletionMatchFunc)
 
-connect_GtkEntryCompletionMatchFunc :: EntryCompletion ->
-                                       (String -> TreeIter -> IO ()) ->
-                                       IO ()
-connect_GtkEntryCompletionMatchFunc ec user = do
-  hPtr <- mkHandler_GtkEntryCompletionMatchFunc
-    (\_ keyPtr iterPtr _ -> do key <- peekUTFString keyPtr
-                               iter <- createTreeIter iterPtr
-                               user key iter)
-  dPtr <- mkFunPtrDestructor hPtr
-  {# call gtk_entry_completion_set_match_func #} ec
-    (castFunPtr hPtr) nullPtr dPtr
+-- | Requires the length of the search key for @completion@ to be at least
+-- @length@. This is useful for long lists, where completing using a small key
+-- takes a lot of time and will come up with meaningless results anyway (ie, a
+-- too large dataset).
+--
+entryCompletionSetMinimumKeyLength :: EntryCompletion
+ -> Int             -- ^ @length@ - The minimum length of the key in order to
+                    -- start completing.
+ -> IO ()
+entryCompletionSetMinimumKeyLength self length =
+  {# call gtk_entry_completion_set_minimum_key_length #}
+    self
+    (fromIntegral length)
+
+-- | Returns the minimum key length as set for @completion@.
+--
+entryCompletionGetMinimumKeyLength :: EntryCompletion
+ -> IO Int          -- ^ returns The currently used minimum key length.
+entryCompletionGetMinimumKeyLength self =
+  liftM fromIntegral $
+  {# call gtk_entry_completion_get_minimum_key_length #}
+    self
+
+-- | Requests a completion operation, or in other words a refiltering of the
+-- current list with completions, using the current key. The completion list
+-- view will be updated accordingly.
+--
+entryCompletionComplete :: EntryCompletion -> IO ()
+entryCompletionComplete self =
+  {# call gtk_entry_completion_complete #}
+    self
+
+-- | Inserts an action in @completion@'s action item list at position @index@
+-- with text @text@. If you want the action item to have markup, use
+-- 'entryCompletionInsertActionMarkup'.
+--
+entryCompletionInsertActionText :: EntryCompletion
+ -> Int             -- ^ @index@ - The index of the item to insert.
+ -> String          -- ^ @text@ - Text of the item to insert.
+ -> IO ()
+entryCompletionInsertActionText self index text =
+  withUTFString text $ \textPtr ->
+  {# call gtk_entry_completion_insert_action_text #}
+    self
+    (fromIntegral index)
+    textPtr
+
+-- | Inserts an action in @completion@'s action item list at position @index@
+-- with markup @markup@.
+--
+entryCompletionInsertActionMarkup :: EntryCompletion
+ -> Int             -- ^ @index@ - The index of the item to insert.
+ -> String          -- ^ @markup@ - Markup of the item to insert.
+ -> IO ()
+entryCompletionInsertActionMarkup self index markup =
+  withUTFString markup $ \markupPtr ->
+  {# call gtk_entry_completion_insert_action_markup #}
+    self
+    (fromIntegral index)
+    markupPtr
+
+-- | Deletes the action at @index@ from @completion@'s action list.
+--
+entryCompletionDeleteAction :: EntryCompletion
+ -> Int             -- ^ @index@ - The index of the item to Delete.
+ -> IO ()
+entryCompletionDeleteAction self index =
+  {# call gtk_entry_completion_delete_action #}
+    self
+    (fromIntegral index)
+
+-- | Convenience function for setting up the most used case of this code: a
+-- completion list with just strings. This function will set up @completion@ to
+-- have a list displaying all (and just) strings in the completion list, and to
+-- get those strings from @column@ in the model of @completion@.
+--
+-- This functions creates and adds a 'CellRendererText' for the selected
+-- column.
+--
+entryCompletionSetTextColumn :: EntryCompletion
+ -> Int             -- ^ @column@ - The column in the model of @completion@ to
+                    -- get strings from.
+ -> IO ()
+entryCompletionSetTextColumn self column =
+  {# call gtk_entry_completion_set_text_column #}
+    self
+    (fromIntegral column)
 
 --------------------
 -- Properties

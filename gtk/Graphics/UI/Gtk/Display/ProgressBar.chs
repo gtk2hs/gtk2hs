@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/15 19:59:10 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget which indicates progress visually.
+-- A widget which indicates progress visually
 --
 module Graphics.UI.Gtk.Display.ProgressBar (
--- * Description
+-- * Detail
 -- 
 -- | The 'ProgressBar' is typically used to display the progress of a long
 -- running operation. It provides a visual clue that processing is underway.
@@ -106,89 +106,102 @@ import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
 -- | Creates a new 'ProgressBar'.
 --
 progressBarNew :: IO ProgressBar
-progressBarNew  = makeNewObject mkProgressBar $ liftM castPtr $
-  {#call unsafe progress_bar_new#}
+progressBarNew =
+  makeNewObject mkProgressBar $ liftM castPtr $
+  {# call unsafe progress_bar_new #}
 
 --------------------
 -- Methods
 
--- | Indicates that some progress is made, but you
--- don't know how much. Causes the progress bar to enter \`activity mode',
--- where a block bounces back and forth. Each call to
--- 'progressBarPulse' causes the block to move on by a little bit
--- (the amount of movement per pulse is determined by
+-- | Indicates that some progress is made, but you don't know how much. Causes
+-- the progress bar to enter \"activity mode\", where a block bounces back and
+-- forth. Each call to 'progressBarPulse' causes the block to move by a little
+-- bit (the amount of movement per pulse is determined by
 -- 'progressBarSetPulseStep').
 --
-progressBarPulse :: ProgressBarClass pb => pb -> IO ()
-progressBarPulse pb = {#call unsafe progress_bar_pulse#} (toProgressBar pb)
+progressBarPulse :: ProgressBarClass self => self -> IO ()
+progressBarPulse self =
+  {# call unsafe progress_bar_pulse #}
+    (toProgressBar self)
 
--- | Causes the given @text@ to appear
--- superimposed on the progress bar.
+-- | Causes the given @text@ to appear superimposed on the progress bar.
 --
-progressBarSetText :: ProgressBarClass pb => pb -> String -> IO ()
-progressBarSetText pb text = withUTFString text $
-  {#call unsafe progress_bar_set_text#} (toProgressBar pb)
+progressBarSetText :: ProgressBarClass self => self -> String -> IO ()
+progressBarSetText self text =
+  withUTFString text $ \textPtr ->
+  {# call unsafe progress_bar_set_text #}
+    (toProgressBar self)
+    textPtr
 
--- | Causes the progress bar to \`fill in' the
--- given fraction of the bar. The fraction should be between 0.0 and 1.0,
--- inclusive.
+-- | Causes the progress bar to \"fill in\" the given fraction of the bar. The
+-- fraction should be between 0.0 and 1.0, inclusive.
 --
-progressBarSetFraction :: ProgressBarClass pb => pb -> Double -> IO ()
-progressBarSetFraction pb fraction = {#call unsafe progress_bar_set_fraction#}
-  (toProgressBar pb) (realToFrac fraction)
+progressBarSetFraction :: ProgressBarClass self => self
+ -> Double -- ^ @fraction@ - fraction of the task that's been completed
+ -> IO ()
+progressBarSetFraction self fraction =
+  {# call unsafe progress_bar_set_fraction #}
+    (toProgressBar self)
+    (realToFrac fraction)
 
--- | Sets the fraction of total progress bar
--- length to move the bouncing block for each call to progressBarPulse.
+-- | Sets the fraction of total progress bar length to move the bouncing block
+-- for each call to 'progressBarPulse'.
 --
--- * The @fraction@ parameter must be between 0.0 and 1.0.
---
-progressBarSetPulseStep :: ProgressBarClass pb => pb -> Double -> IO ()
-progressBarSetPulseStep pb fraction = 
-  {#call unsafe progress_bar_set_pulse_step#} (toProgressBar pb) 
-  (realToFrac fraction)
+progressBarSetPulseStep :: ProgressBarClass self => self
+ -> Double -- ^ @fraction@ - fraction between 0.0 and 1.0
+ -> IO ()
+progressBarSetPulseStep self fraction =
+  {# call unsafe progress_bar_set_pulse_step #}
+    (toProgressBar self)
+    (realToFrac fraction)
 
--- | Returns the current fraction of the task
--- that has been completed.
+-- | Returns the current fraction of the task that's been completed.
 --
-progressBarGetFraction :: ProgressBarClass pb => pb -> IO Double
-progressBarGetFraction pb = liftM realToFrac $ 
-  {#call unsafe progress_bar_get_fraction#} (toProgressBar pb)
+progressBarGetFraction :: ProgressBarClass self => self
+ -> IO Double -- ^ returns a fraction from 0.0 to 1.0
+progressBarGetFraction self =
+  liftM realToFrac $
+  {# call unsafe progress_bar_get_fraction #}
+    (toProgressBar self)
 
--- | Returns the current pulseStep of the task
--- that has been completed.
+-- | Retrieves the pulse step set with 'progressBarSetPulseStep'
 --
-progressBarGetPulseStep :: ProgressBarClass pb => pb -> IO Double
-progressBarGetPulseStep pb = liftM realToFrac $ 
-  {#call unsafe progress_bar_get_pulse_step#} (toProgressBar pb)
+progressBarGetPulseStep :: ProgressBarClass self => self
+ -> IO Double -- ^ returns a fraction from 0.0 to 1.0
+progressBarGetPulseStep self =
+  liftM realToFrac $
+  {# call unsafe progress_bar_get_pulse_step #}
+    (toProgressBar self)
 
+-- | Retrieves the text displayed superimposed on the progress bar, if any,
+-- otherwise @Nothing@.
+--
+progressBarGetText :: ProgressBarClass self => self
+ -> IO (Maybe String) -- ^ returns text, or @Nothing@
+progressBarGetText self =
+  {# call unsafe progress_bar_get_text #}
+    (toProgressBar self)
+  >>= maybePeek peekUTFString
 
--- | Retrieve the text displayed superimposed on the
--- ProgressBar.
+-- | Causes the progress bar to switch to a different orientation
+-- (left-to-right, right-to-left, top-to-bottom, or bottom-to-top).
 --
--- * Returns Nothing if no text was set.
---
-progressBarGetText :: ProgressBarClass pb => pb -> IO (Maybe String)
-progressBarGetText pb = do
-  strPtr <- {#call unsafe progress_bar_get_text#} (toProgressBar pb)
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
+progressBarSetOrientation :: ProgressBarClass self => self
+ -> ProgressBarOrientation
+ -> IO ()
+progressBarSetOrientation self orientation =
+  {# call progress_bar_set_orientation #}
+    (toProgressBar self)
+    ((fromIntegral . fromEnum) orientation)
 
--- | Causes the progress bar to switch to a
--- different orientation (left-to-right, right-to-left, top-to-bottom, or
--- bottom-to-top).
+-- | Retrieves the current progress bar orientation.
 --
-progressBarSetOrientation :: ProgressBarClass pb => pb ->
-                             ProgressBarOrientation -> IO ()
-progressBarSetOrientation pb orientation = 
-  {#call progress_bar_set_orientation#} (toProgressBar pb)
-  ((fromIntegral.fromEnum) orientation)
-
--- | Retrieve the current ProgressBar
--- orientation.
---
-progressBarGetOrientation :: ProgressBarClass pb => pb ->
-                             IO ProgressBarOrientation
-progressBarGetOrientation pb = liftM (toEnum.fromIntegral) $
-  {#call unsafe progress_bar_get_orientation#} (toProgressBar pb)
+progressBarGetOrientation :: ProgressBarClass self => self
+ -> IO ProgressBarOrientation
+progressBarGetOrientation self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe progress_bar_get_orientation #}
+    (toProgressBar self)
 
 --------------------
 -- Properties

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:33 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/15 19:59:12 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -122,185 +122,287 @@ instance EditableClass SpinButton
 --------------------
 -- Constructors
 
--- | Create a new SpinButton.
+-- | Creates a new 'SpinButton'.
 --
--- * @climbRate@ is the amount by which the value is changed each time
---   the up\/down buttons are pressed.
---
--- * @digits@ is the number of shown digits. Set to 0 to work with
---   integer values.
---
-spinButtonNew :: Adjustment -> Double -> Int -> IO SpinButton
-spinButtonNew adj climbRate digits = makeNewObject mkSpinButton $ 
-  liftM castPtr $ {#call unsafe spin_button_new#} adj (realToFrac climbRate)
-  (fromIntegral digits)
+spinButtonNew :: 
+    Adjustment    -- ^ @adjustment@ - the 'Adjustment' object that this spin
+                  -- button should use.
+ -> Double        -- ^ @climbRate@ - specifies how much the spin button
+                  -- changes when an arrow is clicked on.
+ -> Int           -- ^ @digits@ - the number of decimal places to display.
+ -> IO SpinButton
+spinButtonNew adjustment climbRate digits =
+  makeNewObject mkSpinButton $ liftM castPtr $
+  {# call unsafe spin_button_new #}
+    adjustment
+    (realToFrac climbRate)
+    (fromIntegral digits)
 
--- | Create a new SpinButton with a restricted
--- range.
+-- | This is a convenience constructor that allows creation of a numeric
+-- 'SpinButton' without manually creating an adjustment. The value is initially
+-- set to the minimum value and a page increment of 10 * @step@ is the default.
+-- The precision of the spin button is equivalent to the precision of @step@.
 --
--- * This is a convenience function because the user does not have to create
---   an Adjustment first. Page increments are set to 10 * @step@.
---
-spinButtonNewWithRange :: Double -> Double -> Double -> IO SpinButton
-spinButtonNewWithRange min max step = makeNewObject mkSpinButton $
-  liftM castPtr $ {#call unsafe spin_button_new_with_range#}
-  (realToFrac min) (realToFrac max) (realToFrac step)
+spinButtonNewWithRange :: 
+    Double        -- ^ @min@ - Minimum allowable value
+ -> Double        -- ^ @max@ - Maximum allowable value
+ -> Double        -- ^ @step@ - Increment added or subtracted by spinning the
+                  -- widget
+ -> IO SpinButton
+spinButtonNewWithRange min max step =
+  makeNewObject mkSpinButton $ liftM castPtr $
+  {# call unsafe spin_button_new_with_range #}
+    (realToFrac min)
+    (realToFrac max)
+    (realToFrac step)
 
 --------------------
 -- Methods
 
--- | Change the settings of a SpinButton.
+-- | Changes the properties of an existing spin button. The adjustment, climb
+-- rate, and number of decimal places are all changed accordingly, after this
+-- function call.
 --
-spinButtonConfigure :: SpinButtonClass sb => sb -> Adjustment -> Double ->
-                       Int -> IO ()
-spinButtonConfigure sb adj climbRate digits = {#call spin_button_configure#}
-  (toSpinButton sb) adj (realToFrac climbRate) (fromIntegral digits)
+spinButtonConfigure :: SpinButtonClass self => self
+ -> Adjustment -- ^ @adjustment@ - a 'Adjustment'.
+ -> Double     -- ^ @climbRate@ - the new climb rate.
+ -> Int        -- ^ @digits@ - the number of decimal places to display in the
+               -- spin button.
+ -> IO ()
+spinButtonConfigure self adjustment climbRate digits =
+  {# call spin_button_configure #}
+    (toSpinButton self)
+    adjustment
+    (realToFrac climbRate)
+    (fromIntegral digits)
 
--- | Attach a new Adjustment object to the
--- SpinButton.
+-- | Replaces the 'Adjustment' associated with the spin button.
 --
-spinButtonSetAdjustment :: SpinButtonClass sb => sb -> Adjustment -> IO ()
-spinButtonSetAdjustment sb adj = {#call spin_button_set_adjustment#}
-  (toSpinButton sb) adj
+spinButtonSetAdjustment :: SpinButtonClass self => self
+ -> Adjustment -- ^ @adjustment@ - a 'Adjustment' to replace the existing
+               -- adjustment
+ -> IO ()
+spinButtonSetAdjustment self adjustment =
+  {# call spin_button_set_adjustment #}
+    (toSpinButton self)
+    adjustment
 
--- | Retrieve the Adjustment object that is
--- currently controlling the SpinButton.
+-- | Get the adjustment associated with a 'SpinButton'
 --
-spinButtonGetAdjustment :: SpinButtonClass sb => sb -> IO Adjustment
-spinButtonGetAdjustment sb = makeNewObject mkAdjustment $
-  {#call unsafe spin_button_get_adjustment#} (toSpinButton sb)
+spinButtonGetAdjustment :: SpinButtonClass self => self
+ -> IO Adjustment -- ^ returns the 'Adjustment' of @spinButton@
+spinButtonGetAdjustment self =
+  makeNewObject mkAdjustment $
+  {# call unsafe spin_button_get_adjustment #}
+    (toSpinButton self)
 
--- | Sets the number of shown digits.
+-- | Set the precision to be displayed by @spinButton@. Up to 20 digit
+-- precision is allowed.
 --
-spinButtonSetDigits :: SpinButtonClass sb => sb -> Int -> IO ()
-spinButtonSetDigits sb digits = {#call spin_button_set_digits#} 
-  (toSpinButton sb) (fromIntegral digits)
+spinButtonSetDigits :: SpinButtonClass self => self
+ -> Int   -- ^ @digits@ - the number of digits after the decimal point to be
+          -- displayed for the spin button's value
+ -> IO ()
+spinButtonSetDigits self digits =
+  {# call spin_button_set_digits #}
+    (toSpinButton self)
+    (fromIntegral digits)
 
--- | Gets the number of digits shown.
+-- | Fetches the precision of @spinButton@. See 'spinButtonSetDigits'.
 --
-spinButtonGetDigits :: SpinButtonClass sb => sb -> IO Int
-spinButtonGetDigits sb = liftM fromIntegral $
-  {#call spin_button_get_digits#} (toSpinButton sb)
+spinButtonGetDigits :: SpinButtonClass self => self
+ -> IO Int -- ^ returns the current precision
+spinButtonGetDigits self =
+  liftM fromIntegral $
+  {# call spin_button_get_digits #}
+    (toSpinButton self)
 
--- | Sets the increment for up\/down buttons.
+-- | Sets the step and page increments for the spin button. This affects how
+-- quickly the value changes when the spin button's arrows are activated.
 --
-spinButtonSetIncrements :: SpinButtonClass sb => sb -> Double -> Double ->
-                           IO ()
-spinButtonSetIncrements sb step page = {#call spin_button_set_increments#}
-  (toSpinButton sb) (realToFrac step) (realToFrac page)
+spinButtonSetIncrements :: SpinButtonClass self => self
+ -> Double -- ^ @step@ - increment applied for a button 1 press.
+ -> Double -- ^ @page@ - increment applied for a button 2 press.
+ -> IO ()
+spinButtonSetIncrements self step page =
+  {# call spin_button_set_increments #}
+    (toSpinButton self)
+    (realToFrac step)
+    (realToFrac page)
 
--- | Sets the increment for up\/down buttons.
+-- | Gets the current step and page the increments used by the spin button. See
+-- 'spinButtonSetIncrements'.
 --
-spinButtonGetIncrements :: SpinButtonClass sb => sb -> IO (Double, Double)
-spinButtonGetIncrements sb =
-  alloca $ \stepPtr -> alloca $ \pagePtr -> do
-  {#call unsafe spin_button_get_increments#} (toSpinButton sb) stepPtr pagePtr
+spinButtonGetIncrements :: SpinButtonClass self => self
+ -> IO (Double, Double) -- ^ @(step, page)@
+spinButtonGetIncrements self =
+  alloca $ \stepPtr ->
+  alloca $ \pagePtr -> do
+  {# call unsafe spin_button_get_increments #}
+    (toSpinButton self)
+    stepPtr
+    pagePtr
   step <- peek stepPtr
   page <- peek pagePtr
   return (realToFrac step, realToFrac page)
 
--- | Set the maximal allowable range for the spinbutton.
+-- | Sets the minimum and maximum allowable values for the spin button
 --
-spinButtonSetRange :: SpinButtonClass sb => sb -> Double -> Double -> IO ()
-spinButtonSetRange sb min max = {#call spin_button_set_range#}
-  (toSpinButton sb) (realToFrac min) (realToFrac max)
+spinButtonSetRange :: SpinButtonClass self => self
+ -> Double -- ^ @min@ - minimum allowable value
+ -> Double -- ^ @max@ - maximum allowable value
+ -> IO ()
+spinButtonSetRange self min max =
+  {# call spin_button_set_range #}
+    (toSpinButton self)
+    (realToFrac min)
+    (realToFrac max)
 
--- | Get the maximal allowable range for the spinbutton.
+-- | Gets the range allowed for the spin button. See 'spinButtonSetRange'.
 --
-spinButtonGetRange :: SpinButtonClass sb => sb -> IO (Double, Double)
-spinButtonGetRange sb =
-  alloca $ \minPtr -> alloca $ \maxPtr -> do
-  {#call unsafe spin_button_get_range#} (toSpinButton sb) minPtr maxPtr
+spinButtonGetRange :: SpinButtonClass self => self
+ -> IO (Double, Double) -- ^ @(min, max)@
+spinButtonGetRange self =
+  alloca $ \minPtr ->
+  alloca $ \maxPtr -> do
+  {# call unsafe spin_button_get_range #}
+    (toSpinButton self)
+    minPtr
+    maxPtr
   min <- peek minPtr
   max <- peek maxPtr
   return (realToFrac min, realToFrac max)
 
--- | Retrieve the current value as a floating point
--- value.
+-- | Retrieve the current value of the spin button as a floating point value.
 --
-spinButtonGetValue :: SpinButtonClass sb => sb -> IO Double
-spinButtonGetValue sb = liftM realToFrac $
-  {#call unsafe spin_button_get_value#} (toSpinButton sb)
+spinButtonGetValue :: SpinButtonClass self => self -> IO Double
+spinButtonGetValue self =
+  liftM realToFrac $
+  {# call unsafe spin_button_get_value #}
+    (toSpinButton self)
 
--- | Retrieve the current value as integral
--- value.
+-- | Retrieve the current value of the spin button as an integral value.
 --
-spinButtonGetValueAsInt :: SpinButtonClass sb => sb -> IO Int
-spinButtonGetValueAsInt sb = liftM fromIntegral $
-  {#call unsafe spin_button_get_value_as_int#} (toSpinButton sb)
+spinButtonGetValueAsInt :: SpinButtonClass self => self -> IO Int
+spinButtonGetValueAsInt self =
+  liftM fromIntegral $
+  {# call unsafe spin_button_get_value_as_int #}
+    (toSpinButton self)
 
 -- | Set the value of the SpinButton.
 --
-spinButtonSetValue :: SpinButtonClass sb => sb -> Double -> IO ()
-spinButtonSetValue sb value = {#call spin_button_set_value#}
-  (toSpinButton sb) (realToFrac value)
+spinButtonSetValue :: SpinButtonClass self => self -> Double -> IO ()
+spinButtonSetValue self value =
+  {# call spin_button_set_value #}
+    (toSpinButton self)
+    (realToFrac value)
 
--- | Whether the an out-of-range value set by 'spinButtonSetValue' is clamped to
--- the limits or simply ignored.
+-- | Sets the update behavior of a spin button. This determines whether the
+-- spin button is always updated or only when a valid value is set.
 --
-spinButtonSetUpdatePolicy :: SpinButtonClass sb => sb ->
-                             SpinButtonUpdatePolicy -> IO ()
-spinButtonSetUpdatePolicy sb up = {#call spin_button_set_update_policy#}
-  (toSpinButton sb) ((fromIntegral.fromEnum) up)
+spinButtonSetUpdatePolicy :: SpinButtonClass self => self
+ -> SpinButtonUpdatePolicy -- ^ @policy@ - a 'SpinButtonUpdatePolicy' value
+ -> IO ()
+spinButtonSetUpdatePolicy self policy =
+  {# call spin_button_set_update_policy #}
+    (toSpinButton self)
+    ((fromIntegral . fromEnum) policy)
 
--- | Gets the update behavior of a spin button. See 'spinButtonSetUpdatePolicy'.
+-- | Gets the update behavior of a spin button. See
+-- 'spinButtonSetUpdatePolicy'.
 --
-spinButtonGetUpdatePolicy :: SpinButtonClass sb => sb
-                          -> IO SpinButtonUpdatePolicy
-spinButtonGetUpdatePolicy sb = liftM (toEnum.fromIntegral) $
-  {#call unsafe spin_button_get_update_policy#} (toSpinButton sb)
+spinButtonGetUpdatePolicy :: SpinButtonClass self => self
+ -> IO SpinButtonUpdatePolicy -- ^ returns the current update policy
+spinButtonGetUpdatePolicy self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe spin_button_get_update_policy #}
+    (toSpinButton self)
 
 -- | Sets the flag that determines if non-numeric text can be typed into the
 -- spin button.
 --
-spinButtonSetNumeric :: SpinButtonClass sb => sb -> Bool -> IO ()
-spinButtonSetNumeric sb numeric = {#call spin_button_set_numeric#}
-  (toSpinButton sb) (fromBool numeric)
+spinButtonSetNumeric :: SpinButtonClass self => self
+ -> Bool  -- ^ @numeric@ - flag indicating if only numeric entry is allowed.
+ -> IO ()
+spinButtonSetNumeric self numeric =
+  {# call spin_button_set_numeric #}
+    (toSpinButton self)
+    (fromBool numeric)
 
--- | Returns whether non-numeric text can be typed into the spin button.
+-- | Returns whether non-numeric text can be typed into the spin button. See
+-- 'spinButtonSetNumeric'.
 --
-spinButtonGetNumeric :: SpinButtonClass sb => sb -> IO Bool
-spinButtonGetNumeric sb =
-  liftM toBool $ {#call unsafe spin_button_get_numeric#} (toSpinButton sb)
+spinButtonGetNumeric :: SpinButtonClass self => self
+ -> IO Bool -- ^ returns @True@ if only numeric text can be entered
+spinButtonGetNumeric self =
+  liftM toBool $
+  {# call unsafe spin_button_get_numeric #}
+    (toSpinButton self)
 
--- | Increment or decrement the current value of the SpinButton.
+-- | Increment or decrement a spin button's value in a specified direction by
+-- a specified amount.
 --
-spinButtonSpin :: SpinButtonClass sb => sb -> SpinType -> Double -> IO ()
-spinButtonSpin sb st offset = {#call spin_button_spin#} (toSpinButton sb)
-  ((fromIntegral.fromEnum) st) (realToFrac offset)
+spinButtonSpin :: SpinButtonClass self => self
+ -> SpinType -- ^ @direction@ - a 'SpinType' indicating the direction to spin.
+ -> Double   -- ^ @increment@ - step increment to apply in the specified
+             -- direction.
+ -> IO ()
+spinButtonSpin self direction increment =
+  {# call spin_button_spin #}
+    (toSpinButton self)
+    ((fromIntegral . fromEnum) direction)
+    (realToFrac increment)
 
 -- | Sets the flag that determines if a spin button value wraps around to the
 -- opposite limit when the upper or lower limit of the range is exceeded.
 --
-spinButtonSetWrap :: SpinButtonClass sb => sb -> Bool -> IO ()
-spinButtonSetWrap sb wrap = {#call spin_button_set_wrap#} (toSpinButton sb)
-  (fromBool wrap)
+spinButtonSetWrap :: SpinButtonClass self => self
+ -> Bool  -- ^ @wrap@ - a flag indicating if wrapping behavior is performed.
+ -> IO ()
+spinButtonSetWrap self wrap =
+  {# call spin_button_set_wrap #}
+    (toSpinButton self)
+    (fromBool wrap)
 
--- | Returns whether the spin button's value wraps around to the opposite limit
--- when the upper or lower limit of the range is exceeded.
+-- | Returns whether the spin button's value wraps around to the opposite
+-- limit when the upper or lower limit of the range is exceeded. See
+-- 'spinButtonSetWrap'.
 --
-spinButtonGetWrap :: SpinButtonClass sb => sb -> IO Bool
-spinButtonGetWrap sb =
-  liftM toBool $ {#call spin_button_get_wrap#} (toSpinButton sb)
+spinButtonGetWrap :: SpinButtonClass self => self
+ -> IO Bool -- ^ returns @True@ if the spin button wraps around
+spinButtonGetWrap self =
+  liftM toBool $
+  {# call spin_button_get_wrap #}
+    (toSpinButton self)
 
 -- | Sets the policy as to whether values are corrected to the nearest step
 -- increment when a spin button is activated after providing an invalid value.
 --
-spinButtonSetSnapToTicks :: SpinButtonClass sb => sb -> Bool -> IO ()
-spinButtonSetSnapToTicks sb snapToTicks = 
-  {#call spin_button_set_snap_to_ticks#} (toSpinButton sb) 
-  (fromBool snapToTicks)
+spinButtonSetSnapToTicks :: SpinButtonClass self => self
+ -> Bool  -- ^ @snapToTicks@ - a flag indicating if invalid values should be
+          -- corrected.
+ -> IO ()
+spinButtonSetSnapToTicks self snapToTicks =
+  {# call spin_button_set_snap_to_ticks #}
+    (toSpinButton self)
+    (fromBool snapToTicks)
 
--- | Returns whether the values are corrected to the nearest step.
+-- | Returns whether the values are corrected to the nearest step. See
+-- 'spinButtonSetSnapToTicks'.
 --
-spinButtonGetSnapToTicks :: SpinButtonClass sb => sb -> IO Bool
-spinButtonGetSnapToTicks sb = liftM toBool $
-  {#call unsafe spin_button_get_snap_to_ticks#} (toSpinButton sb)
+spinButtonGetSnapToTicks :: SpinButtonClass self => self
+ -> IO Bool -- ^ returns @True@ if values are snapped to the nearest step.
+spinButtonGetSnapToTicks self =
+  liftM toBool $
+  {# call unsafe spin_button_get_snap_to_ticks #}
+    (toSpinButton self)
 
--- | Force an update of the SpinButton.
+-- | Manually force an update of the spin button.
 --
-spinButtonUpdate :: SpinButtonClass sb => sb -> IO ()
-spinButtonUpdate sb = {#call spin_button_update#} (toSpinButton sb)
+spinButtonUpdate :: SpinButtonClass self => self -> IO ()
+spinButtonUpdate self =
+  {# call spin_button_update #}
+    (toSpinButton self)
 
 --------------------
 -- Properties
