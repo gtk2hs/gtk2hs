@@ -14,6 +14,13 @@
 	demo/unicode/Arabic.hs demo/unicode/Makefile: update all the demos to
 	use the new module names and write new simple makefiles.
 
+	* Makefile.am: build documentation for all packages. Add installcheck
+	make target that compiles & links all the demos. Arrange for all the
+	demos to be included in the dist tarball. Fix linker problem for gconf
+	due to missing _stub.o file.
+
+	* configure.ac: bump version to 0.9.7_rc1
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files
