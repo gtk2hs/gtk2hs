@@ -32,7 +32,8 @@ data ModuleInfo = ModuleInfo {
   } deriving Show
 
 data MethodInfo = MethodInfo {
-    methodinfo_cname :: String,
+    methodinfo_cname :: String,       -- the full gtk_foo_bar
+    methodinfo_shortcname :: String,  -- just foo_bar
     methodinfo_unsafe :: Bool    -- {#call unsafe foo#} rather than {#call foo#}
   } deriving Show
 
@@ -170,10 +171,13 @@ scanCCall :: [String] -> Line
 scanCCall tokens =
   case takeWhile (\t -> t/="#}" && t/="#}."&& t/="#})") . tail . dropWhile (/="{#") $ tokens of
     ("call":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
+                                                     methodinfo_shortcname = cname,
                                                      methodinfo_unsafe = True }
     ("call":         cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
+                                                     methodinfo_shortcname = cname,
                                                      methodinfo_unsafe = False }
     ("call":"fun":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
+                                                           methodinfo_shortcname = cname,
                                                            methodinfo_unsafe = True }
     ("fun":"pure":_)           -> None
     ("type":_)                 -> None

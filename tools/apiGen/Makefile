@@ -144,7 +144,7 @@ gnomecanvas-modules : gnomecanvas-api.xml Template.chs ApiGen \
 #	tools
 #
 ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs \
-	Marshal.hs CodeGen.hs StringUtils.hs ModuleScan.hs
+	Marshal.hs CodeGen.hs StringUtils.hs ModuleScan.hs MarshalFixup.hs
 	ghc --make $< -o $@
 
 gapi_format_xml : formatXml.c

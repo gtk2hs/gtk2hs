@@ -56,7 +56,7 @@ genFunction knownSymbols method doc info =
                        formatParamTypes (paramTypes ++ [returnType])
 	body = foldl (\body marshaler -> marshaler body)
                      call (paramMarshalers++[returnMarshaler])
-	call = ss (genCall (method_cname method) safety)
+	call = ss (genCall (maybe (method_cname method) methodinfo_shortcname info) safety)
         safety = case info of
                   Nothing -> False
                   Just info -> methodinfo_unsafe info
@@ -369,9 +369,10 @@ genTodoItems object =
         , not $ null [ () | VarArgs <- method_parameters method] ]
    in if null varargsFunctions
         then id
-        else nl. comment. nl. comment.
+        else nl. comment.
              ss "TODO: the following varargs functions were not bound\n".
-             lines (map (ss "-- * ".) varargsFunctions)
+             lines (map (ss "--   ".) varargsFunctions).
+             ss "\n--"
 
 type Deprecated = Bool
 notDeprecated = False

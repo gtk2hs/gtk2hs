@@ -130,6 +130,21 @@
 	docs generated for them we need to exclude the hidden modules from the
 	html_DATA variable.
 
+	* tools/apiGen/CodeGen.hs: tweak generation of TODO doc messages. Use
+	the short {# call foo_bar #} form rather than the full
+	{# call gtk_foo_bar #} when the original module uses this form.
+
+	* tools/apiGen/ModuleScan.hs: preserve short form of {# call #} from
+	scanned modules.
+
+	* tools/apiGen/Template.chs: put TODO messages before Haddock markup
+	section.
+
+	* tools/apiGen/FormatDocs.hs, tools/apiGen/MarshalFixup.hs: move name
+	fixup information to the MarshalFixup module.
+
+	* tools/apiGen/Makefile: add MarshalFixup.hs dep.
+
 2005-02-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: Bump version to 0.9.7.1

@@ -22,6 +22,7 @@ module FormatDocs (
 import Api (NameSpace(namespace_name))
 import Docs
 import Marshal (stripKnownPrefixes, knownMiscType, KnownSymbols, CSymbol(..))
+import MarshalFixup (fixCFunctionName)
 import StringUtils
 
 import Maybe (isJust)
@@ -172,6 +173,7 @@ haddocFormatSpan knownSymbols _ (DocLiteral text) =
   case lookupFM knownSymbols text of
     Nothing                            -> "@" ++ escapeHaddockSpecialChars text ++ "@"
     Just SymEnumValue                  -> "'" ++ cConstNameToHsName text ++ "'"
+    Just (SymObjectType _)             -> "'" ++ stripKnownPrefixes text ++ "'"
     _ -> "{" ++ text ++ ", FIXME: unknown literal value}" --TODO fill in the other cases
 haddocFormatSpan _ _ (DocArg  text)       = "@" ++ cParamNameToHsName text ++ "@"
 
@@ -179,10 +181,7 @@ cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
     lowerCaseFirstChar
   . stripKnownPrefixes
-  . concatMap upperCaseFirstChar
-  . map fixNames
-  . filter (not.null) --to ignore tailing underscores
-  . splitBy '_'
+  . toStudlyCapsWithFixups
   . takeWhile ('('/=)
 
 cParamNameToHsName :: String -> String
@@ -202,23 +201,12 @@ toStudlyCaps =                 --change "gtk_foo_bar" to "GtkFooBar"
   . filter (not.null) --to ignore tailing underscores
   . splitBy '_'
 
--- some special cases 
-fixNames :: String -> String
-fixNames "hadjustment" = "HAdjustment"
-fixNames "vadjustment" = "VAdjustment"
-fixNames "hscale"  = "HScale"
-fixNames "vscale"  = "VScale"
-fixNames "hbox"    = "HBox"
-fixNames "vbox"    = "VBox"
-fixNames "hbutton" = "HButton"
-fixNames "vbutton" = "VButton"
-fixNames "hpaned"  = "HPaned"
-fixNames "vpaned"  = "VPaned"
-fixNames "hseparator" = "HSeparator"
-fixNames "vseparator" = "VSeparator"
-fixNames "hscrollbar" = "HScrollbar"
-fixNames "vscrollbar" = "VScrollbar"
-fixNames other = other
+toStudlyCapsWithFixups :: String -> String
+toStudlyCapsWithFixups =                 --change "gtk_foo_bar" to "GtkFooBar"
+    concatMap upperCaseFirstChar
+  . map fixCFunctionName
+  . filter (not.null) --to ignore tailing underscores
+  . splitBy '_'
 
 changeIllegalNames :: String -> String
 changeIllegalNames "type" = "type_"  --this is a common variable name in C but of

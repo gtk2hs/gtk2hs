@@ -13,6 +13,27 @@ stripKnownPrefixes ('P':'a':'n':'g':'o':remainder) = remainder
 stripKnownPrefixes ('G':'n':'o':'m':'e':remainder) = remainder
 stripKnownPrefixes other = other
 
+-- some special cases for when converting "gtk_foo_bar" to "GtkFooBar"
+-- eg instead of doing gtk_hadjustment -> GtkHadjustment
+-- we would prefer     gtk_hadjustment -> GtkHAdjustment
+-- so list those special cases here:
+fixCFunctionName :: String -> String
+fixCFunctionName "hadjustment" = "HAdjustment"
+fixCFunctionName "vadjustment" = "VAdjustment"
+fixCFunctionName "hscale"  = "HScale"
+fixCFunctionName "vscale"  = "VScale"
+fixCFunctionName "hbox"    = "HBox"
+fixCFunctionName "vbox"    = "VBox"
+fixCFunctionName "hbutton" = "HButton"
+fixCFunctionName "vbutton" = "VButton"
+fixCFunctionName "hpaned"  = "HPaned"
+fixCFunctionName "vpaned"  = "VPaned"
+fixCFunctionName "hseparator" = "HSeparator"
+fixCFunctionName "vseparator" = "VSeparator"
+fixCFunctionName "hscrollbar" = "HScrollbar"
+fixCFunctionName "vscrollbar" = "VScrollbar"
+fixCFunctionName other = other
+
 -- These are ones we have bound and so we can make documentation references to
 -- them. Otherwise we generate FIXME messages in the docs.
 knownMiscType :: String -> Bool
