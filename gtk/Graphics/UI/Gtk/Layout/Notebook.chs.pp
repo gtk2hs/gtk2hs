@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/24 17:31:00 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:51:44 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -805,7 +805,7 @@ notebookSetTabLabelPacking self child pack packType =
     (toWidget child)
     (fromBool $ pack/=PackNatural)
     (fromBool $ pack==PackGrow) 
-    ((fromIntegral.fromEnum) packType)
+    ((fromIntegral . fromEnum) packType)
 
 #ifndef DISABLE_DEPRECATED
 -- | Sets whether the tabs must have all the same size or not.

@@ -58,7 +58,12 @@
 	gtk/Graphics/UI/Gtk/Display/Label.chs,
 	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs,
 	gtk/Graphics/UI/Gtk/Display/Statusbar.chs: various minor changes
-	merged from the generated module.
+	merged from the generated modules.
+
+	* gtk/Graphics/UI/Gtk/Layout/Alignment.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Expander.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp: trivial changes merged
+	from the generated modules.
 
 2005-04-1 Duncan Coutts <duncan@coutts.uklinux.net>
 

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:30:59 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:51:44 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -164,20 +164,20 @@ alignmentGetPadding :: AlignmentClass self => self
                             -- paddingRight)@ - the padding at the top,
                             -- bottom, left and right of the widget.
 alignmentGetPadding self =
-  alloca $ \topPtr ->
-  alloca $ \bottomPtr ->
-  alloca $ \leftPtr ->
-  alloca $ \rightPtr -> do
+  alloca $ \paddingTopPtr ->
+  alloca $ \paddingBottomPtr ->
+  alloca $ \paddingLeftPtr ->
+  alloca $ \paddingRightPtr -> do
   {# call gtk_alignment_get_padding #}
     (toAlignment self)
-    topPtr
-    bottomPtr
-    leftPtr
-    rightPtr
-  top    <- peek topPtr
-  bottom <- peek bottomPtr
-  left   <- peek leftPtr
-  right  <- peek rightPtr
-  return (fromIntegral top, fromIntegral bottom
-         ,fromIntegral left, fromIntegral right)
+    paddingTopPtr
+    paddingBottomPtr
+    paddingLeftPtr
+    paddingRightPtr
+  paddingTop <- peek paddingTopPtr
+  paddingBottom <- peek paddingBottomPtr
+  paddingLeft <- peek paddingLeftPtr
+  paddingRight <- peek paddingRightPtr
+  return (fromIntegral paddingTop, fromIntegral paddingBottom
+         ,fromIntegral paddingLeft, fromIntegral paddingRight)
 #endif

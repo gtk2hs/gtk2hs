@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/24 17:30:59 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:51:44 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -102,7 +102,7 @@ import Graphics.UI.Gtk.Signals
 --------------------
 -- Constructors
 
--- | Creates a new expander using @label@ as the text of the label.
+-- | Creates a new expander using the given string as the text of the label.
 --
 expanderNew :: String -> IO Expander
 expanderNew label =
@@ -157,8 +157,7 @@ expanderGetExpanded self =
 -- | Sets the spacing field of @expander@, which is the number of pixels to
 -- place between expander and the child.
 --
-expanderSetSpacing :: Expander -> Int
- -> IO ()
+expanderSetSpacing :: Expander -> Int -> IO ()
 expanderSetSpacing self spacing =
   {# call gtk_expander_set_spacing #}
     self
