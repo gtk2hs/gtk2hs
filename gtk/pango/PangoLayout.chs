@@ -4,7 +4,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/27 04:21:21 $
+--  Version $Revision: 1.9 $ from $Date: 2004/12/12 11:18:41 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -377,7 +377,7 @@ layoutGetLines :: PangoLayout -> IO [LayoutLine]
 layoutGetLines pl = do
   listPtr <- {#call unsafe layout_get_lines#} pl
   list <- readGSList listPtr
-  mapM mkLayoutLine list
+  mapM makeNewLayoutLine list
 
 -- | Create an iterator to examine a layout.
 --
@@ -440,7 +440,7 @@ layoutIterGetLine :: LayoutIter -> IO (Maybe LayoutLine)
 layoutIterGetLine li = do
   llPtr <- liftM castPtr $ {#call unsafe pango_layout_iter_get_line#} li
   if (llPtr==nullPtr) then return Nothing else 
-    liftM Just $ mkLayoutLine llPtr
+    liftM Just $ makeNewLayoutLine llPtr
 
 -- | Retrieve a rectangle surrounding
 -- a character.

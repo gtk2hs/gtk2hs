@@ -4,7 +4,7 @@
 --          
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/27 04:21:21 $
+--  Version $Revision: 1.8 $ from $Date: 2004/12/12 11:18:41 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -30,15 +30,12 @@
 module Markup(
   Markup,
   SpanAttribute(..),
-  FontSizeDef(..),
-  FontStyleDef(..),
-  FontWeightDef(..),
-  FontVariantDef(..),
-  FontStretchDef(..),
-  FontUnderlineDef(..),
-  markSpan
+  markSpan,
+  Size(..)
   ) where
 
+import PangoTypes ( Language )
+import qualified PangoEnums as Pango
 
 -- | Define a synonym for text with embedded markup commands.
 --
@@ -53,47 +50,46 @@ data SpanAttribute
   -- | Choose a font by textual description.
   --
   -- * Takes a string to completely describe the font, example:
-  -- @FontDescr \"Sans Italic 12\"@
+  -- @FontDescr@ \"Sans Italic 12\"
   = FontDescr   String
 
   -- | Specify the family of font to use.
   --
-  -- * Example: @FontFamily \"Sans\"@
+  -- * Example: @FontFamily@ \"Sans\"
   | FontFamily	String
 
   -- | Change the size of the current font.
   --
-  -- * The constuctor takes the size in points (pt) or as predefined
+  -- * The constuctor takes the size in points (pt) or a predefined
   --   sizes. Setting the absolute size 12.5pt can be achieved by passing
-  --   @FontSize ('FSPoint' 12.5)@ to 'markSpan'. Next to predefined
-  --   absolute sizes such as 'FSsmall' the size can be changed by asking
-  --   for the next larger or smaller front with 'FSlarger' and
-  --   'FSsmaller', respectively.
-  | FontSize	FontSizeDef
+  --   'FontSize' ('SizePoint' 12.5) to 'markSpan'. Next to predefined
+  --   absolute sizes such as 'SizeSmall' the size can be changed by 
+  --   asking for the next larger or smaller front with
+  --   'SizeLarger' and 'SizeSmaller', respectively.
+  | FontSize Size
 
   -- | Change the slant of the current font.
   --
-  -- * The constructor takes one of three styles: 'FYnormal',
-  --   'FYoblique' or 'FYitalic'.
-  | FontStyle   FontStyleDef
+  | FontStyle Pango.FontStyle
 
   -- | Change the thickness of the current font.
   --
   -- * The constructor takes one of the six predefined weights. Most likely to
-  --   be supported: 'FWbold'.
-  | FontWeight  FontWeightDef
+  --   be supported: 'WeightBold'.
+  --
+  | FontWeight Pango.Weight
 
   -- | Choosing an alternative rendering for lower case letters.
   --
-  -- * The argument 'FVsmallcaps' will display lower case letters
+  -- * The argument 'VariangtSmallCaps' will display lower case letters
   --   as smaller upper case letters, if this option is available.
-  | FontVariant FontVariantDef
+  | FontVariant Pango.Variant
 
   -- | Choose a different width.
   --
-  -- * Takes one of nine font widths, e.g. 'FTcondensed' or
-  --   'FTexpanded'.
-  | FontStretch FontStretchDef
+  -- * Takes one of nine font widths, e.g. 'WidthExpanded'.
+  --
+  | FontStretch Pango.Stretch
 
   -- | Foreground color.
   --
@@ -106,9 +102,7 @@ data SpanAttribute
 
   -- | Specify underlining of text.
   --
-  -- * 'FUnone', 'FUsingle', 'FUdouble' or
-  --   'FUlow' are possible choices.
-  | FontUnderline FontUnderlineDef
+  | FontUnderline Pango.Underline
 
   -- | Specify a vertical displacement.
   --
@@ -117,7 +111,11 @@ data SpanAttribute
   | FontRise	Double
 
   -- | Give a hint about the language to be displayed.
-  | FontLang	String		-- FIXME: enumeration? what's the use anyway?
+  --
+  -- * This hint might help the system rendering a particular piece of text
+  --   with different fonts that are more suitable for the given language.
+  --
+  | FontLang	Language
 
 instance Show SpanAttribute where
   showsPrec _ (FontDescr str)    = showString " font_desc=".shows str
@@ -134,110 +132,6 @@ instance Show SpanAttribute where
 				   (show (round (r*10000)))
   showsPrec _ (FontLang l)	 = showString " lang=".shows l
 
--- | Define attributes for 'FontSize'.
---
-data FontSizeDef
-  = FSPoint Double
-  | FSunreadable
-  | FStiny
-  | FSsmall
-  | FSmedium
-  | FSlarge
-  | FShuge
-  | FSgiant
-  | FSsmaller
-  | FSlarger
-
-instance Show FontSizeDef where
-  showsPrec _ (FSPoint v)         = shows $ show (round (v*1000))
-  showsPrec _ (FSunreadable)	  = shows "xx-small"
-  showsPrec _ (FStiny)		  = shows "x-small"
-  showsPrec _ (FSsmall)		  = shows "small"
-  showsPrec _ (FSmedium)	  = shows "medium"
-  showsPrec _ (FSlarge)		  = shows "large"
-  showsPrec _ (FShuge)		  = shows "x-large"
-  showsPrec _ (FSgiant)		  = shows "xx-large"
-  showsPrec _ (FSsmaller)	  = shows "smaller"
-  showsPrec _ (FSlarger)	  = shows "larger"
-
--- | Define attributes for 'FontStyle'.
---
-data FontStyleDef
-  = FYnormal
-  | FYoblique
-  | FYitalic
-
-instance Show FontStyleDef where
-  showsPrec _ FYnormal	   = shows "normal"
-  showsPrec _ FYoblique	   = shows "oblique"
-  showsPrec _ FYitalic	   = shows "italic"
-
--- | Define attributes for 'FontWeight'.
---
-data FontWeightDef
-  = FWultralight
-  | FWlight
-  | FWnormal
-  | FWbold
-  | FWultrabold
-  | FWheavy
-
-instance Show FontWeightDef where
-  showsPrec _ FWultralight = shows "ultralight"
-  showsPrec _ FWlight	   = shows "light"
-  showsPrec _ FWnormal	   = shows "normal"
-  showsPrec _ FWbold	   = shows "bold"
-  showsPrec _ FWultrabold  = shows "ultrabold"
-  showsPrec _ FWheavy	   = shows "heavy"
-
--- | Define attributes for 'FontVariant'.
---
-data FontVariantDef
-  = FVnormal
-  | FVsmallcaps
-
-instance Show FontVariantDef where
-  showsPrec _ FVnormal	     = shows "normal"
-  showsPrec _ FVsmallcaps    = shows "smallcaps"
-
--- | Define attributes for 'FontStretch'.
---
-data FontStretchDef
-  = FTultracondensed
-  | FTextracondensed
-  | FTcondensed
-  | FTsemicondensed
-  | FTnormal
-  | FTsemiexpanded
-  | FTexpanded
-  | FTextraexpanded
-  | FTultraexpanded
-
-instance Show FontStretchDef where
-  showsPrec _ FTultracondensed	= shows "ultracondensed"
-  showsPrec _ FTextracondensed	= shows "extracondensed"
-  showsPrec _ FTcondensed	= shows "condensed"
-  showsPrec _ FTsemicondensed	= shows "semicondensed"
-  showsPrec _ FTnormal		= shows "normal"
-  showsPrec _ FTsemiexpanded	= shows "semiexpanded"
-  showsPrec _ FTexpanded	= shows "expanded"
-  showsPrec _ FTextraexpanded	= shows "extraexpanded"
-  showsPrec _ FTultraexpanded	= shows "ultraexpanded"
-
--- | Define attributes for 'FontUnderline'.
---
-data FontUnderlineDef
-  = FUsingle
-  | FUdouble
-  | FUlow
-  | FUnone
-
-instance Show FontUnderlineDef where
-  showsPrec _ FUsingle	= shows "single"
-  showsPrec _ FUdouble	= shows "double"
-  showsPrec _ FUlow	= shows "low"
-  showsPrec _ FUnone	= shows "none"
-
 -- | Create the most generic span attribute.
 --
 markSpan :: [SpanAttribute] -> String -> String
@@ -245,6 +139,33 @@ markSpan attrs text = showString "<span".
 		      foldr (.) (showChar '>') (map shows attrs).
 		      showString text.
 		      showString "</span>" $ ""
+
+-- | Define attributes for 'FontSize'.
+--
+data Size
+  = SizePoint Double
+  | SizeUnreadable
+  | SizeTiny
+  | SizeSmall
+  | SizeMedium
+  | SizeLarge
+  | SizeHuge
+  | SizeGiant
+  | SizeSmaller
+  | SizeLarger
+
+instance Show Size where
+  showsPrec _ (SizePoint v)        	= shows $ show (round (v*1000))
+  showsPrec _ (SizeUnreadable)		= shows "xx-small"
+  showsPrec _ (SizeTiny)		= shows "x-small"
+  showsPrec _ (SizeSmall)		= shows "small"
+  showsPrec _ (SizeMedium)		= shows "medium"
+  showsPrec _ (SizeLarge)		= shows "large"
+  showsPrec _ (SizeHuge)		= shows "x-large"
+  showsPrec _ (SizeGiant)		= shows "xx-large"
+  showsPrec _ (SizeSmaller)		= shows "smaller"
+  showsPrec _ (SizeLarger)	  	= shows "larger"
+
 
 
 
