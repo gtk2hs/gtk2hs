@@ -6,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.8 $ from $Date: 2003/11/15 11:17:04 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -146,7 +146,7 @@ treeSelectionSelectedForeach :: (TreeSelectionClass ts) => ts ->
                                 TreeSelectionForeachCB -> IO ()
 treeSelectionSelectedForeach ts fun = do
   fPtr <- mkTreeSelectionForeachFunc (\_ ti _ -> do
-    -- make a deep copy of the iterator. This make it possible to store this
+    -- make a deep copy of the iterator. This makes it possible to store this
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
     -- passed to the function due to performance reasons. But since it is
     -- a constant member of Selection this does not matter.
@@ -164,9 +164,17 @@ treeSelectionSelectedForeach ts fun = do
 type TreeSelectionForeachCB = TreeIter -> IO ()
 {#pointer TreeSelectionForeachFunc#}
 
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper"  mkTreeSelectionForeachFunc ::
+  (Ptr () -> Ptr TreeIter -> Ptr () -> IO ()) -> IO TreeSelectionForeachFunc
+
+#else
+
 foreign export dynamic mkTreeSelectionForeachFunc ::
   (Ptr () -> Ptr TreeIter -> Ptr () -> IO ()) -> IO TreeSelectionForeachFunc
 
+#endif
 
 -- @method treeSelectionSelectPath@ Select a specific item by TreePath.
 --

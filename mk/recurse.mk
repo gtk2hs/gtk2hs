@@ -20,6 +20,10 @@ tarsource : make-tarsource
 clean : MAKE_GOALS=$(MAKE_TOOLS) $(MAKE_LIBS) $(MAKE_DOCS) $(MAKE_APPS) $(MAKE_VERB)
 clean : make-clean
 
+distclean : MAKE_GOALS=$(MAKE_TOOLS) $(MAKE_LIBS) $(MAKE_DOCS) $(MAKE_APPS) $(MAKE_VERB)
+distclean : make-distclean
+	$(RM) $(LOCALPKGCONF) $(LOCALPKGCONF).old
+
 install : MAKE_GOALS=$(MAKE_LIBS) $(MAKE_APPS)
 install : make-install
 

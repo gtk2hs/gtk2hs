@@ -1,5 +1,10 @@
 2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* mk/recurse.mk: Add a distclean goal that removes the
+	localpackage.conf file.
+
+	* gtk/treeView/TreeSelection.chs: Remove a deprecated warning.
+	
 	* configure.in: Closed a case expression. Simplified and corrected
 	the search for XML catalog files.
 
