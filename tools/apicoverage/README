@@ -1,0 +1,56 @@
+The tools in this directory are to help investigate gtk2hs's coverage of the gtk
+API. You should modify the Makefile to set which version of gtk you'd like to
+check aginst. Running 'make' will then download the tarball from the gtk website
+and extract the gtk.def file which contains a complete list of the exported gtk
+functions.
+
+It also scans all the files in the gtk directory for calls to gtk APIs. It
+filters the list of gtk APIs to get rid of deprecated, internal or other
+functions we don't care about.
+
+So what you want to do is
+$ make
+
+to get a summary and then
+$ diff gtk.def.filtered gtk.coverage
+
+to get a list of what is currently implemented vs what is not.
+
+If something should not be implemented you can exclude it from the list by
+modifying the gtk.ignore file. You can also put api.ignore files in any
+directory under gtk/ and they will be used too. For excluding individual
+functions it's probably better to use a local api.ignore file, to stop the
+main gtk.ignore file becoming unmanagebly large. The central one should be
+for excluding entire sections of the gtk api and general stuff.
+
+The syntax of these files is as follows:
+
+ * empty lines or lines beginning with # are ignored
+
+ * lines like:
+ 
+exclude gtk_some_group_of_functions
+
+   give an instruction to ignore functions with a name that matches the regex.
+
+   Note that functions will be excluded if the regex matches any part of the
+   function name, so saying 'gtk_text' will exclude all functions with that
+   prefix. Standard posix regex syntax applies so you can use ^ and $ to
+   anchor the regex if you need, eg '_get_type$' will only match things things
+   ending in '_get_type'
+   
+ * lines like:
+
+do not exclude gtk_some_function
+
+   can be used where using 'exclude' has excluded too much and you need some
+   exceptions. eg to exclude gtk_progress but not gtk_progress_box
+
+ * finally:
+
+always exclude _gtk_type$
+
+   can be used where you really really want to exclude something even if a
+   'do not exclude' would have caused it not to be excluded. This is mostly
+   only useful for the above example and a couple similar ones.
+

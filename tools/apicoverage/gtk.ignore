@@ -1,0 +1,120 @@
+
+# all functions matching these regexps are ignored from gtk.def
+
+#deprecated
+exclude gtk_object
+do not exclude gtk_object_sink
+exclude gtk_ctree
+exclude gtk_clist
+exclude gtk_tree
+exclude gtk_list
+do not exclude gtk_list_store
+do not exclude gtk_tree_store
+do not exclude gtk_tree_view
+do not exclude gtk_tree_model
+do not exclude gtk_tree_sortable
+do not exclude gtk_tree_selection
+do not exclude gtk_tree_row
+do not exclude gtk_tree_path
+
+exclude gtk_pixmap
+exclude gtk_item_factory
+exclude gtk_old_editable
+exclude gtk_preview
+exclude gtk_progress
+do not exclude gtk_progress_bar_new
+do not exclude gtk_progress_bar_pulse
+do not exclude gtk_progress_bar_set_text
+do not exclude gtk_progress_bar_set_fraction
+do not exclude gtk_progress_bar_set_pulse_step
+do not exclude gtk_progress_bar_set_orientation
+do not exclude gtk_progress_bar_get_text
+do not exclude gtk_progress_bar_get_fraction
+do not exclude gtk_progress_bar_get_pulse_step
+do not exclude gtk_progress_bar_get_orientation
+
+exclude gtk_text
+do not exclude gtk_text_iter
+do not exclude gtk_text_mark
+do not exclude gtk_text_buffer
+do not exclude gtk_text_tag
+do not exclude gtk_text_tag_table
+do not exclude gtk_text_view
+
+exclude gtk_tips_query
+
+exclude gtk_accel_group_ref
+exclude gtk_accel_group_unref
+
+exclude gtk_idle
+exclude gtk_timeout
+exclude gtk_input
+exclude gtk_exit
+exclude gtk_type
+
+exclude gtk_color_selection_set_update_policy
+
+#deprecated as of 2.4
+exclude gtk_combo
+do not exclude gtk_combo_box
+exclude gtk_option_menu
+
+
+#special purpose features (hangovers in gtk from the GIMP)
+exclude gtk_curve
+exclude gtk_gamma_curve
+exclude gtk_ruler
+exclude gtk_hruler
+exclude gtk_vruler
+
+
+#low level
+exclude gtk_marshal
+exclude gtk_false
+exclude gtk_true
+exclude gtk_.*_version
+exclude gtk_requisition
+
+#for gtk extensions & widget implementations
+exclude gtk_draw
+do not exclude gtk_drawing
+exclude gtk_style
+exclude gtk_paint
+exclude gtk_file_info
+exclude gtk_file_system
+exclude gtk_file_folder
+exclude gtk_im
+exclude gtk_invisible
+exclude gtk_widget_realize
+exclude gtk_widget_unrealize
+
+
+#sometimes there are several ways of doing the same thing
+#so lets ignore the other ways of doing it
+exclude gtk_init
+do not exclude gtk_init_check$
+
+
+#dont think we need these ? TODO check this
+exclude gtk_gc
+exclude gtk_key_snooper
+exclude gtk_rc
+
+
+#appear to be internal, they're not well documented
+exclude gtk_binding
+exclude gtk_debug
+
+#stuff that we do not call directly, but instead simulate
+#usually because the function is varargs
+exclude gtk_file_chooser_dialog_new
+
+
+#these are sometimes bound if necessary but otherwise we can ignore them
+always exclude _get_type$
+always exclude _valist$
+always exclude _newv$
+always exclude _copy$
+always exclude _free$
+exclude _ref$
+exclude _unref$

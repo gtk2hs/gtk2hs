@@ -10,6 +10,10 @@
 	* gtk2hs/gtk/abstract/Box.chs, gtk/misc/Adjustment.chs,
 	gtk/layout/Alignment.chs: implement missing functions
 
+	* tools/apicoverage/Makefile, tools/apicoverage/Exclude.hs,
+	tools/apicoverage/gtk.ignore, tools/apicoverage/README: new tool to
+	check on our coverage of the gtk api.
+
 2004-07-28  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile: only build filechooser demo with gtk-2.4
