@@ -1,4 +1,4 @@
-{-# OPTIONS -cpp -fglasgow-exts -O -funbox-strict-fields #-}
+{-# OPTIONS -cpp -fglasgow-exts #-}
 --
 -- (c) The University of Glasgow 2002
 --
@@ -48,10 +48,14 @@ module Binary
 
   ) where
 
+#include "config.h"
+
 import FastMutInt
 
 import Data.FiniteMap
+# if __GLASGOW_HASKELL__>=602
 import Data.HashTable as HashTable
+# endif
 import Data.Array.IO
 import Data.Array
 import Data.Bits
@@ -60,7 +64,7 @@ import Data.Word
 import Data.IORef
 import Data.Char		( ord, chr )
 import Data.Array.Base  	( unsafeRead, unsafeWrite )
-import Control.Monad		( when )
+import Control.Monad		( when, liftM )
 import Control.Exception	( throwDyn )
 import System.IO as IO
 import System.IO.Unsafe		( unsafeInterleaveIO )
@@ -69,13 +73,15 @@ import GHC.Real			( Ratio(..) )
 import GHC.Exts
 import GHC.IOBase	 	( IO(..) )
 import GHC.Word			( Word8(..) )
-import System.IO		( openBinaryFile )
-
+# if __GLASGOW_HASKELL__<602
+import GHC.Handle		( hSetBinaryMode )
+# endif
 -- for debug
 import System.CPUTime           (getCPUTime)
 import Numeric                  (showFFloat)
 
-#define SIZEOF_HSINT 4
+-- FIXME: we should really get SIZEOF_HSINT directly from ghc's config.h
+#define SIZEOF_HSINT SIZEOF_VOID_P
 
 type BinArray = IOUArray Int Word8
 
@@ -185,7 +191,8 @@ isEOFBin (BinIO _ ix_r h) = hIsEOF h
 writeBinMem :: BinHandle -> FilePath -> IO ()
 writeBinMem (BinIO _ _ _) _ = error "Data.Binary.writeBinMem: not a memory handle"
 writeBinMem (BinMem _ ix_r sz_r arr_r) fn = do
-  h <- openBinaryFile fn WriteMode
+  h <- openFile fn WriteMode
+  hSetBinaryMode h True
   arr <- readIORef arr_r
   ix  <- readFastMutInt ix_r
   hPutArray h arr ix
@@ -194,7 +201,8 @@ writeBinMem (BinMem _ ix_r sz_r arr_r) fn = do
 readBinMem :: FilePath -> IO BinHandle
 -- Return a BinHandle with a totally undefined State
 readBinMem filename = do
-  h <- openBinaryFile filename ReadMode
+  h <- openFile filename ReadMode
+  hSetBinaryMode h True
   filesize' <- hFileSize h
   let filesize = fromIntegral filesize'
   arr <- newArray_ (0,filesize-1)
@@ -619,7 +627,11 @@ putBinFileWithDict file_path the_thing = do
 
 	-- Get the final-state
   j <- readIORef  (ud_next usr_state)
+#if __GLASGOW_HASKELL__>=602
   fm <- HashTable.toList (ud_map  usr_state)
+#else
+  fm <- liftM fmToList $ readIORef (ud_map  usr_state)
+#endif
   dict_p <- tellBin bh	-- This is where the dictionary will start
 
 	-- Write the dictionary pointer at the fornt of the file
@@ -643,7 +655,11 @@ data UserData =
 
 		-- The next two fields are only used when writing
 	      ud_next :: IORef Int,	-- The next index to use
+#if __GLASGOW_HASKELL__>=602
 	      ud_map  :: HashTable String Int -- The index of each string
+#else
+	      ud_map  :: IORef (FiniteMap String Int)
+#endif
 	}
 
 noUserData = error "Binary.UserData: no user data"
@@ -656,7 +672,11 @@ initReadState dict = UserData{ ud_dict = dict,
 newWriteState :: IO UserData
 newWriteState = do
   j_r <- newIORef 0
+#if __GLASGOW_HASKELL__>=602
   out_r <- HashTable.new (==) HashTable.hashString
+#else
+  out_r <- newIORef emptyFM
+#endif
   return (UserData { ud_dict = error "dict",
 		     ud_next = j_r,
 		     ud_map  = out_r })
@@ -693,14 +713,23 @@ putSharedString :: BinHandle -> String -> IO ()
 putSharedString bh str =
   case getUserData bh of
     UserData { ud_next = j_r, ud_map = out_r, ud_dict = dict} -> do
+#if __GLASGOW_HASKELL__>=602
       entry <- HashTable.lookup out_r str
+#else
+      fm <- readIORef out_r
+      let entry = lookupFM fm str
+#endif
       case entry of
 	Just j  -> put_ bh j
 	Nothing -> do
 		     j <- readIORef j_r
 		     put_ bh j
 		     writeIORef j_r (j+1)
+#if __GLASGOW_HASKELL__>=602
 		     HashTable.insert out_r str j
+#else
+		     modifyIORef out_r (\fm -> addToFM fm str j)
+#endif
 
 getSharedString :: BinHandle -> IO String
 getSharedString bh = do

@@ -31,6 +31,14 @@
 	System.IO.Unsafe instead. Also conditionally export unsafePerformIO
 	since older ghc versions do not export it from module Foreign.
 
+	* tools/c2hs/gen/CInfo.hs, tools/c2hs/toplevel/C2HSConfig.hs.in:
+	import Foreign.C rather than CForeign, since the latter is not
+	available in older versions of ghc.
+
+	* mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs,
+	gtk/Graphics/UI/Gtk/Pango/Description.chs: more import tweaks for
+	compatability with older versions of ghc.
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files
