@@ -112,6 +112,10 @@ else
   CREATE_TYPES=default;
 fi;
 
+if test "$WIN32" = "yes"; then
+  AC_DEFINE(WIN32, [], [Are we building on a Win32 system])
+fi
+
 dnl determine a temporary directory for c2hs
 TMPDIR="/tmp"
 if test "$WIN32" = "yes"; then
@@ -173,6 +177,7 @@ AC_MSG_CHECKING([broken dynamic callbacks])
 FOUR_WORD_CALLBACK=no
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 9.9.9, [
   if test $host_cpu = sparc; then FOUR_WORD_CALLBACK=yes; fi
+  dnl TODO: is this only on Sparc Solaris or on all Sparc (ie Linux too)?
 ])
 AC_MSG_RESULT([$FOUR_WORD_CALLBACK])
 
@@ -272,7 +277,8 @@ AM_CONDITIONAL(ENABLE_MOZEMBED, test x$ENABLE_MOZEMBED = xyes)
 
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
-PKG_CHECK_MODULES(GTK,[glib-2.0 >= 2.0.0 gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
+PKG_CHECK_MODULES(GLIB,[glib-2.0 >= 2.0.0])
+PKG_CHECK_MODULES(GTK,[gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
 dnl if test x$ENABLE_OPENGL = xyes; then
 dnl   PKG_CHECK_MODULES(GTKGLEXT,[gtkglext-1.0 >= 0.7.1])
 dnl fi
@@ -286,6 +292,7 @@ fi
 if test x$ENABLE_MOZEMBED = xyes; then
   PKG_CHECK_MODULES(MOZEMBED,[mozilla-gtkmozembed >= 1.4])
 fi
+
 
 dnl Some APIs only appeared in later versions of libraries. Generate only
 dnl Haskell types for the available C types.
@@ -316,20 +323,34 @@ dnl does not like that, so we need to filter out non-existent directories.
 dnl Furthermore we remove all libraries and directories for packages that
 dnl built on top of gtk so that they don't appear several times on the
 dnl command line.
-GTK_CFLAGS=`tools/checkDirs.sh $GTK_CFLAGS`;
-GTK_LIBS=`tools/checkDirs.sh $GTK_LIBS`;
-SOURCEVIEW_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $SOURCEVIEW_CFLAGS`;
-SOURCEVIEW_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $SOURCEVIEW_LIBS`;
-LIBGLADE_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $LIBGLADE_CFLAGS`;
-LIBGLADE_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $LIBGLADE_LIBS`;
-GCONF_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $GCONF_CFLAGS`;
-GCONF_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $GCONF_LIBS`;
-MOZEMBED_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $MOZEMBED_CFLAGS`;
-MOZEMBED_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $MOZEMBED_LIBS`;
+GLIB_CFLAGS=`tools/checkDirs.sh $GLIB_CFLAGS`;
+GLIB_LIBS=`tools/checkDirs.sh $GLIB_LIBS`;
+
+GTK_CFLAGS=`CFLAGS="$GLIB_CFLAGS" tools/checkDirs.sh $GTK_CFLAGS`;
+GTK_LIBS=`LDFLAGS="$GLIB_LIBS" tools/checkDirs.sh $GTK_LIBS`;
+
+SOURCEVIEW_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" tools/checkDirs.sh $SOURCEVIEW_CFLAGS`;
+SOURCEVIEW_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" tools/checkDirs.sh $SOURCEVIEW_LIBS`;
+
+LIBGLADE_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" tools/checkDirs.sh $LIBGLADE_CFLAGS`;
+LIBGLADE_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" tools/checkDirs.sh $LIBGLADE_LIBS`;
+
+GCONF_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" tools/checkDirs.sh $GCONF_CFLAGS`;
+GCONF_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" tools/checkDirs.sh $GCONF_LIBS`;
+
+MOZEMBED_CFLAGS=`CFLAGS="$GLIB_CFLAGS $GTK_CFLAGS" tools/checkDirs.sh $MOZEMBED_CFLAGS`;
+MOZEMBED_LIBS=`LDFLAGS="$GLIB_LIBS $GTK_LIBS" tools/checkDirs.sh $MOZEMBED_LIBS`;
 
 
 dnl Change the representation of these flags to "flag1","flag2". The
 dnl letters CQ stand for Comma, Quote.
+GTKHS_REFORMAT_PACKAGE_CFLAGS(GLIB_CFLAGS, GLIB_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(GLIB_LIBS, GLIB_LIBS_CQ, GLIB_LIBDIR_CQ, GLIB_LIBEXTRA_CQ)
+AC_SUBST(GLIB_CFLAGS_CQ)
+AC_SUBST(GLIB_LIBS_CQ)
+AC_SUBST(GLIB_LIBDIR_CQ)
+AC_SUBST(GLIB_LIBEXTRA_CQ)
+
 GTKHS_REFORMAT_PACKAGE_CFLAGS(GTK_CFLAGS, GTK_CFLAGS_CQ)
 GTKHS_REFORMAT_PACKAGE_LIBS(GTK_LIBS, GTK_LIBS_CQ, GTK_LIBDIR_CQ, GTK_LIBEXTRA_CQ)
 AC_SUBST(GTK_CFLAGS_CQ)
@@ -551,6 +572,7 @@ AC_OUTPUT([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
+  glib/glib.pkg
   gtk/gtk.pkg
   mogul/mogul.pkg
   glade/glade.pkg

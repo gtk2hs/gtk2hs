@@ -3,11 +3,10 @@ SUFFIXES = .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES = *.deps.bak
 CLEANFILES =
 DISTCLEANFILES = */*.precomp
-CPPFLAGS += $(filter -I% -D%, \
-	$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS) \
-	$(LIBGLADE_CFLAGS) $(GCONF_CFLAGS) \
-	$(MOZEMBED_CFLAGS))
-nobase_hi_SCRIPTS = #hack 'til gtk uses it
+#CPPFLAGS += $(filter -I% -D%, \
+#	$(GLIB_CFLAGS) $(GTK_CFLAGS) \
+#	$(SOURCEVIEW_CFLAGS) $(LIBGLADE_CFLAGS) \
+#	$(GCONF_CFLAGS) $(MOZEMBED_CFLAGS))
 
 # Build c2hs before anything else.
 
@@ -29,6 +28,7 @@ HSC = hsc2hs
 
 # all packages and applications
 lib_LIBRARIES =	\
+        libHSglib.a	\
 	libHSgtk.a	\
         libHSmogul.a
 if ENABLE_LIBGLADE
@@ -93,13 +93,14 @@ MOSTLYCLEANFILES+= $(am_tools_callbackGen_HookGenerator_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_callbackGen_HookGenerator_SOURCES:.hs=.hi)
 
 
-gtk/general/Signal.chs : $(srcdir)/tools/callbackGen/Signal.chs-boot1 \
-			 $(srcdir)/tools/callbackGen/Signal.chs-boot2 \
-			 $(srcdir)/tools/callbackGen/gtkmarshal.list \
-			 $(srcdir)/tools/callbackGen/HookGenerator
+gtk/Graphics/UI/Gtk/Signals.chs : \
+	$(srcdir)/tools/callbackGen/Signal.chs-boot1 \
+	$(srcdir)/tools/callbackGen/Signal.chs-boot2 \
+	$(srcdir)/tools/callbackGen/gtkmarshal.list \
+	$(srcdir)/tools/callbackGen/HookGenerator
 	$(strip $(srcdir)/tools/callbackGen/HookGenerator $(MARSHALLDEFS) \
-	$(srcdir)/tools/callbackGen/ gtk/general/Signal.chs \
-	$(if $(subst yes,,$(BROKENCB)),--broken))
+	$(srcdir)/tools/callbackGen/ $@ \
+	$(if $(subst yes,,$(FOUR_WORD_CALLBACK)),--broken))
 
 #
 #	API Coverage Tool
@@ -208,6 +209,74 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
  endif
 
 #
+#	glib package
+#
+################################################################################
+
+libHSglib_a_NAME = libHSglib.a
+$(libHSglib_a_NAME) : NAME = libHSglib_a
+
+libHSglib_a_PACKAGE		= glib/glib.pkg
+libHSglib_a_PACKAGEDEPS		= 
+libHSglib_a_HEADER 		= glib-object.h
+libHSglib_a_PRECOMP		= glib/glib.precomp
+libHSglib_a_LIBS		= $(GLIB_LIBS)
+libHSglib_a_HCFLAGS		= -fffi
+libHSglib_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS))
+libHSglib_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS))
+
+libHSglib_a_SOURCESDIRS = glib
+
+libHSglib_a_SOURCES =	        		\
+	glib/System/Glib.hs			\
+	glib/System/Glib/FFI.hs			\
+	glib/System/Glib/UTFString.hs		\
+	glib/System/Glib/Types.chs		\
+	glib/System/Glib/GType.chs		\
+	glib/System/Glib/GValue.chs		\
+	glib/System/Glib/GValueTypes.chs	\
+	glib/System/Glib/GParameter.hsc		\
+	glib/System/Glib/StoreValue.hsc		\
+	glib/System/Glib/GObject.chs		\
+	glib/System/Glib/GError.chs		\
+	glib/System/Glib/GList.chs
+
+glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
+glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
+
+am_libHSglib_a_OBJECTS = $(libHSglib_a_HSFILES:.hs=.$(OBJEXT))
+
+libHSglib_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglib_a_SOURCES))
+libHSglib_a_CHSFILES = \
+  $(filter %.chs,$(libHSglib_a_SOURCES:.chs.pp=.chs))
+libHSglib_a_CHSFILES_HS = $(libHSglib_a_CHSFILES:.chs=.hs)
+libHSglib_a_HSCFILES    = $(filter %.hsc, $(libHSglib_a_SOURCES))
+libHSglib_a_HSCFILES_HS = $(libHSglib_a_HSCFILES:.hsc=.hs)
+libHSglib_a_BUILDSOURCES = \
+	$(libHSglib_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSglib_a_CHSFILES_HS) \
+	$(libHSglib_a_HSCFILES_HS)
+libHSglib_a_HSFILES  = \
+	$(filter %.hs,$(libHSglib_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSglib_a_SOURCES))
+
+nobase_pkglib_SCRIPTS = $(libHSglib_a_HSFILES:.hs=.hi)
+
+MOSTLYCLEANFILES += $(am_libHSglib_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += \
+	$(libHSglib_a_CHSFILES:.chs=.chi)	\
+	$(libHSglib_a_CHSFILES:.chs=_stub.h)	\
+	$(libHSglib_a_CHSFILES:.chs=_stub.o)	\
+	$(libHSglib_a_CHSFILES:.chs=_stub.c)
+CLEANFILES += $(libHSglib_a_BUILDSOURCES)
+
+DISTCLEANFILES+= libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include libHSglib_a.deps $(libHSglib_a_CHSFILES:.chs=.dep)
+ endif
+
+#
 #	gtk package
 #
 ################################################################################
@@ -220,185 +289,182 @@ libHSgtk_a_PACKAGEDEPS		=
 libHSgtk_a_HEADER 		= gtk/gtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
 libHSgtk_a_LIBS			= $(GTK_LIBS)
-libHSgtk_a_HCFLAGS		= -fglasgow-exts
-libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GTK_CFLAGS))
-libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GTK_CFLAGS))
+libHSgtk_a_HCFLAGS		= -fffi
+libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
+libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
-libHSgtk_a_SOURCESDIRS = \
-	gtk/glib gtk/general gtk/pango gtk/treeList gtk/multiline gtk/gdk	\
-	gtk/abstract gtk/display gtk/entry gtk/misc gtk/multiline		\
-	gtk/ornaments gtk/scrolling gtk/treeList gtk/selectors gtk/embedding	\
-	gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows
+libHSgtk_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) gtk
 
-libHSgtk_a_SOURCES =				  \
-	gtk/general/Hierarchy.chs		  \
-	gtk/general/Signal.chs			  \
-	gtk/glib/GValue.chs			  \
-	gtk/glib/GList.chs			  \
-	gtk/glib/GObject.chs.pp			  \
-	gtk/pango/PangoTypes.chs.pp		  \
-	gtk/treeList/TreeModel.chs.pp		  \
-	gtk/treeList/TreeViewColumn.chs		  \
-	gtk/multiline/TextIter.chs.pp		  \
-	gtk/gdk/Region.chs.pp			  \
-	gtk/abstract/Bin.chs			  \
-	gtk/abstract/Box.chs			  \
-	gtk/abstract/ButtonBox.chs.pp		  \
-	gtk/abstract/Container.chs		  \
-	gtk/abstract/FileChooser.chs		  \
-	gtk/abstract/Misc.chs			  \
-	gtk/abstract/Object.chs.pp		  \
-	gtk/abstract/Paned.chs			  \
-	gtk/abstract/Range.chs			  \
-	gtk/abstract/Scale.chs			  \
-	gtk/abstract/Widget.chs			  \
-	gtk/buttons/Button.chs.pp		  \
-	gtk/buttons/CheckButton.chs		  \
-	gtk/buttons/RadioButton.chs		  \
-	gtk/buttons/ToggleButton.chs		  \
-	gtk/display/AccelLabel.chs		  \
-	gtk/display/Image.chs			  \
-	gtk/display/Label.chs			  \
-	gtk/display/ProgressBar.chs		  \
-	gtk/display/Statusbar.chs		  \
-	gtk/entry/Editable.chs			  \
-	gtk/entry/Entry.chs.pp			  \
-	gtk/entry/EntryCompletion.chs.pp	  \
-	gtk/entry/HScale.chs			  \
-	gtk/entry/SpinButton.chs		  \
-	gtk/entry/VScale.chs			  \
-	gtk/general/Enums.chs.pp		  \
-	gtk/general/General.chs			  \
-	gtk/general/IconFactory.chs.pp		  \
-	gtk/general/Style.chs			  \
-	gtk/layout/Alignment.chs.pp		  \
-	gtk/layout/AspectFrame.chs		  \
-	gtk/layout/Expander.chs.pp		  \
-	gtk/layout/Fixed.chs			  \
-	gtk/layout/HBox.chs			  \
-	gtk/layout/HButtonBox.chs		  \
-	gtk/layout/HPaned.chs			  \
-	gtk/layout/Layout.chs			  \
-	gtk/layout/Notebook.chs.pp		  \
-	gtk/layout/Table.chs			  \
-	gtk/layout/VBox.chs			  \
-	gtk/layout/VButtonBox.chs		  \
-	gtk/layout/VPaned.chs			  \
-	gtk/menuComboToolbar/CheckMenuItem.chs.pp \
-	gtk/menuComboToolbar/Combo.chs.pp	  \
-	gtk/menuComboToolbar/ComboBox.chs.pp	  \
-	gtk/menuComboToolbar/ComboBoxEntry.chs.pp \
-	gtk/menuComboToolbar/ImageMenuItem.chs	  \
-	gtk/menuComboToolbar/Menu.chs.pp	  \
-	gtk/menuComboToolbar/MenuBar.chs	  \
-	gtk/menuComboToolbar/MenuItem.chs	  \
-	gtk/menuComboToolbar/MenuShell.chs	  \
-	gtk/menuComboToolbar/OptionMenu.chs.pp	  \
-	gtk/menuComboToolbar/RadioMenuItem.chs	  \
-	gtk/menuComboToolbar/TearoffMenuItem.chs  \
-	gtk/menuComboToolbar/ToolItem.chs.pp	  \
-	gtk/menuComboToolbar/Toolbar.chs.pp	  \
-	gtk/misc/Adjustment.chs			  \
-	gtk/misc/Calendar.chs.pp		  \
-	gtk/misc/DrawingArea.chs		  \
-	gtk/misc/EventBox.chs.pp		  \
-	gtk/misc/FileChooserWidget.chs.pp	  \
-	gtk/misc/GArrow.chs			  \
-	gtk/misc/HandleBox.chs			  \
-	gtk/misc/SizeGroup.chs			  \
-	gtk/misc/Tooltips.chs.pp		  \
-	gtk/misc/Viewport.chs			  \
-	gtk/multiline/TextBuffer.chs		  \
-	gtk/multiline/TextMark.chs		  \
-	gtk/multiline/TextTag.chs.pp		  \
-	gtk/multiline/TextTagTable.chs		  \
-	gtk/multiline/TextView.chs		  \
-	gtk/ornaments/Frame.chs			  \
-	gtk/ornaments/HSeparator.chs		  \
-	gtk/ornaments/VSeparator.chs		  \
-	gtk/scrolling/HScrollbar.chs		  \
-	gtk/scrolling/ScrolledWindow.chs	  \
-	gtk/scrolling/VScrollbar.chs		  \
-	gtk/selectors/ColorSelection.chs	  \
-	gtk/selectors/ColorSelectionDialog.chs	  \
-	gtk/selectors/FontSelection.chs		  \
-	gtk/selectors/FontSelectionDialog.chs	  \
-	gtk/treeList/CellRendererPixbuf.chs	  \
-	gtk/treeList/CellRendererText.chs	  \
-	gtk/treeList/CellRendererToggle.chs	  \
-	gtk/treeList/ListStore.chs.pp		  \
-	gtk/treeList/TreeModelSort.chs		  \
-	gtk/treeList/TreeSelection.chs		  \
-	gtk/treeList/TreeStore.chs.pp		  \
-	gtk/treeList/TreeView.chs.pp		  \
-	gtk/windows/Dialog.chs			  \
-	gtk/windows/FileChooserDialog.chs.pp	  \
-	gtk/windows/FileSel.chs			  \
-	gtk/windows/Window.chs.pp		  \
-	gtk/gdk/Drawable.chs.pp			  \
-	gtk/gdk/GC.chs				  \
-	gtk/gdk/Gdk.chs				  \
-	gtk/gdk/GdkEnums.chs			  \
-	gtk/gdk/Keys.chs			  \
-	gtk/gdk/Pixbuf.chs			  \
-	gtk/glib/GError.chs.pp			  \
-	gtk/glib/GType.chs			  \
-	gtk/glib/GValueTypes.chs		  \
-	gtk/pango/Description.chs		  \
-	gtk/pango/PangoEnums.chs		  \
-	gtk/pango/PangoLayout.chs		  \
-	gtk/pango/Rendering.chs			  \
-	gtk/embedding/Plug.chs			  \
-	gtk/embedding/Socket.chs		  \
-	gtk/general/StockItems.hsc		  \
-	gtk/general/Structs.hsc			  \
-	gtk/treeList/StoreValue.hsc		  \
-	gtk/gdk/Events.hsc			  \
-	gtk/glib/GParameter.hsc			  \
-	gtk/embedding/Embedding.hsc		  \
-	gtk/abstract/Scrollbar.hs		  \
-	gtk/abstract/Separator.hs		  \
-	gtk/general/FFI.hs			  \
-	gtk/general/Gtk.hs			  \
-	gtk/treeList/CellRenderer.hs		  \
-	gtk/gdk/DrawWindow.hs			  \
-	gtk/pango/Markup.hs
+libHSgtk_a_SOURCES =					 		\
+	gtk/Graphics/UI/Gtk.hs						\
+	gtk/Graphics/UI/Gtk/Types.chs				        \
+	gtk/Graphics/UI/Gtk/Signals.chs				        \
+	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp				\
+	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs			\
+	gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp			\
+	gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp				\
+	gtk/Graphics/UI/Gtk/Abstract/Bin.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/Box.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp			\
+	gtk/Graphics/UI/Gtk/Abstract/Container.chs			\
+	gtk/Graphics/UI/Gtk/Abstract/Misc.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp			\
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/Scale.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs				\
+	gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp			\
+	gtk/Graphics/UI/Gtk/Buttons/CheckButton.chs			\
+	gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs			\
+	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs			\
+	gtk/Graphics/UI/Gtk/Display/AccelLabel.chs			\
+	gtk/Graphics/UI/Gtk/Display/Image.chs				\
+	gtk/Graphics/UI/Gtk/Display/Label.chs				\
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs			\
+	gtk/Graphics/UI/Gtk/Display/Statusbar.chs			\
+	gtk/Graphics/UI/Gtk/Entry/Editable.chs				\
+	gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp				\
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp		\
+	gtk/Graphics/UI/Gtk/Entry/HScale.chs				\
+	gtk/Graphics/UI/Gtk/Entry/SpinButton.chs			\
+	gtk/Graphics/UI/Gtk/Entry/VScale.chs				\
+	gtk/Graphics/UI/Gtk/General/Enums.chs.pp			\
+	gtk/Graphics/UI/Gtk/General/General.chs				\
+	gtk/Graphics/UI/Gtk/General/IconFactory.chs.pp			\
+	gtk/Graphics/UI/Gtk/General/Style.chs				\
+	gtk/Graphics/UI/Gtk/Layout/Alignment.chs.pp			\
+	gtk/Graphics/UI/Gtk/Layout/AspectFrame.chs			\
+	gtk/Graphics/UI/Gtk/Layout/Expander.chs.pp			\
+	gtk/Graphics/UI/Gtk/Layout/Fixed.chs				\
+	gtk/Graphics/UI/Gtk/Layout/HBox.chs				\
+	gtk/Graphics/UI/Gtk/Layout/HButtonBox.chs			\
+	gtk/Graphics/UI/Gtk/Layout/HPaned.chs				\
+	gtk/Graphics/UI/Gtk/Layout/Layout.chs				\
+	gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp			\
+	gtk/Graphics/UI/Gtk/Layout/Table.chs				\
+	gtk/Graphics/UI/Gtk/Layout/VBox.chs				\
+	gtk/Graphics/UI/Gtk/Layout/VButtonBox.chs			\
+	gtk/Graphics/UI/Gtk/Layout/VPaned.chs				\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/CheckMenuItem.chs.pp	\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Combo.chs.pp		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBoxEntry.chs.pp	\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ImageMenuItem.chs		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuItem.chs		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/OptionMenu.chs.pp		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioMenuItem.chs		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/TearoffMenuItem.chs	\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolItem.chs.pp		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Toolbar.chs.pp		\
+	gtk/Graphics/UI/Gtk/Misc/Adjustment.chs				\
+	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp			\
+	gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs			\
+	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp			\
+	gtk/Graphics/UI/Gtk/Misc/GArrow.chs				\
+	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs				\
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs				\
+	gtk/Graphics/UI/Gtk/Misc/Tooltips.chs.pp			\
+	gtk/Graphics/UI/Gtk/Misc/Viewport.chs				\
+	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs			\
+	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs			\
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp			\
+	gtk/Graphics/UI/Gtk/Multiline/TextTagTable.chs			\
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs			\
+	gtk/Graphics/UI/Gtk/Ornaments/Frame.chs				\
+	gtk/Graphics/UI/Gtk/Ornaments/HSeparator.chs			\
+	gtk/Graphics/UI/Gtk/Ornaments/VSeparator.chs			\
+	gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs			\
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs		\
+	gtk/Graphics/UI/Gtk/Scrolling/VScrollbar.chs			\
+	gtk/Graphics/UI/Gtk/Selectors/ColorSelection.chs		\
+	gtk/Graphics/UI/Gtk/Selectors/ColorSelectionDialog.chs		\
+	gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs			\
+	gtk/Graphics/UI/Gtk/Selectors/FontSelectionDialog.chs		\
+	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs			\
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp		\
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererToggle.chs		\
+	gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeModelSort.chs			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
+	gtk/Graphics/UI/Gtk/Windows/Dialog.chs				\
+	gtk/Graphics/UI/Gtk/Windows/FileSel.chs				\
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
+	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\
+	gtk/Graphics/UI/Gtk/Gdk/GC.chs					\
+	gtk/Graphics/UI/Gtk/Gdk/Gdk.chs					\
+	gtk/Graphics/UI/Gtk/Gdk/Enums.chs				\
+	gtk/Graphics/UI/Gtk/Gdk/Keys.chs				\
+	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs				\
+	gtk/Graphics/UI/Gtk/Pango/Description.chs			\
+	gtk/Graphics/UI/Gtk/Pango/Enums.chs				\
+	gtk/Graphics/UI/Gtk/Pango/Layout.chs				\
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs				\
+	gtk/Graphics/UI/Gtk/Embedding/Plug.chs				\
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs			\
+	gtk/Graphics/UI/Gtk/General/StockItems.hsc			\
+	gtk/Graphics/UI/Gtk/General/Structs.hsc				\
+	gtk/Graphics/UI/Gtk/Gdk/Events.hsc				\
+	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc			\
+	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs			\
+	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
+	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs			\
+	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.hs				\
+	gtk/Graphics/UI/Gtk/Pango/Markup.hs
 
-libHSgtk_a_LIBADD =						       \
-	gtk/abstract/Container_stub.o				       \
-	gtk/multiline/TextIter_stub.o gtk/entry/EntryCompletion_stub.o \
-        gtk/multiline/TextTagTable_stub.o gtk/general/General_stub.o   \
-        gtk/treeList/TreeModel_stub.o gtk/general/Signal_stub.o	       \
-        gtk/treeList/TreeSelection_stub.o gtk/glib/GObject_stub.o      \
-        gtk/treeList/TreeView_stub.o
+gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
+gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
+gtk_Graphics_UI_Gtk_Types_hs_HCFLAGS	        = -fglasgow-exts
+gtk_Graphics_UI_Gtk_General_Structs_hs_HCFLAGS	= -fglasgow-exts
+gtk_Graphics_UI_Gtk_Gdk_Events_hs_HCFLAGS	= -fglasgow-exts
+gtk_Graphics_UI_Gtk_General_StockItems_hs_HCFLAGS	= -fglasgow-exts
+gtk_Graphics_UI_Gtk_Gdk_Region_hs_HCFLAGS	= -fglasgow-exts
+gtk_Graphics_UI_Gtk_Gdk_Drawable_hs_HCFLAGS	= -fglasgow-exts
+
+libHSgtk_a_LIBADD =							\
+	gtk/Graphics/UI/Gtk/Abstract/Container_stub.o			\
+	gtk/Graphics/UI/Gtk/Multiline/TextIter_stub.o			\
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion_stub.o		\
+        gtk/Graphics/UI/Gtk/Multiline/TextTagTable_stub.o		\
+	gtk/Graphics/UI/Gtk/General/General_stub.o			\
+        gtk/Graphics/UI/Gtk/TreeList/TreeModel_stub.o			\
+	gtk/Graphics/UI/Gtk/Signals_stub.o	        		\
+        gtk/Graphics/UI/Gtk/TreeList/TreeSelection_stub.o		\
+        gtk/Graphics/UI/Gtk/TreeList/TreeView_stub.o
 
 # Pretend these stub files can be created by a simple rule.
-gtk/abstract/Container_stub.o				       \
-	gtk/multiline/TextIter_stub.o gtk/entry/EntryCompletion_stub.o \
-        gtk/multiline/TextTagTable_stub.o gtk/general/General_stub.o   \
-        gtk/treeList/TreeModel_stub.o gtk/general/Signal_stub.o	       \
-        gtk/treeList/TreeSelection_stub.o gtk/glib/GObject_stub.o      \
-        gtk/treeList/TreeView_stub.o:
+$(libHSgtk_a_LIBADD) :
 	touch $(@:.o=.c)
 	$(CC) -c -o $@ $(@:.o=.c)
 
-gtk/general/Hierarchy.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
-			    $(srcdir)/tools/hierarchyGen/TypeGenerator  \
-			    $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+gtk/Graphics/UI/Gtk/Types.chs : \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
         $(srcdir)/tools/hierarchyGen/hierarchy.list \
         $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-        $@ $(addprefix --tag=,$(CREATE_TYPES)))
+        $@ $(addprefix --tag=,$(CREATE_TYPES)) \
+	--modname=Graphics.UI.Gtk.Types \
+        --parentname=System.Glib.GObject)
 
 am_libHSgtk_a_OBJECTS = \
   $(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtk_a_SOURCES))))
 
-libHSgtk_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtk_a_SOURCES))
-libHSgtk_a_CHSFILES = \
-  $(filter %.chs,$(libHSgtk_a_SOURCES:.chs.pp=.chs))
-libHSgtk_a_CHSFILES_HS = $(libHSgtk_a_CHSFILES:.chs=.hs)
-libHSgtk_a_HSCFILES = $(filter %.hsc, $(libHSgtk_a_SOURCES))
-libHSgtk_a_HSCFILES_HS = $(libHSgtk_a_HSCFILES:.hsc=.hs)
+libHSgtk_a_CHSPPFILES   = $(filter %.chs.pp,$(libHSgtk_a_SOURCES))
+libHSgtk_a_CHSFILES     = $(filter %.chs,$(libHSgtk_a_SOURCES:.chs.pp=.chs))
+libHSgtk_a_CHSFILES_HS  = $(libHSgtk_a_CHSFILES:.chs=.hs)
+libHSgtk_a_HSCFILES     = $(filter %.hsc, $(libHSgtk_a_SOURCES))
+libHSgtk_a_HSCFILES_HS  = $(libHSgtk_a_HSCFILES:.hsc=.hs)
+
 libHSgtk_a_BUILDSOURCES = \
 	$(libHSgtk_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgtk_a_CHSFILES_HS) \
@@ -407,8 +473,7 @@ libHSgtk_a_HSFILES  = \
 	$(filter %.hs,$(libHSgtk_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgtk_a_SOURCES))
 
-# add prefix nobase_ when changing to hierarchical module namespace
-hi_SCRIPTS = $(libHSgtk_a_HSFILES:.hs=.hi)
+nobase_hi_SCRIPTS = $(libHSgtk_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSgtk_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)
@@ -442,12 +507,12 @@ libHSmogul_a_CPPFLAGS 		=
 libHSmogul_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mogul
 
 libHSmogul_a_SOURCES =		\
-	mogul/GetWidget.hs	\
-	mogul/MDialog.hs	\
-	mogul/Mogul.hs		\
-	mogul/NewWidget.hs	\
-	mogul/TreeList.hs	\
-	mogul/WidgetTable.hs
+	mogul/Graphics/UI/Gtk/Mogul.hs			\
+	mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs	\
+	mogul/Graphics/UI/Gtk/Mogul/MDialog.hs		\
+	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs	\
+	mogul/Graphics/UI/Gtk/Mogul/TreeList.hs		\
+	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs
 
 am_libHSmogul_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmogul_a_SOURCES))))
@@ -455,7 +520,7 @@ am_libHSmogul_a_OBJECTS = \
 libHSmogul_a_HSFILES = $(libHSmogul_a_SOURCES)
 .PRECIOUS: $(libHSmogul_a_HSFILES:.hs=hi)
 
-hi_SCRIPTS += $(libHSmogul_a_HSFILES:.hs=.hi)
+nobase_hi_SCRIPTS += $(libHSmogul_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSmogul_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSmogul_a_HSFILES:.hs=.hi)
@@ -481,25 +546,26 @@ libHSglade_a_HEADER 		= glade/glade.h
 libHSglade_a_PRECOMP		= glade/glade.precomp
 libHSglade_a_LIBS		= $(LIBGLADE_LIBS)
 libHSglade_a_HCFLAGS		= -fffi
-libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
-libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
+libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
+libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 
 libHSglade_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) glade
 
 libHSglade_a_SOURCES =	        \
-	glade/GladeType.chs	\
-        glade/Glade.chs
+	glade/Graphics/UI/Gtk/Glade/Types.chs	\
+        glade/Graphics/UI/Gtk/Glade.chs
 
-glade_GladeType_hs_HCFLAGS	= -fglasgow-exts
+glade_Graphics_UI_Gtk_Glade_Types_hs_HCFLAGS	= -fglasgow-exts
 
-glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
+glade/Graphics/UI/Gtk/Glade/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/TypeGenerator  \
 		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
 		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 		      $@ --tag=libglade --lib=glade --prefix=glade \
-		      --parentname=Hierarchy)
+                      --modname=Graphics.UI.Gtk.Glade.Types \
+		      --parentname=Graphics.UI.Gtk.Types)
 
 am_libHSglade_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglade_a_SOURCES))))
@@ -513,12 +579,12 @@ libHSglade_a_HSCFILES_HS = $(libHSglade_a_HSCFILES:.hsc=.hs)
 libHSglade_a_BUILDSOURCES = \
 	$(libHSglade_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSglade_a_CHSFILES_HS) \
-        glade/GladeType.chs
+        $(libHSglade_a_HSCFILES_HS)
 libHSglade_a_HSFILES  = \
 	$(filter %.hs,$(libHSglade_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSglade_a_SOURCES))
 
-hi_SCRIPTS += $(libHSglade_a_HSFILES:.hs=.hi)
+nobase_hi_SCRIPTS += $(libHSglade_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSglade_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
@@ -548,8 +614,8 @@ libHSgconf_a_HEADER 		= gconf/gconf-client.h
 libHSgconf_a_PRECOMP		= gconf/gconf.precomp
 libHSgconf_a_LIBS		= $(GCONF_LIBS)
 libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances
-libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
-libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GTK_CFLAGS) $(GCONF_CFLAGS))
+libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_CFLAGS))
+libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_CFLAGS))
 
 libHSgconf_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gconf
 
@@ -567,7 +633,7 @@ gconf/System/Gnome/GConf/GConfType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gconf --lib=gconf --prefix=gconf \
-	--modname=System.Gnome.GConf.GConfType --parentname=Hierarchy)
+	--modname=System.Gnome.GConf.GConfType --parentname=System.Glib.GObject)
 
 am_libHSgconf_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_SOURCES))))
@@ -581,6 +647,7 @@ libHSgconf_a_HSCFILES_HS = $(libHSgconf_a_HSCFILES:.hsc=.hs)
 libHSgconf_a_BUILDSOURCES = \
 	$(libHSgconf_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgconf_a_CHSFILES_HS) \
+        $(libHSgconf_a_HSCFILES_HS) \
         gconf/System/Gnome/GConf/GConfType.chs
 libHSgconf_a_HSFILES  = \
 	$(filter %.hs,$(libHSgconf_a_BUILDSOURCES)) \
@@ -621,35 +688,37 @@ libHSsourceview_a_HEADER 	= sourceview.h
 libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
 libHSsourceview_a_LIBS		= $(SOURCEVIEW_LIBS)
 libHSsourceview_a_HCFLAGS	= -fffi
-libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
-libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
+libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
+libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
 
 libHSsourceview_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) sourceview
 
 libHSsourceview_a_SOURCES =			\
-	sourceview/SourceViewType.chs		\
-	sourceview/SourceBuffer.chs		\
-	sourceview/SourceIter.chs		\
-	sourceview/SourceLanguage.chs		\
-	sourceview/SourceLanguagesManager.chs	\
-	sourceview/SourceMarker.chs		\
-	sourceview/SourceStyleScheme.chs	\
-	sourceview/SourceTag.chs		\
-        sourceview/SourceTagStyle.hsc		\
-	sourceview/SourceTagTable.chs		\
-	sourceview/SourceView.chs
+	sourceview/Graphics/UI/Gtk/SourceView.hs				\
+	sourceview/Graphics/UI/Gtk/SourceView/Types.chs				\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceBuffer.chs			\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceIter.chs			\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceLanguage.chs		\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceLanguagesManager.chs	\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceMarker.chs			\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceStyleScheme.chs		\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTag.chs			\
+        sourceview/Graphics/UI/Gtk/SourceView/SourceTagStyle.hsc		\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs		\
+	sourceview/Graphics/UI/Gtk/SourceView/SourceView.chs
 
-sourceview_SourceViewType_hs_HCFLAGS = -fglasgow-exts
-sourceview_SourceTagStyle_hs_HCFLAGS = -fglasgow-exts
+sourceview_Graphics_UI_Gtk_SourceView_Types_hs_HCFLAGS	= -fglasgow-exts
+sourceview_Graphics_UI_Gtk_SourceView_SourceTagStyle_hs_HCFLAGS	= -fglasgow-exts
 
-sourceview/SourceViewType.chs :	\
+sourceview/Graphics/UI/Gtk/SourceView/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-	$@ --tag=sourceview --parentname=Hierarchy)
+	$@ --tag=sourceview --parentname=Graphics.UI.Gtk.Types \
+        --modname=Graphics.UI.Gtk.SourceView.Types)
 
 am_libHSsourceview_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsourceview_a_SOURCES))))
@@ -663,13 +732,12 @@ libHSsourceview_a_HSCFILES_HS = $(libHSsourceview_a_HSCFILES:.hsc=.hs)
 libHSsourceview_a_BUILDSOURCES = \
 	$(libHSsourceview_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSsourceview_a_CHSFILES_HS) \
-        $(libHSsourceview_a_HSCFILES_HS) \
-        sourceview/SourceViewType.chs
+        $(libHSsourceview_a_HSCFILES_HS)
 libHSsourceview_a_HSFILES  = \
 	$(filter %.hs,$(libHSsourceview_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSsourceview_a_SOURCES))
 
-hi_SCRIPTS += $(libHSsourceview_a_HSFILES:.hs=.hi)
+nobase_hi_SCRIPTS += $(libHSsourceview_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSsourceview_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
@@ -700,8 +768,8 @@ libHSmozembed_a_HEADER 		= gtkmozembed.h
 libHSmozembed_a_PRECOMP		= mozembed/mozembed.precomp
 libHSmozembed_a_LIBS		= $(MOZEMBED_LIBS)
 libHSmozembed_a_HCFLAGS		= -fffi
-libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
-libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
+libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
+libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 
 libHSmozembed_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mozembed
 
@@ -711,7 +779,6 @@ libHSmozembed_a_SOURCES =				\
 
 mozembed_Graphics_UI_Gtk_MozEmbedType_hs_HCFLAGS = -fglasgow-exts
 
-
 mozembed/Graphics/UI/Gtk/MozEmbedType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
@@ -719,7 +786,7 @@ mozembed/Graphics/UI/Gtk/MozEmbedType.chs :	\
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
-	$@ --tag=mozembed --parentname=Hierarchy \
+	$@ --tag=mozembed --parentname=Graphics.UI.Gtk.Types \
 	--modname=Graphics.UI.Gtk.MozEmbedType)
 
 am_libHSmozembed_a_OBJECTS = \
