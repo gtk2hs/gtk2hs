@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<language _name="Haskell" version="1.0" _section="Sources" mimetypes="text/x-haskell">
+
+	<escape-char>\</escape-char>
+
+	<line-comment _name = "Line Comment" style= "Comment">
+		<start-regex>--</start-regex>
+	</line-comment>
+
+	<block-comment _name = "Block Comment" style = "Comment">
+		<start-regex>\{-</start-regex>
+        	<end-regex>-\}</end-regex>
+	</block-comment>
+
+	<pattern-item _name = "Type or Constructor" style = "Data Type">
+		<regex>\b[A-Z][0-9a-zA-Z]*&apos;*</regex>
+	</pattern-item>
+<!--
+	<pattern-item _name = "Variable" style = "Variable">
+		<regex>\b[a-z][0-9a-zA-Z]*&apos;*</regex>
+        </pattern-item>
+-->
+	<pattern-item _name = "Keysymbols" style = "Data Type">
+		<regex>(::|-&gt;|&lt;-|=&gt;|=)</regex>
+	</pattern-item>
+<!--
+        <pattern-item _name = "Operators" style = "Data Type">
+		<regex>[:*$+]+</regex>
+	</pattern-item>
+-->				
+	<string _name = "String" style = "String" end-at-line-end = "true">
+		<start-regex>&quot;</start-regex>
+		<end-regex>&quot;</end-regex>
+	</string>
+
+	<string _name = "Character Constant" style = "String" end-at-line-end = "true">
+		<start-regex>[^A-Za-z]&apos;</start-regex>
+		<end-regex>&apos;</end-regex>
+	</string>
+
+	<pattern-item _name = "Decimal" style = "Decimal">
+		<regex>\b[0-9]\b</regex>
+	</pattern-item>
+
+	<pattern-item _name = "Floating Point Number" style = "Floating Point">
+		<regex>\b([0-9]+[Ee][-]?[0-9]+|([0-9]*\.[0-9]+|[0-9]+\.)([Ee][-]?[0-9]+)?)</regex>
+	</pattern-item>
+
+	<pattern-item _name = "Hex Number" style = "Base-N Integer">
+		<regex>\b0[xX][0-9a-fA-F]+\b</regex>
+	</pattern-item>
+
+	<keyword-list _name = "Keywords" style = "Keyword" case-sensitive="true">
+		<keyword>type</keyword>
+		<keyword>data</keyword>
+		<keyword>let</keyword>
+		<keyword>in</keyword>
+		<keyword>case</keyword>
+		<keyword>of</keyword>
+		<keyword>module</keyword>
+		<keyword>class</keyword>
+		<keyword>where</keyword>
+		<keyword>instance</keyword>
+		<keyword>import</keyword>
+		<keyword>qualified</keyword>
+		<keyword>as</keyword>
+		<keyword>do</keyword>
+		<keyword>deriving</keyword>
+		<keyword>if</keyword>
+		<keyword>then</keyword>
+		<keyword>else</keyword>
+		<keyword>newtype</keyword>
+		<keyword>hiding</keyword>
+		<keyword>infix</keyword>
+		<keyword>infixl</keyword>
+		<keyword>infixr</keyword>
+		<keyword>with</keyword>
+		<keyword>forall</keyword>
+	</keyword-list>
+
+</language>
