@@ -1,12 +1,12 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget TreeView@
+--  GIMP Toolkit (GTK) Widget TreeView
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.15 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.16 $ from $Date: 2004/05/23 16:16:43 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -20,12 +20,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This widget constitutes the main widget for displaying lists and other
---   structured data.
---
--- @documentation@ ------------------------------------------------------------
+-- This widget constitutes the main widget for displaying lists and other
+-- structured data.
 --
 -- * The widget supports scrolling natively. This implies that pixel 
 --   coordinates can be given in two formats: relative to the current view's
@@ -33,7 +31,7 @@
 --   are called widget coordinates while the letter are called tree 
 --   coordinates.
 --
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * treeViewMoveColumnAfter and treeViewMoveColumnFirst are not dealt with in
 --   Mogul
@@ -61,8 +59,9 @@
 -- * set_scroll_adjustment makes sense if the user monitors the scroll bars
 --   *and* the scroll bars can be replaced anytime (the latter is odd)
 --
--- Let's hope this file will always only contain macros.
+
 #include<gtk/gtkversion.h>
+-- Let's hope this file will always only contain macros.
 
 module TreeView(
   TreeView,
@@ -162,20 +161,20 @@ import GList	(GList, fromGList)
 
 -- methods
 
--- @constructor treeViewNew@ Make a new @ref data TreeView@ widget.
+-- | Make a new 'TreeView' widget.
 --
 treeViewNew :: IO TreeView
 treeViewNew  = makeNewObject mkTreeView (liftM castPtr {#call tree_view_new#})
 
--- @constructor treeViewNewWithModel@ Create a new @ref data TreeView@ 
--- widget with @ref arg tm@ as the storage model.
+-- | Create a new 'TreeView' 
+-- widget with @tm@ as the storage model.
 --
 treeViewNewWithModel :: TreeModelClass tm => tm -> IO TreeView
 treeViewNewWithModel tm = makeNewObject mkTreeView $ liftM castPtr $
   {#call tree_view_new_with_model#} (toTreeModel tm)
 
--- @method treeViewGetModel@ Retrieve the TreeModel that supplies the data for
--- this @ref data TreeView@. Returns Nothing if no model is currently set.
+-- | Retrieve the TreeModel that supplies the data for
+-- this 'TreeView'. Returns Nothing if no model is currently set.
 --
 treeViewGetModel :: TreeViewClass tv => tv -> IO (Maybe TreeModel)
 treeViewGetModel tv = do
@@ -184,20 +183,20 @@ treeViewGetModel tv = do
     objectRef tmPtr
     liftM (Just . mkTreeModel) $ newForeignPtr tmPtr (objectUnref tmPtr)
 
--- @method treeViewSetModel@ Set the @ref data TreeModel@ for the current View.
+-- | Set the 'TreeModel' for the current View.
 --
 treeViewSetModel :: (TreeViewClass tv, TreeModelClass tm) => tv -> tm -> IO ()
 treeViewSetModel tv tm =
   {#call tree_view_set_model#} (toTreeView tv) (toTreeModel tm)
 
--- @method treeViewGetSelection@ Retrieve a @ref data TreeSelection@ that
+-- | Retrieve a 'TreeSelection' that
 -- holds the current selected nodes of the View.
 --
 treeViewGetSelection :: TreeViewClass tv => tv -> IO TreeSelection
 treeViewGetSelection tv = makeNewGObject mkTreeSelection $
   {#call unsafe tree_view_get_selection#} (toTreeView tv)
 
--- @method treeViewGetHadjustment@ Get the @ref data Adjustment@ that
+-- | Get the 'Adjustment' that
 -- represents the horizontal aspect.
 --
 treeViewGetHadjustment :: TreeViewClass tv => tv -> IO (Maybe Adjustment)
@@ -206,15 +205,15 @@ treeViewGetHadjustment tv = do
   if adjPtr==nullPtr then return Nothing else do
     liftM Just $ makeNewObject mkAdjustment (return adjPtr)
 
--- @method treeViewSetHadjustment@ Set the @ref data Adjustment@ that controls
--- the horizontal aspect. If @ref arg adj@ is Nothing then set no Adjustment
+-- | Set the 'Adjustment' that controls
+-- the horizontal aspect. If @adj@ is Nothing then set no Adjustment
 -- widget.
 --
 treeViewSetHadjustment :: TreeViewClass tv => (Maybe Adjustment) -> tv -> IO ()
 treeViewSetHadjustment adj tv = {#call tree_view_set_hadjustment#} 
   (toTreeView tv) (fromMaybe (mkAdjustment nullForeignPtr) adj)
 
--- @method treeViewGetVadjustment@ Get the @ref data Adjustment@ that
+-- | Get the 'Adjustment' that
 -- represents the vertical aspect.
 --
 treeViewGetVadjustment :: TreeViewClass tv => tv -> IO (Maybe Adjustment)
@@ -223,41 +222,41 @@ treeViewGetVadjustment tv = do
   if adjPtr==nullPtr then return Nothing else do
     liftM Just $ makeNewObject mkAdjustment (return adjPtr)
 
--- @method treeViewSetVadjustment@ Set the @ref data Adjustment@ that controls
--- the vertical aspect. If @ref arg adj@ is @literal Nothing@ then set no
--- @ref data Adjustment@ widget.
+-- | Set the 'Adjustment' that controls
+-- the vertical aspect. If @adj@ is @Nothing@ then set no
+-- 'Adjustment' widget.
 --
 treeViewSetVadjustment :: TreeViewClass tv => (Maybe Adjustment) -> tv -> IO ()
 treeViewSetVadjustment adj tv = {#call tree_view_set_vadjustment#} 
   (toTreeView tv) (fromMaybe (mkAdjustment nullForeignPtr) adj)
 
--- @method treeViewGetHeadersVisible@ Query if the column headers are visible.
+-- | Query if the column headers are visible.
 --
 treeViewGetHeadersVisible :: TreeViewClass tv => tv -> IO Bool
 treeViewGetHeadersVisible tv = liftM toBool $
   {#call unsafe tree_view_get_headers_visible#} (toTreeView tv)
 
--- @method treeViewSetHeadersVisible@ Set the visibility state of the column
+-- | Set the visibility state of the column
 -- headers.
 --
 treeViewSetHeadersVisible :: TreeViewClass tv => tv -> Bool -> IO ()
 treeViewSetHeadersVisible tv vis = {#call tree_view_set_headers_visible#}
   (toTreeView tv) (fromBool vis)
 
--- @method treeViewColumnsAutosize@ Resize the columns to their optimal size.
+-- | Resize the columns to their optimal size.
 --
 treeViewColumnsAutosize :: TreeViewClass tv => tv -> IO ()
 treeViewColumnsAutosize tv =
   {#call tree_view_columns_autosize#} (toTreeView tv)
 
--- @method treeViewSetHeadersClickable@ Set wether the columns headers are
+-- | Set wether the columns headers are
 -- sensitive to mouse clicks.
 --
 treeViewSetHeadersClickable :: TreeViewClass tv => tv -> Bool -> IO ()
 treeViewSetHeadersClickable tv click = {#call tree_view_set_headers_clickable#}
   (toTreeView tv) (fromBool click)
 
--- @method treeViewGetRulesHint@ Give visual aid for wide columns.
+-- | Give visual aid for wide columns.
 --
 -- * This function tells GTK+ that the user interface for your
 --   application requires users to read across tree columns. By default,
@@ -274,30 +273,30 @@ treeViewGetRulesHint :: TreeViewClass tv => tv -> IO Bool
 treeViewGetRulesHint tv = liftM toBool $
   {#call unsafe tree_view_get_rules_hint#} (toTreeView tv)
 
--- @method treeViewSetRulesHint@ Query if visual aid for wide columns is
+-- | Query if visual aid for wide columns is
 -- turned on.
 --
 treeViewSetRulesHint :: TreeViewClass tv => tv -> Bool -> IO ()
 treeViewSetRulesHint tv vis = {#call tree_view_set_rules_hint#}
   (toTreeView tv) (fromBool vis)
 
--- @method treeViewAppendColumn@ Append a new column to the @ref data TreeView@. Returns
+-- | Append a new column to the 'TreeView'. Returns
 -- the new number of columns.
 --
 treeViewAppendColumn :: TreeViewClass tv => tv -> TreeViewColumn -> IO Int
 treeViewAppendColumn tv tvc = liftM fromIntegral $
   {#call tree_view_append_column#} (toTreeView tv) tvc
 
--- @method treeViewRemoveColumn@ Remove column @ref arg tvc@ from the @ref data TreeView@
+-- | Remove column @tvc@ from the 'TreeView'
 -- widget. The number of remaining columns is returned.
 --
 treeViewRemoveColumn :: TreeViewClass tv => tv -> TreeViewColumn -> IO Int
 treeViewRemoveColumn tv tvc = liftM fromIntegral $
   {#call tree_view_remove_column#} (toTreeView tv) tvc
 
--- @method treeViewInsertColumn@ Inserts column @ref arg tvc@ into the
--- @ref data TreeView@ widget at the position @ref arg pos@. Returns the number of
--- columns after insertion. Specify -1 for @ref arg pos@ to insert the column
+-- | Inserts column @tvc@ into the
+-- 'TreeView' widget at the position @pos@. Returns the number of
+-- columns after insertion. Specify -1 for @pos@ to insert the column
 -- at the end.
 --
 treeViewInsertColumn :: TreeViewClass tv => tv -> TreeViewColumn -> Int ->
@@ -306,13 +305,13 @@ treeViewInsertColumn tv tvc pos = liftM fromIntegral $
   {#call tree_view_insert_column#} (toTreeView tv) tvc (fromIntegral pos)
 
 
--- @method treeViewInsertColumnWithAttributes@ Insert new
--- @ref data TreeViewColumn@.
+-- | Insert new
+-- 'TreeViewColumn'.
 --
 -- * Inserts new column into the
--- @ref data TreeView@ @ref arg tv@ at position @ref arg pos@ with title
--- @ref argtitle@, cell renderer @ref arg cr@ and attributes
--- @ref arg attribs@. Specify -1 for @ref arg pos@ to insert the column at
+-- 'TreeView' @tv@ at position @pos@ with title
+-- ref argtitle, cell renderer @cr@ and attributes
+-- @attribs@. Specify -1 for @pos@ to insert the column at
 -- the end.
 --
 treeViewInsertColumnWithAttributes :: (TreeViewClass tv, CellRendererClass cr)
@@ -326,10 +325,10 @@ treeViewInsertColumnWithAttributes tv pos title cr attribs =
     treeViewInsertColumn tv column pos
     return ()
 
--- @method treeViewGetColumn@ Retrieve a @ref data TreeViewColumn@.
+-- | Retrieve a 'TreeViewColumn'.
 --
--- * Retrieve the @ref arg pos@ th columns of
---   @ref data TreeView@. If the index is out of range Nothing is returned.
+-- * Retrieve the @pos@ th columns of
+--   'TreeView'. If the index is out of range Nothing is returned.
 --
 treeViewGetColumn :: TreeViewClass tv => tv -> Int -> IO (Maybe TreeViewColumn)
 treeViewGetColumn tv pos = do
@@ -339,8 +338,8 @@ treeViewGetColumn tv pos = do
     liftM Just $ makeNewObject mkTreeViewColumn (return tvcPtr)
 
 
--- @method treeViewGetColumns@ Return all @ref data TreeViewColumn@s in this
--- @ref data TreeView@.
+-- | Return all 'TreeViewColumn's in this
+-- 'TreeView'.
 --
 treeViewGetColumns :: TreeViewClass tv => tv -> IO [TreeViewColumn]
 treeViewGetColumns tv = do
@@ -348,29 +347,29 @@ treeViewGetColumns tv = do
   colsPtr <- fromGList colsList
   mapM (makeNewObject mkTreeViewColumn) (map return colsPtr)
 
--- @method treeViewMoveColumnAfter@ Move a specific column.
+-- | Move a specific column.
 --
--- * Use @ref method treeViewMoveColumnToFront@ if you want to move the column
---   to the left end of the @ref data TreeView@.
+-- * Use 'treeViewMoveColumnToFront' if you want to move the column
+--   to the left end of the 'TreeView'.
 --
 treeViewMoveColumnAfter :: TreeViewClass tv => tv -> TreeViewColumn ->
 					       TreeViewColumn -> IO ()
 treeViewMoveColumnAfter tv which after = {#call tree_view_move_column_after#}
   (toTreeView tv) which after
 
--- @method treeViewMoveColumnFirst@ Move a specific column.
+-- | Move a specific column.
 --
--- * Use @ref method treeViewMoveColumnAfter@ if you want to move the column
+-- * Use 'treeViewMoveColumnAfter' if you want to move the column
 --   somewhere else than to the leftmost position.
 --
 treeViewMoveColumnFirst :: TreeViewClass tv => tv -> TreeViewColumn -> IO ()
 treeViewMoveColumnFirst tv which = {#call tree_view_move_column_after#}
   (toTreeView tv) which (mkTreeViewColumn nullForeignPtr)
 
--- @method treeViewSetExpanderColumn@ Set location of hierarchy controls.
+-- | Set location of hierarchy controls.
 --
--- * Sets the column to draw the expander arrow at. If @ref arg col@
---   is @literal Nothing@, then the expander arrow is always at the first
+-- * Sets the column to draw the expander arrow at. If @col@
+--   is @Nothing@, then the expander arrow is always at the first
 --   visible column.
 --
 treeViewSetExpanderColumn :: TreeViewClass tv => tv -> Maybe TreeViewColumn ->
@@ -381,30 +380,30 @@ treeViewSetExpanderColumn tv Nothing =
   {#call unsafe tree_view_set_expander_column#} (toTreeView tv)
     (mkTreeViewColumn nullForeignPtr)
 
--- @method treeViewGetExpanderColumn@ Get location of hierarchy controls.
+-- | Get location of hierarchy controls.
 --
--- * Gets the column to draw the expander arrow at. If @ref arg col@
---   is @literal Nothing@, then the expander arrow is always at the first
+-- * Gets the column to draw the expander arrow at. If @col@
+--   is @Nothing@, then the expander arrow is always at the first
 --   visible column.
 --
 treeViewGetExpanderColumn :: TreeViewClass tv => tv -> IO TreeViewColumn
 treeViewGetExpanderColumn tv = makeNewObject mkTreeViewColumn $
   {#call unsafe tree_view_get_expander_column#} (toTreeView tv)
 
--- @method treeViewSetColumnDragFunction@ Specify where a column may be
+-- | Specify where a column may be
 -- dropped.
 --
 -- * Sets a user function for determining where a column may be dropped when
 --   dragged.  This function is called on every column pair in turn at the
 --   beginning of a column drag to determine where a drop can take place.
--- * The callback function take the @ref data TreeViewColumn@ to be moved, the
+-- * The callback function take the 'TreeViewColumn' to be moved, the
 --   second and third arguments are the columns on the left and right side
---   of the new location. At most one of them might be @literal Nothing@
+--   of the new location. At most one of them might be @Nothing@
 --   which indicates that the column is about to be dropped at the left or
---   right end of the @ref data TreeView@.
--- * The predicate @ref arg pred@ should return @literal True@ if it is ok
+--   right end of the 'TreeView'.
+-- * The predicate @pred@ should return @True@ if it is ok
 --   to insert the column at this place.
--- * Use @literal Nothing@ for the predicate if columns can be inserted
+-- * Use @Nothing@ for the predicate if columns can be inserted
 --   anywhere.
 --
 treeViewSetColumnDragFunction :: TreeViewClass tv => tv -> 
@@ -444,28 +443,28 @@ foreign export dynamic mkTreeViewColumnDropFunc ::
 
 #endif
 
--- @method treeViewScrollToPoint@ Scroll to a coordinate.
+-- | Scroll to a coordinate.
 --
 
 -- * Scrolls the tree view such that the top-left corner of the
---   visible area is @ref arg treeX@, @ref arg treeY@, where @ref arg treeX@
---   and @ref arg treeY@ are specified in tree window coordinates.
---   The @ref data TreeView@ must be realized before this function is
+--   visible area is @treeX@, @treeY@, where @treeX@
+--   and @treeY@ are specified in tree window coordinates.
+--   The 'TreeView' must be realized before this function is
 --   called.  If it isn't, you probably want to use
---   @ref method treeViewScrollToCell@.
+--   'treeViewScrollToCell'.
 --
 treeViewScrollToPoint :: TreeViewClass tv => tv -> Int -> Int -> IO ()
 treeViewScrollToPoint tv treeX treeY = 
   {#call tree_view_scroll_to_point#} (toTreeView tv)
     (fromIntegral treeX) (fromIntegral treeY)
 
--- @method treeViewScrollToCell@ Scroll to a cell.
+-- | Scroll to a cell.
 --
--- * Scroll to a cell as specified by @ref arg path@ and @ref arg tvc@. 
---   The cell is aligned within the @ref data TreeView@ widget as
---   follows: horizontally by @ref arg hor@ from left (@literal 0.0@) to
---   right (@literal 1.0@) and vertically by @ref arg ver@ from top
---   (@literal 0.0@) to buttom (@literal 1.0@).
+-- * Scroll to a cell as specified by @path@ and @tvc@. 
+--   The cell is aligned within the 'TreeView' widget as
+--   follows: horizontally by @hor@ from left (@0.0@) to
+--   right (@1.0@) and vertically by @ver@ from top
+--   (@0.0@) to buttom (@1.0@).
 --
 treeViewScrollToCell :: TreeViewClass tv => tv -> TreePath -> TreeViewColumn ->
                         Maybe (Float,Float) -> IO ()
@@ -477,17 +476,17 @@ treeViewScrollToCell tv path tvc Nothing =
   (toTreeView tv) path tvc 0 0.0 0.0
 
 
--- @method treeViewSetCursor@ Selects a specific row.
+-- | Selects a specific row.
 --
--- * Sets the current keyboard focus to be at @ref arg path@, and
+-- * Sets the current keyboard focus to be at @path@, and
 --   selects it.  This is useful when you want to focus the user's
---   attention on a particular row.  If @ref arg focusColumn@ is given,
+--   attention on a particular row.  If @focusColumn@ is given,
 --   then the input focus is given to the column specified by
---   it. Additionally, if @ref arg focusColumn@ is specified, and 
---   @ref arg startEditing@ is @literal True@,
+--   it. Additionally, if @focusColumn@ is specified, and 
+--   @startEditing@ is @True@,
 --   then editing will be started in the
 --   specified cell.  This function is often followed by a
---   @ref method widgetGrabFocus@ to the @ref data TreeView@ in order
+--   'widgetGrabFocus' to the 'TreeView' in order
 --   to give keyboard focus to the widget.
 --
 treeViewSetCursor :: TreeViewClass tv => tv -> TreePath ->
@@ -501,10 +500,10 @@ treeViewSetCursor tv tp (Just (focusColumn, startEditing)) =
     focusColumn (fromBool startEditing)
 
 #if GTK_CHECK_VERSION(2,2,0)
--- @method treeViewSetCursorOnCell@ Selects a cell in a specific row.
+-- | Selects a cell in a specific row.
 --
--- * Similar to @ref method treeViewSetCursor@ but allows a column to
---   containt several @ref data CellRenderer@s.
+-- * Similar to 'treeViewSetCursor' but allows a column to
+--   containt several 'CellRenderer's.
 --
 -- * Only available in Gtk 2.2 and higher.
 --
@@ -517,11 +516,11 @@ treeViewSetCursorOnCell tv tp focusColumn focusCell startEditing =
     focusColumn focusCell (fromBool startEditing)
 #endif
 
--- @method treeViewGetCursor@ Retrieves the position of the focus.
+-- | Retrieves the position of the focus.
 --
--- * Returns a pair @literal (path, column)@.If the cursor is not currently
---   set, @literal path@ will be @literal Nothing@. If no column is currently
---   selected, @literal column@ will be @literal Nothing@.
+-- * Returns a pair @(path, column)@.If the cursor is not currently
+--   set, @path@ will be @Nothing@. If no column is currently
+--   selected, @column@ will be @Nothing@.
 --
 treeViewGetCursor :: TreeViewClass tv => tv -> 
 		     IO (Maybe TreePath, Maybe TreeViewColumn)
@@ -536,28 +535,28 @@ treeViewGetCursor tv = alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr -> do
     makeNewObject mkTreeViewColumn (return tvcPtr)
   return (tp,tvc)
 
--- @method treeViewRowActivated@ Emit the activated signal on a cell.
+-- | Emit the activated signal on a cell.
 --
 treeViewRowActivated :: TreeViewClass tv => tv -> TreePath -> 
 					    TreeViewColumn -> IO ()
 treeViewRowActivated tv tp tvc = 
   {#call tree_view_row_activated#} (toTreeView tv) tp tvc
 
--- @method treeViewExpandAll@ Expand all nodes in the @ref data TreeView@.
+-- | Expand all nodes in the 'TreeView'.
 --
 treeViewExpandAll :: TreeViewClass tv => tv -> IO ()
 treeViewExpandAll tv = {#call tree_view_expand_all#} (toTreeView tv)
 
--- @method treeViewCollapseAll@ Collapse all nodes in the @ref data TreeView@.
+-- | Collapse all nodes in the 'TreeView'.
 --
 treeViewCollapseAll :: TreeViewClass tv => tv -> IO ()
 treeViewCollapseAll tv =
   {#call tree_view_collapse_all#} (toTreeView tv)
 
 #if GTK_CHECK_VERSION(2,2,0)
--- @method treeViewExpandToPath@ Make a certain path visible.
+-- | Make a certain path visible.
 --
--- * This will expand all parent rows of @ref arg tp@ as necessary.
+-- * This will expand all parent rows of @tp@ as necessary.
 --
 -- * Only available in Gtk 2.2 and higher.
 --
@@ -566,25 +565,25 @@ treeViewExpandToPath tv tp =
   {#call tree_view_expand_to_path#} (toTreeView tv) tp
 #endif
 
--- @method treeViewExpandRow@ Expand a row.
+-- | Expand a row.
 --
 -- * Expand a node that is specified by 
--- @ref arg path@. If the @ref arg all@ is @literal True@ every
--- child will be expanded recursively. Returns @literal True@ if the row 
+-- @path@. If the @all@ is @True@ every
+-- child will be expanded recursively. Returns @True@ if the row 
 -- existed and had children.
 --
 treeViewExpandRow :: TreeViewClass tv => TreePath -> Bool -> tv -> IO Bool
 treeViewExpandRow path all tv = liftM toBool $
   {#call tree_view_expand_row#} (toTreeView tv) path (fromBool all)
 
--- @method treeViewCollapseRow@ Collapse a row. Returns @literal True@ if the
+-- | Collapse a row. Returns @True@ if the
 -- row existed.
 --
 treeViewCollapseRow :: TreeViewClass tv => tv -> TreePath -> IO Bool
 treeViewCollapseRow tv path = liftM toBool $
   {#call tree_view_collapse_row#} (toTreeView tv) path
 
--- @method treeViewMapExpandedRows@ Call function for every expaned row.
+-- | Call function for every expaned row.
 --
 treeViewMapExpandedRows :: TreeViewClass tv => tv -> (TreePath -> IO ()) ->
 					       IO ()
@@ -611,25 +610,25 @@ foreign export dynamic mkTreeViewMappingFunc ::
 
 #endif
 
--- @method treeViewRowExpanded@ Check if row is expanded.
+-- | Check if row is expanded.
 --
 treeViewRowExpanded :: TreeViewClass tv => tv -> TreePath -> IO Bool
 treeViewRowExpanded tv tp = liftM toBool $
   {#call unsafe tree_view_row_expanded#} (toTreeView tv) tp
 
--- @method treeViewGetReorderable@ Query if rows can be moved around.
+-- | Query if rows can be moved around.
 --
--- * See @ref method treeViewSetReorderable@.
+-- * See 'treeViewSetReorderable'.
 --
 treeViewGetReorderable :: TreeViewClass tv => tv -> IO Bool
 treeViewGetReorderable tv = liftM toBool $
   {#call unsafe tree_view_get_reorderable#} (toTreeView tv)
 
--- @method treeViewSetReorderable@ Check if rows can be moved around.
+-- | Check if rows can be moved around.
 --
 -- * Set whether the user can use drag and drop (DND) to reorder the
---   rows in the store. This works on both @ref data TreeStore@ and
---   @ref data ListStore@ models. If @ref arg ro@ is @literal True@, then the
+--   rows in the store. This works on both 'TreeStore' and
+--   'ListStore' models. If @ro@ is @True@, then the
 --   user can reorder the model by dragging and dropping rows.  The
 --   developer can listen to these changes by connecting to the model's
 --   signals.  This function does not give you any degree of control over
@@ -640,19 +639,19 @@ treeViewSetReorderable :: TreeViewClass tv => tv -> Bool -> IO ()
 treeViewSetReorderable tv ro = {#call tree_view_set_reorderable#}
   (toTreeView tv) (fromBool ro)
 
--- @method treeViewGetPathAtPos@ Map a pixel to the specific cell.
+-- | Map a pixel to the specific cell.
 --
--- * Finds the path at the @ref type Point@ @ref arg (x, y)@. The
---   coordinates @literal x@ and @literal y@ are relative to the top left
---   corner of the @ref data TreeView@ drawing window. As such, coordinates
+-- * Finds the path at the 'Point' @(x, y)@. The
+--   coordinates @x@ and @y@ are relative to the top left
+--   corner of the 'TreeView' drawing window. As such, coordinates
 --   in a mouse click event can be used directly to determine the cell
 --   which the user clicked on. This is therefore a way to realize for
 --   popup menus.
 --
 -- * The returned point is the input point relative to the cell's upper
---   left corner. The whole @ref data TreeView@ is divided between all cells.
+--   left corner. The whole 'TreeView' is divided between all cells.
 --   The returned point is relative to the rectangle this cell occupies
---   within the @ref data TreeView@.
+--   within the 'TreeView'.
 --
 treeViewGetPathAtPos :: TreeViewClass tv => tv -> Point ->
 			IO (Maybe (TreePath, TreeViewColumn, Point))
@@ -670,14 +669,14 @@ treeViewGetPathAtPos tv (x,y) = alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr ->
       tvc <- makeNewObject mkTreeViewColumn (return tvcPtr)
       return (Just (tp,tvc,(fromIntegral xCell, fromIntegral yCell)))
 
--- @method treeViewGetCellArea@ Retrieve the smallest bounding box of a cell.
+-- | Retrieve the smallest bounding box of a cell.
 --
 -- * Fills the bounding rectangle in tree window coordinates for the
---   cell at the row specified by @ref arg tp and the column specified by
---   @ref arg tvc@.
---   If @ref arg path@ is @literal Nothing@ or points to a path not
---   currently displayed, the @literal y@ and @literal height@ fields of
---   the @ref data Rectangle@ will be filled with @literal 0@. The sum of
+--   cell at the row specified by @tp@ and the column specified by
+--   @tvc@.
+--   If @path@ is @Nothing@ or points to a path not
+--   currently displayed, the @y@ and @height@ fields of
+--   the 'Rectangle' will be filled with @0@. The sum of
 --   all cell rectangles does not cover the entire tree; there are extra
 --   pixels in between rows, for example.
 --
@@ -691,18 +690,18 @@ treeViewGetCellArea tv (Just tp) tvc = alloca $ \rPtr -> do
   {#call unsafe tree_view_get_background_area#} (toTreeView tv) tp
     tvc (castPtr (rPtr :: Ptr Rectangle)) >> peek rPtr
 
--- @method treeViewGetBackgroundArea@ Retrieve the largest bounding box 
+-- | Retrieve the largest bounding box 
 -- of a cell.
 --
 -- * Fills the bounding rectangle in tree window coordinates for the
---   cell at the row specified by @ref arg tp and the column specified by
---   @ref arg tvc@.
---   If @ref arg path@ is @literal Nothing@ or points to a path not
---   currently displayed, the @literal y@ and @literal height@ fields of
---   the @ref data Rectangle@ will be filled with @literal 0@. The background
+--   cell at the row specified by @tp@ and the column specified by
+--   @tvc@.
+--   If @path@ is @Nothing@ or points to a path not
+--   currently displayed, the @y@ and @height@ fields of
+--   the 'Rectangle' will be filled with @0@. The background
 --   areas tile the widget's area to cover the entire tree window 
 --   (except for the area used for header buttons). Contrast this with
---   @ref method treeViewGetCellArea@.
+--   'treeViewGetCellArea'.
 --
 treeViewGetBackgroundArea :: TreeViewClass tv => tv -> Maybe TreePath -> 
 					   TreeViewColumn -> IO Rectangle
@@ -714,7 +713,7 @@ treeViewGetBackgroundArea tv (Just tp) tvc = alloca $ \rPtr -> do
   {#call unsafe tree_view_get_background_area#} (toTreeView tv) tp
     tvc (castPtr (rPtr :: Ptr Rectangle)) >> peek rPtr
 
--- @method treeViewGetVisibleRect@ Retrieve the currently visible area.
+-- | Retrieve the currently visible area.
 --
 -- * The returned rectangle gives the visible part of the tree in tree
 --   coordinates.
@@ -725,7 +724,7 @@ treeViewGetVisibleRect tv = alloca $ \rPtr -> do
     (castPtr (rPtr :: Ptr Rectangle))
   peek rPtr
 
--- @method treeViewWidgetToTreeCoords@ Convert widget to tree pixel
+-- | Convert widget to tree pixel
 -- coordinates.
 --
 -- * See module description.
@@ -738,7 +737,7 @@ treeViewWidgetToTreeCoords tv (x,y) = alloca $ \xPtr -> alloca $ \yPtr -> do
   y' <- peek yPtr
   return (fromIntegral x', fromIntegral y')
 
--- @method treeViewTreeToWidgetCoords@ Convert tree to widget pixel
+-- | Convert tree to widget pixel
 -- coordinates.
 --
 -- * See module description.
@@ -751,7 +750,7 @@ treeViewTreeToWidgetCoords tv (x,y) = alloca $ \xPtr -> alloca $ \yPtr -> do
   y' <- peek yPtr
   return (fromIntegral x', fromIntegral y')
 
--- @method treeViewGetEnableSearch@ Set if user can search entries.
+-- | Set if user can search entries.
 --
 -- * If enabled, the user can type in text which will set the cursor to
 --   the first matching entry.
@@ -760,20 +759,20 @@ treeViewGetEnableSearch :: TreeViewClass tv => tv -> IO Bool
 treeViewGetEnableSearch tv = liftM toBool $
   {#call unsafe tree_view_get_enable_search#} (toTreeView tv)
 
--- @method treeViewSetEnableSearch@ Check if user can search entries.
+-- | Check if user can search entries.
 --
 treeViewSetEnableSearch :: TreeViewClass tv => tv -> Bool -> IO ()
 treeViewSetEnableSearch tv es = {#call tree_view_set_enable_search#}
   (toTreeView tv) (fromBool es)
 
--- @method treeViewGetSearchColumn@ Gets the column searched on by the
+-- | Gets the column searched on by the
 -- interactive search.
 --
 treeViewGetSearchColumn :: TreeViewClass tv => tv -> IO Int
 treeViewGetSearchColumn tv = liftM fromIntegral $
   {#call unsafe tree_view_get_search_column#} (toTreeView tv)
 
--- @method treeViewSetSearchColumn@ Set the column searched on by
+-- | Set the column searched on by
 -- by the interactive search.
 --
 -- * Additionally, turns on interactive searching.
@@ -782,15 +781,15 @@ treeViewSetSearchColumn :: TreeViewClass tv => tv -> Int -> IO ()
 treeViewSetSearchColumn tv sc = {#call tree_view_set_search_column#}
   (toTreeView tv) (fromIntegral sc)
 
--- @method treeViewSetSearchEqualFunc@ Set the predicate to test for equality.
+-- | Set the predicate to test for equality.
 --
--- * The default function assumes that the column @ref arg col@ has contains
---   @ref data Attribute@ @literal cr@ @literal String@. It conducts a
+-- * The default function assumes that the column @col@ has contains
+--   'Attribute' @cr@ @String@. It conducts a
 --   case insensitive comparison of the text typed by the user and the
 --   text in the tree model. This function can be used to override this 
---   behaviour. The predicate returns @literal True@ if the entries should
+--   behaviour. The predicate returns @True@ if the entries should
 --   be considered to match. The parameters are the column number, the text
---   the user typed in and a @ref data TreeIter@ which points to the cell
+--   the user typed in and a 'TreeIter' which points to the cell
 --   to be compared.
 --
 treeViewSetSearchEqualFunc :: TreeViewClass tv => tv ->
@@ -826,7 +825,7 @@ foreign export dynamic mkTreeViewSearchEqualFunc ::
 
 #endif
 
--- @signal connectToColumnsChanged@ The user has dragged a column to another
+-- | The user has dragged a column to another
 -- position.
 --
 onColumnsChanged, afterColumnsChanged :: TreeViewClass tv => tv -> IO () ->
@@ -834,14 +833,14 @@ onColumnsChanged, afterColumnsChanged :: TreeViewClass tv => tv -> IO () ->
 onColumnsChanged = connect_NONE__NONE "columns_changed" False
 afterColumnsChanged = connect_NONE__NONE "columns_changed" True
 
--- @signal connectToCursorChanged@ The cursor in the tree has moved.
+-- | The cursor in the tree has moved.
 --
 onCursorChanged, afterCursorChanged :: TreeViewClass tv => tv -> IO () ->
 				       IO (ConnectId tv)
 onCursorChanged = connect_NONE__NONE "cursor_changed" False
 afterCursorChanged = connect_NONE__NONE "cursor_changed" True
 
--- @signal connectToRowActivated@ A row was activated.
+-- | A row was activated.
 --
 -- * Activation usually means the user has pressed return on a row.
 --
@@ -853,7 +852,7 @@ onRowActivated = connect_BOXED_OBJECT__NONE "row_activated"
 afterRowActivated = connect_BOXED_OBJECT__NONE "row_activated" 
 		      createTreePath True
 
--- @signal connectToRowCollapsed@ Children of this node were hidden.
+-- | Children of this node were hidden.
 --
 onRowCollapsed, afterRowCollapsed :: TreeViewClass tv => tv ->
 				     (TreeIter -> TreePath -> IO ()) ->
@@ -863,7 +862,7 @@ onRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
 afterRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
 		      createTreeIter createTreePath True
 
--- @signal connectToRowExpanded@ Children of this node are made visible.
+-- | Children of this node are made visible.
 --
 onRowExpanded, afterRowExpanded :: TreeViewClass tv => tv ->
 				     (TreeIter -> TreePath -> IO ()) ->
@@ -873,7 +872,7 @@ onRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
 afterRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
 		      createTreeIter createTreePath True
 
--- @signal connectToStartInteractiveSearch@ The user wants to search 
+-- | The user wants to search 
 -- interactively.
 --
 -- * Connect to this signal if you want to provide you own search facility.
@@ -898,9 +897,9 @@ afterStartInteractiveSearch =
 
 #endif
 
--- @signal connectToTestCollapseRow@ Determine if this row should be collapsed.
+-- | Determine if this row should be collapsed.
 --
--- * If the application connects to this function and returns @literal False@,
+-- * If the application connects to this function and returns @False@,
 --   the specifc row will not be altered.
 --
 onTestCollapseRow, afterTestCollapseRow :: TreeViewClass tv => tv ->
@@ -911,9 +910,9 @@ onTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
 afterTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
 		      createTreeIter createTreePath True
 
--- @signal connectToTestExpandRow@ Determine if this row should be expanded.
+-- | Determine if this row should be expanded.
 --
--- * If the application connects to this function and returns @literal False@,
+-- * If the application connects to this function and returns @False@,
 --   the specifc row will not be altered.
 --
 onTestExpandRow, afterTestExpandRow :: TreeViewClass tv => tv ->

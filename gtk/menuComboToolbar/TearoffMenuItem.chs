@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget TearoffMenuItem@
+--  GIMP Toolkit (GTK) Widget TearoffMenuItem
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:05:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
 -- * A TearoffMenuItem is a special GtkMenuItem which is used to tear off 
 --   and reattach its menu. When its menu is shown normally, the 
@@ -30,10 +30,6 @@
 --   pointing arrow graphic indicating that the tearoff menu can be reattached.
 --   Activating it will erase the tearoff menu window.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module TearoffMenuItem(
   TearoffMenuItem,
@@ -53,7 +49,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor tearoffMenuItemNew@ Create a new tear off menu item.
+-- | Create a new tear off menu item.
 --
 tearoffMenuItemNew :: IO TearoffMenuItem
 tearoffMenuItemNew  = makeNewObject mkTearoffMenuItem $ liftM castPtr

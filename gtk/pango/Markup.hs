@@ -1,10 +1,10 @@
---  GIMP Toolkit (GTK) @entry Markup@
+--  GIMP Toolkit (GTK) Markup
 --
 --  Author : Axel Simon
 --          
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/02/09 10:43:01 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:12:20 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -18,17 +18,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This module defines some helper functions for generating texts with
---   embedded attributes.
+-- This module defines some helper functions for generating texts with
+-- embedded attributes.
 --
--- @documentation@ ------------------------------------------------------------
+-- TODO
 --
---
--- @todo@ ---------------------------------------------------------------------
---
--- * Add a numeric value to @ref data FontWeightDef@.
+-- * Add a numeric value to 'FontWeightDef'.
 --
 module Markup(
   Markup,
@@ -43,75 +40,75 @@ module Markup(
   ) where
 
 
--- @type Markup@ Define a synonym for text with embedded markup commands.
+-- | Define a synonym for text with embedded markup commands.
 --
 -- * Markup strings are just simple strings. But it's easier to tell if a
 --   method expects text with or without markup.
 --
 type Markup = String
 
--- @data SpanAttribute@ These are all the attributes the
--- @ref function markSpan@ function can express.
+-- | These are all the attributes the
+-- 'markSpan' function can express.
 --
--- @variant FontDescr@ Choose a font by textual description.
+-- DOCFIXME(constructor): FontDescr Choose a font by textual description.
 --
 -- * Takes a
---   string to completely describe the font, example: @ref variant FontDescr@ 
---   @literal "Sans Italic 12"@
+--   string to completely describe the font, example: 'FontDescr' 
+--   @"Sans Italic 12"@
 --
--- @variant FontFamily@ Specify the family of font to use.
+-- DOCFIXME(constructor): FontFamily Specify the family of font to use.
 --
--- * Example: @ref variant FontFamily@ @literal "Sans"@
+-- * Example: 'FontFamily' @"Sans"@
 --
--- @variant FontSize@ Change the size of the current font.
+-- DOCFIXME(constructor): FontSize Change the size of the current font.
 --
 -- * The constuctor takes the size in points (pt) or as predefined
 --   sizes. Setting the absolute size 12.5pt can be achieved by passing
---   @ref variant FontSize@ @literal (@ @ref variant FSPoint@ 
---   @literal 12.5)@ to @ref function markSpan@. Next to predefined absolute
---   sizes such as @ref variant FSsmall@ the size can be changed by asking for
---   the next larger or smaller front with @ref variant FSlarger@ and
---   @ref variant FSsmaller@, respectively.
+--   'FontSize' @('FSPoint' 
+--   @12.5)@ to 'markSpan'. Next to predefined absolute
+--   sizes such as 'FSsmall' the size can be changed by asking for
+--   the next larger or smaller front with 'FSlarger' and
+--   'FSsmaller', respectively.
 --
--- @variant FontStyle@ Change the slant of the current font.
+-- DOCFIXME(constructor): FontStyle Change the slant of the current font.
 --
--- * The constructor takes one of three styles: @ref variant FYnormal@,
---   @ref variant FYoblique@ or @ref variant FYitalic@.
+-- * The constructor takes one of three styles: 'FYnormal',
+--   'FYoblique' or 'FYitalic'.
 --
--- @variant FontWeight@ Change the thickness of the current font.
+-- DOCFIXME(constructor): FontWeight Change the thickness of the current font.
 --
 -- * The constructor takes one of the six predefined weights. Most likely to
---   be supported: @ref variant FWbold@.
+--   be supported: 'FWbold'.
 --
--- @variant FontVariant@ Choosing an alternative rendering for lower case
+-- DOCFIXME(constructor): FontVariant Choosing an alternative rendering for lower case
 -- letters.
 --
--- * The argument @ref variant FVsmallcaps@ will display lower case letters
+-- * The argument 'FVsmallcaps' will display lower case letters
 --   as smaller upper case letters, if this option is available.
 --
--- @variant FontStretch@ Choose a different width.
+-- DOCFIXME(constructor): FontStretch Choose a different width.
 --
--- * Takes one of nine font widths, e.g. @ref variant FTcondensed@ or
---   @ref variant FTexpanded@.
+-- * Takes one of nine font widths, e.g. 'FTcondensed' or
+--   'FTexpanded'.
 --
--- @variant FontForeground@ Foreground color.
+-- DOCFIXME(constructor): FontForeground Foreground color.
 --
--- * This constructor and @ref variant FontBackground@ take both a description
+-- * This constructor and 'FontBackground' take both a description
 --   of the color to be used for rendering.
 --
--- @variant FontBackground@ Background color.
+-- DOCFIXME(constructor): FontBackground Background color.
 --
--- @variant FontUnderline@ Specify underlining of text.
+-- DOCFIXME(constructor): FontUnderline Specify underlining of text.
 --
--- * @ref variant FUnone@, @ref variant FUsingle@, @ref variant FUdouble@ or
---   @ref variant  FUlow@ are possible choices.
+-- * 'FUnone', 'FUsingle', 'FUdouble' or
+--   'FUlow' are possible choices.
 --
--- @variant FontRise@ Specify a vertical displacement.
+-- DOCFIXME(constructor): FontRise Specify a vertical displacement.
 --
--- * Takes the vertical displacement in em (the width of the 'm' character
+-- * Takes the vertical displacement in em (the width of the \'m\' character
 --   in the current font).
 --
--- @variant FontLang@ Give a hint about the language to be displayed.
+-- DOCFIXME(constructor): FontLang Give a hint about the language to be displayed.
 --
 data SpanAttribute
   = FontDescr   String
@@ -142,7 +139,7 @@ instance Show SpanAttribute where
 				   (show (round (r*10000)))
   showsPrec _ (FontLang l)	 = showString " lang=".shows l
 
--- @data FontSizeDef@ Define attributes for @ref type FontSize@.
+-- | Define attributes for 'FontSize'.
 --
 data FontSizeDef
   = FSPoint Double
@@ -168,7 +165,7 @@ instance Show FontSizeDef where
   showsPrec _ (FSsmaller)	  = shows "smaller"
   showsPrec _ (FSlarger)	  = shows "larger"
 
--- @data FontStyleDef@ Define attributes for @ref type FontStyle@.
+-- | Define attributes for 'FontStyle'.
 --
 data FontStyleDef
   = FYnormal
@@ -180,7 +177,7 @@ instance Show FontStyleDef where
   showsPrec _ FYoblique	   = shows "oblique"
   showsPrec _ FYitalic	   = shows "italic"
 
--- @data FontWeightDef@ Define attributes for @ref type FontWeight@.
+-- | Define attributes for 'FontWeight'.
 --
 data FontWeightDef
   = FWultralight
@@ -198,7 +195,7 @@ instance Show FontWeightDef where
   showsPrec _ FWultrabold  = shows "ultrabold"
   showsPrec _ FWheavy	   = shows "heavy"
 
--- @data FontVariantDef@ Define attributes for @ref type FontVariant@.
+-- | Define attributes for 'FontVariant'.
 --
 data FontVariantDef
   = FVnormal
@@ -208,7 +205,7 @@ instance Show FontVariantDef where
   showsPrec _ FVnormal	     = shows "normal"
   showsPrec _ FVsmallcaps    = shows "smallcaps"
 
--- @data FontStretchDef@ Define attributes for @ref type FontStretch@.
+-- | Define attributes for 'FontStretch'.
 --
 data FontStretchDef
   = FTultracondensed
@@ -232,7 +229,7 @@ instance Show FontStretchDef where
   showsPrec _ FTextraexpanded	= shows "extraexpanded"
   showsPrec _ FTultraexpanded	= shows "ultraexpanded"
 
--- @data FontUnderlineDef@ Define attributes for @ref type FontUnderline@.
+-- | Define attributes for 'FontUnderline'.
 --
 data FontUnderlineDef
   = FUsingle
@@ -246,7 +243,7 @@ instance Show FontUnderlineDef where
   showsPrec _ FUlow	= shows "low"
   showsPrec _ FUnone	= shows "none"
 
--- @method markSpan@ Create the most generic span attribute.
+-- | Create the most generic span attribute.
 --
 markSpan :: [SpanAttribute] -> String -> String
 markSpan attrs text = showString "<span".

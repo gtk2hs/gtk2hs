@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Window@
+--  GIMP Toolkit (GTK) Window
 --
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:17:53 $
 --
 --  Copyright (c) 2001 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -19,13 +19,9 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * missing but possibly useful methods are commented out
 --      
@@ -83,19 +79,19 @@ import Events	(Event, marshalEvent)
 
 -- methods
 
--- @constructor windowNew@ Create a new window of the given type.
+-- | Create a new window of the given type.
 --
 windowNew :: IO Window
 windowNew = makeNewObject mkWindow $ liftM castPtr $
   {#call window_new#} ((fromIntegral.fromEnum) WindowToplevel)
 
--- @method windowSetTitle@ set the title string of the given window
+-- | set the title string of the given window
 --
 windowSetTitle :: WindowClass w => w -> String -> IO ()
 windowSetTitle w str = 
   withUTFString str ({#call window_set_title#} (toWindow w))
 
--- @method windowSetResizable@ Sets whether the user can resize a window.
+-- | Sets whether the user can resize a window.
 --
 -- * Windows are user resizable by default.
 --
@@ -103,20 +99,20 @@ windowSetResizable :: WindowClass w => w -> Bool -> IO ()
 windowSetResizable w res = 
   {#call window_set_resizable#} (toWindow w) (fromBool res)
 
--- @method windowGetResizable@ Retrieve the value set by
--- @ref method windowSetResizable@.
+-- | Retrieve the value set by
+-- 'windowSetResizable'.
 --
 windowGetResizable :: WindowClass w => w -> IO Bool
 windowGetResizable w = liftM toBool $ 
   {#call unsafe window_get_resizable#} (toWindow w)
 
--- @method windowActivateFocus@ dunno
+-- | dunno
 --
 windowActivateFocus :: WindowClass w => w -> IO Bool
 windowActivateFocus w = 
   liftM toBool $ {#call window_activate_focus#} (toWindow w)
 
--- @method windowActivateDefault@ dunno
+-- | dunno
 --
 windowActivateDefault :: WindowClass w => w -> IO Bool
 windowActivateDefault w = 
@@ -129,33 +125,33 @@ windowSetPolicy :: WindowClass w => w -> Bool -> Bool -> Bool -> IO ()
 windowSetPolicy w shrink grow auto = {#call window_set_policy#} 
   (toWindow w) (fromBool shrink) (fromBool grow) (fromBool auto)
 
--- @method windowSetModal@ make a window application modal
+-- | make a window application modal
 --
 windowSetModal :: WindowClass w => w -> Bool -> IO ()
 windowSetModal w m = {#call window_set_modal#} (toWindow w) (fromBool m)
 
--- @method windowSetDefaultSize@ set window default size
+-- | set window default size
 --
--- * Sets the default size of a window. If the window's "natural" size (its
+-- * Sets the default size of a window. If the window's \"natural\" size (its
 --   size request) is larger than the default, the default will be ignored.
 --   More generally, if the default size does not obey the geometry hints for
---   the window (@method windowSetGeometryHints@ can be used to set these
+--   the window ('windowSetGeometryHints' can be used to set these
 --   explicitly), the default size will be clamped to the nearest permitted
 --   size.
 --
--- * Unlike @ref arg widgetSetSizeRequest@, which sets a size request for a
+-- * Unlike @widgetSetSizeRequest@, which sets a size request for a
 --   widget and thus would keep users from shrinking the window, this function
 --   only sets the initial size, just as if the user had resized the window
 --   themselves. Users can still shrink the window again as they normally
---   would. Setting a default size of -1 means to use the "natural" default
+--   would. Setting a default size of -1 means to use the \"natural\" default
 --   size (the size request of the window).
 --
 -- * For more control over a window's initial size and how resizing works,
---   investigate @ref method windowSetGeometryHints@.
+--   investigate 'windowSetGeometryHints'.
 --
--- * For some uses, @ref method windowResize@ is a more appropriate function.
---   @ref method windowResize@ changes the current size of the window, rather
---   than the size to be used on initial display. @ref method windowResize@
+-- * For some uses, 'windowResize' is a more appropriate function.
+--   'windowResize' changes the current size of the window, rather
+--   than the size to be used on initial display. 'windowResize'
 --   always affects the window itself, not the geometry widget.The default
 --   size of a window only affects the first time a window is shown; if a
 --   window is hidden and re-shown, it will remember the size it had prior to
@@ -168,52 +164,52 @@ windowSetDefaultSize w height width =
   {#call window_set_default_size#} (toWindow w) (fromIntegral height)
   (fromIntegral width)
 
--- @method windowSetPosition@ set the window position policy
+-- | set the window position policy
 --
 windowSetPosition :: WindowClass w => w -> WindowPosition -> IO ()
 windowSetPosition w pos = 
   {#call window_set_position#} (toWindow w) ((fromIntegral.fromEnum) pos)
 
--- @method windowSetTransientFor@ set transient window
+-- | set transient window
 --
 windowSetTransientFor :: (WindowClass win, WindowClass parent) => win ->
                          parent -> IO ()
 windowSetTransientFor w p = 
   {#call window_set_transient_for#} (toWindow w) (toWindow p)
 
--- @method windowSetDestroyWithParent@ destory transient window with parent
+-- | destory transient window with parent
 --
 windowSetDestroyWithParent :: WindowClass w => w -> Bool -> IO ()
 windowSetDestroyWithParent w b = 
   {#call window_set_destroy_with_parent#} (toWindow w) (fromBool b)
 
--- @method windowDeiconify@ restore the window
+-- | restore the window
 --
 windowDeiconify :: WindowClass w => w -> IO ()
 windowDeiconify w = {#call window_deiconify#} (toWindow w)
 
--- @method windowIconify@ minimize the window
+-- | minimize the window
 --
 windowIconify :: WindowClass w => w -> IO ()
 windowIconify w = {#call window_iconify#} (toWindow w)
 
--- @method windowMaximize@ maximize the window
+-- | maximize the window
 --
 windowMaximize :: WindowClass w => w -> IO ()
 windowMaximize w = {#call window_maximize#} (toWindow w)
 
--- @method windowUnmaximize@ unmaximize the window
+-- | unmaximize the window
 --
 windowUnmaximize :: WindowClass w => w -> IO ()
 windowUnmaximize w = {#call window_unmaximize#} (toWindow w)
 
--- @method windowSetDecorated@ remove the border
+-- | remove the border
 --
 windowSetDecorated :: WindowClass w => w -> Bool -> IO ()
 windowSetDecorated w b =
   {#call window_set_decorated#} (toWindow w) (fromBool b)
 
--- @method windowSetFrameDimensions@ set border widths
+-- | set border widths
 --
 windowSetFrameDimensions :: WindowClass w => w -> Int -> Int -> Int -> Int ->
                             IO ()
@@ -221,32 +217,32 @@ windowSetFrameDimensions w left top right bottom =
  {#call window_set_frame_dimensions#} (toWindow w) (fromIntegral left)
  (fromIntegral top) (fromIntegral right) (fromIntegral bottom)
 
--- @method windowSetRole@ set role (additional window name for the WM)
+-- | set role (additional window name for the WM)
 --
 windowSetRole :: WindowClass w => w -> String -> IO ()
 windowSetRole w str = 
   withUTFString str ({#call window_set_role#} (toWindow w))
 
--- @method windowStick@ show the window on every workspace
+-- | show the window on every workspace
 --
 windowStick :: WindowClass w => w -> IO ()
 windowStick w = {#call window_stick#} (toWindow w)
 
--- @method windowUnstick@ do not show the window on every workspace
+-- | do not show the window on every workspace
 --
 windowUnstick :: WindowClass w => w -> IO ()
 windowUnstick w = {#call window_unstick#} (toWindow w)
 
 -- signals
 
--- @signal connectToFrameEvent@ 
+-- | 
 --
 onFrameEvent, afterFrameEvent :: WindowClass w => w -> (Event -> IO Bool) ->
                                  IO (ConnectId w)
 onFrameEvent = connect_BOXED__BOOL "frame_event" marshalEvent False
 afterFrameEvent = connect_BOXED__BOOL "frame_event" marshalEvent True
 
--- @signal connectToSetFocus@ 
+-- | 
 --
 onSetFocus, afterSetFocus :: (WindowClass w, WidgetClass foc) => w ->
                              (foc -> IO ()) -> IO (ConnectId w)

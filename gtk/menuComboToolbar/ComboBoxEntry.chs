@@ -1,5 +1,5 @@
 -- -*-haskell-*-
--- |GIMP Toolkit (GTK) @entry Widget ComboBoxEntry@
+--  GIMP Toolkit (GTK) entry Widget ComboBoxEntry
 --
 --  Author : Duncan Coutts
 --  Created: 25 April 2004
@@ -16,13 +16,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- Description ---------------------------------------------------------------
+-- |
 --
---  Language: Haskell 98 Binding Module
+-- A text entry field with a dropdown list
 --
---  ComboBoxEntry - a text entry field with a dropdown list
---
---  Added in gtk 2.4
+-- * Added in gtk 2.4
 --
 
 module ComboBoxEntry (

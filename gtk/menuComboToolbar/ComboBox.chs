@@ -1,5 +1,5 @@
 -- -*-haskell-*-
--- |GIMP Toolkit (GTK) @entry Widget ComboBox@
+--  GIMP Toolkit (GTK) entry Widget ComboBox
 --
 --  Author : Duncan Coutts
 --  Created: 25 April 2004
@@ -16,13 +16,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- Description ---------------------------------------------------------------
+-- |
 --
---  Language: Haskell 98 Binding Module
+-- A widget used to choose from a list of items.
 --
---  ComboBox - a widget used to choose from a list of items.
---
---  Added in gtk 2.4
+-- * Added in Gtk 2.4
 --
 
 module ComboBox (

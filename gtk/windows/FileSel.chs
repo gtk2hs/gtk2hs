@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: @entry Widget FileSel@
+--  GIMP Toolkit (GTK) Binding for Haskell: Widget FileSel
 --
 --  Author : Manuel M T Chakravarty
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/21 14:00:33 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:17:53 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --  Copyright (c) 2002 Jens Petersen
@@ -19,19 +19,17 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- |
 --
---  The file selection widget is a quick and simple way to display a File
---  dialog box.  It comes complete with Ok & Cancel buttons; optionally, it
---  can have file operation buttons.
+-- The file selection widget is a quick and simple way to display a File
+-- dialog box.  It comes complete with Ok & Cancel buttons; optionally, it
+-- can have file operation buttons.
 --
---- DOCU ----------------------------------------------------------------------
+-- * As of gtk 2.4 this module has been deprecated in favour of "FileChooser"
 --
---  As of gtk 2.4 this module has been deprecated in favour of FileChooser
+-- TODO
 --
---- TODO ----------------------------------------------------------------------
---
---  Fix fileSelectionQueryButtons
+-- * Fix fileSelectionQueryButtons
 --
 module FileSel(
   FileSelectionClass,
@@ -58,7 +56,7 @@ import Structs		(fileSelectionGetButtons)
 -- operations
 -- ----------
 
--- @constructor fileSelectionNew@ Create a new file selection dialog with 
+-- | Create a new file selection dialog with 
 -- the given window title.
 --
 fileSelectionNew       :: String -> IO FileSelection
@@ -67,7 +65,7 @@ fileSelectionNew title  = do
     makeNewObject mkFileSelection $ liftM castPtr $ 
 			{#call unsafe file_selection_new#} strPtr
 
--- @method fileSelectionSetFilename@ Set the filename for the given file 
+-- | Set the filename for the given file 
 -- selection dialog.
 --
 fileSelectionSetFilename :: FileSelectionClass fsel => fsel -> String -> IO ()
@@ -75,7 +73,7 @@ fileSelectionSetFilename fsel str =
   withUTFString str $ \strPtr -> 
     {#call unsafe file_selection_set_filename#} (toFileSelection fsel) strPtr
 
--- @method fileSelectionGetFilename@ Get the filename currently selected by 
+-- | Get the filename currently selected by 
 -- the given file selection dialog.
 --
 fileSelectionGetFilename :: FileSelectionClass fsel => fsel -> IO String
@@ -85,14 +83,14 @@ fileSelectionGetFilename fsel =
       (toFileSelection fsel)
     peekUTFString strPtr
 
--- @method fileSelectionShowFileopButtons@ Show the file operation buttons 
+-- | Show the file operation buttons 
 -- of the given file selection dialog.
 --
 fileSelectionShowFileopButtons :: FileSelectionClass fsel => fsel -> IO ()
 fileSelectionShowFileopButtons  =
   {#call file_selection_show_fileop_buttons#} . toFileSelection
 
--- @method fileSelectionHideFileopButtons@ Hide the file operation buttons 
+-- | Hide the file operation buttons 
 -- of the given file selection dialog.
 --
 fileSelectionHideFileopButtons :: FileSelectionClass fsel => fsel -> IO ()
@@ -115,7 +113,7 @@ fileSelectionHideFileopButtons  =
 --       cancel <- {#get FileSelection.cancel_button#} ptr
 --       return (castToButton ok, castToButton cancel)
 
--- @method fileSelectionComplete@ Only show files matching pattern.
+-- | Only show files matching pattern.
 --
 fileSelectionComplete :: FileSelectionClass fsel => fsel -> String -> IO ()
 fileSelectionComplete fsel pattern =

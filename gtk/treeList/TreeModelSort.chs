@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry TreeModelSort@
+--  GIMP Toolkit (GTK) TreeModelSort
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 July 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.3 $ from $Date: 2004/05/23 16:16:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,15 +19,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * @ref type TreeModelSort@ is an aggregated class to @ref type TreeModel@.
---   It turns any object derived from @ref type TreeModel@ into a store that
---   is sorted.
+-- 'TreeModelSort' is an aggregated class to 'TreeModel'.
+-- It turns any object derived from 'TreeModel' into a store that
+-- is sorted.
 --
---- DOCU ----------------------------------------------------------------------
---
---- TODO ----------------------------------------------------------------------
 module TreeModelSort(
   TreeModelSort,
   TreeModelSortClass

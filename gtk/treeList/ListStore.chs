@@ -1,12 +1,12 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry ListStore TreeModel@
+--  GIMP Toolkit (GTK) ListStore TreeModel
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.12 $ from $Date: 2004/05/23 16:16:43 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -20,14 +20,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * The database for simple (non-hierarchical) tables.
+-- The database for simple (non-hierarchical) tables.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module ListStore(
   ListStore,
@@ -64,7 +60,7 @@ import GType	  (GType)
 
 -- methods
 
--- @constructor listStoreNew@ Generate a new entity to store tree information.
+-- | Generate a new entity to store tree information.
 --
 listStoreNew :: [TMType] -> IO ListStore
 listStoreNew cols = makeNewGObject mkListStore $ 
@@ -72,7 +68,7 @@ listStoreNew cols = makeNewGObject mkListStore $
   (map (fromIntegral.fromEnum) cols) $
   {#call unsafe list_store_newv#} ((fromIntegral.length) cols)
 
--- @method listStoreSetValue@ Set the data of a specific node.
+-- | Set the data of a specific node.
 --
 -- * The supplied value must match the type that was set for the column.
 --
@@ -84,38 +80,36 @@ listStoreSetValue ts ti col val = with val $ \vPtr -> do
   valueUnset vPtr
 
 #if GTK_CHECK_VERSION(2,2,0)
--- @method listStoreRemove@ Remove a specific node.
+-- | Remove a specific node.
 --
--- * The @ref data TreeIter@ will point to the entry following the one which
---   was just removed. The function returns @literal False@ if the
---   @ref arg ti@TreeIter does not point to a valid element (i.e. the
+-- * The 'TreeIter' will point to the entry following the one which
+--   was just removed. The function returns @False@ if the
+--   @ti@TreeIter does not point to a valid element (i.e. the
 --   function just removed the bottom entry from the list).
 --
--- * <warning><para>This function returned @literal ()@ in Gtk version
---   2.0.X</warning><para>
+-- * This function returned @()@ in Gtk version 2.0.X
 --
 listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO Bool
 listStoreRemove ts ti = liftM toBool $ 
   {#call list_store_remove#} (toListStore ts) ti
 
 #else
--- @method listStoreRemove@ Remove a specific node.
+-- | Remove a specific node.
 --
--- * The @ref data TreeIter@ will point to the entry following the one which
+-- * The 'TreeIter' will point to the entry following the one which
 --   was just removed.
 --
--- * <warning><para>This function returns @literal Bool@ in Gtk version
---   2.2.0 and later</warning><para>
+-- * This function returns @Bool@ in Gtk version 2.2.0 and later
 --
 listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO ()
 listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
 #endif
 
--- @method listStoreInsert@ Insert a new row into the list.
+-- | Insert a new row into the list.
 --
--- * The @ref arg pos@ parameter
+-- * The @pos@ parameter
 -- determines the row number where the row should be inserted. Set this to
--- @literal -1@ to insert at the end of the list.
+-- @-1@ to insert at the end of the list.
 --
 listStoreInsert :: (ListStoreClass ts) => ts -> Int -> IO TreeIter
 listStoreInsert ts pos = do
@@ -125,8 +119,8 @@ listStoreInsert ts pos = do
   return iter
 
 
--- @method listStoreInsertBefore@ Insert a row in front of the
--- @ref arg sibling@ node.
+-- | Insert a row in front of the
+-- @sibling@ node.
 --
 listStoreInsertBefore :: (ListStoreClass ts) => ts -> TreeIter -> IO TreeIter
 listStoreInsertBefore ts sibling = do
@@ -135,7 +129,7 @@ listStoreInsertBefore ts sibling = do
   {#call list_store_insert_before#} (toListStore ts) iter sibling
   return iter
 
--- @method listStoreInsertAfter@ Insert a row behind the @ref arg sibling@
+-- | Insert a row behind the @sibling@
 -- row.
 --
 listStoreInsertAfter :: (ListStoreClass ts) => ts -> TreeIter -> IO TreeIter
@@ -145,9 +139,9 @@ listStoreInsertAfter ts sibling = do
   {#call list_store_insert_after#} (toListStore ts) iter sibling
   return iter
 
--- @method listStorePrepend@ Insert a row in front of every other row.
+-- | Insert a row in front of every other row.
 --
--- * This is equivalent to @ref method listStoreInsert@ @literal 0@.
+-- * This is equivalent to 'listStoreInsert' @0@.
 --
 listStorePrepend :: (ListStoreClass ts) => ts -> IO TreeIter
 listStorePrepend ts = do
@@ -156,9 +150,9 @@ listStorePrepend ts = do
   {#call list_store_prepend#} (toListStore ts) iter 
   return iter
 
--- @method listStoreAppend@ Insert a row at the end of the table .
+-- | Insert a row at the end of the table .
 --
--- * This is equivalent to @ref method listStoreInsert@ (-1).
+-- * This is equivalent to 'listStoreInsert' (-1).
 --
 listStoreAppend :: (ListStoreClass ts) => ts -> IO TreeIter
 listStoreAppend ts = do
@@ -167,7 +161,7 @@ listStoreAppend ts = do
   {#call list_store_append#} (toListStore ts) iter 
   return iter
 
--- @method listStoreClear@ Clear all rows in this table.
+-- | Clear all rows in this table.
 --
 listStoreClear :: (ListStoreClass ts) => ts -> IO ()
 listStoreClear = {#call list_store_clear#}.toListStore

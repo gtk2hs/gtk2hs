@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget DrawingArea@
+--  GIMP Toolkit (GTK) Widget DrawingArea
 --
 --  Author : Axel Simon
 --          
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:07:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,24 +19,20 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A user-defined widget.
+-- A user-defined widget.
 --
--- @documentation@ ------------------------------------------------------------
---
--- * The @ref data DrawingArea@ widget is used for creating custom
+-- * The 'DrawingArea' widget is used for creating custom
 --   user interface elements. It's essentially a blank widget. Drawing on
---   the @ref type Drawable@ returned by @ref method drawingAreaGetWindow@
---   has to be done each time the window manager sends @ref signal expose@
+--   the 'Drawable' returned by 'drawingAreaGetWindow'
+--   has to be done each time the window manager sends @\"expose\"@
 --   events. Note that the library automatically clears the exposed area to
 --   the background color before sending the expose event, and that drawing
 --   is implicitly clipped to the exposed area. Other events which are
 --   interesting for interacting are mouse and butten events defined in
---   @ref data Widget@. If the widget changes in size (which it does
---   initially), a @ref signal configure@ event is emitted.
---
--- @todo@ ---------------------------------------------------------------------
+--   'Widget'. If the widget changes in size (which it does
+--   initially), a @\"configure\"@ event is emitted.
 --
 module DrawingArea(
   DrawingArea,
@@ -58,7 +54,7 @@ import Structs	(drawingAreaGetDrawWindow, drawingAreaGetSize)
 
 -- methods
 
--- @constructor drawingAreaNew@ Create a new custom widget.
+-- | Create a new custom widget.
 --
 drawingAreaNew :: IO DrawingArea
 drawingAreaNew = makeNewObject mkDrawingArea $ 

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget MenuItem@
+--  GIMP Toolkit (GTK) Widget MenuItem
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:05:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,20 +19,18 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This widget represents a singe menu item.
---
--- @documentation@ ------------------------------------------------------------
+-- This widget represents a singe menu item.
 --
 -- * The widget derives from Item. Since CList and CTree are deprecated, it
 --   is the only child of that widget. The three signals defined by Item are
 --   therefore bound in this module.
 --
---- TODO ----------------------------------------------------------------------
+-- TODO
 --
--- * figure out what the signals "toggle-size-allocate" and 
---   "toggle-size-request" are good for and bind them if useful
+-- * figure out what the signals \"toggle-size-allocate\" and 
+--   \"toggle-size-request\" are good for and bind them if useful
 --
 -- * figure out if the connectToToggle signal is useful at all
 --
@@ -72,14 +70,14 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor menuItemNew@ Create a new menu item. This is the smallest part
+-- | Create a new menu item. This is the smallest part
 -- of a menu that the user can click on or select with the keyboard.
 --
 menuItemNew :: IO MenuItem
 menuItemNew  = makeNewObject mkMenuItem $ 
   liftM castPtr {#call unsafe menu_item_new#}
 
--- @method menuItemNewWithLabel@ Create a new menu item and place a label
+-- | Create a new menu item and place a label
 -- inside.
 --
 menuItemNewWithLabel :: String -> IO MenuItem
@@ -87,19 +85,19 @@ menuItemNewWithLabel label = withUTFString label $ \strPtr ->
   makeNewObject mkMenuItem $ liftM castPtr $
   {#call unsafe menu_item_new_with_label#} strPtr
 
--- @method menuItemSetSubmenu@ Set the item's submenu.
+-- | Set the item's submenu.
 --
 menuItemSetSubmenu :: (MenuItemClass mi, MenuClass m) => mi -> m -> IO ()
 menuItemSetSubmenu mi submenu = 
   {#call menu_item_set_submenu#} (toMenuItem mi) (toWidget submenu)
 
--- @method menuItemRemoveSubmenu@ Remove the item's submenu.
+-- | Remove the item's submenu.
 --
 menuItemRemoveSubmenu :: MenuItemClass mi => mi -> IO ()
 menuItemRemoveSubmenu mi = {#call menu_item_remove_submenu#} (toMenuItem mi)
 
 
--- @method menuItemConfigure@ Should the item display a submenu 
+-- | Should the item display a submenu 
 -- indicator (an arrow) if there is a
 -- submenu?
 --menuItemConfigure :: MenuItemClass mi => Bool -> mi -> IO ()
@@ -107,22 +105,22 @@ menuItemRemoveSubmenu mi = {#call menu_item_remove_submenu#} (toMenuItem mi)
 --  {#call unsafe menu_item_configure#} (toMenuItem mi) 0 (fromBool subInd)
 
 
--- @method menuItemSelect@ Select the menu item.
+-- | Select the menu item.
 --
 menuItemSelect :: MenuItemClass mi => mi -> IO ()
 menuItemSelect mi = {#call menu_item_select#} (toMenuItem mi)
 
--- @method menuItemDeselect@ Deselect the menu item.
+-- | Deselect the menu item.
 --
 menuItemDeselect :: MenuItemClass mi => mi -> IO ()
 menuItemDeselect mi = {#call menu_item_deselect#} (toMenuItem mi)
 
--- @method menuItemActivate@ Simulate a click on the menu item.
+-- | Simulate a click on the menu item.
 --
 menuItemActivate :: MenuItemClass mi => mi -> IO ()
 menuItemActivate mi = {#call menu_item_activate#} (toMenuItem mi)
 
--- @method menuItemSetRightJustified@ Make the menu item right justified. Only
+-- | Make the menu item right justified. Only
 -- useful for menu bars.
 --
 menuItemSetRightJustified :: MenuItemClass mi => Bool -> mi -> IO ()
@@ -131,7 +129,7 @@ menuItemSetRightJustified yes mi =
 
 -- signals
 
--- @signal connectToActivateLeaf@ The user has chosen the menu item and the
+-- | The user has chosen the menu item and the
 -- item does not contain a submenu.
 --
 onActivateLeaf, afterActivateLeaf :: MenuItemClass mi => mi -> IO () ->
@@ -139,7 +137,7 @@ onActivateLeaf, afterActivateLeaf :: MenuItemClass mi => mi -> IO () ->
 onActivateLeaf = connect_NONE__NONE "activate" False
 afterActivateLeaf = connect_NONE__NONE "activate" True
 
--- @signal connectToActivateItem@ Emitted when the user chooses this item even
+-- | Emitted when the user chooses this item even
 -- if it has submenus.
 --
 onActivateItem, afterActivateItem :: MenuItemClass mi => mi -> IO () ->
@@ -147,20 +145,20 @@ onActivateItem, afterActivateItem :: MenuItemClass mi => mi -> IO () ->
 onActivateItem = connect_NONE__NONE "activate-item" False
 afterActivateItem = connect_NONE__NONE "activate-item" True
 
--- @signal connectToSelect@ This signal is emitted when the item is selected.
+-- | This signal is emitted when the item is selected.
 --
 onSelect, afterSelect :: ItemClass i => i -> IO () -> IO (ConnectId i)
 onSelect = connect_NONE__NONE "select" False
 afterSelect = connect_NONE__NONE "select" True
 
--- @signal connectToDeselect@ This signal is emitted when the item is
+-- | This signal is emitted when the item is
 -- deselected.
 --
 onDeselect, afterDeselect :: ItemClass i => i -> IO () -> IO (ConnectId i)
 onDeselect = connect_NONE__NONE "deselect" False
 afterDeselect = connect_NONE__NONE "deselect" True
 
--- @signal connectToToggle@ This signal is emitted when the item is toggled.
+-- | This signal is emitted when the item is toggled.
 --
 onToggle, afterToggle :: ItemClass i => i -> IO () -> IO (ConnectId i)
 onToggle = connect_NONE__NONE "toggled" False

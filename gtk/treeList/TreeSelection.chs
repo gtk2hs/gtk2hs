@@ -1,12 +1,12 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry TreeSelection@
+--  GIMP Toolkit (GTK) TreeSelection
 --
 --  Author : Axel Simon
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2003/11/15 11:17:04 $
+--  Version $Revision: 1.9 $ from $Date: 2004/05/23 16:16:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -20,17 +20,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  * A @ref data TreeSelection@ is a data type belonging to a 
---    @ref data TreeModel@. As the name
---    suggests it holds the current selection which can even be a multiple
---    choice.
+-- A 'TreeSelection' is a data type belonging to a 'TreeModel'. As the name
+-- suggests it holds the current selection which can even be a multiple
+-- choice.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * treeSelectionGetSelected allows to retreive the associated TreeModel
 --   object. We currently do not use this feature so it could be added
@@ -75,13 +71,13 @@ import General	(mkDestructor)
 
 -- methods
 
--- @method treeSelectionSetMode@ Set single or multiple choice.
+-- | Set single or multiple choice.
 --
 treeSelectionSetMode :: (TreeSelectionClass ts) => ts -> SelectionMode -> IO ()
 treeSelectionSetMode ts sm = {#call tree_selection_set_mode#}
   (toTreeSelection ts) ((fromIntegral.fromEnum) sm)
 
--- @method treeSelectionSetSelectFunction@ Set a callback function if
+-- | Set a callback function if
 -- selection changes.
 --
 treeSelectionSetSelectFunction :: (TreeSelectionClass ts) => ts ->
@@ -101,9 +97,9 @@ treeSelectionSetSelectFunction ts fun = do
   {#call tree_selection_set_select_function#} (toTreeSelection ts) fPtr 
     nullPtr dPtr
 
--- @type TreeSelectionCB@ Callback type for a function that is called
+-- | Callback type for a function that is called
 -- everytime the selection changes. This function is set with
--- @ref method treeSelectionSetSelectFunction@.
+-- 'treeSelectionSetSelectFunction'.
 --
 type TreeSelectionCB = TreePath -> IO ()
 {#pointer TreeSelectionFunc#}
@@ -120,14 +116,14 @@ foreign export dynamic mkTreeSelectionFunc ::
 
 #endif
 
--- @method treeSelectionGetTreeView@ Retrieve the TreeView widget that this
+-- | Retrieve the TreeView widget that this
 -- TreeSelection works on.
 --
 treeSelectionGetTreeView :: (TreeSelectionClass ts) => ts -> IO TreeView
 treeSelectionGetTreeView ts = makeNewObject mkTreeView $
   {#call unsafe tree_selection_get_tree_view#} (toTreeSelection ts)
 
--- @method treeSelectionGetSelected@ Retrieves the selection of a single
+-- | Retrieves the selection of a single
 -- choice TreeSelection.
 --
 treeSelectionGetSelected :: (TreeSelectionClass ts) => ts ->
@@ -139,7 +135,7 @@ treeSelectionGetSelected ts = do
     (nullPtr) iter
   return $ if (toBool res) then Just iter else Nothing
 
--- @method treeSelectionSelectedForeach@ Execute a function for each selected
+-- | Execute a function for each selected
 -- node.
 --
 treeSelectionSelectedForeach :: (TreeSelectionClass ts) => ts ->
@@ -158,8 +154,8 @@ treeSelectionSelectedForeach ts fun = do
   {#call tree_selection_selected_foreach#} (toTreeSelection ts) fPtr nullPtr
   freeHaskellFunPtr fPtr
 
--- @type TreeSelectionForeachCB@ Callback function type for
--- @ref method treeSelectionSelectedForeach@.
+-- | Callback function type for
+-- 'treeSelectionSelectedForeach'.
 --
 type TreeSelectionForeachCB = TreeIter -> IO ()
 {#pointer TreeSelectionForeachFunc#}
@@ -176,45 +172,45 @@ foreign export dynamic mkTreeSelectionForeachFunc ::
 
 #endif
 
--- @method treeSelectionSelectPath@ Select a specific item by TreePath.
+-- | Select a specific item by TreePath.
 --
 treeSelectionSelectPath :: (TreeSelectionClass ts) => ts -> TreePath -> IO ()
 treeSelectionSelectPath ts tp =
   {#call tree_selection_select_path#} (toTreeSelection ts) tp
 
--- @method treeSelectionUnselectPath@ Deselect a specific item by TreePath.
+-- | Deselect a specific item by TreePath.
 --
 treeSelectionUnselectPath :: (TreeSelectionClass ts) => ts -> TreePath -> IO ()
 treeSelectionUnselectPath ts tp =
   {#call tree_selection_unselect_path#} (toTreeSelection ts) tp
 
--- @method treeSelectionSelectIter@ Select a specific item by TreeIter.
+-- | Select a specific item by TreeIter.
 --
 treeSelectionSelectIter :: (TreeSelectionClass ts) => ts -> TreeIter -> IO ()
 treeSelectionSelectIter ts ti =
   {#call tree_selection_select_iter#} (toTreeSelection ts) ti
 
--- @method treeSelectionUnselectIter@ Deselect a specific item by TreeIter.
+-- | Deselect a specific item by TreeIter.
 --
 treeSelectionUnselectIter :: (TreeSelectionClass ts) => ts -> TreeIter -> IO ()
 treeSelectionUnselectIter ts ti =
   {#call tree_selection_unselect_iter#} (toTreeSelection ts) ti
 
 
--- @method treeSelectionSelectAll@ Select everything.
+-- | Select everything.
 --
 treeSelectionSelectAll :: (TreeSelectionClass ts) => ts -> IO ()
 treeSelectionSelectAll ts = 
   {#call tree_selection_select_all#} (toTreeSelection ts)
 
--- @method treeSelectionUnselectAll@ Deselect everything.
+-- | Deselect everything.
 --
 treeSelectionUnselectAll :: (TreeSelectionClass ts) => ts -> IO ()
 treeSelectionUnselectAll ts = 
   {#call tree_selection_unselect_all#} (toTreeSelection ts)
 
 
--- @method treeSelectionSelectRange@ Select a range specified by two
+-- | Select a range specified by two
 -- TreePaths.
 --
 treeSelectionSelectRange :: (TreeSelectionClass ts) => ts -> TreePath ->
@@ -223,7 +219,7 @@ treeSelectionSelectRange ts start end =
   {#call tree_selection_select_range#} (toTreeSelection ts) start end
 
 
--- @signal onChanged@ Emitted each time the user changes the selection.
+-- | Emitted each time the user changes the selection.
 --
 onSelectionChanged, afterSelectionChanged :: TreeSelectionClass ts => ts -> (IO ()) ->
 			   IO (ConnectId ts)

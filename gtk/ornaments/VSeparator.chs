@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget VSeparator@
+--  GIMP Toolkit (GTK) Widget VSeparator
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:10:57 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,18 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * The VSeparator widget is a horizontal separator, used to group the 
---   widgets within a window. It displays a horizontal line with a shadow 
---   to make it appear sunken into the interface.
+-- The VSeparator widget is a horizontal separator, used to group the 
+-- widgets within a window. It displays a horizontal line with a shadow 
+-- to make it appear sunken into the interface.
 --
 -- * This has nothing to do with a menu separator.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module VSeparator(
   VSeparator,

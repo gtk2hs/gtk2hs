@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget OptionMenu@
+--  GIMP Toolkit (GTK) Widget OptionMenu
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:05:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module OptionMenu(
   OptionMenu,
@@ -52,13 +47,13 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor optionMenuNew@ Create a new option menu.
+-- | Create a new option menu.
 --
 optionMenuNew :: IO OptionMenu
 optionMenuNew  = makeNewObject mkOptionMenu $ 
   liftM castPtr {#call unsafe option_menu_new#}
 
--- @method optionMenuGetMenu@ Get the menu that should be associated with this
+-- | Get the menu that should be associated with this
 -- option menu.
 --
 optionMenuGetMenu :: OptionMenuClass om => om -> IO Menu
@@ -66,26 +61,26 @@ optionMenuGetMenu om = makeNewObject mkMenu $ liftM castPtr $
   throwIfNull "optionMenuGetMenu: no menu associated with this option menu." $
   {#call unsafe option_menu_get_menu#} (toOptionMenu om)
 
--- @method optionMenuSetMenu@ Set a menu to associate with this option menu.
+-- | Set a menu to associate with this option menu.
 --
 optionMenuSetMenu :: (OptionMenuClass om, MenuClass m) => om -> m -> IO ()
 optionMenuSetMenu om m = {#call option_menu_set_menu#}
   (toOptionMenu om) (toWidget m)
 
--- @method optionMenuRemoveMenu@ Remove the association the menu.
+-- | Remove the association the menu.
 --
 optionMenuRemoveMenu :: OptionMenuClass om => om -> IO ()
 optionMenuRemoveMenu om = 
   {#call unsafe option_menu_remove_menu#} (toOptionMenu om)
 
--- @method optionMenuSetHistory@ Set the state of the option menu. The options
+-- | Set the state of the option menu. The options
 -- are numbered from 0 up to n-1 for the nth item.
 --
 optionMenuSetHistory :: OptionMenuClass om => om -> Int -> IO ()
 optionMenuSetHistory om item = {#call option_menu_set_history#}
   (toOptionMenu om) (fromIntegral item)
 
--- @method optionMenuGetHistory@ Retrieve the index of the selected item.
+-- | Retrieve the index of the selected item.
 --
 optionMenuGetHistory :: OptionMenuClass om => om -> IO Int
 optionMenuGetHistory om = liftM fromIntegral $
@@ -93,7 +88,7 @@ optionMenuGetHistory om = liftM fromIntegral $
 
 -- signals
 
--- @signal connectToOMChanged@ This signal is called if the selected option
+-- | This signal is called if the selected option
 -- has changed.
 --
 onOMChanged, afterOMChanged :: OptionMenuClass om => om -> IO () ->

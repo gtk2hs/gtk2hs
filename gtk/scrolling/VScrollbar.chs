@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget VScrollbar@
+--  GIMP Toolkit (GTK) Widget VScrollbar
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:14:09 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,15 +19,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This widget provides a stand-alone scrollbar. All interesting functions
---   can be found in @ref data Range@, from which it is derived.
+-- This widget provides a stand-alone scrollbar. All interesting functions
+-- can be found in 'Range', from which it is derived.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module VScrollbar(
   VScrollbar,
@@ -47,7 +43,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor vScrollbarNew@ Create a new HScrollbar.
+-- | Create a new HScrollbar.
 --
 vScrollbarNew :: Adjustment -> IO VScrollbar
 vScrollbarNew adj = makeNewObject mkVScrollbar $ liftM castPtr $

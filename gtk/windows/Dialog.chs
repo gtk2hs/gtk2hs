@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Dialog@
+--  GIMP Toolkit (GTK) Widget Dialog
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:17:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A dialog is a smaller window that is used to ask the user for input.
+-- A dialog is a smaller window that is used to ask the user for input.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Dialog(
   Dialog,
@@ -60,26 +56,26 @@ import Structs	(dialogGetUpper, dialogGetActionArea, ResponseId(..), fromRespons
 
 -- methods
 
--- @constructor dialogNew@ Create a new Dialog.
+-- | Create a new Dialog.
 --
 dialogNew :: IO Dialog
 dialogNew  = makeNewObject mkDialog $ liftM castPtr {#call unsafe dialog_new#}
 
--- @method dialogRun@ Run the dialog by entering a new main loop.
+-- | Run the dialog by entering a new main loop.
 --
 -- * The dialog is run until it is either forced to quit (-1 will be returned)
 --   or until the user clicks a button (or other widget) in the action area
---   that makes the dialog emit the @ref arg response@ signal (the response id
+--   that makes the dialog emit the @response@ signal (the response id
 --   of the pressed button will be returned).
 --
--- * To force a dialog to quit, call @ref method dialogResponse@ on it.
+-- * To force a dialog to quit, call 'dialogResponse' on it.
 --
 -- * If this function returns the dialog still needs to be destroyed.
 --
 dialogRun :: DialogClass dc => dc -> IO ResponseId
 dialogRun dc = liftM toResponse $ {#call dialog_run#} (toDialog dc)
 
--- @method dialogResponse@ Emit the @ref arg response@ signal on the dialog.
+-- | Emit the @response@ signal on the dialog.
 --
 -- * This function can be used to add a custom widget to the action area that
 --   should close the dialog when activated or to close the dialog otherwise.
@@ -88,7 +84,7 @@ dialogResponse :: DialogClass dc => dc -> ResponseId -> IO ()
 dialogResponse dc resId = 
   {#call dialog_response#} (toDialog dc) (fromResponse resId)
 
--- @method dialogAddButton@ Add a button with a label to the action area.
+-- | Add a button with a label to the action area.
 --
 -- * The text may as well refer to a stock object. If such an object exists it
 --   is taken as widget.
@@ -100,9 +96,9 @@ dialogAddButton dc button resId = withUTFString button $ \strPtr ->
   makeNewObject mkButton $ liftM castPtr $ {#call dialog_add_button#} 
   (toDialog dc) strPtr (fromResponse resId)
 
--- @method dialogAddActionWidget@ Add a widget to the action area. If the
--- widget is put into the activated state @ref arg resId@ will be transmitted
--- by the @ref arg response@ signal.
+-- | Add a widget to the action area. If the
+-- widget is put into the activated state @resId@ will be transmitted
+-- by the @response@ signal.
 --
 -- * A widget that cannot be activated and therefore has to emit the response
 --   signal manually must be added by packing it into the action area.
@@ -112,14 +108,14 @@ dialogAddActionWidget :: (DialogClass dc, WidgetClass w) => dc -> w ->
 dialogAddActionWidget dc child resId = {#call dialog_add_action_widget#}
   (toDialog dc) (toWidget child) (fromResponse resId)
 
--- @method dialogGetHasSeparator@ Query if the dialog has a visible horizontal
+-- | Query if the dialog has a visible horizontal
 -- separator.
 --
 dialogGetHasSeparator :: DialogClass dc => dc -> IO Bool
 dialogGetHasSeparator dc = liftM toBool $ 
   {#call unsafe dialog_get_has_separator#} (toDialog dc)
 
--- @method dialogSetDefaultResponse@ Set the default widget that is to be
+-- | Set the default widget that is to be
 -- activated if the user pressed enter. The object is specified by the
 -- ResponseId.
 --
@@ -127,14 +123,14 @@ dialogSetDefaultResponse :: DialogClass dc => dc -> ResponseId -> IO ()
 dialogSetDefaultResponse dc resId = {#call dialog_set_default_response#}
   (toDialog dc) (fromResponse resId)
 
--- @method dialogSetHasSeparator@ Set the visibility of the horizontal
+-- | Set the visibility of the horizontal
 -- separator.
 --
 dialogSetHasSeparator :: DialogClass dc => dc -> Bool -> IO ()
 dialogSetHasSeparator dc set = {#call dialog_set_has_separator#}
   (toDialog dc) (fromBool set)
 
--- @method dialogSetResponseSensitive@ Set widgets in the action are to be
+-- | Set widgets in the action are to be
 -- sensitive or not.
 --
 dialogSetResponseSensitive :: DialogClass dc => dc -> ResponseId -> Bool ->
@@ -145,7 +141,7 @@ dialogSetResponseSensitive dc resId sensitive =
 
 -- signals
 
--- @signal connectToResponse@ This signal is sent when a widget in the action
+-- | This signal is sent when a widget in the action
 -- area was activated, the dialog is received a destory event or the user
 -- calls dialogResponse. It is usually used to terminate the dialog (by
 -- dialogRun for example).

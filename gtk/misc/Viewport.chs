@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Viewport@
+--  GIMP Toolkit (GTK) Widget Viewport
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:07:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,24 +19,18 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A @ref data Viewport@ a helper widget that adds Adjustment slots to a 
---   widget, i.e.
---   the widget becomes scrollable. It can then be put into 
---   @ref data ScrolledWindow@
---   and will behave as expected.
---
--- @documentation@ ------------------------------------------------------------
+-- A 'Viewport' a helper widget that adds Adjustment slots to a 
+-- widget, i.e. the widget becomes scrollable. It can then be put into 
+-- 'ScrolledWindow' and will behave as expected.
 --
 -- * The binding of this widget is superfluous as far as I can tell.
 --
--- * The only signal this widget registers is "set-scroll-adjustments". It is
---   not bound because it is meant to be received by the @ref data Viewport@
---    and sent
---   by @ref data ScrolledWindow@.
+-- * The only signal this widget registers is \"set-scroll-adjustments\". It is
+--   not bound because it is meant to be received by the 'Viewport'
+--   and sent by 'ScrolledWindow'.
 --
--- @todo@ ---------------------------------------------------------------------
 
 module Viewport(
   Viewport,
@@ -63,41 +57,41 @@ import Enums	(ShadowType(..))
 
 -- methods
 
--- @constructor viewportNew@ Create a new @ref type Viewport@.
+-- | Create a new 'Viewport'.
 --
 viewportNew :: Adjustment -> Adjustment -> IO Viewport
 viewportNew vAdj hAdj = makeNewObject mkViewport $ liftM castPtr $
   {#call unsafe viewport_new#} hAdj vAdj
 
--- @method viewportGetHAdjustment@ Retrieve the horizontal
--- @ref data Adjustment@ of the @ref type Viewport@.
+-- | Retrieve the horizontal
+-- 'Adjustment' of the 'Viewport'.
 --
 viewportGetHAdjustment :: ViewportClass v => v -> IO Adjustment
 viewportGetHAdjustment v = makeNewObject mkAdjustment $
   {#call unsafe viewport_get_hadjustment#} (toViewport v)
 
--- @method viewportGetVAdjustment@ Retrieve the vertical @ref data Adjustment@
--- of the @ref type Viewport@.
+-- | Retrieve the vertical 'Adjustment'
+-- of the 'Viewport'.
 --
 viewportGetVAdjustment :: ViewportClass v => v -> IO Adjustment
 viewportGetVAdjustment v = makeNewObject mkAdjustment $
   {#call unsafe viewport_get_vadjustment#} (toViewport v)
 
--- @method viewportSetHAdjustment@ Set the horizontal @ref data Adjustment@ of
--- the @ref type Viewport@.
+-- | Set the horizontal 'Adjustment' of
+-- the 'Viewport'.
 --
 viewportSetHAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
 viewportSetHAdjustment v adj = {#call viewport_set_hadjustment#}
   (toViewport v) adj
 
--- @method viewportSetVAdjustment@ Set the vertical @ref data Adjustment@ of
--- the @ref type Viewport@.
+-- | Set the vertical 'Adjustment' of
+-- the 'Viewport'.
 --
 viewportSetVAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
 viewportSetVAdjustment v adj = {#call viewport_set_hadjustment#}
   (toViewport v) adj
 
--- @method viewportSetShadowType@ Specify if and how an outer frame should be
+-- | Specify if and how an outer frame should be
 -- drawn around the child.
 --
 viewportSetShadowType :: ViewportClass v => v -> ShadowType -> IO ()

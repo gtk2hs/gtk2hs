@@ -1,12 +1,12 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry TreeModel@
+--  GIMP Toolkit (GTK) TreeModel
 --
 --  Author : Axel Simon
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2004/05/20 16:42:16 $
+--  Version $Revision: 1.12 $ from $Date: 2004/05/23 16:16:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -20,18 +20,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A @ref data TreeModel@ is the abstract base class for 
---   @ref data TreeStore@ and @ref data ListStore@.
---
--- @documentation@ -----------------------------------------------------------
+-- A 'TreeModel' is the abstract base class for 
+-- 'TreeStore' and 'ListStore'.
 --
 -- * Most functions are defined in the latter two classes. This module
---   provides the @ref data TreeIter@ and @ref data TreePath@ objects.
---
--- @todo@ --------------------------------------------------------------------
---
+--   provides the 'TreeIter' and 'TreePath' objects.
 --
 module TreeModel(
   TreeModel,
@@ -86,34 +81,34 @@ import StoreValue		(TMType)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- @data TreeIter@ Tree Iterator : A pointer to an entry in a
--- @ref data TreeStore@ or @ref data ListStore@.
+-- | Tree Iterator : A pointer to an entry in a
+-- 'TreeStore' or 'ListStore'.
 --
 {#pointer * TreeIter foreign newtype#}
 
--- @data TreePath@ TreePath : a list of indices to specify a subtree or node
--- in the hierarchical @ref data TreeStore@ database.
+-- | TreePath : a list of indices to specify a subtree or node
+-- in the hierarchical 'TreeStore' database.
 --
 {#pointer * TreePath foreign newtype#}
 
 -- methods
 
--- @method treeModelGetNColumns@ Read the number of columns this
--- @ref data TreeModel@ currently stores.
+-- | Read the number of columns this
+-- 'TreeModel' currently stores.
 --
 treeModelGetNColumns :: TreeModelClass tm => tm -> IO Int
 treeModelGetNColumns tm = liftM fromIntegral $ 
   {#call unsafe tree_model_get_n_columns#} (toTreeModel tm)
 
--- @method treeModelGetColumnType@ Retrieves the type of a specific column.
+-- | Retrieves the type of a specific column.
 --
 treeModelGetColumnType :: TreeModelClass tm => tm -> Int -> IO TMType
 treeModelGetColumnType tm col = liftM (toEnum.fromIntegral) $
   {#call unsafe tree_model_get_column_type#} (toTreeModel tm) 
   (fromIntegral col)
 
--- @method treeModelGetValue@ Read the value of at a specific column and
--- @ref data Iterator@.
+-- | Read the value of at a specific column and
+-- 'Iterator'.
 --
 treeModelGetValue :: TreeModelClass tm => tm -> TreeIter -> Int ->
                      IO GenericValue
@@ -156,18 +151,18 @@ foreign import ccall "gtk_tree_path_free" unsafe
 
 
 
--- @constructor treePathNew@ Create a new @ref data TreePath@.
+-- | Create a new 'TreePath'.
 --
--- * A @ref data TreePath@ is an hierarchical index. It is independent of
---   a specific @ref data TreeModel@.
+-- * A 'TreePath' is an hierarchical index. It is independent of
+--   a specific 'TreeModel'.
 -- 
 treePathNew :: IO TreePath
 treePathNew = do
   tpPtr <- {#call unsafe tree_path_new#} 
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
--- @constructor treePathNewFromString@ Turn a @literal String@ into a
--- @ref data TreePath@.
+-- | Turn a @String@ into a
+-- 'TreePath'.
 --
 treePathNewFromString :: String -> IO TreePath
 treePathNewFromString path = do
@@ -175,8 +170,8 @@ treePathNewFromString path = do
     withUTFString path {#call unsafe tree_path_new_from_string#}
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
--- @method treePathToString@ Turn a @ref data TreePath@ into a 
--- @literal String@.
+-- | Turn a 'TreePath' into a 
+-- @String@.
 --
 treePathToString :: TreePath -> IO String
 treePathToString tp = do
@@ -185,16 +180,16 @@ treePathToString tp = do
   {#call unsafe g_free#} (castPtr strPtr)
   return str
 
--- @method treePathNewFirst@ Create a @ref data TreePath@.
+-- | Create a 'TreePath'.
 --
--- * The returned @ref data TreePath@ is an index to the first element.
+-- * The returned 'TreePath' is an index to the first element.
 --
 treePathNewFirst :: IO TreePath
 treePathNewFirst = do
   tpPtr <- {#call unsafe tree_path_new_first#}
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
--- @method treePathAppendIndex@ Add an index on the next level.
+-- | Add an index on the next level.
 treePathAppendIndex :: TreePath -> Int -> IO ()
 treePathAppendIndex tp ind = 
   {#call unsafe tree_path_append_index#} tp (fromIntegral ind)
@@ -294,10 +289,10 @@ foreign import ccall "gtk_tree_iter_free" unsafe
 #endif
 
 
--- @method treeModelGetIter@ Turn a @ref data TreePath@ into a
--- @ref data TreeIter@.
+-- | Turn a 'TreePath' into a
+-- 'TreeIter'.
 --
--- * Returns @literal Nothing@ if the @ref arg tp@ is invalid.
+-- * Returns @Nothing@ if the @tp@ is invalid.
 --
 treeModelGetIter :: TreeModelClass tm => tm -> TreePath -> IO (Maybe TreeIter)
 treeModelGetIter tm tp = do
@@ -306,10 +301,10 @@ treeModelGetIter tm tp = do
   res <- {#call unsafe tree_model_get_iter#} (toTreeModel tm) iter tp
   return $ if (toBool res) then Just iter else Nothing
   
--- @method treeModelGetIterFromString@ Turn a @literal String@ into a
--- @ref data TreeIter@.
+-- | Turn a @String@ into a
+-- 'TreeIter'.
 --
--- * Returns @literal Nothing@ if the table is empty.
+-- * Returns @Nothing@ if the table is empty.
 --
 treeModelGetIterFromString :: TreeModelClass tm => tm -> String -> 
 						   IO (Maybe TreeIter)
@@ -321,10 +316,10 @@ treeModelGetIterFromString tm str = do
       strPtr
   return $ if (toBool res) then Just iter else Nothing
 
--- @method treeModelGetIterFirst@ Retrieves an @ref data TreeIter@ to the
+-- | Retrieves an 'TreeIter' to the
 -- first entry.
 --
--- * Returns @literal Nothing@ if the table is empty.
+-- * Returns @Nothing@ if the table is empty.
 --
 treeModelGetIterFirst :: TreeModelClass tm => tm -> IO (Maybe TreeIter)
 treeModelGetIterFirst tm = do
@@ -339,16 +334,16 @@ treeModelGetPath tm iter =  do
     {#call unsafe tree_model_get_path#} (toTreeModel tm) iter
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
--- @method treeModelIterNext@ Advance the iterator to the next element.
+-- | Advance the iterator to the next element.
 --
 -- * If there is no other element on this hierarchy level, return 
---   @literal False@.
+--   @False@.
 --
 treeModelIterNext :: TreeModelClass tm => tm -> TreeIter -> IO Bool
 treeModelIterNext tm iter = liftM toBool $
  {#call unsafe tree_model_iter_next#} (toTreeModel tm) iter
 
--- @method treeModelIterChildren@ Retrieve an iterator to the first child.
+-- | Retrieve an iterator to the first child.
 --
 treeModelIterChildren :: TreeModelClass tm => tm -> TreeIter -> 
 					      IO (Maybe TreeIter)
@@ -359,14 +354,14 @@ treeModelIterChildren tm parent = do
     parent
   return $ if (toBool res) then Just iter else Nothing
 
--- @method treeModeliterHasChild@ Test if this is the last hierarchy level.
+-- | Test if this is the last hierarchy level.
 treeModelIterHasChild :: TreeModelClass tm => tm -> TreeIter -> IO Bool
 treeModelIterHasChild tm iter = liftM toBool $
   {#call unsafe tree_model_iter_has_child#} (toTreeModel tm) iter
 
--- @method treeModelIterNChildren@ Return the number of children.
+-- | Return the number of children.
 --
--- * If @literal Nothing@ is specified for the @ref arg tm@ argument, the
+-- * If @Nothing@ is specified for the @tm@ argument, the
 --   function will work on toplevel elements.
 --
 treeModelIterNChildren :: TreeModelClass tm => tm -> Maybe TreeIter -> IO Int
@@ -374,9 +369,9 @@ treeModelIterNChildren tm iter = liftM fromIntegral $
   {#call unsafe tree_model_iter_n_children#} (toTreeModel tm) 
     (fromMaybe (TreeIter nullForeignPtr) iter)
 
--- @method treeModelIterNthChild@ Retrieve the @ref arg n@th child.
+-- | Retrieve the @n@th child.
 --
--- * If @literal Nothing@ is specified for the @ref arg tm@ argument, the
+-- * If @Nothing@ is specified for the @tm@ argument, the
 --   function will work on toplevel elements.
 --
 treeModelIterNthChild :: TreeModelClass tm => 
@@ -388,7 +383,7 @@ treeModelIterNthChild tm parent n = do
     (fromMaybe (TreeIter nullForeignPtr) parent) (fromIntegral n)
   return $ if (toBool res) then Just iter else Nothing
 
--- @method treeModelIterParent@ Retrieve the parent of this iterator.
+-- | Retrieve the parent of this iterator.
 --
 treeModelIterParent :: TreeModelClass tm => tm -> 
   TreeIter -> IO (Maybe TreeIter)
@@ -398,13 +393,13 @@ treeModelIterParent tm child = do
   res <- {#call unsafe tree_model_iter_parent#} (toTreeModel tm) iter child
   return $ if (toBool res) then Just iter else Nothing
 
--- @method treeModelRefNode@ No clue.
+-- | No clue.
 --
 treeModelRefNode :: TreeModelClass tm => tm -> TreeIter -> IO ()
 treeModelRefNode tm iter = 
   {#call unsafe tree_model_ref_node#} (toTreeModel tm) iter
 
--- @method treeModelUnrefNode@ No clue either.
+-- | No clue either.
 --
 treeModelUnrefNode :: TreeModelClass tm => tm -> TreeIter -> IO ()
 treeModelUnrefNode tm iter = 

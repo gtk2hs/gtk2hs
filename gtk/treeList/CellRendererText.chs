@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry CellRendererText TreeView@
+--  GIMP Toolkit (GTK) CellRendererText TreeView
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.11 $ from $Date: 2004/05/23 16:16:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,20 +19,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A @ref data CellRenderer@ which displays a single-line text.
+-- A 'CellRenderer' which displays a single-line text.
 --
--- @documentation@ ------------------------------------------------------------
+-- * This widget derives from 'CellRenderer'. It provides the 
+--   possibility to display some text by setting the 'Attribute' 
+--   'cellText' to the column of a 'TreeModel' by means of 
+--   'treeViewAddAttribute' from 'TreeModelColumn'.
 --
--- * This widget derives from @ref data CellRenderer@. It provides the 
---   possibility to
---   display some text by setting the @ref data Attribute@ 
---   @ref function cellText@ to the column
---   of a @ref data TreeModel@ by means of 
---   @ref method treeViewAddAttribute@ from @ref data TreeModelColumn@.
---
--- @todo@ ---------------------------------------------------------------------
 
 module CellRendererText(
   CellRendererText,
@@ -64,7 +59,7 @@ import StoreValue   (GenericValue(..), TMType(..))
 
 -- methods
 
--- @constructor cellRendererTextNew@ Create a new CellRendererText object.
+-- | Create a new CellRendererText object.
 --
 cellRendererTextNew :: IO CellRendererText
 cellRendererTextNew  = makeNewObject mkCellRendererText $ liftM castPtr $
@@ -82,28 +77,28 @@ mStrAttr str = Attribute str [TMstring]
 	        (return . (\x -> [x]) . GVstring)
 		(\[GVstring str] -> return str)
 
--- @constant cellText@ Define the attribute that specifies the text to be
+-- | Define the attribute that specifies the text to be
 -- rendered.
 --
 cellText :: Attribute CellRendererText String
 cellText  = strAttr ["text"]
 
--- @constant cellMarkup@ Define a markup string instead of a text.
+-- | Define a markup string instead of a text.
 --
 cellMarkup :: Attribute CellRendererText String
 cellMarkup  = strAttr ["markup"]
 
--- @constant cellBackground@ A named color for the background paint.
+-- | A named color for the background paint.
 --
 cellBackground :: Attribute CellRendererText (Maybe String)
 cellBackground  = mStrAttr ["background"]
 
--- @constant cellForeground@ A named color for the foreground paint.
+-- | A named color for the foreground paint.
 --
 cellForeground :: Attribute CellRendererText (Maybe String)
 cellForeground  = mStrAttr ["foreground"]
 
--- @constant cellEditable@ Determines wether the content can be altered.
+-- | Determines wether the content can be altered.
 --
 -- * If this flag is set, the user can alter the cell.
 --
@@ -115,10 +110,10 @@ cellEditable = Attribute ["editable","editable-set"] [TMboolean,TMboolean]
 		 (\[GVboolean e, GVboolean s] -> return $
 		   if s then Just e else Nothing)
 
--- @signal connectToEdited@ Emitted when the user finished editing a cell.
+-- | Emitted when the user finished editing a cell.
 --
 -- * This signal is not emitted when editing is disabled (see 
---   @ref constant cellEditable@) or when the user aborts editing.
+--   'cellEditable') or when the user aborts editing.
 --
 onEdited, afterEdited :: TreeModelClass tm => CellRendererText -> tm ->
 			 (TreeIter -> String -> IO ()) ->

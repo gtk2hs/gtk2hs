@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Calendar@
+--  GIMP Toolkit (GTK) Widget Calendar
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:07:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This widget shows a calendar.
+-- This widget shows a calendar.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Calendar(
   Calendar,
@@ -68,7 +64,7 @@ import Enums	(CalendarDisplayOptions(..), fromFlags)
 
 -- methods
 
--- @constructor calendarNew@ Create a new calendar widget.
+-- | Create a new calendar widget.
 --
 -- * No sensible date will be set.
 --
@@ -76,7 +72,7 @@ calendarNew :: IO Calendar
 calendarNew  = makeNewObject mkCalendar $ 
   liftM castPtr {#call unsafe calendar_new#}
 
--- @method calendarSelectMonth@ Flip the page to a month , 0 is January,.., 11
+-- | Flip the page to a month , 0 is January,.., 11
 -- is December.
 --
 -- * Returns True if the operation succeeded.
@@ -86,14 +82,14 @@ calendarSelectMonth cal month year = liftM toBool $
   {#call calendar_select_month#} (toCalendar cal) (fromIntegral month)
   (fromIntegral year)
 
--- @method calendarSelectDay@ Shift to a day, counted form 1 to 31 (depending
+-- | Shift to a day, counted form 1 to 31 (depending
 -- on the month of course).
 --
 calendarSelectDay :: CalendarClass c => c -> Int -> IO ()
 calendarSelectDay cal day = 
   {#call calendar_select_day#} (toCalendar cal) (fromIntegral day)
 
--- @method calendarMarkDay@ Mark (select) a day in the current month.
+-- | Mark (select) a day in the current month.
 --
 -- * Returns True if the argument was within bounds and the day was previously
 --   deselected.
@@ -102,7 +98,7 @@ calendarMarkDay :: CalendarClass c => c -> Int -> IO Bool
 calendarMarkDay cal day = liftM toBool $
   {#call calendar_mark_day#} (toCalendar cal) (fromIntegral day)
 
--- @method calendarUnmarkDay@ Unmark (deselect) a day in the current month.
+-- | Unmark (deselect) a day in the current month.
 --
 -- * Returns True if the argument was within bounds and the day was previously
 --   selected.
@@ -111,12 +107,12 @@ calendarUnmarkDay :: CalendarClass c => c -> Int -> IO Bool
 calendarUnmarkDay cal day = liftM toBool $
   {#call calendar_unmark_day#} (toCalendar cal) (fromIntegral day)
 
--- @method calendarClearMarks@ Unmark every day in the current page.
+-- | Unmark every day in the current page.
 --
 calendarClearMarks :: CalendarClass c => c -> IO ()
 calendarClearMarks cal = {#call calendar_clear_marks#} (toCalendar cal)
 
--- @method calendarDisplayOptions@ Specifies how the calendar should be
+-- | Specifies how the calendar should be
 -- displayed.
 --
 calendarDisplayOptions :: CalendarClass c => c -> [CalendarDisplayOptions] ->
@@ -124,7 +120,7 @@ calendarDisplayOptions :: CalendarClass c => c -> [CalendarDisplayOptions] ->
 calendarDisplayOptions cal opts = {#call calendar_display_options#}
   (toCalendar cal) ((fromIntegral.fromFlags) opts)
 
--- @method calendarGetDate@ Retrieve the currently selected date.
+-- | Retrieve the currently selected date.
 --
 -- * Returns (year, month, day) of the selection.
 --
@@ -137,7 +133,7 @@ calendarGetDate cal = alloca $ \yearPtr -> alloca $ \monthPtr ->
     day	  <- liftM fromIntegral	$ peek dayPtr
     return (year,month,day)
 
--- @method calendarFreeze@ Freeze the calender for several update operations.
+-- | Freeze the calender for several update operations.
 --
 calendarFreeze :: CalendarClass c => c -> IO a -> IO a
 calendarFreeze cal update = do
@@ -148,14 +144,14 @@ calendarFreeze cal update = do
 
 -- signals
 
--- @signal connectToDaySelected@ Emitted when a day was selected.
+-- | Emitted when a day was selected.
 --
 onDaySelected, afterDaySelected :: CalendarClass c => c -> IO () ->
                                    IO (ConnectId c)
 onDaySelected = connect_NONE__NONE "day-selected" False
 afterDaySelected = connect_NONE__NONE "day-selected" True
 
--- @signal connectToDaySelectedDoubleClick@ Emitted when a day received a
+-- | Emitted when a day received a
 -- double click.
 --
 onDaySelectedDoubleClick, afterDaySelectedDoubleClick :: CalendarClass c => 
@@ -166,34 +162,34 @@ onDaySelectedDoubleClick =
 afterDaySelectedDoubleClick = 
   connect_NONE__NONE "day-selected-double-click" True
 
--- @signal connectToMonthChanged@ The month changed.
+-- | The month changed.
 --
 onMonthChanged, afterMonthChanged :: CalendarClass c => c -> IO () ->
                                      IO (ConnectId c)
 onMonthChanged = connect_NONE__NONE "month-changed" False
 afterMonthChanged = connect_NONE__NONE "month-changed" True
 
--- @signal connectToNextMonth@ The next month was selected.
+-- | The next month was selected.
 --
 onNextMonth, afterNextMonth :: CalendarClass c => c -> IO () ->
                                IO (ConnectId c)
 onNextMonth = connect_NONE__NONE "next-month" False
 afterNextMonth = connect_NONE__NONE "next-month" True
 
--- @signal connectToNextYear@ The next year was selected.
+-- | The next year was selected.
 --
 onNextYear, afterNextYear :: CalendarClass c => c -> IO () -> IO (ConnectId c)
 onNextYear = connect_NONE__NONE "next-year" False
 afterNextYear = connect_NONE__NONE "next-year" True
 
--- @signal connectToPrevMonth@ The previous month was selected.
+-- | The previous month was selected.
 --
 onPrevMonth, afterPrevMonth :: CalendarClass c => c -> IO () ->
                                IO (ConnectId c)
 onPrevMonth = connect_NONE__NONE "prev-month" False
 afterPrevMonth = connect_NONE__NONE "prev-month" True
 
--- @signal connectToPrevYear@ The previous year was selected.
+-- | The previous year was selected.
 --
 onPrevYear, afterPrevYear :: CalendarClass c => c -> IO () -> IO (ConnectId c)
 onPrevYear = connect_NONE__NONE "prev-year" False

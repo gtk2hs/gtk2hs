@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget CheckMenuItem@
+--  GIMP Toolkit (GTK) Widget CheckMenuItem
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:05:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This widget implements a @ref data MenuItem@ with a check next to it.
+-- This widget implements a 'MenuItem' with a check next to it.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module CheckMenuItem(
   CheckMenuItem,
@@ -51,15 +47,15 @@ import Structs  (checkMenuItemGetActive)
 
 -- methods
 
--- @constructor checkMenuItemNew@ Create a new @ref data MenuItem@ with a check
+-- | Create a new 'MenuItem' with a check
 -- next to it.
 --
 checkMenuItemNew :: IO CheckMenuItem
 checkMenuItemNew  = makeNewObject mkCheckMenuItem $ liftM castPtr $
   {#call unsafe check_menu_item_new#}
 
--- @method checkMenuItemNewWithLabel@ Create a new @ref type CheckMenuItem@
--- with a @ref data Label@ inside.
+-- | Create a new 'CheckMenuItem'
+-- with a 'Label' inside.
 --
 checkMenuItemNewWithLabel :: String -> IO CheckMenuItem
 checkMenuItemNewWithLabel str = withUTFString str $ \strPtr ->
@@ -67,21 +63,21 @@ checkMenuItemNewWithLabel str = withUTFString str $ \strPtr ->
   {#call unsafe check_menu_item_new_with_label#} strPtr
 
 
--- @method checkMenuItemSetActive@ Set the state of the menu item check.
+-- | Set the state of the menu item check.
 --
 checkMenuItemSetActive :: CheckMenuItemClass mi => mi -> Bool -> IO ()
 checkMenuItemSetActive mi active = {#call check_menu_item_set_active#}
   (toCheckMenuItem mi) (fromBool active)
 
--- @method checkMenuItemSetInconsistent@ Set the state of the menu item check
--- to `inconsistent'.
+-- | Set the state of the menu item check
+-- to \`inconsistent'.
 --
 checkMenuItemSetInconsistent :: CheckMenuItemClass mi => mi -> Bool -> IO ()
 checkMenuItemSetInconsistent mi inconsistent = 
   {#call check_menu_item_set_inconsistent#} (toCheckMenuItem mi) 
     (fromBool inconsistent)
 
--- @method checkMenuItemGetInconsistent@ Query if the menu check is
+-- | Query if the menu check is
 -- inconsistent (inbetween).
 --
 checkMenuItemGetInconsistent :: CheckMenuItemClass mi => mi -> IO Bool

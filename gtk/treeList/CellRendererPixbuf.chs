@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry CellRendererPixbuf@
+--  GIMP Toolkit (GTK) CellRendererPixbuf
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.8 $ from $Date: 2004/05/23 16:16:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module CellRendererPixbuf(
   CellRendererPixbuf,
@@ -49,14 +44,14 @@ import StoreValue   (GenericValue(..), TMType(..))
 
 -- methods
 
--- @constructor cellRendererPixbufNew@ Create a new CellRendererPixbuf object.
+-- | Create a new CellRendererPixbuf object.
 --
 cellRendererPixbufNew :: IO CellRendererPixbuf
 cellRendererPixbufNew  = makeNewObject mkCellRendererPixbuf $ liftM castPtr $
   {#call unsafe cell_renderer_pixbuf_new#}
 
--- @method cellPixbuf@ Define the attribute that specifies the
--- @ref data Pixbuf@ to be rendered.
+-- | Define the attribute that specifies the
+-- 'Pixbuf' to be rendered.
 --
 cellPixbuf :: Attribute CellRendererPixbuf Image
 cellPixbuf  = Attribute ["pixbuf"] [TMobject]

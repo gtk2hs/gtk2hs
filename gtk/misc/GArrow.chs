@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget GArrow@
+--  GIMP Toolkit (GTK) Widget GArrow
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2003/07/13 11:34:52 $
+--  Version $Revision: 1.2 $ from $Date: 2004/05/23 16:07:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * An Arrow pointing to one of the four cardinal direction.
+-- An Arrow pointing to one of the four cardinal direction.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module GArrow(
   Arrow,
@@ -50,14 +46,14 @@ import Enums	(ArrowType(..), ShadowType(..))
 
 -- methods
 
--- @constructor arrowNew@ Create a new arrow with display options.
+-- | Create a new arrow with display options.
 --
 arrowNew :: ArrowType -> ShadowType -> IO Arrow
 arrowNew at st = makeNewObject mkArrow $ liftM castPtr $ 
   {#call unsafe arrow_new#} ((fromIntegral.fromEnum) at) 
   ((fromIntegral.fromEnum) st)
 
--- @method arrowSet@ Change the visual appearance of this widget.
+-- | Change the visual appearance of this widget.
 --
 arrowSet :: ArrowClass a => a -> ArrowType -> ShadowType -> IO ()
 arrowSet a at st = {#call arrow_set#} (toArrow a) ((fromIntegral.fromEnum) at)

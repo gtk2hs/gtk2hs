@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget MenuBar@
+--  GIMP Toolkit (GTK) Widget MenuBar
 --
 --  Author : Axel Simon
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:05:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module MenuBar(
   MenuBar,
@@ -45,7 +40,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor menuBarNew@ Create a horizontal bar that contains menu items.
+-- | Create a horizontal bar that contains menu items.
 --
 menuBarNew :: IO MenuBar
 menuBarNew  = makeNewObject mkMenuBar $ 

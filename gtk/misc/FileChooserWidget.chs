@@ -1,5 +1,5 @@
 -- -*-haskell-*-
--- |GIMP Toolkit (GTK) @entry Widget FileChooserWidget@
+--  GIMP Toolkit (GTK) entry Widget FileChooserWidget
 --
 --  Author : Duncan Coutts
 --  Created: 24 April 2004
@@ -16,15 +16,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- Description ---------------------------------------------------------------
+-- |
 --
---  Language: Haskell 98 Binding Module
+--  The file chooser dialog and widget is a replacement
+--  for the old "FileSel"ection dialog. It provides a better user
+--  interface and an improved API.
 --
---  The file chooser dialog & widget is a replacement (introduced with gtk+ 2.4)
---  for the old and ugly GtkFileSelection dialog. It provides a better user
---  interface and an improved API
+-- * This is the widget variant of the "FileChooser"
 --
---  This is the widget variant of the FileChooser
+-- * Added in GTK+ 2.4
 --
 
 module FileChooserWidget (

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Menu@
+--  GIMP Toolkit (GTK) Widget Menu
 --
 --  Author : Axel Simon
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:05:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,15 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A Menu is a vertically aligned set of options that can be selected. There
---   are two kinds: Those that are part of a @ref data MenuBar@ and those 
---   that appear as a context menu (within the work space). 
+-- A Menu is a vertically aligned set of options that can be selected. There
+-- are two kinds: Those that are part of a 'MenuBar' and those 
+-- that appear as a context menu (within the work space). 
 --
--- @documentation@ ------------------------------------------------------------
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * The following not bound functions might be useful:
 --   menuSetAccelGroup, menuSetAccelGroup, menuReposition
@@ -66,13 +64,13 @@ import Events	(Event(Button), time, button)
 
 -- methods
 
--- @constructor menuNew@ Make an empty Menu.
+-- | Make an empty Menu.
 --
 menuNew :: IO Menu
 menuNew = makeNewObject mkMenu $
   liftM castPtr {#call unsafe menu_new#}
 
--- @method menuReorderChild@ Move a child to a new position within the menu.
+-- | Move a child to a new position within the menu.
 --
 -- * The position is counted from 0 to n-1 if the menu contains n entries.
 --
@@ -80,7 +78,7 @@ menuReorderChild :: (MenuClass m, MenuItemClass mi) => m -> mi -> Int -> IO ()
 menuReorderChild m child pos = {#call menu_reorder_child#}
   (toMenu m) (toWidget child) (fromIntegral pos)
 
--- @method menuPopup@ Popup a context menu where a button press occurred. 
+-- | Popup a context menu where a button press occurred. 
 --
 --
 menuPopup :: MenuClass m => m -> Event -> IO ()
@@ -89,38 +87,38 @@ menuPopup m (Events.Button { time=t, button=b }) = {#call menu_popup#}
   nullPtr ((fromIntegral.fromEnum) b) (fromIntegral t)
 menuPopup _ _ = error "menuPopup: Button event expected."
 
--- @method menuSetTitle@ Set the @ref arg title@ of the menu. It is displayed
+-- | Set the @title@ of the menu. It is displayed
 -- if the menu is shown as a tearoff menu.
 --
 menuSetTitle :: MenuClass m => m -> String -> IO ()
 menuSetTitle m title = withUTFString title $ \strPtr ->
   {#call unsafe menu_set_title#} (toMenu m) strPtr
 
--- @method menuPopdown@ Remove a context or tearoff menu from the screen.
+-- | Remove a context or tearoff menu from the screen.
 --
 menuPopdown :: MenuClass m => m -> IO ()
 menuPopdown m = {#call menu_popdown#} (toMenu m)
 
--- @method menuGetActive@ Return the currently selected menu item.
+-- | Return the currently selected menu item.
 --
 menuGetActive :: MenuClass m => m -> IO MenuItem
 menuGetActive m = makeNewObject mkMenuItem $
   throwIfNull "menuGetActive: menu contains no menu items." $
   liftM castPtr $ {#call menu_get_active#} (toMenu m)
 
--- @method menuSetActive@ Select the @ref arg n@th item of the menu.
+-- | Select the @n@th item of the menu.
 --
 menuSetActive :: MenuClass m => m -> Int -> IO ()
 menuSetActive m n = {#call menu_set_active#} (toMenu m) (fromIntegral n)
 
--- @method menuSetTearoffState@ Specify whether the menu is to be shown as a
+-- | Specify whether the menu is to be shown as a
 -- tearoff menu.
 --
 menuSetTearoffState :: MenuClass m => m -> Bool -> IO ()
 menuSetTearoffState m tornOff =
   {#call menu_set_tearoff_state#} (toMenu m) (fromBool tornOff)
 
--- @method menuAttachToWidget@ Attach this menu to another widget.
+-- | Attach this menu to another widget.
 --
 -- * Should we support the DetachFunction?
 --
@@ -128,12 +126,12 @@ menuAttachToWidget :: (MenuClass m, WidgetClass w) => m -> w -> IO ()
 menuAttachToWidget m w =
   {#call menu_attach_to_widget#} (toMenu m) (toWidget w) nullFunPtr
 
--- @method menuDetach@ Detach this menu from the widget it is attached to.
+-- | Detach this menu from the widget it is attached to.
 --
 menuDetach :: MenuClass m => m -> IO ()
 menuDetach m = {#call menu_detach#} (toMenu m)
 
--- @method menuGetAttachWidget@ Get the widget this menu is attached to.
+-- | Get the widget this menu is attached to.
 -- Returns Nothing if this is a tearoff (context) menu.
 --
 menuGetAttachWidget :: MenuClass m => m -> IO (Maybe Widget)

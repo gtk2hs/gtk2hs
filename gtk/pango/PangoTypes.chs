@@ -1,11 +1,11 @@
 {-# OPTIONS -cpp #-}
---  GIMP Toolkit (GTK) - pango non-GObject types @entry PangoTypes@
+--  GIMP Toolkit (GTK) - pango non-GObject types PangoTypes
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:12:20 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -19,15 +19,9 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * Define types used in Pango which are not derived from GObject.
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
+-- Define types used in Pango which are not derived from GObject.
 --
 module PangoTypes(
   LayoutIter(LayoutIter),
@@ -41,13 +35,13 @@ import FFI
 
 {# context lib="pango" prefix="pango" #}
 
--- @entry PangoLayout@
+-- entry PangoLayout
 
--- @data LayoutIter@ An iterator to examine a layout.
+-- | An iterator to examine a layout.
 --
 {#pointer *PangoLayoutIter as LayoutIter foreign newtype #}
 
--- @data LayoutLine@ A single line in a @ref data PangoLayout@.
+-- | A single line in a 'PangoLayout'.
 --
 {#pointer *PangoLayoutLine as LayoutLine foreign newtype #}
 

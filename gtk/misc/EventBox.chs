@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget EventBox@
+--  GIMP Toolkit (GTK) Widget EventBox
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:07:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,15 +19,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This container can be used to receive @ref data Event@s for a widget
---   that has no window on its own.
+-- This container can be used to receive 'Event's for a widget
+-- that has no window on its own.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 -- * check: Is this widget useful?
 --
@@ -49,7 +46,7 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor eventBoxNew@ Create a new @ref type EventBox@.
+-- | Create a new 'EventBox'.
 --
 eventBoxNew :: IO EventBox
 eventBoxNew  = makeNewObject mkEventBox $ 

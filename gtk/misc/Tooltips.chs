@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Tooltips@
+--  GIMP Toolkit (GTK) Widget Tooltips
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:07:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,32 +19,29 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
 -- * Tooltips are the messages that appear next to a widget when the mouse
 --   pointer is held over it for a short amount of time. They are especially
 --   helpful for adding more verbose descriptions of things such as buttons
 --   in a toolbar. 
 --   An individual tooltip belongs to a group of tooltips. A group is created
---   with a call to @ref method tooltipsNew@. Every tooltip in the group can 
+--   with a call to 'tooltipsNew'. Every tooltip in the group can 
 --   then be 
---   turned off with a call to @ref method tooltipsDisable@ and enabled with 
---   @ref method tooltipsEnable@. The length of time the user must keep the
+--   turned off with a call to 'tooltipsDisable' and enabled with 
+--   'tooltipsEnable'. The length of time the user must keep the
 --   mouse over a 
 --   widget before the tip is shown, can be altered with 
---   @ref method tooltipsSetDelay@.
+--   'tooltipsSetDelay'.
 --   This is set on a 'per group of tooltips' basis.
---   To assign a tip to a particular widget, @ref method tooltipsSetTip@
+--   To assign a tip to a particular widget, 'tooltipsSetTip'
 --   is used.
 --
--- @documentation@ ------------------------------------------------------------
---
--- * To associate @ref data Tooltips@ to a widget it is has to have its own 
---   @ref data DrawWindow@. Otherwise the widget must be set into an
---   @ref data EventBox@. Can this be done
+-- * To associate 'Tooltips' to a widget it is has to have its own 
+--   'DrawWindow'. Otherwise the widget must be set into an
+--   'EventBox'. Can this be done
 --   automatically? Perhaps even with tooltips_force_window()?
 --
--- @todo@ ---------------------------------------------------------------------
 
 module Tooltips(
   Tooltips,
@@ -68,40 +65,40 @@ import Object	(makeNewObject)
 
 -- methods
 
--- @constructor tooltipsNew@ Create a new goup of @ref type Tooltips@.
+-- | Create a new goup of 'Tooltips'.
 --
 tooltipsNew :: IO Tooltips
 tooltipsNew  = makeNewObject mkTooltips $ 
   liftM castPtr {#call unsafe tooltips_new#}
 
--- @method tooltipsEnable@ Display the help the @ref type Tooltips@ group
+-- | Display the help the 'Tooltips' group
 -- provides.
 --
 tooltipsEnable :: TooltipsClass t => t -> IO ()
 tooltipsEnable t = {#call unsafe tooltips_enable#} (toTooltips t)
 
--- @method tooltipsDisable@ Disable @ref type Tooltips@ group.
+-- | Disable 'Tooltips' group.
 --
 -- * Causes all tooltips in tooltips to become inactive. Any widgets that have
 --   tips associated with that group will no longer display their tips until
---   they are enabled again with @ref method tooltipsEnable@.
+--   they are enabled again with 'tooltipsEnable'.
 --
 tooltipsDisable :: TooltipsClass t => t -> IO ()
 tooltipsDisable t = {#call unsafe tooltips_disable#} (toTooltips t)
 
--- @method tooltipsSetDelay@ Sets the time between the user moving the mouse
+-- | Sets the time between the user moving the mouse
 -- over a widget and the widget's tooltip appearing.
 --
--- * The @ref arg time@ parameter is in ms.
+-- * The @time@ parameter is in ms.
 --
 tooltipsSetDelay :: TooltipsClass t => t -> Int -> IO ()
 tooltipsSetDelay t time = {#call unsafe tooltips_set_delay#}
   (toTooltips t) (fromIntegral time)
 
--- @method tooltipsSetTip@ Adds a tooltip containing the message tipText to
+-- | Adds a tooltip containing the message tipText to
 -- the specified GtkWidget.
 --
--- * The @ref arg tipPrivate@ parameter is meant to give a thorough
+-- * The @tipPrivate@ parameter is meant to give a thorough
 --   explaination. This might someday be accessible to a questionmark cursor
 --   (like MS Windows).
 --

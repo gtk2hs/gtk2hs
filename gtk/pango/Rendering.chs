@@ -1,10 +1,10 @@
---  GIMP Toolkit (GTK) - text layout functions @entry Rendering@
+--  GIMP Toolkit (GTK) - text layout functions Rendering
 --
 --  Author : Axel Simon
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.3 $ from $Date: 2004/05/23 16:12:20 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -18,18 +18,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * Functions to run the rendering pipeline.
---
--- @documentation@ ------------------------------------------------------------
+-- Functions to run the rendering pipeline.
 --
 -- * The Pango rendering pipeline takes a string of Unicode characters
 --   and converts it into glyphs.  The functions described in this module
 --   accomplish various steps of this process.
---
--- @todo@ ---------------------------------------------------------------------
---
 --
 module Rendering(
   PangoContext

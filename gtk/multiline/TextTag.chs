@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry TextTag TextBuffer@
+--  GIMP Toolkit (GTK) TextTag TextBuffer
 --
 --  Author : Axel Simon
 --          
 --  Created: 24 February 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:09:08 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,13 +17,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module TextTag(
   TextTag,

@@ -44,6 +44,52 @@
 	gtk/layout/VButtonBox.chs, gtk/layout/VPaned.chs:
 	initial haddockification
 
+	* gtk/menuComboToolbar/CheckMenuItem.chs,
+	gtk/menuComboToolbar/Combo.chs, gtk/menuComboToolbar/ComboBox.chs,
+	gtk/menuComboToolbar/ComboBoxEntry.chs,
+	gtk/menuComboToolbar/ImageMenuItem.chs,
+	gtk/menuComboToolbar/Menu.chs, gtk/menuComboToolbar/MenuBar.chs,
+	gtk/menuComboToolbar/MenuItem.chs,
+	gtk/menuComboToolbar/MenuShell.chs,
+	gtk/menuComboToolbar/OptionMenu.chs,
+	gtk/menuComboToolbar/RadioMenuItem.chs,
+	gtk/menuComboToolbar/TearoffMenuItem.chs,
+	gtk/menuComboToolbar/Toolbar.chs: initial haddockification
+
+	* gtk/misc/Adjustment.chs, gtk/misc/Calendar.chs,
+	gtk/misc/DrawingArea.chs, gtk/misc/EventBox.chs,
+	gtk/misc/FileChooserWidget.chs, gtk/misc/GArrow.chs,
+	gtk/misc/HandleBox.chs, gtk/misc/Tooltips.chs,
+	gtk/misc/Viewport.chs: initial haddockification
+
+	* gtk/multiline/TextBuffer.chs, gtk/multiline/TextIter.chs
+	gtk/multiline/TextMark.chs, gtk/multiline/TextTag.chs,
+	gtk/multiline/TextTagTable.chs, gtk/multiline/TextView.chs:
+	initial haddockification
+
+	* gtk/ornaments/Frame.chs, gtk/ornaments/HSeparator.chs,
+	gtk/ornaments/VSeparator.chs: initial haddockification
+
+	* gtk/pango/Markup.hs, gtk/pango/PangoLayout.chs,
+	gtk/pango/PangoTypes.chs, gtk/pango/Rendering.chs:
+	initial haddockification
+
+	* gtk/scrolling/HScrollbar.chs, gtk/scrolling/ScrolledWindow.chs,
+	gtk/scrolling/VScrollbar.chs: initial haddockification
+
+	* gtk/treeList/CellRenderer.hs,
+	gtk/treeList/CellRendererPixbuf.chs,
+	gtk/treeList/CellRendererText.chs,
+	gtk/treeList/CellRendererToggle.chs, gtk/treeList/ListStore.chs,
+	gtk/treeList/StoreValue.hsc, gtk/treeList/TreeModel.chs,
+	gtk/treeList/TreeModelSort.chs,	gtk/treeList/TreeSelection.chs,
+	gtk/treeList/TreeStore.chs, gtk/treeList/TreeView.chs,
+	gtk/treeList/TreeViewColumn.chs: initial haddockification
+
+	* gtk/windows/Dialog.chs, gtk/windows/FileChooserDialog.chs,
+	gtk/windows/FileSel.chs, gtk/windows/Window.chs:
+	initial haddockification
+
 2004-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/abstract/Widget.chs:

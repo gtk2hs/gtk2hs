@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry CellRendererToggle@
+--  GIMP Toolkit (GTK) CellRendererToggle
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.8 $ from $Date: 2004/05/23 16:16:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,13 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module CellRendererToggle(
   CellRendererToggle,
@@ -52,22 +47,22 @@ import StoreValue   (GenericValue(..), TMType(..))
 
 -- methods
 
--- @constructor cellRendererToggleNew@ Create a new @ref data CellRenderer@
--- that displays a @ref data ToggleButton@.
+-- | Create a new 'CellRenderer'
+-- that displays a 'ToggleButton'.
 --
 cellRendererToggleNew :: IO CellRendererToggle
 cellRendererToggleNew  = makeNewObject mkCellRendererToggle $
   liftM castPtr $ {#call unsafe cell_renderer_toggle_new#}
 
--- @method cellRendererToggleSetRadio@ Determine whether the button is drawn
--- as @ref data RadioButton@ or not.
+-- | Determine whether the button is drawn
+-- as 'RadioButton' or not.
 --
 cellRendererToggleSetRadio :: CellRendererToggleClass crt => crt -> Bool ->
                               IO ()
 cellRendererToggleSetRadio crt radio = {#call cell_renderer_toggle_set_radio#}
   (toCellRendererToggle crt) (fromBool radio)
 
--- @method cellRendererToggleGetActive@ Retrieve the current state of the
+-- | Retrieve the current state of the
 -- button.
 --
 cellRendererToggleGetActive :: CellRendererToggleClass crt => crt -> IO Bool
@@ -75,7 +70,7 @@ cellRendererToggleGetActive crt = liftM toBool $
   {#call unsafe cell_renderer_toggle_get_active#} (toCellRendererToggle crt)
 
 
--- @method cellRendererToggleSetActive@ Modify the state of the button.
+-- | Modify the state of the button.
 --
 cellRendererToggleSetActive :: CellRendererToggleClass crt => crt -> Bool ->
                                IO ()
@@ -89,14 +84,14 @@ binAttr str = Attribute str [TMboolean]
 		(return.(\x -> [x]).GVboolean)
 	        (\[GVboolean b] -> return b)
 
--- @method cellActive@ Define the attribute that reflects the state of the
+-- | Define the attribute that reflects the state of the
 -- button.
 --
 cellActive :: Attribute CellRendererToggle Bool
 cellActive  = binAttr ["active"]
 
--- @method cellRadio@ Define an attribute that determines whether this button
--- is shown as a @ref data RadioButton@ or as a normal @ref data ToggleButton@.
+-- | Define an attribute that determines whether this button
+-- is shown as a 'RadioButton' or as a normal 'ToggleButton'.
 --
 cellRadio :: Attribute CellRendererToggle Bool
 cellRadio  = binAttr ["radio"]

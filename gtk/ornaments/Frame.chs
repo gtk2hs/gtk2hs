@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Frame@
+--  GIMP Toolkit (GTK) Widget Frame
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:10:57 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,15 +19,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This container adds a frame around its contents. This is useful to
---   logically separate items in a dialog box.
+-- This container adds a frame around its contents. This is useful to
+-- logically separate items in a dialog box.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module Frame(
   Frame,
@@ -54,27 +50,27 @@ import Enums	(ShadowType(..))
 
 -- methods
 
--- @constructor frameNew@ Create a new frame without a label.
+-- | Create a new frame without a label.
 --
--- * A label can later be set by calling @ref method frameSetLabel@.
+-- * A label can later be set by calling 'frameSetLabel'.
 --
 frameNew :: IO Frame
 frameNew  = makeNewObject mkFrame $
   liftM castPtr $ {#call unsafe frame_new#} nullPtr
 
--- @method frameSetLabel@ Replace the label of the frame.
+-- | Replace the label of the frame.
 --
 frameSetLabel :: FrameClass f => f -> String -> IO ()
 frameSetLabel f label = withUTFString label $ \strPtr ->
   {#call frame_set_label#} (toFrame f) strPtr
 
--- @method frameSetLabelWidget@ Replace the label with a (label) widget.
+-- | Replace the label with a (label) widget.
 --
 frameSetLabelWidget :: (FrameClass f, WidgetClass w) => f -> w -> IO ()
 frameSetLabelWidget f w = 
   {#call frame_set_label_widget#} (toFrame f) (toWidget w)
 
--- @method frameSetLabelAlign@ Specify where the label should be placed.
+-- | Specify where the label should be placed.
 --
 -- * A value of 0.0 means left justified (the default), a value of 1.0 means
 --   right justified.
@@ -83,15 +79,15 @@ frameSetLabelAlign :: FrameClass f => f -> Float -> IO ()
 frameSetLabelAlign f align =
   {#call frame_set_label_align#} (toFrame f) (realToFrac align) 0.0
 
--- @method frameSetShadowType@ Set the shadow type of the frame.
+-- | Set the shadow type of the frame.
 --
 frameSetShadowType :: FrameClass f => f -> ShadowType -> IO ()
 frameSetShadowType f shadow = 
   {#call frame_set_shadow_type#} (toFrame f) ((fromIntegral.fromEnum) shadow)
 
--- @method frameGetLabel@ Retrieve the label of the frame.
+-- | Retrieve the label of the frame.
 --
--- * An exception is thrown if a non-Label widget was set. (EXPORTED)
+-- * An exception is thrown if a non-Label widget was set.
 --
 frameGetLabel :: FrameClass f => f -> IO String
 frameGetLabel f = do

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget MenuShell@
+--  GIMP Toolkit (GTK) Widget MenuShell
 --
 --  Author : Axel Simon
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:05:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,15 +19,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * An abstract base class which provides the control of navigation through
---   menu items.
+-- An abstract base class which provides the control of navigation through
+-- menu items.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 
 module MenuShell(
   MenuShell,
@@ -64,19 +60,19 @@ import Enums	(MenuDirectionType(..))
 
 -- methods
 
--- @method menuShellAppend@ Append the new entry @ref arg child@ to a menu.
+-- | Append the new entry @child@ to a menu.
 --
 menuShellAppend :: (MenuShellClass ms, MenuItemClass w) => ms -> w -> IO ()
 menuShellAppend ms child = 
   {#call menu_shell_append#} (toMenuShell ms) (toWidget child)
 
--- @method menuShellPrepend@ Prepend the new entry @ref arg child@ to a menu.
+-- | Prepend the new entry @child@ to a menu.
 --
 menuShellPrepend :: (MenuShellClass ms, MenuItemClass w) => ms -> w -> IO ()
 menuShellPrepend ms child = 
   {#call menu_shell_prepend#} (toMenuShell ms) (toWidget child)
 
--- @method menuShellInsert@ Insert the @ref arg child@ menu item at the
+-- | Insert the @child@ menu item at the
 -- specified position (0..n-1).
 --
 menuShellInsert :: (MenuShellClass ms, MenuItemClass w) => ms -> w -> Int ->
@@ -85,14 +81,14 @@ menuShellInsert ms child pos = {#call menu_shell_insert#}
   (toMenuShell ms) (toWidget child) (fromIntegral pos)
 
 
--- @method menuShellDeactivate@ Temporary deactivate a complete menu
+-- | Temporary deactivate a complete menu
 -- definition.
 --
 menuShellDeactivate :: MenuShellClass ms => ms -> IO ()
 menuShellDeactivate ms = {#call menu_shell_deactivate#} (toMenuShell ms)
 
--- @method menuShellActivateItem@ Activate a specific item in the menu. If the
--- menu was deactivated and @ref arg force@ is set, the previously deactivated
+-- | Activate a specific item in the menu. If the
+-- menu was deactivated and @force@ is set, the previously deactivated
 -- menu is reactivated.
 --
 menuShellActivateItem :: (MenuShellClass ms, MenuItemClass w) => ms -> w ->
@@ -100,13 +96,13 @@ menuShellActivateItem :: (MenuShellClass ms, MenuItemClass w) => ms -> w ->
 menuShellActivateItem ms child force = {#call menu_shell_activate_item#} 
   (toMenuShell ms) (toWidget child) (fromBool force)
 
--- @method menuShellSelectItem@ Select a specific item within the menu.
+-- | Select a specific item within the menu.
 --
 menuShellSelectItem :: (MenuShellClass ms, MenuItemClass w) => ms -> w -> IO ()
 menuShellSelectItem ms child =
   {#call menu_shell_select_item#} (toMenuShell ms) (toWidget child)
 
--- @method menuShellDeselect@ Deselect a the selected item within the menu.
+-- | Deselect a the selected item within the menu.
 --
 menuShellDeselect :: MenuShellClass ms => ms -> IO ()
 menuShellDeselect ms =
@@ -114,8 +110,8 @@ menuShellDeselect ms =
 
 -- signals
 
--- @signal connectToActivateCurrent@ This signal is called if an item is
--- activated. The boolean flag @ref arg hide@ is True whenever the menu will
+-- | This signal is called if an item is
+-- activated. The boolean flag @hide@ is True whenever the menu will
 -- behidden after this action.
 --
 onActivateCurrent, afterActivateCurrent :: MenuShellClass ms => ms ->
@@ -124,15 +120,15 @@ onActivateCurrent, afterActivateCurrent :: MenuShellClass ms => ms ->
 onActivateCurrent = connect_BOOL__NONE "activate-current" False
 afterActivateCurrent = connect_BOOL__NONE "activate-current" True
 
--- @signal connectToCancel@ This signal will be emitted when a selection is
+-- | This signal will be emitted when a selection is
 -- aborted and thus does not lead to an activation. This is in contrast to the
--- @ref arg selection@ done signal which is always emitted.
+-- @selection@ done signal which is always emitted.
 --
 onCancel, afterCancel :: MenuShellClass ms => ms -> IO () -> IO (ConnectId ms)
 onCancel = connect_NONE__NONE "cancel" False
 afterCancel = connect_NONE__NONE "cancel" True
 
--- @signal connectToDeactivated@ This signal is sent whenever the menu shell
+-- | This signal is sent whenever the menu shell
 -- is deactivated (hidden).
 --
 onDeactivated, afterDeactivated :: MenuShellClass ms => ms -> IO () ->
@@ -140,7 +136,7 @@ onDeactivated, afterDeactivated :: MenuShellClass ms => ms -> IO () ->
 onDeactivated = connect_NONE__NONE "deactivate" False
 afterDeactivated = connect_NONE__NONE "deactivate" True
 
--- @signal connectToMoveCurrent@ This signal is emitted for each move the
+-- | This signal is emitted for each move the
 -- cursor makes.
 --
 onMoveCurrent, afterMoveCurrent :: MenuShellClass ms => ms ->
@@ -149,7 +145,7 @@ onMoveCurrent, afterMoveCurrent :: MenuShellClass ms => ms ->
 onMoveCurrent = connect_ENUM__NONE "move-current" False
 afterMoveCurrent = connect_ENUM__NONE "move-current" True
 
--- @signal connectToSelectionDone@ This signal is emitted when the user
+-- | This signal is emitted when the user
 -- finished using the menu. Note that this signal is emitted even if no menu
 -- item was activated.
 --

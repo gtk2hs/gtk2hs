@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget TextView@
+--  GIMP Toolkit (GTK) Widget TextView
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.10 $ from $Date: 2003/08/09 04:47:11 $
+--  Version $Revision: 1.11 $ from $Date: 2004/05/23 16:09:08 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,20 +17,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
---
---
--- @documentation@ ------------------------------------------------------------
+-- |
 --
 -- * Through out we distinguish between buffer cooridinates which are pixels
 --   with the origin at the upper left corner of the first character on the
 --   first line. Window coordinates are relative to the top left pixel which
---   is visible in the current @ref data TextView@. Coordinates from Events 
+--   is visible in the current 'TextView'. Coordinates from Events 
 --   are in the latter relation. The conversion can be done with 
---   @ref method textViewWindowToBufferCoords@.
+--   'textViewWindowToBufferCoords'.
 --
--- @todo@ ---------------------------------------------------------------------
---
+-- TODO
 --
 -- * If PangoTabArray is bound: do textViewSetTabs and textViewGetTabs
 --
@@ -141,40 +137,40 @@ import Structs	(Rectangle(..))
 
 -- methods
 
--- @constructor textViewNew@ Create a new @ref type TextView@ widget with a
--- default @ref type TextBuffer@.
+-- | Create a new 'TextView' widget with a
+-- default 'TextBuffer'.
 --
 textViewNew :: IO TextView
 textViewNew  = makeNewGObject mkTextView $ liftM castPtr 
   {#call unsafe text_view_new#}
 
--- @method textViewNewWithBuffer@ Create a new @ref type TextView@ widget with
--- the given @ref type TextBuffer@.
+-- | Create a new 'TextView' widget with
+-- the given 'TextBuffer'.
 --
 textViewNewWithBuffer :: TextBuffer -> IO TextView
 textViewNewWithBuffer tb = makeNewGObject mkTextView $ liftM castPtr $
   {#call unsafe text_view_new_with_buffer#} tb
 
--- @method textViewSetBuffer@ Set the @ref type TextBuffer@ for a given
--- @ref type TextView@ widget.
+-- | Set the 'TextBuffer' for a given
+-- 'TextView' widget.
 --
 textViewSetBuffer :: TextViewClass tv => tv -> TextBuffer -> IO ()
 textViewSetBuffer tv tb = 
   {#call unsafe text_view_set_buffer#} (toTextView tv) tb
 
--- @method textViewScrollToMark@ Scroll to the position of the supplied
--- @ref data TextMark@.
+-- | Scroll to the position of the supplied
+-- 'TextMark'.
 --
--- * Supplying @ref arg xalign@, @ref arg yalign@ gives a goal position of
---   the @ref data TextMark@ within screen bounds. 0,0 means left, top and
+-- * Supplying @xalign@, @yalign@ gives a goal position of
+--   the 'TextMark' within screen bounds. 0,0 means left, top and
 --   1.0,1.0 means right, bottom.
 --
--- * Supply @literal Nothing@ if the goal is to bring the position into 
+-- * Supply @Nothing@ if the goal is to bring the position into 
 --   view with the minimum of scrolling.
 --
--- * @ref arg withinMargin@ is within [0.0 .. 0.5) and imposes an extra margin
---   at all four sides of the window within which @ref arg xalign@ and
---   @ref arg yalign@ are evaluated.
+-- * @withinMargin@ is within \[0.0 .. 0.5) and imposes an extra margin
+--   at all four sides of the window within which @xalign@ and
+--   @yalign@ are evaluated.
 --
 -- * The line distances are calculated in an idle handler. Calling this
 --   function ensures that the line heights are indeed evaluated before the
@@ -189,8 +185,8 @@ textViewScrollToMark tv tm withinMargin Nothing =
   {#call unsafe text_view_scroll_to_mark#} (toTextView tv) tm 
   (realToFrac withinMargin) 0 (0.0) (0.0)
 
--- @method textViewScrollToIter@ Scroll to the position of the supplied
--- @ref type TextIter@.
+-- | Scroll to the position of the supplied
+-- 'TextIter'.
 --
 -- * The position might not be correct due to the delayed calculation of the
 --   line heights.
@@ -207,17 +203,17 @@ textViewScrollToIter tv ti withinMargin Nothing = liftM toBool $
   {#call unsafe text_view_scroll_to_iter#} (toTextView tv) ti 
     (realToFrac withinMargin) 0 (0.0) (0.0)
 
--- @method textViewScrollMarkOnscreen@ Scroll the visible area of the widget
--- so the @ref type TextMark@ becomes visible.
+-- | Scroll the visible area of the widget
+-- so the 'TextMark' becomes visible.
 --
--- * This call is equivalent to @ref method textViewScrollToMark@ tm 0.0
+-- * This call is equivalent to 'textViewScrollToMark' tm 0.0
 --   Nothing tv.
 --
 textViewScrollMarkOnscreen :: TextViewClass tv => tv -> TextMark -> IO ()
 textViewScrollMarkOnscreen tv tm = 
   {#call unsafe text_view_scroll_mark_onscreen#} (toTextView tv) tm
 
--- @method textViewMoveMarkOnscreen@ Move a @ref type TextMark@ within the
+-- | Move a 'TextMark' within the
 -- buffer until it is in the currently visible area of the widget.
 --
 -- * Returns True if the Mark was moved.
@@ -226,7 +222,7 @@ textViewMoveMarkOnscreen :: TextViewClass tv => tv -> TextMark -> IO Bool
 textViewMoveMarkOnscreen tv tm = liftM toBool $ 
   {#call unsafe text_view_move_mark_onscreen#} (toTextView tv) tm
 
--- @method textViewPlaceCursorOnscreen@ Move the cursor within the buffer
+-- | Move the cursor within the buffer
 -- until it is in the currently visible area of the widget.
 --
 -- * Returns True if the Mark was moved.
@@ -235,9 +231,9 @@ textViewPlaceCursorOnscreen :: TextViewClass tv => tv -> IO Bool
 textViewPlaceCursorOnscreen tv = liftM toBool $ 
   {#call unsafe text_view_place_cursor_onscreen#} (toTextView tv)
 
--- @method textViewGetVisibleRect@ Get the currently visible rectangle.
+-- | Get the currently visible rectangle.
 --
--- * Use @ref method textViewBufferToWindowCoords@ to convert into window 
+-- * Use 'textViewBufferToWindowCoords' to convert into window 
 -- coordinates.
 --
 textViewGetVisibleRect :: TextViewClass tv => tv -> IO Rectangle
@@ -246,10 +242,10 @@ textViewGetVisibleRect tv = alloca $ \rectPtr -> do
   peek rectPtr
 
 
--- @method textViewGetIterLocation@ Get a rectangle that roughly contains the 
--- character at @ref data TextIter@.
+-- | Get a rectangle that roughly contains the 
+-- character at 'TextIter'.
 --
--- * Use @ref method textViewBufferToWindowCoords@ to convert into window 
+-- * Use 'textViewBufferToWindowCoords' to convert into window 
 --   cooridnates.
 --
 textViewGetIterLocation :: TextViewClass tv => tv -> TextIter -> IO Rectangle
@@ -260,12 +256,12 @@ textViewGetIterLocation tv tm = alloca $ \rectPtr -> do
 
 
 
--- @method textViewGetLineAtY@ Get the @ref type TextIter@ at the start of the
--- line containing the coordinate @ref arg y@.
+-- | Get the 'TextIter' at the start of the
+-- line containing the coordinate @y@.
 --
--- * @ref arg y@ is in buffer coordinates.
+-- * @y@ is in buffer coordinates.
 --
--- * Returns the @ref data TextIter@ and the top of the line.
+-- * Returns the 'TextIter' and the top of the line.
 --
 textViewGetLineAtY :: TextViewClass tv => tv -> Int -> IO (TextIter,Int)
 textViewGetLineAtY tv y = do
@@ -276,8 +272,8 @@ textViewGetLineAtY tv y = do
     peek ltPtr
   return (iter, lineTop)
 
--- @method textViewGetLineYrange@ Get the y coordinate of the top and the
--- height of the line @ref type TextIter@ is on.
+-- | Get the y coordinate of the top and the
+-- height of the line 'TextIter' is on.
 --
 textViewGetLineYrange :: TextViewClass tv => tv -> TextIter -> IO (Int,Int)
 textViewGetLineYrange tv ti = alloca $ \yPtr -> alloca $ \heightPtr -> do
@@ -286,8 +282,8 @@ textViewGetLineYrange tv ti = alloca $ \yPtr -> alloca $ \heightPtr -> do
   height <- peek heightPtr
   return (fromIntegral y, fromIntegral height)
 
--- @method textViewGetIterAtLocation@ Retrieves the @ref type TextIter@ at
--- buffer coordinates @ref arg x@ and @ref arg y@.
+-- | Retrieves the 'TextIter' at
+-- buffer coordinates @x@ and @y@.
 --
 textViewGetIterAtLocation :: TextViewClass tv => tv -> Int -> Int ->
                              IO TextIter
@@ -297,7 +293,7 @@ textViewGetIterAtLocation tv x y = do
     (fromIntegral x) (fromIntegral y)
   return iter
 
--- @method textViewBufferToWindowCoords@ Convert buffer cooridnates into
+-- | Convert buffer cooridnates into
 -- window coordinates.
 --
 textViewBufferToWindowCoords :: TextViewClass tv => tv -> TextWindowType ->
@@ -311,7 +307,7 @@ textViewBufferToWindowCoords tv wt (x,y) =
     y' <- peek yPtr
     return (fromIntegral x', fromIntegral y')
 
--- @method textViewWindowToBufferCoords@ Convert window cooridnates into
+-- | Convert window cooridnates into
 -- buffer coordinates.
 --
 textViewWindowToBufferCoords :: TextViewClass tv => tv -> TextWindowType ->
@@ -325,12 +321,12 @@ textViewWindowToBufferCoords tv wt (x,y) =
     return (fromIntegral x', fromIntegral y')
 
 
--- @method textViewGetWindow@ Get the underlying @ref data DrawWindow@.
+-- | Get the underlying 'DrawWindow'.
 --
--- * The @ref data TextWindowType@ determines which window of the
---   @ref type TextWidget@ we would like to receive.
+-- * The 'TextWindowType' determines which window of the
+--   'TextWidget' we would like to receive.
 --
--- * Returns Nothing if there is no @ref data DrawWindow@ of the specified type.
+-- * Returns Nothing if there is no 'DrawWindow' of the specified type.
 --
 textViewGetWindow :: TextViewClass tv => tv -> TextWindowType ->
                      IO (Maybe DrawWindow)
@@ -340,12 +336,12 @@ textViewGetWindow tv wt = do
   if winPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkDrawWindow (return winPtr)
 
--- @method textViewGetWindowType@ Retrieve the type of window the
--- @ref type TextView@ widget contains.
+-- | Retrieve the type of window the
+-- 'TextView' widget contains.
 --
 -- * Usually used to find out which window an event corresponds to. An
---   emission of an event signal of @ref type TextView@ yields a
---   @ref data DrawWindow@. This function can be used to see if the event
+--   emission of an event signal of 'TextView' yields a
+--   'DrawWindow'. This function can be used to see if the event
 --   actually belongs to the main text window.
 --
 textViewGetWindowType :: TextViewClass tv => tv -> DrawWindow ->
@@ -354,12 +350,12 @@ textViewGetWindowType tv win = liftM (toEnum.fromIntegral) $
   {#call unsafe text_view_get_window_type#} (toTextView tv) win
 
 
--- @method textViewSetBorderWindowSize@ Set the border width of the
--- @ref type TextView@ widget.
+-- | Set the border width of the
+-- 'TextView' widget.
 --
--- * Sets the width of @ref type TextWindowLeft@ or
---   @ref type TextWindowRight@, or the height of @ref type TextWindowTop@ or
---   @ref type TextWindowBottom@. Automatically destroys the corresponding
+-- * Sets the width of 'TextWindowLeft' or
+--   'TextWindowRight', or the height of 'TextWindowTop' or
+--   'TextWindowBottom'. Automatically destroys the corresponding
 --   window if the size is set to 0 and creates the window if the size is set
 --   to non-zero. This function can only used with the four window types
 --   mentioned.
@@ -370,10 +366,10 @@ textViewSetBorderWindowSize tv wt size =
   {#call unsafe text_view_set_border_window_size#} (toTextView tv) 
   ((fromIntegral.fromEnum) wt) (fromIntegral size)
 
--- @method textViewGetBorderWindowSize@ Retrieve the border width of the
+-- | Retrieve the border width of the
 -- specified window.
 --
--- * See @ref method textViewSetBorderWindowSize@.
+-- * See 'textViewSetBorderWindowSize'.
 --
 textViewGetBorderWindowSize :: TextViewClass tv => tv -> TextWindowType ->
                                IO Int
@@ -381,54 +377,54 @@ textViewGetBorderWindowSize tv wt = liftM fromIntegral $
   {#call unsafe text_view_get_border_window_size#} (toTextView tv) 
   ((fromIntegral.fromEnum) wt)
 
--- @method textViewForwardDisplayLine@ Move the iterator forwards by one
+-- | Move the iterator forwards by one
 -- display line.
 --
--- * Moves the given @ref type TextIter@ forward by one display (wrapped)
+-- * Moves the given 'TextIter' forward by one display (wrapped)
 --   line. A display line is different from a paragraph. Paragraphs are
 --   separated by newlines or other paragraph separator characters. Display
 --   lines are created by line-wrapping a paragraph. If wrapping is turned
 --   off, display lines and paragraphs will be the same. Display lines are
 --   divided differently for each view, since they depend on the view's width;
 --   paragraphs are the same in all views, since they depend on the contents
---   of the @ref type TextBuffer@.
+--   of the 'TextBuffer'.
 --
 textViewForwardDisplayLine :: TextViewClass tv => tv -> TextIter -> IO Bool
 textViewForwardDisplayLine tv ti = liftM toBool $
   {#call unsafe text_view_forward_display_line#} (toTextView tv) ti
 
--- @method textViewBackwardDisplayLine@ Move the iterator backwards by one
+-- | Move the iterator backwards by one
 -- display line.
 --
--- * See @ref method textViewForwardDisplayLine@.
+-- * See 'textViewForwardDisplayLine'.
 --
 textViewBackwardDisplayLine :: TextViewClass tv => tv -> TextIter -> IO Bool
 textViewBackwardDisplayLine tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line#} (toTextView tv) ti
  
--- @method textViewForwardDisplayLineEnd@ Move the iterator forwards and to
+-- | Move the iterator forwards and to
 -- the end.
 --
--- * Like @ref method textViewForwardDisplayLine@ but moves to the end of 
+-- * Like 'textViewForwardDisplayLine' but moves to the end of 
 --   the line as well.
 --
 textViewForwardDisplayLineEnd :: TextViewClass tv => TextIter -> tv -> IO Bool
 textViewForwardDisplayLineEnd ti tv = liftM toBool $
   {#call unsafe text_view_forward_display_line_end#} (toTextView tv) ti
 
--- @method textViewBackwardDisplayLineEnd@ Move the iterator backwards and to
+-- | Move the iterator backwards and to
 -- the end.
 --
--- * See @ref method textViewForwardDisplayLineEnd@.
+-- * See 'textViewForwardDisplayLineEnd'.
 --
 textViewBackwardDisplayLineEnd :: TextViewClass tv => tv -> TextIter -> IO Bool
 textViewBackwardDisplayLineEnd tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line_start#} (toTextView tv) ti
 
--- @method textViewForwardDisplayLineStart@ Move the iterator forwards and to
+-- | Move the iterator forwards and to
 -- the start.
 --
--- * Like @ref method textViewForwardDisplayLine@ but moves to the start of
+-- * Like 'textViewForwardDisplayLine' but moves to the start of
 --   the line as well.
 --
 textViewForwardDisplayLineStart :: TextViewClass tv => tv -> TextIter ->
@@ -436,10 +432,10 @@ textViewForwardDisplayLineStart :: TextViewClass tv => tv -> TextIter ->
 textViewForwardDisplayLineStart tv ti = liftM toBool $
   {#call unsafe text_view_forward_display_line_end#} (toTextView tv) ti
 
--- @method textViewBackwardDisplayLineStart@ Move the iterator backwards and
+-- | Move the iterator backwards and
 -- to the start.
 --
--- * See @ref method textViewForwardDisplayLineStart@.
+-- * See 'textViewForwardDisplayLineStart'.
 --
 textViewBackwardDisplayLineStart :: TextViewClass tv => tv -> TextIter ->
                                     IO Bool
@@ -447,10 +443,10 @@ textViewBackwardDisplayLineStart tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line_start#} (toTextView tv) ti
 
 
--- @method textViewMoveVisually@ Move the iterator a number of lines.
+-- | Move the iterator a number of lines.
 --
--- * @ref arg count@ is in display lines. See
---   @ref method textViewForwardDisplayLine@.
+-- * @count@ is in display lines. See
+--   'textViewForwardDisplayLine'.
 --
 textViewMoveVisually :: TextViewClass tv => tv -> TextIter -> Int -> IO Bool
 textViewMoveVisually tv ti count = liftM toBool $
@@ -458,8 +454,8 @@ textViewMoveVisually tv ti count = liftM toBool $
     (fromIntegral count)
 
 
--- @method textViewAddChildAtAnchor@ Add a child widget in the
--- @ref type TextBuffer@ at a given @ref type TextChildAnchor@.
+-- | Add a child widget in the
+-- 'TextBuffer' at a given 'TextChildAnchor'.
 --
 textViewAddChildAtAnchor :: (TextViewClass tv , WidgetClass w) => tv -> w ->
                             TextChildAnchor -> IO ()
@@ -467,18 +463,18 @@ textViewAddChildAtAnchor tv w anchor =
   {#call unsafe text_view_add_child_at_anchor#} (toTextView tv) (toWidget w) 
     anchor
 
--- @constructor textChildAnchorNew@ Create a new @ref type TextChildAnchor@.
+-- | Create a new 'TextChildAnchor'.
 --
--- * Using @ref method textBufferCreateChildAnchor@ is usually simpler then
---   executing this function and @ref method textBufferInsertChildAnchor@.
+-- * Using 'textBufferCreateChildAnchor' is usually simpler then
+--   executing this function and 'textBufferInsertChildAnchor'.
 --
 textChildAnchorNew :: IO TextChildAnchor
 textChildAnchorNew  = makeNewGObject mkTextChildAnchor 
   {#call unsafe text_child_anchor_new#}
 
 
--- @method textChildAnchorGetWidgets@ Retrieve all @ref data Widget@s at this
--- @ref type TextChildAnchor@.
+-- | Retrieve all 'Widget's at this
+-- 'TextChildAnchor'.
 --
 -- * The widgets in the returned list need to be upcasted to what they were.
 --
@@ -488,20 +484,20 @@ textChildAnchorGetWidgets tca = do
   wList <- fromGList gList
   mapM (makeNewObject mkWidget) (map return wList)
 
--- @method textChildAnchorGetDeleted@ Query if an anchor was deleted.
+-- | Query if an anchor was deleted.
 --
 textChildAnchorGetDeleted :: TextChildAnchor -> IO Bool
 textChildAnchorGetDeleted tca = liftM toBool $
   {#call unsafe text_child_anchor_get_deleted#} tca
 
--- @method textViewAddChildInWindow@ Place a widget in within the text.
+-- | Place a widget in within the text.
 --
--- * This function places a @ref data Widget@ at an absolute pixel position
---   into the @ref data TextView@. Note that any scrolling will leave the
+-- * This function places a 'Widget' at an absolute pixel position
+--   into the 'TextView'. Note that any scrolling will leave the
 --   widget in the same spot as it was.
 --
--- * The position @ref arg x@, @ref arg y@ is relative to the 
---   @ref data DrawWindow@ specified by @ref data TextWindowType@.
+-- * The position @x@, @y@ is relative to the 
+--   'DrawWindow' specified by 'TextWindowType'.
 --
 textViewAddChildInWindow :: (TextViewClass tv , WidgetClass w) => tv -> w ->
 			    TextWindowType -> Int -> Int -> IO ()
@@ -509,55 +505,55 @@ textViewAddChildInWindow tv w twt x y = {#call text_view_add_child_in_window#}
   (toTextView tv) (toWidget w) ((fromIntegral.fromEnum) twt)
   (fromIntegral x) (fromIntegral y)
 
--- @method textViewMoveChild@ Move a child widget within the
--- @ref data TextView@.
+-- | Move a child widget within the
+-- 'TextView'.
 --
 textViewMoveChild :: (TextViewClass tv , WidgetClass w) => tv -> w ->
 							   Int -> Int -> IO ()
 textViewMoveChild tv w x y = {#call text_view_move_child#}
   (toTextView tv) (toWidget w) (fromIntegral x) (fromIntegral y)
 
--- @method textViewSetWrapMode@ Specify how to wrap text.
+-- | Specify how to wrap text.
 --
 textViewSetWrapMode :: TextViewClass tv => tv -> WrapMode -> IO ()
 textViewSetWrapMode tv wm = {#call text_view_set_wrap_mode#} (toTextView tv)
   ((fromIntegral.fromEnum) wm)
 
--- @method textViewGetWrapMode@ Query how text is wrapped.
+-- | Query how text is wrapped.
 --
 textViewGetWrapMode :: TextViewClass tv => tv -> IO WrapMode
 textViewGetWrapMode tv = liftM (toEnum.fromIntegral) $
   {#call unsafe text_view_get_wrap_mode#} (toTextView tv)
 
--- @method textViewSetEditable@ Toggle whether the text in the
--- @ref type TextView@ is editable or not.
+-- | Toggle whether the text in the
+-- 'TextView' is editable or not.
 --
 textViewSetEditable :: TextViewClass tv => tv -> Bool -> IO ()
 textViewSetEditable tv editable =
   {#call text_view_set_editable#} (toTextView tv) (fromBool editable)
 
--- @method textViewGetEditable@ Retrieve information whether a
--- @ref type TextView@ is editable or not.
+-- | Retrieve information whether a
+-- 'TextView' is editable or not.
 --
 textViewGetEditable :: TextViewClass tv => tv -> IO Bool
 textViewGetEditable tv = liftM toBool $
   {#call unsafe text_view_get_editable#} (toTextView tv)
 
--- @method textViewSetCursorVisible@ Toggle whether the cursor in the
--- @ref type TextView@ is visible or not.
+-- | Toggle whether the cursor in the
+-- 'TextView' is visible or not.
 --
 textViewSetCursorVisible :: TextViewClass tv => tv -> Bool -> IO ()
 textViewSetCursorVisible tv editable =
   {#call text_view_set_cursor_visible#} (toTextView tv) (fromBool editable)
 
--- @method textViewGetCursorVisible@ Retrieve information whether the cursor
--- in a @ref type TextView@ is visible or not.
+-- | Retrieve information whether the cursor
+-- in a 'TextView' is visible or not.
 --
 textViewGetCursorVisible :: TextViewClass tv => tv -> IO Bool
 textViewGetCursorVisible tv = liftM toBool $
   {#call unsafe text_view_get_cursor_visible#} (toTextView tv)
 
--- @method textViewSetPixelsAboveLines@ Set the number of pixels above each
+-- | Set the number of pixels above each
 -- paragraph.
 --
 -- * Tags in the buffer may override this default.
@@ -566,7 +562,7 @@ textViewSetPixelsAboveLines :: TextViewClass tv => tv -> Int -> IO ()
 textViewSetPixelsAboveLines tv p = {#call text_view_set_pixels_above_lines#}
   (toTextView tv) (fromIntegral p)
 
--- @method textViewGetPixelsAboveLines@ Get the number of pixels above each
+-- | Get the number of pixels above each
 -- paragraph.
 --
 -- * Tags in the buffer may override this default.
@@ -575,7 +571,7 @@ textViewGetPixelsAboveLines :: TextViewClass tv => tv -> IO Int
 textViewGetPixelsAboveLines tv = liftM (fromIntegral) $
   {#call unsafe text_view_get_pixels_above_lines#} (toTextView tv)
 
--- @method textViewSetPixelsBelowLines@ Set the number of pixels below each
+-- | Set the number of pixels below each
 -- paragraph.
 --
 -- * Tags in the buffer may override this default.
@@ -584,7 +580,7 @@ textViewSetPixelsBelowLines :: TextViewClass tv => tv -> Int -> IO ()
 textViewSetPixelsBelowLines tv p = {#call text_view_set_pixels_below_lines#}
   (toTextView tv) (fromIntegral p)
 
--- @method textViewGetPixelsBelowLines@ Get the number of pixels below each
+-- | Get the number of pixels below each
 -- paragraph.
 --
 -- * Tags in the buffer may override this default.
@@ -593,7 +589,7 @@ textViewGetPixelsBelowLines :: TextViewClass tv => tv -> IO Int
 textViewGetPixelsBelowLines tv = liftM (fromIntegral) $
   {#call unsafe text_view_get_pixels_below_lines#} (toTextView tv)
 
--- @method textViewSetPixelsInsideWrap@ Set the number of pixels between
+-- | Set the number of pixels between
 -- lines inside a wraped paragraph.
 --
 -- * Tags in the buffer may override this default.
@@ -602,7 +598,7 @@ textViewSetPixelsInsideWrap :: TextViewClass tv => tv -> Int -> IO ()
 textViewSetPixelsInsideWrap tv p = 
   {#call text_view_set_pixels_inside_wrap#} (toTextView tv) (fromIntegral p)
 
--- @method textViewGetPixelsInsideWrap@ Get the number of pixels between
+-- | Get the number of pixels between
 -- lines inside a wraped paragraph.
 --
 -- * Tags in the buffer may override this default.
@@ -611,19 +607,19 @@ textViewGetPixelsInsideWrap :: TextViewClass tv => tv -> IO Int
 textViewGetPixelsInsideWrap tv = liftM (fromIntegral) $
   {#call unsafe text_view_get_pixels_inside_wrap#} (toTextView tv)
 
--- @method textViewSetJustification@ Specify how to wrap text.
+-- | Specify how to wrap text.
 --
 textViewSetJustification :: TextViewClass tv => tv -> Justification -> IO ()
 textViewSetJustification tv j = {#call text_view_set_justification#}
   (toTextView tv) ((fromIntegral.fromEnum) j)
 
--- @method textViewGetJustification@ Query how text is wrapped.
+-- | Query how text is wrapped.
 --
 textViewGetJustification :: TextViewClass tv => tv -> IO Justification
 textViewGetJustification tv = liftM (toEnum.fromIntegral) $
   {#call unsafe text_view_get_justification#} (toTextView tv)
 
--- @method textViewSetLeftMargin@ Set the number of pixels in the margin.
+-- | Set the number of pixels in the margin.
 --
 -- * Tags in the buffer may override this default.
 --
@@ -631,7 +627,7 @@ textViewSetLeftMargin :: TextViewClass tv => tv -> Int -> IO ()
 textViewSetLeftMargin tv p = {#call text_view_set_left_margin#}
   (toTextView tv) (fromIntegral p)
 
--- @method textViewGetLeftMargin@ Get the number of pixels in the margin.
+-- | Get the number of pixels in the margin.
 --
 -- * Tags in the buffer may override this default.
 --
@@ -639,7 +635,7 @@ textViewGetLeftMargin :: TextViewClass tv => tv -> IO Int
 textViewGetLeftMargin tv = liftM (fromIntegral) $
   {#call unsafe text_view_get_left_margin#} (toTextView tv)
 
--- @method textViewSetRightMargin@ Set the number of pixels in the margin.
+-- | Set the number of pixels in the margin.
 --
 -- * Tags in the buffer may override this default.
 --
@@ -647,7 +643,7 @@ textViewSetRightMargin :: TextViewClass tv => tv -> Int -> IO ()
 textViewSetRightMargin tv p = {#call text_view_set_right_margin#}
   (toTextView tv) (fromIntegral p)
 
--- @method textViewGetRightMargin@ Get the number of pixels in the margin.
+-- | Get the number of pixels in the margin.
 --
 -- * Tags in the buffer may override this default.
 --
@@ -655,7 +651,7 @@ textViewGetRightMargin :: TextViewClass tv => tv -> IO Int
 textViewGetRightMargin tv = liftM (fromIntegral) $
   {#call unsafe text_view_get_right_margin#} (toTextView tv)
 
--- @method textViewSetIndent@ Set the indentation in pixels for the first line
+-- | Set the indentation in pixels for the first line
 -- in a paragraph.
 --
 -- * Tags in the buffer may override this default.
@@ -666,7 +662,7 @@ textViewSetIndent :: TextViewClass tv => tv -> Int -> IO ()
 textViewSetIndent tv p = {#call text_view_set_indent#}
   (toTextView tv) (fromIntegral p)
 
--- @method textViewGetIndent@ Get the indentation in pixels for the first line
+-- | Get the indentation in pixels for the first line
 -- in a paragraph.
 --
 -- * Tags in the buffer may override this default.
@@ -677,11 +673,11 @@ textViewGetIndent :: TextViewClass tv => tv -> IO Int
 textViewGetIndent tv = liftM (fromIntegral) $
   {#call unsafe text_view_get_indent#} (toTextView tv)
 
--- @signal connectToCopyClipboard@ Copying to the clipboard.
+-- | Copying to the clipboard.
 --
 -- * This signal is emitted when a selection is copied to the clipboard. 
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 onCopyClipboard, afterCopyClipboard :: TextViewClass tv => tv -> IO () ->
@@ -689,7 +685,7 @@ onCopyClipboard, afterCopyClipboard :: TextViewClass tv => tv -> IO () ->
 onCopyClipboard = connect_NONE__NONE "copy_clipboard" False
 afterCopyClipboard = connect_NONE__NONE "copy_clipboard" True
 
--- @signal connectToCutClipboard@ Cutting to the clipboard.
+-- | Cutting to the clipboard.
 --
 -- * This signal is emitted when a selection is cut out and copied to the
 --   clipboard. The action itself happens when the textview processed this
@@ -700,12 +696,12 @@ onCutClipboard, afterCutClipboard :: TextViewClass tv => tv -> IO () ->
 onCutClipboard = connect_NONE__NONE "cut_clipboard" False
 afterCutClipboard = connect_NONE__NONE "cut_clipboard" True
 
--- @signal connectToDeleteFromCursor@ Deleting text.
+-- | Deleting text.
 --
 -- * The widget will remove the specified number of units in the text where
 --   the meaning of units depends on the kind of deletion.
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 onDeleteFromCursor, afterDeleteFromCursor :: TextViewClass tv => tv ->
@@ -714,12 +710,12 @@ onDeleteFromCursor, afterDeleteFromCursor :: TextViewClass tv => tv ->
 onDeleteFromCursor = connect_ENUM_INT__NONE "delete_from_cursor" False
 afterDeleteFromCursor = connect_ENUM_INT__NONE "delete_from_cursor" True
 
--- @signal connectToInsertAtCursor@ Inserting text.
+-- | Inserting text.
 --
 -- * The widget will insert the string into the text where the meaning
 --   of units depends on the kind of deletion.
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 onInsertAtCursor, afterInsertAtCursor :: TextViewClass tv => tv ->
@@ -728,12 +724,12 @@ onInsertAtCursor, afterInsertAtCursor :: TextViewClass tv => tv ->
 onInsertAtCursor = connect_STRING__NONE "insert_at_cursor" False
 afterInsertAtCursor = connect_STRING__NONE "insert_at_cursor" True
 
--- @signal connectToMoveCursor@ Moving the cursor.
+-- | Moving the cursor.
 --
 -- * The signal specifies what kind and how many steps the cursor will do.
---   The flag is set to @prog True@ if this movement extends a selection.
+--   The flag is set to @True@ if this movement extends a selection.
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 onMoveCursor, afterMoveCursor :: TextViewClass tv => tv ->
@@ -742,9 +738,9 @@ onMoveCursor, afterMoveCursor :: TextViewClass tv => tv ->
 onMoveCursor = connect_ENUM_INT_BOOL__NONE "move_cursor" False
 afterMoveCursor = connect_ENUM_INT_BOOL__NONE "move_cursor" True
 
--- @signal connectToMoveFocus@ Moving the focus.
+-- | Moving the focus.
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 onMoveFocus, afterMoveFocus :: TextViewClass tv => tv ->
@@ -753,12 +749,12 @@ onMoveFocus, afterMoveFocus :: TextViewClass tv => tv ->
 onMoveFocus = connect_ENUM__NONE "move_focus" False
 afterMoveFocus = connect_ENUM__NONE "move_focus" True
 
--- @signal connectToPageHorizontally@ Page change signals.
+-- | Page change signals.
 --
 -- * The signal specifies how many pages the view should move up or down.
---   The flag is set to @prog True@ if this movement extends a selection.
+--   The flag is set to @True@ if this movement extends a selection.
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 -- * Figure out why this signal is called horizontally, not vertically.
@@ -770,11 +766,11 @@ onPageHorizontally = connect_INT_BOOL__NONE "page_horizontally" False
 afterPageHorizontally = connect_INT_BOOL__NONE "page_horizontally" True
 
 
--- @signal connectToPasteClipboard@ Pasting from the clipboard.
+-- | Pasting from the clipboard.
 --
 -- * This signal is emitted when something is pasted from the clipboard. 
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 onPasteClipboard, afterPasteClipboard :: TextViewClass tv => tv -> IO () ->
@@ -782,9 +778,9 @@ onPasteClipboard, afterPasteClipboard :: TextViewClass tv => tv -> IO () ->
 onPasteClipboard = connect_NONE__NONE "paste_clipboard" False
 afterPasteClipboard = connect_NONE__NONE "paste_clipboard" True
 
--- @signal connectToPopulatePopup@ Add menu entries to context menus.
+-- | Add menu entries to context menus.
 --
--- * This signal is emitted if a context menu within the @ref data TextView@
+-- * This signal is emitted if a context menu within the 'TextView'
 --   is opened. This signal can be used to add application specific menu
 --   items to this popup.
 --
@@ -794,11 +790,11 @@ onPopulatePopup, afterPopulatePopup :: TextViewClass tv => tv ->
 onPopulatePopup = connect_OBJECT__NONE "populate_popup" False
 afterPopulatePopup = connect_OBJECT__NONE "populate_popup" True
 
--- @signal connectToSetAnchor@ Inserting an anchor.
+-- | Inserting an anchor.
 --
 -- * This signal is emitted when anchor is inserted into the text. 
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 onSetAnchor, afterSetAnchor :: TextViewClass tv => tv -> IO () ->
@@ -806,7 +802,7 @@ onSetAnchor, afterSetAnchor :: TextViewClass tv => tv -> IO () ->
 onSetAnchor = connect_NONE__NONE "set_anchor" False
 afterSetAnchor = connect_NONE__NONE "set_anchor" True
 
--- @signal connectToSetScrollAdjustments@ The scroll-bars changed.
+-- | The scroll-bars changed.
 --
 --
 onSetScrollAdjustments, afterSetScrollAdjustments ::
@@ -817,12 +813,12 @@ onSetScrollAdjustments =
 afterSetScrollAdjustments = 
   connect_OBJECT_OBJECT__NONE "set_scroll_adjustments" True
 
--- @signal connectToToggleOverwrite@ Insert/Overwrite mode has changed.
+-- | Insert\/Overwrite mode has changed.
 --
--- * This signal is emitted when the @ref data TextView@ changes from
+-- * This signal is emitted when the 'TextView' changes from
 --   inserting mode to overwriting mode and vice versa. 
 --
--- * The action itself happens when the @ref data TextView@ processes this
+-- * The action itself happens when the 'TextView' processes this
 --   signal.
 --
 onToggleOverwrite, afterToggleOverwrite :: TextViewClass tv => tv -> IO () ->
