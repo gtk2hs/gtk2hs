@@ -46,6 +46,19 @@ AC_PATH_PROG(TOUCH,touch)
 
 dnl Check for libraries.
 
+dnl Is Manuel's Ports library present?
+AC_ARG_WITH(ports, 
+	    [  --with-ports=PORTS-CONFIG use this Haskell Ports Library],
+	    [PORTS_CONFIG=$withval])
+
+dnl Compile GtkGLArea extension.
+AC_ARG_ENABLE(gtkglarea,
+	      [  --enable-gtkglarea      generate binding for GtkGLArea],
+	      [ENABLE_GTKGLAREA=$enableval])
+AC_ARG_WITH(hopengl, 
+	    [  --with-hopengl=HOPENGL  location of HOpenGL library],
+	    [HOPENGL=$withval])
+
 dnl Select a specific Haskell compiler and/or flags.
 AC_ARG_WITH(hc, 
             [  --with-hc=HC            use Haskell compiler HC (full path required)],
@@ -107,6 +120,8 @@ GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.0, [
 
 GHCBARE=`basename $GHC`
 GHCPKGNAME=ghc-pkg`echo $GHCBARE | $SED s/ghc//`
+
+echo $GHCBARE, $GHCPKGNAME
 
 dnl Check for ghc-pkg. Use the one that is in the same directory and
 dnl version suffix as the specified compiler.
