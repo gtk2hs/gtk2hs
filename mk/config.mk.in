@@ -83,6 +83,8 @@ PKG		= @GHCPKG@
 # Provide an OpenGL widget.
 ENABLE_OPENGL	= @ENABLE_OPENGL@
 
+# Provide a SourceView widget.
+ENABLE_SOURCEVIEW = @ENABLE_SOURCEVIEW@
 
 # This should be libXXX.a and XXX for Unix and
 #		    XXX.lib and XXX.exe for Windows

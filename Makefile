@@ -19,6 +19,9 @@ ifeq ($(BUILT_IN_C2HS),yes)
 	$(MAKE) -Cc2hs $@
 endif
 	$(MAKE) -Cgtk $@ 
+ifeq ($(ENABLE_SOURCEVIEW), yes)
+	$(MAKE) -Csourceview $@
+endif
 	$(MAKE)	-Cmogul $@ 
 ifeq ($(BUILDDOCS),yes)
 	$(MAKE) -Cdoc all
@@ -34,6 +37,9 @@ demo : noinplace
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/hello $@ 
+ifeq ($(ENABLE_SOURCEVIEW), yes)
+	$(MAKE) -Cdemo/sourceview $@
+endif
 
 install install-without-pkg : all
 	$(MAKE) -Cgtk  $@
@@ -54,6 +60,10 @@ endif
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/treeList $@ 
 	$(MAKE) -Cdemo/concurrent $@ 
+ifeq ($(ENABLE_SOURCEVIEW), yes)
+	$(MAKE) -Cdemo/sourceview $@
+	$(MAKE) -Csourceview $@
+endif
 ifeq ($(BUILDDOCS),yes)
 	$(MAKE) -Cdoc $@
 endif
@@ -70,6 +80,8 @@ endif
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/treeList $@ 
 	$(MAKE) -Cdemo/concurrent $@ 
+	$(MAKE) -Cdemo/sourceview $@
+	$(MAKE) -Csourceview $@
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 TODO VERSION aclocal.m4 acinclude.m4 \
@@ -86,12 +98,14 @@ dist :
 	  $(addprefix $(TARNAME)/,$(EXTRA_TARFILES)))
 	$(MAKE) -Cc2hs tarsource
 	$(MAKE) -Cgtk tarsource
+	$(MAKE) -Csourceview tarsource
 	$(MAKE) -Cmogul tarsource
 	$(MAKE) -Cdemo/hello tarsource
 	$(MAKE) -Cdemo/unicode tarsource
 	$(MAKE) -Cdemo/graphic tarsource
 	$(MAKE) -Cdemo/treeList tarsource
 	$(MAKE) -Cdemo/concurrent tarsource
+	$(MAKE) -Cdemo/sourceview tarsource
 	$(MAKE) -Cgendoc tarsource
 	$(MAKE) -Cdoc tarsource
 	$(GZIP) $(TARNAME).tar
