@@ -19,6 +19,9 @@
 	Get all doc files to be installed. I'm not sure where the html docs
 	should be installed however, it's $(datadir)/doc/gtk2hs/html for now.
 
+	* tools/c2hs/c/CParser.hs: allow c2hs to cope with (and ignore)
+	multiple __atribute__ annotations. Required for glib-2.6.
+
 2005-01-12 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,
