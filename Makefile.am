@@ -271,7 +271,6 @@ CLEANFILES += $(libHSglib_a_BUILDSOURCES)
 
 DISTCLEANFILES+= glib/libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
 
-$(libHSglib_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES)
 -include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
 
 #
@@ -293,9 +292,11 @@ libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 libHSgtk_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) gtk
 gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
 
-nodist_libHSgtk_a_SOURCES =						\
+libHSgtk_a_GENERATEDSOURCES =						\
 	gtk/Graphics/UI/Gtk/Types.chs					\
 	gtk/Graphics/UI/Gtk/Signals.chs
+
+nodist_libHSgtk_a_SOURCES = $(libHSgtk_a_GENERATEDSOURCES)
 
 libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk.hs						\
@@ -430,7 +431,7 @@ EXTRA_libHSgtk_a_SOURCES =						\
 	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
 
 html_HSFILES_PREPROC = gtk/Graphics/UI/Gtk.hs
-html_HSFILES_HIDDEN  = gtk/Graphics/UI/Gtk/Types.hs
+html_HSFILES_HIDDEN  = $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
@@ -488,8 +489,7 @@ libHSgtk_a_BUILDSOURCES = \
 	$(libHSgtk_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgtk_a_CHSFILES_HS) \
 	$(libHSgtk_a_HSCFILES_HS) \
-	gtk/Graphics/UI/Gtk/Types.chs \
-	gtk/Graphics/UI/Gtk/Signals.chs
+	$(libHSgtk_a_GENERATEDSOURCES)
 libHSgtk_a_HSFILES  = \
 	$(filter %.hs,$(libHSgtk_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgtk_a_ALLSOURCES))
@@ -507,7 +507,7 @@ CLEANFILES+= $(libHSgtk_a_BUILDSOURCES)
 
 DISTCLEANFILES+= gtk/libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
 
-$(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES)
+$(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
 -include $(libHSgtk_a_CHSFILES_HS:.hs=.dep) gtk/libHSgtk_a.deps
 
 #
@@ -575,13 +575,15 @@ libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLAD
 libHSglade_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) glade
 glade/libHSglade_a.deps	: gtk/libHSgtk_a.deps
 
-nodist_libHSglade_a_SOURCES =	\
+libHSglade_a_GENERATEDSOURCES =	\
 	glade/Graphics/UI/Gtk/Glade/Types.chs
+
+nodist_libHSglade_a_SOURCES = $(libHSglade_a_GENERATEDSOURCES)
 
 libHSglade_a_SOURCES =	        \
         glade/Graphics/UI/Gtk/Glade.chs
 
-html_HSFILES_HIDDEN += glade/Graphics/UI/Gtk/Glade/Types.hs
+html_HSFILES_HIDDEN += $(libHSglade_a_GENERATEDSOURCES:.chs=.hs)
 
 glade_Graphics_UI_Gtk_Glade_Types_hs_HCFLAGS	= -fglasgow-exts
 
@@ -610,7 +612,7 @@ libHSglade_a_BUILDSOURCES = \
 	$(libHSglade_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSglade_a_CHSFILES_HS) \
         $(libHSglade_a_HSCFILES_HS) \
-        glade/Graphics/UI/Gtk/Glade/Types.chs
+        $(libHSglade_a_GENERATEDSOURCES)
 libHSglade_a_HSFILES  = \
 	$(filter %.hs,$(libHSglade_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSglade_a_ALLSOURCES))
@@ -624,7 +626,9 @@ CLEANFILES += $(libHSglade_a_BUILDSOURCES)
 
 DISTCLEANFILES+= glade/libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
 
-$(libHSglade_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSglade_a_CHSFILES)
+$(libHSglade_a_CHSFILES:.chs=.dep) :	\
+	$(libHSgtk_a_GENERATEDSOURCES)	\
+	$(libHSglade_a_GENERATEDSOURCES)
 -include $(libHSglade_a_CHSFILES:.chs=.dep) glade/libHSglade_a.deps
 
 endif #ENABLE_LIBGLADE
@@ -650,15 +654,17 @@ libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_C
 libHSgconf_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gconf
 gconf/libHSgconf_a.deps	: gtk/libHSgtk_a.deps
 
-nodist_libHSgconf_a_SOURCES =				\
+libHSgconf_a_GENERATEDSOURCES =				\
 	gconf/System/Gnome/GConf/Types.chs
+
+nodist_libHSgconf_a_SOURCES = $(libHSgconf_a_GENERATEDSOURCES)
 
 libHSgconf_a_SOURCES =					\
 	gconf/System/Gnome/GConf/GConfValue.chs		\
 	gconf/System/Gnome/GConf/GConfClient.chs	\
 	gconf/System/Gnome/GConf.hs
 
-html_HSFILES_HIDDEN += gconf/System/Gnome/GConf/Types.hs
+html_HSFILES_HIDDEN += $(libHSgconf_a_GENERATEDSOURCES:.chs=.hs)
 
 libHSgconf_a_LIBADD =	\
 	gconf/System/Gnome/GConf/GConfClient_stub.o
@@ -688,7 +694,7 @@ libHSgconf_a_BUILDSOURCES = \
 	$(libHSgconf_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgconf_a_CHSFILES_HS) \
         $(libHSgconf_a_HSCFILES_HS) \
-        gconf/System/Gnome/GConf/Types.chs
+        $(libHSgconf_a_GENERATEDSOURCES)
 libHSgconf_a_HSFILES  = \
 	$(filter %.hs,$(libHSgconf_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgconf_a_ALLSOURCES))
@@ -706,7 +712,9 @@ CLEANFILES += $(libHSgconf_a_BUILDSOURCES)
 
 DISTCLEANFILES+= gconf/libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
-$(libHSgconf_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSgconf_a_CHSFILES)
+$(libHSgconf_a_CHSFILES:.chs=.dep) :	\
+	$(libHSgtk_a_GENERATEDSOURCES)	\
+	$(libHSgconf_a_GENERATEDSOURCES)
 -include $(libHSgconf_a_CHSFILES:.chs=.dep) gconf/libHSgconf_a.deps
 
 endif #ENABLE_GNOME
@@ -732,8 +740,10 @@ libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOU
 libHSsourceview_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) sourceview
 sourceview/libHSsourceview_a.deps	: gtk/libHSgtk_a.deps
 
-nodist_libHSsourceview_a_SOURCES =						\
+libHSsourceview_a_GENERATEDSOURCES =						\
 	sourceview/Graphics/UI/Gtk/SourceView/Types.chs
+
+nodist_libHSsourceview_a_SOURCES = $(libHSsourceview_a_GENERATEDSOURCES)
 
 libHSsourceview_a_SOURCES =							\
 	sourceview/Graphics/UI/Gtk/SourceView.hs				\
@@ -748,7 +758,7 @@ libHSsourceview_a_SOURCES =							\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs		\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceView.chs
 
-html_HSFILES_HIDDEN += sourceview/Graphics/UI/Gtk/SourceView/Types.hs
+html_HSFILES_HIDDEN += $(libHSsourceview_a_GENERATEDSOURCES:.chs=.hs)
 
 sourceview_Graphics_UI_Gtk_SourceView_Types_hs_HCFLAGS	= -fglasgow-exts
 sourceview_Graphics_UI_Gtk_SourceView_SourceTagStyle_hs_HCFLAGS	= -fglasgow-exts
@@ -778,7 +788,7 @@ libHSsourceview_a_BUILDSOURCES = \
 	$(libHSsourceview_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSsourceview_a_CHSFILES_HS) \
         $(libHSsourceview_a_HSCFILES_HS) \
-        sourceview/Graphics/UI/Gtk/SourceView/Types.chs
+        $(libHSsourceview_a_GENERATEDSOURCES)
 libHSsourceview_a_HSFILES  = \
 	$(filter %.hs,$(libHSsourceview_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSsourceview_a_ALLSOURCES))
@@ -792,7 +802,9 @@ CLEANFILES += $(libHSsourceview_a_BUILDSOURCES)
 
 DISTCLEANFILES+= sourceview/libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
 
-$(libHSsourceview_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSsourceview_a_CHSFILES)
+$(libHSsourceview_a_CHSFILES:.chs=.dep) :	\
+	$(libHSgtk_a_GENERATEDSOURCES)		\
+	$(libHSsourceview_a_GENERATEDSOURCES)
 -include $(libHSsourceview_a_CHSFILES:.chs=.dep) sourceview/libHSsourceview_a.deps
 
 endif #ENABLE_GNOME
@@ -818,13 +830,15 @@ libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEM
 libHSmozembed_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mozembed
 mozembed/libHSmozembed_a.deps	: gtk/libHSgtk_a.deps
 
-nodist_libHSmozembed_a_SOURCES =			\
+libHSmozembed_a_GENERATEDSOURCES =			\
 	mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs
+
+nodist_libHSmozembed_a_SOURCES = $(libHSmozembed_a_GENERATEDSOURCES)
 
 libHSmozembed_a_SOURCES =				\
 	mozembed/Graphics/UI/Gtk/MozEmbed.chs
 
-html_HSFILES_HIDDEN += mozembed/Graphics/UI/Gtk/MozEmbed/Types.hs
+html_HSFILES_HIDDEN += $(libHSmozembed_a_GENERATEDSOURCES:.chs=.hs)
 
 mozembed_Graphics_UI_Gtk_MozEmbed_Types_hs_HCFLAGS = -fglasgow-exts
 
@@ -852,7 +866,7 @@ libHSmozembed_a_BUILDSOURCES = \
 	$(libHSmozembed_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSmozembed_a_CHSFILES_HS) \
         $(libHSmozembed_a_HSCFILES_HS) \
-        mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs
+        $(libHSmozembed_a_GENERATEDSOURCES)
 libHSmozembed_a_HSFILES  = \
 	$(filter %.hs,$(libHSmozembed_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSmozembed_a_ALLSOURCES))
@@ -866,7 +880,9 @@ CLEANFILES += $(libHSmozembed_a_BUILDSOURCES)
 
 DISTCLEANFILES+= mozembed/libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
 
-$(libHSmozembed_a_CHSFILES:.chs=.dep) : $(libHSglib_a_CHSFILES) $(libHSgtk_a_CHSFILES) $(libHSmozembed_a_CHSFILES)
+$(libHSmozembed_a_CHSFILES:.chs=.dep) : \
+	$(libHSgtk_a_GENERATEDSOURCES)	\
+	$(libHSmozembed_a_GENERATEDSOURCES)
 -include $(libHSmozembed_a_CHSFILES:.chs=.dep) mozembed/libHSmozembed_a.deps
 
 endif #ENABLE_MOZEMBED

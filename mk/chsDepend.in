@@ -33,7 +33,7 @@ for FULLNAME in $@; do
       for DEPDIR in $SEARCHPATH; do
         DEPNAME=`echo "$DEPDIR/$DEP" | $SED 's%\.//*%%'`;
         #echo Looking for $DEP in $DEPDIR , i.e.: $DEPNAME
-        if test -f "$DEPNAME.chs"; then
+        if test -f "$DEPNAME.chs" -o -f "$DEPNAME.chs.pp"; then
           #echo Found $DEP in $DEPDIR
 	  DEPNAMES="$DEPNAMES $DEPNAME.chi";
 	  FOUND=yes;

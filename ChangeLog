@@ -1,3 +1,26 @@
+2005-02-26 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/callbackGen/Signal.chs-boot1: add #hide Haddock annotation so
+	the Signal module will not appear in the generated docs.
+
+	* Makefile.am: It is useful to have a seperate variable holding the
+	files that are generated from nothing using code generators so define
+	a GENERATEDSOURCES variable for each package and re-define some other
+	variables in terms of that. We use it to define
+	nodist_*_SOURCES and html_HSFILES_HIDDEN for each package (since all
+	the generated files are hidden).
+	Instead of having each packages .dep files depending on all of the
+	packages .chs file (which causes lots of unnecessary invocations of
+	chsDepend) make them just depend on the .chs files that	might not
+	exist which are the ones produced by code generators. So make them
+	depend on the GENERATEDSOURCES files.
+
+	* mk/chsDepend.in: since we no longer make the .dep files depend on
+	every .chs file in sight, the .chs file (produced from the .chs.pp
+	file) might not exist when the .dep file is generated so look for
+	.chs.pp files as well as .chs file when calculating the deps. This is
+	possibly a bit of a hack.
+
 2005-02-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,
