@@ -1,6 +1,6 @@
 Package {
      name            = "gconf",
-     auto            = True,
+     @GHCPKG_USE_AUTOLIBS@
      import_dirs     = ["@hidir@/gconf"],
      source_dirs     = [],
      library_dirs    = [@GCONF_LIBDIR_CQ@],

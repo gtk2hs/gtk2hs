@@ -1,6 +1,6 @@
 Package {
      name            = "mogul",
-     auto            = True,
+     @GHCPKG_USE_AUTOLIBS@
      import_dirs     = ["@hidir@/mogul"],
      source_dirs     = [],
      library_dirs    = [@GTK_LIBDIR_CQ@],

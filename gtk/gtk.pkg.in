@@ -1,6 +1,6 @@
 Package {
      name            = "gtk",
-     auto            = True,
+     @GHCPKG_USE_AUTOLIBS@
      import_dirs     = ["@hidir@/gtk"],
      source_dirs     = [],
      library_dirs    = [@GTK_LIBDIR_CQ@],

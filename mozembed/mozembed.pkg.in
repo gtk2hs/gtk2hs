@@ -1,6 +1,6 @@
 Package {
      name            = "mozembed",
-     auto            = True,
+     @GHCPKG_USE_AUTOLIBS@
      import_dirs     = ["@hidir@/mozembed"],
      source_dirs     = [],
      library_dirs    = [@MOZEMBED_LIBDIR_CQ@],

@@ -1,6 +1,6 @@
 Package {
      name            = "sourceview",
-     auto            = True,
+     @GHCPKG_USE_AUTOLIBS@
      import_dirs     = ["@hidir@/sourceview"],
      source_dirs     = [],
      library_dirs    = [@SOURCEVIEW_LIBDIR_CQ@],

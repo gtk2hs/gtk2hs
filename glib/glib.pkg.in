@@ -1,6 +1,6 @@
 Package {
      name            = "glib",
-     auto            = True,
+     @GHCPKG_USE_AUTOLIBS@
      import_dirs     = ["@hidir@/glib"],
      source_dirs     = [],
      library_dirs    = [@GLIB_LIBDIR_CQ@],

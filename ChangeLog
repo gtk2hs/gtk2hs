@@ -59,6 +59,11 @@
 	GHCPKG_USE_AUTOLIBS to have the appropriate value to substitute into
 	all the <module>.pkg.in files.
 
+	* gconf/gconf.pkg.in, glib/glib.pkg.in, mogul/mogul.pkg.in,
+	sourceview/sourceview.pkg.in, glade/glade.pkg.in,  gtk/gtk.pkg.in,
+	mozembed/mozembed.pkg.in: use the new GHCPKG_USE_AUTOLIBS substitution
+	so the .pkg files will be understood by older versions of ghc-pkg.
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files
