@@ -591,6 +591,7 @@ libHSsourceview_a_SOURCES =			\
 	sourceview/SourceView.chs
 
 sourceview_SourceViewType_hs_HCFLAGS = -fglasgow-exts
+sourceview_SourceTagStyle_hs_HCFLAGS = -fglasgow-exts
 
 libHSsourceview_a_DEPENDENCIES = libHSgtk.a
 
