@@ -181,16 +181,16 @@
 # These ones are actualy interfaces, but interface implementations are GObjects
 	GtkEditable
 	GtkSourceStyleScheme		if sourceview
-	GtkFileChooser			if gtk-2.4
-# This became a GObject in version 2:
-	GdkGC
-# These are Pango structures:
-	PangoContext
-	PangoLayout
-	PangoFont			as Font
-	PangoFontFamily			as FontFamiliy
-	PangoFontFace			as FontFace
-	PangoFontMap			as FontMap
-	PangoFontset			as FontSet
-# This type is only available for PANGO_ENABLE_BACKEND compiled source
-#	    PangoFontsetSimple	as FontSetSimple, pango_fontset_simple_get_type
+	GtkFileChooser
+## This now became a GObject in version 2:
+	GdkGC				as GC, gdk_gc_get_type
+## These are Pango structures
+	PangoContext		as PangoContext, pango_context_get_type
+	PangoLayout		as PangoLayout, pango_layout_get_type
+	PangoFont		as Font, pango_font_get_type
+	PangoFontFamily		as FontFamily, pango_font_family_get_type
+	PangoFontFace		as FontFace, pango_font_face_get_type
+	PangoFontMap		as FontMap, pango_font_face_get_type
+	PangoFontset		as FontSet, pango_fontset_get_type
+## This type is only available for PANGO_ENABLE_BACKEND compiled source
+##	    PangoFontsetSimple	as FontSetSimple, pango_fontset_simple_get_type
