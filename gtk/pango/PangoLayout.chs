@@ -1,10 +1,10 @@
---  GIMP Toolkit (GTK) - text layout functions @entry layout@
+--  GIMP Toolkit (GTK) - text layout functions @entry PangoLayout@
 --
 --  Author : Axel Simon
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2003/05/16 05:53:33 $
+--  Version $Revision: 1.4 $ from $Date: 2003/05/17 14:53:11 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
