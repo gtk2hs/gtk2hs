@@ -37,6 +37,8 @@
 	gtk/selectors/FontSelectionDialog.chs, gtk/layout/Fixed.chs,
 	gtk/misc/SizeGroup.chs, gtk/menuComboToolbar/ToolItem.chs: new modules
 
+	* gtk/selectors/api.ignore: new api.ignore file
+
 	* gtk/Makefile: add new directory 'selectors' to SUBDIRS.
 
 	* gtk/general/Gtk.hs: export new modules
