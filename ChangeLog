@@ -1,3 +1,8 @@
+2005-01-31 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/glade/simple.glade: remove libgnome requirement, it was
+	unnecesary.
+
 2005-01-30 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: first go at generating signals including
