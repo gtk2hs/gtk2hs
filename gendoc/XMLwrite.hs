@@ -133,7 +133,7 @@ moduleToXML mName (ModInfo { modCat=cat, modSynop=syn, modIntro=int,
     ],
     Element "refsynopsisdiv" [] [
       Element "informaltable" [
-        Attribute "frame" "None",
+        Attribute "frame" "none",
 	Attribute "colsep" "0",
 	Attribute "rowsep" "0"] [
 	Element "tgroup" [
