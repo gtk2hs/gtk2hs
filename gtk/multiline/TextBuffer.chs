@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
 --
 --  Copyright (c) [2001..2002] Axel Simon
 --
@@ -260,7 +260,7 @@ textBufferGetSlice :: TextIter -> TextIter -> Bool -> TextBuffer -> IO String
 textBufferGetSlice start end incl tb = {#call unsafe text_buffer_get_slice#}
   tb start end (fromBool incl) >>= peekCString
 
--- Insert an image (@GdkPixbuf) into the @TextBuffer. (EXPORTED)
+-- Insert an image into the @TextBuffer. (EXPORTED)
 --
 -- * See @textBufferGetSlice and @textBufferGetText.
 --
@@ -271,8 +271,9 @@ textBufferInsertPixbuf pos img tb =
 -- Create a @TextMark from an iterator. (EXPORTED)
 --
 -- * Pass Nothing as @name for an anonymous @TextMark.
+--
 -- * Set @gravity to True if the mark should keep left.
--- 
+--
 textBufferCreateMark :: Maybe MarkName -> TextIter -> Bool -> TextBuffer -> 
 		        IO TextMark
 textBufferCreateMark Nothing iter gravity tb = makeNewGObject mkTextMark $

@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:28 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -128,14 +128,34 @@ import Enums	(StateType(..), TextDirection(..))
 
 -- methods
 
--- Showing and hiding a widget. (EXPORTED)
+-- Queue a show request. (EXPORTED)
 --
-widgetShow, widgetShowNow, widgetHide, widgetShowAll, widgetHideAll :: 
-  WidgetClass w => w -> IO ()
+-- * Flags a widget to be displayed. Any widget that isn't shown will not appear on the screen. If you want to show all the widgets in a container, it's easier to call @widgetShowAll on the container, instead of individually showing the widgets. Note that you have to show the containers containing a widget, in addition to the widget itself, before it will appear onscreen. When a toplevel container is shown, it is immediately realized and mapped; other shown widgets are realized and mapped when their toplevel container is realized and mapped.
+--
+widgetShow :: WidgetClass w => w -> IO ()
 widgetShow    = {#call widget_show#}.toWidget
+
+-- Queue a show event and wait for it to be executed. (EXPORTED)
+--
+-- * If the widget is an unmapped toplevel widget (i.e. a @Window that has not yet been shown), enter the main loop and wait for the window to actually be mapped. Be careful; because the main loop is running, anything can happen during this function.
+--
+widgetShowNow :: WidgetClass w => w -> IO ()
 widgetShowNow = {#call widget_show_now#}.toWidget
+
+-- Queue a hide request. (EXPORTED)
+--
+-- * Reverses the effects of @widgetShow, causing the widget to be hidden (make invisible to the user).
+widgetHide :: WidgetClass w => w -> IO ()
 widgetHide    = {#call widget_hide#}.toWidget
+
+-- Show this and all child widgets. (EXPORTED)
+--
+widgetShowAll :: WidgetClass w => w -> IO ()
 widgetShowAll = {#call widget_show_all#}.toWidget
+
+-- Hide this and all child widgets. (EXPORTED)
+--
+widgetHideAll  :: WidgetClass w => w -> IO ()
 widgetHideAll = {#call widget_hide_all#}.toWidget
 
 -- Destroy a widget. (EXPORTED)
@@ -143,7 +163,7 @@ widgetHideAll = {#call widget_hide_all#}.toWidget
 -- * The @widgetDestroy function is used to shutdown an object, i.e. a widget
 --   will be removed from the screen and unrealized. Resources will be freed
 --   when all references are released. 
--- 
+--
 widgetDestroy :: WidgetClass obj => obj -> IO ()
 widgetDestroy = {#call widget_destroy#}.toWidget
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
 --
 --  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
 --
@@ -275,9 +275,13 @@ comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
 
 -- For installing idle callbacks: Priorities. (EXPORTED)
 --
-priorityHigh, priorityDefault, priorityLow :: Int
+priorityHigh :: Int
 priorityHigh    = #const G_PRIORITY_HIGH_IDLE
+
+priorityDefault :: Int
 priorityDefault = #const G_PRIORITY_DEFAULT_IDLE
+
+priorityLow :: Int
 priorityLow	= #const G_PRIORITY_LOW
 
 

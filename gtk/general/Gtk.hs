@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -44,7 +44,6 @@
 -- * Every module that is commented out and not mentioned above.
 --
 module Gtk(
-  ( # ),
   -- general things, initialization
   module General,
   module IconFactory,
@@ -269,9 +268,6 @@ import Widget
 -- cross-process embedding
 import Socket
 
--- Make method invocation look more object-oriented. (EXPORTED)
---
-obj # meth = meth obj
 
 
 

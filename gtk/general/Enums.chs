@@ -1,11 +1,12 @@
---  GIMP Toolkit (GTK) Binding for Haskell: Enumeration types     -*-haskell-*-
+--  -*-haskell-*-
+--  GIMP Toolkit (GTK) Binding for Haskell: Enumeration types
 --
---  Author : Manuel M. T. Chakravarty, Axel Simon
+--  Author : Axel Simon, Manuel Chakravarty
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
 --
---  Copyright (c) [1999..2001] Manuel M. T. Chakravarty
+--  Copyright (c) [1999..2001] Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Library General Public
@@ -52,7 +53,6 @@ module Enums(
   PathType(..),
   PolicyType(..),
   PositionType(..),
-  PreviewType(..),
   ProgressBarOrientation(..),
   ReliefStyle(..),
   ResizeMode(..),
@@ -151,6 +151,8 @@ data Click = SingleClick
 --
 {#enum DeleteType {underscoreToCase}#}
 
+-- editing direction (EXPORTED)
+--
 {#enum DirectionType {underscoreToCase}#}
 
 -- justification for label and maybe other widgets (text?) (EXPORTED)
@@ -177,7 +179,7 @@ data Click = SingleClick
 --
 {#enum Orientation {underscoreToCase}#}
 
--- packing parameters of a widget
+-- packing parameters of a widget (EXPORTED)
 --
 data Packing = PackExpand
 	     | PackFill
@@ -196,23 +198,29 @@ data Packing = PackExpand
 --
 {#enum PathType {underscoreToCase}#}
 
--- Scrollbar policy types (for scrolled windows)
+-- Scrollbar policy types (for scrolled windows) (EXPORTED)
 --
 {#enum PolicyType {underscoreToCase}#}
 
--- position a scale's value is drawn relative to the trough
+-- position a scale's value is drawn relative to the trough (EXPORTED)
 --
 {#enum PositionType {underscoreToCase}#}
-
-{#enum PreviewType {underscoreToCase}#}
 
 -- Is the ProgressBar horizontally or vertically directed? (EXPORTED)
 --
 {#enum ProgressBarOrientation {underscoreToCase}#}
 
+-- I don't have a clue. (EXPORTED)
+--
 {#enum ReliefStyle {underscoreToCase}#}
 
--- resize mode, for containers
+-- resize mode, for containers (EXPORTED)
+--
+-- * @ResizeParent Pass resize request to the parent
+--
+-- * @ResizeQueue  Queue resizes on this widget
+--
+-- * @ResizeImmediate Perform the resizes now
 --
 {#enum ResizeMode {underscoreToCase}#}
 
@@ -224,6 +232,7 @@ data Packing = PackExpand
 --
 -- * There is a deprecated entry SelectionExtended which should have the
 --   same value as SelectionMultiple. C2HS chokes on that construct.
+--
 data SelectionMode = SelectionNone
                    | SelectionSingle
                    | SelectionBrowse
@@ -235,15 +244,15 @@ data SelectionMode = SelectionNone
 --
 {#enum ShadowType {underscoreToCase}#}
 
--- widget states
+-- widget states (EXPORTED)
 --
 {#enum StateType {underscoreToCase}#}
 
--- Submenu direction policies
+-- Submenu direction policies (EXPORTED)
 --
 {#enum SubmenuDirection {underscoreToCase}#}
 
--- Submenu placement policies
+-- Submenu placement policies (EXPORTED)
 --
 {#enum SubmenuPlacement {underscoreToCase}#}
 
@@ -281,8 +290,8 @@ instance Flags TextSearchFlags
 --
 --{#enum TroughType {underscoreToCase}#}
 
--- updating types for range widgets (determines when the `value_changed'
--- signal is emitted by the widget)
+-- updating types for range widgets (determines when the @connectToValueChanged
+-- signal is emitted by the widget)  (EXPORTED)
 --
 {#enum UpdateType {underscoreToCase}#}
 
@@ -290,11 +299,11 @@ instance Flags TextSearchFlags
 --
 {#enum Visibility {underscoreToCase}#}
 
--- window position types
+-- window position types (EXPORTED)
 --
 {#enum WindowPosition {underscoreToCase}#}
 
--- interaction of a window with window manager
+-- interaction of a window with window manager (EXPORTED)
 --
 {#enum WindowType {underscoreToCase}#}
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
 --
 --  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
 --
@@ -192,12 +192,14 @@ entrySetEditable isEditable ed = {#call editable_set_editable#}
 entryNew :: IO Entry
 entryNew = makeNewObject mkEntry $ liftM castPtr $ {#call unsafe entry_new#}
 
+
+
 -- Set the text of the @Entry widget. (EXPORTED)
 --
 entrySetText :: EntryClass ec => String -> ec -> IO ()
 entrySetText str ec = withCString str $ {#call entry_set_text#} (toEntry ec)
 
--- Append the text of the @Entry widget. (EXPORTED)
+-- Append to the text of the @Entry widget. (EXPORTED)
 --
 entryAppendText :: EntryClass ec => String -> ec -> IO ()
 entryAppendText str ec = 

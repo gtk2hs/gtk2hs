@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
 --
 --  Copyright (c) 2001 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -40,6 +40,7 @@ module Window(
   windowActivateFocus,
   windowActivateDefault,
   windowSetModal,
+  windowSetDefaultSize,
 --  windowSetGeometryHints,
   windowSetPosition,
   WindowPosition(..),
@@ -107,8 +108,20 @@ windowActivateDefault w =
 windowSetModal :: WindowClass w => Bool -> w -> IO ()
 windowSetModal m w = {#call window_set_modal#} (toWindow w) (fromBool m)
 
--- set window resizing geometry (EXPORTED)
+-- set window default size (EXPORTED)
 --
+-- * Sets the default size of a window. If the window's "natural" size (its size request) is larger than the default, the default will be ignored. More generally, if the default size does not obey the geometry hints for the window (@windowSetGeometryHints can be used to set these explicitly), the default size will be clamped to the nearest permitted size.
+--
+-- * Unlike @widgetSetSizeRequest, which sets a size request for a widget and thus would keep users from shrinking the window, this function only sets the initial size, just as if the user had resized the window themselves. Users can still shrink the window again as they normally would. Setting a default size of -1 means to use the "natural" default size (the size request of the window).
+--
+-- * For more control over a window's initial size and how resizing works, investigate @windowSetGeometryHints.
+--
+-- * For some uses, @windowResize is a more appropriate function. @windowResize changes the current size of the window, rather than the size to be used on initial display. @windowResize always affects the window itself, not the geometry widget.The default size of a window only affects the first time a window is shown; if a window is hidden and re-shown, it will remember the size it had prior to hiding, rather than using the default size. Windows can't actually be 0x0 in size, they must be at least 1x1, but passing 0 for width and height is OK, resulting in a 1x1 default size.
+--
+windowSetDefaultSize :: WindowClass w => Int -> Int -> w -> IO ()
+windowSetDefaultSize height width w =
+  {#call window_set_default_size#} (toWindow w) (fromIntegral height)
+  (fromIntegral width)
 
 -- set the window position policy (EXPORTED)
 --
@@ -118,8 +131,8 @@ windowSetPosition pos w =
 
 -- set transient window (EXPORTED)
 --
-windowSetTransientFor :: (WindowClass win, WindowClass parent) 
-			 => parent -> win -> IO ()
+windowSetTransientFor :: (WindowClass win, WindowClass parent) => 
+			 parent -> win -> IO ()
 windowSetTransientFor p w = 
   {#call window_set_transient_for#} (toWindow w) (toWindow p)
 

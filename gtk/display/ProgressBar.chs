@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:29 $
 --
 --  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
 --
@@ -97,13 +97,13 @@ progressBarSetPulseStep fraction pb =
   {#call unsafe progress_bar_set_pulse_step#} (toProgressBar pb) 
   (realToFrac fraction)
 
--- Returns the current fraction of the tast that has been completet. (EXPORTED)
+-- Returns the current fraction of the task that has been completed. (EXPORTED)
 --
 progressBarGetFraction :: ProgressBarClass pb => pb -> IO Double
 progressBarGetFraction pb = liftM realToFrac $ 
   {#call unsafe progress_bar_get_fraction#} (toProgressBar pb)
 
--- Returns the current pulseStep of the tast that has been completet. 
+-- Returns the current pulseStep of the task that has been completed. 
 -- (EXPORTED)
 --
 progressBarGetPulseStep :: ProgressBarClass pb => pb -> IO Double

@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -79,7 +79,7 @@ import Object	(makeNewObject)
 treeViewNew :: IO TreeView
 treeViewNew = makeNewObject mkTreeView (liftM castPtr {#call tree_view_new#})
 
--- Make a new TreeView widget with @model as the storage model. (EXPORTED)
+-- Make a new TreeView widget with @tm as the storage model. (EXPORTED)
 --
 treeViewNewWithModel :: TreeModelClass tm => tm -> IO TreeView
 treeViewNewWithModel tm = makeNewObject mkTreeView $ liftM castPtr $
