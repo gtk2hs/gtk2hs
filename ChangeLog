@@ -135,6 +135,13 @@
 	gtk/Graphics/UI/Gtk/Windows/FileSel.chs,
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: same for Windows
 
+	* gtk/Makefile, gconf/Makefile, glade/Makefile, mogul/Makefile,
+	sourceview/Makefile: remove makefiles that were used by the old build
+	system.
+	
+	* compat/LocalControl.hs, compat/LocalData.hs: remove old compat
+	modules.
+
 2005-02-12 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Let the pre-processor run over Image.chs by renaming
