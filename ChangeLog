@@ -1,3 +1,13 @@
+2004-10-28  Axel Simon <A.Simon@kent.ac.uk>
+
+	* mk/mkDepend.in: Undo changes. Dependencies are again where the
+	.chs ffiles are.
+
+	* Makefile.am: Fancy dependency generation through makes built-in
+	feature of updating files that are -include'd. I had to sacrifice
+	separate CFLAGS for different packages/applications. See comment
+	at the beginning of Makefile.am.
+	
 2004-10-27  Axel Simon <A.Simon@kent.ac.uk>
 
 	* mk/mkDepend.in: Redirect dependencies into .dep/ directory.

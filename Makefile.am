@@ -1,43 +1,120 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
-SUFFIXES = .chs.cpp .chs .hsc
+SUFFIXES = .chs.cpp .chs .hsc .deps .dep
+DEPDIR = $(addsuffix /,@DEPDIR@)
 CLEANFILES = $(DEPDIR)*.dep
 DISTCLEANFILES = *.precomp
+
+# Before chaning anything on dependency calculation:
+# - Note that the initial dependencies are computed when make checks if
+#   the include files are up to date.
+# - CFLAGS and CPPFLAGS are not package/application specific. This is due
+#   to the initial dependency calculation where it is not clear which
+#   package a particular file belongs to. But the CPPFLAGS are needed to
+#   run .chs.cpp files through the pre-processor.
+# - Dependencies between Haskell .hs modules are stored in
+#   .deps/<pkg-name>.deps . To calculate these dependencies, c2hs must be
+#   run on the .chs and the header file belonging to the package to which
+#   the .chs file belongs to. But since the dependencies for a package are
+#   stored in a file with the package's name, set the NAME variable to the
+#   file name of the target .deps/<pkg-name>.deps and then run c2hs.
+
+CFLAGS = $(filter-out -I%,$(GTK_CFLAGS))
+CPPFLAGS = $(filter -I%,$(GTK_CFLAGS))
 
 SOURCEDIRS = gtk/general gtk/glib gtk/pango gtk/treeList gtk/multiline \
 	gtk/gdk gtk/abstract gtk/display gtk/entry gtk/misc gtk/multiline \
 	gtk/ornaments gtk/scrolling gtk/treeList gtk/selectors gtk/embedding \
-	compat gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows
+	compat gtk/layout gtk/menuComboToolbar gtk/buttons gtk/windows \
+	tools/hierarchyGen tools/callbackGen tools/apicoverage
 
 # fixme: this should be in configure.ac:
 HSCPP = $(CPP) -x c -traditional-cpp -P
 
 CHSDEPEND = $(srcdir)/mk/chsDepend
 
-DEPDIR = $(addsuffix /,@DEPDIR@)
-
 HSC = hsc2hs
+
+# all packages and applications
+lib_LIBRARIES = gtk/libgtk2hs.a
+bin_PROGRAMS = \
+	tools/hierarchyGen/TypeGenerator \
+	tools/callbackGen/HookGenerator \
+	tools/apicoverage/Exclude
+
+# TypeGenerator
+
+# While building the program <name>, set the variable NAME to <name> so
+# we can access program-specific variables like <name>_PACKAGEDEPS. The
+# following is a hack to prevent automake from assuming that we are overriding
+# the tools/hierarchyGen/TypeGenerator goal.
+TypeGenerator_NAME = tools/hierarchyGen/TypeGenerator
+$(TypeGenerator_NAME) : NAME = tools_hierarchyGen_TypeGenerator
+
+tools_hierarchyGen_TypeGenerator_MAIN = \
+  $(tools_hierarchyGen_TypeGenerator_SOURCES)
+tools_hierarchyGen_TypeGenerator_PACKAGEDEPS = data
+tools_hierarchyGen_TypeGenerator_SOURCES = \
+  tools/hierarchyGen/TypeGen.hs
+# Fix automake - the subdir-objects option doesn't work here.
+am_tools_hierarchyGen_TypeGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
+  $(basename $(tools_hierarchyGen_TypeGenerator_SOURCES)))
+
+gtk/general/Hierarchy.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
+			    $(srcdir)/tools/hierarchyGen/TypeGenerator
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+        $(srcdir)/tools/hierarchyGen/hierarchy.list \
+        $@ $(addprefix --tag=,$(CREATE_TYPES)))
+
+# HookGenerator
+HookGenerator_NAME = tools/callbackGen/HookGenerator
+$(HookGenerator_NAME) : NAME = tools_callbackGen_HookGenerator
+
+tools_callbackGen_HookGenerator_MAIN = \
+  $(tools_callbackGen_HookGenerator_SOURCES)
+tools_callbackGen_HookGenerator_PACKAGEDEPS = data
+tools_callbackGen_HookGenerator_SOURCES = \
+  tools/callbackGen/HookGenerator.hs
+am_tools_callbackGen_HookGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
+  $(basename $(tools_callbackGen_HookGenerator_SOURCES)))
+
+
+gtk/general/Signal.chs : $(srcdir)/tools/callbackGen/Signal.chs-boot1 \
+			 $(srcdir)/tools/callbackGen/Signal.chs-boot2 \
+			 $(srcdir)/tools/callbackGen/gtkmarshal.list \
+			 $(srcdir)/tools/callbackGen/HookGenerator
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator $(MARSHALLDEFS) \
+	$(srcdir)/tools/callbackGen/ gtk/general/Signal.chs \
+	$(if $(subst yes,,$(BROKENCB)),--broken))
+
+# API Coverage Tool
+Exclude_NAME = tools/apicoverage/Exclude
+$(Exclude_NAME) : NAME = tools_apicoverage_Exclude
+
+tools_apicoverage_Exclude_MAIN = \
+  $(tools_apicoverage_Exclude_SOURCES)
+tools_apicoverage_Exclude_PACKAGEDEPS = data
+tools_apicoverage_Exclude_SOURCES = \
+  tools/apicoverage/Exclude.hs
+am_tools_apicoverage_Exclude_OBJECTS = $(addsuffix .$(OBJEXT),\
+  $(basename $(tools_apicoverage_Exclude_SOURCES)))
+
 
 # While building lib<name>, set the variable NAME to <name> so we can access
 # the package-specific variable <name>_HEADER, <name>_PACKAGE, etc. The
 # following is a hack to prevent automake from assuming that we are overriding
 # the libgtk2hs.a goal.
-libgtk2hs_a_NAME = libgtk2hs.a
-$(libgtk2hs_a_NAME) : NAME = libgtk2hs_a
+gtk_libgtk2hs_a_NAME = gtk/libgtk2hs.a
+$(gtk_libgtk2hs_a_NAME) : NAME = gtk_libgtk2hs_a
 
-libgtk2hs_a_TOPLEVEL 	= gtk/general/Gtk.hs
-libgtk2hs_a_PACKAGECONF	= libgtk2hs_a.conf
-libgtk2hs_a_PACKAGE	= gtk2hs
-libgtk2hs_a_PACKAGEDEPS	= data
-libgtk2hs_a_HEADER 	= gtk/gtk.h
-libgtk2hs_a_PRECOMP	= gtk.precomp
-libgtk2hs_a_CFLAGS 	= $(filter-out -I%,@GTK_CFLAGS@)
-libgtk2hs_a_CPPFLAGS	= $(filter -I%,@GTK_CFLAGS@)
-libgtk2hs_a_LIBS	= @GTK_LIBS@
-libgtk2hs_a_HCFLAGS	= -fglasgow-exts
+gtk_libgtk2hs_a_PACKAGECONF	= libgtk2hs.conf
+gtk_libgtk2hs_a_PACKAGE		= gtk2hs
+gtk_libgtk2hs_a_PACKAGEDEPS	= data
+gtk_libgtk2hs_a_HEADER 		= gtk/gtk.h
+gtk_libgtk2hs_a_PRECOMP		= gtk/gtk.precomp
+gtk_libgtk2hs_a_LIBS		= @GTK_LIBS@
+gtk_libgtk2hs_a_HCFLAGS		= -fglasgow-exts
 
-lib_LIBRARIES = libgtk2hs.a
-
-libgtk2hs_a_SOURCES = \
+gtk_libgtk2hs_a_SOURCES = \
 	gtk/general/Hierarchy.chs \
 	gtk/general/Signal.chs \
 	gtk/glib/GValue.chs \
@@ -171,22 +248,26 @@ libgtk2hs_a_SOURCES = \
 	compat/LocalControl.hs \
 	compat/LocalData.hs
 
-am_libgtk2hs_a_OBJECTS = \
-  $(addsuffix .$(OBJEXT),$(basename $(libgtk2hs_a_SOURCES)))
+am_gtk_libgtk2hs_a_OBJECTS = \
+  $(addsuffix .$(OBJEXT),$(basename $(gtk_libgtk2hs_a_SOURCES)))
 
-libgtk2hs_a_CHSFILES = $(filter %.chs %.chspp, $(libgtk2hs_a_SOURCES))
-libgtk2hs_a_CHSFILES_HS = $(patsubst %.chs,%.hs,\
-	$(patsubst %.chspp,%.hs,$(libgtk2hs_a_CHSFILES)))
-libgtk2hs_a_HSCFILES = $(filter %.hsc, $(libgtk2hs_a_SOURCES))
-libgtk2hs_a_HSCFILES_HS = $(libgtk2hs_a_HSCFILES:.hsc=.hs)
-libgtk2hs_a_BUILDSOURCES = \
-	$(libgtk2hs_a_CHSFILES_HS) \
-	$(libgtk2hs_a_HSCFILES_HS)
-libgtk2hs_a_HSFILES  = \
-	$(libgtk2hs_a_BUILDSOURCES) \
-	$(filter %.hs,$(libgtk2hs_a_SOURCES))
-MOSTLYCLEANFILES = $(libgtk2hs_a_HSFILES:.hs=.$(OBJEXT))
-CLEANFILES+= $(libgtk2hs_a_BUILDSOURCES)
+gtk_libgtk2hs_a_CHSFILES = $(filter %.chs %.chspp, $(gtk_libgtk2hs_a_SOURCES))
+gtk_libgtk2hs_a_CHSFILES_HS = $(patsubst %.chs,%.hs,\
+	$(patsubst %.chspp,%.hs,$(gtk_libgtk2hs_a_CHSFILES)))
+gtk_libgtk2hs_a_HSCFILES = $(filter %.hsc, $(gtk_libgtk2hs_a_SOURCES))
+gtk_libgtk2hs_a_HSCFILES_HS = $(gtk_libgtk2hs_a_HSCFILES:.hsc=.hs)
+gtk_libgtk2hs_a_BUILDSOURCES = \
+	$(gtk_libgtk2hs_a_CHSFILES_HS) \
+	$(gtk_libgtk2hs_a_HSCFILES_HS)
+gtk_libgtk2hs_a_HSFILES  = \
+	$(gtk_libgtk2hs_a_BUILDSOURCES) \
+	$(filter %.hs,$(gtk_libgtk2hs_a_SOURCES))
+MOSTLYCLEANFILES = $(gtk_libgtk2hs_a_HSFILES:.hs=.$(OBJEXT))
+CLEANFILES+= $(gtk_libgtk2hs_a_BUILDSOURCES) $(gtk_libgtk2hs_a_HSFILES:.hs=.hi)
+CLEANFILES+= $(DEPDIR)gtk_libgtk2hs_a.deps
+CLEANFILES+= $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
+
+-include $(DEPDIR)gtk_libgtk2hs_a.deps $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
 
 # A file with CPP defines that reflect the current configuration.
 CONFIG_H = config.h
@@ -201,35 +282,37 @@ VPATH = $(subst $(SPACE),:,$(strip \
 	$(if $(subst .,,$(srcdir)),$(addprefix $(srcdir)/,$(SOURCEDIRS)), \
 	$(SOURCEDIRS))))
 
-BUILDSOURCES = $(libgtk2hs_a_BUILDSOURCES)
+BUILDSOURCES = $(gtk_libgtk2hs_a_BUILDSOURCES)
+
+LINK = $(strip $(HC) -o $@ $($(NAME)_HCFLAGS) \
+  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
+  $(AM_LDFLAGS) $($(NAME)_EXTRA_LDFLAGS) $($(NAME)_LDFLAGS))
 
 .hs.o: $(CONFIG_H)
-	if test -f $(DEPDIR)$(NAME).dep; then \
-	  $(strip $(HC) -c $< -o $@ $($(NAME)_HCFLAGS) -i$(VPATH) \
-	  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-	  $(addprefix -package-name ,$($(NAME)_PACKAGE)) \
-	  $(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
-	  $($(NAME)_EXTRA_HFILES))) \
-	  $(AM_CPPFLAGS) $($(NAME)_EXTRA_CPPFLAGS) $($(NAME)_CPPFLAGS))\
-	; else \
-	  $(MAKE) $(AM_MAKEFLAGS) NAME="$(NAME)" $($(NAME)_BUILDSOURCES) \
-	  && \
-	  $(strip $(HC) -M $(addprefix -optdep,-f $(DEPDIR)$(NAME).dep) \
-	  $($(NAME)_HCFLAGS) -i$(VPATH) \
-	  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-	  $(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
-	  $($(NAME)_EXTRA_HFILES))) \
-	  $(AM_CPPFLAGS) $($(NAME)_EXTRA_CPPFLAGS) $($(NAME)_CPPFLAGS) \
-	  $($(NAME)_HSFILES)) \
-	  && \
-	  $(strip $(HC) --make $($(NAME)_TOPLEVEL) \
-	  $($(NAME)_HCFLAGS) -i$(VPATH) \
-	  $(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
-	  $(addprefix -package-name ,$($(NAME)_PACKAGE)) \
-	  $(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
-	  $($(NAME)_EXTRA_HFILES))) \
-	  $(AM_CPPFLAGS) $($(NAME)_EXTRA_CPPFLAGS) $($(NAME)_CPPFLAGS))\
-	; fi
+	$(strip $(HC) -c $< -o $@ $($(NAME)_HCFLAGS) -i$(VPATH) \
+	$(addprefix -package ,$($(NAME)_PACKAGEDEPS)) \
+	$(addprefix -package-name ,$($(NAME)_PACKAGE)) \
+	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
+	$($(NAME)_EXTRA_HFILES))) \
+	$(AM_CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS))
+
+.DELETE_ON_ERROR : $(DEPDIR)%.deps
+
+$(DEPDIR)%.deps :
+	touch $@
+	$(if $($*_BUILDSOURCES),$(strip \
+	$(MAKE) $(AM_MAKEFLAGS) NAME="$*" $($*_BUILDSOURCES) \
+	&&))\
+	$(strip $(HC) -M $(addprefix -optdep,-f $(DEPDIR)$*.deps) \
+	$($*_HCFLAGS) -i$(VPATH) \
+	$(addprefix -package ,$($*_PACKAGEDEPS)) \
+	$(addprefix '-\#include<,$(addsuffix >',$(CONFIG_H) \
+	$($*_EXTRA_HFILES))) \
+	$(AM_CPPFLAGS) $(EXTRA_CPPFLAGS) $(CPPFLAGS) \
+	$($*_HSFILES))
+
+.chs.dep :
+	@if test -f $@; then touch $@; else $(CHSDEPEND) -i$(VPATH) $<; fi;
 
 .o.hi:
 	@:
@@ -239,27 +322,29 @@ HSTOOLFLAGS = -H500m
 .PHONY: debug
 debug	:
 	@echo VPATH: $(VPATH)
+	@echo dep files: $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
 
 %.precomp :
 	$(strip $(C2HS) $(C2HS_FLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-	$(addprefix -C,$($(NAME)_CFLAGS) $($(NAME)_CPPFLAGS)) \
+	$(addprefix -C,$(CFLAGS) $(CPPFLAGS)) \
 	--precomp=$($(NAME)_PRECOMP) $($(NAME)_HEADER))
 
 .chs.cpp.chs: $(CONFIG_H)
 	$(strip $(HSCPP) $(AM_CPPFLAGS) \
-	$($(NAME)_EXTRA_CPPFLAGS) $($(NAME)_CPPFLAGS) \
-	$($(NAME)_EXTRA_CFLAGS) $($(NAME)_CFLAGS) \
+	$(EXTRA_CPPFLAGS) $(CPPFLAGS) \
+	$(EXTRA_CFLAGS) $(CFLAGS) \
 	$(addprefix -include ,$(CONFIG_H) $($(NAME)_EXTRA_HFILES)) \
 	$< -o $@)
 
-.hsc.hs:
+.hsc.hs: $(CONFIG_H)
 	$(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
         $(addprefix -L-optl,\
 	$(AM_LDFLAGS) $($(NAME)_EXTRA_LIBS) $($(NAME)_LIBS)) \
         $(addprefix -C,	$(filter-out -I%,$(AM_CPPFLAGS)) \
-	$($(NAME)_EXTRA_CFLAGS) $($(NAME)_CFLAGS))\
+	$(EXTRA_CFLAGS) $(CFLAGS))\
         $(filter -I%,$(AM_CPPFLAGS)) \
-	$($(NAME)_EXTRA_CPPFLAGS) $($(NAME)_CPPFLAGS)\
+	$(EXTRA_CPPFLAGS) $(CPPFLAGS)\
+	--include $(CONFIG_H) \
         --cc=$(HC) --lflag=-no-hs-main $<)
 
 .chs.hs:
@@ -269,12 +354,4 @@ debug	:
 	-i$(VPATH) --precomp=$($(NAME)_PRECOMP) -o $@ $<)
 	$(CHSDEPEND) -i$(VPATH) $<
 
-
--include $(DEPDIR)*.dep
-
-
-#	$(ECHO) no header file associated with $@
-#	exit 1
-#
-#$(libgtk2hs_a_CHSFILES:.chs=.hs) : %.hs : %.chs $(libgtk2hs_a_PRECOMP)
 

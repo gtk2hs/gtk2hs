@@ -83,6 +83,7 @@ if test x$EXEEXT = x; then
   C2HSFLAGS=" -C-D__signed=signed";
   dnl Where are we? (only used during configuration)
   TOP=`$PWD`;
+  CREATE_TYPES="plugNsocket default";
 else
   dnl must be Win32
   SLSUFFIX=".lib";
@@ -100,6 +101,7 @@ else
   dnl Where are we? (only used during configuration)
   TOP=`$PWD | $SED $PATHSED`;
   WIN32=yes;
+  CREATE_TYPES=default;
 fi;
 
 dnl determine a temporary directory for c2hs
@@ -271,10 +273,10 @@ if test x$ENABLE_GNOME = xyes; then
   PKG_CHECK_MODULES(SOURCEVIEW,[gtksourceview-1.0 >= 0.6.0])
 fi
 
-dnl Some APIs only appeared in later versions of libraries, so check if we're
-dnl using later than particular versions.
-GTK_VERSION_2_2=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.2 && echo yes || echo no`
-GTK_VERSION_2_4=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.4 && echo yes || echo no`
+dnl Some APIs only appeared in later versions of libraries. Generate only
+dnl Haskell types for the available C types.
+CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.2 && echo gtk-2.2`"
+CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.4 && echo gtk-2.4`"
 
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
@@ -361,14 +363,20 @@ AC_MSG_CHECKING([whether to build deprecated bindings])
 AC_ARG_ENABLE(deprecated,
 	     [  --disable-deprecated    do not generate bindings for any deprecated APIs],
 	     [ENABLE_DEPRECATED=$enableval],[ENABLE_DEPRECATED=yes])
-
-DISABLE_DEPRECATED=`test $ENABLE_DEPRECATED = yes && echo no || echo yes`
 AC_MSG_RESULT($ENABLE_DEPRECATED)
 
+DISABLE_DEPRECATED=`test $ENABLE_DEPRECATED = yes && echo no || echo yes`
+
 if test $DISABLE_DEPRECATED = yes; then
-C2HSFLAGS="$C2HSFLAGS -C-DDISABLE_DEPRECATED"
-HSCFLAGS="$HSCFLAGS -DDISABLE_DEPRECATED"
-fi
+  AC_DEFINE(DISABLE_DEPRECATED, [], [Leave out all deprecated functions.])
+  AC_DEFINE(G_DISABLE_DEPRECATED, [], [Omit deprecated glib functions.])
+  AC_DEFINE(GDK_DISABLE_DEPRECATED, [], [Omit deprecated gdk functions.])
+  AC_DEFINE(GDK_PIXBUF_DISABLE_DEPRECATED, [],
+	[Omit deprecated pixbuf functions.])
+  AC_DEFINE(GTK_DISABLE_DEPRECATED, [], [Omit deprecated gtk functions.])
+else
+  CREATE_TYPES="deprecated $CREATE_TYPES";
+fi;
 
 dnl Have a special marshall list (available in the source tree of Gtk+ under
 dnl gtk/gtkmarshal.list)
@@ -501,6 +509,7 @@ dnl AC_SUBST(GTK_MICRO_VERSION)
 AC_SUBST(GTK_VERSION_2_2)
 AC_SUBST(GTK_VERSION_2_4)
 AC_SUBST(DISABLE_DEPRECATED)
+AC_SUBST(CREATE_TYPES)
 dnl Optional packages
 dnl AC_SUBST(ENABLE_OPENGL)
 AC_SUBST(ENABLE_LIBGLADE)
