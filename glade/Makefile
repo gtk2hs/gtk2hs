@@ -2,7 +2,7 @@ TOP = ..
 
 include $(TOP)/mk/config.mk
 
-PACKAGENAME = glade
+PACKAGENAME = glade2hs
 
 MAIN = Glade.hs
 
