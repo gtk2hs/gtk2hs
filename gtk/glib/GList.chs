@@ -5,7 +5,7 @@
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2003/11/02 23:57:07 $
+--  Version $Revision: 1.9 $ from $Date: 2004/05/23 16:00:51 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,18 +17,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * Defines functions to extract data from a GList and to produce a GList from
---   a list of pointers.
+-- Defines functions to extract data from a GList and to produce a GList from
+-- a list of pointers.
 --
 -- * The same for GSList.
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
 --
 module GList(
   ptrToInt,

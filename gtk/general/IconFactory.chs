@@ -1,12 +1,12 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry IconFactory@
+--  GIMP Toolkit (GTK) IconFactory
 --
 --  Author : Axel Simon
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.6 $ from $Date: 2004/05/23 15:58:48 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -20,14 +20,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This module provides access to IconFactory, IconSet and IconSource.
+-- This module provides access to IconFactory, IconSet and IconSource.
 --
---- DOCU ----------------------------------------------------------------------
---
---
---- TODO ----------------------------------------------------------------------
+-- TODO
 --
 -- * The following functions are not bound:
 --   iconFactoryLookup, iconFactoryLookupDefault
@@ -91,7 +88,7 @@ import Structs	(IconSize, iconSizeInvalid, iconSizeMenu, iconSizeSmallToolbar,
 -- methods
 
 
--- @method iconFactoryAdd@ Add an IconSet to an IconFactory.
+-- | Add an IconSet to an IconFactory.
 --
 -- * In order to use the new stock object, the factory as to be added to the
 --   default factories by iconFactoryAddDefault.
@@ -100,44 +97,44 @@ iconFactoryAdd :: IconFactory -> String -> IconSet -> IO ()
 iconFactoryAdd i stockId iconSet = withUTFString stockId $ \strPtr ->
   {#call unsafe icon_factory_add#} i strPtr iconSet
 
--- @method iconFactoryAddDefault@ Add all entries of the IconFactory to the
+-- | Add all entries of the IconFactory to the
 -- applications stock object database.
 --
 iconFactoryAddDefault :: IconFactory -> IO ()
 iconFactoryAddDefault  = {#call unsafe icon_factory_add_default#}
 
--- @constructor iconFactoryNew@ Create a new IconFactory.
+-- | Create a new IconFactory.
 --
--- * An application should create a new @ref data IconFactory@ and add all
+-- * An application should create a new 'IconFactory' and add all
 --   needed icons.
---   By calling @ref method iconFactoryAddDefault@ these icons become
+--   By calling 'iconFactoryAddDefault' these icons become
 --   available as stock objects and can easily be displayed by
---   @ref data Image@. Furthermore, a theme can override the icons defined by
+--   'Image'. Furthermore, a theme can override the icons defined by
 --   the application.
 --
 iconFactoryNew :: IO IconFactory
 iconFactoryNew  = makeNewGObject mkIconFactory {#call unsafe icon_factory_new#}
 
--- @method iconFactoryRemoveDefault@ Remove an IconFactory from the
+-- | Remove an IconFactory from the
 -- application's stock database.
 --
 iconFactoryRemoveDefault :: IconFactory -> IO ()
 iconFactoryRemoveDefault  = {#call unsafe icon_factory_remove_default#}
 
--- @method iconSetAddSource@ Add an @ref data IconSource@ (an Icon with
--- attributes) to an @ref type IconSet@.
+-- | Add an 'IconSource' (an Icon with
+-- attributes) to an 'IconSet'.
 --
--- * If an icon is looked up in the IconSet @ref arg set@ the best matching
+-- * If an icon is looked up in the IconSet @set@ the best matching
 --   IconSource will be taken. It is therefore advisable to add a default
 --   (wildcarded) icon, than can be used if no exact match is found.
 --
 iconSetAddSource :: IconSet -> IconSource -> IO ()
 iconSetAddSource set source = {#call unsafe icon_set_add_source#} set source
 
--- @constructor iconSetNew@ Create a new IconSet.
+-- | Create a new IconSet.
 --
--- * Each icon in an application is contained in an @ref data IconSet@. The
---   @ref data IconSet@ contains several variants (@ref data IconSource@s) to
+-- * Each icon in an application is contained in an 'IconSet'. The
+--   'IconSet' contains several variants ('IconSource's) to
 --   accomodate for different sizes and states.
 --
 iconSetNew :: IO IconSet
@@ -166,7 +163,7 @@ foreign import ccall "gtk_icon_set_unref" unsafe
 #endif
 
 
--- @method iconSizeCheck@ Check if a given IconSize is registered.
+-- | Check if a given IconSize is registered.
 --
 -- * Useful if your application expects a theme to install a set with a
 --   specific size. You can test if this actually happend and use another size
@@ -176,41 +173,41 @@ iconSizeCheck :: IconSize -> IO Bool
 iconSizeCheck size = liftM toBool $
   {#call icon_size_lookup#} (fromIntegral size) nullPtr nullPtr
 
--- @method iconSizeRegister@ Register a new IconSize.
+-- | Register a new IconSize.
 --
 iconSizeRegister :: Int -> String -> Int -> IO IconSize
 iconSizeRegister height name width = liftM fromIntegral $
   withUTFString name $ \strPtr -> {#call unsafe icon_size_register#} 
   strPtr (fromIntegral width) (fromIntegral height)
 
--- @method iconSizeRegisterAlias@ Register an additional alias for a name.
+-- | Register an additional alias for a name.
 --
 iconSizeRegisterAlias :: IconSize -> String -> IO ()
 iconSizeRegisterAlias target alias = withUTFString alias $ \strPtr ->
   {#call unsafe icon_size_register_alias#} strPtr (fromIntegral target)
 
--- @method iconSizeFromName@ Lookup an IconSize by name.
+-- | Lookup an IconSize by name.
 --
--- * This fixed value @ref method iconSizeInvalid@ is returned if the name was
+-- * This fixed value 'iconSizeInvalid' is returned if the name was
 --   not found.
 --
 iconSizeFromName :: String -> IO IconSize
 iconSizeFromName name = liftM fromIntegral $
   withUTFString name {#call unsafe icon_size_from_name#}
 
--- @method iconSizeGetName@ Lookup the name of an IconSize.
+-- | Lookup the name of an IconSize.
 --
--- * Returns @literal Nothing@ if the name was not found.
+-- * Returns @Nothing@ if the name was not found.
 --
 iconSizeGetName :: IconSize -> IO (Maybe String)
 iconSizeGetName size = do
   strPtr <- {#call unsafe icon_size_get_name#} (fromIntegral size)
   if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
--- @method iconSourceGetDirection@ Retrieve the @ref data TextDirection@ of
+-- | Retrieve the 'TextDirection' of
 -- this IconSource.
 --
--- * @literal Nothing@ is returned if no explicit direction was set.
+-- * @Nothing@ is returned if no explicit direction was set.
 --
 iconSourceGetDirection :: IconSource -> IO (Maybe TextDirection)
 iconSourceGetDirection is = do
@@ -218,21 +215,21 @@ iconSourceGetDirection is = do
   if (toBool res) then return Nothing else liftM (Just .toEnum.fromIntegral) $
     {#call unsafe icon_source_get_direction#} is
 
--- @method iconSourceGetFilename@ Retrieve the filename this IconSource was
+-- | Retrieve the filename this IconSource was
 -- based on.
 --
--- * Returns @literal Nothing@ if the IconSource was generated by a Pixbuf.
+-- * Returns @Nothing@ if the IconSource was generated by a Pixbuf.
 --
 iconSourceGetFilename :: IconSource -> IO (Maybe String)
 iconSourceGetFilename is = do
   strPtr <- {#call unsafe icon_source_get_filename#} is
   if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
--- @method iconSourceGetSize@ Retrieve the @ref type IconSize@ of this
+-- | Retrieve the 'IconSize' of this
 -- IconSource.
 --
--- * @literal Nothing@ is returned if no explicit size was set (i.e. this
---   @ref data IconSource@ matches all sizes).
+-- * @Nothing@ is returned if no explicit size was set (i.e. this
+--   'IconSource' matches all sizes).
 --
 iconSourceGetSize :: IconSource -> IO (Maybe IconSize)
 iconSourceGetSize is = do
@@ -240,10 +237,10 @@ iconSourceGetSize is = do
   if (toBool res) then return Nothing else liftM (Just .fromIntegral) $
     {#call unsafe icon_source_get_size#} is
 
--- @method iconSourceGetState@ Retrieve the @ref data StateType@ of this
--- @ref data IconSource@.
+-- | Retrieve the 'StateType' of this
+-- 'IconSource'.
 --
--- * @literal Nothing@ is returned if the @ref data IconSource@ matches all 
+-- * @Nothing@ is returned if the 'IconSource' matches all 
 --   states.
 --
 iconSourceGetState :: IconSource -> IO (Maybe StateType)
@@ -252,7 +249,7 @@ iconSourceGetState is = do
   if (toBool res) then return Nothing else liftM (Just .toEnum.fromIntegral) $
     {#call unsafe icon_source_get_state#} is
 
--- @constructor iconSourceNew@ Create a new IconSource.
+-- | Create a new IconSource.
 --
 -- * An IconSource is a single image that is usually added to an IconSet. Next
 --   to the image it contains information about which state, text direction
@@ -284,27 +281,27 @@ foreign import ccall "gtk_icon_source_free" unsafe
 #endif
 
 
--- @method iconSourceSetDirection@ Mark this @ref data IconSource@ that it
--- should only apply to the specified @ref data TextDirection@.
+-- | Mark this 'IconSource' that it
+-- should only apply to the specified 'TextDirection'.
 --
 iconSourceSetDirection :: IconSource -> TextDirection -> IO ()
 iconSourceSetDirection is td = do
   {#call unsafe icon_source_set_direction_wildcarded#} is (fromBool False)
   {#call unsafe icon_source_set_direction#} is ((fromIntegral.fromEnum) td)
 
--- @method iconSourceResetDirection@ Reset the specific
--- @ref data TextDirection@ set with @ref method iconSourceSetDirection@.
+-- | Reset the specific
+-- 'TextDirection' set with 'iconSourceSetDirection'.
 --
 iconSourceResetDirection is =
   {#call unsafe icon_source_set_direction_wildcarded#} is (fromBool True)
 
--- @method iconSourceSetFilename@ Load an icon picture from this filename.
+-- | Load an icon picture from this filename.
 --
 iconSourceSetFilename :: IconSource -> FilePath -> IO ()
 iconSourceSetFilename is name = 
   withUTFString name $ {#call unsafe icon_source_set_filename#} is
 
--- @method iconSourceSetSize@ Set this @ref data IconSource@ to a specific
+-- | Set this 'IconSource' to a specific
 -- size.
 --
 iconSourceSetSize :: IconSource -> IconSize -> IO ()
@@ -312,14 +309,14 @@ iconSourceSetSize is size = do
   {#call unsafe icon_source_set_size_wildcarded#} is (fromBool False)
   {#call unsafe icon_source_set_size#} is (fromIntegral size)
 
--- @method iconSourceResetSize@ Reset the @ref type IconSize@ of this
--- @ref data IconSource@ so that is matches anything.
+-- | Reset the 'IconSize' of this
+-- 'IconSource' so that is matches anything.
 --
 iconSourceResetSize :: IconSource -> IO ()
 iconSourceResetSize is = 
   {#call unsafe icon_source_set_size_wildcarded#} is (fromBool True)
 
--- @method iconSourceSetState@ Mark this icon to be used only with this
+-- | Mark this icon to be used only with this
 -- specific state.
 --
 iconSourceSetState :: IconSource -> StateType -> IO ()
@@ -327,8 +324,8 @@ iconSourceSetState is state = do
   {#call unsafe icon_source_set_state_wildcarded#} is (fromBool False)
   {#call unsafe icon_source_set_state#} is ((fromIntegral.fromEnum) state)
 
--- @method iconSourceResetState@ Reset the @ref data StateType@ of this
--- @ref data IconSource@ so that is matches anything.
+-- | Reset the 'StateType' of this
+-- 'IconSource' so that is matches anything.
 --
 iconSourceResetState :: IconSource -> IO ()
 iconSourceResetState is = 

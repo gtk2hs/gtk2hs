@@ -26,6 +26,16 @@
 	gtk/gdk/Keys.chs, gtk/gdk/Pixbuf.chs,
 	gtk/gdk/Region.chs: initial haddockification
 
+	* gtk/general/Enums.chs, gtk/general/FFI.hs,
+	gtk/general/General.chs, gtk/general/Gtk.hs,
+	gtk/general/IconFactory.chs, gtk/general/StockItems.hsc
+	gtk/general/Structs.hsc, gtk/general/Style.chs:
+	initial haddockification
+
+	* gtk/glib/GList.chs, gtk/glib/GObject.chs, gtk/glib/GType.chs,
+	gtk/glib/GValue.chs, gtk/glib/GValueTypes.chs:
+	initial haddockification
+
 2004-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/abstract/Widget.chs:

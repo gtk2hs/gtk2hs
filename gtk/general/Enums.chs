@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Enumerations@
+--  GIMP Toolkit (GTK) Enumerations
 --
 --  Author : Axel Simon, Manuel Chakravarty
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.7 $ from $Date: 2003/07/31 11:13:55 $
+--  Version $Revision: 1.8 $ from $Date: 2004/05/23 15:58:48 $
 --
 --  Copyright (c) [1999..2001] Axel Simon
 --
@@ -18,14 +18,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  General enumeration types.
+-- General enumeration types.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 --
 --  * Documentation
 --
@@ -84,23 +81,23 @@ import GdkEnums
 {#context lib="gtk" prefix ="gtk"#}
 
 
--- @data AccelFlags@ state of an accelerator
+-- | state of an accelerator
 --
 {#enum AccelFlags {underscoreToCase} deriving(Bounded)#}
 
 instance Flags AccelFlags
 
--- @data ArrowType@ arrow directions for the arrow widget
+-- | arrow directions for the arrow widget
 --
 {#enum ArrowType {underscoreToCase}#}
 
--- @data AttachOptions@ child widget attach options for table containers
+-- | child widget attach options for table containers
 --
 {#enum AttachOptions {underscoreToCase} deriving(Bounded)#}
 
 instance Flags AttachOptions
 
--- @data Button@ button number
+-- | button number
 --
 data Button = LeftButton
 	    | MiddleButton
@@ -123,67 +120,67 @@ instance Enum Button where
   fromEnum WheelDown	= 5
   fromEnum OtherButton	= 6
 
--- @data ButtonBoxStyle@ dictate the style that a ButtonBox uses to align it
+-- | dictate the style that a ButtonBox uses to align it
 -- contents
 --
 {#enum ButtonBoxStyle {underscoreToCase}#}
 
--- @data CalendarDisplayOptions@ Specify which items of a calendar should be
+-- | Specify which items of a calendar should be
 -- displayed.
 --
 {#enum CalendarDisplayOptions {underscoreToCase} deriving(Bounded)#}
 
 instance Flags CalendarDisplayOptions
 
--- @data Click@ type of mouse click
+-- | type of mouse click
 --
 data Click = SingleClick
 	   | DoubleClick
 	   | TripleClick
 	   | ReleaseClick
 
--- @data CornerType@ specifies in which corner a child widget should be placed
+-- | specifies in which corner a child widget should be placed
 --
 {#enum CornerType {underscoreToCase}#}
 
--- @data CurveType@ specifies how curves in the gamma widget (?) are drawn
+-- | specifies how curves in the gamma widget (?) are drawn
 --
 {#enum CurveType {underscoreToCase}#}
 
--- @data DeleteType@ editing option
+-- | editing option
 --
 {#enum DeleteType {underscoreToCase}#}
 
--- @data DirectionType@ editing direction
+-- | editing direction
 --
 {#enum DirectionType {underscoreToCase}#}
 
--- @data Justification@ justification for label and maybe other widgets
+-- | justification for label and maybe other widgets
 -- (text?)
 --
 {#enum Justification {underscoreToCase}#}
 
--- @data MatchType@ some kind of string search options
+-- | some kind of string search options
 --
 {#enum MatchType {underscoreToCase}#}
 
--- @data MenuDirectionType@ From where was a menu item entered?
+-- | From where was a menu item entered?
 --
 {#enum MenuDirectionType {underscoreToCase}#}
 
--- @data MetricType@ units of measure
+-- | units of measure
 --
 {#enum MetricType {underscoreToCase}#}
 
--- @data MovementStep@ movement in text widget
+-- | movement in text widget
 --
 {#enum MovementStep {underscoreToCase}#}
 
--- @data Orientation@ orientation is good
+-- | orientation is good
 --
 {#enum Orientation {underscoreToCase}#}
 
--- @data Packing@ packing parameters of a widget
+-- | packing parameters of a widget
 --
 data Packing = PackRepel
 	     | PackGrow
@@ -194,47 +191,47 @@ data Packing = PackRepel
 --
 {#enum PackType {underscoreToCase}#}
 
--- @data PathPriorityType@ priorities
+-- | priorities
 --
 {#enum PathPriorityType {underscoreToCase}#}
 
--- @data PathType@ widget identification path
+-- | widget identification path
 --
 {#enum PathType {underscoreToCase}#}
 
--- @data PolicyType@ Scrollbar policy types (for scrolled windows)
+-- | Scrollbar policy types (for scrolled windows)
 --
 {#enum PolicyType {underscoreToCase}#}
 
--- @data PositionType@ position a scale's value is drawn relative to the
+-- | position a scale's value is drawn relative to the
 -- trough
 --
 {#enum PositionType {underscoreToCase}#}
 
--- @data ProgressBarOrientation@ Is the ProgressBar horizontally or vertically
+-- | Is the ProgressBar horizontally or vertically
 -- directed?
 --
 {#enum ProgressBarOrientation {underscoreToCase}#}
 
--- @data ReliefStyle@ I don't have a clue.
+-- | I don't have a clue.
 --
 {#enum ReliefStyle {underscoreToCase}#}
 
--- @data ResizeMode@ resize mode, for containers
+-- | resize mode, for containers
 --
--- * @ref type ResizeParent@ Pass resize request to the parent
+-- * 'ResizeParent' Pass resize request to the parent
 --
--- * @ref type ResizeQueue@ Queue resizes on this widget
+-- * 'ResizeQueue' Queue resizes on this widget
 --
--- * @ref type ResizeImmediate@ Perform the resizes now
+-- * 'ResizeImmediate' Perform the resizes now
 --
 {#enum ResizeMode {underscoreToCase}#}
 
--- @data ScrollType@ scrolling type
+-- | scrolling type
 --
 {#enum ScrollType {underscoreToCase}#}
 
--- @data SelectionMode@ mode in which selections can be performed
+-- | mode in which selections can be performed
 --
 -- * There is a deprecated entry SelectionExtended which should have the same
 --   value as SelectionMultiple. C2HS chokes on that construct.
@@ -246,51 +243,51 @@ data SelectionMode = SelectionNone
                    deriving (Enum)
 -- {#enum SelectionMode {underscoreToCase}#}
 
--- @data ShadowType@ shadow types
+-- | shadow types
 --
 {#enum ShadowType {underscoreToCase}#}
 
--- @data StateType@ widget states
+-- | widget states
 --
 {#enum StateType {underscoreToCase}#}
 
--- @data SubmenuDirection@ Submenu direction policies
+-- | Submenu direction policies
 --
 {#enum SubmenuDirection {underscoreToCase}#}
 
--- @data SubmenuPlacement@ Submenu placement policies
+-- | Submenu placement policies
 --
 {#enum SubmenuPlacement {underscoreToCase}#}
 
--- @data SpinButtonUpdatePolicy@ Whether to clamp or ignore illegal values.
+-- | Whether to clamp or ignore illegal values.
 --
 {#enum SpinButtonUpdatePolicy {underscoreToCase}#}
 
--- @data SpinType@ Spin a SpinButton with the following method.
+-- | Spin a SpinButton with the following method.
 --
 {#enum SpinType {underscoreToCase}#}
 
--- @data TextDirection@ Is the text written from left to right or the awkward
+-- | Is the text written from left to right or the awkward
 -- way?
 --
 {#enum TextDirection {underscoreToCase}#}
 
--- @data TextSearchFlags@ Specify the way the search function for
--- @ref type TextBuffer@ works.
+-- | Specify the way the search function for
+-- 'TextBuffer' works.
 --
 {#enum TextSearchFlags {underscoreToCase} deriving(Bounded)#}
 
 instance Flags TextSearchFlags
 
--- @data TextWindowType@ The window type for coordinate translation.
+-- | The window type for coordinate translation.
 --
 {#enum TextWindowType {underscoreToCase}#}
 
--- @data ToolbarStyle@ Where to place the toolbar?
+-- | Where to place the toolbar?
 --
 {#enum ToolbarStyle {underscoreToCase}#}
 
--- @data TreeViewColumnSizing@ Wether columns of a tree or list widget can be
+-- | Wether columns of a tree or list widget can be
 -- resized.
 --
 {#enum TreeViewColumnSizing {underscoreToCase}#}
@@ -299,24 +296,24 @@ instance Flags TextSearchFlags
 --{#enum TroughType {underscoreToCase}#}
 
 
--- @data UpdateType@ updating types for range widgets (determines when the
--- @ref signal connectToValueChanged@ signal is emitted by the widget)
+-- | updating types for range widgets (determines when the
+-- @\"connectToValueChanged\"@ signal is emitted by the widget)
 --
 {#enum UpdateType {underscoreToCase}#}
 
--- @data Visibility@ visibility
+-- | visibility
 --
 {#enum Visibility {underscoreToCase}#}
 
--- @data WindowPosition@ window position types
+-- | window position types
 --
 {#enum WindowPosition {underscoreToCase}#}
 
--- @data WindowType@ interaction of a window with window manager
+-- | interaction of a window with window manager
 --
 {#enum WindowType {underscoreToCase}#}
 
--- @data WrapMode@ Determine how lines are wrapped in a @ref data TextView@.
+-- | Determine how lines are wrapped in a 'TextView'.
 --
 {#enum WrapMode {underscoreToCase}#}
 

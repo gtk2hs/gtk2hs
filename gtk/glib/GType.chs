@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GType@
+--  GIMP Toolkit (GTK) GType
 --
 --  Author : Axel Simon
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:00:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,9 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
 -- * This module implements only the necessities for the GTK binding.
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 --
 module GType(
   GType,

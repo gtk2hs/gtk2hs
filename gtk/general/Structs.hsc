@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Structures@
+--  GIMP Toolkit (GTK) Structures
 --
 --  Author : Axel Simon
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.22 $ from $Date: 2004/05/20 16:42:16 $
+--  Version $Revision: 1.23 $ from $Date: 2004/05/23 15:58:48 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,14 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
---
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
---
+-- |
 --
 module Structs(
   Point,
@@ -115,11 +108,11 @@ import Exception
 
 #include <gtk/gtk.h>
 
--- @type Point@ Represents the x and y coordinate of a point.
+-- | Represents the x and y coordinate of a point.
 --
 type Point = (Int, Int)
 
--- @data Rectangle@ Rectangle
+-- | Rectangle
 --
 -- * for Events
 --
@@ -143,7 +136,7 @@ instance Storable Rectangle where
     #{poke GdkRectangle, width} ptr ((fromIntegral width)::#type gint)
     #{poke GdkRectangle, height} ptr ((fromIntegral height)::#type gint)
 
--- @data Color@ Color
+-- | Color
 --
 -- * Specifies a color with three integer values for red, green and blue.
 --   All values range from 0 (least intense) to 65535 (highest intensity).
@@ -185,12 +178,12 @@ foreign import ccall "gdk_colormap_alloc_color" unsafe
 
 #endif
 
--- @entry GC@
+-- entry GC
 
--- @data GCValues@ Intermediate data structure for @ref data GC@s.
+-- | Intermediate data structure for 'GC's.
 --
--- * If @ref arg graphicsExposure@ is set then copying portions into a
---   drawable will generate an @ref signal exposure@ event, even if the
+-- * If @graphicsExposure@ is set then copying portions into a
+--   drawable will generate an @\"exposure\"@ event, even if the
 --   destination area is not currently visible.
 --
 data GCValues = GCValues {
@@ -350,7 +343,7 @@ pokeGCValues ptr (GCValues {
       act
       modifyIORef r (\val -> val+mVal)
 
--- @constant newGCValues@ An empty record of @ref data GCValues@.
+-- constant newGCValues An empty record of 'GCValues'.
 --
 -- * Use this value instead of the constructor to avoid compiler wanings
 --   about uninitialized fields.
@@ -376,18 +369,18 @@ newGCValues = GCValues {
     joinStyle  = undefined
   }
 
--- @entry Widget Widget@
+-- Widget related methods
 
--- @method widgetGetState@ Retrieve the current state of the widget.
+-- | Retrieve the current state of the widget.
 --
 -- * The state refers to different modes of user interaction, see
---   @ref data StateType@ for more information.
+--   'StateType' for more information.
 --
 widgetGetState :: WidgetClass w => w -> IO StateType
 widgetGetState w = liftM toEnum $ withForeignPtr ((unWidget.toWidget) w) $
   \ptr -> #{peek GtkWidget,state} ptr
 
--- @method widgetGetSavedState@ Retrieve the current state of the widget.
+-- | Retrieve the current state of the widget.
 --
 -- * If a widget is turned insensitive, the previous state is stored in
 --   a specific location. This function retrieves this previous state.
@@ -397,14 +390,14 @@ widgetGetSavedState w = liftM toEnum $ withForeignPtr ((unWidget.toWidget) w) $
   \ptr -> #{peek GtkWidget,saved_state} ptr
 
 
--- @type Allocation@ Allocation
+-- | Allocation
 --
 -- * for Widget's size_allocate signal
 --
 type Allocation = Rectangle
 
 
--- @data Requisition@ Requisition
+-- | Requisition
 --
 -- * for Widget's size_request
 --
@@ -422,7 +415,7 @@ instance Storable Requisition where
     #{poke GtkRequisition, height} ptr ((fromIntegral height)::#type gint)
 
 
--- @entry Widget SpinButton@
+-- SpinButton related mothods
 
 -- If an invalid input has been put into a SpinButton the input function may
 -- reject this value by returning this value.
@@ -442,18 +435,18 @@ treeIterSize = #{const sizeof(GtkTreeIter)}
 textIterSize :: Int
 textIterSize = #{const sizeof(GtkTextIter)}
 
--- @entry Widget Dialog@
+-- Dialog related methods
 
--- @method dialogGetUpper@ Get the upper part of a dialog.
+-- | Get the upper part of a dialog.
 --
--- * The upper part of a dialog window consists of a @ref data VBox@.
+-- * The upper part of a dialog window consists of a 'VBox'.
 --   Add the required widgets into this box.
 --
 dialogGetUpper :: DialogClass dc => dc -> IO VBox
 dialogGetUpper dc = makeNewObject mkVBox $ liftM castPtr $
   withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, vbox}
 
--- @method dialogGetActionArea@ Extract the action area of a dialog box.
+-- | Extract the action area of a dialog box.
 --
 -- * This
 -- is useful to add some special widgets that cannot be added with
@@ -463,46 +456,46 @@ dialogGetActionArea :: DialogClass dc => dc -> IO HBox
 dialogGetActionArea dc = makeNewObject mkHBox $ liftM castPtr $
   withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, action_area} 
 
--- @type ResponseId@ Some constructors that can be used as response
+-- | Some constructors that can be used as response
 -- numbers for dialogs.
 --
--- @variant ResponseNone@ GTK returns this if a response widget has no
+-- DOCFIXME(constructor): ResponseNone GTK returns this if a response widget has no
 -- response_id, or if the dialog gets programmatically hidden or destroyed.
 --
--- @variant ResponseReject@ GTK won't return these unless you pass them in as
+-- DOCFIXME(constructor): ResponseReject GTK won't return these unless you pass them in as
 -- the response for an action widget. They are for your convenience.
 --
--- @variant ResponseDeleteEvent@ If the dialog is deleted.
+-- DOCFIXME(constructor): ResponseDeleteEvent If the dialog is deleted.
 --
--- @variant ResponseOk@ "Ok" was pressed.
+-- DOCFIXME(constructor): ResponseOk \"Ok\" was pressed.
 --
--- * This value is returned from the "Ok" stock dialog button.
+-- * This value is returned from the \"Ok\" stock dialog button.
 --
--- @variant ResponseCancel@ "Cancel" was pressed.
+-- DOCFIXME(constructor): ResponseCancel \"Cancel\" was pressed.
 --
--- * These value is returned from the "Cancel" stock dialog button.
+-- * These value is returned from the \"Cancel\" stock dialog button.
 --
--- @variant ResponseClose@ "Close" was pressed.
+-- DOCFIXME(constructor): ResponseClose \"Close\" was pressed.
 --
--- * This value is returned from the "Close" stock dialog button.
+-- * This value is returned from the \"Close\" stock dialog button.
 --
--- @variant ResponseYes@ "Yes" was pressed.
+-- DOCFIXME(constructor): ResponseYes \"Yes\" was pressed.
 --
--- * This value is returned from the "Yes" stock dialog button.
+-- * This value is returned from the \"Yes\" stock dialog button.
 --
--- @variant ResponseNo@ "No" was pressed.
+-- DOCFIXME(constructor): ResponseNo \"No\" was pressed.
 --
--- * This value is returned from the "No" stock dialog button.
+-- * This value is returned from the \"No\" stock dialog button.
 --
--- @variant ResponseApply@ "Apply" was pressed.
+-- DOCFIXME(constructor): ResponseApply \"Apply\" was pressed.
 --
--- * This value is returned from the "Apply" stock dialog button.
+-- * This value is returned from the \"Apply\" stock dialog button.
 --
--- @variant ResponseHelp@ "Help" was pressed.
+-- DOCFIXME(constructor): ResponseHelp \"Help\" was pressed.
 --
--- * This value is returned from the "Help" stock dialog button.
+-- * This value is returned from the \"Help\" stock dialog button.
 --
--- @variant ResponseUser@ A user-defined response
+-- DOCFIXME(constructor): ResponseUser A user-defined response
 --
 -- * This value is returned from a user defined button
 --
@@ -577,7 +570,7 @@ toolbarGetSize' tb = withForeignPtr (unToolbar tb) #peek GtkToolbar, icon_size
 -- * c2hs and hsc should agree on types!
 --
 toolbarChildButton, toolbarChildToggleButton, toolbarChildRadioButton ::
-  CInt -- #type GtkToolbarChildType
+  CInt -- \#type GtkToolbarChildType
 toolbarChildButton       = #const GTK_TOOLBAR_CHILD_BUTTON
 toolbarChildToggleButton = #const GTK_TOOLBAR_CHILD_TOGGLEBUTTON
 toolbarChildRadioButton  = #const GTK_TOOLBAR_CHILD_RADIOBUTTON
@@ -599,12 +592,12 @@ iconSizeButton	     = #const GTK_ICON_SIZE_BUTTON
 iconSizeDialog	     :: IconSize
 iconSizeDialog	     = #const GTK_ICON_SIZE_DIALOG
 
--- @entry Widget CheckMenuItem@
+-- entry Widget CheckMenuItem
 
--- @method checkMenuItemGetActive@ Return the current checked state.
+-- | Return the current checked state.
 --
 -- * Return the state of the check of
---   the @ref data CheckMenuItem@.
+--   the 'CheckMenuItem'.
 --
 checkMenuItemGetActive :: CheckMenuItemClass mi => mi -> IO Bool
 checkMenuItemGetActive mi = 
@@ -613,18 +606,18 @@ checkMenuItemGetActive mi =
     act <- peek (actPtr::Ptr #type guint)
     return $ testBit act 1
 
--- @entry Widget Combo@
+-- entry Widget Combo
 
--- @method comboGetList@ Extract the List container from a @ref type Combo@
+-- | Extract the List container from a 'Combo'
 -- box.
 --
 comboGetList :: Combo -> IO List
 comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
   makeNewObject mkList $ #{peek GtkCombo, list} cPtr
 
--- @entry General@
+-- General related constants
 
--- @constant priorityHigh@ For installing idle callbacks: Priorities.
+-- | For installing idle callbacks: Priorities.
 --
 priorityHigh :: Int
 priorityHigh  = #const G_PRIORITY_HIGH_IDLE
@@ -636,9 +629,9 @@ priorityLow :: Int
 priorityLow	= #const G_PRIORITY_LOW
 
 
--- @entry Widget FileSelection@
+-- FileSelection related methods
 
--- @method fileSelectionGetButtons@ Extract the buttons of a fileselection.
+-- | Extract the buttons of a fileselection.
 --
 fileSelectionGetButtons :: FileSelectionClass fsel => fsel -> 
 			   IO (Button, Button)
@@ -651,16 +644,16 @@ fileSelectionGetButtons fsel =
   butPtrToButton bp = makeNewObject mkButton $ liftM castPtr $
       withForeignPtr ((unFileSelection . toFileSelection) fsel) bp
 
--- @entry Widget DrawingArea@
+-- DrawingArea related methods
 
--- @method drawingAreaGetDrawWindow@ Retrieves the @ref data Drawable@ part.
+-- | Retrieves the 'Drawable' part.
 --
 drawingAreaGetDrawWindow :: DrawingArea -> IO DrawWindow
 drawingAreaGetDrawWindow da = makeNewGObject mkDrawWindow $
   withForeignPtr (unDrawingArea da) $ 
   \da' -> liftM castPtr $ #{peek GtkWidget, window} da'
 
--- @method drawingAreaGetSize@ Returns the current size.
+-- | Returns the current size.
 --
 -- * This information may be out of date if the use is resizing the window.
 --
@@ -673,124 +666,124 @@ drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
     return (fromIntegral width, fromIntegral height)
 
 
--- @entry PangoLayout@
+-- PangoLayout related constant
 
--- @constant pangoScale@ Internal unit of measuring sizes.
+-- | Internal unit of measuring sizes.
 --
--- * The @ref constant pangoScale@ constant represents the scale between
+-- * The ref constant pangoScale constant represents the scale between
 --   dimensions used for distances in text rendering and device units. (The
 --   definition of device units is dependent on the output device; it will
 --   typically be pixels for a screen, and points for a printer.)  When
 --   setting font sizes, device units are always considered to be points
---   (as in "12 point font"), rather than pixels.
+--   (as in \"12 point font\"), rather than pixels.
 --
 pangoScale :: Int
 pangoScale = #const PANGO_SCALE
 
 
--- @entry Styles@
+-- Styles related methods
 
 -- helper function to index into an array: hsc2hs turns a pointer
 index :: Int -> Ptr GC -> IO (Ptr GC)
 index off ptr = return 
   (castPtr (advancePtr ((castPtr ptr)::Ptr (Ptr GC)) off)::Ptr GC)
 
--- @method styleGetForeground@ Retrieve the @ref data GC@ for the foreground
+-- | Retrieve the 'GC' for the foreground
 -- color.
 --
--- * The parameter @ref arg state@ determines for which widget
---   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
---   Use @ref method widgetGetState@ to determine the current state of the
+-- * The parameter @state@ determines for which widget
+--   state (one of 'StateType') the 'GC' should be recieved.
+--   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
 styleGetForeground :: StateType -> Style -> IO GC
 styleGetForeground ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, fg_gc} stPtr))
 
--- @method styleGetBackground@ Retrieve the @ref data GC@ for the background
+-- | Retrieve the 'GC' for the background
 -- color.
 --
--- * The parameter @ref arg state@ determines for which widget
---   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
---   Use @ref method widgetGetState@ to determine the current state of the
+-- * The parameter @state@ determines for which widget
+--   state (one of 'StateType') the 'GC' should be recieved.
+--   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
 styleGetBackground :: StateType -> Style -> IO GC
 styleGetBackground ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, bg_gc} stPtr))
 
--- @method styleGetLight@ Retrieve the @ref data GC@ for a light
+-- | Retrieve the 'GC' for a light
 -- color.
 --
--- * The parameter @ref arg state@ determines for which widget
---   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
---   Use @ref method widgetGetState@ to determine the current state of the
+-- * The parameter @state@ determines for which widget
+--   state (one of 'StateType') the 'GC' should be recieved.
+--   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
 styleGetLight :: StateType -> Style -> IO GC
 styleGetLight ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, light_gc} stPtr))
 
--- @method styleGetMiddle@ Retrieve the @ref data GC@ for a middle
+-- | Retrieve the 'GC' for a middle
 -- color.
 --
--- * The parameter @ref arg state@ determines for which widget
---   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
---   Use @ref method widgetGetState@ to determine the current state of the
+-- * The parameter @state@ determines for which widget
+--   state (one of 'StateType') the 'GC' should be recieved.
+--   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
 styleGetMiddle :: StateType -> Style -> IO GC
 styleGetMiddle ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, mid_gc} stPtr))
 
--- @method styleGetDark@ Retrieve the @ref data GC@ for a dark
+-- | Retrieve the 'GC' for a dark
 -- color.
 --
--- * The parameter @ref arg state@ determines for which widget
---   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
---   Use @ref method widgetGetState@ to determine the current state of the
+-- * The parameter @state@ determines for which widget
+--   state (one of 'StateType') the 'GC' should be recieved.
+--   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
 styleGetDark :: StateType -> Style -> IO GC
 styleGetDark ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, dark_gc} stPtr))
 
--- @method styleGetText@ Retrieve the @ref data GC@ for the text
+-- | Retrieve the 'GC' for the text
 -- color.
 --
--- * The parameter @ref arg state@ determines for which widget
---   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
---   Use @ref method widgetGetState@ to determine the current state of the
+-- * The parameter @state@ determines for which widget
+--   state (one of 'StateType') the 'GC' should be recieved.
+--   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
 styleGetText :: StateType -> Style -> IO GC
 styleGetText ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, text_gc} stPtr))
 
--- @method styleGetBase@ Retrieve the @ref data GC@ for the base
+-- | Retrieve the 'GC' for the base
 -- color.
 --
 -- * The base color is the standard text background of a widget.
 --
--- * The parameter @ref arg state@ determines for which widget
---   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
---   Use @ref method widgetGetState@ to determine the current state of the
+-- * The parameter @state@ determines for which widget
+--   state (one of 'StateType') the 'GC' should be recieved.
+--   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
 styleGetBase :: StateType -> Style -> IO GC
 styleGetBase ty st = withForeignPtr (unStyle st) $ \stPtr ->
   makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, base_gc} stPtr))
 
--- @method styleGetAntiAliasing@ Retrieve the @ref data GC@ for drawing
+-- | Retrieve the 'GC' for drawing
 -- anti-aliased text.
 --
 -- * The anti-aliasing color is the color which is used when the rendering
 --   of a character does not make it clear if a certain pixel shoud be set
 --   or not. This color is between the text and the base color.
 --
--- * The parameter @ref arg state@ determines for which widget
---   state (one of @ref data StateType@) the @ref data GC@ should be recieved.
---   Use @ref method widgetGetState@ to determine the current state of the
+-- * The parameter @state@ determines for which widget
+--   state (one of 'StateType') the 'GC' should be recieved.
+--   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
 styleGetAntiAliasing :: StateType -> Style -> IO GC

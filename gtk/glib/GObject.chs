@@ -1,12 +1,12 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget GObject@
+--  GIMP Toolkit (GTK) Widget GObject
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/07 16:40:00 $
+--  Version $Revision: 1.8 $ from $Date: 2004/05/23 16:00:53 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -20,14 +20,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---  * Implements the base GObject class to satisfy the type checker.
+-- Implements the base GObject class to satisfy the type checker.
 --
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
 module GObject(
   objectNew,
   objectRef,
@@ -118,7 +114,7 @@ foreign export dynamic mkDestructor :: IO () -> IO GWeakNotify
 
 #endif
 
--- @method objectWeakref@ attach a callback that will be called after the
+-- | attach a callback that will be called after the
 -- destroy hooks have been called
 --
 objectWeakref :: GObjectClass o => o -> IO () -> IO GWeakNotify
@@ -133,7 +129,7 @@ objectWeakref obj uFun = do
     {#call unsafe object_weak_ref#} objPtr uFunPtr nullPtr
   return uFunPtr
 
--- @method objectWeakunref@ detach a weak destroy callback function
+-- | detach a weak destroy callback function
 --
 objectWeakunref :: GObjectClass o => o -> GWeakNotify -> IO ()
 objectWeakunref obj fun = 

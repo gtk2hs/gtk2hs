@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.24 $ from $Date: 2004/05/07 16:40:00 $
+--  Version $Revision: 1.25 $ from $Date: 2004/05/23 15:58:48 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -20,14 +20,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- DESCRIPTION --------------------------------------------------------------
+-- |
 --
--- * This module gathers all publicly available functions from the Gtk binding.
+-- This module gathers all publicly available functions from the Gtk binding.
 --
 -- * Everything that is marked as deprecated, vanishing or useless for
 --   applications is not bound.
 --
---- DOCU ----------------------------------------------------------------------
 --
 -- * The following modules are not bound:
 --   DialogMessage : has only one variadic function which cannot be bound.
@@ -38,14 +37,14 @@
 --   Editable :	     This should be the base class of Entry, but it is not.
 --		     I moved everything into Entry.
 --
---- TODO ----------------------------------------------------------------------
+-- TODO
 --
 -- * Every module that is commented out and not mentioned above.
 --
 #include <gtk/gtkversion.h>
 
 module Gtk(
-  -- general things, initialization
+  -- * General things, initialization
   module General,
   module IconFactory,
   module StockItems,
@@ -57,27 +56,28 @@ module Gtk(
   module GC,
   module Pixbuf,
   module Gdk,
-  -- windows
+  -- * Windows
+  module Window,
   module Dialog,
   module FileSel,
 #if GTK_CHECK_VERSION(2,4,0)
+  -- ** File dialog
   module FileChooser,
   module FileChooserDialog,
   module FileChooserWidget,
 #endif
-  module Window,
-  -- display widgets,
+  -- * Display widgets,
   module AccelLabel,
   module Image,
   module Label,
   module ProgressBar,
   module Statusbar,
-  -- buttons and toggles
+  -- * Buttons and toggles
   module Button,
   module CheckButton,
   module RadioButton,
   module ToggleButton,
-  -- numeric/text data entry
+  -- * Numeric\/text data entry
   module Entry,
 #if GTK_CHECK_VERSION(2,4,0)
   module EntryCompletion,
@@ -85,28 +85,28 @@ module Gtk(
   module HScale,
   module VScale,
   module SpinButton,
-  -- multiline text editor
+  -- * Multiline text editor
   module TextIter,
   module TextMark,
   module TextBuffer,
   module TextTag,
   module TextTagTable,
   module TextView,
-  -- tree and list widget
+  -- * Tree and list widget
   module TreeModel,
   module TreeSelection,
   module TreeViewColumn,
   module TreeView,
-  --  module TreeSortable,
+--  module TreeSortable,
   module TreeModelSort,
   module CellRenderer,
-  --  module CellEditable,
+--  module CellEditable,
   module CellRendererPixbuf,
   module CellRendererText,
   module CellRendererToggle,
   module ListStore,
   module TreeStore,
-  -- menus, combo box, toolbar
+  -- * Menus, combo box, toolbar
   module CheckMenuItem,
   module Combo,
 #if GTK_CHECK_VERSION(2,4,0)
@@ -129,7 +129,7 @@ module Gtk(
 --  module FontSelection,
 --  module FontSelectionDialog,
 --  module InputDialog,
-  -- layout containers
+  -- * Layout containers
   module Alignment,
   module AspectFrame,
   module HBox,
@@ -145,15 +145,15 @@ module Gtk(
   module VBox,
   module VButtonBox,
   module VPaned,
-  -- ornaments
+  -- * Ornaments
   module Frame,
   module HSeparator,
   module VSeparator,
-  -- scrolling
+  -- * Scrolling
   module HScrollbar,
   module ScrolledWindow,
   module VScrollbar,
-  -- miscellaneous
+  -- * Miscellaneous
   module Adjustment,
   module GArrow,
   module Calendar,
@@ -164,7 +164,7 @@ module Gtk(
 --  module IMMulticontext,
   module Tooltips,
   module Viewport,
-  -- abstract base classes
+  -- * Abstract base classes
   module Box,
   module Container,
   module Bin,
@@ -177,15 +177,15 @@ module Gtk(
   module Separator,
   module Widget,
 #ifndef WIN32
-  -- cross-process embedding
+  -- * Cross-process embedding
   module Plug,
   module Socket,
 #endif
-  -- non-widgets
+  -- * Non-widgets
   module Hierarchy,
   module Signal,
 
-  -- pango modules
+  -- * Pango text layout modules
   module Markup,
   module PangoLayout,
   module Rendering
@@ -224,7 +224,7 @@ import Button
 import CheckButton
 import RadioButton
 import ToggleButton
--- numeric/text data entry
+-- numeric\/text data entry
 import Entry
 #if GTK_CHECK_VERSION(2,4,0)
 import EntryCompletion
@@ -277,7 +277,7 @@ import RadioMenuItem
 import CheckMenuItem
 import TearoffMenuItem
 import Toolbar
--- selectors (file/font/color/input device)
+-- selectors (file\/font\/color\/input device)
 --import ColorSelection
 --import ColorSelectionDialog
 --import FileSelection

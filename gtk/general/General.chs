@@ -1,13 +1,13 @@
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry General@
+--  GIMP Toolkit (GTK) General
 --
 --  Author : Axel Simon
 --	     Manuel M. T. Chakravarty
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.11 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.12 $ from $Date: 2004/05/23 15:58:48 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -21,13 +21,9 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
---
--- @documentation@ ------------------------------------------------------------
---
---
--- @todo@ ---------------------------------------------------------------------
+-- TODO
 -- 
 --  * quitAddDestroy, quitAdd, quitRemove, inputAdd, inputRemove
 --
@@ -71,7 +67,8 @@ import Structs	(priorityLow, priorityDefault, priorityHigh)
 
 {#context lib="gtk" prefix ="gtk"#}
 
--- @function getDefaultLanguage@ Retreive the current language.
+{-
+-- | Retreive the current language.
 -- * This function returns a String which's pointer can be used later on for
 --   comarisions.
 --
@@ -81,16 +78,16 @@ import Structs	(priorityLow, priorityDefault, priorityHigh)
 --  str <- peekUTFString strPtr
 --  destruct strPtr
 --  return str
+-}
 
-
--- @function initGUI@ Initialize the GUI binding.
+-- | Initialize the GUI binding.
 --
 -- * This function initialized the GUI toolkit and parses all Gtk
 --   specific arguments. The remaining arguments are returned. If the
 --   initialization of the toolkit fails for whatever reason, an exception
 --   is thrown.
 --
--- * Throws: @literal ErrorCall "Cannot initialize GUI."@
+-- * Throws: @ErrorCall "Cannot initialize GUI."@
 --
 initGUI :: IO [String]
 initGUI = do
@@ -110,48 +107,48 @@ initGUI = do
         mapM peekUTFString addrs'
         else error "Cannot initialize GUI."
 
--- @function eventsPending@ Inquire the number of events pending on the event
+-- | Inquire the number of events pending on the event
 -- queue
 --
 eventsPending :: IO Int
 eventsPending  = liftM fromIntegral {#call unsafe events_pending#}
 
--- @function mainGUI@ Run GTK+'s main event loop.
+-- | Run GTK+'s main event loop.
 --
 mainGUI :: IO ()
 mainGUI  = {#call main#}
 
--- @function mainLevel@ Inquire the main loop level.
+-- | Inquire the main loop level.
 --
 -- * Callbacks that take more time to process can call 
---   @ref function loopIteration@ to keep the GUI responsive. Each time
+--   'loopIteration' to keep the GUI responsive. Each time
 --   the main loop is restarted this way, the main loop counter is
 --   increased. This function returns this counter.
 --
 mainLevel :: IO Int
 mainLevel  = liftM (toEnum.fromEnum) {#call unsafe main_level#}
 
--- @function mainQuit@ Exit the main event loop.
+-- | Exit the main event loop.
 --
 mainQuit :: IO ()
 mainQuit  = {#call main_quit#}
 
--- @function mainIteration@ Process an event, block if necessary.
+-- | Process an event, block if necessary.
 --
--- * Returns @literal True@ if the @ref function loopQuit@ was called while
+-- * Returns @True@ if the 'loopQuit' was called while
 --   processing the event.
 --
 mainIteration :: IO Bool
 mainIteration  = liftM toBool {#call main_iteration#}
 
--- @function mainIterationDo@ Process a single event.
+-- | Process a single event.
 --
--- * Called with @literal True@, this function behaves as
---   @ref function loopIteration@ in that it waits until an event is available
+-- * Called with @True@, this function behaves as
+--   'loopIteration' in that it waits until an event is available
 --   for processing. The function will return immediately, if passed
---   @literal False@.
+--   @False@.
 --
--- * Returns @literal True@ if the @ref function loopQuit@ was called while
+-- * Returns @True@ if the 'loopQuit' was called while
 --   processing the event.
 --
 
@@ -160,12 +157,12 @@ mainIterationDo :: Bool -> IO Bool
 mainIterationDo blocking = 
   liftM toBool $ {#call main_iteration_do#} (fromBool blocking)
 
--- @function grabAdd@ add a grab widget
+-- | add a grab widget
 --
 grabAdd :: WidgetClass wd => wd -> IO ()
 grabAdd  = {#call grab_add#} . toWidget
 
--- @function grabGetCurrent@ inquire current grab widget
+-- | inquire current grab widget
 --
 grabGetCurrent :: IO (Maybe Widget)
 grabGetCurrent  = do
@@ -173,7 +170,7 @@ grabGetCurrent  = do
   if (wPtr==nullPtr) then return Nothing else 
     liftM Just $ makeNewObject mkWidget (return wPtr)
 
--- @function grabRemove@ remove a grab widget
+-- | remove a grab widget
 --
 grabRemove :: WidgetClass w => w -> IO ()
 grabRemove  = {#call grab_remove#} . toWidget
@@ -211,10 +208,10 @@ makeCallback fun = do
   writeIORef dRef dPtr
   return (funPtr, dPtr)
 
--- @function timeoutAdd@ Register a function that is to be called after
--- @ref arg interval@ ms have been elapsed.
+-- | Register a function that is to be called after
+-- @interval@ ms have been elapsed.
 --
--- * If the function returns @literal False@ it will be removed.
+-- * If the function returns @False@ it will be removed.
 --
 timeoutAdd :: IO Bool -> Int -> IO HandlerId
 timeoutAdd fun msec = do
@@ -222,19 +219,19 @@ timeoutAdd fun msec = do
   {#call unsafe timeout_add_full#} (fromIntegral msec) funPtr nullFunPtr 
     nullPtr dPtr
 
--- @function timeoutRemove@ Remove a previously added timeout handler by its
--- @ref type TimeoutId@.
+-- | Remove a previously added timeout handler by its
+-- 'TimeoutId'.
 --
 timeoutRemove :: HandlerId -> IO ()
 timeoutRemove  = {#call unsafe timeout_remove#}
 
--- @function idleAdd@ Add a callback that is called whenever the system is
+-- | Add a callback that is called whenever the system is
 -- idle.
 --
 -- * A priority can be specified via an integer. This should usually be
---   @ref constant priorityDefault@.
+--   'priorityDefault'.
 --
--- * If the function returns @literal False@ it will be removed.
+-- * If the function returns @False@ it will be removed.
 --
 idleAdd :: IO Bool -> Int -> IO HandlerId
 idleAdd fun pri = do
@@ -242,8 +239,8 @@ idleAdd fun pri = do
   {#call unsafe idle_add_full#} (fromIntegral pri) funPtr nullFunPtr
     nullPtr dPtr
 
--- @function idleRemove@ Remove a previously added idle handler by its
--- @ref type TimeoutId@.
+-- | Remove a previously added idle handler by its
+-- 'TimeoutId'.
 --
 idleRemove :: HandlerId -> IO ()
 idleRemove  = {#call unsafe idle_remove#}

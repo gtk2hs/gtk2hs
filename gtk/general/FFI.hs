@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2004/01/07 09:37:47 $
+--  Version $Revision: 1.3 $ from $Date: 2004/05/23 15:58:48 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -19,16 +19,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * This module adds CString-like functions that handle UTF8 strings.
---   Furthermore it serves as an impedance matcher for different compiler
---   versions.
+-- This module adds CString-like functions that handle UTF8 strings.
+-- Furthermore it serves as an impedance matcher for different compiler
+-- versions.
 --
---- DOCU ----------------------------------------------------------------------
---
---
---- TODO ----------------------------------------------------------------------
 
 module FFI(
   with,

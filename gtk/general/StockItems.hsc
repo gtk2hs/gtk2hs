@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry StockItems@
+--  GIMP Toolkit (GTK) StockItems
 --
 --  Author : Axel Simon
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.10 $ from $Date: 2004/05/23 15:58:48 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -19,16 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
--- * A StockItem is a resource that is know throughout Gtk. Defining you own
---   @ref data IconSet@s as @ref data StockItem@s will make it possible for 
+-- A StockItem is a resource that is know throughout Gtk.
+--
+-- * Defining you own
+--   'IconSet's as 'StockItem's will make it possible for 
 --   Gtk to choose
---   the most appropriate sizes and enables themes to override you built in
+--   the most appropriate sizes and enables themes to override your built in
 --   icons. A couple of constants are defined here as well. They are useful 
 --   in accessing Gtk's predefined items.
---
--- @documentation@ ------------------------------------------------------------
 --
 -- * The StockItem structure is completely marshaled to haskell. It is 
 --   possible to marshal all strings lazily because the string pointers are
@@ -36,7 +36,6 @@
 --   that a stock item that is replaced by the another item with the same
 --   name will never be freed. This deficiency is built into Gtk however.
 --
--- @todo@ ---------------------------------------------------------------------
 
 module StockItems(
   StockItem(StockItem),
@@ -131,7 +130,7 @@ import Events	(Modifier)
 
 #include <gtk/gtk.h>
 
--- @type StockId@  A synonym for a standard button or icon.
+-- |  A synonym for a standard button or icon.
 --
 type StockId = String
 
@@ -189,7 +188,7 @@ instance Storable StockItem where
     #{poke GtkStockItem, translation_domain} siPtr transDomPtr
 
 
--- @method stockAddItem@ Add new stock items to Gtk.
+-- | Add new stock items to Gtk.
 --
 
 -- Using stock_add_static would be possible if we used g_malloc to reserve
@@ -202,7 +201,7 @@ stockAddItem sis = let items = length sis in do
   pokeArray aPtr sis
   stock_add aPtr (fromIntegral items)
 
--- @method stockLookupItem@ Lookup an item in stock.
+-- | Lookup an item in stock.
 --
 stockLookupItem :: StockId -> IO (Maybe StockItem)
 stockLookupItem stockId = 
@@ -211,11 +210,11 @@ stockLookupItem stockId =
   res <- stock_lookup strPtr siPtr
   if (toBool res) then liftM Just $ peek siPtr else return Nothing
 
--- @function stockListIds@ Produce a list of all known stock identifiers.
+-- | Produce a list of all known stock identifiers.
 --
 -- * Retrieve a list of all known stock identifiers. These can either be
---   added by @ref method stockAddItem@ or by adding items to a
---   @ref data IconFactory@.
+--   added by 'stockAddItem' or by adding items to a
+--   'IconFactory'.
 --
 -- * The list is sorted alphabetically (sorting is not Unicode aware).
 --
@@ -256,82 +255,82 @@ foreign import ccall "g_free" unsafe
   g_free :: Ptr a -> IO ()
 
 #endif
--- @constant stockAdd@ Standard icon and menu entry.
--- @constant stockApply@ Standard icon and menu entry.
--- @constant stockBold@ Standard icon and menu entry.
--- @constant stockCancel@ Standard icon and menu entry.
--- @constant stockCDROM@ Standard icon and menu entry.
--- @constant stockClear@ Standard icon and menu entry.
--- @constant stockClose@ Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
 #if GTK_CHECK_VERSION(2,2,0)
--- @constant stockColorPicker@ Standard icon and menu entry.
+-- | Standard icon and menu entry.
 --
 -- * This icon is only available in Gtk 2.2 or higher.
 --
 #endif
--- @constant stockConvert@ Standard icon and menu entry.
--- @constant stockCopy@ Standard icon and menu entry.
--- @constant stockCut@ Standard icon and menu entry.
--- @constant stockDelete@ Standard icon and menu entry.
--- @constant stockDialogError@ Standard icon and menu entry.
--- @constant stockDialogInfo@ Standard icon and menu entry.
--- @constant stockDialogQuestion@ Standard icon and menu entry.
--- @constant stockDialogWarning@ Standard icon and menu entry.
--- @constant stockDnd@ Standard icon and menu entry.
--- @constant stockDndMultiple@ Standard icon and menu entry.
--- @constant stockExecute@ Standard icon and menu entry.
--- @constant stockFind@ Standard icon and menu entry.
--- @constant stockFindAndRelpace@ Standard icon and menu entry.
--- @constant stockFloppy@ Standard icon and menu entry.
--- @constant stockGotoBottom@ Standard icon and menu entry.
--- @constant stockGotoFirst@ Standard icon and menu entry.
--- @constant stockGotoLast@ Standard icon and menu entry.
--- @constant stockGotoTop@ Standard icon and menu entry.
--- @constant stockGoBack@ Standard icon and menu entry.
--- @constant stockGoDown@ Standard icon and menu entry.
--- @constant stockGoForward@ Standard icon and menu entry.
--- @constant stockGoUp@ Standard icon and menu entry.
--- @constant stockHelp@ Standard icon and menu entry.
--- @constant stockHome@ Standard icon and menu entry.
--- @constant stockIndex@ Standard icon and menu entry.
--- @constant stockItalic@ Standard icon and menu entry.
--- @constant stockJumpTo@ Standard icon and menu entry.
--- @constant stockJustifyCenter@ Standard icon and menu entry.
--- @constant stockJustifyFill@ Standard icon and menu entry.
--- @constant stockJustifyLeft@ Standard icon and menu entry.
--- @constant stockJustifyRight@ Standard icon and menu entry.
--- @constant stockMissingImage@ Standard icon and menu entry.
--- @constant stockNew@ Standard icon and menu entry.
--- @constant stockNo@ Standard icon and menu entry.
--- @constant stockOk@ Standard icon and menu entry.
--- @constant stockOpen@ Standard icon and menu entry.
--- @constant stockPaste@ Standard icon and menu entry.
--- @constant stockPreferences@ Standard icon and menu entry.
--- @constant stockPrint@ Standard icon and menu entry.
--- @constant stockPrintPreview@ Standard icon and menu entry.
--- @constant stockProperties@ Standard icon and menu entry.
--- @constant stockQuit@ Standard icon and menu entry.
--- @constant stockRedo@ Standard icon and menu entry.
--- @constant stockRefresh@ Standard icon and menu entry.
--- @constant stockRemove@ Standard icon and menu entry.
--- @constant stockRevertToSaved@ Standard icon and menu entry.
--- @constant stockSave@ Standard icon and menu entry.
--- @constant stockSaveAs@ Standard icon and menu entry.
--- @constant stockSelectColor@ Standard icon and menu entry.
--- @constant stockSelectFont@ Standard icon and menu entry.
--- @constant stockSortAscending@ Standard icon and menu entry.
--- @constant stockSortDescending@ Standard icon and menu entry.
--- @constant stockSpellCheck@ Standard icon and menu entry.
--- @constant stockStop@ Standard icon and menu entry.
--- @constant stockStrikethrough@ Standard icon and menu entry.
--- @constant stockUndelete@ Standard icon and menu entry.
--- @constant stockUnderline@ Standard icon and menu entry.
--- @constant stockUndo@ Standard icon and menu entry.
--- @constant stockYes@ Standard icon and menu entry.
--- @constant stockZoom@ Standard icon and menu entry.
--- @constant stockZoomFit@ Standard icon and menu entry.
--- @constant stockZoomIn@ Standard icon and menu entry.
--- @constant stockZoomOut@ Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
+-- | Standard icon and menu entry.
 
 
 stockAdd,
