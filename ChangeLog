@@ -45,6 +45,8 @@
 	with make isntallcheck. Override HC=$(HC) when making the demos so the
 	right version of ghc is used.
 
+	* TODO: add some more todo items
+
 2005-03-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs,

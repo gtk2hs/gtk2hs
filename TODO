@@ -1,5 +1,36 @@
 TODO for gtk2hs
 
+24/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
+	
+	* check the ref counting of BOXED obects in signal callbacks, eg Event
+
+23/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* change gconf so it does not require -fallow-overlapping-instances
+
+22/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Ornaments/Frame.chs: frameSetLabelAlign and
+	frameGetLabelAlign only get/set the horazontal alignment not the
+	verticle alighment too
+
+12/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib timeouts and idle handlers:
+	move them to glib package but re-export from gtk package
+	make a newtype for priorities and add more of them
+	make the IO Bool arg be the last arg so you can say:
+	idleAdd priorityDefault $ do
+	  ...
+
+	add new menu toolbar API
+
+	* refactor events interface. Problem with mem management (the region
+	is destroied after the event handler completes) so perhaps make event
+	structures abstract with accessor functions so for example the Region
+	can be copied (with a destructor). Or Axel suggested a different
+	signal, eg onExposeRegion
+
 8/12/2004  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* there sould be a rule to rebuild .chi files even if the corresponding
