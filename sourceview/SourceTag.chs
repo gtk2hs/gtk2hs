@@ -133,7 +133,7 @@ sourceTagGetStyle tag = do
   {#call unsafe g_free#} tsPtr
   return ts
 
--- @method sourceTagGetStyle@
+-- @method sourceTagSetStyle@
 -- 
 sourceTagSetStyle :: SourceTag -> SourceTagStyle -> IO ()
 sourceTagSetStyle tag ts = alloca $ \tsPtr -> do
