@@ -48,8 +48,7 @@ get-source-code:
 	done;
 	# following fixes borrowed from Gtk#
 	ln -f -s gtkfilechooserprivate.h gtk+-$(GTK_VERSION)/gtk/gtkfilechooserpriv.h
-	patch -p0 atk-1.6.1/atk/atkhyperlink.h < atkhyperlink.patch
-
+	sed -i 's:( \*link_activated):(\* link_activated):' atk-1.6.1/atk/atkhyperlink.h
 
 #############################
 #
