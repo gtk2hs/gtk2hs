@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.5 $ from $Date: 2002/08/02 06:10:03 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -36,6 +36,7 @@ module Structs(
   inputError,
   dialogGetUpper,
   dialogGetActionArea,
+  fileSelectionGetButtons,
   ResponseId,
   responseNone,
   responseReject,
@@ -300,11 +301,16 @@ priorityLow	= #const G_PRIORITY_LOW
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr (return ())
 
-
-
-
-
-
-
-
-
+-- @method fileSelectionGetButtons@ Extract the buttons of a fileselection.
+--
+fileSelectionGetButtons :: FileSelectionClass fsel 
+			  => fsel
+			  -> IO (Button, Button)
+fileSelectionGetButtons fsel =
+    do
+    ok <- butPtrToButton #{peek GtkFileSelection, ok_button}
+    cancel <- butPtrToButton #{peek GtkFileSelection, cancel_button}
+    return (ok,cancel)
+  where
+  butPtrToButton bp = makeNewObject mkButton $ liftM castPtr $
+      withForeignPtr ((unFileSelection . toFileSelection) fsel) bp

@@ -4,7 +4,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.2 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.3 $ from $Date: 2002/08/02 06:10:03 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --  Copyright (c) 2002 Jens Petersen
@@ -40,7 +40,7 @@ module FileSel(
   fileSelectionGetFilename,
   fileSelectionShowFileopButtons,
   fileSelectionHideFileopButtons,
-  {-fileSelectionQueryButtons,-}
+  fileSelectionGetButtons,
   fileSelectionComplete
   ) where
 
@@ -49,6 +49,7 @@ import Foreign
 import UTFCForeign
 {#import Hierarchy#}
 import Object		(makeNewObject)
+import Structs		(fileSelectionGetButtons)
 
 {#context lib="libgtk" prefix ="gtk"#}
 

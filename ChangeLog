@@ -1,3 +1,10 @@
+2002-08-02  Jens Petersen <petersen@haskell.org>
+
+	* gtk/windows/FileSel.chs: Re-export fileSelectionGetButtons.
+
+	* gtk/general/Structs.hsc(fileSelectionGetButtons):  
+	Like fileSelectionQueryButtons in gtk+hs.  Export it.
+
 2002-07-23  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/treeList/TreeSelection.chs: Added the "changed"
