@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:07:53 $
+--  Version $Revision: 1.5 $ from $Date: 2004/07/29 12:15:55 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,6 +31,7 @@ module Adjustment(
   castToAdjustment,
   adjustmentNew,
   adjustmentSetValue,
+  adjustmentGetValue,
   adjustmentClampPage,
   onAdjChanged,
   afterAdjChanged,
@@ -69,8 +70,14 @@ adjustmentNew pageSize value lower upper stepIncrement pageIncrement =
 -- | Set the current value of the Adjustment object.
 --
 adjustmentSetValue :: Adjustment -> Double -> IO ()
-adjustmentSetValue a value = 
-  {#call adjustment_set_value#} (toAdjustment a) (realToFrac value)
+adjustmentSetValue adj value = 
+  {#call adjustment_set_value#} adj (realToFrac value)
+
+-- | Get the current value of the Adjustment object.
+--
+adjustmentGetValue :: Adjustment -> IO Double
+adjustmentGetValue adj =
+  liftM realToFrac $ {#call adjustment_get_value#} adj
 
 -- | Ensure that the alignment is within these
 -- bounds.

@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.9 $ from $Date: 2004/07/29 12:15:55 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -34,6 +34,7 @@ module Box(
   boxPackEnd,
   boxPackStartDefaults,
   boxPackEndDefaults,
+  boxGetHomogeneous,
   boxSetHomogeneous,
   boxGetSpacing,
   boxSetSpacing,
@@ -100,11 +101,17 @@ boxPackEndDefaults b w =
   {#call box_pack_end_defaults#} (toBox b) (toWidget w)
 
 -- | Set if all children should be spread homogeneous
--- withing the box.
+-- within the box.
 --
 boxSetHomogeneous :: BoxClass b => b -> Bool -> IO ()
 boxSetHomogeneous b homo = 
   {#call box_set_homogeneous#} (toBox b) (fromBool homo)
+
+-- | Get whether the box is homogeneous.
+--
+boxGetHomogeneous :: BoxClass b => b -> IO Bool
+boxGetHomogeneous b =
+  liftM toBool $ {#call box_get_homogeneous#} (toBox b)
 
 -- | Set the standard spacing between two children.
 --

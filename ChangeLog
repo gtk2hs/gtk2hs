@@ -5,6 +5,11 @@
 
 	* demo/filechooser/Makefile: FileChooserDemo.glade in EXTRA_TARFILES.
 
+	* gtk/abstract/FileChooser.chs: instance FileChooserError GErrorClass
+
+	* gtk2hs/gtk/abstract/Box.chs, gtk/misc/Adjustment.chs,
+	gtk/layout/Alignment.chs: implement missing functions
+
 2004-07-28  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile: only build filechooser demo with gtk-2.4

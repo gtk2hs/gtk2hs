@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Alignment
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:02:58 $
+--  Version $Revision: 1.5 $ from $Date: 2004/07/29 12:15:55 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,6 +22,7 @@
 --
 -- |
 --
+#include <gtk/gtkversion.h>
 
 module Alignment(
   Alignment,
@@ -28,6 +30,10 @@ module Alignment(
   castToAlignment,
   alignmentNew,
   alignmentSet
+#if GTK_CHECK_VERSION(2,4,0)
+ ,alignmentSetPadding,
+  alignmentGetPadding
+#endif
   ) where
 
 import Monad	(liftM)
@@ -50,8 +56,7 @@ alignmentNew yscale xalign yalign xscale = makeNewObject mkAlignment $
   (realToFrac yalign) (realToFrac xscale) (realToFrac yscale)
 
 
--- | Change the space use behaviour of an
--- 'Alignment'.
+-- | Change the space use behaviour of an 'Alignment'.
 --
 alignmentSet :: AlignmentClass al => al -> Float -> Float -> Float -> Float ->
                 IO ()
@@ -59,3 +64,29 @@ alignmentSet al xalign yalign xscale yscale = {#call alignment_set#}
   (toAlignment al) (realToFrac xalign) (realToFrac yalign)
   (realToFrac xscale) (realToFrac yscale)
 
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Sets the padding on the different sides of the widget.
+--
+alignmentSetPadding :: AlignmentClass al => al -> Int -> Int -> Int -> Int ->
+                       IO ()
+alignmentSetPadding al top bottom left right =
+  {# call gtk_alignment_set_padding #} (toAlignment al)
+    (fromIntegral top) (fromIntegral bottom)
+    (fromIntegral left) (fromIntegral right)
+
+-- | Gets the padding on the different sides of the widget.
+--
+alignmentGetPadding :: AlignmentClass al => al -> IO (Int, Int, Int, Int)
+alignmentGetPadding al =
+  alloca $ \topPtr -> alloca $ \bottomPtr ->
+  alloca $ \leftPtr -> alloca $ \rightPtr -> do
+  {# call gtk_alignment_get_padding #} (toAlignment al)
+    topPtr bottomPtr leftPtr rightPtr
+  top    <- peek topPtr
+  bottom <- peek bottomPtr
+  left   <- peek leftPtr
+  right  <- peek rightPtr
+  return (fromIntegral top, fromIntegral bottom
+         ,fromIntegral left, fromIntegral right)
+  
+#endif
