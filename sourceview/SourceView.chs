@@ -54,7 +54,8 @@ module SourceView (
   module SourceTag,
   module SourceTagTable,
   module SourceTagStyle,
-  module SourceStyleScheme
+  module SourceStyleScheme,
+  module SourceIter
 ) where
 
 import Monad	(liftM)
@@ -71,6 +72,7 @@ import SourceStyleScheme
 import SourceTag
 import SourceTagTable
 import SourceTagStyle
+import SourceIter
 
 {# context lib="gtk" prefix="gtk" #}
 

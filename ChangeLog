@@ -3,6 +3,15 @@
 	* gtk/layout/Notebook.chs: added ifdef's for compatibility
 	with gtk 2.4 as well as 2.2 & 2.0
 
+	* sourceview/SourceIter.chs: new file with bindings for
+	three extra TextIter methods
+
+	* sourceview/Makefile: added header for extra file
+
+	* sourceview/sourceview.h: added header for extra file
+
+	* sourceview/SourceView.chs: added extra exported module
+
 2004-04-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* modul/WidgetTable.hs: added import of FFI (foreignPtrToPtr)
