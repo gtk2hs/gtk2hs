@@ -3,12 +3,6 @@ SUFFIXES = .hs.uncpp .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES = *.deps.bak
 CLEANFILES =
 DISTCLEANFILES = */*.precomp
-#CPPFLAGS += $(filter -I% -D%, \
-#	$(GLIB_CFLAGS) $(GTK_CFLAGS) \
-#	$(SOURCEVIEW_CFLAGS) $(LIBGLADE_CFLAGS) \
-#	$(GCONF_CFLAGS) $(MOZEMBED_CFLAGS))
-
-# Build c2hs before anything else.
 
 EXTRA_DIST = \
 	tools/callbackGen/Signal.chs-boot1	\
@@ -19,6 +13,13 @@ EXTRA_DIST = \
 	tools/hierarchyGen/hierarchy.list	\
 	tools/hierarchyGen/Hierarchy.chs.template \
 	sourceview/sourceview.h
+
+# There are no other files in these dirs and tar excludes empty dirs
+dist-hook:
+	mkdir $(distdir)/glade/Graphics/UI/Gtk/Glade
+	touch $(distdir)/glade/Graphics/UI/Gtk/Glade/.keep
+	mkdir $(distdir)/mozembed/Graphics/UI/Gtk/MozEmbed
+	touch $(distdir)/mozembed/Graphics/UI/Gtk/MozEmbed/.keep
 
 CHSDEPEND = $(srcdir)/mk/chsDepend
 
@@ -42,7 +43,6 @@ endif
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
 	tools/callbackGen/HookGenerator \
-	tools/apicoverage/Exclude \
 	tools/c2hs/c2hsLocal
 
 #
@@ -103,19 +103,19 @@ gtk/Graphics/UI/Gtk/Signals.chs : \
 #
 ################################################################################
 
-Exclude_NAME = tools/apicoverage/Exclude
-$(Exclude_NAME) : NAME = tools_apicoverage_Exclude
-
-tools_apicoverage_Exclude_MAIN = \
-  $(tools_apicoverage_Exclude_SOURCES)
-tools_apicoverage_Exclude_PACKAGEDEPS = 
-tools_apicoverage_Exclude_SOURCESDIRS = tools/apicoverage
-tools_apicoverage_Exclude_SOURCES = \
-  tools/apicoverage/Exclude.hs
-am_tools_apicoverage_Exclude_OBJECTS = $(addsuffix .$(OBJEXT),\
-  $(basename $(tools_apicoverage_Exclude_SOURCES)))
-MOSTLYCLEANFILES+= $(am_tools_apicoverage_Exclude_OBJECTS)
-MOSTLYCLEANFILES+= $(tools_apicoverage_Exclude_SOURCES:.hs=.hi)
+#Exclude_NAME = tools/apicoverage/Exclude
+#$(Exclude_NAME) : NAME = tools_apicoverage_Exclude
+#
+#tools_apicoverage_Exclude_MAIN = \
+#  $(tools_apicoverage_Exclude_SOURCES)
+#tools_apicoverage_Exclude_PACKAGEDEPS = 
+#tools_apicoverage_Exclude_SOURCESDIRS = tools/apicoverage
+#tools_apicoverage_Exclude_SOURCES = \
+#  tools/apicoverage/Exclude.hs
+#am_tools_apicoverage_Exclude_OBJECTS = $(addsuffix .$(OBJEXT),\
+#  $(basename $(tools_apicoverage_Exclude_SOURCES)))
+#MOSTLYCLEANFILES+= $(am_tools_apicoverage_Exclude_OBJECTS)
+#MOSTLYCLEANFILES+= $(tools_apicoverage_Exclude_SOURCES:.hs=.hi)
 
 #
 #	c2hs interface generator
@@ -233,8 +233,8 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/GValueTypes.chs	\
 	glib/System/Glib/GParameter.hsc		\
 	glib/System/Glib/StoreValue.hsc		\
-	glib/System/Glib/GObject.chs		\
-	glib/System/Glib/GError.chs		\
+	glib/System/Glib/GObject.chs.pp		\
+	glib/System/Glib/GError.chs.pp		\
 	glib/System/Glib/GList.chs
 
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
@@ -467,7 +467,9 @@ libHSgtk_a_HSCFILES_HS  = $(libHSgtk_a_HSCFILES:.hsc=.hs)
 libHSgtk_a_BUILDSOURCES = \
 	$(libHSgtk_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgtk_a_CHSFILES_HS) \
-	$(libHSgtk_a_HSCFILES_HS)
+	$(libHSgtk_a_HSCFILES_HS) \
+	gtk/Graphics/UI/Gtk/Types.chs \
+	gtk/Graphics/UI/Gtk/Signals.chs
 libHSgtk_a_HSFILES  = \
 	$(filter %.hs,$(libHSgtk_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgtk_a_SOURCES))
@@ -603,7 +605,8 @@ libHSglade_a_HSCFILES_HS = $(libHSglade_a_HSCFILES:.hsc=.hs)
 libHSglade_a_BUILDSOURCES = \
 	$(libHSglade_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSglade_a_CHSFILES_HS) \
-        $(libHSglade_a_HSCFILES_HS)
+        $(libHSglade_a_HSCFILES_HS) \
+        glade/Graphics/UI/Gtk/Glade/Types.chs
 libHSglade_a_HSFILES  = \
 	$(filter %.hs,$(libHSglade_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSglade_a_SOURCES))
@@ -644,12 +647,12 @@ libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_C
 libHSgconf_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gconf
 
 libHSgconf_a_SOURCES =	        			\
-	gconf/System/Gnome/GConf/GConfType.chs		\
+	gconf/System/Gnome/GConf/Types.chs		\
         gconf/System/Gnome/GConf/GConfValue.chs		\
         gconf/System/Gnome/GConf/GConfClient.chs	\
         gconf/System/Gnome/GConf.hs
 
-gconf/System/Gnome/GConf/GConfType.chs :	\
+gconf/System/Gnome/GConf/Types.chs :			\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
@@ -657,7 +660,7 @@ gconf/System/Gnome/GConf/GConfType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gconf --lib=gconf --prefix=gconf \
-	--modname=System.Gnome.GConf.GConfType --parentname=System.Glib.GObject)
+	--modname=System.Gnome.GConf.Types --parentname=System.Glib.GObject)
 
 am_libHSgconf_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_SOURCES))))
@@ -672,7 +675,7 @@ libHSgconf_a_BUILDSOURCES = \
 	$(libHSgconf_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgconf_a_CHSFILES_HS) \
         $(libHSgconf_a_HSCFILES_HS) \
-        gconf/System/Gnome/GConf/GConfType.chs
+        gconf/System/Gnome/GConf/Types.chs
 libHSgconf_a_HSFILES  = \
 	$(filter %.hs,$(libHSgconf_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgconf_a_SOURCES))
@@ -756,7 +759,8 @@ libHSsourceview_a_HSCFILES_HS = $(libHSsourceview_a_HSCFILES:.hsc=.hs)
 libHSsourceview_a_BUILDSOURCES = \
 	$(libHSsourceview_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSsourceview_a_CHSFILES_HS) \
-        $(libHSsourceview_a_HSCFILES_HS)
+        $(libHSsourceview_a_HSCFILES_HS) \
+        sourceview/Graphics/UI/Gtk/SourceView/Types.chs
 libHSsourceview_a_HSFILES  = \
 	$(filter %.hs,$(libHSsourceview_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSsourceview_a_SOURCES))
@@ -798,12 +802,12 @@ libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEM
 libHSmozembed_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mozembed
 
 libHSmozembed_a_SOURCES =				\
-	mozembed/Graphics/UI/Gtk/MozEmbedType.chs	\
+	mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs	\
 	mozembed/Graphics/UI/Gtk/MozEmbed.chs
 
-mozembed_Graphics_UI_Gtk_MozEmbedType_hs_HCFLAGS = -fglasgow-exts
+mozembed_Graphics_UI_Gtk_MozEmbed_Types_hs_HCFLAGS = -fglasgow-exts
 
-mozembed/Graphics/UI/Gtk/MozEmbedType.chs :	\
+mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
@@ -811,7 +815,7 @@ mozembed/Graphics/UI/Gtk/MozEmbedType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=mozembed --parentname=Graphics.UI.Gtk.Types \
-	--modname=Graphics.UI.Gtk.MozEmbedType)
+	--modname=Graphics.UI.Gtk.MozEmbed.Types)
 
 am_libHSmozembed_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmozembed_a_SOURCES))))
@@ -826,7 +830,7 @@ libHSmozembed_a_BUILDSOURCES = \
 	$(libHSmozembed_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSmozembed_a_CHSFILES_HS) \
         $(libHSmozembed_a_HSCFILES_HS) \
-        mozembed/Graphics/UI/Gtk/MozEmbedType.chs
+        mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs
 libHSmozembed_a_HSFILES  = \
 	$(filter %.hs,$(libHSmozembed_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSmozembed_a_SOURCES))

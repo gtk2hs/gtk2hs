@@ -29,17 +29,21 @@ for FULLNAME in $@; do
     DEPNAMES=;
     for DEP in $DEPS; do
       IFS=:;
+      FOUND=no;
       for DEPDIR in $SEARCHPATH; do
         DEPNAME=`echo "$DEPDIR/$DEP" | $SED 's%\.//*%%'`;
         #echo Looking for $DEP in $DEPDIR , i.e.: $DEPNAME
         if test -f "$DEPNAME.chs"; then
           #echo Found $DEP in $DEPDIR
 	  DEPNAMES="$DEPNAMES $DEPNAME.chi";
+	  FOUND=yes;
 	  break;
         fi;
-#	echo could not find $DEP '('$DEPNAME.chs')' on search path $SEARCHPATH;
-#	exit 1;
       done;
+      if test $FOUND = no; then
+        echo could not find $DEP.chs on search path $SEARCHPATH;
+#        exit 1;
+      fi;
       IFS=$OLDIFS;
     done;
     echo "# .chs dependencies for $FULLNAME" > $FULLNAMEDEP;

@@ -1,3 +1,19 @@
+2005-01-14 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mk/chsDepend.in: do the extra check properly and make it a warning
+	by default. It still warns rather a lot.
+
+	* Makefile.am: move a couple Types.chs locations/names and make sure
+	the empty directories get included in the tarball. Disable building
+	and distributing the apicoverage tool. Make sure Types and Signals
+	files are removed on make clean.
+
+	* mk/common.mk: make package registering on install work again after
+	the earlier change to using pkglibdir.
+
+	* mozembed/Graphics/UI/Gtk/MozEmbed.chs,
+	gconf/System/Gnome/GConf/GConfClient.chs: change name of Types import.
+
 2005-01-14  Jens Petersen  <petersen@haskell.org>
 
 	* mogul/mogul.pkg.in (library_dirs): Use @GTK_LIBDIR_CQ@

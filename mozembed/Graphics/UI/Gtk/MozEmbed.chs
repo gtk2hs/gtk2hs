@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/01/08 16:08:58 $
+--  Version $Revision: 1.4 $ from $Date: 2005/01/14 19:04:50 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -62,7 +62,7 @@ import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Signals#}		(ConnectId,
 						connect_STRING__BOOL,
 						connect_PTR__INT)
-{#import Graphics.UI.Gtk.MozEmbedType #}
+{#import Graphics.UI.Gtk.MozEmbed.Types#}
 import Graphics.UI.Gtk.Abstract.Widget		(Widget)
 
 {#context lib="gtkembedmoz" prefix ="gtk"#}

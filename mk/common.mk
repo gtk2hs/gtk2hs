@@ -112,9 +112,9 @@ getVar			= $($(subst .,_,$(subst /,_,$(1)))_$(2))
 install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
 	else echo "[]" > $(PKGCONF); fi;)
-	$(foreach pkgname,$(lib_LIBRARIES), \
+	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	$(GHCPKG) $(addprefix -f ,$(PKGCONF)) -u -g \
-	-Dprefix=$(prefix) -Dexec_prefix=$(exec_prefix) \
+	-Dprefix=$(prefix) -Dexec_prefix=$(exec_prefix) -Dpkglibdir=$(pkglibdir)\
 	-i $(call getVar,$(pkgname),PACKAGE);)
 
 uninstall-hook :
