@@ -53,7 +53,9 @@ installcheck :
 installdirs :
 	$(INSTALL) -d $(DESTDIR)$(INST_HIDIR) $(DESTDIR)$(INST_LIBDIR) $(DESTDIR)$(INST_INCLDIR)
 
-install : $(TARGETOK) installdirs installfiles install-pkg
+install-without-pkg : $(TARGETOK) installdirs installfiles
+
+install : install-without-pkg install-pkg
 
 installfiles : $(PACKAGENAME).conf
 	$(INSTALL) -m644 $(ALLHSFILES:.hs=.hi) $(DESTDIR)$(INST_HIDIR)
