@@ -6,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2004/05/23 16:16:43 $
+--  Version $Revision: 1.13 $ from $Date: 2004/08/04 18:42:00 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -35,12 +35,15 @@ module TreeModel(
   treeModelGetNColumns,
   treeModelGetColumnType,
   treeModelGetValue,
+  TreeModelFlags(..),
+  treeModelGetFlags,
   TreePath(..),
   createTreePath,			-- internal
   tree_path_copy,			-- internal
   tree_path_free,			-- internal
   treePathNew,
   treePathNewFromString,
+  treePathNewFromIndicies,
   treePathToString,
   treePathNewFirst,
   treePathAppendIndex,
@@ -53,6 +56,12 @@ module TreeModel(
   treePathPrev,
   treePathUp,
   treePathDown,
+  treePathIsAncestor,
+  treePathIsDescendant,
+  TreeRowReference(..),
+  treeRowReferenceNew,
+  treeRowReferenceGetPath,
+  treeRowReferenceValid,
   TreeIter(..),
   createTreeIter,			-- internal
   treeModelGetIter,
@@ -72,29 +81,43 @@ module TreeModel(
 
 import Monad	(liftM, when)
 import Maybe	(fromMaybe)
+import List   (intersperse)
 import FFI
 {#import Hierarchy#}
 {#import Signal#}
 import Structs	                (treeIterSize)
+import GdkEnums     (Flags(..))
 import StoreValue		(TMType)
 {#import GValue#}		(GValue, GenericValue, valueUnset)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- | Tree Iterator : A pointer to an entry in a
--- 'TreeStore' or 'ListStore'.
+-- | Tree Iterator : A pointer to an entry in a 'TreeStore' or 'ListStore'.
 --
 {#pointer * TreeIter foreign newtype#}
 
--- | TreePath : a list of indices to specify a subtree or node
--- in the hierarchical 'TreeStore' database.
+-- | TreePath : a list of indices to specify a subtree or node in the
+-- hierarchical 'TreeStore' database.
 --
 {#pointer * TreePath foreign newtype#}
 
+-- | Tree Row Reference : like a 'TreePath' it points to a subtree or node, but
+-- it is persistent. It identifies the same node (so long as it exists) even
+-- when items are added, removed, or reordered.
+--
+{#pointer * TreeRowReference foreign newtype#}
+
+-- | These flags indicate various properties of a 'TreeModel'. These are
+-- probably not terribly interesting for app developers. See the C documentation
+-- for details.
+--
+{#enum TreeModelFlags {underscoreToCase} deriving(Bounded)#}
+
+instance Flags TreeModelFlags
+
 -- methods
 
--- | Read the number of columns this
--- 'TreeModel' currently stores.
+-- | Read the number of columns this 'TreeModel' currently stores.
 --
 treeModelGetNColumns :: TreeModelClass tm => tm -> IO Int
 treeModelGetNColumns tm = liftM fromIntegral $ 
@@ -107,8 +130,7 @@ treeModelGetColumnType tm col = liftM (toEnum.fromIntegral) $
   {#call unsafe tree_model_get_column_type#} (toTreeModel tm) 
   (fromIntegral col)
 
--- | Read the value of at a specific column and
--- 'Iterator'.
+-- | Read the value of at a specific column and 'Iterator'.
 --
 treeModelGetValue :: TreeModelClass tm => tm -> TreeIter -> Int ->
                      IO GenericValue
@@ -120,6 +142,45 @@ treeModelGetValue tm iter col = alloca $ \vaPtr -> do
   val <- peek vaPtr
   valueUnset vaPtr
   return val
+
+-- | Maps a function over each node in model in a depth-first fashion. If the
+-- function returns True, the tree walk stops.
+--
+treeModelForeach :: TreeModelClass tm => tm -> (TreeIter -> IO Bool) -> IO ()
+treeModelForeach tm fun = do
+  fPtr <- mkTreeModelForeachFunc (\_ _ ti _ -> do
+    -- make a deep copy of the iterator. This makes it possible to store this
+    -- iterator in Haskell land somewhere. The TreeModel parameter is not
+    -- passed to the function due to performance reasons. But since it is
+    -- a constant this does not matter.
+    iterPtr <- mallocBytes treeIterSize
+    copyBytes iterPtr ti treeIterSize
+    iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
+    liftM (fromIntegral.fromBool) $ fun iter
+    )
+  {#call tree_model_foreach#} (toTreeModel tm) fPtr nullPtr
+  freeHaskellFunPtr fPtr
+
+{#pointer TreeModelForeachFunc#}
+
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall "wrapper"  mkTreeModelForeachFunc ::
+  (Ptr () -> Ptr () -> Ptr TreeIter -> Ptr () -> IO CInt) -> IO TreeModelForeachFunc
+
+#else
+
+foreign export dynamic mkTreeModelForeachFunc ::
+  (Ptr () -> Ptr () -> Ptr TreePath -> Ptr () -> IO CInt)-> IO TreeModelForeachFunc
+
+#endif
+
+-- | Returns a set of flags supported by this interface. The flags supported
+-- should not change during the lifecycle of the model.
+--
+treeModelGetFlags :: TreeModelClass tm => tm -> IO [TreeModelFlags]
+treeModelGetFlags tm = liftM (toFlags.fromIntegral) $
+  {#call unsafe tree_model_get_flags#} (toTreeModel tm)
 
 -- utilities related to tree models
 
@@ -153,16 +214,19 @@ foreign import ccall "gtk_tree_path_free" unsafe
 
 -- | Create a new 'TreePath'.
 --
--- * A 'TreePath' is an hierarchical index. It is independent of
---   a specific 'TreeModel'.
+-- * A 'TreePath' is an hierarchical index. It is independent of a specific
+-- 'TreeModel'.
 -- 
 treePathNew :: IO TreePath
 treePathNew = do
   tpPtr <- {#call unsafe tree_path_new#} 
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
--- | Turn a @String@ into a
--- 'TreePath'.
+-- | Turn a @String@ into a 'TreePath'.
+--
+-- * For example, the string \"10:4:0\" would create a path of depth 3 pointing
+-- to the 11th child of the root node, the 5th child of that 11th child, and the
+-- 1st child of that 5th child.
 --
 treePathNewFromString :: String -> IO TreePath
 treePathNewFromString path = do
@@ -170,8 +234,14 @@ treePathNewFromString path = do
     withUTFString path {#call unsafe tree_path_new_from_string#}
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
--- | Turn a 'TreePath' into a 
--- @String@.
+-- | Turn a list of indicies into a 'TreePath'. See 'treePathNewFromString' for
+-- the meaning of these indicies.
+--
+treePathNewFromIndicies :: [Int] ->  IO TreePath
+treePathNewFromIndicies =
+  treePathNewFromString . concat . intersperse ":" . map show
+
+-- | Turn a 'TreePath' into a @String@.
 --
 treePathToString :: TreePath -> IO String
 treePathToString tp = do
@@ -249,6 +319,48 @@ treePathUp tp = liftM toBool $ {#call unsafe tree_path_up#} tp
 treePathDown :: TreePath -> IO ()
 treePathDown = {#call unsafe tree_path_down#}
 
+-- | Returns True if the second path is a descendant of the first.
+--
+treePathIsAncestor :: TreePath -- ^ A 'TreePath'
+                   -> TreePath -- ^ A possible descendant
+                   -> IO Bool
+treePathIsAncestor path descendant = liftM toBool $
+  {#call unsafe tree_path_is_ancestor#} path descendant
+
+-- | Returns True if the first path is a descendant of the second.
+--
+treePathIsDescendant :: TreePath -- ^ A possible descendant
+                     -> TreePath -- ^ A 'TreePath' 
+                     -> IO Bool
+treePathIsDescendant path ancestor = liftM toBool $
+  {#call unsafe tree_path_is_descendant#} path ancestor
+
+-- | Creates a row reference based on a path. This reference will keep pointing
+-- to the node pointed to by the given path, so long as it exists.
+--
+treeRowReferenceNew :: TreeModelClass tm => tm -> TreePath -> IO TreeRowReference
+treeRowReferenceNew tm path = do
+  rowRefPtr <- throwIfNull "treeRowReferenceNew: invalid path given" $
+    {#call unsafe gtk_tree_row_reference_new#} (toTreeModel tm) path
+  liftM TreeRowReference $ newForeignPtr rowRefPtr tree_row_reference_free
+
+foreign import ccall unsafe "&tree_row_reference_free"
+  tree_row_reference_free :: FinalizerPtr TreeRowReference
+
+-- | Returns a path that the row reference currently points to, or @Nothing@ if
+-- the path pointed to is no longer valid.
+--
+treeRowReferenceGetPath :: TreeRowReference -> IO (Maybe TreePath)
+treeRowReferenceGetPath ref = do
+  pathPtr <- {#call unsafe tree_row_reference_get_path#} ref
+  if pathPtr == nullPtr then return Nothing else
+    liftM (Just . TreePath) $ newForeignPtr pathPtr (tree_path_free pathPtr)
+
+-- | Returns True if the reference refers to a current valid path.
+--
+treeRowReferenceValid :: TreeRowReference -> IO Bool
+treeRowReferenceValid ref = liftM toBool $
+  {#call unsafe tree_row_reference_valid#} ref
 
 createTreeIter :: Ptr TreeIter -> IO TreeIter
 createTreeIter tiPtr = do

@@ -5,7 +5,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/23 16:16:43 $
+--  Version $Revision: 1.9 $ from $Date: 2004/08/04 18:42:00 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -61,6 +61,7 @@ module TreeViewColumn(
   treeViewColumnGetSizing,
   treeViewColumnGetWidth,
   treeViewColumnSetFixedWidth,
+  treeViewColumnGetFixedWidth,
   treeViewColumnSetMinWidth,
   treeViewColumnGetMinWidth,
   treeViewColumnSetMaxWidth,
@@ -69,6 +70,7 @@ module TreeViewColumn(
   treeViewColumnSetTitle,
   treeViewColumnGetTitle,
   treeViewColumnSetClickable,
+  treeViewColumnGetClickable,
   treeViewColumnSetWidget,
   treeViewColumnGetWidget,
   treeViewColumnSetAlignment,
@@ -285,13 +287,24 @@ treeViewColumnGetWidth tvc = liftM fromIntegral $
 
 -- | Set the width of the column.
 --
--- * This is meaningful only if the sizing type is
---   'TreeViewColumnFixed'.
+-- * This is meaningful only if the sizing type is 'TreeViewColumnFixed'.
 --
-treeViewColumnSetFixedWidth :: TreeViewColumnClass tvc => Int -> tvc -> IO ()
-treeViewColumnSetFixedWidth width tvc = 
+treeViewColumnSetFixedWidth :: TreeViewColumnClass tvc => tvc -> Int -> IO ()
+treeViewColumnSetFixedWidth tvc width = 
   {#call tree_view_column_set_fixed_width#} 
   (toTreeViewColumn tvc) (fromIntegral width)
+
+
+-- | Gets the fixed width of the column.
+--
+-- * This is meaningful only if the sizing type is 'TreeViewColumnFixed'.
+--
+-- * This value is only meaning may not be the actual width of the column on the
+-- screen, just what is requested.
+--
+treeViewColumnGetFixedWidth :: TreeViewColumnClass tvc => tvc -> IO Int
+treeViewColumnGetFixedWidth tvc = liftM fromIntegral $
+  {#call unsafe tree_view_column_get_fixed_width#} (toTreeViewColumn tvc)
 
 
 -- | Set minimum width of the column.
@@ -341,12 +354,17 @@ treeViewColumnGetTitle tvc = do
   strPtr <- {#call unsafe tree_view_column_get_title#} (toTreeViewColumn tvc)
   if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
--- | Set if the column should be sensitive
--- to mouse clicks.
+-- | Set if the column should be sensitive to mouse clicks.
 --
 treeViewColumnSetClickable :: TreeViewColumnClass tvc => tvc -> Bool -> IO ()
 treeViewColumnSetClickable tvc click = {#call tree_view_column_set_clickable#} 
   (toTreeViewColumn tvc) (fromBool click)
+
+-- | Returns True if the user can click on the header for the column.
+--
+treeViewColumnGetClickable :: TreeViewColumnClass tvc => tvc -> IO Bool
+treeViewColumnGetClickable tvc = liftM toBool $
+  {#call tree_view_column_get_clickable#} (toTreeViewColumn tvc)
 
 -- | Set the column's title to this widget.
 --

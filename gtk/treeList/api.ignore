@@ -22,9 +22,55 @@ exclude gtk_cell_renderer_text_set_fixed_height_from_font
 
 #vararg constructor func, we use newv instead
 always exclude gtk_list_store_new$
+always exclude gtk_tree_store_new$
 
 #vararg set function
-always exclude gtk_list_store_set
+always exclude gtk_list_store_set$
+always exclude gtk_tree_store_set$
+
+#more vararg stuff
+always exclude gtk_tree_path_new_from_indices
+
+#only for subclasses
+always exclude gtk_list_store_set_column_types
+always exclude gtk_tree_store_set_column_types
 
 #debugging function
 always exclude gtk_list_store_iter_is_valid
+
+#internal reference stuff
+always exclude gtk_tree_row_reference_deleted
+always exclude gtk_tree_row_reference_inserted
+always exclude gtk_tree_row_reference_new_proxy
+always exclude gtk_tree_row_reference_reordered
+always exclude gtk_tree_row_reference_copy
+
+#not useful for us
+always exclude gtk_tree_selection_get_user_data
+
+#TreeModel vararg stuff
+always exclude gtk_tree_model_get$
+
+#only for TreeModel implementations
+always exclude gtk_tree_model_row_deleted
+always exclude gtk_tree_model_rows_reordered
+always exclude gtk_tree_model_row_has_child_toggled
+always exclude gtk_tree_model_row_inserted
+always exclude gtk_tree_model_row_changed
+
+#very low level control
+always exclude gtk_tree_model_sort_clear_cache
+
+#for debugging only
+always exclude gtk_tree_model_sort_iter_is_valid
+
+#TreeViewColumn stuff
+#vararg attributes stuff
+always exclude gtk_tree_view_column_new_with_attributes
+always exclude gtk_tree_view_column_set_attributes
+
+#internal, only used by TreeView
+always exclude gtk_tree_view_column_cell_get_size
+always exclude gtk_tree_view_column_cell_set_cell_data
+always exclude gtk_tree_view_column_cell_is_visible
+

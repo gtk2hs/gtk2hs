@@ -1,3 +1,12 @@
+2004-08-4  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/abstract/Container.chs, gtk/treeList/TreeSelection.chs,
+	gtk/treeList/TreeModelSort.chs, gtk/treeList/TreeViewColumn.chs,
+	gtk/treeList/TreeModel.chs: add missing functions.
+
+	* gtk/abstract/api.ignore, gtk/treeList/api.ignore: update list of
+	ignored functions.
+
 2004-08-3  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/general/FFI.hs: move a couple of

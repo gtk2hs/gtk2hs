@@ -6,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2004/05/23 16:16:43 $
+--  Version $Revision: 1.10 $ from $Date: 2004/08/04 18:42:00 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -38,6 +38,7 @@ module TreeSelection(
   castToTreeSelection,
   SelectionMode(..),
   treeSelectionSetMode,
+  treeSelectionGetMode,
   TreeSelectionCB,
   treeSelectionSetSelectFunction,
   treeSelectionGetTreeView,
@@ -46,8 +47,10 @@ module TreeSelection(
   treeSelectionSelectedForeach,
   treeSelectionSelectPath,
   treeSelectionUnselectPath,
+  treeSelectionPathIsSelected,
   treeSelectionSelectIter,
   treeSelectionUnselectIter,
+  treeSelectionIterIsSelected,
   treeSelectionSelectAll,
   treeSelectionUnselectAll,
   treeSelectionSelectRange,
@@ -76,6 +79,12 @@ import General	(mkDestructor)
 treeSelectionSetMode :: (TreeSelectionClass ts) => ts -> SelectionMode -> IO ()
 treeSelectionSetMode ts sm = {#call tree_selection_set_mode#}
   (toTreeSelection ts) ((fromIntegral.fromEnum) sm)
+
+-- | Gets the selection mode.
+--
+treeSelectionGetMode :: (TreeSelectionClass ts) => ts -> IO SelectionMode
+treeSelectionGetMode ts = liftM (toEnum.fromIntegral) $
+  {#call unsafe tree_selection_get_mode#} (toTreeSelection ts)
 
 -- | Set a callback function if
 -- selection changes.
@@ -154,8 +163,7 @@ treeSelectionSelectedForeach ts fun = do
   {#call tree_selection_selected_foreach#} (toTreeSelection ts) fPtr nullPtr
   freeHaskellFunPtr fPtr
 
--- | Callback function type for
--- 'treeSelectionSelectedForeach'.
+-- | Callback function type for 'treeSelectionSelectedForeach'.
 --
 type TreeSelectionForeachCB = TreeIter -> IO ()
 {#pointer TreeSelectionForeachFunc#}
@@ -184,6 +192,12 @@ treeSelectionUnselectPath :: (TreeSelectionClass ts) => ts -> TreePath -> IO ()
 treeSelectionUnselectPath ts tp =
   {#call tree_selection_unselect_path#} (toTreeSelection ts) tp
 
+-- | Returns True if the row at the given path is currently selected.
+--
+treeSelectionPathIsSelected :: (TreeSelectionClass ts) => ts -> TreePath -> IO Bool
+treeSelectionPathIsSelected ts tp = liftM toBool $
+  {#call unsafe tree_selection_path_is_selected#} (toTreeSelection ts) tp
+
 -- | Select a specific item by TreeIter.
 --
 treeSelectionSelectIter :: (TreeSelectionClass ts) => ts -> TreeIter -> IO ()
@@ -196,6 +210,11 @@ treeSelectionUnselectIter :: (TreeSelectionClass ts) => ts -> TreeIter -> IO ()
 treeSelectionUnselectIter ts ti =
   {#call tree_selection_unselect_iter#} (toTreeSelection ts) ti
 
+-- | Returns True if the row at the given iter is currently selected.
+--
+treeSelectionIterIsSelected :: (TreeSelectionClass ts) => ts -> TreeIter -> IO Bool
+treeSelectionIterIsSelected ts ti = liftM toBool $
+  {#call unsafe tree_selection_iter_is_selected#} (toTreeSelection ts) ti
 
 -- | Select everything.
 --

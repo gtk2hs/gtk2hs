@@ -6,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 15:46:02 $
+--  Version $Revision: 1.8 $ from $Date: 2004/08/04 18:41:43 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -25,12 +25,7 @@
 -- This abstract widget implements the basis for turning serveral widgets
 -- into one compound widget.
 --
--- TODO
---
--- * Check if the following functions are of interest to the user:
---   containerSetReallocateRedraws, containerQueueResize, 
---   conatinerClearResizeWidgets
---
+
 module Container(
   Container,
   ContainerClass,
@@ -38,14 +33,21 @@ module Container(
   containerAdd,
   containerRemove,
   containerForeach,
+  containerGetChildren,
   DirectionType(..),
---  containerFocus,
   containerSetFocusChild,
+  containerSetFocusChain,
+  containerGetFocusChain,
+  containerUnsetFocusChain,
   containerSetFocusVAdjustment,
+  containerGetFocusVAdjustment,
   containerSetFocusHAdjustment,
+  containerGetFocusHAdjustment,
   containerResizeChildren,
---  containerChildCompositeName,
   containerSetBorderWidth,
+  containerGetBorderWidth,
+  containerChildSetProperty,
+  containerChildGetProperty,
   onAdd,
   afterAdd,
   onCheckResize,
@@ -65,6 +67,8 @@ import GObject	(objectRef, objectUnref)
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
+import GList  (fromGList, toGList)
+{#import GValue#} (GValue, GenericValue, valueUnset)
 import Enums	(DirectionType(..))
 
 
@@ -116,19 +120,13 @@ foreign export dynamic mkContainerForeachFunc ::
 
 #endif
 
-{-
--- | Give the focus to the container.
--- * The @direction@ argument determines what kind of focus 
--- change is to be
---   simulated.
+-- | Returns the the container's children.
 --
--- * The returned boolean value is the value returned from the 
--- @\"focus\"@ signal emission.
---
---containerFocus :: ContainerClass c => DirectionType -> c -> IO Bool
---containerFocus direction con = liftM toBool $ {#call container_focus#} 
---  (toContainer con) ((fromIntegral.fromEnum) direction)
--}
+containerGetChildren :: ContainerClass c => c -> IO [Widget]
+containerGetChildren con = do
+  glist <- {#call container_get_children#} (toContainer con)
+  widgetPtrs <- fromGList glist
+  mapM (makeNewObject mkWidget . return) widgetPtrs
 
 -- | Give the focus to a specific child of the
 -- container.
@@ -137,22 +135,69 @@ containerSetFocusChild :: (ContainerClass c, WidgetClass w) => c -> w -> IO ()
 containerSetFocusChild con widget =
   {#call container_set_focus_child#} (toContainer con) (toWidget widget)
 
+-- | Sets a focus chain, overriding the one computed automatically by GTK+.
+--
+containerSetFocusChain :: ContainerClass c => c -> [Widget] -> IO ()
+containerSetFocusChain con chain =
+  let wForeignPtrs = map (\w -> case toWidget w of Widget ptr -> ptr) chain in
+  withForeignPtrs wForeignPtrs $ \wPtrs -> do
+  glist <- toGList wPtrs
+  {#call container_set_focus_chain#} (toContainer con) glist
 
--- | Install an @adjustment@
--- widget that is queried when focus is changed.
+withForeignPtrs :: [ForeignPtr a] -> ([Ptr a] -> IO b) -> IO b
+withForeignPtrs = withForeignPtrs' []
+  where withForeignPtrs' accum []     cont = cont (reverse accum)
+        withForeignPtrs' accum (p:ps) cont = withForeignPtr p $ \p' ->
+                                             withForeignPtrs' (p':accum) ps cont
+
+-- | Retrieves the focus chain of the container, if one has been set explicitly.
+--
+containerGetFocusChain :: ContainerClass c => c -> IO (Maybe [Widget])
+containerGetFocusChain con =
+  alloca $ \glistPtr -> do
+  {#call container_get_focus_chain#} (toContainer con) glistPtr
+  if glistPtr == nullPtr then return Nothing else liftM Just $ do
+    glist <- peek glistPtr
+    widgetPtrs <- fromGList glist
+    mapM (makeNewObject mkWidget . return) widgetPtrs
+
+-- | Removes a focus chain explicitly set with 'containerSetFocusChain'.
+--
+containerUnsetFocusChain :: ContainerClass c => c -> IO ()
+containerUnsetFocusChain con =
+  {#call container_unset_focus_chain#} (toContainer con)
+
+-- | Install an adjustment widget that is queried when focus is changed.
 --
 containerSetFocusVAdjustment :: (ContainerClass c, AdjustmentClass a) => c ->
                                 a -> IO ()
 containerSetFocusVAdjustment con adj =
   {#call container_set_focus_vadjustment#} (toContainer con) (toAdjustment adj)
 
--- | Install an @adjustment@
--- widget that is queried when focus is changed.
+-- | Retrieves the vertical focus adjustment for the container, or Nothing if
+-- none has been set.
+--
+containerGetFocusVAdjustment :: ContainerClass c => c -> IO (Maybe Adjustment)
+containerGetFocusVAdjustment con = do
+  aPtr <- {#call unsafe container_get_focus_vadjustment#} (toContainer con)
+  if aPtr==nullPtr then return Nothing else liftM Just $
+    makeNewObject mkAdjustment (return aPtr)
+
+-- | Install an adjustment widget that is queried when focus is changed.
 --
 containerSetFocusHAdjustment :: (ContainerClass c, AdjustmentClass a) => c ->
                                 a -> IO ()
 containerSetFocusHAdjustment con adj =
   {#call container_set_focus_hadjustment#} (toContainer con) (toAdjustment adj)
+
+-- | Retrieves the horizontal focus adjustment for the container, or Nothing if
+-- none has been set.
+--
+containerGetFocusHAdjustment :: ContainerClass c => c -> IO (Maybe Adjustment)
+containerGetFocusHAdjustment con = do
+  aPtr <- {#call unsafe container_get_focus_hadjustment#} (toContainer con)
+  if aPtr==nullPtr then return Nothing else liftM Just $
+    makeNewObject mkAdjustment (return aPtr)
 
 -- | Make the container resize its children.
 --
@@ -160,28 +205,51 @@ containerResizeChildren :: ContainerClass c => c -> IO ()
 containerResizeChildren con =
   {#call container_resize_children#} (toContainer con)
 
-{-
--- | Query the composite name of a 
--- widget in this container.
--- *  
---containerChildCompositeName :: (ContainerClass c, WidgetClass w) =>
---  w -> c -> IO String
---containerChildCompositeName widget con = do
---  strPtr <- throwIfNull "containerChildCompositeName: illegal name returned" $
---    {#call unsafe container_child_composite_name#} (toContainer con) 
---    (toWidget widget)
---  str <- peekUTFString strPtr
---  {#call unsafe g_free#} (castPtr strPtr)
---  return str
--}
-
--- | Set the amount of empty space around the
--- outside of the container.
+-- | Set the amount of empty space around the outside of the container.
+--
+-- The border width of a container is the amount of space to leave around the
+-- outside of the container. The border is added on all sides of the container.
 --
 containerSetBorderWidth :: ContainerClass c => c -> Int -> IO ()
 containerSetBorderWidth con width =
   {#call container_set_border_width#} (toContainer con) (fromIntegral width)
 
+-- | Retrieves the border width of the container. See 'containerSetBorderWidth'.
+--
+containerGetBorderWidth :: ContainerClass c => c -> IO Int
+containerGetBorderWidth con = liftM fromIntegral $
+  {#call unsafe container_get_border_width#} (toContainer con)
+
+-- TODO add doc on what child properties are
+
+-- | Sets a child property for child and container.
+--
+containerChildSetProperty :: (ContainerClass c, WidgetClass widget) => c
+                          -> widget       -- ^ Chile widget
+                          -> String       -- ^ Property name
+                          -> GenericValue -- ^ Property value
+                          -> IO ()
+containerChildSetProperty con child prop val =
+  alloca $ \valPtr ->
+  withUTFString prop $ \strPtr -> do
+  poke valPtr val
+  {#call container_child_set_property#} (toContainer con)
+    (toWidget child) strPtr valPtr
+
+-- | Gets the value of a child property for the given child and container.
+--
+containerChildGetProperty :: (ContainerClass c, WidgetClass widget) => c
+                          -> widget  -- ^ Child widget
+                          -> String  -- ^ Property name
+                          -> IO GenericValue
+containerChildGetProperty con child prop =
+  alloca $ \valPtr ->
+  withUTFString prop $ \strPtr -> do
+  {#call unsafe container_child_get_property#} (toContainer con)
+    (toWidget child) strPtr valPtr
+  res <- peek valPtr
+  valueUnset valPtr
+  return res
 
 -- signals
 
