@@ -19,19 +19,11 @@ do not exclude gtk_tree_path
 
 exclude gtk_pixmap
 exclude gtk_item_factory
+exclude gtk_item_factories
 exclude gtk_old_editable
 exclude gtk_preview
 exclude gtk_progress
-do not exclude gtk_progress_bar_new
-do not exclude gtk_progress_bar_pulse
-do not exclude gtk_progress_bar_set_text
-do not exclude gtk_progress_bar_set_fraction
-do not exclude gtk_progress_bar_set_pulse_step
-do not exclude gtk_progress_bar_set_orientation
-do not exclude gtk_progress_bar_get_text
-do not exclude gtk_progress_bar_get_fraction
-do not exclude gtk_progress_bar_get_pulse_step
-do not exclude gtk_progress_bar_get_orientation
+do not exclude gtk_progress_bar
 
 exclude gtk_text
 do not exclude gtk_text_iter
@@ -49,10 +41,14 @@ exclude gtk_accel_group_unref
 exclude gtk_idle
 exclude gtk_timeout
 exclude gtk_input
+do not exclude gtk_input_dialog
 exclude gtk_exit
 exclude gtk_type
 
 exclude gtk_color_selection_set_update_policy
+
+exclude gtk_signal
+
 
 #deprecated as of 2.4
 exclude gtk_combo
@@ -74,6 +70,10 @@ exclude gtk_false
 exclude gtk_true
 exclude gtk_.*_version
 exclude gtk_requisition
+exclude gtk_main_do_event
+exclude gtk_propagate_event
+exclude gtk_get_current_event
+exclude gtk_get_event_widget
 
 #for gtk extensions & widget implementations
 exclude gtk_draw
@@ -87,33 +87,42 @@ exclude gtk_im
 exclude gtk_invisible
 exclude gtk_widget_realize
 exclude gtk_widget_unrealize
+exclude gtk_accessible_connect_widget_destroyed
+
+#GtkItem abstract base class has no useful methods
+exclude gtk_item_select
+exclude gtk_item_deselect
+exclude gtk_item_toggle
 
 
 #sometimes there are several ways of doing the same thing
 #so lets ignore the other ways of doing it
 exclude gtk_init
 do not exclude gtk_init_check$
+do not exclude gtk_init_add
 
 
 #dont think we need these ? TODO check this
 exclude gtk_gc
 exclude gtk_key_snooper
 exclude gtk_rc
+exclude gtk_disable_setlocale
+exclude gtk_set_locale
+exclude gtk_parse_args		#allows to init gtk without opening an X display
+exclude stock_add_static	#comment in StockItems.hsc says this might be useful
 
 
 #appear to be internal, they're not well documented
 exclude gtk_binding
 exclude gtk_debug
-
-#stuff that we do not call directly, but instead simulate
-#usually because the function is varargs
-exclude gtk_file_chooser_dialog_new
+exclude gtk_rgb_to_hsv
+exclude gtk_hsv
+exclude gtk_theme_engine
 
 
 #these are sometimes bound if necessary but otherwise we can ignore them
 always exclude _get_type$
 always exclude _valist$
-always exclude _newv$
 always exclude _copy$
 always exclude _free$
 exclude _ref$

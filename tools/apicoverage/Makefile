@@ -53,8 +53,16 @@ stats : gtk.def.filtered gtk.coverage.filtered
 	@echo " total gtk functions    :" $(gtk_total)
 	@echo " total gtk2hs functions :" $(gtk2hs_total)
 	@echo " difference             :" `echo $(gtk_total) - $(gtk2hs_total) | bc`
-	@echo; echo "run 'diff gtk.def.filtered gtk.coverage' to see in detail"
+	@echo
+	@echo "run 'make summary' to get a list of groups of unbound functions"
+	@echo " on 'diff gtk.def.filtered gtk.coverage' to see in detail"
 	@echo " or 'diff gtk.def.filtered gtk.coverage.filtered' for less noise"
+
+summary : gtk.def.filtered gtk.coverage.filtered
+	@echo "**** unbound gtk functions by group ****"
+	@diff gtk.def.filtered gtk.coverage.filtered | \
+	awk '$$1 == "<" { print $$2 }' | \
+	awk -F _ '{ printf("%s_%s\n", $$1, $$2) }' | uniq -c | sort -n
 
 debug:
 	@echo GTK_IGNORE_FILES = $(GTK_IGNORE_FILES)

@@ -11,6 +11,12 @@
 	gtk/windows/api.ignore, gtk/abstract/api.ignore: updated with more
 	deprecated functions to ignore.
 
+	* tools/apicoverage/gtk.ignore: updated api ignore stuff. Some added,
+	some moved elsewhere.
+
+	* tools/apicoverage/Makefile: new target 'summary' to list the number
+	of unbound gtk functions, grouped by namespace prefix.
+
 2004-07-30  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/entry/Editable.chs, gtk/entry/Entry.chs: split off editable
