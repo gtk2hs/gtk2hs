@@ -20,7 +20,7 @@ main = do
   boxPackStartDefaults contain pb
   widgetShowAll dia
   forkIO (doTask pb)
-  idleAdd (yield >> return True) priorityDefault
+  idleAdd (yield >> return True) priorityDefaultIdle
   dialogRun dia
   return ()
 

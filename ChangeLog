@@ -29,6 +29,10 @@
 
 	* tools/apiGen/gobject-sources.xml: add gobject seperately.
 
+	* demo/concurrent/Progress.hs: Fix progress demo to use the right
+	idle priority. This is a knock-on change from fixing the priority
+	constants in gtk/Graphics/UI/Gtk/General/Structs.hsc.
+
 2005-03-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs,
