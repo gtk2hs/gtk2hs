@@ -1,3 +1,9 @@
+2005-03-14 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: segfault bug fix. Clear up
+	confusion between pointer to rectangles and pointer to a pointer to
+	rectangles.
+
 2005-03-13 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/Attributes.hs: new file defining Attr data type

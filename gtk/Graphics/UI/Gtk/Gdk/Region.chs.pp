@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/03/14 16:54:24 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -136,19 +136,19 @@ regionGetClipbox r = alloca $ \rPtr -> do
 
 -- | Turn the 'Region' into its rectangles.
 --
--- * A 'Region' is a set of horizontal bands. Each band
---   consists of one or more rectangles of the same height. No rectangles
---   in a band touch.
+-- A 'Region' is a set of horizontal bands. Each band consists of one or more
+-- rectangles of the same height. No rectangles in a band touch.
 --
 regionGetRectangles :: Region -> IO [Rectangle]
-regionGetRectangles r = 
-  alloca $ \(aPtr :: Ptr Rectangle) -> 
+regionGetRectangles region = 
+  alloca $ \(rectPtrPtr :: Ptr (Ptr Rectangle)) -> 
   alloca $ \(iPtr :: Ptr {#type gint#}) -> do
-    {#call unsafe region_get_rectangles#} r (castPtr aPtr) iPtr
+    {#call unsafe region_get_rectangles#} region (castPtr rectPtrPtr) iPtr
     size <- peek iPtr
-    regs <- peekArray (fromIntegral size) aPtr
-    {#call unsafe g_free#} (castPtr aPtr)
-    return regs
+    rectPtr <- peek rectPtrPtr
+    rects <- peekArray (fromIntegral size) rectPtr
+    {#call unsafe g_free#} (castPtr rectPtr)
+    return rects
 
 -- | Test if a 'Region' is empty.
 --
