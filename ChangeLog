@@ -1,3 +1,9 @@
+2003-05-22 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* gtk/treeList/TreeView.chs: Changed the return type of the
+	onTestCollapseRow and onTestExpandRow signals. Patch submitted by
+	Duncan Coutts <duncan@coutts.uklinux.net>.
+	
 2003-05-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* gtk/gdk/Pixbuf.chs: Fixed dcumentation on creating inline pictures.

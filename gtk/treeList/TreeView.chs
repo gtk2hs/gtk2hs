@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2003/05/16 22:25:16 $
+--  Version $Revision: 1.14 $ from $Date: 2003/05/22 09:19:18 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -878,11 +878,11 @@ afterStartInteractiveSearch =
 --   the specifc row will not be altered.
 --
 onTestCollapseRow, afterTestCollapseRow :: TreeViewClass tv => tv ->
-					   (TreeIter -> TreePath -> IO ()) ->
+					   (TreeIter -> TreePath -> IO Bool) ->
 					   IO (ConnectId tv)
-onTestCollapseRow = connect_BOXED_BOXED__NONE "test_collapse_row"
+onTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
 		   createTreeIter createTreePath False
-afterTestCollapseRow = connect_BOXED_BOXED__NONE "test_collapse_row"
+afterTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
 		      createTreeIter createTreePath True
 
 -- @signal connectToTestExpandRow@ Determine if this row should be expanded.
@@ -891,10 +891,10 @@ afterTestCollapseRow = connect_BOXED_BOXED__NONE "test_collapse_row"
 --   the specifc row will not be altered.
 --
 onTestExpandRow, afterTestExpandRow :: TreeViewClass tv => tv ->
-					   (TreeIter -> TreePath -> IO ()) ->
+					   (TreeIter -> TreePath -> IO Bool) ->
 					   IO (ConnectId tv)
-onTestExpandRow = connect_BOXED_BOXED__NONE "test_expand_row"
+onTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
 		   createTreeIter createTreePath False
-afterTestExpandRow = connect_BOXED_BOXED__NONE "test_expand_row"
+afterTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
 		      createTreeIter createTreePath True
 
