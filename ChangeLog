@@ -4,6 +4,9 @@
 	glade/Makefile, sourceview/Makefile: drop support for ghc 5.02.x.
 	the minimum version required is now 5.04.x.
 
+	* gtk/menuComboToolbar/Menu.chs, gtk/layout/Fixed.chs,
+	gtk/display/Label.chs: haddock markup fixes.
+
 2004-08-5  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/treeList/TreeView.chs, gtk/multiline/TextTag.chs,

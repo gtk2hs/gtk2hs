@@ -6,7 +6,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/08/01 16:08:14 $
+--  Version $Revision: 1.8 $ from $Date: 2004/08/06 01:31:42 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -88,7 +88,7 @@ labelSetText :: LabelClass l => l -> String -> IO ()
 labelSetText l str =
   withUTFString str $ {#call label_set_text#} (toLabel l)
 
--- | The label is interpreted as including embedded underlines and/or Pango
+-- | The label is interpreted as including embedded underlines and\/or Pango
 -- markup depending on the markup and underline properties.
 --
 labelSetLabel :: LabelClass l => l -> String -> IO ()

@@ -6,7 +6,7 @@
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/08/03 04:01:52 $
+--  Version $Revision: 1.9 $ from $Date: 2004/08/06 01:31:41 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -134,8 +134,8 @@ menuGetAccelGroup m =
 --
 -- > menu `menuSetAccelPath` "<Gnumeric-Sheet>/File"
 --
--- assign its items the accel paths: "<Gnumeric-Sheet>/File/New" and
--- "<Gnumeric-Sheet>/File/Exit".
+-- assign its items the accel paths: \"<Gnumeric-Sheet>\/File\/New\" and
+-- \"<Gnumeric-Sheet>\/File\/Exit\".
 --
 -- Assigning accel paths to menu items then enables the user to change their
 -- accelerators at runtime. More details about accelerator paths and their

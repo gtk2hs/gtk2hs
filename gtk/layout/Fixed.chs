@@ -43,7 +43,7 @@
 -- that with 'Fixed'. So your application will not be usable in right-to-left
 -- languages.
 --
--- Finally, fixed positioning makes it kind of annoying to add/remove GUI
+-- Finally, fixed positioning makes it kind of annoying to add\/remove GUI
 -- elements, since you have to reposition all the other elements. This is a
 -- long-term maintenance problem for your application.
 --
