@@ -131,3 +131,19 @@ dnl case they go into a non-standard directory. If they go into a
 dnl standard directory then we duplicate a path here. Dough.
 [$3]="[$][$3][$]C_LDIR\"\${pkglibdir}\"";
 ])dnl
+
+dnl Another hack, on glibc systems GHCi cannot load the pthread library,
+dnl so do not include it in the LIBS list. This is not usually a problem since
+dnl some other lib usually has the pthread library as a dependency and the
+dnl system dynamic linker loads up the pthread library automatically.
+AC_DEFUN([GTKHS_GLIBC_PTHREAD_HACK],
+[
+TMP_[$1]=;
+for FLAG in [$][$1]; do
+  case [$]FLAG in
+    -lpthread) TMP_[$1]="[$]TMP_[$1]";;
+    *)         TMP_[$1]="[$]TMP_[$1] [$]FLAG";;
+  esac;
+done;
+[$1]=[$]TMP_[$1]
+])

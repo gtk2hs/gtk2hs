@@ -8,6 +8,23 @@
 	against Gtk+ version 2.1.0 which is a version that Sun shipped with
 	its version of Gnome 2.
 
+	* acinclude.m4: add a macro to deal with a hack on Linux systems where
+	GHCi cannot load the pthread library. Everything still works if we
+	just strip out the -lpthread flag because pthread is a dependency of
+	other libraries I guess.
+
+	* configure.ac: 
+	1. Do not build GHCi .o files on Solaris because it does not work due
+	to ghc-pkg using an incorrect linker command.
+	2. Add a hack to add a runtime library search path when linking
+	programs that use mozembed.
+	3. Use the above mentioned pthread hack for each package that uses
+	pthread.
+	4. Define some extra conditionals for Gtk versions so we know which
+	demos to build upon make installcheck.
+	5. Also add a work around for a broken development version of Gtk that
+	Sun decided to ship.
+
 2005-01-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add an extra option --without-pkgreg to allow

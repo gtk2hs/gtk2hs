@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.7_rc2)
+AC_INIT(gtk2hs, 0.9.7_rc3pre)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
@@ -215,6 +215,15 @@ if test $GHCPKG = ghcpkg-not-found; then
   AC_MSG_ERROR([ghc-pkg not found. (But ghc exists!?)]);
 fi
 
+dnl On Solaris ghc-pkg fails to build GHCi .o files when installing because
+dnl it uses a linker command that is only appropriate for GNU ld, not the
+dnl Solaris native ld. Disable building GHCi .o files on Solaris until this
+dnl is fixed. (And then make it conditional on the GHC version, ho hum)
+case "$host_os" in
+  solaris2*) GHCPKG_BUILD_GHCI_LIB=;;
+          *) GHCPKG_BUILD_GHCI_LIB=--auto-ghci-libs;;
+esac
+
 dnl Optimise Haskell by default and give sufficient space.
 if test -z "$HCFLAGS"; then
   HCFLAGS="-O -H180m"
@@ -314,12 +323,48 @@ if test x$ENABLE_MOZEMBED = xyes; then
   PKG_CHECK_MODULES(MOZEMBED,[mozilla-gtkmozembed >= 1.4])
 fi
 
+dnl The following is a hack to fix the fact that
+dnl "pkg-config --libs mozilla-gtkmozembed" does not give us all the right
+dnl stuff. On many systems, the mozilla .so files that we need to link with
+dnl are not installed on the standard library search path.
+dnl "pkg-config --libs mozilla-gtkmozembed" tells us -L/path/to/moz/libs which
+dnl helps with finding the .so libs at static link time but does nothing to
+dnl modify the search path at dynamic link/load time. Hence what we do here is
+dnl modify the lib flags to add -Rfoo for each occurence of -Lfoo
+MOZEMBED_LIBS_TMP=;
+for FLAG in $MOZEMBED_LIBS; do
+  case $FLAG in
+      -L*) MOZEMBED_LIBS_TMP="$MOZEMBED_LIBS_TMP $FLAG -Wl,-R${FLAG#-L}";;
+      *)  MOZEMBED_LIBS_TMP="$MOZEMBED_LIBS_TMP $FLAG";;
+  esac;
+done;
+MOZEMBED_LIBS=$MOZEMBED_LIBS_TMP
+
+dnl Another hack, on glibc systems GHCi cannot load the pthread library,
+dnl so do not include it in the LIBS list. This is not usually a problem since
+dnl some other lib usually has the pthread library as a dependency and the
+dnl system dynamic linker loads up the pthread library automatically.
+case "$host_os" in
+  linux*)
+    GTKHS_GLIBC_PTHREAD_HACK(LIBGLADE_LIBS)
+    GTKHS_GLIBC_PTHREAD_HACK(GCONF_LIBS)
+    GTKHS_GLIBC_PTHREAD_HACK(SOURCEVIEW_LIBS)
+    GTKHS_GLIBC_PTHREAD_HACK(MOZEMBED_LIBS);;
+esac
 
 dnl Some APIs only appeared in later versions of libraries. Generate only
 dnl Haskell types for the available C types.
-CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.2 && echo gtk-2.2`"
-CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.4 && echo gtk-2.4`"
-CREATE_TYPES="$CREATE_TYPES `$PKG_CONFIG gtk+-2.0 --atleast-version=2.6 && echo gtk-2.6`"
+HAVE_GTK_VERSION_2_2=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.2 && echo yes || echo no`
+HAVE_GTK_VERSION_2_4=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.4 && echo yes || echo no`
+HAVE_GTK_VERSION_2_6=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.6 && echo yes || echo no`
+
+AM_CONDITIONAL(HAVE_GTK_VERSION_2_2, test "$HAVE_GTK_VERSION_2_2" = "yes")
+AM_CONDITIONAL(HAVE_GTK_VERSION_2_4, test "$HAVE_GTK_VERSION_2_4" = "yes")
+AM_CONDITIONAL(HAVE_GTK_VERSION_2_6, test "$HAVE_GTK_VERSION_2_6" = "yes")
+
+CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_2" = "yes" && echo gtk-2.2`"
+CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_4" = "yes" && echo gtk-2.4`"
+CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_6" = "yes" && echo gtk-2.6`"
 
 dnl Also allow us to conditionally compile binding to the new Gtk+ APIs.
 GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
@@ -337,6 +382,18 @@ AH_BOTTOM([
      (GTK_MAJOR_VERSION == (major) && GTK_MINOR_VERSION == (minor) && \
       GTK_MICRO_VERSION >= (micro)))
 ])
+
+dnl For reasons know only to themselves, Sun decided to ship a development
+dnl version of Gtk+ (version 2.1.0). Being an intermediate development version
+dnl it had bugs/typos etc. The function gtk_icon_size_lookup was mistakenly
+dnl conditionally included based on the preprocessor symbol GTK_MULTIHEAD_SAFE.
+dnl We'll be nice and support Sun's poor users by defining this symbol for this
+dnl version of Gtk+ only.
+if $PKG_CONFIG gtk+-2.0 --exact-version 2.1.0; then
+  AC_DEFINE(GTK_MULTIHEAD_SAFE, [],
+  [Define this if we need to hack around a broken development version of Gtk+ (2.1.0)
+  that for some reason Sun decided it'd be a really good idea for them to ship. Grrr.])
+fi
 
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
@@ -590,6 +647,7 @@ AC_SUBST(EXTRA_HFILES)
 dnl Versionitis
 AC_SUBST(CREATE_TYPES)
 AC_SUBST(GHCPKG_USE_AUTOLIBS)
+AC_SUBST(GHCPKG_BUILD_GHCI_LIB)
 dnl Optional packages
 AC_SUBST(SOURCEVIEW_CFLAGS)
 AC_SUBST(SOURCEVIEW_LIBS)
