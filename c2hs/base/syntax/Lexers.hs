@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 2 March 99
 --
---  Version $Revision: 1.1 $ from $Date: 2002/04/14 16:57:47 $
+--  Version $Revision: 1.2 $ from $Date: 2003/05/17 14:11:38 $
 --
 --  Copyright (c) 1999 Manuel M. T. Chakravarty
 --
@@ -319,9 +319,11 @@ joinConts c    c'   = let (bn , cls ) = listify c
 -- combine two actions
 --
 joinActions :: LexAction s t -> LexAction s t -> LexAction s t
+joinActions NoAction NoAction = NoAction
 joinActions NoAction a'       = a'
 joinActions a	     NoAction = a
-joinActions _        _        = interr "Lexers.>||<: Overlapping actions!"
+joinActions a        a'       = a'
+--joinActions _        _        = interr "Lexers.>||<: Overlapping actions!"
 
 -- Note: `n' is only an upper bound of the number of non-overlapping cases
 --

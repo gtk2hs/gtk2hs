@@ -1,3 +1,10 @@
+2003-05-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* c2hs/base/syntax/Lexer.hs: There is a bug in either c2hs or the
+	compiler when parsing the header files on PowerPC. I added a line
+	which stops c2hs from panicing without understanding what is going
+	on.
+	
 2003-05-16 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* AUTHORS: Add Vincenzo.
