@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/16 01:42:46 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 18:55:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,7 +83,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 eventBoxNew :: IO EventBox
 eventBoxNew =
-  makeNewObject mkEventBox $ liftM castPtr $
+  makeNewObject mkEventBox $
+  liftM (castPtr :: Ptr Widget -> Ptr EventBox) $
   {# call unsafe event_box_new #}
 
 --------------------

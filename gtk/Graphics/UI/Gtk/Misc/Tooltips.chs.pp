@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/16 01:42:46 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 18:55:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -98,7 +98,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 tooltipsNew :: IO Tooltips
 tooltipsNew =
-  makeNewObject mkTooltips $ liftM castPtr $
+  makeNewObject mkTooltips $
   {# call unsafe tooltips_new #}
 
 --------------------

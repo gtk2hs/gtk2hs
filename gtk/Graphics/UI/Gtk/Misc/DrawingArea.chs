@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/16 02:32:27 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 18:55:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -103,5 +103,6 @@ import Graphics.UI.Gtk.General.Structs	(drawingAreaGetDrawWindow, drawingAreaGet
 --
 drawingAreaNew :: IO DrawingArea
 drawingAreaNew =
-  makeNewObject mkDrawingArea $ liftM castPtr $
+  makeNewObject mkDrawingArea $
+  liftM (castPtr :: Ptr Widget -> Ptr DrawingArea) $
   {# call unsafe drawing_area_new #}

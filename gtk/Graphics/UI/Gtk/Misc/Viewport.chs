@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/16 01:42:47 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 18:55:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -93,7 +93,8 @@ viewportNew ::
  -> Adjustment  -- ^ @vadjustment@ - vertical adjustment.
  -> IO Viewport
 viewportNew hadjustment vadjustment =
-  makeNewObject mkViewport $ liftM castPtr $
+  makeNewObject mkViewport $
+  liftM (castPtr :: Ptr Widget -> Ptr Viewport) $
   {# call unsafe viewport_new #}
     hadjustment
     vadjustment
@@ -103,8 +104,7 @@ viewportNew hadjustment vadjustment =
 
 -- | Returns the horizontal adjustment of the viewport.
 --
-viewportGetHAdjustment :: ViewportClass self => self
- -> IO Adjustment
+viewportGetHAdjustment :: ViewportClass self => self -> IO Adjustment
 viewportGetHAdjustment self =
   makeNewObject mkAdjustment $
   {# call unsafe viewport_get_hadjustment #}
@@ -112,8 +112,7 @@ viewportGetHAdjustment self =
 
 -- | Returns the vertical adjustment of the viewport.
 --
-viewportGetVAdjustment :: ViewportClass self => self
- -> IO Adjustment
+viewportGetVAdjustment :: ViewportClass self => self -> IO Adjustment
 viewportGetVAdjustment self =
   makeNewObject mkAdjustment $
   {# call unsafe viewport_get_vadjustment #}
@@ -121,9 +120,7 @@ viewportGetVAdjustment self =
 
 -- | Sets the horizontal adjustment of the viewport.
 --
-viewportSetHAdjustment :: ViewportClass self => self
- -> Adjustment
- -> IO ()
+viewportSetHAdjustment :: ViewportClass self => self -> Adjustment -> IO ()
 viewportSetHAdjustment self adjustment =
   {# call viewport_set_hadjustment #}
     (toViewport self)
@@ -131,9 +128,7 @@ viewportSetHAdjustment self adjustment =
 
 -- | Sets the vertical adjustment of the viewport.
 --
-viewportSetVAdjustment :: ViewportClass self => self
- -> Adjustment
- -> IO ()
+viewportSetVAdjustment :: ViewportClass self => self -> Adjustment -> IO ()
 viewportSetVAdjustment self adjustment =
   {# call viewport_set_vadjustment #}
     (toViewport self)
@@ -164,7 +159,7 @@ viewportGetShadowType self =
 -- | The 'Adjustment' that determines the values of the horizontal position
 -- for this viewport.
 --
-viewportHAdjustment :: Attr Viewport Adjustment
+viewportHAdjustment :: ViewportClass self => Attr self Adjustment
 viewportHAdjustment = Attr 
   viewportGetHAdjustment
   viewportSetHAdjustment
@@ -172,7 +167,7 @@ viewportHAdjustment = Attr
 -- | The 'Adjustment' that determines the values of the vertical position for
 -- this viewport.
 --
-viewportVAdjustment :: Attr Viewport Adjustment
+viewportVAdjustment :: ViewportClass self => Attr self Adjustment
 viewportVAdjustment = Attr 
   viewportGetVAdjustment
   viewportSetVAdjustment
@@ -181,7 +176,7 @@ viewportVAdjustment = Attr
 --
 -- Default value: 'ShadowIn'
 --
-viewportShadowType :: Attr Viewport ShadowType
+viewportShadowType :: ViewportClass self => Attr self ShadowType
 viewportShadowType = Attr 
   viewportGetShadowType
   viewportSetShadowType

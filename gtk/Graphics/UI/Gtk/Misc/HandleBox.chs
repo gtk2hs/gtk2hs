@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/16 01:42:46 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/02 18:55:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -108,7 +108,8 @@ import Graphics.UI.Gtk.General.Enums	(ShadowType(..), PositionType(..))
 --
 handleBoxNew :: IO HandleBox
 handleBoxNew =
-  makeNewObject mkHandleBox $ liftM castPtr $
+  makeNewObject mkHandleBox $
+  liftM (castPtr :: Ptr Widget -> Ptr HandleBox) $
   {# call unsafe handle_box_new #}
 
 --------------------
@@ -189,7 +190,7 @@ handleBoxGetSnapEdge self =
 --
 -- Default value: 'ShadowEtchedOut'
 --
-handleBoxShadowType :: Attr HandleBox ShadowType
+handleBoxShadowType :: HandleBoxClass self => Attr self ShadowType
 handleBoxShadowType = Attr 
   handleBoxGetShadowType
   handleBoxSetShadowType
@@ -198,7 +199,7 @@ handleBoxShadowType = Attr
 --
 -- Default value: 'PosLeft'
 --
-handleBoxHandlePosition :: Attr HandleBox PositionType
+handleBoxHandlePosition :: HandleBoxClass self => Attr self PositionType
 handleBoxHandlePosition = Attr 
   handleBoxGetHandlePosition
   handleBoxSetHandlePosition
@@ -208,7 +209,7 @@ handleBoxHandlePosition = Attr
 --
 -- Default value: 'PosTop'
 --
-handleBoxSnapEdge :: Attr HandleBox PositionType
+handleBoxSnapEdge :: HandleBoxClass self => Attr self PositionType
 handleBoxSnapEdge = Attr 
   handleBoxGetSnapEdge
   handleBoxSetSnapEdge

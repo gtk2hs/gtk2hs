@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/03/16 01:42:46 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/02 18:55:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -81,12 +81,10 @@ import Graphics.UI.Gtk.General.Enums	(ArrowType(..), ShadowType(..))
 
 -- | Creates a new arrow widget.
 --
-arrowNew :: 
-    ArrowType
- -> ShadowType
- -> IO Arrow
+arrowNew :: ArrowType -> ShadowType -> IO Arrow
 arrowNew arrowType shadowType =
-  makeNewObject mkArrow $ liftM castPtr $ 
+  makeNewObject mkArrow $
+  liftM (castPtr :: Ptr Widget -> Ptr Arrow) $
   {# call unsafe arrow_new #}
     ((fromIntegral . fromEnum) arrowType)
     ((fromIntegral . fromEnum) shadowType)
@@ -96,10 +94,7 @@ arrowNew arrowType shadowType =
 
 -- | Sets the direction and style of the 'Arrow'.
 --
-arrowSet :: ArrowClass self => self
- -> ArrowType
- -> ShadowType
- -> IO ()
+arrowSet :: ArrowClass self => self -> ArrowType -> ShadowType -> IO ()
 arrowSet self arrowType shadowType =
   {# call arrow_set #}
     (toArrow self)

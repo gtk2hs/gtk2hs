@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/16 01:42:46 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 18:55:23 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -163,7 +163,7 @@ sizeGroupSetMode self mode =
 --
 -- Default value: 'SizeGroupHorizontal'
 --
-sizeGroupMode :: Attr SizeGroup SizeGroupMode
+sizeGroupMode :: SizeGroupClass self => Attr self SizeGroupMode
 sizeGroupMode = Attr 
   sizeGroupGetMode
   sizeGroupSetMode

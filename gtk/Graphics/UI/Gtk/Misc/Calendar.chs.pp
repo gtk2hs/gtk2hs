@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/16 01:42:46 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/02 18:55:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -79,6 +79,10 @@ module Graphics.UI.Gtk.Misc.Calendar (
   calendarGetDisplayOptions,
 #endif
   calendarGetDate,
+  calendarFreeze,
+
+-- * Properties
+--  calendarDisplayOptions,
 
 -- * Signals
   onDaySelected,
@@ -114,7 +118,8 @@ import Graphics.UI.Gtk.General.Enums	(CalendarDisplayOptions(..), fromFlags, toF
 --
 calendarNew :: IO Calendar
 calendarNew =
-  makeNewObject mkCalendar $ liftM castPtr $
+  makeNewObject mkCalendar $
+  liftM (castPtr :: Ptr Widget -> Ptr Calendar) $
   {# call unsafe calendar_new #}
 
 --------------------
@@ -209,8 +214,7 @@ calendarGetDisplayOptions self =
 -- newly-written code. Use 'calendarSetDisplayOptions' instead.
 --
 calendarDisplayOptions :: CalendarClass self => self
- -> [CalendarDisplayOptions]
- -> IO ()
+ -> [CalendarDisplayOptions] -> IO ()
 calendarDisplayOptions self flags =
   {# call calendar_display_options #}
     (toCalendar self)
@@ -223,7 +227,7 @@ calendarGetDate :: CalendarClass self => self
  -> IO (Int,Int,Int) -- ^ @(year, month, day)@
 calendarGetDate self =
   alloca $ \yearPtr ->
-  alloca $ \monthPtr -> 
+  alloca $ \monthPtr ->
   alloca $ \dayPtr -> do
   {# call unsafe calendar_get_date #}
     (toCalendar self)
@@ -250,21 +254,32 @@ calendarFreeze self update = do
   return res
 
 --------------------
+-- Properties
+
+-- | \'displayOptions\' property. See 'calendarGetDisplayOptions' and
+-- 'calendarSetDisplayOptions'
+--
+--calendarDisplayOptions :: CalendarClass self => Attr self [CalendarDisplayOptions]
+--calendarDisplayOptions = Attr 
+--  calendarGetDisplayOptions
+--  calendarSetDisplayOptions
+
+--------------------
 -- Signals
 
 -- | Emitted when a day was selected.
 --
-onDaySelected, afterDaySelected :: CalendarClass c => c -> IO () ->
-                                   IO (ConnectId c)
+onDaySelected, afterDaySelected :: CalendarClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onDaySelected = connect_NONE__NONE "day-selected" False
 afterDaySelected = connect_NONE__NONE "day-selected" True
 
--- | Emitted when a day received a
--- double click.
+-- | Emitted when a day received a double click.
 --
-onDaySelectedDoubleClick, afterDaySelectedDoubleClick :: CalendarClass c => 
-                                                         c -> IO () ->
-                                                         IO (ConnectId c)
+onDaySelectedDoubleClick, afterDaySelectedDoubleClick :: CalendarClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onDaySelectedDoubleClick = 
   connect_NONE__NONE "day-selected-double-click" False
 afterDaySelectedDoubleClick = 
@@ -272,33 +287,40 @@ afterDaySelectedDoubleClick =
 
 -- | The month changed.
 --
-onMonthChanged, afterMonthChanged :: CalendarClass c => c -> IO () ->
-                                     IO (ConnectId c)
+onMonthChanged, afterMonthChanged :: CalendarClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onMonthChanged = connect_NONE__NONE "month-changed" False
 afterMonthChanged = connect_NONE__NONE "month-changed" True
 
 -- | The next month was selected.
 --
-onNextMonth, afterNextMonth :: CalendarClass c => c -> IO () ->
-                               IO (ConnectId c)
+onNextMonth, afterNextMonth :: CalendarClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onNextMonth = connect_NONE__NONE "next-month" False
 afterNextMonth = connect_NONE__NONE "next-month" True
 
 -- | The next year was selected.
 --
-onNextYear, afterNextYear :: CalendarClass c => c -> IO () -> IO (ConnectId c)
+onNextYear, afterNextYear :: CalendarClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onNextYear = connect_NONE__NONE "next-year" False
 afterNextYear = connect_NONE__NONE "next-year" True
 
 -- | The previous month was selected.
 --
-onPrevMonth, afterPrevMonth :: CalendarClass c => c -> IO () ->
-                               IO (ConnectId c)
+onPrevMonth, afterPrevMonth :: CalendarClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onPrevMonth = connect_NONE__NONE "prev-month" False
 afterPrevMonth = connect_NONE__NONE "prev-month" True
 
 -- | The previous year was selected.
 --
-onPrevYear, afterPrevYear :: CalendarClass c => c -> IO () -> IO (ConnectId c)
+onPrevYear, afterPrevYear :: CalendarClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onPrevYear = connect_NONE__NONE "prev-year" False
 afterPrevYear = connect_NONE__NONE "prev-year" True
