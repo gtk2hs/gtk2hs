@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.9 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.10 $ from $Date: 2003/08/09 04:47:11 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -235,7 +235,7 @@ textViewPlaceCursorOnscreen :: TextViewClass tv => tv -> IO Bool
 textViewPlaceCursorOnscreen tv = liftM toBool $ 
   {#call unsafe text_view_place_cursor_onscreen#} (toTextView tv)
 
--- @method textViewGetVisible@ Get the currently visible rectangle.
+-- @method textViewGetVisibleRect@ Get the currently visible rectangle.
 --
 -- * Use @ref method textViewBufferToWindowCoords@ to convert into window 
 -- coordinates.

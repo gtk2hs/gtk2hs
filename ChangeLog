@@ -1,3 +1,7 @@
+2003-08-09  Jens Petersen  <petersen@haskell.org>
+
+	* gtk/multiline/TextView.chs (textViewGetVisibleRect): Fix docu typo.
+
 2003-08-02  Jens Petersen  <petersen@haskell.org>
 
 	* gtk/multiline/TextBuffer.chs (textBufferGetCharCount): Call
