@@ -1,16 +1,22 @@
 # --*Makefile*--
 
+# regular expressions to eliminate ../ and ./ in paths
+SEDNOUP		:= 's+\(.*\)/.*/\.\./\(.*\)+\1/\2+'
+SEDNOID		:= 's+\(.*\)\./\(.*\)+\1\2+'
+SEDPIPE		:= $(SED) -e $(SEDNOUP) -e $(SEDNOID) -e $(PATHSED)
+
 # directories of interest
-CURDIR		= $(shell $(PWD))
-TARDIR		= $(subst $(TOP),$(TARNAME),$(CURDIR))/
+#TOP		:= $(shell echo $(TOP) | $(SEDPIPE))
+CURDIR		:= $(shell $(PWD) | $(SEDPIPE))
+TARDIR		:= $(subst $(TOP),$(TARNAME),$(CURDIR))/
 
 # directories of source files
 SUBDIRS			?= .
 
-SUBDIRSOK		= $(dir $(addsuffix /,$(SUBDIRS)))
+SUBDIRSOK		:= $(dir $(addsuffix /,$(SUBDIRS)))
 
 # The user supplied subdirectory where the installed files should go.
-INSTALLDIROK		= $(strip $(if $(INSTALLDIR),\
+INSTALLDIROK		:= $(strip $(if $(INSTALLDIR),\
 			/$(patsubst %/,%,$(dir $(INSTALLDIR)/))))
 
 # directories of installation
@@ -19,11 +25,16 @@ INST_LIBDIR		?= $(addsuffix $(INSTALLDIROK),$(libdir))
 INST_INCLDIR		?= $(INST_HIDIR)
 INST_BINDIR		?= $(addsuffix $(INSTALLDIROK),$(bindir))
 
+INST_HIDIR		:= $(shell echo $(INST_HIDIR) | $(SEDPIPE))
+INST_LIBDIR		:= $(shell echo $(INST_LIBDIR) | $(SEDPIPE))
+INST_INCLDIR		:= $(shell echo $(INST_INCLDIR) | $(SEDPIPE))
+INST_BINDIR		:= $(shell echo $(INST_BINDIR) | $(SEDPIPE))
+
 # these values are used for building a library in-place
-INPL_HIDIR		= $(sort $(patsubst %/.,%,$(patsubst %/,%,\
-			  $(dir $(addprefix $(CURDIR)/,$(SUBDIRSOK))))))
-INPL_LIBDIR		= $(patsubst %/,%,$(CURDIR))
-INPL_INCLDIR		= $(INPL_HIDIR)
+INPL_HIDIR		:= $(sort $(patsubst %/.,%,$(patsubst %/,%,\
+			   $(dir $(addprefix $(CURDIR)/,$(SUBDIRSOK))))))
+INPL_LIBDIR		:= $(patsubst %/,%,$(CURDIR))
+INPL_INCLDIR		:= $(INPL_HIDIR)
 
 
 
@@ -32,45 +43,46 @@ INPL_INCLDIR		= $(INPL_HIDIR)
 # sequence reflects the dependencies of the files because this information
 # is extracted from the files themselves (and generated files don't exist
 # in a clean tree).
-CHSFILES 		= $(filter-out $(EXTRA_CHSFILES),\
+CHSFILES 		:= $(filter-out $(EXTRA_CHSFILES),\
 			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.chs)))
 
-ALLCHSFILES		= $(NEEDCHI:=.chs) $(filter-out $(NEEDCHI:=.chs), \
+ALLCHSFILES		:= $(NEEDCHI:=.chs) $(filter-out $(NEEDCHI:=.chs), \
 			$(CHSFILES) $(EXTRA_CHSFILES))
 
 # all .chs files that have a .chs-HEADER variable defined
-EXPLICIT_HEADER         = $(foreach FILE,$(ALLCHSFILES),\
+EXPLICIT_HEADER         := $(foreach FILE,$(ALLCHSFILES),\
                         $(if $(findstring undefined,\
                         $(origin $(notdir $(basename $(FILE)))-HEADER)),,\
 			$(FILE)))
 
 # all .chs files that use the common header file in HEADER
-STANDARD_HEADER         = $(filter-out $(EXPLICIT_HEADER),$(ALLCHSFILES))
+STANDARD_HEADER         := $(filter-out $(EXPLICIT_HEADER),$(ALLCHSFILES))
 
 # HSC files
-HSCFILES                = $(filter-out $(EXTRA_HSCFILES),\
+HSCFILES                := $(filter-out $(EXTRA_HSCFILES),\
                         $(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hsc)))\
                         $(EXTRA_HSCFILES)
 
 # These are all .hs files that are not generated in any way.
-HSFILES  		= $(filter-out $(ALLCHSFILES:.chs=.hs)\
+HSFILES  		:= $(filter-out $(ALLCHSFILES:.chs=.hs)\
 			$(HSCFILES:.hsc=.hs) $(EXTRA_HSFILES),\
 			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hs)))
 
 # These are all .hs files in the project. This is not the same as *.hs in
 # all subdirs because in a clean tree there is e.g. no .hs for a .chs file.
-ALLHSFILES		= $(HSFILES) $(ALLCHSFILES:.chs=.hs) \
+ALLHSFILES		:= $(HSFILES) $(ALLCHSFILES:.chs=.hs) \
 			$(HSCFILES:.hsc=.hs) $(EXTRA_HSFILES)
 
 # Possibly useful: These are the files that are hand-crafted:
-ALLSOURCEFILES		= $(ALLCHSFILES) $(HSCFILES) $(HSFILES) $(EXTRA_HSFILES)
+ALLSOURCEFILES		:= $(ALLCHSFILES) $(HSCFILES) $(HSFILES) \
+			$(EXTRA_HSFILES)
 
 # Compile a list of all generated *_stub.o files. Such a file is generated if
 # a sourcefile contains a foreign export declaration. If there is a standard
 # grep for regexs, then we should match for the beginning of the line. Files
 # specified with EXTRA_... cannot be scanned, thus these STUB files need to
 # be specified explicitly through EXTRA_STUBFILES.
-STUBOFILES		= $(strip \
+STUBOFILES		:= $(strip \
 	$(patsubst %.hs,%_stub.o, $(foreach FILE,\
 	$(HSFILES),$(shell $(GREP) -l "foreign export" $(FILE)))) \
 	$(patsubst %.chs,%_stub.o, $(foreach FILE,\
@@ -82,56 +94,56 @@ STUBOFILES		= $(strip \
 # Not needed at the moment: GHC with --make knows that it should pass these
 # files to the C compiler. We only include the header file $(HEADER) and
 # clean the tree through a wildcard. 
-STUBHFILES		= $(STUBOFILES:.o=.h)
+STUBHFILES		:= $(STUBOFILES:.o=.h)
 
-EXTRA_HFILESOK		= $(sort $(EXTRA_HFILES) $(EXTRA_CFILES:.c=.h))
+EXTRA_HFILESOK		:= $(sort $(EXTRA_HFILES) $(EXTRA_CFILES:.c=.h))
 
 # C include file paths and other options to CPP.
-EXTRA_CPPFLAGS_ONLY_I	= $(filter -I%,$(EXTRA_CPPFLAGS))
+EXTRA_CPPFLAGS_ONLY_I	:= $(filter -I%,$(EXTRA_CPPFLAGS))
 
-EXTRA_LIBS_ONLY_Ll	= $(filter -L% -l%,$(EXTRA_LIBS))
+EXTRA_LIBS_ONLY_Ll	:= $(filter -L% -l%,$(EXTRA_LIBS))
 
-EXTRA_LIBS_ONLY_L	= $(filter -L%,$(EXTRA_LIBS_ONLY_Ll))
+EXTRA_LIBS_ONLY_L	:= $(filter -L%,$(EXTRA_LIBS_ONLY_Ll))
 
-CPPFLAGS_ONLY_I		= $(filter -I%,$(CPPFLAGS))
+CPPFLAGS_ONLY_I		:= $(filter -I%,$(CPPFLAGS))
 
-LIBS_ONLY_L		= $(filter -L% -l%,$(CFLAGS))
+LIBS_ONLY_L		:= $(filter -L% -l%,$(CFLAGS))
 
 
 # Ensure that the user-supplied target is valid. If there is a nice way to
 # capitalize the first letter, do that to $(APPNAME).hs and add that here.
 MAIN			?= Main.hs $(APPNAME).hs
 
-MAINOK			= $(filter $(MAIN) $(addsuffix $(MAIN),$(SUBDIRSOK)),\
-			  $(patsubst ./%,%,$(ALLHSFILES)))
+MAINOK			:= $(filter $(MAIN) $(addsuffix $(MAIN),$(SUBDIRSOK)),\
+			$(patsubst ./%,%,$(ALLHSFILES)))
 
-EMPTY			=
+EMPTY			:=
 
-COMMA			= ,
+COMMA			:= ,
 
-SPACE			= $(EMPTY) $(EMPTY)
+SPACE			:= $(EMPTY) $(EMPTY)
 
 # Turn a space separated directory list into a colon separated one.
-HIDIRSOK		= $(subst $(SPACE),:,$(strip \
-			  $(patsubst %/,%,$(HIDIRS) $(SUBDIRSOK))))
+HIDIRSOK		:= $(subst $(SPACE),:,$(strip \
+			$(patsubst %/,%,$(HIDIRS) $(SUBDIRSOK))))
 
-NEEDPACKAGESOK		= $(addprefix -package ,$(strip $(NEEDPACKAGES)))
+NEEDPACKAGESOK		:= $(addprefix -package ,$(strip $(NEEDPACKAGES)))
 
-HCINCLUDES		= $(addprefix '-\#include<,$(addsuffix >',$(HEADER) \
-			  $(EXTRA_HFILESOK)))
+HCINCLUDES		:= $(addprefix '-\#include<,$(addsuffix >',$(HEADER) \
+			$(EXTRA_HFILESOK)))
 
 
 # Specify how hsc should be run.
-HSCFLAGGED	= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-		  $(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I) \
-		  $(addprefix --lflag=,$(EXTRA_LIBS_ONLY_Ll) $(CFLAGS)\
-		  $(addprefix --cflag=,$(CPPFLAGS) $(EXTRA_CPP_FLAGS)))\
-		  --cc=$(HC))
+HSCFLAGGED	:= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
+		$(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I) \
+		$(addprefix --lflag=,$(EXTRA_LIBS_ONLY_Ll) $(CFLAGS)\
+		$(addprefix --cflag=,$(CPPFLAGS) $(EXTRA_CPP_FLAGS)))\
+		--cc=$(HC))
 
 # Specify how c2hs should be run.
-C2HSFLAGGED	= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-		  $(addprefix -C,$(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I)) \
-		  -i$(HIDIRSOK)
+C2HSFLAGGED	:= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
+		$(addprefix -C,$(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I)) \
+		-i$(HIDIRSOK)
 
 # Read in all extra dependencies between .chs files.
 -include $(ALLCHSFILES:.chs=.dep)
@@ -235,24 +247,26 @@ targets :
 
 .PHONY: debug 
 debug 	:
-#	@echo $(TOP)
-#	@echo $(CURDIR)
-#	@echo $(TARDIR)
+	@echo top: $(TOP)
+	@echo SED: $(SEDPIPE)
+	@echo cur dir: $(CURDIR)
+	@echo tar into: $(TARDIR)
+	@echo install into: $(INSTALLDIROK)
 #	@echo Goal: $(MAINOK)
 #	@echo Target: $(TARGETOK)
 #	@echo Library: $(LIBNAME)
 #	@echo Application: $(APPNAME)
-#	@echo EXTRA_CPPFLAGS: $(EXTRA_CPPFLAGS_ONLY_I)
+	@echo EXTRA_CPPFLAGS: $(EXTRA_CPPFLAGS_ONLY_I)
 #	@echo all CHS files: $(CHSFILES)
-	@echo Standard header: $(STANDARD_HEADER)
-	@echo Explicit header: $(EXPLICIT_HEADER)
+#	@echo Standard header: $(STANDARD_HEADER)
+#	@echo Explicit header: $(EXPLICIT_HEADER)
 #	@echo all HSC files: $(HSCFILES)
 #	@echo all other HS files: $(HSFILES)
 #	@echo all files generating stubs: $(STUBOFILES)
-#	@echo hi: $(INST_HIDIR) lib: $(INST_LIBDIR) 
-#	@echo incl: $(INST_INCLDIR) bin: $(INST_BINDIR)
+	@echo hi: $(INST_HIDIR) lib: $(INST_LIBDIR) 
+	@echo incl: $(INST_INCLDIR) bin: $(INST_BINDIR)
 #	@echo user install dir: $(INSTALLDIR)
-#	@echo subdirs: $(SUBDIRSOK)
+	@echo subdirs: $(SUBDIRSOK)
 #	@echo $(ALLSOURCEFILES) > sourcefiles.txt
 #	@cvs status $(CLEANFILES) 2> /dev/null | $(GREP) File | $(GREP) Unknown
 

@@ -1,5 +1,16 @@
 2003-01-19  Axel Simon <A.Simon@ukc.ac.uk>
 
+	* configure.in, gtk/Makefile, gtk/general/Gtk.hs, mk/common.mk,
+	mk/library.mk, mk/config.mk.in: Adapt the configuration system
+	to work differently on Windows. Fixed some installation issues.
+
+	* mogul/GetWidget.hs mogul/Mogul.hs, mogul/NewWidget.hs: As
+	a temporary fix, I commented out the Plug and Socket modules. 
+
+	* demo/graphic/Drawing.hs: make sure that main has type IO ().
+
+	* doc/Makefile: Add docs to the tar ball.
+
 	* gtk/typehier/TypeGenerator.hs, gtk/Makefile: Selectively create
 	the types GtkPlug and GtkSocket, depending on whether we are
 	compiling on Windows or not.

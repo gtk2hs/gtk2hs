@@ -5,7 +5,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:22 $
+--  Version $Revision: 1.5 $ from $Date: 2003/01/19 19:20:47 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -80,7 +80,7 @@ import Gtk hiding (
   --colorSelectionDialogNew,
   --fileSelectionNew,
   --fontSelectionDialogNew,
-  plugNew,
+  --plugNew,
   eventBoxNew,
   handleBoxNew,
   scrolledWindowNew,
@@ -97,7 +97,7 @@ import Gtk hiding (
   menuNew,
   menuBarNew,
   notebookNew,
-  socketNew,
+  --socketNew,
   tableNew,
   textViewNew,
   toolbarNew,

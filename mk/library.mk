@@ -32,12 +32,14 @@ inplace	: noinplace
 	  include_dirs		= [$(call makeTextList, $(INPL_INCLDIR)\
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
 	  c_includes		= [$(call makeTextList,\
-	  			  $(notdir $(STUBHFILES)) $(HEADER))],\
+	  			  $(notdir $(STUBHFILES)) $(HEADER)\
+				  $(EXTRA_HFILESOK))],\
 	  package_deps		= [$(call makeTextList,$(NEEDPACKAGES))],\
 	  extra_ghc_opts	= [$(call makeTextList,$(EXTRAHC_FLAGS))],\
 	  extra_cc_opts		= [],\
-	  extra_ld_opts		= [$(subst +,$(SPACE),$(call makeTextList,\
-	  $(addprefix -u+,$(EXTRA_SYMBOLS))))]} | \
+	  extra_ld_opts		= [$(call makeTextList,\
+          $(addprefix -Wl$(COMMA),--subsystem $(SUBSYSTEM)) \
+	  $(addprefix -u ,$(EXTRA_SYMBOLS)))]} | \
 	  $(PKG) --force -f $(LOCALPKGCONF) -a  > /dev/null
 
 installcheck :
@@ -54,11 +56,11 @@ install : installcheck $(TARGETOK) installdirs installfiles \
 	  installpackage #interactiveInstall
 
 installfiles :
-	$(INSTALL) -c -m644 $(ALLHSFILES:.hs=.hi) $(INST_HIDIR)
-	$(INSTALL) -c -m644 $(TARGETOK) $(INST_LIBDIR)
+	$(INSTALL) -m644 $(ALLHSFILES:.hs=.hi) $(INST_HIDIR)
+	$(INSTALL) -m644 $(TARGETOK) $(INST_LIBDIR)
 	$(TOUCH) -r $(TARGETOK) $(INST_LIBDIR)/$(TARGETOK)
-ifneq ($(strip $(EXTRA_CFILES) $(STUBHFILES)),)
-	$(INSTALL) -c -m644 $(STUBHFILES) $(EXTRA_CFILES:.c=.h) $(INST_INCLDIR)
+ifneq ($(strip $(STUBHFILES) $(EXTRA_HFILESOK)),)
+	$(INSTALL) -m644 $(STUBHFILES) $(EXTRA_HFILESOK) $(INST_INCLDIR)
 endif
 
 installpackage :
@@ -72,17 +74,20 @@ installpackage :
 	  extra_libraries	= [$(call makeTextList,\
 	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS_ONLY_Ll) \
 	  $(LIBS_ONLY_L))))],\
-	  include_dirs		= [$(call makeTextList, $(INPL_INCLDIR)\
+	  include_dirs		= [$(call makeTextList, $(INST_INCLDIR)\
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
 	  c_includes		= [$(call makeTextList,\
-	  			  $(notdir $(STUBHFILES)) $(HEADER))],\
+	  			  $(notdir $(STUBHFILES)) $(HEADER)\
+				  $(notdir $(EXTRA_HFILESOK)))],\
 	  package_deps		= [$(call makeTextList,$(NEEDPACKAGES))],\
 	  extra_ghc_opts	= [$(call makeTextList,$(EXTRAHC_FLAGS))],\
 	  extra_cc_opts		= [],\
-	  extra_ld_opts		= [$(subst +,$(SPACE),$(call makeTextList,\
-	  $(addprefix -u+,$(EXTRA_SYMBOLS))))]} | $(PKG) --force -a
+	  extra_ld_opts		= [$(call makeTextList,\
+          $(addprefix -Wl$(COMMA),--subsystem $(SUBSYSTEM)) \
+	  $(addprefix -u ,$(EXTRA_SYMBOLS)))]} | \
+	  $(PKG) --force -a
 
-uninstall : interactiveUninstall uninstallfiles uninstallpackage
+uninstall : uninstallfiles uninstallpackage
 
 uninstallfiles :
 	$(RM) $(addprefix $(INST_INCLDIR)/,$(notdir $(ALLHSFILES:.hs=.hi)))
@@ -144,8 +149,8 @@ GHCIOBJS		= $(addprefix $(INST_LIBDIR)/,$(patsubst \
 	chmod 644 $(patsubst !%,%,$(filter !%,$(subst !,!$(SPACE)!,\
 	  $(patsubst %convert,%,$@))))
 
-interactiveInstall 	: $(join $(addsuffix !,$(GHCIARCH)),\
-			  $(addsuffix convert,$(GHCIOBJS)))
+#interactiveInstall 	: $(join $(addsuffix !,$(GHCIARCH)),\
+#			  $(addsuffix convert,$(GHCIOBJS)))
 
 interactiveUninstall :
 	$(RM) $(GHCIOBJS)

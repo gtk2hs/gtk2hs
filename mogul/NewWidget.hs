@@ -4,7 +4,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2002/10/21 02:45:53 $
+--  Version $Revision: 1.7 $ from $Date: 2003/01/19 19:20:47 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -101,8 +101,8 @@ module NewWidget(
   --newColorSelectionDialog,
   --newFileSelection,
   --newFontSelectionDialog,
-  newPlug,
-  newNamedPlug,
+  --newPlug,
+  --newNamedPlug,
   newEventBox,
   newNamedEventBox,
   newHandleBox,
@@ -133,8 +133,8 @@ module NewWidget(
   newNamedMenuBar,
   newNotebook,
   newNamedNotebook,
-  newSocket,
-  newNamedSocket,
+  --newSocket,
+  --newNamedSocket,
   newTable,
   newNamedTable,
   newTextView,
@@ -654,13 +654,13 @@ newDialog = dialogNew
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
 --
-newNamedPlug :: WidgetName -> XID -> IO Plug
-newNamedPlug name wn = newNamedWidget name $ plugNew wn
+--newNamedPlug :: WidgetName -> XID -> IO Plug
+--newNamedPlug name wn = newNamedWidget name $ plugNew wn
 
 -- @see plugNew
 --
-newPlug :: XID -> IO Plug
-newPlug = plugNew 
+--newPlug :: XID -> IO Plug
+--newPlug = plugNew 
 
 -- @see eventBoxNew
 --
@@ -864,13 +864,13 @@ newNotebook = notebookNew
 -- * The supplied name can later be used to lookup the widget in the global
 --   store.
 --
-newNamedSocket :: WidgetName -> IO Socket
-newNamedSocket name = newNamedWidget name $ socketNew
+--newNamedSocket :: WidgetName -> IO Socket
+--newNamedSocket name = newNamedWidget name $ socketNew
 
 -- @see socketNew
 --
-newSocket :: IO Socket
-newSocket = socketNew
+--newSocket :: IO Socket
+--newSocket = socketNew
 
 -- @see tableNew
 --

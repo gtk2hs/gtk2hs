@@ -59,7 +59,9 @@
                                 GtkFontSelectionDialog
                                 GtkInputDialog
                                 GtkMessageDialog
+#ifndef WIN32
                             GtkPlug
+#endif
                         GtkEventBox
                         GtkHandleBox
                         GtkScrolledWindow
@@ -88,7 +90,9 @@
                         GtkMenuBar
                     GtkNotebook
 #                    GtkPacker
+#ifndef WIN32
                     GtkSocket
+#endif
                     GtkTable
                     GtkTextView
                     GtkToolbar

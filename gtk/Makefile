@@ -8,6 +8,7 @@ SUBDIRS	= abstract buttons display entry general layout menuComboToolbar \
 
 ifeq (x$(WIN32),xyes)
 EXTRA_HFILES	= $(TOP)/gtk/wingtk.h
+SUBSYSTEM	= windows
 else
 SUBDIRS += embedding
 endif

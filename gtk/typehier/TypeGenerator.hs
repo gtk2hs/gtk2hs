@@ -40,7 +40,7 @@ pFreshLine ps input omits = pFL ps input
 				| otherwise    = pFL ps (dropWhile 
 						 ((/=) '\n') all)
     isWanted :: String -> Bool
-    isWanted inp = not $ any (\ty -> inp `isPrefixOf` ty) omits
+    isWanted inp = not $ any (\ty -> ty `isPrefixOf` inp) omits
 
 pGetObject :: ParserState -> String -> [String] -> [(ObjectSpec, TypeQuery)]
 pGetObject ps txt omits = (spec, specialQuery):

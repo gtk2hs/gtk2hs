@@ -5,7 +5,7 @@
 --          
 --  Created: 4 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/11/03 20:35:46 $
+--  Version $Revision: 1.3 $ from $Date: 2003/01/19 19:20:47 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -58,7 +58,7 @@ module GetWidget(
   getFontSelectionDialog,
   getInputDialog,
   getMessageDialog,
-  getPlug,
+  --getPlug,
   getEventBox,
   getHandleBox,
   getScrolledWindow,
@@ -86,7 +86,7 @@ module GetWidget(
   getMenu,
   getMenuBar,
   getNotebook,
-  getSocket,
+  --getSocket,
   getTable,
   getTextView,
   getToolbar,
@@ -238,9 +238,9 @@ getMessageDialog :: String -> IO MessageDialog
 getMessageDialog name = 
   widgetLookup name "MessageDialog" mkMessageDialog
 
-getPlug :: String -> IO Plug
-getPlug name = 
-  widgetLookup name "Plug" mkPlug
+--getPlug :: String -> IO Plug
+--getPlug name = 
+--  widgetLookup name "Plug" mkPlug
 
 getEventBox :: String -> IO EventBox
 getEventBox name = 
@@ -350,9 +350,9 @@ getNotebook :: String -> IO Notebook
 getNotebook name = 
   widgetLookup name "Notebook" mkNotebook
 
-getSocket :: String -> IO Socket
-getSocket name = 
-  widgetLookup name "Socket" mkSocket
+--getSocket :: String -> IO Socket
+--getSocket name = 
+--  widgetLookup name "Socket" mkSocket
 
 getTable :: String -> IO Table
 getTable name = 

@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK)
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.12 $ from $Date: 2003/01/19 19:20:46 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -56,7 +57,6 @@ module Gtk(
   -- windows
   module Dialog,
   module FileSel,
-  module Plug,
   module Window,
   -- display widgets,
   module AccelLabel,
@@ -155,8 +155,11 @@ module Gtk(
   module Scrollbar,
   module Separator,
   module Widget,
+#ifndef WIN32
   -- cross-process embedding
+  module Plug,
   module Socket,
+#endif
   -- non-widgets
   module Hierarchy,
   ConnectId
@@ -174,7 +177,6 @@ import GC
 -- windows
 import Dialog
 import FileSel
-import Plug
 import Window
 --import WindowGroup
 -- display widgets
@@ -286,8 +288,11 @@ import Scale
 import Scrollbar
 import Separator
 import Widget
+#ifndef WIN32
 -- cross-process embedding
+import Plug
 import Socket
+#endif
 
 -- non widgets
 import Hierarchy	(toCellRenderer)
