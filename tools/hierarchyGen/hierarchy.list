@@ -55,6 +55,8 @@
                             GtkToggleButton
                                 GtkCheckButton
                                     GtkRadioButton
+                            GtkColorButton		if gtk-2.6
+                            GtkFontButton		if gtk-2.6
                             GtkOptionMenu		if deprecated
                         GtkItem
                             GtkMenuItem
@@ -66,6 +68,7 @@
 #			    GtkTreeItem
                         GtkWindow
                             GtkDialog
+			    	GtkAboutDialog		if gtk-2.6
                                 GtkColorSelectionDialog
                                 GtkFileSelection
 				GtkFileChooserDialog	if gtk-2.4
@@ -97,6 +100,7 @@
 			    GtkFileChooserWidget	if gtk-2.4
                         GtkHBox
                             GtkCombo	if deprecated
+                            GtkFileChooserButton	if gtk-2.6
                             GtkStatusbar
                     GtkCList		if deprecated
                         GtkCTree	if deprecated
@@ -104,6 +108,7 @@
                     GtkPaned
                         GtkHPaned
                         GtkVPaned
+                    GtkIconView		if gtk-2.6
                     GtkLayout
                     GtkList		if deprecated
                     GtkMenuShell
@@ -118,7 +123,8 @@
                     GtkToolbar
                     GtkTreeView
                 GtkCalendar
-                GtkDrawingArea
+                GtkCellView		if gtk-2.6
+		GtkDrawingArea
                     GtkCurve
                 GtkEntry
                     GtkSpinButton
@@ -175,6 +181,7 @@
 		GtkRadioAction		if gtk-2.4
 	GtkActionGroup			if gtk-2.4
 	GtkUIManager			if gtk-2.4
+	GtkWindowGroup			if gtk-2.4
         GtkSourceLanguage		if sourceview
         GtkSourceLanguagesManager	if sourceview
 	GladeXML			as GladeXML, glade_xml_get_type if libglade

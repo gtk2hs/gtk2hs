@@ -15,7 +15,10 @@
 
 	* gtk/Graphics/UI/Gtk.hs: export the new modules.
 
-	* Makefile.am: add the new modules to libHSgtk_a_SOURCES.
+	* Makefile.am: add the new modules to libHSgtk_a_SOURCES. Also add
+	_stub.o files to libHSgtk_a_LIBADD.
+
+	* tools/hierarchyGen/hierarchy.list: add new classes to hierarchy.
 
 2005-04-4 Duncan Coutts <duncan@coutts.uklinux.net>
 
