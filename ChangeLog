@@ -1,3 +1,18 @@
+2002-12-19 Axel Simon <A.Simon@ukc.ac.uk>
+
+	* VERSION, INSTALL: bump version, tweak instructions
+
+	* doc/Makefile: create the subdirectories before copying
+
+	* Makefile: make all also builds documentation, use proper names
+	for the reference pages
+
+	* gendoc/XMLwrite.hs: insert the name of the current node into
+	each reference page.
+
+	* gtk/menuComboToolbar/MenuBar.chs, gtk/abstract/Paned.chs: Docu
+	fix, gave the widgets propper names.
+	
 2002-12-16 Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gendoc/PrettyLib.hs: convert from PackedString to normal String

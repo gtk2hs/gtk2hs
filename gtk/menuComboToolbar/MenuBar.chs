@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry Widget Blah@
+--  GIMP Toolkit (GTK) @entry Widget MenuBar@
 --
 --  Author : Axel Simon
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/12/19 18:13:39 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --

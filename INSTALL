@@ -1,15 +1,14 @@
 gtk2hs: A binding of Gtk Version 2 for the programming language Haskell
 
-This binding makes functions from the following libraries available (thus,
-these need to be installed):
+This binding makes functions from the following libraries available:
  * glib-2.0.0
  * atk-1.0.0
  * pango-1.0.0
  * gtk+-2.0.0
 
-Furthermore the GHC Haskell compiler, version 5.00 or greater, is
-required. To use the library with GHCi, you need GHC 5.03.0 or
-later. (The latter is untested.)
+Furthermore the GHC Haskell compiler, version 5.02 or greater, is
+required. The library cannot be used with GHCi at the moment due to some
+linking problems which we haven't quite figured out.
 
 INSTALLATION
 ------------
@@ -67,7 +66,7 @@ step two, the gtk2hs and mogul package will be available through this
 file. The default name for this file is localpackage.conf in the root
 of the source tree. To use an "in place" installation you say:
 
-ghc -make MyProg.hs -package-conf ~/gtk2hs/localpackage.conf -package mogul
+ghc --make MyProg.hs -package-conf ~/gtk2hs/localpackage.conf -package mogul
 
 If you are happy with this solution or if you don't have the
 privileges to write to the location where GHC lives, you stop here.
@@ -82,7 +81,25 @@ root first. To install the library say:
 
 Now you can compile your programs simply by saying:
 
-ghc -make MyProg.hs -package mogul
+ghc --make MyProg.hs -package mogul
+
+5. Documentation
+
+The documentation is only preliminary, as such it cannot yet be
+installed, only built. You need to have xsltproc installed,
+furthermore Docbook XML and XSLT in the version 4.1.2. There is no
+propper way to find the DTD and the stylesheet, so you need to tell
+configure where to find them. You say
+
+~/gtk2hs:$ ./configure --with-catalog=/usr/local/share/xml/catalog
+
+for a system which has a XML catalog file (with a pointer to the
+Docbook DTD) installed in the mentioned place. The configure script
+now tries to be clever and searches for translators to html in
+/usr/local/share/xsl/. If that is not successful, you need to
+explicitly state --with-html=/usr/local/share/xsl/xhtml/chunk.xsl or
+similar. If all is ok you find some html files in ~/gtk2hs/doc/MOGUL
+and ~/gtk2hs/doc/GTK .
 
 Note:
 
@@ -95,8 +112,8 @@ Note:
    GHC and remove any installed file.
 
 2. After installing the sources, the packages are not available anymore from
-   the local package file. At the time of writing GHC has a problem when the
-   same package is available in the global and the local package.conf file.
+   the local package file. At the time of writing GHC has a problem with the
+   same package being available in the global and the local package.conf file.
    If this should be fixed in the future, you can say
 
    ~/gtk2hs:$ make inplace
@@ -118,7 +135,8 @@ Note:
   distribution of GHC that hsc2hs does not stop here. Delete Foo.hs
   before you do a second attempt.
 
-Report problems to <as49@ukc.ac.uk>.
+Report problems to the Gtk2hs mailing list
+<gtk2hs-users@lists.sourceforge.net>.
 
-Have fun.
-
+Have fun,
+Axel.

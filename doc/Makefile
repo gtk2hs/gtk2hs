@@ -50,12 +50,14 @@ reference%.xml	: $(TOP)/$(GENDOC)
 
 html%	: $(OUTPUT_GTK) $(OUTPUT_MOGUL)
 	$(strip SGML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) --catalogs \
-	  -nonet $(XSLTHTML) $(INPUT_$*))
+	  -nonet --param use.id.as.filename 1 $(XSLTHTML) $(INPUT_$*))
+	mkdir $* || exit 0
 	mv *.html $*
 
 fo%	: $(OUTPUT_$*)
 	$(strip SGML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) --catalogs \
 	  -o $(OUTPUT_$*) -nonet $(XSLTFO) $(INPUT_$*))
+	mkdir $* || exit 0
 	mv *.fo $*
 
 .PHONY: $(TOP)/$(GENDOC)
@@ -65,4 +67,5 @@ $(TOP)/$(GENDOC) :
 
 all : htmlGTK htmlMOGUL
 
-
+clean :
+	rm -rf MOGUL GTK

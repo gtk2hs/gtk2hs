@@ -24,6 +24,9 @@ endif
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/treeList $@ 
+ifeq ($(BUILDDOCS),yes)
+	$(MAKE) -Cdoc all
+endif
 
 noinplace :
 	$(MAKE) -Cmogul $@ 
@@ -59,6 +62,10 @@ endif
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/treeList $@ 
+ifeq ($(BUILDDOCS),yes)
+	$(MAKE) -Cdoc $@
+endif
+
 
 distclean : clean
 ifeq ($(BUILT_IN_C2HS),yes)

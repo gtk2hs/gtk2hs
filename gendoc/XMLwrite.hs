@@ -139,7 +139,9 @@ docuToXML docu = Element "para" [] (init (dTX para)):
 moduleToXML :: Module -> ModInfo -> XML
 moduleToXML mName (ModInfo { modCat=cat, modSynop=syn, modIntro=int,
   modTodo=todo, modSymTab=st, modCtxt=ctxt }) =
-  Element "refentry" [] $ [
+  Element "refentry" [
+    Attribute "id" (unpackPS mName)
+  ] $ [
     Element "refnamediv" [] [
       Element "refname" [] [Plain (unpackPS mName)],
       Element "refpurpose" [] (docuToXML syn)
