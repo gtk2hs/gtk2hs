@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.21 $ from $Date: 2004/04/30 20:32:44 $
+--  Version $Revision: 1.22 $ from $Date: 2004/05/20 16:42:16 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -547,7 +547,7 @@ type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
 
 -- Query the XID field of the socket widget. This value needs to be
 -- sent to the Plug widget of the other application.
--- *  
+--
 --socketGetXID :: Socket -> IO XID
 --socketGetXID socket = do
 --  winPtr <- throwIfNull "socketGetXID: the socket widget is not realized" $

@@ -1,3 +1,12 @@
+2004-05-20 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/gdk/Pixbuf.chs, gtk/general/Structs.hsc,
+	gtk/treeList/TreeModel.chs: minor doc fixes in preperation for
+	'haddock'ification
+
+	* c2hs/chs/CHS.hs: make c2hs emit a haddock-compatible headder
+	remove **'s which confuse haddock
+
 2004-05-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/sourceview/haskell.lang: updated syntax highlighting

@@ -6,7 +6,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2003/07/09 22:42:46 $
+--  Version $Revision: 1.11 $ from $Date: 2004/05/20 16:42:16 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -25,12 +25,12 @@
 -- * A @ref data TreeModel@ is the abstract base class for 
 --   @ref data TreeStore@ and @ref data ListStore@.
 --
---- @documentation@ -----------------------------------------------------------
+-- @documentation@ -----------------------------------------------------------
 --
 -- * Most functions are defined in the latter two classes. This module
 --   provides the @ref data TreeIter@ and @ref data TreePath@ objects.
 --
---- @todo@ --------------------------------------------------------------------
+-- @todo@ --------------------------------------------------------------------
 --
 --
 module TreeModel(
