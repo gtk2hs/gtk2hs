@@ -23,6 +23,8 @@
 #                GdkWindowImplX11
             GdkPixmap
         GdkColormap
+	GdkScreen		if gtk-2.2
+	GdkDisplay		if gtk-2.2
         GtkSettings
         GtkTextBuffer
             GtkSourceBuffer	if sourceview
@@ -78,6 +80,11 @@
 			GtkExpander			if gtk-2.4
 			GtkComboBox			if gtk-2.4
 			    GtkComboBoxEntry		if gtk-2.4
+			GtkToolItem			if gtk-2.4
+			    GtkToolButton		if gtk-2.4
+				GtkToggleToolButton	if gtk-2.4
+				    GtkRadioToolButton	if gtk-2.4
+			    GtkSeparatorToolItem	if gtk-2.4
                     GtkBox
                         GtkButtonBox
                             GtkHButtonBox
@@ -157,7 +164,16 @@
             GtkListStore
 	GtkTreeModelSort
 	GtkIconFactory
+	GtkSizeGroup
+	GtkClipboard
+	GtkAccelGroup
+	GtkAccelMap			if gtk-2.4
 	GtkEntryCompletion		if gtk-2.4
+	GtkAction			if gtk-2.4
+	    GtkToggleAction		if gtk-2.4
+		GtkRadioAction		if gtk-2.4
+	GtkActionGroup			if gtk-2.4
+	GtkUIManager			if gtk-2.4
         GtkSourceLanguage		if sourceview
         GtkSourceLanguagesManager	if sourceview
 	GladeXML			as GladeXML, glade_xml_get_type if libglade

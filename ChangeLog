@@ -16,6 +16,13 @@
 	* gtk/menuComboToolbar/api.ignore: exclude deprecated and internal
 	radio_menu_item and toolbar functions.
 
+	* tools/callbackGen/gtkmarshal.list: updated marshal list from gtk-2.4.
+	It adds several new ones and removes a few which we don't seem to use.
+	Required for a signal in the Toolbar module. 
+	
+	* tools/hierarchyGen/hierarchy.list: new classes for gtk-2.4, a few old
+	ones that were missing and some more Gdk classes.
+
 2004-08-1  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/entry/SpinButton.chs, gtk/layout/Table.chs, gtk/layout/Layout.chs
