@@ -33,6 +33,7 @@
         GdkPixbuf			as Pixbuf, gdk_pixbuf_get_type
         GtkTextChildAnchor
         GtkTextMark
+	    GtkSourceMarker	if sourceview
         GtkObject
             GtkWidget
                 GtkMisc

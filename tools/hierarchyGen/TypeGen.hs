@@ -65,7 +65,7 @@ pGetObject ps@ParserState { onlyTags=tags } txt =
       r -> (origName, Nothing, r)
     parents = dropWhile (\(c,_) -> c>=col ps) (hierObjs ps)
     spec = (col ps,name):parents
-    (readTag, rem'') = case (dropWhile isBlank rem) of
+    (readTag, rem'') = case (dropWhile isBlank rem') of
       ('i':'f':r) -> span isAlphaNum_ (dropWhile isBlank r)
       r -> ("default",r)
 

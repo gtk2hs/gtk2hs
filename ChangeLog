@@ -1,3 +1,13 @@
+2003-11-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* tools/hierarchyGen/TypeGen.hs: Make parser accept both "if" and
+	"as" statements.
+
+	* sourceview/sourceview.h: Added the gtksourceviewmarker.h to the
+	include file list.
+
+	* hierarchyGen/hierarchy.list: Added SourceviewMarker.
+
 2003-11-16 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* configure.in, INSTALL: Documentation updates. In particular, the
