@@ -44,7 +44,7 @@ lib_LIBRARIES =		\
         libHSglade.a	\
         libHSgconf.a	\
         libHSsourceview.a
-        
+
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
 	tools/callbackGen/HookGenerator \
@@ -450,7 +450,7 @@ libHSglade_a_SOURCES =	        \
         glade/Glade.chs
 
 libHSglade_a_LIBADD = libHSgtk.a
-        
+
 glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/TypeGenerator
 		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
@@ -505,7 +505,7 @@ libHSgconf_a_SOURCES =	        			\
         gconf/System/Gnome/GConf.hs
 
 libHSgconf_a_LIBADD = libHSgtk.a
-        
+
 gconf/System/Gnome/GConf/GConfType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/TypeGenerator
