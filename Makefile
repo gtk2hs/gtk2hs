@@ -24,13 +24,15 @@ endif
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/treeList $@ 
+	$(MAKE) -Cdemo/concurrent $@ 
 ifeq ($(BUILDDOCS),yes)
 	$(MAKE) -Cdoc all
 endif
 
 noinplace :
 	$(MAKE) -Cmogul $@ 
-	$(MAKE) -Cgtk $@ 
+	$(MAKE) -Cgtk $@
+	$(MAKE) -Cdemo/concurrent $@ 
 	$(MAKE) -Cdemo/treeList $@ 
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/unicode $@ 
@@ -43,10 +45,12 @@ install : all
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/treeList $@ 
+	$(MAKE) -Cdemo/concurrent $@ 
 
 uninstall :
 	$(MAKE) -Cmogul  $@
 	$(MAKE) -Cgtk  $@
+	$(MAKE) -Cdemo/concurrent $@ 
 	$(MAKE) -Cdemo/treeList $@ 
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/unicode $@ 
@@ -62,6 +66,7 @@ endif
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/treeList $@ 
+	$(MAKE) -Cdemo/concurrent $@ 
 ifeq ($(BUILDDOCS),yes)
 	$(MAKE) -Cdoc $@
 endif
@@ -77,9 +82,11 @@ endif
 	$(MAKE) -Cdemo/unicode $@ 
 	$(MAKE) -Cdemo/graphic $@ 
 	$(MAKE) -Cdemo/treeList $@ 
+	$(MAKE) -Cdemo/concurrent $@ 
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
-			 TODO VERSION aclocal.m4 configure.in configure \
+			 TODO VERSION aclocal.m4 acinclude.m4 \
+			 configure.in configure \
 			 mk/config.mk.in mk/common.mk mk/application.mk \
 		 	 mk/library.mk mk/chsDepend.in install-sh \
 			 config.sub config.guess)
@@ -96,6 +103,7 @@ dist :
 	$(MAKE) -Cdemo/unicode tarsource
 	$(MAKE) -Cdemo/graphic tarsource
 	$(MAKE) -Cdemo/treeList tarsource
+	$(MAKE) -Cdemo/concurrent tarsource
 	$(MAKE) -Cgendoc tarsource
 	$(MAKE) -Cdoc tarsource
 	$(GZIP) $(TARNAME).tar

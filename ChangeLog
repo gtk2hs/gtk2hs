@@ -1,3 +1,21 @@
+2003-03-21  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/gdk/Events.hsc: Forgot to export enumerations from GdkEnum
+
+	* gtk/Makefile: Add Pango HEADER definitions. Change the location
+	of wingtk.h when creating a TAR ball. Add an explanation on how
+	the HEADER definitions work.
+
+	* demo/treeList/ListTest.hs: Added a callback that says onto which
+	cell the user right-clicks.
+
+	* demo/concurrent/Progress.hs: Imported Struct. Should sort out
+	the module imports in Gtk.hs.
+
+	* Makefile: add the concurrent demo.
+
+	* VERSION: Bump to 0.9.3 in expectation of a new release.
+	
 2003-03-20  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* mk/common.mk: Removed ./ and blah/.. in file names when creating

@@ -13,7 +13,7 @@ else
 SUBDIRS += embedding
 endif
 
-EXTRA_TARFILES	= $(TOP)/gtk/wingtk.h
+EXTRA_TARFILES	= wingtk.h
 
 PACKAGENAME = gtk2
 LIBNAME = gtk2hs
@@ -24,23 +24,41 @@ MAIN = general/Gtk.hs
 
 HEADER = gtk/gtk.h
 
+# Whenever a variable module-HEADER is defined, the file module.chs
+# is translated with a separate invokation of c2hs with the header
+# file $module-HEADER. The header file in this variable should be
+# the most specific header file so that c2hs needs to parse as little
+# header source as possible. All modules for which module-HEADER is
+# not defined will be compiled by c2hs with $HEADER as header file and
+# all pending modules at once. This currently only works with the local
+# copy of c2hs, which is why the following HEADER variables are only set
+# if we compile with an external c2hs.
+
 ifneq (x$(MULTIPLE_CHS),xyes)
-# general and non-Gtk
+# glib modules
 GObject-HEADER		= glib-object.h
 GType-HEADER		= glib-object.h
 GValue-HEADER		= glib-object.h
 GValueTypes-HEADER	= glib-object.h
 GList-HEADER		= glib.h
+# pango modules
+PangoLayout-HEADER	= pango/pango-layout.h
+PangoTypes-HEADER	= pango/pango.h
+Rendering-HEADER	= pango/pango-context.h
+# gdk modules
 GdkEnums-HEADER		= gdk/gdk.h
 GdkKeys-HEADER		= gdk/gdkkeys.h
-IconFactory-HEADER	= gtk/gtkiconfactory.h
-Signal-HEADER		= gtk/gtksignal.h
-Enums-HEADER		= gtk/gtk.h
-General-HEADER		= gtk/gtk.h
 Region-HEADER		= gdk/gdkregion.h
 Drawable-HEADER		= gdk/gdkdrawable.h
 GC-HEADER		= gdk/gdkgc.h
 Keys-HEADER		= gdk/gdkkeys.h
+Drawable-HEADER		= gdk/gdkdrawable.h
+# general Gtk modules
+IconFactory-HEADER	= gtk/gtkiconfactory.h
+Signal-HEADER		= gtk/gtksignal.h
+Style-HEADER		= gtk/gtkstyle.h
+Enums-HEADER		= gtk/gtk.h
+General-HEADER		= gtk/gtk.h
 Signal-HEADER		= gtk/gtk.h
 Hierarchy-HEADER	= gtk/gtk.h
 # windows
@@ -142,6 +160,7 @@ endif
 # This is a very poor way of expressing dependencies.
 
 NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
+	  pango/PangoTypes \
 	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter \
 	  gdk/Region
 

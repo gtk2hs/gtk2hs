@@ -2,6 +2,9 @@
 module Main(main) where
 
 import Mogul
+import TreeModel (treePathToString)
+import TreeView  (treeViewGetPathAtPos)
+import Events
 
 main = do
   initGUI
@@ -28,6 +31,8 @@ main = do
     iter <- listStoreAppend store
     w iter txt (Just "red") Nothing) 
     ["Hello", "how", "are", "you"]
+
+  tv `onButtonPress` showMenu tv
 
   -- show the widget and run the main loop
   widgetShow tv
@@ -64,3 +69,17 @@ createStore = do
   return (store, readStore, writeStore, [tAttr, fAttr, bAttr])
 
   
+showMenu :: TreeView -> Event -> IO Bool
+showMenu tv (Button { x=xPos, 
+		      y=yPos, 
+		      click=SingleClick, 
+		      button=RightButton }) = do
+  res <- treeViewGetPathAtPos tv (round xPos, round yPos)
+  case res of
+    Nothing -> return ()
+    (Just (tp, ti, _)) -> do
+      str <- treePathToString tp
+      putStrLn ("right click in cell "++str)
+  return True
+-- let Gtk handle normal button clicks
+showMenu tv _ = return False

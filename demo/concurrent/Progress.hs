@@ -7,6 +7,7 @@
 -- execute Haskell threads.
 
 import Gtk
+import Structs
 import Concurrent
 
 main :: IO ()

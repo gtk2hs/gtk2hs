@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/07/21 16:07:17 $
+--  Version $Revision: 1.4 $ from $Date: 2003/03/21 10:52:24 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -64,14 +64,26 @@ module Events(
   wMask, wState,	-- new (?possible? and) real state of a window
 
   marshalEvent,		-- convert a pointer to an event data structure
+  -- used data structures
+  VisibilityState(..),
+  CrossingMode(..),
+  NotifyType(..),
+  WindowState(..),
+  ScrollDirection(..),
+  Button(..),
+  Click(..),
+  Rectangle(..)
   ) where
 
 
 import UTFCForeign
 import Foreign
 import LocalData((.&.))
-import GdkEnums	(VisibilityState, CrossingMode, NotifyType, WindowState,
-		 ScrollDirection)
+import GdkEnums	(VisibilityState(..),
+		 CrossingMode(..),
+		 NotifyType(..),
+		 WindowState(..),
+		 ScrollDirection(..))
 import Enums	(Button(..), Click(..))
 import Structs	(Rectangle(..))
 
