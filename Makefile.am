@@ -420,7 +420,7 @@ libHSmogul_a_SOURCES =		\
 	mogul/TreeList.hs	\
 	mogul/WidgetTable.hs
 
-libHSmogul_a_LIBADD = libHSgtk.a
+libHSmogul_a_DEPENDENCIES = libHSgtk.a
 
 am_libHSmogul_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmogul_a_SOURCES))))
@@ -457,7 +457,7 @@ libHSglade_a_SOURCES =	        \
 	glade/GladeType.chs	\
         glade/Glade.chs
 
-libHSglade_a_LIBADD = libHSgtk.a
+libHSglade_a_DEPENDENCIES = libHSgtk.a
 
 glade/GladeType.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/TypeGenerator
@@ -514,7 +514,7 @@ libHSgconf_a_SOURCES =	        			\
         gconf/System/Gnome/GConf/GConfClient.chs	\
         gconf/System/Gnome/GConf.hs
 
-libHSgconf_a_LIBADD = libHSgtk.a
+libHSgconf_a_DEPENDENCIES = libHSgtk.a
 
 gconf/System/Gnome/GConf/GConfType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
@@ -581,7 +581,7 @@ libHSsourceview_a_SOURCES =			\
 	sourceview/SourceTagTable.chs		\
 	sourceview/SourceView.chs
 
-libHSsourceview_a_LIBADD = libHSgtk.a
+libHSsourceview_a_DEPENDENCIES = libHSgtk.a
 
 sourceview/SourceViewType.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \

@@ -108,7 +108,7 @@ done;
 dnl GTKHS_REFORMAT_PACKAGE_LIBS(LIBS, LIBS_CQ, LIBDIR_CQ, LIBEXTRA_CQ)
 dnl 
 dnl for ghc package.conf files, we need to convert from
-dnl   LIBS = -Wl,--export-dynamic -lfoo -lbar -I/usr/lib/foo -I/usr/lib/bar
+dnl   LIBS = -Wl,--export-dynamic -lfoo -lbar -L/usr/lib/foo -L/usr/lib/bar
 dnl to
 dnl   LIBS_CQ = "foo", "bar"
 dnl   LIBDIR_CQ = "/usr/lib/bar","/usr/lib/bar"
@@ -120,8 +120,14 @@ C_LIBS=; [$2]=; C_LDIR=; [$3]=; C_XTRA=; [$4]=;
 for FLAG in [$][$1]; do
   case [$]FLAG in
     -l*) [$2]="[$][$2][$]C_LIBS\"[$]{FLAG#-l}\""; C_LIBS=",";;
-    -L*) [$3]="[$][$3][$]C_LDIR\"[$]{FLAG#-I}\""; C_LDIR=",";;
+    -L*) [$3]="[$][$3][$]C_LDIR\"[$]{FLAG#-L}\""; C_LDIR=",";;
     *)   [$4]="[$][$4][$]C_XTRA\"[$]FLAG\""; C_XTRA=",";;
   esac;
 done;
+dnl Fix for ghc-pkg in that it doesn't differ between paths to extra
+dnl libraries and paths to Haskell libraries. We have to append the
+dnl path to where the Haskell libraries are going to be installed in
+dnl case they go into a non-standard directory. If they go into a
+dnl standard directory then we duplicate a path here. Dough.
+[$3]="[$][$3][$]C_LDIR\"[$]libdir\"";
 ])dnl

@@ -12,7 +12,7 @@ Package {
 			"gtksourceview/gtksourcelanguagesmanager.h",
 			"gtksourceview/gtksourcetag.h",
 			"gtksourceview/gtksourcemarker.h",
-			"gtksourceview/gtksourceiter.h"]
+			"gtksourceview/gtksourceiter.h"],
      package_deps    = ["gtk"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],

@@ -17,6 +17,11 @@
 
 	* gtk/general/Structs.hsc: Changed the type of pangoScale from Int
 	to Integer.
+
+	* acinclude.m4: Replaced a -I with a -L which fixes installation
+	of packages.
+
+	* sourceview/sourceview.pkg.in: Added forgotten comma.
 	
 2004-12-9  Duncan Coutts <duncan@coutts.uklinux.net>
 

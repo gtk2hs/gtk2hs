@@ -284,12 +284,6 @@ LIBGLADE_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $LIBGLADE_LIBS`;
 GCONF_CFLAGS=`CFLAGS="$GTK_CFLAGS" tools/checkDirs.sh $GCONF_CFLAGS`;
 GCONF_LIBS=`LDFLAGS="$GTK_LIBS" tools/checkDirs.sh $GCONF_LIBS`;
 
-dnl Fix for ghc-pkg in that it doesn't differ between paths to extra
-dnl libraries and paths to Haskell libraries. We have to append the
-dnl path to where the Haskell libraries are going to be installed in
-dnl case they go into a non-standard directory. If they go into a
-dnl standard directory then we duplicate a path here. Dough.
-GTK_LIBS="$GTK_LIBS -L$libdir";
 
 dnl Change the representation of these flags to "flag1","flag2". The
 dnl letters CQ stand for Comma, Quote.
@@ -300,6 +294,8 @@ AC_SUBST(GTK_LIBS_CQ)
 AC_SUBST(GTK_LIBDIR_CQ)
 AC_SUBST(GTK_LIBEXTRA_CQ)
 
+dnl Fix another bug in ghc-pkg where it doesn't look into directories
+dnl for dependant packages when building the .o file.
 GTKHS_REFORMAT_PACKAGE_CFLAGS(SOURCEVIEW_CFLAGS, SOURCEVIEW_CFLAGS_CQ)
 GTKHS_REFORMAT_PACKAGE_LIBS(SOURCEVIEW_LIBS, SOURCEVIEW_LIBS_CQ,
 			    SOURCEVIEW_LIBDIR_CQ, SOURCEVIEW_LIBEXTRA_CQ)

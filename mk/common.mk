@@ -120,11 +120,10 @@ install-data-hook :
 
 uninstall-hook :
 	$(foreach pkgname,$(lib_LIBRARIES), \
-	if test -f $(PKGCONF); then \
 	  $(GHCPKG) $(addprefix -f ,$(PKGCONF)) \
-	  -r $(patsubst lib%,%,$(basename $(notdir $(pkgname)))); \
-	  $(if $(PKGCONF),\
+	  -r `cat $(call getVar,$(pkgname),PACKAGE) | $(GREP) name | $(SED) "s/ *name *= *\"\([a-zA-Z0-9]*\)\",/\1/"`;) \
+	$(if $(PKGCONF),if test -f $(PKGCONF); then \
 	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
-	  $(RM) $(PKGCONF) $(PKGCONF).old; fi;) \
-	fi;)
+	  $(RM) $(PKGCONF) $(PKGCONF).old; fi; \
+	fi)
 
