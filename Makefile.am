@@ -319,7 +319,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs			\
 	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs			\
 	gtk/Graphics/UI/Gtk/Display/AccelLabel.chs			\
-	gtk/Graphics/UI/Gtk/Display/Image.chs				\
+	gtk/Graphics/UI/Gtk/Display/Image.chs.pp			\
 	gtk/Graphics/UI/Gtk/Display/Label.chs				\
 	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs			\
 	gtk/Graphics/UI/Gtk/Display/Statusbar.chs			\

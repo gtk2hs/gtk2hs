@@ -1,3 +1,12 @@
+2005-02-12 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am: Let the pre-processor run over Image.chs by renaming
+	it to Image.chs.pp.
+
+	* gtk/Graphics/UI/Gtk/Display/Image.chs.pp: Renamed from Image.chs
+	and changed the function name that is called under Windows for the
+	method image_new_from_file which is now called ..._file_utf8.
+
 2005-02-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: use -DWIN32 for the gtk modules when building on win32.
