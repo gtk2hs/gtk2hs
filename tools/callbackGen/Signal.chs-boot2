@@ -5,11 +5,11 @@ SignalName,
   ) where
 
 import Monad	(liftM)
-import FFI
 import Data.IORef
-import GObject	(objectRef, objectUnref)
-import GError   (failOnGError)
-{#import Hierarchy#}
+
+import System.Glib.FFI
+import System.Glib.GError   (failOnGError)
+{#import System.Glib.GObject#} hiding (mkDestructor)
 
 {#context lib="gtk" prefix="gtk" #}
 

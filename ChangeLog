@@ -181,6 +181,9 @@
 	modules. Also castToGObject will be imported so need not be defined
 	locally.
 
+	* tools/callbackGen/Signal.chs-boot1,
+	tools/callbackGen/Signal.chs-boot2: fix module name and imports.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add
