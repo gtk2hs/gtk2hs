@@ -24,7 +24,7 @@ for FULLNAME in $@; do
   FULLNAMEDEP=`echo "$FULLNAME" | $SED 's/\.chs/.dep/'`;
   FULLNAMEHS=`echo "$FULLNAME" | $SED 's/\.chs/.hs/'`;
   if test -f "$FULLNAME"; then
-    DEPS=`$GREP "{#import" $FULLNAME 2> /dev/null | $SED 's/^{#import \([a-zA-Z1-9]*\)#}.*/\1.chs/'`;
+    DEPS=`$GREP "{#import" $FULLNAME 2> /dev/null | $SED 'y/./\//;s/^{#import \([a-zA-Z1-9/]*\)#}.*/\1/'`;
     #echo Looking for dependent files: $DEPS
     DEPNAMES=;
     for DEP in $DEPS; do
@@ -32,9 +32,9 @@ for FULLNAME in $@; do
       for DEPDIR in $SEARCHPATH; do
         DEPNAME=`echo "$DEPDIR/$DEP" | $SED 's%\.//*%%'`;
         #echo Looking for $DEP in $DEPDIR , i.e.: $DEPNAME
-        if test -f "$DEPNAME"; then
+        if test -f "$DEPNAME.chs"; then
           #echo Found $DEP in $DEPDIR
-	  DEPNAMES="$DEPNAMES $DEPNAME";
+	  DEPNAMES="$DEPNAMES $DEPNAME.chi";
 	  break;
         fi;
       done;
