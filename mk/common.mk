@@ -131,6 +131,13 @@ HSCFLAGGED	= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 C2HSFLAGGED	= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 		  $(addprefix -C,$(EXTRA_CPPFLAGS_ONLY_I)) -i$(HIDIRSOK)
 
+# Read in all extra dependencies between .chs files.
+-include $(ALLCHSFILES:.chs=.dep)
+
+# Quick and dirty dependency to force the compilation of .chs file if a current version of the
+# .chi file is needed.
+%.chi : %.hs
+ 
 # How to build <blah.hs> from <blah.chs>: Since <blah.chs-HEADER> is defined
 # we will use the specified header file. We invoke c2hs for each .chs file
 # anew.
@@ -163,8 +170,6 @@ $(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs
 $(STANDARD_HEADER:.chs=.hs) : %.hs : %.chs
 	echo $< >> .depend
 	touch $@
-
-%.chi : %.chs ;
 
 # How to build <blah.hs> from <blah.hsc>
 $(HSCFILES:.hsc=.hs) : %.hs : %.hsc
@@ -330,8 +335,5 @@ distclean : clean
 	  $(ALLCHSFILES:.chs=.dep))
 
 maintainer-clean : distclean
-
-
--include $(ALLCHSFILES:.chs=.dep)
 
 

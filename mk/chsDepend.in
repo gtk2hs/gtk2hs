@@ -10,6 +10,7 @@ GREP=@GREP@;
 SEARCHPATH=.;
 
 TMPCMDLINE=$@;
+OLDIFS=$IFS;
 
 case $1 in
  -[iI]*) SEARCHPATH=`echo "$1" | $SED 's/-[iI]//'`; shift ;;
@@ -21,18 +22,20 @@ for FULLNAME in $@; do
   if test -f "$FULLNAME"; then
     DEPS=`$GREP "{#import" $FULLNAME 2> /dev/null | $SED 's/^{#import \([a-zA-Z1-9]*\)#}.*/\1.chs/'`;
     echo "$FULLNAMEDEP :" > $FULLNAMEDEP
-    # echo Looking for dependent files: $DEPS
+    #echo Looking for dependent files: $DEPS
     for DEP in $DEPS; do
       IFS=:;
       for DEPDIR in $SEARCHPATH; do
-        DEPNAME=`echo "$DEPDIR/$DEP" | $SED 's%\.//*%%' | $SED 's/\.chs/.hs/'`;
-        # echo Lookin for $DEP in $DEPDIR , i.e.: $DEPNAME
+        DEPNAME=`echo "$DEPDIR/$DEP" | $SED 's%\.//*%%'`;
+        #echo Looking for $DEP in $DEPDIR , i.e.: $DEPNAME
         if test -f "$DEPNAME"; then
-          # echo Found $DEP in $DEPDIR
-	  echo "$FULLNAME $FULLNAMEDEP : $DEPNAME" >> $FULLNAMEDEP;
+          #echo Found $DEP in $DEPDIR
+	  DEPNAMECHI=`echo $DEPNAME | $SED 's/\.chs/.chi/'`;
+	  echo "$FULLNAME $FULLNAMEDEP : $DEPNAMECHI" >> $FULLNAMEDEP;
+	  break;
         fi;
       done;
-      IFS=" ";
+      IFS=$OLDIFS;
     done;
     echo Writing dependency information for $FULLNAME
   else
