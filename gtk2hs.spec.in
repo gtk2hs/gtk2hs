@@ -18,9 +18,7 @@ Group: Development/Libraries
 Source: gtk2hs-%{version}.tar.gz
 URL: http://gtk2hs.sourceforge.net/
 BuildRoot: /var/tmp/gtk2hs-%{version}-root
-# --with-c2hs not currently supported
-#BuildRequires: ghc = %{ghc_version}, %{_bindir}/hsc2hs, haddock, %{?_with_c2hs: c2hs >= 0.13.4}, %{ghcver}-doc = %{ghc_version}
-BuildRequires: ghc = %{ghc_version}, %{_bindir}/hsc2hs, haddock, %{ghcver}-doc = %{ghc_version}
+BuildRequires: ghc = %{ghc_version}, %{_bindir}/hsc2hs, haddock
 BuildRequires: gtk2-devel, gtksourceview-devel, libglade2-devel, GConf2-devel, mozilla-devel = %{mozver}
 
 %description
@@ -46,7 +44,7 @@ such as the new file chooser dialog.
 This package contains the libraries compiled for ghc-%{ghc_version}.
 
 %package doc
-Summary: A Haskell GUI library based on the Gtk+ GUI toolkit
+Summary: Haskell Gtk+ GUI library documentation
 Group: Development/Languages/Haskell
 
 %description doc
@@ -127,10 +125,7 @@ This package is compiled for ghc-%{ghc_version}.
 %setup -q
 
 %build
-# --with-c2hs not currently supported
-#./configure %{?c2hs: --with-c2hs=%{c2hs}} --with-hc=ghc-%{ghc_version} --with-hcflags="-O" --enable-docs --without-pkgreg --prefix=%{_prefix} --libdir=%{ghclibdir}
 ./configure --with-hc=ghc-%{ghc_version} --with-hcflags="-O" --enable-docs --without-pkgreg --prefix=%{_prefix} --libdir=%{ghclibdir}
-
 
 LANG=C make all
 
@@ -142,6 +137,7 @@ make DESTDIR=%{buildroot} install
 rm -rf %{buildroot}
 
 %define ghcpkg_inst env pkglibdir=%{gtk2hsdir} ghc-pkg-%{ghc_version} -u -i
+
 %post -n gtk2hs-%{ghcver}
 %{ghcpkg_inst} %{gtk2hsdir}/gtk.pkg
 %{ghcpkg_inst} %{gtk2hsdir}/mogul.pkg
@@ -249,7 +245,7 @@ fi
 %{gtk2hsdir}/imports/sourceview
 
 %changelog
-* Thu Aug 19 2004 Jens Petersen <petersen@redhat.com>
+* Thu Aug 19 2004 Jens Petersen <petersen@haskell.org>
 - use suffix -ghc621 instead of -ghc6.2.1 and conflict with old packages
 - buildrequire ghc-doc and gtk2hs-doc-ghc621 requires ghc-doc
 - move docs and demo files to %{_defaultdocdir}/gtk2hs
