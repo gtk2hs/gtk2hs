@@ -170,7 +170,7 @@ dnl Check if this ghc uses the new hierachical module system. If so, we don't
 dnl need to depend on the "lang" or "data" package (which don't exist anymore).
 AC_MSG_CHECKING([new module system])
 NEW_MODULE_SYSTEM=no;
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -gt, 5.0.4,[NEW_MODULE_SYSTEM=yes;]);
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 5.04.0,[NEW_MODULE_SYSTEM=yes;]);
 AC_MSG_RESULT([$NEW_MODULE_SYSTEM])
 
 GHCBARE=`basename $GHC`
