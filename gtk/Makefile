@@ -3,7 +3,7 @@ TOP = ..
 include $(TOP)/mk/config.mk
 
 SUBDIRS	= abstract buttons display entry general layout menuComboToolbar \
-	  misc multiline ornaments scrolling \
+	  misc multiline ornaments scrolling selectors \
 	  treeList windows gdk glib pango ../compat
 
 ifeq ($(WIN32),yes)
@@ -195,7 +195,8 @@ ENABLEBROKEN	=
 endif
 
 general/Signal.chs : $(TOP)/tools/callbackGen/Signal.chs-boot1 \
-		     $(TOP)/tools/callbackGen/Signal.chs-boot2
+		     $(TOP)/tools/callbackGen/Signal.chs-boot2 \
+		     $(TOP)/tools/callbackGen/gtkmarshal.list
 	$(strip $(TOP)/tools/callbackGen/HookGenerator $(MARSHALLDEFS) \
 	$(TOP)/tools/callbackGen/ general/Signal.chs $(ENABLEBROKEN))
 
@@ -212,7 +213,6 @@ CREATE_TYPES += gtk-2.2
 endif
 ifeq ($(GTK_VERSION_2_4),yes)
 CREATE_TYPES += gtk-2.4
-endif
 
 general/Hierarchy.chs : $(TOP)/tools/hierarchyGen/hierarchy.list
 	$(strip $(TOP)/tools/hierarchyGen/TypeGenerator \

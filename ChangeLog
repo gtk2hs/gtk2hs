@@ -32,6 +32,15 @@
 
 	* gtk/general/Structs.hsc: remove unneeded toolbar function.
 
+	* gtk/selectors/ColorSelection.chs, gtk/selectors/FontSelection.chs
+	gtk/selectors/ColorSelectionDialog.chs,
+	gtk/selectors/FontSelectionDialog.chs, gtk/layout/Fixed.chs,
+	gtk/misc/SizeGroup.chs, gtk/menuComboToolbar/ToolItem.chs: new modules
+
+	* gtk/Makefile: add new directory 'selectors' to SUBDIRS.
+
+	* gtk/general/Gtk.hs: export new modules
+
 2004-08-1  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/entry/SpinButton.chs, gtk/layout/Table.chs, gtk/layout/Layout.chs

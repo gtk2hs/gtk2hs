@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.26 $ from $Date: 2004/07/30 16:32:01 $
+--  Version $Revision: 1.27 $ from $Date: 2004/08/03 04:16:56 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -121,19 +121,22 @@ module Gtk(
   module RadioMenuItem,
   module TearoffMenuItem,
   module Toolbar,
+#if GTK_CHECK_VERSION(2,4,0)
+  module ToolItem,
+#endif
   -- selectors (file/font/color/input device)
---  module ColorSelection,
---  module ColorSelectionDialog,
+  module ColorSelection,
+  module ColorSelectionDialog,
 --  module FileSelection,
---  module FontSelection,
---  module FontSelectionDialog,
+  module FontSelection,
+  module FontSelectionDialog,
 --  module InputDialog,
   -- * Layout containers
   module Alignment,
   module AspectFrame,
   module HBox,
   module HButtonBox,
---  module Fixed,
+  module Fixed,
   module HPaned,
   module Layout,
   module Notebook,
@@ -161,6 +164,7 @@ module Gtk(
   module HandleBox,
 --  module IMContext,
 --  module IMMulticontext,
+  module SizeGroup,
   module Tooltips,
   module Viewport,
   -- * Abstract base classes
@@ -277,12 +281,15 @@ import RadioMenuItem
 import CheckMenuItem
 import TearoffMenuItem
 import Toolbar
+#if GTK_CHECK_VERSION(2,4,0)
+import ToolItem
+#endif
 -- selectors (file\/font\/color\/input device)
---import ColorSelection
---import ColorSelectionDialog
+import ColorSelection
+import ColorSelectionDialog
 --import FileSelection
---import FontSelection
---import FontSelectionDialog
+import FontSelection
+import FontSelectionDialog
 --import InputDialog
 -- layout containers
 import Alignment
@@ -291,7 +298,7 @@ import HBox
 import VBox
 import HButtonBox
 import VButtonBox
---import Fixed
+import Fixed
 import HPaned
 import VPaned
 import Layout
@@ -318,7 +325,7 @@ import HandleBox
 --import IMContext
 --import IMContextSimple
 --import IMMulitcontext
---import SizeGroup
+import SizeGroup
 import Tooltips
 import Viewport
 --import Accessible
