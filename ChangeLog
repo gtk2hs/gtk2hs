@@ -17,8 +17,8 @@
 	* gtk2hs.spec.in: Default to ghc-6.0 now.  Split binary package
 	into -ghc%{ghc_version} and -doc subpackages.  Disable building of
 	debuginfo subpackage.
-	(%install) Use install-without-pkg.
-	(%preun) Only remove object files when uninstalling.
+	(%install): Use install-without-pkg.
+	(%preun): Only remove object files when uninstalling.
 
 	* Makefile (install-without-pkg): New target; like install but it
 	does not install the ghc library packages.
