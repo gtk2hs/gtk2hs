@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.16 $ from $Date: 2003/05/16 18:45:23 $
+--  Version $Revision: 1.17 $ from $Date: 2003/05/19 16:36:36 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -190,7 +190,7 @@ import Window
 --import WindowGroup
 -- display widgets
 import AccelLabel
-import Image		hiding (imageGetPixbuf, imageNewFromPixbuf)
+import Image
 import Label
 import ProgressBar
 import Statusbar

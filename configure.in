@@ -357,18 +357,18 @@ fi
 
 AC_ARG_WITH(catalog,
   [  --with-catalog=catalog  an XML catalog file pointing to DocBook],
-  [SGML_CATALOG_FILES=$withval;], 
-  [if test -z $SGML_CATALOG_FILES; then
+  [XML_CATALOG_FILES=$withval;], 
+  [if test -z $XML_CATALOG_FILES; then
     case "$target" in
-	*freebsd*) SGML_CATALOG_FILES=/usr/local/share/xml/catalog;;
-	*) SGML_CATALOG_FILES=/usr/share/xml/catalog;;
+	*freebsd*) XML_CATALOG_FILES=/usr/local/share/xml/catalog;;
+	*) XML_CATALOG_FILES=/usr/share/xml/catalog;;
     esac
   fi])
 AC_MSG_CHECKING([files XML catalog])
 OLDIFS=$IFS;
 IFS=:;
 FOUNDCATALOG=no;
-for CATALOG in $SGML_CATALOG_FILES; do
+for CATALOG in $XML_CATALOG_FILES; do
   if test -r $CATALOG; then FOUNDCATALOG=yes; fi;
 done;
 IFS=$OLDIFS;
@@ -395,7 +395,7 @@ if test $XSLTFO = yes; then XSLTFO=no; fi;
 XSLTPATH=no-xslt;
 OLDIFS=$IFS;
 IFS=:;
-for DIR in $SGML_CATALOG_FILES; do
+for DIR in $XML_CATALOG_FILES; do
   XSLTPATH=`dirname $DIR | $SED s/xml/xsl/`;
   if test -r $XSLTPATH/docbook/xhtml/chunk.xsl; then
     if test $XSLTHTML = no; then
@@ -459,7 +459,7 @@ AC_SUBST(ENABLE_OPENGL)
 dnl Documentation
 AC_SUBST(BUILDDOCS)
 AC_SUBST(XSLTTRANS)
-AC_SUBST(SGML_CATALOG_FILES)
+AC_SUBST(XML_CATALOG_FILES)
 AC_SUBST(FOUNDHTML)
 AC_SUBST(XSLTHTML)
 AC_SUBST(FOUNDFO)
