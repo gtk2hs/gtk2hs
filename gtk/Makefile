@@ -198,39 +198,22 @@ else
 ENABLEBROKEN	=
 endif
 
-general/Signal.chs : signals/HookGenerator $(MARSHALLDEFS)\
-	    	  signals/Signal.chs-boot1 signals/Signal.chs-boot2
-	$(strip signals/HookGenerator $(MARSHALLDEFS) signals/ \
-	general/Signal.chs $(ENABLEBROKEN))
-
-EXTRA_CLEANFILES += signals/HookGenerator signal/HookGenerator.o signal/Main.hi
-
-EXTRA_TARFILES	+= signals/HookGenerator.hs signals/Makefile \
-		   signals/gtkmarshal.list signals/Signal.chs-boot1 \
-		   signals/Signal.chs-boot2
-
-signals/HookGenerator : signals/HookGenerator.hs 
-	$(MAKE) -C signals
+general/Signal.chs : $(TOP)/tools/signals/Signal.chs-boot1 \
+		     $(TOP)/tools/signals/Signal.chs-boot2
+	$(strip $(TOP)/tools/signals/HookGenerator $(MARSHALLDEFS) \
+	$(TOP)/tools/signals/ general/Signal.chs $(ENABLEBROKEN))
 
 EXTRA_CHSFILES	+=  general/Hierarchy.chs
 
 ifeq ($(WIN32),yes)
-IGNORE_TYPES	= Plug Socket
+CREATE_TYPES = default
 else
-IGNORE_TYPES	=
+CREATE_TYPES = plugNsocket default
 endif
 
-general/Hierarchy.chs : typehier/TypeGenerator typehier/hierarchy.list
-	$(strip typehier/TypeGenerator typehier/hierarchy.list \
-	general/Hierarchy.chs $(IGNORE_TYPES))
-
-EXTRA_CLEANFILES += typehier/TypeGenerator typehier/TypeGenerator.o \
-		 typehier/Main.hi
-
-EXTRA_TARFILES	+= typehier/TypeGenerator.hs typehier/Makefile \
-		   typehier/hierarchy.list
-
-typehier/TypeGenerator : typehier/TypeGenerator.hs
-	$(MAKE) -C typehier
+general/Hierarchy.chs : $(TOP)/tools/typehier/hierarchy.list
+	$(strip $(TOP)/tools/typehier/TypeGenerator \
+	$(TOP)/tools/typehier/hierarchy.list \
+	general/Hierarchy.chs $(addprefix --tag=,$(CREATE_TYPES)))
 
 include $(TOP)/mk/common.mk

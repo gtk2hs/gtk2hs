@@ -1,3 +1,12 @@
+2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
+	* tools/typehier/TypeGenerator.hs: Correct typo that caused
+	Hierarchy.chs to include itself.
+
+	* gtk/Makefile: Use the signal and type hierarchy generators in
+	tools/.
+
+	* gtk/typehier, gtk/signals: Remove the stale files.
+	
 2003-11-04  Jens Petersen  <petersen@haskell.org>
 
 	* mk/config.mk.in (COMMONINSTALLDIR): Define default base package
