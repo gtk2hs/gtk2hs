@@ -159,10 +159,13 @@ $(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs $(addsuffix .chi, $(NEEDCHI))
 # files in STANDARD_HEADER. This is a major performance improvment as
 # c2hs has to parse the header file only once in order to translate
 # several .chs files.
+# About the "if" statement: sometimes only some of the needed .chi files
+# are newer that a target. In this case c2hs would be called without any
+# .chs file which makes it fall over.
 $(STANDARD_HEADER:.chs=.hs) : $(STANDARD_HEADER) $(addsuffix .chi, $(NEEDCHI))
 	$(if $(filter %.chs,$?),\
 	$(strip $(C2HSFLAGGED) -o : $(HEADER) $(filter %.chs,$?)),\
-	$(TOUCH) $?);
+	@echo "");
 
 # The same cases doubled for the NEEDCHS files.
 $(NEEDCHS_EXPLICIT:.chs=.hs) : %.hs : %.chs
