@@ -1,3 +1,7 @@
+2003-03-24  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/general/Style.chs: Forgot to add this file.
+	
 2003-03-21  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/gdk/Events.hsc: Forgot to export enumerations from GdkEnum
