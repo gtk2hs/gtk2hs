@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/06/20 14:13:05 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -50,7 +50,7 @@ import UTFCForeign
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Enums	(AttachOptions(..))
+import Enums	(AttachOptions(..), fromFlags)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -75,13 +75,13 @@ tableResize tb rows columns = {#call table_resize#} (toTable tb)
 -- Further formatting options have to be specified.
 --
 tableAttach :: (TableClass tb, WidgetClass w) => tb -> w -> Int -> Int ->
-               Int -> Int -> AttachOptions -> AttachOptions -> Int -> Int ->
-               IO ()
+               Int -> Int -> [AttachOptions] -> [AttachOptions] -> Int ->
+               Int -> IO ()
 tableAttach tb child leftAttach rightAttach topAttach bottomAttach xoptions
             yoptions xpadding ypadding = {#call table_attach#} (toTable tb)
   (toWidget child) (fromIntegral leftAttach) (fromIntegral rightAttach) 
   (fromIntegral topAttach) (fromIntegral bottomAttach) 
-  ((fromIntegral.fromEnum) xoptions) ((fromIntegral.fromEnum) yoptions) 
+  ((fromIntegral.fromFlags) xoptions) ((fromIntegral.fromFlags) yoptions) 
   (fromIntegral xpadding) (fromIntegral ypadding)
 
 -- @method tableAttachDefaults@ Put a new widget in the table container. As
