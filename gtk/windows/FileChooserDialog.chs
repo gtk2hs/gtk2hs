@@ -38,7 +38,7 @@ import Monad (liftM, when)
 import Maybe (isJust, fromJust)
 import FFI
 {#import Hierarchy#}
-{#import FileChooser #}
+{#import FileChooser#}
 import GObject (objectNew)
 import Object (makeNewObject)
 import Window

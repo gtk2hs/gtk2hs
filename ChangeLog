@@ -10,6 +10,9 @@
 
 	* Makefile: enable building filechooser demo
 
+	* gtk/windows/FileChooserDialog.chs: whitespace fix, to help in
+	calculating depandancies of .chs files
+
 2004-05-4 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.in, Makefile, mk/config.mk.in: allow libglade to be
