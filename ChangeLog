@@ -1,3 +1,7 @@
+2004-04-24 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/abstract/Object.chs: fixed warning
+
 2004-04-18 Axel Simon <A.Simon@kent.ac.uk>
 
 	* demo/glade/Makefile, glade/Makefile: Renamed the glade library

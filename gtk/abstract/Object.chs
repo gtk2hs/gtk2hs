@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.8 $ from $Date: 2004/04/24 17:20:49 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -37,7 +37,7 @@
 --
 module Object(
   Object,
-  ObjectClass(..),
+  ObjectClass,
   castToObject,
   objectSink,
   makeNewObject,
