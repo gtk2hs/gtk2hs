@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Derived: 12 August 99
 --
---  Version $Revision: 1.2 $ from $Date: 2004/11/26 15:08:10 $
+--  Version $Revision: 1.3 $ from $Date: 2004/12/18 20:45:13 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -626,7 +626,6 @@ preCompileHeader headerFile preCompFile =
     cppOpts <- getSwitch cppOptsSB
     let cmd  = unwords [cpp, cppOpts, realHeaderFile, ">" ++ preprocFile]
     tracePreproc cmd
-    printElapsedTime "about to run cpp"
     exitCode <- systemCIO cmd
     case exitCode of
       ExitFailure _ -> fatal "Error during preprocessing"
@@ -636,7 +635,6 @@ preCompileHeader headerFile preCompFile =
     -- load and analyse the C header file
     --
     (cheader, warnmsgs) <- loadAttrC preprocFile
-    printElapsedTime "about to emit warnings"
     putStrCIO warnmsgs
     
     printElapsedTime "about to serialise header"
@@ -653,7 +651,6 @@ preCompileHeader headerFile preCompFile =
     unless keep $
       removeFileCIO preprocFile
  
-    printElapsedTime "finish"
     return ()
   where
     tracePreproc cmd = putTraceStr tracePhasesSW $
@@ -661,11 +658,9 @@ preCompileHeader headerFile preCompFile =
 
 processPreComp :: FilePath -> FilePath -> CST s Bool
 processPreComp preCompFile bndFile = do
-    printElapsedTime "start"
     
     -- load the Haskell binding module
     --
-    printElapsedTime "about to read .chs file"
     (chsMod , warnmsgs) <- loadCHS bndFile
     putStrCIO warnmsgs
     traceCHSDump chsMod
@@ -674,33 +669,28 @@ processPreComp preCompFile bndFile = do
     -- inline-C fragments are removed from the .chs tree and conditionals are
     -- replaced by structured conditionals)
     --
-    printElapsedTime "extracting cpp stuff from .chs file"
     (header, strippedCHSMod, warnmsgs) <- genHeader chsMod
     if not (null header) then return True else do
       putStrCIO warnmsgs
       --
       -- load and analyse the C header file
       --
-      printElapsedTime "about to deserialise header"
       WithNameSupply cheader <- liftIO $ getBinFileWithDict preCompFile
 
       --
       -- expand binding hooks into plain Haskell
       --
-      printElapsedTime "about to expand hooks in .chs file"
       (hsMod, chi, warnmsgs) <- expandHooks cheader strippedCHSMod
       putStrCIO warnmsgs
       --
       -- output the result
       --
-      printElapsedTime "about to dump .hs and .chi files"
       outFName <- getSwitch outputSB
       let hsFile  = if null outFName then basename bndFile else outFName
       dumpCHS hsFile hsMod True
       dumpCHI hsFile chi		-- different suffix will be appended
 
       -- CHS file did not contain C declarations, so return False
-      printElapsedTime "finish"
       return False
   where
     traceCHSDump mod = do
