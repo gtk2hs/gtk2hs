@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2003/01/11 02:42:50 $
+--  Version $Revision: 1.13 $ from $Date: 2003/01/18 18:16:51 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -63,9 +63,9 @@ module Structs(
   ResponseId(..),
   fromResponse,
   toResponse,
-  XID,
+  --XID,
   --socketGetXID,
-  socketHasPlug,
+  --socketHasPlug,
   toolbarGetSize',
   toolbarChildButton,
   toolbarChildToggleButton,
@@ -496,7 +496,7 @@ toResponse -10 = ResponseApply
 toResponse -11 = ResponseHelp
 toResponse i | i > 0  = ResponseUser $ fromIntegral i
 
-#include<gdk/gdkx.h>
+-- include<gdk/gdkx.h>
 
 type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
 			-- of NativeWindow (Word32 vs. CUInt)
@@ -515,10 +515,10 @@ type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
 
 -- Test if a Plug is connected to the socket.
 -- 
-socketHasPlug :: Socket -> IO Bool
-socketHasPlug socket = do
-  plugPtr <- withForeignPtr (unSocket socket) #{peek GtkSocket, plug_window}
-  return (plugPtr/=nullPtr)
+--socketHasPlug :: Socket -> IO Bool
+--socketHasPlug socket = do
+--  plugPtr <- withForeignPtr (unSocket socket) #{peek GtkSocket, plug_window}
+--  return (plugPtr/=nullPtr)
 
 -- method toolbarGetSize' Get the current size of the Buttons 
 -- in a Toolbar.
