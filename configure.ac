@@ -395,7 +395,7 @@ AC_SUBST(MOZEMBED_LIBEXTRA_CQ)
 AC_ARG_WITH(hidir,
 	[  --with-hidir=DIR        specify install dir for .hi files],
 	[hidir=$withval],
-	[hidir='$(pkglibdir)/imports'])
+	[hidir='${pkglibdir}/imports'])
 AC_SUBST(hidir)
 
 dnl Check if user wants bindings for deprecated APIs. Defaults to yes.

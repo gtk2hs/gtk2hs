@@ -1,3 +1,14 @@
+2005-01-14  Jens Petersen  <petersen@haskell.org>
+
+	* mogul/mogul.pkg.in (library_dirs): Use @GTK_LIBDIR_CQ@
+
+	* configure.ac (hidir): Uses braces for default value.
+
+	* acinclude.m4 (GTKHS_REFORMAT_PACKAGE_LIBS): Use pkglibdir now
+	instead of libdir, and delay its expansion.
+
+	* Makefile.am (EXTRA_DIST): Add "sourceview/sourceview.h".
+
 2005-01-13 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: fix whitespace problem that

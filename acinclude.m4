@@ -129,5 +129,5 @@ dnl libraries and paths to Haskell libraries. We have to append the
 dnl path to where the Haskell libraries are going to be installed in
 dnl case they go into a non-standard directory. If they go into a
 dnl standard directory then we duplicate a path here. Dough.
-[$3]="[$][$3][$]C_LDIR\"[$]libdir\"";
+[$3]="[$][$3][$]C_LDIR\"\${pkglibdir}\"";
 ])dnl

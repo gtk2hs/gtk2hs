@@ -17,7 +17,8 @@ EXTRA_DIST = \
 	tools/checkDirs.sh			\
 	tools/c2hs/toplevel/c2hs_config.h	\
 	tools/hierarchyGen/hierarchy.list	\
-	tools/hierarchyGen/Hierarchy.chs.template
+	tools/hierarchyGen/Hierarchy.chs.template \
+	sourceview/sourceview.h
 
 CHSDEPEND = $(srcdir)/mk/chsDepend
 

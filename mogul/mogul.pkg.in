@@ -3,7 +3,7 @@ Package {
      auto            = True,
      import_dirs     = ["@hidir@/mogul"],
      source_dirs     = [],
-     library_dirs    = [],
+     library_dirs    = [@GTK_LIBDIR_CQ@],
      hs_libraries    = ["HSmogul"],
      extra_libraries = [],
      include_dirs    = [],
