@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: abstract GObject type
+--  GIMP Toolkit (GTK) @entry abstract GObject type@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:22:10 $
+--  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,14 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --  * Implements the base GObject class to satisfy the type checker.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 module GObject(
   objectRef,
   objectUnref,
@@ -74,11 +74,11 @@ makeNewGObject constr generator = do
 
 foreign export dynamic mkDestructor :: IO () -> IO GWeakNotify
 
--- attach a callback that will be called after the destroy hooks
--- have been called (EXPORTED)
+-- @method objectWeakref@ attach a callback that will be called after the
+-- destroy hooks have been called
 --
-objectWeakref :: GObjectClass o => IO () -> o -> IO GWeakNotify
-objectWeakref uFun obj = do
+objectWeakref :: GObjectClass o => o -> IO () -> IO GWeakNotify
+objectWeakref obj uFun = do
   funPtrContainer <- newIORef nullFunPtr
   uFunPtr <- mkDestructor $ do
     uFun
@@ -89,10 +89,10 @@ objectWeakref uFun obj = do
     {#call unsafe object_weak_ref#} objPtr uFunPtr nullPtr
   return uFunPtr
 
--- detach a weak destroy callback function (EXPORTED)
+-- @method objectWeakunref@ detach a weak destroy callback function
 --
-objectWeakunref :: GObjectClass o => GWeakNotify -> o -> IO ()
-objectWeakunref fun obj = 
+objectWeakunref :: GObjectClass o => o -> GWeakNotify -> IO ()
+objectWeakunref obj fun = 
   withForeignPtr ((castForeignPtr.unGObject.toGObject) obj) $ \objPtr ->
     {#call unsafe object_weak_unref#} objPtr fun nullPtr
   

@@ -26,69 +26,62 @@ INPL_LIBDIR		= $(patsubst %/,%,$(CURDIR))
 INPL_INCLDIR		= $(INPL_HIDIR)
 
 
-# CHSFILES = EXPLICIT_HEADER \dotcup STANDARD_HEADER
+
+# CHSFILES = EXPLICIT_HEADER \dotcup STANDARD_HEADER, in the right order
+# EXTRA_CHSFILES contains generated .chs files. It is important that the
+# sequence reflects the dependencies of the files because this information
+# is extracted from the files themselves (and generated files don't exist
+# in a clean tree).
 CHSFILES 		= $(filter-out $(EXTRA_CHSFILES),\
-			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.chs)))\
-			$(EXTRA_CHSFILES)
+			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.chs)))
 
-# These are the files without the prerequisite CHS files.
-CHSFILESAUTO		= $(filter-out $(NEEDCHS), $(CHSFILES))
-
-HSCFILES		= $(filter-out $(EXTRA_HSCFILES),\
-			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hsc)))\
-			$(EXTRA_HSCFILES)
+ALLCHSFILES		= $(NEEDCHI:=.chs) $(filter-out $(NEEDCHI:=.chs), \
+			$(CHSFILES) $(EXTRA_CHSFILES))
 
 # all .chs files that have a .chs-HEADER variable defined
-EXPLICIT_HEADER 	= $(foreach FILE,$(CHSFILESAUTO),\
-			$(if $(findstring undefined,\
-			$(origin $(notdir $(basename $(FILE)))-HEADER)),,$(FILE)))
-
-# all .chs files that use the common header file in HEADER
-STANDARD_HEADER 	= $(filter-out $(EXPLICIT_HEADER),$(CHSFILESAUTO))
-
-# We cannot generate dependencies between .chs and .chi files. We therefore
-# compile explicitly named .chs files first (by means of evaluating NEEDCHI).
-NEEDCHS			= $(addsuffix .chs,$(NEEDCHI))
-
-# This is EXPLICIT_HEADER for the files in NEEDCHS
-NEEDCHS_EXPLICIT      	= $(foreach FILE,$(NEEDCHS),\
-			$(if $(findstring undefined,\
-			$(origin $(notdir $(basename $(FILE)))-HEADER)),,\
+EXPLICIT_HEADER         = $(foreach FILE,$(ALLCHSFILES),\
+                        $(if $(findstring undefined,\
+                        $(origin $(notdir $(basename $(FILE)))-HEADER)),,\
 			$(FILE)))
 
-# STANDARD_HEADER for NEEDCHS
-NEEDCHS_STANDARD	= $(filter-out $(NEEDCHS_EXPLICIT),$(NEEDCHS))
+# all .chs files that use the common header file in HEADER
+STANDARD_HEADER         = $(filter-out $(EXPLICIT_HEADER),$(ALLCHSFILES))
+
+# HSC files
+HSCFILES                = $(filter-out $(EXTRA_HSCFILES),\
+                        $(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hsc)))\
+                        $(EXTRA_HSCFILES)
 
 # These are all .hs files that are not generated in any way.
-HSFILES  		= $(filter-out $(CHSFILES:.chs=.hs)\
-			$(NEEDCHS:.chs=.hs) \
+HSFILES  		= $(filter-out $(ALLCHSFILES:.chs=.hs)\
 			$(HSCFILES:.hsc=.hs) $(EXTRA_HSFILES),\
 			$(foreach DIR,$(SUBDIRSOK),$(wildcard $(DIR)*.hs)))
 
 # These are all .hs files in the project. This is not the same as *.hs in
 # all subdirs because in a clean tree there is e.g. no .hs for a .chs file.
-ALLHSFILES		= $(HSFILES) $(CHSFILES:.chs=.hs) \
+ALLHSFILES		= $(HSFILES) $(ALLCHSFILES:.chs=.hs) \
 			$(HSCFILES:.hsc=.hs) $(EXTRA_HSFILES)
 
 # Possibly useful: These are the files that are hand-crafted:
-ALLSOURCEFILES		= $(CHSFILES) $(NEEDCHS) $(HSCFILES) $(HSFILES)\
-			$(EXTRA_HSFILES)
+ALLSOURCEFILES		= $(ALLCHSFILES) $(HSCFILES) $(HSFILES) $(EXTRA_HSFILES)
 
 # Compile a list of all generated *_stub.o files. Such a file is generated if
 # a sourcefile contains a foreign export declaration. If there is a standard
-# grep for regexs, then we should match for the beginning of the line.
+# grep for regexs, then we should match for the beginning of the line. Files
+# specified with EXTRA_... cannot be scanned, thus these STUB files need to
+# be specified explicitly through EXTRA_STUBFILES.
 STUBOFILES		= $(strip \
 	$(patsubst %.hs,%_stub.o, $(foreach FILE,\
 	$(HSFILES),$(shell $(GREP) -l "foreign export" $(FILE)))) \
 	$(patsubst %.chs,%_stub.o, $(foreach FILE,\
-	$(filter-out $(EXTRA_CHSFILES),$(CHSFILES)),\
-	$(shell $(GREP) -l "foreign export" $(FILE)))) \
+	$(CHSFILES),$(shell $(GREP) -l "foreign export" $(FILE)))) \
 	$(patsubst %.hsc,%_stub.o, $(foreach FILE,\
 	$(HSCFILES),$(shell $(GREP) -l "foreign export" $(FILE))))\
 	$(patsubst %.chs,%_stub.o, $(EXTRA_STUBFILES)))
 
-# Not needed at the moment: We only include the header file in $(HEADER) and
-# clean the tree through a wildcard.
+# Not needed at the moment: GHC with --make knows that it should pass these
+# files to the C compiler. We only include the header file $(HEADER) and
+# clean the tree through a wildcard. 
 STUBHFILES		= $(STUBOFILES:.o=.h)
 
 EXTRA_HFILESOK		= $(sort $(EXTRA_HFILES) $(EXTRA_CFILES:.c=.h))
@@ -126,8 +119,6 @@ HCINCLUDES		= $(addprefix '-\#include<,$(addsuffix >',$(HEADER) \
 			  $(EXTRA_HFILESOK)))
 
 
-
-
 # Specify how hsc should be run.
 HSCFLAGGED	= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 		  $(EXTRA_CPPFLAGS_ONLY_I) \
@@ -147,44 +138,38 @@ $(HSCFILES:.hsc=.hs) : %.hs : %.hsc
 # How to build <blah.hs> from <blah.chs>: Since <blah.chs-HEADER> is defined
 # we will use the specified header file. We invoke c2hs for each .chs file
 # anew.
-# The result is first dumped into .broken.hs files, then we fix a pointer
-# problem that has been in c2hs for a while. The version of c2hs that can
-# handle multiple files seems to be fixed, so no need for the repair.
-$(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs $(addsuffix .chi, $(NEEDCHI))
-	$(strip $(C2HSFLAGGED) -o $(@:.hs=.broken.hs) \
+# These line could be used to inform the user what is happening, but the
+# commands seem to be executed.
+#	  echo $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`\
+#	  echo $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`\
+$(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs
+	@if test -f .depend; then \
+	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`; \
+	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`; \
+	  $(RM) .depend;\
+	fi
+	$(TOP)/mk/chsDepend -i$(HIDIRSOK) $@
+	$(strip $(C2HSFLAGGED) -o : \
 	  $($(addsuffix -HEADER,$(notdir $(basename $@)))) $<)
-	$(SED) "s/Ptr (FunPtr/(FunPtr/" $(@:.hs=.broken.hs) > $@
-	mv $(@:.hs=.broken.chi) $(@:.hs=.chi)
-	$(RM) $(@:.hs=.broken.hs)
 
 # As above, but <blah.chs-HEADER> is not defined so we use the variable
 # HEADER which contains the name of the header file common to all
 # files in STANDARD_HEADER. This is a major performance improvment as
 # c2hs has to parse the header file only once in order to translate
 # several .chs files.
-# About the "if" statement: If one of the needed .chs files has changed
-# we need to rebuild the all standard header files (because we assume
-# that they all depend on the needed files). If all needed .chs files
-# stayed the same but some of the standard header files have changed,
-# we will update only these.
-$(STANDARD_HEADER:.chs=.hs) : $(STANDARD_HEADER) $(addsuffix .chi, $(NEEDCHI))
-	$(strip $(C2HSFLAGGED) -o : $(HEADER) $(if $(filter %.chi,$?),\
-          $(STANDARD_HEADER),$(filter %.chs,$?)))
+# The actual rebuilt of the files is delayed until either c2hs needs the
+# .chi or ghc needs the .hs files. Until then, all files that need to be
+# rebuilt are stored in .depend . This is a kind of hack; make is good in
+# breaking down larger dependencies into smaller one, but the other way round
+# seems to be impossible: The variable @? does indeed contain all the
+# targets that need to be updated, but updating these files does not convince
+# make not to rerun the rule for another file in @?.
+$(STANDARD_HEADER:.chs=.hs) : %.hs : %.chs
+	echo $< >> .depend
+	touch $@
 
 
-# The same cases doubled for the NEEDCHS files.
-$(NEEDCHS_EXPLICIT:.chs=.hs) : %.hs : %.chs
-	$(strip $(C2HSFLAGGED) -o $(@:.hs=.broken.hs) \
-	  $($(addsuffix -HEADER,$(notdir $(basename $@)))) $<)
-	$(SED) "s/Ptr (FunPtr/(FunPtr/" $(@:.hs=.broken.hs) > $@
-	mv $(@:.hs=.broken.chi) $(@:.hs=.chi)
-	$(RM) $(@:.hs=.broken.hs)
-
-$(NEEDCHS_STANDARD:.chs=.hs) : $(NEEDCHS_STANDARD)
-	$(strip	$(C2HSFLAGGED) -o : $(HEADER) $?)
-
-%.chi : %.hs ;
-
+%.chi : %.chs ;
 
 
 # Set up include file for either applications or libraries.
@@ -251,15 +236,17 @@ targets :
 
 .PHONY: debug 
 debug 	:
-	@echo $(TOP)
-	@echo $(CURDIR)
-	@echo $(TARDIR)
+#	@echo $(TOP)
+#	@echo $(CURDIR)
+#	@echo $(TARDIR)
 #	@echo Goal: $(MAINOK)
 #	@echo Target: $(TARGETOK)
 #	@echo Library: $(LIBNAME)
 #	@echo Application: $(APPNAME)
 #	@echo EXTRA_CPPFLAGS: $(EXTRA_CPPFLAGS_ONLY_I)
-#	@echo all CHS files: $(CHSFILES)
+	@echo all CHS files: $(CHSFILES)
+	@echo Standard header: $(STANDARD_HEADER)
+	@echo Explicit header: $(EXPLICIT_HEADER)
 #	@echo all HSC files: $(HSCFILES)
 #	@echo all other HS files: $(HSFILES)
 #	@echo all files generating stubs: $(STUBOFILES)
@@ -267,7 +254,7 @@ debug 	:
 #	@echo incl: $(INST_INCLDIR) bin: $(INST_BINDIR)
 #	@echo user install dir: $(INSTALLDIR)
 #	@echo subdirs: $(SUBDIRSOK)
-#	@echo $(ALLSOURCEFILES) > sourcefiles.txt
+	@echo $(ALLSOURCEFILES) > sourcefiles.txt
 #	@cvs status $(CLEANFILES) 2> /dev/null | $(GREP) File | $(GREP) Unknown
 
 # Create a source tar achive. Do this by adding files to the tar file in the
@@ -275,7 +262,7 @@ debug 	:
 tarsource :
 	$(strip $(TAR) rf $(TOP)/$(TARNAME).tar -C $(TOP) \
 	  $(addprefix $(TARDIR), Makefile\
-	    $(filter-out $(EXTRA_CHSFILES), $(CHSFILES))\
+	    $(CHSFILES)\
 	    $(filter-out $(EXTRA_HSCFILES), $(HSCFILES))\
 	    $(filter-out $(EXTRA_HSFILES), $(HSFILES))\
 	    $(EXTRA_CFILES) $(EXTRA_HFILESOK) $(EXTRA_TARFILES)))
@@ -337,15 +324,16 @@ mostlyclean : uninplace
 	  $(EXTRA_CFILES:.c=.o) $(ALLHSFILES:.hs=_stub.*))
 
 clean	: mostlyclean
-	$(strip $(RM) $(CHSFILES:.chs=.hs) $(CHSFILES:.chs=.chi) \
-	  $(NEEDCHS:.chs=.hs) $(NEEDCHS:.chs=.chi) $(HSCFILES:.hsc=.hs)\
-	  $(EXTRA_CLEANFILES))
+	$(strip $(RM) $(ALLCHSFILES:.chs=.hs) $(ALLCHSFILES:.chs=.chi) \
+	  $(HSCFILES:.hsc=.hs) $(EXTRA_CLEANFILES))
 
 distclean : clean
-	$(strip $(RM) $(EXTRA_HSFILES) $(EXTRA_CHSFILES))
+	$(strip $(RM) $(EXTRA_HSFILES) $(EXTRA_CHSFILES) \
+	  $(ALLCHSFILES:.chs=.dep))
 
 maintainer-clean : distclean
 
 
+-include $(ALLCHSFILES:.chs=.dep)
 
 

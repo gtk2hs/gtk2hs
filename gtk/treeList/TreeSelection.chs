@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: TreeSelection
+--  GIMP Toolkit (GTK) @entry TreeSelection@
 --
 --  Author : Axel Simon
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,16 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --  * A TreeSelection is a data type belonging to a TreeModel. As the name
 --    suggests it holds the current selection which can even be a multiple
 --    choice.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * treeSelectionGetSelected allows to retreive the associated TreeModel
 --   object. We currently do not use this feature so it could be added
@@ -71,18 +71,18 @@ import General	(mkDestructor)
 
 -- methods
 
--- Set single or multiple choice. (EXPORTED)
+-- @method treeSelectionSetMode@ Set single or multiple choice.
 --
-treeSelectionSetMode :: (TreeSelectionClass ts) => 
-  SelectionMode -> ts -> IO ()
-treeSelectionSetMode sm ts = {#call tree_selection_set_mode#}
+treeSelectionSetMode :: (TreeSelectionClass ts) => ts -> SelectionMode -> IO ()
+treeSelectionSetMode ts sm = {#call tree_selection_set_mode#}
   (toTreeSelection ts) ((fromIntegral.fromEnum) sm)
 
--- Set a callback function if selection changes. (EXPORTED)
+-- @method treeSelectionSetSelectFunction@ Set a callback function if
+-- selection changes.
 --
-treeSelectionSetSelectFunction :: (TreeSelectionClass ts) => 
-  TreeSelectionCB -> ts -> IO ()
-treeSelectionSetSelectFunction fun ts = do
+treeSelectionSetSelectFunction :: (TreeSelectionClass ts) => ts ->
+                                  TreeSelectionCB -> IO ()
+treeSelectionSetSelectFunction ts fun = do
   fPtr <- mkTreeSelectionFunc (\_ _ tp _ -> do
     tpPtr <- tree_path_copy tp
     path <- liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
@@ -97,9 +97,10 @@ treeSelectionSetSelectFunction fun ts = do
   {#call tree_selection_set_select_function#} (toTreeSelection ts) fPtr 
     nullPtr dPtr
 
--- Callback type for a function that is called everytime the selection
--- changes. This function is set with @treeSelectionSetSelectFunction.
--- (EXPORTED)
+-- @type TreeSelectionCB@ Callback type for a function that is called
+-- everytime the selection changes. This function is set with
+-- @ref method treeSelectionSetSelectFunction@.
+--
 type TreeSelectionCB = TreePath -> IO ()
 {#pointer TreeSelectionFunc#}
 
@@ -113,16 +114,18 @@ foreign import ccall "gtk_tree_path_copy" unsafe
   tree_path_copy :: Ptr TreePath -> IO (Ptr TreePath)
 
 
--- Retrieve the TreeView widget that this TreeSelection works on. (EXPORTED)
+-- @method treeSelectionGetTreeView@ Retrieve the TreeView widget that this
+-- TreeSelection works on.
 --
 treeSelectionGetTreeView :: (TreeSelectionClass ts) => ts -> IO TreeView
 treeSelectionGetTreeView ts = makeNewObject mkTreeView $
   {#call unsafe tree_selection_get_tree_view#} (toTreeSelection ts)
 
--- Retrieves the selection of a single choice TreeSelection. (EXPORTED)
+-- @method treeSelectionGetSelected@ Retrieves the selection of a single
+-- choice TreeSelection.
 --
-treeSelectionGetSelected :: (TreeSelectionClass ts) =>
-  ts -> IO (Maybe TreeIter)
+treeSelectionGetSelected :: (TreeSelectionClass ts) => ts ->
+                            IO (Maybe TreeIter)
 treeSelectionGetSelected ts = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
@@ -130,12 +133,12 @@ treeSelectionGetSelected ts = do
     (nullPtr) iter
   return $ if (toBool res) then Just iter else Nothing
 
--- Execute a function for each selected node. (EXPORTED)
+-- @method treeSelectionSelectedForeach@ Execute a function for each selected
+-- node.
 --
---
-treeSelectionSelectedForeach :: (TreeSelectionClass ts) => 
-  TreeSelectionForeachCB -> ts -> IO ()
-treeSelectionSelectedForeach fun ts = do
+treeSelectionSelectedForeach :: (TreeSelectionClass ts) => ts ->
+                                TreeSelectionForeachCB -> IO ()
+treeSelectionSelectedForeach ts fun = do
   fPtr <- mkTreeSelectionForeachFunc (\_ ti _ -> do
     -- make a deep copy of the iterator. This make it possible to store this
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
@@ -149,7 +152,9 @@ treeSelectionSelectedForeach fun ts = do
   {#call tree_selection_selected_foreach#} (toTreeSelection ts) fPtr nullPtr
   freeHaskellFunPtr fPtr
 
--- Callback function type for @treeSelectionSelectedForeach. (EXPORTED)
+-- @type TreeSelectionForeachCB@ Callback function type for
+-- @ref method treeSelectionSelectedForeach@.
+--
 type TreeSelectionForeachCB = TreeIter -> IO ()
 {#pointer TreeSelectionForeachFunc#}
 
@@ -157,53 +162,50 @@ foreign export dynamic mkTreeSelectionForeachFunc ::
   (Ptr () -> Ptr TreeIter -> Ptr () -> IO ()) -> IO TreeSelectionForeachFunc
 
 
--- Select a specific item by TreePath. (EXPORTED)
+-- @method treeSelectionSelectPath@ Select a specific item by TreePath.
 --
-treeSelectionSelectPath :: (TreeSelectionClass ts) =>
-  TreePath -> ts -> IO ()
-treeSelectionSelectPath tp ts =
+treeSelectionSelectPath :: (TreeSelectionClass ts) => ts -> TreePath -> IO ()
+treeSelectionSelectPath ts tp =
   {#call tree_selection_select_path#} (toTreeSelection ts) tp
 
--- Deselect a specific item by TreePath. (EXPORTED)
+-- @method treeSelectionUnselectPath@ Deselect a specific item by TreePath.
 --
-treeSelectionUnselectPath :: (TreeSelectionClass ts) =>
-  TreePath -> ts -> IO ()
-treeSelectionUnselectPath tp ts =
+treeSelectionUnselectPath :: (TreeSelectionClass ts) => ts -> TreePath -> IO ()
+treeSelectionUnselectPath ts tp =
   {#call tree_selection_unselect_path#} (toTreeSelection ts) tp
 
--- Select a specific item by TreeIter. (EXPORTED)
+-- @method treeSelectionSelectIter@ Select a specific item by TreeIter.
 --
-treeSelectionSelectIter :: (TreeSelectionClass ts) =>
-  TreeIter -> ts -> IO ()
-treeSelectionSelectIter ti ts =
+treeSelectionSelectIter :: (TreeSelectionClass ts) => ts -> TreeIter -> IO ()
+treeSelectionSelectIter ts ti =
   {#call tree_selection_select_iter#} (toTreeSelection ts) ti
 
--- Deselect a specific item by TreeIter. (EXPORTED)
+-- @method treeSelectionUnselectIter@ Deselect a specific item by TreeIter.
 --
-treeSelectionUnselectIter :: (TreeSelectionClass ts) =>
-  TreeIter -> ts -> IO ()
-treeSelectionUnselectIter ti ts =
+treeSelectionUnselectIter :: (TreeSelectionClass ts) => ts -> TreeIter -> IO ()
+treeSelectionUnselectIter ts ti =
   {#call tree_selection_unselect_iter#} (toTreeSelection ts) ti
 
 
--- Select everything. (EXPORTED)
+-- @method treeSelectionSelectAll@ Select everything.
 --
 treeSelectionSelectAll :: (TreeSelectionClass ts) => ts -> IO ()
 treeSelectionSelectAll ts = 
   {#call tree_selection_select_all#} (toTreeSelection ts)
 
--- Deselect everything. (EXPORTED)
+-- @method treeSelectionUnselectAll@ Deselect everything.
 --
 treeSelectionUnselectAll :: (TreeSelectionClass ts) => ts -> IO ()
 treeSelectionUnselectAll ts = 
   {#call tree_selection_unselect_all#} (toTreeSelection ts)
 
 
--- Select a range specified by two TreePaths. (EXPORTED)
+-- @method treeSelectionSelectRange@ Select a range specified by two
+-- TreePaths.
 --
-treeSelectionSelectRange :: (TreeSelectionClass ts) => 
-  TreePath -> TreePath -> ts -> IO ()
-treeSelectionSelectRange start end ts =
+treeSelectionSelectRange :: (TreeSelectionClass ts) => ts -> TreePath ->
+                            TreePath -> IO ()
+treeSelectionSelectRange ts start end =
   {#call tree_selection_select_range#} (toTreeSelection ts) start end
 
 

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Marshaling of structures
+--  GIMP Toolkit (GTK) @entry Marshaling of structures@
 --
 --  Author : Axel Simon
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
+--  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Structs(
   Rectangle(..),	-- data type providing a rectangle
@@ -80,7 +80,7 @@ import Bits		(testBit)
 
 #include <gtk/gtk.h>
 
--- Rectangle (EXPORTED)
+-- @data Rectangle@ Rectangle
 --
 -- * for Events
 --
@@ -105,13 +105,17 @@ instance Storable Rectangle where
     #{poke GdkRectangle, height} ptr ((fromIntegral height)::#type gint)
   destruct = free
 
--- Allocation (EXPORTED)
+-- @type Allocation@ Allocation
+--
 -- * for Widget's size_allocate signal
+--
 type Allocation = Rectangle
 
 
--- Requisition (EXPORTED)
+-- @data Requisition@ Requisition
+--
 -- * for Widget's size_request
+--
 data Requisition = Requisition Int Int
 
 instance Storable Requisition where
@@ -150,40 +154,44 @@ dialogGetUpper :: DialogClass dc => dc -> IO VBox
 dialogGetUpper dc = makeNewObject mkVBox $ liftM castPtr $
   withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, vbox}
 
--- Extract the action area of a dialog box. This is useful to add some special
--- widgets that cannot be added with dialogAddActionWidget. (EXPORTED)
+-- @method dialogGetActionArea@ Extract the action area of a dialog box. This
+-- is useful to add some special widgets that cannot be added with
+-- dialogAddActionWidget.
 --
 dialogGetActionArea :: DialogClass dc => dc -> IO HBox
 dialogGetActionArea dc = makeNewObject mkHBox $ liftM castPtr $
   withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, action_area} 
 
--- Here are some constants that can be used as response numbers for dialogs.
--- (EXPORTED)
+-- @type ResponseId@ Here are some constants that can be used as response
+-- numbers for dialogs.
 --
 type ResponseId = Int
 
--- GTK returns this if a response widget has no response_id, or if the dialog
--- gets programmatically hidden or destroyed. (EXPORTED)
+-- @method responseNone@ GTK returns this if a response widget has no
+-- response_id, or if the dialog gets programmatically hidden or destroyed.
+--
 responseNone :: ResponseId
-responseNone = -1
+responseNone  = -1
 
--- GTK won't return these unless you pass them in as the response for an 
--- action widget. They are for your convenience. (EXPORTED)
+-- @method responseReject@ GTK won't return these unless you pass them in as
+-- the response for an action widget. They are for your convenience.
 --
 responseReject :: ResponseId
-responseReject = -2
+responseReject  = -2
 
 responseAccept :: ResponseId
 responseAccept = -3
 
--- If the dialog is deleted. (EXPORTED)
+-- @method responseDeleteEvent@ If the dialog is deleted.
+--
 responseDeleteEvent :: ResponseId
-responseDeleteEvent = -4
+responseDeleteEvent  = -4
 
--- These are returned from GTK dialogs, and you can also use them yourself if
--- you like. (EXPORTED)
+-- @method responseOk@ These are returned from GTK dialogs, and you can also
+-- use them yourself if you like.
+--
 responseOk :: ResponseId
-responseOk = -5
+responseOk  = -5
 
 responseCancel :: ResponseId
 responseCancel = -6
@@ -208,8 +216,9 @@ responseHelp = -11
 type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
 			-- of GdkNativeWindow (Word32 vs. CUInt)
 
--- Query the XID field of the socket widget. This value needs to be sent
--- to the Plug widget of the other application. (EXPORTED)
+-- @dunno@Query the XID field of the socket widget. This value needs to be
+-- sent to the Plug widget of the other application.
+-- *  @literal@
 --socketGetXID :: Socket -> IO XID
 --socketGetXID socket = do
 --  winPtr <- throwIfNull "socketGetXID: the socket widget is not realized" $
@@ -217,6 +226,7 @@ type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
 --  implPtr <- throwIfNull "socketGetXID: no GdkDrawable defined" $
 --    #{peek GdkWindowObject, impl} winPtr
 --  #{peek GdkDrawableImplX11, xid} implPtr
+
 
 -- Test if a Plug is connected to the socket.
 -- 
@@ -258,7 +268,8 @@ iconSizeButton	     = #const GTK_ICON_SIZE_BUTTON
 iconSizeDialog	     :: IconSize
 iconSizeDialog	     = #const GTK_ICON_SIZE_DIALOG
 
--- Return the current state of the check of the @CheckMenuItem. (EXPORTED)
+-- @method checkMenuItemGetActive@ Return the current state of the check of
+-- the @ref type CheckMenuItem@.
 --
 checkMenuItemGetActive :: CheckMenuItemClass mi => mi -> IO Bool
 checkMenuItemGetActive mi = 
@@ -267,16 +278,17 @@ checkMenuItemGetActive mi =
     act <- peek (actPtr::Ptr #type guint)
     return $ testBit act 1
 
--- Extract the List container from a @Combo box. (EXPORTED)
+-- @method comboGetList@ Extract the List container from a @ref type Combo@
+-- box.
 --
 comboGetList :: Combo -> IO List
 comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
   makeNewObject mkList $ #{peek GtkCombo, list} cPtr
 
--- For installing idle callbacks: Priorities. (EXPORTED)
+-- @method priorityHigh@ For installing idle callbacks: Priorities.
 --
 priorityHigh :: Int
-priorityHigh    = #const G_PRIORITY_HIGH_IDLE
+priorityHigh  = #const G_PRIORITY_HIGH_IDLE
 
 priorityDefault :: Int
 priorityDefault = #const G_PRIORITY_DEFAULT_IDLE

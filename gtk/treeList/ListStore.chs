@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: ListStore (a TreeModel)
+--  GIMP Toolkit (GTK) @entry ListStore (a TreeModel)@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,13 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module ListStore(
   ListStore,
@@ -58,72 +58,74 @@ import GType	  (GType)
 
 -- methods
 
--- Generate a new entity to store tree information. (EXPORTED)
+-- @constructor listStoreNew@ Generate a new entity to store tree information.
 --
 listStoreNew :: [TMType] -> IO ListStore
 listStoreNew cols = makeNewGObject mkListStore $ 
   withArray0 tmTypeInvalid (map (fromIntegral.fromEnum) cols) $ \tPtr ->
   {#call unsafe list_store_newv#} ((fromIntegral.length) cols) tPtr
 
--- Set the data of a specific node. The supplied value must match the
--- type that was set for the column. (EXPORTED)
+-- @method listStoreSetValue@ Set the data of a specific node. The supplied
+-- value must match the type that was set for the column.
 --
-listStoreSetValue :: (ListStoreClass ts) => 
-  TreeIter -> Int -> GenericValue -> ts -> IO ()
-listStoreSetValue ti col val ts = withObject val $
+listStoreSetValue :: (ListStoreClass ts) => ts -> TreeIter -> Int ->
+                     GenericValue -> IO ()
+listStoreSetValue ts ti col val = withObject val $
   {#call unsafe list_store_set_value#} (toListStore ts) ti (fromIntegral col)
 
--- Remove a specific node. (EXPORTED)
+-- @method listStoreRemove@ Remove a specific node.
 --
-listStoreRemove :: (ListStoreClass ts) => TreeIter -> ts -> IO ()
-listStoreRemove ti ts = {#call list_store_remove#} (toListStore ts) ti
+listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO ()
+listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
 
--- Insert a new row into the list. The pos parameter determines the row
--- number where the row should be inserted. Set this to -1 to insert at the
--- end of the list. (EXPORTED)
+-- @method listStoreInsert@ Insert a new row into the list. The pos parameter
+-- determines the row number where the row should be inserted. Set this to -1
+-- to insert at the end of the list.
 --
-listStoreInsert :: (ListStoreClass ts) => Int -> ts -> IO TreeIter
-listStoreInsert pos ts = do
+listStoreInsert :: (ListStoreClass ts) => ts -> Int -> IO TreeIter
+listStoreInsert ts pos = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
   {#call list_store_insert#} (toListStore ts) iter (fromIntegral pos)
   return iter
 
 
--- Insert a row in front of the @sibling node. (EXPORTED)
+-- @method listStoreInsertBefore@ Insert a row in front of the
+-- @ref arg sibling@ node.
 --
-listStoreInsertBefore :: (ListStoreClass ts) => TreeIter -> ts -> IO TreeIter
-listStoreInsertBefore sibling ts = do
+listStoreInsertBefore :: (ListStoreClass ts) => ts -> TreeIter -> IO TreeIter
+listStoreInsertBefore ts sibling = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
   {#call list_store_insert_before#} (toListStore ts) iter sibling
   return iter
 
--- Insert a row behind the @sibling row. (EXPORTED)
+-- @method listStoreInsertAfter@ Insert a row behind the @ref arg sibling@
+-- row.
 --
-listStoreInsertAfter :: (ListStoreClass ts) => TreeIter -> ts -> IO TreeIter
-listStoreInsertAfter sibling ts = do
+listStoreInsertAfter :: (ListStoreClass ts) => ts -> TreeIter -> IO TreeIter
+listStoreInsertAfter ts sibling = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
   {#call list_store_insert_after#} (toListStore ts) iter sibling
   return iter
 
--- Insert a row in front of every other row. (EXPORTED)
+-- @method listStorePrepend@ Insert a row in front of every other row.
 --
--- * This is equivalent to @listStoreInsert 0.
+-- * This is equivalent to @ref method listStoreInsert@ 0.
 --
-listStorePrepend:: (ListStoreClass ts) => ts -> IO TreeIter
+listStorePrepend :: (ListStoreClass ts) => ts -> IO TreeIter
 listStorePrepend ts = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)
   {#call list_store_prepend#} (toListStore ts) iter 
   return iter
 
--- Insert a row at the end of the table . (EXPORTED)
+-- @method listStoreAppend@ Insert a row at the end of the table .
 --
--- * This is equivalent to @listStoreInsert (-1).
+-- * This is equivalent to @ref method listStoreInsert@ (-1).
 --
-listStoreAppend:: (ListStoreClass ts) => ts -> IO TreeIter
+listStoreAppend :: (ListStoreClass ts) => ts -> IO TreeIter
 listStoreAppend ts = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (free iterPtr)

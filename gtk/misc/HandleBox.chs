@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget HandleBox
+--  GIMP Toolkit (GTK) @entry Widget HandleBox@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,12 +19,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * Add a handle to some other widget so that it can be detached and 
 --   reattached from the main application.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * The GtkHandleBox widget allows a portion of a window to be "torn off". It
 --   is a bin widget which displays its child and a handle that the user can 
@@ -44,7 +44,7 @@
 --   will remain fixed as the height of the handlebox shrinks, so the snap 
 --   edge should be set to @PosBottom.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module HandleBox(
   HandleBox,
@@ -56,8 +56,10 @@ module HandleBox(
   PositionType(..),
   handleBoxSetHandlePosition,
   handleBoxSetSnapEdge,
-  connectToChildAttached,
-  connectToChildDetached
+  onChildAttached,
+  afterChildAttached,
+  onChildDetached,
+  afterChildDetached
   ) where
 
 import Monad	(liftM)
@@ -72,55 +74,58 @@ import Enums	(ShadowType(..), PositionType(..))
 
 -- methods
 
--- Create a new handle box. (EXPORTED)
+-- @constructor handleBoxNew@ Create a new handle box.
 --
 handleBoxNew :: IO HandleBox
-handleBoxNew = makeNewObject mkHandleBox $ 
+handleBoxNew  = makeNewObject mkHandleBox $ 
   liftM castPtr {#call unsafe handle_box_new#}
 
--- Set the shadow type of the detached box. (EXPORTED)
+-- @method handleBoxSetShadowType@ Set the shadow type of the detached box.
 --
-handleBoxSetShadowType :: HandleBoxClass hb => ShadowType -> hb -> IO ()
-handleBoxSetShadowType shadow hb = {#call handle_box_set_shadow_type#}
+handleBoxSetShadowType :: HandleBoxClass hb => hb -> ShadowType -> IO ()
+handleBoxSetShadowType hb shadow = {#call handle_box_set_shadow_type#}
   (toHandleBox hb) ((fromIntegral.fromEnum) shadow)
 
--- Set the position of the handle. (EXPORTED)
+-- @method handleBoxSetHandlePosition@ Set the position of the handle.
 --
-handleBoxSetHandlePosition :: HandleBoxClass hb => PositionType -> hb -> IO ()
-handleBoxSetHandlePosition pos hb = {#call handle_box_set_handle_position#} 
+handleBoxSetHandlePosition :: HandleBoxClass hb => hb -> PositionType -> IO ()
+handleBoxSetHandlePosition hb pos = {#call handle_box_set_handle_position#} 
   (toHandleBox hb) ((fromIntegral.fromEnum) pos)
 
--- Set the snap edge of the HandleBox. (EXPORTED)
+-- @method handleBoxSetSnapEdge@ Set the snap edge of the HandleBox.
 --
 -- * he snap edge is the edge of the detached child that must be aligned with
---   the corresponding edge of the "ghost" left behind when the child was 
---   detached to reattach the torn-off window. Usually, the snap edge should 
---   be chosen so that it stays in the same place on the screen when the 
+--   the corresponding edge of the "ghost" left behind when the child was
+--   detached to reattach the torn-off window. Usually, the snap edge should
+--   be chosen so that it stays in the same place on the screen when the
 --   handlebox is torn off. If the snap edge is not set, then an appropriate
---   value will be guessed from the handle position. If the handle position 
---   is @PosRight or @PosLeft, then the snap edge will be @PosTop, otherwise
---   it will be @PosLeft.
+--   value will be guessed from the handle position. If the handle position is
+--   @ref arg PosRight@ or @ref arg PosLeft@, then the snap edge will be
+--   @ref arg PosTop@, otherwise it will be @ref arg PosLeft@.
 --
-handleBoxSetSnapEdge :: HandleBoxClass hb => PositionType -> hb -> IO ()
-handleBoxSetSnapEdge pos hb = {#call handle_box_set_snap_edge#}
+handleBoxSetSnapEdge :: HandleBoxClass hb => hb -> PositionType -> IO ()
+handleBoxSetSnapEdge hb pos = {#call handle_box_set_snap_edge#}
   (toHandleBox hb) ((fromIntegral.fromEnum) pos)
 
 -- signals
 
--- Emitted when the contents of the handlebox are reattached to the main
--- window. (EXPORTED)
+-- @signal connectToChildAttached@ Emitted when the contents of the handlebox
+-- are reattached to the main window.
 --
 -- * (INTERNAL) We ignore the given Widget.
 --
-connectToChildAttached :: HandleBoxClass hb =>
-  IO () -> ConnectAfter -> hb -> IO (ConnectId hb)
-connectToChildAttached = connect_NONE__NONE "child-attached"
+onChildAttached, afterChildAttached :: HandleBoxClass hb => hb -> IO () ->
+                                       IO (ConnectId hb)
+onChildAttached = connect_NONE__NONE "child-attached" False
+afterChildAttached = connect_NONE__NONE "child-attached" True
 
 
--- Emitted when the @HandleBox is detached form the main window. (EXPORTED)
+-- @signal connectToChildDetached@ Emitted when the @ref arg HandleBox@ is
+-- detached form the main window.
 --
-connectToChildDetached :: HandleBoxClass hb =>
-  IO () -> ConnectAfter -> hb -> IO (ConnectId hb)
-connectToChildDetached = connect_NONE__NONE "child-detached"
+onChildDetached, afterChildDetached :: HandleBoxClass hb => hb -> IO () ->
+                                       IO (ConnectId hb)
+onChildDetached = connect_NONE__NONE "child-detached" False
+afterChildDetached = connect_NONE__NONE "child-detached" True
 
 

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Entry
+--  GIMP Toolkit (GTK) @entry Widget Entry@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
+--  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This widget lets the user enter a single line of text.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * A couple of signals are not bound because I could not figure out what
 --   they mean. Some of them do not seem to be emitted at all.
@@ -58,14 +58,22 @@ module Entry(
   entrySetHasFrame,
   entryGetWidthChars,
   entrySetWidthChars,
-  connectToEntryActivate,
-  connectToEntryChanged,
-  connectToCopyClipboard,
-  connectToCutClipboard,
-  connectToPasteClipboard,
-  connectToDeleteText,
-  connectToInsertAtCursor,
-  connectToToggleOverwrite
+  onEntryActivate,
+  afterEntryActivate,
+  onEntryChanged,
+  afterEntryChanged,
+  onCopyClipboard,
+  afterCopyClipboard,
+  onCutClipboard,
+  afterCutClipboard,
+  onPasteClipboard,
+  afterPasteClipboard,
+  onDeleteText,
+  afterDeleteText,
+  onInsertAtCursor,
+  afterInsertAtCursor,
+  onToggleOverwrite,
+  afterToggleOverwrite
   ) where
 
 import Monad	(liftM)
@@ -85,19 +93,19 @@ import Char	(ord)
 toEditable :: EntryClass ed => ed -> Editable
 toEditable = castForeignPtr.unEntry.toEntry
 
--- Select a span of text. (EXPORTED)
+-- @method entrySelectRegion@ Select a span of text.
 --
--- * A negative @end position will make the selection extend to the end
---   of the buffer.
+-- * A negative @ref arg end@ position will make the selection extend to the
+--   end of the buffer.
 --
--- * Calling this function with @start=1 and @end=4 it will mark "ask" in
---   the string "Haskell". (FIXME: verify)
+-- * Calling this function with @ref arg start@=1 and @ref arg end@=4 it will
+--   mark "ask" in the string "Haskell". (FIXME: verify)
 --
-entrySelectRegion :: EntryClass ed => Int -> Int -> ed -> IO ()
-entrySelectRegion start end ed = {#call editable_select_region#}
+entrySelectRegion :: EntryClass ed => ed -> Int -> Int -> IO ()
+entrySelectRegion ed start end = {#call editable_select_region#}
   (toEditable ed) (fromIntegral start) (fromIntegral end)
 
--- Get the span of the current selection. (EXPORTED)
+-- @method entryGetSelectionBounds@ Get the span of the current selection.
 --
 -- * The returned tuple is not ordered. The second index represents the
 --   position of the cursor. The first index is the other end of the
@@ -110,224 +118,247 @@ entryGetSelectionBounds ed = alloca $ \startPtr -> alloca $ \endPtr -> do
   end	<- liftM fromIntegral $ peek endPtr
   return (start,end)
 
--- Insert new text at the specified position. (EXPORTED)
+-- @method entryInsertText@ Insert new text at the specified position.
 --
--- * If the position is invalid the text will be inserted at the end
---   of the buffer. The returned value reflects the actual insertion point.
+-- * If the position is invalid the text will be inserted at the end of the
+--   buffer. The returned value reflects the actual insertion point.
 --
-entryInsertText :: EntryClass ed => String -> Int -> ed -> IO Int
-entryInsertText str pos ed = withObject (fromIntegral pos) $ \posPtr ->
+entryInsertText :: EntryClass ed => ed -> String -> Int -> IO Int
+entryInsertText ed str pos = withObject (fromIntegral pos) $ \posPtr ->
   withCStringLen str $ \(strPtr,len) -> do
     {#call editable_insert_text#} (toEditable ed) strPtr (fromIntegral len) 
       posPtr
     liftM fromIntegral $ peek posPtr
 
--- Delete a given range of text. (EXPORTED)
+-- @method entryDeleteText@ Delete a given range of text.
 --
--- * If the @end position is invalid, it is set to the lenght of the buffer.
+-- * If the @ref arg end@ position is invalid, it is set to the lenght of the
+--   buffer.
 --
--- * @start is restricted to 0..@end.
+-- * @ref arg start@ is restricted to 0..@end.
 --
-entryDeleteText :: EntryClass ed => Int -> Int -> ed -> IO ()
-entryDeleteText start end ed = {#call editable_delete_text#} (toEditable ed)
+entryDeleteText :: EntryClass ed => ed -> Int -> Int -> IO ()
+entryDeleteText ed start end = {#call editable_delete_text#} (toEditable ed)
   (fromIntegral start) (fromIntegral end)
 
--- Retrieve a range of characters. (EXPORTED)
+-- @method entryGetChars@ Retrieve a range of characters.
 --
--- * Set @end to a negative value to reach the end of the buffer.
+-- * Set @ref arg end@ to a negative value to reach the end of the buffer.
 --
-entryGetChars :: EntryClass ed => Int -> Int -> ed -> IO String
-entryGetChars start end ed = do
+entryGetChars :: EntryClass ed => ed -> Int -> Int -> IO String
+entryGetChars ed start end = do
   strPtr <- {#call unsafe editable_get_chars#} (toEditable ed) 
     (fromIntegral start) (fromIntegral end)
   str <- peekCString strPtr
   {#call unsafe g_free#} (castPtr strPtr)
   return str
 
--- Cut the selected characters to the Clipboard. (EXPORTED)
+-- @method entryCutClipboard@ Cut the selected characters to the Clipboard.
 --
 entryCutClipboard :: EntryClass ed => ed -> IO ()
-entryCutClipboard = {#call editable_cut_clipboard#}.toEditable
+entryCutClipboard  = {#call editable_cut_clipboard#}.toEditable
 
--- Copy the selected characters to the Clipboard. (EXPORTED)
+-- @method entryCopyClipboard@ Copy the selected characters to the Clipboard.
 --
 entryCopyClipboard :: EntryClass ed => ed -> IO ()
-entryCopyClipboard = {#call editable_copy_clipboard#}.toEditable
+entryCopyClipboard  = {#call editable_copy_clipboard#}.toEditable
 
--- Paste the selected characters to the Clipboard. (EXPORTED)
+-- @method entryPasteClipboard@ Paste the selected characters to the
+-- Clipboard.
 --
 entryPasteClipboard :: EntryClass ed => ed -> IO ()
-entryPasteClipboard = {#call editable_paste_clipboard#}.toEditable
+entryPasteClipboard  = {#call editable_paste_clipboard#}.toEditable
 
--- Delete the current selection. (EXPORTED)
+-- @method entryDeleteSelection@ Delete the current selection.
 --
 entryDeleteSelection :: EntryClass ed => ed -> IO ()
-entryDeleteSelection = {#call editable_delete_selection#}.toEditable
+entryDeleteSelection  = {#call editable_delete_selection#}.toEditable
 
--- Set the cursor to a specific position. (EXPORTED)
+-- @method entrySetPosition@ Set the cursor to a specific position.
 --
-entrySetPosition :: EntryClass ed => Int -> ed -> IO ()
-entrySetPosition pos ed = 
+entrySetPosition :: EntryClass ed => ed -> Int -> IO ()
+entrySetPosition ed pos = 
   {#call editable_set_position#} (toEditable ed) (fromIntegral pos)
 
--- Get the current cursor position. (EXPORTED)
+-- @method entryGetPosition@ Get the current cursor position.
 --
 entryGetPosition :: EntryClass ed => ed -> IO Int
 entryGetPosition ed = liftM fromIntegral $
   {#call unsafe editable_get_position#} (toEditable ed)
 
--- Make an @Entry insensitive. (EXPORTED)
+-- @method entrySetEditable@ Make an @ref type Entry@ insensitive.
 --
 -- * Called with False will make the text uneditable.
 --
-entrySetEditable :: EntryClass ed => Bool -> ed -> IO ()
-entrySetEditable isEditable ed = {#call editable_set_editable#}
+entrySetEditable :: EntryClass ed => ed -> Bool -> IO ()
+entrySetEditable ed isEditable = {#call editable_set_editable#}
   (toEditable ed) (fromBool isEditable)
 
 
 -- methods
 
--- Create a new @Entry widget. (EXPORTED)
+-- @constructor entryNew@ Create a new @ref type Entry@ widget.
 --
 entryNew :: IO Entry
-entryNew = makeNewObject mkEntry $ liftM castPtr $ {#call unsafe entry_new#}
+entryNew  = makeNewObject mkEntry $ liftM castPtr $ {#call unsafe entry_new#}
 
 
 
--- Set the text of the @Entry widget. (EXPORTED)
+-- @method entrySetText@ Set the text of the @ref type Entry@ widget.
 --
-entrySetText :: EntryClass ec => String -> ec -> IO ()
-entrySetText str ec = withCString str $ {#call entry_set_text#} (toEntry ec)
+entrySetText :: EntryClass ec => ec -> String -> IO ()
+entrySetText ec str = withCString str $ {#call entry_set_text#} (toEntry ec)
 
--- Append to the text of the @Entry widget. (EXPORTED)
+-- @method entryAppendText@ Append to the text of the @ref type Entry@ widget.
 --
-entryAppendText :: EntryClass ec => String -> ec -> IO ()
-entryAppendText str ec = 
+entryAppendText :: EntryClass ec => ec -> String -> IO ()
+entryAppendText ec str = 
   withCString str $ {#call entry_append_text#} (toEntry ec)
 
--- Prepend the text of the @Entry widget. (EXPORTED)
+-- @method entryPrependText@ Prepend the text of the @ref type Entry@ widget.
 --
-entryPrependText :: EntryClass ec => String -> ec -> IO ()
-entryPrependText str ec = 
+entryPrependText :: EntryClass ec => ec -> String -> IO ()
+entryPrependText ec str = 
   withCString str $ {#call entry_prepend_text#} (toEntry ec)
 
--- Set whether to use password mode (display stars instead of the text). 
--- (EXPORTED)
+-- @method entrySetVisibility@ Set whether to use password mode (display stars
+-- instead of the text).
 --
--- * The replacement character can be changed with @entrySetInvisibleChar.
+-- * The replacement character can be changed with
+--   @ref method entrySetInvisibleChar@.
 --
-entrySetVisibility :: EntryClass ec => Bool -> ec -> IO ()
-entrySetVisibility visible ec =
+entrySetVisibility :: EntryClass ec => ec -> Bool -> IO ()
+entrySetVisibility ec visible =
   {#call entry_set_visibility#} (toEntry ec) (fromBool visible)
 
--- Set the replacement character for invisible text. (EXPORTED)
+-- @method entrySetInvisibleChar@ Set the replacement character for invisible
+-- text.
 --
-entrySetInvisibleChar :: EntryClass ec => Char -> ec -> IO ()
-entrySetInvisibleChar ch ec =
+entrySetInvisibleChar :: EntryClass ec => ec -> Char -> IO ()
+entrySetInvisibleChar ec ch =
   {#call unsafe entry_set_invisible_char#} (toEntry ec) ((fromIntegral.ord) ch)
 
--- Sets a maximum length the text may grow to. (EXPORTED)
+-- @method entrySetMaxLength@ Sets a maximum length the text may grow to.
 --
 -- * A negative number resets the restriction.
 --
-entrySetMaxLength :: EntryClass ec => Int -> ec -> IO ()
-entrySetMaxLength max ec = 
+entrySetMaxLength :: EntryClass ec => ec -> Int -> IO ()
+entrySetMaxLength ec max = 
   {#call entry_set_max_length#} (toEntry ec) (fromIntegral max)
 
--- Query whether pressing return will activate the default widget. (EXPORTED)
+-- @method entryGetActivatesDefault@ Query whether pressing return will
+-- activate the default widget.
 --
 entryGetActivatesDefault :: EntryClass ec => ec -> IO Bool
 entryGetActivatesDefault ec = liftM toBool $
   {#call unsafe entry_get_activates_default#} (toEntry ec)
 
--- Specify if pressing return will activate the default widget. (EXPORTED)
+-- @method entrySetActivatesDefault@ Specify if pressing return will activate
+-- the default widget.
 --
--- * This setting is useful in @Dialog boxes where enter should press
+-- * This setting is useful in @ref arg Dialog@ boxes where enter should press
 --   the default button.
 --
-entrySetActivatesDefault :: EntryClass ec => Bool -> ec -> IO ()
-entrySetActivatesDefault setting ec = {#call entry_set_activates_default#}
+entrySetActivatesDefault :: EntryClass ec => ec -> Bool -> IO ()
+entrySetActivatesDefault ec setting = {#call entry_set_activates_default#}
   (toEntry ec) (fromBool setting)
 
--- Query if the text @Entry is displayed with a frame around it. (EXPORTED)
+-- @method entryGetHasFrame@ Query if the text @ref type Entry@ is displayed
+-- with a frame around it.
 --
 entryGetHasFrame :: EntryClass ec => ec -> IO Bool
 entryGetHasFrame ec = liftM toBool $
   {#call unsafe entry_get_has_frame#} (toEntry ec)
 
--- Specifies whehter the @Entry should be in an etched-in frame. (EXPORTED)
+-- @method entrySetHasFrame@ Specifies whehter the @ref type Entry@ should be
+-- in an etched-in frame.
 --
---
-entrySetHasFrame :: EntryClass ec => Bool -> ec -> IO ()
-entrySetHasFrame setting ec = {#call entry_set_has_frame#}
+entrySetHasFrame :: EntryClass ec => ec -> Bool -> IO ()
+entrySetHasFrame ec setting = {#call entry_set_has_frame#}
   (toEntry ec) (fromBool setting)
 
--- Retrieve the number of characters the widget should ask for. (EXPORTED)
+-- @method entryGetWidthChars@ Retrieve the number of characters the widget
+-- should ask for.
 --
 entryGetWidthChars :: EntryClass ec => ec -> IO Int
 entryGetWidthChars ec = liftM fromIntegral $ 
   {#call unsafe entry_get_width_chars#} (toEntry ec)
 
--- Specifies how large the @Entry should be in characters. (EXPORTED)
+-- @method entrySetWidthChars@ Specifies how large the @ref type Entry@ should
+-- be in characters.
 --
 -- * This setting is only considered when the widget formulates its size
---   request. Make sure that it is not mapped (shown) before you change
---   this value.
+--   request. Make sure that it is not mapped (shown) before you change this
+--   value.
 --
-entrySetWidthChars :: EntryClass ec => Int -> ec -> IO ()
-entrySetWidthChars setting ec = {#call entry_set_width_chars#}
+entrySetWidthChars :: EntryClass ec => ec -> Int -> IO ()
+entrySetWidthChars ec setting = {#call entry_set_width_chars#}
   (toEntry ec) (fromIntegral setting)
 
 
 -- signals
 
--- Emitted when the user presses return within the @Entry field. (EXPORTED)
+-- @signal connectToEntryActivate@ Emitted when the user presses return within
+-- the @ref arg Entry@ field.
 --
-connectToEntryActivate :: EntryClass ec =>
-  IO () -> ConnectAfter -> ec -> IO (ConnectId ec)
-connectToEntryActivate = connect_NONE__NONE "activate"
+onEntryActivate, afterEntryActivate :: EntryClass ec => ec -> IO () ->
+                                       IO (ConnectId ec)
+onEntryActivate = connect_NONE__NONE "activate" False
+afterEntryActivate = connect_NONE__NONE "activate" True
 
--- Emitted when the settings of the @Entry widget changes. (EXPORTED)
+-- @signal connectToEntryChanged@ Emitted when the settings of the
+-- @ref arg Entry@ widget changes.
 --
-connectToEntryChanged :: EntryClass ec =>
-  IO () -> ConnectAfter -> ec -> IO (ConnectId ec)
-connectToEntryChanged = connect_NONE__NONE "changed"
+onEntryChanged, afterEntryChanged :: EntryClass ec => ec -> IO () ->
+                                     IO (ConnectId ec)
+onEntryChanged = connect_NONE__NONE "changed" False
+afterEntryChanged = connect_NONE__NONE "changed" True
 
--- Emitted when the current selection has been copied to the clipboard.
--- (EXPORTED)
+-- @signal connectToCopyClipboard@ Emitted when the current selection has been
+-- copied to the clipboard.
 --
-connectToCopyClipboard :: EntryClass ec =>
-  IO () -> ConnectAfter -> ec -> IO (ConnectId ec)
-connectToCopyClipboard = connect_NONE__NONE "copy_clipboard"
+onCopyClipboard, afterCopyClipboard :: EntryClass ec => ec -> IO () ->
+                                       IO (ConnectId ec)
+onCopyClipboard = connect_NONE__NONE "copy_clipboard" False
+afterCopyClipboard = connect_NONE__NONE "copy_clipboard" True
 
--- Emitted when the current selection has been cut to the clipboard.
--- (EXPORTED)
+-- @signal connectToCutClipboard@ Emitted when the current selection has been
+-- cut to the clipboard.
 --
-connectToCutClipboard :: EntryClass ec =>
-  IO () -> ConnectAfter -> ec -> IO (ConnectId ec)
-connectToCutClipboard = connect_NONE__NONE "cut_clipboard"
+onCutClipboard, afterCutClipboard :: EntryClass ec => ec -> IO () ->
+                                     IO (ConnectId ec)
+onCutClipboard = connect_NONE__NONE "cut_clipboard" False
+afterCutClipboard = connect_NONE__NONE "cut_clipboard" True
 
--- Emitted when the current selection has been pasted from the clipboard.
--- (EXPORTED)
+-- @signal connectToPasteClipboard@ Emitted when the current selection has
+-- been pasted from the clipboard.
 --
-connectToPasteClipboard :: EntryClass ec =>
-  IO () -> ConnectAfter -> ec -> IO (ConnectId ec)
-connectToPasteClipboard = connect_NONE__NONE "paste_clipboard"
+onPasteClipboard, afterPasteClipboard :: EntryClass ec => ec -> IO () ->
+                                         IO (ConnectId ec)
+onPasteClipboard = connect_NONE__NONE "paste_clipboard" False
+afterPasteClipboard = connect_NONE__NONE "paste_clipboard" True
 
--- Emitted when a piece of text is deleted from the @Entry. (EXPORTED)
+-- @signal connectToDeleteText@ Emitted when a piece of text is deleted from
+-- the @ref arg Entry@.
 --
-connectToDeleteText :: EntryClass ec =>
-  (Int -> Int -> IO ()) -> ConnectAfter -> ec -> IO (ConnectId ec)
-connectToDeleteText = connect_INT_INT__NONE "delete_text"
+onDeleteText, afterDeleteText :: EntryClass ec => ec ->
+                                 (Int -> Int -> IO ()) -> IO (ConnectId ec)
+onDeleteText = connect_INT_INT__NONE "delete_text" False
+afterDeleteText = connect_INT_INT__NONE "delete_text" True
 
--- Emitted when a piece of text is inserted at the cursor position. (EXPORTED)
+-- @signal connectToInsertAtCursor@ Emitted when a piece of text is inserted
+-- at the cursor position.
 --
-connectToInsertAtCursor :: EntryClass ec =>
-  (String -> IO ()) -> ConnectAfter -> ec -> IO (ConnectId ec)
-connectToInsertAtCursor = connect_STRING__NONE "insert_at_cursor"
+onInsertAtCursor, afterInsertAtCursor :: EntryClass ec => ec ->
+                                         (String -> IO ()) ->
+                                         IO (ConnectId ec)
+onInsertAtCursor = connect_STRING__NONE "insert_at_cursor" False
+afterInsertAtCursor = connect_STRING__NONE "insert_at_cursor" True
 
--- Emitted when the user changes from overwriting to inserting. (EXPORTED)
+-- @signal connectToToggleOverwrite@ Emitted when the user changes from
+-- overwriting to inserting.
 --
-connectToToggleOverwrite :: EntryClass ec =>
-  IO () -> ConnectAfter -> ec -> IO (ConnectId ec)
-connectToToggleOverwrite = connect_NONE__NONE "toggle_overwrite"
+onToggleOverwrite, afterToggleOverwrite :: EntryClass ec => ec -> IO () ->
+                                           IO (ConnectId ec)
+onToggleOverwrite = connect_NONE__NONE "toggle_overwrite" False
+afterToggleOverwrite = connect_NONE__NONE "toggle_overwrite" True

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Container
+--  GIMP Toolkit (GTK) @entry Widget Container@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This abstract widget implements the basis for turning serveral widgets
 --   into one compound widget.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * Check if the following functions are of interest to the user:
 --   containerSetReallocateRedraws, containerQueueResize, 
@@ -48,11 +48,16 @@ module Container(
   containerResizeChildren,
 --  containerChildCompositeName,
   containerSetBorderWidth,
-  connectToAdd,
-  connectToCheckResize,
-  connectToFocus,
-  connectToRemove,
-  connectToSetFocusChild
+  onAdd,
+  afterAdd,
+  onCheckResize,
+  afterCheckResize,
+  onFocus,
+  afterFocus,
+  onRemove,
+  afterRemove,
+  onSetFocusChild,
+  afterSetFocusChild
   ) where
 
 import Monad	(liftM)
@@ -69,26 +74,26 @@ import Enums	(DirectionType(..))
 
 -- methods
 
--- Add a widget to the container. Only useful for simple containers like
--- Window. Use boxPackStart or tableAttach in other cases. A widget may
--- not be added to more than one container. (EXPORTED)
+-- @method containerAdd@ Add a widget to the container. Only useful for simple
+-- containers like Window. Use boxPackStart or tableAttach in other cases. A
+-- widget may not be added to more than one container.
 --
-containerAdd :: (ContainerClass c, WidgetClass w) => w -> c -> IO ()
-containerAdd widget con = 
+containerAdd :: (ContainerClass c, WidgetClass w) => c -> w -> IO ()
+containerAdd con widget = 
   {#call container_add#} (toContainer con) (toWidget widget)
 
 
--- Removes a present widget from the container. (EXPORTED)
+-- @method containerRemove@ Removes a present widget from the container.
 --
-containerRemove :: (ContainerClass c, WidgetClass w) => w -> c -> IO ()
-containerRemove widget con =
+containerRemove :: (ContainerClass c, WidgetClass w) => c -> w -> IO ()
+containerRemove con widget =
   {#call container_remove#} (toContainer con) (toWidget widget)
 
 
--- Do something for each widget in the container. (EXPORTED)
+-- @method containerForeach@ Do something for each widget in the container.
 --
-containerForeach :: ContainerClass c => ContainerForeachCB -> c -> IO ()
-containerForeach fun con = do
+containerForeach :: ContainerClass c => c -> ContainerForeachCB -> IO ()
+containerForeach con fun = do
   fPtr <- mkContainerForeachFunc (\wPtr _ -> do
     objectRef wPtr
     w <- liftM mkWidget $ newForeignPtr wPtr (objectUnref wPtr)
@@ -102,49 +107,52 @@ type ContainerForeachCB = Widget -> IO ()
 foreign export dynamic mkContainerForeachFunc ::
   (Ptr Widget -> Ptr () -> IO ()) -> IO Callback
 
--- Give the focus to the container. (EXPORTED)
---
+-- @dunno@Give the focus to the container.
 -- * The @direction argument determines what kind of focus change is to be
 --   simulated.
+--
 -- * The returned boolean value is the value returned fromm the @focus signal
 --   emission.
 --
+-- *  @literal@
 --containerFocus :: ContainerClass c => DirectionType -> c -> IO Bool
 --containerFocus direction con = liftM toBool $ {#call container_focus#} 
 --  (toContainer con) ((fromIntegral.fromEnum) direction)
 
--- Give the focus to a specific child of the container. (EXPORTED)
+
+-- @method containerSetFocusChild@ Give the focus to a specific child of the
+-- container.
 --
-containerSetFocusChild :: (ContainerClass c, WidgetClass w) => w -> c -> IO ()
-containerSetFocusChild widget con =
+containerSetFocusChild :: (ContainerClass c, WidgetClass w) => c -> w -> IO ()
+containerSetFocusChild con widget =
   {#call container_set_focus_child#} (toContainer con) (toWidget widget)
 
 
--- Install an @adjustment widget that is queried when focus is changed.
--- (EXPORTED)
+-- @method containerSetFocusVAdjustment@ Install an @ref arg adjustment@
+-- widget that is queried when focus is changed.
 --
-containerSetFocusVAdjustment :: (ContainerClass c, AdjustmentClass a) =>
-  a -> c -> IO ()
-containerSetFocusVAdjustment adj con =
+containerSetFocusVAdjustment :: (ContainerClass c, AdjustmentClass a) => c ->
+                                a -> IO ()
+containerSetFocusVAdjustment con adj =
   {#call container_set_focus_vadjustment#} (toContainer con) (toAdjustment adj)
 
--- Install an @adjustment widget that is queried when focus is changed.
--- (EXPORTED)
+-- @method containerSetFocusHAdjustment@ Install an @ref arg adjustment@
+-- widget that is queried when focus is changed.
 --
-containerSetFocusHAdjustment :: (ContainerClass c, AdjustmentClass a) =>
-  a -> c -> IO ()
-containerSetFocusHAdjustment adj con =
+containerSetFocusHAdjustment :: (ContainerClass c, AdjustmentClass a) => c ->
+                                a -> IO ()
+containerSetFocusHAdjustment con adj =
   {#call container_set_focus_hadjustment#} (toContainer con) (toAdjustment adj)
 
--- Make the container resize its children. (EXPORTED)
+-- @method containerResizeChildren@ Make the container resize its children.
 --
 containerResizeChildren :: ContainerClass c => c -> IO ()
 containerResizeChildren con =
   {#call container_resize_children#} (toContainer con)
 
 
--- Query the composite name of a widget in this container. (EXPORTED)
---
+-- @dunno@Query the composite name of a widget in this container.
+-- *  @literal@
 --containerChildCompositeName :: (ContainerClass c, WidgetClass w) =>
 --  w -> c -> IO String
 --containerChildCompositeName widget con = do
@@ -155,46 +163,58 @@ containerResizeChildren con =
 --  {#call unsafe g_free#} (castPtr strPtr)
 --  return str
 
--- Set the amount of empty space around the outside of the container.
--- (EXPORTED)
-containerSetBorderWidth :: ContainerClass c => Int -> c -> IO ()
-containerSetBorderWidth width con =
+
+-- @method containerSetBorderWidth@ Set the amount of empty space around the
+-- outside of the container.
+--
+containerSetBorderWidth :: ContainerClass c => c -> Int -> IO ()
+containerSetBorderWidth con width =
   {#call container_set_border_width#} (toContainer con) (fromIntegral width)
 
 
 -- signals
 
--- This signal is called each time a new widget is added to this container.
--- (EXPORTED)
-connectToAdd :: ContainerClass con => 
-  (Widget -> IO ()) -> ConnectAfter -> con -> IO (ConnectId con)
-connectToAdd = connect_OBJECT__NONE "add"
-
--- This signal is called when the widget is resized. (EXPORTED)
+-- @signal connectToAdd@ This signal is called each time a new widget is added
+-- to this container.
 --
-connectToCheckResize :: ContainerClass con =>
-  (IO ()) -> ConnectAfter -> con -> IO (ConnectId con)
-connectToCheckResize = connect_NONE__NONE "check-resize"
+onAdd, afterAdd :: ContainerClass con => con -> (Widget -> IO ()) ->
+                   IO (ConnectId con)
+onAdd = connect_OBJECT__NONE "add" False
+afterAdd = connect_OBJECT__NONE "add" True
 
--- This signal is called if the container receives the input focus. (EXPORTED)
+-- @signal connectToCheckResize@ This signal is called when the widget is
+-- resized.
 --
-connectToFocus :: ContainerClass con => (DirectionType -> IO DirectionType) ->
-  ConnectAfter -> con -> IO (ConnectId con)
-connectToFocus = connect_ENUM__ENUM "focus"
+onCheckResize, afterCheckResize :: ContainerClass con => con -> (IO ()) ->
+                                   IO (ConnectId con)
+onCheckResize = connect_NONE__NONE "check-resize" False
+afterCheckResize = connect_NONE__NONE "check-resize" True
 
--- This signal is called for each widget that is removed from the container.
--- (EXPORTED)
-connectToRemove :: ContainerClass con => 
-  (Widget -> IO ()) -> ConnectAfter -> con -> IO (ConnectId con)
-connectToRemove = connect_OBJECT__NONE "remove"
-
-
--- This signal is called if a child in the container receives the input focus.
--- (EXPORTED)
+-- @signal connectToFocus@ This signal is called if the container receives the
+-- input focus.
 --
-connectToSetFocusChild :: ContainerClass con =>
-  (Widget -> IO ()) -> ConnectAfter -> con -> IO (ConnectId con)
-connectToSetFocusChild = connect_OBJECT__NONE "set-focus-child"
+onFocus, afterFocus :: ContainerClass con => con ->
+                       (DirectionType -> IO DirectionType) ->
+                       IO (ConnectId con)
+onFocus = connect_ENUM__ENUM "focus" False
+afterFocus = connect_ENUM__ENUM "focus" True
+
+-- @signal connectToRemove@ This signal is called for each widget that is
+-- removed from the container.
+--
+onRemove, afterRemove :: ContainerClass con => con -> (Widget -> IO ()) ->
+                         IO (ConnectId con)
+onRemove = connect_OBJECT__NONE "remove" False
+afterRemove = connect_OBJECT__NONE "remove" True
+
+
+-- @signal connectToSetFocusChild@ This signal is called if a child in the
+-- container receives the input focus.
+--
+onSetFocusChild, afterSetFocusChild :: ContainerClass con => con ->
+                                       (Widget -> IO ()) -> IO (ConnectId con)
+onSetFocusChild = connect_OBJECT__NONE "set-focus-child" False
+afterSetFocusChild = connect_OBJECT__NONE "set-focus-child" True
 
 
 

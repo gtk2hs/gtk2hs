@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget ToggleButton
+--  GIMP Toolkit (GTK) @entry Widget ToggleButton@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * A ToggleButton is the base class for all buttons that have an inherit
 --   state.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module ToggleButton(
   ToggleButton,
@@ -41,7 +41,8 @@ module ToggleButton(
   toggleButtonSetActive,
   toggleButtonGetInconsistent,
   toggleButtonSetInconsistent,
-  connectToToggled
+  onToggled,
+  afterToggled
   ) where
 
 import Monad	(liftM)
@@ -55,14 +56,14 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Create a new ToggleButton widget. (EXPORTED)
+-- @constructor toggleButtonNew@ Create a new ToggleButton widget.
 --
 toggleButtonNew :: IO ToggleButton
-toggleButtonNew = makeNewObject mkToggleButton $ liftM castPtr 
+toggleButtonNew  = makeNewObject mkToggleButton $ liftM castPtr 
   {#call unsafe toggle_button_new#}
 
 
--- Create a toggleButton with a label in it. (EXPORTED)
+-- @method toggleButtonNewWithLabel@ Create a toggleButton with a label in it.
 --
 toggleButtonNewWithLabel :: String -> IO ToggleButton
 toggleButtonNewWithLabel lbl = withCString lbl (\strPtr ->
@@ -70,20 +71,21 @@ toggleButtonNewWithLabel lbl = withCString lbl (\strPtr ->
   {#call unsafe toggle_button_new_with_label#} strPtr)
 
 
--- Determines whether or not the toggle button is drawn on screen.
--- Set to True of the button should be invisible. (EXPORTED)
+-- @method toggleButtonSetMode@ Determines whether or not the toggle button is
+-- drawn on screen. Set to True of the button should be invisible.
 --
-toggleButtonSetMode :: ToggleButtonClass tb => Bool -> tb -> IO ()
-toggleButtonSetMode invisible tb =
+toggleButtonSetMode :: ToggleButtonClass tb => tb -> Bool -> IO ()
+toggleButtonSetMode tb invisible =
   {#call toggle_button_set_mode#} (toToggleButton tb) (fromBool invisible)
 
--- Emit the @toggled signal on the button. (EXPORTED)
+-- @method toggleButtonToggled@ Emit the @ref method toggled@ signal on the
+-- button.
 --
 toggleButtonToggled :: ToggleButtonClass tb => tb -> IO ()
 toggleButtonToggled tb = {#call toggle_button_toggled#} (toToggleButton tb)
 
--- Retrieve the current state of the button. Returns True if the button
--- is depressed. (EXPORTED)
+-- @method toggleButtonGetActive@ Retrieve the current state of the button.
+-- Returns True if the button is depressed.
 --
 toggleButtonGetActive :: ToggleButtonClass tb => tb -> IO Bool
 toggleButtonGetActive tb = liftM toBool $
@@ -96,9 +98,9 @@ toggleButtonSetActive :: ToggleButtonClass tb => Bool -> tb -> IO ()
 toggleButtonSetActive active tb = 
   {#call toggle_button_set_active#} (toToggleButton tb) (fromBool active)
 
--- Retrieve the inconsistent flag of the button. An inconsistent state
--- only visually affects the button. It will be displayed in an "in-between"
--- state. (EXPORTED)
+-- @method toggleButtonGetInconsistent@ Retrieve the inconsistent flag of the
+-- button. An inconsistent state only visually affects the button. It will be
+-- displayed in an "in-between" state.
 --
 toggleButtonGetInconsistent :: ToggleButtonClass tb => tb -> IO Bool
 toggleButtonGetInconsistent tb = liftM toBool $
@@ -113,9 +115,10 @@ toggleButtonSetInconsistent incon tb =
 -- signals
 
 
--- Whenever the state of the button is changed, the toggled signal is emitted.
--- (EXPORTED)
+-- @signal connectToToggled@ Whenever the state of the button is changed, the
+-- toggled signal is emitted.
 --
-connectToToggled :: ButtonClass b => IO () -> ConnectAfter -> b -> IO (ConnectId b)
-connectToToggled = connect_NONE__NONE "toggled"
+onToggled, afterToggled :: ButtonClass b => b -> IO () -> IO (ConnectId b)
+onToggled = connect_NONE__NONE "toggled" False
+afterToggled = connect_NONE__NONE "toggled" True
 

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Image
+--  GIMP Toolkit (GTK) @entry Widget Image@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,11 +19,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This widget displays an image.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * Because Haskell is not the best language to modify large images directly
 --   only functions are bound that allow loading images from disc or by stock
@@ -31,7 +31,7 @@
 --
 -- * Another function for extracting the GdkPixbuf is added for @CellRenderer.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * Figure out what other functions are useful within Haskell. Maybe we should
 --   support loading Pixmaps without exposing them.
@@ -66,13 +66,14 @@ import Structs	(IconSize, iconSizeInvalid, iconSizeMenu, iconSizeSmallToolbar,
 
 -- methods
 
--- Create an image by loading a file. (EXPORTED)
+-- @method imageNewFromFile@ Create an image by loading a file.
 --
 imageNewFromFile :: FilePath -> IO Image
 imageNewFromFile path = makeNewObject mkImage $ liftM castPtr $ 
   withCString path {#call unsafe image_new_from_file#}
 
--- Create a set of images by specifying a stock object. (EXPORTED)
+-- @method imageNewFromStock@ Create a set of images by specifying a stock
+-- object.
 --
 imageNewFromStock :: String -> IconSize -> IO Image
 imageNewFromStock stock ic = withCString stock $ \strPtr -> 

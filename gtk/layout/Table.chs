@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Table
+--  GIMP Toolkit (GTK) @entry Widget Table@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * The table widget is a container in which widgets can be aligned in cells.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Table(
   Table,
@@ -56,72 +56,75 @@ import Enums	(AttachOptions(..))
 
 -- methods
 
--- Create a new table with the specified dimensions. Set @homogeneous to
--- True if all cells should be of the same size. (EXPORTED)
+-- @constructor tableNew@ Create a new table with the specified dimensions.
+-- Set @ref arg homogeneous@ to True if all cells should be of the same size.
 --
 tableNew :: Int -> Int -> Bool -> IO Table
 tableNew rows columns homogeneous = makeNewObject mkTable $ liftM castPtr $
   {#call unsafe table_new#} (fromIntegral rows) (fromIntegral columns)
   (fromBool homogeneous)
 
--- Change the dimensions of an already existing table. (EXPORTED)
+-- @method tableResize@ Change the dimensions of an already existing table.
 --
-tableResize :: TableClass tb => Int -> Int -> tb -> IO ()
-tableResize rows columns tb = {#call table_resize#} (toTable tb)
+tableResize :: TableClass tb => tb -> Int -> Int -> IO ()
+tableResize tb rows columns = {#call table_resize#} (toTable tb)
   (fromIntegral rows) (fromIntegral columns)
 
--- Put a new widget in the table container. The widget should span the cells
--- (leftAttach,topAttach) to (rightAttach,bottomAttach). Further formatting
--- options have to be specified. (EXPORTED)
+-- @method tableAttach@ Put a new widget in the table container. The widget
+-- should span the cells (leftAttach,topAttach) to (rightAttach,bottomAttach).
+-- Further formatting options have to be specified.
 --
-tableAttach :: (TableClass tb, WidgetClass w) =>  w -> Int -> Int -> 
-  Int -> Int -> AttachOptions -> AttachOptions -> Int -> Int -> tb -> IO ()
-tableAttach child leftAttach rightAttach topAttach bottomAttach
-  xoptions yoptions xpadding ypadding tb = {#call table_attach#} (toTable tb)
+tableAttach :: (TableClass tb, WidgetClass w) => tb -> w -> Int -> Int ->
+               Int -> Int -> AttachOptions -> AttachOptions -> Int -> Int ->
+               IO ()
+tableAttach tb child leftAttach rightAttach topAttach bottomAttach xoptions
+            yoptions xpadding ypadding = {#call table_attach#} (toTable tb)
   (toWidget child) (fromIntegral leftAttach) (fromIntegral rightAttach) 
   (fromIntegral topAttach) (fromIntegral bottomAttach) 
   ((fromIntegral.fromEnum) xoptions) ((fromIntegral.fromEnum) yoptions) 
   (fromIntegral xpadding) (fromIntegral ypadding)
 
--- Put a new widget in the table container. As opposed to @tableAttach this
--- function assumes default values for the packing options. (EXPORTED)
+-- @method tableAttachDefaults@ Put a new widget in the table container. As
+-- opposed to @ref method tableAttach@ this function assumes default values
+-- for the packing options.
 --
-tableAttachDefaults :: (TableClass tb, WidgetClass w) =>  
-  w -> Int -> Int -> Int -> Int -> tb -> IO ()
-tableAttachDefaults child leftAttach rightAttach topAttach bottomAttach tb =
+tableAttachDefaults :: (TableClass tb, WidgetClass w) => tb -> w -> Int ->
+                       Int -> Int -> Int -> IO ()
+tableAttachDefaults tb child leftAttach rightAttach topAttach bottomAttach =
   {#call table_attach_defaults#} (toTable tb) (toWidget child) 
   (fromIntegral leftAttach) (fromIntegral rightAttach) 
   (fromIntegral topAttach) (fromIntegral bottomAttach)
 
--- Set the amount of space (in pixels) between the specified @row and its 
--- neighbours. (EXPORTED)
+-- @method tableSetRowSpacing@ Set the amount of space (in pixels) between the
+-- specified @ref arg row@ and its neighbours.
 --
-tableSetRowSpacing :: TableClass tb => Int -> Int -> tb -> IO ()
-tableSetRowSpacing row space tb = {#call table_set_row_spacing#}
+tableSetRowSpacing :: TableClass tb => tb -> Int -> Int -> IO ()
+tableSetRowSpacing tb row space = {#call table_set_row_spacing#}
   (toTable tb) (fromIntegral row) (fromIntegral space)
 
--- Set the amount of space (in pixels) between the specified column @col and
--- its neighbours. (EXPORTED)
+-- @method tableSetColSpacing@ Set the amount of space (in pixels) between the
+-- specified column @ref arg col@ and its neighbours.
 --
-tableSetColSpacing :: TableClass tb => Int -> Int -> tb -> IO ()
-tableSetColSpacing col space tb = {#call table_set_col_spacing#}
+tableSetColSpacing :: TableClass tb => tb -> Int -> Int -> IO ()
+tableSetColSpacing tb col space = {#call table_set_col_spacing#}
   (toTable tb) (fromIntegral col) (fromIntegral space)
 
--- Set the amount of space between any two rows. (EXPORTED)
+-- @method tableSetRowSpacings@ Set the amount of space between any two rows.
 --
-tableSetRowSpacings :: TableClass tb => Int -> tb -> IO ()
-tableSetRowSpacings space tb = {#call table_set_row_spacings#}
+tableSetRowSpacings :: TableClass tb => tb -> Int -> IO ()
+tableSetRowSpacings tb space = {#call table_set_row_spacings#}
   (toTable tb) (fromIntegral space)
 
--- Set the amount of space between any two columns. (EXPORTED)
+-- @method tableSetColSpacings@ Set the amount of space between any two
+-- columns.
 --
-tableSetColSpacings :: TableClass tb => Int -> tb -> IO ()
-tableSetColSpacings space tb = {#call table_set_col_spacings#}
+tableSetColSpacings :: TableClass tb => tb -> Int -> IO ()
+tableSetColSpacings tb space = {#call table_set_col_spacings#}
   (toTable tb) (fromIntegral space)
 
--- Make all cells the same size. (EXPORTED)
+-- @method tableSetHomogeneous@ Make all cells the same size.
 --
-tableSetHomogeneous :: TableClass tb => Bool -> tb -> IO ()
-tableSetHomogeneous hom tb = 
+tableSetHomogeneous :: TableClass tb => tb -> Bool -> IO ()
+tableSetHomogeneous tb hom = 
   {#call table_set_homogeneous#} (toTable tb) (fromBool hom)
 

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: CellRendererToggle
+--  GIMP Toolkit (GTK) @entry CellRendererToggle@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module CellRendererToggle(
   CellRendererToggle,
@@ -52,31 +52,34 @@ import StoreValue   (GenericValue(..), TMType(..))
 
 -- methods
 
--- Create a new @CellRenderer that displays a @ToggleButton. (EXPORTED)
+-- @constructor cellRendererToggleNew@ Create a new @ref type CellRenderer@
+-- that displays a @ref arg ToggleButton@.
 --
 cellRendererToggleNew :: IO CellRendererToggle
-cellRendererToggleNew = makeNewObject mkCellRendererToggle $
+cellRendererToggleNew  = makeNewObject mkCellRendererToggle $
   liftM castPtr $ {#call unsafe cell_renderer_toggle_new#}
 
--- Determine whether the button is drawn as @RadioButton or not. (EXPORTED)
+-- @method cellRendererToggleSetRadio@ Determine whether the button is drawn
+-- as @ref arg RadioButton@ or not.
 --
-cellRendererToggleSetRadio :: CellRendererToggleClass crt => 
-  Bool -> crt -> IO ()
-cellRendererToggleSetRadio radio crt = {#call cell_renderer_toggle_set_radio#}
+cellRendererToggleSetRadio :: CellRendererToggleClass crt => crt -> Bool ->
+                              IO ()
+cellRendererToggleSetRadio crt radio = {#call cell_renderer_toggle_set_radio#}
   (toCellRendererToggle crt) (fromBool radio)
 
--- Retrieve the current state of the button. (EXPORTED)
+-- @method cellRendererToggleGetActive@ Retrieve the current state of the
+-- button.
 --
 cellRendererToggleGetActive :: CellRendererToggleClass crt => crt -> IO Bool
 cellRendererToggleGetActive crt = liftM toBool $
   {#call unsafe cell_renderer_toggle_get_active#} (toCellRendererToggle crt)
 
 
--- Modify the state of the button. (EXPORTED)
+-- @method cellRendererToggleSetActive@ Modify the state of the button.
 --
-cellRendererToggleSetActive :: CellRendererToggleClass crt => 
-  Bool -> crt -> IO ()
-cellRendererToggleSetActive act crt = {#call cell_renderer_toggle_set_active#}
+cellRendererToggleSetActive :: CellRendererToggleClass crt => crt -> Bool ->
+                               IO ()
+cellRendererToggleSetActive crt act = {#call cell_renderer_toggle_set_active#}
   (toCellRendererToggle crt) (fromBool act)
 
 -- helper function
@@ -85,13 +88,14 @@ binAttr str = AttrSingle str TMboolean
 		(return.GVboolean)
 	        (\(GVboolean b) -> return b)
 
--- Define the attribute that reflects the state of the button. (EXPORTED)
+-- @method cellActive@ Define the attribute that reflects the state of the
+-- button.
 --
 cellActive :: Attribute CellRendererToggle Bool
-cellActive = binAttr "active"
+cellActive  = binAttr "active"
 
--- Define an attribute that determines whether this button is shown as a
--- @RadioButton or as a normal @ToggleButton. (EXPORTED)
+-- @method cellRadio@ Define an attribute that determines whether this button
+-- is shown as a @ref arg RadioButton@ or as a normal @ref arg ToggleButton@.
 --
 cellRadio :: Attribute CellRendererToggle Bool
-cellRadio = binAttr "radio"
+cellRadio  = binAttr "radio"

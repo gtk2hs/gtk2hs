@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget ScrolledWindow
+--  GIMP Toolkit (GTK) @entry Widget ScrolledWindow@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * @ScrolledWindow is a container that adds scroll bars to its child. Some
 --   widgets have native scrolling support, in which case the scrolling action
@@ -27,10 +27,10 @@
 --   moving the table part and not the titles of a table). If a widget does
 --   not support native scrolling it has to be put into a @TreeView widget.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module ScrolledWindow(
   ScrolledWindow,
@@ -62,70 +62,74 @@ import Enums	(PolicyType(..), CornerType(..), ShadowType(..))
 
 -- methods
 
--- Create a new @ScrolledWindow. (EXPORTED)
+-- @constructor scrolledWindowNew@ Create a new @ref type ScrolledWindow@.
 --
 scrolledWindowNew :: Adjustment -> Adjustment -> IO ScrolledWindow
-scrolledWindowNew hAdj vAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
+scrolledWindowNew vAdj hAdj = makeNewObject mkScrolledWindow $ liftM castPtr $
   {#call unsafe scrolled_window_new#} hAdj vAdj
 
--- Retrieve the horizontal @Adjustment of the @ScrolledWindow. (EXPORTED)
+-- @method scrolledWindowGetHAdjustment@ Retrieve the horizontal
+-- @ref arg Adjustment@ of the @ref type ScrolledWindow@.
 --
 scrolledWindowGetHAdjustment :: ScrolledWindowClass w => w -> IO Adjustment
 scrolledWindowGetHAdjustment w = makeNewObject mkAdjustment $
   {#call unsafe scrolled_window_get_hadjustment#} (toScrolledWindow w)
 
--- Retrieve the vertical @Adjustment of the @ScrolledWindow. (EXPORTED)
+-- @method scrolledWindowGetVAdjustment@ Retrieve the vertical
+-- @ref arg Adjustment@ of the @ref type ScrolledWindow@.
 --
 scrolledWindowGetVAdjustment :: ScrolledWindowClass w => w -> IO Adjustment
 scrolledWindowGetVAdjustment w = makeNewObject mkAdjustment $
   {#call unsafe scrolled_window_get_vadjustment#} (toScrolledWindow w)
 
--- Specify if the scrollbars should vanish if the child size is sufficiently
--- small. (EXPORTED)
+-- @method scrolledWindowSetPolicy@ Specify if the scrollbars should vanish if
+-- the child size is sufficiently small.
 --
-scrolledWindowSetPolicy :: ScrolledWindowClass w => 
-  PolicyType -> PolicyType -> w -> IO ()
-scrolledWindowSetPolicy hPol vPol w = {#call scrolled_window_set_policy#}
+scrolledWindowSetPolicy :: ScrolledWindowClass w => w -> PolicyType ->
+                           PolicyType -> IO ()
+scrolledWindowSetPolicy w hPol vPol = {#call scrolled_window_set_policy#}
   (toScrolledWindow w) ((fromIntegral.fromEnum) hPol) 
   ((fromIntegral.fromEnum) vPol)
 
--- Add a child widget without native scrolling support to this @ScrolledWindow.
--- (EXPORTED)
+-- @method scrolledWindowAddWithViewport@ Add a child widget without native
+-- scrolling support to this @ref type ScrolledWindow@.
 --
-scrolledWindowAddWithViewport :: (ScrolledWindowClass w, WidgetClass wid) =>
-  wid -> w -> IO ()
-scrolledWindowAddWithViewport wid w = 
+scrolledWindowAddWithViewport :: (ScrolledWindowClass w, WidgetClass wid) => 
+                                 w -> wid -> IO ()
+scrolledWindowAddWithViewport w wid = 
   {#call scrolled_window_add_with_viewport#} (toScrolledWindow w) 
   (toWidget wid)
 
--- Specify where the scrollbars should be placed. (EXPORTED)
+-- @method scrolledWindowSetPlacement@ Specify where the scrollbars should be
+-- placed.
 --
-scrolledWindowSetPlacement :: ScrolledWindowClass w =>
-  CornerType -> w -> IO ()
-scrolledWindowSetPlacement ct w =
+scrolledWindowSetPlacement :: ScrolledWindowClass w => w -> CornerType -> IO ()
+scrolledWindowSetPlacement w ct =
   {#call scrolled_window_set_placement#} (toScrolledWindow w)
   ((fromIntegral.fromEnum) ct)
 
--- Specify if and how an outer frame should be drawn around the child. 
--- (EXPORTED)
+-- @method scrolledWindowSetShadowType@ Specify if and how an outer frame
+-- should be drawn around the child.
 --
-scrolledWindowSetShadowType :: ScrolledWindowClass w => 
-  ShadowType -> w -> IO ()
-scrolledWindowSetShadowType st w = {#call scrolled_window_set_shadow_type#}
+scrolledWindowSetShadowType :: ScrolledWindowClass w => w -> ShadowType ->
+                               IO ()
+scrolledWindowSetShadowType w st = {#call scrolled_window_set_shadow_type#}
   (toScrolledWindow w) ((fromIntegral.fromEnum) st)
 
--- Set the horizontal @Adjustment of the @ScrolledWindow. (EXPORTED)
+-- @method scrolledWindowSetHAdjustment@ Set the horizontal
+-- @ref arg Adjustment@ of the @ref type ScrolledWindow@.
 --
-scrolledWindowSetHAdjustment :: ScrolledWindowClass w => 
-  Adjustment -> w -> IO ()
-scrolledWindowSetHAdjustment adj w = {#call scrolled_window_set_hadjustment#}
+scrolledWindowSetHAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
+                                IO ()
+scrolledWindowSetHAdjustment w adj = {#call scrolled_window_set_hadjustment#}
   (toScrolledWindow w) adj
 
--- Set the vertical @Adjustment of the @ScrolledWindow. (EXPORTED)
+-- @method scrolledWindowSetVAdjustment@ Set the vertical @ref arg Adjustment@
+-- of the @ref type ScrolledWindow@.
 --
-scrolledWindowSetVAdjustment :: ScrolledWindowClass w => 
-  Adjustment -> w -> IO ()
-scrolledWindowSetVAdjustment adj w = {#call scrolled_window_set_hadjustment#}
+scrolledWindowSetVAdjustment :: ScrolledWindowClass w => w -> Adjustment ->
+                                IO ()
+scrolledWindowSetVAdjustment w adj = {#call scrolled_window_set_hadjustment#}
   (toScrolledWindow w) adj
 
 

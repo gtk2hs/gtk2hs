@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Stock Items
+--  GIMP Toolkit (GTK) @entry Stock Items@
 --
 --  Author : Axel Simon
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravaty, Axel Simon
+--  Copyright (c) 1999..2003 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * A StockItem is a resource that is know throughout Gtk. Defineing you own
 --   @IconSet@s as @StockItem@s will make it possible for Gtk to choose
@@ -27,7 +27,7 @@
 --   icons. A couple of constants are defined here as well. They are useful 
 --   in accessing Gtk's predefined items.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * The StockItem structure is completely marshaled to haskell. It is 
 --   possible to marshal all strings lazily because the string pointers are
@@ -35,7 +35,7 @@
 --   that a stock item that is replaced by the another item with the same
 --   name will never be freed. This deficiency is built into Gtk however.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module StockItems(
   StockItem(StockItem),
@@ -128,10 +128,10 @@ instance Storable StockItem where
     #{poke GtkStockItem, translation_domain} siPtr transDomPtr
 
 
--- Add new stock items to Gtk. (EXPORTED)
+-- @method stockAdd@ Add new stock items to Gtk.
 --
 stockAdd :: [StockItem] -> IO ()
-stockAdd []  = return ()
+stockAdd [] = return ()
 stockAdd sis = let items = length sis in do
   aPtr <- mallocArray items
   pokeArray aPtr sis
@@ -140,7 +140,7 @@ stockAdd sis = let items = length sis in do
 foreign import ccall "gtk_stock_add_static" unsafe 
   stock_add_static :: Ptr StockItem -> #{type guint} -> IO ()
 
--- Lookup an item in stock. (EXPORTED)
+-- @method stockLookup@ Lookup an item in stock.
 --
 stockLookup :: String -> IO (Maybe StockItem)
 stockLookup stockId = 

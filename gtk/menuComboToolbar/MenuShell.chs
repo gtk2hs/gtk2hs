@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget MenuShell
+--  GIMP Toolkit (GTK) @entry Widget MenuShell@
 --
 --  Author : Axel Simon
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * An abstract base class which provides the control of navigation through
 --   menu items.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module MenuShell(
   MenuShell,
@@ -39,12 +39,17 @@ module MenuShell(
   menuShellDeactivate,
   menuShellSelectItem,
   menuShellDeselect,
-  connectToActivateCurrent,
-  connectToCancel,
-  connectToDeactivated,
+  onActivateCurrent,
+  afterActivateCurrent,
+  onCancel,
+  afterCancel,
+  onDeactivated,
+  afterDeactivated,
   MenuDirectionType(..),
-  connectToMoveCurrent,
-  connectToSelectionDone
+  onMoveCurrent,
+  afterMoveCurrent,
+  onSelectionDone,
+  afterSelectionDone
   ) where
 
 import Monad	(liftM)
@@ -59,47 +64,49 @@ import Enums	(MenuDirectionType(..))
 
 -- methods
 
--- Append the new entry @child to a menu. (EXPORTED)
+-- @method menuShellAppend@ Append the new entry @ref arg child@ to a menu.
 --
-menuShellAppend :: (MenuShellClass ms, MenuItemClass w) => w -> ms -> IO ()
-menuShellAppend child ms = 
+menuShellAppend :: (MenuShellClass ms, MenuItemClass w) => ms -> w -> IO ()
+menuShellAppend ms child = 
   {#call menu_shell_append#} (toMenuShell ms) (toWidget child)
 
--- Prepend the new entry @child to a menu. (EXPORTED)
+-- @method menuShellPrepend@ Prepend the new entry @ref arg child@ to a menu.
 --
-menuShellPrepend :: (MenuShellClass ms, MenuItemClass w) => w -> ms -> IO ()
-menuShellPrepend child ms = 
+menuShellPrepend :: (MenuShellClass ms, MenuItemClass w) => ms -> w -> IO ()
+menuShellPrepend ms child = 
   {#call menu_shell_prepend#} (toMenuShell ms) (toWidget child)
 
--- Insert the @child menu item at the specified position (0..n-1). (EXPORTED)
+-- @method menuShellInsert@ Insert the @ref arg child@ menu item at the
+-- specified position (0..n-1).
 --
-menuShellInsert ::  (MenuShellClass ms, MenuItemClass w) => 
-  w -> Int -> ms -> IO ()
-menuShellInsert child pos ms = {#call menu_shell_insert#} 
+menuShellInsert :: (MenuShellClass ms, MenuItemClass w) => ms -> w -> Int ->
+                   IO ()
+menuShellInsert ms child pos = {#call menu_shell_insert#} 
   (toMenuShell ms) (toWidget child) (fromIntegral pos)
 
 
--- Temporary deactivate a complete menu definition. (EXPORTED)
+-- @method menuShellDeactivate@ Temporary deactivate a complete menu
+-- definition.
 --
 menuShellDeactivate :: MenuShellClass ms => ms -> IO ()
 menuShellDeactivate ms = {#call menu_shell_deactivate#} (toMenuShell ms)
 
--- Activate a specific item in the menu. If the menu was deactivated
--- and @force is set, the previously deactivated menu is reactivated. 
--- (EXPORTED)
+-- @method menuShellActivateItem@ Activate a specific item in the menu. If the
+-- menu was deactivated and @ref arg force@ is set, the previously deactivated
+-- menu is reactivated.
 --
-menuShellActivateItem :: (MenuShellClass ms, MenuItemClass w) => 
-  w -> Bool -> ms -> IO ()
-menuShellActivateItem child force ms = {#call menu_shell_activate_item#} 
+menuShellActivateItem :: (MenuShellClass ms, MenuItemClass w) => ms -> w ->
+                         Bool -> IO ()
+menuShellActivateItem ms child force = {#call menu_shell_activate_item#} 
   (toMenuShell ms) (toWidget child) (fromBool force)
 
--- Select a specific item within the menu. (EXPORTED)
+-- @method menuShellSelectItem@ Select a specific item within the menu.
 --
-menuShellSelectItem :: (MenuShellClass ms, MenuItemClass w) => w -> ms -> IO ()
-menuShellSelectItem child ms =
+menuShellSelectItem :: (MenuShellClass ms, MenuItemClass w) => ms -> w -> IO ()
+menuShellSelectItem ms child =
   {#call menu_shell_select_item#} (toMenuShell ms) (toWidget child)
 
--- Deselect a the selected item within the menu. (EXPORTED)
+-- @method menuShellDeselect@ Deselect a the selected item within the menu.
 --
 menuShellDeselect :: MenuShellClass ms => ms -> IO ()
 menuShellDeselect ms =
@@ -107,37 +114,46 @@ menuShellDeselect ms =
 
 -- signals
 
--- This signal is called if an item is activated. The boolean flag @hide is
--- True whenever the menu will behidden after this action. (EXPORTED)
+-- @signal connectToActivateCurrent@ This signal is called if an item is
+-- activated. The boolean flag @ref arg hide@ is True whenever the menu will
+-- behidden after this action.
 --
-connectToActivateCurrent :: MenuShellClass ms => 
-  (Bool -> IO ()) -> ConnectAfter -> ms -> IO (ConnectId ms)
-connectToActivateCurrent = connect_BOOL__NONE "activate-current"
+onActivateCurrent, afterActivateCurrent :: MenuShellClass ms => ms ->
+                                           (Bool -> IO ()) ->
+                                           IO (ConnectId ms)
+onActivateCurrent = connect_BOOL__NONE "activate-current" False
+afterActivateCurrent = connect_BOOL__NONE "activate-current" True
 
--- This signal will be emitted when a selection is aborted and thus does not
--- lead to an activation. This is in contrast to the @selection done signal
--- which is always emitted. (EXPORTED)
+-- @signal connectToCancel@ This signal will be emitted when a selection is
+-- aborted and thus does not lead to an activation. This is in contrast to the
+-- @ref arg selection@ done signal which is always emitted.
 --
-connectToCancel :: MenuShellClass ms =>
-  IO () -> ConnectAfter -> ms -> IO (ConnectId ms)
-connectToCancel = connect_NONE__NONE "cancel"
+onCancel, afterCancel :: MenuShellClass ms => ms -> IO () -> IO (ConnectId ms)
+onCancel = connect_NONE__NONE "cancel" False
+afterCancel = connect_NONE__NONE "cancel" True
 
--- This signal is sent whenever the menu shell is deactivated (hidden). 
--- (EXPORTED)
+-- @signal connectToDeactivated@ This signal is sent whenever the menu shell
+-- is deactivated (hidden).
 --
-connectToDeactivated :: MenuShellClass ms =>
-  IO () -> ConnectAfter -> ms -> IO (ConnectId ms)
-connectToDeactivated = connect_NONE__NONE "deactivate"
+onDeactivated, afterDeactivated :: MenuShellClass ms => ms -> IO () ->
+                                   IO (ConnectId ms)
+onDeactivated = connect_NONE__NONE "deactivate" False
+afterDeactivated = connect_NONE__NONE "deactivate" True
 
--- This signal is emitted for each move the cursor makes. (EXPORTED)
+-- @signal connectToMoveCurrent@ This signal is emitted for each move the
+-- cursor makes.
 --
-connectToMoveCurrent :: MenuShellClass ms =>
-  (MenuDirectionType -> IO ()) -> ConnectAfter -> ms -> IO (ConnectId ms)
-connectToMoveCurrent = connect_ENUM__NONE "move-current"
+onMoveCurrent, afterMoveCurrent :: MenuShellClass ms => ms ->
+                                   (MenuDirectionType -> IO ()) ->
+                                   IO (ConnectId ms)
+onMoveCurrent = connect_ENUM__NONE "move-current" False
+afterMoveCurrent = connect_ENUM__NONE "move-current" True
 
--- This signal is emitted when the user finished using the menu. Note that this
--- signal is emitted even if no menu item was activated. (EXPORTED)
+-- @signal connectToSelectionDone@ This signal is emitted when the user
+-- finished using the menu. Note that this signal is emitted even if no menu
+-- item was activated.
 --
-connectToSelectionDone :: MenuShellClass ms =>
-  IO () -> ConnectAfter -> ms -> IO (ConnectId ms)
-connectToSelectionDone = connect_NONE__NONE "selection-done"
+onSelectionDone, afterSelectionDone :: MenuShellClass ms => ms -> IO () ->
+                                       IO (ConnectId ms)
+onSelectionDone = connect_NONE__NONE "selection-done" False
+afterSelectionDone = connect_NONE__NONE "selection-done" True

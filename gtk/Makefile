@@ -16,13 +16,6 @@ MAIN = general/Gtk.hs
 
 HEADER = gtk/gtk.h
 
-GObject-HEADER		= glib-object.h
-GType-HEADER		= glib-object.h
-GValue-HEADER		= glib-object.h
-GValueTypes-HEADER	= glib-object.h
-TextIter-HEADER		= gtk/gtktextiter.h
-TreeModel-HEADER	= gtk/gtktreemodel.h
-
 ifneq ($(MULTIPLE_CHS),yes)
 # general and non-Gtk
 GObject-HEADER		= glib-object.h
@@ -88,6 +81,7 @@ TearoffMenuItem-HEADER	= gtk/gtktearoffmenuitem.h
 Toolbar-HEADER		= gtk/gtktoolbar.h
 # multiline
 TextBuffer-HEADER	= gtk/gtktextbuffer.h
+TextIter-HEADER		= gtk/gtktextiter.h
   # gtktextmark.h does not include gobject.h but needs it
 TextMark-HEADER		= gtk/gtk.h
 TextTag-HEADER		= gtk/gtktexttag.h
@@ -118,6 +112,7 @@ TreeSelection-HEADER	= gtk/gtktreeselection.h
 TreeStore-HEADER	= gtk/gtktreestore.h
 TreeView-HEADER		= gtk/gtktreeview.h
 TreeViewColumn-HEADER	= gtk/gtktreeviewcolumn.h
+TreeModel-HEADER	= gtk/gtktreemodel.h
 CellRenderer-HEADER	= gtk/gtkcellrenderer.h
 CellRendererText-HEADER	= gtk/gtkcellrenderertext.h
 CellRendererPixbuf-HEADER = gtk/gtkcellrendererpixbuf.h
@@ -127,11 +122,10 @@ ListStore-HEADER	= gtk/gtkliststore.h
 endif
 
 # These are .chi files that need to be created before any other .chs files.
-# This is a very poor way of expressing dependencies. Each of these files must
-# have a -HEADER variable defined.
+# This is a very poor way of expressing dependencies.
 
-NEEDCHI = general/Hierarchy general/Signal glib/GValue \
-	  treeList/TreeModel multiline/TextIter
+NEEDCHI = general/Hierarchy general/Signal glib/GValue treeList/TreeModel \
+	  multiline/TextIter
 
 NEEDPACKAGES = lang
 

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget TreeView
+--  GIMP Toolkit (GTK) @entry Widget TreeView@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
+--  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,15 +19,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This widget constitutes the main widget for displaying lists and other
 --   structured data.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * treeViewGetPathAtPos is surely useful but has to be used with events in
 --   order not to pass GdkWindows around.
@@ -74,19 +74,20 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Make a new TreeView widget. (EXPORTED)
+-- @constructor treeViewNew@ Make a new TreeView widget.
 --
 treeViewNew :: IO TreeView
-treeViewNew = makeNewObject mkTreeView (liftM castPtr {#call tree_view_new#})
+treeViewNew  = makeNewObject mkTreeView (liftM castPtr {#call tree_view_new#})
 
--- Make a new TreeView widget with @tm as the storage model. (EXPORTED)
+-- @method treeViewNewWithModel@ Make a new TreeView widget with @ref arg tm@
+-- as the storage model.
 --
 treeViewNewWithModel :: TreeModelClass tm => tm -> IO TreeView
 treeViewNewWithModel tm = makeNewObject mkTreeView $ liftM castPtr $
   {#call tree_view_new_with_model#} (toTreeModel tm)
 
--- Retrieve the TreeModel that supplies the data for this TreeView.
--- Returns Nothing if no model is currently set. (EXPORTED)
+-- @method treeViewGetModel@ Retrieve the TreeModel that supplies the data for
+-- this TreeView. Returns Nothing if no model is currently set.
 --
 treeViewGetModel :: TreeViewClass tv => tv -> IO (Maybe TreeModel)
 treeViewGetModel tv = do
@@ -95,20 +96,21 @@ treeViewGetModel tv = do
     objectRef tmPtr
     liftM (Just . mkTreeModel) $ newForeignPtr tmPtr (objectUnref tmPtr)
 
--- Set the TreeModel for the current View. (EXPORTED)
+-- @method treeViewSetModel@ Set the TreeModel for the current View.
 --
-treeViewSetModel :: (TreeViewClass tv, TreeModelClass tm) => tm -> tv -> IO ()
-treeViewSetModel tm tv =
+treeViewSetModel :: (TreeViewClass tv, TreeModelClass tm) => tv -> tm -> IO ()
+treeViewSetModel tv tm =
   {#call tree_view_set_model#} (toTreeView tv) (toTreeModel tm)
 
--- Retrieve a @TreeSelection that holds the current selected nodes of the View.
--- (EXPORTED)
+-- @method treeViewGetSelection@ Retrieve a @ref type TreeSelection@ that
+-- holds the current selected nodes of the View.
 --
 treeViewGetSelection :: TreeViewClass tv => tv -> IO TreeSelection
 treeViewGetSelection tv = makeNewObject mkTreeSelection $
   {#call unsafe tree_view_get_selection#} (toTreeView tv)
 
--- Get the @Adjustment that represents the horizontal aspect. (EXPORTED)
+-- @method treeViewGetHadjustment@ Get the @ref arg Adjustment@ that
+-- represents the horizontal aspect.
 --
 treeViewGetHadjustment :: TreeViewClass tv => tv -> IO (Maybe Adjustment)
 treeViewGetHadjustment tv = do
@@ -116,13 +118,16 @@ treeViewGetHadjustment tv = do
   if adjPtr==nullPtr then return Nothing else do
     liftM Just $ makeNewObject mkAdjustment (return adjPtr)
 
--- Set the @Adjustment that controls the horizontal aspect. If @adj is
--- Nothing then set no Adjustment widget. (EXPORTED)
-treeViewSetHadjustment :: TreeViewClass tv => tv -> (Maybe Adjustment) -> IO ()
-treeViewSetHadjustment tv adj = {#call tree_view_set_hadjustment#} 
+-- @method treeViewSetHadjustment@ Set the @ref arg Adjustment@ that controls
+-- the horizontal aspect. If @ref arg adj@ is Nothing then set no Adjustment
+-- widget.
+--
+treeViewSetHadjustment :: TreeViewClass tv => (Maybe Adjustment) -> tv -> IO ()
+treeViewSetHadjustment adj tv = {#call tree_view_set_hadjustment#} 
   (toTreeView tv) (fromMaybe (mkAdjustment nullForeignPtr) adj)
 
--- Get the @Adjustment that represents the vertical aspect. (EXPORTED)
+-- @method treeViewGetVadjustment@ Get the @ref arg Adjustment@ that
+-- represents the vertical aspect.
 --
 treeViewGetVadjustment :: TreeViewClass tv => tv -> IO (Maybe Adjustment)
 treeViewGetVadjustment tv = do
@@ -130,92 +135,101 @@ treeViewGetVadjustment tv = do
   if adjPtr==nullPtr then return Nothing else do
     liftM Just $ makeNewObject mkAdjustment (return adjPtr)
 
--- Set the @Adjustment that controls the vertical aspect. If @adj is
--- Nothing then set no Adjustment widget. (EXPORTED)
-treeViewSetVadjustment :: TreeViewClass tv => tv -> (Maybe Adjustment) -> IO ()
-treeViewSetVadjustment tv adj = {#call tree_view_set_vadjustment#} 
+-- @method treeViewSetVadjustment@ Set the @ref arg Adjustment@ that controls
+-- the vertical aspect. If @ref arg adj@ is Nothing then set no Adjustment
+-- widget.
+--
+treeViewSetVadjustment :: TreeViewClass tv => (Maybe Adjustment) -> tv -> IO ()
+treeViewSetVadjustment adj tv = {#call tree_view_set_vadjustment#} 
   (toTreeView tv) (fromMaybe (mkAdjustment nullForeignPtr) adj)
 
 
--- Query if the column headers are visible. (EXPORTED)
+-- @method treeViewGetHeadersVisible@ Query if the column headers are visible.
 --
 treeViewGetHeadersVisible :: TreeViewClass tv => tv -> IO Bool
 treeViewGetHeadersVisible tv = liftM toBool $
   {#call unsafe tree_view_get_headers_visible#} (toTreeView tv)
 
--- Set the visibility state of the column headers. (EXPORTED)
+-- @method treeViewSetHeadersVisible@ Set the visibility state of the column
+-- headers.
 --
-treeViewSetHeadersVisible :: TreeViewClass tv => Bool -> tv -> IO ()
-treeViewSetHeadersVisible vis tv = {#call tree_view_set_headers_visible#}
+treeViewSetHeadersVisible :: TreeViewClass tv => tv -> Bool -> IO ()
+treeViewSetHeadersVisible tv vis = {#call tree_view_set_headers_visible#}
   (toTreeView tv) (fromBool vis)
 
--- Resize the columns to their optimal size. (EXPORTED)
+-- @method treeViewColumnsAutosize@ Resize the columns to their optimal size.
 --
 treeViewColumnsAutosize :: TreeViewClass tv => tv -> IO ()
 treeViewColumnsAutosize tv =
   {#call tree_view_columns_autosize#} (toTreeView tv)
 
--- Set wether the columns headers are sensitive to mouse clicks. (EXPORTED)
+-- @method treeViewSetHeadersClickable@ Set wether the columns headers are
+-- sensitive to mouse clicks.
+--
+-- *  @literal@
 -- 
-treeViewSetHeadersClickable :: TreeViewClass tv => Bool -> tv -> IO ()
-treeViewSetHeadersClickable click tv = {#call tree_view_set_headers_clickable#}
+
+--
+treeViewSetHeadersClickable :: TreeViewClass tv => tv -> Bool -> IO ()
+treeViewSetHeadersClickable tv click = {#call tree_view_set_headers_clickable#}
   (toTreeView tv) (fromBool click)
 
--- Append a new column to the TreeView. Returns the new number of columns.
--- (EXPORTED)
+-- @method treeViewAppendColumn@ Append a new column to the TreeView. Returns
+-- the new number of columns.
 --
-treeViewAppendColumn :: TreeViewClass tv => TreeViewColumn -> tv -> IO Int
-treeViewAppendColumn tvc tv = liftM fromIntegral $
+treeViewAppendColumn :: TreeViewClass tv => tv -> TreeViewColumn -> IO Int
+treeViewAppendColumn tv tvc = liftM fromIntegral $
   {#call tree_view_append_column#} (toTreeView tv) tvc
 
--- Remove column @tvc from the TreeView widget. The number of remaining 
--- columns is returned. (EXPORTED)
+-- @method treeViewRemoveColumn@ Remove column @ref arg tvc@ from the TreeView
+-- widget. The number of remaining columns is returned.
 --
-treeViewRemoveColumn :: TreeViewClass tv => TreeViewColumn -> tv -> IO Int
-treeViewRemoveColumn tvc tv = liftM fromIntegral $
+treeViewRemoveColumn :: TreeViewClass tv => tv -> TreeViewColumn -> IO Int
+treeViewRemoveColumn tv tvc = liftM fromIntegral $
   {#call tree_view_remove_column#} (toTreeView tv) tvc
 
--- Inserts column @tvc into the TreeView widget at the position @pos. Returns
--- the number of columns after insertion. Specify -1 for @pos to insert the
--- column at the end. (EXPORTED)
+-- @method treeViewInsertColumn@ Inserts column @ref arg tvc@ into the
+-- TreeView widget at the position @ref arg pos@. Returns the number of
+-- columns after insertion. Specify -1 for @ref arg pos@ to insert the column
+-- at the end.
 --
-treeViewInsertColumn :: TreeViewClass tv => 
-  TreeViewColumn -> Int -> tv -> IO Int
-treeViewInsertColumn tvc pos tv = liftM fromIntegral $ 
+treeViewInsertColumn :: TreeViewClass tv => tv -> TreeViewColumn -> Int ->
+                        IO Int
+treeViewInsertColumn tv tvc pos = liftM fromIntegral $ 
   {#call tree_view_insert_column#} (toTreeView tv) tvc (fromIntegral pos)
 
 
--- Retrieve the @pos th columns of TreeView. If the index is out of range
--- Nothing is returned. (EXPORTED)
+-- @method treeViewGetColumn@ Retrieve the @ref arg pos@ th columns of
+-- TreeView. If the index is out of range Nothing is returned.
 --
-treeViewGetColumn :: TreeViewClass tv => Int -> tv -> IO (Maybe TreeViewColumn)
-treeViewGetColumn pos tv = do
+treeViewGetColumn :: TreeViewClass tv => tv -> Int -> IO (Maybe TreeViewColumn)
+treeViewGetColumn tv pos = do
   tvcPtr <- {#call unsafe tree_view_get_column#} (toTreeView tv) 
     (fromIntegral pos)
   if tvcPtr==nullPtr then return Nothing else 
     liftM Just $ makeNewObject mkTreeViewColumn (return tvcPtr)
 
--- Scroll to a cell specified by @path and @tvc. The cell is aligned within
--- the TreeView widget as follows: horizontally by @hor from left (0.0) to
--- right (1.0) and vertically by @ver from top (0.0) to buttom (1.0). 
--- (EXPORTED)
+-- @method treeViewScrollToCell@ Scroll to a cell specified by @ref arg path@
+-- and @ref arg tvc@. The cell is aligned within the TreeView widget as
+-- follows: horizontally by @ref arg hor@ from left (0.0) to right (1.0) and
+-- vertically by @ref arg ver@ from top (0.0) to buttom (1.0).
 --
-treeViewScrollToCell :: TreeViewClass tv => 
-  TreePath -> TreeViewColumn -> Maybe (Float,Float) -> tv -> IO ()
-treeViewScrollToCell path tvc (Just (ver,hor)) tv = 
+treeViewScrollToCell :: TreeViewClass tv => tv -> TreePath -> TreeViewColumn ->
+                        Maybe (Float,Float) -> IO ()
+treeViewScrollToCell tv path tvc (Just (ver,hor)) = 
   {#call tree_view_scroll_to_cell#} 
   (toTreeView tv) path tvc 1 (realToFrac ver) (realToFrac hor)
-treeViewScrollToCell path tvc Nothing tv = 
+treeViewScrollToCell tv path tvc Nothing = 
   {#call tree_view_scroll_to_cell#} 
   (toTreeView tv) path tvc 0 0.0 0.0
 
--- Expand all nodes in the TreeView. (EXPORTED)
+-- @method treeViewExpandAll@ Expand all nodes in the TreeView.
 --
 treeViewExpandAll :: TreeViewClass tv => tv -> IO ()
 treeViewExpandAll tv =
   {#call tree_view_expand_all#} (toTreeView tv)
 
--- Collapse all nodes in the TreeView. (EXPORTED)
+-- @method treeViewCollapseAll@ Collapse all nodes in the TreeView.
 --
 treeViewCollapseAll :: TreeViewClass tv => tv -> IO ()
 treeViewCollapseAll tv =
@@ -229,10 +243,11 @@ treeViewExpandRow :: TreeViewClass tv => TreePath -> Bool -> tv -> IO Bool
 treeViewExpandRow path all tv = liftM toBool $
   {#call tree_view_expand_row#} (toTreeView tv) path (fromBool all)
 
--- Collapse a row. Returns True if the row existed. (EXPORTED)
+-- @method treeViewCollapseRow@ Collapse a row. Returns True if the row
+-- existed.
 --
-treeViewCollapseRow :: TreeViewClass tv => TreePath -> tv -> IO Bool
-treeViewCollapseRow path tv = liftM toBool $
+treeViewCollapseRow :: TreeViewClass tv => tv -> TreePath -> IO Bool
+treeViewCollapseRow tv path = liftM toBool $
   {#call tree_view_collapse_row#} (toTreeView tv) path
 
 

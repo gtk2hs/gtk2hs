@@ -1,14 +1,14 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Misc
+--  GIMP Toolkit (GTK) @entry Widget Misc@
 --
 --  Author : Manuel M. T. Chakravarty,
 --	     Axel Simon
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -20,13 +20,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Misc(
   Misc,
@@ -48,16 +48,16 @@ import UTFCForeign
 
 -- methods
 
--- Set the alignment of the widget. (EXPORTED)
+-- @method miscSetAlignment@ Set the alignment of the widget.
 --
-miscSetAlignment :: MiscClass m => Double -> Double -> m -> IO ()
-miscSetAlignment xalign yalign misc =  {#call misc_set_alignment#} 
+miscSetAlignment :: MiscClass m => m -> Double -> Double -> IO ()
+miscSetAlignment misc xalign yalign =  {#call misc_set_alignment#} 
   (toMisc misc) (realToFrac xalign) (realToFrac yalign) 
     
 
--- Set the amount of space to add around the widget. (EXPORTED)
+-- @method miscSetPadding@ Set the amount of space to add around the widget.
 --
-miscSetPadding :: MiscClass m => Int -> Int -> m -> IO ()
-miscSetPadding xpad ypad misc = {#call misc_set_padding#} 
+miscSetPadding :: MiscClass m => m -> Int -> Int -> IO ()
+miscSetPadding misc xpad ypad = {#call misc_set_padding#} 
   (toMisc misc) (fromIntegral xpad) (fromIntegral ypad) 
     

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget TextView
+--  GIMP Toolkit (GTK) @entry Widget TextView@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,10 +17,10 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * Through out we distinguish between buffer cooridinates which are pixels
 --   with the origin at the upper left corner of the first character on the
@@ -29,7 +29,7 @@
 --   latter relation. The conversion can be done with 
 --   textViewWindowToBufferCoords.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * Do GdkRectangle and then the following:
 --     gtk_text_view_get_visible_rect
@@ -87,84 +87,93 @@ import GList	(fromGList)
 
 -- methods
 
--- Create a new @TextView widget with a default @TextBuffer. (EXPORTED)
+-- @constructor textViewNew@ Create a new @ref type TextView@ widget with a
+-- default @ref type TextBuffer@.
 --
 textViewNew :: IO TextView
-textViewNew = makeNewGObject mkTextView $ liftM castPtr 
+textViewNew  = makeNewGObject mkTextView $ liftM castPtr 
   {#call unsafe text_view_new#}
 
--- Create a new @TextView widget with the given @TextBuffer. (EXPORTED)
+-- @method textViewNewWithBuffer@ Create a new @ref type TextView@ widget with
+-- the given @ref type TextBuffer@.
 --
 textViewNewWithBuffer :: TextBuffer -> IO TextView
 textViewNewWithBuffer tb = makeNewGObject mkTextView $ liftM castPtr $
   {#call unsafe text_view_new_with_buffer#} tb
 
--- Set the @TextBuffer for a given @TextView widget. (EXPORTED)
+-- @method textViewSetBuffer@ Set the @ref type TextBuffer@ for a given
+-- @ref type TextView@ widget.
 --
-textViewSetBuffer :: TextViewClass tv => TextBuffer -> tv -> IO ()
-textViewSetBuffer tb tv = 
+textViewSetBuffer :: TextViewClass tv => tv -> TextBuffer -> IO ()
+textViewSetBuffer tv tb = 
   {#call unsafe text_view_set_buffer#} (toTextView tv) tb
 
--- Scroll to the position of the supplied @TextMark. (EXPORTED)
+-- @method textViewScrollToMark@ Scroll to the position of the supplied
+-- @ref type TextMark@.
 --
--- * Just (@xalign, @yalign) gives a goal position of the @TextMark within
---   screen bounds. 0,0 means left, top and 1.0,1.0 means right, bottom.
+-- * Just (@xalign, @ref arg yalign@) gives a goal position of the
+--   @ref type TextMark@ within screen bounds. 0,0 means left, top and 1.0,1.0
+--   means right, bottom.
 --
--- * Supply Nothing if the goal is to bring the position into view with
---   the minimum of scrolling.
+-- * Supply Nothing if the goal is to bring the position into view with the
+--   minimum of scrolling.
 --
--- * @withinMargin is within [0.0 .. 0.5) and imposes an extra margin at
---   all four sides of the window within which @xalign and @yalign are
---   evaluated.
+-- * @ref arg withinMargin@ is within [0.0 .. 0.5) and imposes an extra margin
+--   at all four sides of the window within which @ref arg xalign@ and
+--   @ref arg yalign@ are evaluated.
 --
 -- * The line distances are calculated in an idle handler. Calling this
---   function ensures that the line heights are indeed evaluated before
---   the scroll is carried out.
+--   function ensures that the line heights are indeed evaluated before the
+--   scroll is carried out.
 --
-textViewScrollToMark :: TextViewClass tv => TextMark -> Double -> 
-			Maybe (Double, Double) -> tv -> IO ()
-textViewScrollToMark tm withinMargin (Just (xalign, yalign)) tv = 
+textViewScrollToMark :: TextViewClass tv => tv -> TextMark -> Double ->
+                        Maybe (Double, Double) -> IO ()
+textViewScrollToMark tv tm withinMargin (Just (xalign, yalign)) = 
   {#call unsafe text_view_scroll_to_mark#} (toTextView tv) tm 
   (realToFrac withinMargin) 1 (realToFrac xalign) (realToFrac yalign)
-textViewScrollToMark tm withinMargin Nothing tv = 
+textViewScrollToMark tv tm withinMargin Nothing = 
   {#call unsafe text_view_scroll_to_mark#} (toTextView tv) tm 
   (realToFrac withinMargin) 0 (0.0) (0.0)
 
--- Scroll to the position of the supplied @TextIter. (EXPORTED)
+-- @method textViewScrollToIter@ Scroll to the position of the supplied
+-- @ref type TextIter@.
 --
--- * The position might not be correct due to the delayed calculation of
---   the line heights.
+-- * The position might not be correct due to the delayed calculation of the
+--   line heights.
 --
 -- * Returns True if the function actually scrolled.
 --
-textViewScrollToIter tm withinMargin (Just (xalign, yalign)) tv = 
+textViewScrollToIter :: TextViewClass tv => tv -> TextIter -> Double ->
+                        Maybe (Double, Double) -> IO Bool
+textViewScrollToIter tv ti withinMargin (Just (xalign, yalign)) = 
   liftM toBool $ {#call unsafe text_view_scroll_to_iter#} (toTextView tv) 
-    tm (realToFrac withinMargin) 1 (realToFrac xalign) 
+    ti (realToFrac withinMargin) 1 (realToFrac xalign) 
     (realToFrac yalign)
-textViewScrollToIter tm withinMargin Nothing tv = liftM toBool $
-  {#call unsafe text_view_scroll_to_iter#} (toTextView tv) tm 
+textViewScrollToIter tv ti withinMargin Nothing = liftM toBool $
+  {#call unsafe text_view_scroll_to_iter#} (toTextView tv) ti 
     (realToFrac withinMargin) 0 (0.0) (0.0)
 
--- Scroll the visible area of the widget so the @TextMark becomes visible.
--- (EXPORTED)
+-- @method textViewScrollMarkOnscreen@ Scroll the visible area of the widget
+-- so the @ref type TextMark@ becomes visible.
 --
--- * This call is equivalent to @textViewScrollToMark tm 0.0 Nothing tv.
+-- * This call is equivalent to @ref method textViewScrollToMark@ tm 0.0
+--   Nothing tv.
 --
-textViewScrollMarkOnscreen :: TextViewClass tv => TextMark -> tv -> IO ()
-textViewScrollMarkOnscreen tm tv = 
+textViewScrollMarkOnscreen :: TextViewClass tv => tv -> TextMark -> IO ()
+textViewScrollMarkOnscreen tv tm = 
   {#call unsafe text_view_scroll_mark_onscreen#} (toTextView tv) tm
 
--- Move a @TextMark within the buffer until it is in the currently visible
--- area of the widget. (EXPORTED)
+-- @method textViewMoveMarkOnscreen@ Move a @ref type TextMark@ within the
+-- buffer until it is in the currently visible area of the widget.
 --
 -- * Returns True if the Mark was moved.
 --
-textViewMoveMarkOnscreen :: TextViewClass tv => TextMark -> tv -> IO Bool
-textViewMoveMarkOnscreen tm tv = liftM toBool $ 
+textViewMoveMarkOnscreen :: TextViewClass tv => tv -> TextMark -> IO Bool
+textViewMoveMarkOnscreen tv tm = liftM toBool $ 
   {#call unsafe text_view_move_mark_onscreen#} (toTextView tv) tm
 
--- Move the cursor within the buffer until it is in the currently visible
--- area of the widget. (EXPORTED)
+-- @method textViewPlaceCursorOnscreen@ Move the cursor within the buffer
+-- until it is in the currently visible area of the widget.
 --
 -- * Returns True if the Mark was moved.
 --
@@ -172,34 +181,36 @@ textViewPlaceCursorOnscreen :: TextViewClass tv => tv -> IO Bool
 textViewPlaceCursorOnscreen tv = liftM toBool $ 
   {#call unsafe text_view_place_cursor_onscreen#} (toTextView tv)
 
--- Get the currently visible rectangle. (EXPORTED)
---
+-- @dunno@Get the currently visible rectangle.
 -- * Use @textViewBufferToWindowCoords to convert into window cooridnates.
 --
+-- *  @literal@
 --textViewGetVisibleRect :: TextViewClass tv => tv -> IO GdkRectangle
 --textViewGetVisibleRect tv = alloca $ \rectPtr -> do
 --  {#call unsafe text_view_visible_rect#} (toTextView tv) rect
 --  peek rectPtr
 
--- Get a rectangle that roughly contains the character at @TextIter. (EXPORTED)
---
+
+-- @dunno@Get a rectangle that roughly contains the character at @TextIter.
 -- * Use @textViewBufferToWindowCoords to convert into window cooridnates.
 --
+-- *  @literal@
 --textViewGetIterLocation :: TextViewClass tv => TextMark -> tv -> IO GdkRectangle
 --textViewGetIterLocation tm tv = alloca $ \rectPtr -> do
 --  {#call unsafe text_view_iter_location#} (toTextView tv) tm rect
 --  peek rectPtr
 
 
--- Get the @TextIter at the start of the line containing the coordinate @y.
--- (EXPORTED)
+
+-- @method textViewGetLineAtY@ Get the @ref type TextIter@ at the start of the
+-- line containing the coordinate @ref arg y@.
 --
--- * @y is in buffer coordinates.
+-- * @ref arg y@ is in buffer coordinates.
 --
--- * Returns the @TextIter and the top of the line.
+-- * Returns the @ref type TextIter@ and the top of the line.
 --
-textViewGetLineAtY :: TextViewClass tv => Int -> tv -> IO (TextIter,Int)
-textViewGetLineAtY y tv = do
+textViewGetLineAtY :: TextViewClass tv => tv -> Int -> IO (TextIter,Int)
+textViewGetLineAtY tv y = do
   iter <- makeEmptyTextIter
   lineTop <- liftM fromIntegral $ alloca $ \ltPtr -> do
     {#call unsafe text_view_get_line_at_y#} (toTextView tv) iter 
@@ -207,31 +218,33 @@ textViewGetLineAtY y tv = do
     peek ltPtr
   return (iter, lineTop)
 
--- Get the y coordinate of the top and the height of the line @TextIter is on.
--- (EXPORTED)
+-- @method textViewGetLineYrange@ Get the y coordinate of the top and the
+-- height of the line @ref type TextIter@ is on.
 --
-textViewGetLineYrange :: TextViewClass tv => TextIter -> tv -> IO (Int,Int)
-textViewGetLineYrange ti tv = alloca $ \yPtr -> alloca $ \heightPtr -> do
+textViewGetLineYrange :: TextViewClass tv => tv -> TextIter -> IO (Int,Int)
+textViewGetLineYrange tv ti = alloca $ \yPtr -> alloca $ \heightPtr -> do
   {#call unsafe text_view_get_line_yrange#} (toTextView tv) ti yPtr heightPtr
   y <- peek yPtr
   height <- peek heightPtr
   return (fromIntegral y, fromIntegral height)
 
--- Retrieves the @TextIter at buffer coordinates @x and @y. (EXPORTED)
+-- @method textViewGetIterAtLocation@ Retrieves the @ref type TextIter@ at
+-- buffer coordinates @ref arg x@ and @ref arg y@.
 --
-textViewGetIterAtLocation :: TextViewClass tv => Int -> Int -> tv -> 
-			     IO TextIter
-textViewGetIterAtLocation x y tv = do
+textViewGetIterAtLocation :: TextViewClass tv => tv -> Int -> Int ->
+                             IO TextIter
+textViewGetIterAtLocation tv x y = do
   iter <- makeEmptyTextIter
   {#call unsafe text_view_get_iter_at_location#} (toTextView tv) iter 
     (fromIntegral x) (fromIntegral y)
   return iter
 
--- Convert buffer cooridnates into window coordinates. (EXPORTED)
+-- @method textViewBufferToWindowCoords@ Convert buffer cooridnates into
+-- window coordinates.
 --
-textViewBufferToWindowCoords :: TextViewClass tv => TextWindowType -> 
-				(Int,Int) -> tv -> IO (Int,Int)
-textViewBufferToWindowCoords wt (x,y) tv = 
+textViewBufferToWindowCoords :: TextViewClass tv => tv -> TextWindowType ->
+                                (Int,Int) -> IO (Int,Int)
+textViewBufferToWindowCoords tv wt (x,y) = 
   alloca $ \xPtr -> alloca $ \yPtr -> do
     {#call unsafe text_view_buffer_to_window_coords#} (toTextView tv) 
       ((fromIntegral.fromEnum) wt) (fromIntegral x) (fromIntegral y) 
@@ -240,11 +253,12 @@ textViewBufferToWindowCoords wt (x,y) tv =
     y' <- peek yPtr
     return (fromIntegral x', fromIntegral y')
 
--- Convert window cooridnates into buffer coordinates. (EXPORTED)
+-- @method textViewWindowToBufferCoords@ Convert window cooridnates into
+-- buffer coordinates.
 --
-textViewWindowToBufferCoords :: TextViewClass tv => TextWindowType -> 
-				(Int,Int) -> tv -> IO (Int,Int)
-textViewWindowToBufferCoords wt (x,y) tv = 
+textViewWindowToBufferCoords :: TextViewClass tv => tv -> TextWindowType ->
+                                (Int,Int) -> IO (Int,Int)
+textViewWindowToBufferCoords tv wt (x,y) = 
   alloca $ \xPtr -> alloca $ \yPtr -> do
     {#call unsafe text_view_window_to_buffer_coords#} (toTextView tv) 
       ((fromIntegral.fromEnum) wt) (fromIntegral x) (fromIntegral y) xPtr yPtr
@@ -253,78 +267,85 @@ textViewWindowToBufferCoords wt (x,y) tv =
     return (fromIntegral x', fromIntegral y')
 
 
--- Get the underlying @GdkWindow. (EXPORTED)
+-- @method textViewGetWindow@ Get the underlying @ref arg GdkWindow@.
 --
--- * The @TextWindowType determines which window of the @TextWidget we would
---   like to receive.
+-- * The @ref type TextWindowType@ determines which window of the
+--   @ref type TextWidget@ we would like to receive.
 --
--- * Returns Nothing if there is no @GdkWindow of the specified type.
+-- * Returns Nothing if there is no @ref arg GdkWindow@ of the specified type.
 --
-textViewGetWindow :: TextViewClass tv => TextWindowType -> tv -> 
-		     IO (Maybe GdkWindow)
-textViewGetWindow wt tv = do
+textViewGetWindow :: TextViewClass tv => tv -> TextWindowType ->
+                     IO (Maybe GdkWindow)
+textViewGetWindow tv wt = do
   winPtr <- {#call unsafe text_view_get_window#} (toTextView tv) 
     ((fromIntegral.fromEnum) wt)
   if winPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkGdkWindow (return winPtr)
 
--- Retrieve the type of window the @TextView widget contains. (EXPORTED)
+-- @method textViewGetWindowType@ Retrieve the type of window the
+-- @ref type TextView@ widget contains.
 --
--- * Usually used to find out which window an event corresponds to. An emission
---   of an event signal of @TextView yields a @GdkWindow. This function can
---   be used to see if the event actually belongs to the main text window.
+-- * Usually used to find out which window an event corresponds to. An
+--   emission of an event signal of @ref type TextView@ yields a
+--   @ref arg GdkWindow@. This function can be used to see if the event
+--   actually belongs to the main text window.
 --
-textViewGetWindowType :: TextViewClass tv => GdkWindow -> tv -> 
-			 IO TextWindowType
-textViewGetWindowType win tv = liftM (toEnum.fromIntegral) $
+textViewGetWindowType :: TextViewClass tv => tv -> GdkWindow ->
+                         IO TextWindowType
+textViewGetWindowType tv win = liftM (toEnum.fromIntegral) $
   {#call unsafe text_view_get_window_type#} (toTextView tv) win
 
 
--- Set the border width of the @TextView widget. (EXPORTED)
+-- @method textViewSetBorderWindowSize@ Set the border width of the
+-- @ref type TextView@ widget.
 --
--- * Sets the width of @TextWindowLeft or @TextWindowRight, or the height of
---   @TextWindowTop or @TextWindowBottom. Automatically destroys the 
---   corresponding window if the size is set to 0 and creates the window if
---   the size is set to non-zero. This function can only used with the four
---   window types mentioned.
+-- * Sets the width of @ref type TextWindowLeft@ or
+--   @ref type TextWindowRight@, or the height of @ref type TextWindowTop@ or
+--   @ref type TextWindowBottom@. Automatically destroys the corresponding
+--   window if the size is set to 0 and creates the window if the size is set
+--   to non-zero. This function can only used with the four window types
+--   mentioned.
 --
-textViewSetBorderWindowSize :: TextViewClass tv => TextWindowType -> Int -> 
-			       tv -> IO ()
-textViewSetBorderWindowSize wt size tv = 
+textViewSetBorderWindowSize :: TextViewClass tv => tv -> TextWindowType ->
+                               Int -> IO ()
+textViewSetBorderWindowSize tv wt size = 
   {#call unsafe text_view_set_border_window_size#} (toTextView tv) 
   ((fromIntegral.fromEnum) wt) (fromIntegral size)
 
--- Retrieve the border width of the specified window. (EXPORTED)
+-- @method textViewGetBorderWindowSize@ Retrieve the border width of the
+-- specified window.
 --
--- * See @textViewSetBorderWindowSize.
+-- * See @ref method textViewSetBorderWindowSize@.
 --
-textViewGetBorderWindowSize :: TextViewClass tv => TextWindowType -> tv -> 
-			       IO Int
-textViewGetBorderWindowSize wt tv = liftM fromIntegral $
+textViewGetBorderWindowSize :: TextViewClass tv => tv -> TextWindowType ->
+                               IO Int
+textViewGetBorderWindowSize tv wt = liftM fromIntegral $
   {#call unsafe text_view_get_border_window_size#} (toTextView tv) 
   ((fromIntegral.fromEnum) wt)
 
--- Move the iterator forwards by one display line. (EXPORTED)
+-- @method textViewForwardDisplayLine@ Move the iterator forwards by one
+-- display line.
 --
--- * Moves the given @TextIter forward by one display (wrapped) line.  A
---   display line is different from a paragraph. Paragraphs are separated by 
---   newlines or other paragraph separator characters. Display lines are 
---   created by line-wrapping a paragraph.  If wrapping is turned off, 
---   display lines and paragraphs will be the same. Display lines are 
---   divided differently for each view, since they depend on the view's width; 
---   paragraphs are the same in all views, since they depend on the contents 
---   of the @TextBuffer.
+-- * Moves the given @ref type TextIter@ forward by one display (wrapped)
+--   line. A display line is different from a paragraph. Paragraphs are
+--   separated by newlines or other paragraph separator characters. Display
+--   lines are created by line-wrapping a paragraph. If wrapping is turned
+--   off, display lines and paragraphs will be the same. Display lines are
+--   divided differently for each view, since they depend on the view's width;
+--   paragraphs are the same in all views, since they depend on the contents
+--   of the @ref type TextBuffer@.
 --
-textViewForwardDisplayLine :: TextViewClass tv => TextIter -> tv -> IO Bool
-textViewForwardDisplayLine ti tv = liftM toBool $
+textViewForwardDisplayLine :: TextViewClass tv => tv -> TextIter -> IO Bool
+textViewForwardDisplayLine tv ti = liftM toBool $
   {#call unsafe text_view_forward_display_line#} (toTextView tv) ti
 
--- Move the iterator backwards by one display line. (EXPORTED)
+-- @method textViewBackwardDisplayLine@ Move the iterator backwards by one
+-- display line.
 --
--- * See @textViewForwardDisplayLine.
+-- * See @ref method textViewForwardDisplayLine@.
 --
-textViewBackwardDisplayLine :: TextViewClass tv => TextIter -> tv -> IO Bool
-textViewBackwardDisplayLine ti tv = liftM toBool $
+textViewBackwardDisplayLine :: TextViewClass tv => tv -> TextIter -> IO Bool
+textViewBackwardDisplayLine tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line#} (toTextView tv) ti
  
 -- Move the iterator forwards and to the end. (EXPORTED)
@@ -335,68 +356,72 @@ textViewForwardDisplayLineEnd :: TextViewClass tv => TextIter -> tv -> IO Bool
 textViewForwardDisplayLineEnd ti tv = liftM toBool $
   {#call unsafe text_view_forward_display_line_end#} (toTextView tv) ti
 
--- Move the iterator backwards and to the end. (EXPORTED)
+-- @method textViewBackwardDisplayLineEnd@ Move the iterator backwards and to
+-- the end.
 --
--- * See @textViewForwardDisplayLineEnd.
+-- * See @ref method textViewForwardDisplayLineEnd@.
 --
-textViewBackwardDisplayLineEnd :: TextViewClass tv => TextIter -> tv -> IO Bool
-textViewBackwardDisplayLineEnd ti tv = liftM toBool $
+textViewBackwardDisplayLineEnd :: TextViewClass tv => tv -> TextIter -> IO Bool
+textViewBackwardDisplayLineEnd tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line_start#} (toTextView tv) ti
 
--- Move the iterator forwards and to the start. (EXPORTED)
+-- @method textViewForwardDisplayLineStart@ Move the iterator forwards and to
+-- the start.
 --
--- * Like @textViewForwardDisplayLine but moves to the start of the line as 
---   well.
+-- * Like @ref method textViewForwardDisplayLine@ but moves to the start of
+--   the line as well.
 --
-textViewForwardDisplayLineStart :: TextViewClass tv => TextIter -> tv -> 
-				   IO Bool
-textViewForwardDisplayLineStart ti tv = liftM toBool $
+textViewForwardDisplayLineStart :: TextViewClass tv => tv -> TextIter ->
+                                   IO Bool
+textViewForwardDisplayLineStart tv ti = liftM toBool $
   {#call unsafe text_view_forward_display_line_end#} (toTextView tv) ti
 
--- Move the iterator backwards and to the start. (EXPORTED)
+-- @method textViewBackwardDisplayLineStart@ Move the iterator backwards and
+-- to the start.
 --
--- * See @textViewForwardDisplayLineStart.
+-- * See @ref method textViewForwardDisplayLineStart@.
 --
-textViewBackwardDisplayLineStart :: TextViewClass tv => TextIter -> tv -> 
-				    IO Bool
-textViewBackwardDisplayLineStart ti tv = liftM toBool $
+textViewBackwardDisplayLineStart :: TextViewClass tv => tv -> TextIter ->
+                                    IO Bool
+textViewBackwardDisplayLineStart tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line_start#} (toTextView tv) ti
 
 
--- Move the iterator a number of lines. (EXPORTED)
+-- @method textViewMoveVisually@ Move the iterator a number of lines.
 --
--- * @count is in display lines. See @textViewForwardDisplayLine.
+-- * @ref arg count@ is in display lines. See
+--   @ref method textViewForwardDisplayLine@.
 --
-textViewMoveVisually :: TextViewClass tv => TextIter -> Int -> tv -> IO Bool
-textViewMoveVisually ti count tv = liftM toBool $
+textViewMoveVisually :: TextViewClass tv => tv -> TextIter -> Int -> IO Bool
+textViewMoveVisually tv ti count = liftM toBool $
   {#call unsafe text_view_move_visually#} (toTextView tv) ti 
     (fromIntegral count)
 
 
--- Add a child widget in the @TextBuffer at a given @TextChildAnchor. 
--- (EXPORTED)
+-- @method textViewAddChildAtAnchor@ Add a child widget in the
+-- @ref type TextBuffer@ at a given @ref type TextChildAnchor@.
 --
-textViewAddChildAtAnchor :: (TextViewClass tv , WidgetClass w) => w -> 
-			    TextChildAnchor -> tv -> IO ()
-textViewAddChildAtAnchor w anchor tv = 
+textViewAddChildAtAnchor :: (TextViewClass tv , WidgetClass w) => tv -> w ->
+                            TextChildAnchor -> IO ()
+textViewAddChildAtAnchor tv w anchor = 
   {#call unsafe text_view_add_child_at_anchor#} (toTextView tv) (toWidget w) 
     anchor
 
 
--- Create a new @TextChildAnchor. (EXPORTED)
+-- @constructor textChildAnchorNew@ Create a new @ref type TextChildAnchor@.
 --
--- * Using @textBufferCreateChildAnchor is usually simpler then executing
---   this function and @textBufferInsertChildAnchor.
+-- * Using @ref method textBufferCreateChildAnchor@ is usually simpler then
+--   executing this function and @ref method textBufferInsertChildAnchor@.
 --
 textChildAnchorNew :: IO TextChildAnchor
-textChildAnchorNew = makeNewGObject mkTextChildAnchor 
+textChildAnchorNew  = makeNewGObject mkTextChildAnchor 
   {#call unsafe text_child_anchor_new#}
 
 
--- Retrieve all @Widget@s at this @TextChildAnchor. (EXPORTED)
+-- @method textChildAnchorGetWidgets@ Retrieve all @ref arg Widget@s at this
+-- @ref type TextChildAnchor@.
 --
--- * The widgets in the returned list need to be upcasted to what
---   they were.
+-- * The widgets in the returned list need to be upcasted to what they were.
 --
 textChildAnchorGetWidgets :: TextChildAnchor -> IO [Widget]
 textChildAnchorGetWidgets tca = do
@@ -404,7 +429,7 @@ textChildAnchorGetWidgets tca = do
   wList <- fromGList gList
   mapM (makeNewObject mkWidget) (map return wList)
 
--- Query if an anchor was deleted. (EXPORTED)
+-- @method textChildAnchorGetDeleted@ Query if an anchor was deleted.
 --
 textChildAnchorGetDeleted :: TextChildAnchor -> IO Bool
 textChildAnchorGetDeleted tca = liftM toBool $

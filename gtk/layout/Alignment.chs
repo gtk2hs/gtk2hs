@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Alignment
+--  GIMP Toolkit (GTK) @entry Widget Alignment@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Alignment(
   Alignment,
@@ -46,20 +46,21 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Create an alignment widget. This widget tells its child widget
--- how to use the given space. (EXPORTED)
+-- @constructor alignmentNew@ Create an alignment widget. This widget tells
+-- its child widget how to use the given space.
 --
 alignmentNew :: Float -> Float -> Float -> Float -> IO Alignment
-alignmentNew xalign yalign xscale yscale = makeNewObject mkAlignment $
+alignmentNew yscale xalign yalign xscale = makeNewObject mkAlignment $
   liftM castPtr $ {#call unsafe alignment_new#} (realToFrac xalign) 
   (realToFrac yalign) (realToFrac xscale) (realToFrac yscale)
 
 
--- Change the space use behaviour of an @Alignment. (EXPORTED)
+-- @method alignmentSet@ Change the space use behaviour of an
+-- @ref type Alignment@.
 --
-alignmentSet :: AlignmentClass al => 
-  Float -> Float -> Float -> Float -> al -> IO ()
-alignmentSet xalign yalign xscale yscale al = {#call alignment_set#}
+alignmentSet :: AlignmentClass al => al -> Float -> Float -> Float -> Float ->
+                IO ()
+alignmentSet al xalign yalign xscale yscale = {#call alignment_set#}
   (toAlignment al) (realToFrac xalign) (realToFrac yalign)
   (realToFrac xscale) (realToFrac yscale)
 

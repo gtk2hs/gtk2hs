@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: TreeModel
+--  GIMP Toolkit (GTK) @entry TreeModel@
 --
 --  Author : Axel Simon
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * A @TreeModel is the abstract base class for @TreeStore and @ListStore.
 --   Most functions are defined in the latter two classes. This module
@@ -28,7 +28,6 @@
 --- DOCU ----------------------------------------------------------------------
 --
 --- TODO ----------------------------------------------------------------------
-
 module TreeModel(
   TreeModel,
   TreeModelClass,
@@ -76,36 +75,38 @@ import StoreValue		(TMType)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- Tree Iterator : A pointer to an entry in a @TreeStore or @ListStore.
--- (EXPORTED)
+-- @type TreeIter@ Tree Iterator : A pointer to an entry in a
+-- @ref type TreeStore@ or @ref arg ListStore@.
 --
-{#pointer *TreeIter foreign newtype#}
+{#pointer * TreeIter foreign newtype#}
 
--- TreePath : a list of indices to specify a subtree or node in the
--- hierarchical @TreeStore database. (EXPORTED)
+-- @type TreePath@ TreePath : a list of indices to specify a subtree or node
+-- in the hierarchical @ref type TreeStore@ database.
 --
-{#pointer *TreePath foreign newtype#}
+{#pointer * TreePath foreign newtype#}
 
 -- methods
 
--- Read the number of columns this @TreeModel currently stores. (EXPORTED)
+-- @method treeModelGetNColumns@ Read the number of columns this
+-- @ref type TreeModel@ currently stores.
 --
 treeModelGetNColumns :: TreeModelClass tm => tm -> IO Int
 treeModelGetNColumns tm = liftM fromIntegral $ 
   {#call unsafe tree_model_get_n_columns#} (toTreeModel tm)
 
--- Retrieves the type of a specific column. (EXPORTED)
+-- @method treeModelGetColumnType@ Retrieves the type of a specific column.
 --
-treeModelGetColumnType :: TreeModelClass tm => Int -> tm -> IO TMType
-treeModelGetColumnType col tm = liftM (toEnum.fromIntegral) $
+treeModelGetColumnType :: TreeModelClass tm => tm -> Int -> IO TMType
+treeModelGetColumnType tm col = liftM (toEnum.fromIntegral) $
   {#call unsafe tree_model_get_column_type#} (toTreeModel tm) 
   (fromIntegral col)
 
--- Read the value of at a specific column and @Iterator. (EXPORTED)
+-- @method treeModelGetValue@ Read the value of at a specific column and
+-- @ref arg Iterator@.
 --
-treeModelGetValue :: TreeModelClass tm => 
-  TreeIter -> Int -> tm -> IO GenericValue
-treeModelGetValue iter col tm = alloca $ \vaPtr -> do
+treeModelGetValue :: TreeModelClass tm => tm -> TreeIter -> Int ->
+                     IO GenericValue
+treeModelGetValue tm iter col = alloca $ \vaPtr -> do
   {#call unsafe tree_model_get_value#} (toTreeModel tm) iter 
     (fromIntegral col) vaPtr
   peek vaPtr

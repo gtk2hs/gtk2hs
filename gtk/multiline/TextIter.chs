@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: TextIter abstract datatype
+--  GIMP Toolkit (GTK) @entry TextIter abstract datatype@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --   * An iterator is an abstract datatype representing a pointer into a 
 --     @TextBuffer.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * The following functions do not make sense due to Haskell's wide character
 --   representation of Unicode:
@@ -38,7 +38,7 @@
 --
 -- * All offsets are counted from 0.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * Bind the following function when GSList is bound:
 --     gtk_text_iter_get_marks
@@ -160,96 +160,99 @@ foreign import ccall "gtk_text_iter_free" unsafe
   textIterFree :: Ptr TextIter -> IO ()
 
 
--- Return the @TextBuffer this iterator is associated with. (EXPORTED)
+-- @method textIterGetBuffer@ Return the @ref type TextBuffer@ this iterator
+-- is associated with.
 --
 textIterGetBuffer :: TextIter -> IO TextBuffer
 textIterGetBuffer ti = makeNewGObject mkTextBuffer $
   {#call unsafe text_iter_get_buffer#} ti
 
--- Copy the iterator. (EXPORTED)
+-- @method textIterCopy@ Copy the iterator.
 --
 textIterCopy :: TextIter -> IO TextIter
 textIterCopy ti = do
   iterPtr <- {#call unsafe text_iter_copy#} ti
   liftM TextIter $ newForeignPtr iterPtr (textIterFree iterPtr)
 
--- Extract the offset relative to the beginning of the buffer. (EXPORTED)
+-- @method textIterGetOffset@ Extract the offset relative to the beginning of
+-- the buffer.
 --
 textIterGetOffset :: TextIter -> IO Int
 textIterGetOffset ti = liftM fromIntegral $
   {#call unsafe text_iter_get_offset#} ti
 
--- Extract the line of the buffer. (EXPORTED)
+-- @method textIterGetLine@ Extract the line of the buffer.
 --
 textIterGetLine :: TextIter -> IO Int
 textIterGetLine ti = liftM fromIntegral $
   {#call unsafe text_iter_get_line#} ti
 
--- Extract the offset relative to the beginning of the line. (EXPORTED)
+-- @method textIterGetLineOffset@ Extract the offset relative to the beginning
+-- of the line.
 --
 textIterGetLineOffset :: TextIter -> IO Int
 textIterGetLineOffset ti = liftM fromIntegral $
   {#call unsafe text_iter_get_line_offset#} ti
 
--- Extract the offset relative to the beginning of the line skipping invisible
--- parts of the line. (EXPORTED)
+-- @method textIterGetVisibleLineOffset@ Extract the offset relative to the
+-- beginning of the line skipping invisible parts of the line.
 --
 textIterGetVisibleLineOffset :: TextIter -> IO Int
 textIterGetVisibleLineOffset ti = liftM fromIntegral $
   {#call unsafe text_iter_get_visible_line_offset#} ti
 
--- Return the character at this iterator. (EXPORTED)
+-- @method textIterGetChar@ Return the character at this iterator.
 --
 textIterGetChar :: TextIter -> IO (Maybe Char)
 textIterGetChar ti = do
   (res::Int) <- liftM fromIntegral $ {#call unsafe text_iter_get_char#} ti
   return $ if res==0 then Nothing else Just (chr res)
 
--- Return the text in a given range. (EXPORTED)
+-- @method textIterGetSlice@ Return the text in a given range.
 --
 -- * Pictures (and other objects) are represented by 0xFFFC.
 --
 textIterGetSlice :: TextIter -> TextIter -> IO String
-textIterGetSlice start end = do
+textIterGetSlice end start = do
   cStr <- {#call text_iter_get_slice#} start end
   str <- peekCString cStr
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
--- Return the text in a given range. (EXPORTED)
+-- @method textIterGetText@ Return the text in a given range.
 --
 -- * Pictures (and other objects) are stripped form the output.
 --
 textIterGetText :: TextIter -> TextIter -> IO String
-textIterGetText start end = do
+textIterGetText end start = do
   cStr <- {#call text_iter_get_text#} start end
   str <- peekCString cStr
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
--- Return the visible text in a given range. (EXPORTED)
+-- @method textIterGetVisibleSlice@ Return the visible text in a given range.
 --
 -- * Pictures (and other objects) are represented by 0xFFFC.
 --
 textIterGetVisibleSlice :: TextIter -> TextIter -> IO String
-textIterGetVisibleSlice start end = do
+textIterGetVisibleSlice end start = do
   cStr <- {#call text_iter_get_visible_slice#} start end
   str <- peekCString cStr
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
--- Return the visible text in a given range. (EXPORTED)
+-- @method textIterGetVisibleText@ Return the visible text in a given range.
 --
 -- * Pictures (and other objects) are stripped form the output.
 --
 textIterGetVisibleText :: TextIter -> TextIter -> IO String
-textIterGetVisibleText start end = do
+textIterGetVisibleText end start = do
   cStr <- {#call text_iter_get_visible_text#} start end
   str <- peekCString cStr
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
--- Get the @GdkPixbuf under the iterator. (EXPORTED)
+-- @method textIterGetPixbuf@ Get the @ref arg GdkPixbuf@ under the iterator.
 --
 textIterGetPixbuf :: TextIter -> IO (Maybe GdkPixbuf)
 textIterGetPixbuf it = do
@@ -258,107 +261,121 @@ textIterGetPixbuf it = do
     makeNewGObject mkGdkPixbuf (return pbPtr)
 
 
--- Query whether a @TextIter is at the start of a @TextTag. (EXPORTED)
+-- @method textIterBeginsTag@ Query whether a @ref type TextIter@ is at the
+-- start of a @ref type TextTag@.
 --
-textIterBeginsTag :: TextTag -> TextIter -> IO Bool
-textIterBeginsTag tt ti = liftM toBool $
+textIterBeginsTag :: TextIter -> TextTag -> IO Bool
+textIterBeginsTag ti tt = liftM toBool $
   {#call unsafe text_iter_begins_tag#} ti tt
 
 
--- Query whether a @TextIter is at the end of a @TextTag. (EXPORTED)
+-- @method textIterEndsTag@ Query whether a @ref type TextIter@ is at the end
+-- of a @ref type TextTag@.
 --
-textIterEndsTag :: TextTag -> TextIter -> IO Bool
-textIterEndsTag tt ti = liftM toBool $
+textIterEndsTag :: TextIter -> TextTag -> IO Bool
+textIterEndsTag ti tt = liftM toBool $
   {#call unsafe text_iter_ends_tag#} ti tt
 
--- Query if the @TextIter is at the beginning or the end of a @TextTag. 
--- (EXPORTED)
+-- @method textIterTogglesTag@ Query if the @ref type TextIter@ is at the
+-- beginning or the end of a @ref type TextTag@.
 --
-textIterTogglesTag :: TextTag -> TextIter -> IO Bool
-textIterTogglesTag tt ti = liftM toBool $
+textIterTogglesTag :: TextIter -> TextTag -> IO Bool
+textIterTogglesTag ti tt = liftM toBool $
   {#call unsafe text_iter_toggles_tag#} ti tt
 
--- Check if @TextIter is within a range tagged with tag. (EXPORTED)
+-- @method textIterHasTag@ Check if @ref type TextIter@ is within a range
+-- tagged with tag.
 --
-textIterHasTag :: TextTag -> TextIter -> IO Bool
-textIterHasTag tt ti = liftM toBool $
+textIterHasTag :: TextIter -> TextTag -> IO Bool
+textIterHasTag ti tt = liftM toBool $
   {#call unsafe text_iter_has_tag#} ti tt
 
--- Check if @TextIter is within an editable region. (EXPORTED)
+-- @method textIterEditable@ Check if @ref type TextIter@ is within an
+-- editable region.
 --
 -- * If no tags that affect editability are attached to the current position
---   @def will be returned.
+--   @ref arg def@ will be returned.
 --
 -- * This function cannot be used to decide whether text can be inserted at
---   @TextIter. Use the @textIterCanInsert function for this purpose.
+--   @ref type TextIter@. Use the @ref method textIterCanInsert@ function for
+--   this purpose.
 --
-textIterEditable :: Bool -> TextIter -> IO Bool
-textIterEditable def ti = liftM toBool $ 
+textIterEditable :: TextIter -> Bool -> IO Bool
+textIterEditable ti def = liftM toBool $ 
   {#call unsafe text_iter_editable#} ti (fromBool def)
 
--- Check if new text can be inserted at @TextIter. (EXPORTED)
+-- @method textIterCanInsert@ Check if new text can be inserted at
+-- @ref type TextIter@.
 --
--- * Use @textBufferInsertInteractive if you want to insert text depending
---   on the current editable status.
+-- * Use @ref method textBufferInsertInteractive@ if you want to insert text
+--   depending on the current editable status.
 --
-textIterCanInsert :: Bool -> TextIter -> IO Bool
-textIterCanInsert def ti = liftM toBool $ 
+textIterCanInsert :: TextIter -> Bool -> IO Bool
+textIterCanInsert ti def = liftM toBool $ 
   {#call unsafe text_iter_can_insert#} ti (fromBool def)
 
--- Determine if @TextIter begins a new natural-language word. (EXPORTED)
+-- @method textIterStartsWord@ Determine if @ref type TextIter@ begins a new
+-- natural-language word.
 --
 textIterStartsWord :: TextIter -> IO Bool
 textIterStartsWord ti = liftM toBool $ {#call unsafe text_iter_starts_word#} ti
 
 
--- Determine if @TextIter ends a new natural-language word. (EXPORTED)
+-- @method textIterEndsWord@ Determine if @ref type TextIter@ ends a new
+-- natural-language word.
 --
 textIterEndsWord :: TextIter -> IO Bool
 textIterEndsWord ti = liftM toBool $ {#call unsafe text_iter_ends_word#} ti
 
--- Determine if @TextIter is inside a word. (EXPORTED)
+-- @method textIterInsideWord@ Determine if @ref type TextIter@ is inside a
+-- word.
 --
 textIterInsideWord :: TextIter -> IO Bool
 textIterInsideWord ti = liftM toBool $ {#call unsafe text_iter_inside_word#} ti
 
--- Determine if @TextIter begins a new line. (EXPORTED)
+-- @method textIterStartsLine@ Determine if @ref type TextIter@ begins a new
+-- line.
 --
 textIterStartsLine :: TextIter -> IO Bool
 textIterStartsLine ti = liftM toBool $ {#call unsafe text_iter_starts_line#} ti
 
--- Determine if @TextIter point to the beginning of a line delimiter. 
--- (EXPORTED)
+-- @method textIterEndsLine@ Determine if @ref type TextIter@ point to the
+-- beginning of a line delimiter.
 --
--- * Returns False if @TextIter points to the \n in a \r\n sequence.
+-- * Returns False if @ref type TextIter@ points to the \n in a \r\n sequence.
 --
 textIterEndsLine :: TextIter -> IO Bool
 textIterEndsLine ti = liftM toBool $ {#call unsafe text_iter_ends_line#} ti
 
--- Determine if @TextIter starts a sentence. (EXPORTED)
+-- @method textIterStartsSentence@ Determine if @ref type TextIter@ starts a
+-- sentence.
 --
 textIterStartsSentence :: TextIter -> IO Bool
 textIterStartsSentence ti = liftM toBool $ 
   {#call unsafe text_iter_starts_sentence#} ti
 
--- Determine if @TextIter ends a sentence. (EXPORTED)
+-- @method textIterEndsSentence@ Determine if @ref type TextIter@ ends a
+-- sentence.
 --
 textIterEndsSentence :: TextIter -> IO Bool
 textIterEndsSentence ti = liftM toBool $ 
   {#call unsafe text_iter_ends_sentence#} ti
 
--- Determine if @TextIter is inside a sentence. (EXPORTED)
+-- @method textIterInsideSentence@ Determine if @ref type TextIter@ is inside
+-- a sentence.
 --
 textIterInsideSentence :: TextIter -> IO Bool
 textIterInsideSentence ti = liftM toBool $ 
   {#call unsafe text_iter_inside_sentence#} ti
 
--- Determine if @TextIter is at a cursor position. (EXPORTED)
+-- @method textIterIsCursorPosition@ Determine if @ref type TextIter@ is at a
+-- cursor position.
 --
 textIterIsCursorPosition :: TextIter -> IO Bool
 textIterIsCursorPosition ti = liftM toBool $ 
   {#call unsafe text_iter_is_cursor_position#} ti
 
--- Return number of characters in this line. (EXPORTED)
+-- @method textIterGetCharsInLine@ Return number of characters in this line.
 --
 -- * The return value includes delimiters.
 --
@@ -366,28 +383,28 @@ textIterGetCharsInLine :: TextIter -> IO Int
 textIterGetCharsInLine ti = liftM fromIntegral $
   {#call unsafe text_iter_get_chars_in_line#} ti
 
--- Get the text attributes at the iterator. (EXPORTED)
---
--- * The @ta argument gives the default values if no specific attributes
---   are set at that specific location.
+-- @dunno@Get the text attributes at the iterator.
+-- * The @ta argument gives the default values if no specific attributes are
+--   set at that specific location.
 --
 -- * The function returns Nothing if the text at the iterator has the same
 --   attributes.
---
 
--- Determine if @TextIter is at the end of the buffer. (EXPORTED)
+-- @method textIterIsEnd@ Determine if @ref type TextIter@ is at the end of
+-- the buffer.
 --
 textIterIsEnd :: TextIter -> IO Bool
 textIterIsEnd ti = liftM toBool $ 
   {#call unsafe text_iter_is_end#} ti
 
--- Determine if @TextIter is at the beginning of the buffer. (EXPORTED)
+-- @method textIterIsStart@ Determine if @ref type TextIter@ is at the
+-- beginning of the buffer.
 --
 textIterIsStart :: TextIter -> IO Bool
 textIterIsStart ti = liftM toBool $ 
   {#call unsafe text_iter_is_start#} ti
 
--- Move @TextIter forwards. (EXPORTED)
+-- @method textIterForwardChar@ Move @ref type TextIter@ forwards.
 --
 -- * Retuns True if the iterator is pointing to a character.
 --
@@ -395,7 +412,7 @@ textIterForwardChar :: TextIter -> IO Bool
 textIterForwardChar ti = liftM toBool $ 
   {#call unsafe text_iter_forward_char#} ti
 
--- Move @TextIter backwards. (EXPORTED)
+-- @method textIterBackwardChar@ Move @ref type TextIter@ backwards.
 --
 -- * Retuns True if the movement was possible.
 --
@@ -403,95 +420,102 @@ textIterBackwardChar :: TextIter -> IO Bool
 textIterBackwardChar ti = liftM toBool $ 
   {#call unsafe text_iter_backward_char#} ti
 
--- Move @TextIter forwards by @n characters. (EXPORTED)
+-- @method textIterForwardChars@ Move @ref type TextIter@ forwards by
+-- @ref arg n@ characters.
 --
 -- * Retuns True if the iterator is pointing to a new character (and False if
 --   the iterator points to a picture or has not moved).
 --
-textIterForwardChars :: Int -> TextIter -> IO Bool
-textIterForwardChars n ti = liftM toBool $ 
+textIterForwardChars :: TextIter -> Int -> IO Bool
+textIterForwardChars ti n = liftM toBool $ 
   {#call unsafe text_iter_forward_chars#} ti (fromIntegral n)
 
--- Move @TextIter backwards by @n characters. (EXPORTED)
+-- @method textIterBackwardChars@ Move @ref type TextIter@ backwards by
+-- @ref arg n@ characters.
 --
 -- * Retuns True if the iterator is pointing to a new character (and False if
 --   the iterator points to a picture or has not moved).
 --
-textIterBackwardChars :: Int -> TextIter -> IO Bool
-textIterBackwardChars n ti = liftM toBool $ 
+textIterBackwardChars :: TextIter -> Int -> IO Bool
+textIterBackwardChars ti n = liftM toBool $ 
   {#call unsafe text_iter_backward_chars#} ti (fromIntegral n)
 
 
--- Move @TextIter forwards. (EXPORTED)
+-- @method textIterForwardLine@ Move @ref type TextIter@ forwards.
 --
--- * Retuns True if the iterator is pointing to a new line (and False if
---   the iterator points to a picture or has not moved).
+-- * Retuns True if the iterator is pointing to a new line (and False if the
+--   iterator points to a picture or has not moved).
 --
--- * If @TextIter is on the first line, it will be moved to the beginning of
---   the buffer.
+-- * If @ref type TextIter@ is on the first line, it will be moved to the
+--   beginning of the buffer.
 --
 textIterForwardLine :: TextIter -> IO Bool
 textIterForwardLine ti = liftM toBool $ 
   {#call unsafe text_iter_forward_line#} ti
 
--- Move @TextIter backwards. (EXPORTED)
+-- @method textIterBackwardLine@ Move @ref type TextIter@ backwards.
 --
--- * Retuns True if the iterator is pointing to a new line (and False if
---   the iterator points to a picture or has not moved).
+-- * Retuns True if the iterator is pointing to a new line (and False if the
+--   iterator points to a picture or has not moved).
 --
--- * If @TextIter is on the first line, it will be moved to the end of
---   the buffer.
+-- * If @ref type TextIter@ is on the first line, it will be moved to the end
+--   of the buffer.
 --
 textIterBackwardLine :: TextIter -> IO Bool
 textIterBackwardLine ti = liftM toBool $ 
   {#call unsafe text_iter_backward_line#} ti
 
 
--- Move @TextIter forwards by @n lines. (EXPORTED)
+-- @method textIterForwardLines@ Move @ref type TextIter@ forwards by
+-- @ref arg n@ lines.
 --
--- * Retuns True if the iterator is pointing to a new line (and False if
---   the iterator points to a picture or has not moved).
+-- * Retuns True if the iterator is pointing to a new line (and False if the
+--   iterator points to a picture or has not moved).
 --
--- * If @TextIter is on the first line, it will be moved to the beginning of
---   the buffer.
+-- * If @ref type TextIter@ is on the first line, it will be moved to the
+--   beginning of the buffer.
 --
--- * @n can be negative.
+-- * @ref arg n@ can be negative.
 --
-textIterForwardLines :: Int -> TextIter -> IO Bool
-textIterForwardLines n ti = liftM toBool $ 
+textIterForwardLines :: TextIter -> Int -> IO Bool
+textIterForwardLines ti n = liftM toBool $ 
   {#call unsafe text_iter_forward_lines#} ti (fromIntegral n)
 
--- Move @TextIter backwards by @n lines. (EXPORTED)
+-- @method textIterBackwardLines@ Move @ref type TextIter@ backwards by
+-- @ref arg n@ lines.
 --
--- * Retuns True if the iterator is pointing to a new line (and False if
---   the iterator points to a picture or has not moved).
+-- * Retuns True if the iterator is pointing to a new line (and False if the
+--   iterator points to a picture or has not moved).
 --
--- * If @TextIter is on the first line, it will be moved to the end of
---   the buffer.
+-- * If @ref type TextIter@ is on the first line, it will be moved to the end
+--   of the buffer.
 --
--- * @n can be negative.
+-- * @ref arg n@ can be negative.
 --
-textIterBackwardLines :: Int -> TextIter -> IO Bool
-textIterBackwardLines n ti = liftM toBool $ 
+textIterBackwardLines :: TextIter -> Int -> IO Bool
+textIterBackwardLines ti n = liftM toBool $ 
   {#call unsafe text_iter_backward_lines#} ti (fromIntegral n)
 
--- Move @TextIter forwards by @n word ends. (EXPORTED)
+-- @method textIterForwardWordEnds@ Move @ref type TextIter@ forwards by
+-- @ref arg n@ word ends.
 --
 -- * Retuns True if the iterator is pointing to a new word end.
 --
-textIterForwardWordEnds :: Int -> TextIter -> IO Bool
-textIterForwardWordEnds n ti = liftM toBool $ 
+textIterForwardWordEnds :: TextIter -> Int -> IO Bool
+textIterForwardWordEnds ti n = liftM toBool $ 
   {#call unsafe text_iter_forward_word_ends#} ti (fromIntegral n)
 
--- Move @TextIter backwards by @n word beginnings. (EXPORTED)
+-- @method textIterBackwardWordStarts@ Move @ref type TextIter@ backwards by
+-- @ref arg n@ word beginnings.
 --
 -- * Retuns True if the iterator is pointing to a new word start.
 --
-textIterBackwardWordStarts :: Int -> TextIter -> IO Bool
-textIterBackwardWordStarts n ti = liftM toBool $ 
+textIterBackwardWordStarts :: TextIter -> Int -> IO Bool
+textIterBackwardWordStarts ti n = liftM toBool $ 
   {#call unsafe text_iter_backward_word_starts#} ti (fromIntegral n)
 
--- Move @TextIter forwards to the next word end. (EXPORTED)
+-- @method textIterForwardWordEnd@ Move @ref type TextIter@ forwards to the
+-- next word end.
 --
 -- * Retuns True if the iterator has moved to a new word end.
 --
@@ -499,7 +523,8 @@ textIterForwardWordEnd :: TextIter -> IO Bool
 textIterForwardWordEnd ti = liftM toBool $ 
   {#call unsafe text_iter_forward_word_end#} ti
 
--- Move @TextIter backwards to the next word beginning. (EXPORTED)
+-- @method textIterBackwardWordStart@ Move @ref type TextIter@ backwards to
+-- the next word beginning.
 --
 -- * Retuns True if the iterator has moved to a new word beginning.
 --
@@ -507,66 +532,73 @@ textIterBackwardWordStart :: TextIter -> IO Bool
 textIterBackwardWordStart ti = liftM toBool $ 
   {#call unsafe text_iter_backward_word_start#} ti
 
--- Move @TextIter forwards to the next cursor position. (EXPORTED)
+-- @method textIterForwardCursorPosition@ Move @ref type TextIter@ forwards to
+-- the next cursor position.
 --
 -- * Some characters are composed of two Unicode codes. This function ensures
---   that @TextIter does not point inbetween such double characters.
+--   that @ref type TextIter@ does not point inbetween such double characters.
 --
--- * Returns True if @TextIter moved and points to a character (not to
---   an object).
+-- * Returns True if @ref type TextIter@ moved and points to a character (not
+--   to an object).
 --
 textIterForwardCursorPosition :: TextIter -> IO Bool
 textIterForwardCursorPosition ti = liftM toBool $
   {#call unsafe text_iter_forward_cursor_position#} ti
 
--- Move @TextIter backwards to the next cursor position. (EXPORTED)
+-- @method textIterBackwardCursorPosition@ Move @ref type TextIter@ backwards
+-- to the next cursor position.
 --
 -- * Some characters are composed of two Unicode codes. This function ensures
---   that @TextIter does not point inbetween such double characters.
+--   that @ref type TextIter@ does not point inbetween such double characters.
 --
--- * Returns True if @TextIter moved and points to a character (not to
---   an object).
+-- * Returns True if @ref type TextIter@ moved and points to a character (not
+--   to an object).
 --
 textIterBackwardCursorPosition :: TextIter -> IO Bool
 textIterBackwardCursorPosition ti = liftM toBool $
   {#call unsafe text_iter_backward_cursor_position#} ti
 
--- Move @TextIter forwards by @n cursor positions. (EXPORTED)
+-- @method textIterForwardCursorPositions@ Move @ref type TextIter@ forwards
+-- by @ref arg n@ cursor positions.
 --
--- * Returns True if @TextIter moved and points to a character (not to
---   an object).
+-- * Returns True if @ref type TextIter@ moved and points to a character (not
+--   to an object).
 --
-textIterForwardCursorPositions :: Int -> TextIter -> IO Bool
-textIterForwardCursorPositions n ti = liftM toBool $ 
+textIterForwardCursorPositions :: TextIter -> Int -> IO Bool
+textIterForwardCursorPositions ti n = liftM toBool $ 
   {#call unsafe text_iter_forward_cursor_positions#} ti (fromIntegral n)
 
--- Move @TextIter backwards by @n cursor positions. (EXPORTED)
+-- @method textIterBackwardCursorPositions@ Move @ref type TextIter@ backwards
+-- by @ref arg n@ cursor positions.
 --
--- * Returns True if @TextIter moved and points to a character (not to
---   an object).
+-- * Returns True if @ref type TextIter@ moved and points to a character (not
+--   to an object).
 --
-textIterBackwardCursorPositions :: Int -> TextIter -> IO Bool
-textIterBackwardCursorPositions n ti = liftM toBool $ 
+textIterBackwardCursorPositions :: TextIter -> Int -> IO Bool
+textIterBackwardCursorPositions ti n = liftM toBool $ 
   {#call unsafe text_iter_backward_cursor_positions#} ti (fromIntegral n)
 
 
--- Move @TextIter forwards by @n sentence ends. (EXPORTED)
+-- @method textIterForwardSentenceEnds@ Move @ref type TextIter@ forwards by
+-- @ref arg n@ sentence ends.
 --
 -- * Retuns True if the iterator is pointing to a new sentence end.
 --
-textIterForwardSentenceEnds :: Int -> TextIter -> IO Bool
-textIterForwardSentenceEnds n ti = liftM toBool $ 
+textIterForwardSentenceEnds :: TextIter -> Int -> IO Bool
+textIterForwardSentenceEnds ti n = liftM toBool $ 
   {#call unsafe text_iter_forward_sentence_ends#} ti (fromIntegral n)
 
--- Move @TextIter backwards by @n sentence beginnings. (EXPORTED)
+-- @method textIterBackwardSentenceStarts@ Move @ref type TextIter@ backwards
+-- by @ref arg n@ sentence beginnings.
 --
 -- * Retuns True if the iterator is pointing to a new sentence start.
 --
-textIterBackwardSentenceStarts :: Int -> TextIter -> IO Bool
-textIterBackwardSentenceStarts n ti = liftM toBool $ 
+textIterBackwardSentenceStarts :: TextIter -> Int -> IO Bool
+textIterBackwardSentenceStarts ti n = liftM toBool $ 
   {#call unsafe text_iter_backward_sentence_starts#} ti (fromIntegral n)
 
--- Move @TextIter forwards to the next sentence end. (EXPORTED)
+-- @method textIterForwardSentenceEnd@ Move @ref type TextIter@ forwards to
+-- the next sentence end.
 --
 -- * Retuns True if the iterator has moved to a new sentence end.
 --
@@ -574,7 +606,8 @@ textIterForwardSentenceEnd :: TextIter -> IO Bool
 textIterForwardSentenceEnd ti = liftM toBool $ 
   {#call unsafe text_iter_forward_sentence_end#} ti
 
--- Move @TextIter backwards to the next sentence beginning. (EXPORTED)
+-- @method textIterBackwardSentenceStart@ Move @ref type TextIter@ backwards
+-- to the next sentence beginning.
 --
 -- * Retuns True if the iterator has moved to a new sentence beginning.
 --
@@ -582,63 +615,71 @@ textIterBackwardSentenceStart :: TextIter -> IO Bool
 textIterBackwardSentenceStart ti = liftM toBool $ 
   {#call unsafe text_iter_backward_sentence_start#} ti
 
--- Set @TextIter to an offset within the buffer. (EXPORTED)
+-- @method textIterSetOffset@ Set @ref type TextIter@ to an offset within the
+-- buffer.
 --
-textIterSetOffset :: Int -> TextIter -> IO ()
-textIterSetOffset n ti = 
+textIterSetOffset :: TextIter -> Int -> IO ()
+textIterSetOffset ti n = 
   {#call unsafe text_iter_set_offset#} ti (fromIntegral n)
 
--- Set @TextIter to a line within the buffer. (EXPORTED)
+-- @method textIterSetLine@ Set @ref type TextIter@ to a line within the
+-- buffer.
 --
-textIterSetLine :: Int -> TextIter -> IO ()
-textIterSetLine n ti = 
+textIterSetLine :: TextIter -> Int -> IO ()
+textIterSetLine ti n = 
   {#call unsafe text_iter_set_line#} ti (fromIntegral n)
 
--- Set @TextIter to an offset within the line. (EXPORTED)
+-- @method textIterSetLineOffset@ Set @ref type TextIter@ to an offset within
+-- the line.
 --
-textIterSetLineOffset :: Int -> TextIter -> IO ()
-textIterSetLineOffset n ti = 
+textIterSetLineOffset :: TextIter -> Int -> IO ()
+textIterSetLineOffset ti n = 
   {#call unsafe text_iter_set_line_offset#} ti (fromIntegral n)
 
--- Set @TextIter to an visible character within the line. (EXPORTED)
+-- @method textIterSetVisibleLineOffset@ Set @ref type TextIter@ to an visible
+-- character within the line.
 --
-textIterSetVisibleLineOffset :: Int -> TextIter -> IO ()
-textIterSetVisibleLineOffset n ti = 
+textIterSetVisibleLineOffset :: TextIter -> Int -> IO ()
+textIterSetVisibleLineOffset ti n = 
   {#call unsafe text_iter_set_visible_line_offset#} ti (fromIntegral n)
 
--- Moves @TextIter to the end of the buffer. (EXPORTED)
+-- @method textIterForwardToEnd@ Moves @ref type TextIter@ to the end of the
+-- buffer.
 --
 textIterForwardToEnd :: TextIter -> IO ()
 textIterForwardToEnd ti = {#call unsafe text_iter_forward_to_end#} ti
 
--- Moves @TextIter to the end of the line. (EXPORTED)
+-- @method textIterForwardToLineEnd@ Moves @ref type TextIter@ to the end of
+-- the line.
 --
--- * Returns True if @TextIter moved to a new location which is not the
---   buffer end iterator.
+-- * Returns True if @ref type TextIter@ moved to a new location which is not
+--   the buffer end iterator.
 --
 textIterForwardToLineEnd :: TextIter -> IO Bool
 textIterForwardToLineEnd ti = liftM toBool $
   {#call unsafe text_iter_forward_to_line_end#} ti
 
--- Moves @TextIter forward to the next change of a @TextTag. (EXPORTED)
+-- @method textIterForwardToTagToggle@ Moves @ref type TextIter@ forward to
+-- the next change of a @ref type TextTag@.
 --
--- * If Nothing is supplied, any @TextTag will be matched.
+-- * If Nothing is supplied, any @ref type TextTag@ will be matched.
 --
--- * Returns True if there was a tag toggle after @TextIter.
+-- * Returns True if there was a tag toggle after @ref type TextIter@.
 --
-textIterForwardToTagToggle :: Maybe TextTag -> TextIter -> IO Bool
-textIterForwardToTagToggle tt ti = liftM toBool $
+textIterForwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
+textIterForwardToTagToggle ti tt = liftM toBool $
   {#call unsafe text_iter_forward_to_tag_toggle#} ti 
     (fromMaybe (mkTextTag nullForeignPtr) tt)
 
--- Moves @TextIter backward to the next change of a @TextTag. (EXPORTED)
+-- @method textIterBackwardToTagToggle@ Moves @ref type TextIter@ backward to
+-- the next change of a @ref type TextTag@.
 --
--- * If Nothing is supplied, any @TextTag will be matched.
+-- * If Nothing is supplied, any @ref type TextTag@ will be matched.
 --
--- * Returns True if there was a tag toggle before @TextIter.
+-- * Returns True if there was a tag toggle before @ref type TextIter@.
 --
-textIterBackwardToTagToggle :: Maybe TextTag -> TextIter -> IO Bool
-textIterBackwardToTagToggle tt ti = liftM toBool $
+textIterBackwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
+textIterBackwardToTagToggle ti tt = liftM toBool $
   {#call unsafe text_iter_backward_to_tag_toggle#} ti 
     (fromMaybe (mkTextTag nullForeignPtr) tt)
 
@@ -651,50 +692,52 @@ type TextCharPredicateCB = Char -> Bool
 foreign export dynamic mkTextCharPredicate ::
   ({#type gunichar#} -> Ptr () -> {#type gboolean#}) -> IO TextCharPredicate
 
--- Move @TextIter forward until a predicate function returns True. (EXPORTED)
+-- @method textIterForwardFindChar@ Move @ref type TextIter@ forward until a
+-- predicate function returns True.
 --
--- * If @pred returns True before @limit is reached, the search is stopped
---   and the return value is True.
+-- * If @ref arg pred@ returns True before @ref arg limit@ is reached, the
+--   search is stopped and the return value is True.
 --
--- * If @limit is Nothing, the search stops at the end of the buffer.
+-- * If @ref arg limit@ is Nothing, the search stops at the end of the buffer.
 --
-textIterForwardFindChar :: (Char -> Bool) -> Maybe TextIter -> TextIter -> 
-			   IO Bool
-textIterForwardFindChar pred limit ti = do
+textIterForwardFindChar :: TextIter -> (Char -> Bool) -> Maybe TextIter ->
+                           IO Bool
+textIterForwardFindChar ti pred limit = do
   fPtr <- mkTextCharPredicate (\c _ -> fromBool $ pred (chr (fromIntegral c)))
   res <- liftM toBool $ {#call text_iter_forward_find_char#} 
     ti fPtr nullPtr (fromMaybe (TextIter nullForeignPtr) limit)
   freeHaskellFunPtr fPtr
   return res
 
--- Move @TextIter backward until a predicate function returns True. (EXPORTED)
+-- @method textIterBackwardFindChar@ Move @ref type TextIter@ backward until a
+-- predicate function returns True.
 --
--- * If @pred returns True before @limit is reached, the search is stopped
---   and the return value is True.
+-- * If @ref arg pred@ returns True before @ref arg limit@ is reached, the
+--   search is stopped and the return value is True.
 --
--- * If @limit is Nothing, the search stops at the end of the buffer.
+-- * If @ref arg limit@ is Nothing, the search stops at the end of the buffer.
 --
-textIterBackwardFindChar :: (Char -> Bool) -> Maybe TextIter -> TextIter -> 
-			   IO Bool
-textIterBackwardFindChar pred limit ti = do
+textIterBackwardFindChar :: TextIter -> (Char -> Bool) -> Maybe TextIter ->
+                            IO Bool
+textIterBackwardFindChar ti pred limit = do
   fPtr <- mkTextCharPredicate (\c _ -> fromBool $ pred (chr (fromIntegral c)))
   res <- liftM toBool $ {#call text_iter_backward_find_char#} 
     ti fPtr nullPtr (fromMaybe (TextIter nullForeignPtr) limit)
   freeHaskellFunPtr fPtr
   return res
 
--- Search forward for a specific string. (EXPORTED)
+-- @method textIterForwardSearch@ Search forward for a specific string.
 --
--- * If specified, the last character which is tested against that start
---   of the search pattern will be @limit.
+-- * If specified, the last character which is tested against that start of
+--   the search pattern will be @ref arg limit@.
 --
--- * @TextSearchFlags may be empty.
+-- * @ref type TextSearchFlags@ may be empty.
 --
 -- * Returns the start and end position of the string found.
 --
-textIterForwardSearch :: String -> [TextSearchFlags] -> Maybe TextIter ->
-			 TextIter -> IO (Maybe (TextIter, TextIter))
-textIterForwardSearch str flags limit ti = do
+textIterForwardSearch :: TextIter -> String -> [TextSearchFlags] ->
+                         Maybe TextIter -> IO (Maybe (TextIter, TextIter))
+textIterForwardSearch ti str flags limit = do
   start  <- makeEmptyTextIter
   end <- makeEmptyTextIter
   found <- liftM toBool $ withCString str $ \cStr ->
@@ -703,18 +746,18 @@ textIterForwardSearch str flags limit ti = do
     (fromMaybe (TextIter nullForeignPtr) limit)
   return $ if found then Just (start,end) else Nothing
 
--- Search backward for a specific string. (EXPORTED)
+-- @method textIterBackwardSearch@ Search backward for a specific string.
 --
--- * If specified, the last character which is tested against that start
---   of the search pattern will be @limit.
+-- * If specified, the last character which is tested against that start of
+--   the search pattern will be @ref arg limit@.
 --
--- * @TextSearchFlags my be empty.
+-- * @ref type TextSearchFlags@ my be empty.
 --
 -- * Returns the start and end position of the string found.
 --
-textIterBackwardSearch :: String -> [TextSearchFlags] -> Maybe TextIter ->
-			 TextIter -> IO (Maybe (TextIter, TextIter))
-textIterBackwardSearch str flags limit ti = do
+textIterBackwardSearch :: TextIter -> String -> [TextSearchFlags] ->
+                          Maybe TextIter -> IO (Maybe (TextIter, TextIter))
+textIterBackwardSearch ti str flags limit = do
   start  <- makeEmptyTextIter
   end <- makeEmptyTextIter
   found <- liftM toBool $ withCString str $ \cStr ->
@@ -723,23 +766,23 @@ textIterBackwardSearch str flags limit ti = do
     (fromMaybe (TextIter nullForeignPtr) limit)
   return $ if found then Just (start,end) else Nothing
 
--- Compare two @TextIter for equality. (EXPORTED)
+-- @method textIterEqual@ Compare two @ref type TextIter@ for equality.
 --
--- * @TextIter could be in class Eq and Ord if there is a guarantee that
---   each iterator is copied before it is modified in place. This is
---   done the next abstraction layer.
+-- * @ref type TextIter@ could be in class Eq and Ord if there is a guarantee
+--   that each iterator is copied before it is modified in place. This is done
+--   the next abstraction layer.
 --
 textIterEqual :: TextIter -> TextIter -> IO Bool
-textIterEqual ti1 ti2 = liftM toBool $ {#call unsafe text_iter_equal#} ti1 ti2
+textIterEqual ti2 ti1 = liftM toBool $ {#call unsafe text_iter_equal#} ti1 ti2
 
--- Compare two @TextIter. (EXPORTED)
+-- @method textIterCompare@ Compare two @ref type TextIter@.
 --
--- * @TextIter could be in class Eq and Ord if there is a guarantee that
---   each iterator is copied before it is modified in place. This could be
---   done the next abstraction layer.
+-- * @ref type TextIter@ could be in class Eq and Ord if there is a guarantee
+--   that each iterator is copied before it is modified in place. This could
+--   be done the next abstraction layer.
 --
 textIterCompare :: TextIter -> TextIter -> IO Ordering
-textIterCompare ti1 ti2 = do
+textIterCompare ti2 ti1 = do
   res <- {#call unsafe text_iter_compare#} ti1 ti2
   return $ case res of
     (-1)   -> LT

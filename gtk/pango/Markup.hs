@@ -1,12 +1,12 @@
---  GIMP Toolkit (GTK) Binding for Haskell: Markup helper
+--  GIMP Toolkit (GTK) @entry Markup helper@
 --
 --  Author : Axel Simon
 --          
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This module defines some helper functions for generating texts with
 --   embedded attributes.
@@ -43,42 +43,36 @@ module Markup(
   ) where
 
 
--- Define a synonym for text with embedded markup commands. (EXPORTED)
+-- @type Markup@ Define a synonym for text with embedded markup commands.
 --
--- * Markup strings are just simple strings. But its easier to tell if a method
---   expecs text with or without markup.
+-- * Markup strings are just simple strings. But its easier to tell if a
+--   method expecs text with or without markup.
 --
 type Markup = String
 
--- These are all the attributes the @markSpan function can express. (EXPORTED)
+-- @data SpanAttribute@ These are all the attributes the @ref arg markSpan@
+-- function can express.
 --
--- * The following alternatives are avaliable:
---   @FontDescr	   takes a string to completly describe the font,
---		   example: @FontDescr "Sans Italic 12"
---   @FontFamily   takes a name of a family of fonts
---		   example: @FontFamily "Sans"
---   @FontSize	   takes the size in points (pt) or as textual representation
---		   example: @FontSize (FSPoint 12.5) : absolute size 12.5pt
---			    @FontSize FSXXSmall	     : predefined absolute size
---			    @FontSize FSSmaler	     : predefined relative size
---		   see @FontSizeDef for all alternatives.
---   @FontStyle	   takes one of three styles: FYnormal, FYoblique or FYitalic
---   @FontWeight   takes one of six predefined weights
---		   example: @FontWeight FWbold
---   @FontVariant  takes either FVnormal or FVsmallcaps
---   @FontStretch  takes one of nine font widths
---		   example: @FontStretch FTcondensed
---   @FontForeground
---   @FontBackground
---		   take both a description of the color to be used
---		   example: @FontForeground "#00FF00"
---			    @FontForeground "red"
---   @FontUnderline
---		   takes one of FUnone, FUsingle, FUdouble or FUlow
---   @FontRise	   takes the vertical displacement in em (with of the 'm'
---		   character in the current font)
---		   example: @FontRise (-0.2)	     : make subscript
---   @FontLang	   takes the language of the text to display
+-- * The following alternatives are avaliable: @ref arg FontDescr@ takes a
+--   string to completly describe the font, example: @ref arg FontDescr@ "Sans
+--   Italic 12" @ref arg FontFamily@ takes a name of a family of fonts
+--   example: @ref arg FontFamily@ "Sans" @ref arg FontSize@ takes the size in
+--   points (pt) or as textual representation example: @ref arg FontSize@
+--   (FSPoint 12.5) : absolute size 12.5pt @ref arg FontSize@ FSXXSmall :
+--   predefined absolute size @ref arg FontSize@ FSSmaler : predefined
+--   relative size see @ref arg FontSizeDef@ for all alternatives.
+--   @ref arg FontStyle@ takes one of three styles: FYnormal, FYoblique or
+--   FYitalic @ref arg FontWeight@ takes one of six predefined weights
+--   example: @ref arg FontWeight@ FWbold @ref arg FontVariant@ takes either
+--   FVnormal or FVsmallcaps @ref arg FontStretch@ takes one of nine font
+--   widths example: @ref arg FontStretch@ FTcondensed
+--   @ref arg FontForeground@ @ref arg FontBackground@ take both a description
+--   of the color to be used example: @ref arg FontForeground@ "#00FF00"
+--   @ref arg FontForeground@ "red" @ref arg FontUnderline@ takes one of
+--   FUnone, FUsingle, FUdouble or FUlow @ref arg FontRise@ takes the vertical
+--   displacement in em (with of the 'm' character in the current font)
+--   example: @ref arg FontRise@ (-0.2) : make subscript @ref arg FontLang@
+--   takes the language of the text to display
 --
 data SpanAttribute
   = FontDescr   String
@@ -109,7 +103,7 @@ instance Show SpanAttribute where
 				   (show (round (r*10000)))
   showsPrec _ (FontLang l)	 = showString " lang=".shows l
 
--- Define attributes for @FontSize. (EXPORTED)
+-- @data FontSizeDef@ Define attributes for @ref type FontSize@.
 --
 data FontSizeDef
   = FSPoint Double
@@ -135,7 +129,7 @@ instance Show FontSizeDef where
   showsPrec _ (FSsmaller)	  = shows "smaller"
   showsPrec _ (FSlarger)	  = shows "larger"
 
--- Define attributes for @FontStyle. (EXPORTED)
+-- @data FontStyleDef@ Define attributes for @ref type FontStyle@.
 --
 data FontStyleDef
   = FYnormal
@@ -147,7 +141,7 @@ instance Show FontStyleDef where
   showsPrec _ FYoblique	   = shows "oblique"
   showsPrec _ FYitalic	   = shows "italic"
 
--- Define attributes for @FontWeight. (EXPORTED)
+-- @data FontWeightDef@ Define attributes for @ref type FontWeight@.
 --
 data FontWeightDef
   = FWultralight
@@ -165,7 +159,7 @@ instance Show FontWeightDef where
   showsPrec _ FWultrabold  = shows "ultrabold"
   showsPrec _ FWheavy	   = shows "heavy"
 
--- Define attributes for @FontVariant. (EXPORTED)
+-- @data FontVariantDef@ Define attributes for @ref type FontVariant@.
 --
 data FontVariantDef
   = FVnormal
@@ -175,7 +169,7 @@ instance Show FontVariantDef where
   showsPrec _ FVnormal	     = shows "normal"
   showsPrec _ FVsmallcaps    = shows "smallcaps"
 
--- Define attributes for @FontStretch. (EXPORTED)
+-- @data FontStretchDef@ Define attributes for @ref type FontStretch@.
 --
 data FontStretchDef
   = FTultracondensed
@@ -199,7 +193,7 @@ instance Show FontStretchDef where
   showsPrec _ FTextraexpanded	= shows "extraexpanded"
   showsPrec _ FTultraexpanded	= shows "ultraexpanded"
 
--- Define attributes for @FontUnderline. (EXPORTED)
+-- @data FontUnderlineDef@ Define attributes for @ref type FontUnderline@.
 --
 data FontUnderlineDef
   = FUsingle
@@ -213,7 +207,7 @@ instance Show FontUnderlineDef where
   showsPrec _ FUlow	= shows "low"
   showsPrec _ FUnone	= shows "none"
 
--- Create the most generic span attribute. (EXPORTED)
+-- @method markSpan@ Create the most generic span attribute.
 --
 markSpan :: [SpanAttribute] -> String -> String
 markSpan attrs text = showString "<span".

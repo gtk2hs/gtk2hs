@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -43,9 +43,9 @@ import Concurrent (MVar, newMVar, takeMVar, putMVar, readMVar)
 import FiniteMap(FiniteMap, emptyFM, addToFM, delFromFM, lookupFM, elemFM)
 import Object   (makeNewObject)
 import Hierarchy
-import Widget	(widgetSetName, connectToUnrealize)
+import Widget	(widgetSetName, onUnrealize)
 
-obj # meth = meth obj
+obj # meth = obj meth
 
 -- We define a synonym for the name of a widget. (EXPORTED)
 --
@@ -81,14 +81,14 @@ widgetLookup name oType mkObj = do
 newNamedWidget :: WidgetClass w => WidgetName -> IO w -> IO w
 newNamedWidget name new = do
   w <- new
-  w # widgetSetName name
+  widgetSetName w name
   let wId = (mkWidgetId name)
   table <- takeMVar widgetTable
   putMVar widgetTable (addToFM table wId
     ((foreignPtrToPtr.unWidget.toWidget) w))
-  w # connectToUnrealize (do
+  w `onUnrealize` (do
     table <- takeMVar widgetTable
-    putMVar widgetTable (table `delFromFM` wId)) True
+    putMVar widgetTable (table `delFromFM` wId))
   return w
 
 -- Check if a given name is contained in the table. (EXPORTED)

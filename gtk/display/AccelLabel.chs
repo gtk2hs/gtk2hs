@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget AccelLabel
+--  GIMP Toolkit (GTK) @entry Widget AccelLabel@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,16 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This widget is a special version of @Label. It displays an accelerator
 --   key next to the Label. The key name is not explicitly set but taken from
 --   the key that is associated with the activation of another widget.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module AccelLabel(
   AccelLabel,
@@ -49,16 +49,17 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Create a new label with an accelerator key. (EXPORTED)
+-- @constructor accelLabelNew@ Create a new label with an accelerator key.
 --
 accelLabelNew :: String -> IO AccelLabel
 accelLabelNew str = withCString str $ \strPtr -> makeNewObject mkAccelLabel $ 
   liftM castPtr $ {#call unsafe accel_label_new#} strPtr
 
--- Set the key name from the activation signal of another widget. (EXPORTED)
+-- @method accelLabelSetAccelWidget@ Set the key name from the activation
+-- signal of another widget.
 --
-accelLabelSetAccelWidget :: (AccelLabelClass acl, WidgetClass w) =>
-  w -> acl -> IO ()
-accelLabelSetAccelWidget w acl = {#call accel_label_set_accel_widget#}
+accelLabelSetAccelWidget :: (AccelLabelClass acl, WidgetClass w) => acl -> w ->
+                            IO ()
+accelLabelSetAccelWidget acl w = {#call accel_label_set_accel_widget#}
   (toAccelLabel acl) (toWidget w)
 

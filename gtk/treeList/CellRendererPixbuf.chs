@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: CellRendererPixbuf
+--  GIMP Toolkit (GTK) @entry CellRendererPixbuf@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module CellRendererPixbuf(
   CellRendererPixbuf,
@@ -49,15 +49,16 @@ import StoreValue   (GenericValue(..), TMType(..))
 
 -- methods
 
--- Create a new CellRendererPixbuf object. (EXPORTED)
+-- @constructor cellRendererPixbufNew@ Create a new CellRendererPixbuf object.
 --
 cellRendererPixbufNew :: IO CellRendererPixbuf
-cellRendererPixbufNew = makeNewObject mkCellRendererPixbuf $ liftM castPtr $
+cellRendererPixbufNew  = makeNewObject mkCellRendererPixbuf $ liftM castPtr $
   {#call unsafe cell_renderer_pixbuf_new#}
 
--- Define the attribute that specifies the @Pixbuf to be rendered. (EXPORTED)
+-- @method cellPixbuf@ Define the attribute that specifies the
+-- @ref arg Pixbuf@ to be rendered.
 --
 cellPixbuf :: Attribute CellRendererPixbuf Image
-cellPixbuf = AttrSingle "pixbuf" TMobject 
+cellPixbuf  = AttrSingle "pixbuf" TMobject 
   (\img -> liftM (GVobject . toGObject) $ imageGetPixbuf img)
   (\(GVobject obj) -> imageNewFromPixbuf (fromGObject obj))

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Button
+--  GIMP Toolkit (GTK) @entry Widget Button@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Button(
   Button,
@@ -43,12 +43,18 @@ module Button(
   ReliefStyle(..),
   buttonSetRelief,
   buttonGetRelief,
-  connectToButtonActivate,
-  connectToClicked,
-  connectToEnter,
-  connectToLeave,
-  connectToPressed,
-  connectToReleased
+  onButtonActivate,
+  afterButtonActivate,
+  onClicked,
+  afterClicked,
+  onEnter,
+  afterEnter,
+  onLeave,
+  afterLeave,
+  onPressed,
+  afterPressed,
+  onReleased,
+  afterReleased
   ) where
 
 import Monad	(liftM)
@@ -63,29 +69,30 @@ import Enums	(ReliefStyle(..))
 
 -- methods
 
--- Create a new Button widget. (EXPORTED)
+-- @constructor buttonNew@ Create a new Button widget.
 --
 buttonNew :: IO Button
-buttonNew = makeNewObject mkButton $ liftM castPtr {#call unsafe button_new#}
+buttonNew  = makeNewObject mkButton $ liftM castPtr {#call unsafe button_new#}
 
 
--- Create a button with a label in it. (EXPORTED)
+-- @method buttonNewWithLabel@ Create a button with a label in it.
 --
 buttonNewWithLabel :: String -> IO Button
 buttonNewWithLabel lbl = withCString lbl (\strPtr ->
   makeNewObject mkButton $ liftM castPtr $
   {#call unsafe button_new_with_label#} strPtr)
 
--- Create a button with an accelerator key. (EXPORTED)
+-- @method buttonNewWithMnemonic@ Create a button with an accelerator key.
 --
--- * Like @buttonNewWithLabel but turns every underscore in the label
---   to a underlined character.
+-- * Like @ref method buttonNewWithLabel@ but turns every underscore in the
+--   label to a underlined character.
+--
 buttonNewWithMnemonic :: String -> IO Button
 buttonNewWithMnemonic lbl = withCString lbl (\strPtr ->
   makeNewObject mkButton $ liftM castPtr $ 
   {#call unsafe button_new_with_mnemonic#} strPtr)
 
--- Create a stock (predefined appearance) button. (EXPORTED)
+-- @method buttonNewFromStock@ Create a stock (predefined appearance) button.
 --
 buttonNewFromStock :: String -> IO Button
 buttonNewFromStock stockId = withCString stockId (\strPtr -> 
@@ -93,39 +100,41 @@ buttonNewFromStock stockId = withCString stockId (\strPtr ->
   throwIfNull "buttonNewFromStock: Invalid stock identifier." $ 
   {#call unsafe button_new_from_stock#} strPtr)
 
--- Depress the button, i.e. emit the pressed signal. (EXPORTED)
+-- @method buttonPressed@ Depress the button, i.e. emit the pressed signal.
 --
 buttonPressed :: ButtonClass b => b -> IO ()
 buttonPressed b = {#call button_pressed#} (toButton b)
 
--- Release the button, i.e. emit the released signal. (EXPORTED)
+-- @method buttonReleased@ Release the button, i.e. emit the released signal.
 --
 buttonReleased :: ButtonClass b => b -> IO ()
 buttonReleased b = {#call button_released#} (toButton b)
 
--- Emit the clicked signal on the button. (EXPORTED)
+-- @method buttonClicked@ Emit the clicked signal on the button.
 --
--- * This is similar to calling @buttonPressed and @buttonReleased in sequence.
+-- * This is similar to calling @ref method buttonPressed@ and
+--   @ref method buttonReleased@ in sequence.
+--
 buttonClicked :: ButtonClass b => b -> IO ()
 buttonClicked b = {#call button_clicked#} (toButton b)
 
--- Emit the cursor enters signal to the button. (EXPORTED) 
+-- @method buttonEnter@ Emit the cursor enters signal to the button.
 --
 buttonEnter :: ButtonClass b => b -> IO ()
 buttonEnter b = {#call button_enter#} (toButton b)
 
--- Emit the cursor leaves signal to the button. (EXPORTED) 
+-- @method buttonLeave@ Emit the cursor leaves signal to the button.
 --
 buttonLeave :: ButtonClass b => b -> IO ()
 buttonLeave b = {#call button_leave#} (toButton b)
 
--- Set the style of the button edges. (EXPORTED)
+-- @method buttonSetRelief@ Set the style of the button edges.
 --
-buttonSetRelief :: ButtonClass b => ReliefStyle -> b -> IO ()
-buttonSetRelief rs b = 
+buttonSetRelief :: ButtonClass b => b -> ReliefStyle -> IO ()
+buttonSetRelief b rs = 
   {#call button_set_relief#} (toButton b) ((fromIntegral.fromEnum) rs)
 
--- Get the current relief style. (EXPORTED)
+-- @method buttonGetRelief@ Get the current relief style.
 --
 buttonGetRelief :: ButtonClass b => b -> IO ReliefStyle
 buttonGetRelief b = liftM (toEnum.fromIntegral) $
@@ -133,39 +142,45 @@ buttonGetRelief b = liftM (toEnum.fromIntegral) $
 
 -- signals
 
--- The button has been depressed (but not necessarily released yet). 
--- See @clicked signal. (EXPORTED)
+-- @signal connectToButtonActivate@ The button has been depressed (but not
+-- necessarily released yet). See @ref arg clicked@ signal.
 --
-connectToButtonActivate :: ButtonClass b => 
-  IO () -> ConnectAfter -> b -> IO (ConnectId b)
-connectToButtonActivate = connect_NONE__NONE "activate" 
+onButtonActivate, afterButtonActivate :: ButtonClass b => b -> IO () ->
+                                         IO (ConnectId b)
+onButtonActivate = connect_NONE__NONE "activate"  False
+afterButtonActivate = connect_NONE__NONE "activate"  True
 
--- The button was clicked. This is only emitted if the mouse cursor was
--- over the button when it was released. (EXPORTED)
+-- @signal connectToClicked@ The button was clicked. This is only emitted if
+-- the mouse cursor was over the button when it was released.
 --
-connectToClicked :: ButtonClass b => IO () -> ConnectAfter -> b -> IO (ConnectId b)
-connectToClicked = connect_NONE__NONE "clicked"
+onClicked, afterClicked :: ButtonClass b => b -> IO () -> IO (ConnectId b)
+onClicked = connect_NONE__NONE "clicked" False
+afterClicked = connect_NONE__NONE "clicked" True
 
--- The cursor enters the button box. (EXPORTED)
+-- @signal connectToEnter@ The cursor enters the button box.
 --
-connectToEnter :: ButtonClass b => IO () -> ConnectAfter -> b -> IO (ConnectId b)
-connectToEnter = connect_NONE__NONE "enter"
+onEnter, afterEnter :: ButtonClass b => b -> IO () -> IO (ConnectId b)
+onEnter = connect_NONE__NONE "enter" False
+afterEnter = connect_NONE__NONE "enter" True
 
--- The cursor leaves the button box. (EXPORTED)
+-- @signal connectToLeave@ The cursor leaves the button box.
 --
-connectToLeave :: ButtonClass b => IO () -> ConnectAfter -> b -> IO (ConnectId b)
-connectToLeave = connect_NONE__NONE "leave"
+onLeave, afterLeave :: ButtonClass b => b -> IO () -> IO (ConnectId b)
+onLeave = connect_NONE__NONE "leave" False
+afterLeave = connect_NONE__NONE "leave" True
 
--- The button is pressed. (EXPORTED)
+-- @signal connectToPressed@ The button is pressed.
 --
-connectToPressed :: ButtonClass b => IO () -> ConnectAfter -> b -> IO (ConnectId b)
-connectToPressed = connect_NONE__NONE "pressed"
+onPressed, afterPressed :: ButtonClass b => b -> IO () -> IO (ConnectId b)
+onPressed = connect_NONE__NONE "pressed" False
+afterPressed = connect_NONE__NONE "pressed" True
 
 
--- The button is released. (EXPORTED)
+-- @signal connectToReleased@ The button is released.
 --
-connectToReleased :: ButtonClass b => IO () -> ConnectAfter -> b -> IO (ConnectId b)
-connectToReleased = connect_NONE__NONE "released"
+onReleased, afterReleased :: ButtonClass b => b -> IO () -> IO (ConnectId b)
+onReleased = connect_NONE__NONE "released" False
+afterReleased = connect_NONE__NONE "released" True
 
 
 

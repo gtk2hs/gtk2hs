@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Root of the object hierarchy
+--  GIMP Toolkit (GTK) @entry Root of the object hierarchy@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:22:09 $
+--  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:24 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,11 +19,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * Widget representation
 --   Each widget is a represented as a purely abstract data type. It can only 
@@ -34,7 +34,7 @@
 --   are not bound because each derived objects implements custom (and well-
 --   typed) set and get functions for most attributes.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 --
 --

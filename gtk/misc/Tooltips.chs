@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Tooltips
+--  GIMP Toolkit (GTK) @entry Widget Tooltips@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * Tooltips are the messages that appear next to a widget when the mouse
 --   pointer is held over it for a short amount of time. They are especially
@@ -33,13 +33,13 @@
 --   This is set on a 'per group of tooltips' basis.
 --   To assign a tip to a particular @Widget, @tooltipsSetTip is used.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * To associate @Tooltips to a widget is has to have its own GdkWindow.
 --   Otherwise the widget must be set into a EventBox. Can this be done
 --   automatically? Perhaps even with tooltips_force_window()?
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Tooltips(
   Tooltips,
@@ -63,44 +63,46 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Create a new goup of @Tooltips. (EXPORTED)
+-- @constructor tooltipsNew@ Create a new goup of @ref type Tooltips@.
 --
 tooltipsNew :: IO Tooltips
-tooltipsNew = makeNewObject mkTooltips $ 
+tooltipsNew  = makeNewObject mkTooltips $ 
   liftM castPtr {#call unsafe tooltips_new#}
 
--- Display the help the @Tooltips group provides. (EXPORTED)
+-- @method tooltipsEnable@ Display the help the @ref type Tooltips@ group
+-- provides.
 --
 tooltipsEnable :: TooltipsClass t => t -> IO ()
 tooltipsEnable t = {#call unsafe tooltips_enable#} (toTooltips t)
 
--- Disable @Tooltips group. (EXPORTED)
+-- @method tooltipsDisable@ Disable @ref type Tooltips@ group.
 --
--- * Causes all tooltips in tooltips to become inactive. Any widgets that 
---   have tips associated with that group will no longer display their tips 
---   until they are enabled again with @tooltipsEnable.
+-- * Causes all tooltips in tooltips to become inactive. Any widgets that have
+--   tips associated with that group will no longer display their tips until
+--   they are enabled again with @ref method tooltipsEnable@.
 --
 tooltipsDisable :: TooltipsClass t => t -> IO ()
 tooltipsDisable t = {#call unsafe tooltips_disable#} (toTooltips t)
 
--- Sets the time between the user moving the mouse over a widget and the 
--- widget's tooltip appearing. (EXPORTED)
+-- @method tooltipsSetDelay@ Sets the time between the user moving the mouse
+-- over a widget and the widget's tooltip appearing.
 --
--- * The @time parameter is in ms.
+-- * The @ref arg time@ parameter is in ms.
 --
-tooltipsSetDelay :: TooltipsClass t => Int -> t -> IO ()
-tooltipsSetDelay time t = {#call unsafe tooltips_set_delay#}
+tooltipsSetDelay :: TooltipsClass t => t -> Int -> IO ()
+tooltipsSetDelay t time = {#call unsafe tooltips_set_delay#}
   (toTooltips t) (fromIntegral time)
 
--- Adds a tooltip containing the message tipText to the specified GtkWidget.
--- (EXPORTED)
+-- @method tooltipsSetTip@ Adds a tooltip containing the message tipText to
+-- the specified GtkWidget.
 --
--- * The @tipPrivate parameter is meant to give a thorough explaination. This
---   might someday be accessible to a questionmark cursor (like MS Windows).
+-- * The @ref arg tipPrivate@ parameter is meant to give a thorough
+--   explaination. This might someday be accessible to a questionmark cursor
+--   (like MS Windows).
 --
-tooltipsSetTip :: (TooltipsClass t, WidgetClass w) => 
-  w -> String -> String -> t -> IO ()
-tooltipsSetTip w tipText tipPrivate t = 
+tooltipsSetTip :: (TooltipsClass t, WidgetClass w) => t -> w -> String ->
+                  String -> IO ()
+tooltipsSetTip t w tipText tipPrivate = 
   withCString tipPrivate $ \priPtr ->
   withCString tipText $ \txtPtr ->
   {#call unsafe tooltips_set_tip#} (toTooltips t) (toWidget w) txtPtr priPtr

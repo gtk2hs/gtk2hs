@@ -7,17 +7,17 @@ main = do
   setLocale
   init Nothing
   dia <- dialogNew
-  dia # dialogAddButton stockButtonYes responseYes
+  dialogAddButton dia stockButtonYes responseYes
   noBut <- buttonNewFromStock stockButtonNo
-  dia # dialogAddActionWidget noBut responseCancel
-  noBut # widgetShow
-  contain <- dia # dialogGetUpper
+  dialogAddActionWidget dia noBut responseCancel
+  widgetShow noBut
+  contain <- dialogGetUpper dia
   theText <- labelNew Nothing 
-  theText # labelSetMarkup arabic
-  contain # boxPackStartDefaults theText
-  theText # widgetShow
-  noBut # connectToClicked yell True
-  dia # dialogRun 
+  labelSetMarkup theText arabic
+  boxPackStartDefaults contain theText
+  widgetShow theText
+  noBut `onClicked` yell
+  dialogRun dia
 
 arabic :: Markup
 arabic = markSpan [FontSize $ FSPoint 240]  $
@@ -33,10 +33,10 @@ arabic = markSpan [FontSize $ FSPoint 240]  $
 yell :: IO ()
 yell = do
   dia <- dialogNew
-  dia # dialogAddButton stockButtonOk responseOk
-  contain <- dia # dialogGetUpper
+  dialogAddButton dia stockButtonOk responseOk
+  contain <- dialogGetUpper dia
   msg <- labelNew (Just "This is not an option.")
-  contain # boxPackStartDefaults msg
-  msg # widgetShow
-  dia # dialogRun
+  contain `boxPackStartDefaults` msg
+  widgetShow msg
+  dialogRun dia
   return ()

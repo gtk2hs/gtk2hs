@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Coping with linked lists
+--  GIMP Toolkit (GTK) @entry Coping with linked lists@
 --
 --  Author : Axel Simon
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2002/03/24 22:55:22 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,15 +17,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * Define functions to extract data from a GList and to produce a GList from
 --   a list of pointers.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * Figure out if we ever need to generate a GList.
 --

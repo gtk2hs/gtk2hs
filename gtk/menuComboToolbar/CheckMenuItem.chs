@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget CheckMenuItem
+--  GIMP Toolkit (GTK) @entry Widget CheckMenuItem@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This widget implements a @MenuItem with a check next to it.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module CheckMenuItem(
   CheckMenuItem,
@@ -51,13 +51,15 @@ import Structs  (checkMenuItemGetActive)
 
 -- methods
 
--- Create a new @MenuItem with a check next to it. (EXPORTED)
+-- @constructor checkMenuItemNew@ Create a new @ref arg MenuItem@ with a check
+-- next to it.
 --
 checkMenuItemNew :: IO CheckMenuItem
-checkMenuItemNew = makeNewObject mkCheckMenuItem $ liftM castPtr $
+checkMenuItemNew  = makeNewObject mkCheckMenuItem $ liftM castPtr $
   {#call unsafe check_menu_item_new#}
 
--- Create a new @CheckMenuItem with a @Label inside. (EXPORTED)
+-- @method checkMenuItemNewWithLabel@ Create a new @ref type CheckMenuItem@
+-- with a @ref arg Label@ inside.
 --
 checkMenuItemNewWithLabel :: String -> IO CheckMenuItem
 checkMenuItemNewWithLabel str = withCString str $ \strPtr ->
@@ -65,20 +67,22 @@ checkMenuItemNewWithLabel str = withCString str $ \strPtr ->
   {#call unsafe check_menu_item_new_with_label#} strPtr
 
 
--- Set the state of the menu item check. (EXPORTED)
+-- @method checkMenuItemSetActive@ Set the state of the menu item check.
 --
-checkMenuItemSetActive :: CheckMenuItemClass mi => Bool -> mi -> IO ()
-checkMenuItemSetActive active mi = {#call check_menu_item_set_active#}
+checkMenuItemSetActive :: CheckMenuItemClass mi => mi -> Bool -> IO ()
+checkMenuItemSetActive mi active = {#call check_menu_item_set_active#}
   (toCheckMenuItem mi) (fromBool active)
 
--- Set the state of the menu item check to `inconsistent'. (EXPORTED)
+-- @method checkMenuItemSetInconsistent@ Set the state of the menu item check
+-- to `inconsistent'.
 --
-checkMenuItemSetInconsistent :: CheckMenuItemClass mi => Bool -> mi -> IO ()
-checkMenuItemSetInconsistent inconsistent mi = 
+checkMenuItemSetInconsistent :: CheckMenuItemClass mi => mi -> Bool -> IO ()
+checkMenuItemSetInconsistent mi inconsistent = 
   {#call check_menu_item_set_inconsistent#} (toCheckMenuItem mi) 
     (fromBool inconsistent)
 
--- Query if the menu check is inconsistent (inbetween). (EXPORTED)
+-- @method checkMenuItemGetInconsistent@ Query if the menu check is
+-- inconsistent (inbetween).
 --
 checkMenuItemGetInconsistent :: CheckMenuItemClass mi => mi -> IO Bool
 checkMenuItemGetInconsistent mi = liftM toBool $

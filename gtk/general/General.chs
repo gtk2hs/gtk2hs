@@ -1,10 +1,10 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: General initialization
+--  GIMP Toolkit (GTK) @entry General initialization@
 --
 --  Author : Manuel M. T. Chakravarty
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
 --  Copyright (c) [1998..2001] Manuel M. T. Chakravarty
 --
@@ -18,13 +18,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 -- 
 --  * quitAddDestroy, quitAdd, quitRemove, timeoutAdd, timeoutRemove, idleAdd,
 --    idleRemove, inputAdd, inputRemove
@@ -60,21 +60,21 @@ import Enums    (InputCondition(..))
 
 {#context lib="gtk" prefix ="gtk"#}
 
--- Ensure that the current locale is read. (EXPORTED)
+-- @method setLocale@ Ensure that the current locale is read.
 --
 setLocale :: IO String
-setLocale = do
+setLocale  = do
   strPtr <- {#call unsafe set_locale#}
   str <- peekCString strPtr
   destruct strPtr
   return str
 
 
--- Retreive the current language. (EXPORTED)
+-- @dunno@Retreive the current language.
+-- * This function returns a String which's pointer can be used later on for
+--   comarisions.
 --
--- * This function returns a String which's pointer can be used later on
---   for comarisions.
---
+-- *  @literal@
 --getDefaultLanguage :: IO String
 --getDefaultLanguage = do
 --  strPtr <- {#call unsafe get_default_language#}
@@ -82,16 +82,17 @@ setLocale = do
 --  destruct strPtr
 --  return str
 
--- initialize GTK+ (EXPORTED)
+
+-- @method init@ initialize GTK+
 --
 -- * extracts all GTK+ specific arguments from the given options list
 --
-init                     :: Maybe (String, [String]) -> IO (String, [String])
-init Nothing              = do
+init :: Maybe (String, [String]) -> IO (String, [String])
+init Nothing = do
   prog <- getProgName
   args <- getArgs
   init $ Just (prog, args)
-init (Just (prog, args))  = do
+init (Just (prog, args)) = do
   let allArgs = (prog:args)
       argc    = length allArgs
   withMany withCString allArgs $ \addrs  ->
@@ -107,43 +108,44 @@ init (Just (prog, args))  = do
       _:args' <- mapM peekCString addrs'  -- drop the program name
       return (prog, args')
 
--- Inquire the number of events pending on the event queue (EXPORTED)
+-- @method eventsPending@ Inquire the number of events pending on the event
+-- queue
 --
 eventsPending :: IO Bool
 eventsPending  = liftM toBool {#call unsafe events_pending#}
 
--- GTK+'s main event loop (EXPORTED)
+-- @method main@ GTK+'s main event loop
 --
 main :: IO ()
 main  = {#call main#}
 
--- Inquire the main level (EXPORTED)
+-- @method mainLevel@ Inquire the main level
 --
 mainLevel :: IO Int
 mainLevel  = liftM (toEnum.fromEnum) {#call unsafe main_level#}
 
--- Exit the main event loop (EXPORTED)
+-- @method mainQuit@ Exit the main event loop
 --
 mainQuit :: IO ()
 mainQuit  = {#call main_quit#}
 
--- process events (EXPORTED)
+-- @method mainIteration@ process events
 --
 mainIteration :: IO Bool
 mainIteration  = liftM toBool {#call main_iteration#}
 
--- process events (EXPORTED)
+-- @method mainIterationDo@ process events
 --
-mainIterationDo          :: Bool -> IO Bool
-mainIterationDo blocking  = 
+mainIterationDo :: Bool -> IO Bool
+mainIterationDo blocking = 
   liftM toBool $ {#call main_iteration_do#} (fromBool blocking)
 
---  add a grab widget (EXPORTED)
+-- @method grabAdd@ add a grab widget
 --
-grabAdd :: WidgetClass wd =>  wd -> IO ()
+grabAdd :: WidgetClass wd => wd -> IO ()
 grabAdd  = {#call grab_add#} . toWidget
 
--- inquire current grab widget (EXPORTED)
+-- @method grabGetCurrent@ inquire current grab widget
 --
 grabGetCurrent :: IO (Maybe Widget)
 grabGetCurrent  = do
@@ -151,7 +153,7 @@ grabGetCurrent  = do
   if (wPtr==nullPtr) then return Nothing else 
     liftM Just $ makeNewObject mkWidget (return wPtr)
 
---  remove a grab widget (EXPORTED)
+-- @method grabRemove@ remove a grab widget
 --
 grabRemove :: WidgetClass w => w -> IO ()
 grabRemove  = {#call grab_remove#} . toWidget
@@ -179,34 +181,36 @@ makeCallback fun = do
   writeIORef dRef dPtr
   return (funPtr, dPtr)
 
--- Register a function that is to be called after @interval ms have been
--- elapsed. (EXPORTED)
+-- @method timeoutAdd@ Register a function that is to be called after
+-- @ref arg interval@ ms have been elapsed.
 --
 -- * If the function returns False it will be removed.
 --
-timeoutAdd :: Int -> IO Bool -> IO HandlerId
-timeoutAdd msec fun = do
+timeoutAdd :: IO Bool -> Int -> IO HandlerId
+timeoutAdd fun msec = do
   (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
   {#call unsafe timeout_add_full#} (fromIntegral msec) funPtr nullFunPtr 
     nullPtr dPtr
 
--- Remove a previously added timeout handler by its @TimeoutId. (EXPORTED)
+-- @method timeoutRemove@ Remove a previously added timeout handler by its
+-- @ref type TimeoutId@.
 --
 timeoutRemove :: HandlerId -> IO ()
-timeoutRemove = {#call unsafe timeout_remove#}
+timeoutRemove  = {#call unsafe timeout_remove#}
 
--- Add a callback that is called whenever the system is idle. (EXPORTED)
+-- @method idleAdd@ Add a callback that is called whenever the system is idle.
 --
 -- * A priority can be specified.
 --
-idleAdd :: Int -> IO Bool -> IO HandlerId
-idleAdd pri fun = do
+idleAdd :: IO Bool -> Int -> IO HandlerId
+idleAdd fun pri = do
   (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
   {#call unsafe idle_add_full#} (fromIntegral pri) funPtr nullFunPtr
     nullPtr dPtr
 
--- Remove a previously added idle handler by its @TimeoutId. (EXPORTED)
+-- @method idleRemove@ Remove a previously added idle handler by its
+-- @ref arg TimeoutId@.
 --
 idleRemove :: HandlerId -> IO ()
-idleRemove = {#call unsafe idle_remove#}
+idleRemove  = {#call unsafe idle_remove#}
 

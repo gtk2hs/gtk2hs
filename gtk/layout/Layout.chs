@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Layout
+--  GIMP Toolkit (GTK) @entry Widget Layout@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * A layout widget can hold several widgets at arbitrary positions.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Layout(
   Layout,
@@ -40,7 +40,8 @@ module Layout(
   layoutGetVAdjustment,
   layoutSetHAdjustment,
   layoutSetVAdjustment,
-  connectToSetScrollAdjustments
+  onSetScrollAdjustments,
+  afterSetScrollAdjustments
   ) where
 
 import Monad	(liftM)
@@ -54,58 +55,63 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Create a new layout widget. (EXPORTED)
+-- @constructor layoutNew@ Create a new layout widget.
 --
 layoutNew :: Adjustment -> Adjustment -> IO Layout
-layoutNew hadjustment vadjustment = makeNewObject mkLayout $ liftM castPtr $
+layoutNew vadjustment hadjustment = makeNewObject mkLayout $ liftM castPtr $
   {#call unsafe layout_new#} hadjustment vadjustment
 
--- Insert a widget into the layout container. (EXPORTED)
+-- @method layoutPut@ Insert a widget into the layout container.
 --
-layoutPut :: (LayoutClass l, WidgetClass w) => w -> Int -> Int -> l -> IO ()
-layoutPut widget x y l = {#call layout_put#} (toLayout l) (toWidget widget)
+layoutPut :: (LayoutClass l, WidgetClass w) => l -> w -> Int -> Int -> IO ()
+layoutPut l widget x y = {#call layout_put#} (toLayout l) (toWidget widget)
   (fromIntegral x) (fromIntegral y)
 
--- Move an existing widget within the container. (EXPORTED)
+-- @method layoutMove@ Move an existing widget within the container.
 --
-layoutMove :: (LayoutClass l, WidgetClass w) => w -> Int -> Int -> l -> IO ()
-layoutMove widget x y l = {#call layout_move#} (toLayout l) (toWidget widget)
+layoutMove :: (LayoutClass l, WidgetClass w) => l -> w -> Int -> Int -> IO ()
+layoutMove l widget x y = {#call layout_move#} (toLayout l) (toWidget widget)
   (fromIntegral x) (fromIntegral y)
 
--- Set the size of the layout widget. (EXPORTED)
+-- @method layoutSetSize@ Set the size of the layout widget.
 --
-layoutSetSize :: LayoutClass l => Int -> Int -> l -> IO ()
-layoutSetSize width height l = {#call layout_set_size#} (toLayout l)
+layoutSetSize :: LayoutClass l => l -> Int -> Int -> IO ()
+layoutSetSize l width height = {#call layout_set_size#} (toLayout l)
   (fromIntegral width) (fromIntegral height)
 
--- Retrieve the horizontal @Adjustment object from the layout. (EXPORTED)
+-- @method layoutGetHAdjustment@ Retrieve the horizontal @ref arg Adjustment@
+-- object from the layout.
 --
 layoutGetHAdjustment :: LayoutClass l => l -> IO Adjustment
 layoutGetHAdjustment l = makeNewObject mkAdjustment $
   {#call unsafe layout_get_hadjustment#} (toLayout l)
 
--- Retrieve the vertical @Adjustment object from the layout. (EXPORTED)
+-- @method layoutGetVAdjustment@ Retrieve the vertical @ref arg Adjustment@
+-- object from the layout.
 --
 layoutGetVAdjustment :: LayoutClass l => l -> IO Adjustment
 layoutGetVAdjustment l = makeNewObject mkAdjustment $
   {#call unsafe layout_get_vadjustment#} (toLayout l)
 
--- Set the horizontal adjustment object. (EXPORTED)
+-- @method layoutSetHAdjustment@ Set the horizontal adjustment object.
 --
-layoutSetHAdjustment :: LayoutClass l => Adjustment -> l -> IO ()
-layoutSetHAdjustment adj l = {#call layout_set_hadjustment#} (toLayout l) adj
+layoutSetHAdjustment :: LayoutClass l => l -> Adjustment -> IO ()
+layoutSetHAdjustment l adj = {#call layout_set_hadjustment#} (toLayout l) adj
 
--- Set the vertical adjustment object. (EXPORTED)
+-- @method layoutSetVAdjustment@ Set the vertical adjustment object.
 --
-layoutSetVAdjustment :: LayoutClass l => Adjustment -> l -> IO ()
-layoutSetVAdjustment adj l = {#call layout_set_vadjustment#} (toLayout l) adj
+layoutSetVAdjustment :: LayoutClass l => l -> Adjustment -> IO ()
+layoutSetVAdjustment l adj = {#call layout_set_vadjustment#} (toLayout l) adj
 
 -- signals
 
--- In case the adjustments are replaced, this signal is emitted. (EXPORTED)
+-- @signal connectToSetScrollAdjustments@ In case the adjustments are
+-- replaced, this signal is emitted.
 --
-connectToSetScrollAdjustments :: LayoutClass l => 
-  (Adjustment -> Adjustment -> IO ()) -> ConnectAfter -> l -> IO (ConnectId l)
-connectToSetScrollAdjustments = 
-  connect_OBJECT_OBJECT__NONE "set-scroll-adjustments"
+onSetScrollAdjustments, afterSetScrollAdjustments :: LayoutClass l => l ->(Adjustment -> Adjustment -> IO ()) ->
+                                                     IO (ConnectId l)
+onSetScrollAdjustments = 
+  connect_OBJECT_OBJECT__NONE "set-scroll-adjustments" False
+afterSetScrollAdjustments = 
+  connect_OBJECT_OBJECT__NONE "set-scroll-adjustments" True
 

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Blah
+--  GIMP Toolkit (GTK) @entry Widget Blah@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,16 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This abstract widget provides a division line with a handle that can be
 --   used by the user to divide the given space between two widgets. The two
 --   concrete implementations are HPaned and VPaned.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Paned(
   Paned,
@@ -53,41 +53,44 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Add a widget to the first (top or left) area. (EXPORTED)
+-- @method panedAdd1@ Add a widget to the first (top or left) area.
 --
--- * The widget does not expand if @Paned expands. It does not shrink either.
+-- * The widget does not expand if @ref type Paned@ expands. It does not
+--   shrink either.
 --
-panedAdd1 :: (PanedClass p, WidgetClass w) => w -> p -> IO ()
-panedAdd1 w p = {#call paned_add1#} (toPaned p) (toWidget w)
+panedAdd1 :: (PanedClass p, WidgetClass w) => p -> w -> IO ()
+panedAdd1 p w = {#call paned_add1#} (toPaned p) (toWidget w)
 
--- Add a widget to the second (bottom or right) area. (EXPORTED)
+-- @method panedAdd2@ Add a widget to the second (bottom or right) area.
 --
--- * The widget does not expand if @Paned expands. But it does shrink.
+-- * The widget does not expand if @ref type Paned@ expands. But it does
+--   shrink.
 --
-panedAdd2 :: (PanedClass p, WidgetClass w) => w -> p -> IO ()
-panedAdd2 w p = {#call paned_add2#} (toPaned p) (toWidget w)
+panedAdd2 :: (PanedClass p, WidgetClass w) => p -> w -> IO ()
+panedAdd2 p w = {#call paned_add2#} (toPaned p) (toWidget w)
 
--- Add a widget to the first area and specify its resizing behaviour. 
--- (EXPORTED)
+-- @method panedPack1@ Add a widget to the first area and specify its resizing
+-- behaviour.
 --
-panedPack1 :: (PanedClass p, WidgetClass w) => w -> Bool -> Bool -> p -> IO ()
-panedPack1 w expand shrink p = {#call paned_pack1#} 
+panedPack1 :: (PanedClass p, WidgetClass w) => p -> w -> Bool -> Bool -> IO ()
+panedPack1 p w expand shrink = {#call paned_pack1#} 
   (toPaned p) (toWidget w) (fromBool expand) (fromBool shrink)
 
--- Add a widget to the second area and specify its resizing behaviour. 
--- (EXPORTED)
+-- @method panedPack2@ Add a widget to the second area and specify its
+-- resizing behaviour.
 --
-panedPack2 :: (PanedClass p, WidgetClass w) => w -> Bool -> Bool -> p -> IO ()
-panedPack2 w expand shrink p = {#call paned_pack2#} 
+panedPack2 :: (PanedClass p, WidgetClass w) => p -> w -> Bool -> Bool -> IO ()
+panedPack2 p w expand shrink = {#call paned_pack2#} 
   (toPaned p) (toWidget w) (fromBool expand) (fromBool shrink)
 
--- Set the gutter to the specified @position (in pixels). (EXPORTED)
+-- @method panedSetPosition@ Set the gutter to the specified
+-- @ref arg position@ (in pixels).
 --
-panedSetPosition :: PanedClass p => Int -> p -> IO ()
-panedSetPosition position p = 
+panedSetPosition :: PanedClass p => p -> Int -> IO ()
+panedSetPosition p position = 
   {#call paned_set_position#} (toPaned p) (fromIntegral position)
 
--- Get the gutter position (in pixels). (EXPORTED)
+-- @method panedGetPosition@ Get the gutter position (in pixels).
 --
 panedGetPosition :: PanedClass p => p -> IO Int
 panedGetPosition p = liftM fromIntegral $

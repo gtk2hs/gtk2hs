@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Range
+--  GIMP Toolkit (GTK) @entry Widget Range@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * An abstract base class to handle widgets that represent some value range.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Range(
   Range,
@@ -39,7 +39,8 @@ module Range(
   rangeGetInverted,
   rangeSetInverted,
   ScrollType(..),
-  connectToMoveSlider
+  onMoveSlider,
+  afterMoveSlider
   ) where
 
 import Monad	(liftM)
@@ -54,39 +55,42 @@ import Enums	(UpdateType(..), ScrollType(..))
 
 -- methods
 
--- Extract the @Adjustment object. (EXPORTED)
+-- @method rangeGetAdjustment@ Extract the @ref arg Adjustment@ object.
 --
 rangeGetAdjustment :: RangeClass r => r -> IO Adjustment
 rangeGetAdjustment r = makeNewObject mkAdjustment $
   {#call unsafe range_get_adjustment#} (toRange r)
 
--- Set how the internal @Adjustment object is updated. (EXPORTED)
+-- @method rangeSetUpdatePolicy@ Set how the internal @ref arg Adjustment@
+-- object is updated.
 --
-rangeSetUpdatePolicy :: RangeClass r => UpdateType -> r -> IO ()
-rangeSetUpdatePolicy up r = {#call range_set_update_policy#}
+rangeSetUpdatePolicy :: RangeClass r => r -> UpdateType -> IO ()
+rangeSetUpdatePolicy r up = {#call range_set_update_policy#}
   (toRange r) ((fromIntegral.fromEnum) up)
 
--- Insert a new @Adjustment object. (EXPORTED)
+-- @method rangeSetAdjustment@ Insert a new @ref arg Adjustment@ object.
 --
-rangeSetAdjustment :: RangeClass r => Adjustment -> r -> IO ()
-rangeSetAdjustment adj r = {#call range_set_adjustment#} (toRange r) adj
+rangeSetAdjustment :: RangeClass r => r -> Adjustment -> IO ()
+rangeSetAdjustment r adj = {#call range_set_adjustment#} (toRange r) adj
 
--- Get the inverted flag (determines if the range is reversed). (EXPORTED)
+-- @method rangeGetInverted@ Get the inverted flag (determines if the range is
+-- reversed).
 --
 rangeGetInverted :: RangeClass r => r -> IO Bool
 rangeGetInverted r = 
   liftM toBool $ {#call unsafe range_get_inverted#} (toRange r)
 
--- Set the inverted flag. (EXPORTED)
+-- @method rangeSetInverted@ Set the inverted flag.
 --
-rangeSetInverted :: RangeClass r => Bool -> r -> IO ()
-rangeSetInverted inv r = {#call range_set_inverted#} (toRange r) (fromBool inv)
+rangeSetInverted :: RangeClass r => r -> Bool -> IO ()
+rangeSetInverted r inv = {#call range_set_inverted#} (toRange r) (fromBool inv)
 
 -- signals
 
--- The slide has moved. The arguments give detailed information what happend.
--- (EXPORTED)
+-- @signal connectToMoveSlider@ The slide has moved. The arguments give
+-- detailed information what happend.
 --
-connectToMoveSlider :: RangeClass r => 
-  (ScrollType -> IO ()) -> ConnectAfter -> r -> IO (ConnectId r)
-connectToMoveSlider = connect_ENUM__NONE "move-slider"
+onMoveSlider, afterMoveSlider :: RangeClass r => r -> (ScrollType -> IO ()) ->
+                                 IO (ConnectId r)
+onMoveSlider = connect_ENUM__NONE "move-slider" False
+afterMoveSlider = connect_ENUM__NONE "move-slider" True

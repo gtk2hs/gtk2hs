@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Viewport
+--  GIMP Toolkit (GTK) @entry Widget Viewport@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * A @Viewport a helper widget that adds Adjustment slots to a widget, i.e.
 --   the widget becomes scrollable. It can then be put into @ScrolledWindow
 --   and will behave as expected.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * The binding of this widget is superfluous as far as I can tell.
 --
@@ -33,7 +33,7 @@
 --   not bound because it is meant to be received by the @Viewport and sent
 --   by @ScrolledWindow.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Viewport(
   Viewport,
@@ -60,41 +60,45 @@ import Enums	(ShadowType(..))
 
 -- methods
 
--- Create a new @Viewport. (EXPORTED)
+-- @constructor viewportNew@ Create a new @ref type Viewport@.
 --
 viewportNew :: Adjustment -> Adjustment -> IO Viewport
-viewportNew hAdj vAdj = makeNewObject mkViewport $ liftM castPtr $
+viewportNew vAdj hAdj = makeNewObject mkViewport $ liftM castPtr $
   {#call unsafe viewport_new#} hAdj vAdj
 
--- Retrieve the horizontal @Adjustment of the @Viewport. (EXPORTED)
+-- @method viewportGetHAdjustment@ Retrieve the horizontal
+-- @ref arg Adjustment@ of the @ref type Viewport@.
 --
 viewportGetHAdjustment :: ViewportClass v => v -> IO Adjustment
 viewportGetHAdjustment v = makeNewObject mkAdjustment $
   {#call unsafe viewport_get_hadjustment#} (toViewport v)
 
--- Retrieve the vertical @Adjustment of the @Viewport. (EXPORTED)
+-- @method viewportGetVAdjustment@ Retrieve the vertical @ref arg Adjustment@
+-- of the @ref type Viewport@.
 --
 viewportGetVAdjustment :: ViewportClass v => v -> IO Adjustment
 viewportGetVAdjustment v = makeNewObject mkAdjustment $
   {#call unsafe viewport_get_vadjustment#} (toViewport v)
 
--- Set the horizontal @Adjustment of the @Viewport. (EXPORTED)
+-- @method viewportSetHAdjustment@ Set the horizontal @ref arg Adjustment@ of
+-- the @ref type Viewport@.
 --
-viewportSetHAdjustment :: ViewportClass v => Adjustment -> v -> IO ()
-viewportSetHAdjustment adj v = {#call viewport_set_hadjustment#}
+viewportSetHAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
+viewportSetHAdjustment v adj = {#call viewport_set_hadjustment#}
   (toViewport v) adj
 
--- Set the vertical @Adjustment of the @Viewport. (EXPORTED)
+-- @method viewportSetVAdjustment@ Set the vertical @ref arg Adjustment@ of
+-- the @ref type Viewport@.
 --
-viewportSetVAdjustment :: ViewportClass v => Adjustment -> v -> IO ()
-viewportSetVAdjustment adj v = {#call viewport_set_hadjustment#}
+viewportSetVAdjustment :: ViewportClass v => v -> Adjustment -> IO ()
+viewportSetVAdjustment v adj = {#call viewport_set_hadjustment#}
   (toViewport v) adj
 
--- Specify if and how an outer frame should be drawn around the child. 
--- (EXPORTED)
+-- @method viewportSetShadowType@ Specify if and how an outer frame should be
+-- drawn around the child.
 --
-viewportSetShadowType :: ViewportClass v => ShadowType -> v -> IO ()
-viewportSetShadowType st v = {#call viewport_set_shadow_type#} (toViewport v)
+viewportSetShadowType :: ViewportClass v => v -> ShadowType -> IO ()
+viewportSetShadowType v st = {#call viewport_set_shadow_type#} (toViewport v)
   ((fromIntegral.fromEnum) st)
 
 -- signals

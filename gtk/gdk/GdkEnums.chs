@@ -1,9 +1,9 @@
---  GIMP Toolkit (GTK) Binding for Haskell: Enumeration types     -*-haskell-*-
+--  GIMP Toolkit (GTK) @entry Enumeration types     -*-haskell-*-@
 --
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
 --  Copyright (c) [1999..2001] Manuel M. T. Chakravarty
 --
@@ -17,14 +17,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --  General enumeration types.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 --  * Documentation
 --
@@ -57,24 +57,25 @@ class  (Enum a, Bounded a) => Flags a where
 
 {#context lib="libgdk" prefix ="gdk"#}
 
--- specify which events a widget will emit signals on (EXPORTED)
+-- @data EventMask@ specify which events a widget will emit signals on
 --
 {#enum EventMask {underscoreToCase} deriving (Bounded)#}
 
 instance Flags EventMask
 
--- specify which input extension a widget desires (EXPORTED)
+-- @data ExtensionMode@ specify which input extension a widget desires
 --
 {#enum ExtensionMode {underscoreToCase} deriving(Bounded)#}
 
 instance Flags ExtensionMode
 
--- visibility of a window (EXPORTED)
+-- @data VisibilityState@ visibility of a window
 --
 {#enum VisibilityState {underscoreToCase,
 			VISIBILITY_PARTIAL as VisibilityPartialObscured}#}
 
--- provide additionl information if cursor crosses a window (EXPORTED)
+-- @data CrossingMode@ provide additionl information if cursor crosses a
+-- window
 --
 {#enum CrossingMode {underscoreToCase}#}
 
@@ -83,17 +84,18 @@ instance Flags ExtensionMode
 {#enum NotifyType {underscoreToCase}#}
 
 
--- the state a GDK window is in (EXPORTED)
+-- @data WindowState@ the state a GDK window is in
 --
 {#enum WindowState {underscoreToCase} deriving (Bounded)#}
 
 instance Flags WindowState
 
--- in which direction was scrolled? (EXPORTED)
+-- @data ScrollDirection@ in which direction was scrolled?
 --
 {#enum ScrollDirection {underscoreToCase}#}
 
--- Specify on what file condition a callback should be done. (EXPORTED)
+-- @data InputCondition@ Specify on what file condition a callback should be
+-- done.
 --
 {#enum InputCondition {underscoreToCase} deriving(Bounded) #}
 

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Combo
+--  GIMP Toolkit (GTK) @entry Widget Combo@
 --
 --  Author : Axel Simon
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,18 +19,18 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * A Combo box is a text entry field with a drop down list of predefined
 --   alternatives.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * The Combo widget allows to insert arbitrary widgets as alternatives. Due
 --   to the deprecated ListItem object we currently make no use of this 
 --   feature.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * The combo_set_item_string function is not bound as we do not handle
 --   arbitrary widgets yet.
@@ -67,53 +67,55 @@ import Structs	(comboGetList)
 comboNew :: IO Combo
 comboNew = makeNewObject mkCombo $ liftM castPtr $ {#call unsafe combo_new#}
 
-obj # meth = meth obj
-
--- Insert a set of Strings into the @Combo drop down list. (EXPORTED)
+-- @method comboSetPopdownStrings@ Insert a set of Strings into the
+-- @ref type Combo@ drop down list.
 --
-comboSetPopdownStrings :: ComboClass c => [String] -> c -> IO ()
-comboSetPopdownStrings strs c = do
+comboSetPopdownStrings :: ComboClass c => c -> [String] -> IO ()
+comboSetPopdownStrings c strs = do
   list <- comboGetList (toCombo c)
   {#call list_clear_items#} list  0 (-1)
   mapM_ (\str -> do
     li <- makeNewObject mkWidget $ liftM castPtr $ 
       withCString str {#call unsafe list_item_new_with_label#}
     widgetShow li
-    list # containerAdd li)
+    containerAdd list li)
     strs
 
--- Specify whether the user may enter texts that are not in the list of
--- alternatives and if empty entries are allowed. (EXPORTED)
+-- @method comboSetValueInList@ Specify whether the user may enter texts that
+-- are not in the list of alternatives and if empty entries are allowed.
 --
-comboSetValueInList :: ComboClass c => Bool -> Bool -> c -> IO ()
-comboSetValueInList val okIfEmpty c= {#call unsafe combo_set_value_in_list#}
+comboSetValueInList :: ComboClass c => c -> Bool -> Bool -> IO ()
+comboSetValueInList c val okIfEmpty = {#call unsafe combo_set_value_in_list#}
   (toCombo c) (fromBool val) (fromBool okIfEmpty)
 
--- Specify if the user may use the cursor keys to navigate the list. (EXPORTED)
+-- @method comboSetUseArrows@ Specify if the user may use the cursor keys to
+-- navigate the list.
 --
-comboSetUseArrows :: ComboClass c => Bool -> c -> IO ()
-comboSetUseArrows val c = {#call unsafe combo_set_use_arrows#} (toCombo c)
+comboSetUseArrows :: ComboClass c => c -> Bool -> IO ()
+comboSetUseArrows c val = {#call unsafe combo_set_use_arrows#} (toCombo c)
   (fromBool val)
 
--- Specify if the content entered by the user will be replaced by a predefined
--- alternative as soon as the user uses the cursor keys. (EXPORTED)
+-- @method comboSetUseArrowsAlways@ Specify if the content entered by the user
+-- will be replaced by a predefined alternative as soon as the user uses the
+-- cursor keys.
 --
-comboSetUseArrowsAlways :: ComboClass c => Bool -> c -> IO ()
-comboSetUseArrowsAlways val c = {#call unsafe combo_set_use_arrows_always#}
+comboSetUseArrowsAlways :: ComboClass c => c -> Bool -> IO ()
+comboSetUseArrowsAlways c val = {#call unsafe combo_set_use_arrows_always#}
   (toCombo c) (fromBool val)
 
--- Specify whether the entered text is case sensitive when it comes to matching
--- the users input with the predefined alternatives. (EXPORTED)
+-- @method comboSetCaseSensitive@ Specify whether the entered text is case
+-- sensitive when it comes to matching the users input with the predefined
+-- alternatives.
 --
-comboSetCaseSensitive :: ComboClass c => Bool -> c -> IO ()
-comboSetCaseSensitive val c = {#call unsafe combo_set_case_sensitive#}
+comboSetCaseSensitive :: ComboClass c => c -> Bool -> IO ()
+comboSetCaseSensitive c val = {#call unsafe combo_set_case_sensitive#}
   (toCombo c) (fromBool val)
 
--- Stops the GtkCombo widget from showing the popup list when the Entry emits
--- the "activate" signal, i.e. when the Return key is pressed. This may be 
--- useful if, for example, if you want the Return key to close a dialog 
--- instead. (EXPORTED)
+-- @method comboDisableActivate@ Stops the GtkCombo widget from showing the
+-- popup list when the Entry emits the "activate" signal, i.e. when the Return
+-- key is pressed. This may be useful if, for example, if you want the Return
+-- key to close a dialog instead.
 --
 comboDisableActivate :: ComboClass c => c -> IO ()
-comboDisableActivate = {#call unsafe combo_disable_activate#}.toCombo
+comboDisableActivate  = {#call unsafe combo_disable_activate#}.toCombo
 

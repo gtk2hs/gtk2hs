@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Arrow
+--  GIMP Toolkit (GTK) @entry Widget Arrow@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * An Arrow pointing to one of the four cardinal direction.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Arrow(
   Arrow,
@@ -50,16 +50,16 @@ import Enums	(ArrowType(..), ShadowType(..))
 
 -- methods
 
--- Create a new arrow with display options. (EXPORTED)
+-- @constructor arrowNew@ Create a new arrow with display options.
 --
 arrowNew :: ArrowType -> ShadowType -> IO Arrow
 arrowNew at st = makeNewObject mkArrow $ liftM castPtr $ 
   {#call unsafe arrow_new#} ((fromIntegral.fromEnum) at) 
   ((fromIntegral.fromEnum) st)
 
--- Change the visual appearance of this widget. (EXPORTED)
+-- @method arrowSet@ Change the visual appearance of this widget.
 --
-arrowSet :: ArrowClass a => ArrowType -> ShadowType -> a -> IO ()
-arrowSet at st a = {#call arrow_set#} (toArrow a) ((fromIntegral.fromEnum) at)
+arrowSet :: ArrowClass a => a -> ArrowType -> ShadowType -> IO ()
+arrowSet a at st = {#call arrow_set#} (toArrow a) ((fromIntegral.fromEnum) at)
   ((fromIntegral.fromEnum) st)
 

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Scale
+--  GIMP Toolkit (GTK) @entry Widget Scale@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:19 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This is the abstract base class for HScale and VScale. It implements the
 --   management of an adjustable value.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Scale(
   Scale,
@@ -51,23 +51,24 @@ import Enums	(PositionType(..))
 
 -- methods
 
--- Set the number of displayed digits after the comma. (EXPORTED)
+-- @method scaleSetDigits@ Set the number of displayed digits after the comma.
 --
-scaleSetDigits :: ScaleClass s => Int -> s -> IO ()
-scaleSetDigits prec s = 
+scaleSetDigits :: ScaleClass s => s -> Int -> IO ()
+scaleSetDigits s prec = 
   {#call scale_set_digits#} (toScale s) (fromIntegral prec)
 
--- Specify if the current value is to be drawn next to the slider. (EXPORTED)
+-- @method scaleSetDrawValue@ Specify if the current value is to be drawn next
+-- to the slider.
 --
-scaleSetDrawValue :: ScaleClass s => Bool -> s -> IO ()
-scaleSetDrawValue draw s =
+scaleSetDrawValue :: ScaleClass s => s -> Bool -> IO ()
+scaleSetDrawValue s draw =
   {#call scale_set_draw_value#} (toScale s) (fromBool draw)
 
--- Specify where the value is to be displayed (relative to the slider).
--- (EXPORTED)
+-- @method scaleSetValuePos@ Specify where the value is to be displayed
+-- (relative to the slider).
 --
-scaleSetValuePos :: ScaleClass s => PositionType -> s -> IO ()
-scaleSetValuePos pos s =
+scaleSetValuePos :: ScaleClass s => s -> PositionType -> IO ()
+scaleSetValuePos s pos =
   {#call scale_set_value_pos#} (toScale s) ((fromIntegral.fromEnum) pos)
 
 

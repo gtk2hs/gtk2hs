@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Notebook
+--  GIMP Toolkit (GTK) @entry Widget Notebook@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,16 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This widget can display several pages of widgets. Each page can be 
 --   selected by a tab at the top of the widget. It is useful in dialogs where
 --   a lot of information has to be displayed.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 --
 -- * check if it is sensible and possible to have something else than a Label
 --   widget in the context menu. If so, change the notebook*PageMenu function
@@ -74,7 +74,8 @@ module Notebook(
   notebookSetTabLabelPacking,
   notebookSetHomogeneousTabs,
   notebookSetTabLabel,
-  connectToSwitchPage
+  onSwitchPage,
+  afterSwitchPage
   ) where
 
 import Monad	(liftM)
@@ -91,191 +92,203 @@ import Enums	(Packing(..), PackType(..), PositionType(..))
 
 -- methods
 
--- Create a new notebook. (EXPORTED)
+-- @constructor notebookNew@ Create a new notebook.
 --
 notebookNew :: IO Notebook
-notebookNew = makeNewObject mkNotebook $ 
+notebookNew  = makeNewObject mkNotebook $ 
   liftM castPtr {#call unsafe notebook_new#}
 
--- Insert a new tab to the right of the existing tabs. (EXPORTED)
+-- @method notebookAppendPage@ Insert a new tab to the right of the existing
+-- tabs.
 --
--- * The @tabName will be inserted as a Label widget. In case the context
---   menu is enabled, this name will appear in the menu. If you want to
---   specify something else to go in the tab, use @notebookAppendPageMenu
---   and specify some suitable widget for @menuLabel.
+-- * The @ref arg tabName@ will be inserted as a Label widget. In case the
+--   context menu is enabled, this name will appear in the menu. If you want
+--   to specify something else to go in the tab, use
+--   @ref method notebookAppendPageMenu@ and specify some suitable widget for
+--   @ref arg menuLabel@.
 --
-notebookAppendPage :: (NotebookClass nb, WidgetClass child) =>
-  child -> String -> nb -> IO ()
-notebookAppendPage child tabLabel nb = do
+notebookAppendPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
+                      String -> IO ()
+notebookAppendPage nb child tabLabel = do
   tab <- labelNew (Just tabLabel)
   {#call notebook_append_page#} (toNotebook nb) (toWidget child) 
     (toWidget tab)
 
--- Insert a new tab to the right of the existing tabs. @menuLabel is the
--- label for the context menu (useful if @tabLabel is not a Label widget).
--- (EXPORTED)
+-- @method notebookAppendPageMenu@ Insert a new tab to the right of the
+-- existing tabs. @ref arg menuLabel@ is the label for the context menu
+-- (useful if @ref arg tabLabel@ is not a Label widget).
 --
-notebookAppendPageMenu :: (NotebookClass nb, WidgetClass child, 
-  WidgetClass tab) => child -> tab -> String -> nb -> IO ()
-notebookAppendPageMenu child tabWidget menuLabel nb = do
+notebookAppendPageMenu ::(NotebookClass nb, WidgetClass child, 
+   WidgetClass tab) => nb -> child -> tab -> String -> IO ()
+notebookAppendPageMenu nb child tabWidget menuLabel = do
   menu <- labelNew (Just menuLabel)
   {#call notebook_append_page_menu#} (toNotebook nb) (toWidget child)
     (toWidget tabWidget) (toWidget menu)
 
--- Insert a new tab to the left of the existing tabs. (EXPORTED)
+-- @method notebookPrependPage@ Insert a new tab to the left of the existing
+-- tabs.
 --
--- * The @tabName will be inserted as a Label widget. In case the context
---   menu is enabled, this name will appear in the menu. If you want to
---   specify something else to go in the tab, use @notebookPrependPageMenu
---   and specify some suitable widget for @menuLabel.
+-- * The @ref arg tabName@ will be inserted as a Label widget. In case the
+--   context menu is enabled, this name will appear in the menu. If you want
+--   to specify something else to go in the tab, use
+--   @ref method notebookPrependPageMenu@ and specify some suitable widget for
+--   @ref arg menuLabel@.
 --
-notebookPrependPage :: (NotebookClass nb, WidgetClass child) =>
-  child -> String -> nb -> IO ()
-notebookPrependPage child tabLabel nb = do
+notebookPrependPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
+                       String -> IO ()
+notebookPrependPage nb child tabLabel = do
   tab <- labelNew (Just tabLabel)
   {#call notebook_prepend_page#} (toNotebook nb) (toWidget child) (toWidget tab)
 
--- Insert a new tab to the left of the existing tabs. @menuLabel is the
--- label for the context menu (useful if @tabLabel is not a Label widget).
--- (EXPORTED)
+-- @method notebookPrependPageMenu@ Insert a new tab to the left of the
+-- existing tabs. @ref arg menuLabel@ is the label for the context menu
+-- (useful if @ref arg tabLabel@ is not a Label widget).
 --
-notebookPrependPageMenu :: (NotebookClass nb, WidgetClass child, 
-  WidgetClass tab) => child -> tab -> String -> nb -> IO ()
-notebookPrependPageMenu child tabWidget menuLabel nb = do
+notebookPrependPageMenu ::(NotebookClass nb, WidgetClass child, 
+   WidgetClass tab) => nb -> child -> tab -> String -> IO ()
+notebookPrependPageMenu nb child tabWidget menuLabel = do
   menu <- labelNew (Just menuLabel)
   {#call notebook_prepend_page_menu#} (toNotebook nb) (toWidget child)
     (toWidget tabWidget) (toWidget menu)
 
 
--- Insert a new tab at the specified position. (EXPORTED)
+-- @method notebookInsertPage@ Insert a new tab at the specified position.
 --
--- * The @tabName will be inserted as a Label widget. In case the context
---   menu is enabled, this name will appear in the menu. If you want to
---   specify something else to go in the tab, use @notebookInsertPageMenu
---   and specify some suitable widget for @menuLabel.
+-- * The @ref arg tabName@ will be inserted as a Label widget. In case the
+--   context menu is enabled, this name will appear in the menu. If you want
+--   to specify something else to go in the tab, use
+--   @ref method notebookInsertPageMenu@ and specify some suitable widget for
+--   @ref arg menuLabel@.
 --
-notebookInsertPage :: (NotebookClass nb, WidgetClass child) =>
-  child -> String -> Int -> nb -> IO ()
-notebookInsertPage child tabLabel pos nb = do
+notebookInsertPage :: (NotebookClass nb, WidgetClass child) => nb -> child ->
+                      String -> Int -> IO ()
+notebookInsertPage nb child tabLabel pos = do
   lbl <- labelNew (Just tabLabel)
   {#call notebook_insert_page#} (toNotebook nb) (toWidget child) 
      (toWidget lbl) (fromIntegral pos)
 
--- Insert a new tab between the tab no. @pos and @pos+1. @menuLabel is the
--- label for the context menu (useful if @tabLabel is not a Label widget).
--- (EXPORTED)
+-- @method notebookInsertPageMenu@ Insert a new tab between the tab no.
+-- @ref arg pos@ and @ref arg pos@+1. @ref arg menuLabel@ is the label for the
+-- context menu (useful if @ref arg tabLabel@ is not a Label widget).
 --
-notebookInsertPageMenu :: (NotebookClass nb, WidgetClass child, 
-  WidgetClass tab) => child -> tab -> String -> Int -> nb -> IO ()
-notebookInsertPageMenu child tabWidget menuLabel pos nb = do
+notebookInsertPageMenu ::(NotebookClass nb, WidgetClass child, 
+   WidgetClass tab) => nb -> child -> tab -> String -> Int -> IO ()
+notebookInsertPageMenu nb child tabWidget menuLabel pos = do
   menu <- labelNew (Just menuLabel)
   {#call notebook_insert_page_menu#} (toNotebook nb) (toWidget child)
     (toWidget tabWidget) (toWidget menu) (fromIntegral pos)
 
--- Remove a specific page from the notebook, counting from 0. (EXPORTED)
+-- @method notebookRemovePage@ Remove a specific page from the notebook,
+-- counting from 0.
 --
-notebookRemovePage :: NotebookClass nb => Int -> nb -> IO ()
-notebookRemovePage pos nb = 
+notebookRemovePage :: NotebookClass nb => nb -> Int -> IO ()
+notebookRemovePage nb pos = 
   {#call notebook_remove_page#} (toNotebook nb) (fromIntegral pos)
 
--- Query the page the @child widget is contained in. (EXPORTED)
+-- @method notebookPageNum@ Query the page the @ref arg child@ widget is
+-- contained in.
 --
--- * The function returns the page number if the child was found, Nothing 
+-- * The function returns the page number if the child was found, Nothing
 --   otherwise.
 --
-notebookPageNum :: (NotebookClass nb, WidgetClass w) => 
-  w -> nb -> IO (Maybe Int)
-notebookPageNum child nb = 
+notebookPageNum :: (NotebookClass nb, WidgetClass w) => nb -> w ->
+                   IO (Maybe Int)
+notebookPageNum nb child = 
   liftM (\page -> if page==(-1) then Nothing else Just (fromIntegral page)) $
   {#call unsafe notebook_page_num#} (toNotebook nb) (toWidget child)
 
--- Move to the specified page of the notebook. (EXPORTED)
+-- @method notebookSetCurrentPage@ Move to the specified page of the notebook.
 --
--- * If @pos is out of range (e.g. negative) select the last page.
+-- * If @ref arg pos@ is out of range (e.g. negative) select the last page.
 --
-notebookSetCurrentPage :: NotebookClass nb => Int -> nb -> IO ()
-notebookSetCurrentPage pos nb =
+notebookSetCurrentPage :: NotebookClass nb => nb -> Int -> IO ()
+notebookSetCurrentPage nb pos =
   {#call notebook_set_current_page#} (toNotebook nb) (fromIntegral pos)
 
--- Move to the right neighbour of the current page. (EXPORTED)
+-- @method notebookNextPage@ Move to the right neighbour of the current page.
 --
 -- * Nothing happens if there is no such page.
 --
 notebookNextPage :: NotebookClass nb => nb -> IO ()
 notebookNextPage nb = {#call notebook_next_page#} (toNotebook nb)
 
--- Move to the left neighbour of the current page. (EXPORTED)
+-- @method notebookPrevPage@ Move to the left neighbour of the current page.
 --
 -- * Nothing happens if there is no such page.
 --
 notebookPrevPage :: NotebookClass nb => nb -> IO ()
 notebookPrevPage nb = {#call notebook_prev_page#} (toNotebook nb)
 
--- Move a page withing the notebook. (EXPORTED)
+-- @method notebookReorderChild@ Move a page withing the notebook.
 --
-notebookReorderChild :: (NotebookClass nb, WidgetClass w) => 
-  w -> Int -> nb -> IO ()
-notebookReorderChild child pos nb = {#call notebook_reorder_child#}
+notebookReorderChild :: (NotebookClass nb, WidgetClass w) => nb -> w -> Int ->
+                        IO ()
+notebookReorderChild nb child pos = {#call notebook_reorder_child#}
   (toNotebook nb) (toWidget child) (fromIntegral pos)
 
--- Specify at which border the tabs should be drawn. (EXPORTED)
+-- @method notebookSetTabPos@ Specify at which border the tabs should be
+-- drawn.
 --
-notebookSetTabPos :: NotebookClass nb => PositionType -> nb -> IO ()
-notebookSetTabPos pt nb = {#call notebook_set_tab_pos#}
+notebookSetTabPos :: NotebookClass nb => nb -> PositionType -> IO ()
+notebookSetTabPos nb pt = {#call notebook_set_tab_pos#}
   (toNotebook nb) ((fromIntegral.fromEnum) pt)
 
--- Show or hide the tabs of a notebook. (EXPORTED)
+-- @method notebookSetShowTabs@ Show or hide the tabs of a notebook.
 --
-notebookSetShowTabs :: NotebookClass nb => Bool -> nb -> IO ()
-notebookSetShowTabs showTabs nb = {#call notebook_set_show_tabs#}
+notebookSetShowTabs :: NotebookClass nb => nb -> Bool -> IO ()
+notebookSetShowTabs nb showTabs = {#call notebook_set_show_tabs#}
   (toNotebook nb) (fromBool showTabs)
 
--- In case the tabs are not shown, specify whether to draw a border around
--- the notebook. (EXPORTED)
+-- @method notebookSetShowBorder@ In case the tabs are not shown, specify
+-- whether to draw a border around the notebook.
 --
-notebookSetShowBorder :: NotebookClass nb => Bool -> nb -> IO ()
-notebookSetShowBorder showBorder nb = {#call notebook_set_show_border#}
+notebookSetShowBorder :: NotebookClass nb => nb -> Bool -> IO ()
+notebookSetShowBorder nb showBorder = {#call notebook_set_show_border#}
   (toNotebook nb) (fromBool showBorder)
 
--- Set whether scroll bars will be added in case the notebook has too many
--- tabs to fit the widget size. (EXPORTED)
+-- @method notebookSetScrollable@ Set whether scroll bars will be added in
+-- case the notebook has too many tabs to fit the widget size.
 --
-notebookSetScrollable :: NotebookClass nb => Bool -> nb -> IO ()
-notebookSetScrollable scrollable nb = {#call unsafe notebook_set_scrollable#}
+notebookSetScrollable :: NotebookClass nb => nb -> Bool -> IO ()
+notebookSetScrollable nb scrollable = {#call unsafe notebook_set_scrollable#}
   (toNotebook nb) (fromBool scrollable)
 
--- Set the width of the borders of the tab labels. (EXPORTED)
+-- @method notebookSetTabBorder@ Set the width of the borders of the tab
+-- labels.
 --
 -- * Sets both vertical and horizontal widths.
 --
-notebookSetTabBorder :: NotebookClass nb => Int -> nb -> IO ()
-notebookSetTabBorder width nb = {#call notebook_set_tab_border#}
+notebookSetTabBorder :: NotebookClass nb => nb -> Int -> IO ()
+notebookSetTabBorder nb width = {#call notebook_set_tab_border#}
   (toNotebook nb) (fromIntegral width)
 
--- Set the width of the borders of the tab labels. (EXPORTED)
+-- @method notebookSetTabHBorder@ Set the width of the borders of the tab
+-- labels.
 --
 -- * Sets horizontal widths.
 --
-notebookSetTabHBorder :: NotebookClass nb => Int -> nb -> IO ()
-notebookSetTabHBorder width nb = {#call notebook_set_tab_hborder#}
+notebookSetTabHBorder :: NotebookClass nb => nb -> Int -> IO ()
+notebookSetTabHBorder nb width = {#call notebook_set_tab_hborder#}
   (toNotebook nb) (fromIntegral width)
 
--- Set the width of the borders of the tab labels. (EXPORTED)
+-- @method notebookSetTabVBorder@ Set the width of the borders of the tab
+-- labels.
 --
 -- * Sets vertical widths.
 --
-notebookSetTabVBorder :: NotebookClass nb => Int -> nb -> IO ()
-notebookSetTabVBorder width nb = {#call notebook_set_tab_vborder#}
+notebookSetTabVBorder :: NotebookClass nb => nb -> Int -> IO ()
+notebookSetTabVBorder nb width = {#call notebook_set_tab_vborder#}
   (toNotebook nb) (fromIntegral width)
 
--- Enable or disable context menus with all tabs in it. (EXPORTED)
+-- @method notebookSetPopup@ Enable or disable context menus with all tabs in
+-- it.
 --
-notebookSetPopup :: NotebookClass nb => Bool -> nb -> IO ()
-notebookSetPopup enable nb = (if enable 
+notebookSetPopup :: NotebookClass nb => nb -> Bool -> IO ()
+notebookSetPopup nb enable = (if enable 
   then {#call notebook_popup_enable#} else {#call notebook_popup_disable#})
   (toNotebook nb)
 
--- Query the currently selected page. (EXPORTED)
+-- @method notebookGetCurrentPage@ Query the currently selected page.
 --
 -- * Returns -1 if notebook has no pages.
 --
@@ -283,44 +296,48 @@ notebookGetCurrentPage :: NotebookClass nb => nb -> IO Int
 notebookGetCurrentPage nb = liftM fromIntegral $
   {#call unsafe notebook_get_current_page#} (toNotebook nb)
 
--- Extract the menu label from the given @child. (EXPORTED)
+-- @method notebookGetMenuLabel@ Extract the menu label from the given
+-- @ref arg child@.
 --
--- * Returns Nothing if @child was not found.
+-- * Returns Nothing if @ref arg child@ was not found.
 --
-notebookGetMenuLabel :: (NotebookClass nb, WidgetClass w) => 
-  w -> nb -> IO (Maybe Label)
-notebookGetMenuLabel child nb = do
+notebookGetMenuLabel :: (NotebookClass nb, WidgetClass w) => nb -> w ->
+                        IO (Maybe Label)
+notebookGetMenuLabel nb child = do
   wPtr <- {#call unsafe notebook_get_menu_label#} 
     (toNotebook nb) (toWidget child)
   if wPtr==nullPtr then return Nothing else liftM Just $
     makeNewObject mkLabel $ return $ castPtr wPtr
 
--- Retrieve the child widget at positon @pos (stating from 0). (EXPORTED)
+-- @method notebookGetNthPage@ Retrieve the child widget at positon
+-- @ref arg pos@ (stating from 0).
 --
 -- * Returns Nothing if the index is out of bounds.
 --
-notebookGetNthPage :: NotebookClass nb => Int -> nb -> IO (Maybe Widget)
-notebookGetNthPage pos nb = do
+notebookGetNthPage :: NotebookClass nb => nb -> Int -> IO (Maybe Widget)
+notebookGetNthPage nb pos = do
   wPtr <- {#call unsafe notebook_get_nth_page#} 
     (toNotebook nb) (fromIntegral pos)
   if wPtr==nullPtr then return Nothing else liftM Just $
     makeNewObject mkWidget $ return wPtr
 
--- Extract the tab label from the given @child. (EXPORTED)
+-- @method notebookGetTabLabel@ Extract the tab label from the given
+-- @ref arg child@.
 --
-notebookGetTabLabel :: (NotebookClass nb, WidgetClass w) => 
-  w -> nb -> IO (Maybe Label)
-notebookGetTabLabel child nb = do
+notebookGetTabLabel :: (NotebookClass nb, WidgetClass w) => nb -> w ->
+                       IO (Maybe Label)
+notebookGetTabLabel nb child = do
   wPtr <- {#call unsafe notebook_get_tab_label#} 
     (toNotebook nb) (toWidget child)
   if wPtr==nullPtr then return Nothing else liftM Just $
     makeNewObject mkLabel $ return $ castPtr wPtr
 
--- Query the packing attributes of the given @child. (EXPORTED)
+-- @method notebookQueryTabLabelPacking@ Query the packing attributes of the
+-- given @ref arg child@.
 --
-notebookQueryTabLabelPacking :: (NotebookClass nb, WidgetClass w) =>
-  w -> nb -> IO (Packing,PackType)
-notebookQueryTabLabelPacking child nb = 
+notebookQueryTabLabelPacking :: (NotebookClass nb, WidgetClass w) => nb -> w ->
+                                IO (Packing,PackType)
+notebookQueryTabLabelPacking nb child = 
   alloca $ \expPtr -> alloca $ \fillPtr -> alloca $ \packPtr -> do
     {#call unsafe notebook_query_tab_label_packing#} (toNotebook nb)
       (toWidget child) expPtr fillPtr packPtr
@@ -331,34 +348,45 @@ notebookQueryTabLabelPacking child nb =
              (if expand then PackExpand else PackNatural),
 	    pt)
 
--- Set the packing attributes of the given @child. (EXPORTED)
+-- @method notebookSetTabLabelPacking@ Set the packing attributes of the given
+-- @ref arg child@.
 --
-notebookSetTabLabelPacking :: (NotebookClass nb, WidgetClass w) =>
-  w -> Packing -> PackType -> nb -> IO ()
-notebookSetTabLabelPacking child pack pt nb = 
+notebookSetTabLabelPacking :: (NotebookClass nb, WidgetClass w) => nb -> w ->
+                              Packing -> PackType -> IO ()
+notebookSetTabLabelPacking nb child pack pt = 
   {#call notebook_set_tab_label_packing#} (toNotebook nb) (toWidget child)
     (fromBool $ pack/=PackNatural) (fromBool $ pack==PackFill) 
     ((fromIntegral.fromEnum) pt)
 
--- Sets whether the tabs must have all the same size or not. (EXPORTED)
+-- @method notebookSetHomogeneousTabs@ Sets whether the tabs must have all the
+-- same size or not.
 --
-notebookSetHomogeneousTabs :: NotebookClass nb => Bool -> nb -> IO ()
-notebookSetHomogeneousTabs hom nb = {#call notebook_set_homogeneous_tabs#}
+notebookSetHomogeneousTabs :: NotebookClass nb => nb -> Bool -> IO ()
+notebookSetHomogeneousTabs nb hom = {#call notebook_set_homogeneous_tabs#}
   (toNotebook nb) (fromBool hom)
 
 
--- Set a new tab label for a given @child. (EXPORTED)
+-- @method notebookSetTabLabel@ Set a new tab label for a given
+-- @ref arg child@.
 --
-notebookSetTabLabel :: (NotebookClass nb, WidgetClass ch, WidgetClass tab) =>
-  ch -> tab -> nb -> IO ()
-notebookSetTabLabel child tab nb = {#call notebook_set_tab_label#}
+notebookSetTabLabel :: (NotebookClass nb, WidgetClass ch, WidgetClass tab) => 
+                       nb -> ch -> tab -> IO ()
+notebookSetTabLabel nb child tab = {#call notebook_set_tab_label#}
   (toNotebook nb) (toWidget child) (toWidget tab)
 
 -- signals
 
--- This signal is emitted when a new page is selected.
+-- @signal connectToSwitchPage@ This signal is emitted when a new page is
+-- selected.
 --
-connectToSwitchPage :: NotebookClass nb =>
-  (Int -> IO ()) -> ConnectAfter -> nb -> IO (ConnectId nb)
-connectToSwitchPage fun = connect_BOXED_WORD__NONE "switch-page" 
-  (const $ return ()) (\_ page -> fun (fromIntegral page))
+onSwitchPage, afterSwitchPage :: NotebookClass nb => nb -> (Int -> IO ()) ->
+                                 IO (ConnectId nb)
+onSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page" 
+		      (const $ return ()) False nb 
+		      (\_ page -> fun (fromIntegral page))
+afterSwitchPage nb fun = connect_BOXED_WORD__NONE "switch-page" 
+			 (const $ return ()) True nb 
+			 (\_ page -> fun (fromIntegral page))
+
+
+ 

@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: CellRenderer
+--  GIMP Toolkit (GTK) @entry CellRenderer@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * A @CellRenderer is an object that determines how the cell of a @TreeView
 --   widget is displayed. Each @TreeViewColumn has exactly one accociated
@@ -29,10 +29,10 @@
 --   of the @TreeModel database. Thus several columns of a @TreeModel may be
 --   the supply for one @TreeViewColumn.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module CellRenderer(
   CellRenderer,
@@ -43,10 +43,11 @@ module CellRenderer(
 import Hierarchy
 import StoreValue	(GenericValue, TMType)
 
--- Definition of the @Attribute data type. (EXPORTED)
+-- @data CellRendererClass@ Definition of the @ref arg Attribute@ data type.
 --
--- * Each @CellRenderer defines a set of attributes. They are used by the
---   Mogul layer to generate columns in a @TreeStore or @ListStore.
+-- * Each @ref type CellRenderer@ defines a set of attributes. They are used
+--   by the Mogul layer to generate columns in a @ref arg TreeStore@ or
+--   @ref arg ListStore@.
 --
 data CellRendererClass cr => Attribute cr a 
   = AttrSingle String TMType 

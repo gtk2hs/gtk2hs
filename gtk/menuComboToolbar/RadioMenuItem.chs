@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget RadioMenuItem
+--  GIMP Toolkit (GTK) @entry Widget RadioMenuItem@
 --
 --  Author : Axel Simon
 --          
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,16 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * These are not the original Gtk functions as they involve handling a Gtk
 --   owned GList. The interface is rather oriented towards the RadioButton
 --   widget interface.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module RadioMenuItem(
   RadioMenuItem,
@@ -51,21 +51,22 @@ import Object	(makeNewObject)
 
 -- methods
 
--- Create a new radio menu item. (EXPORTED)
+-- @constructor radioMenuItemNew@ Create a new radio menu item.
 --
 radioMenuItemNew :: IO RadioMenuItem
-radioMenuItemNew = makeNewObject mkRadioMenuItem $ liftM castPtr $
+radioMenuItemNew  = makeNewObject mkRadioMenuItem $ liftM castPtr $
   {#call unsafe radio_menu_item_new#} nullPtr
 
--- Create a new radio menu item with a label in it. (EXPORTED)
+-- @method radioMenuItemNewWithLabel@ Create a new radio menu item with a
+-- label in it.
 --
 radioMenuItemNewWithLabel :: String -> IO RadioMenuItem
 radioMenuItemNewWithLabel label = withCString label $ \strPtr ->
   makeNewObject mkRadioMenuItem $ liftM castPtr $
   {#call unsafe radio_menu_item_new_with_label#} nullPtr strPtr
 
--- Create a new radio button and attach it to the group of another
--- radio button. (EXPORTED)
+-- @method radioMenuItemNewJoinGroup@ Create a new radio button and attach it
+-- to the group of another radio button.
 --
 radioMenuItemNewJoinGroup :: RadioMenuItem -> IO RadioMenuItem
 radioMenuItemNewJoinGroup rmi = do
@@ -73,11 +74,11 @@ radioMenuItemNewJoinGroup rmi = do
   makeNewObject mkRadioMenuItem $ liftM castPtr $
     {#call unsafe radio_menu_item_new#} groupPtr
 
--- Create a new radio button with a label and attach it to the group of 
--- another radio button. (EXPORTED)
+-- @method radioMenuItemNewJoinGroupWithLabel@ Create a new radio button with
+-- a label and attach it to the group of another radio button.
 --
-radioMenuItemNewJoinGroupWithLabel :: 
-  RadioMenuItem -> String -> IO RadioMenuItem
+radioMenuItemNewJoinGroupWithLabel :: RadioMenuItem -> String ->
+                                      IO RadioMenuItem
 radioMenuItemNewJoinGroupWithLabel rmi label = do
   groupPtr <- {#call unsafe radio_menu_item_get_group#} rmi
   withCString label $ \strPtr -> 

@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: TextMark for the editor widget
+--  GIMP Toolkit (GTK) @entry TextMark for the editor widget@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,13 +17,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module TextMark(
   TextMark,
@@ -51,26 +51,26 @@ type MarkName = String
 
 -- methods
 
--- Set the visibility of a @TextMark. (EXPORTED)
+-- @method textMarkSetVisible@ Set the visibility of a @ref type TextMark@.
 --
-textMarkSetVisible :: TextMarkClass tm => Bool -> tm -> IO ()
-textMarkSetVisible vis tm = 
+textMarkSetVisible :: TextMarkClass tm => tm -> Bool -> IO ()
+textMarkSetVisible tm vis = 
   {#call unsafe text_mark_set_visible#} (toTextMark tm) (fromBool vis)
 
 
--- Get the visibility of a @TextMark. (EXPORTED)
+-- @method textMarkGetVisible@ Get the visibility of a @ref type TextMark@.
 --
 textMarkGetVisible :: TextMarkClass tm => tm -> IO Bool
 textMarkGetVisible tm = liftM toBool $
   {#call unsafe text_mark_get_visible#} (toTextMark tm)
 
--- Query if a @TextMark is still valid. (EXPORTED)
+-- @method textMarkGetDeleted@ Query if a @ref type TextMark@ is still valid.
 --
 textMarkGetDeleted :: TextMarkClass tm => tm -> IO Bool
 textMarkGetDeleted tm = liftM toBool $
   {#call unsafe text_mark_get_deleted#} (toTextMark tm)
 
--- Get the name of a @TextMark. (EXPORTED)
+-- @method textMarkGetName@ Get the name of a @ref type TextMark@.
 --
 -- * Returns Nothing, if the mark is anonymous.
 --
@@ -79,7 +79,7 @@ textMarkGetName tm = do
   strPtr <- {#call unsafe text_mark_get_name#} (toTextMark tm)
   if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
 
--- Extract the @TextBuffer of the mark. (EXPORTED)
+-- @method textMarkGetBuffer@ Extract the @ref type TextBuffer@ of the mark.
 --
 -- * Returns Nothing if the mark was deleted.
 --
@@ -89,8 +89,8 @@ textMarkGetBuffer tm = do
   if bufPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkTextBuffer (return $ castPtr bufPtr)
 
--- Determine whether the mark has gravity towards the beginning of a line.
--- (EXPORTED)
+-- @method textMarkGetLeftGravity@ Determine whether the mark has gravity
+-- towards the beginning of a line.
 --
 -- * The name is misleading as Arabic, Hebrew and some other languages have
 --   the beginning of a line towards the right.

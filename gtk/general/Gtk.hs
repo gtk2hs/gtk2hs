@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: gathering of all definitions
+--  GIMP Toolkit (GTK) @entry gathering of all definitions@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/04 14:02:30 $
+--  Version $Revision: 1.3 $ from $Date: 2002/05/24 09:43:25 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This module gathers all publicly available functions from the Gtk binding.
 --

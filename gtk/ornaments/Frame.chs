@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Frame
+--  GIMP Toolkit (GTK) @entry Widget Frame@
 --
 --  Author : Axel Simon
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,15 +19,15 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * This container adds a frame around its contents. This is useful to
 --   logically separate items in a dialog box.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Frame(
   Frame,
@@ -54,42 +54,42 @@ import Enums	(ShadowType(..))
 
 -- methods
 
--- Create a new frame without a label. (EXPORTED)
+-- @constructor frameNew@ Create a new frame without a label.
 --
--- * A label can later be set by calling @frameSetLabel.
+-- * A label can later be set by calling @ref method frameSetLabel@.
 --
 frameNew :: IO Frame
-frameNew = makeNewObject mkFrame $
+frameNew  = makeNewObject mkFrame $
   liftM castPtr $ {#call unsafe frame_new#} nullPtr
 
--- Replace the label of the frame. (EXPORTED)
+-- @method frameSetLabel@ Replace the label of the frame.
 --
-frameSetLabel :: FrameClass f => String -> f -> IO ()
-frameSetLabel label f = withCString label $ \strPtr ->
+frameSetLabel :: FrameClass f => f -> String -> IO ()
+frameSetLabel f label = withCString label $ \strPtr ->
   {#call frame_set_label#} (toFrame f) strPtr
 
--- Replace the label with a (label) widget. (EXPORTED)
+-- @method frameSetLabelWidget@ Replace the label with a (label) widget.
 --
-frameSetLabelWidget :: (FrameClass f, WidgetClass w) => w -> f -> IO ()
-frameSetLabelWidget w f = 
+frameSetLabelWidget :: (FrameClass f, WidgetClass w) => f -> w -> IO ()
+frameSetLabelWidget f w = 
   {#call frame_set_label_widget#} (toFrame f) (toWidget w)
 
--- Specify where the label should be placed. (EXPORTED)
+-- @method frameSetLabelAlign@ Specify where the label should be placed.
 --
 -- * A value of 0.0 means left justified (the default), a value of 1.0 means
 --   right justified.
 --
-frameSetLabelAlign :: FrameClass f => Float -> f -> IO ()
-frameSetLabelAlign align f =
+frameSetLabelAlign :: FrameClass f => f -> Float -> IO ()
+frameSetLabelAlign f align =
   {#call frame_set_label_align#} (toFrame f) (realToFrac align) 0.0
 
--- Set the shadow type of the frame. (EXPORTED)
+-- @method frameSetShadowType@ Set the shadow type of the frame.
 --
-frameSetShadowType :: FrameClass f => ShadowType -> f -> IO ()
-frameSetShadowType shadow f = 
+frameSetShadowType :: FrameClass f => f -> ShadowType -> IO ()
+frameSetShadowType f shadow = 
   {#call frame_set_shadow_type#} (toFrame f) ((fromIntegral.fromEnum) shadow)
 
--- Retrieve the label of the frame. (EXPORTED)
+-- @method frameGetLabel@ Retrieve the label of the frame.
 --
 -- * An exception is thrown if a non-Label widget was set. (EXPORTED)
 --

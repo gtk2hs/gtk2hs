@@ -32,7 +32,7 @@ inplace	: noinplace
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
 	  c_includes		= [$(call makeTextList,\
 	  			  $(notdir $(STUBHFILES)) $(HEADER))],\
-	  package_deps		= [],\
+	  package_deps		= [$(call makeTextList,$(NEEDPACKAGES))],\
 	  extra_ghc_opts	= [$(call makeTextList,$(EXTRAHC_FLAGS))],\
 	  extra_cc_opts		= [],\
 	  extra_ld_opts		= [$(subst +,$(SPACE),$(call makeTextList,\
@@ -83,9 +83,16 @@ uninstall : interactiveUninstall
 	$(strip rmdir -p $(sort $(INST_HIDIR) $(INST_LIBDIR) \
 	  $(INST_INCLDIR)) 2> /dev/null || true)
 
+#	  echo $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`\
+#	  echo $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`\
 
 $(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
 	      $(LIBSUFFIX)=$(OBJSUFFIX)) $(GHCIOBJS)
+	if test -f .depend; then \
+	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend` && \
+	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend` && \
+	  $(RM) .depend;\
+	fi
 	$(RM) $@
 	$(strip $(HC) --make $(MAINOK) -package-name $(PACKAGENAME) \
 	  -package-conf $(LOCALPKGCONF) $(HCINCLUDES) \
@@ -100,8 +107,10 @@ $(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
 # GHCi handling
 # The current version of GHCi cannot load lib<blah>.a files. We have to convert
 # them into object files <blah>.o and make it accessible to GHCi. The decision
-# here is to convert all the dependant libraries into <blah>.o and copy them
-# into the installation directory $(INST_LIBDIR).
+# here is to convert the library and header files (.hi) into <blah>.o and copy
+# them into the installation directory $(INST_LIBDIR).
+
+
 
 GHCIARCH		= $(wildcard $(addprefix lib,$(addsuffix $(LIBSUFFIX),\
 			  $(strip $(LIBNAME)))) $(foreach DIR,$(patsubst \

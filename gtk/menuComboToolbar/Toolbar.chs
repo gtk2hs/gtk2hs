@@ -1,13 +1,13 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Binding for Haskell: Widget Toolbar
+--  GIMP Toolkit (GTK) @entry Widget Toolbar@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1.1.1 $ from $Date: 2002/03/24 21:56:20 $
+--  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
 --
---  Copyright (c) [1999.2001] Manuel Chakravarty, Axel Simon
+--  Copyright (c) 1999..2002 Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
---- DESCRIPTION ---------------------------------------------------------------
+-- @description@ --------------------------------------------------------------
 --
 -- * Toolbar: create bars of buttons and derived widget. @Button@s, 
 --   @RadioButton@s and @ToggleButton@s can be added by refering to stock
@@ -28,7 +28,7 @@
 --   GtkToolbar Mnemonics of @RadioButton@s and @ToggleButton@s are not
 --   honored.
 --
---- DOCU ----------------------------------------------------------------------
+-- @documentation@ ------------------------------------------------------------
 --
 -- * All the append, insert and prepend functions use an internal function to
 --   do the actual work. In fact the interface is pretty skrewed up: To insert
@@ -41,7 +41,7 @@
 --   stock image lookup is done manually. A mnemonic in the labels is sadly
 --   not honored this way.
 --
---- TODO ----------------------------------------------------------------------
+-- @todo@ ---------------------------------------------------------------------
 
 module Toolbar(
   Toolbar,
@@ -71,8 +71,10 @@ module Toolbar(
   iconSizeLargeToolbar,
   toolbarSetIconSize,
   toolbarGetIconSize,
-  connectToOrientationChanged,
-  connectToStyleChanged
+  onOrientationChanged,
+  afterOrientationChanged,
+  onStyleChanged,
+  afterStyleChanged
   ) where
 
 import Monad	(liftM)
@@ -93,10 +95,10 @@ import Image	(imageNewFromStock)
 
 -- methods
 
--- Create a new, empty toolbar. (EXPORTED)
+-- @constructor toolbarNew@ Create a new, empty toolbar.
 --
 toolbarNew :: IO Toolbar
-toolbarNew = makeNewObject mkToolbar $ liftM castPtr
+toolbarNew  = makeNewObject mkToolbar $ liftM castPtr
   {#call unsafe toolbar_new#}
 
 -- Make tooltips or not? 
@@ -106,54 +108,60 @@ mkToolText Nothing               fun = fun nullPtr nullPtr
 mkToolText (Just (text,private)) fun = withCString text $ \txtPtr -> 
   withCString private $ \prvPtr -> fun txtPtr prvPtr
 
--- Insert a new @Button into the @Toolbar. (EXPORTED)
+-- @method toolbarInsertNewButton@ Insert a new @ref arg Button@ into the
+-- @ref type Toolbar@.
 --
--- * The new @Button is created at position @pos, counting from 0.
+-- * The new @ref arg Button@ is created at position @ref arg pos@, counting
+--   from 0.
 --
--- * The icon and label for the button is referenced by @stockId which must
---   be a valid entry in the @Toolbar@s Style or the default @IconFactory.
+-- * The icon and label for the button is referenced by @ref arg stockId@
+--   which must be a valid entry in the @ref type Toolbar@s Style or the
+--   default @ref arg IconFactory@.
 --
--- * If you whish to have @Tooltips added to this button you can specify
---   Just (tipText, tipPrivate), otherwise specify Nothing.
+-- * If you whish to have @ref type Tooltips@ added to this button you can
+--   specify Just (tipText, tipPrivate), otherwise specify Nothing.
 --
--- * The newly created @Button is returned. Use this button to add an action
---   function with @connectToClicked.
+-- * The newly created @ref arg Button@ is returned. Use this button to add an
+--   action function with @ref signal connectToClicked@.
 --
-toolbarInsertNewButton :: ToolbarClass tb => 
-  Int -> String -> Maybe (String,String) -> tb -> IO Button
-toolbarInsertNewButton pos stockId tooltips tb = 
+toolbarInsertNewButton :: ToolbarClass tb => tb -> Int -> String ->
+                          Maybe (String,String) -> IO Button
+toolbarInsertNewButton tb pos stockId tooltips = 
   withCString stockId $ \stockPtr ->
   mkToolText tooltips $ \textPtr privPtr ->
   makeNewObject mkButton $ liftM castPtr $ 
   {#call unsafe toolbar_insert_stock#} (toToolbar tb) stockPtr textPtr privPtr
     nullFunPtr nullPtr (fromIntegral pos)
 
--- Append a new @Button to the @Toolbar. (EXPORTED)
+-- @method toolbarAppendNewButton@ Append a new @ref arg Button@ to the
+-- @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
-toolbarAppendNewButton :: ToolbarClass tb => 
-  String -> Maybe (String,String) -> tb -> IO Button
-toolbarAppendNewButton = toolbarInsertNewButton (-1)
+toolbarAppendNewButton :: ToolbarClass tb => tb -> String ->
+                          Maybe (String,String) -> IO Button
+toolbarAppendNewButton tb = toolbarInsertNewButton tb (-1)
 
--- Prepend a new @Button to the @Toolbar. (EXPORTED)
+-- @method toolbarPrependNewButton@ Prepend a new @ref arg Button@ to the
+-- @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
-toolbarPrependNewButton :: ToolbarClass tb => 
-  String -> Maybe (String,String) -> tb -> IO Button
-toolbarPrependNewButton = toolbarInsertNewButton 0
+toolbarPrependNewButton :: ToolbarClass tb => tb -> String ->
+                           Maybe (String,String) -> IO Button
+toolbarPrependNewButton tb = toolbarInsertNewButton tb 0
 
--- Insert a new @ToggleButton into the @Toolbar. (EXPORTED)
+-- @method toolbarInsertNewToggleButton@ Insert a new @ref arg ToggleButton@
+-- into the @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
--- * Mnemonics in the label of the @StockItem are removed as they do not
---   work due to the bad interface definition of GtkToolbar.
+-- * Mnemonics in the label of the @ref arg StockItem@ are removed as they do
+--   not work due to the bad interface definition of GtkToolbar.
 --
-toolbarInsertNewToggleButton :: ToolbarClass tb => 
-  Int -> String -> Maybe (String,String) -> tb -> IO ToggleButton
-toolbarInsertNewToggleButton pos stockId tooltips tb = do
+toolbarInsertNewToggleButton :: ToolbarClass tb => tb -> Int -> String ->
+                                Maybe (String,String) -> IO ToggleButton
+toolbarInsertNewToggleButton tb pos stockId tooltips = do
   mItem <- stockLookup stockId
   item <- case mItem of
     (Just item) -> return item
@@ -167,42 +175,47 @@ toolbarInsertNewToggleButton pos stockId tooltips tb = do
     toolbarChildToggleButton (mkWidget nullForeignPtr) lblPtr 
     textPtr privPtr (toWidget image) nullFunPtr nullPtr (fromIntegral pos)
 
--- Append a new @ToggleButton to the @Toolbar. (EXPORTED)
+-- @method toolbarAppendNewToggleButton@ Append a new @ref arg ToggleButton@
+-- to the @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
--- * Mnemonics in the label of the @StockItem are removed as they do not
---   work due to the bad interface definition of GtkToolbar.
+-- * Mnemonics in the label of the @ref arg StockItem@ are removed as they do
+--   not work due to the bad interface definition of GtkToolbar.
 --
-toolbarAppendNewToggleButton :: ToolbarClass tb => 
-  String -> Maybe (String,String) -> tb -> IO ToggleButton
-toolbarAppendNewToggleButton = toolbarInsertNewToggleButton (-1)
+toolbarAppendNewToggleButton :: ToolbarClass tb => tb -> String ->
+                                Maybe (String,String) -> IO ToggleButton
+toolbarAppendNewToggleButton tb = toolbarInsertNewToggleButton tb (-1)
 
--- Prepend a new @ToggleButton to the @Toolbar. (EXPORTED)
+-- @method toolbarPrependNewToggleButton@ Prepend a new @ref arg ToggleButton@
+-- to the @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
--- * Mnemonics in the label of the @StockItem are removed as they do not
---   work due to the bad interface definition of GtkToolbar.
+-- * Mnemonics in the label of the @ref arg StockItem@ are removed as they do
+--   not work due to the bad interface definition of GtkToolbar.
 --
-toolbarPrependNewToggleButton :: ToolbarClass tb => 
-  String -> Maybe (String,String) -> tb -> IO ToggleButton
-toolbarPrependNewToggleButton = toolbarInsertNewToggleButton 0
+toolbarPrependNewToggleButton :: ToolbarClass tb => tb -> String ->
+                                 Maybe (String,String) -> IO ToggleButton
+toolbarPrependNewToggleButton tb = toolbarInsertNewToggleButton tb 0
 
--- Insert a new @RadioButton into the @Toolbar. (EXPORTED)
+-- @method toolbarInsertNewRadioButton@ Insert a new @ref arg RadioButton@
+-- into the @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
--- * Mnemonics in the label of the @StockItem are removed as they do not
---   work due to the bad interface definition of GtkToolbar.
+-- * Mnemonics in the label of the @ref arg StockItem@ are removed as they do
+--   not work due to the bad interface definition of GtkToolbar.
 --
--- * The @parent argument must be set to another @RadioButton in the
---   group. If Nothing is given, a new group is generated (which is the
---   desired behavious for the first button of a group).
+-- * The @ref arg parent@ argument must be set to another
+--   @ref arg RadioButton@ in the group. If Nothing is given, a new group is
+--   generated (which is the desired behavious for the first button of a
+--   group).
 --
-toolbarInsertNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) =>
-  Int -> String -> Maybe (String,String) -> Maybe rb -> tb -> IO RadioButton
-toolbarInsertNewRadioButton pos stockId tooltips rb tb = do
+toolbarInsertNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) => tb ->
+                               Int -> String -> Maybe (String,String) ->
+                               Maybe rb -> IO RadioButton
+toolbarInsertNewRadioButton tb pos stockId tooltips rb = do
   mItem <- stockLookup stockId
   item <- case mItem of
     (Just item) -> return item
@@ -216,108 +229,121 @@ toolbarInsertNewRadioButton pos stockId tooltips rb tb = do
     toolbarChildRadioButton (maybe (mkWidget nullForeignPtr) toWidget rb) lblPtr
     textPtr privPtr (toWidget image) nullFunPtr nullPtr (fromIntegral pos)
 
--- Append a new @RadioButton to the @Toolbar. (EXPORTED)
+-- @method toolbarAppendNewRadioButton@ Append a new @ref arg RadioButton@ to
+-- the @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
--- * Mnemonics in the label of the @StockItem are removed as they do not
---   work due to the bad interface definition of GtkToolbar.
+-- * Mnemonics in the label of the @ref arg StockItem@ are removed as they do
+--   not work due to the bad interface definition of GtkToolbar.
 --
-toolbarAppendNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) =>
-  String -> Maybe (String,String) -> Maybe rb -> tb -> IO RadioButton
-toolbarAppendNewRadioButton = toolbarInsertNewRadioButton (-1)
+toolbarAppendNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) => tb ->
+                               String -> Maybe (String,String) -> Maybe rb ->
+                               IO RadioButton
+toolbarAppendNewRadioButton tb = toolbarInsertNewRadioButton tb (-1)
 
--- Prepend a new @RadioButton to the @Toolbar. (EXPORTED)
+-- @method toolbarPrependNewRadioButton@ Prepend a new @ref arg RadioButton@
+-- to the @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
--- * Mnemonics in the label of the @StockItem are removed as they do not
---   work due to the bad interface definition of GtkToolbar.
+-- * Mnemonics in the label of the @ref arg StockItem@ are removed as they do
+--   not work due to the bad interface definition of GtkToolbar.
 --
-toolbarPrependNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) => 
-  String -> Maybe (String,String) -> Maybe rb -> tb -> IO RadioButton
-toolbarPrependNewRadioButton = toolbarInsertNewRadioButton 0
+toolbarPrependNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) => tb ->
+                                String -> Maybe (String,String) -> Maybe rb ->
+                                IO RadioButton
+toolbarPrependNewRadioButton tb = toolbarInsertNewRadioButton tb 0
 
 
--- Insert an arbitrary widget to the @Toolbar. (EXPORTED)
+-- @method toolbarInsertNewWidget@ Insert an arbitrary widget to the
+-- @ref type Toolbar@.
 --
--- * The @Widget should not be a button. Adding @Button@s with the
---   @toolbarInsertButton,... functions with stock objects is much
---   better as it takes care of theme handling.
+-- * The @ref arg Widget@ should not be a button. Adding @ref arg Button@s
+--   with the @ref method toolbarInsertButton@,... functions with stock
+--   objects is much better as it takes care of theme handling.
 --
-toolbarInsertNewWidget :: (ToolbarClass tb, WidgetClass w) =>
-  Int -> w -> Maybe (String,String) -> tb -> IO ()
-toolbarInsertNewWidget pos w tooltips tb = 
+toolbarInsertNewWidget :: (ToolbarClass tb, WidgetClass w) => tb -> Int -> w ->
+                          Maybe (String,String) -> IO ()
+toolbarInsertNewWidget tb pos w tooltips = 
   mkToolText tooltips $ \textPtr privPtr ->
   {#call unsafe toolbar_insert_widget#} (toToolbar tb) (toWidget w)
     textPtr privPtr (fromIntegral pos)
 
--- Append a new @Widget to the @Toolbar. (EXPORTED)
+-- @method toolbarAppendNewWidget@ Append a new @ref arg Widget@ to the
+-- @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
--- * Mnemonics in the label of the @StockItem are removed as they do not
---   work due to the bad interface definition of GtkToolbar.
+-- * Mnemonics in the label of the @ref arg StockItem@ are removed as they do
+--   not work due to the bad interface definition of GtkToolbar.
 --
-toolbarAppendNewWidget :: (ToolbarClass tb, WidgetClass w) =>
-  w -> Maybe (String,String) -> tb -> IO ()
-toolbarAppendNewWidget = toolbarInsertNewWidget (-1)
+toolbarAppendNewWidget :: (ToolbarClass tb, WidgetClass w) => tb -> w ->
+                          Maybe (String,String) -> IO ()
+toolbarAppendNewWidget tb = toolbarInsertNewWidget tb (-1)
 
--- Prepend a new @Widget to the @Toolbar. (EXPORTED)
+-- @method toolbarPrependNewWidget@ Prepend a new @ref arg Widget@ to the
+-- @ref type Toolbar@.
 --
--- * see @toolbarInsertNewButton for details
+-- * see @ref method toolbarInsertNewButton@ for details
 --
--- * Mnemonics in the label of the @StockItem are removed as they do not
---   work due to the bad interface definition of GtkToolbar.
+-- * Mnemonics in the label of the @ref arg StockItem@ are removed as they do
+--   not work due to the bad interface definition of GtkToolbar.
 --
-toolbarPrependNewWidget :: (ToolbarClass tb, WidgetClass w) =>
-  w -> Maybe (String,String) -> tb -> IO ()
-toolbarPrependNewWidget = toolbarInsertNewWidget 0
+toolbarPrependNewWidget :: (ToolbarClass tb, WidgetClass w) => tb -> w ->
+                           Maybe (String,String) -> IO ()
+toolbarPrependNewWidget tb = toolbarInsertNewWidget tb 0
 
 
--- Set the direction of the @Toolbar. (EXPORTED)
+-- @method toolbarSetOrientation@ Set the direction of the @ref type Toolbar@.
 --
-toolbarSetOrientation :: ToolbarClass tb => Orientation -> tb -> IO ()
-toolbarSetOrientation orientation tb = {#call toolbar_set_orientation#}
+toolbarSetOrientation :: ToolbarClass tb => tb -> Orientation -> IO ()
+toolbarSetOrientation tb orientation = {#call toolbar_set_orientation#}
   (toToolbar tb) ((fromIntegral.fromEnum) orientation)
 
--- Specify how the buttons are dispayed. (EXPORTED)
+-- @method toolbarSetStyle@ Specify how the buttons are dispayed.
 --
-toolbarSetStyle :: ToolbarClass tb => ToolbarStyle -> tb -> IO ()
-toolbarSetStyle style tb = {#call toolbar_set_style#}
+toolbarSetStyle :: ToolbarClass tb => tb -> ToolbarStyle -> IO ()
+toolbarSetStyle tb style = {#call toolbar_set_style#}
   (toToolbar tb) ((fromIntegral.fromEnum) style)
 
--- Enable or disable the @Tooltips. (EXPORTED)
+-- @method toolbarSetTooltips@ Enable or disable the @ref type Tooltips@.
 --
-toolbarSetTooltips :: ToolbarClass tb => Bool -> tb -> IO ()
-toolbarSetTooltips enable tb = {#call unsafe toolbar_set_tooltips#}
+toolbarSetTooltips :: ToolbarClass tb => tb -> Bool -> IO ()
+toolbarSetTooltips tb enable = {#call unsafe toolbar_set_tooltips#}
   (toToolbar tb) (fromBool enable)
 
--- Set the size of the icons. (EXPORTED)
+-- @method toolbarSetIconSize@ Set the size of the icons.
 --
 -- * It might be sensible to restrict oneself to IconSizeSmallToolbar and
 --   IconSizeLargeToolbar.
 --
-toolbarSetIconSize :: ToolbarClass tb => IconSize -> tb -> IO ()
-toolbarSetIconSize is tb = {#call toolbar_set_icon_size#} (toToolbar tb)
+toolbarSetIconSize :: ToolbarClass tb => tb -> IconSize -> IO ()
+toolbarSetIconSize tb is = {#call toolbar_set_icon_size#} (toToolbar tb)
   (fromIntegral is)
 
--- Retrieve the current icon size that the @Toolbar shows. (EXPORTED)
+-- @method toolbarGetIconSize@ Retrieve the current icon size that the
+-- @ref type Toolbar@ shows.
 --
 toolbarGetIconSize :: ToolbarClass tb => tb -> IO IconSize
 toolbarGetIconSize tb = toolbarGetSize' (toToolbar tb)
 
 -- signals
 
--- Emitted when toolbarSetOrientation is called. (EXPORTED)
+-- @signal connectToOrientationChanged@ Emitted when toolbarSetOrientation is
+-- called.
 --
-connectToOrientationChanged :: ToolbarClass tb => 
-  (Orientation -> IO ()) -> ConnectAfter -> tb -> IO (ConnectId tb)
-connectToOrientationChanged = connect_ENUM__NONE "orientation-changed"
+onOrientationChanged, afterOrientationChanged :: ToolbarClass tb => tb ->
+                                                 (Orientation -> IO ()) ->
+                                                 IO (ConnectId tb)
+onOrientationChanged = connect_ENUM__NONE "orientation-changed" False
+afterOrientationChanged = connect_ENUM__NONE "orientation-changed" True
 
--- Emitted when toolbarSetStyle is called. (EXPORTED)
+-- @signal connectToStyleChanged@ Emitted when toolbarSetStyle is called.
 --
-connectToStyleChanged :: ToolbarClass tb =>
-  (ToolbarStyle -> IO ()) -> ConnectAfter -> tb -> IO (ConnectId tb)
-connectToStyleChanged = connect_ENUM__NONE "style-changed"
+onStyleChanged, afterStyleChanged :: ToolbarClass tb => tb ->
+                                     (ToolbarStyle -> IO ()) ->
+                                     IO (ConnectId tb)
+onStyleChanged = connect_ENUM__NONE "style-changed" False
+afterStyleChanged = connect_ENUM__NONE "style-changed" True
 

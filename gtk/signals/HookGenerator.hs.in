@@ -444,11 +444,12 @@ generate sig = let ident = mkIdentifier sig in
   indent 0.ss "connect_".ident.ss " :: ".
   indent 1.mkContext sig.ss " SignalName ->".
   mkType sig.
+  indent 1.ss "ConnectAfter -> obj ->".
   indent 1.mkUserType sig.ss " ->".
-  indent 1.ss "ConnectAfter -> obj -> IO (ConnectId obj)".
+  indent 1.ss "IO (ConnectId obj)".
   indent 0.ss "connect_".ident.ss " signal".
   mkArg sig.
-  indent 1.ss "user after obj =".
+  indent 1.ss "after obj user =".
   indent 1.ss "do".
   indent 2.ss "hPtr <- mkHandler_".ident.
   indent 3.ss "(\\_ ".mkLambdaArgs sig.ss "-> do".
