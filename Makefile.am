@@ -215,7 +215,7 @@ libHSgtk_a_HCFLAGS		= -fglasgow-exts
 libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GTK_CFLAGS))
 libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GTK_CFLAGS))
 
-libHSgtk_a_SOURCES =			  \
+libHSgtk_a_SOURCES =				  \
 	gtk/general/Hierarchy.chs		  \
 	gtk/general/Signal.chs			  \
 	gtk/glib/GValue.chs			  \
@@ -329,6 +329,8 @@ libHSgtk_a_SOURCES =			  \
 	gtk/glib/GError.chs.pp			  \
 	gtk/glib/GType.chs			  \
 	gtk/glib/GValueTypes.chs		  \
+	gtk/pango/Description.chs		  \
+	gtk/pango/PangoEnums.chs		  \
 	gtk/pango/PangoLayout.chs		  \
 	gtk/pango/Rendering.chs			  \
 	gtk/embedding/Plug.chs			  \

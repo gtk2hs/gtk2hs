@@ -1,10 +1,11 @@
+-- -*-haskell-*-
 --  GIMP Toolkit (GTK) - pango non-GObject types PangoTypes
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2004/12/12 11:18:41 $
+--  Version $Revision: 1.3 $ from $Date: 2004/12/12 12:45:19 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -151,5 +152,5 @@ instance Show Language where
 emptyLanguage = Language nullPtr
 
 languageFromString :: String -> IO Language
-languageFromString language =
+languageFromString language = liftM Language $
   withUTFString language {#call language_from_string#}

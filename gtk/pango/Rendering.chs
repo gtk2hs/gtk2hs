@@ -1,10 +1,11 @@
+-- -*-haskell-*-
 --  GIMP Toolkit (GTK) - text layout functions Rendering
 --
 --  Author : Axel Simon
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.4 $ from $Date: 2004/12/12 11:18:41 $
+--  Version $Revision: 1.5 $ from $Date: 2004/12/12 12:45:19 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -156,7 +157,7 @@ foreign import ccall unsafe "pango_font_description_copy"
 -- | Set the default 'Language' of this context.
 --
 contextSetLanguage :: PangoContext -> Language -> IO ()
-contextSetLanguage pc (Language l) = {#call unsafe context_set_language#} pc l
+contextSetLanguage = {#call unsafe context_set_language#}
 
 -- | Get the current 'Language' of this context.
 --

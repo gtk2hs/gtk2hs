@@ -1,10 +1,11 @@
+-- -*-haskell-*-
 --  GIMP Toolkit (GTK) - text layout functions: Font Descriptions
 --
 --  Author : Axel Simon
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2004/12/12 11:18:41 $
+--  Version $Revision: 1.2 $ from $Date: 2004/12/12 12:45:19 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -106,12 +107,12 @@ instance Flags FontMask
 -- * Most fonts will have either a 'StyleItalic' or 'StyleQblique'
 --   but rarely both.
 --
-fontDescriptionSetStyle :: FontDescription -> Style -> IO ()
+fontDescriptionSetStyle :: FontDescription -> FontStyle -> IO ()
 fontDescriptionSetStyle fd p =
     {#call unsafe set_style#} fd (fromIntegral (fromEnum p))
 
 -- | Get the style field.
-fontDescriptionGetStyle :: FontDescription -> IO (Maybe Style)
+fontDescriptionGetStyle :: FontDescription -> IO (Maybe FontStyle)
 fontDescriptionGetStyle fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskStyle) .&. (fromIntegral fields) /=0
@@ -243,7 +244,7 @@ fontDescriptionToString fd = do
   strPtr <- {#call unsafe to_string#} fd
   str <- peekUTFString strPtr
   {#call unsafe g_free#} (castPtr strPtr)
-  return strPtr
+  return str
 
 
 

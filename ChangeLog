@@ -3,6 +3,21 @@
 	* Makefile.am, mk/common.mk: Avoid building dependencies when
 	saying "make clean".
 
+	* gtk/pango/Description.chs, gtk/pango/PangoEnums.chs: Rearranged
+	enumerations, added new functions to query fonts.
+
+	* gtk/pango/Markup.hs, gtk/pango/PangoLayout.chs,
+	gtk/pango/PangoTypes.chs.pp, gtk/pango/Rendering.chs: As above. 
+	New functionality only available due to fixed in c2hs that allow
+	type synonyms in hooks.
+
+	* tools/hierarchyGen/hierarchy.list: Corrected a typo.
+
+	* demo/unicode/Arabic.hs: Simplify example.
+
+	* gtk/general/Structs.hsc: Changed the type of pangoScale from Int
+	to Integer.
+	
 2004-12-9  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/embedding/Embedding.hsc, gtk/entry/EntryCompletion.chs.pp,

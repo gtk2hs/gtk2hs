@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.28 $ from $Date: 2004/12/09 18:26:01 $
+--  Version $Revision: 1.29 $ from $Date: 2004/12/12 12:45:19 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -663,7 +663,7 @@ drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
 --   setting font sizes, device units are always considered to be points
 --   (as in \"12 point font\"), rather than pixels.
 --
-pangoScale :: Int
+pangoScale :: Integer
 pangoScale = #const PANGO_SCALE
 
 
