@@ -188,6 +188,14 @@
 	falsely detecting clashes between source modules producing the same
 	object file. Also --include the module header for .hsc files.
 
+	* glib/glib.pkg.in, glib/System/Glib.hs, glib/System/Glib/FFI.hs,
+	glib/System/Glib/GError.chs.pp, glib/System/Glib/GList.chs
+	glib/System/Glib/GObject.chs.pp, glib/System/Glib/GParameter.hsc
+	glib/System/Glib/GType.chs, glib/System/Glib/GValue.chs,
+	glib/System/Glib/GValueTypes.chs, glib/System/Glib/StoreValue.hsc
+	glib/System/Glib/UTFString.hs: move glib modules to a seperate
+	package and use hierarchical namespace names.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add
