@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 17 August 99
 --
---  Version $Revision: 1.4 $ from $Date: 2003/07/09 21:12:27 $
+--  Version $Revision: 1.5 $ from $Date: 2003/11/17 23:54:28 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --
@@ -139,7 +139,7 @@ import C	  (AttrC, CObj(..), CTag(..), lookupDefObjC, lookupDefTagC,
 		   applyPrefixToNameSpaces, isTypedef, simplifyDecl,
 		   declrFromDecl, declrNamed, structMembers, structName,
 		   tagName, declaredName , structFromDecl, funResultAndArgs,
-		   chaseDecl, findAndChaseDecl, checkForAlias,
+		   chaseDecl, findAndChaseDecl, findObjShadow, checkForAlias,
 		   checkForOneAliasName, lookupEnum,  lookupStructUnion,
 		   lookupDeclOrTag, isPtrDeclr, dropPtrDeclr, isPtrDecl,
 		   getDeclOf, isFunDeclr, refersToNewDef, CDef(..))
@@ -463,7 +463,8 @@ expandHook (CHSPointer isStar cName oalias ptrKind isNewtype oRefType pos) =
 	    --   allow `... -> fun HSTYPE' to explicitly mark function
 	    --   types if this ever becomes important
 	traceInfoHsType hsName hsType
-	pointerDef isStar cNameFull hsName ptrKind isNewtype hsType isFun
+	realCName <- liftM (maybe cName snd) $ findObjShadow cName
+	pointerDef isStar realCName hsName ptrKind isNewtype hsType isFun
       Right tag -> do			        -- found a tag definition
         let cNameFull = tagName tag
 	traceInfoCName "tag definition" cNameFull

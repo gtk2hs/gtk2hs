@@ -30,9 +30,10 @@ module SourceLanguagesManager (
   sourceLanguagesManagerNew,
   sourceLanguagesManagerGetAvailableLanguages,
   sourceLanguagesManagerGetLanguageFromMimeType,
-) where
+  sourceLanguagesManagerGetLangFilesDirs
+  ) where
 
-import Monad	(liftM)
+import Monad	(liftM, mapM)
 import FFI
 import GObject	(makeNewGObject)
 {#import Hierarchy#}
@@ -46,7 +47,7 @@ import GList	(readGSList)
 -- methods
 
 -- @constructor sourceLanguagesManagerNew@ Create a new
--- @ref type SourceLanguagesManager@
+-- @ref type SourceLanguagesManager@.
 --
 sourceLanguagesManagerNew :: IO SourceLanguagesManager
 sourceLanguagesManagerNew = makeNewGObject mkSourceLanguagesManager
@@ -70,12 +71,14 @@ sourceLanguagesManagerGetLanguageFromMimeType lm mimeType = do
   if langPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkSourceLanguage (return langPtr)
 
-{-
--- @method sourceLanguagesManagerGetLangFilesDirs@
+-- @method sourceLanguagesManagerGetLangFilesDirs@ Retrieve filenames with
+-- language specifications.
 -- 
-sourceLanguagesManagerGetLangFilesDirs :: SourceLanguagesManager -> IO [FilePath]
+sourceLanguagesManagerGetLangFilesDirs :: SourceLanguagesManager -> 
+					  IO [FilePath]
 sourceLanguagesManagerGetLangFilesDirs lm = do
-  gList <- {#call source_languages_manager_get_lang_files_dirs#} lm
-  wList <- readGSList gList
-  return the wList, converted to strings
--}
+  gsList <- {#call source_languages_manager_get_lang_files_dirs#} lm
+  -- The returned structure is private and nothing is to be freed.
+  dirList <- readGSList gsList
+  mapM peekUTFString dirList
+

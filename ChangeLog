@@ -1,5 +1,15 @@
 2003-11-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* c2hs/gen/GenBind.hs: Do not peek through C typedefs when
+	determining the C type equivalent of a Haskell type. This corrects
+	a problem with GtkSourceViewMarker which is a typedef of
+	GtkTextMark. c2hs generated an interface file which said that all
+	GtkTextMarks are now SourceViews in Haskell. This was a bug in
+	c2hs.
+
+	* sourceview/SourceLanguagesManager.chs: Completed
+	sourceLanguagesManagerGetLangFilesDirs.
+
 	* mk/library.mk: Install one file and one directory at a time. The
 	local install-sh script cannot cope with more.
 	
