@@ -99,6 +99,6 @@ HSTOOLFLAGS	= $(filter -H%,$(HC_FLAGS)) -M350m
 BUILT_IN_C2HS	= @BUILT_IN_C2HS@
 
 .PHONY: default all install uninstall clean distclean mostlyclean \
-	maintainerclan inplace noinplace initlocal
+	maintainerclan inplace noinplace inplaceinit
 default		: all
 
