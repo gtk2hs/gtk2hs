@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/26 00:11:42 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/26 01:25:58 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -262,8 +262,8 @@ dialogSetHasSeparator self setting =
 -- sensitize\/desensitize dialog buttons.
 --
 dialogSetResponseSensitive :: DialogClass self => self
- -> Int   -- ^ @responseId@ - a response ID
- -> Bool  -- ^ @setting@ - @True@ for sensitive
+ -> ResponseId -- ^ @responseId@ - a response ID
+ -> Bool       -- ^ @setting@ - @True@ for sensitive
  -> IO ()
 dialogSetResponseSensitive self responseId setting =
   {# call dialog_set_response_sensitive #}

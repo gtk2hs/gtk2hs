@@ -12,6 +12,9 @@
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: documentation changes and
 	code formatting changes.
 
+	* gtk/Graphics/UI/Gtk/Windows/Dialog.chs: Ooops! over zelous merging.
+	Minor fix.
+
 2005-03-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs: match up against existing .hs modules if
