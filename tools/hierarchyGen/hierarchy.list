@@ -151,6 +151,8 @@
 	GtkIconFactory
         GtkSourceLanguage		if sourceview
         GtkSourceLanguagesManager	if sourceview
+#this one is actualy an interface, but all interface implementations must be GObjects
+	GtkSourceStyleScheme		if sourceview
 # This now became a GObject in version 2:
 	GdkGC				as GC, gdk_gc_get_type
 # These are Pango structures
