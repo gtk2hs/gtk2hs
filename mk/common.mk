@@ -6,9 +6,9 @@ SEDNOID		:= 's+\(.*\)\./\(.*\)+\1\2+'
 SEDPIPE		:= $(SED) -e $(SEDNOUP) -e $(SEDNOID) -e $(PATHSED)
 
 # directories of interest
-#TOP		:= $(shell echo $(TOP) | $(SEDPIPE))
+ABS_TOP		:= $(shell echo $(ABS_TOP) | $(SEDPIPE))
 CURDIR		:= $(shell $(PWD) | $(SEDPIPE))
-TARDIR		:= $(subst $(TOP),$(TARNAME),$(CURDIR))/
+TARDIR		:= $(subst $(ABS_TOP),$(TARNAME),$(CURDIR))/
 
 # directories of source files
 SUBDIRS			?= .
