@@ -89,11 +89,11 @@ EXTRA_HFILESOK		= $(sort $(EXTRA_HFILES) $(EXTRA_CFILES:.c=.h))
 # C include file paths and other options to CPP.
 EXTRA_CPPFLAGS_ONLY_I	= $(filter -I%,$(EXTRA_CPPFLAGS))
 
-EXTRA_LIBS_ONLY_L	= $(filter -L%,$(EXTRA_LIBS))
+EXTRA_LIBS_ONLY_L	= $(filter -L% -l%,$(EXTRA_LIBS))
 
 CPPFLAGS_ONLY_I		= $(filter -I%,$(CPPFLAGS))
 
-CFLAGS_ONLY_L		= $(filter -L%,$(CFLAGS))
+LIBS_ONLY_L		= $(filter -L% -l%,$(CFLAGS))
 
 
 # Ensure that the user-supplied target is valid. If there is a nice way to
@@ -121,15 +121,15 @@ HCINCLUDES		= $(addprefix '-\#include<,$(addsuffix >',$(HEADER) \
 
 # Specify how hsc should be run.
 HSCFLAGGED	= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-		  $(EXTRA_CPPFLAGS_ONLY_I) \
-		  $(addprefix --lflag=,$(EXTRA_LIBS) $(CFLAGS)\
-		  $(addprefix --cflag=,$(CPPFLAGS) \
-		  $(filter-out $(EXTRA_CPP_FLAGS_ONLY_I),$(EXTRA_CPP_FLAGS))))\
+		  $(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I) \
+		  $(addprefix --lflag=,$(EXTRA_LIBS_ONLY_L) $(CFLAGS)\
+		  $(addprefix --cflag=,$(CPPFLAGS) $(EXTRA_CPP_FLAGS)))\
 		  --cc=$(HC))
 
 # Specify how c2hs should be run.
 C2HSFLAGGED	= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-		  $(addprefix -C,$(EXTRA_CPPFLAGS_ONLY_I)) -i$(HIDIRSOK)
+		  $(addprefix -C,$(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I)) \
+		  -i$(HIDIRSOK)
 
 # Read in all extra dependencies between .chs files.
 -include $(ALLCHSFILES:.chs=.dep)
@@ -145,15 +145,15 @@ C2HSFLAGGED	= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 # commands seem to be executed.
 $(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs
 	if test -f .depend; then \
-	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend`;\
-	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`; \
 	  echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend`;\
 	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`; \
+	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend`;\
+	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`; \
 	  $(RM) .depend;\
 	fi
-	$(TOP)/mk/chsDepend -i$(HIDIRSOK) $@
 	$(strip $(C2HSFLAGGED) -o : \
 	  $($(addsuffix -HEADER,$(notdir $(basename $@)))) $<)
+	$(TOP)/mk/chsDepend -i$(HIDIRSOK) $@
 
 # As above, but <blah.chs-HEADER> is not defined so we use the variable
 # HEADER which contains the name of the header file common to all
@@ -184,8 +184,6 @@ errorNoTarget	:
 		@echo APPNAME to build an executable. 
 
 inplace		: all
-
-uninplace	:
 
 all		: inplaceinit
 
@@ -322,7 +320,7 @@ tarsource :
 
 .PHONY: clean distclean mostlyclean maintainer-clean
 
-mostlyclean : uninplace
+mostlyclean : noinplace
 	$(strip $(RM) $(TARGETOK) $(ALLHSFILES:.hs=.o) $(ALLHSFILES:.hs=.hi) \
 	  $(EXTRA_CFILES:.c=.o) $(ALLHSFILES:.hs=_stub.*))
 
@@ -332,7 +330,7 @@ clean	: mostlyclean
 
 distclean : clean
 	$(strip $(RM) $(EXTRA_HSFILES) $(EXTRA_CHSFILES) \
-	  $(ALLCHSFILES:.chs=.dep))
+	  $(ALLCHSFILES:.chs=.dep)) $(LOCALPKGCONF) $(LOCALPKGCONF).old
 
 maintainer-clean : distclean
 

@@ -24,10 +24,12 @@ inplace	: noinplace
 	  import_dirs		= [$(call makeTextList, $(INPL_HIDIR))],\
 	  source_dirs		= [],\
 	  library_dirs		= [$(call makeTextList, $(INPL_LIBDIR) \
-	  $(patsubst -L%,%,$(EXTRA_LIBS_ONLY_L)))],\
+	  $(patsubst -L%,%,$(filter -L%,$(EXTRA_LIBS_ONLY_L) \
+	  $(LIBS_ONLY_L))))],\
 	  hs_libraries		= [\"$(LIBNAME)\"],\
 	  extra_libraries	= [$(call makeTextList,\
-	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS))))],\
+	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS_ONLY_L) \
+	  $(LIBS_ONLY_L))))],\
 	  include_dirs		= [$(call makeTextList, $(INPL_INCLDIR)\
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
 	  c_includes		= [$(call makeTextList,\
@@ -63,8 +65,9 @@ endif
 	  $(patsubst -L%,%,$(EXTRA_LIBS_ONLY_L)))],\
 	  hs_libraries		= [\"$(LIBNAME)\"],\
 	  extra_libraries	= [$(call makeTextList,\
-	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS))))],\
-	  include_dirs		= [$(call makeTextList, $(INST_INCLDIR)\
+	  $(patsubst -l%,%,$(filter -l%,$(EXTRA_LIBS_ONLY_L) \
+	  $(LIBS_ONLY_L))))],\
+	  include_dirs		= [$(call makeTextList, $(INPL_INCLDIR)\
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
 	  c_includes		= [$(call makeTextList,\
 	  			  $(notdir $(STUBHFILES)) $(HEADER))],\
@@ -89,18 +92,18 @@ uninstall : interactiveUninstall
 $(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
 	      $(LIBSUFFIX)=$(OBJSUFFIX)) $(GHCIOBJS)
 	@if test -f .depend; then \
-	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend` &&\
-	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend` && \
 	  echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend` &&\
 	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`; \
+	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend` &&\
+	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend` && \
 	  $(RM) .depend;\
 	fi
 	$(RM) $@
 	$(strip $(HC) --make $(MAINOK) -package-name $(PACKAGENAME) \
 	  -package-conf $(LOCALPKGCONF) $(HCINCLUDES) \
-	  $(EXTRA_CPPFLAGS_ONLY_I) $(EXTRA_LIBS) \
-	  $(HC_FLAGS) $(EXTRAHC_FLAGS) -i$(HIDIRSOK) $(NEEDPACKAGESOK) \
-	  $(CFLAGS_ONLY_L) $(CPPFLAGS_ONLY_I))
+	  $(EXTRA_CPPFLAGS_ONLY_I) $(EXTRA_LIBS_ONLY_L) \
+	  $(LIBS_ONLY_L) $(CPPFLAGS_ONLY_I) \
+	  $(HC_FLAGS) $(EXTRAHC_FLAGS) -i$(HIDIRSOK) $(NEEDPACKAGESOK))
 	$(strip $(AR) crs $@ $(STUBOFILES) $(ALLHSFILES:.hs=$(OBJSUFFIX)) \
 	  $(EXTRA_CFILES:.c=$(OBJSUFFIX)))
 
