@@ -20,15 +20,10 @@ INSTALLDIROK		= $(strip $(if $(INSTALLDIR),\
 			/$(patsubst %/,%,$(dir $(INSTALLDIR)/))))
 
 # directories of installation
-INST_HIDIR		?= $(addsuffix $(INSTALLDIROK)/hi,$(libdir))
-INST_LIBDIR		?= $(addsuffix $(INSTALLDIROK),$(libdir))
-INST_INCLDIR		?= $(INST_HIDIR)
-INST_BINDIR		?= $(addsuffix $(INSTALLDIROK),$(bindir))
-
-INST_HIDIR		:= $(shell echo $(INST_HIDIR) | $(SEDPIPE))
-INST_LIBDIR		:= $(shell echo $(INST_LIBDIR) | $(SEDPIPE))
-INST_INCLDIR		:= $(shell echo $(INST_INCLDIR) | $(SEDPIPE))
-INST_BINDIR		:= $(shell echo $(INST_BINDIR) | $(SEDPIPE))
+INST_LIBDIR		= $(shell echo $(addsuffix $(INSTALLDIROK),$(libdir)) | $(SEDPIPE))
+INST_HIDIR		= $(INST_LIBDIR)/hi
+INST_INCLDIR		= $(INST_HIDIR)
+INST_BINDIR		= $(shell echo $(addsuffix $(INSTALLDIROK),$(bindir)) | $(SEDPIPE))
 
 # these values are used for building a library in-place
 INPL_HIDIR		:= $(sort $(patsubst %/.,%,$(patsubst %/,%,\
