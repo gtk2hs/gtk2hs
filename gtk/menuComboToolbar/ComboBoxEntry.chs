@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) entry Widget ComboBoxEntry
 --
@@ -23,7 +24,10 @@
 -- * Added in gtk 2.4
 --
 
+#include<gtk/gtkversion.h>
+
 module ComboBoxEntry (
+#if GTK_CHECK_VERSION(2,4,0)
   ComboBoxEntryClass,
   ComboBoxEntry,
   comboBoxEntryNew,
@@ -31,8 +35,10 @@ module ComboBoxEntry (
   comboBoxEntryNewText,
   comboBoxEntrySetTextColumn,
   comboBoxEntryGetTextColumn,
+#endif
 ) where
 
+#if GTK_CHECK_VERSION(2,4,0)
 import Monad	(liftM)
 import FFI
 
@@ -68,3 +74,5 @@ comboBoxEntryGetTextColumn :: ComboBoxEntryClass combo => combo -> IO Int
 comboBoxEntryGetTextColumn combo =
   liftM fromIntegral $ 
   {# call gtk_combo_box_entry_get_text_column #} (toComboBoxEntry combo)
+
+#endif

@@ -24,7 +24,10 @@
 -- * Added in GTK+ 2.4
 --
 
+#include<gtk/gtkversion.h>
+
 module EntryCompletion (
+#if GTK_CHECK_VERSION(2,4,0)
   EntryCompletion,
   EntryCompletionClass,
   entryCompletionNew,
@@ -39,7 +42,10 @@ module EntryCompletion (
   entryCompletionInsertActionMarkup,
   entryCompletionDeleteAction,
   entryCompletionSetTextColumn
+#endif
 ) where
+
+#if GTK_CHECK_VERSION(2,4,0)
 
 import Monad	(liftM)
 import FFI
@@ -157,3 +163,4 @@ connect_GtkEntryCompletionMatchFunc ec user = do
   writeIORef dRef dPtr
   {# call gtk_entry_completion_set_match_func #} ec
     (castFunPtr hPtr) nullPtr dPtr
+#endif

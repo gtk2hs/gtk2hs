@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 -- GIMP Toolkit (GTK) Widget ToolItem
 --
@@ -32,8 +33,10 @@
 --
 -- * Added in GTK+ 2.4
 --
+#include<gtk/gtkversion.h>
 
 module ToolItem (
+#if GTK_CHECK_VERSION(2,4,0)
   toolItemNew,
   toolItemSetHomogeneous,
   toolItemGetHomogeneous,
@@ -48,7 +51,7 @@ module ToolItem (
   toolItemGetVisibleVertical,
   toolItemSetIsImportant,
   toolItemGetIsImportant,
-  IconSize(..),
+  IconSize,
   toolItemGetIconSize,
   Orientation(..),
   toolItemGetOrientation,
@@ -59,7 +62,10 @@ module ToolItem (
   toolItemRetrieveProxyMenuItem,
   toolItemGetProxyMenuItem,
   toolItemSetProxyMenuItem
+#endif
   ) where
+
+#if GTK_CHECK_VERSION(2,4,0)
 
 import Monad	(liftM)
 import FFI
@@ -67,7 +73,7 @@ import FFI
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Structs  (IconSize(..))
+import Structs  (IconSize)
 import Enums	  (Orientation(..), ToolbarStyle(..), ReliefStyle(..))
 
 {# context lib="gtk" prefix="gtk" #}
@@ -238,3 +244,5 @@ toolItemSetProxyMenuItem item menuItemId menuItem =
   withCString menuItemId $ \strPtr ->
   {#call tool_item_set_proxy_menu_item#} (toToolItem item)
     strPtr (toWidget menuItem)
+
+#endif

@@ -75,25 +75,6 @@ ALLHSFILES		:= $(HSFILES) $(ALLCHSFILES:.chs=.hs) \
 ALLSOURCEFILES		:= $(ALLCHSFILES) $(HSCFILES) $(HSFILES) \
 			$(EXTRA_HSFILES)
 
-# Compile a list of all generated *_stub.o files. Such a file is generated if
-# a sourcefile contains a foreign export declaration. If there is a standard
-# grep for regexs, then we should match for the beginning of the line. Files
-# specified with EXTRA_... cannot be scanned, thus these STUB files need to
-# be specified explicitly through EXTRA_STUBFILES.
-STUBOFILES		:= $(strip \
-	$(patsubst %.hs,%_stub.o, $(foreach FILE,\
-	$(HSFILES),$(shell $(GREP) -l "foreign export" $(FILE)))) \
-	$(patsubst %.chs,%_stub.o, $(foreach FILE,\
-	$(CHSFILES),$(shell $(GREP) -l "foreign export" $(FILE)))) \
-	$(patsubst %.hsc,%_stub.o, $(foreach FILE,\
-	$(HSCFILES),$(shell $(GREP) -l "foreign export" $(FILE))))\
-	$(patsubst %.chs,%_stub.o, $(EXTRA_STUBFILES)))
-
-# Not needed at the moment: GHC with --make knows that it should pass these
-# files to the C compiler. We only include the header file $(HEADER) and
-# clean the tree through a wildcard. 
-STUBHFILES		:= $(STUBOFILES:.o=.h)
-
 EXTRA_HFILESOK		:= $(sort $(EXTRA_HFILES) $(EXTRA_CFILES:.c=.h))
 
 # C include file paths and other options to CPP.
@@ -271,7 +252,8 @@ debug 	:
 	@echo Explicit header: $(EXPLICIT_HEADER)
 #	@echo all HSC files: $(HSCFILES)
 #	@echo all other HS files: $(HSFILES)
-#	@echo all files generating stubs: $(STUBOFILES)
+	@echo stub-o files: $(filter-out %*_stub.o,\
+	  $(shell echo $(addsuffix *_stub.o,$(SUBDIRSOK))))
 	@echo hi: $(INST_HIDIR) lib: $(INST_LIBDIR) 
 	@echo incl: $(INST_INCLDIR) bin: $(INST_BINDIR)
 #	@echo user install dir: $(INSTALLDIR)
@@ -345,7 +327,8 @@ tarsource :
 
 mostlyclean : noinplace
 	$(strip $(RM) $(TARGETOK) $(ALLHSFILES:.hs=.o) $(ALLHSFILES:.hs=.hi) \
-	  $(EXTRA_CFILES:.c=.o) $(ALLHSFILES:.hs=_stub.*) .depend)
+	  $(EXTRA_CFILES:.c=.o) $(ALLHSFILES:.hs=_stub.*) .depend \
+	  $(ALLCHSFILES:.chs=.dep))
 
 clean	: mostlyclean
 	$(strip $(RM) $(ALLCHSFILES:.chs=.hs) $(ALLCHSFILES:.chs=.chi) \

@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.27 $ from $Date: 2004/08/03 04:16:56 $
+--  Version $Revision: 1.28 $ from $Date: 2004/08/08 19:04:39 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -58,12 +58,10 @@ module Gtk(
   module Window,
   module Dialog,
   module FileSel,
-#if GTK_CHECK_VERSION(2,4,0)
   -- ** File dialog
   module FileChooser,
   module FileChooserDialog,
   module FileChooserWidget,
-#endif
   -- * Display widgets,
   module AccelLabel,
   module Image,
@@ -78,9 +76,7 @@ module Gtk(
   -- * Numeric\/text data entry
   module Editable,
   module Entry,
-#if GTK_CHECK_VERSION(2,4,0)
   module EntryCompletion,
-#endif
   module HScale,
   module VScale,
   module SpinButton,
@@ -108,10 +104,8 @@ module Gtk(
   -- * Menus, combo box, toolbar
   module CheckMenuItem,
   module Combo,
-#if GTK_CHECK_VERSION(2,4,0)
   module ComboBox,
   module ComboBoxEntry,
-#endif
   module Menu,
   module MenuBar,
   module MenuItem,
@@ -121,9 +115,7 @@ module Gtk(
   module RadioMenuItem,
   module TearoffMenuItem,
   module Toolbar,
-#if GTK_CHECK_VERSION(2,4,0)
   module ToolItem,
-#endif
   -- selectors (file/font/color/input device)
   module ColorSelection,
   module ColorSelectionDialog,
@@ -140,9 +132,7 @@ module Gtk(
   module HPaned,
   module Layout,
   module Notebook,
-#if GTK_CHECK_VERSION(2,4,0)
   module Expander,
-#endif
   module Table,
   module VBox,
   module VButtonBox,
@@ -209,11 +199,9 @@ import Gdk
 -- windows
 import Dialog
 import FileSel
-#if GTK_CHECK_VERSION(2,4,0)
 import FileChooser
 import FileChooserDialog
 import FileChooserWidget
-#endif
 import Window
 --import WindowGroup
 -- display widgets
@@ -230,9 +218,7 @@ import ToggleButton
 -- numeric\/text data entry
 import Editable
 import Entry
-#if GTK_CHECK_VERSION(2,4,0)
 import EntryCompletion
-#endif
 import HScale
 import VScale
 import SpinButton
@@ -266,10 +252,8 @@ import ListStore
 import TreeStore
 -- menus, combo box, toolbar
 import Combo
-#if GTK_CHECK_VERSION(2,4,0)
 import ComboBox
 import ComboBoxEntry
-#endif
 -- import ItemFactory
 import Menu
 import MenuBar
@@ -281,9 +265,7 @@ import RadioMenuItem
 import CheckMenuItem
 import TearoffMenuItem
 import Toolbar
-#if GTK_CHECK_VERSION(2,4,0)
 import ToolItem
-#endif
 -- selectors (file\/font\/color\/input device)
 import ColorSelection
 import ColorSelectionDialog
@@ -303,9 +285,7 @@ import HPaned
 import VPaned
 import Layout
 import Notebook
-#if GTK_CHECK_VERSION(2,4,0)
 import Expander
-#endif
 import Table
 -- ornaments
 import Frame

@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) entry Widget FileChooserDialog
 --
@@ -27,12 +28,18 @@
 -- * Added in GTK+ 2.4
 --
 
+#include<gtk/gtkversion.h>
+
 module FileChooserDialog (
+#if GTK_CHECK_VERSION(2,4,0)
   FileChooserDialogClass,
   FileChooserDialog,
   fileChooserDialogNew,
   fileChooserDialogNewWithBackend
+#endif
 ) where
+
+#if GTK_CHECK_VERSION(2,4,0)
 
 import Monad (liftM, when)
 import Maybe (isJust, fromJust)
@@ -53,22 +60,22 @@ import StoreValue
 instance FileChooserClass FileChooserDialog
 
 fileChooserDialogNew
-  :: Maybe String ->           -- Title of the dialog (or default)
-     Maybe Window ->           -- Transient parent of the dialog (or none)
-     FileChooserAction ->      -- Open or save mode for the dialog
-     [(String, ResponseId)] -> -- buttons and their response codes
-     IO FileChooserDialog
+  :: Maybe String            -- ^ Title of the dialog (or default)
+  -> Maybe Window            -- ^ Transient parent of the dialog (or none)
+  -> FileChooserAction       -- ^ Open or save mode for the dialog
+  -> [(String, ResponseId)]  -- ^ Buttons and their response codes
+  -> IO FileChooserDialog
 fileChooserDialogNew title parent action buttons =
   internalFileChooserDialogNew title parent action buttons Nothing
 
 
 fileChooserDialogNewWithBackend
-  :: Maybe String ->           -- Title of the dialog (or default)
-     Maybe Window ->           -- Transient parent of the dialog (or none)
-     FileChooserAction ->      -- Open or save mode for the dialog
-     [(String, ResponseId)] -> -- buttons and their response codes
-     String ->                 -- The name of the specific filesystem backend to use
-     IO FileChooserDialog
+  :: Maybe String              -- ^ Title of the dialog (or default)
+  -> Maybe Window              -- ^ Transient parent of the dialog (or none)
+  -> FileChooserAction         -- ^ Open or save mode for the dialog
+  -> [(String, ResponseId)]    -- ^ Buttons and their response codes
+  -> String                    -- ^ The name of the filesystem backend to use
+  -> IO FileChooserDialog
 fileChooserDialogNewWithBackend title parent action buttons backend =
   internalFileChooserDialogNew title parent action buttons (Just backend)
   
@@ -78,12 +85,13 @@ fileChooserDialogNewWithBackend title parent action buttons backend =
 -- bug, see <http://bugzilla.gnome.org/show_bug.cgi?id=141004>
 -- The solution is to call objectNew and add the buttons manually.
 
-internalFileChooserDialogNew :: Maybe String ->           -- Title of the dialog (or default)
-                                Maybe Window ->           -- Transient parent of the dialog (or none)
-                                FileChooserAction ->      -- Open or save mode for the dialog
-                                [(String, ResponseId)] -> -- buttons and their response codes
-				Maybe String ->           -- The name of the backend to use (optional)
-                                IO FileChooserDialog
+internalFileChooserDialogNew ::
+  Maybe String ->           -- Title of the dialog (or default)
+  Maybe Window ->           -- Transient parent of the dialog (or none)
+  FileChooserAction ->      -- Open or save mode for the dialog
+  [(String, ResponseId)] -> -- Buttons and their response codes
+  Maybe String ->           -- The name of the backend to use (optional)
+  IO FileChooserDialog
 internalFileChooserDialogNew title parent action buttons backend = do
   objType <- {# call unsafe gtk_file_chooser_dialog_get_type #}
   dialog <-makeNewObject mkFileChooserDialog $ liftM castPtr $
@@ -99,3 +107,5 @@ internalFileChooserDialogNew title parent action buttons backend = do
   mapM_ (\(btnName, btnResponse) ->
           dialogAddButton dialog btnName btnResponse) buttons
   return dialog
+
+#endif

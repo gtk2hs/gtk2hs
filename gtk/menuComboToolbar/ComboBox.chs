@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) entry Widget ComboBox
 --
@@ -23,7 +24,10 @@
 -- * Added in Gtk 2.4
 --
 
+#include<gtk/gtkversion.h>
+
 module ComboBox (
+#if GTK_CHECK_VERSION(2,4,0)
   ComboBoxClass,
   ComboBox,
   comboBoxNew,
@@ -44,7 +48,10 @@ module ComboBox (
   comboBoxRemoveText,
   comboBoxPopup,
   comboBoxPopdown
+#endif
 ) where
+
+#if GTK_CHECK_VERSION(2,4,0)
 
 import Monad	(liftM)
 import FFI
@@ -150,3 +157,5 @@ comboBoxPopup combo =
 comboBoxPopdown :: ComboBoxClass combo => combo -> IO ()
 comboBoxPopdown combo =
   {# call gtk_combo_box_popdown #} (toComboBox combo)
+
+#endif

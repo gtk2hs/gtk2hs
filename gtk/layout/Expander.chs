@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Expander
 --
@@ -29,7 +30,10 @@
 -- * Added in GTK+ 2.4
 --
 
+#include<gtk/gtkversion.h>
+
 module Expander (
+#if GTK_CHECK_VERSION(2,4,0)
   Expander,
   ExpanderClass,
   expanderNew,
@@ -48,7 +52,10 @@ module Expander (
   expanderGetLabelWidget,
   onActivate,
   afterActivate
+#endif
 ) where
+
+#if GTK_CHECK_VERSION(2,4,0)
 
 import Monad (liftM)
 import FFI
@@ -125,3 +132,5 @@ onActivate :: Expander -> IO () -> IO (ConnectId Expander)
 afterActivate :: Expander -> IO () -> IO (ConnectId Expander)
 onActivate = connect_NONE__NONE "activate" False
 afterActivate = connect_NONE__NONE "activate" True
+
+#endif

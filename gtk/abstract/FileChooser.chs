@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- GIMP Toolkit (GTK) Binding for Haskell: binding to GConf   -*-haskell-*-
 --    for storing and retrieving configuartion information
 --
@@ -29,7 +30,10 @@
 -- * Added in GTK+ 2.4
 --
 
+#include<gtk/gtkversion.h>
+
 module FileChooser (
+#if GTK_CHECK_VERSION(2,4,0)
   FileChooserClass,
   FileChooser,
   FileChooserAction(..),
@@ -85,7 +89,10 @@ module FileChooser (
 --  afterSelectionChanged,
   onUpdatePreview,
   afterUpdatePreview
+#endif
 ) where
+
+#if GTK_CHECK_VERSION(2,4,0)
 
 import Monad (liftM, when)
 import FFI
@@ -363,3 +370,6 @@ toStringGSList :: [String] -> IO GSList
 toStringGSList strs = do
   strPtrs <- mapM newCString strs
   toGSList strPtrs
+
+#endif
+

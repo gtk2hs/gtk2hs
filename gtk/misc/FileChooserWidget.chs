@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) entry Widget FileChooserWidget
 --
@@ -26,14 +27,19 @@
 --
 -- * Added in GTK+ 2.4
 --
+#include<gtk/gtkversion.h>
 
 module FileChooserWidget (
+#if GTK_CHECK_VERSION(2,4,0)
   FileChooserWidgetClass,
   FileChooserWidget,
   FileChooserAction,
   fileChooserWidgetNew,
   fileChooserWidgetNewWithBackend,
+#endif
 ) where
+
+#if GTK_CHECK_VERSION(2,4,0)
 
 import Monad (liftM)
 import FFI
@@ -59,3 +65,5 @@ fileChooserWidgetNewWithBackend action backend =
   withCString backend $ \strPtr ->
   {# call unsafe gtk_file_chooser_widget_new_with_backend #}
     (fromIntegral $ fromEnum action) strPtr
+
+#endif

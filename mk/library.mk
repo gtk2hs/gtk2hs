@@ -34,8 +34,7 @@ inplace	: noinplace
 	  include_dirs		= [$(call makeTextList, $(INPL_INCLDIR)\
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
 	  c_includes		= [$(call makeTextList,\
-	  			  $(notdir $(STUBHFILES)) $(HEADER)\
-				  $(EXTRA_HFILESOK))],\
+	  			  $(HEADER) $(EXTRA_HFILESOK))],\
 	  package_deps		= [$(call makeTextList,$(NEEDPACKAGES))],\
 	  extra_ghc_opts	= [$(call makeTextList,$(EXTRAHC_FLAGS))],\
 	  extra_cc_opts		= [],\
@@ -66,8 +65,8 @@ installfiles : $(PACKAGENAME).conf
 	  $(INSTALL_DATA) $$file $(DESTDIR)$(INST_HIDIR); done;
 	$(INSTALL_DATA) $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)
 	$(TOUCH) -r $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)/$(TARGETOK)
-ifneq ($(strip $(STUBHFILES) $(EXTRA_HFILESOK)),)
-	for file in $(STUBHFILES) $(EXTRA_HFILESOK); do \
+ifneq ($(strip $(EXTRA_HFILESOK)),)
+	for file in $(EXTRA_HFILESOK); do \
 	  $(INSTALL_DATA) $$file $(DESTDIR)$(INST_INCLDIR); done;
 endif
 	$(INSTALL_DATA) $(PACKAGENAME).conf $(DESTDIR)$(INST_LIBDIR)
@@ -86,8 +85,7 @@ $(PACKAGENAME).conf :
 	  include_dirs		= [$(call makeTextList, $(INST_INCLDIR)\
 	  $(patsubst -I%,%,$(EXTRA_CPPFLAGS_ONLY_I)))],\
 	  c_includes		= [$(call makeTextList,\
-	  			  $(notdir $(STUBHFILES)) $(HEADER)\
-				  $(notdir $(EXTRA_HFILESOK)))],\
+	  			   $(HEADER) $(notdir $(EXTRA_HFILESOK)))],\
 	  package_deps		= [$(call makeTextList,$(NEEDPACKAGES))],\
 	  extra_ghc_opts	= [$(call makeTextList,$(EXTRAHC_FLAGS))],\
 	  extra_cc_opts		= [],\
@@ -108,8 +106,7 @@ uninstall : uninstallfiles uninstallpackage
 uninstallfiles :
 	$(RM) $(addprefix $(DESTDIR)$(INST_INCLDIR)/,$(notdir $(ALLHSFILES:.hs=.hi)))
 	$(RM) $(addprefix $(DESTDIR)$(INST_LIBDIR)/,$(TARGETOK))
-	$(RM) $(addprefix $(DESTDIR)$(INST_INCLDIR)/,$(notdir $(STUBHFILES)\
-	  ) $(EXTRA_CFILES:.c=.h))
+	$(RM) $(addprefix $(DESTDIR)$(INST_INCLDIR)/,$(EXTRA_CFILES:.c=.h))
 	$(strip rmdir -p $(sort $(DESTDIR)$(INST_HIDIR) $(DESTDIR)$(INST_LIBDIR) \
 	  $(DESTDIR)$(INST_INCLDIR)) 2> /dev/null || true)
 
@@ -119,20 +116,23 @@ uninstallfiles :
 uninstallpackage :
 	$(PKG) -r $(PACKAGENAME)
 
-$(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
+.PHONY: compile
+compile : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
 	      $(LIBSUFFIX)=$(OBJSUFFIX)) $(GHCIOBJS)
 	$(RM) $(PACKAGENAME).conf
 	$(runC2HS)
-	$(RM) $@
 	$(strip $(HC) --make $(MAINOK) -package-name $(PACKAGENAME) \
 	  -package-conf $(LOCALPKGCONF) $(HCINCLUDES) \
 	  $(EXTRA_CPPFLAGS_ONLY_I) $(EXTRA_LIBS_ONLY_Ll) \
 	  $(LIBS_ONLY_L) $(CPPFLAGS_ONLY_I) \
 	  $(HC_FLAGS) $(EXTRAHC_FLAGS) -i$(HIDIRSOK) $(NEEDPACKAGESOK))
-	$(strip $(AR) crs $@ $(STUBOFILES) $(ALLHSFILES:.hs=$(OBJSUFFIX)) \
-	  $(EXTRA_CFILES:.c=$(OBJSUFFIX)))
 
-# $(STUBOFILES) $(addprefix -#include ,$(STUBHFILES))
+$(TARGETOK) : compile
+	$(RM) $@
+	$(strip $(AR) crs $@ $(filter-out %*_stub.o,\
+	  $(shell echo $(addsuffix *_stub.o,$(SUBDIRSOK)))) \
+	  $(ALLHSFILES:.hs=$(OBJSUFFIX)) \
+	  $(EXTRA_CFILES:.c=$(OBJSUFFIX)))
 
 # GHCi handling
 # The current version of GHCi cannot load lib<blah>.a files. We have to convert
