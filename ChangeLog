@@ -196,6 +196,13 @@
 	glib/System/Glib/UTFString.hs: move glib modules to a seperate
 	package and use hierarchical namespace names.
 
+	* configure.ac: add glib tests and flags stuff. Emit the result of the
+	win32 test into config.h so it'll be used.
+
+	* Makefile.am: add glib package, change file names to reflect module
+	renaming. Add glib flags before gtk flags everywere. All .hi files
+	now install using nobase to preserve directory names.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add
