@@ -1,3 +1,8 @@
+2002-07-17 Jens Petersen <petersen@haskell.org>
+
+	* Added .cvsignore files to most of the directories in the tree
+	to give cleaner cvs updates from a build tree.
+
 2002-07-08 Axel Simon <as49@ukc.ac.uk>
 
         * Reinstantiated the TreeList.hs module in mogul/. Made up a new
