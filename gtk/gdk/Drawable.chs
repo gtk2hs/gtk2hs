@@ -5,7 +5,7 @@
 --  Author : Axel Simon
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/23 15:55:36 $
+--  Version $Revision: 1.9 $ from $Date: 2004/06/04 16:31:00 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -154,7 +154,7 @@ drawPoints d gc points =
 drawLine :: DrawableClass d => d -> GC -> Point -> Point -> IO ()
 drawLine d gc (x1,y1) (x2,y2) = {#call unsafe draw_line#} (toDrawable d)
   (toGC gc) (fromIntegral x1) (fromIntegral y1) (fromIntegral x2) 
-  (fromIntegral x2)
+  (fromIntegral y2)
 
 -- | Draw several lines.
 --

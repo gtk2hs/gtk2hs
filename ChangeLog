@@ -1,3 +1,8 @@
+2004-06-04 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/gdk/Drawable.chs: fixed typo in drawLine. Thanks to Mats-Ola
+	Persson.
+	
 2004-05-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/pango/Markup.hs, gtk/pango/PangoLayout.chs,
