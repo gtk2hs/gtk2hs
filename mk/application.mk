@@ -1,6 +1,6 @@
 TARGETOK		= $(addsuffix $(APPSUFFIX),$(strip $(APPNAME)))
 
-$(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=.o)
+$(TARGETOK) : inplaceinit $(ALLHSFILES) $(EXTRA_CFILES:.c=.o)
 	$(RM) $@
 	$(strip $(HC) --make $(MAINOK) -o $@ $(HCINCLUDES) \
 	  -package-conf $(LOCALPKGCONF) \
@@ -11,3 +11,4 @@ $(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=.o)
 
 EXTRA_CLEANFILES += Main.hi $(TARGETOK)
 
+install-without-pkg: install
