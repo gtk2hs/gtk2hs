@@ -6,6 +6,6 @@ MAIN = Arabic.hs
 
 APPNAME = arabic 
 
-NEEDPACKAGES = lang gtk2
+NEEDPACKAGES = gtk2
 
 include $(TOP)/mk/common.mk

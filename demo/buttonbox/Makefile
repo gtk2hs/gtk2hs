@@ -6,6 +6,6 @@ MAIN = ButtonBox.hs
 
 APPNAME = buttonBox
 
-NEEDPACKAGES = lang gtk2
+NEEDPACKAGES = gtk2
 
 include $(TOP)/mk/common.mk

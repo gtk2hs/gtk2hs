@@ -2,7 +2,6 @@
 module Main where
 
 import Gtk
-import Mogul
 import SourceView
 import SourceBuffer
 import SourceLanguage
@@ -10,8 +9,8 @@ import SourceLanguagesManager
 
 main = do
   initGUI
-  win <- newWindow
-  win `onDestroy` Mogul.mainQuit
+  win <- windowNew
+  win `onDestroy` mainQuit
 
   -- create the appropriate language
   lm <- sourceLanguagesManagerNew

@@ -6,7 +6,7 @@ MAIN = SourceViewTest.hs
 
 APPNAME = sourceview
 
-NEEDPACKAGES = lang mogul sourceview
+NEEDPACKAGES = sourceview
 
 EXTRA_TARFILES += haskell.lang
 

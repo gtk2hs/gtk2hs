@@ -1,4 +1,13 @@
-2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
+2004-05-2 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/buttonbox/Makefile, demo/concurrent/Makefile,
+	demo/glade/Makefile, demo/graphic/Makefile, demo/hello/Makefile,
+	demo/sourceview/Makefile, demo/treeList/Makefile,
+	demo/unicode/Makefile: removed unnecessary required packages
+
+	* demo/sourceview/SourceViewTest.hs: remove Mogul dependancy
+
+2004-04-30 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/Makefile,
 	* glade/Makefile: added proprocessor pass for hierarchy.list
@@ -29,7 +38,7 @@
 	* gtk/general/Gtk.hs: temporarily disable building
 	FileChooserDialog, one of its dependancies has not been committed
 
-2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
+2004-04-29 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Makefile: use standard $(CPP) variable
 

@@ -4,8 +4,8 @@ include $(TOP)/mk/config.mk
 
 MAIN = GladeTest.hs
 
-APPNAME = gladetest
+APPNAME = gladeDemo
 
-NEEDPACKAGES = lang gtk2 glade
+NEEDPACKAGES = gtk2 glade
 
 include $(TOP)/mk/common.mk

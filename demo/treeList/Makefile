@@ -6,6 +6,6 @@ MAIN = ListTest.hs
 
 APPNAME = listTest 
 
-NEEDPACKAGES = lang mogul
+NEEDPACKAGES = mogul
 
 include $(TOP)/mk/common.mk

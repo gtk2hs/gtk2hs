@@ -6,6 +6,6 @@ MAIN = Drawing.hs
 
 APPNAME = drawing 
 
-NEEDPACKAGES = lang gtk2
+NEEDPACKAGES = gtk2
 
 include $(TOP)/mk/common.mk
