@@ -4,9 +4,9 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:24 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/08 09:13:09 $
 --
---  Copyright (c) [1998..2001] Manuel M. T. Chakravarty
+--  Copyright (c) [2000..2002] Axel Simon
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -111,8 +111,8 @@ init (Just (prog, args)) = do
 -- @method eventsPending@ Inquire the number of events pending on the event
 -- queue
 --
-eventsPending :: IO Bool
-eventsPending  = liftM toBool {#call unsafe events_pending#}
+eventsPending :: IO Int
+eventsPending  = liftM fromIntegral {#call unsafe events_pending#}
 
 -- @method main@ GTK+'s main event loop
 --
