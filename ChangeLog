@@ -39,6 +39,22 @@
 	since it is no longer relevant. Also remove support for providing an
 	alternate gtkmarshal.list file since it it is not used.
 
+	* gconf/System/Gnome/GConf/marshal.list: add local marshal list that
+	contains the callback types that gconf needs.
+
+	* Makefile.am: generate a Signals module for the gconf package. Also
+	make it inherit it's build settings from glib rather than gtk.
+
+	* gconf/System/Gnome/GConf/GConfClient.chs: import local Signals
+	module so that we can eliminate the dependency of the gconf package on
+	gtk package.
+
+	* gconf/gconf.cabal.in, gconf/gconf.pkg.in: change the dep from gtk to
+	glib.
+
+	* configure.ac: change the gconf flags so that they inherit from glib
+	rather than gtk.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for

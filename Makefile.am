@@ -674,17 +674,18 @@ libHSgconf_a_PACKAGE		= gconf/gconf.$(PKGEXT)
 libHSgconf_a_PACKAGEDEPS	= 
 libHSgconf_a_HEADER 		= gconf/gconf-client.h
 libHSgconf_a_PRECOMP		= gconf/gconf.precomp
-libHSgconf_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(GCONF_LIBS)
+libHSgconf_a_LIBS		= $(GLIB_LIBS) $(GCONF_LIBS)
 libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances \
                                    $(if $(USE_CABAL),-ignore-package glib)
-libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_CFLAGS))
-libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GCONF_CFLAGS))
+libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
+libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 
-libHSgconf_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gconf
-gconf/libHSgconf_a.deps	: gtk/libHSgtk_a.deps
+libHSgconf_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) gconf
+gconf/libHSgconf_a.deps	: glib/libHSglib_a.deps
 
 libHSgconf_a_GENERATEDSOURCES =				\
-	gconf/System/Gnome/GConf/Types.chs
+	gconf/System/Gnome/GConf/Types.chs		\
+	gconf/System/Gnome/GConf/Signals.chs
 
 nodist_libHSgconf_a_SOURCES = $(libHSgconf_a_GENERATEDSOURCES)
 
@@ -707,6 +708,15 @@ gconf/System/Gnome/GConf/Types.chs :			\
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gconf --lib=gconf --prefix=gconf \
 	--modname=System.Gnome.GConf.Types --parentname=System.Glib.GObject)
+
+gconf/System/Gnome/GConf/Signals.chs : \
+	$(srcdir)/tools/callbackGen/Signal.chs.template \
+	$(srcdir)/gconf/System/Gnome/GConf/marshal.list \
+	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) \
+	$(srcdir)/gconf/System/Gnome/GConf/marshal.list \
+	$(srcdir)/tools/callbackGen/Signal.chs.template $@ \
+	System.Gnome.GConf.Signals)
 
 libHSgconf_a_ALLSOURCES = $(libHSgconf_a_SOURCES) $(nodist_libHSgconf_a_SOURCES)
 
@@ -742,7 +752,6 @@ CLEANFILES += $(libHSgconf_a_BUILDSOURCES)
 DISTCLEANFILES+= gconf/libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgconf_a_CHSFILES:.chs=.dep) :	\
-	$(libHSgtk_a_GENERATEDSOURCES)	\
 	$(libHSgconf_a_GENERATEDSOURCES)
 -include $(libHSgconf_a_CHSFILES:.chs=.dep) gconf/libHSgconf_a.deps
 
