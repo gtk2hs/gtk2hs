@@ -2,18 +2,24 @@ TOP = .
 
 include $(TOP)/mk/config.mk
 
-MAKE_TOOLS = c2hs tools/typehier tools/signals
+MAKE_TOOLS = tools/typehier tools/signals
+
+ifeq ($(strip $(BUILT_IN_C2HS)),no)
+MAKE_VERB  += c2hs
+else
+MAKE_TOOLS += c2hs
+endif
 
 ifeq ($(strip $(BUILDDOCS)),no)
 MAKE_VERB  =  gendoc doc
 else
-MAKE_TOOLS  +=  gendoc doc
+MAKE_DOCS  =  gendoc doc
 endif
 
 MAKE_LIBS  = gtk sourceview mogul
 
 MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
-	     demo/hello
+	     demo/hello demo/sourceview
 
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 TODO VERSION aclocal.m4 acinclude.m4 \
@@ -22,7 +28,7 @@ EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 		 	 mk/library.mk mk/chsDepend.in install-sh \
 			 config.sub config.guess gtk2hs.spec.in gtk2hs.spec )
 
-dist :
+dist : configure gtk2hs.spec
 	$(RM) -r $(TARNAME)
 	$(RM) $(TARNAME).tar $(TARNAME).tar.gz
 	$(LN) . $(TARNAME)
@@ -32,13 +38,17 @@ dist :
 	$(GZIP) $(TARNAME).tar
 	$(RM) $(TARNAME)
 
-rpm: gtk2hs.spec dist
-	rpmbuild -ba gtk2hs.spec
+rpm: dist
+	rpmbuild -ba gtk2hs.spec $(RPMOPTS)
 
-srpm: gtk2hs.spec dist
+srpm: dist
 	rpmbuild -bs gtk2hs.spec
 
-gtk2hs.spec: VERSION gtk2hs.spec.in
+%: %.in
 	./configure
 
+gtk2hs.spec: VERSION
+
 include $(TOP)/mk/recurse.mk
+
+-include $(TOP)/Makefile.local
