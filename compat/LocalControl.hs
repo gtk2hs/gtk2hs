@@ -5,7 +5,7 @@
 --          
 --  Created: 21 July 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2003/07/09 22:42:43 $
+--  Version $Revision: 1.3 $ from $Date: 2004/08/10 14:55:24 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -30,22 +30,14 @@
 --- TODO ----------------------------------------------------------------------
 
 module LocalControl(
-#if __GLASGOW_HASKELL__>=504
   module Control.Exception,
   module Control.Concurrent
-#else
-  module Exception,
-  module Concurrent
-#endif
   ) where
 
 #if __GLASGOW_HASKELL__>=600
 import Control.Exception
 import Control.Concurrent  hiding(throwTo)
-#elif __GLASGOW_HASKELL__>=504
+#else
 import Control.Exception
 import Control.Concurrent
-#else
-import Exception
-import Concurrent
 #endif
