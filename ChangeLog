@@ -93,6 +93,8 @@
 	* embedding/Embedding.hsc, embedding/Plug.hs,
 	embedding/Socket.chs: initial haddockification
 
+	* gtk/glib/GParameter.hsc: initial haddockification
+
 2004-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/FileChooser.chs, gtk/abstract/Widget.chs:

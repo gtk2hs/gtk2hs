@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @entry GParameter@
+--  GIMP Toolkit (GTK) GParameter
 --
 --  Author : Duncan Coutts
 --          
 --  Created: 29 March 2004
 --
---  Version $Revision: 1.1 $ from $Date: 2004/05/07 16:40:00 $
+--  Version $Revision: 1.2 $ from $Date: 2004/05/23 17:06:24 $
 --
 --  Copyright (c) 2004 Duncan Coutts
 --
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 --
--- @description@ --------------------------------------------------------------
+-- |
 --
 -- Storable instance for GParameter, used by objectNew
 --
