@@ -1,3 +1,22 @@
+2005-02-06 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.ac: win32 fixes. Do not define WIN32 on windows since it
+	is already defined o that platform. Define a conditional so that
+	Makefile.am can conditonally compile a few modules. We no longer need
+	to pass -fnative-struct to gcc on windows.
+
+	* Makefile.am: win32 fixes. Add $(EXEEXT) in a few places to so names
+	of dependencies are correct on windows. Only compile the plug and
+	socket modules on non-win32 platforms.
+
+	* tools/c2hs/toplevel/C2HSConfig.hs.in: comment out the @TMPDIR@
+	substitution since it causes problems in windows and is not used
+	anyway.
+
+	* tools/c2hs/c/CParser.hs: make c2hs accept __attribute__'s on
+	declerations of functions returning pointer types. This is needed for
+	some mingw header file.
+
 2005-02-05 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: add support for interfaces, deal with

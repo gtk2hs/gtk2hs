@@ -91,8 +91,8 @@ gtk/Graphics/UI/Gtk/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs-boot1 \
 	$(srcdir)/tools/callbackGen/Signal.chs-boot2 \
 	$(srcdir)/tools/callbackGen/gtkmarshal.list \
-	$(srcdir)/tools/callbackGen/HookGenerator
-	$(strip $(srcdir)/tools/callbackGen/HookGenerator $(MARSHALLDEFS) \
+	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) $(MARSHALLDEFS) \
 	$(srcdir)/tools/callbackGen/ $@ \
 	$(if $(subst yes,,$(FOUR_WORD_CALLBACK)),--broken))
 
@@ -407,17 +407,26 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp				\
 	gtk/Graphics/UI/Gtk/Pango/Layout.chs				\
 	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp			\
-	gtk/Graphics/UI/Gtk/Embedding/Plug.chs				\
-	gtk/Graphics/UI/Gtk/Embedding/Socket.chs			\
 	gtk/Graphics/UI/Gtk/General/StockItems.hsc			\
 	gtk/Graphics/UI/Gtk/General/Structs.hsc				\
 	gtk/Graphics/UI/Gtk/Gdk/Events.hsc				\
-	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc			\
 	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
 	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs			\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.hs				\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs
+
+if !WIN32
+libHSgtk_a_SOURCES +=							\
+	gtk/Graphics/UI/Gtk/Embedding/Plug.chs				\
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs			\
+	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
+endif
+
+EXTRA_libHSgtk_a_SOURCES =						\
+	gtk/Graphics/UI/Gtk/Embedding/Plug.chs				\
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs			\
+	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
 
 html_HSFILES_PREPROC = gtk/Graphics/UI/Gtk.hs
 
@@ -448,9 +457,9 @@ $(libHSgtk_a_LIBADD) :
 
 gtk/Graphics/UI/Gtk/Types.chs : \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
-	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
         $(srcdir)/tools/hierarchyGen/hierarchy.list \
         $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
         $@ $(addprefix --tag=,$(CREATE_TYPES)) \
@@ -568,9 +577,9 @@ libHSglade_a_SOURCES =	        \
 glade_Graphics_UI_Gtk_Glade_Types_hs_HCFLAGS	= -fglasgow-exts
 
 glade/Graphics/UI/Gtk/Glade/Types.chs : $(srcdir)/tools/hierarchyGen/hierarchy.list \
-		      $(srcdir)/tools/hierarchyGen/TypeGenerator  \
+		      $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
 		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
-		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+		      $(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
 		      $(srcdir)/tools/hierarchyGen/hierarchy.list \
 		      $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 		      $@ --tag=libglade --lib=glade --prefix=glade \
@@ -645,9 +654,9 @@ libHSgconf_a_LIBADD =	\
 
 gconf/System/Gnome/GConf/Types.chs :			\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
-	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=gconf --lib=gconf --prefix=gconf \
@@ -733,9 +742,9 @@ sourceview_Graphics_UI_Gtk_SourceView_SourceTagStyle_hs_HCFLAGS	= -fglasgow-exts
 
 sourceview/Graphics/UI/Gtk/SourceView/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
-	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=sourceview --parentname=Graphics.UI.Gtk.Types \
@@ -806,9 +815,9 @@ mozembed_Graphics_UI_Gtk_MozEmbed_Types_hs_HCFLAGS = -fglasgow-exts
 
 mozembed/Graphics/UI/Gtk/MozEmbed/Types.chs :	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
-	$(srcdir)/tools/hierarchyGen/TypeGenerator  \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator \
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
 	$@ --tag=mozembed --parentname=Graphics.UI.Gtk.Types \

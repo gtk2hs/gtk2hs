@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 7 March 99
 --
---  Version $Revision: 1.2 $ from $Date: 2005/01/14 00:18:32 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/07 00:04:28 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -678,7 +678,7 @@ parseCEnum  =
 --
 parseCDeclr :: CParser CDeclr
 parseCDeclr  =
-      (pointer `opt` id)
+      ((pointer *-> optMaybe parseGnuCAttr) `opt` id)
   *>  base
   *>  many (flip (.)) id (arrayType <|> newStyleFun <|> oldStyleFun)
   *-> list parseGnuCAttr			  -- ignore GCC's __attribute__

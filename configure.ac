@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.7)
+AC_INIT(gtk2hs, 0.9.8_pre)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
@@ -108,7 +108,7 @@ else
     *mingw32* ) PATHSED=["s+/\([a-z]\)/+\1:/+"];;
     * ) PATHSED=["\#"];; 
   esac;
-  HSCFLAGS=" -C -optc-fnative-struct";
+  HSCFLAGS=; #we used to need "-C -optc-fnative-struct" but no longer it seems
   C2HSFLAGS=;
   dnl Where are we? (only used during configuration)
   TOP=`$PWD | $SED $PATHSED`;
@@ -116,9 +116,7 @@ else
   CREATE_TYPES=default;
 fi;
 
-if test "$WIN32" = "yes"; then
-  AC_DEFINE(WIN32, [], [Are we building on a Win32 system])
-fi
+AM_CONDITIONAL(WIN32, test "$WIN32" = "yes")
 
 dnl determine a temporary directory for c2hs
 TMPDIR="/tmp"
