@@ -1,7 +1,30 @@
 2003-01-21  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/Makefile: Inadvertently put hierarchy.list on the list of
-	files to be wiped with make clean.
+	files to be wiped with make clean. Removed that again.
+
+	* aclocal.m4 configure.in acinclude.m4 mk/config.mk.in
+	mk/library.mk mk/common.mk: Changed the configuration
+	infrastructure. aclocal.m4 is created by running aclocal, thus
+	shouldn't really be in CVS. The package specific macros are now
+	correctly in include.m4. configure.in changed so that is has
+	options for GLArea and GdkPixbuf which can now selectively be
+	enabled (though there is no code yet). The Makefiles have two new
+	flags called ENABLE_GLAREA and ENABLE_PIXBUF which are set to yes
+	or no. Fixed a bug in mk/library.mk that generated a bogus
+	subsystem argument to the linker.
+
+	* c2hs/chs/CHS.hs: Change c2hs so that is recognizes an OPTIONS
+	-cpp pragma like ghc's. If this pragma is specified the Haskell
+	program is run through CPP before the hooks are expanded. This is
+	necessary for some files where the API changed between Gtk version
+	2.0 and 2.2.
+
+	* gtk/embedding/Plug.chs gtk/embedding/Socket.chs
+	gtk/embedding/Embedding.hsc: Resurrected their functionality under
+	Unix. The Plug was moved from windows/ to embedding/ so it could
+	be selectively compiled, i.e. the whole embedding directory is
+	left out on Windows.
 	
 2003-01-20  Axel Simon <A.Simon@ukc.ac.uk>
 

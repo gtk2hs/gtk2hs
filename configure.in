@@ -98,13 +98,6 @@ dnl AC_ARG_WITH(ports,
 dnl	    [  --with-ports=PORTS-CONFIG use this Haskell Ports Library],
 dnl	    [PORTS_CONFIG=$withval])
 
-dnl Compile GtkGLArea extension.
-dnl AC_ARG_ENABLE(gtkglarea,
-dnl	      [  --enable-gtkglarea      generate binding for GtkGLArea],
-dnl	      [ENABLE_GTKGLAREA=$enableval])
-dnl AC_ARG_WITH(hopengl, 
-dnl	    [  --with-hopengl=HOPENGL  location of HOpenGL library],
-dnl	    [HOPENGL=$withval])
 
 dnl Select a specific Haskell compiler and/or flags.
 AC_ARG_WITH(hc, 
@@ -125,16 +118,37 @@ AC_ARG_WITH(pkgconf,
 	    [  --with-pkgconf=pkg.conf use another package.conf file for building in-place],
 	    [LOCALPKGCONF=$withval],[LOCALPKGCONF=$TOP/localpackage.conf])
 
+dnl Check if user wants GtkGLArea extension.
+AC_ARG_ENABLE(glarea,
+	      [  --enable-glarea         generate binding for GtkGLArea],
+	      [ENABLE_GLAREA=$enableval],[ENABLE_GLAREA=no])
+
+dnl Check if user wants GdkPixbuf image manipulation functions.
+AC_ARG_ENABLE(pixbuf,
+	      [  --enable-pixbuf         bind Gdk Pixbuf image manipulation functions],
+	      [ENABLE_PIXBUF=$enableval],[ENABLE_PIXBUF=no])
+
+dnl AC_ARG_WITH(hopengl, 
+dnl	    [  --with-hopengl=HOPENGL  location of HOpenGL library],
+dnl	    [HOPENGL=$withval])
+
+
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
+if test x$ENABLE_GLAREA = xno; then
+  if test x$ENABLE_PIXBUF = xno; then
+    PKG_CHECK_MODULES(GTK,[glib-2.0 >= 2.0.0 gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0])
+  else
+    PKG_CHECK_MODULES(GTK,[glib-2.0 >= 2.0.0 gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
+  fi
+else
+  AC_ERROR([GLArea currently not support. Compile with --enable-glarea=no .])
+fi
 
-PKG_CHECK_MODULES(GTK, glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0)
-
-dnl use a more sensible installation path on windows
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
 dnl does not like that, so we need to filter out non-existent directories.
-TMPGTK_CFLAGS=$GTK_CFLAGS;
+TMPGTK_CFLAGS=$GTK_CFLAGS $PIXBUF_CFLAGS;
 GTK_CFLAGS=;
 for FLAG in $TMPGTK_CFLAGS; do
   case $FLAG in
@@ -143,7 +157,7 @@ for FLAG in $TMPGTK_CFLAGS; do
     *) GTK_CFLAGS="$GTK_CFLAGS $FLAG";;
   esac;
 done;
-TMPGTK_LIBS=$GTK_LIBS;
+TMPGTK_LIBS=$GTK_LIBS $PIXBUF_LIBS;
 GTK_LIBS=;
 for FLAG in $TMPGTK_LIBS; do
   case $FLAG in
@@ -302,9 +316,6 @@ else
   C2HS=`$C2HS_CONFIG --c2hs`;
 fi
 
-
-
-
 dnl C2HS_CFLAGS="`$C2HS_CONFIG --cflags`"
 dnl AC_MSG_RESULT([Notice: C->Haskell induced compile time options: `$C2HS_CONFIG --cflags`])
 dnl LIBS="`$C2HS_CONFIG --libs` $LIBS"
@@ -327,7 +338,8 @@ if test $XSLTTRANS = no-translator; then
   FOUNDTRANSLATOR=no;
 fi
 
-AC_ARG_WITH(catalog,[an XML catalog file pointing to DocBook],
+AC_ARG_WITH(catalog,
+  [  --with-catalog=catalog  an XML catalog file pointing to DocBook],
   [SGML_CATALOG_FILES=$withval;], 
   [if test -z $SGML_CATALOG_FILES; then
     case "$target" in
@@ -351,10 +363,12 @@ AC_MSG_RESULT([$FOUNDCATALOG]);
 dnl Check for XSLT translation descriptions
 FOUNDHTML=yes;
 FOUNDFO=yes;
-AC_ARG_WITH(html,[an XSLT file for generating (X)HTML],
+AC_ARG_WITH(html,
+  [  --with-html=html.xsl    an XSLT file for generating (X)HTML],
   [XSLTHTML=$withval;], 
   [XSLTHTML=no;])
-AC_ARG_WITH(fo,[an XSLT file for generating formatting objects (FO)],
+AC_ARG_WITH(fo,
+  [  --with-fo=fo.xsl        an XSLT file for generating formatting objects (FO)],
   [XSLTFO=$withval;], 
   [XSLTFO=no;])
 AC_MSG_CHECKING([XSLT translations])
@@ -395,8 +409,6 @@ fi;
 
     
 dnl Needed substitution.
-AC_SUBST(GTK_LIBS)
-AC_SUBST(GTK_CFLAGS)
 AC_SUBST(PWD)
 AC_SUBST(TOP)
 AC_SUBST(CFLAGS)
@@ -420,6 +432,12 @@ AC_SUBST(PATHSED)
 AC_SUBST(HSCFLAGS)
 AC_SUBST(C2HSFLAGS)
 AC_SUBST(EXTRA_HFILES)
+dnl Versionitis
+dnl AC_SUBST(GTK_MAJOR_VERSION)
+dnl AC_SUBST(GTK_MINOR_VERSION)
+dnl AC_SUBST(GTK_MICRO_VERSION)
+AC_SUBST(ENABLE_PIXBUF)
+AC_SUBST(ENABLE_GLAREA)
 dnl Documentation
 AC_SUBST(BUILDDOCS)
 AC_SUBST(XSLTTRANS)

@@ -76,6 +76,16 @@ endif
 HC		= @HC@
 PKG		= @GHCPKG@
 
+
+# Compile different extensions
+
+# Provide image manipulation functions.
+ENABLE_PIXBUF	= @ENABLE_PIXBUF@
+
+# Provide an OpenGL widget.
+ENABLE_GLAREA	= @ENABLE_GLAREA@
+
+
 # This should be libXXX.a and XXX for Unix and
 #		    XXX.lib and XXX.exe for Windows
 

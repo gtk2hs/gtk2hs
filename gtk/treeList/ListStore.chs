@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry ListStore TreeModel@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2003/01/11 02:42:51 $
+--  Version $Revision: 1.10 $ from $Date: 2003/01/21 15:53:26 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -58,6 +59,9 @@ import GType	  (GType)
 
 {# context lib="gtk" prefix="gtk" #}
 
+-- Let's hope this file will always only contain macros.
+#include<gtk/gtkversion.h>
+
 -- methods
 
 -- @constructor listStoreNew@ Generate a new entity to store tree information.
@@ -79,10 +83,33 @@ listStoreSetValue ts ti col val = with' val $ \vPtr -> do
     (fromIntegral col) vPtr
   valueUnset vPtr
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- @method listStoreRemove@ Remove a specific node.
 --
+-- * The @ref data TreeIter@ will point to the entry following the one which
+--   was just removed. The function returns @literal False@ if the
+--   @ref arg ti@TreeIter does not point to a valid element (i.e. the
+--   function just removed the bottom entry from the list).
+--
+-- * <warning><para>This function returned @literal ()@ in Gtk version
+--   2.0.X</warning><para>
+--
 listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO Bool
-listStoreRemove ts ti = liftM toBool $ {#call list_store_remove#} (toListStore ts) ti
+listStoreRemove ts ti = liftM toBool $ 
+  {#call list_store_remove#} (toListStore ts) ti
+
+#else
+-- @method listStoreRemove@ Remove a specific node.
+--
+-- * The @ref data TreeIter@ will point to the entry following the one which
+--   was just removed.
+--
+-- * <warning><para>This function returns @literal Bool@ in Gtk version
+--   2.2.0 and later</warning><para>
+--
+listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO ()
+listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
+#endif
 
 -- @method listStoreInsert@ Insert a new row into the list.
 --

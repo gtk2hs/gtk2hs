@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2003/01/18 17:53:52 $
+--  Version $Revision: 1.2 $ from $Date: 2003/01/21 15:53:25 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -35,21 +35,48 @@ module Plug(
   Plug,
   PlugClass,
   castToPlug,
-  plugNew
+  NativeWindowId,
+  plugNew,
+  plugGetId
   ) where
 
 import Monad	(liftM)
+import Maybe	(fromMaybe)
 import Foreign
 import UTFCForeign
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Structs	(XID)
+import Embedding (NativeWindowId)
 
 {# context lib="gtk" prefix="gtk" #}
 
 -- methods
 
-plugNew :: XID -> IO Plug
-plugNew nw = makeNewObject mkPlug $ liftM castPtr $
-  {#call unsafe plug_new#} nw
+-- @constructor plugNew@ Create a new @ref data Window@ to hold another
+-- application.
+--
+-- * The Plug may be constructed with a @ref data NativeWindowId@. In this
+--   the foreign application will immediatly appear in this @ref data Plug@
+--   once it is shown. If @literal Nothing@ is passed for @ref arg nmw@ a
+--   @ref data NativeWindowId@ can be extracted from this @ref data Plug@
+--   and be passed to the application which is to be embedded.
+--
+plugNew :: Maybe NativeWindowId -> IO Plug
+plugNew mnw = makeNewObject mkPlug $ liftM castPtr $
+  {#call unsafe plug_new#} (fromIntegral (fromMaybe 0 mnw))
+
+-- @method plugGetId@ Retrieve the @ref data NativeWindowId@.
+--
+-- * The result should be passed to the application which is to be embedded.
+--   See @ref constructor plugNew@.
+--
+plugGetId :: PlugClass p => p -> IO NativeWindowId
+plugGetId p = liftM fromIntegral $ {#call unsafe plug_get_id#} (toPlug p)
+
+-- @signal connectToEmbedded@ This plug received another application.
+--
+onEmbedded, afterEmbedded :: PlugClass p => p -> IO () -> IO (ConnectId p)
+onEmbedded = connect_NONE__NONE "embedded" False
+afterEmbedded = connect_NONE__NONE "embedded" True
+

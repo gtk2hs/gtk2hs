@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry TreeStore TreeModel@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2003/01/11 02:42:51 $
+--  Version $Revision: 1.8 $ from $Date: 2003/01/21 15:53:26 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -58,6 +59,9 @@ import GType	  (GType)
 
 {# context lib="gtk" prefix="gtk" #}
 
+-- Let's hope this file will always only contain macros.
+#include <gtk/gtkversion.h>
+
 -- methods
 
 -- @constructor treeStoreNew@ Generate a new entity to store tree information.
@@ -78,10 +82,34 @@ treeStoreSetValue ts ti col val = with' val $ \vPtr -> do
     (fromIntegral col) vPtr
   valueUnset vPtr
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- @method treeStoreRemove@ Remove a specific node.
 --
+-- * The @ref data TreeIter@ will point to the entry following the one which
+--   was just removed. The function returns @literal False@ if the
+--   @ref arg ti@TreeIter does not point to a valid element (i.e. the
+--   function just removed the bottom entry from the tree).
+--
+-- * <warning><para>This function returned @literal ()@ in Gtk version
+--   2.0.X</warning><para>
+--
 treeStoreRemove :: (TreeStoreClass ts) => ts -> TreeIter -> IO Bool
-treeStoreRemove ts ti = liftM toBool $ {#call tree_store_remove#} (toTreeStore ts) ti
+treeStoreRemove ts ti = liftM toBool $ 
+  {#call tree_store_remove#} (toTreeStore ts) ti
+
+#else
+-- @method treeStoreRemove@ Remove a specific node.
+--
+-- * The @ref data TreeIter@ will point to the entry following the one which
+--   was just removed.
+--
+-- * <warning><para>This function returns @literal Bool@ in Gtk version
+--   2.2.0 and later</warning><para>
+--
+treeStoreRemove :: (TreeStoreClass ts) => ts -> TreeIter -> IO ()
+treeStoreRemove ts ti = {#call tree_store_remove#} (toTreeStore ts) ti
+#endif
+
 
 -- @method treeStoreInsert@ Insert a child node into the tree. If the parent
 -- is Nothing the insert at the root of the tree. The pos parameter determines

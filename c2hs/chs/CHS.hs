@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 16 August 99
 --
---  Version $Revision: 1.2 $ from $Date: 2002/10/01 15:17:07 $
+--  Version $Revision: 1.3 $ from $Date: 2003/01/21 15:53:24 $
 --
 --  Copyright (c) [1999..2002] Manuel M T Chakravarty
 --
@@ -45,6 +45,10 @@
 --- DOCU ----------------------------------------------------------------------
 --
 --  language: Haskell 98
+--
+--  Each .chs may have an {-# OPTIONS -cpp <args> #-} pragma in the very
+--  first line. If this lines is present, the whole file will be fed
+--  through the C preprocessor with <arga> as additional arguments.
 --
 --  The following binding hooks are recognised:
 --
@@ -95,7 +99,8 @@ where
 -- standard libraries
 import Char	 (isSpace, toUpper, toLower)
 import List	 (intersperse)
-import Monad	 (when)
+import Monad	 (when, liftM)
+import Maybe	 (isJust)
 
 -- Compiler Toolkit
 import Common    (Position, Pos(posOf), nopos)
@@ -104,8 +109,10 @@ import Idents    (Ident, identToLexeme, onlyPosIdent)
 
 -- C->Haskell
 import C2HSState (CST, doesFileExistCIO, readFileCIO, writeFileCIO, getId, 
-		  getSwitch, chiPathSB, catchExc, throwExc, raiseError, 
-		  fatal, errorsPresent, showErrors, Traces(..), putTraceStr) 
+		  getSwitch, cppSB, cppOptsSB, keepSB, chiPathSB, catchExc,
+		  throwExc, raiseError, systemCIO, removeFileCIO, systemCIO,
+		  ExitCode(..), fatal, errorsPresent, showErrors,
+		  Traces(..), putTraceStr) 
 
 -- friends
 import CHSLexer  (CHSToken(..), lexCHS)
@@ -278,6 +285,41 @@ instance Read CHSPtrType where
 hssuffix, chssuffix :: String
 hssuffix  = ".hs"
 chssuffix = ".chs"
+isuffix	  = ".i"
+
+-- check if CHS file has a -cpp pragma
+--
+-- * Returns Just opts where opts is a string with optional arguments to
+--   the -cpp pragma
+--
+checkPragma :: String -> Maybe String
+checkPragma content = check1 (dropWhile isSpace content)
+  where
+    check1 ('{':'-':'#':rem1) = check2 (dropWhile isSpace rem1)
+    check1 _ = Nothing
+    check2 ('O':'P':'T':'I':'O':'N':'S':rem2) = check3 (dropWhile isSpace rem2)
+    check2 _ = Nothing
+    check3 ('-':'c':'p':'p':rem3) = check4 (span (/='#') 
+						 (dropWhile isSpace rem3))
+    check3 _ = Nothing
+    check4 (opts,'#':'-':'}':_) = Just opts
+    check4 _ = Nothing
+
+-- remove CPP's line number information
+--
+remLineInfo :: String -> String
+-- ignore the # line pragma
+remLineInfo ('#':rem) = skipTillNL (dropWhile (/='\n') rem)
+-- ignore ghc's OPTIONS pragma
+remLineInfo ('{':'-':'#':rem) = skipTillNL (dropWhile (/='\n') rem)
+-- ignore consecutive newlines
+remLineInfo ('\n':rem) = remLineInfo (dropWhile(=='\n') rem)
+remLineInfo xs = skipTillNL xs
+
+skipTillNL :: String -> String
+skipTillNL ('\n':xs) = '\n':remLineInfo xs
+skipTillNL (x:xs) = x:skipTillNL xs
+skipTillNL [] = []
 
 -- load a CHS module (EXPORTED)
 --
@@ -289,17 +331,45 @@ chssuffix = ".chs"
 loadCHS       :: FilePath -> CST s (CHSModule, String)
 loadCHS fname  = do
 		   let fullname = fname ++ chssuffix
+		   let prename  = fname ++ isuffix
 
 		   -- read file
 		   --
 		   traceInfoRead fullname
 		   contents <- readFileCIO fullname
 
+		   -- check if preprocessor should be run first
+		   --
+		   let cppPragOpts = checkPragma contents
+		   let needsPreproc = isJust cppPragOpts
+		   contents' <- case cppPragOpts of
+		     Just opts -> do
+		       cpp <- getSwitch cppSB
+		       cppOpts <- getSwitch cppOptsSB
+		       let cmd = unwords [cpp, cppOpts, opts,
+					 "-traditional", fullname,
+					 ">" ++ prename]
+		       tracePreproc cmd
+		       exitCode <- systemCIO cmd
+		       case exitCode of
+		         ExitFailure _ -> fatal ("Error during preprocessing \
+						\Haskell file "++fullname++".")
+			 _	       -> do
+					    traceInfoRead prename
+					    liftM remLineInfo $
+					      readFileCIO prename
+		     Nothing -> return contents
+
 		   -- parse
 		   --
 		   traceInfoParse
-		   mod <- parseCHSModule (fullname, 1, 1) contents
+		   mod <- parseCHSModule (fullname, 1, 1) contents'
 
+		   -- remove the intermediate file, if present
+		   --
+		   keep <- getSwitch keepSB
+		   when (not keep && needsPreproc) $ removeFileCIO prename
+		   
 		   -- check for errors and finalize
 		   --
 		   errs <- errorsPresent
@@ -317,6 +387,9 @@ loadCHS fname  = do
 		    traceInfoRead fname = putTraceStr tracePhasesSW
 					    ("Attempting to read file `"
 					     ++ fname ++ "'...\n")
+		    tracePreproc cmd	= putTraceStr tracePhasesSW
+				            ("Invoking cpp as `" ++ cmd
+					     ++ "'...\n")
 		    traceInfoParse      = putTraceStr tracePhasesSW 
 					    ("...parsing `" 
 					     ++ fname ++ "'...\n")

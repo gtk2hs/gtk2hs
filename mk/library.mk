@@ -2,8 +2,8 @@
 
 LIBNAME			?= $(PACKAGENAME)
 
-TARGETOK		= $(addprefix $(LIBPREFIX),$(addsuffix $(LIBSUFFIX),\
-			$(strip $(LIBNAME))))
+TARGETOK		= $(addprefix $(strip $(LIBPREFIX)),\
+			$(addsuffix $(LIBSUFFIX),$(strip $(LIBNAME))))
 
 
 makeTextList		= $(addprefix \",$(addsuffix \",\
@@ -38,7 +38,8 @@ inplace	: noinplace
 	  extra_ghc_opts	= [$(call makeTextList,$(EXTRAHC_FLAGS))],\
 	  extra_cc_opts		= [],\
 	  extra_ld_opts		= [$(call makeTextList,\
-          $(addprefix -Wl$(COMMA),--subsystem $(SUBSYSTEM)) \
+          $(addprefix -Wl$(COMMA),\
+	  $(addprefix --subsystem$(SPACE),$(SUBSYSTEM))) \
 	  $(addprefix -u ,$(EXTRA_SYMBOLS)))]} | \
 	  $(PKG) --force -f $(LOCALPKGCONF) -a  > /dev/null
 
@@ -83,7 +84,8 @@ installpackage :
 	  extra_ghc_opts	= [$(call makeTextList,$(EXTRAHC_FLAGS))],\
 	  extra_cc_opts		= [],\
 	  extra_ld_opts		= [$(call makeTextList,\
-          $(addprefix -Wl$(COMMA),--subsystem $(SUBSYSTEM)) \
+          $(addprefix -Wl$(COMMA),\
+	  $(addprefix --subsystem$(SPACE),$(SUBSYSTEM))) \
 	  $(addprefix -u ,$(EXTRA_SYMBOLS)))]} | \
 	  $(PKG) --force -a
 

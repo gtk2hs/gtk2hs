@@ -1,9 +1,11 @@
 TODO for gtk2hs
 
-11/01/2003 Axel Simon <A.Simon@ukc.ac.uk>
+21/01/2003 Axel Simon <A.Simon@ukc.ac.uk>
 
-* Change the return type of listStoreRemove and treeStoreRemove to Bool.
-  The return type changed from void to gboolean in version 2.2.0 of Gtk.
+* treeList/TreeStore.chs and treeList/ListStore.chs now use the preprocessor.
+  The local c2hs is now able to run the preprocessor on those files that
+  specify it in a pragma. An external c2hs would need to get preprocessed
+  input. This has to be done in mk/library.mk .
 
 older entries:
 

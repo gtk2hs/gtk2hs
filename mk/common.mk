@@ -334,7 +334,7 @@ tarsource :
 
 mostlyclean : noinplace
 	$(strip $(RM) $(TARGETOK) $(ALLHSFILES:.hs=.o) $(ALLHSFILES:.hs=.hi) \
-	  $(EXTRA_CFILES:.c=.o) $(ALLHSFILES:.hs=_stub.*))
+	  $(EXTRA_CFILES:.c=.o) $(ALLHSFILES:.hs=_stub.*) .depend)
 
 clean	: mostlyclean
 	$(strip $(RM) $(ALLCHSFILES:.chs=.hs) $(ALLCHSFILES:.chs=.chi) \
