@@ -71,7 +71,5 @@ they bind.
 Some improvements that would be good:
  * Complete marshaling code for more types
  * Emit top level module documentation, including:
-    - module summary / description
     - object heirarchy
- * Add a Haddock contents annotations (eg: constructors, methods, signals)
  * Emit signal and property bindings with documentation

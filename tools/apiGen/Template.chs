@@ -17,10 +17,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- | @MODULE_DOCUMENTATION@ @MODULE_TODO@
+-- |
+-- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : non-portable (uses gtk+ C library)
+--
+-- @DESCRIPTION@ @TODO@
 --
 module @MODULE_NAME@ (
-@MODULE_EXPORTS@
+@DOCUMENTATION@
+@EXPORTS@
   ) where
 
 import Monad (liftM)

@@ -16,7 +16,7 @@ do
 	
 	./gapi_pp.pl $HEADDER | ./gapi2xml.pl Gtk $APIFILE gtk+ >> /dev/null || exit
 #	./gapi_format_xml $APIFILE.tmp $APIFILE || exit
-	rm  $APIFILE.tmp
+#	rm  $APIFILE.tmp
 
         if test -f $DOCBOOKFRAG; then
 		cat <(echo \

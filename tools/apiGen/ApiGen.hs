@@ -5,9 +5,10 @@
 
 import Prelude hiding (Enum, lines)
 import Monad  (when)
-import Maybe  (catMaybes)
+import Maybe  (catMaybes, fromJust)
 import Char   (toLower, toUpper, isAlpha, isAlphaNum, isUpper)
 import List   (isPrefixOf, groupBy, sortBy)
+import qualified List (lines)
 import System (getArgs, exitWith, ExitCode(..))
 
 import qualified Text.XML.HaXml as Xml
@@ -161,12 +162,35 @@ extractConstructor _ = Nothing
 -------------------------------------------------------------------------------
 
 data ApiDoc = ApiDoc {
-    doc_target :: String,		-- C function name
-    doc_paragraphs :: [DocPara],	-- documentation markup
-    doc_since :: Maybe String		-- which version of the api the
+    apidoc_name :: String,
+    apidoc_summary :: String,
+    apidoc_description :: [DocPara],
+    apidoc_extrasections :: [DocSection],
+    apidoc_functions :: [FuncDoc]
+  }
+
+noApiDoc = ApiDoc {
+    apidoc_name = "",
+    apidoc_summary = "",
+    apidoc_description = [],
+    apidoc_extrasections = [],
+    apidoc_functions = []
+  }
+
+data DocSection = DocSection {
+    section_title :: String,
+    section_paras :: [DocPara]
+  }
+
+data FuncDoc = FuncDoc {
+    funcdoc_name :: String,		-- C function name
+    funcdoc_paragraphs :: [DocPara],	-- documentation markup
+    funcdoc_since :: Maybe String	-- which version of the api the
   }					-- function is avaliable from, eg "2.4"
 
-type DocPara = [DocParaSpan]
+data DocPara = TextPara [DocParaSpan]
+             | ProgramListing String
+
 data DocParaSpan = DocText String       -- just simple text
                  | DocFuncXRef String   -- cross reference to a function name
                  | DocTypeXRef String   -- cross reference to a type name
@@ -175,11 +199,40 @@ data DocParaSpan = DocText String       -- just simple text
 		 | DocLiteral String    -- some literal like numbers
 		 | DocArg  String       -- function argument names
 
-extractDocumentation :: Xml.Document -> [ApiDoc]
-extractDocumentation (Xml.Document _ _ (Xml.Elem "apidoc" [] functions)) =
-  map extractDocFunc functions
+extractDocumentation :: Xml.Document -> ApiDoc
+extractDocumentation (Xml.Document _ _ (Xml.Elem "apidoc" [] (moduleinfo:functions))) =
+  (extractDocModuleinfo moduleinfo) {
+    apidoc_functions = map extractDocFunc functions
+  }
 
-extractDocFunc :: Xml.Content -> ApiDoc
+extractDocModuleinfo :: Xml.Content -> ApiDoc
+extractDocModuleinfo 
+  (Xml.CElem (Xml.Elem "module" []
+    [Xml.CElem (Xml.Elem "name" [] name)
+    ,Xml.CElem (Xml.Elem "summary" [] summary)
+    ,Xml.CElem (Xml.Elem "description" [] paras)
+    ,Xml.CElem (Xml.Elem "extra-sections" [] sections)
+    ,Xml.CElem (Xml.Elem "object-hierarchy" [] _)]
+  )) = ApiDoc {
+    apidoc_name = Xml.verbatim name,
+    apidoc_summary = Xml.verbatim summary,
+    apidoc_description = map extractDocPara paras,
+    apidoc_extrasections = map extractDocSection sections,
+    apidoc_functions = undefined
+  }
+
+extractDocSection :: Xml.Content -> DocSection
+extractDocSection
+  (Xml.CElem (Xml.Elem "section" []
+    (Xml.CElem (Xml.Elem "title" [] [Xml.CString _ title])
+    :paras))) =
+  DocSection {
+    section_title = title,
+    section_paras = map extractDocPara paras
+  }
+extractDocSection other = error $ "extractDocSection: " ++ Xml.verbatim other
+
+extractDocFunc :: Xml.Content -> FuncDoc
 extractDocFunc
   (Xml.CElem (Xml.Elem "function" []
     [Xml.CElem (Xml.Elem "name" [] [Xml.CString _ name])
@@ -189,20 +242,23 @@ extractDocFunc
   let since = case since' of
                 [] -> Nothing
 		[Xml.CString _ since] -> Just since
-   in ApiDoc {
-          doc_target = name,
-	  doc_paragraphs = map extractDocPara paras,
-	  doc_since = since
+   in FuncDoc {
+          funcdoc_name = name,
+	  funcdoc_paragraphs = map extractDocPara paras,
+	  funcdoc_since = since
         }
-
+  
 extractDocPara :: Xml.Content -> DocPara
 extractDocPara (Xml.CElem elem@(Xml.Elem "para" [] _)) =
   case Xml.xmlUnEscape Xml.stdXmlEscaper elem of
-    (Xml.Elem _ [] spans) -> map extractDocParaSpan spans
+    (Xml.Elem _ [] spans) -> TextPara (map extractDocParaSpan spans)
+extractDocPara (Xml.CElem (Xml.Elem "programlisting" _ [Xml.CString _ listing])) =
+  ProgramListing listing
 
 extractDocParaSpan :: Xml.Content -> DocParaSpan
 extractDocParaSpan (Xml.CString _ text) = DocText text
-extractDocParaSpan (Xml.CElem (Xml.Elem tag [] (CString _ text))) =
+extractDocParaSpan (Xml.CElem (Xml.Elem tag [] content)) =
+  let text = concat [ str | (Xml.CString _ str) <- content ] in
   case tag of
     "xref-func"  -> DocFuncXRef text
     "xref-type"  -> DocTypeXRef text
@@ -212,28 +268,92 @@ extractDocParaSpan (Xml.CElem (Xml.Elem tag [] (CString _ text))) =
     "arg"        -> DocArg text
 extractDocParaSpan other = error $ "extractDocParaSpan: " ++ Xml.verbatim other
  
+-------------------------------------------------------------------------------
+-- Functions for formatting haddock documentation
+-------------------------------------------------------------------------------
+
+genModuleDocumentation :: ApiDoc -> ShowS
+genModuleDocumentation apidoc =
+  (if null (apidoc_description apidoc)
+     then id
+     else comment.ss "* Description".nl.
+          comment.nl.
+          comment.ss "| ".haddocFormatParas (apidoc_description apidoc).nl).
+  (if null (apidoc_extrasections apidoc)
+     then id
+     else nl.comment.haddocFormatSections (apidoc_extrasections apidoc).nl.comment)
+
+addVersionParagraphs :: NameSpace -> ApiDoc -> ApiDoc
+addVersionParagraphs namespace apiDoc =
+  apiDoc {
+    apidoc_description = apidoc_description apiDoc ++ moduleVersionParagraph,
+    apidoc_functions = functionVersionParagraphs moduleVersion (apidoc_functions apiDoc)
+  }
+  where functionVersionParagraphs :: Maybe String -> [FuncDoc] -> [FuncDoc]
+        functionVersionParagraphs baseVersion funcdocs =
+          [ if funcdoc_since funcdoc > baseVersion
+              then funcdoc {
+                     funcdoc_paragraphs = funcdoc_paragraphs funcdoc ++
+                       let line = "Available since " ++ namespace_name namespace
+                              ++ " version " ++ fromJust (funcdoc_since funcdoc)
+                        in [TextPara [DocText line]]
+                   }
+              else funcdoc
+          | funcdoc <- funcdocs ]
+  
+        moduleVersionParagraph =
+          case moduleVersion of
+            Nothing -> []
+            Just since ->
+              let line = "Module available since " ++ namespace_name namespace
+                      ++ " version " ++ since
+               in [TextPara [DocText line]]
+  
+        -- figure out if the whole module appeared in some version of gtk later 
+        -- than the original version
+        moduleVersion :: Maybe String
+        moduleVersion = minimum [ funcdoc_since funcdoc
+                                | funcdoc <- apidoc_functions apiDoc ]
+  
+haddocFormatSections :: [DocSection] -> ShowS
+haddocFormatSections = 
+    sepBy' "\n\n-- "
+  . map (\section ->
+         ss "* ". ss (section_title section). nl.
+         comment.nl.
+         comment.ss "| ".haddocFormatParas (section_paras section))
+
 haddocFormatParas :: [DocPara] -> ShowS
 haddocFormatParas =
-    ((ss "-- | ". drop 3).)
-  . cat
-  . map ((.(ss "--\n"))
-       . cat
-       . map (\line -> (ss "-- ").line.ss "\n")
-       . map (sepBy " ")
-       . wrapText 77
-       . words
-       . concatMap haddocFormatSpan)
+    sepBy' "\n--\n-- "
+  . map haddocFormatPara
+
+haddocFormatPara :: DocPara -> ShowS
+haddocFormatPara (TextPara spans) =
+    sepBy' "\n-- "
+  . map (sepBy " ")
+  . wrapText 77
+  . words
+  . concatMap haddocFormatSpan
+  $ spans
+haddocFormatPara (ProgramListing prog) =
+    ((ss "* FIXME: port the follwing code example from C to Haskell or remove it".nl.
+      comment).)
+  . sepBy "\n-- > "
+  . List.lines
+  $ prog
 
 haddocFormatSpan :: DocParaSpan -> String
 haddocFormatSpan (DocText text)    = escapeHaddockSpecialChars text
-haddocFormatSpan (DocTypeXRef text)    = "\"" ++ text ++ "\""
+haddocFormatSpan (DocTypeXRef text)    = "\"" ++ stripKnownPrefixes text ++ "\""
 haddocFormatSpan (DocFuncXRef text)    = "'" ++ cFuncNameToHsName text ++ "'"
 haddocFormatSpan (DocOtherXRef text)    = "'{FIXME: gtk-doc cross reference to:" ++ text ++ "}'"
 haddocFormatSpan (DocEmphasis text)  = "/" ++ text ++ "/"
 haddocFormatSpan (DocLiteral "TRUE")  = "@True@"
 haddocFormatSpan (DocLiteral "FALSE") = "@False@"
   --likely that something should be changed to a Maybe type if this is emitted:
-haddocFormatSpan (DocLiteral "NULL")  = "@CHECKME: Nothing@"
+haddocFormatSpan (DocLiteral "NULL")  = "{@NULL@, FIXME: this should probably be converted"
+                                                     ++ "to a Maybe data type}"
 haddocFormatSpan (DocLiteral text) = "@" ++ text ++ "@"
 haddocFormatSpan (DocArg  text)    = "@" ++ text ++ "@"
 
@@ -241,7 +361,7 @@ cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
     lowerCaseFirstChar
   . stripKnownPrefixes
-  . concatMap (upperCaseFirstChar "cFuncNameToHsName")
+  . concatMap upperCaseFirstChar
   . splitBy '_'
   . takeWhile ('('/=)
 
@@ -256,7 +376,7 @@ escapeHaddockSpecialChars = escape
 
 -- wraps a list of words to lines of words
 wrapText :: Int -> [String] -> [[String]]
-wrapText width = wrap 3 []
+wrapText width = wrap 0 []
   
   where wrap :: Int -> [String] -> [String] -> [[String]]
         wrap col line (word:words) | col + length word + 1 > width = reverse line : wrap 0 [] (word:words)
@@ -267,7 +387,7 @@ wrapText width = wrap 3 []
 -------------------------------------------------------------------------------
 -- Now lets actually generate some code fragments based on the api info
 -------------------------------------------------------------------------------
-genFunction :: Object -> Method -> Maybe ApiDoc -> ShowS
+genFunction :: Object -> Method -> Maybe FuncDoc -> ShowS
 genFunction object method doc =
   formattedDoc.
   ss functionName. ss " :: ". functionType. nl.
@@ -294,14 +414,15 @@ genFunction object method doc =
 	call = ss "{# call ". ss (method_cname method). ss " #}"
         formattedDoc = case doc of
           Nothing -> ss "-- | \n-- \n"
-          Just doc -> haddocFormatParas (doc_paragraphs doc)
+          Just doc -> ss "-- | ". haddocFormatParas (funcdoc_paragraphs doc). nl.
+                      comment. nl
 
-genMethods :: Object -> [ApiDoc] -> [(ShowS, Maybe ApiDoc)]
+genMethods :: Object -> [FuncDoc] -> [(ShowS, Maybe FuncDoc)]
 genMethods object apiDoc = 
   [ (genFunction object method doc, doc)
   | (method, doc) <- methods object apiDoc ]
 
-methods :: Object -> [ApiDoc] -> [(Method, Maybe ApiDoc)]
+methods :: Object -> [FuncDoc] -> [(Method, Maybe FuncDoc)]
 methods object docs =
   map snd $
   sortBy (\(i,_) (j,_) -> i `compare` j)
@@ -310,7 +431,7 @@ methods object docs =
       (Just (doc, index)) -> (index,(mungeMethod object method, Just doc))
   | method <- object_methods object
   , null [ () | VarArgs <- method_parameters method] ] --exclude VarArgs methods
-  where docmap = [ (doc_target doc, (doc,index)) | (doc,index) <- zip docs [1..]]
+  where docmap = [ (funcdoc_name doc, (doc,index)) | (doc,index) <- zip docs [1..]]
         
 
 mungeMethod :: Object -> Method -> Method
@@ -325,24 +446,24 @@ mungeMethod object method =
         method_parameters = self : method_parameters method
       } 
 
-genConstructors :: Object -> [ApiDoc] -> [(ShowS, Maybe ApiDoc)]
+genConstructors :: Object -> [FuncDoc] -> [(ShowS, Maybe FuncDoc)]
 genConstructors object apiDoc =
   [ (genFunction object constructor doc, doc)
   | (constructor, doc) <- constructors object apiDoc ]
 
-constructors :: Object -> [ApiDoc] -> [(Method, Maybe ApiDoc)]
+constructors :: Object -> [FuncDoc] -> [(Method, Maybe FuncDoc)]
 constructors object docs =
   [ (mungeConstructor object constructor, constructor_cname constructor `lookup` docmap)
   | constructor <- object_constructors object
   , null [ () | VarArgs <- constructor_parameters constructor] ]
-  where docmap = [ (doc_target doc, doc) | doc <- docs ]
+  where docmap = [ (funcdoc_name doc, doc) | doc <- docs ]
 
 mungeConstructor :: Object -> Constructor -> Method
 mungeConstructor object constructor =
   Method {
     method_name = (object_name object++)
                 . drop (length (object_cname object))
-                . concatMap (upperCaseFirstChar "mungeConstructor")
+                . concatMap upperCaseFirstChar
                 . splitBy '_'
                 . constructor_cname
                 $ constructor,
@@ -351,11 +472,19 @@ mungeConstructor object constructor =
     method_parameters = constructor_parameters constructor
   }  
 
-genExports :: Object -> [ApiDoc] -> ShowS
+genExports :: Object -> [FuncDoc] -> ShowS
 genExports object docs =
+  nl.
+  comment.ss "* Constructors".nl.
   doVersionIfDefs
     [ (ss "  ". ss (lowerCaseFirstChar (method_name constructor)). sc ',', doc)
-    | (constructor, doc) <- constructors object docs ++ methods object docs]
+    | (constructor, doc) <- constructors object docs].
+  nl.
+  nl.
+  comment.ss "* Methods".nl.
+  doVersionIfDefs
+    [ (ss "  ". ss (lowerCaseFirstChar (method_name method)). sc ',', doc)
+    | (method, doc) <- methods object docs]
 
 genTodoItems :: Object -> ShowS
 genTodoItems object =
@@ -373,15 +502,15 @@ genTodoItems object =
              ss "TODO: the following varargs functions were not bound\n".
              lines (map (ss "-- * ".) varargsFunctions)
 
-doVersionIfDefs :: [(ShowS, Maybe ApiDoc)] -> ShowS
+doVersionIfDefs :: [(ShowS, Maybe FuncDoc)] -> ShowS
 doVersionIfDefs =
     lines
   . map (\group -> sinceVersion (snd (head group))
                                 (lines (map fst group)))
-  . groupBy (\(_,a) (_,b) -> fmap doc_since a == fmap doc_since b)
+  . groupBy (\(_,a) (_,b) -> fmap funcdoc_since a == fmap funcdoc_since b)
  
-sinceVersion :: Maybe ApiDoc -> ShowS -> ShowS
-sinceVersion (Just (ApiDoc _ _ (Just (major:'.':minor:[])))) body =
+sinceVersion :: Maybe FuncDoc -> ShowS -> ShowS
+sinceVersion (Just (FuncDoc _ _ (Just (major:'.':minor:[])))) body =
   ss "#if GTK_CHECK_VERSION(". sc major. ss ",". sc minor. ss ",0)\n".
   body.
   ss "\n#endif"
@@ -415,7 +544,8 @@ genMarshalParameter name typeName | typeName == "guint"  --these two are unsigne
 	(Nothing, Just "Int",
 	\body -> body. ss " (fromIntegral ". ss name. ss ")")
 
-genMarshalParameter name "const-gchar*" =
+genMarshalParameter name typeName | typeName == "const-gchar*"
+                                 || typeName == "const-char*" =
 	(Nothing, Just "String",
 	\body -> ss "withUTFString ". ss name. ss " $ \\". ss name. ss "Ptr ->".
 		 indent 1. body. sc ' '. ss name. ss "Ptr")
@@ -483,7 +613,7 @@ changeParamNames "type" = "type_"  --this is a common variable name in C but of
                                    --course a keyword in Haskell
 changeParamNames other  =          --change "gtk_foo_bar" to "gtkFooBar"
     lowerCaseFirstChar
-  . concatMap (upperCaseFirstChar $ "changeParamNames" ++ other)
+  . concatMap upperCaseFirstChar
   . filter (not.null) --to ignore tailing underscores
   . splitBy '_'
   $ other
@@ -534,7 +664,7 @@ main = do
   -- Read in the documentation xml file if supplied
   --
   apiDoc <- if null docFile
-              then return []
+              then return noApiDoc
               else do content <- readFile docFile
                       return $ extractDocumentation (Xml.xmlParse docFile content)
 
@@ -552,24 +682,28 @@ main = do
   -- Write the result file(s) by substituting values into the template file
   --
   mapM 
-    (\object -> writeFile (outdir ++ object_name object ++ ".chs") $
+    (\(namespace, object) ->
+    let apiDoc' = addVersionParagraphs namespace apiDoc in
+    writeFile (outdir ++ object_name object ++ ".chs") $
     templateSubstitute template (\var ->
       case var of
 	"YEAR"           -> ss year
 	"DATE"           -> ss date
 	"OBJECT_NAME"    -> ss (object_name object)
-	"MODULE_DOCUMENTATION" -> ss "$MODULE_DOCUMENTATION"
-        "MODULE_TODO"    -> genTodoItems object
+        "DESCRIPTION"    -> ss (apidoc_summary apiDoc')
+	"DOCUMENTATION"  -> genModuleDocumentation apiDoc'
+        "TODO"           -> genTodoItems object
         "MODULE_NAME"    -> ss (modPrefix ++ object_name object)
-        "MODULE_EXPORTS" -> genExports object apiDoc
-	"MODULE_IMPORTS" -> ss "$imports"
+        "EXPORTS"        -> genExports object (apidoc_functions apiDoc')
+	"IMPORTS"        -> ss "-- CHECKME: extra imports may be required\n"
 	"CONTEXT_LIB"    -> ss lib
 	"CONTEXT_PREFIX" -> ss prefix
-	"MODULE_BODY"    -> doVersionIfDefs (genConstructors object apiDoc
-                                          ++ genMethods object apiDoc)
+	"MODULE_BODY"    -> doVersionIfDefs (genConstructors object (apidoc_functions apiDoc')
+                                          ++ genMethods object (apidoc_functions apiDoc'))
 	_ -> ss ""
-    ) "") [ object | namespace <- api,
-		     object <- namespace_objects namespace ]
+    ) "") [ (namespace, object)
+          | namespace <- api
+	  , object <- namespace_objects namespace ]
     
 
 usage = do
@@ -610,9 +744,8 @@ comment = ss "-- "
 lowerCaseFirstChar :: String -> String
 lowerCaseFirstChar (c:cs) = toLower c : cs
 
-upperCaseFirstChar :: String -> String -> String
-upperCaseFirstChar _ (c:cs) = toUpper c : cs
-upperCaseFirstChar dbgMesg cs = error $ "upperCaseFirstChar: " ++ dbgMesg ++ cs ++ " !!"
+upperCaseFirstChar :: String -> String
+upperCaseFirstChar (c:cs) = toUpper c : cs
 
 cat :: [ShowS] -> ShowS
 cat = foldl (.) id
@@ -635,6 +768,7 @@ sepBy' s (x:xs) = x. ss s. sepBy' s xs
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
 templateSubstitute template varSubst = doSubst template
   where doSubst [] = id
+        doSubst ('\\':'@':cs) = sc '@' . doSubst cs
         doSubst ('@':cs) = let (var,_:cs') = span ('@'/=) cs
                             in varSubst var . doSubst cs'
         doSubst (c:cs) = sc c . doSubst cs

@@ -1,3 +1,26 @@
+2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/ApiGen.hs: several documentation improvements, add
+	module level documentation and produce contents list. Also note in the
+	documentation what gtk version the module as a whole and individual
+	functions are avaliable from, eg "available since Gtk version 2.4".
+	
+	* tools/apiGen/Template.chs: added Haddock headers and rename some
+	template variables. Move major documentation section to export list.
+
+	* tools/apiGen/gen-all.sh: fix buglet.
+
+	* tools/apiGen/README: update TODO list.
+
+2005-01-06 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/ApiGen.hs, tools/apiGen/Template.chs
+	tools/apiGen/format-docs.xsl, tools/apiGen/gen-all.sh,
+	tools/apiGen/gapi2xml.pl, tools/apiGen/gapi_pp.pl,
+	tools/apiGen/README: new tool to semi-automatically generate binding
+	modules from C headder files with Haddock documentation extracted from
+	gtk-doc docbook xml files. Perl scripts by gtk-sharp team.
+
 2004-12-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add support for conditionals in Makefile.am so that
