@@ -333,7 +333,8 @@ gtk/abstract/Container_stub.o				       \
         gtk/treeList/TreeModel_stub.o gtk/general/Signal_stub.o	       \
         gtk/treeList/TreeSelection_stub.o gtk/glib/GObject_stub.o      \
         gtk/treeList/TreeView_stub.o:
-	touch $@
+	touch $(@:.o=.c)
+	$(CC) -c -o $@ $(@:.o=.c)
 
 
 am_libgtk2hs_a_OBJECTS = \
