@@ -33,6 +33,7 @@
         GtkTextTagTable
             GtkSourceTagTable	if sourceview
         GtkStyle
+	GtkRcStyle
         GdkDragContext
         GdkPixbuf
         GtkTextChildAnchor

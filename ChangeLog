@@ -1,3 +1,10 @@
+2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add
+	extra marshaler since it'll be needed soon.
+
+	* tools/hierarchyGen/hierarchy.list: add an extra class to hierarchy.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for
