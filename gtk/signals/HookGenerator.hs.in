@@ -41,8 +41,10 @@ type Signatures = [Signature]
 brokenSolaris :: Bool
 brokenSolaris = words "@FOUR_WORD_CALLBACK@" == ["yes"]
 
+-- Each callback is given a pointer to the object is was emitted from.
+-- We need to take this into account when we talk about 4 arguments.
 fakeSignature :: Signature -> Bool
-fakeSignature (_,args) = brokenSolaris && sum (map sizeOf args) > 4
+fakeSignature (_,args) = brokenSolaris && sum (map sizeOf args) > 3
   where
     sizeOf Tunit   = 0
     sizeOf Tbool   = 1
@@ -427,7 +429,7 @@ genExport sigs = foldl (.) id (map mkId sigs)
 
 generate :: Signature -> ShowS
 generate sig = let ident = mkIdentifier sig in
-  indent 0.ss "type Tag_".ident.ss " =".
+  indent 0.ss "type Tag_".ident.ss " = Ptr () -> ".
   indent 1.mkRawtype sig.
   indent 0.
   (if fakeSignature sig then id else indent 0.ss "foreign".
@@ -435,8 +437,7 @@ generate sig = let ident = mkIdentifier sig in
   indent 1.ss "Tag_".ident.ss " -> ".
   indent 1.ss "IO (FunPtr ".ss "Tag_".ident.sc ')'.
   (if fakeSignature sig then 
-  indent 0.ss "mkHandler_".ident.
-  (ss $ concat $ replicate ((length.snd) sig) " _").ss " =".
+  indent 0.ss "mkHandler_".ident.ss " _ =".
   indent 1.ss "error \"Callbacks of signature ".ident.ss "\\n\\".
   indent 1.ss "\\are not supported on this architecture.\"" else id).
   indent 0.
@@ -450,7 +451,7 @@ generate sig = let ident = mkIdentifier sig in
   indent 1.ss "user after obj =".
   indent 1.ss "do".
   indent 2.ss "hPtr <- mkHandler_".ident.
-  indent 3.ss "(\\".mkLambdaArgs sig.ss "-> do".
+  indent 3.ss "(\\_ ".mkLambdaArgs sig.ss "-> do".
   mkMarshExec sig.
   indent 4.ss "liftM ".mkMarshRet sig.ss " $".
   indent 5.ss "user".mkFuncArgs sig.
