@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/01/12 01:34:56 $
+--  Version $Revision: 1.3 $ from $Date: 2005/02/11 18:26:28 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -39,8 +39,6 @@
 --
 -- * Every module that is commented out and not mentioned above.
 --
-#include <config.h>
-
 module Graphics.UI.Gtk (
   -- * General things, initialization
   module Graphics.UI.Gtk.General.General,

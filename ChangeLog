@@ -21,6 +21,12 @@
 	* tools/apiGen/Template.chs: describe our modules as "portable" and
 	include rcs tags in generated modules.
 
+	* gtk/Graphics/UI/Gtk.hs: no need to #include <config.h> anymore since
+	the only thing it needed was WIN32 and we now use -DWIN32 instead.
+
+	* gtk/Graphics/UI/Gtk/General/General.chs: add the pragma
+	{-# NOINLINE initGUI #-} and an explanaition of why this is necessary.
+
 2005-02-10 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/CodeGen.hs: make use of the information from scanning

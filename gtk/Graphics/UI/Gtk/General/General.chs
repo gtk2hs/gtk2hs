@@ -7,7 +7,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:20:28 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/11 18:26:29 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -79,6 +79,12 @@ import Graphics.UI.Gtk.General.Structs	(priorityLow, priorityDefault, priorityHi
 --  return str
 -}
 
+-- We compile this module using -#includ"gtk/wingtk.h" to bypass the win32 abi
+-- check however we do not compile users programs with this headder so if
+-- initGUI was ever inlined in a users program, then that program would not
+-- bypass the abi check and would fail on startup. So to stop that we must
+-- prevent initGUI from being inlined.
+{-# NOINLINE initGUI #-}
 -- | Initialize the GUI binding.
 --
 -- * This function initialized the GUI toolkit and parses all Gtk
