@@ -55,10 +55,10 @@ genFunction knownSymbols method doc info =
                        formatParamTypes (paramTypes ++ [returnType])
 	body = foldl (\body marshaler -> marshaler body)
                      call (paramMarshalers++[returnMarshaler])
-	call = ss "{# call ". safety. ss (method_cname method). ss " #}"
+	call = ss (genCall (method_cname method) safety)
         safety = case info of
-                  Nothing -> id
-                  Just info -> if methodinfo_unsafe info then ss "unsafe " else id
+                  Nothing -> False
+                  Just info -> methodinfo_unsafe info
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
           Just doc -> ss "-- | ". haddocFormatParas knownSymbols (funcdoc_paragraphs doc). nl.

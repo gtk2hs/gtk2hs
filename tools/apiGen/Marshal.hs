@@ -6,7 +6,8 @@ module Marshal (
   stripKnownPrefixes,
   genMarshalParameter,
   genMarshalResult,
-  genMarshalProperty
+  genMarshalProperty,
+  genCall
   ) where
 
 import StringUtils
@@ -225,3 +226,54 @@ genMarshalProperty knownSymbols typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalProperty _ unknown = ("{-" ++ unknown ++ "-}", "{-" ++ unknown ++ "-}")
+
+
+-------------------------------------------------------------------------------
+-- Now for some special cases, we can override the generation of {# call #}'s
+-------------------------------------------------------------------------------
+
+-- The ordinary case:
+genCallOrdinary :: String -> Bool -> String
+genCallOrdinary cname unsafe@True  = "{# call unsafe " ++ cname ++ " #}"
+genCallOrdinary cname unsafe@False = "{# call "        ++ cname ++ " #}"
+
+-- On win32 for glib/gtk 2.6 they changed the interpretation of functions that
+-- take or return system file names (as opposed to user displayable
+-- representations of file names). Previously the string encoding of the file
+-- name was that of the systems native 'codepage' which was usually ascii but
+-- could be one of several obscure multi-byte encodings. For 2.6 they have
+-- changed to always use a UTF8 encoding. However to maintain binary backwards
+-- compatability they kept the old names and added new ones with a _utf8 suffix
+-- for the new interpretation. However the old names are only in the binary,
+-- they are not exposed through the C header files so all software building
+-- against glib/gtk 2.6 on windows must use the _utf8 versions. Hence we
+-- generate code uses the _utf8 version if we're building on windows and using
+-- gtk version 2.6 or later. Ugh.
+
+win32FileNameFunctions =
+  ["gtk_image_new_from_file"
+  ,"gdk_pixbuf_new_from_file"
+  ,"gtk_icon_source_get_filename"
+  ,"gtk_icon_source_set_filename"
+  ,"gtk_file_chooser_get_filename"
+  ,"gtk_file_chooser_set_filename"
+  ,"gtk_file_chooser_select_filename"
+  ,"gtk_file_chooser_unselect_filename"
+  ,"gtk_file_chooser_get_filenames"
+  ,"gtk_file_chooser_set_current_folder"
+  ,"gtk_file_chooser_get_current_folder"
+  ,"gtk_file_chooser_get_preview_filename"
+  ,"gtk_file_chooser_add_shortcut_folder"
+  ,"gtk_file_chooser_remove_shortcut_folder"
+  ,"gtk_file_chooser_list_shortcut_folders"
+  ,"gtk_file_selection_set_filename"
+  ,"gtk_file_selection_get_filename"]
+
+genCall :: String -> Bool -> String
+genCall cname safty | cname `elem` win32FileNameFunctions
+                           = "#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)\n  "
+                          ++ genCallOrdinary (cname ++ "_utf8") safty
+                          ++ "\n  #else\n  "
+                          ++ genCallOrdinary cname safty
+                          ++ "\n  #endif"
+genCall cname unsafe = genCallOrdinary cname unsafe
