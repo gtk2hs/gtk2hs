@@ -53,6 +53,12 @@
 	sources since older ghc versions do not like them to be given in the
 	source file in a an {-# OPTIONS #-} pragma.
 
+	* configure.ac: do a portability test for sizeof(void *) needed by
+	c2hs's binary serialisation code. Do a versionitis test, the "auto
+	libs" feature was only added in ghc 6, so conditionally define
+	GHCPKG_USE_AUTOLIBS to have the appropriate value to substitute into
+	all the <module>.pkg.in files.
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files

@@ -60,6 +60,10 @@ AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
 AC_PROG_RANLIB
 
+dnl The binary serialisation in c2hs depends on the machine word size
+dnl FIXME: this should probably be taken from ghc's config.h
+AC_CHECK_SIZEOF(void *, 4)
+
 dnl On some systems (Solaris,...) asking sh for the current directory
 dnl (with a built-in pwd) and asking make for the current directory
 dnl gives different results. Thus, if possible, we use the same external
@@ -180,6 +184,15 @@ GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 9.9.9, [
   dnl TODO: is this only on Sparc Solaris or on all Sparc (ie Linux too)?
 ])
 AC_MSG_RESULT([$FOUR_WORD_CALLBACK])
+
+dnl From ghc 6 onwards, ghc-pkg has the "auto libs" feature which means
+dnl users do not have to specify the -package flag most of the time.
+dnl All our packages support this mode now.
+dnl Earlieir version of ghc-pkg choke on this package configuration option,
+dnl hence this test which only enables it for ghc 6 onwards.
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.0.0, [
+GHCPKG_USE_AUTOLIBS="auto            = True,"
+])
 
 dnl ghc-pkg 5 searches for libxxx.a, even on Windows. Hence, we need to
 dnl create libraries with these names instead of the windows names.
@@ -568,6 +581,7 @@ AC_SUBST(C2HSFLAGS)
 AC_SUBST(EXTRA_HFILES)
 dnl Versionitis
 AC_SUBST(CREATE_TYPES)
+AC_SUBST(GHCPKG_USE_AUTOLIBS)
 dnl Optional packages
 AC_SUBST(SOURCEVIEW_CFLAGS)
 AC_SUBST(SOURCEVIEW_LIBS)
