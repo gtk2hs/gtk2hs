@@ -53,14 +53,14 @@ reference%.xml	: $(TOP)/$(GENDOC)
 	  $(addprefix -x,$(EXCLUDE_$*)) $(OPTIONS_$*) $(TOPLEVEL_$*))
 
 html%	: reference%.xml
-	$(strip SGML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) --catalogs \
-	  -nonet --param use.id.as.filename 1 $(XSLTHTML) $(INPUT_$*))
+	$(strip XML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) \
+	  --param use.id.as.filename 1 $(XSLTHTML) $(INPUT_$*))
 	mkdir $* || exit 0
 	mv *.html $*
 
 fo%	: reference%.xml
-	$(strip SGML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) --catalogs \
-	  -o $(OUTPUT_$*) -nonet $(XSLTFO) $(INPUT_$*))
+	$(strip XML_CATALOG_FILES=$(CATALOGS) $(XSLTPROC) \
+	  -o $(OUTPUT_$*) $(XSLTFO) $(INPUT_$*))
 	mkdir $* || exit 0
 	mv *.fo $*
 

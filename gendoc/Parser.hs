@@ -205,6 +205,12 @@ runParser p tok state = case (unParser p) tok state of
     ++concatMap show (take 5 ts)) state
   (Failed state) -> addError "parsing finished unsuccessful." state
 
+-- Test the parser on a piece of input.
+--
+-- After successfully running the scanner on a piece of input this
+-- function can be used to check parsing. We drop b symbols in front
+-- of the stream and e symbols at the end.
+--
 tP :: Show a => Int -> Int -> Parser a -> String -> IO ()
 tP b e p inp = putStrLn (testParser b e p inp)
 
@@ -277,7 +283,7 @@ toplevel (TLType Type:ts) =
 	token DefEquals	`mplus` fail "equal sign"
 	t2 <- parseType `mplus` fail "right hand type expression"
 	token DefEnd	`mplus` fail "excess token after declaration"
-	--update $ addTypeType Type t1 t2
+	update $ addType Type t1 [CNorm nilPS [t2]]
 	parseToplevel
 toplevel (TLType kind:ts) =
   stripParser ts (tND `mplus` parseCheck "newtype/data declaration")
@@ -288,7 +294,7 @@ toplevel (TLType kind:ts) =
         token DefEquals `mplus` fail "equal sign"
         cons <- parseConstrs `mplus` fail "constructors"
         der <- parseMDeriving `mplus` fail "deriving clause"
-	-- update $ addTypeType kind
+	update $ addType kind ty cons
         parseToplevel
 toplevel (TLClass: ts) = 
   stripParser ts $ pCl `mplus` parseCheck "class definition"
@@ -355,7 +361,7 @@ parseComIgnore = Parser cI
     cI (ComHook: HookType kind: DefCon con: HookEnd: ts) = 
       stripParser ts $ do
         doc <- parseComExtract
-        --update $ addTypeComm kind con
+        update $ addTypeComm con doc
         parseComIgnore
     cI (ComHook: HookVariant: DefCon con: HookEnd: ts) =
       stripParser ts $ do
@@ -391,10 +397,10 @@ parseComExtract = Parser $ \ts -> pCE ts [] []
       [] = \docs -> pCE ts [] (RefVariant con fol:docs)
     pCE (ComHook: HookRef: HookVariant: DefCon con: HookEnd:ts) [] =
       \docs -> pCE ts [] (RefVariant con nilPS:docs)
-    pCE (ComHook: HookLiteral txt: HookEnd: HookFollow fol:ts) [] =
-      \docs -> pCE ts [] (Verb txt fol:docs)
-    pCE (ComHook: HookLiteral txt: HookEnd:ts) [] =
-      \docs -> pCE ts [] (Verb txt nilPS:docs)
+    pCE (ComHook: HookLiteral multi txt: HookEnd: HookFollow fol:ts) [] =
+      \docs -> pCE ts [] (Verb multi txt fol:docs)
+    pCE (ComHook: HookLiteral multi txt: HookEnd:ts) [] =
+      \docs -> pCE ts [] (Verb multi txt nilPS:docs)
     pCE ts [] = \docs -> Running (reverse docs) ts
     pCE ts ws = \docs -> pCE ts [] (Words (reverse ws):docs)
       
@@ -404,25 +410,24 @@ parseComExtract = Parser $ \ts -> pCE ts [] []
 parseType :: Parser HType
 parseType = do
     t1 <- parseBType
-    isAbs t1 `mplus` isNot t1
+    isAbs t1 `mplus` return t1
   where
     isAbs t1 = do
       token DefFunArrow
       t2 <- parseType
       return (TyFun t1 t2)
-    isNot t1 = do
-      return t1
 
 -- Parse a type application or not.
 parseBType :: Parser HType
 parseBType = do
     t1 <- parseAType
-    isApp t1 `mplus` return t1
+    parseBType' t1
   where
-    isApp t1 = do
-      t2 <- parseBType
-      return (TyApp t1 t2)
-
+    parseBType' :: HType -> Parser HType
+    parseBType' t1 = do
+      t2 <- parseAType
+      parseBType' (TyApp t1 t2)
+     `mplus` return t1
 
 -- Parse a basic type.
 parseAType :: Parser HType

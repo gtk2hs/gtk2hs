@@ -1,10 +1,10 @@
 --  -*-haskell-*-
---  GIMP Toolkit (GTK) @Pixbuf@
+--  GIMP Toolkit (GTK) @entry Pixbuf@
 --
 --  Author : Vincenzo Ciancia, Axel Simon
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2003/05/16 18:45:23 $
+--  Version $Revision: 1.2 $ from $Date: 2003/05/16 22:25:16 $
 --
 --  Copyright (c) 2002 Axel Simon
 --
@@ -20,7 +20,7 @@
 --
 -- @description@ --------------------------------------------------------------
 --
---  @ref date Pixbuf@s are bitmap images in memory.
+--  @ref data Pixbuf@s are bitmap images in memory.
 --
 -- @documentation@ ------------------------------------------------------------
 --
@@ -28,9 +28,9 @@
 --   about the image's pixel data, its color space, bits per sample, width
 --   and height, and the rowstride or number of bytes between rows.
 --
--- * This module contains functions to scale and crop @ref data
---   Pixbuf@s and to scale and crop a @ref data Pixbuf@ and compose the
---   result with an existing image.
+-- * This module contains functions to scale and crop
+--   @ref data Pixbuf@s and to scale and crop a @ref data Pixbuf@ and 
+--   compose the result with an existing image.
 --
 -- @todo@ ---------------------------------------------------------------------
 --
@@ -55,7 +55,6 @@ module Pixbuf(
   PixbufClass,
   PixbufError(..),
   Colorspace(..),
-  AlphaMode,
   pixbufGetColorSpace,
   pixbufGetNChannels,
   pixbufGetHasAlpha,
@@ -106,17 +105,6 @@ import LocalData	((.|.), shiftL)
 -- * Only RGB is supported right now.
 --
 {#enum Colorspace {underscoreToCase} #}
-
--- @data AlphaMode@ Specify how the alpha channel should be used.
---
--- * These values can be passed to @method
---   pixbufRenderToDrawableAlpha@ to control how the alpha chanel of an
---   image should be handled. This function can create a bilevel clipping
---   mask (black and white) and use it while painting the image. In the
---   future, when the X Window System gets an alpha channel extension, it
---   will be possible to do full alpha compositing onto arbitrary
---   drawables. For now both cases fall back to a bilevel clipping mask.
-{#enum PixbufAlphaMode as AlphaMode {underscoreToCase} #}
 
 -- @method pixbufGetColorSpace@ Queries the color space of a pixbuf.
 --
@@ -209,7 +197,7 @@ pixbufNewFromFile fname = withCString fname $ \strPtr ->
 --
 type ImageType = String
 
--- @const pixbufGetFormats@ A list of valid image file formats.
+-- @constant pixbufGetFormats@ A list of valid image file formats.
 --
 pixbufGetFormats :: [ImageType]
 
@@ -293,12 +281,12 @@ data InlineImage = InlineImage
 --   include images in the final binary program. The method used by this
 --   function uses a binary representation and therefore needs less space
 --   in the final executable. Save the image you want to include as
---   @literal png@ and run @verbatim
+--   @literal png@ and run @prog
 --   gdk-pixbuf-csource --raw --name=my_image myimage.png > my_image.c
---   @ it. The created file can be compiled with @verbatim
+--   @ on it. The created file can be compiled with @prog
 --   cc -c image.c -include <gdk/gdk.h> `pkg-config --cflags gdk-2.0`
 --   @ into an object file which must be linked into your Haskell program.
---   Within you application you delcare a pointer to this image: @verbatim
+--   Within you application you delcare a pointer to this image: @prog
 --   foreign import ccall "my_image" myImage :: Ptr InlineImage
 --   @ Call @ref constructor pixbufNewFromInline@ with this pointer will
 --   return the image in the object file. Creating the C file with
@@ -343,23 +331,23 @@ pixbufCopy pb = makeNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 -- @data InterpType@ How an image is scaled.
 --
 --
--- * @ref type InterpNearest@ Nearest neighbor sampling; this is the
+-- * @variant InterpNearest@ Nearest neighbor sampling; this is the
 --   fastest and lowest quality mode. Quality is normally unacceptable when
 --   scaling down, but may be OK when scaling up.
 --
--- * @ref type InterpTiles@ This is an accurate simulation of the
+-- * @variant InterpTiles@ This is an accurate simulation of the
 --   PostScript image operator without any interpolation enabled. Each
 --   pixel is rendered as a tiny parallelogram of solid color, the edges of
 --   which are implemented with antialiasing. It resembles nearest neighbor
 --   for enlargement, and bilinear for reduction.
 --
--- * @ref type InterpBilinear@ Best quality/speed balance; use this
+-- * @variant InterpBilinear@ Best quality/speed balance; use this
 --   mode by default. Bilinear interpolation. For enlargement, it is
 --   equivalent to point-sampling the ideal bilinear-interpolated
 --   image. For reduction, it is equivalent to laying down small tiles and
 --   integrating over the coverage area.
 --
--- * @ref type InterpHyper@ This is the slowest and highest quality
+-- * @variant InterpHyper@ This is the slowest and highest quality
 --   reconstruction function. It is derived from the hyperbolic filters in
 --   Wolberg's "Digital Image Warping", and is formally defined as the
 --   hyperbolic-filter sampling the ideal hyperbolic-filter interpolated
@@ -374,8 +362,8 @@ pixbufCopy pb = makeNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 --   unaffected. 
 --
 -- * @ref arg interp@ affects the quality and speed of the scaling function.
---   @ref type InterpNearest@ is the fastest option but yields very poor
---   quality when scaling down. @ref type InterpBilinear@ is a good
+--   @variant InterpNearest@ is the fastest option but yields very poor
+--   quality when scaling down. @variant InterpBilinear@ is a good
 --   trade-off between speed and quality and should thus be used as a
 --   default.
 --
@@ -390,7 +378,7 @@ pixbufScaleSimple pb width height interp =
 --
 -- * This function is the generic version of @ref method pixbufScaleSimple@.
 --   It scales @ref arg src@ by @ref arg scaleX@ and @ref arg scaleY@ and
---   translate the image by @ref arg offsetX@ and @ref offsetY@. Whatever
+--   translate the image by @ref arg offsetX@ and @ref arg offsetY@. Whatever
 --   is in the intersection with the rectangle @ref arg destX@,
 --   @ref arg destY@, @ref arg destWidth@, @ref arg destHeight@ will be
 --   rendered into @ref arg dest@.

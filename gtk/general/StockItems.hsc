@@ -5,7 +5,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2003/04/11 15:14:07 $
+--  Version $Revision: 1.7 $ from $Date: 2003/05/16 22:25:16 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -217,7 +217,7 @@ stockLookupItem stockId =
 foreign import ccall "gtk_stock_lookup" unsafe
   stock_lookup :: CString -> Ptr StockItem -> IO #type gboolean
 
--- @stockListIds@ Produce a list of all known stock identifiers.
+-- @function stockListIds@ Produce a list of all known stock identifiers.
 --
 -- * Retrieve a list of all known stock identifiers. These can either be
 --   added by @ref method stockAdd@ or by adding items to a

@@ -46,8 +46,12 @@ data Docu
   | RefVariant DaCon DWord
   | RefSym SymKind DaVar DWord
   | RefTyp ConKind TyCon DWord
-  | Verb PackedString DWord
+  | Verb Bool PackedString DWord
   deriving Show
+
+isParagraph :: Docu -> Bool
+isParagraph Paragraph = True
+isParagraph _         = False
 
 data SymKind
   = Constructor
@@ -69,12 +73,18 @@ data ConKind
   | Type
   deriving (Show, Eq)
 
+-- a type can either be a new algebraic datatype introduces via newtype or
+-- data or it can be a type synonym, introduced via type
 data ConInfo 
   = ConInfo {
-    conModule :: Module,
-    conKind   :: ConKind,
-    conContxt :: Set TyVar,
+    conNewType:: Bool,
+    conDocu   :: [Docu],
+    conSig    :: HType,
     conDaCon  :: FiniteMap DaCon DaConInfo}
+  | SynInfo {
+    conSig    :: HType,
+    conRHS    :: HType,
+    conDocu   :: [Docu]}
 
 data DaConInfo 
   = DaConSimple {

@@ -5,7 +5,7 @@
 --          
 --  Created: 13 February 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2003/03/24 11:48:21 $
+--  Version $Revision: 1.2 $ from $Date: 2003/05/16 22:25:16 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -51,7 +51,14 @@
 module Style(
   Style,
   StyleClass,
-  styleGetForeground
+  styleGetForeground,
+  styleGetBackground,
+  styleGetLight,
+  styleGetMiddle,
+  styleGetDark,
+  styleGetText,
+  styleGetBase,
+  styleGetAntiAliasing
   ) where
 
 import Monad		(liftM)
@@ -60,5 +67,12 @@ import UTFCForeign
 {#import GObject#}	(makeNewGObject)
 {#import Hierarchy#}
 import Enums		(StateType)
-import Structs		(styleGetForeground)
+import Structs		(styleGetForeground,
+			 styleGetBackground,
+			 styleGetLight,
+			 styleGetMiddle,
+			 styleGetDark,
+			 styleGetText,
+			 styleGetBase,
+			 styleGetAntiAliasing)
 

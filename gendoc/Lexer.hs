@@ -40,7 +40,7 @@ data Token
   | HookDescription
   | HookSynopsis
   | HookImplementation
-  | HookLiteral PackedString
+  | HookLiteral Bool PackedString -- true if multiline
   | HookWidget
   | HookModule
   | HookRef
@@ -96,7 +96,8 @@ instance Show Token where
   show (HookDescription)= "description"
   show (HookSynopsis)   = "synopsis"
   show (HookImplementation) = "implementation"
-  show (HookLiteral _)  = "<verbatim> "
+  show (HookLiteral True _)  = "verbatim"
+  show (HookLiteral False _) = "literal"
   show (HookWidget)	= "widget "
   show (HookModule)	= "module "
   show (HookRef)	= "ref "
@@ -208,10 +209,12 @@ lexHook ('n':'e':'w':'t':'y':'p':'e':xs) =
 lexHook ('d':'o':'c':'u':'m':'e':'n':'t':'a':'t':'i':'o':'n':xs) = 
   HookDescription: lexHook xs
 lexHook ('t':'o':'d':'o':xs) = HookImplementation: lexHook xs
-lexHook ('p':'r':'o':'g':' ':xs) = lexLiteral xs
-lexHook ('p':'r':'o':'g':xs) = lexLiteral xs
-lexHook ('l':'i':'t':'e':'r':'a':'l':' ':xs) = lexLiteral xs
-lexHook ('l':'i':'t':'e':'r':'a':'l':xs) = lexLiteral xs
+lexHook ('p':'r':'o':'g':' ':xs) = lexLiteral True xs
+lexHook ('p':'r':'o':'g':xs) = lexLiteral True xs
+lexHook ('v':'e':'r':'b':'a':'t':'i':'m':' ':xs) = lexLiteral True xs
+lexHook ('v':'e':'r':'b':'a':'t':'i':'m':xs) = lexLiteral True xs
+lexHook ('l':'i':'t':'e':'r':'a':'l':' ':xs) = lexLiteral False xs
+lexHook ('l':'i':'t':'e':'r':'a':'l':xs) = lexLiteral False xs
 lexHook ('m':'e':'t':'h':'o':'d':xs) = 
   HookSymbol Method: lexDefn SIHook xs
 lexHook ('e':'n':'t':'r':'y':' ':'W':'i':'d':'g':'e':'t':xs) =
@@ -286,18 +289,20 @@ lexDefn si = lD
 				       lD (x:xs)
 
 -- Extract verbatim text.
-lexLiteral :: Lexer
-lexLiteral = lL ""
+--
+-- The boolean is true if we should return Verbatim instead of Literal.
+lexLiteral :: Bool -> Lexer
+lexLiteral ty = lL 0 ""
   where
-    lL :: String -> Lexer
-    lL txt ('@':'@':xs) = lL ('@':txt) xs
-    lL txt xs@('@':_) = HookLiteral (packString (reverse txt)):
-			      lexHook xs
-    lL txt ('\n':'-':'-':' ':xs) = NewLine: lL ('\n':txt) xs
-    lL txt ('\n':'-':'-':xs) = NewLine: lL ('\n':txt) xs
-    lL txt xs@('\n':_) = illChar "verbatim program" xs
-    lL txt (x:xs) = lL (x:txt) xs
-    lL txt [] = illChar "verbatim program" []
+    lL :: Int -> String -> Lexer
+    lL newlines txt ('@':'@':xs) = lL newlines ('@':txt) xs
+    lL newlines txt ('@':xs) = HookLiteral ty (packString (reverse txt)):
+      HookEnd:replicate newlines NewLine++lexFollow xs
+    lL newlines txt ('\n':'-':'-':' ':xs) = lL (newlines+1) ('\n':txt) xs
+    lL newlines txt ('\n':'-':'-':xs) = lL (newlines+1) ('\n':txt) xs
+    lL newlines txt xs@('\n':_) = illChar "verbatim program" xs
+    lL newlines txt (x:xs) = lL newlines (x:txt) xs
+    lL newlines txt [] = illChar "verbatim program" []
 
 -- Report an illegal character.
 illChar :: String -> Lexer

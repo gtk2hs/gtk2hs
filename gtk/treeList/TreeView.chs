@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2003/05/16 05:53:33 $
+--  Version $Revision: 1.13 $ from $Date: 2003/05/16 22:25:16 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -397,14 +397,15 @@ treeViewGetExpanderColumn tv = makeNewObject mkTreeViewColumn $
 -- * Sets a user function for determining where a column may be dropped when
 --   dragged.  This function is called on every column pair in turn at the
 --   beginning of a column drag to determine where a drop can take place.
--- * The callback function take the @ref type TreeViewColumn@ to be moved, the
+-- * The callback function take the @ref data TreeViewColumn@ to be moved, the
 --   second and third arguments are the columns on the left and right side
---   of the new location. At most one of them might be @ref literal Nothing@
+--   of the new location. At most one of them might be @literal Nothing@
 --   which indicates that the column is about to be dropped at the left or
 --   right end of the @ref data TreeView@.
 -- * The predicate @ref arg pred@ should return @literal True@ if it is ok
 --   to insert the column at this place.
--- * Use @literal Nothing@ for the predicate if columns can be inserted anywhere.
+-- * Use @literal Nothing@ for the predicate if columns can be inserted
+--   anywhere.
 --
 treeViewSetColumnDragFunction :: TreeViewClass tv => tv -> 
 				 Maybe (TreeViewColumn ->

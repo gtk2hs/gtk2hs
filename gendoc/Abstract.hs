@@ -48,7 +48,7 @@ instance Show HPat where
   show (PatRec f) = '{':concat (intersperse ", " 
 		    (map (\(v,p) -> unpackPS v++'=':show p) f))++"}"
   show (PatAny) = "_"
-  show (PatParen ps) = '(':concat (intersperse " " (map show ps))++")"
+  show (PatParen ps) = '(':concat (intersperse ", " (map show ps))++")"
   show (PatList ps) = '[':concat (intersperse ", " (map show ps))++"]"
 
 instance Show HType where

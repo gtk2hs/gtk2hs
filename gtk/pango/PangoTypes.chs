@@ -1,10 +1,10 @@
---  GIMP Toolkit (GTK) - pango non-GObject types @entry@
+--  GIMP Toolkit (GTK) - pango non-GObject types @entry PangoTypes@
 --
 --  Author : Axel Simon
 --          
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2003/02/10 09:04:23 $
+--  Version $Revision: 1.2 $ from $Date: 2003/05/16 22:25:16 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --

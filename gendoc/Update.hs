@@ -51,9 +51,12 @@ canPostpone sel name upd = withCurModule $ \mInfo state ->
 canPostponeVar :: Var -> (State -> State) -> State -> State
 canPostponeVar = canPostpone modSymTab
 
--- Postpone an update if the conructor hasn't been defined yet.
-canPostponeCon :: Con -> (State -> State) -> State -> State
-canPostponeCon = canPostpone modTypTab
+-- Postpone an update if the constructor hasn't been defined yet.
+canPostponeDaCon :: DaCon -> (State -> State) -> State -> State
+canPostponeDaCon = canPostpone daConXRef
+
+canPostponeTyCon :: DaCon -> (State -> State) -> State -> State
+canPostponeTyCon = canPostpone modTypTab
 
 -- Global Module and file handling.
 
@@ -63,6 +66,79 @@ addImport fname state@(State { filesTodo=todo, filesDone=done,
 			       filesExcl=ignore }) =
   if fname `elementOf` done || fname `elementOf` ignore then state else
     state { filesTodo=addToSet (filesTodo state) fname }
+
+-- Add a type definition to the symbol table
+addType :: ConKind -> HType -> [Constr] -> State -> State
+addType kind ty cons = withCurModule $
+  \mI@(ModInfo { modTypTab=tt, daConXRef=xref }) state -> let
+    tn = getTypeName ty
+    getTypeName :: HType -> TyCon
+    getTypeName (TyCon tc) = tc
+    getTypeName (TyApp t _) = getTypeName t
+    getTypeName t = error ("Update.addType: illegal type : "++show t)
+
+{-
+    tvars = getTypeVars tt
+    getTypeVars :: HType -> [TyVar]
+    getTypeVars (TyFun t1 t2) = getTypeVars t1++getTypeVars t2
+    getTypeVars (TyApp t1 t2) = getTypeVars t1++getTypeVars t2
+    getTypeVars (TyCon _) = []
+    getTypeVars (TyVar tv) = [tv]
+    getTypeVars (TyPar ts) = contactMap getTypeVars ts
+    getTypeVars (TyLst t) = getTypeVars t -- can't happen
+-}
+    getConName :: Constr -> DaCon
+    getConName (CNorm dc _) = dc
+    getConName (CRec dc _) = dc
+
+    doUpdate :: ConInfo -> State
+    doUpdate ti = 
+      replaceModInfo (mI { modTypTab=addToFM tt tn ti,
+			   daConXRef=addListToFM xref
+				     (map (\con -> (getConName con, tn)) cons)
+			 }) state
+
+    createDaConDesc :: Constr -> (DaCon, DaConInfo)
+    createDaConDesc (CNorm con tys) = (con,DaConSimple {
+      daConDocu  = [],
+      daConType	 = tys})
+    createDaConDesc (CRec con varNtypes) = (con,
+      let (vars,types) = unzip varNtypes in
+        DaConRecord {
+	  daConDocu  = [],
+	  daConType  = types,
+	  daConSel   = vars})
+
+    getDaCon :: Constr -> DaCon
+    getDaCon (CNorm con _) = con
+    getDaCon (CRec con _) = con
+
+  in case (tt `lookupFM` tn, kind) of
+    (Nothing, Type) -> execForward tn $ doUpdate (SynInfo {
+      conSig = ty,
+      conRHS = (\[CNorm _ [ty]] -> ty) cons,
+      conDocu = [] })
+    (Nothing, _) -> foldr (.) id (map execForward (tn:map getDaCon cons)) $
+		    doUpdate (ConInfo {
+      conNewType= kind==Newtype,
+      conDocu = [],
+      conSig  = ty,
+      conDaCon= listToFM (map createDaConDesc cons) })
+    (Just _, _) -> addError ("type constructor "++
+			     show tn++" was already present") state
+
+-- Add documentation for a type constructor.
+addTypeComm :: TyCon -> [Docu] -> State -> State
+addTypeComm con docu = canPostponeTyCon con $ withCurModule $
+  \mI@(ModInfo { modTypTab=tt }) state -> let
+    doUpdate :: ConInfo -> State
+    doUpdate ci = replaceModInfo (mI { modTypTab=addToFM tt con ci })
+		  state
+  in case tt `lookupFM` con of
+    Nothing -> addError ("inserting documentation: "++
+			"symbol "++show con++" not found ") state
+    (Just ti) -> doUpdate (ti { conDocu=conDocu ti++docu })
+
 
 -- Insert a variable declaration or definition.
 insertSymbol :: HFunction -> State -> State
@@ -94,7 +170,10 @@ insertSymbol (FunDefn fun pats) = withCurModule $
 			(if args==[] then repeat [] else args) }) })
       state
 
-{-  where
+{-
+  this was to merge the different patterns for a function which is probably
+  not a good idea (better a line for each case)  
+  where
     merge :: [HPat] -> [[HPat]] -> [[HPat]]
     merge ps [] = map (\x -> [x]) ps
     merge [] as = as
@@ -180,4 +259,7 @@ instance Show SymInfo where
     show kind++" "++show typ++"\n  "++show args
 
 instance Show ConInfo where
-  show (ConInfo { conKind=kind }) = show kind
+  show (ConInfo { conNewType=nt }) | nt = "newtype"
+				   | otherwise = "data"
+  show (SynInfo { }) = "type"
+
