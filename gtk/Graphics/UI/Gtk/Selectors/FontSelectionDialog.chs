@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/03 12:56:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A dialog box for selecting fonts.
+-- A dialog box for selecting fonts
 --
 module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
--- * Description
+-- * Detail
 -- 
 -- | The 'FontSelectionDialog' widget is a dialog box for selecting a font.
 --
@@ -87,48 +87,57 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'FontSelectionDialog'.
 --
-fontSelectionDialogNew :: String -> IO FontSelectionDialog
+fontSelectionDialogNew :: 
+    String                 -- ^ @title@ - the title of the dialog box.
+ -> IO FontSelectionDialog
 fontSelectionDialogNew title =
-  makeNewObject mkFontSelectionDialog $ liftM castPtr $
-  withUTFString title $ \strPtr ->
-  {#call unsafe font_selection_dialog_new#} strPtr
+  makeNewObject mkFontSelectionDialog $
+  liftM (castPtr :: Ptr Widget -> Ptr FontSelectionDialog) $
+  withUTFString title $ \titlePtr ->
+  {# call unsafe font_selection_dialog_new #}
+    titlePtr
 
 --------------------
 -- Methods
 
--- | Gets the currently-selected font name. Returns Nothing if no font is
--- selected.
+-- | Gets the currently-selected font name.
 --
-fontSelectionDialogGetFontName :: FontSelectionDialogClass obj => obj
-                               -> IO (Maybe String)
-fontSelectionDialogGetFontName obj =
-  {#call font_selection_dialog_get_font_name#} (toFontSelectionDialog obj)
-    >>= maybePeek readUTFString
+fontSelectionDialogGetFontName :: FontSelectionDialogClass self => self
+ -> IO (Maybe String) -- ^ returns the currently-selected font name, or
+                      -- @Nothing@ if no font is selected.
+fontSelectionDialogGetFontName self =
+  {# call font_selection_dialog_get_font_name #}
+    (toFontSelectionDialog self)
+  >>= maybePeek readUTFString
 
--- | Sets the currently-selected font. Returns False if the font was not found.
+-- | Sets the currently-selected font.
 --
-fontSelectionDialogSetFontName :: FontSelectionDialogClass obj => obj -> String -> IO Bool
-fontSelectionDialogSetFontName obj fontname = liftM toBool $
-  withUTFString fontname $ \strPtr ->
-  {#call font_selection_dialog_set_font_name#} (toFontSelectionDialog obj)
-    strPtr
+fontSelectionDialogSetFontName :: FontSelectionDialogClass self => self
+ -> String  -- ^ @fontname@ - a fontname.
+ -> IO Bool -- ^ returns @True@ if the font was found.
+fontSelectionDialogSetFontName self fontname =
+  liftM toBool $
+  withUTFString fontname $ \fontnamePtr ->
+  {# call font_selection_dialog_set_font_name #}
+    (toFontSelectionDialog self)
+    fontnamePtr
 
 -- | Gets the text displayed in the preview area.
 --
-fontSelectionDialogGetPreviewText :: FontSelectionDialogClass obj => obj
-                                  -> IO String
-fontSelectionDialogGetPreviewText obj =
-  {#call unsafe font_selection_dialog_get_preview_text#} (toFontSelectionDialog obj)
-    >>= peekUTFString
+fontSelectionDialogGetPreviewText :: FontSelectionDialogClass self => self -> IO String
+fontSelectionDialogGetPreviewText self =
+  {# call unsafe font_selection_dialog_get_preview_text #}
+    (toFontSelectionDialog self)
+  >>= peekUTFString
 
 -- | Sets the text displayed in the preview area.
 --
-fontSelectionDialogSetPreviewText :: FontSelectionDialogClass obj => obj
-                                  -> String -> IO ()
-fontSelectionDialogSetPreviewText obj text =
-  withUTFString text $ \strPtr ->
-  {#call font_selection_dialog_set_preview_text#} (toFontSelectionDialog obj)
-    strPtr
+fontSelectionDialogSetPreviewText :: FontSelectionDialogClass self => self -> String -> IO ()
+fontSelectionDialogSetPreviewText self text =
+  withUTFString text $ \textPtr ->
+  {# call font_selection_dialog_set_preview_text #}
+    (toFontSelectionDialog self)
+    textPtr
 
 --------------------
 -- Properties
@@ -136,7 +145,7 @@ fontSelectionDialogSetPreviewText obj text =
 -- | \'previewText\' property. See 'fontSelectionDialogGetPreviewText' and
 -- 'fontSelectionDialogSetPreviewText'
 --
-fontSelectionDialogPreviewText :: Attr FontSelectionDialog String
+fontSelectionDialogPreviewText :: FontSelectionDialogClass self => Attr self String
 fontSelectionDialogPreviewText = Attr 
   fontSelectionDialogGetPreviewText
   fontSelectionDialogSetPreviewText

@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/03 12:56:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget for selecting fonts.
+-- A widget for selecting fonts
 --
 module Graphics.UI.Gtk.Selectors.FontSelection (
--- * Description
+-- * Detail
 -- 
 -- | The 'FontSelection' widget lists the available fonts, styles and sizes,
 -- allowing the user to select a font. It is used in the 'FontSelectionDialog'
@@ -90,40 +90,50 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 fontSelectionNew :: IO FontSelection
 fontSelectionNew =
-  makeNewObject mkFontSelection $ liftM castPtr $
-  {#call unsafe font_selection_new#}
+  makeNewObject mkFontSelection $
+  liftM (castPtr :: Ptr Widget -> Ptr FontSelection) $
+  {# call unsafe font_selection_new #}
 
 --------------------
 -- Methods
 
--- | Gets the currently-selected font name. Returns Nothing if no font is
--- selected.
+-- | Gets the currently-selected font name.
 --
-fontSelectionGetFontName :: FontSelectionClass obj => obj -> IO (Maybe String)
-fontSelectionGetFontName obj =
-  {#call unsafe font_selection_get_font_name#} (toFontSelection obj)
-    >>= maybePeek readUTFString
+fontSelectionGetFontName :: FontSelectionClass self => self
+ -> IO (Maybe String) -- ^ returns @Nothing@ if no font is selected.
+fontSelectionGetFontName self =
+  {# call unsafe font_selection_get_font_name #}
+    (toFontSelection self)
+  >>= maybePeek readUTFString
 
--- | Sets the currently-selected font. Returns False if the font was not found.
+-- | Sets the currently-selected font.
 --
-fontSelectionSetFontName :: FontSelectionClass obj => obj -> String -> IO Bool
-fontSelectionSetFontName obj fontname = liftM toBool $
-  withUTFString fontname $ \strPtr ->
-  {#call font_selection_set_font_name#} (toFontSelection obj) strPtr
+fontSelectionSetFontName :: FontSelectionClass self => self
+ -> String  -- ^ @fontname@ - a fontname.
+ -> IO Bool -- ^ returns @True@ if the font was found.
+fontSelectionSetFontName self fontname =
+  liftM toBool $
+  withUTFString fontname $ \fontnamePtr ->
+  {# call font_selection_set_font_name #}
+    (toFontSelection self)
+    fontnamePtr
 
 -- | Gets the text displayed in the preview area.
 --
-fontSelectionGetPreviewText :: FontSelectionClass obj => obj -> IO String
-fontSelectionGetPreviewText obj =
-  {#call unsafe font_selection_get_preview_text#} (toFontSelection obj)
-    >>= peekUTFString
+fontSelectionGetPreviewText :: FontSelectionClass self => self -> IO String
+fontSelectionGetPreviewText self =
+  {# call unsafe font_selection_get_preview_text #}
+    (toFontSelection self)
+  >>= peekUTFString
 
 -- | Sets the text displayed in the preview area.
 --
-fontSelectionSetPreviewText :: FontSelectionClass obj => obj -> String -> IO ()
-fontSelectionSetPreviewText obj text =
-  withUTFString text $ \strPtr ->
-  {#call font_selection_set_preview_text#} (toFontSelection obj) strPtr
+fontSelectionSetPreviewText :: FontSelectionClass self => self -> String -> IO ()
+fontSelectionSetPreviewText self text =
+  withUTFString text $ \textPtr ->
+  {# call font_selection_set_preview_text #}
+    (toFontSelection self)
+    textPtr
 
 --------------------
 -- Properties
@@ -132,7 +142,7 @@ fontSelectionSetPreviewText obj text =
 --
 -- Default value: \"abcdefghijk ABCDEFGHIJK\"
 --
-fontSelectionPreviewText :: Attr FontSelection String
+fontSelectionPreviewText :: FontSelectionClass self => Attr self String
 fontSelectionPreviewText = Attr 
   fontSelectionGetPreviewText
   fontSelectionSetPreviewText

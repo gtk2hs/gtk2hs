@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:43 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/03 12:56:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,16 +24,12 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
---  The file chooser dialog and widget is a replacement
---  for the old 'FileSel'ection dialog. It provides a better user
---  interface and an improved API.
+-- File chooser widget that can be embedded in other widgets
 --
--- * This is the widget variant of the 'FileChooser'
---
--- * Added in GTK+ 2.4
+-- * Module available since Gtk+ version 2.4
 --
 module Graphics.UI.Gtk.Selectors.FileChooserWidget (
--- * Description
+-- * Detail
 -- 
 -- | 'FileChooserWidget' is a widget suitable for selecting files. It is the
 -- main building block of a 'FileChooserDialog'. Most applications will only
@@ -42,8 +38,6 @@ module Graphics.UI.Gtk.Selectors.FileChooserWidget (
 --
 -- Note that 'FileChooserWidget' does not have any methods of its own.
 -- Instead, you should use the functions that work on a 'FileChooser'.
---
--- * Module available since Gtk version 2.4
 
 -- * Class Hierarchy
 -- |
@@ -56,7 +50,6 @@ module Graphics.UI.Gtk.Selectors.FileChooserWidget (
 -- |                           +----'VBox'
 -- |                                 +----FileChooserWidget
 -- @
-
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- * Types
@@ -71,8 +64,6 @@ module Graphics.UI.Gtk.Selectors.FileChooserWidget (
 #endif
   ) where
 
-#if GTK_CHECK_VERSION(2,4,0)
-
 import Monad (liftM)
 
 import System.Glib.FFI
@@ -82,6 +73,7 @@ import Graphics.UI.Gtk.Abstract.Object
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Interfaces
 
@@ -90,17 +82,34 @@ instance FileChooserClass FileChooserWidget
 --------------------
 -- Constructors
 
-fileChooserWidgetNew ::  FileChooserAction -> IO FileChooserWidget
+-- | Creates a new 'FileChooserWidget'. This is a file chooser widget that can
+-- be embedded in custom windows, and it is the same widget that is used by
+-- 'FileChooserDialog'.
+--
+fileChooserWidgetNew :: 
+    FileChooserAction    -- ^ @action@ - Open or save mode for the widget
+ -> IO FileChooserWidget
 fileChooserWidgetNew action =
-  makeNewObject mkFileChooserWidget $ liftM castPtr $
+  makeNewObject mkFileChooserWidget $
+  liftM (castPtr :: Ptr Widget -> Ptr FileChooserWidget) $
   {# call unsafe gtk_file_chooser_widget_new #}
-    (fromIntegral $ fromEnum action)
+    ((fromIntegral . fromEnum) action)
 
-fileChooserWidgetNewWithBackend ::  FileChooserAction -> String -> IO FileChooserWidget
+-- | Creates a new 'FileChooserWidget' with a specified backend. This is
+-- especially useful if you use 'fileChooserSetLocalOnly' to allow non-local
+-- files. This is a file chooser widget that can be embedded in custom windows
+-- and it is the same widget that is used by 'FileChooserDialog'.
+--
+fileChooserWidgetNewWithBackend :: 
+    FileChooserAction    -- ^ @action@ - Open or save mode for the widget
+ -> String               -- ^ @backend@ - The name of the specific filesystem
+                         -- backend to use.
+ -> IO FileChooserWidget
 fileChooserWidgetNewWithBackend action backend =
-  makeNewObject mkFileChooserWidget $ liftM castPtr $
-  withCString backend $ \strPtr ->
+  makeNewObject mkFileChooserWidget $
+  liftM (castPtr :: Ptr Widget -> Ptr FileChooserWidget) $
+  withCString backend $ \backendPtr ->
   {# call unsafe gtk_file_chooser_widget_new_with_backend #}
-    (fromIntegral $ fromEnum action) strPtr
-
+    ((fromIntegral . fromEnum) action)
+    backendPtr
 #endif

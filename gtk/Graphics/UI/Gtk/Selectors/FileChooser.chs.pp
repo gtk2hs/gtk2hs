@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) FileChooser
+--  GIMP Toolkit (GTK) Interface FileChooser
 --
 --  Author : Duncan Coutts
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/13 19:34:37 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/03 12:56:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,24 +24,20 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
---  The file chooser dialog and widget is a replacement
---  for the old 'FileSel'ection dialog. It provides a better user
---  interface and an improved API.
+-- File chooser interface used by 'FileChooserWidget' and
+-- 'FileChooserDialog'
 --
---  The FileChooser (as opposed to the dialog or widget) is the interface that
---  the 'FileChooserDialog' and 'FileChooserWidget' implement, all the operations
---  except construction are on this interface.
---
--- * Added in GTK+ 2.4
+-- * Module available since Gtk+ version 2.4
 --
 module Graphics.UI.Gtk.Selectors.FileChooser (
--- * Description
+-- * Detail
 -- 
 -- | 'FileChooser' is an interface that can be implemented by file selection
 -- widgets. In Gtk+, the main objects that implement this interface are
--- 'FileChooserWidget' and 'FileChooserDialog'. You do not need to write an
--- object that implements the 'FileChooser' interface unless you are trying to
--- adapt an existing file selector to expose a standard programming interface.
+-- 'FileChooserWidget', 'FileChooserDialog', and 'FileChooserButton'. You do
+-- not need to write an object that implements the 'FileChooser' interface
+-- unless you are trying to adapt an existing file selector to expose a
+-- standard programming interface.
 
 -- ** File Names and Encodings
 -- 
@@ -171,10 +167,11 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   fileChooserGetFilter,
   fileChooserAddShortcutFolder,
   fileChooserRemoveShortcutFolder,
-  fileChooserlistShortcutFolders,
+  fileChooserListShortcutFolders,
   fileChooserAddShortcutFolderURI,
   fileChooserRemoveShortcutFolderURI,
   fileChooserListShortcutFolderURIs,
+  fileChooserErrorDomain,
 
 -- * Properties
   fileChooserUsePreviewLabel,
@@ -195,8 +192,6 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 #endif
   ) where
 
-#if GTK_CHECK_VERSION(2,4,0)
-
 import Monad (liftM, when)
 
 import System.Glib.FFI
@@ -210,6 +205,8 @@ import System.Glib.GError		(propagateGError, GErrorDomain, GErrorClass(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,4,0)
+
 {# enum FileChooserAction {underscoreToCase} #}
 {# enum FileChooserError {underscoreToCase} #}
 
@@ -218,287 +215,610 @@ import System.Glib.GError		(propagateGError, GErrorDomain, GErrorClass(..))
 
 fileChooserErrorDomain :: GErrorDomain
 fileChooserErrorDomain = unsafePerformIO {#call unsafe file_chooser_error_quark#}
-                                                                                                         
+
 instance GErrorClass FileChooserError where
   gerrorDomain _ = fileChooserErrorDomain
 
-fileChooserSetAction :: FileChooserClass chooser => chooser -> FileChooserAction -> IO ()
-fileChooserSetAction chooser action =
-  {# call gtk_file_chooser_set_action #} (toFileChooser chooser)
-    (fromIntegral $ fromEnum action)
+-- | Sets the type of operation that the chooser is performing; the user
+-- interface is adapted to suit the selected action. For example, an option to
+-- create a new folder might be shown if the action is 'FileChooserActionSave'
+-- but not if the action is 'FileChooserActionOpen'.
+--
+fileChooserSetAction :: FileChooserClass self => self
+ -> FileChooserAction -- ^ @action@ - the action that the file selector is
+                      -- performing
+ -> IO ()
+fileChooserSetAction self action =
+  {# call gtk_file_chooser_set_action #}
+    (toFileChooser self)
+    ((fromIntegral . fromEnum) action)
 
-fileChooserGetAction :: FileChooserClass chooser => chooser ->  IO FileChooserAction
-fileChooserGetAction chooser = liftM (toEnum . fromIntegral) $
-  {# call gtk_file_chooser_get_action #} (toFileChooser chooser)
+-- | Gets the type of operation that the file chooser is performing; see
+-- 'fileChooserSetAction'.
+--
+fileChooserGetAction :: FileChooserClass self => self -> IO FileChooserAction
+fileChooserGetAction self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_file_chooser_get_action #}
+    (toFileChooser self)
 
-fileChooserSetLocalOnly :: FileChooserClass chooser => chooser -> Bool -> IO ()
-fileChooserSetLocalOnly chooser localOnly = 
-  {# call gtk_file_chooser_set_local_only #} (toFileChooser chooser)
+-- | Sets whether only local files can be selected in the file selector. If
+-- @localOnly@ is @True@ (the default), then the selected file are files are
+-- guaranteed to be accessible through the operating systems native file file
+-- system and therefore the application only needs to worry about the filename
+-- functions in 'FileChooser', like 'fileChooserGetFilename', rather than the
+-- URI functions like 'fileChooserGetURI',
+--
+fileChooserSetLocalOnly :: FileChooserClass self => self -> Bool -> IO ()
+fileChooserSetLocalOnly self localOnly =
+  {# call gtk_file_chooser_set_local_only #}
+    (toFileChooser self)
     (fromBool localOnly)
 
-fileChooserGetLocalOnly :: FileChooserClass chooser => chooser -> IO Bool
-fileChooserGetLocalOnly chooser = liftM toBool $
-  {# call gtk_file_chooser_get_local_only #} (toFileChooser chooser)
+-- | Gets whether only local files can be selected in the file selector. See
+-- 'fileChooserSetLocalOnly'
+--
+fileChooserGetLocalOnly :: FileChooserClass self => self -> IO Bool
+fileChooserGetLocalOnly self =
+  liftM toBool $
+  {# call gtk_file_chooser_get_local_only #}
+    (toFileChooser self)
 
-fileChooserSetSelectMultiple :: FileChooserClass chooser => chooser -> Bool -> IO ()
-fileChooserSetSelectMultiple chooser selectMultiple = 
-  {# call gtk_file_chooser_set_select_multiple #} (toFileChooser chooser)
+-- | Sets whether multiple files can be selected in the file selector. This is
+-- only relevant if the action is set to be 'FileChooserActionOpen' or
+-- 'FileChooserActionSave'. It cannot be set with either of the folder actions.
+--
+fileChooserSetSelectMultiple :: FileChooserClass self => self -> Bool -> IO ()
+fileChooserSetSelectMultiple self selectMultiple =
+  {# call gtk_file_chooser_set_select_multiple #}
+    (toFileChooser self)
     (fromBool selectMultiple)
 
-fileChooserGetSelectMultiple :: FileChooserClass chooser => chooser -> IO Bool
-fileChooserGetSelectMultiple chooser = liftM toBool $
-  {# call gtk_file_chooser_get_select_multiple #} (toFileChooser chooser)
+-- | Gets whether multiple files can be selected in the file selector. See
+-- 'fileChooserSetSelectMultiple'.
+--
+fileChooserGetSelectMultiple :: FileChooserClass self => self -> IO Bool
+fileChooserGetSelectMultiple self =
+  liftM toBool $
+  {# call gtk_file_chooser_get_select_multiple #}
+    (toFileChooser self)
 
-fileChooserSetCurrentName :: FileChooserClass chooser => chooser -> String -> IO ()
-fileChooserSetCurrentName chooser name =
-  withCString name $ \strPtr ->
-  {# call gtk_file_chooser_set_current_name #} (toFileChooser chooser) strPtr
+-- | Sets the current name in the file selector, as if entered by the user.
+-- Note that the name passed in here is a Unicode string rather than a filename.
+-- This function is meant for such uses as a suggested name in a \"Save As...\"
+-- dialog.
+--
+-- If you want to preselect a particular existing file, you should use
+-- 'fileChooserSetFilename' instead.
+--
+fileChooserSetCurrentName :: FileChooserClass self => self
+ -> FilePath -- ^ @name@ - the filename to use, as a Unicode string
+ -> IO ()
+fileChooserSetCurrentName self name =
+  withUTFString name $ \namePtr ->
+  {# call gtk_file_chooser_set_current_name #}
+    (toFileChooser self)
+    namePtr
 
-fileChooserGetFilename :: FileChooserClass chooser => chooser -> IO (Maybe String)
-fileChooserGetFilename chooser = do
+-- | Gets the filename for the currently selected file in the file selector.
+-- If multiple files are selected, one of the filenames will be returned at
+-- random.
+--
+-- If the file chooser is in folder mode, this function returns the selected
+-- folder.
+--
+fileChooserGetFilename :: FileChooserClass self => self
+ -> IO (Maybe FilePath) -- ^ returns The currently selected filename, or
+                        -- @Nothing@ if no file is selected, or the selected
+                        -- file can't be represented with a local filename.
+fileChooserGetFilename self =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-  strPtr <- {# call gtk_file_chooser_get_filename_utf8 #}
+  {# call gtk_file_chooser_get_filename_utf8 #}
 #else
-  strPtr <- {# call gtk_file_chooser_get_filename #} 
+  {# call gtk_file_chooser_get_filename #}
 #endif
-   (toFileChooser chooser)
-  maybePeek readCString strPtr
+    (toFileChooser self)
+  >>= maybePeek readCString
 
-fileChooserSetFilename :: FileChooserClass chooser => chooser -> String -> IO Bool
-fileChooserSetFilename chooser filename = liftM toBool $
-  withCString filename $ \strPtr ->
+-- | Sets @filename@ as the current filename for the file chooser; If the file
+-- name isn't in the current folder of the chooser, then the current folder of
+-- the chooser will be changed to the folder containing @filename@. This is
+-- equivalent to a sequence of 'fileChooserUnselectAll' followed by
+-- 'fileChooserSelectFilename'.
+--
+-- Note that the file must exist, or nothing will be done except for the
+-- directory change. To pre-enter a filename for the user, as in a save-as
+-- dialog, use 'fileChooserSetCurrentName'
+--
+fileChooserSetFilename :: FileChooserClass self => self
+ -> FilePath -- ^ @filename@ - the filename to set as current
+ -> IO Bool  -- ^ returns @True@ if both the folder could be changed and the
+             -- file was selected successfully, @False@ otherwise.
+fileChooserSetFilename self filename =
+  liftM toBool $
+  withCString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-  {# call gtk_file_chooser_set_filename_utf8 #} (toFileChooser chooser) strPtr
+  {# call gtk_file_chooser_set_filename_utf8 #}
 #else
-  {# call gtk_file_chooser_set_filename #} (toFileChooser chooser) strPtr
+  {# call gtk_file_chooser_set_filename #}
 #endif
+    (toFileChooser self)
+    filenamePtr
 
-fileChooserSelectFilename :: FileChooserClass chooser => chooser -> String -> IO Bool
-fileChooserSelectFilename chooser filename = liftM toBool $
-  withCString filename $ \strPtr ->
+-- | Selects a filename. If the file name isn't in the current folder of
+-- the chooser, then the current folder of the chooser will be changed to the
+-- folder containing @filename@.
+--
+fileChooserSelectFilename :: FileChooserClass self => self
+ -> FilePath -- ^ @filename@ - the filename to select
+ -> IO Bool  -- ^ returns @True@ if both the folder could be changed and the
+             -- file was selected successfully, @False@ otherwise.
+fileChooserSelectFilename self filename =
+  liftM toBool $
+  withCString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call gtk_file_chooser_select_filename_utf8 #}
 #else
   {# call gtk_file_chooser_select_filename #}
 #endif
-    (toFileChooser chooser) strPtr
+    (toFileChooser self)
+    filenamePtr
 
-fileChooserUnselectFilename :: FileChooserClass chooser => chooser -> String -> IO ()
-fileChooserUnselectFilename chooser filename = 
-  withCString filename $ \strPtr ->
+-- | Unselects a currently selected filename. If the filename is not in the
+-- current directory, does not exist, or is otherwise not currently selected,
+-- does nothing.
+--
+fileChooserUnselectFilename :: FileChooserClass self => self
+ -> FilePath -- ^ @filename@ - the filename to unselect
+ -> IO ()
+fileChooserUnselectFilename self filename =
+  withCString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call gtk_file_chooser_unselect_filename_utf8 #}
 #else
   {# call gtk_file_chooser_unselect_filename #}
 #endif
-    (toFileChooser chooser) strPtr
+    (toFileChooser self)
+    filenamePtr
 
-fileChooserSelectAll :: FileChooserClass chooser => chooser -> IO ()
-fileChooserSelectAll chooser = 
-  {# call gtk_file_chooser_select_all #} (toFileChooser chooser)
+-- | Selects all the files in the current folder of a file chooser.
+--
+fileChooserSelectAll :: FileChooserClass self => self -> IO ()
+fileChooserSelectAll self =
+  {# call gtk_file_chooser_select_all #}
+    (toFileChooser self)
 
-fileChooserUnselectAll :: FileChooserClass chooser => chooser -> IO ()
-fileChooserUnselectAll chooser = 
-  {# call gtk_file_chooser_unselect_all #} (toFileChooser chooser)
+-- | Unselects all the files in the current folder of a file chooser.
+--
+fileChooserUnselectAll :: FileChooserClass self => self -> IO ()
+fileChooserUnselectAll self =
+  {# call gtk_file_chooser_unselect_all #}
+    (toFileChooser self)
 
-fileChooserGetFilenames :: FileChooserClass chooser => chooser -> IO [String]
-fileChooserGetFilenames chooser = do
+-- | Lists all the selected files and subfolders in the current folder of
+-- the chooser. The returned names are full absolute paths. If files in the
+-- current folder cannot be represented as local filenames they will be
+-- ignored. (See 'fileChooserGetURIs')
+--
+fileChooserGetFilenames :: FileChooserClass self => self -> IO [FilePath]
+fileChooserGetFilenames self =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-  strList <- {# call gtk_file_chooser_get_filenames_utf8 #}
+  {# call gtk_file_chooser_get_filenames_utf8 #}
 #else
-  strList <- {# call gtk_file_chooser_get_filenames #}
+  {# call gtk_file_chooser_get_filenames #}
 #endif
-    (toFileChooser chooser)
-  fromStringGSList strList
+    (toFileChooser self)
+  >>= fromStringGSList
 
-fileChooserSetCurrentFolder :: FileChooserClass chooser => chooser -> String -> IO Bool
-fileChooserSetCurrentFolder chooser foldername = liftM toBool $
-  withCString foldername $ \strPtr ->
+-- | Sets the current folder for the chooser from a local filename. The user
+-- will be shown the full contents of the current folder, plus user interface
+-- elements for navigating to other folders.
+--
+fileChooserSetCurrentFolder :: FileChooserClass self => self
+ -> FilePath -- ^ @filename@ - the full path of the new current folder
+ -> IO Bool  -- ^ returns @True@ if the folder could be changed successfully,
+             -- @False@ otherwise.
+fileChooserSetCurrentFolder self filename =
+  liftM toBool $
+  withCString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call gtk_file_chooser_set_current_folder_utf8 #}
 #else
   {# call gtk_file_chooser_set_current_folder #}
 #endif
-    (toFileChooser chooser) strPtr
+    (toFileChooser self)
+    filenamePtr
 
-fileChooserGetCurrentFolder :: FileChooserClass chooser => chooser -> IO (Maybe String)
-fileChooserGetCurrentFolder chooser = do
+-- | Gets the current folder of the chooser as a local filename. See
+-- 'fileChooserSetCurrentFolder'.
+--
+fileChooserGetCurrentFolder :: FileChooserClass self => self
+ -> IO (Maybe FilePath) -- ^ returns the full path of the current folder, or
+                        -- @Nothing@ if the current path cannot be represented
+                        -- as a local filename.
+fileChooserGetCurrentFolder self =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-  strPtr <- {# call gtk_file_chooser_get_current_folder_utf8 #}
+  {# call gtk_file_chooser_get_current_folder_utf8 #}
 #else
-  strPtr <- {# call gtk_file_chooser_get_current_folder #}
+  {# call gtk_file_chooser_get_current_folder #}
 #endif
-    (toFileChooser chooser)
-  maybePeek readCString strPtr
+    (toFileChooser self)
+  >>= maybePeek readCString
 
-fileChooserGetURI :: FileChooserClass chooser => chooser -> IO (Maybe String)
-fileChooserGetURI chooser = do
-  strPtr <- {# call gtk_file_chooser_get_uri #} (toFileChooser chooser)
-  maybePeek readCString strPtr
+-- | Gets the URI for the currently selected file in the file selector. If
+-- multiple files are selected, one of the filenames will be returned at
+-- random.
+--
+-- If the file chooser is in folder mode, this function returns the selected
+-- folder.
+--
+fileChooserGetURI :: FileChooserClass self => self
+ -> IO (Maybe String) -- ^ returns The currently selected URI, or @Nothing@ if
+                      -- no file is selected.
+fileChooserGetURI self =
+  {# call gtk_file_chooser_get_uri #}
+    (toFileChooser self)
+  >>= maybePeek readCString
 
-fileChooserSetURI :: FileChooserClass chooser => chooser -> String -> IO Bool
-fileChooserSetURI chooser uri = liftM toBool $
-  withCString uri $ \strPtr ->
-  {# call gtk_file_chooser_set_uri #} (toFileChooser chooser) strPtr
+-- | Sets the file referred to by @uri@ as the current file for the file
+-- chooser; If the file name isn't in the current folder of the chooser, then
+-- the current folder of the chooser will be changed to the folder containing
+-- @uri@. This is equivalent to a sequence of 'fileChooserUnselectAll' followed
+-- by 'fileChooserSelectURI'.
+--
+-- Note that the file must exist, or nothing will be done except for the
+-- directory change. To pre-enter a filename for the user, as in a save-as
+-- dialog, use 'fileChooserSetCurrentName'
+--
+fileChooserSetURI :: FileChooserClass self => self
+ -> String  -- ^ @uri@ - the URI to set as current
+ -> IO Bool -- ^ returns @True@ if both the folder could be changed and the
+            -- URI was selected successfully, @False@ otherwise.
+fileChooserSetURI self uri =
+  liftM toBool $
+  withCString uri $ \uriPtr ->
+  {# call gtk_file_chooser_set_uri #}
+    (toFileChooser self)
+    uriPtr
 
-fileChooserSelectURI :: FileChooserClass chooser => chooser -> String -> IO Bool
-fileChooserSelectURI chooser uri = liftM toBool $
-  withCString uri $ \strPtr ->
-  {# call gtk_file_chooser_select_uri #} (toFileChooser chooser) strPtr
+-- | Selects the file to by @uri@. If the URI doesn't refer to a file in the
+-- current folder of the chooser, then the current folder of the chooser will
+-- be changed to the folder containing @filename@.
+--
+fileChooserSelectURI :: FileChooserClass self => self
+ -> String  -- ^ @uri@ - the URI to select
+ -> IO Bool -- ^ returns @True@ if both the folder could be changed and the
+            -- URI was selected successfully, @False@ otherwise.
+fileChooserSelectURI self uri =
+  liftM toBool $
+  withCString uri $ \uriPtr ->
+  {# call gtk_file_chooser_select_uri #}
+    (toFileChooser self)
+    uriPtr
 
-fileChooserUnselectURI :: FileChooserClass chooser => chooser -> String -> IO ()
-fileChooserUnselectURI chooser uri = 
-  withCString uri $ \strPtr ->
-  {# call gtk_file_chooser_unselect_uri #} (toFileChooser chooser) strPtr
+-- | Unselects the file referred to by @uri@. If the file is not in the
+-- current directory, does not exist, or is otherwise not currently selected,
+-- does nothing.
+--
+fileChooserUnselectURI :: FileChooserClass self => self
+ -> String -- ^ @uri@ - the URI to unselect
+ -> IO ()
+fileChooserUnselectURI self uri =
+  withCString uri $ \uriPtr ->
+  {# call gtk_file_chooser_unselect_uri #}
+    (toFileChooser self)
+    uriPtr
 
-fileChooserGetURIs :: FileChooserClass chooser => chooser -> IO [String]
-fileChooserGetURIs chooser = do
-  strList <- {# call gtk_file_chooser_get_uris #} (toFileChooser chooser)
-  fromStringGSList strList
+-- | Lists all the selected files and subfolders in the current folder of
+-- the chooser. The returned names are full absolute URIs.
+--
+fileChooserGetURIs :: FileChooserClass self => self -> IO [String]
+fileChooserGetURIs self =
+  {# call gtk_file_chooser_get_uris #}
+    (toFileChooser self)
+  >>= fromStringGSList
 
-fileChooserSetCurrentFolderURI :: FileChooserClass chooser => chooser -> String -> IO Bool
-fileChooserSetCurrentFolderURI chooser uri = liftM toBool $
-  withCString uri $ \strPtr ->
-  {# call gtk_file_chooser_set_current_folder_uri #} (toFileChooser chooser) strPtr
+-- | Sets the current folder for the chooser from an URI. The user will be
+-- shown the full contents of the current folder, plus user interface elements
+-- for navigating to other folders.
+--
+fileChooserSetCurrentFolderURI :: FileChooserClass self => self
+ -> String  -- ^ @uri@ - the URI for the new current folder
+ -> IO Bool -- ^ returns @True@ if the folder could be changed successfully,
+            -- @False@ otherwise.
+fileChooserSetCurrentFolderURI self uri =
+  liftM toBool $
+  withCString uri $ \uriPtr ->
+  {# call gtk_file_chooser_set_current_folder_uri #}
+    (toFileChooser self)
+    uriPtr
 
-fileChooserGetCurrentFolderURI :: FileChooserClass chooser => chooser -> IO String
-fileChooserGetCurrentFolderURI chooser = do
-  strPtr <- {# call gtk_file_chooser_get_current_folder_uri #} (toFileChooser chooser)
-  readCString strPtr
+-- | Gets the current folder of the chooser as an URI. See
+-- 'fileChooserSetCurrentFolderURI'.
+--
+fileChooserGetCurrentFolderURI :: FileChooserClass self => self
+ -> IO String -- ^ returns the URI for the current folder.
+fileChooserGetCurrentFolderURI self =
+  {# call gtk_file_chooser_get_current_folder_uri #}
+    (toFileChooser self)
+  >>= readCString
 
-fileChooserSetPreviewWidget :: (FileChooserClass chooser, WidgetClass widget) =>
-                               chooser -> widget -> IO ()
-fileChooserSetPreviewWidget chooser widget = 
-  {# call gtk_file_chooser_set_preview_widget #} (toFileChooser chooser)
-    (toWidget widget)
+-- | Sets an application-supplied widget to use to display a custom preview of
+-- the currently selected file. To implement a preview, after setting the
+-- preview widget, you connect to the UpdatePreview signal, and call
+-- 'fileChooserGetPreviewFilename' or 'fileChooserGetPreviewURI' on each
+-- change. If you can display a preview of the new file, update your widget and
+-- set the preview active using 'fileChooserSetPreviewWidgetActive'. Otherwise,
+-- set the preview inactive.
+--
+-- When there is no application-supplied preview widget, or the
+-- application-supplied preview widget is not active, the file chooser may
+-- display an internally generated preview of the current file or it may
+-- display no preview at all.
+--
+fileChooserSetPreviewWidget :: (FileChooserClass self, WidgetClass previewWidget) => self
+ -> previewWidget -- ^ @previewWidget@ - widget for displaying preview.
+ -> IO ()
+fileChooserSetPreviewWidget self previewWidget =
+  {# call gtk_file_chooser_set_preview_widget #}
+    (toFileChooser self)
+    (toWidget previewWidget)
 
-fileChooserGetPreviewWidget :: FileChooserClass chooser => chooser -> IO (Maybe Widget)
-fileChooserGetPreviewWidget chooser = do
-  ptr <- {# call gtk_file_chooser_get_preview_widget #} (toFileChooser chooser)
-  maybePeek (makeNewObject mkWidget . return) ptr
+-- | Gets the current preview widget; see 'fileChooserSetPreviewWidget'.
+--
+fileChooserGetPreviewWidget :: FileChooserClass self => self
+ -> IO (Maybe Widget) -- ^ returns the current preview widget, or @Nothing@
+fileChooserGetPreviewWidget self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call gtk_file_chooser_get_preview_widget #}
+    (toFileChooser self)
 
-fileChooserSetPreviewWidgetActive :: FileChooserClass chooser => chooser -> Bool -> IO ()
-fileChooserSetPreviewWidgetActive chooser active = 
-  {# call gtk_file_chooser_set_preview_widget_active #} (toFileChooser chooser)
+-- | Sets whether the preview widget set by 'fileChooserSetPreviewWidget'
+-- should be shown for the current filename. When @active@ is set to false, the
+-- file chooser may display an internally generated preview of the current file
+-- or it may display no preview at all. See 'fileChooserSetPreviewWidget' for
+-- more details.
+--
+fileChooserSetPreviewWidgetActive :: FileChooserClass self => self
+ -> Bool  -- ^ @active@ - whether to display the user-specified preview widget
+ -> IO ()
+fileChooserSetPreviewWidgetActive self active =
+  {# call gtk_file_chooser_set_preview_widget_active #}
+    (toFileChooser self)
     (fromBool active)
 
-fileChooserGetPreviewWidgetActive :: FileChooserClass chooser => chooser -> IO Bool
-fileChooserGetPreviewWidgetActive chooser = liftM toBool $
-  {# call gtk_file_chooser_get_preview_widget_active #} (toFileChooser chooser)
+-- | Gets whether the preview widget set by 'fileChooserSetPreviewWidget'
+-- should be shown for the current filename. See
+-- 'fileChooserSetPreviewWidgetActive'.
+--
+fileChooserGetPreviewWidgetActive :: FileChooserClass self => self
+ -> IO Bool -- ^ returns @True@ if the preview widget is active for the
+            -- current filename.
+fileChooserGetPreviewWidgetActive self =
+  liftM toBool $
+  {# call gtk_file_chooser_get_preview_widget_active #}
+    (toFileChooser self)
 
-fileChooserSetUsePreviewLabel :: FileChooserClass chooser => chooser -> Bool -> IO ()
-fileChooserSetUsePreviewLabel chooser usePreview = 
-  {# call gtk_file_chooser_set_use_preview_label #} (toFileChooser chooser)
-    (fromBool usePreview)
+-- | Sets whether the file chooser should display a stock label with the name
+-- of the file that is being previewed; the default is @True@. Applications
+-- that want to draw the whole preview area themselves should set this to
+-- @False@ and display the name themselves in their preview widget.
+--
+-- See also: 'fileChooserSetPreviewWidget'
+--
+fileChooserSetUsePreviewLabel :: FileChooserClass self => self
+ -> Bool  -- ^ @useLabel@ - whether to display a stock label with the name of
+          -- the previewed file
+ -> IO ()
+fileChooserSetUsePreviewLabel self useLabel =
+  {# call gtk_file_chooser_set_use_preview_label #}
+    (toFileChooser self)
+    (fromBool useLabel)
 
-fileChooserGetUsePreviewLabel :: FileChooserClass chooser => chooser -> IO Bool
-fileChooserGetUsePreviewLabel chooser = liftM toBool $
-  {# call gtk_file_chooser_get_use_preview_label #} (toFileChooser chooser)
+-- | Gets whether a stock label should be drawn with the name of the previewed
+-- file. See 'fileChooserSetUsePreviewLabel'.
+--
+fileChooserGetUsePreviewLabel :: FileChooserClass self => self
+ -> IO Bool -- ^ returns @True@ if the file chooser is set to display a label
+            -- with the name of the previewed file, @False@ otherwise.
+fileChooserGetUsePreviewLabel self =
+  liftM toBool $
+  {# call gtk_file_chooser_get_use_preview_label #}
+    (toFileChooser self)
 
-fileChooserGetPreviewFilename :: FileChooserClass chooser => chooser -> IO (Maybe String)
-fileChooserGetPreviewFilename chooser = do
+-- | Gets the filename that should be previewed in a custom preview widget.
+-- See 'fileChooserSetPreviewWidget'.
+--
+fileChooserGetPreviewFilename :: FileChooserClass self => self
+ -> IO (Maybe FilePath) -- ^ returns the filename to preview, or @Nothing@ if
+                        -- no file is selected, or if the selected file cannot
+                        -- be represented as a local filename.
+fileChooserGetPreviewFilename self =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-  strPtr <- {# call gtk_file_chooser_get_preview_filename_utf8 #}
+  {# call gtk_file_chooser_get_preview_filename_utf8 #}
 #else
-  strPtr <- {# call gtk_file_chooser_get_preview_filename #}
+  {# call gtk_file_chooser_get_preview_filename #}
 #endif
-    (toFileChooser chooser)
-  maybePeek readCString strPtr
+    (toFileChooser self)
+  >>= maybePeek readCString
 
-fileChooserGetPreviewURI :: FileChooserClass chooser => chooser -> IO (Maybe String)
-fileChooserGetPreviewURI chooser = do
-  strPtr <- {# call gtk_file_chooser_get_preview_uri #} (toFileChooser chooser)
-  maybePeek readCString strPtr
+-- | Gets the URI that should be previewed in a custom preview widget. See
+-- 'fileChooserSetPreviewWidget'.
+--
+fileChooserGetPreviewURI :: FileChooserClass self => self
+ -> IO (Maybe String) -- ^ returns the URI for the file to preview, or
+                      -- @Nothing@ if no file is selected.
+fileChooserGetPreviewURI self =
+  {# call gtk_file_chooser_get_preview_uri #}
+    (toFileChooser self)
+  >>= maybePeek readCString
 
-fileChooserSetExtraWidget :: (FileChooserClass chooser, WidgetClass widget) =>
-                             chooser -> widget -> IO ()
-fileChooserSetExtraWidget chooser widget = 
-  {# call gtk_file_chooser_set_extra_widget #} (toFileChooser chooser)
-    (toWidget widget)
+-- | Sets an application-supplied widget to provide extra options to the user.
+--
+fileChooserSetExtraWidget :: (FileChooserClass self, WidgetClass extraWidget) => self
+ -> extraWidget -- ^ @extraWidget@ - widget for extra options
+ -> IO ()
+fileChooserSetExtraWidget self extraWidget =
+  {# call gtk_file_chooser_set_extra_widget #}
+    (toFileChooser self)
+    (toWidget extraWidget)
 
-fileChooserGetExtraWidget :: FileChooserClass chooser => chooser -> IO (Maybe Widget)
-fileChooserGetExtraWidget chooser = do
-  ptr <- {# call gtk_file_chooser_get_extra_widget #} (toFileChooser chooser)
-  maybePeek (makeNewObject mkWidget . return) ptr
+-- | Gets the current preview widget; see 'fileChooserSetExtraWidget'.
+--
+fileChooserGetExtraWidget :: FileChooserClass self => self
+ -> IO (Maybe Widget) -- ^ returns the current extra widget, or @Nothing@
+fileChooserGetExtraWidget self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call gtk_file_chooser_get_extra_widget #}
+    (toFileChooser self)
 
-fileChooserAddFilter :: FileChooserClass chooser => chooser -> FileFilter -> IO ()
-fileChooserAddFilter chooser filter = 
-  {# call gtk_file_chooser_add_filter #} (toFileChooser chooser) filter
+-- | Adds the filter to the list of filters that the user can select between.
+-- When a filter is selected, only files that are passed by that filter are
+-- displayed.
+--
+fileChooserAddFilter :: FileChooserClass self => self -> FileFilter -> IO ()
+fileChooserAddFilter self filter =
+  {# call gtk_file_chooser_add_filter #}
+    (toFileChooser self)
+    filter
 
-fileChooserRemoveFilter :: FileChooserClass chooser => chooser -> FileFilter -> IO ()
-fileChooserRemoveFilter chooser filter = 
-  {# call gtk_file_chooser_remove_filter #} (toFileChooser chooser) filter
+-- | Removes the filter from the list of filters that the user can select
+-- between.
+--
+fileChooserRemoveFilter :: FileChooserClass self => self -> FileFilter -> IO ()
+fileChooserRemoveFilter self filter =
+  {# call gtk_file_chooser_remove_filter #}
+    (toFileChooser self)
+    filter
 
-fileChooserListFilters :: FileChooserClass chooser => chooser -> IO [FileFilter]
-fileChooserListFilters chooser = do
-  filterList <- {# call gtk_file_chooser_list_filters #} (toFileChooser chooser)
+-- | Lists the current set of user-selectable filters; see
+-- 'fileChooserAddFilter', 'fileChooserRemoveFilter'.
+--
+fileChooserListFilters :: FileChooserClass self => self -> IO [FileFilter]
+fileChooserListFilters self = do
+  filterList <- {# call gtk_file_chooser_list_filters #}
+    (toFileChooser self)
   filterPtrs <- fromGSList filterList
   mapM (makeNewObject mkFileFilter . return) filterPtrs
 
-fileChooserSetFilter :: FileChooserClass chooser => chooser -> FileFilter -> IO ()
-fileChooserSetFilter chooser filter = 
-  {# call gtk_file_chooser_set_filter #} (toFileChooser chooser) filter
+-- | Sets the current filter; only the files that pass the filter will be
+-- displayed. If the user-selectable list of filters is non-empty, then the
+-- filter should be one of the filters in that list. Setting the current filter
+-- when the list of filters is empty is useful if you want to restrict the
+-- displayed set of files without letting the user change it.
+--
+fileChooserSetFilter :: FileChooserClass self => self -> FileFilter -> IO ()
+fileChooserSetFilter self filter =
+  {# call gtk_file_chooser_set_filter #}
+    (toFileChooser self)
+    filter
 
-fileChooserGetFilter :: FileChooserClass chooser => chooser -> IO (Maybe FileFilter)
-fileChooserGetFilter chooser = do
-  ptr <- {# call gtk_file_chooser_get_filter #} (toFileChooser chooser)
-  maybePeek (makeNewObject mkFileFilter . return) ptr
+-- | Gets the current filter; see 'fileChooserSetFilter'.
+--
+fileChooserGetFilter :: FileChooserClass self => self
+ -> IO (Maybe FileFilter) -- ^ returns the current filter, or @Nothing@
+fileChooserGetFilter self =
+  maybeNull (makeNewObject mkFileFilter) $
+  {# call gtk_file_chooser_get_filter #}
+    (toFileChooser self)
 
-fileChooserAddShortcutFolder :: FileChooserClass chooser => chooser -> String -> IO ()
-fileChooserAddShortcutFolder chooser foldername =
-  propagateGError $ \gerrorPtr ->
-  withCString foldername $ \strPtr -> do
+-- | Adds a folder to be displayed with the shortcut folders in a file
+-- chooser. Note that shortcut folders do not get saved, as they are provided
+-- by the application. For example, you can use this to add a
+-- \"\/usr\/share\/mydrawprogram\/Clipart\" folder to the volume list.
+--
+-- If the folder can not be added successfully an exception will be thrown.
+--
+fileChooserAddShortcutFolder :: FileChooserClass self => self
+ -> FilePath -- ^ @folder@ - filename of the folder to add
+ -> IO ()
+fileChooserAddShortcutFolder self folder =
+  propagateGError $ \errorPtr ->
+  withCString folder $ \folderPtr -> do
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call gtk_file_chooser_add_shortcut_folder_utf8 #}
 #else
   {# call gtk_file_chooser_add_shortcut_folder #}
 #endif
-   (toFileChooser chooser) strPtr gerrorPtr
+    (toFileChooser self)
+    folderPtr
+    errorPtr
   return ()
 
-fileChooserRemoveShortcutFolder :: FileChooserClass chooser => chooser -> String -> IO ()
-fileChooserRemoveShortcutFolder chooser foldername =
-  propagateGError $ \gerrorPtr ->
-  withCString foldername $ \strPtr -> do
+-- | Removes a folder from a file chooser's list of shortcut folders.
+--
+-- If the folder can not be removed successfully an exception will be thrown.
+--
+fileChooserRemoveShortcutFolder :: FileChooserClass self => self
+ -> FilePath -- ^ @folder@ - filename of the folder to remove
+ -> IO ()
+fileChooserRemoveShortcutFolder self folder =
+  propagateGError $ \errorPtr ->
+  withCString folder $ \folderPtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call gtk_file_chooser_remove_shortcut_folder_utf8 #}
 #else
   {# call gtk_file_chooser_remove_shortcut_folder #}
 #endif
-    (toFileChooser chooser) strPtr gerrorPtr
+    (toFileChooser self)
+    folderPtr
+    errorPtr
   return ()
 
-fileChooserlistShortcutFolders :: FileChooserClass chooser => chooser -> IO [String]
-fileChooserlistShortcutFolders chooser = do
+-- | Queries the list of shortcut folders in the file chooser, as set by
+-- 'fileChooserAddShortcutFolder'.
+--
+fileChooserListShortcutFolders :: FileChooserClass self => self -> IO [String]
+fileChooserListShortcutFolders self =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-  strList <- {# call gtk_file_chooser_list_shortcut_folders_utf8 #}
+  {# call gtk_file_chooser_list_shortcut_folders_utf8 #}
 #else
-  strList <- {# call gtk_file_chooser_list_shortcut_folders #}
+  {# call gtk_file_chooser_list_shortcut_folders #}
 #endif
-    (toFileChooser chooser)
-  fromStringGSList strList
+    (toFileChooser self)
+  >>= fromStringGSList
 
-fileChooserAddShortcutFolderURI :: FileChooserClass chooser => chooser -> String -> IO ()
-fileChooserAddShortcutFolderURI chooser folderuri =
-  propagateGError $ \gerrorPtr ->
-  withCString folderuri $ \strPtr -> do
-  {# call gtk_file_chooser_add_shortcut_folder_uri #} (toFileChooser chooser)
-    strPtr gerrorPtr
+-- | Adds a folder URI to be displayed with the shortcut folders in a file
+-- chooser. Note that shortcut folders do not get saved, as they are provided
+-- by the application. For example, you can use this to add a
+-- \"file:\/\/\/usr\/share\/mydrawprogram\/Clipart\" folder to the volume list.
+--
+-- If the folder can not be added successfully an exception will be thrown.
+--
+fileChooserAddShortcutFolderURI :: FileChooserClass self => self
+ -> String -- ^ @uri@ - URI of the folder to add
+ -> IO ()
+fileChooserAddShortcutFolderURI self uri =
+  propagateGError $ \errorPtr ->
+  withCString uri $ \uriPtr -> do
+  {# call gtk_file_chooser_add_shortcut_folder_uri #}
+    (toFileChooser self)
+    uriPtr
+    errorPtr
   return ()
 
-fileChooserRemoveShortcutFolderURI :: FileChooserClass chooser => chooser -> String -> IO ()
-fileChooserRemoveShortcutFolderURI chooser folderuri =
-  propagateGError $ \gerrorPtr ->
-  withCString folderuri $ \strPtr -> do
+-- | Removes a folder URI from a file chooser's list of shortcut folders.
+--
+fileChooserRemoveShortcutFolderURI :: FileChooserClass self => self
+ -> String  -- ^ @uri@ - URI of the folder to remove
+ -> IO ()
+fileChooserRemoveShortcutFolderURI self uri =
+  propagateGError $ \errorPtr ->
+  withCString uri $ \uriPtr -> do
   {# call gtk_file_chooser_remove_shortcut_folder_uri #}
-    (toFileChooser chooser) strPtr gerrorPtr
+    (toFileChooser self)
+    uriPtr
+    errorPtr
   return ()
 
-fileChooserListShortcutFolderURIs :: FileChooserClass chooser => chooser -> IO [String]
-fileChooserListShortcutFolderURIs chooser = do
-  strList <- {# call gtk_file_chooser_list_shortcut_folder_uris #}
-    (toFileChooser chooser)
-  fromStringGSList strList
+-- | Queries the list of shortcut folders in the file chooser, as set by
+-- 'fileChooserAddShortcutFolderURI'.
+--
+fileChooserListShortcutFolderURIs :: FileChooserClass self => self -> IO [String]
+fileChooserListShortcutFolderURIs self =
+  {# call gtk_file_chooser_list_shortcut_folder_uris #}
+    (toFileChooser self)
+  >>= fromStringGSList
 
 --------------------
 -- Properties
@@ -506,7 +826,7 @@ fileChooserListShortcutFolderURIs chooser = do
 -- | \'usePreviewLabel\' property. See 'fileChooserGetUsePreviewLabel' and
 -- 'fileChooserSetUsePreviewLabel'
 --
-fileChooserUsePreviewLabel :: Attr FileChooser Bool
+fileChooserUsePreviewLabel :: FileChooserClass self => Attr self Bool
 fileChooserUsePreviewLabel = Attr 
   fileChooserGetUsePreviewLabel
   fileChooserSetUsePreviewLabel
@@ -514,7 +834,7 @@ fileChooserUsePreviewLabel = Attr
 -- | \'selectMultiple\' property. See 'fileChooserGetSelectMultiple' and
 -- 'fileChooserSetSelectMultiple'
 --
-fileChooserSelectMultiple :: Attr FileChooser Bool
+fileChooserSelectMultiple :: FileChooserClass self => Attr self Bool
 fileChooserSelectMultiple = Attr 
   fileChooserGetSelectMultiple
   fileChooserSetSelectMultiple
@@ -522,7 +842,7 @@ fileChooserSelectMultiple = Attr
 -- | \'previewWidgetActive\' property. See 'fileChooserGetPreviewWidgetActive'
 -- and 'fileChooserSetPreviewWidgetActive'
 --
-fileChooserPreviewWidgetActive :: Attr FileChooser Bool
+fileChooserPreviewWidgetActive :: FileChooserClass self => Attr self Bool
 fileChooserPreviewWidgetActive = Attr 
   fileChooserGetPreviewWidgetActive
   fileChooserSetPreviewWidgetActive
@@ -530,7 +850,7 @@ fileChooserPreviewWidgetActive = Attr
 -- | \'localOnly\' property. See 'fileChooserGetLocalOnly' and
 -- 'fileChooserSetLocalOnly'
 --
-fileChooserLocalOnly :: Attr FileChooser Bool
+fileChooserLocalOnly :: FileChooserClass self => Attr self Bool
 fileChooserLocalOnly = Attr 
   fileChooserGetLocalOnly
   fileChooserSetLocalOnly
@@ -538,7 +858,7 @@ fileChooserLocalOnly = Attr
 -- | \'action\' property. See 'fileChooserGetAction' and
 -- 'fileChooserSetAction'
 --
-fileChooserAction :: Attr FileChooser FileChooserAction
+fileChooserAction :: FileChooserClass self => Attr self FileChooserAction
 fileChooserAction = Attr 
   fileChooserGetAction
   fileChooserSetAction
@@ -546,22 +866,83 @@ fileChooserAction = Attr
 --------------------
 -- Signals
 
-onCurrentFolderChanged, afterCurrentFolderChanged :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
+-- | This signal is emitted when the current folder in a 'FileChooser'
+-- changes. This can happen due to the user performing some action that changes
+-- folders, such as selecting a bookmark or visiting a folder on the file list.
+-- It can also happen as a result of calling a function to explicitly change
+-- the current folder in a file chooser.
+--
+-- Normally you do not need to connect to this signal, unless you need to
+-- keep track of which folder a file chooser is showing.
+--
+-- See also: 'fileChooserSetCurrentFolder', 'fileChooserGetCurrentFolder',
+-- 'fileChooserSetCurrentFolderURI', 'fileChooserGetCurrentFolderURI'.
+--
+onCurrentFolderChanged, afterCurrentFolderChanged :: FileChooserClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" False
 afterCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" True
 
-onFileActivated, afterFileActivated :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
-onFileActivated = connect_NONE__NONE "file-activated" False
-afterFileActivated = connect_NONE__NONE "file-activated" True
-
---onSelectionChanged, afterSelectionChanged :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
+-- | This signal is emitted when there is a change in the set of selected
+-- files in a 'FileChooser'. This can happen when the user modifies the
+-- selection with the mouse or the keyboard, or when explicitly calling
+-- functions to change the selection.
+--
+-- Normally you do not need to connect to this signal, as it is easier to
+-- wait for the file chooser to finish running, and then to get the list of
+-- selected files using the functions mentioned below.
+--
+-- See also: 'fileChooserSelectFilename', 'fileChooserUnselectFilename',
+-- 'fileChooserGetFilename', 'fileChooserGetFilenames', 'fileChooserSelectURI',
+-- 'fileChooserUnselectURI', 'fileChooserGetURI', 'fileChooserGetURIs'.
+--
+--onSelectionChanged, afterSelectionChanged :: FileChooserClass self => self
+-- -> IO ()
+-- -> IO (ConnectId self)
 --onSelectionChanged = connect_NONE__NONE "selection-changed" False
 --afterSelectionChanged = connect_NONE__NONE "selection-changed" True
 
-onUpdatePreview, afterUpdatePreview :: FileChooserClass c => c -> IO () -> IO (ConnectId c)
+-- | This signal is emitted when the preview in a file chooser should be
+-- regenerated. For example, this can happen when the currently selected file
+-- changes. You should use this signal if you want your file chooser to have a
+-- preview widget.
+--
+-- Once you have installed a preview widget with
+-- 'fileChooserSetPreviewWidget', you should update it when this signal is
+-- emitted. You can use the functions 'fileChooserGetPreviewFilename' or
+-- 'fileChooserGetPreviewURI' to get the name of the file to preview. Your
+-- widget may not be able to preview all kinds of files; your callback must
+-- call 'fileChooserSetPreviewWigetActive' to inform the file chooser about
+-- whether the preview was generated successfully or not.
+--
+-- See also: 'fileChooserSetPreviewWidget',
+-- 'fileChooserSetPreviewWidgetActive', 'fileChooserSetUsePreviewLabel',
+-- 'fileChooserGetPreviewFilename', 'fileChooserGetPreviewURI'.
+--
+onUpdatePreview, afterUpdatePreview :: FileChooserClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onUpdatePreview = connect_NONE__NONE "update-preview" False
 afterUpdatePreview = connect_NONE__NONE "update-preview" True
 
+-- | This signal is emitted when the user \"activates\" a file in the file
+-- chooser. This can happen by double-clicking on a file in the file list, or
+-- by pressing Enter.
+--
+-- Normally you do not need to connect to this signal. It is used internally
+-- by 'FileChooserDialog' to know when to activate the default button in the
+-- dialog.
+--
+-- See also: 'fileChooserGetFilename', 'fileChooserGetFilenames',
+-- 'fileChooserGetURI', 'fileChooserGetURIs'.
+--
+onFileActivated, afterFileActivated :: FileChooserClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onFileActivated = connect_NONE__NONE "file-activated" False
+afterFileActivated = connect_NONE__NONE "file-activated" True
+#endif
 
 ------------------------------------------------------
 -- Utility functions that really ought to go elsewhere
@@ -576,6 +957,3 @@ toStringGSList :: [String] -> IO GSList
 toStringGSList strs = do
   strPtrs <- mapM newCString strs
   toGSList strPtrs
-
-#endif
-

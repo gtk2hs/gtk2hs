@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/03 12:56:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget used to select a color.
+-- A widget used to select a color
 --
 module Graphics.UI.Gtk.Selectors.ColorSelection (
--- * Description
+-- * Detail
 -- 
 -- | The 'ColorSelection' is a widget that is used to select a color. It
 -- consists of a color wheel and number of sliders and entry boxes for color
@@ -90,128 +90,152 @@ import Graphics.UI.Gtk.General.Structs (Color)
 --------------------
 -- Constructors
 
--- | Creates a new ColorSelection widget.
+-- | Creates a new 'ColorSelection'.
 --
 colorSelectionNew :: IO ColorSelection
 colorSelectionNew =
-  makeNewObject mkColorSelection $ liftM castPtr $
-  {#call unsafe color_selection_new#}
+  makeNewObject mkColorSelection $
+  liftM (castPtr :: Ptr Widget -> Ptr ColorSelection) $
+  {# call unsafe color_selection_new #}
 
 --------------------
 -- Methods
 
 -- | Returns the current alpha value.
 --
--- * The alpha value is represented by an integer between 0 and 65535.
---
-colorSelectionGetCurrentAlpha :: ColorSelectionClass obj => obj -> IO Int
-colorSelectionGetCurrentAlpha obj = liftM fromIntegral $
-  {#call unsafe color_selection_get_current_alpha#} (toColorSelection obj)
+colorSelectionGetCurrentAlpha :: ColorSelectionClass self => self
+ -> IO Int -- ^ returns an integer between 0 and 65535.
+colorSelectionGetCurrentAlpha self =
+  liftM fromIntegral $
+  {# call unsafe color_selection_get_current_alpha #}
+    (toColorSelection self)
 
--- | Sets the current opacity. The first time this is called, it will also set
--- the original opacity too.
+-- | Sets the current opacity to be @alpha@. The first time this is called, it
+-- will also set the original opacity to be @alpha@ too.
 --
--- * The alpha value is represented by an integer between 0 and 65535.
---
-colorSelectionSetCurrentAlpha :: ColorSelectionClass obj => obj -> Int -> IO ()
-colorSelectionSetCurrentAlpha obj alpha =
-  {#call color_selection_set_current_alpha#} (toColorSelection obj)
+colorSelectionSetCurrentAlpha :: ColorSelectionClass self => self
+ -> Int -- ^ @alpha@ - an integer between 0 and 65535.
+ -> IO ()
+colorSelectionSetCurrentAlpha self alpha =
+  {# call color_selection_set_current_alpha #}
+    (toColorSelection self)
     (fromIntegral alpha)
 
--- | Gets the current color in the ColorSelection widget.
+-- | Gets the current color in the 'ColorSelection' widget.
 --
-colorSelectionGetCurrentColor :: ColorSelectionClass obj => obj -> IO Color
-colorSelectionGetCurrentColor obj =
+colorSelectionGetCurrentColor :: ColorSelectionClass self => self -> IO Color
+colorSelectionGetCurrentColor self =
   alloca $ \colorPtr -> do
-  {#call unsafe color_selection_get_current_color#} (toColorSelection obj)
+  {# call unsafe color_selection_get_current_color #}
+    (toColorSelection self)
     (castPtr colorPtr)
   peek colorPtr
 
--- | Sets the current color. The first time this is called, it will also set the
--- original color too.
+-- | Sets the current color to be @color@. The first time this is called, it
+-- will also set the original color to be @color@ too.
 --
-colorSelectionSetCurrentColor :: ColorSelectionClass obj => obj
-                              -> Color -> IO ()
-colorSelectionSetCurrentColor obj color =
-  alloca $ \colorPtr -> do
-  poke colorPtr color
-  {#call color_selection_set_current_color#} (toColorSelection obj)
+colorSelectionSetCurrentColor :: ColorSelectionClass self => self
+ -> Color -- ^ @color@ - A 'Color' to set the current color with.
+ -> IO ()
+colorSelectionSetCurrentColor self color =
+  with color $ \colorPtr ->
+  {# call color_selection_set_current_color #}
+    (toColorSelection self)
     (castPtr colorPtr)
 
--- | Sets the ColorSelection widget to use or not use opacity.
+-- | Determines whether the 'ColorSelection' widget has an opacity control.
 --
-colorSelectionGetHasOpacityControl :: ColorSelectionClass obj => obj -> IO Bool
-colorSelectionGetHasOpacityControl obj = liftM toBool $
-  {#call unsafe color_selection_get_has_opacity_control#} (toColorSelection obj)
+colorSelectionGetHasOpacityControl :: ColorSelectionClass self => self
+ -> IO Bool -- ^ returns @True@ if the color selector has an opacity control.
+            -- @False@ if it does't.
+colorSelectionGetHasOpacityControl self =
+  liftM toBool $
+  {# call unsafe color_selection_get_has_opacity_control #}
+    (toColorSelection self)
 
--- | Determines whether the ColorSelection widget has an opacity control.
+-- | Sets the 'ColorSelection' widget to use or not use opacity.
 --
-colorSelectionSetHasOpacityControl :: ColorSelectionClass obj => obj
-                                   -> Bool -> IO ()
-colorSelectionSetHasOpacityControl obj hasOpacity =
-  {#call color_selection_set_has_opacity_control#} (toColorSelection obj)
+colorSelectionSetHasOpacityControl :: ColorSelectionClass self => self
+ -> Bool  -- ^ @hasOpacity@ - @True@ if color selector can set the opacity,
+          -- @False@ otherwise.
+ -> IO ()
+colorSelectionSetHasOpacityControl self hasOpacity =
+  {# call color_selection_set_has_opacity_control #}
+    (toColorSelection self)
     (fromBool hasOpacity)
 
 -- | Determines whether the color selector has a color palette.
 --
-colorSelectionGetHasPalette :: ColorSelectionClass obj => obj -> IO Bool
-colorSelectionGetHasPalette obj = liftM toBool $
-  {#call unsafe color_selection_get_has_palette#} (toColorSelection obj)
+colorSelectionGetHasPalette :: ColorSelectionClass self => self
+ -> IO Bool -- ^ returns @True@ if the selector has a palette. @False@ if it
+            -- hasn't.
+colorSelectionGetHasPalette self =
+  liftM toBool $
+  {# call unsafe color_selection_get_has_palette #}
+    (toColorSelection self)
 
 -- | Sets whether to show or hide the palette.
 --
-colorSelectionSetHasPalette :: ColorSelectionClass obj => obj -> Bool -> IO ()
-colorSelectionSetHasPalette obj hasPalette =
-  {#call color_selection_set_has_palette#} (toColorSelection obj)
+colorSelectionSetHasPalette :: ColorSelectionClass self => self
+ -> Bool  -- ^ @hasPalette@ - @True@ if palette is to be visible, @False@
+          -- otherwise.
+ -> IO ()
+colorSelectionSetHasPalette self hasPalette =
+  {# call color_selection_set_has_palette #}
+    (toColorSelection self)
     (fromBool hasPalette)
 
 -- | Returns the previous alpha value.
 --
-colorSelectionGetPreviousAlpha :: ColorSelectionClass obj => obj -> IO Int
-colorSelectionGetPreviousAlpha obj = liftM fromIntegral $
-  {#call unsafe color_selection_get_previous_alpha#} (toColorSelection obj)
+colorSelectionGetPreviousAlpha :: ColorSelectionClass self => self
+ -> IO Int -- ^ returns an integer between 0 and 65535.
+colorSelectionGetPreviousAlpha self =
+  liftM fromIntegral $
+  {# call unsafe color_selection_get_previous_alpha #}
+    (toColorSelection self)
 
--- | Sets the \'previous\' alpha to the given value. 
+-- | Sets the \'previous\' alpha to be @alpha@. This function should be called
+-- with some hesitations, as it might seem confusing to have that alpha change.
 --
--- * This function should be called with some hesitations, as it might seem
--- confusing to have that alpha change.
---
-colorSelectionSetPreviousAlpha :: ColorSelectionClass obj => obj -> Int -> IO ()
-colorSelectionSetPreviousAlpha obj alpha =
-  {#call color_selection_set_previous_alpha#} (toColorSelection obj)
+colorSelectionSetPreviousAlpha :: ColorSelectionClass self => self
+ -> Int -- ^ @alpha@ - an integer between 0 and 65535.
+ -> IO ()
+colorSelectionSetPreviousAlpha self alpha =
+  {# call color_selection_set_previous_alpha #}
+    (toColorSelection self)
     (fromIntegral alpha)
 
 -- | Returns the original color value.
 --
-colorSelectionGetPreviousColor :: ColorSelectionClass obj => obj -> IO Color
-colorSelectionGetPreviousColor obj =
+colorSelectionGetPreviousColor :: ColorSelectionClass self => self -> IO Color
+colorSelectionGetPreviousColor self =
   alloca $ \colorPtr -> do
-  {#call unsafe color_selection_get_previous_color#} (toColorSelection obj)
+  {# call unsafe color_selection_get_previous_color #}
+    (toColorSelection self)
     (castPtr colorPtr)
   peek colorPtr
 
--- | Sets the \'previous\' color.
---
--- * This function should be called with some hesitations, as it might seem
--- confusing to have that color change.
---
--- * Calling 'colorSelectionSetCurrentColor' will also set this color the first
+-- | Sets the \'previous\' color to be @color@. This function should be called
+-- with some hesitations, as it might seem confusing to have that color change.
+-- Calling 'colorSelectionSetCurrentColor' will also set this color the first
 -- time it is called.
 --
-colorSelectionSetPreviousColor :: ColorSelectionClass obj => obj
-                               -> Color -> IO ()
-colorSelectionSetPreviousColor obj color =
-  alloca $ \colorPtr -> do
-  poke colorPtr color
-  {#call color_selection_set_previous_color#} (toColorSelection obj)
+colorSelectionSetPreviousColor :: ColorSelectionClass self => self
+ -> Color -> IO ()
+colorSelectionSetPreviousColor self color =
+  with color $ \colorPtr ->
+  {# call color_selection_set_previous_color #}
+    (toColorSelection self)
     (castPtr colorPtr)
 
 -- | Gets the current state of the widget. Returns True if the user is currently
 -- dragging a color around, and False if the selection has stopped.
 --
-colorSelectionIsAdjusting :: ColorSelectionClass obj => obj -> IO Bool
-colorSelectionIsAdjusting obj = liftM toBool $
-  {#call unsafe color_selection_is_adjusting#} (toColorSelection obj)
+colorSelectionIsAdjusting :: ColorSelectionClass self => self -> IO Bool
+colorSelectionIsAdjusting self =
+  liftM toBool $
+  {# call unsafe color_selection_is_adjusting #}
+    (toColorSelection self)
 
 --------------------
 -- Properties
@@ -220,7 +244,7 @@ colorSelectionIsAdjusting obj = liftM toBool $
 --
 -- Default value: @False@
 --
-colorSelectionHasOpacityControl :: Attr ColorSelection Bool
+colorSelectionHasOpacityControl :: ColorSelectionClass self => Attr self Bool
 colorSelectionHasOpacityControl = Attr 
   colorSelectionGetHasOpacityControl
   colorSelectionSetHasOpacityControl
@@ -229,7 +253,7 @@ colorSelectionHasOpacityControl = Attr
 --
 -- Default value: @False@
 --
-colorSelectionHasPalette :: Attr ColorSelection Bool
+colorSelectionHasPalette :: ColorSelectionClass self => Attr self Bool
 colorSelectionHasPalette = Attr 
   colorSelectionGetHasPalette
   colorSelectionSetHasPalette
@@ -240,7 +264,7 @@ colorSelectionHasPalette = Attr
 --
 -- Default value: 65535
 --
-colorSelectionCurrentAlpha :: Attr ColorSelection Int
+colorSelectionCurrentAlpha :: ColorSelectionClass self => Attr self Int
 colorSelectionCurrentAlpha = Attr 
   colorSelectionGetCurrentAlpha
   colorSelectionSetCurrentAlpha
@@ -248,7 +272,7 @@ colorSelectionCurrentAlpha = Attr
 -- | \'previousAlpha\' property. See 'colorSelectionGetPreviousAlpha' and
 -- 'colorSelectionSetPreviousAlpha'
 --
-colorSelectionPreviousAlpha :: Attr ColorSelection Int
+colorSelectionPreviousAlpha :: ColorSelectionClass self => Attr self Int
 colorSelectionPreviousAlpha = Attr 
   colorSelectionGetPreviousAlpha
   colorSelectionSetPreviousAlpha

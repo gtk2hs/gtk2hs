@@ -1,3 +1,15 @@
+2005-04-3 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Selectors/ColorSelection.chs,
+	gtk/Graphics/UI/Gtk/Selectors/ColorSelectionDialog.chs,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileSelection.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs,
+	gtk/Graphics/UI/Gtk/Selectors/FontSelectionDialog.chs: merge from
+	generated modules. Changed code formatting and documentation.
+
 2005-04-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/MenuComboToolbar/CheckMenuItem.chs.pp,

@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/03 12:56:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,16 +24,13 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The file chooser dialog and widget is a replacement
--- for the old "FileSel"ection dialog. It provides a better user
--- interface and an improved API.
+-- A file chooser dialog, suitable for \"File\/Open\" or \"File\/Save\"
+-- commands
 --
--- * This is the dialog variant of the 'FileChooser'
---
--- * Added in GTK+ 2.4
+-- * Module available since Gtk+ version 2.4
 --
 module Graphics.UI.Gtk.Selectors.FileChooserDialog (
--- * Description
+-- * Detail
 -- 
 -- | 'FileChooserDialog' is a dialog box suitable for use with \"File\/Open\"
 -- or \"File\/Save as\" commands. This widget works by putting a
@@ -44,8 +41,6 @@ module Graphics.UI.Gtk.Selectors.FileChooserDialog (
 --
 -- Note that 'FileChooserDialog' does not have any methods of its own.
 -- Instead, you should use the functions that work on a 'FileChooser'.
---
--- * Module available since Gtk version 2.4
 
 -- ** Response Codes
 -- 
@@ -78,8 +73,6 @@ module Graphics.UI.Gtk.Selectors.FileChooserDialog (
 #endif
   ) where
 
-#if GTK_CHECK_VERSION(2,4,0)
-
 import Monad (liftM, when)
 import Maybe (isJust, fromJust)
 
@@ -95,6 +88,7 @@ import System.Glib.StoreValue
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Interfaces
 
@@ -103,6 +97,8 @@ instance FileChooserClass FileChooserDialog
 --------------------
 -- Constructors
 
+-- | Creates a new 'FileChooserDialog'.
+--
 fileChooserDialogNew
   :: Maybe String            -- ^ Title of the dialog (or default)
   -> Maybe Window            -- ^ Transient parent of the dialog (or none)
@@ -112,6 +108,10 @@ fileChooserDialogNew
 fileChooserDialogNew title parent action buttons =
   internalFileChooserDialogNew title parent action buttons Nothing
 
+-- | Creates a new 'FileChooserDialog' with a specified backend. This is
+-- especially useful if you use 'fileChooserSetLocalOnly' to allow non-local
+-- files and you use a more expressive vfs, such as gnome-vfs, to load files.
+--
 fileChooserDialogNewWithBackend
   :: Maybe String              -- ^ Title of the dialog (or default)
   -> Maybe Window              -- ^ Transient parent of the dialog (or none)
@@ -121,7 +121,6 @@ fileChooserDialogNewWithBackend
   -> IO FileChooserDialog
 fileChooserDialogNewWithBackend title parent action buttons backend =
   internalFileChooserDialogNew title parent action buttons (Just backend)
-  
 
 -- Annoyingly, the constructor for FileChooserDialog uses varargs so we can't
 -- call it using the Haskell FFI. The GTK people do not consider this an api
@@ -150,5 +149,4 @@ internalFileChooserDialogNew title parent action buttons backend = do
   mapM_ (\(btnName, btnResponse) ->
           dialogAddButton dialog btnName btnResponse) buttons
   return dialog
-
 #endif

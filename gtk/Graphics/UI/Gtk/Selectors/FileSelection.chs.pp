@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.1 $ from $Date: 2005/02/26 02:17:27 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/03 12:56:07 $
 --
 --  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
@@ -28,12 +28,12 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Prompt the user for a file or directory name.
+-- Prompt the user for a file or directory name
 --
 -- * As of Gtk+ 2.4 this module has been deprecated in favour of 'FileChooser'
 --
 module Graphics.UI.Gtk.Selectors.FileSelection (
--- * Description
+-- * Detail
 -- 
 -- | 'FileSelection' should be used to retrieve file or directory names from
 -- the user. It will create a new dialog window containing a directory list,
@@ -84,30 +84,38 @@ module Graphics.UI.Gtk.Selectors.FileSelection (
   fileSelectionShowFileopButtons,
   fileSelectionHideFileopButtons,
   fileSelectionGetButtons,
-  fileSelectionComplete
+  fileSelectionComplete,
+
+-- * Properties
+  fileSelectionFilename
   ) where
 
 import Monad            (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
-import Graphics.UI.Gtk.General.Structs		(fileSelectionGetButtons)
+import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.General.Structs	(fileSelectionGetButtons)
 
 {# context lib="libgtk" prefix="gtk" #}
 
 --------------------
 -- Constructors
 
--- | Create a new file selection dialog with 
--- the given window title.
+-- | Creates a new file selection dialog box. By default it will contain a
+-- 'TreeView' of the application's current working directory, and a file
+-- listing. Operation buttons that allow the user to create a directory, delete
+-- files and rename files, are also present.
 --
-fileSelectionNew ::
-    String
+fileSelectionNew :: 
+    String           -- ^ @title@ - a message that will be placed in the file
+                     -- requestor's titlebar.
  -> IO FileSelection
 fileSelectionNew title =
-  makeNewObject mkFileSelection $ liftM castPtr $
+  makeNewObject mkFileSelection $
+  liftM (castPtr :: Ptr Widget -> Ptr FileSelection) $
   withUTFString title $ \titlePtr ->
   {# call unsafe file_selection_new #}
     titlePtr
@@ -115,46 +123,58 @@ fileSelectionNew title =
 --------------------
 -- Methods
 
--- | Set the filename for the given file 
--- selection dialog.
+-- | Sets a default path for the file requestor. If @filename@ includes a
+-- directory path, then the requestor will open with that path as its current
+-- working directory.
 --
-fileSelectionSetFilename :: FileSelectionClass fsel => fsel -> String -> IO ()
-fileSelectionSetFilename fsel str = 
-  withUTFString str $ \strPtr -> 
+-- This has the consequence that in order to open the requestor with a
+-- working directory and an empty filename, @filename@ must have a trailing
+-- directory separator.
+--
+fileSelectionSetFilename :: FileSelectionClass self => self
+ -> String -- ^ @filename@ - a string to set as the default file name.
+ -> IO ()
+fileSelectionSetFilename self filename =
+  withUTFString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-    {#call unsafe file_selection_set_filename_utf8#}
+  {# call unsafe gtk_file_selection_set_filename_utf8 #}
 #else
-    {#call unsafe file_selection_set_filename#}
+  {# call unsafe gtk_file_selection_set_filename #}
 #endif
-      (toFileSelection fsel) strPtr
+    (toFileSelection self)
+    filenamePtr
 
--- | Get the filename currently selected by 
--- the given file selection dialog.
+-- | This function returns the selected filename.
 --
-fileSelectionGetFilename :: FileSelectionClass fsel => fsel -> IO String
-fileSelectionGetFilename fsel = 
-  do
+-- If no file is selected then the selected directory path is returned.
+--
+fileSelectionGetFilename :: FileSelectionClass self => self
+ -> IO String -- ^ returns currently-selected filename
+fileSelectionGetFilename self =
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
-    strPtr <- {#call unsafe file_selection_get_filename_utf8#} 
+  {# call unsafe gtk_file_selection_get_filename_utf8 #}
 #else
-    strPtr <- {#call unsafe file_selection_get_filename#} 
+  {# call unsafe gtk_file_selection_get_filename #}
 #endif
-      (toFileSelection fsel)
-    peekUTFString strPtr
+    (toFileSelection self)
+  >>= peekUTFString
 
--- | Show the file operation buttons 
--- of the given file selection dialog.
+-- | Shows the file operation buttons, if they have previously been hidden.
+-- The rest of the widgets in the dialog will be resized accordingly.
 --
-fileSelectionShowFileopButtons :: FileSelectionClass fsel => fsel -> IO ()
-fileSelectionShowFileopButtons  =
-  {#call file_selection_show_fileop_buttons#} . toFileSelection
+fileSelectionShowFileopButtons :: FileSelectionClass self => self -> IO ()
+fileSelectionShowFileopButtons self =
+  {# call file_selection_show_fileop_buttons #}
+    (toFileSelection self)
 
--- | Hide the file operation buttons 
--- of the given file selection dialog.
+-- | Hides the file operation buttons that normally appear at the top of the
+-- dialog. Useful if you wish to create a custom file selector, based on
+-- 'FileSelection'.
 --
-fileSelectionHideFileopButtons :: FileSelectionClass fsel => fsel -> IO ()
-fileSelectionHideFileopButtons  =
-  {#call file_selection_hide_fileop_buttons#} . toFileSelection
+fileSelectionHideFileopButtons :: FileSelectionClass self => self -> IO ()
+fileSelectionHideFileopButtons self =
+  {# call file_selection_hide_fileop_buttons #}
+    (toFileSelection self)
 
 -- currently broken
 -- -- query the widgets of the file selectors buttons
@@ -172,9 +192,30 @@ fileSelectionHideFileopButtons  =
 --       cancel <- {#get FileSelection.cancel_button#} ptr
 --       return (castToButton ok, castToButton cancel)
 
--- | Only show files matching pattern.
+-- | Will attempt to match @pattern@ to a valid filenames or subdirectories in
+-- the current directory. If a match can be made, the matched filename will
+-- appear in the text entry field of the file selection dialog. If a partial
+-- match can be made, the \"Files\" list will contain those file names which
+-- have been partially matched, and the \"Folders\" list those directories
+-- which have been partially matched.
 --
-fileSelectionComplete :: FileSelectionClass fsel => fsel -> String -> IO ()
-fileSelectionComplete fsel pattern =
+fileSelectionComplete :: FileSelectionClass self => self
+ -> String -- ^ @pattern@ - a string of characters which may or may not match
+           -- any filenames in the current directory.
+ -> IO ()
+fileSelectionComplete self pattern =
   withUTFString pattern $ \patternPtr ->
-    {#call file_selection_complete#} (toFileSelection fsel) patternPtr
+  {# call file_selection_complete #}
+    (toFileSelection self)
+    patternPtr
+
+--------------------
+-- Properties
+
+-- | The currently selected filename.
+--
+--
+fileSelectionFilename :: FileSelectionClass self => Attr self String
+fileSelectionFilename = Attr 
+  fileSelectionGetFilename
+  fileSelectionSetFilename

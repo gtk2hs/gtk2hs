@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/03 12:56:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A standard dialog box for selecting a color.
+-- A standard dialog box for selecting a color
 --
 module Graphics.UI.Gtk.Selectors.ColorSelectionDialog (
--- * Description
+-- * Detail
 -- 
 -- | The 'ColorSelectionDialog' provides a standard dialog which allows the
 -- user to select a color much like the 'FileSelection' provides a standard
@@ -70,8 +70,13 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 -- | Creates a new 'ColorSelectionDialog'.
 --
-colorSelectionDialogNew :: String -> IO ColorSelectionDialog
+colorSelectionDialogNew :: 
+    String                  -- ^ @title@ - a string containing the title text
+                            -- for the dialog.
+ -> IO ColorSelectionDialog
 colorSelectionDialogNew title =
-  makeNewObject mkColorSelectionDialog $ liftM castPtr $
-  withUTFString title $ \strPtr ->
-  {#call unsafe color_selection_dialog_new#} strPtr
+  makeNewObject mkColorSelectionDialog $
+  liftM (castPtr :: Ptr Widget -> Ptr ColorSelectionDialog) $
+  withUTFString title $ \titlePtr ->
+  {# call unsafe color_selection_dialog_new #}
+    titlePtr
