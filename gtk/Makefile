@@ -145,7 +145,7 @@ EXTRA_LIBS	= $(GTK_LIBS)
 
 # These symbols are need to break a dependency circle.
 #\"-u TreeSelection_dwzw\",\"-u TreeSelection_dwzx\"
-EXTRA_SYMBOLS = TreeSelection_dwzw TreeSelection_dwzx 
+# EXTRA_SYMBOLS = TreeSelection_dwzw TreeSelection_dwzx 
 
 # the signal marshallers are generated automatically
 EXTRA_CHSFILES	+= general/Signal.chs
