@@ -5,7 +5,7 @@
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.8 $ from $Date: 2003/11/02 23:57:07 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,27 +19,27 @@
 --
 -- @description@ --------------------------------------------------------------
 --
--- * Define functions to extract data from a GList and to produce a GList from
+-- * Defines functions to extract data from a GList and to produce a GList from
 --   a list of pointers.
 --
--- * Define functions to extract data from a GSList.
+-- * The same for GSList.
 --
 -- @documentation@ ------------------------------------------------------------
 --
 --
 -- @todo@ ---------------------------------------------------------------------
 --
--- * Figure out if we ever need to generate a GList.
 --
 module GList(
   ptrToInt,
   GList,
   fromGList,
-  -- toGList,
+  toGList,
   GSList,
   readGSList,
   fromGSList,
-  fromGSListRev
+  fromGSListRev,
+  toGSList
   ) where
 
 import Monad	(liftM)
@@ -117,11 +117,23 @@ intToPtr int = plusPtr nullPtr int
 
 -- Turn a list of something into a GList.
 --
-toGList :: [a] -> (a -> Ptr b) -> IO GList
-toGList xs conv = makeList nullPtr xs
+toGList :: [Ptr a] -> IO GList
+toGList xs = makeList nullPtr xs
   where
-    -- makeList :: GList -> [a] -> IO GList
+    -- makeList :: GList -> [Ptr a] -> IO GList
     makeList current (x:xs) = do
-      newHead <- {#call unsafe list_prepend#} current ((castPtr.conv) x)
+      newHead <- {#call unsafe list_prepend#} current (castPtr x)
       makeList newHead xs
     makeList current [] = return current
+
+-- Turn a list of something into a GSList.
+--
+toGSList :: [Ptr a] -> IO GSList
+toGSList xs = makeList nullPtr xs
+  where
+    -- makeList :: GSList -> [Ptr a] -> IO GSList
+    makeList current (x:xs) = do
+      newHead <- {#call unsafe slist_prepend#} current (castPtr x)
+      makeList newHead xs
+    makeList current [] = return current
+
