@@ -1,3 +1,8 @@
+2003-08-02  Jens Petersen  <petersen@haskell.org>
+
+	* gtk/multiline/TextBuffer.chs (textBufferGetCharCount): Call
+	text_buffer_get_char_count not text_buffer_get_line_count.
+
 2003-07-31  Jens Petersen  <petersen@haskell.org>
 
 	* gtk2hs.spec.in: Default to ghc-6.0.1.

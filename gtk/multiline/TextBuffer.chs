@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2003/07/09 22:42:45 $
+--  Version $Revision: 1.9 $ from $Date: 2003/08/02 05:55:35 $
 --
 --  Copyright (c) [2001..2002] Axel Simon
 --
@@ -163,7 +163,7 @@ textBufferGetLineCount tb = liftM fromIntegral $
 --
 textBufferGetCharCount :: TextBuffer -> IO Int
 textBufferGetCharCount tb = liftM fromIntegral $
-  {#call unsafe text_buffer_get_line_count#} tb
+  {#call unsafe text_buffer_get_char_count#} tb
 
 -- @method textBufferGetTagTable@ Extract the tag table that is associated
 -- with this text buffer.
