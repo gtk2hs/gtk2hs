@@ -1,0 +1,6 @@
+
+#deprecated
+exclude gtk_check_menu_item_set_show_toggle
+
+#emits the signal, seems internal
+exclude gtk_check_menu_item_toggled

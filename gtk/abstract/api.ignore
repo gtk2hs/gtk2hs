@@ -1,0 +1,20 @@
+
+#deprecated button box functions
+exclude gtk_button_box_[gs]et_child_size
+exclude gtk_button_box_[gs]et_child_ipadding
+
+#deprecated container functions
+exclude gtk_container_foreach_full
+
+#cannot bind varargs functions
+exclude gtk_container_add_with_properties
+
+#internal/implementation stuff
+exclude gtk_container_class
+exclude gtk_container_propagate_expose
+exclude gtk_container_forall
+exclude gtk_scale_get_layout
+
+#somewhat internal api
+exclude gtk_container_child
+do not exclude gtk_container_child_[sg]et_property

@@ -17,6 +17,14 @@
 
 	* gtk/general/Structs.hsc: remove unneeded CheckMenuItem function.
 
+	* tk/misc/api.ignore, gtk/treeList/api.ignore, gtk/entry/api.ignore
+	gtk/abstract/api.ignore, gtk/general/api.ignore, gtk/windows/api.ignore
+	gtk/menuComboToolbar/api.ignore, gtk/layout/api.ignore: new files to
+	mark unbound functions, for use with the api coverage tool.
+
+	* tools/apicoverage/Makefile: filter gtk.coverage too to reduce noise.
+	This ignores where we are currently implementing deprecated functions.
+
 2004-07-29  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/general/General.chs: don't use depreciated gtk main loop

@@ -1,0 +1,22 @@
+
+# only new renderer widgets need to implement these interfaces
+exclude gtk_cell_editable
+exclude gtk_cell_layout
+
+# don't exclude whole of gtk_cell_renderer because there are several
+# interesting subclasses and the will be more in furture version, so exclude
+# individual functions
+exclude gtk_cell_renderer_activate
+exclude gtk_cell_renderer_editing_canceled
+exclude gtk_cell_renderer_get_
+exclude gtk_cell_renderer_get_
+exclude gtk_cell_renderer_render
+exclude gtk_cell_renderer_set_fixed_size
+exclude gtk_cell_renderer_start_editing
+
+#cannot find documentation on this, assume it internal
+exclude gtk_cell_view
+
+#a bit specialised, we dont need it
+exclude gtk_cell_renderer_text_set_fixed_height_from_font
+

@@ -35,6 +35,9 @@ gtk.ignore.combined : gtk.ignore $(GTK_IGNORE_FILES)
 gtk.def.filtered : gtk.def exclude gtk.ignore.combined
 	./exclude gtk.ignore.combined < gtk.def > gtk.def.filtered
 
+gtk.coverage.filtered : gtk.coverage exclude gtk.ignore.combined
+	./exclude gtk.ignore.combined < gtk.coverage > gtk.coverage.filtered
+
 exclude : Exclude.hs
 	ghc --make Exclude.hs -o exclude
 
@@ -45,12 +48,13 @@ clean :
 gtk_total=$(shell wc -l < gtk.def.filtered)
 gtk2hs_total=$(shell wc -l < gtk.coverage)
 
-stats : gtk.def.filtered gtk.coverage
+stats : gtk.def.filtered gtk.coverage.filtered
 	@echo "**** gtk2hs API coverage report (for gtk-$(GTK_VERSION)) ****"
 	@echo " total gtk functions    :" $(gtk_total)
 	@echo " total gtk2hs functions :" $(gtk2hs_total)
 	@echo " difference             :" `echo $(gtk_total) - $(gtk2hs_total) | bc`
 	@echo; echo "run 'diff gtk.def.filtered gtk.coverage' to see in detail"
+	@echo " or 'diff gtk.def.filtered gtk.coverage.filtered' for less noise"
 
 debug:
 	@echo GTK_IGNORE_FILES = $(GTK_IGNORE_FILES)
