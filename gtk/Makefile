@@ -128,7 +128,8 @@ endif
 # This is a very poor way of expressing dependencies.
 
 NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
-	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter
+	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter \
+	  gdk/Region
 
 ifneq ($(strip $(NEW_MODULE_SYS)),yes)
 NEEDPACKAGES = data lang

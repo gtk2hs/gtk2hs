@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2002/08/13 12:06:07 $
+--  Version $Revision: 1.8 $ from $Date: 2002/10/01 15:09:29 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -49,6 +49,9 @@ module Gtk(
   module IconFactory,
   module StockItems,
   module GdkKeys,
+  module GdkDrawable,
+  module Region,
+  module GdkGC,
   -- windows
   module Dialog,
   module FileSel,
@@ -83,7 +86,7 @@ module Gtk(
   module TreeViewColumn,
   module TreeView,
   --  module TreeSortable,
-  --  module TreeModelSort,
+  module TreeModelSort,
   module CellRenderer,
   --  module CellEditable,
   module CellRendererPixbuf,
@@ -133,7 +136,7 @@ module Gtk(
   module Adjustment,
   module Arrow,
   module Calendar,
---  module DrawingArea,
+  module DrawingArea,
   module EventBox,
   module HandleBox,
 --  module IMContext,
@@ -162,6 +165,9 @@ import General
 import IconFactory
 import StockItems
 import GdkKeys
+import GdkDrawable
+import Region		hiding (makeNewRegion)
+import GdkGC
 -- windows
 import Dialog
 import FileSel
@@ -197,7 +203,7 @@ import TreeSelection
 import TreeViewColumn
 import TreeView
 --import TreeSortable
---import TreeModelSort
+import TreeModelSort
 import CellRenderer
 --import CellEditable
 import CellRendererPixbuf
@@ -250,7 +256,7 @@ import ScrolledWindow
 import Adjustment
 import Arrow
 import Calendar
---import DrawingArea
+import DrawingArea
 import EventBox
 import HandleBox
 --import IMContext
@@ -277,5 +283,4 @@ import Socket
 
 -- non widgets
 import Hierarchy	(toCellRenderer)
-
 

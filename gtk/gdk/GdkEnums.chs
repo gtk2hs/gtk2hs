@@ -4,7 +4,7 @@
 --  Author : Manuel M. T. Chakravarty, Axel Simon
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.4 $ from $Date: 2002/08/05 16:41:34 $
+--  Version $Revision: 1.5 $ from $Date: 2002/10/01 15:09:28 $
 --
 --  Copyright (c) [1999..2001] Manuel M. T. Chakravarty
 --
@@ -30,14 +30,22 @@
 --  * Documentation
 --
 module GdkEnums(
+  CapStyle(..),
+  CrossingMode(..),
   EventMask(..),
   ExtensionMode(..),
-  VisibilityState(..),
-  CrossingMode(..),
-  NotifyType(..),
-  WindowState(..),
-  ScrollDirection(..),
+  Fill(..),
+  FillRule(..),
+  Function(..),
   InputCondition(..),
+  JoinStyle(..),
+  LineStyle(..),
+  NotifyType(..),
+  OverlapType(..),
+  ScrollDirection(..),
+  SubwindowMode(..),
+  VisibilityState(..),
+  WindowState(..),
   Flags(fromFlags,toFlags)
   ) where
 
@@ -58,6 +66,15 @@ class  (Enum a, Bounded a) => Flags a where
 
 {#context lib="libgdk" prefix ="gdk"#}
 
+-- @data CapStyle@ Specify the how the ends of a line is drawn.
+--
+{#enum CapStyle {underscoreToCase}#}
+
+-- @data CrossingMode@ provide additionl information if cursor crosses a
+-- window
+--
+{#enum CrossingMode {underscoreToCase}#}
+
 -- @data EventMask@ specify which events a widget will emit signals on
 --
 {#enum EventMask {underscoreToCase} deriving (Bounded)#}
@@ -70,30 +87,19 @@ instance Flags EventMask
 
 instance Flags ExtensionMode
 
--- @data VisibilityState@ visibility of a window
+-- @data Fill@ How objects are filled.
 --
-{#enum VisibilityState {underscoreToCase,
-			VISIBILITY_PARTIAL as VisibilityPartialObscured}#}
+{#enum Fill {underscoreToCase}#}
 
--- @data CrossingMode@ provide additionl information if cursor crosses a
--- window
+-- @data Function@ Determine how bitmap operations are carried out.
 --
-{#enum CrossingMode {underscoreToCase}#}
+{#enum Function {underscoreToCase}#}
 
--- dunno
+-- @data FillRule@ Specify how to interpret a polygon.
 --
-{#enum NotifyType {underscoreToCase}#}
-
-
--- @data WindowState@ the state a GDK window is in
+-- * The flag determines what happens if a polygon has overlapping areas.
 --
-{#enum WindowState {underscoreToCase} deriving (Bounded)#}
-
-instance Flags WindowState
-
--- @data ScrollDirection@ in which direction was scrolled?
---
-{#enum ScrollDirection {underscoreToCase}#}
+{#enum FillRule {underscoreToCase}#}
 
 -- @data InputCondition@ Specify on what file condition a callback should be
 -- done.
@@ -101,3 +107,38 @@ instance Flags WindowState
 {#enum InputCondition {underscoreToCase} deriving(Bounded) #}
 
 instance Flags InputCondition
+
+-- @data JoinStyle@ Determines how adjacent line ends are drawn.
+--
+{#enum JoinStyle {underscoreToCase}#}
+
+-- @data LineStyle@ Determines if a line is solid or dashed.
+--
+{#enum LineStyle {underscoreToCase}#}
+
+-- dunno
+--
+{#enum NotifyType {underscoreToCase}#}
+
+-- @data OverlapType@ How a rectangle is contained in a @ref data Region@.
+--
+{#enum OverlapType {underscoreToCase}#}
+
+-- @data ScrollDirection@ in which direction was scrolled?
+--
+{#enum ScrollDirection {underscoreToCase}#}
+
+-- @data SubwindowMode@ Determine if child widget may be overdrawn.
+--
+{#enum SubwindowMode {underscoreToCase}#}
+
+-- @data VisibilityState@ visibility of a window
+--
+{#enum VisibilityState {underscoreToCase,
+			VISIBILITY_PARTIAL as VisibilityPartialObscured}#}
+
+-- @data WindowState@ the state a GDK window is in
+--
+{#enum WindowState {underscoreToCase} deriving (Bounded)#}
+
+instance Flags WindowState
