@@ -2,8 +2,6 @@
 module Main(main) where
 
 import Mogul
-import TreeModel (treePathToString)
-import TreeView  (treeViewGetPathAtPos)
 import Events
 
 main = do
@@ -78,8 +76,7 @@ showMenu tv (Button { x=xPos,
   case res of
     Nothing -> return ()
     (Just (tp, ti, _)) -> do
-      str <- treePathToString tp
-      putStrLn ("right click in cell "++str)
+      putStrLn ("right click in cell "++(show tp))
   return True
 -- let Gtk handle normal button clicks
 showMenu tv _ = return False

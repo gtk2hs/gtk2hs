@@ -160,7 +160,7 @@ endif
 # This is a very poor way of expressing dependencies.
 
 NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
-	  pango/PangoTypes \
+	  glib/GObject pango/PangoTypes \
 	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter \
 	  gdk/Region
 

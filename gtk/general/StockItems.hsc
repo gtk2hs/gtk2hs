@@ -5,7 +5,7 @@
 --          
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/03/24 23:56:28 $
+--  Version $Revision: 1.6 $ from $Date: 2003/04/11 15:14:07 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -56,9 +56,7 @@ module StockItems(
   stockCDROM,
   stockClear,
   stockClose,
--- #if GTK_CHECK_VERSION(2,2,0)
---   stockColorPicker,
--- #endif
+  stockColorPicker,
   stockConvert,
   stockCopy,
   stockCut,
@@ -402,6 +400,8 @@ stockClear		= #{const_str GTK_STOCK_CLEAR}
 stockClose		= #{const_str GTK_STOCK_CLOSE}
 #if GTK_CHECK_VERSION(2,2,0)
 stockColorPicker	= #{const_str GTK_STOCK_COLOR_PICKER}
+#else
+stockColorPicker        = stockMissingImage
 #endif
 stockConvert		= #{const_str GTK_STOCK_CONVERT}
 stockCopy		= #{const_str GTK_STOCK_COPY}

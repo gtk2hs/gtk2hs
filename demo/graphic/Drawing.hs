@@ -5,7 +5,7 @@ import Gtk
 main = do
   initGUI
   dia <- dialogNew
-  dialogAddButton dia stockButtonOk ResponseOk
+  dialogAddButton dia stockOk ResponseOk
   contain <- dialogGetUpper dia
   canvas <- drawingAreaNew
   canvas `onSizeRequest` return (Requisition 40 40)

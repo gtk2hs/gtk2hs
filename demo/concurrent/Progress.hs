@@ -14,7 +14,7 @@ main :: IO ()
 main = do
   initGUI
   dia <- dialogNew
-  dialogAddButton dia stockButtonClose ResponseClose
+  dialogAddButton dia stockClose ResponseClose
   contain <- dialogGetUpper dia
   pb <- progressBarNew 
   boxPackStartDefaults contain pb

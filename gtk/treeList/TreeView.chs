@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2003/03/08 17:44:05 $
+--  Version $Revision: 1.11 $ from $Date: 2003/04/11 15:14:07 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -856,10 +856,10 @@ onStartInteractiveSearch, afterStartInteractiveSearch ::
 
 #if GTK_CHECK_VERSION(2,2,0)
 
-onStartInteractiveSearch = \fun ->
-  connect_NONE__BOOL "start_interactive_search" False (fun >> return True)
-afterStartInteractiveSearch = \fun ->
-  connect_NONE__BOOL "start_interactive_search" True (fun >> return True)
+onStartInteractiveSearch tv fun =
+  connect_NONE__BOOL "start_interactive_search" False tv (fun >> return True)
+afterStartInteractiveSearch tv fun =
+  connect_NONE__BOOL "start_interactive_search" True tv (fun >> return True)
 
 #else
 
