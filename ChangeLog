@@ -1,3 +1,17 @@
-0.1.0
-~~~~~~
-09Apr01 Alpha release
+2002-04-16 Axel Simon <as49@ukc.ac.uk>
+
+	* Created the "dist" goal to tar a source distribution. Introduced
+	  a VERSION file.
+
+2002-04-14 Axel Simon <as49@ukc.ac.uk>
+
+	* Incooperated c2hs version 0.10.12 into the source tree. Omitted
+	  the lib/ directory. For the latter I had to change C2HSConfig.hs.in
+	  to import "toBool" from MarshalUtils. The sources are otherwise
+	  unchanged.
+
+	* HookGenerator.hs: Added test for SPARC architecture. GHC is unable
+	  to generate dynamic callbacks with more than 4 word worth of
+	  arguments. By replacing all connectTo... functions which take more
+	  than 3 arguments (real args and the GtkObject) with error stubs
+	  this is only a temporary solution.

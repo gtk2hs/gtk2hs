@@ -1,56 +1,110 @@
 gtk2hs: A binding of Gtk Version 2 for the programming language Haskell
 
-This binding make functions from the following libraries available (thus,
+This binding makes functions from the following libraries available (thus,
 these need to be installed):
- * glib-2.0.0.tar.bz2
- * atk-1.0.0.tar.bz2
- * pango-1.0.0.tar.bz2
- * gtk+-2.0.0.tar.bz2
+ * glib-2.0.0
+ * atk-1.0.0
+ * pango-1.0.0
+ * gtk+-2.0.0
 
-Furthermore, a working c2hs, version 0.8.0 or greater, and the GHC Haskell
-compiler, version 5.00 or greater, is required. If you have more than 250MB
-of physical memory at disposal and c2hs version 0.10.12 or later, you should
-specify --enable-ample-memory as an option to ./configure for a much quicker
-compilation. To use the library with GHCi, you need GHC 5.03.0 or later. i
-(The latter is untested.)
+Furthermore the GHC Haskell compiler, version 5.00 or greater, is
+required. To use the library with GHCi, you need GHC 5.03.0 or
+later. (The latter is untested.)
 
-Note: c2hs will most likely fail to preprocess the header files. If this is
-      the case change hipar/c2hs/toplevel/C2HSConfig.hs. Turn the line
-cppopts  = ""
-      into
-cppopts  = "-x c"
-      and do a make install at the hipar level.
+INSTALLATION
+------------
 
-After checking out the sources you say
+The following assumes that the sources are in ~/gtk2hs.
+1. Produce a configure file.
 
 ~/gtk2hs:$ autoconf
 
-and 
+You may omit this step if you've downloaded the source tarball. If, however,
+step 2 fails for no obvious reason you should run autoconf. (I've seen
+ghc-pkg not being found when copying ./configure from FreeBSD, autoconf 2.53
+to Solaris, autoconf 2.52.)
+
+2. Run the configure script.
+
+The configure script has several useful options, particularly:
+
+--with-hc=<path to your ghc>
+  Uses the specified GHC for compilation and for installation of the package.
+
+--with-c2hs=no
+  Uses the c2hs binding tool that comes with gtk2hs. This special version
+  works much faster than the normal c2hs form Manuel's website. See
+  configure.in for more details. This setting is the default.
+
+--with-c2hs=yes
+  Search for a c2hs installation in the current PATH.
+
+--with-c2hs=<patch to your c2hs-config>
+  Use this specific installation of c2hs. Make sure you specify the c2hs-config
+  program, not c2hs itself.
+
+--with-pkgconf=<your pkg.conf file>
+  Use a local package.conf file to install the gtk2hs package in. See below.
+
+With --help you can ask ./configure what options it supports.
+
+Add any of these options to the following command:
 
 ~/gtk2hs:$ ./configure
 
-. You might call configure with --help first, to see which options it supports.
-If you are using a globally installed ghc and have no priviliges to install
-new packages, you now say
+3. Building the sources.
 
-~/gtk2hs:$ make inplace
+In the following "make" stands for GNU make. If your system has a program
+called "gmake" then make is probably not GNU make. In this case use "gmake".
 
-where make should be GNU make. This will create a file called localpackage.conf
-in the current directory. To use it with your programs you need to specify
--package-conf ~/gtk2hs/localpackage.conf -package mogul
-when building your programs. 
+To build the sources you issue:
 
-If you can have the priviliges to alter GHC's packages, do
+~/gtk2hs:$ make
+
+This will build the package "in place" which means all library files
+stay in the source tree. If you have used --with-pkgconf=mypkg.conf in
+step two, the gtk2hs and mogul package will be available through this
+file. The default name for this file is localpackage.conf in the root
+of the source tree. To use an "in place" installation you say:
+
+ghc -make MyProg.hs -package-conf ~/gtk2hs/localpackage.conf -package mogul
+
+If you are happy with this solution or if you don't have the
+privileges to write to the location where GHC lives, you stop here.
+
+4. Install the libraries.
+
+The alternative is to properly install the packages into GHC
+itself. In case GHC lives in a privileged place you need to become
+root first. To install the library say:
 
 ~/gtk2hs:$ make install
 
-and simply specify
--package mogul
-from that moment on.
+Now you can compile your programs simply by saying:
 
-Report problems to A.Simon@ukc.ac.uk
+ghc -make MyProg.hs -package mogul
 
-Good luck.
+Note:
 
- 
-GHC in a dir.  
+1. Do not delete the source tree if you intend to deinstall the package at
+   some point. You do this by saying
+
+   ~/gtk2hs:$ make uninstall
+
+   in the root of the source tree. This will properly remove the package from
+   GHC and remove any installed file.
+
+2. After installing the sources, the packages are not available anymore from
+   the local package file. At the time of writing GHC has a problem when the
+   same package is available in the global and the local package.conf file.
+   If this should be fixed in the future, you can say
+
+   ~/gtk2hs:$ make inplace
+
+   to install the package locally again.
+
+
+Report problems to <as49@ukc.ac.uk>.
+
+Have fun.
+

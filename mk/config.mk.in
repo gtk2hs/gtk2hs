@@ -1,8 +1,12 @@
 TOP		= @TOP@
 
 AR		= @AR@
+LN		= @LN_S@
+PWD		= @PWD@
 GREP		= @GREP@
+GZIP		= @GZIP@
 SED		= @SED@
+TAR		= @TAR@
 TOUCH		= @TOUCH@
 INSTALL		= @INSTALL@
 
@@ -98,7 +102,12 @@ HSTOOLFLAGS	= $(filter -H%,$(HC_FLAGS)) -M350m
 
 BUILT_IN_C2HS	= @BUILT_IN_C2HS@
 
-.PHONY: default all install uninstall clean distclean mostlyclean \
-	maintainerclan inplace noinplace inplaceinit
+.PHONY: default all install installdirs installcheck \
+	uninstall clean distclean maintainerclan mostlyclean \
+	inplace noinplace inplaceinit dist tarsource debug
+
 default		: all
 
+VERSION		= @VERSION@
+
+TARNAME		= gtk2hs-$(VERSION)

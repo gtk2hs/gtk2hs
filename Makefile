@@ -53,3 +53,20 @@ endif
 	$(MAKE) -Cmogul $@
 	$(MAKE) -Cdemo/unicode $@ 
 
+EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
+			 TODO VERSION aclocal.m4 configure.in configure \
+			 mk/config.mk.in mk/common.mk mk/application.mk \
+		 	 mk/library.mk install-sh config.sub config.guess)
+
+dist :
+	$(RM) $(TARNAME) $(TARNAME).tar $(TARNAME).tar.gz
+	$(LN) -s . $(TARNAME)
+	$(strip $(TAR) cf $(addsuffix .tar,$(TARNAME)) \
+	  $(addprefix $(TARNAME)/,$(EXTRA_TARFILES)))
+	$(MAKE) -Cc2hs tarsource
+	$(MAKE) -Cgtk tarsource
+	$(MAKE) -Cmogul tarsource
+	$(MAKE) -Cdemo/unicode tarsource
+	$(GZIP) $(TARNAME).tar
+	$(RM) $(TARNAME)
+

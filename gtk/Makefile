@@ -157,6 +157,10 @@ general/Signal.chs : signals/HookGenerator $(MARSHALLDEFS)\
 
 EXTRA_CLEANFILES += signals/HookGenerator signal/HookGenerator.o signal/Main.hi
 
+EXTRA_TARFILES	+= signals/HookGenerator.hs.in signals/Makefile \
+		   signals/gtkmarshal.list signals/Signal.chs-boot1 \
+		   signals/Signal.chs-boot2
+
 signals/HookGenerator : signals/HookGenerator.hs 
 	$(MAKE) -C signals
 
@@ -166,6 +170,9 @@ general/Hierarchy.chs : typehier/TypeGenerator typehier/hierarchy.list
 	typehier/TypeGenerator typehier/hierarchy.list general/Hierarchy.chs
 
 EXTRA_CLEANFILES += typehier/TypeGenerator typehier/TypeGenerator.o typehier/Main.hi
+
+EXTRA_TARFILES	+= typehier/TypeGenerator.hs typehier/Makefile \
+		   typehier/hierarchy.list
 
 typehier/TypeGenerator : typehier/TypeGenerator.hs
 	$(MAKE) -C typehier

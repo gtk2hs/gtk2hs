@@ -1,7 +1,10 @@
 # --*Makefile*--
 
-# directories of source files
+# directories of interest
+CURDIR		= $(shell $(PWD))
+TARDIR		= $(subst $(TOP),$(TARNAME),$(CURDIR))/
 
+# directories of source files
 SUBDIRS			?= .
 
 SUBDIRSOK		= $(dir $(addsuffix /,$(SUBDIRS)))
@@ -248,21 +251,34 @@ targets :
 
 .PHONY: debug 
 debug 	:
-	@echo Goal: $(MAINOK)
-	@echo Target: $(TARGETOK)
-	@echo Library: $(LIBNAME)
-	@echo Application: $(APPNAME)
-	@echo EXTRA_CPPFLAGS: $(EXTRA_CPPFLAGS_ONLY_I)
-	@echo all CHS files: $(CHSFILES)
-	@echo all HSC files: $(HSCFILES)
-	@echo all other HS files: $(HSFILES)
-	@echo all files generating stubs: $(STUBOFILES)
+	@echo $(TOP)
+	@echo $(CURDIR)
+	@echo $(TARDIR)
+#	@echo Goal: $(MAINOK)
+#	@echo Target: $(TARGETOK)
+#	@echo Library: $(LIBNAME)
+#	@echo Application: $(APPNAME)
+#	@echo EXTRA_CPPFLAGS: $(EXTRA_CPPFLAGS_ONLY_I)
+#	@echo all CHS files: $(CHSFILES)
+#	@echo all HSC files: $(HSCFILES)
+#	@echo all other HS files: $(HSFILES)
+#	@echo all files generating stubs: $(STUBOFILES)
 #	@echo hi: $(INST_HIDIR) lib: $(INST_LIBDIR) 
 #	@echo incl: $(INST_INCLDIR) bin: $(INST_BINDIR)
 #	@echo user install dir: $(INSTALLDIR)
-	@echo subdirs: $(SUBDIRSOK)
+#	@echo subdirs: $(SUBDIRSOK)
 #	@echo $(ALLSOURCEFILES) > sourcefiles.txt
 #	@cvs status $(CLEANFILES) 2> /dev/null | $(GREP) File | $(GREP) Unknown
+
+# Create a source tar achive. Do this by adding files to the tar file in the
+# top-level directory.
+tarsource :
+	$(strip $(TAR) rf $(TOP)/$(TARNAME).tar -C $(TOP) \
+	  $(addprefix $(TARDIR), Makefile\
+	    $(filter-out $(EXTRA_CHSFILES), $(CHSFILES))\
+	    $(filter-out $(EXTRA_HSCFILES), $(HSCFILES))\
+	    $(filter-out $(EXTRA_HSFILES), $(HSFILES))\
+	    $(EXTRA_CFILES) $(EXTRA_HFILESOK) $(EXTRA_TARFILES)))
 
 .PHONY: install installdirs installcheck uninstall
 
