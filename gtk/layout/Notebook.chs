@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/12 13:09:23 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -344,8 +344,8 @@ notebookQueryTabLabelPacking nb child =
     expand <- liftM toBool $ peek expPtr
     fill <- liftM toBool $ peek fillPtr
     pt <- liftM (toEnum.fromIntegral) $ peek packPtr
-    return (if fill then PackFill else 
-             (if expand then PackExpand else PackNatural),
+    return (if fill then PackGrow else 
+             (if expand then PackRepel else PackNatural),
 	    pt)
 
 -- @method notebookSetTabLabelPacking@ Set the packing attributes of the given
@@ -355,7 +355,7 @@ notebookSetTabLabelPacking :: (NotebookClass nb, WidgetClass w) => nb -> w ->
                               Packing -> PackType -> IO ()
 notebookSetTabLabelPacking nb child pack pt = 
   {#call notebook_set_tab_label_packing#} (toNotebook nb) (toWidget child)
-    (fromBool $ pack/=PackNatural) (fromBool $ pack==PackFill) 
+    (fromBool $ pack/=PackNatural) (fromBool $ pack==PackGrow) 
     ((fromIntegral.fromEnum) pt)
 
 -- @method notebookSetHomogeneousTabs@ Sets whether the tabs must have all the
