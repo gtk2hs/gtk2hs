@@ -4,8 +4,6 @@ include $(TOP)/mk/config.mk
 
 PACKAGENAME = sourceview
 
-INSTALLDIR = gtk2hs/sourceview
-
 MAIN = SourceView.hs
 
 # In order for ghc and c2hs to find .chi and .hi files in ../gtk/* we

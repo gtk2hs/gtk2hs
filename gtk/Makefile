@@ -22,8 +22,6 @@ EXTRA_TARFILES	= wingtk.h
 PACKAGENAME = gtk2
 LIBNAME = gtk2hs
 
-INSTALLDIR = gtk2hs
-
 MAIN = general/Gtk.hs
 
 HEADER = gtk/gtk.h

@@ -4,8 +4,6 @@ include $(TOP)/mk/config.mk
 
 PACKAGENAME = mogul
 
-INSTALLDIR = mogul
-
 MAIN = Mogul.hs
 
 ifeq ($(strip $(NEW_MODULE_SYS)),yes)
