@@ -537,8 +537,6 @@ AC_SUBST(END_NOT_NHC)
 dnl write the results...
 AC_CONFIG_FILES([
   Makefile
-  tools/Makefile
-  tools/c2hs/Makefile
 ])
 
 AC_OUTPUT([

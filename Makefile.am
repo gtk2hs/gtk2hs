@@ -174,9 +174,9 @@ tools_c2hs_c2hsLocal_HSFILES		= \
 # Fix automake - the subdir-objects option doesn't work here.
 am_tools_c2hs_c2hsLocal_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(tools_c2hs_c2hsLocal_SOURCES)))
-MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.$(OBJEXT))
+MOSTLYCLEANFILES+= $(am_tools_c2hs_c2hsLocal_OBJECTS)
+MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
 CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)
-CLEANFILES+=$(am_tools_c2hs_c2hsLocal_OBJECTS)
 DISTCLEANFILES+= tools_c2hs_c2hsLocal.deps
 -include tools_c2hs_c2hsLocal.deps
 
@@ -328,22 +328,26 @@ gtk_libgtk2hs_a_SOURCES =			  \
 	compat/LocalData.hs
 
 am_gtk_libgtk2hs_a_OBJECTS = \
-  $(addsuffix .$(OBJEXT),$(basename $(gtk_libgtk2hs_a_SOURCES)))
+  $(addsuffix .$(OBJEXT),$(basename $(basename $(gtk_libgtk2hs_a_SOURCES))))
 
-gtk_libgtk2hs_a_CHSFILES = $(filter %.chs %.chs.pp, $(gtk_libgtk2hs_a_SOURCES))
-gtk_libgtk2hs_a_CHSFILES_HS = $(patsubst %.chs,%.hs,\
-	$(patsubst %.chs.pp,%.hs,$(gtk_libgtk2hs_a_CHSFILES)))
+gtk_libgtk2hs_a_CHSPPFILES = $(filter %.chs.pp,$(gtk_libgtk2hs_a_SOURCES))
+gtk_libgtk2hs_a_CHSFILES = \
+  $(filter %.chs,$(gtk_libgtk2hs_a_SOURCES:.chs.pp=.chs))
+gtk_libgtk2hs_a_CHSFILES_HS = $(gtk_libgtk2hs_a_CHSFILES:.chs=.hs)
 gtk_libgtk2hs_a_HSCFILES = $(filter %.hsc, $(gtk_libgtk2hs_a_SOURCES))
 gtk_libgtk2hs_a_HSCFILES_HS = $(gtk_libgtk2hs_a_HSCFILES:.hsc=.hs)
 gtk_libgtk2hs_a_BUILDSOURCES = \
+	$(gtk_libgtk2hs_a_CHSPPFILES:.chs.pp=.chs) \
 	$(gtk_libgtk2hs_a_CHSFILES_HS) \
 	$(gtk_libgtk2hs_a_HSCFILES_HS)
 gtk_libgtk2hs_a_HSFILES  = \
-	$(gtk_libgtk2hs_a_BUILDSOURCES) \
+	$(filter %.hs,$(gtk_libgtk2hs_a_BUILDSOURCES)) \
 	$(filter %.hs,$(gtk_libgtk2hs_a_SOURCES))
+.PRECIOUS: $(gtk_libgtk2hs_a_HSFILES:.hs=hi)
 
 MOSTLYCLEANFILES+ = $(am_gtk_libgtk2hs_a_OBJECTS)
-CLEANFILES+= $(gtk_libgtk2hs_a_BUILDSOURCES) $(gtk_libgtk2hs_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES+ = $(gtk_libgtk2hs_a_HSFILES:.hs=.hi)
+CLEANFILES+= $(gtk_libgtk2hs_a_BUILDSOURCES)
 
 DISTCLEANFILES+= gtk_libgtk2hs_a.deps $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)
 -include gtk_libgtk2hs_a.deps $(gtk_libgtk2hs_a_CHSFILES_HS:.hs=.dep)

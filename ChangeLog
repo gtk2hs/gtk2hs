@@ -1,5 +1,12 @@
 2004-11-21 Axel Simon <A.Simon@kent.ac.uk> 
 
+	* Makefile.am, tools/c2hs/gen/GenBind.hs,
+	tools/c2hs/gen/GBMonad.hs: Incorporate the patch so that Ptr,
+	ForeignPtr and StablePtr are expanded correctlyl independently of
+	whether they are wrapped in a newtype or just synonyms. Fixed
+	(hopefully) a bug in c2hs' get hook that didn't cope with
+	pointers.
+
 	* Makefile.am, configure.ac: Generating dependencies now involves
 	building c2hs on the fly. This is bad for saying make clean on a
 	clean tree, but so far I this is the cleanest solution.

@@ -43,11 +43,6 @@ LINK = 	$(strip $(HC) -o $@ $($(NAME)_HCFLAGS) \
 .o.hi:
 	@:
 
-# The cheeky rule for .hi files says that .hi files can be created as
-# side-effect of generating a .o file. Make sure the .hi files are not
-# deleted as normal intermediate files are.
-.PRECIOUS: %.hi
-
 HSTOOLFLAGS = -H500m
 
 .PHONY: debug
@@ -79,10 +74,11 @@ debug	:
 	--include $(CONFIG_H) \
         --cc=$(HC) --lflag=-no-hs-main $<)
 
-.chs.hs:
-	$(strip if test -x $(C2HS); then :; else \
+.chs.hs: 
+	$(if $(subst no,,$(BUILT_IN_C2HS)),$(strip \
+	if test -x $(C2HS); then :; else \
 	  $(MAKE) $(AM_MAKEFLAGS) NAME="tools_c2hs_c2hsLocal" \
-	  tools/c2hs/c2hsLocal; fi;)
+	  tools/c2hs/c2hsLocal; fi;))
 	$(strip if test -f $($(NAME)_PRECOMP); then :; else \
 	  $(MAKE) $(AM_MAKEFLAGS) NAME="$(NAME)" $($(NAME)_PRECOMP); fi;)
 	$(strip $(C2HS) $(C2HS_FLAGS) \
