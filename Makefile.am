@@ -23,8 +23,9 @@ EXTRA_DIST = \
 	tools/callbackGen/Signal.chs-boot1	\
 	tools/callbackGen/Signal.chs-boot2	\
 	tools/callbackGen/gtkmarshal.list	\
-	tools/hierarchyGen/hierarchy.list	\
-	tools/c2hs/toplevel/c2hs_config.h
+	tools/checkDirs.sh			\
+	tools/c2hs/toplevel/c2hs_config.h	\
+	tools/hierarchyGen/hierarchy.list
 
 # fixme: this should be in configure.ac:
 HSCPP = $(CPP) -x c -traditional-cpp -P

@@ -5,6 +5,7 @@
 	VERSION variable with VERSION file.
 
 	* Makefile.am (EXTRA_DIST): No longer include VERSION file.
+	Add "tools/checkDirs.sh".
 
 2004-12-01 Axel Simon <A.Simon@kent.ac.uk> 
 
