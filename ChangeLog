@@ -5,6 +5,9 @@
 
 	* tools/hierarchyGen/TypeGen.hs: allow to read stdin
 
+	* tools/hierarchyGen/hierarchy.list: change comments style to be
+	compatible with preprocessor and add some new gtk 2.4 classes
+
 2004-04-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/abstract/Object.chs: fixed warning
