@@ -5,7 +5,7 @@
 --          
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2002/12/16 22:25:38 $
+--  Version $Revision: 1.9 $ from $Date: 2003/03/08 17:44:05 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,12 +23,15 @@
 --
 -- * A @ref data TreeModel@ is the abstract base class for 
 --   @ref data TreeStore@ and @ref data ListStore@.
---   Most functions are defined in the latter two classes. This module
+--
+--- @documentation@ -----------------------------------------------------------
+--
+-- * Most functions are defined in the latter two classes. This module
 --   provides the @ref data TreeIter@ and @ref data TreePath@ objects.
 --
---- DOCU ----------------------------------------------------------------------
+--- @todo@ --------------------------------------------------------------------
 --
---- TODO ----------------------------------------------------------------------
+--
 module TreeModel(
   TreeModel,
   TreeModelClass,
@@ -37,6 +40,7 @@ module TreeModel(
   treeModelGetColumnType,
   treeModelGetValue,
   TreePath(..),
+  createTreePath,			-- internal
   treePathNew,
   treePathNewFromString,
   treePathToString,
@@ -52,9 +56,10 @@ module TreeModel(
   treePathUp,
   treePathDown,
   TreeIter(..),
+  createTreeIter,			-- internal
   treeModelGetIter,
   treeModelGetIterFromString,
-  gtk_tree_model_get_iter_from_string,
+  gtk_tree_model_get_iter_from_string,	-- internal
   treeModelGetIterFirst,
   treeModelGetPath,
   treeModelIterNext,
@@ -121,9 +126,18 @@ treeModelGetValue tm iter col = alloca $ \vaPtr -> do
 
 -- utilities related to tree models
 
+-- Create a TreePath from a pointer.
+createTreePath :: Ptr TreePath -> IO TreePath
+createTreePath tpPtr = do
+  tpPtr' <- tree_path_copy tpPtr
+  liftM TreePath $ newForeignPtr tpPtr' (tree_path_free tpPtr')
+
+foreign import ccall "gtk_tree_path_copy" unsafe
+  tree_path_copy :: Ptr TreePath -> IO (Ptr TreePath)
+
 -- @constructor treePathNew@ Create a new @ref data TreePath@.
 --
--- * A @ref data TreePath@ is an hierarchical index. It is independant of
+-- * A @ref data TreePath@ is an hierarchical index. It is independent of
 --   a specific @ref data TreeModel@.
 -- 
 treePathNew :: IO TreePath
@@ -139,7 +153,8 @@ foreign import ccall "gtk_tree_path_free" unsafe
 --
 treePathNewFromString :: String -> IO TreePath
 treePathNewFromString path = do
-  tpPtr <- withCString path {#call unsafe tree_path_new_from_string#}
+  tpPtr <- throwIfNull "treePathNewFromString: invalid path given" $
+    withCString path {#call unsafe tree_path_new_from_string#}
   liftM TreePath $ newForeignPtr tpPtr (tree_path_free tpPtr)
 
 -- @method treePathToString@ Turn a @ref data TreePath@ into a 
@@ -207,6 +222,19 @@ treePathUp tp = liftM toBool $ {#call unsafe tree_path_up#} tp
 
 treePathDown :: TreePath -> IO ()
 treePathDown = {#call unsafe tree_path_down#}
+
+
+createTreeIter :: Ptr TreeIter -> IO TreeIter
+createTreeIter tiPtr = do
+  tiPtr' <- tree_iter_copy tiPtr
+  liftM TreeIter $ newForeignPtr tiPtr' (tree_iter_free tiPtr')
+
+foreign import ccall "gtk_tree_iter_free" unsafe
+  tree_iter_free :: Ptr TreeIter -> IO ()
+
+foreign import ccall "gtk_tree_iter_copy" unsafe
+  tree_iter_copy :: Ptr TreeIter -> IO (Ptr TreeIter)
+
 
 -- @method treeModelGetIter@ Turn a @ref data TreePath@ into a
 -- @ref data TreeIter@.

@@ -5,7 +5,7 @@
 --          
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2003/02/09 10:42:13 $
+--  Version $Revision: 1.11 $ from $Date: 2003/03/08 17:44:00 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -54,6 +54,8 @@ module Widget(
   Allocation,
   Requisition(..),
   Rectangle(..),
+  widgetGetState,
+  widgetGetSavedState,
   widgetShow,			-- Showing and hiding a widget.
   widgetShowNow,
   widgetHide,
@@ -157,7 +159,8 @@ import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
 import GdkEnums
-import Structs	(Allocation, Rectangle(..), Requisition(..))
+import Structs	(Allocation, Rectangle(..), Requisition(..),
+		 widgetGetState, widgetGetSavedState)
 import Events	(Event(..), marshalEvent)
 import Enums	(StateType(..), TextDirection(..))
 

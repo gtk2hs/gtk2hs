@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2003/02/09 10:43:01 $
+--  Version $Revision: 1.15 $ from $Date: 2003/03/08 17:44:05 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -30,7 +30,7 @@
 --
 module Structs(
   Point,
-  Rectangle(..),	-- data type providing a rectangle
+  Rectangle(..),
   Color(..),
   GCValues(..),
   foreground,
@@ -52,6 +52,8 @@ module Structs(
   joinStyle,
   pokeGCValues,
   newGCValues,
+  widgetGetState,
+  widgetGetSavedState,
   Allocation,
   Requisition(..),
   treeIterSize,
@@ -85,7 +87,8 @@ module Structs(
   nullForeignPtr,
   drawingAreaGetDrawWindow,
   drawingAreaGetSize,
-  pangoScale
+  pangoScale,
+  styleGetForeground
   ) where
 
 import Monad		(liftM)
@@ -97,6 +100,7 @@ import Object		(makeNewObject)
 import GObject		(makeNewGObject)
 import Hierarchy
 import GdkEnums	(Function, Fill, SubwindowMode, LineStyle, CapStyle, JoinStyle)
+import Enums	(StateType)
 import IORef
 import Exception
 
@@ -353,6 +357,25 @@ newGCValues = GCValues {
   }
 
 -- @entry Widget Widget@
+
+-- @method widgetGetState@ Retrieve the current state of the widget.
+--
+-- * The state refers to different modes of user interaction, see
+--   @ref data StateType@ for more information.
+--
+widgetGetState :: WidgetClass w => w -> IO StateType
+widgetGetState w = liftM toEnum $ withForeignPtr ((unWidget.toWidget) w) $
+  \ptr -> #{peek GtkWidget,state} ptr
+
+-- @method widgetGetSavedState@ Retrieve the current state of the widget.
+--
+-- * If a widget is turned insensitive, the previous state is stored in
+--   a specific location. This function retrieves this previous state.
+--
+widgetGetSavedState :: WidgetClass w => w -> IO StateType
+widgetGetSavedState w = liftM toEnum $ withForeignPtr ((unWidget.toWidget) w) $
+  \ptr -> #{peek GtkWidget,saved_state} ptr
+
 
 -- @type Allocation@ Allocation
 --
@@ -648,3 +671,23 @@ drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
 --
 pangoScale :: Int
 pangoScale = #const PANGO_SCALE
+
+
+-- @entry Styles@
+
+-- helper function to index into an array: hsc2hs turns a pointer
+index :: Int -> Ptr GC -> IO (Ptr GC)
+index off ptr = return 
+  (castPtr (advancePtr ((castPtr ptr)::Ptr (Ptr GC)) off)::Ptr GC)
+
+-- @method styleGetForeground@ Retrieve the @ref data GC@ for the foreground
+-- color.
+--
+-- * The parameter @ref arg state@ determines for which @ref data StateType@.
+--   Use @ref method widgetGetState@ to determine the current state of the
+--   widget.
+--
+styleGetForeground :: StateType -> Style -> IO GC
+styleGetForeground ty st = withForeignPtr (unStyle st) $ \stPtr ->
+  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, fg_gc} stPtr))
+

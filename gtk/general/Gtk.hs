@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2003/02/09 10:43:01 $
+--  Version $Revision: 1.14 $ from $Date: 2003/03/08 17:44:05 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -50,6 +50,7 @@ module Gtk(
   module IconFactory,
   module StockItems,
   module Keys,
+  module Style,
   module Drawable,
   module DrawWindow,
   module Region,
@@ -175,6 +176,7 @@ import General
 import IconFactory
 import StockItems
 import Keys
+import Style
 import Drawable
 import DrawWindow
 import Region		hiding (makeNewRegion)
@@ -213,7 +215,9 @@ import TextView hiding (afterSetScrollAdjustments,
 		onInsertAtCursor, afterPasteClipboard, onPasteClipboard,
 		afterToggleOverwrite, onToggleOverwrite)
 -- tree and list widget
-import TreeModel
+import TreeModel hiding (createTreeIter,
+			 createTreePath,
+			 gtk_tree_model_get_iter_from_string)
 import TreeSelection
 import TreeViewColumn
 import TreeView
