@@ -6,7 +6,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.8 $ from $Date: 2002/12/03 13:20:07 $
+--  Version $Revision: 1.9 $ from $Date: 2002/12/16 16:27:14 $
 --
 --  Copyright (c) [2000..2002] Axel Simon
 --
@@ -80,7 +80,6 @@ import Enums    (InputCondition(..))
 
 -- @function initGUI@ Initialize the GUI binding.
 --
-
 -- * This function initialized the GUI toolkit and parses all Gtk
 --   specific arguments. The remaining arguments are returned. If the
 --   initialization of the toolkit fails for whatever reason, an exception
