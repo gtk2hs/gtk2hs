@@ -1,6 +1,6 @@
 {-# OPTIONS -cpp #-}
--- |GIMP Toolkit (GTK) Binding for Haskell: binding to GConf   -*-haskell-*-
---    for storing and retrieving configuartion information
+-- -*-haskell-*-
+-- |GIMP Toolkit (GTK) @entry Widget EntryCompletion@
 --
 --  Author : Duncan Coutts
 --  Created: 24 April 2004
@@ -21,9 +21,9 @@
 --
 --  Language: Haskell 98 Binding Module
 --
--- Completion functionality for the Entry widget.
+--  Completion functionality for the Entry widget.
 --
--- Added in GTK+ 2.4
+--  Added in GTK+ 2.4
 --
 
 module EntryCompletion (

@@ -1,5 +1,5 @@
--- |GIMP Toolkit (GTK) Binding for Haskell: binding to GConf   -*-haskell-*-
---    for storing and retrieving configuartion information
+-- -*-haskell-*-
+-- |GIMP Toolkit (GTK) @entry Widget Expander@
 --
 --  Author : Duncan Coutts
 --  Created: 24 April 2004

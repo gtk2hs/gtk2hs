@@ -5,6 +5,11 @@
 
 	* glade/Glade.chs: fix lib prefix
 
+	* gtk/entry/EntryCompletion.chs,
+	* gtk/layout/Expander.chs,
+	* gtk/menuComboToolbar/ComboBoxEntry.chs,
+	* gtk/menuComboToolbar/ComboBox.chs: fix descriptions in headers
+
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Makefile: use standard $(CPP) variable
