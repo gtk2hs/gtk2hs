@@ -194,7 +194,9 @@ MOSTLYCLEANFILES+= $(am_tools_c2hs_c2hsLocal_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
 CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)
 DISTCLEANFILES+= tools_c2hs_c2hsLocal.deps
+ifneq ($(MAKECMDGOALS),clean)
 -include tools_c2hs_c2hsLocal.deps
+ endif
 
 #
 #	gtk package
@@ -389,7 +391,9 @@ MOSTLYCLEANFILES+ = $(libHSgtk_a_HSFILES:.hs=.hi)
 CLEANFILES+= $(libHSgtk_a_BUILDSOURCES)
 
 DISTCLEANFILES+= libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+ifneq ($(MAKECMDGOALS),clean)
 -include libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+ endif
 
 #
 #	mogul package
@@ -426,7 +430,9 @@ MOSTLYCLEANFILES+ = $(am_libHSmogul_a_OBJECTS)
 MOSTLYCLEANFILES+ = $(libHSmogul_a_HSFILES:.hs=.hi)
 
 DISTCLEANFILES+= libHSmogul_a.deps
+ifneq ($(MAKECMDGOALS),clean)
 -include libHSmogul_a.deps
+ endif
 
 #
 #	glade package
@@ -479,7 +485,9 @@ MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
 CLEANFILES += $(libHSglade_a_BUILDSOURCES) 
 
 DISTCLEANFILES+= libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
+ifneq ($(MAKECMDGOALS),clean)
 -include libHSglade_a.deps $(libHSglade_a_CHSFILES:.chs=.dep)
+ endif
 
 #
 #	gconf package
@@ -536,7 +544,10 @@ MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
 CLEANFILES += $(libHSgconf_a_BUILDSOURCES) 
 
 DISTCLEANFILES+= libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
+
+ifneq ($(MAKECMDGOALS),clean)
 -include libHSgconf_a.deps $(libHSgconf_a_CHSFILES:.chs=.dep)
+ endif
 
 #
 #	sourceview package
@@ -600,7 +611,10 @@ MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
 CLEANFILES += $(libHSsourceview_a_BUILDSOURCES) 
 
 DISTCLEANFILES+= libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
+
+ifneq ($(MAKECMDGOALS),clean)
 -include libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES:.chs=.dep)
+ endif
 
 
 # All generated source files go here.

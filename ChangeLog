@@ -1,3 +1,8 @@
+2004-12-12 Axel Simon <A.Simon@kent.ac.uk> 
+
+	* Makefile.am, mk/common.mk: Avoid building dependencies when
+	saying "make clean".
+
 2004-12-9  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/embedding/Embedding.hsc, gtk/entry/EntryCompletion.chs.pp,
