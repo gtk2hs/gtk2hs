@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/04 01:24:10 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -27,7 +27,7 @@
 -- Collection of tags that can be used together
 --
 module Graphics.UI.Gtk.Multiline.TextTagTable (
--- * Description
+-- * Detail
 -- 
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
@@ -72,8 +72,8 @@ import System.Glib.GObject	(makeNewGObject)
 --
 textTagTableNew :: IO TextTagTable
 textTagTableNew =
-  makeNewGObject mkTextTagTable $ 
-  {#call unsafe text_tag_table_new#}
+  makeNewGObject mkTextTagTable $
+  {# call unsafe text_tag_table_new #}
 
 --------------------
 -- Methods
@@ -84,35 +84,46 @@ textTagTableNew =
 -- The tag must not be in a tag table already, and may not have the same name as
 -- an already-added tag.
 --
-textTagTableAdd :: TextTagTableClass obj => obj -> TextTag -> IO ()
-textTagTableAdd obj tag =
-  {#call text_tag_table_add#} (toTextTagTable obj) tag
+textTagTableAdd :: (TextTagTableClass self, TextTagClass tag) => self -> tag -> IO ()
+textTagTableAdd self tag =
+  {# call text_tag_table_add #}
+    (toTextTagTable self)
+    (toTextTag tag)
 
 -- | Remove a tag from the table.
 --
-textTagTableRemove :: TextTagTableClass obj => obj -> TextTag -> IO ()
-textTagTableRemove obj tag =
-  {#call text_tag_table_remove#} (toTextTagTable obj) tag
+textTagTableRemove :: (TextTagTableClass self, TextTagClass tag) => self -> tag -> IO ()
+textTagTableRemove self tag =
+  {# call text_tag_table_remove #}
+    (toTextTagTable self)
+    (toTextTag tag)
 
 -- | Look up a named tag.
 --
-textTagTableLookup :: TextTagTableClass obj => obj
-                   -> String -> IO (Maybe TextTag)
-textTagTableLookup obj name =
-  withCString name $ \strPtr -> do
-  tagPtr <- {#call unsafe text_tag_table_lookup#} (toTextTagTable obj) strPtr
-  if tagPtr == nullPtr then return Nothing else liftM Just $
-    makeNewGObject mkTextTag (return tagPtr)
+textTagTableLookup :: TextTagTableClass self => self
+ -> String             -- ^ @name@ - name of a tag
+ -> IO (Maybe TextTag) -- ^ returns The tag, or @Nothing@ if none by that name
+                       -- is in the table.
+textTagTableLookup self name =
+  maybeNull (makeNewGObject mkTextTag) $
+  withCString name $ \namePtr ->
+  {# call unsafe text_tag_table_lookup #}
+    (toTextTagTable self)
+    namePtr
 
--- | Calls func on each tag in table.
+-- | Maps over each tag in the table.
 --
-textTagTableForeach :: TextTagTableClass obj => obj
-                    -> (TextTag -> IO ()) -> IO ()
-textTagTableForeach obj func = do
+textTagTableForeach :: TextTagTableClass self => self
+ -> (TextTag -> IO ())
+ -> IO ()
+textTagTableForeach self func = do
   funcPtr <- mkTextTagTableForeach (\tagPtr _ -> do
     tag <- makeNewGObject mkTextTag (return tagPtr)
     func tag)
-  {#call text_tag_table_foreach#} (toTextTagTable obj) funcPtr nullPtr
+  {# call text_tag_table_foreach #}
+    (toTextTagTable self)
+    funcPtr
+    nullPtr
 
 {#pointer TextTagTableForeach#}
 
@@ -121,6 +132,8 @@ foreign import ccall "wrapper" mkTextTagTableForeach ::
 
 -- | Returns the size of the table (the number of tags).
 --
-textTagTableGetSize :: TextTagTableClass obj => obj -> IO Int
-textTagTableGetSize obj = liftM fromIntegral $
-  {#call unsafe text_tag_table_get_size#} (toTextTagTable obj)
+textTagTableGetSize :: TextTagTableClass self => self -> IO Int
+textTagTableGetSize self =
+  liftM fromIntegral $
+  {# call unsafe text_tag_table_get_size #}
+    (toTextTagTable self)

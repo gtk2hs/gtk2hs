@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:35 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/04 01:24:09 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -176,433 +176,643 @@ import Graphics.UI.Gtk.Multiline.TextTag	(TextTag, TagName)
 --------------------
 -- Constructors
 
--- | Create a new text buffer, possibly taking a
--- table of 'TextTag'.
+-- | Creates a new text buffer.
 --
-textBufferNew :: Maybe TextTagTable -> IO TextBuffer
-textBufferNew tt = makeNewGObject mkTextBuffer $ liftM castPtr $
-  {#call unsafe text_buffer_new#} 
-  (fromMaybe (mkTextTagTable nullForeignPtr) tt)
+textBufferNew :: TextTagTableClass table => 
+    Maybe table   -- ^ @table@ - a tag table, or @Nothing@ to create a new one
+ -> IO TextBuffer
+textBufferNew table =
+  makeNewGObject mkTextBuffer $
+  {# call unsafe text_buffer_new #}
+    (maybe (TextTagTable nullForeignPtr) toTextTagTable table)
 
 --------------------
 -- Methods
 
--- | Obtain the number of lines in the buffer.
+-- | Obtains the number of lines in the buffer. This value is cached, so the
+-- function is very fast.
 --
-textBufferGetLineCount :: TextBufferClass tb => tb -> IO Int
-textBufferGetLineCount tb = liftM fromIntegral $ 
-  {#call unsafe text_buffer_get_line_count#} (toTextBuffer tb)
+textBufferGetLineCount :: TextBufferClass self => self -> IO Int
+textBufferGetLineCount self =
+  liftM fromIntegral $
+  {# call unsafe text_buffer_get_line_count #}
+    (toTextBuffer self)
 
--- | Obtain the number of characters in the
--- buffer.
+-- | Gets the number of characters in the buffer. The character count is
+-- cached, so this function is very fast.
 --
--- * Note that the comment in the Gtk+ documentation about bytes and chars
---   does not hold because Haskell uses 31-bit characters and not UTF8.
---
-textBufferGetCharCount :: TextBufferClass tb => tb -> IO Int
-textBufferGetCharCount tb = liftM fromIntegral $
-  {#call unsafe text_buffer_get_char_count#} (toTextBuffer tb)
+textBufferGetCharCount :: TextBufferClass self => self -> IO Int
+textBufferGetCharCount self =
+  liftM fromIntegral $
+  {# call unsafe text_buffer_get_char_count #}
+    (toTextBuffer self)
 
--- | Extract the tag table that is associated
--- with this text buffer.
+-- | Get the 'TextTagTable' associated with this buffer.
 --
-textBufferGetTagTable :: TextBufferClass tb => tb -> IO TextTagTable
-textBufferGetTagTable tb = makeNewGObject mkTextTagTable $ liftM castPtr $
-  {#call unsafe text_buffer_get_tag_table#} (toTextBuffer tb)
+textBufferGetTagTable :: TextBufferClass self => self -> IO TextTagTable
+textBufferGetTagTable self =
+  makeNewGObject mkTextTagTable $
+  {# call unsafe text_buffer_get_tag_table #}
+    (toTextBuffer self)
 
--- | Insert text at the position specified by the
--- 'TextIter'.
+-- | Inserts @text@ at position @iter@. Emits the
+-- \"insert_text\" signal; insertion actually occurs in the default handler for
+-- the signal. @iter@ is invalidated when insertion occurs (because the buffer
+-- contents change).
 --
-textBufferInsert :: TextBufferClass tb => tb -> TextIter -> String -> IO ()
-textBufferInsert tb iter str = withUTFStringLen str $ \(cStr, len) ->
-  {#call text_buffer_insert#} (toTextBuffer tb) iter cStr (fromIntegral len)
-
--- | Insert text at the cursor.
---
-textBufferInsertAtCursor :: TextBufferClass tb => tb -> String -> IO ()
-textBufferInsertAtCursor tb str = withUTFStringLen str $ \(cStr, len) ->
-  {#call text_buffer_insert_at_cursor#} (toTextBuffer tb) cStr
+textBufferInsert :: TextBufferClass self => self
+ -> TextIter -- ^ @iter@ - a position in the buffer
+ -> String   -- ^ @text@ - text to insert
+ -> IO ()
+textBufferInsert self iter text =
+  withUTFStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_insert #}
+    (toTextBuffer self)
+    iter
+    textPtr
     (fromIntegral len)
 
--- | Insert text at the 'TextIter'
--- only if a normal user would be able to do so as well.
+-- | Simply calls 'textBufferInsert', using the current cursor position as the
+-- insertion point.
 --
--- * Insert the text obeying special editable or non-editable Tags.
---
--- * If no tag is at the specified position, use the default value
---   @def@ to decide if the text should be inserted. This value could
---   be set to the result of 'textViewGetEditable'.
---
-textBufferInsertInteractive :: TextBufferClass tb => tb -> TextIter ->
-						     String -> Bool ->
-                               			     IO Bool
-textBufferInsertInteractive tb iter str def = withUTFStringLen str $ 
-  \(cStr, len) -> liftM toBool $ {#call text_buffer_insert_interactive#} 
-    (toTextBuffer tb) iter cStr (fromIntegral len) (fromBool def)
+textBufferInsertAtCursor :: TextBufferClass self => self -> String -> IO ()
+textBufferInsertAtCursor self text =
+  withUTFStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_insert_at_cursor #}
+    (toTextBuffer self)
+    textPtr
+    (fromIntegral len)
 
--- | Insert text at cursor only if
--- a normal user would be able to do so as well.
+-- | Like 'textBufferInsert', but the insertion will not occur if @iter@ is at
+-- a non-editable location in the buffer. Usually you want to prevent
+-- insertions at ineditable locations if the insertion results from a user
+-- action (is interactive).
 --
-textBufferInsertInteractiveAtCursor :: TextBufferClass tb => tb -> String ->
-							     Bool -> IO Bool
-textBufferInsertInteractiveAtCursor tb str def = withUTFStringLen str $ 
-  \(cStr, len) -> liftM toBool $ 
-  {#call text_buffer_insert_interactive_at_cursor #} (toTextBuffer tb) cStr 
-    (fromIntegral len) (fromBool def)
+-- If no tag is at the specified position, use the default value @def@ to
+-- decide if the text should be inserted. This value could be set to the result
+-- of 'textViewGetEditable'.
+--
+textBufferInsertInteractive :: TextBufferClass self => self
+ -> TextIter -- ^ @iter@ - a position in @buffer@
+ -> String   -- ^ @text@ - the text to insert
+ -> Bool     -- ^ @defaultEditable@ - default editability of buffer
+ -> IO Bool  -- ^ returns whether text was actually inserted
+textBufferInsertInteractive self iter text defaultEditable =
+  liftM toBool $
+  withUTFStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_insert_interactive #}
+    (toTextBuffer self)
+    iter
+    textPtr
+    (fromIntegral len)
+    (fromBool defaultEditable)
 
--- | Copy text between the two
--- 'TextIter' @start@ and @end@ to another location
--- @ins@.
+-- | Calls 'textBufferInsertInteractive' at the cursor position.
 --
+textBufferInsertInteractiveAtCursor :: TextBufferClass self => self
+ -> String  -- ^ @text@ - the text to insert
+ -> Bool    -- ^ @defaultEditable@ - default editability of buffer
+ -> IO Bool -- ^ returns whether text was actually inserted
+textBufferInsertInteractiveAtCursor self text defaultEditable =
+  liftM toBool $
+  withUTFStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_insert_interactive_at_cursor #}
+    (toTextBuffer self)
+    textPtr
+    (fromIntegral len)
+    (fromBool defaultEditable)
 
+-- | Copies text, tags, and pixbufs between @start@ and @end@ (the order of
+-- @start@ and @end@ doesn't matter) and inserts the copy at @iter@. Used
+-- instead of simply getting\/inserting text because it preserves images and
+-- tags. If @start@ and @end@ are in a different buffer from @buffer@, the two
+-- buffers must share the same tag table.
 --
-textBufferInsertRange :: TextBufferClass tb => tb -> TextIter -> TextIter ->
-					       TextIter -> IO ()
-textBufferInsertRange tb ins start end = {#call text_buffer_insert_range#}
-  (toTextBuffer tb) ins start end
+-- Implemented via emissions of the insert-text and apply-tag signals, so
+-- expect those.
+--
+textBufferInsertRange :: TextBufferClass self => self
+ -> TextIter -- ^ @iter@ - a position in the buffer
+ -> TextIter -- ^ @start@ - a position in a 'TextBuffer'
+ -> TextIter -- ^ @end@ - another position in the same buffer as @start@
+ -> IO ()
+textBufferInsertRange self iter start end =
+  {# call text_buffer_insert_range #}
+    (toTextBuffer self)
+    iter
+    start
+    end
 
--- | Copy text as
--- 'textBufferInsertRange' does, but obey editable and non-editable
--- tags.
+-- | Same as 'textBufferInsertRange', but does nothing if the insertion point
+-- isn't editable. The @defaultEditable@ parameter indicates whether the text
+-- is editable at @iter@ if no tags enclosing @iter@ affect editability.
+-- Typically the result of 'textViewGetEditable' is appropriate here.
 --
--- * Insert the text obeying special editable or non-editable Tags.
---
--- * If no tag is at the specified position, use the default value
---   @def@ to decide if the text should be inserted. This value could
---   be set to the result of 'textViewGetEditable'.
---
-textBufferInsertRangeInteractive :: TextBufferClass tb => tb -> TextIter ->
-				    TextIter -> TextIter -> Bool -> IO Bool
-textBufferInsertRangeInteractive tb ins start end def = liftM toBool $
-  {#call text_buffer_insert_range_interactive#} (toTextBuffer tb) ins start
-    end (fromBool def)
+textBufferInsertRangeInteractive :: TextBufferClass self => self
+ -> TextIter -- ^ @iter@ - a position in the buffer
+ -> TextIter -- ^ @start@ - a position in a 'TextBuffer'
+ -> TextIter -- ^ @end@ - another position in the same buffer as @start@
+ -> Bool     -- ^ @defaultEditable@ - default editability of the buffer
+ -> IO Bool  -- ^ returns whether an insertion was possible at @iter@
+textBufferInsertRangeInteractive self iter start end defaultEditable =
+  liftM toBool $
+  {# call text_buffer_insert_range_interactive #}
+    (toTextBuffer self)
+    iter
+    start
+    end
+    (fromBool defaultEditable)
 
+-- | Deletes text between @start@ and @end@. The order of @start@ and @end@ is
+-- not actually relevant; 'textBufferDelete' will reorder them. This function
+-- actually emits the \"delete_range\" signal, and the default handler of that
+-- signal deletes the text. Because the buffer is modified, all outstanding
+-- iterators become invalid after calling this function; however, the @start@
+-- and @end@ will be re-initialized to point to the location where text was
+-- deleted.
+--
+textBufferDelete :: TextBufferClass self => self
+ -> TextIter -- ^ @start@ - a position in @buffer@
+ -> TextIter -- ^ @end@ - another position in @buffer@
+ -> IO ()
+textBufferDelete self start end =
+  {# call text_buffer_delete #}
+    (toTextBuffer self)
+    start
+    end
 
--- | Delete some text.
+-- | Deletes all /editable/ text in the given range. Calls 'textBufferDelete'
+-- for each editable sub-range of [@start@,@end@). @start@ and @end@ are
+-- revalidated to point to the location of the last deleted range, or left
+-- untouched if no text was deleted.
 --
-textBufferDelete :: TextBufferClass tb => tb -> TextIter -> TextIter -> IO ()
-textBufferDelete tb start end = {#call text_buffer_delete#} (toTextBuffer tb)
-				start end
+textBufferDeleteInteractive :: TextBufferClass self => self
+ -> TextIter -- ^ @startIter@ - start of range to delete
+ -> TextIter -- ^ @endIter@ - end of range
+ -> Bool     -- ^ @defaultEditable@ - whether the buffer is editable by
+             -- default
+ -> IO Bool  -- ^ returns whether some text was actually deleted
+textBufferDeleteInteractive self startIter endIter defaultEditable =
+  liftM toBool $
+  {# call text_buffer_delete_interactive #}
+    (toTextBuffer self)
+    startIter
+    endIter
+    (fromBool defaultEditable)
 
--- | Delete some text but obey editable and
--- non-editable tags.
+-- | Deletes current contents of @buffer@, and inserts @text@ instead.
 --
-textBufferDeleteInteractive :: TextBufferClass tb => tb -> TextIter ->
-						     TextIter -> Bool ->
-                               			     IO Bool
-textBufferDeleteInteractive tb start end def = liftM toBool $
-  {#call text_buffer_delete_interactive#} (toTextBuffer tb) start end
-    (fromBool def)
+textBufferSetText :: TextBufferClass self => self
+ -> String -- ^ @text@ - text to insert
+ -> IO ()
+textBufferSetText self text =
+  withUTFStringLen text $ \(textPtr, len) ->
+  {# call text_buffer_set_text #}
+    (toTextBuffer self)
+    textPtr
+    (fromIntegral len)
 
--- | Replace the text in the current
--- 'TextBuffer'.
+-- | Returns the text in the range [@start@,@end@). Excludes undisplayed text
+-- (text marked with tags that set the invisibility attribute) if
+-- @includeHiddenChars@ is @False@. Does not include characters representing
+-- embedded images, so character indexes into the returned string do
+-- /not/ correspond to character indexes into the buffer. Contrast
+-- with 'textBufferGetSlice'.
 --
-textBufferSetText :: TextBufferClass tb => tb -> String -> IO ()
-textBufferSetText tb str = withUTFStringLen str $ \(cStr, len) ->
-  {#call text_buffer_set_text#} (toTextBuffer tb) cStr (fromIntegral len)
+textBufferGetText :: TextBufferClass self => self
+ -> TextIter  -- ^ @start@ - start of a range
+ -> TextIter  -- ^ @end@ - end of a range
+ -> Bool      -- ^ @includeHiddenChars@ - whether to include invisible text
+ -> IO String
+textBufferGetText self start end includeHiddenChars =
+  {# call unsafe text_buffer_get_text #}
+    (toTextBuffer self)
+    start
+    end
+    (fromBool includeHiddenChars)
+  >>= readUTFString
 
--- | Extract all the text between @start@ and
--- @end@ from a 'TextBuffer'.
+-- | Returns the text in the range [@start@,@end@). Excludes undisplayed text
+-- (text marked with tags that set the invisibility attribute) if
+-- @includeHiddenChars@ is @False@. The returned string includes a
+-- @(chr 0xFFFC)@ character whenever the buffer contains embedded images, so
+-- character indexes into the returned string /do/ correspond to
+-- character indexes into the buffer. Contrast with 'textBufferGetText'. Note
+-- that @(chr 0xFFFC)@ can occur in normal text as well, so it is not a reliable
+-- indicator that a pixbuf or widget is in the buffer.
 --
--- * The @start@ position is included, @end@ is not.
---
--- * If @incl@ is True, text tagged with the invisible attribute is
---   also returned.
---
--- * Characters representing embedded images are not included. (So offsets
---   within the returned text are different from the Buffer itself.)
---
-textBufferGetText :: TextBufferClass tb => tb -> TextIter -> TextIter -> 
-					   Bool -> IO String
-textBufferGetText tb start end incl = {#call unsafe text_buffer_get_text#} 
-  (toTextBuffer tb) start end (fromBool incl) >>= peekUTFString
+textBufferGetSlice :: TextBufferClass self => self
+ -> TextIter  -- ^ @start@ - start of a range
+ -> TextIter  -- ^ @end@ - end of a range
+ -> Bool      -- ^ @includeHiddenChars@ - whether to include invisible text
+ -> IO String
+textBufferGetSlice self start end includeHiddenChars =
+  {# call unsafe text_buffer_get_slice #}
+    (toTextBuffer self)
+    start
+    end
+    (fromBool includeHiddenChars)
+  >>= readUTFString
 
--- | Extract text and special characters between
--- @start@ and @end@.
+-- | Inserts an image into the text buffer at @iter@. The image will be
+-- counted as one character in character counts, and when obtaining the buffer
+-- contents as a string, will be represented by the Unicode \"object
+-- replacement character\" @(chr 0xFFFC)@. Note that the \"slice\" variants for
+-- obtaining portions of the buffer as a string include this character for
+-- pixbufs, but the \"text\" variants do not. e.g. see 'textBufferGetSlice' and
+-- 'textBufferGetText'.
 --
--- * As opposed to 'textBufferGetText', this function returns 
---   @(chr 0xFFFC)@ for images, so offsets within the returned 
---   string correspond to offsets in the 'TextBuffer'. Note the
---   @(chr 0xFFFC)@ can occur in normal text without images as well.
---
-textBufferGetSlice :: TextBufferClass tb => tb -> TextIter -> TextIter ->
-					    Bool -> IO String
-textBufferGetSlice tb start end incl = {#call unsafe text_buffer_get_slice#}
-  (toTextBuffer tb) start end (fromBool incl) >>= peekUTFString
+textBufferInsertPixbuf :: TextBufferClass self => self
+ -> TextIter -- ^ @iter@ - location to insert the pixbuf
+ -> Pixbuf   -- ^ @pixbuf@ - a 'Pixbuf'
+ -> IO ()
+textBufferInsertPixbuf self iter pixbuf =
+  {# call text_buffer_insert_pixbuf #}
+    (toTextBuffer self)
+    iter
+    pixbuf
 
--- | Insert an image into the
--- 'TextBuffer'.
+-- | Creates a mark at position @where@. If @markName@ is @Nothing@, the mark
+-- is anonymous; otherwise, the mark can be retrieved by name using
+-- 'textBufferGetMark'. If a mark has left gravity, and text is inserted at the
+-- mark's current location, the mark will be moved to the left of the
+-- newly-inserted text. If the mark has right gravity (@leftGravity@ =
+-- @False@), the mark will end up on the right of newly-inserted text. The
+-- standard left-to-right cursor is a mark with right gravity (when you type,
+-- the cursor stays on the right side of the text you're typing).
 --
--- * See 'textBufferGetSlice' and 'textBufferGetText'.
+-- Emits the \"mark_set\" signal as notification of the mark's initial
+-- placement.
 --
-textBufferInsertPixbuf :: TextBufferClass tb => tb -> TextIter -> Pixbuf ->
-						IO ()
-textBufferInsertPixbuf tb pos img = 
-  {#call text_buffer_insert_pixbuf#} (toTextBuffer tb) pos img
+textBufferCreateMark :: TextBufferClass self => self
+ -> Maybe MarkName -- ^ @markName@ - name for mark, or @Nothing@
+ -> TextIter     -- ^ @where@ - location to place mark
+ -> Bool         -- ^ @leftGravity@ - whether the mark has left gravity
+ -> IO TextMark  -- ^ returns the new 'TextMark' object
+textBufferCreateMark self markName where_ leftGravity =
+  makeNewGObject mkTextMark $
+  maybeWith withUTFString markName $ \markNamePtr ->
+  {# call unsafe text_buffer_create_mark #}
+    (toTextBuffer self)
+    markNamePtr
+    where_
+    (fromBool leftGravity)
 
--- | Create a 'TextMark' from an
--- iterator.
+-- | Moves @mark@ to the new location @where@. Emits the \"mark_set\" signal
+-- as notification of the move.
 --
--- * Pass @Nothing@ as mark name for an anonymous 
---   'TextMark'.
---
--- * Set @gravity@ to True if the mark should keep left.
---
-textBufferCreateMark :: TextBufferClass tb => tb -> Maybe MarkName -> 
-					      TextIter -> Bool ->
-                        		      IO TextMark
-textBufferCreateMark tb Nothing iter gravity = makeNewGObject mkTextMark $
-  {#call unsafe text_buffer_create_mark#} (toTextBuffer tb) nullPtr iter
-    (fromBool gravity)
-textBufferCreateMark tb (Just name) iter gravity = 
-  makeNewGObject mkTextMark $ withUTFString name $ \cStr ->
-  {#call unsafe text_buffer_create_mark#} (toTextBuffer tb) cStr iter
-    (fromBool gravity)
+textBufferMoveMark :: (TextBufferClass self, TextMarkClass mark) => self
+ -> mark     -- ^ @mark@ - a 'TextMark'
+ -> TextIter -- ^ @where@ - new location for @mark@ in the buffer
+ -> IO ()
+textBufferMoveMark self mark where_ =
+  {# call text_buffer_move_mark #}
+    (toTextBuffer self)
+    (toTextMark mark)
+    where_
 
--- | Move a mark.
+-- | Moves the mark named @name@ (which must exist) to location @where@. See
+-- 'textBufferMoveMark' for details.
 --
--- * Emits \"mark_set\".
---
-textBufferMoveMark :: TextBufferClass tb => tb -> TextMark -> TextIter -> IO ()
-textBufferMoveMark tb tm iter =
-  {#call text_buffer_move_mark#} (toTextBuffer tb) tm iter
+textBufferMoveMarkByName :: TextBufferClass self => self
+ -> MarkName   -- ^ @name@ - name of a mark
+ -> TextIter -- ^ @where@ - new location for mark
+ -> IO ()
+textBufferMoveMarkByName self name where_ =
+  withUTFString name $ \namePtr ->
+  {# call text_buffer_move_mark_by_name #}
+    (toTextBuffer self)
+    namePtr
+    where_
 
--- | Move a named mark.
+-- | Deletes @mark@, so that it's no longer located anywhere in the buffer.
+-- Most operations on @mark@ become invalid. There is no way to undelete a
+-- mark. 'textMarkGetDeleted' will return @True@ after this function has been
+-- called on a mark; 'textMarkGetDeleted' indicates that a mark no longer
+-- belongs to a buffer. The \"mark_deleted\" signal will be emitted as
+-- notification after the mark is deleted.
 --
--- * The mark should exist (otherwise a nasty warning is generated).
---
-textBufferMoveMarkByName :: TextBufferClass tb => tb -> MarkName ->
-						  TextIter -> IO ()
-textBufferMoveMarkByName tb name iter = withUTFString name $ \cStr ->
-  {#call text_buffer_move_mark_by_name#} (toTextBuffer tb) cStr iter
+textBufferDeleteMark :: (TextBufferClass self, TextMarkClass mark) => self
+ -> mark  -- ^ @mark@ - a 'TextMark' in the buffer
+ -> IO ()
+textBufferDeleteMark self mark =
+  {# call text_buffer_delete_mark #}
+    (toTextBuffer self)
+    (toTextMark mark)
 
--- | Delete a mark.
+-- | Deletes the mark named @name@; the mark must exist. See
+-- 'textBufferDeleteMark' for details.
 --
--- * This renders the 'TextMark' @tm@ unusable forever.
---
-textBufferDeleteMark :: TextBufferClass tb => tb -> TextMark -> IO ()
-textBufferDeleteMark tb tm =
-  {#call text_buffer_delete_mark#} (toTextBuffer tb) tm
+textBufferDeleteMarkByName :: TextBufferClass self => self
+ -> MarkName -- ^ @name@ - name of a mark in @buffer@
+ -> IO ()
+textBufferDeleteMarkByName self name =
+  withUTFString name $ \namePtr ->
+  {# call text_buffer_delete_mark_by_name #}
+    (toTextBuffer self)
+    namePtr
 
--- | Delete a mark by name.
+-- | Returns the mark named @name@ in the buffer, or @Nothing@ if no such
+-- mark exists in the buffer.
 --
--- * The mark should exist (otherwise a nasty warning is generated).
---
-textBufferDeleteMarkByName :: TextBufferClass tb => tb -> MarkName -> IO ()
-textBufferDeleteMarkByName tb name = withUTFString name $ \cStr ->
-  {#call text_buffer_delete_mark_by_name#} (toTextBuffer tb) cStr
+textBufferGetMark :: TextBufferClass self => self
+ -> MarkName            -- ^ @name@ - a mark name
+ -> IO (Maybe TextMark) -- ^ returns a 'TextMark', or @Nothing@
+textBufferGetMark self name =
+  maybeNull (makeNewGObject mkTextMark) $
+  withUTFString name $ \namePtr ->
+  {# call unsafe text_buffer_get_mark #}
+    (toTextBuffer self)
+    namePtr
 
--- | Retrieve a 'TextMark' by name.
+-- | Returns the mark that represents the cursor (insertion point). Equivalent
+-- to calling @liftM fromJust $ textBufferGetMark \"insert\"@, but very
+-- slightly more efficient, and involves less typing.
 --
-textBufferGetMark :: TextBufferClass tb => tb -> MarkName ->
-					   IO (Maybe TextMark)
-textBufferGetMark tb name = do
-  tm <- withUTFString name $ \cStr -> 
-    {#call unsafe text_buffer_get_mark#} (toTextBuffer tb) cStr
-  if tm==nullPtr then return Nothing else liftM Just $
-    makeNewGObject mkTextMark (return tm)
+textBufferGetInsert :: TextBufferClass self => self -> IO TextMark
+textBufferGetInsert self =
+  makeNewGObject mkTextMark $
+  {# call unsafe text_buffer_get_insert #}
+    (toTextBuffer self)
 
--- | Get the current cursor position.
+-- | Returns the mark that represents the selection bound. Equivalent to
+-- calling @liftM fromJust $ textBufferGetMark \"selection_bound\"@, but
+-- very slightly more efficient, and involves less typing.
 --
--- * This is equivalent to liftM unJust $ textBufferGetMark \"insert\"
+-- The currently-selected text in @buffer@ is the region between the
+-- \"selection_bound\" and \"insert\" marks. If \"selection_bound\" and
+-- \"insert\" are in the same place, then there is no current selection.
+-- 'textBufferGetSelectionBounds' is another convenient function for handling
+-- the selection, if you just want to know whether there's a selection and what
+-- its bounds are.
 --
-textBufferGetInsert :: TextBufferClass tb => tb -> IO TextMark
-textBufferGetInsert tb = makeNewGObject mkTextMark $
-  {#call unsafe text_buffer_get_insert#} (toTextBuffer tb)
+textBufferGetSelectionBound :: TextBufferClass self => self -> IO TextMark
+textBufferGetSelectionBound self =
+  makeNewGObject mkTextMark $
+  {# call unsafe text_buffer_get_selection_bound #}
+    (toTextBuffer self)
 
--- | Get a 'TextMark' for the
--- other side of a selection.
+-- | This function moves the \"insert\" and \"selection_bound\" marks
+-- simultaneously. If you move them to the same place in two steps with
+-- 'textBufferMoveMark', you will temporarily select a region in between their
+-- old and new locations, which can be pretty inefficient since the
+-- temporarily-selected region will force stuff to be recalculated. This
+-- function moves them as a unit, which can be optimized.
 --
-textBufferGetSelectionBound :: TextBufferClass tb => tb -> IO TextMark
-textBufferGetSelectionBound tb = makeNewGObject mkTextMark $
-  {#call unsafe text_buffer_get_selection_bound#} (toTextBuffer tb)
+textBufferPlaceCursor :: TextBufferClass self => self
+ -> TextIter -- ^ @where@ - where to put the cursor
+ -> IO ()
+textBufferPlaceCursor self where_ =
+  {# call text_buffer_place_cursor #}
+    (toTextBuffer self)
+    where_
 
--- | Place the cursor.
+-- | Emits the \"apply_tag\" signal on the buffer. The default handler for the
+-- signal applies @tag@ to the given range. @start@ and @end@ do not have to be
+-- in order.
 --
--- * This is faster than moving the \"insert\" and the \"selection_bound\" marks
---   in sequence since it avoids generating a transient selection.
---
-textBufferPlaceCursor :: TextBufferClass tb => tb -> TextIter -> IO ()
-textBufferPlaceCursor tb iter =
-  {#call text_buffer_place_cursor#} (toTextBuffer tb) iter
+textBufferApplyTag :: (TextBufferClass self, TextTagClass tag) => self
+ -> tag      -- ^ @tag@ - a 'TextTag'
+ -> TextIter -- ^ @start@ - one bound of range to be tagged
+ -> TextIter -- ^ @end@ - other bound of range to be tagged
+ -> IO ()
+textBufferApplyTag self tag start end =
+  {# call text_buffer_apply_tag #}
+    (toTextBuffer self)
+    (toTextTag tag)
+    start
+    end
 
--- | Tag a range of text.
+-- | Emits the \"remove_tag\" signal. The default handler for the signal
+-- removes all occurrences of @tag@ from the given range. @start@ and @end@
+-- don't have to be in order.
 --
-textBufferApplyTag :: TextBufferClass tb => tb -> TextTag -> TextIter ->
-						  TextIter -> IO ()
-textBufferApplyTag tb tag start end = 
-  {#call text_buffer_apply_tag#} (toTextBuffer tb) tag start end
+textBufferRemoveTag :: (TextBufferClass self, TextTagClass tag) => self
+ -> tag      -- ^ @tag@ - a 'TextTag'
+ -> TextIter -- ^ @start@ - one bound of range to be untagged
+ -> TextIter -- ^ @end@ - other bound of range to be untagged
+ -> IO ()
+textBufferRemoveTag self tag start end =
+  {# call text_buffer_remove_tag #}
+    (toTextBuffer self)
+    (toTextTag tag)
+    start
+    end
 
--- | Remove a tag from a range of text.
+-- | Calls 'textTagTableLookup' on the buffer's tag table to get a 'TextTag',
+-- then calls 'textBufferApplyTag'.
 --
-textBufferRemoveTag :: TextBufferClass tb => tb -> TextTag -> TextIter ->
-					     TextIter -> IO ()
-textBufferRemoveTag tb tag start end =
-  {#call text_buffer_remove_tag#} (toTextBuffer tb) tag start end
+textBufferApplyTagByName :: TextBufferClass self => self
+ -> TagName  -- ^ @name@ - name of a named 'TextTag'
+ -> TextIter -- ^ @start@ - one bound of range to be tagged
+ -> TextIter -- ^ @end@ - other bound of range to be tagged
+ -> IO ()
+textBufferApplyTagByName self name start end =
+  withUTFString name $ \namePtr ->
+  {# call text_buffer_apply_tag_by_name #}
+    (toTextBuffer self)
+    namePtr
+    start
+    end
 
--- | Apply a tag that is specified by name.
+-- | Calls 'textTagTableLookup' on the buffer's tag table to get a 'TextTag',
+-- then calls 'textBufferRemoveTag'.
 --
-textBufferApplyTagByName :: TextBufferClass tb => tb -> TagName ->
-		      				  TextIter -> TextIter ->
-                            			  IO () 
-textBufferApplyTagByName tb tname start end = withUTFString tname $ \cStr ->
-  {#call text_buffer_apply_tag_by_name#} (toTextBuffer tb) cStr start end
+textBufferRemoveTagByName :: TextBufferClass self => self
+ -> TagName  -- ^ @name@ - name of a 'TextTag'
+ -> TextIter -- ^ @start@ - one bound of range to be untagged
+ -> TextIter -- ^ @end@ - other bound of range to be untagged
+ -> IO ()
+textBufferRemoveTagByName self name start end =
+  withUTFString name $ \namePtr ->
+  {# call text_buffer_remove_tag_by_name #}
+    (toTextBuffer self)
+    namePtr
+    start
+    end
 
--- | Remove a tag from a range of text.
+-- | Removes all tags in the range between @start@ and @end@. Be careful with
+-- this function; it could remove tags added in code unrelated to the code
+-- you\'re currently writing. That is, using this function is probably a bad
+-- idea if you have two or more unrelated code sections that add tags.
 --
-textBufferRemoveTagByName :: TextBufferClass tb => tb -> TagName -> 
-						   TextIter -> TextIter ->
-                             			   IO ()
-textBufferRemoveTagByName tb tname start end = withUTFString tname $ \cStr ->
-  {#call text_buffer_remove_tag_by_name#} (toTextBuffer tb) cStr start end
+textBufferRemoveAllTags :: TextBufferClass self => self
+ -> TextIter -- ^ @start@ - one bound of range to be untagged
+ -> TextIter -- ^ @end@ - other bound of range to be untagged
+ -> IO ()
+textBufferRemoveAllTags self start end =
+  {# call text_buffer_remove_all_tags #}
+    (toTextBuffer self)
+    start
+    end
 
--- | Remove all tags within a range.
--- 
--- * Be careful with this function; it could remove tags added in code
---   unrelated to the code you're currently writing. That is, using this
---   function is probably a bad idea if you have two or more unrelated code
---   sections that add tags.
+-- | Obtains an iterator pointing to @charOffset@ within the given line. The
+-- @charOffset@ must exist, offsets off the end of the line are not allowed.
 --
-
---
-textBufferRemoveAllTags :: TextBufferClass tb => tb -> TextIter -> 
-						 TextIter -> IO ()
-textBufferRemoveAllTags tb start end =
-  {#call text_buffer_remove_all_tags#} (toTextBuffer tb) start end
-
--- | Create an iterator at a specific
--- line and offset.
---
--- * The @line@ and @offset@ arguments must be valid.
---
-textBufferGetIterAtLineOffset :: TextBufferClass tb => tb -> Int -> Int -> 
-						       IO TextIter
-textBufferGetIterAtLineOffset tb line offset = do
+textBufferGetIterAtLineOffset :: TextBufferClass self => self
+ -> Int      -- ^ @lineNumber@ - line number counting from 0
+ -> Int      -- ^ @charOffset@ - char offset from start of line
+ -> IO TextIter
+textBufferGetIterAtLineOffset self lineNumber charOffset = do
   iter <- makeEmptyTextIter
-  {#call unsafe text_buffer_get_iter_at_line_offset#}
-    (toTextBuffer tb) iter (fromIntegral line) (fromIntegral offset)
+  {# call unsafe text_buffer_get_iter_at_line_offset #}
+    (toTextBuffer self)
+    iter
+    (fromIntegral lineNumber)
+    (fromIntegral charOffset)
   return iter
 
--- | Create an iterator at a specific offset.
+-- | Creates an iterator pointing to a position @charOffset@ chars from the
+-- start of the entire buffer. If @charOffset@ is -1 or greater than the number
+-- of characters in the buffer, the end iterator is returned, that is the
+-- iterator one past the last valid character in the buffer.
 --
--- * The @offset@ arguments must be valid, starting from the first
---   character in the buffer.
---
-textBufferGetIterAtOffset :: TextBufferClass tb => tb -> Int -> IO TextIter
-textBufferGetIterAtOffset tb offset = do
+textBufferGetIterAtOffset :: TextBufferClass self => self
+ -> Int      -- ^ @charOffset@ - char offset from start of buffer (counting
+             -- from 0) or -1
+ -> IO TextIter
+textBufferGetIterAtOffset self charOffset = do
   iter <- makeEmptyTextIter
-  {#call unsafe text_buffer_get_iter_at_offset#}
-    (toTextBuffer tb) iter (fromIntegral offset)
+  {# call unsafe text_buffer_get_iter_at_offset #}
+    (toTextBuffer self)
+    iter
+    (fromIntegral charOffset)
   return iter
   
 -- | Create an iterator at a specific line.
 --
--- * The @line@ arguments must be valid.
---
-textBufferGetIterAtLine :: TextBufferClass tb => Int -> tb -> IO TextIter
-textBufferGetIterAtLine line tb = do
+textBufferGetIterAtLine :: TextBufferClass self =>
+    Int      -- ^ @lineNumber@ - line number counting from 0
+ -> self
+ -> IO TextIter
+textBufferGetIterAtLine lineNumber self = do
   iter <- makeEmptyTextIter
-  {#call unsafe text_buffer_get_iter_at_line#}
-    (toTextBuffer tb) iter (fromIntegral line)
+  {# call unsafe text_buffer_get_iter_at_line #}
+    (toTextBuffer self)
+    iter
+    (fromIntegral lineNumber)
   return iter
 
 
 -- | Create an iterator from a mark.
 --
-textBufferGetIterAtMark :: TextBufferClass tb => tb -> TextMark -> IO TextIter
-textBufferGetIterAtMark tb tm = do
+textBufferGetIterAtMark :: (TextBufferClass self, TextMarkClass mark) => self
+ -> mark     -- ^ @mark@ - a 'TextMark' in the buffer
+ -> IO TextIter
+textBufferGetIterAtMark self mark = do
   iter <- makeEmptyTextIter
-  {#call unsafe text_buffer_get_iter_at_mark#} (toTextBuffer tb) iter tm
+  {# call unsafe text_buffer_get_iter_at_mark #}
+    (toTextBuffer self)
+    iter
+    (toTextMark mark)
   return iter
 
 
--- | Create an iterator at the beginning of the
--- buffer.
+-- | Create an iterator at the first position in the text buffer. This is
+-- the same as using 'textBufferGetIterAtOffset' to get the iter at character
+-- offset 0.
 --
-textBufferGetStartIter :: TextBufferClass tb => tb -> IO TextIter
-textBufferGetStartIter tb = do
+textBufferGetStartIter :: TextBufferClass self => self -> IO TextIter
+textBufferGetStartIter self = do
   iter <- makeEmptyTextIter
-  {#call unsafe text_buffer_get_start_iter#} (toTextBuffer tb) iter
+  {# call unsafe text_buffer_get_start_iter #}
+    (toTextBuffer self)
+    iter
   return iter
 
--- | Create an iterator at the end of the buffer.
+-- | Returns the \"end iterator,\" one past the last valid
+-- character in the text buffer. If dereferenced with 'textIterGetChar', the
+-- end iterator has a character value of 0. The entire buffer lies in the range
+-- from the first position in the buffer (call 'textBufferGetStartIter' to get
+-- character position 0) to the end iterator.
 --
--- * The iterator represents the position after the last character in the
---   buffer.
---
-textBufferGetEndIter :: TextBufferClass tb => tb -> IO TextIter
-textBufferGetEndIter tb = do
+textBufferGetEndIter :: TextBufferClass self => self -> IO TextIter
+textBufferGetEndIter self = do
   iter <- makeEmptyTextIter
-  {#call unsafe text_buffer_get_end_iter#} (toTextBuffer tb) iter
+  {# call unsafe text_buffer_get_end_iter #}
+    (toTextBuffer self)
+    iter
   return iter
 
+-- | Indicates whether the buffer has been modified since the last call to
+-- 'textBufferSetModified' set the modification flag to @False@. Used for
+-- example to enable a \"save\" function in a text editor.
+--
+-- It is often more convenient to use 'onModifiedChanged'.
+--
+textBufferGetModified :: TextBufferClass self => self
+ -> IO Bool -- ^ returns @True@ if the buffer has been modified
+textBufferGetModified self =
+  liftM toBool $
+  {# call unsafe text_buffer_get_modified #}
+    (toTextBuffer self)
 
--- | Query if the buffer was modified.
+-- | Used to keep track of whether the buffer has been modified since the last
+-- time it was saved. Whenever the buffer is saved to disk, call
+-- @'textBufferSetModified' buffer False@. When the buffer is
+-- modified, it will automatically toggled on the modified bit again. When the
+-- modified bit flips, the buffer emits a \"modified_changed\" signal.
 --
--- * This flag is reset by calling 'textBufferSetModified'.
---
--- * It is usually more convenient to use
---   @\"connectToModifiedChanged\"@.
---
-textBufferGetModified :: TextBufferClass tb => tb -> IO Bool
-textBufferGetModified tb = liftM toBool $
-  {#call unsafe text_buffer_get_modified#} (toTextBuffer tb)
+textBufferSetModified :: TextBufferClass self => self -> Bool -> IO ()
+textBufferSetModified self setting =
+  {# call text_buffer_set_modified #}
+    (toTextBuffer self)
+    (fromBool setting)
 
--- | Set the \"buffer-is-modified\" flag.
+-- | Deletes the range between the \"insert\" and \"selection_bound\" marks,
+-- that is, the currently-selected text. If @interactive@ is @True@, the
+-- editability of the selection will be considered (users can't delete
+-- uneditable text).
 --
-textBufferSetModified :: TextBufferClass tb => tb -> Bool -> IO ()
-textBufferSetModified tb isModified =
-  {#call text_buffer_set_modified#} (toTextBuffer tb) (fromBool isModified)
-
--- | Delete the current selection.
---
--- * The @interactive@ flag determines if this function is invoked on
---   behalf of the user (i.e. if we honour editable\/non-editable tags).
---
--- * See 'textBufferInsertAtCursor' for information on
---   @def@.
---
--- * The function returns True if a non-empty selection was deleted.
---
-textBufferDeleteSelection :: TextBufferClass tb => tb -> Bool -> Bool ->
-						   IO Bool
-textBufferDeleteSelection tb interactive def = liftM toBool $
-  {#call text_buffer_delete_selection#} (toTextBuffer tb)
-  (fromBool interactive) (fromBool def)
+textBufferDeleteSelection :: TextBufferClass self => self
+ -> Bool    -- ^ @interactive@ - whether the deletion is caused by user
+            -- interaction
+ -> Bool    -- ^ @defaultEditable@ - whether the buffer is editable by default
+ -> IO Bool -- ^ returns whether there was a non-empty selection to delete
+textBufferDeleteSelection self interactive defaultEditable =
+  liftM toBool $
+  {# call text_buffer_delete_selection #}
+    (toTextBuffer self)
+    (fromBool interactive)
+    (fromBool defaultEditable)
 
 -- | Check if a selection exists.
 --
-textBufferHasSelection :: TextBufferClass tb => tb -> IO Bool
-textBufferHasSelection tb = liftM toBool $
-  {#call unsafe text_buffer_get_selection_bounds#} 
-  (toTextBuffer tb) (TextIter nullForeignPtr) (TextIter nullForeignPtr)
+textBufferHasSelection :: TextBufferClass self => self -> IO Bool
+textBufferHasSelection self =
+  liftM toBool $
+  {# call unsafe text_buffer_get_selection_bounds #}
+    (toTextBuffer self)
+    (TextIter nullForeignPtr)
+    (TextIter nullForeignPtr)
 
--- | Start a new atomic user action.
+-- | Called to indicate that the buffer operations between here and a call to
+-- 'textBufferEndUserAction' are part of a single user-visible operation. The
+-- operations between 'textBufferBeginUserAction' and 'textBufferEndUserAction'
+-- can then be grouped when creating an undo stack. 'TextBuffer' maintains a
+-- count of calls to 'textBufferBeginUserAction' that have not been closed with
+-- a call to 'textBufferEndUserAction', and emits the \"begin_user_action\" and
+-- \"end_user_action\" signals only for the outermost pair of calls. This
+-- allows you to build user actions from other user actions.
 --
--- * Called to indicate that the buffer operations between here and a call to
---   'textBufferEndUserAction' are part of a single user-visible
---   operation. The operations between 'textBufferBeginUserAction'
---   and 'textBufferEndUserAction' can then be grouped when
---   creating an undo stack. 'TextBuffer' objects maintains a count
---   of calls to 'textBufferBeginUserAction' that have not been
---   closed with a call to 'textBufferEndUserAction', and emits the
---   \"begin_user_action\" and \"end_user_action\" signals only for the outermost
---   pair of calls. This allows you to build user actions from other user
---   actions. The \"interactive\" buffer mutation functions, such as
---   'textBufferInsertInteractive', automatically call begin\/end
---   user action around the buffer operations they perform, so there's no need
---   to add extra calls if you user action consists solely of a single call to
---   one of those functions.
+-- The \"interactive\" buffer mutation functions, such as
+-- 'textBufferInsertInteractive', automatically call begin\/end user action
+-- around the buffer operations they perform, so there's no need to add extra
+-- calls if you user action consists solely of a single call to one of those
+-- functions.
 --
-textBufferBeginUserAction :: TextBufferClass tb => tb -> IO ()
-textBufferBeginUserAction  = {#call text_buffer_begin_user_action#} .
-			     toTextBuffer
+textBufferBeginUserAction :: TextBufferClass self => self -> IO ()
+textBufferBeginUserAction self =
+  {# call text_buffer_begin_user_action #}
+    (toTextBuffer self)
 
--- | End an atomic user action.
+-- | Should be paired with a call to 'textBufferBeginUserAction'. See that
+-- function for a full explanation.
 --
-textBufferEndUserAction :: TextBufferClass tb => tb -> IO ()
-textBufferEndUserAction  = {#call text_buffer_end_user_action#} .
-			   toTextBuffer
+textBufferEndUserAction :: TextBufferClass self => self -> IO ()
+textBufferEndUserAction self =
+  {# call text_buffer_end_user_action #}
+    (toTextBuffer self)
 
 --------------------
 -- Properties
@@ -610,7 +820,7 @@ textBufferEndUserAction  = {#call text_buffer_end_user_action#} .
 -- | \'modified\' property. See 'textBufferGetModified' and
 -- 'textBufferSetModified'
 --
-textBufferModified :: Attr TextBuffer Bool
+textBufferModified :: TextBufferClass self => Attr self Bool
 textBufferModified = Attr 
   textBufferGetModified
   textBufferSetModified
@@ -618,12 +828,11 @@ textBufferModified = Attr
 --------------------
 -- Signals
 
--- | A 'TextTag' was applied to a region of
--- text.
+-- | A 'TextTag' was applied to a region of text.
 --
-onApplyTag, afterApplyTag :: TextBufferClass tb => tb ->
-                             (TextTag -> TextIter -> TextIter -> IO ()) ->
-                             IO (ConnectId tb)
+onApplyTag, afterApplyTag :: TextBufferClass self => self
+ -> (TextTag -> TextIter -> TextIter -> IO ())
+ -> IO (ConnectId self)
 onApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag" 
   mkTextIter mkTextIter False
 afterApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag" 
@@ -634,24 +843,26 @@ afterApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag"
 -- * Together with 'connectToEndUserAction' these signals can be
 --   used to build an undo stack.
 --
-onBeginUserAction, afterBeginUserAction :: TextBufferClass tb => tb -> IO () ->
-                                           IO (ConnectId tb)
+onBeginUserAction, afterBeginUserAction :: TextBufferClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onBeginUserAction = connect_NONE__NONE "begin_user_action" False
 afterBeginUserAction = connect_NONE__NONE "begin_user_action" True
 
 --- renamed from Changed to BufferChanged, since the former conflicts with TreeSelection
 -- | Emitted when the contents of the buffer change.
 --
-onBufferChanged, afterBufferChanged :: TextBufferClass tb => tb -> IO () ->
-                           IO (ConnectId tb)
+onBufferChanged, afterBufferChanged :: TextBufferClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onBufferChanged = connect_NONE__NONE "changed" False
 afterBufferChanged = connect_NONE__NONE "changed" True
 
 -- | A range of text is about to be deleted.
 --
-onDeleteRange, afterDeleteRange :: TextBufferClass tb => tb ->
-                                   (TextIter -> TextIter -> IO ()) ->
-                                   IO (ConnectId tb)
+onDeleteRange, afterDeleteRange :: TextBufferClass self => self
+ -> (TextIter -> TextIter -> IO ())
+ -> IO (ConnectId self)
 onDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
   mkTextIter mkTextIter False
 afterDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
@@ -661,72 +872,73 @@ afterDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
 --
 -- * see 'connectToBeginUserAction'
 --
-onEndUserAction, afterEndUserAction :: TextBufferClass tb => tb -> IO () ->
-                                       IO (ConnectId tb)
+onEndUserAction, afterEndUserAction :: TextBufferClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onEndUserAction = connect_NONE__NONE "end_user_action" False
 afterEndUserAction = connect_NONE__NONE "end_user_action" True
 
 -- | A widgets is inserted into the buffer.
---connectToInsertChildAnchor :: TextBufferClass tb =>
--- (TextIter -> TextChildAnchor -> IO ()) -> ConnectAfter -> tb -> 
---  IO (ConnectId tb)
+--connectToInsertChildAnchor :: TextBufferClass self =>
+-- (TextIter -> TextChildAnchor -> IO ()) -> ConnectAfter -> self -> 
+--  IO (ConnectId self)
 --connectToInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor"
 --  mkTextIter
 
 -- | A 'Pixbuf' is inserted into the
 -- buffer.
 --
-onInsertPixbuf, afterInsertPixbuf :: TextBufferClass tb => tb ->
-                                     (TextIter -> Pixbuf -> IO ()) ->
-                                     IO (ConnectId tb)
+onInsertPixbuf, afterInsertPixbuf :: TextBufferClass self => self
+ -> (TextIter -> Pixbuf -> IO ())
+ -> IO (ConnectId self)
 onInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIter False
 afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIter True
 
 -- | Some text was inserted.
 --
-onInsertText, afterInsertText :: TextBufferClass tb => tb ->
-                                 (TextIter -> String -> IO ()) ->
-                                 IO (ConnectId tb)
-onInsertText tb user = 
-  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIter False tb $
+onInsertText, afterInsertText :: TextBufferClass self => self
+ -> (TextIter -> String -> IO ())
+ -> IO (ConnectId self)
+onInsertText self user = 
+  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIter False self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
       user iter str 
-afterInsertText tb user = 
-  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIter True tb $
+afterInsertText self user = 
+  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIter True self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
       user iter str 
 
--- | A 'TextMark' within the buffer was
--- deleted.
+-- | A 'TextMark' within the buffer was deleted.
 --
-onMarkDeleted, afterMarkDeleted :: TextBufferClass tb => tb ->
-                                   (TextMark -> IO ()) -> IO (ConnectId tb)
+onMarkDeleted, afterMarkDeleted :: TextBufferClass self => self
+ -> (TextMark -> IO ())
+ -> IO (ConnectId self)
 onMarkDeleted = connect_OBJECT__NONE "mark_deleted" False
 afterMarkDeleted = connect_OBJECT__NONE "mark_deleted" True
 
--- | A 'TextMark' was inserted into the
--- buffer.
+-- | A 'TextMark' was inserted into the buffer.
 --
-onMarkSet, afterMarkSet :: TextBufferClass tb => tb ->
+onMarkSet, afterMarkSet :: TextBufferClass self => self ->
                            (TextIter -> TextMark -> IO ()) ->
-                           IO (ConnectId tb)
+                           IO (ConnectId self)
 onMarkSet = connect_BOXED_OBJECT__NONE "mark_set" mkTextIter False
 afterMarkSet = connect_BOXED_OBJECT__NONE "mark_set" mkTextIter True
 
 -- | The textbuffer has changed.
 --
-onModifiedChanged, afterModifiedChanged :: TextBufferClass tb => tb -> IO () ->
-                                           IO (ConnectId tb)
+onModifiedChanged, afterModifiedChanged :: TextBufferClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onModifiedChanged = connect_NONE__NONE "modified_changed" False
 afterModifiedChanged = connect_NONE__NONE "modified_changed" True
 
 -- | A 'TextTag' was removed.
 --
-onRemoveTag, afterRemoveTag :: TextBufferClass tb => tb ->
-                               (TextTag -> TextIter -> TextIter -> IO ()) ->
-                               IO (ConnectId tb)
+onRemoveTag, afterRemoveTag :: TextBufferClass self => self
+ -> (TextTag -> TextIter -> TextIter -> IO ())
+ -> IO (ConnectId self)
 onRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove_tag" 
   mkTextIter mkTextIter False
 afterRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove_tag" 

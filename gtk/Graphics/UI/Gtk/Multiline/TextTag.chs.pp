@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:36 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/04 01:24:10 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -28,10 +28,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A tag that can be applied to text in a 'TextBuffer'.
+-- A tag that can be applied to text in a 'TextBuffer'
 --
 module Graphics.UI.Gtk.Multiline.TextTag (
--- * Description
+-- * Detail
 -- 
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
@@ -91,34 +91,38 @@ type TagName = String
 --
 textTagNew :: TagName -> IO TextTag
 textTagNew name =
-  withCString name $ \strPtr ->
-  makeNewGObject mkTextTag $ {#call unsafe text_tag_new#} strPtr
+  makeNewGObject mkTextTag $
+  withCString name $ \namePtr ->
+  {# call unsafe text_tag_new #}
+    namePtr
 
 --------------------
 -- Methods
 
 -- | Get the tag priority.
 --
-textTagGetPriority :: TextTagClass obj => obj -> IO Int
-textTagGetPriority obj = liftM fromIntegral $
-  {#call unsafe text_tag_get_priority#} (toTextTag obj)
+textTagGetPriority :: TextTagClass self => self -> IO Int
+textTagGetPriority self =
+  liftM fromIntegral $
+  {# call unsafe text_tag_get_priority #}
+    (toTextTag self)
 
--- | Sets the priority of a 'TextTag'.
+-- | Sets the priority of a 'TextTag'. Valid priorities are start at 0 and go
+-- to one less than 'textTagTableGetSize'. Each tag in a table has a unique
+-- priority; setting the priority of one tag shifts the priorities of all the
+-- other tags in the table to maintain a unique priority for each tag. Higher
+-- priority tags \"win\" if two tags both set the same text attribute. When
+-- adding a tag to a tag table, it will be assigned the highest priority in the
+-- table by default; so normally the precedence of a set of tags is the order
+-- in which they were added to the table, or created with
+-- 'textBufferCreateTag', which adds the tag to the buffer's table
+-- automatically.
 --
--- Valid priorities are start at 0 and go to one less than
--- 'textTagTableGetSize'. Each tag in a table has a unique priority; setting the
--- priority of one tag shifts the priorities of all the other tags in the table
--- to maintain a unique priority for each tag. Higher priority tags \"win\" if
--- two tags both set the same text attribute. When adding a tag to a tag table,
--- it will be assigned the highest priority in the table by default; so normally
--- the precedence of a set of tags is the order in which they were added to the
--- table, or created with 'textBufferCreateTag', which adds the tag to the
--- buffer's table automatically.
---
-textTagSetPriority :: TextTagClass obj => obj -> Int -> IO ()
-textTagSetPriority obj priority =
-  {#call text_tag_set_priority#} (toTextTag obj) (fromIntegral priority)
-
+textTagSetPriority :: TextTagClass self => self -> Int -> IO ()
+textTagSetPriority self priority =
+  {# call text_tag_set_priority #}
+    (toTextTag self)
+    (fromIntegral priority)
 
 -- TextAttributes methods
 
@@ -143,14 +147,9 @@ foreign import ccall unsafe "&gtk_text_attributes_unref"
 text_attributes_unref :: Ptr TextAttributes -> FinalizerPtr TextAttributes
 text_attributes_unref _ = text_attributes_unref'
                                                                                 
-#elif __GLASGOW_HASKELL__>=504
-                                                                                
-foreign import ccall unsafe "gtk_text_attributes_unref"
-  text_attributes_unref :: Ptr TextAttributes -> IO ()
-                                                                                
 #else
                                                                                 
-foreign import ccall "gtk_text_attributes_unref" unsafe
+foreign import ccall unsafe "gtk_text_attributes_unref"
   text_attributes_unref :: Ptr TextAttributes -> IO ()
                                                                                 
 #endif
@@ -160,7 +159,7 @@ foreign import ccall "gtk_text_attributes_unref" unsafe
 
 -- | \'priority\' property. See 'textTagGetPriority' and 'textTagSetPriority'
 --
-textTagPriority :: Attr TextTag Int
+textTagPriority :: TextTagClass self => Attr self Int
 textTagPriority = Attr 
   textTagGetPriority
   textTagSetPriority

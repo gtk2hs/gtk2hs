@@ -1,3 +1,14 @@
+2005-04-4 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextTagTable.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs: merge from
+	generated modules. Changed code formatting and documentation. In one
+	or two places fix minor bugs. Remove two non-exsistant functions from
+	TextView module.
+
 2005-04-3 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Selectors/ColorSelection.chs,

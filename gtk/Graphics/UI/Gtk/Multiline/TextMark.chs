@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:36 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/04 01:24:10 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- A position in the buffer preserved across buffer modifications
 --
 module Graphics.UI.Gtk.Multiline.TextMark (
--- * Description
+-- * Detail
 -- 
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
@@ -92,60 +92,68 @@ type MarkName = String
 --------------------
 -- Methods
 
--- | Set the visibility of a 'TextMark'.
+-- | Sets the visibility of @mark@; the insertion point is normally visible,
+-- i.e. you can see it as a vertical bar. Also, the text widget uses a visible
+-- mark to indicate where a drop will occur when dragging-and-dropping text.
+-- Most other marks are not visible. Marks are not visible by default.
 --
-textMarkSetVisible :: TextMarkClass tm => tm -> Bool -> IO ()
-textMarkSetVisible tm vis = 
-  {#call unsafe text_mark_set_visible#} (toTextMark tm) (fromBool vis)
+textMarkSetVisible :: TextMarkClass self => self -> Bool -> IO ()
+textMarkSetVisible self setting =
+  {# call unsafe text_mark_set_visible #}
+    (toTextMark self)
+    (fromBool setting)
 
+-- | Returns @True@ if the mark is visible (i.e. a cursor is displayed for it)
+--
+textMarkGetVisible :: TextMarkClass self => self -> IO Bool
+textMarkGetVisible self =
+  liftM toBool $
+  {# call unsafe text_mark_get_visible #}
+    (toTextMark self)
 
--- | Get the visibility of a 'TextMark'.
+-- | Returns @True@ if the mark has been removed from its buffer with
+-- 'textBufferDeleteMark'. Marks can't be used once deleted.
 --
-textMarkGetVisible :: TextMarkClass tm => tm -> IO Bool
-textMarkGetVisible tm = liftM toBool $
-  {#call unsafe text_mark_get_visible#} (toTextMark tm)
+textMarkGetDeleted :: TextMarkClass self => self -> IO Bool
+textMarkGetDeleted self =
+  liftM toBool $
+  {# call unsafe text_mark_get_deleted #}
+    (toTextMark self)
 
--- | Query if a 'TextMark' is still valid.
+-- | Returns the mark name; returns @Nothing@ for anonymous marks.
 --
-textMarkGetDeleted :: TextMarkClass tm => tm -> IO Bool
-textMarkGetDeleted tm = liftM toBool $
-  {#call unsafe text_mark_get_deleted#} (toTextMark tm)
+textMarkGetName :: TextMarkClass self => self -> IO (Maybe MarkName)
+textMarkGetName self =
+  {# call unsafe text_mark_get_name #}
+    (toTextMark self)
+  >>= maybePeek peekUTFString
 
--- | Get the name of a 'TextMark'.
+-- | Gets the buffer this mark is located inside, or @Nothing@ if the mark is
+-- deleted.
 --
--- * Returns Nothing, if the mark is anonymous.
---
-textMarkGetName :: TextMarkClass tm => tm -> IO (Maybe String)
-textMarkGetName tm = do
-  strPtr <- {#call unsafe text_mark_get_name#} (toTextMark tm)
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
+textMarkGetBuffer :: TextMarkClass self => self -> IO (Maybe TextBuffer)
+textMarkGetBuffer self =
+  maybeNull (makeNewGObject mkTextBuffer) $
+  {# call unsafe text_mark_get_buffer #}
+    (toTextMark self)
 
--- | Extract the 'TextBuffer' of the mark.
+-- | Determines whether the mark has left gravity.
 --
--- * Returns Nothing if the mark was deleted.
+-- The name is misleading as Arabic, Hebrew and some other languages have the
+-- beginning of a line towards the right.
 --
-textMarkGetBuffer :: TextMarkClass tm => tm -> IO (Maybe TextBuffer)
-textMarkGetBuffer tm = do
-  bufPtr <- {#call unsafe text_mark_get_buffer#} (toTextMark tm)
-  if bufPtr==nullPtr then return Nothing else liftM Just $
-    makeNewGObject mkTextBuffer (return $ castPtr bufPtr)
-
--- | Determine whether the mark has gravity
--- towards the beginning of a line.
---
--- * The name is misleading as Arabic, Hebrew and some other languages have
---   the beginning of a line towards the right.
---
-textMarkGetLeftGravity :: TextMarkClass tm => tm -> IO Bool
-textMarkGetLeftGravity tm = liftM toBool $
-  {#call unsafe text_mark_get_left_gravity#} (toTextMark tm)
+textMarkGetLeftGravity :: TextMarkClass self => self -> IO Bool
+textMarkGetLeftGravity self =
+  liftM toBool $
+  {# call unsafe text_mark_get_left_gravity #}
+    (toTextMark self)
 
 --------------------
 -- Properties
 
 -- | \'visible\' property. See 'textMarkGetVisible' and 'textMarkSetVisible'
 --
-textMarkVisible :: Attr TextMark Bool
+textMarkVisible :: TextMarkClass self => Attr self Bool
 textMarkVisible = Attr 
   textMarkGetVisible
   textMarkSetVisible
