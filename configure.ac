@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.7.1_rc1)
+AC_INIT(gtk2hs, 0.9.7.1_rc2)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
@@ -116,9 +116,6 @@ else
   CREATE_TYPES=default;
 fi;
 
-if test "$WIN32" = "yes"; then
-  AC_DEFINE(WIN32, [], [Are we building on a Win32 system])
-fi
 AM_CONDITIONAL(WIN32, test "$WIN32" = "yes")
 
 dnl determine a temporary directory for c2hs
@@ -289,9 +286,15 @@ AM_CONDITIONAL(ENABLE_LIBGLADE, test x$ENABLE_LIBGLADE = xyes)
 dnl Check if user wants the various gnome modules. Defaults to yes.
 AC_MSG_CHECKING([whether to build gnome bindings])
 
+if test "$WIN32" = "yes"; then
+  ENABLE_GNOME_DEFAULT=no
+else
+  ENABLE_GNOME_DEFAULT=yes
+fi
+
 AC_ARG_ENABLE(gnome,
               [  --disable-gnome         do not generate bindings for any gnome modules],
-              [ENABLE_GNOME=$enableval],[ENABLE_GNOME=yes])
+              [ENABLE_GNOME=$enableval],[ENABLE_GNOME=$ENABLE_GNOME_DEFAULT])
 
 AC_MSG_RESULT($ENABLE_GNOME)
 AM_CONDITIONAL(ENABLE_GNOME, test x$ENABLE_GNOME = xyes)
@@ -299,9 +302,15 @@ AM_CONDITIONAL(ENABLE_GNOME, test x$ENABLE_GNOME = xyes)
 dnl Check if user wants the Mozilla's browser engine widget. Defaults to yes.
 AC_MSG_CHECKING([whether to build mozembed bindings])
 
+if test "$WIN32" = "yes"; then
+  ENABLE_MOZEMBED_DEFAULT=no
+else
+  ENABLE_MOZEMBED_DEFAULT=yes
+fi
+
 AC_ARG_ENABLE(mozilla,
               [  --disable-mozilla       do not generate bindings for the Mozilla display widget],
-              [ENABLE_MOZEMBED=$enableval],[ENABLE_MOZEMBED=yes])
+              [ENABLE_MOZEMBED=$enableval],[ENABLE_MOZEMBED=$ENABLE_MOZEMBED_DEFAULT])
 
 AC_MSG_RESULT($ENABLE_MOZEMBED)
 AM_CONDITIONAL(ENABLE_MOZEMBED, test x$ENABLE_MOZEMBED = xyes)

@@ -1,3 +1,20 @@
+2005-02-11 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: use -DWIN32 for the gtk modules when building on win32.
+	This is only needed for gtk/Graphics/UI/Gtk.hs but the deps
+	calculation needs it too so we have to specify it for the whole gtk
+	pacakge. #include"gtk/wingtk.h" when compiling Gtk.General.General and
+	add gtk/wingtk.h to EXTRA_DIST.
+
+	* gtk/wingtk.h: #include <gtk/gtk.h> before the #undef directives so
+	that it will not matter which order ghc puts the #includes when
+	compiling via C. gtk/gtk.h has include guards so it can safely be
+	included more than once.
+
+	* configure.ac: remove WIN32 from config.h again. We can pass -DWIN32
+	to ghc instead. Make the default be to disable the gnome and mozilla
+	packages on win32. Bump version to 0.9.7.1_rc2
+
 2005-02-10 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/CodeGen.hs: make use of the information from scanning

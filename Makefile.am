@@ -12,7 +12,8 @@ EXTRA_DIST = \
 	tools/c2hs/toplevel/c2hs_config.h	\
 	tools/hierarchyGen/hierarchy.list	\
 	tools/hierarchyGen/Hierarchy.chs.template \
-	sourceview/sourceview.h
+	sourceview/sourceview.h			\
+	gtk/wingtk.h
 
 # There are no other files in these dirs and tar excludes empty dirs
 dist-hook:
@@ -438,6 +439,11 @@ gtk_Graphics_UI_Gtk_Gdk_Events_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_General_StockItems_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Region_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Drawable_hs_HCFLAGS	= -fglasgow-exts
+
+if WIN32
+libHSgtk_a_HCFLAGS				+= -DWIN32
+gtk_Graphics_UI_Gtk_General_General_hs_HCFLAGS	= '-\#include"gtk/wingtk.h"'
+endif
 
 libHSgtk_a_LIBADD =							\
 	gtk/Graphics/UI/Gtk/Abstract/Container_stub.o			\
