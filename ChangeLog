@@ -1,3 +1,8 @@
+2005-01-13 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: fix whitespace problem that
+	caused compile failure.
+
 2005-01-12 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,
