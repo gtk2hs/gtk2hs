@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 6 March 99
 --
---  Version $Revision: 1.2 $ from $Date: 2002/10/01 15:17:05 $
+--  Version $Revision: 1.3 $ from $Date: 2003/11/03 14:14:39 $
 --
 --  Copyright (c) [1999..2001] Manuel M. T. Chakravarty
 --
@@ -461,7 +461,7 @@ whitespace  =      (char ' ' `lexaction` \_ _ -> Nothing)
 --
 linedir :: CLexer
 linedir  = char '#' +> ppwhite +> int +> ppwhite +> (fname +> ppwhite)`quest`
-	   ((int +> ppwhite +> (int +> ppwhite)`quest`epsilon)`quest` 
+	   ((int +> ppwhite)`star` 
 	    char '\n')
 	   `lexmeta` \str pos ns -> (Nothing, adjustPos str pos, ns, Nothing)
 	   where
