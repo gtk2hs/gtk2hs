@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.7.1_rc2)
+AC_INIT(gtk2hs, 0.9.7.1_rc3)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
@@ -108,7 +108,7 @@ else
     *mingw32* ) PATHSED=["s+/\([a-z]\)/+\1:/+"];;
     * ) PATHSED=["\#"];; 
   esac;
-  HSCFLAGS=; #we used to need "-C -optc-fnative-struct" but no longer it seems
+  HSCFLAGS="-C -optc-mms-bitfields"
   C2HSFLAGS=;
   dnl Where are we? (only used during configuration)
   TOP=`$PWD | $SED $PATHSED`;
