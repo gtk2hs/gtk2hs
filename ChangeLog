@@ -2,6 +2,9 @@
 
 	* gtk/signals/Signal.chs-boot2, gtk/general/Gtk.hs: Added a
 	function to disconnect a signal.
+
+	* mogul/TreeList.hs, mogul/Mogul.hs: Added changed the TreePath
+	from Gtk to Mogul style. Patch by Duncan Coutts.
 	
 2003-03-08  Axel Simon <A.Simon@ukc.ac.uk>
 

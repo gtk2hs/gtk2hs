@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2002/11/08 10:39:22 $
+--  Version $Revision: 1.9 $ from $Date: 2003/03/10 17:07:41 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -74,6 +74,7 @@ module TreeList(
   treeViewColumnNewPixbuf,
   treeViewColumnNewToggle,
   treeViewColumnAssociate,
+  treeViewGetPathAtPos,
   cellRendererSetAttribute,
   cellRendererGetAttribute,
   onEdited,
@@ -115,7 +116,9 @@ import Gtk	hiding (
   treeViewColumnAddAttribute,
   -- CellRendererText
   onEdited,
-  afterEdited)
+  afterEdited,
+  -- TreeView
+  treeViewGetPathAtPos)
 import qualified Gtk
 import LocalData	(IORef(..), newIORef, readIORef, writeIORef)
 import LocalControl	(throw, Exception(AssertionFailed))
@@ -339,6 +342,31 @@ treeViewColumnAssociate (Renderer ren  tvc) assocs = do
   let assocs' = concatMap (\(Association strs col) -> zip strs [col..]) assocs
   mapM_ (\(attr,col) ->
     Gtk.treeViewColumnAddAttribute tvc ren attr col) assocs'
+
+-- @method treeViewGetPathAtPos@ Map a pixel to the specific cell.
+--
+-- * Finds the path at the @ref type Point@ @ref arg (x, y)@. The
+--   coordinates @literal x@ and @literal y@ are relative to the top left
+--   corner of the @ref data TreeView@ drawing window. As such, coordinates
+--   in a mouse click event can be used directly to determine the cell
+--   which the user clicked on. This is therefore a way to realize for
+--   popup menus.
+--
+-- * The returned point is the input point relative to the cell's upper
+--   left corner. The whole @ref data TreeView@ is divided between all cells.
+--   The returned point is relative to the rectangle this cell occupies
+--   within the @ref data TreeView@.
+--
+treeViewGetPathAtPos :: TreeViewClass tv => tv -> Point ->
+			IO (Maybe (TreePath, TreeViewColumn, Point))
+treeViewGetPathAtPos tv pt = do
+  maybePath <- Gtk.treeViewGetPathAtPos tv pt
+  case maybePath of
+    Nothing -> return Nothing
+    Just (realPath, col, relPt) -> do
+      -- convert path component to mogul's TreePath representation
+      path <- Gtk.treePathGetIndices realPath
+      return $ Just (path, col, relPt)
 
 -- @entry CellRenderer TreeView@
 

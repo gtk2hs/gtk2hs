@@ -5,7 +5,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/01/19 19:20:47 $
+--  Version $Revision: 1.6 $ from $Date: 2003/03/10 17:07:41 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -135,6 +135,8 @@ import Gtk hiding (
   afterEdited,
   CellRendererPixbuf,
   CellRendererToggle,
+  -- TreeView
+  treeViewGetPathAtPos,
 
   calendarNew,
   --drawingAreaNew,
