@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.20 $ from $Date: 2004/04/27 18:51:16 $
+--  Version $Revision: 1.21 $ from $Date: 2004/04/30 13:45:33 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -35,8 +35,6 @@
 --   Item :	     The only child of this abstract class is MenuItem. The
 --		     three signals Item defines are therefore bound in 
 --		     MenuItem.
---   Bin :	     This abstract widget is of no use to the user. We should
---		     not need the Bin and BinClass entities either.
 --   Editable :	     This should be the base class of Entry, but it is not.
 --		     I moved everything into Entry.
 --
@@ -130,6 +128,7 @@ module Gtk(
   module Alignment,
   module AspectFrame,
   module HBox,
+  module HButtonBox,
 --  module Fixed,
   module HPaned,
   module Layout,
@@ -139,6 +138,7 @@ module Gtk(
 #endif
   module Table,
   module VBox,
+  module VButtonBox,
   module VPaned,
   -- ornaments
   module Frame,
@@ -162,6 +162,7 @@ module Gtk(
   -- abstract base classes
   module Box,
   module Container,
+  module Bin,
   module Misc,
   module Object,
   module Paned,
@@ -278,8 +279,8 @@ import Alignment
 import AspectFrame
 import HBox
 import VBox
---import HButtonBox
---import VButtonBox
+import HButtonBox
+import VButtonBox
 --import Fixed
 import HPaned
 import VPaned
@@ -313,8 +314,9 @@ import Viewport
 --import Accessible
 -- abstract base classes
 import Box
---import ButtonBox
+import ButtonBox
 import Container
+import Bin
 import Misc
 import Object
 import Paned

@@ -5,10 +5,18 @@
 
 	* glade/Glade.chs: fix lib prefix
 
-	* gtk/entry/EntryCompletion.chs,
-	* gtk/layout/Expander.chs,
-	* gtk/menuComboToolbar/ComboBoxEntry.chs,
-	* gtk/menuComboToolbar/ComboBox.chs: fix descriptions in headers
+	* gtk/entry/EntryCompletion.chs, gtk/layout/Expander.chs,
+	gtk/menuComboToolbar/ComboBoxEntry.chs,
+	gtk/menuComboToolbar/ComboBox.chs: fix descriptions in headers
+
+	* gtk/abstract/ButtonBox.chs, gtk/layout/HButtonBox.chs,
+	gtk/layout/VButtonBox.chs, demo/buttonbox/Makefile,
+	demo/buttonbox/ButtonBox.hs, AUTHORS: new widgets and demo
+	contributed by Matthew Walton
+
+	* gtk/abstract/Bin.chs: new (slightly pointless) abstract class
+
+	* gtk/general/Gtk.hs: export new modules
 
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
@@ -18,10 +26,9 @@
 
 	* gtk/entry/Entry.chs: added new gtk 2.4 methods
 
-	* gtk/entry/EntryCompletion.chs,
-	* gtk/layout/Expander.chs,
-	* gtk/menuComboToolbar/ComboBox.chs,
-	* gtk/menuComboToolbar/ComboBoxEntry.chs: new gtk 2.4 modules
+	* gtk/entry/EntryCompletion.chs, gtk/layout/Expander.chs,
+	gtk/menuComboToolbar/ComboBox.chs,
+	gtk/menuComboToolbar/ComboBoxEntry.chs: new gtk 2.4 modules
 
 	* gtk/general/Gtk.hs: export new gtk 2.4 modules
 
