@@ -1,3 +1,12 @@
+2004-08-15  Axel Simon <A.Simon@kent.ac.uk>
+
+	* mk/common.mk, mk/library.mk, mk/recurse.mk, Makefile: Make clean
+	and make distclean remove more files now.
+	
+2004-08-15  Axel Simon <A.Simon@kent.ac.uk>
+
+	* VERSION: Bumped to 0.9.6. Release.
+	
 2004-08-11  Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.in: Make install-sh executable and don't inform about

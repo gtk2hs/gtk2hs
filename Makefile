@@ -43,6 +43,9 @@ ifeq ($(strip $(ENABLE_GNOME)),yes)
 MAKE_APPS += demo/sourceview demo/gconf
 endif
 
+EXTRA_DISTCLEANFILES = $(strip mk/config.mk mk/chsDepend config.status \
+	config.log gtk2hs.spec)
+
 EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 TODO VERSION aclocal.m4 acinclude.m4 \
 			 configure.in configure mk/recurse.mk \

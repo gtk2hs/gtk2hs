@@ -336,7 +336,8 @@ clean	: mostlyclean
 
 distclean : clean
 	$(strip $(RM) $(EXTRA_HSFILES) $(EXTRA_CHSFILES) \
-	  $(ALLCHSFILES:.chs=.dep)) $(LOCALPKGCONF) $(LOCALPKGCONF).old
+	  $(ALLCHSFILES:.chs=.dep) $(LOCALPKGCONF) $(LOCALPKGCONF).old \
+	  $(EXTRA_DISTCLEANFILES))
 
 maintainer-clean : distclean
 

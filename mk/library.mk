@@ -7,6 +7,9 @@ INSTALLDIR 		= $(COMMONINSTALLDIR)/$(PACKAGENAME)
 TARGETOK		= $(addprefix $(strip $(LIBPREFIX)),\
 			$(addsuffix $(LIBSUFFIX),$(strip $(LIBNAME))))
 
+EXTRA_CLEANFILES	+= $(addsuffix $(OBJSUFFIX),$(strip $(LIBNAME)))
+
+EXTRA_DISTCLEANFILES	+= $(PACKAGENAME).conf
 
 makeTextList		= $(addprefix \",$(addsuffix \",\
 			$(subst $(SPACE),\"$(COMMA)\",$(sort $(1)))))
