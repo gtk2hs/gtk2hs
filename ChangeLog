@@ -32,6 +32,9 @@
 
 	* tools/apiGen/glib-sources.xml: strip version numbers.
 
+	* configure.ac: remove "--subsystem windows" linker option for now.
+	Bump version to 0.9.7.1_rc4
+
 2005-02-16 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Renamed TreeViewColumn.chs, TreeModelSort.chs,

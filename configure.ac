@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.7.1_rc3)
+AC_INIT(gtk2hs, 0.9.7.1_rc4)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
@@ -85,7 +85,13 @@ else
   # It would be nice to say -Wl,--subsystem,windows which seems to be the
   # normal way. However, Solaris' sed is broken and won't deal with the
   # commas correctly: Symptom: "./configure: Bad substitution"
-  STARTUP_CODE="-Xlinker --subsystem -Xlinker windows";
+  
+  # For the moment do not use the --subsystem windows flag since if you write
+  # to stdout the program will throw an IO exception and die without any
+  # explanation. Apparently ghc 6.4 will make this better in that it will
+  # display the exception so it will not be so confusing.
+  #STARTUP_CODE="-Xlinker --subsystem -Xlinker windows";
+  STARTUP_CODE=;
 fi;
 
 AM_CONDITIONAL(WIN32, test "$WIN32" = "yes")
