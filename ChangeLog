@@ -1,5 +1,14 @@
 2004-05-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* demo/profileviewer/ProfileViewer.hs,
+	demo/profileviewer/ParseProfile.hs,
+	demo/profileviewer/ProfileViewer.glade,
+	demo/profileviewer/ProfileViewer.gladep,
+	demo/profileviewer/Makefile: new demo, a viewer for ghc's
+	time-profile log files
+
+2004-05-6 Duncan Coutts <duncan@coutts.uklinux.net>
+
 	* gtk/glib/GParameter.hsc: new marshaling support module needed
 	for GObject.objectNew
 
