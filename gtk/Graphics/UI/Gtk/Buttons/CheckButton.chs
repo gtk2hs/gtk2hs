@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:32 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/15 19:47:47 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- create widgets with a discrete toggle button.
+-- Create widgets with a discrete toggle button
 --
 module Graphics.UI.Gtk.Buttons.CheckButton (
--- * Description
+-- * Detail
 -- 
 -- | A 'CheckButton' places a discrete 'ToggleButton' next to a widget,
 -- (usually a 'Label'). See the section on 'ToggleButton' widgets for more
@@ -73,27 +73,34 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new button with a check field.
+-- | Creates a new 'CheckButton'.
 --
 checkButtonNew :: IO CheckButton
-checkButtonNew  = makeNewObject mkCheckButton $ 
-  liftM castPtr {#call unsafe check_button_new#}
-
--- | Create a new CheckButton with a text to
--- the right of it.
---
-checkButtonNewWithLabel :: String -> IO CheckButton
-checkButtonNewWithLabel lbl = withUTFString lbl (\strPtr ->
+checkButtonNew =
   makeNewObject mkCheckButton $ liftM castPtr $
-  {#call unsafe check_button_new_with_label#} strPtr)
+  {# call unsafe check_button_new #}
 
--- | Create a checkButton with an
--- accelerator key.
+-- | Creates a new 'CheckButton' with a 'Label' to the right of it.
 --
--- * Like 'checkButtonNewWithLabel' but turns every underscore in
---   the label to a underlined character.
+checkButtonNewWithLabel :: 
+    String         -- ^ @label@ - the text for the check button.
+ -> IO CheckButton
+checkButtonNewWithLabel label =
+  makeNewObject mkCheckButton $ liftM castPtr $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe check_button_new_with_label #}
+    labelPtr
+
+-- | Creates a new 'CheckButton' containing a label. The label will be created
+-- using 'labelNewWithMnemonic', so underscores in @label@ indicate the
+-- mnemonic for the check button.
 --
-checkButtonNewWithMnemonic :: String -> IO CheckButton
-checkButtonNewWithMnemonic lbl = withUTFString lbl (\strPtr ->
-  makeNewObject mkCheckButton $ liftM castPtr $ 
-  {#call unsafe check_button_new_with_mnemonic#} strPtr)
+checkButtonNewWithMnemonic :: 
+    String         -- ^ @label@ - The text of the button, with an underscore
+                   -- in front of the mnemonic character
+ -> IO CheckButton
+checkButtonNewWithMnemonic label =
+  makeNewObject mkCheckButton $ liftM castPtr $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe check_button_new_with_mnemonic #}
+    labelPtr

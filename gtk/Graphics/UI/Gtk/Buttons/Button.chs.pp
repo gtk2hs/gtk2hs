@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/15 19:47:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget that creates a signal when clicked on.
+-- A widget that creates a signal when clicked on
 --
 module Graphics.UI.Gtk.Buttons.Button (
--- * Description
+-- * Detail
 -- 
 -- | The 'Button' widget is generally used to attach a function to that is
 -- called when the button is pressed. The various signals and how to use them
@@ -121,156 +121,255 @@ import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
 --------------------
 -- Constructors
 
--- | Create a new Button widget.
+-- | Creates a new 'Button' widget. To add a child widget to the button, use
+-- 'containerAdd'.
 --
 buttonNew :: IO Button
-buttonNew  = makeNewObject mkButton $ liftM castPtr {#call unsafe button_new#}
-
--- | Create a button with a label in it.
---
-buttonNewWithLabel :: String -> IO Button
-buttonNewWithLabel lbl = withUTFString lbl (\strPtr ->
+buttonNew =
   makeNewObject mkButton $ liftM castPtr $
-  {#call unsafe button_new_with_label#} strPtr)
+  {# call unsafe button_new #}
 
--- | Create a button with an accelerator key.
+-- | Creates a 'Button' widget with a 'Label' child containing the given text.
 --
--- * Like 'buttonNewWithLabel' but turns every underscore in the
---   label to a underlined character which then acts as a mnemonic (keyboard
---   shortcut).
---
-buttonNewWithMnemonic :: String -> IO Button
-buttonNewWithMnemonic lbl = withUTFString lbl (\strPtr ->
-  makeNewObject mkButton $ liftM castPtr $ 
-  {#call unsafe button_new_with_mnemonic#} strPtr)
-
--- | Create a stock (predefined appearance) button.
---
-buttonNewFromStock :: String -> IO Button
-buttonNewFromStock stockId = withUTFString stockId (\strPtr -> 
+buttonNewWithLabel :: 
+    String    -- ^ @label@ - The text you want the 'Label' to hold.
+ -> IO Button
+buttonNewWithLabel label =
   makeNewObject mkButton $ liftM castPtr $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe button_new_with_label #}
+    labelPtr
+
+-- | Creates a new 'Button' containing a label. If characters in @label@ are
+-- preceded by an underscore, they are underlined. If you need a literal
+-- underscore character in a label, use \'__\' (two underscores). The first
+-- underlined character represents a keyboard accelerator called a mnemonic.
+-- Pressing Alt and that key activates the button.
+--
+buttonNewWithMnemonic :: 
+    String    -- ^ @label@ - The text of the button, with an underscore in
+              -- front of the mnemonic character
+ -> IO Button
+buttonNewWithMnemonic label =
+  makeNewObject mkButton $ liftM castPtr $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe button_new_with_mnemonic #}
+    labelPtr
+
+-- | Creates a new 'Button' containing the image and text from a stock item.
+--
+-- If @stockId@ is unknown, then it will be treated as a mnemonic label (as
+-- for 'buttonNewWithMnemonic').
+--
+buttonNewFromStock :: 
+    String    -- ^ @stockId@ - the name of the stock item
+ -> IO Button
+buttonNewFromStock stockId =
+  makeNewObject mkButton $ liftM castPtr $
+  withUTFString stockId $ \stockIdPtr ->
   throwIfNull "buttonNewFromStock: Invalid stock identifier." $ 
-  {#call unsafe button_new_from_stock#} strPtr)
+  {# call unsafe button_new_from_stock #}
+    stockIdPtr
 
 --------------------
 -- Methods
 
--- | Depress the button, i.e. emit the pressed signal.
+-- | Emits the button pressed signal for the given 'Button'.
 --
-buttonPressed :: ButtonClass b => b -> IO ()
-buttonPressed b = {#call button_pressed#} (toButton b)
+buttonPressed :: ButtonClass self => self -> IO ()
+buttonPressed self =
+  {# call button_pressed #}
+    (toButton self)
 
--- | Release the button, i.e. emit the released signal.
+-- | Emits the button released signal for the given 'Button'.
 --
-buttonReleased :: ButtonClass b => b -> IO ()
-buttonReleased b = {#call button_released#} (toButton b)
+buttonReleased :: ButtonClass self => self -> IO ()
+buttonReleased self =
+  {# call button_released #}
+    (toButton self)
 
--- | Emit the clicked signal on the button.
+-- | Emits the button clicked signal for the given 'Button'.
 --
--- * This is similar to calling 'buttonPressed' and
---   'buttonReleased' in sequence.
+-- This is similar to calling 'buttonPressed' and 'buttonReleased' in sequence.
 --
-buttonClicked :: ButtonClass b => b -> IO ()
-buttonClicked b = {#call button_clicked#} (toButton b)
+buttonClicked :: ButtonClass self => self -> IO ()
+buttonClicked self =
+  {# call button_clicked #}
+    (toButton self)
 
 -- | Emit the cursor enters signal to the button.
 --
-buttonEnter :: ButtonClass b => b -> IO ()
-buttonEnter b = {#call button_enter#} (toButton b)
+buttonEnter :: ButtonClass self => self -> IO ()
+buttonEnter self =
+  {# call button_enter #}
+    (toButton self)
 
 -- | Emit the cursor leaves signal to the button.
 --
-buttonLeave :: ButtonClass b => b -> IO ()
-buttonLeave b = {#call button_leave#} (toButton b)
+buttonLeave :: ButtonClass self => self -> IO ()
+buttonLeave self =
+  {# call button_leave #}
+    (toButton self)
 
--- | Set the style of the button edges.
+-- | Sets the relief style of the edges of the given 'Button' widget. Three
+-- styles exist, 'ReliefNormal', 'ReliefHalf', 'ReliefNone'. The default style
+-- is, as one can guess, 'ReliefNormal'.
 --
-buttonSetRelief :: ButtonClass b => b -> ReliefStyle -> IO ()
-buttonSetRelief b rs = 
-  {#call button_set_relief#} (toButton b) ((fromIntegral.fromEnum) rs)
+buttonSetRelief :: ButtonClass self => self
+ -> ReliefStyle -- ^ @newstyle@ - The 'ReliefStyle' as described above.
+ -> IO ()
+buttonSetRelief self newstyle =
+  {# call button_set_relief #}
+    (toButton self)
+    ((fromIntegral . fromEnum) newstyle)
 
--- | Get the current relief style.
+-- | Returns the current relief style of the given 'Button'.
 --
-buttonGetRelief :: ButtonClass b => b -> IO ReliefStyle
-buttonGetRelief b = liftM (toEnum.fromIntegral) $
-  {#call unsafe button_get_relief#} (toButton b)
+buttonGetRelief :: ButtonClass self => self
+ -> IO ReliefStyle -- ^ returns The current 'ReliefStyle'
+buttonGetRelief self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe button_get_relief #}
+    (toButton self)
 
--- | Set the text of the button.
+-- | Sets the text of the label of the button. This text is also used
+-- to select the stock item if 'buttonSetUseStock' is used.
 --
-buttonSetLabel :: ButtonClass b => b -> String -> IO ()
-buttonSetLabel b lbl = withUTFString lbl $ \strPtr ->
-  {#call button_set_label#} (toButton b) strPtr
+-- This will also clear any previously set labels.
+--
+buttonSetLabel :: ButtonClass self => self -> String -> IO ()
+buttonSetLabel self label =
+  withUTFString label $ \labelPtr ->
+  {# call button_set_label #}
+    (toButton self)
+    labelPtr
 
--- | Get the current text on the button.
+-- | Gets the text from the label of the button, as set by
+-- 'buttonSetLabel'. If the label text has not been set the return value will
+-- be @\"\"@.
+-- This will be the case if you create an empty button with 'buttonNew' to use
+-- as a container.
 --
--- * The method returns the empty string in case the button does not have
---   a label (e.g. it was created with 'buttonNew'.
---
-buttonGetLabel :: ButtonClass b => b -> IO String
-buttonGetLabel b = do
-  strPtr <- {#call unsafe button_get_label#} (toButton b)
+buttonGetLabel :: ButtonClass self => self -> IO String
+buttonGetLabel self = do
+  strPtr <- {# call unsafe button_get_label #}
+    (toButton self)
   if strPtr==nullPtr then return "" else peekUTFString strPtr
 
--- | Set if the label is a stock identifier.
+-- | If true, the label set on the button is used as a stock id to select the
+-- stock item for the button.
 --
--- * Setting this property to @True@ will make the button lookup
---   its label in the table of stock items. If there is a match, the button
---   will use the stock item instead of the label.  You need to set this
---   flag before you change the label.
+-- Setting this property to @True@ will make the button lookup its label in
+-- the table of stock items. If there is a match, the button will use the
+-- stock item instead of the label.  You need to set this flag before you
+-- change the label.
 --
-buttonSetUseStock :: ButtonClass b => b -> Bool -> IO ()
-buttonSetUseStock b flag = 
-  {#call button_set_use_stock#} (toButton b) (fromBool flag)
+buttonSetUseStock :: ButtonClass self => self
+ -> Bool  -- ^ @useStock@ - @True@ if the button should use a stock item
+ -> IO ()
+buttonSetUseStock self useStock =
+  {# call button_set_use_stock #}
+    (toButton self)
+    (fromBool useStock)
 
--- | Get the current flag for stock lookups.
+-- | Returns whether the button label is a stock item.
 --
-buttonGetUseStock :: ButtonClass b => b -> IO Bool
-buttonGetUseStock b = liftM toBool $
-  {#call unsafe button_get_use_stock#} (toButton b)
+buttonGetUseStock :: ButtonClass self => self
+ -> IO Bool -- ^ returns @True@ if the button label is used to select a stock
+            -- item instead of being used directly as the label text.
+buttonGetUseStock self =
+  liftM toBool $
+  {# call unsafe button_get_use_stock #}
+    (toButton self)
 
--- | Set if the label has accelerators.
+-- | If true, an underline in the text of the button label indicates the next
+-- character should be used for the mnemonic accelerator key.
 --
--- * Setting this property will make the button join any underline character
---   into the following letter and inserting this letter as a keyboard
---   shortcut. You need to set this flag before you change the label.
+-- Setting this property will make the button join any underline character
+-- into the following letter and inserting this letter as a keyboard shortcut.
+-- You need to set this flag before you change the label.
 --
-buttonSetUseUnderline :: ButtonClass b => b -> Bool -> IO ()
-buttonSetUseUnderline b flag = 
-  {#call button_set_use_underline#} (toButton b) (fromBool flag)
+buttonSetUseUnderline :: ButtonClass self => self
+ -> Bool  -- ^ @useUnderline@ - @True@ if underlines in the text indicate
+          -- mnemonics
+ -> IO ()
+buttonSetUseUnderline self useUnderline =
+  {# call button_set_use_underline #}
+    (toButton self)
+    (fromBool useUnderline)
 
--- | Query if the underlines are mnemonics.
+-- | Returns whether an embedded underline in the button label indicates a
+-- mnemonic. See 'buttonSetUseUnderline'.
 --
-buttonGetUseUnderline :: ButtonClass b => b -> IO Bool
-buttonGetUseUnderline b = liftM toBool $
-  {#call unsafe button_get_use_underline#} (toButton b)
+buttonGetUseUnderline :: ButtonClass self => self
+ -> IO Bool -- ^ returns @True@ if an embedded underline in the button label
+            -- indicates the mnemonic accelerator keys.
+buttonGetUseUnderline self =
+  liftM toBool $
+  {# call unsafe button_get_use_underline #}
+    (toButton self)
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Sets whether the button will grab focus when it is clicked with the mouse.
+-- | Sets whether the button will grab focus when it is clicked with the
+-- mouse. Making mouse clicks not grab focus is useful in places like toolbars
+-- where you don't want the keyboard focus removed from the main area of the
+-- application.
 --
-buttonSetFocusOnClick :: ButtonClass b => b -> Bool -> IO ()
-buttonSetFocusOnClick b focus =
-  {#call unsafe button_set_focus_on_click#} (toButton b) (fromBool focus)
+-- * Available since Gtk version 2.4
+--
+buttonSetFocusOnClick :: ButtonClass self => self
+ -> Bool  -- ^ @focusOnClick@ - whether the button grabs focus when clicked
+          -- with the mouse
+ -> IO ()
+buttonSetFocusOnClick self focusOnClick =
+  {# call unsafe button_set_focus_on_click #}
+    (toButton self)
+    (fromBool focusOnClick)
 
--- | Gets whether the button grabs focus when it is clicked with the mouse.
+-- | Returns whether the button grabs focus when it is clicked with the mouse.
+-- See 'buttonSetFocusOnClick'.
 --
-buttonGetFocusOnClick :: ButtonClass b => b -> IO Bool
-buttonGetFocusOnClick b = liftM toBool $
-  {#call unsafe button_get_focus_on_click#} (toButton b)
+-- * Available since Gtk version 2.4
+--
+buttonGetFocusOnClick :: ButtonClass self => self
+ -> IO Bool -- ^ returns @True@ if the button grabs focus when it is clicked
+            -- with the mouse.
+buttonGetFocusOnClick self =
+  liftM toBool $
+  {# call unsafe button_get_focus_on_click #}
+    (toButton self)
 
 -- | Sets the alignment of the child. This has no effect unless the child
---   derives from "Misc" "Aligment".
+--   derives from 'Misc' 'Aligment'.
 --
-buttonSetAlignment :: ButtonClass b => b -> (Float, Float) -> IO ()
-buttonSetAlignment b (xalign, yalign) =
-  {#call unsafe button_set_alignment#} (toButton b)
-    (realToFrac xalign) (realToFrac yalign)
+-- * Available since Gtk version 2.4
+--
+buttonSetAlignment :: ButtonClass self => self
+ -> (Float, Float) -- ^ @(xalign, yalign)@ - the horizontal position of the
+                   -- child (0.0 is left aligned, 1.0 is right aligned) and
+                   -- the vertical position of the child (0.0 is top aligned,
+                   -- 1.0 is bottom aligned)
+ -> IO ()
+buttonSetAlignment self (xalign, yalign) =
+  {# call unsafe button_set_alignment #}
+    (toButton self)
+    (realToFrac xalign)
+    (realToFrac yalign)
 
 -- | Gets the alignment of the child in the button.
 --
-buttonGetAlignment :: ButtonClass b => b -> IO (Float, Float)
-buttonGetAlignment b =
-  alloca $ \xalignPtr -> alloca $ \yalignPtr -> do
-  {#call unsafe button_get_alignment#} (toButton b) xalignPtr yalignPtr
+-- * Available since Gtk version 2.4
+--
+buttonGetAlignment :: ButtonClass self => self
+ -> IO (Float, Float) -- ^ @(xalign,yalign)@ - horizontal and vertical
+                      -- alignment
+buttonGetAlignment self =
+  alloca $ \xalignPtr ->
+  alloca $ \yalignPtr -> do
+  {# call unsafe button_get_alignment #}
+    (toButton self)
+    xalignPtr
+    yalignPtr
   xalign <- peek xalignPtr
   yalign <- peek yalignPtr
   return (realToFrac xalign, realToFrac yalign)
@@ -353,18 +452,8 @@ onPressed, afterPressed :: ButtonClass b => b -> IO () -> IO (ConnectId b)
 onPressed = connect_NONE__NONE "pressed" False
 afterPressed = connect_NONE__NONE "pressed" True
 
-
 -- | The button is released.
 --
 onReleased, afterReleased :: ButtonClass b => b -> IO () -> IO (ConnectId b)
 onReleased = connect_NONE__NONE "released" False
 afterReleased = connect_NONE__NONE "released" True
-
-
-
-
-
-
-
-
-

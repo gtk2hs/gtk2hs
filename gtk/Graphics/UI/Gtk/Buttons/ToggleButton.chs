@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/15 19:47:47 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Create buttons which retain their state.
+-- Create buttons which retain their state
 --
 module Graphics.UI.Gtk.Buttons.ToggleButton (
--- * Description
+-- * Detail
 -- 
 -- | A 'ToggleButton' is a 'Button' which will remain \'pressed-in\' when
 -- clicked. Clicking again will cause the toggle button to return to its normal
@@ -99,77 +99,128 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Create a new ToggleButton widget.
+-- | Creates a new toggle button. A widget should be packed into the button,
+-- as in 'buttonNew'.
 --
 toggleButtonNew :: IO ToggleButton
-toggleButtonNew  = makeNewObject mkToggleButton $ liftM castPtr 
-  {#call unsafe toggle_button_new#}
-
-
--- | Create a ToggleButton with a label in it.
---
-toggleButtonNewWithLabel :: String -> IO ToggleButton
-toggleButtonNewWithLabel lbl = withUTFString lbl (\strPtr ->
+toggleButtonNew =
   makeNewObject mkToggleButton $ liftM castPtr $
-  {#call unsafe toggle_button_new_with_label#} strPtr)
+  {# call unsafe toggle_button_new #}
 
--- | Create a ToggleButton with a label in it. Underscores in label indicate the
+-- | Creates a new toggle button with a text label.
+--
+toggleButtonNewWithLabel :: 
+    String          -- ^ @label@ - a string containing the message to be
+                    -- placed in the toggle button.
+ -> IO ToggleButton
+toggleButtonNewWithLabel label =
+  makeNewObject mkToggleButton $ liftM castPtr $
+  withUTFString label $ \labelPtr ->
+  {# call unsafe toggle_button_new_with_label #}
+    labelPtr
+
+-- | Creates a new 'ToggleButton' containing a label. The label will be
+-- created using 'labelNewWithMnemonic', so underscores in @label@ indicate the
 -- mnemonic for the button.
 --
-toggleButtonNewWithMnemonic :: String -> IO ToggleButton
-toggleButtonNewWithMnemonic lbl = withUTFString lbl (\strPtr ->
+toggleButtonNewWithMnemonic :: 
+    String          -- ^ @label@ - the text of the button, with an underscore
+                    -- in front of the mnemonic character
+ -> IO ToggleButton
+toggleButtonNewWithMnemonic label =
   makeNewObject mkToggleButton $ liftM castPtr $
-  {#call unsafe toggle_button_new_with_mnemonic#} strPtr)
+  withUTFString label $ \labelPtr ->
+  {# call unsafe toggle_button_new_with_mnemonic #}
+    labelPtr
 
 --------------------
 -- Methods
 
 -- | Sets whether the button is displayed as a separate indicator and label.
--- You can call this function on a "CheckButton" or a "RadioButton" with @False@
+-- You can call this function on a 'CheckButton' or a 'RadioButton' with @False@
 -- to make the button look like a normal button.
 --
-toggleButtonSetMode :: ToggleButtonClass tb => tb -> Bool -> IO ()
-toggleButtonSetMode tb mode =
-  {#call toggle_button_set_mode#} (toToggleButton tb) (fromBool mode)
+-- This function only effects instances of classes like 'CheckButton' and
+-- 'RadioButton' that derive from 'ToggleButton', not instances of
+-- 'ToggleButton' itself.
+--
+toggleButtonSetMode :: ToggleButtonClass self => self
+ -> Bool  -- ^ @drawIndicator@ - if @True@, draw the button as a separate
+          -- indicator and label; if @False@, draw the button like a normal
+          -- button
+ -> IO ()
+toggleButtonSetMode self drawIndicator =
+  {# call toggle_button_set_mode #}
+    (toToggleButton self)
+    (fromBool drawIndicator)
 
 -- | Retrieves whether the button is displayed as a separate indicator and
--- label.
+-- label. See 'toggleButtonSetMode'.
 --
-toggleButtonGetMode :: ToggleButtonClass tb => tb -> IO Bool
-toggleButtonGetMode tb =
-  liftM toBool $ {#call unsafe toggle_button_get_mode#} (toToggleButton tb)
+toggleButtonGetMode :: ToggleButtonClass self => self
+ -> IO Bool -- ^ returns @True@ if the togglebutton is drawn as a separate
+            -- indicator and label.
+toggleButtonGetMode self =
+  liftM toBool $
+  {# call unsafe toggle_button_get_mode #}
+    (toToggleButton self)
 
--- | Emit the 'toggled' signal on the button.
+-- | Emits the toggled signal on the 'ToggleButton'. There is no good reason
+-- for an application ever to call this function.
 --
-toggleButtonToggled :: ToggleButtonClass tb => tb -> IO ()
-toggleButtonToggled tb = {#call toggle_button_toggled#} (toToggleButton tb)
+toggleButtonToggled :: ToggleButtonClass self => self -> IO ()
+toggleButtonToggled self =
+  {# call toggle_button_toggled #}
+    (toToggleButton self)
 
--- | Retrieve the current state of the button. Returns True if the button is
--- depressed.
+-- | Queries a 'ToggleButton' and returns its current state. Returns @True@ if
+-- the toggle button is pressed in and @False@ if it is raised.
 --
-toggleButtonGetActive :: ToggleButtonClass tb => tb -> IO Bool
-toggleButtonGetActive tb = liftM toBool $
-  {#call unsafe toggle_button_get_active#} (toToggleButton tb)
+toggleButtonGetActive :: ToggleButtonClass self => self
+ -> IO Bool
+toggleButtonGetActive self =
+  liftM toBool $
+  {# call unsafe toggle_button_get_active #}
+    (toToggleButton self)
 
--- | Sets the state of the ToggleButton. True means the button should be
--- depressed.
+-- | Sets the status of the toggle button. Set to @True@ if you want the
+-- 'ToggleButton' to be \'pressed in\', and @False@ to raise it. This action
+-- causes the toggled signal to be emitted.
 --
-toggleButtonSetActive :: ToggleButtonClass tb => tb -> Bool -> IO ()
-toggleButtonSetActive tb active =
-  {#call toggle_button_set_active#} (toToggleButton tb) (fromBool active)
+toggleButtonSetActive :: ToggleButtonClass self => self
+ -> Bool  -- ^ @isActive@ - @True@ or @False@.
+ -> IO ()
+toggleButtonSetActive self isActive =
+  {# call toggle_button_set_active #}
+    (toToggleButton self)
+    (fromBool isActive)
 
--- | Retrieve the inconsistent flag of the button. An inconsistent state only
--- visually affects the button. It will be displayed in an \"in-between\" state.
+-- | Gets the value set by 'toggleButtonSetInconsistent'.
 --
-toggleButtonGetInconsistent :: ToggleButtonClass tb => tb -> IO Bool
-toggleButtonGetInconsistent tb = liftM toBool $
-  {#call unsafe toggle_button_get_inconsistent#} (toToggleButton tb)
+toggleButtonGetInconsistent :: ToggleButtonClass self => self
+ -> IO Bool -- ^ returns @True@ if the button is displayed as inconsistent,
+            -- @False@ otherwise
+toggleButtonGetInconsistent self =
+  liftM toBool $
+  {# call unsafe toggle_button_get_inconsistent #}
+    (toToggleButton self)
 
--- | Sets the inconsistent flag of the ToggleButton.
+-- | If the user has selected a range of elements (such as some text or
+-- spreadsheet cells) that are affected by a toggle button, and the current
+-- values in that range are inconsistent, you may want to display the toggle in
+-- an \"in between\" state. This function turns on \"in between\" display.
+-- Normally you would turn off the inconsistent state again if the user toggles
+-- the toggle button. This has to be done manually,
+-- 'toggleButtonSetInconsistent' only affects visual appearance, it doesn't
+-- affect the semantics of the button.
 --
-toggleButtonSetInconsistent :: ToggleButtonClass tb => tb -> Bool -> IO ()
-toggleButtonSetInconsistent tb incon =
-  {#call toggle_button_set_inconsistent#} (toToggleButton tb) (fromBool incon)
+toggleButtonSetInconsistent :: ToggleButtonClass self => self
+ -> Bool  -- ^ @setting@ - @True@ if state is inconsistent
+ -> IO ()
+toggleButtonSetInconsistent self setting =
+  {# call toggle_button_set_inconsistent #}
+    (toToggleButton self)
+    (fromBool setting)
 
 --------------------
 -- Properties
@@ -202,9 +253,11 @@ toggleButtonMode = Attr
 --------------------
 -- Signals
 
--- | Whenever the state of the button is changed, the toggled signal is emitted.
+-- | Whenever the state of the button is changed, the toggled signal is
+-- emitted.
 --
-onToggled, afterToggled :: ButtonClass b => b -> IO () -> IO (ConnectId b)
+onToggled, afterToggled :: ToggleButtonClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onToggled = connect_NONE__NONE "toggled" False
 afterToggled = connect_NONE__NONE "toggled" True
-

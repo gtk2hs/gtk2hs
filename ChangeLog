@@ -4,6 +4,11 @@
 	marshaling functions to help marshal values that might be NULL into a
 	Maybe type where NULL gets mapped to Nothing.
 
+	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,
+	gtk/Graphics/UI/Gtk/Buttons/CheckButton.chs,
+	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs: documentation changes
+	and code formatting changes.
+
 2005-03-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: segfault bug fix. Clear up
