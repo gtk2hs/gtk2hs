@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry Widget Notebook@
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2003/07/09 22:42:44 $
+--  Version $Revision: 1.6 $ from $Date: 2003/11/16 11:13:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -39,6 +40,7 @@
 -- * The signals focus-tab and select-page are not bound because it is unclear
 --   what they mean. As far as I can see they are not emitted anywhere.
 --
+#include<gtk/gtkversion.h>
 module Notebook(
   Notebook,
   NotebookClass,
@@ -68,7 +70,9 @@ module Notebook(
   notebookGetCurrentPage,
   notebookGetMenuLabel,
   notebookGetNthPage,
+#if GTK_CHECK_VERSION(2,2,0)
   notebookGetNPages,
+#endif
   notebookGetTabLabel,
   Packing(..), PackType(..),
   notebookQueryTabLabelPacking,
@@ -322,11 +326,17 @@ notebookGetNthPage nb pos = do
   if wPtr==nullPtr then return Nothing else liftM Just $
     makeNewObject mkWidget $ return wPtr
 
+#if GTK_CHECK_VERSION(2,2,0)
+
 -- @method notebookGetNPages@ Get the number of pages in a notebook.
+--
+-- * Only available in Gtk 2.2 and higher.
 --
 notebookGetNPages :: NotebookClass nb => nb -> IO Int
 notebookGetNPages nb = liftM fromIntegral $
   {#call unsafe notebook_get_n_pages#} (toNotebook nb)
+
+#endif
 
 -- @method notebookGetTabLabel@ Extract the tab label from the given
 -- @ref arg child@.

@@ -1,4 +1,9 @@
-2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
+2003-11-16 Axel Simon <A.Simon@kent.ukc.ac.uk>
+
+	* gtk/layout/Notebook.chs: The function notebookGetNPages does not
+	exist in Gtk 2.0. Do not bind it in this case.
+	
+2003-11-15 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
 	* INSTALL: Add instructions for Windows.
 	
