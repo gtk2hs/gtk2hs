@@ -1,0 +1,15 @@
+Package {
+     name            = "gtk2hs",
+     auto            = False,
+     import_dirs     = ["@hidir@"],
+     source_dirs     = [],
+     library_dirs    = [@GTK_LIBDIR_CQ@],
+     hs_libraries    = ["gtk2hs"],
+     extra_libraries = [@GTK_LIBS_CQ@],
+     include_dirs    = [@GTK_CFLAGS_CQ@],
+     c_includes      = ["gtk/gtk.h"],
+     package_deps    = ["data"],
+     extra_ghc_opts  = [],
+     extra_cc_opts   = [],
+     extra_ld_opts   = [@GTK_LIBEXTRA_CQ@]
+}
