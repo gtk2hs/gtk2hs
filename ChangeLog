@@ -65,6 +65,9 @@
 	gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp: trivial changes merged
 	from the generated modules.
 
+	* gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs: trivial changes
+	merged from the generated modules.
+
 2005-04-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs, tools/apiGen/ApiGen.hs,

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/24 15:16:18 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:57:13 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -133,11 +133,8 @@ scrolledWindowNew hadjustment vadjustment =
   makeNewObject mkScrolledWindow $
   liftM (castPtr :: Ptr Widget -> Ptr ScrolledWindow) $
   {# call unsafe scrolled_window_new #}
-    (fromMAdj hadjustment)
-    (fromMAdj vadjustment)
- where
- fromMAdj :: Maybe Adjustment -> Adjustment
- fromMAdj = fromMaybe $ mkAdjustment nullForeignPtr
+    (fromMaybe (Adjustment nullForeignPtr) hadjustment)
+    (fromMaybe (Adjustment nullForeignPtr) vadjustment)
 
 --------------------
 -- Methods
@@ -145,8 +142,7 @@ scrolledWindowNew hadjustment vadjustment =
 -- | Returns the horizontal scrollbar's adjustment, used to connect the
 -- horizontal scrollbar to the child widget's horizontal scroll functionality.
 --
-scrolledWindowGetHAdjustment :: ScrolledWindowClass self => self
- -> IO Adjustment
+scrolledWindowGetHAdjustment :: ScrolledWindowClass self => self -> IO Adjustment
 scrolledWindowGetHAdjustment self =
   makeNewObject mkAdjustment $
   {# call unsafe scrolled_window_get_hadjustment #}
@@ -155,8 +151,7 @@ scrolledWindowGetHAdjustment self =
 -- | Returns the vertical scrollbar's adjustment, used to connect the vertical
 -- scrollbar to the child widget's vertical scroll functionality.
 --
-scrolledWindowGetVAdjustment :: ScrolledWindowClass self => self
- -> IO Adjustment
+scrolledWindowGetVAdjustment :: ScrolledWindowClass self => self -> IO Adjustment
 scrolledWindowGetVAdjustment self =
   makeNewObject mkAdjustment $
   {# call unsafe scrolled_window_get_vadjustment #}
@@ -232,8 +227,7 @@ scrolledWindowSetPlacement self windowPlacement =
 -- | Gets the placement of the scrollbars for the scrolled window. See
 -- 'scrolledWindowSetPlacement'.
 --
-scrolledWindowGetPlacement :: ScrolledWindowClass self => self
- -> IO CornerType
+scrolledWindowGetPlacement :: ScrolledWindowClass self => self -> IO CornerType
 scrolledWindowGetPlacement self =
   liftM (toEnum . fromIntegral) $
   {# call unsafe scrolled_window_get_placement #}
@@ -241,9 +235,7 @@ scrolledWindowGetPlacement self =
 
 -- | Changes the type of shadow drawn around the contents of @scrolledWindow@.
 --
-scrolledWindowSetShadowType :: ScrolledWindowClass self => self
- -> ShadowType
- -> IO ()
+scrolledWindowSetShadowType :: ScrolledWindowClass self => self -> ShadowType -> IO ()
 scrolledWindowSetShadowType self type_ =
   {# call scrolled_window_set_shadow_type #}
     (toScrolledWindow self)
@@ -252,8 +244,7 @@ scrolledWindowSetShadowType self type_ =
 -- | Gets the shadow type of the scrolled window. See
 -- 'scrolledWindowSetShadowType'.
 --
-scrolledWindowGetShadowType :: ScrolledWindowClass self => self
- -> IO ShadowType
+scrolledWindowGetShadowType :: ScrolledWindowClass self => self -> IO ShadowType
 scrolledWindowGetShadowType self =
   liftM (toEnum . fromIntegral) $
   {# call unsafe scrolled_window_get_shadow_type #}
@@ -261,9 +252,7 @@ scrolledWindowGetShadowType self =
 
 -- | Sets the 'Adjustment' for the horizontal scrollbar.
 --
-scrolledWindowSetHAdjustment :: ScrolledWindowClass self => self
- -> Adjustment
- -> IO ()
+scrolledWindowSetHAdjustment :: ScrolledWindowClass self => self -> Adjustment -> IO ()
 scrolledWindowSetHAdjustment self hadjustment =
   {# call scrolled_window_set_hadjustment #}
     (toScrolledWindow self)
@@ -271,9 +260,7 @@ scrolledWindowSetHAdjustment self hadjustment =
 
 -- | Sets the 'Adjustment' for the vertical scrollbar.
 --
-scrolledWindowSetVAdjustment :: ScrolledWindowClass self => self
- -> Adjustment
- -> IO ()
+scrolledWindowSetVAdjustment :: ScrolledWindowClass self => self -> Adjustment -> IO ()
 scrolledWindowSetVAdjustment self vadjustment =
   {# call scrolled_window_set_vadjustment #}
     (toScrolledWindow self)
