@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:40 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/14 23:55:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A base class for widgets with alignments and padding.
+-- Base class for widgets with alignments and padding
 --
 module Graphics.UI.Gtk.Abstract.Misc (
--- * Description
+-- * Detail
 -- 
 -- | The 'Misc' widget is an abstract widget which is not useful itself, but
 -- is used to derive subclasses which have alignment and padding attributes.
@@ -76,34 +76,61 @@ import System.Glib.FFI
 --------------------
 -- Methods
 
--- | Set the alignment of the widget.
+-- | Sets the alignment of the widget.
 --
-miscSetAlignment :: MiscClass m => m -> Double -> Double -> IO ()
-miscSetAlignment misc xalign yalign =  {#call misc_set_alignment#} 
-  (toMisc misc) (realToFrac xalign) (realToFrac yalign) 
-    
--- | Get the alignment of the widget.
+miscSetAlignment :: MiscClass self => self
+ -> Float -- ^ @xalign@ - the horizontal alignment, from 0 (left) to 1
+          -- (right).
+ -> Float -- ^ @yalign@ - the vertical alignment, from 0 (top) to 1 (bottom).
+ -> IO ()
+miscSetAlignment self xalign yalign =
+  {# call misc_set_alignment #}
+    (toMisc self)
+    (realToFrac xalign)
+    (realToFrac yalign)
+
+-- | Gets the X and Y alignment of the widget within its allocation. See
+-- 'miscSetAlignment'.
 --
-miscGetAlignment :: MiscClass m => m -> IO (Double, Double)
-miscGetAlignment misc = 
-  alloca $ \xalignPtr -> alloca $ \yalignPtr -> do
-  {#call unsafe misc_get_alignment#} (toMisc misc) xalignPtr yalignPtr
+miscGetAlignment :: MiscClass self => self
+ -> IO (Double, Double)
+miscGetAlignment self =
+  alloca $ \xalignPtr ->
+  alloca $ \yalignPtr -> do
+  {# call unsafe misc_get_alignment #}
+    (toMisc self)
+    xalignPtr
+    yalignPtr
   xalign <- peek xalignPtr
   yalign <- peek yalignPtr
   return (realToFrac xalign, realToFrac yalign)
 
--- | Set the amount of space to add around the widget.
+-- | Sets the amount of space to add around the widget.
 --
-miscSetPadding :: MiscClass m => m -> Int -> Int -> IO ()
-miscSetPadding misc xpad ypad = {#call misc_set_padding#} 
-  (toMisc misc) (fromIntegral xpad) (fromIntegral ypad) 
+miscSetPadding :: MiscClass self => self
+ -> Int   -- ^ @xpad@ - the amount of space to add on the left and right of
+          -- the widget, in pixels.
+ -> Int   -- ^ @ypad@ - the amount of space to add on the top and bottom of
+          -- the widget, in pixels.
+ -> IO ()
+miscSetPadding self xpad ypad =
+  {# call misc_set_padding #}
+    (toMisc self)
+    (fromIntegral xpad)
+    (fromIntegral ypad)
 
--- | Get the amount of space added around the widget.
+-- | Gets the padding in the X and Y directions of the widget. See
+-- 'miscSetPadding'.
 --
-miscGetPadding :: MiscClass m => m -> IO (Int, Int)
-miscGetPadding misc =
-  alloca $ \xpadPtr -> alloca $ \ypadPtr -> do
-  {#call unsafe misc_get_padding#} (toMisc misc) xpadPtr ypadPtr
+miscGetPadding :: MiscClass self => self
+ -> IO (Int, Int)
+miscGetPadding self =
+  alloca $ \xpadPtr ->
+  alloca $ \ypadPtr -> do
+  {# call unsafe misc_get_padding #}
+    (toMisc self)
+    xpadPtr
+    ypadPtr
   xpad <- peek xpadPtr
   ypad <- peek ypadPtr
   return (fromIntegral xpad, fromIntegral ypad)

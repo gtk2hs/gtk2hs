@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/14 23:55:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- Base class for widgets with two adjustable panes
 --
 module Graphics.UI.Gtk.Abstract.Paned (
--- * Description
+-- * Detail
 -- 
 -- | 'Paned' is the base class for widgets with two panes, arranged either
 -- horizontally ('HPaned') or vertically ('VPaned'). Child widgets are added to
@@ -99,56 +99,100 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Methods
 
--- | Add a widget to the first (top or left) area.
+-- | Adds a child to the top or left pane with default parameters. This is
+-- equivalent to @'panedPack1' paned child False True@.
 --
--- * The widget does not expand if 'Paned' expands. It does not shrink either.
---
-panedAdd1 :: (PanedClass p, WidgetClass w) => p -> w -> IO ()
-panedAdd1 p w = {#call paned_add1#} (toPaned p) (toWidget w)
+panedAdd1 :: (PanedClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - the child to add
+ -> IO ()
+panedAdd1 self child =
+  {# call paned_add1 #}
+    (toPaned self)
+    (toWidget child)
 
--- | Add a widget to the second (bottom or right) area.
+-- | Adds a child to the bottom or right pane with default parameters. This is
+-- equivalent to @'panedPack2' paned child True True@.
 --
--- * The widget does not expand if 'Paned' expands. But it does shrink.
---
-panedAdd2 :: (PanedClass p, WidgetClass w) => p -> w -> IO ()
-panedAdd2 p w = {#call paned_add2#} (toPaned p) (toWidget w)
+panedAdd2 :: (PanedClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - the child to add
+ -> IO ()
+panedAdd2 self child =
+  {# call paned_add2 #}
+    (toPaned self)
+    (toWidget child)
 
--- | Add a widget to the first area and specify its resizing behaviour.
+-- | Adds a child to the top or left pane.
 --
-panedPack1 :: (PanedClass p, WidgetClass w) => p -> w -> Bool -> Bool -> IO ()
-panedPack1 p w expand shrink = {#call paned_pack1#} 
-  (toPaned p) (toWidget w) (fromBool expand) (fromBool shrink)
+panedPack1 :: (PanedClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - the child to add
+ -> Bool  -- ^ @resize@ - should this child expand when the paned widget is
+          -- resized.
+ -> Bool  -- ^ @shrink@ - can this child be made smaller than its requsition.
+ -> IO ()
+panedPack1 self child resize shrink =
+  {# call paned_pack1 #}
+    (toPaned self)
+    (toWidget child)
+    (fromBool resize)
+    (fromBool shrink)
 
--- | Add a widget to the second area and specify its resizing behaviour.
+-- | Adds a child to the bottom or right pane.
 --
-panedPack2 :: (PanedClass p, WidgetClass w) => p -> w -> Bool -> Bool -> IO ()
-panedPack2 p w expand shrink = {#call paned_pack2#} 
-  (toPaned p) (toWidget w) (fromBool expand) (fromBool shrink)
+panedPack2 :: (PanedClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - the child to add
+ -> Bool  -- ^ @resize@ - should this child expand when the paned widget is
+          -- resized.
+ -> Bool  -- ^ @shrink@ - can this child be made smaller than its requsition.
+ -> IO ()
+panedPack2 self child resize shrink =
+  {# call paned_pack2 #}
+    (toPaned self)
+    (toWidget child)
+    (fromBool resize)
+    (fromBool shrink)
 
--- | Set the gutter to the specified @position@ (in pixels).
+-- | Sets the position of the divider between the two panes.
 --
-panedSetPosition :: PanedClass p => p -> Int -> IO ()
-panedSetPosition p position = 
-  {#call paned_set_position#} (toPaned p) (fromIntegral position)
+panedSetPosition :: PanedClass self => self
+ -> Int   -- ^ @position@ - pixel position of divider, a negative value means
+          -- that the position is unset.
+ -> IO ()
+panedSetPosition self position =
+  {# call paned_set_position #}
+    (toPaned self)
+    (fromIntegral position)
 
--- | Get the gutter position (in pixels).
+-- | Obtains the position of the divider between the two panes.
 --
-panedGetPosition :: PanedClass p => p -> IO Int
-panedGetPosition p = liftM fromIntegral $
-  {#call unsafe paned_get_position#} (toPaned p)
+panedGetPosition :: PanedClass self => self
+ -> IO Int -- ^ returns position of the divider
+panedGetPosition self =
+  liftM fromIntegral $
+  {# call unsafe paned_get_position #}
+    (toPaned self)
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Obtains the first child of the paned widget.
 --
-panedGetChild1 :: PanedClass p => p -> IO Widget
-panedGetChild1 p =
-  makeNewObject mkWidget $ {#call unsafe paned_get_child1#} (toPaned p)
+-- * Available since Gtk version 2.4
+--
+panedGetChild1 :: PanedClass self => self
+ -> IO Widget -- ^ returns first child
+panedGetChild1 self =
+  makeNewObject mkWidget $
+  {# call unsafe paned_get_child1 #}
+    (toPaned self)
 
 -- | Obtains the second child of the paned widget.
 --
-panedGetChild2 :: PanedClass p => p -> IO Widget
-panedGetChild2 p =
-  makeNewObject mkWidget $ {#call unsafe paned_get_child2#} (toPaned p)
+-- * Available since Gtk version 2.4
+--
+panedGetChild2 :: PanedClass self => self
+ -> IO Widget -- ^ returns second child
+panedGetChild2 self =
+  makeNewObject mkWidget $
+  {# call unsafe paned_get_child2 #}
+    (toPaned self)
 #endif
 
 --------------------

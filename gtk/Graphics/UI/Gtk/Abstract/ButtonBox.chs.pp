@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/14 23:55:07 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -27,7 +27,7 @@
 -- Base class for 'HButtonBox' and 'VButtonBox'
 --
 module Graphics.UI.Gtk.Abstract.ButtonBox (
--- * Description
+-- * Detail
 -- 
 -- | The primary purpose of this class is to keep track of the various
 -- properties of 'HButtonBox' and 'VButtonBox' widgets.
@@ -91,45 +91,63 @@ import Graphics.UI.Gtk.General.Enums (ButtonBoxStyle)
 --------------------
 -- Methods
 
--- | Retrieve the method being used to
--- arrange the buttons in the button box
+-- | Retrieves the method being used to arrange the buttons in the button box.
 --
-buttonBoxGetLayout :: ButtonBoxClass b => b -> IO ButtonBoxStyle
-buttonBoxGetLayout b = liftM (toEnum . fromIntegral) $
-  {#call gtk_button_box_get_layout#} (toButtonBox b)
+buttonBoxGetLayout :: ButtonBoxClass self => self
+ -> IO ButtonBoxStyle
+buttonBoxGetLayout self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_button_box_get_layout #}
+    (toButtonBox self)
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | Returns whether child should appear
--- in a secondary group of children
+-- | Returns whether @child@ should appear in a secondary group of children.
 --
--- * Since Gtk 2.4.
-buttonBoxGetChildSecondary :: (ButtonBoxClass b, WidgetClass w) => b -> w -> IO Bool
-buttonBoxGetChildSecondary b w = liftM toBool $
-  {#call gtk_button_box_get_child_secondary#} (toButtonBox b) (toWidget w)
+-- * Available since Gtk version 2.4
+--
+buttonBoxGetChildSecondary :: (ButtonBoxClass self, WidgetClass child) => self
+ -> child   -- ^ @child@ - a child of the button box widget
+ -> IO Bool -- ^ returns whether @child@ should appear in a secondary group of
+            -- children.
+buttonBoxGetChildSecondary self child =
+  liftM toBool $
+  {# call gtk_button_box_get_child_secondary #}
+    (toButtonBox self)
+    (toWidget child)
 #endif
 
--- | Changes the way buttons are arranged in their container
+-- | Changes the way buttons are arranged in their container.
 --
-buttonBoxSetLayout :: ButtonBoxClass b => b -> ButtonBoxStyle -> IO ()
-buttonBoxSetLayout b l =
-  {#call gtk_button_box_set_layout#} (toButtonBox b)
-    ((fromIntegral . fromEnum) l)
+buttonBoxSetLayout :: ButtonBoxClass self => self
+ -> ButtonBoxStyle -- ^ @layoutStyle@ - the new layout style.
+ -> IO ()
+buttonBoxSetLayout self layoutStyle =
+  {# call gtk_button_box_set_layout #}
+    (toButtonBox self)
+    ((fromIntegral . fromEnum) layoutStyle)
 
--- | Sets whether child should appear in a secondary
--- group of children. A typical use of a secondary child is the help button in a dialog.
+-- | Sets whether @child@ should appear in a secondary group of children. A
+-- typical use of a secondary child is the help button in a dialog.
 --
--- * This group appears after the other children if the style is 'ButtonboxStart',
--- 'ButtonboxSpread' or 'ButtonboxEdge', and before the the other children if the
--- style is 'ButtonboxEnd'. For horizontal button boxes, the definition of before\/after
--- depends on direction of the widget (see 'widgetSetDirection'). If the style is
--- 'buttonBoxStart' or 'buttonBoxEnd', then the secondary children are aligned at
--- the other end of the button box from the main children. For the other styles,
--- they appear immediately next to the main children.
+-- This group appears after the other children if the style is
+-- 'ButtonboxStart', 'ButtonboxSpread' or 'ButtonboxEdge', and before the the
+-- other children if the style is 'ButtonboxEnd'. For horizontal button boxes,
+-- the definition of before\/after depends on direction of the widget (see
+-- 'widgetSetDirection'). If the style is 'ButtonboxStart' or 'ButtonboxEnd',
+-- then the secondary children are aligned at the other end of the button box
+-- from the main children. For the other styles, they appear immediately next
+-- to the main children.
 --
-buttonBoxSetChildSecondary :: (ButtonBoxClass b, WidgetClass w) => b -> w -> Bool -> IO ()
-buttonBoxSetChildSecondary b w s =
-  {#call gtk_button_box_set_child_secondary #} (toButtonBox b) (toWidget w)
-    (fromBool s)
+buttonBoxSetChildSecondary :: (ButtonBoxClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - a child of the button box widget
+ -> Bool  -- ^ @isSecondary@ - if @True@, the @child@ appears in a secondary
+          -- group of the button box.
+ -> IO ()
+buttonBoxSetChildSecondary self child isSecondary =
+  {# call gtk_button_box_set_child_secondary #}
+    (toButtonBox self)
+    (toWidget child)
+    (fromBool isSecondary)
 
 --------------------
 -- Properties

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/03/14 23:55:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,12 +24,31 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This is the abstract base class for HScrollbar and VScrollbar.
+-- Base class for 'HScrollbar' and 'VScrollbar'
 --
 module Graphics.UI.Gtk.Abstract.Scrollbar (
+-- * Detail
+-- 
+-- | The 'Scrollbar' widget is an abstract base class for 'HScrollbar' and
+-- 'VScrollbar'. It is not very useful in itself.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----'Range'
+-- |                     +----Scrollbar
+-- |                           +----'HScrollbar'
+-- |                           +----'VScrollbar'
+-- @
+
+-- * Types
   Scrollbar,
-  ScrollbarClass
+  ScrollbarClass,
+  castToScrollbar
   ) where
 
-import Graphics.UI.Gtk.Types (Scrollbar, ScrollbarClass)
+import Graphics.UI.Gtk.Types (Scrollbar, ScrollbarClass, castToScrollbar)
 

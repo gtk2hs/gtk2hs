@@ -4,6 +4,17 @@
 	confusion between pointer to rectangles and pointer to a pointer to
 	rectangles.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Misc.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scale.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs,
+	gtk/Graphics/UI/Gtk/Abstract/Separator.hs: documentation changes and
+	code formatting changes.
+
 2005-03-13 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/Attributes.hs: new file defining Attr data type

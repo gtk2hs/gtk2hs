@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:40 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/14 23:55:06 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This abstract widget implements a container with just one child.
+-- A container with just one child
 --
 module Graphics.UI.Gtk.Abstract.Bin (
--- * Description
+-- * Detail
 -- 
 -- | The 'Bin' widget is a container with just one child. It is not very
 -- useful itself, but it is useful for deriving subclasses, since it provides
@@ -44,11 +44,11 @@ module Graphics.UI.Gtk.Abstract.Bin (
 -- |         +----'Widget'
 -- |               +----'Container'
 -- |                     +----Bin
+-- |                           +----'Window'
 -- |                           +----'Alignment'
 -- |                           +----'Frame'
 -- |                           +----'Button'
 -- |                           +----'Item'
--- |                           +----'Window'
 -- |                           +----'ComboBox'
 -- |                           +----'EventBox'
 -- |                           +----'Expander'
@@ -76,6 +76,11 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 --------------------
 -- Methods
 
-binGetChild :: BinClass bin => bin -> IO Widget
-binGetChild bin =
-  makeNewObject mkWidget $ {# call gtk_bin_get_child #} (toBin bin)
+-- | Gets the child of the 'Bin'
+--
+binGetChild :: BinClass self => self
+ -> IO Widget -- ^ returns the child of the 'Bin'
+binGetChild self =
+  makeNewObject mkWidget $
+  {# call gtk_bin_get_child #}
+    (toBin self)

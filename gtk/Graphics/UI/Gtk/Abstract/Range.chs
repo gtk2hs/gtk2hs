@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/14 23:55:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -74,7 +74,9 @@ module Graphics.UI.Gtk.Abstract.Range (
 
 -- * Signals
   onMoveSlider,
-  afterMoveSlider
+  afterMoveSlider,
+  onAdjustBounds,
+  afterAdjustBounds,
   ) where
 
 import Monad	(liftM)
@@ -91,80 +93,126 @@ import Graphics.UI.Gtk.General.Enums	(UpdateType(..), ScrollType(..))
 --------------------
 -- Methods
 
--- | Extract the 'Adjustment' object.
+-- | Get the 'Adjustment' which is the \"model\" object for 'Range'. See
+-- 'rangeSetAdjustment' for details.
 --
-rangeGetAdjustment :: RangeClass r => r -> IO Adjustment
-rangeGetAdjustment r = makeNewObject mkAdjustment $
-  {#call unsafe range_get_adjustment#} (toRange r)
+rangeGetAdjustment :: RangeClass self => self
+ -> IO Adjustment -- ^ returns a 'Adjustment'
+rangeGetAdjustment self =
+  makeNewObject mkAdjustment $
+  {# call unsafe range_get_adjustment #}
+    (toRange self)
 
--- | Insert a new 'Adjustment' object.
+-- | Sets the adjustment to be used as the \"model\" object for this range
+-- widget. The adjustment indicates the current range value, the minimum and
+-- maximum range values, the step\/page increments used for keybindings and
+-- scrolling, and the page size. The page size is normally 0 for 'Scale' and
+-- nonzero for 'Scrollbar', and indicates the size of the visible area of the
+-- widget being scrolled. The page size affects the size of the scrollbar
+-- slider.
 --
-rangeSetAdjustment :: RangeClass r => r -> Adjustment -> IO ()
-rangeSetAdjustment r adj = {#call range_set_adjustment#} (toRange r) adj
+rangeSetAdjustment :: RangeClass self => self
+ -> Adjustment -- ^ @adjustment@ - a 'Adjustment'
+ -> IO ()
+rangeSetAdjustment self adjustment =
+  {# call range_set_adjustment #}
+    (toRange self)
+    adjustment
 
--- | Get the update policy for the range widget.
+-- | Gets the update policy of @range@. See 'rangeSetUpdatePolicy'.
 --
-rangeGetUpdatePolicy :: RangeClass r => r -> IO UpdateType
-rangeGetUpdatePolicy r = liftM (toEnum.fromIntegral) $
-  {#call unsafe range_get_update_policy#} (toRange r)
+rangeGetUpdatePolicy :: RangeClass self => self
+ -> IO UpdateType -- ^ returns the current update policy
+rangeGetUpdatePolicy self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe range_get_update_policy #}
+    (toRange self)
 
--- | Set how the internal 'Adjustment' object is updated.
+-- | Sets the update policy for the range. 'UpdateContinuous' means that
+-- anytime the range slider is moved, the range value will change and the
+-- value_changed signal will be emitted. 'UpdateDelayed' means that the value
+-- will be updated after a brief timeout where no slider motion occurs, so
+-- updates are spaced by a short time rather than continuous.
+-- 'UpdateDiscontinuous' means that the value will only be updated when the
+-- user releases the button and ends the slider drag operation.
 --
--- * The value of 'UpdateType' determines how frequently value-changed 
---   signals are emitted on the internal 'Adjustment' object.
---
-rangeSetUpdatePolicy :: RangeClass r => r -> UpdateType -> IO ()
-rangeSetUpdatePolicy r up = {#call range_set_update_policy#}
-  (toRange r) ((fromIntegral.fromEnum) up)
+rangeSetUpdatePolicy :: RangeClass self => self
+ -> UpdateType -- ^ @policy@ - update policy
+ -> IO ()
+rangeSetUpdatePolicy self policy =
+  {# call range_set_update_policy #}
+    (toRange self)
+    ((fromIntegral . fromEnum) policy)
 
--- | Get the inverted flag (determines if the range is reversed).
+-- | Gets the value set by 'rangeSetInverted'.
 --
-rangeGetInverted :: RangeClass r => r -> IO Bool
-rangeGetInverted r = 
-  liftM toBool $ {#call unsafe range_get_inverted#} (toRange r)
+rangeGetInverted :: RangeClass self => self
+ -> IO Bool -- ^ returns @True@ if the range is inverted
+rangeGetInverted self =
+  liftM toBool $
+  {# call unsafe range_get_inverted #}
+    (toRange self)
 
--- | Set the inverted flag.
+-- | Ranges normally move from lower to higher values as the slider moves from
+-- top to bottom or left to right. Inverted ranges have higher values at the
+-- top or on the right rather than on the bottom or left.
 --
-rangeSetInverted :: RangeClass r => r -> Bool -> IO ()
-rangeSetInverted r inv = {#call range_set_inverted#} (toRange r) (fromBool inv)
+rangeSetInverted :: RangeClass self => self
+ -> Bool  -- ^ @setting@ - @True@ to invert the range
+ -> IO ()
+rangeSetInverted self setting =
+  {# call range_set_inverted #}
+    (toRange self)
+    (fromBool setting)
 
 -- | Gets the current value of the range.
 --
-rangeGetValue :: RangeClass r => r -> IO Double
-rangeGetValue r = liftM realToFrac $
-  {#call unsafe range_get_value#} (toRange r)
+rangeGetValue :: RangeClass self => self
+ -> IO Double -- ^ returns current value of the range.
+rangeGetValue self =
+  liftM realToFrac $
+  {# call unsafe range_get_value #}
+    (toRange self)
 
--- | Sets the current value of the range. The range emits the \"value_changed\"
--- signal if the value changes.
+-- | Sets the current value of the range; if the value is outside the minimum
+-- or maximum range values, it will be clamped to fit inside them. The range
+-- emits the \"value_changed\" signal if the value changes.
 --
--- * If the value is outside the minimum or maximum range values, it will be
--- clamped to fit inside them.
---
-rangeSetValue :: RangeClass r => r -> Double -> IO ()
-rangeSetValue r value =
-  {#call range_set_value#} (toRange r) (realToFrac value)
+rangeSetValue :: RangeClass self => self
+ -> Double -- ^ @value@ - new value of the range
+ -> IO ()
+rangeSetValue self value =
+  {# call range_set_value #}
+    (toRange self)
+    (realToFrac value)
 
--- | Sets the step and page sizes for the range. 
--- The step size is used when the
--- user clicks the "Scrollbar" arrows or moves "Scale" via arrow keys. The
+-- | Sets the step and page sizes for the range. The step size is used when
+-- the user clicks the 'Scrollbar' arrows or moves 'Scale' via arrow keys. The
 -- page size is used for example when moving via Page Up or Page Down keys.
 --
-rangeSetIncrements :: RangeClass r => r
-                   -> Double  -- ^ step size
-                   -> Double  -- ^ page size
-                   -> IO ()
-rangeSetIncrements r step page =
- {#call range_set_increments#} (toRange r) (realToFrac step) (realToFrac page)
+rangeSetIncrements :: RangeClass self => self
+ -> Double -- ^ @step@ - step size
+ -> Double -- ^ @page@ - page size
+ -> IO ()
+rangeSetIncrements self step page =
+  {# call range_set_increments #}
+    (toRange self)
+    (realToFrac step)
+    (realToFrac page)
 
--- | Sets the allowable values in the 'Range', and clamps the range value to be
--- between min and max.
+-- | Sets the allowable values in the 'Range', and clamps the range value to
+-- be between @min@ and @max@. (If the range has a non-zero page size, it is
+-- clamped between @min@ and @max@ - page-size.)
 --
-rangeSetRange :: RangeClass r => r
-              -> Double  -- ^ min
-              -> Double  -- ^ max
-              -> IO ()
-rangeSetRange r min max =
- {#call range_set_range#} (toRange r) (realToFrac min) (realToFrac max)
+rangeSetRange :: RangeClass self => self
+ -> Double -- ^ @min@ - minimum range value
+ -> Double -- ^ @max@ - maximum range value
+ -> IO ()
+rangeSetRange self min max =
+  {# call range_set_range #}
+    (toRange self)
+    (realToFrac min)
+    (realToFrac max)
 
 --------------------
 -- Properties
@@ -204,10 +252,33 @@ rangeValue = Attr
 --------------------
 -- Signals
 
--- | The slide has moved. The arguments give
--- detailed information what happend.
+-- | Emitted when the range value is changed either programmatically or by
+-- user action.
 --
-onMoveSlider, afterMoveSlider :: RangeClass r => r -> (ScrollType -> IO ()) ->
-                                 IO (ConnectId r)
-onMoveSlider = connect_ENUM__NONE "move-slider" False
-afterMoveSlider = connect_ENUM__NONE "move-slider" True
+onValueChanged, afterValueChanged :: RangeClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onValueChanged = connect_NONE__NONE "value_changed" False
+afterValueChanged = connect_NONE__NONE "value_changed" True
+
+-- | Emitted when the range is adjusted by user action. Note the value can be
+-- outside the bounds of the range since it depends on the mouse position.
+--
+-- Usually you should use 'onValueChanged' / 'afterValueChanged' instead.
+--
+onAdjustBounds, afterAdjustBounds :: RangeClass self => self
+ -> (Double -> IO ())
+ -> IO (ConnectId self)
+onAdjustBounds = connect_DOUBLE__NONE "adjust_bounds" False
+afterAdjustBounds = connect_DOUBLE__NONE "adjust_bounds" True
+
+-- | Emitted when the user presses a key (e.g. Page Up, Home, Right Arrow) to
+-- move the slider. The 'ScrollType' parameter gives the key that was pressed.
+--
+-- Usually you should use 'onValueChanged' / 'afterValueChanged' instead.
+--
+onMoveSlider, afterMoveSlider :: RangeClass self => self
+ -> (ScrollType -> IO ())
+ -> IO (ConnectId self)
+onMoveSlider = connect_ENUM__NONE "move_slider" False
+afterMoveSlider = connect_ENUM__NONE "move_slider" True

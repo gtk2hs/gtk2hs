@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/03/14 23:55:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,13 +24,31 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This widget is the base class for HSeparator and VSeparator.
+-- Base class for 'HSeparator' and 'VSeparator'
 --
 module Graphics.UI.Gtk.Abstract.Separator (
+-- * Detail
+-- 
+-- | The 'Separator' widget is an abstract class, used only for deriving the
+-- subclasses 'HSeparator' and 'VSeparator'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----'Widget'
+-- |               +----Separator
+-- |                     +----'HSeparator'
+-- |                     +----'VSeparator'
+-- @
+
+-- * Types
   Separator,
-  SeparatorClass
+  SeparatorClass,
+  castToSeparator
   ) where
 
-import Graphics.UI.Gtk.Types (Separator, SeparatorClass)
+import Graphics.UI.Gtk.Types (Separator, SeparatorClass, castToSeparator)
 
 -- well this widget is very abstract!

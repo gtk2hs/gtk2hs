@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:31 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/14 23:55:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,11 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This abstract container class is instatiated by using HBox or VBox. It 
--- supplies all methods to add and remove children.
+-- Base class for box containers
 --
 module Graphics.UI.Gtk.Abstract.Box (
--- * Description
+-- * Detail
 -- 
 -- | 'Box' is an abstract widget which encapsulates functionallity for a
 -- particular kind of container, one that organizes a variable number of
@@ -125,112 +124,195 @@ import Graphics.UI.Gtk.General.Enums	(PackType(..), Packing(..))
 --------------------
 -- Methods
 
--- | Insert a widget at the beginning of the box
--- container.
+-- | Adds the @child@ widget to the box, packed with reference to the start of
+-- the box. The
+-- @child@ is packed after any other child packed with reference to the start
+-- of the box.
 --
--- * The 'Packing' parameter determines how the child behaves in the
---   horizontal or vertical way in an HBox or VBox, respectively.
---   'PackNatural' means the child is as big as it reqests. It will
---   move to the left in an 'HBox' or to the top in an
---   'VBox' if there is more space availble.
---   All children
---   that have choosen 'PackRepel' for @p@ will be padded 
---   on both sides with
---   additional space. 'PackGrow' will increase the size of the
---   so that is covers the available space.
+-- The 'Packing' parameter determines how the child behaves in the horizontal
+-- or vertical way in an HBox or VBox, respectively. 'PackNatural' means the
+-- child is as big as it reqests. It will move to the left in an 'HBox' or to
+-- the top in an 'VBox' if there is more space availble.
+-- All children packed with 'PackRepel' will be padded on both sides with
+-- additional space. 'PackGrow' will increase the size of the so that is
+-- covers the available space.
 --
-boxPackStart :: (BoxClass b, WidgetClass w) => b -> w -> Packing -> Int ->
-                IO ()
-boxPackStart b w p pad = {#call box_pack_start#} (toBox b) (toWidget w)
-  (fromBool $ p/=PackNatural) (fromBool $ p==PackGrow) (fromIntegral pad)
+boxPackStart :: (BoxClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - the 'Widget' to be added to the box.
+ -> Packing
+ -> Int   -- ^ @padding@ - extra space in pixels to put between this child and
+          -- its neighbors, over and above the global amount specified by
+          -- spacing 'boxSetSpacing'. If @child@
+          -- is a widget at one of the reference ends of @box@, then @padding@
+          -- pixels are also put between @child@ and the reference edge of
+          -- @box@.
+ -> IO ()
+boxPackStart self child packing padding =
+  {# call box_pack_start #}
+    (toBox self)
+    (toWidget child)
+    (fromBool $ packing /= PackNatural)
+    (fromBool $ packing == PackGrow)
+    (fromIntegral padding)
 
--- | Insert a widget at the end of the box container.
+-- | Adds the @child@ widget to the box, packed with reference to the end of 
+-- the box. The
+-- @child@ is packed after (away from end of) any other child packed with
+-- reference to the end of the box.
 --
--- * See 'boxPackStart'. The option 'Natural' will
---   move a child to the right in an 'HBox' or to the bottom in an
---   'VBox' if there is more space availble.
+-- See 'boxPackStart' for a description of the 'Packing' parameter. Of course
+-- for 'boxPackEnd' the 'PackNatural' option will move a child to the right in
+-- an 'HBox' or to the bottom in an 'VBox' if there is more space availble.
 --
-boxPackEnd :: (BoxClass b, WidgetClass w) => b -> w -> Packing -> Int -> IO ()
-boxPackEnd b w p pad = {#call box_pack_end#} (toBox b) (toWidget w)
-  (fromBool $ p/=PackNatural) (fromBool $ p==PackGrow) (fromIntegral pad)
+boxPackEnd :: (BoxClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - the 'Widget' to be added to the box.
+ -> Packing
+ -> Int   -- ^ @padding@ - extra space in pixels to put between this child and
+          -- its neighbors, over and above the global amount specified by
+          -- spacing 'boxSetSpacing'. If @child@
+          -- is a widget at one of the reference ends of @box@, then @padding@
+          -- pixels are also put between @child@ and the reference edge of
+          -- @box@.
+ -> IO ()
+boxPackEnd self child packing padding =
+  {# call box_pack_end #}
+    (toBox self)
+    (toWidget child)
+    (fromBool $ packing /= PackNatural)
+    (fromBool $ packing == PackGrow)
+    (fromIntegral padding)
 
--- | Like 'boxPackStart' but uses the
--- default parameters 'PackRepel' and 0 for padding.
+-- | Like 'boxPackStart' but uses the default parameters 'PackRepel' and 0 for
+-- padding.
 --
-boxPackStartDefaults :: (BoxClass b, WidgetClass w) => b -> w -> IO ()
-boxPackStartDefaults b w = 
-  {#call box_pack_start_defaults#} (toBox b) (toWidget w)
+boxPackStartDefaults :: (BoxClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - the 'Widget' to be added to the box.
+ -> IO ()
+boxPackStartDefaults self widget =
+  {# call box_pack_start_defaults #}
+    (toBox self)
+    (toWidget widget)
 
--- | Like 'boxPackEnd' but uses the
--- default parameters 'PackRepel' and 0 for padding.
+-- | Like 'boxPackEnd' but uses the default parameters 'PackRepel' and 0 for
+-- padding.
 --
-boxPackEndDefaults :: (BoxClass b, WidgetClass w) => b -> w -> IO ()
-boxPackEndDefaults b w = 
-  {#call box_pack_end_defaults#} (toBox b) (toWidget w)
+boxPackEndDefaults :: (BoxClass self, WidgetClass widget) => self
+ -> widget -- ^ @widget@ - the 'Widget' to be added to the box.
+ -> IO ()
+boxPackEndDefaults self widget =
+  {# call box_pack_end_defaults #}
+    (toBox self)
+    (toWidget widget)
 
--- | Set if all children should be spread homogeneous
--- within the box.
+-- | Sets the homogeneous property,
+-- controlling whether or not all children of the box are given equal space
 --
-boxSetHomogeneous :: BoxClass b => b -> Bool -> IO ()
-boxSetHomogeneous b homo = 
-  {#call box_set_homogeneous#} (toBox b) (fromBool homo)
+boxSetHomogeneous :: BoxClass self => self
+ -> Bool  -- ^ @homogeneous@ - a boolean value, @True@ to create equal
+          -- allotments, @False@ for variable allotments.
+ -> IO ()
+boxSetHomogeneous self homogeneous =
+  {# call box_set_homogeneous #}
+    (toBox self)
+    (fromBool homogeneous)
 
--- | Get whether the box is homogeneous.
+-- | Returns whether the box is homogeneous (all children are the same size).
+-- See 'boxSetHomogeneous'.
 --
-boxGetHomogeneous :: BoxClass b => b -> IO Bool
-boxGetHomogeneous b =
-  liftM toBool $ {#call box_get_homogeneous#} (toBox b)
+boxGetHomogeneous :: BoxClass self => self
+ -> IO Bool -- ^ returns @True@ if the box is homogeneous.
+boxGetHomogeneous self =
+  liftM toBool $
+  {# call box_get_homogeneous #}
+    (toBox self)
 
 -- | Set the standard spacing between two children.
 --
--- * This space is in addition to the padding parameter that is given for each
---   child.
+-- This space is in addition to the padding parameter that is given for each
+-- child.
 --
-boxSetSpacing :: BoxClass b => b -> Int -> IO ()
-boxSetSpacing b spacing =
-  {#call box_set_spacing#} (toBox b) (fromIntegral spacing)
+boxSetSpacing :: BoxClass self => self
+ -> Int   -- ^ @spacing@ - the number of pixels to put between children.
+ -> IO ()
+boxSetSpacing self spacing =
+  {# call box_set_spacing #}
+    (toBox self)
+    (fromIntegral spacing)
 
--- | Move @child@ to a new @position@
--- (counted from 0) in the box.
+-- | Moves @child@ to a new @position@ in the list of @box@ children. The list
+-- contains both widgets packed 'PackStart' as well as widgets packed
+-- 'PackEnd', in the order that these widgets were added to the box.
 --
-boxReorderChild :: (BoxClass b, WidgetClass w) => b -> w -> Int -> IO ()
-boxReorderChild b w position = 
-  {#call box_reorder_child#} (toBox b) (toWidget w) (fromIntegral position)
+-- A widget's position in the box children list determines where the
+-- widget is packed into the box. A child widget at some position in the list
+-- will be packed just after all other widgets of the same packing type that
+-- appear earlier in the list.
+--
+boxReorderChild :: (BoxClass self, WidgetClass child) => self
+ -> child -- ^ @child@ - the 'Widget' to move.
+ -> Int   -- ^ @position@ - the new position for @child@ in the children list
+          -- starting from 0. If negative, indicates the end of the list.
+ -> IO ()
+boxReorderChild self child position =
+  {# call box_reorder_child #}
+    (toBox self)
+    (toWidget child)
+    (fromIntegral position)
 
--- | Query the packing parameter of a child.
+-- | Returns information about how @child@ is packed into the box.
 --
--- * Returns information on the behaviour if free space is available 
--- (in 'Packing'), the additional padding for this widget and
--- if the widget
+-- Returns information on the behaviour if free space is available 
+-- (in 'Packing'), the additional padding for this widget and if the widget
 -- was inserted at the start or end of the container ('PackType').
 --
-boxQueryChildPacking :: (BoxClass b, WidgetClass w) => b -> w ->
-                        IO (Packing,Int,PackType)
-boxQueryChildPacking b w = alloca $ \expandPtr -> alloca $ \fillPtr ->
-  alloca $ \paddingPtr -> alloca $ \packPtr -> do
-    {#call unsafe box_query_child_packing#} (toBox b) (toWidget w)
-      expandPtr fillPtr paddingPtr packPtr
-    expand  <- liftM toBool $ peek expandPtr
-    fill    <- liftM toBool $ peek fillPtr
-    padding <- liftM fromIntegral $ peek paddingPtr
-    pack    <- liftM (toEnum.fromIntegral) $ peek packPtr
-    return (if fill then PackGrow else 
-            (if expand then PackRepel else PackNatural),
-	    padding,pack)
+boxQueryChildPacking :: (BoxClass self, WidgetClass child) => self
+ -> child            -- ^ @child@ - the 'Widget' of the child to query.
+ -> IO (Packing,Int,PackType) -- ^ @(packing, padding, packType)@
+boxQueryChildPacking self child =
+  alloca $ \expandPtr ->
+  alloca $ \fillPtr ->
+  alloca $ \paddingPtr ->
+  alloca $ \packPtr -> do
+  {# call unsafe box_query_child_packing #}
+    (toBox self)
+    (toWidget child)
+    expandPtr
+    fillPtr
+    paddingPtr
+    packPtr
+  expand  <- liftM toBool $ peek expandPtr
+  fill    <- liftM toBool $ peek fillPtr
+  padding <- liftM fromIntegral $ peek paddingPtr
+  pack    <- liftM (toEnum.fromIntegral) $ peek packPtr
+  return (if fill then PackGrow else 
+         (if expand then PackRepel else PackNatural),
+	  padding,pack)
 
--- | Set the packing parameter of a child.
+-- | Sets the way @child@ is packed into the box.
 --
-boxSetChildPacking :: (BoxClass b, WidgetClass w) => b -> w -> Packing ->
-                      Int -> PackType -> IO ()
-boxSetChildPacking b w pack pad pt = {#call box_set_child_packing#} (toBox b) 
-  (toWidget w) (fromBool $ pack/=PackNatural) (fromBool $ pack==PackGrow) 
-  (fromIntegral pad) ((fromIntegral.fromEnum) pt)
+boxSetChildPacking :: (BoxClass self, WidgetClass child) => self
+ -> child    -- ^ @child@ - the 'Widget' of the child to set.
+ -> Packing
+ -> Int      -- ^ @padding@
+ -> PackType -- ^ @packType@
+ -> IO ()
+boxSetChildPacking self child packing padding packType =
+  {# call box_set_child_packing #}
+    (toBox self)
+    (toWidget child)
+    (fromBool $ packing /= PackNatural)
+    (fromBool $ packing == PackGrow)
+    (fromIntegral padding)
+    ((fromIntegral . fromEnum) packType)
 
 -- | Retrieves the standard spacing between widgets.
 --
-boxGetSpacing :: BoxClass b => b -> IO Int
-boxGetSpacing b = 
-  liftM fromIntegral $ {#call unsafe box_get_spacing#} (toBox b)
+boxGetSpacing :: BoxClass self => self
+ -> IO Int -- ^ returns spacing between children
+boxGetSpacing self =
+  liftM fromIntegral $
+  {# call unsafe box_get_spacing #}
+    (toBox self)
 
 --------------------
 -- Properties

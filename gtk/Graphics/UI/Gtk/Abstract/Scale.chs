@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/13 19:34:32 $
+--  Version $Revision: 1.6 $ from $Date: 2005/03/14 23:55:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,11 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This is the abstract base class for 'HScale' and 'VScale'. It implements
--- the management of an adjustable value.
+-- Base class for 'HScale' and 'VScale'
 --
 module Graphics.UI.Gtk.Abstract.Scale (
--- * Description
+-- * Detail
 -- 
 -- | A 'Scale' is a slider control used to select a numeric value. To use it,
 -- you'll probably want to investigate the methods on its base class, 'Range',
@@ -86,41 +85,69 @@ import Graphics.UI.Gtk.General.Enums	(PositionType(..))
 --------------------
 -- Methods
 
--- | Set the number of displayed digits after the comma.
+-- | Sets the number of decimal places that are displayed in the value. Also
+-- causes the value of the adjustment to be rounded off to this number of
+-- digits, so the retrieved value matches the value the user saw.
 --
-scaleSetDigits :: ScaleClass s => s -> Int -> IO ()
-scaleSetDigits s prec = 
-  {#call scale_set_digits#} (toScale s) (fromIntegral prec)
+scaleSetDigits :: ScaleClass self => self
+ -> Int   -- ^ @digits@ - the number of decimal places to display, e.g. use 1
+          -- to display 1.0, 2 to display 1.00 etc.
+ -> IO ()
+scaleSetDigits self digits =
+  {# call scale_set_digits #}
+    (toScale self)
+    (fromIntegral digits)
 
--- | Get the number of displayed digits after the comma.
+-- | Gets the number of decimal places that are displayed in the value.
 --
-scaleGetDigits :: ScaleClass s => s -> IO Int
-scaleGetDigits s =
-  liftM fromIntegral $ {#call unsafe scale_get_digits#} (toScale s)
+scaleGetDigits :: ScaleClass self => self
+ -> IO Int -- ^ returns the number of decimal places that are displayed.
+scaleGetDigits self =
+  liftM fromIntegral $
+  {# call unsafe scale_get_digits #}
+    (toScale self)
 
--- | Specify if the current value is to be drawn next to the slider.
+-- | Specifies whether the current value is displayed as a string next to the
+-- slider.
 --
-scaleSetDrawValue :: ScaleClass s => s -> Bool -> IO ()
-scaleSetDrawValue s draw =
-  {#call scale_set_draw_value#} (toScale s) (fromBool draw)
+scaleSetDrawValue :: ScaleClass self => self
+ -> Bool  -- ^ @drawValue@ - a boolean.
+ -> IO ()
+scaleSetDrawValue self drawValue =
+  {# call scale_set_draw_value #}
+    (toScale self)
+    (fromBool drawValue)
 
--- | Returns whether the current value is drawn next to the slider.
+-- | Returns whether the current value is displayed as a string next to the
+-- slider.
 --
-scaleGetDrawValue :: ScaleClass s => s -> IO Bool
-scaleGetDrawValue s =
-  liftM toBool $ {#call unsafe scale_get_draw_value#} (toScale s)
+scaleGetDrawValue :: ScaleClass self => self
+ -> IO Bool -- ^ returns whether the current value is displayed as a string.
+scaleGetDrawValue self =
+  liftM toBool $
+  {# call unsafe scale_get_draw_value #}
+    (toScale self)
 
--- | Specify where the value is to be displayed (relative to the slider).
+-- | Sets the position in which the current value is displayed.
 --
-scaleSetValuePos :: ScaleClass s => s -> PositionType -> IO ()
-scaleSetValuePos s pos =
-  {#call scale_set_value_pos#} (toScale s) ((fromIntegral.fromEnum) pos)
+scaleSetValuePos :: ScaleClass self => self
+ -> PositionType -- ^ @pos@ - the position in which the current value is
+                 -- displayed.
+ -> IO ()
+scaleSetValuePos self pos =
+  {# call scale_set_value_pos #}
+    (toScale self)
+    ((fromIntegral . fromEnum) pos)
 
 -- | Gets the position in which the current value is displayed.
 --
-scaleGetValuePos :: ScaleClass s => s -> IO PositionType
-scaleGetValuePos s =
-  liftM (toEnum.fromIntegral) $ {#call unsafe scale_get_value_pos#} (toScale s)
+scaleGetValuePos :: ScaleClass self => self
+ -> IO PositionType -- ^ returns the position in which the current value is
+                    -- displayed.
+scaleGetValuePos self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe scale_get_value_pos #}
+    (toScale self)
 
 --------------------
 -- Properties
