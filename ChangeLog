@@ -1,3 +1,25 @@
+2003-01-10  Jens Petersen  <petersen@haskell.org>
+
+	* demo/unicode/Arabic.hs (main): use ResponseYes, ResponseCancel
+	and ResponseOk
+
+	* gtk/windows/Dialog.chs: import and re-export ResponseId instead
+	of responseName's.  import fromResponse and toResponse.
+	(dialogRun): use toResponse
+	(dialogResponse): use fromResponse
+	(dialogAddButton): use fromResponse
+	(dialogAddActionWidget): use fromResponse
+	(dialogSetDefaultResponse): fromResponse
+	(dialogSetResponseSensitive): fromResponse
+	(onResponse, afterResponse): toResponse
+
+	* gtk/general/Structs.hsc: export fromResponse and toResponse,
+	instead of all the responseName's.  ResponseId is now a datatype.
+	fromResponse converts from a ResponseId to the corresponding gtk
+	constant values.  toResponse does the reverse map.  ResponseUser
+	Int carries positive integer user defined responses.  fromResponse
+	and toResponse are only defined for positive integers.
+
 2002-12-19 Axel Simon <A.Simon@ukc.ac.uk>
 
 	* VERSION, INSTALL: bump version, tweak instructions

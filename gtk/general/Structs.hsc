@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.11 $ from $Date: 2003/01/10 07:51:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -60,18 +60,9 @@ module Structs(
   dialogGetUpper,
   dialogGetActionArea,
   fileSelectionGetButtons,
-  ResponseId,
-  responseNone,
-  responseReject,
-  responseAccept,
-  responseDeleteEvent,
-  responseOk,
-  responseCancel,
-  responseClose,
-  responseYes,
-  responseNo,
-  responseApply,
-  responseHelp,
+  ResponseId(..),
+  fromResponse,
+  toResponse,
   XID,
   --socketGetXID,
   socketHasPlug,
@@ -428,79 +419,82 @@ dialogGetActionArea :: DialogClass dc => dc -> IO HBox
 dialogGetActionArea dc = makeNewObject mkHBox $ liftM castPtr $
   withForeignPtr ((unDialog.toDialog) dc) #{peek GtkDialog, action_area} 
 
--- @type ResponseId@ Here are some constants that can be used as response
+-- @type ResponseId@ Some constructors that can be used as response
 -- numbers for dialogs.
 --
-type ResponseId = Int
-
--- @constant responseNone@ GTK returns this if a response widget has no
+-- @con ResponseNone@ GTK returns this if a response widget has no
 -- response_id, or if the dialog gets programmatically hidden or destroyed.
 --
-responseNone :: ResponseId
-responseNone  = -1
-
--- @constant responseReject@ GTK won't return these unless you pass them in as
+-- @con ResponseReject@ GTK won't return these unless you pass them in as
 -- the response for an action widget. They are for your convenience.
 --
-responseReject :: ResponseId
-responseReject  = -2
-
-responseAccept :: ResponseId
-responseAccept = -3
-
--- @constant responseDeleteEvent@ If the dialog is deleted.
+-- @con ResponseDeleteEvent@ If the dialog is deleted.
 --
-responseDeleteEvent :: ResponseId
-responseDeleteEvent  = -4
-
--- @constant responseOk@ "Ok" was pressed.
+-- @con ResponseOk@ "Ok" was pressed.
 --
--- * These value is returned from the "Ok" stock dialog button.
+-- * This value is returned from the "Ok" stock dialog button.
 --
-responseOk :: ResponseId
-responseOk  = -5
-
--- @constant responseCancel@ "Cancel" was pressed.
+-- @con ResponseCancel@ "Cancel" was pressed.
 --
 -- * These value is returned from the "Cancel" stock dialog button.
 --
-responseCancel :: ResponseId
-responseCancel = -6
+-- @con ResponseClose@ "Close" was pressed.
+--
+-- * This value is returned from the "Close" stock dialog button.
+--
+-- @con ResponseYes@ "Yes" was pressed.
+--
+-- * This value is returned from the "Yes" stock dialog button.
+--
+-- @con ResponseNo@ "No" was pressed.
+--
+-- * This value is returned from the "No" stock dialog button.
+--
+-- @con ResponseApply@ "Apply" was pressed.
+--
+-- * This value is returned from the "Apply" stock dialog button.
+--
+-- @con ResponseHelp@ "Help" was pressed.
+--
+-- * This value is returned from the "Help" stock dialog button.
+--
+-- @con ResponseUser@ A user-defined response
+--
+-- * This value is returned from a user defined button
+--
+data ResponseId = ResponseNone | ResponseReject | ResponseAccept
+		| ResponseDeleteEvent | ResponseOk | ResponseCancel
+		| ResponseClose | ResponseYes | ResponseNo
+		| ResponseApply | ResponseHelp | ResponseUser Int
+  deriving Show
 
--- @constant responseClose@ "Close" was pressed.
---
--- * These value is returned from the "Close" stock dialog button.
---
-responseClose :: ResponseId
-responseClose = -7 
+fromResponse :: Integral a => ResponseId -> a
+fromResponse ResponseNone = -1
+fromResponse ResponseReject = -2
+fromResponse ResponseAccept = -3
+fromResponse ResponseDeleteEvent = -4
+fromResponse ResponseOk = -5
+fromResponse ResponseCancel = -6
+fromResponse ResponseClose = -7
+fromResponse ResponseYes = -8
+fromResponse ResponseNo = -9
+fromResponse ResponseApply = -10
+fromResponse ResponseHelp = -11
+fromResponse ResponseUser i | i > 0 = i
 
--- @constant responseYes@ "Yes" was pressed.
---
--- * These value is returned from the "Yes" stock dialog button.
---
-responseYes :: ResponseId
-responseYes = -8
-
--- @constant responseNo@ "No" was pressed.
---
--- * These value is returned from the "No" stock dialog button.
---
-responseNo :: ResponseId
-responseNo = -9
-
--- @constant responseApply@ "Apply" was pressed.
---
--- * These value is returned from the "Apply" stock dialog button.
---
-responseApply :: ResponseId
-responseApply = -10
-
--- @constant responseHelp@ "Help" was pressed.
---
--- * These value is returned from the "Help" stock dialog button.
---
-responseHelp :: ResponseId
-responseHelp = -11
+toResponse :: Integral a => a -> ResponseId
+toResponse -1 = ResponseNone
+toResponse -2 = ResponseReject
+toResponse -3 = ResponseAccept
+toResponse -4 = ResponseDeleteEvent
+toResponse -5 = ResponseOk
+toResponse -6 = ResponseCancel
+toResponse -7 = ResponseClose
+toResponse -8 = ResponseYes
+toResponse -9 = ResponseNo
+toResponse -10 = ResponseApply
+toResponse -11 = ResponseHelp
+toResponse i | i > 0  = ResponseUser i
 
 #include<gdk/gdkx.h>
 

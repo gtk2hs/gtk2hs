@@ -6,9 +6,9 @@ import Char
 main = do
   initGUI
   dia <- dialogNew
-  dialogAddButton dia stockButtonYes responseYes
+  dialogAddButton dia stockButtonYes ResponseYes
   noBut <- buttonNewFromStock stockButtonNo
-  dialogAddActionWidget dia noBut responseCancel
+  dialogAddActionWidget dia noBut ResponseCancel
   widgetShow noBut
   contain <- dialogGetUpper dia
   theText <- labelNew Nothing 
@@ -32,7 +32,7 @@ arabic = markSpan [FontSize $ FSPoint 240]  $
 yell :: IO ()
 yell = do
   dia <- dialogNew
-  dialogAddButton dia stockButtonOk responseOk
+  dialogAddButton dia stockButtonOk ResponseOk
   contain <- dialogGetUpper dia
   msg <- labelNew (Just "This is not an option.")
   contain `boxPackStartDefaults` msg

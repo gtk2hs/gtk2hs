@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2002/11/03 20:35:46 $
+--  Version $Revision: 1.4 $ from $Date: 2003/01/10 07:51:35 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -37,18 +37,7 @@ module Dialog(
   dialogGetActionArea,
   dialogRun,
   dialogResponse,
-  ResponseId,
-  responseNone,
-  responseReject,
-  responseAccept,
-  responseDeleteEvent,
-  responseOk,
-  responseCancel,
-  responseClose,
-  responseYes,
-  responseNo,
-  responseApply,
-  responseHelp,
+  ResponseId(..),
   dialogAddButton,
   dialogAddActionWidget,
   dialogGetHasSeparator,
@@ -65,10 +54,7 @@ import UTFCForeign
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Structs	(dialogGetUpper, dialogGetActionArea, ResponseId, responseNone,
-		 responseReject, responseAccept, responseDeleteEvent,
-		 responseOk, responseCancel, responseClose, responseYes,
-		 responseNo, responseApply, responseHelp)
+import Structs	(dialogGetUpper, dialogGetActionArea, ResponseId(..), fromResponse, toResponse)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -91,7 +77,7 @@ dialogNew  = makeNewObject mkDialog $ liftM castPtr {#call unsafe dialog_new#}
 -- * If this function returns the dialog still needs to be destroyed.
 --
 dialogRun :: DialogClass dc => dc -> IO ResponseId
-dialogRun dc = liftM fromIntegral $ {#call dialog_run#} (toDialog dc)
+dialogRun dc = liftM toResponse $ {#call dialog_run#} (toDialog dc)
 
 -- @method dialogResponse@ Emit the @ref arg response@ signal on the dialog.
 --
@@ -100,7 +86,7 @@ dialogRun dc = liftM fromIntegral $ {#call dialog_run#} (toDialog dc)
 --
 dialogResponse :: DialogClass dc => dc -> ResponseId -> IO ()
 dialogResponse dc resId = 
-  {#call dialog_response#} (toDialog dc) (fromIntegral resId)
+  {#call dialog_response#} (toDialog dc) (fromResponse resId)
 
 -- @method dialogAddButton@ Add a button with a label to the action area.
 --
@@ -112,7 +98,7 @@ dialogResponse dc resId =
 dialogAddButton :: DialogClass dc => dc -> String -> ResponseId -> IO Button
 dialogAddButton dc button resId = withCString button $ \strPtr -> 
   makeNewObject mkButton $ liftM castPtr $ {#call dialog_add_button#} 
-  (toDialog dc) strPtr (fromIntegral resId)
+  (toDialog dc) strPtr (fromResponse resId)
 
 -- @method dialogAddActionWidget@ Add a widget to the action area. If the
 -- widget is put into the activated state @ref arg resId@ will be transmitted
@@ -124,7 +110,7 @@ dialogAddButton dc button resId = withCString button $ \strPtr ->
 dialogAddActionWidget :: (DialogClass dc, WidgetClass w) => dc -> w ->
                          ResponseId -> IO ()
 dialogAddActionWidget dc child resId = {#call dialog_add_action_widget#}
-  (toDialog dc) (toWidget child) (fromIntegral resId)
+  (toDialog dc) (toWidget child) (fromResponse resId)
 
 -- @method dialogGetHasSeparator@ Query if the dialog has a visible horizontal
 -- separator.
@@ -139,7 +125,7 @@ dialogGetHasSeparator dc = liftM toBool $
 --
 dialogSetDefaultResponse :: DialogClass dc => dc -> ResponseId -> IO ()
 dialogSetDefaultResponse dc resId = {#call dialog_set_default_response#}
-  (toDialog dc) (fromIntegral resId)
+  (toDialog dc) (fromResponse resId)
 
 -- @method dialogSetHasSeparator@ Set the visibility of the horizontal
 -- separator.
@@ -154,7 +140,7 @@ dialogSetHasSeparator dc set = {#call dialog_set_has_separator#}
 dialogSetResponseSensitive :: DialogClass dc => dc -> ResponseId -> Bool ->
                               IO ()
 dialogSetResponseSensitive dc resId sensitive = 
-  {#call dialog_set_response_sensitive#} (toDialog dc) (fromIntegral resId)
+  {#call dialog_set_response_sensitive#} (toDialog dc) (fromResponse resId)
   (fromBool sensitive)
 
 -- signals
@@ -166,5 +152,5 @@ dialogSetResponseSensitive dc resId sensitive =
 --
 onResponse, afterResponse :: DialogClass dc => dc -> (ResponseId -> IO ()) ->
                              IO (ConnectId dc)
-onResponse = connect_INT__NONE "response" False
-afterResponse = connect_INT__NONE "response" True
+onResponse dia act = connect_INT__NONE "response" False dia (act . toResponse)
+afterResponse dia act = connect_INT__NONE "response" True dia (act . toResponse)
