@@ -30,6 +30,15 @@
 	global Signals module. The code dealing with the Sparc 4 word marshaling
 	restriction has been dropped as it is no longer a problem.
 
+	* Makefile.am: change the way gtk/Graphics/UI/Gtk/Signals.chs is
+	built. The template file and the module name are now explictly
+	specified. Also, the module no longer has any foreign "wrapper"
+	imports so there is no longer any Signals_stub.o file.
+	
+	* configure.ac: remove the check for the four word callback issue
+	since it is no longer relevant. Also remove support for providing an
+	alternate gtkmarshal.list file since it it is not used.
+
 2005-04-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/UTFString.hs: add some extra functions for

@@ -148,17 +148,6 @@ AC_DEFINE_UNQUOTED(__GLASGOW_HASKELL__, $GHC_VERSION_NUMBER,
 GHC_LIBDIR=`$GHC --print-libdir`
 GHC_INCLUDEDIR=$GHC_LIBDIR/include
 
-dnl Check if the ghc compiler can generate dynamic callbacks with more than
-dnl 4 words worth of arguments. Hopefully one day the compiler will support
-dnl this.
-AC_MSG_CHECKING([broken dynamic callbacks])
-FOUR_WORD_CALLBACK=no
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 9.9.9, [
-  if test $host_cpu = sparc; then FOUR_WORD_CALLBACK=yes; fi
-  dnl TODO: is this only on Sparc Solaris or on all Sparc (ie Linux too)?
-])
-AC_MSG_RESULT([$FOUR_WORD_CALLBACK])
-
 dnl From ghc 6 onwards, ghc-pkg has the "auto libs" feature which means
 dnl users do not have to specify the -package flag most of the time.
 dnl All our packages support this mode now.
@@ -496,19 +485,6 @@ else
   CREATE_TYPES="deprecated $CREATE_TYPES";
 fi;
 
-dnl Have a special marshall list (available in the source tree of Gtk+ under
-dnl gtk/gtkmarshal.list)
-
-AC_MSG_CHECKING(marshal list)
-AC_ARG_WITH(mlist, 
-	    [  --with-mlist=GTK-SOURCE use special marshall list from GTK+ sources],
-	    [MARSHALLDEFS=$withval;
-	     AC_MSG_RESULT($withval)],
-	    [MARSHALLDEFS='tools/callbackGen/gtkmarshal.list';
-	     AC_MSG_RESULT(built-in)])
-
-
-
 dnl c2hs Dilemma.
 dnl Check if the user supplied a specific C->Haskell installation or wants to
 dnl use the version in the current search path (--with-c2hs-config=yes). 
@@ -617,7 +593,6 @@ dnl Needed substitution.
 AC_SUBST(GHC_INCLUDEDIR)
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
-AC_SUBST(FOUR_WORD_CALLBACK)
 AC_SUBST(PKGCONF)
 AC_SUBST(USE_CABAL)
 AC_SUBST(PKGEXT)
@@ -625,7 +600,6 @@ AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(HSC2HS)
 AC_SUBST(HSCPP)
-AC_SUBST(MARSHALLDEFS)
 AC_SUBST(VERSION)
 dnl Platform specific flags 
 AC_SUBST(HSCFLAGS)

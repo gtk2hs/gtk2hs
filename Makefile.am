@@ -87,15 +87,6 @@ am_tools_callbackGen_HookGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
 MOSTLYCLEANFILES+= $(am_tools_callbackGen_HookGenerator_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_callbackGen_HookGenerator_SOURCES:.hs=.hi)
 
-
-gtk/Graphics/UI/Gtk/Signals.chs : \
-	$(srcdir)/tools/callbackGen/Signal.chs.template \
-	$(srcdir)/tools/callbackGen/gtkmarshal.list \
-	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
-	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) $(MARSHALLDEFS) \
-	$(srcdir)/tools/callbackGen/ $@ \
-	$(if $(subst yes,,$(FOUR_WORD_CALLBACK)),--broken))
-
 #
 #	API Coverage Tool
 #
@@ -259,7 +250,8 @@ glib/System/Glib/hsgclosure.o : glib/System/Glib/hsgclosure.c
 	$(CC) -c $< -o $@ $(GLIB_CFLAGS) -I$(GHC_INCLUDEDIR) 	\
 	-Wall -Wextra -Werror -Wno-unused-parameter
 
-am_libHSglib_a_OBJECTS = $(libHSglib_a_HSFILES:.hs=.$(OBJEXT))
+am_libHSglib_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglib_a_SOURCES))))
 
 libHSglib_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglib_a_SOURCES))
 libHSglib_a_CHSFILES = \
@@ -479,7 +471,6 @@ libHSgtk_a_LIBADD =							\
         gtk/Graphics/UI/Gtk/Multiline/TextTagTable_stub.o		\
 	gtk/Graphics/UI/Gtk/General/General_stub.o			\
         gtk/Graphics/UI/Gtk/TreeList/TreeModel_stub.o			\
-	gtk/Graphics/UI/Gtk/Signals_stub.o	        		\
         gtk/Graphics/UI/Gtk/TreeList/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/TreeList/TreeView_stub.o			\
 	gtk/Graphics/UI/Gtk/TreeList/IconView_stub.o			\
@@ -501,6 +492,15 @@ gtk/Graphics/UI/Gtk/Types.chs : \
         $@ $(addprefix --tag=,$(CREATE_TYPES)) \
 	--modname=Graphics.UI.Gtk.Types \
         --parentname=System.Glib.GObject)
+
+gtk/Graphics/UI/Gtk/Signals.chs : \
+	$(srcdir)/tools/callbackGen/Signal.chs.template \
+	$(srcdir)/tools/callbackGen/gtkmarshal.list \
+	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) \
+	$(srcdir)/tools/callbackGen/gtkmarshal.list \
+	$(srcdir)/tools/callbackGen/Signal.chs.template $@ \
+	Graphics.UI.Gtk.Signals)
 
 libHSgtk_a_ALLSOURCES = $(libHSgtk_a_SOURCES) $(nodist_libHSgtk_a_SOURCES)
 
