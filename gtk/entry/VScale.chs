@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:51:53 $
+--  Version $Revision: 1.5 $ from $Date: 2004/07/30 16:38:54 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,7 +31,8 @@ module VScale(
   VScale,
   VScaleClass,
   castToVScale,
-  vScaleNew
+  vScaleNew,
+  vScaleNewWithRange
   ) where
 
 import Monad	(liftM)
@@ -51,3 +52,15 @@ vScaleNew :: Adjustment -> IO VScale
 vScaleNew adj = makeNewObject mkVScale $ liftM castPtr $
   {#call unsafe vscale_new#} adj
 
+-- | Create a new VScale widget with @min@, @max@ and @step@ values rather than
+-- an "Adjustment" object.
+--
+vScaleNewWithRange :: Double -- ^ Minimum value
+                   -> Double -- ^ Maximum value
+                   -> Double -- ^ Step increment (tick size) used with keyboard
+                             --   shortcuts. Must be nonzero.
+                   -> IO VScale
+vScaleNewWithRange min max step =
+  makeNewObject mkVScale $ liftM castPtr $
+  {#call unsafe vscale_new_with_range#} (realToFrac min) (realToFrac max)
+    (realToFrac step)

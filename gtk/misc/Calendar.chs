@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Calendar
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:07:53 $
+--  Version $Revision: 1.5 $ from $Date: 2004/07/30 16:38:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,6 +24,7 @@
 --
 -- This widget shows a calendar.
 --
+#include <gtk/gtkversion.h>
 
 module Calendar(
   Calendar,
@@ -35,6 +37,10 @@ module Calendar(
   calendarUnmarkDay,
   calendarClearMarks,
   calendarDisplayOptions,
+#if GTK_CHECK_VERSION(2,4,0)
+  calendarSetDisplayOptions,
+  calendarGetDisplayOptions,
+#endif
   calendarGetDate,
   onDaySelected,
   afterDaySelected,
@@ -58,7 +64,7 @@ import FFI
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Enums	(CalendarDisplayOptions(..), fromFlags)
+import Enums	(CalendarDisplayOptions(..), fromFlags, toFlags)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -112,13 +118,36 @@ calendarUnmarkDay cal day = liftM toBool $
 calendarClearMarks :: CalendarClass c => c -> IO ()
 calendarClearMarks cal = {#call calendar_clear_marks#} (toCalendar cal)
 
--- | Specifies how the calendar should be
--- displayed.
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Specifies how the calendar should be displayed.
+--
+calendarSetDisplayOptions :: CalendarClass c => c
+                          -> [CalendarDisplayOptions] -> IO ()
+calendarSetDisplayOptions cal opts =
+  {#call calendar_set_display_options#} (toCalendar cal)
+    ((fromIntegral.fromFlags) opts)
+
+-- | Returns the current display options for the calendar.
+--
+calendarGetDisplayOptions :: CalendarClass c => c
+                          -> IO [CalendarDisplayOptions]
+calendarGetDisplayOptions cal = liftM (toFlags.fromIntegral) $
+  {#call calendar_get_display_options#} (toCalendar cal)
+
+-- | Depreciaded, use 'calendarSetDisplayOptions'.
+--
+calendarDisplayOptions :: CalendarClass c => c
+                       -> [CalendarDisplayOptions] -> IO ()
+calendarDisplayOptions = calendarSetDisplayOptions
+#else
+
+-- | Specifies how the calendar should be displayed.
 --
 calendarDisplayOptions :: CalendarClass c => c -> [CalendarDisplayOptions] ->
                           IO ()
 calendarDisplayOptions cal opts = {#call calendar_display_options#}
   (toCalendar cal) ((fromIntegral.fromFlags) opts)
+#endif
 
 -- | Retrieve the currently selected date.
 --

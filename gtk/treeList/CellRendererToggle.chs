@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2004/05/23 16:16:43 $
+--  Version $Revision: 1.9 $ from $Date: 2004/07/30 16:38:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -27,6 +27,7 @@ module CellRendererToggle(
   CellRendererToggleClass,
   castToCellRendererToggle,
   cellRendererToggleNew,
+  cellRendererToggleGetRadio,
   cellRendererToggleSetRadio,
   cellRendererToggleGetActive,
   cellRendererToggleSetActive,
@@ -54,16 +55,20 @@ cellRendererToggleNew :: IO CellRendererToggle
 cellRendererToggleNew  = makeNewObject mkCellRendererToggle $
   liftM castPtr $ {#call unsafe cell_renderer_toggle_new#}
 
--- | Determine whether the button is drawn
--- as 'RadioButton' or not.
+-- | Determine whether the button is drawn as 'RadioButton' or not.
 --
 cellRendererToggleSetRadio :: CellRendererToggleClass crt => crt -> Bool ->
                               IO ()
 cellRendererToggleSetRadio crt radio = {#call cell_renderer_toggle_set_radio#}
   (toCellRendererToggle crt) (fromBool radio)
 
--- | Retrieve the current state of the
--- button.
+-- | Returns wether the button is drawn as 'RadioButton' or not.
+--
+cellRendererToggleGetRadio :: CellRendererToggleClass crt => crt -> IO Bool
+cellRendererToggleGetRadio crt = liftM toBool $
+  {#call cell_renderer_toggle_get_radio#} (toCellRendererToggle crt)
+
+-- | Retrieve the current state of the button.
 --
 cellRendererToggleGetActive :: CellRendererToggleClass crt => crt -> IO Bool
 cellRendererToggleGetActive crt = liftM toBool $
@@ -84,8 +89,7 @@ binAttr str = Attribute str [TMboolean]
 		(return.(\x -> [x]).GVboolean)
 	        (\[GVboolean b] -> return b)
 
--- | Define the attribute that reflects the state of the
--- button.
+-- | Define the attribute that reflects the state of the button.
 --
 cellActive :: Attribute CellRendererToggle Bool
 cellActive  = binAttr ["active"]

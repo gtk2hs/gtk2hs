@@ -5,7 +5,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 16:10:57 $
+--  Version $Revision: 1.5 $ from $Date: 2004/07/30 16:38:53 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,11 +31,14 @@ module Frame(
   castToFrame,
   frameNew,
   frameSetLabel,
+  frameGetLabel,
   frameSetLabelWidget,
+  frameGetLabelWidget,
   frameSetLabelAlign,
+  frameGetLabelAlign,
   ShadowType(..),
   frameSetShadowType,
-  frameGetLabel
+  frameGetShadowType
   ) where
 
 import Monad	(liftM)
@@ -70,6 +73,15 @@ frameSetLabelWidget :: (FrameClass f, WidgetClass w) => f -> w -> IO ()
 frameSetLabelWidget f w = 
   {#call frame_set_label_widget#} (toFrame f) (toWidget w)
 
+-- | Get the label widget for the frame.
+--
+frameGetLabelWidget :: FrameClass f => f -> IO (Maybe Widget)
+frameGetLabelWidget f = do
+  widgetPtr <- {#call frame_get_label_widget#} (toFrame f)
+  if widgetPtr == nullPtr
+    then return Nothing
+    else liftM Just $ makeNewObject mkWidget (return widgetPtr)
+
 -- | Specify where the label should be placed.
 --
 -- * A value of 0.0 means left justified (the default), a value of 1.0 means
@@ -79,11 +91,26 @@ frameSetLabelAlign :: FrameClass f => f -> Float -> IO ()
 frameSetLabelAlign f align =
   {#call frame_set_label_align#} (toFrame f) (realToFrac align) 0.0
 
+-- | Get the label's horazontal alignment.
+--
+frameGetLabelAlign :: FrameClass f => f -> IO Float
+frameGetLabelAlign f =
+  alloca $ \alignPtr -> do
+  {#call unsafe frame_get_label_align#} (toFrame f) alignPtr nullPtr
+  align <- peek alignPtr
+  return (realToFrac align)
+
 -- | Set the shadow type of the frame.
 --
 frameSetShadowType :: FrameClass f => f -> ShadowType -> IO ()
 frameSetShadowType f shadow = 
   {#call frame_set_shadow_type#} (toFrame f) ((fromIntegral.fromEnum) shadow)
+
+-- | Set the shadow type of the frame.
+--
+frameGetShadowType :: FrameClass f => f -> IO ShadowType
+frameGetShadowType f = liftM (toEnum.fromIntegral) $
+  {#call unsafe frame_get_shadow_type#} (toFrame f)
 
 -- | Retrieve the label of the frame.
 --

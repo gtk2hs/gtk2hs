@@ -10,6 +10,13 @@
 
 	* gtk/general/Gtk.hs: export new Editable module.
 
+	* gtk/buttons/Button.chs, gtk/menuComboToolbar/CheckMenuItem.chs,
+	gtk/misc/Calendar.chs, gtk/misc/EventBox.chs, gtk/misc/HandleBox.chs
+	gtk/entry/HScale, gtk/entry/VScale, gtk/ornaments/Frame.chs,
+	gtk/treeList/CellRendererToggle.chs: add missing functions.
+
+	* gtk/general/Structs.hsc: remove unneeded CheckMenuItem function.
+
 2004-07-29  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/general/General.chs: don't use depreciated gtk main loop

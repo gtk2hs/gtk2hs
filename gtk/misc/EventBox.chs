@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget EventBox
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 16:07:53 $
+--  Version $Revision: 1.6 $ from $Date: 2004/07/30 16:38:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -28,11 +29,19 @@
 --
 -- * check: Is this widget useful?
 --
+#include <gtk/gtkversion.h>
+
 module EventBox(
   EventBox,
   EventBoxClass,
   castToEventBox,
   eventBoxNew
+#if GTK_CHECK_VERSION(2,4,0)
+ ,eventBoxSetVisibleWindow,
+  eventBoxGetVisibleWindow,
+  eventBoxSetAboveChild,
+  eventBoxGetAboveChild
+#endif
   ) where
 
 import Monad	(liftM)
@@ -52,3 +61,36 @@ eventBoxNew :: IO EventBox
 eventBoxNew  = makeNewObject mkEventBox $ 
   liftM castPtr {#call unsafe event_box_new#}
 
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Set whether the event box uses a visible or invisible child window. The
+-- default is to use visible windows. The C documentation for details of what
+-- difference this makes.
+--
+eventBoxSetVisibleWindow :: EventBox -> Bool -> IO ()
+eventBoxSetVisibleWindow ebox visible =
+  {#call event_box_set_visible_window#} ebox (fromBool visible)
+
+-- | Returns whether the event box has a visible window.
+--
+eventBoxGetVisibleWindow :: EventBox -> IO Bool
+eventBoxGetVisibleWindow ebox =
+  liftM toBool $ {#call unsafe event_box_get_visible_window#} ebox
+
+-- | Set whether the event box window is positioned above the windows of its
+-- child, as opposed to below it. 
+--
+-- * If the window is above, all events inside the event box will go to the
+-- event box. If the window is below, events in windows of child widgets will
+-- first got to that widget, and then to its parents.
+--
+eventBoxSetAboveChild :: EventBox -> Bool -> IO ()
+eventBoxSetAboveChild ebox above =
+  {#call event_box_set_above_child#} ebox (fromBool above)
+
+-- | Returns whether the event box window is above or below the windows of its
+-- child. See 'eventBoxSetAboveChild' for details.
+--
+eventBoxGetAboveChild :: EventBox -> IO Bool
+eventBoxGetAboveChild ebox =
+  liftM toBool $ {#call unsafe event_box_get_above_child#} ebox
+#endif

@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget CheckMenuItem
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:05:21 $
+--  Version $Revision: 1.7 $ from $Date: 2004/07/30 16:38:54 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -23,16 +24,22 @@
 --
 -- This widget implements a 'MenuItem' with a check next to it.
 --
+#include <gtk/gtkversion.h>
 
 module CheckMenuItem(
   CheckMenuItem,
   CheckMenuItemClass,
   checkMenuItemNew,
   checkMenuItemNewWithLabel,
+  checkMenuItemNewWithMnemonic,
   checkMenuItemSetActive,
   checkMenuItemGetActive,
   checkMenuItemSetInconsistent,
   checkMenuItemGetInconsistent
+#if GTK_CHECK_VERSION(2,4,0)
+ ,checkMenuItemGetDrawAsRadio,
+  checkMenuItemSetDrawAsRadio
+#endif
   ) where
 
 import Monad	(liftM)
@@ -41,47 +48,70 @@ import FFI
 import Object	(makeNewObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Structs  (checkMenuItemGetActive)
 
 {#context lib="gtk" prefix="gtk" #}
 
 -- methods
 
--- | Create a new 'MenuItem' with a check
--- next to it.
+-- | Create a new 'MenuItem' with a check next to it.
 --
 checkMenuItemNew :: IO CheckMenuItem
 checkMenuItemNew  = makeNewObject mkCheckMenuItem $ liftM castPtr $
   {#call unsafe check_menu_item_new#}
 
--- | Create a new 'CheckMenuItem'
--- with a 'Label' inside.
+-- | Create a new 'CheckMenuItem' with a 'Label' inside.
 --
 checkMenuItemNewWithLabel :: String -> IO CheckMenuItem
 checkMenuItemNewWithLabel str = withUTFString str $ \strPtr ->
   makeNewObject mkCheckMenuItem $ liftM castPtr $
   {#call unsafe check_menu_item_new_with_label#} strPtr
 
+-- | Create a new 'CheckMenuItem' with a 'Label' inside. Underscores in the
+-- label string indicate the mnemonic for the menu item.
+--
+checkMenuItemNewWithMnemonic :: String -> IO CheckMenuItem
+checkMenuItemNewWithMnemonic str =
+  withUTFString str $ \strPtr ->
+  makeNewObject mkCheckMenuItem $ liftM castPtr $
+  {#call unsafe check_menu_item_new_with_mnemonic#} strPtr
 
--- | Set the state of the menu item check.
+-- | Sets the active state of the menu item's check box.
 --
 checkMenuItemSetActive :: CheckMenuItemClass mi => mi -> Bool -> IO ()
 checkMenuItemSetActive mi active = {#call check_menu_item_set_active#}
   (toCheckMenuItem mi) (fromBool active)
 
--- | Set the state of the menu item check
--- to \`inconsistent'.
+-- | Returns whether the check menu item is active.
+--
+checkMenuItemGetActive :: CheckMenuItemClass mi => mi -> IO Bool
+checkMenuItemGetActive mi =
+  liftM toBool $ {#call unsafe check_menu_item_get_active#} (toCheckMenuItem mi)
+
+-- | Set the state of the menu item check to \`inconsistent'.
 --
 checkMenuItemSetInconsistent :: CheckMenuItemClass mi => mi -> Bool -> IO ()
 checkMenuItemSetInconsistent mi inconsistent = 
   {#call check_menu_item_set_inconsistent#} (toCheckMenuItem mi) 
     (fromBool inconsistent)
 
--- | Query if the menu check is
--- inconsistent (inbetween).
+-- | Query if the menu check is inconsistent (inbetween).
 --
 checkMenuItemGetInconsistent :: CheckMenuItemClass mi => mi -> IO Bool
 checkMenuItemGetInconsistent mi = liftM toBool $
   {#call unsafe check_menu_item_get_inconsistent#} (toCheckMenuItem mi)
 
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Sets whether the menu item is drawn like a 'RadioMenuItem'.
+--
+checkMenuItemSetDrawAsRadio :: CheckMenuItemClass mi => mi -> Bool -> IO ()
+checkMenuItemSetDrawAsRadio mi asRadio =
+  {#call check_menu_item_set_draw_as_radio#} (toCheckMenuItem mi)
+    (fromBool asRadio)
+
+-- | Returns whether the menu item is drawn like a 'RadioMenuItem'.
+--
+checkMenuItemGetDrawAsRadio :: CheckMenuItemClass mi => mi -> IO Bool
+checkMenuItemGetDrawAsRadio mi = liftM toBool $
+  {#call unsafe check_menu_item_get_draw_as_radio#} (toCheckMenuItem mi)
+#endif
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2004/05/23 15:51:53 $
+--  Version $Revision: 1.5 $ from $Date: 2004/07/30 16:38:54 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,7 +31,8 @@ module HScale(
   HScale,
   HScaleClass,
   castToHScale,
-  hScaleNew
+  hScaleNew,
+  hScaleNewWithRange
   ) where
 
 import Monad	(liftM)
@@ -51,3 +52,15 @@ hScaleNew :: Adjustment -> IO HScale
 hScaleNew adj = makeNewObject mkHScale $ liftM castPtr $
   {#call unsafe hscale_new#} adj
 
+-- | Create a new HScale widget with @min@, @max@ and @step@ values rather than
+-- an "Adjustment" object.
+--
+hScaleNewWithRange :: Double -- ^ Minimum value 
+                   -> Double -- ^ Maximum value
+                   -> Double -- ^ Step increment (tick size) used with keyboard
+		             --   shortcuts. Must be nonzero.
+                   -> IO HScale
+hScaleNewWithRange min max step =
+  makeNewObject mkHScale $ liftM castPtr $
+  {#call unsafe hscale_new_with_range#} (realToFrac min) (realToFrac max)
+    (realToFrac step)

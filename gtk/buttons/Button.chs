@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget Button
 --
@@ -5,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:48:35 $
+--  Version $Revision: 1.6 $ from $Date: 2004/07/30 16:38:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -21,6 +22,7 @@
 --
 -- |
 --
+#include <gtk/gtkversion.h>
 
 module Button(
   Button,
@@ -44,6 +46,12 @@ module Button(
   buttonGetUseStock,
   buttonSetUseUnderline,
   buttonGetUseUnderline,
+#if GTK_CHECK_VERSION(2,4,0)
+  buttonSetFocusOnClick,
+  buttonGetFocusOnClick,
+  buttonSetAlignment,
+  buttonGetAlignment,
+#endif
   onButtonActivate,
   afterButtonActivate,
   onClicked,
@@ -190,6 +198,38 @@ buttonSetUseUnderline b flag =
 buttonGetUseUnderline :: ButtonClass b => b -> IO Bool
 buttonGetUseUnderline b = liftM toBool $
   {#call unsafe button_get_use_underline#} (toButton b)
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Sets whether the button will grab focus when it is clicked with the mouse.
+--
+buttonSetFocusOnClick :: ButtonClass b => b -> Bool -> IO ()
+buttonSetFocusOnClick b focus =
+  {#call unsafe button_set_focus_on_click#} (toButton b) (fromBool focus)
+
+-- | Gets whether the button grabs focus when it is clicked with the mouse.
+--
+buttonGetFocusOnClick :: ButtonClass b => b -> IO Bool
+buttonGetFocusOnClick b = liftM toBool $
+  {#call unsafe button_get_focus_on_click#} (toButton b)
+
+-- | Sets the alignment of the child. This has no effect unless the child
+--   derives from "Misc" "Aligment".
+--
+buttonSetAlignment :: ButtonClass b => b -> (Float, Float) -> IO ()
+buttonSetAlignment b (xalign, yalign) =
+  {#call unsafe button_set_alignment#} (toButton b)
+    (realToFrac xalign) (realToFrac yalign)
+
+-- | Gets the alignment of the child in the button.
+--
+buttonGetAlignment :: ButtonClass b => b -> IO (Float, Float)
+buttonGetAlignment b =
+  alloca $ \xalignPtr -> alloca $ \yalignPtr -> do
+  {#call unsafe button_get_alignment#} (toButton b) xalignPtr yalignPtr
+  xalign <- peek xalignPtr
+  yalign <- peek yalignPtr
+  return (realToFrac xalign, realToFrac yalign)
+#endif
 
 
 -- signals

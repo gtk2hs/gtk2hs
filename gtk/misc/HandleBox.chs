@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:07:53 $
+--  Version $Revision: 1.8 $ from $Date: 2004/07/30 16:38:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -51,9 +51,12 @@ module HandleBox(
   handleBoxNew,
   ShadowType(..),
   handleBoxSetShadowType,
+  handleBoxGetShadowType,
   PositionType(..),
   handleBoxSetHandlePosition,
+  handleBoxGetHandlePosition,
   handleBoxSetSnapEdge,
+  handleBoxGetSnapEdge,
   onChildAttached,
   afterChildAttached,
   onChildDetached,
@@ -84,11 +87,23 @@ handleBoxSetShadowType :: HandleBoxClass hb => hb -> ShadowType -> IO ()
 handleBoxSetShadowType hb shadow = {#call handle_box_set_shadow_type#}
   (toHandleBox hb) ((fromIntegral.fromEnum) shadow)
 
+-- | Get the shadow type of the detached box.
+--
+handleBoxGetShadowType :: HandleBoxClass hb => hb -> IO ShadowType
+handleBoxGetShadowType hb = liftM (toEnum.fromIntegral) $
+  {#call unsafe handle_box_get_shadow_type#} (toHandleBox hb)
+
 -- | Set the position of the handle.
 --
 handleBoxSetHandlePosition :: HandleBoxClass hb => hb -> PositionType -> IO ()
 handleBoxSetHandlePosition hb pos = {#call handle_box_set_handle_position#} 
   (toHandleBox hb) ((fromIntegral.fromEnum) pos)
+
+-- | Get the position of the handle.
+--
+handleBoxGetHandlePosition :: HandleBoxClass hb => hb -> IO PositionType
+handleBoxGetHandlePosition hb = liftM (toEnum.fromIntegral) $
+  {#call unsafe handle_box_get_handle_position#} (toHandleBox hb)
 
 -- | Set the snap edge of the HandleBox.
 --
@@ -104,6 +119,13 @@ handleBoxSetHandlePosition hb pos = {#call handle_box_set_handle_position#}
 handleBoxSetSnapEdge :: HandleBoxClass hb => hb -> PositionType -> IO ()
 handleBoxSetSnapEdge hb pos = {#call handle_box_set_snap_edge#}
   (toHandleBox hb) ((fromIntegral.fromEnum) pos)
+
+-- | Gets the edge used for determining reattachment of the handle box. See
+-- 'handleBoxSetSnapEdge'.
+--
+handleBoxGetSnapEdge :: HandleBoxClass hb => hb -> IO PositionType
+handleBoxGetSnapEdge hb = liftM (toEnum.fromIntegral) $
+  {#call unsafe handle_box_get_snap_edge#} (toHandleBox hb)
 
 -- signals
 

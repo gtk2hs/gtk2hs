@@ -5,7 +5,7 @@
 --          
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.24 $ from $Date: 2004/07/16 15:12:59 $
+--  Version $Revision: 1.25 $ from $Date: 2004/07/30 16:38:52 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -74,7 +74,6 @@ module Structs(
   iconSizeLargeToolbar,
   iconSizeButton,
   iconSizeDialog,
-  checkMenuItemGetActive,
   comboGetList,
   priorityLow,
   priorityDefault,
@@ -598,20 +597,6 @@ iconSizeButton	     :: IconSize
 iconSizeButton	     = #const GTK_ICON_SIZE_BUTTON
 iconSizeDialog	     :: IconSize
 iconSizeDialog	     = #const GTK_ICON_SIZE_DIALOG
-
--- entry Widget CheckMenuItem
-
--- | Return the current checked state.
---
--- * Return the state of the check of
---   the 'CheckMenuItem'.
---
-checkMenuItemGetActive :: CheckMenuItemClass mi => mi -> IO Bool
-checkMenuItemGetActive mi = 
-  withForeignPtr ((unCheckMenuItem.toCheckMenuItem) mi) $ \miPtr -> do
-    let actPtr = miPtr `plusPtr` #const sizeof(GtkMenuItem)
-    act <- peek (actPtr::Ptr #type guint)
-    return $ testBit act 1
 
 -- entry Widget Combo
 
