@@ -119,14 +119,14 @@ generate objs typeTable =
   indent 0.ss "--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the".
   indent 0.ss "--  GNU General Public License for more details.".
   indent 0.ss "--".
-  indent 0.ss "--- DESCRIPTION ---------------------------------------------------------------".
+  indent 0.ss "--- @description@ -------------------------------------------------------------".
   indent 0.ss "--".
   indent 0.ss "--  * This file reflects the Gtk object hierarchy in terms of Haskell classes.".
   indent 0.ss "--".
-  indent 0.ss "--- DOCU ----------------------------------------------------------------------".
+  indent 0.ss "--- @documentation@ -----------------------------------------------------------".
   indent 0.ss "--".
   indent 0.ss "--".
-  indent 0.ss "--- TODO ----------------------------------------------------------------------".
+  indent 0.ss "--- @todo@ --------------------------------------------------------------------".
   indent 0.ss "--".
   indent 0.ss "--".
   indent 0.ss "module Hierarchy(".
