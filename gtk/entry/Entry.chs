@@ -6,7 +6,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2004/05/23 15:51:52 $
+--  Version $Revision: 1.10 $ from $Date: 2004/07/30 16:32:01 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -24,8 +24,6 @@
 --
 -- * This widget lets the user enter a single line of text.
 --
---
---
 -- * TODO
 --
 -- * A couple of signals are not bound because I could not figure out what
@@ -37,23 +35,15 @@ module Entry(
   Entry,
   EntryClass,
   castToEntry,
-  entrySelectRegion,
-  entryGetSelectionBounds,
-  entryInsertText,
-  entryDeleteText,
-  entryGetChars,
-  entryCutClipboard,
-  entryCopyClipboard,
-  entryPasteClipboard,
-  entryDeleteSelection,
-  entrySetEditable,
   entryNew,
   entrySetText,
   entryGetText,
   entryAppendText,
   entryPrependText,
   entrySetVisibility,
+  entryGetVisibility,
   entrySetInvisibleChar,
+  entryGetInvisibleChar,
   entrySetMaxLength,
   entryGetActivatesDefault,
   entrySetActivatesDefault,
@@ -67,16 +57,12 @@ module Entry(
 #endif
   onEntryActivate,
   afterEntryActivate,
-  onEntryChanged,
-  afterEntryChanged,
   onCopyClipboard,
   afterCopyClipboard,
   onCutClipboard,
   afterCutClipboard,
   onPasteClipboard,
   afterPasteClipboard,
-  onDeleteText,
-  afterDeleteText,
   onInsertAtCursor,
   afterInsertAtCursor,
   onToggleOverwrite,
@@ -90,118 +76,12 @@ import Object	(makeNewObject)
 import GObject (makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
-import Char	(ord)
+import Char	(ord, chr)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- methods originating in the Editable base class which is not really a base
--- class of in the Gtk Hierarchy (it is non-existant). I renamed
-{#pointer *Editable foreign newtype#}
-
-toEditable :: EntryClass ed => ed -> Editable
-toEditable = Editable . castForeignPtr . unEntry . toEntry
-
--- | Select a span of text.
---
--- * A negative @end@ position will make the selection extend to the
---   end of the buffer.
---
--- * Calling this function with @start@=1 and @end@=4 it will
---   mark \"ask\" in the string \"Haskell\". (FIXME: verify)
---
-entrySelectRegion :: EntryClass ed => ed -> Int -> Int -> IO ()
-entrySelectRegion ed start end = {#call editable_select_region#}
-  (toEditable ed) (fromIntegral start) (fromIntegral end)
-
--- | Get the span of the current selection.
---
--- * The returned tuple is not ordered. The second index represents the
---   position of the cursor. The first index is the other end of the
---   selection. If both numbers are equal there is in fact no selection.
---
-entryGetSelectionBounds :: EntryClass ed => ed -> IO (Int,Int)
-entryGetSelectionBounds ed = alloca $ \startPtr -> alloca $ \endPtr -> do
-  {#call unsafe editable_get_selection_bounds#} (toEditable ed) startPtr endPtr
-  start <- liftM fromIntegral $ peek startPtr
-  end	<- liftM fromIntegral $ peek endPtr
-  return (start,end)
-
--- | Insert new text at the specified position.
---
--- * If the position is invalid the text will be inserted at the end of the
---   buffer. The returned value reflects the actual insertion point.
---
-entryInsertText :: EntryClass ed => ed -> String -> Int -> IO Int
-entryInsertText ed str pos = withObject (fromIntegral pos) $ \posPtr ->
-  withUTFStringLen str $ \(strPtr,len) -> do
-    {#call editable_insert_text#} (toEditable ed) strPtr (fromIntegral len) 
-      posPtr
-    liftM fromIntegral $ peek posPtr
-
--- | Delete a given range of text.
---
--- * If the @end@ position is invalid, it is set to the lenght of the
---   buffer.
---
--- * @start@ is restricted to 0..@end@.
---
-entryDeleteText :: EntryClass ed => ed -> Int -> Int -> IO ()
-entryDeleteText ed start end = {#call editable_delete_text#} (toEditable ed)
-  (fromIntegral start) (fromIntegral end)
-
--- | Retrieve a range of characters.
---
--- * Set @end@ to a negative value to reach the end of the buffer.
---
-entryGetChars :: EntryClass ed => ed -> Int -> Int -> IO String
-entryGetChars ed start end = do
-  strPtr <- {#call unsafe editable_get_chars#} (toEditable ed) 
-    (fromIntegral start) (fromIntegral end)
-  str <- peekUTFString strPtr
-  {#call unsafe g_free#} (castPtr strPtr)
-  return str
-
--- | Cut the selected characters to the Clipboard.
---
-entryCutClipboard :: EntryClass ed => ed -> IO ()
-entryCutClipboard  = {#call editable_cut_clipboard#}.toEditable
-
--- | Copy the selected characters to the Clipboard.
---
-entryCopyClipboard :: EntryClass ed => ed -> IO ()
-entryCopyClipboard  = {#call editable_copy_clipboard#}.toEditable
-
--- | Paste the selected characters to the
--- Clipboard.
---
-entryPasteClipboard :: EntryClass ed => ed -> IO ()
-entryPasteClipboard  = {#call editable_paste_clipboard#}.toEditable
-
--- | Delete the current selection.
---
-entryDeleteSelection :: EntryClass ed => ed -> IO ()
-entryDeleteSelection  = {#call editable_delete_selection#}.toEditable
-
--- | Set the cursor to a specific position.
---
-entrySetPosition :: EntryClass ed => ed -> Int -> IO ()
-entrySetPosition ed pos = 
-  {#call editable_set_position#} (toEditable ed) (fromIntegral pos)
-
--- | Get the current cursor position.
---
-entryGetPosition :: EntryClass ed => ed -> IO Int
-entryGetPosition ed = liftM fromIntegral $
-  {#call unsafe editable_get_position#} (toEditable ed)
-
--- | Make an 'Entry' insensitive.
---
--- * Called with False will make the text uneditable.
---
-entrySetEditable :: EntryClass ed => ed -> Bool -> IO ()
-entrySetEditable ed isEditable = {#call editable_set_editable#}
-  (toEditable ed) (fromBool isEditable)
-
+-- GtkEntry implements the GtkEditable interface
+instance EditableClass Entry
 
 -- methods
 
@@ -232,22 +112,32 @@ entryPrependText :: EntryClass ec => ec -> String -> IO ()
 entryPrependText ec str = 
   withUTFString str $ {#call entry_prepend_text#} (toEntry ec)
 
--- | Set whether to use password mode (display stars
--- instead of the text).
+-- | Set whether to use password mode (display stars instead of the text).
 --
--- * The replacement character can be changed with
---   'entrySetInvisibleChar'.
+-- * The replacement character can be changed with 'entrySetInvisibleChar'.
 --
 entrySetVisibility :: EntryClass ec => ec -> Bool -> IO ()
 entrySetVisibility ec visible =
   {#call entry_set_visibility#} (toEntry ec) (fromBool visible)
 
--- | Set the replacement character for invisible
--- text.
+-- | Get whether widget is in password mode.
+--
+entryGetVisibility :: EntryClass ec => ec -> IO Bool
+entryGetVisibility ec =
+  liftM toBool $ {#call entry_get_visibility#} (toEntry ec)
+
+-- | Set the replacement character for invisible text.
 --
 entrySetInvisibleChar :: EntryClass ec => ec -> Char -> IO ()
 entrySetInvisibleChar ec ch =
   {#call unsafe entry_set_invisible_char#} (toEntry ec) ((fromIntegral.ord) ch)
+
+-- | Get the current replacement character for invisible text,
+-- or 0 if not in password mode.
+--
+entryGetInvisibleChar :: EntryClass ec => ec -> IO Char
+entryGetInvisibleChar ec = liftM (chr.fromIntegral) $
+  {#call unsafe entry_get_invisible_char#} (toEntry ec)
 
 -- | Sets a maximum length the text may grow to.
 --
@@ -257,8 +147,13 @@ entrySetMaxLength :: EntryClass ec => ec -> Int -> IO ()
 entrySetMaxLength ec max = 
   {#call entry_set_max_length#} (toEntry ec) (fromIntegral max)
 
--- | Query whether pressing return will
--- activate the default widget.
+-- | Gets a maximum length the text is allowed to grow to.
+--
+entryGetMaxLength :: EntryClass ec => ec -> IO Int
+entryGetMaxLength ec =
+  liftM fromIntegral $ {#call unsafe entry_get_max_length#} (toEntry ec)
+
+-- | Query whether pressing return will activate the default widget.
 --
 entryGetActivatesDefault :: EntryClass ec => ec -> IO Bool
 entryGetActivatesDefault ec = liftM toBool $
@@ -274,29 +169,25 @@ entrySetActivatesDefault :: EntryClass ec => ec -> Bool -> IO ()
 entrySetActivatesDefault ec setting = {#call entry_set_activates_default#}
   (toEntry ec) (fromBool setting)
 
--- | Query if the text 'Entry' is displayed
--- with a frame around it.
+-- | Query if the text 'Entry' is displayed with a frame around it.
 --
 entryGetHasFrame :: EntryClass ec => ec -> IO Bool
 entryGetHasFrame ec = liftM toBool $
   {#call unsafe entry_get_has_frame#} (toEntry ec)
 
--- | Specifies whehter the 'Entry' should be
--- in an etched-in frame.
+-- | Specifies whehter the 'Entry' should be in an etched-in frame.
 --
 entrySetHasFrame :: EntryClass ec => ec -> Bool -> IO ()
 entrySetHasFrame ec setting = {#call entry_set_has_frame#}
   (toEntry ec) (fromBool setting)
 
--- | Retrieve the number of characters the widget
--- should ask for.
+-- | Retrieve the number of characters the widget should ask for.
 --
 entryGetWidthChars :: EntryClass ec => ec -> IO Int
 entryGetWidthChars ec = liftM fromIntegral $ 
   {#call unsafe entry_get_width_chars#} (toEntry ec)
 
--- | Specifies how large the 'Entry' should
--- be in characters.
+-- | Specifies how large the 'Entry' should be in characters.
 --
 -- * This setting is only considered when the widget formulates its size
 --   request. Make sure that it is not mapped (shown) before you change this
@@ -305,6 +196,20 @@ entryGetWidthChars ec = liftM fromIntegral $
 entrySetWidthChars :: EntryClass ec => ec -> Int -> IO ()
 entrySetWidthChars ec setting = {#call entry_set_width_chars#}
   (toEntry ec) (fromIntegral setting)
+
+-- | Sets the alignment for the contents of the entry. This controls the
+-- horizontal positioning of the contents when the displayed text is shorter
+-- than the width of the entry.
+--
+entrySetAlignment :: EntryClass ec => ec -> Float -> IO ()
+entrySetAlignment ec xalign =
+  {#call entry_set_alignment#} (toEntry ec) (realToFrac xalign)
+
+-- | Gets the value set by 'entrySetAlignment'.
+--
+entryGetAlignment :: EntryClass ec => ec -> IO Float
+entryGetAlignment ec =
+  liftM realToFrac $ {#call unsafe entry_get_alignment#} (toEntry ec)
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Sets the auxiliary completion object to use with

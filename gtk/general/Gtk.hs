@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.25 $ from $Date: 2004/05/23 15:58:48 $
+--  Version $Revision: 1.26 $ from $Date: 2004/07/30 16:32:01 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -34,8 +34,6 @@
 --   Item :	     The only child of this abstract class is MenuItem. The
 --		     three signals Item defines are therefore bound in 
 --		     MenuItem.
---   Editable :	     This should be the base class of Entry, but it is not.
---		     I moved everything into Entry.
 --
 -- TODO
 --
@@ -78,6 +76,7 @@ module Gtk(
   module RadioButton,
   module ToggleButton,
   -- * Numeric\/text data entry
+  module Editable,
   module Entry,
 #if GTK_CHECK_VERSION(2,4,0)
   module EntryCompletion,
@@ -225,6 +224,7 @@ import CheckButton
 import RadioButton
 import ToggleButton
 -- numeric\/text data entry
+import Editable
 import Entry
 #if GTK_CHECK_VERSION(2,4,0)
 import EntryCompletion

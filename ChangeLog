@@ -1,3 +1,15 @@
+2004-07-30  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/entry/Editable.chs, gtk/entry/Entry.chs: split off editable
+	functions into separate module and make Entry an instance of the
+	EditableClass. Also add missing functions.
+
+	* gtk/entry/SpinButton.chs: make SpinButton an EditableClass instance.
+
+	* tools/hierarchyGen/hierarchy.list: add GtkEditable as an interface.
+
+	* gtk/general/Gtk.hs: export new Editable module.
+
 2004-07-29  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/general/General.chs: don't use depreciated gtk main loop

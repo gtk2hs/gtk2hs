@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2004/05/23 15:51:53 $
+--  Version $Revision: 1.6 $ from $Date: 2004/07/30 16:32:01 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -69,6 +69,9 @@ import Structs	(inputError)
 import Enums	(SpinButtonUpdatePolicy(..), SpinType(..))
 
 {# context lib="gtk" prefix="gtk" #}
+
+-- GtkSpinbutton implements the GtkEditable interface
+instance EditableClass SpinButton
 
 -- methods
 
