@@ -1,6 +1,7 @@
 SignalName,
   ConnectAfter,
-  ConnectId
+  ConnectId,
+  disconnect
   ) where
 
 import Monad	(liftM)
@@ -14,7 +15,7 @@ import GObject	(objectRef, objectUnref)
 
 
 -- Specify if the handler is to run before (False) or after (True) the
--- default handler. (EXPORTED)
+-- default handler.
 
 type ConnectAfter = Bool
 
@@ -25,6 +26,11 @@ data GObjectClass o => ConnectId o = ConnectID {#type gulong#} o
 {#pointer GClosureNotify#}
 
 foreign export dynamic mkDestructor :: IO () -> IO GClosureNotify
+
+disconnect :: GObjectClass obj => ConnectId obj -> IO ()
+disconnect (ConnectID handler obj) =
+  withForeignPtr  ((unGObject.toGObject) obj) $ \objPtr ->
+  {#call unsafe g_signal_handler_disconnect#} (castPtr objPtr) handler
 
 -- Here are the generators that turn a Haskell function into
 -- a C function pointer. The fist Argument is always the widget,

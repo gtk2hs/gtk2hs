@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2003/03/08 17:44:05 $
+--  Version $Revision: 1.15 $ from $Date: 2003/03/10 11:56:39 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -163,7 +163,7 @@ module Gtk(
 #endif
   -- non-widgets
   module Hierarchy,
-  ConnectId,
+  module Signal,
 
   -- pango modules
   module Markup,
@@ -305,7 +305,7 @@ import Socket
 
 -- non widgets
 import Hierarchy	(toCellRenderer)
-import Signal		(ConnectId)
+import Signal		(ConnectId, disconnect)
 
 -- pango modules
 import Markup

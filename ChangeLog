@@ -1,3 +1,15 @@
+2003-03-10  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/signals/Signal.chs-boot2, gtk/general/Gtk.hs: Added a
+	function to disconnect a signal.
+	
+2003-03-08  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/abstract/Widget.chs, gtk/general/Enums.chs,
+	gtk/general/Gtk.hs, gtk/general/Structs.hsc,
+	gtk/treeList/TreeModel.chs, gtk/treeList/TreeView.chs: Completed
+	TreeView.chs with the exception of DND support.
+
 2003-02-27  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* demo/concurrent/Progress.hs demo/concurrent/Makefile: Added an
