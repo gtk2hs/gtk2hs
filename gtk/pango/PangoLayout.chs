@@ -4,7 +4,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.7 $ from $Date: 2004/05/23 16:12:20 $
+--  Version $Revision: 1.8 $ from $Date: 2004/05/27 04:21:21 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -194,15 +194,15 @@ layoutGetWidth pl = liftM fromIntegral $ {#call unsafe layout_get_width#} pl
 
 -- | Enumerates how a line can be wrapped.
 --
--- DOCFIXME(constructor): WrapWholeWords Breaks lines only between words.
+-- [@WrapWholeWords@] Breaks lines only between words.
 --
 -- * This variant does not guarantee that the requested width is not
 --   exceeded. A word that is longer than the paragraph width is not
 --   split.
-
--- DOCFIXME(constructor): WrapAnywhere Break lines anywhere.
 --
--- DOCFIXME(constructor): WrapPartialWords Wrap within a word if it is the only one on
+-- [@WrapAnywhere@] Break lines anywhere.
+--
+-- [@WrapPartialWords@] Wrap within a word if it is the only one on
 -- this line.
 --
 -- * This option acts like 'WrapWholeWords' but will split

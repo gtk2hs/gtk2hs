@@ -1,3 +1,9 @@
+2004-05-27 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/pango/Markup.hs, gtk/pango/PangoLayout.chs,
+	gtk/general/Structs.hsc, gtk/gdk/Pixbuf.chs: fix DOCFIXMEs
+	fix also a constructor spelling typo (FUdoulbe -> FUdouble)
+
 2004-05-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mogul/GetWidget.hs, mogul/MDialog.hs, mogul/Mogul.hs,

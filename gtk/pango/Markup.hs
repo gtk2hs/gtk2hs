@@ -4,7 +4,7 @@
 --          
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2004/05/23 16:12:20 $
+--  Version $Revision: 1.7 $ from $Date: 2004/05/27 04:21:21 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -47,81 +47,76 @@ module Markup(
 --
 type Markup = String
 
--- | These are all the attributes the
--- 'markSpan' function can express.
---
--- DOCFIXME(constructor): FontDescr Choose a font by textual description.
---
--- * Takes a
---   string to completely describe the font, example: 'FontDescr' 
---   @"Sans Italic 12"@
---
--- DOCFIXME(constructor): FontFamily Specify the family of font to use.
---
--- * Example: 'FontFamily' @"Sans"@
---
--- DOCFIXME(constructor): FontSize Change the size of the current font.
---
--- * The constuctor takes the size in points (pt) or as predefined
---   sizes. Setting the absolute size 12.5pt can be achieved by passing
---   'FontSize' @('FSPoint' 
---   @12.5)@ to 'markSpan'. Next to predefined absolute
---   sizes such as 'FSsmall' the size can be changed by asking for
---   the next larger or smaller front with 'FSlarger' and
---   'FSsmaller', respectively.
---
--- DOCFIXME(constructor): FontStyle Change the slant of the current font.
---
--- * The constructor takes one of three styles: 'FYnormal',
---   'FYoblique' or 'FYitalic'.
---
--- DOCFIXME(constructor): FontWeight Change the thickness of the current font.
---
--- * The constructor takes one of the six predefined weights. Most likely to
---   be supported: 'FWbold'.
---
--- DOCFIXME(constructor): FontVariant Choosing an alternative rendering for lower case
--- letters.
---
--- * The argument 'FVsmallcaps' will display lower case letters
---   as smaller upper case letters, if this option is available.
---
--- DOCFIXME(constructor): FontStretch Choose a different width.
---
--- * Takes one of nine font widths, e.g. 'FTcondensed' or
---   'FTexpanded'.
---
--- DOCFIXME(constructor): FontForeground Foreground color.
---
--- * This constructor and 'FontBackground' take both a description
---   of the color to be used for rendering.
---
--- DOCFIXME(constructor): FontBackground Background color.
---
--- DOCFIXME(constructor): FontUnderline Specify underlining of text.
---
--- * 'FUnone', 'FUsingle', 'FUdouble' or
---   'FUlow' are possible choices.
---
--- DOCFIXME(constructor): FontRise Specify a vertical displacement.
---
--- * Takes the vertical displacement in em (the width of the \'m\' character
---   in the current font).
---
--- DOCFIXME(constructor): FontLang Give a hint about the language to be displayed.
+-- | These are all the attributes the 'markSpan' function can express.
 --
 data SpanAttribute
+  -- | Choose a font by textual description.
+  --
+  -- * Takes a string to completely describe the font, example:
+  -- @FontDescr \"Sans Italic 12\"@
   = FontDescr   String
+
+  -- | Specify the family of font to use.
+  --
+  -- * Example: @FontFamily \"Sans\"@
   | FontFamily	String
+
+  -- | Change the size of the current font.
+  --
+  -- * The constuctor takes the size in points (pt) or as predefined
+  --   sizes. Setting the absolute size 12.5pt can be achieved by passing
+  --   @FontSize ('FSPoint' 12.5)@ to 'markSpan'. Next to predefined
+  --   absolute sizes such as 'FSsmall' the size can be changed by asking
+  --   for the next larger or smaller front with 'FSlarger' and
+  --   'FSsmaller', respectively.
   | FontSize	FontSizeDef
+
+  -- | Change the slant of the current font.
+  --
+  -- * The constructor takes one of three styles: 'FYnormal',
+  --   'FYoblique' or 'FYitalic'.
   | FontStyle   FontStyleDef
+
+  -- | Change the thickness of the current font.
+  --
+  -- * The constructor takes one of the six predefined weights. Most likely to
+  --   be supported: 'FWbold'.
   | FontWeight  FontWeightDef
+
+  -- | Choosing an alternative rendering for lower case letters.
+  --
+  -- * The argument 'FVsmallcaps' will display lower case letters
+  --   as smaller upper case letters, if this option is available.
   | FontVariant FontVariantDef
+
+  -- | Choose a different width.
+  --
+  -- * Takes one of nine font widths, e.g. 'FTcondensed' or
+  --   'FTexpanded'.
   | FontStretch FontStretchDef
+
+  -- | Foreground color.
+  --
+  -- * This constructor and 'FontBackground' take both a description
+  --   of the color to be used for rendering.
   | FontForeground String	-- FIXME: should be ColorName from GDK or so
+
+  -- | Background color.
   | FontBackground String
+
+  -- | Specify underlining of text.
+  --
+  -- * 'FUnone', 'FUsingle', 'FUdouble' or
+  --   'FUlow' are possible choices.
   | FontUnderline FontUnderlineDef
+
+  -- | Specify a vertical displacement.
+  --
+  -- * Takes the vertical displacement in em (the width of the \'m\' character
+  --   in the current font).
   | FontRise	Double
+
+  -- | Give a hint about the language to be displayed.
   | FontLang	String		-- FIXME: enumeration? what's the use anyway?
 
 instance Show SpanAttribute where
@@ -233,13 +228,13 @@ instance Show FontStretchDef where
 --
 data FontUnderlineDef
   = FUsingle
-  | FUdoulbe
+  | FUdouble
   | FUlow
   | FUnone
 
 instance Show FontUnderlineDef where
   showsPrec _ FUsingle	= shows "single"
-  showsPrec _ FUdoulbe	= shows "doulbe"
+  showsPrec _ FUdouble	= shows "double"
   showsPrec _ FUlow	= shows "low"
   showsPrec _ FUnone	= shows "none"
 
