@@ -1,3 +1,15 @@
+2003-01-18  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/windows/Plug.chs, gtk/embedding/Plug.chs: Moved this file
+	to make compiling on Windows easier (omit embedding/ completely)
+
+	* c2hs/c/CParser.hs: Fixed a parser bug for gcc extensions which
+	became apparent when compiling on Windows (__dllexport).
+
+	* gtk/general/Structs.hsc, gtk/embedding/Sockets.chs: Quick fix
+	to compile on Windows. Declarations in Structs need to be moved
+	to embedding/ so it is left out when compiling on Windows.
+
 2003-01-11  Jens Petersen  <petersen@haskell.org>
 
 	* gtk/treeList/TreeStore.chs (treeStoreRemove): lift to Bool

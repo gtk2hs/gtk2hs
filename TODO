@@ -1,11 +1,16 @@
 TODO for gtk2hs
 
+11/01/2003 Axel Simon <A.Simon@ukc.ac.uk>
+
+* Change the return type of listStoreRemove and treeStoreRemove to Bool.
+  The return type changed from void to gboolean in version 2.2.0 of Gtk.
+
+older entries:
+
 * Compilation falls over on FreeBSD when c2hs reads the type modifier
   __signed. I don't know if this is supposed to be replaced by cpp, for
   the time being I've just added -D__signed=signed.. There probably should
   be a autoconf test for this (and understanding of what's going on).
-
-* TextView is only half done.
 
 * Check all the files for additional functionality since 1.3.3.
 
