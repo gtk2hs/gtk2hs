@@ -93,12 +93,18 @@ import FFI
 import Object		(makeNewObject)
 import Signal
 {#import GList#}
-import GError (propagateGError)
+import GError (propagateGError, GErrorDomain, GErrorClass(..))
 
 {# context lib="gtk" prefix ="gtk" #}
 
 {# enum FileChooserAction {underscoreToCase} #}
 {# enum FileChooserError {underscoreToCase} #}
+
+fileChooserErrorDomain :: GErrorDomain
+fileChooserErrorDomain = unsafePerformIO {#call unsafe file_chooser_error_quark#}
+                                                                                                         
+instance GErrorClass FileChooserError where
+  gerrorDomain _ = fileChooserErrorDomain
 
 fileChooserSetAction :: FileChooserClass chooser => chooser -> FileChooserAction -> IO ()
 fileChooserSetAction chooser action =
