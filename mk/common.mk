@@ -131,20 +131,16 @@ HSCFLAGGED	= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 C2HSFLAGGED	= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 		  $(addprefix -C,$(EXTRA_CPPFLAGS_ONLY_I)) -i$(HIDIRSOK)
 
-# How to build <blah.hs> from <blah.hsc>
-$(HSCFILES:.hsc=.hs) : %.hs : %.hsc
-	$(HSCFLAGGED) $<
-
 # How to build <blah.hs> from <blah.chs>: Since <blah.chs-HEADER> is defined
 # we will use the specified header file. We invoke c2hs for each .chs file
 # anew.
 # These line could be used to inform the user what is happening, but the
 # commands seem to be executed.
-#	  echo $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`\
-#	  echo $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`\
 $(EXPLICIT_HEADER:.chs=.hs) : %.hs : %.chs
-	@if test -f .depend; then \
+	if test -f .depend; then \
+	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend`;\
 	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`; \
+	  echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend`;\
 	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`; \
 	  $(RM) .depend;\
 	fi
@@ -168,9 +164,11 @@ $(STANDARD_HEADER:.chs=.hs) : %.hs : %.chs
 	echo $< >> .depend
 	touch $@
 
-
 %.chi : %.chs ;
 
+# How to build <blah.hs> from <blah.hsc>
+$(HSCFILES:.hsc=.hs) : %.hs : %.hsc
+	$(HSCFLAGGED) $<
 
 # Set up include file for either applications or libraries.
 
@@ -244,7 +242,7 @@ debug 	:
 #	@echo Library: $(LIBNAME)
 #	@echo Application: $(APPNAME)
 #	@echo EXTRA_CPPFLAGS: $(EXTRA_CPPFLAGS_ONLY_I)
-	@echo all CHS files: $(CHSFILES)
+#	@echo all CHS files: $(CHSFILES)
 	@echo Standard header: $(STANDARD_HEADER)
 	@echo Explicit header: $(EXPLICIT_HEADER)
 #	@echo all HSC files: $(HSCFILES)
@@ -254,7 +252,7 @@ debug 	:
 #	@echo incl: $(INST_INCLDIR) bin: $(INST_BINDIR)
 #	@echo user install dir: $(INSTALLDIR)
 #	@echo subdirs: $(SUBDIRSOK)
-	@echo $(ALLSOURCEFILES) > sourcefiles.txt
+#	@echo $(ALLSOURCEFILES) > sourcefiles.txt
 #	@cvs status $(CLEANFILES) 2> /dev/null | $(GREP) File | $(GREP) Unknown
 
 # Create a source tar achive. Do this by adding files to the tar file in the

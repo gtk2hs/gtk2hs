@@ -88,9 +88,11 @@ uninstall : interactiveUninstall
 
 $(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
 	      $(LIBSUFFIX)=$(OBJSUFFIX)) $(GHCIOBJS)
-	if test -f .depend; then \
+	@if test -f .depend; then \
+	  echo "$(TOP)/mk/chsDepend -i$(HIDIRSOK)" `cat .depend` &&\
 	  $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend` && \
-	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend` && \
+	  echo "$(C2HSFLAGGED) -o : $(HEADER)" `cat .depend` &&\
+	  $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`; \
 	  $(RM) .depend;\
 	fi
 	$(RM) $@

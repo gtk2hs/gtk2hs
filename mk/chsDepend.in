@@ -1,0 +1,42 @@
+#!/bin/sh
+# Write dependency information for a c2hs file.
+# Usage:
+# chsDepend [-i<seachPath>] [File1.chs [File2.chs [...]]]
+# Generate dependency information for FileN.chs looking for dependant files
+# in the colon-separated search path <searchPath>.
+SED=@SED@;
+GREP=@GREP@;
+
+SEARCHPATH=.;
+
+TMPCMDLINE=$@;
+
+case $1 in
+ -[iI]*) SEARCHPATH=`echo "$1" | $SED 's/-[iI]//'`; shift ;;
+esac
+
+
+for FULLNAME in $@; do
+  FULLNAMEDEP=`echo "$FULLNAME" | $SED 's/\.chs/.dep/'`;
+  if test -f "$FULLNAME"; then
+    DEPS=`$GREP "{#import" $FULLNAME 2> /dev/null | $SED 's/^{#import \([a-zA-Z1-9]*\)#}.*/\1.chs/'`;
+    echo "$FULLNAMEDEP :" > $FULLNAMEDEP
+    # echo Looking for dependent files: $DEPS
+    for DEP in $DEPS; do
+      IFS=:;
+      for DEPDIR in $SEARCHPATH; do
+        DEPNAME=`echo "$DEPDIR/$DEP" | $SED 's%\.//*%%' | $SED 's/\.chs/.hs/'`;
+        # echo Lookin for $DEP in $DEPDIR , i.e.: $DEPNAME
+        if test -f "$DEPNAME"; then
+          # echo Found $DEP in $DEPDIR
+	  echo "$FULLNAME $FULLNAMEDEP : $DEPNAME" >> $FULLNAMEDEP;
+        fi;
+      done;
+      IFS=" ";
+    done;
+    echo Writing dependency information for $FULLNAME
+  else
+    echo Warning: $FULLNAME not found.
+  fi;
+done;
+
