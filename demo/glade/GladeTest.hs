@@ -1,7 +1,7 @@
 module Main where
 
-import Gtk
-import Glade
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Glade
 
 main = do
          initGUI
@@ -10,7 +10,8 @@ main = do
 	 dialogXmlM <- xmlNew "simple.glade"
 	 let dialogXml = case dialogXmlM of
 	       (Just dialogXml) -> dialogXml
-	       Nothing -> error "can't find the glade file \"simple.glade\" in the current directory"
+	       Nothing -> error "can't find the glade file \"simple.glade\" \
+				\in the current directory"
 	 
 	 -- get a handle on a couple widgets from the glade file
 	 window <- xmlGetWidget dialogXml castToWindow "window1"

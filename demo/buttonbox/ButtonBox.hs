@@ -1,6 +1,6 @@
 module Main (Main.main) where
 
-import Gtk
+import Graphics.UI.Gtk
 
 main :: IO ()
 main = do

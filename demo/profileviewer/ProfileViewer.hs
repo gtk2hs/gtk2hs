@@ -15,15 +15,16 @@
 
 module Main where
 
-import Gtk
-import Mogul
-import Glade
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Mogul
+import Graphics.UI.Gtk.Glade
 
 import ParseProfile
 
 import Maybe (isJust, fromJust)
 import Monad (when)
 import List  (unfoldr, intersperse)
+import System (getArgs)
 import Data.IORef
 
 main :: IO ()
@@ -134,6 +135,13 @@ main = do
   mapM_ (uncurry doThresholdMenuItem)
     [(0, "allEntries"), (1, "0.1%Entries"), (5, "0.5%Entries"), (10, "1%Entries"),
      (50, "5%Entries"), (100, "10%Entries"), (500, "50%Entries")]
+
+  -- Check the command line to see if a profile file was given
+  commands <- getArgs
+  when (not (null commands))
+       (do profile <- parseProfileFile (head commands)
+           writeIORef profileVar (Just profile)
+          repopulateTreeStore)
 
   -- The final step is to display the main window and run the main loop
   widgetShowAll mainWindow

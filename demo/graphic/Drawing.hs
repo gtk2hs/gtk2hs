@@ -1,6 +1,5 @@
 -- Example of an drawing graphics onto a canvas.
-import Prelude 
-import Gtk
+import Graphics.UI.Gtk
 
 main = do
   initGUI

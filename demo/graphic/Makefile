@@ -1,11 +1,9 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+PROG  = drawing
+SOURCES = Drawing.hs
 
-MAIN = Drawing.hs
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
-APPNAME = drawing 
-
-NEEDPACKAGES = gtk2
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

@@ -6,9 +6,9 @@
 -- Gtk's main loop. Thus, everytime Gtk is idleing, GHC gets a chance to
 -- execute Haskell threads.
 
-import Gtk
-import Structs
-import Concurrent
+import Graphics.UI.Gtk
+
+import Control.Concurrent
 
 main :: IO ()
 main = do

@@ -1,9 +1,9 @@
 -- A Test Program for the Gtk2 Mozilla Widget
 --
 
-import Gtk
+import Graphics.UI.Gtk
 import Graphics.UI.Gtk.MozEmbed
-import System
+import System (getArgs, getEnv, getProgName)
 
 
 main :: IO ()

@@ -1,8 +1,8 @@
 -- Test file for the ListView widget.
 module Main(main) where
 
-import Mogul
-import Events
+import Graphics.UI.Gtk.Mogul
+import Graphics.UI.Gtk.Gdk.Events
 
 main = do
   initGUI

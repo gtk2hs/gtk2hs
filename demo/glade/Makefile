@@ -1,13 +1,9 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+PROG  = gladetest
+SOURCES = GladeTest.hs
 
-MAIN = GladeTest.hs
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
-APPNAME = gladeDemo
-
-NEEDPACKAGES = gtk2 glade
-
-EXTRA_TARFILES += simple.glade
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

@@ -1,11 +1,9 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+PROG  = arabic
+SOURCES = Arabic.hs
 
-MAIN = Arabic.hs
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
-APPNAME = arabic 
-
-NEEDPACKAGES = gtk2
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

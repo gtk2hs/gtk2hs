@@ -1,6 +1,9 @@
 
-helloworld : World.hs
-	ghc --make $< -o $@
+PROG  = helloworld
+SOURCES = World.hs
+
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
 clean:
-	rm -f World.hi World.o helloworld
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

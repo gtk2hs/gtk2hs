@@ -1,7 +1,7 @@
 module Main where
 
-import Gtk
-import Glade
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Glade
 
 main :: IO ()
 main = do

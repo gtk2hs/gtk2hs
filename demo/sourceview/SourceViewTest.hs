@@ -1,11 +1,8 @@
 -- Test file for the SourceView widget.
 module Main where
 
-import Gtk
-import SourceView
-import SourceBuffer
-import SourceLanguage
-import SourceLanguagesManager
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.SourceView
 
 main = do
   initGUI

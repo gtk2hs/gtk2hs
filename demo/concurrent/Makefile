@@ -1,11 +1,9 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+PROG  = progress
+SOURCES = Progress.hs
 
-MAIN = Progress.hs
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
-APPNAME = progress 
-
-NEEDPACKAGES = gtk2
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

@@ -1,11 +1,9 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+PROG  = gconfdemo
+SOURCES = GConfDemo.hs
 
-MAIN = GConfDemo.hs
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ -fglasgow-exts -fallow-overlapping-instances $(HCFLAGS)
 
-APPNAME = gconfDemo
-
-NEEDPACKAGES = gconf
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

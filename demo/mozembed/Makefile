@@ -1,6 +1,9 @@
 
-TestEmbedMoz : TestEmbedMoz.hs
-	ghc -package mozembed TestEmbedMoz.hs -o TestEmbedMoz
+PROG  = testembedmoz
+SOURCES = TestEmbedMoz.hs
+
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
 clean:
-	rm TestEmbedMoz TestEmbedMoz.hi TestEmbedMoz.o
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

@@ -1,13 +1,9 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+PROG  = sourceview
+SOURCES = SourceViewTest.hs
 
-MAIN = SourceViewTest.hs
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
-APPNAME = sourceview
-
-NEEDPACKAGES = sourceview
-
-EXTRA_TARFILES += haskell.lang
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

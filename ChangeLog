@@ -1,3 +1,19 @@
+2005-01-16 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/buttonbox/ButtonBox.hs demo/buttonbox/Makefile
+	demo/concurrent/Progress.hs demo/concurrent/Makefile
+	demo/filechooser/FileChooserDemo.hs demo/filechooser/Makefile
+	demo/gconf/GConfDemo.hs demo/gconf/Makefile
+	demo/glade/GladeTest.hs	demo/glade/Makefile
+	demo/graphic/Drawing.hs demo/graphic/Makefile
+	demo/hello/Makefile
+	demo/mozembed/TestEmbedMoz.hs demo/mozembed/Makefile
+	demo/profileviewer/ProfileViewer.hs demo/profileviewer/Makefile
+	demo/sourceview/SourceViewTest.hs demo/sourceview/Makefile
+	demo/treeList/ListTest.hs demo/treeList/Makefile
+	demo/unicode/Arabic.hs demo/unicode/Makefile: update all the demos to
+	use the new module names and write new simple makefiles.
+
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way we find pacakge variables for files

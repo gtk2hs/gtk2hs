@@ -1,11 +1,9 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+PROG  = profileviewer
+SOURCES = ProfileViewer.hs ParseProfile.hs
 
-MAIN = ProfileViewer.hs
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
-APPNAME = profileviewer
-
-NEEDPACKAGES = gtk2 mogul glade
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

@@ -1,13 +1,9 @@
-TOP = ../..
 
-include $(TOP)/mk/config.mk
+PROG  = filechooser
+SOURCES = FileChooserDemo.hs
 
-MAIN = FileChooserDemo.hs
+$(PROG) : $(SOURCES)
+	ghc --make $< -o $@ $(HCFLAGS)
 
-APPNAME = fileChooser
-
-NEEDPACKAGES = gtk2 glade
-
-EXTRA_TARFILES += FileChooserDemo.glade
-
-include $(TOP)/mk/common.mk
+clean:
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)

@@ -1,6 +1,6 @@
 module Main where
 
-import Gtk (initGUI, mainGUI)
+import Graphics.UI.Gtk (initGUI, mainGUI)
 import System.Gnome.GConf
 
 import Monad (when)
