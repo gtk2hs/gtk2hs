@@ -1,3 +1,23 @@
+2003-05-15  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* configure.in, mk/config.mk.in: Improved detection of OpenGl and
+	GLExt.
+
+	* mk/common.mk, mk/library.mk: Remove stale .hs files when c2hs
+	fails.
+	
+2003-03-24  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* demo/concurrent/Progress.hs, demo/graphic/Drawing.hs
+	demo/treeList/ListTest.hs, demo/unicode/Arabic.hs,
+	gtk/general/StockItems.hsc: the stockButton... constants have
+	gone, updated the demos.
+
+	* gtk/treeList/TreeView.chs: Removed a type error when compiling
+	with Gtk 2.2.
+
+	* gtk/Makefile: Add GObject to the needed CHI files.
+	
 2003-03-24  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/general/Style.chs: Forgot to add this file.

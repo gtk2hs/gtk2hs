@@ -103,9 +103,17 @@ CPPFLAGS	= @CPPFLAGS@
 
 HC_FLAGS	= @HCFLAGS@
 
+ifeq ($(ENABLE_PIXBUF)),yes)
+HC_FLAGS	+= -DENABLE_PIXBUF
+endif
+
+ifeq ($(ENABLE_OPENGL)),yes)
+HC_FLAGS	+= -DENABLE_OPENGL
+endif
+
 BROKENCB	= @FOUR_WORD_CALLBACK@
 
-ifeq (x$(WIN32),xyes)
+ifeq ($(WIN32),yes)
 HC_FLAGS	+= -DWIN32
 endif
 

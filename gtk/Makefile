@@ -6,7 +6,15 @@ SUBDIRS	= abstract buttons display entry general layout menuComboToolbar \
 	  misc multiline ornaments scrolling \
 	  treeList windows gdk glib pango ../compat
 
-ifeq (x$(WIN32),xyes)
+ifeq ($(ENABLE_PIXBUF),yes)
+SUBDIRS += pixbuf
+endif
+
+ifeq ($(ENABLE_OPENGL),yes)
+SUBDIRS += glext
+endif
+
+ifeq ($(WIN32),yes)
 EXTRA_HFILES	= $(TOP)/gtk/wingtk.h
 SUBSYSTEM	= windows
 else
