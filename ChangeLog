@@ -26,6 +26,9 @@
 	demo/filechooser/Makefile, demo/filechooser/FileChooserDemo.hs:
 	added new FileChooser modules and a (unfinished) demo program
 
+	* gtk/general/Gtk.hs: temporarily disable building
+	FileChooserDialog, one of its dependancies has not been committed
+
 2004-04-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Makefile: use standard $(CPP) variable
