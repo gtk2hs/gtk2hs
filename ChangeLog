@@ -1,5 +1,11 @@
 2003-05-16  Jens Petersen  <petersen@redhat.com>
 
+	* Makefile (EXTRA_TARFILES): Exclude spec file after all.
+	(dist): Don't depend on spec file.
+	(rpm): Depend on spec file.  Build from it and not the tarball.
+	(srpm): Ditto.
+	(gtk2hs.spec): Depend on VERSION.
+
 	* mk/library.mk: Introduce DESTDIR variable for installing into a
 	staging area or buildroot.
 	(installdirs): Prefix dirs with DESTDIR.

@@ -89,9 +89,9 @@ EXTRA_TARFILES = $(strip AUTHORS COPYING.LIB ChangeLog INSTALL Makefile \
 			 configure.in configure \
 			 mk/config.mk.in mk/common.mk mk/application.mk \
 		 	 mk/library.mk mk/chsDepend.in install-sh \
-			 config.sub config.guess gtk2hs.spec.in gtk2hs.spec )
+			 config.sub config.guess gtk2hs.spec.in )
 
-dist : gtk2hs.spec
+dist :
 	$(RM) -r $(TARNAME)
 	$(RM) $(TARNAME).tar $(TARNAME).tar.gz
 	$(LN) -s . $(TARNAME)
@@ -110,11 +110,11 @@ dist : gtk2hs.spec
 	$(GZIP) $(TARNAME).tar
 	$(RM) $(TARNAME)
 
-rpm: dist
-	rpmbuild -ta $(TARNAME).tar.gz
+rpm: gtk2hs.spec dist
+	rpmbuild -ba gtk2hs.spec
 
-srpm: dist
-	rpmbuild -ts $(TARNAME).tar.gz
+srpm: gtk2hs.spec dist
+	rpmbuild -bs gtk2hs.spec
 
-gtk2hs.spec: gtk2hs.spec.in
+gtk2hs.spec: VERSION gtk2hs.spec.in
 	./configure
