@@ -1,5 +1,10 @@
-2003-11-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
+2003-11-18 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* demo/sourceview/Sourceview.hs: Give an error message if the
+	language spec file is not found.
+	
+2003-11-17 Axel Simon <A.Simon@kent.ukc.ac.uk>
+	
 	* c2hs/gen/GenBind.hs: Do not peek through C typedefs when
 	determining the C type equivalent of a Haskell type. This corrects
 	a problem with GtkSourceViewMarker which is a typedef of
