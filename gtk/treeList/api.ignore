@@ -74,3 +74,19 @@ always exclude gtk_tree_view_column_cell_get_size
 always exclude gtk_tree_view_column_cell_set_cell_data
 always exclude gtk_tree_view_column_cell_is_visible
 
+#TreeView stuff
+#varargs attributes stuff
+always exclude gtk_tree_view_insert_column_with_attributes
+
+#private to ATK
+always exclude gtk_tree_view_set_destroy_count_func
+
+#not useful
+always exclude gtk_tree_view_get_bin_window
+
+#can't bind due to memory management problems
+always exclude gtk_tree_view_get_search_equal_func
+
+#TextTag stuff
+#rather internal
+always exclude gtk_text_tag_event

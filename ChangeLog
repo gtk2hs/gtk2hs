@@ -1,5 +1,13 @@
 2004-08-4  Duncan Coutts <duncan@coutts.uklinux.net>
 
+	* gtk/treeList/TreeView.chs, gtk/multiline/TextTag.chs,
+	gtk/multiline/TextTagTable.chs, gtk/multiline/TextView.chs: add missing
+	functions & fix typo bug.
+
+	* gtk/treeList/api.ignore: add more ignored functions.
+
+2004-08-4  Duncan Coutts <duncan@coutts.uklinux.net>
+
 	* gtk/abstract/Container.chs, gtk/treeList/TreeSelection.chs,
 	gtk/treeList/TreeModelSort.chs, gtk/treeList/TreeViewColumn.chs,
 	gtk/treeList/TreeModel.chs: add missing functions.

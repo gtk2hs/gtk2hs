@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.11 $ from $Date: 2004/05/23 16:09:08 $
+--  Version $Revision: 1.12 $ from $Date: 2004/08/05 14:24:28 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -30,8 +30,6 @@
 --
 -- * If PangoTabArray is bound: do textViewSetTabs and textViewGetTabs
 --
--- * If TextTags are bound: do textViewGetDefaultAttributes
---
 module TextView(
   TextView,
   TextViewClass,
@@ -47,6 +45,7 @@ module TextView(
   textViewNew,
   textViewNewWithBuffer,
   textViewSetBuffer,
+  textViewGetBuffer,
   textViewScrollToMark,
   textViewScrollToIter,
   textViewScrollMarkOnscreen,
@@ -67,6 +66,7 @@ module TextView(
   textViewBackwardDisplayLineEnd,
   textViewForwardDisplayLineStart,
   textViewBackwardDisplayLineStart,
+  textViewStartsDisplayLine,
   textViewMoveVisually,
   textViewAddChildAtAnchor,
   textChildAnchorNew,
@@ -94,6 +94,7 @@ module TextView(
   textViewGetRightMargin,
   textViewSetIndent,
   textViewGetIndent,
+  textViewGetDefaultAttributes,
   onCopyClipboard,
   afterCopyClipboard,
   onCutClipboard,
@@ -127,6 +128,7 @@ import GObject	(makeNewGObject)
 {#import Hierarchy#}
 {#import Signal#}
 {#import TextIter#}
+{#import TextTag#}
 import Enums (TextWindowType(..), DeleteType(..), DirectionType(..),
 	      Justification(..), MovementStep(..), WrapMode(..))
 import GList	(fromGList)
@@ -151,12 +153,17 @@ textViewNewWithBuffer :: TextBuffer -> IO TextView
 textViewNewWithBuffer tb = makeNewGObject mkTextView $ liftM castPtr $
   {#call unsafe text_view_new_with_buffer#} tb
 
--- | Set the 'TextBuffer' for a given
--- 'TextView' widget.
+-- | Set the 'TextBuffer' for a given 'TextView' widget.
 --
 textViewSetBuffer :: TextViewClass tv => tv -> TextBuffer -> IO ()
 textViewSetBuffer tv tb = 
-  {#call unsafe text_view_set_buffer#} (toTextView tv) tb
+  {#call text_view_set_buffer#} (toTextView tv) tb
+
+-- | Returns the 'TextBuffer' being displayed by this text view.
+--
+textViewGetBuffer :: TextViewClass tv => tv -> IO TextBuffer
+textViewGetBuffer tv = makeNewGObject mkTextBuffer $
+  {#call unsafe text_view_get_buffer#} (toTextView tv)
 
 -- | Scroll to the position of the supplied
 -- 'TextMark'.
@@ -377,8 +384,7 @@ textViewGetBorderWindowSize tv wt = liftM fromIntegral $
   {#call unsafe text_view_get_border_window_size#} (toTextView tv) 
   ((fromIntegral.fromEnum) wt)
 
--- | Move the iterator forwards by one
--- display line.
+-- | Move the iterator forwards by one display line.
 --
 -- * Moves the given 'TextIter' forward by one display (wrapped)
 --   line. A display line is different from a paragraph. Paragraphs are
@@ -402,8 +408,7 @@ textViewBackwardDisplayLine :: TextViewClass tv => tv -> TextIter -> IO Bool
 textViewBackwardDisplayLine tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line#} (toTextView tv) ti
  
--- | Move the iterator forwards and to
--- the end.
+-- | Move the iterator forwards and to the end.
 --
 -- * Like 'textViewForwardDisplayLine' but moves to the end of 
 --   the line as well.
@@ -412,8 +417,7 @@ textViewForwardDisplayLineEnd :: TextViewClass tv => TextIter -> tv -> IO Bool
 textViewForwardDisplayLineEnd ti tv = liftM toBool $
   {#call unsafe text_view_forward_display_line_end#} (toTextView tv) ti
 
--- | Move the iterator backwards and to
--- the end.
+-- | Move the iterator backwards and to the end.
 --
 -- * See 'textViewForwardDisplayLineEnd'.
 --
@@ -421,8 +425,7 @@ textViewBackwardDisplayLineEnd :: TextViewClass tv => tv -> TextIter -> IO Bool
 textViewBackwardDisplayLineEnd tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line_start#} (toTextView tv) ti
 
--- | Move the iterator forwards and to
--- the start.
+-- | Move the iterator forwards and to the start.
 --
 -- * Like 'textViewForwardDisplayLine' but moves to the start of
 --   the line as well.
@@ -432,8 +435,7 @@ textViewForwardDisplayLineStart :: TextViewClass tv => tv -> TextIter ->
 textViewForwardDisplayLineStart tv ti = liftM toBool $
   {#call unsafe text_view_forward_display_line_end#} (toTextView tv) ti
 
--- | Move the iterator backwards and
--- to the start.
+-- | Move the iterator backwards and to the start.
 --
 -- * See 'textViewForwardDisplayLineStart'.
 --
@@ -442,11 +444,18 @@ textViewBackwardDisplayLineStart :: TextViewClass tv => tv -> TextIter ->
 textViewBackwardDisplayLineStart tv ti = liftM toBool $
   {#call unsafe text_view_backward_display_line_start#} (toTextView tv) ti
 
+-- | Determines whether the iter is at the start of a display line.
+--
+-- * See 'textViewForwardDisplayLine' for an explanation of display lines vs.
+-- paragraphs.
+--
+textViewStartsDisplayLine :: TextViewClass tv => tv -> TextIter -> IO Bool
+textViewStartsDisplayLine tv ti = liftM toBool $
+  {#call unsafe text_view_starts_display_line#} (toTextView tv) ti 
 
 -- | Move the iterator a number of lines.
 --
--- * @count@ is in display lines. See
---   'textViewForwardDisplayLine'.
+-- * The @count@ is in display lines. See 'textViewForwardDisplayLine'.
 --
 textViewMoveVisually :: TextViewClass tv => tv -> TextIter -> Int -> IO Bool
 textViewMoveVisually tv ti count = liftM toBool $
@@ -672,6 +681,17 @@ textViewSetIndent tv p = {#call text_view_set_indent#}
 textViewGetIndent :: TextViewClass tv => tv -> IO Int
 textViewGetIndent tv = liftM (fromIntegral) $
   {#call unsafe text_view_get_indent#} (toTextView tv)
+
+-- | Obtains a copy of the default text attributes. These are the attributes
+-- used for text unless a tag overrides them.
+--
+textViewGetDefaultAttributes :: TextViewClass tv => tv -> IO TextAttributes
+textViewGetDefaultAttributes tv =
+  {#call gtk_text_view_get_default_attributes#} (toTextView tv)
+   >>= makeNewTextAttributes
+
+
+-- Signals
 
 -- | Copying to the clipboard.
 --

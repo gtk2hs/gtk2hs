@@ -6,7 +6,7 @@
 --          
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.16 $ from $Date: 2004/05/23 16:16:43 $
+--  Version $Revision: 1.17 $ from $Date: 2004/08/05 14:24:27 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -119,6 +119,7 @@ module TreeView(
   treeViewGetVisibleRect,
   treeViewWidgetToTreeCoords,
   treeViewTreeToWidgetCoords,
+  treeViewCreateRowDragIcon,
   treeViewGetEnableSearch,
   treeViewSetEnableSearch,
   treeViewGetSearchColumn,
@@ -149,7 +150,7 @@ import FFI
 
 import General	(mkDestructor)
 import Structs	(Point, Rectangle)
-import GObject	(makeNewGObject, objectRef, objectUnref)
+import GObject	(makeNewGObject)
 import Object	(makeNewObject)
 import GList	(GList, fromGList)
 {#import Hierarchy#}
@@ -179,9 +180,8 @@ treeViewNewWithModel tm = makeNewObject mkTreeView $ liftM castPtr $
 treeViewGetModel :: TreeViewClass tv => tv -> IO (Maybe TreeModel)
 treeViewGetModel tv = do
   tmPtr <- {#call unsafe tree_view_get_model#} (toTreeView tv)
-  if tmPtr==nullPtr then return Nothing else do
-    objectRef tmPtr
-    liftM (Just . mkTreeModel) $ newForeignPtr tmPtr (objectUnref tmPtr)
+  if tmPtr==nullPtr then return Nothing else liftM Just $
+    makeNewGObject mkTreeModel (return tmPtr)
 
 -- | Set the 'TreeModel' for the current View.
 --
@@ -683,11 +683,11 @@ treeViewGetPathAtPos tv (x,y) = alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr ->
 treeViewGetCellArea :: TreeViewClass tv => tv -> Maybe TreePath -> 
 					   TreeViewColumn -> IO Rectangle
 treeViewGetCellArea tv Nothing tvc = alloca $ \rPtr ->
-  {#call unsafe tree_view_get_background_area#} (toTreeView tv)
+  {#call unsafe tree_view_get_cell_area#} (toTreeView tv)
     (TreePath nullForeignPtr) tvc (castPtr (rPtr :: Ptr Rectangle))
     >> peek rPtr
 treeViewGetCellArea tv (Just tp) tvc = alloca $ \rPtr -> do
-  {#call unsafe tree_view_get_background_area#} (toTreeView tv) tp
+  {#call unsafe tree_view_get_cell_area#} (toTreeView tv) tp
     tvc (castPtr (rPtr :: Ptr Rectangle)) >> peek rPtr
 
 -- | Retrieve the largest bounding box 
@@ -724,8 +724,7 @@ treeViewGetVisibleRect tv = alloca $ \rPtr -> do
     (castPtr (rPtr :: Ptr Rectangle))
   peek rPtr
 
--- | Convert widget to tree pixel
--- coordinates.
+-- | Convert widget to tree pixel coordinates.
 --
 -- * See module description.
 --
@@ -737,8 +736,7 @@ treeViewWidgetToTreeCoords tv (x,y) = alloca $ \xPtr -> alloca $ \yPtr -> do
   y' <- peek yPtr
   return (fromIntegral x', fromIntegral y')
 
--- | Convert tree to widget pixel
--- coordinates.
+-- | Convert tree to widget pixel coordinates.
 --
 -- * See module description.
 --
@@ -749,6 +747,14 @@ treeViewTreeToWidgetCoords tv (x,y) = alloca $ \xPtr -> alloca $ \yPtr -> do
   x' <- peek xPtr
   y' <- peek yPtr
   return (fromIntegral x', fromIntegral y')
+
+-- | Creates a "Pixmap" representation of the row at the given path. This image
+-- can be used for a drag icon.
+--
+treeViewCreateRowDragIcon :: TreeViewClass tv => tv -> TreePath -> IO Pixmap
+treeViewCreateRowDragIcon tv path =
+  makeNewGObject mkPixmap $
+  {#call unsafe tree_view_create_row_drag_icon#} (toTreeView tv) path
 
 -- | Set if user can search entries.
 --
@@ -765,15 +771,13 @@ treeViewSetEnableSearch :: TreeViewClass tv => tv -> Bool -> IO ()
 treeViewSetEnableSearch tv es = {#call tree_view_set_enable_search#}
   (toTreeView tv) (fromBool es)
 
--- | Gets the column searched on by the
--- interactive search.
+-- | Gets the column searched on by the interactive search.
 --
 treeViewGetSearchColumn :: TreeViewClass tv => tv -> IO Int
 treeViewGetSearchColumn tv = liftM fromIntegral $
   {#call unsafe tree_view_get_search_column#} (toTreeView tv)
 
--- | Set the column searched on by
--- by the interactive search.
+-- | Set the column searched on by by the interactive search.
 --
 -- * Additionally, turns on interactive searching.
 --
