@@ -12,6 +12,9 @@
 
 	* mk/common.mk: the register package hook has moved to Makefile.am
 
+	* gtk2hs.spec.in: update to Jens's latest spec file plus my (probably
+	broken) changes. This needs testing.
+
 2005-01-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/buttonbox/ButtonBox.hs demo/buttonbox/Makefile
