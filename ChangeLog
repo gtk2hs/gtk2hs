@@ -1,3 +1,11 @@
+2003-12-11 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/hierarchyGen/TypeGen.hs: changed the way the object
+	hierarchy is implemented. All classes except GObject now have
+	no member functions. The from* to* functions are now ordinary
+	functions with a class constraint. This saves carrying around
+	so many class dictionaries per object - now only one.
+
 2003-11-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/TypeGen.hs: added extra commandline parameters

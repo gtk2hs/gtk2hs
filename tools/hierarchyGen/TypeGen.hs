@@ -167,7 +167,9 @@ generate fname lib prefix objs typeTable =
   indent 0.ss "module ".ss fname.sc '('.
 --  indent 1.ss "ObjectTag(..)".
   foldl (\s1 s2 -> s1.ss ", ".s2) id (map (\(n:_) -> 
-		indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class(..),".
+		indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
+		indent 1.ss "to".ss n.ss ", ".
+		indent 1.ss "from".ss n.ss ", ".
 		indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
 		indent 1.ss "castTo".ss n) objs).
   indent 1.ss ") where".
@@ -245,26 +247,34 @@ makeClass table (name:parents) =
   indent 0.ss "mk".ss name.ss " = ".ss name.
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".
   indent 0.
-  indent 0.ss "class ".
-    (if not (null parents) then ss (head parents).ss "Class o => " else id).
-	   ss name.ss "Class o where".
-  indent 1.ss "to".ss name.ss "   :: o -> ".ss name.
-  indent 1.ss "from".ss name.ss " :: ".ss name.ss " -> o".
-  indent 0.
-  indent 0.ss "instance ".ss name.ss "Class ".ss name.ss " where".
-  indent 1.ss "to".ss name.ss "   = id".
-  indent 1.ss "from".ss name.ss " = id".
-  indent 0.
-  makeInstance name parents.
+  (if null parents
+  then
+    indent 0.ss "class ".ss name.ss "Class o where".
+    indent 1.ss "to".ss name.ss "   :: o -> ".ss name.
+    indent 1.ss "from".ss name.ss " :: ".ss name.ss " -> o".
+    indent 0.
+    indent 0.ss "instance ".ss name.ss "Class ".ss name.ss " where".
+    indent 1.ss "to".ss name.ss "   = id".
+    indent 1.ss "from".ss name.ss " = id"
+  else
+    indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".
+    indent 0.ss "to".ss name.ss "   :: ".ss name.ss "Class o => o -> ".ss name.
+    indent 0.ss "to".ss name.ss "   = from".ss (last parents).ss " . to".ss (last parents).
+    indent 0.ss "from".ss name.ss " :: ".ss name.ss "Class o => ".ss name.ss " -> o".
+    indent 0.ss "from".ss name.ss " = from".ss (last parents).ss " . to".ss (last parents).
+    indent 0.
+    makeInstance name (name:parents)).
   indent 0
 
 makeInstance :: String -> [String] -> ShowS
-makeInstance name []         = id
-makeInstance name (par:ents) =
+makeInstance name [par] =
+  indent 0.
   indent 0.ss "instance ".ss par.ss "Class ".ss name.ss " where".
   indent 1.ss "to".ss par.ss "   = mk".ss par.ss ".castForeignPtr.un".ss name.
   indent 1.ss "from".ss par.ss " = mk".ss name.ss ".castForeignPtr.un".ss par.
-  indent 0.
+  indent 0
+makeInstance name (par:ents) =
+  indent 0.ss "instance ".ss par.ss "Class ".ss name.
   makeInstance name ents
 
  
