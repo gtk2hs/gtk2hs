@@ -4,6 +4,10 @@
 	handler return type rather than (Num n, Integral n) => n since there's
 	no need to be so general (and it breaks my new signals system!)
 
+	* tools/callbackGen/gtkmarshal.list: comment out all the signal
+	marshalers that are not currently used. This saves several 100k in a
+	final striped program. Feel free to re-enable any of them at any time.
+
 2005-03-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs: match up against existing .hs modules if
