@@ -1,5 +1,12 @@
 2004-08-19  Jens Petersen  <petersen@haskell.org>
 
+	* configure.in (GHC_DOCDIR): Default to unset.
+
+	* mk/library.mk (HADDOCK_BASEDOC_FLAG): New variable to handle
+	haddock flag for ghc base documentation BASEDOC_DIR  if GHC_DOCDIR set.
+
+	* gtk/Makefile (EXCLUDE_DOCS): Add Hierarchy.hs
+
 	* sourceview/Makefile (C2HS_EXTRA_FLAGS):  Replaces HIDIRS for c2hs.
 
 	* mogul/Makefile: Add EXCLUDE_DOCS and PREPROC_DOCS for haddock.

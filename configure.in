@@ -461,7 +461,6 @@ VERSION=`cat $TOP/VERSION`
 dnl Documentation
 AC_PATH_PROG(HADDOCK,haddock)
 
-GHC_DOCDIR=${datadir}/doc/ghc
 AC_ARG_WITH(ghc-docdir, 
             [  --with-ghc-docdir=GHC_DOCDIR  location of top of ghc haddockified html documentation],
 	    [GHC_DOCDIR=$withval])

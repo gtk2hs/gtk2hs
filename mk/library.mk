@@ -14,6 +14,9 @@ EXTRA_DISTCLEANFILES	+= $(PACKAGENAME).conf
 makeTextList		= $(addprefix \",$(addsuffix \",\
 			$(subst $(SPACE),\"$(COMMA)\",$(sort $(1)))))
 
+BASEDOC_DIR		= $(addsuffix /libraries/base,$(strip $(GHC_DOCDIR)))
+HADDOCK_BASEDOC_FLAG	= $(addprefix -i,$(addsuffix $(COMMA)$(BASEDOC_DIR)/base.haddock,$(BASEDOC_DIR)))
+
 PKGDOCDIR		?= $(INST_DOCDIR)/$(PACKAGENAME)
 
 noinplace : inplaceinit
@@ -178,7 +181,7 @@ html	: $(ALLHSFILES)
 ifneq ($(strip $(HADDOCK)),)
 	mkdir -p doc
 	$(foreach i, $(PREPROC_DOCS), $(shell hsc2hs $(EXTRA_CPPFLAGS) -o $(i).uncpp $(i)))
-	$(HADDOCK) -o doc --title=$(LIBNAME) --package=$(PACKAGENAME) --dump-interface=doc/$(PACKAGENAME).haddock -i$(GHC_DOCDIR)/libraries/base,$(GHC_DOCDIR)/libraries/base/base.haddock $(HADDOCK_EXTRA_FLAGS) --html $(addsuffix .uncpp, $(PREPROC_DOCS)) $(filter-out $(EXCLUDE_DOCS) $(PREPROC_DOCS), $(ALLHSFILES))
+	$(HADDOCK) -o doc --title=$(LIBNAME) --package=$(PACKAGENAME) --dump-interface=doc/$(PACKAGENAME).haddock $(HADDOCK_BASEDOC_FLAG) $(HADDOCK_EXTRA_FLAGS) --html $(addsuffix .uncpp, $(PREPROC_DOCS)) $(filter-out $(EXCLUDE_DOCS) $(PREPROC_DOCS), $(ALLHSFILES))
 else
 	echo "You need to install `haddock' to build the documentation!"
 endif
