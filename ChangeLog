@@ -1,5 +1,10 @@
 2003-11-16 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* mk/config.in, mk/library.mk, install-sh: Make sure the package
+	installs if the local install-sh script is used. Added different
+	variables for the install command, depending on what is installed.
+	Updated install-sh with a newer version.
+	
 	* gtk/layout/Notebook.chs: The function notebookGetNPages does not
 	exist in Gtk 2.0. Do not bind it in this case.
 	
