@@ -50,13 +50,18 @@ installcheck :
 installdirs :
 	$(INSTALL) -d $(INST_HIDIR) $(INST_LIBDIR) $(INST_INCLDIR)
 
-install : installcheck $(TARGETOK) installdirs interactiveInstall 
+install : installcheck $(TARGETOK) installdirs installfiles \
+	  installpackage #interactiveInstall
+
+installfiles :
 	$(INSTALL) -c -m644 $(ALLHSFILES:.hs=.hi) $(INST_HIDIR)
 	$(INSTALL) -c -m644 $(TARGETOK) $(INST_LIBDIR)
 	$(TOUCH) -r $(TARGETOK) $(INST_LIBDIR)/$(TARGETOK)
 ifneq ($(strip $(EXTRA_CFILES) $(STUBHFILES)),)
 	$(INSTALL) -c -m644 $(STUBHFILES) $(EXTRA_CFILES:.c=.h) $(INST_INCLDIR)
 endif
+
+installpackage :
 	@echo Package {\
 	  name			= \"$(PACKAGENAME)\",\
 	  import_dirs		= [\"$(INST_HIDIR)\"],\
@@ -77,8 +82,9 @@ endif
 	  extra_ld_opts		= [$(subst +,$(SPACE),$(call makeTextList,\
 	  $(addprefix -u+,$(EXTRA_SYMBOLS))))]} | $(PKG) --force -a
 
-uninstall : interactiveUninstall
-	$(PKG) -r $(PACKAGENAME)
+uninstall : interactiveUninstall uninstallfiles uninstallpackage
+
+uninstallfiles :
 	$(RM) $(addprefix $(INST_INCLDIR)/,$(notdir $(ALLHSFILES:.hs=.hi)))
 	$(RM) $(addprefix $(INST_LIBDIR)/,$(TARGETOK))
 	$(RM) $(addprefix $(INST_INCLDIR)/,$(notdir $(STUBHFILES)\
@@ -88,6 +94,9 @@ uninstall : interactiveUninstall
 
 #	  echo $(TOP)/mk/chsDepend -i$(HIDIRSOK) `cat .depend`\
 #	  echo $(C2HSFLAGGED) -o : $(HEADER) `cat .depend`\
+
+uninstallpackage :
+	$(PKG) -r $(PACKAGENAME)
 
 $(TARGETOK) : $(ALLHSFILES) $(EXTRA_CFILES:.c=$(OBJSUFFIX)) $(GHCILIBS:\
 	      $(LIBSUFFIX)=$(OBJSUFFIX)) $(GHCIOBJS)

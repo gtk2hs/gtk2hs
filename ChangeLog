@@ -1,3 +1,11 @@
+2002-12-10 Axel Simon <A.Simon@ukc.ac.uk>
+
+	* mk/config.mk.in, mk/library.mk: Separated out targets for
+	installing packages and files. This is an attempt to simplify the
+	creation of RPMs and Debian packages. Removed interactiveInstall
+	for now since ghci still does not work with -package gtk2 or
+	-package mogul.
+
 2002-12-04 Axel Simon <A.Simon@ukc.ac.uk>
 
 	* mk/library.mk: update the time of the copied library file so
