@@ -8,9 +8,6 @@
 
 	* demo/glade/Makefile (EXTRA_TARFILES): Include simple.glade.
 
-	* mk/library.mk (installfiles): Install lib.a as is, ie not mod
-	644 and	don't reset timestamp.
-
 	* mk/common.mk: Define INST_HIDIR, INST_LIBDIR, INST_INCLDIR and
 	INST_BINDIR directly as normal make variables, so that lib
 	packages get installed in separate subdirs.

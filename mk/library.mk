@@ -64,7 +64,8 @@ install : install-without-pkg install-pkg
 installfiles : $(PACKAGENAME).conf
 	for file in $(ALLHSFILES:.hs=.hi); do \
 	  $(INSTALL_DATA) $$file $(DESTDIR)$(INST_HIDIR); done;
-	$(INSTALL) $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)
+	$(INSTALL_DATA) $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)
+	$(TOUCH) -r $(TARGETOK) $(DESTDIR)$(INST_LIBDIR)/$(TARGETOK)
 ifneq ($(strip $(STUBHFILES) $(EXTRA_HFILESOK)),)
 	for file in $(STUBHFILES) $(EXTRA_HFILESOK); do \
 	  $(INSTALL_DATA) $$file $(DESTDIR)$(INST_INCLDIR); done;
