@@ -1,4 +1,8 @@
-2005-02-3 Duncan Coutts <duncan@coutts.uklinux.net>
+2005-02-04 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/Display/Image.chs: Added imageSetFromPixbuf.
+	
+2005-02-03 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/calc/CalcModel.hs: fix a bug in formatting numbers for display.
 	I was stripping off trailing 0's too enthusiasticly.

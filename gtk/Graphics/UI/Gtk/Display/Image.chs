@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:14:30 $
+--  Version $Revision: 1.2 $ from $Date: 2005/02/04 11:14:56 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -49,6 +49,7 @@ module Graphics.UI.Gtk.Display.Image (
   iconSizeDialog,
   imageNewFromStock,
   imageGetPixbuf,
+  imageSetFromPixbuf,
   imageNewFromPixbuf
   ) where
 
@@ -89,6 +90,11 @@ imageGetPixbuf img = makeNewGObject mkPixbuf $ liftM castPtr $
   throwIfNull "Image.imageGetPixbuf: The image contains no Pixbuf object." $
   {#call unsafe image_get_pixbuf#} img
 
+
+-- | Overwrite the current content of the 'Image' with a new 'Pixbuf'.
+--
+imageSetFromPixbuf :: Image -> Pixbuf -> IO ()
+imageSetFromPixbuf img pb = {#call unsafe gtk_image_set_from_pixbuf#} img pb
 
 -- | Create an 'Image' from a 
 -- 'Pixbuf'.
