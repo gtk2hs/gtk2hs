@@ -5,7 +5,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/07/08 09:15:08 $
+--  Version $Revision: 1.5 $ from $Date: 2002/07/17 16:03:36 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -48,8 +48,10 @@ module Gtk(
   module General,
   module IconFactory,
   module StockItems,
+  module GdkKeys,
   -- windows
   module Dialog,
+  module FileSel,
   module Plug,
   module Window,
   -- display widgets,
@@ -134,7 +136,7 @@ module Gtk(
   module EventBox,
   module HandleBox,
 --  module IMContext,
---  module IMMulitcontext,
+--  module IMMulticontext,
   module Tooltips,
   module Viewport,
   -- abstract base classes
@@ -158,8 +160,10 @@ module Gtk(
 import General
 import IconFactory
 import StockItems
+import GdkKeys
 -- windows
 import Dialog
+import FileSel
 import Plug
 import Window
 --import WindowGroup
