@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:36 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/24 15:21:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,11 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This container adds a frame around its contents. This is useful to
--- logically separate items in a dialog box.
+-- A bin with a decorative frame and optional label
 --
 module Graphics.UI.Gtk.Ornaments.Frame (
--- * Description
+-- * Detail
 -- 
 -- | The frame widget is a Bin that surrounds its child with a decorative
 -- frame and an optional label. If present, the label is drawn in a gap in the
@@ -86,86 +85,115 @@ import Graphics.UI.Gtk.General.Enums	(ShadowType(..))
 --------------------
 -- Constructors
 
--- | Create a new frame without a label.
+-- | Creates a new 'Frame' without a label.
 --
 -- * A label can later be set by calling 'frameSetLabel'.
 --
 frameNew :: IO Frame
-frameNew  = makeNewObject mkFrame $
-  liftM castPtr $ {#call unsafe frame_new#} nullPtr
+frameNew =
+  makeNewObject mkFrame $
+  liftM (castPtr :: Ptr Widget -> Ptr Frame) $
+  {# call unsafe frame_new #}
+    nullPtr
 
 --------------------
 -- Methods
 
--- | Replace the label of the frame.
+-- | Sets the text of the label.
 --
-frameSetLabel :: FrameClass f => f -> String -> IO ()
-frameSetLabel f label = withUTFString label $ \strPtr ->
-  {#call frame_set_label#} (toFrame f) strPtr
+frameSetLabel :: FrameClass self => self
+ -> String -- ^ @label@ - the text to use as the label of the frame
+ -> IO ()
+frameSetLabel self label =
+  withUTFString label $ \labelPtr ->
+  {# call frame_set_label #}
+    (toFrame self)
+    labelPtr
 
--- | Replace the label with a (label) widget.
+-- | Sets the label widget for the frame. This is the widget that will appear
+-- embedded in the top edge of the frame as a title.
 --
-frameSetLabelWidget :: (FrameClass f, WidgetClass w) => f -> w -> IO ()
-frameSetLabelWidget f w = 
-  {#call frame_set_label_widget#} (toFrame f) (toWidget w)
+frameSetLabelWidget :: (FrameClass self, WidgetClass labelWidget) => self
+ -> labelWidget
+ -> IO ()
+frameSetLabelWidget self labelWidget =
+  {# call frame_set_label_widget #}
+    (toFrame self)
+    (toWidget labelWidget)
 
--- | Get the label widget for the frame.
+-- | Retrieves the label widget for the frame. See 'frameSetLabelWidget'.
 --
-frameGetLabelWidget :: FrameClass f => f -> IO (Maybe Widget)
-frameGetLabelWidget f = do
-  widgetPtr <- {#call frame_get_label_widget#} (toFrame f)
+frameGetLabelWidget :: FrameClass self => self
+ -> IO (Maybe Widget)
+frameGetLabelWidget self = do
+  widgetPtr <- {# call frame_get_label_widget #}
+    (toFrame self)
   if widgetPtr == nullPtr
     then return Nothing
     else liftM Just $ makeNewObject mkWidget (return widgetPtr)
 
--- | Specify where the label should be placed.
+-- | Sets the horazontal alignment of the frame widget's label. The default value for a
+-- newly created frame is 0.0.
 --
--- * A value of 0.0 means left justified (the default), a value of 1.0 means
---   right justified.
---
-frameSetLabelAlign :: FrameClass f => f -> Float -> IO ()
-frameSetLabelAlign f align =
-  {#call frame_set_label_align#} (toFrame f) (realToFrac align) 0.0
+frameSetLabelAlign :: FrameClass self => self
+ -> Float -- ^ @xalign@ - The position of the label along the top edge of the
+          -- widget. A value of 0.0 represents left alignment; 1.0 represents
+          -- right alignment.
+ -> IO ()
+frameSetLabelAlign self xalign =
+  {# call frame_set_label_align #}
+    (toFrame self)
+    (realToFrac xalign)
+    0.5
 
 -- | Get the label's horazontal alignment.
 --
-frameGetLabelAlign :: FrameClass f => f -> IO Float
-frameGetLabelAlign f =
+frameGetLabelAlign :: FrameClass self => self
+ -> IO Float
+frameGetLabelAlign self =
   alloca $ \alignPtr -> do
-  {#call unsafe frame_get_label_align#} (toFrame f) alignPtr nullPtr
+  {# call unsafe frame_get_label_align #}
+    (toFrame self)
+    alignPtr
+    nullPtr
   align <- peek alignPtr
   return (realToFrac align)
 
--- | Set the shadow type of the frame.
+-- | Sets the shadow type of the frame.
 --
-frameSetShadowType :: FrameClass f => f -> ShadowType -> IO ()
-frameSetShadowType f shadow = 
-  {#call frame_set_shadow_type#} (toFrame f) ((fromIntegral.fromEnum) shadow)
+frameSetShadowType :: FrameClass self => self -> ShadowType -> IO ()
+frameSetShadowType self type_ =
+  {# call frame_set_shadow_type #}
+    (toFrame self)
+    ((fromIntegral . fromEnum) type_)
 
--- | Set the shadow type of the frame.
+-- | Retrieves the shadow type of the frame. See 'frameSetShadowType'.
 --
-frameGetShadowType :: FrameClass f => f -> IO ShadowType
-frameGetShadowType f = liftM (toEnum.fromIntegral) $
-  {#call unsafe frame_get_shadow_type#} (toFrame f)
+frameGetShadowType :: FrameClass self => self -> IO ShadowType
+frameGetShadowType self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe frame_get_shadow_type #}
+    (toFrame self)
 
--- | Retrieve the label of the frame.
+-- | If the frame's label widget is a 'Label', returns the text in the label
+-- widget.
 --
--- * An exception is thrown if a non-Label widget was set.
---
-frameGetLabel :: FrameClass f => f -> IO String
-frameGetLabel f = do
-  strPtr <- throwIfNull 
-    "frameGetLabel: the title of the frame was not a Label widget." $
-    {#call unsafe frame_get_label#} (toFrame f)
-  res <- peekUTFString strPtr
-  return res
+frameGetLabel :: FrameClass self => self
+ -> IO String -- ^ returns the text in the label, or if there was no label
+              -- widget or the lable widget was not a 'Label' then an 
+              -- exception is thrown
+frameGetLabel self =
+  throwIfNull "frameGetLabel: the title of the frame was not a Label widget."
+  ({# call unsafe frame_get_label #}
+    (toFrame self))
+  >>= peekUTFString
 
 --------------------
 -- Properties
 
 -- | Text of the frame's label.
 --
-frameLabel :: Attr Frame String
+frameLabel :: FrameClass self => Attr self String
 frameLabel = Attr 
   frameGetLabel
   frameSetLabel
@@ -174,7 +202,7 @@ frameLabel = Attr
 --
 -- Default value: 'ShadowEtchedIn'
 --
-frameShadowType :: Attr Frame ShadowType
+frameShadowType :: FrameClass self => Attr self ShadowType
 frameShadowType = Attr 
   frameGetShadowType
   frameSetShadowType

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 15:21:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A horizontal separator.
+-- A horizontal separator
 --
 module Graphics.UI.Gtk.Ornaments.HSeparator (
--- * Description
+-- * Detail
 -- 
 -- | The 'HSeparator' widget is a horizontal separator, used to group the
 -- widgets within a window. It displays a horizontal line with a shadow to make
@@ -64,6 +64,10 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
+-- | Creates a new 'HSeparator'.
+--
 hSeparatorNew :: IO HSeparator
-hSeparatorNew = makeNewObject mkHSeparator $ 
-  liftM castPtr {#call unsafe hseparator_new#}
+hSeparatorNew =
+  makeNewObject mkHSeparator $
+  liftM (castPtr :: Ptr Widget -> Ptr HSeparator) $
+  {# call unsafe hseparator_new #}

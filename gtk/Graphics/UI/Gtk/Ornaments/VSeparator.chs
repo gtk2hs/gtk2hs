@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/03/24 15:21:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A vertical separator.
+-- A vertical separator
 --
 module Graphics.UI.Gtk.Ornaments.VSeparator (
--- * Description
+-- * Detail
 -- 
 -- | The 'VSeparator' widget is a vertical separator, used to group the
 -- widgets within a window. It displays a vertical line with a shadow to make
@@ -64,6 +64,10 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
+-- | Creates a new 'VSeparator'.
+--
 vSeparatorNew :: IO VSeparator
-vSeparatorNew = makeNewObject mkVSeparator $ 
-  liftM castPtr {#call unsafe vseparator_new#}
+vSeparatorNew =
+  makeNewObject mkVSeparator $
+  liftM (castPtr :: Ptr Widget -> Ptr VSeparator) $
+  {# call unsafe vseparator_new #}
