@@ -1,3 +1,11 @@
+2005-01-12 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am, gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: Renames both files from
+	.chs to .chs.pp and changed the Makefile accordingly. Preprocessing
+	is now necessary to accommodate the lack of some enum names in
+	Gtk 2.2.
+
 2005-01-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/hello/World.hs: update to work with the new module names.

@@ -5,7 +5,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:31:27 $
+--  Version $Revision: 1.1 $ from $Date: 2005/01/12 18:19:53 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -175,7 +175,11 @@ contextSetTextDir :: PangoContext -> TextDirection -> IO ()
 contextSetTextDir pc dir =
   {#call unsafe context_set_base_dir#} pc (convert dir)
   where
+#if GTK_CHECK_VERSION(2,4,0)
     convert TextDirNone = fromIntegral (fromEnum DirectionNeutral)
+#else
+    convert TextDirNone = fromIntegral (fromEnum DirectionLtr)
+#endif
     convert TextDirLtr = fromIntegral (fromEnum DirectionLtr)
     convert TextDirRtl = fromIntegral (fromEnum DirectionRtl)
 

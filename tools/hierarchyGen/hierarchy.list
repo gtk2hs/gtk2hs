@@ -182,7 +182,7 @@
 # These ones are actualy interfaces, but interface implementations are GObjects
 	GtkEditable
 	GtkSourceStyleScheme		if sourceview
-	GtkFileChooser
+	GtkFileChooser			if gtk-2.4
 ## This now became a GObject in version 2:
 	GdkGC				as GC, gdk_gc_get_type
 ## These are Pango structures

@@ -408,9 +408,9 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/Keys.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs				\
 	gtk/Graphics/UI/Gtk/Pango/Description.chs			\
-	gtk/Graphics/UI/Gtk/Pango/Enums.chs				\
+	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp				\
 	gtk/Graphics/UI/Gtk/Pango/Layout.chs				\
-	gtk/Graphics/UI/Gtk/Pango/Rendering.chs				\
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp			\
 	gtk/Graphics/UI/Gtk/Embedding/Plug.chs				\
 	gtk/Graphics/UI/Gtk/Embedding/Socket.chs			\
 	gtk/Graphics/UI/Gtk/General/StockItems.hsc			\

@@ -5,7 +5,7 @@
 --          
 --  Created: 12 September 2004
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:31:27 $
+--  Version $Revision: 1.1 $ from $Date: 2005/01/12 18:19:53 $
 --
 --  Copyright (c) 1999..2004 Axel Simon
 --
@@ -92,5 +92,7 @@ instance Show Underline where
   showsPrec _ UnderlineSingle	= shows "single"
   showsPrec _ UnderlineDouble	= shows "double"
   showsPrec _ UnderlineLow	= shows "low"
-  showsPrec _ UnderlineError	= shows "error"
+#if GTK_CHECK_VERSION(2,4,0)
+   showsPrec _ UnderlineError	= shows "error"
+#endif
 
