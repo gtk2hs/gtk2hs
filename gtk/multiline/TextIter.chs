@@ -1,12 +1,11 @@
-{-# OPTIONS -cpp #-}
--- -*-haskell-*-
+{-# OPTIONS -cpp #-}  -- -*-haskell-*-
 --  GIMP Toolkit (GTK) @entry TextIter TextBuffer@
 --
 --  Author : Axel Simon
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.10 $ from $Date: 2003/10/21 21:28:53 $
+--  Version $Revision: 1.11 $ from $Date: 2003/11/03 14:21:54 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
