@@ -128,7 +128,6 @@
 # These object were added by hand because they do not show up in the hierarchy
 # chart.
 # These are derived from GtkObject:
-            GtkTreeSelection
 	    GtkTreeViewColumn
 	    GtkCellRenderer
 		GtkCellRendererPixbuf
@@ -136,6 +135,7 @@
 #		    GtkCellRendererTextPixbuf
 		GtkCellRendererToggle
 # These are derived from GObject:
+        GtkTreeSelection
         GtkTreeModel
             GtkTreeStore
             GtkListStore

@@ -4,8 +4,9 @@
 	signal. Realized that there are many other modules without
 	signals.
 
-	* gtk/treeList/TreeView.chs(treeViewGetSelection): TreeSelection
-	is only a GObject, so generate it with makeNewGObject.
+	* gtk/treeList/TreeView.chs(treeViewGetSelection),
+	gtk/typehier/hierarchy.list: TreeSelection is only a GObject, so
+	generate it with makeNewGObject.
 
 2002-07-21  Axel Simon <A.Simon@ukc.ac.uk>
 
