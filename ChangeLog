@@ -1,3 +1,9 @@
+2004-08-10  Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.in: require autoconf 2.50 or greater, 2.13 doesn't work.
+
+	* gtk/layout/Notebook.chs: fix typos.
+
 2004-08-9  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/layout/Notebook.chs: bind some new functions. Mark deprecated

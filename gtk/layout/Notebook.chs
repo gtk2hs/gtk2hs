@@ -6,7 +6,7 @@
 --          
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2004/08/09 22:54:03 $
+--  Version $Revision: 1.10 $ from $Date: 2004/08/10 12:15:41 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -140,7 +140,7 @@ notebookAppendPage nb child tabLabel = do
 --
 -- * This function returns @Int@ in Gtk version 2.4.0 and later.
 --
-notebookAppendPage :: (NotebookClass nb, WidgetClass child) => nb ->
+notebookAppendPage :: (NotebookClass nb, WidgetClass child) => nb
                    -> child   -- ^ Widget to use as the contents of the page
                    -> String  -- ^ Label for the page.
                    -> IO ()
@@ -222,7 +222,7 @@ notebookPrependPage nb child tabLabel = do
 --
 -- * This function returns @Int@ in Gtk version 2.4.0 and later.
 --
-notebookPrependPage :: (NotebookClass nb, WidgetClass child) => nb ->
+notebookPrependPage :: (NotebookClass nb, WidgetClass child) => nb
                    -> child   -- ^ Widget to use as the contents of the page
                    -> String  -- ^ Label for the page.
                    -> IO ()
