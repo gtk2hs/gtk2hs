@@ -1,3 +1,20 @@
+2002-07-18  Axel Simon <A.Simon@ukc.ac.uk>
+
+	* gtk/treeList/CellRendererText.chs: changed the attribute types
+	of foreground and background colors to Maybe String.
+
+	* gtk/glib/GValue.chs: Changed the String member of the GValue
+	union to Maybe String.
+
+	* gtk/glib/GValueTypes.chs: Reflect the change in GValue when
+	marshalling strings.
+
+	* gtk/Makefile: TreeView needs TreeViewColumn.chi, so I added
+	TreeViewColumn to the needed chi-files.
+
+	* demo/treeList/ListTest.hs: Cell colors are now of type Maybe
+	String. Remove the comments from the writeStore function.
+	
 2002-07-18  Jens Petersen <petersen@haskell.org>
 
 	* gtk/gdk/GdkKeys.chs: Bind keyvalName and keyvalFromName.

@@ -5,7 +5,7 @@
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/18 18:14:30 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -61,7 +61,7 @@ data GenericValue = GVuint    {#type guint#}
 		  | GVpointer (Ptr ())
 		  | GVfloat   Float
 		  | GVdouble  Double
-		  | GVstring  String
+		  | GVstring  (Maybe String)
 		  | GVobject  GObject
 		  | GVboxed   (Ptr ())
 

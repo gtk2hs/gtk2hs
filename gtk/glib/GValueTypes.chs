@@ -5,7 +5,7 @@
 --          
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2002/05/24 09:43:25 $
+--  Version $Revision: 1.3 $ from $Date: 2002/07/18 18:14:30 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -117,15 +117,18 @@ valueSetDouble gv d= {#call unsafe value_set_double#} gv (realToFrac d)
 valueGetDouble :: GValue -> IO Double
 valueGetDouble gv = liftM realToFrac $ {#call unsafe value_get_double#} gv
 
-valueSetString :: GValue -> String -> IO ()
-valueSetString gv str = do
+valueSetString :: GValue -> Maybe String -> IO ()
+valueSetString gv (Just str) = do
   strPtr <- newCString str
   {#call unsafe value_set_static_string#} gv strPtr
 
-valueGetString :: GValue -> IO String
+valueSetString gv Nothing = 
+  {#call unsafe value_set_static_string#} gv nullPtr
+
+valueGetString :: GValue -> IO (Maybe String)
 valueGetString gv = do
   strPtr <- {#call unsafe value_get_string#} gv
-  if strPtr==nullPtr then return "" else peekCString strPtr
+  if strPtr==nullPtr then return Nothing else liftM Just $ peekCString strPtr
 
 -- * for some weird reason the API sais that @gv is a gpointer, not a GObject
 valueSetObject :: GValue -> GObject -> IO ()

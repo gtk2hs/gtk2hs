@@ -127,7 +127,7 @@ endif
 # This is a very poor way of expressing dependencies.
 
 NEEDCHI = general/Hierarchy general/Signal glib/GValue glib/GList \
-	  treeList/TreeModel multiline/TextIter
+	  treeList/TreeModel treeList/TreeViewColumn multiline/TextIter
 
 NEEDPACKAGES = lang
 

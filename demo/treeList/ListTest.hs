@@ -26,7 +26,7 @@ main = do
   -- fill the list with some entries
   mapM_ (\txt -> do
     iter <- listStoreAppend store
-    w iter txt "red" "") 
+    w iter txt (Just "red") Nothing) 
     ["Hello", "how", "are", "you"]
 
   -- show the widget and run the main loop
@@ -50,12 +50,12 @@ createStore = do
   -- Return this store and read and write functions that read and write a
   -- whole line in the store.
 
-  let writeStore :: TreeIter -> String -> String -> String -> IO ()
+  let writeStore :: TreeIter -> String -> Maybe String -> Maybe String -> IO ()
       writeStore iter txt fore back = do
         tWrite iter txt
-	--fWrite iter fore
-	--bWrite iter back
-  let readStore :: TreeIter -> IO (String, String, String)
+	fWrite iter fore
+	bWrite iter back
+  let readStore :: TreeIter -> IO (String, Maybe String, Maybe String)
       readStore iter = do
 	txt  <- tRead iter
 	fore <- fRead iter

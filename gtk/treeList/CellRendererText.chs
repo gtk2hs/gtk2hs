@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2002/07/08 16:50:00 $
+--  Version $Revision: 1.6 $ from $Date: 2002/07/18 18:14:30 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -41,6 +41,7 @@ module CellRendererText(
   cellForeground
   ) where
 
+import Maybe	(fromMaybe)
 import Monad	(liftM)
 import Foreign
 import UTFCForeign
@@ -64,7 +65,12 @@ cellRendererTextNew  = makeNewObject mkCellRendererText $ liftM castPtr $
 --
 strAttr :: String -> Attribute CellRendererText String
 strAttr str = Attribute str TMstring
-	        (return.GVstring)
+	        (return . GVstring . Just)
+		(\(GVstring str) -> return (fromMaybe "" str))
+
+mStrAttr :: String -> Attribute CellRendererText (Maybe String)
+mStrAttr str = Attribute str TMstring
+	        (return . GVstring)
 		(\(GVstring str) -> return str)
 
 -- @method cellText@ Define the attribute that specifies the text to be
@@ -80,13 +86,13 @@ cellMarkup  = strAttr "markup"
 
 -- @method cellBackground@ A named color for the background paint.
 --
-cellBackground :: Attribute CellRendererText String
-cellBackground  = strAttr "background"
+cellBackground :: Attribute CellRendererText (Maybe String)
+cellBackground  = mStrAttr "background"
 
 -- @method cellForeground@ A named color for the foreground paint.
 --
-cellForeground :: Attribute CellRendererText String
-cellForeground  = strAttr "foreground"
+cellForeground :: Attribute CellRendererText (Maybe String)
+cellForeground  = mStrAttr "foreground"
 
 
 
