@@ -60,9 +60,13 @@
 	all the <module>.pkg.in files.
 
 	* gconf/gconf.pkg.in, glib/glib.pkg.in, mogul/mogul.pkg.in,
-	sourceview/sourceview.pkg.in, glade/glade.pkg.in,  gtk/gtk.pkg.in,
+	sourceview/sourceview.pkg.in, glade/glade.pkg.in, gtk/gtk.pkg.in,
 	mozembed/mozembed.pkg.in: use the new GHCPKG_USE_AUTOLIBS substitution
 	so the .pkg files will be understood by older versions of ghc-pkg.
+
+	* Makefile.am: distribute the gtk2hs.haddock file in case anyone wants
+	to build haddock documentation that references the our docs. Also,
+	clean up the .hs.uncpp files.
 
 2005-01-15 Duncan Coutts <duncan@coutts.uklinux.net>
 

@@ -879,7 +879,7 @@ html_DATA =									\
 	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, doc/%.html, 	\
 		$(subst /,.,$(HSFILE:.uncpp=))))				\
 	doc/haddock.css doc/haskell_icon.gif					\
-	doc/index.html doc/doc-index.html					\
+	doc/index.html doc/doc-index.html doc/gtk2hs.haddock			\
 	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y,	\
 		doc/doc-index-$(LETTER).html) #missing letters Q and Z
 
@@ -895,7 +895,7 @@ $(html_DATA) : $(html_HSFILES)
 .hs.hs.uncpp : $(CONFIG_H)
 	$(HSCPP) -I. $< -o $@
 
-CLEANFILES += $(html_DATA)
+CLEANFILES += $(html_DATA) $(html_HSFILES_PREPROC:.hs=.hs.uncpp)
 
 endif #BUILDDOCS
 
