@@ -1,6 +1,7 @@
 module CodeGen (
   genModuleBody,
   genExports,
+  genImports,
   genTodoItems,
   makeKnownSymbolsMap,
   mungeMethodInfo
@@ -12,9 +13,10 @@ import FormatDocs
 import Marshal
 import StringUtils
 import ModuleScan
+import MarshalFixup (stripKnownPrefixes, maybeNullParameter, maybeNullResult, fixCFunctionName)
 
 import Prelude hiding (Enum, lines)
-import List   (groupBy, sortBy, isPrefixOf, isSuffixOf)
+import List   (groupBy, sortBy, isPrefixOf, isSuffixOf, partition, find)
 import Maybe  (isNothing)
 import Data.FiniteMap
 
@@ -48,7 +50,7 @@ genFunction knownSymbols method doc info =
         formattedParamNames = cat (map (\name -> ss name.sc ' ') paramNames)
 	(returnType', returnMarshaler) =
 		genMarshalResult knownSymbols (method_cname method) (method_return_type method)
-        returnType = (returnType', lookup "Returns" paramDocMap)
+        returnType = ("IO " ++ returnType', lookup "Returns" paramDocMap)
 	functionType = (case classConstraints of
 	                  []  -> id
 			  [c] -> ss c. ss " => "
@@ -60,10 +62,7 @@ genFunction knownSymbols method doc info =
         safety = case info of
                   Nothing -> False
                   Just info -> methodinfo_unsafe info
-        formattedDoc = case doc of
-          Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas knownSymbols docNullsAllFixed (funcdoc_paragraphs doc). nl.
-                      ss "--\n"
+        formattedDoc = haddocFormatDeclaration knownSymbols docNullsAllFixed funcdoc_paragraphs doc
         docNullsAllFixed = maybeNullResult (method_cname method)
                         || or [ maybeNullParameter (method_cname method) (parameter_name p)
                               | p <- method_parameters method ]
@@ -109,7 +108,9 @@ genFunction knownSymbols method doc info =
 genModuleBody :: KnownSymbols -> Object -> ModuleDoc -> ModuleInfo -> ShowS
 genModuleBody knownSymbols object apiDoc modInfo =
   doVersionIfDefs (sepBy' "\n\n") $
-     sectionHeader "Constructors"
+     sectionHeader "Interfaces"
+     (genImplements object)
+  ++ sectionHeader "Constructors"
      (genConstructors knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo))
   ++ sectionHeader "Methods"
      (genMethods      knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo))
@@ -218,26 +219,108 @@ properties object docs =
 
 genProperties :: KnownSymbols -> Object -> [PropDoc] -> [(ShowS, (Since, Deprecated))]
 genProperties knownSymbols object apiDoc = 
-  [ (genProperty knownSymbols object property doc, (maybe "" propdoc_since doc, notDeprecated))
-  | (property, doc) <- properties object apiDoc ]
+  map snd $
+  sortBy (comparing fst) $    --sort into the order as they appear in the gtk-docs
 
-genProperty :: KnownSymbols -> Object -> Property -> Maybe PropDoc -> ShowS
-genProperty knownSymbols object property doc = 
+    [ (0
+      ,let doc = extraPropDocumentation getter setter in
+       (genAtterFromGetterSetter knownSymbols object getter setter (Just doc)
+      ,(propdoc_since doc, notDeprecated)))
+    | (getter, setter) <- extraProps ]
+
+ ++ [ (index
+      ,(genAtterFromGetterSetter knownSymbols object getter setter doc
+      ,(maybe "" propdoc_since doc, notDeprecated)))
+    | (((_, doc), index), (getter, setter)) <- directProps ]
+
+ ++ [ (index
+      ,(genAtterFromProperty knownSymbols object property doc
+      ,(maybe "" propdoc_since doc, notDeprecated)))
+    | ((property, doc), index) <- genericProps ]
+
+  where (genericProps, -- existing GObject properties with generic implementation
+         directProps,  -- existing GObject properties but with direct implementation
+         extraProps)   -- extra properties with direct implementation
+          = mergeBy (\((prop,_), _) (method, _) ->
+                      property_name prop `compare` drop 3 (method_name method))
+                    (sortBy (comparing (property_name.fst.fst)) (zip (properties object apiDoc) [1..]))
+                    (sortBy (comparing (method_name.fst)) (methodsThatLookLikeProperties object))
+
+extraPropDocumentation :: Method -> Method -> PropDoc
+extraPropDocumentation getter setter =
+  let propertyName = lowerCaseFirstChar (drop 3 (method_name getter)) in
+  PropDoc {
+    propdoc_name = "",
+    propdoc_paragraphs = [DocParaText
+                           [DocText ("'" ++ propertyName ++ "' property. See ")
+                           ,DocFuncXRef (method_cname getter)
+                           ,DocText " and "
+                           ,DocFuncXRef (method_cname setter)]],
+    propdoc_since = ""
+  }
+
+genAtter :: KnownSymbols -> Object -> Maybe PropDoc -> String -> String -> String -> String -> ShowS
+genAtter knownSymbols object doc propertyName propertyType getter setter = 
   formattedDoc.
   ss propertyName. ss " :: Attr ". objectType. sc ' '. ss propertyType. nl.
   ss propertyName. ss " = Attr ". 
-  indent 1. getter.
-  indent 1. setter
+  indent 1. ss getter.
+  indent 1. ss setter
   where objectType = ss (object_name object)
-        propertyName = lowerCaseFirstChar (property_name property)
+        formattedDoc = haddocFormatDeclaration knownSymbols False propdoc_paragraphs doc
+
+genAtterFromProperty :: KnownSymbols -> Object -> Property -> Maybe PropDoc -> ShowS
+genAtterFromProperty knownSymbols object property doc = 
+  genAtter knownSymbols object doc propertyName propertyType (getter "") (setter "")
+
+  where propertyName = lowerCaseFirstChar (property_name property)
+        (propertyType, gvalueConstructor) = genMarshalProperty knownSymbols (property_type property)
         getter = ss "(\\obj -> do ". ss gvalueConstructor. ss " result <- objectGetProperty \"". ss (property_cname property). ss "\"".
                  indent 7. ss "return result)"
         setter = ss "(\\obj val -> objectSetProperty obj \"". ss (property_cname property). ss "\" (". ss gvalueConstructor. ss " val))"
-        formattedDoc = case doc of
-          Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas knownSymbols False (propdoc_paragraphs doc). nl.
-                      ss "--\n"
-        (propertyType, gvalueConstructor) = genMarshalProperty knownSymbols (property_type property)
+
+genAtterFromGetterSetter :: KnownSymbols -> Object -> Method -> Method -> Maybe PropDoc -> ShowS
+genAtterFromGetterSetter knownSymbols object getterMethod setterMethod doc = 
+  genAtter knownSymbols object doc propertyName propertyType getter setter
+
+  where --propertyName = cFuncNameToHsPropName (method_cname getterMethod)
+        propertyName = lowerCaseFirstChar (drop 3 (method_name getterMethod))
+        (propertyType, _) = genMarshalResult knownSymbols (method_cname getterMethod)
+                              (method_return_type getterMethod)
+        getter = cFuncNameToHsName (method_cname getterMethod)
+        setter = cFuncNameToHsName (method_cname setterMethod)
+--        cFuncNameToHsPropName =
+--            lowerCaseFirstChar
+--          . concatMap upperCaseFirstChar
+--          . map fixCFunctionName
+--          . tail
+--          . dropWhile (/="get")
+--          . filter (not.null)
+--          . splitBy '_'
+
+methodsThatLookLikeProperties :: Object -> [(Method, Method)]
+methodsThatLookLikeProperties object =
+  filter (uncurry checkTypes) $
+  intersectBy comparingMethodName getters setters
+  where getters = [ method
+                  | method <- object_methods object
+                  , not (method_deprecated method) 
+                  , "Get" `isPrefixOf` method_name method ]
+        setters = [ method
+                  | method <- object_methods object
+                  , not (method_deprecated method) 
+                  , "Set" `isPrefixOf` method_name method ]
+
+        comparingMethodName method1 method2 = drop 3 (method_name method1)
+                                           == drop 3 (method_name method2)
+        intersectBy :: (a -> a -> Bool) -> [a] -> [a] -> [(a,a)]
+        intersectBy eq xs ys = [ (x,y) | x <- xs, Just y <- [find (eq x) ys] ]
+        
+        checkTypes getter setter =
+            length (method_parameters getter) == 0
+         && length (method_parameters setter) == 1
+         && method_return_type setter == "void"
+--         && method_return_type getter == parameter_type (method_parameters setter !! 0)
 
 signals :: Object -> [SignalDoc] -> [(Signal, Maybe SignalDoc)]
 signals object docs =
@@ -269,10 +352,15 @@ genSignal knownSymbols object signal doc =
         returnType = convertSignalType knownSymbols (signal_return_type signal)
         signalName = ss (toStudlyCaps . canonicalSignalName . signal_cname $ signal)
         signalCName = sc '"'. ss (signal_cname signal). sc '"'
-        formattedDoc = case doc of
-          Nothing  -> ss "-- | \n-- \n"
-          Just doc -> ss "-- | ". haddocFormatParas knownSymbols False (signaldoc_paragraphs doc). nl.
-                      ss "--\n"
+        formattedDoc = haddocFormatDeclaration knownSymbols False signaldoc_paragraphs doc
+
+genImplements :: Object -> [(ShowS, (Since, Deprecated))]
+genImplements object = 
+  [ (genImplement object implement, ("", notDeprecated))
+  | implement <- object_implements object ] 
+
+genImplement object implements =
+  ss "instance ".ss (stripKnownPrefixes implements). ss "Class ". ss (object_name object)
 
 canonicalSignalName :: String -> String
 canonicalSignalName = map dashToUnderscore
@@ -307,6 +395,7 @@ makeKnownSymbolsMap api =
                                  ++ show (objectParents object)) SymStructType
                 lookup ("GObject":os) = SymObjectType GObjectKind
                 lookup ("GtkObject":os) = SymObjectType GtkObjectKind
+                lookup ("GdkBitmap":os) = SymObjectType GObjectKind -- Hack!
                 lookup (_:os) = lookup os
         objectParents :: Object -> [String]
         objectParents object = object_cname object :
@@ -356,6 +445,24 @@ genExports object docs modInfo =
      [] -> id
      cs -> nl.nl.comment.ss "* Signals".nl.
            doVersionIfDefs lines cs)
+
+genImports :: ModuleInfo -> ShowS
+genImports modInfo = 
+  (case [ ss importLine
+        | (importModule, importLine) <- stdModules ] of
+     []   -> id
+     mods -> lines mods. ss "\n\n").
+  lines [ ss importLine
+        | (importModule, importLine) <- extraModules ]
+  where (stdModules, extraModules)
+          | null (module_imports modInfo) =
+             ([(undefined, "import Monad\t(liftM)")]
+             ,[(undefined, "import System.Glib.FFI")
+             ,(undefined, "{#import Graphics.UI.Gtk.Types#}")
+             ,(undefined, "-- CHECKME: extra imports may be required")])
+          | otherwise = partition (\(mod, _) -> mod `elem` knownStdModules)
+                                  (module_imports modInfo)
+        knownStdModules = ["Maybe", "Monad", "Char", "List", "Data.IORef"]
 
 genTodoItems :: Object -> ShowS
 genTodoItems object =

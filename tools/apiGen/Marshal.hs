@@ -3,10 +3,6 @@ module Marshal (
   CSymbol(..),
   ObjectKind(..),
   EnumKind(..),
-  stripKnownPrefixes,
-  knownMiscType,
-  maybeNullParameter,
-  maybeNullResult,
   genMarshalParameter,
   genMarshalResult,
   genMarshalProperty,
@@ -147,7 +143,7 @@ genMarshalParameter knownSymbols _ name typeName
 genMarshalParameter knownSymbols _ name typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
-	(Nothing, Just shortTypeName,
+	(Nothing, Just ("[" ++ shortTypeName ++ "]"),
 	\body -> body.
                  indent 2. ss "((fromIntegral . fromFlags) ". ss name. ss ")")
   where shortTypeName = stripKnownPrefixes typeName
@@ -183,26 +179,26 @@ genMarshalResult ::
 	String -> 	--C type decleration for the return value we will marshal
 	(String,	--Haskell return type 
 	ShowS -> ShowS)	--marshaling code (\body -> ... body ...)
-genMarshalResult _ _ "gboolean" = ("IO Bool", \body -> ss "liftM toBool $". indent 1. body)
-genMarshalResult _ _ "gint"     = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
-genMarshalResult _ _ "guint"    = ("IO Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
-genMarshalResult _ _ "gdouble"  = ("IO Double", \body -> ss "liftM realToFrac $". indent 1. body)
-genMarshalResult _ _ "gfloat"   = ("IO Float",  \body -> ss "liftM realToFrac $". indent 1. body)
-genMarshalResult _ _ "void"     = ("IO ()", id)
+genMarshalResult _ _ "gboolean" = ("Bool", \body -> ss "liftM toBool $". indent 1. body)
+genMarshalResult _ _ "gint"     = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ "guint"    = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ "gdouble"  = ("Double", \body -> ss "liftM realToFrac $". indent 1. body)
+genMarshalResult _ _ "gfloat"   = ("Float",  \body -> ss "liftM realToFrac $". indent 1. body)
+genMarshalResult _ _ "void"     = ("()", id)
 genMarshalResult _ funcName "const-gchar*" =
   if maybeNullResult funcName
-    then ("IO (Maybe String)",
+    then ("(Maybe String)",
          \body -> body.
                   indent 1. ss  ">>= maybePeek peekUTFString")
-    else ("IO String",
+    else ("String",
          \body -> body.
                   indent 1. ss  ">>= peekUTFString")
 genMarshalResult _ funcName "gchar*" =
   if maybeNullResult funcName
-    then ("IO (Maybe String)",
+    then ("(Maybe String)",
          \body -> body.
                   indent 1. ss  ">>= maybePeek readUTFString")
-    else ("IO String",
+    else ("String",
          \body -> body.
                   indent 1. ss  ">>= readUTFString")
 genMarshalResult _ _ "const-GSList*" =
@@ -227,10 +223,10 @@ genMarshalResult knownSymbols funcName typeName'
            && last typeName /= '*'
            && symbolIsObject typeKind =
   if maybeNullResult funcName
-    then ("IO (Maybe " ++ shortTypeName ++ ")",
+    then ("(Maybe " ++ shortTypeName ++ ")",
          \body -> ss "maybeNull (" .ss constructor. ss " mk". ss shortTypeName. ss ") $".
                   indent 1. body)
-    else ("IO " ++ shortTypeName,
+    else (shortTypeName,
          \body -> ss constructor. ss " mk". ss shortTypeName. ss " $".
                   indent 1. body)
   where typeName = init typeName'
@@ -242,7 +238,7 @@ genMarshalResult knownSymbols funcName typeName'
 genMarshalResult knownSymbols _ typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
-  ("IO " ++ shortTypeName,
+  (shortTypeName,
   \body -> ss "liftM (toEnum . fromIntegral) $".
            indent 1. body)
   where shortTypeName = stripKnownPrefixes typeName
@@ -251,7 +247,7 @@ genMarshalResult knownSymbols _ typeName
 genMarshalResult knownSymbols _ typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
-  ("IO " ++ shortTypeName,
+  ("[" ++ shortTypeName ++ "]",
   \body -> ss "liftM (toFlags . fromIntegral) $".
            indent 1. body)
   where shortTypeName = stripKnownPrefixes typeName

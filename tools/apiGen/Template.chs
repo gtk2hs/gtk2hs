@@ -5,7 +5,7 @@
 --
 --  Created: @DATE@
 --
---  Version $Revision: 1.8 $ from $Date: 2005/02/25 01:32:11 $
+--  Version $Revision: 1.9 $ from $Date: 2005/02/27 20:02:14 $
 --
 --  Copyright (C) @YEAR@ @COPYRIGHT@
 --
@@ -31,10 +31,8 @@ module @MODULE_NAME@ (
 @EXPORTS@
   ) where
 
-import Monad	(liftM)
-
-import System.Glib.FFI
 @IMPORTS@
+
 {# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
 
 @MODULE_BODY@

@@ -74,3 +74,14 @@ splitOn sep =
                    ([],_) -> Nothing
                    (w,_:r) -> Just (w,r)
                    (w,[]) -> Just (w,[]))
+
+-- mergeBy cmp xs ys = (only_in_xs, in_both, only_in_ys)
+mergeBy :: (a -> b -> Ordering) -> [a] -> [b] -> ([a], [(a, b)], [b])
+mergeBy cmp = merge [] [] []
+  where merge l m r []     ys     = (reverse l, reverse m, reverse (ys++r))
+        merge l m r xs     []     = (reverse (xs++l), reverse m, reverse r)
+        merge l m r (x:xs) (y:ys) = 
+          case x `cmp` y of
+            GT -> merge    l         m  (y:r) (x:xs)    ys
+            EQ -> merge    l  ((x,y):m)    r     xs     ys
+            LT -> merge (x:l)        m     r     xs  (y:ys)

@@ -8,6 +8,7 @@
 
 module FormatDocs (
   genModuleDocumentation,
+  haddocFormatDeclaration,
   cFuncNameToHsName,
   cParamNameToHsName,
   toStudlyCaps,
@@ -21,8 +22,8 @@ module FormatDocs (
 
 import Api (NameSpace(namespace_name))
 import Docs
-import Marshal (stripKnownPrefixes, knownMiscType, KnownSymbols, CSymbol(..))
-import MarshalFixup (fixCFunctionName)
+import Marshal (KnownSymbols, CSymbol(..))
+import MarshalFixup (stripKnownPrefixes, knownMiscType, fixCFunctionName)
 import StringUtils
 
 import Maybe (isJust)
@@ -38,7 +39,7 @@ genModuleDocumentation :: KnownSymbols -> ModuleDoc -> ShowS
 genModuleDocumentation knownSymbols moduledoc =
   (if null (moduledoc_description moduledoc)
      then id
-     else comment.ss "* Description".nl.
+     else comment.ss "* Detail".nl.
           comment.nl.
           comment.ss "| ".haddocFormatParas knownSymbols False (moduledoc_description moduledoc).nl).
   (if null (moduledoc_sections moduledoc)
@@ -51,6 +52,12 @@ genModuleDocumentation knownSymbols moduledoc =
           comment.ss "@".nl.
           comment.ss "|  ".haddocFormatHierarchy knownSymbols (moduledoc_hierarchy moduledoc).nl.
           comment.ss "@".nl)
+
+haddocFormatDeclaration :: KnownSymbols -> Bool -> (doc -> [DocPara]) -> Maybe doc -> ShowS
+haddocFormatDeclaration knownSymbols handleNULLs doc_paragraphs Nothing = ss "-- | \n--\n"
+haddocFormatDeclaration knownSymbols handleNULLs doc_paragraphs (Just doc)
+  = ss "-- | ". haddocFormatParas knownSymbols handleNULLs (doc_paragraphs doc). nl.
+    ss "--\n"
 
 haddocFormatHierarchy :: KnownSymbols -> [DocParaSpan] -> ShowS
 haddocFormatHierarchy knownSymbols =

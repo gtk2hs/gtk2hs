@@ -140,7 +140,7 @@ main = do
               Just moduleInfo -> do mkDirHier outdir (splitOn '.' (module_prefix moduleInfo))
                                     return moduleInfo
               Nothing -> do
-                when (not (null moduleRoot)) $
+                when (not (null moduleRoot) && not (object_deprecated object)) $
                   putStrLn ("Warning: no existing module found for module "
 	                  ++ show (object_name object))
                 return ModuleInfo {
@@ -172,8 +172,7 @@ main = do
                                  then module_name moduleInfo
                                  else module_prefix moduleInfo ++ "." ++ module_name moduleInfo
 	    "EXPORTS"        -> genExports object moduleDoc moduleInfo
-	    "IMPORTS"        -> ss $ "{#import Graphics.UI.Gtk.Types#}\n"
-                                  ++ "-- CHECKME: extra imports may be required\n"
+	    "IMPORTS"        -> genImports moduleInfo
 	    "CONTEXT_LIB"    -> ss $ module_context_lib moduleInfo
 	    "CONTEXT_PREFIX" -> ss $ module_context_prefix  moduleInfo
 	    "MODULE_BODY"    -> genModuleBody knownTypes object moduleDoc moduleInfo

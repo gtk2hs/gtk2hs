@@ -53,7 +53,9 @@ knownMiscType _ = False
 leafClass :: String -> Bool
 leafClass "GtkAdjustment" = True
 leafClass "GdkPixbuf"     = True
-leafClass "GtkIconFactory" = True
+leafClass "GtkIconFactory"  = True
+leafClass "GtkEntryCompletion" = True
+leafClass "GtkFileFilter" = True
 leafClass _ = False
 
 -- This is a table of fixup information. It lists function parameters that

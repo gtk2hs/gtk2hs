@@ -20,6 +20,33 @@
 	mkFunPtrDestructor following the same pattern as before. This reduces
 	code duplication a bit (saves about 350 lines of code).
 
+	* tools/apiGen/StringUtils.hs: extra utility function.
+
+	* tools/apiGen/Template.chs: change the way imports are generated.
+
+	* tools/apiGen/ApiGen.hs: use new genImports function.
+
+	* tools/apiGen/CodeGen.hs: new genImports function which preserves
+	imports from original module. Add "Implements" code section for
+	gobject classes that implement interfaces; this is modeled in Haskell
+	just by extra instance declerations. Significantly reworked code for
+	generating proeprties to use getter setter functions rather than a
+	generic implementation where that makes sence.
+
+	* tools/apiGen/FormatDocs.hs: move some common formatting code out of
+	CodeGen.hs to this module. Also change the name of the "Description"
+	section to "Detail" so that the Haddock documentation does not have
+	two "Description" sections which is probably confusing.
+
+	* tools/apiGen/Api.hs: extract "implements interface" information
+	from the api xml files. And move a hack from this module to CodeGen.hs
+
+	* tools/apiGen/Marshal.hs: factor out "IO" return type from marshaling
+	functions to where they are used. Also make flag types be lists, which
+	was previously incorrect.
+
+	* tools/apiGen/MarshalFixup.hs: add a couple more leaf classes.
+
 2005-02-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/Signal.chs-boot1: add #hide Haddock annotation so

@@ -56,6 +56,7 @@ data Object = Object {
     object_methods :: [Method],
     object_properties :: [Property],
     object_signals :: [Signal],
+    object_implements :: [String],
     object_deprecated :: Bool,
     object_isinterface ::Bool
   } deriving Show
@@ -177,7 +178,7 @@ extractObject (Xml.CElem (Xml.Elem "object"
                       remainder) content)) =
   let (parent, deprecated) =
         case remainder of
-          [] | Xml.verbatim cname == "GdkBitmap" -> ([Left "GdkDrawable"], False) --Hack
+          [] -> ([Left "Unknown"], False)
           [("parent", Xml.AttValue parent)] -> (parent, False)
           [("deprecated", Xml.AttValue deprecated),
            ("parent", Xml.AttValue parent)] -> (parent, True)
@@ -189,6 +190,7 @@ extractObject (Xml.CElem (Xml.Elem "object"
     object_methods = catMaybes (map extractMethod content),
     object_properties = catMaybes (map extractProperty content),
     object_signals = catMaybes (map extractSignal content),
+    object_implements = concat (catMaybes (map extractImplements content)),
     object_deprecated = deprecated,
     object_isinterface = False
   }
@@ -203,6 +205,7 @@ extractObject (Xml.CElem (Xml.Elem "interface"
     object_methods = catMaybes (map extractMethod content),
     object_properties = catMaybes (map extractProperty content),
     object_signals = catMaybes (map extractSignal content),
+    object_implements = concat (catMaybes (map extractImplements content)),
     object_deprecated = False,
     object_isinterface = True
   }
@@ -337,6 +340,15 @@ extractSignal (Xml.CElem (Xml.Elem "signal"
            -> map extractParameter parameters
   }
 extractSignal _ = Nothing
+
+extractImplements :: Xml.Content -> Maybe [String]
+extractImplements (Xml.CElem (Xml.Elem "implements" [] interfaces)) =
+  Just $ map extractInterface interfaces
+extractImplements _ = Nothing
+
+extractInterface :: Xml.Content -> String
+extractInterface (Xml.CElem (Xml.Elem "interface"
+                    [("cname", Xml.AttValue cname)] [] )) = Xml.verbatim cname
 
 extractMisc :: Xml.Content -> Maybe Misc
 extractMisc (Xml.CElem (Xml.Elem elem
