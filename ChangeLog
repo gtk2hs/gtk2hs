@@ -142,6 +142,9 @@
 	gtk/Graphics/UI/Gtk/Windows/FileSel.chs,
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: windows selectors
 
+	* glade/Graphics/UI/Gtk/Glade.chs: glade package hierarchical
+	namespace conversion.
+
 2005-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ApiGen.hs: several documentation improvements, add
