@@ -10,11 +10,8 @@ LIBNAME = glade2hs
 
 MAIN = Glade.hs
 
-# In order for ghc and c2hs to find .chi and .hi files in $(TOP)/gtk/* we
-# need to set these directories here. Note that this list is different
-# from SUBDIRS in that the directories given here are not searched for
-# compilable files.
-HIDIRS = $(TOP)/gtk/glib $(TOP)/gtk/abstract $(TOP)/gtk/general
+# help c2hs to find Hierarchy
+C2HS_EXTRA_FLAGS = -i$(TOP)/gtk/general
 
 HEADER = glade/glade.h
 #EXTRA_HFILES	= 

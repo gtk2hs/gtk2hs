@@ -20,8 +20,8 @@
 -- |
 --
 --  GConf is a system for maintaining program configuration information.
---  The main difference between GConf and traditional configuration files /
---  API's, is that GConf is that GConf is 'live'. Applications can be
+--  The main difference between GConf and traditional configuration file
+--  API's is that GConf is 'live'. Applications can be
 --  notified of changes in their configuration, it allows desktop wide setting
 --  to be propogated without restarting all applications, or multiple instances
 --  of a single application to synchronise their configuration. It is similar
@@ -136,7 +136,7 @@ gconfGetDefault =
 -- times.
 --
 -- * Note that the watch is recursive, all keys below the given directory will
---   be watched. So it would be a bad idea to watch the root "/".
+--   be watched. So it would be a bad idea to watch the root \"\/\".
 --
 gconfAddDir :: GConf -> String -> IO ()
 gconfAddDir gc key = gconfAddDirWithPreload gc key PreloadNone

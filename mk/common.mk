@@ -24,6 +24,7 @@ INST_LIBDIR		= $(shell echo $(addsuffix $(INSTALLDIROK),$(libdir)) | $(SEDPIPE))
 INST_HIDIR		= $(INST_LIBDIR)/hi
 INST_INCLDIR		= $(INST_HIDIR)
 INST_BINDIR		= $(shell echo $(addsuffix $(INSTALLDIROK),$(bindir)) | $(SEDPIPE))
+INST_DOCDIR		= $(datadir)/doc/gtk2hs
 
 # these values are used for building a library in-place
 INPL_HIDIR		:= $(sort $(patsubst %/.,%,$(patsubst %/,%,\
@@ -122,7 +123,7 @@ HSCFLAGGED	:= $(strip $(HSC) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 # Specify how c2hs should be run.
 C2HSFLAGGED	:= $(C2HS) $(C2HSFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
 		$(addprefix -C,$(EXTRA_CPPFLAGS_ONLY_I) $(CPPFLAGS_ONLY_I)) \
-		-i$(HIDIRSOK)
+		-i$(HIDIRSOK) $(C2HS_EXTRA_FLAGS)
 
 # Read in all extra dependencies between .chs files.
 -include $(ALLCHSFILES:.chs=.dep)

@@ -1,3 +1,52 @@
+2004-08-19  Jens Petersen  <petersen@haskell.org>
+
+	* sourceview/Makefile (C2HS_EXTRA_FLAGS):  Replaces HIDIRS for c2hs.
+
+	* mogul/Makefile: Add EXCLUDE_DOCS and PREPROC_DOCS for haddock.
+
+	* mk/recurse.mk: Remove $(MAKE_DOCS) dependency from all targets.
+	Add html and install-html targets.
+
+	* mk/library.mk (PKGDOCDIR): New variable to hold package doc dir.
+	(html): New target that builds packages docs with haddock.  Just
+	warns if HADDOCK is not defined.
+	(install-html): New target to install packages docs.
+
+	* mk/config.mk.in: Add HADDOCK and GHC_DOCDIR replacing BUILDDOCS,
+	xml and xslt related variables.
+
+	* mk/common.mk (INST_DOCDIR): Setup new variable.
+	(C2HSFLAGGED): Add C2HS_EXTRA_FLAGS for finding .chi files.
+
+	* gtk/multiline/TextView.chs: Fix doc typos at top.
+
+	* gtk/Makefile: Add EXCLUDE_DOCS and PREPROC_DOCS for haddock.
+
+	* glade/Makefile (C2HS_EXTRA_FLAGS): Replaces HIDIRS for c2hs only.
+
+	* gconf/System/Gnome/GConf/GConfClient.chs: Doc tweaks to make
+	haddock happy at top and for gconfAddDir.
+
+	* gconf/Makefile (C2HS_EXTRA_FLAGS): Replaces HIDIRS for c2hs only.
+
+	* gtk2hs.spec.in: Use ghc-6.2.1 and define short ghc version %ghcver.
+	Use License instead of Copyright.  Update buildrequires.
+	Add separate subpackages for sourceview, gconf and glade
+	Name subpackages with %ghcver.  Subpackages now require the
+	appropriate -devel package.  Define %ghclibdir and %gtk2hsdir.
+	(%build): Update configure invocation - drop xml options and
+	use --prefix and --libdir.  Make html.  Use mkdir.  Clean demo
+	dirs with find.
+	(%post,%preun): Update and add scripts for new subpackages.
+	(%files): Html docs are now in /usr/share/doc/gtk2hs.
+
+	* configure.in: Comment out GtkGLExt, HOpenGL checks.  Check for
+	haddock instead of xslt.  Add --with-ghc-docdir option.
+	Remove xml catalog and xsl checks.  Replace missing xml final warning
+	with haddock missing warning.
+	
+	* Makefile: No longer build gendoc or doc.  Build mogul after gtk2.
+
 2004-08-15  Axel Simon <A.Simon@kent.ac.uk>
 
 	* mk/common.mk, mk/library.mk, mk/recurse.mk, Makefile: Make clean

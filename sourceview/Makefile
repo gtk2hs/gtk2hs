@@ -6,11 +6,8 @@ PACKAGENAME = sourceview
 
 MAIN = SourceView.hs
 
-# In order for ghc and c2hs to find .chi and .hi files in ../gtk/* we
-# need to set these directories here. Note that this list is different
-# from SUBDIRS in that the directories given here are not searched for
-# compilable files.
-HIDIRS = ../gtk/glib ../gtk/abstract ../gtk/general ../gtk/multiline
+# help c2hs find Hierarchy and TextIter
+C2HS_EXTRA_FLAGS = -i../gtk/general:../gtk/multiline
 
 HEADER = sourceview.h
 EXTRA_HFILES	= sourceview.h

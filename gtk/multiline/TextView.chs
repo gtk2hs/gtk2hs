@@ -5,7 +5,7 @@
 --          
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.12 $ from $Date: 2004/08/05 14:24:28 $
+--  Version $Revision: 1.13 $ from $Date: 2004/08/19 07:54:20 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 --
 -- |
 --
--- * Through out we distinguish between buffer cooridinates which are pixels
+-- * Throughout we distinguish between buffer coordinates which are pixels
 --   with the origin at the upper left corner of the first character on the
 --   first line. Window coordinates are relative to the top left pixel which
 --   is visible in the current 'TextView'. Coordinates from Events 

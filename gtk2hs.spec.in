@@ -1,19 +1,23 @@
 # RPM spec file for Gtk2HS   -*-rpm-spec-*-
 #
 # Copyright [2001..2002] Manuel M T Chakravarty <chak@cse.unsw.edu.au>
-# Copyright 2002, 2003 Jens-Ulrik Holger Petersen <petersen@haskell.org>
+# Copyright 2002, 2003, 2004 Jens-Ulrik Holger Petersen <petersen@haskell.org>
 
-%define ghc_version 6.0.1
+%define ghc_version 6.2.1
+%define ghcver 621
 
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
 Name: gtk2hs
 Version: @VERSION@
 Release: 0.%(date +%%Y%%m%%d)
-Copyright: LGPL
+Epoch: 0
+License: LGPL
 Group: Development/Libraries
 Source: gtk2hs-%{version}.tar.gz
 URL: http://gtk2hs.sourceforge.net/
-BuildRoot: /var/tmp/gtk2hs-%{version}-%{release}-root
+BuildRoot: /var/tmp/gtk2hs-%{version}-root
+BuildRequires: ghc = %{ghc_version}, %{_bindir}/hsc2hs, haddock, %{?_with_c2hs: c2hs >= 0.10.6}
+BuildRequires: gtk2-devel, gtksourceview-devel, libglade2-devel, GConf2-devel
 
 %description
 A Gtk2 binding for the functional language Haskell featuring
@@ -23,15 +27,14 @@ the new text and list widgets.  The convenience wrapper
 MoGuL (Monad Gui Library) makes it possible to create and
 lookup named widgets in a type safe way.
 
-%package ghc%{ghc_version}
+%package ghc%{ghcver}
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
 Group: Development/Languages/Haskell
-BuildRequires: ghc = %{ghc_version}, gtk2-devel, gtksourceview-devel, %{?_with_c2hs: c2hs >= 0.10.6}, %{_bindir}/hsc2hs
 Requires: ghc = %{ghc_version}
-Requires: gtk2, gtksourceview
+Requires: gtk2-devel
 Requires(post,preun): %{_bindir}/ghc-pkg-%{ghc_version}
 
-%description ghc%{ghc_version}
+%description ghc%{ghcver}
 A Gtk2 binding for the functional language Haskell featuring
 automatic memory management, unicode support, and quite wide
 coverage of widget functions and their signals, including
@@ -40,6 +43,42 @@ MoGuL (Monad Gui Library) makes it possible to create and
 lookup named widgets in a type safe way.
 
 This package contains the libraries compiled for ghc-%{ghc_version}.
+
+%package sourceview-ghc%{ghcver}
+Summary: Haskell binding for gtksourceview
+Group: Development/Languages/Haskell
+Requires: ghc = %{ghc_version}
+Requires: gtk2hs-ghc%{ghcver} = %{version}-%{release}, gtksourceview-devel
+Requires(post,preun): %{_bindir}/ghc-pkg-%{ghc_version}
+
+%description sourceview-ghc%{ghcver}
+A GConf binding for gtk2hs.
+
+This package is compiled for ghc-%{ghc_version}.
+
+%package gconf-ghc%{ghcver}
+Summary: Haskell binding for GConf
+Group: Development/Languages/Haskell
+Requires: ghc = %{ghc_version}
+Requires: gtk2hs-ghc%{ghcver} = %{version}-%{release}, GConf-devel
+Requires(post,preun): %{_bindir}/ghc-pkg-%{ghc_version}
+
+%description gconf-ghc%{ghcver}
+A GConf binding for gtk2hs.
+
+This package is compiled for ghc-%{ghc_version}.
+
+%package glade-ghc%{ghcver}
+Summary: Haskell binding of glade for gtk2hs.
+Group: Development/Languages/Haskell
+Requires: ghc = %{ghc_version}
+Requires: libglade2-devel
+Requires(post,preun): %{_bindir}/ghc-pkg-%{ghc_version}
+
+%description glade-ghc%{ghcver}
+A Glade2 binding for gtk2hs.
+
+This package is compiled for ghc-%{ghc_version}.
 
 %package doc
 Summary: Haskell binding for the GIMP Toolkit (GTK2), a GUI library
@@ -59,56 +98,108 @@ This package contains the gtk2hs documentation.
 %define debug_package %{nil}
 %define __spec_install_post /usr/lib/rpm/brp-compress
 
+%define ghclibdir %{_libdir}/ghc-%{ghc_version}
+%define gtk2hsdir %{ghclibdir}/gtk2hs
+
 %prep
 %setup -q
 
 %build
-./configure %{?c2hs: --with-c2hs=%{c2hs}} --with-hc=ghc-%{ghc_version} --with-hcflags="-O" --with-catalog=%{_datadir}/sgml/docbook/xmlcatalog --with-html=%{_datadir}/sgml/docbook/xsl-stylesheets/xhtml/chunk.xsl # --with-fo=%{_datadir}/sgml/docbook/xsl-stylesheets/fo/docbook.xsl
-make prefix=%{_prefix} libdir=%{_libdir}/ghc-%{ghc_version}
+./configure %{?c2hs: --with-c2hs=%{c2hs}} --with-hc=ghc-%{ghc_version} --with-hcflags="-O" --enable-sourceview --enable-libglade --with-ghc-docdir=%{_datadir}/doc/ghc-doc-%{ghc_version} --prefix=%{_prefix} --libdir=%{ghclibdir}
+
+LANG=C make all html
 
 %install
 rm -rf %{buildroot}
-make DESTDIR=%{buildroot} prefix=%{_prefix} libdir=%{_libdir}/ghc-%{ghc_version} install-without-pkg
+make DESTDIR=%{buildroot} install-without-pkg install-html
 
-mkdirhier %{buildroot}%{_datadir}/gtksourceview-1.0/language-specs
+mkdir -p %{buildroot}%{_datadir}/gtksourceview-1.0/language-specs
 cp -p demo/sourceview/haskell.lang %{buildroot}%{_datadir}/gtksourceview-1.0/language-specs
 
-# hack to avoid demo binaries in docs 
-make clean MAKE_GOALS="demo/concurrent demo/treeList demo/graphic demo/unicode demo/hello demo/sourceview"
+# clean demo dirs
+find -type f \( -name "*.hi" -o -name "*.o" -o -exec test -x '{}' ';' \) -exec rm '{}' ';'
 
 %clean
 rm -rf %{buildroot}
 
-%post ghc%{ghc_version}
-# # remove buildroot traces from package files
-# perl -pi -e "s|%{buildroot}||" \
-#     %{_libdir}/ghc-%{ghc_version}/{%{name}/gtk2.conf,mogul.conf}
+%post ghc%{ghcver}
+ghc-pkg-%{ghc_version} -u -g -i %{gtk2hsdir}/gtk2/gtk2.conf
+ghc-pkg-%{ghc_version} -u -g -i %{gtk2hsdir}/mogul/mogul.conf
 
-ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/%{name}/gtk2/gtk2.conf
-ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/%{name}/sourceview/sourceview.conf
-ghc-pkg-%{ghc_version} -u -g -i %{_libdir}/ghc-%{ghc_version}/%{name}/mogul/mogul.conf
+%post sourceview-ghc%{ghcver}
+ghc-pkg-%{ghc_version} -u -g -i %{gtk2hsdir}/sourceview/sourceview.conf
 
-%preun ghc%{ghc_version}
+%post gconf-ghc%{ghcver}
+ghc-pkg-%{ghc_version} -u -g -i %{gtk2hsdir}/gconf/gconf.conf
+
+%post glade-ghc%{ghcver}
+ghc-pkg-%{ghc_version} -u -g -i %{gtk2hsdir}/glade/glade.conf
+
+%preun ghc%{ghcver}
 if [ "$1" = 0 ]; then
-  rm -f %{_libdir}/ghc-%{ghc_version}/%{name}/{gtk2/gtk2hs.o,mogul/mogul.o,spirceview/sourceview.o}
+  rm -f %{gtk2hsdir}/{gtk2/gtk2hs,mogul/mogul}.o
   ghc-pkg-%{ghc_version} -r mogul || :
-  ghc-pkg-%{ghc_version} -r sourceview || :
   ghc-pkg-%{ghc_version} -r gtk2 || :
 fi
 
-%files ghc%{ghc_version}
+%preun sourceview-ghc%{ghcver}
+if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/sourceview/sourceview.o
+  ghc-pkg-%{ghc_version} -r sourceview || :
+fi
+
+%preun gconf-ghc%{ghcver}
+if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/gconf/gconf.o
+  ghc-pkg-%{ghc_version} -r gconf || :
+fi
+
+%preun glade-ghc%{ghcver}
+if [ "$1" = 0 ]; then
+  rm -f %{gtk2hsdir}/glade/glade.o
+  ghc-pkg-%{ghc_version} -r glade || :
+fi
+
+%files ghc%{ghcver}
 %defattr(-,root,root) 
-%{_prefix}/lib/*
-%{_datadir}/gtksourceview-1.0/language-specs/haskell.lang
+%dir %{gtk2hsdir}
+%{gtk2hsdir}/gtk2
+%{gtk2hsdir}/mogul
 %doc ChangeLog TODO AUTHORS COPYING.LIB
+
+%files sourceview-ghc%{ghcver}
+%defattr(-,root,root) 
+%{gtk2hsdir}/sourceview
+%{_datadir}/gtksourceview-1.0/language-specs
+
+%files gconf-ghc%{ghcver}
+%defattr(-,root,root) 
+%{gtk2hsdir}/gconf
+
+%files glade-ghc%{ghcver}
+%defattr(-,root,root) 
+%{gtk2hsdir}/glade
 
 %files doc
 %defattr(-,root,root) 
 %doc demo
-%doc doc/GTK
-%doc doc/MOGUL
+%{_datadir}/doc/gtk2hs
 
 %changelog
+* Mon Aug 16 2004 Jens Petersen <petersen@haskell.org> - 0:0.9.6-0.fdr.1
+- 0.9.6
+
+* Thu Jul 22 2004 Jens Petersen <petersen@haskell.org>
+- split sourceview and glade into separate subpackages
+- require -devel packages rather than lib pkg for gtk2, gtksourceview,
+  and libglade2
+
+* Wed Mar 24 2004 Jens Petersen <petersen@haskell.org>
+- enable gtksourceview and glade configure options
+- use mkdir -p instead of mkdirhier
+- update file locations in %%post and %%preun scripts
+- buildrequire libglade2-devel
+
 * Tue Nov 11 2003 Jens Petersen <petersen@haskell.org>
 - use %%c2hs instead of "--with c2hs" to configure c2hs program
 - clean demo to avoid binary files in docs dir

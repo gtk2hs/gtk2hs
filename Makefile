@@ -10,13 +10,9 @@ else
 MAKE_TOOLS += c2hs
 endif
 
-ifeq ($(strip $(BUILDDOCS)),no)
-MAKE_VERB  =  gendoc doc
-else
-MAKE_DOCS  =  gendoc doc
-endif
-
 MAKE_LIBS  = gtk 
+
+MAKE_LIBS += mogul
 
 ifeq ($(strip $(ENABLE_LIBGLADE)),yes) 	 
 MAKE_LIBS += glade
@@ -25,8 +21,6 @@ endif
 ifeq ($(strip $(ENABLE_GNOME)),yes)
 MAKE_LIBS += sourceview gconf
 endif
-
-MAKE_LIBS += mogul
 
 MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
 	     demo/hello demo/buttonbox

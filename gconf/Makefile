@@ -9,11 +9,8 @@ MAIN = System/Gnome/GConf.hs
 # HACK: need to have . is SUBDIRS so that ghc package file works
 SUBDIRS = ./ System/Gnome System/Gnome/GConf
 
-# In order for ghc and c2hs to find .chi and .hi files in ../gtk/* we
-# need to set these directories here. Note that this list is different
-# from SUBDIRS in that the directories given here are not searched for
-# compilable files.
-HIDIRS = $(TOP)/gtk/glib $(TOP)/gtk/abstract $(TOP)/gtk/general
+# help c2hs find Hierarchy
+C2HS_EXTRA_FLAGS = -i$(TOP)/gtk/general
 
 HEADER = gconf/gconf-client.h
 #EXTRA_HFILES	= 
