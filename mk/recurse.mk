@@ -34,4 +34,4 @@ uninstall : MAKE_GOALS=$(MAKE_LIBS) $(MAKE_APPS)
 uninstall : make-uninstall
 
 make-% :
-	for dir in $(MAKE_GOALS); do $(MAKE) $* -C$$dir ; done;
+	for dir in $(MAKE_GOALS); do $(MAKE) $* -C$$dir || exit 1; done;

@@ -1,7 +1,10 @@
 2003-11-07 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* Makefile: Only build Sourceview if ENABLE_SOURCEVIEW is set.
+	
 	* mk/recurse.mk: Add a distclean goal that removes the
-	localpackage.conf file.
+	localpackage.conf file. Make the build stop if there is an error
+	in one of the subdirectories.
 
 	* gtk/treeView/TreeSelection.chs: Remove a deprecated warning.
 	

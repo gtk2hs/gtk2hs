@@ -16,7 +16,13 @@ else
 MAKE_DOCS  =  gendoc doc
 endif
 
-MAKE_LIBS  = gtk sourceview mogul
+MAKE_LIBS  = gtk 
+
+ifeq ($(strip $(ENABLE_SOURCEVIEW)),yes)
+MAKE_LIBS += sourceview
+endif
+
+MAKE_LIBS += mogul
 
 MAKE_APPS  = demo/concurrent demo/treeList demo/graphic demo/unicode \
 	     demo/hello demo/sourceview
