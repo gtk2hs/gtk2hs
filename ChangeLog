@@ -1,3 +1,38 @@
+2002-07-18  Jens Petersen <petersen@haskell.org>
+
+	* gtk/gdk/GdkKeys.chs: Bind keyvalName and keyvalFromName.
+
+	* gtk/windows/FileSel.chs: Binding based on file from gtk+hs.
+	fileSelectionQueryButtons needs to be fixed for this to be useful.
+
+	* mogul/TreeList.hs: Fix a couple of doc typos.
+
+	* mogul/NewWidget.hs (newNamedScrolledWindow): Maybe take an 
+	Adjustment.
+	(newScrolledWindow): Ditto.
+
+	* gtk/treeList/TreeViewColumn.chs (treeViewColumnNewWithAttributes): 
+	Haskell implementation to avoid binding to original variad function.
+	(treeViewColumnAddAttributes): New convenience function.
+	(treeViewColumnSetAttributes): Haskell implementation to avoid
+	binding to original variad function.
+	(treeViewColumnClearAttributes): Add binding.
+
+	* gtk/treeList/TreeView.chs (treeViewInsertColumnWithAttributes):
+	Haskell implementation to avoid binding to original variad function.
+
+	* gtk/scrolling/ScrolledWindow.chs (scrolledWindowNew): Make it
+	maybe take Adjustments, passing a null ptr when Nothing is given.
+
+	* gtk/general/Gtk.hs: Import and re-export GdkKeys and FileSel.
+
+	* gtk/general/General.chs: Export timeoutAdd, timeoutRemove, idleAdd, 
+	idleRemove and HandlerId.
+
+	* gtk/entry/Entry.chs: Bind entryGetText.
+
+	* gtk/Makefile: Add header vars for GdkKeys and FileSel.
+
 2002-07-17 Jens Petersen <petersen@haskell.org>
 
 	* Added .cvsignore files to most of the directories in the tree
