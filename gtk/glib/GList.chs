@@ -5,7 +5,7 @@
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2003/02/09 10:43:01 $
+--  Version $Revision: 1.6 $ from $Date: 2003/03/24 23:56:39 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -32,10 +32,14 @@
 -- * Figure out if we ever need to generate a GList.
 --
 module GList(
-  GList,
   ptrToInt,
+  GList,
   fromGList,
-  readGSList
+  -- toGList,
+  GSList,
+  readGSList,
+  fromGSList,
+  fromGSListRev
   ) where
 
 import Monad	(liftM)
@@ -47,6 +51,7 @@ import Object	(makeNewObject)
 {# context lib="g" prefix="g" #}
 
 {#pointer * GList#}
+{#pointer * GSList#}
 
 -- methods
 
@@ -59,27 +64,50 @@ ptrToInt ptr = minusPtr ptr nullPtr
 --
 fromGList :: GList -> IO [Ptr a]
 fromGList glist = do
-    end <- {#call unsafe list_last#} glist
-    extractList glist []
+    glist' <- {#call unsafe list_reverse#} glist
+    extractList glist' []
   where
     extractList gl xs
-      | gl==nullPtr = do
-	{#call unsafe list_free#} glist
-	return xs
-      | otherwise	   = do
+      | gl==nullPtr = return xs
+      | otherwise   = do
 	x <- {#get GList.data#} gl
 	gl' <- {#call unsafe list_delete_link#} gl gl
-	extractList gl' ((castPtr x):xs)
+	extractList gl' (castPtr x:xs)
 
 -- Turn a GSList into a list of pointers but don't destroy the list.
 --
-readGSList :: GList -> IO [Ptr a]
-readGSList gslist | gslist==nullPtr = return []
-		  | otherwise	    = do
+readGSList :: GSList -> IO [Ptr a]
+readGSList gslist
+  | gslist==nullPtr = return []
+  | otherwise	    = do
     x <- {#get GSList->data#} gslist
-    gslist <- {#get GSList->next#} gslist
-    xs <- readGSList gslist
+    gslist' <- {#get GSList->next#} gslist
+    xs <- readGSList gslist'
     return (castPtr x:xs)
+
+-- Turn a GSList into a list of pointers.
+--
+fromGSList :: GSList -> IO [Ptr a]
+fromGSList gslist
+  | gslist==nullPtr = return []
+  | otherwise	    = do
+    x <- {#get GSList->data#} gslist
+    gslist' <- {#call unsafe slist_delete_link#} gslist gslist
+    xs <- fromGSList gslist'
+    return (castPtr x:xs)
+
+-- Turn a GSList into a list of pointers and reverse it.
+--
+fromGSListRev :: GSList -> IO [Ptr a]
+fromGSListRev gslist =
+  extractList gslist []
+  where
+    extractList gslist xs
+      | gslist==nullPtr = return xs
+      | otherwise	= do
+	x <- {#get GSList->data#} gslist
+	gslist' <- {#call unsafe slist_delete_link#} gslist gslist
+	extractList gslist' (castPtr x:xs)
 
 -- Convert an Int into a pointer.
 --

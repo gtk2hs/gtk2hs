@@ -1,6 +1,13 @@
 2003-03-24  Axel Simon <A.Simon@ukc.ac.uk>
 
 	* gtk/general/Style.chs: Forgot to add this file.
+
+	* gtk/general/StockItems.hsc, gtk/glib/GList.chs,
+	gtk/menuComboToolbar/Toolbar.chs: Completed the list of stock
+	items. Removed bugs in GList module. Changed name of stockAdd to
+	stockAddItem due to clash with the constant stockAdd. Renamed
+	stockLookup to stockLookupItem for symmetry. Had to change Toolbar
+	for this to work.
 	
 2003-03-21  Axel Simon <A.Simon@ukc.ac.uk>
 

@@ -5,7 +5,7 @@
 --          
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2002/11/08 10:39:21 $
+--  Version $Revision: 1.5 $ from $Date: 2003/03/24 23:56:39 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -97,7 +97,7 @@ import Enums	(Orientation(..), ToolbarStyle(..))
 import Structs	(toolbarGetSize', toolbarChildButton, toolbarChildToggleButton,
 		 toolbarChildRadioButton, nullForeignPtr, IconSize, 
 		 iconSizeInvalid, iconSizeSmallToolbar, iconSizeLargeToolbar)
-import StockItems(stockLookup, siLabel, stockMissingImage) 
+import StockItems(stockLookupItem, siLabel, stockMissingImage) 
 import Image	(imageNewFromStock)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -172,10 +172,10 @@ toolbarPrependNewButton tb = toolbarInsertNewButton tb 0
 toolbarInsertNewToggleButton :: ToolbarClass tb => tb -> Int -> String ->
                                 Maybe (String,String) -> IO ToggleButton
 toolbarInsertNewToggleButton tb pos stockId tooltips = do
-  mItem <- stockLookup stockId
+  mItem <- stockLookupItem stockId
   item <- case mItem of
     (Just item) -> return item
-    Nothing	-> liftM fromJust $ stockLookup stockMissingImage
+    Nothing	-> liftM fromJust $ stockLookupItem stockMissingImage
   let label = (filter (/= '_')) $ siLabel item
   size <- toolbarGetSize' (toToolbar tb)
   image <- imageNewFromStock stockId size
@@ -226,10 +226,10 @@ toolbarInsertNewRadioButton :: (ToolbarClass tb, RadioButtonClass rb) => tb ->
                                Int -> String -> Maybe (String,String) ->
                                Maybe rb -> IO RadioButton
 toolbarInsertNewRadioButton tb pos stockId tooltips rb = do
-  mItem <- stockLookup stockId
+  mItem <- stockLookupItem stockId
   item <- case mItem of
     (Just item) -> return item
-    Nothing	-> liftM fromJust $ stockLookup stockMissingImage
+    Nothing	-> liftM fromJust $ stockLookupItem stockMissingImage
   let label = (filter (/= '_')) $ siLabel item
   size <- toolbarGetSize' (toToolbar tb)
   image <- imageNewFromStock stockId size
