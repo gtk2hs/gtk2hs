@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 16 October 99
 --
---  Version $Revision: 1.1 $ from $Date: 2002/04/14 16:57:47 $
+--  Version $Revision: 1.2 $ from $Date: 2002/10/01 15:17:05 $
 --
 --  Copyright (c) 1999 Manuel M. T. Chakravarty
 --
