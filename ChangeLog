@@ -1,5 +1,8 @@
 2003-10-21 Axel Simon <A.Simon@kent.ukc.ac.uk>
 
+	* gtk/multiline/TextBuffer.chs: Use TextBufferClass tb => tb
+	instead of TextBuffer as type for the Textbuffer.
+	
 	* gtk/abstract/Container.chs gtk/multiline/TextIter.chs: Fix
 	warning about deprecated FFI construct for GHC 6.0.
 
