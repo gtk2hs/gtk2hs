@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:39 $
+--  Version $Revision: 1.5 $ from $Date: 2005/03/26 00:11:42 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,13 +24,13 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A dialog is a smaller window that is used to ask the user for input.
+-- Create popup windows
 --
 module Graphics.UI.Gtk.Windows.Dialog (
--- * Description
+-- * Detail
 -- 
 -- | Dialog boxes are a convenient way to prompt the user for a small amount
--- of input, eg. to display a message, ask a question, or anything else that
+-- of input, e.g. to display a message, ask a question, or anything else that
 -- does not require extensive effort on the user's part.
 --
 -- Gtk+ treats a dialog as a window split vertically. The top section is a
@@ -45,7 +45,7 @@ module Graphics.UI.Gtk.Windows.Dialog (
 --
 -- If \'dialog\' is a newly created dialog, the two primary areas of the
 -- window can be accessed using 'dialogGetUpper' and
--- 'dialogGetActionArea', as can be seen from the example, below.
+-- 'dialogGetActionArea'.
 --
 -- A \'modal\' dialog (that is, one which freezes the rest of the
 -- application from user input), can be created by calling 'windowSetModal' on
@@ -81,6 +81,7 @@ module Graphics.UI.Gtk.Windows.Dialog (
 -- |                     +----'Bin'
 -- |                           +----'Window'
 -- |                                 +----Dialog
+-- |                                       +----'AboutDialog'
 -- |                                       +----'ColorSelectionDialog'
 -- |                                       +----'FileChooserDialog'
 -- |                                       +----'FileSelection'
@@ -126,98 +127,149 @@ import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Structs	(dialogGetUpper, dialogGetActionArea, ResponseId(..), fromResponse, toResponse)
+import Graphics.UI.Gtk.General.Structs	(dialogGetUpper, dialogGetActionArea,
+					ResponseId(..), fromResponse, toResponse)
 
 {# context lib="gtk" prefix="gtk" #}
 
 --------------------
 -- Constructors
 
--- | Create a new Dialog.
+-- | Creates a new dialog box. Widgets should not be packed into this 'Window'
+-- directly, but into the \"upper\" and \"action area\", which are obtained
+-- using 'dialogGetUpper' and 'dialogGetActionArea'.
 --
 dialogNew :: IO Dialog
-dialogNew  = makeNewObject mkDialog $ liftM castPtr {#call unsafe dialog_new#}
+dialogNew =
+  makeNewObject mkDialog $
+  liftM (castPtr :: Ptr Widget -> Ptr Dialog) $
+  {# call unsafe dialog_new #}
 
 --------------------
 -- Methods
 
--- | Run the dialog by entering a new main loop.
+-- | Blocks in a recursive main loop until the dialog either emits the
+-- response signal, or is destroyed. If the dialog is destroyed during the call
+-- to 'dialogRun', it returns 'ResponseNone'. Otherwise, it returns the
+-- response ID from the \"response\" signal emission. Before entering the
+-- recursive main loop, 'dialogRun' calls 'widgetShow' on the dialog for you.
+-- Note that you still need to show any children of the dialog yourself.
 --
--- * The dialog is run until it is either forced to quit (-1 will be returned)
---   or until the user clicks a button (or other widget) in the action area
---   that makes the dialog emit the @response@ signal (the response id
---   of the pressed button will be returned).
+-- During 'dialogRun', the default behavior of \"delete_event\" is disabled;
+-- if the dialog receives \"delete_event\", it will not be destroyed as windows
+-- usually are, and 'dialogRun' will return 'ResponseDeleteEvent'. Also, during
+-- 'dialogRun' the dialog will be modal. You can force 'dialogRun' to return at
+-- any time by calling 'dialogResponse' to emit the \"response\" signal.
+-- Destroying the dialog during 'dialogRun' is a very bad idea, because your
+-- post-run code won't know whether the dialog was destroyed or not.
 --
--- * To force a dialog to quit, call 'dialogResponse' on it.
+-- After 'dialogRun' returns, you are responsible for hiding or destroying
+-- the dialog if you wish to do so.
 --
--- * If this function returns the dialog still needs to be destroyed.
+-- Note that even though the recursive main loop gives the effect of a modal
+-- dialog (it prevents the user from interacting with other windows while the
+-- dialog is run), callbacks such as timeouts, IO channel watches, DND drops,
+-- etc, /will/ be triggered during a 'dialogRun' call.
 --
-dialogRun :: DialogClass dc => dc -> IO ResponseId
-dialogRun dc = liftM toResponse $ {#call dialog_run#} (toDialog dc)
+dialogRun :: DialogClass self => self
+ -> IO ResponseId
+dialogRun self =
+  liftM toResponse $
+  {# call dialog_run #}
+    (toDialog self)
 
--- | Emit the @response@ signal on the dialog.
+-- | Emits the \"response\" signal with the given response ID. Used to
+-- indicate that the user has responded to the dialog in some way; typically
+-- either you or 'dialogRun' will be monitoring the \"response\" signal and
+-- take appropriate action.
 --
--- * This function can be used to add a custom widget to the action area that
---   should close the dialog when activated or to close the dialog otherwise.
+-- This function can be used to add a custom widget to the action area that
+-- should close the dialog when activated or to close the dialog otherwise.
 --
-dialogResponse :: DialogClass dc => dc -> ResponseId -> IO ()
-dialogResponse dc resId = 
-  {#call dialog_response#} (toDialog dc) (fromResponse resId)
+dialogResponse :: DialogClass self => self
+ -> ResponseId
+ -> IO ()
+dialogResponse self responseId =
+  {# call dialog_response #}
+    (toDialog self)
+    (fromResponse responseId)
 
--- | Add a button with a label to the action area.
+-- | Adds a button with the given text (or a stock button, if @buttonText@ is
+-- a stock ID) and sets things up so that clicking the button will emit the
+-- \"response\" signal with the given @responseId@. The button is appended to
+-- the end of the dialog's action area. The button widget is returned, but
+-- usually you don't need it.
 --
--- * The text may as well refer to a stock object. If such an object exists it
---   is taken as widget.
---
--- * The function returns the Button that resulted from the call.
---
-dialogAddButton :: DialogClass dc => dc -> String -> ResponseId -> IO Button
-dialogAddButton dc button resId = withUTFString button $ \strPtr -> 
-  makeNewObject mkButton $ liftM castPtr $ {#call dialog_add_button#} 
-  (toDialog dc) strPtr (fromResponse resId)
+dialogAddButton :: DialogClass self => self
+ -> String     -- ^ @buttonText@ - text of button, or stock ID
+ -> ResponseId -- ^ @responseId@ - response ID for the button
+ -> IO Button  -- ^ returns the button widget that was added
+dialogAddButton self buttonText responseId =
+  makeNewObject mkButton $ liftM castPtr $
+  withUTFString buttonText $ \buttonTextPtr ->
+  {# call dialog_add_button #}
+    (toDialog self)
+    buttonTextPtr
+    (fromResponse responseId)
 
--- | Add a widget to the action area. If the
--- widget is put into the activated state @resId@ will be transmitted
--- by the @response@ signal.
+-- | Adds an activatable widget to the action area of a 'Dialog', connecting a
+-- signal handler that will emit the \"response\" signal on the dialog when the
+-- widget is activated. The widget is appended to the end of the dialog's
+-- action area. If you want to add a non-activatable widget, simply pack it
+-- into the action area.
 --
--- * A widget that cannot be activated and therefore has to emit the response
---   signal manually must be added by packing it into the action area.
---
-dialogAddActionWidget :: (DialogClass dc, WidgetClass w) => dc -> w ->
-                         ResponseId -> IO ()
-dialogAddActionWidget dc child resId = {#call dialog_add_action_widget#}
-  (toDialog dc) (toWidget child) (fromResponse resId)
+dialogAddActionWidget :: (DialogClass self, WidgetClass child) => self
+ -> child      -- ^ @child@ - an activatable widget
+ -> ResponseId -- ^ @responseId@ - response ID for @child@
+ -> IO ()
+dialogAddActionWidget self child responseId =
+  {# call dialog_add_action_widget #}
+    (toDialog self)
+    (toWidget child)
+    (fromResponse responseId)
 
--- | Query if the dialog has a visible horizontal
--- separator.
+-- | Query if the dialog has a visible horizontal separator.
 --
-dialogGetHasSeparator :: DialogClass dc => dc -> IO Bool
-dialogGetHasSeparator dc = liftM toBool $ 
-  {#call unsafe dialog_get_has_separator#} (toDialog dc)
+dialogGetHasSeparator :: DialogClass self => self -> IO Bool
+dialogGetHasSeparator self =
+  liftM toBool $
+  {# call unsafe dialog_get_has_separator #}
+    (toDialog self)
 
--- | Set the default widget that is to be
--- activated if the user pressed enter. The object is specified by the
--- ResponseId.
+-- | Sets the last widget in the dialog's action area with the given
+-- 'ResponseId' as the default widget for the dialog. Pressing \"Enter\"
+-- normally activates the default widget.
 --
-dialogSetDefaultResponse :: DialogClass dc => dc -> ResponseId -> IO ()
-dialogSetDefaultResponse dc resId = {#call dialog_set_default_response#}
-  (toDialog dc) (fromResponse resId)
+dialogSetDefaultResponse :: DialogClass self => self
+ -> ResponseId
+ -> IO ()
+dialogSetDefaultResponse self responseId =
+  {# call dialog_set_default_response #}
+    (toDialog self)
+    (fromResponse responseId)
 
--- | Set the visibility of the horizontal
--- separator.
+-- | Sets whether the dialog has a separator above the buttons. @True@ by
+-- default.
 --
-dialogSetHasSeparator :: DialogClass dc => dc -> Bool -> IO ()
-dialogSetHasSeparator dc set = {#call dialog_set_has_separator#}
-  (toDialog dc) (fromBool set)
+dialogSetHasSeparator :: DialogClass self => self -> Bool -> IO ()
+dialogSetHasSeparator self setting =
+  {# call dialog_set_has_separator #}
+    (toDialog self)
+    (fromBool setting)
 
--- | Set widgets in the action are to be
--- sensitive or not.
+-- | Calls @'widgetSetSensitive' widget setting@ for each widget in the
+-- dialog's action area with the given @responseId@. A convenient way to
+-- sensitize\/desensitize dialog buttons.
 --
-dialogSetResponseSensitive :: DialogClass dc => dc -> ResponseId -> Bool ->
-                              IO ()
-dialogSetResponseSensitive dc resId sensitive = 
-  {#call dialog_set_response_sensitive#} (toDialog dc) (fromResponse resId)
-  (fromBool sensitive)
+dialogSetResponseSensitive :: DialogClass self => self
+ -> Int   -- ^ @responseId@ - a response ID
+ -> Bool  -- ^ @setting@ - @True@ for sensitive
+ -> IO ()
+dialogSetResponseSensitive self responseId setting =
+  {# call dialog_set_response_sensitive #}
+    (toDialog self)
+    (fromResponse responseId)
+    (fromBool setting)
 
 --------------------
 -- Properties
@@ -226,7 +278,7 @@ dialogSetResponseSensitive dc resId sensitive =
 --
 -- Default value: @True@
 --
-dialogHasSeparator :: Attr Dialog Bool
+dialogHasSeparator :: DialogClass self => Attr self Bool
 dialogHasSeparator = Attr 
   dialogGetHasSeparator
   dialogSetHasSeparator
@@ -234,12 +286,13 @@ dialogHasSeparator = Attr
 --------------------
 -- Signals
 
--- | This signal is sent when a widget in the action
--- area was activated, the dialog is received a destory event or the user
--- calls dialogResponse. It is usually used to terminate the dialog (by
--- dialogRun for example).
+-- | Emitted when an action widget is clicked, the dialog receives a delete
+-- event, or the application programmer calls 'dialogResponse'. On a delete
+-- event, the response ID is 'ResponseNone'. Otherwise, it depends on which
+-- action widget was clicked.
 --
-onResponse, afterResponse :: DialogClass dc => dc -> (ResponseId -> IO ()) ->
-                             IO (ConnectId dc)
+onResponse, afterResponse :: DialogClass self => self
+ -> (ResponseId -> IO ())
+ -> IO (ConnectId self)
 onResponse dia act = connect_INT__NONE "response" False dia (act . toResponse)
 afterResponse dia act = connect_INT__NONE "response" True dia (act . toResponse)

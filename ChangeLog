@@ -8,6 +8,10 @@
 	marshalers that are not currently used. This saves several 100k in a
 	final striped program. Feel free to re-enable any of them at any time.
 
+	* gtk/Graphics/UI/Gtk/Windows/Dialog.chs,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: documentation changes and
+	code formatting changes.
+
 2005-03-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs: match up against existing .hs modules if
