@@ -5,7 +5,7 @@
 --          
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:31:04 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/12 01:34:55 $
 --
 --  Copyright (c) 1999..2003 Axel Simon
 --
@@ -168,7 +168,7 @@ fontDescriptionGetStretch fd = do
 
 -- | Set the size field.
 --
--- * The given size is in points (pts). One point is 1/72 inch.
+-- * The given size is in points (pts). One point is 1\/72 inch.
 --
 fontDescriptionSetSize :: FontDescription -> Rational -> IO ()
 fontDescriptionSetSize fd p = 

@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:05:14 $
+--  Version $Revision: 1.2 $ from $Date: 2005/01/12 01:34:56 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -112,7 +112,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem,
   module Graphics.UI.Gtk.MenuComboToolbar.Toolbar,
   module Graphics.UI.Gtk.MenuComboToolbar.ToolItem,
-  -- * Selectors (file/font/color)
+  -- * Selectors (file\/font\/color)
   module Graphics.UI.Gtk.Selectors.ColorSelection,
   module Graphics.UI.Gtk.Selectors.ColorSelectionDialog,
 --  module FileSelection,

@@ -12,6 +12,9 @@
 	files. Correct a linker error caused by a missing _stub.o file.
 	Everything should install correctly now and the demos should build ok.
 
+	* gtk/Graphics/UI/Gtk/Pango/Description.chs, gtk/Graphics/UI/Gtk.hs:
+	tiny haddock markup fixes.
+
 2005-01-10 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/format-docs.xsl: nicer code and more comprehensively
