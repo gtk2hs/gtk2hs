@@ -62,6 +62,7 @@ exclude gtk_gamma_curve
 exclude gtk_ruler
 exclude gtk_hruler
 exclude gtk_vruler
+exclude gtk_input_dialog
 
 
 #low level
@@ -106,6 +107,9 @@ do not exclude gtk_init_add
 exclude gtk_gc
 exclude gtk_key_snooper
 exclude gtk_rc
+exclude gtk_settings
+exclude gtk_selection		#docs say low level, use clipboard api instead
+exclude gtk_target_list		#as above
 exclude gtk_disable_setlocale
 exclude gtk_set_locale
 exclude gtk_parse_args		#allows to init gtk without opening an X display

@@ -1,9 +1,9 @@
 # system to help check gtk2hs's api coverage
 
-# which vesion of gtk+ to compare against
+# which vesion of gtk+ to compare against, eg 2.0.9, 2.2.4, 2.4.4
 GTK_MAJOR_VERSION = 2
-GTK_MINOR_VERSION = 4
-GTK_MICRO_VERSION = 4
+GTK_MINOR_VERSION = 2
+GTK_MICRO_VERSION = 0
 
 GTK_VERSION = $(GTK_MAJOR_VERSION).$(GTK_MINOR_VERSION).$(GTK_MICRO_VERSION)
 
@@ -46,13 +46,14 @@ clean :
 	rm -f gtk.coverage gtk.def.filtered gtk.def gtk.ignore.combined
 
 gtk_total=$(shell wc -l < gtk.def.filtered)
-gtk2hs_total=$(shell wc -l < gtk.coverage)
+gtk2hs_total=$(shell wc -l < gtk.coverage.filtered)
+difference=$(shell diff gtk.def.filtered gtk.coverage.filtered | grep -c '<')
 
 stats : gtk.def.filtered gtk.coverage.filtered
 	@echo "**** gtk2hs API coverage report (for gtk-$(GTK_VERSION)) ****"
 	@echo " total gtk functions    :" $(gtk_total)
 	@echo " total gtk2hs functions :" $(gtk2hs_total)
-	@echo " difference             :" `echo $(gtk_total) - $(gtk2hs_total) | bc`
+	@echo " unbound gtk functions  :" $(difference)
 	@echo
 	@echo "run 'make summary' to get a list of groups of unbound functions"
 	@echo " on 'diff gtk.def.filtered gtk.coverage' to see in detail"

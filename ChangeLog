@@ -3,6 +3,10 @@
 	* gtk/abstract/FileChooser.chs, gtk/general/FFI.hs: move a couple of
 	string marshaling functions to a common location.
 
+	* tools/apicoverage/Makefile: accurate count of unbound gtk functions.
+
+	* tools/apicoverage/gtk.ignore: add a few more APIs to ignore.
+
 2004-08-1  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/entry/SpinButton.chs, gtk/layout/Table.chs, gtk/layout/Layout.chs
