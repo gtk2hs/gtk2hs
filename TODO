@@ -1,5 +1,13 @@
 TODO for gtk2hs
 
+11/2/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* rename these modules:
+		Graphics/UI/Gtk/Misc/GArrow.chs
+	to	Graphics/UI/Gtk/Misc/Arrow.chs
+		Graphics/UI/Gtk/Windows/FileSel.chs
+	to	Graphics/UI/Gtk/Selectors/FileSelection.chs
+
 8/12/2004  Duncan Coutts <duncan@coutts.uklinux.net>
 	
 	* automake issues, building targets that are pulled in by the
@@ -44,21 +52,3 @@ TODO for gtk2hs
   specify it in a pragma. An external c2hs would need to get preprocessed
   input. This has to be done in mk/library.mk .
 
-older entries:
-
-* Compilation falls over on FreeBSD when c2hs reads the type modifier
-  __signed. I don't know if this is supposed to be replaced by cpp, for
-  the time being I've just added -D__signed=signed.. There probably should
-  be a autoconf test for this (and understanding of what's going on).
-
-* Check all the files for additional functionality since 1.3.3.
-
-* Add documentation support.
-
-* Create automatic support for recursive make as it is done with applications
-  and libraries. The Makefiles should be able to only specify three variables:
-  TOOLMAKEDIRS (applications that are needed to build the libraries but which
-  are not installed), LIBMAKEDIRS (the libraries that should be done next)
-  and APPMAKEDIRS (which are applications which depend on the libraries). We
-  need these three variables to get the sequence of inplace/noinplace right.
-  Question: How do we reverse a list of words with make?
