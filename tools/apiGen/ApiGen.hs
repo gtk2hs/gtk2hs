@@ -150,13 +150,16 @@ main = do
             "DESCRIPTION"    -> ss (moduledoc_summary moduleDoc)
 	    "DOCUMENTATION"  -> genModuleDocumentation moduleDoc
 	    "TODO"           -> genTodoItems object
-	    "MODULE_NAME"    -> ss $ module_prefix moduleInfo ++ "." ++ module_name moduleInfo
+	    "MODULE_NAME"    -> ss $ if null (module_prefix moduleInfo)
+                                 then module_name moduleInfo
+                                 else module_prefix moduleInfo ++ "." ++ module_name moduleInfo
 	    "EXPORTS"        -> genExports object moduleDoc
 	    "IMPORTS"        -> ss $ "{#import Graphics.UI.Gtk.Types#}\n"
                                   ++ "-- CHECKME: extra imports may be required\n"
 	    "CONTEXT_LIB"    -> ss $ module_context_lib moduleInfo
 	    "CONTEXT_PREFIX" -> ss $ module_context_prefix  moduleInfo
-	    "MODULE_BODY"    -> genModuleBody knownTypes object moduleDoc
+	    "MODULE_BODY"    -> genModuleBody (module_context_prefix moduleInfo)
+                                              knownTypes object moduleDoc moduleInfo
 	    _ -> ss "" ) ""
     ) [ (namespace
         ,object

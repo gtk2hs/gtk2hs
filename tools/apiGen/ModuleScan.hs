@@ -2,7 +2,7 @@
 
 module ModuleScan (
   ModuleInfo(..),
-  ModuleMethodInfo(..),
+  MethodInfo(..),
   scanModules
   ) where
 
@@ -28,12 +28,12 @@ data ModuleInfo = ModuleInfo {
     module_imports           :: [(String, String)], -- mod name and the whole line
     module_context_lib       :: String,
     module_context_prefix    :: String,
-    module_methods           :: [ModuleMethodInfo]
+    module_methods           :: [MethodInfo]
   } deriving Show
 
-data ModuleMethodInfo = ModuleMethodInfo {
-    module_method_cname :: String,
-    module_method_unsafe :: Bool
+data MethodInfo = MethodInfo {
+    methodinfo_cname :: String,
+    methodinfo_unsafe :: Bool    -- {#call unsafe foo#} rather than {#call foo#}
   } deriving Show
 
 data Line = None
@@ -43,7 +43,7 @@ data Line = None
           | Module String String
           | Import String String
           | Context String String
-          | CCall ModuleMethodInfo
+          | CCall MethodInfo
 
 usefulLine None = False
 usefulLine _    = True
@@ -168,12 +168,12 @@ scanImport line tokens = Import (concat $ takeWhile (\token -> isWord token || t
 scanCCall :: [String] -> Line
 scanCCall tokens =
   case takeWhile (\t -> t/="#}" && t/="#}."&& t/="#})") . tail . dropWhile (/="{#") $ tokens of
-    ("call":"unsafe":cname:[]) -> CCall ModuleMethodInfo { module_method_cname = cname,
-                                                           module_method_unsafe = True }
-    ("call":         cname:[]) -> CCall ModuleMethodInfo { module_method_cname = cname,
-                                                           module_method_unsafe = True }
-    ("call":"fun":"unsafe":cname:[]) -> CCall ModuleMethodInfo { module_method_cname = cname,
-                                                                 module_method_unsafe = True }
+    ("call":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
+                                                     methodinfo_unsafe = True }
+    ("call":         cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
+                                                     methodinfo_unsafe = False }
+    ("call":"fun":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
+                                                           methodinfo_unsafe = True }
     ("fun":"pure":_)           -> None
     ("type":_)                 -> None
     ("pointer":_)              -> None

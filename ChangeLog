@@ -1,3 +1,15 @@
+2005-02-10 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/CodeGen.hs: make use of the information from scanning
+	the original modules. We order the function implementations so that
+	they are in the same order as in the origial module and unsafe C calls
+	are preserved.
+
+	* tools/apiGen/ModuleScan.hs: fix a bug and do a bit of renaming.
+
+	* tools/apiGen/ApiGen.hs: pass the info from scanning the original
+	modules into the main code gen bits.
+
 2005-02-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/ModuleScan.hs: new module that scans the existing

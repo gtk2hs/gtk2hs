@@ -10,17 +10,18 @@ import Docs
 import FormatDocs
 import Marshal
 import StringUtils
+import ModuleScan
 
 import Prelude hiding (Enum, lines)
-import List   (groupBy, sortBy)
+import List   (groupBy, sortBy, isPrefixOf)
 
 import Debug.Trace (trace)
 
 -------------------------------------------------------------------------------
 -- Now lets actually generate some code fragments based on the api info
 -------------------------------------------------------------------------------
-genFunction :: KnownTypes -> Method -> Maybe FuncDoc -> ShowS
-genFunction knownTypes method doc =
+genFunction :: KnownTypes -> Method -> Maybe FuncDoc -> Maybe MethodInfo -> ShowS
+genFunction knownTypes method doc info =
   formattedDoc.
   ss functionName. ss " :: ". functionType. nl.
   ss functionName. sc ' '. sepBy " " paramNames. ss " =".
@@ -48,7 +49,10 @@ genFunction knownTypes method doc =
                        formatParamTypes (paramTypes ++ [returnType])
 	body = foldl (\body marshaler -> marshaler body)
                      call (paramMarshalers++[returnMarshaler])
-	call = ss "{# call ". ss (method_cname method). ss " #}"
+	call = ss "{# call ". safety. ss (method_cname method). ss " #}"
+        safety = case info of
+                  Nothing -> id
+                  Just info -> if methodinfo_unsafe info then ss "unsafe " else id
         formattedDoc = case doc of
           Nothing  -> ss "-- | \n-- \n"
           Just doc -> ss "-- | ". haddocFormatParas (funcdoc_paragraphs doc). nl.
@@ -91,30 +95,54 @@ genFunction knownTypes method doc =
                   . concatMap haddocFormatSpan
                 columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
 
-genModuleBody :: KnownTypes -> Object -> ModuleDoc -> ShowS
-genModuleBody knownTypes object apiDoc =
+genModuleBody :: String -> KnownTypes -> Object -> ModuleDoc -> ModuleInfo -> ShowS
+genModuleBody modPrefix knownTypes object apiDoc modInfo =
   doVersionIfDefs (sepBy' "\n\n") $
      genConstructors knownTypes object (moduledoc_functions apiDoc)
   ++ genMethods knownTypes object (moduledoc_functions apiDoc)
+       (mungeMethodInfo modPrefix object (module_methods modInfo))
   ++ genProperties knownTypes object (moduledoc_properties apiDoc)
   ++ genSignals knownTypes object (moduledoc_signals apiDoc)
 
-genMethods :: KnownTypes -> Object -> [FuncDoc] -> [(ShowS, Since)]
-genMethods knownTypes object apiDoc = 
-  [ (genFunction knownTypes method doc, maybe "" funcdoc_since doc)
-  | (method, doc) <- methods object apiDoc ]
+-- fixup the names of the C functions we got from scaning the original modules
+-- we want the fully qualified "gtk_foo_bar" rather than "foo_bar" so that the
+-- names match up consistently with the ones from the API xml file.
+mungeMethodInfo :: String -> Object -> [MethodInfo] -> [MethodInfo]
+mungeMethodInfo nameSpacePrefix object =
+  map (\methodInfo -> if methodinfo_cname methodInfo `elem` shortMethodNames
+                        then methodInfo {
+                               methodinfo_cname = prefix ++ methodinfo_cname methodInfo
+                             }
+                        else methodInfo)
+  where shortMethodNames = map (stripPrefix . method_cname) (object_methods object)
+        stripPrefix cname | prefix `isPrefixOf` cname = drop (length prefix) cname
+                          | otherwise = cname
+        prefix = nameSpacePrefix ++ "_"
 
-methods :: Object -> [FuncDoc] -> [(Method, Maybe FuncDoc)]
-methods object docs =
+genMethods :: KnownTypes -> Object -> [FuncDoc] -> [MethodInfo] -> [(ShowS, Since)]
+genMethods knownTypes object apiDoc methodInfo = 
+  [ (genFunction knownTypes method doc info, maybe "" funcdoc_since doc)
+  | (method, doc, info) <- methods object apiDoc methodInfo]
+
+methods :: Object -> [FuncDoc] -> [MethodInfo] -> [(Method, Maybe FuncDoc, Maybe MethodInfo)]
+methods object docs methodsInfo =
   map snd $
-  sortBy (\(i,_) (j,_) -> i `compare` j)
-  [ case method_cname method `lookup` docmap of
-      Nothing             -> (0,(mungeMethod object method, Nothing))
-      (Just (doc, index)) -> (index,(mungeMethod object method, Just doc))
+  sortBy (comparing fst)
+  [ let (doc, docIndex) = case lookup (method_cname method) docmap of
+                            Nothing -> (Nothing, endDocIndex)
+                            Just (doc, index) -> (Just doc, index)
+        (info,infoIndex)= case lookup (method_cname method) infomap of
+                            Nothing -> (Nothing, endInfoIndex)
+                            Just (info, index) -> (Just info, index)                            
+     in ((infoIndex,docIndex),(mungeMethod object method, doc, info))
   | method <- object_methods object
   , null [ () | VarArgs <- method_parameters method] ] --exclude VarArgs methods
-  where docmap = [ (funcdoc_name doc, (doc,index)) | (doc,index) <- zip docs [1..]]
-        
+  where docmap =  [ (funcdoc_name doc, (doc,index))
+                  | (doc,index) <- zip docs [1..] ]
+        infomap = [ (methodinfo_cname info, (info,index))
+                  | (info,index) <- zip methodsInfo [1..] ]
+        endDocIndex = length docs
+        endInfoIndex = length methodsInfo
 
 mungeMethod :: Object -> Method -> Method
 mungeMethod object method =
@@ -130,7 +158,7 @@ mungeMethod object method =
 
 genConstructors :: KnownTypes -> Object -> [FuncDoc] -> [(ShowS, Since)]
 genConstructors knownTypes object apiDoc =
-  [ (genFunction knownTypes constructor doc, maybe "" funcdoc_since doc)
+  [ (genFunction knownTypes constructor doc Nothing, maybe "" funcdoc_since doc)
   | (constructor, doc) <- constructors object apiDoc ]
 
 constructors :: Object -> [FuncDoc] -> [(Method, Maybe FuncDoc)]
@@ -256,7 +284,7 @@ genExports object docs =
            doVersionIfDefs lines cs).
   (case [ (ss "  ". ss (cFuncNameToHsName (method_cname method)). sc ','
           ,maybe "" funcdoc_since doc)
-        | (method, doc) <- methods object (moduledoc_functions docs)] of
+        | (method, doc, _) <- methods object (moduledoc_functions docs) []] of
      [] -> id
      cs -> nl.nl.comment.ss "* Methods".nl.
            doVersionIfDefs lines cs).
@@ -304,3 +332,6 @@ sinceVersion [major,'.',minor] body =
   body.
   ss "\n#endif"
 sinceVersion _ body = body
+
+comparing :: (Ord a) => (b -> a) -> b -> b -> Ordering
+comparing p x y = compare (p x) (p y)
