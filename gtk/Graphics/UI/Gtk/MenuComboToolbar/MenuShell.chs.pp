@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/06 22:20:02 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:34:49 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -59,8 +59,15 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuShell (
   menuShellPrepend,
   menuShellInsert,
   menuShellDeactivate,
+  menuShellActivateItem,
   menuShellSelectItem,
   menuShellDeselect,
+#if GTK_CHECK_VERSION(2,2,0)
+  menuShellSelectFirst,
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+  menuShellCancel,
+#endif
 
 -- * Signals
   onActivateCurrent,
@@ -161,6 +168,35 @@ menuShellDeselect :: MenuShellClass self => self -> IO ()
 menuShellDeselect self =
   {# call menu_shell_deselect #}
     (toMenuShell self)
+
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Select the first visible or selectable child of the menu shell; don't
+-- select tearoff items unless the only item is a tearoff item.
+--
+-- * Available since Gtk+ version 2.2
+--
+menuShellSelectFirst :: MenuShellClass self => self
+ -> Bool  -- ^ @searchSensitive@ - if @True@, search for the first selectable
+          -- menu item, otherwise select nothing if the first item isn't
+          -- sensitive. This should be @False@ if the menu is being popped up
+          -- initially.
+ -> IO ()
+menuShellSelectFirst self searchSensitive =
+  {# call gtk_menu_shell_select_first #}
+    (toMenuShell self)
+    (fromBool searchSensitive)
+#endif
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Cancels the selection within the menu shell.
+--
+-- * Available since Gtk+ version 2.4
+--
+menuShellCancel :: MenuShellClass self => self -> IO ()
+menuShellCancel self =
+  {# call gtk_menu_shell_cancel #}
+    (toMenuShell self)
+#endif
 
 --------------------
 -- Signals

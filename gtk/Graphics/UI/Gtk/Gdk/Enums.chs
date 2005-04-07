@@ -5,7 +5,7 @@
 --
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/17 00:13:20 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:34:49 $
 --
 --  Copyright (C) 1999-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -44,7 +44,10 @@ module Graphics.UI.Gtk.Gdk.Enums (
   SubwindowMode(..),
   VisibilityState(..),
   WindowState(..),
-  Flags(fromFlags,toFlags)
+  Flags(fromFlags,toFlags),
+  WindowEdge(..),
+  WindowTypeHint(..),
+  Gravity(..)
   ) where
 
 import Data.Bits ((.|.))
@@ -144,3 +147,23 @@ instance Flags InputCondition
 {#enum WindowState {underscoreToCase} deriving (Bounded)#}
 
 instance Flags WindowState
+
+-- | Determines a window edge or corner.
+--
+{#enum WindowEdge {underscoreToCase} #}
+
+-- | These are hints for the window manager that indicate what type of function
+-- the window has. The window manager can use this when determining decoration
+-- and behaviour of the window. The hint must be set before mapping the window.
+--
+-- See the extended window manager hints specification for more details about
+-- window types.
+--
+{#enum WindowTypeHint {underscoreToCase} #}
+
+-- | Defines the reference point of a window and the meaning of coordinates
+-- passed to 'windowMove'. See 'windowMove' and the "implementation notes"
+-- section of the extended window manager hints specification for more details.
+--
+{#enum Gravity {underscoreToCase} #}
+    

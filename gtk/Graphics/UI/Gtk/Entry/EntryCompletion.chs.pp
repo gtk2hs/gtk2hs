@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/02 19:22:04 $
+--  Version $Revision: 1.9 $ from $Date: 2005/04/07 00:34:49 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -87,9 +87,34 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionDeleteAction,
   entryCompletionSetTextColumn,
 #endif
+#if GTK_CHECK_VERSION(2,6,0)
+  entryCompletionInsertPrefix,
+  entryCompletionGetTextColumn,
+  entryCompletionSetInlineCompletion,
+  entryCompletionGetInlineCompletion,
+  entryCompletionSetPopupCompletion,
+  entryCompletionGetPopupCompletion,
+#endif
 
 -- * Properties
-  entryCompletionMinimumKeyLength
+#if GTK_CHECK_VERSION(2,4,0)
+  entryCompletionMinimumKeyLength,
+#endif
+#if GTK_CHECK_VERSION(2,6,0)
+  entryCompletionTextColumn,
+  entryCompletionInlineCompletion,
+  entryCompletionPopupCompletion,
+#endif
+
+-- * Signals
+#if GTK_CHECK_VERSION(2,6,0)
+  onInsertPrefix,
+  afterInsertPrefix,
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+  onActionActivated,
+  afterActionActivated,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -269,7 +294,79 @@ entryCompletionSetTextColumn self column =
   {# call gtk_entry_completion_set_text_column #}
     self
     (fromIntegral column)
+#endif
 
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Requests a prefix insertion.
+--
+-- * Available since Gtk+ version 2.6
+--
+entryCompletionInsertPrefix :: EntryCompletion -> IO ()
+entryCompletionInsertPrefix self =
+  {# call gtk_entry_completion_insert_prefix #}
+    self
+
+-- | Returns the column in the model of the completion to get strings from.
+--
+-- * Available since Gtk+ version 2.6
+--
+entryCompletionGetTextColumn :: EntryCompletion
+ -> IO Int          -- ^ returns the column containing the strings
+entryCompletionGetTextColumn self =
+  liftM fromIntegral $
+  {# call gtk_entry_completion_get_text_column #}
+    self
+
+-- | Sets whether the common prefix of the possible completions should be
+-- automatically inserted in the entry.
+--
+-- * Available since Gtk+ version 2.6
+--
+entryCompletionSetInlineCompletion :: EntryCompletion
+ -> Bool            -- ^ @inlineCompletion@ - @True@ to do inline completion
+ -> IO ()
+entryCompletionSetInlineCompletion self inlineCompletion =
+  {# call gtk_entry_completion_set_inline_completion #}
+    self
+    (fromBool inlineCompletion)
+
+-- | Returns whether the common prefix of the possible completions should be
+-- automatically inserted in the entry.
+--
+-- * Available since Gtk+ version 2.6
+--
+entryCompletionGetInlineCompletion :: EntryCompletion
+ -> IO Bool         -- ^ returns @True@ if inline completion is turned on
+entryCompletionGetInlineCompletion self =
+  liftM toBool $
+  {# call gtk_entry_completion_get_inline_completion #}
+    self
+
+-- | Sets whether the completions should be presented in a popup window.
+--
+-- * Available since Gtk+ version 2.6
+--
+entryCompletionSetPopupCompletion :: EntryCompletion
+ -> Bool            -- ^ @popupCompletion@ - @True@ to do popup completion
+ -> IO ()
+entryCompletionSetPopupCompletion self popupCompletion =
+  {# call gtk_entry_completion_set_popup_completion #}
+    self
+    (fromBool popupCompletion)
+
+-- | Returns whether the completions should be presented in a popup window.
+--
+-- * Available since Gtk+ version 2.6
+--
+entryCompletionGetPopupCompletion :: EntryCompletion
+ -> IO Bool         -- ^ returns @True@ if popup completion is turned on
+entryCompletionGetPopupCompletion self =
+  liftM toBool $
+  {# call gtk_entry_completion_get_popup_completion #}
+    self
+#endif
+
+#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Properties
 
@@ -283,4 +380,66 @@ entryCompletionMinimumKeyLength :: Attr EntryCompletion Int
 entryCompletionMinimumKeyLength = Attr 
   entryCompletionGetMinimumKeyLength
   entryCompletionSetMinimumKeyLength
+#endif
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | The column of the model containing the strings.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+entryCompletionTextColumn :: Attr EntryCompletion Int
+entryCompletionTextColumn = Attr 
+  entryCompletionGetTextColumn
+  entryCompletionSetTextColumn
+
+-- | Determines whether the common prefix of the possible completions should
+-- be inserted automatically in the entry.
+--
+-- Default value: @False@
+--
+entryCompletionInlineCompletion :: Attr EntryCompletion Bool
+entryCompletionInlineCompletion = Attr 
+  entryCompletionGetInlineCompletion
+  entryCompletionSetInlineCompletion
+
+-- | Determines whether the possible completions should be shown in a popup
+-- window.
+--
+-- Default value: @True@
+--
+entryCompletionPopupCompletion :: Attr EntryCompletion Bool
+entryCompletionPopupCompletion = Attr 
+  entryCompletionGetPopupCompletion
+  entryCompletionSetPopupCompletion
+#endif
+
+--------------------
+-- Signals
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Gets emitted when the inline autocompletion is triggered. The default
+-- behaviour is to make the entry display the whole prefix and select the newly
+-- inserted part.
+--
+-- Applications may connect to this signal in order to insert only a smaller
+-- part of the @prefix@ into the entry - e.g. the entry used in the
+-- 'FileChooser' inserts only the part of the prefix up to the next \'\/\'.
+--
+onInsertPrefix, afterInsertPrefix :: EntryCompletionClass self => self
+ -> (String -> IO Bool)
+ -> IO (ConnectId self)
+onInsertPrefix = connect_STRING__BOOL "insert_prefix" False
+afterInsertPrefix = connect_STRING__BOOL "insert_prefix" True
+#endif
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Gets emitted when an action is activated.
+--
+onActionActivated, afterActionActivated :: EntryCompletionClass self => self
+ -> (Int -> IO ())
+ -> IO (ConnectId self)
+onActionActivated = connect_INT__NONE "action_activated" False
+afterActionActivated = connect_INT__NONE "action_activated" True
 #endif

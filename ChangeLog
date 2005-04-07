@@ -27,6 +27,26 @@
 	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: change use of deprecated
 	function 'withObject' to 'with'. Remove support for ghc pre 5.04.
 
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp: add bindings
+	for several new methods and properties.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp: add one extra
+	method.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs.pp: add a couple
+	extra methods.
+
+	* gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp: add bindings for
+	several new methods, properties and signals.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Enums.chs: add 4 extra enums that are needed
+	for new Windows methods.
+
+	* gtk/Graphics/UI/Gtk/Layout/Fixed.chs: trivial doc changes.
+
+	* gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp: export a method that
+	we already bound but not exported.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add

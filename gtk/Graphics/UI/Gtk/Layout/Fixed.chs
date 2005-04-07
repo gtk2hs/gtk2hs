@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/24 17:30:59 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/07 00:34:49 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -104,7 +104,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Creates a new 'Fixed' container.
+-- | Creates a new 'Fixed'.
 --
 fixedNew :: IO Fixed
 fixedNew =
@@ -145,8 +145,8 @@ fixedMove self widget (x, y) =
 
 -- | Sets whether the 'Fixed' widget is created with a separate 'DrawWindow' for
 -- its window or not. (By default, it will be created with no separate
--- 'DrawWindow'). This function must be called while the 'Fixed' is not realized,
--- for instance, immediately after the window is created.
+-- 'DrawWindow'). This function must be called while the 'Fixed' is not
+-- realized, for instance, immediately after the window is created.
 --
 -- This function was added to provide an easy migration path for older
 -- applications which may expect 'Fixed' to have a separate window.
@@ -157,7 +157,8 @@ fixedSetHasWindow self hasWindow =
     (toFixed self)
     (fromBool hasWindow)
 
--- | Gets whether the 'Fixed' has its own 'DrawWindow'. See 'fixedSetHasWindow'.
+-- | Gets whether the 'Fixed' has its own 'DrawWindow'. See
+-- 'fixedSetHasWindow'.
 --
 fixedGetHasWindow :: FixedClass self => self -> IO Bool
 fixedGetHasWindow self =

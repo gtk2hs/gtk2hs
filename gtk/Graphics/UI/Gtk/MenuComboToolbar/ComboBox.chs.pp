@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:49 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/07 00:34:41 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -91,6 +91,25 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   comboBoxRemoveText,
   comboBoxPopup,
   comboBoxPopdown,
+#if GTK_CHECK_VERSION(2,6,0)
+  comboBoxGetWrapWidth,
+  comboBoxGetRowSpanColumn,
+  comboBoxGetColumnSpanColumn,
+  comboBoxGetActiveText,
+  comboBoxSetFocusOnClick,
+  comboBoxGetFocusOnClick,
+  comboBoxSetAddTearoffs,
+#endif
+  comboBoxGetAddTearoffs,
+
+-- * Properties
+#if GTK_CHECK_VERSION(2,6,0)
+  comboBoxWrapWidth,
+  comboBoxRowSpanColumn,
+  comboBoxColumnSpanColumn,
+  comboBoxAddTearoffs,
+  comboBoxFocusOnClick,
+#endif
 
 -- * Signals
   onChanged,
@@ -319,6 +338,167 @@ comboBoxPopdown :: ComboBoxClass self => self -> IO ()
 comboBoxPopdown self =
   {# call gtk_combo_box_popdown #}
     (toComboBox self)
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Returns the wrap width which is used to determine the number of columns
+-- for the popup menu. If the wrap width is larger than 1, the combo box is in
+-- table mode.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxGetWrapWidth :: ComboBoxClass self => self -> IO Int
+comboBoxGetWrapWidth self =
+  liftM fromIntegral $
+  {# call gtk_combo_box_get_wrap_width #}
+    (toComboBox self)
+
+-- | Returns the column with row span information for @comboBox@.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxGetRowSpanColumn :: ComboBoxClass self => self -> IO Int
+comboBoxGetRowSpanColumn self =
+  liftM fromIntegral $
+  {# call gtk_combo_box_get_row_span_column #}
+    (toComboBox self)
+
+-- | Returns the column with column span information for @comboBox@.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxGetColumnSpanColumn :: ComboBoxClass self => self -> IO Int
+comboBoxGetColumnSpanColumn self =
+  liftM fromIntegral $
+  {# call gtk_combo_box_get_column_span_column #}
+    (toComboBox self)
+
+-- | Returns the currently active string in @comboBox@ or @Nothing@ if none is
+-- selected. Note that you can only use this function with combo boxes
+-- constructed with 'comboBoxNewText'.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxGetActiveText :: ComboBoxClass self => self -> IO (Maybe String)
+comboBoxGetActiveText self =
+  {# call gtk_combo_box_get_active_text #}
+    (toComboBox self)
+  >>= maybePeek readUTFString
+
+-- | Sets whether the popup menu should have a tearoff menu item.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxSetAddTearoffs :: ComboBoxClass self => self
+ -> Bool  -- ^ @addTearoffs@ - @True@ to add tearoff menu items
+ -> IO ()
+comboBoxSetAddTearoffs self addTearoffs =
+  {# call gtk_combo_box_set_add_tearoffs #}
+    (toComboBox self)
+    (fromBool addTearoffs)
+#endif
+
+-- | Gets the current value of the :add-tearoffs property.
+--
+comboBoxGetAddTearoffs :: ComboBoxClass self => self -> IO Bool
+comboBoxGetAddTearoffs self =
+  liftM toBool $
+  {# call gtk_combo_box_get_add_tearoffs #}
+    (toComboBox self)
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Sets whether the combo box will grab focus when it is clicked with the
+-- mouse. Making mouse clicks not grab focus is useful in places like toolbars
+-- where you don't want the keyboard focus removed from the main area of the
+-- application.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxSetFocusOnClick :: ComboBoxClass self => self
+ -> Bool  -- ^ @focusOnClick@ - whether the combo box grabs focus when clicked
+          -- with the mouse
+ -> IO ()
+comboBoxSetFocusOnClick self focusOnClick =
+  {# call gtk_combo_box_set_focus_on_click #}
+    (toComboBox self)
+    (fromBool focusOnClick)
+
+-- | Returns whether the combo box grabs focus when it is clicked with the
+-- mouse. See 'comboBoxSetFocusOnClick'.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxGetFocusOnClick :: ComboBoxClass self => self
+ -> IO Bool -- ^ returns @True@ if the combo box grabs focus when it is
+            -- clicked with the mouse.
+comboBoxGetFocusOnClick self =
+  liftM toBool $
+  {# call gtk_combo_box_get_focus_on_click #}
+    (toComboBox self)
+#endif
+
+--------------------
+-- Properties
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | If wrap-width is set to a positive value, the list will be displayed in
+-- multiple columns, the number of columns is determined by wrap-width.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+comboBoxWrapWidth :: ComboBoxClass self => Attr self Int
+comboBoxWrapWidth = Attr 
+  comboBoxGetWrapWidth
+  comboBoxSetWrapWidth
+
+-- | If this is set to a non-negative value, it must be the index of a column
+-- of type @G_TYPE_INT@ in the model.
+--
+-- The values of that column are used to determine how many rows a value in
+-- the list will span. Therefore, the values in the model column pointed to by
+-- this property must be greater than zero and not larger than wrap-width.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+comboBoxRowSpanColumn :: ComboBoxClass self => Attr self Int
+comboBoxRowSpanColumn = Attr 
+  comboBoxGetRowSpanColumn
+  comboBoxSetRowSpanColumn
+
+-- | If this is set to a non-negative value, it must be the index of a column
+-- of type @G_TYPE_INT@ in the model.
+--
+-- The values of that column are used to determine how many columns a value
+-- in the list will span.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+comboBoxColumnSpanColumn :: ComboBoxClass self => Attr self Int
+comboBoxColumnSpanColumn = Attr 
+  comboBoxGetColumnSpanColumn
+  comboBoxSetColumnSpanColumn
+
+-- | 
+--
+comboBoxAddTearoffs :: ComboBoxClass self => Attr self Bool
+comboBoxAddTearoffs = Attr 
+  comboBoxGetAddTearoffs
+  comboBoxSetAddTearoffs
+
+-- | Whether the combo box grabs focus when it is clicked with the mouse.
+--
+-- Default value: @True@
+--
+comboBoxFocusOnClick :: ComboBoxClass self => Attr self Bool
+comboBoxFocusOnClick = Attr 
+  comboBoxGetFocusOnClick
+  comboBoxSetFocusOnClick
+#endif
 
 --------------------
 -- Signals

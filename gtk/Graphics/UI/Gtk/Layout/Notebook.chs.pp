@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:51:44 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:34:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -81,6 +81,7 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookSetShowTabs,
   notebookGetShowTabs,
   notebookSetShowBorder,
+  notebookGetShowBorder,
   notebookSetScrollable,
   notebookGetScrollable,
 #ifndef DISABLE_DEPRECATED

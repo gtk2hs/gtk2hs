@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:49 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/07 00:34:49 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -93,6 +93,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Menu (
 #endif
 #if GTK_CHECK_VERSION(2,4,0)
   menuSetMonitor,
+  menuAttach,
 #endif
 
 -- * Properties
@@ -344,6 +345,35 @@ menuSetMonitor self monitorNum =
   {# call menu_set_monitor #}
     (toMenu self)
     (fromIntegral monitorNum)
+
+-- | Adds a new 'MenuItem' to a (table) menu. The number of \'cells\' that an
+-- item will occupy is specified by @leftAttach@, @rightAttach@, @topAttach@
+-- and @bottomAttach@. These each represent the leftmost, rightmost, uppermost
+-- and lower column and row numbers of the table. (Columns and rows are indexed
+-- from zero).
+--
+-- Note that this function is not related to 'menuDetach'.
+--
+-- * Available since Gtk+ version 2.4
+--
+menuAttach :: (MenuClass self, MenuItemClass child) => self
+ -> child -- ^ @child@ - a 'MenuItem'.
+ -> Int   -- ^ @leftAttach@ - The column number to attach the left side of the
+          -- item to.
+ -> Int   -- ^ @rightAttach@ - The column number to attach the right side of
+          -- the item to.
+ -> Int   -- ^ @topAttach@ - The row number to attach the top of the item to.
+ -> Int   -- ^ @bottomAttach@ - The row number to attach the bottom of the
+          -- item to.
+ -> IO ()
+menuAttach self child leftAttach rightAttach topAttach bottomAttach =
+  {# call gtk_menu_attach #}
+    (toMenu self)
+    (toWidget child)
+    (fromIntegral leftAttach)
+    (fromIntegral rightAttach)
+    (fromIntegral topAttach)
+    (fromIntegral bottomAttach)
 #endif
 
 --------------------
