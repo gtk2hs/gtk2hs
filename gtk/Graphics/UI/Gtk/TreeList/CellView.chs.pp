@@ -5,7 +5,7 @@
 --
 --  Created: 4 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/05 18:29:52 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:53:44 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -158,15 +158,15 @@ cellViewSetModel self model =
 cellViewSetDisplayedRow :: CellViewClass self => self
  -> TreePath -- ^ @path@ - a 'TreePath' or @[]@ to unset.
  -> IO ()
+cellViewSetDisplayedRow self [] =
+  {# call gtk_cell_view_set_displayed_row #}
+    (toCellView self)
+    (NativeTreePath nullPtr)
 cellViewSetDisplayedRow self path =
   withTreePath path $ \path ->
   {# call gtk_cell_view_set_displayed_row #}
     (toCellView self)
     path
-cellViewSetDisplayedRow self [] =
-  {# call gtk_cell_view_set_displayed_row #}
-    (toCellView self)
-    (NativeTreePath nullPtr)
 
 -- | 
 --

@@ -71,6 +71,9 @@
 	* gtk/Graphics/UI/Gtk/Selectors/FileChooserButton.chs.pp: add myself
 	as author.
 
+	* gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp: fix bug caused by
+	overlapping patterns.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add
