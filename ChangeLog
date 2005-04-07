@@ -47,6 +47,8 @@
 	* gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp: export a method that
 	we already bound but not exported.
 
+	* gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: Remove support for older ghc
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add

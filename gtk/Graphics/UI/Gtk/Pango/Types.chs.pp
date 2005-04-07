@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:25 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/07 00:38:42 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -60,14 +60,9 @@ foreign import ccall unsafe "&pango_layout_iter_free"
 layout_iter_free :: Ptr LayoutIter -> FinalizerPtr LayoutIter
 layout_iter_free _ = layout_iter_free'
 
-#elif __GLASGOW_HASKELL__>=504
-
-foreign import ccall unsafe "pango_layout_iter_free"
-  layout_iter_free :: Ptr LayoutIter -> IO ()
-
 #else
 
-foreign import ccall "pango_layout_iter_free" unsafe
+foreign import ccall unsafe "pango_layout_iter_free"
   layout_iter_free :: Ptr LayoutIter -> IO ()
 
 #endif
@@ -89,30 +84,15 @@ foreign import ccall unsafe "&pango_layout_line_unref"
 pango_layout_line_unref :: Ptr LayoutLine -> FinalizerPtr LayoutLine
 pango_layout_line_unref _ = pango_layout_line_unref'
 
-#elif __GLASGOW_HASKELL__>=504
+#else
 
 foreign import ccall unsafe "pango_layout_line_unref"
   pango_layout_line_unref :: Ptr LayoutLine -> IO ()
 
-#else
-
-foreign import ccall "pango_layout_line_unref" unsafe
-  pango_layout_line_unref :: Ptr LayoutLine -> IO ()
-
 #endif
-
-#if __GLASGOW_HASKELL__>=504
 
 foreign import ccall unsafe "pango_layout_line_ref"
   pango_layout_line_ref :: Ptr LayoutLine -> IO ()
-
-#else
-
-foreign import ccall "pango_layout_line_ref" unsafe
-  pango_layout_line_ref :: Ptr LayoutLine -> IO ()
-
-#endif
-
 
 -- | A possibly partial description of font(s).
 --
@@ -132,14 +112,9 @@ pango_font_description_free :: Ptr FontDescription ->
 				FinalizerPtr FontDescription
 pango_font_description_free _ = pango_font_description_free'
 
-#elif __GLASGOW_HASKELL__>=504
-
-foreign import ccall unsafe "pango_font_description_free"
-  pango_font_description_free :: Ptr FontDescription -> IO ()
-
 #else
 
-foreign import ccall "pango_font_description_free" unsafe
+foreign import ccall unsafe "pango_font_description_free"
   pango_font_description_free :: Ptr FontDescription -> IO ()
 
 #endif
