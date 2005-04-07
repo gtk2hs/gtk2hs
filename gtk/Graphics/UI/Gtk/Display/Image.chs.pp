@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:38:29 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:14:01 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -39,7 +39,7 @@
 -- A widget displaying an image
 --
 module Graphics.UI.Gtk.Display.Image (
--- * Description
+-- * Detail
 -- 
 -- | The 'Image' widget displays an image. Various kinds of object can be
 -- displayed as an image; most typically, you would load a 'Pixbuf' (\"pixel
@@ -58,7 +58,7 @@ module Graphics.UI.Gtk.Display.Image (
 -- 'Image' is a subclass of 'Misc', which implies that you can align it
 -- (center, left, right) and add padding to it, using 'Misc' methods.
 --
--- 'Image' is a \"no window\" widget (has no \"Gdk Window\" of its own), so by
+-- 'Image' is a \"no window\" widget (has no 'DrawWindow' of its own), so by
 -- default does not receive events. If you want to receive events on the image,
 -- such as button clicks, place the image inside a 'EventBox', then connect to
 -- the event signals on the event box.
@@ -95,10 +95,21 @@ module Graphics.UI.Gtk.Display.Image (
   imageNewFromFile,
   imageNewFromPixbuf,
   imageNewFromStock,
+  imageNew,
+#if GTK_CHECK_VERSION(2,6,0)
+  imageNewFromIconName,
+#endif
 
 -- * Methods
   imageGetPixbuf,
   imageSetFromPixbuf,
+  imageSetFromFile,
+  imageSetFromStock,
+#if GTK_CHECK_VERSION(2,6,0)
+  imageSetFromIconName,
+  imageSetPixelSize,
+  imageGetPixelSize,
+#endif
 
 -- * Icon Sizes
   IconSize,
@@ -107,12 +118,18 @@ module Graphics.UI.Gtk.Display.Image (
   iconSizeLargeToolbar,
   iconSizeButton,
   iconSizeDialog,
+
+-- * Properties
+#if GTK_CHECK_VERSION(2,6,0)
+  imagePixelSize,
+#endif
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -179,6 +196,34 @@ imageNewFromStock stockId size =
     stockIdPtr
     (fromIntegral size)
 
+-- | Creates a new empty 'Image' widget.
+--
+imageNew :: IO Image
+imageNew =
+  makeNewObject mkImage $
+  liftM (castPtr :: Ptr Widget -> Ptr Image) $
+  {# call gtk_image_new #}
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Creates a 'Image' displaying an icon from the current icon theme. If the
+-- icon name isn't known, a \"broken image\" icon will be displayed instead. If
+-- the current icon theme is changed, the icon will be updated appropriately.
+--
+-- * Available since Gtk+ version 2.6
+--
+imageNewFromIconName :: 
+    String   -- ^ @iconName@ - an icon name
+ -> IconSize -- ^ @size@ - a stock icon size
+ -> IO Image
+imageNewFromIconName iconName size =
+  makeNewObject mkImage $
+  liftM (castPtr :: Ptr Widget -> Ptr Image) $
+  withUTFString iconName $ \iconNamePtr ->
+  {# call gtk_image_new_from_icon_name #}
+    iconNamePtr
+    ((fromIntegral . fromEnum) size)
+#endif
+
 --------------------
 -- Methods
 
@@ -199,3 +244,83 @@ imageSetFromPixbuf self pixbuf =
   {# call unsafe gtk_image_set_from_pixbuf #}
     self
     pixbuf
+
+-- | See 'imageNewFromFile' for details.
+--
+imageSetFromFile :: Image -> FilePath -> IO ()
+imageSetFromFile self filename =
+  withUTFString filename $ \filenamePtr ->
+  {# call gtk_image_set_from_file #}
+    self
+    filenamePtr
+
+-- | See 'imageNewFromStock' for details.
+--
+imageSetFromStock :: Image
+ -> String   -- ^ @stockId@ - a stock icon name
+ -> IconSize -- ^ @size@ - a stock icon size
+ -> IO ()
+imageSetFromStock self stockId size =
+  withUTFString stockId $ \stockIdPtr ->
+  {# call gtk_image_set_from_stock #}
+    self
+    stockIdPtr
+    ((fromIntegral . fromEnum) size)
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | See 'imageNewFromIconName' for details.
+--
+-- * Available since Gtk+ version 2.6
+--
+imageSetFromIconName :: Image
+ -> String   -- ^ @iconName@ - an icon name
+ -> IconSize -- ^ @size@ - an icon size
+ -> IO ()
+imageSetFromIconName self iconName size =
+  withUTFString iconName $ \iconNamePtr ->
+  {# call gtk_image_set_from_icon_name #}
+    self
+    iconNamePtr
+    ((fromIntegral . fromEnum) size)
+
+-- | Sets the pixel size to use for named icons. If the pixel size is set to a
+-- @value \/= -1@, it is used instead of the icon size set by
+-- 'imageSetFromIconName'.
+--
+-- * Available since Gtk+ version 2.6
+--
+imageSetPixelSize :: Image
+ -> Int   -- ^ @pixelSize@ - the new pixel size
+ -> IO ()
+imageSetPixelSize self pixelSize =
+  {# call gtk_image_set_pixel_size #}
+    self
+    (fromIntegral pixelSize)
+
+-- | Gets the pixel size used for named icons.
+--
+-- * Available since Gtk+ version 2.6
+--
+imageGetPixelSize :: Image -> IO Int
+imageGetPixelSize self =
+  liftM fromIntegral $
+  {# call gtk_image_get_pixel_size #}
+    self
+#endif
+
+--------------------
+-- Properties
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | The pixel-size property can be used to specify a fixed size overriding
+-- the icon-size property for images of type 'ImageIconName'.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+imagePixelSize :: Attr Image Int
+imagePixelSize = Attr 
+  imageGetPixelSize
+  imageSetPixelSize
+#endif

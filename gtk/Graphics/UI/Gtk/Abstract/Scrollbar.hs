@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/03/14 23:55:07 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:13:59 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -31,6 +31,15 @@ module Graphics.UI.Gtk.Abstract.Scrollbar (
 -- 
 -- | The 'Scrollbar' widget is an abstract base class for 'HScrollbar' and
 -- 'VScrollbar'. It is not very useful in itself.
+--
+-- The position of the thumb in a scrollbar is controlled by the scroll
+-- adjustments. See 'Adjustment' for the fields in an adjustment - for
+-- 'Scrollbar', the \"value\" field represents the position of the scrollbar,
+-- which must be between the \"lower\" field and \"upper - page_size.\" The
+-- \"page_size\" field represents the size of the visible scrollable area. The
+-- \"step_increment\" and \"page_increment\" fields are used when the user asks
+-- to step down (using the small stepper arrows) or page down (using for
+-- example the PageDown key).
 
 -- * Class Hierarchy
 -- |

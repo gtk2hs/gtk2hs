@@ -1,3 +1,25 @@
+2005-04-7 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp: add several new signals
+
+	* gtk/Graphics/UI/Gtk/Abstract/Range.chs: tidy up header and export
+	list. Unfortunately, we cannot export onValueChanged at the moment
+	since it clashes with the same signals from another module.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs: add extra module level
+	documentation.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: bind 26 extra functions.
+	Update TODO list and other minor changes.
+
+	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp: bind two new functions.
+
+	* gtk/Graphics/UI/Gtk/Display/Image.chs.pp: bind a few more functions
+	and a property.
+
+	* gtk/Graphics/UI/Gtk/Display/Label.chs.pp: bind 10 more methods and a
+	few properties. Update docs to refer to PangoLayout rather than	Layout.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add

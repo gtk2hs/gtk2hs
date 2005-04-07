@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/02 19:02:23 $
+--  Version $Revision: 1.9 $ from $Date: 2005/04/07 00:13:59 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,7 +24,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Base class for widgets which visualize an 'Adjustment'
+-- Base class for widgets which visualize an adjustment
 --
 module Graphics.UI.Gtk.Abstract.Range (
 -- * Description
@@ -61,10 +61,6 @@ module Graphics.UI.Gtk.Abstract.Range (
   rangeSetIncrements,
   rangeSetRange,
   ScrollType(..),
-  rangeSetIncrements,
-  rangeSetRange,
-  rangeSetValue,
-  rangeGetValue,
 
 -- * Properties
   rangeUpdatePolicy,
@@ -77,6 +73,8 @@ module Graphics.UI.Gtk.Abstract.Range (
   afterMoveSlider,
   onAdjustBounds,
   afterAdjustBounds,
+--  onValueChanged,
+--  afterValueChanged,
   ) where
 
 import Monad	(liftM)

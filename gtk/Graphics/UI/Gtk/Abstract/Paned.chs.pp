@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:02:22 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/07 00:13:59 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,7 +83,21 @@ module Graphics.UI.Gtk.Abstract.Paned (
 #endif
 
 -- * Properties
-  panedPosition
+  panedPosition,
+
+-- * Signals
+  onCycleChildFocus,
+  afterCycleChildFocus,
+  onToggleHandleFocus,
+  afterToggleHandleFocus,
+  onMoveHandle,
+  afterMoveHandle,
+  onCycleHandleFocus,
+  afterCycleHandleFocus,
+  onAcceptPosition,
+  afterAcceptPosition,
+  onCancelPosition,
+  afterCancelPosition,
   ) where
 
 import Monad	(liftM)
@@ -93,6 +107,7 @@ import System.Glib.Attributes		(Attr(..))
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.General.Enums	(ScrollType)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -209,3 +224,54 @@ panedPosition :: PanedClass self => Attr self Int
 panedPosition = Attr 
   panedGetPosition
   panedSetPosition
+
+--------------------
+-- Signals
+
+-- | 
+--
+onCycleChildFocus, afterCycleChildFocus :: PanedClass self => self
+ -> (Bool -> IO Bool)
+ -> IO (ConnectId self)
+onCycleChildFocus = connect_BOOL__BOOL "cycle_child_focus" False
+afterCycleChildFocus = connect_BOOL__BOOL "cycle_child_focus" True
+
+-- | 
+--
+onToggleHandleFocus, afterToggleHandleFocus :: PanedClass self => self
+ -> IO Bool
+ -> IO (ConnectId self)
+onToggleHandleFocus = connect_NONE__BOOL "toggle_handle_focus" False
+afterToggleHandleFocus = connect_NONE__BOOL "toggle_handle_focus" True
+
+-- | 
+--
+onMoveHandle, afterMoveHandle :: PanedClass self => self
+ -> (ScrollType -> IO Bool)
+ -> IO (ConnectId self)
+onMoveHandle = connect_ENUM__BOOL "move_handle" False
+afterMoveHandle = connect_ENUM__BOOL "move_handle" True
+
+-- | 
+--
+onCycleHandleFocus, afterCycleHandleFocus :: PanedClass self => self
+ -> (Bool -> IO Bool)
+ -> IO (ConnectId self)
+onCycleHandleFocus = connect_BOOL__BOOL "cycle_handle_focus" False
+afterCycleHandleFocus = connect_BOOL__BOOL "cycle_handle_focus" True
+
+-- | 
+--
+onAcceptPosition, afterAcceptPosition :: PanedClass self => self
+ -> IO Bool
+ -> IO (ConnectId self)
+onAcceptPosition = connect_NONE__BOOL "accept_position" False
+afterAcceptPosition = connect_NONE__BOOL "accept_position" True
+
+-- | 
+--
+onCancelPosition, afterCancelPosition :: PanedClass self => self
+ -> IO Bool
+ -> IO (ConnectId self)
+onCancelPosition = connect_NONE__BOOL "cancel_position" False
+afterCancelPosition = connect_NONE__BOOL "cancel_position" True

@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/06 22:20:02 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:14:01 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -149,13 +149,32 @@ module Graphics.UI.Gtk.Display.Label (
   labelSelectRegion,
   labelGetSelectionBounds,
   labelGetLayoutOffsets,
+#if GTK_CHECK_VERSION(2,6,0)
+  labelSetEllipsize,
+  labelGetEllipsize,
+  labelSetWidthChars,
+  labelGetWidthChars,
+  labelSetMaxWidthChars,
+  labelGetMaxWidthChars,
+  labelSetSingleLineMode,
+  labelGetSingleLineMode,
+  labelSetAngle,
+  labelGetAngle,
+#endif
 
 -- * Properties
   labelUseMarkup,
   labelUseUnderline,
   labelJustify,
   labelSelectable,
-  labelLineWrap
+#if GTK_CHECK_VERSION(2,6,0)
+  labelEllipsize,
+  labelWidthChars,
+  labelSingleLineMode,
+  labelAngle,
+  labelMaxWidthChars,
+#endif
+  labelLineWrap,
   ) where
 
 import Monad	(liftM)
@@ -169,6 +188,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(Justification(..))
 import Graphics.UI.Gtk.Pango.Markup
+import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -304,12 +324,11 @@ labelGetJustify self =
   {# call unsafe label_get_justify #}
     (toLabel self)
 
--- | Gets the 'Layout' used to display the label. The layout is useful to e.g.
--- convert text positions to pixel positions, in combination with
+-- | Gets the 'PangoLayout' used to display the label. The layout is useful to
+-- e.g. convert text positions to pixel positions, in combination with
 -- 'labelGetLayoutOffsets'.
 --
-labelGetLayout :: LabelClass self => self
- -> IO PangoLayout -- ^ returns the 'Layout' for this label
+labelGetLayout :: LabelClass self => self -> IO PangoLayout
 labelGetLayout self =
   makeNewGObject mkPangoLayout $
   {# call unsafe label_get_layout #}
@@ -338,10 +357,10 @@ labelGetLineWrap self =
   {# call unsafe label_get_line_wrap #}
     (toLabel self)
 
--- | Obtains the coordinates where the label will draw the 'Layout'
+-- | Obtains the coordinates where the label will draw the 'PangoLayout'
 -- representing the text in the label; useful to convert mouse events into
--- coordinates inside the 'Layout', e.g. to take some action if some part of
--- the label is clicked. Of course you will need to create a 'EventBox' to
+-- coordinates inside the 'PangoLayout', e.g. to take some action if some part
+-- of the label is clicked. Of course you will need to create a 'EventBox' to
 -- receive the events, and pack the label inside it, since labels are a
 -- \'NoWindow\' widget.
 --
@@ -531,6 +550,130 @@ labelSetTextWithMnemonic self str =
     (toLabel self)
     strPtr
 
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Sets the mode used to ellipsize (add an ellipsis: \"...\") to the text if
+-- there is not enough space to render the entire string.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelSetEllipsize :: LabelClass self => self
+ -> EllipsizeMode -- ^ @mode@ - a 'EllipsizeMode'
+ -> IO ()
+labelSetEllipsize self mode =
+  {# call gtk_label_set_ellipsize #}
+    (toLabel self)
+    ((fromIntegral . fromEnum) mode)
+
+-- | Sets the desired width in characters of @label@ to @nChars@.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelSetWidthChars :: LabelClass self => self
+ -> Int   -- ^ @nChars@ - the new desired width, in characters.
+ -> IO ()
+labelSetWidthChars self nChars =
+  {# call gtk_label_set_width_chars #}
+    (toLabel self)
+    (fromIntegral nChars)
+
+-- | Sets the desired maximum width in characters of @label@ to @nChars@.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelSetMaxWidthChars :: LabelClass self => self
+ -> Int   -- ^ @nChars@ - the new desired maximum width, in characters.
+ -> IO ()
+labelSetMaxWidthChars self nChars =
+  {# call gtk_label_set_max_width_chars #}
+    (toLabel self)
+    (fromIntegral nChars)
+
+-- | Returns the ellipsizing position of the label. See 'labelSetEllipsize'.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelGetEllipsize :: LabelClass self => self
+ -> IO EllipsizeMode -- ^ returns 'EllipsizeMode'
+labelGetEllipsize self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_label_get_ellipsize #}
+    (toLabel self)
+
+-- | Retrieves the desired width of @label@, in characters. See
+-- 'labelSetWidthChars'.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelGetWidthChars :: LabelClass self => self
+ -> IO Int -- ^ returns the width of the label in characters.
+labelGetWidthChars self =
+  liftM fromIntegral $
+  {# call gtk_label_get_width_chars #}
+    (toLabel self)
+
+-- | Retrieves the desired maximum width of @label@, in characters. See
+-- 'labelSetWidthChars'.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelGetMaxWidthChars :: LabelClass self => self
+ -> IO Int -- ^ returns the maximum width of the label in characters.
+labelGetMaxWidthChars self =
+  liftM fromIntegral $
+  {# call gtk_label_get_max_width_chars #}
+    (toLabel self)
+
+-- | Returns whether the label is in single line mode.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelGetSingleLineMode :: LabelClass self => self
+ -> IO Bool -- ^ returns @True@ when the label is in single line mode.
+labelGetSingleLineMode self =
+  liftM toBool $
+  {# call gtk_label_get_single_line_mode #}
+    (toLabel self)
+
+-- | Gets the angle of rotation for the label. See gtk_label_set_angle.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelGetAngle :: LabelClass self => self
+ -> IO Double -- ^ returns the angle of rotation for the label
+labelGetAngle self =
+  liftM realToFrac $
+  {# call gtk_label_get_angle #}
+    (toLabel self)
+
+-- | Sets whether the label is in single line mode.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelSetSingleLineMode :: LabelClass self => self
+ -> Bool  -- ^ @singleLineMode@ - @True@ if the label should be in single line
+          -- mode
+ -> IO ()
+labelSetSingleLineMode self singleLineMode =
+  {# call gtk_label_set_single_line_mode #}
+    (toLabel self)
+    (fromBool singleLineMode)
+
+-- | Sets the angle of rotation for the label. An angle of 90 reads from from
+-- bottom to top, an angle of 270, from top to bottom. The angle setting for
+-- the label is ignored if the label is selectable, wrapped, or ellipsized.
+--
+-- * Available since Gtk+ version 2.6
+--
+labelSetAngle :: LabelClass self => self
+ -> Double -- ^ @angle@ - the angle that the baseline of the label makes with
+           -- the horizontal, in degrees, measured counterclockwise
+ -> IO ()
+labelSetAngle self angle =
+  {# call gtk_label_set_angle #}
+    (toLabel self)
+    (realToFrac angle)
+#endif
+
 --------------------
 -- Properties
 
@@ -572,6 +715,76 @@ labelSelectable :: LabelClass self => Attr self Bool
 labelSelectable = Attr 
   labelGetSelectable
   labelSetSelectable
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | The preferred place to ellipsize the string, if the label does not have
+-- enough room to display the entire string, specified as a 'EllisizeMode'.
+--
+-- Note that setting this property to a value other than 'EllipsizeNone' has
+-- the side-effect that the label requests only enough space to display the
+-- ellipsis \"...\". In particular, this means that ellipsizing labels don't
+-- work well in notebook tabs, unless the tab's tab-expand property is set to
+-- @True@. Other means to set a label's width are 'widgetSetSizeRequest' and
+-- 'labelSetWidthChars'.
+--
+-- Default value: 'EllipsizeNone'
+--
+labelEllipsize :: LabelClass self => Attr self EllipsizeMode
+labelEllipsize = Attr 
+  labelGetEllipsize
+  labelSetEllipsize
+
+-- | The desired width of the label, in characters. If this property is set to
+-- -1, the width will be calculated automatically, otherwise the label will
+-- request either 3 characters or the property value, whichever is greater. If
+-- the width-chars property is set to a positive value, then the
+-- max-width-chars property is ignored.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+labelWidthChars :: LabelClass self => Attr self Int
+labelWidthChars = Attr 
+  labelGetWidthChars
+  labelSetWidthChars
+
+-- | 
+--
+labelSingleLineMode :: LabelClass self => Attr self Bool
+labelSingleLineMode = Attr 
+  labelGetSingleLineMode
+  labelSetSingleLineMode
+
+-- | The angle that the baseline of the label makes with the horizontal, in
+-- degrees, measured counterclockwise. An angle of 90 reads from from bottom to
+-- top, an angle of 270, from top to bottom. Ignored if the label is
+-- selectable, wrapped, or ellipsized.
+--
+-- Allowed values: [0,360]
+--
+-- Default value: 0
+--
+labelAngle :: LabelClass self => Attr self Double
+labelAngle = Attr 
+  labelGetAngle
+  labelSetAngle
+
+-- | The desired maximum width of the label, in characters. If this property
+-- is set to -1, the width will be calculated automatically, otherwise the
+-- label will request space for no more than the requested number of
+-- characters. If the width-chars property is set to a positive value, then the
+-- max-width-chars property is ignored.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+labelMaxWidthChars :: LabelClass self => Attr self Int
+labelMaxWidthChars = Attr 
+  labelGetMaxWidthChars
+  labelSetMaxWidthChars
+#endif
 
 -- | \'lineWrap\' property. See 'labelGetLineWrap' and 'labelSetLineWrap'
 --

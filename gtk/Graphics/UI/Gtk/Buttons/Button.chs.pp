@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:08:00 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:14:00 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,6 +83,10 @@ module Graphics.UI.Gtk.Buttons.Button (
   buttonGetFocusOnClick,
   buttonSetAlignment,
   buttonGetAlignment,
+#endif
+#if GTK_CHECK_VERSION(2,6,0)
+  buttonGetImage,
+  buttonSetImage,
 #endif
 
 -- * Properties
@@ -378,6 +382,30 @@ buttonGetAlignment self =
   yalign <- peek yalignPtr
   return (realToFrac xalign, realToFrac yalign)
 #endif
+
+-- | Gets the widget that is currenty set as the image of the button. This may
+-- have been explicitly set by 'buttonSetImage' or constructed by
+-- 'buttonNewFromStock'.
+--
+buttonGetImage :: ButtonClass self => self
+ -> IO (Maybe Widget) -- ^  a 'Widget' or @Nothing@ in case there is no image
+buttonGetImage self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call gtk_button_get_image #}
+    (toButton self)
+
+-- | Set the image of the button to the given widget. Note that it depends on
+-- the \"gtk-button-images\" setting whether the image will be displayed or not.
+--
+-- * Available since Gtk+ version 2.6
+--
+buttonSetImage :: (ButtonClass self, WidgetClass image) => self
+ -> image -- ^  a widget to set as the image for the button
+ -> IO ()
+buttonSetImage self image =
+  {# call gtk_button_set_image #}
+    (toButton self)
+    (toWidget image)
 
 --------------------
 -- Properties
