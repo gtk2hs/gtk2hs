@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 18:55:22 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:40:16 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -51,11 +51,11 @@ module Graphics.UI.Gtk.Misc.EventBox (
   castToEventBox,
 
 -- * Constructors
-  eventBoxNew
+  eventBoxNew,
 
 -- * Methods
 #if GTK_CHECK_VERSION(2,4,0)
- ,eventBoxSetVisibleWindow,
+  eventBoxSetVisibleWindow,
   eventBoxGetVisibleWindow,
   eventBoxSetAboveChild,
   eventBoxGetAboveChild,
@@ -109,7 +109,7 @@ eventBoxNew =
 -- The main reason to create a non input-only event box is if you want to
 -- set the background to a different color or draw on it.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 eventBoxSetVisibleWindow :: EventBox -> Bool -> IO ()
 eventBoxSetVisibleWindow self visibleWindow =
@@ -120,7 +120,7 @@ eventBoxSetVisibleWindow self visibleWindow =
 -- | Returns whether the event box has a visible window. See
 -- 'eventBoxSetVisibleWindow' for details.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 eventBoxGetVisibleWindow :: EventBox -> IO Bool
 eventBoxGetVisibleWindow self =
@@ -136,7 +136,7 @@ eventBoxGetVisibleWindow self =
 --
 -- The default is to keep the window below the child.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 eventBoxSetAboveChild :: EventBox -> Bool -> IO ()
 eventBoxSetAboveChild self aboveChild =
@@ -147,7 +147,7 @@ eventBoxSetAboveChild self aboveChild =
 -- | Returns whether the event box window is above or below the windows of its
 -- child. See 'eventBoxSetAboveChild' for details.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 eventBoxGetAboveChild :: EventBox -> IO Bool
 eventBoxGetAboveChild self =

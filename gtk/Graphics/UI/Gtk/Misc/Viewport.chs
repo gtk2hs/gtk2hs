@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 18:55:23 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:40:16 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -32,11 +32,14 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A 'Viewport' a helper widget that adds Adjustment slots to a 
--- widget, i.e. the widget becomes scrollable. It can then be put into 
--- 'ScrolledWindow' and will behave as expected.
+-- An adapter which makes widgets scrollable
 --
 module Graphics.UI.Gtk.Misc.Viewport (
+-- * Detail
+--
+-- | A 'Viewport' is a helper widget that adds Adjustment slots to a
+-- widget, i.e. the widget becomes scrollable. It can then be put into
+-- 'ScrolledWindow' and will behave as expected.
 
 -- * Class Hierarchy
 -- |

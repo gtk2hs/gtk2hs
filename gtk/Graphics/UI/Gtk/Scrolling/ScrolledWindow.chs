@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:57:13 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/07 00:40:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -195,10 +195,10 @@ scrolledWindowGetPolicy self =
 -- child to a viewport, then adding the viewport to the scrolled window. If a
 -- child has native scrolling, use 'containerAdd' instead of this function.
 --
--- The viewport scrolls the child by moving its 'Window', and takes the size
--- of the child to be the size of its toplevel 'Window'. This will be very
--- wrong for most widgets that support native scrolling; for example, if you
--- add a widget such as 'TreeView' with a viewport, the whole widget will
+-- The viewport scrolls the child by moving its 'DrawWindow', and takes the
+-- size of the child to be the size of its toplevel 'DrawWindow'. This will be
+-- very wrong for most widgets that support native scrolling; for example, if
+-- you add a widget such as 'TreeView' with a viewport, the whole widget will
 -- scroll, including the column headings. Thus, widgets with native scrolling
 -- support should not be used with the 'Viewport' proxy.
 --

@@ -49,6 +49,10 @@
 
 	* gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: Remove support for older ghc
 
+	* gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs,
+	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/Viewport.chs: simple documentation changes.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add
