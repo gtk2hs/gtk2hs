@@ -5,7 +5,7 @@
 --
 --  Created: 12 September 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:41:51 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -31,7 +31,8 @@ module Graphics.UI.Gtk.Pango.Enums (
   Weight(..),
   Variant(..),
   Stretch(..),
-  Underline(..)
+  Underline(..),
+  EllipsizeMode(..)
   ) where
 
 {# context lib="pango" prefix="pango" #}
@@ -99,3 +100,9 @@ instance Show Underline where
   showsPrec _ UnderlineError	= shows "error"
 #endif
 
+-- | The 'EllipsizeMode' type describes what sort of (if any) ellipsization
+-- should be applied to a line of text. In the ellipsization process characters
+-- are removed from the text in order to make it fit to a given width and
+-- replaced with an ellipsis.
+--
+{# enum EllipsizeMode {underscoreToCase} #}

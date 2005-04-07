@@ -53,6 +53,9 @@
 	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp,
 	gtk/Graphics/UI/Gtk/Misc/Viewport.chs: simple documentation changes.
 
+	* gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: add an extra enum needed by
+	new Label methods.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add
