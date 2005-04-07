@@ -20,6 +20,10 @@
 	* gtk/Graphics/UI/Gtk/Display/Label.chs.pp: bind 10 more methods and a
 	few properties. Update docs to refer to PangoLayout rather than	Layout.
 
+	* gtk/Graphics/UI/Gtk/Embedding/Plug.chs,
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs: merge from generated
+	modules. Code formatting and documentation changes.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add

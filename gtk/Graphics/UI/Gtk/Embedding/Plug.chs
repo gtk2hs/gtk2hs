@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:19:02 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Toplevel for embedding into other processes.
+-- Toplevel for embedding into other processes
 --
 module Graphics.UI.Gtk.Embedding.Plug (
--- * Description
+-- * Detail
 -- 
 -- | Together with 'Socket', 'Plug' provides the ability to embed widgets from
 -- one process into another process in a fashion that is transparent to the
@@ -58,7 +58,11 @@ module Graphics.UI.Gtk.Embedding.Plug (
   plugNew,
 
 -- * Methods
-  plugGetId
+  plugGetId,
+
+-- * Signals
+  onEmbedded,
+  afterEmbedded,
   ) where
 
 import Monad	(liftM)
@@ -75,36 +79,45 @@ import Graphics.UI.Gtk.Embedding.Embedding (NativeWindowId)
 --------------------
 -- Constructors
 
--- | Create a new 'Window' to hold another
--- application.
+-- | Creates a new plug widget inside the 'Socket' identified by @socketId@.
+-- If @socketId@ is @Nothing@, the plug is left \"unplugged\" and can later be
+-- plugged into a 'Socket' by 'socketAddId'.
 --
--- * The Plug may be constructed with a 'NativeWindowId'. In this
---   the foreign application will immediatly appear in this 'Plug'
---   once it is shown. If @Nothing@ is passed for @nmw@ a
---   'NativeWindowId' can be extracted from this 'Plug'
---   and be passed to the application which is to be embedded.
+-- If a NativeWindowId is supplied the foreign application window will
+-- immediatly appear in this 'Plug' once it is shown. If @Nothing@ is passed
+-- then a 'NativeWindowId' can be extracted from this 'Plug' using 'plugGetId'
+-- and be passed to the application which is to be embedded.
 --
-plugNew :: Maybe NativeWindowId -> IO Plug
-plugNew mnw = makeNewObject mkPlug $ liftM castPtr $
-  {#call unsafe plug_new#} (fromIntegral (fromMaybe 0 mnw))
+plugNew :: 
+  Maybe NativeWindowId -- ^ @socketId@ - the window ID of the socket, or
+                       -- @Nothing@.
+ -> IO Plug
+plugNew socketId =
+  makeNewObject mkPlug $
+  liftM (castPtr :: Ptr Widget -> Ptr Plug) $
+  {# call unsafe plug_new #}
+    (fromIntegral (fromMaybe 0 socketId))
 
 --------------------
 -- Methods
 
--- | Retrieve the 'NativeWindowId'.
+-- | Gets the window ID of a 'Plug' widget, which can then be used to embed
+-- this window inside another window, for instance with 'socketAddId'.
 --
--- * The result should be passed to the application which is to be embedded.
---   See 'plugNew'.
---
-plugGetId :: PlugClass p => p -> IO NativeWindowId
-plugGetId p = liftM fromIntegral $ {#call unsafe plug_get_id#} (toPlug p)
+plugGetId :: PlugClass self => self
+ -> IO NativeWindowId -- ^ returns the window ID for the plug
+plugGetId self =
+  liftM fromIntegral $
+  {# call unsafe plug_get_id #}
+    (toPlug self)
 
 --------------------
 -- Signals
 
 -- | This plug received another application.
 --
-onEmbedded, afterEmbedded :: PlugClass p => p -> IO () -> IO (ConnectId p)
+onEmbedded, afterEmbedded :: PlugClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onEmbedded = connect_NONE__NONE "embedded" False
 afterEmbedded = connect_NONE__NONE "embedded" True
-

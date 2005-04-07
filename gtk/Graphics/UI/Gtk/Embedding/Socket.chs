@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:33 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:19:02 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -24,10 +24,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Container for widgets from other processes.
+-- Container for widgets from other processes
 --
 module Graphics.UI.Gtk.Embedding.Socket (
--- * Description
+-- * Detail
 -- 
 -- | Together with 'Plug', 'Socket' provides the ability to embed widgets from
 -- one process into another process in a fashion that is transparent to the
@@ -39,6 +39,19 @@ module Graphics.UI.Gtk.Embedding.Socket (
 -- The socket's window ID is obtained by using 'socketGetId'. Before using
 -- this function, the socket must have been realized, and for hence, have been
 -- added to its parent.
+--
+-- * Obtaining the window ID of a socket.
+-- 
+-- > socket <- socketNew
+-- > widgetShow socket
+-- > containerAdd parent socket
+-- > 
+-- > -- The following call is only necessary if one of
+-- > -- the ancestors of the socket is not yet visible.
+-- > --
+-- > widgetRealize socket
+-- > socketId <- socketGetId socket
+-- > putStrLn ("The ID of the sockets window is " ++ show socketId)
 --
 -- Note that if you pass the window ID of the socket to another process that
 -- will create a plug in the socket, you must make sure that the socket widget
@@ -107,53 +120,68 @@ import Graphics.UI.Gtk.Embedding.Embedding	(NativeWindowId, socketHasPlug)
 --------------------
 -- Constructors
 
--- | Create a 'Container' for embedding.
+-- | Create a new empty 'Socket'.
 --
--- * 'Socket' is a 'Container' for foreign applications
---   that support the XEMBED protocol. To connect two applications the
---   'NativeWindowId' has to be passed either from this socket
---   to the other application's 'Plug' or vice versa.
+-- 'Socket' is a 'Container' for foreign applications that support the XEMBED
+-- protocol. To connect two applications the 'NativeWindowId' has to be passed
+-- either from this socket to the other application's 'Plug' or vice versa.
 --
 socketNew :: IO Socket
-socketNew = makeNewObject mkSocket $ liftM castPtr {#call unsafe socket_new#}
+socketNew =
+  makeNewObject mkSocket $
+  liftM (castPtr :: Ptr Widget -> Ptr Socket) $
+  {# call unsafe socket_new #}
 
 --------------------
 -- Methods
 
--- | Insert another application into this socket.
+-- | Adds an XEMBED client, such as a 'Plug', to the 'Socket'. The client may
+-- be in the same process or in a different process.
 --
--- * Inserts the other application into this plug. The
---   'NativeWindowId' comes from the other application.
+-- To embed a 'Plug' in a 'Socket', you can either create the 'Plug' with
+-- @plugNew Nothing@, call 'plugGetId' to get the window ID of the plug, and
+-- then pass that to the 'socketAddId', or you can call 'socketGetId' to get
+-- the window ID for the socket, and call 'plugNew' passing in that ID.
 --
--- * The 'Socket' must have already be added into a toplevel
---   window before you can make this call.
+-- The 'Socket' must have already be added into a toplevel window before you
+-- can make this call.
 --
-socketAddId :: SocketClass s => s -> NativeWindowId -> IO ()
-socketAddId soc nwi = {#call unsafe socket_add_id#} (toSocket soc) 
-		      (fromIntegral nwi)
+socketAddId :: SocketClass self => self
+ -> NativeWindowId -- ^ @windowId@ - the window ID of a client
+                        -- participating in the XEMBED protocol.
+ -> IO ()
+socketAddId self windowId =
+  {# call unsafe socket_add_id #}
+    (toSocket self)
+    (fromIntegral windowId)
 
--- | Prepare to insert this application into another.
+-- | Gets the window ID of a 'Socket' widget, which can then be used to create
+-- a client embedded inside the socket, for instance with 'plugNew'.
 --
--- * The extracted 'NativeWindowId' can be passed to another
---   application which can then embed this socket 'Container'.
+-- The 'Socket' must have already be added into a toplevel window before you
+-- can make this call.
 --
-socketGetId :: SocketClass s => s -> IO NativeWindowId
-socketGetId soc = liftM fromIntegral $
-		  {#call unsafe socket_get_id#} (toSocket soc)
+socketGetId :: SocketClass self => self -> IO NativeWindowId
+socketGetId self =
+  liftM fromIntegral $
+  {# call unsafe socket_get_id #}
+    (toSocket self)
 
 --------------------
 -- Signals
 
--- | This socket was added into another application.
+-- | This signal is emitted when a client is successfully added to the socket.
 --
-onPlugAdded, afterPlugAdded :: SocketClass s => s -> IO () -> IO (ConnectId s)
+onPlugAdded, afterPlugAdded :: SocketClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onPlugAdded = connect_NONE__NONE "plug-added" False
 afterPlugAdded = connect_NONE__NONE "plug-added" True
 
--- | This socket was removed from another
--- application.
+-- | This signal is emitted when a client is removed from the socket.
 --
-onPlugRemoved, afterPlugRemoved :: SocketClass s => s -> IO () -> 
-							 IO (ConnectId s)
+onPlugRemoved, afterPlugRemoved :: SocketClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onPlugRemoved = connect_NONE__NONE "plug-removed" False
 afterPlugRemoved = connect_NONE__NONE "plug-removed" True
