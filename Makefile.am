@@ -323,14 +323,14 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/Range.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Scale.chs				\
-	gtk/Graphics/UI/Gtk/Abstract/Widget.chs				\
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp			\
 	gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp			\
 	gtk/Graphics/UI/Gtk/Buttons/CheckButton.chs			\
 	gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs			\
 	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs			\
 	gtk/Graphics/UI/Gtk/Display/AccelLabel.chs			\
 	gtk/Graphics/UI/Gtk/Display/Image.chs.pp			\
-	gtk/Graphics/UI/Gtk/Display/Label.chs				\
+	gtk/Graphics/UI/Gtk/Display/Label.chs.pp			\
 	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs			\
 	gtk/Graphics/UI/Gtk/Display/Statusbar.chs			\
 	gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp			\
@@ -364,7 +364,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuItem.chs		\
-	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs.pp		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/OptionMenu.chs.pp		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioMenuItem.chs		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/TearoffMenuItem.chs	\
@@ -379,11 +379,11 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs				\
 	gtk/Graphics/UI/Gtk/Misc/Tooltips.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Viewport.chs				\
-	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs			\
+	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp			\
 	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs			\
 	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp			\
 	gtk/Graphics/UI/Gtk/Multiline/TextTagTable.chs			\
-	gtk/Graphics/UI/Gtk/Multiline/TextView.chs			\
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs.pp			\
 	gtk/Graphics/UI/Gtk/Ornaments/Frame.chs				\
 	gtk/Graphics/UI/Gtk/Ornaments/HSeparator.chs			\
 	gtk/Graphics/UI/Gtk/Ornaments/VSeparator.chs			\
