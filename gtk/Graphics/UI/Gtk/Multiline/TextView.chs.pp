@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/06 22:20:03 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:50:31 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -124,6 +124,15 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewSetIndent,
   textViewGetIndent,
   textViewGetDefaultAttributes,
+  textViewGetVisibleRect,
+  textViewGetIterLocation,
+  textViewGetIterAtPosition,
+#if GTK_CHECK_VERSION(2,4,0)
+  textViewSetOverwrite,
+  textViewGetOverwrite,
+  textViewSetAcceptsTab,
+  textViewGetAcceptsTab,
+#endif
 
 -- * Properties
   textViewPixelsAboveLines,
@@ -137,6 +146,10 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewIndent,
   textViewCursorVisible,
   textViewBuffer,
+#if GTK_CHECK_VERSION(2,4,0)
+  textViewOverwrite,
+  textViewAcceptsTab,
+#endif
 
 -- * Signals
   onCopyClipboard,
@@ -903,6 +916,91 @@ textViewGetDefaultAttributes self =
     (toTextView self)
   >>= makeNewTextAttributes
 
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Retrieves the iterator pointing to the character at buffer coordinates
+-- @x@ and @y@. Buffer coordinates are coordinates for the entire buffer, not
+-- just the currently-displayed portion. If you have coordinates from an event,
+-- you have to convert those to buffer coordinates with
+-- 'textViewWindowToBufferCoords'.
+--
+-- Note that this is diffferent from 'textViewGetIterAtLocation', which
+-- returns cursor locations, i.e. positions /between/ characters.
+--
+-- * Available since Gtk+ version 2.6
+--
+textViewGetIterAtPosition :: TextViewClass self => self
+ -> Int      -- ^ @x@ - x position, in buffer coordinates
+ -> Int      -- ^ @y@ - y position, in buffer coordinates
+ -> IO (TextIter, Int)   -- ^ @(iter, trailing)@ - returns the iterator and
+                         -- a \"trailing\" value which is sadly undocumented
+textViewGetIterAtPosition self x y =
+  alloca $ \trailingPtr -> do
+  iter <- makeEmptyTextIter
+  {# call gtk_text_view_get_iter_at_position #}
+    (toTextView self)
+    iter
+    trailingPtr
+    (fromIntegral x)
+    (fromIntegral y)
+  trailing <- peek trailingPtr
+  return (iter, fromIntegral trailing)
+#endif
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Changes the 'TextView' overwrite mode.
+--
+-- * Available since Gtk+ version 2.4
+--
+textViewSetOverwrite :: TextViewClass self => self
+ -> Bool  -- ^ @overwrite@ - @True@ to turn on overwrite mode, @False@ to turn
+          -- it off
+ -> IO ()
+textViewSetOverwrite self overwrite =
+  {# call gtk_text_view_set_overwrite #}
+    (toTextView self)
+    (fromBool overwrite)
+
+-- | Returns whether the 'TextView' is in overwrite mode or not.
+--
+-- * Available since Gtk+ version 2.4
+--
+textViewGetOverwrite :: TextViewClass self => self -> IO Bool
+textViewGetOverwrite self =
+  liftM toBool $
+  {# call gtk_text_view_get_overwrite #}
+    (toTextView self)
+
+-- | Sets the behavior of the text widget when the Tab key is pressed. If
+-- @acceptsTab@ is @True@ a tab character is inserted. If @acceptsTab@ is
+-- @False@ the keyboard focus is moved to the next widget in the focus chain.
+--
+-- * Available since Gtk+ version 2.4
+--
+textViewSetAcceptsTab :: TextViewClass self => self
+ -> Bool  -- ^ @acceptsTab@ - @True@ if pressing the Tab key should insert a
+          -- tab character, @False@, if pressing the Tab key should move the
+          -- keyboard focus.
+ -> IO ()
+textViewSetAcceptsTab self acceptsTab =
+  {# call gtk_text_view_set_accepts_tab #}
+    (toTextView self)
+    (fromBool acceptsTab)
+
+-- | Returns whether pressing the Tab key inserts a tab characters.
+-- 'textViewSetAcceptsTab'.
+--
+-- * Available since Gtk+ version 2.4
+--
+textViewGetAcceptsTab :: TextViewClass self => self
+ -> IO Bool -- ^ returns @True@ if pressing the Tab key inserts a tab
+            -- character, @False@ if pressing the Tab key moves the keyboard
+            -- focus.
+textViewGetAcceptsTab self =
+  liftM toBool $
+  {# call gtk_text_view_get_accepts_tab #}
+    (toTextView self)
+#endif
+
 --------------------
 -- Properties
 
@@ -1015,6 +1113,26 @@ textViewBuffer :: TextViewClass self => Attr self TextBuffer
 textViewBuffer = Attr 
   textViewGetBuffer
   textViewSetBuffer
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Whether entered text overwrites existing contents.
+--
+-- Default value: @False@
+--
+textViewOverwrite :: TextViewClass self => Attr self Bool
+textViewOverwrite = Attr 
+  textViewGetOverwrite
+  textViewSetOverwrite
+
+-- | Whether Tab will result in a tab character being entered.
+--
+-- Default value: @True@
+--
+textViewAcceptsTab :: TextViewClass self => Attr self Bool
+textViewAcceptsTab = Attr 
+  textViewGetAcceptsTab
+  textViewSetAcceptsTab
+#endif
 
 --------------------
 -- Signals

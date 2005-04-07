@@ -56,6 +56,18 @@
 	* gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: add an extra enum needed by
 	new Label methods.
 
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp: add bindings for a
+	few more methods.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextView.chs.pp: add bindings for a
+	few new methods and a couple properties.
+
+	* gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp: add binding to an
+	extra proerty and its getter/setter methods.
+
+	* gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: add bindings for another
+	20 methods.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add

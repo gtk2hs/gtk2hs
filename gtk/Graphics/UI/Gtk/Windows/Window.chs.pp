@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/27 11:54:52 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:50:32 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -51,6 +51,7 @@ module Graphics.UI.Gtk.Windows.Window (
 
 -- * Methods
   windowSetTitle,
+  windowGetTitle,
   windowSetResizable,
   windowGetResizable,
 --  windowAddAccelGroup, 
@@ -58,14 +59,16 @@ module Graphics.UI.Gtk.Windows.Window (
   windowActivateFocus,
   windowActivateDefault,
   windowSetModal,
+  windowGetModal,
   windowSetDefaultSize,
---  windowSetGeometryHints,
+  windowGetDefaultSize,
 #ifndef DISABLE_DEPRECATED
   windowSetPolicy,
 #endif
   windowSetPosition,
   WindowPosition(..),
   windowSetTransientFor,
+  windowGetTransientFor,
   windowSetDestroyWithParent,
   windowGetDestroyWithParent,
   windowIsActive,
@@ -102,10 +105,12 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetFocusOnMap,
 #endif
   windowSetDecorated,
+  windowGetDecorated,
 -- windowSetDecorationsHint,
   windowSetFrameDimensions,
 -- windowSetFunctionHint,
   windowSetRole,
+  windowGetRole,
   windowStick,
   windowUnstick,
   windowAddAccelGroup,
@@ -115,6 +120,25 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetIconName,
   windowGetIconName,
   windowSetDefaultIconName,
+#endif
+  windowSetGravity,
+  windowGetGravity,
+#if GTK_CHECK_VERSION(2,2,0)
+  windowSetScreen,
+  windowGetScreen,
+#endif
+  windowBeginResizeDrag,
+  windowBeginMoveDrag,
+  windowSetTypeHint,
+  windowGetTypeHint,
+  windowGetIcon,
+  windowGetPosition,
+  windowGetSize,
+  windowMove,
+  windowResize,
+#if GTK_CHECK_VERSION(2,2,0)
+  windowSetIconFromFile,
+  windowSetAutoStartupNotification,
 #endif
 
 -- * Properties
@@ -131,12 +155,15 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.GError
 import System.Glib.Attributes		(Attr(..))
-import Graphics.UI.Gtk.General.Enums	(WindowType(WindowToplevel), WindowPosition(..))
+import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.General.Enums	(WindowType(WindowToplevel), WindowPosition(..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
+import Graphics.UI.Gtk.Gdk.Enums	(WindowEdge(..), WindowTypeHint(..), Gravity(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -168,6 +195,18 @@ windowSetTitle self title =
   {# call gtk_window_set_title #}
     (toWindow self)
     titlePtr
+
+-- | Retrieves the title of the window. See 'windowSetTitle'.
+--
+windowGetTitle :: WindowClass self => self
+ -> IO String -- ^ returns the title of the window, or {@NULL@, FIXME: this
+              -- should probably be converted to a Maybe data type} if none has
+              -- been set explicitely. The returned string is owned by the
+              -- widget and must not be modified or freed.
+windowGetTitle self =
+  {# call gtk_window_get_title #}
+    (toWindow self)
+  >>= peekUTFString
 
 -- | Sets whether the user can resize a window. Windows are user resizable by
 -- default.
@@ -238,6 +277,16 @@ windowSetModal self modal =
     (toWindow self)
     (fromBool modal)
 
+-- | Returns whether the window is modal. See 'windowSetModal'.
+--
+windowGetModal :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if the window is set to be modal and
+            -- establishes a grab when shown
+windowGetModal self =
+  liftM toBool $
+  {# call gtk_window_get_modal #}
+    (toWindow self)
+
 -- | Sets the default size of a window. If the window's \"natural\" size (its
 -- size request) is larger than the default, the default will be ignored. More
 -- generally, if the default size does not obey the geometry hints for the
@@ -276,6 +325,23 @@ windowSetDefaultSize self height width =
     (fromIntegral height)
     (fromIntegral width)
 
+-- | Gets the default size of the window. A value of -1 for the width or
+-- height indicates that a default size has not been explicitly set for that
+-- dimension, so the \"natural\" size of the window will be used.
+--
+windowGetDefaultSize :: WindowClass self => self
+ -> IO (Int, Int) -- ^ @(width, height)@ - the default width and height
+windowGetDefaultSize self =
+  alloca $ \widthPtr ->
+  alloca $ \heightPtr -> do
+  {# call gtk_window_get_default_size #}
+    (toWindow self)
+    widthPtr
+    heightPtr
+  width <- peek widthPtr
+  height <- peek heightPtr
+  return (fromIntegral width, fromIntegral height)
+
 -- | Sets a position constraint for this window. If the old or new constraint
 -- is 'WinPosCenterAlways', this will also cause the window to be repositioned
 -- to satisfy the new constraint.
@@ -302,6 +368,17 @@ windowSetTransientFor self parent =
   {# call window_set_transient_for #}
     (toWindow self)
     (toWindow parent)
+
+-- | Fetches the transient parent for this window. See
+-- 'windowSetTransientFor'.
+--
+windowGetTransientFor :: WindowClass self => self
+ -> IO (Maybe Window) -- ^ returns the transient parent for this window, or
+                      -- @Nothing@ if no transient parent has been set.
+windowGetTransientFor self =
+  maybeNull (makeNewObject mkWindow) $
+  {# call gtk_window_get_transient_for #}
+    (toWindow self)
 
 -- | If this setting is @True@, then destroying the transient parent of the
 -- window will also destroy the window itself. This is useful for dialogs that
@@ -333,7 +410,7 @@ windowGetDestroyWithParent self =
 -- to draw a widget differently in an active window from a widget in an
 -- inactive window. See 'windowHasToplevelFocus'
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 windowIsActive :: WindowClass self => self
  -> IO Bool -- ^ returns @True@ if the window part of the current active
@@ -347,7 +424,7 @@ windowIsActive self =
 -- toplevel windows, this is identical to 'windowIsActive', but for embedded
 -- windows, like 'Plug', the results will differ.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 windowHasToplevelFocus :: WindowClass self => self
  -> IO Bool -- ^ returns @True@ if the the input focus is within this 'Window'
@@ -447,7 +524,7 @@ windowUnmaximize self =
 -- You can track the fullscreen state via the \"window_state_event\" signal
 -- on 'Widget'.
 --
--- * Available since Gtk version 2.2
+-- * Available since Gtk+ version 2.2
 --
 windowFullscreen :: WindowClass self => self -> IO ()
 windowFullscreen self =
@@ -464,7 +541,7 @@ windowFullscreen self =
 -- You can track the fullscreen state via the \"window_state_event\" signal
 -- on 'Widget'.
 --
--- * Available since Gtk version 2.2
+-- * Available since Gtk+ version 2.2
 --
 windowUnfullscreen :: WindowClass self => self -> IO ()
 windowUnfullscreen self =
@@ -489,7 +566,7 @@ windowUnfullscreen self =
 -- the above state is mainly meant for user preferences and should not be used
 -- by applications e.g. for drawing attention to their dialogs.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 windowSetKeepAbove :: WindowClass self => self
  -> Bool  -- ^ @setting@ - whether to keep @window@ above other windows
@@ -515,7 +592,7 @@ windowSetKeepAbove self setting =
 -- the above state is mainly meant for user preferences and should not be used
 -- by applications e.g. for drawing attention to their dialogs.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 windowSetKeepBelow :: WindowClass self => self
  -> Bool  -- ^ @setting@ - whether to keep @window@ below other windows
@@ -530,7 +607,7 @@ windowSetKeepBelow self setting =
 -- | Windows may set a hint asking the desktop environment not to display the
 -- window in the task bar. This function sets this hint.
 --
--- * Available since Gtk version 2.2
+-- * Available since Gtk+ version 2.2
 --
 windowSetSkipTaskbarHint :: WindowClass self => self
  -> Bool  -- ^ @setting@ - @True@ to keep this window from appearing in the
@@ -543,7 +620,7 @@ windowSetSkipTaskbarHint self setting =
 
 -- | Gets the value set by 'windowSetSkipTaskbarHint'
 --
--- * Available since Gtk version 2.2
+-- * Available since Gtk+ version 2.2
 --
 windowGetSkipTaskbarHint :: WindowClass self => self
  -> IO Bool -- ^ returns @True@ if window shouldn't be in taskbar
@@ -557,7 +634,7 @@ windowGetSkipTaskbarHint self =
 -- desktop navigation tool such as a workspace switcher that displays a
 -- thumbnail representation of the windows on the screen.)
 --
--- * Available since Gtk version 2.2
+-- * Available since Gtk+ version 2.2
 --
 windowSetSkipPagerHint :: WindowClass self => self
  -> Bool  -- ^ @setting@ - @True@ to keep this window from appearing in the
@@ -570,7 +647,7 @@ windowSetSkipPagerHint self setting =
 
 -- | Gets the value set by 'windowSetSkipPagerHint'.
 --
--- * Available since Gtk version 2.2
+-- * Available since Gtk+ version 2.2
 --
 windowGetSkipPagerHint :: WindowClass self => self
  -> IO Bool -- ^ returns @True@ if window shouldn't be in pager
@@ -584,7 +661,7 @@ windowGetSkipPagerHint self =
 -- | Windows may set a hint asking the desktop environment not to receive the
 -- input focus. This function sets this hint.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 windowSetAcceptFocus :: WindowClass self => self
  -> Bool  -- ^ @setting@ - @True@ to let this window receive input focus
@@ -596,7 +673,7 @@ windowSetAcceptFocus self setting =
 
 -- | Gets the value set by 'windowSetAcceptFocus'.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 windowGetAcceptFocus :: WindowClass self => self
  -> IO Bool -- ^ returns @True@ if window should receive the input focus
@@ -610,7 +687,7 @@ windowGetAcceptFocus self =
 -- | Windows may set a hint asking the desktop environment not to receive the
 -- input focus when the window is mapped. This function sets this hint.
 --
--- * Available since Gtk version 2.6
+-- * Available since Gtk+ version 2.6
 --
 windowSetFocusOnMap :: WindowClass self => self
  -> Bool  -- ^ @setting@ - @True@ to let this window receive input focus on
@@ -623,7 +700,7 @@ windowSetFocusOnMap self setting =
 
 -- | Gets the value set by 'windowSetFocusOnMap'.
 --
--- * Available since Gtk version 2.6
+-- * Available since Gtk+ version 2.6
 --
 windowGetFocusOnMap :: WindowClass self => self
  -> IO Bool -- ^ returns @True@ if window should receive the input focus when
@@ -633,7 +710,6 @@ windowGetFocusOnMap self =
   {# call gtk_window_get_focus_on_map #}
     (toWindow self)
 #endif
-
 
 -- | By default, windows are decorated with a title bar, resize controls, etc.
 -- Some window managers allow Gtk+ to disable these decorations, creating a
@@ -651,6 +727,16 @@ windowSetDecorated self setting =
   {# call window_set_decorated #}
     (toWindow self)
     (fromBool setting)
+
+-- | Returns whether the window has been set to have decorations such as a
+-- title bar via 'windowSetDecorated'.
+--
+windowGetDecorated :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if the window has been set to have decorations
+windowGetDecorated self =
+  liftM toBool $
+  {# call gtk_window_get_decorated #}
+    (toWindow self)
 
 -- | (Note: this is a special-purpose function intended for the framebuffer
 -- port; see 'windowSetHasFrame'. It will have no effect on the window border
@@ -696,6 +782,17 @@ windowSetRole self role =
     (toWindow self)
     rolePtr
 
+-- | Returns the role of the window. See 'windowSetRole' for further
+-- explanation.
+--
+windowGetRole :: WindowClass self => self
+ -> IO (Maybe String) -- ^ returns the role of the window if set, or
+                      -- @Nothing@.
+windowGetRole self =
+  {# call gtk_window_get_role #}
+    (toWindow self)
+  >>= maybePeek peekUTFString
+
 -- | Asks to stick @window@, which means that it will appear on all user
 -- desktops. Note that you shouldn't assume the window is definitely stuck
 -- afterward, because other entities (e.g. the user or window manager) could
@@ -731,23 +828,23 @@ windowUnstick self =
 -- 'accelGroupsActivate' on @window@ will activate accelerators in
 -- @accelGroup@.
 --
-windowAddAccelGroup :: (WindowClass self, AccelGroupClass accelGroup) => self
- -> accelGroup -- ^ @accelGroup@ - a 'AccelGroup'
+windowAddAccelGroup :: WindowClass self => self
+ -> AccelGroup -- ^ @accelGroup@ - a 'AccelGroup'
  -> IO ()
 windowAddAccelGroup self accelGroup =
   {# call gtk_window_add_accel_group #}
     (toWindow self)
-    (toAccelGroup accelGroup)
+    accelGroup
 
 -- | Reverses the effects of 'windowAddAccelGroup'.
 --
-windowRemoveAccelGroup :: (WindowClass self, AccelGroupClass accelGroup) => self
- -> accelGroup -- ^ @accelGroup@ - a 'AccelGroup'
+windowRemoveAccelGroup :: WindowClass self => self
+ -> AccelGroup -- ^ @accelGroup@ - a 'AccelGroup'
  -> IO ()
 windowRemoveAccelGroup self accelGroup =
   {# call gtk_window_remove_accel_group #}
     (toWindow self)
-    (toAccelGroup accelGroup)
+    accelGroup
 
 -- | Sets up the icon representing a 'Window'. This icon is used when the
 -- window is minimized (also known as iconified). Some window managers or
@@ -776,6 +873,16 @@ windowSetIcon self icon =
     (toWindow self)
     icon
 
+-- | Gets the value set by 'windowSetIcon' (or if you\'ve called
+-- 'windowSetIconList', gets the first icon in the icon list).
+--
+windowGetIcon :: WindowClass self => self
+ -> IO Pixbuf -- ^ returns icon for window
+windowGetIcon self =
+  makeNewGObject mkPixbuf $
+  {# call gtk_window_get_icon #}
+    (toWindow self)
+
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Sets the icon for the window from a named themed icon. See the docs for
 -- 'IconTheme' for more details.
@@ -783,7 +890,7 @@ windowSetIcon self icon =
 -- Note that this has nothing to do with the WM_ICON_NAME property which is
 -- mentioned in the ICCCM.
 --
--- * Available since Gtk version 2.6
+-- * Available since Gtk+ version 2.6
 --
 windowSetIconName :: WindowClass self => self
  -> String -- ^ @name@ - the name of the themed icon
@@ -797,7 +904,7 @@ windowSetIconName self name =
 -- | Returns the name of the themed icon for the window, see
 -- 'windowSetIconName'.
 --
--- * Available since Gtk version 2.6
+-- * Available since Gtk+ version 2.6
 --
 windowGetIconName :: WindowClass self => self
  -> IO String -- ^ returns the icon name or {@NULL@, FIXME: this should
@@ -812,9 +919,9 @@ windowGetIconName self =
 -- 'windowSetIconList' called on them from a named themed icon, see
 -- 'windowSetIconName'.
 --
--- * Available since Gtk version 2.6
+-- * Available since Gtk+ version 2.6
 --
-windowSetDefaultIconName ::
+windowSetDefaultIconName :: 
     String -- ^ @name@ - the name of the themed icon
  -> IO ()
 windowSetDefaultIconName name =
@@ -822,6 +929,319 @@ windowSetDefaultIconName name =
   {# call gtk_window_set_default_icon_name #}
     namePtr
 #endif
+
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Sets the 'Screen' where the @window@ is displayed; if the window is
+-- already mapped, it will be unmapped, and then remapped on the new screen.
+--
+-- * Available since Gtk+ version 2.2
+--
+windowSetScreen :: WindowClass self => self
+ -> Screen -- ^ @screen@ - a 'Screen'.
+ -> IO ()
+windowSetScreen self screen =
+  {# call gtk_window_set_screen #}
+    (toWindow self)
+    screen
+
+-- | Returns the 'Screen' associated with the window.
+--
+-- * Available since Gtk+ version 2.2
+--
+windowGetScreen :: WindowClass self => self
+ -> IO Screen -- ^ returns a 'Screen'.
+windowGetScreen self =
+  makeNewGObject mkScreen $
+  {# call gtk_window_get_screen #}
+    (toWindow self)
+
+-- | Sets the icon for @window@.
+--
+-- This function is equivalent to calling 'windowSetIcon' with a pixbuf
+-- created by loading the image from @filename@.
+--
+-- * Available since Gtk+ version 2.2
+--
+windowSetIconFromFile :: WindowClass self => self
+ -> FilePath  -- ^ @filename@ - location of icon file
+ -> IO Bool -- ^ returns @True@ if setting the icon succeeded.
+windowSetIconFromFile self filename =
+  liftM toBool $
+  propagateGError $ \errPtr ->
+  withUTFString filename $ \filenamePtr ->
+  {# call gtk_window_set_icon_from_file #}
+    (toWindow self)
+    filenamePtr
+    errPtr
+
+-- | By default, after showing the first 'Window' for each 'Screen', Gtk+
+-- calls 'screenNotifyStartupComplete'. Call this function to disable the
+-- automatic startup notification. You might do this if your first window is a
+-- splash screen, and you want to delay notification until after your real main
+-- window has been shown, for example.
+--
+-- In that example, you would disable startup notification temporarily, show
+-- your splash screen, then re-enable it so that showing the main window would
+-- automatically result in notification.
+--
+-- * Available since Gtk+ version 2.2
+--
+windowSetAutoStartupNotification :: 
+    Bool  -- ^ @setting@ - @True@ to automatically do startup notification
+ -> IO ()
+windowSetAutoStartupNotification setting =
+  {# call gtk_window_set_auto_startup_notification #}
+    (fromBool setting)
+#endif
+
+-- | Window gravity defines the meaning of coordinates passed to 'windowMove'.
+-- See 'windowMove' and 'Gravity' for more details.
+--
+-- The default window gravity is 'GravityNorthWest' which will typically
+-- \"do what you mean.\"
+--
+windowSetGravity :: WindowClass self => self
+ -> Gravity -- ^ @gravity@ - window gravity
+ -> IO ()
+windowSetGravity self gravity =
+  {# call gtk_window_set_gravity #}
+    (toWindow self)
+    ((fromIntegral . fromEnum) gravity)
+
+-- | Gets the value set by 'windowSetGravity'.
+--
+windowGetGravity :: WindowClass self => self
+ -> IO Gravity -- ^ returns window gravity
+windowGetGravity self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_window_get_gravity #}
+    (toWindow self)
+
+-- | Asks the window manager to move @window@ to the given position. Window
+-- managers are free to ignore this; most window managers ignore requests for
+-- initial window positions (instead using a user-defined placement algorithm)
+-- and honor requests after the window has already been shown.
+--
+-- Note: the position is the position of the gravity-determined reference
+-- point for the window. The gravity determines two things: first, the location
+-- of the reference point in root window coordinates; and second, which point
+-- on the window is positioned at the reference point.
+--
+-- By default the gravity is 'GravityNorthWest', so the reference point is
+-- simply the @x@, @y@ supplied to 'windowMove'. The top-left corner of the
+-- window decorations (aka window frame or border) will be placed at @x@, @y@.
+-- Therefore, to position a window at the top left of the screen, you want to
+-- use the default gravity (which is 'GravityNorthWest') and move the window to
+-- 0,0.
+--
+-- To position a window at the bottom right corner of the screen, you would
+-- set 'GravitySouthEast', which means that the reference point is at @x@ + the
+-- window width and @y@ + the window height, and the bottom-right corner of the
+-- window border will be placed at that reference point. So, to place a window
+-- in the bottom right corner you would first set gravity to south east, then
+-- write: @gtk_window_move (window, gdk_screen_width() - window_width,
+-- gdk_screen_height() - window_height)@.
+--
+-- The Extended Window Manager Hints specification at
+-- http:\/\/www.freedesktop.org\/Standards\/wm-spec has a nice table of
+-- gravities in the \"implementation notes\" section.
+--
+-- The 'windowGetPosition' documentation may also be relevant.
+--
+windowMove :: WindowClass self => self
+ -> Int   -- ^ @x@ - X coordinate to move window to
+ -> Int   -- ^ @y@ - Y coordinate to move window to
+ -> IO ()
+windowMove self x y =
+  {# call gtk_window_move #}
+    (toWindow self)
+    (fromIntegral x)
+    (fromIntegral y)
+
+-- | Resizes the window as if the user had done so, obeying geometry
+-- constraints. The default geometry constraint is that windows may not be
+-- smaller than their size request; to override this constraint, call
+-- 'widgetSetSizeRequest' to set the window's request to a smaller value.
+--
+-- If 'windowResize' is called before showing a window for the first time,
+-- it overrides any default size set with 'windowSetDefaultSize'.
+--
+-- Windows may not be resized smaller than 1 by 1 pixels.
+--
+windowResize :: WindowClass self => self
+ -> Int   -- ^ @width@ - width in pixels to resize the window to
+ -> Int   -- ^ @height@ - height in pixels to resize the window to
+ -> IO ()
+windowResize self width height =
+  {# call gtk_window_resize #}
+    (toWindow self)
+    (fromIntegral width)
+    (fromIntegral height)
+
+-- | Starts resizing a window. This function is used if an application has
+-- window resizing controls. When GDK can support it, the resize will be done
+-- using the standard mechanism for the window manager or windowing system.
+-- Otherwise, GDK will try to emulate window resizing, potentially not all that
+-- well, depending on the windowing system.
+--
+windowBeginResizeDrag :: WindowClass self => self
+ -> WindowEdge -- ^ @edge@ - position of the resize control
+ -> Int        -- ^ @button@ - mouse button that initiated the drag
+ -> Int        -- ^ @rootX@ - X position where the user clicked to initiate
+               -- the drag, in root window coordinates
+ -> Int        -- ^ @rootY@ - Y position where the user clicked to initiate
+               -- the drag
+ -> Word32     -- ^ @timestamp@ - timestamp from the click event that
+               -- initiated the drag
+ -> IO ()
+windowBeginResizeDrag self edge button rootX rootY timestamp =
+  {# call gtk_window_begin_resize_drag #}
+    (toWindow self)
+    ((fromIntegral . fromEnum) edge)
+    (fromIntegral button)
+    (fromIntegral rootX)
+    (fromIntegral rootY)
+    (fromIntegral timestamp)
+
+-- | Starts moving a window. This function is used if an application has
+-- window movement grips. When GDK can support it, the window movement will be
+-- done using the standard mechanism for the window manager or windowing
+-- system. Otherwise, GDK will try to emulate window movement, potentially not
+-- all that well, depending on the windowing system.
+--
+windowBeginMoveDrag :: WindowClass self => self
+ -> Int    -- ^ @button@ - mouse button that initiated the drag
+ -> Int    -- ^ @rootX@ - X position where the user clicked to initiate the
+           -- drag, in root window coordinates
+ -> Int    -- ^ @rootY@ - Y position where the user clicked to initiate the
+           -- drag
+ -> Word32 -- ^ @timestamp@ - timestamp from the click event that initiated
+           -- the drag
+ -> IO ()
+windowBeginMoveDrag self button rootX rootY timestamp =
+  {# call gtk_window_begin_move_drag #}
+    (toWindow self)
+    (fromIntegral button)
+    (fromIntegral rootX)
+    (fromIntegral rootY)
+    (fromIntegral timestamp)
+
+-- | This function returns the position you need to pass to 'windowMove' to
+-- keep @window@ in its current position. This means that the meaning of the
+-- returned value varies with window gravity. See 'windowMove' for more
+-- details.
+--
+-- If you haven't changed the window gravity, its gravity will be
+-- 'GravityNorthWest'. This means that 'windowGetPosition' gets the position of
+-- the top-left corner of the window manager frame for the window. 'windowMove'
+-- sets the position of this same top-left corner.
+--
+-- Moreover, nearly all window managers are historically broken with respect
+-- to their handling of window gravity. So moving a window to its current
+-- position as returned by 'windowGetPosition' tends to result in moving the
+-- window slightly. Window managers are slowly getting better over time.
+--
+-- If a window has gravity 'GravityStatic' the window manager frame is not
+-- relevant, and thus 'windowGetPosition' will always produce accurate results.
+-- However you can't use static gravity to do things like place a window in a
+-- corner of the screen, because static gravity ignores the window manager
+-- decorations.
+--
+-- If you are saving and restoring your application's window positions, you
+-- should know that it's impossible for applications to do this without getting
+-- it somewhat wrong because applications do not have sufficient knowledge of
+-- window manager state. The Correct Mechanism is to support the session
+-- management protocol (see the \"GnomeClient\" object in the GNOME libraries
+-- for example) and allow the window manager to save your window sizes and
+-- positions.
+--
+windowGetPosition :: WindowClass self => self
+ -> IO (Int, Int) -- ^ @(rootX, rootY)@ - X and Y coordinate of
+                  -- gravity-determined reference point
+windowGetPosition self =
+  alloca $ \rootXPtr ->
+  alloca $ \rootYPtr -> do
+  {# call gtk_window_get_position #}
+    (toWindow self)
+    rootXPtr
+    rootYPtr
+  rootX <- peek rootXPtr
+  rootY <- peek rootYPtr
+  return (fromIntegral rootX, fromIntegral rootY)
+
+-- | Obtains the current size of the window. If the window is not onscreen, it
+-- returns the size Gtk+ will suggest to the window manager for the initial
+-- window size (but this is not reliably the same as the size the window
+-- manager will actually select). The size obtained by 'windowGetSize' is the
+-- last size received in a 'EventConfigure', that is,
+-- Gtk+ uses its locally-stored size, rather than querying the X server for the
+-- size. As a result, if you call 'windowResize' then immediately call
+-- 'windowGetSize', the size won't have taken effect yet. After the window
+-- manager processes the resize request, Gtk+ receives notification that the
+-- size has changed via a configure event, and the size of the window gets
+-- updated.
+--
+-- Note 1: Nearly any use of this function creates a race condition, because
+-- the size of the window may change between the time that you get the size and
+-- the time that you perform some action assuming that size is the current
+-- size. To avoid race conditions, connect to \"configure_event\" on the window
+-- and adjust your size-dependent state to match the size delivered in the
+-- 'EventConfigure'.
+--
+-- Note 2: The returned size does /not/ include the size of the window
+-- manager decorations (aka the window frame or border). Those are not drawn by
+-- Gtk+ and Gtk+ has no reliable method of determining their size.
+--
+-- Note 3: If you are getting a window size in order to position the window
+-- onscreen, there may be a better way. The preferred way is to simply set the
+-- window's semantic type with 'windowSetTypeHint', which allows the window
+-- manager to e.g. center dialogs. Also, if you set the transient parent of
+-- dialogs with 'windowSetTransientFor' window managers will often center the
+-- dialog over its parent window. It's much preferred to let the window manager
+-- handle these things rather than doing it yourself, because all apps will
+-- behave consistently and according to user prefs if the window manager
+-- handles it. Also, the window manager can take the size of the window
+-- decorations\/border into account, while your application cannot.
+--
+-- In any case, if you insist on application-specified window positioning,
+-- there's /still/ a better way than doing it yourself - 'windowSetPosition'
+-- will frequently handle the details for you.
+--
+windowGetSize :: WindowClass self => self
+ -> IO (Int, Int) -- ^ @(width, height)@
+windowGetSize self =
+  alloca $ \widthPtr ->
+  alloca $ \heightPtr -> do
+  {# call gtk_window_get_size #}
+    (toWindow self)
+    widthPtr
+    heightPtr
+  width <- peek widthPtr
+  height <- peek heightPtr
+  return (fromIntegral width, fromIntegral height)
+
+-- | By setting the type hint for the window, you allow the window manager to
+-- decorate and handle the window in a way which is suitable to the function of
+-- the window in your application.
+--
+-- This function should be called before the window becomes visible.
+--
+windowSetTypeHint :: WindowClass self => self
+ -> WindowTypeHint -- ^ @hint@ - the window type
+ -> IO ()
+windowSetTypeHint self hint =
+  {# call gtk_window_set_type_hint #}
+    (toWindow self)
+    ((fromIntegral . fromEnum) hint)
+
+-- | Gets the type hint for this window. See 'windowSetTypeHint'.
+--
+windowGetTypeHint :: WindowClass self => self
+ -> IO WindowTypeHint -- ^ returns the type hint for @window@.
+windowGetTypeHint self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_window_get_type_hint #}
+    (toWindow self)
 
 --------------------
 -- Properties
@@ -834,6 +1254,106 @@ windowResizable :: WindowClass self => Attr self Bool
 windowResizable = Attr 
   windowGetResizable
   windowSetResizable
+
+-- | If @True@, the window is modal (other windows are not usable while this
+-- one is up).
+--
+-- Default value: @False@
+--
+windowModal :: WindowClass self => Attr self Bool
+windowModal = Attr 
+  windowGetModal
+  windowSetModal
+
+-- | If this window should be destroyed when the parent is destroyed.
+--
+-- Default value: @False@
+--
+windowDestroyWithParent :: WindowClass self => Attr self Bool
+windowDestroyWithParent = Attr 
+  windowGetDestroyWithParent
+  windowSetDestroyWithParent
+
+-- | Icon for this window.
+--
+windowIcon :: WindowClass self => Attr self Pixbuf
+windowIcon = Attr 
+  windowGetIcon
+  windowSetIcon
+
+-- | The screen where this window will be displayed.
+--
+windowScreen :: WindowClass self => Attr self Screen
+windowScreen = Attr 
+  windowGetScreen
+  windowSetScreen
+
+-- | Hint to help the desktop environment understand what kind of window this
+-- is and how to treat it.
+--
+-- Default value: 'WindowTypeHintNormal'
+--
+windowTypeHint :: WindowClass self => Attr self WindowTypeHint
+windowTypeHint = Attr 
+  windowGetTypeHint
+  windowSetTypeHint
+
+-- | @True@ if the window should not be in the task bar.
+--
+-- Default value: @False@
+--
+windowSkipTaskbarHint :: WindowClass self => Attr self Bool
+windowSkipTaskbarHint = Attr 
+  windowGetSkipTaskbarHint
+  windowSetSkipTaskbarHint
+
+-- | @True@ if the window should not be in the pager.
+--
+-- Default value: @False@
+--
+windowSkipPagerHint :: WindowClass self => Attr self Bool
+windowSkipPagerHint = Attr 
+  windowGetSkipPagerHint
+  windowSetSkipPagerHint
+
+-- | @True@ if the window should receive the input focus.
+--
+-- Default value: @True@
+--
+windowAcceptFocus :: WindowClass self => Attr self Bool
+windowAcceptFocus = Attr 
+  windowGetAcceptFocus
+  windowSetAcceptFocus
+
+-- | @True@ if the window should receive the input focus when mapped.
+--
+-- Default value: @True@
+--
+windowFocusOnMap :: WindowClass self => Attr self Bool
+windowFocusOnMap = Attr 
+  windowGetFocusOnMap
+  windowSetFocusOnMap
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Whether the window should be decorated by the window manager.
+--
+-- Default value: @True@
+--
+windowDecorated :: WindowClass self => Attr self Bool
+windowDecorated = Attr 
+  windowGetDecorated
+  windowSetDecorated
+
+-- | The window gravity of the window. See 'windowMove' and 'Gravity' for more
+-- details about window gravity.
+--
+-- Default value: 'GravityNorthWest'
+--
+windowGravity :: WindowClass self => Attr self Gravity
+windowGravity = Attr 
+  windowGetGravity
+  windowSetGravity
+#endif
 
 --------------------
 -- Signals

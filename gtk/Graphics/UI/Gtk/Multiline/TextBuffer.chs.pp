@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/06 22:20:03 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:50:31 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -127,8 +127,19 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferSetModified,
   textBufferDeleteSelection,
   textBufferHasSelection,
+  textBufferGetSelectionBounds,
+#if GTK_CHECK_VERSION(2,4,0)
+  textBufferSelectRange,
+#endif
+  textBufferGetBounds,
   textBufferBeginUserAction,
   textBufferEndUserAction,
+#if GTK_CHECK_VERSION(2,6,0)
+  textBufferBackspace,
+#endif
+  textBufferInsertChildAnchor,
+  textBufferCreateChildAnchor,
+  textBufferGetIterAtChildAnchor,
 
 -- * Properties
   textBufferModified,
@@ -786,6 +797,22 @@ textBufferHasSelection self =
     (TextIter nullForeignPtr)
     (TextIter nullForeignPtr)
 
+-- | Returns the bounds of the selection (if the selection has length 0, then
+-- @start@ and @end@ will be the same). @start@ and @end@ will be in ascending
+-- order.
+--
+textBufferGetSelectionBounds :: TextBufferClass self => self
+ -> IO (TextIter, TextIter) -- ^ @(start, end)@ returns the selection start and
+                            -- end iterators
+textBufferGetSelectionBounds self = do
+  start <- makeEmptyTextIter
+  end <- makeEmptyTextIter
+  {# call unsafe text_buffer_get_selection_bounds #}
+    (toTextBuffer self)
+    start
+    end
+  return (start, end)
+
 -- | Called to indicate that the buffer operations between here and a call to
 -- 'textBufferEndUserAction' are part of a single user-visible operation. The
 -- operations between 'textBufferBeginUserAction' and 'textBufferEndUserAction'
@@ -813,6 +840,115 @@ textBufferEndUserAction :: TextBufferClass self => self -> IO ()
 textBufferEndUserAction self =
   {# call text_buffer_end_user_action #}
     (toTextBuffer self)
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Performs the appropriate action as if the user hit the delete key with
+-- the cursor at the position specified by @iter@. In the normal case a single
+-- character will be deleted, but when combining accents are involved, more
+-- than one character can be deleted, and when precomposed character and accent
+-- combinations are involved, less than one character will be deleted.
+--
+-- Because the buffer is modified, all outstanding iterators become invalid
+-- after calling this function; however, the @iter@ will be re-initialized to
+-- point to the location where text was deleted.
+--
+-- * Available since Gtk+ version 2.6
+--
+textBufferBackspace :: TextBufferClass self => self
+ -> TextIter -- ^ @iter@ - a position in @buffer@
+ -> Bool     -- ^ @interactive@ - whether the deletion is caused by user
+             -- interaction
+ -> Bool     -- ^ @defaultEditable@ - whether the buffer is editable by
+             -- default
+ -> IO Bool  -- ^ returns @True@ if the buffer was modified
+textBufferBackspace self iter interactive defaultEditable =
+  liftM toBool $
+  {# call gtk_text_buffer_backspace #}
+    (toTextBuffer self)
+    iter
+    (fromBool interactive)
+    (fromBool defaultEditable)
+#endif
+
+-- | Inserts a child widget anchor into the text buffer at @iter@. The anchor
+-- will be counted as one character in character counts, and when obtaining the
+-- buffer contents as a string, will be represented by the Unicode \"object
+-- replacement character\" @(chr 0xFFFC)@. Note that the \"slice\" variants for
+-- obtaining portions of the buffer as a string include this character for
+-- child anchors, but the \"text\" variants do not. e.g. see
+-- 'textBufferGetSlice' and 'textBufferGetText'. Consider
+-- 'textBufferCreateChildAnchor' as a more convenient alternative to this
+-- function.
+--
+textBufferInsertChildAnchor :: TextBufferClass self => self
+ -> TextIter        -- ^ @iter@ - location to insert the anchor
+ -> TextChildAnchor -- ^ @anchor@ - a 'TextChildAnchor'
+ -> IO ()
+textBufferInsertChildAnchor self iter anchor =
+  {# call gtk_text_buffer_insert_child_anchor #}
+    (toTextBuffer self)
+    iter
+    anchor
+
+-- | This is a convenience function which simply creates a child anchor with
+-- 'textChildAnchorNew' and inserts it into the buffer with
+-- 'textBufferInsertChildAnchor'.
+--
+textBufferCreateChildAnchor :: TextBufferClass self => self
+ -> TextIter           -- ^ @iter@ - location in the buffer
+ -> IO TextChildAnchor -- ^ returns the created child anchor
+textBufferCreateChildAnchor self iter =
+  makeNewGObject mkTextChildAnchor $
+  {# call gtk_text_buffer_create_child_anchor #}
+    (toTextBuffer self)
+    iter
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | This function moves the \"insert\" and \"selection_bound\" marks
+-- simultaneously. If you move them in two steps with 'textBufferMoveMark', you
+-- will temporarily select a region in between their old and new locations,
+-- which can be pretty inefficient since the temporarily-selected region will
+-- force stuff to be recalculated. This function moves them as a unit, which
+-- can be optimized.
+--
+-- * Available since Gtk+ version 2.4
+--
+textBufferSelectRange :: TextBufferClass self => self
+ -> TextIter -- ^ @ins@ - where to put the \"insert\" mark
+ -> TextIter -- ^ @bound@ - where to put the \"selection_bound\" mark
+ -> IO ()
+textBufferSelectRange self ins bound =
+  {# call gtk_text_buffer_select_range #}
+    (toTextBuffer self)
+    ins
+    bound
+#endif
+
+-- | Obtains the location of @anchor@ within @buffer@.
+--
+textBufferGetIterAtChildAnchor :: TextBufferClass self => self
+ -> TextIter        -- ^ @iter@ - an iterator to be initialized
+ -> TextChildAnchor -- ^ @anchor@ - a child anchor that appears in @buffer@
+ -> IO ()
+textBufferGetIterAtChildAnchor self iter anchor =
+  {# call gtk_text_buffer_get_iter_at_child_anchor #}
+    (toTextBuffer self)
+    iter
+    anchor
+
+-- | Retrieves the first and last iterators in the buffer, i.e. the entire
+-- buffer lies within the range @[start,end)@.
+--
+textBufferGetBounds :: TextBufferClass self => self
+ -> TextIter -- ^ @start@ - iterator to initialize with first position in the
+             -- buffer
+ -> TextIter -- ^ @end@ - iterator to initialize with the end iterator
+ -> IO ()
+textBufferGetBounds self start end =
+  {# call gtk_text_buffer_get_bounds #}
+    (toTextBuffer self)
+    start
+    end
 
 --------------------
 -- Properties

@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/03 14:15:35 $
+--  Version $Revision: 1.9 $ from $Date: 2005/04/07 00:50:32 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -172,9 +172,17 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   fileChooserRemoveShortcutFolderURI,
   fileChooserListShortcutFolderURIs,
   fileChooserErrorDomain,
+  FileChooserError(..),
+#if GTK_CHECK_VERSION(2,6,0)
+  fileChooserSetShowHidden,
+  fileChooserGetShowHidden,
+#endif
 
 -- * Properties
   fileChooserUsePreviewLabel,
+#if GTK_CHECK_VERSION(2,6,0)
+  fileChooserShowHidden,
+#endif
   fileChooserSelectMultiple,
   fileChooserPreviewWidgetActive,
   fileChooserLocalOnly,
@@ -820,6 +828,33 @@ fileChooserListShortcutFolderURIs self =
     (toFileChooser self)
   >>= fromStringGSList
 
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Sets whether hidden files and folders are displayed in the file selector.
+--
+-- * Available since Gtk+ version 2.6
+--
+fileChooserSetShowHidden :: FileChooserClass self => self
+ -> Bool  -- ^ @showHidden@ - @True@ if hidden files and folders should be
+          -- displayed.
+ -> IO ()
+fileChooserSetShowHidden self showHidden =
+  {# call gtk_file_chooser_set_show_hidden #}
+    (toFileChooser self)
+    (fromBool showHidden)
+
+-- | Gets whether hidden files and folders are displayed in the file selector.
+-- See 'fileChooserSetShowHidden'.
+--
+-- * Available since Gtk+ version 2.6
+--
+fileChooserGetShowHidden :: FileChooserClass self => self
+ -> IO Bool -- ^ returns @True@ if hidden files and folders are displayed.
+fileChooserGetShowHidden self =
+  liftM toBool $
+  {# call gtk_file_chooser_get_show_hidden #}
+    (toFileChooser self)
+#endif
+
 --------------------
 -- Properties
 
@@ -830,6 +865,16 @@ fileChooserUsePreviewLabel :: FileChooserClass self => Attr self Bool
 fileChooserUsePreviewLabel = Attr 
   fileChooserGetUsePreviewLabel
   fileChooserSetUsePreviewLabel
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | \'showHidden\' property. See 'fileChooserGetShowHidden' and
+-- 'fileChooserSetShowHidden'
+--
+fileChooserShowHidden :: FileChooserClass self => Attr self Bool
+fileChooserShowHidden = Attr 
+  fileChooserGetShowHidden
+  fileChooserSetShowHidden
+#endif
 
 -- | \'selectMultiple\' property. See 'fileChooserGetSelectMultiple' and
 -- 'fileChooserSetSelectMultiple'
