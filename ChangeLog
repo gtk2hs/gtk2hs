@@ -24,6 +24,9 @@
 	gtk/Graphics/UI/Gtk/Embedding/Socket.chs: merge from generated
 	modules. Code formatting and documentation changes.
 
+	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: change use of deprecated
+	function 'withObject' to 'with'. Remove support for ghc pre 5.04.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add

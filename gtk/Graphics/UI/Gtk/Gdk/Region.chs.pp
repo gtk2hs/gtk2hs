@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/03/14 16:54:24 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:23:26 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -63,7 +63,7 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle(..))
 import Graphics.UI.Gtk.Gdk.Enums	(FillRule(..), OverlapType(..))
 
-{# context lib="gtk" prefix="gdk" #}
+{# context lib="gdk" prefix="gdk" #}
 
 {#pointer *GdkRegion as Region foreign newtype #}
 
@@ -82,14 +82,9 @@ foreign import ccall unsafe "&gdk_region_destroy"
 region_destroy :: Ptr Region -> FinalizerPtr Region
 region_destroy _ = region_destroy'
 
-#elif __GLASGOW_HASKELL__>=504
-
-foreign import ccall unsafe "gdk_region_destroy"
-  region_destroy :: Ptr Region -> IO ()
-
 #else
 
-foreign import ccall "gdk_region_destroy" unsafe
+foreign import ccall unsafe "gdk_region_destroy"
   region_destroy :: Ptr Region -> IO ()
 
 #endif
@@ -122,7 +117,7 @@ regionCopy r = do
 -- | Convert a rectangle to a 'Region'.
 --
 regionRectangle :: Rectangle -> IO Region
-regionRectangle rect = withObject rect $ \rectPtr -> do
+regionRectangle rect = with rect $ \rectPtr -> do
   regPtr <- {#call unsafe region_rectangle#} (castPtr rectPtr)
   makeNewRegion regPtr
 
@@ -169,7 +164,7 @@ regionPointIn r (x,y) = liftM toBool $
 -- | Check if a rectangle is within a region.
 --
 regionRectIn :: Region -> Rectangle -> IO OverlapType
-regionRectIn reg rect = liftM (toEnum.fromIntegral) $ withObject rect $
+regionRectIn reg rect = liftM (toEnum.fromIntegral) $ with rect $
   \rPtr -> {#call unsafe region_rect_in#} reg (castPtr rPtr)
 
 -- | Move a region.
@@ -189,7 +184,7 @@ regionShrink r dx dy =
 -- | Updates the region to include the rectangle.
 --
 regionUnionWithRect :: Region -> Rectangle -> IO ()
-regionUnionWithRect reg rect = withObject rect $ \rPtr ->
+regionUnionWithRect reg rect = with rect $ \rPtr ->
   {#call unsafe region_union_with_rect#} reg (castPtr rPtr)
 
 -- | Intersects one region with another.
