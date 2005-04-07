@@ -1,13 +1,13 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget FileChooserButton
 --
---  Author : [Insert your full name here]
+--  Author : Duncan Coutts
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/05 18:29:52 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:53:01 $
 --
---  Copyright (C) 2005 [Insert your full name here]
+--  Copyright (C) 2005 Duncan Coutts
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public

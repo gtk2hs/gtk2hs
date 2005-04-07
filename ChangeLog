@@ -68,6 +68,9 @@
 	* gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: add bindings for another
 	20 methods.
 
+	* gtk/Graphics/UI/Gtk/Selectors/FileChooserButton.chs.pp: add myself
+	as author.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add
