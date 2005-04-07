@@ -248,7 +248,7 @@ libHSglib_a_LIBADD =	\
 # to #include <Rts.h> from GHC's include directory.
 glib/System/Glib/hsgclosure.o : glib/System/Glib/hsgclosure.c
 	$(CC) -c $< -o $@ $(GLIB_CFLAGS) -I$(GHC_INCLUDEDIR) 	\
-	-Wall -Wextra -Werror -Wno-unused-parameter
+	-Wall -Werror -Wno-unused-parameter
 
 am_libHSglib_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglib_a_SOURCES))))

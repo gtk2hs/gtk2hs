@@ -77,6 +77,9 @@
 	* Makefile.am: rename several modules to .pp (I swear I committed this
 	before!)
 
+	* Makefile.am: remove gcc flag -Wextra since older gcc versions do not
+	understand it.
+
 2005-04-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/callbackGen/gtkmarshal.list: tidy up slightly, and add
