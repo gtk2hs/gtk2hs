@@ -1,112 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget AboutDialog
 --
@@ -114,7 +5,7 @@
 --
 --  Created: 1 March 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/05 18:29:53 $
+--  Version $Revision: 1.1 $ from $Date: 2005/04/08 12:10:34 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -168,7 +59,7 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
 -- |                                       +----AboutDialog
 -- @
 
-
+#if GTK_CHECK_VERSION(2,6,0)
 -- * Types
   AboutDialog,
   AboutDialogClass,
@@ -213,7 +104,7 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogWebsiteLabel,
   aboutDialogTranslatorCredits,
 --  aboutDialogLogoIconName
-
+#endif
   ) where
 
 import Monad	(liftM)
@@ -228,7 +119,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
-
+#if GTK_CHECK_VERSION(2,6,0)
 --------------------
 -- Constructors
 
@@ -593,3 +484,4 @@ aboutDialogTranslatorCredits :: AboutDialogClass self => Attr self String
 aboutDialogTranslatorCredits = Attr 
   aboutDialogGetTranslatorCredits
   aboutDialogSetTranslatorCredits
+#endif

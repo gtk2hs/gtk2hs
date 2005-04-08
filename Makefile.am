@@ -412,7 +412,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
-	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs			\
+	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs				\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs			\
