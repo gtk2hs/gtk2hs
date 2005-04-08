@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:50:31 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/08 14:21:53 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -126,7 +126,9 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewGetDefaultAttributes,
   textViewGetVisibleRect,
   textViewGetIterLocation,
+#if GTK_CHECK_VERSION(2,6,0)
   textViewGetIterAtPosition,
+#endif
 #if GTK_CHECK_VERSION(2,4,0)
   textViewSetOverwrite,
   textViewGetOverwrite,

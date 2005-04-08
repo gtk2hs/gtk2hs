@@ -56,8 +56,8 @@
                             GtkToggleButton
                                 GtkCheckButton
                                     GtkRadioButton
-                            GtkColorButton		if gtk-2.6
-                            GtkFontButton		if gtk-2.6
+                            GtkColorButton		if gtk-2.4
+                            GtkFontButton		if gtk-2.4
                             GtkOptionMenu		if deprecated
                         GtkItem
                             GtkMenuItem

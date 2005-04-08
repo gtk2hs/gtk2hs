@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:50:32 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/08 14:21:53 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -143,6 +143,17 @@ module Graphics.UI.Gtk.Windows.Window (
 
 -- * Properties
   windowResizable,
+  windowModal,
+  windowDestroyWithParent,
+  windowIcon,
+  windowScreen,
+  windowTypeHint,
+  windowSkipTaskbarHint,
+  windowSkipPagerHint,
+  windowAcceptFocus,
+#if GTK_CHECK_VERSION(2,6,0)
+  windowFocusOnMap,
+#endif
 
 -- * Signals
   onFrameEvent,
@@ -1325,6 +1336,7 @@ windowAcceptFocus = Attr
   windowGetAcceptFocus
   windowSetAcceptFocus
 
+#if GTK_CHECK_VERSION(2,6,0)
 -- | @True@ if the window should receive the input focus when mapped.
 --
 -- Default value: @True@
@@ -1333,6 +1345,7 @@ windowFocusOnMap :: WindowClass self => Attr self Bool
 windowFocusOnMap = Attr 
   windowGetFocusOnMap
   windowSetFocusOnMap
+#endif
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Whether the window should be decorated by the window manager.
