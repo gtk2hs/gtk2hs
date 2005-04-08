@@ -55,8 +55,8 @@ sourceTagTableNew = makeNewGObject mkSourceTagTable
 -- 
 sourceTagTableAddTags :: SourceTagTable -> [SourceTag] -> IO ()
 sourceTagTableAddTags tt tags = do
-  let tagForeignPtrs = map (unSourceTag . toSourceTag) tags
-  tagList <- toGSList (map foreignPtrToPtr tagForeignPtrs)
+  let tagForeignPtrs = map unSourceTag tags
+  tagList <- toGSList (map unsafeForeignPtrToPtr tagForeignPtrs)
   {#call source_tag_table_add_tags#} tt tagList
   -- destroy the list
   fromGSList tagList

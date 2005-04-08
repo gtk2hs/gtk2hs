@@ -5,7 +5,7 @@
 --
 --  Author : Axel Simon
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:20:17 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/08 14:00:48 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -32,7 +32,7 @@ module @MODULE_NAME@ (
 @MODULE_EXPORTS@
   ) where
 
-import System.Glib.FFI		(ForeignPtr, castForeignPtr, foreignPtrToPtr,
+import System.Glib.FFI		(ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr,
                                  CULong, withForeignPtr)
 import System.Glib.GType	(typeInstanceIsA)
 import GHC.Base			(unsafeCoerce#)

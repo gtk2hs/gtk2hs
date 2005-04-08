@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/03/15 19:45:01 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/08 14:00:47 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,7 +31,7 @@ module System.Glib.FFI (
   maybeNull,
   foreignFree,
   newForeignPtr,
-  foreignPtrToPtr,
+  unsafeForeignPtrToPtr,
 # if __GLASGOW_HASKELL__<600
   -- ghc 6 exports unsafePerformIO from module Foreign
   -- provide it here for ghc 5
@@ -46,10 +46,9 @@ import System.IO.Unsafe (unsafePerformIO)
 import Foreign.C
 import qualified Foreign
 # if __GLASGOW_HASKELL__>=602
-import Foreign	 hiding		(with, newForeignPtr)
-import qualified Foreign hiding	(newForeignPtr)
+import Foreign  hiding	(with, newForeignPtr)
 # else
-import Foreign	 hiding (with)
+import Foreign  hiding (with)
 # endif
 
 with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
@@ -57,8 +56,10 @@ with = Foreign.with
 
 #if __GLASGOW_HASKELL__>=602
 newForeignPtr = flip Foreign.newForeignPtr
+#endif
 
-foreignPtrToPtr = unsafeForeignPtrToPtr
+#if __GLASGOW_HASKELL__<602
+unsafeForeignPtrToPtr = foreignPtrToPtr
 #endif
 
 #if __GLASGOW_HASKELL__>=600

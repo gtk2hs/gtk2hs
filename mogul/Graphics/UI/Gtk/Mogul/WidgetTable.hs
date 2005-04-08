@@ -5,7 +5,7 @@
 --          
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/01/16 21:32:32 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/08 14:00:48 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -82,7 +82,7 @@ newNamedWidget name new = do
   let wId = (mkWidgetId name)
   table <- takeMVar widgetTable
   putMVar widgetTable (addToFM table wId
-    ((foreignPtrToPtr.unWidget.toWidget) w))
+    ((unsafeForeignPtrToPtr.unWidget.toWidget) w))
   w `onUnrealize` (do
     table <- takeMVar widgetTable
     putMVar widgetTable (table `delFromFM` wId))

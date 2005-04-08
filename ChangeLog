@@ -8,6 +8,13 @@
 	* glib/System/Glib/GList.chs: add readGList function needed for some
 	new modules. Remove unused ptrToInt function.
 
+	* glib/System/Glib/FFI.hs, tools/hierarchyGen/TypeGen.hs,
+	tools/hierarchyGen/Hierarchy.chs.template,
+	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs: change use
+	of foreignPtrToPtr to unsafeForeignPtrToPtr and provide backwards
+	compatability for GHC pre-6.2.
+
 2005-04-08 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,

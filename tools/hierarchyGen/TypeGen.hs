@@ -199,7 +199,7 @@ makeUpcast table [obj]	   = id -- no casting for GObject
 makeUpcast table (obj:_:_) = 
   indent 0.ss "castTo".ss obj.ss " :: GObjectClass obj => obj -> ".ss obj.
   indent 0.ss "castTo".ss obj.ss " obj =".
-  indent 1.ss "if typeInstanceIsA ((foreignPtrToPtr.castForeignPtr.unGObject.toGObject) obj)".
+  indent 1.ss "if typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr.unGObject.toGObject) obj)".
   indent 2.ss "{#call fun unsafe ".
     ss (case lookup obj table of 
          (Just (_, Just get_type_func)) -> get_type_func
