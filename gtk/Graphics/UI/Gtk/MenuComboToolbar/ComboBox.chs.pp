@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/07 00:34:41 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/08 09:20:26 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -96,11 +96,11 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   comboBoxGetRowSpanColumn,
   comboBoxGetColumnSpanColumn,
   comboBoxGetActiveText,
+  comboBoxSetAddTearoffs,
+  comboBoxGetAddTearoffs,
   comboBoxSetFocusOnClick,
   comboBoxGetFocusOnClick,
-  comboBoxSetAddTearoffs,
 #endif
-  comboBoxGetAddTearoffs,
 
 -- * Properties
 #if GTK_CHECK_VERSION(2,6,0)
@@ -395,7 +395,6 @@ comboBoxSetAddTearoffs self addTearoffs =
   {# call gtk_combo_box_set_add_tearoffs #}
     (toComboBox self)
     (fromBool addTearoffs)
-#endif
 
 -- | Gets the current value of the :add-tearoffs property.
 --
@@ -405,7 +404,6 @@ comboBoxGetAddTearoffs self =
   {# call gtk_combo_box_get_add_tearoffs #}
     (toComboBox self)
 
-#if GTK_CHECK_VERSION(2,6,0)
 -- | Sets whether the combo box will grab focus when it is clicked with the
 -- mouse. Making mouse clicks not grab focus is useful in places like toolbars
 -- where you don't want the keyboard focus removed from the main area of the

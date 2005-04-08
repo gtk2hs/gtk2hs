@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:14:00 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/08 09:20:26 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -383,6 +383,7 @@ buttonGetAlignment self =
   return (realToFrac xalign, realToFrac yalign)
 #endif
 
+#if GTK_CHECK_VERSION(2,6,0)
 -- | Gets the widget that is currenty set as the image of the button. This may
 -- have been explicitly set by 'buttonSetImage' or constructed by
 -- 'buttonNewFromStock'.
@@ -406,6 +407,7 @@ buttonSetImage self image =
   {# call gtk_button_set_image #}
     (toButton self)
     (toWidget image)
+#endif
 
 --------------------
 -- Properties

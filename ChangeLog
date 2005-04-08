@@ -1,3 +1,9 @@
+2005-04-08 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp: Make it
+	compile with Gtk 2.4 headers.
+	
 2005-04-7 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp: add several new signals
