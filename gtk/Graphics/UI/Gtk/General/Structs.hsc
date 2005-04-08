@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/03/15 20:33:46 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/08 14:05:55 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -164,23 +164,11 @@ instance Storable Color where
     gdkColormapAllocColor cPtr ptr 0 1
     return ()
 
-#if __GLASGOW_HASKELL__>=504
-
 foreign import ccall unsafe "gdk_colormap_get_system"
   gdkColormapGetSystem :: IO (Ptr ())
 
 foreign import ccall unsafe "gdk_colormap_alloc_color"
   gdkColormapAllocColor :: Ptr () -> Ptr Color -> CInt -> CInt -> IO CInt
-
-#else
-
-foreign import ccall "gdk_colormap_get_system" unsafe
-  gdkColormapGetSystem :: IO (Ptr ())
-
-foreign import ccall "gdk_colormap_alloc_color" unsafe
-  gdkColormapAllocColor :: Ptr () -> Ptr Color -> CInt -> CInt -> IO CInt
-
-#endif
 
 -- entry GC
 
@@ -303,13 +291,13 @@ pokeGCValues ptr (GCValues {
       (fromIntegral (fromEnum fill_):: #{type GdkFill})
     add r #{const GDK_GC_TILE} $
       #{poke GdkGCValues, tile} ptr $
-        maybe nullPtr (foreignPtrToPtr.unPixmap) tile_
+        maybe nullPtr (unsafeForeignPtrToPtr.unPixmap) tile_
     add r #{const GDK_GC_STIPPLE} $
       #{poke GdkGCValues, stipple} ptr $
-        maybe nullPtr (foreignPtrToPtr.unPixmap) stipple_
+        maybe nullPtr (unsafeForeignPtrToPtr.unPixmap) stipple_
     add r #{const GDK_GC_CLIP_MASK } $
       #{poke GdkGCValues, clip_mask} ptr $
-        maybe nullPtr (foreignPtrToPtr.unPixmap) clipMask_
+        maybe nullPtr (unsafeForeignPtrToPtr.unPixmap) clipMask_
     add r #{const GDK_GC_SUBWINDOW } $
       #{poke GdkGCValues, subwindow_mode} ptr
       (fromIntegral (fromEnum subwindow_):: #{type GdkSubwindowMode})
