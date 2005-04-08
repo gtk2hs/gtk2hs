@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 18:55:23 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/08 14:42:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -73,7 +73,9 @@ module Graphics.UI.Gtk.Misc.Calendar (
   calendarMarkDay,
   calendarUnmarkDay,
   calendarClearMarks,
+#ifndef DISABLE_DEPRECATED
   calendarDisplayOptions,
+#endif
 #if GTK_CHECK_VERSION(2,4,0)
   calendarSetDisplayOptions,
   calendarGetDisplayOptions,

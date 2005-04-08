@@ -28,6 +28,10 @@
 	trivial	change so that these modules are exactly the same as those
 	produced by the code generator!
 
+	* gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Combo.chs.pp: fix compilation
+	with DISABLE_DEPRECATED.
+
 2005-04-08 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,

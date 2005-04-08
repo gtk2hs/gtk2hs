@@ -5,7 +5,7 @@
 --
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:49 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/08 14:42:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -92,7 +92,10 @@ import Graphics.UI.Gtk.Abstract.Widget		(widgetShow)
 import Graphics.UI.Gtk.Abstract.Container	(containerAdd)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+
+#ifndef DISABLE_DEPRECATED
 import Graphics.UI.Gtk.General.Structs		(comboGetList)
+#endif
 
 {# context lib="gtk" prefix="gtk" #}
 
