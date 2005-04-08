@@ -1,6 +1,20 @@
 AUTOMAKE_OPTIONS = 1.8 foreign subdir-objects
 SUFFIXES = .hs.uncpp .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES = */*.deps.bak tools/*/*.deps.bak
+
+# Note about running "make clean" and dependencies: It would be nice if
+# "make clean" would clear all dependency files. However, this turns out
+# to be a bad idea since cleaning the dependencies mean rebuilding them
+# if "make clean" is run again. They shouldn't be rebuilt in the first
+# place but that can only be done by not -including the dependency files.
+# Unfortunately, automake chokes if we try to use GNU make conditionals.
+# We cannot incorporate the conditionals into the dependency building
+# rules .deps and .dep in mk/common.mk either since that triggers the
+# rebuild of the typeGen and hierarchyGen every second time we run
+# a "make clean" that wipes dependencies. Hence we only wipe dependencies
+# on "make distclean" and hope that nobody notices that dependencies are
+# built when running "make clean" on a clean tree.
+
 CLEANFILES =
 DISTCLEANFILES = */*.precomp
 

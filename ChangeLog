@@ -34,6 +34,9 @@
 
 2005-04-08 Axel Simon <A.Simon@kent.ac.uk>
 
+	* Makefile.am: Add a comment on why make clean builds
+	dependencies.
+	
 	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp,
 	gtk/Graphics/UI/Gtk/Multiline/TextView.chs.pp,
