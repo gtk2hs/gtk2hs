@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/03/24 17:31:00 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/08 14:15:16 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -63,7 +63,7 @@ module Graphics.UI.Gtk.Layout.VButtonBox (
   castToVButtonBox,
 
 -- * Constructors
-  vButtonBoxNew
+  vButtonBoxNew,
   ) where
 
 import Monad (liftM)

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:31:00 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/08 14:15:16 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -50,7 +50,7 @@ module Graphics.UI.Gtk.Layout.VPaned (
   castToVPaned,
 
 -- * Constructors
-  vPanedNew
+  vPanedNew,
   ) where
 
 import Monad	(liftM)

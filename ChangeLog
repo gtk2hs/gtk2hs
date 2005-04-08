@@ -10,10 +10,23 @@
 
 	* glib/System/Glib/FFI.hs, tools/hierarchyGen/TypeGen.hs,
 	tools/hierarchyGen/Hierarchy.chs.template,
+	gtk/Graphics/UI/Gtk/General/Structs.hsc,
 	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs,
 	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs: change use
 	of foreignPtrToPtr to unsafeForeignPtrToPtr and provide backwards
 	compatability for GHC pre-6.2.
+
+	* gtk/Graphics/UI/Gtk/Entry/HScale.chs,
+	gtk/Graphics/UI/Gtk/Layout/HBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/HButtonBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/HPaned.chs,
+	gtk/Graphics/UI/Gtk/Layout/VBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/VButtonBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/VPaned.chs,
+	gtk/Graphics/UI/Gtk/Ornaments/HSeparator.chs,
+	gtk/Graphics/UI/Gtk/Ornaments/VSeparator.chs: just for fun, last
+	trivial	change so that these modules are exactly the same as those
+	produced by the code generator!
 
 2005-04-08 Axel Simon <A.Simon@kent.ac.uk>
 
