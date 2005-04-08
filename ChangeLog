@@ -5,6 +5,9 @@
 	committed the .chs file rather than the .chs.pp file and was using
 	that in Makefile.am as well. So fix all that.
 
+	* glib/System/Glib/GList.chs: add readGList function needed for some
+	new modules. Remove unused ptrToInt function.
+
 2005-04-08 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,

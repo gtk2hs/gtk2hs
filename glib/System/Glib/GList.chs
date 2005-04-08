@@ -5,7 +5,7 @@
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 17:45:06 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/08 13:40:10 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -25,8 +25,8 @@
 -- * The same for GSList.
 --
 module System.Glib.GList (
-  ptrToInt,
   GList,
+  readGList,
   fromGList,
   toGList,
   GSList,
@@ -46,12 +46,18 @@ import Foreign
 
 -- methods
 
--- Convert a pointer to an Int.
+-- Turn a GList into a list of pointers but don't destroy the list.
 --
-ptrToInt :: Ptr a -> Int
-ptrToInt ptr = minusPtr ptr nullPtr 
+readGList :: GList -> IO [Ptr a]
+readGList glist
+  | glist==nullPtr = return []
+  | otherwise	    = do
+    x <- {#get GList->data#} glist
+    glist' <- {#get GList->next#} glist
+    xs <- readGList glist'
+    return (castPtr x:xs)
 
--- Turn a GList into a list of pointers.
+-- Turn a GList into a list of pointers (freeing the GList in the process).
 --
 fromGList :: GList -> IO [Ptr a]
 fromGList glist = do
@@ -76,7 +82,7 @@ readGSList gslist
     xs <- readGSList gslist'
     return (castPtr x:xs)
 
--- Turn a GSList into a list of pointers.
+-- Turn a GSList into a list of pointers (freeing the GSList in the process).
 --
 fromGSList :: GSList -> IO [Ptr a]
 fromGSList gslist
