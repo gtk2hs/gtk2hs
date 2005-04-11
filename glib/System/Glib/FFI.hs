@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/08 14:00:47 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/11 02:22:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -31,7 +31,10 @@ module System.Glib.FFI (
   maybeNull,
   foreignFree,
   newForeignPtr,
+  withForeignPtrs,
+#if __GLASGOW_HASKELL__<602
   unsafeForeignPtrToPtr,
+#endif
 # if __GLASGOW_HASKELL__<600
   -- ghc 6 exports unsafePerformIO from module Foreign
   -- provide it here for ghc 5
@@ -78,6 +81,14 @@ nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr (return ())
 foreignFree :: Ptr a -> IO ()
 foreignFree = free
 #endif
+
+-- This is useful when it comes to marshaling lists of GObjects
+--
+withForeignPtrs :: [ForeignPtr a] -> ([Ptr a] -> IO b) -> IO b
+withForeignPtrs fptrs body = do
+  result <- body (map unsafeForeignPtrToPtr fptrs)
+  mapM_ touchForeignPtr fptrs
+  return result
 
 -- A marshaling utility function that is used by the code produced by the code
 -- generator to marshal return values that can be null

@@ -5,7 +5,7 @@
 --          
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/08 13:40:10 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/11 02:22:14 $
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -105,12 +105,6 @@ fromGSListRev gslist =
 	x <- {#get GSList->data#} gslist
 	gslist' <- {#call unsafe slist_delete_link#} gslist gslist
 	extractList gslist' (castPtr x:xs)
-
--- Convert an Int into a pointer.
---
-intToPtr :: Int -> Ptr a
-intToPtr int = plusPtr nullPtr int
-
 
 -- Turn a list of something into a GList.
 --

@@ -5,7 +5,7 @@
 --          
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/04/05 18:13:42 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/11 02:22:14 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -36,6 +36,8 @@ module System.Glib.UTFString (
   withUTFStrings,
   withUTFStringArray,
   withUTFStringArray0,
+  peekUTFStringArray,
+  peekUTFStringArray0
   ) where
 
 import Monad	(liftM)
@@ -112,6 +114,22 @@ withUTFStringArray0 :: [String] -> (Ptr CString -> IO a) -> IO a
 withUTFStringArray0 hsStr body =
   withUTFStrings hsStr $ \cStrs -> do
   withArray0 nullPtr cStrs body
+
+-- Convert an array of UTF-8 strings of the given length to a list of Haskell
+-- strings.
+--
+peekUTFStringArray :: Int -> Ptr CString -> IO [String]
+peekUTFStringArray len cStrArr = do
+  cStrs <- peekArray len cStrArr
+  mapM peekUTFString cStrs
+
+-- Convert a null-terminated array of UTF-8 strings to a list of Haskell
+-- strings.
+--
+peekUTFStringArray0 :: Ptr CString -> IO [String]
+peekUTFStringArray0 cStrArr = do
+  cStrs <- peekArray0 nullPtr cStrArr
+  mapM peekUTFString cStrs
 
 -- Convert Unicode characters to UTF-8.
 --

@@ -1,3 +1,14 @@
+2005-04-11 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/FFI.hs: add withForeignPtrs function which is
+	useful when it comes to marshaling lists of GObjects.
+
+	* glib/System/Glib/GList.chs: remove unused function.
+
+	* glib/System/Glib/UTFString.hs: add two new string marshaling
+	functions, peekUTFStringArray and peekUTFStringArray0 for marshaling
+	arrays of strings.
+
 2005-04-8 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp,
