@@ -9,6 +9,9 @@
 	functions, peekUTFStringArray and peekUTFStringArray0 for marshaling
 	arrays of strings.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: don't use local
+	definition of withForeignPtrs, use new general version.
+
 2005-04-8 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp,

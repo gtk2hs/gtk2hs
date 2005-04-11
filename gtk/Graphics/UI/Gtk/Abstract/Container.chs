@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/27 11:54:52 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/11 02:25:06 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -295,18 +295,11 @@ containerSetFocusChain :: ContainerClass self => self
  -> [Widget] -- ^ @focusableWidgets@ - the new focus chain.
  -> IO ()
 containerSetFocusChain self chain =
-  let wForeignPtrs = map (\w -> case toWidget w of Widget ptr -> ptr) chain in
-  withForeignPtrs wForeignPtrs $ \wPtrs -> do
+  withForeignPtrs (map unWidget chain) $ \wPtrs -> do
   glist <- toGList wPtrs
   {# call container_set_focus_chain #}
     (toContainer self)
     glist
-
-withForeignPtrs :: [ForeignPtr a] -> ([Ptr a] -> IO b) -> IO b
-withForeignPtrs = withForeignPtrs' []
-  where withForeignPtrs' accum []     cont = cont (reverse accum)
-        withForeignPtrs' accum (p:ps) cont = withForeignPtr p $ \p' ->
-                                             withForeignPtrs' (p':accum) ps cont
 
 -- | Retrieves the focus chain of the container, if one has been set
 -- explicitly. If no focus chain has been explicitly set, Gtk+ computes the
