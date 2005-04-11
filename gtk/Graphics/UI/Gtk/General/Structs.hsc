@@ -1,3 +1,4 @@
+{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Structures
 --
@@ -5,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/08 14:05:55 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/11 02:49:03 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --

@@ -35,6 +35,9 @@
 	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs,
 	mogul/Graphics/UI/Gtk/Mogul.hs: rename config.h to gtk2hs-config.h
 
+	* gtk/Graphics/UI/Gtk/General/Structs.hsc: add {-# OPTIONS -cpp #-} so
+	that #ifndef DISABLE_DEPRECATED works.
+
 2005-04-8 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp,
