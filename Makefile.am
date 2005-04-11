@@ -562,7 +562,7 @@ mogul_PKGNAME = libHSmogul_a
 libHSmogul_a_PACKAGE		= mogul/mogul.$(PKGEXT)
 libHSmogul_a_PACKAGEDEPS	= 
 libHSmogul_a_LIBS		= 
-libHSmogul_a_HCFLAGS		= $(if $(USE_CABAL),-ignore-package glib)
+libHSmogul_a_HCFLAGS		= -I. $(if $(USE_CABAL),-ignore-package glib)
 libHSmogul_a_CFLAGS 		= 
 libHSmogul_a_CPPFLAGS 		= 
 
