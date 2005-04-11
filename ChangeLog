@@ -18,6 +18,23 @@
 	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp: bind three more
 	methods and four more properties. Also tidy up docs a tad.
 
+	* configure.ac: rename config.h to gtk2hs-config.h which eliminates
+	clashes with the config.h from ghc and consequently allows the
+	--disable-depricated option to work.
+
+	* Makefile.am: The mogul modules #include our config headder file and
+	so we need to -I. for the mogul modules. Also rename CONFIG_H to
+	CONFIG_HEADER since that's the name of the builtin variable.
+
+	* mk/common.mk: remove CONFIG_H definition and rely on builtin var
+	CONFIG_HEADER instead. Also -I. when doing the .hsc -> .hs transforms
+	so it can find the local gtk2hs-config.h (previously it accidentally 
+	imported the ghc's config.h)
+
+	* mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs,
+	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs,
+	mogul/Graphics/UI/Gtk/Mogul.hs: rename config.h to gtk2hs-config.h
+
 2005-04-8 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp,

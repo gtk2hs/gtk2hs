@@ -31,7 +31,7 @@ AC_PREREQ(2.50)
 dnl Check system type.
 AC_CANONICAL_HOST
 
-AM_CONFIG_HEADER(config.h)
+AM_CONFIG_HEADER(gtk2hs-config.h)
 AH_TOP([
 /* Hack to suppress warnings that these symbols clash with
    the ones from ghc's version of config.h */

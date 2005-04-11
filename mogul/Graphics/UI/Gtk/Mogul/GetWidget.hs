@@ -6,7 +6,7 @@
 --          
 --  Created: 4 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 16:41:58 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/11 02:46:08 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -24,7 +24,7 @@
 --
 -- Retrieve a widget by name from the global store.
 --
-#include <config.h>
+#include <gtk2hs-config.h>
 
 module Graphics.UI.Gtk.Mogul.GetWidget (
   getMisc,

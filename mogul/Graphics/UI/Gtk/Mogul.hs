@@ -6,7 +6,7 @@
 --          
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/17 00:13:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/11 02:46:08 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -24,7 +24,7 @@
 --
 -- This module re-exports all unchanged Gtk and Mogul entities.
 --
-#include <config.h>
+#include <gtk2hs-config.h>
 
 module Graphics.UI.Gtk.Mogul (
   module Graphics.UI.Gtk.Mogul.NewWidget,

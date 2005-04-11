@@ -1,8 +1,5 @@
 # --*Makefile*--
 
-# A file with CPP "defines" that reflect the current configuration.
-CONFIG_H = config.h
-
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
@@ -11,8 +8,6 @@ SPACE := $(EMPTY) $(EMPTY)
 #   "gtk/Graphics/UI/Gtk.hs" to "libHSgtk_a"
 # using a make var
 #   gtk_PKGNAME = libHSgtk_a
-# the second argument is the package variable you're after, eg
-#   $(call getPkgVar,HCFLAGS)
 #
 PKG = \
   $(if $(call $(firstword $(subst /, ,$@))_PKGNAME,$@),$(strip \
@@ -33,7 +28,7 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 #and falsely concluding that two source files will produce the same object
 #file even though the object files will be in different directories.
 #Obviously the 'subdir-objects' option only works for C/C++ files.
-%.o : %.hs $(CONFIG_H)
+%.o : %.hs $(CONFIG_HEADER)
 	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
 	$(addprefix -package-name ,$(notdir $(basename $($(PKG)_PACKAGE)))) \
@@ -106,16 +101,16 @@ debug	:
 	$(strip $(C2HS) $(C2HS_FLAGS)		\
 	+RTS $(HSTOOLFLAGS) $(PROFFLAGS) -RTS		\
 	$(addprefix -C,$($(PKG)_CFLAGS) $($(PKG)_CPPFLAGS))		\
-	--cppopts='-include "$(CONFIG_H)"' \
+	--cppopts='-include "$(CONFIG_HEADER)"' \
 	--precomp=$($(PKG)_PRECOMP) $($(PKG)_HEADER))
 
-.chs.pp.chs: $(CONFIG_H)
+.chs.pp.chs: $(CONFIG_HEADER)
 	$(strip $(HSCPP) $(AM_CPPFLAGS) \
 	$($(PKG)_CPPFLAGS) $($(PKG)_CFLAGS) \
-	$(addprefix -include ,$(CONFIG_H)) \
+	$(addprefix -include ,$(CONFIG_HEADER)) \
 	$< -o $@)
 
-.hsc.hs: $(CONFIG_H)
+.hsc.hs: $(CONFIG_HEADER)
 	$(strip $(HSC2HS) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
         $(addprefix -L-optl,\
 	$(AM_LDFLAGS) $($(PKG)_LIBS)) \
@@ -123,7 +118,7 @@ debug	:
 	$($(PKG)_CFLAGS))\
         $(filter -I%,$(AM_CPPFLAGS)) \
 	$($(PKG)_CPPFLAGS)\
-	--include $(CONFIG_H) --include $($(PKG)_HEADER) \
+	-I. --include $(CONFIG_HEADER) --include $($(PKG)_HEADER) \
         --cc=$(HC) --lflag=-no-hs-main $<)
 
 .chs.hs: 

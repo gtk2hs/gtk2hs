@@ -978,7 +978,7 @@ $(html_DATA) doc/gtk2hs.haddock : $(html_HSFILES)
 		--dump-interface=doc/gtk2hs.haddock \
 		$^)
 
-.hs.hs.uncpp : $(CONFIG_H)
+.hs.hs.uncpp : $(CONFIG_HEADER)
 	$(HSCPP) -I. $< -o $@
 
 CLEANFILES += $(html_DATA) $(html_HSFILES_PREPROC:.hs=.hs.uncpp)
