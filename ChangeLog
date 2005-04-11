@@ -12,6 +12,12 @@
 	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: don't use local
 	definition of withForeignPtrs, use new general version.
 
+	* gtk/Graphics/UI/Gtk/Selectors/FileSelection.chs.pp: bind three more
+	methods. We need to think about the file name encoding issue again.
+
+	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp: bind three more
+	methods and four more properties. Also tidy up docs a tad.
+
 2005-04-8 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp,

@@ -5,7 +5,7 @@
 --
 --  Created: 1 March 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/08 12:10:34 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/11 02:31:48 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -84,8 +84,11 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogGetWebsiteLabel,
   aboutDialogSetWebsiteLabel,
   aboutDialogSetAuthors,
+  aboutDialogGetAuthors,
   aboutDialogSetArtists,
+  aboutDialogGetArtists,
   aboutDialogSetDocumenters,
+  aboutDialogGetDocumenters,
   aboutDialogGetTranslatorCredits,
   aboutDialogSetTranslatorCredits,
   aboutDialogGetLogo,
@@ -100,8 +103,12 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogVersion,
   aboutDialogCopyright,
   aboutDialogComments,
+  aboutDialogLicense,
   aboutDialogWebsite,
   aboutDialogWebsiteLabel,
+  aboutDialogAuthors,
+  aboutDialogDocumenters,
+  aboutDialogArtists,
   aboutDialogTranslatorCredits,
 --  aboutDialogLogoIconName
 #endif
@@ -157,8 +164,7 @@ aboutDialogSetName self name =
 
 -- | Returns the version string.
 --
-aboutDialogGetVersion :: AboutDialogClass self => self
- -> IO String -- ^ returns The version string.
+aboutDialogGetVersion :: AboutDialogClass self => self -> IO String
 aboutDialogGetVersion self =
   {# call gtk_about_dialog_get_version #}
     (toAboutDialog self)
@@ -166,9 +172,7 @@ aboutDialogGetVersion self =
 
 -- | Sets the version string to display in the about dialog.
 --
-aboutDialogSetVersion :: AboutDialogClass self => self
- -> String -- ^ @version@ - the version string
- -> IO ()
+aboutDialogSetVersion :: AboutDialogClass self => self -> String -> IO ()
 aboutDialogSetVersion self version =
   withUTFString version $ \versionPtr ->
   {# call gtk_about_dialog_set_version #}
@@ -177,8 +181,7 @@ aboutDialogSetVersion self version =
 
 -- | Returns the copyright string.
 --
-aboutDialogGetCopyright :: AboutDialogClass self => self
- -> IO String -- ^ returns The copyright string.
+aboutDialogGetCopyright :: AboutDialogClass self => self -> IO String
 aboutDialogGetCopyright self =
   {# call gtk_about_dialog_get_copyright #}
     (toAboutDialog self)
@@ -187,9 +190,7 @@ aboutDialogGetCopyright self =
 -- | Sets the copyright string to display in the about dialog. This should be
 -- a short string of one or two lines.
 --
-aboutDialogSetCopyright :: AboutDialogClass self => self
- -> String -- ^ @copyright@ - the copyright string
- -> IO ()
+aboutDialogSetCopyright :: AboutDialogClass self => self -> String -> IO ()
 aboutDialogSetCopyright self copyright =
   withUTFString copyright $ \copyrightPtr ->
   {# call gtk_about_dialog_set_copyright #}
@@ -198,8 +199,7 @@ aboutDialogSetCopyright self copyright =
 
 -- | Returns the comments string.
 --
-aboutDialogGetComments :: AboutDialogClass self => self
- -> IO String -- ^ returns The comments.
+aboutDialogGetComments :: AboutDialogClass self => self -> IO String
 aboutDialogGetComments self =
   {# call gtk_about_dialog_get_comments #}
     (toAboutDialog self)
@@ -208,9 +208,7 @@ aboutDialogGetComments self =
 -- | Sets the comments string to display in the about dialog. This should be a
 -- short string of one or two lines.
 --
-aboutDialogSetComments :: AboutDialogClass self => self
- -> String -- ^ @comments@ - a comments string
- -> IO ()
+aboutDialogSetComments :: AboutDialogClass self => self -> String -> IO ()
 aboutDialogSetComments self comments =
   withUTFString comments $ \commentsPtr ->
   {# call gtk_about_dialog_set_comments #}
@@ -219,12 +217,11 @@ aboutDialogSetComments self comments =
 
 -- | Returns the license information.
 --
-aboutDialogGetLicense :: AboutDialogClass self => self
- -> IO String -- ^ returns The license information.
+aboutDialogGetLicense :: AboutDialogClass self => self -> IO (Maybe String)
 aboutDialogGetLicense self =
   {# call gtk_about_dialog_get_license #}
     (toAboutDialog self)
-  >>= peekUTFString
+  >>= maybePeek peekUTFString
 
 -- | Sets the license information to be displayed in the secondary license
 -- dialog. If @license@ is @Nothing@, the license button is hidden.
@@ -240,8 +237,7 @@ aboutDialogSetLicense self license =
 
 -- | Returns the website URL.
 --
-aboutDialogGetWebsite :: AboutDialogClass self => self
- -> IO String -- ^ returns The website URL.
+aboutDialogGetWebsite :: AboutDialogClass self => self -> IO String
 aboutDialogGetWebsite self =
   {# call gtk_about_dialog_get_website #}
     (toAboutDialog self)
@@ -260,8 +256,7 @@ aboutDialogSetWebsite self website =
 
 -- | Returns the label used for the website link.
 --
-aboutDialogGetWebsiteLabel :: AboutDialogClass self => self
- -> IO String -- ^ returns The label used for the website link.
+aboutDialogGetWebsiteLabel :: AboutDialogClass self => self -> IO String
 aboutDialogGetWebsiteLabel self =
   {# call gtk_about_dialog_get_website_label #}
     (toAboutDialog self)
@@ -270,9 +265,7 @@ aboutDialogGetWebsiteLabel self =
 -- | Sets the label to be used for the website link. It defaults to the
 -- website URL.
 --
-aboutDialogSetWebsiteLabel :: AboutDialogClass self => self
- -> String -- ^ @websiteLabel@ - the label used for the website link
- -> IO ()
+aboutDialogSetWebsiteLabel :: AboutDialogClass self => self -> String -> IO ()
 aboutDialogSetWebsiteLabel self websiteLabel =
   withUTFString websiteLabel $ \websiteLabelPtr ->
   {# call gtk_about_dialog_set_website_label #}
@@ -291,6 +284,15 @@ aboutDialogSetAuthors self authors =
     (toAboutDialog self)
     authorsPtr
 
+-- | Returns the string which are displayed in the authors tab of the
+-- secondary credits dialog.
+--
+aboutDialogGetAuthors :: AboutDialogClass self => self -> IO [String]
+aboutDialogGetAuthors self =
+  {# call gtk_about_dialog_get_authors #}
+    (toAboutDialog self)
+  >>= peekUTFStringArray0
+
 -- | Sets the strings which are displayed in the artists tab of the secondary
 -- credits dialog.
 --
@@ -302,6 +304,15 @@ aboutDialogSetArtists self artists =
   {# call gtk_about_dialog_set_artists #}
     (toAboutDialog self)
     artistsPtr
+
+-- | Returns the string which are displayed in the artists tab of the
+-- secondary credits dialog.
+--
+aboutDialogGetArtists :: AboutDialogClass self => self -> IO [String]
+aboutDialogGetArtists self =
+  {# call gtk_about_dialog_get_artists #}
+    (toAboutDialog self)
+  >>= peekUTFStringArray0
 
 -- | Sets the strings which are displayed in the documenters tab of the
 -- secondary credits dialog.
@@ -315,11 +326,19 @@ aboutDialogSetDocumenters self documenters =
     (toAboutDialog self)
     documentersPtr
 
+-- | Returns the string which are displayed in the documenters tab of the
+-- secondary credits dialog.
+--
+aboutDialogGetDocumenters :: AboutDialogClass self => self -> IO [String]
+aboutDialogGetDocumenters self =
+  {# call gtk_about_dialog_get_documenters #}
+    (toAboutDialog self)
+  >>= peekUTFStringArray0
+
 -- | Returns the translator credits string which is displayed in the
 -- translators tab of the secondary credits dialog.
 --
-aboutDialogGetTranslatorCredits :: AboutDialogClass self => self
- -> IO String -- ^ returns The translator credits string.
+aboutDialogGetTranslatorCredits :: AboutDialogClass self => self -> IO String
 aboutDialogGetTranslatorCredits self =
   {# call gtk_about_dialog_get_translator_credits #}
     (toAboutDialog self)
@@ -331,9 +350,7 @@ aboutDialogGetTranslatorCredits self =
 -- The intended use for this string is to display the translator of the
 -- language which is currently used in the user interface.
 --
-aboutDialogSetTranslatorCredits :: AboutDialogClass self => self
- -> String -- ^ @translatorCredits@ - the translator credits
- -> IO ()
+aboutDialogSetTranslatorCredits :: AboutDialogClass self => self -> String -> IO ()
 aboutDialogSetTranslatorCredits self translatorCredits =
   withUTFString translatorCredits $ \translatorCreditsPtr ->
   {# call gtk_about_dialog_set_translator_credits #}
@@ -342,8 +359,7 @@ aboutDialogSetTranslatorCredits self translatorCredits =
 
 -- | Returns the pixbuf displayed as logo in the about dialog.
 --
-aboutDialogGetLogo :: AboutDialogClass self => self
- -> IO Pixbuf -- ^ returns the pixbuf displayed as logo.
+aboutDialogGetLogo :: AboutDialogClass self => self -> IO Pixbuf
 aboutDialogGetLogo self =
   makeNewGObject mkPixbuf $
   {# call gtk_about_dialog_get_logo #}
@@ -363,8 +379,7 @@ aboutDialogSetLogo self logo =
 
 -- | Returns the icon name displayed as logo in the about dialog.
 --
-aboutDialogGetLogoIconName :: AboutDialogClass self => self
- -> IO String -- ^ returns the icon name displayed as logo. 
+aboutDialogGetLogoIconName :: AboutDialogClass self => self -> IO String
 aboutDialogGetLogoIconName self =
   {# call gtk_about_dialog_get_logo_icon_name #}
     (toAboutDialog self)
@@ -460,6 +475,18 @@ aboutDialogComments = Attr
   aboutDialogGetComments
   aboutDialogSetComments
 
+-- | The license of the program. This string is displayed in a text view in a
+-- secondary dialog, therefore it is fine to use a long multi-paragraph text.
+-- Note that the text is not wrapped in the text view, thus it must contain the
+-- intended linebreaks.
+--
+-- Default value: @Nothing@
+--
+aboutDialogLicense :: AboutDialogClass self => Attr self (Maybe String)
+aboutDialogLicense = Attr 
+  aboutDialogGetLicense
+  aboutDialogSetLicense
+
 -- | The URL for the link to the website of the program. This should be a
 -- string starting with \"http:\/\/.
 --
@@ -475,6 +502,33 @@ aboutDialogWebsiteLabel :: AboutDialogClass self => Attr self String
 aboutDialogWebsiteLabel = Attr 
   aboutDialogGetWebsiteLabel
   aboutDialogSetWebsiteLabel
+
+-- | The authors of the program. Each string may
+-- contain email addresses and URLs, which will be displayed as links, see the
+-- introduction for more details.
+--
+aboutDialogAuthors :: AboutDialogClass self => Attr self [String]
+aboutDialogAuthors = Attr 
+  aboutDialogGetAuthors
+  aboutDialogSetAuthors
+
+-- | The people documenting the program.
+-- Each string may contain email addresses and URLs, which will be displayed as
+-- links, see the introduction for more details.
+--
+aboutDialogDocumenters :: AboutDialogClass self => Attr self [String]
+aboutDialogDocumenters = Attr 
+  aboutDialogGetDocumenters
+  aboutDialogSetDocumenters
+
+-- | The people who contributed artwork to the program.
+-- Each string may contain email addresses and URLs, which will be
+-- displayed as links, see the introduction for more details.
+--
+aboutDialogArtists :: AboutDialogClass self => Attr self [String]
+aboutDialogArtists = Attr 
+  aboutDialogGetArtists
+  aboutDialogSetArtists
 
 -- | Credits to the translators. This string should be marked as translatable.
 -- The string may contain email addresses and URLs, which will be displayed as

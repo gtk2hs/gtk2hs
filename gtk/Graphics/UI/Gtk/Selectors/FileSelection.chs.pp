@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/03 12:56:07 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/11 02:31:48 $
 --
 --  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
@@ -85,9 +85,13 @@ module Graphics.UI.Gtk.Selectors.FileSelection (
   fileSelectionHideFileopButtons,
   fileSelectionGetButtons,
   fileSelectionComplete,
+  fileSelectionGetSelections,
+  fileSelectionSetSelectMultiple,
+  fileSelectionGetSelectMultiple,
 
 -- * Properties
-  fileSelectionFilename
+  fileSelectionFilename,
+  fileSelectionSelectMultiple,
   ) where
 
 import Monad            (liftM)
@@ -209,6 +213,42 @@ fileSelectionComplete self pattern =
     (toFileSelection self)
     patternPtr
 
+-- | Retrieves the list of file selections the user has made in the dialog
+-- box. This function is intended for use when the user can select multiple
+-- files in the file list.
+--
+fileSelectionGetSelections :: FileSelectionClass self => self -> IO [String]
+fileSelectionGetSelections self = do
+  cStrArr <- {# call gtk_file_selection_get_selections #}
+    (toFileSelection self)
+  cStrs <- peekArray0 nullPtr cStrArr
+  result <- mapM peekUTFString cStrs
+  {# call unsafe g_strfreev #} cStrArr
+  return result
+
+-- | Sets whether the user is allowed to select multiple files in the file
+-- list. Use 'fileSelectionGetSelections' to get the list of selected files.
+--
+fileSelectionSetSelectMultiple :: FileSelectionClass self => self
+ -> Bool  -- ^ @selectMultiple@ - whether or not the user is allowed to select
+          -- multiple files in the file list.
+ -> IO ()
+fileSelectionSetSelectMultiple self selectMultiple =
+  {# call gtk_file_selection_set_select_multiple #}
+    (toFileSelection self)
+    (fromBool selectMultiple)
+
+-- | Determines whether or not the user is allowed to select multiple files in
+-- the file list. See 'fileSelectionSetSelectMultiple'.
+--
+fileSelectionGetSelectMultiple :: FileSelectionClass self => self
+ -> IO Bool -- ^ returns @True@ if the user is allowed to select multiple
+            -- files in the file list
+fileSelectionGetSelectMultiple self =
+  liftM toBool $
+  {# call gtk_file_selection_get_select_multiple #}
+    (toFileSelection self)
+
 --------------------
 -- Properties
 
@@ -219,3 +259,12 @@ fileSelectionFilename :: FileSelectionClass self => Attr self String
 fileSelectionFilename = Attr 
   fileSelectionGetFilename
   fileSelectionSetFilename
+
+-- | Whether to allow multiple files to be selected.
+--
+-- Default value: @False@
+--
+fileSelectionSelectMultiple :: FileSelectionClass self => Attr self Bool
+fileSelectionSelectMultiple = Attr 
+  fileSelectionGetSelectMultiple
+  fileSelectionSetSelectMultiple
