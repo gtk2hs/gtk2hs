@@ -28,6 +28,9 @@
 
 	* Makefile: build newly added modules.
 
+	* tools/hierarchyGen/hierarchy.list: add GtkSeparatorMenuItem and
+	GtkMenuToolButton classes to hierarchy.
+
 2005-04-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/FFI.hs: add withForeignPtrs function which is

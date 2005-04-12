@@ -65,6 +65,7 @@
                                     GtkRadioMenuItem
                                 GtkTearoffMenuItem
                                 GtkImageMenuItem
+                                GtkSeparatorMenuItem
                             GtkListItem			if deprecated
 #			    GtkTreeItem
                         GtkWindow
@@ -89,6 +90,7 @@
 				GtkToggleToolButton	if gtk-2.4
 				    GtkRadioToolButton	if gtk-2.4
 			    GtkSeparatorToolItem	if gtk-2.4
+			    GtkMenuToolButton		if gtk-2.6
 			GtkMozEmbed		if mozembed
                     GtkBox
                         GtkButtonBox
