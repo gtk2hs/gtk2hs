@@ -7,6 +7,27 @@
 	compiling -fvia-C does not complain that gtk2hs-config.h cannot be
 	found).
 
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToggleToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/SeparatorMenuItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/SeparatorToolItem.chs.pp: add
+	several new modules, the *ToolButton ones that go with the 
+	"action-based menu and toolbar api" and a couple other simple modules.
+	This adds about 0.8Kloc.
+
+	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ToggleAction.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp: add the
+	"action-based menu and toolbar api" modules. This adds about 1.6Kloc.
+
+	* gtk/Graphics/UI/Gtk.hs: export newly added modules.
+
+	* Makefile: build newly added modules.
+
 2005-04-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/FFI.hs: add withForeignPtrs function which is

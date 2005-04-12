@@ -384,6 +384,17 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/TearoffMenuItem.chs	\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolItem.chs.pp		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/Toolbar.chs.pp		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolButton.chs.pp		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuToolButton.chs.pp	\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToggleToolButton.chs.pp	\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioToolButton.chs.pp	\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/SeparatorMenuItem.chs.pp	\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/SeparatorToolItem.chs.pp	\
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs.pp		\
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs.pp	\
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ToggleAction.chs.pp	\
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs.pp	\
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp		\
 	gtk/Graphics/UI/Gtk/Misc/Adjustment.chs				\
 	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs			\

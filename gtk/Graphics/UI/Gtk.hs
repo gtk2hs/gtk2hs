@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/05 18:29:53 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/12 19:52:15 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -113,6 +113,18 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem,
   module Graphics.UI.Gtk.MenuComboToolbar.Toolbar,
   module Graphics.UI.Gtk.MenuComboToolbar.ToolItem,
+  module Graphics.UI.Gtk.MenuComboToolbar.ToolButton,
+  module Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton,
+  module Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton,
+  module Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton,
+  module Graphics.UI.Gtk.MenuComboToolbar.SeparatorMenuItem,
+  module Graphics.UI.Gtk.MenuComboToolbar.SeparatorToolItem,
+-- * Action-based menus and toolbars
+  module Graphics.UI.Gtk.ActionMenuToolbar.Action,
+  module Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup,
+  module Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction,
+  module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction,
+  module Graphics.UI.Gtk.ActionMenuToolbar.UIManager,
   -- * Selectors (file\/font\/color)
   module Graphics.UI.Gtk.Selectors.ColorSelection,
   module Graphics.UI.Gtk.Selectors.ColorSelectionDialog,
@@ -271,6 +283,18 @@ import Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem
 import Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem
 import Graphics.UI.Gtk.MenuComboToolbar.Toolbar
 import Graphics.UI.Gtk.MenuComboToolbar.ToolItem
+import Graphics.UI.Gtk.MenuComboToolbar.ToolButton
+import Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton
+import Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton
+import Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton
+import Graphics.UI.Gtk.MenuComboToolbar.SeparatorMenuItem
+import Graphics.UI.Gtk.MenuComboToolbar.SeparatorToolItem
+-- action based menus and toolbars
+import Graphics.UI.Gtk.ActionMenuToolbar.Action
+import Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup
+import Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction
+import Graphics.UI.Gtk.ActionMenuToolbar.RadioAction
+import Graphics.UI.Gtk.ActionMenuToolbar.UIManager
 -- selectors (file\/font\/color\/input device)
 import Graphics.UI.Gtk.Selectors.ColorSelection
 import Graphics.UI.Gtk.Selectors.ColorSelectionDialog
