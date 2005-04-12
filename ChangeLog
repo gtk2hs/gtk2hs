@@ -1,3 +1,12 @@
+2005-04-12 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mk/common.mk: change the way gtk2hs-config.h is used during .hsc ->
+	.hs transforms. It is now only used during the cpp phase and is not
+	output into the .hs file as a {-# INCLUDE "gtk2hs-config.h" #-}
+	pragma. This means that it does not used at compile time (and so
+	compiling -fvia-C does not complain that gtk2hs-config.h cannot be
+	found).
+
 2005-04-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/FFI.hs: add withForeignPtrs function which is

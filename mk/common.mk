@@ -118,7 +118,8 @@ debug	:
 	$($(PKG)_CFLAGS))\
         $(filter -I%,$(AM_CPPFLAGS)) \
 	$($(PKG)_CPPFLAGS)\
-	-I. --include $(CONFIG_HEADER) --include $($(PKG)_HEADER) \
+	-C'-optc -include' -C'-optc $(CONFIG_HEADER)' \
+	--include $($(PKG)_HEADER) \
         --cc=$(HC) --lflag=-no-hs-main $<)
 
 .chs.hs: 
