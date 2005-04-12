@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/07 00:34:49 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/12 23:27:51 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -95,6 +95,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.Menu (
   menuSetMonitor,
   menuAttach,
 #endif
+#if GTK_CHECK_VERSION(2,6,0)
+  menuGetForAttachWidget,
+#endif
 
 -- * Properties
   menuTearoffState,
@@ -106,6 +109,7 @@ import Maybe  (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.GList
 import System.Glib.Attributes		(Attr(..))
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -293,11 +297,11 @@ menuGetTearoffState self =
 
 -- | Attach this menu to another widget.
 --
-menuAttachToWidget :: (MenuClass self, WidgetClass w) => self -> w -> IO ()
-menuAttachToWidget self w =
+menuAttachToWidget :: (MenuClass self, WidgetClass attachWidget) => self -> attachWidget -> IO ()
+menuAttachToWidget self attachWidget =
   {# call menu_attach_to_widget #}
     (toMenu self)
-    (toWidget w)
+    (toWidget attachWidget)
     nullFunPtr
 
 -- | Detach this menu from the widget it is attached to.
@@ -319,7 +323,7 @@ menuGetAttachWidget self = do
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Sets the 'Screen' on which the menu will be displayed.
 --
--- * Available since Gtk version 2.2
+-- * Available since Gtk+ version 2.2
 --
 menuSetScreen :: MenuClass self => self
  -> Maybe Screen -- ^ @screen@ - a 'Screen', or @Nothing@ if the screen should
@@ -335,7 +339,7 @@ menuSetScreen self screen =
 -- | Informs Gtk+ on which monitor a menu should be popped up. See
 -- 'screenGetMonitorGeometry'.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 menuSetMonitor :: MenuClass self => self
  -> Int   -- ^ @monitorNum@ - the number of the monitor on which the menu
@@ -374,6 +378,21 @@ menuAttach self child leftAttach rightAttach topAttach bottomAttach =
     (fromIntegral rightAttach)
     (fromIntegral topAttach)
     (fromIntegral bottomAttach)
+#endif
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Returns a list of the menus which are attached to this widget.
+--
+-- * Available since Gtk+ version 2.6
+--
+menuGetForAttachWidget :: WidgetClass widget => 
+    widget                  -- ^ @widget@ - a 'Widget'
+ -> IO [Menu]
+menuGetForAttachWidget widget =
+  {# call gtk_menu_get_for_attach_widget #}
+    (toWidget widget)
+  >>= fromGList
+  >>= mapM (\elemPtr -> makeNewObject mkMenu (return elemPtr))
 #endif
 
 --------------------
