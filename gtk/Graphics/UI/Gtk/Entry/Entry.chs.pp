@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:22:04 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/12 23:26:56 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -69,6 +69,7 @@ module Graphics.UI.Gtk.Entry.Entry (
   entrySetInvisibleChar,
   entryGetInvisibleChar,
   entrySetMaxLength,
+  entryGetMaxLength,
   entryGetActivatesDefault,
   entrySetActivatesDefault,
   entryGetHasFrame,

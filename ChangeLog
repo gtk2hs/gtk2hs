@@ -18,6 +18,9 @@
 	* gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp: add a new property
 	and its associated getter and setter methods.
 
+	* gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp: export method that was
+	already implemented but accidentally not exported.
+
 2005-04-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way gtk2hs-config.h is used during .hsc ->
