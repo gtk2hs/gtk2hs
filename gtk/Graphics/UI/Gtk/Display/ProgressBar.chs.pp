@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 23:20:48 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/12 23:25:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -81,11 +81,18 @@ module Graphics.UI.Gtk.Display.ProgressBar (
   ProgressBarOrientation(..),
   progressBarSetOrientation,
   progressBarGetOrientation,
+#if GTK_CHECK_VERSION(2,6,0)
+  progressBarSetEllipsize,
+  progressBarGetEllipsize,
+#endif
 
 -- * Properties
   progressBarOrientation,
   progressBarFraction,
-  progressBarPulseStep
+  progressBarPulseStep,
+#if GTK_CHECK_VERSION(2,6,0)
+  progressBarEllipsize,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -97,6 +104,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
+import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -201,6 +209,29 @@ progressBarGetOrientation self =
   {# call unsafe progress_bar_get_orientation #}
     (toProgressBar self)
 
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Sets the mode used to ellipsize (add an ellipsis: \"...\") the text if
+-- there is not enough space to render the entire string.
+--
+-- * Available since Gtk+ version 2.6
+--
+progressBarSetEllipsize :: ProgressBarClass self => self -> EllipsizeMode -> IO ()
+progressBarSetEllipsize self mode =
+  {# call gtk_progress_bar_set_ellipsize #}
+    (toProgressBar self)
+    ((fromIntegral . fromEnum) mode)
+
+-- | Gets the value set by 'progressBarSetEllipsize'.
+--
+-- * Available since Gtk+ version 2.6
+--
+progressBarGetEllipsize :: ProgressBarClass self => self -> IO EllipsizeMode
+progressBarGetEllipsize self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_progress_bar_get_ellipsize #}
+    (toProgressBar self)
+#endif
+
 --------------------
 -- Properties
 
@@ -234,3 +265,21 @@ progressBarPulseStep :: ProgressBarClass self => Attr self Double
 progressBarPulseStep = Attr 
   progressBarGetPulseStep
   progressBarSetPulseStep
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | The preferred place to ellipsize the string, if the progressbar does not
+-- have enough room to display the entire string, specified as a
+-- 'EllipsizeMode'.
+--
+-- Note that setting this property to a value other than 'EllipsizeNone' has
+-- the side-effect that the progressbar requests only enough space to display
+-- the ellipsis \"...\". Another means to set a progressbar's width is
+-- 'widgetSetSizeRequest'.
+--
+-- Default value: 'EllipsizeNone'
+--
+progressBarEllipsize :: ProgressBarClass self => Attr self EllipsizeMode
+progressBarEllipsize = Attr 
+  progressBarGetEllipsize
+  progressBarSetEllipsize
+#endif
