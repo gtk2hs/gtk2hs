@@ -1,3 +1,15 @@
+2005-04-13 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs.pp,
+	gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioMenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioToolButton.chs.pp: sort out
+	the radio button API and docs. Change the recently added modules to
+	match the API of the existing radio modules ie the groups are not
+	given as lists but by represetative members. Improve the docs to try
+	and better explain this slightly odd API style.
+
 2005-04-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way gtk2hs-config.h is used during .hsc ->

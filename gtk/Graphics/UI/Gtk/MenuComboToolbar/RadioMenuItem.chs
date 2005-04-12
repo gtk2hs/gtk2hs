@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/02 16:52:50 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/12 23:11:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -59,14 +59,14 @@ module Graphics.UI.Gtk.MenuComboToolbar.RadioMenuItem (
   radioMenuItemNew,
   radioMenuItemNewWithLabel,
   radioMenuItemNewWithMnemonic,
+  radioMenuItemNewFromWidget,
+  radioMenuItemNewWithLabelFromWidget,
+  radioMenuItemNewWithMnemonicFromWidget,
+
+  -- * Compatibilty aliases
   radioMenuItemNewJoinGroup,
   radioMenuItemNewJoinGroupWithLabel,
   radioMenuItemNewJoinGroupWithMnemonic,
-
-  -- * Compatibilty aliases
-  radioMenuItemNewFromWidget,
-  radioMenuItemNewWithLabelFromWidget,
-  radioMenuItemNewWithMnemonicFromWidget
   ) where
 
 import Monad	(liftM)
@@ -115,48 +115,61 @@ radioMenuItemNewWithMnemonic label =
     nullPtr
     labelPtr
 
--- | Create a new radio button and attach it to the group of another radio
--- button.
+-- | Create a new radio button, adding it to the same group as the group to
+-- which @groupMember@ belongs.
 --
-radioMenuItemNewJoinGroup :: RadioMenuItem -> IO RadioMenuItem
-radioMenuItemNewJoinGroup rmi = do
-  groupPtr <- {# call unsafe radio_menu_item_get_group #} rmi
-  makeNewObject mkRadioMenuItem $ liftM castPtr $
-    {#call unsafe radio_menu_item_new#} groupPtr
+radioMenuItemNewFromWidget :: 
+    RadioMenuItem    -- ^ @groupMember@ - a member of an existing radio button
+                     -- group, to which the new radio button will be added.
+ -> IO RadioMenuItem
+radioMenuItemNewFromWidget groupMember =
+  {# call unsafe radio_menu_item_get_group #} groupMember >>= \groupPtr ->
+  makeNewObject mkRadioMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
+  {# call unsafe radio_menu_item_new #}
+    groupPtr
 
--- | Create a new radio button with a label and attach it to the group of
--- another radio button.
+-- | Create a new radio button with a label, adding it to the same group as the
+-- group to which @groupMember@ belongs.
 --
-radioMenuItemNewJoinGroupWithLabel :: RadioMenuItem
+radioMenuItemNewWithLabelFromWidget :: 
+    RadioMenuItem    -- ^ @groupMember@ - a member of an existing radio button
+                     -- group, to which the new radio button will be added.
  -> String
  -> IO RadioMenuItem
-radioMenuItemNewJoinGroupWithLabel rmi label = do
-  groupPtr <- {#call unsafe radio_menu_item_get_group#} rmi
-  withUTFString label $ \strPtr -> 
-    makeNewObject mkRadioMenuItem $ liftM castPtr $ 
-    {#call unsafe radio_menu_item_new_with_label#} groupPtr strPtr
+radioMenuItemNewWithLabelFromWidget groupMember label =
+  {# call unsafe radio_menu_item_get_group #} groupMember >>= \groupPtr ->
+  withUTFString label $ \strPtr ->
+  makeNewObject mkRadioMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
+  {# call unsafe radio_menu_item_new_with_label #}
+    groupPtr
+    strPtr
 
 -- | Create a new radio button with a label and attach it to the group of
 -- another radio button. Underscores in the label string indicate the mnemonic
 -- for the menu item.
 --
-radioMenuItemNewJoinGroupWithMnemonic :: RadioMenuItem
+radioMenuItemNewWithMnemonicFromWidget :: RadioMenuItem
  -> String
  -> IO RadioMenuItem
-radioMenuItemNewJoinGroupWithMnemonic rmi label = do
-  groupPtr <- {#call unsafe radio_menu_item_get_group#} rmi
+radioMenuItemNewWithMnemonicFromWidget groupMember label =
+  {# call unsafe radio_menu_item_get_group #} groupMember >>= \groupPtr ->
   withUTFString label $ \strPtr -> 
-    makeNewObject mkRadioMenuItem $ liftM castPtr $ 
-    {#call unsafe radio_menu_item_new_with_mnemonic#} groupPtr strPtr
+  makeNewObject mkRadioMenuItem $
+  liftM (castPtr :: Ptr Widget -> Ptr RadioMenuItem) $
+  {# call unsafe radio_menu_item_new_with_mnemonic #}
+    groupPtr
+    strPtr
 
 -- These were added in gtk 2.4, the above Join methods simulate them in earlier
 -- versions. These aliases are here for compatibility.
 
--- | Alias for 'radioMenuItemNewJoinGroup'.
-radioMenuItemNewFromWidget = radioMenuItemNewJoinGroup
+-- | Alias for 'radioMenuItemNewFromWidget'.
+radioMenuItemNewJoinGroup = radioMenuItemNewFromWidget
 
--- | Alias for 'radioMenuItemNewJoinGroupWithLabel'.
-radioMenuItemNewWithLabelFromWidget = radioMenuItemNewJoinGroupWithLabel
+-- | Alias for 'radioMenuItemNewWithLabelFromWidget'.
+radioMenuItemNewJoinGroupWithLabel = radioMenuItemNewWithLabelFromWidget
 
--- | Alias for 'radioMenuItemNewJoinGroupWithMnemonic'.
-radioMenuItemNewWithMnemonicFromWidget = radioMenuItemNewJoinGroupWithMnemonic
+-- | Alias for 'radioMenuItemNewWithMnemonicFromWidget'.
+radioMenuItemNewJoinGroupWithMnemonic = radioMenuItemNewWithMnemonicFromWidget

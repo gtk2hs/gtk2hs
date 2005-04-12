@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/12 23:11:14 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -72,7 +72,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton (
   radioToolButtonSetGroup,
 
 -- * Properties
-  radioToolButtonGroup,
+--  radioToolButtonGroup,
 #endif
   ) where
 
@@ -92,43 +92,36 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Creates a new 'RadioToolButton', adding it to @group@.
+-- | Creates a new 'RadioToolButton', creating a new group.
 --
-radioToolButtonNew :: 
-    [RadioToolButton]  -- ^ @group@ - An existing radio button group, or @[]@
-                       -- if you are creating a new group
- -> IO RadioToolButton
-radioToolButtonNew group =
-  withForeignPtrs (map unRadioToolButton group) $ \radioToolButtonFPtrs ->
-  toGSList radioToolButtonFPtrs >>= \groupGSList ->
+radioToolButtonNew :: IO RadioToolButton
+radioToolButtonNew =
   makeNewObject mkRadioToolButton $
   liftM (castPtr :: Ptr ToolItem -> Ptr RadioToolButton) $
   {# call gtk_radio_tool_button_new #}
-    groupGSList
+    nullPtr
 
--- | Creates a new 'RadioToolButton', adding it to @group@. The new
+-- | Creates a new 'RadioToolButton', creating a new group. The new
 -- 'RadioToolButton' will contain an icon and label from the stock item
 -- indicated by @stockId@.
 --
 radioToolButtonNewFromStock :: 
-    [RadioToolButton]  -- ^ @group@ - an existing radio button group, or @[]@ 
-                       -- if you are creating a new group
- -> String             -- ^ @stockId@ - the name of a stock item
+    String             -- ^ @stockId@ - the name of a stock item
  -> IO RadioToolButton
-radioToolButtonNewFromStock group stockId =
-  withForeignPtrs (map unRadioToolButton group) $ \radioToolButtonFPtrs ->
-  toGSList radioToolButtonFPtrs >>= \groupGSList ->
+radioToolButtonNewFromStock stockId =
   makeNewObject mkRadioToolButton $
   liftM (castPtr :: Ptr ToolItem -> Ptr RadioToolButton) $
   withUTFString stockId $ \stockIdPtr ->
   {# call gtk_radio_tool_button_new_from_stock #}
-    groupGSList
+    nullPtr
     stockIdPtr
 
--- | Creates a new 'RadioToolButton' adding it to the same group as @gruup@
+-- | Creates a new 'RadioToolButton' adding it to the same group as 
+-- the group to which @groupMember@ belongs.
 --
-radioToolButtonNewFromWidget :: RadioToolButtonClass group => 
-    group              -- ^ @group@ - An existing 'RadioToolButton'
+radioToolButtonNewFromWidget :: RadioToolButtonClass groupMember => 
+    groupMember        -- ^ @groupMember@ - a member of an existing radio group,
+                       -- to which the new radio tool button will be added.
  -> IO RadioToolButton
 radioToolButtonNewFromWidget group =
   makeNewObject mkRadioToolButton $
@@ -136,12 +129,13 @@ radioToolButtonNewFromWidget group =
   {# call gtk_radio_tool_button_new_from_widget #}
     (toRadioToolButton group)
 
--- | Creates a new 'RadioToolButton' adding it to the same group as @group@.
--- The new 'RadioToolButton' will contain an icon and label from the stock item
--- indicated by @stockId@.
+-- | Creates a new 'RadioToolButton' adding it to the same group as the group
+-- to which @groupMember@ belongs. The new 'RadioToolButton' will contain an
+-- icon and label from the stock item indicated by @stockId@.
 --
-radioToolButtonNewWithStockFromWidget :: RadioToolButtonClass group => 
-    group              -- ^ @group@ - An existing 'RadioToolButton'.
+radioToolButtonNewWithStockFromWidget :: RadioToolButtonClass groupMember => 
+    groupMember        -- ^ @groupMember@ - a member of an existing radio group,
+                       -- to which the new radio tool button will be added.
  -> String             -- ^ @stockId@ - the name of a stock item
  -> IO RadioToolButton
 radioToolButtonNewWithStockFromWidget group stockId =
@@ -160,7 +154,7 @@ radioToolButtonNewWithStockFromWidget group stockId =
 radioToolButtonGetGroup :: RadioToolButtonClass self => self
  -> IO [RadioToolButton] -- ^ returns the group the button belongs to.
 radioToolButtonGetGroup self =
-  {# call gtk_radio_tool_button_get_group #}
+  {# call unsafe gtk_radio_tool_button_get_group #}
     (toRadioToolButton self)
   >>= readGSList
   >>= mapM (\elemPtr -> makeNewObject mkRadioToolButton (return elemPtr))
@@ -169,11 +163,11 @@ radioToolButtonGetGroup self =
 -- before.
 --
 radioToolButtonSetGroup :: RadioToolButtonClass self => self
- -> [RadioToolButton] -- ^ @group@ - an existing radio button group
+ -> RadioToolButton -- ^ @groupMember@ - a member of an existing radio group,
+                    -- to which the radio tool button will be added.
  -> IO ()
 radioToolButtonSetGroup self group =
-  withForeignPtrs (map unRadioToolButton group) $ \radioToolButtonFPtrs ->
-  toGSList radioToolButtonFPtrs >>= \groupGSList ->
+  {# call unsafe gtk_radio_tool_button_get_group #} group >>= \groupGSList ->
   {# call gtk_radio_tool_button_set_group #}
     (toRadioToolButton self)
     groupGSList
@@ -183,8 +177,8 @@ radioToolButtonSetGroup self group =
 
 -- | Sets a new group for a radio tool button.
 --
-radioToolButtonGroup :: RadioToolButtonClass self => Attr self [RadioToolButton]
-radioToolButtonGroup = Attr 
-  radioToolButtonGetGroup
-  radioToolButtonSetGroup
+--radioToolButtonGroup :: RadioToolButtonClass self => Attr self [RadioToolButton]
+--radioToolButtonGroup = Attr 
+--  radioToolButtonGetGroup
+--  radioToolButtonSetGroup
 #endif

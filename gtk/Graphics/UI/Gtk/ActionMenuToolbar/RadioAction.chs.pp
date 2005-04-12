@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/12 23:11:13 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -64,7 +64,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction (
   radioActionGetCurrentValue,
 
 -- * Properties
-  radioActionGroup,
+--  radioActionGroup,
 
 -- * Signals
   onRadioActionChanged,
@@ -121,26 +121,23 @@ radioActionNew name label tooltip stockId value =
 -- | Returns the list representing the radio group for this object
 --
 radioActionGetGroup :: RadioActionClass self => self
- -> IO [RadioAction] -- ^ returns the list representing the radio group
-                            -- for this object
+ -> IO [RadioAction] -- ^ returns the members of the radio group
 radioActionGetGroup self =
-  {# call gtk_radio_action_get_group #}
+  {# call unsafe gtk_radio_action_get_group #}
     (toRadioAction self)
   >>= readGSList
   >>= mapM (\elemPtr -> makeNewGObject mkRadioAction (return elemPtr))
 
 -- | Sets the radio group for the radio action object.
 --
-radioActionSetGroup :: RadioActionClass self => self
- -> [RadioAction] -- ^ @group@ - a list of the other members of the radio group
+radioActionSetGroup :: (RadioActionClass self, RadioActionClass groupMember) => self
+ -> groupMember -- ^ @groupMember@ - an existing member of the radio group
  -> IO ()
 radioActionSetGroup self group = do
-  let radioActionForeignPtrs = map unRadioAction group
-  groupGSList <- toGSList (map unsafeForeignPtrToPtr radioActionForeignPtrs)
+  groupPtr <- {# call unsafe gtk_radio_action_get_group #} (toRadioAction group)
   {# call gtk_radio_action_set_group #}
     (toRadioAction self)
-    groupGSList
-  mapM_ touchForeignPtr radioActionForeignPtrs
+    groupPtr
 
 -- | Obtains the value property of the currently active member of the group to
 -- which the action belongs.
@@ -157,10 +154,10 @@ radioActionGetCurrentValue self =
 
 -- | Sets a new group for a radio action.
 --
-radioActionGroup :: RadioActionClass self => Attr self [RadioAction]
-radioActionGroup = Attr 
-  radioActionGetGroup
-  radioActionSetGroup
+--radioActionGroup :: RadioActionClass self => Attr self [RadioAction]
+--radioActionGroup = Attr 
+--  radioActionGetGroup
+--  radioActionSetGroup
 
 --------------------
 -- Signals

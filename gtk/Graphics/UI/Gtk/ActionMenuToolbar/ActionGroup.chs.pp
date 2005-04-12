@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/12 23:11:13 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -197,8 +197,7 @@ actionGroupGetAction self actionName =
 -- | Lists the actions in the action group.
 --
 actionGroupListActions :: ActionGroup
- -> IO [Action] -- ^ returns an list of the action
-                            -- objects in the action group
+ -> IO [Action] -- ^ returns a list of the action objects in the action group
 actionGroupListActions self =
   {# call gtk_action_group_list_actions #}
     self
@@ -328,14 +327,17 @@ actionGroupAddRadioActions self entries value onChange = do
     (\group (n, RadioActionEntry name label stockId
                accelerator tooltip value) -> do
     action <- radioActionNew name label tooltip stockId value
-    radioActionSetGroup action group
-    group' <- radioActionGetGroup action
+    case group of
+      Nothing -> return ()
+      Just group -> radioActionSetGroup action group
     when (n == value) (toggleActionSetActive action True)
     actionGroupAddActionWithAccel self action accelerator
-    return group')
-    [] (zip [0..] entries)
-  when (not (null group))
-       (onRadioActionChanged (head group) onChange >> return ())
+    return (Just action))
+    Nothing (zip [0..] entries)
+  case group of
+      Nothing -> return ()
+      Just group -> onRadioActionChanged group onChange
+                 >> return ()
 
 -- | Sets a function to be used for translating the @label@ and @tooltip@ of
 -- 'ActionEntry's added by 'actionGroupAddActions'.
