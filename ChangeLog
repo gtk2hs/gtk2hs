@@ -10,6 +10,11 @@
 	given as lists but by represetative members. Improve the docs to try
 	and better explain this slightly odd API style.
 
+	* Makefile.am,
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs,
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp: rename to .pp in
+	preparation for adding new methods.
+
 2005-04-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: change the way gtk2hs-config.h is used during .hsc ->

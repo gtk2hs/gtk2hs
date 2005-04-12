@@ -345,7 +345,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Display/AccelLabel.chs			\
 	gtk/Graphics/UI/Gtk/Display/Image.chs.pp			\
 	gtk/Graphics/UI/Gtk/Display/Label.chs.pp			\
-	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs			\
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp			\
 	gtk/Graphics/UI/Gtk/Display/Statusbar.chs			\
 	gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp			\
 	gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp				\
