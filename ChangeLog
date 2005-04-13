@@ -1,3 +1,8 @@
+2005-04-13 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am: Clean dependencies on on 'make clean' (instead of
+	'make distclean'. Do not build dependencies on 'make clean'.
+	
 2005-04-13 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs.pp,

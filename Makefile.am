@@ -1,20 +1,6 @@
 AUTOMAKE_OPTIONS = 1.8 foreign subdir-objects
 SUFFIXES = .hs.uncpp .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES = */*.deps.bak tools/*/*.deps.bak
-
-# Note about running "make clean" and dependencies: It would be nice if
-# "make clean" would clear all dependency files. However, this turns out
-# to be a bad idea since cleaning the dependencies mean rebuilding them
-# if "make clean" is run again. They shouldn't be rebuilt in the first
-# place but that can only be done by not -including the dependency files.
-# Unfortunately, automake chokes if we try to use GNU make conditionals.
-# We cannot incorporate the conditionals into the dependency building
-# rules .deps and .dep in mk/common.mk either since that triggers the
-# rebuild of the typeGen and hierarchyGen every second time we run
-# a "make clean" that wipes dependencies. Hence we only wipe dependencies
-# on "make distclean" and hope that nobody notices that dependencies are
-# built when running "make clean" on a clean tree.
-
 CLEANFILES =
 DISTCLEANFILES = */*.precomp
 
@@ -208,9 +194,11 @@ am_tools_c2hs_c2hsLocal_OBJECTS = \
 MOSTLYCLEANFILES+= $(am_tools_c2hs_c2hsLocal_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
 CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)
-DISTCLEANFILES+= tools/c2hs/c2hsLocal.deps
--include tools/c2hs/c2hsLocal.deps
+CLEANFILES+= tools/c2hs/c2hsLocal.deps
 
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include tools/c2hs/c2hsLocal.deps
+ endif
 
 #
 #	glib package
@@ -292,9 +280,11 @@ MOSTLYCLEANFILES += \
 	$(libHSglib_a_CHSFILES:.chs=_stub.c)
 CLEANFILES += $(libHSglib_a_BUILDSOURCES)
 
-DISTCLEANFILES+= glib/libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
+CLEANFILES+= glib/libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
 
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
+ endif
 
 #
 #	gtk package
@@ -558,10 +548,13 @@ MOSTLYCLEANFILES += \
 	$(libHSgtk_a_CHSFILES:.chs=_stub.c)
 CLEANFILES+= $(libHSgtk_a_BUILDSOURCES)
 
-DISTCLEANFILES+= gtk/libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+CLEANFILES+= gtk/libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSgtk_a_CHSFILES_HS:.hs=.dep) gtk/libHSgtk_a.deps
+ endif
 
 #
 #	mogul package
@@ -604,8 +597,11 @@ nobase_hi_SCRIPTS += $(libHSmogul_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += $(am_libHSmogul_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSmogul_a_HSFILES:.hs=.hi)
 
-DISTCLEANFILES+= mogul/libHSmogul_a.deps
+CLEANFILES+= mogul/libHSmogul_a.deps
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include mogul/libHSmogul_a.deps
+ endif
 
 #
 #	glade package
@@ -677,12 +673,15 @@ MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += $(libHSglade_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSglade_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= glade/libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
+CLEANFILES+= glade/libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSglade_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)	\
 	$(libHSglade_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSglade_a_CHSFILES:.chs=.dep) glade/libHSglade_a.deps
+ endif
 
 endif #ENABLE_LIBGLADE
 
@@ -774,11 +773,14 @@ MOSTLYCLEANFILES += \
 	$(libHSgconf_a_CHSFILES:.chs=_stub.c)
 CLEANFILES += $(libHSgconf_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= gconf/libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
+CLEANFILES+= gconf/libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgconf_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgconf_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSgconf_a_CHSFILES:.chs=.dep) gconf/libHSgconf_a.deps
+ endif
 
 endif #ENABLE_GNOME
 
@@ -863,12 +865,15 @@ MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += $(libHSsourceview_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSsourceview_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= sourceview/libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
+CLEANFILES+= sourceview/libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSsourceview_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
 	$(libHSsourceview_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSsourceview_a_CHSFILES:.chs=.dep) sourceview/libHSsourceview_a.deps
+ endif
 
 endif #ENABLE_GNOME
 
@@ -941,12 +946,15 @@ MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
 MOSTLYCLEANFILES += $(libHSmozembed_a_CHSFILES:.chs=.chi)
 CLEANFILES += $(libHSmozembed_a_BUILDSOURCES) 
 
-DISTCLEANFILES+= mozembed/libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
+CLEANFILES+= mozembed/libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSmozembed_a_CHSFILES:.chs=.dep) : \
 	$(libHSgtk_a_GENERATEDSOURCES)	\
 	$(libHSmozembed_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSmozembed_a_CHSFILES:.chs=.dep) mozembed/libHSmozembed_a.deps
+ endif
 
 endif #ENABLE_MOZEMBED
 
