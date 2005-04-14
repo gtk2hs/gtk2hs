@@ -6,6 +6,8 @@ module Api (
   Member(..),
   Object(..),
   Class(..),
+  Boxed(..),
+  Field(..),
   Constructor(..),
   Parameter(..),
   Method(..),
@@ -30,6 +32,7 @@ data NameSpace = NameSpace {
     namespace_library :: String,
     namespace_objects :: [Object],
     namespace_classes :: [Class],
+    namespace_boxed :: [Boxed],
     namespace_enums :: [Enum],
     namespace_misc :: [Misc]
   } deriving Show
@@ -67,6 +70,22 @@ data Class = Class {
     class_name :: String,
     class_cname :: String,
     class_methods :: [Method]
+  } deriving Show
+
+data Boxed = Boxed {
+    boxed_name :: String,
+    boxed_cname :: String,
+    boxed_constructors :: [Constructor],
+    boxed_methods :: [Method],
+    boxed_fields :: [Field],
+    boxed_opaque :: Bool
+  } deriving Show
+
+data Field = Field {
+    field_name :: String,
+    field_cname :: String,
+    field_type :: String,
+    field_bits :: Int
   } deriving Show
 
 data Constructor = Constructor {
@@ -113,10 +132,6 @@ data Misc =
       misc_name :: String,
       misc_cname :: String
     }
-  | Boxed {
-      misc_name :: String,
-      misc_cname :: String
-    }
   | Alias {
       misc_name :: String,
       misc_cname :: String
@@ -143,6 +158,7 @@ extractNameSpace (Xml.CElem (Xml.Elem "namespace"
     namespace_library = Xml.verbatim lib,
     namespace_objects = catMaybes (map extractObject content),
     namespace_classes = catMaybes (map extractClass content),
+    namespace_boxed = catMaybes (map extractBoxed content),
     namespace_enums = catMaybes (map extractEnum content),
     namespace_misc = catMaybes (map extractMisc content)
   }
@@ -229,6 +245,46 @@ extractClass (Xml.CElem (Xml.Elem "class"
     class_methods = catMaybes (map extractMethod content)
   }
 extractClass _ = Nothing
+
+extractBoxed :: Xml.Content -> Maybe Boxed
+extractBoxed (Xml.CElem (Xml.Elem "boxed"
+                     (("name", Xml.AttValue name):
+                      ("cname", Xml.AttValue cname):remainder) content)) =
+  Just $ Boxed {
+    boxed_name = Xml.verbatim name,
+    boxed_cname = Xml.verbatim cname,
+    boxed_methods = catMaybes (map extractMethod content),
+    boxed_constructors = catMaybes (map extractConstructor content),
+    boxed_fields = catMaybes (map extractField content),
+    boxed_opaque = case remainder of
+                     [] -> False
+                     [("opaque", _)] -> True
+  }
+extractBoxed _ = Nothing
+
+extractField :: Xml.Content -> Maybe Field
+extractField (Xml.CElem (Xml.Elem "field"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname),
+                      ("type", Xml.AttValue type_)] content)) =
+  Just $ Field {
+    field_name = Xml.verbatim name,
+    field_cname = Xml.verbatim cname,    
+    field_type = Xml.verbatim type_,
+    field_bits = -1
+  }
+extractField (Xml.CElem (Xml.Elem "field"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname),
+                      ("bits", Xml.AttValue bits),
+                      ("type", Xml.AttValue type_)] content)) =
+  Just $ Field {
+    field_name = Xml.verbatim name,
+    field_cname = Xml.verbatim cname,
+    field_type = Xml.verbatim type_,
+    field_bits = read (Xml.verbatim bits)
+  }
+extractField _ = Nothing
 
 extractMethod :: Xml.Content -> Maybe Method
 extractMethod (Xml.CElem (Xml.Elem "method"
@@ -374,10 +430,6 @@ extractMisc (Xml.CElem (Xml.Elem elem
                                 misc_name = Xml.verbatim name,
                                 misc_cname = Xml.verbatim cname
                               }
-  | elem == "boxed"    = Just Boxed {
-                                misc_name = Xml.verbatim name,
-                                misc_cname = Xml.verbatim cname
-                              }
   | elem == "alias"    = Just Alias {
                                 misc_name = Xml.verbatim name,
                                 misc_cname = Xml.verbatim cname
@@ -387,7 +439,8 @@ extractMisc (Xml.CElem (Xml.Elem elem
                                 misc_cname = Xml.verbatim cname
                               }
 extractMisc (Xml.CElem (Xml.Elem "object" _ _))    = Nothing
-extractMisc (Xml.CElem (Xml.Elem "class" _ _))    = Nothing
+extractMisc (Xml.CElem (Xml.Elem "class" _ _))     = Nothing
+extractMisc (Xml.CElem (Xml.Elem "boxed" _ _))     = Nothing
 extractMisc (Xml.CElem (Xml.Elem "interface" _ _)) = Nothing
 extractMisc (Xml.CElem (Xml.Elem "enum" _ _))      = Nothing
 extractMisc other = error $ "extractMisc: " ++ Xml.verbatim other

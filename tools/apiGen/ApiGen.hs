@@ -188,7 +188,8 @@ main = do
         ,lookup (object_name object) moduleInfoMap)
       | namespace <- api
       , object <- namespace_objects namespace
-               ++ map mungeClassToObject (namespace_classes namespace) ]
+               ++ map mungeClassToObject (namespace_classes namespace)
+               ++ map mungeBoxedToObject (namespace_boxed namespace) ]
 
 usage = do
   putStr "\nProgram to generate a .chs Haskell binding module from an xml\n\

@@ -5,7 +5,8 @@ module CodeGen (
   genTodoItems,
   makeKnownSymbolsMap,
   mungeMethodInfo,
-  mungeClassToObject
+  mungeClassToObject,
+  mungeBoxedToObject
   ) where
 
 import Api
@@ -277,6 +278,21 @@ mungeClassToObject cl =
     object_isinterface  = False
   }
 
+mungeBoxedToObject :: Boxed -> Object
+mungeBoxedToObject boxed =
+  Object {
+    object_name         = boxed_name boxed,
+    object_cname        = boxed_cname boxed,
+    object_parent       = "",
+    object_constructors = boxed_constructors boxed,
+    object_methods      = boxed_methods boxed,
+    object_properties   = [],
+    object_signals      = [],
+    object_implements   = [],
+    object_deprecated   = False,
+    object_isinterface  = False
+  }
+
 properties :: Object -> [PropDoc] -> [(Either Property (Method, Method), Maybe PropDoc)]
 properties object docs =
   map snd $
@@ -459,7 +475,9 @@ makeKnownSymbolsMap api =
  ++ [ (object_cname object, objectKind object)
     | object <- namespace_objects namespace ]
  ++ [ (class_cname class_, SymClassType)
-    | class_ <- namespace_classes namespace ]    
+    | class_ <- namespace_classes namespace ]
+ ++ [ (boxed_cname boxed, SymBoxedType)
+    | boxed <- namespace_boxed namespace ]
  ++ [ (member_cname member, SymEnumValue)
     | enum <- namespace_enums namespace
     , member <- enum_members enum ]
@@ -487,7 +505,6 @@ makeKnownSymbolsMap api =
                     | namespace <- api
                     , object <- namespace_objects namespace ]
         miscToCSymbol (Struct   _ _) = SymStructType
-        miscToCSymbol (Boxed    _ _) = SymBoxedType
         miscToCSymbol (Alias    _ _) = SymTypeAlias
         miscToCSymbol (Callback _ _) = SymCallbackType
 

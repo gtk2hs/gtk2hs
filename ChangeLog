@@ -1,3 +1,9 @@
+2005-04-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/Api.hs, tools/apiGen/ApiGen.hs,
+	tools/apiGen/CodeGen.hs: also extract info for boxed objects and
+	generate (partial) binding modules.
+
 2005-04-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Api.hs: extract information about classes. Basically
