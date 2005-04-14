@@ -42,3 +42,17 @@ exclude gtk_accel_label_set_accel_closure
 #internal FileFilter methods
 exclude gtk_file_filter_get_needed
 exclude gtk_file_filter_filter
+
+#plug/socket methods intended for subclasses
+exclude gtk_plug_construct
+exclude gtk_plug_construct_for_display
+
+#action methods intended for subclasses
+exclude gtk_action_create_icon
+exclude gtk_action_block_activate_from
+exclude gtk_action_unblock_activate_from
+
+#we can use the non 'full' variants, so don't need these ones
+exclude gtk_action_group_add_actions_full
+exclude gtk_action_group_add_toggle_actions_full
+exclude gtk_action_group_add_radio_actions_full

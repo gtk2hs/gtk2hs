@@ -5,6 +5,7 @@ module Api (
   EnumVariety(..),
   Member(..),
   Object(..),
+  Class(..),
   Constructor(..),
   Parameter(..),
   Method(..),
@@ -28,6 +29,7 @@ data NameSpace = NameSpace {
     namespace_name :: String,
     namespace_library :: String,
     namespace_objects :: [Object],
+    namespace_classes :: [Class],
     namespace_enums :: [Enum],
     namespace_misc :: [Misc]
   } deriving Show
@@ -61,6 +63,12 @@ data Object = Object {
     object_isinterface ::Bool
   } deriving Show
 
+data Class = Class {
+    class_name :: String,
+    class_cname :: String,
+    class_methods :: [Method]
+  } deriving Show
+
 data Constructor = Constructor {
     constructor_cname :: String,
     constructor_parameters :: [Parameter]
@@ -79,7 +87,7 @@ data Method = Method {
     method_cname :: String,
     method_return_type :: String,
     method_parameters :: [Parameter],
-    method_shared :: Bool,            --TODO: figure out what this means!
+    method_shared :: Bool,
     method_deprecated :: Bool
   } deriving Show
 
@@ -109,10 +117,6 @@ data Misc =
       misc_name :: String,
       misc_cname :: String
     }
-  | Class {
-      misc_name :: String,
-      misc_cname :: String
-    }
   | Alias {
       misc_name :: String,
       misc_cname :: String
@@ -138,6 +142,7 @@ extractNameSpace (Xml.CElem (Xml.Elem "namespace"
     namespace_name = Xml.verbatim name,
     namespace_library = Xml.verbatim lib,
     namespace_objects = catMaybes (map extractObject content),
+    namespace_classes = catMaybes (map extractClass content),
     namespace_enums = catMaybes (map extractEnum content),
     namespace_misc = catMaybes (map extractMisc content)
   }
@@ -213,6 +218,17 @@ extractObject (Xml.CElem (Xml.Elem "object" [("name", Xml.AttValue name)] [])) |
 extractObject other@(Xml.CElem (Xml.Elem "object" _ _)) = error $ "extractObject: " ++ Xml.verbatim other
 extractObject other@(Xml.CElem (Xml.Elem "interface" _ _)) = error $ "extractObject: " ++ Xml.verbatim other
 extractObject _ = Nothing
+
+extractClass :: Xml.Content -> Maybe Class
+extractClass (Xml.CElem (Xml.Elem "class"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname)] content)) =
+  Just $ Class {
+    class_name = Xml.verbatim name,
+    class_cname = Xml.verbatim cname,
+    class_methods = catMaybes (map extractMethod content)
+  }
+extractClass _ = Nothing
 
 extractMethod :: Xml.Content -> Maybe Method
 extractMethod (Xml.CElem (Xml.Elem "method"
@@ -362,10 +378,6 @@ extractMisc (Xml.CElem (Xml.Elem elem
                                 misc_name = Xml.verbatim name,
                                 misc_cname = Xml.verbatim cname
                               }
-  | elem == "class"    = Just Class {
-                                misc_name = Xml.verbatim name,
-                                misc_cname = Xml.verbatim cname
-                              }
   | elem == "alias"    = Just Alias {
                                 misc_name = Xml.verbatim name,
                                 misc_cname = Xml.verbatim cname
@@ -375,6 +387,7 @@ extractMisc (Xml.CElem (Xml.Elem elem
                                 misc_cname = Xml.verbatim cname
                               }
 extractMisc (Xml.CElem (Xml.Elem "object" _ _))    = Nothing
+extractMisc (Xml.CElem (Xml.Elem "class" _ _))    = Nothing
 extractMisc (Xml.CElem (Xml.Elem "interface" _ _)) = Nothing
 extractMisc (Xml.CElem (Xml.Elem "enum" _ _))      = Nothing
 extractMisc other = error $ "extractMisc: " ++ Xml.verbatim other

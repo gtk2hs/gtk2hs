@@ -1,3 +1,32 @@
+2005-04-14 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/Api.hs: extract information about classes. Basically
+	just consist of methods.
+
+	* tools/apiGen/ApiGen.hs: generate bindig modules for classes. Fix doc
+	identifier to module name mapping so we can specify it manually when
+	it doesn't match up right. Fix rcs annoyance.
+
+	* tools/apiGen/CodeGen.hs: add code for converting a class to a basic
+	object so we can generate code for classes. Add classes into the type
+	map. Rework the code that inserts preprocessor directives to allow
+	them to nest and work the way a human would write them (possibly
+	slightly pointless but it was an interesting challenge!).
+
+	* tools/apiGen/FormatDocs.hs: fix syntax of character constants to be
+	compatible with GHC 6.4.
+
+	* tools/apiGen/Marshal.hs: add marshaling for possibly NULL TreeIters
+	and add special case for casts in GtkToolItem constructors.
+
+	* tools/apiGen/MarshalFixup.hs: Add a function to allow us to manually
+	override the mapping from type names to documentation identifiers so
+	we can generate code with documentation for some modules where the
+	documentation title does not match the type name. Also add wadges of
+	extra info into the existing tables.
+
+	* tools/apiGen/gtk.ignore: add more functions we don't need to bind.
+
 2005-04-13 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Clean dependencies on on 'make clean' (instead of

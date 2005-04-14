@@ -176,10 +176,14 @@ genMarshalParameter _ _ name textIter | textIter == "const-GtkTextIter*"
 	\body -> body.
                  indent 2. ss name)
 
-genMarshalParameter _ _ name "GtkTreeIter*" =
-	(Nothing, InParam "TreeIter",
-	\body -> body.
-                 indent 2. ss name)
+genMarshalParameter _ funcName name "GtkTreeIter*" =
+  if maybeNullParameter funcName name
+    then (Nothing, InParam "Maybe TreeIter",
+         \body -> body.
+                  indent 2. ss "(fromMaybe (TreeIter nullForeignPtr) ". ss name. ss ")")
+    else (Nothing, InParam "TreeIter",
+         \body -> body.
+                  indent 2. ss name)
 
 genMarshalParameter _ funcName name "GtkTreePath*" =
   if maybeNullParameter funcName name
@@ -339,8 +343,10 @@ genMarshalResult knownSymbols funcName funcIsConstructor typeName'
             indent 1. ss "liftM (castPtr :: Ptr ". ss (cTypeNameToHSType constructorReturnType).
                                     ss " -> Ptr ". ss (cTypeNameToHSType typeName). ss ") $"
              | otherwise = id
-          where constructorReturnType | "GtkWidget" `elem` sym_object_parents (fromJust typeKind)
-                                                  = "GtkWidget"
+          where constructorReturnType | "GtkToolItem" `elem` sym_object_parents (fromJust typeKind)
+                                                  = "GtkToolItem"
+                                      | "GtkWidget" `elem` sym_object_parents (fromJust typeKind)
+                                                  = "GtkWidget"                                      
                                       | otherwise = typeName
             
 genMarshalResult knownSymbols _ _ typeName

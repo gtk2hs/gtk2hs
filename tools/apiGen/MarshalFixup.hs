@@ -48,7 +48,16 @@ fixModuleAvailableSince "GtkComboBox" = "2.4"
 fixModuleAvailableSince "GtkFileChooser" = "2.4"
 fixModuleAvailableSince "GtkCellView" = "2.6"
 fixModuleAvailableSince "GtkIconView" = "2.6"
+fixModuleAvailableSince "GtkMenuToolButton" = "2.6"
 fixModuleAvailableSince _ = ""
+
+-- Most of the time the gtk-doc documentation have titles that correspond to
+-- the C name of the object. But sadly sometimes they don't so we fix up that
+-- mapping here.
+fixModuleDocMapping "GtkClipboard" = "Clipboards"
+fixModuleDocMapping "GtkSettings"  = "Settings"
+fixModuleDocMapping "GtkStyle"     = "Styles"
+fixModuleDocMapping other = other
 
 -- These are ones we have bound and so we can make documentation references to
 -- them. Otherwise we generate FIXME messages in the docs.
@@ -74,14 +83,16 @@ leafClass "GtkIconFactory"  = True
 leafClass "GtkEntryCompletion" = True
 leafClass "GtkFileFilter"   = True
 leafClass "GtkUIManager"    = True
+leafClass "GtkActionGroup"  = True
 leafClass "GtkRadioButton"  = True
 leafClass "GtkEventBox"     = True
 leafClass "GtkExpander"     = True
 leafClass "GtkAccelGroup"   = True
-leafClass "GdkScreen"       = True
 leafClass "GtkTooltips"     = True
 leafClass "GtkTextChildAnchor" = True
 leafClass "GdkWindow"       = True
+leafClass "GdkDisplay"      = True
+leafClass "GdkScreen"       = True
 leafClass _ = False
 
 -- This is a table of fixup information. It lists function parameters that
@@ -116,6 +127,28 @@ maybeNullParameter "gtk_widget_modify_fg" "color"		= True
 maybeNullParameter "gtk_widget_modify_bg" "color"		= True
 maybeNullParameter "gtk_widget_modify_text" "color"		= True
 maybeNullParameter "gtk_widget_modify_base" "color"		= True
+maybeNullParameter "gtk_action_group_add_action_with_accel" "accelerator"	= True
+maybeNullParameter "gtk_radio_tool_button_new" "group"		= True
+maybeNullParameter "gtk_radio_tool_button_new_from_stock" "group"	= True
+maybeNullParameter "gtk_tool_button_set_label" "label"		= True
+maybeNullParameter "gtk_tool_button_set_icon_widget" "iconWidget"	= True
+maybeNullParameter "gtk_tool_button_set_label_widget" "labelWidget"	= True
+maybeNullParameter "gtk_ui_manager_add_ui" "action"		= True
+maybeNullParameter "gtk_menu_tool_button_new" "iconWidget"	= True
+maybeNullParameter "gtk_menu_tool_button_new" "label"		= True
+maybeNullParameter "gtk_menu_tool_button_set_menu" "menu"	= True
+maybeNullParameter "gtk_tool_button_new" "iconWidget"		= True
+maybeNullParameter "gtk_tool_button_new" "label"		= True
+maybeNullParameter "gtk_tool_button_set_stock_id" "stockId"	= True
+maybeNullParameter "gtk_action_new" "tooltip"			= True
+maybeNullParameter "gtk_action_new" "stockId"			= True
+maybeNullParameter "gtk_toggle_action_new" "tooltip"		= True
+maybeNullParameter "gtk_toggle_action_new" "stockId"		= True
+maybeNullParameter "gtk_radio_action_new" "tooltip"		= True
+maybeNullParameter "gtk_radio_action_new" "stockId"		= True
+maybeNullParameter "gtk_tree_model_iter_n_children" "iter"  	= True
+--maybeNullParameter "" ""	= True
+--maybeNullParameter "" ""	= True
 maybeNullParameter _ _ = False
 
 -- similarly for method return values/types.
@@ -167,6 +200,19 @@ maybeNullResult "gtk_window_get_role" = True
 maybeNullResult "gtk_window_get_title" = True
 maybeNullResult "gtk_widget_render_icon" = True
 maybeNullResult "gtk_widget_get_composite_name" = True
+maybeNullResult "gtk_action_get_accel_path" = True
+maybeNullResult "gtk_action_group_get_action" = True
+maybeNullResult "gtk_tool_button_get_label" = True
+maybeNullResult "gtk_tool_button_get_icon_widget" = True
+maybeNullResult "gtk_tool_button_get_label_widget" = True
+maybeNullResult "gtk_ui_manager_get_widget" = True
+maybeNullResult "gtk_ui_manager_get_action" = True
+maybeNullResult "gtk_menu_tool_button_get_menu" = True
+maybeNullResult "gtk_tool_button_get_stock_id" = True
+maybeNullResult "gtk_about_dialog_get_license" = True
+maybeNullResult "gtk_menu_get_attach_widget" = True
+--maybeNullResult "" = True
+--maybeNullResult "" = True
 maybeNullResult _ = False
 
 -- Often the documentation for parameters or the return value of functions
@@ -378,6 +424,50 @@ nukeParamDoc "gtk_widget_get_default_direction" "returns"	= True
 nukeParamDoc "gtk_widget_get_direction" "returns"		= True
 nukeParamDoc "gtk_widget_set_direction" "dir"			= True
 nukeParamDoc "gtk_widget_get_name" "returns"			= True
+nukeParamDoc "gtk_text_view_get_overwrite" "returns"		= True
+nukeParamDoc "gtk_action_get_name" "returns"			= True
+nukeParamDoc ('g':'t':'k':'_':'u':'i':'_':'m':'a':'n':'a':'g':'e':'r':'_':_) "self" = True
+nukeParamDoc "gtk_toggle_action_get_active" "returns"		= True
+nukeParamDoc "gtk_toggle_action_set_draw_as_radio" "drawAsRadio"= True
+nukeParamDoc "gtk_toggle_action_get_draw_as_radio" "returns"	= True
+nukeParamDoc "gtk_separator_tool_item_set_draw" "draw"		= True
+nukeParamDoc "gtk_separator_tool_item_get_draw" "returns"	= True
+nukeParamDoc "gtk_tool_button_get_stock_id" "returns"		= True
+nukeParamDoc "gtk_ui_manager_get_action_groups" "returns"	= True
+nukeParamDoc "gtk_action_group_set_sensitive" "sensitive"	= True
+nukeParamDoc "gtk_action_group_get_sensitive" "returns"		= True
+nukeParamDoc "gtk_action_group_get_visible" "returns"		= True
+nukeParamDoc "gtk_action_group_set_visible" "visible"		= True
+nukeParamDoc "gtk_action_group_remove_action" "action"		= True
+nukeParamDoc "gtk_menu_tool_button_get_menu" "returns"		= True
+nukeParamDoc "gtk_toggle_tool_button_set_active" "isActive"	= True
+nukeParamDoc "gtk_toggle_tool_button_get_active" "returns"	= True
+nukeParamDoc "gtk_tool_button_get_label" "returns"		= True
+nukeParamDoc "gtk_tool_button_get_use_underline" "returns"	= True
+nukeParamDoc "gtk_tool_button_set_use_underline" "useUnderline"	= True
+nukeParamDoc "gtk_action_group_add_action" "action"		= True
+nukeParamDoc "gtk_action_get_proxies" "returns"			= True
+nukeParamDoc "gtk_about_dialog_get_authors" "returns"		= True
+nukeParamDoc "gtk_about_dialog_get_artists" "returns"		= True
+nukeParamDoc "gtk_about_dialog_get_documenters" "returns"	= True
+nukeParamDoc "gtk_about_dialog_get_license" "returns"		= True
+nukeParamDoc "gtk_about_dialog_get_version" "returns"		= True
+nukeParamDoc "gtk_about_dialog_get_copyright" "returns"		= True
+nukeParamDoc "gtk_about_dialog_get_comments" "returns"		= True
+nukeParamDoc "gtk_about_dialog_get_website" "returns"		= True
+nukeParamDoc "gtk_about_dialog_get_website_label" "returns"	= True
+nukeParamDoc "gtk_about_dialog_get_translator_credits" "returns"= True
+nukeParamDoc "gtk_about_dialog_get_logo" "returns"		= True
+nukeParamDoc "gtk_about_dialog_get_logo_icon_name" "returns"	= True
+nukeParamDoc "gtk_about_dialog_set_version" "version"		= True
+nukeParamDoc "gtk_about_dialog_set_copyright" "copyright"	= True
+nukeParamDoc "gtk_about_dialog_set_comments" "comments"		= True
+nukeParamDoc "gtk_about_dialog_set_website_label" "websiteLabel"= True
+nukeParamDoc "gtk_about_dialog_set_translator_credits" "translatorCredits"	= True
+nukeParamDoc "gtk_file_selection_get_selections" "returns"	= True
+nukeParamDoc "gtk_tree_model_get_flags" "returns"		= True
+--nukeParamDoc "" ""			= True
+--nukeParamDoc "" ""			= True
 nukeParamDoc _ _ = False
 nukeParameterDocumentation = nukeParamDoc
 

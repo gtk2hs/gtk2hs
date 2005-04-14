@@ -4,7 +4,8 @@ module CodeGen (
   genImports,
   genTodoItems,
   makeKnownSymbolsMap,
-  mungeMethodInfo
+  mungeMethodInfo,
+  mungeClassToObject
   ) where
 
 import Api
@@ -143,7 +144,7 @@ mergeParamDocs doc docs =
 
 genModuleBody :: KnownSymbols -> Object -> ModuleDoc -> ModuleInfo -> ShowS
 genModuleBody knownSymbols object apiDoc modInfo =
-  doVersionIfDefs (sepBy' "\n\n") $
+  doVersionIfDefs (nl.nl) $
   map adjustDeprecatedAndSinceVersion $
      sectionHeader "Interfaces"
      (genImplements object)
@@ -259,6 +260,21 @@ mungeConstructor object constructor =
     method_parameters = constructor_parameters constructor,
     method_shared = False,
     method_deprecated = False
+  }
+
+mungeClassToObject :: Class -> Object
+mungeClassToObject cl =
+  Object {
+    object_name         = class_name cl,
+    object_cname        = class_cname cl,
+    object_parent       = "",
+    object_constructors = [],
+    object_methods      = class_methods cl,
+    object_properties   = [],
+    object_signals      = [],
+    object_implements   = [],
+    object_deprecated   = False,
+    object_isinterface  = False
   }
 
 properties :: Object -> [PropDoc] -> [(Either Property (Method, Method), Maybe PropDoc)]
@@ -442,6 +458,8 @@ makeKnownSymbolsMap api =
     | enum <- namespace_enums namespace ]
  ++ [ (object_cname object, objectKind object)
     | object <- namespace_objects namespace ]
+ ++ [ (class_cname class_, SymClassType)
+    | class_ <- namespace_classes namespace ]    
  ++ [ (member_cname member, SymEnumValue)
     | enum <- namespace_enums namespace
     , member <- enum_members enum ]
@@ -452,7 +470,12 @@ makeKnownSymbolsMap api =
         -- find if an object inherits via GtkObject or directly from GObject
   where objectKind :: Object -> CSymbol
         objectKind object | "GObject" `elem` parents = SymObjectType parents
-                          | otherwise                = SymStructType
+                          -- FIXME: These hacks should go elsewhere
+                          | object_cname object == "GtkClipboard" = SymObjectType ["GtkClipboard", "GObject"]
+                          | object_cname object == "GParamSpec" = SymStructType
+                          | object_cname object == "GdkBitmap" = SymStructType
+                          | otherwise                = error $ "makeKnownSymbolsMap: non-GObject "
+                                                            ++ object_cname object
           where parents = objectParents object
         objectParents :: Object -> [String]
         objectParents object = object_cname object :
@@ -465,13 +488,12 @@ makeKnownSymbolsMap api =
                     , object <- namespace_objects namespace ]
         miscToCSymbol (Struct   _ _) = SymStructType
         miscToCSymbol (Boxed    _ _) = SymBoxedType
-        miscToCSymbol (Class    _ _) = SymClassType
         miscToCSymbol (Alias    _ _) = SymTypeAlias
         miscToCSymbol (Callback _ _) = SymCallbackType
 
 genExports :: Object -> ModuleDoc -> ModuleInfo -> ShowS
 genExports object docs modInfo =
-    doVersionIfDefs lines
+    doVersionIfDefs nl
   . map adjustDeprecatedAndSinceVersion
   $  [(ss "-- * Types", defaultAttrs)
      ,(ss "  ".ss (object_name object).sc ',', defaultAttrs)
@@ -554,28 +576,64 @@ genTodoItems object =
 type Deprecated = Bool
 notDeprecated = False
 
-doVersionIfDefs :: ([ShowS] -> ShowS) -> [(ShowS, (Since, Deprecated))] -> ShowS
-doVersionIfDefs lines =
-    lines
-  . map (\group@((_,(since, deprecated)):_) ->
-             sinceVersion since
-           . ifdefDeprecated deprecated
-           $ (lines (map fst group)))
+doVersionIfDefs :: ShowS -> [(ShowS, (Since, Deprecated))] -> ShowS
+doVersionIfDefs sep =
+    layoutChunks id
+  . renestChunks 0
+  . makeChunks [""] False
+  . map (\group@((_,(since, deprecated)):_) -> (map fst group, since, deprecated))
   . groupBy (\(_,a) (_,b) -> a == b)
- 
-sinceVersion :: Since -> ShowS -> ShowS
-sinceVersion [major,'.',minor] body =
-  ss "#if GTK_CHECK_VERSION(". sc major. ss ",". sc minor. ss ",0)\n".
-  body.
-  ss "\n#endif"
-sinceVersion _ body = body
 
-ifdefDeprecated :: Deprecated -> ShowS -> ShowS
-ifdefDeprecated True body =
-  ss "#ifndef DISABLE_DEPRECATED\n".
-  body.
-  ss "\n#endif"
-ifdefDeprecated _ body = body
+  where makeChunks :: [Since] -> Deprecated -> [([ShowS], Since, Deprecated)] -> [Chunk]
+        makeChunks    sinceStack  True [] = EndChunk : makeChunks sinceStack False []
+        makeChunks (_:[])         _    [] = []
+        makeChunks (_:sinceStack) _    [] = EndChunk : makeChunks sinceStack False []
+        makeChunks sinceStack@(sinceContext:_) prevDeprecated whole@((group, since, deprecated):rest)
+          | deprecated < prevDeprecated = EndChunk              : makeChunks sinceStack deprecated whole
+          | since < sinceContext        = EndChunk              : makeChunks (tail sinceStack)  prevDeprecated whole
+          | deprecated > prevDeprecated = BeginDeprecatedChunk  : makeChunks sinceStack deprecated whole
+          | since > sinceContext        = BeginSinceChunk since : makeChunks (since:sinceStack) prevDeprecated whole
+          | otherwise                   = SimpleChunk group     : makeChunks sinceStack prevDeprecated rest
+        
+        renestChunks :: Int -> [Chunk] -> [Chunk]
+        renestChunks depth [] = []
+        renestChunks depth (chunk:chunks) =
+          case chunk of
+            SimpleChunk group     -> chunk : renestChunks  depth    chunks
+            BeginDeprecatedChunk  -> chunk : renestChunks (depth+1) chunks
+            BeginSinceChunk since -> case renestSinceChunks depth (depth+1) chunks of
+                                       (chunks', True)  -> EndChunk : chunk : renestChunks (depth+1) chunks'
+                                       (chunks', False) ->            chunk : renestChunks (depth+1) chunks'
+            EndChunk              -> chunk : renestChunks (depth-1) chunks
+        
+        renestSinceChunks :: Int -> Int -> [Chunk] -> ([Chunk], Bool)
+        renestSinceChunks baseDepth curDepth cs@(chunk:chunks) = 
+          case cs of
+            (SimpleChunk group:_)       -> chunk `prepend` renestSinceChunks baseDepth  curDepth    chunks
+            (BeginSinceChunk since:_)   -> chunk `prepend` renestSinceChunks baseDepth (curDepth+1) chunks
+            (EndChunk:EndChunk    :_)
+              | curDepth-1 == baseDepth -> (chunks, True)
+            (EndChunk             :_)
+              | curDepth-1 == baseDepth -> (chunk : chunks, False)
+              | otherwise               -> chunk `prepend` renestSinceChunks baseDepth (curDepth-1) chunks
+          where prepend c (cs,b) = (c:cs,b)
+        
+        layoutChunks :: ShowS -> [Chunk] -> ShowS
+        layoutChunks msep [] = id
+        layoutChunks msep (EndChunk              :[])     = endif
+        layoutChunks msep (EndChunk              :chunks) = endif. layoutChunks sep chunks
+        layoutChunks msep (SimpleChunk group     :chunks) = msep. sepBy' (sep []) group. layoutChunks sep chunks
+        layoutChunks msep (BeginDeprecatedChunk  :chunks) = msep. ifndefDeprecated. layoutChunks id chunks
+        layoutChunks msep (BeginSinceChunk since :chunks) = msep. ifSinceVersion since. layoutChunks id chunks
+        
+        ifSinceVersion [major,'.',minor] = ss "#if GTK_CHECK_VERSION(". sc major. ss ",". sc minor. ss ",0)\n"
+        ifndefDeprecated = ss "#ifndef DISABLE_DEPRECATED\n"
+        endif = ss "\n#endif"
+
+data Chunk = SimpleChunk [ShowS]
+           | BeginDeprecatedChunk
+           | BeginSinceChunk Since
+           | EndChunk
 
 comparing :: (Ord a) => (b -> a) -> b -> b -> Ordering
 comparing p x y = compare (p x) (p y)

@@ -11,9 +11,10 @@ import Api
 import Docs
 import FormatDocs
 import CodeGen
-import StringUtils (ss, templateSubstitute, splitOn)
+import StringUtils (ss, sc, templateSubstitute, splitOn)
 import ModuleScan
 import ExcludeApi
+import MarshalFixup (fixModuleDocMapping)
 
 import Monad  (when, liftM)
 import List   (isPrefixOf, intersperse)
@@ -166,8 +167,8 @@ main = do
 	    "OBJECT_KIND"    -> ss $ if object_isinterface object then "Interface" else "Widget"
 	    "OBJECT_NAME"    -> ss $ module_name moduleInfo
 	    "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors moduleInfo
-	    "RCS_VERSION"    -> ss "$Revision: 1.23 $"
-	    "RCS_TIMESTAMP"  -> ss "$Date: 2005/04/06 22:03:58 $"
+	    "RCS_VERSION"    -> sc '$'. ss "Revision". ss ": ". ss (module_rcs_version moduleInfo). ss " $"
+	    "RCS_TIMESTAMP"  -> sc '$'. ss "Date". ss ": ". ss (module_rcs_timestamp moduleInfo). ss " $"
             "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders moduleInfo
             "DESCRIPTION"    -> haddocFormatParas knownTypes False (moduledoc_summary moduleDoc)
 	    "DOCUMENTATION"  -> genModuleDocumentation knownTypes moduleDoc
@@ -183,11 +184,11 @@ main = do
 	    _ -> ss "" ) ""
     ) [ (namespace
         ,object
-        ,lookup (object_cname object) apiDocMap
+        ,lookup (fixModuleDocMapping (object_cname object)) apiDocMap
         ,lookup (object_name object) moduleInfoMap)
       | namespace <- api
-      , object <- namespace_objects namespace ]
-    
+      , object <- namespace_objects namespace
+               ++ map mungeClassToObject (namespace_classes namespace) ]
 
 usage = do
   putStr "\nProgram to generate a .chs Haskell binding module from an xml\n\

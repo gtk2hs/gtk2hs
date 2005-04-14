@@ -68,7 +68,7 @@ haddocFormatHierarchy knownSymbols =
   . concatMap (haddocFormatSpan knownSymbols False)
 
 haddocTweakHierarchy :: String -> String
-haddocTweakHierarchy ('+':'-':'-':'-':'-':cs@(c:_)) | c /= ''' =
+haddocTweakHierarchy ('+':'-':'-':'-':'-':cs@(c:_)) | c /= '\'' =
   case span isAlpha cs of (word, rest) -> "+----" ++ cTypeNameToHSType word ++ rest
 haddocTweakHierarchy (c:cs) = c : haddocTweakHierarchy cs
 haddocTweakHierarchy [] = []
@@ -253,11 +253,11 @@ changeIllegalNames other = other
 
 escapeHaddockSpecialChars = escape
   where escape [] = []
-        escape (''':'s':s:cs) | isSpace s = ''' : 's' : ' ' : escape cs --often don't need to escape
-        escape (''':'t':s:cs) | isSpace s = ''' : 't' : ' ' : escape cs --eg it's & don't
+        escape ('\'':'s':s:cs) | isSpace s = '\'' : 's' : ' ' : escape cs --often don't need to escape
+        escape ('\'':'t':s:cs) | isSpace s = '\'' : 't' : ' ' : escape cs --eg it's & don't
         escape (c:cs) | c == '/' || c == '`'
                      || c == '"' || c == '@'
-                     || c == '<' || c == '''
+                     || c == '<' || c == '\''
                       = '\\': c : escape cs
         escape (c:cs) =       c : escape cs
 
