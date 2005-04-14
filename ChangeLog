@@ -27,6 +27,12 @@
 
 	* tools/apiGen/gtk.ignore: add more functions we don't need to bind.
 
+	* gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: since the code generator
+	now is more frugal in adding #ifdefs add the corresponding changes in
+	a couple modules. These are the only ones since the others had been
+	done by hand in the first place.
+
 2005-04-13 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Clean dependencies on on 'make clean' (instead of

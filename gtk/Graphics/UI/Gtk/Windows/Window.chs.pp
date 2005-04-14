@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/08 14:21:53 $
+--  Version $Revision: 1.9 $ from $Date: 2005/04/14 02:08:38 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -85,12 +85,10 @@ module Graphics.UI.Gtk.Windows.Window (
 #if GTK_CHECK_VERSION(2,2,0)
   windowFullscreen,
   windowUnfullscreen,
-#endif
 #if GTK_CHECK_VERSION(2,4,0)
   windowSetKeepAbove,
   windowSetKeepBelow,
 #endif
-#if GTK_CHECK_VERSION(2,2,0)
   windowSetSkipTaskbarHint,
   windowGetSkipTaskbarHint,
   windowSetSkipPagerHint,
@@ -558,7 +556,6 @@ windowUnfullscreen :: WindowClass self => self -> IO ()
 windowUnfullscreen self =
   {# call gtk_window_unfullscreen #}
     (toWindow self)
-#endif
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Asks to keep @window@ above, so that it stays on top. Note that you
@@ -614,7 +611,6 @@ windowSetKeepBelow self setting =
     (fromBool setting)
 #endif
 
-#if GTK_CHECK_VERSION(2,2,0)
 -- | Windows may set a hint asking the desktop environment not to display the
 -- window in the task bar. This function sets this hint.
 --

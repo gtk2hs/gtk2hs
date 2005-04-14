@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/04/07 00:34:49 $
+--  Version $Revision: 1.10 $ from $Date: 2005/04/14 02:08:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -86,7 +86,6 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionInsertActionMarkup,
   entryCompletionDeleteAction,
   entryCompletionSetTextColumn,
-#endif
 #if GTK_CHECK_VERSION(2,6,0)
   entryCompletionInsertPrefix,
   entryCompletionGetTextColumn,
@@ -97,9 +96,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 #endif
 
 -- * Properties
-#if GTK_CHECK_VERSION(2,4,0)
   entryCompletionMinimumKeyLength,
-#endif
 #if GTK_CHECK_VERSION(2,6,0)
   entryCompletionTextColumn,
   entryCompletionInlineCompletion,
@@ -111,7 +108,6 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   onInsertPrefix,
   afterInsertPrefix,
 #endif
-#if GTK_CHECK_VERSION(2,4,0)
   onActionActivated,
   afterActionActivated,
 #endif
@@ -294,7 +290,6 @@ entryCompletionSetTextColumn self column =
   {# call gtk_entry_completion_set_text_column #}
     self
     (fromIntegral column)
-#endif
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Requests a prefix insertion.
@@ -366,7 +361,6 @@ entryCompletionGetPopupCompletion self =
     self
 #endif
 
-#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Properties
 
@@ -380,7 +374,6 @@ entryCompletionMinimumKeyLength :: Attr EntryCompletion Int
 entryCompletionMinimumKeyLength = Attr 
   entryCompletionGetMinimumKeyLength
   entryCompletionSetMinimumKeyLength
-#endif
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The column of the model containing the strings.
@@ -434,7 +427,6 @@ onInsertPrefix = connect_STRING__BOOL "insert_prefix" False
 afterInsertPrefix = connect_STRING__BOOL "insert_prefix" True
 #endif
 
-#if GTK_CHECK_VERSION(2,4,0)
 -- | Gets emitted when an action is activated.
 --
 onActionActivated, afterActionActivated :: EntryCompletionClass self => self
