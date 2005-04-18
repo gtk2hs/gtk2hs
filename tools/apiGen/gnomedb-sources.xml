@@ -1,0 +1,9 @@
+<gapi-parser-input>
+  <api filename="gnomedb-api.xml">
+    <library name="gnomedb">
+      <namespace name="GnomeDb">
+        <dir>gnomedb/libgnomedb</dir>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

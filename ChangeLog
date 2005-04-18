@@ -1,3 +1,22 @@
+2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/Makefile: re-do the makefile so it scales to more
+	packages and add lots more packages. Not all of these will build yet
+	as it requires a few more code gen fixes.
+
+	* tools/apiGen/gtk-sources.xml, tools/apiGen/gnomecanvas-sources.xml,
+	tools/apiGen/glade-sources.xml, tools/apiGen/glade-sources.xml,
+	tools/apiGen/gdk-sources.xml: update the source spec files to reflect
+	slightly changed dir names.
+
+	* tools/apiGen/gconf-sources.xml, tools/apiGen/gda-sources.xml,
+	tools/apiGen/gnomedb-sources.xml, tools/apiGen/gnome-sources.xml,
+	tools/apiGen/gnomeui-sources.xml, tools/apiGen/gnomeprint-sources.xml,
+	tools/apiGen/gnomeprintui-sources.xml,
+	tools/apiGen/gnomevfs-sources.xml, tools/apiGen/gtkhtml2-sources.xml,
+	tools/apiGen/gtkhtml3-sources.xml, tools/apiGen/sourceview-sources.xml,
+	tools/apiGen/vte-sources.xml: add a bunch of new source spec files.
+
 2005-04-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Api.hs, tools/apiGen/ApiGen.hs,

@@ -1,0 +1,9 @@
+<gapi-parser-input>
+  <api filename="gnome-api.xml">
+    <library name="gnome">
+      <namespace name="Gnome">
+        <dir>gnome/libgnome</dir>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

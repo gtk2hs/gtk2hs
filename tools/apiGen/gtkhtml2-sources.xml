@@ -1,0 +1,23 @@
+<gapi-parser-input>
+  <api filename="gtkhtml2-api.xml">
+    <library name="gtkhtml">
+      <namespace name="Gtk">
+	<dir>gtkhtml2/libgtkhtml/</dir>
+	<dir>gtkhtml2/libgtkhtml/util</dir>
+	<dir>gtkhtml2/libgtkhtml/css</dir>
+	<dir>gtkhtml2/libgtkhtml/document</dir>
+	<dir>gtkhtml2/libgtkhtml/dom</dir>
+	<dir>gtkhtml2/libgtkhtml/dom/core</dir>
+	<dir>gtkhtml2/libgtkhtml/dom/html</dir>
+	<dir>gtkhtml2/libgtkhtml/dom/events</dir>
+	<dir>gtkhtml2/libgtkhtml/dom/views</dir>
+	<dir>gtkhtml2/libgtkhtml/dom/traversal</dir>
+	<dir>gtkhtml2/libgtkhtml/layout</dir>
+	<dir>gtkhtml2/libgtkhtml/layout/html</dir>
+	<dir>gtkhtml2/libgtkhtml/graphics</dir>
+	<dir>gtkhtml2/libgtkhtml/view</dir>
+	<dir>gtkhtml2/libgtkhtml/a11y</dir>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

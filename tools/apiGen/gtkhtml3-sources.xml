@@ -1,0 +1,9 @@
+<gapi-parser-input>
+  <api filename="gtkhtml3-api.xml">
+    <library name="gtkhtml">
+      <namespace name="Gtk">
+	<dir>gtkhtml3/src</dir>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

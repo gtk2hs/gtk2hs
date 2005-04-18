@@ -1,0 +1,10 @@
+<gapi-parser-input>
+  <api filename="gda-api.xml">
+    <library name="gda">
+      <namespace name="Gda">
+        <dir>gda/libgda</dir>
+	<exclude>gda/libgda/gda-export.c</exclude>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

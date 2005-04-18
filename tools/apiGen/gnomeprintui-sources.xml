@@ -1,0 +1,9 @@
+<gapi-parser-input>
+  <api filename="gnomeprintui-api.xml">
+    <library name="gnomeprintui">
+      <namespace name="Gnome">
+        <dir>gnomeprintui/libgnomeprintui</dir>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

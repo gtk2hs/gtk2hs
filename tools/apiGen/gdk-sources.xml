@@ -2,12 +2,12 @@
   <api filename="gdk-api.xml">
     <library name="gdk">
       <namespace name="Gdk">
-        <dir>gtk+/gdk</dir>
+        <dir>gtk/gdk</dir>
       </namespace>
     </library>
     <library name="gdk_pixbuf">
       <namespace name="Gdk">
-        <dir>gtk+/gdk-pixbuf</dir>
+        <dir>gtk/gdk-pixbuf</dir>
       </namespace>
     </library>
   </api>

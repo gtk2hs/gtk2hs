@@ -1,0 +1,9 @@
+<gapi-parser-input>
+  <api filename="gconf-api.xml">
+    <library name="gconf">
+      <namespace name="GConf">
+        <dir>gconf/gconf</dir>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

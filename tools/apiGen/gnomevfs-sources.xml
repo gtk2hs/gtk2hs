@@ -1,0 +1,16 @@
+<gapi-parser-input>
+  <api filename="gnomevfs-api.xml">
+    <library name="gnomevfs">
+      <namespace name="Gnome.Vfs">
+        <dir>gnomevfs/libgnomevfs</dir>
+        <!-- These files break the parser -->
+        <exclude>gnomevfs/libgnomevfs/GNOME_VFS_Daemon-common.c</exclude>
+        <exclude>gnomevfs/libgnomevfs/GNOME_VFS_Daemon.h</exclude>
+        <exclude>gnomevfs/libgnomevfs/GNOME_VFS_Daemon-skels.c</exclude>
+        <exclude>gnomevfs/libgnomevfs/GNOME_VFS_Daemon-stubs.c</exclude>
+        <exclude>gnomevfs/libgnomevfs/gnome-vfs-job.c</exclude>
+        <exclude>gnomevfs/libgnomevfs/gnome-vfs-job.h</exclude>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

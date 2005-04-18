@@ -1,0 +1,10 @@
+<gapi-parser-input>
+  <api filename="vte-api.xml">
+    <library name="vte">
+      <namespace name="Vte">
+        <dir>vte/src</dir>
+	<exclude>vte/src/vte.c</exclude>
+      </namespace>
+    </library>
+  </api>
+</gapi-parser-input>

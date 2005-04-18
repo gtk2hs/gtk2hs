@@ -28,146 +28,337 @@ default :
 #
 #	source code
 #
-GLIB_VERSION = 2.6.3
-PANGO_VERSION = 1.8.1
-ATK_VERSION = 1.9.1
-GTK_VERSION = 2.6.4
-GLADE_VERSION = 2.5.1
-CANVAS_VERSION = 2.10.0
+packages = glib pango atk gtk glade gconf gnomecanvas sourceview
 
-GNOME_PLATFORM_URL = http://ftp.gnome.org/pub/gnome/platform/2.10/2.10.0/sources
-GNOME_DESKTOP_URL  = http://ftp.gnome.org/pub/gnome/desktop/2.10/2.10.0/sources
-DOWNLOADS = \
-	$(GNOME_PLATFORM_URL)/glib-$(GLIB_VERSION).tar.bz2		\
-	$(GNOME_PLATFORM_URL)/pango-$(PANGO_VERSION).tar.bz2		\
-	$(GNOME_PLATFORM_URL)/atk-$(ATK_VERSION).tar.bz2		\
-	$(GNOME_PLATFORM_URL)/gtk+-$(GTK_VERSION).tar.bz2		\
-	$(GNOME_PLATFORM_URL)/libglade-$(GLADE_VERSION).tar.bz2		\
-	$(GNOME_PLATFORM_URL)/libgnomecanvas-$(CANVAS_VERSION).tar.bz2
+gnome_platform_url = http://ftp.gnome.org/pub/gnome/platform/2.10/2.10.0/sources
+gnome_desktop_url  = http://ftp.gnome.org/pub/gnome/desktop/2.10/2.10.0/sources
 
-get-source-code:
-	for i in $(DOWNLOADS); do \
-	  UNPACKDIR=`echo $$i | sed 's:.*/\([a-z+]*\)-\([0-9.]*\).tar.bz2:\1-\2:'`;\
-	  FINALDIR=`echo $$i | sed 's:.*/\([a-z+]*\)-\([0-9.]*\).tar.bz2:\1:'`;\
-	  if ! test -d $$FINALDIR ; then \
-	    wget $$i --output-document=- | tar -xj && mv $$UNPACKDIR $$FINALDIR; \
-	  fi; \
-	done;
-	# following fixes borrowed from Gtk#
-	ln -f -s gtkfilechooserprivate.h gtk+/gtk/gtkfilechooserpriv.h
+glib_version = 2.6.3
+glib_dir = glib
+glib_tar = glib-$(glib_version).tar.bz2
+glib_url = $(gnome_platform_url)/$(glib_tar)
+
+pango_version = 1.8.1
+pango_dir = pango
+pango_tar = pango-$(pango_version).tar.bz2
+pango_url = $(gnome_platform_url)/$(pango_tar)
+
+atk_version = 1.9.1
+atk_dir = atk
+atk_tar = atk-$(atk_version).tar.bz2
+atk_url = $(gnome_platform_url)/$(atk_tar)
+
+gtk_version = 2.6.4
+gtk_dir = gtk
+gtk_tar = gtk+-$(gtk_version).tar.bz2
+gtk_url = $(gnome_platform_url)/$(gtk_tar)
+
+glade_version = 2.5.1
+glade_dir = glade
+glade_tar = libglade-$(glade_version).tar.bz2
+glade_url = $(gnome_platform_url)/$(glade_tar)
+
+gconf_version = 2.10.0
+gconf_dir = gconf
+gconf_tar = GConf-$(gconf_version).tar.bz2
+gconf_url = $(gnome_platform_url)/$(gconf_tar)
+
+gnomecanvas_version = 2.10.0
+gnomecanvas_dir = gnomecanvas
+gnomecanvas_tar = libgnomecanvas-$(gnomecanvas_version).tar.bz2
+gnomecanvas_url = $(gnome_platform_url)/$(gnomecanvas_tar)
+
+sourceview_version = 1.2.0
+sourceview_dir = sourceview
+sourceview_tar = gtksourceview-$(sourceview_version).tar.bz2
+sourceview_url = $(gnome_desktop_url)/$(sourceview_tar)
+
+vte_version = 0.11.12
+vte_dir = vte
+vte_tar = vte-$(vte_version).tar.bz2
+vte_url = $(gnome_desktop_url)/$(vte_tar)
+
+gtkhtml2_version = 2.6.3
+gtkhtml2_dir = gtkhtml2
+gtkhtml2_tar = libgtkhtml-$(gtkhtml2_version).tar.bz2
+gtkhtml2_url = $(gnome_desktop_url)/$(gtkhtml2_tar)
+
+gtkhtml3_version = 3.5.3
+gtkhtml3_dir = gtkhtml3
+gtkhtml3_tar = gtkhtml-$(gtkhtml3_version).tar.bz2
+gtkhtml3_url = $(gnome_desktop_url)/$(gtkhtml3_tar)
+
+gtkhtml3_version = 3.5.3
+gtkhtml3_dir = gtkhtml3
+gtkhtml3_tar = gtkhtml-$(gtkhtml3_version).tar.bz2
+gtkhtml3_url = $(gnome_desktop_url)/$(gtkhtml3_tar)
+
+gnome_version = 2.10.0
+gnome_dir = gnome
+gnome_tar = libgnome-$(gnome_version).tar.bz2
+gnome_url = $(gnome_platform_url)/$(gnome_tar)
+
+gnomeui_version = 2.10.0
+gnomeui_dir = gnomeui
+gnomeui_tar = libgnomeui-$(gnomeui_version).tar.bz2
+gnomeui_url = $(gnome_platform_url)/$(gnomeui_tar)
+
+gnomeprint_version = 2.10.0
+gnomeprint_dir = gnomeprint
+gnomeprint_tar = libgnomeprint-$(gnomeprint_version).tar.bz2
+gnomeprint_url = $(gnome_platform_url)/$(gnomeprint_tar)
+
+gnomeprintui_version = 2.10.0.1
+gnomeprintui_dir = gnomeprintui
+gnomeprintui_tar = libgnomeprintui-$(gnomeprintui_version).tar.bz2
+gnomeprintui_url = $(gnome_platform_url)/$(gnomeprintui_tar)
+
+
+gnome_db_url = http://ftp.gnome.org/pub/gnome/sources/$(1)/1.3
+
+gda_version = 1.3.1
+gda_dir = gda
+gda_tar = libgda-$(gda_version).tar.bz2
+gda_url = $(call gnome_db_url,libgda)/$(gda_tar)
+
+gnomedb_version = 1.3.1
+gnomedb_dir = gnomedb
+gnomedb_tar = libgnomedb-$(gnomedb_version).tar.bz2
+gnomedb_url = $(call gnome_db_url,libgnomedb)/$(gnomedb_tar)
+
+
+#following fixes borrowed from Gtk#
+gtk-post-download-hook = \
+	ln -f -s gtkfilechooserprivate.h gtk/gtk/gtkfilechooserpriv.h
+
+atk-post-download-hook = \
 	sed -i 's:( \*link_activated):(\* link_activated):' atk/atk/atkhyperlink.h
-
-#############################
-#
-#	generateing api files
-#
-%-api.xml : %-sources.xml gapi_format_xml
-	PATH=.:$$PATH ./gapi_parser.pl $<
-
-#%-modules : %-api.xml %-docs.xml Template.chs ApiGen
-#	@mkdir -p $@
-#	./ApiGen $< Template.chs --doc=gtk-docs.xml --outdir=$@
 
 
 ###################
 #
 #	Gtk modules
 #
-#prep-gtk-docs : gtk+-$(GTK_VERSION)
-#	cd $< && ./configure --enable-gtk-doc && make
 
-gtk-docs.xml : gtk+/docs/reference/gtk/xml format-docs.xsl
-	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
+gtk_docs_dirs   = gtk/docs/reference/gtk/xml
+gtk_includeapi  = gdk-api.xml pango-api.xml atk-api.xml \
+		  gobject-api.xml glib-api.xml
+gtk_excludeapi  = gtk.ignore
+gtk_modprefix   = Graphics.UI.Gtk.{-Category-}
+gtk_scanmodules = gtk/Graphics/UI/Gtk
+gtk_excludescan = gtk/Graphics/UI/Gtk/Pango gtk/Graphics/UI/Gtk/Gdk
 
-gtk-modules : gtk-api.xml gtk-docs.xml Template.chs ApiGen \
-		gdk-api.xml pango-api.xml atk-api.xml \
-		gobject-api.xml glib-api.xml
-	@mkdir -p $@
-	./ApiGen $< Template.chs --doc=gtk-docs.xml --outdir=$@ \
-	--includeapi=gdk-api.xml --includeapi=pango-api.xml \
-	--includeapi=atk-api.xml --includeapi=gobject-api.xml \
-	--includeapi=glib-api.xml \
-	--excludeapi=gtk.ignore \
-	--modprefix=Graphics.UI.Gtk.{-Category-} \
-	--scanmodules=../../gtk/Graphics/UI/Gtk \
-	--excludescan=../../gtk/Graphics/UI/Gtk/Pango \
-	--excludescan=../../gtk/Graphics/UI/Gtk/Gdk
+gtk-modules : gtk-docs.xml $(gtk_includeapi) $(gtk_excludeapi)
 
 
 ###################
 #
 #	Gdk modules
 #
-gdk-docs.xml :	gtk+/docs/reference/gdk/xml \
-		gtk+/docs/reference/gdk-pixbuf/xml \
-		format-docs.xsl
-	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
-gdk-modules : gdk-api.xml gdk-docs.xml Template.chs ApiGen
-	@mkdir -p $@
-	./ApiGen $< Template.chs --doc=gdk-docs.xml --outdir=$@
+gdk_docs_dirs = gtk/docs/reference/gdk/xml gtk/docs/reference/gdk-pixbuf/xml
+gdk_modprefix   = Graphics.UI.Gtk.Gdk
+gdk_scanmodules = gtk/Graphics/UI/Gtk/Gdk
+gdk-modules : gdk-docs.xml
 
 
 ###################
 #
 #	Pango modules
 #
-#prep-pango-docs : pango-$(PANGO_VERSION)
-#	cd $< && ./configure --enable-gtk-doc && make
 
-pango-docs.xml : pango/docs/xml format-docs.xsl
-	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
+pango_docs_dirs   = pango/docs/xml
+pango_modprefix   = Graphics.UI.Gtk.Pango
+pango_scanmodules = gtk/Graphics/UI/Gtk/Pango
+pango-modules : pango-docs.xml
 
-pango-modules : pango-api.xml pango-docs.xml Template.chs ApiGen
-	@mkdir -p $@
-	./ApiGen $< Template.chs --doc=pango-docs.xml --outdir=$@
 
 ###################
 #
 #       Glib modules
 #
 #
-glib-docs.xml : glib/docs/reference/glib/xml format-docs.xsl
-	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
 
-## Note: this is currently pointless since the code generator only produces
-## modules for 'object's and not 'class'es which is all glib contains.
+glib_docs_dirs   = glib/docs/reference/glib/xml
+glib_modprefix   = System.Glib
+glib_scanmodules = ../../glib/System/Glib
 glib-modules : glib-api.xml glib-docs.xml Template.chs ApiGen
-	@mkdir -p $@
-	./ApiGen $< Template.chs --doc=glib-docs.xml --outdir=$@
 
-gobject-docs.xml : glib/docs/reference/gobject/xml format-docs.xsl
-	./mkdocxml.sh $< | xsltproc format-docs.xsl - > $@
+gobject_docs_dirs = glib/docs/reference/gobject/xml
+gobject_modprefix   = System.Glib
+gobject_scanmodules = glib/System/Glib
+gobject-modules : gobject-docs.xml
 
-## Note: again this is mostly pointless
-gobject-modules : gobject-api.xml gobject-docs.xml Template.chs ApiGen
-	@mkdir -p $@
-	./ApiGen $< Template.chs --doc=gobject-docs.xml --outdir=$@
 
 ########################
 #
-#	libglade modules
+#	glade modules
 #
-glade-modules : glade-api.xml Template.chs ApiGen
-	@mkdir -p $@
-	./ApiGen $< Template.chs --outdir=$@
+
+glade_docs_dirs   = glade/doc/xml
+glade_docs_standalone = yes
+glade_includeapi = gtk-api.xml $(gtk_includeapi)
+glade_excludeapi = gtk.ignore
+glade_modprefix   = Graphics.UI.Gtk
+glade_scanmodules = glade/Graphics/UI/Gtk
+glade-modules : glade-docs.xml
 
 
 ########################
 #
 #	gnomecanvas modules
 #
-gnomecanvas-modules : gnomecanvas-api.xml Template.chs ApiGen \
-	gtk-api.xml
-	@mkdir -p $@
-	./ApiGen $< Template.chs --outdir=$@ \
-	--includeapi=gtk-api.xml
 
+gnomecanvas_docs_dirs = gnomecanvas/docs/reference/xml
+gnomecanvas_includeapi = gtk-api.xml $(gtk_includeapi)
+gnomecanvas_excludeapi = gtk.ignore
+gnomecanvas-modules : gnomecanvas-docs.xml
+
+
+########################
+#
+#	gconf modules
+#
+
+gconf_docs_dirs   = gconf/doc/gconf/xml
+gconf_docs_standalone = yes
+gconf_includeapi  = gobject-api.xml glib-api.xml
+gconf_excludeapi  = gtk.ignore
+gconf_modprefix   = System.Gnome.GConf
+gconf_scanmodules = gconf/System/Gnome/GConf
+gconf-modules : gconf-docs.xml
+
+
+########################
+#
+#       sourceview modules
+#
+
+sourceview_docs_dirs   = sourceview/docs/reference/xml
+sourceview_docs_standalone = yes
+sourceview_includeapi  = gtk-api.xml $(gtk_includeapi)
+sourceview_excludeapi  = gtk.ignore
+sourceview_modprefix   = Graphics.UI.Gtk.SourceView
+sourceview_scanmodules = sourceview/Graphics/UI/Gtk/SourceView
+sourceview-modules : sourceview-docs.xml
+
+
+########################
+#
+#       gnome modules
+#
+
+gnome_docs_dirs   = gnome/doc/reference/xml
+gnome_includeapi = gconf-api.xml gobject-api.xml glib-api.xml
+gnome_excludeapi = gtk.ignore
+gnome-modules : gnome-docs.xml
+
+gnomeui_docs_dirs = gnomeui/doc/reference/xml
+gnomeui_includeapi = gtk-api.xml $(gtk_includeapi) gnome-api.xml $(gnome_includeapi)
+gnomeui_excludeapi = gtk.ignore
+gnomeui-modules : gnomeui-docs.xml
+
+
+########################
+#
+#       gnomeprint modules
+#
+
+gnomeprint_docs_dirs  = gnomeprint/doc/reference/xml
+gnomeprint_includeapi = pango-api.xml gobject-api.xml glib-api.xml
+gnomeprint_excludeapi = gtk.ignore
+gnomeprint-modules : gnomeprint-docs.xml
+
+gnomeprintui_docs_dirs = gnomeprintui/doc/xml
+gnomeprintui_includeapi = gnomeprint-api.xml $(gnomeprint_includeapi) \
+			  gnomecanvas-api.xml gtk-api.xml $(gtk_includeapi)
+gnomeprintui_excludeapi = gtk.ignore
+gnomeprintui-modules : gnomeprintui-docs.xml
+
+
+########################
+#
+#       gnomedb modules
+#
+
+gda_docs_dirs  = gda/doc/C/xml
+gda_includeapi = gobject-api.xml glib-api.xml
+gda_excludeapi = gtk.ignore
+gda-modules : gda-docs.xml
+
+gnomedb_docs_dirs = gnomedb/doc/C/xml
+gnomedb_includeapi = gda-api.xml gtk-api.xml $(gtk_includeapi)
+gnomedb_excludeapi = gtk.ignore
+gnomedb-modules : gnomedb-docs.xml
+
+
+########################
+#
+#       vte modules
+#
+
+vte_includeapi = gtk-api.xml gdk-api.xml pango-api.xml atk-api.xml \
+		 gobject-api.xml glib-api.xml
+
+
+########################
+#
+#       html modules
+#
+
+gtkhtml2_includeapi = gtk-api.xml gdk-api.xml pango-api.xml atk-api.xml \
+		      gobject-api.xml glib-api.xml
+gtkhtml2_excludeapi = gtk.ignore
+
+gtkhtml3_includeapi = $(gtkhtml2_includeapi)
+gtkhtml3_excludeapi = $(gtkhtml2_excludeapi)
+
+
+#############################
+#
+#	general rules
+#
+
+.PRECIOUS : tars/%.stamp
+tars/%.stamp :
+	wget -c $($*_url) --output-document=tars/$($*_tar) && touch $@
+
+% : tars/%.stamp
+	tar -xjf tars/$($*_tar)
+	mv $($*_tar:.tar.bz2=) $*
+	touch $*
+	$($*-post-download-hook)
+
+.PHONY: get-source-code
+get-source-code: $(packages)
+
+.PRECIOUS : %-api.xml
+%-api.xml : %-sources.xml gapi_format_xml
+	PATH=.:$$PATH ./gapi_parser.pl $<
+
+.PRECIOUS : %-docs.xml
+%-docs.xml : format-docs.xsl
+	./mkdocxml.sh $(if $($*_docs_standalone),--standalone) $($*_docs_dirs) \
+		| xsltproc format-docs.xsl - > $@
+
+%-modules : %-api.xml % Template.chs ApiGen
+	@mkdir -p $@
+	$(strip ./ApiGen $< Template.chs --outdir=$@ \
+		$(if $($*_docs_dirs), --doc=$*-docs.xml) \
+		$(addprefix --includeapi=,$($*_includeapi)) \
+		$(addprefix --excludeapi=,$($*_excludeapi)) \
+		$(addprefix --modprefix=,$($*_modprefix)) \
+		$(addprefix --scanmodules=,$(TOP)/$($*_scanmodules)) \
+		$(addprefix --excludescan=,$(TOP)/$($*_excludescan)))
+	@touch $@
+
+TOP = ../..
 
 ########################
 #
 #	tools
 #
+
 ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs CodeGen.hs Marshal.hs \
 	MarshalFixup.hs ModuleScan.hs ExcludeApi.hs StringUtils.hs
 	$(HC) --make $< -o $@
@@ -180,7 +371,7 @@ gapi_format_xml : formatXml.c
 #
 #       other stuff
 #
+
 clean :
 	rm *.o *.hi ApiGen gapi_format_xml
 	rm *-api.xml *-docs.xml
-
