@@ -236,27 +236,25 @@ extractDocPara other = error $ "extractDocPara: " ++ Xml.verbatim other
 
 extractDocPara' :: [Xml.Content] -> [DocPara]
 extractDocPara' = reconstructParas [] . map extractDocParaOrSpan
-  where reconstructParas :: [DocParaSpan] -> [Either DocParaSpan DocPara] -> [DocPara]
+  where reconstructParas :: [DocParaSpan] -> [Either DocParaSpan [DocPara]] -> [DocPara]
         reconstructParas []    [] = []
         reconstructParas spans [] = [DocParaText (reverse spans)]
         reconstructParas spans (Left  span:rest) = reconstructParas (span:spans) rest
-        reconstructParas []    (Right para:rest) = para : reconstructParas [] rest
-        reconstructParas spans (Right para:rest) = DocParaText (reverse spans)
-                                                 : para : reconstructParas [] rest
+        reconstructParas []    (Right paras:rest) = paras ++ reconstructParas [] rest
+        reconstructParas spans (Right paras:rest) = DocParaText (reverse spans)
+                                                 : paras ++ reconstructParas [] rest
 
-extractDocParaOrSpan :: Xml.Content -> Either DocParaSpan DocPara 
+extractDocParaOrSpan :: Xml.Content -> Either DocParaSpan [DocPara]
 extractDocParaOrSpan (Xml.CElem (Xml.Elem "listitem" [] content)) =
-  Right $ DocParaListItem (map extractDocParaSpan content)
+  Right [DocParaListItem (map extractDocParaSpan content)]
 extractDocParaOrSpan (Xml.CElem (Xml.Elem "definition" []
                        (Xml.CElem (Xml.Elem "term" [] term)
                        :content))) =
-  Right $ DocParaDefItem (map extractDocParaSpan term) (map extractDocParaSpan content)
+  Right [DocParaDefItem (map extractDocParaSpan term) (map extractDocParaSpan content)]
 extractDocParaOrSpan (Xml.CElem (Xml.Elem "programlisting" _ content)) =
   let listing = concat [ str | (Xml.CString _ str) <- content ] in
-  Right $ DocParaProgram listing
-extractDocParaOrSpan para@(Xml.CElem (Xml.Elem "para" _ _)) = 
-  case extractDocPara para of
-    [para'] -> Right para'    --handle this special case, we do not expect nested paras very often
+  Right [DocParaProgram listing]
+extractDocParaOrSpan para@(Xml.CElem (Xml.Elem "para" _ _)) = Right (extractDocPara para)
 extractDocParaOrSpan content@(Xml.CElem   _  ) = Left $ extractDocParaSpan content
 extractDocParaOrSpan content@(Xml.CString _ _) = Left $ extractDocParaSpan content
 extractDocParaOrSpan other = error $ "extractDocParaOrSpan: " ++ Xml.verbatim other

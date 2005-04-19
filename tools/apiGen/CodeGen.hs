@@ -492,8 +492,8 @@ makeKnownSymbolsMap api =
                           | object_cname object == "GtkClipboard" = SymObjectType ["GtkClipboard", "GObject"]
                           | object_cname object == "GParamSpec" = SymStructType
                           | object_cname object == "GdkBitmap" = SymStructType
-                          | otherwise                = error $ "makeKnownSymbolsMap: non-GObject "
-                                                            ++ object_cname object
+                          | otherwise = trace ("Warning: non-GObject "
+                                            ++ object_cname object) SymStructType
           where parents = objectParents object
         objectParents :: Object -> [String]
         objectParents object = object_cname object :

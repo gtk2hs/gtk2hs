@@ -17,6 +17,11 @@
 	tools/apiGen/gtkhtml3-sources.xml, tools/apiGen/sourceview-sources.xml,
 	tools/apiGen/vte-sources.xml: add a bunch of new source spec files.
 
+	* tools/apiGen/CodeGen.hs: make it a warning rather than an error for
+	an object to not inherit from GObject.
+
+	* tools/apiGen/Docs.hs: be more liberal in parsing nested paragraphs.
+
 2005-04-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Api.hs, tools/apiGen/ApiGen.hs,
