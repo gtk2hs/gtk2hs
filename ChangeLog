@@ -60,6 +60,8 @@
 
 	* Makefile.am: build support for the new modules.
 
+	* mk/common.mk: make .hsc -> .hs transform work with ghc 6.2
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more
