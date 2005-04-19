@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/19 04:31:02 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -74,9 +74,9 @@ import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 import Graphics.UI.Gtk.General.Structs		(treeIterSize)
-import System.Glib.StoreValue			(TMType(..), GenericValue(..))
-{#import System.Glib.GValue#}			(GValue, valueUnset)
-import System.Glib.GType			(GType)
+import System.Glib.StoreValue			(TMType(..), GenericValue(..)
+						,valueSetGenericValue)
+{#import System.Glib.GValue#}			(GValue(GValue), allocaGValue)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -97,12 +97,19 @@ treeStoreNew cols = makeNewGObject mkTreeStore $
 -- | Set the data of a specific node. The supplied
 -- value must match the type that was set for the column.
 --
-treeStoreSetValue :: (TreeStoreClass ts) => ts -> TreeIter -> Int ->
-                     GenericValue -> IO ()
-treeStoreSetValue ts ti col val = with val $ \vPtr -> do
-  {#call unsafe tree_store_set_value#} (toTreeStore ts) ti 
-    (fromIntegral col) vPtr
-  valueUnset vPtr
+treeStoreSetValue :: TreeStoreClass self => self
+ -> TreeIter
+ -> Int
+ -> GenericValue
+ -> IO ()
+treeStoreSetValue self iter column value =
+  allocaGValue $ \gvalue -> do
+  valueSetGenericValue gvalue value
+  {# call unsafe tree_store_set_value #}
+    (toTreeStore self)
+    iter
+    (fromIntegral column)
+    gvalue
 
 #if GTK_CHECK_VERSION(2,1,0)
 -- | Remove a specific node.

@@ -52,6 +52,12 @@
 	* gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp: change the
 	marshaling of GValue to not use GenericValue.
 
+	* gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp: minor changes necessary
+	due to the changes in GenericValue, it moving module and no longer
+	being an instance of Storable.
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more

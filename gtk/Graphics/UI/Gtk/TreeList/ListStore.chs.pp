@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/19 04:31:02 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -88,9 +88,9 @@ import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 import Graphics.UI.Gtk.General.Structs		(treeIterSize)
-import System.Glib.StoreValue			(TMType(..), GenericValue(..))
-{#import System.Glib.GValue#}			(GValue, valueUnset)
-import System.Glib.GType			(GType)
+import System.Glib.StoreValue			(TMType(..), GenericValue(..)
+						,valueSetGenericValue)
+{#import System.Glib.GValue#}			(GValue(GValue), allocaGValue)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -112,12 +112,18 @@ listStoreNew cols = makeNewGObject mkListStore $
 --
 -- * The supplied value must match the type that was set for the column.
 --
-listStoreSetValue :: (ListStoreClass ts) => ts -> TreeIter -> Int ->
-                     GenericValue -> IO ()
-listStoreSetValue ts ti col val = with val $ \vPtr -> do
-  {#call unsafe list_store_set_value#} (toListStore ts) ti 
-    (fromIntegral col) vPtr
-  valueUnset vPtr
+listStoreSetValue :: ListStoreClass self => self -> TreeIter
+ -> Int
+ -> GenericValue
+ -> IO ()
+listStoreSetValue self iter column value =
+  allocaGValue $ \gvalue -> do
+  valueSetGenericValue gvalue value
+  {# call unsafe list_store_set_value #}
+    (toListStore self)
+    iter
+    (fromIntegral column)
+    gvalue
 
 #if GTK_CHECK_VERSION(2,1,0)
 -- | Remove a specific node.

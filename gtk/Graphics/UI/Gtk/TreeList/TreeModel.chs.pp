@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/19 04:31:02 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -137,8 +137,9 @@ import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Structs	(treeIterSize)
 import Graphics.UI.Gtk.Gdk.Enums	(Flags(..))
-import System.Glib.StoreValue		(TMType)
-{#import System.Glib.GValue#}		(GValue, GenericValue, valueUnset)
+import System.Glib.StoreValue		(TMType, GenericValue,
+					 valueGetGenericValue)
+{#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -203,16 +204,18 @@ treeModelGetColumnType tm col = liftM (toEnum.fromIntegral) $
 
 -- | Read the value of at a specific column and 'Iterator'.
 --
-treeModelGetValue :: TreeModelClass tm => tm -> TreeIter -> Int ->
-                     IO GenericValue
-treeModelGetValue tm iter col = alloca $ \vaPtr -> do
-  -- don't know if this is necessary, see treeList/StoreValue.hsc
-  poke (castPtr vaPtr) (0:: {#type GType#})
-  {#call unsafe tree_model_get_value#} (toTreeModel tm) iter 
-    (fromIntegral col) vaPtr
-  val <- peek vaPtr
-  valueUnset vaPtr
-  return val
+treeModelGetValue :: TreeModelClass self => self
+ -> TreeIter
+ -> Int         -- ^ @column@ - The column to lookup the value at.
+ -> IO GenericValue
+treeModelGetValue self iter column =
+  allocaGValue $ \vaPtr -> do
+  {# call unsafe tree_model_get_value #}
+    (toTreeModel self)
+    iter
+    (fromIntegral column)
+    vaPtr
+  valueGetGenericValue vaPtr
 
 -- | Maps a function over each node in model in a depth-first fashion. If the
 -- function returns True, the tree walk stops.
