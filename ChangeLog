@@ -68,6 +68,9 @@
 	packages and add lots more packages. Not all of these will build yet
 	as it requires a few more code gen fixes.
 
+	* tools/apiGen/mkdocxml.sh: add support for alternate style of gtk-doc
+	xml documentation files which a nmber of the new packages use.
+
 	* tools/apiGen/gtk-sources.xml, tools/apiGen/gnomecanvas-sources.xml,
 	tools/apiGen/glade-sources.xml, tools/apiGen/glade-sources.xml,
 	tools/apiGen/gdk-sources.xml: update the source spec files to reflect

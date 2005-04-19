@@ -6,14 +6,22 @@
 # accepted by the ApiGen program.
 
 echo '<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-     "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">'
+     "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+     <!ENTITY gdk-pixbuf "<application>gdk-pixbuf</application>">
+     ]>'
 echo "<apidoc>"
 
-for DOC in $(find $@ -name '*.xml')
-do
-	echo "<book filename=\"$(basename $DOC)\">"
-	cat $DOC
-	echo "</book>"
-done
+case $1 in
+  --standalone)
+  	shift 1
+	xsltproc extract-docs.xsl $(find $@ -name '*.xml');;
+
+  *)	for DOC in $(find $@ -name '*.xml')
+	do
+		echo "<book filename=\"$(basename $DOC)\">"
+		cat $DOC
+		echo "</book>"
+	done;;
+esac
 
 echo "</apidoc>"
