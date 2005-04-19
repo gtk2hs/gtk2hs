@@ -2,24 +2,27 @@
 --  GIMP Toolkit (GTK) UTF aware string marshalling
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/11 02:22:14 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/19 02:15:32 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- This module adds CString-like functions that handle UTF8 strings.
 --

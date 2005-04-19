@@ -2,22 +2,27 @@
 --  GIMP Toolkit (GTK)
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/04/11 02:22:14 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/19 02:15:32 $
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  Copyright (C) 2002 Axel Simon
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
+--
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- Defines functions to extract data from a GList and to produce a GList from
 -- a list of pointers.

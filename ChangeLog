@@ -29,6 +29,11 @@
 	value(G|S)etGenericValue functions similar to the ones in GValueTypes.
 	Also convert license to LGPL.
 
+	* glib/System/Glib/Types.chs, glib/System/Glib/GType.chs,
+	glib/System/Glib/GObject.chs.pp, glib/System/Glib/GList.chs,
+	glib/System/Glib/GError.chs.pp, glib/System/Glib/UTFString.hs: convert
+	license to LGPL.
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more

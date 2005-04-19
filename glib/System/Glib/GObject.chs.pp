@@ -1,47 +1,53 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) Widget GObject
+--  GIMP Toolkit (GTK) GObject
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/27 19:42:06 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/19 02:15:32 $
 --
---  Copyright (c) 2001 Axel Simon
+--  Copyright (C) 2001 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
--- Implements the base GObject class to satisfy the type checker.
+-- The base object type for all glib objects
 --
 module System.Glib.GObject (
-  GObject(..),
-  GObjectClass,
-  mkGObject,
-  unGObject,
-  toGObject,
-  fromGObject,
-  castToGObject,
+  -- * Types
+  module System.Glib.Types,
+
+  -- * Low level binding functions
+
+  -- | All these functions are internal and are only interesting to people
+  -- writing bindings to GObject-style C libraries.
   objectNew,
   objectRef,
   objectUnref,
   makeNewGObject,
+  
+  -- ** Callback support
   DestroyNotify,
   mkFunPtrDestructor,
+
+  -- ** Weak references
   GWeakNotify,
   objectWeakref,
   objectWeakunref
   ) where
-
 
 import Monad (liftM)
 import Data.IORef (newIORef, readIORef, writeIORef)
@@ -53,8 +59,6 @@ import System.Glib.GType  (GType)
 import System.Glib.GParameter
 
 {# context lib="glib" prefix="g" #}
-
-
 
 {# pointer *GParameter as GParm -> GParameter #}
 

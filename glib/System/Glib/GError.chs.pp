@@ -2,22 +2,28 @@
 --  GIMP Toolkit (GTK) GError API
 --
 --  Author : Duncan Coutts
+--
 --  Created: 2 July 2004
 --
---  Copyright (c) 2004 Duncan Coutts
+--  Version $Revision: 1.2 $ from $Date: 2005/04/19 02:15:32 $
+--
+--  Copyright (C) 2004 Duncan Coutts
 --  parts derived from Structs.hsc Copyright (c) 1999..2002 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
---  modify it under the terms of the GNU Library General Public
+--  modify it under the terms of the GNU Lesser General Public
 --  License as published by the Free Software Foundation; either
---  version 2 of the License, or (at your option) any later version.
+--  version 2.1 of the License, or (at your option) any later version.
 --
 --  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
---  Library General Public License for more details.
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 --  Error Reporting, glib's system for reporting errors.
 --
@@ -27,7 +33,6 @@
 --  'GError's. It also provides functions for throwing and catching 'GError's as
 --  Haskell exceptions.
 --
-
 module System.Glib.GError (
 
   -- * Data types
