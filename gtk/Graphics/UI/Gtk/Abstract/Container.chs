@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/11 02:25:06 $
+--  Version $Revision: 1.7 $ from $Date: 2005/04/19 02:39:49 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -179,12 +179,13 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes		(Attr(..))
-import System.Glib.GObject		(objectRef, objectUnref)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import System.Glib.GList		(fromGList, toGList)
-{#import System.Glib.GValue#}		(GValue, GenericValue, valueUnset)
+{#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)
+import System.Glib.StoreValue		(GenericValue, valueSetGenericValue,
+					 valueGetGenericValue)
 import Graphics.UI.Gtk.General.Enums	(DirectionType(..), ResizeMode(..))
 
 {# context lib="gtk" prefix="gtk" #}
@@ -228,8 +229,7 @@ containerForeach :: ContainerClass self => self
  -> IO ()
 containerForeach self fun = do
   fPtr <- mkContainerForeachFunc (\wPtr _ -> do
-    objectRef wPtr
-    w <- liftM mkWidget $ newForeignPtr wPtr (objectUnref wPtr)
+    w <- makeNewObject mkWidget (return wPtr)
     fun w)
   {# call container_foreach #}
     (toContainer self)
@@ -254,8 +254,7 @@ containerForall :: ContainerClass self => self
  -> IO ()
 containerForall self fun = do
   fPtr <- mkContainerForeachFunc (\wPtr _ -> do
-    objectRef wPtr
-    w <- liftM mkWidget $ newForeignPtr wPtr (objectUnref wPtr)
+    w <- makeNewObject mkWidget (return wPtr)
     fun w)
   {# call container_forall #}
     (toContainer self)
@@ -452,14 +451,14 @@ containerChildSetProperty :: (ContainerClass self, WidgetClass child) => self
  -> GenericValue      -- ^ @value@ - the value to set the property to
  -> IO ()
 containerChildSetProperty self child propertyName value =
-  alloca $ \valuePtr ->
-  withUTFString propertyName $ \propertyNamePtr -> do
-  poke valuePtr value
+  withUTFString propertyName $ \propertyNamePtr ->
+  allocaGValue  $ \gvalue -> do
+  valueSetGenericValue gvalue value
   {# call container_child_set_property #}
     (toContainer self)
     (toWidget child)
     propertyNamePtr
-    valuePtr
+    gvalue
 
 -- | Gets the value of a child property for @child@ and the container.
 --
@@ -468,16 +467,14 @@ containerChildGetProperty :: (ContainerClass self, WidgetClass child) => self
  -> String      -- ^ @propertyName@ - the name of the property to get
  -> IO GenericValue
 containerChildGetProperty self child propertyName =
-  alloca $ \valuePtr ->
-  withUTFString propertyName $ \propertyNamePtr -> do
+  withUTFString propertyName $ \propertyNamePtr ->
+  allocaGValue  $ \gvalue -> do
   {# call unsafe container_child_get_property #}
     (toContainer self)
     (toWidget child)
     propertyNamePtr
-    valuePtr
-  res <- peek valuePtr
-  valueUnset valuePtr
-  return res
+    gvalue
+  valueGetGenericValue gvalue
 
 --------------------
 -- Properties
@@ -487,7 +484,7 @@ containerChildGetProperty self child propertyName =
 -- Default value: 'ResizeParent'
 --
 containerResizeMode :: ContainerClass self => Attr self ResizeMode
-containerResizeMode = Attr 
+containerResizeMode = Attr
   containerGetResizeMode
   containerSetResizeMode
 
@@ -498,7 +495,7 @@ containerResizeMode = Attr
 -- Default value: 0
 --
 containerBorderWidth :: ContainerClass self => Attr self Int
-containerBorderWidth = Attr 
+containerBorderWidth = Attr
   containerGetBorderWidth
   containerSetBorderWidth
 

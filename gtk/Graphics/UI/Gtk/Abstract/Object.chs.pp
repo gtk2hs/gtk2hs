@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/02 19:02:22 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/19 02:39:49 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -67,11 +67,11 @@ module Graphics.UI.Gtk.Abstract.Object (
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(objectRef, objectUnref)
+import System.Glib.GObject	(objectRef, objectUnref)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
-{#import System.Glib.GValue#}
-import System.Glib.StoreValue
+import System.Glib.StoreValue	(GenericValue, objectSetPropertyGeneric,
+				 objectGetPropertyGeneric)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -117,7 +117,6 @@ makeNewObject constr generator = do
   objectSink objPtr
   return $ constr obj
 
-
 -- Sets a specific attribute of this object.
 --
 -- * Most attributes in a widget can be set and retrieved by passing the
@@ -125,22 +124,12 @@ makeNewObject constr generator = do
 --   are undocumented because each derived objects implements custom (and
 --   welltyped) set and get functions for most attributes.
 --
-objectSetProperty :: GObjectClass gobj => gobj -> String -> GenericValue -> 
-					  IO ()
-objectSetProperty obj prop val = alloca $ \vaPtr -> withUTFString prop $ 
-  \sPtr -> poke vaPtr val >> {#call unsafe g_object_set_property#} 
-  (toGObject obj) sPtr vaPtr >> valueUnset vaPtr
-  
+objectSetProperty :: GObjectClass gobj => gobj -> String -> GenericValue -> IO ()
+objectSetProperty obj prop val = objectSetPropertyGeneric prop obj val
 
 -- Gets a specific attribute of this object.
 --
 -- * See 'objectSetProperty'.
 --
-objectGetProperty :: GObjectClass gobj => gobj -> String -> 
-					IO GenericValue
-objectGetProperty obj prop = alloca $ \vaPtr -> withUTFString prop $ \str -> do
-  {#call unsafe g_object_get_property#} (toGObject obj) str vaPtr
-  res <- peek vaPtr
-  valueUnset vaPtr
-  return res
-
+objectGetProperty :: GObjectClass gobj => gobj -> String -> IO GenericValue
+objectGetProperty obj prop = objectGetPropertyGeneric prop obj

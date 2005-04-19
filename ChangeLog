@@ -38,6 +38,14 @@
 	getter / setter functions that will be used in the implementation of
 	'Attr's in the other modules.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: changes due to
+	GValue/GenericValue change. Also tidy up a bit of marshaling code to
+	make it use the usual marshaling functions.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp: re-implement
+	objectSetProperty and objectGetProperty in terms of the new glib
+	functions rather than the direct implemntation.
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more
