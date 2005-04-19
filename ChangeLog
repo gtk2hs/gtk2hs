@@ -34,6 +34,10 @@
 	glib/System/Glib/GError.chs.pp, glib/System/Glib/UTFString.hs: convert
 	license to LGPL.
 
+	* glib/System/Glib/Properties.chs: new module with GObject property
+	getter / setter functions that will be used in the implementation of
+	'Attr's in the other modules.
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more
