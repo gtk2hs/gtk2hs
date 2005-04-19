@@ -46,6 +46,12 @@
 	objectSetProperty and objectGetProperty in terms of the new glib
 	functions rather than the direct implemntation.
 
+	* gtk/Graphics/UI/Gtk/Misc/Adjustment.chs: change from using the
+	generic object(G|S)etProperty functions to the new type specific ones.
+
+	* gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp: change the
+	marshaling of GValue to not use GenericValue.
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/16 01:42:46 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/19 02:56:02 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -88,8 +88,8 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes		(Attr(..))
-{#import System.Glib.GValue#}
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject, objectSetProperty, objectGetProperty)
+import System.Glib.Properties		(objectSetPropertyDouble, objectGetPropertyDouble)
+import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -130,55 +130,43 @@ adjustmentNew value lower upper stepIncrement pageIncrement pageSize =
 
 -- | Set the lower value.
 adjustmentSetLower :: Adjustment -> Double -> IO ()
-adjustmentSetLower a val = objectSetProperty a "lower" (GVdouble val)
+adjustmentSetLower = objectSetPropertyDouble "lower"
 
 -- | Retrieve the lower value.
 adjustmentGetLower :: Adjustment -> IO Double
-adjustmentGetLower a = do
-  (GVdouble res) <- objectGetProperty a "lower"
-  return res
+adjustmentGetLower = objectGetPropertyDouble "lower"
 
 -- | Set the page increment value.
 adjustmentSetPageIncrement :: Adjustment -> Double -> IO ()
-adjustmentSetPageIncrement a val = objectSetProperty a "page-increment"
-				   (GVdouble val)
+adjustmentSetPageIncrement = objectSetPropertyDouble "page-increment"
 
 -- | Retrieve the pageincrement value.
 adjustmentGetPageIncrement :: Adjustment -> IO Double
-adjustmentGetPageIncrement a = do
-  (GVdouble res) <- objectGetProperty a "page-increment"
-  return res
+adjustmentGetPageIncrement = objectGetPropertyDouble "page-increment"
 
 -- | Set the page size value.
 adjustmentSetPageSize :: Adjustment -> Double -> IO ()
-adjustmentSetPageSize a val = objectSetProperty a "page_size" (GVdouble val)
+adjustmentSetPageSize = objectSetPropertyDouble "page_size"
 
 -- | Retrieve the page size value.
 adjustmentGetPageSize :: Adjustment -> IO Double
-adjustmentGetPageSize a = do
-  (GVdouble res) <- objectGetProperty a "page_size"
-  return res
+adjustmentGetPageSize = objectGetPropertyDouble "page_size"
 
 -- | Set the step-increment value.
 adjustmentSetStepIncrement :: Adjustment -> Double -> IO ()
-adjustmentSetStepIncrement a val = objectSetProperty a "step-increment"
-				   (GVdouble val)
+adjustmentSetStepIncrement = objectSetPropertyDouble "step-increment"
 
 -- | Retrieve the step-increment value.
 adjustmentGetStepIncrement :: Adjustment -> IO Double
-adjustmentGetStepIncrement a = do
-  (GVdouble res) <- objectGetProperty a "step-increment"
-  return res
+adjustmentGetStepIncrement = objectGetPropertyDouble "step-increment"
 
 -- | Set the upper value.
 adjustmentSetUpper :: Adjustment -> Double -> IO ()
-adjustmentSetUpper a val = objectSetProperty a "upper" (GVdouble val)
+adjustmentSetUpper = objectSetPropertyDouble "upper"
 
 -- | Retrieve the upper value.
 adjustmentGetUpper :: Adjustment -> IO Double
-adjustmentGetUpper a = do
-  (GVdouble res) <- objectGetProperty a "upper"
-  return res
+adjustmentGetUpper = objectGetPropertyDouble "upper"
 
 -- | Sets the current value of the Adjustment object. The value is clamped to
 -- lie between the adjustment's @lower@ and @upper@ values. See 'adjustmentNew'
