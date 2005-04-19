@@ -2,73 +2,75 @@
 --  GIMP Toolkit (GTK) GValue
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 17:46:16 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/19 02:04:08 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
 -- This module implements only the necessities for the GTK binding.
 --
 -- * Everything here is only used by 'TreeStore' and friends.
 --
 module System.Glib.GValue (
-  GenericValue(..),
-  GValue,
+  GValue(GValue),
   valueInit,
-  valueUnset
+  valueUnset,
+  valueGetType,
+  allocaGValue
   ) where
 
 import Monad	(liftM)
-import Foreign
-import Foreign.C
 
+import System.Glib.FFI
 import System.Glib.GType	(GType)
-import System.Glib.Types	(GObject)
 
 {# context lib="glib" prefix="g" #}
 
-{#pointer *GValue -> GenericValue#}
-
--- | A union with information about the currently stored type.
---
--- * Internally used by 'TreeStore'.
---
-data GenericValue = GVuint    {#type guint#}
-		  | GVint     {#type gint#}
-		  | GVuchar   {#type guchar#}
-		  | GVchar    {#type gchar#}
-		  | GVboolean Bool
-		  | GVenum    Int
-		  | GVflags   Int
-		  | GVpointer (Ptr ())
-		  | GVfloat   Float
-		  | GVdouble  Double
-		  | GVstring  (Maybe String)
-		  | GVobject  GObject
-		  | GVboxed   (Ptr ())
+{# pointer *GValue newtype #}
 
 -- | Clear a GValue.
 --
 valueInit :: GValue -> GType -> IO ()
-valueInit gv gt = liftM (const ()) $ {#call unsafe value_init#} gv gt
-
+valueInit gv@(GValue gvPtr) gt = do
+  -- The g_type field of the value must be zero or g_value_init will fail.
+  {# set GValue->g_type #} gvPtr (0 :: GType)
+  {# call unsafe value_init #} gv gt
+  return ()
 
 -- | Free the data in a GValue.
 --
 valueUnset :: GValue -> IO ()
 valueUnset = {#call unsafe value_unset#}
 
+-- | Get the type of the value stored in the GValue
+--
+valueGetType :: GValue -> IO GType
+valueGetType (GValue gvPtr) = {# get GValue->g_type #} gvPtr
+
+-- | Temporarily allocate a GValue.
+--
+allocaGValue :: (GValue -> IO b) -> IO b
+allocaGValue body =
+  allocaBytes {# sizeof GValue #} $ \gvPtr -> do
+  -- The g_type field of the value must be zero or g_value_init will fail.
+  {# set GValue->g_type #} gvPtr (0 :: GType)
+  result <- body (GValue gvPtr)
+  valueUnset (GValue gvPtr)
+  return result

@@ -2,44 +2,42 @@
 --  GIMP Toolkit (GTK) GValueTypes
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 17:45:41 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/19 02:04:09 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
 --
--- * This module implements only the necessities for the GTK binding.
---
--- * Everything here is only used by 'TreeStore' and friends.
---
--- TODO
---
--- * Replace POINTER with Stable Dynamic or something safe and Haskell like.
+-- This is used by the implementation of properties and by the 'TreeModel' and
+-- related modules.
 --
 module System.Glib.GValueTypes (
   valueSetUInt,
   valueGetUInt,
   valueSetInt,
   valueGetInt,
-  valueSetUChar,
-  valueGetUChar,
-  valueSetChar,
-  valueGetChar,
-  valueSetBoolean,
-  valueGetBoolean,
+--  valueSetUChar,
+--  valueGetUChar,
+--  valueSetChar,
+--  valueGetChar,
+  valueSetBool,
+  valueGetBool,
   valueSetPointer,
   valueGetPointer,
   valueSetFloat,
@@ -48,95 +46,129 @@ module System.Glib.GValueTypes (
   valueGetDouble,
   valueSetString,
   valueGetString,
-  valueSetObject,
-  valueGetObject
+  valueSetGObject,
+  valueGetGObject,
   ) where
 
 import Monad	(liftM)
-import Foreign
-import Foreign.C
 
+import System.Glib.FFI
 import System.Glib.UTFString
+import qualified System.Glib.GTypeConstants as GType
+{#import System.Glib.GValue#}		(GValue(GValue), valueInit)
 import System.Glib.GObject
-import System.Glib.GType	(GType)
-{#import System.Glib.GValue#}	(GValue, GenericValue(..))
 
 {# context lib="glib" prefix="g" #}
 
--- Retrieve and set the data item in the GenericValue.
---
+valueSetUInt :: GValue -> Word -> IO ()
+valueSetUInt gvalue value = do 
+  valueInit gvalue GType.uint
+  {# call unsafe value_set_uint #} gvalue (fromIntegral value)
 
-valueSetUInt :: GValue -> {#type guint#} -> IO ()
-valueSetUInt = {#call unsafe value_set_uint#}
+valueGetUInt :: GValue -> IO Word
+valueGetUInt gvalue =
+  liftM fromIntegral $
+  {# call unsafe value_get_uint #} gvalue
 
-valueGetUInt :: GValue -> IO {#type guint#}
-valueGetUInt = {#call unsafe value_get_uint#}
+valueSetInt :: GValue -> Int -> IO ()
+valueSetInt gvalue value = do 
+  valueInit gvalue GType.int
+  {# call unsafe value_set_int #} gvalue (fromIntegral value)
 
-valueSetInt :: GValue -> {#type gint#} -> IO ()
-valueSetInt = {#call unsafe value_set_int#}
+valueGetInt :: GValue -> IO Int
+valueGetInt gvalue =
+  liftM fromIntegral $
+  {# call unsafe value_get_int #} gvalue
 
-valueGetInt :: GValue -> IO {#type gint#}
-valueGetInt = {#call unsafe value_get_int#}
+{-
+valueSetUChar :: GValue -> Word8 -> IO ()
+valueSetUChar gvalue value = do 
+  valueInit gvalue GType.uchar
+  {# call unsafe value_set_uchar #} gvalue value
 
-valueSetUChar :: GValue -> {#type guchar#} -> IO ()
-valueSetUChar = {#call unsafe value_set_uchar#}
-
-valueGetUChar :: GValue -> IO {#type guchar#}
-valueGetUChar = {#call unsafe value_get_uchar#}
+valueGetUChar :: GValue -> IO Word8
+valueGetUChar gvalue =
+  {# call unsafe value_get_uchar #} gvalue
 
 valueSetChar :: GValue -> {#type gchar#} -> IO ()
-valueSetChar = {#call unsafe value_set_char#}
+valueSetChar gvalue value = do 
+  valueInit gvalue GType.char
+  {# call unsafe value_set_char #} gvalue value
 
 valueGetChar :: GValue -> IO {#type gchar#}
-valueGetChar = {#call unsafe value_get_char#}
+valueGetChar gvalue =
+  {# call unsafe value_get_char #} gvalue
+-}
 
-valueSetBoolean :: GValue -> Bool -> IO ()
-valueSetBoolean gv b = {#call unsafe value_set_boolean#} gv (fromBool b)
+valueSetBool :: GValue -> Bool -> IO ()
+valueSetBool gvalue value = do 
+  valueInit gvalue GType.bool
+  {# call unsafe value_set_boolean #} gvalue (fromBool value)
 
-valueGetBoolean :: GValue -> IO Bool
-valueGetBoolean gv = liftM toBool $ {#call unsafe value_get_boolean#} gv
+valueGetBool :: GValue -> IO Bool
+valueGetBool gvalue =
+  liftM toBool $
+  {# call  unsafe value_get_boolean #} gvalue
 
 -- These functions should probably never be used as they are dangerous.
 --
 valueSetPointer :: GValue -> (Ptr ()) -> IO ()
-valueSetPointer = {#call unsafe value_set_pointer#}
+valueSetPointer gvalue value = do 
+  valueInit gvalue GType.pointer
+  {# call unsafe value_set_pointer #} gvalue value
 
 valueGetPointer :: GValue -> IO (Ptr ())
-valueGetPointer = {#call unsafe value_get_pointer#}
+valueGetPointer gvalue =
+  {# call unsafe value_get_pointer #} gvalue
 
 valueSetFloat :: GValue -> Float -> IO ()
-valueSetFloat gv f = {#call unsafe value_set_float#} gv (realToFrac f)
+valueSetFloat gvalue value = do 
+  valueInit gvalue GType.float
+  {# call unsafe value_set_float #} gvalue (realToFrac value)
 
 valueGetFloat :: GValue -> IO Float
-valueGetFloat gv = liftM realToFrac $ {#call unsafe value_get_float#} gv
+valueGetFloat gvalue =
+  liftM realToFrac $
+  {# call unsafe value_get_float #} gvalue
 
 valueSetDouble :: GValue -> Double -> IO ()
-valueSetDouble gv d= {#call unsafe value_set_double#} gv (realToFrac d)
+valueSetDouble gvalue value = do
+  valueInit gvalue GType.double
+  {# call unsafe value_set_double #} gvalue (realToFrac value)
 
 valueGetDouble :: GValue -> IO Double
-valueGetDouble gv = liftM realToFrac $ {#call unsafe value_get_double#} gv
+valueGetDouble gvalue =
+  liftM realToFrac $
+  {# call unsafe value_get_double #} gvalue
 
 valueSetString :: GValue -> Maybe String -> IO ()
-valueSetString gv (Just str) = do
+valueSetString gvalue (Just str) = do
+  valueInit gvalue GType.string
   strPtr <- newUTFString str
-  {#call unsafe value_set_static_string#} gv strPtr
+  {# call unsafe value_set_static_string #} gvalue strPtr
 
-valueSetString gv Nothing = 
-  {#call unsafe value_set_static_string#} gv nullPtr
+valueSetString gvalue Nothing = do
+  valueInit gvalue GType.string
+  {# call unsafe value_set_static_string #} gvalue nullPtr
 
 valueGetString :: GValue -> IO (Maybe String)
-valueGetString gv = do
-  strPtr <- {#call unsafe value_get_string#} gv
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
+valueGetString gvalue =
+  {# call unsafe value_get_string #} gvalue
+  >>= maybePeek peekUTFString
 
--- * for some weird reason the API says that gv is a gpointer, not a GObject
+-- for some weird reason the API says that gv is a gpointer, not a GObject
 --
-valueSetObject :: GValue -> GObject -> IO ()
-valueSetObject gv obj = withForeignPtr (unGObject obj) $ \objPtr ->
-  {#call unsafe g_value_set_object#} gv (castPtr objPtr)
+valueSetGObject :: GObjectClass gobj => GValue -> gobj -> IO ()
+valueSetGObject gvalue obj =
+  withForeignPtr ((unGObject.toGObject) obj) $ \objPtr ->
+  {# call unsafe g_value_set_object #} gvalue (castPtr objPtr)
 
-valueGetObject :: GValue -> IO GObject
-valueGetObject gv = makeNewGObject mkGObject $
+-- Unsafe because it performs an unchecked downcast. Only for internal use.
+--
+valueGetGObject :: GObjectClass gobj => GValue -> IO gobj
+valueGetGObject gvalue =
+  liftM fromGObject $
+  makeNewGObject mkGObject $
   throwIfNull "GType.valueGetObject: extracting invalid object" $
-  liftM castPtr $ {#call unsafe value_get_object#} gv
-
+  liftM castPtr $
+  {# call unsafe value_get_object #} gvalue

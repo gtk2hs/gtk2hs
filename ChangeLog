@@ -5,6 +5,30 @@
 	casting functions into another function and reimplement the originals
 	in terms of that. Saves a bit of code space.
 
+	* glib/System/Glib/GTypeConstants.hsc: new file defining some GType
+	constant values that were previously defined via TMType.
+
+	* glib/System/Glib/GValue.chs: move GenericValue definition to
+	StoreValue module. Make GValue into a newtype which no longer depends
+	on GenericValue. Also add a couple utility functions. Also convert
+	license to LGPL.
+
+	* glib/System/Glib/GParameter.hsc: GValue is now a newtype requiring a
+	minor change. Also convert license to LGPL.
+
+	* glib/System/Glib/GValueTypes.chs: make the valueSet* functions call
+	valueInit since these functions do not get used in any other
+	circumstance and it localises knowledge of the GType. Also comment out
+	the CChar versions since it is not clear if we need them. Also convert
+	license to LGPL.
+
+	* glib/System/Glib/StoreValue.hsc: new home of GenericValue deinition
+	until it is eliminated entirely. Comment out the constructors that are
+	unsafe or in the case of the CChar ones how they are to be used.
+	Instead of making GenericValue an instance of Storable, define
+	value(G|S)etGenericValue functions similar to the ones in GValueTypes.
+	Also convert license to LGPL.
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more
