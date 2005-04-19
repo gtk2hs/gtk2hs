@@ -224,11 +224,13 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/UTFString.hs		\
 	glib/System/Glib/Types.chs		\
 	glib/System/Glib/GType.chs		\
+	glib/System/Glib/GTypeConstants.hsc	\
 	glib/System/Glib/GValue.chs		\
 	glib/System/Glib/GValueTypes.chs	\
 	glib/System/Glib/GParameter.hsc		\
 	glib/System/Glib/StoreValue.hsc		\
 	glib/System/Glib/GObject.chs.pp		\
+	glib/System/Glib/Properties.chs		\
 	glib/System/Glib/Attributes.hs		\
 	glib/System/Glib/GError.chs.pp		\
 	glib/System/Glib/GList.chs              \

@@ -58,6 +58,8 @@
 	due to the changes in GenericValue, it moving module and no longer
 	being an instance of Storable.
 
+	* Makefile.am: build support for the new modules.
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more
