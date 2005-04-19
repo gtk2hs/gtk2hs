@@ -1,3 +1,10 @@
+2005-04-19 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/hierarchyGen/Hierarchy.chs.template,
+	tools/hierarchyGen/TypeGen.hs: factor out common code from the down
+	casting functions into another function and reimplement the originals
+	in terms of that. Saves a bit of code space.
+
 2005-04-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: re-do the makefile so it scales to more

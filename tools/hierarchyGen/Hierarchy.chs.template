@@ -5,7 +5,7 @@
 --
 --  Author : Axel Simon
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/08 14:00:48 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/19 01:45:45 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -34,7 +34,7 @@ module @MODULE_NAME@ (
 
 import System.Glib.FFI		(ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr,
                                  CULong, withForeignPtr)
-import System.Glib.GType	(typeInstanceIsA)
+import System.Glib.GType	(GType, typeInstanceIsA)
 import GHC.Base			(unsafeCoerce#)
 @IMPORT_PARENT@
 
@@ -42,6 +42,16 @@ import GHC.Base			(unsafeCoerce#)
 
 -- The usage of foreignPtrToPtr should be safe as the evaluation will only be
 -- forced if the object is used afterwards
+--
+castTo :: (GObjectClass obj, GObjectClass obj') => GType -> String
+                                                -> (obj -> obj')
+castTo gtype objTypeName obj =
+  case toGObject obj of
+    gobj\@(GObject objFPtr)
+      | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
+                  -> fromGObject gobj
+      | otherwise -> error $ "Cannot cast object to " ++ objTypeName
+
 @CASTING_FUNCTIONS@
 
 @CLASS_DECLERATIONS@

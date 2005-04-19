@@ -198,15 +198,12 @@ makeUpcast :: TypeTable -> [String] -> ShowS
 makeUpcast table [obj]	   = id -- no casting for GObject
 makeUpcast table (obj:_:_) = 
   indent 0.ss "castTo".ss obj.ss " :: GObjectClass obj => obj -> ".ss obj.
-  indent 0.ss "castTo".ss obj.ss " obj =".
-  indent 1.ss "if typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr.unGObject.toGObject) obj)".
-  indent 2.ss "{#call fun unsafe ".
+  indent 0.ss "castTo".ss obj.ss " = castTo".
+  indent 1.ss "{# call fun unsafe ".
     ss (case lookup obj table of 
          (Just (_, Just get_type_func)) -> get_type_func
 	 (Just (cname, _)) -> tail $ c2u True cname++"_get_type").
-    ss "#} then".
-  indent 3.ss "(fromGObject.toGObject) obj else".
-  indent 4.ss "error \"Cannot cast object to ".ss obj.ss ".\"".
+    ss " #} \"".ss obj.ss "\"".
   indent 0
   where
     -- case to underscore translation: the boolean arg specifies whether
