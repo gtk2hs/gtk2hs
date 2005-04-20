@@ -48,6 +48,10 @@
 	* Makefile.am: add the three new files to the gtk sources list and
 	move a couple others to a more appropriate place.
 
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp: adjust imports due
+	to TreeIter now living it it's own module.
+
 2005-04-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/Hierarchy.chs.template,
