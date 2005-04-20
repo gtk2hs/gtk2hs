@@ -495,7 +495,8 @@ libHSgtk_a_LIBADD =							\
         gtk/Graphics/UI/Gtk/TreeList/TreeView_stub.o			\
 	gtk/Graphics/UI/Gtk/TreeList/IconView_stub.o			\
 	gtk/Graphics/UI/Gtk/Selectors/FileFilter_stub.o			\
-	gtk/Graphics/UI/Gtk/Windows/AboutDialog_stub.o
+	gtk/Graphics/UI/Gtk/Windows/AboutDialog_stub.o			\
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup_stub.o
 
 # Pretend these stub files can be created by a simple rule.
 $(libHSgtk_a_LIBADD) :

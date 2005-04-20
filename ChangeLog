@@ -55,6 +55,8 @@
 	* gtk/Graphics/UI/Gtk.hs: TreeModel no longer exports so many internal
 	functions so they do not need to be hidden.
 
+	* Makefile.am: add missing _stub.o file to libHSgtk_a_LIBADD
+
 2005-04-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/Hierarchy.chs.template,
