@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:38 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- The selection object for 'TreeView'
 --
 module Graphics.UI.Gtk.TreeList.TreeSelection (
--- * Description
+-- * Detail
 -- 
 -- | The 'TreeSelection' object is a helper object to manage the selection for
 -- a 'TreeView' widget. The 'TreeSelection' object is automatically created
@@ -110,6 +110,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums    (SelectionMode(..))
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.TreeList.TreePath#}
+{#import Graphics.UI.Gtk.TreeList.TreeIter#}
 import Graphics.UI.Gtk.General.Structs	(treeIterSize)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -119,15 +121,22 @@ import Graphics.UI.Gtk.General.Structs	(treeIterSize)
 
 -- | Set single or multiple choice.
 --
-treeSelectionSetMode :: (TreeSelectionClass ts) => ts -> SelectionMode -> IO ()
-treeSelectionSetMode ts sm = {#call tree_selection_set_mode#}
-  (toTreeSelection ts) ((fromIntegral.fromEnum) sm)
+treeSelectionSetMode :: TreeSelectionClass self => self
+ -> SelectionMode
+ -> IO ()
+treeSelectionSetMode self type_ =
+  {# call tree_selection_set_mode #}
+    (toTreeSelection self)
+    ((fromIntegral . fromEnum) type_)
 
 -- | Gets the selection mode.
 --
-treeSelectionGetMode :: (TreeSelectionClass ts) => ts -> IO SelectionMode
-treeSelectionGetMode ts = liftM (toEnum.fromIntegral) $
-  {#call unsafe tree_selection_get_mode#} (toTreeSelection ts)
+treeSelectionGetMode :: TreeSelectionClass self => self
+ -> IO SelectionMode
+treeSelectionGetMode self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe tree_selection_get_mode #}
+    (toTreeSelection self)
 
 -- | Set a callback function if selection changes.
 --
@@ -136,16 +145,19 @@ treeSelectionGetMode ts = liftM (toEnum.fromIntegral) $
 -- selected. The select function should return @True@ if the state of the node
 -- may be toggled, and @False@ if the state of the node should be left
 -- unchanged.
-treeSelectionSetSelectFunction :: (TreeSelectionClass ts) => ts ->
-                                  TreeSelectionCB -> IO ()
+treeSelectionSetSelectFunction :: TreeSelectionClass self => self
+ -> TreeSelectionCB -> IO ()
 treeSelectionSetSelectFunction ts fun = do
   fPtr <- mkTreeSelectionFunc (\_ _ tp _ -> do
-    path <- nativeTreePathGetIndices (NativeTreePath (castPtr tp))
+    path <- peekTreePath (castPtr tp)
     liftM fromBool $ fun path
     )
   dPtr <- mkFunPtrDestructor fPtr
-  {#call tree_selection_set_select_function#} (toTreeSelection ts) fPtr 
-    nullPtr dPtr
+  {# call tree_selection_set_select_function #}
+    (toTreeSelection ts)
+    fPtr
+    nullPtr
+    dPtr
 
 -- | Callback type for a function that is called everytime the selection
 -- changes. This function is set with 'treeSelectionSetSelectFunction'.
@@ -159,29 +171,34 @@ foreign import ccall "wrapper"  mkTreeSelectionFunc ::
 
 -- | Retrieve the 'TreeView' widget that this 'TreeSelection' works on.
 --
-treeSelectionGetTreeView :: (TreeSelectionClass ts) => ts -> IO TreeView
-treeSelectionGetTreeView ts = makeNewObject mkTreeView $
-  {#call unsafe tree_selection_get_tree_view#} (toTreeSelection ts)
+treeSelectionGetTreeView :: TreeSelectionClass self => self -> IO TreeView
+treeSelectionGetTreeView self =
+  makeNewObject mkTreeView $
+  {# call unsafe tree_selection_get_tree_view #}
+    (toTreeSelection self)
 
 -- | Retrieves the selection of a single choice 'TreeSelection'.
 --
-treeSelectionGetSelected :: (TreeSelectionClass ts) => ts ->
+treeSelectionGetSelected :: TreeSelectionClass self => self ->
                             IO (Maybe TreeIter)
-treeSelectionGetSelected ts = do
+treeSelectionGetSelected self = do
   iterPtr <- mallocBytes treeIterSize
   iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-  res <- {#call tree_selection_get_selected#} (toTreeSelection ts) 
-    (nullPtr) iter
+  res <- {# call tree_selection_get_selected #}
+    (toTreeSelection self)
+    nullPtr
+    iter
   return $ if (toBool res) then Just iter else Nothing
 
 -- | Execute a function for each selected node.
 --
 -- * Note that you cannot modify the tree or selection from within this
---   function. Hence, "treeSelectionGetSelectedRows" might be more useful.
+--   function. Hence, 'treeSelectionGetSelectedRows' might be more useful.
 --
-treeSelectionSelectedForeach :: (TreeSelectionClass ts) => ts ->
-                                TreeSelectionForeachCB -> IO ()
-treeSelectionSelectedForeach ts fun = do
+treeSelectionSelectedForeach :: TreeSelectionClass self => self
+ -> TreeSelectionForeachCB
+ -> IO ()
+treeSelectionSelectedForeach self fun = do
   fPtr <- mkTreeSelectionForeachFunc (\_ ti _ -> do
     -- make a deep copy of the iterator. This makes it possible to store this
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
@@ -192,7 +209,10 @@ treeSelectionSelectedForeach ts fun = do
     iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
     fun iter
     )
-  {#call tree_selection_selected_foreach#} (toTreeSelection ts) fPtr nullPtr
+  {# call tree_selection_selected_foreach #}
+    (toTreeSelection self)
+    fPtr
+    nullPtr
   freeHaskellFunPtr fPtr
 
 -- | Callback function type for 'treeSelectionSelectedForeach'.
@@ -204,130 +224,145 @@ foreign import ccall "wrapper"  mkTreeSelectionForeachFunc ::
   (Ptr () -> Ptr TreeIter -> Ptr () -> IO ()) -> IO TreeSelectionForeachFunc
 
 #if GTK_CHECK_VERSION(2,2,0)
--- | Creates a list of paths of all selected rows. 
+-- | Creates a list of paths of all selected rows.
 --
 -- *  Additionally, if you are
 -- planning on modifying the model after calling this function, you may want to
--- convert the returned list into a list of "TreeRowReference"s. To do this,
--- you can use "treeRowReferenceNew".
+-- convert the returned list into a list of 'TreeRowReference's. To do this,
+-- you can use 'treeRowReferenceNew'.
 --
--- * Available since Gtk version 2.2
--- 
+-- * Available since Gtk+ version 2.2
+--
 treeSelectionGetSelectedRows :: TreeSelectionClass self => self
- -> IO [TreePath] -- ^ returns a list containing a "TreePath" for
+ -> IO [TreePath] -- ^ returns a list containing a 'TreePath' for
 		  -- each selected row.
 treeSelectionGetSelectedRows self =
-  {# call gtk_tree_selection_get_selected_rows #} 
-  (toTreeSelection self) nullPtr
-  >>= fromGList >>= mapM fromTreePath
+  {# call gtk_tree_selection_get_selected_rows #}
+    (toTreeSelection self)
+    nullPtr
+  >>= fromGList
+  >>= mapM fromTreePath
 
 -- | Returns the number of rows that are selected.
 --
--- * Available since Gtk version 2.2
--- 
+-- * Available since Gtk+ version 2.2
+--
 treeSelectionCountSelectedRows :: TreeSelectionClass self => self
  -> IO Int -- ^ returns The number of rows selected.
 treeSelectionCountSelectedRows self =
   liftM fromIntegral $
   {# call gtk_tree_selection_count_selected_rows #}
-     (toTreeSelection self)
+    (toTreeSelection self)
 #endif
-
-
 
 -- | Select a specific item by 'TreePath'.
 --
-treeSelectionSelectPath :: (TreeSelectionClass ts) => ts -> TreePath -> IO ()
-treeSelectionSelectPath ts [] = return ()
-treeSelectionSelectPath ts tp = do
-  nativePath <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) tp
-  {#call tree_selection_select_path#} (toTreeSelection ts) nativePath
-  nativeTreePathFree nativePath
+treeSelectionSelectPath :: TreeSelectionClass self => self
+ -> TreePath
+ -> IO ()
+treeSelectionSelectPath self [] = return ()
+treeSelectionSelectPath self path =
+  withTreePath path $ \path ->
+  {# call tree_selection_select_path #}
+    (toTreeSelection self)
+    path
 
 -- | Deselect a specific item by 'TreePath'.
 --
-treeSelectionUnselectPath :: (TreeSelectionClass ts) => ts -> TreePath -> IO ()
-treeSelectionUnselectPath ts tp = do
-  nativePath <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) tp
-  {#call tree_selection_unselect_path#} (toTreeSelection ts) nativePath
-  nativeTreePathFree nativePath
+treeSelectionUnselectPath :: TreeSelectionClass self => self
+ -> TreePath
+ -> IO ()
+treeSelectionUnselectPath self path =
+  withTreePath path $ \path ->
+  {# call tree_selection_unselect_path #}
+    (toTreeSelection self)
+    path
 
 -- | Returns True if the row at the given path is currently selected.
 --
-treeSelectionPathIsSelected :: (TreeSelectionClass ts) => ts -> TreePath -> IO Bool
-treeSelectionPathIsSelected ts tp = do
-  nativePath <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) tp
-  res <- {#call unsafe tree_selection_path_is_selected#} (toTreeSelection ts)
-    nativePath
-  nativeTreePathFree nativePath
-  return (toBool res)
-
+treeSelectionPathIsSelected :: TreeSelectionClass self => self
+ -> TreePath -> IO Bool
+treeSelectionPathIsSelected self path =
+  liftM toBool $
+  withTreePath path $ \path ->
+  {# call unsafe tree_selection_path_is_selected #}
+    (toTreeSelection self)
+    path
 
 -- | Select a specific item by 'TreeIter'.
 --
-treeSelectionSelectIter :: (TreeSelectionClass ts) => ts -> TreeIter -> IO ()
-treeSelectionSelectIter ts ti =
-  {#call tree_selection_select_iter#} (toTreeSelection ts) ti
+treeSelectionSelectIter :: TreeSelectionClass self => self -> TreeIter -> IO ()
+treeSelectionSelectIter self iter =
+  {# call tree_selection_select_iter #}
+    (toTreeSelection self)
+    iter
 
 -- | Deselect a specific item by 'TreeIter'.
 --
-treeSelectionUnselectIter :: (TreeSelectionClass ts) => ts -> TreeIter -> IO ()
-treeSelectionUnselectIter ts ti =
-  {#call tree_selection_unselect_iter#} (toTreeSelection ts) ti
+treeSelectionUnselectIter :: TreeSelectionClass self => self -> TreeIter -> IO ()
+treeSelectionUnselectIter self iter =
+  {# call tree_selection_unselect_iter #}
+    (toTreeSelection self)
+    iter
 
 -- | Returns True if the row at the given iter is currently selected.
 --
-treeSelectionIterIsSelected :: (TreeSelectionClass ts) => ts -> TreeIter ->
-			       IO Bool
-treeSelectionIterIsSelected ts ti = liftM toBool $
-  {#call unsafe tree_selection_iter_is_selected#} (toTreeSelection ts) ti
+treeSelectionIterIsSelected :: TreeSelectionClass self => self
+ -> TreeIter
+ -> IO Bool
+treeSelectionIterIsSelected self iter =
+  liftM toBool $
+  {# call unsafe tree_selection_iter_is_selected #}
+    (toTreeSelection self)
+    iter
 
--- | Select everything.
+-- | Selects all the nodes. The tree selection must be set to
+-- 'SelectionMultiple' mode.
 --
-treeSelectionSelectAll :: (TreeSelectionClass ts) => ts -> IO ()
-treeSelectionSelectAll ts = 
-  {#call tree_selection_select_all#} (toTreeSelection ts)
+treeSelectionSelectAll :: TreeSelectionClass self => self -> IO ()
+treeSelectionSelectAll self =
+  {# call tree_selection_select_all #}
+    (toTreeSelection self)
 
--- | Deselect everything.
+-- | Unselects all the nodes.
 --
-treeSelectionUnselectAll :: (TreeSelectionClass ts) => ts -> IO ()
-treeSelectionUnselectAll ts = 
-  {#call tree_selection_unselect_all#} (toTreeSelection ts)
+treeSelectionUnselectAll :: TreeSelectionClass self => self -> IO ()
+treeSelectionUnselectAll self =
+  {# call tree_selection_unselect_all #}
+    (toTreeSelection self)
 
-
--- | Select a range specified by two 'TreePath's.
+-- | Selects a range of nodes, determined by @startPath@ and @endPath@
+-- inclusive. @selection@ must be set to 'SelectionMultiple' mode.
 --
-treeSelectionSelectRange :: (TreeSelectionClass ts) => ts -> TreePath ->
-                            TreePath -> IO ()
-treeSelectionSelectRange ts start end = do
-  nP1 <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nP1 . fromIntegral) start
-  nP2 <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nP2 . fromIntegral) end
-  {#call tree_selection_select_range#} (toTreeSelection ts) nP1 nP2
-  nativeTreePathFree nP1
-  nativeTreePathFree nP2
+treeSelectionSelectRange :: TreeSelectionClass self => self
+ -> TreePath -- ^ @startPath@ - The initial node of the range.
+ -> TreePath -- ^ @endPath@ - The final node of the range.
+ -> IO ()
+treeSelectionSelectRange self startPath endPath =
+  withTreePath endPath $ \endPath ->
+  withTreePath startPath $ \startPath ->
+  {# call tree_selection_select_range #}
+    (toTreeSelection self)
+    startPath
+    endPath
 
 #if GTK_CHECK_VERSION(2,2,0)
--- | Unselects a range of nodes.
+-- | Unselects a range of nodes, determined by @startPath@ and @endPath@
+-- inclusive.
 --
--- * Available since Gtk version 2.2
--- 
+-- * Available since Gtk+ version 2.2
+--
 treeSelectionUnselectRange :: TreeSelectionClass self => self
- -> TreePath
- -> TreePath
+ -> TreePath -- ^ @startPath@ - The initial node of the range.
+ -> TreePath -- ^ @endPath@ - The initial node of the range.
  -> IO ()
-treeSelectionUnselectRange ts start end = do
-  nP1 <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nP1 . fromIntegral) start
-  nP2 <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nP2 . fromIntegral) end
-  {#call tree_selection_unselect_range#} (toTreeSelection ts) nP1 nP2
-  nativeTreePathFree nP1
-  nativeTreePathFree nP2
+treeSelectionUnselectRange self startPath endPath =
+  withTreePath endPath $ \endPath ->
+  withTreePath startPath $ \startPath ->
+  {# call tree_selection_unselect_range #}
+    (toTreeSelection self)
+    startPath
+    endPath
 #endif
 
 --------------------
@@ -335,18 +370,21 @@ treeSelectionUnselectRange ts start end = do
 
 -- | \'mode\' property. See 'treeSelectionGetMode' and 'treeSelectionSetMode'
 --
-treeSelectionMode :: Attr TreeSelection SelectionMode
-treeSelectionMode = Attr 
+treeSelectionMode :: TreeSelectionClass self => Attr self SelectionMode
+treeSelectionMode = Attr
   treeSelectionGetMode
   treeSelectionSetMode
 
 --------------------
 -- Signals
 
--- | Emitted each time the user changes the selection.
+-- | Emitted whenever the selection has (possibly) changed. Please note that
+-- this signal is mostly a hint. It may only be emitted once when a range of
+-- rows are selected, and it may occasionally be emitted when nothing has
+-- happened.
 --
-onSelectionChanged, afterSelectionChanged :: TreeSelectionClass ts => ts -> 
-					     IO () -> IO (ConnectId ts)
+onSelectionChanged, afterSelectionChanged :: TreeSelectionClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onSelectionChanged = connect_NONE__NONE "changed" False
 afterSelectionChanged = connect_NONE__NONE "changed" True
-

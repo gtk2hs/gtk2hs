@@ -1,3 +1,53 @@
+2005-04-20 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeIter.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.chs.pp: new modules,
+	split these out from the TreeModel module. Add various useful
+	marshaling functions to that the marshaling code in the other tree
+	model/view modules can be much more concise.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs: add module
+	documentation.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs: add module
+	documentation and trivial code changes.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs: various minor
+	changes. Rewrite onEdited/afterEdited signal marshalers to be much
+	simpler.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRendererToggle.chs: add module
+	documentation and code formatting changes.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp: adust imports and make
+	use of new marshaling utilities to simplify code.
+
+	* gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp: code formatting
+	changes and make use of new marshaling utilities to simplify code.
+	Also adust imports and other trivial changes.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp: move the
+	implementation of TreeIter, TreePath and TreeRowReference to their own
+	modules. Also code formatting changes and some minor documentation
+	changes.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeModelSort.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp: adust imports and
+	make use of new marshaling utilities to simplify code. Also code
+	formatting changes and some minor documentation changes.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp: adust imports and code
+	formatting changes.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp: code formatting
+	changes.
+
+	* Makefile.am: add the three new files to the gtk sources list and
+	move a couple others to a more appropriate place.
+
 2005-04-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/Hierarchy.chs.template,

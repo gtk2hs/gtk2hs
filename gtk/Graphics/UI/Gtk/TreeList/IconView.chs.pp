@@ -5,7 +5,7 @@
 --
 --  Created: 25 March 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/05 18:29:52 $
+--  Version $Revision: 1.2 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -133,6 +133,7 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.General.Enums#}	(Orientation, SelectionMode,
 						MovementStep)
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.TreeList.TreePath#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -259,15 +260,12 @@ iconViewGetPathAtPos :: IconViewClass self => self
  -> Int         -- ^ @y@ - The y position to be identified
  -> IO TreePath -- ^ returns The 'TreePath' corresponding to the icon or @[]@
                 -- if no icon exists at that position.
-iconViewGetPathAtPos self x y = do
-  tpPtr <- {# call gtk_icon_view_get_path_at_pos #}
+iconViewGetPathAtPos self x y =
+  {# call gtk_icon_view_get_path_at_pos #}
     (toIconView self)
     (fromIntegral x)
     (fromIntegral y)
-  if tpPtr==nullPtr then return [] else do
-  path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
-  nativeTreePathFree (NativeTreePath tpPtr)
-  return path
+  >>= fromTreePath
 
 -- | Calls a function for each selected icon. Note that the model or selection
 -- cannot be modified from within this function.
@@ -278,8 +276,7 @@ iconViewSelectedForeach :: IconViewClass self => self
  -> IO ()
 iconViewSelectedForeach self func = do
   funcPtr <- mkIconViewForeachFunc (\_ tpPtr _ -> do
-    path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
-    nativeTreePathFree (NativeTreePath tpPtr)
+    path <- peekTreePath tpPtr
     func path
     )
   {# call gtk_icon_view_selected_foreach #}
@@ -493,11 +490,7 @@ iconViewGetSelectedItems self =
   {# call gtk_icon_view_get_selected_items #}
     (toIconView self)
   >>= fromGList
-  >>= mapM (\elemPtr -> do
-        path <- nativeTreePathGetIndices (NativeTreePath elemPtr)
-        nativeTreePathFree (NativeTreePath elemPtr)
-        return path
-      )
+  >>= mapM fromTreePath
 
 -- | Selects all the icons. @iconView@ must has its selection mode set to
 -- 'SelectionMultiple'.

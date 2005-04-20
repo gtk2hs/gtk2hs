@@ -5,7 +5,7 @@
 --
 --  Created: 4 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:53:44 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -78,6 +78,7 @@ import System.Glib.Attributes
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.TreeList.TreePath#}
 import Graphics.UI.Gtk.General.Structs		(Color, Requisition)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -171,13 +172,10 @@ cellViewSetDisplayedRow self path =
 -- | 
 --
 cellViewGetDisplayedRow :: CellViewClass self => self -> IO TreePath
-cellViewGetDisplayedRow self = do
-  tpPtr <- {# call gtk_cell_view_get_displayed_row #}
+cellViewGetDisplayedRow self =
+  {# call gtk_cell_view_get_displayed_row #}
     (toCellView self)
-  if tpPtr==nullPtr then return [] else do
-  path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
-  nativeTreePathFree (NativeTreePath tpPtr)
-  return path
+  >>= fromTreePath
 
 -- | Returns the size needed by the cell view to display the model
 -- row pointed to by @path@.

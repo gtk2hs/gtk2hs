@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:26 $
+--  Version $Revision: 1.3 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -36,15 +36,51 @@
 --
 
 module Graphics.UI.Gtk.TreeList.CellRenderer (
+-- * Detail
+-- 
+-- | The 'CellRenderer' is a base class of a set of objects used for rendering
+-- a cell to a 'Drawable'. These objects are used primarily by the 'TreeView'
+-- widget, though they aren't tied to them in any specific way. It is worth
+-- noting that 'CellRenderer' is not a 'Widget' and cannot be treated as such.
+--
+-- The primary use of a 'CellRenderer' is for drawing a certain graphical
+-- elements on a 'Drawable'. Typically, one cell renderer is used to draw many
+-- cells on the screen. To this extent, it isn't expected that a CellRenderer
+-- keep any permanent state around. Instead, any state is set just prior to use
+-- using 'GObject's property system. Then, the cell is measured using
+-- 'cellRendererGetSize'. Finally, the cell is rendered in the correct location
+-- using 'cellRendererRender'.
+--
+-- Beyond merely rendering a cell, cell renderers can optionally provide
+-- active user interface elements. A cell renderer can be activatable like
+-- 'CellRendererToggle', which toggles when it gets activated by a mouse click,
+-- or it can be editable like 'CellRendererText', which allows the user to edit
+-- the text using a 'Entry'.
+
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----'Object'
+-- |         +----CellRenderer
+-- |               +----'CellRendererText'
+-- |               +----'CellRendererPixbuf'
+-- |               +----'CellRendererProgress'
+-- |               +----'CellRendererToggle'
+-- @
+
+-- * Types
   CellRenderer,
   CellRendererClass,
   Attribute(..),
+
+-- * Methods
   cellRendererSet,
   cellRendererGet
   ) where
 
 import Graphics.UI.Gtk.Types
-import System.Glib.StoreValue	(GenericValue, TMType)
+import System.Glib.StoreValue		(GenericValue, TMType)
 import Graphics.UI.Gtk.Abstract.Object	(objectSetProperty, objectGetProperty)
 
 -- | Definition of the 'Attribute' data type.

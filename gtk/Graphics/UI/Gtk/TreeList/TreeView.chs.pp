@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/03/13 19:34:38 $
+--  Version $Revision: 1.9 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -136,21 +136,31 @@ module Graphics.UI.Gtk.TreeList.TreeView (
   treeViewGetVisibleRect,
   treeViewWidgetToTreeCoords,
   treeViewTreeToWidgetCoords,
-
   treeViewCreateRowDragIcon,
-
   treeViewGetEnableSearch,
   treeViewSetEnableSearch,
   treeViewGetSearchColumn,
   treeViewSetSearchColumn,
   treeViewSetSearchEqualFunc,
-
+#if GTK_CHECK_VERSION(2,6,0)
+  treeViewGetFixedHeightMode,
+  treeViewSetFixedHeightMode,
+  treeViewGetHoverSelection,
+  treeViewSetHoverSelection,
+  treeViewGetHoverExpand,
+  treeViewSetHoverExpand,
+#endif
 -- * Properties
   treeViewHeadersVisible,
   treeViewReorderable,
   treeViewRulesHint,
   treeViewEnableSearch,
   treeViewSearchColumn,
+#if GTK_CHECK_VERSION(2,6,0)
+  treeViewFixedHeightMode,
+  treeViewHoverSelection,
+  treeViewHoverExpand,
+#endif
 
 -- * Signals
   onColumnsChanged,
@@ -184,6 +194,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.TreeList.TreePath#}
+{#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.TreeList.TreeViewColumn#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -191,17 +203,23 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --------------------
 -- Constructors
 
--- | Make a new 'TreeView' widget.
+-- | Creates a new 'TreeView' widget.
 --
 treeViewNew :: IO TreeView
-treeViewNew  = makeNewObject mkTreeView (liftM castPtr {#call tree_view_new#})
+treeViewNew =
+  makeNewObject mkTreeView $
+  liftM (castPtr :: Ptr Widget -> Ptr TreeView) $
+  {# call tree_view_new #}
 
 -- | Create a new 'TreeView' 
--- widget with @tm@ as the storage model.
+-- widget with @model@ as the storage model.
 --
-treeViewNewWithModel :: TreeModelClass tm => tm -> IO TreeView
-treeViewNewWithModel tm = makeNewObject mkTreeView $ liftM castPtr $
-  {#call tree_view_new_with_model#} (toTreeModel tm)
+treeViewNewWithModel :: TreeModelClass model => model -> IO TreeView
+treeViewNewWithModel model =
+  makeNewObject mkTreeView $
+  liftM (castPtr :: Ptr Widget -> Ptr TreeView) $
+  {# call tree_view_new_with_model #}
+    (toTreeModel model)
 
 --------------------
 -- Methods
@@ -209,31 +227,37 @@ treeViewNewWithModel tm = makeNewObject mkTreeView $ liftM castPtr $
 -- | Retrieve the TreeModel that supplies the data for
 -- this 'TreeView'. Returns Nothing if no model is currently set.
 --
-treeViewGetModel :: TreeViewClass tv => tv -> IO (Maybe TreeModel)
-treeViewGetModel tv = do
-  tmPtr <- {#call unsafe tree_view_get_model#} (toTreeView tv)
+treeViewGetModel :: TreeViewClass self => self -> IO (Maybe TreeModel)
+treeViewGetModel self = do
+  tmPtr <- {# call unsafe tree_view_get_model #} (toTreeView self)
   if tmPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkTreeModel (return tmPtr)
 
 -- | Set the 'TreeModel' for the current View.
 --
-treeViewSetModel :: (TreeViewClass tv, TreeModelClass tm) => tv -> tm -> IO ()
-treeViewSetModel tv tm =
-  {#call tree_view_set_model#} (toTreeView tv) (toTreeModel tm)
+treeViewSetModel :: (TreeViewClass self, TreeModelClass model) => self
+ -> model
+ -> IO ()
+treeViewSetModel self model =
+  {# call tree_view_set_model #}
+    (toTreeView self)
+    (toTreeModel model)
 
 -- | Retrieve a 'TreeSelection' that
 -- holds the current selected nodes of the View.
 --
-treeViewGetSelection :: TreeViewClass tv => tv -> IO TreeSelection
-treeViewGetSelection tv = makeNewGObject mkTreeSelection $
-  {#call unsafe tree_view_get_selection#} (toTreeView tv)
+treeViewGetSelection :: TreeViewClass self => self -> IO TreeSelection
+treeViewGetSelection self =
+  makeNewGObject mkTreeSelection $
+  {# call unsafe tree_view_get_selection #}
+    (toTreeView self)
 
 -- | Get the 'Adjustment' that
 -- represents the horizontal aspect.
 --
-treeViewGetHadjustment :: TreeViewClass tv => tv -> IO (Maybe Adjustment)
-treeViewGetHadjustment tv = do
-  adjPtr <- {#call unsafe tree_view_get_hadjustment#} (toTreeView tv)
+treeViewGetHadjustment :: TreeViewClass self => self -> IO (Maybe Adjustment)
+treeViewGetHadjustment self = do
+  adjPtr <- {# call unsafe tree_view_get_hadjustment #} (toTreeView self)
   if adjPtr==nullPtr then return Nothing else do
     liftM Just $ makeNewObject mkAdjustment (return adjPtr)
 
@@ -241,141 +265,156 @@ treeViewGetHadjustment tv = do
 -- the horizontal aspect. If @adj@ is Nothing then set no Adjustment
 -- widget.
 --
-treeViewSetHadjustment :: TreeViewClass tv => (Maybe Adjustment) -> tv -> IO ()
-treeViewSetHadjustment adj tv = {#call tree_view_set_hadjustment#} 
-  (toTreeView tv) (fromMaybe (mkAdjustment nullForeignPtr) adj)
+treeViewSetHadjustment :: TreeViewClass self => (Maybe Adjustment) -> self -> IO ()
+treeViewSetHadjustment adj self =
+  {# call tree_view_set_hadjustment #} 
+    (toTreeView self)
+    (fromMaybe (mkAdjustment nullForeignPtr) adj)
 
 -- | Get the 'Adjustment' that
 -- represents the vertical aspect.
 --
-treeViewGetVadjustment :: TreeViewClass tv => tv -> IO (Maybe Adjustment)
-treeViewGetVadjustment tv = do
-  adjPtr <- {#call unsafe tree_view_get_vadjustment#} (toTreeView tv)
+treeViewGetVadjustment :: TreeViewClass self => self -> IO (Maybe Adjustment)
+treeViewGetVadjustment self = do
+  adjPtr <- {# call unsafe tree_view_get_vadjustment #} (toTreeView self)
   if adjPtr==nullPtr then return Nothing else do
     liftM Just $ makeNewObject mkAdjustment (return adjPtr)
 
--- | Set the 'Adjustment' that controls
--- the vertical aspect. If @adj@ is @Nothing@ then set no
--- 'Adjustment' widget.
+-- | Set the 'Adjustment' that controls the vertical aspect. If @adj@ is
+-- @Nothing@ then set no 'Adjustment' widget.
 --
-treeViewSetVadjustment :: TreeViewClass tv => (Maybe Adjustment) -> tv -> IO ()
-treeViewSetVadjustment adj tv = {#call tree_view_set_vadjustment#} 
-  (toTreeView tv) (fromMaybe (mkAdjustment nullForeignPtr) adj)
+treeViewSetVadjustment :: TreeViewClass self => (Maybe Adjustment) -> self -> IO ()
+treeViewSetVadjustment adj self =
+  {# call tree_view_set_vadjustment #} 
+    (toTreeView self)
+    (fromMaybe (mkAdjustment nullForeignPtr) adj)
 
 -- | Query if the column headers are visible.
 --
-treeViewGetHeadersVisible :: TreeViewClass tv => tv -> IO Bool
-treeViewGetHeadersVisible tv = liftM toBool $
-  {#call unsafe tree_view_get_headers_visible#} (toTreeView tv)
+treeViewGetHeadersVisible :: TreeViewClass self => self -> IO Bool
+treeViewGetHeadersVisible self =
+  liftM toBool $
+  {# call unsafe tree_view_get_headers_visible #}
+    (toTreeView self)
 
--- | Set the visibility state of the column
--- headers.
+-- | Set the visibility state of the column headers.
 --
-treeViewSetHeadersVisible :: TreeViewClass tv => tv -> Bool -> IO ()
-treeViewSetHeadersVisible tv vis = {#call tree_view_set_headers_visible#}
-  (toTreeView tv) (fromBool vis)
+treeViewSetHeadersVisible :: TreeViewClass self => self -> Bool -> IO ()
+treeViewSetHeadersVisible self headersVisible =
+  {# call tree_view_set_headers_visible #}
+    (toTreeView self)
+    (fromBool headersVisible)
 
 -- | Resize the columns to their optimal size.
 --
-treeViewColumnsAutosize :: TreeViewClass tv => tv -> IO ()
-treeViewColumnsAutosize tv =
-  {#call tree_view_columns_autosize#} (toTreeView tv)
+treeViewColumnsAutosize :: TreeViewClass self => self -> IO ()
+treeViewColumnsAutosize self =
+  {# call tree_view_columns_autosize #}
+    (toTreeView self)
 
--- | Set wether the columns headers are
--- sensitive to mouse clicks.
+-- | Set wether the columns headers are sensitive to mouse clicks.
 --
-treeViewSetHeadersClickable :: TreeViewClass tv => tv -> Bool -> IO ()
-treeViewSetHeadersClickable tv click = {#call tree_view_set_headers_clickable#}
-  (toTreeView tv) (fromBool click)
+treeViewSetHeadersClickable :: TreeViewClass self => self -> Bool -> IO ()
+treeViewSetHeadersClickable self setting =
+  {# call tree_view_set_headers_clickable #}
+    (toTreeView self)
+    (fromBool setting)
 
--- | Give visual aid for wide columns.
+-- | Query if visual aid for wide columns is turned on.
 --
--- * This function tells GTK+ that the user interface for your
---   application requires users to read across tree columns. By default,
---   GTK+ will then render the tree with alternating row colors. Do not use
---   it just because you prefer the appearance of the ruled tree; that's a
---   question for the theme. Some themes will draw tree rows in alternating
---   colors even when rules are turned off, and users who prefer that
---   appearance all the time can choose those themes. You should call this
---   function only as a semantic hint to the theme engine that your tree
---   makes alternating colors useful from a functional standpoint (since it
---   has lots of columns, generally).
---
-treeViewGetRulesHint :: TreeViewClass tv => tv -> IO Bool
-treeViewGetRulesHint tv = liftM toBool $
-  {#call unsafe tree_view_get_rules_hint#} (toTreeView tv)
+treeViewGetRulesHint :: TreeViewClass self => self -> IO Bool
+treeViewGetRulesHint self =
+  liftM toBool $
+  {# call unsafe tree_view_get_rules_hint #}
+    (toTreeView self)
 
--- | Query if visual aid for wide columns is
--- turned on.
+-- | This function tells Gtk+ that the user interface for your application
+-- requires users to read across tree rows and associate cells with one
+-- another. By default, Gtk+ will then render the tree with alternating row
+-- colors. Do /not/ use it just because you prefer the appearance of the ruled
+-- tree; that's a question for the theme. Some themes will draw tree rows in
+-- alternating colors even when rules are turned off, and users who prefer that
+-- appearance all the time can choose those themes. You should call this
+-- function only as a /semantic/ hint to the theme engine that your tree makes
+-- alternating colors useful from a functional standpoint (since it has lots of
+-- columns, generally).
 --
-treeViewSetRulesHint :: TreeViewClass tv => tv -> Bool -> IO ()
-treeViewSetRulesHint tv vis = {#call tree_view_set_rules_hint#}
-  (toTreeView tv) (fromBool vis)
+treeViewSetRulesHint :: TreeViewClass self => self -> Bool -> IO ()
+treeViewSetRulesHint self setting =
+  {# call tree_view_set_rules_hint #}
+    (toTreeView self)
+    (fromBool setting)
 
--- | Append a new column to the 'TreeView'. Returns
--- the new number of columns.
+-- | Append a new column to the 'TreeView'. Returns the new number of columns.
 --
-treeViewAppendColumn :: TreeViewClass tv => tv -> TreeViewColumn -> IO Int
-treeViewAppendColumn tv tvc = liftM fromIntegral $
-  {#call tree_view_append_column#} (toTreeView tv) tvc
+treeViewAppendColumn :: TreeViewClass self => self -> TreeViewColumn -> IO Int
+treeViewAppendColumn self column =
+  liftM fromIntegral $
+  {# call tree_view_append_column #}
+    (toTreeView self)
+    column
 
 -- | Remove column @tvc@ from the 'TreeView'
 -- widget. The number of remaining columns is returned.
 --
-treeViewRemoveColumn :: TreeViewClass tv => tv -> TreeViewColumn -> IO Int
-treeViewRemoveColumn tv tvc = liftM fromIntegral $
-  {#call tree_view_remove_column#} (toTreeView tv) tvc
+treeViewRemoveColumn :: TreeViewClass self => self -> TreeViewColumn -> IO Int
+treeViewRemoveColumn self column =
+  liftM fromIntegral $
+  {# call tree_view_remove_column #}
+    (toTreeView self)
+    column
 
 -- | Inserts column @tvc@ into the
 -- 'TreeView' widget at the position @pos@. Returns the number of
 -- columns after insertion. Specify -1 for @pos@ to insert the column
 -- at the end.
 --
-treeViewInsertColumn :: TreeViewClass tv => tv -> TreeViewColumn -> Int ->
-                        IO Int
-treeViewInsertColumn tv tvc pos = liftM fromIntegral $ 
-  {#call tree_view_insert_column#} (toTreeView tv) tvc (fromIntegral pos)
+treeViewInsertColumn :: TreeViewClass self => self
+ -> TreeViewColumn
+ -> Int
+ -> IO Int
+treeViewInsertColumn self column position =
+  liftM fromIntegral $
+  {# call tree_view_insert_column #}
+    (toTreeView self)
+    column
+    (fromIntegral position)
 
-
--- | Insert new
--- 'TreeViewColumn'.
+-- | Insert new 'TreeViewColumn'.
 --
 -- * Inserts new column into the
--- 'TreeView' @tv@ at position @pos@ with title
+-- 'TreeView' @self@ at position @pos@ with title
 -- ref argtitle, cell renderer @cr@ and attributes
 -- @attribs@. Specify -1 for @pos@ to insert the column at
 -- the end.
 --
-treeViewInsertColumnWithAttributes :: (TreeViewClass tv, CellRendererClass cr)
-   => tv -> Int -> String -> cr -> [(String,Int)] -> IO ()
-treeViewInsertColumnWithAttributes tv pos title cr attribs = 
-    do
-    column <- treeViewColumnNew
-    treeViewColumnSetTitle column title
-    treeViewColumnPackStart column cr True
-    treeViewColumnAddAttributes column cr attribs
-    treeViewInsertColumn tv column pos
-    return ()
+treeViewInsertColumnWithAttributes :: (TreeViewClass self, CellRendererClass cr)
+   => self -> Int -> String -> cr -> [(String,Int)] -> IO ()
+treeViewInsertColumnWithAttributes self pos title cr attribs = do
+  column <- treeViewColumnNew
+  treeViewColumnSetTitle column title
+  treeViewColumnPackStart column cr True
+  treeViewColumnAddAttributes column cr attribs
+  treeViewInsertColumn self column pos
+  return ()
 
 -- | Retrieve a 'TreeViewColumn'.
 --
 -- * Retrieve the @pos@ th columns of
 --   'TreeView'. If the index is out of range Nothing is returned.
 --
-treeViewGetColumn :: TreeViewClass tv => tv -> Int -> IO (Maybe TreeViewColumn)
-treeViewGetColumn tv pos = do
-  tvcPtr <- {#call unsafe tree_view_get_column#} (toTreeView tv) 
+treeViewGetColumn :: TreeViewClass self => self -> Int -> IO (Maybe TreeViewColumn)
+treeViewGetColumn self pos = do
+  tvcPtr <- {# call unsafe tree_view_get_column #} (toTreeView self) 
     (fromIntegral pos)
   if tvcPtr==nullPtr then return Nothing else 
     liftM Just $ makeNewObject mkTreeViewColumn (return tvcPtr)
 
-
--- | Return all 'TreeViewColumn's in this
--- 'TreeView'.
+-- | Return all 'TreeViewColumn's in this 'TreeView'.
 --
-treeViewGetColumns :: TreeViewClass tv => tv -> IO [TreeViewColumn]
-treeViewGetColumns tv = do
-  colsList <- {#call unsafe tree_view_get_columns#} (toTreeView tv)
+treeViewGetColumns :: TreeViewClass self => self -> IO [TreeViewColumn]
+treeViewGetColumns self = do
+  colsList <- {# call unsafe tree_view_get_columns #} (toTreeView self)
   colsPtr <- fromGList colsList
   mapM (makeNewObject mkTreeViewColumn) (map return colsPtr)
 
@@ -384,19 +423,27 @@ treeViewGetColumns tv = do
 -- * Use 'treeViewMoveColumnToFront' if you want to move the column
 --   to the left end of the 'TreeView'.
 --
-treeViewMoveColumnAfter :: TreeViewClass tv => tv -> TreeViewColumn ->
-					       TreeViewColumn -> IO ()
-treeViewMoveColumnAfter tv which after = {#call tree_view_move_column_after#}
-  (toTreeView tv) which after
+treeViewMoveColumnAfter :: TreeViewClass self => self
+ -> TreeViewColumn
+ -> TreeViewColumn
+ -> IO ()
+treeViewMoveColumnAfter self column baseColumn =
+  {# call tree_view_move_column_after #}
+    (toTreeView self)
+    column
+    baseColumn
 
 -- | Move a specific column.
 --
 -- * Use 'treeViewMoveColumnAfter' if you want to move the column
 --   somewhere else than to the leftmost position.
 --
-treeViewMoveColumnFirst :: TreeViewClass tv => tv -> TreeViewColumn -> IO ()
-treeViewMoveColumnFirst tv which = {#call tree_view_move_column_after#}
-  (toTreeView tv) which (mkTreeViewColumn nullForeignPtr)
+treeViewMoveColumnFirst :: TreeViewClass self => self -> TreeViewColumn -> IO ()
+treeViewMoveColumnFirst self which =
+  {# call tree_view_move_column_after #}
+    (toTreeView self)
+    which
+    (mkTreeViewColumn nullForeignPtr)
 
 -- | Set location of hierarchy controls.
 --
@@ -404,12 +451,16 @@ treeViewMoveColumnFirst tv which = {#call tree_view_move_column_after#}
 --   is @Nothing@, then the expander arrow is always at the first
 --   visible column.
 --
-treeViewSetExpanderColumn :: TreeViewClass tv => tv -> Maybe TreeViewColumn ->
-						 IO ()
-treeViewSetExpanderColumn tv (Just tvc) =
-  {#call unsafe tree_view_set_expander_column#} (toTreeView tv) tvc
-treeViewSetExpanderColumn tv Nothing =
-  {#call unsafe tree_view_set_expander_column#} (toTreeView tv)
+treeViewSetExpanderColumn :: TreeViewClass self => self
+ -> Maybe TreeViewColumn
+ -> IO ()
+treeViewSetExpanderColumn self (Just column) =
+  {# call unsafe tree_view_set_expander_column #}
+    (toTreeView self)
+    column
+treeViewSetExpanderColumn self Nothing =
+  {# call unsafe tree_view_set_expander_column #}
+    (toTreeView self)
     (mkTreeViewColumn nullForeignPtr)
 
 -- | Get location of hierarchy controls.
@@ -418,12 +469,14 @@ treeViewSetExpanderColumn tv Nothing =
 --   is @Nothing@, then the expander arrow is always at the first
 --   visible column.
 --
-treeViewGetExpanderColumn :: TreeViewClass tv => tv -> IO TreeViewColumn
-treeViewGetExpanderColumn tv = makeNewObject mkTreeViewColumn $
-  {#call unsafe tree_view_get_expander_column#} (toTreeView tv)
+treeViewGetExpanderColumn :: TreeViewClass self => self
+ -> IO TreeViewColumn
+treeViewGetExpanderColumn self =
+  makeNewObject mkTreeViewColumn $
+  {# call unsafe tree_view_get_expander_column #}
+    (toTreeView self)
 
--- | Specify where a column may be
--- dropped.
+-- | Specify where a column may be dropped.
 --
 -- * Sets a user function for determining where a column may be dropped when
 --   dragged.  This function is called on every column pair in turn at the
@@ -438,15 +491,16 @@ treeViewGetExpanderColumn tv = makeNewObject mkTreeViewColumn $
 -- * Use @Nothing@ for the predicate if columns can be inserted
 --   anywhere.
 --
-treeViewSetColumnDragFunction :: TreeViewClass tv => tv -> 
-				 Maybe (TreeViewColumn ->
-				        Maybe TreeViewColumn ->
-					Maybe TreeViewColumn -> IO Bool) ->
-				 IO ()
-treeViewSetColumnDragFunction tv Nothing =
-  {#call tree_view_set_column_drag_function#} (toTreeView tv)
+treeViewSetColumnDragFunction :: TreeViewClass self => self
+ -> Maybe (TreeViewColumn
+        -> Maybe TreeViewColumn
+        -> Maybe TreeViewColumn
+        -> IO Bool)
+ -> IO ()
+treeViewSetColumnDragFunction self Nothing =
+  {# call tree_view_set_column_drag_function #} (toTreeView self)
     nullFunPtr nullPtr nullFunPtr
-treeViewSetColumnDragFunction tv (Just pred) = do
+treeViewSetColumnDragFunction self (Just pred) = do
   fPtr <- mkTreeViewColumnDropFunc $ \_ target prev next _ -> do
     target' <- makeNewObject mkTreeViewColumn (return target)
     prev' <- if prev==nullPtr then return Nothing else liftM Just $
@@ -455,7 +509,9 @@ treeViewSetColumnDragFunction tv (Just pred) = do
       makeNewObject mkTreeViewColumn (return next)
     res <- pred target' prev' next'
     return (fromBool res)
-  {#call tree_view_set_column_drag_function#} (toTreeView tv) fPtr 
+  {# call tree_view_set_column_drag_function #}
+    (toTreeView self)
+    fPtr
     nullPtr nullFunPtr
   freeHaskellFunPtr fPtr
 
@@ -474,10 +530,15 @@ foreign import ccall "wrapper" mkTreeViewColumnDropFunc ::
 --   called.  If it isn't, you probably want to use
 --   'treeViewScrollToCell'.
 --
-treeViewScrollToPoint :: TreeViewClass tv => tv -> Int -> Int -> IO ()
-treeViewScrollToPoint tv treeX treeY = 
-  {#call tree_view_scroll_to_point#} (toTreeView tv)
-    (fromIntegral treeX) (fromIntegral treeY)
+treeViewScrollToPoint :: TreeViewClass self => self
+ -> Int
+ -> Int
+ -> IO ()
+treeViewScrollToPoint self treeX treeY =
+  {# call tree_view_scroll_to_point #}
+    (toTreeView self)
+    (fromIntegral treeX)
+    (fromIntegral treeY)
 
 -- | Scroll to a cell.
 --
@@ -487,17 +548,29 @@ treeViewScrollToPoint tv treeX treeY =
 --   right (@1.0@) and vertically by @ver@ from top
 --   (@0.0@) to buttom (@1.0@).
 --
-treeViewScrollToCell :: TreeViewClass tv => tv -> TreePath -> TreeViewColumn ->
-                        Maybe (Float,Float) -> IO ()
-treeViewScrollToCell tv path tvc (Just (ver,hor)) =
+treeViewScrollToCell :: TreeViewClass self => self
+ -> TreePath
+ -> TreeViewColumn
+ -> Maybe (Float, Float)
+ -> IO ()
+treeViewScrollToCell self path column (Just (ver,hor)) =
   withTreePath path $ \path ->
-  {#call tree_view_scroll_to_cell#} 
-  (toTreeView tv) path tvc 1 (realToFrac ver) (realToFrac hor)
-treeViewScrollToCell tv path tvc Nothing = 
+  {# call tree_view_scroll_to_cell #}
+    (toTreeView self)
+    path
+    column
+    1 
+    (realToFrac ver)
+    (realToFrac hor)
+treeViewScrollToCell self path column Nothing = 
   withTreePath path $ \path ->
-  {#call tree_view_scroll_to_cell#} 
-  (toTreeView tv) path tvc 0 0.0 0.0
-
+  {# call tree_view_scroll_to_cell #}
+    (toTreeView self)
+    path
+    column
+    0
+    0.0
+    0.0
 
 -- | Selects a specific row.
 --
@@ -512,16 +585,24 @@ treeViewScrollToCell tv path tvc Nothing =
 --   'widgetGrabFocus' to the 'TreeView' in order
 --   to give keyboard focus to the widget.
 --
-treeViewSetCursor :: TreeViewClass tv => tv -> TreePath ->
-					 (Maybe (TreeViewColumn, Bool)) ->
-					 IO ()
-treeViewSetCursor tv tp Nothing = withTreePath tp $ \tp ->
-  {#call tree_view_set_cursor#} (toTreeView tv) tp
-    (mkTreeViewColumn nullForeignPtr) (fromBool False)
-treeViewSetCursor tv tp (Just (focusColumn, startEditing)) =
-  withTreePath tp $ \tp ->
-  {#call tree_view_set_cursor#} (toTreeView tv) tp
-    focusColumn (fromBool startEditing)
+treeViewSetCursor :: TreeViewClass self => self
+ -> TreePath
+ -> (Maybe (TreeViewColumn, Bool))
+ -> IO ()
+treeViewSetCursor self path Nothing =
+  withTreePath path $ \path ->
+  {# call tree_view_set_cursor #}
+    (toTreeView self)
+    path
+    (mkTreeViewColumn nullForeignPtr)
+    (fromBool False)
+treeViewSetCursor self path (Just (focusColumn, startEditing)) =
+  withTreePath path $ \path ->
+  {# call tree_view_set_cursor #}
+    (toTreeView self)
+    path
+    focusColumn
+    (fromBool startEditing)
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Selects a cell in a specific row.
@@ -531,14 +612,20 @@ treeViewSetCursor tv tp (Just (focusColumn, startEditing)) =
 --
 -- * Only available in Gtk 2.2 and higher.
 --
-treeViewSetCursorOnCell :: TreeViewClass tv => tv -> TreePath ->
-					 TreeViewColumn ->
-					 CellRenderer ->
-					 Bool -> IO ()
-treeViewSetCursorOnCell tv tp focusColumn focusCell startEditing =
-  withTreePath tp $ \tp ->
-  {#call tree_view_set_cursor_on_cell#} (toTreeView tv) tp
-    focusColumn focusCell (fromBool startEditing)
+treeViewSetCursorOnCell :: (TreeViewClass self, CellRendererClass focusCell) => self
+ -> TreePath
+ -> TreeViewColumn
+ -> focusCell
+ -> Bool
+ -> IO ()
+treeViewSetCursorOnCell self path focusColumn focusCell startEditing =
+  withTreePath path $ \path ->
+  {# call tree_view_set_cursor_on_cell #}
+    (toTreeView self)
+    path
+    focusColumn
+    (toCellRenderer focusCell)
+    (fromBool startEditing)
 #endif
 
 -- | Retrieves the position of the focus.
@@ -547,11 +634,14 @@ treeViewSetCursorOnCell tv tp focusColumn focusCell startEditing =
 --   set, @path@ will be @[]@. If no column is currently
 --   selected, @column@ will be @Nothing@.
 --
-treeViewGetCursor :: TreeViewClass tv => tv -> 
-		     IO (TreePath, Maybe TreeViewColumn)
-treeViewGetCursor tv = alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr -> do
-  {#call unsafe tree_view_get_cursor#} (toTreeView tv)
-    (castPtr tpPtrPtr) (castPtr tvcPtrPtr)
+treeViewGetCursor :: TreeViewClass self => self
+ -> IO (TreePath, Maybe TreeViewColumn)
+treeViewGetCursor self =
+  alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr -> do
+  {# call unsafe tree_view_get_cursor #}
+    (toTreeView self)
+    (castPtr tpPtrPtr)
+    (castPtr tvcPtrPtr)
   tpPtr <- peek tpPtrPtr
   tvcPtr <- peek tvcPtrPtr
   tp <- fromTreePath tpPtr
@@ -561,21 +651,30 @@ treeViewGetCursor tv = alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr -> do
 
 -- | Emit the activated signal on a cell.
 --
-treeViewRowActivated :: TreeViewClass tv => tv -> TreePath -> 
-					    TreeViewColumn -> IO ()
-treeViewRowActivated tv tp tvc = withTreePath tp $ \tp ->
-  {#call tree_view_row_activated#} (toTreeView tv) tp tvc
+treeViewRowActivated :: TreeViewClass self => self
+ -> TreePath
+ -> TreeViewColumn
+ -> IO ()
+treeViewRowActivated self path column =
+  withTreePath path $ \path ->
+  {# call tree_view_row_activated #}
+    (toTreeView self)
+    path
+    column
 
--- | Expand all nodes in the 'TreeView'.
+-- | Recursively expands all nodes in the tree view.
 --
-treeViewExpandAll :: TreeViewClass tv => tv -> IO ()
-treeViewExpandAll tv = {#call tree_view_expand_all#} (toTreeView tv)
+treeViewExpandAll :: TreeViewClass self => self -> IO ()
+treeViewExpandAll self =
+  {# call tree_view_expand_all #}
+    (toTreeView self)
 
--- | Collapse all nodes in the 'TreeView'.
+-- | Recursively collapses all visible, expanded nodes in the tree view.
 --
-treeViewCollapseAll :: TreeViewClass tv => tv -> IO ()
-treeViewCollapseAll tv =
-  {#call tree_view_collapse_all#} (toTreeView tv)
+treeViewCollapseAll :: TreeViewClass self => self -> IO ()
+treeViewCollapseAll self =
+  {# call tree_view_collapse_all #}
+    (toTreeView self)
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Make a certain path visible.
@@ -584,9 +683,12 @@ treeViewCollapseAll tv =
 --
 -- * Only available in Gtk 2.2 and higher.
 --
-treeViewExpandToPath :: TreeViewClass tv => tv -> TreePath -> IO ()
-treeViewExpandToPath tv tp = withTreePath tp $ \tp ->
-  {#call tree_view_expand_to_path#} (toTreeView tv) tp
+treeViewExpandToPath :: TreeViewClass self => self -> TreePath -> IO ()
+treeViewExpandToPath self path =
+  withTreePath path $ \path ->
+  {# call tree_view_expand_to_path #}
+    (toTreeView self)
+    path
 #endif
 
 -- | Expand a row.
@@ -596,24 +698,38 @@ treeViewExpandToPath tv tp = withTreePath tp $ \tp ->
 -- child will be expanded recursively. Returns @True@ if the row 
 -- existed and had children.
 --
-treeViewExpandRow :: TreeViewClass tv => TreePath -> Bool -> tv -> IO Bool
-treeViewExpandRow tp all tv = withTreePath tp $ \tp -> liftM toBool $
-  {#call tree_view_expand_row#} (toTreeView tv) tp (fromBool all)
+treeViewExpandRow :: TreeViewClass self => TreePath -> Bool -> self -> IO Bool
+treeViewExpandRow path openAll self =
+  liftM toBool $
+  withTreePath path $ \path ->
+  {# call tree_view_expand_row #}
+    (toTreeView self)
+    path
+    (fromBool openAll)
 
--- | Collapse a row. Returns @True@ if the
--- row existed.
+-- | Collapse a row. Returns @True@ if the row existed.
 --
-treeViewCollapseRow :: TreeViewClass tv => tv -> TreePath -> IO Bool
-treeViewCollapseRow tv tp = withTreePath tp $ \tp -> liftM toBool $
-  {#call tree_view_collapse_row#} (toTreeView tv) tp
+treeViewCollapseRow :: TreeViewClass self => self
+ -> TreePath
+ -> IO Bool
+treeViewCollapseRow self path =
+  liftM toBool $
+  withTreePath path $ \path ->
+  {# call tree_view_collapse_row #}
+    (toTreeView self)
+    path
 
 -- | Call function for every expaned row.
 --
-treeViewMapExpandedRows :: TreeViewClass tv => tv -> (TreePath -> IO ()) ->
-					       IO ()
-treeViewMapExpandedRows tv func = do
+treeViewMapExpandedRows :: TreeViewClass self => self
+ -> (TreePath -> IO ())
+ -> IO ()
+treeViewMapExpandedRows self func = do
   fPtr <- mkTreeViewMappingFunc $ \_ tpPtr _ -> fromTreePath tpPtr >>= func
-  {#call tree_view_map_expanded_rows#} (toTreeView tv) fPtr nullPtr
+  {# call tree_view_map_expanded_rows #}
+    (toTreeView self)
+    fPtr
+    nullPtr
   freeHaskellFunPtr fPtr
 
 {#pointer TreeViewMappingFunc#}
@@ -624,17 +740,25 @@ foreign import ccall "wrapper" mkTreeViewMappingFunc ::
 
 -- | Check if row is expanded.
 --
-treeViewRowExpanded :: TreeViewClass tv => tv -> TreePath -> IO Bool
-treeViewRowExpanded tv tp = withTreePath tp $ \tp -> liftM toBool $
-  {#call unsafe tree_view_row_expanded#} (toTreeView tv) tp
+treeViewRowExpanded :: TreeViewClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' to test expansion state.
+ -> IO Bool  -- ^ returns @True@ if @path@ is expanded.
+treeViewRowExpanded self path =
+  liftM toBool $
+  withTreePath path $ \path ->
+  {# call unsafe tree_view_row_expanded #}
+    (toTreeView self)
+    path
 
 -- | Query if rows can be moved around.
 --
 -- * See 'treeViewSetReorderable'.
 --
-treeViewGetReorderable :: TreeViewClass tv => tv -> IO Bool
-treeViewGetReorderable tv = liftM toBool $
-  {#call unsafe tree_view_get_reorderable#} (toTreeView tv)
+treeViewGetReorderable :: TreeViewClass self => self -> IO Bool
+treeViewGetReorderable self =
+  liftM toBool $
+  {# call unsafe tree_view_get_reorderable #}
+    (toTreeView self)
 
 -- | Check if rows can be moved around.
 --
@@ -647,9 +771,13 @@ treeViewGetReorderable tv = liftM toBool $
 --   the order -- any reorderering is allowed.  If more control is needed,
 --   you should probably handle drag and drop manually.
 --
-treeViewSetReorderable :: TreeViewClass tv => tv -> Bool -> IO ()
-treeViewSetReorderable tv ro = {#call tree_view_set_reorderable#}
-  (toTreeView tv) (fromBool ro)
+treeViewSetReorderable :: TreeViewClass self => self
+ -> Bool
+ -> IO ()
+treeViewSetReorderable self reorderable =
+  {# call tree_view_set_reorderable #}
+    (toTreeView self)
+    (fromBool reorderable)
 
 -- | Map a pixel to the specific cell.
 --
@@ -665,13 +793,23 @@ treeViewSetReorderable tv ro = {#call tree_view_set_reorderable#}
 --   The returned point is relative to the rectangle this cell occupies
 --   within the 'TreeView'.
 --
-treeViewGetPathAtPos :: TreeViewClass tv => tv -> Point ->
-			IO (Maybe (TreePath, TreeViewColumn, Point))
-treeViewGetPathAtPos tv (x,y) = alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr ->
-  alloca $ \xPtr -> alloca $ \yPtr -> do
-    res <- liftM toBool $ {#call unsafe tree_view_get_path_at_pos#}
-      (toTreeView tv) (fromIntegral x) (fromIntegral y) (castPtr tpPtrPtr)
-      (castPtr tvcPtrPtr) xPtr yPtr
+treeViewGetPathAtPos :: TreeViewClass self => self
+ -> Point
+ -> IO (Maybe (TreePath, TreeViewColumn, Point))
+treeViewGetPathAtPos self (x,y) =
+  alloca $ \tpPtrPtr ->
+  alloca $ \tvcPtrPtr ->
+  alloca $ \xPtr ->
+  alloca $ \yPtr -> do
+    res <- liftM toBool $
+      {# call unsafe tree_view_get_path_at_pos #}
+      (toTreeView self)
+      (fromIntegral x)
+      (fromIntegral y)
+      (castPtr tpPtrPtr)
+      (castPtr tvcPtrPtr)
+      xPtr
+      yPtr
     tpPtr <- peek tpPtrPtr
     tvcPtr <- peek tvcPtrPtr
     xCell <- peek xPtr
@@ -692,16 +830,27 @@ treeViewGetPathAtPos tv (x,y) = alloca $ \tpPtrPtr -> alloca $ \tvcPtrPtr ->
 --   all cell rectangles does not cover the entire tree; there are extra
 --   pixels in between rows, for example.
 --
-treeViewGetCellArea :: TreeViewClass tv => tv -> Maybe TreePath -> 
-					   TreeViewColumn -> IO Rectangle
-treeViewGetCellArea tv Nothing tvc = alloca $ \rPtr ->
-  {#call unsafe tree_view_get_cell_area#} (toTreeView tv)
-    (NativeTreePath nullPtr) tvc (castPtr (rPtr :: Ptr Rectangle))
+treeViewGetCellArea :: TreeViewClass self => self
+ -> Maybe TreePath
+ -> TreeViewColumn
+ -> IO Rectangle
+treeViewGetCellArea self Nothing tvc =
+  alloca $ \rPtr ->
+  {# call unsafe tree_view_get_cell_area #}
+    (toTreeView self)
+    (NativeTreePath nullPtr)
+    tvc
+    (castPtr (rPtr :: Ptr Rectangle))
     >> peek rPtr
-treeViewGetCellArea tv (Just tp) tvc = 
-  withTreePath tp $ \tp -> alloca $ \rPtr -> do
-  {#call unsafe tree_view_get_cell_area#} (toTreeView tv) tp
-    tvc (castPtr (rPtr :: Ptr Rectangle)) >> peek rPtr
+treeViewGetCellArea self (Just tp) tvc = 
+  withTreePath tp $ \tp ->
+  alloca $ \rPtr -> do
+  {# call unsafe tree_view_get_cell_area #}
+    (toTreeView self)
+    tp
+    tvc
+    (castPtr (rPtr :: Ptr Rectangle))
+    >> peek rPtr
 
 -- | Retrieve the largest bounding box of a cell.
 --
@@ -715,88 +864,132 @@ treeViewGetCellArea tv (Just tp) tvc =
 --   (except for the area used for header buttons). Contrast this with
 --   'treeViewGetCellArea'.
 --
-treeViewGetBackgroundArea :: TreeViewClass tv => tv -> Maybe TreePath -> 
-					   TreeViewColumn -> IO Rectangle
-treeViewGetBackgroundArea tv Nothing tvc = alloca $ \rPtr ->
-  {#call unsafe tree_view_get_background_area#} (toTreeView tv)
-    (NativeTreePath nullPtr) tvc (castPtr (rPtr :: Ptr Rectangle))
-    >> peek rPtr
-treeViewGetBackgroundArea tv (Just tp) tvc = 
-  withTreePath tp $ \tp -> alloca $ \rPtr -> do
-  {#call unsafe tree_view_get_background_area#} (toTreeView tv) tp
-    tvc (castPtr (rPtr :: Ptr Rectangle)) >> peek rPtr
+treeViewGetBackgroundArea :: TreeViewClass self => self
+ -> Maybe TreePath
+ -> TreeViewColumn
+ -> IO Rectangle
+treeViewGetBackgroundArea self Nothing tvc =
+  alloca $ \rPtr ->
+  {# call unsafe tree_view_get_background_area #}
+    (toTreeView self)
+    (NativeTreePath nullPtr)
+    tvc
+    (castPtr (rPtr :: Ptr Rectangle))
+  >> peek rPtr
+treeViewGetBackgroundArea self (Just tp) tvc = 
+  withTreePath tp $ \tp -> alloca $ \rPtr ->
+  {# call unsafe tree_view_get_background_area #}
+    (toTreeView self)
+    tp
+    tvc
+    (castPtr (rPtr :: Ptr Rectangle))
+  >> peek rPtr
 
 -- | Retrieve the currently visible area.
 --
 -- * The returned rectangle gives the visible part of the tree in tree
 --   coordinates.
 --
-treeViewGetVisibleRect :: TreeViewClass tv => tv -> IO Rectangle
-treeViewGetVisibleRect tv = alloca $ \rPtr -> do
-  {#call unsafe tree_view_get_visible_rect#} (toTreeView tv)
+treeViewGetVisibleRect :: TreeViewClass self => self -> IO Rectangle
+treeViewGetVisibleRect self =
+  alloca $ \rPtr -> do
+  {# call unsafe tree_view_get_visible_rect #}
+    (toTreeView self)
     (castPtr (rPtr :: Ptr Rectangle))
   peek rPtr
-
--- | Convert widget to tree pixel coordinates.
---
--- * See module description.
---
-treeViewWidgetToTreeCoords :: TreeViewClass tv => tv -> Point -> IO Point
-treeViewWidgetToTreeCoords tv (x,y) = alloca $ \xPtr -> alloca $ \yPtr -> do
-  {#call unsafe tree_view_tree_to_widget_coords#} (toTreeView tv)
-    (fromIntegral x) (fromIntegral y) xPtr yPtr
-  x' <- peek xPtr
-  y' <- peek yPtr
-  return (fromIntegral x', fromIntegral y')
 
 -- | Convert tree to widget pixel coordinates.
 --
 -- * See module description.
 --
-treeViewTreeToWidgetCoords :: TreeViewClass tv => tv -> Point -> IO Point
-treeViewTreeToWidgetCoords tv (x,y) = alloca $ \xPtr -> alloca $ \yPtr -> do
-  {#call unsafe tree_view_widget_to_tree_coords#} (toTreeView tv)
-    (fromIntegral x) (fromIntegral y) xPtr yPtr
-  x' <- peek xPtr
-  y' <- peek yPtr
-  return (fromIntegral x', fromIntegral y')
+treeViewTreeToWidgetCoords :: TreeViewClass self => self
+ -> Point    -- ^ @(tx, ty)@ - tree X and Y coordinates
+ -> IO Point -- ^ @(wx, wy)@ returns widget X and Y coordinates
+treeViewTreeToWidgetCoords self (tx, ty) =
+  alloca $ \wxPtr ->
+  alloca $ \wyPtr -> do
+  {# call unsafe tree_view_tree_to_widget_coords #}
+    (toTreeView self)
+    (fromIntegral tx)
+    (fromIntegral ty)
+    wxPtr
+    wyPtr
+  wx <- peek wxPtr
+  wy <- peek wyPtr
+  return (fromIntegral wx, fromIntegral wy)
 
--- | Creates a "Pixmap" representation of the row at the given path. This image
+-- | Convert widget to tree pixel coordinates.
+--
+-- * See module description.
+--
+treeViewWidgetToTreeCoords :: TreeViewClass self => self
+ -> Point    -- ^ @(wx, wy)@ - widget X and Y coordinates
+ -> IO Point -- ^ @(tx, ty)@ returns tree X and Y coordinates
+treeViewWidgetToTreeCoords self (wx, wy) =
+  alloca $ \txPtr ->
+  alloca $ \tyPtr -> do
+  {# call unsafe tree_view_widget_to_tree_coords #}
+    (toTreeView self)
+    (fromIntegral wx)
+    (fromIntegral wy)
+    txPtr
+    tyPtr
+  tx <- peek txPtr
+  ty <- peek tyPtr
+  return (fromIntegral tx, fromIntegral ty)
+
+-- | Creates a 'Pixmap' representation of the row at the given path. This image
 -- can be used for a drag icon.
 --
-treeViewCreateRowDragIcon :: TreeViewClass tv => tv -> TreePath -> IO Pixmap
-treeViewCreateRowDragIcon tv tp = withTreePath tp $ \tp ->
+treeViewCreateRowDragIcon :: TreeViewClass self => self
+ -> TreePath
+ -> IO Pixmap
+treeViewCreateRowDragIcon self path =
   makeNewGObject mkPixmap $
-  {#call unsafe tree_view_create_row_drag_icon#} (toTreeView tv) tp
+  withTreePath path $ \path ->
+  {# call unsafe tree_view_create_row_drag_icon #}
+    (toTreeView self)
+    path
 
 -- | Set if user can search entries.
 --
 -- * If enabled, the user can type in text which will set the cursor to
 --   the first matching entry.
 --
-treeViewGetEnableSearch :: TreeViewClass tv => tv -> IO Bool
-treeViewGetEnableSearch tv = liftM toBool $
-  {#call unsafe tree_view_get_enable_search#} (toTreeView tv)
+treeViewGetEnableSearch :: TreeViewClass self => self -> IO Bool
+treeViewGetEnableSearch self =
+  liftM toBool $
+  {# call unsafe tree_view_get_enable_search #}
+    (toTreeView self)
 
 -- | Check if user can search entries.
 --
-treeViewSetEnableSearch :: TreeViewClass tv => tv -> Bool -> IO ()
-treeViewSetEnableSearch tv es = {#call tree_view_set_enable_search#}
-  (toTreeView tv) (fromBool es)
+treeViewSetEnableSearch :: TreeViewClass self => self -> Bool -> IO ()
+treeViewSetEnableSearch self enableSearch =
+  {# call tree_view_set_enable_search #}
+    (toTreeView self)
+    (fromBool enableSearch)
 
 -- | Gets the column searched on by the interactive search.
 --
-treeViewGetSearchColumn :: TreeViewClass tv => tv -> IO Int
-treeViewGetSearchColumn tv = liftM fromIntegral $
-  {#call unsafe tree_view_get_search_column#} (toTreeView tv)
+treeViewGetSearchColumn :: TreeViewClass self => self
+ -> IO Int
+treeViewGetSearchColumn self =
+  liftM fromIntegral $
+  {# call unsafe tree_view_get_search_column #}
+    (toTreeView self)
 
 -- | Set the column searched on by by the interactive search.
 --
 -- * Additionally, turns on interactive searching.
 --
-treeViewSetSearchColumn :: TreeViewClass tv => tv -> Int -> IO ()
-treeViewSetSearchColumn tv sc = {#call tree_view_set_search_column#}
-  (toTreeView tv) (fromIntegral sc)
+treeViewSetSearchColumn :: TreeViewClass self => self
+ -> Int
+ -> IO ()
+treeViewSetSearchColumn self column =
+  {# call tree_view_set_search_column #}
+    (toTreeView self)
+    (fromIntegral column)
 
 -- | Set the predicate to test for equality.
 --
@@ -809,16 +1002,16 @@ treeViewSetSearchColumn tv sc = {#call tree_view_set_search_column#}
 --   the user typed in and a 'TreeIter' which points to the cell
 --   to be compared.
 --
-treeViewSetSearchEqualFunc :: TreeViewClass tv => tv ->
-			      (Int -> String -> TreeIter -> IO Bool) ->
-			      IO ()
-treeViewSetSearchEqualFunc tv pred = do
+treeViewSetSearchEqualFunc :: TreeViewClass self => self
+ -> (Int -> String -> TreeIter -> IO Bool)
+ -> IO ()
+treeViewSetSearchEqualFunc self pred = do
   fPtr <- mkTreeViewSearchEqualFunc (\_ col keyPtr itPtr _ -> do
     key <- peekUTFString keyPtr
     iter <- createTreeIter itPtr
     liftM fromBool $ pred (fromIntegral col) key iter)
   dPtr <- mkFunPtrDestructor fPtr
-  {#call tree_view_set_search_equal_func#} (toTreeView tv) fPtr 
+  {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
     nullPtr dPtr
 
 {#pointer TreeViewSearchEqualFunc#}
@@ -827,10 +1020,86 @@ foreign import ccall "wrapper" mkTreeViewSearchEqualFunc ::
   (Ptr TreeModel -> {#type gint#} -> CString -> Ptr TreeIter -> Ptr () ->
    IO {#type gboolean#}) -> IO TreeViewSearchEqualFunc
 
-
 -- helper to marshal native tree paths to TreePaths
 readNTP :: Ptr TreePath -> IO TreePath
-readNTP ptr = nativeTreePathGetIndices (NativeTreePath (castPtr ptr))
+readNTP ptr = peekTreePath (castPtr ptr)
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Returns whether fixed height mode is turned on for the tree view.
+--
+-- * Available since Gtk+ version 2.6
+--
+treeViewGetFixedHeightMode :: TreeViewClass self => self
+ -> IO Bool -- ^ returns @True@ if the tree view is in fixed height mode
+treeViewGetFixedHeightMode self =
+  liftM toBool $
+  {# call gtk_tree_view_get_fixed_height_mode #}
+    (toTreeView self)
+
+-- | Enables or disables the fixed height mode of the tree view. Fixed height
+-- mode speeds up 'TreeView' by assuming that all rows have the same height.
+-- Only enable this option if all rows are the same height and all columns are
+-- of type 'TreeViewColumnFixed'.
+--
+-- * Available since Gtk+ version 2.6
+--
+treeViewSetFixedHeightMode :: TreeViewClass self => self
+ -> Bool  -- ^ @enable@ - @True@ to enable fixed height mode
+ -> IO ()
+treeViewSetFixedHeightMode self enable =
+  {# call gtk_tree_view_set_fixed_height_mode #}
+    (toTreeView self)
+    (fromBool enable)
+
+-- | Returns whether hover selection mode is turned on for @treeView@.
+--
+-- * Available since Gtk+ version 2.6
+--
+treeViewGetHoverSelection :: TreeViewClass self => self
+ -> IO Bool -- ^ returns @True@ if the tree view is in hover selection mode
+treeViewGetHoverSelection self =
+  liftM toBool $
+  {# call gtk_tree_view_get_hover_selection #}
+    (toTreeView self)
+
+-- | Enables of disables the hover selection mode of the tree view. Hover
+-- selection makes the selected row follow the pointer. Currently, this works
+-- only for the selection modes 'SelectionSingle' and 'SelectionBrowse'.
+--
+-- * Available since Gtk+ version 2.6
+--
+treeViewSetHoverSelection :: TreeViewClass self => self
+ -> Bool  -- ^ @hover@ - @True@ to enable hover selection mode
+ -> IO ()
+treeViewSetHoverSelection self hover =
+  {# call gtk_tree_view_set_hover_selection #}
+    (toTreeView self)
+    (fromBool hover)
+
+-- | Returns whether hover expansion mode is turned on for the tree view.
+--
+-- * Available since Gtk+ version 2.6
+--
+treeViewGetHoverExpand :: TreeViewClass self => self
+ -> IO Bool -- ^ returns @True@ if the tree view is in hover expansion mode
+treeViewGetHoverExpand self =
+  liftM toBool $
+  {# call gtk_tree_view_get_hover_expand #}
+    (toTreeView self)
+
+-- | Enables of disables the hover expansion mode of the tree view. Hover
+-- expansion makes rows expand or collaps if the pointer moves over them.
+--
+-- * Available since Gtk+ version 2.6
+--
+treeViewSetHoverExpand :: TreeViewClass self => self
+ -> Bool  -- ^ @expand@ - @True@ to enable hover selection mode
+ -> IO ()
+treeViewSetHoverExpand self expand =
+  {# call gtk_tree_view_set_hover_expand #}
+    (toTreeView self)
+    (fromBool expand)
+#endif
 
 --------------------
 -- Properties
@@ -839,8 +1108,8 @@ readNTP ptr = nativeTreePathGetIndices (NativeTreePath (castPtr ptr))
 --
 -- Default value: @True@
 --
-treeViewHeadersVisible :: Attr TreeView Bool
-treeViewHeadersVisible = Attr 
+treeViewHeadersVisible :: TreeViewClass self => Attr self Bool
+treeViewHeadersVisible = Attr
   treeViewGetHeadersVisible
   treeViewSetHeadersVisible
 
@@ -848,8 +1117,8 @@ treeViewHeadersVisible = Attr
 --
 -- Default value: @False@
 --
-treeViewReorderable :: Attr TreeView Bool
-treeViewReorderable = Attr 
+treeViewReorderable :: TreeViewClass self => Attr self Bool
+treeViewReorderable = Attr
   treeViewGetReorderable
   treeViewSetReorderable
 
@@ -857,8 +1126,8 @@ treeViewReorderable = Attr
 --
 -- Default value: @False@
 --
-treeViewRulesHint :: Attr TreeView Bool
-treeViewRulesHint = Attr 
+treeViewRulesHint :: TreeViewClass self => Attr self Bool
+treeViewRulesHint = Attr
   treeViewGetRulesHint
   treeViewSetRulesHint
 
@@ -866,8 +1135,8 @@ treeViewRulesHint = Attr
 --
 -- Default value: @True@
 --
-treeViewEnableSearch :: Attr TreeView Bool
-treeViewEnableSearch = Attr 
+treeViewEnableSearch :: TreeViewClass self => Attr self Bool
+treeViewEnableSearch = Attr
   treeViewGetEnableSearch
   treeViewSetEnableSearch
 
@@ -877,26 +1146,68 @@ treeViewEnableSearch = Attr
 --
 -- Default value: -1
 --
-treeViewSearchColumn :: Attr TreeView Int
-treeViewSearchColumn = Attr 
+treeViewSearchColumn :: TreeViewClass self => Attr self Int
+treeViewSearchColumn = Attr
   treeViewGetSearchColumn
   treeViewSetSearchColumn
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Setting the fixed-height-mode property to @True@ speeds up 'TreeView'
+-- by assuming that all rows have the same height. Only enable this option if
+-- all rows are the same height. Please see 'treeViewSetFixedHeightMode' for
+-- more information on this option.
+--
+-- Default value: @False@
+--
+treeViewFixedHeightMode :: TreeViewClass self => Attr self Bool
+treeViewFixedHeightMode = Attr
+  treeViewGetFixedHeightMode
+  treeViewSetFixedHeightMode
+
+-- | Enables of disables the hover selection mode of the tree view. Hover
+-- selection makes the selected row follow the pointer. Currently, this works
+-- only for the selection modes 'SelectionSingle' and 'SelectionBrowse'.
+--
+-- This mode is primarily indended for treeviews in popups, e.g. in
+-- 'ComboBox' or 'EntryCompletion'.
+--
+-- Default value: @False@
+--
+treeViewHoverSelection :: TreeViewClass self => Attr self Bool
+treeViewHoverSelection = Attr
+  treeViewGetHoverSelection
+  treeViewSetHoverSelection
+
+-- | Enables of disables the hover expansion mode of the tree view. Hover
+-- expansion makes rows expand or collaps if the pointer moves over them.
+--
+-- This mode is primarily indended for treeviews in popups, e.g. in
+-- 'ComboBox' or 'EntryCompletion'.
+--
+-- Default value: @False@
+--
+treeViewHoverExpand :: TreeViewClass self => Attr self Bool
+treeViewHoverExpand = Attr
+  treeViewGetHoverExpand
+  treeViewSetHoverExpand
+#endif
 
 --------------------
 -- Signals
 
--- | The user has dragged a column to another
--- position.
+-- | The user has dragged a column to another position.
 --
-onColumnsChanged, afterColumnsChanged :: TreeViewClass tv => tv -> IO () ->
-					 IO (ConnectId tv)
+onColumnsChanged, afterColumnsChanged :: TreeViewClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onColumnsChanged = connect_NONE__NONE "columns_changed" False
 afterColumnsChanged = connect_NONE__NONE "columns_changed" True
 
 -- | The cursor in the tree has moved.
 --
-onCursorChanged, afterCursorChanged :: TreeViewClass tv => tv -> IO () ->
-				       IO (ConnectId tv)
+onCursorChanged, afterCursorChanged :: TreeViewClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onCursorChanged = connect_NONE__NONE "cursor_changed" False
 afterCursorChanged = connect_NONE__NONE "cursor_changed" True
 
@@ -904,9 +1215,9 @@ afterCursorChanged = connect_NONE__NONE "cursor_changed" True
 --
 -- * Activation usually means the user has pressed return on a row.
 --
-onRowActivated, afterRowActivated :: TreeViewClass tv => tv ->
-				     (TreePath -> TreeViewColumn -> IO ()) ->
-				     IO (ConnectId tv)
+onRowActivated, afterRowActivated :: TreeViewClass self => self
+ -> (TreePath -> TreeViewColumn -> IO ())
+ -> IO (ConnectId self)
 onRowActivated = connect_BOXED_OBJECT__NONE "row_activated" 
 		   readNTP False
 afterRowActivated = connect_BOXED_OBJECT__NONE "row_activated" 
@@ -914,9 +1225,9 @@ afterRowActivated = connect_BOXED_OBJECT__NONE "row_activated"
 
 -- | Children of this node were hidden.
 --
-onRowCollapsed, afterRowCollapsed :: TreeViewClass tv => tv ->
-				     (TreeIter -> TreePath -> IO ()) ->
-				     IO (ConnectId tv)
+onRowCollapsed, afterRowCollapsed :: TreeViewClass self => self
+ -> (TreeIter -> TreePath -> IO ())
+ -> IO (ConnectId self)
 onRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
   createTreeIter readNTP False
 afterRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
@@ -924,29 +1235,28 @@ afterRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
 
 -- | Children of this node are made visible.
 --
-onRowExpanded, afterRowExpanded :: TreeViewClass tv => tv ->
-				     (TreeIter -> TreePath -> IO ()) ->
-				     IO (ConnectId tv)
+onRowExpanded, afterRowExpanded :: TreeViewClass self => self
+ -> (TreeIter -> TreePath -> IO ())
+ -> IO (ConnectId self)
 onRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
   createTreeIter readNTP False
 afterRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
   createTreeIter readNTP True
 
--- | The user wants to search 
--- interactively.
+-- | The user wants to search interactively.
 --
 -- * Connect to this signal if you want to provide you own search facility.
 --   Note that you must handle all keyboard input yourself.
 --
 onStartInteractiveSearch, afterStartInteractiveSearch :: 
-  TreeViewClass tv => tv -> IO () -> IO (ConnectId tv)
+  TreeViewClass self => self -> IO () -> IO (ConnectId self)
 
 #if GTK_CHECK_VERSION(2,2,0)
 
-onStartInteractiveSearch tv fun =
-  connect_NONE__BOOL "start_interactive_search" False tv (fun >> return True)
-afterStartInteractiveSearch tv fun =
-  connect_NONE__BOOL "start_interactive_search" True tv (fun >> return True)
+onStartInteractiveSearch self fun =
+  connect_NONE__BOOL "start_interactive_search" False self (fun >> return True)
+afterStartInteractiveSearch self fun =
+  connect_NONE__BOOL "start_interactive_search" True self (fun >> return True)
 
 #else
 
@@ -962,9 +1272,9 @@ afterStartInteractiveSearch =
 -- * If the application connects to this function and returns @False@,
 --   the specifc row will not be altered.
 --
-onTestCollapseRow, afterTestCollapseRow :: TreeViewClass tv => tv ->
-					   (TreeIter -> TreePath -> IO Bool) ->
-					   IO (ConnectId tv)
+onTestCollapseRow, afterTestCollapseRow :: TreeViewClass self => self
+ -> (TreeIter -> TreePath -> IO Bool)
+ -> IO (ConnectId self)
 onTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
   createTreeIter readNTP False
 afterTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
@@ -975,11 +1285,10 @@ afterTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
 -- * If the application connects to this function and returns @False@,
 --   the specifc row will not be altered.
 --
-onTestExpandRow, afterTestExpandRow :: TreeViewClass tv => tv ->
-					   (TreeIter -> TreePath -> IO Bool) ->
-					   IO (ConnectId tv)
+onTestExpandRow, afterTestExpandRow :: TreeViewClass self => self
+ -> (TreeIter -> TreePath -> IO Bool)
+ -> IO (ConnectId self)
 onTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
   createTreeIter readNTP False
 afterTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
   createTreeIter readNTP True
-

@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/13 19:34:38 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/20 03:51:39 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -152,13 +152,16 @@ import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 --
 treeViewColumnNew :: IO TreeViewColumn
 treeViewColumnNew  = makeNewObject mkTreeViewColumn 
-  {#call tree_view_column_new#}
+  {# call tree_view_column_new #}
 
 -- | Returns a new TreeViewColumn with title @title@, cell renderer @cr@, and
 -- attributes @attribs@.
 --
-treeViewColumnNewWithAttributes :: CellRendererClass cr => String -> cr -> 
-				   [(String, Int)] -> IO TreeViewColumn
+treeViewColumnNewWithAttributes :: CellRendererClass cr =>
+    String
+ -> cr
+ -> [(String, Int)]
+ -> IO TreeViewColumn
 treeViewColumnNewWithAttributes title cr attribs =
     do
     tvc <- treeViewColumnNew
@@ -170,175 +173,189 @@ treeViewColumnNewWithAttributes title cr attribs =
 --------------------
 -- Methods
 
--- | Add a cell renderer at the beginning of
--- a column.
+-- | Add a cell renderer at the beginning of a column.
 --
 -- * Excess space is divided equally among all renderers which have
 --   @expand@ set to True.
 --
-treeViewColumnPackStart :: (TreeViewColumnClass tvc, CellRendererClass cr) =>
-			   tvc -> cr -> Bool -> IO ()
-treeViewColumnPackStart tvc cr expand = 
-  {#call unsafe tree_view_column_pack_start#} (toTreeViewColumn tvc)
-  (toCellRenderer cr) (fromBool expand)
+treeViewColumnPackStart :: CellRendererClass cell => TreeViewColumn
+ -> cell
+ -> Bool
+ -> IO ()
+treeViewColumnPackStart self cell expand =
+  {# call unsafe tree_view_column_pack_start #}
+    self
+    (toCellRenderer cell)
+    (fromBool expand)
 
 -- | Add a cell renderer at the end of a column.
 --
 -- * Excess space is divided equally among all renderers which have
 --   @expand@ set to True.
 --
-treeViewColumnPackEnd :: (TreeViewColumnClass tvc, CellRendererClass cr) =>
-			 tvc -> cr -> Bool -> IO ()
-treeViewColumnPackEnd tvc cr expand = 
-  {#call unsafe tree_view_column_pack_end#} (toTreeViewColumn tvc)
-  (toCellRenderer cr) (fromBool expand)
+treeViewColumnPackEnd :: CellRendererClass cell => TreeViewColumn
+ -> cell
+ -> Bool
+ -> IO ()
+treeViewColumnPackEnd self cell expand =
+  {# call unsafe tree_view_column_pack_end #}
+    self
+    (toCellRenderer cell)
+    (fromBool expand)
 
 -- | Remove the associations of attributes
 -- to a store for all 'CellRenderers'.
 --
-treeViewColumnClear :: TreeViewColumnClass tvc => tvc -> IO ()
-treeViewColumnClear tvc = 
-  {#call tree_view_column_clear#} (toTreeViewColumn tvc)
+treeViewColumnClear :: TreeViewColumn -> IO ()
+treeViewColumnClear self =
+  {# call tree_view_column_clear #}
+    self
 
--- | Retrieve all 
--- 'CellRenderer's that are contained in this column.
+-- | Retrieve all 'CellRenderer's that are contained in this column.
 --
-treeViewColumnGetCellRenderers :: TreeViewColumnClass tvc => 
-				  tvc -> IO [CellRenderer]
-treeViewColumnGetCellRenderers tvc = do
-  glist <- {#call unsafe tree_view_column_get_cell_renderers#} 
-	   (toTreeViewColumn tvc)
-  crs <- fromGList glist
-  mapM (makeNewObject mkCellRenderer) (map return crs)
+treeViewColumnGetCellRenderers :: TreeViewColumn -> IO [CellRenderer]
+treeViewColumnGetCellRenderers self =
+  {# call unsafe tree_view_column_get_cell_renderers #}
+    self
+  >>= fromGList
+  >>= mapM (makeNewObject mkCellRenderer . return)
 
--- | Insert an attribute to change the
--- behaviour of the column's cell renderer.
+-- | Insert an attribute to change the behaviour of the column's cell renderer.
 --
 -- * The 'CellRenderer' @cr@ must already be in 
 --   'TreeViewColumn'.
 --
-treeViewColumnAddAttribute :: (TreeViewColumnClass tvc, CellRendererClass cr)
-			      => tvc -> cr -> String -> Int -> IO ()
-treeViewColumnAddAttribute tvc cr attr col = 
-  withUTFString attr $ \cstr ->  {#call unsafe tree_view_column_add_attribute#} 
-    (toTreeViewColumn tvc) (toCellRenderer cr) cstr (fromIntegral col)
+treeViewColumnAddAttribute :: CellRendererClass cellRenderer => TreeViewColumn
+ -> cellRenderer
+ -> String
+ -> Int
+ -> IO ()
+treeViewColumnAddAttribute self cellRenderer attribute column =
+  withUTFString attribute $ \attributePtr ->
+  {# call unsafe tree_view_column_add_attribute #}
+    self
+    (toCellRenderer cellRenderer)
+    attributePtr
+    (fromIntegral column)
 
--- | Insert attributes @attribs@
--- to change the behaviour of column @tvc@'s cell renderer
--- @cr@.
+-- | Insert attributes @attribs@ to change the behaviour of column @tvc@'s cell
+-- renderer @cr@.
 --
-treeViewColumnAddAttributes :: 
-  (TreeViewColumnClass tvc, CellRendererClass cr) => 
-  tvc -> cr -> [(String,Int)] -> IO ()
-treeViewColumnAddAttributes tvc cr attribs = 
-    mapM_ (\ (attr, col) -> treeViewColumnAddAttribute tvc cr attr col) attribs
+treeViewColumnAddAttributes :: CellRendererClass cr => TreeViewColumn
+ -> cr
+ -> [(String,Int)]
+ -> IO ()
+treeViewColumnAddAttributes self cr attribs = 
+    mapM_ (\ (attr, col) -> treeViewColumnAddAttribute self cr attr col) attribs
 
--- | Set the attributes of
--- the cell renderer @cr@ in the tree column @tvc@
--- be  @attribs@.
--- The attributes are given as a list of attribute\/column pairs.
+-- | Set the attributes of the cell renderer @cr@ in the tree column @tvc@
+-- be  @attribs@. The attributes are given as a list of attribute\/column pairs.
 -- All existing attributes are removed, and replaced with the new attributes.
 --
-treeViewColumnSetAttributes :: 
-    (TreeViewColumnClass tvc, CellRendererClass cr)  =>
-    tvc -> cr -> [(String, Int)] -> IO ()
-treeViewColumnSetAttributes tvc cr attribs =
-    do
-    treeViewColumnClearAttributes tvc cr
-    treeViewColumnAddAttributes tvc cr attribs
+treeViewColumnSetAttributes :: CellRendererClass cr => TreeViewColumn
+ -> cr
+ -> [(String, Int)]
+ -> IO ()
+treeViewColumnSetAttributes self cr attribs = do
+  treeViewColumnClearAttributes self cr
+  treeViewColumnAddAttributes self cr attribs
 
 -- | Clears all existing attributes
 -- of the column @tvc@.
 --
-treeViewColumnClearAttributes :: 
-    (TreeViewColumnClass tvc, CellRendererClass cr) =>
-    tvc -> cr -> IO ()
-treeViewColumnClearAttributes tvc cr =
-  {#call tree_view_column_clear_attributes#} (toTreeViewColumn tvc)
-    (toCellRenderer cr)
+treeViewColumnClearAttributes :: CellRendererClass cellRenderer => TreeViewColumn
+ -> cellRenderer
+ -> IO ()
+treeViewColumnClearAttributes self cellRenderer =
+  {# call tree_view_column_clear_attributes #}
+    self
+    (toCellRenderer cellRenderer)
 
-
--- | Set the number of pixels between two
--- cell renderers.
+-- | Set the number of pixels between two cell renderers.
 --
-treeViewColumnSetSpacing :: TreeViewColumnClass tvc => tvc -> Int -> IO ()
-treeViewColumnSetSpacing tvc vis =
-  {#call tree_view_column_set_spacing#} (toTreeViewColumn tvc) 
-    (fromIntegral vis)
+treeViewColumnSetSpacing :: TreeViewColumn -> Int -> IO ()
+treeViewColumnSetSpacing self spacing =
+  {# call tree_view_column_set_spacing #}
+    self
+    (fromIntegral spacing)
 
 
--- | Get the number of pixels between two
--- cell renderers.
+-- | Get the number of pixels between two cell renderers.
 --
-treeViewColumnGetSpacing :: TreeViewColumnClass tvc => tvc -> IO Int
-treeViewColumnGetSpacing tvc = liftM fromIntegral $
-  {#call unsafe tree_view_column_get_spacing#} (toTreeViewColumn tvc)
-
+treeViewColumnGetSpacing :: TreeViewColumn -> IO Int
+treeViewColumnGetSpacing self =
+  liftM fromIntegral $
+  {# call unsafe tree_view_column_get_spacing #}
+    self
 
 -- | Set the visibility of a given column.
 --
-treeViewColumnSetVisible :: TreeViewColumnClass tvc => tvc -> Bool -> IO ()
-treeViewColumnSetVisible tvc vis =
-  {#call tree_view_column_set_visible#} (toTreeViewColumn tvc) 
-    (fromBool vis)
-
+treeViewColumnSetVisible :: TreeViewColumn -> Bool -> IO ()
+treeViewColumnSetVisible self visible =
+  {# call tree_view_column_set_visible #}
+    self
+    (fromBool visible)
 
 -- | Get the visibility of a given column.
 --
-treeViewColumnGetVisible :: TreeViewColumnClass tvc => tvc -> IO Bool
-treeViewColumnGetVisible tvc = liftM toBool $
-  {#call unsafe tree_view_column_get_visible#} (toTreeViewColumn tvc)
+treeViewColumnGetVisible :: TreeViewColumn -> IO Bool
+treeViewColumnGetVisible self =
+  liftM toBool $
+  {# call unsafe tree_view_column_get_visible #}
+    self
 
-
--- | Set if a given column is resizable
--- by the user.
+-- | Set if a given column is resizable by the user.
 --
-treeViewColumnSetResizable :: TreeViewColumnClass tvc => tvc -> Bool -> IO ()
-treeViewColumnSetResizable tvc vis =
-  {#call tree_view_column_set_resizable#} (toTreeViewColumn tvc) 
-    (fromBool vis)
+treeViewColumnSetResizable :: TreeViewColumn -> Bool -> IO ()
+treeViewColumnSetResizable self resizable =
+  {# call tree_view_column_set_resizable #}
+    self
+    (fromBool resizable)
 
-
--- | Get if a given column is resizable
--- by the user.
+-- | Get if a given column is resizable by the user.
 --
-treeViewColumnGetResizable :: TreeViewColumnClass tvc => tvc -> IO Bool
-treeViewColumnGetResizable tvc = liftM toBool $
-  {#call unsafe tree_view_column_get_resizable#} (toTreeViewColumn tvc)
-
+treeViewColumnGetResizable :: TreeViewColumn -> IO Bool
+treeViewColumnGetResizable self =
+  liftM toBool $
+  {# call unsafe tree_view_column_get_resizable #}
+    self
 
 -- | Set wether the column can be resized.
 --
-treeViewColumnSetSizing :: TreeViewColumnClass tvc => tvc ->
-                           TreeViewColumnSizing -> IO ()
-treeViewColumnSetSizing tvc size = {#call tree_view_column_set_sizing#} 
-  (toTreeViewColumn tvc) ((fromIntegral.fromEnum) size)
-
+treeViewColumnSetSizing :: TreeViewColumn
+ -> TreeViewColumnSizing
+ -> IO ()
+treeViewColumnSetSizing self type_ =
+  {# call tree_view_column_set_sizing #}
+    self
+    ((fromIntegral . fromEnum) type_)
 
 -- | Return the resizing type of the column.
 --
-treeViewColumnGetSizing :: TreeViewColumnClass tvc => tvc ->
-                           IO TreeViewColumnSizing
-treeViewColumnGetSizing tvc = liftM (toEnum.fromIntegral) $
-  {#call unsafe tree_view_column_get_sizing#} (toTreeViewColumn tvc)
-
+treeViewColumnGetSizing :: TreeViewColumn
+ -> IO TreeViewColumnSizing
+treeViewColumnGetSizing self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe tree_view_column_get_sizing #}
+    self
 
 -- | Query the current width of the column.
 --
-treeViewColumnGetWidth :: TreeViewColumnClass tvc => tvc -> IO Int
-treeViewColumnGetWidth tvc = liftM fromIntegral $
-  {#call unsafe tree_view_column_get_width#} (toTreeViewColumn tvc)
-
+treeViewColumnGetWidth :: TreeViewColumn -> IO Int
+treeViewColumnGetWidth self =
+  liftM fromIntegral $
+  {# call unsafe tree_view_column_get_width #}
+    self
 
 -- | Set the width of the column.
 --
 -- * This is meaningful only if the sizing type is 'TreeViewColumnFixed'.
 --
-treeViewColumnSetFixedWidth :: TreeViewColumnClass tvc => tvc -> Int -> IO ()
-treeViewColumnSetFixedWidth tvc width = 
-  {#call tree_view_column_set_fixed_width#} 
-  (toTreeViewColumn tvc) (fromIntegral width)
-
+treeViewColumnSetFixedWidth :: TreeViewColumn -> Int -> IO ()
+treeViewColumnSetFixedWidth self fixedWidth =
+  {# call tree_view_column_set_fixed_width #}
+    self
+    (fromIntegral fixedWidth)
 
 -- | Gets the fixed width of the column.
 --
@@ -347,111 +364,141 @@ treeViewColumnSetFixedWidth tvc width =
 -- * This value is only meaning may not be the actual width of the column on the
 -- screen, just what is requested.
 --
-treeViewColumnGetFixedWidth :: TreeViewColumnClass tvc => tvc -> IO Int
-treeViewColumnGetFixedWidth tvc = liftM fromIntegral $
-  {#call unsafe tree_view_column_get_fixed_width#} (toTreeViewColumn tvc)
-
+treeViewColumnGetFixedWidth :: TreeViewColumn -> IO Int
+treeViewColumnGetFixedWidth self =
+  liftM fromIntegral $
+  {# call unsafe tree_view_column_get_fixed_width #}
+    self
 
 -- | Set minimum width of the column.
 --
-treeViewColumnSetMinWidth :: TreeViewColumnClass tvc => tvc -> Int -> IO ()
-treeViewColumnSetMinWidth tvc width = {#call tree_view_column_set_min_width#} 
-  (toTreeViewColumn tvc) (fromIntegral width)
+treeViewColumnSetMinWidth :: TreeViewColumn -> Int -> IO ()
+treeViewColumnSetMinWidth self minWidth =
+  {# call tree_view_column_set_min_width #}
+    self
+    (fromIntegral minWidth)
 
--- | Get the minimum width of a column.
--- Returns -1 if this width was not set.
+-- | Get the minimum width of a column. Returns -1 if this width was not set.
 --
-treeViewColumnGetMinWidth :: TreeViewColumnClass tvc => tvc -> IO Int
-treeViewColumnGetMinWidth tvc = liftM fromIntegral $
-  {#call unsafe tree_view_column_get_min_width#} (toTreeViewColumn tvc)
+treeViewColumnGetMinWidth :: TreeViewColumn -> IO Int
+treeViewColumnGetMinWidth self =
+  liftM fromIntegral $
+  {# call unsafe tree_view_column_get_min_width #}
+    self
 
 -- | Set maximum width of the column.
 --
-treeViewColumnSetMaxWidth :: TreeViewColumnClass tvc => tvc -> Int -> IO ()
-treeViewColumnSetMaxWidth tvc width = {#call tree_view_column_set_max_width#} 
-  (toTreeViewColumn tvc) (fromIntegral width)
+treeViewColumnSetMaxWidth :: TreeViewColumn -> Int -> IO ()
+treeViewColumnSetMaxWidth self maxWidth =
+  {# call tree_view_column_set_max_width #}
+    self
+    (fromIntegral maxWidth)
 
--- | Get the maximum width of a column.
--- Returns -1 if this width was not set.
+-- | Get the maximum width of a column. Returns -1 if this width was not set.
 --
-treeViewColumnGetMaxWidth :: TreeViewColumnClass tvc => tvc -> IO Int
-treeViewColumnGetMaxWidth tvc = liftM fromIntegral $
-  {#call unsafe tree_view_column_get_max_width#} (toTreeViewColumn tvc)
+treeViewColumnGetMaxWidth :: TreeViewColumn -> IO Int
+treeViewColumnGetMaxWidth self =
+  liftM fromIntegral $
+  {# call unsafe tree_view_column_get_max_width #}
+    self
 
--- | Emit the @clicked@ signal on the
--- column.
+-- | Emit the @clicked@ signal on the column.
 --
-treeViewColumnClicked :: TreeViewColumnClass tvc => tvc -> IO ()
-treeViewColumnClicked tvc =
-  {#call tree_view_column_clicked#} (toTreeViewColumn tvc)
+treeViewColumnClicked :: TreeViewColumn -> IO ()
+treeViewColumnClicked self =
+  {# call tree_view_column_clicked #}
+    self
 
--- | Set the widget's title if a custom widget
--- has not been set.
+-- | Set the widget's title if a custom widget has not been set.
 --
-treeViewColumnSetTitle :: TreeViewColumnClass tvc => tvc -> String -> IO ()
-treeViewColumnSetTitle tvc title = withUTFString title $
-  {#call tree_view_column_set_title#} (toTreeViewColumn tvc)
+treeViewColumnSetTitle :: TreeViewColumn -> String -> IO ()
+treeViewColumnSetTitle self title =
+  withUTFString title $ \titlePtr ->
+  {# call tree_view_column_set_title #}
+    self
+    titlePtr
 
 -- | Get the widget's title.
 --
-treeViewColumnGetTitle :: TreeViewColumnClass tvc => tvc -> IO (Maybe String)
-treeViewColumnGetTitle tvc = do
-  strPtr <- {#call unsafe tree_view_column_get_title#} (toTreeViewColumn tvc)
-  if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
+treeViewColumnGetTitle :: TreeViewColumn -> IO (Maybe String)
+treeViewColumnGetTitle self =
+  {# call unsafe tree_view_column_get_title #}
+    self
+  >>= maybePeek peekUTFString
 
 -- | Set if the column should be sensitive to mouse clicks.
 --
-treeViewColumnSetClickable :: TreeViewColumnClass tvc => tvc -> Bool -> IO ()
-treeViewColumnSetClickable tvc click = {#call tree_view_column_set_clickable#} 
-  (toTreeViewColumn tvc) (fromBool click)
+treeViewColumnSetClickable :: TreeViewColumn -> Bool -> IO ()
+treeViewColumnSetClickable self clickable =
+  {# call tree_view_column_set_clickable #}
+    self
+    (fromBool clickable)
 
 -- | Returns True if the user can click on the header for the column.
 --
-treeViewColumnGetClickable :: TreeViewColumnClass tvc => tvc -> IO Bool
-treeViewColumnGetClickable tvc = liftM toBool $
-  {#call tree_view_column_get_clickable#} (toTreeViewColumn tvc)
+treeViewColumnGetClickable :: TreeViewColumn -> IO Bool
+treeViewColumnGetClickable self =
+  liftM toBool $
+  {# call tree_view_column_get_clickable #}
+    self
 
 -- | Set the column's title to this widget.
 --
-treeViewColumnSetWidget :: (TreeViewColumnClass tvc, WidgetClass w) => tvc ->
-                           w -> IO ()
-treeViewColumnSetWidget tvc w =
-  {#call tree_view_column_set_widget#} (toTreeViewColumn tvc) (toWidget w)
+treeViewColumnSetWidget :: WidgetClass widget => TreeViewColumn
+ -> widget
+ -> IO ()
+treeViewColumnSetWidget self widget =
+  {# call tree_view_column_set_widget #}
+    self
+    (toWidget widget)
 
 -- | Retrieve the widget responsible for
 -- showing the column title. In case only a text title was set this will be a
 -- 'Alignment' widget with a 'Label' inside.
 --
-treeViewColumnGetWidget :: TreeViewColumnClass tvc => tvc -> IO Widget
-treeViewColumnGetWidget tvc = makeNewObject mkWidget $
-  {#call unsafe tree_view_column_get_widget#} (toTreeViewColumn tvc)
+treeViewColumnGetWidget :: TreeViewColumn -> IO Widget
+treeViewColumnGetWidget self =
+  makeNewObject mkWidget $
+  {# call unsafe tree_view_column_get_widget #}
+    self
 
--- | Set the alignment of the title.
+-- | Sets the alignment of the title or custom widget inside the column
+-- header. The alignment determines its location inside the button -- 0.0 for
+-- left, 0.5 for center, 1.0 for right.
 --
-treeViewColumnSetAlignment :: TreeViewColumnClass tvc => tvc -> Float -> IO ()
-treeViewColumnSetAlignment tvc align = {#call tree_view_column_set_alignment#}
-  (toTreeViewColumn tvc) (realToFrac align)
+treeViewColumnSetAlignment :: TreeViewColumn
+ -> Float          -- ^ @xalign@ - The alignment, which is between [0.0 and
+                   -- 1.0] inclusive.
+ -> IO ()
+treeViewColumnSetAlignment self xalign =
+  {# call tree_view_column_set_alignment #}
+    self
+    (realToFrac xalign)
 
--- | Get the alignment of the titlte.
+-- | Returns the current x alignment of the tree column. This value can range
+-- between 0.0 and 1.0.
 --
-treeViewColumnGetAlignment :: TreeViewColumnClass tvc => tvc -> IO Float
-treeViewColumnGetAlignment tvc = liftM realToFrac $
-  {#call unsafe tree_view_column_get_alignment#} (toTreeViewColumn tvc)
+treeViewColumnGetAlignment :: TreeViewColumn -> IO Float
+treeViewColumnGetAlignment self =
+  liftM realToFrac $
+  {# call unsafe tree_view_column_get_alignment #}
+    self
 
--- | Set if a given column is reorderable
--- by the user.
+-- | Set if the column can be reordered by the end user dragging the header.
 --
-treeViewColumnSetReorderable :: TreeViewColumnClass tvc => tvc -> Bool -> IO ()
-treeViewColumnSetReorderable tvc vis =
-  {#call tree_view_column_set_reorderable#} (toTreeViewColumn tvc) 
-    (fromBool vis)
+treeViewColumnSetReorderable :: TreeViewColumn -> Bool -> IO ()
+treeViewColumnSetReorderable self reorderable =
+  {# call tree_view_column_set_reorderable #}
+    self
+    (fromBool reorderable)
 
--- | Get if a given column is reorderable
--- by the user.
+-- | Returns whether the column can be reordered by the user.
 --
-treeViewColumnGetReorderable :: TreeViewColumnClass tvc => tvc -> IO Bool
-treeViewColumnGetReorderable tvc = liftM toBool $
-  {#call unsafe tree_view_column_get_reorderable#} (toTreeViewColumn tvc)
+treeViewColumnGetReorderable :: TreeViewColumn -> IO Bool
+treeViewColumnGetReorderable self =
+  liftM toBool $
+  {# call unsafe tree_view_column_get_reorderable #}
+    self
 
 -- | Set the column by which to sort.
 --
@@ -460,11 +507,11 @@ treeViewColumnGetReorderable tvc = liftM toBool $
 --   will be clickable after this call. Logical refers to the column in
 --   the 'TreeModel'.
 --
-treeViewColumnSetSortColumnId :: TreeViewColumnClass tvc => 
-				 tvc -> Int -> IO ()
-treeViewColumnSetSortColumnId tvc columnId = 
-  {#call tree_view_column_set_sort_column_id#} 
-  (toTreeViewColumn tvc) (fromIntegral columnId)
+treeViewColumnSetSortColumnId :: TreeViewColumn -> Int -> IO ()
+treeViewColumnSetSortColumnId self sortColumnId =
+  {# call tree_view_column_set_sort_column_id #}
+    self
+    (fromIntegral sortColumnId)
 
 -- | Get the column by which to sort.
 --
@@ -473,45 +520,49 @@ treeViewColumnSetSortColumnId tvc columnId =
 --
 -- * Returns -1 if this column can't be used for sorting.
 --
-treeViewColumnGetSortColumnId :: TreeViewColumnClass tvc => tvc -> IO Int
-treeViewColumnGetSortColumnId tvc = liftM fromIntegral $
-  {#call unsafe tree_view_column_get_sort_column_id#} (toTreeViewColumn tvc)
+treeViewColumnGetSortColumnId :: TreeViewColumn -> IO Int
+treeViewColumnGetSortColumnId self =
+  liftM fromIntegral $
+  {# call unsafe tree_view_column_get_sort_column_id #}
+    self
 
--- | Set if a given column has
--- sorting arrows in its heading.
+-- | Set if a given column has sorting arrows in its heading.
 --
-treeViewColumnSetSortIndicator :: TreeViewColumnClass tvc => 
-				  tvc -> Bool -> IO ()
-treeViewColumnSetSortIndicator tvc sort =
-  {#call tree_view_column_set_sort_indicator#} (toTreeViewColumn tvc) 
-    (fromBool sort)
+treeViewColumnSetSortIndicator :: TreeViewColumn
+ -> Bool -> IO ()
+treeViewColumnSetSortIndicator self setting =
+  {# call tree_view_column_set_sort_indicator #}
+    self
+    (fromBool setting)
 
--- | Query if a given column has
--- sorting arrows in its heading.
+-- | Query if a given column has sorting arrows in its heading.
 --
-treeViewColumnGetSortIndicator :: TreeViewColumnClass tvc => tvc -> IO Bool
-treeViewColumnGetSortIndicator tvc = liftM toBool $
-  {#call unsafe tree_view_column_get_sort_indicator#} (toTreeViewColumn tvc)
+treeViewColumnGetSortIndicator :: TreeViewColumn -> IO Bool
+treeViewColumnGetSortIndicator self =
+  liftM toBool $
+  {# call unsafe tree_view_column_get_sort_indicator #}
+    self
 
--- | Set if a given column is sorted
--- in ascending or descending order.
+-- | Set if a given column is sorted in ascending or descending order.
 --
 -- * In order for sorting to work, it is necessary to either use automatic
 --   sorting via 'treeViewColumnSetSortColumnId' or to use a
 --   user defined sorting on the elements in a 'TreeModel'.
 --
-treeViewColumnSetSortOrder :: TreeViewColumnClass tvc => 
-			      tvc -> SortType -> IO ()
-treeViewColumnSetSortOrder tvc sort =
-  {#call tree_view_column_set_sort_order#} (toTreeViewColumn tvc) 
-    ((fromIntegral.fromEnum) sort)
+treeViewColumnSetSortOrder :: TreeViewColumn
+ -> SortType -> IO ()
+treeViewColumnSetSortOrder self order =
+  {# call tree_view_column_set_sort_order #}
+    self
+    ((fromIntegral . fromEnum) order)
 
--- | Query if a given column is sorted
--- in ascending or descending order.
+-- | Query if a given column is sorted in ascending or descending order.
 --
-treeViewColumnGetSortOrder :: TreeViewColumnClass tvc => tvc -> IO SortType
-treeViewColumnGetSortOrder tvc = liftM (toEnum.fromIntegral) $
-  {#call unsafe tree_view_column_get_sort_order#} (toTreeViewColumn tvc)
+treeViewColumnGetSortOrder :: TreeViewColumn -> IO SortType
+treeViewColumnGetSortOrder self =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe tree_view_column_get_sort_order #}
+    self
 
 --------------------
 -- Properties
@@ -521,7 +572,7 @@ treeViewColumnGetSortOrder tvc = liftM (toEnum.fromIntegral) $
 -- Default value: @True@
 --
 treeViewColumnVisible :: Attr TreeViewColumn Bool
-treeViewColumnVisible = Attr 
+treeViewColumnVisible = Attr
   treeViewColumnGetVisible
   treeViewColumnSetVisible
 
@@ -530,7 +581,7 @@ treeViewColumnVisible = Attr
 -- Default value: @False@
 --
 treeViewColumnResizable :: Attr TreeViewColumn Bool
-treeViewColumnResizable = Attr 
+treeViewColumnResizable = Attr
   treeViewColumnGetResizable
   treeViewColumnSetResizable
 
@@ -541,7 +592,7 @@ treeViewColumnResizable = Attr
 -- Default value: 0
 --
 treeViewColumnSpacing :: Attr TreeViewColumn Int
-treeViewColumnSpacing = Attr 
+treeViewColumnSpacing = Attr
   treeViewColumnGetSpacing
   treeViewColumnSetSpacing
 
@@ -550,7 +601,7 @@ treeViewColumnSpacing = Attr
 -- Default value: 'TreeViewColumnGrowOnly'
 --
 treeViewColumnSizing :: Attr TreeViewColumn TreeViewColumnSizing
-treeViewColumnSizing = Attr 
+treeViewColumnSizing = Attr
   treeViewColumnGetSizing
   treeViewColumnSetSizing
 
@@ -561,7 +612,7 @@ treeViewColumnSizing = Attr
 -- Default value: 1
 --
 treeViewColumnFixedWidth :: Attr TreeViewColumn Int
-treeViewColumnFixedWidth = Attr 
+treeViewColumnFixedWidth = Attr
   treeViewColumnGetFixedWidth
   treeViewColumnSetFixedWidth
 
@@ -572,7 +623,7 @@ treeViewColumnFixedWidth = Attr
 -- Default value: -1
 --
 treeViewColumnMinWidth :: Attr TreeViewColumn Int
-treeViewColumnMinWidth = Attr 
+treeViewColumnMinWidth = Attr
   treeViewColumnGetMinWidth
   treeViewColumnSetMinWidth
 
@@ -583,7 +634,7 @@ treeViewColumnMinWidth = Attr
 -- Default value: -1
 --
 treeViewColumnMaxWidth :: Attr TreeViewColumn Int
-treeViewColumnMaxWidth = Attr 
+treeViewColumnMaxWidth = Attr
   treeViewColumnGetMaxWidth
   treeViewColumnSetMaxWidth
 
@@ -592,14 +643,14 @@ treeViewColumnMaxWidth = Attr
 -- Default value: @False@
 --
 treeViewColumnClickable :: Attr TreeViewColumn Bool
-treeViewColumnClickable = Attr 
+treeViewColumnClickable = Attr
   treeViewColumnGetClickable
   treeViewColumnSetClickable
 
 -- | Widget to put in column header button instead of column title.
 --
 treeViewColumnWidget :: Attr TreeViewColumn Widget
-treeViewColumnWidget = Attr 
+treeViewColumnWidget = Attr
   treeViewColumnGetWidget
   treeViewColumnSetWidget
 
@@ -610,7 +661,7 @@ treeViewColumnWidget = Attr
 -- Default value: 0
 --
 treeViewColumnAlignment :: Attr TreeViewColumn Float
-treeViewColumnAlignment = Attr 
+treeViewColumnAlignment = Attr
   treeViewColumnGetAlignment
   treeViewColumnSetAlignment
 
@@ -619,7 +670,7 @@ treeViewColumnAlignment = Attr
 -- Default value: @False@
 --
 treeViewColumnReorderable :: Attr TreeViewColumn Bool
-treeViewColumnReorderable = Attr 
+treeViewColumnReorderable = Attr
   treeViewColumnGetReorderable
   treeViewColumnSetReorderable
 
@@ -628,7 +679,7 @@ treeViewColumnReorderable = Attr
 -- Default value: @False@
 --
 treeViewColumnSortIndicator :: Attr TreeViewColumn Bool
-treeViewColumnSortIndicator = Attr 
+treeViewColumnSortIndicator = Attr
   treeViewColumnGetSortIndicator
   treeViewColumnSetSortIndicator
 
@@ -637,7 +688,7 @@ treeViewColumnSortIndicator = Attr
 -- Default value: 'SortAscending'
 --
 treeViewColumnSortOrder :: Attr TreeViewColumn SortType
-treeViewColumnSortOrder = Attr 
+treeViewColumnSortOrder = Attr
   treeViewColumnGetSortOrder
   treeViewColumnSetSortOrder
 
@@ -645,17 +696,17 @@ treeViewColumnSortOrder = Attr
 -- 'treeViewColumnSetSortColumnId'
 --
 treeViewColumnSortColumnId :: Attr TreeViewColumn Int
-treeViewColumnSortColumnId = Attr 
+treeViewColumnSortColumnId = Attr
   treeViewColumnGetSortColumnId
   treeViewColumnSetSortColumnId
 
 --------------------
 -- Signals
 
--- | Emitted when the header of this column has been
--- clicked on.
+-- | Emitted when the header of this column has been clicked on.
 --
-onColClicked, afterColClicked :: TreeViewColumnClass tvc => tvc -> IO () -> 
-							    IO (ConnectId tvc)
+onColClicked, afterColClicked :: TreeViewColumnClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
 onColClicked = connect_NONE__NONE "clicked" False
 afterColClicked = connect_NONE__NONE "clicked" True

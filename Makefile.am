@@ -316,8 +316,6 @@ nodist_libHSgtk_a_SOURCES = $(libHSgtk_a_GENERATEDSOURCES)
 libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk.hs						\
 	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp				\
-	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp		\
 	gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp				\
 	gtk/Graphics/UI/Gtk/Abstract/Bin.chs				\
@@ -423,10 +421,15 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererToggle.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeIter.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.chs.pp		\
+	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeModelSort.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp			\

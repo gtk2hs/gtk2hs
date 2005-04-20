@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,6 +27,11 @@
 -- Renders a toggle button in a cell
 --
 module Graphics.UI.Gtk.TreeList.CellRendererToggle (
+-- * Detail
+-- 
+-- | 'CellRendererToggle' renders a toggle button in a cell. The button is
+-- drawn as a radio or checkbutton, depending on the radio property. When
+-- activated, it emits the toggled signal.
 
 -- * Class Hierarchy
 -- |
@@ -57,11 +62,11 @@ module Graphics.UI.Gtk.TreeList.CellRendererToggle (
 import Monad	(liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.TreeList.CellRenderer (Attribute(..))
-import System.Glib.StoreValue   (GenericValue(..), TMType(..))
+import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
+import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -71,38 +76,50 @@ import System.Glib.StoreValue   (GenericValue(..), TMType(..))
 -- | Create a new 'CellRenderer' that displays a 'ToggleButton'.
 --
 cellRendererToggleNew :: IO CellRendererToggle
-cellRendererToggleNew  = makeNewObject mkCellRendererToggle $
-  liftM castPtr $ {#call unsafe cell_renderer_toggle_new#}
+cellRendererToggleNew =
+  makeNewObject mkCellRendererToggle $
+  liftM (castPtr :: Ptr CellRenderer -> Ptr CellRendererToggle) $
+  {# call unsafe cell_renderer_toggle_new #}
 
 --------------------
 -- Methods
 
 -- | Determine whether the button is drawn as 'RadioButton' or not.
 --
-cellRendererToggleSetRadio :: CellRendererToggleClass crt => crt -> Bool ->
-                              IO ()
-cellRendererToggleSetRadio crt radio = {#call cell_renderer_toggle_set_radio#}
-  (toCellRendererToggle crt) (fromBool radio)
+cellRendererToggleSetRadio :: CellRendererToggleClass self => self
+ -> Bool
+ -> IO ()
+cellRendererToggleSetRadio self radio =
+  {# call cell_renderer_toggle_set_radio #}
+    (toCellRendererToggle self)
+    (fromBool radio)
 
 -- | Returns wether the button is drawn as 'RadioButton' or not.
 --
-cellRendererToggleGetRadio :: CellRendererToggleClass crt => crt -> IO Bool
-cellRendererToggleGetRadio crt = liftM toBool $
-  {#call cell_renderer_toggle_get_radio#} (toCellRendererToggle crt)
+cellRendererToggleGetRadio :: CellRendererToggleClass self => self -> IO Bool
+cellRendererToggleGetRadio self =
+  liftM toBool $
+  {# call cell_renderer_toggle_get_radio #}
+    (toCellRendererToggle self)
 
 -- | Retrieve the current state of the button.
 --
-cellRendererToggleGetActive :: CellRendererToggleClass crt => crt -> IO Bool
-cellRendererToggleGetActive crt = liftM toBool $
-  {#call unsafe cell_renderer_toggle_get_active#} (toCellRendererToggle crt)
+cellRendererToggleGetActive :: CellRendererToggleClass self => self -> IO Bool
+cellRendererToggleGetActive self =
+  liftM toBool $
+  {# call unsafe cell_renderer_toggle_get_active #}
+    (toCellRendererToggle self)
 
 
 -- | Modify the state of the button.
 --
-cellRendererToggleSetActive :: CellRendererToggleClass crt => crt -> Bool ->
-                               IO ()
-cellRendererToggleSetActive crt act = {#call cell_renderer_toggle_set_active#}
-  (toCellRendererToggle crt) (fromBool act)
+cellRendererToggleSetActive :: CellRendererToggleClass self => self
+ -> Bool
+ -> IO ()
+cellRendererToggleSetActive self setting =
+  {# call cell_renderer_toggle_set_active #}
+    (toCellRendererToggle self)
+    (fromBool setting)
 
 -- helper function
 --

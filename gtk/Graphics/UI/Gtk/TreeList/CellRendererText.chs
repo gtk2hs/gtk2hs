@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,8 +27,8 @@
 -- A 'CellRenderer' which displays a single-line text.
 --
 module Graphics.UI.Gtk.TreeList.CellRendererText (
--- * Description
---
+-- * Detail
+-- 
 -- | This widget derives from 'CellRenderer'. It provides the 
 -- possibility to display some text by setting the 'Attribute' 
 -- 'cellText' to the column of a 'TreeModel' by means of 
@@ -41,6 +41,7 @@ module Graphics.UI.Gtk.TreeList.CellRendererText (
 -- |   +----'Object'
 -- |         +----'CellRenderer'
 -- |               +----CellRendererText
+-- |                     +----'CellRendererCombo'
 -- @
 
 -- * Types
@@ -70,7 +71,7 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.TreeList.TreeIter#}
 import Graphics.UI.Gtk.General.Structs		(treeIterSize)
 import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 import System.Glib.StoreValue			(GenericValue(..), TMType(..))
@@ -83,8 +84,10 @@ import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 -- | Create a new CellRendererText object.
 --
 cellRendererTextNew :: IO CellRendererText
-cellRendererTextNew  = makeNewObject mkCellRendererText $ liftM castPtr $
-  {#call unsafe cell_renderer_text_new#}
+cellRendererTextNew =
+  makeNewObject mkCellRendererText $
+  liftM (castPtr :: Ptr CellRenderer -> Ptr CellRendererText) $
+  {# call unsafe cell_renderer_text_new #}
 
 -- helper function
 --
@@ -143,23 +146,21 @@ onEdited, afterEdited :: TreeModelClass tm => CellRendererText -> tm ->
 			 (TreeIter -> String -> IO ()) ->
 			 IO (ConnectId CellRendererText)
 onEdited cr tm user = connect_PTR_STRING__NONE "edited" False cr $
-  \strPtr string -> do
-    iterPtr <- mallocBytes treeIterSize
-    iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-    res <- liftM toBool $ withForeignPtr ((unTreeModel . toTreeModel) tm) $
-      \tmPtr -> withForeignPtr (unTreeIter iter) $ \iterPtr ->
-	gtk_tree_model_get_iter_from_string tmPtr iterPtr strPtr
-    if res then user iter string else
+  \strPtr string ->
+  mallocTreeIter >>= \iter ->
+  {# call gtk_tree_model_get_iter_from_string #}
+    (toTreeModel tm)
+    iter
+    strPtr
+  >>= \res -> if toBool res then user iter string else
       putStrLn "edited signal: invalid tree path"
 
 afterEdited cr tm user = connect_PTR_STRING__NONE "edited" True cr $
-  \strPtr string -> do
-    iterPtr <- mallocBytes treeIterSize
-    iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-    res <- liftM toBool $ withForeignPtr ((unTreeModel . toTreeModel) tm) $
-      \tmPtr -> withForeignPtr (unTreeIter iter) $ \iterPtr ->
-	gtk_tree_model_get_iter_from_string tmPtr iterPtr strPtr
-    if res then user iter string else
+  \strPtr string ->
+  mallocTreeIter >>= \iter ->
+  {# call gtk_tree_model_get_iter_from_string #}
+    (toTreeModel tm)
+    iter
+    strPtr
+  >>= \res -> if toBool res then user iter string else
       putStrLn "edited signal: invalid tree path"
-
-unTreeIter (TreeIter iter) = iter

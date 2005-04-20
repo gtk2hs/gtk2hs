@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/19 04:31:02 $
+--  Version $Revision: 1.6 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -27,7 +27,7 @@
 -- The database for simple (non-hierarchical) tables.
 --
 module Graphics.UI.Gtk.TreeList.ListStore (
--- * Description
+-- * Detail
 -- 
 -- | The 'ListStore' object is a list model for use with a 'TreeView' widget.
 -- It implements the 'TreeModel' interface, and consequentialy, can use all of
@@ -70,12 +70,12 @@ module Graphics.UI.Gtk.TreeList.ListStore (
   listStoreInsertAfter,
   listStorePrepend,
   listStoreAppend,
-  listStoreClear
+  listStoreClear,
 #if GTK_CHECK_VERSION(2,2,0)
- ,listStoreReorder,
+  listStoreReorder,
   listStoreSwap,
   listStoreMoveBefore,
-  listStoreMoveAfter
+  listStoreMoveAfter,
 #endif
   ) where
 
@@ -87,7 +87,7 @@ import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
-import Graphics.UI.Gtk.General.Structs		(treeIterSize)
+{#import Graphics.UI.Gtk.TreeList.TreeIter#}
 import System.Glib.StoreValue			(TMType(..), GenericValue(..)
 						,valueSetGenericValue)
 {#import System.Glib.GValue#}			(GValue(GValue), allocaGValue)
@@ -100,10 +100,12 @@ import System.Glib.StoreValue			(TMType(..), GenericValue(..)
 -- | Generate a new entity to store tree information.
 --
 listStoreNew :: [TMType] -> IO ListStore
-listStoreNew cols = makeNewGObject mkListStore $ 
-  withArray0 ((fromIntegral.fromEnum) TMinvalid) 
-  (map (fromIntegral.fromEnum) cols) $
-  {#call unsafe list_store_newv#} ((fromIntegral.length) cols)
+listStoreNew types =
+  makeNewGObject mkListStore $
+  withArray (map (fromIntegral . fromEnum) types) $ \typesArr ->
+  {# call unsafe list_store_newv #}
+    ((fromIntegral . length) types)
+    typesArr
 
 --------------------
 -- Methods
@@ -135,9 +137,14 @@ listStoreSetValue self iter column value =
 --
 -- * This function returned @()@ in Gtk version 2.0.X
 --
-listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO Bool
-listStoreRemove ts ti = liftM toBool $ 
-  {#call list_store_remove#} (toListStore ts) ti
+listStoreRemove :: ListStoreClass self => self
+ -> TreeIter
+ -> IO Bool
+listStoreRemove self iter =
+  liftM toBool $
+  {# call list_store_remove #}
+    (toListStore self)
+    iter
 
 #else
 -- | Remove a specific node.
@@ -147,8 +154,13 @@ listStoreRemove ts ti = liftM toBool $
 --
 -- * This function returns @Bool@ in Gtk version 2.2.0 and later
 --
-listStoreRemove :: (ListStoreClass ts) => ts -> TreeIter -> IO ()
-listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
+listStoreRemove :: ListStoreClass self => self
+ -> TreeIter
+ -> IO ()
+listStoreRemove self iter =
+  {# call list_store_remove #}
+    (toListStore self)
+    iter
 #endif
 
 -- | Insert a new row into the list.
@@ -157,60 +169,75 @@ listStoreRemove ts ti = {#call list_store_remove#} (toListStore ts) ti
 -- determines the row number where the row should be inserted. Set this to
 -- @-1@ to insert at the end of the list.
 --
-listStoreInsert :: (ListStoreClass ts) => ts -> Int -> IO TreeIter
-listStoreInsert ts pos = do
-  iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-  {#call list_store_insert#} (toListStore ts) iter (fromIntegral pos)
+listStoreInsert :: ListStoreClass self => self
+ -> Int      -- ^ @position@ - position to insert the new row
+ -> IO TreeIter
+listStoreInsert self position = do
+  iter <- mallocTreeIter
+  {# call list_store_insert #}
+    (toListStore self)
+    iter
+    (fromIntegral position)
   return iter
 
-
--- | Insert a row in front of the
--- @sibling@ node.
+-- | Insert a row in front of the @sibling@ node.
 --
-listStoreInsertBefore :: (ListStoreClass ts) => ts -> TreeIter -> IO TreeIter
-listStoreInsertBefore ts sibling = do
-  iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-  {#call list_store_insert_before#} (toListStore ts) iter sibling
+listStoreInsertBefore :: ListStoreClass self => self
+ -> TreeIter
+ -> IO TreeIter
+listStoreInsertBefore self sibling = do
+  iter <- mallocTreeIter
+  {# call list_store_insert_before #}
+    (toListStore self)
+    iter
+    sibling
   return iter
 
--- | Insert a row behind the @sibling@
--- row.
+-- | Insert a row behind the @sibling@ row.
 --
-listStoreInsertAfter :: (ListStoreClass ts) => ts -> TreeIter -> IO TreeIter
-listStoreInsertAfter ts sibling = do
-  iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-  {#call list_store_insert_after#} (toListStore ts) iter sibling
+listStoreInsertAfter :: ListStoreClass self => self
+ -> TreeIter
+ -> IO TreeIter
+listStoreInsertAfter self sibling = do
+  iter <- mallocTreeIter
+  {# call list_store_insert_after #}
+    (toListStore self)
+    iter
+    sibling
   return iter
 
 -- | Insert a row in front of every other row.
 --
 -- * This is equivalent to 'listStoreInsert' @0@.
 --
-listStorePrepend :: (ListStoreClass ts) => ts -> IO TreeIter
-listStorePrepend ts = do
-  iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-  {#call list_store_prepend#} (toListStore ts) iter 
+listStorePrepend :: ListStoreClass self => self
+ -> IO TreeIter
+listStorePrepend self = do
+  iter <- mallocTreeIter
+  {# call list_store_prepend #}
+    (toListStore self)
+    iter
   return iter
 
 -- | Insert a row at the end of the table .
 --
 -- * This is equivalent to 'listStoreInsert' (-1).
 --
-listStoreAppend :: (ListStoreClass ts) => ts -> IO TreeIter
-listStoreAppend ts = do
-  iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
-  {#call list_store_append#} (toListStore ts) iter 
+listStoreAppend :: ListStoreClass self => self
+ -> IO TreeIter
+listStoreAppend self = do
+  iter <- mallocTreeIter
+  {# call list_store_append #}
+    (toListStore self)
+    iter
   return iter
 
--- | Clear all rows in this table.
+-- | Removes all rows from the list store.
 --
-listStoreClear :: (ListStoreClass ts) => ts -> IO ()
-listStoreClear = {#call list_store_clear#}.toListStore
+listStoreClear :: ListStoreClass self => self -> IO ()
+listStoreClear self =
+  {# call list_store_clear #}
+    (toListStore self)
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Reorders store to follow the order indicated by the mapping. The list
@@ -222,46 +249,62 @@ listStoreClear = {#call list_store_clear#}.toListStore
 -- * You must make sure the mapping is the right size for the store, use
 -- @'treeModelIterNChildren' store Nothing@ to check.
 --
-listStoreReorder :: (ListStoreClass ts) => ts -> [Int] -> IO ()
-listStoreReorder ts newOrder = do
+listStoreReorder :: (ListStoreClass self) => self -> [Int] -> IO ()
+listStoreReorder self newOrder = do
   --check newOrder is the right length or it'll overrun
-  storeLength <- treeModelIterNChildren ts Nothing
+  storeLength <- treeModelIterNChildren self Nothing
   when (storeLength /= length newOrder)
        (fail "ListStore.listStoreReorder: mapping wrong length for store")
   withArray (map fromIntegral newOrder) $ \newOrderArrPtr ->
-    {#call list_store_reorder#} (toListStore ts) newOrderArrPtr
+    {# call list_store_reorder #}
+    (toListStore self)
+    newOrderArrPtr
 
 -- | Swaps the two items in the store.
 --
 -- * Note that this function only works with unsorted stores.
 --
-listStoreSwap :: (ListStoreClass ts) => ts -> TreeIter -> TreeIter -> IO ()
-listStoreSwap ts a b =
-  {#call list_store_swap#} (toListStore ts) a b
+-- * Available since Gtk+ version 2.2
+--
+listStoreSwap :: ListStoreClass self => self
+ -> TreeIter
+ -> TreeIter
+ -> IO ()
+listStoreSwap self a b =
+  {# call list_store_swap #}
+    (toListStore self)
+    a
+    b
 
 -- | Moves the item in the store to before the given position. If the position
 -- is @Nothing@ the item will be moved to then end of the list.
 --
 -- * Note that this function only works with unsorted stores.
 --
-listStoreMoveBefore :: (ListStoreClass ts) => ts
-                    -> TreeIter       -- ^ Iter for the item to be moved
-		    -> Maybe TreeIter -- ^ Iter for the position or @Nothing@.
-		    -> IO ()
-listStoreMoveBefore ts iter maybePosition =
-   {#call list_store_move_before#} (toListStore ts) iter
-     (fromMaybe (TreeIter nullForeignPtr) maybePosition)
+-- * Available since Gtk+ version 2.2
+--
+listStoreMoveBefore :: ListStoreClass self => self
+ -> TreeIter       -- ^ Iter for the item to be moved
+ -> Maybe TreeIter -- ^ Iter for the position or @Nothing@.
+ -> IO ()
+listStoreMoveBefore self iter position =
+  {# call list_store_move_before #}
+    (toListStore self)
+    iter
+    (fromMaybe (TreeIter nullForeignPtr) position)
 
 -- | Moves the item in the store to after the given position. If the position
 -- is @Nothing@ the item will be moved to then start of the list.
 --
 -- * Note that this function only works with unsorted stores.
 --
-listStoreMoveAfter :: (ListStoreClass ts) => ts
-                   -> TreeIter       -- ^ Iter for the item to be moved
-		   -> Maybe TreeIter -- ^ Iter for the position or @Nothing@.
-		   -> IO ()
-listStoreMoveAfter ts iter maybePosition =
-  {#call list_store_move_after#} (toListStore ts) iter
-    (fromMaybe (TreeIter nullForeignPtr) maybePosition)
+listStoreMoveAfter :: ListStoreClass self => self
+ -> TreeIter       -- ^ Iter for the item to be moved
+ -> Maybe TreeIter -- ^ Iter for the position or @Nothing@.
+ -> IO ()
+listStoreMoveAfter self iter position =
+  {# call list_store_move_after #}
+    (toListStore self)
+    iter
+    (fromMaybe (TreeIter nullForeignPtr) position)
 #endif

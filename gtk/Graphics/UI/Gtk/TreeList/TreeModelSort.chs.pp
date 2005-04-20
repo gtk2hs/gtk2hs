@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 22:53:42 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts, Axel Simon
 --
@@ -27,7 +27,7 @@
 -- A 'TreeModel' which makes an underlying tree model sortable
 --
 module Graphics.UI.Gtk.TreeList.TreeModelSort (
--- * Description
+-- * Detail
 -- 
 -- | The 'TreeModelSort' is a model which implements the 'TreeSortable'
 -- interface. It does not hold any data itself, but rather is created with a
@@ -60,7 +60,7 @@ module Graphics.UI.Gtk.TreeList.TreeModelSort (
   treeModelSortResetDefaultSortFunc,
   treeModelSortClearCache,
 #if GTK_CHECK_VERSION(2,2,0)
-  treeModelSortIterIsValid
+  treeModelSortIterIsValid,
 #endif
   ) where
 
@@ -70,6 +70,8 @@ import System.Glib.FFI
 import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.TreeList.TreePath#}
+{#import Graphics.UI.Gtk.TreeList.TreeIter#}
 import Graphics.UI.Gtk.General.Structs		(treeIterSize)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -85,85 +87,82 @@ instance TreeModelClass TreeModelSort
 -- | Creates a new 'TreeModelSort', that will be a sorted view of the given
 -- model.
 --
-treeModelSortNewWithModel :: TreeModelClass tm => tm -> IO TreeModelSort
-treeModelSortNewWithModel model =
-  makeNewGObject mkTreeModelSort $ liftM castPtr $
-  {#call unsafe tree_model_sort_new_with_model#} (toTreeModel model)
+treeModelSortNewWithModel :: TreeModelClass childModel => childModel -> IO TreeModelSort
+treeModelSortNewWithModel childModel =
+  makeNewGObject mkTreeModelSort $
+  liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelSort) $
+  {# call unsafe tree_model_sort_new_with_model #}
+    (toTreeModel childModel)
 
 --------------------
 -- Methods
 
 -- | Returns the underlying model the 'TreeModelSort' is sorting.
 --
-treeModelSortGetModel :: TreeModelSortClass obj => obj -> IO TreeModel
-treeModelSortGetModel obj =
+treeModelSortGetModel :: TreeModelSortClass self => self -> IO TreeModel
+treeModelSortGetModel self =
   makeNewGObject mkTreeModel $
-  {#call tree_model_sort_get_model#} (toTreeModelSort obj)
+  {# call tree_model_sort_get_model #}
+    (toTreeModelSort self)
 
 -- | Converts the given path to a path relative to the given sorted model.
 --
 -- * The given path points to a row in the child model. The returned path will
 -- point to the same row in the sorted model.
 --
-treeModelSortConvertChildPathToPath :: TreeModelSortClass obj => obj
-                                    -> TreePath -> IO TreePath
-treeModelSortConvertChildPathToPath obj [] = return []
-treeModelSortConvertChildPathToPath obj tp = do
-  nativePath <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) tp
-  tpPtr <-
-    {#call unsafe tree_model_sort_convert_child_path_to_path#}
-    (toTreeModelSort obj) nativePath
-  nativeTreePathFree nativePath
-  if tpPtr==nullPtr then return [] else do
-  path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
-  nativeTreePathFree (NativeTreePath tpPtr)
-  return path
+treeModelSortConvertChildPathToPath :: TreeModelSortClass self => self
+ -> TreePath
+ -> IO TreePath
+treeModelSortConvertChildPathToPath self [] = return []
+treeModelSortConvertChildPathToPath self childPath =
+  withTreePath childPath $ \childPath ->
+  {# call unsafe tree_model_sort_convert_child_path_to_path #}
+    (toTreeModelSort self)
+    childPath
+  >>= fromTreePath
 
 -- | Converts path in the sorted model to a path on the unsorted model on which
 -- the given 'TreeModelSort' is based. That is, the given path points to a
 -- location in the given 'TreeModelSort'. The returned path will point to the
 -- same location in the underlying unsorted model.
 --
-treeModelSortConvertPathToChildPath :: TreeModelSortClass obj => obj
-                                    -> TreePath -> IO TreePath
-treeModelSortConvertPathToChildPath obj [] = return []
-treeModelSortConvertPathToChildPath obj tp = do
-  nativePath <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) tp
-  tpPtr <-
-    {#call unsafe tree_model_sort_convert_path_to_child_path#}
-    (toTreeModelSort obj) nativePath
-  nativeTreePathFree nativePath
-  if tpPtr==nullPtr then return [] else do
-  path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
-  nativeTreePathFree (NativeTreePath tpPtr)
-  return path
+treeModelSortConvertPathToChildPath :: TreeModelSortClass self => self
+ -> TreePath
+ -> IO TreePath
+treeModelSortConvertPathToChildPath self [] = return []
+treeModelSortConvertPathToChildPath self sortedPath =
+  withTreePath sortedPath $ \sortedPath ->
+  {# call unsafe tree_model_sort_convert_path_to_child_path #}
+    (toTreeModelSort self)
+    sortedPath
+  >>= fromTreePath
 
 -- | Return an iterator in the sorted model that points to the row pointed to
 -- by the given iter from the unsorted model.
 --
-treeModelSortConvertChildIterToIter :: TreeModelSortClass obj => obj
-                                    -> TreeIter -> IO TreeIter
-treeModelSortConvertChildIterToIter obj childIter = do
-  sortIterPtr <- mallocBytes treeIterSize
-  sortIter <- liftM TreeIter $ newForeignPtr sortIterPtr
-                (foreignFree sortIterPtr)
-  {#call tree_model_sort_convert_child_iter_to_iter#} (toTreeModelSort obj)
-    sortIter childIter
+treeModelSortConvertChildIterToIter :: TreeModelSortClass self => self
+ -> TreeIter
+ -> IO TreeIter
+treeModelSortConvertChildIterToIter self childIter = do
+  sortIter <- mallocTreeIter
+  {# call tree_model_sort_convert_child_iter_to_iter #}
+    (toTreeModelSort self)
+    sortIter
+    childIter
   return sortIter
 
 -- | Return an iterator in the unsorted model that points to the row pointed to
 -- by the given iter from the sorted model.
 --
-treeModelSortConvertIterToChildIter :: TreeModelSortClass obj => obj
-                                    -> TreeIter -> IO TreeIter
-treeModelSortConvertIterToChildIter obj sortedIter = do
-  childIterPtr <- mallocBytes treeIterSize
-  childIter <- liftM TreeIter $ newForeignPtr childIterPtr
-                 (foreignFree childIterPtr)
-  {#call unsafe tree_model_sort_convert_iter_to_child_iter#}
-    (toTreeModelSort obj) childIter sortedIter
+treeModelSortConvertIterToChildIter :: TreeModelSortClass self => self
+ -> TreeIter
+ -> IO TreeIter
+treeModelSortConvertIterToChildIter self sortedIter = do
+  childIter <- mallocTreeIter
+  {# call unsafe tree_model_sort_convert_iter_to_child_iter #}
+    (toTreeModelSort self)
+    childIter
+    sortedIter
   return childIter
 
 -- | This resets the default sort function to be in the \'unsorted\' state. That
@@ -171,41 +170,40 @@ treeModelSortConvertIterToChildIter obj sortedIter = do
 -- be in the same order as the child model only if the 'TreeModelSort' is in 
 -- \'unsorted\' state.
 --
-treeModelSortResetDefaultSortFunc :: TreeModelSortClass obj => obj -> IO ()
-treeModelSortResetDefaultSortFunc obj =
-  {#call tree_model_sort_reset_default_sort_func#} (toTreeModelSort obj)
+treeModelSortResetDefaultSortFunc :: TreeModelSortClass self => self -> IO ()
+treeModelSortResetDefaultSortFunc self =
+  {# call tree_model_sort_reset_default_sort_func #}
+    (toTreeModelSort self)
 
-
--- | Clear the cache of unref\'d iterators.
+-- | Clear the cache of unref'd iterators.
 --
 -- * This function should almost never be called. It clears the
--- "TreeModelSort" of any cached iterators that haven\'t been reffed with
+-- 'TreeModelSort' of any cached iterators that haven't been reffed with
 -- 'treeModelRefNode'. This might be useful if the child model being sorted is
--- static (and doesn\'t change often) and there has been a lot of unreffed
+-- static (and doesn't change often) and there has been a lot of unreffed
 -- access to nodes. As a side effect of this function, all unreffed iters will
 -- be invalid.
--- 
+--
 treeModelSortClearCache :: TreeModelSortClass self => self -> IO ()
 treeModelSortClearCache self =
   {# call gtk_tree_model_sort_clear_cache #}
-     (toTreeModelSort self)
+    (toTreeModelSort self)
 
 #if GTK_CHECK_VERSION(2,2,0)
--- | Checks if the given iter is a valid iter for this "TreeModelSort".
+-- | Checks if the given iter is a valid iter for this 'TreeModelSort'.
 --
 -- * WARNING: This function is slow. Only use it for debugging and\/or testing
 -- purposes.
 --
--- * Available since Gtk version 2.2
--- 
+-- * Available since Gtk+ version 2.2
+--
 treeModelSortIterIsValid :: TreeModelSortClass self => self
- -> TreeIter -- ^ @iter@ - A "TreeIter".
- -> IO Bool          -- ^ returns @True@ if the iter is valid, @False@ if the
-                     -- iter is invalid.
+ -> TreeIter -- ^ @iter@ - A 'TreeIter'.
+ -> IO Bool  -- ^ returns @True@ if the iter is valid, @False@ if the iter is
+             -- invalid.
 treeModelSortIterIsValid self iter =
   liftM toBool $
   {# call gtk_tree_model_sort_iter_is_valid #}
-     (toTreeModelSort self)
-     iter
+    (toTreeModelSort self)
+    iter
 #endif
-

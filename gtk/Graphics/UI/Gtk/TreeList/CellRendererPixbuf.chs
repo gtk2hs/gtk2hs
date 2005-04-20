@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/02/25 01:11:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,6 +27,18 @@
 -- Renders a pixbuf in a cell
 --
 module Graphics.UI.Gtk.TreeList.CellRendererPixbuf (
+-- * Detail
+-- 
+-- | A 'CellRendererPixbuf' can be used to render an image in a cell. It
+-- allows to render either a given 'Pixbuf' (set via the pixbuf property) or a
+-- stock icon (set via the stock-id property).
+--
+-- To support the tree view, 'CellRendererPixbuf' also supports rendering
+-- two alternative pixbufs, when the is-expander property is @True@. If the
+-- is-expanded property is @True@ and the pixbuf-expander-open property is set
+-- to a pixbuf, it renders that pixbuf, if the is-expanded property is @False@
+-- and the pixbuf-expander-closed property is set to a pixbuf, it renders that
+-- one.
 
 -- * Class Hierarchy
 -- |
@@ -56,7 +68,7 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 import Graphics.UI.Gtk.Display.Image		(imageNewFromPixbuf,
 						 imageGetPixbuf)
-import System.Glib.StoreValue   (GenericValue(..), TMType(..))
+import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -66,8 +78,10 @@ import System.Glib.StoreValue   (GenericValue(..), TMType(..))
 -- | Create a new CellRendererPixbuf object.
 --
 cellRendererPixbufNew :: IO CellRendererPixbuf
-cellRendererPixbufNew  = makeNewObject mkCellRendererPixbuf $ liftM castPtr $
-  {#call unsafe cell_renderer_pixbuf_new#}
+cellRendererPixbufNew =
+  makeNewObject mkCellRendererPixbuf $
+  liftM (castPtr :: Ptr CellRenderer -> Ptr CellRendererPixbuf) $
+  {# call unsafe cell_renderer_pixbuf_new #}
 
 --------------------
 -- Properties
