@@ -52,6 +52,9 @@
 	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp: adjust imports due
 	to TreeIter now living it it's own module.
 
+	* gtk/Graphics/UI/Gtk.hs: TreeModel no longer exports so many internal
+	functions so they do not need to be hidden.
+
 2005-04-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/Hierarchy.chs.template,

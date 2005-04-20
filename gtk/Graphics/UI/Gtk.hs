@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.8 $ from $Date: 2005/04/20 04:07:14 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -249,10 +249,8 @@ import Graphics.UI.Gtk.Multiline.TextView hiding (afterSetScrollAdjustments,
 		onInsertAtCursor, afterPasteClipboard, onPasteClipboard,
 		afterToggleOverwrite, onToggleOverwrite)
 -- tree and list widget
-import Graphics.UI.Gtk.TreeList.TreeModel hiding (NativeTreePath(..),
-  createTreeIter, nativeTreePathFree, nativeTreePathNew, withTreePath,
-  nativeTreePathGetIndices, fromTreePath,
-  gtk_tree_model_get_iter_from_string)
+import Graphics.UI.Gtk.TreeList.TreeModel hiding (
+		gtk_tree_model_get_iter_from_string)
 import Graphics.UI.Gtk.TreeList.TreeSelection
 import Graphics.UI.Gtk.TreeList.TreeViewColumn
 import Graphics.UI.Gtk.TreeList.TreeView
