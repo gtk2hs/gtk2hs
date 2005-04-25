@@ -1,3 +1,21 @@
+2005-04-25 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* docs: new directory.
+
+	* Makefile.am: change where the haddock reference docs will be built
+	from doc/ to docs/reference
+
+	* docs/tools: new directory for tools used in building tutorial and
+	other documentation.
+
+	* docs/tools/AddLinks.hs: txt2tags post-processing tool for adding
+	hyperlinks to haddock reference docs and Haskell syntax highlighting
+	to code examples used in txt2tags verbatim sections.
+
+	* docs/tutorial/Makefile: a makefile with rules for building .xhtml
+	and .pdf files from corresponding .t2t files. Also builds and invokes
+	the AddLinks post-processor.
+
 2005-04-20 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/TreeList/TreeIter.chs.pp,

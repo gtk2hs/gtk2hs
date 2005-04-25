@@ -984,23 +984,23 @@ html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE) $(html_HSFILES_PREPROC),	\
 
 html_DATA =									\
 	$(foreach HSFILE, $(filter-out $(html_HSFILES_HIDDEN),$(html_HSFILES)),	\
-	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, doc/%.html, 	\
+	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, docs/reference/%.html, 	\
 		$(subst /,.,$(HSFILE:.uncpp=))))				\
-	doc/haddock.css doc/haskell_icon.gif					\
-	doc/index.html doc/doc-index.html					\
+	docs/reference/haddock.css docs/reference/haskell_icon.gif		\
+	docs/reference/index.html docs/reference/doc-index.html			\
 	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y,	\
-		doc/doc-index-$(LETTER).html) #missing letters Q and Z
+		docs/reference/doc-index-$(LETTER).html) #missing letters Q and Z
 
 haddockifacedir = $(datadir)/doc/gtk2hs
-haddockiface_DATA = doc/gtk2hs.haddock
+haddockiface_DATA = docs/reference/gtk2hs.haddock
 
 # --prologue=doc/prologue.txt
 
-$(html_DATA) doc/gtk2hs.haddock : $(html_HSFILES)
-	mkdir -p doc
-	$(strip $(HADDOCK) --html --odir=doc \
+$(html_DATA) docs/reference/gtk2hs.haddock : $(html_HSFILES)
+	mkdir -p docs/reference
+	$(strip $(HADDOCK) --html --odir=docs/reference \
 		--title="Gtk2Hs" \
-		--dump-interface=doc/gtk2hs.haddock \
+		--dump-interface=docs/reference/gtk2hs.haddock \
 		$^)
 
 .hs.hs.uncpp : $(CONFIG_HEADER)
