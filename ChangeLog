@@ -1,3 +1,7 @@
+2005-04-28 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: add gconf/System/Gnome/GConf/marshal.list to EXTRA_DIST
+
 2005-04-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* docs: new directory.

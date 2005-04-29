@@ -11,6 +11,7 @@ EXTRA_DIST = \
 	tools/c2hs/toplevel/c2hs_config.h	\
 	tools/hierarchyGen/hierarchy.list	\
 	tools/hierarchyGen/Hierarchy.chs.template \
+        gconf/System/Gnome/GConf/marshal.list	\
 	sourceview/sourceview.h			\
 	gtk/wingtk.h				\
         glib/System/Glib/hsgclosure.h
