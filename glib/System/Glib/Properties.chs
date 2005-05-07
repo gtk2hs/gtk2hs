@@ -5,7 +5,7 @@
 --
 --  Created: 16 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/19 02:21:27 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 18:58:18 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -27,8 +27,11 @@
 -- Functions for getting and setting GObject properties
 --
 module System.Glib.Properties (
+  -- * per-type functions for getting and setting GObject properties
   objectSetPropertyInt,
   objectGetPropertyInt,
+  objectSetPropertyUInt,
+  objectGetPropertyUInt,
   objectSetPropertyBool,
   objectGetPropertyBool,
   objectSetPropertyEnum,
@@ -39,9 +42,31 @@ module System.Glib.Properties (
   objectGetPropertyFloat,
   objectSetPropertyDouble,
   objectGetPropertyDouble,
+  objectSetPropertyString,
+  objectGetPropertyString,
+  objectSetPropertyMaybeString,
+  objectGetPropertyMaybeString,  
+  objectSetPropertyGObject,
+  objectGetPropertyGObject,
   
   objectSetPropertyInternal,
   objectGetPropertyInternal,
+
+  -- * constructors for attributes backed by GObject properties
+  newAttrFromIntProperty,
+  readAttrFromIntProperty,
+  newAttrFromUIntProperty,
+  writeAttrFromUIntProperty,
+  newAttrFromBoolProperty,
+  newAttrFromFloatProperty,
+  newAttrFromDoubleProperty,
+  newAttrFromEnumProperty,
+  readAttrFromEnumProperty,
+  newAttrFromStringProperty,
+  writeAttrFromStringProperty,
+  newAttrFromMaybeStringProperty,
+  newAttrFromObjectProperty,
+  writeAttrFromObjectProperty,
   ) where
 
 import Monad (liftM)
@@ -52,6 +77,8 @@ import System.Glib.UTFString
 {#import System.Glib.GValue#}	(GValue(GValue), valueInit, allocaGValue)
 import System.Glib.GObject	(makeNewGObject)
 import System.Glib.GValueTypes
+import System.Glib.Attributes	(Attr, ReadAttr, WriteAttr, ReadWriteAttr(Attr),
+				newAttr, readAttr, writeAttr)
 
 {# context lib="glib" prefix="g" #}
 
@@ -80,6 +107,12 @@ objectSetPropertyInt = objectSetPropertyInternal valueSetInt
 
 objectGetPropertyInt :: GObjectClass gobj => String -> gobj -> IO Int
 objectGetPropertyInt = objectGetPropertyInternal valueGetInt
+
+objectSetPropertyUInt :: GObjectClass gobj => String -> gobj -> Int -> IO ()
+objectSetPropertyUInt = objectSetPropertyInternal (\gv v -> valueSetUInt gv (fromIntegral v))
+
+objectGetPropertyUInt :: GObjectClass gobj => String -> gobj -> IO Int
+objectGetPropertyUInt = objectGetPropertyInternal (\gv -> liftM fromIntegral $ valueGetUInt gv)
 
 objectSetPropertyBool :: GObjectClass gobj => String -> gobj -> Bool -> IO ()
 objectSetPropertyBool = objectSetPropertyInternal valueSetBool
@@ -111,16 +144,81 @@ objectSetPropertyDouble = objectSetPropertyInternal valueSetDouble
 objectGetPropertyDouble :: GObjectClass gobj => String -> gobj -> IO Double
 objectGetPropertyDouble = objectGetPropertyInternal valueGetDouble
 
-{-
-objectSetProperty :: GObjectClass gobj => String -> gobj -> Int -> IO ()
-objectSetProperty = objectSetPropertyInternal valueSet
+objectSetPropertyString :: GObjectClass gobj => String -> gobj -> String -> IO ()
+objectSetPropertyString = objectSetPropertyInternal valueSetString
 
-objectGetProperty :: GObjectClass gobj => String -> gobj -> IO Int
-objectGetProperty = objectGetPropertyInternal valueGet
--}
+objectGetPropertyString :: GObjectClass gobj => String -> gobj -> IO String
+objectGetPropertyString = objectGetPropertyInternal valueGetString
+
+objectSetPropertyMaybeString :: GObjectClass gobj => String -> gobj -> Maybe String -> IO ()
+objectSetPropertyMaybeString = objectSetPropertyInternal valueSetMaybeString
+
+objectGetPropertyMaybeString :: GObjectClass gobj => String -> gobj -> IO (Maybe String)
+objectGetPropertyMaybeString = objectGetPropertyInternal valueGetMaybeString
 
 objectSetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => String -> gobj -> gobj' -> IO ()
 objectSetPropertyGObject = objectSetPropertyInternal valueSetGObject
 
 objectGetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => String -> gobj -> IO gobj'
 objectGetPropertyGObject = objectGetPropertyInternal valueGetGObject
+
+
+-- Convenience functions to make attribute implementations in the other modules
+-- shorter and more easily extensible.
+--
+
+newAttrFromIntProperty :: GObjectClass gobj => String -> Attr gobj Int
+newAttrFromIntProperty propName =
+  newAttr (objectGetPropertyInt propName) (objectSetPropertyInt propName)
+
+readAttrFromIntProperty :: GObjectClass gobj => String -> ReadAttr gobj Int
+readAttrFromIntProperty propName =
+  readAttr (objectGetPropertyInt propName)
+
+newAttrFromUIntProperty :: GObjectClass gobj => String -> Attr gobj Int
+newAttrFromUIntProperty propName =
+  newAttr (objectGetPropertyUInt propName) (objectSetPropertyUInt propName)
+
+writeAttrFromUIntProperty :: GObjectClass gobj => String -> WriteAttr gobj Int
+writeAttrFromUIntProperty propName =
+  writeAttr (objectSetPropertyUInt propName)
+
+newAttrFromBoolProperty :: GObjectClass gobj => String -> Attr gobj Bool
+newAttrFromBoolProperty propName =
+  newAttr (objectGetPropertyBool propName) (objectSetPropertyBool propName)
+
+newAttrFromFloatProperty :: GObjectClass gobj => String -> Attr gobj Float
+newAttrFromFloatProperty propName =
+  newAttr (objectGetPropertyFloat propName) (objectSetPropertyFloat propName)
+
+newAttrFromDoubleProperty :: GObjectClass gobj => String -> Attr gobj Double
+newAttrFromDoubleProperty propName =
+  newAttr (objectGetPropertyDouble propName) (objectSetPropertyDouble propName)
+
+newAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> Attr gobj enum
+newAttrFromEnumProperty propName =
+  newAttr (objectGetPropertyEnum propName) (objectSetPropertyEnum propName)
+
+readAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> ReadAttr gobj enum
+readAttrFromEnumProperty propName =
+  readAttr (objectGetPropertyEnum propName)
+
+newAttrFromStringProperty :: GObjectClass gobj => String -> Attr gobj String
+newAttrFromStringProperty propName =
+  newAttr (objectGetPropertyString propName) (objectSetPropertyString propName)
+
+writeAttrFromStringProperty :: GObjectClass gobj => String -> WriteAttr gobj String
+writeAttrFromStringProperty propName =
+  writeAttr (objectSetPropertyString propName)
+
+newAttrFromMaybeStringProperty :: GObjectClass gobj => String -> Attr gobj (Maybe String)
+newAttrFromMaybeStringProperty propName =
+  newAttr (objectGetPropertyMaybeString propName) (objectSetPropertyMaybeString propName)
+
+newAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> ReadWriteAttr gobj gobj' gobj''
+newAttrFromObjectProperty propName =
+  newAttr (objectGetPropertyGObject propName) (objectSetPropertyGObject propName)
+
+writeAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> WriteAttr gobj gobj'
+writeAttrFromObjectProperty propName =
+  writeAttr (objectSetPropertyGObject propName)

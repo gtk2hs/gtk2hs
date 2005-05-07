@@ -5,7 +5,7 @@
 --
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/19 02:04:09 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 18:58:18 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -46,6 +46,8 @@ module System.Glib.GValueTypes (
   valueGetDouble,
   valueSetString,
   valueGetString,
+  valueSetMaybeString,
+  valueGetMaybeString,
   valueSetGObject,
   valueGetGObject,
   ) where
@@ -141,18 +143,31 @@ valueGetDouble gvalue =
   liftM realToFrac $
   {# call unsafe value_get_double #} gvalue
 
-valueSetString :: GValue -> Maybe String -> IO ()
-valueSetString gvalue (Just str) = do
+valueSetString :: GValue -> String -> IO ()
+valueSetString gvalue str = do
   valueInit gvalue GType.string
   strPtr <- newUTFString str
   {# call unsafe value_set_static_string #} gvalue strPtr
 
-valueSetString gvalue Nothing = do
+valueGetString :: GValue -> IO String
+valueGetString gvalue = do
+  strPtr <- {# call unsafe value_get_string #} gvalue
+  if strPtr == nullPtr
+    then return ""
+    else peekUTFString strPtr
+
+valueSetMaybeString :: GValue -> Maybe String -> IO ()
+valueSetMaybeString gvalue (Just str) = do
+  valueInit gvalue GType.string
+  strPtr <- newUTFString str
+  {# call unsafe value_set_static_string #} gvalue strPtr
+
+valueSetMaybeString gvalue Nothing = do
   valueInit gvalue GType.string
   {# call unsafe value_set_static_string #} gvalue nullPtr
 
-valueGetString :: GValue -> IO (Maybe String)
-valueGetString gvalue =
+valueGetMaybeString :: GValue -> IO (Maybe String)
+valueGetMaybeString gvalue =
   {# call unsafe value_get_string #} gvalue
   >>= maybePeek peekUTFString
 

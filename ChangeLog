@@ -1,3 +1,20 @@
+2005-05-7 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/GValueTypes.chs: make valueSetString deal with
+	String rather than Maybe String, and introduce value(G|S)etMaybeString
+	for the latter.
+
+	* glib/System/Glib/StoreValue.hsc: knock on change from the above.
+
+	* glib/System/Glib/Attributes.hs: add the full attributes API and the
+	Prop and get/set user facing API. This module is completely standalone
+	so it should be reusable or easy to swap out and depend on an external
+	implementaion should that be necessary (eg for hscairo integration).
+
+	* glib/System/Glib/Properties.chs: add more property get/set functions
+	and add convenience functions for making attributes that are based on
+	GObject properties.
+
 2005-04-28 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: add gconf/System/Gnome/GConf/marshal.list to EXTRA_DIST

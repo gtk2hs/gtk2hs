@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/19 02:07:56 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 18:58:18 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -125,7 +125,7 @@ valueSetGenericValue gvalue (GVflags x)   = valueSetUInt    gvalue (fromIntegral
 --valueSetGenericValue gvalue (GVpointer x) = valueSetPointer gvalue x
 valueSetGenericValue gvalue (GVfloat x)   = valueSetFloat   gvalue x
 valueSetGenericValue gvalue (GVdouble x)  = valueSetDouble  gvalue x
-valueSetGenericValue gvalue (GVstring x)  = valueSetString  gvalue x
+valueSetGenericValue gvalue (GVstring x)  = valueSetMaybeString  gvalue x
 valueSetGenericValue gvalue (GVobject x)  = valueSetGObject gvalue x
 --valueSetGenericValue gvalue (GVboxed x)   = valueSetPointer gvalue x
 
@@ -145,7 +145,7 @@ valueGetGenericValue gvalue = do
 --    TMpointer	-> liftM GVpointer		  $ valueGetPointer gvalue
     TMfloat	-> liftM GVfloat		  $ valueGetFloat   gvalue
     TMdouble	-> liftM GVdouble		  $ valueGetDouble  gvalue
-    TMstring	-> liftM GVstring		  $ valueGetString  gvalue
+    TMstring	-> liftM GVstring		  $ valueGetMaybeString  gvalue
     TMobject	-> liftM GVobject		  $ valueGetGObject gvalue
 --    TMboxed   -> liftM GVpointer		  $ valueGetPointer gvalue
 
