@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 21:10:47 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton (
   toggleToolButtonSetActive,
   toggleToolButtonGetActive,
 
--- * Properties
+-- * Attributes
   toggleToolButtonActive,
 
 -- * Signals
@@ -78,7 +78,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -135,13 +135,13 @@ toggleToolButtonGetActive self =
     (toToggleToolButton self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'active\' property. See 'toggleToolButtonGetActive' and
 -- 'toggleToolButtonSetActive'
 --
 toggleToolButtonActive :: ToggleToolButtonClass self => Attr self Bool
-toggleToolButtonActive = Attr 
+toggleToolButtonActive = newAttr
   toggleToolButtonGetActive
   toggleToolButtonSetActive
 
