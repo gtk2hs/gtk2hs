@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -87,7 +87,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolButton (
   toolButtonSetLabelWidget,
   toolButtonGetLabelWidget,
 
--- * Properties
+-- * Attributes
   toolButtonLabel,
   toolButtonUseUnderline,
   toolButtonLabelWidget,
@@ -104,7 +104,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -271,14 +271,14 @@ toolButtonGetLabelWidget self =
     (toToolButton self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Text to show in the item.
 --
 -- Default value: @Nothing@
 --
 toolButtonLabel :: ToolButtonClass self => Attr self (Maybe String)
-toolButtonLabel = Attr 
+toolButtonLabel = newAttr
   toolButtonGetLabel
   toolButtonSetLabel
 
@@ -289,14 +289,14 @@ toolButtonLabel = Attr
 -- Default value: @False@
 --
 toolButtonUseUnderline :: ToolButtonClass self => Attr self Bool
-toolButtonUseUnderline = Attr 
+toolButtonUseUnderline = newAttr
   toolButtonGetUseUnderline
   toolButtonSetUseUnderline
 
 -- | Widget to use as the item label.
 --
-toolButtonLabelWidget :: ToolButtonClass self => Attr self (Maybe Widget)
-toolButtonLabelWidget = Attr 
+toolButtonLabelWidget :: (ToolButtonClass self, WidgetClass labelWidget) => ReadWriteAttr self (Maybe Widget) (Maybe labelWidget)
+toolButtonLabelWidget = newAttr
   toolButtonGetLabelWidget
   toolButtonSetLabelWidget
 
@@ -304,15 +304,15 @@ toolButtonLabelWidget = Attr
 --
 -- Default value: @Nothing@
 --
-toolButtonStockId :: ToolButtonClass self => Attr self (Maybe String)
-toolButtonStockId = Attr 
+toolButtonStockId :: ToolButtonClass self => ReadWriteAttr self (Maybe String) (Maybe String)
+toolButtonStockId = newAttr
   toolButtonGetStockId
   toolButtonSetStockId
 
 -- | Icon widget to display in the item.
 --
-toolButtonIconWidget :: ToolButtonClass self => Attr self (Maybe Widget)
-toolButtonIconWidget = Attr 
+toolButtonIconWidget :: (ToolButtonClass self, WidgetClass iconWidget) => ReadWriteAttr self (Maybe Widget) (Maybe iconWidget)
+toolButtonIconWidget = newAttr
   toolButtonGetIconWidget
   toolButtonSetIconWidget
 

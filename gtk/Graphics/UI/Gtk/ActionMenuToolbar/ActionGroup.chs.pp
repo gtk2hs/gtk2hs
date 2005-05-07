@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/12 23:11:13 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:22 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -86,7 +86,8 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup (
   actionGroupTranslateString,
 #endif
 
--- * Properties
+-- * Attributes
+  actionGroupName,
   actionGroupSensitive,
   actionGroupVisible,
 
@@ -107,7 +108,8 @@ import Monad	(liftM, foldM, when)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -398,14 +400,21 @@ actionGroupTranslateString self string =
 #endif
 
 --------------------
--- Properties
+-- Attributes
+
+-- | A name for the action group.
+--
+-- Default value: ""
+--
+actionGroupName :: Attr ActionGroup String
+actionGroupName = newAttrFromStringProperty "name"
 
 -- | Whether the action group is enabled.
 --
 -- Default value: @True@
 --
 actionGroupSensitive :: Attr ActionGroup Bool
-actionGroupSensitive = Attr 
+actionGroupSensitive = newAttr
   actionGroupGetSensitive
   actionGroupSetSensitive
 
@@ -414,7 +423,7 @@ actionGroupSensitive = Attr
 -- Default value: @True@
 --
 actionGroupVisible :: Attr ActionGroup Bool
-actionGroupVisible = Attr 
+actionGroupVisible = newAttr
   actionGroupGetVisible
   actionGroupSetVisible
 

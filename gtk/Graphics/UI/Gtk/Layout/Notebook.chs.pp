@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:34:50 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:25 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -110,11 +110,17 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookSetTabLabel,
   notebookSetTabLabelText,
 
--- * Properties
+-- * Attributes
+  notebookPage,
   notebookTabPos,
+  notebookTabBorder,
+  notebookTabHborder,
+  notebookTabVborder,
   notebookShowTabs,
   notebookShowBorder,
   notebookScrollable,
+  notebookEnablePopup,
+  notebookHomogeneous,
   notebookCurrentPage,
 
 -- * Signals
@@ -127,7 +133,8 @@ import Maybe	(maybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -850,23 +857,53 @@ notebookSetTabLabelText self child tabText =
     tabTextPtr
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The index of the current page.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+notebookPage :: NotebookClass self => Attr self Int
+notebookPage = newAttrFromIntProperty "page"
 
 -- | Which side of the notebook holds the tabs.
 --
 -- Default value: 'PosTop'
 --
 notebookTabPos :: NotebookClass self => Attr self PositionType
-notebookTabPos = Attr 
+notebookTabPos = newAttr
   notebookGetTabPos
   notebookSetTabPos
+
+-- | Width of the border around the tab labels.
+--
+-- Default value: 2
+--
+notebookTabBorder :: NotebookClass self => WriteAttr self Int
+notebookTabBorder = writeAttrFromUIntProperty "tab_border"
+
+-- | Width of the horizontal border of tab labels.
+--
+-- Default value: 2
+--
+notebookTabHborder :: NotebookClass self => Attr self Int
+notebookTabHborder = newAttrFromUIntProperty "tab_hborder"
+
+-- | Width of the vertical border of tab labels.
+--
+-- Default value: 2
+--
+notebookTabVborder :: NotebookClass self => Attr self Int
+notebookTabVborder = newAttrFromUIntProperty "tab_vborder"
 
 -- | Whether tabs should be shown or not.
 --
 -- Default value: @True@
 --
 notebookShowTabs :: NotebookClass self => Attr self Bool
-notebookShowTabs = Attr 
+notebookShowTabs = newAttr
   notebookGetShowTabs
   notebookSetShowTabs
 
@@ -875,7 +912,7 @@ notebookShowTabs = Attr
 -- Default value: @True@
 --
 notebookShowBorder :: NotebookClass self => Attr self Bool
-notebookShowBorder = Attr 
+notebookShowBorder = newAttr
   notebookGetShowBorder
   notebookSetShowBorder
 
@@ -884,15 +921,30 @@ notebookShowBorder = Attr
 -- Default value: @False@
 --
 notebookScrollable :: NotebookClass self => Attr self Bool
-notebookScrollable = Attr 
+notebookScrollable = newAttr
   notebookGetScrollable
   notebookSetScrollable
+
+-- | If @True@, pressing the right mouse button on the notebook pops up a menu
+-- that you can use to go to a page.
+--
+-- Default value: @False@
+--
+notebookEnablePopup :: NotebookClass self => Attr self Bool
+notebookEnablePopup = newAttrFromBoolProperty "enable_popup"
+
+-- | Whether tabs should have homogeneous sizes.
+--
+-- Default value: @False@
+--
+notebookHomogeneous :: NotebookClass self => Attr self Bool
+notebookHomogeneous = newAttrFromBoolProperty "homogeneous"
 
 -- | \'currentPage\' property. See 'notebookGetCurrentPage' and
 -- 'notebookSetCurrentPage'
 --
 notebookCurrentPage :: NotebookClass self => Attr self Int
-notebookCurrentPage = Attr 
+notebookCurrentPage = newAttr
   notebookGetCurrentPage
   notebookSetCurrentPage
 

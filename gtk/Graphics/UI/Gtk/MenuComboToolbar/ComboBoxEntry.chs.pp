@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 16:52:49 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -71,15 +71,15 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
   comboBoxEntrySetTextColumn,
   comboBoxEntryGetTextColumn,
 
--- * Properties
-  comboBoxEntryTextColumn
+-- * Attributes
+  comboBoxEntryTextColumn,
 #endif
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -154,7 +154,7 @@ comboBoxEntryGetTextColumn self =
     (toComboBoxEntry self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | A column in the data source model to get the strings from.
 --
@@ -163,7 +163,7 @@ comboBoxEntryGetTextColumn self =
 -- Default value: -1
 --
 comboBoxEntryTextColumn :: ComboBoxEntryClass self => Attr self Int
-comboBoxEntryTextColumn = Attr 
+comboBoxEntryTextColumn = newAttr
   comboBoxEntryGetTextColumn
   comboBoxEntrySetTextColumn
 #endif

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:08:01 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -75,21 +75,23 @@ module Graphics.UI.Gtk.Buttons.ToggleButton (
   toggleButtonGetInconsistent,
   toggleButtonSetInconsistent,
 
--- * Properties
+-- * Attributes
   toggleButtonActive,
   toggleButtonInconsistent,
+  toggleButtonDrawIndicator,
   toggleButtonMode,
 
 -- * Signals
   onToggled,
-  afterToggled
+  afterToggled,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -225,14 +227,14 @@ toggleButtonSetInconsistent self setting =
     (fromBool setting)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | If the toggle button should be pressed in or not.
 --
 -- Default value: @False@
 --
 toggleButtonActive :: ToggleButtonClass self => Attr self Bool
-toggleButtonActive = Attr 
+toggleButtonActive = newAttr
   toggleButtonGetActive
   toggleButtonSetActive
 
@@ -241,14 +243,21 @@ toggleButtonActive = Attr
 -- Default value: @False@
 --
 toggleButtonInconsistent :: ToggleButtonClass self => Attr self Bool
-toggleButtonInconsistent = Attr 
+toggleButtonInconsistent = newAttr
   toggleButtonGetInconsistent
   toggleButtonSetInconsistent
+
+-- | If the toggle part of the button is displayed.
+--
+-- Default value: @False@
+--
+toggleButtonDrawIndicator :: ToggleButtonClass self => Attr self Bool
+toggleButtonDrawIndicator = newAttrFromBoolProperty "draw_indicator"
 
 -- | \'mode\' property. See 'toggleButtonGetMode' and 'toggleButtonSetMode'
 --
 toggleButtonMode :: ToggleButtonClass self => Attr self Bool
-toggleButtonMode = Attr 
+toggleButtonMode = newAttr
   toggleButtonGetMode
   toggleButtonSetMode
 

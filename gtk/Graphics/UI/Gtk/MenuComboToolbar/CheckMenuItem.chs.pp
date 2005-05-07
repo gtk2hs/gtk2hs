@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 16:52:49 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -71,17 +71,17 @@ module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
   checkMenuItemSetDrawAsRadio,
 #endif
 
--- * Properties
+-- * Attributes
   checkMenuItemActive,
   checkMenuItemInconsistent,
-  checkMenuItemDrawAsRadio
+  checkMenuItemDrawAsRadio,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -180,7 +180,7 @@ checkMenuItemGetInconsistent self =
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Sets whether the menu item is drawn like a 'RadioMenuItem'.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 checkMenuItemSetDrawAsRadio :: CheckMenuItemClass self => self -> Bool -> IO ()
 checkMenuItemSetDrawAsRadio self drawAsRadio =
@@ -190,7 +190,7 @@ checkMenuItemSetDrawAsRadio self drawAsRadio =
 
 -- | Returns whether the menu item is drawn like a 'RadioMenuItem'.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 checkMenuItemGetDrawAsRadio :: CheckMenuItemClass self => self -> IO Bool
 checkMenuItemGetDrawAsRadio self =
@@ -200,14 +200,14 @@ checkMenuItemGetDrawAsRadio self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Whether the menu item is checked.
 --
 -- Default value: @False@
 --
 checkMenuItemActive :: CheckMenuItemClass self => Attr self Bool
-checkMenuItemActive = Attr 
+checkMenuItemActive = newAttr
   checkMenuItemGetActive
   checkMenuItemSetActive
 
@@ -216,7 +216,7 @@ checkMenuItemActive = Attr
 -- Default value: @False@
 --
 checkMenuItemInconsistent :: CheckMenuItemClass self => Attr self Bool
-checkMenuItemInconsistent = Attr 
+checkMenuItemInconsistent = newAttr
   checkMenuItemGetInconsistent
   checkMenuItemSetInconsistent
 
@@ -225,6 +225,6 @@ checkMenuItemInconsistent = Attr
 -- Default value: @False@
 --
 checkMenuItemDrawAsRadio :: CheckMenuItemClass self => Attr self Bool
-checkMenuItemDrawAsRadio = Attr 
+checkMenuItemDrawAsRadio = newAttr
   checkMenuItemGetDrawAsRadio
   checkMenuItemSetDrawAsRadio

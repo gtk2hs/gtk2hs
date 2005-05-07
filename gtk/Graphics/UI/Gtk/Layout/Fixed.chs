@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/07 00:34:49 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:25 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -87,14 +87,14 @@ module Graphics.UI.Gtk.Layout.Fixed (
   fixedSetHasWindow,
   fixedGetHasWindow,
 
--- * Properties
-  fixedHasWindow
+-- * Attributes
+  fixedHasWindow,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes			(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -167,11 +167,11 @@ fixedGetHasWindow self =
     (toFixed self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'hasWindow\' property. See 'fixedGetHasWindow' and 'fixedSetHasWindow'
 --
 fixedHasWindow :: FixedClass self => Attr self Bool
-fixedHasWindow = Attr 
+fixedHasWindow = newAttr
   fixedGetHasWindow
   fixedSetHasWindow

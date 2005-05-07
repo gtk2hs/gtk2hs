@@ -5,7 +5,7 @@
 --
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/08 14:42:22 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -79,7 +79,14 @@ module Graphics.UI.Gtk.MenuComboToolbar.Combo (
   comboSetUseArrows,
   comboSetUseArrowsAlways,
   comboSetCaseSensitive,
-  comboDisableActivate
+  comboDisableActivate,
+
+-- * Attributes
+  comboEnableArrowKeys,
+  comboEnableArrowsAlways,
+  comboCaseSensitive,
+  comboAllowEmpty,
+  comboValueInList,
 #endif
   ) where
 
@@ -87,6 +94,8 @@ import Monad	(liftM, mapM_)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 import Graphics.UI.Gtk.Abstract.Widget		(widgetShow)
 import Graphics.UI.Gtk.Abstract.Container	(containerAdd)
@@ -186,4 +195,41 @@ comboDisableActivate self =
   {# call unsafe combo_disable_activate #}
     (toCombo self)
 
+--------------------
+-- Attributes
+
+-- | Whether the arrow keys move through the list of items.
+--
+-- Default value: @True@
+--
+comboEnableArrowKeys :: ComboClass self => Attr self Bool
+comboEnableArrowKeys = newAttrFromBoolProperty "enable_arrow_keys"
+
+-- | Obsolete property, ignored.
+--
+-- Default value: @True@
+--
+comboEnableArrowsAlways :: ComboClass self => Attr self Bool
+comboEnableArrowsAlways = newAttrFromBoolProperty "enable_arrows_always"
+
+-- | Whether list item matching is case sensitive.
+--
+-- Default value: @False@
+--
+comboCaseSensitive :: ComboClass self => Attr self Bool
+comboCaseSensitive = newAttrFromBoolProperty "case_sensitive"
+
+-- | Whether an empty value may be entered in this field.
+--
+-- Default value: @True@
+--
+comboAllowEmpty :: ComboClass self => Attr self Bool
+comboAllowEmpty = newAttrFromBoolProperty "allow_empty"
+
+-- | Whether entered values must already be present in the list.
+--
+-- Default value: @False@
+--
+comboValueInList :: ComboClass self => Attr self Bool
+comboValueInList = newAttrFromBoolProperty "value_in_list"
 #endif

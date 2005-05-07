@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -66,7 +66,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.SeparatorToolItem (
   separatorToolItemSetDraw,
   separatorToolItemGetDraw,
 
--- * Properties
+-- * Attributes
   separatorToolItemDraw,
 #endif
   ) where
@@ -74,7 +74,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.SeparatorToolItem (
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -115,14 +115,14 @@ separatorToolItemGetDraw self =
     (toSeparatorToolItem self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Whether the separator is drawn, or just blank.
 --
 -- Default value: @True@
 --
 separatorToolItemDraw :: SeparatorToolItemClass self => Attr self Bool
-separatorToolItemDraw = Attr 
+separatorToolItemDraw = newAttr
   separatorToolItemGetDraw
   separatorToolItemSetDraw
 #endif

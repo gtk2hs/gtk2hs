@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -67,7 +67,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton (
   menuToolButtonGetMenu,
   menuToolButtonSetArrowTooltip,
 
--- * Properties
+-- * Attributes
   menuToolButtonMenu,
 
 -- * Signals
@@ -80,7 +80,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -161,12 +161,12 @@ menuToolButtonSetArrowTooltip self tooltips tipText tipPrivate =
     tipPrivatePtr
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The dropdown menu.
 --
-menuToolButtonMenu :: MenuToolButtonClass self => Attr self (Maybe Menu)
-menuToolButtonMenu = Attr 
+menuToolButtonMenu :: (MenuToolButtonClass self, MenuClass menu) => ReadWriteAttr self (Maybe Menu) (Maybe menu)
+menuToolButtonMenu = newAttr
   menuToolButtonGetMenu
   menuToolButtonSetMenu
 

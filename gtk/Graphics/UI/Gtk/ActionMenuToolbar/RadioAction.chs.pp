@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/12 23:11:13 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:22 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -63,8 +63,8 @@ module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction (
   radioActionSetGroup,
   radioActionGetCurrentValue,
 
--- * Properties
---  radioActionGroup,
+-- * Attributes
+  radioActionGroup,
 
 -- * Signals
   onRadioActionChanged,
@@ -77,7 +77,8 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -150,14 +151,23 @@ radioActionGetCurrentValue self =
     (toRadioAction self)
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The value is an arbitrary integer which can be used as a convenient way
+-- to determine which action in the group is currently active in an activate
+-- or changed signal handler.
+--
+-- Default value: 0
+--
+radioActionValue :: RadioActionClass self => Attr self Int
+radioActionValue = newAttrFromIntProperty "value"
 
 -- | Sets a new group for a radio action.
 --
---radioActionGroup :: RadioActionClass self => Attr self [RadioAction]
---radioActionGroup = Attr 
---  radioActionGetGroup
---  radioActionSetGroup
+radioActionGroup :: RadioActionClass self => ReadWriteAttr self [RadioAction] RadioAction
+radioActionGroup = newAttr
+  radioActionGetGroup
+  radioActionSetGroup
 
 --------------------
 -- Signals

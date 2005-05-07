@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/08 09:20:26 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/07 20:57:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -89,11 +89,17 @@ module Graphics.UI.Gtk.Buttons.Button (
   buttonSetImage,
 #endif
 
--- * Properties
+-- * Attributes
+  buttonLabel,
   buttonUseUnderline,
   buttonUseStock,
   buttonFocusOnClick,
   buttonRelief,
+#if GTK_CHECK_VERSION(2,4,0)
+  buttonXalign,
+  buttonYalign,
+#endif
+  buttonImage,
 
 -- * Signals
   onButtonActivate,
@@ -114,7 +120,8 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -410,7 +417,17 @@ buttonSetImage self image =
 #endif
 
 --------------------
--- Properties
+-- Attributes
+
+-- | Text of the label widget inside the button, if the button contains a
+-- label widget.
+--
+-- Default value: @\"\"@
+--
+buttonLabel :: ButtonClass self => Attr self String
+buttonLabel = newAttr
+  buttonGetLabel
+  buttonSetLabel
 
 -- | If set, an underline in the text indicates the next character should be
 -- used for the mnemonic accelerator key.
@@ -418,7 +435,7 @@ buttonSetImage self image =
 -- Default value: @False@
 --
 buttonUseUnderline :: ButtonClass self => Attr self Bool
-buttonUseUnderline = Attr 
+buttonUseUnderline = newAttr
   buttonGetUseUnderline
   buttonSetUseUnderline
 
@@ -428,7 +445,7 @@ buttonUseUnderline = Attr
 -- Default value: @False@
 --
 buttonUseStock :: ButtonClass self => Attr self Bool
-buttonUseStock = Attr 
+buttonUseStock = newAttr
   buttonGetUseStock
   buttonSetUseStock
 
@@ -437,7 +454,7 @@ buttonUseStock = Attr
 -- Default value: @True@
 --
 buttonFocusOnClick :: ButtonClass self => Attr self Bool
-buttonFocusOnClick = Attr 
+buttonFocusOnClick = newAttr
   buttonGetFocusOnClick
   buttonSetFocusOnClick
 
@@ -446,9 +463,40 @@ buttonFocusOnClick = Attr
 -- Default value: 'ReliefNormal'
 --
 buttonRelief :: ButtonClass self => Attr self ReliefStyle
-buttonRelief = Attr 
+buttonRelief = newAttr
   buttonGetRelief
   buttonSetRelief
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | If the child of the button is a 'Misc' or 'Alignment', this property can
+-- be used to control it's horizontal alignment. 0.0 is left aligned, 1.0 is
+-- right aligned.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+buttonXalign :: ButtonClass self => Attr self Float
+buttonXalign = newAttrFromFloatProperty "xalign"
+
+-- | If the child of the button is a 'Misc' or 'Alignment', this property can
+-- be used to control it's vertical alignment. 0.0 is top aligned, 1.0 is
+-- bottom aligned.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+buttonYalign :: ButtonClass self => Attr self Float
+buttonYalign = newAttrFromFloatProperty "yalign"
+#endif
+
+-- | Child widget to appear next to the button text.
+--
+buttonImage :: (ButtonClass self, WidgetClass image) => ReadWriteAttr self (Maybe Widget) image
+buttonImage = newAttr
+  buttonGetImage
+  buttonSetImage
 
 --------------------
 -- Signals

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/12 23:26:56 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/07 20:57:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,14 +83,21 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryGetCompletion,
 #endif
 
--- * Properties
+-- * Attributes
+  entryCursorPosition,
+  entrySelectionBound,
+  entryEditable,
   entryMaxLength,
   entryVisibility,
   entryHasFrame,
   entryInvisibleChar,
   entryActivatesDefault,
   entryWidthChars,
+  entryScrollOffset,
   entryText,
+#if GTK_CHECK_VERSION(2,4,0)
+  entryXalign,
+#endif
   entryAlignment,
   entryCompletion,
 
@@ -106,7 +113,7 @@ module Graphics.UI.Gtk.Entry.Entry (
   onInsertAtCursor,
   afterInsertAtCursor,
   onToggleOverwrite,
-  afterToggleOverwrite
+  afterToggleOverwrite,
   ) where
 
 import Monad	(liftM)
@@ -114,7 +121,8 @@ import Char	(ord, chr)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -388,7 +396,33 @@ entryGetCompletion self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The current position of the insertion cursor in chars.
+--
+-- Allowed values: [0,65535]
+--
+-- Default value: 0
+--
+entryCursorPosition :: EntryClass self => ReadAttr self Int
+entryCursorPosition = readAttrFromIntProperty "cursor_position"
+
+-- | The position of the opposite end of the selection from the cursor in
+-- chars.
+--
+-- Allowed values: [0,65535]
+--
+-- Default value: 0
+--
+entrySelectionBound :: EntryClass self => ReadAttr self Int
+entrySelectionBound = readAttrFromIntProperty "selection_bound"
+
+-- | Whether the entry contents can be edited.
+--
+-- Default value: @True@
+--
+entryEditable :: EntryClass self => Attr self Bool
+entryEditable = newAttrFromBoolProperty "editable"
 
 -- | Maximum number of characters for this entry. Zero if no maximum.
 --
@@ -397,7 +431,7 @@ entryGetCompletion self =
 -- Default value: 0
 --
 entryMaxLength :: EntryClass self => Attr self Int
-entryMaxLength = Attr 
+entryMaxLength = newAttr
   entryGetMaxLength
   entrySetMaxLength
 
@@ -407,7 +441,7 @@ entryMaxLength = Attr
 -- Default value: @True@
 --
 entryVisibility :: EntryClass self => Attr self Bool
-entryVisibility = Attr 
+entryVisibility = newAttr
   entryGetVisibility
   entrySetVisibility
 
@@ -416,7 +450,7 @@ entryVisibility = Attr
 -- Default value: @True@
 --
 entryHasFrame :: EntryClass self => Attr self Bool
-entryHasFrame = Attr 
+entryHasFrame = newAttr
   entryGetHasFrame
   entrySetHasFrame
 
@@ -425,7 +459,7 @@ entryHasFrame = Attr
 -- Default value: \'*\'
 --
 entryInvisibleChar :: EntryClass self => Attr self Char
-entryInvisibleChar = Attr 
+entryInvisibleChar = newAttr
   entryGetInvisibleChar
   entrySetInvisibleChar
 
@@ -435,7 +469,7 @@ entryInvisibleChar = Attr
 -- Default value: @False@
 --
 entryActivatesDefault :: EntryClass self => Attr self Bool
-entryActivatesDefault = Attr 
+entryActivatesDefault = newAttr
   entryGetActivatesDefault
   entrySetActivatesDefault
 
@@ -446,23 +480,44 @@ entryActivatesDefault = Attr
 -- Default value: -1
 --
 entryWidthChars :: EntryClass self => Attr self Int
-entryWidthChars = Attr 
+entryWidthChars = newAttr
   entryGetWidthChars
   entrySetWidthChars
+
+-- | Number of pixels of the entry scrolled off the screen to the left.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+entryScrollOffset :: EntryClass self => ReadAttr self Int
+entryScrollOffset = readAttrFromIntProperty "scroll_offset"
 
 -- | The contents of the entry.
 --
 -- Default value: \"\"
 --
 entryText :: EntryClass self => Attr self String
-entryText = Attr 
+entryText = newAttr
   entryGetText
   entrySetText
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | The horizontal alignment, from 0 (left) to 1 (right). Reversed for RTL
+-- layouts.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0
+--
+entryXalign :: EntryClass self => Attr self Float
+entryXalign = newAttrFromFloatProperty "xalign"
+#endif
 
 -- | \'alignment\' property. See 'entryGetAlignment' and 'entrySetAlignment'
 --
 entryAlignment :: EntryClass self => Attr self Float
-entryAlignment = Attr 
+entryAlignment = newAttr
   entryGetAlignment
   entrySetAlignment
 
@@ -470,7 +525,7 @@ entryAlignment = Attr
 -- 'entrySetCompletion'
 --
 entryCompletion :: EntryClass self => Attr self EntryCompletion
-entryCompletion = Attr 
+entryCompletion = newAttr
   entryGetCompletion
   entrySetCompletion
 

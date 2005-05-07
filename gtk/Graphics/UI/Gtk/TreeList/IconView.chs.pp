@@ -5,7 +5,7 @@
 --
 --  Created: 25 March 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:30 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -93,7 +93,7 @@ module Graphics.UI.Gtk.TreeList.IconView (
   iconViewUnselectAll,
   iconViewItemActivated,
 
--- * Properties
+-- * Attributes
   iconViewSelectionMode,
   iconViewPixbufColumn,
   iconViewTextColumn,
@@ -190,7 +190,7 @@ iconViewGetModel self =
     (toIconView self)
 
 -- | Sets the column with text for @iconView@ to be @column@. The text column
--- must be of type {G_TYPE_STRING, FIXME: unknown type\/value}.
+-- must be of type string.
 --
 iconViewSetTextColumn :: IconViewClass self => self
  -> Int   -- ^ @column@ - A column in the currently used model.
@@ -232,9 +232,7 @@ iconViewGetMarkupColumn self =
     (toIconView self)
 
 -- | Sets the column with pixbufs for @iconView@ to be @column@. The pixbuf
--- column must be of type {GDK_TYPE_PIXBUF, FIXME: unknown type\/value}
---
--- * Available since Gtk version 2.6
+-- column must be of type pixbuf.
 --
 iconViewSetPixbufColumn :: IconViewClass self => self
  -> Int   -- ^ @column@ - A column in the currently used model.
@@ -519,7 +517,7 @@ iconViewItemActivated self path =
     path
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The ::selection-mode property specifies the selection mode of icon view.
 -- If the mode is 'SelectionMultiple', rubberband selection is enabled, for the
@@ -528,13 +526,13 @@ iconViewItemActivated self path =
 -- Default value: 'SelectionSingle'
 --
 iconViewSelectionMode :: IconViewClass self => Attr self SelectionMode
-iconViewSelectionMode = Attr 
+iconViewSelectionMode = newAttr
   iconViewGetSelectionMode
   iconViewSetSelectionMode
 
 -- | The ::pixbuf-column property contains the number of the model column
 -- containing the pixbufs which are displayed. The pixbuf column must be of
--- type {GDK_TYPE_PIXBUF, FIXME: unknown type\/value}. Setting this property to
+-- type pixbuf. Setting this property to
 -- -1 turns off the display of pixbufs.
 --
 -- Allowed values: >= -1
@@ -542,13 +540,13 @@ iconViewSelectionMode = Attr
 -- Default value: -1
 --
 iconViewPixbufColumn :: IconViewClass self => Attr self Int
-iconViewPixbufColumn = Attr 
+iconViewPixbufColumn = newAttr
   iconViewGetPixbufColumn
   iconViewSetPixbufColumn
 
 -- | The ::text-column property contains the number of the model column
 -- containing the texts which are displayed. The text column must be of type
--- {G_TYPE_STRING, FIXME: unknown type\/value}. If this property and the
+-- string. If this property and the
 -- :markup-column property are both set to -1, no texts are displayed.
 --
 -- Allowed values: >= -1
@@ -556,13 +554,13 @@ iconViewPixbufColumn = Attr
 -- Default value: -1
 --
 iconViewTextColumn :: IconViewClass self => Attr self Int
-iconViewTextColumn = Attr 
+iconViewTextColumn = newAttr
   iconViewGetTextColumn
   iconViewSetTextColumn
 
 -- | The ::markup-column property contains the number of the model column
 -- containing markup information to be displayed. The markup column must be of
--- type {G_TYPE_STRING, FIXME: unknown type\/value}. If this property and the
+-- type string. If this property and the
 -- :text-column property are both set to column numbers, it overrides the text
 -- column. If both are set to -1, no texts are displayed.
 --
@@ -571,14 +569,14 @@ iconViewTextColumn = Attr
 -- Default value: -1
 --
 iconViewMarkupColumn :: IconViewClass self => Attr self Int
-iconViewMarkupColumn = Attr 
+iconViewMarkupColumn = newAttr
   iconViewGetMarkupColumn
   iconViewSetMarkupColumn
 
 -- | The model for the icon view.
 --
-iconViewModel :: IconViewClass self => Attr self TreeModel
-iconViewModel = Attr 
+iconViewModel :: (IconViewClass self, TreeModelClass model) => ReadWriteAttr self TreeModel model
+iconViewModel = newAttr
   iconViewGetModel
   iconViewSetModel
 
@@ -591,7 +589,7 @@ iconViewModel = Attr
 -- Default value: -1
 --
 iconViewColumns :: IconViewClass self => Attr self Int
-iconViewColumns = Attr 
+iconViewColumns = newAttr
   iconViewGetColumns
   iconViewSetColumns
 
@@ -602,7 +600,7 @@ iconViewColumns = Attr
 -- Default value: -1
 --
 iconViewItemWidth :: IconViewClass self => Attr self Int
-iconViewItemWidth = Attr 
+iconViewItemWidth = newAttr
   iconViewGetItemWidth
   iconViewSetItemWidth
 
@@ -613,7 +611,7 @@ iconViewItemWidth = Attr
 -- Default value: 0
 --
 iconViewSpacing :: IconViewClass self => Attr self Int
-iconViewSpacing = Attr 
+iconViewSpacing = newAttr
   iconViewGetSpacing
   iconViewSetSpacing
 
@@ -624,7 +622,7 @@ iconViewSpacing = Attr
 -- Default value: 6
 --
 iconViewRowSpacing :: IconViewClass self => Attr self Int
-iconViewRowSpacing = Attr 
+iconViewRowSpacing = newAttr
   iconViewGetRowSpacing
   iconViewSetRowSpacing
 
@@ -635,7 +633,7 @@ iconViewRowSpacing = Attr
 -- Default value: 6
 --
 iconViewColumnSpacing :: IconViewClass self => Attr self Int
-iconViewColumnSpacing = Attr 
+iconViewColumnSpacing = newAttr
   iconViewGetColumnSpacing
   iconViewSetColumnSpacing
 
@@ -646,7 +644,7 @@ iconViewColumnSpacing = Attr
 -- Default value: 6
 --
 iconViewMargin :: IconViewClass self => Attr self Int
-iconViewMargin = Attr 
+iconViewMargin = newAttr
   iconViewGetMargin
   iconViewSetMargin
 
@@ -655,7 +653,7 @@ iconViewMargin = Attr
 -- Default value: 'OrientationVertical'
 --
 iconViewOrientation :: IconViewClass self => Attr self Orientation
-iconViewOrientation = Attr 
+iconViewOrientation = newAttr
   iconViewGetOrientation
   iconViewSetOrientation
 

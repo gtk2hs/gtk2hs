@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/08 14:42:22 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:27 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,7 +83,16 @@ module Graphics.UI.Gtk.Misc.Calendar (
   calendarGetDate,
   calendarFreeze,
 
--- * Properties
+-- * Attributes
+  calendarYear,
+  calendarMonth,
+  calendarDay,
+#if GTK_CHECK_VERSION(2,4,0)
+  calendarShowHeading,
+  calendarShowDayNames,
+  calendarNoMonthChange,
+  calendarShowWeekNumbers,
+#endif
 --  calendarDisplayOptions,
 
 -- * Signals
@@ -100,12 +109,14 @@ module Graphics.UI.Gtk.Misc.Calendar (
   onPrevMonth,
   afterPrevMonth,
   onPrevYear,
-  afterPrevYear
+  afterPrevYear,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -256,13 +267,71 @@ calendarFreeze self update = do
   return res
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The selected year.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+calendarYear :: CalendarClass self => Attr self Int
+calendarYear = newAttrFromIntProperty "year"
+
+-- | The selected month (as a number between 0 and 11).
+--
+-- Allowed values: [0,11]
+--
+-- Default value: 0
+--
+calendarMonth :: CalendarClass self => Attr self Int
+calendarMonth = newAttrFromIntProperty "month"
+
+-- | The selected day (as a number between 1 and 31, or 0 to unselect the
+-- currently selected day).
+--
+-- Allowed values: [0,31]
+--
+-- Default value: 0
+--
+calendarDay :: CalendarClass self => Attr self Int
+calendarDay = newAttrFromIntProperty "day"
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Determines whether a heading is displayed.
+--
+-- Default value: @True@
+--
+calendarShowHeading :: CalendarClass self => Attr self Bool
+calendarShowHeading = newAttrFromBoolProperty "show_heading"
+
+-- | Determines whether day names are displayed.
+--
+-- Default value: @True@
+--
+calendarShowDayNames :: CalendarClass self => Attr self Bool
+calendarShowDayNames = newAttrFromBoolProperty "show_day_names"
+
+-- | Determines whether the selected month can be changed.
+--
+-- Default value: @False@
+--
+calendarNoMonthChange :: CalendarClass self => Attr self Bool
+calendarNoMonthChange = newAttrFromBoolProperty "no_month_change"
+
+-- | Determines whether week numbers are displayed.
+--
+-- Default value: @False@
+--
+calendarShowWeekNumbers :: CalendarClass self => Attr self Bool
+calendarShowWeekNumbers = newAttrFromBoolProperty "show_week_numbers"
+#endif
 
 -- | \'displayOptions\' property. See 'calendarGetDisplayOptions' and
 -- 'calendarSetDisplayOptions'
 --
 --calendarDisplayOptions :: CalendarClass self => Attr self [CalendarDisplayOptions]
---calendarDisplayOptions = Attr 
+--calendarDisplayOptions = newAttr
 --  calendarGetDisplayOptions
 --  calendarSetDisplayOptions
 

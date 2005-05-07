@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/02 16:52:50 $
+--  Version $Revision: 1.5 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -74,6 +74,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
   optionMenuSetHistory,
   optionMenuGetHistory,
 
+-- * Attributes
+  optionMenuMenu,
+
 -- * Signals
   onOMChanged,
   afterOMChanged
@@ -83,6 +86,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -153,6 +158,14 @@ optionMenuGetHistory self =
   liftM fromIntegral $
   {# call unsafe option_menu_get_history #}
     (toOptionMenu self)
+
+--------------------
+-- Attributes
+
+-- | The menu of options.
+--
+optionMenuMenu :: (OptionMenuClass self, MenuClass menu) => ReadWriteAttr self Menu menu
+optionMenuMenu = newAttrFromObjectProperty "menu"
 
 --------------------
 -- Signals

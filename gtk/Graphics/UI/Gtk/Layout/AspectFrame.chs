@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/24 17:30:59 $
+--  Version $Revision: 1.5 $ from $Date: 2005/05/07 20:57:25 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -56,13 +56,21 @@ module Graphics.UI.Gtk.Layout.AspectFrame (
   aspectFrameNew,
 
 -- * Methods
-  aspectFrameSet
+  aspectFrameSet,
+
+-- * Attributes
+  aspectFrameXAlign,
+  aspectFrameYAlign,
+  aspectFrameRatio,
+  aspectFrameObeyChild,
   ) where
 
 import Monad	(liftM)
 import Maybe	(isNothing)
 
 import System.Glib.FFI
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -118,3 +126,40 @@ aspectFrameSet self xalign yalign ratio =
     (realToFrac yalign)
     (maybe 0.0 realToFrac ratio)
     (fromBool $ isNothing ratio)
+
+--------------------
+-- Attributes
+
+-- | X alignment of the child.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+aspectFrameXAlign :: AspectFrameClass self => Attr self Float
+aspectFrameXAlign = newAttrFromFloatProperty "xalign"
+
+-- | Y alignment of the child.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+aspectFrameYAlign :: AspectFrameClass self => Attr self Float
+aspectFrameYAlign = newAttrFromFloatProperty "yalign"
+
+-- | Aspect ratio if obey_child is @False@.
+--
+-- Allowed values: [1e-04,10000]
+--
+-- Default value: 0.5
+--
+aspectFrameRatio :: AspectFrameClass self => Attr self Float
+aspectFrameRatio = newAttrFromFloatProperty "ratio"
+
+-- | Force aspect ratio to match that of the frame's child.
+--
+-- Default value: @True@
+--
+aspectFrameObeyChild :: AspectFrameClass self => Attr self Bool
+aspectFrameObeyChild = newAttrFromBoolProperty "obey_child"

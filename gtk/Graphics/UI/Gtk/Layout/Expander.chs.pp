@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:51:44 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:25 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -74,8 +74,9 @@ module Graphics.UI.Gtk.Layout.Expander (
   expanderSetLabelWidget,
   expanderGetLabelWidget,
 
--- * Properties
+-- * Attributes
   expanderExpanded,
+  expanderLabel,
   expanderUseUnderline,
   expanderUseMarkup,
   expanderSpacing,
@@ -83,7 +84,7 @@ module Graphics.UI.Gtk.Layout.Expander (
 
 -- * Signals
   onActivate,
-  afterActivate
+  afterActivate,
 #endif
   ) where
 
@@ -91,7 +92,7 @@ import Monad (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Signals
@@ -257,16 +258,23 @@ expanderGetLabelWidget self =
     self
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Whether the expander has been opened to reveal the child widget.
 --
 -- Default value: @False@
 --
 expanderExpanded :: Attr Expander Bool
-expanderExpanded = Attr 
+expanderExpanded = newAttr
   expanderGetExpanded
   expanderSetExpanded
+
+-- | Text of the expander's label.
+--
+expanderLabel :: Attr Expander String
+expanderLabel = newAttr
+  expanderGetLabel
+  expanderSetLabel
 
 -- | If set, an underline in the text indicates the next character should be
 -- used for the mnemonic accelerator key.
@@ -274,7 +282,7 @@ expanderExpanded = Attr
 -- Default value: @False@
 --
 expanderUseUnderline :: Attr Expander Bool
-expanderUseUnderline = Attr 
+expanderUseUnderline = newAttr
   expanderGetUseUnderline
   expanderSetUseUnderline
 
@@ -283,7 +291,7 @@ expanderUseUnderline = Attr
 -- Default value: @False@
 --
 expanderUseMarkup :: Attr Expander Bool
-expanderUseMarkup = Attr 
+expanderUseMarkup = newAttr
   expanderGetUseMarkup
   expanderSetUseMarkup
 
@@ -294,14 +302,14 @@ expanderUseMarkup = Attr
 -- Default value: 0
 --
 expanderSpacing :: Attr Expander Int
-expanderSpacing = Attr 
+expanderSpacing = newAttr
   expanderGetSpacing
   expanderSetSpacing
 
 -- | A widget to display in place of the usual expander label.
 --
-expanderLabelWidget :: Attr Expander Widget
-expanderLabelWidget = Attr 
+expanderLabelWidget :: WidgetClass labelWidget => ReadWriteAttr Expander Widget labelWidget
+expanderLabelWidget = newAttr
   expanderGetLabelWidget
   expanderSetLabelWidget
 

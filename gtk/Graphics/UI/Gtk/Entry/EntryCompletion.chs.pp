@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.11 $ from $Date: 2005/04/20 03:55:39 $
+--  Version $Revision: 1.12 $ from $Date: 2005/05/07 20:57:24 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -95,7 +95,8 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionGetPopupCompletion,
 #endif
 
--- * Properties
+-- * Attributes
+  entryCompletionModel,
   entryCompletionMinimumKeyLength,
 #if GTK_CHECK_VERSION(2,6,0)
   entryCompletionTextColumn,
@@ -118,7 +119,7 @@ import Data.IORef (newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -362,7 +363,14 @@ entryCompletionGetPopupCompletion self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The model to find matches in.
+--
+entryCompletionModel :: TreeModelClass model => ReadWriteAttr EntryCompletion (Maybe TreeModel) (Maybe model)
+entryCompletionModel = newAttr
+  entryCompletionGetModel
+  entryCompletionSetModel
 
 -- | Minimum length of the search key in order to look up matches.
 --
@@ -371,7 +379,7 @@ entryCompletionGetPopupCompletion self =
 -- Default value: 1
 --
 entryCompletionMinimumKeyLength :: Attr EntryCompletion Int
-entryCompletionMinimumKeyLength = Attr 
+entryCompletionMinimumKeyLength = newAttr
   entryCompletionGetMinimumKeyLength
   entryCompletionSetMinimumKeyLength
 
@@ -383,7 +391,7 @@ entryCompletionMinimumKeyLength = Attr
 -- Default value: -1
 --
 entryCompletionTextColumn :: Attr EntryCompletion Int
-entryCompletionTextColumn = Attr 
+entryCompletionTextColumn = newAttr
   entryCompletionGetTextColumn
   entryCompletionSetTextColumn
 
@@ -393,7 +401,7 @@ entryCompletionTextColumn = Attr
 -- Default value: @False@
 --
 entryCompletionInlineCompletion :: Attr EntryCompletion Bool
-entryCompletionInlineCompletion = Attr 
+entryCompletionInlineCompletion = newAttr
   entryCompletionGetInlineCompletion
   entryCompletionSetInlineCompletion
 
@@ -403,7 +411,7 @@ entryCompletionInlineCompletion = Attr
 -- Default value: @True@
 --
 entryCompletionPopupCompletion :: Attr EntryCompletion Bool
-entryCompletionPopupCompletion = Attr 
+entryCompletionPopupCompletion = newAttr
   entryCompletionGetPopupCompletion
   entryCompletionSetPopupCompletion
 #endif

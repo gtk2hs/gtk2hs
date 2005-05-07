@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/03 12:56:07 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:30 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -67,7 +67,7 @@ module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
   fontSelectionDialogGetPreviewText,
   fontSelectionDialogSetPreviewText,
 
--- * Properties
+-- * Attributes
   fontSelectionDialogPreviewText,
   ) where
 
@@ -75,7 +75,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -140,12 +140,12 @@ fontSelectionDialogSetPreviewText self text =
     textPtr
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'previewText\' property. See 'fontSelectionDialogGetPreviewText' and
 -- 'fontSelectionDialogSetPreviewText'
 --
 fontSelectionDialogPreviewText :: FontSelectionDialogClass self => Attr self String
-fontSelectionDialogPreviewText = Attr 
+fontSelectionDialogPreviewText = newAttr
   fontSelectionDialogGetPreviewText
   fontSelectionDialogSetPreviewText

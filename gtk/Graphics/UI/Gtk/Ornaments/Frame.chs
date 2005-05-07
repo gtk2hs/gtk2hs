@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/24 15:21:09 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:28 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -65,16 +65,20 @@ module Graphics.UI.Gtk.Ornaments.Frame (
   frameSetShadowType,
   frameGetShadowType,
 
--- * Properties
+-- * Attributes
   frameLabel,
-  frameShadowType
+  frameLabelXAlign,
+  frameLabelYAlign,
+  frameShadowType,
+  frameLabelWidget,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -124,13 +128,12 @@ frameSetLabelWidget self labelWidget =
 -- | Retrieves the label widget for the frame. See 'frameSetLabelWidget'.
 --
 frameGetLabelWidget :: FrameClass self => self
- -> IO (Maybe Widget)
-frameGetLabelWidget self = do
-  widgetPtr <- {# call frame_get_label_widget #}
+ -> IO (Maybe Widget) -- ^ returns the label widget, or @Nothing@ if there is
+                      -- none.
+frameGetLabelWidget self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call frame_get_label_widget #}
     (toFrame self)
-  if widgetPtr == nullPtr
-    then return Nothing
-    else liftM Just $ makeNewObject mkWidget (return widgetPtr)
 
 -- | Sets the horazontal alignment of the frame widget's label. The default value for a
 -- newly created frame is 0.0.
@@ -189,20 +192,45 @@ frameGetLabel self =
   >>= peekUTFString
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Text of the frame's label.
 --
 frameLabel :: FrameClass self => Attr self String
-frameLabel = Attr 
+frameLabel = newAttr
   frameGetLabel
   frameSetLabel
+
+-- | The horizontal alignment of the label.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+frameLabelXAlign :: FrameClass self => Attr self Float
+frameLabelXAlign = newAttrFromFloatProperty "label_xalign"
+
+-- | The vertical alignment of the label.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+frameLabelYAlign :: FrameClass self => Attr self Float
+frameLabelYAlign = newAttrFromFloatProperty "label_yalign"
 
 -- | Appearance of the frame border.
 --
 -- Default value: 'ShadowEtchedIn'
 --
 frameShadowType :: FrameClass self => Attr self ShadowType
-frameShadowType = Attr 
+frameShadowType = newAttr
   frameGetShadowType
   frameSetShadowType
+
+-- | A widget to display in place of the usual frame label.
+--
+frameLabelWidget :: (FrameClass self, WidgetClass labelWidget) => ReadWriteAttr self (Maybe Widget) labelWidget
+frameLabelWidget = newAttr
+  frameGetLabelWidget
+  frameSetLabelWidget

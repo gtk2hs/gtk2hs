@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/04/07 00:50:32 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -178,14 +178,17 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   fileChooserGetShowHidden,
 #endif
 
--- * Properties
+-- * Attributes
   fileChooserUsePreviewLabel,
 #if GTK_CHECK_VERSION(2,6,0)
   fileChooserShowHidden,
 #endif
   fileChooserSelectMultiple,
   fileChooserPreviewWidgetActive,
+  fileChooserPreviewWidget,
   fileChooserLocalOnly,
+  fileChooserFilter,
+  fileChooserExtraWidget,
   fileChooserAction,
 
 -- * Signals
@@ -204,7 +207,7 @@ import Monad (liftM, when)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Signals
@@ -856,13 +859,13 @@ fileChooserGetShowHidden self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'usePreviewLabel\' property. See 'fileChooserGetUsePreviewLabel' and
 -- 'fileChooserSetUsePreviewLabel'
 --
 fileChooserUsePreviewLabel :: FileChooserClass self => Attr self Bool
-fileChooserUsePreviewLabel = Attr 
+fileChooserUsePreviewLabel = newAttr
   fileChooserGetUsePreviewLabel
   fileChooserSetUsePreviewLabel
 
@@ -871,7 +874,7 @@ fileChooserUsePreviewLabel = Attr
 -- 'fileChooserSetShowHidden'
 --
 fileChooserShowHidden :: FileChooserClass self => Attr self Bool
-fileChooserShowHidden = Attr 
+fileChooserShowHidden = newAttr
   fileChooserGetShowHidden
   fileChooserSetShowHidden
 #endif
@@ -880,7 +883,7 @@ fileChooserShowHidden = Attr
 -- 'fileChooserSetSelectMultiple'
 --
 fileChooserSelectMultiple :: FileChooserClass self => Attr self Bool
-fileChooserSelectMultiple = Attr 
+fileChooserSelectMultiple = newAttr
   fileChooserGetSelectMultiple
   fileChooserSetSelectMultiple
 
@@ -888,23 +891,47 @@ fileChooserSelectMultiple = Attr
 -- and 'fileChooserSetPreviewWidgetActive'
 --
 fileChooserPreviewWidgetActive :: FileChooserClass self => Attr self Bool
-fileChooserPreviewWidgetActive = Attr 
+fileChooserPreviewWidgetActive = newAttr
   fileChooserGetPreviewWidgetActive
   fileChooserSetPreviewWidgetActive
+
+-- | \'previewWidget\' property. See 'fileChooserGetPreviewWidget' and
+-- 'fileChooserSetPreviewWidget'
+--
+fileChooserPreviewWidget :: (FileChooserClass self, WidgetClass previewWidget) => ReadWriteAttr self (Maybe Widget) previewWidget
+fileChooserPreviewWidget = newAttr
+  fileChooserGetPreviewWidget
+  fileChooserSetPreviewWidget
 
 -- | \'localOnly\' property. See 'fileChooserGetLocalOnly' and
 -- 'fileChooserSetLocalOnly'
 --
 fileChooserLocalOnly :: FileChooserClass self => Attr self Bool
-fileChooserLocalOnly = Attr 
+fileChooserLocalOnly = newAttr
   fileChooserGetLocalOnly
   fileChooserSetLocalOnly
+
+-- | \'filter\' property. See 'fileChooserGetFilter' and
+-- 'fileChooserSetFilter'
+--
+fileChooserFilter :: FileChooserClass self => ReadWriteAttr self (Maybe FileFilter) FileFilter
+fileChooserFilter = newAttr
+  fileChooserGetFilter
+  fileChooserSetFilter
+
+-- | \'extraWidget\' property. See 'fileChooserGetExtraWidget' and
+-- 'fileChooserSetExtraWidget'
+--
+fileChooserExtraWidget :: (FileChooserClass self, WidgetClass extraWidget) => ReadWriteAttr self (Maybe Widget) extraWidget
+fileChooserExtraWidget = newAttr
+  fileChooserGetExtraWidget
+  fileChooserSetExtraWidget
 
 -- | \'action\' property. See 'fileChooserGetAction' and
 -- 'fileChooserSetAction'
 --
 fileChooserAction :: FileChooserClass self => Attr self FileChooserAction
-fileChooserAction = Attr 
+fileChooserAction = newAttr
   fileChooserGetAction
   fileChooserSetAction
 

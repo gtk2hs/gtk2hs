@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:22 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -59,7 +59,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction (
   toggleActionSetDrawAsRadio,
   toggleActionGetDrawAsRadio,
 
--- * Properties
+-- * Attributes
   toggleActionDrawAsRadio,
   toggleActionActive,
 
@@ -73,7 +73,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -153,14 +153,14 @@ toggleActionGetDrawAsRadio self =
     (toToggleAction self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Whether the proxies for this action look like radio action proxies.
 --
 -- Default value: @False@
 --
 toggleActionDrawAsRadio :: ToggleActionClass self => Attr self Bool
-toggleActionDrawAsRadio = Attr 
+toggleActionDrawAsRadio = newAttr
   toggleActionGetDrawAsRadio
   toggleActionSetDrawAsRadio
 
@@ -168,7 +168,7 @@ toggleActionDrawAsRadio = Attr
 -- 'toggleActionSetActive'
 --
 toggleActionActive :: ToggleActionClass self => Attr self Bool
-toggleActionActive = Attr 
+toggleActionActive = newAttr
   toggleActionGetActive
   toggleActionSetActive
 

@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/20 03:55:39 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -102,12 +102,14 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   comboBoxGetFocusOnClick,
 #endif
 
--- * Properties
+-- * Attributes
 #if GTK_CHECK_VERSION(2,6,0)
+  comboBoxModel,
   comboBoxWrapWidth,
   comboBoxRowSpanColumn,
   comboBoxColumnSpanColumn,
   comboBoxAddTearoffs,
+  comboBoxHasFrame,
   comboBoxFocusOnClick,
 #endif
 
@@ -121,7 +123,8 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -435,9 +438,16 @@ comboBoxGetFocusOnClick self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 #if GTK_CHECK_VERSION(2,6,0)
+-- | The model from which the combo box takes the values shown in the list.
+--
+comboBoxModel :: (ComboBoxClass self, TreeModelClass model) => ReadWriteAttr self (Maybe TreeModel) model
+comboBoxModel = newAttr
+  comboBoxGetModel
+  comboBoxSetModel
+
 -- | If wrap-width is set to a positive value, the list will be displayed in
 -- multiple columns, the number of columns is determined by wrap-width.
 --
@@ -446,7 +456,7 @@ comboBoxGetFocusOnClick self =
 -- Default value: 0
 --
 comboBoxWrapWidth :: ComboBoxClass self => Attr self Int
-comboBoxWrapWidth = Attr 
+comboBoxWrapWidth = newAttr
   comboBoxGetWrapWidth
   comboBoxSetWrapWidth
 
@@ -462,7 +472,7 @@ comboBoxWrapWidth = Attr
 -- Default value: -1
 --
 comboBoxRowSpanColumn :: ComboBoxClass self => Attr self Int
-comboBoxRowSpanColumn = Attr 
+comboBoxRowSpanColumn = newAttr
   comboBoxGetRowSpanColumn
   comboBoxSetRowSpanColumn
 
@@ -477,23 +487,28 @@ comboBoxRowSpanColumn = Attr
 -- Default value: -1
 --
 comboBoxColumnSpanColumn :: ComboBoxClass self => Attr self Int
-comboBoxColumnSpanColumn = Attr 
+comboBoxColumnSpanColumn = newAttr
   comboBoxGetColumnSpanColumn
   comboBoxSetColumnSpanColumn
 
 -- | 
 --
 comboBoxAddTearoffs :: ComboBoxClass self => Attr self Bool
-comboBoxAddTearoffs = Attr 
+comboBoxAddTearoffs = newAttr
   comboBoxGetAddTearoffs
   comboBoxSetAddTearoffs
+
+-- | 
+--
+comboBoxHasFrame :: ComboBoxClass self => Attr self Bool
+comboBoxHasFrame = newAttrFromBoolProperty "has-frame"
 
 -- | Whether the combo box grabs focus when it is clicked with the mouse.
 --
 -- Default value: @True@
 --
 comboBoxFocusOnClick :: ComboBoxClass self => Attr self Bool
-comboBoxFocusOnClick = Attr 
+comboBoxFocusOnClick = newAttr
   comboBoxGetFocusOnClick
   comboBoxSetFocusOnClick
 #endif

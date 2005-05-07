@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/04/08 14:21:53 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/07 20:57:28 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -136,7 +136,7 @@ module Graphics.UI.Gtk.Multiline.TextView (
   textViewGetAcceptsTab,
 #endif
 
--- * Properties
+-- * Attributes
   textViewPixelsAboveLines,
   textViewPixelsBelowLines,
   textViewPixelsInsideWrap,
@@ -184,7 +184,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -1004,7 +1004,7 @@ textViewGetAcceptsTab self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Pixels of blank space above paragraphs.
 --
@@ -1013,7 +1013,7 @@ textViewGetAcceptsTab self =
 -- Default value: 0
 --
 textViewPixelsAboveLines :: TextViewClass self => Attr self Int
-textViewPixelsAboveLines = Attr 
+textViewPixelsAboveLines = newAttr
   textViewGetPixelsAboveLines
   textViewSetPixelsAboveLines
 
@@ -1024,7 +1024,7 @@ textViewPixelsAboveLines = Attr
 -- Default value: 0
 --
 textViewPixelsBelowLines :: TextViewClass self => Attr self Int
-textViewPixelsBelowLines = Attr 
+textViewPixelsBelowLines = newAttr
   textViewGetPixelsBelowLines
   textViewSetPixelsBelowLines
 
@@ -1035,7 +1035,7 @@ textViewPixelsBelowLines = Attr
 -- Default value: 0
 --
 textViewPixelsInsideWrap :: TextViewClass self => Attr self Int
-textViewPixelsInsideWrap = Attr 
+textViewPixelsInsideWrap = newAttr
   textViewGetPixelsInsideWrap
   textViewSetPixelsInsideWrap
 
@@ -1044,7 +1044,7 @@ textViewPixelsInsideWrap = Attr
 -- Default value: @True@
 --
 textViewEditable :: TextViewClass self => Attr self Bool
-textViewEditable = Attr 
+textViewEditable = newAttr
   textViewGetEditable
   textViewSetEditable
 
@@ -1054,7 +1054,7 @@ textViewEditable = Attr
 -- Default value: 'WrapNone'
 --
 textViewWrapMode :: TextViewClass self => Attr self WrapMode
-textViewWrapMode = Attr 
+textViewWrapMode = newAttr
   textViewGetWrapMode
   textViewSetWrapMode
 
@@ -1063,7 +1063,7 @@ textViewWrapMode = Attr
 -- Default value: 'JustifyLeft'
 --
 textViewJustification :: TextViewClass self => Attr self Justification
-textViewJustification = Attr 
+textViewJustification = newAttr
   textViewGetJustification
   textViewSetJustification
 
@@ -1074,7 +1074,7 @@ textViewJustification = Attr
 -- Default value: 0
 --
 textViewLeftMargin :: TextViewClass self => Attr self Int
-textViewLeftMargin = Attr 
+textViewLeftMargin = newAttr
   textViewGetLeftMargin
   textViewSetLeftMargin
 
@@ -1085,7 +1085,7 @@ textViewLeftMargin = Attr
 -- Default value: 0
 --
 textViewRightMargin :: TextViewClass self => Attr self Int
-textViewRightMargin = Attr 
+textViewRightMargin = newAttr
   textViewGetRightMargin
   textViewSetRightMargin
 
@@ -1096,7 +1096,7 @@ textViewRightMargin = Attr
 -- Default value: 0
 --
 textViewIndent :: TextViewClass self => Attr self Int
-textViewIndent = Attr 
+textViewIndent = newAttr
   textViewGetIndent
   textViewSetIndent
 
@@ -1105,14 +1105,14 @@ textViewIndent = Attr
 -- Default value: @True@
 --
 textViewCursorVisible :: TextViewClass self => Attr self Bool
-textViewCursorVisible = Attr 
+textViewCursorVisible = newAttr
   textViewGetCursorVisible
   textViewSetCursorVisible
 
 -- | The buffer which is displayed.
 --
-textViewBuffer :: TextViewClass self => Attr self TextBuffer
-textViewBuffer = Attr 
+textViewBuffer :: (TextViewClass self, TextBufferClass buffer) => ReadWriteAttr self TextBuffer buffer
+textViewBuffer = newAttr
   textViewGetBuffer
   textViewSetBuffer
 
@@ -1122,7 +1122,7 @@ textViewBuffer = Attr
 -- Default value: @False@
 --
 textViewOverwrite :: TextViewClass self => Attr self Bool
-textViewOverwrite = Attr 
+textViewOverwrite = newAttr
   textViewGetOverwrite
   textViewSetOverwrite
 
@@ -1131,7 +1131,7 @@ textViewOverwrite = Attr
 -- Default value: @True@
 --
 textViewAcceptsTab :: TextViewClass self => Attr self Bool
-textViewAcceptsTab = Attr 
+textViewAcceptsTab = newAttr
   textViewGetAcceptsTab
   textViewSetAcceptsTab
 #endif

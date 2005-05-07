@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:53:01 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -69,7 +69,8 @@ module Graphics.UI.Gtk.Selectors.FileChooserButton (
   fileChooserButtonGetWidthChars,
   fileChooserButtonSetWidthChars,
 
--- * Properties
+-- * Attributes
+  fileChooserButtonDialog,
   fileChooserButtonTitle,
   fileChooserButtonWidthChars,
 #endif
@@ -79,7 +80,8 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction)
@@ -180,21 +182,26 @@ fileChooserButtonSetWidthChars self nChars =
     (fromIntegral nChars)
 
 --------------------
--- Properties
+-- Attributes
+
+-- | Instance of the 'FileChooserDialog' associated with the button.
+--
+fileChooserButtonDialog :: (FileChooserButtonClass self, FileChooserDialogClass fileChooserDialog) => WriteAttr self fileChooserDialog
+fileChooserButtonDialog = writeAttrFromObjectProperty "dialog"
 
 -- | Title to put on the 'FileChooserDialog' associated with the button.
 --
 -- Default value: \"Select A File\"
 --
 fileChooserButtonTitle :: FileChooserButtonClass self => Attr self String
-fileChooserButtonTitle = Attr 
+fileChooserButtonTitle = newAttr
   fileChooserButtonGetTitle
   fileChooserButtonSetTitle
 
 -- | 
 --
 fileChooserButtonWidthChars :: FileChooserButtonClass self => Attr self Int
-fileChooserButtonWidthChars = Attr 
+fileChooserButtonWidthChars = newAttr
   fileChooserButtonGetWidthChars
   fileChooserButtonSetWidthChars
 #endif

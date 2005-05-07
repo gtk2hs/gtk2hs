@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:50:31 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:28 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -141,7 +141,8 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferCreateChildAnchor,
   textBufferGetIterAtChildAnchor,
 
--- * Properties
+-- * Attributes
+  textBufferTagTable,
   textBufferModified,
 
 -- * Signals
@@ -174,7 +175,8 @@ import Maybe	(fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes			(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -951,13 +953,18 @@ textBufferGetBounds self start end =
     end
 
 --------------------
--- Properties
+-- Attributes
+
+-- | Text Tag Table.
+--
+textBufferTagTable :: (TextBufferClass self, TextTagTableClass textTagTable) => ReadWriteAttr self TextTagTable textTagTable
+textBufferTagTable = newAttrFromObjectProperty "tag_table"
 
 -- | \'modified\' property. See 'textBufferGetModified' and
 -- 'textBufferSetModified'
 --
 textBufferModified :: TextBufferClass self => Attr self Bool
-textBufferModified = Attr 
+textBufferModified = newAttr
   textBufferGetModified
   textBufferSetModified
 

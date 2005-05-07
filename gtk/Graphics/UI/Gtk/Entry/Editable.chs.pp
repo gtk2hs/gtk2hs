@@ -5,7 +5,7 @@
 --
 --  Created: 30 July 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:22:03 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon, Duncan Coutts
 --
@@ -72,7 +72,7 @@ module Graphics.UI.Gtk.Entry.Editable (
   editableSetPosition,
   editableGetPosition,
 
--- * Properties
+-- * Attributes
   editablePosition,
   editableEditable,
 
@@ -87,7 +87,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -262,13 +262,13 @@ editableGetEditable self =
     (toEditable self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'position\' property. See 'editableGetPosition' and
 -- 'editableSetPosition'
 --
 editablePosition :: EditableClass self => Attr self Int
-editablePosition = Attr 
+editablePosition = newAttr
   editableGetPosition
   editableSetPosition
 
@@ -276,7 +276,7 @@ editablePosition = Attr
 -- 'editableSetEditable'
 --
 editableEditable :: EditableClass self => Attr self Bool
-editableEditable = Attr 
+editableEditable = newAttr
   editableGetEditable
   editableSetEditable
 

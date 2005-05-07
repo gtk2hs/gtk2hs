@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/12 23:27:51 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -99,9 +99,11 @@ module Graphics.UI.Gtk.MenuComboToolbar.Menu (
   menuGetForAttachWidget,
 #endif
 
--- * Properties
+-- * Attributes
   menuTearoffState,
   menuAccelGroup,
+  menuActive,
+  menuTitle,
   ) where
 
 import Monad	(liftM)
@@ -110,7 +112,7 @@ import Maybe  (fromMaybe)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -396,18 +398,32 @@ menuGetForAttachWidget widget =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | 
 --
 menuTearoffState :: MenuClass self => Attr self Bool
-menuTearoffState = Attr 
+menuTearoffState = newAttr
   menuGetTearoffState
   menuSetTearoffState
 
 -- | \'accelGroup\' property. See 'menuGetAccelGroup' and 'menuSetAccelGroup'
 --
 menuAccelGroup :: MenuClass self => Attr self AccelGroup
-menuAccelGroup = Attr 
+menuAccelGroup = newAttr
   menuGetAccelGroup
   menuSetAccelGroup
+
+-- | \'active\' property. See 'menuGetActive' and 'menuSetActive'
+--
+menuActive :: MenuClass self => ReadWriteAttr self MenuItem Int
+menuActive = newAttr
+  menuGetActive
+  menuSetActive
+
+-- | \'title\' property. See 'menuGetTitle' and 'menuSetTitle'
+--
+menuTitle :: MenuClass self => ReadWriteAttr self (Maybe String) String
+menuTitle = newAttr
+  menuGetTitle
+  menuSetTitle

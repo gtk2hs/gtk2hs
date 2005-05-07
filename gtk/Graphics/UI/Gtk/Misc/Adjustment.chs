@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/19 02:56:02 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:27 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -74,20 +74,24 @@ module Graphics.UI.Gtk.Misc.Adjustment (
   adjustmentGetValue,
   adjustmentClampPage,
 
--- * Properties
+-- * Attributes
   adjustmentValue,
+  adjustmentStepIncrement,
+  adjustmentPageIncrement,
+  adjustmentPageSize,
 
 -- * Signals
   onAdjChanged,
   afterAdjChanged,
   onValueChanged,
-  afterValueChanged
+  afterValueChanged,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.Properties		(objectSetPropertyDouble, objectGetPropertyDouble)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -206,16 +210,31 @@ adjustmentClampPage self lower upper =
     (realToFrac upper)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The value of the adjustment.
 --
 -- Default value: 0
 --
 adjustmentValue :: Attr Adjustment Double
-adjustmentValue = Attr 
+adjustmentValue = newAttr
   adjustmentGetValue
   adjustmentSetValue
+
+-- | 
+--
+adjustmentStepIncrement :: Attr Adjustment Double
+adjustmentStepIncrement = newAttrFromDoubleProperty "step-increment"
+
+-- | 
+--
+adjustmentPageIncrement :: Attr Adjustment Double
+adjustmentPageIncrement = newAttrFromDoubleProperty "page-increment"
+
+-- | 
+--
+adjustmentPageSize :: Attr Adjustment Double
+adjustmentPageSize = newAttrFromDoubleProperty "page-size"
 
 --------------------
 -- Signals

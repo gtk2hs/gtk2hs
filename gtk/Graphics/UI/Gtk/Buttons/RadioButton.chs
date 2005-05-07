@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/12 23:11:13 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -117,8 +117,8 @@ module Graphics.UI.Gtk.Buttons.RadioButton (
   radioButtonSetGroup,
   radioButtonGetGroup,
 
--- * Properties
---  radioButtonGroup,
+-- * Attributes
+  radioButtonGroup,
 
 -- * Signals
   onGroupChanged,
@@ -130,7 +130,7 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -266,14 +266,14 @@ radioButtonGetGroup self =
   >>= mapM (\elemPtr -> makeNewObject mkRadioButton (return elemPtr))
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Sets a new group for a radio button.
 --
---radioButtonGroup :: Attr RadioButton [RadioButton]
---radioButtonGroup = Attr 
---  radioButtonGetGroup
---  radioButtonSetGroup
+radioButtonGroup :: ReadWriteAttr RadioButton [RadioButton] RadioButton
+radioButtonGroup = newAttr
+  radioButtonGetGroup
+  radioButtonSetGroup
 
 --------------------
 -- Signals

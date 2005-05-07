@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:40:16 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:27 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -69,16 +69,16 @@ module Graphics.UI.Gtk.Misc.Viewport (
   viewportSetShadowType,
   viewportGetShadowType,
 
--- * Properties
+-- * Attributes
   viewportHAdjustment,
   viewportVAdjustment,
-  viewportShadowType
+  viewportShadowType,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -157,13 +157,13 @@ viewportGetShadowType self =
     (toViewport self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The 'Adjustment' that determines the values of the horizontal position
 -- for this viewport.
 --
 viewportHAdjustment :: ViewportClass self => Attr self Adjustment
-viewportHAdjustment = Attr 
+viewportHAdjustment = newAttr
   viewportGetHAdjustment
   viewportSetHAdjustment
 
@@ -171,7 +171,7 @@ viewportHAdjustment = Attr
 -- this viewport.
 --
 viewportVAdjustment :: ViewportClass self => Attr self Adjustment
-viewportVAdjustment = Attr 
+viewportVAdjustment = newAttr
   viewportGetVAdjustment
   viewportSetVAdjustment
 
@@ -180,7 +180,7 @@ viewportVAdjustment = Attr
 -- Default value: 'ShadowIn'
 --
 viewportShadowType :: ViewportClass self => Attr self ShadowType
-viewportShadowType = Attr 
+viewportShadowType = newAttr
   viewportGetShadowType
   viewportSetShadowType
 

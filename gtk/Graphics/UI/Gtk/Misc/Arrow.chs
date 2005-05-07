@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/04/02 18:55:22 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/07 20:57:27 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -63,12 +63,18 @@ module Graphics.UI.Gtk.Misc.Arrow (
   arrowNew,
 
 -- * Methods
-  arrowSet
+  arrowSet,
+
+-- * Attributes
+  arrowArrowType,
+  arrowShadowType,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -101,3 +107,19 @@ arrowSet self arrowType shadowType =
     ((fromIntegral . fromEnum) arrowType)
     ((fromIntegral . fromEnum) shadowType)
 
+--------------------
+-- Attributes
+
+-- | The direction the arrow should point.
+--
+-- Default value: 'ArrowRight'
+--
+arrowArrowType :: ArrowClass self => Attr self ArrowType
+arrowArrowType = newAttrFromEnumProperty "arrow_type"
+
+-- | Appearance of the shadow surrounding the arrow.
+--
+-- Default value: 'ShadowOut'
+--
+arrowShadowType :: ArrowClass self => Attr self ShadowType
+arrowShadowType = newAttrFromEnumProperty "shadow_type"

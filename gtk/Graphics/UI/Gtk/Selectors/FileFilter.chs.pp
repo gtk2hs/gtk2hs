@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/05 18:29:52 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -73,7 +73,7 @@ module Graphics.UI.Gtk.Selectors.FileFilter (
   fileFilterAddPixbufFormats,
 #endif
 
--- * Properties
+-- * Attributes
   fileFilterName,
 #endif
   ) where
@@ -82,7 +82,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject              (mkFunPtrDestructor)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -210,7 +210,7 @@ foreign import ccall "wrapper" mkHandler_GtkFileFilterFunc ::
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Adds a rule allowing image files in the formats supported by 'Pixbuf'.
 --
--- * Available since Gtk version 2.6
+-- * Available since Gtk+ version 2.6
 --
 fileFilterAddPixbufFormats :: FileFilter -> IO ()
 fileFilterAddPixbufFormats self =
@@ -219,12 +219,12 @@ fileFilterAddPixbufFormats self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'name\' property. See 'fileFilterGetName' and 'fileFilterSetName'
 --
 fileFilterName :: Attr FileFilter String
-fileFilterName = Attr 
+fileFilterName = newAttr
   fileFilterGetName
   fileFilterSetName
 #endif

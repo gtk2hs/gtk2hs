@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/05 18:29:52 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -73,6 +73,7 @@ module Graphics.UI.Gtk.Selectors.FontButton (
 
 -- * Properties
   fontButtonTitle,
+  fontButtonFontName,
   fontButtonUseFont,
   fontButtonUseSize,
   fontButtonShowStyle,
@@ -88,7 +89,8 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -258,9 +260,16 @@ fontButtonGetTitle self =
 -- Default value: \"Pick a Font\"
 --
 fontButtonTitle :: FontButtonClass self => Attr self String
-fontButtonTitle = Attr 
+fontButtonTitle = newAttr
   fontButtonGetTitle
   fontButtonSetTitle
+
+-- | The name of the currently selected font.
+--
+-- Default value: \"Sans 12\"
+--
+fontButtonFontName :: FontButtonClass self => Attr self String
+fontButtonFontName = newAttrFromStringProperty "font_name"
 
 -- | If this property is set to @True@, the label will be drawn in the
 -- selected font.
@@ -268,7 +277,7 @@ fontButtonTitle = Attr
 -- Default value: @False@
 --
 fontButtonUseFont :: FontButtonClass self => Attr self Bool
-fontButtonUseFont = Attr 
+fontButtonUseFont = newAttr
   fontButtonGetUseFont
   fontButtonSetUseFont
 
@@ -278,7 +287,7 @@ fontButtonUseFont = Attr
 -- Default value: @False@
 --
 fontButtonUseSize :: FontButtonClass self => Attr self Bool
-fontButtonUseSize = Attr 
+fontButtonUseSize = newAttr
   fontButtonGetUseSize
   fontButtonSetUseSize
 
@@ -289,7 +298,7 @@ fontButtonUseSize = Attr
 -- Default value: @True@
 --
 fontButtonShowStyle :: FontButtonClass self => Attr self Bool
-fontButtonShowStyle = Attr 
+fontButtonShowStyle = newAttr
   fontButtonGetShowStyle
   fontButtonSetShowStyle
 
@@ -300,7 +309,7 @@ fontButtonShowStyle = Attr
 -- Default value: @True@
 --
 fontButtonShowSize :: FontButtonClass self => Attr self Bool
-fontButtonShowSize = Attr 
+fontButtonShowSize = newAttr
   fontButtonGetShowSize
   fontButtonSetShowSize
 

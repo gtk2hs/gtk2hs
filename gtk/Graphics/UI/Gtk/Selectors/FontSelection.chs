@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/03 12:56:07 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -68,15 +68,17 @@ module Graphics.UI.Gtk.Selectors.FontSelection (
   fontSelectionGetPreviewText,
   fontSelectionSetPreviewText,
 
--- * Properties
-  fontSelectionPreviewText
+-- * Attributes
+  fontSelectionFontName,
+  fontSelectionPreviewText,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -136,13 +138,20 @@ fontSelectionSetPreviewText self text =
     textPtr
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The X string that represents this font.
+--
+-- Default value: ""
+--
+fontSelectionFontName :: FontSelectionClass self => Attr self String
+fontSelectionFontName = newAttrFromStringProperty "font_name"
 
 -- | The text to display in order to demonstrate the selected font.
 --
 -- Default value: \"abcdefghijk ABCDEFGHIJK\"
 --
 fontSelectionPreviewText :: FontSelectionClass self => Attr self String
-fontSelectionPreviewText = Attr 
+fontSelectionPreviewText = newAttr
   fontSelectionGetPreviewText
   fontSelectionSetPreviewText

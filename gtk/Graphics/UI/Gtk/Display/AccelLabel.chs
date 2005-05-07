@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:38:29 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -74,13 +74,17 @@ module Graphics.UI.Gtk.Display.AccelLabel (
 
 -- * Methods
   accelLabelSetAccelWidget,
-  accelLabelGetAccelWidget
+  accelLabelGetAccelWidget,
+
+-- * Attributes
+  accelLabelAccelWidget,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -125,3 +129,13 @@ accelLabelGetAccelWidget self =
   maybeNull (makeNewObject mkWidget) $
   {# call unsafe accel_label_get_accel_widget #}
     (toAccelLabel self)
+
+--------------------
+-- Attributes
+
+-- | The widget to be monitored for accelerator changes.
+--
+accelLabelAccelWidget :: (AccelLabelClass self, WidgetClass accelWidget) => ReadWriteAttr self (Maybe Widget) accelWidget
+accelLabelAccelWidget = newAttr
+  accelLabelGetAccelWidget
+  accelLabelSetAccelWidget

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:40:16 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:27 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -60,16 +60,16 @@ module Graphics.UI.Gtk.Misc.EventBox (
   eventBoxSetAboveChild,
   eventBoxGetAboveChild,
 
--- * Properties
+-- * Attributes
   eventBoxVisibleWindow,
-  eventBoxAboveChild
+  eventBoxAboveChild,
 #endif
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -156,19 +156,19 @@ eventBoxGetAboveChild self =
     self
 
 --------------------
--- Properties
+-- Attributes
 
 -- | 
 --
 eventBoxVisibleWindow :: Attr EventBox Bool
-eventBoxVisibleWindow = Attr 
+eventBoxVisibleWindow = newAttr
   eventBoxGetVisibleWindow
   eventBoxSetVisibleWindow
 
 -- | 
 --
 eventBoxAboveChild :: Attr EventBox Bool
-eventBoxAboveChild = Attr 
+eventBoxAboveChild = newAttr
   eventBoxGetAboveChild
   eventBoxSetAboveChild
 #endif

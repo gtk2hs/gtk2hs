@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/04/14 02:08:38 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/07 20:57:31 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -139,9 +139,15 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetAutoStartupNotification,
 #endif
 
--- * Properties
+-- * Attributes
+  windowType,
+  windowAllowShrink,
+  windowAllowGrow,
   windowResizable,
   windowModal,
+  windowWindowPosition,
+  windowDefaultWidth,
+  windowDefaultHeight,
   windowDestroyWithParent,
   windowIcon,
   windowScreen,
@@ -152,6 +158,11 @@ module Graphics.UI.Gtk.Windows.Window (
 #if GTK_CHECK_VERSION(2,6,0)
   windowFocusOnMap,
 #endif
+#if GTK_CHECK_VERSION(2,4,0)
+  windowDecorated,
+  windowGravity,
+#endif
+  windowTransientFor,
 
 -- * Signals
   onFrameEvent,
@@ -165,7 +176,8 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GError
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(WindowToplevel), WindowPosition(..))
@@ -1251,14 +1263,36 @@ windowGetTypeHint self =
     (toWindow self)
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The type of the window.
+--
+-- Default value: 'WindowToplevel'
+--
+windowType :: WindowClass self => Attr self WindowType
+windowType = newAttrFromEnumProperty "type"
+
+-- | If @True@, the window has no mimimum size. Setting this to @True@ is 99%
+-- of the time a bad idea.
+--
+-- Default value: @False@
+--
+windowAllowShrink :: WindowClass self => Attr self Bool
+windowAllowShrink = newAttrFromBoolProperty "allow_shrink"
+
+-- | If @True@, users can expand the window beyond its minimum size.
+--
+-- Default value: @True@
+--
+windowAllowGrow :: WindowClass self => Attr self Bool
+windowAllowGrow = newAttrFromBoolProperty "allow_grow"
 
 -- | If @True@, users can resize the window.
 --
 -- Default value: @True@
 --
 windowResizable :: WindowClass self => Attr self Bool
-windowResizable = Attr 
+windowResizable = newAttr
   windowGetResizable
   windowSetResizable
 
@@ -1268,30 +1302,55 @@ windowResizable = Attr
 -- Default value: @False@
 --
 windowModal :: WindowClass self => Attr self Bool
-windowModal = Attr 
+windowModal = newAttr
   windowGetModal
   windowSetModal
+
+-- | The initial position of the window.
+--
+-- Default value: 'WinPosNone'
+--
+windowWindowPosition :: WindowClass self => Attr self WindowPosition
+windowWindowPosition = newAttrFromEnumProperty "window_position"
+
+-- | The default width of the window, used when initially showing the window.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+windowDefaultWidth :: WindowClass self => Attr self Int
+windowDefaultWidth = newAttrFromIntProperty "default_width"
+
+-- | The default height of the window, used when initially showing the window.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+windowDefaultHeight :: WindowClass self => Attr self Int
+windowDefaultHeight = newAttrFromIntProperty "default_height"
 
 -- | If this window should be destroyed when the parent is destroyed.
 --
 -- Default value: @False@
 --
 windowDestroyWithParent :: WindowClass self => Attr self Bool
-windowDestroyWithParent = Attr 
+windowDestroyWithParent = newAttr
   windowGetDestroyWithParent
   windowSetDestroyWithParent
 
 -- | Icon for this window.
 --
 windowIcon :: WindowClass self => Attr self Pixbuf
-windowIcon = Attr 
+windowIcon = newAttr
   windowGetIcon
   windowSetIcon
 
 -- | The screen where this window will be displayed.
 --
 windowScreen :: WindowClass self => Attr self Screen
-windowScreen = Attr 
+windowScreen = newAttr
   windowGetScreen
   windowSetScreen
 
@@ -1301,7 +1360,7 @@ windowScreen = Attr
 -- Default value: 'WindowTypeHintNormal'
 --
 windowTypeHint :: WindowClass self => Attr self WindowTypeHint
-windowTypeHint = Attr 
+windowTypeHint = newAttr
   windowGetTypeHint
   windowSetTypeHint
 
@@ -1310,7 +1369,7 @@ windowTypeHint = Attr
 -- Default value: @False@
 --
 windowSkipTaskbarHint :: WindowClass self => Attr self Bool
-windowSkipTaskbarHint = Attr 
+windowSkipTaskbarHint = newAttr
   windowGetSkipTaskbarHint
   windowSetSkipTaskbarHint
 
@@ -1319,7 +1378,7 @@ windowSkipTaskbarHint = Attr
 -- Default value: @False@
 --
 windowSkipPagerHint :: WindowClass self => Attr self Bool
-windowSkipPagerHint = Attr 
+windowSkipPagerHint = newAttr
   windowGetSkipPagerHint
   windowSetSkipPagerHint
 
@@ -1328,7 +1387,7 @@ windowSkipPagerHint = Attr
 -- Default value: @True@
 --
 windowAcceptFocus :: WindowClass self => Attr self Bool
-windowAcceptFocus = Attr 
+windowAcceptFocus = newAttr
   windowGetAcceptFocus
   windowSetAcceptFocus
 
@@ -1338,7 +1397,7 @@ windowAcceptFocus = Attr
 -- Default value: @True@
 --
 windowFocusOnMap :: WindowClass self => Attr self Bool
-windowFocusOnMap = Attr 
+windowFocusOnMap = newAttr
   windowGetFocusOnMap
   windowSetFocusOnMap
 #endif
@@ -1349,7 +1408,7 @@ windowFocusOnMap = Attr
 -- Default value: @True@
 --
 windowDecorated :: WindowClass self => Attr self Bool
-windowDecorated = Attr 
+windowDecorated = newAttr
   windowGetDecorated
   windowSetDecorated
 
@@ -1359,10 +1418,18 @@ windowDecorated = Attr
 -- Default value: 'GravityNorthWest'
 --
 windowGravity :: WindowClass self => Attr self Gravity
-windowGravity = Attr 
+windowGravity = newAttr
   windowGetGravity
   windowSetGravity
 #endif
+
+-- | \'transientFor\' property. See 'windowGetTransientFor' and
+-- 'windowSetTransientFor'
+--
+windowTransientFor :: (WindowClass self, WindowClass parent) => ReadWriteAttr self (Maybe Window) parent
+windowTransientFor = newAttr
+  windowGetTransientFor
+  windowSetTransientFor
 
 --------------------
 -- Signals

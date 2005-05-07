@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/04 01:24:10 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:28 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -72,15 +72,15 @@ module Graphics.UI.Gtk.Multiline.TextMark (
   textMarkGetBuffer,
   textMarkGetLeftGravity,
 
--- * Properties
-  textMarkVisible
+-- * Attributes
+  textMarkVisible,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -149,11 +149,11 @@ textMarkGetLeftGravity self =
     (toTextMark self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'visible\' property. See 'textMarkGetVisible' and 'textMarkSetVisible'
 --
 textMarkVisible :: TextMarkClass self => Attr self Bool
-textMarkVisible = Attr 
+textMarkVisible = newAttr
   textMarkGetVisible
   textMarkSetVisible

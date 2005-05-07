@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/07 00:14:01 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:23 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -119,17 +119,29 @@ module Graphics.UI.Gtk.Display.Image (
   iconSizeButton,
   iconSizeDialog,
 
--- * Properties
+-- * Attributes
+  imagePixbuf,
+  imagePixmap,
+  imageImage,
+  imageMask,
+  imageFile,
+  imageStock,
+  imageIconSize,
 #if GTK_CHECK_VERSION(2,6,0)
   imagePixelSize,
 #endif
+#if GTK_CHECK_VERSION(2,6,0)
+  imageIconName,
+#endif
+  imageStorageType,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -139,6 +151,18 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid, iconSizeMenu,
 					 iconSizeButton, iconSizeDialog)
 
 {# context lib="gtk" prefix="gtk" #}
+
+--------------------
+-- Types
+
+-- | Describes the image data representation used by a 'Image'. If you want to
+-- get the image from the widget, you can only get the currently-stored
+-- representation. e.g. if the 'imageGetStorageType' returns 'ImagePixbuf',
+-- then you can call 'imageGetPixbuf' but not 'imageGetStock'. For empty
+-- images, you can request any storage type (call any of the "get" functions),
+-- but they will all return @Nothing@.
+--
+{# enum ImageType {underscoreToCase} #}
 
 --------------------
 -- Constructors
@@ -309,7 +333,48 @@ imageGetPixelSize self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
+
+-- | A 'Pixbuf' to display.
+--
+imagePixbuf :: PixbufClass pixbuf => ReadWriteAttr Image Pixbuf pixbuf
+imagePixbuf = newAttrFromObjectProperty "pixbuf"
+
+-- | A 'Pixmap' to display.
+--
+imagePixmap :: PixmapClass pixmap => ReadWriteAttr Image Pixmap pixmap
+imagePixmap = newAttrFromObjectProperty "pixmap"
+
+-- | A 'Image' to display.
+--
+imageImage :: ImageClass image => ReadWriteAttr Image Image image
+imageImage = newAttrFromObjectProperty "image"
+
+-- | Mask bitmap to use with 'Image' or 'Pixmap'.
+--
+imageMask :: PixmapClass pixmap => ReadWriteAttr Image Pixmap pixmap
+imageMask = newAttrFromObjectProperty "mask"
+
+-- | Filename to load and display.
+--
+imageFile :: WriteAttr Image String
+imageFile = writeAttrFromStringProperty "file"
+
+-- | Stock ID for a stock image to display.
+--
+-- Default value: ""
+--
+imageStock :: Attr Image String
+imageStock = newAttrFromStringProperty "stock"
+
+-- | Symbolic size to use for stock icon, icon set or named icon.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 4
+--
+imageIconSize :: Attr Image Int
+imageIconSize = newAttrFromIntProperty "icon_size"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The pixel-size property can be used to specify a fixed size overriding
@@ -320,7 +385,24 @@ imageGetPixelSize self =
 -- Default value: -1
 --
 imagePixelSize :: Attr Image Int
-imagePixelSize = Attr 
+imagePixelSize = newAttr
   imageGetPixelSize
   imageSetPixelSize
 #endif
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | The name of the icon in the icon theme. If the icon theme is changed, the
+-- image will be updated automatically.
+--
+-- Default value: ""
+--
+imageIconName :: Attr Image String
+imageIconName = newAttrFromStringProperty "icon_name"
+#endif
+
+-- | The representation being used for image data.
+--
+-- Default value: 'ImageEmpty'
+--
+imageStorageType :: ReadAttr Image ImageType
+imageStorageType = readAttrFromEnumProperty "storage_type"

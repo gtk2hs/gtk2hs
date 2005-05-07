@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:38:29 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,21 +83,21 @@ module Graphics.UI.Gtk.Display.Statusbar (
   statusbarSetHasResizeGrip,
   statusbarGetHasResizeGrip,
 
--- * Properties
+-- * Attributes
   statusbarHasResizeGrip,
 
 -- * Signals
   onTextPopped,
   afterTextPopped,
   onTextPushed,
-  afterTextPushed
+  afterTextPushed,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -194,14 +194,14 @@ statusbarGetHasResizeGrip self =
     (toStatusbar self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Whether the statusbar has a grip for resizing the toplevel window.
 --
 -- Default value: @True@
 --
 statusbarHasResizeGrip :: StatusbarClass self => Attr self Bool
-statusbarHasResizeGrip = Attr 
+statusbarHasResizeGrip = newAttr
   statusbarGetHasResizeGrip
   statusbarSetHasResizeGrip
 

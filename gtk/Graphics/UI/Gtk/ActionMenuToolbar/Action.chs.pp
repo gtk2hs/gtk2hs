@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:22 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -110,9 +110,22 @@ module Graphics.UI.Gtk.ActionMenuToolbar.Action (
   actionSetAccelPath,
   actionSetAccelGroup,
 
--- * Properties
+-- * Attributes
+  actionName,
+  actionLabel,
+  actionShortLabel,
+  actionTooltip,
+  actionStockId,
+  actionVisibleHorizontal,
+#if GTK_CHECK_VERSION(2,6,0)
+  actionVisibleOverflown,
+#endif
+  actionVisibleVertical,
+  actionIsImportant,
+  actionHideIfEmpty,
   actionSensitive,
   actionVisible,
+  actionAccelPath,
 
 -- * Signals
   onActionActivate,
@@ -125,7 +138,8 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -366,14 +380,90 @@ actionSetAccelGroup self accelGroup =
     accelGroup
 
 --------------------
--- Properties
+-- Attributes
+
+-- | A unique name for the action.
+--
+-- Default value: ""
+--
+actionName :: ActionClass self => Attr self String
+actionName = newAttrFromStringProperty "name"
+
+-- | The label used for menu items and buttons that activate this action.
+--
+-- Default value: ""
+--
+actionLabel :: ActionClass self => Attr self String
+actionLabel = newAttrFromStringProperty "label"
+
+-- | A shorter label that may be used on toolbar buttons.
+--
+-- Default value: ""
+--
+actionShortLabel :: ActionClass self => Attr self String
+actionShortLabel = newAttrFromStringProperty "short_label"
+
+-- | A tooltip for this action.
+--
+-- Default value: @Nothing@
+--
+actionTooltip :: ActionClass self => Attr self (Maybe String)
+actionTooltip = newAttrFromMaybeStringProperty "tooltip"
+
+-- | The stock icon displayed in widgets representing this action.
+--
+-- Default value: @Nothing@
+--
+actionStockId :: ActionClass self => Attr self (Maybe String)
+actionStockId = newAttrFromMaybeStringProperty "stock_id"
+
+-- | Whether the toolbar item is visible when the toolbar is in a horizontal
+-- orientation.
+--
+-- Default value: @True@
+--
+actionVisibleHorizontal :: ActionClass self => Attr self Bool
+actionVisibleHorizontal = newAttrFromBoolProperty "visible_horizontal"
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | When @True@, toolitem proxies for this action are represented in the
+-- toolbar overflow menu.
+--
+-- Default value: @True@
+--
+actionVisibleOverflown :: ActionClass self => Attr self Bool
+actionVisibleOverflown = newAttrFromBoolProperty "visible_overflown"
+#endif
+
+-- | Whether the toolbar item is visible when the toolbar is in a vertical
+-- orientation.
+--
+-- Default value: @True@
+--
+actionVisibleVertical :: ActionClass self => Attr self Bool
+actionVisibleVertical = newAttrFromBoolProperty "visible_vertical"
+
+-- | Whether the action is considered important. When @True@, toolitem proxies
+-- for this action show text in 'ToolbarBothHoriz' mode.
+--
+-- Default value: @False@
+--
+actionIsImportant :: ActionClass self => Attr self Bool
+actionIsImportant = newAttrFromBoolProperty "is_important"
+
+-- | When @True@, empty menu proxies for this action are hidden.
+--
+-- Default value: @True@
+--
+actionHideIfEmpty :: ActionClass self => Attr self Bool
+actionHideIfEmpty = newAttrFromBoolProperty "hide_if_empty"
 
 -- | Whether the action is enabled.
 --
 -- Default value: @True@
 --
 actionSensitive :: ActionClass self => Attr self Bool
-actionSensitive = Attr 
+actionSensitive = newAttr
   actionGetSensitive
   actionSetSensitive
 
@@ -382,9 +472,16 @@ actionSensitive = Attr
 -- Default value: @True@
 --
 actionVisible :: ActionClass self => Attr self Bool
-actionVisible = Attr 
+actionVisible = newAttr
   actionGetVisible
   actionSetVisible
+
+-- | \'accelPath\' property. See 'actionGetAccelPath' and 'actionSetAccelPath'
+--
+actionAccelPath :: ActionClass self => ReadWriteAttr self (Maybe String) String
+actionAccelPath = newAttr
+  actionGetAccelPath
+  actionSetAccelPath
 
 --------------------
 -- Signals

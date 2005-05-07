@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:51:44 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:25 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -62,16 +62,30 @@ module Graphics.UI.Gtk.Layout.Alignment (
   alignmentNew,
 
 -- * Methods
-  alignmentSet
+  alignmentSet,
 #if GTK_CHECK_VERSION(2,4,0)
- ,alignmentSetPadding,
-  alignmentGetPadding
+  alignmentSetPadding,
+  alignmentGetPadding,
 #endif
+
+-- * Attributes
+  alignmentXAlign,
+  alignmentYAlign,
+  alignmentXScale,
+  alignmentYScale,
+#if GTK_CHECK_VERSION(2,4,0)
+  alignmentTopPadding,
+#endif
+  alignmentBottomPadding,
+  alignmentLeftPadding,
+  alignmentRightPadding,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -138,7 +152,7 @@ alignmentSet self xalign yalign xscale yscale =
 -- blank space to the sides of the widget. For instance, this can be used to
 -- indent the child widget towards the right by adding padding on the left.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 alignmentSetPadding :: AlignmentClass self => self
  -> Int   -- ^ @paddingTop@ - the padding at the top of the widget
@@ -157,7 +171,7 @@ alignmentSetPadding self paddingTop paddingBottom paddingLeft paddingRight =
 -- | Gets the padding on the different sides of the widget. See
 -- 'alignmentSetPadding'.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 alignmentGetPadding :: AlignmentClass self => self
  -> IO (Int, Int, Int, Int) -- ^ @(paddingTop, paddingBottom, paddingLeft,
@@ -181,3 +195,84 @@ alignmentGetPadding self =
   return (fromIntegral paddingTop, fromIntegral paddingBottom
          ,fromIntegral paddingLeft, fromIntegral paddingRight)
 #endif
+
+--------------------
+-- Attributes
+
+-- | Horizontal position of child in available space. 0.0 is left aligned, 1.0
+-- is right aligned.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+alignmentXAlign :: AlignmentClass self => Attr self Float
+alignmentXAlign = newAttrFromFloatProperty "xalign"
+
+-- | Vertical position of child in available space. 0.0 is top aligned, 1.0 is
+-- bottom aligned.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+alignmentYAlign :: AlignmentClass self => Attr self Float
+alignmentYAlign = newAttrFromFloatProperty "yalign"
+
+-- | If available horizontal space is bigger than needed for the child, how
+-- much of it to use for the child. 0.0 means none, 1.0 means all.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 1
+--
+alignmentXScale :: AlignmentClass self => Attr self Float
+alignmentXScale = newAttrFromFloatProperty "xscale"
+
+-- | If available vertical space is bigger than needed for the child, how much
+-- of it to use for the child. 0.0 means none, 1.0 means all.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 1
+--
+alignmentYScale :: AlignmentClass self => Attr self Float
+alignmentYScale = newAttrFromFloatProperty "yscale"
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | The padding to insert at the right of the widget.
+--
+-- Allowed values: \<= @('maxBound' :: Int)@
+--
+-- Default value: 0
+--
+alignmentTopPadding :: AlignmentClass self => Attr self Int
+alignmentTopPadding = newAttrFromUIntProperty "top_padding"
+#endif
+
+-- | The padding to insert at the bottom of the widget.
+--
+-- Allowed values: \<= @('maxBound' :: Int)@
+--
+-- Default value: 0
+--
+alignmentBottomPadding :: AlignmentClass self => Attr self Int
+alignmentBottomPadding = newAttrFromUIntProperty "bottom_padding"
+
+-- | The padding to insert at the left of the widget.
+--
+-- Allowed values: \<= @('maxBound' :: Int)@
+--
+-- Default value: 0
+--
+alignmentLeftPadding :: AlignmentClass self => Attr self Int
+alignmentLeftPadding = newAttrFromUIntProperty "left_padding"
+
+-- | The padding to insert at the right of the widget.
+--
+-- Allowed values: \<= @('maxBound' :: Int)@
+--
+-- Default value: 0
+--
+alignmentRightPadding :: AlignmentClass self => Attr self Int
+alignmentRightPadding = newAttrFromUIntProperty "right_padding"

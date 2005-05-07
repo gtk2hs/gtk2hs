@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:28 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -19,15 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
--- Stability   : provisional
--- Portability : portable (depends on GHC)
---
--- An iterator is an abstract datatype representing a pointer into a 
--- 'TextBuffer'.
---
--- * The following functions do not make sense due to Haskell's wide character
+-- The following functions do not make sense due to Haskell's wide character
 --   representation of Unicode:
 --     gtk_text_iter_get_line_index
 --     gtk_text_iter_get_visible_line_index
@@ -35,30 +27,42 @@
 --     gtk_text_iter_set_line_index
 --     gtk_text_iter_set_visible_line_index
 --
--- * The functions gtk_text_iter_in_range and gtk_text_iter_order are not bound
+-- The functions gtk_text_iter_in_range and gtk_text_iter_order are not bound
 --   because they are only convenience functions which can replaced by calls
 --   to textIterCompare.
 --
--- * All offsets are counted from 0.
+-- All offsets are counted from 0.
 --
 -- TODO
 --
--- * Bind the following function when GSList is bound:
+-- Bind the following function when GSList is bound:
 --     gtk_text_iter_get_marks
 --     gtk_text_iter_get_toggled_tags
 --     gtk_text_iter_get_tags
 --
--- * Bind the following functions when we are sure about anchors 
+-- Bind the following functions when we are sure about anchors 
 --   (see 'TextBuffer'):
 --     gtk_text_iter_get_anchor
 --
--- * Bind TextAttribute functions when I am clear how to model them. 
+-- Bind TextAttribute functions when I am clear how to model them. 
 --     gtk_text_iter_get_attribute
 --
--- * Forward exceptions in the two callback functions.
+-- Forward exceptions in the two callback functions.
+--
+-- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- An iterator is an abstract datatype representing a pointer into a 
+-- 'TextBuffer'.
 --
 module Graphics.UI.Gtk.Multiline.TextIter (
+
+-- * Types
   TextIter(TextIter),
+
+-- * Methods
   mkTextIter,
   makeEmptyTextIter,	-- for internal use only
   textIterGetBuffer,
@@ -124,7 +128,13 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   textIterForwardSearch,
   textIterBackwardSearch,
   textIterEqual,
-  textIterCompare
+  textIterCompare,
+
+-- * Attributes
+  textIterVisibleLineOffset,
+  textIterOffset,
+  textIterLineOffset,
+  textIterLine,
   ) where
 
 import Monad	(liftM)
@@ -133,6 +143,7 @@ import Char	(chr)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -159,14 +170,9 @@ foreign import ccall unsafe "&gtk_text_iter_free"
 text_iter_free :: Ptr TextIter -> FinalizerPtr TextIter
 text_iter_free _ = text_iter_free'
 
-#elif __GLASGOW_HASKELL__>=504
+#elif
 
 foreign import ccall unsafe "gtk_text_iter_free"
-  text_iter_free :: Ptr TextIter -> IO ()
-
-#else
-
-foreign import ccall "gtk_text_iter_free" unsafe
   text_iter_free :: Ptr TextIter -> IO ()
 
 #endif
@@ -809,4 +815,35 @@ textIterCompare ti2 ti1 = do
     0	   -> EQ
     1	   -> GT
 
+--------------------
+-- Attributes
 
+-- | \'visibleLineOffset\' property. See 'textIterGetVisibleLineOffset' and
+-- 'textIterSetVisibleLineOffset'
+--
+textIterVisibleLineOffset :: Attr TextIter Int
+textIterVisibleLineOffset = newAttr
+  textIterGetVisibleLineOffset
+  textIterSetVisibleLineOffset
+
+-- | \'offset\' property. See 'textIterGetOffset' and 'textIterSetOffset'
+--
+textIterOffset :: Attr TextIter Int
+textIterOffset = newAttr
+  textIterGetOffset
+  textIterSetOffset
+
+-- | \'lineOffset\' property. See 'textIterGetLineOffset' and
+-- 'textIterSetLineOffset'
+--
+textIterLineOffset :: Attr TextIter Int
+textIterLineOffset = newAttr
+  textIterGetLineOffset
+  textIterSetLineOffset
+
+-- | \'line\' property. See 'textIterGetLine' and 'textIterSetLine'
+--
+textIterLine :: Attr TextIter Int
+textIterLine = newAttr
+  textIterGetLine
+  textIterSetLine

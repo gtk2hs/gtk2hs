@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 16:52:50 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -86,7 +86,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuItem (
   menuItemGetRightJustified,
   menuItemSetAccelPath,
 
--- * Properties
+-- * Attributes
+  menuItemSubmenu,
   menuItemRightJustified,
 
 -- * Signals
@@ -106,7 +107,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -251,13 +252,20 @@ menuItemSetAccelPath self accelPath =
     accelPathPtr
 
 --------------------
--- Properties
+-- Attributes
+
+-- | \'submenu\' property. See 'menuItemGetSubmenu' and 'menuItemSetSubmenu'
+--
+menuItemSubmenu :: (MenuItemClass self, MenuClass submenu) => ReadWriteAttr self (Maybe Widget) submenu
+menuItemSubmenu = newAttr
+  menuItemGetSubmenu
+  menuItemSetSubmenu
 
 -- | \'rightJustified\' property. See 'menuItemGetRightJustified' and
 -- 'menuItemSetRightJustified'
 --
 menuItemRightJustified :: MenuItemClass self => Attr self Bool
-menuItemRightJustified = Attr 
+menuItemRightJustified = newAttr
   menuItemGetRightJustified
   menuItemSetRightJustified
 

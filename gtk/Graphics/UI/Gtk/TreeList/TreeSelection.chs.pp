@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:30 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -91,7 +91,7 @@ module Graphics.UI.Gtk.TreeList.TreeSelection (
   treeSelectionUnselectRange,
 #endif
 
--- * Properties
+-- * Attributes
   treeSelectionMode,
 
 -- * Signals
@@ -103,7 +103,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GList                (GList, fromGList, toGList)
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(mkFunPtrDestructor)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -366,12 +366,12 @@ treeSelectionUnselectRange self startPath endPath =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'mode\' property. See 'treeSelectionGetMode' and 'treeSelectionSetMode'
 --
 treeSelectionMode :: TreeSelectionClass self => Attr self SelectionMode
-treeSelectionMode = Attr
+treeSelectionMode = newAttr
   treeSelectionGetMode
   treeSelectionSetMode
 

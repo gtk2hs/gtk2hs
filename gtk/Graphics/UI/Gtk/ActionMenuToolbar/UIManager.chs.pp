@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:22 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -220,7 +220,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
   uiManagerGetUi,
   uiManagerEnsureUpdate,
 
--- * Properties
+-- * Attributes
   uIManagerAddTearoffs,
 
 -- * Signals
@@ -245,7 +245,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.GError
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -513,7 +513,7 @@ uiManagerEnsureUpdate self =
     self
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The \"add-tearoffs\" property controls whether generated menus have
 -- tearoff menu items.
@@ -524,7 +524,7 @@ uiManagerEnsureUpdate self =
 -- Default value: @False@
 --
 uIManagerAddTearoffs :: Attr UIManager Bool
-uIManagerAddTearoffs = Attr 
+uIManagerAddTearoffs = newAttr
   uiManagerGetAddTearoffs
   uiManagerSetAddTearoffs
 

@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:14:01 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -162,11 +162,16 @@ module Graphics.UI.Gtk.Display.Label (
   labelGetAngle,
 #endif
 
--- * Properties
+-- * Attributes
+  labelLabel,
   labelUseMarkup,
   labelUseUnderline,
   labelJustify,
+  labelWrap,
   labelSelectable,
+  labelMnemonicWidget,
+  labelCursorPosition,
+  labelSelectionBound,
 #if GTK_CHECK_VERSION(2,6,0)
   labelEllipsize,
   labelWidthChars,
@@ -175,13 +180,15 @@ module Graphics.UI.Gtk.Display.Label (
   labelMaxWidthChars,
 #endif
   labelLineWrap,
+  labelText,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -675,14 +682,21 @@ labelSetAngle self angle =
 #endif
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The text of the label.
+--
+labelLabel :: LabelClass self => Attr self String
+labelLabel = newAttr
+  labelGetLabel
+  labelSetLabel
 
 -- | The text of the label includes XML markup. See pango_parse_markup().
 --
 -- Default value: @False@
 --
 labelUseMarkup :: LabelClass self => Attr self Bool
-labelUseMarkup = Attr 
+labelUseMarkup = newAttr
   labelGetUseMarkup
   labelSetUseMarkup
 
@@ -692,7 +706,7 @@ labelUseMarkup = Attr
 -- Default value: @False@
 --
 labelUseUnderline :: LabelClass self => Attr self Bool
-labelUseUnderline = Attr 
+labelUseUnderline = newAttr
   labelGetUseUnderline
   labelSetUseUnderline
 
@@ -703,18 +717,51 @@ labelUseUnderline = Attr
 -- Default value: 'JustifyLeft'
 --
 labelJustify :: LabelClass self => Attr self Justification
-labelJustify = Attr 
+labelJustify = newAttr
   labelGetJustify
   labelSetJustify
+
+-- | If set, wrap lines if the text becomes too wide.
+--
+-- Default value: @False@
+--
+labelWrap :: LabelClass self => Attr self Bool
+labelWrap = newAttrFromBoolProperty "wrap"
 
 -- | Whether the label text can be selected with the mouse.
 --
 -- Default value: @False@
 --
 labelSelectable :: LabelClass self => Attr self Bool
-labelSelectable = Attr 
+labelSelectable = newAttr
   labelGetSelectable
   labelSetSelectable
+
+-- | The widget to be activated when the label's mnemonic key is pressed.
+--
+labelMnemonicWidget :: (LabelClass self, WidgetClass widget) => ReadWriteAttr self (Maybe Widget) widget
+labelMnemonicWidget = newAttr
+  labelGetMnemonicWidget
+  labelSetMnemonicWidget
+
+-- | The current position of the insertion cursor in chars.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+labelCursorPosition :: LabelClass self => ReadAttr self Int
+labelCursorPosition = readAttrFromIntProperty "cursor_position"
+
+-- | The position of the opposite end of the selection from the cursor in
+-- chars.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+labelSelectionBound :: LabelClass self => ReadAttr self Int
+labelSelectionBound = readAttrFromIntProperty "selection_bound"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The preferred place to ellipsize the string, if the label does not have
@@ -730,7 +777,7 @@ labelSelectable = Attr
 -- Default value: 'EllipsizeNone'
 --
 labelEllipsize :: LabelClass self => Attr self EllipsizeMode
-labelEllipsize = Attr 
+labelEllipsize = newAttr
   labelGetEllipsize
   labelSetEllipsize
 
@@ -745,14 +792,14 @@ labelEllipsize = Attr
 -- Default value: -1
 --
 labelWidthChars :: LabelClass self => Attr self Int
-labelWidthChars = Attr 
+labelWidthChars = newAttr
   labelGetWidthChars
   labelSetWidthChars
 
 -- | 
 --
 labelSingleLineMode :: LabelClass self => Attr self Bool
-labelSingleLineMode = Attr 
+labelSingleLineMode = newAttr
   labelGetSingleLineMode
   labelSetSingleLineMode
 
@@ -766,7 +813,7 @@ labelSingleLineMode = Attr
 -- Default value: 0
 --
 labelAngle :: LabelClass self => Attr self Double
-labelAngle = Attr 
+labelAngle = newAttr
   labelGetAngle
   labelSetAngle
 
@@ -781,7 +828,7 @@ labelAngle = Attr
 -- Default value: -1
 --
 labelMaxWidthChars :: LabelClass self => Attr self Int
-labelMaxWidthChars = Attr 
+labelMaxWidthChars = newAttr
   labelGetMaxWidthChars
   labelSetMaxWidthChars
 #endif
@@ -789,6 +836,13 @@ labelMaxWidthChars = Attr
 -- | \'lineWrap\' property. See 'labelGetLineWrap' and 'labelSetLineWrap'
 --
 labelLineWrap :: LabelClass self => Attr self Bool
-labelLineWrap = Attr 
+labelLineWrap = newAttr
   labelGetLineWrap
   labelSetLineWrap
+
+-- | \'text\' property. See 'labelGetText' and 'labelSetText'
+--
+labelText :: LabelClass self => Attr self String
+labelText = newAttr
+  labelGetText
+  labelSetText

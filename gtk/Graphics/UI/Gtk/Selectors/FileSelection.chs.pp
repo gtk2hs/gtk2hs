@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.3 $ from $Date: 2005/04/11 02:31:48 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
@@ -89,8 +89,9 @@ module Graphics.UI.Gtk.Selectors.FileSelection (
   fileSelectionSetSelectMultiple,
   fileSelectionGetSelectMultiple,
 
--- * Properties
+-- * Attributes
   fileSelectionFilename,
+  fileSelectionShowFileops,
   fileSelectionSelectMultiple,
   ) where
 
@@ -98,7 +99,8 @@ import Monad            (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Structs	(fileSelectionGetButtons)
@@ -250,21 +252,28 @@ fileSelectionGetSelectMultiple self =
     (toFileSelection self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The currently selected filename.
 --
 --
 fileSelectionFilename :: FileSelectionClass self => Attr self String
-fileSelectionFilename = Attr 
+fileSelectionFilename = newAttr
   fileSelectionGetFilename
   fileSelectionSetFilename
+
+-- | Whether buttons for creating\/manipulating files should be displayed.
+--
+-- Default value: @False@
+--
+fileSelectionShowFileops :: FileSelectionClass self => Attr self Bool
+fileSelectionShowFileops = newAttrFromBoolProperty "show_fileops"
 
 -- | Whether to allow multiple files to be selected.
 --
 -- Default value: @False@
 --
 fileSelectionSelectMultiple :: FileSelectionClass self => Attr self Bool
-fileSelectionSelectMultiple = Attr 
+fileSelectionSelectMultiple = newAttr
   fileSelectionGetSelectMultiple
   fileSelectionSetSelectMultiple

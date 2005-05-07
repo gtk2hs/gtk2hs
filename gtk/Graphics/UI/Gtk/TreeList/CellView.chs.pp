@@ -5,7 +5,7 @@
 --
 --  Created: 4 April 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/07 20:57:30 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -64,7 +64,7 @@ module Graphics.UI.Gtk.TreeList.CellView (
   cellViewSetBackgroundColor,
   cellViewGetCellRenderers,
 
--- * Properties
+-- * Attributes
   cellViewDisplayedRow,
 #endif
   ) where
@@ -216,13 +216,13 @@ cellViewGetCellRenderers self =
   >>= mapM (\elemPtr -> makeNewObject mkCellRenderer (return elemPtr))
 
 --------------------
--- Properties
+-- Attributes
 
 -- | \'displayedRow\' property. See 'cellViewGetDisplayedRow' and
 -- 'cellViewSetDisplayedRow'
 --
 cellViewDisplayedRow :: CellViewClass self => Attr self TreePath
-cellViewDisplayedRow = Attr 
+cellViewDisplayedRow = newAttr
   cellViewGetDisplayedRow
   cellViewSetDisplayedRow
 #endif

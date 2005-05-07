@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/07 00:40:15 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -97,18 +97,22 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   scrolledWindowSetHAdjustment,
   scrolledWindowSetVAdjustment,
 
--- * Properties
+-- * Attributes
   scrolledWindowHAdjustment,
   scrolledWindowVAdjustment,
+  scrolledWindowHscrollbarPolicy,
+  scrolledWindowVscrollbarPolicy,
+  scrolledWindowWindowPlacement,
   scrolledWindowShadowType,
-  scrolledWindowPlacement
+  scrolledWindowPlacement,
   ) where
 
 import Monad	(liftM)
 import Maybe    (fromMaybe)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -267,28 +271,49 @@ scrolledWindowSetVAdjustment self vadjustment =
     vadjustment
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The 'Adjustment' for the horizontal position.
 --
 scrolledWindowHAdjustment :: ScrolledWindowClass self => Attr self Adjustment
-scrolledWindowHAdjustment = Attr 
+scrolledWindowHAdjustment = newAttr
   scrolledWindowGetHAdjustment
   scrolledWindowSetHAdjustment
 
 -- | The 'Adjustment' for the vertical position.
 --
 scrolledWindowVAdjustment :: ScrolledWindowClass self => Attr self Adjustment
-scrolledWindowVAdjustment = Attr 
+scrolledWindowVAdjustment = newAttr
   scrolledWindowGetVAdjustment
   scrolledWindowSetVAdjustment
+
+-- | When the horizontal scrollbar is displayed.
+--
+-- Default value: 'PolicyAlways'
+--
+scrolledWindowHscrollbarPolicy :: ScrolledWindowClass self => Attr self PolicyType
+scrolledWindowHscrollbarPolicy = newAttrFromEnumProperty "hscrollbar_policy"
+
+-- | When the vertical scrollbar is displayed.
+--
+-- Default value: 'PolicyAlways'
+--
+scrolledWindowVscrollbarPolicy :: ScrolledWindowClass self => Attr self PolicyType
+scrolledWindowVscrollbarPolicy = newAttrFromEnumProperty "vscrollbar_policy"
+
+-- | Where the contents are located with respect to the scrollbars.
+--
+-- Default value: 'CornerTopLeft'
+--
+scrolledWindowWindowPlacement :: ScrolledWindowClass self => Attr self CornerType
+scrolledWindowWindowPlacement = newAttrFromEnumProperty "window_placement"
 
 -- | Style of bevel around the contents.
 --
 -- Default value: 'ShadowNone'
 --
 scrolledWindowShadowType :: ScrolledWindowClass self => Attr self ShadowType
-scrolledWindowShadowType = Attr 
+scrolledWindowShadowType = newAttr
   scrolledWindowGetShadowType
   scrolledWindowSetShadowType
 
@@ -296,6 +321,6 @@ scrolledWindowShadowType = Attr
 -- 'scrolledWindowSetPlacement'
 --
 scrolledWindowPlacement :: ScrolledWindowClass self => Attr self CornerType
-scrolledWindowPlacement = Attr 
+scrolledWindowPlacement = newAttr
   scrolledWindowGetPlacement
   scrolledWindowSetPlacement

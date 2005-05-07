@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/24 17:31:00 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:25 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -82,14 +82,19 @@ module Graphics.UI.Gtk.Layout.Table (
   tableSetHomogeneous,
   tableGetHomogeneous,
 
--- * Properties
-  tableHomogeneous
+-- * Attributes
+  tableNRows,
+  tableNColumns,
+  tableRowSpacing,
+  tableColumnSpacing,
+  tableHomogeneous,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -314,13 +319,41 @@ tableGetHomogeneous self =
     (toTable self)
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The number of rows in the table.
+--
+-- Default value: 0
+--
+tableNRows :: TableClass self => Attr self Int
+tableNRows = newAttrFromUIntProperty "n_rows"
+
+-- | The number of columns in the table.
+--
+-- Default value: 0
+--
+tableNColumns :: TableClass self => Attr self Int
+tableNColumns = newAttrFromUIntProperty "n_columns"
+
+-- | The amount of space between two consecutive rows.
+--
+-- Default value: 0
+--
+tableRowSpacing :: TableClass self => Attr self Int
+tableRowSpacing = newAttrFromUIntProperty "row_spacing"
+
+-- | The amount of space between two consecutive columns.
+--
+-- Default value: 0
+--
+tableColumnSpacing :: TableClass self => Attr self Int
+tableColumnSpacing = newAttrFromUIntProperty "column_spacing"
 
 -- | If @True@ this means the table cells are all the same width\/height.
 --
 -- Default value: @False@
 --
 tableHomogeneous :: TableClass self => Attr self Bool
-tableHomogeneous = Attr 
+tableHomogeneous = newAttr
   tableGetHomogeneous
   tableSetHomogeneous

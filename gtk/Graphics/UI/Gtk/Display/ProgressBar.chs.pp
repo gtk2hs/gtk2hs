@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/12 23:25:36 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:23 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -86,10 +86,12 @@ module Graphics.UI.Gtk.Display.ProgressBar (
   progressBarGetEllipsize,
 #endif
 
--- * Properties
+-- * Attributes
   progressBarOrientation,
+  progressBarDiscreteBlocks,
   progressBarFraction,
   progressBarPulseStep,
+  progressBarText,
 #if GTK_CHECK_VERSION(2,6,0)
   progressBarEllipsize,
 #endif
@@ -99,7 +101,8 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -233,16 +236,26 @@ progressBarGetEllipsize self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Orientation and growth direction of the progress bar.
 --
 -- Default value: 'ProgressLeftToRight'
 --
 progressBarOrientation :: ProgressBarClass self => Attr self ProgressBarOrientation
-progressBarOrientation = Attr 
+progressBarOrientation = newAttr
   progressBarGetOrientation
   progressBarSetOrientation
+
+-- | The number of discrete blocks in a progress bar (when shown in the
+-- discrete style).
+--
+-- Allowed values: >= 2
+--
+-- Default value: 10
+--
+progressBarDiscreteBlocks :: ProgressBarClass self => Attr self Int
+progressBarDiscreteBlocks = newAttrFromUIntProperty "discrete_blocks"
 
 -- | The fraction of total work that has been completed.
 --
@@ -251,7 +264,7 @@ progressBarOrientation = Attr
 -- Default value: 0
 --
 progressBarFraction :: ProgressBarClass self => Attr self Double
-progressBarFraction = Attr 
+progressBarFraction = newAttr
   progressBarGetFraction
   progressBarSetFraction
 
@@ -262,9 +275,18 @@ progressBarFraction = Attr
 -- Default value: 0.1
 --
 progressBarPulseStep :: ProgressBarClass self => Attr self Double
-progressBarPulseStep = Attr 
+progressBarPulseStep = newAttr
   progressBarGetPulseStep
   progressBarSetPulseStep
+
+-- | Text to be displayed in the progress bar.
+--
+-- Default value: \"%P %%\"
+--
+progressBarText :: ProgressBarClass self => ReadWriteAttr self (Maybe String) String
+progressBarText = newAttr
+  progressBarGetText
+  progressBarSetText
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The preferred place to ellipsize the string, if the progressbar does not
@@ -279,7 +301,7 @@ progressBarPulseStep = Attr
 -- Default value: 'EllipsizeNone'
 --
 progressBarEllipsize :: ProgressBarClass self => Attr self EllipsizeMode
-progressBarEllipsize = Attr 
+progressBarEllipsize = newAttr
   progressBarGetEllipsize
   progressBarSetEllipsize
 #endif

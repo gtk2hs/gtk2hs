@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/03 12:56:07 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -69,17 +69,17 @@ module Graphics.UI.Gtk.Selectors.ColorSelection (
   colorSelectionSetPreviousColor,
   colorSelectionIsAdjusting,
 
--- * Properties
+-- * Attributes
   colorSelectionHasOpacityControl,
   colorSelectionHasPalette,
   colorSelectionCurrentAlpha,
-  colorSelectionPreviousAlpha
+  colorSelectionPreviousAlpha,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -238,14 +238,14 @@ colorSelectionIsAdjusting self =
     (toColorSelection self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Whether the color selector should allow setting opacity.
 --
 -- Default value: @False@
 --
 colorSelectionHasOpacityControl :: ColorSelectionClass self => Attr self Bool
-colorSelectionHasOpacityControl = Attr 
+colorSelectionHasOpacityControl = newAttr
   colorSelectionGetHasOpacityControl
   colorSelectionSetHasOpacityControl
 
@@ -254,7 +254,7 @@ colorSelectionHasOpacityControl = Attr
 -- Default value: @False@
 --
 colorSelectionHasPalette :: ColorSelectionClass self => Attr self Bool
-colorSelectionHasPalette = Attr 
+colorSelectionHasPalette = newAttr
   colorSelectionGetHasPalette
   colorSelectionSetHasPalette
 
@@ -265,7 +265,7 @@ colorSelectionHasPalette = Attr
 -- Default value: 65535
 --
 colorSelectionCurrentAlpha :: ColorSelectionClass self => Attr self Int
-colorSelectionCurrentAlpha = Attr 
+colorSelectionCurrentAlpha = newAttr
   colorSelectionGetCurrentAlpha
   colorSelectionSetCurrentAlpha
 
@@ -273,6 +273,6 @@ colorSelectionCurrentAlpha = Attr
 -- 'colorSelectionSetPreviousAlpha'
 --
 colorSelectionPreviousAlpha :: ColorSelectionClass self => Attr self Int
-colorSelectionPreviousAlpha = Attr 
+colorSelectionPreviousAlpha = newAttr
   colorSelectionGetPreviousAlpha
   colorSelectionSetPreviousAlpha

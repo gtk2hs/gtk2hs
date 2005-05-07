@@ -5,7 +5,7 @@
 --
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:49 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 2002 Jonas Svensson
 --
@@ -65,13 +65,17 @@ module Graphics.UI.Gtk.MenuComboToolbar.ImageMenuItem (
 
 -- * Methods
   imageMenuItemSetImage,
-  imageMenuItemGetImage
+  imageMenuItemGetImage,
+
+-- * Attributes
+  imageMenuItemImage,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -155,3 +159,13 @@ imageMenuItemGetImage self =
   maybeNull (makeNewObject mkWidget) $
   {# call unsafe image_menu_item_get_image #}
     (toImageMenuItem self)
+
+--------------------
+-- Attributes
+
+-- | Child widget to appear next to the menu text.
+--
+imageMenuItemImage :: (ImageMenuItemClass self, WidgetClass image) => ReadWriteAttr self (Maybe Widget) image
+imageMenuItemImage = newAttr
+  imageMenuItemGetImage
+  imageMenuItemSetImage

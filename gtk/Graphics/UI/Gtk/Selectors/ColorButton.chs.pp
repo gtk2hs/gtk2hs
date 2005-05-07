@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/05 18:29:52 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:29 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -67,7 +67,7 @@ module Graphics.UI.Gtk.Selectors.ColorButton (
   colorButtonSetTitle,
   colorButtonGetTitle,
 
--- * Properties
+-- * Attributes
   colorButtonUseAlpha,
   colorButtonTitle,
   colorButtonAlpha,
@@ -82,7 +82,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -204,7 +204,7 @@ colorButtonGetTitle self =
   >>= peekUTFString
 
 --------------------
--- Properties
+-- Attributes
 
 -- | If this property is set to @True@, the color swatch on the button is
 -- rendered against a checkerboard background to show its opacity and the
@@ -213,7 +213,7 @@ colorButtonGetTitle self =
 -- Default value: @False@
 --
 colorButtonUseAlpha :: ColorButtonClass self => Attr self Bool
-colorButtonUseAlpha = Attr 
+colorButtonUseAlpha = newAttr
   colorButtonGetUseAlpha
   colorButtonSetUseAlpha
 
@@ -222,7 +222,7 @@ colorButtonUseAlpha = Attr
 -- Default value: \"Pick a Color\"
 --
 colorButtonTitle :: ColorButtonClass self => Attr self String
-colorButtonTitle = Attr 
+colorButtonTitle = newAttr
   colorButtonGetTitle
   colorButtonSetTitle
 
@@ -233,7 +233,7 @@ colorButtonTitle = Attr
 -- Default value: 65535
 --
 colorButtonAlpha :: ColorButtonClass self => Attr self Word16
-colorButtonAlpha = Attr 
+colorButtonAlpha = newAttr
   colorButtonGetAlpha
   colorButtonSetAlpha
 

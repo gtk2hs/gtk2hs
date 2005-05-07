@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:50 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -133,7 +133,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   toolbarGetReliefStyle,
 #endif
 
--- * Properties
+-- * Attributes
   toolbarOrientation,
   toolbarShowArrow,
   toolbarStyle,
@@ -145,7 +145,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   onStyleChanged,
   afterStyleChanged,
   onPopupContextMenu,
-  afterPopupContextMenu
+  afterPopupContextMenu,
   ) where
 
 import Monad	(liftM)
@@ -153,7 +153,8 @@ import Maybe	(fromJust, fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -639,37 +640,44 @@ toolbarGetReliefStyle self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The orientation of the toolbar.
 --
 -- Default value: 'OrientationHorizontal'
 --
 toolbarOrientation :: ToolbarClass self => Attr self Orientation
-toolbarOrientation = Attr 
+toolbarOrientation = newAttr
   toolbarGetOrientation
   toolbarSetOrientation
+
+-- | How to draw the toolbar.
+--
+-- Default value: 'ToolbarIcons'
+--
+toolbarToolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
+toolbarToolbarStyle = newAttrFromEnumProperty "toolbar_style"
 
 -- | If an arrow should be shown if the toolbar doesn't fit.
 --
 -- Default value: @True@
 --
 toolbarShowArrow :: ToolbarClass self => Attr self Bool
-toolbarShowArrow = Attr 
+toolbarShowArrow = newAttr
   toolbarGetShowArrow
   toolbarSetShowArrow
 
 -- | \'style\' property. See 'toolbarGetStyle' and 'toolbarSetStyle'
 --
 toolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
-toolbarStyle = Attr 
+toolbarStyle = newAttr
   toolbarGetStyle
   toolbarSetStyle
 
 -- | \'tooltips\' property. See 'toolbarGetTooltips' and 'toolbarSetTooltips'
 --
 toolbarTooltips :: ToolbarClass self => Attr self Bool
-toolbarTooltips = Attr 
+toolbarTooltips = newAttr
   toolbarGetTooltips
   toolbarSetTooltips
 

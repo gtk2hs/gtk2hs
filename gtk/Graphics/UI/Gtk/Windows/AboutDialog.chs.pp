@@ -5,7 +5,7 @@
 --
 --  Created: 1 March 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/11 02:31:48 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:31 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -98,7 +98,7 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogSetEmailHook,
   aboutDialogSetUrlHook,
 
--- * Properties
+-- * Attributes
   aboutDialogName,
   aboutDialogVersion,
   aboutDialogCopyright,
@@ -110,7 +110,8 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogDocumenters,
   aboutDialogArtists,
   aboutDialogTranslatorCredits,
---  aboutDialogLogoIconName
+  aboutDialogLogo,
+  aboutDialogLogoIconName,
 #endif
   ) where
 
@@ -119,7 +120,7 @@ import Maybe	(fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject      	(makeNewGObject, mkFunPtrDestructor)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -442,27 +443,27 @@ foreign import ccall "wrapper" mkAboutDialogActivateLinkFunc ::
   (Ptr AboutDialog -> CString -> Ptr () -> IO ()) -> IO AboutDialogActivateLinkFunc
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The name of the program. If this is not set, it defaults to
 -- 'gGetApplicationName'.
 --
 aboutDialogName :: AboutDialogClass self => Attr self String
-aboutDialogName = Attr 
+aboutDialogName = newAttr
   aboutDialogGetName
   aboutDialogSetName
 
 -- | The version of the program.
 --
 aboutDialogVersion :: AboutDialogClass self => Attr self String
-aboutDialogVersion = Attr 
+aboutDialogVersion = newAttr
   aboutDialogGetVersion
   aboutDialogSetVersion
 
 -- | Copyright information for the program.
 --
 aboutDialogCopyright :: AboutDialogClass self => Attr self String
-aboutDialogCopyright = Attr 
+aboutDialogCopyright = newAttr
   aboutDialogGetCopyright
   aboutDialogSetCopyright
 
@@ -471,7 +472,7 @@ aboutDialogCopyright = Attr
 -- the program, not a detailed list of features.
 --
 aboutDialogComments :: AboutDialogClass self => Attr self String
-aboutDialogComments = Attr 
+aboutDialogComments = newAttr
   aboutDialogGetComments
   aboutDialogSetComments
 
@@ -483,7 +484,7 @@ aboutDialogComments = Attr
 -- Default value: @Nothing@
 --
 aboutDialogLicense :: AboutDialogClass self => Attr self (Maybe String)
-aboutDialogLicense = Attr 
+aboutDialogLicense = newAttr
   aboutDialogGetLicense
   aboutDialogSetLicense
 
@@ -491,7 +492,7 @@ aboutDialogLicense = Attr
 -- string starting with \"http:\/\/.
 --
 aboutDialogWebsite :: AboutDialogClass self => Attr self String
-aboutDialogWebsite = Attr 
+aboutDialogWebsite = newAttr
   aboutDialogGetWebsite
   aboutDialogSetWebsite
 
@@ -499,7 +500,7 @@ aboutDialogWebsite = Attr
 -- it defaults to the URL specified in the website property.
 --
 aboutDialogWebsiteLabel :: AboutDialogClass self => Attr self String
-aboutDialogWebsiteLabel = Attr 
+aboutDialogWebsiteLabel = newAttr
   aboutDialogGetWebsiteLabel
   aboutDialogSetWebsiteLabel
 
@@ -508,7 +509,7 @@ aboutDialogWebsiteLabel = Attr
 -- introduction for more details.
 --
 aboutDialogAuthors :: AboutDialogClass self => Attr self [String]
-aboutDialogAuthors = Attr 
+aboutDialogAuthors = newAttr
   aboutDialogGetAuthors
   aboutDialogSetAuthors
 
@@ -517,7 +518,7 @@ aboutDialogAuthors = Attr
 -- links, see the introduction for more details.
 --
 aboutDialogDocumenters :: AboutDialogClass self => Attr self [String]
-aboutDialogDocumenters = Attr 
+aboutDialogDocumenters = newAttr
   aboutDialogGetDocumenters
   aboutDialogSetDocumenters
 
@@ -526,7 +527,7 @@ aboutDialogDocumenters = Attr
 -- displayed as links, see the introduction for more details.
 --
 aboutDialogArtists :: AboutDialogClass self => Attr self [String]
-aboutDialogArtists = Attr 
+aboutDialogArtists = newAttr
   aboutDialogGetArtists
   aboutDialogSetArtists
 
@@ -535,7 +536,25 @@ aboutDialogArtists = Attr
 -- links, see the introduction for more details.
 --
 aboutDialogTranslatorCredits :: AboutDialogClass self => Attr self String
-aboutDialogTranslatorCredits = Attr 
+aboutDialogTranslatorCredits = newAttr
   aboutDialogGetTranslatorCredits
   aboutDialogSetTranslatorCredits
+
+-- | A logo for the about box. If this is not set, it defaults to
+-- 'windowGetDefaultIconList'.
+--
+aboutDialogLogo :: AboutDialogClass self => ReadWriteAttr self Pixbuf (Maybe Pixbuf)
+aboutDialogLogo = newAttr
+  aboutDialogGetLogo
+  aboutDialogSetLogo
+
+-- | A named icon to use as the logo for the about box. This property
+-- overrides the logo property.
+--
+-- Default value: @Nothing@
+--
+aboutDialogLogoIconName :: AboutDialogClass self => ReadWriteAttr self String (Maybe String)
+aboutDialogLogoIconName = newAttr
+  aboutDialogGetLogoIconName
+  aboutDialogSetLogoIconName
 #endif

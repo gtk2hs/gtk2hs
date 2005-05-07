@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 18:55:22 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:27 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -78,22 +78,24 @@ module Graphics.UI.Gtk.Misc.HandleBox (
   handleBoxSetSnapEdge,
   handleBoxGetSnapEdge,
 
--- * Properties
+-- * Attributes
   handleBoxShadowType,
   handleBoxHandlePosition,
   handleBoxSnapEdge,
+  handleBoxSnapEdgeSet,
 
 -- * Signals
   onChildAttached,
   afterChildAttached,
   onChildDetached,
-  afterChildDetached
+  afterChildDetached,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -184,14 +186,14 @@ handleBoxGetSnapEdge self =
     (toHandleBox self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Appearance of the shadow that surrounds the container.
 --
 -- Default value: 'ShadowEtchedOut'
 --
 handleBoxShadowType :: HandleBoxClass self => Attr self ShadowType
-handleBoxShadowType = Attr 
+handleBoxShadowType = newAttr
   handleBoxGetShadowType
   handleBoxSetShadowType
 
@@ -200,7 +202,7 @@ handleBoxShadowType = Attr
 -- Default value: 'PosLeft'
 --
 handleBoxHandlePosition :: HandleBoxClass self => Attr self PositionType
-handleBoxHandlePosition = Attr 
+handleBoxHandlePosition = newAttr
   handleBoxGetHandlePosition
   handleBoxSetHandlePosition
 
@@ -210,9 +212,17 @@ handleBoxHandlePosition = Attr
 -- Default value: 'PosTop'
 --
 handleBoxSnapEdge :: HandleBoxClass self => Attr self PositionType
-handleBoxSnapEdge = Attr 
+handleBoxSnapEdge = newAttr
   handleBoxGetSnapEdge
   handleBoxSetSnapEdge
+
+-- | Whether to use the value from the snap_edge property or a value derived
+-- from handle_position.
+--
+-- Default value: @False@
+--
+handleBoxSnapEdgeSet :: HandleBoxClass self => Attr self Bool
+handleBoxSnapEdgeSet = newAttrFromBoolProperty "snap_edge_set"
 
 --------------------
 -- Signals

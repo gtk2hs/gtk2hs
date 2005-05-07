@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/24 17:31:00 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:25 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -64,20 +64,23 @@ module Graphics.UI.Gtk.Layout.Layout (
   layoutSetHAdjustment,
   layoutSetVAdjustment,
 
--- * Properties
+-- * Attributes
   layoutHAdjustment,
   layoutVAdjustment,
+  layoutWidth,
+  layoutHeight,
 
 -- * Signals
   onSetScrollAdjustments,
-  afterSetScrollAdjustments
+  afterSetScrollAdjustments,
   ) where
 
 import Maybe	(fromMaybe)
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -217,21 +220,39 @@ layoutSetVAdjustment self adjustment =
     adjustment
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The 'Adjustment' for the horizontal position.
 --
 layoutHAdjustment :: LayoutClass self => Attr self Adjustment
-layoutHAdjustment = Attr 
+layoutHAdjustment = newAttr
   layoutGetHAdjustment
   layoutSetHAdjustment
 
 -- | The 'Adjustment' for the vertical position.
 --
 layoutVAdjustment :: LayoutClass self => Attr self Adjustment
-layoutVAdjustment = Attr 
+layoutVAdjustment = newAttr
   layoutGetVAdjustment
   layoutSetVAdjustment
+
+-- | The width of the layout.
+--
+-- Allowed values: \<= @('maxBound' :: Int)@
+--
+-- Default value: 100
+--
+layoutWidth :: LayoutClass self => Attr self Int
+layoutWidth = newAttrFromUIntProperty "width"
+
+-- | The height of the layout.
+--
+-- Allowed values: \<= @('maxBound' :: Int)@
+--
+-- Default value: 100
+--
+layoutHeight :: LayoutClass self => Attr self Int
+layoutHeight = newAttrFromUIntProperty "height"
 
 --------------------
 -- Signals

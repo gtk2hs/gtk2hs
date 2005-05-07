@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/12 23:11:14 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -71,8 +71,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton (
   radioToolButtonGetGroup,
   radioToolButtonSetGroup,
 
--- * Properties
---  radioToolButtonGroup,
+-- * Attributes
+  radioToolButtonGroup,
 #endif
   ) where
 
@@ -81,7 +81,7 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -177,8 +177,8 @@ radioToolButtonSetGroup self group =
 
 -- | Sets a new group for a radio tool button.
 --
---radioToolButtonGroup :: RadioToolButtonClass self => Attr self [RadioToolButton]
---radioToolButtonGroup = Attr 
---  radioToolButtonGetGroup
---  radioToolButtonSetGroup
+radioToolButtonGroup :: RadioToolButtonClass self => ReadWriteAttr self [RadioToolButton] RadioToolButton
+radioToolButtonGroup = newAttr
+  radioToolButtonGetGroup
+  radioToolButtonSetGroup
 #endif

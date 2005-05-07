@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 18:55:23 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:27 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -76,14 +76,14 @@ module Graphics.UI.Gtk.Misc.SizeGroup (
   sizeGroupAddWidget,
   sizeGroupRemoveWidget,
 
--- * Properties
-  sizeGroupMode
+-- * Attributes
+  sizeGroupMode,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -156,7 +156,7 @@ sizeGroupSetMode self mode =
     ((fromIntegral . fromEnum) mode)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The directions in which the size group effects the requested sizes of its
 -- component widgets.
@@ -164,6 +164,6 @@ sizeGroupSetMode self mode =
 -- Default value: 'SizeGroupHorizontal'
 --
 sizeGroupMode :: SizeGroupClass self => Attr self SizeGroupMode
-sizeGroupMode = Attr 
+sizeGroupMode = newAttr
   sizeGroupGetMode
   sizeGroupSetMode

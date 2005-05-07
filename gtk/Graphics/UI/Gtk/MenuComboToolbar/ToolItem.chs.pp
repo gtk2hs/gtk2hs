@@ -5,7 +5,7 @@
 --
 --  Created: 1 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 16:52:50 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:26 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -86,13 +86,13 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
   toolItemGetProxyMenuItem,
   toolItemSetProxyMenuItem,
 
--- * Properties
+-- * Attributes
   toolItemVisibleHorizontal,
   toolItemVisibleVertical,
   toolItemIsImportant,
   toolItemExpand,
   toolItemHomogeneous,
-  toolItemUseDragWindow
+  toolItemUseDragWindow,
 #endif
   ) where
 
@@ -100,7 +100,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -343,7 +343,7 @@ toolItemSetProxyMenuItem self menuItemId menuItem =
     (toWidget menuItem)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Whether the toolbar item is visible when the toolbar is in a horizontal
 -- orientation.
@@ -351,7 +351,7 @@ toolItemSetProxyMenuItem self menuItemId menuItem =
 -- Default value: @True@
 --
 toolItemVisibleHorizontal :: ToolItemClass self => Attr self Bool
-toolItemVisibleHorizontal = Attr 
+toolItemVisibleHorizontal = newAttr
   toolItemGetVisibleHorizontal
   toolItemSetVisibleHorizontal
 
@@ -361,7 +361,7 @@ toolItemVisibleHorizontal = Attr
 -- Default value: @True@
 --
 toolItemVisibleVertical :: ToolItemClass self => Attr self Bool
-toolItemVisibleVertical = Attr 
+toolItemVisibleVertical = newAttr
   toolItemGetVisibleVertical
   toolItemSetVisibleVertical
 
@@ -371,14 +371,14 @@ toolItemVisibleVertical = Attr
 -- Default value: @False@
 --
 toolItemIsImportant :: ToolItemClass self => Attr self Bool
-toolItemIsImportant = Attr 
+toolItemIsImportant = newAttr
   toolItemGetIsImportant
   toolItemSetIsImportant
 
 -- | \'expand\' property. See 'toolItemGetExpand' and 'toolItemSetExpand'
 --
 toolItemExpand :: ToolItemClass self => Attr self Bool
-toolItemExpand = Attr 
+toolItemExpand = newAttr
   toolItemGetExpand
   toolItemSetExpand
 
@@ -386,7 +386,7 @@ toolItemExpand = Attr
 -- 'toolItemSetHomogeneous'
 --
 toolItemHomogeneous :: ToolItemClass self => Attr self Bool
-toolItemHomogeneous = Attr 
+toolItemHomogeneous = newAttr
   toolItemGetHomogeneous
   toolItemSetHomogeneous
 
@@ -394,7 +394,7 @@ toolItemHomogeneous = Attr
 -- 'toolItemSetUseDragWindow'
 --
 toolItemUseDragWindow :: ToolItemClass self => Attr self Bool
-toolItemUseDragWindow = Attr 
+toolItemUseDragWindow = newAttr
   toolItemGetUseDragWindow
   toolItemSetUseDragWindow
 #endif

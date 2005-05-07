@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:22:04 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:24 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -83,8 +83,9 @@ module Graphics.UI.Gtk.Entry.SpinButton (
   spinButtonGetSnapToTicks,
   spinButtonUpdate,
 
--- * Properties
+-- * Attributes
   spinButtonAdjustment,
+  spinButtonClimbRate,
   spinButtonDigits,
   spinButtonSnapToTicks,
   spinButtonNumeric,
@@ -104,7 +105,8 @@ module Graphics.UI.Gtk.Entry.SpinButton (
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -406,14 +408,23 @@ spinButtonUpdate self =
     (toSpinButton self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The adjustment that holds the value of the spinbutton.
 --
 spinButtonAdjustment :: SpinButtonClass self => Attr self Adjustment
-spinButtonAdjustment = Attr 
+spinButtonAdjustment = newAttr
   spinButtonGetAdjustment
   spinButtonSetAdjustment
+
+-- | The acceleration rate when you hold down a button.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+spinButtonClimbRate :: SpinButtonClass self => Attr self Double
+spinButtonClimbRate = newAttrFromDoubleProperty "climb_rate"
 
 -- | The number of decimal places to display.
 --
@@ -422,7 +433,7 @@ spinButtonAdjustment = Attr
 -- Default value: 0
 --
 spinButtonDigits :: SpinButtonClass self => Attr self Int
-spinButtonDigits = Attr 
+spinButtonDigits = newAttr
   spinButtonGetDigits
   spinButtonSetDigits
 
@@ -432,7 +443,7 @@ spinButtonDigits = Attr
 -- Default value: @False@
 --
 spinButtonSnapToTicks :: SpinButtonClass self => Attr self Bool
-spinButtonSnapToTicks = Attr 
+spinButtonSnapToTicks = newAttr
   spinButtonGetSnapToTicks
   spinButtonSetSnapToTicks
 
@@ -441,7 +452,7 @@ spinButtonSnapToTicks = Attr
 -- Default value: @False@
 --
 spinButtonNumeric :: SpinButtonClass self => Attr self Bool
-spinButtonNumeric = Attr 
+spinButtonNumeric = newAttr
   spinButtonGetNumeric
   spinButtonSetNumeric
 
@@ -450,7 +461,7 @@ spinButtonNumeric = Attr
 -- Default value: @False@
 --
 spinButtonWrap :: SpinButtonClass self => Attr self Bool
-spinButtonWrap = Attr 
+spinButtonWrap = newAttr
   spinButtonGetWrap
   spinButtonSetWrap
 
@@ -460,7 +471,7 @@ spinButtonWrap = Attr
 -- Default value: 'UpdateAlways'
 --
 spinButtonUpdatePolicy :: SpinButtonClass self => Attr self SpinButtonUpdatePolicy
-spinButtonUpdatePolicy = Attr 
+spinButtonUpdatePolicy = newAttr
   spinButtonGetUpdatePolicy
   spinButtonSetUpdatePolicy
 
@@ -469,7 +480,7 @@ spinButtonUpdatePolicy = Attr
 -- Default value: 0
 --
 spinButtonValue :: SpinButtonClass self => Attr self Double
-spinButtonValue = Attr 
+spinButtonValue = newAttr
   spinButtonGetValue
   spinButtonSetValue
 

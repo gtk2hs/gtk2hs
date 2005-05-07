@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/03/26 01:25:58 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -111,19 +111,19 @@ module Graphics.UI.Gtk.Windows.Dialog (
   dialogSetHasSeparator,
   dialogSetResponseSensitive,
 
--- * Properties
+-- * Attributes
   dialogHasSeparator,
 
 -- * Signals
   onResponse,
-  afterResponse
+  afterResponse,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -272,14 +272,14 @@ dialogSetResponseSensitive self responseId setting =
     (fromBool setting)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The dialog has a separator bar above its buttons.
 --
 -- Default value: @True@
 --
 dialogHasSeparator :: DialogClass self => Attr self Bool
-dialogHasSeparator = Attr 
+dialogHasSeparator = newAttr
   dialogGetHasSeparator
   dialogSetHasSeparator
 
