@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/19 02:56:02 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:59:50 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -84,7 +84,7 @@ import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 import Graphics.UI.Gtk.Windows.Window
 import Graphics.UI.Gtk.Windows.Dialog
 import System.Glib.GValue		(allocaGValue)
-import System.Glib.GValueTypes		(valueSetString)
+import System.Glib.GValueTypes		(valueSetMaybeString)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -139,7 +139,7 @@ internalFileChooserDialogNew title parent action buttons backend = do
   dialog <-makeNewObject mkFileChooserDialog $ liftM castPtr $
            if (isJust backend)
              then allocaGValue $ \backendGValue -> do
-                  valueSetString backendGValue backend
+                  valueSetMaybeString backendGValue backend
                   objectNew objType [("file-system-backend", backendGValue)]
              else objectNew objType []
   when (isJust title)
