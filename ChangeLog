@@ -107,8 +107,7 @@
 
 	* gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp: attribute changes as
 	above and also tidy up some binding code renaming
-	treeView(G|S)et(H|V)adjustment to treeView(G|S)et(H|V)Adjustment. This
-	is safe since these function were not in the previous release.
+	treeView(G|S)et(H|V)adjustment to treeView(G|S)et(H|V)Adjustment.
 
 	* gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp: attribute
 	changes as above and also improve module level documentation.
@@ -116,6 +115,10 @@
 	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp,
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs,
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: attribute changes as above.
+
+	* APICHANGES: new file to record API changes that may affect users.
+	Add note about the renaming of treeView(G|S)et(H|V)adjustment to
+	treeView(G|S)et(H|V)Adjustment.
 
 2005-04-28 Duncan Coutts <duncan@coutts.uklinux.net>
 
