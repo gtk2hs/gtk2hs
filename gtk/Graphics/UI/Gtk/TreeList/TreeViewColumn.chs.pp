@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/20 03:51:39 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 21:03:39 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -44,9 +44,16 @@
 -- A visible column in a 'TreeView' widget
 --
 module Graphics.UI.Gtk.TreeList.TreeViewColumn (
--- * Description
+-- * Detail
 -- 
--- | The 'TreeViewColumn' object is a visible column in a 'TreeView' widget.
+-- | The 'TreeViewColumn' object represents a visible column in a 'TreeView'
+-- widget. It allows to set properties of the column header, and functions as a
+-- holding pen for the cell renderers which determine how the data in the
+-- column is displayed.
+--
+-- Please refer to the tree widget conceptual overview for an overview of
+-- all the objects and data types related to the tree widget and how they work
+-- together.
 
 -- * Class Hierarchy
 -- |
@@ -109,14 +116,16 @@ module Graphics.UI.Gtk.TreeList.TreeViewColumn (
   treeViewColumnGetSortOrder,
   SortType(..),
 
--- * Properties
+-- * Attributes
   treeViewColumnVisible,
   treeViewColumnResizable,
+  treeViewColumnWidth,
   treeViewColumnSpacing,
   treeViewColumnSizing,
   treeViewColumnFixedWidth,
   treeViewColumnMinWidth,
   treeViewColumnMaxWidth,
+  treeViewColumnTitle,
   treeViewColumnClickable,
   treeViewColumnWidget,
   treeViewColumnAlignment,
@@ -135,7 +144,8 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import System.Glib.GList#}			(fromGList)
-import System.Glib.Attributes			(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -565,14 +575,14 @@ treeViewColumnGetSortOrder self =
     self
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Whether to display the column.
 --
 -- Default value: @True@
 --
 treeViewColumnVisible :: Attr TreeViewColumn Bool
-treeViewColumnVisible = Attr
+treeViewColumnVisible = newAttr
   treeViewColumnGetVisible
   treeViewColumnSetVisible
 
@@ -581,9 +591,18 @@ treeViewColumnVisible = Attr
 -- Default value: @False@
 --
 treeViewColumnResizable :: Attr TreeViewColumn Bool
-treeViewColumnResizable = Attr
+treeViewColumnResizable = newAttr
   treeViewColumnGetResizable
   treeViewColumnSetResizable
+
+-- | Current width of the column.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+treeViewColumnWidth :: ReadAttr TreeViewColumn Int
+treeViewColumnWidth = readAttrFromIntProperty "width"
 
 -- | Space which is inserted between cells.
 --
@@ -592,7 +611,7 @@ treeViewColumnResizable = Attr
 -- Default value: 0
 --
 treeViewColumnSpacing :: Attr TreeViewColumn Int
-treeViewColumnSpacing = Attr
+treeViewColumnSpacing = newAttr
   treeViewColumnGetSpacing
   treeViewColumnSetSpacing
 
@@ -601,7 +620,7 @@ treeViewColumnSpacing = Attr
 -- Default value: 'TreeViewColumnGrowOnly'
 --
 treeViewColumnSizing :: Attr TreeViewColumn TreeViewColumnSizing
-treeViewColumnSizing = Attr
+treeViewColumnSizing = newAttr
   treeViewColumnGetSizing
   treeViewColumnSetSizing
 
@@ -612,7 +631,7 @@ treeViewColumnSizing = Attr
 -- Default value: 1
 --
 treeViewColumnFixedWidth :: Attr TreeViewColumn Int
-treeViewColumnFixedWidth = Attr
+treeViewColumnFixedWidth = newAttr
   treeViewColumnGetFixedWidth
   treeViewColumnSetFixedWidth
 
@@ -623,7 +642,7 @@ treeViewColumnFixedWidth = Attr
 -- Default value: -1
 --
 treeViewColumnMinWidth :: Attr TreeViewColumn Int
-treeViewColumnMinWidth = Attr
+treeViewColumnMinWidth = newAttr
   treeViewColumnGetMinWidth
   treeViewColumnSetMinWidth
 
@@ -634,23 +653,32 @@ treeViewColumnMinWidth = Attr
 -- Default value: -1
 --
 treeViewColumnMaxWidth :: Attr TreeViewColumn Int
-treeViewColumnMaxWidth = Attr
+treeViewColumnMaxWidth = newAttr
   treeViewColumnGetMaxWidth
   treeViewColumnSetMaxWidth
+
+-- | Title to appear in column header.
+--
+-- Default value: \"\"
+--
+treeViewColumnTitle :: ReadWriteAttr TreeViewColumn (Maybe String) String
+treeViewColumnTitle = newAttr
+  treeViewColumnGetTitle
+  treeViewColumnSetTitle
 
 -- | Whether the header can be clicked.
 --
 -- Default value: @False@
 --
 treeViewColumnClickable :: Attr TreeViewColumn Bool
-treeViewColumnClickable = Attr
+treeViewColumnClickable = newAttr
   treeViewColumnGetClickable
   treeViewColumnSetClickable
 
 -- | Widget to put in column header button instead of column title.
 --
-treeViewColumnWidget :: Attr TreeViewColumn Widget
-treeViewColumnWidget = Attr
+treeViewColumnWidget :: WidgetClass widget => ReadWriteAttr TreeViewColumn Widget widget
+treeViewColumnWidget = newAttr
   treeViewColumnGetWidget
   treeViewColumnSetWidget
 
@@ -661,7 +689,7 @@ treeViewColumnWidget = Attr
 -- Default value: 0
 --
 treeViewColumnAlignment :: Attr TreeViewColumn Float
-treeViewColumnAlignment = Attr
+treeViewColumnAlignment = newAttr
   treeViewColumnGetAlignment
   treeViewColumnSetAlignment
 
@@ -670,7 +698,7 @@ treeViewColumnAlignment = Attr
 -- Default value: @False@
 --
 treeViewColumnReorderable :: Attr TreeViewColumn Bool
-treeViewColumnReorderable = Attr
+treeViewColumnReorderable = newAttr
   treeViewColumnGetReorderable
   treeViewColumnSetReorderable
 
@@ -679,7 +707,7 @@ treeViewColumnReorderable = Attr
 -- Default value: @False@
 --
 treeViewColumnSortIndicator :: Attr TreeViewColumn Bool
-treeViewColumnSortIndicator = Attr
+treeViewColumnSortIndicator = newAttr
   treeViewColumnGetSortIndicator
   treeViewColumnSetSortIndicator
 
@@ -688,7 +716,7 @@ treeViewColumnSortIndicator = Attr
 -- Default value: 'SortAscending'
 --
 treeViewColumnSortOrder :: Attr TreeViewColumn SortType
-treeViewColumnSortOrder = Attr
+treeViewColumnSortOrder = newAttr
   treeViewColumnGetSortOrder
   treeViewColumnSetSortOrder
 
@@ -696,7 +724,7 @@ treeViewColumnSortOrder = Attr
 -- 'treeViewColumnSetSortColumnId'
 --
 treeViewColumnSortColumnId :: Attr TreeViewColumn Int
-treeViewColumnSortColumnId = Attr
+treeViewColumnSortColumnId = newAttr
   treeViewColumnGetSortColumnId
   treeViewColumnSetSortColumnId
 

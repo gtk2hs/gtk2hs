@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/07 21:03:39 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -90,10 +90,10 @@ module Graphics.UI.Gtk.TreeList.TreeView (
   treeViewGetModel,
   treeViewSetModel,
   treeViewGetSelection,
-  treeViewGetHadjustment,
-  treeViewSetHadjustment,
-  treeViewGetVadjustment,
-  treeViewSetVadjustment,
+  treeViewGetHAdjustment,
+  treeViewSetHAdjustment,
+  treeViewGetVAdjustment,
+  treeViewSetVAdjustment,
   treeViewGetHeadersVisible,
   treeViewSetHeadersVisible,
   treeViewColumnsAutosize,
@@ -150,8 +150,13 @@ module Graphics.UI.Gtk.TreeList.TreeView (
   treeViewGetHoverExpand,
   treeViewSetHoverExpand,
 #endif
--- * Properties
+-- * Attributes
+  treeViewModel,
+  treeViewHAdjustment,
+  treeViewVAdjustment,
   treeViewHeadersVisible,
+  treeViewHeadersClickable,
+  treeViewExpanderColumn,
   treeViewReorderable,
   treeViewRulesHint,
   treeViewEnableSearch,
@@ -187,7 +192,8 @@ import Maybe	(fromMaybe)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList		(GList, fromGList)
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -224,14 +230,14 @@ treeViewNewWithModel model =
 --------------------
 -- Methods
 
--- | Retrieve the TreeModel that supplies the data for
--- this 'TreeView'. Returns Nothing if no model is currently set.
+-- | Returns the model that supplies the data for
+-- this 'TreeView'. Returns @Nothing@ if the model is unset.
 --
 treeViewGetModel :: TreeViewClass self => self -> IO (Maybe TreeModel)
-treeViewGetModel self = do
-  tmPtr <- {# call unsafe tree_view_get_model #} (toTreeView self)
-  if tmPtr==nullPtr then return Nothing else liftM Just $
-    makeNewGObject mkTreeModel (return tmPtr)
+treeViewGetModel self =
+  maybeNull (makeNewGObject mkTreeModel) $
+  {# call unsafe tree_view_get_model #}
+    (toTreeView self)
 
 -- | Set the 'TreeModel' for the current View.
 --
@@ -252,42 +258,41 @@ treeViewGetSelection self =
   {# call unsafe tree_view_get_selection #}
     (toTreeView self)
 
--- | Get the 'Adjustment' that
--- represents the horizontal aspect.
+-- | Gets the 'Adjustment' currently being used for the horizontal aspect.
 --
-treeViewGetHadjustment :: TreeViewClass self => self -> IO (Maybe Adjustment)
-treeViewGetHadjustment self = do
-  adjPtr <- {# call unsafe tree_view_get_hadjustment #} (toTreeView self)
-  if adjPtr==nullPtr then return Nothing else do
-    liftM Just $ makeNewObject mkAdjustment (return adjPtr)
-
--- | Set the 'Adjustment' that controls
--- the horizontal aspect. If @adj@ is Nothing then set no Adjustment
--- widget.
---
-treeViewSetHadjustment :: TreeViewClass self => (Maybe Adjustment) -> self -> IO ()
-treeViewSetHadjustment adj self =
-  {# call tree_view_set_hadjustment #} 
+treeViewGetHAdjustment :: TreeViewClass self => self -> IO (Maybe Adjustment)
+treeViewGetHAdjustment self =
+  maybeNull (makeNewObject mkAdjustment) $
+  {# call unsafe tree_view_get_hadjustment #}
     (toTreeView self)
-    (fromMaybe (mkAdjustment nullForeignPtr) adj)
 
--- | Get the 'Adjustment' that
--- represents the vertical aspect.
+-- | Sets the 'Adjustment' for the current horizontal aspect.
 --
-treeViewGetVadjustment :: TreeViewClass self => self -> IO (Maybe Adjustment)
-treeViewGetVadjustment self = do
-  adjPtr <- {# call unsafe tree_view_get_vadjustment #} (toTreeView self)
-  if adjPtr==nullPtr then return Nothing else do
-    liftM Just $ makeNewObject mkAdjustment (return adjPtr)
-
--- | Set the 'Adjustment' that controls the vertical aspect. If @adj@ is
--- @Nothing@ then set no 'Adjustment' widget.
---
-treeViewSetVadjustment :: TreeViewClass self => (Maybe Adjustment) -> self -> IO ()
-treeViewSetVadjustment adj self =
-  {# call tree_view_set_vadjustment #} 
+treeViewSetHAdjustment :: TreeViewClass self => self
+ -> Maybe Adjustment -- ^ @adjustment@ - The 'Adjustment' to set, or @Nothing@
+ -> IO ()
+treeViewSetHAdjustment self adjustment =
+  {# call tree_view_set_hadjustment #}
     (toTreeView self)
-    (fromMaybe (mkAdjustment nullForeignPtr) adj)
+    (fromMaybe (Adjustment nullForeignPtr) adjustment)
+
+-- | Gets the 'Adjustment' currently being used for the vertical aspect.
+--
+treeViewGetVAdjustment :: TreeViewClass self => self -> IO (Maybe Adjustment)
+treeViewGetVAdjustment self =
+  maybeNull (makeNewObject mkAdjustment) $
+  {# call unsafe tree_view_get_vadjustment #}
+    (toTreeView self)
+
+-- | Sets the 'Adjustment' for the current vertical aspect.
+--
+treeViewSetVAdjustment :: TreeViewClass self => self
+ -> Maybe Adjustment -- ^ @adjustment@ - The 'Adjustment' to set, or @Nothing@
+ -> IO ()
+treeViewSetVAdjustment self adjustment =
+  {# call tree_view_set_vadjustment #}
+    (toTreeView self)
+    (fromMaybe (Adjustment nullForeignPtr) adjustment)
 
 -- | Query if the column headers are visible.
 --
@@ -454,14 +459,10 @@ treeViewMoveColumnFirst self which =
 treeViewSetExpanderColumn :: TreeViewClass self => self
  -> Maybe TreeViewColumn
  -> IO ()
-treeViewSetExpanderColumn self (Just column) =
+treeViewSetExpanderColumn self column =
   {# call unsafe tree_view_set_expander_column #}
     (toTreeView self)
-    column
-treeViewSetExpanderColumn self Nothing =
-  {# call unsafe tree_view_set_expander_column #}
-    (toTreeView self)
-    (mkTreeViewColumn nullForeignPtr)
+    (fromMaybe (TreeViewColumn nullForeignPtr) column)
 
 -- | Get location of hierarchy controls.
 --
@@ -1102,23 +1103,58 @@ treeViewSetHoverExpand self expand =
 #endif
 
 --------------------
--- Properties
+-- Attributes
+
+-- | The model for the tree view.
+--
+treeViewModel :: (TreeViewClass self, TreeModelClass model) => ReadWriteAttr self (Maybe TreeModel) model
+treeViewModel = newAttr
+  treeViewGetModel
+  treeViewSetModel
+
+-- | Horizontal Adjustment for the widget.
+--
+treeViewHAdjustment :: TreeViewClass self => Attr self (Maybe Adjustment)
+treeViewHAdjustment = newAttr
+  treeViewGetHAdjustment
+  treeViewSetHAdjustment
+
+-- | Vertical Adjustment for the widget.
+--
+treeViewVAdjustment :: TreeViewClass self => Attr self (Maybe Adjustment)
+treeViewVAdjustment = newAttr
+  treeViewGetVAdjustment
+  treeViewSetVAdjustment
 
 -- | Show the column header buttons.
 --
 -- Default value: @True@
 --
 treeViewHeadersVisible :: TreeViewClass self => Attr self Bool
-treeViewHeadersVisible = Attr
+treeViewHeadersVisible = newAttr
   treeViewGetHeadersVisible
   treeViewSetHeadersVisible
+
+-- | Column headers respond to click events.
+--
+-- Default value: @False@
+--
+treeViewHeadersClickable :: TreeViewClass self => Attr self Bool
+treeViewHeadersClickable = newAttrFromBoolProperty "headers_clickable"
+
+-- | Set the column for the expander column.
+--
+treeViewExpanderColumn :: TreeViewClass self => ReadWriteAttr self TreeViewColumn (Maybe TreeViewColumn)
+treeViewExpanderColumn = newAttr
+  treeViewGetExpanderColumn
+  treeViewSetExpanderColumn
 
 -- | View is reorderable.
 --
 -- Default value: @False@
 --
 treeViewReorderable :: TreeViewClass self => Attr self Bool
-treeViewReorderable = Attr
+treeViewReorderable = newAttr
   treeViewGetReorderable
   treeViewSetReorderable
 
@@ -1127,7 +1163,7 @@ treeViewReorderable = Attr
 -- Default value: @False@
 --
 treeViewRulesHint :: TreeViewClass self => Attr self Bool
-treeViewRulesHint = Attr
+treeViewRulesHint = newAttr
   treeViewGetRulesHint
   treeViewSetRulesHint
 
@@ -1136,7 +1172,7 @@ treeViewRulesHint = Attr
 -- Default value: @True@
 --
 treeViewEnableSearch :: TreeViewClass self => Attr self Bool
-treeViewEnableSearch = Attr
+treeViewEnableSearch = newAttr
   treeViewGetEnableSearch
   treeViewSetEnableSearch
 
@@ -1147,7 +1183,7 @@ treeViewEnableSearch = Attr
 -- Default value: -1
 --
 treeViewSearchColumn :: TreeViewClass self => Attr self Int
-treeViewSearchColumn = Attr
+treeViewSearchColumn = newAttr
   treeViewGetSearchColumn
   treeViewSetSearchColumn
 
@@ -1160,7 +1196,7 @@ treeViewSearchColumn = Attr
 -- Default value: @False@
 --
 treeViewFixedHeightMode :: TreeViewClass self => Attr self Bool
-treeViewFixedHeightMode = Attr
+treeViewFixedHeightMode = newAttr
   treeViewGetFixedHeightMode
   treeViewSetFixedHeightMode
 
@@ -1174,7 +1210,7 @@ treeViewFixedHeightMode = Attr
 -- Default value: @False@
 --
 treeViewHoverSelection :: TreeViewClass self => Attr self Bool
-treeViewHoverSelection = Attr
+treeViewHoverSelection = newAttr
   treeViewGetHoverSelection
   treeViewSetHoverSelection
 
@@ -1187,7 +1223,7 @@ treeViewHoverSelection = Attr
 -- Default value: @False@
 --
 treeViewHoverExpand :: TreeViewClass self => Attr self Bool
-treeViewHoverExpand = Attr
+treeViewHoverExpand = newAttr
   treeViewGetHoverExpand
   treeViewSetHoverExpand
 #endif
