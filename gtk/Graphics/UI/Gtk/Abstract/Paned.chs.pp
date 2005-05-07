@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/07 00:13:59 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/07 19:13:30 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -82,8 +82,13 @@ module Graphics.UI.Gtk.Abstract.Paned (
   panedGetChild2,
 #endif
 
--- * Properties
+-- * Attributes
   panedPosition,
+  panedPositionSet,
+#if GTK_CHECK_VERSION(2,4,0)
+  panedMinPosition,
+  panedMaxPosition,
+#endif
 
 -- * Signals
   onCycleChildFocus,
@@ -103,7 +108,8 @@ module Graphics.UI.Gtk.Abstract.Paned (
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -189,7 +195,7 @@ panedGetPosition self =
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Obtains the first child of the paned widget.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 panedGetChild1 :: PanedClass self => self
  -> IO Widget -- ^ returns first child
@@ -200,7 +206,7 @@ panedGetChild1 self =
 
 -- | Obtains the second child of the paned widget.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 panedGetChild2 :: PanedClass self => self
  -> IO Widget -- ^ returns second child
@@ -211,7 +217,7 @@ panedGetChild2 self =
 #endif
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Position of paned separator in pixels (0 means all the way to the
 -- left\/top).
@@ -221,9 +227,38 @@ panedGetChild2 self =
 -- Default value: 0
 --
 panedPosition :: PanedClass self => Attr self Int
-panedPosition = Attr 
+panedPosition = newAttr
   panedGetPosition
   panedSetPosition
+
+-- | @True@ if the Position property should be used.
+--
+-- Default value: @False@
+--
+panedPositionSet :: PanedClass self => Attr self Bool
+panedPositionSet = newAttrFromBoolProperty "position_set"
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | The smallest possible value for the position property. This property is
+-- derived from the size and shrinkability of the widget's children.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+panedMinPosition :: PanedClass self => ReadAttr self Int
+panedMinPosition = readAttrFromIntProperty "min_position"
+
+-- | The largest possible value for the position property. This property is
+-- derived from the size and shrinkability of the widget's children.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 2147483647
+--
+panedMaxPosition :: PanedClass self => ReadAttr self Int
+panedMaxPosition = readAttrFromIntProperty "max_position"
+#endif
 
 --------------------
 -- Signals

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:02:21 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 19:13:29 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -105,15 +105,15 @@ module Graphics.UI.Gtk.Abstract.Box (
   boxQueryChildPacking,
   boxSetChildPacking,
 
--- * Properties
+-- * Attributes
   boxSpacing,
-  boxHomogeneous
+  boxHomogeneous,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -315,7 +315,7 @@ boxGetSpacing self =
     (toBox self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The amount of space between children.
 --
@@ -324,7 +324,7 @@ boxGetSpacing self =
 -- Default value: 0
 --
 boxSpacing :: BoxClass self => Attr self Int
-boxSpacing = Attr 
+boxSpacing = newAttr
   boxGetSpacing
   boxSetSpacing
 
@@ -333,6 +333,6 @@ boxSpacing = Attr
 -- Default value: @False@
 --
 boxHomogeneous :: BoxClass self => Attr self Bool
-boxHomogeneous = Attr 
+boxHomogeneous = newAttr
   boxGetHomogeneous
   boxSetHomogeneous

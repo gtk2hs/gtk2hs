@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/14 23:55:07 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/07 19:13:30 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -62,12 +62,20 @@ module Graphics.UI.Gtk.Abstract.Misc (
   miscSetAlignment,
   miscGetAlignment,
   miscSetPadding,
-  miscGetPadding
+  miscGetPadding,
+
+-- * Attributes
+  miscXalign,
+  miscYalign,
+  miscXpad,
+  miscYpad,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes
+import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -135,3 +143,44 @@ miscGetPadding self =
   ypad <- peek ypadPtr
   return (fromIntegral xpad, fromIntegral ypad)
 
+--------------------
+-- Attributes
+
+-- | The horizontal alignment, from 0 (left) to 1 (right). Reversed for RTL
+-- layouts.
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+miscXalign :: MiscClass self => Attr self Float
+miscXalign = newAttrFromFloatProperty "xalign"
+
+-- | The vertical alignment, from 0 (top) to 1 (bottom).
+--
+-- Allowed values: [0,1]
+--
+-- Default value: 0.5
+--
+miscYalign :: MiscClass self => Attr self Float
+miscYalign = newAttrFromFloatProperty "yalign"
+
+-- | The amount of space to add on the left and right of the widget, in
+-- pixels.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+miscXpad :: MiscClass self => Attr self Int
+miscXpad = newAttrFromIntProperty "xpad"
+
+-- | The amount of space to add on the top and bottom of the widget, in
+-- pixels.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+miscYpad :: MiscClass self => Attr self Int
+miscYpad = newAttrFromIntProperty "ypad"

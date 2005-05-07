@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/19 02:39:49 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 19:13:29 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -157,9 +157,11 @@ module Graphics.UI.Gtk.Abstract.Container (
   containerChildSetProperty,
   containerChildGetProperty,
 
--- * Properties
+-- * Attributes
   containerResizeMode,
   containerBorderWidth,
+  containerFocusHAdjustment,
+  containerFocusVAdjustment,
 
 -- * Signals
   onAdd,
@@ -171,14 +173,14 @@ module Graphics.UI.Gtk.Abstract.Container (
   onRemove,
   afterRemove,
   onSetFocusChild,
-  afterSetFocusChild
+  afterSetFocusChild,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -477,14 +479,14 @@ containerChildGetProperty self child propertyName =
   valueGetGenericValue gvalue
 
 --------------------
--- Properties
+-- Attributes
 
 -- | Specify how resize events are handled.
 --
 -- Default value: 'ResizeParent'
 --
 containerResizeMode :: ContainerClass self => Attr self ResizeMode
-containerResizeMode = Attr
+containerResizeMode = newAttr
   containerGetResizeMode
   containerSetResizeMode
 
@@ -495,9 +497,25 @@ containerResizeMode = Attr
 -- Default value: 0
 --
 containerBorderWidth :: ContainerClass self => Attr self Int
-containerBorderWidth = Attr
+containerBorderWidth = newAttr
   containerGetBorderWidth
   containerSetBorderWidth
+
+-- | \'focusHadjustment\' property. See 'containerGetFocusHAdjustment' and
+-- 'containerSetFocusHAdjustment'
+--
+containerFocusHAdjustment :: ContainerClass self => ReadWriteAttr self (Maybe Adjustment) Adjustment
+containerFocusHAdjustment = newAttr
+  containerGetFocusHAdjustment
+  containerSetFocusHAdjustment
+
+-- | \'focusVadjustment\' property. See 'containerGetFocusVAdjustment' and
+-- 'containerSetFocusVAdjustment'
+--
+containerFocusVAdjustment :: ContainerClass self => ReadWriteAttr self (Maybe Adjustment) Adjustment
+containerFocusVAdjustment = newAttr
+  containerGetFocusVAdjustment
+  containerSetFocusVAdjustment
 
 --------------------
 -- Signals

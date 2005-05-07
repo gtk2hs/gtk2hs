@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/04/07 00:13:59 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/07 19:13:30 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -62,7 +62,7 @@ module Graphics.UI.Gtk.Abstract.Range (
   rangeSetRange,
   ScrollType(..),
 
--- * Properties
+-- * Attributes
   rangeUpdatePolicy,
   rangeAdjustment,
   rangeInverted,
@@ -80,7 +80,7 @@ module Graphics.UI.Gtk.Abstract.Range (
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -213,21 +213,21 @@ rangeSetRange self min max =
     (realToFrac max)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | How the range should be updated on the screen.
 --
 -- Default value: 'UpdateContinuous'
 --
 rangeUpdatePolicy :: RangeClass self => Attr self UpdateType
-rangeUpdatePolicy = Attr 
+rangeUpdatePolicy = newAttr
   rangeGetUpdatePolicy
   rangeSetUpdatePolicy
 
 -- | The 'Adjustment' that contains the current value of this range object.
 --
 rangeAdjustment :: RangeClass self => Attr self Adjustment
-rangeAdjustment = Attr 
+rangeAdjustment = newAttr
   rangeGetAdjustment
   rangeSetAdjustment
 
@@ -236,14 +236,14 @@ rangeAdjustment = Attr
 -- Default value: @False@
 --
 rangeInverted :: RangeClass self => Attr self Bool
-rangeInverted = Attr 
+rangeInverted = newAttr
   rangeGetInverted
   rangeSetInverted
 
 -- | \'value\' property. See 'rangeGetValue' and 'rangeSetValue'
 --
 rangeValue :: RangeClass self => Attr self Double
-rangeValue = Attr 
+rangeValue = newAttr
   rangeGetValue
   rangeSetValue
 

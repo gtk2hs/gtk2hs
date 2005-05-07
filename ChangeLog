@@ -15,6 +15,18 @@
 	and add convenience functions for making attributes that are based on
 	GObject properties.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Container.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Misc.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scale.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: use the new attributes API
+	and add a few new attributes. Also change the name of the section in
+	the documentation from "Properties" to "Attributes" since this is what
+	we seem to be calling them.
+
 2005-04-28 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: add gconf/System/Gnome/GConf/marshal.list to EXTRA_DIST

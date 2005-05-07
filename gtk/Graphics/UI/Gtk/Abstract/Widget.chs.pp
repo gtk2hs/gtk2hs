@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:13:59 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/07 19:13:30 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -131,7 +131,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetParent,
   widgetGetSizeRequest,
 
--- * Properties
+-- * Attributes
   widgetExtensionEvents,
   widgetDirection,
 
@@ -213,7 +213,7 @@ import Maybe	(fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -1054,15 +1054,15 @@ widgetRenderIcon self stockId size detail =
 --
 -- Default value: 'ExtensionEventsNone'
 --
-widgetExtensionEvents :: Attr Widget [ExtensionMode]
-widgetExtensionEvents = Attr 
+widgetExtensionEvents :: WidgetClass self => Attr self [ExtensionMode]
+widgetExtensionEvents = newAttr
   widgetGetExtensionEvents
   widgetSetExtensionEvents
 
 -- | \'direction\' property. See 'widgetGetDirection' and 'widgetSetDirection'
 --
-widgetDirection :: Attr Widget TextDirection
-widgetDirection = Attr 
+widgetDirection :: WidgetClass self => Attr self TextDirection
+widgetDirection = newAttr
   widgetGetDirection
   widgetSetDirection
 

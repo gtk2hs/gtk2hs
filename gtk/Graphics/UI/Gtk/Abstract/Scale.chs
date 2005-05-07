@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/04/02 19:02:23 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/07 19:13:30 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -65,16 +65,16 @@ module Graphics.UI.Gtk.Abstract.Scale (
   scaleSetValuePos,
   scaleGetValuePos,
 
--- * Properties
+-- * Attributes
   scaleDigits,
   scaleDrawValue,
-  scaleValuePos
+  scaleValuePos,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes		(Attr(..))
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -150,7 +150,7 @@ scaleGetValuePos self =
     (toScale self)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The number of decimal places that are displayed in the value.
 --
@@ -159,7 +159,7 @@ scaleGetValuePos self =
 -- Default value: 1
 --
 scaleDigits :: ScaleClass self => Attr self Int
-scaleDigits = Attr 
+scaleDigits = newAttr
   scaleGetDigits
   scaleSetDigits
 
@@ -168,7 +168,7 @@ scaleDigits = Attr
 -- Default value: @False@
 --
 scaleDrawValue :: ScaleClass self => Attr self Bool
-scaleDrawValue = Attr 
+scaleDrawValue = newAttr
   scaleGetDrawValue
   scaleSetDrawValue
 
@@ -177,6 +177,6 @@ scaleDrawValue = Attr
 -- Default value: 'PosLeft'
 --
 scaleValuePos :: ScaleClass self => Attr self PositionType
-scaleValuePos = Attr 
+scaleValuePos = newAttr
   scaleGetValuePos
   scaleSetValuePos

@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/02 19:02:23 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/07 19:13:29 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -73,8 +73,8 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
   buttonBoxGetChildSecondary,
 #endif
 
--- * Properties
-  buttonBoxLayoutStyle
+-- * Attributes
+  buttonBoxLayoutStyle,
   ) where
 
 import Monad (liftM)
@@ -102,7 +102,7 @@ buttonBoxGetLayout self =
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Returns whether @child@ should appear in a secondary group of children.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 buttonBoxGetChildSecondary :: (ButtonBoxClass self, WidgetClass child) => self
  -> child   -- ^ @child@ - a child of the button box widget
@@ -149,7 +149,7 @@ buttonBoxSetChildSecondary self child isSecondary =
     (fromBool isSecondary)
 
 --------------------
--- Properties
+-- Attributes
 
 -- | How to layout the buttons in the box. Possible values are default,
 -- spread, edge, start and end.
@@ -157,6 +157,6 @@ buttonBoxSetChildSecondary self child isSecondary =
 -- Default value: 'ButtonboxDefaultStyle'
 --
 buttonBoxLayoutStyle :: ButtonBoxClass self => Attr self ButtonBoxStyle
-buttonBoxLayoutStyle = Attr 
+buttonBoxLayoutStyle = newAttr
   buttonBoxGetLayout
   buttonBoxSetLayout
