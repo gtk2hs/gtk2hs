@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.5 $ from $Date: 2005/05/08 12:59:27 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -20,7 +20,7 @@
 --  Lesser General Public License for more details.
 --
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
@@ -59,6 +59,7 @@ import Data.Ratio
 import Data.Bits ((.&.))
 
 import System.Glib.FFI
+import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.GObject		(makeNewGObject)
