@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:25 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/08 03:21:13 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -93,12 +93,13 @@ module Graphics.UI.Gtk.Layout.Table (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Flags		(fromFlags)
 import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums	(AttachOptions(..), fromFlags)
+import Graphics.UI.Gtk.General.Enums	(AttachOptions(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 19:13:30 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/08 03:21:14 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -212,13 +212,14 @@ import Monad	(liftM, unless)
 import Maybe	(fromMaybe)
 
 import System.Glib.FFI
+import System.Glib.Flags		(fromFlags, toFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Enums
+import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode)
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region(..), makeNewRegion)
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize,

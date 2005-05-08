@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:29 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/08 03:21:12 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -81,12 +81,12 @@ module Graphics.UI.Gtk.Selectors.FileFilter (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.GObject              (mkFunPtrDestructor)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.UI.Gtk.Gdk.Enums        (Flags(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

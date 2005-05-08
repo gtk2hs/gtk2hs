@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:28 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/08 03:21:13 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -142,13 +142,14 @@ import Maybe	(fromMaybe)
 import Char	(chr)
 
 import System.Glib.FFI
+import System.Glib.Flags		(fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Structs	(textIterSize)
-import Graphics.UI.Gtk.General.Enums	(TextSearchFlags, Flags(fromFlags))
+import Graphics.UI.Gtk.General.Enums	(TextSearchFlags)
 
 {# context lib="gtk" prefix="gtk" #}
 

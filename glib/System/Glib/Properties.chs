@@ -5,7 +5,7 @@
 --
 --  Created: 16 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 18:58:18 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/08 03:21:12 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -36,8 +36,8 @@ module System.Glib.Properties (
   objectGetPropertyBool,
   objectSetPropertyEnum,
   objectGetPropertyEnum,
---  objectSetPropertyFlags,
---  objectGetPropertyFlags,
+  objectSetPropertyFlags,
+  objectGetPropertyFlags,
   objectSetPropertyFloat,
   objectGetPropertyFloat,
   objectSetPropertyDouble,
@@ -62,6 +62,7 @@ module System.Glib.Properties (
   newAttrFromDoubleProperty,
   newAttrFromEnumProperty,
   readAttrFromEnumProperty,
+  newAttrFromFlagsProperty,
   newAttrFromStringProperty,
   writeAttrFromStringProperty,
   newAttrFromMaybeStringProperty,
@@ -72,12 +73,13 @@ module System.Glib.Properties (
 import Monad (liftM)
 
 import System.Glib.FFI
+import System.Glib.Flags	(Flags, fromFlags, toFlags)
 import System.Glib.UTFString
 {#import System.Glib.Types#}
 {#import System.Glib.GValue#}	(GValue(GValue), valueInit, allocaGValue)
 import System.Glib.GObject	(makeNewGObject)
 import System.Glib.GValueTypes
-import System.Glib.Attributes	(Attr, ReadAttr, WriteAttr, ReadWriteAttr(Attr),
+import System.Glib.Attributes	(Attr, ReadAttr, WriteAttr, ReadWriteAttr,
 				newAttr, readAttr, writeAttr)
 
 {# context lib="glib" prefix="g" #}
@@ -126,11 +128,11 @@ objectSetPropertyEnum = objectSetPropertyInternal (\gv v -> valueSetInt gv (from
 objectGetPropertyEnum :: (GObjectClass gobj, Enum enum) => String -> gobj -> IO enum
 objectGetPropertyEnum = objectGetPropertyInternal (\gv -> liftM toEnum $ valueGetInt gv)
 
---objectSetPropertyFlags :: (GObjectClass gobj, Flags flags) => String -> gobj -> flags -> IO ()
---objectSetPropertyFlags = objectSetPropertyInternal valueSetInt
+objectSetPropertyFlags :: (GObjectClass gobj, Flags flag) => String -> gobj -> [flag] -> IO ()
+objectSetPropertyFlags = objectSetPropertyInternal (\gv v -> valueSetInt gv (fromFlags v))
 
---objectGetPropertyFlags :: (GObjectClass gobj, Flags flags) => String -> gobj -> IO flags
---objectGetPropertyFlags = objectGetPropertyInternal valueGetInt
+objectGetPropertyFlags :: (GObjectClass gobj, Flags flag) => String -> gobj -> IO [flag]
+objectGetPropertyFlags = objectGetPropertyInternal (\gv -> liftM toFlags $ valueGetInt gv)
 
 objectSetPropertyFloat :: GObjectClass gobj => String -> gobj -> Float -> IO ()
 objectSetPropertyFloat = objectSetPropertyInternal valueSetFloat
@@ -202,6 +204,10 @@ newAttrFromEnumProperty propName =
 readAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> ReadAttr gobj enum
 readAttrFromEnumProperty propName =
   readAttr (objectGetPropertyEnum propName)
+
+newAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> Attr gobj [flag]
+newAttrFromFlagsProperty propName =
+  newAttr (objectGetPropertyFlags propName) (objectSetPropertyFlags propName)
 
 newAttrFromStringProperty :: GObjectClass gobj => String -> Attr gobj String
 newAttrFromStringProperty propName =

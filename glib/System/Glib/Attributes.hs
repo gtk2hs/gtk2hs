@@ -1,4 +1,3 @@
-{-# OPTIONS -fglasgow-exts #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Attributes interface
 --
@@ -33,7 +32,7 @@ module System.Glib.Attributes (
   Attr,
   ReadAttr,
   WriteAttr,
-  ReadWriteAttr(Attr),
+  ReadWriteAttr,
 
   -- * Interface for getting, setting and updating attributes
   Prop(..),

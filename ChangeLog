@@ -1,3 +1,34 @@
+2005-05-8 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/Flags.hs: new module defining the Flags type class.
+	Coped from Gdk.Enums module. Change class methods into ordinary
+	functions and reimplement toFlags function so that it works. Tested
+	with QuickCheck.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Enums.chs: remove Flags class definition and
+	import System.Glib.Flags instead. Also, don't re-export Flags class
+	and functions so other modules will explicitly import it.
+
+	* gtk/Graphics/UI/Gtk/General/Enums.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Table.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp:	import Flags
+	from System.Glib.Flags rather than Graphics.UI.Gtk.(General|Gdk).Enums
+
+	* glib/System/Glib/Attributes.hs: don't export Attr data constructor.
+
+	* glib/System/Glib/Properties.chs: don't import Attr data constructor.
+	Import flags from new Flags module and define objectGetPropertyFlags,
+	objectSetPropertyFlags and newAttrFromFlagsProperty.
+
+	* Makefile.am: add new module and move Attributes compile flags to
+	here rather than {-# OPTIONS #-} pragma in the module itself.
+
 2005-05-7 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: make valueSetString deal with

@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/08 03:21:12 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -125,10 +125,10 @@ import Maybe	(fromMaybe)
 import List   (intersperse)
 
 import System.Glib.FFI
+import System.Glib.Flags		(Flags, toFlags)
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Enums	(Flags(..))
 import System.Glib.StoreValue		(TMType, GenericValue,
 					 valueGetGenericValue)
 {#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)

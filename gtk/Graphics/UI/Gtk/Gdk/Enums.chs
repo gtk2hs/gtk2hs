@@ -5,7 +5,7 @@
 --
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:34:49 $
+--  Version $Revision: 1.5 $ from $Date: 2005/05/08 03:21:12 $
 --
 --  Copyright (C) 1999-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -20,7 +20,7 @@
 --  Lesser General Public License for more details.
 --
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
@@ -44,28 +44,14 @@ module Graphics.UI.Gtk.Gdk.Enums (
   SubwindowMode(..),
   VisibilityState(..),
   WindowState(..),
-  Flags(fromFlags,toFlags),
   WindowEdge(..),
   WindowTypeHint(..),
   Gravity(..)
   ) where
 
-import Data.Bits ((.|.))
+import System.Glib.Flags	(Flags, fromFlags, toFlags)
 
-class  (Enum a, Bounded a) => Flags a where
-  fromFlags ::  [a] -> Int
-  toFlags   ::  Int -> [a]
-
-  fromFlags is = orNum 0 is
-    where
-      orNum n []     = n
-      orNum n (i:is) = orNum (n .|. fromEnum i) is
-  toFlags n = andNum n minBound
-    where
-      andNum n (m::a) = (if (n .|. fromEnum m) == n then (m:) else id)
-        (if fromEnum m==fromEnum (maxBound::a) then [] else andNum n (succ m))
-
-{#context lib="libgdk" prefix ="gdk"#}
+{#context lib="gdk" prefix ="gdk"#}
 
 -- | Specify the how the ends of a line is drawn.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/08 03:21:14 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -242,6 +242,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.GError
@@ -250,7 +251,6 @@ import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Enums	(Flags(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -5,7 +5,7 @@
 --
 --  Created: 5 November 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2005/02/17 00:13:20 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/08 03:21:12 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -20,7 +20,7 @@
 --  Lesser General Public License for more details.
 --
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
@@ -77,16 +77,17 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Flags		(toFlags)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 {#import Graphics.UI.Gtk.Gdk.Region#}
-import Graphics.UI.Gtk.Gdk.Events (Modifier)
+import Graphics.UI.Gtk.Gdk.Events	(Modifier)
 import Graphics.UI.Gtk.General.Structs
 
 {# context lib="gdk" prefix="gdk" #}
 
--- | Gets the bitwise OR of the currently active drawWindow state flags, from the
--- "WindowState" enumeration.
+-- | Gets the bitwise OR of the currently active drawWindow state flags, from
+-- the 'WindowState' enumeration.
 -- 
 drawWindowGetState :: DrawWindowClass self => self
  -> IO [WindowState] -- ^ returns @DrawWindow@ flags

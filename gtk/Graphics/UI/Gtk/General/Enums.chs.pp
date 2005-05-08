@@ -5,7 +5,7 @@
 --
 --  Created: 13 January 1999
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/08 03:21:12 $
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
 --
@@ -20,7 +20,7 @@
 --  Lesser General Public License for more details.
 --
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
@@ -80,6 +80,7 @@ module Graphics.UI.Gtk.General.Enums (
   module Graphics.UI.Gtk.Gdk.Enums
   ) where
 
+import System.Glib.Flags	(Flags, fromFlags, toFlags)
 import Graphics.UI.Gtk.Gdk.Enums
 
 {#context lib="gtk" prefix ="gtk"#}

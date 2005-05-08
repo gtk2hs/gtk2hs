@@ -234,8 +234,9 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/Properties.chs		\
 	glib/System/Glib/Attributes.hs		\
 	glib/System/Glib/GError.chs.pp		\
-	glib/System/Glib/GList.chs              \
-	glib/System/Glib/Signals.chs            \
+	glib/System/Glib/GList.chs		\
+	glib/System/Glib/Signals.chs		\
+        glib/System/Glib/Flags.hs		\
 	glib/System/Glib/hsgclosure.c
 
 html_HSFILES_EXCLUDE =				\
@@ -244,6 +245,7 @@ html_HSFILES_EXCLUDE =				\
 
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
+glib_System_Glib_Attributes_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_Signals_hs_HCFLAGS	= '-\#include"hsgclosure.h"'
 
 libHSglib_a_LIBADD =	\
