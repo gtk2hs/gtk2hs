@@ -41,6 +41,27 @@
 	gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs: haddock fixes, change
 	"" to \"\" in several places.
 
+	* gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc,
+	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/GC.chs,
+	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp,
+	gtk/Graphics/UI/Gtk/General/General.chs,
+	gtk/Graphics/UI/Gtk/General/StockItems.hsc,
+	gtk/Graphics/UI/Gtk/General/Structs.hsc,
+	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Markup.hs,
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs: fix maintainer email
+	address so it doesn't contain unnecessary '\'.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Gdk.chs, gtk/Graphics/UI/Gtk/Gdk/Keys.chs:
+	change {# context lib= to "gdk" rather than "libgdk" and fix
+	maintainer email address.
+
+	* gtk/Graphics/UI/Gtk/Pango/Description.chs: import Systems.Glib.Flags
+
 2005-05-7 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: make valueSetString deal with

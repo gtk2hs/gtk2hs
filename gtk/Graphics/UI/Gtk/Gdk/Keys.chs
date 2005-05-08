@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:41 $
 --
 --  Copyright (C) 2002-2005 Jens Petersen
 --
@@ -20,7 +20,7 @@
 --  Lesser General Public License for more details.
 --
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
@@ -38,7 +38,7 @@ module Graphics.UI.Gtk.Gdk.Keys (
 
 import System.Glib.FFI
 
-{#context lib="libgdk" prefix ="gdk"#}
+{#context lib="gdk" prefix ="gdk"#}
 
 {#fun pure keyval_name as ^ {fromIntegral `Integer'} -> `Maybe String'
     maybePeekUTFString#}

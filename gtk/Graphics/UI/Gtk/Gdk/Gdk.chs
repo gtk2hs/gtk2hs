@@ -5,7 +5,7 @@
 --
 --  Created: 6 June 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:41 $
 --
 --  Copyright (C) 2003-2005 Jens-Ulrik Holger Petersen
 --
@@ -20,7 +20,7 @@
 --  Lesser General Public License for more details.
 --
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
@@ -32,7 +32,7 @@
 --
 module Graphics.UI.Gtk.Gdk.Gdk (beep) where
 
-{#context lib="libgdk" prefix ="gdk"#}
+{#context lib="gdk" prefix ="gdk"#}
 
 beep :: IO ()
 beep = {#call beep#}
