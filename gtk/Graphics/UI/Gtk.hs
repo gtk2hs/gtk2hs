@@ -6,7 +6,7 @@
 --          
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/04/20 04:07:14 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/08 03:33:08 $
 --
 --  Copyright (c) 2001 Axel Simon
 --
@@ -194,6 +194,7 @@ module Graphics.UI.Gtk (
   -- * Non-widgets
   module Graphics.UI.Gtk.Types,
   module Graphics.UI.Gtk.Signals,
+  module System.Glib.Attributes,
 
   -- * Pango text layout modules
   module Graphics.UI.Gtk.Pango.Markup,
@@ -365,6 +366,7 @@ import Graphics.UI.Gtk.Embedding.Socket
 -- non widgets
 import Graphics.UI.Gtk.Types		(toCellRenderer)
 import Graphics.UI.Gtk.Signals	(ConnectId, disconnect)
+import System.Glib.Attributes
 
 -- pango modules
 import Graphics.UI.Gtk.Pango.Markup

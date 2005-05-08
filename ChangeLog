@@ -30,6 +30,8 @@
 	* Makefile.am: add new module and move Attributes compile flags to
 	here rather than {-# OPTIONS #-} pragma in the module itself.
 
+	* gtk/Graphics/UI/Gtk.hs: export attributes API
+
 2005-05-7 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: make valueSetString deal with
