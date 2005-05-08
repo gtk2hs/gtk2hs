@@ -1,7 +1,7 @@
 2005-05-8 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/Flags.hs: new module defining the Flags type class.
-	Coped from Gdk.Enums module. Change class methods into ordinary
+	Copied from Gdk.Enums module. Change class methods into ordinary
 	functions and reimplement toFlags function so that it works. Tested
 	with QuickCheck.
 
@@ -17,7 +17,8 @@
 	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp,
 	gtk/Graphics/UI/Gtk/Layout/Table.chs,
 	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
-	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp:	import Flags
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceIter.chs: import Flags
 	from System.Glib.Flags rather than Graphics.UI.Gtk.(General|Gdk).Enums
 
 	* glib/System/Glib/Attributes.hs: don't export Attr data constructor.

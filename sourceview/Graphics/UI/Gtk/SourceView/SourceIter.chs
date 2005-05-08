@@ -33,13 +33,13 @@ import Monad	(liftM)
 import Maybe    (fromMaybe)
 
 import System.Glib.FFI
+import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 import System.Glib.GObject              (makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
-import Graphics.UI.Gtk.General.Enums	(Flags(fromFlags))
 
 {# context lib="gtk" prefix="gtk" #}
 
