@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:23:10 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -384,21 +384,21 @@ actionSetAccelGroup self accelGroup =
 
 -- | A unique name for the action.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 actionName :: ActionClass self => Attr self String
 actionName = newAttrFromStringProperty "name"
 
 -- | The label used for menu items and buttons that activate this action.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 actionLabel :: ActionClass self => Attr self String
 actionLabel = newAttrFromStringProperty "label"
 
 -- | A shorter label that may be used on toolbar buttons.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 actionShortLabel :: ActionClass self => Attr self String
 actionShortLabel = newAttrFromStringProperty "short_label"

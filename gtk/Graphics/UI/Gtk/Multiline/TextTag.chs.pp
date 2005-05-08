@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:28 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/08 12:23:10 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -199,7 +199,7 @@ textTagName = newAttrFromMaybeStringProperty "name"
 
 -- | Background color as a string.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 textTagBackground :: TextTagClass self => WriteAttr self String
 textTagBackground = writeAttrFromStringProperty "background"
@@ -219,7 +219,7 @@ textTagBackgroundStipple = newAttrFromObjectProperty "background_stipple"
 
 -- | Foreground color as a string.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 textTagForeground :: TextTagClass self => WriteAttr self String
 textTagForeground = writeAttrFromStringProperty "foreground"
@@ -245,14 +245,14 @@ textTagEditable = newAttrFromBoolProperty "editable"
 
 -- | Font description as a string, e.g. \"Sans Italic 12\".
 --
--- Default value: ""
+-- Default value: \"\"
 --
 textTagFont :: TextTagClass self => Attr self String
 textTagFont = newAttrFromStringProperty "font"
 
 -- | Name of the font family, e.g. Sans, Helvetica, Times, Monospace.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 textTagFamily :: TextTagClass self => Attr self String
 textTagFamily = newAttrFromStringProperty "family"
@@ -327,7 +327,7 @@ textTagJustification = newAttrFromEnumProperty "justification"
 -- hint when rendering the text. If not set, an appropriate default will be
 -- used.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 textTagLanguage :: TextTagClass self => Attr self String
 textTagLanguage = newAttrFromStringProperty "language"

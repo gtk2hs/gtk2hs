@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:23 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/08 12:23:10 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -362,7 +362,7 @@ imageFile = writeAttrFromStringProperty "file"
 
 -- | Stock ID for a stock image to display.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 imageStock :: Attr Image String
 imageStock = newAttrFromStringProperty "stock"
@@ -394,7 +394,7 @@ imagePixelSize = newAttr
 -- | The name of the icon in the icon theme. If the icon theme is changed, the
 -- image will be updated automatically.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 imageIconName :: Attr Image String
 imageIconName = newAttrFromStringProperty "icon_name"

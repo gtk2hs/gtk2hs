@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:22 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/08 12:23:10 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -404,7 +404,7 @@ actionGroupTranslateString self string =
 
 -- | A name for the action group.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 actionGroupName :: Attr ActionGroup String
 actionGroupName = newAttrFromStringProperty "name"

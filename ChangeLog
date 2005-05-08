@@ -34,6 +34,13 @@
 
 	* docs/tutorial/Makefile: change base-url to new website
 
+	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs.pp,
+	gtk/Graphics/UI/Gtk/Display/Image.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs: haddock fixes, change
+	"" to \"\" in several places.
+
 2005-05-7 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: make valueSetString deal with

@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:29 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/08 12:23:11 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -142,7 +142,7 @@ fontSelectionSetPreviewText self text =
 
 -- | The X string that represents this font.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 fontSelectionFontName :: FontSelectionClass self => Attr self String
 fontSelectionFontName = newAttrFromStringProperty "font_name"
