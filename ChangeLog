@@ -32,6 +32,8 @@
 
 	* gtk/Graphics/UI/Gtk.hs: export attributes API
 
+	* docs/tutorial/Makefile: change base-url to new website
+
 2005-05-7 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: make valueSetString deal with
