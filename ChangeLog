@@ -1,3 +1,13 @@
+2005-04-13 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs.pp,
+	gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp: When compiling for Gtk
+	2.4, remove attributes that can't be set.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/Events.hsc: Add an onExposeRegion handler
+	that delivers a Region for redrawing instead of a Rectangle.
+	
 2005-05-8 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/Flags.hs: new module defining the Flags type class.

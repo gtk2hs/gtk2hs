@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/07 20:57:22 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/09 23:07:46 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -99,7 +99,9 @@ module Graphics.UI.Gtk.Buttons.Button (
   buttonXalign,
   buttonYalign,
 #endif
+#if GTK_CHECK_VERSION(2,6,0)
   buttonImage,
+#endif
 
 -- * Signals
   onButtonActivate,
@@ -395,6 +397,8 @@ buttonGetAlignment self =
 -- have been explicitly set by 'buttonSetImage' or constructed by
 -- 'buttonNewFromStock'.
 --
+-- * Available since Gtk version 2.6
+--
 buttonGetImage :: ButtonClass self => self
  -> IO (Maybe Widget) -- ^  a 'Widget' or @Nothing@ in case there is no image
 buttonGetImage self =
@@ -491,12 +495,16 @@ buttonYalign :: ButtonClass self => Attr self Float
 buttonYalign = newAttrFromFloatProperty "yalign"
 #endif
 
+#if GTK_CHECK_VERSION(2,6,0)
 -- | Child widget to appear next to the button text.
+--
+-- * Available since Gtk version 2.6
 --
 buttonImage :: (ButtonClass self, WidgetClass image) => ReadWriteAttr self (Maybe Widget) image
 buttonImage = newAttr
   buttonGetImage
   buttonSetImage
+#endif
 
 --------------------
 -- Signals

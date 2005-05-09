@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:23:10 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/09 23:07:46 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -123,9 +123,11 @@ module Graphics.UI.Gtk.ActionMenuToolbar.Action (
   actionVisibleVertical,
   actionIsImportant,
   actionHideIfEmpty,
+#if GTK_CHECK_VERSION(2,6,0)
   actionSensitive,
   actionVisible,
   actionAccelPath,
+#endif
 
 -- * Signals
   onActionActivate,
@@ -431,6 +433,8 @@ actionVisibleHorizontal = newAttrFromBoolProperty "visible_horizontal"
 --
 -- Default value: @True@
 --
+-- * Available since Gtk+ version 2.6
+--
 actionVisibleOverflown :: ActionClass self => Attr self Bool
 actionVisibleOverflown = newAttrFromBoolProperty "visible_overflown"
 #endif
@@ -458,9 +462,12 @@ actionIsImportant = newAttrFromBoolProperty "is_important"
 actionHideIfEmpty :: ActionClass self => Attr self Bool
 actionHideIfEmpty = newAttrFromBoolProperty "hide_if_empty"
 
+#if GTK_CHECK_VERSION(2,6,0)
 -- | Whether the action is enabled.
 --
 -- Default value: @True@
+--
+-- * Available since Gtk+ version 2.6
 --
 actionSensitive :: ActionClass self => Attr self Bool
 actionSensitive = newAttr
@@ -471,6 +478,8 @@ actionSensitive = newAttr
 --
 -- Default value: @True@
 --
+-- * Available since Gtk+ version 2.6
+--
 actionVisible :: ActionClass self => Attr self Bool
 actionVisible = newAttr
   actionGetVisible
@@ -478,10 +487,13 @@ actionVisible = newAttr
 
 -- | \'accelPath\' property. See 'actionGetAccelPath' and 'actionSetAccelPath'
 --
+-- * Available since Gtk+ version 2.6
+--
 actionAccelPath :: ActionClass self => ReadWriteAttr self (Maybe String) String
 actionAccelPath = newAttr
   actionGetAccelPath
   actionSetAccelPath
+#endif
 
 --------------------
 -- Signals

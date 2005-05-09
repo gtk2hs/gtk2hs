@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/08 03:21:14 $
+--  Version $Revision: 1.5 $ from $Date: 2005/05/09 23:07:45 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -157,6 +157,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   afterLeaveNotify,
   onExpose,
   afterExpose,
+  onExposeRegion,
+  afterExposeRegion,
   onFocusIn,
   afterFocusIn,
   onFocusOut,
@@ -224,7 +226,8 @@ import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode)
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize,
 					,widgetGetState, widgetGetSavedState)
-import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent)
+import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
+					 marshExposeRegion)
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..))
 {#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription))
 
@@ -1158,6 +1161,20 @@ onExpose, afterExpose :: WidgetClass w => w -> (Event -> IO Bool) ->
                          IO (ConnectId w)
 onExpose = event "expose_event" [] False
 afterExpose = event "expose_event" [] True
+
+-- | Expose event delivering a 'Region'.
+--
+-- * Widgets that are very expensive to re-render, such as an image editor,
+--   may prefer to use the 'onExposeRegion' call back which delivers a
+--   'Region' instead of a 'Rectangle'. A 'Region' consists of several
+--   rectangles that need redrawing. The simpler 'onExpose' event encodes
+--   the area to be redrawn as a bounding rectangle which might be easier
+--   to deal with in a particular application.
+--
+onExposeRegion, afterExposeRegion ::
+    WidgetClass w => w -> (Region -> IO Bool) -> IO (ConnectId w)
+onExposeRegion = connect_BOXED__BOOL "expose_event" marshExposeRegion False
+afterExposeRegion = connect_BOXED__BOOL "expose_event" marshExposeRegion True
 
 -- | Widget gains input focus.
 --

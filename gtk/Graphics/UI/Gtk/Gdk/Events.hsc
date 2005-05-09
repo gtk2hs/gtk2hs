@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/09 23:07:46 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -39,6 +39,8 @@ module Graphics.UI.Gtk.Gdk.Events (
   hasButRight, 
   hasButMiddle,
   Event(..),		-- information in event callbacks from Gdk
+  marshExposeRegion,
+
   -- selector functions
 #if __GLASGOW_HASKELL__<600
   sent,			-- True if this is event does not come from user input
@@ -77,6 +79,7 @@ import Data.Bits ((.&.))
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
 import Graphics.UI.Gtk.Gdk.Enums	(VisibilityState(..),
 					 CrossingMode(..),
 					 NotifyType(..),
@@ -224,6 +227,14 @@ marshExpose ptr = do
     sent   = toBool sent_,
     area   = area_,
     count  = fromIntegral count_}
+
+marshExposeRegion ptr = do
+  (reg_   :: Ptr Region)	<- #{peek GdkEventExpose, region} ptr
+  region <- gdk_region_copy reg_
+  makeNewRegion region
+
+foreign import ccall "gdk_region_copy"
+  gdk_region_copy :: Ptr Region -> IO (Ptr Region)
 
 marshMotion ptr = do
   (sent_   ::#type gint8)	<- #{peek GdkEventMotion, send_event} ptr
