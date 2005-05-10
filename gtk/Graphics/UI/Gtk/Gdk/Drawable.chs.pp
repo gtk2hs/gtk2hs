@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/10 23:30:40 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -170,7 +170,9 @@ drawLines d gc points =
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Render a 'Pixbuf'.
 --
--- * Renders a rectangular portion of a 'Pixbuf' to a
+-- * Usage:
+--   @drawPixbuf d gc pb srcX srcY destX destY srcWidth srcHeight dither@
+--   Renders a rectangular portion of a 'Pixbuf' to a
 --   'Drawable'. The @srcX@, @srcY@,
 --   @srcWidth@ and @srcHeight@ specify what part of the
 --   'Pixbuf' should be rendered. The latter two values may be

@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/10 23:30:40 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -34,6 +34,10 @@
 --   'Pixbuf's and to scale and crop a 'Pixbuf' and 
 --   compose the result with an existing image.
 --
+-- * 'Pixbuf's can be displayed on screen by either creating an 'Image' that
+--   from the 'Pixbuf' or by rendering (part of) the 'Pixbuf' into a
+--   vanilla widget like 'DrawWindow' using 'drawPixbuf'.
+--
 -- TODO
 --
 -- * if there is a portable way of modifying external arrays in Haskell do:
@@ -61,6 +65,8 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufGetNChannels,
   pixbufGetHasAlpha,
   pixbufGetBitsPerSample,
+  PixbufData,
+  pixbufGetPixels,
   pixbufGetWidth,
   pixbufGetHeight,
   pixbufGetRowstride,
@@ -88,7 +94,7 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
 import Monad (liftM)
 import Control.Exception(bracket)
 import Data.Bits        ((.|.), shiftL)
-
+import Data.Ix
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GObject
@@ -96,6 +102,9 @@ import System.Glib.GObject
 import Graphics.UI.Gtk.General.Structs		(Rectangle(..))
 import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
 				checkGError, checkGErrorWithCont)
+import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData(PixbufData),
+					insertBounds )
+
 
 {#context prefix="gdk" #}
 
@@ -118,6 +127,9 @@ pixbufGetColorSpace pb = liftM (toEnum . fromIntegral) $
 
 -- | Queries the number of colors for each pixel.
 --
+-- * This function returns 3 for an RGB image without alpha (transparency)
+--   channel, 4 for an RGB image with alpha channel.
+--
 pixbufGetNChannels :: Pixbuf -> IO Int
 pixbufGetNChannels pb = liftM fromIntegral $
   {#call unsafe pixbuf_get_n_channels#} pb
@@ -138,6 +150,48 @@ pixbufGetHasAlpha pb =
 pixbufGetBitsPerSample :: Pixbuf -> IO Int
 pixbufGetBitsPerSample pb = liftM fromIntegral $
   {#call unsafe pixbuf_get_bits_per_sample#} pb
+
+-- | Retrieve the internal array of raw image data.
+--
+-- * Image data in a pixbuf is stored in memory in uncompressed,
+--   packed format. Rows in the image are stored top to bottom, and in each
+--   row pixels are stored from left to right. There may be padding at the
+--   end of a row. The "rowstride" value of a pixbuf, as returned by
+--   'pixbufGetRowstride', indicates the number of bytes between rows.
+--
+-- * The returned array is a flat representation of a three dimensional
+--   array: x-coordiante, y-coordinate and several channels for each color.
+--   The number of channels is usually 3 for plain RGB data or 4 for
+--   RGB data with an alpha channel. To read or write a specific pixel
+--   use the formula: @p = y * rowstride + x * nChannels@ for the pixel.
+--   If the array contains bytes (or 'Word8's), @p+0@ is the red value,
+--   @p+1@ green, @p+2@ blue and @p+3@ the alpha (transparency) channel
+--   if present. If the alpha channel is present, the array can accessed
+--   as an array over 'Word32' to modify a whole pixel at a time. See also
+--   'pixbufGetBitsPerSample' and 'pixbufGetNChannels'.
+--
+-- * Calling this function without explicitly giving it a type will often
+--   lead to a compiler error since the type parameter @e@ is underspecified.
+--   If this happens the function can be explicitly typed:
+--   @pbData <- (pixbufGetPixels pb :: IO (PixbufData Int Word8))@
+--
+-- * If modifying an image through Haskell\'s array interface is not
+--   fast enough, it is possible to use 'unsafeRead' and
+--   'unsafeWrite' from Data.Array.Base which have the same type signatures
+--   as 'readArray' and 'writeArray'. Note that these are internal
+--   functions that might change with GHC.
+--
+pixbufGetPixels :: (Ix i, Num i, Storable e) => Pixbuf -> IO (PixbufData i e)
+pixbufGetPixels pb = do
+  pixPtr_ <- {#call unsafe pixbuf_get_pixels#} pb
+  chan <- pixbufGetNChannels pb
+  bits <- pixbufGetBitsPerSample pb
+  w <- pixbufGetWidth pb
+  h <- pixbufGetHeight pb
+  r <- pixbufGetRowstride pb
+  let pixPtr = castPtr pixPtr_
+  let bytes = (h-1)*r+w*((chan*bits+7) `div` 8)
+  return (insertBounds bytes (PixbufData pb pixPtr undefined))
 
 -- | Queries the width of this image.
 --
@@ -257,6 +311,11 @@ pixbufSave pb fname iType options =
 --
 -- * Creates a new pixbuf structure and allocates a buffer for
 --   it. Note that the buffer is not cleared initially.
+--
+-- * The boolean flag is true if the pixbuf should have an alpha
+--   (transparency) channel. The next integer denotes the bits per
+--   color sample, e.g. 8 bits per color for 2^24 colors. The last
+--   two integers denote the width and height, respectively.
 --
 pixbufNew :: Colorspace -> Bool -> Int -> Int -> Int -> IO Pixbuf
 pixbufNew colorspace hasAlpha bitsPerSample width height =

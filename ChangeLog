@@ -1,4 +1,17 @@
-2005-04-13 Axel Simon <A.Simon@kent.ac.uk>
+2005-05-11 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs: Make Pixbuf data available
+	as MArray.
+
+	* demo/fastdraw/FastDraw.hs demo/fastdraw/Makefile: New demo that
+	shows how to use onExposeRegion and the Pixbuf as an MArray.
+	
+	* gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp: Documentation fix.
+	
+	* Makefile.am: Added new demo an PixbufData.hs.
+	
+2005-05-10 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs.pp,
 	gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp: When compiling for Gtk
