@@ -74,6 +74,12 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 .o.hi:
 	@:
 
+.c.o:
+	$(strip $(HC) -c $< -o $@ $(INCLUDES) \
+		$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $(CPPFLAGS) \
+		$(addprefix -optc,$(AM_CFLAGS) $($(PKG)_CFLAGS) \
+				  $(call getVar,$<,CFLAGS) $(CFLAGS)))
+
 # The cheeky rule for .hi files says that .hi files can be created as
 # side-effect of generating a .o file. Make sure the .hi files are not
 # deleted as normal intermediate files are.

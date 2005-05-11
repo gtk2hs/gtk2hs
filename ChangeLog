@@ -1,3 +1,34 @@
+2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole
+	bunch of stuff. It's used for each optional package that corresponds
+	to a pkg-config package. It adds an --enable-* configure flag and sets
+	FLAGS etc.
+
+	* configure.ac: don't use AM_PROG_CC_C_O since we don't need C
+	subdir-objects support and this marco causes problems for autotools on
+	debian. Remove the GHC_INCLUDEDIR since we don't need it, we can just
+	use ghc to complie C fles, and ghc knows it's own include dir. Add an
+	--enable-packager-mode flag. It disables automatic package selection
+	which is good for packagers who want control over dependencies. Use
+	the new GTKHS_PKG_CHECK for each package. Also, we don't need the
+	pkg-config check because the PKG_CHECK_MODULES does that anyway.
+
+	* mk/common.mk: add a build rule for C files. It puts the .o file in the
+	subdir correctly. It uses $(HC) as the C compiler, passing all
+	gcc-specific flags via ghc's -optc flag.
+
+	* Makefile.am: remove the subdir-objects obtion since we don't need it
+	and also add no-dependencies since we don't need the C dependency
+	tracking feature (and it reduces the clutter of build files). Make
+	each optional package be guarded by it's own ENABLE_ flag rather than
+	grouping several under ENABLE_GNOME. Remove th rule for building
+	glib/System/Glib/hsgclosure.c since the general rule takes care of it.
+	For the installation phase, do the variable substitution on the .pkg /
+	.cabal files we install so that they can be registered without the
+	packager having to do the substitution (which in the case of the
+	${modules} substitution would be too hard to do).
+
 2005-05-11 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp,

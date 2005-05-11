@@ -1,4 +1,4 @@
-AUTOMAKE_OPTIONS = 1.8 foreign subdir-objects
+AUTOMAKE_OPTIONS = 1.8 foreign no-dependencies
 SUFFIXES = .hs.uncpp .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES = */*.deps.bak tools/*/*.deps.bak
 CLEANFILES =
@@ -33,10 +33,11 @@ pkglib_LIBRARIES =	\
 if ENABLE_LIBGLADE
 pkglib_LIBRARIES += libHSglade.a
 endif
-if ENABLE_GNOME
-pkglib_LIBRARIES += 	\
-        libHSgconf.a	\
-        libHSsourceview.a
+if ENABLE_GCONF
+pkglib_LIBRARIES += libHSgconf.a
+endif
+if ENABLE_SOURCEVIEW
+pkglib_LIBRARIES += libHSsourceview.a
 endif
 if ENABLE_MOZEMBED
 pkglib_LIBRARIES += libHSmozembed.a
@@ -132,6 +133,7 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/base/errors/Errors.hs	\
 	tools/c2hs/base/general/DLists.hs	\
 	tools/c2hs/base/general/FileOps.hs	\
+	tools/c2hs/base/general/FiniteMaps.hs	\
 	tools/c2hs/base/general/FNameOps.hs	\
 	tools/c2hs/base/general/GetOpt.hs	\
 	tools/c2hs/base/general/UNames.hs	\
@@ -250,12 +252,6 @@ glib_System_Glib_Signals_hs_HCFLAGS	= '-\#include"hsgclosure.h"'
 
 libHSglib_a_LIBADD =	\
 	glib/System/Glib/GObject_stub.o
-
-# Special CFLAGS for building the closure implementation since it needs
-# to #include <Rts.h> from GHC's include directory.
-glib/System/Glib/hsgclosure.o : glib/System/Glib/hsgclosure.c
-	$(CC) -c $< -o $@ $(GLIB_CFLAGS) -I$(GHC_INCLUDEDIR) 	\
-	-Wall -Werror -Wno-unused-parameter
 
 am_libHSglib_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglib_a_SOURCES))))
@@ -700,7 +696,7 @@ endif #ENABLE_LIBGLADE
 #
 ################################################################################
 
-if ENABLE_GNOME
+if ENABLE_GCONF
 
 gconf_PKGNAME = libHSgconf_a
 
@@ -792,14 +788,14 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSgconf_a_CHSFILES:.chs=.dep) gconf/libHSgconf_a.deps
  endif
 
-endif #ENABLE_GNOME
+endif #ENABLE_GCONF
 
 #
 #	sourceview package
 #
 ################################################################################
 
-if ENABLE_GNOME
+if ENABLE_SOURCEVIEW
 
 sourceview_PKGNAME = libHSsourceview_a
 
@@ -885,7 +881,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSsourceview_a_CHSFILES:.chs=.dep) sourceview/libHSsourceview_a.deps
  endif
 
-endif #ENABLE_GNOME
+endif #ENABLE_SOURCEVIEW
 
 #
 #	mozembed package
@@ -1030,8 +1026,11 @@ if HAVE_GTK_VERSION_2_4
 DEMOS += demo/profileviewer
 endif
 endif
-if ENABLE_GNOME
-DEMOS += demo/gconf demo/sourceview
+if ENABLE_GCONF
+DEMOS += demo/gconf
+endif
+if ENABLE_SOURCEVIEW
+DEMOS += demo/sourceview
 endif
 if ENABLE_MOZEMBED
 DEMOS += demo/mozembed
@@ -1073,9 +1072,18 @@ EXTRA_DIST +=								\
 #
 ################################################################################
 
-# Include all the .pkg files in the install set, they're useful to distributors
+# Include all the .pkg/.cabal files in the install set, they're useful to distributors
 # and if your installation gets corrupt you can re-register the packages from them.
 pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),PACKAGE))
+
+# Before we install the .pkg/.cabal files we need to substitute for the ${pkglibdir}
+# and ${modules} variables.
+install-data-local:
+	$(foreach pkgname,$(pkglib_LIBRARIES), \
+	sed 's:$${pkglibdir}:$(pkglibdir):g' $(call getVar,$(pkgname),PACKAGE) \
+	| sed 's:$${modules}:$(call getModules,$(pkgname)):' \
+	> $(call getVar,$(pkgname),PACKAGE).tmp; \
+	mv $(call getVar,$(pkgname),PACKAGE).tmp $(call getVar,$(pkgname),PACKAGE);)
 
 COMMA := ,
 getModules =									\

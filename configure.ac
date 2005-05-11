@@ -42,7 +42,6 @@ AH_TOP([
 ])
 
 dnl Checks for programs.
-AM_PROG_CC_C_O
 AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
@@ -143,11 +142,6 @@ __GLASGOW_HASKELL__=$GHC_VERSION_NUMBER
 AC_DEFINE_UNQUOTED(__GLASGOW_HASKELL__, $GHC_VERSION_NUMBER,
 	[Version number of GHC.])
 
-# Get ghc's lib and include dirs. We need the include dir since the HSGClosure
-# implementation needs to #include GHC's <Rts.h>
-GHC_LIBDIR=`$GHC --print-libdir`
-GHC_INCLUDEDIR=$GHC_LIBDIR/include
-
 dnl From ghc 6 onwards, ghc-pkg has the "auto libs" feature which means
 dnl users do not have to specify the -package flag most of the time.
 dnl All our packages support this mode now.
@@ -205,8 +199,27 @@ if test -z "$HCFLAGS"; then
   HCFLAGS="-O -H180m"
 fi
 
+dnl packager mode is for people building packages, eg for linux distros.
+dnl in packager mode you do not get any optional dependancies unless you
+dnl explicitly ask for them with --enable-PACKAGE
+dnl see http://www.onlamp.com/pub/a/onlamp/2005/03/31/packaging.html?page=2
+AC_ARG_ENABLE([packager-mode],
+	AS_HELP_STRING([--enable-packager-mode],
+        		[change configuration behavior to ease packaging]),
+	[if test x"${enableval}" = xyes; then
+		automatic_detection=no
+	else
+		automatic_detection=yes
+	fi],
+	[automatic_detection=yes])
+if test "$automatic_detection" = "yes"; then
+	ENABLE_PKG_DEFAULT=auto
+else
+	ENABLE_PKG_DEFAULT=no
+fi
+
 dnl Check whether to register the packages with ghc-pkg
-dnl Distributors usuall want install into a temp directory without registering
+dnl Distributors usuall want to install into a temp directory without registering
 dnl anything and leave the registering phase for a post-install action.
 AC_ARG_WITH(pkgreg,
             [  --without-pkgreg        Do not reigster Haskell packages (useful for distributors)],
@@ -218,98 +231,33 @@ AC_ARG_WITH(pkgconf,
 	    [  --with-pkgconf=FILE     GHC package file to install packages],
 	    [PKGCONF=$withval;],[PKGCONF=;])
 
-dnl Check for pkg-config which holds information about all Gtk related
-dnl libraries.
-AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
-
-if test "$PKG_CONFIG" = "no" ; then
- AC_MSG_ERROR([*** The pkg-config script could not be found. Make sure it is
-   *** in your path, or set the PKG_CONFIG environment variable
-   *** to the full path to pkg-config.
-   *** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config.
-  ])
-fi;
-
-
-dnl dnl Check if user wants GtkGLExt extension. Make the default value for this
-dnl dnl flag dependant on whether it is installed or not.
-dnl ENABLE_OPENGL=yes;
-dnl AC_MSG_CHECKING([if OpenGL extension can be built])
-dnl 
-dnl AC_ARG_ENABLE(glext,
-dnl 	      [  --enable-glext          generate binding for OpenGL rendering],
-dnl 	      [FOUNDGLEXT=$enableval],[FOUNDGLEXT=yes])
-dnl 
-dnl dnl Reset the flag if GtkGLExt is not installed
-dnl $PKG_CONFIG --exists gtkglext-1.0 || FOUNDGLEXT=no;
-dnl if test x$FOUNDGLEXT = xno; then ENABLE_OPENGL=no;fi;
-dnl 
-dnl dnl Reset the flag if HOpenGL is not installed
-dnl FOUNDHOPENGL=yes;
-dnl $GHCPKG -l | $GREP OpenGL > /dev/null || FOUNDHOPENGL=no;
-dnl if test x$FOUNDHOPENGL = xno; then ENABLE_OPENGL=no;fi;
-dnl 
-dnl AC_MSG_RESULT($ENABLE_OPENGL)
-
-dnl Check if user wants libglade bindings. Defaults to yes.
-AC_MSG_CHECKING([whether to build libglade bindings])
-
-AC_ARG_ENABLE(libglade,
-              [  --disable-libglade      do not generate libglade bindings],
-              [ENABLE_LIBGLADE=$enableval],[ENABLE_LIBGLADE=yes])
-
-AC_MSG_RESULT($ENABLE_LIBGLADE)
-AM_CONDITIONAL(ENABLE_LIBGLADE, test x$ENABLE_LIBGLADE = xyes)
-
-dnl Check if user wants the various gnome modules. Defaults to yes.
-AC_MSG_CHECKING([whether to build gnome bindings])
-
-if test "$WIN32" = "yes"; then
-  ENABLE_GNOME_DEFAULT=no
-else
-  ENABLE_GNOME_DEFAULT=yes
-fi
-
-AC_ARG_ENABLE(gnome,
-              [  --disable-gnome         do not generate bindings for any gnome modules],
-              [ENABLE_GNOME=$enableval],[ENABLE_GNOME=$ENABLE_GNOME_DEFAULT])
-
-AC_MSG_RESULT($ENABLE_GNOME)
-AM_CONDITIONAL(ENABLE_GNOME, test x$ENABLE_GNOME = xyes)
-
-dnl Check if user wants the Mozilla's browser engine widget. Defaults to yes.
-AC_MSG_CHECKING([whether to build mozembed bindings])
-
-if test "$WIN32" = "yes"; then
-  ENABLE_MOZEMBED_DEFAULT=no
-else
-  ENABLE_MOZEMBED_DEFAULT=yes
-fi
-
-AC_ARG_ENABLE(mozilla,
-              [  --disable-mozilla       do not generate bindings for the Mozilla display widget],
-              [ENABLE_MOZEMBED=$enableval],[ENABLE_MOZEMBED=$ENABLE_MOZEMBED_DEFAULT])
-
-AC_MSG_RESULT($ENABLE_MOZEMBED)
-AM_CONDITIONAL(ENABLE_MOZEMBED, test x$ENABLE_MOZEMBED = xyes)
-
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
 PKG_CHECK_MODULES(GLIB,[gobject-2.0 >= 2.0.0])
 PKG_CHECK_MODULES(GTK,[gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
-dnl if test x$ENABLE_OPENGL = xyes; then
-dnl   PKG_CHECK_MODULES(GTKGLEXT,[gtkglext-1.0 >= 0.7.1])
-dnl fi
-if test x$ENABLE_LIBGLADE = xyes; then
-  PKG_CHECK_MODULES(LIBGLADE,[libglade-2.0 >= 2.0.0])
-fi
-if test x$ENABLE_GNOME = xyes; then
-  PKG_CHECK_MODULES(GCONF,[gconf-2.0 >= 2.0.0])
-  PKG_CHECK_MODULES(SOURCEVIEW,[gtksourceview-1.0 >= 0.6.0])
-fi
-if test x$ENABLE_MOZEMBED = xyes; then
-  PKG_CHECK_MODULES(MOZEMBED,[mozilla-gtkmozembed >= 1.4])
-fi
+
+dnl Check if user wants various optional bindings.
+dnl Defaults to auto, or in packager mode it defaults to no.
+GTKHS_PKG_CHECK(libglade, glade, LIBGLADE, [libglade-2.0 >= 2.0.0],
+	[build glade package (default=auto)],
+	[libglade library requirement not met. Perhaps you need to install libglade or libglade-devel])
+
+GTKHS_PKG_CHECK(gconf, gconf, GCONF, [gconf-2.0 >= 2.0.0],
+	[build gconf package (default=auto)],
+	[GConf requirement not met. Perhaps you need to install gconf or gconf-devel])
+
+GTKHS_PKG_CHECK(sourceview, sourceview, SOURCEVIEW, [gtksourceview-1.0 >= 0.6.0],
+	[build sourceview package (default=auto)],
+	[GtkSourceView requirement not met. Perhaps you need to install gtksourceview or gtksourceview-devel])
+
+GTKHS_PKG_CHECK(mozilla, mozembed, MOZEMBED, [mozilla-gtkmozembed >= 1.4],
+	[build bindings for the Mozilla display widget (default=auto)],
+	[Mozilla requirement not met. Perhaps you need to install mozilla or mozilla-devel])
+
+dnl GTKHS_PKG_CHECK(opengl, gtkgl, GTKGL, [gtkgl-2.0 >= 1.99.0],
+dnl 	[build GtkGLArea package (default=auto)],
+dnl 	[GtkGLArea library requirement not met. Perhaps you need to install gtkglarea or gtkglarea-devel])
+
 
 dnl The following is a hack to fix the fact that
 dnl "pkg-config --libs mozilla-gtkmozembed" does not give us all the right
@@ -590,7 +538,6 @@ AC_ARG_WITH(ghc-docdir,
 	    [GHC_DOCDIR=$withval])
 
 dnl Needed substitution.
-AC_SUBST(GHC_INCLUDEDIR)
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(PKGCONF)

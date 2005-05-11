@@ -88,6 +88,34 @@ ifelse([$5],,,
   $5])
 fi])dnl
 
+dnl GTKHS_PKG_CHECK(arg enable name, package name, package var name,
+dnl                 pkg-config version requirements,
+dnl                 arg enable help string,
+dnl                 error if false)
+dnl perform the AC_ARG_ENABLE, PKG_CHECK_MODULES and AM_CONDITIONAL for a
+dnl pkh-config module and corresponding gtk2hs package.
+AC_DEFUN([GTKHS_PKG_CHECK],
+[
+# Check if user wants $1 bindings. Defaults to auto, or in packager
+# mode it defaults to no.
+AC_ARG_ENABLE($1,
+	AS_HELP_STRING([--enable-$1],[$5]),
+	[ENABLE_LIBGLADE=[$]enableval],[ENABLE_$3=[$]ENABLE_PKG_DEFAULT])
+
+if test "[$]ENABLE_$3" = "yes" || test "[$]ENABLE_$3" = "auto"; then
+  PKG_CHECK_MODULES($3,$4,[ENABLE_$3=yes],
+  		[if test "[$]ENABLE_$3" = "auto"; then
+			ENABLE_$3=no
+		 else
+		 	AC_MSG_ERROR([$6])
+		 fi])
+fi
+AC_MSG_CHECKING([whether to build $2 package])
+AC_MSG_RESULT([$]ENABLE_$3)
+AM_CONDITIONAL(ENABLE_$3, test "[$]ENABLE_$3" = "yes")
+
+])dnl
+
 dnl GTKHS_REFORMAT_PACKAGE_CFLAGS(CFLAGS, CFLAGS_CQ)
 dnl 
 dnl for ghc package.conf files, we need to convert from
