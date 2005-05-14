@@ -27,6 +27,31 @@
 	* glib/System/Glib/Signals.chs, glib/System/Glib/Signals.chs.pp:
 	rename to .chs.pp so we can add conditional stuff.
 
+	* glib/System/Glib/Signals.chs.pp: add back code used in the old
+	signals implementation, and compile it conditionaly on 
+	USE_GCLOSUE_SIGNALS_IMPL not being defined.
+
+	* tools/callbackGen/HookGenerator.hs: add the old signals generation
+	code, and use it when USE_GCLOSUE_SIGNALS_IMPL is not defined. When it
+	is defined, code that uses the new GClosure based signals
+	implementation is generated instead.
+
+	* configure.ac: add code to decide when to use the new or old signals
+	implementation. We use the new implementation for sparc and amd64
+	arches and we intend to use it for ghc 6.4.1 when it will hopefully
+	work with GHCi (not yet tested). Otherwise we use the old
+	implementation. Define USE_GCLOSUE_SIGNALS_IMPL depending on the
+	decision. Also use simpler way of getting the ghc version string.
+
+	* Makefile.am: rename Signals.chs to Signals.chs.pp. Add -I. to the
+	HookGenerator's HCFLAGS so it can #include gtk2hs-config.h to get at
+	the USE_GCLOSUE_SIGNALS_IMPL define. When using the new GClosure-based
+	signals implementation we need to compile and link in hsgclosure.c.
+	When using the old signals implementation, the various Signals modules
+	use ffi	import wrapper and so we need to link in the _stub.o files.
+	Also, add gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs to html_HSFILES_HIDDEN
+	so the docs build ok.
+
 2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole
