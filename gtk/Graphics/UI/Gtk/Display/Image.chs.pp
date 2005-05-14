@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/08 12:23:10 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/14 01:54:26 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -274,7 +274,11 @@ imageSetFromPixbuf self pixbuf =
 imageSetFromFile :: Image -> FilePath -> IO ()
 imageSetFromFile self filename =
   withUTFString filename $ \filenamePtr ->
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  {# call gtk_image_set_from_file_utf8 #}
+#else
   {# call gtk_image_set_from_file #}
+#endif
     self
     filenamePtr
 

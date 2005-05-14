@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/07 20:57:29 $
+--  Version $Revision: 1.5 $ from $Date: 2005/05/14 01:54:26 $
 --
 --  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
@@ -221,7 +221,12 @@ fileSelectionComplete self pattern =
 --
 fileSelectionGetSelections :: FileSelectionClass self => self -> IO [String]
 fileSelectionGetSelections self = do
-  cStrArr <- {# call gtk_file_selection_get_selections #}
+  cStrArr <-
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+    {# call gtk_file_selection_get_selections_utf8 #}
+#else
+    {# call gtk_file_selection_get_selections #}
+#endif
     (toFileSelection self)
   cStrs <- peekArray0 nullPtr cStrArr
   result <- mapM peekUTFString cStrs

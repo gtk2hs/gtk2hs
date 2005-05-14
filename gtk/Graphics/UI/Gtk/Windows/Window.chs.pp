@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/07 20:57:31 $
+--  Version $Revision: 1.11 $ from $Date: 2005/05/14 01:54:27 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -988,7 +988,11 @@ windowSetIconFromFile self filename =
   liftM toBool $
   propagateGError $ \errPtr ->
   withUTFString filename $ \filenamePtr ->
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+  {# call gtk_window_set_icon_from_file_utf8 #}
+#else
   {# call gtk_window_set_icon_from_file #}
+#endif
     (toWindow self)
     filenamePtr
     errPtr
