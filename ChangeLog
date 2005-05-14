@@ -20,6 +20,10 @@
 	for a handful of newly bound functions that use file names. This
 	should fix the build on win32.
 
+	* gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: the EllipsizeMode enum was
+	added in some later version of Pango. Gtk+ 2.6 depends on this later
+	Pango version so we can bind it for Gtk+ 2.6 and later.
+
 2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole

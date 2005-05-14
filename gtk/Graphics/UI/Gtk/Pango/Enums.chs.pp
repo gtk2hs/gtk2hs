@@ -5,7 +5,7 @@
 --
 --  Created: 12 September 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/14 01:57:00 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -32,7 +32,9 @@ module Graphics.UI.Gtk.Pango.Enums (
   Variant(..),
   Stretch(..),
   Underline(..),
+#if GTK_CHECK_VERSION(2,6,0)
   EllipsizeMode(..)
+#endif
   ) where
 
 {# context lib="pango" prefix="pango" #}
@@ -100,9 +102,11 @@ instance Show Underline where
   showsPrec _ UnderlineError	= shows "error"
 #endif
 
+#if GTK_CHECK_VERSION(2,6,0)
 -- | The 'EllipsizeMode' type describes what sort of (if any) ellipsization
 -- should be applied to a line of text. In the ellipsization process characters
 -- are removed from the text in order to make it fit to a given width and
 -- replaced with an ellipsis.
 --
 {# enum EllipsizeMode {underscoreToCase} #}
+#endif
