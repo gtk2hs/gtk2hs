@@ -69,6 +69,13 @@
 	gtk/Graphics/UI/Gtk/General/General.chs: change use of deprecated
 	function 'withObject' to its replacement 'with'.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: minor doc fix. Also add
+	a new property 'containerChild' which is a write only property that
+	can be used to add a new child to the container. Eg instead of saying:
+		containerAdd window button
+	you can say:
+		set window [ containerChild := button ]
+
 2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole

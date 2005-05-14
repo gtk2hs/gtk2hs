@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 19:13:29 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/14 14:24:52 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -160,6 +160,7 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- * Attributes
   containerResizeMode,
   containerBorderWidth,
+  containerChild,
   containerFocusHAdjustment,
   containerFocusVAdjustment,
 
@@ -181,6 +182,7 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -264,8 +266,8 @@ containerForall self fun = do
     nullPtr
   freeHaskellFunPtr fPtr
 
--- | Returns the the container's non-internal children. See 'containerForall'
--- for details on what constitutes an \"internal\" child.
+-- | Returns the container's non-internal children. See 'containerForall' for
+-- details on what constitutes an \"internal\" child.
 --
 containerGetChildren :: ContainerClass self => self
  -> IO [Widget]
@@ -500,6 +502,11 @@ containerBorderWidth :: ContainerClass self => Attr self Int
 containerBorderWidth = newAttr
   containerGetBorderWidth
   containerSetBorderWidth
+
+-- | Can be used to add a new child to the container.
+--
+containerChild :: (ContainerClass self, WidgetClass widget) => WriteAttr self widget
+containerChild = writeAttrFromObjectProperty "child"
 
 -- | \'focusHadjustment\' property. See 'containerGetFocusHAdjustment' and
 -- 'containerSetFocusHAdjustment'
