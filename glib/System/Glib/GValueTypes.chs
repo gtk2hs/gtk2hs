@@ -5,7 +5,7 @@
 --
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 18:58:18 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/14 14:16:03 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -174,9 +174,10 @@ valueGetMaybeString gvalue =
 -- for some weird reason the API says that gv is a gpointer, not a GObject
 --
 valueSetGObject :: GObjectClass gobj => GValue -> gobj -> IO ()
-valueSetGObject gvalue obj =
+valueSetGObject gvalue obj = do
+  valueInit gvalue GType.object
   withForeignPtr ((unGObject.toGObject) obj) $ \objPtr ->
-  {# call unsafe g_value_set_object #} gvalue (castPtr objPtr)
+    {# call unsafe g_value_set_object #} gvalue (castPtr objPtr)
 
 -- Unsafe because it performs an unchecked downcast. Only for internal use.
 --

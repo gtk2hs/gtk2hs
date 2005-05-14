@@ -61,6 +61,9 @@
 	* Makefile.am: remove tools/c2hs/base/general/FiniteMaps.hs from the
 	c2hs sources list that I accidentally comitted recently.
 
+	* glib/System/Glib/GValueTypes.chs: bug fix. The GValue needs to be
+	initialised to hold an object type before it is set.
+
 2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole
