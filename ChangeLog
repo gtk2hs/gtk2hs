@@ -52,6 +52,9 @@
 	Also, add gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs to html_HSFILES_HIDDEN
 	so the docs build ok.
 
+	* Makefile.am: remove tools/c2hs/base/general/FiniteMaps.hs from the
+	c2hs sources list that I accidentally comitted recently.
+
 2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole

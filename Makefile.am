@@ -134,7 +134,6 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/base/errors/Errors.hs	\
 	tools/c2hs/base/general/DLists.hs	\
 	tools/c2hs/base/general/FileOps.hs	\
-	tools/c2hs/base/general/FiniteMaps.hs	\
 	tools/c2hs/base/general/FNameOps.hs	\
 	tools/c2hs/base/general/GetOpt.hs	\
 	tools/c2hs/base/general/UNames.hs	\
