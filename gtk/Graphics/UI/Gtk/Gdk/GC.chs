@@ -5,7 +5,7 @@
 --
 --  Created: 28 September 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/14 14:18:00 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -132,7 +132,7 @@ gcGetValues gc = alloca $ \vPtr -> do
 --   is interpreted relative to the clip origin.
 --
 gcSetClipRectangle :: GC -> Rectangle -> IO ()
-gcSetClipRectangle gc r = withObject r $ \rPtr ->
+gcSetClipRectangle gc r = with r $ \rPtr ->
   {#call unsafe gc_set_clip_rectangle#} gc (castPtr rPtr)
 
 -- | Set a clipping region.

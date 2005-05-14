@@ -64,6 +64,11 @@
 	* glib/System/Glib/GValueTypes.chs: bug fix. The GValue needs to be
 	initialised to hold an object type before it is set.
 
+	* gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/GC.chs,
+	gtk/Graphics/UI/Gtk/General/General.chs: change use of deprecated
+	function 'withObject' to its replacement 'with'.
+
 2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole

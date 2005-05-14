@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/14 01:50:40 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/14 14:18:00 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -107,8 +107,8 @@ initGUI = do
       argc    = length allArgs
   withMany withUTFString allArgs $ \addrs  ->
     withArray	       addrs   $ \argv ->
-    withObject	       argv    $ \argvp ->
-    withObject	       argc    $ \argcp -> do 
+    with	       argv    $ \argvp ->
+    with	       argc    $ \argcp -> do 
       res <- {#call unsafe init_check#} (castPtr argcp) (castPtr argvp)
       if (toBool res) then do
         argc'   <- peek argcp

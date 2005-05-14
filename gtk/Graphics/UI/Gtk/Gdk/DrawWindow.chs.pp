@@ -5,7 +5,7 @@
 --
 --  Created: 5 November 2002
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/08 03:21:12 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/14 14:18:00 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -202,7 +202,7 @@ drawWindowRegisterDnd self =
 drawWindowBeginPaintRect :: DrawWindowClass self => self
  -> Rectangle -- ^ @rectangle@ - rectangle you intend to draw to
  -> IO ()
-drawWindowBeginPaintRect self rectangle = withObject rectangle $ \rectPtr ->
+drawWindowBeginPaintRect self rectangle = with rectangle $ \rectPtr ->
   {#call gdk_window_begin_paint_rect#} (toDrawWindow self) (castPtr rectPtr)
 
 -- | Indicate that you are beginning the process of redrawing @region@.
@@ -272,7 +272,7 @@ drawWindowInvalidateRect :: DrawWindowClass self => self
                       -- child drawWindows
  -> IO ()
 drawWindowInvalidateRect self rect invalidateChildren =
-  withObject rect $ \rectPtr ->
+  with rect $ \rectPtr ->
   {# call gdk_window_invalidate_rect #}
      (toDrawWindow self)
      (castPtr rectPtr)
