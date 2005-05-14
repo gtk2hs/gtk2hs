@@ -1,3 +1,17 @@
+2005-05-14 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/GObject.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp,
+	gtk/Graphics/UI/Gtk/General/General.chs,
+	gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp,
+	/gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp: rename
+	mkFunPtrDestructor to mkFunPtrDestroyNotify so it does not clash with
+	a function of the same name from glib's Signals module. (The version
+	from the glib Signals module is renamed to mkFunPtrClosureNotify.)
+
 2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole

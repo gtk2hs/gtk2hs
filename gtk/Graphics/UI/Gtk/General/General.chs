@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/14 01:50:40 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -60,7 +60,7 @@ import Control.Exception (ioError, Exception(ErrorCall))
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(DestroyNotify, mkFunPtrDestructor)
+import System.Glib.GObject		(DestroyNotify, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}	 
 {#import Graphics.UI.Gtk.Signals#}
@@ -196,7 +196,7 @@ type HandlerId = {#type guint#}
 makeCallback :: IO {#type gint#} -> IO (Function, DestroyNotify)
 makeCallback fun = do
   funPtr <- mkHandler fun
-  dPtr <- mkFunPtrDestructor funPtr
+  dPtr <- mkFunPtrDestroyNotify funPtr
   return (funPtr, dPtr)
 
 -- | Sets a function to be called at regular intervals, with the default

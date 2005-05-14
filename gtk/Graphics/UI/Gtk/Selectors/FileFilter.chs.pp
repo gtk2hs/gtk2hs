@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 03:21:12 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/14 01:50:40 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -84,7 +84,7 @@ import System.Glib.FFI
 import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject              (mkFunPtrDestructor)
+import System.Glib.GObject              (mkFunPtrDestroyNotify)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
@@ -184,7 +184,7 @@ fileFilterAddCustom self needed func = do
       displayName <- maybePeek peekUTFString displayNamePtr
       mimeType    <- maybePeek peekUTFString mimeTypePtr
       liftM fromBool $ func filename uri displayName mimeType)
-  dPtr <- mkFunPtrDestructor hPtr
+  dPtr <- mkFunPtrDestroyNotify hPtr
   {# call gtk_file_filter_add_custom #}
     self
     ((fromIntegral . fromFlags) needed)

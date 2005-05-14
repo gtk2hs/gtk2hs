@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:30 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/14 01:50:40 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -104,7 +104,7 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.GList                (GList, fromGList, toGList)
 import System.Glib.Attributes
-import System.Glib.GObject		(mkFunPtrDestructor)
+import System.Glib.GObject		(mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -152,7 +152,7 @@ treeSelectionSetSelectFunction ts fun = do
     path <- peekTreePath (castPtr tp)
     liftM fromBool $ fun path
     )
-  dPtr <- mkFunPtrDestructor fPtr
+  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_selection_set_select_function #}
     (toTreeSelection ts)
     fPtr

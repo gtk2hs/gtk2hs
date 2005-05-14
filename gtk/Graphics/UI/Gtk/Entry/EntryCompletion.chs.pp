@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.12 $ from $Date: 2005/05/07 20:57:24 $
+--  Version $Revision: 1.13 $ from $Date: 2005/05/14 01:50:40 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -120,7 +120,7 @@ import Data.IORef (newIORef, readIORef, writeIORef)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
+import System.Glib.GObject		(makeNewGObject, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -185,7 +185,7 @@ entryCompletionSetMatchFunc ec handler = do
     (\_ keyPtr iterPtr _ -> do key <- peekUTFString keyPtr
                                iter <- createTreeIter iterPtr
                                handler key iter)
-  dPtr <- mkFunPtrDestructor hPtr
+  dPtr <- mkFunPtrDestroyNotify hPtr
   {# call gtk_entry_completion_set_match_func #} ec
     (castFunPtr hPtr) nullPtr dPtr
 

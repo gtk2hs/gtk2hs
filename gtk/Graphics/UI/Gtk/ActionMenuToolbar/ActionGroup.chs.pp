@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/08 12:23:10 $
+--  Version $Revision: 1.5 $ from $Date: 2005/05/14 01:50:39 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -110,7 +110,7 @@ import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
+import System.Glib.GObject		(makeNewGObject, mkFunPtrDestroyNotify)
 {#import Graphics.UI.Gtk.Types#}
 
 import Graphics.UI.Gtk.ActionMenuToolbar.Action
@@ -355,7 +355,7 @@ actionGroupSetTranslateFunc self func = do
                str <- peekUTFString strPtr
                translatedStr <- func str
                newUTFString translatedStr
-  notifyPtr <- mkFunPtrDestructor funcPtr
+  notifyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_action_group_set_translate_func #}
     self
     funcPtr

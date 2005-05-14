@@ -5,7 +5,7 @@
 --
 --  Created: 1 March 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:31 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/14 01:50:41 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -121,7 +121,7 @@ import Maybe	(fromMaybe)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject      	(makeNewGObject, mkFunPtrDestructor)
+import System.Glib.GObject      	(makeNewGObject, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -411,7 +411,7 @@ aboutDialogSetEmailHook func = do
     link <- peekUTFString linkPtr
     func link
     )
-  destroyPtr <- mkFunPtrDestructor funcPtr
+  destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_about_dialog_set_email_hook #}
     funcPtr
     nullPtr
@@ -430,7 +430,7 @@ aboutDialogSetUrlHook func = do
     link <- peekUTFString linkPtr
     func link
     )
-  destroyPtr <- mkFunPtrDestructor funcPtr
+  destroyPtr <- mkFunPtrDestroyNotify funcPtr
   {# call gtk_about_dialog_set_url_hook #}
     funcPtr
     nullPtr

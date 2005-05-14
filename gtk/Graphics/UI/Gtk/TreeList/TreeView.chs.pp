@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/07 21:03:39 $
+--  Version $Revision: 1.11 $ from $Date: 2005/05/14 01:50:40 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -194,7 +194,7 @@ import System.Glib.UTFString
 import System.Glib.GList		(GList, fromGList)
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject, mkFunPtrDestructor)
+import System.Glib.GObject		(makeNewGObject, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -1011,7 +1011,7 @@ treeViewSetSearchEqualFunc self pred = do
     key <- peekUTFString keyPtr
     iter <- createTreeIter itPtr
     liftM fromBool $ pred (fromIntegral col) key iter)
-  dPtr <- mkFunPtrDestructor fPtr
+  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
     nullPtr dPtr
 

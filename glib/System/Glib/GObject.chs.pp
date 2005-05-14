@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/04/19 02:15:32 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/14 01:50:38 $
 --
 --  Copyright (C) 2001 Axel Simon
 --
@@ -41,7 +41,7 @@ module System.Glib.GObject (
   
   -- ** Callback support
   DestroyNotify,
-  mkFunPtrDestructor,
+  mkFunPtrDestroyNotify,
 
   -- ** Weak references
   GWeakNotify,
@@ -119,8 +119,8 @@ foreign import ccall "wrapper" mkDestroyNotifyPtr :: IO () -> IO DestroyNotify
 -- it is no longer required. This function constructs a DestroyNotify function
 -- pointer which when called from C land will free the given Haskell function
 -- pointer (and itself).
-mkFunPtrDestructor :: FunPtr a -> IO DestroyNotify
-mkFunPtrDestructor hPtr = do
+mkFunPtrDestroyNotify :: FunPtr a -> IO DestroyNotify
+mkFunPtrDestroyNotify hPtr = do
   dRef <- newIORef nullFunPtr
   dPtr <- mkDestroyNotifyPtr $ do
     freeHaskellFunPtr hPtr
