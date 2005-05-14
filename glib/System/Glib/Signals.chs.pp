@@ -5,7 +5,7 @@
 --          
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.1 $ from $Date: 2005/05/14 02:01:49 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/14 02:19:59 $
 --
 --  Copyright (c) 2000 Axel Simon
 --
@@ -36,10 +36,18 @@
 module System.Glib.Signals (
   SignalName,
   ConnectAfter,
-  ConnectId,
+  ConnectId(ConnectId),
+  disconnect,
+#ifdef USE_GCLOSUE_SIGNALS_IMPL
+  GClosure,
   connectGeneric,
-  disconnect
+#else
+  GClosureNotify,
+  mkFunPtrClosureNotify,
+#endif
   ) where
+
+import Data.IORef              (newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString   (peekUTFString, newUTFString)
@@ -56,12 +64,14 @@ type ConnectAfter = Bool
 
 type SignalName = String
 
-data GObjectClass o => ConnectId o = ConnectID {#type gulong#} o
+data GObjectClass o => ConnectId o = ConnectId {#type gulong#} o
 
 disconnect :: GObjectClass obj => ConnectId obj -> IO ()
-disconnect (ConnectID handler obj) =
+disconnect (ConnectId handler obj) =
   withForeignPtr  ((unGObject.toGObject) obj) $ \objPtr ->
   {# call unsafe g_signal_handler_disconnect #} (castPtr objPtr) handler
+
+#ifdef USE_GCLOSUE_SIGNALS_IMPL
 
 {# pointer *GClosure newtype #}
 
@@ -82,7 +92,25 @@ connectGeneric signal after obj user = do
       signalPtr
       (GClosure gclosurePtr)
       (fromBool after)
-  return $ ConnectID sigId obj
+  return $ ConnectId sigId obj
 
 foreign import ccall unsafe "hsg_closure_new"
   hsg_closure_new :: StablePtr a -> IO (Ptr GClosure)
+
+#else
+
+{#pointer GClosureNotify#}
+
+foreign import ccall "wrapper" mkDestructor :: IO () -> IO GClosureNotify 	 
+  	 
+mkFunPtrClosureNotify :: FunPtr a -> IO GClosureNotify
+mkFunPtrClosureNotify hPtr = do 	 
+  dRef <- newIORef nullFunPtr 	 
+  dPtr <- mkDestructor $ do 	 
+    freeHaskellFunPtr hPtr 	 
+    dPtr <- readIORef dRef 	 
+    freeHaskellFunPtr dPtr 	 
+  writeIORef dRef dPtr 	 
+  return dPtr
+
+#endif

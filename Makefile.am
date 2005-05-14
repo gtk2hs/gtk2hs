@@ -84,6 +84,7 @@ tools_callbackGen_HookGenerator_PACKAGEDEPS =
 tools_callbackGen_HookGenerator_SOURCESDIRS = tools/callbackGen
 tools_callbackGen_HookGenerator_SOURCES = \
   tools/callbackGen/HookGenerator.hs
+tools_callbackGen_HookGenerator_hs_HCFLAGS = -I. 
 am_tools_callbackGen_HookGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_callbackGen_HookGenerator_SOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_callbackGen_HookGenerator_OBJECTS)
@@ -237,9 +238,12 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/Attributes.hs		\
 	glib/System/Glib/GError.chs.pp		\
 	glib/System/Glib/GList.chs		\
-	glib/System/Glib/Signals.chs		\
-        glib/System/Glib/Flags.hs		\
-	glib/System/Glib/hsgclosure.c
+	glib/System/Glib/Signals.chs.pp		\
+        glib/System/Glib/Flags.hs
+
+if USE_GCLOSUE_SIGNALS_IMPL
+libHSglib_a_SOURCES += glib/System/Glib/hsgclosure.c
+endif
 
 html_HSFILES_EXCLUDE =				\
 	glib/System/Glib/FFI.hs			\
@@ -250,8 +254,11 @@ glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_Attributes_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_Signals_hs_HCFLAGS	= '-\#include"hsgclosure.h"'
 
-libHSglib_a_LIBADD =	\
-	glib/System/Glib/GObject_stub.o
+libHSglib_a_LIBADD  = glib/System/Glib/GObject_stub.o
+        
+if !USE_GCLOSUE_SIGNALS_IMPL
+libHSglib_a_LIBADD += glib/System/Glib/Signals_stub.o
+endif
 
 am_libHSglib_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglib_a_SOURCES))))
@@ -468,7 +475,8 @@ EXTRA_libHSgtk_a_SOURCES =						\
 	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
 
 html_HSFILES_PREPROC = gtk/Graphics/UI/Gtk.hs
-html_HSFILES_HIDDEN  = $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)
+html_HSFILES_HIDDEN  = $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)		\
+			gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
@@ -497,6 +505,10 @@ libHSgtk_a_LIBADD =							\
 	gtk/Graphics/UI/Gtk/Selectors/FileFilter_stub.o			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog_stub.o			\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup_stub.o
+
+if !USE_GCLOSUE_SIGNALS_IMPL
+libHSgtk_a_LIBADD += gtk/Graphics/UI/Gtk/Signals_stub.o
+endif
 
 # Pretend these stub files can be created by a simple rule.
 $(libHSgtk_a_LIBADD) :
@@ -728,6 +740,11 @@ html_HSFILES_HIDDEN += $(libHSgconf_a_GENERATEDSOURCES:.chs=.hs)
 
 libHSgconf_a_LIBADD =	\
 	gconf/System/Gnome/GConf/GConfClient_stub.o
+
+if !USE_GCLOSUE_SIGNALS_IMPL
+libHSgconf_a_LIBADD +=	\
+	gconf/System/Gnome/GConf/Signals_stub.o
+endif
 
 gconf/System/Gnome/GConf/Types.chs :			\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \

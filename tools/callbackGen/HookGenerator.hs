@@ -1,7 +1,10 @@
+{-# OPTIONS -cpp #-}
 -- HookGenerator.hs -*-haskell-*-
 -- Takes a type list of possible hooks from the GTK+ distribution and produces
 -- Haskell functions to connect to these callbacks.
 module Main(main) where
+
+#include "gtk2hs-config.h"
 
 import Char(showLitChar)
 import List(nub, partition)
@@ -133,6 +136,8 @@ identifier Tboxed   = ss "BOXED"
 identifier Tptr	    = ss "PTR"
 identifier Tobject  = ss "OBJECT"
 
+#ifdef USE_GCLOSUE_SIGNALS_IMPL
+
 -- The monomorphic type which is used to export the function signature.
 rawtype :: Types -> ShowS
 rawtype Tunit    = ss "()"
@@ -151,6 +156,30 @@ rawtype Tstring  = ss "CString"
 rawtype Tboxed   = ss "Ptr ()"
 rawtype Tptr	 = ss "Ptr ()"
 rawtype Tobject  = ss "Ptr GObject"
+
+
+#else
+
+-- The monomorphic type which is used to export the function signature.
+rawtype :: Types -> ShowS
+rawtype Tunit    = ss "()"
+rawtype Tbool    = ss "{#type gboolean#}"
+rawtype Tchar    = ss "{#type gchar#}"
+rawtype Tuchar   = ss "{#type guchar#}"
+rawtype Tint	 = ss "{#type gint#}"
+rawtype Tuint    = ss "{#type guint#}"
+rawtype Tlong    = ss "{#type glong#}"
+rawtype Tulong   = ss "{#type gulong#}"
+rawtype Tenum    = ss "{#type gint#}"
+rawtype Tflags   = ss "{#type guint#}"
+rawtype Tfloat   = ss "{#type gfloat#}"
+rawtype Tdouble  = ss "{#type gdouble#}"
+rawtype Tstring  = ss "CString"
+rawtype Tboxed   = ss "Ptr ()"
+rawtype Tptr	 = ss "Ptr ()"
+rawtype Tobject  = ss "Ptr GObject"
+
+#endif
 
 -- The possibly polymorphic type which 
 usertype :: Types -> [Char] -> (ShowS,[Char])
@@ -229,6 +258,8 @@ nameArg Tobject  c = ss "obj".shows c
 -- describe marshalling between the data passed from the registered function
 -- to the user supplied Haskell function
 
+#ifdef USE_GCLOSUE_SIGNALS_IMPL
+
 marshExec :: Types -> ShowS -> Int -> (ShowS -> ShowS)
 marshExec Tbool	  arg _ body = body. sc ' '. arg
 marshExec Tchar	  arg _ body = body. sc ' '. arg
@@ -248,7 +279,6 @@ marshExec Tboxed  arg n body = indent 5. ss "boxedPre". ss (show n). ss " (castP
 marshExec Tptr	  arg _ body = body. ss " (castPtr ". arg. sc ')'
 marshExec Tobject arg _ body = indent 5.ss "makeNewGObject mkGObject (return ". arg. ss ") >>= \\". arg. ss "\' ->".
                                body. ss " (fromGObject ". arg. ss "\')"
---marshExec _	  _   _ = id
 
 marshRet :: Types -> (ShowS -> ShowS)
 marshRet Tunit	 body = body
@@ -263,6 +293,59 @@ marshRet Tfloat	 body = body
 marshRet Tdouble body = body
 marshRet Tstring body = body. indent 5. ss ">>= newUTFString"
 marshRet _       _    = error "Signal handlers cannot return structured types."
+
+#else
+
+marshExec :: Types -> ArgNo -> ShowS
+marshExec Tbool	  n = indent 4.ss "let bool".shows n.
+		      ss "' = toBool bool".shows n
+marshExec Tchar	  n = indent 4.ss "let char".shows n.
+		      ss "' = (toEnum.fromEnum) char".shows n
+marshExec Tuchar  n = indent 4.ss "let char".shows n.
+		      ss "' = (toEnum.fromEnum) char".shows n
+marshExec Tint	  n = indent 4.ss "let int".shows n.
+		      ss "' = fromIntegral int".shows n
+marshExec Tuint	  n = indent 4.ss "let int".shows n.
+		      ss "' = fromIntegral int".shows n
+marshExec Tlong	  n = indent 4.ss "let long".shows n.
+		      ss "' = toInteger long".shows n
+marshExec Tulong  n = indent 4.ss "let long".shows n.
+		      ss "' = toInteger long".shows n
+marshExec Tenum	  n = indent 4.ss "let enum".shows n.
+		      ss "' = (toEnum.fromEnum) enum".shows n
+marshExec Tflags  n = indent 4.ss "let flags".shows n.
+		      ss "' = (toEnum.fromEnum) flags".shows n
+marshExec Tfloat  n = indent 4.ss "let float".shows n.
+		      ss "' = (fromRational.toRational) float".shows n
+marshExec Tdouble n = indent 4.ss "let double".shows n.
+		      ss "' = (fromRational.toRational) double".shows n
+marshExec Tstring n = indent 4.ss "str".shows n.
+		      ss "' <- peekCString str".shows n
+marshExec Tboxed  n = indent 4.ss "box".shows n.ss "' <- boxedPre".
+		      shows n.ss " $ castPtr box".shows n
+marshExec Tptr	  n = indent 4.ss "let ptr".shows n.ss "' = castPtr ptr".
+		      shows n
+marshExec Tobject n = indent 4.ss "objectRef obj".shows n.
+		      indent 4.ss "obj".shows n.
+		      ss "' <- liftM (fromGObject.mkGObject) $".
+		      indent 5.ss "newForeignPtr obj".shows n.
+		      ss " (objectUnref obj".shows n.sc ')'
+marshExec _	  _ = id
+
+marshRet :: Types -> ShowS
+marshRet Tunit	  = ss "id"
+marshRet Tbool	  = ss "fromBool"
+marshRet Tint	  = ss "fromIntegral"
+marshRet Tuint	  = ss "fromIntegral"
+marshRet Tlong	  = ss "fromIntegral"
+marshRet Tulong	  = ss "fromIntegral"
+marshRet Tenum	  = ss "(toEnum.fromEnum)"
+marshRet Tflags	  = ss "fromFlags"
+marshRet Tfloat	  = ss "(toRational.fromRational)"
+marshRet Tdouble  = ss "(toRational.fromRational)"
+marshRet _  = ss "(error \"Signal handlers cannot return structured types.\")"
+
+#endif
 
 -------------------------------------------------------------------------------
 -- generation of parameterized fragments
@@ -292,11 +375,21 @@ mkMarshArg (ret,ts) = zipWith marshArg (ts++[ret]) [1..]
 
 mkArg sig = foldl (.) (sc ' ') $ mkMarshArg sig
 
+#ifdef USE_GCLOSUE_SIGNALS_IMPL
+
 mkMarshExec :: Signature -> ShowS
 mkMarshExec (ret,ts) = foldl (\body marshaler -> marshaler body) (indent 5.ss "user")
                              (paramMarshalers++[returnMarshaler])
   where paramMarshalers = [ marshExec t (nameArg t n) n | (t,n) <- zip ts [1..] ]
         returnMarshaler = marshRet ret
+
+#else
+
+mkMarshExec :: Signature -> ShowS
+mkMarshExec (_,ts) = foldl (.) id $ 
+		     zipWith marshExec ts [1..]
+
+#endif
 
 mkIdentifier :: Signature -> ShowS
 mkIdentifier (ret,[]) = identifier Tunit . ss "__".identifier ret
@@ -316,8 +409,16 @@ mkLambdaArgs :: Signature -> ShowS
 mkLambdaArgs (_,ts) = foldl (.) id $ 
 		      zipWith (\a b -> nameArg a b.sc ' ') ts [1..]
 
---mkMarshRet :: Signature -> ShowS
---mkMarshRet (ret,_) = marshRet ret
+#ifndef USE_GCLOSUE_SIGNALS_IMPL
+
+mkFuncArgs :: Signature -> ShowS
+mkFuncArgs (_,ts) = foldl (.) id $ 
+		    zipWith (\a b -> sc ' '.nameArg a b.sc '\'') ts [1..]
+
+mkMarshRet :: Signature -> ShowS
+mkMarshRet (ret,_) = marshRet ret
+
+#endif
 
 -------------------------------------------------------------------------------
 -- start of code generation
@@ -371,6 +472,8 @@ genExport sigs = foldl (.) id (map mkId sigs)
   where
     mkId sig = ss "connect_".mkIdentifier sig.sc ','.indent 1
 
+#ifdef USE_GCLOSUE_SIGNALS_IMPL
+
 generate :: Signature -> ShowS
 generate sig = let ident = mkIdentifier sig in
   indent 0.ss "connect_".ident.ss " :: ".
@@ -385,5 +488,42 @@ generate sig = let ident = mkIdentifier sig in
   indent 1.ss "      action _ ".mkLambdaArgs sig. sc '='.
   indent 5.ss "failOnGError $".
   mkMarshExec sig.
---  indent 5.mkMarshRet sig. ss "user"
   indent 0
+
+
+#else
+
+generate :: Signature -> ShowS
+generate sig = let ident = mkIdentifier sig in
+  indent 0.ss "type Tag_".ident.ss " = Ptr () -> ".
+  indent 1.mkRawtype sig.
+  indent 0.
+  indent 0.ss "foreign".ss " import ccall \"wrapper\" ".ss "mkHandler_".ident.ss " ::".
+  indent 1.ss "Tag_".ident.ss " -> ".
+  indent 1.ss "IO (FunPtr ".ss "Tag_".ident.sc ')'.
+  indent 0.
+  indent 0.ss "connect_".ident.ss " :: ".
+  indent 1.mkContext sig.ss " SignalName ->".
+  mkType sig.
+  indent 1.ss "ConnectAfter -> obj ->".
+  indent 1.mkUserType sig.ss " ->".
+  indent 1.ss "IO (ConnectId obj)".
+  indent 0.ss "connect_".ident.ss " signal".
+  mkArg sig.
+  indent 1.ss "after obj user =".
+  indent 1.ss "do".
+  indent 2.ss "hPtr <- mkHandler_".ident.
+  indent 3.ss "(\\_ ".mkLambdaArgs sig.ss "-> failOnGError $ do".
+  mkMarshExec sig.
+  indent 4.ss "liftM ".mkMarshRet sig.ss " $".
+  indent 5.ss "user".mkFuncArgs sig.
+  indent 3.sc ')'.
+  indent 2.ss "dPtr <- mkFunPtrClosureNotify hPtr".
+  indent 2.ss "sigId <- withCString signal $ \\nPtr ->".
+  indent 3.ss "withForeignPtr ((unGObject.toGObject) obj) $ \\objPtr ->".
+  indent 4.ss "{#call unsafe g_signal_connect_data#} (castPtr objPtr)".
+  indent 5.ss "nPtr (castFunPtr hPtr) nullPtr dPtr (fromBool after)".
+  indent 2.ss "return $ ConnectId sigId obj".
+  indent 0
+
+#endif

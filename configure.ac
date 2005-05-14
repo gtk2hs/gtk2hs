@@ -127,7 +127,7 @@ GHC=$HC
 
 dnl Check GHC details.
 AC_MSG_CHECKING([version of GHC])
-GHC_VERSION=`$GHC --version | $SED "s/[[a-zA-Z ,]*\([0-9.]*\)[a-zA-Z ]]*/\1/"`
+GHC_VERSION=`$GHC --numeric-version`
 AC_MSG_RESULT([$GHC_VERSION])
 
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.4, [
@@ -432,6 +432,24 @@ if test $DISABLE_DEPRECATED = yes; then
 else
   CREATE_TYPES="deprecated $CREATE_TYPES";
 fi;
+
+dnl Decide which signals implementation to use, it does not work with GHCi for
+dnl version of GHC up to 6.4, it is suppsoed to be fixed in 6.4.1, but we will
+dnl see about that when it comes out. However we will use it on sparc and amd64
+dnl since amd64 does not have a working ghci, and its ffi support is
+dnl insufficient for the old signals method. For sparc, the ghc ffi support is
+dnl also insufficient for the old signals method.
+case "$host_cpu" in
+  sparc*) USE_GCLOSUE_SIGNALS_IMPL=yes;;
+# x86_64*) USE_GCLOSUE_SIGNALS_IMPL=yes;; #enable this asap
+       *) USE_GCLOSUE_SIGNALS_IMPL=no;;
+esac
+#enable the following when we know it works
+#GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4.1, [USE_GCLOSUE_SIGNALS_IMPL=yes])
+if test $USE_GCLOSUE_SIGNALS_IMPL = yes; then
+	AC_DEFINE(USE_GCLOSUE_SIGNALS_IMPL, [], [Use the new GClosure based signals implementation.])
+fi
+AM_CONDITIONAL(USE_GCLOSUE_SIGNALS_IMPL, test "$USE_GCLOSUE_SIGNALS_IMPL" = "yes")
 
 dnl c2hs Dilemma.
 dnl Check if the user supplied a specific C->Haskell installation or wants to
