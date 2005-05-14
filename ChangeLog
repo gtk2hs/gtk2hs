@@ -1,3 +1,9 @@
+2005-05-14 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp,
+	gtk/Graphics/UI/Gtk/Display/Label.chs.pp: Don't import Gtk 2.6
+	enums when compiling for 2.4.
+
 2005-05-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GObject.chs.pp,
@@ -71,9 +77,9 @@
 	the new GTKHS_PKG_CHECK for each package. Also, we don't need the
 	pkg-config check because the PKG_CHECK_MODULES does that anyway.
 
-	* mk/common.mk: add a build rule for C files. It puts the .o file in the
-	subdir correctly. It uses $(HC) as the C compiler, passing all
-	gcc-specific flags via ghc's -optc flag.
+	* mk/common.mk: add a build rule for C files. It puts the .o file
+	in the subdir correctly. It uses $(HC) as the C compiler, passing
+	all gcc-specific flags via ghc's -optc flag.
 
 	* Makefile.am: remove the subdir-objects obtion since we don't need it
 	and also add no-dependencies since we don't need the C dependency

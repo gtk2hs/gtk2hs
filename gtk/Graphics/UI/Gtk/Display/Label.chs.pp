@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:23 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/14 10:59:20 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -195,7 +195,9 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(Justification(..))
 import Graphics.UI.Gtk.Pango.Markup
+#if GTK_CHECK_VERSION(2,6,0)
 import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode)
+#endif
 
 {# context lib="gtk" prefix="gtk" #}
 
