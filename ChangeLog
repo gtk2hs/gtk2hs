@@ -24,6 +24,9 @@
 	added in some later version of Pango. Gtk+ 2.6 depends on this later
 	Pango version so we can bind it for Gtk+ 2.6 and later.
 
+	* glib/System/Glib/Signals.chs, glib/System/Glib/Signals.chs.pp:
+	rename to .chs.pp so we can add conditional stuff.
+
 2005-05-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add extra GTKHS_PKG_CHECK macro which does a whole
