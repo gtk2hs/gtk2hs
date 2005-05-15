@@ -39,6 +39,11 @@ fromFlags is = orNum 0 is
   where orNum n []     = n
         orNum n (i:is) = orNum (n .|. fromEnum i) is
 
+-- * Note that this function falls over if bits are set for which no 
+--   constructurs are set. This could only be circumvented by catching
+--   the error raised in toEnum, enumerating all flags with [minBound..
+--   maxBound] does NOT work.
+--
 toFlags :: Flags a => Int -> [a]
 toFlags f = testBits f 1
   where testBits f n

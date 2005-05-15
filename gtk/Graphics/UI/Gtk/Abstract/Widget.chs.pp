@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/09 23:07:45 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/15 19:34:45 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -92,11 +92,16 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetActivate,		-- Manipulate widget state.
   widgetSetSensitivity,
   widgetSetSizeRequest,
+  widgetGetSizeRequest,
   widgetIsFocus,
   widgetGrabFocus,
   widgetSetAppPaintable,
   widgetSetName,		-- Naming, Themes
   widgetGetName,
+  widgetAddEvents,
+  widgetGetEvents,
+  widgetSetExtensionEvents,
+  widgetGetExtensionEvents,
   widgetGetToplevel,		-- Widget browsing.
   widgetIsAncestor,
   widgetReparent,
@@ -106,11 +111,16 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetQueueDrawArea,
   widgetSetDoubleBuffered,
   widgetSetRedrawOnAllocate,
+  widgetGetParentWindow,
   widgetGetPointer,
+  widgetTranslateCoordinates,
   widgetPath,
   widgetClassPath,
   widgetGetCompositeName,
   widgetSetCompositeName,
+  widgetGetParent,
+  widgetSetDefaultDirection,
+  widgetGetDefaultDirection,
   widgetModifyStyle,
   widgetGetModifierStyle,
   widgetModifyFg,
@@ -118,22 +128,16 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetModifyText,
   widgetModifyBase,
   widgetModifyFont,
-  widgetGetParentWindow,
-  widgetSetExtensionEvents,
-  widgetGetExtensionEvents,
-  widgetGetEvents,
-  widgetTranslateCoordinates,
-  widgetSetDefaultDirection,
-  widgetGetDefaultDirection,
   widgetCreatePangoContext,
   widgetGetPangoContext,
   widgetRenderIcon,
-  widgetGetParent,
-  widgetGetSizeRequest,
+  widgetGetCanFocus,
+  widgetSetCanFocus,
 
 -- * Attributes
   widgetExtensionEvents,
   widgetDirection,
+  widgetCanFocus,
 
 -- * Signals
   Event(..),
@@ -157,8 +161,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   afterLeaveNotify,
   onExpose,
   afterExpose,
-  onExposeRegion,
-  afterExposeRegion,
+  onExposeRect,
+  afterExposeRect,
   onFocusIn,
   afterFocusIn,
   onFocusOut,
@@ -218,7 +222,9 @@ import System.Glib.Flags		(fromFlags, toFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
+import System.Glib.StoreValue		(GenericValue(..))
+import Graphics.UI.Gtk.Abstract.Object	(makeNewObject,
+					 objectSetProperty, objectGetProperty )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode)
@@ -227,7 +233,7 @@ import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize,
 					,widgetGetState, widgetGetSavedState)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
-					 marshExposeRegion)
+					 marshExposeRect)
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..))
 {#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription))
 
@@ -1051,6 +1057,24 @@ widgetRenderIcon self stockId size detail =
     ((fromIntegral . fromEnum) size)
     detailPtr
 
+-- | Set if this widget can receive keyboard input.
+--
+-- * To use the 'onKeyPress' event, the widget must be allowed
+--   to get the input focus. Once it has the input focus all keyboard
+--   input is directed to this widget.
+--
+widgetSetCanFocus :: WidgetClass self => self -> Bool -> IO ()
+widgetSetCanFocus self can =
+  objectSetProperty (toObject self) "can_focus" (GVboolean can)
+
+
+-- | Check if this widget can receive keyboard input.
+--
+widgetGetCanFocus :: WidgetClass self => self -> IO Bool
+widgetGetCanFocus self = do
+  (GVboolean can) <- objectGetProperty (toObject self) "can_focus"
+  return can
+
 --------------------
 -- Properties
 
@@ -1069,6 +1093,13 @@ widgetDirection :: WidgetClass self => Attr self TextDirection
 widgetDirection = newAttr
   widgetGetDirection
   widgetSetDirection
+
+-- | Whether the widget can have the input focus.
+--
+widgetCanFocus :: WidgetClass self => Attr self Bool
+widgetCanFocus = newAttr
+  widgetGetCanFocus
+  widgetSetCanFocus
 
 --------------------
 -- Signals
@@ -1143,12 +1174,16 @@ afterDirectionChanged = event "direction_changed" [] True
 
 -- | Mouse cursor entered widget.
 --
+-- * Contains a 'Crossing' event.
+--
 onEnterNotify, afterEnterNotify :: WidgetClass w => w -> (Event -> IO Bool) ->
                                    IO (ConnectId w)
 onEnterNotify = event "enter_notify_event" [EnterNotifyMask] False
 afterEnterNotify = event "enter_notify_event" [EnterNotifyMask] True
 
 -- | Mouse cursor leaves widget.
+--
+-- * Contains a 'Crossing' event.
 --
 onLeaveNotify, afterLeaveNotify :: WidgetClass w => w -> (Event -> IO Bool) ->
                                    IO (ConnectId w)
@@ -1157,24 +1192,34 @@ afterLeaveNotify = event "leave_notify_event" [LeaveNotifyMask] True
 
 -- | Instructs the widget to redraw.
 --
+-- * This event is useful for the 'DrawingArea'. On receiving this signal
+--   the content of the passed Rectangle or Region needs to be redrawn.
+--   The return value should be 'True' if the region was completely redrawn
+--   and 'False' if other handlers in the chain should be invoked.
+--   If a client will redraw the whole area and is not interested in the
+--   extra information in 'Expose', it is more efficient
+--   to use 'onExposeRect'.
+--
+-- * Widgets that are very expensive to re-render, such as an image editor,
+--   may prefer to use the 'onExpose' call back which delivers a
+--   'Region' in addition to a 'Rectangle'. A 'Region' consists of several
+--   rectangles that need redrawing. The simpler 'onExposeRect' event encodes
+--   the area to be redrawn as a bounding rectangle which might be easier
+--   to deal with in a particular application.
+--
 onExpose, afterExpose :: WidgetClass w => w -> (Event -> IO Bool) ->
                          IO (ConnectId w)
 onExpose = event "expose_event" [] False
 afterExpose = event "expose_event" [] True
 
--- | Expose event delivering a 'Region'.
+-- | Expose event delivering a 'Rectangle'.
 --
--- * Widgets that are very expensive to re-render, such as an image editor,
---   may prefer to use the 'onExposeRegion' call back which delivers a
---   'Region' instead of a 'Rectangle'. A 'Region' consists of several
---   rectangles that need redrawing. The simpler 'onExpose' event encodes
---   the area to be redrawn as a bounding rectangle which might be easier
---   to deal with in a particular application.
---
-onExposeRegion, afterExposeRegion ::
-    WidgetClass w => w -> (Region -> IO Bool) -> IO (ConnectId w)
-onExposeRegion = connect_BOXED__BOOL "expose_event" marshExposeRegion False
-afterExposeRegion = connect_BOXED__BOOL "expose_event" marshExposeRegion True
+onExposeRect, afterExposeRect ::
+    WidgetClass w => w -> (Rectangle -> IO ()) -> IO (ConnectId w)
+onExposeRect w act = connect_BOXED__BOOL "expose_event"
+  marshExposeRect False w (\r -> act r >> return True)
+afterExposeRect w act = connect_BOXED__BOOL "expose_event" 
+  marshExposeRect True w (\r -> act r >> return True)
 
 -- | Widget gains input focus.
 --

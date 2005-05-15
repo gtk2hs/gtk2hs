@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/09 23:07:46 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/15 19:34:46 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -26,42 +26,37 @@
 --
 module Graphics.UI.Gtk.Gdk.Events (
   Modifier,		-- a mask of control keys
-  -- tests for a specific control key
-  hasShift,
-  hasLock, 
-  hasControl, 
-  hasMod1, 
-  hasMod2, 
-  hasMod3, 
-  hasMod4, 
-  hasMod5,
-  hasButLeft, 
-  hasButRight, 
-  hasButMiddle,
   Event(..),		-- information in event callbacks from Gdk
-  marshExposeRegion,
+  marshExposeRect,
 
   -- selector functions
 #if __GLASGOW_HASKELL__<600
-  sent,			-- True if this is event does not come from user input
-  area,			-- Rectangle which is to be exposed, etc.
-  count,		-- number of upcoming events
-  time,			-- running number of event
-  x,y,			-- floating point coordinates within widget
-  xRoot, yRoot,		-- dto., relative to parent widget
-  modif,		-- the modifier keys that were active
-  isHint,		-- True if this is a hint in the X Windows meaning
-  button,		-- Button number which triggered event
-  keyval,		-- key code (see gdk/gdkkeysyms.h)
-  len,			-- length of string that a key generated
-  str,			-- the string a key generated
-  cMode,		-- crossing mode
-  nType,		-- notify type
-  inFocus,		-- True if event is generated for entering widget
-  xPar, yPar,		-- new integral values for position relative to parent
-  width, height,	-- new size of a widget
-  visible,		-- state of visibility
-  wMask, wState,	-- new (?possible? and) real state of a window
+  sent,
+  area,
+  region,
+  count,
+  time,
+  x,y,
+  modif,
+  isHint,
+  xRoot, yRoot,
+  modif,
+  click,
+  button,
+  release,
+  withCapsLock,
+  withNumLock,
+  withScrollLock,
+  keyName,
+  keyChar,
+  cMode,
+  nType,
+  inFocus,
+  xPar, yPar,
+  width, height,
+  visible,
+  wMask, wState,
+  touches,
 #endif
   marshalEvent,		-- convert a pointer to an event data structure
   -- used data structures
@@ -75,10 +70,11 @@ module Graphics.UI.Gtk.Gdk.Events (
   Rectangle(..)
   ) where
 
-import Data.Bits ((.&.))
-
+import Data.Bits ((.&.), (.|.))
+import Data.Char ( chr )
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Flags
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
 import Graphics.UI.Gtk.Gdk.Enums	(VisibilityState(..),
 					 CrossingMode(..),
@@ -90,82 +86,263 @@ import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 
 #include <gdk/gdk.h>
 
-
--- | modifier key flags
+-- | Modifer keys.
 --
-type Modifier = #{type guint}
+-- * This data type is used to build lists of modifers that were active
+--   during an event.
+--
+-- * While 'Apple' stands for the Apple key on Macintoshs, it also
+--   stands for the Windows key on PC keyboards or the Super key on
+--   Unix machines. It\'s called Apple since it is probably mostly used
+--   in the Macintosh environment.
+--
+data Modifier
+  = Shift
+  | Control
+  | Alt
+  | Apple
+  -- | Compose is often labelled Alt Gr.
+  | Compose
+  deriving (Bounded, Show)
 
-hasShift, hasLock, hasControl, hasMod1, hasMod2, hasMod3, hasMod4, hasMod5,
-  hasButLeft, hasButRight, hasButMiddle :: Modifier -> Bool
-hasShift     x = (x .&. #{const GDK_SHIFT_MASK}) /= 0
-hasLock	     x = (x .&. #{const GDK_LOCK_MASK}) /= 0
-hasControl   x = (x .&. #{const GDK_CONTROL_MASK}) /= 0
-hasMod1	     x = (x .&. #{const GDK_MOD1_MASK}) /= 0
-hasMod2	     x = (x .&. #{const GDK_MOD2_MASK}) /= 0
-hasMod3	     x = (x .&. #{const GDK_MOD3_MASK}) /= 0
-hasMod4	     x = (x .&. #{const GDK_MOD4_MASK}) /= 0
-hasMod5	     x = (x .&. #{const GDK_MOD5_MASK}) /= 0
-hasButLeft   x = (x .&. #{const GDK_BUTTON1_MASK}) /= 0
-hasButRight  x = (x .&. #{const GDK_BUTTON3_MASK}) /= 0
-hasButMiddle x = (x .&. #{const GDK_BUTTON2_MASK}) /= 0
+instance Enum Modifier where
+  toEnum #{const GDK_SHIFT_MASK} = Shift
+  toEnum #{const GDK_CONTROL_MASK} = Control
+  toEnum #{const GDK_MOD1_MASK} = Alt
+  toEnum #{const GDK_MOD4_MASK} = Apple
+  toEnum #{const GDK_MOD5_MASK} = Compose
+  fromEnum Shift = #{const GDK_SHIFT_MASK}
+  fromEnum Control = #{const GDK_CONTROL_MASK}
+  fromEnum Alt = #{const GDK_MOD1_MASK}
+  fromEnum Apple = #{const GDK_MOD4_MASK}
+  fromEnum Compose = #{const GDK_MOD5_MASK}
+
+instance Flags Modifier
+
+-- Turn an int into a modifier.
+--
+-- * Use instead of (toFlags . fromIntegral) since the latter will fail
+--   if flags are set for which no constructor exists
+--
+toModifier :: #{type guint} -> [Modifier]
+toModifier i = toFlags ((fromIntegral i) .&. mask)
+  where
+  mask = foldl (.|.) 0 (map fromEnum [Shift, Control, Alt, Apple, Compose])
 
 
+-- Note on Event:
+-- * 'Event' can communicate a small array of data to another widget. This
+--   functionality is not bound as it can be done easier in Haskell.
+--
+-- * EventDND is not implemented as registering a DND source or sink
+--   should be easier and sufficient for everything.
+--
+-- * EventProperty is not bound since it involves Atoms and its hard to see
+--   how a Haskell application should extract the data. It should be possible
+--   to connect directly to property-changed signals. If there is a need
+--   to monitor a property for which there is no signal we could add
+--   a trigger for just that property.
+--
+-- * EventSelection - I don\'t quite see how this works, so not bound.
+--
+-- * NoExpose - seems pointless: you copy from a drawable and this signal
+--   tells you that it was up-to-date without redrawing. Maybe I'm missing
+--   something.
+--
+-- * EventSetting informs about a change in setting that are shared among
+--   several applications. They are probably not relevant to user defined
+--   widgets. Anyway they don\'t make sense before GtkSettings isn\'t bound.
+--
+-- * Property is a TODO. These come from RC files which are useful for
+--   custom widgets.
+
+-- | Events that are delivered to a wdiget.
+--
+-- * Any given signal only emits one of these variants as described
+--   in 'Widget'. Many events share common attributes which are
+--   described below.
+--
+-- ** The 'sent' attribute is @True@ if the event was not created by the
+--    user but by another application.
+--
+-- ** The 'time' attribute contains a time in milliseconds when the event
+--    happened.
+--
+-- ** The 'x' and 'y' attributes contain the coordinates relative to the
+--    'DrawWindow' associated with this widget. The values can contain
+--    sub-pixel information if the input device is a graphics tablet or
+--    the like.
+--
+-- ** The 'modif' attribute denotes what modifier key was pressed during
+--    the event.
+--
 data Event
   = Event {
     sent	:: Bool }    
+  -- | The expose event.
+  --
+  -- * A region of widget that receives this event needs to be redrawn.
+  --   This event is the result of revealing part or all of a window
+  --   or by the application calling functions like 'widgetQueueDrawArea'.
+  --
   | Expose {
     sent	:: Bool,
+    -- | A bounding box denoting what needs to be updated. For a more
+    -- detailed information on the area that needs redrawing, use the
+    -- next field.
     area	:: Rectangle,
+    -- | A set of horizontal stripes that denote the invalid area.
+    region      :: Region,
+
+    -- | The number of contiguous 'Expose' events following this
+    --   one. The only use for this is "exposure compression", i.e. 
+    --   handling all contiguous 'Expose' events in one go, though Gdk
+    --   performs some exposure compression so this is not normally needed.
     count	:: Int }
+  -- | Mouse motion.
+  --
+  -- * Captures the movement of the mouse cursor while it is within the area
+  --   of the widget.
+  --
   | Motion {
     sent	:: Bool,
     time	:: Integer,
     x,y		:: Double,
-    modif	:: Modifier,
+    modif	:: [Modifier],
+    -- | Indicate if this event is only a hint of the motion.
+    --
+    -- * If the 'PointerMotionHintMask' is set with 'widgetAddEvents' then
+    --   mouse positions are only generated each time a 'drawWindowGetPointer'
+    --   is called. In this case 'isHint' is set to @True@.
+    --
     isHint	:: Bool,
     xRoot,
     yRoot	:: Double } 
+  -- | A mouse button was pressed or released.
+  --
+  -- * This event is triggered if the mouse button was pressed or released
+  --   while the mouse cursor was within the region of the widget.
+  --
   | Button {
     sent	:: Bool,
+    -- | The kind of button press, see 'Click'. Note that double clicks will
+    --   trigger this event with 'click' set to 'SingleClick', 'ReleaseClick',
+    --   'SingleClick', 'DoubleClick', 'ReleaseClick'. Triple clicks will
+    --   produce this sequence followed by 'SingleClick', 'DoubleClick',
+    --   'TripleClick', 'ReleaseClick'.
     click	:: Click,
+    -- | The time of the event in milliseconds.
     time	:: Integer,
     x,y		:: Double,
-    modif	:: Modifier,
+    modif	:: [Modifier],
+    -- | The button that was pressed.
     button	:: Button,
+    -- | The coordinates of the click relative the the screen origin.
     xRoot,
     yRoot	:: Double }
+  -- | A key was pressed while the widget had the input focus.
+  --
+  -- * If the widget has the current input focus (see 'widgetSetCanFocus')
+  --   it will receive key pressed events. Certain key combinations are of
+  --   no interest to a normal widget like Alt-F to access the file menu.
+  --   For all these keys, the handler must return @False@ to indicate that
+  --   the key stroke should be propagated to the parent widget. At the
+  --   top-level widget, keyboard shortcuts like Alt-F are turned into the
+  --   corresponding signals.
+  --
   | Key {
+    -- | This flag is set if the key was released. This flag makes it possible
+    -- to connect the same handler to 'onKeyPress' and 'onKeyRelease'.
     release	:: Bool,
     sent	:: Bool,
     time	:: Integer,
-    modif	:: Modifier,
-    keyval	:: Integer,
-    len		:: Int,
-    str		:: String }
+    modif	:: [Modifier],
+    -- | This flag is @True@ if Caps Lock is on while this key was pressed.
+    withCapsLock,
+    -- | This flag is @True@ if Number Lock is on while this key was pressed.
+    withNumLock,
+    -- | This flag is @True@ if Scroll Lock is on while this key was pressed.
+    withScrollLock :: Bool,
+    -- | A string representing the key that was pressed or released.
+    --
+    -- * This string contains a description of the key rather than what
+    --   should appear on screen. For example, pressing "1" on the keypad
+    --   results in "KP_1". Of particular interest are "F1" till "F12",
+    --   for a complete list refer to "<gdk/gdkkeysyms.h>" where all
+    --   possible values are defined. The corresponding strings are the
+    --   constants without the GDK_ prefix.
+    keyName	:: String,
+    -- | A character matching the key that was pressed.
+    --
+    -- * This entry can be used to build up a whole input string.
+    --   The character is @Nothing@ if the key does not correspond to a simple
+    --   unicode character.
+    --
+    keyChar     :: Maybe Char }
+  -- | Mouse cursor crossing event.
+  --
+  -- * This event indicates that the mouse cursor is hovering over this
+  --   widget. It is used to set a widget into the pre-focus state where
+  --   some GUI elements like buttons on a toolbar change their appearance.
+  --
   | Crossing {
     sent	:: Bool,
     time	:: Integer,
     x,y		:: Double,
     xRoot,
     yRoot	:: Double,
+    -- | Kind of enter/leave event.
+    --
+    -- * The mouse cursor might enter this widget because it grabs the mouse
+    --   cursor for e.g. a modal dialog box.
+    --
     cMode	:: CrossingMode,
+    -- | Information on from what level of the widget hierarchy the mouse
+    --   cursor came.
+    --
+    -- * See 'NotifyType'.
+    --
     nType	:: NotifyType,
-    modif	:: Modifier}
+    modif	:: [Modifier]}
+  -- | Gaining or loosing input focus.
+  --
   | Focus {
     sent	:: Bool,
+    -- | This flag is @True@ if the widget receives the focus and @False@ if
+    -- it just lost the input focus.
     inFocus	:: Bool}
+  -- | The widget\'s size has changed.
+  --
+  -- * In response to this event the application can allocate resources that
+  --   are specific to the size of the widget. It is emitted when the widget
+  --   is shown the first time and on every resize.
+  --
   | Configure {
     sent	:: Bool,
+    -- | Position within the parent window.
     xPar	:: Int,
+    -- | Position within the parent window.
     yPar	:: Int,
     width	:: Int,
     height	:: Int}
-  | Property {
-    sent	:: Bool,
-    time	:: Integer}
+  -- | Change of visibility of a widget.
   | Visibility {
     sent	:: Bool,
+    -- | Denote what portions of the widget is visible.
     visible	:: VisibilityState }
+  -- | Wheel movement of the mouse.
+  --
+  -- * This action denotes that the content of the widget should be scrolled.
+  --   The event is triggered by the movement of the mouse wheel. Surrounding
+  --   scroll bars are independant of this signal. Most mice do not have
+  --   buttons for horizontal scrolling, hence 'direc' will usually not
+  --   contain 'ScrollLeft' and 'ScrollRight'. Mice with additional
+  --   buttons may not work on X since only five buttons are supported
+  --   (the three main buttons and two for the wheel).
+  --
+  -- * The handler of this signal should update the scroll bars that
+  --   surround this widget which in turn tell this widget to update.
+  --
   | Scroll {
     sent	:: Bool,
     time	:: Integer,
@@ -173,10 +350,20 @@ data Event
     direc	:: ScrollDirection,
     xRoot,
     yRoot	:: Double}
+  -- | Indicate how the appearance of this window has changed.
   | WindowState {
     sent	:: Bool,
+    -- | The mask indicates which flags have changed.
     wMask	:: WindowState,
+    -- | The state indicates the current state of the window.
     wState	:: WindowState} 
+  -- | The state of the pen of a graphics tablet pen.
+  | Proximity {
+    sent	:: Bool,
+    time	:: Integer,
+    -- | Whether the pen was removed or set onto the tablet.
+    touches     :: Bool
+  }
 
 marshalEvent :: Ptr Event -> IO Event
 marshalEvent ptr = do
@@ -193,48 +380,37 @@ marshalEvent ptr = do
     #{const GDK_ENTER_NOTIFY}	-> marshCrossing
     #{const GDK_FOCUS_CHANGE}	-> marshFocus
     #{const GDK_CONFIGURE}	-> marshConfigure
-    #{const GDK_PROPERTY_NOTIFY}-> marshProperty
-    #{const GDK_SELECTION_CLEAR}-> marshSelection
-    #{const GDK_SELECTION_REQUEST}-> marshSelection
-    #{const GDK_SELECTION_NOTIFY}-> marshSelection
+--    #{const GDK_PROPERTY_NOTIFY}-> marshProperty
     #{const GDK_PROXIMITY_IN}   -> marshProximity True
     #{const GDK_PROXIMITY_OUT}	-> marshProximity False
-    #{const GDK_DRAG_ENTER}	-> marshDND
-    #{const GDK_DRAG_LEAVE}	-> marshDND
-    #{const GDK_DRAG_MOTION}	-> marshDND
-    #{const GDK_DRAG_STATUS}	-> marshDND
-    #{const GDK_DROP_START}	-> marshDND
-    #{const GDK_DROP_FINISHED}	-> marshDND
-    #{const GDK_CLIENT_EVENT}	-> marshClient
     #{const GDK_VISIBILITY_NOTIFY}-> marshVisibility
-    #{const GDK_NO_EXPOSE}	-> marshNoExpose
     #{const GDK_SCROLL}		-> marshScroll
     #{const GDK_WINDOW_STATE}	-> marshWindowState
-    #{const GDK_SETTING}	-> marshSetting
-    _				-> marshAny
+    _				-> \_ -> return
+      (error "marshalEvent: unhandled event type")
     ) ptr
 
-marshAny ptr = do
-  (sent_   ::#type gint8)	<- #{peek GdkEventAny, send_event} ptr
-  return $ Event {
-    sent   = toBool sent_ }
-
 marshExpose ptr = do
+  (#{const GDK_EXPOSE}::#type GdkEventType) <- #{peek GdkEventAny,type} ptr
   (sent_   ::#type gint8)	<- #{peek GdkEventExpose, send_event} ptr
   (area_   ::Rectangle)		<- #{peek GdkEventExpose, area} ptr
+  (reg_   :: Ptr Region)	<- #{peek GdkEventExpose, region} ptr
+  reg_ <- gdk_region_copy reg_
+  region_ <- makeNewRegion reg_
   (count_  ::#type gint)	<- #{peek GdkEventExpose, count} ptr
   return $ Expose {
     sent   = toBool sent_,
     area   = area_,
+    region = region_,
     count  = fromIntegral count_}
-
-marshExposeRegion ptr = do
-  (reg_   :: Ptr Region)	<- #{peek GdkEventExpose, region} ptr
-  region <- gdk_region_copy reg_
-  makeNewRegion region
 
 foreign import ccall "gdk_region_copy"
   gdk_region_copy :: Ptr Region -> IO (Ptr Region)
+
+marshExposeRect ptr = do
+  (#{const GDK_EXPOSE}::#type GdkEventType) <- #{peek GdkEventAny,type} ptr
+  (area_   ::Rectangle)		<- #{peek GdkEventExpose, area} ptr
+  return area_
 
 marshMotion ptr = do
   (sent_   ::#type gint8)	<- #{peek GdkEventMotion, send_event} ptr
@@ -250,7 +426,7 @@ marshMotion ptr = do
     time   = fromIntegral time_,
     x	   = (fromRational.toRational) x_,
     y	   = (fromRational.toRational) y_,
-    modif  = fromIntegral modif_,
+    modif  = toModifier modif_,
     isHint = toBool isHint_,
     xRoot  = (fromRational.toRational) xRoot_,
     yRoot  = (fromRational.toRational) yRoot_}
@@ -270,7 +446,7 @@ marshButton but ptr = do
     time   = fromIntegral time_,
     x	   = (fromRational.toRational) x_,
     y	   = (fromRational.toRational) y_,
-    modif  = fromIntegral modif_,
+    modif  = toModifier modif_,
     button = (toEnum.fromIntegral) button_,
     xRoot  = (fromRational.toRational) xRoot_,
     yRoot  = (fromRational.toRational) yRoot_}
@@ -281,17 +457,28 @@ marshKey up ptr = do
   (time_   ::#type guint32)	<- #{peek GdkEventKey, time} ptr
   (modif_  ::#type guint)	<- #{peek GdkEventKey, state} ptr
   (keyval_ ::#type guint)	<- #{peek GdkEventKey, keyval} ptr
-  (string_ ::CString)		<- #{peek GdkEventKey, string} ptr
-  str_				<- peekUTFString string_
+  
   (length_ ::#type gint)	<- #{peek GdkEventKey, length} ptr
   return $ Key {
     release = up,
     sent = toBool sent_,
     time   = fromIntegral time_,
-    modif  = fromIntegral modif_,
-    keyval = fromIntegral keyval_,
-    len	   = fromIntegral length_,
-    str	   = str_}
+    modif  = toModifier modif_,
+    withCapsLock = (modif_ .&. #{const GDK_LOCK_MASK})/=0,
+    withNumLock = (modif_ .&. #{const GDK_MOD2_MASK})/=0,
+    withScrollLock = (modif_ .&. #{const GDK_MOD3_MASK})/=0,
+    keyName = unsafePerformIO $ do
+      valPtr <- gdk_keyval_name keyval_
+      peekUTFString valPtr,
+    keyChar = unsafePerformIO $ do
+      uchar <- gdk_keyval_to_unicode keyval_
+      return (if uchar==0 then Nothing else Just (chr (fromIntegral uchar))) }
+
+foreign import ccall "gdk_keyval_name"
+  gdk_keyval_name :: #{type guint} -> IO CString
+
+foreign import ccall "gdk_keyval_to_unicode"
+  gdk_keyval_to_unicode :: #{type guint} -> IO #{type guint32}
 
 marshCrossing ptr = do
   (sent_   ::#type gint8)	<- #{peek GdkEventCrossing, send_event} ptr
@@ -315,7 +502,7 @@ marshCrossing ptr = do
     yRoot  = (fromRational.toRational) yRoot_,
     cMode  = (toEnum.fromIntegral) cMode_,
     nType  = (toEnum.fromIntegral) nType_,
-    modif  = fromIntegral modif_}
+    modif  = toModifier modif_}
 
 
 marshFocus ptr = do
@@ -338,21 +525,22 @@ marshConfigure ptr = do
     width  = fromIntegral width_,
     height = fromIntegral height_}
 
+{-
 marshProperty ptr = do
   (sent_   ::#type gint8)	<- #{peek GdkEventProperty, send_event} ptr
   (time_   ::#type guint32)	<- #{peek GdkEventProperty, time} ptr
   return $ Property {
     sent   = toBool sent_,
     time   = fromIntegral time_}
+-}
 
-marshSelection = marshAny
-
-marshProximity _ = marshAny
-
-marshDND = marshAny
-
--- this should be changed (i.e. implemented)
-marshClient = marshAny
+marshProximity touches ptr = do
+  (sent_   ::#type gint8)	<- #{peek GdkEventProximity, send_event} ptr
+  (time_   ::#type guint32)	<- #{peek GdkEventProximity, time} ptr
+  return $ Proximity {
+    sent   = toBool sent_,
+    time   = fromIntegral time_,
+    touches = touches}
 
 marshVisibility ptr = do
   (sent_   ::#type gint8)	<- #{peek GdkEventVisibility, send_event} ptr
@@ -361,9 +549,6 @@ marshVisibility ptr = do
   return $ Visibility {
     sent   = toBool sent_,
     visible= (toEnum.fromIntegral) state_}
-
-
-marshNoExpose = marshAny
 
 marshScroll ptr = do
   (sent_   ::#type gint8)	<- #{peek GdkEventScroll, send_event} ptr
@@ -395,8 +580,6 @@ marshWindowState ptr = do
     wMask  = (toEnum.fromIntegral) wMask_,
     wState = (toEnum.fromIntegral) wState_}
 
--- what event might this type be?
-marshSetting = marshAny
 
 
 

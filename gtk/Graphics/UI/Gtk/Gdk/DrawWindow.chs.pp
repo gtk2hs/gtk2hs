@@ -5,7 +5,7 @@
 --
 --  Created: 5 November 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/14 14:18:00 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/15 19:34:46 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -442,7 +442,7 @@ drawWindowMergeChildShapes self =
 --   application.
 --
 drawWindowGetPointer :: DrawWindowClass self => self
- -> IO (Maybe (Bool, Int, Int, Modifier))
+ -> IO (Maybe (Bool, Int, Int, [Modifier]))
 drawWindowGetPointer self =
   alloca $ \xPtr -> alloca $ \yPtr -> alloca $ \mPtr -> do
   winPtr <- {# call gdk_window_get_pointer #} (toDrawWindow self)
@@ -453,5 +453,6 @@ drawWindowGetPointer self =
   x <- peek xPtr
   y <- peek yPtr
   m <- peek mPtr
-  return (Just (same, fromIntegral x, fromIntegral y, fromIntegral m))
+  return (Just (same, fromIntegral x, fromIntegral y,
+		toFlags (fromIntegral m)))
 

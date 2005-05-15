@@ -5,7 +5,7 @@
 --
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/08 03:21:12 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/15 19:34:46 $
 --
 --  Copyright (C) 1999-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -57,8 +57,7 @@ import System.Glib.Flags	(Flags, fromFlags, toFlags)
 --
 {#enum CapStyle {underscoreToCase}#}
 
--- | provide additionl information if cursor crosses a
--- window
+-- | How focus is crossing the widget.
 --
 {#enum CrossingMode {underscoreToCase}#}
 
@@ -107,7 +106,27 @@ instance Flags InputCondition
 --
 {#enum LineStyle {underscoreToCase}#}
 
--- dunno
+-- | Information on from what level of the widget hierarchy the mouse
+--   cursor came.
+--
+-- ['NotifyAncestor'] The window is entered from an ancestor or left towards
+-- an ancestor.
+--
+-- ['NotifyVirtual'] The pointer moves between an ancestor and an inferior
+-- of the window.
+--
+-- ['NotifyInferior'] The window is entered from an inferior or left
+-- towards an inferior.
+--
+-- ['NotifyNonlinear'] The window is entered from or left towards a
+-- window which is neither an ancestor nor an inferior.
+--
+-- ['NotifyNonlinearVirtual'] The pointer moves between two windows which
+-- are not ancestors of each other and the window is part of the ancestor
+-- chain between one of these windows and their least common ancestor.
+--
+-- ['NotifyUnknown'] The level change does not fit into any of the other
+-- categories or could not be determined.
 --
 {#enum NotifyType {underscoreToCase}#}
 

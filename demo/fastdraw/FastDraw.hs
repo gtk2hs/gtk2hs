@@ -22,7 +22,7 @@ main = do
 	     writeArray pbData (1+x*chan+y*row) (fromIntegral y) >>
 	     writeArray pbData (2+x*chan+y*row) (fromIntegral 0)
 	     | x <- [0..255], y <- [0..255] ]
-  canvas `onExposeRegion` updateCanvas canvas pb
+  canvas `onExpose` updateCanvas canvas pb
   boxPackStartDefaults contain canvas
   widgetShow canvas
   dialogRun dia
@@ -32,15 +32,15 @@ instance Show Rectangle where
   show (Rectangle x y w h) = "x="++show x++", y="++show y++
 			     ", w="++show w++", h="++show h++";"
 
-updateCanvas :: DrawingArea -> Pixbuf -> Region -> IO Bool
-updateCanvas canvas pb region = do
+updateCanvas :: DrawingArea -> Pixbuf -> Event -> IO Bool
+updateCanvas canvas pb Expose { region = region } = do
   win <- drawingAreaGetDrawWindow canvas
   gc <- gcNew win
   (width,height) <- drawingAreaGetSize canvas
   rects <- regionGetRectangles region
   putStrLn ("redrawing: "++show rects)
   (flip mapM_) rects $ \(Rectangle x y w h) -> do
-    drawPixbuf win gc pb x y x y w h RgbDitherNone 0 0
+    drawPixbuf win gc pb x y x y (-1) (-1) RgbDitherNone 0 0
   return True
  
  

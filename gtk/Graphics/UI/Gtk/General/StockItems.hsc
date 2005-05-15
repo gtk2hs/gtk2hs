@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/15 19:34:46 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -32,12 +32,6 @@
 --   the most appropriate sizes and enables themes to override your built in
 --   icons. A couple of constants are defined here as well. They are useful 
 --   in accessing Gtk's predefined items.
---
--- * The StockItem structure is completely marshaled to haskell. It is 
---   possible to marshal all strings lazily because the string pointers are
---   valid throughout the lifetime of the application. The only drawback it
---   that a stock item that is replaced by the another item with the same
---   name will never be freed. This deficiency is built into Gtk however.
 --
 
 module Graphics.UI.Gtk.General.StockItems (
@@ -124,10 +118,18 @@ module Graphics.UI.Gtk.General.StockItems (
   stockZoomOut
   ) where
 
+-- The StockItem structure is completely marshaled to Haskell. It is 
+-- possible to marshal all strings lazily because the string pointers are
+-- valid throughout the lifetime of the application. The only drawback it
+-- that a stock item that is replaced by the another item with the same
+-- name will never be freed. This deficiency is built into Gtk however.
+--
+
 import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Flags
 import System.Glib.FFI	(unsafePerformIO)	-- to read CStrings lazyly
 import System.Glib.GList	(GSList, fromGSListRev)
 import Graphics.UI.Gtk.Gdk.Events	(Modifier)
@@ -138,17 +140,19 @@ import Graphics.UI.Gtk.Gdk.Events	(Modifier)
 --
 type StockId = String
 
--- The StockItem structure.
+
+-- Although the structure itself is allocated dynamically, its contents
+-- are not. All string pointers are constant throughout the lifetime of
+-- the application. We do not need to marshal these Strings to Haskell if
+-- they are not needed.
 --
--- * Although the structure itself is allocated dynamically, its contents
---   are not. All string pointers are constant throughout the lifetime of
---   the application. We do not need to marshal these Strings to Haskell if
---   they are not needed.
+
+-- | The description of a stock item.
 --
 data StockItem = StockItem {
   siStockId :: StockId,
   siLabel   :: String,
-  siModifier:: Modifier,
+  siModifier:: [Modifier],
   siKeyval  :: Integer,
   siTransDom:: String }
 
@@ -167,7 +171,7 @@ instance Storable StockItem where
       siStockId  = unsafePerformIO $ peekUTFString' stockId,
       siLabel	 = unsafePerformIO $ peekUTFString' label,
       -- &%!?$ c2hs and hsc should agree on types
-      siModifier = fromIntegral modifier, 
+      siModifier = toFlags (fromIntegral modifier), 
       siKeyval	 = fromIntegral keyval,
       siTransDom = unsafePerformIO $ peekUTFString' transDom }
     where
@@ -186,7 +190,7 @@ instance Storable StockItem where
     labelPtr   <- newUTFString label
     #{poke GtkStockItem, label}	   siPtr labelPtr
     #{poke GtkStockItem, modifier} siPtr 
-      ((fromIntegral modifier)::#{type GdkModifierType})
+      ((fromIntegral (fromFlags modifier))::#{type GdkModifierType})
     #{poke GtkStockItem, keyval}   siPtr ((fromIntegral keyval)::#{type guint})
     transDomPtr<- newUTFString transDom
     #{poke GtkStockItem, translation_domain} siPtr transDomPtr

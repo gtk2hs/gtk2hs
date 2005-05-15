@@ -1,3 +1,23 @@
+2005-05-15 Axel Simon <A.Simon@kent.ac.uk>
+
+	* APICHANGES: Report on how events have changed.
+
+	* demo/fastdraw/FastDraw.hs: Fixed a Gtk warning on resizing.
+
+	* glib/System/Glib/Flags.hs: Added a comment for us on how not to
+	change the toFlags function.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: Added comments to
+	certain event handlers. Added the canFocus property.
+
+	* gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp: Fixed documentation
+	for drawPixbuf.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Enums.chs,
+	gtk/Graphics/UI/Gtk/General/Enums.chs.pp,
+	gtk/Graphics/UI/Gtk/General/StockItems.hsc,
+	gtk/Graphics/UI/Gtk/Gdk/Events.hsc: Added more documentation.
+
 2005-05-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp: fixes for building with

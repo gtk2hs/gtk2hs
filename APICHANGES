@@ -7,3 +7,11 @@ idle priorities now have right names. See eg progrss demo for how to change the 
 treeViewSetHadjustment, treeViewSetHadjustment,
 treeViewSetHadjustment, treeViewSetHadjustment  all renamed and the set ones
 	have arguments swapped
+
+Enums.chs.pp: removed the WheelDown, WheelUp, OtherButton constructors from
+the Button data type. These are never emitted. This could be potentially
+bad if there is an X server out there that recognizes the 4th and 5th
+button but doesn't turn them into scroll events. Furthermore, this data
+type will break if X servers should ever support more than 5 buttons.
+
+Events.hsc: removed several constructors, change the Key event.

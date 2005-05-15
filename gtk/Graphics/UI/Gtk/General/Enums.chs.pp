@@ -5,7 +5,7 @@
 --
 --  Created: 13 January 1999
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 03:21:12 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/15 19:34:46 $
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
 --
@@ -107,23 +107,14 @@ instance Flags AttachOptions
 data Button = LeftButton
 	    | MiddleButton
 	    | RightButton
-	    | WheelUp
-	    | WheelDown
-	    | OtherButton
 
 instance Enum Button where
   toEnum 1 = LeftButton
   toEnum 2 = MiddleButton
   toEnum 3 = RightButton
-  toEnum 4 = WheelUp
-  toEnum 5 = WheelDown
-  toEnum _ = OtherButton
   fromEnum LeftButton   = 1
   fromEnum MiddleButton = 2
   fromEnum RightButton  = 3
-  fromEnum WheelUp	= 4
-  fromEnum WheelDown	= 5
-  fromEnum OtherButton	= 6
 
 -- | Dictate the style that a ButtonBox uses to align it contents
 --
