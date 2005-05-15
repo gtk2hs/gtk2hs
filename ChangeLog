@@ -1,3 +1,8 @@
+2005-05-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp: fixes for building with
+	Gtk+ 2.0.
+
 2005-05-14 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp,

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:25 $
+--  Version $Revision: 1.9 $ from $Date: 2005/05/15 18:07:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -196,7 +196,7 @@ notebookAppendPage :: (NotebookClass self, WidgetClass child) => self
  -> IO ()
 notebookAppendPage self child tabLabel = do
   tab <- labelNew (Just tabLabel)
-   {# call notebook_append_page #}
+  {# call notebook_append_page #}
     (toNotebook self)
     (toWidget child)
     (toWidget tab)
@@ -239,14 +239,15 @@ notebookAppendPageMenu self child tabLabel menuLabel =
 -- * This function returns @Int@ in Gtk+ version 2.4.0 and later
 --
 notebookAppendPageMenu :: (NotebookClass self, WidgetClass child,
-  WidgetClass tab, WidgetClass menu) => self
+  WidgetClass tabLabel, WidgetClass menuLabel) => self
  -> child     -- ^ @child@ - the 'Widget' to use as the contents of the page.
  -> tabLabel  -- ^ @tabLabel@ - the 'Widget' to be used as the label for the
               -- page (usually a 'Label' widget).
  -> menuLabel -- ^ @menuLabel@ - the widget to use as a label for the
               -- page-switch menu, if that is enabled (usually a 'Label'
               -- widget).
-notebookAppendPageMenu nb child tabLabel menuLabel =
+ -> IO ()
+notebookAppendPageMenu self child tabLabel menuLabel =
   {# call notebook_append_page_menu #}
     (toNotebook self)
     (toWidget child)
@@ -293,7 +294,7 @@ notebookPrependPage :: (NotebookClass self, WidgetClass child) => self
  -> IO ()
 notebookPrependPage self child tabLabel = do
   tab <- labelNew (Just tabLabel)
-   {# call notebook_prepend_page #}
+  {# call notebook_prepend_page #}
     (toNotebook self)
     (toWidget child)
     (toWidget tab)
@@ -447,7 +448,7 @@ notebookInsertPageMenu ::(NotebookClass nb, WidgetClass child,
   -> menu   -- ^ Menu entry for this tab (usually a 'Label' widget).
   -> Int    -- ^ Position for the new page.
   -> IO ()
-notebookInsertPageMenu nb child tabLabel menuLabel pos =
+notebookInsertPageMenu self child tabLabel menuLabel position =
   {# call notebook_insert_page_menu #}
     (toNotebook self)
     (toWidget child)
