@@ -44,6 +44,9 @@
 	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs: conditional compilation
 	fixes for Gtk+ versions before 2.4.
 
+	* tools/hierarchyGen/hierarchy.list: GtkWindowGroup has been around
+	since Gtk 2.0, not Gtk 2.4.
+
 2005-05-15 Axel Simon <A.Simon@kent.ac.uk>
 
 	* APICHANGES: Report on how events have changed.

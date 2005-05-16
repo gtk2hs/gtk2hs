@@ -184,7 +184,7 @@
 		GtkRadioAction		if gtk-2.4
 	GtkActionGroup			if gtk-2.4
 	GtkUIManager			if gtk-2.4
-	GtkWindowGroup			if gtk-2.4
+	GtkWindowGroup
         GtkSourceLanguage		if sourceview
         GtkSourceLanguagesManager	if sourceview
 	GladeXML			as GladeXML, glade_xml_get_type if libglade
