@@ -13,6 +13,7 @@ cTypeNameToHSType ('G':'d':'k':remainder) = remainder
 cTypeNameToHSType "PangoLayout" = "PangoLayout"
 cTypeNameToHSType ('P':'a':'n':'g':'o':remainder) = remainder
 cTypeNameToHSType ('G':'n':'o':'m':'e':remainder) = remainder
+cTypeNameToHSType ('V':'t':'e':remainder) = remainder
 cTypeNameToHSType other = other
 
 -- some special cases for when converting "gtk_foo_bar" to "GtkFooBar"
@@ -93,6 +94,9 @@ leafClass "GtkTextChildAnchor" = True
 leafClass "GdkWindow"       = True
 leafClass "GdkDisplay"      = True
 leafClass "GdkScreen"       = True
+leafClass "GdkColormap"     = True
+leafClass "GtkTreeViewColumn" = True
+leafClass "GtkStyle"        = True
 leafClass _ = False
 
 -- This is a table of fixup information. It lists function parameters that
@@ -147,6 +151,15 @@ maybeNullParameter "gtk_toggle_action_new" "stockId"		= True
 maybeNullParameter "gtk_radio_action_new" "tooltip"		= True
 maybeNullParameter "gtk_radio_action_new" "stockId"		= True
 maybeNullParameter "gtk_tree_model_iter_n_children" "iter"  	= True
+maybeNullParameter "gtk_tree_model_iter_nth_child" "parent"	= True
+maybeNullParameter "gtk_tree_store_insert" "parent"		= True
+maybeNullParameter "gtk_tree_store_prepend" "parent"		= True
+maybeNullParameter "gtk_tree_store_append" "parent"		= True
+maybeNullParameter "gtk_list_store_move_before" "sibling"	= True
+maybeNullParameter "gtk_list_store_move_after" "sibling"	= True
+maybeNullParameter "gtk_tree_view_set_expander_column" "column"	= True
+maybeNullParameter "gtk_tree_view_set_hadjustment" "adjustment" = True
+maybeNullParameter "gtk_tree_view_set_vadjustment" "adjustment" = True
 --maybeNullParameter "" ""	= True
 --maybeNullParameter "" ""	= True
 maybeNullParameter _ _ = False
@@ -211,6 +224,11 @@ maybeNullResult "gtk_menu_tool_button_get_menu" = True
 maybeNullResult "gtk_tool_button_get_stock_id" = True
 maybeNullResult "gtk_about_dialog_get_license" = True
 maybeNullResult "gtk_menu_get_attach_widget" = True
+maybeNullResult "gtk_tree_view_column_get_title" = True
+maybeNullResult "gtk_frame_get_label_widget" = True
+maybeNullResult "gtk_tree_view_get_model" = True
+maybeNullResult "gtk_tree_view_get_hadjustment" = True
+maybeNullResult "gtk_tree_view_get_vadjustment" = True
 --maybeNullResult "" = True
 --maybeNullResult "" = True
 maybeNullResult _ = False
@@ -487,8 +505,10 @@ nukeParameterDocumentation = nukeParamDoc
 win32FileNameFunctions =
   ["gtk_image_new_from_file"
   ,"gdk_pixbuf_new_from_file"
+  ,"gdk_pixbuf_savev"
   ,"gtk_icon_source_get_filename"
   ,"gtk_icon_source_set_filename"
+  ,"gtk_image_set_from_file"
   ,"gtk_file_chooser_get_filename"
   ,"gtk_file_chooser_set_filename"
   ,"gtk_file_chooser_select_filename"
@@ -501,4 +521,7 @@ win32FileNameFunctions =
   ,"gtk_file_chooser_remove_shortcut_folder"
   ,"gtk_file_chooser_list_shortcut_folders"
   ,"gtk_file_selection_set_filename"
-  ,"gtk_file_selection_get_filename"]
+  ,"gtk_file_selection_get_filename"
+  ,"gtk_file_selection_get_selections"
+  ,"gtk_ui_manager_add_ui_from_file"
+  ,"gtk_window_set_icon_from_file"]

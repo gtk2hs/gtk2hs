@@ -249,6 +249,7 @@ toStudlyCapsWithFixups =                 --change "gtk_foo_bar" to "GtkFooBar"
 changeIllegalNames :: String -> String
 changeIllegalNames "type" = "type_"   --these are common variable names in C but
 changeIllegalNames "where" = "where_" --of course are keywords in Haskell
+changeIllegalNames "data" = "data_"
 changeIllegalNames other = other
 
 escapeHaddockSpecialChars = escape

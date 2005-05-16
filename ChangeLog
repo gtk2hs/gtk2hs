@@ -17,6 +17,26 @@
 	couple haddock fixes. Add type signature to marshExposeRect (since it
 	is exported and would otherwise get type Ptr a -> IO Rectangle).
 
+	* tools/apiGen/Api.hs: correct spelling error (which actually broke
+	the parser).
+
+	* tools/apiGen/CodeGen.hs: rename the documentation section heading
+	from "Properties" to "Attributes" since that's what we seem to be
+	calling them these days. Generate attribute definitions using the new
+	attributes API and the new GObject properties convenience functions.
+
+	* tools/apiGen/Marshal.hs: supporting change to the above attributes /
+	properties change: return the Haskell type of properties rather than
+	the GenericValue constructor. Also add marshaling for a couple extra
+	types.
+
+	* tools/apiGen/FormatDocs.hs: add 'data' to the illegal identifier /
+	keywords list.
+
+	* tools/apiGen/MarshalFixup.hs: add various extra functions to the
+	fixup tables. Add 5 extra functions to the win32 "_utf8" file name
+	functions list.
+
 2005-05-15 Axel Simon <A.Simon@kent.ac.uk>
 
 	* APICHANGES: Report on how events have changed.

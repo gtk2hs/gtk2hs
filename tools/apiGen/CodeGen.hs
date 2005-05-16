@@ -153,7 +153,7 @@ genModuleBody knownSymbols object apiDoc modInfo =
      (genConstructors knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo))
   ++ sectionHeader "Methods"
      (genMethods      knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo))
-  ++ sectionHeader "Properties"
+  ++ sectionHeader "Attributes"
      (genProperties   knownSymbols object (moduledoc_properties apiDoc))
   ++ sectionHeader "Signals"
      (genSignals      knownSymbols object (moduledoc_signals apiDoc))
@@ -347,36 +347,75 @@ extraPropDocumentation getter setter =
     propdoc_since = ""
   }
 
-genAtter :: KnownSymbols -> Object -> Maybe PropDoc -> String -> String -> String -> String -> ShowS
-genAtter knownSymbols object doc propertyName propertyType getter setter = 
+genAtter :: KnownSymbols -> Object -> Maybe PropDoc -> String
+ -> Maybe String -> Maybe String -> Maybe String -> Either (ShowS, ShowS) ShowS -> ShowS
+genAtter knownSymbols object doc propertyName classConstraint getterType setterType attrImpl = 
   formattedDoc.
-  (if leafClass (object_cname object)
-     then ss propertyName. ss " :: Attr ". objectType. sc ' '. ss propertyType. nl
-     else ss propertyName. ss " :: ". objectType. ss "Class self => Attr self ". ss propertyType. nl).
-  ss propertyName. ss " = Attr ". 
-  indent 1. ss getter.
-  indent 1. ss setter
+  ss propertyName. ss " :: ". classContext. attrType. sc ' '. objectParamType. sc ' '. attrArgs. nl.
+  ss propertyName. ss " = ". attrBody
   where objectType = ss (object_name object)
+        objectParamType | leafClass (object_cname object) = objectType
+                        | otherwise                       = ss "self"
         formattedDoc = haddocFormatDeclaration knownSymbols False propdoc_paragraphs doc
+        classContext = case (leafClass (object_cname object), classConstraint) of 
+                         (True,  Nothing)              -> id
+                         (False, Nothing)              -> objectType. ss "Class self => "
+                         (True,  Just classConstraint) -> ss classConstraint. ss " => "
+                         (False, Just classConstraint) -> sc '('. objectType. ss "Class self, ".
+                                                          ss classConstraint. ss ") => "
+        (attrType, attrConstructor, attrArgs) =
+          case (getterType, setterType) of
+            (Just gt, Nothing)        -> (ss "ReadAttr",     ss "readAttr", ss gt)
+            (Nothing, Just st)        -> (ss "WriteAttr",    ss "writeAttr", ss st)
+            (Just gt, Just st)
+              | gt == st              -> (ss "Attr",          ss "newAttr", ss gt)
+              | length (words st) > 1 -> (ss "ReadWriteAttr", ss "newAttr", ss gt. ss " (". ss st. sc ')')
+              | otherwise             -> (ss "ReadWriteAttr", ss "newAttr", ss gt. sc ' '. ss st)
+        attrBody =
+          case (attrImpl) of
+            Left (getter, setter) -> attrConstructor.
+              case (getterType, setterType) of
+                (Just _, Nothing) -> indent 1. getter
+                (Nothing, Just _) -> indent 1. setter
+                (Just _,  Just _) -> indent 1. getter. indent 1. setter
+            Right body            -> body
 
 genAtterFromProperty :: KnownSymbols -> Object -> Property -> Maybe PropDoc -> ShowS
-genAtterFromProperty knownSymbols object property doc = 
-  genAtter knownSymbols object doc propertyName propertyType (getter "") (setter "")
-
+genAtterFromProperty knownSymbols object property doc =
+  genAtter knownSymbols object doc propertyName classConstraint getterType setterType (Right body)
   where propertyName = lowerCaseFirstChar (object_name object ++ property_name property)
-        (propertyType, gvalueConstructor) = genMarshalProperty knownSymbols (property_type property)
-        getter = ss "(\\obj -> do ". ss gvalueConstructor. ss " result <- objectGetProperty \"". ss (property_cname property). ss "\"".
-                 indent 7. ss "return result)"
-        setter = ss "(\\obj val -> objectSetProperty obj \"". ss (property_cname property). ss "\" (". ss gvalueConstructor. ss " val))"
+        (propertyType, gvalueKind) = genMarshalProperty knownSymbols (property_type property)
+        body = ss attrType. ss "AttrFrom". ss gvalueKind. ss "Property \"". ss (property_cname property). ss "\""
+          where attrType | property_readable property
+                        && property_writeable property = "new"
+                         | property_readable property = "read"
+                         | property_writeable property = "write"
+        getterType | property_readable property  = Just propertyType 
+                   | otherwise                   = Nothing
+        (setterType, classConstraint)
+                   | property_writeable property 
+                  && gvalueKind == "Object"      = let typeVar = lowerCaseFirstChar propertyType
+                                                       classConstraint = propertyType ++ "Class " ++ typeVar
+                                                    in (Just typeVar, Just classConstraint)
+                   | property_writeable property = (Just propertyType, Nothing)
+                   | otherwise                   = (Nothing, Nothing)
 
 genAtterFromGetterSetter :: KnownSymbols -> Object -> Method -> Method -> Maybe PropDoc -> ShowS
 genAtterFromGetterSetter knownSymbols object getterMethod setterMethod doc = 
-  genAtter knownSymbols object doc propertyName propertyType getter setter
-
+  genAtter knownSymbols object doc propertyName classConstraint
+           (Just getterType) (Just setterType)
+           (Left (ss getter, ss setter))
   where --propertyName = cFuncNameToHsPropName (method_cname getterMethod)
         propertyName = lowerCaseFirstChar (object_name object ++ drop 3 (method_name getterMethod))
-        (propertyType, _) = genMarshalResult knownSymbols (method_cname getterMethod) False
+        (getterType, _) = genMarshalResult knownSymbols (method_cname getterMethod) False
                               (method_return_type getterMethod)
+        (classConstraint, setterType) =
+          case let param = head (method_parameters setterMethod)
+                   paramName = changeIllegalNames (cParamNameToHsName (parameter_name param))
+                   paramType = parameter_type param
+                in genMarshalParameter knownSymbols (method_cname setterMethod) paramName paramType of
+            (classConstraint, InParam setterType, _) -> (classConstraint, setterType)
+            (_, OutParam _, _)  -> (Nothing, "{- FIXME: should be in param -}")
         getter = cFuncNameToHsName (method_cname getterMethod)
         setter = cFuncNameToHsName (method_cname setterMethod)
 --        cFuncNameToHsPropName =
@@ -533,7 +572,7 @@ genExports object docs modInfo =
        ,fromMaybe (maxBound::Int) (lookup functionName exportIndexMap))
      | (method, doc, _) <- methods object (moduledoc_functions docs)
                              (module_methods modInfo) False]
-  ++ sectionHeader "Properties"
+  ++ sectionHeader "Attributes"
      [ (let propertyName = either property_name (drop 3.method_name.fst) property in
         ss "  ". ss (lowerCaseFirstChar (object_name object ++ propertyName)). sc ','
        ,(maybe "" propdoc_since doc, notDeprecated))

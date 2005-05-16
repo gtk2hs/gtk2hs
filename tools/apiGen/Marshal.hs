@@ -211,7 +211,8 @@ genMarshalParameter _ _ name "gboolean*" =
 
 genMarshalParameter _ _ name typeName
 			   | typeName == "gint*"
-			  || typeName == "guint*" =
+			  || typeName == "guint*"
+			  || typeName == "glong*" =
 	(Nothing, OutParam "Int",
 	\body -> body.
                  indent 2. ss name. ss "Ptr")
@@ -281,6 +282,7 @@ genMarshalResult _ _ _ "gint"     = ("Int",  \body -> ss "liftM fromIntegral $".
 genMarshalResult _ _ _ "guint"    = ("Int",  \body -> ss "liftM fromIntegral $". indent 1. body)
 genMarshalResult _ _ _ "guint16"  = ("Word16", \body -> ss "liftM fromIntegral $". indent 1. body)
 genMarshalResult _ _ _ "guint32"  = ("Word32", \body -> ss "liftM fromIntegral $". indent 1. body)
+genMarshalResult _ _ _ "glong"    = ("Int",    \body -> ss "liftM fromIntegral $". indent 1. body)
 genMarshalResult _ _ _ "gdouble"  = ("Double", \body -> ss "liftM realToFrac $". indent 1. body)
 genMarshalResult _ _ _ "gfloat"   = ("Float",  \body -> ss "liftM realToFrac $". indent 1. body)
 genMarshalResult _ _ _ "gunichar" = ("Char", \body -> ss "liftM (chr . fromIntegral) $". indent 1. body)
@@ -318,6 +320,11 @@ genMarshalResult _ _ _ "GList*" =
   \body -> body.
            indent 1. ss ">>= fromGList".
            indent 1. ss ">>= mapM (\\elemPtr -> {-marshal elem-})")
+
+genMarshalResult _ _ _ "GtkTreePath*" =
+  ("TreePath",
+  \body -> body.
+           indent 1. ss ">>= fromTreePath")
 
 genMarshalResult knownSymbols funcName funcIsConstructor typeName'
             | isUpper (head typeName')
@@ -369,34 +376,34 @@ genMarshalResult knownSymbols _ _ typeName
 
 genMarshalResult _ _ _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
--- Takes the type string and returns the Haskell Type and the GValue constructor
+-- Takes the type string and returns the Haskell Type and the GValue variety
 --
 genMarshalProperty :: KnownSymbols -> String -> (String, String)
-genMarshalProperty _ "gint"      = ("Int",    "GVint")
-genMarshalProperty _ "guint"     = ("Int",    "GVuint")
-genMarshalProperty _ "gfloat"    = ("Float",  "GVfloat")
-genMarshalProperty _ "gdouble"   = ("Double", "GVdouble")
-genMarshalProperty _ "gboolean"  = ("Bool",   "GVboolean")
-genMarshalProperty _ "gchar*"    = ("String", "GVstring")
+genMarshalProperty _ "gint"      = ("Int",    "Int")
+genMarshalProperty _ "guint"     = ("Int",    "UInt")
+genMarshalProperty _ "gfloat"    = ("Float",  "Float")
+genMarshalProperty _ "gdouble"   = ("Double", "Double")
+genMarshalProperty _ "gboolean"  = ("Bool",   "Bool")
+genMarshalProperty _ "gchar*"    = ("String", "String")
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsObject typeKind =
-  (shortTypeName, "GVobject")
+  (shortTypeName, "Object")
   where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
-  (shortTypeName, "GVenum")
+  (shortTypeName, "Enum")
   where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
-  (shortTypeName, "GVflags")
+  (shortTypeName, "Flags")
   where shortTypeName = cTypeNameToHSType typeName
         typeKind = lookupFM knownSymbols typeName
 
