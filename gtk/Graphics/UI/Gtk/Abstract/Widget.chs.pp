@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/15 19:34:45 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/16 10:06:09 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -221,10 +221,9 @@ import System.Glib.FFI
 import System.Glib.Flags		(fromFlags, toFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
-import System.Glib.StoreValue		(GenericValue(..))
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject,
-					 objectSetProperty, objectGetProperty )
+import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode)
@@ -1064,19 +1063,15 @@ widgetRenderIcon self stockId size detail =
 --   input is directed to this widget.
 --
 widgetSetCanFocus :: WidgetClass self => self -> Bool -> IO ()
-widgetSetCanFocus self can =
-  objectSetProperty (toObject self) "can_focus" (GVboolean can)
-
+widgetSetCanFocus = objectSetPropertyBool "can_focus"
 
 -- | Check if this widget can receive keyboard input.
 --
 widgetGetCanFocus :: WidgetClass self => self -> IO Bool
-widgetGetCanFocus self = do
-  (GVboolean can) <- objectGetProperty (toObject self) "can_focus"
-  return can
+widgetGetCanFocus = objectGetPropertyBool "can_focus"
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The mask that decides what kind of extension events this widget gets.
 --
@@ -1097,9 +1092,7 @@ widgetDirection = newAttr
 -- | Whether the widget can have the input focus.
 --
 widgetCanFocus :: WidgetClass self => Attr self Bool
-widgetCanFocus = newAttr
-  widgetGetCanFocus
-  widgetSetCanFocus
+widgetCanFocus = newAttrFromBoolProperty "can_focus"
 
 --------------------
 -- Signals
