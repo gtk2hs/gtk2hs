@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/03 12:56:07 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/16 10:10:14 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -69,11 +69,12 @@ import Monad (liftM)
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object
 {#import Graphics.UI.Gtk.Types#}
+
+#if GTK_CHECK_VERSION(2,4,0)
 {#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction)
 
 {# context lib="gtk" prefix="gtk" #}
 
-#if GTK_CHECK_VERSION(2,4,0)
 --------------------
 -- Interfaces
 

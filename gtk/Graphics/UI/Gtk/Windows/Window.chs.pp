@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/05/14 01:54:27 $
+--  Version $Revision: 1.12 $ from $Date: 2005/05/16 10:10:14 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -71,8 +71,10 @@ module Graphics.UI.Gtk.Windows.Window (
   windowGetTransientFor,
   windowSetDestroyWithParent,
   windowGetDestroyWithParent,
+#if GTK_CHECK_VERSION(2,4,0)
   windowIsActive,
   windowHasToplevelFocus,
+#endif
 -- windowListToplevels,
 -- windowAddMnemonic,
 -- windowRemoveMnemonic,
@@ -150,11 +152,15 @@ module Graphics.UI.Gtk.Windows.Window (
   windowDefaultHeight,
   windowDestroyWithParent,
   windowIcon,
+#if GTK_CHECK_VERSION(2,2,0)
   windowScreen,
+#endif
   windowTypeHint,
+#if GTK_CHECK_VERSION(2,2,0)
   windowSkipTaskbarHint,
   windowSkipPagerHint,
   windowAcceptFocus,
+#endif
 #if GTK_CHECK_VERSION(2,6,0)
   windowFocusOnMap,
 #endif
@@ -1351,12 +1357,14 @@ windowIcon = newAttr
   windowGetIcon
   windowSetIcon
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- | The screen where this window will be displayed.
 --
 windowScreen :: WindowClass self => Attr self Screen
 windowScreen = newAttr
   windowGetScreen
   windowSetScreen
+#endif
 
 -- | Hint to help the desktop environment understand what kind of window this
 -- is and how to treat it.
@@ -1368,6 +1376,7 @@ windowTypeHint = newAttr
   windowGetTypeHint
   windowSetTypeHint
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- | @True@ if the window should not be in the task bar.
 --
 -- Default value: @False@
@@ -1394,6 +1403,7 @@ windowAcceptFocus :: WindowClass self => Attr self Bool
 windowAcceptFocus = newAttr
   windowGetAcceptFocus
   windowSetAcceptFocus
+#endif
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | @True@ if the window should receive the input focus when mapped.
