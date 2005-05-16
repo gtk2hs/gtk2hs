@@ -219,7 +219,7 @@ marshType (Tint:ts)     (c:cs) = marshType ts cs
 marshType (Tuint:ts)	(c:cs) = marshType ts cs
 marshType (Tenum:ts)	(c:cs) = marshType ts cs
 marshType (Tflags:ts)	cs     = marshType (Tenum:ts) cs
-marshType (Tboxed:ts)	(c:cs) = ss "(Ptr ".sc c.ss " -> IO ".
+marshType (Tboxed:ts)	(c:cs) = ss "(Ptr ".sc c.ss "' -> IO ".
 				 sc c.ss ") -> ":
 				 marshType ts cs
 marshType (Tptr:ts)	(c:cs) = marshType ts cs

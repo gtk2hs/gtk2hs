@@ -8,6 +8,15 @@
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: conditional compilation
 	fixes for Gtk+ versions before 2.4.
 
+	* tools/callbackGen/HookGenerator.hs: liberalise the type of boxed
+	object marshalers from (Ptr a -> IO a) to (Ptr a' -> IO a) so we can
+	give marshExposeRect its natural type of (Ptr Event -> IO Rectangle).
+
+	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: compilation fix in definition of
+	Event's Key data constructor (I assume this is what was intended). A
+	couple haddock fixes. Add type signature to marshExposeRect (since it
+	is exported and would otherwise get type Ptr a -> IO Rectangle).
+
 2005-05-15 Axel Simon <A.Simon@kent.ac.uk>
 
 	* APICHANGES: Report on how events have changed.

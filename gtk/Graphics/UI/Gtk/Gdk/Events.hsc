@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/15 19:34:46 $
+--  Version $Revision: 1.5 $ from $Date: 2005/05/16 10:20:50 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -258,9 +258,9 @@ data Event
     time	:: Integer,
     modif	:: [Modifier],
     -- | This flag is @True@ if Caps Lock is on while this key was pressed.
-    withCapsLock,
+    withCapsLock   :: Bool,
     -- | This flag is @True@ if Number Lock is on while this key was pressed.
-    withNumLock,
+    withNumLock    :: Bool,
     -- | This flag is @True@ if Scroll Lock is on while this key was pressed.
     withScrollLock :: Bool,
     -- | A string representing the key that was pressed or released.
@@ -268,7 +268,7 @@ data Event
     -- * This string contains a description of the key rather than what
     --   should appear on screen. For example, pressing "1" on the keypad
     --   results in "KP_1". Of particular interest are "F1" till "F12",
-    --   for a complete list refer to "<gdk/gdkkeysyms.h>" where all
+    --   for a complete list refer to \"<gdk/gdkkeysyms.h>\" where all
     --   possible values are defined. The corresponding strings are the
     --   constants without the GDK_ prefix.
     keyName	:: String,
@@ -291,7 +291,7 @@ data Event
     x,y		:: Double,
     xRoot,
     yRoot	:: Double,
-    -- | Kind of enter/leave event.
+    -- | Kind of enter\/leave event.
     --
     -- * The mouse cursor might enter this widget because it grabs the mouse
     --   cursor for e.g. a modal dialog box.
@@ -407,6 +407,7 @@ marshExpose ptr = do
 foreign import ccall "gdk_region_copy"
   gdk_region_copy :: Ptr Region -> IO (Ptr Region)
 
+marshExposeRect :: Ptr Event -> IO Rectangle
 marshExposeRect ptr = do
   (#{const GDK_EXPOSE}::#type GdkEventType) <- #{peek GdkEventAny,type} ptr
   (area_   ::Rectangle)		<- #{peek GdkEventExpose, area} ptr
