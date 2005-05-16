@@ -37,6 +37,13 @@
 	fixup tables. Add 5 extra functions to the win32 "_utf8" file name
 	functions list.
 
+	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp
+	gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/CheckMenuItem.chs.pp
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Toolbar.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs: conditional compilation
+	fixes for Gtk+ versions before 2.4.
+
 2005-05-15 Axel Simon <A.Simon@kent.ac.uk>
 
 	* APICHANGES: Report on how events have changed.

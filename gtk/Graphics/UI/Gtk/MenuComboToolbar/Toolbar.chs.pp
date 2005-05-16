@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/16 15:29:55 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -135,7 +135,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 
 -- * Attributes
   toolbarOrientation,
+#if GTK_CHECK_VERSION(2,4,0)
   toolbarShowArrow,
+#endif
   toolbarStyle,
   toolbarTooltips,
 
@@ -658,6 +660,7 @@ toolbarOrientation = newAttr
 toolbarToolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
 toolbarToolbarStyle = newAttrFromEnumProperty "toolbar_style"
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | If an arrow should be shown if the toolbar doesn't fit.
 --
 -- Default value: @True@
@@ -666,6 +669,7 @@ toolbarShowArrow :: ToolbarClass self => Attr self Bool
 toolbarShowArrow = newAttr
   toolbarGetShowArrow
   toolbarSetShowArrow
+#endif
 
 -- | \'style\' property. See 'toolbarGetStyle' and 'toolbarSetStyle'
 --

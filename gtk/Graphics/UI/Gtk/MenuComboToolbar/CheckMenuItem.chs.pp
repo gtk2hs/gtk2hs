@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.8 $ from $Date: 2005/05/16 15:29:55 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -74,7 +74,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
 -- * Attributes
   checkMenuItemActive,
   checkMenuItemInconsistent,
+#if GTK_CHECK_VERSION(2,4,0)
   checkMenuItemDrawAsRadio,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -220,6 +222,7 @@ checkMenuItemInconsistent = newAttr
   checkMenuItemGetInconsistent
   checkMenuItemSetInconsistent
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | Whether the menu item looks like a radio menu item.
 --
 -- Default value: @False@
@@ -228,3 +231,5 @@ checkMenuItemDrawAsRadio :: CheckMenuItemClass self => Attr self Bool
 checkMenuItemDrawAsRadio = newAttr
   checkMenuItemGetDrawAsRadio
   checkMenuItemSetDrawAsRadio
+#endif
+

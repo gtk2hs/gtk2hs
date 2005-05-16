@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/07 20:57:23 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/16 15:29:55 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -97,9 +97,9 @@ module Graphics.UI.Gtk.Entry.Entry (
   entryText,
 #if GTK_CHECK_VERSION(2,4,0)
   entryXalign,
-#endif
   entryAlignment,
   entryCompletion,
+#endif
 
 -- * Signals
   onEntryActivate,
@@ -512,7 +512,6 @@ entryText = newAttr
 --
 entryXalign :: EntryClass self => Attr self Float
 entryXalign = newAttrFromFloatProperty "xalign"
-#endif
 
 -- | \'alignment\' property. See 'entryGetAlignment' and 'entrySetAlignment'
 --
@@ -528,6 +527,7 @@ entryCompletion :: EntryClass self => Attr self EntryCompletion
 entryCompletion = newAttr
   entryGetCompletion
   entrySetCompletion
+#endif
 
 --------------------
 -- Signals

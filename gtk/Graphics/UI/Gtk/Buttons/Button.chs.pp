@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/09 23:07:46 $
+--  Version $Revision: 1.11 $ from $Date: 2005/05/16 15:29:54 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -93,7 +93,9 @@ module Graphics.UI.Gtk.Buttons.Button (
   buttonLabel,
   buttonUseUnderline,
   buttonUseStock,
+#if GTK_CHECK_VERSION(2,4,0)
   buttonFocusOnClick,
+#endif
   buttonRelief,
 #if GTK_CHECK_VERSION(2,4,0)
   buttonXalign,
@@ -453,6 +455,7 @@ buttonUseStock = newAttr
   buttonGetUseStock
   buttonSetUseStock
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | Whether the button grabs focus when it is clicked with the mouse.
 --
 -- Default value: @True@
@@ -461,6 +464,7 @@ buttonFocusOnClick :: ButtonClass self => Attr self Bool
 buttonFocusOnClick = newAttr
   buttonGetFocusOnClick
   buttonSetFocusOnClick
+#endif
 
 -- | The border relief style.
 --
