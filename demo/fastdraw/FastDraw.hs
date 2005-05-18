@@ -31,11 +31,16 @@ main = do
   let updateBlue = do
         blue <- readIORef blueRef
 	print blue
+	let setBlue x i | x==256 = setBlue 0 (i-256*chan+row)
+			| i>2+255*chan+255*row = return ()
+			| otherwise =
+			    unsafeWrite pbData i blue >> setBlue (x+1) (i+chan)
 	-- Here, writeArray was replaced with unsafeWrite. The latter does
 	-- not check that the index is within bounds which has a tremendous
 	-- effect on performance.
-	sequence_ [ unsafeWrite pbData (x+y) blue
-		   | x <- [2,(2+chan)..(2+255*chan)], y <- [0, row..(255*row)] ]
+	--sequence_ [ unsafeWrite pbData (x+y) blue
+	--	   | x <- [2,(2+chan)..(2+255*chan)], y <- [0, row..(255*row)] ]
+	setBlue 0 2
 	widgetQueueDraw canvas
         dir <- readIORef dirRef
 	let diff = 4
@@ -46,8 +51,8 @@ main = do
 	  else
 	  if blue>=minBound+diff then writeIORef blueRef blue' else
 	    writeIORef blueRef minBound >> modifyIORef dirRef not 
-	return True
-
+	return True 
+ 
   idleAdd updateBlue priorityLow
   canvas `onExpose` updateCanvas canvas pb
   boxPackStartDefaults contain canvas
