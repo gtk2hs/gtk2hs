@@ -1,3 +1,10 @@
+2005-05-18 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk2hs.iss.in: Inno Setup installer script. This is currently only
+	for the 0.9.7.1 windows release and only for the gtk-2.6 build. It
+	does now detect ghc and gtk in what should be a reasonably robust
+	manner.
+
 2005-05-18 Axel Simon <A.Simon@kent.ac.uk>
 
 	* demo/fastDraw/FastDraw.hs: Made it a bit more interesting. Showed
