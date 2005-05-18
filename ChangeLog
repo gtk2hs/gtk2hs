@@ -1,3 +1,8 @@
+2005-05-18 Axel Simon <A.Simon@kent.ac.uk>
+
+	* demo/fastDraw/FastDraw.hs: Made it a bit more interesting. Showed
+	how to increase performance.
+
 2005-05-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: use new properties
