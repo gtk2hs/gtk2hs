@@ -14,9 +14,12 @@ AppSupportURL=http://haskell.org/gtk2hs/
 OutputBaseFilename=gtk2hs-@VERSION@
 Compression=lzma
 SolidCompression=yes
+; the following is required because of the conditionaly installed files are not counted
+ExtraDiskSpaceRequired=11572926
 
 [Files]
-Source: "gtk2hs-@VERSION@\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-@VERSION@-gtk-2.4\*"; DestDir: "{app}"; Check: UseWithGtkVersion('2.4'); Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-@VERSION@-gtk-2.6\*"; DestDir: "{app}"; Check: UseWithGtkVersion('2.6'); Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
 
 [Run]
 Filename: "{code:ghcpkg}"; Parameters: "--update-package --input-file={app}\glib.pkg";  StatusMsg: "Registering glib package...";  Flags: runhidden
@@ -33,7 +36,13 @@ Filename: "{code:ghcpkg}"; Parameters: "--remove-package=glib";  RunOnceId: "gli
 [Code]
 var
   GhcInstallDir: String;
+  GhcInstallVersion: String;
+  
   GtkInstallDir: String;
+  { The version of Gtk+ that is installed on the machine: }
+  GtkInstallVersion: String;
+  { The build of Gtk2Hs to install: }
+  GtkVersionToInstall: String;
   
 function ghcpkg(Param: String): String;
 begin
@@ -43,6 +52,11 @@ end;
 function gtkdir(Param: String): String;
 begin
   Result := GtkInstallDir;
+end;
+
+function UseWithGtkVersion(Version: String): Boolean;
+begin
+  Result := Version = GtkVersionToInstall;
 end;
 
 { exec a program and return its output }
@@ -70,9 +84,12 @@ begin
     Log('ExecOutput: cannot exec command interpreter, code: ' + IntToStr(ResultCode) + ', message: ' + SysErrorMessage(ResultCode));
 end;
 
-function CheckGHCVersion(const Path: String):String;
+function CheckGhcVersionIsOk(const Path: String; var Version: String):Boolean;
 begin
-  Result := ExecOutput(AddBackslash(Path) + 'bin\ghc.exe', '--numeric-version');
+  Version := ExecOutput(AddBackslash(Path) + 'bin\ghc.exe', '--numeric-version');
+  GhcInstallVersion := Version;
+  
+  Result := Version = '6.2.2';
 end;
 
 function DetectValidGhcInstallation(): Boolean;
@@ -87,14 +104,12 @@ begin
   
   begin
     GhcInstallDir := ExecOutput('ghc.exe', '--print-libdir');
-    if not (GhcInstallDir = '') then
+    if GhcInstallDir <> '' then
     begin
       StringChange(GhcInstallDir, '/', '\');
       Log('DetectValidGhcInstallation: found ghc on %PATH% with libdir: ' + GhcInstallDir);
       HaveSomeGHCInstalled := True;
-      GHCVersion := CheckGHCVersion(GhcInstallDir);
-      if GHCVersion = '6.2.2' then
-        Result := True;
+      Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
     end;
   end;
 
@@ -103,9 +118,7 @@ begin
     Log('DetectValidGhcInstallation: found HKCU\Software\Haskell\GHC');
     HaveSomeGHCInstalled := True;
     RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Haskell\GHC\ghc-6.2.2', 'InstallDir', GhcInstallDir);
-    GHCVersion := CheckGHCVersion(GhcInstallDir);
-    if GHCVersion = '6.2.2' then
-      Result := True;
+    Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
   end;
 
   if (Result = False) and RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC') then
@@ -113,19 +126,17 @@ begin
     Log('DetectValidGhcInstallation: found HKLM\SOFTWARE\Haskell\GHC');
     HaveSomeGHCInstalled := True;
     RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC\ghc-6.2.2', 'InstallDir', GhcInstallDir);
-    GHCVersion := CheckGHCVersion(GhcInstallDir);
-    if GHCVersion = '6.2.2' then
-      Result := True;
+    Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
   end;
   
   if Result then
     Log('DetectValidGhcInstallation: correct version of ghc found at: ' + GhcInstallDir)
-  else if HaveSomeGHCInstalled and (not GHCVersion = '') then
+  else if HaveSomeGHCInstalled and (GHCVersion <> '') then
   begin
     Log('DetectValidGhcInstallation: incorrect ghc version installed: ' + GHCVersion);
     SuppressibleMsgBox('This version of Gtk2Hs requires GHC version 6.2.2.', mbError, MB_OK, IDOK);
   end
-  else if HaveSomeGHCInstalled and (not GhcInstallDir = '') then
+  else if HaveSomeGHCInstalled and (GhcInstallDir <> '') then
   begin
     Log('DetectValidGhcInstallation: some non-working version of ghc appears to be installed at: ' + GhcInstallDir);
     SuppressibleMsgBox('GHC does not appear to be installed correctly, try reinstalling GHC version 6.2.2.', mbError, MB_OK, IDOK);
@@ -143,12 +154,73 @@ begin
 
 end;
 
+procedure ParseVersionString(Version: String; var MajorVersion, MinorVersion, MicroVersion: Integer);
+var
+  N, M : Integer;
+  MajorVersionStr, MinorVersionStr, MicroVersionStr: String;
+begin
+  N := 1;
+  M := 1;
+  SetLength(MajorVersionStr, Length(Version));
+  while (N < Length(Version) + 1) and (Version[N] >= '0') and (Version[N] <= '9') do
+  begin
+    MajorVersionStr[M] := Version[N];
+    N := N + 1; M := M + 1;
+  end;
+  SetLength(MajorVersionStr, M - 1);
+
+  while (N < Length(Version) + 1) and ((Version[N] < '0') or (Version[N] > '9')) do
+    N := N + 1;
+
+  M := 1;
+  SetLength(MinorVersionStr, Length(Version));
+  while (N < Length(Version) + 1) and (Version[N] >= '0') and (Version[N] <= '9') do
+  begin
+    MinorVersionStr[M] := Version[N];
+    N := N + 1; M := M + 1;
+  end;
+  SetLength(MinorVersionStr, M - 1);
+
+  while (N < Length(Version) + 1) and ((Version[N] < '0') or (Version[N] > '9')) do
+    N := N + 1;
+
+  M := 1;
+  SetLength(MicroVersionStr, Length(Version));
+  while (N < Length(Version) + 1) and (Version[N] >= '0') and (Version[N] <= '9') do
+  begin
+    MicroVersionStr[M] := Version[N];
+    N := N + 1; M := M + 1;
+  end;
+  SetLength(MicroVersionStr, M - 1);
+  
+  MajorVersion := StrToIntDef(MajorVersionStr, 0);
+  MinorVersion := StrToIntDef(MinorVersionStr, 0);
+  MicroVersion := StrToIntDef(MicroVersionStr, 0);
+
+  Log('ParseVersionString: Version = ' + Version);
+  Log('ParseVersionString: MajorVersion = ' + IntToStr(MajorVersion));
+  Log('ParseVersionString: MinorVersion = ' + IntToStr(MinorVersion));
+  Log('ParseVersionString: MicroVersion = ' + IntToStr(MicroVersion));
+end;
+
 function CheckGtkVersionIsOk(const Path: String; var Version: String):Boolean;
+var
+  MajorVersion, MinorVersion, MicroVersion: Integer;
 begin
   GetVersionNumbersString(AddBackslash(Path) + 'bin\libgtk-win32-2.0-0.dll', Version);
-  Result := CompareStr(Version, '2.6.0') >= 0;
-  
-  { fixme, do a better parsing and comparison of the Gtk version }
+  ParseVersionString(Version, MajorVersion, MinorVersion, MicroVersion);
+
+  Result := (MajorVersion = 2)
+        and (MinorVersion >= 4);
+
+  GtkInstallVersion := IntToStr(MajorVersion)
+               + '.' + IntToStr(MinorVersion)
+               + '.' + IntToStr(MicroVersion);
+               
+  if MinorVersion = 4 then
+    GtkVersionToInstall := '2.4'
+  else if MinorVersion >= 6 then
+    GtkVersionToInstall := '2.6';
 end;
 
 type GtkStatus =
@@ -182,7 +254,7 @@ begin
   end
 
   if (GtkStatus = GtkAppearsToHaveBeenInstalledEver)
-    and RegQueryStringValue(GtkRegHive, 'Software\GTK\2.0', 'Path', GtkInstallDir)
+    and RegQueryStringValue(RegHive, 'Software\GTK\2.0', 'Path', GtkInstallDir)
     and DirExists(GtkInstallDir) then
     GtkStatus := GtkAppearsToBeInstalled;
 
@@ -234,7 +306,17 @@ begin
     InstalledOk:
       InstallMessage := 'Gtk seems to be installed correctly';
   end;
-  
+
+  if (GtkStatus = InstalledOk) and (CompareStr(GtkVersion, '2.6.7') >= 0) then
+  begin
+    InstallMessage := 'Sadly this release of Gtk2Hs has been found not to work with Gtk+ versions 2.6.7 and above' #13#10 #13#10
+                      'Please reinstall the Gtk+ Development Environment, which is available from' #13#10
+                      'http://gladewin32.sourceforge.net/' #13#10 #13#10
+                      'You need any "devel" version between 2.6.0 and 2.6.6 (not 2.6.7+)'  #13#10  #13#10
+                      'Alternatively, a later Gtk2Hs release should be ok';
+    GtkStatus := GtkAppearsToBeInstalled;
+  end;
+
   Log(InstallMessage);
   
   { fixme: check about the 2.6.7 problem and ban that version from being used }
@@ -288,10 +370,10 @@ function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo,
 begin
 		Result := MemoDirInfo + NewLine
 		        + NewLine
-		        +	'Using the version of GHC installed at:' + NewLine
+		        +	'Using GHC ' + GhcInstallVersion + ' installed at:' + NewLine
 		        + Space + GhcInstallDir + NewLine
 		        + NewLine
-		        + 'Using the version of GTK+ installed at:' + NewLine
+		        + 'Using Gtk+ ' + GtkInstallVersion + ' installed at:' + NewLine
 		        + Space + GtkInstallDir;
 end;
 

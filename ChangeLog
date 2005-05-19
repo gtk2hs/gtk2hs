@@ -1,3 +1,11 @@
+2005-05-19 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk2hs.iss.in: do a better job at checking version numbers. Display
+	version number of GHC and Gtk+ in the "ready to install" wizzard page.
+	Add check for Gtk+ 2.6.7 which don't work. Change it to be a multi
+	installer that installs for Gtk+ 2.4.x or 2.6.x depending on the
+	version installed.
+
 2005-05-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk2hs.iss.in: Inno Setup installer script. This is currently only
