@@ -5,7 +5,7 @@
 --          
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/14 02:19:59 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/20 23:30:46 $
 --
 --  Copyright (c) 2000 Axel Simon
 --
@@ -38,8 +38,8 @@ module System.Glib.Signals (
   ConnectAfter,
   ConnectId(ConnectId),
   disconnect,
-#ifdef USE_GCLOSUE_SIGNALS_IMPL
   GClosure,
+#ifdef USE_GCLOSUE_SIGNALS_IMPL
   connectGeneric,
 #else
   GClosureNotify,
@@ -71,9 +71,9 @@ disconnect (ConnectId handler obj) =
   withForeignPtr  ((unGObject.toGObject) obj) $ \objPtr ->
   {# call unsafe g_signal_handler_disconnect #} (castPtr objPtr) handler
 
-#ifdef USE_GCLOSUE_SIGNALS_IMPL
-
 {# pointer *GClosure newtype #}
+
+#ifdef USE_GCLOSUE_SIGNALS_IMPL
 
 connectGeneric :: GObjectClass obj =>
     SignalName

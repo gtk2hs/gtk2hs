@@ -11,6 +11,10 @@
 	sourceview/SourceTagTable.chs, sourceview/SourceView.chs: remove more
 	old files.
 
+	* glib/System/Glib/Signals.chs.pp: arrange for GClosure to be defined
+	and exported irrespective of USE_GCLOSUE_SIGNALS_IMPL so it can be
+	used elsewhere.
+
 2005-05-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk2hs.iss.in: do a better job at checking version numbers. Display
