@@ -1,3 +1,16 @@
+2005-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mogul/GetWidget.hs, mogul/MDialog.hs, mogul/Mogul.hs,
+	mogul/NewWidget.hs, mogul/TreeList.hs, mogul/WidgetTable.hs: remove
+	old files.
+
+	* sourceview/SourceBuffer.chs, sourceview/SourceIter.chs,
+	sourceview/SourceLanguage.chs, sourceview/SourceLanguagesManager.chs,
+	sourceview/SourceMarker.chs, sourceview/SourceStyleScheme.chs,
+	sourceview/SourceTag.chs, sourceview/SourceTagStyle.hsc,
+	sourceview/SourceTagTable.chs, sourceview/SourceView.chs: remove more
+	old files.
+
 2005-05-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk2hs.iss.in: do a better job at checking version numbers. Display
