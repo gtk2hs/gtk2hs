@@ -3,32 +3,27 @@
 --  GIMP Toolkit (GTK)
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/08 03:33:08 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/20 23:54:00 $
 --
---  Copyright (c) 2001 Axel Simon
+--  Copyright (C) 2001-2005 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
--- |
---
--- This module gathers all publicly available functions from the Gtk binding.
---
--- * Everything that is marked as deprecated, vanishing or useless for
+-- Everything that is marked as deprecated, vanishing or useless for
 --   applications is not bound.
 --
---
--- * The following modules are not bound:
+-- The following modules are not bound:
 --   DialogMessage : has only one variadic function which cannot be bound.
 --		     The same functionality can be simulated with Dialog.
 --   Item :	     The only child of this abstract class is MenuItem. The
@@ -37,7 +32,14 @@
 --
 -- TODO
 --
--- * Every module that is commented out and not mentioned above.
+-- Every module that is commented out and not mentioned above.
+--
+-- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- This module gathers all publicly available functions from the Gtk binding.
 --
 module Graphics.UI.Gtk (
   -- * General things, initialization

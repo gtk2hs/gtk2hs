@@ -3,26 +3,26 @@
 --  Callback installers for the GIMP Toolkit (GTK) Binding for Haskell
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/06 20:47:00 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/20 23:56:12 $
 --
---  Copyright (c) 2000 Axel Simon
+--  Copyright (C) 2000-2005 Axel Simon
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- #hide
 
--- | These functions are used to connect signals to widgets. They are auto-
+-- These functions are used to connect signals to widgets. They are auto-
 -- matically created through HookGenerator.hs which takes a list of possible
 -- function signatures that are included in the GTK sources (gtkmarshal.list).
 --

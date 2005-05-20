@@ -2,26 +2,26 @@
 --  Callback installers for the GIMP Toolkit (GTK) Binding for Haskell
 --
 --  Author : Axel Simon
---          
+--
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/20 23:30:46 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/20 23:54:00 $
 --
---  Copyright (c) 2000 Axel Simon
+--  Copyright (C) 2000-2005 Axel Simon, Duncan Coutts
 --
---  This file is free software; you can redistribute it and/or modify
---  it under the terms of the GNU General Public License as published by
---  the Free Software Foundation; either version 2 of the License, or
---  (at your option) any later version.
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
 --
---  This file is distributed in the hope that it will be useful,
+--  This library is distributed in the hope that it will be useful,
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
---  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
---  GNU General Public License for more details.
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
 --
 -- #hide
 
--- |  The object system in the second version of GTK is based on GObject from
+--    The object system in the second version of GTK is based on GObject from
 --    GLIB. This base class is rather primitive in that it only implements
 --    ref and unref methods (and others that are not interesting to us). If
 --    the marshall list mentions OBJECT it refers to an instance of this 

@@ -15,6 +15,35 @@
 	and exported irrespective of USE_GCLOSUE_SIGNALS_IMPL so it can be
 	used elsewhere.
 
+	* glib/System/Glib/Signals.chs.pp, glib/System/Glib/FFI.hs: changed
+	license from GPL to LGPL 2.1
+
+	* gtk/Graphics/UI/Gtk.hs: changed license from GPL to LGPL 2.1 and
+	tidied up the module documentaion.
+
+	* mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs,
+	mogul/Graphics/UI/Gtk/Mogul/MDialog.hs,
+	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs,
+	mogul/Graphics/UI/Gtk/Mogul/TreeList.hs,
+	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs,
+	mogul/Graphics/UI/Gtk/Mogul.hs: changed license from GPL to LGPL 2.1
+
+	* sourceview/Graphics/UI/Gtk/SourceView/SourceBuffer.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceIter.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceLanguage.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceLanguagesManager.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceMarker.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceStyleScheme.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTag.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTagStyle.hsc,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceView.chs,
+	sourceview/Graphics/UI/Gtk/SourceView.hs: changed license from GPL to
+	LGPL 2.1 and added haddock header info.
+
+	* tools/callbackGen/Signal.chs.template: changed license from GPL to
+	LGPL 2.1
+
 2005-05-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk2hs.iss.in: do a better job at checking version numbers. Display
