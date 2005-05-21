@@ -66,6 +66,9 @@
 
 	* TODO: add and remove various items.
 
+	* gtk/Graphics/UI/Gtk/Selectors/FontButton.chs.pp: missed one when I
+	changed the section name in the docs from "Properties" to "Attributes"
+
 2005-05-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk2hs.iss.in: do a better job at checking version numbers. Display

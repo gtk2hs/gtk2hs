@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:29 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/21 02:22:22 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -71,7 +71,7 @@ module Graphics.UI.Gtk.Selectors.FontButton (
   fontButtonSetTitle,
   fontButtonGetTitle,
 
--- * Properties
+-- * Attributes
   fontButtonTitle,
   fontButtonFontName,
   fontButtonUseFont,
@@ -253,7 +253,7 @@ fontButtonGetTitle self =
   >>= peekUTFString
 
 --------------------
--- Properties
+-- Attributes
 
 -- | The title of the font selection dialog.
 --
