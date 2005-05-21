@@ -64,6 +64,8 @@
 
 	* APICHANGES: record these api changes.
 
+	* TODO: add and remove various items.
+
 2005-05-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk2hs.iss.in: do a better job at checking version numbers. Display

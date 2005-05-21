@@ -1,5 +1,26 @@
 TODO for gtk2hs
 
+6/5/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Image: bind the various get/set functions and sort out the NULL
+	issues in terms of the API.
+
+12/4/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* make sure the GList issue in all these radio button modules is ok.
+
+3/4/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* textViewGetWindowType: the comment is not true. There is no
+	DrawWindow member of the event (or rather we don't marshal it)
+
+2/4/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* menuAttachToWidget, menuDetach should probably not be bound. Check this.
+
+	* FileChooser & FileSelector: figure out the Glib file name encoding
+	issue. What charset conversion should we do?
+
 24/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
 	
 	* check the ref counting of BOXED obects in signal callbacks, eg Event
@@ -7,12 +28,6 @@ TODO for gtk2hs
 23/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* change gconf so it does not require -fallow-overlapping-instances
-
-22/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
-
-	* gtk/Graphics/UI/Gtk/Ornaments/Frame.chs: frameSetLabelAlign and
-	frameGetLabelAlign only get/set the horazontal alignment not the
-	verticle alighment too
 
 12/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
 
@@ -24,12 +39,6 @@ TODO for gtk2hs
 	  ...
 
 	add new menu toolbar API
-
-	* refactor events interface. Problem with mem management (the region
-	is destroied after the event handler completes) so perhaps make event
-	structures abstract with accessor functions so for example the Region
-	can be copied (with a destructor). Or Axel suggested a different
-	signal, eg onExposeRegion
 
 8/12/2004  Duncan Coutts <duncan@coutts.uklinux.net>
 
@@ -44,20 +53,6 @@ TODO for gtk2hs
 
 28/07/2004  Duncan Coutts <duncan@coutts.uklinux.net>
 
-	* new gtk 2.2 & 2.4 APIs that need to be bound:
-	action based manu API
-		GtkUIManager
-		GtkActionGroup
-		GtkAction
-		GtkToggleAction
-		GtkRadioAction
-		GtkToolItem
-		GtkToolButton
-		GtkSeparatorToolItem
-		GtkToggleToolButton
-		GtkRadioToolButton
-	file selector stuff
-		GtkFileFilter
 	GtkPlug new stuff in gtk 2.2
 		gtk_plug_construct_for_display (maybe)
 		gtk_plug_new_for_display
