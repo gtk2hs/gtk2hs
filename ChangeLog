@@ -44,6 +44,26 @@
 	* tools/callbackGen/Signal.chs.template: changed license from GPL to
 	LGPL 2.1
 
+	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs: make binGetChild return Maybe.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp: make panedGetChild(1|2)
+	return Maybe.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp: make
+	comboBoxSetModel accept the model argument in a Maybe type so it is
+	possible to unset the model.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp: make
+	textBufferGetIterAtLine folow the normal argument order convention.
+
+	* gtk/Graphics/UI/Gtk/Ornaments/Frame.chs: make frameGetLabelAlign and
+	frameSetLabelAlign get and set the yalign as well as just the xalign.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp: make treeViewExpandRow
+	folow the normal argument order convention and change the docs a bit.
+
+	* APICHANGES: record these api changes.
+
 2005-05-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk2hs.iss.in: do a better job at checking version numbers. Display

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/07 19:13:30 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/21 02:11:30 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -198,9 +198,9 @@ panedGetPosition self =
 -- * Available since Gtk+ version 2.4
 --
 panedGetChild1 :: PanedClass self => self
- -> IO Widget -- ^ returns first child
+ -> IO (Maybe Widget) -- ^ returns first child, or @Nothing@ if it is not set.
 panedGetChild1 self =
-  makeNewObject mkWidget $
+  maybeNull (makeNewObject mkWidget) $
   {# call unsafe paned_get_child1 #}
     (toPaned self)
 
@@ -209,9 +209,10 @@ panedGetChild1 self =
 -- * Available since Gtk+ version 2.4
 --
 panedGetChild2 :: PanedClass self => self
- -> IO Widget -- ^ returns second child
+ -> IO (Maybe Widget) -- ^ returns second child, or @Nothing@ if it is not
+                      -- set.
 panedGetChild2 self =
-  makeNewObject mkWidget $
+  maybeNull (makeNewObject mkWidget) $
   {# call unsafe paned_get_child2 #}
     (toPaned self)
 #endif

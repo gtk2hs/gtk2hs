@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/05/14 01:50:40 $
+--  Version $Revision: 1.12 $ from $Date: 2005/05/21 02:11:31 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -692,15 +692,14 @@ treeViewExpandToPath self path =
     path
 #endif
 
--- | Expand a row.
+-- | Opens the row so its children are visible.
 --
--- * Expand a node that is specified by 
--- @path@. If the @all@ is @True@ every
--- child will be expanded recursively. Returns @True@ if the row 
--- existed and had children.
---
-treeViewExpandRow :: TreeViewClass self => TreePath -> Bool -> self -> IO Bool
-treeViewExpandRow path openAll self =
+treeViewExpandRow :: TreeViewClass self => self
+ -> TreePath -- ^ @path@ - path to a row
+ -> Bool     -- ^ @openAll@ - whether to recursively expand, or just expand
+             -- immediate children
+ -> IO Bool  -- ^ returns @True@ if the row existed and had children
+treeViewExpandRow self path openAll =
   liftM toBool $
   withTreePath path $ \path ->
   {# call tree_view_expand_row #}
@@ -708,11 +707,11 @@ treeViewExpandRow path openAll self =
     path
     (fromBool openAll)
 
--- | Collapse a row. Returns @True@ if the row existed.
+-- | Collapses a row (hides its child rows, if they exist).
 --
 treeViewCollapseRow :: TreeViewClass self => self
- -> TreePath
- -> IO Bool
+ -> TreePath -- ^ @path@ - path to a row in the tree view
+ -> IO Bool  -- ^ returns @True@ if the row was collapsed.
 treeViewCollapseRow self path =
   liftM toBool $
   withTreePath path $ \path ->

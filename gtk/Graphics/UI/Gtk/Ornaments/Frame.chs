@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:28 $
+--  Version $Revision: 1.7 $ from $Date: 2005/05/21 02:11:31 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -135,32 +135,37 @@ frameGetLabelWidget self =
   {# call frame_get_label_widget #}
     (toFrame self)
 
--- | Sets the horazontal alignment of the frame widget's label. The default value for a
--- newly created frame is 0.0.
+-- | Sets the alignment of the frame widget's label. The default values for a
+-- newly created frame are 0.0 and 0.5.
 --
 frameSetLabelAlign :: FrameClass self => self
  -> Float -- ^ @xalign@ - The position of the label along the top edge of the
           -- widget. A value of 0.0 represents left alignment; 1.0 represents
           -- right alignment.
+ -> Float -- ^ @yalign@ - The y alignment of the label. A value of 0.0 aligns
+          -- under the frame; 1.0 aligns above the frame.
  -> IO ()
-frameSetLabelAlign self xalign =
+frameSetLabelAlign self xalign yalign =
   {# call frame_set_label_align #}
     (toFrame self)
     (realToFrac xalign)
-    0.5
+    (realToFrac yalign)
 
--- | Get the label's horazontal alignment.
+-- | Retrieves the X and Y alignment of the frame's label. See
+-- 'frameSetLabelAlign'.
 --
 frameGetLabelAlign :: FrameClass self => self
- -> IO Float
+ -> IO (Float, Float) -- ^ @(xalign, yalign)@
 frameGetLabelAlign self =
-  alloca $ \alignPtr -> do
+  alloca $ \xalignPtr ->
+  alloca $ \yalignPtr -> do
   {# call unsafe frame_get_label_align #}
     (toFrame self)
-    alignPtr
-    nullPtr
-  align <- peek alignPtr
-  return (realToFrac align)
+    xalignPtr
+    yalignPtr
+  xalign <- peek xalignPtr
+  yalign <- peek yalignPtr
+  return (realToFrac xalign, realToFrac yalign)
 
 -- | Sets the shadow type of the frame.
 --

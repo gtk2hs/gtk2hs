@@ -15,3 +15,21 @@ button but doesn't turn them into scroll events. Furthermore, this data
 type will break if X servers should ever support more than 5 buttons.
 
 Events.hsc: removed several constructors, change the Key event.
+
+General.chs: changed the priorty constants
+
+Bin.chs: make binGetChild return Maybe
+
+Paned.chs.pp: make panedGetChild(1|2) return Maybe
+
+TextBuffer.chs.pp: swap order of args for textBufferGetIterAtLine so it
+	follows the normal convention
+
+Frame.chs: make frame(Get|Set)LabelAlign get and set the Y align as well as the
+	X alignment.
+
+TreeView.chs.pp: swap order of args for treeViewExpandRow so it follows the
+	normal convention
+
+ComboBox.chs.pp: have comboBoxSetModel take a Maybe parameter so it is possible
+	to unset the model

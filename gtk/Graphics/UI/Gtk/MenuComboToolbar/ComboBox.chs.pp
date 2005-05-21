@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.10 $ from $Date: 2005/05/21 02:11:30 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -262,17 +262,18 @@ comboBoxGetModel self =
     (toComboBox self)
 
 -- | Sets the model used by @comboBox@ to be @model@. Will unset a previously
--- set model (if applicable).
+-- set model (if applicable). If model is @Nothing@, then it will unset the
+-- model.
 --
 -- Note that this function does not clear the cell renderers, you have to
 -- call 'comboBoxCellLayoutClear' yourself if you need to set up different cell
 -- renderers for the new model.
 --
-comboBoxSetModel :: (ComboBoxClass self, TreeModelClass model) => self -> model -> IO ()
+comboBoxSetModel :: (ComboBoxClass self, TreeModelClass model) => self -> Maybe model -> IO ()
 comboBoxSetModel self model =
   {# call gtk_combo_box_set_model #}
     (toComboBox self)
-    (toTreeModel model)
+    (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
 -- | Appends the given string to the list of strings stored in the combo box.
 -- Note that you can only use this function with combo boxes constructed with
@@ -443,7 +444,7 @@ comboBoxGetFocusOnClick self =
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The model from which the combo box takes the values shown in the list.
 --
-comboBoxModel :: (ComboBoxClass self, TreeModelClass model) => ReadWriteAttr self (Maybe TreeModel) model
+comboBoxModel :: (ComboBoxClass self, TreeModelClass model) => ReadWriteAttr self (Maybe TreeModel) (Maybe model)
 comboBoxModel = newAttr
   comboBoxGetModel
   comboBoxSetModel

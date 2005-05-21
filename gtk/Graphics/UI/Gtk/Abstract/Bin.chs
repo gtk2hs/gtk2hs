@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/14 23:55:06 $
+--  Version $Revision: 1.6 $ from $Date: 2005/05/21 02:11:30 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -64,7 +64,7 @@ module Graphics.UI.Gtk.Abstract.Bin (
   castToBin,
 
 -- * Methods
-  binGetChild
+  binGetChild,
   ) where
 
 import System.Glib.FFI
@@ -76,11 +76,12 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 --------------------
 -- Methods
 
--- | Gets the child of the 'Bin'
+-- | Gets the child of the 'Bin', or @Nothing@ if the bin contains no child
+-- widget.
 --
 binGetChild :: BinClass self => self
- -> IO Widget -- ^ returns the child of the 'Bin'
+ -> IO (Maybe Widget) -- ^ returns pointer to child of the 'Bin'
 binGetChild self =
-  makeNewObject mkWidget $
+  maybeNull (makeNewObject mkWidget) $
   {# call gtk_bin_get_child #}
     (toBin self)

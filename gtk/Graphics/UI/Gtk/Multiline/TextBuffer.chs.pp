@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:28 $
+--  Version $Revision: 1.4 $ from $Date: 2005/05/21 02:11:30 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -694,11 +694,10 @@ textBufferGetIterAtOffset self charOffset = do
   
 -- | Create an iterator at a specific line.
 --
-textBufferGetIterAtLine :: TextBufferClass self =>
-    Int      -- ^ @lineNumber@ - line number counting from 0
- -> self
+textBufferGetIterAtLine :: TextBufferClass self => self
+ -> Int      -- ^ @lineNumber@ - line number counting from 0
  -> IO TextIter
-textBufferGetIterAtLine lineNumber self = do
+textBufferGetIterAtLine self lineNumber = do
   iter <- makeEmptyTextIter
   {# call unsafe text_buffer_get_iter_at_line #}
     (toTextBuffer self)
