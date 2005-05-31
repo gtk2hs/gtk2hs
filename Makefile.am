@@ -177,7 +177,9 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/toplevel/c2hs_config.c
 
 nodist_tools_c2hs_c2hsLocal_SOURCES =		\
-	tools/c2hs/toplevel/C2HSConfig.hs
+	tools/c2hs/toplevel/C2HSConfig.hs       \
+	tools/c2hs/c/CParser2.hs                \
+	tools/c2hs/c/CLexer2.hs
 
 tools_c2hs_c2hsLocal_ALLSOURCES =		\
 	$(tools_c2hs_c2hsLocal_SOURCES)		\
@@ -188,6 +190,20 @@ tools_c2hs_base_general_FastMutInt_hs_HCFLAGS = -O
 tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
 tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi -fvia-C \
 	'-\#include<c2hs_config.h>'
+
+tools/c2hs/c/CLexer2.hs : tools/c2hs/c/CLexer2.x
+	alex --ghc -o $@ $<
+
+tools/c2hs/c/CParser2.hs : tools/c2hs/c/CParser2.y
+	happy --ghc --array --coerce --strict -o $@ $<
+
+tools_c2hs_c2hsLocal_BUILDSOURCES =		\
+	tools/c2hs/c/CParser2.hs		\
+	tools/c2hs/c/CLexer2.hs
+
+EXTRA_DIST +=					\
+	tools/c2hs/c/CParser2.y			\
+	tools/c2hs/c/CLexer2.x
 
 tools_c2hs_c2hsLocal_HSFILES		= \
 	$(filter %.hs,$(tools_c2hs_c2hsLocal_ALLSOURCES))

@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 7 March 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 21:05:27 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/31 18:17:37 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -68,6 +68,7 @@ instance Eq CHeader where
 --
 data CExtDecl = CDeclExt CDecl
 	      | CFDefExt CFunDef
+  deriving Show
 
 instance Pos CExtDecl where
   posOf (CDeclExt decl) = posOf decl
@@ -93,6 +94,7 @@ data CFunDef = CFunDef [CDeclSpec]	-- type specifier and qualifier
 		       [CDecl]		-- optional declaration list
 		       CStat		-- compound statement
 		       Attrs
+  deriving Show
 
 instance Pos CFunDef where
   posOf (CFunDef _ _ _ _ at) = posOf at
@@ -137,6 +139,7 @@ data CStat = CLabel    Ident		-- label
 	   | CBreak    Attrs		-- break statement
 	   | CReturn   (Maybe CExpr)
 		       Attrs
+  deriving Show
 
 instance Pos CStat where
   posOf (CLabel    _ _     at) = posOf at
@@ -215,6 +218,7 @@ data CDecl = CDecl [CDeclSpec]		-- type specifier and qualifier
 		     Maybe CInit,	-- optional initializer
 		     Maybe CExpr)]	-- optional size (const expr)
 		   Attrs
+  deriving Show
 
 instance Pos CDecl where
   posOf (CDecl _ _ at) = posOf at
@@ -227,7 +231,7 @@ instance Eq CDecl where
 data CDeclSpec = CStorageSpec CStorageSpec
 	       | CTypeSpec    CTypeSpec
 	       | CTypeQual    CTypeQual
-	       deriving (Eq)
+	       deriving (Eq, Show)
 
 instance Pos CDeclSpec where
   posOf (CStorageSpec sspec) = posOf sspec
@@ -241,6 +245,7 @@ data CStorageSpec = CAuto     Attrs
 		  | CStatic   Attrs
 		  | CExtern   Attrs
 		  | CTypedef  Attrs	-- syntactic awkwardness of C
+  deriving Show
 
 instance Pos CStorageSpec where
   posOf (CAuto     at) = posOf at
@@ -273,6 +278,7 @@ data CTypeSpec = CVoidType    Attrs
 			      Attrs
 	       | CTypeDef     Ident		-- typedef name
 			      Attrs
+  deriving Show
 
 instance Pos CTypeSpec where
   posOf (CVoidType      at) = posOf at
@@ -310,6 +316,7 @@ data CTypeQual = CConstQual Attrs
 	       | CVolatQual Attrs
 	       | CRestrQual Attrs
 	       | CInlinQual Attrs
+  deriving Show
 
 instance Pos CTypeQual where
  posOf (CConstQual at) = posOf at
@@ -332,6 +339,7 @@ data CStructUnion = CStruct CStructTag
 			    (Maybe Ident)
 			    [CDecl]	-- *structure* declaration
 			    Attrs
+  deriving Show
 
 instance Pos CStructUnion where
   posOf (CStruct _ _ _ at) = posOf at
@@ -343,7 +351,7 @@ instance Eq CStructUnion where
 --
 data CStructTag = CStructTag
 		| CUnionTag
-		deriving (Eq)
+		deriving (Eq, Show)
 
 -- C enumeration declaration (K&R A8.4) (EXPORTED)
 --
@@ -351,6 +359,7 @@ data CEnum = CEnum (Maybe Ident)
 		   [(Ident,			-- variant name
 		     Maybe CExpr)]		-- explicit variant value
 		   Attrs
+  deriving Show
 
 instance Pos CEnum where
   posOf (CEnum _ _ at) = posOf at
@@ -396,6 +405,7 @@ data CDeclr = CVarDeclr (Maybe Ident)		-- declared identifier
 			[CDecl]			-- *parameter* declarations
 			Bool			-- is variadic?
 			Attrs
+  deriving Show
 
 instance Pos CDeclr where
   posOf (CVarDeclr _     at) = posOf at
@@ -415,6 +425,7 @@ data CInit = CInitExpr CExpr
 		       Attrs		-- assignment expression
            | CInitList [CInit]
 		       Attrs
+  deriving Show
 
 instance Pos CInit where
   posOf (CInitExpr _ at) = posOf at
@@ -473,6 +484,7 @@ data CExpr = CComma       [CExpr]	-- comma expression list, n >= 2
 			  Attrs
            | CConst       CConst		-- includes strings
 			  Attrs
+  deriving Show
 
 instance Pos CExpr where
   posOf (CComma       _     at) = posOf at
@@ -521,7 +533,7 @@ data CAssignOp = CAssignOp
 	       | CAndAssOp
 	       | CXorAssOp
 	       | COrAssOp
-	       deriving (Eq)
+	       deriving (Eq, Show)
 
 -- C binary operators (K&R A7.6-15) (EXPORTED)
 --
@@ -543,7 +555,7 @@ data CBinaryOp = CMulOp
 	       | COrOp			-- inclusive bitwise or
 	       | CLndOp			-- logical and
 	       | CLorOp			-- logical or
-	       deriving (Eq)
+	       deriving (Eq, Show)
 
 -- C unary operator (K&R A7.3-4) (EXPORTED)
 --
@@ -557,7 +569,7 @@ data CUnaryOp = CPreIncOp		-- prefix increment operator
 	      | CMinOp			-- prefix minus
 	      | CCompOp			-- one's complement
 	      | CNegOp			-- logical negation
-	      deriving (Eq)
+	      deriving (Eq, Show)
 
 -- C constant (K&R A2.5 & A7.2) (EXPORTED)
 --
@@ -571,6 +583,7 @@ data CConst = CIntConst   Integer
 			  Attrs
 	    | CStrConst   String
 			  Attrs
+  deriving Show
 
 instance Pos CConst where
   posOf (CIntConst   _ at) = posOf at

@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 14 February 95
 --
---  Version $Revision: 1.2 $ from $Date: 2004/11/13 17:26:50 $
+--  Version $Revision: 1.3 $ from $Date: 2005/05/31 18:17:38 $
 --
 --  Copyright (c) [1995..1999] Manuel M. T. Chakravarty
 --
@@ -107,6 +107,7 @@ import Binary     (Binary(..), putByte, getByte)
 --
 data Attrs = OnlyPos Position		-- only pos (for internal stuff only)
 	   | Attrs   Position Name	-- pos and unique name
+  deriving Show
 
 -- get the position associated with an attribute identifier (EXPORTED)
 --

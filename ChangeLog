@@ -1,3 +1,30 @@
+2005-05-31 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/c2hs/c/CLexer2.x: a new alex based C lexer.
+	
+	* tools/c2hs/c/CParser2.y: a new happy based C parser.
+
+	* tools/c2hs/state/Switches.hs, tools/c2hs/toplevel/Main.hs: add a
+	command line flag to switch beteen the old and new parsers. Also add
+	an extra dump kind which dumps the C AST after parsing.
+
+	* tools/c2hs/c/CAST.hs, tools/c2hs/base/syms/Attributes.hs, 
+	tools/c2hs/c/CPretty.hs: make the C AST showable and remove the
+	existing Show instance which used the pretty printer (used in error
+	messages). This change is only for the purposes	of testing the new
+	parser and is not permanent.
+
+	* tools/c2hs/c/C.hs: switch between the two lexer & parser
+	implementations at runtime depending on the command line flag. Change
+	the tracing message so we can be sure which parser implementation is
+	being used (use -d trace to see this). Add the C AST dump feature (use
+	-d ast to get this dump).
+
+	* Makefile.am: add the new files to the c2hs sources lists. Add rules
+	for building the lexer and parser using alex and happy. Automake
+	recognises .y files as belonging to yacc which is annoying so we have
+	to do it slightly differently.
+
 2005-05-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mogul/GetWidget.hs, mogul/MDialog.hs, mogul/Mogul.hs,

@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 12 August 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 21:05:27 $
+--  Version $Revision: 1.2 $ from $Date: 2005/05/31 18:17:37 $
 --
 --  Copyright (c) 1999 Manuel M. T. Chakravarty
 --
@@ -65,18 +65,26 @@ module C (-- interface to KL for all non-KL modules
 	  --
 	  csuffix, hsuffix, isuffix)
 where
+-- standard libraries
+import Monad      (when)
 
+-- base libraries
 import Common     (Position(Position), Pos(posOf))
 import Idents	  (Ident, lexemeToIdent)
 import Attributes (Attrs, Attr(..))
+import FNameOps   (basename)
 
+-- c2hs modules
 import C2HSState  (CST, IOMode(..),
 		   readCST, transCST, runCST, nop,
 		   readFileCIO, writeFileCIO, openFileCIO, hCloseCIO,
+                   putStrCIO,
 		   fatal, errorsPresent, showErrors,
+                   SwitchBoard(..), getSwitch, traceSet,
 		   Traces(..), putTraceStr)
 import CAST
-import CParser    (parseC)
+import qualified CParser	(parseC)
+import qualified CParser2	(parseC)
 import CPretty
 import CAttrs	  (AttrC, attrC, getCHeader, 
 		   CObj(..), CTag(..), CDef(..), lookupDefObjC, lookupDefTagC,
@@ -108,8 +116,12 @@ loadAttrC fname  = do
 
 		     -- parse
 		     --
-		     traceInfoParse
-		     rawHeader <- parseC contents (Position fname 1 1)
+                     useOldParser <- getSwitch oldParsSB
+                     traceInfoParse useOldParser
+		     rawHeader <- if useOldParser
+                                    then CParser.parseC contents (Position fname 1 1)
+                                    else CParser2.parseC contents (Position fname 1 1)
+                     traceCASTDump rawHeader
 		     let header = attrC rawHeader
 
 		     -- name analysis
@@ -134,8 +146,10 @@ loadAttrC fname  = do
 		      traceInfoRead fname = putTraceStr tracePhasesSW
 					      ("Attempting to read file `"
 					       ++ fname ++ "'...\n")
-		      traceInfoParse      = putTraceStr tracePhasesSW 
-					      ("...parsing `" 
+		      traceInfoParse old  = putTraceStr tracePhasesSW 
+					      ("...parsing (with the "
+                                               ++ (if old then "old" else "new")
+                                               ++ " parser) `" 
 					       ++ fname ++ "'...\n")
 		      traceInfoNA         = putTraceStr tracePhasesSW 
 					      ("...name analysis of `" 
@@ -146,3 +160,15 @@ loadAttrC fname  = do
 		      traceInfoOK         = putTraceStr tracePhasesSW
 					      ("...successfully loaded `"
 					       ++ fname ++ "'.\n")
+                      traceCASTDump ast    = do
+                        flag <- traceSet dumpCASTSW
+                        when flag $ do
+                          let dumpName = basename fname ++ ".ast.dump"
+                          putStrCIO ("...dumping AST to `" ++ dumpName
+                                  ++ "'...\n")
+			  dumpCAST dumpName ast
+
+dumpCAST :: FilePath -> CHeader -> CST s ()
+dumpCAST fname (CHeader decs at) = do
+  writeFileCIO fname ("CHeader decls (" ++ show at ++ ")\n  where decls =\n"
+                      ++ unlines (map show decs))
