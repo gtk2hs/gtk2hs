@@ -192,10 +192,10 @@ tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi -fvia-C \
 	'-\#include<c2hs_config.h>'
 
 tools/c2hs/c/CLexer2.hs : tools/c2hs/c/CLexer2.x
-	alex --ghc -o $@ $<
+	$(ALEX) --ghc -o $@ $<
 
 tools/c2hs/c/CParser2.hs : tools/c2hs/c/CParser2.y
-	happy --ghc --array --coerce --strict -o $@ $<
+	$(HAPPY) --ghc --array --coerce --strict -o $@ $<
 
 tools_c2hs_c2hsLocal_BUILDSOURCES =		\
 	tools/c2hs/c/CParser2.hs		\

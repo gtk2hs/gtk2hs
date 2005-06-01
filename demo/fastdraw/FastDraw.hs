@@ -30,7 +30,7 @@ main = do
   dirRef <- newIORef True 
   let updateBlue = do
         blue <- readIORef blueRef
-	print blue
+	--print blue
 	let setBlue x i | x==256 = setBlue 0 (i-256*chan+row)
 			| i>2+255*chan+255*row = return ()
 			| otherwise =

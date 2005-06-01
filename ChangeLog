@@ -1,3 +1,8 @@
+2005-06-01 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am, configure.ac: Turn alex and happy into variables. 
+	Only check for these if we are building the local c2hs.
+	
 2005-05-31 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer2.x: a new alex based C lexer.

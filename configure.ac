@@ -524,9 +524,25 @@ else
 fi
 
 dnl The hsc2hs preprocessor
-AC_PATH_PROG(HSC2HS,hsc2hs)
+AC_PATH_PROG(HSC2HS,hsc2hs, no)
 if test "$HSC2HS" = "no"; then
-  AC_MSG_ERROR([Could not find hsc2hs. This should be isntalled with GHC!])
+  AC_MSG_ERROR([Could not find hsc2hs. This should be installed with GHC!])
+fi
+
+dnl The happy parser generator
+if test "$BUILT_IN_C2HS" = yes; then
+  AC_PATH_PROG(HAPPY,happy, no)
+  if test "$HAPPY" = no; then
+  AC_MSG_ERROR([Could not find happy which is needed to build c2hs.])
+  fi
+fi
+
+dnl The alex lexer generator
+if test "$BUILT_IN_C2HS" = yes; then
+  AC_PATH_PROG(ALEX,alex, no)
+  if test "$ALEX" = no; then
+  AC_MSG_ERROR([Could not find alex which is needed to build c2hs.])
+  fi
 fi
 
 dnl The preprocessor to use on Haskell sources
