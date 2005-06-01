@@ -1,9 +1,9 @@
 --  C -> Haskell Compiler: Parser for C Header Files
 --
 --  Author : Manuel M T Chakravarty, Duncan Coutts
---  Created: 7 March 99
+--  Created: 29 May 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/05/31 18:17:37 $
+--  Version $Revision: 1.2 $ from $Date: 2005/06/01 18:06:36 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005 Duncan Coutts
@@ -93,8 +93,9 @@ import UNames     (Name, NameSupply, names)
 import Idents     (Ident)
 import Attributes (Attrs, newAttrs, newAttrsOnlyPos)
 
-import C2HSState  (CST, raise, getNameSupply)
-import CLexer2    (CToken(..), GnuCTok(..), lexC, P, parse, getPos, getNewName, addTypedef)
+import C2HSState  (CST, raiseFatal, getNameSupply)
+import CLexer2    (CToken(..), GnuCTok(..), lexC,
+                   P, execParser, parseError, getNewName, addTypedef)
 import CAST       (CHeader(..), CExtDecl(..), CFunDef(..), CStat(..),
 		   CDecl(..), CDeclSpec(..), CStorageSpec(..), CTypeSpec(..),
 		   CTypeQual(..), CStructUnion(..), CStructTag(..), CEnum(..),
@@ -103,8 +104,7 @@ import CAST       (CHeader(..), CExtDecl(..), CFunDef(..), CStat(..),
 import CBuiltin   (builtinTypeNames)
 }
 
-%name parseCHeader translation_unit
-%partial parseCExtDecl external_declaration
+%name parseCHeader header
 %tokentype { CToken }
 
 %monad { P } { >>= } { return }
@@ -209,6 +209,14 @@ extension	{ CTokGnuC GnuCExtTok  _ }		-- special GNU C tokens
 
 -- parse a complete C header file (K&R A10)
 --
+-- * we supply the attr externally for exact compatability with the old parser
+--   in terms of use of the unique name supply.
+--
+header :: { Attrs -> CHeader }
+header
+  : translation_unit				{ CHeader (reverse $1) }
+
+
 translation_unit :: { [CExtDecl] }
 translation_unit
   : {- empty -}					{ [] }
@@ -863,10 +871,6 @@ gnuc_attribute_param_exps
 
 
 {
--- debugging:
-debug_attrs :: Attrs
-debug_attrs = newAttrsOnlyPos nopos
-
 
 data Located a = L !a !Position
 
@@ -905,28 +909,18 @@ getTypeDefIdents declrs = catMaybes [declrToOptIdent declr | declr <- declrs]
     declrToOptIdent (CArrDeclr declr _   _) = declrToOptIdent declr
     declrToOptIdent (CFunDeclr declr _ _ _) = declrToOptIdent declr
 
-
 happyError :: P a
-happyError = do 
-  pos <- getPos
-  fail $ "Parse error at " ++ show pos
-
-main = do
-  contents <- getContents
---  let tokens :: [CToken] 
---      tokens = lexC contents
---  putStr $ unlines $ map show $ tokens
---  print (parseCHeader tokens)
-  ast <- parse parseCHeader (map fst builtinTypeNames) contents
-  print (length ast)
---  putStr $ unlines $ map show (reverse ast)
+happyError = parseError
 
 parseC :: String -> Position -> CST s CHeader
-parseC inp pos  = do
+parseC input initialPosition  = do
   nameSupply <- getNameSupply
-  let name  = (head . names) nameSupply
-      at    = newAttrs pos name
-  decls <- parse parseCHeader (map fst builtinTypeNames) inp
-  return (CHeader (reverse decls) at)
+  let (n:ns) = names nameSupply
+      at     = newAttrs initialPosition n
+  case execParser parseCHeader input
+                  initialPosition (map fst builtinTypeNames) ns of
+    Left header -> return (header at)
+    Right (message, position) -> raiseFatal "Error in C header file."
+                                            position message
 
 }

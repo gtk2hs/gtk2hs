@@ -1,3 +1,11 @@
+2005-06-1 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/c2hs/c/CLexer2.x, tools/c2hs/c/CParser2.y: various tidying up;
+	remove debugging code, remove unused code. Do some operations slightly
+	more strictly. Add better error reporting facilites to the lexer /
+	parser monad and use that do do propper error messages like in the
+	original lexer and parser.
+
 2005-06-01 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, configure.ac: Turn alex and happy into variables. 

@@ -1,9 +1,9 @@
 --  C -> Haskell Compiler: Lexer for C Header Files
 --
 --  Author : Manuel M T Chakravarty, Duncan Coutts
---  Created: 6 March 99
+--  Created: 24 May 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/05/31 18:17:37 $
+--  Version $Revision: 1.2 $ from $Date: 2005/06/01 18:06:36 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005 Duncan Coutts
@@ -65,17 +65,14 @@
 {
 
 module CLexer2 (CToken(..), GnuCTok(..), lexC,
-                P, parse, getPos, getNewName, addTypedef) where 
+                P, execParser, parseError, getNewName, addTypedef) where 
 
 import Char      (isDigit)
---import List	     ((\\))
---import Monad	   (liftM)
 import Numeric   (readDec, readOct, readHex)
 
 import Common    (Position(Position), Pos(posOf))
-import Utils     (Tag(tag))
---import Errors    (Error)
-import UNames	 (NameSupply, Name, names, rootSupply)
+import Errors    (interr)
+import UNames	 (Name)
 import Idents    (Ident, lexemeToIdent, identToLexeme)
 
 import Data.Set (Set)
@@ -83,12 +80,6 @@ import qualified Data.Set as Set (mkSet, addToSet, elementOf)
 
 import Data.FiniteMap (FiniteMap)
 import qualified Data.FiniteMap as Map
-
---import C2HSState (CST, raise, getNameSupply)
-
---for debug
-import Debug.Trace (trace)
-import qualified Data.Set as Set (emptySet)
 
 }
 
@@ -241,28 +232,6 @@ $digitNZ$digit*[uUlL]{0,2}		{ \pos len -> return . CTokILit pos . fst . head . r
 
 {
 
-main = do
-  contents <- getContents
---  let tokens = alexScanTokens contents
-----  putStr $ unlines $ map show $ tokens
---  print (length tokens)
-  let loop :: Int -> P Int
-      loop n = do tok <- lexToken
-                  case tok of
-		       CTokEof -> return n
-		       _ -> let n' = n + 1 
-		             in n' `seq` loop n'
-  let initialState = PState { 
-	alex_pos = Position "<stdin>" 1 1,
-	alex_inp = contents,
-	alex_names = names rootSupply,
-	alex_tdefs = Set.emptySet
-      }
-  case unP (loop 0) initialState of
-    POk _ len -> print len
-    PFailed message -> print message
-
-
 -- token definition
 -- ----------------
 
@@ -370,14 +339,11 @@ data CToken = CTokLParen   Position		-- `('
 	    | CTokTyIdent  Position Ident	-- `typedef-name' identifier
 	    | CTokGnuC GnuCTok Position		-- special GNU C tokens
 	    | CTokEof				-- end of file
-  deriving Show
 
 -- special tokens used in GNU C extensions to ANSI C
 --
 data GnuCTok = GnuCAttrTok		-- `__attribute__'
 	     | GnuCExtTok		-- `__extension__'
-	     deriving (Eq, Show)
--- TODO eliminate extension token, just ignore them
 
 instance Pos CToken where
   posOf (CTokLParen   pos  ) = pos
@@ -469,7 +435,6 @@ instance Pos CToken where
   posOf (CTokTyIdent  pos _) = pos
   posOf (CTokGnuC   _ pos  ) = pos
 
-{-
 instance Show CToken where
   showsPrec _ (CTokLParen   _  ) = showString "("
   showsPrec _ (CTokRParen   _  ) = showString ")"
@@ -557,105 +522,10 @@ instance Show CToken where
   showsPrec _ (CTokFLit     _ s) = showString s
   showsPrec _ (CTokSLit     _ s) = showString s
   showsPrec _ (CTokIdent    _ i) = (showString . identToLexeme) i
-  showsPrec _ (CTokTypeName _ i) = (showString . identToLexeme) i
-  showsPrec _ (CTokGnuC   g _  ) = case g of
-				     GnuCAttrTok -> showString "__attribute__"
-				     GnuCExtTok  -> showString "__extension__"
--}
-{-
-instance Tag CToken where
-  tag CTokLParen   = 1
-  tag CTokRParen   = 2
-  tag CTokLBracket = 3
-  tag CTokRBracket = 4
-  tag CTokArrow    = 5
-  tag CTokDot      = 6
-  tag CTokExclam   = 7
-  tag CTokTilde    = 8
-  tag CTokInc      = 9
-  tag CTokDec      = 10
-  tag CTokPlus     = 11
-  tag CTokMinus    = 12
-  tag CTokStar     = 13
-  tag CTokSlash    = 14
-  tag CTokPercent  = 15
-  tag CTokAmper    = 16
-  tag CTokShiftL   = 17
-  tag CTokShiftR   = 18
-  tag CTokLess     = 19
-  tag CTokLessEq   = 20
-  tag CTokHigh     = 21
-  tag CTokHighEq   = 22
-  tag CTokEqual    = 23
-  tag CTokUnequal  = 24
-  tag CTokHat      = 25
-  tag CTokBar      = 26
-  tag CTokAnd      = 27
-  tag CTokOr	   = 28
-  tag CTokQuest    = 29
-  tag CTokColon    = 30
-  tag CTokAssign   = 31
-  tag CTokPlusAss  = 32
-  tag CTokMinusAss = 33
-  tag CTokStarAss  = 34
-  tag CTokSlashAss = 35
-  tag CTokPercAss  = 36
-  tag CTokAmpAss   = 37
-  tag CTokHatAss   = 38
-  tag CTokBarAss   = 39
-  tag CTokSLAss    = 40
-  tag CTokSRAss    = 41
-  tag CTokComma    = 42
-  tag CTokSemic    = 43
-  tag CTokLBrace   = 44
-  tag CTokRBrace   = 45
-  tag CTokEllipsis = 46
-  tag CTokAlignof  = 74
-  tag CTokAuto     = 76
-  tag CTokBreak    = 78
-  tag CTokCase     = 79
-  tag CTokChar     = 47
-  tag CTokConst    = 48
-  tag CTokContinue = 80
-  tag CTokDefault  = 81
-  tag CTokDo       = 82
-  tag CTokDouble   = 49
-  tag CTokElse     = 83
-  tag CTokEnum     = 50
-  tag CTokExtern   = 51
-  tag CTokFloat    = 52
-  tag CTokFor      = 84
-  tag CTokGoto     = 85
-  tag CTokIf       = 86
-  tag CTokInline   = 75
-  tag CTokInt      = 53
-  tag CTokLong     = 54
-  tag CTokRegister = 77
-  tag CTokRestrict = 55
-  tag CTokReturn   = 87
-  tag CTokShort    = 56
-  tag CTokSigned   = 57
-  tag CTokSizeof   = 58
-  tag CTokStatic   = 59
-  tag CTokStruct   = 60
-  tag CTokSwitch   = 88
-  tag CTokTypedef  = 61
-  tag CTokUnion    = 62
-  tag CTokUnsigned = 63
-  tag CTokVoid     = 64
-  tag CTokVolatile = 65
-  tag CTokWhile    = 89
-  tag (CTokCLit _)  = 66
-  tag (CTokILit _)  = 67
-  tag (CTokFLit _)  = 68
-  tag (CTokSLit _)  = 69
-  tag (CTokIdent _) = 70
-  tag (CTokTyIdent _) = 71
-  tag (CTokGnuC GnuCAttrTok) = 72
-  tag (CTokGnuC GnuCExtTok)  = 73
-  -- current max is 89 (see `CTokWhile')
--}
-  
+  showsPrec _ (CTokTyIdent  _ i) = (showString . identToLexeme) i
+  showsPrec _ (CTokGnuC GnuCAttrTok _) = showString "__attribute__"
+  showsPrec _ (CTokGnuC GnuCExtTok  _) = showString "__extension__"
+
 idkwtok :: Position -> String -> Name -> Set Ident -> CToken
 idkwtok pos ('a':'l':'i':'g':'n':'o':'f':[])			_ _  = CTokAlignof  pos
 idkwtok pos ('_':'_':'a':'l':'i':'g':'n':'o':'f':[])		_ _  = CTokAlignof  pos
@@ -728,56 +598,15 @@ oneChar ('\\':c:cs)  = case c of
 			 '?'  -> ('?', cs)
 			 '\'' -> ('\'', cs)
 			 '"'  -> ('"', cs)
-			 'x'  -> let (i, cs') = (head . readHex) cs
-				 in
-				 (toEnum i, cs')
-			 _    -> let (i, cs') = (head . readOct) (c:cs)
-				 in
-				 (toEnum i, cs')
+			 'x'  -> case head (readHex cs) of
+			           (i, cs') -> (toEnum i, cs')
+			 _    -> case head (readOct (c:cs)) of
+			           (i, cs') -> (toEnum i, cs')
 oneChar (c   :cs)    = (c, cs)
 
 normalizeEscapes [] = []
-normalizeEscapes cs = let (c, cs') = oneChar cs
-                       in c : normalizeEscapes cs'
-
-
--- -----------------------------------------------------------------------------
--- The input type
-
-
-type AlexInput = (Position, 	-- current position,
-		  String)	-- current input string
-
-alexInputPrevChar :: AlexInput -> Char
-alexInputPrevChar _ = error "alexInputPrevChar not used"
-
-alexGetChar :: AlexInput -> Maybe (Char,AlexInput)
-alexGetChar (p,[]) = Nothing
-alexGetChar (p,(c:s))  = let p' = alexMove p c in p' `seq`
-                           Just (c, (p', s))
-
-alexStartPos :: Position
-alexStartPos = Position "" 1 1
-
-alexMove :: Position -> Char -> Position
-alexMove (Position f l c) '\t' = Position f  l    (((c+7) `div` 8)*8+1)
-alexMove (Position f l c) '\n' = Position f (l+1)  1
-alexMove (Position f l c) _    = Position f  l    (c+1)
-
-{-
-alexScanTokens :: String -> [CToken]
-alexScanTokens str = go (alexStartPos,str)
-  where go inp@(pos,str) =
-	  case alexScan inp 0 of
-		AlexEOF -> []
-		AlexError _ -> error $ "lexical error at: " ++ show pos
-		AlexSkip  inp' len     -> go inp'
-		AlexToken inp' len act -> act pos len str : go inp'
--}
-
-token :: (Position -> CToken) -> Position -> Int -> String -> P CToken
-token tok pos _ _ = return (tok pos)
-
+normalizeEscapes cs = case oneChar cs of
+                        (c, cs') -> c : normalizeEscapes cs'
 
 adjustPos :: String -> Position -> Position
 adjustPos str (Position fname row _) = (Position fname' row' 0)
@@ -793,17 +622,41 @@ adjustPos str (Position fname row _) = (Position fname' row' 0)
     --
     dropWhite = dropWhile (\c -> c == ' ' || c == '\t')
 
+token :: (Position -> CToken) -> Position -> Int -> String -> P CToken
+token tok pos _ _ = return (tok pos)
+
 
 -- -----------------------------------------------------------------------------
--- The Parse Monad
+-- The input type
+
+type AlexInput = (Position, 	-- current position,
+		  String)	-- current input string
+
+alexInputPrevChar :: AlexInput -> Char
+alexInputPrevChar _ = error "alexInputPrevChar not used"
+
+alexGetChar :: AlexInput -> Maybe (Char,AlexInput)
+alexGetChar (p,[]) = Nothing
+alexGetChar (p,(c:s))  = let p' = alexMove p c in p' `seq`
+                           Just (c, (p', s))
+
+alexMove :: Position -> Char -> Position
+alexMove (Position f l c) '\t' = Position f  l    (((c+7) `div` 8)*8+1)
+alexMove (Position f l c) '\n' = Position f (l+1)  1
+alexMove (Position f l c) _    = Position f  l    (c+1)
+
+
+-- -----------------------------------------------------------------------------
+-- The lexer & parser monad
 
 data ParseResult a
   = POk !PState a
-  | PFailed String		-- The error message
+  | PFailed [String] Position	-- The error message and position
 
 data PState = PState { 
 	alex_pos :: !Position,	-- position at current input location
 	alex_inp :: String,	-- the current input
+	alex_last  :: CToken,	-- the previous token
 	alex_names :: [Name],	-- the name unique supply
 	alex_tdefs :: Set Ident	-- the set of typedef'ed identifiers
      }
@@ -813,17 +666,18 @@ newtype P a = P { unP :: PState -> ParseResult a }
 instance Monad P where
   return = returnP
   (>>=) = thenP
-  fail = failP
+  fail m = getPos >>= \pos -> failP pos [m]
 
-parse :: Monad m => P a -> [Ident] -> String -> m a
-parse (P parser) builtins input =
+execParser :: P a -> String -> Position -> [Ident] -> [Name] -> Either a ([String], Position)
+execParser (P parser) input pos builtins names =
   case parser initialState of
-    POk _ result -> return result
-    PFailed message -> fail message
+    POk _ result -> Left result
+    PFailed message pos -> Right (message, pos)
   where initialState = PState {
-          alex_pos = Position "" 1 1,
+          alex_pos = pos,
 	  alex_inp = input,
-	  alex_names = names rootSupply,
+	  alex_last = interr "CLexer.execParser: Touched undefined token!",
+	  alex_names = names,
 	  alex_tdefs = Set.mkSet builtins
         }
 
@@ -835,21 +689,31 @@ returnP a = P $ \s -> POk s a
 thenP :: P a -> (a -> P b) -> P b
 (P m) `thenP` k = P $ \s ->
 	case m s of
-		POk s' a    -> (unP (k a)) s'
-		PFailed err -> PFailed err
+		POk s' a        -> (unP (k a)) s'
+		PFailed err pos -> PFailed err pos
 
-failP :: String -> P a
-failP msg = P $ \_ -> PFailed msg
+failP :: Position -> [String] -> P a
+failP pos msg = P $ \_ -> PFailed msg pos
+
+lexicalError :: P a
+lexicalError = do
+  (pos, (c:cs)) <- getInput
+  failP pos
+        ["Lexical error!",
+         "The character " ++ show c ++ " does not fit here."]
+
+parseError :: P a
+parseError = do
+  tok <- getLastToken
+  failP (posOf tok)
+        ["Syntax error!",
+         "The symbol `" ++ show tok ++ "' does not fit here."]
 
 getNewName :: P Name
 getNewName = P $ \s@PState{alex_names=(n:ns)} -> POk s{alex_names=ns} n
 
 setPos :: Position -> P ()
 setPos pos = P $ \s -> POk s{alex_pos=pos} ()
-
---debugging version:
---setPos :: Position -> P ()
---setPos p = returnP ()
 
 getPos :: P Position
 getPos = P $ \s@PState{alex_pos=pos} -> POk s pos
@@ -858,7 +722,8 @@ getTypedefs :: P (Set Ident)
 getTypedefs = P $ \s@PState{alex_tdefs=tdefs} -> POk s tdefs
 
 addTypedef :: Ident -> P ()
-addTypedef ident = {-("addTypedef: " ++ show ident) `trace` -} (P $ \s@PState{alex_tdefs=tdefs} -> POk s{alex_tdefs = tdefs `Set.addToSet` ident} ())
+addTypedef ident = (P $ \s@PState{alex_tdefs=tdefs} ->
+                             POk s{alex_tdefs = tdefs `Set.addToSet` ident} ())
 
 getInput :: P AlexInput
 getInput = P $ \s@PState{alex_pos=p, alex_inp=i} -> POk s (p,i)
@@ -866,18 +731,26 @@ getInput = P $ \s@PState{alex_pos=p, alex_inp=i} -> POk s (p,i)
 setInput :: AlexInput -> P ()
 setInput (p,i) = P $ \s -> POk s{alex_pos=p, alex_inp=i} ()
 
+getLastToken :: P CToken
+getLastToken = P $ \s@PState{alex_last=tok} -> POk s tok
+
+setLastToken :: CToken -> P ()
+setLastToken tok = P $ \s -> POk s{alex_last=tok} ()
+
 lexToken :: P CToken
 lexToken = do
   inp@(pos, str) <- getInput
   case alexScan inp 0 of
     AlexEOF -> return CTokEof
-    AlexError inp' -> fail $ "lexical error at: " ++ show pos
+    AlexError inp' -> lexicalError
     AlexSkip  inp' len -> do
 	setInput inp'
 	lexToken
     AlexToken inp' len action -> do
 	setInput inp'
-	action pos len str
+	tok <- action pos len str
+	setLastToken tok
+	return tok
 
 lexC :: (CToken -> P a) -> P a
 lexC cont = do
