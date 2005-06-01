@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/08 03:21:13 $
+--  Version $Revision: 1.5 $ from $Date: 2005/06/01 19:07:49 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -171,7 +171,7 @@ foreign import ccall unsafe "&gtk_text_iter_free"
 text_iter_free :: Ptr TextIter -> FinalizerPtr TextIter
 text_iter_free _ = text_iter_free'
 
-#elif
+#else
 
 foreign import ccall unsafe "gtk_text_iter_free"
   text_iter_free :: Ptr TextIter -> IO ()

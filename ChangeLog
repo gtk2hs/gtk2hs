@@ -6,6 +6,10 @@
 	parser monad and use that do do propper error messages like in the
 	original lexer and parser.
 
+	* gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp: change an #elif with
+	an empty condition to a normal #else since older versions of gcc's cpp
+	traditional mode do not like the former construct.
+
 2005-06-01 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, configure.ac: Turn alex and happy into variables. 
