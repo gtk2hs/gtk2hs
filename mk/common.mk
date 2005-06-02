@@ -22,7 +22,7 @@ getVar   = $($(subst .,_,$(subst /,_,$(1)))_$(2))
 
 LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(addprefix -package ,$($(PKG)_PACKAGEDEPS)) \
-	$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LDFLAGS))
+	$(addprefix -optl,$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LDFLAGS)))
 
 #Using pattern rule here to prevent automake from understanding the rule
 #and falsely concluding that two source files will produce the same object

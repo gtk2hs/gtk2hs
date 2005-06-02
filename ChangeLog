@@ -43,6 +43,8 @@
 	whether we're runnning on a 32bit or 64bit machine. Also remove
 	EXTRA_HFILES variable from configure.ac since it is not used anywhere.
 
+	* mk/common.mk: pass all ld flags to ghc escaped with -optl.
+
 2005-06-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer2.x, tools/c2hs/c/CParser2.y: various tidying up;
