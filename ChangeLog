@@ -22,6 +22,9 @@
 	distribution tarball which should not need alex and happy since the
 	prebuilt source files will be included.
 
+	* mk/common.mk: stick the heap limit right down since the new parser
+	allows us to do this. Yay!
+
 2005-06-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer2.x, tools/c2hs/c/CParser2.y: various tidying up;

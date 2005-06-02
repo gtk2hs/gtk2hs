@@ -90,10 +90,13 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 
 if WIN32
 #It seems to take considerably more memory on win32. Not sure why.
-HSTOOLFLAGS = -H400m -M650m
+#Don't use -H{x}m in combination with -M{x}m on windows since it seems to
+#trigger wierd ghc rts behaviour.
+HSTOOLFLAGS = -M120m
 else
-#change this to -H350m -M400m for a release so more people can build ok
-HSTOOLFLAGS = -H350m -M400m
+#change this to -H50m -M80m for a release so more people can build ok
+#80Mb should be fine as it'll actually work in just 48Mb.
+HSTOOLFLAGS = -H50m -M80m
 endif
 
 .PHONY: debug
