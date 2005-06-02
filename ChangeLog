@@ -1,3 +1,14 @@
+2005-06-2 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/c2hs/c/CParser2.y: generalise the places where GNU C
+	attributes are allowed, so hopefully they are now allowed wherever the
+	old parser allowed them. Allow them after each declaration specifier
+	rather than just at the end of a sequence of declaration specifiers.
+	This fixes a parse error in the glib header files on windows. Also
+	rename the GNU C attributes non-terminal and make it possibly empty so
+	some other rules can be simplified. We still need a non-empty version
+	however in one place to avoid a shidt/reduce conflict.
+
 2005-06-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer2.x, tools/c2hs/c/CParser2.y: various tidying up;

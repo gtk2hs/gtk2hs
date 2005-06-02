@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty, Duncan Coutts
 --  Created: 29 May 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/06/01 18:06:36 $
+--  Version $Revision: 1.3 $ from $Date: 2005/06/02 00:10:06 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005 Duncan Coutts
@@ -339,18 +339,17 @@ declaration_list
 --
 declaration_specifiers :: { [CDeclSpec] }
 declaration_specifiers
-  : ignore_extension declaration_specifiers_					{ $2 }
-  | ignore_extension declaration_specifiers_ ignore_attrs			{ $2 }
+  : ignore_extension declaration_specifiers_			{ $2 }
 
 
 declaration_specifiers_ :: { [CDeclSpec] }
 declaration_specifiers_
-  : storage_class_specifier					{ [CStorageSpec $1] }
-  | storage_class_specifier declaration_specifiers_		{ CStorageSpec $1 : $2 }
-  | type_specifier						{ [CTypeSpec $1] }
-  | type_specifier declaration_specifiers_			{ CTypeSpec $1 : $2 }
-  | type_qualifier						{ [CTypeQual $1] }
-  | type_qualifier declaration_specifiers_			{ CTypeQual $1 : $2 }
+  : storage_class_specifier gnuc_attrs				{ [CStorageSpec $1] }
+  | storage_class_specifier gnuc_attrs declaration_specifiers_	{ CStorageSpec $1 : $3 }
+  | type_specifier gnuc_attrs					{ [CTypeSpec $1] }
+  | type_specifier gnuc_attrs declaration_specifiers_		{ CTypeSpec $1 : $3 }
+  | type_qualifier gnuc_attrs					{ [CTypeQual $1] }
+  | type_qualifier gnuc_attrs declaration_specifiers_		{ CTypeQual $1 : $3 }
 
 
 -- parse C init declarator (K&R A8)
@@ -508,11 +507,9 @@ enumerator
 --
 declarator :: { CDeclr }
 declarator
-  : pointer ignore_attrs direct_declarator		{% withAttrs $1 $ CPtrDeclr (map unL $1) $3 }
-  | pointer direct_declarator ignore_attrs		{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
-  | pointer direct_declarator				{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
-  | direct_declarator					{ $1 }
-  | direct_declarator ignore_attrs			{ $1 }
+  : pointer direct_declarator gnuc_attrs 			{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
+  | pointer gnuc_attrs_nonempty direct_declarator gnuc_attrs 	{% withAttrs $1 $ CPtrDeclr (map unL $1) $3 }
+  | direct_declarator gnuc_attrs				{ $1 }
 
 
 direct_declarator :: { CDeclr }
@@ -839,10 +836,16 @@ ignore_extension
 
 -- parse GNU C attribute annotation (junking the result)
 --
-ignore_attrs ::	{ () }
-ignore_attrs
-  : gnuc_attribute_specifier			{ () }
-  | ignore_attrs gnuc_attribute_specifier	{ () }
+gnuc_attrs ::	{ () }
+gnuc_attrs
+  : {- empty -}						{ () }
+  | gnuc_attrs gnuc_attribute_specifier			{ () }
+
+
+gnuc_attrs_nonempty :: { () }
+gnuc_attrs_nonempty
+  : gnuc_attribute_specifier				{ () }
+  | gnuc_attrs_nonempty gnuc_attribute_specifier	{ () }
 
 
 gnuc_attribute_specifier :: { () }
