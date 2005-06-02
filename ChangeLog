@@ -25,6 +25,10 @@
 	* mk/common.mk: stick the heap limit right down since the new parser
 	allows us to do this. Yay!
 
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: use pixbuf_savev_utf8 rather
+	than pixbuf_savev only after Gtk+ 2.6.5 since this is when it was
+	first added. This fixes building on widows with Gtk+ 2.6.0 to 2.6.4.
+
 2005-06-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer2.x, tools/c2hs/c/CParser2.y: various tidying up;

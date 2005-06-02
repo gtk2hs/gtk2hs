@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/14 01:54:26 $
+--  Version $Revision: 1.5 $ from $Date: 2005/06/02 00:47:39 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -301,7 +301,7 @@ pixbufSave pb fname iType options =
       valuePtrs <- mapM newUTFString values
       pokeArray keysPtr keyPtrs
       pokeArray valuesPtr valuePtrs
-#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,5)
       {# call unsafe pixbuf_savev_utf8 #}
 #else
       {# call unsafe pixbuf_savev #}
