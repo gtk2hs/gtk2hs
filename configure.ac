@@ -70,7 +70,7 @@ dnl Check for library pre- and suffixes.
 if test x$EXEEXT = x; then
   dnl must be unix
   HSCFLAGS=;
-  C2HSFLAGS=" -C-D__signed=signed";
+  C2HSFLAGS=;
   dnl Where are we? (only used during configuration)
   CREATE_TYPES="plugNsocket default";
   STARTUP_CODE=;
@@ -451,6 +451,20 @@ if test $USE_GCLOSUE_SIGNALS_IMPL = yes; then
 	AC_DEFINE(USE_GCLOSUE_SIGNALS_IMPL, [], [Use the new GClosure based signals implementation.])
 fi
 AM_CONDITIONAL(USE_GCLOSUE_SIGNALS_IMPL, test "$USE_GCLOSUE_SIGNALS_IMPL" = "yes")
+
+dnl The following is a check that is only needed by gtk2hs cvs users who
+dnl upgrade from an earlier version which used to use "config.h" rather than
+dnl "gtk2hs-config.h". The "config.h" file sometimes clashed with the file of
+dnl the same name from ghc. In particular it can cause the alex lexer to be
+dnl misconpiled on big endian machines. So we want to make sure that the file
+dnl does not exist. If it does we'll ask the user to remove it.
+if test -f ${srcdir}/config.h; then
+  AC_MSG_ERROR([You appear to be upgrading Gtk2Hs without starting with a
+		clean build tree. That's ok! But can you please delete the
+		old config.h and config.h.in files, since their presense can
+		cause build problems that are hard to track down.
+		After deleteing the two files you can re-run ./configure])
+fi
 
 dnl c2hs Dilemma.
 dnl Check if the user supplied a specific C->Haskell installation or wants to

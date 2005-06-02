@@ -32,6 +32,11 @@
 	* configure.ac: in packager mode make it default to --without-pkgreg
 	since this is what most packagers will want.
 
+	* configure.ac: add a test to detect if there is an old copy of
+	config.h hanging around that might mess up the build. Also remove the
+	-C-D__signed=signed option to c2hs since the c2hs lexer has recognised
+	__signed as an alias of signed for quite some time now.
+
 2005-06-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer2.x, tools/c2hs/c/CParser2.y: various tidying up;
