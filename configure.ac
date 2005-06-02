@@ -202,6 +202,7 @@ fi
 dnl packager mode is for people building packages, eg for linux distros.
 dnl in packager mode you do not get any optional dependancies unless you
 dnl explicitly ask for them with --enable-PACKAGE
+dnl also in packager mode it defaults to --without-pkgreg see below.
 dnl see http://www.onlamp.com/pub/a/onlamp/2005/03/31/packaging.html?page=2
 AC_ARG_ENABLE([packager-mode],
 	AS_HELP_STRING([--enable-packager-mode],
@@ -223,7 +224,7 @@ dnl Distributors usuall want to install into a temp directory without registerin
 dnl anything and leave the registering phase for a post-install action.
 AC_ARG_WITH(pkgreg,
             [  --without-pkgreg        Do not reigster Haskell packages (useful for distributors)],
-	    [PKGREG=$withval;],[PKGREG=yes;])
+	    [PKGREG=$withval;],[PKGREG=$automatic_detection;])
 AM_CONDITIONAL(ENABLE_PKGREG, test "$PKGREG" = "yes")
 
 dnl Check whether to use a local package file.
