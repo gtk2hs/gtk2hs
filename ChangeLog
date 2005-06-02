@@ -9,6 +9,19 @@
 	some other rules can be simplified. We still need a non-empty version
 	however in one place to avoid a shidt/reduce conflict.
 
+	* Makefile.am: include the parser and lexer .hs files in the
+	distributed sources list so that users will not need alex and happy
+	installed on their systems. Also make these files be cleaned only on
+	distclean rather than a normal clean.
+
+	* configure.ac: add an error message if one tries to configure using
+	an external c2hs since this doesn't work. Modify the tests for alex
+	and happy to only report errors if the tools would actually be needed.
+	This test should deal with the case of a cvs checkout in which case
+	alex and happy will be needed and should also deal with a normal
+	distribution tarball which should not need alex and happy since the
+	prebuilt source files will be included.
+
 2005-06-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer2.x, tools/c2hs/c/CParser2.y: various tidying up;

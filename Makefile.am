@@ -160,8 +160,10 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/c/CBuiltin.hs		\
 	tools/c2hs/c/C.hs			\
 	tools/c2hs/c/CLexer.hs			\
+	tools/c2hs/c/CLexer2.hs			\
 	tools/c2hs/c/CNames.hs			\
 	tools/c2hs/c/CParser.hs			\
+	tools/c2hs/c/CParser2.hs		\
 	tools/c2hs/c/CPretty.hs			\
 	tools/c2hs/c/CTrav.hs			\
 	tools/c2hs/chs/CHS.hs			\
@@ -177,9 +179,7 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/toplevel/c2hs_config.c
 
 nodist_tools_c2hs_c2hsLocal_SOURCES =		\
-	tools/c2hs/toplevel/C2HSConfig.hs       \
-	tools/c2hs/c/CParser2.hs                \
-	tools/c2hs/c/CLexer2.hs
+	tools/c2hs/toplevel/C2HSConfig.hs
 
 tools_c2hs_c2hsLocal_ALLSOURCES =		\
 	$(tools_c2hs_c2hsLocal_SOURCES)		\
@@ -197,7 +197,7 @@ tools/c2hs/c/CLexer2.hs : tools/c2hs/c/CLexer2.x
 tools/c2hs/c/CParser2.hs : tools/c2hs/c/CParser2.y
 	$(HAPPY) --ghc --array --coerce --strict -o $@ $<
 
-tools_c2hs_c2hsLocal_BUILDSOURCES =		\
+DISTCLEANFILES +=				\
 	tools/c2hs/c/CParser2.hs		\
 	tools/c2hs/c/CLexer2.hs
 
@@ -212,7 +212,6 @@ am_tools_c2hs_c2hsLocal_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(tools_c2hs_c2hsLocal_ALLSOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_c2hs_c2hsLocal_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
-CLEANFILES+= $(tools_c2hs_c2hsLocal_BUILDSOURCES)
 CLEANFILES+= tools/c2hs/c2hsLocal.deps
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))

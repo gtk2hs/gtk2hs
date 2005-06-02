@@ -503,6 +503,10 @@ if test $BUILT_IN_C2HS = yes; then
   END_NOT_NHC=;
 
 else
+  AC_MSG_ERROR([Using an external c2hs is not supported in this release,
+		though hopefully this feature will return in the next release.
+		Please try compiling with the built-in c2hs by omitting
+		--with-c2hs=... when calling ./configure .])
   AC_MSG_RESULT([external])
   case $C2HS in
     c2hs-gtk2hs) {
@@ -533,7 +537,13 @@ dnl The happy parser generator
 if test "$BUILT_IN_C2HS" = yes; then
   AC_PATH_PROG(HAPPY,happy, no)
   if test "$HAPPY" = no; then
-  AC_MSG_ERROR([Could not find happy which is needed to build c2hs.])
+    dnl We only need to complain if we would actually have to invoke happy
+    dnl which would not be the case for a normal distribution tarball in which
+    dnl the parser .hs file exists and is newer then the parser .y file	    
+    CParser=${srcdir}/tools/c2hs/c/CParser2
+    if test ! -f ${CParser}.hs -o ${CParser}.hs -ot ${CParser}.y; then
+      AC_MSG_ERROR([Could not find happy which is needed to build c2hs.])
+    fi
   fi
 fi
 
@@ -541,7 +551,13 @@ dnl The alex lexer generator
 if test "$BUILT_IN_C2HS" = yes; then
   AC_PATH_PROG(ALEX,alex, no)
   if test "$ALEX" = no; then
-  AC_MSG_ERROR([Could not find alex which is needed to build c2hs.])
+    dnl We only need to complain if we would actually have to invoke alex
+    dnl which would not be the case for a normal distribution tarball in which
+    dnl the lexer .hs file exists and is newer then the lexer .x file
+    CLexer=${srcdir}/tools/c2hs/c/CLexer2
+    if test ! -f ${CLexer}.hs -o ${CLexer}.hs -ot ${CLexer}.x; then
+      AC_MSG_ERROR([Could not find alex which is needed to build c2hs.])
+    fi
   fi
 fi
 
