@@ -88,24 +88,6 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 # Same for .chi
 .PRECIOUS: %.chi
 
-if WIN32
-#It seems to take considerably more memory on win32. Not sure why.
-#Don't use -H{x}m in combination with -M{x}m on windows since it seems to
-#trigger wierd ghc rts behaviour.
-HSTOOLFLAGS = -M120m
-else
-#change this to -H50m -M80m for a release so more people can build ok
-#80Mb should be fine as it'll actually work in just 48Mb.
-HSTOOLFLAGS = -H50m -M80m
-endif
-
-.PHONY: debug
-debug	:
-	@echo VPATH: $(VPATH)
-	@echo hs files: $(libgtk2hs_a_HSFILES)
-
-
-
 %.precomp :
 	$(strip $(C2HS) $(C2HS_FLAGS)		\
 	+RTS $(HSTOOLFLAGS) $(PROFFLAGS) -RTS		\

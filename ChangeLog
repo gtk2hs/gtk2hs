@@ -37,6 +37,12 @@
 	-C-D__signed=signed option to c2hs since the c2hs lexer has recognised
 	__signed as an alias of signed for quite some time now.
 
+	* mk/common.mk, configure.ac: move the decision about what to set for
+	the HSTOOLFLAGS from mk/common.mk to configure.ac which is a better
+	place to make the decision and where we have access to more like
+	whether we're runnning on a 32bit or 64bit machine. Also remove
+	EXTRA_HFILES variable from configure.ac since it is not used anywhere.
+
 2005-06-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CLexer2.x, tools/c2hs/c/CParser2.y: various tidying up;

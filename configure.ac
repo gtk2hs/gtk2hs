@@ -466,6 +466,23 @@ if test -f ${srcdir}/config.h; then
 		After deleteing the two files you can re-run ./configure])
 fi
 
+dnl Decide what default memory limits to use with the build tools (c2hs).
+dnl We generally want to keep them reasonably low without cutting it too close
+dnl to the absolute minimum.
+if test "$WIN32" = "yes"; then
+  dnl It seems to take considerably more memory on win32. Not sure why.
+  dnl Don't use -H{x}m in combination with -M{x}m on windows since it seems to
+  dnl trigger wierd ghc rts behaviour.
+  HSTOOLFLAGS="-M120m"
+else
+  dnl I'll actually work in just 68Mb so 80Mb should be fine and still allow it
+  dnl to run on 32bit 128Mb machines. 64bit machines need more obviously.
+  case SIZEOF_VOID_P in
+	4) HSTOOLFLAGS="-H50m -M80m";;
+	8) HSTOOLFLAGS="-H100m -M160m";;
+  esac
+fi
+
 dnl c2hs Dilemma.
 dnl Check if the user supplied a specific C->Haskell installation or wants to
 dnl use the version in the current search path (--with-c2hs-config=yes). 
@@ -616,7 +633,7 @@ AC_SUBST(VERSION)
 dnl Platform specific flags 
 AC_SUBST(HSCFLAGS)
 AC_SUBST(C2HSFLAGS)
-AC_SUBST(EXTRA_HFILES)
+AC_SUBST(HSTOOLFLAGS)
 dnl Versionitis
 AC_SUBST(CREATE_TYPES)
 AC_SUBST(GHCPKG_USE_AUTOLIBS)
