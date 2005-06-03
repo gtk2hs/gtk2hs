@@ -1,3 +1,17 @@
+2005-06-3 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.ac: use the correct variable in the 32bit/64bit test.
+	Since we're using the HSTOOLFLAGS when compiling .hs files, there's no
+	need to have -Hxm in the default HCFLAGS, so it's now just -O.
+
+	* acinclude.m4: fix macro to use the right variable, this fixes the
+	--enable-packager-mode
+
+	* mk/common.mk: use the HSTOOLFLAGS when compiling .hs files. Use the
+	user supplied CFLAGS LDFLAGS and CPPFLAGS in the .hsc to .hs rule.
+
+	* Makefile.am: use $(MAKE) rather than 'make' for systems with gmake.
+
 2005-06-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CParser2.y: generalise the places where GNU C

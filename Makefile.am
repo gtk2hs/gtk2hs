@@ -1073,8 +1073,8 @@ DEMO_MAKE_ARGS= $(if $(PKGCONF), HCFLAGS="-package-conf $(DESTDIR)$(PKGCONF)") \
 
 installcheck-local:
 	$(foreach DEMO,$(DEMOS),$(strip	\
-		make -C $(DEMO) clean &&\
-		make -C $(DEMO) $(DEMO_MAKE_ARGS) &&	\
+		$(MAKE) -C $(DEMO) clean &&\
+		$(MAKE) -C $(DEMO) $(DEMO_MAKE_ARGS) &&	\
 	)) echo All demos compiled ok, now try running one or two...
 
 EXTRA_DIST +=								\

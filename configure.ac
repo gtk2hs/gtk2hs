@@ -109,7 +109,7 @@ AC_ARG_WITH(hc,
 	    [HC=$withval])
 
 AC_ARG_WITH(hcflags, 
-            [  --with-hcflags=HCFLAGS  flags for Haskell tools, default: -O -H180m],
+            [  --with-hcflags=HCFLAGS  flags for Haskell tools, default: -O],
 	    [HCFLAGS=$withval])
 
 
@@ -194,9 +194,9 @@ case "$host_os" in
           *) GHCPKG_BUILD_GHCI_LIB=--auto-ghci-libs;;
 esac
 
-dnl Optimise Haskell by default and give sufficient space.
+dnl Optimise Haskell by default.
 if test -z "$HCFLAGS"; then
-  HCFLAGS="-O -H180m"
+  HCFLAGS="-O"
 fi
 
 dnl packager mode is for people building packages, eg for linux distros.
@@ -477,7 +477,7 @@ if test "$WIN32" = "yes"; then
 else
   dnl I'll actually work in just 68Mb so 80Mb should be fine and still allow it
   dnl to run on 32bit 128Mb machines. 64bit machines need more obviously.
-  case SIZEOF_VOID_P in
+  case $ac_cv_sizeof_void_p in
 	4) HSTOOLFLAGS="-H50m -M80m";;
 	8) HSTOOLFLAGS="-H100m -M160m";;
   esac

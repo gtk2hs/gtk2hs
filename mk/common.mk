@@ -29,7 +29,8 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 #file even though the object files will be in different directories.
 #Obviously the 'subdir-objects' option only works for C/C++ files.
 %.o : %.hs $(CONFIG_HEADER)
-	$(strip $(HC) -c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
+	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
+	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
 	$(addprefix -package-name ,$(notdir $(basename $($(PKG)_PACKAGE)))) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
@@ -103,12 +104,10 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 
 .hsc.hs: $(CONFIG_HEADER)
 	$(strip $(HSC2HS) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
-        $(addprefix -L-optl,\
-	$(AM_LDFLAGS) $($(PKG)_LIBS)) \
-        $(addprefix -C,	$(filter-out -I%,$(AM_CPPFLAGS)) \
-	$($(PKG)_CFLAGS))\
-        $(filter -I%,$(AM_CPPFLAGS)) \
-	$($(PKG)_CPPFLAGS)\
+        $(addprefix -L-optl,$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LIBS)) \
+        $(addprefix -C,	$(filter-out -I%,$(AM_CPPFLAGS) $(CPPFLAGS)) \
+	$(addprefix -optc,$(AM_CFLAGS) $(CFLAGS) $($(PKG)_CFLAGS)))\
+        $(filter -I%,$(AM_CPPFLAGS) $(CPPFLAGS)) $($(PKG)_CPPFLAGS)\
 	-C'-optc-include' -C'-optc$(CONFIG_HEADER)' \
 	--include $($(PKG)_HEADER) \
         --cc=$(HC) --lflag=-no-hs-main $<)

@@ -100,7 +100,7 @@ AC_DEFUN([GTKHS_PKG_CHECK],
 # mode it defaults to no.
 AC_ARG_ENABLE($1,
 	AS_HELP_STRING([--enable-$1],[$5]),
-	[ENABLE_LIBGLADE=[$]enableval],[ENABLE_$3=[$]ENABLE_PKG_DEFAULT])
+	[ENABLE_$3=[$]enableval],[ENABLE_$3=[$]ENABLE_PKG_DEFAULT])
 
 if test "[$]ENABLE_$3" = "yes" || test "[$]ENABLE_$3" = "auto"; then
   PKG_CHECK_MODULES($3,$4,[ENABLE_$3=yes],
