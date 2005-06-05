@@ -1,3 +1,9 @@
+2005-06-5 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: instead of doing the .pkg/.cabal file substitution in
+	the install-data-local hook, do it in the install-exec-local hook
+	because this happens before the .pkg/.cabal files get installed.
+
 2005-06-3 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: use the correct variable in the 32bit/64bit test.

@@ -1109,7 +1109,7 @@ pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),PA
 
 # Before we install the .pkg/.cabal files we need to substitute for the ${pkglibdir}
 # and ${modules} variables.
-install-data-local:
+install-exec-local:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	sed 's:$${pkglibdir}:$(pkglibdir):g' $(call getVar,$(pkgname),PACKAGE) \
 	| sed 's:$${modules}:$(call getModules,$(pkgname)):' \
