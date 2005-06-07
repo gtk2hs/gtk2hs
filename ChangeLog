@@ -11,6 +11,10 @@
 	LDFLAGS are not used as the FILTER_(C|LD)FLAGS as implicitly happened
 	before and which caused build problems on OpenBSD.
 
+	* configure.ac: make sure we only fail due to problems with the
+	version of happy if we would actually use happy during the build (ie
+	not in a normal distribution tarball).
+
 2005-06-7 Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac: Fail if happy version is less than 1.15.
