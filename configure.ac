@@ -576,6 +576,12 @@ if test "$BUILT_IN_C2HS" = yes; then
     if test ! -f ${CParser}.hs -o ${CParser}.hs -ot ${CParser}.y; then
       AC_MSG_ERROR([Could not find happy which is needed to build c2hs.])
     fi
+  else
+    AC_MSG_CHECKING([version of happy])
+    HAPPY_VERSION=`$HAPPY --version | $SED "s/[[^0-9.]*\([0-9.]*\) .*]/\1/"`;
+    AC_MSG_RESULT([$HAPPY_VERSION])
+    GTKHS_PROG_CHECK_VERSION($HAPPY_VERSION, -lt, 1.15.0, [
+  AC_MSG_ERROR([A newer version of happy is required.])])
   fi
 fi
 

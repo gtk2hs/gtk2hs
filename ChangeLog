@@ -1,3 +1,7 @@
+2005-06-7 Axel Simon <A.Simon@kent.ac.uk>
+
+	* configure.ac: Fail if happy version is less than 1.15.
+	
 2005-06-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: instead of doing the .pkg/.cabal file substitution in
