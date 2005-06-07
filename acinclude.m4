@@ -185,3 +185,43 @@ for FLAG in [$][$1]; do
 done;
 [$1]=[$]TMP_[$1]
 ])
+
+dnl GTKHS_PACKAGE_FILTER_CFLAGS(RESULT_CFLAGS, FILTER_CFLAGS, INPUT_CFLAGS)
+dnl
+dnl Assign to RESULT_CFLAGS only the INPUT_CFLAGS that refer to existing
+dnl directories and those that are not yet in the FILTER_CFLAGS.
+AC_DEFUN([GTKHS_PACKAGE_FILTER_CFLAGS],
+[
+RES=;
+for FLAG in $3; do
+  case [$]FLAG in
+	-I*) if test -d [$]{FLAG#-I}; then
+	       if test -z "`echo $2 | [$]GREP -e [$]FLAG`"; then
+	         RES="[$]RES [$]FLAG"; fi;
+	     fi;;
+	*) if test -z "`echo $2 | [$]GREP -e [$]FLAG`"; then
+	     RES="[$]RES [$]FLAG"; fi;;
+  esac
+done;
+$1=`echo [$]RES`;
+])
+
+dnl GTKHS_PACKAGE_FILTER_LIBS(RESULT_LIBS, FILTER_LIBS, INPUT_LIBS)
+dnl
+dnl Assign to RESULT_LIBS only the INPUT_LIBS that refer to existing
+dnl directories and those that are not yet in the FILTER_LIBS.
+AC_DEFUN([GTKHS_PACKAGE_FILTER_LIBS],
+[
+RES=;
+for FLAG in $3; do
+  case [$]FLAG in
+	-L*) if test -d [$]{FLAG#-L}; then
+	       if test -z "`echo $2 | [$]GREP -e [$]FLAG`"; then
+	         RES="[$]RES [$]FLAG"; fi;
+	     fi;;
+	*) if test -z "`echo $2 | [$]GREP -e [$]FLAG`"; then
+	     RES="[$]RES [$]FLAG"; fi;;
+  esac;
+done;
+$1=`echo [$]RES`;
+])

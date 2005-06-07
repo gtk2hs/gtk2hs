@@ -1,3 +1,16 @@
+2005-06-7 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* acinclude.m4: add two new macros to replace the checkDirs script.
+	GTKHS_PACKAGE_FILTER_CFLAGS(RESULT_CFLAGS, FILTER_CFLAGS, INPUT_CFLAGS)
+	and there is a similar one for LDFLAGS. It assigns to RESULT_CFLAGS
+	only the INPUT_CFLAGS that refer to existing directories and those
+	that are not yet in the FILTER_CFLAGS.
+
+	* configure.ac: change the calls to the checkDirs script for calls to
+	the two new macros. In particular the global user supplied CFLAGS and
+	LDFLAGS are not used as the FILTER_(C|LD)FLAGS as implicitly happened
+	before and which caused build problems on OpenBSD.
+
 2005-06-7 Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac: Fail if happy version is less than 1.15.
