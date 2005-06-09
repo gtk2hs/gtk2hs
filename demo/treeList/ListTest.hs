@@ -13,6 +13,8 @@ main = do
   (store, r, w, attrs) <- createStore
   tv <- newTreeViewWithModel store
   tv `treeViewSetHeadersVisible` True
+  sel <- treeViewGetSelection tv
+  sel `treeSelectionSetMode` SelectionMultiple
   win `containerAdd` tv
 
   -- add a single column
@@ -30,7 +32,7 @@ main = do
     w iter txt (Just "red") Nothing) 
     ["Hello", "how", "are", "you"]
 
-  tv `onButtonPress` showMenu tv
+  tv `onButtonPress` showMenu tv store sel
 
   -- show the widget and run the main loop
   widgetShow tv
@@ -67,16 +69,27 @@ createStore = do
   return (store, readStore, writeStore, [tAttr, fAttr, bAttr])
 
   
-showMenu :: TreeView -> Event -> IO Bool
-showMenu tv (Button { x=xPos, 
-		      y=yPos, 
-		      click=SingleClick, 
-		      button=RightButton }) = do
+showMenu :: TreeView -> ListStore -> TreeSelection -> Event -> IO Bool
+showMenu tv tm sel (Button { x=xPos, 
+			     y=yPos, 
+			     click=SingleClick, 
+			     button=RightButton }) = do
   res <- treeViewGetPathAtPos tv (round xPos, round yPos)
   case res of
     Nothing -> return ()
     (Just (tp, ti, _)) -> do
       putStrLn ("right click in cell "++(show tp))
+
+  -- first way to get the selected rows
+  treeSelectionSelectedForeach sel $ \ti -> do
+    path <- treeModelGetPath tm ti
+    putStrLn ("selected: "++show path)
+
+  -- second way to get the selected rows
+  rows <- treeSelectionGetSelectedRows sel
+  putStrLn ("selected rows: "++show rows)
+
   return True
+
 -- let Gtk handle normal button clicks
-showMenu tv _ = return False
+showMenu tv _ _ _ = return False

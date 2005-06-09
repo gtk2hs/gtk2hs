@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/14 01:50:40 $
+--  Version $Revision: 1.8 $ from $Date: 2005/06/09 18:58:18 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -199,7 +199,7 @@ treeSelectionSelectedForeach :: TreeSelectionClass self => self
  -> TreeSelectionForeachCB
  -> IO ()
 treeSelectionSelectedForeach self fun = do
-  fPtr <- mkTreeSelectionForeachFunc (\_ ti _ -> do
+  fPtr <- mkTreeSelectionForeachFunc (\_ _ ti -> do
     -- make a deep copy of the iterator. This makes it possible to store this
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
     -- passed to the function due to performance reasons. But since it is
@@ -221,7 +221,7 @@ type TreeSelectionForeachCB = TreeIter -> IO ()
 {#pointer TreeSelectionForeachFunc#}
 
 foreign import ccall "wrapper"  mkTreeSelectionForeachFunc ::
-  (Ptr () -> Ptr TreeIter -> Ptr () -> IO ()) -> IO TreeSelectionForeachFunc
+  (Ptr () -> Ptr () -> Ptr TreeIter -> IO ()) -> IO TreeSelectionForeachFunc
 
 #if GTK_CHECK_VERSION(2,2,0)
 -- | Creates a list of paths of all selected rows.

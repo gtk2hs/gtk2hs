@@ -1,3 +1,11 @@
+2005-06-9 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp: Fixed
+	treeSelectionSelectedForeach which had some arguments swapped
+	around, giving a Gtk-CRITICAL message and no selected rows.
+
+	* demo/treeList/ListTest.hs: Added two ways to get selected rows.
+	
 2005-06-7 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add two new macros to replace the checkDirs script.
