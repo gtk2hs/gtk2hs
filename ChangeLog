@@ -2,6 +2,8 @@
 
 	* INSTALL: Update install instructions.
 
+	* demo/hello/World.hs: Simplified the hello-world program.
+	
 2005-06-9 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp: Fixed
