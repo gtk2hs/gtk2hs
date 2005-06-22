@@ -1,7 +1,7 @@
 
 PROG  = gconfdemo
 SOURCES = GConfDemo.hs
-PACKAGES = gconf
+PACKAGES = gconf gtk
 
 $(PROG) : $(SOURCES)
 	$(HC) --make $< -o $@ -fglasgow-exts -fallow-overlapping-instances $(HCFLAGS) $(HCEXTRAFLAGS)

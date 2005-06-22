@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/10 23:30:40 $
+--  Version $Revision: 1.5 $ from $Date: 2005/06/22 16:00:48 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -19,6 +19,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- if gdk_visuals are implemented, do: get_visual
+--
+-- if gdk_colormaps are implemented, do: set_colormap, get_colormap
+--
+-- add draw_glyphs if we are desparate
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -26,16 +34,8 @@
 --
 -- Drawing primitives.
 --
--- * This module defines drawing primitives that can operate on 
---   'DrawWindow's, 'Pixmap's and 'Bitmap's.
---
--- TODO
---
--- * if gdk_visuals are implemented, do: get_visual
---
--- * if gdk_colormaps are implemented, do: set_colormap, get_colormap
---
--- * add draw_glyphs if we are desparate
+-- This module defines drawing primitives that can operate on 'DrawWindow's,
+-- 'Pixmap's and 'Bitmap's.
 --
 module Graphics.UI.Gtk.Gdk.Drawable (
   Drawable,

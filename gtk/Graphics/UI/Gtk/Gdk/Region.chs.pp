@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.6 $ from $Date: 2005/06/22 16:00:48 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -19,6 +19,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- The Span functions and callbacks are not implemented since retrieving
+-- a set of rectangles and working on them within Haskell seems to be easier.
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -28,11 +33,6 @@
 --
 -- * Regions consist of a set of non-overlapping rectangles. They are used to
 --   specify the area of a window which needs updating.
---
--- TODO
---
--- * The Span functions and callbacks are not implemented since retrieving
---   a set of rectangles and working on them within Haskell seems to be easier.
 --
 module Graphics.UI.Gtk.Gdk.Region (
   makeNewRegion,

@@ -1,3 +1,5 @@
+{-# OPTIONS -O #-}
+
 -- Example of an drawing graphics onto a canvas.
 import Graphics.UI.Gtk
 
@@ -15,6 +17,8 @@ main = do
   contain <- dialogGetUpper dia
   canvas <- drawingAreaNew
   canvas `onSizeRequest` return (Requisition 256 256)
+
+  -- create the Pixbuf
   pb <- pixbufNew ColorspaceRgb False 8 256 256
   pbData <- (pixbufGetPixels pb :: IO (PixbufData Int Word8))
   row <- pixbufGetRowstride pb
@@ -22,26 +26,33 @@ main = do
   bits <- pixbufGetBitsPerSample pb
   putStrLn ("bytes per row: "++show row++", channels per pixel: "++show chan++
 	    ", bits per sample: "++show bits)
-  sequence_ [writeArray pbData (x*chan+y*row) (fromIntegral x) >>
-	     writeArray pbData (1+x*chan+y*row) (fromIntegral y) >>
-	     writeArray pbData (2+x*chan+y*row) 0
-	     | x <- [0..255], y <- [0..255] ]
+
+  -- draw into the Pixbuf
+  doFromTo 0 255 $ \y ->
+    doFromTo 0 255 $ \x -> do
+      writeArray pbData (x*chan+y*row) (fromIntegral x)
+      writeArray pbData (1+x*chan+y*row) (fromIntegral y)
+      writeArray pbData (2+x*chan+y*row) 0
+
+  -- a function to update the Pixbuf
   blueRef <- newIORef 0
   dirRef <- newIORef True 
   let updateBlue = do
         blue <- readIORef blueRef
 	--print blue
-	let setBlue x i | x==256 = setBlue 0 (i-256*chan+row)
-			| i>2+255*chan+255*row = return ()
-			| otherwise =
-			    unsafeWrite pbData i blue >> setBlue (x+1) (i+chan)
+	doFromTo 0 255 $ \y ->
+          doFromTo 0 255 $ \x ->
 	-- Here, writeArray was replaced with unsafeWrite. The latter does
 	-- not check that the index is within bounds which has a tremendous
 	-- effect on performance.
-	--sequence_ [ unsafeWrite pbData (x+y) blue
-	--	   | x <- [2,(2+chan)..(2+255*chan)], y <- [0, row..(255*row)] ]
-	setBlue 0 2
+        --  writeArray  pbData (2+x*chan+y*row) blue  -- safe checked indexing
+            unsafeWrite pbData (2+x*chan+y*row) blue  -- unchecked indexing
+
+        -- arrange for the canvas to be redrawn now that we've changed
+        -- the Pixbuf
 	widgetQueueDraw canvas
+
+        -- update the blue state ready for next time
         dir <- readIORef dirRef
 	let diff = 4
 	let blue' = if dir then blue+diff else blue-diff
@@ -75,4 +86,24 @@ updateCanvas canvas pb Expose { region = region } = do
     drawPixbuf win gc pb x y x y (-1) (-1) RgbDitherNone 0 0
   return True
  
- 
+-- GHC is much better at opimising loops like this:
+--
+-- > doFromTo 0 255 $ \y ->
+-- >   doFromTo 0 255 $ \x -> do ...
+--
+-- Than it is at optimising loops like this:
+--
+-- > sequence_ [ do ...
+-- >           | x <- [0..255]
+-- >           , y <- [0..255] ]
+--
+-- The first kind of loop runs significantly faster (with GHC 6.2 and 6.4)
+
+{-# INLINE doFromTo #-}
+-- do the action for [from..to], ie it's inclusive.
+doFromTo :: Int -> Int -> (Int -> IO ()) -> IO ()
+doFromTo from to action =
+  let loop n | n > to   = return ()
+             | otherwise = do action n
+                              loop (n+1)
+   in loop from

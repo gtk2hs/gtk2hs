@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/16 10:20:50 $
+--  Version $Revision: 1.6 $ from $Date: 2005/06/22 16:00:48 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -25,7 +25,7 @@
 -- Portability : portable (depends on GHC)
 --
 module Graphics.UI.Gtk.Gdk.Events (
-  Modifier,		-- a mask of control keys
+  Modifier(..),		-- a mask of control keys
   Event(..),		-- information in event callbacks from Gdk
   marshExposeRect,
 
@@ -103,7 +103,7 @@ data Modifier
   | Apple
   -- | Compose is often labelled Alt Gr.
   | Compose
-  deriving (Bounded, Show)
+  deriving (Eq, Bounded)
 
 instance Enum Modifier where
   toEnum #{const GDK_SHIFT_MASK} = Shift

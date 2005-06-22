@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 6 March 99
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/31 18:17:37 $
+--  Version $Revision: 1.3 $ from $Date: 2005/06/22 16:01:21 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -80,7 +80,6 @@ data SwitchBoard = SwitchBoard {
 		     outDirSB  :: FilePath,	-- dir where generated files go
 		     headerSB  :: FilePath,	-- generated header file
 		     preCompSB :: Maybe FilePath,-- optional binary header r/w
-                     oldParsSB :: Bool,         -- use the old slow lexer/parser
 		     oldFFI    :: Bool,		-- GHC 4.XX compatible code
 		     chiPathSB :: [FilePath]	-- .chi file directories
 		   }
@@ -98,7 +97,6 @@ initialSwitchBoard  = SwitchBoard {
 			outDirSB  = "",
 			headerSB  = "",
 			preCompSB = Nothing,
-                        oldParsSB = False,
 			oldFFI	  = False,
 			chiPathSB = ["."]
 		      }
@@ -113,8 +111,7 @@ data Traces = Traces {
 	        tracePhasesSW  :: Bool,
 	        traceGenBindSW :: Bool,
 	        traceCTravSW   :: Bool,
-		dumpCHSSW      :: Bool,
-                dumpCASTSW     :: Bool
+		dumpCHSSW      :: Bool
 	      }
 
 -- trace setting on startup
@@ -126,6 +123,5 @@ initialTraces  = Traces {
 		   tracePhasesSW  = False,
 		   traceGenBindSW = False,
 		   traceCTravSW   = False,
-		   dumpCHSSW	  = False,
-                   dumpCASTSW     = False
+		   dumpCHSSW	  = False
 		 }

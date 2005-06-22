@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 25 August 1
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/31 18:17:37 $
+--  Version $Revision: 1.3 $ from $Date: 2005/06/22 16:01:21 $
 --
 --  Copyright (c) [2001..2004] Manuel M T Chakravarty
 --
@@ -45,8 +45,8 @@ import CAST
 -- pretty printing of AST nodes
 -- ----------------------------
 
---instance Show CDecl where
---  showsPrec _ = showString . render . pretty
+instance Show CDecl where
+  showsPrec _ = showString . render . pretty
 
 
 -- actual structure tree traversals

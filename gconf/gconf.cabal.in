@@ -4,14 +4,14 @@ license: LGPL
 license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
 stability: provisional
-homepage: http://gtk2hs.sourceforge.net/
+homepage: http://haskell.org/gtk2hs/
 exposed: True
 exposed-modules: ${modules}
-import-dirs: @hidir@/gconf
+import-dirs: "@hidir@/gconf"
 library-dirs: @GCONF_LIBDIR_CQ@
 hs-libraries: HSgconf
 extra-libraries: @GCONF_LIBS_CQ@
 include-dirs: @GCONF_CFLAGS_CQ@
 includes: gconf/gconf-client.h
 depends: glib-@PACKAGE_VERSION@
-extra-ld-opts: @GCONF_LIBEXTRA_CQ@
+ld-options: @GCONF_LIBEXTRA_CQ@

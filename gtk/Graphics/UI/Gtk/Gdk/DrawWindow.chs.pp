@@ -5,7 +5,7 @@
 --
 --  Created: 5 November 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/15 19:34:46 $
+--  Version $Revision: 1.5 $ from $Date: 2005/06/22 16:00:48 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -24,26 +24,26 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A "DrawWindow" is a rectangular region on the screen.
+-- A 'DrawWindow' is a rectangular region on the screen.
 --
--- * A "DrawWindow" is
---   used to implement high-level objects such as "Widget" and "Window"
---   on the GTK+ level. 
+module Graphics.UI.Gtk.Gdk.DrawWindow (
+-- A 'DrawWindow' is used to implement high-level objects such as 'Widget' and
+-- 'Window' on the Gtk+ level. 
 --
---  * Most widgets draws its content into a "DrawWindow", in particular
---    "DrawingArea" is nothing but a widget that contains a "DrawWindow".
---    This object derives from "Drawable" which defines the basic drawing
---    primitives.
---
+-- Most widgets draws its content into a 'DrawWindow', in particular
+-- 'DrawingArea' is nothing but a widget that contains a 'DrawWindow'.
+-- This object derives from 'Drawable' which defines the basic drawing
+-- primitives.
+
 -- * Class Hierarchy
 -- |
 -- @
--- |  "GObject"
--- |   +----"Drawable"
+-- |  'GObject'
+-- |   +----'Drawable'
 -- |         +----DrawWindow
 -- @
 --
-module Graphics.UI.Gtk.Gdk.DrawWindow (
+
 -- * Types
   DrawWindow,
   DrawWindowClass,

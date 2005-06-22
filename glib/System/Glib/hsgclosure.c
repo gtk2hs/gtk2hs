@@ -4,7 +4,7 @@
  *
  *  Created: 22 March 2005
  *
- *  Version $Revision: 1.1 $ from $Date: 2005/04/06 20:20:16 $
+ *  Version $Revision: 1.2 $ from $Date: 2005/06/22 16:00:47 $
  *
  *  Copyright (C) 2005 Duncan Coutts
  *
@@ -29,6 +29,19 @@
 #define WHEN_DEBUG(a) a
 #else
 #define WHEN_DEBUG(a)
+#endif
+
+#if __GLASGOW_HASKELL__<600
+/* compatability for GHC 5.04 */
+/* The hs_free_stable_ptr function (which is part of the Haskell FFI spec) was
+ * not added until GHC 6.0 so use the GHC-specific function instead: */
+#define hs_free_stable_ptr(a) freeStablePtr(a)
+/* GHC 5.04 does not have the rts_lock/rts_unlock functions,
+ * From looking at the _stub.c files produced by GHC 5.04 it appears that we
+ * do not need to replace these calls with anything else, so just define them
+ * to expand to nothing: */
+#define rts_lock()
+#define rts_unlock()
 #endif
 
 /* HsGClosure is a _private_ structure */

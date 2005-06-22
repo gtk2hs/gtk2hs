@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/06/02 00:47:39 $
+--  Version $Revision: 1.6 $ from $Date: 2005/06/22 16:00:48 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -18,6 +18,20 @@
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
+--
+-- TODO
+--
+-- if anybody writes an image manipulation program, do the checker board
+-- functions: gdk_pixbuf_composite_color_simple and
+-- gdk_pixbuf_composite_color. Moreover, do: pixbuf_saturate_and_pixelate
+--
+-- the animation functions
+--
+-- pixbuf loader
+--
+-- module interface
+--
+-- rendering function for Bitmaps and Pixmaps when the latter are added
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -37,24 +51,6 @@
 -- * 'Pixbuf's can be displayed on screen by either creating an 'Image' that
 --   from the 'Pixbuf' or by rendering (part of) the 'Pixbuf' into a
 --   vanilla widget like 'DrawWindow' using 'drawPixbuf'.
---
--- TODO
---
--- * if there is a portable way of modifying external arrays in Haskell do:
---	gdk_pixbuf_get_pixels, gdk_pixbuf_new_from_data, everything in
---	Inline data, 
---
--- * if anybody writes an image manipulation program, do the checker board
---   functions: gdk_pixbuf_composite_color_simple and
---   gdk_pixbuf_composite_color. Moreover, do: pixbuf_saturate_and_pixelate
---
--- * the animation functions
---
--- * pixbuf loader
---
--- * module interface
---
--- * rendering function for Bitmaps and Pixmaps when the latter are added
 --
 module Graphics.UI.Gtk.Gdk.Pixbuf (
   Pixbuf,
@@ -354,20 +350,28 @@ data InlineImage = InlineImage
 --   function uses a binary representation and therefore needs less space
 --   in the final executable. Save the image you want to include as
 --   @png@ and run: 
---   @echo #include \"my_image.h\" > my_image.c@
---   gdk-pixbuf-csource --raw --extern --name=my_image myimage.png >> my_image.c
---    on it. Write a header file @my_image.h@ containing:
---   @#include <gdk\gdk.h>
---   extern guint8 my_image\[\];@
---    and save it in the current directory.
+--
+-- > @echo #include "my_image.h" > my_image.c
+-- > gdk-pixbuf-csource --raw --extern --name=my_image myimage.png >> my_image.c
+--
+--   on it. Write a header file @my_image.h@ containing:
+--
+-- > #include <gdk\gdk.h>
+-- > extern guint8 my_image[];
+--
+--   and save it in the current directory.
 --   The created file can be compiled with: 
---   @cc -c my_image.c \`pkg-config --cflags gdk-2.0\`@
+--
+-- > cc -c my_image.c `pkg-config --cflags gdk-2.0`
+--
 --    into an object file which must be linked into your Haskell program by
 --   specifying @my_image.o@ and @\"-#include my_image.h\"@ on
 --   the command line of GHC.
---   Within you application you delcare a pointer to this image: 
---   @foreign label \"my_image\" myImage :: Ptr InlineImage@
---    Calling 'pixbufNewFromInline' with this pointer will
+--   Within you application you delcare a pointer to this image:
+--
+-- > foreign label "my_image" myImage :: Ptr InlineImage
+--
+--   Calling 'pixbufNewFromInline' with this pointer will
 --   return the image in the object file. Creating the C file with
 --   the @--raw@ flag will result in a non-compressed image in the
 --   object file. The advantage is that the picture will not be

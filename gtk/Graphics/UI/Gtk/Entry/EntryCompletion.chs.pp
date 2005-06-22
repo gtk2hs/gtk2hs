@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.13 $ from $Date: 2005/05/14 01:50:40 $
+--  Version $Revision: 1.14 $ from $Date: 2005/06/22 16:00:48 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -145,10 +145,10 @@ entryCompletionNew =
 -- | Gets the entry @completion@ has been attached to.
 --
 entryCompletionGetEntry :: EntryCompletion
- -> IO (Maybe Widget) -- ^ returns the entry @completion@ has been attached
-                      -- to.
+ -> IO (Maybe Entry) -- ^ returns the entry @completion@ has been attached to.
 entryCompletionGetEntry self =
-  maybeNull (makeNewObject mkWidget) $
+  maybeNull (makeNewObject mkEntry) $
+  liftM (castPtr :: Ptr Widget -> Ptr Entry) $
   {# call gtk_entry_completion_get_entry #}
     self
 

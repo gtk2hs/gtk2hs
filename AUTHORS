@@ -1,12 +1,13 @@
 Axel Simon		<as49@ukc.ac.uk>
+(original author and current developer)
+
+Duncan Coutts <duncan@coutts.uklinux.net>
+(current maintainer)
 
 with contributions from
 
 Manuel M. T. Chakravarty <chak@cse.unsw.edu.au>
 (c2hs and some sources and techniques)
-
-Duncan Coutts <duncan@coutts.uklinux.net>
-(sourceview, glade, gconf, general hackery)
 
 Jens Petersen <petersen@haskell.org>
 (RPMs and tons of other stuff)

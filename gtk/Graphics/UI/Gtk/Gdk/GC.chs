@@ -5,7 +5,7 @@
 --
 --  Created: 28 September 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/14 14:18:00 $
+--  Version $Revision: 1.5 $ from $Date: 2005/06/22 16:00:48 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -24,12 +24,22 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Graphics contexts.
---
--- * This module Graphics.UI.Gtk.Gdk.supplies graphics contexts  (GCs) which
--- are a convenient way to pass attributes to drawing functions.
+-- Graphics contexts - objects to encapsulate drawing properties
 --
 module Graphics.UI.Gtk.Gdk.GC (
+-- * Detail
+--
+-- | All drawing operations in Gdk take a graphics context (GC) argument. A
+-- graphics context encapsulates information about the way things are drawn,
+-- such as the foreground color or line width. By using graphics contexts, the
+-- number of arguments to each drawing call is greatly reduced, and
+-- communication overhead is minimized, since identical arguments do not need
+-- to be passed repeatedly.
+--
+-- Most values of a graphics context can be set at creation time by using
+-- 'gcNewWithValues'. A few of the values in the GC, such as the dash
+-- pattern, can only be set by the latter method.
+
   GC,
   GCClass,
   castToGC,

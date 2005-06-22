@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.4 $ from $Date: 2005/06/22 16:00:48 $
 --
 --  Copyright (C) 2002-2005 Jens Petersen
 --
@@ -19,16 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- Documentation
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
 -- Gdk keyval functions.
---
--- TODO
---
---  * Documentation
 --
 module Graphics.UI.Gtk.Gdk.Keys (
   keyvalName,

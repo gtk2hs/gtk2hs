@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Derived: 12 August 99
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/31 18:17:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/06/22 16:01:22 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -206,7 +206,6 @@ data Flag = CPPOpts String      -- additional options for C preprocessor
 	  | Output  String      -- file where the generated file should go
 	  | OutDir  String      -- directory where generates files should go
 	  | PreComp String      -- write or read a precompiled header
-          | OldParser           -- use the old lexer/parser
 	  | Version	        -- print version information on stderr
 	  | Error   String      -- error occured during processing of options
 	  deriving Eq
@@ -215,7 +214,6 @@ data DumpType = Trace	      -- compiler trace
 	      | GenBind	      -- trace `GenBind'
 	      | CTrav	      -- trace `CTrav'
 	      | CHS	      -- dump binding file
-              | CAST          -- dump the C AST
 	      deriving Eq
 
 -- option description suitable for `GetOpt'
@@ -258,10 +256,6 @@ options  = [
          ["precomp"]
          (ReqArg PreComp "FILE")
          "generate or read precompiled header file FILE",
-  Option []
-         ["old-parser"]
-         (NoArg OldParser)
-         "use the old C lexer/parser",
   Option ['v'] 
 	 ["version"] 
 	 (NoArg Version) 
@@ -274,7 +268,6 @@ dumpArg "trace"    = Dump Trace
 dumpArg "genbind"  = Dump GenBind
 dumpArg "ctrav"    = Dump CTrav
 dumpArg "chs"      = Dump CHS
-dumpArg "ast"      = Dump CAST
 dumpArg _          = Error "Illegal dump type."
 
 -- main process (set up base configuration, analyse command line, and execute
@@ -414,7 +407,6 @@ processOpt (Include dirs   )  = setInclude dirs
 processOpt (Output  fname  )  = setOutput  fname
 processOpt (OutDir  fname  )  = setOutDir  fname
 processOpt (PreComp fname  )  = setPreComp fname
-processOpt (OldParser      )  = setOldParser
 processOpt Version            = do
 			          (version, _, _) <- getId 
 			          putStrCIO (version ++ "\n")
@@ -484,7 +476,6 @@ setDump Trace    = setTraces $ \ts -> ts {tracePhasesSW  = True}
 setDump GenBind  = setTraces $ \ts -> ts {traceGenBindSW = True}
 setDump CTrav    = setTraces $ \ts -> ts {traceCTravSW   = True}
 setDump CHS      = setTraces $ \ts -> ts {dumpCHSSW	 = True}
-setDump CAST     = setTraces $ \ts -> ts {dumpCASTSW	 = True}
 
 -- set flag to keep the pre-processed header file
 --
@@ -534,11 +525,6 @@ setHeader fname  = setSwitch $ \sb -> sb {headerSB = fname}
 --
 setPreComp      :: FilePath -> CST s ()
 setPreComp fname = setSwitch $ \sb -> sb { preCompSB = Just fname }
-
--- set flag to use the old lexer/parser
---
-setOldParser :: CST s ()
-setOldParser  = setSwitch $ \sb -> sb {oldParsSB = True}
 
 
 -- compilation process

@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty, Duncan Coutts
 --  Created: 29 May 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/06/02 00:10:06 $
+--  Version $Revision: 1.2 $ from $Date: 2005/06/22 16:01:21 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005 Duncan Coutts
@@ -81,7 +81,7 @@
 --
 
 {
-module CParser2 (parseC) where
+module CParser (parseC) where
 
 import Monad	  (when)
 import Maybe      (catMaybes)
@@ -94,7 +94,7 @@ import Idents     (Ident)
 import Attributes (Attrs, newAttrs, newAttrsOnlyPos)
 
 import C2HSState  (CST, raiseFatal, getNameSupply)
-import CLexer2    (CToken(..), GnuCTok(..), lexC,
+import CLexer     (CToken(..), GnuCTok(..), lexC,
                    P, execParser, parseError, getNewName, addTypedef)
 import CAST       (CHeader(..), CExtDecl(..), CFunDef(..), CStat(..),
 		   CDecl(..), CDeclSpec(..), CStorageSpec(..), CTypeSpec(..),

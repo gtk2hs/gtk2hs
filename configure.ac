@@ -21,7 +21,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.7.9)
+AC_INIT(gtk2hs, 0.9.8)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.50
@@ -110,7 +110,7 @@ AC_ARG_WITH(hc,
 
 AC_ARG_WITH(hcflags, 
             [  --with-hcflags=HCFLAGS  flags for Haskell tools, default: -O],
-	    [HCFLAGS=$withval])
+	    [HCFLAGS=$withval],[HCFLAGS=-O])
 
 
 
@@ -194,9 +194,10 @@ case "$host_os" in
           *) GHCPKG_BUILD_GHCI_LIB=--auto-ghci-libs;;
 esac
 
-dnl Optimise Haskell by default.
-if test -z "$HCFLAGS"; then
-  HCFLAGS="-O"
+dnl Define WIN32 on win32 platform. Perhaps this should go in the
+dnl gtk2hs-config.h file?
+if test "$WIN32" = "yes"; then
+  AM_HCFLAGS="$AM_HCFLAGS -DWIN32"
 fi
 
 dnl packager mode is for people building packages, eg for linux distros.
@@ -208,23 +209,30 @@ AC_ARG_ENABLE([packager-mode],
 	AS_HELP_STRING([--enable-packager-mode],
         		[change configuration behavior to ease packaging]),
 	[if test x"${enableval}" = xyes; then
-		automatic_detection=no
+		packager_mode=yes
 	else
-		automatic_detection=yes
+		packager_mode=no
 	fi],
-	[automatic_detection=yes])
-if test "$automatic_detection" = "yes"; then
-	ENABLE_PKG_DEFAULT=auto
-else
+	[packager_mode=no])
+if test "$packager_mode" = "yes"; then
 	ENABLE_PKG_DEFAULT=no
+	PKGREG_DEFAULT=no
+else
+	ENABLE_PKG_DEFAULT=auto
+	PKGREG_DEFAULT=yes
 fi
+
+dnl If we're on windows then packager mode also indicates that we want to
+dnl build the installer (which means we delay some variable expansions in the
+dnl package files).
+AM_CONDITIONAL(WIN32_INSTALLER, test "$WIN32" = "yes" -a "$packager_mode" = "yes")
 
 dnl Check whether to register the packages with ghc-pkg
 dnl Distributors usuall want to install into a temp directory without registering
 dnl anything and leave the registering phase for a post-install action.
 AC_ARG_WITH(pkgreg,
             [  --without-pkgreg        Do not reigster Haskell packages (useful for distributors)],
-	    [PKGREG=$withval;],[PKGREG=$automatic_detection;])
+	    [PKGREG=$withval;],[PKGREG=$PKGREG_DEFAULT;])
 AM_CONDITIONAL(ENABLE_PKGREG, test "$PKGREG" = "yes")
 
 dnl Check whether to use a local package file.
@@ -236,6 +244,11 @@ dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
 PKG_CHECK_MODULES(GLIB,[gobject-2.0 >= 2.0.0])
 PKG_CHECK_MODULES(GTK,[gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
+
+dnl Find the Gtk installation prefix which is used in packager mode on windows
+dnl for preparing the package files.
+GTK_BASEPATH=`$PKG_CONFIG --variable=prefix gtk+-2.0`
+AC_SUBST(GTK_BASEPATH)
 
 dnl Check if user wants various optional bindings.
 dnl Defaults to auto, or in packager mode it defaults to no.
@@ -435,18 +448,16 @@ else
 fi;
 
 dnl Decide which signals implementation to use, it does not work with GHCi for
-dnl version of GHC up to 6.4, it is suppsoed to be fixed in 6.4.1, but we will
-dnl see about that when it comes out. However we will use it on sparc and amd64
-dnl since amd64 does not have a working ghci, and its ffi support is
-dnl insufficient for the old signals method. For sparc, the ghc ffi support is
-dnl also insufficient for the old signals method.
+dnl version of GHC up to 6.4, it is fixed in 6.4.1. However we will use it on
+dnl sparc and amd64 since amd64 does not have a working ghci, and its ffi
+dnl support is insufficient for the old signals method. For sparc, the ghc ffi
+dnl support is also insufficient for the old signals method.
 case "$host_cpu" in
   sparc*) USE_GCLOSUE_SIGNALS_IMPL=yes;;
-# x86_64*) USE_GCLOSUE_SIGNALS_IMPL=yes;; #enable this asap
+ x86_64*) USE_GCLOSUE_SIGNALS_IMPL=yes;;
        *) USE_GCLOSUE_SIGNALS_IMPL=no;;
 esac
-#enable the following when we know it works
-#GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4.1, [USE_GCLOSUE_SIGNALS_IMPL=yes])
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4.1, [USE_GCLOSUE_SIGNALS_IMPL=yes])
 if test $USE_GCLOSUE_SIGNALS_IMPL = yes; then
 	AC_DEFINE(USE_GCLOSUE_SIGNALS_IMPL, [], [Use the new GClosure based signals implementation.])
 fi
@@ -581,7 +592,7 @@ if test "$BUILT_IN_C2HS" = yes; then
     dnl We only need to complain if we would actually have to invoke happy
     dnl which would not be the case for a normal distribution tarball in which
     dnl the parser .hs file exists and is newer then the parser .y file
-    CParser=${srcdir}/tools/c2hs/c/CParser2
+    CParser=${srcdir}/tools/c2hs/c/CParser
     if test ! -f ${CParser}.hs -o ${CParser}.hs -ot ${CParser}.y; then
       AC_MSG_ERROR([$HAPPY_ERROR])
     fi
@@ -595,7 +606,7 @@ if test "$BUILT_IN_C2HS" = yes; then
     dnl We only need to complain if we would actually have to invoke alex
     dnl which would not be the case for a normal distribution tarball in which
     dnl the lexer .hs file exists and is newer then the lexer .x file
-    CLexer=${srcdir}/tools/c2hs/c/CLexer2
+    CLexer=${srcdir}/tools/c2hs/c/CLexer
     if test ! -f ${CLexer}.hs -o ${CLexer}.hs -ot ${CLexer}.x; then
       AC_MSG_ERROR([Could not find alex which is needed to build c2hs.])
     fi
@@ -635,6 +646,7 @@ AC_SUBST(PKGCONF)
 AC_SUBST(USE_CABAL)
 AC_SUBST(PKGEXT)
 AC_SUBST(HCFLAGS)
+AC_SUBST(AM_HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(HSC2HS)
 AC_SUBST(HSCPP)

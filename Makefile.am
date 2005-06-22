@@ -160,10 +160,8 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/c/CBuiltin.hs		\
 	tools/c2hs/c/C.hs			\
 	tools/c2hs/c/CLexer.hs			\
-	tools/c2hs/c/CLexer2.hs			\
 	tools/c2hs/c/CNames.hs			\
 	tools/c2hs/c/CParser.hs			\
-	tools/c2hs/c/CParser2.hs		\
 	tools/c2hs/c/CPretty.hs			\
 	tools/c2hs/c/CTrav.hs			\
 	tools/c2hs/chs/CHS.hs			\
@@ -191,19 +189,19 @@ tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
 tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi -fvia-C \
 	'-\#include<c2hs_config.h>'
 
-tools/c2hs/c/CLexer2.hs : tools/c2hs/c/CLexer2.x
+tools/c2hs/c/CLexer.hs : tools/c2hs/c/CLexer.x
 	$(ALEX) --ghc -o $@ $<
 
-tools/c2hs/c/CParser2.hs : tools/c2hs/c/CParser2.y
+tools/c2hs/c/CParser.hs : tools/c2hs/c/CParser.y
 	$(HAPPY) --ghc --array --coerce --strict -o $@ $<
 
 DISTCLEANFILES +=				\
-	tools/c2hs/c/CParser2.hs		\
-	tools/c2hs/c/CLexer2.hs
+	tools/c2hs/c/CParser.hs			\
+	tools/c2hs/c/CLexer.hs
 
 EXTRA_DIST +=					\
-	tools/c2hs/c/CParser2.y			\
-	tools/c2hs/c/CLexer2.x
+	tools/c2hs/c/CParser.y			\
+	tools/c2hs/c/CLexer.x
 
 tools_c2hs_c2hsLocal_HSFILES		= \
 	$(filter %.hs,$(tools_c2hs_c2hsLocal_ALLSOURCES))
@@ -257,6 +255,9 @@ libHSglib_a_SOURCES =	        		\
 
 if USE_GCLOSUE_SIGNALS_IMPL
 libHSglib_a_SOURCES += glib/System/Glib/hsgclosure.c
+# make calling an undefined function an error so we can catch changes in the
+# GHC RTS API:
+glib_System_Glib_hsgclosure_c_CFLAGS = -Werror-implicit-function-declaration
 endif
 
 html_HSFILES_EXCLUDE =				\
@@ -502,8 +503,7 @@ gtk_Graphics_UI_Gtk_Gdk_Region_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Drawable_hs_HCFLAGS	= -fglasgow-exts
 
 if WIN32
-libHSgtk_a_HCFLAGS				+= -DWIN32
-gtk_Graphics_UI_Gtk_General_General_hs_HCFLAGS	= '-\#include"gtk/wingtk.h"'
+gtk_Graphics_UI_Gtk_General_General_hs_HCFLAGS	= '-\#include"gtk/wingtk.h"' -I.
 endif
 
 libHSgtk_a_LIBADD =							\
@@ -1047,7 +1047,10 @@ endif #BUILDDOCS
 ################################################################################
 
 DEMOS = demo/hello demo/buttonbox demo/concurrent \
-	demo/graphic demo/treeList demo/unicode
+	demo/graphic demo/unicode
+if HAVE_GTK_VERSION_2_2
+DEMOS += demo/treeList demo/fastdraw
+endif
 if HAVE_GTK_VERSION_2_4
 DEMOS += demo/filechooser 
 endif
@@ -1068,7 +1071,7 @@ DEMOS += demo/mozembed
 endif
 
 # For the install check just make sure all the demo programs compile and link
-DEMO_MAKE_ARGS= $(if $(PKGCONF), HCFLAGS="-package-conf $(DESTDIR)$(PKGCONF)") \
+DEMO_MAKE_ARGS= $(if $(PKGCONF), HCFLAGS="-package-conf $(PKGCONF)") \
 		$(if $(GHCPKG_USE_AUTOLIBS),, HCNEEDSPACKAGE=yes) HC=$(HC)
 
 installcheck-local:
@@ -1096,7 +1099,9 @@ EXTRA_DIST +=								\
 		demo/sourceview/haskell.lang				\
 	demo/treeList/ListTest.hs demo/treeList/Makefile		\
 	demo/unicode/Arabic.hs demo/unicode/Makefile			\
-	demo/calc/CalcModel.hs demo/calc/Calc.hs demo/calc/Makefile
+	demo/calc/CalcModel.hs demo/calc/Calc.hs demo/calc/Makefile	\
+		demo/calc/calc.glade					\
+	demo/fastdraw/FastDraw.hs demo/fastdraw/Makefile
 
 #
 #       installing and registering packages with the Haskell compiler
@@ -1109,12 +1114,29 @@ pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),PA
 
 # Before we install the .pkg/.cabal files we need to substitute for the ${pkglibdir}
 # and ${modules} variables.
+if !WIN32_INSTALLER
 install-exec-local:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
-	sed 's:$${pkglibdir}:$(pkglibdir):g' $(call getVar,$(pkgname),PACKAGE) \
-	| sed 's:$${modules}:$(call getModules,$(pkgname)):' \
+	$(SED)	-e 's|$${pkglibdir}|$(pkglibdir)|g' \
+		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
+		$(call getVar,$(pkgname),PACKAGE) \
 	> $(call getVar,$(pkgname),PACKAGE).tmp; \
 	mv $(call getVar,$(pkgname),PACKAGE).tmp $(call getVar,$(pkgname),PACKAGE);)
+
+else WIN32_INSTALLER
+# Except on Windows if we're makeing an installer where we delay the variable
+# substitution, since the installer does that. So we still substitute for the
+# ${modules} variable, but we don't substitute for ${pkglibdir} and we
+# "reverse" substitute occurences of the Gtk installation prefix for
+# ${GTK_BASEPATH} (that is the string literal, not the value of the variable)
+install-exec-local:
+	$(foreach pkgname,$(pkglib_LIBRARIES), \
+	$(SED)	-e 's|$(GTK_BASEPATH)|$${GTK_BASEPATH}|g' \
+		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
+		$(call getVar,$(pkgname),PACKAGE) \
+	> $(call getVar,$(pkgname),PACKAGE).tmp; \
+	mv $(call getVar,$(pkgname),PACKAGE).tmp $(call getVar,$(pkgname),PACKAGE);)
+endif WIN32_INSTALLER
 
 COMMA := ,
 getModules =									\
@@ -1132,30 +1154,52 @@ if ENABLE_PKGREG
 # ghc-pkg at install time. That is usually left for a post-install action.
 # Therefore these actions can be disabled by ./configure --without-pkgreg
 
+if USE_CABAL
+
 install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	rm -f $(DESTDIR)$(pkglibdir)/$(patsubst lib%.a,%.o,$(pkgname)); \
-	sed 's:$${pkglibdir}:$(pkglibdir):g' $(call getVar,$(pkgname),PACKAGE) \
-	| sed 's:$${modules}:$(call getModules,$(pkgname)):' \
-	| $(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
-	--update-package $(GHCPKG_BUILD_GHCI_LIB);)
+	$(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) --auto-ghci-libs \
+	update $(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.cabal,$(pkgname));)
+
+uninstall-hook :
+	$(foreach pkgname,$(pkglib_LIBRARIES), \
+	  $(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) \
+	  unregister $(patsubst libHS%.a,%,$(pkgname))-$(PACKAGE_VERSION);) \
+	$(if $(PKGCONF),if test -f $(PKGCONF); then \
+	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
+	  rm -f $(PKGCONF) $(PKGCONF).old; fi; \
+	fi)
+
+else !USE_CABAL
+
+install-data-hook :
+	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
+	else echo "[]" > $(PKGCONF); fi;)
+	$(foreach pkgname,$(pkglib_LIBRARIES), \
+	rm -f $(DESTDIR)$(pkglibdir)/$(patsubst lib%.a,%.o,$(pkgname)); \
+	$(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
+	$(GHCPKG_BUILD_GHCI_LIB) --update-package --force \
+	--input-file=$(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.pkg,$(pkgname));)
 
 uninstall-hook :
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	  $(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
-	  --remove-package=`cat $(call getVar,$(pkgname),PACKAGE) \
-	  | $(GREP) name | $(SED) "s/ *name *= *\"\([a-zA-Z0-9]*\)\",/\1/"`;) \
+	  --remove-package=$(patsubst libHS%.a,%,$(pkgname));) \
 	$(if $(PKGCONF),if test -f $(PKGCONF); then \
 	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
-	  $(RM) $(PKGCONF) $(PKGCONF).old; fi; \
+	  rm -f $(PKGCONF) $(PKGCONF).old; fi; \
 	fi)
-else
+
+endif !USE_CABAL
+
+else !ENABLE_PKGREG
 
 install-data-hook :
 uninstall-hook :
 
-endif
+endif !ENABLE_PKGREG
 
 include mk/common.mk

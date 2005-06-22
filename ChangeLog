@@ -1,9 +1,141 @@
+2005-06-21 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* AUTHORS: note that Axel is author and developer and that Duncan is
+	current maintainer. Apparently this better reflects reality.
+
+	* demo/fastdraw/FastDraw.hs: change fastdraw demo to add more
+	comments and make it compile with -O by default (which makes a large
+	difference). Use a faster looping construct and add a comment
+	mentioning that GHC is better at optimising the doFromTo kind of loop
+	than the "sequence_ [ ... | x <- ... ]" kind of loop.
+
+2005-06-20 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp: change the return
+	type of entryCompletionGetEntry back to what it was previously which
+	is what it should be. It must have been accidentally changed in a
+	over-zelous merge from the generated modules. Found this accidental
+	change using new apidiff tool.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: export the Modifier data
+	constructors and make it an instance of Eq, but Show is probably not
+	necessary.
+
+	* gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/GC.chs, gtk/Graphics/UI/Gtk/Gdk/Gdk.chs,
+	gtk/Graphics/UI/Gtk/Gdk/Keys.chs,
+	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: tidy up the haddock header
+	docs. Move the TODO items so they don't appear in the generated docs.
+	
+	* configure.ac: Bump version to 0.9.8.
+
+2005-06-18 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* acinclude.m4: fix file name quoting in the .cabal files so that
+	paths with spaces in get read properly.
+
+	* gconf/gconf.cabal.in, glade/glade.cabal.in, glib/glib.cabal.in
+	gtk/gtk.cabal.in, mogul/mogul.cabal.in, mozembed/mozembed.cabal.in
+	sourceview/sourceview.cabal.in: put the import-dirs value in "" quotes
+	so that paths with spaces in get read properly (fixes installing on
+	Windows with GHC 6.4 and the default install location of "C:/Program
+	Files/..."). Also rename the field extra-ld-opts to ld-options since
+	that is what it should actually be called for the new cabal format
+	(fixes linker error when building gconf demo on OpenBSD).
+
+2005-06-16 Axel Simon <A.Simon@kent.ac.uk>
+
+	* glib/System/Glib/hsgclosure.c: add more compatability with GHC 5.04
+
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: Fixed some documentation.
+	
+2005-06-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.ac: enable the new GClosure-based signals implementation
+	for GHC 6.4.1 and later (for which it now works with GHCi).
+
+	* Makefile.am: the treeList and fastdraw demos require Gtk+ 2.2.
+
+	* glib/System/Glib/hsgclosure.c: add compatability for GHC 5.04.
+
+	* Makefile.am: use -Werror-implicit-function-declaration when
+	compiling glib/System/Glib/hsgclosure.c so we can catch changes in the
+	GHC RTS API.
+
+2005-06-15 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am: Use correct path to user-supplied package.conf file
+	when building demos. Add the --force flag to ghc-pkg to circumvent
+	a bug in earlier versions of ghc-pkg, namely that it not picks up
+	global packages when it checks that dependencies are satisfied.
+
+	* demo/gconf/Makefile: Add missing dependency on gtk. This only showed
+	when compiling with a local package file.
+
+2005-06-14 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: fix for ghc 6.4 on windows when compiling via C (which
+	is implied by -O), use -I. so that ghc can find #include"gtk/wingtk.h"
+	Add the fastdraw demo files to the EXTRA_DIST list and add the list of
+	demo that are built by the make installtest target.
+
+	* COPYING.LIB: update to LGPL 2.1 since virtually every module now
+	carries that license. A small number of modules carry LGPL 2.0 notices
+	but they also state that the licensee may at their discretion use any
+	later version of the LGPL license.
+
 2005-06-13 Axel Simon <A.Simon@kent.ac.uk>
 
 	* INSTALL: Update install instructions.
 
 	* demo/hello/World.hs: Simplified the hello-world program.
-	
+
+2005-06-13 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/fastdraw/FastDraw.hs demo/fastdraw/Makefile: these accidentally
+	did not get into the branch-0-9-8 because they were not in my checkout
+	when I did the branch.
+
+	* Makefile.am: use the correct ghc-pkg syntax for ghc-6.2 and earlier.
+
+	* configure.ac: use a more traditional way of setting an argument's
+	default value.
+
+	* tools/c2hs/c/CParser.hs tools/c2hs/c/CLexer.hs: remove the old lexer
+	and parser.
+
+	* tools/c2hs/c/CParser2.y tools/c2hs/c/CParser.y,
+	tools/c2hs/c/CLexer2.x tools/c2hs/c/CLexer.x: rename the new lexer and
+	parser (CLexer2.x, CParser2.y) to simply CLexer.x and CParser.y.
+
+	* Makefile.am, configure.ac: remove the old C lexer and parser and
+	rename the new lexer and parser (CLexer2.x, CParser2.y) to simply
+	CLexer.x and CParser.y.
+
+	* tools/c2hs/c/C.hs: use only the new lexer and parser rather than
+	using both with the decision made at runtime.
+
+	* tools/c2hs/toplevel/Main.hs, tools/c2hs/state/Switches.hs: remove
+	the command line switch which used to select which C parser
+	implementation to use. Also remove the debug option to dump the C AST
+	after parsing.
+
+	* tools/c2hs/base/syms/Attributes.hs, tools/c2hs/c/CAST.hs: remove
+	Show instances for the AST data types since they are no longer needed.
+
+	* tools/c2hs/c/CPretty.hs: add back the old Show instance for CDecl.
+
+2005-06-11 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: add demo/calc/calc.glade to EXTRA_DIST.
+
+2005-06-10 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.ac: bump version to 0.9.7.92, which is the second 0.9.8
+	release candidate.
+
 2005-06-9 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp: Fixed
@@ -11,7 +143,51 @@
 	around, giving a Gtk-CRITICAL message and no selected rows.
 
 	* demo/treeList/ListTest.hs: Added two ways to get selected rows.
-	
+
+2005-06-9 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.ac: Use the new GClosure based signals implementation on
+	x86_64 arch. Tidy up the packager mode logic to make it more
+	comprehensable and extensable.
+
+	* Makefile.am: use $(SED) rather than sed. Use sed -e s1 -e s2 rather
+	than multiple sed invocations in a pipeline. Use '|' character rather
+	than ':' as the sed 's' command seperator since paths on windows can
+	contain the ':', eg "c:\". Remove the sed substitution upon
+	registering since it is already done by the install-exec-local.
+	Split the install-data-hook and uninstall-hook into two versions
+	depending on USE_CABAL. This allows us to use the natural syntax for
+	both versions rather than having to try to find syntax that works with
+	both versions (anyway, the new cabal requires the version number as
+	part of the package name when unregistering).
+
+	* glib/glib.cabal.in, gtk/gtk.cabal.in, mogul/mogul.cabal.in,
+	glade/glade.cabal.in, gconf/gconf.cabal.in,
+	sourceview/sourceview.cabal.in, mozembed/mozembed.cabal.in: update the
+	homepage url to http://haskell.org/gtk2hs/
+
+	* mk/common.mk: add $(AM_HCFLAGS) everywhere we currently have
+	$(HCFLAGS), the HCFLAGS now belong to the user and are not set
+	anywhere by the build system (except by ./configure --with-hcflags=)
+	this allows the build system to use AM_HCFLAGS itself.
+
+	* configure.ac: ghc 6.4 has slightly different dependency chasing
+	behaviour (-M option) and it doesn't define WIN32 when cpp'ing .hs
+	files so the dep generation for mogul chokes on windows because in the
+	gtk/Graphics/UI/Gtk.hs file it conditionally imports things based on
+	WIN32 being defined. So we need to supply -DWIN32 more globally. So
+	set AM_HCFLAGS += -DWIN32 on win32. Also use AM_HCFLAGS for the
+	default flags rather than HCFLAGS. Add a couple things to make it
+	easier to generate the installer on windows. Set WIN32_INSTALLER if
+	we're in packager mode on windows and find the Gtk installation prefix
+	which is used in preparing the .pkg/.cabal files for the installer.
+
+	* Makefile.am: don't add -DWIN32 to the gtk package's HCFLAGS since
+	that is now added more globally. If WIN32_INSTALLER then do the
+	package file variable substitution differently because the windows
+	installer will do some of the substitutions later depending on where
+	Gtk and Gtk2Hs happen to get installed on the end users machine.
+
 2005-06-7 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* acinclude.m4: add two new macros to replace the checkDirs script.
@@ -28,6 +204,9 @@
 	* configure.ac: make sure we only fail due to problems with the
 	version of happy if we would actually use happy during the build (ie
 	not in a normal distribution tarball).
+
+	* configure.ac: bump version to 0.9.7.91, which is the first 0.9.8 
+	release candidate.
 
 2005-06-7 Axel Simon <A.Simon@kent.ac.uk>
 

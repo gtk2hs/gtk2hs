@@ -4,10 +4,10 @@ license: LGPL
 license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
 stability: provisional
-homepage: http://gtk2hs.sourceforge.net/
+homepage: http://haskell.org/gtk2hs/
 exposed: True
 exposed-modules: ${modules}
-import-dirs: @hidir@/sourceview
+import-dirs: "@hidir@/sourceview"
 library-dirs: @SOURCEVIEW_LIBDIR_CQ@
 hs-libraries: HSsourceview
 extra-libraries: @SOURCEVIEW_LIBS_CQ@
@@ -17,4 +17,4 @@ includes: gtksourceview/gtksourceview.h, gtksourceview/gtksourcemarker.h,
           gtksourceview/gtksourcetag.h, gtksourceview/gtksourcemarker.h,
           gtksourceview/gtksourceiter.h
 depends: gtk-@PACKAGE_VERSION@
-extra-ld-opts: @SOURCEVIEW_LIBEXTRA_CQ@
+ld-options: @SOURCEVIEW_LIBEXTRA_CQ@

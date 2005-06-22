@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty, Duncan Coutts
 --  Created: 24 May 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/06/01 18:06:36 $
+--  Version $Revision: 1.2 $ from $Date: 2005/06/22 16:01:20 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005 Duncan Coutts
@@ -64,8 +64,8 @@
 
 {
 
-module CLexer2 (CToken(..), GnuCTok(..), lexC,
-                P, execParser, parseError, getNewName, addTypedef) where 
+module CLexer (CToken(..), GnuCTok(..), lexC,
+               P, execParser, parseError, getNewName, addTypedef) where 
 
 import Char      (isDigit)
 import Numeric   (readDec, readOct, readHex)
@@ -75,11 +75,8 @@ import Errors    (interr)
 import UNames	 (Name)
 import Idents    (Ident, lexemeToIdent, identToLexeme)
 
-import Data.Set (Set)
+import Data.Set  (Set)
 import qualified Data.Set as Set (mkSet, addToSet, elementOf)
-
-import Data.FiniteMap (FiniteMap)
-import qualified Data.FiniteMap as Map
 
 }
 
@@ -526,6 +523,12 @@ instance Show CToken where
   showsPrec _ (CTokGnuC GnuCAttrTok _) = showString "__attribute__"
   showsPrec _ (CTokGnuC GnuCExtTok  _) = showString "__extension__"
 
+-- We use the odd looking list of string patterns here rather than normal
+-- string literals since GHC converts the latter into a sequence of string
+-- comparisons (ie a linear search) but it translates the former using its
+-- effecient pattern matching which gives us the expected radix-style search.
+-- This gives change makes a significant performance difference.
+--
 idkwtok :: Position -> String -> Name -> Set Ident -> CToken
 idkwtok pos ('a':'l':'i':'g':'n':'o':'f':[])			_ _  = CTokAlignof  pos
 idkwtok pos ('_':'_':'a':'l':'i':'g':'n':'o':'f':[])		_ _  = CTokAlignof  pos
@@ -613,12 +616,13 @@ adjustPos str (Position fname row _) = (Position fname' row' 0)
   where
     str'            = dropWhite . drop 1 $ str
     (rowStr, str'') = span isDigit str'
-    row'		 = read rowStr
-    str'''		 = dropWhite str''
-    fnameStr	 = takeWhile (/= '"') . drop 1 $ str'''
-    fname'		 = if (null str''' || head str''' /= '"')
-		      then fname
-		      else fnameStr --TODO check if same and share old value if possible
+    row'	    = read rowStr
+    str'''	    = dropWhite str''
+    fnameStr	    = takeWhile (/= '"') . drop 1 $ str'''
+    fname'	    | null str''' || head str''' /= '"'	= fname
+		    -- try and get more sharing of file name strings
+		    | fnameStr == fname			= fname
+		    | otherwise				= fnameStr
     --
     dropWhite = dropWhile (\c -> c == ' ' || c == '\t')
 

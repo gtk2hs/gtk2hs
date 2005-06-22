@@ -126,11 +126,7 @@ dnl
 AC_DEFUN([GTKHS_REFORMAT_PACKAGE_CFLAGS],
 [
 C=; [$2]=;
-if test "$USE_CABAL" = "yes"; then
-  SEP=", "; QUOTE=""
-else
-  SEP=","; QUOTE="\""
-fi
+SEP=", "; QUOTE="\""
 for FLAG in [$][$1]; do
   case [$]FLAG in
     -I*) [$2]="[$][$2][$]C[$]QUOTE[$]{FLAG#-I}$QUOTE"; C=$SEP;;
@@ -150,11 +146,7 @@ dnl
 AC_DEFUN([GTKHS_REFORMAT_PACKAGE_LIBS],
 [
 C_LIBS=; [$2]=; C_LDIR=; [$3]=; C_XTRA=; [$4]=; 
-if test "$USE_CABAL" = "yes"; then
-  SEP=", "; QUOTE=""
-else
-  SEP=","; QUOTE="\""
-fi
+SEP=","; QUOTE="\""
 for FLAG in [$][$1]; do
   case [$]FLAG in
     -l*) [$2]="[$][$2][$]C_LIBS[$]QUOTE[$]{FLAG#-l}$QUOTE"; C_LIBS=$SEP;;
