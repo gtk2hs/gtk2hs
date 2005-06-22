@@ -1,3 +1,14 @@
+2005-06-22 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: some minor fixes suggested by the debian packaging
+	people. Clean the generated .hs files for the parse & lexer on make
+	maintainerclean rather than on distclean. Use nobase_hi_DATA rather
+	than nobase_hi_SCRIPTS so that the .hi files do not get installed with
+	+x execute permissions. Include gtk2hs.haddock in the files that get
+	cleaned and make sure all the haddock index files get cleaned. Install
+	the gtk2hs.haddock file into the same dir as the html docs rather than
+	the directory below, by default.
+
 2005-06-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* AUTHORS: note that Axel is author and developer and that Duncan is

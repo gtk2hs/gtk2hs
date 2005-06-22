@@ -195,7 +195,7 @@ tools/c2hs/c/CLexer.hs : tools/c2hs/c/CLexer.x
 tools/c2hs/c/CParser.hs : tools/c2hs/c/CParser.y
 	$(HAPPY) --ghc --array --coerce --strict -o $@ $<
 
-DISTCLEANFILES +=				\
+MAINTAINERCLEANFILES =				\
 	tools/c2hs/c/CParser.hs			\
 	tools/c2hs/c/CLexer.hs
 
@@ -292,7 +292,7 @@ libHSglib_a_HSFILES  = \
 	$(filter %.hs,$(libHSglib_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSglib_a_SOURCES))
 
-nobase_hi_SCRIPTS = $(libHSglib_a_HSFILES:.hs=.hi)
+nobase_hi_DATA = $(libHSglib_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSglib_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.hi)
@@ -569,7 +569,7 @@ libHSgtk_a_HSFILES  = \
 	$(filter %.hs,$(libHSgtk_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgtk_a_ALLSOURCES))
 
-nobase_hi_SCRIPTS += $(libHSgtk_a_HSFILES:.hs=.hi)
+nobase_hi_DATA += $(libHSgtk_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSgtk_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)
@@ -624,7 +624,7 @@ am_libHSmogul_a_OBJECTS = \
 libHSmogul_a_HSFILES = $(libHSmogul_a_SOURCES)
 .PRECIOUS: $(libHSmogul_a_HSFILES:.hs=hi)
 
-nobase_hi_SCRIPTS += $(libHSmogul_a_HSFILES:.hs=.hi)
+nobase_hi_DATA += $(libHSmogul_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSmogul_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSmogul_a_HSFILES:.hs=.hi)
@@ -698,7 +698,7 @@ libHSglade_a_HSFILES  = \
 	$(filter %.hs,$(libHSglade_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSglade_a_ALLSOURCES))
 
-nobase_hi_SCRIPTS += $(libHSglade_a_HSFILES:.hs=.hi)
+nobase_hi_DATA += $(libHSglade_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSglade_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
@@ -799,7 +799,7 @@ libHSgconf_a_HSFILES  = \
 	$(filter %.hs,$(libHSgconf_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgconf_a_ALLSOURCES))
 
-nobase_hi_SCRIPTS += $(libHSgconf_a_HSFILES:.hs=.hi)
+nobase_hi_DATA += $(libHSgconf_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSgconf_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
@@ -895,7 +895,7 @@ libHSsourceview_a_HSFILES  = \
 	$(filter %.hs,$(libHSsourceview_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSsourceview_a_ALLSOURCES))
 
-nobase_hi_SCRIPTS += $(libHSsourceview_a_HSFILES:.hs=.hi)
+nobase_hi_DATA += $(libHSsourceview_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSsourceview_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
@@ -976,7 +976,7 @@ libHSmozembed_a_HSFILES  = \
 	$(filter %.hs,$(libHSmozembed_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSmozembed_a_ALLSOURCES))
 
-nobase_hi_SCRIPTS += $(libHSmozembed_a_HSFILES:.hs=.hi)
+nobase_hi_DATA += $(libHSmozembed_a_HSFILES:.hs=.hi)
 
 MOSTLYCLEANFILES += $(am_libHSmozembed_a_OBJECTS)
 MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
@@ -1015,19 +1015,17 @@ html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE) $(html_HSFILES_PREPROC),	\
 
 html_DATA =									\
 	$(foreach HSFILE, $(filter-out $(html_HSFILES_HIDDEN),$(html_HSFILES)),	\
-	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, docs/reference/%.html, 	\
+	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, docs/reference/%.html,	\
 		$(subst /,.,$(HSFILE:.uncpp=))))				\
 	docs/reference/haddock.css docs/reference/haskell_icon.gif		\
 	docs/reference/index.html docs/reference/doc-index.html			\
-	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y,	\
+	docs/reference/gtk2hs.haddock						\
+	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y :,	\
 		docs/reference/doc-index-$(LETTER).html) #missing letters Q and Z
 
-haddockifacedir = $(datadir)/doc/gtk2hs
-haddockiface_DATA = docs/reference/gtk2hs.haddock
+# --prologue=doc/reference/prologue.txt
 
-# --prologue=doc/prologue.txt
-
-$(html_DATA) docs/reference/gtk2hs.haddock : $(html_HSFILES)
+$(html_DATA) : $(html_HSFILES)
 	mkdir -p docs/reference
 	$(strip $(HADDOCK) --html --odir=docs/reference \
 		--title="Gtk2Hs" \
