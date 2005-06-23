@@ -1,3 +1,8 @@
+2005-06-23 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* docs/tutorial/Makefile: change the base url to point ot the 0.9.8
+	docs.
+
 2005-06-22 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: some minor fixes suggested by the debian packaging
