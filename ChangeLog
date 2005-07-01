@@ -1,3 +1,9 @@
+2005-07-1 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* sourceview/sourceview.cabal.in: switch the order of include files so
+	they get #included in the right order. This is possibly rather
+	fragile.
+
 2005-06-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* docs/tutorial/Makefile: change the base url to point ot the 0.9.8

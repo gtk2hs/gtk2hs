@@ -12,9 +12,10 @@ library-dirs: @SOURCEVIEW_LIBDIR_CQ@
 hs-libraries: HSsourceview
 extra-libraries: @SOURCEVIEW_LIBS_CQ@
 include-dirs: @SOURCEVIEW_CFLAGS_CQ@
-includes: gtksourceview/gtksourceview.h, gtksourceview/gtksourcemarker.h,
+includes: gtksourceview/gtksourcemarker.h,
           gtksourceview/gtksourcelanguagesmanager.h,
-          gtksourceview/gtksourcetag.h, gtksourceview/gtksourcemarker.h,
-          gtksourceview/gtksourceiter.h
+          gtksourceview/gtksourcetag.h,
+          gtksourceview/gtksourceiter.h,
+	  gtksourceview/gtksourceview.h
 depends: gtk-@PACKAGE_VERSION@
 ld-options: @SOURCEVIEW_LIBEXTRA_CQ@
