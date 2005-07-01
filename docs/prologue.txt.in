@@ -1,0 +1,9 @@
+API reference documentation for Gtk2Hs @PACKAGE_VERSION@.
+
+Gtk2Hs is a GUI library for Haskell based on Gtk+. <http://www.gtk.org/> Gtk+
+is an extensive and mature multi-platform toolkit for creating graphical user
+interfaces.
+
+See <http://haskell.org/gtk2hs/> for the latest news and documentation.
+
+Gtk+ and Gtk2Hs are Free Software licenced under the GNU LGPL.

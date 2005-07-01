@@ -89,7 +89,7 @@ else
   # to stdout the program will throw an IO exception and die without any
   # explanation. Apparently ghc 6.4 will make this better in that it will
   # display the exception so it will not be so confusing.
-  #STARTUP_CODE="-Xlinker --subsystem -Xlinker windows";
+  #STARTUP_CODE="-mwindows";
   STARTUP_CODE=;
 fi;
 
@@ -690,6 +690,7 @@ AC_OUTPUT([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
+  docs/prologue.txt
   glib/glib.pkg			glib/glib.cabal
   gtk/gtk.pkg			gtk/gtk.cabal
   mogul/mogul.pkg		mogul/mogul.cabal

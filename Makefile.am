@@ -261,8 +261,10 @@ glib_System_Glib_hsgclosure_c_CFLAGS = -Werror-implicit-function-declaration
 endif
 
 html_HSFILES_EXCLUDE =				\
-	glib/System/Glib/FFI.hs			\
 	glib/System/Glib/Signals.hs
+
+html_HSFILES_PREPROC = glib/System/Glib/FFI.hs
+html_HSFILES_HIDDEN  = glib/System/Glib/FFI.hs
 
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
@@ -489,8 +491,8 @@ EXTRA_libHSgtk_a_SOURCES =						\
 	gtk/Graphics/UI/Gtk/Embedding/Socket.chs			\
 	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
 
-html_HSFILES_PREPROC = gtk/Graphics/UI/Gtk.hs
-html_HSFILES_HIDDEN  = $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)		\
+html_HSFILES_PREPROC += gtk/Graphics/UI/Gtk.hs
+html_HSFILES_HIDDEN  += $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)		\
 			gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
@@ -1020,16 +1022,15 @@ html_DATA =									\
 	docs/reference/haddock.css docs/reference/haskell_icon.gif		\
 	docs/reference/index.html docs/reference/doc-index.html			\
 	docs/reference/gtk2hs.haddock						\
-	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y :,	\
+	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y 58,	\
 		docs/reference/doc-index-$(LETTER).html) #missing letters Q and Z
-
-# --prologue=doc/reference/prologue.txt
 
 $(html_DATA) : $(html_HSFILES)
 	mkdir -p docs/reference
 	$(strip $(HADDOCK) --html --odir=docs/reference \
 		--title="Gtk2Hs" \
 		--dump-interface=docs/reference/gtk2hs.haddock \
+		--prologue=docs/prologue.txt \
 		$^)
 
 .hs.hs.uncpp : $(CONFIG_HEADER)
