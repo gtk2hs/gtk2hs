@@ -4,6 +4,16 @@
 	they get #included in the right order. This is possibly rather
 	fragile.
 
+	* docs/prologue.txt.in: prologue text for the Haddock reference docs.
+
+	* Makefile.am: hide glib/System/Glib/FFI.hs rather than excluding it
+	so that haddock can find more links. Fix index name. Use prologue
+	text file.
+
+	* configure.ac: substitute the version number in docs/prologue.txt.in
+	and change the commented-out "no console window" linker command to a
+	shorter variant.
+
 2005-06-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* docs/tutorial/Makefile: change the base url to point ot the 0.9.8
