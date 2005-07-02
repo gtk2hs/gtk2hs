@@ -12,6 +12,10 @@
 	that object(Get|Set)Property had. Instead of these functions, users
 	can use type safe child attributes (not yet added).
 
+	* demo/treeList/ListTest.hs: show how to set an attribute on the
+	renderer that applies to all the rows, ie it's global rather than
+	being determined on a per-row bssis by the data model.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and

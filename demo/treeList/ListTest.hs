@@ -26,6 +26,10 @@ main = do
   tvc `treeViewColumnSetTitle` "My Title"
   treeViewColumnAssociate tRen attrs
 
+  -- set an attribute on the renderer that applies to all the rows, ie it's
+  -- global rather than being determined on a per-row bssis by the data model
+  cellRendererSetAttribute tRen cellEditable (Just True)
+
   -- fill the list with some entries
   mapM_ (\txt -> do
     iter <- listStoreAppend store
