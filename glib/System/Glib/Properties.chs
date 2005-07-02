@@ -5,7 +5,7 @@
 --
 --  Created: 16 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/07/02 19:22:04 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/02 23:24:37 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -92,7 +92,7 @@ objectSetPropertyInternal gtype valueSet prop obj val =
   allocaGValue $ \gvalue -> do
   valueInit gvalue gtype
   valueSet gvalue val
-  {# call unsafe g_object_set_property #}
+  {# call g_object_set_property #}
     (toGObject obj)
     propPtr
     gvalue

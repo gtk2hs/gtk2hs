@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.6 $ from $Date: 2005/07/02 23:24:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -133,7 +133,7 @@ cellEditable :: Attribute CellRendererText (Maybe Bool)
 cellEditable = Attribute ["editable","editable-set"] [TMboolean,TMboolean]
 	         (\mb -> return $ case mb of
 		   (Just bool) -> [GVboolean bool, GVboolean True]
-		   Nothing     -> [GVboolean True, GVboolean True])
+		   Nothing     -> [GVboolean True, GVboolean False])
 		 (\[GVboolean e, GVboolean s] -> return $
 		   if s then Just e else Nothing)
 
