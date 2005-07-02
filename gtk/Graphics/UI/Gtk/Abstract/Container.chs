@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/14 14:24:52 $
+--  Version $Revision: 1.10 $ from $Date: 2005/07/02 23:25:42 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -154,8 +154,6 @@ module Graphics.UI.Gtk.Abstract.Container (
   containerGetBorderWidth,
   containerGetResizeMode,
   containerSetResizeMode,
-  containerChildSetProperty,
-  containerChildGetProperty,
 
 -- * Attributes
   containerResizeMode,
@@ -187,9 +185,6 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import System.Glib.GList		(fromGList, toGList)
-{#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)
-import System.Glib.StoreValue		(GenericValue, valueSetGenericValue,
-					 valueGetGenericValue)
 import Graphics.UI.Gtk.General.Enums	(DirectionType(..), ResizeMode(..))
 
 {# context lib="gtk" prefix="gtk" #}
@@ -444,41 +439,6 @@ containerSetResizeMode self resizeMode =
   {# call gtk_container_set_resize_mode #}
     (toContainer self)
     ((fromIntegral . fromEnum) resizeMode)
-
--- TODO add doc on what child properties are
-
--- | Sets a child property for @child@ and the container.
---
-containerChildSetProperty :: (ContainerClass self, WidgetClass child) => self
- -> child             -- ^ @child@ - a widget which is a child of the container
- -> String            -- ^ @propertyName@ - the name of the property to set
- -> GenericValue      -- ^ @value@ - the value to set the property to
- -> IO ()
-containerChildSetProperty self child propertyName value =
-  withUTFString propertyName $ \propertyNamePtr ->
-  allocaGValue  $ \gvalue -> do
-  valueSetGenericValue gvalue value
-  {# call container_child_set_property #}
-    (toContainer self)
-    (toWidget child)
-    propertyNamePtr
-    gvalue
-
--- | Gets the value of a child property for @child@ and the container.
---
-containerChildGetProperty :: (ContainerClass self, WidgetClass child) => self
- -> child       -- ^ @child@ - a widget which is a child of the container
- -> String      -- ^ @propertyName@ - the name of the property to get
- -> IO GenericValue
-containerChildGetProperty self child propertyName =
-  withUTFString propertyName $ \propertyNamePtr ->
-  allocaGValue  $ \gvalue -> do
-  {# call unsafe container_child_get_property #}
-    (toContainer self)
-    (toWidget child)
-    propertyNamePtr
-    gvalue
-  valueGetGenericValue gvalue
 
 --------------------
 -- Attributes

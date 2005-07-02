@@ -7,6 +7,11 @@
 	* gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs: fix bug, setting
 	editable attribute to Nothing should set editable-set to False.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: remove
+	containerChild(Get|Set)Property since it suffers from the same problem
+	that object(Get|Set)Property had. Instead of these functions, users
+	can use type safe child attributes (not yet added).
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and
