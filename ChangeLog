@@ -16,6 +16,8 @@
 	renderer that applies to all the rows, ie it's global rather than
 	being determined on a per-row bssis by the data model.
 
+	* gtk/Graphics/UI/Gtk/General/General.chs: tidy up the documentation.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and

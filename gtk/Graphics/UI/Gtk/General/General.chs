@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/14 14:18:00 $
+--  Version $Revision: 1.9 $ from $Date: 2005/07/02 23:45:01 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -19,14 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- TODO
+--
+-- quitAddDestroy, quitAdd, quitRemove, inputAdd, inputRemove
+--
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- TODO
--- 
---  * quitAddDestroy, quitAdd, quitRemove, inputAdd, inputRemove
+-- library initialization, main event loop, and events
 --
 module Graphics.UI.Gtk.General.General (
 --  getDefaultLanguage,
@@ -97,7 +99,7 @@ import Graphics.UI.Gtk.General.Structs	(priorityLow, priorityDefaultIdle,
 --   initialization of the toolkit fails for whatever reason, an exception
 --   is thrown.
 --
--- * Throws: @ErrorCall "Cannot initialize GUI."@
+-- * Throws: @ErrorCall \"Cannot initialize GUI.\"@
 --
 initGUI :: IO [String]
 initGUI = do
@@ -117,23 +119,21 @@ initGUI = do
         mapM peekUTFString addrs'
         else error "Cannot initialize GUI."
 
--- | Inquire the number of events pending on the event
--- queue
+-- | Inquire the number of events pending on the event queue
 --
 eventsPending :: IO Int
 eventsPending  = liftM fromIntegral {#call unsafe events_pending#}
 
--- | Run GTK+'s main event loop.
+-- | Run the Gtk+ main event loop.
 --
 mainGUI :: IO ()
 mainGUI  = {#call main#}
 
 -- | Inquire the main loop level.
 --
--- * Callbacks that take more time to process can call 
---   'loopIteration' to keep the GUI responsive. Each time
---   the main loop is restarted this way, the main loop counter is
---   increased. This function returns this counter.
+-- * Callbacks that take more time to process can call 'mainIteration' to keep
+-- the GUI responsive. Each time the main loop is restarted this way, the main
+-- loop counter is increased. This function returns this counter.
 --
 mainLevel :: IO Int
 mainLevel  = liftM (toEnum.fromEnum) {#call unsafe main_level#}
@@ -145,23 +145,18 @@ mainQuit  = {#call main_quit#}
 
 -- | Process an event, block if necessary.
 --
--- * Returns @True@ if the 'loopQuit' was called while
---   processing the event.
+-- * Returns @True@ if 'mainQuit' was called while processing the event.
 --
 mainIteration :: IO Bool
 mainIteration  = liftM toBool {#call main_iteration#}
 
 -- | Process a single event.
 --
--- * Called with @True@, this function behaves as
---   'loopIteration' in that it waits until an event is available
---   for processing. The function will return immediately, if passed
---   @False@.
+-- * Called with @True@, this function behaves as 'mainIteration' in that it
+-- waits until an event is available for processing. It will return
+-- immediately, if passed @False@.
 --
--- * Returns @True@ if the 'loopQuit' was called while
---   processing the event.
---
-
+-- * Returns @True@ if the 'mainQuit' was called while processing the event.
 --
 mainIterationDo :: Bool -> IO Bool
 mainIterationDo blocking = 
@@ -234,14 +229,12 @@ timeoutAddFull fun pri msec = do
     nullPtr
     dPtr
 
--- | Remove a previously added timeout handler by its
--- 'TimeoutId'.
+-- | Remove a previously added timeout handler by its 'TimeoutId'.
 --
 timeoutRemove :: HandlerId -> IO ()
 timeoutRemove id = {#call unsafe g_source_remove#} id >> return ()
 
--- | Add a callback that is called whenever the system is
--- idle.
+-- | Add a callback that is called whenever the system is idle.
 --
 -- * A priority can be specified via an integer. This should usually be
 --   'priorityDefaultIdle'.
@@ -254,8 +247,7 @@ idleAdd fun pri = do
   {#call unsafe g_idle_add_full#} (fromIntegral pri) funPtr
     nullPtr dPtr
 
--- | Remove a previously added idle handler by its
--- 'TimeoutId'.
+-- | Remove a previously added idle handler by its 'TimeoutId'.
 --
 idleRemove :: HandlerId -> IO ()
 idleRemove id = {#call unsafe g_source_remove#} id >> return ()
