@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/05/16 10:10:14 $
+--  Version $Revision: 1.13 $ from $Date: 2005/07/02 23:51:10 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -142,6 +142,7 @@ module Graphics.UI.Gtk.Windows.Window (
 #endif
 
 -- * Attributes
+  windowTitle,
   windowType,
   windowAllowShrink,
   windowAllowGrow,
@@ -225,15 +226,13 @@ windowSetTitle self title =
 
 -- | Retrieves the title of the window. See 'windowSetTitle'.
 --
-windowGetTitle :: WindowClass self => self
- -> IO String -- ^ returns the title of the window, or {@NULL@, FIXME: this
-              -- should probably be converted to a Maybe data type} if none has
-              -- been set explicitely. The returned string is owned by the
-              -- widget and must not be modified or freed.
+windowGetTitle :: WindowClass self => self -> IO String
 windowGetTitle self =
   {# call gtk_window_get_title #}
     (toWindow self)
-  >>= peekUTFString
+  >>= \strPtr -> if strPtr == nullPtr
+                   then return ""
+                   else peekUTFString strPtr
 
 -- | Sets whether the user can resize a window. Windows are user resizable by
 -- default.
@@ -1274,6 +1273,13 @@ windowGetTypeHint self =
 
 --------------------
 -- Attributes
+
+-- | The title of the window.
+--
+windowTitle :: WindowClass self => Attr self String
+windowTitle = newAttr
+  windowGetTitle
+  windowSetTitle
 
 -- | The type of the window.
 --

@@ -18,6 +18,9 @@
 
 	* gtk/Graphics/UI/Gtk/General/General.chs: tidy up the documentation.
 
+	* gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: add windowTitle
+	attribute. Change windowGetTitle to cope with NULLs and fix docs.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and
