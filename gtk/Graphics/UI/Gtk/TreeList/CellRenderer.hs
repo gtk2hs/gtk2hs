@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/08 12:58:42 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/02 19:22:04 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -79,9 +79,14 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
   cellRendererGet
   ) where
 
+import Monad (zipWithM, zipWithM_)
+
 import Graphics.UI.Gtk.Types
-import System.Glib.StoreValue		(GenericValue, TMType)
-import Graphics.UI.Gtk.Abstract.Object	(objectSetProperty, objectGetProperty)
+import System.Glib.StoreValue	(GenericValue, TMType,
+                                 valueSetGenericValue, valueGetGenericValue)
+import qualified System.Glib.GTypeConstants as GType
+import System.Glib.Properties	(objectSetPropertyInternal,
+                                 objectGetPropertyInternal)
 
 -- | Definition of the 'Attribute' data type.
 --
@@ -101,9 +106,13 @@ data CellRendererClass cr => Attribute cr a = Attribute [String] [TMType]
 --
 cellRendererSet :: CellRendererClass cr => 
 		   cr -> Attribute cr val -> val -> IO ()
-cellRendererSet cr (Attribute names _ write _) val = do
+cellRendererSet cr (Attribute names types write _) val = do
   values <- write val
-  mapM_ (uncurry $ objectSetProperty cr) (zip names values)
+  sequence_ $ zipWith3 (\name tmtype value ->
+                            objectSetPropertyInternal
+                              (fromIntegral $ fromEnum tmtype)
+                              valueSetGenericValue name cr value)
+                names types values
 
 -- | Get a static property.
 --
@@ -114,6 +123,10 @@ cellRendererSet cr (Attribute names _ write _) val = do
 --
 cellRendererGet :: CellRendererClass cr =>
 		   cr -> Attribute cr val -> IO val
-cellRendererGet cr (Attribute names _ _ read) = do
-  values <- mapM (objectGetProperty cr) names
+cellRendererGet cr (Attribute names types _ read) = do
+  values <- zipWithM (\name tmtype ->
+                         objectGetPropertyInternal
+                           (fromIntegral $ fromEnum tmtype)
+                           valueGetGenericValue name cr)
+              names types
   read values

@@ -5,7 +5,7 @@
 --
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/14 14:16:03 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/02 19:22:03 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -44,6 +44,10 @@ module System.Glib.GValueTypes (
   valueGetFloat,
   valueSetDouble,
   valueGetDouble,
+  valueSetEnum,
+  valueGetEnum,
+  valueSetFlags,
+  valueGetFlags,
   valueSetString,
   valueGetString,
   valueSetMaybeString,
@@ -55,16 +59,15 @@ module System.Glib.GValueTypes (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Flags
 import System.Glib.UTFString
-import qualified System.Glib.GTypeConstants as GType
-{#import System.Glib.GValue#}		(GValue(GValue), valueInit)
+{#import System.Glib.GValue#}		(GValue(GValue))
 import System.Glib.GObject
 
 {# context lib="glib" prefix="g" #}
 
 valueSetUInt :: GValue -> Word -> IO ()
-valueSetUInt gvalue value = do 
-  valueInit gvalue GType.uint
+valueSetUInt gvalue value =
   {# call unsafe value_set_uint #} gvalue (fromIntegral value)
 
 valueGetUInt :: GValue -> IO Word
@@ -73,8 +76,7 @@ valueGetUInt gvalue =
   {# call unsafe value_get_uint #} gvalue
 
 valueSetInt :: GValue -> Int -> IO ()
-valueSetInt gvalue value = do 
-  valueInit gvalue GType.int
+valueSetInt gvalue value =
   {# call unsafe value_set_int #} gvalue (fromIntegral value)
 
 valueGetInt :: GValue -> IO Int
@@ -84,8 +86,7 @@ valueGetInt gvalue =
 
 {-
 valueSetUChar :: GValue -> Word8 -> IO ()
-valueSetUChar gvalue value = do 
-  valueInit gvalue GType.uchar
+valueSetUChar gvalue value =
   {# call unsafe value_set_uchar #} gvalue value
 
 valueGetUChar :: GValue -> IO Word8
@@ -93,8 +94,7 @@ valueGetUChar gvalue =
   {# call unsafe value_get_uchar #} gvalue
 
 valueSetChar :: GValue -> {#type gchar#} -> IO ()
-valueSetChar gvalue value = do 
-  valueInit gvalue GType.char
+valueSetChar gvalue value =
   {# call unsafe value_set_char #} gvalue value
 
 valueGetChar :: GValue -> IO {#type gchar#}
@@ -103,8 +103,7 @@ valueGetChar gvalue =
 -}
 
 valueSetBool :: GValue -> Bool -> IO ()
-valueSetBool gvalue value = do 
-  valueInit gvalue GType.bool
+valueSetBool gvalue value =
   {# call unsafe value_set_boolean #} gvalue (fromBool value)
 
 valueGetBool :: GValue -> IO Bool
@@ -115,8 +114,7 @@ valueGetBool gvalue =
 -- These functions should probably never be used as they are dangerous.
 --
 valueSetPointer :: GValue -> (Ptr ()) -> IO ()
-valueSetPointer gvalue value = do 
-  valueInit gvalue GType.pointer
+valueSetPointer gvalue value =
   {# call unsafe value_set_pointer #} gvalue value
 
 valueGetPointer :: GValue -> IO (Ptr ())
@@ -124,8 +122,7 @@ valueGetPointer gvalue =
   {# call unsafe value_get_pointer #} gvalue
 
 valueSetFloat :: GValue -> Float -> IO ()
-valueSetFloat gvalue value = do 
-  valueInit gvalue GType.float
+valueSetFloat gvalue value =
   {# call unsafe value_set_float #} gvalue (realToFrac value)
 
 valueGetFloat :: GValue -> IO Float
@@ -134,8 +131,7 @@ valueGetFloat gvalue =
   {# call unsafe value_get_float #} gvalue
 
 valueSetDouble :: GValue -> Double -> IO ()
-valueSetDouble gvalue value = do
-  valueInit gvalue GType.double
+valueSetDouble gvalue value =
   {# call unsafe value_set_double #} gvalue (realToFrac value)
 
 valueGetDouble :: GValue -> IO Double
@@ -143,11 +139,28 @@ valueGetDouble gvalue =
   liftM realToFrac $
   {# call unsafe value_get_double #} gvalue
 
+valueSetEnum :: Enum enum => GValue -> enum -> IO ()
+valueSetEnum gvalue value =
+  {# call unsafe value_set_enum #} gvalue (fromIntegral $ fromEnum value)
+
+valueGetEnum :: Enum enum => GValue -> IO enum
+valueGetEnum gvalue =
+  liftM (toEnum . fromIntegral) $
+  {# call unsafe value_get_enum #} gvalue
+
+valueSetFlags :: Flags flag => GValue -> [flag] -> IO ()
+valueSetFlags gvalue value =
+  {# call unsafe value_set_flags #} gvalue (fromIntegral $ fromFlags value)
+
+valueGetFlags :: Flags flag => GValue -> IO [flag]
+valueGetFlags gvalue =
+  liftM (toFlags . fromIntegral) $
+  {# call unsafe value_get_flags #} gvalue
+
 valueSetString :: GValue -> String -> IO ()
-valueSetString gvalue str = do
-  valueInit gvalue GType.string
-  strPtr <- newUTFString str
-  {# call unsafe value_set_static_string #} gvalue strPtr
+valueSetString gvalue str =
+  withUTFString str $ \strPtr ->
+  {# call unsafe value_set_string #} gvalue strPtr
 
 valueGetString :: GValue -> IO String
 valueGetString gvalue = do
@@ -157,13 +170,11 @@ valueGetString gvalue = do
     else peekUTFString strPtr
 
 valueSetMaybeString :: GValue -> Maybe String -> IO ()
-valueSetMaybeString gvalue (Just str) = do
-  valueInit gvalue GType.string
-  strPtr <- newUTFString str
-  {# call unsafe value_set_static_string #} gvalue strPtr
+valueSetMaybeString gvalue (Just str) =
+  withUTFString str $ \strPtr ->
+  {# call unsafe value_set_string #} gvalue strPtr
 
-valueSetMaybeString gvalue Nothing = do
-  valueInit gvalue GType.string
+valueSetMaybeString gvalue Nothing =
   {# call unsafe value_set_static_string #} gvalue nullPtr
 
 valueGetMaybeString :: GValue -> IO (Maybe String)
@@ -174,8 +185,7 @@ valueGetMaybeString gvalue =
 -- for some weird reason the API says that gv is a gpointer, not a GObject
 --
 valueSetGObject :: GObjectClass gobj => GValue -> gobj -> IO ()
-valueSetGObject gvalue obj = do
-  valueInit gvalue GType.object
+valueSetGObject gvalue obj =
   withForeignPtr ((unGObject.toGObject) obj) $ \objPtr ->
     {# call unsafe g_value_set_object #} gvalue (castPtr objPtr)
 
@@ -185,6 +195,6 @@ valueGetGObject :: GObjectClass gobj => GValue -> IO gobj
 valueGetGObject gvalue =
   liftM fromGObject $
   makeNewGObject mkGObject $
-  throwIfNull "GType.valueGetObject: extracting invalid object" $
+  throwIfNull "GValue.valueGetObject: extracting invalid object" $
   liftM castPtr $
   {# call unsafe value_get_object #} gvalue

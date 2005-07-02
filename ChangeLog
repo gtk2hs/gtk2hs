@@ -1,3 +1,29 @@
+2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and
+	value(Set|Get)Flags. Remove use of valueInit since it is done
+	elsewhere.
+
+	* glib/System/Glib/Properties.chs: use valueInit in
+	objectSetPropertyInternal and objectGetPropertyInternal. Modify other
+	object(Set|Get)Property* functions to pass the GType.
+
+	* glib/System/Glib/StoreValue.hsc: use valueInit in
+	valueSetGenericValue and remove object(Set|Get)PropertyGeneric since
+	they are not used much and are hard to implement correctly.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp: remove objectSetProperty
+	and objectGetProperty which were just wrappers around
+	object(Set|Get)PropertyGeneric.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs: change the
+	implementation of cellRendererSet and cellRendererGet because
+	objectSetProperty and objectGetProperty were removed. For
+	object(Set|Get)PropertyInternal we do have the GType available from
+	the Attribute. Even so, it would be preferable if
+	cellRenderer(Set|Get) were replaced with ordinary type safe
+	Attributes.
+
 2005-07-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/sourceview.cabal.in: switch the order of include files so

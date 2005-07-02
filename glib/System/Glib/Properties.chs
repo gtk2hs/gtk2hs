@@ -5,7 +5,7 @@
 --
 --  Created: 16 April 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 03:21:12 $
+--  Version $Revision: 1.4 $ from $Date: 2005/07/02 19:22:04 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -78,26 +78,30 @@ import System.Glib.UTFString
 {#import System.Glib.Types#}
 {#import System.Glib.GValue#}	(GValue(GValue), valueInit, allocaGValue)
 import System.Glib.GObject	(makeNewGObject)
+import qualified System.Glib.GTypeConstants as GType
+import System.Glib.GType
 import System.Glib.GValueTypes
 import System.Glib.Attributes	(Attr, ReadAttr, WriteAttr, ReadWriteAttr,
 				newAttr, readAttr, writeAttr)
 
 {# context lib="glib" prefix="g" #}
 
-objectSetPropertyInternal :: GObjectClass gobj => (GValue -> a -> IO ()) -> String -> gobj -> a -> IO ()
-objectSetPropertyInternal valueSet prop obj val =
+objectSetPropertyInternal :: GObjectClass gobj => GType -> (GValue -> a -> IO ()) -> String -> gobj -> a -> IO ()
+objectSetPropertyInternal gtype valueSet prop obj val =
   withUTFString prop $ \propPtr ->
-  allocaGValue  $ \gvalue -> do
+  allocaGValue $ \gvalue -> do
+  valueInit gvalue gtype
   valueSet gvalue val
   {# call unsafe g_object_set_property #}
     (toGObject obj)
     propPtr
     gvalue
 
-objectGetPropertyInternal :: GObjectClass gobj => (GValue -> IO a) -> String -> gobj -> IO a
-objectGetPropertyInternal valueGet prop obj =
+objectGetPropertyInternal :: GObjectClass gobj => GType -> (GValue -> IO a) -> String -> gobj -> IO a
+objectGetPropertyInternal gtype valueGet prop obj =
   withUTFString prop $ \propPtr ->
   allocaGValue $ \gvalue -> do
+  valueInit gvalue gtype
   {# call unsafe g_object_get_property #}
     (toGObject obj)
     propPtr
@@ -105,64 +109,64 @@ objectGetPropertyInternal valueGet prop obj =
   valueGet gvalue
 
 objectSetPropertyInt :: GObjectClass gobj => String -> gobj -> Int -> IO ()
-objectSetPropertyInt = objectSetPropertyInternal valueSetInt
+objectSetPropertyInt = objectSetPropertyInternal GType.int valueSetInt
 
 objectGetPropertyInt :: GObjectClass gobj => String -> gobj -> IO Int
-objectGetPropertyInt = objectGetPropertyInternal valueGetInt
+objectGetPropertyInt = objectGetPropertyInternal GType.int valueGetInt
 
 objectSetPropertyUInt :: GObjectClass gobj => String -> gobj -> Int -> IO ()
-objectSetPropertyUInt = objectSetPropertyInternal (\gv v -> valueSetUInt gv (fromIntegral v))
+objectSetPropertyUInt = objectSetPropertyInternal GType.uint (\gv v -> valueSetUInt gv (fromIntegral v))
 
 objectGetPropertyUInt :: GObjectClass gobj => String -> gobj -> IO Int
-objectGetPropertyUInt = objectGetPropertyInternal (\gv -> liftM fromIntegral $ valueGetUInt gv)
+objectGetPropertyUInt = objectGetPropertyInternal GType.uint (\gv -> liftM fromIntegral $ valueGetUInt gv)
 
 objectSetPropertyBool :: GObjectClass gobj => String -> gobj -> Bool -> IO ()
-objectSetPropertyBool = objectSetPropertyInternal valueSetBool
+objectSetPropertyBool = objectSetPropertyInternal GType.bool valueSetBool
 
 objectGetPropertyBool :: GObjectClass gobj => String -> gobj -> IO Bool
-objectGetPropertyBool = objectGetPropertyInternal valueGetBool
+objectGetPropertyBool = objectGetPropertyInternal GType.bool valueGetBool
 
 objectSetPropertyEnum :: (GObjectClass gobj, Enum enum) => String -> gobj -> enum -> IO ()
-objectSetPropertyEnum = objectSetPropertyInternal (\gv v -> valueSetInt gv (fromEnum v))
+objectSetPropertyEnum = objectSetPropertyInternal GType.enum valueSetEnum
 
 objectGetPropertyEnum :: (GObjectClass gobj, Enum enum) => String -> gobj -> IO enum
-objectGetPropertyEnum = objectGetPropertyInternal (\gv -> liftM toEnum $ valueGetInt gv)
+objectGetPropertyEnum = objectGetPropertyInternal GType.enum valueGetEnum
 
 objectSetPropertyFlags :: (GObjectClass gobj, Flags flag) => String -> gobj -> [flag] -> IO ()
-objectSetPropertyFlags = objectSetPropertyInternal (\gv v -> valueSetInt gv (fromFlags v))
+objectSetPropertyFlags = objectSetPropertyInternal GType.flags valueSetFlags
 
 objectGetPropertyFlags :: (GObjectClass gobj, Flags flag) => String -> gobj -> IO [flag]
-objectGetPropertyFlags = objectGetPropertyInternal (\gv -> liftM toFlags $ valueGetInt gv)
+objectGetPropertyFlags = objectGetPropertyInternal GType.flags valueGetFlags
 
 objectSetPropertyFloat :: GObjectClass gobj => String -> gobj -> Float -> IO ()
-objectSetPropertyFloat = objectSetPropertyInternal valueSetFloat
+objectSetPropertyFloat = objectSetPropertyInternal GType.float valueSetFloat
 
 objectGetPropertyFloat :: GObjectClass gobj => String -> gobj -> IO Float
-objectGetPropertyFloat = objectGetPropertyInternal valueGetFloat
+objectGetPropertyFloat = objectGetPropertyInternal GType.float valueGetFloat
 
 objectSetPropertyDouble :: GObjectClass gobj => String -> gobj -> Double -> IO ()
-objectSetPropertyDouble = objectSetPropertyInternal valueSetDouble
+objectSetPropertyDouble = objectSetPropertyInternal GType.double valueSetDouble
 
 objectGetPropertyDouble :: GObjectClass gobj => String -> gobj -> IO Double
-objectGetPropertyDouble = objectGetPropertyInternal valueGetDouble
+objectGetPropertyDouble = objectGetPropertyInternal GType.double valueGetDouble
 
 objectSetPropertyString :: GObjectClass gobj => String -> gobj -> String -> IO ()
-objectSetPropertyString = objectSetPropertyInternal valueSetString
+objectSetPropertyString = objectSetPropertyInternal GType.string valueSetString
 
 objectGetPropertyString :: GObjectClass gobj => String -> gobj -> IO String
-objectGetPropertyString = objectGetPropertyInternal valueGetString
+objectGetPropertyString = objectGetPropertyInternal GType.string valueGetString
 
 objectSetPropertyMaybeString :: GObjectClass gobj => String -> gobj -> Maybe String -> IO ()
-objectSetPropertyMaybeString = objectSetPropertyInternal valueSetMaybeString
+objectSetPropertyMaybeString = objectSetPropertyInternal GType.string valueSetMaybeString
 
 objectGetPropertyMaybeString :: GObjectClass gobj => String -> gobj -> IO (Maybe String)
-objectGetPropertyMaybeString = objectGetPropertyInternal valueGetMaybeString
+objectGetPropertyMaybeString = objectGetPropertyInternal GType.string valueGetMaybeString
 
 objectSetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => String -> gobj -> gobj' -> IO ()
-objectSetPropertyGObject = objectSetPropertyInternal valueSetGObject
+objectSetPropertyGObject = objectSetPropertyInternal GType.object valueSetGObject
 
 objectGetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => String -> gobj -> IO gobj'
-objectGetPropertyGObject = objectGetPropertyInternal valueGetGObject
+objectGetPropertyGObject = objectGetPropertyInternal GType.object valueGetGObject
 
 
 -- Convenience functions to make attribute implementations in the other modules

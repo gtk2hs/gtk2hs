@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/19 02:39:49 $
+--  Version $Revision: 1.6 $ from $Date: 2005/07/02 19:22:04 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -61,8 +61,6 @@ module Graphics.UI.Gtk.Abstract.Object (
 -- * Methods
   objectSink,
   makeNewObject,
-  objectSetProperty,
-  objectGetProperty
   ) where
 
 import System.Glib.FFI
@@ -70,8 +68,6 @@ import System.Glib.UTFString
 import System.Glib.GObject	(objectRef, objectUnref)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
-import System.Glib.StoreValue	(GenericValue, objectSetPropertyGeneric,
-				 objectGetPropertyGeneric)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -91,17 +87,8 @@ import System.Glib.StoreValue	(GenericValue, objectSetPropertyGeneric,
 objectSink :: ObjectClass obj => Ptr obj -> IO ()
 objectSink = object_sink.castPtr
 
-#if __GLASGOW_HASKELL__>=504
-
 foreign import ccall unsafe "gtk_object_sink"
   object_sink :: Ptr Object -> IO ()
-
-#else
-
-foreign import ccall "gtk_object_sink" unsafe 
-  object_sink :: Ptr Object -> IO ()
-
-#endif
 
 -- This is a convenience function to generate a new widget. It adds the
 -- finalizer with the method described under objectSink.
@@ -116,20 +103,3 @@ makeNewObject constr generator = do
   obj <- newForeignPtr objPtr (objectUnref objPtr)
   objectSink objPtr
   return $ constr obj
-
--- Sets a specific attribute of this object.
---
--- * Most attributes in a widget can be set and retrieved by passing the
---   name (as a string) and the value to special set\/get functions. These
---   are undocumented because each derived objects implements custom (and
---   welltyped) set and get functions for most attributes.
---
-objectSetProperty :: GObjectClass gobj => gobj -> String -> GenericValue -> IO ()
-objectSetProperty obj prop val = objectSetPropertyGeneric prop obj val
-
--- Gets a specific attribute of this object.
---
--- * See 'objectSetProperty'.
---
-objectGetProperty :: GObjectClass gobj => gobj -> String -> IO GenericValue
-objectGetProperty obj prop = objectGetPropertyGeneric prop obj

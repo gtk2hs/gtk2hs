@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 18:58:18 $
+--  Version $Revision: 1.4 $ from $Date: 2005/07/02 19:22:04 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -32,15 +32,13 @@ module System.Glib.StoreValue (
   GenericValue(..),
   valueSetGenericValue,
   valueGetGenericValue,
-  objectSetPropertyGeneric,
-  objectGetPropertyGeneric
   ) where
 
 import Monad	(liftM)
 import Control.Exception  (throw, Exception(AssertionFailed))
 
 import System.Glib.FFI
-import System.Glib.GValue	(GValue, valueGetType)
+import System.Glib.GValue	(GValue, valueInit, valueGetType)
 import System.Glib.GValueTypes
 import qualified System.Glib.GTypeConstants as GType
 import System.Glib.Types	(GObject, GObjectClass)
@@ -115,18 +113,27 @@ instance Enum TMType where
     error "StoreValue.toEnum(TMType): no dynamic types allowed."
 
 valueSetGenericValue :: GValue -> GenericValue -> IO ()
-valueSetGenericValue gvalue (GVuint x)    = valueSetUInt gvalue x
-valueSetGenericValue gvalue (GVint x)     = valueSetInt  gvalue x
+valueSetGenericValue gvalue (GVuint x)    = do valueInit gvalue GType.uint
+                                               valueSetUInt gvalue x
+valueSetGenericValue gvalue (GVint x)     = do valueInit gvalue GType.int
+                                               valueSetInt  gvalue x
 --valueSetGenericValue gvalue (GVuchar x)   = valueSetUChar   gvalue x
 --valueSetGenericValue gvalue (GVchar x)    = valueSetChar    gvalue x
-valueSetGenericValue gvalue (GVboolean x) = valueSetBool    gvalue x
-valueSetGenericValue gvalue (GVenum x)    = valueSetUInt    gvalue (fromIntegral x)
-valueSetGenericValue gvalue (GVflags x)   = valueSetUInt    gvalue (fromIntegral x)
+valueSetGenericValue gvalue (GVboolean x) = do valueInit gvalue GType.bool
+                                               valueSetBool    gvalue x
+valueSetGenericValue gvalue (GVenum x)    = do valueInit gvalue GType.enum
+                                               valueSetUInt    gvalue (fromIntegral x)
+valueSetGenericValue gvalue (GVflags x)   = do valueInit gvalue GType.flags
+                                               valueSetUInt    gvalue (fromIntegral x)
 --valueSetGenericValue gvalue (GVpointer x) = valueSetPointer gvalue x
-valueSetGenericValue gvalue (GVfloat x)   = valueSetFloat   gvalue x
-valueSetGenericValue gvalue (GVdouble x)  = valueSetDouble  gvalue x
-valueSetGenericValue gvalue (GVstring x)  = valueSetMaybeString  gvalue x
-valueSetGenericValue gvalue (GVobject x)  = valueSetGObject gvalue x
+valueSetGenericValue gvalue (GVfloat x)   = do valueInit gvalue GType.float
+                                               valueSetFloat   gvalue x
+valueSetGenericValue gvalue (GVdouble x)  = do valueInit gvalue GType.double
+                                               valueSetDouble  gvalue x
+valueSetGenericValue gvalue (GVstring x)  = do valueInit gvalue GType.string
+                                               valueSetMaybeString  gvalue x
+valueSetGenericValue gvalue (GVobject x)  = do valueInit gvalue GType.object
+                                               valueSetGObject gvalue x
 --valueSetGenericValue gvalue (GVboxed x)   = valueSetPointer gvalue x
 
 valueGetGenericValue :: GValue -> IO GenericValue
@@ -134,7 +141,7 @@ valueGetGenericValue gvalue = do
   gtype <- valueGetType gvalue
   case (toEnum . fromIntegral) gtype of
     TMinvalid	-> throw $ AssertionFailed 
-      "StoreValue.peek(GenericValue): invalid or unavailable value."
+      "StoreValue.valueGetGenericValue: invalid or unavailable value."
     TMuint    -> liftM GVuint			  $ valueGetUInt    gvalue
     TMint	-> liftM GVint	                  $ valueGetInt	    gvalue
 --    TMuchar	-> liftM GVuchar		  $ valueGetUChar   gvalue
@@ -148,9 +155,3 @@ valueGetGenericValue gvalue = do
     TMstring	-> liftM GVstring		  $ valueGetMaybeString  gvalue
     TMobject	-> liftM GVobject		  $ valueGetGObject gvalue
 --    TMboxed   -> liftM GVpointer		  $ valueGetPointer gvalue
-
-objectSetPropertyGeneric :: GObjectClass gobj => String -> gobj -> GenericValue -> IO ()
-objectSetPropertyGeneric = objectSetPropertyInternal valueSetGenericValue
-
-objectGetPropertyGeneric :: GObjectClass gobj => String -> gobj -> IO GenericValue
-objectGetPropertyGeneric = objectGetPropertyInternal valueGetGenericValue
