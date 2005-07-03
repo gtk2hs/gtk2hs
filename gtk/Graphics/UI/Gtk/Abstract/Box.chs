@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/07/03 12:27:09 $
+--  Version $Revision: 1.10 $ from $Date: 2005/07/03 14:14:21 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -29,7 +29,7 @@
 module Graphics.UI.Gtk.Abstract.Box (
 -- * Detail
 -- 
--- | 'Box' is an abstract widget which encapsulates functionallity for a
+-- | 'Box' is an abstract widget which encapsulates functionality for a
 -- particular kind of container, one that organizes a variable number of
 -- widgets into a rectangular area. 'Box' currently has two derived classes,
 -- 'HBox' and 'VBox'.
@@ -39,7 +39,6 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- 'HBox' or 'VBox', respectively. Thus, all children of a 'Box' are allocated
 -- one dimension in common, which is the height of a row, or the width of a
 -- column.
---
 -- 'Box' uses a notion of /packing/. Packing refers to adding widgets with
 -- reference to a particular position in a 'Container'. For a 'Box', there are
 -- two reference positions: the /start/ and the /end/ of the box. For a 'VBox',
@@ -50,10 +49,20 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- Use repeated calls to 'boxPackStart' to pack widgets into a 'Box' from
 -- start to end. Use 'boxPackEnd' to add widgets from end to start. You may
 -- intersperse these calls and add widgets from both ends of the same 'Box'.
+-- Besides adding widgets at the start or the end of a box, you can also
+-- specify the padding around each widget (in pixels) and a 'Packing'
+-- parameter that denotes how to fill up unused space.
+-- The functions 'boxPackStartDefaults' or 'boxPackEndDefaults' 
+-- are a convenient way to pack widgets into a 'Box' without specifying
+-- these extra paramters.
 --
--- Use 'boxPackStartDefaults' or 'boxPackEndDefaults' to pack widgets into a
--- 'Box' if you do not need to specify the expand, fill, or padding attributes
--- of the child to be added.
+-- While the right amount of padding around each widget is a matter of
+-- appearance, the 'Packing' paramter specifies the way the widgets in
+-- the container behave when the window is resized and thereby affect
+-- the usability. Hence, once you have created a window, you should resize
+-- it and see if the widgets behave as expected. The 'Packing' parameter of
+-- each child widget determines how excess space is used by that particular
+-- widget. See the description of 'Packing' for a detailed explanaition.
 --
 -- Because 'Box' is a 'Container', you may also use 'containerAdd' to insert
 -- widgets into the box, and they will be packed as if with
@@ -61,7 +70,9 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- 'Box'.
 --
 -- Use 'boxSetHomogeneous' to specify whether or not all children of the
--- 'Box' are forced to get the same amount of space.
+-- 'Box' are forced to get the same amount of space. Note that the
+-- 'Packing' options 'PackNatural' and 'PackRepel' coincide if space is
+-- allotted homogeneously.
 --
 -- Use 'boxSetSpacing' to determine how much space will be minimally placed
 -- between all children in the 'Box'.
@@ -137,13 +148,6 @@ import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 -- @child@ is packed after any other child packed with reference to the start
 -- of the box.
 --
--- The 'Packing' parameter determines how the child behaves in the horizontal
--- or vertical way in an HBox or VBox, respectively. 'PackNatural' means the
--- child is as big as it reqests. It will move to the left in an 'HBox' or to
--- the top in an 'VBox' if there is more space availble.
--- All children packed with 'PackRepel' will be padded on both sides with
--- additional space. 'PackGrow' will increase the size of the so that is
--- covers the available space.
 --
 boxPackStart :: (BoxClass self, WidgetClass child) => self
  -> child -- ^ @child@ - the 'Widget' to be added to the box.
@@ -169,7 +173,7 @@ boxPackStart self child packing padding =
 -- @child@ is packed after (away from end of) any other child packed with
 -- reference to the end of the box.
 --
--- See 'boxPackStart' for a description of the 'Packing' parameter. Of course
+-- Note that 
 -- for 'boxPackEnd' the 'PackNatural' option will move a child to the right in
 -- an 'HBox' or to the bottom in an 'VBox' if there is more space availble.
 --

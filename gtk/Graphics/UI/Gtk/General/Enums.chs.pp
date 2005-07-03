@@ -5,7 +5,7 @@
 --
 --  Created: 13 January 1999
 --
---  Version $Revision: 1.5 $ from $Date: 2005/07/03 12:27:10 $
+--  Version $Revision: 1.6 $ from $Date: 2005/07/03 14:14:24 $
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
 --
@@ -176,6 +176,23 @@ data Click = SingleClick
 {#enum Orientation {underscoreToCase}#}
 
 -- | Packing parameters of a widget
+--
+-- * The 'Packing' parameter determines how the child behaves in the horizontal
+--   or vertical way in an 'HBox' or 'VBox', respectively. 'PackNatural'
+--   means the child is as big as it reqests. It will stay at the start
+--   of the end of a 'Box' if there is more space availble.
+--   All children packed with 'PackRepel' will be padded on both sides with
+--   additional space. 'PackGrow' will increase the size of a widget so that it
+--   covers the available space. A menu bar, for instance, should always
+--   stay at the top of a window and should only occupy as little space
+--   as possible. Hence it should be packed at the start of a 'VBox' with
+--   the packing option 'PackNatural'. The working area of a window
+--   (e.g. the text area in an editor) should expand when the window is
+--   resized. Here the packing option 'PackGrow' is the right choice and
+--   it is irrelevant whether the main area is inserted at the start or
+--   the end of a box. Finally 'PackRepel' is most useful in a window
+--   where no widget can make use of excess space. Examples include a
+--   dialog box without list boxes or text fields. 
 --
 data Packing = PackRepel
 	     | PackGrow
