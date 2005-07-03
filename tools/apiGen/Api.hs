@@ -60,6 +60,7 @@ data Object = Object {
     object_constructors :: [Constructor],
     object_methods :: [Method],
     object_properties :: [Property],
+    object_childprops :: [Property],
     object_signals :: [Signal],
     object_implements :: [String],
     object_deprecated :: Bool,
@@ -210,6 +211,7 @@ extractObject (Xml.CElem (Xml.Elem "object"
     object_constructors = catMaybes (map extractConstructor content),
     object_methods = catMaybes (map extractMethod content),
     object_properties = catMaybes (map extractProperty content),
+    object_childprops = catMaybes (map extractChildProperty content),
     object_signals = catMaybes (map extractSignal content),
     object_implements = concat (catMaybes (map extractImplements content)),
     object_deprecated = deprecated,
@@ -225,6 +227,7 @@ extractObject (Xml.CElem (Xml.Elem "interface"
     object_constructors = catMaybes (map extractConstructor content),
     object_methods = catMaybes (map extractMethod content),
     object_properties = catMaybes (map extractProperty content),
+    object_childprops = [],
     object_signals = catMaybes (map extractSignal content),
     object_implements = concat (catMaybes (map extractImplements content)),
     object_deprecated = False,
@@ -390,6 +393,21 @@ extractProperty (Xml.CElem (Xml.Elem "property"
     property_constructonly  = (not.null) [ () | ("construct-only", _) <- others]
   }
 extractProperty _ = Nothing
+
+extractChildProperty :: Xml.Content -> Maybe Property
+extractChildProperty (Xml.CElem (Xml.Elem "childprop"
+                     (("name", Xml.AttValue name):
+                      ("cname", Xml.AttValue cname):
+                      ("type", Xml.AttValue type_):others) [])) =
+  Just $ Property {
+    property_name = Xml.verbatim name,
+    property_cname = Xml.verbatim cname,
+    property_type = Xml.verbatim type_,
+    property_readable  = (not.null) [ () | ("readable", _) <- others],
+    property_writeable = (not.null) [ () | ("writeable", _) <- others],
+    property_constructonly  = (not.null) [ () | ("construct-only", _) <- others]
+  }
+extractChildProperty _ = Nothing
 
 extractSignal :: Xml.Content -> Maybe Signal
 extractSignal (Xml.CElem (Xml.Elem "signal"

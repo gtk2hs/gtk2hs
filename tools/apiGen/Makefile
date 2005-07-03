@@ -297,8 +297,13 @@ gnomedb-modules : gnomedb-docs.xml
 #       vte modules
 #
 
+vte_docs_dirs = vte/doc/reference/xml
 vte_includeapi = gtk-api.xml gdk-api.xml pango-api.xml atk-api.xml \
 		 gobject-api.xml glib-api.xml
+vte_excludeapi  = gtk.ignore
+vte_modprefix   = Graphics.UI.Gtk.Vte
+vte_scanmodules = vte/Graphics/UI/Gtk/Vte/
+vte-modules : vte-docs.xml
 
 
 ########################
@@ -312,6 +317,21 @@ gtkhtml2_excludeapi = gtk.ignore
 
 gtkhtml3_includeapi = $(gtkhtml2_includeapi)
 gtkhtml3_excludeapi = $(gtkhtml2_excludeapi)
+
+
+########################
+#
+#       Dock widget from libegg
+#
+
+eggdock-modules : eggdock-api.xml Template.chs ApiGen \
+	gtk-api.xml
+	@mkdir -p $@
+	./ApiGen $< Template.chs --outdir=$@ \
+	--includeapi=gtk-api.xml --includeapi=gobject-api.xml \
+	--includeapi=glib-api.xml \
+	--excludeapi=gtk.ignore \
+	--modprefix=Graphics.UI.Gtk.Egg.Dock
 
 
 #############################
@@ -348,8 +368,8 @@ get-source-code: $(packages)
 		$(addprefix --includeapi=,$($*_includeapi)) \
 		$(addprefix --excludeapi=,$($*_excludeapi)) \
 		$(addprefix --modprefix=,$($*_modprefix)) \
-		$(addprefix --scanmodules=,$(TOP)/$($*_scanmodules)) \
-		$(addprefix --excludescan=,$(TOP)/$($*_excludescan)))
+		$(addprefix --scanmodules=$(TOP)/,$($*_scanmodules)) \
+		$(addprefix --excludescan=$(TOP)/,$($*_excludescan)))
 	@touch $@
 
 TOP = ../..

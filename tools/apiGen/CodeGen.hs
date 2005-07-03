@@ -155,6 +155,8 @@ genModuleBody knownSymbols object apiDoc modInfo =
      (genMethods      knownSymbols object (moduledoc_functions apiDoc) (module_methods modInfo))
   ++ sectionHeader "Attributes"
      (genProperties   knownSymbols object (moduledoc_properties apiDoc))
+  ++ sectionHeader "Child Attributes"
+     (genChildProperties knownSymbols object (moduledoc_childprops apiDoc))
   ++ sectionHeader "Signals"
      (genSignals      knownSymbols object (moduledoc_signals apiDoc))
   where sectionHeader name []      = []
@@ -272,6 +274,7 @@ mungeClassToObject cl =
     object_constructors = [],
     object_methods      = class_methods cl,
     object_properties   = [],
+    object_childprops   = [],
     object_signals      = [],
     object_implements   = [],
     object_deprecated   = False,
@@ -287,6 +290,7 @@ mungeBoxedToObject boxed =
     object_constructors = boxed_constructors boxed,
     object_methods      = boxed_methods boxed,
     object_properties   = [],
+    object_childprops   = [],
     object_signals      = [],
     object_implements   = [],
     object_deprecated   = False,
@@ -451,6 +455,79 @@ methodsThatLookLikeProperties object =
          && method_return_type setter == "void"
 --         && method_return_type getter == parameter_type (method_parameters setter !! 0)
 
+
+childProperties :: Object -> [PropDoc] -> [(Property, Maybe PropDoc)]
+childProperties object docs =
+  [ (property, lookup (property_cname property) docmap)
+  | property <- object_childprops object ]
+
+  where docmap = [ (map dashToUnderscore (propdoc_name doc), doc)
+                 | doc <- docs ]
+        dashToUnderscore '-' = '_'
+        dashToUnderscore  c  =  c
+
+genChildProperties :: KnownSymbols -> Object -> [PropDoc] -> [(ShowS, (Since, Deprecated))]
+genChildProperties knownSymbols object apiDoc = 
+  [ (genAtterFromChildProperty knownSymbols object property doc
+    ,(maybe "" propdoc_since doc, notDeprecated))
+  | (property, doc) <- childProperties object apiDoc ]
+
+
+genChildAtter :: KnownSymbols -> Object -> Maybe PropDoc -> String
+ -> Maybe String -> Maybe String -> Maybe String -> Either (ShowS, ShowS) ShowS -> ShowS
+genChildAtter knownSymbols object doc propertyName classConstraint getterType setterType attrImpl = 
+  formattedDoc.
+  ss propertyName. ss " :: ". classContext. ss "child -> ". attrType. sc ' '. objectParamType. sc ' '. attrArgs. nl.
+  ss propertyName. ss " = ". attrBody
+  where objectType = ss (object_name object)
+        objectParamType | leafClass (object_cname object) = objectType
+                        | otherwise                       = ss "self"
+        formattedDoc = haddocFormatDeclaration knownSymbols False propdoc_paragraphs doc
+        classContext = case (leafClass (object_cname object), classConstraint) of 
+                         (True,  Nothing)              -> id
+                         (False, Nothing)              -> objectType. ss "Class self => "
+                         (True,  Just classConstraint) -> ss classConstraint. ss " => "
+                         (False, Just classConstraint) -> sc '('. objectType. ss "Class self, ".
+                                                          ss classConstraint. ss ") => "
+        (attrType, attrConstructor, attrArgs) =
+          case (getterType, setterType) of
+            (Just gt, Nothing)        -> (ss "ReadAttr",     ss "readAttr", ss gt)
+            (Nothing, Just st)        -> (ss "WriteAttr",    ss "writeAttr", ss st)
+            (Just gt, Just st)
+              | gt == st              -> (ss "Attr",          ss "newAttr", ss gt)
+              | length (words st) > 1 -> (ss "ReadWriteAttr", ss "newAttr", ss gt. ss " (". ss st. sc ')')
+              | otherwise             -> (ss "ReadWriteAttr", ss "newAttr", ss gt. sc ' '. ss st)
+        attrBody =
+          case (attrImpl) of
+            Left (getter, setter) -> attrConstructor.
+              case (getterType, setterType) of
+                (Just _, Nothing) -> indent 1. getter
+                (Nothing, Just _) -> indent 1. setter
+                (Just _,  Just _) -> indent 1. getter. indent 1. setter
+            Right body            -> body
+
+genAtterFromChildProperty :: KnownSymbols -> Object -> Property -> Maybe PropDoc -> ShowS
+genAtterFromChildProperty knownSymbols object property doc =
+  genChildAtter knownSymbols object doc propertyName classConstraint getterType setterType (Right body)
+  where propertyName = lowerCaseFirstChar (object_name object ++ "Child" ++ property_name property)
+        (propertyType, gvalueKind) = genMarshalProperty knownSymbols (property_type property)
+        body = ss attrType. ss "AttrFromContainerChild". ss gvalueKind. ss "Property \"". ss (property_cname property). ss "\""
+          where attrType | property_readable property
+                        && property_writeable property = "new"
+                         | property_readable property = "read"
+                         | property_writeable property = "write"
+        getterType | property_readable property  = Just propertyType 
+                   | otherwise                   = Nothing
+        (setterType, classConstraint)
+                   | property_writeable property 
+                  && gvalueKind == "Object"      = let typeVar = lowerCaseFirstChar propertyType
+                                                       classConstraint = propertyType ++ "Class " ++ typeVar
+                                                                      ++ ", WidgetClass child"
+                                                    in (Just typeVar, Just classConstraint)
+                   | property_writeable property = (Just propertyType, Just "WidgetClass child")
+                   | otherwise                   = (Nothing, Just "WidgetClass child")
+
+
 signals :: Object -> [SignalDoc] -> [(Signal, Maybe SignalDoc)]
 signals object docs =
   [ (signal, canonicalSignalName (signal_cname signal) `lookup` docmap)
@@ -577,6 +654,11 @@ genExports object docs modInfo =
         ss "  ". ss (lowerCaseFirstChar (object_name object ++ propertyName)). sc ','
        ,(maybe "" propdoc_since doc, notDeprecated))
      | (property, doc) <- properties object (moduledoc_properties docs)]
+  ++ sectionHeader "Child Attributes"
+     [ (let propertyName = property_name property in
+        ss "  ". ss (lowerCaseFirstChar (object_name object ++ "Child" ++ propertyName)). sc ','
+       ,(maybe "" propdoc_since doc, notDeprecated))
+     | (property, doc) <- childProperties object (moduledoc_childprops docs)]
   ++ (sectionHeader "Signals"
     . map fst
     . sortBy (comparing snd))

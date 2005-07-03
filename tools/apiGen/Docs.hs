@@ -33,6 +33,7 @@ data ModuleDoc = ModuleDoc {
     moduledoc_functions :: [FuncDoc],      -- documentation for each function
     moduledoc_callbacks :: [FuncDoc],      -- documentation for callback types
     moduledoc_properties :: [PropDoc],     -- documentation for each property
+    moduledoc_childprops :: [PropDoc],     -- documentation for each child property
     moduledoc_signals :: [SignalDoc],      -- documentation for each signal
     moduledoc_since :: String              -- which version of the api the
   }  					   -- module is available from, eg "2.4"
@@ -47,6 +48,7 @@ noModuleDoc = ModuleDoc {
     moduledoc_functions = [],
     moduledoc_callbacks = [],
     moduledoc_properties = [],
+    moduledoc_childprops = [],
     moduledoc_signals = [],
     moduledoc_since = ""
   }
@@ -110,6 +112,7 @@ extractDocModule :: Xml.Content -> ModuleDoc
 extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:rest))) =
   let functions = [ e | e@(Xml.CElem (Xml.Elem "function" _ _)) <- rest ]
       properties = [ e | e@(Xml.CElem (Xml.Elem "property" _ _)) <- rest ]
+      childprops = [ e | e@(Xml.CElem (Xml.Elem "childprop" _ _)) <- rest ]
       signals = [ e | e@(Xml.CElem (Xml.Elem "signal" _ _)) <- rest ]
       (callbacks, functions') = partition (isUpper.head.funcdoc_name)
                                          (map extractDocFunc functions)
@@ -117,6 +120,7 @@ extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:rest))) =
     moduledoc_functions = functions',
     moduledoc_callbacks = callbacks,
     moduledoc_properties = map extractDocProp properties,
+    moduledoc_childprops = map extractDocChildProp childprops,
     moduledoc_signals = map extractDocSignal signals
   }
 
@@ -143,6 +147,7 @@ extractDocModuleinfo
     moduledoc_functions = undefined,
     moduledoc_callbacks = undefined,
     moduledoc_properties = undefined,
+    moduledoc_childprops = undefined,
     moduledoc_signals = undefined,
     moduledoc_since = ""
   }
@@ -190,6 +195,22 @@ extractParamDoc
 extractDocProp :: Xml.Content -> PropDoc
 extractDocProp
   (Xml.CElem (Xml.Elem "property" []
+    [Xml.CElem (Xml.Elem "name" [] [Xml.CString _ name])
+    ,Xml.CElem (Xml.Elem "since" [] since')
+    ,Xml.CElem (Xml.Elem "doc" [] paras)]
+  )) =
+  let since = case since' of
+                [] -> ""
+		[Xml.CString _ since] -> since
+   in PropDoc {
+        propdoc_name = name,
+	propdoc_paragraphs = concatMap extractDocPara paras,
+	propdoc_since = since
+      }
+
+extractDocChildProp :: Xml.Content -> PropDoc
+extractDocChildProp
+  (Xml.CElem (Xml.Elem "childprop" []
     [Xml.CElem (Xml.Elem "name" [] [Xml.CString _ name])
     ,Xml.CElem (Xml.Elem "since" [] since')
     ,Xml.CElem (Xml.Elem "doc" [] paras)]

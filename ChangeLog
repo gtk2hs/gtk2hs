@@ -21,6 +21,16 @@
 	* gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: add windowTitle
 	attribute. Change windowGetTitle to cope with NULLs and fix docs.
 
+	* tools/apiGen/format-docs.xsl: extract child properties.
+
+	* tools/apiGen/Makefile: bug fix and update vte params.
+
+	* tools/apiGen/Api.hs: extract the childprop information.
+
+	* tools/apiGen/Docs.hs: extract the childprop documentation.
+
+	* tools/apiGen/CodeGen.hs: produce code for the child attributes.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and

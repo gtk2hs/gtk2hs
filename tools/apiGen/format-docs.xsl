@@ -166,6 +166,18 @@
       </doc>
     </property>
   </xsl:for-each>
+  <!-- Child Properties documentation -->
+  <xsl:for-each select="refentry/refsect1[title='Child Properties']/refsect2">
+    <childprop>
+      <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
+      <since>
+        <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
+      </since>
+      <doc>
+        <xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
+      </doc>
+    </childprop>
+  </xsl:for-each>
   <!-- Signals documentation -->
   <xsl:for-each select="refentry/refsect1[title='Signals']/refsect2">
     <signal>
