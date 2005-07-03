@@ -6,7 +6,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/20 23:54:00 $
+--  Version $Revision: 1.11 $ from $Date: 2005/07/03 14:28:13 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -178,6 +178,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Misc.Viewport,
   -- * Abstract base classes
   module Graphics.UI.Gtk.Abstract.Box,
+  module Graphics.UI.Gtk.Abstract.ButtonBox,
   module Graphics.UI.Gtk.Abstract.Container,
   module Graphics.UI.Gtk.Abstract.Bin,
   module Graphics.UI.Gtk.Abstract.Misc,

@@ -80,6 +80,9 @@
 	* demo/profileviewer/ProfileViewer.hs: add an about box to the profile
 	viewer.
 
+	* gtk/Graphics/UI/Gtk.hs: export the ButtonBox module which was
+	missing for some reason.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and
