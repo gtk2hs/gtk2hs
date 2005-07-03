@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/15 18:07:34 $
+--  Version $Revision: 1.10 $ from $Date: 2005/07/03 12:27:10 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -123,6 +123,13 @@ module Graphics.UI.Gtk.Layout.Notebook (
   notebookHomogeneous,
   notebookCurrentPage,
 
+-- * Child Attributes
+  notebookChildTabLabel,
+  notebookChildMenuLabel,
+  notebookChildPosition,
+  notebookChildTabPacking,
+  notebookChildTabPackType,
+
 -- * Signals
   onSwitchPage,
   afterSwitchPage
@@ -138,8 +145,10 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 import Graphics.UI.Gtk.Display.Label	(labelNew)
-import Graphics.UI.Gtk.General.Enums	(Packing(..), PackType(..), PositionType(..))
+import Graphics.UI.Gtk.General.Enums	(Packing(..), toPacking, fromPacking,
+                                         PackType(..), PositionType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -796,9 +805,7 @@ notebookQueryTabLabelPacking self child =
   expand <- liftM toBool $ peek expPtr
   fill <- liftM toBool $ peek fillPtr
   pt <- liftM (toEnum . fromIntegral) $ peek packPtr
-  return (if fill then PackGrow else 
-           (if expand then PackRepel else PackNatural),
-   pt)
+  return (toPacking expand fill, pt)
 
 -- | Sets the packing parameters for the tab label of the page containing
 -- @child@. See 'boxPackStart' for the exact meaning of the parameters.
@@ -812,9 +819,10 @@ notebookSetTabLabelPacking self child pack packType =
   {# call notebook_set_tab_label_packing #}
     (toNotebook self)
     (toWidget child)
-    (fromBool $ pack/=PackNatural)
-    (fromBool $ pack==PackGrow) 
+    (fromBool expand)
+    (fromBool fill) 
     ((fromIntegral . fromEnum) packType)
+  where (expand, fill) = fromPacking pack
 
 #ifndef DISABLE_DEPRECATED
 -- | Sets whether the tabs must have all the same size or not.
@@ -948,6 +956,56 @@ notebookCurrentPage :: NotebookClass self => Attr self Int
 notebookCurrentPage = newAttr
   notebookGetCurrentPage
   notebookSetCurrentPage
+
+--------------------
+-- Child Attributes
+
+-- | The string displayed on the child's tab label.
+--
+-- Default value: @Nothing@
+--
+notebookChildTabLabel :: (NotebookClass self, WidgetClass child) => child -> Attr self String
+notebookChildTabLabel = newAttrFromContainerChildStringProperty "tab_label"
+
+-- | The string displayed in the child's menu entry.
+--
+-- Default value: @Nothing@
+--
+notebookChildMenuLabel :: (NotebookClass self, WidgetClass child) => child -> Attr self String
+notebookChildMenuLabel = newAttrFromContainerChildStringProperty "menu_label"
+
+-- | The index of the child in the parent.
+--
+-- Allowed values: >= -1
+--
+-- Default value: 0
+--
+notebookChildPosition :: (NotebookClass self, WidgetClass child) => child -> Attr self Int
+notebookChildPosition = newAttrFromContainerChildIntProperty "position"
+
+-- | The packing style of the child's tab.
+--
+-- Default value: @'PackGrow'@
+--
+notebookChildTabPacking :: (NotebookClass self, WidgetClass child) => child -> Attr self Packing
+notebookChildTabPacking child = newAttr
+  (\container -> do
+     expand <- containerChildGetPropertyBool "tab_expand" child container
+     fill   <- containerChildGetPropertyBool "tab_fill"   child container
+     return (toPacking expand fill))
+  (\container packing ->
+     case fromPacking packing of
+       (expand, fill) -> do
+         containerChildSetPropertyBool "tab_expand" child container expand
+         containerChildSetPropertyBool "tab_fill"   child container fill)
+
+-- | A 'PackType' indicating whether the child is packed with reference to the
+-- start or end of the parent.
+--
+-- Default value: 'PackStart'
+--
+notebookChildTabPackType :: (NotebookClass self, WidgetClass child) => child -> Attr self PackType
+notebookChildTabPackType = newAttrFromContainerChildEnumProperty "tab_pack"
 
 --------------------
 -- Signals

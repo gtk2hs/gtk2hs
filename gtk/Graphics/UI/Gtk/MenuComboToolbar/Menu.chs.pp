@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.9 $ from $Date: 2005/07/03 12:27:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -104,6 +104,12 @@ module Graphics.UI.Gtk.MenuComboToolbar.Menu (
   menuAccelGroup,
   menuActive,
   menuTitle,
+
+-- * Child Attributes
+  menuChildLeftAttach,
+  menuChildRightAttach,
+  menuChildTopAttach,
+  menuChildBottomAttach,
   ) where
 
 import Monad	(liftM)
@@ -117,6 +123,7 @@ import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 import Graphics.UI.Gtk.Gdk.Events as Events (Event(Button), time, button)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -149,7 +156,6 @@ menuReorderChild self child position =
     (fromIntegral position)
 
 -- | Popup a context menu where a button press occurred. 
---
 --
 menuPopup :: MenuClass self => self -> Event -> IO ()
 menuPopup self (Events.Button { time=t, button=b }) =
@@ -427,3 +433,42 @@ menuTitle :: MenuClass self => ReadWriteAttr self (Maybe String) String
 menuTitle = newAttr
   menuGetTitle
   menuSetTitle
+
+--------------------
+-- Child Attributes
+
+-- | The column number to attach the left side of the child to.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+menuChildLeftAttach :: (MenuClass self, WidgetClass child) => child -> Attr self Int
+menuChildLeftAttach = newAttrFromContainerChildIntProperty "left_attach"
+
+-- | The column number to attach the right side of the child to.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+menuChildRightAttach :: (MenuClass self, WidgetClass child) => child -> Attr self Int
+menuChildRightAttach = newAttrFromContainerChildIntProperty "right_attach"
+
+-- | The row number to attach the top of the child to.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+menuChildTopAttach :: (MenuClass self, WidgetClass child) => child -> Attr self Int
+menuChildTopAttach = newAttrFromContainerChildIntProperty "top_attach"
+
+-- | The row number to attach the bottom of the child to.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+menuChildBottomAttach :: (MenuClass self, WidgetClass child) => child -> Attr self Int
+menuChildBottomAttach = newAttrFromContainerChildIntProperty "bottom_attach"

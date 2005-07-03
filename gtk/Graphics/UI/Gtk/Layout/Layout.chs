@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:25 $
+--  Version $Revision: 1.7 $ from $Date: 2005/07/03 12:27:10 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -70,6 +70,10 @@ module Graphics.UI.Gtk.Layout.Layout (
   layoutWidth,
   layoutHeight,
 
+-- * Child Attributes
+  layoutChildX,
+  layoutChildY,
+
 -- * Signals
   onSetScrollAdjustments,
   afterSetScrollAdjustments,
@@ -84,6 +88,7 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -253,6 +258,23 @@ layoutWidth = newAttrFromUIntProperty "width"
 --
 layoutHeight :: LayoutClass self => Attr self Int
 layoutHeight = newAttrFromUIntProperty "height"
+
+--------------------
+-- Child Attributes
+
+-- | X position of child widget.
+--
+-- Default value: 0
+--
+layoutChildX :: (LayoutClass self, WidgetClass child) => child -> Attr self Int
+layoutChildX = newAttrFromContainerChildIntProperty "x"
+
+-- | Y position of child widget.
+--
+-- Default value: 0
+--
+layoutChildY :: (LayoutClass self, WidgetClass child) => child -> Attr self Int
+layoutChildY = newAttrFromContainerChildIntProperty "y"
 
 --------------------
 -- Signals

@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/07 19:13:29 $
+--  Version $Revision: 1.8 $ from $Date: 2005/07/03 12:27:09 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -75,6 +75,9 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
 
 -- * Attributes
   buttonBoxLayoutStyle,
+
+-- * Child Attributes
+  buttonBoxChildSecondary,
   ) where
 
 import Monad (liftM)
@@ -85,6 +88,7 @@ import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums (ButtonBoxStyle)
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -160,3 +164,14 @@ buttonBoxLayoutStyle :: ButtonBoxClass self => Attr self ButtonBoxStyle
 buttonBoxLayoutStyle = newAttr
   buttonBoxGetLayout
   buttonBoxSetLayout
+
+--------------------
+-- Child Attributes
+
+-- | If @True@, the child appears in a secondary group of children, suitable
+-- for, e.g., help buttons.
+--
+-- Default value: @False@
+--
+buttonBoxChildSecondary :: (ButtonBoxClass self, WidgetClass child) => child -> Attr self Bool
+buttonBoxChildSecondary = newAttrFromContainerChildBoolProperty "secondary"

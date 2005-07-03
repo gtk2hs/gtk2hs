@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 19:13:29 $
+--  Version $Revision: 1.9 $ from $Date: 2005/07/03 12:27:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -108,6 +108,12 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- * Attributes
   boxSpacing,
   boxHomogeneous,
+
+-- * Child Attributes
+  boxChildPacking,
+  boxChildPadding,
+  boxChildPackType,
+  boxChildPosition,
   ) where
 
 import Monad	(liftM)
@@ -117,7 +123,9 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums	(PackType(..), Packing(..))
+import Graphics.UI.Gtk.General.Enums	(PackType(..), Packing(..),
+                                        toPacking, fromPacking)
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -151,9 +159,10 @@ boxPackStart self child packing padding =
   {# call box_pack_start #}
     (toBox self)
     (toWidget child)
-    (fromBool $ packing /= PackNatural)
-    (fromBool $ packing == PackGrow)
+    (fromBool expand)
+    (fromBool fill)
     (fromIntegral padding)
+  where (expand, fill) = fromPacking packing
 
 -- | Adds the @child@ widget to the box, packed with reference to the end of 
 -- the box. The
@@ -178,9 +187,10 @@ boxPackEnd self child packing padding =
   {# call box_pack_end #}
     (toBox self)
     (toWidget child)
-    (fromBool $ packing /= PackNatural)
-    (fromBool $ packing == PackGrow)
+    (fromBool expand)
+    (fromBool fill)
     (fromIntegral padding)
+  where (expand, fill) = fromPacking packing
 
 -- | Like 'boxPackStart' but uses the default parameters 'PackRepel' and 0 for
 -- padding.
@@ -284,9 +294,7 @@ boxQueryChildPacking self child =
   fill    <- liftM toBool $ peek fillPtr
   padding <- liftM fromIntegral $ peek paddingPtr
   pack    <- liftM (toEnum.fromIntegral) $ peek packPtr
-  return (if fill then PackGrow else 
-         (if expand then PackRepel else PackNatural),
-	  padding,pack)
+  return (toPacking expand fill, padding, pack)
 
 -- | Sets the way @child@ is packed into the box.
 --
@@ -300,10 +308,11 @@ boxSetChildPacking self child packing padding packType =
   {# call box_set_child_packing #}
     (toBox self)
     (toWidget child)
-    (fromBool $ packing /= PackNatural)
-    (fromBool $ packing == PackGrow)
+    (fromBool expand)
+    (fromBool fill)
     (fromIntegral padding)
     ((fromIntegral . fromEnum) packType)
+  where (expand, fill) = fromPacking packing
 
 -- | Retrieves the standard spacing between widgets.
 --
@@ -336,3 +345,49 @@ boxHomogeneous :: BoxClass self => Attr self Bool
 boxHomogeneous = newAttr
   boxGetHomogeneous
   boxSetHomogeneous
+
+--------------------
+-- Child Attributes
+
+
+-- | The packing style of the child.
+--
+-- Default value: @'PackGrow'@
+--
+boxChildPacking :: (BoxClass self, WidgetClass child) => child -> Attr self Packing
+boxChildPacking child = newAttr
+  (\container -> do
+     expand <- containerChildGetPropertyBool "expand" child container
+     fill   <- containerChildGetPropertyBool "fill"   child container
+     return (toPacking expand fill))
+  (\container packing ->
+     case fromPacking packing of
+       (expand, fill) -> do
+         containerChildSetPropertyBool "expand" child container expand
+         containerChildSetPropertyBool "fill"   child container fill)
+
+-- | Extra space to put between the child and its neighbors, in pixels.
+--
+-- Allowed values: \<= @('maxBound' :: Int)@
+--
+-- Default value: 0
+--
+boxChildPadding :: (BoxClass self, WidgetClass child) => child -> Attr self Int
+boxChildPadding = newAttrFromContainerChildUIntProperty "padding"
+
+-- | A 'PackType' indicating whether the child is packed with reference to the
+-- start or end of the parent.
+--
+-- Default value: 'PackStart'
+--
+boxChildPackType :: (BoxClass self, WidgetClass child) => child -> Attr self PackType
+boxChildPackType = newAttrFromContainerChildEnumProperty "pack_type"
+
+-- | The index of the child in the parent.
+--
+-- Allowed values: >= -1
+--
+-- Default value: 0
+--
+boxChildPosition :: (BoxClass self, WidgetClass child) => child -> Attr self Int
+boxChildPosition = newAttrFromContainerChildIntProperty "position"

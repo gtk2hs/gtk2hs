@@ -5,7 +5,7 @@
 --
 --  Created: 13 January 1999
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/15 19:34:46 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/03 12:27:10 $
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
 --
@@ -46,7 +46,7 @@ module Graphics.UI.Gtk.General.Enums (
   MetricType(..),
   MovementStep(..),
   Orientation(..),
-  Packing(..),
+  Packing(..), toPacking, fromPacking,
   PackType(..),
   PathPriorityType(..),
   PathType(..),
@@ -181,6 +181,19 @@ data Packing = PackRepel
 	     | PackGrow
 	     | PackNatural
 	     deriving (Enum,Eq)
+
+-- The conversions between our Packing type and Gtk's expand and fill
+-- properties.
+--
+toPacking :: Bool -> Bool -> Packing
+toPacking expand True = PackGrow
+toPacking True   fill = PackRepel
+toPacking False  fill = PackNatural
+
+fromPacking :: Packing -> (Bool, Bool)
+fromPacking PackGrow    = (True,True)
+fromPacking PackRepel   = (True,False)
+fromPacking PackNatural = (False,False)
 
 -- | Packing of widgets at start or end in a box
 --

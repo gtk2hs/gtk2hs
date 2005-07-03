@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:25 $
+--  Version $Revision: 1.8 $ from $Date: 2005/07/03 12:27:10 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -89,6 +89,10 @@ module Graphics.UI.Gtk.Layout.Fixed (
 
 -- * Attributes
   fixedHasWindow,
+
+-- * Child Attributes
+  fixedChildX,
+  fixedChildY,
   ) where
 
 import Monad	(liftM)
@@ -98,6 +102,7 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -175,3 +180,20 @@ fixedHasWindow :: FixedClass self => Attr self Bool
 fixedHasWindow = newAttr
   fixedGetHasWindow
   fixedSetHasWindow
+
+--------------------
+-- Child Attributes
+
+-- | X position of child widget.
+--
+-- Default value: 0
+--
+fixedChildX :: (FixedClass self, WidgetClass child) => child -> Attr self Int
+fixedChildX = newAttrFromContainerChildIntProperty "x"
+
+-- | Y position of child widget.
+--
+-- Default value: 0
+--
+fixedChildY :: (FixedClass self, WidgetClass child) => child -> Attr self Int
+fixedChildY = newAttrFromContainerChildIntProperty "y"

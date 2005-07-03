@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/07/02 23:25:42 $
+--  Version $Revision: 1.11 $ from $Date: 2005/07/03 12:27:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -94,16 +94,29 @@ module Graphics.UI.Gtk.Abstract.Container (
 -- Widgets are required to honor the size allocation they receive; a size
 -- request is only a request, and widgets must be able to cope with any size.
 
--- ** Child properties
+-- ** Child attributes
 -- 
--- | 'Container' introduces child properties - these are object properties
+-- | 'Container' introduces child attributes - these are object attributes
 -- that are not specific to either the container or the contained widget, but
--- rather to their relation. Typical examples of child properties are the
+-- rather to their relation. Typical examples of child attributes are the
 -- position or pack-type of a widget which is contained in a 'Box'.
 --
--- To set the value of a child property, use 'containerChildSetProperty'.
--- To obtain the value of a child property, use 'containerChildGetProperty'.
+-- The 'Container' class does not itself define any child attributes, they are
+-- defined (and documented) by the various 'Container' subclasses.
+--
+-- Child attributes can be set or obtained in a similar way to ordinary
+-- attributes. So ordinary attributes are set like so:
+--
+-- > set object [ attr := value ]
+--
+-- Whereas child attributes take the child object as a parameter:
+--
+-- > set container [ attr child := value ]
 -- 
+-- And similarily for getting a child attribute's value:
+--
+-- > value <- get container (attr child)
+--
 
 -- * Class Hierarchy
 -- |

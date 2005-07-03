@@ -36,6 +36,33 @@
 
 	* apicoverage/gtk.ignore: minor update.
 
+	* gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.chs: a module
+	much like the glib Properties one, but for container child properties
+	rather than ordinary properties. It defines functions for constructing
+	attributes based on child properties.
+	
+	* Makefile.am: add ContainerChildProperties.chs to source list.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs: change the documentation
+	on child attributes to reflect the new system.
+
+	* gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Toolbar.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Table.chs,
+	gtk/Graphics/UI/Gtk/Layout/Layout.chs,
+	gtk/Graphics/UI/Gtk/Layout/Fixed.chs: add child attributes.
+
+	* gtk/Graphics/UI/Gtk/General/Enums.chs.pp: add toPacking and
+	fromPacking functions for converting between the Packing enum and the
+	expand and fill Gtk+ concepts.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp: add child attributes. For
+	the expand and fill attributes, replace them with a packing attribute
+	that gets/sets both the expand and fill attributes.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and

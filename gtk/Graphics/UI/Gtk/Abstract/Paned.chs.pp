@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/21 02:11:30 $
+--  Version $Revision: 1.11 $ from $Date: 2005/07/03 12:27:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -90,6 +90,12 @@ module Graphics.UI.Gtk.Abstract.Paned (
   panedMaxPosition,
 #endif
 
+-- * Child Attributes
+#if GTK_CHECK_VERSION(2,4,0)
+  panedChildResize,
+  panedChildShrink,
+#endif
+
 -- * Signals
   onCycleChildFocus,
   afterCycleChildFocus,
@@ -114,6 +120,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(ScrollType)
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -259,6 +266,27 @@ panedMinPosition = readAttrFromIntProperty "min_position"
 --
 panedMaxPosition :: PanedClass self => ReadAttr self Int
 panedMaxPosition = readAttrFromIntProperty "max_position"
+#endif
+
+--------------------
+-- Child Attributes
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | The \"resize\" child property determines whether the child expands and
+-- shrinks along with the paned widget.
+--
+-- Default value: @True@
+--
+panedChildResize :: (PanedClass self, WidgetClass child) => child -> Attr self Bool
+panedChildResize = newAttrFromContainerChildBoolProperty "resize"
+
+-- | The \"shrink\" child property determines whether the child can be made
+-- smaller than its requisition.
+--
+-- Default value: @True@
+--
+panedChildShrink :: (PanedClass self, WidgetClass child) => child -> Attr self Bool
+panedChildShrink = newAttrFromContainerChildBoolProperty "shrink"
 #endif
 
 --------------------

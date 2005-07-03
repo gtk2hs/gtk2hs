@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/16 15:29:55 $
+--  Version $Revision: 1.8 $ from $Date: 2005/07/03 12:27:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -141,6 +141,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   toolbarStyle,
   toolbarTooltips,
 
+-- * Child Attributes
+  toolbarChildExpand,
+  toolbarChildHomogeneous,
+
 -- * Signals
   onOrientationChanged,
   afterOrientationChanged,
@@ -160,6 +164,7 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..),
 					 ReliefStyle(..))
 import Graphics.UI.Gtk.General.Structs	(
@@ -684,6 +689,23 @@ toolbarTooltips :: ToolbarClass self => Attr self Bool
 toolbarTooltips = newAttr
   toolbarGetTooltips
   toolbarSetTooltips
+
+--------------------
+-- Child Attributes
+
+-- | Whether the item should receive extra space when the toolbar grows.
+--
+-- Default value: @True@
+--
+toolbarChildExpand :: (ToolbarClass self, WidgetClass child) => child -> Attr self Bool
+toolbarChildExpand = newAttrFromContainerChildBoolProperty "expand"
+
+-- | Whether the item should be the same size as other homogeneous items.
+--
+-- Default value: @True@
+--
+toolbarChildHomogeneous :: (ToolbarClass self, WidgetClass child) => child -> Attr self Bool
+toolbarChildHomogeneous = newAttrFromContainerChildBoolProperty "homogeneous"
 
 --------------------
 -- Signals

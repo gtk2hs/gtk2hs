@@ -345,6 +345,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Box.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/Container.chs			\
+	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.chs	\
 	gtk/Graphics/UI/Gtk/Abstract/Misc.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp			\
 	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp			\

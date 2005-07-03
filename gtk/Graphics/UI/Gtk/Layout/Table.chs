@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/08 03:21:13 $
+--  Version $Revision: 1.8 $ from $Date: 2005/07/03 12:27:10 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -88,6 +88,16 @@ module Graphics.UI.Gtk.Layout.Table (
   tableRowSpacing,
   tableColumnSpacing,
   tableHomogeneous,
+
+-- * Child Attributes
+  tableChildLeftAttach,
+  tableChildRightAttach,
+  tableChildTopAttach,
+  tableChildBottomAttach,
+  tableChildXOptions,
+  tableChildYOptions,
+  tableChildXPadding,
+  tableChildYPadding,
   ) where
 
 import Monad	(liftM)
@@ -100,6 +110,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(AttachOptions(..))
+import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -358,3 +369,76 @@ tableHomogeneous :: TableClass self => Attr self Bool
 tableHomogeneous = newAttr
   tableGetHomogeneous
   tableSetHomogeneous
+
+--------------------
+-- Child Attributes
+
+-- | The column number to attach the left side of the child to.
+--
+-- Allowed values: \<= 65535
+--
+-- Default value: 0
+--
+tableChildLeftAttach :: (TableClass self, WidgetClass child) => child -> Attr self Int
+tableChildLeftAttach = newAttrFromContainerChildUIntProperty "left_attach"
+
+-- | The column number to attach the right side of a child widget to.
+--
+-- Allowed values: [1,65535]
+--
+-- Default value: 1
+--
+tableChildRightAttach :: (TableClass self, WidgetClass child) => child -> Attr self Int
+tableChildRightAttach = newAttrFromContainerChildUIntProperty "right_attach"
+
+-- | The row number to attach the top of a child widget to.
+--
+-- Allowed values: \<= 65535
+--
+-- Default value: 0
+--
+tableChildTopAttach :: (TableClass self, WidgetClass child) => child -> Attr self Int
+tableChildTopAttach = newAttrFromContainerChildUIntProperty "top_attach"
+
+-- | The row number to attach the bottom of the child to.
+--
+-- Allowed values: [1,65535]
+--
+-- Default value: 1
+--
+tableChildBottomAttach :: (TableClass self, WidgetClass child) => child -> Attr self Int
+tableChildBottomAttach = newAttrFromContainerChildUIntProperty "bottom_attach"
+
+-- | Options specifying the horizontal behaviour of the child.
+--
+-- Default value: @['Expand', 'Fill']@
+--
+tableChildXOptions :: (TableClass self, WidgetClass child) => child -> Attr self [AttachOptions]
+tableChildXOptions = newAttrFromContainerChildFlagsProperty "x_options"
+
+-- | Options specifying the vertical behaviour of the child.
+--
+-- Default value: @['Expand', 'Fill']@
+--
+tableChildYOptions :: (TableClass self, WidgetClass child) => child -> Attr self [AttachOptions]
+tableChildYOptions = newAttrFromContainerChildFlagsProperty "y_options"
+
+-- | Extra space to put between the child and its left and right neighbors, in
+-- pixels.
+--
+-- Allowed values: \<= 65535
+--
+-- Default value: 0
+--
+tableChildXPadding :: (TableClass self, WidgetClass child) => child -> Attr self Int
+tableChildXPadding = newAttrFromContainerChildUIntProperty "x_padding"
+
+-- | Extra space to put between the child and its upper and lower neighbors,
+-- in pixels.
+--
+-- Allowed values: \<= 65535
+--
+-- Default value: 0
+--
+tableChildYPadding :: (TableClass self, WidgetClass child) => child -> Attr self Int
+tableChildYPadding = newAttrFromContainerChildUIntProperty "y_padding"
