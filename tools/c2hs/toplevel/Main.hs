@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Derived: 12 August 99
 --
---  Version $Revision: 1.5 $ from $Date: 2005/06/22 16:01:22 $
+--  Version $Revision: 1.6 $ from $Date: 2005/07/03 14:58:16 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -149,7 +149,7 @@ import Binary	  (Binary(..), putBinFileWithDict, getBinFileWithDict)
 import C2HSState  (CST, nop, runC2HS, fatal, fatalsHandledBy, getId,
 		   ExitCode(..), stderr, IOMode(..), putStrCIO, hPutStrCIO,
 		   hPutStrLnCIO, exitWithCIO, getArgsCIO, getProgNameCIO,
-		   ioeGetErrorString, ioeGetFileName, removeFileCIO,
+		   ioeGetErrorString, ioeGetFileName, removeFileCIO, liftIO,
 		   systemCIO, fileFindInCIO, mktempCIO, openFileCIO, hCloseCIO,
 		   SwitchBoard(..), Traces(..), setTraces,
 		   traceSet, setSwitch, getSwitch, putTraceStr)
@@ -159,11 +159,6 @@ import GenHeader  (genHeader)
 import GenBind	  (expandHooks)
 import Version    (version, copyright, disclaimer)
 import C2HSConfig (cpp, cppopts, hpaths, tmpdir)
-
--- for debug:
-import System.CPUTime (getCPUTime)
-import Numeric    (showFFloat)
-import StateBase  (liftIO)
 
 
 -- wrapper running the compiler
@@ -614,7 +609,6 @@ process headerFile bndFile  =
 preCompileHeader :: FilePath -> FilePath -> CST s ()
 preCompileHeader headerFile preCompFile =
   do
-    printElapsedTime "start"
     let preprocFile  = basename headerFile ++ isuffix
     hpaths          <- getSwitch hpathsSB
     realHeaderFile  <- headerFile `fileFindInCIO` hpaths
@@ -630,20 +624,18 @@ preCompileHeader headerFile preCompFile =
     case exitCode of
       ExitFailure _ -> fatal "Error during preprocessing"
       _             -> nop
-    printElapsedTime "about to parse headder"
+
     --
     -- load and analyse the C header file
     --
     (cheader, warnmsgs) <- loadAttrC preprocFile
     putStrCIO warnmsgs
     
-    printElapsedTime "about to serialise header"
-
     --
     -- save the attributed C to disk
     --
     liftIO $ putBinFileWithDict preCompFile (WithNameSupply cheader)
-    printElapsedTime "finished serialising header"
+
     --
     -- remove the pre-processed header
     --
@@ -702,11 +694,6 @@ processPreComp preCompFile bndFile = do
 			      dumpCHS chsName mod False)
 
     chsName = basename bndFile ++ ".dump"
-
-printElapsedTime :: String -> CST s ()
-printElapsedTime msg = do
-  time <- liftIO getCPUTime
-  hPutStrCIO stderr $ "elapsed time: " ++ Numeric.showFFloat (Just 2) ((fromIntegral time) / 10^12) " (" ++ msg ++ ")\n"
 
 -- dummy type so we can save and restore the name supply
 data WithNameSupply a = WithNameSupply a

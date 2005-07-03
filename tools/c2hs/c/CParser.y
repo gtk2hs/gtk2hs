@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty, Duncan Coutts
 --  Created: 29 May 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/06/22 16:01:21 $
+--  Version $Revision: 1.3 $ from $Date: 2005/07/03 14:58:16 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005 Duncan Coutts
@@ -110,7 +110,8 @@ import CBuiltin   (builtinTypeNames)
 %monad { P } { >>= } { return }
 %lexer { lexC } { CTokEof }
 
-%expect 1 -- we have 1 shift/reduce confilict because of the "if then else" syntax.
+-- we have 1 shift/reduce confilict because of the "if then else" syntax.
+%expect 1
 
 %token
 
@@ -235,8 +236,11 @@ external_declaration
 --
 function_definition :: { CFunDef }
 function_definition
-  : declaration_specifiers declarator declaration_list compound_statement	{% withAttrs $1 $ CFunDef $1 $2 (reverse $3) $4 }
-  | declarator declaration_list compound_statement				{% withAttrs $1 $ CFunDef [] $1 (reverse $2) $3 }
+  : declaration_specifiers declarator declaration_list compound_statement
+	{% withAttrs $1 $ CFunDef $1 $2 (reverse $3) $4 }
+
+  | declarator declaration_list compound_statement
+  	{% withAttrs $1 $ CFunDef [] $1 (reverse $2) $3 }
 
 
 -- parse C statement (K&R A9)
@@ -261,7 +265,7 @@ statement_list
 --
 labeled_statement :: { CStat }
 labeled_statement
-  : ident ':' statement				{% withAttrs $2 $ CLabel $1 $3 }
+  : ident ':' statement				{% withAttrs $2 $ CLabel $1 $3}
   | case constant_expression ':' statement	{% withAttrs $1 $ CCase $2 $4 }
   | default ':' statement			{% withAttrs $1 $ CDefault $3 }
 
@@ -278,26 +282,45 @@ expression_statement
 --
 compound_statement :: { CStat }
 compound_statement
-  : '{' declaration_list statement_list '}'	{% withAttrs $1 $ CCompound (reverse $2) (reverse $3) }
+  : '{' declaration_list statement_list '}'
+  	{% withAttrs $1 $ CCompound (reverse $2) (reverse $3) }
 
 
 -- parse C selection statement (K&R A9.4)
 --
 selection_statement :: { CStat }
 selection_statement
-  : if '(' expression ')' statement			{% withAttrs $1 $ CIf $3 $5 Nothing }
-  | if '(' expression ')' statement else statement	{% withAttrs $1 $ CIf $3 $5 (Just $7) }
-  | switch '(' expression ')' statement			{% withAttrs $1 $ CSwitch $3 $5 }
+  : if '(' expression ')' statement
+	{% withAttrs $1 $ CIf $3 $5 Nothing }
+
+  | if '(' expression ')' statement else statement
+	{% withAttrs $1 $ CIf $3 $5 (Just $7) }
+
+  | switch '(' expression ')' statement	
+	{% withAttrs $1 $ CSwitch $3 $5 }
 
 
 -- parse C iteration statement (K&R A9.5)
 --
 iteration_statement :: { CStat }
 iteration_statement
-  : while '(' expression ')' statement						{% withAttrs $1 $ CWhile $3 $5 False }
-  | do statement while '(' expression ')' ';'					{% withAttrs $1 $ CWhile $5 $2 True }
-  | for '(' expression_statement expression_statement ')' statement		{% withAttrs $1 $ case $3 of CExpr e3 _ -> case $4 of CExpr e4 _ -> CFor e3 e4 Nothing $6 }
-  | for '(' expression_statement expression_statement expression ')' statement	{% withAttrs $1 $ case $3 of CExpr e3 _ -> case $4 of CExpr e4 _ -> CFor e3 e4 (Just $5) $7 }
+  : while '(' expression ')' statement
+  	{% withAttrs $1 $ CWhile $3 $5 False }
+
+  | do statement while '(' expression ')' ';'
+  	{% withAttrs $1 $ CWhile $5 $2 True }
+
+  | for '(' expression_statement expression_statement ')' statement
+  	{% withAttrs $1 $ case $3 of
+	                    CExpr e3 _ ->
+			      case $4 of
+			        CExpr e4 _ -> CFor e3 e4 Nothing $6 }
+
+  | for '(' expression_statement expression_statement expression ')' statement
+  	{% withAttrs $1 $ case $3 of
+	                    CExpr e3 _ ->
+			      case $4 of
+			        CExpr e4 _ -> CFor e3 e4 (Just $5) $7 }
 
 
 -- parse C jump statement (K&R A9.6)
@@ -319,14 +342,18 @@ jump_statement
 --
 declaration :: { CDecl }
 declaration
-  : declaration_specifiers				{% withAttrs $1 $ CDecl $1 [] }
-  | declaration_specifiers init_declarator_list		{% let declrs = reverse $2
-                                                            in when (isTypeDef $1)
-                                                               (mapM_ addTypedef (getTypeDefIdents (map fst declrs)))
-							>> getNewName >>= \name ->
-                                                        let attrs = newAttrs (posOf $1) name
-							 in attrs `seq` 
-							    return (CDecl $1 [(Just d, i, Nothing) | (d, i) <- declrs] attrs) }
+  : declaration_specifiers
+  	{% withAttrs $1 $ CDecl $1 [] }
+
+  | declaration_specifiers init_declarator_list
+	{% let declrs = reverse $2
+	    in when (isTypeDef $1)
+	            (mapM_ addTypedef (getTypeDefIdents (map fst declrs)))
+	    >> getNewName >>= \name ->
+	       let attrs = newAttrs (posOf $1) name
+	           declrs' = [ (Just d, i, Nothing) | (d, i) <- declrs ]
+	        in attrs `seq`
+	           return (CDecl $1 declrs' attrs) }
 
 
 declaration_list :: { [CDecl] }
@@ -344,12 +371,23 @@ declaration_specifiers
 
 declaration_specifiers_ :: { [CDeclSpec] }
 declaration_specifiers_
-  : storage_class_specifier gnuc_attrs				{ [CStorageSpec $1] }
-  | storage_class_specifier gnuc_attrs declaration_specifiers_	{ CStorageSpec $1 : $3 }
-  | type_specifier gnuc_attrs					{ [CTypeSpec $1] }
-  | type_specifier gnuc_attrs declaration_specifiers_		{ CTypeSpec $1 : $3 }
-  | type_qualifier gnuc_attrs					{ [CTypeQual $1] }
-  | type_qualifier gnuc_attrs declaration_specifiers_		{ CTypeQual $1 : $3 }
+  : storage_class_specifier gnuc_attrs
+  	{ [CStorageSpec $1] }
+
+  | storage_class_specifier gnuc_attrs declaration_specifiers_
+  	{ CStorageSpec $1 : $3 }
+
+  | type_specifier gnuc_attrs
+  	{ [CTypeSpec $1] }
+
+  | type_specifier gnuc_attrs declaration_specifiers_
+  	{ CTypeSpec $1 : $3 }
+
+  | type_qualifier gnuc_attrs
+  	{ [CTypeQual $1] }
+
+  | type_qualifier gnuc_attrs declaration_specifiers_
+  	{ CTypeQual $1 : $3 }
 
 
 -- parse C init declarator (K&R A8)
@@ -417,11 +455,20 @@ type_qualifier
 --
 struct_or_union_specifier :: { CStructUnion }
 struct_or_union_specifier
-  : struct_or_union ident '{' struct_declaration_list '}'	{% withAttrs $1 $ CStruct (unL $1) (Just $2) (reverse $4) }
-  | struct_or_union tyident '{' struct_declaration_list '}'	{% withAttrs $1 $ CStruct (unL $1) (Just $2) (reverse $4) }
-  | struct_or_union '{' struct_declaration_list '}'		{% withAttrs $1 $ CStruct (unL $1) Nothing   (reverse $3) }
-  | struct_or_union ident					{% withAttrs $1 $ CStruct (unL $1) (Just $2) []           }
-  | struct_or_union tyident					{% withAttrs $1 $ CStruct (unL $1) (Just $2) []           }
+  : struct_or_union ident '{' struct_declaration_list '}'
+  	{% withAttrs $1 $ CStruct (unL $1) (Just $2) (reverse $4) }
+
+  | struct_or_union tyident '{' struct_declaration_list '}'
+  	{% withAttrs $1 $ CStruct (unL $1) (Just $2) (reverse $4) }
+
+  | struct_or_union '{' struct_declaration_list '}'
+  	{% withAttrs $1 $ CStruct (unL $1) Nothing   (reverse $3) }
+
+  | struct_or_union ident
+  	{% withAttrs $1 $ CStruct (unL $1) (Just $2) [] }
+
+  | struct_or_union tyident
+  	{% withAttrs $1 $ CStruct (unL $1) (Just $2) [] }
 
 
 struct_or_union :: { Located CStructTag }
@@ -443,17 +490,18 @@ struct_declaration_list
 --
 struct_declaration :: { CDecl }
 struct_declaration
-  : ignore_extension specifier_qualifier_list struct_declarator_list ';'	{% withAttrs $2 $ CDecl $2 [(d,Nothing,s) | (d,s) <- reverse $3] }
+  : ignore_extension specifier_qualifier_list struct_declarator_list ';'
+  	{% withAttrs $2 $ CDecl $2 [(d,Nothing,s) | (d,s) <- reverse $3] }
 
 
 -- parse C specifier qualifier (K&R A8.3)
 --
 specifier_qualifier_list :: { [CDeclSpec] }
 specifier_qualifier_list
-  : type_specifier					{ [CTypeSpec $1] }
-  | type_specifier specifier_qualifier_list		{ CTypeSpec $1 : $2 }
-  | type_qualifier					{ [CTypeQual $1] }
-  | type_qualifier specifier_qualifier_list		{ CTypeQual $1 : $2 }
+  : type_specifier				{ [CTypeSpec $1] }
+  | type_specifier specifier_qualifier_list	{ CTypeSpec $1 : $2 }
+  | type_qualifier				{ [CTypeQual $1] }
+  | type_qualifier specifier_qualifier_list	{ CTypeQual $1 : $2 }
 
 
 -- parse C structure declarator (K&R A8.3)
@@ -477,9 +525,14 @@ struct_declarator_list
 --
 enum_specifier :: { CEnum }
 enum_specifier
-  : enum '{' enumerator_list '}'		{% withAttrs $1 $ CEnum Nothing   (reverse $3) }
-  | enum ident '{' enumerator_list '}' 		{% withAttrs $1 $ CEnum (Just $2) (reverse $4) }
-  | enum ident					{% withAttrs $1 $ CEnum (Just $2) []           }
+  : enum '{' enumerator_list '}'
+  	{% withAttrs $1 $ CEnum Nothing   (reverse $3) }
+
+  | enum ident '{' enumerator_list '}'
+  	{% withAttrs $1 $ CEnum (Just $2) (reverse $4) }
+
+  | enum ident
+  	{% withAttrs $1 $ CEnum (Just $2) []           }
 
 
 enumerator_list :: { [(Ident,	Maybe CExpr)] }
@@ -507,19 +560,36 @@ enumerator
 --
 declarator :: { CDeclr }
 declarator
-  : pointer direct_declarator gnuc_attrs 			{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
-  | pointer gnuc_attrs_nonempty direct_declarator gnuc_attrs 	{% withAttrs $1 $ CPtrDeclr (map unL $1) $3 }
-  | direct_declarator gnuc_attrs				{ $1 }
+  : pointer direct_declarator gnuc_attrs
+  	{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
+
+  | pointer gnuc_attrs_nonempty direct_declarator gnuc_attrs
+  	{% withAttrs $1 $ CPtrDeclr (map unL $1) $3 }
+
+  | direct_declarator gnuc_attrs
+  	{ $1 }
 
 
 direct_declarator :: { CDeclr }
 direct_declarator
-  : ident						{% withAttrs $1 $ CVarDeclr (Just $1) }
-  | '(' declarator ')'					{ $2 }
-  | direct_declarator '[' constant_expression ']'	{% withAttrs $2 $ CArrDeclr $1 (Just $3) }
-  | direct_declarator '[' ']'				{% withAttrs $2 $ CArrDeclr $1  Nothing  }
-  | direct_declarator '(' parameter_type_list ')'	{% withAttrs $2 $ case $3 of (parms, variadic) -> CFunDeclr $1 parms variadic }
-  | direct_declarator '(' identifier_list ')'		{% withAttrs $2 $ CFunDeclr $1 [] False }
+  : ident
+  	{% withAttrs $1 $ CVarDeclr (Just $1) }
+
+  | '(' declarator ')'
+  	{ $2 }
+
+  | direct_declarator '[' constant_expression ']'
+  	{% withAttrs $2 $ CArrDeclr $1 (Just $3) }
+
+  | direct_declarator '[' ']'
+  	{% withAttrs $2 $ CArrDeclr $1  Nothing  }
+
+  | direct_declarator '(' parameter_type_list ')'
+  	{% withAttrs $2 $ case $3 of
+	                    (parms, variadic) -> CFunDeclr $1 parms variadic }
+
+  | direct_declarator '(' identifier_list ')'
+  	{% withAttrs $2 $ CFunDeclr $1 [] False }
 
 
 identifier_list :: { () }
@@ -557,9 +627,14 @@ parameter_list
 
 parameter_declaration :: { CDecl }
 parameter_declaration
-  : declaration_specifiers declarator		{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
-  | declaration_specifiers abstract_declarator	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
-  | declaration_specifiers			{% withAttrs $1 $ CDecl $1 [] }
+  : declaration_specifiers declarator
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
+
+  | declaration_specifiers abstract_declarator
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
+
+  | declaration_specifiers
+  	{% withAttrs $1 $ CDecl $1 [] }
 
 
 -- parse C initializer (K&R AA8.7)
@@ -581,8 +656,11 @@ initializer_list
 --
 type_name :: { CDecl }
 type_name
-  : specifier_qualifier_list				{% withAttrs $1 $ CDecl $1 [] }
-  | specifier_qualifier_list abstract_declarator	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
+  : specifier_qualifier_list
+  	{% withAttrs $1 $ CDecl $1 [] }
+
+  | specifier_qualifier_list abstract_declarator
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
 
 
 -- parse C abstract declarator (K&R A8.8)
@@ -592,20 +670,40 @@ type_name
 --
 abstract_declarator :: { CDeclr }
 abstract_declarator
-  : pointer				{% withAttrs $1 $ CPtrDeclr (map unL $1) emptyDeclr }
-  | direct_abstract_declarator		{ $1 }
-  | pointer direct_abstract_declarator	{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
+  : pointer
+  	{% withAttrs $1 $ CPtrDeclr (map unL $1) emptyDeclr }
+
+  | direct_abstract_declarator
+  	{ $1 }
+
+  | pointer direct_abstract_declarator
+  	{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
 
 
 direct_abstract_declarator :: { CDeclr }
 direct_abstract_declarator
-  : '(' abstract_declarator ')'					{ $2 }
-  | '[' ']'							{% withAttrs $1 $ CArrDeclr emptyDeclr  Nothing  }
-  | '[' constant_expression ']'					{% withAttrs $1 $ CArrDeclr emptyDeclr (Just $2) }
-  | direct_abstract_declarator '[' ']'				{% withAttrs $2 $ CArrDeclr $1  Nothing  }
-  | direct_abstract_declarator '[' constant_expression ']'	{% withAttrs $2 $ CArrDeclr $1 (Just $3) }
-  | '(' parameter_type_list ')'					{% withAttrs $1 $ case $2 of (parms, variadic) -> CFunDeclr emptyDeclr parms variadic }
-  | direct_abstract_declarator '(' parameter_type_list ')'	{% withAttrs $2 $ case $3 of (parms, variadic) -> CFunDeclr $1 parms variadic }
+  : '(' abstract_declarator ')'
+  	{ $2 }
+
+  | '[' ']'
+  	{% withAttrs $1 $ CArrDeclr emptyDeclr  Nothing  }
+
+  | '[' constant_expression ']'
+  	{% withAttrs $1 $ CArrDeclr emptyDeclr (Just $2) }
+
+  | direct_abstract_declarator '[' ']'
+  	{% withAttrs $2 $ CArrDeclr $1  Nothing  }
+
+  | direct_abstract_declarator '[' constant_expression ']'
+  	{% withAttrs $2 $ CArrDeclr $1 (Just $3) }
+
+  | '(' parameter_type_list ')'
+  	{% withAttrs $1 $ case $2 of
+	                    (parms, variadic) ->
+			      CFunDeclr emptyDeclr parms variadic }
+
+  | direct_abstract_declarator '(' parameter_type_list ')'
+  	{% withAttrs $2 $ case $3 of (parms, variadic) -> CFunDeclr $1 parms variadic }
 
 
 -- parse C primary expression (K&R A7.2)
@@ -623,14 +721,29 @@ primary_expression
 --
 postfix_expression :: { CExpr }
 postfix_expression
-  : primary_expression					{ $1 }
-  | postfix_expression '[' expression ']'		{% withAttrs $2 $ CIndex $1 $3 }
-  | postfix_expression '(' ')'				{% withAttrs $2 $ CCall $1 [] }
-  | postfix_expression '(' argument_expression_list ')'	{% withAttrs $2 $ CCall $1 (reverse $3) }
-  | postfix_expression '.' ident			{% withAttrs $2 $ CMember $1 $3 False }
-  | postfix_expression "->" ident			{% withAttrs $2 $ CMember $1 $3 True }
-  | postfix_expression "++"				{% withAttrs $2 $ CUnary CPostIncOp $1 }
-  | postfix_expression "--"				{% withAttrs $2 $ CUnary CPostDecOp $1 }
+  : primary_expression
+  	{ $1 }
+
+  | postfix_expression '[' expression ']'
+  	{% withAttrs $2 $ CIndex $1 $3 }
+
+  | postfix_expression '(' ')'
+  	{% withAttrs $2 $ CCall $1 [] }
+
+  | postfix_expression '(' argument_expression_list ')'
+  	{% withAttrs $2 $ CCall $1 (reverse $3) }
+
+  | postfix_expression '.' ident
+  	{% withAttrs $2 $ CMember $1 $3 False }
+
+  | postfix_expression "->" ident
+  	{% withAttrs $2 $ CMember $1 $3 True }
+
+  | postfix_expression "++"
+  	{% withAttrs $2 $ CUnary CPostIncOp $1 }
+
+  | postfix_expression "--"
+  	{% withAttrs $2 $ CUnary CPostDecOp $1 }
 
 
 argument_expression_list :: { [CExpr] }
@@ -677,104 +790,156 @@ cast_expression
 --
 multiplicative_expression :: { CExpr }
 multiplicative_expression
-  : cast_expression					{ $1 }
-  | multiplicative_expression '*' cast_expression	{% withAttrs $2 $ CBinary CMulOp $1 $3 }
-  | multiplicative_expression '/' cast_expression	{% withAttrs $2 $ CBinary CDivOp $1 $3 }
-  | multiplicative_expression '%' cast_expression	{% withAttrs $2 $ CBinary CRmdOp $1 $3 }
+  : cast_expression
+  	{ $1 }
+
+  | multiplicative_expression '*' cast_expression
+  	{% withAttrs $2 $ CBinary CMulOp $1 $3 }
+
+  | multiplicative_expression '/' cast_expression
+  	{% withAttrs $2 $ CBinary CDivOp $1 $3 }
+
+  | multiplicative_expression '%' cast_expression
+  	{% withAttrs $2 $ CBinary CRmdOp $1 $3 }
 
 
 -- parse C additive expression (K&R A7.7)
 --
 additive_expression :: { CExpr }
 additive_expression
-  : multiplicative_expression				{ $1 }
-  | additive_expression '+' multiplicative_expression	{% withAttrs $2 $ CBinary CAddOp $1 $3 }
-  | additive_expression '-' multiplicative_expression	{% withAttrs $2 $ CBinary CSubOp $1 $3 }
+  : multiplicative_expression
+  	{ $1 }
+
+  | additive_expression '+' multiplicative_expression
+  	{% withAttrs $2 $ CBinary CAddOp $1 $3 }
+
+  | additive_expression '-' multiplicative_expression
+  	{% withAttrs $2 $ CBinary CSubOp $1 $3 }
 
 
 -- parse C shift expression (K&R A7.8)
 --
 shift_expression :: { CExpr }
 shift_expression
-  : additive_expression				{ $1 }
-  | shift_expression "<<" additive_expression	{% withAttrs $2 $ CBinary CShlOp $1 $3 }
-  | shift_expression ">>" additive_expression	{% withAttrs $2 $ CBinary CShrOp $1 $3 }
+  : additive_expression
+  	{ $1 }
+
+  | shift_expression "<<" additive_expression
+  	{% withAttrs $2 $ CBinary CShlOp $1 $3 }
+
+  | shift_expression ">>" additive_expression
+  	{% withAttrs $2 $ CBinary CShrOp $1 $3 }
 
 
 -- parse C relational expression (K&R A7.9)
 --
 relational_expression :: { CExpr }
 relational_expression
-  : shift_expression				{ $1 }
-  | relational_expression '<' shift_expression	{% withAttrs $2 $ CBinary CLeOp $1 $3 }
-  | relational_expression '>' shift_expression	{% withAttrs $2 $ CBinary CGrOp $1 $3 }
-  | relational_expression "<=" shift_expression	{% withAttrs $2 $ CBinary CLeqOp $1 $3 }
-  | relational_expression ">=" shift_expression	{% withAttrs $2 $ CBinary CGeqOp $1 $3 }
+  : shift_expression
+  	{ $1 }
+
+  | relational_expression '<' shift_expression
+  	{% withAttrs $2 $ CBinary CLeOp $1 $3 }
+
+  | relational_expression '>' shift_expression
+  	{% withAttrs $2 $ CBinary CGrOp $1 $3 }
+
+  | relational_expression "<=" shift_expression
+  	{% withAttrs $2 $ CBinary CLeqOp $1 $3 }
+
+  | relational_expression ">=" shift_expression
+  	{% withAttrs $2 $ CBinary CGeqOp $1 $3 }
 
 
 -- parse C equality expression (K&R A7.10)
 --
 equality_expression :: { CExpr }
 equality_expression
-  : relational_expression				{ $1 }
-  | equality_expression "==" relational_expression	{% withAttrs $2 $ CBinary CEqOp  $1 $3 }
-  | equality_expression "!=" relational_expression	{% withAttrs $2 $ CBinary CNeqOp $1 $3 }
+  : relational_expression
+  	{ $1 }
+
+  | equality_expression "==" relational_expression
+  	{% withAttrs $2 $ CBinary CEqOp  $1 $3 }
+
+  | equality_expression "!=" relational_expression
+  	{% withAttrs $2 $ CBinary CNeqOp $1 $3 }
 
 
 -- parse C bitwise and expression (K&R A7.11)
 --
 and_expression :: { CExpr }
 and_expression
-  : equality_expression				{ $1 }
-  | and_expression '&' equality_expression	{% withAttrs $2 $ CBinary CAndOp $1 $3 }
+  : equality_expression
+  	{ $1 }
+
+  | and_expression '&' equality_expression
+  	{% withAttrs $2 $ CBinary CAndOp $1 $3 }
 
 
 -- parse C bitwise exclusive or expression (K&R A7.12)
 --
 exclusive_or_expression :: { CExpr }
 exclusive_or_expression
-  : and_expression				{ $1 }
-  | exclusive_or_expression '^' and_expression	{% withAttrs $2 $ CBinary CXorOp $1 $3 }
+  : and_expression
+  	{ $1 }
+
+  | exclusive_or_expression '^' and_expression
+  	{% withAttrs $2 $ CBinary CXorOp $1 $3 }
 
 
 -- parse C bitwise or expression (K&R A7.13)
 --
 inclusive_or_expression :: { CExpr }
 inclusive_or_expression
-  : exclusive_or_expression				{ $1 }
-  | inclusive_or_expression '|' exclusive_or_expression	{% withAttrs $2 $ CBinary COrOp $1 $3 }
+  : exclusive_or_expression
+  	{ $1 }
+
+  | inclusive_or_expression '|' exclusive_or_expression
+  	{% withAttrs $2 $ CBinary COrOp $1 $3 }
 
 
 -- parse C logical and expression (K&R A7.14)
 --
 logical_and_expression :: { CExpr }
 logical_and_expression
-  : inclusive_or_expression				{ $1 }
-  | logical_and_expression "&&" inclusive_or_expression	{% withAttrs $2 $ CBinary CLndOp $1 $3 }
+  : inclusive_or_expression
+  	{ $1 }
+
+  | logical_and_expression "&&" inclusive_or_expression
+  	{% withAttrs $2 $ CBinary CLndOp $1 $3 }
 
 
 -- parse C logical or expression (K&R A7.15)
 --
 logical_or_expression :: { CExpr }
 logical_or_expression
-  : logical_and_expression				{ $1 }
-  | logical_or_expression "||" logical_and_expression	{% withAttrs $2 $ CBinary CLorOp $1 $3 }
+  : logical_and_expression
+  	{ $1 }
+
+  | logical_or_expression "||" logical_and_expression
+  	{% withAttrs $2 $ CBinary CLorOp $1 $3 }
 
 
 -- parse C conditional expression (K&R A7.16)
 --
 conditional_expression :: { CExpr }
 conditional_expression
-  : logical_or_expression						{ $1 }
-  | logical_or_expression '?' expression ':' conditional_expression	{% withAttrs $2 $ CCond $1 $3 $5 }
+  : logical_or_expression
+  	{ $1 }
+
+  | logical_or_expression '?' expression ':' conditional_expression
+  	{% withAttrs $2 $ CCond $1 $3 $5 }
 
 
 -- parse C assignment expression (K&R A7.17)
 --
 assignment_expression :: { CExpr }
 assignment_expression
-  : conditional_expression					{ $1 }
-  | unary_expression assignment_operator assignment_expression	{% withAttrs $2 $ CAssign (unL $2) $1 $3 }
+  : conditional_expression
+  	{ $1 }
+
+  | unary_expression assignment_operator assignment_expression
+  	{% withAttrs $2 $ CAssign (unL $2) $1 $3 }
 
 
 assignment_operator :: { Located CAssignOp }
@@ -796,10 +961,10 @@ assignment_operator
 --
 expression :: { CExpr }
 expression
-  : expression_					{% case $1 of
-						   [e] -> return e
-						   _   -> let es = reverse $1 
-						           in withAttrs es $ CComma es }
+  : expression_				{% case $1 of
+					   [e] -> return e
+					   _   -> let es = reverse $1 
+					          in withAttrs es $ CComma es }
 
 expression_ :: { [CExpr] }
 expression_
@@ -820,10 +985,10 @@ constant_expression
 --
 literal_expression :: { CConst }
 literal_expression
-  : cint		{% withAttrs $1 $ case $1 of CTokILit _ i -> CIntConst i }
-  | cchar		{% withAttrs $1 $ case $1 of CTokCLit _ c -> CCharConst c }
-  | cfloat		{% withAttrs $1 $ case $1 of CTokFLit _ f -> CFloatConst f }
-  | cstr		{% withAttrs $1 $ case $1 of CTokSLit _ s -> CStrConst s }
+  : cint	{% withAttrs $1 $ case $1 of CTokILit _ i -> CIntConst i }
+  | cchar	{% withAttrs $1 $ case $1 of CTokCLit _ c -> CCharConst c }
+  | cfloat	{% withAttrs $1 $ case $1 of CTokFLit _ f -> CFloatConst f }
+  | cstr	{% withAttrs $1 $ case $1 of CTokSLit _ s -> CStrConst s }
 
 
 -- parse GNU C __extension__ annotation (junking the result)
@@ -925,5 +1090,4 @@ parseC input initialPosition  = do
     Left header -> return (header at)
     Right (message, position) -> raiseFatal "Error in C header file."
                                             position message
-
 }

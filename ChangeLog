@@ -83,6 +83,16 @@
 	* gtk/Graphics/UI/Gtk.hs: export the ButtonBox module which was
 	missing for some reason.
 
+	* tools/c2hs/c/CLexer.x: reformat to fit in 80 columns. Use little
+	token functions to improve clarity. Only generate unique names for
+	tokens that actually need them (saves 5% running time). This is the
+	version sent to Manuel for inclusion in mainline c2hs.
+
+	* tools/c2hs/c/CParser.y: reformat to fit in 80 columns. This is the
+	version sent to Manuel for inclusion in mainline c2hs.
+
+	* tools/c2hs/toplevel/Main.hs: remove the debugging/timing messages.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and

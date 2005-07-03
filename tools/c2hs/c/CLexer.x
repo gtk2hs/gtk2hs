@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty, Duncan Coutts
 --  Created: 24 May 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/06/22 16:01:20 $
+--  Version $Revision: 1.3 $ from $Date: 2005/07/03 14:58:16 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005 Duncan Coutts
@@ -130,7 +130,8 @@ $white+					;
 -- * allows further ints after the file name a la GCC; as the GCC CPP docu
 --   doesn't say how many ints there can be, we allow an unbound number
 --
-\#$space*@int$space*(\"$infname*\"$space*)?(@int$space*)*$eol	{ \pos len str -> setPos (adjustPos (take len str) pos) >> lexToken }
+\#$space*@int$space*(\"$infname*\"$space*)?(@int$space*)*$eol
+  { \pos len str -> setPos (adjustPos (take len str) pos) >> lexToken }
 
 -- #pragma directive (K&R A12.8)
 --
@@ -148,9 +149,7 @@ $white+					;
 
 -- identifiers and keywords (follows K&R A2.3 and A2.4)
 --
-$letter($letter|$digit)*		{ \pos len str -> getNewName >>= \name ->
-                                                          getTypedefs >>= \tdefs ->
-                                                          return $ idkwtok pos (take len str) name tdefs }
+$letter($letter|$digit)*	{ \pos len str -> idkwtok (take len str) pos }
 
 -- constants (follows K&R A2.5) 
 --
@@ -160,71 +159,71 @@ $letter($letter|$digit)*		{ \pos len str -> getNewName >>= \name ->
 
 -- integer constants (follows K&R A2.5.1)
 --
-0$octdigit*[uUlL]{0,2}			{ \pos len -> return . CTokILit pos . fst . head . readOct . take len }
-$digitNZ$digit*[uUlL]{0,2}		{ \pos len -> return . CTokILit pos . fst . head . readDec . take len }
-0[xX]$hexdigit*[uUlL]{0,2}		{ \pos len -> return . CTokILit pos . fst . head . readHex . drop 2 . take len }
+0$octdigit*[uUlL]{0,2}		{ token CTokILit (fst . head . readOct) }
+$digitNZ$digit*[uUlL]{0,2}	{ token CTokILit (fst . head . readDec) }
+0[xX]$hexdigit*[uUlL]{0,2}	{ token CTokILit (fst . head . readHex . drop 2) }
 
 -- character constants (follows K&R A2.5.2)
 --
-\'($inchar|@charesc)\'			{ \pos len -> return . CTokCLit pos . fst . oneChar . tail . take len }
+\'($inchar|@charesc)\'		{ token CTokCLit (fst . oneChar . tail) }
 
 -- float constants (follows K&R A2.5.3)
 --
-(@mantpart@exppart?|@intpart@exppart)@suffix?	{ \pos len -> return . CTokFLit pos . take len }
+(@mantpart@exppart?|@intpart@exppart)@suffix?	{ token CTokFLit id }
 
 -- string literal (follows K&R A2.6)
 --
-\"($instr|@charesc)*\"			{ \pos len -> return . CTokSLit pos . normalizeEscapes . take len }
+\"($instr|@charesc)*\"			{ token CTokSLit normalizeEscapes }
 
 
 -- operators and separators
 --
-"("	{ token CTokLParen }
-")"	{ token CTokRParen  }
-"["	{ token CTokLBracket }
-"]"	{ token CTokRBracket }
-"->"	{ token CTokArrow }
-"."	{ token CTokDot }
-"!"	{ token CTokExclam }
-"~"	{ token CTokTilde }
-"++"	{ token CTokInc }
-"--"	{ token CTokDec }
-"+"	{ token CTokPlus }
-"-"	{ token CTokMinus }
-"*"	{ token CTokStar }
-"/"	{ token CTokSlash }
-"%"	{ token CTokPercent }
-"&"	{ token CTokAmper }
-"<<"	{ token CTokShiftL }
-">>"	{ token CTokShiftR }
-"<"	{ token CTokLess }
-"<="	{ token CTokLessEq }
-">"	{ token CTokHigh }
-">="	{ token CTokHighEq }
-"=="	{ token CTokEqual }
-"!="	{ token CTokUnequal }
-"^"	{ token CTokHat }
-"|"	{ token CTokBar }
-"&&"	{ token CTokAnd }
-"||"	{ token CTokOr }
-"?"	{ token CTokQuest }
-":"	{ token CTokColon }
-"="	{ token CTokAssign }
-"+="	{ token CTokPlusAss }
-"-="	{ token CTokMinusAss }
-"*="	{ token CTokStarAss }
-"/="	{ token CTokSlashAss }
-"%="	{ token CTokPercAss }
-"&="	{ token CTokAmpAss }
-"^="	{ token CTokHatAss }
-"|="	{ token CTokBarAss }
-"<<="	{ token CTokSLAss }
-">>="	{ token CTokSRAss }
-","	{ token CTokComma }
-\;	{ token CTokSemic }
-"{"	{ token CTokLBrace }
-"}"	{ token CTokRBrace }
-"..."	{ token CTokEllipsis }
+"("	{ token_ CTokLParen }
+")"	{ token_ CTokRParen  }
+"["	{ token_ CTokLBracket }
+"]"	{ token_ CTokRBracket }
+"->"	{ token_ CTokArrow }
+"."	{ token_ CTokDot }
+"!"	{ token_ CTokExclam }
+"~"	{ token_ CTokTilde }
+"++"	{ token_ CTokInc }
+"--"	{ token_ CTokDec }
+"+"	{ token_ CTokPlus }
+"-"	{ token_ CTokMinus }
+"*"	{ token_ CTokStar }
+"/"	{ token_ CTokSlash }
+"%"	{ token_ CTokPercent }
+"&"	{ token_ CTokAmper }
+"<<"	{ token_ CTokShiftL }
+">>"	{ token_ CTokShiftR }
+"<"	{ token_ CTokLess }
+"<="	{ token_ CTokLessEq }
+">"	{ token_ CTokHigh }
+">="	{ token_ CTokHighEq }
+"=="	{ token_ CTokEqual }
+"!="	{ token_ CTokUnequal }
+"^"	{ token_ CTokHat }
+"|"	{ token_ CTokBar }
+"&&"	{ token_ CTokAnd }
+"||"	{ token_ CTokOr }
+"?"	{ token_ CTokQuest }
+":"	{ token_ CTokColon }
+"="	{ token_ CTokAssign }
+"+="	{ token_ CTokPlusAss }
+"-="	{ token_ CTokMinusAss }
+"*="	{ token_ CTokStarAss }
+"/="	{ token_ CTokSlashAss }
+"%="	{ token_ CTokPercAss }
+"&="	{ token_ CTokAmpAss }
+"^="	{ token_ CTokHatAss }
+"|="	{ token_ CTokBarAss }
+"<<="	{ token_ CTokSLAss }
+">>="	{ token_ CTokSRAss }
+","	{ token_ CTokComma }
+\;	{ token_ CTokSemic }
+"{"	{ token_ CTokLBrace }
+"}"	{ token_ CTokRBrace }
+"..."	{ token_ CTokEllipsis }
 
 
 {
@@ -529,61 +528,68 @@ instance Show CToken where
 -- effecient pattern matching which gives us the expected radix-style search.
 -- This gives change makes a significant performance difference.
 --
-idkwtok :: Position -> String -> Name -> Set Ident -> CToken
-idkwtok pos ('a':'l':'i':'g':'n':'o':'f':[])			_ _  = CTokAlignof  pos
-idkwtok pos ('_':'_':'a':'l':'i':'g':'n':'o':'f':[])		_ _  = CTokAlignof  pos
-idkwtok pos ('_':'_':'a':'l':'i':'g':'n':'o':'f':'_':'_':[])	_ _  = CTokAlignof  pos
-idkwtok pos ('a':'u':'t':'o':[])				_ _  = CTokAuto     pos
-idkwtok pos ('b':'r':'e':'a':'k':[])				_ _  = CTokBreak    pos
-idkwtok pos ('c':'a':'s':'e':[])				_ _  = CTokCase     pos
-idkwtok pos ('c':'h':'a':'r':[])				_ _  = CTokChar     pos
-idkwtok pos ('c':'o':'n':'s':'t':[])				_ _  = CTokConst    pos
-idkwtok pos ('_':'_':'c':'o':'n':'s':'t':[])			_ _  = CTokConst    pos
-idkwtok pos ('_':'_':'c':'o':'n':'s':'t':'_':'_':[])		_ _  = CTokConst    pos
-idkwtok pos ('c':'o':'n':'t':'i':'n':'u':'e':[])		_ _  = CTokContinue pos
-idkwtok pos ('d':'e':'f':'a':'u':'l':'t':[])			_ _  = CTokDefault  pos
-idkwtok pos ('d':'o':[])					_ _  = CTokDo	    pos
-idkwtok pos ('d':'o':'u':'b':'l':'e':[])			_ _  = CTokDouble   pos
-idkwtok pos ('e':'l':'s':'e':[])				_ _  = CTokElse     pos
-idkwtok pos ('e':'n':'u':'m':[])				_ _  = CTokEnum     pos
-idkwtok pos ('e':'x':'t':'e':'r':'n':[])			_ _  = CTokExtern   pos
-idkwtok pos ('f':'l':'o':'a':'t':[])				_ _  = CTokFloat    pos
-idkwtok pos ('f':'o':'r':[])					_ _  = CTokFor	    pos
-idkwtok pos ('g':'o':'t':'o':[])				_ _  = CTokGoto     pos
-idkwtok pos ('i':'f':[])					_ _  = CTokIf	    pos
-idkwtok pos ('i':'n':'l':'i':'n':'e':[])			_ _  = CTokInline   pos
-idkwtok pos ('_':'_':'i':'n':'l':'i':'n':'e':[])		_ _  = CTokInline   pos
-idkwtok pos ('_':'_':'i':'n':'l':'i':'n':'e':'_':'_':[])	_ _  = CTokInline   pos
-idkwtok pos ('i':'n':'t':[])					_ _  = CTokInt      pos
-idkwtok pos ('l':'o':'n':'g':[])				_ _  = CTokLong     pos
-idkwtok pos ('r':'e':'g':'i':'s':'t':'e':'r':[])		_ _  = CTokRegister pos
-idkwtok pos ('r':'e':'s':'t':'r':'i':'c':'t':[])		_ _  = CTokRestrict pos
-idkwtok pos ('_':'_':'r':'e':'s':'t':'r':'i':'c':'t':[])	_ _  = CTokRestrict pos
-idkwtok pos ('_':'_':'r':'e':'s':'t':'r':'i':'c':'t':'_':'_':[])_ _  = CTokRestrict pos
-idkwtok pos ('r':'e':'t':'u':'r':'n':[])			_ _  = CTokReturn   pos
-idkwtok pos ('s':'h':'o':'r':'t':[])				_ _  = CTokShort    pos
-idkwtok pos ('s':'i':'g':'n':'e':'d':[])			_ _  = CTokSigned   pos
-idkwtok pos ('_':'_':'s':'i':'g':'n':'e':'d':[])		_ _  = CTokSigned   pos
-idkwtok pos ('_':'_':'s':'i':'g':'n':'e':'d':'_':'_':[])	_ _  = CTokSigned   pos
-idkwtok pos ('s':'i':'z':'e':'o':'f':[])			_ _  = CTokSizeof   pos
-idkwtok pos ('s':'t':'a':'t':'i':'c':[])			_ _  = CTokStatic   pos
-idkwtok pos ('s':'t':'r':'u':'c':'t':[])			_ _  = CTokStruct   pos
-idkwtok pos ('s':'w':'i':'t':'c':'h':[])			_ _  = CTokSwitch   pos
-idkwtok pos ('t':'y':'p':'e':'d':'e':'f':[])			_ _  = CTokTypedef  pos
-idkwtok pos ('u':'n':'i':'o':'n':[])				_ _  = CTokUnion    pos
-idkwtok pos ('u':'n':'s':'i':'g':'n':'e':'d':[])		_ _  = CTokUnsigned pos
-idkwtok pos ('v':'o':'i':'d':[])				_ _  = CTokVoid     pos
-idkwtok pos ('v':'o':'l':'a':'t':'i':'l':'e':[])		_ _  = CTokVolatile pos
-idkwtok pos ('_':'_':'v':'o':'l':'a':'t':'i':'l':'e':[])	_ _  = CTokVolatile pos
-idkwtok pos ('_':'_':'v':'o':'l':'a':'t':'i':'l':'e':'_':'_':[])_ _  = CTokVolatile pos
-idkwtok pos ('w':'h':'i':'l':'e':[])				_ _  = CTokWhile    pos
-idkwtok pos ('_':'_':'a':'t':'t':'r':'i':'b':'u':'t':'e':'_':'_':[])	_ _  = CTokGnuC GnuCAttrTok pos
-idkwtok pos ('_':'_':'e':'x':'t':'e':'n':'s':'i':'o':'n':'_':'_':[]) 	_ _  = CTokGnuC GnuCExtTok pos
-idkwtok pos cs name tdefs 
-       | ident `Set.elementOf` tdefs = CTokTyIdent  pos ident
-       | otherwise                   = CTokIdent    pos ident
-  where ident = lexemeToIdent pos cs name
+idkwtok :: String -> Position -> P CToken
+idkwtok ('a':'l':'i':'g':'n':'o':'f':[])		     = tok CTokAlignof
+idkwtok ('_':'_':'a':'l':'i':'g':'n':'o':'f':[])	     = tok CTokAlignof
+idkwtok ('_':'_':'a':'l':'i':'g':'n':'o':'f':'_':'_':[])     = tok CTokAlignof
+idkwtok ('a':'u':'t':'o':[])				     = tok CTokAuto
+idkwtok ('b':'r':'e':'a':'k':[])			     = tok CTokBreak
+idkwtok ('c':'a':'s':'e':[])				     = tok CTokCase
+idkwtok ('c':'h':'a':'r':[])				     = tok CTokChar
+idkwtok ('c':'o':'n':'s':'t':[])			     = tok CTokConst
+idkwtok ('_':'_':'c':'o':'n':'s':'t':[])		     = tok CTokConst
+idkwtok ('_':'_':'c':'o':'n':'s':'t':'_':'_':[])	     = tok CTokConst
+idkwtok ('c':'o':'n':'t':'i':'n':'u':'e':[])		     = tok CTokContinue
+idkwtok ('d':'e':'f':'a':'u':'l':'t':[])		     = tok CTokDefault
+idkwtok ('d':'o':[])					     = tok CTokDo
+idkwtok ('d':'o':'u':'b':'l':'e':[])			     = tok CTokDouble
+idkwtok ('e':'l':'s':'e':[])				     = tok CTokElse
+idkwtok ('e':'n':'u':'m':[])				     = tok CTokEnum
+idkwtok ('e':'x':'t':'e':'r':'n':[])			     = tok CTokExtern
+idkwtok ('f':'l':'o':'a':'t':[])			     = tok CTokFloat
+idkwtok ('f':'o':'r':[])				     = tok CTokFor
+idkwtok ('g':'o':'t':'o':[])				     = tok CTokGoto
+idkwtok ('i':'f':[])					     = tok CTokIf
+idkwtok ('i':'n':'l':'i':'n':'e':[])			     = tok CTokInline
+idkwtok ('_':'_':'i':'n':'l':'i':'n':'e':[])		     = tok CTokInline
+idkwtok ('_':'_':'i':'n':'l':'i':'n':'e':'_':'_':[])	     = tok CTokInline
+idkwtok ('i':'n':'t':[])				     = tok CTokInt
+idkwtok ('l':'o':'n':'g':[])				     = tok CTokLong
+idkwtok ('r':'e':'g':'i':'s':'t':'e':'r':[])		     = tok CTokRegister
+idkwtok ('r':'e':'s':'t':'r':'i':'c':'t':[])		     = tok CTokRestrict
+idkwtok ('_':'_':'r':'e':'s':'t':'r':'i':'c':'t':[])	     = tok CTokRestrict
+idkwtok ('_':'_':'r':'e':'s':'t':'r':'i':'c':'t':'_':'_':[]) = tok CTokRestrict
+idkwtok ('r':'e':'t':'u':'r':'n':[])			     = tok CTokReturn
+idkwtok ('s':'h':'o':'r':'t':[])			     = tok CTokShort
+idkwtok ('s':'i':'g':'n':'e':'d':[])			     = tok CTokSigned
+idkwtok ('_':'_':'s':'i':'g':'n':'e':'d':[])		     = tok CTokSigned
+idkwtok ('_':'_':'s':'i':'g':'n':'e':'d':'_':'_':[])	     = tok CTokSigned
+idkwtok ('s':'i':'z':'e':'o':'f':[])			     = tok CTokSizeof
+idkwtok ('s':'t':'a':'t':'i':'c':[])			     = tok CTokStatic
+idkwtok ('s':'t':'r':'u':'c':'t':[])			     = tok CTokStruct
+idkwtok ('s':'w':'i':'t':'c':'h':[])			     = tok CTokSwitch
+idkwtok ('t':'y':'p':'e':'d':'e':'f':[])		     = tok CTokTypedef
+idkwtok ('u':'n':'i':'o':'n':[])			     = tok CTokUnion
+idkwtok ('u':'n':'s':'i':'g':'n':'e':'d':[])		     = tok CTokUnsigned
+idkwtok ('v':'o':'i':'d':[])				     = tok CTokVoid
+idkwtok ('v':'o':'l':'a':'t':'i':'l':'e':[])		     = tok CTokVolatile
+idkwtok ('_':'_':'v':'o':'l':'a':'t':'i':'l':'e':[])	     = tok CTokVolatile
+idkwtok ('_':'_':'v':'o':'l':'a':'t':'i':'l':'e':'_':'_':[]) = tok CTokVolatile
+idkwtok ('w':'h':'i':'l':'e':[])			     = tok CTokWhile
+idkwtok ('_':'_':'a':'t':'t':'r':'i':'b':'u':'t':'e':'_':'_':[]) =
+						tok (CTokGnuC GnuCAttrTok)
+idkwtok ('_':'_':'e':'x':'t':'e':'n':'s':'i':'o':'n':'_':'_':[]) =
+						tok (CTokGnuC GnuCExtTok)
+idkwtok cs = \pos -> do
+  name <- getNewName
+  tdefs <- getTypedefs
+  let ident = lexemeToIdent pos cs name
+  if ident `Set.elementOf` tdefs
+    then return (CTokTyIdent pos ident)
+    else return (CTokIdent   pos ident)
 
+tok :: (Position -> CToken) -> Position -> P CToken
+tok tc pos = return (tc pos)
 
 -- converts the first character denotation of a C-style string to a character
 -- and the remaining string
@@ -626,8 +632,16 @@ adjustPos str (Position fname row _) = (Position fname' row' 0)
     --
     dropWhite = dropWhile (\c -> c == ' ' || c == '\t')
 
-token :: (Position -> CToken) -> Position -> Int -> String -> P CToken
-token tok pos _ _ = return (tok pos)
+{-# INLINE token_ #-}
+-- token that ignores the string
+token_ :: (Position -> CToken) -> Position -> Int -> String -> P CToken
+token_ tok pos _ _ = return (tok pos)
+
+{-# INLINE token #-}
+-- token that uses the string
+token :: (Position -> a -> CToken) -> (String -> a)
+      -> Position -> Int -> String -> P CToken
+token tok read pos len str = return (tok pos (read $ take len str))
 
 
 -- -----------------------------------------------------------------------------
@@ -672,7 +686,8 @@ instance Monad P where
   (>>=) = thenP
   fail m = getPos >>= \pos -> failP pos [m]
 
-execParser :: P a -> String -> Position -> [Ident] -> [Name] -> Either a ([String], Position)
+execParser :: P a -> String -> Position -> [Ident] -> [Name]
+           -> Either a ([String], Position)
 execParser (P parser) input pos builtins names =
   case parser initialState of
     POk _ result -> Left result
