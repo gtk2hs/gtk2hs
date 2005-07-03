@@ -63,6 +63,10 @@
 	the expand and fill attributes, replace them with a packing attribute
 	that gets/sets both the expand and fill attributes.
 
+	* glib/System/Glib/Properties.chs: use withCString rather than
+	withUTFString for the proeprty names since they are internal and
+	always ASCII.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and

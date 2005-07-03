@@ -5,7 +5,7 @@
 --
 --  Created: 16 April 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/07/02 23:24:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/07/03 12:53:22 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -88,7 +88,7 @@ import System.Glib.Attributes	(Attr, ReadAttr, WriteAttr, ReadWriteAttr,
 
 objectSetPropertyInternal :: GObjectClass gobj => GType -> (GValue -> a -> IO ()) -> String -> gobj -> a -> IO ()
 objectSetPropertyInternal gtype valueSet prop obj val =
-  withUTFString prop $ \propPtr ->
+  withCString prop $ \propPtr ->
   allocaGValue $ \gvalue -> do
   valueInit gvalue gtype
   valueSet gvalue val
@@ -99,7 +99,7 @@ objectSetPropertyInternal gtype valueSet prop obj val =
 
 objectGetPropertyInternal :: GObjectClass gobj => GType -> (GValue -> IO a) -> String -> gobj -> IO a
 objectGetPropertyInternal gtype valueGet prop obj =
-  withUTFString prop $ \propPtr ->
+  withCString prop $ \propPtr ->
   allocaGValue $ \gvalue -> do
   valueInit gvalue gtype
   {# call unsafe g_object_get_property #}
