@@ -31,6 +31,11 @@
 
 	* tools/apiGen/CodeGen.hs: produce code for the child attributes.
 
+	* apicoverage/Makefile: minor change, make it look for .chs(.pp) files
+	rather than .hs files and remove redundant filter.
+
+	* apicoverage/gtk.ignore: minor update.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and

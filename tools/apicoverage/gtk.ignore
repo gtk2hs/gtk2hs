@@ -40,8 +40,8 @@ exclude gtk_accel_group_unref
 
 exclude gtk_idle
 exclude gtk_timeout
-exclude gtk_input
-do not exclude gtk_input_dialog
+exclude gtk_input_add_full
+exclude gtk_input_remove
 exclude gtk_exit
 exclude gtk_type
 
@@ -69,6 +69,10 @@ exclude gtk_input_dialog
 exclude _utf8$
 
 
+#Haskell programs do their own command line parsing
+exclude gtk_get_option_group
+
+
 #low level
 exclude gtk_marshal
 exclude gtk_false
@@ -79,6 +83,7 @@ exclude gtk_main_do_event
 exclude gtk_propagate_event
 exclude gtk_get_current_event
 exclude gtk_get_event_widget
+
 
 #for gtk extensions & widget implementations
 exclude gtk_draw
@@ -94,17 +99,13 @@ exclude gtk_widget_realize
 exclude gtk_widget_unrealize
 exclude gtk_accessible_connect_widget_destroyed
 
-#GtkItem abstract base class has no useful methods
-exclude gtk_item_select
-exclude gtk_item_deselect
-exclude gtk_item_toggle
-
 
 #sometimes there are several ways of doing the same thing
 #so lets ignore the other ways of doing it
-exclude gtk_init
-do not exclude gtk_init_check$
-do not exclude gtk_init_add
+exclude gtk_init$
+exclude gtk_init_abi_check
+exclude gtk_init_check_abi_check
+exclude gtk_init_with_args
 
 
 #dont think we need these ? TODO check this

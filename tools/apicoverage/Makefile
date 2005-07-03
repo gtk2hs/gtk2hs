@@ -18,13 +18,13 @@ gtk.def : tars/gtk+-$(GTK_VERSION).tar.bz2
 	    --get gtk+-$(GTK_VERSION)/gtk/gtk.def -O \
 	| sed 's:\(\t\|EXPORTS\)::' | cut -d' ' -f 1 | sort > gtk.def
 
-GTK_CHS_FILES = $(shell find ../../gtk -name '*.chs' -o -name '*.chs.pp')
+GTK_HS_FILES := $(shell find ../../gtk -name '*.hs')
 
-gtk.coverage : $(GTK_CHS_FILES)
+gtk.coverage : $(GTK_HS_FILES)
 	grep -h 'foreign import ccall \(safe \|unsafe \)\?" \?&\?.*"' \
 		`find ../../gtk -name '*.hs'` | \
 	sed 's:foreign import ccall \(safe \|unsafe \)\?" \?&\?\(.*\)".*:\2:' | \
-	sort -u | grep '^gtk_' | grep --invert-match '_get_type$$' > gtk.coverage
+	sort -u | grep '^gtk_' > gtk.coverage
 
 # We can have (optional) api.ignore files in the gtk directories to have a
 # local place to record functions we don't want to bind, that'd stop the
