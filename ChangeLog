@@ -73,6 +73,13 @@
 	withUTFString for the proeprty names since they are internal and
 	always ASCII.
 
+	* demo/hello/World.hs: update the hello world demo to reflect some of
+	the changes we made to the one on the website. Also add setting of the
+	window title as an example of setting multiple properties at once.
+
+	* demo/profileviewer/ProfileViewer.hs: add an about box to the profile
+	viewer.
+
 2005-07-2 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/GValueTypes.chs: add value(Set|Get)Enum and

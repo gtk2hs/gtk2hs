@@ -126,6 +126,9 @@ main = do
   quitMenuItem <- xmlGetWidget dialogXml castToMenuItem "quitMenuItem"
   quitMenuItem `onActivateLeaf` mainQuit
   
+  aboutMenuItem <- xmlGetWidget dialogXml castToMenuItem "aboutMenuItem"
+  aboutMenuItem `onActivateLeaf` showAboutDialog mainWindow
+  
   -- each menu item in the "View" menu sets the thresholdVar and re-displays
   -- the current profile
   let doThresholdMenuItem threshold itemName = do
@@ -173,3 +176,24 @@ formatNumber =
                      ([], _) -> Nothing
                      p       -> Just p)
   . reverse . show
+
+showAboutDialog :: Window -> IO ()
+showAboutDialog parent = do
+  -- create the about dialog
+  aboutDialog <- aboutDialogNew
+  
+  -- set some attributes
+  set aboutDialog [
+      aboutDialogName      := "profileviewer",
+      aboutDialogVersion   := "0.1",
+      aboutDialogCopyright := "Duncan Coutts",
+      aboutDialogComments  := "A viewer for GHC time profiles.",
+      aboutDialogWebsite   := "http://haskell.org/gtk2hs/"
+    ]
+  
+  -- make the about dialog appear above the main window
+  windowSetTransientFor aboutDialog parent
+  
+  -- make the dialog non-modal. When the user closes the dialog destroy it.
+  aboutDialog `afterResponse` (\_ -> widgetDestroy aboutDialog)
+  widgetShow aboutDialog
