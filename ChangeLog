@@ -1,3 +1,12 @@
+2005-07-5 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/concurrent/Progress.hs: use timeoutAddFull rather than idleAdd
+	for the yield concurrency thing. This change means that it no longer
+	takes 100% cpu time. By adjusting the timeout you can balance the
+	latency and the polling load. A timeout value of 20 to 50 milliseconds
+	seems to give adequete latency with negligable load. Also make the
+	progress bar pulse more frequent.
+
 2005-07-3 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/General/Enums.chs.pp,
