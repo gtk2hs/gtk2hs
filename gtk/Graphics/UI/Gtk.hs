@@ -6,7 +6,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/07/03 14:28:13 $
+--  Version $Revision: 1.12 $ from $Date: 2005/07/06 12:50:41 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -202,7 +202,8 @@ module Graphics.UI.Gtk (
   -- * Pango text layout modules
   module Graphics.UI.Gtk.Pango.Markup,
   module Graphics.UI.Gtk.Pango.Layout,
-  module Graphics.UI.Gtk.Pango.Rendering
+  module Graphics.UI.Gtk.Pango.Rendering,
+  module Graphics.UI.Gtk.Pango.Description,
   ) where
 
 -- general things, initialization
@@ -375,3 +376,4 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Pango.Markup
 import Graphics.UI.Gtk.Pango.Layout
 import Graphics.UI.Gtk.Pango.Rendering
+import Graphics.UI.Gtk.Pango.Description
