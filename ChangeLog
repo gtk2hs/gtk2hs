@@ -8,6 +8,9 @@
 	because it contains useful user-facing things. I don't think there's
 	any private/internal stuff exported from it.
 
+	* demo/buttonbox/ButtonBox.hs: update the demo to use the "set" style
+	syntax. Also show how to use child attributes.
+
 2005-07-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/concurrent/Progress.hs: use timeoutAddFull rather than idleAdd
