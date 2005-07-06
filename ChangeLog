@@ -1,3 +1,9 @@
+2005-07-6 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp: export the
+	ButtonBoxStyle flags type. We need to audit these things more
+	carefully.
+
 2005-07-5 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/concurrent/Progress.hs: use timeoutAddFull rather than idleAdd

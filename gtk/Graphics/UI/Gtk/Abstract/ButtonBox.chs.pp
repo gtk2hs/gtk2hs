@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.8 $ from $Date: 2005/07/03 12:27:09 $
+--  Version $Revision: 1.9 $ from $Date: 2005/07/06 12:46:46 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -64,6 +64,7 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
   ButtonBox,
   ButtonBoxClass,
   castToButtonBox,
+  ButtonBoxStyle(..),
 
 -- * Methods
   buttonBoxGetLayout,
@@ -87,7 +88,7 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums (ButtonBoxStyle)
+import Graphics.UI.Gtk.General.Enums (ButtonBoxStyle(..))
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}
