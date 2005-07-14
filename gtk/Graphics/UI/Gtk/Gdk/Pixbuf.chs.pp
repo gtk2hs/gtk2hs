@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.7 $ from $Date: 2005/07/14 14:31:15 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -295,7 +295,7 @@ pixbufSave pb fname iType options =
     allocaArray optLen $ \valuesPtr -> do
       keyPtrs <- mapM newUTFString keys
       valuePtrs <- mapM newUTFString values
-      pokeArray keysPtr keyPtrs
+      pokeArray keysPtr (keyPtrs ++ [nullPtr])
       pokeArray valuesPtr valuePtrs
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,5)
       {# call unsafe pixbuf_savev_utf8 #}

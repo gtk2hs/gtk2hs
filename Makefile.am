@@ -467,6 +467,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/Keys.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs				\
 	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp				\
+	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs				\
 	gtk/Graphics/UI/Gtk/Pango/Description.chs			\
 	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp				\
 	gtk/Graphics/UI/Gtk/Pango/Layout.chs				\

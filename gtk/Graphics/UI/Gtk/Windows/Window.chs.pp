@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2005/07/02 23:51:10 $
+--  Version $Revision: 1.14 $ from $Date: 2005/07/14 14:31:15 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -160,6 +160,8 @@ module Graphics.UI.Gtk.Windows.Window (
 #if GTK_CHECK_VERSION(2,2,0)
   windowSkipTaskbarHint,
   windowSkipPagerHint,
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
   windowAcceptFocus,
 #endif
 #if GTK_CHECK_VERSION(2,6,0)
@@ -1400,7 +1402,9 @@ windowSkipPagerHint :: WindowClass self => Attr self Bool
 windowSkipPagerHint = newAttr
   windowGetSkipPagerHint
   windowSetSkipPagerHint
+#endif
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | @True@ if the window should receive the input focus.
 --
 -- Default value: @True@

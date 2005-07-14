@@ -6,7 +6,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/07/06 12:50:41 $
+--  Version $Revision: 1.13 $ from $Date: 2005/07/14 14:31:15 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -53,6 +53,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.Region,
   module Graphics.UI.Gtk.Gdk.GC,
   module Graphics.UI.Gtk.Gdk.Pixbuf,
+  module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Gdk,
   -- * Windows
   module Graphics.UI.Gtk.Windows.Window,
@@ -217,6 +218,7 @@ import Graphics.UI.Gtk.Gdk.DrawWindow
 import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
 import Graphics.UI.Gtk.Gdk.GC
 import Graphics.UI.Gtk.Gdk.Pixbuf
+import Graphics.UI.Gtk.Gdk.Pixmap
 import Graphics.UI.Gtk.Gdk.Gdk
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog

@@ -1,3 +1,17 @@
+2005-07-14  Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am, gtk/Graphics/UI/Gtk.hs,
+	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs: Added Pixmap as in gdk_pixmap,
+	not the deprecated gtk_pixmap.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: Fixed a memory allocation
+	bug found by Armin Groesslinger.
+
+	* gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: Fixed compilation
+	against Gtk 2.2.
+
+	* AUTHORS: Added Armin Groesslinger to the contributors.
+	
 2005-07-6 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp: export the
