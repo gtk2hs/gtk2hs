@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2005/07/14 14:31:15 $
+--  Version $Revision: 1.8 $ from $Date: 2005/07/16 14:07:13 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -356,7 +356,7 @@ data InlineImage = InlineImage
 --
 --   on it. Write a header file @my_image.h@ containing:
 --
--- > #include <gdk\gdk.h>
+-- > #include <gdk/gdk.h>
 -- > extern guint8 my_image[];
 --
 --   and save it in the current directory.
