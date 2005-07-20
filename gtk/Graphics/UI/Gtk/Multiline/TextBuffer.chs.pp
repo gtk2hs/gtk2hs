@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/21 02:11:30 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/20 10:24:06 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -465,7 +465,7 @@ textBufferCreateMark :: TextBufferClass self => self
 textBufferCreateMark self markName where_ leftGravity =
   makeNewGObject mkTextMark $
   maybeWith withUTFString markName $ \markNamePtr ->
-  {# call unsafe text_buffer_create_mark #}
+  {# call text_buffer_create_mark #}
     (toTextBuffer self)
     markNamePtr
     where_
