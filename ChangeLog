@@ -1,3 +1,7 @@
+2005-07-21 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: trivial doc fix.
+
 2005-07-20 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp: make

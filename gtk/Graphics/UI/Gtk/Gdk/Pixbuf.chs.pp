@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2005/07/16 14:07:13 $
+--  Version $Revision: 1.9 $ from $Date: 2005/07/21 13:13:27 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -173,7 +173,7 @@ pixbufGetBitsPerSample pb = liftM fromIntegral $
 --
 -- * If modifying an image through Haskell\'s array interface is not
 --   fast enough, it is possible to use 'unsafeRead' and
---   'unsafeWrite' from Data.Array.Base which have the same type signatures
+--   'unsafeWrite' from "Data.Array.Base" which have the same type signatures
 --   as 'readArray' and 'writeArray'. Note that these are internal
 --   functions that might change with GHC.
 --
