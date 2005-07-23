@@ -1,3 +1,11 @@
+2005-07-23 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/General/General.chs,
+	glib/System/Glib/Signals.chs.pp: fix segfaults/fatal errors due to
+	unsafe foreign calls on g_signal_handler_disconnect and
+	g_source_remove. Make them both use safe calls. However I don't
+	understand why they are re-entering Haskell land. Perplexing.
+
 2005-07-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: trivial doc fix.

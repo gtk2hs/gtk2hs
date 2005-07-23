@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.9 $ from $Date: 2005/07/02 23:45:01 $
+--  Version $Revision: 1.10 $ from $Date: 2005/07/23 01:09:51 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -232,7 +232,7 @@ timeoutAddFull fun pri msec = do
 -- | Remove a previously added timeout handler by its 'TimeoutId'.
 --
 timeoutRemove :: HandlerId -> IO ()
-timeoutRemove id = {#call unsafe g_source_remove#} id >> return ()
+timeoutRemove id = {#call g_source_remove#} id >> return ()
 
 -- | Add a callback that is called whenever the system is idle.
 --
@@ -250,5 +250,5 @@ idleAdd fun pri = do
 -- | Remove a previously added idle handler by its 'TimeoutId'.
 --
 idleRemove :: HandlerId -> IO ()
-idleRemove id = {#call unsafe g_source_remove#} id >> return ()
+idleRemove id = {#call g_source_remove#} id >> return ()
 

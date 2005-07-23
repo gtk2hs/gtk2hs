@@ -5,7 +5,7 @@
 --
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/20 23:54:00 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/23 01:09:51 $
 --
 --  Copyright (C) 2000-2005 Axel Simon, Duncan Coutts
 --
@@ -69,7 +69,7 @@ data GObjectClass o => ConnectId o = ConnectId {#type gulong#} o
 disconnect :: GObjectClass obj => ConnectId obj -> IO ()
 disconnect (ConnectId handler obj) =
   withForeignPtr  ((unGObject.toGObject) obj) $ \objPtr ->
-  {# call unsafe g_signal_handler_disconnect #} (castPtr objPtr) handler
+  {# call g_signal_handler_disconnect #} (castPtr objPtr) handler
 
 {# pointer *GClosure newtype #}
 
