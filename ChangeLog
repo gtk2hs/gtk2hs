@@ -18,6 +18,9 @@
 	the TreeIter marshaling utility functions. This simplifies the code
 	and eliminates the only uses of foreignFree.
 
+	* gtk/Graphics/UI/Gtk/Selectors/FileChooserButton.chs.pp: make the
+	FileChooserButton an instance of the FileChooser interface.
+
 2005-07-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: trivial doc fix.

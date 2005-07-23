@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/16 10:10:14 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/23 03:00:40 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -89,6 +89,11 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction)
 
 {# context lib="gtk" prefix="gtk" #}
+
+--------------------
+-- Interfaces
+
+instance FileChooserClass FileChooserButton
 
 --------------------
 -- Constructors
