@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/06/01 19:07:49 $
+--  Version $Revision: 1.6 $ from $Date: 2005/07/23 02:04:31 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -63,7 +63,7 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   TextIter(TextIter),
 
 -- * Methods
-  mkTextIter,
+  mkTextIterCopy,
   makeEmptyTextIter,	-- for internal use only
   textIterGetBuffer,
   textIterCopy,
@@ -157,11 +157,12 @@ import Graphics.UI.Gtk.General.Enums	(TextSearchFlags)
 
 {#pointer *TextIter foreign newtype #}
 
--- Create a TextIter from a pointer.
+-- Create a copy of a TextIter from a pointer.
 --
-mkTextIter :: Ptr TextIter -> IO TextIter
-mkTextIter iterPtr = liftM TextIter $ 
-  newForeignPtr iterPtr (text_iter_free iterPtr)
+mkTextIterCopy :: Ptr TextIter -> IO TextIter
+mkTextIterCopy iterPtr = do
+  iterPtr <- gtk_text_iter_copy iterPtr
+  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
 
 #if __GLASGOW_HASKELL__>=600
 

@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/07/20 10:24:06 $
+--  Version $Revision: 1.6 $ from $Date: 2005/07/23 02:04:40 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -976,9 +976,9 @@ onApplyTag, afterApplyTag :: TextBufferClass self => self
  -> (TextTag -> TextIter -> TextIter -> IO ())
  -> IO (ConnectId self)
 onApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag" 
-  mkTextIter mkTextIter False
+  mkTextIterCopy mkTextIterCopy False
 afterApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag" 
-  mkTextIter mkTextIter True
+  mkTextIterCopy mkTextIterCopy True
 
 -- | A new atomic user action is started.
 --
@@ -1006,9 +1006,9 @@ onDeleteRange, afterDeleteRange :: TextBufferClass self => self
  -> (TextIter -> TextIter -> IO ())
  -> IO (ConnectId self)
 onDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
-  mkTextIter mkTextIter False
+  mkTextIterCopy mkTextIterCopy False
 afterDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
-  mkTextIter mkTextIter True
+  mkTextIterCopy mkTextIterCopy True
 
 -- | An atomic action has ended.
 --
@@ -1025,7 +1025,7 @@ afterEndUserAction = connect_NONE__NONE "end_user_action" True
 -- (TextIter -> TextChildAnchor -> IO ()) -> ConnectAfter -> self -> 
 --  IO (ConnectId self)
 --connectToInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor"
---  mkTextIter
+--  mkTextIterCopy
 
 -- | A 'Pixbuf' is inserted into the
 -- buffer.
@@ -1033,8 +1033,8 @@ afterEndUserAction = connect_NONE__NONE "end_user_action" True
 onInsertPixbuf, afterInsertPixbuf :: TextBufferClass self => self
  -> (TextIter -> Pixbuf -> IO ())
  -> IO (ConnectId self)
-onInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIter False
-afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIter True
+onInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy False
+afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy True
 
 -- | Some text was inserted.
 --
@@ -1042,12 +1042,12 @@ onInsertText, afterInsertText :: TextBufferClass self => self
  -> (TextIter -> String -> IO ())
  -> IO (ConnectId self)
 onInsertText self user = 
-  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIter False self $
+  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIterCopy False self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
       user iter str 
 afterInsertText self user = 
-  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIter True self $
+  connect_BOXED_PTR_INT__NONE "insert_text" mkTextIterCopy True self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
       user iter str 
@@ -1065,8 +1065,8 @@ afterMarkDeleted = connect_OBJECT__NONE "mark_deleted" True
 onMarkSet, afterMarkSet :: TextBufferClass self => self ->
                            (TextIter -> TextMark -> IO ()) ->
                            IO (ConnectId self)
-onMarkSet = connect_BOXED_OBJECT__NONE "mark_set" mkTextIter False
-afterMarkSet = connect_BOXED_OBJECT__NONE "mark_set" mkTextIter True
+onMarkSet = connect_BOXED_OBJECT__NONE "mark_set" mkTextIterCopy False
+afterMarkSet = connect_BOXED_OBJECT__NONE "mark_set" mkTextIterCopy True
 
 -- | The textbuffer has changed.
 --
@@ -1082,7 +1082,7 @@ onRemoveTag, afterRemoveTag :: TextBufferClass self => self
  -> (TextTag -> TextIter -> TextIter -> IO ())
  -> IO (ConnectId self)
 onRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove_tag" 
-  mkTextIter mkTextIter False
+  mkTextIterCopy mkTextIterCopy False
 afterRemoveTag = connect_OBJECT_BOXED_BOXED__NONE "remove_tag" 
-  mkTextIter mkTextIter True
+  mkTextIterCopy mkTextIterCopy True
 

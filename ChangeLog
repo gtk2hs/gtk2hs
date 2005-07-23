@@ -6,6 +6,14 @@
 	g_source_remove. Make them both use safe calls. However I don't
 	understand why they are re-entering Haskell land. Perplexing.
 
+	* gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp: change mkTextIter to
+	mkTextIterCopy and as the name suggests make it take a copy of the
+	iter.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp: change uses of
+	mkTextIter to mkTextIterCopy. This fixes the segfaults due to trying
+	to free C stack allocated 'GtkTextIter's.
+
 2005-07-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: trivial doc fix.
