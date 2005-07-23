@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.10 $ from $Date: 2005/07/23 02:09:49 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -182,8 +182,7 @@ treeSelectionGetTreeView self =
 treeSelectionGetSelected :: TreeSelectionClass self => self ->
                             IO (Maybe TreeIter)
 treeSelectionGetSelected self = do
-  iterPtr <- mallocBytes treeIterSize
-  iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
+  iter <- mallocTreeIter
   res <- {# call tree_selection_get_selected #}
     (toTreeSelection self)
     nullPtr
@@ -204,9 +203,7 @@ treeSelectionSelectedForeach self fun = do
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
     -- passed to the function due to performance reasons. But since it is
     -- a constant member of Selection this does not matter.
-    iterPtr <- mallocBytes treeIterSize
-    copyBytes iterPtr ti treeIterSize
-    iter <- liftM TreeIter $ newForeignPtr iterPtr (foreignFree iterPtr)
+    iter <- createTreeIter ti
     fun iter
     )
   {# call tree_selection_selected_foreach #}

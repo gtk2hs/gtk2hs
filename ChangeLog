@@ -14,6 +14,10 @@
 	mkTextIter to mkTextIterCopy. This fixes the segfaults due to trying
 	to free C stack allocated 'GtkTextIter's.
 
+	* gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp: take advantage of
+	the TreeIter marshaling utility functions. This simplifies the code
+	and eliminates the only uses of foreignFree.
+
 2005-07-21 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: trivial doc fix.
