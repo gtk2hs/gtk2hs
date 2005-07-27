@@ -1,3 +1,16 @@
+2005-07-27 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/c2hs/c/CAST.hs: add new asm constructors for a couple data
+	types. But only as place holders, they do not hold the whole asm
+	statement.
+
+	* tools/c2hs/c/CLexer.x: add the asm/__asm/__asm__ keyword.
+
+	* tools/c2hs/c/CParser.y: add support for asm top level declarations,
+	asm statements (including GNU C extended asm syntax) and asm
+	annotations on function declarations. Also support C string literal
+	concatentation (which is often used in asm statements).
+
 2005-07-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/General.chs,
