@@ -38,6 +38,10 @@
 
 	* TODO: add a few more notes.
 
+	* glib/System/Glib/FFI.hs: remove foreignFree since it is no longer
+	used anywhere. Use a simpler implementation of nullForeignPtr when
+	using GHC 6.2 or later.
+
 2005-07-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/General.chs,

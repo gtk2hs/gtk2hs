@@ -5,7 +5,7 @@
 --
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/20 23:54:00 $
+--  Version $Revision: 1.7 $ from $Date: 2005/07/27 21:37:43 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -29,7 +29,6 @@ module System.Glib.FFI (
   with,
   nullForeignPtr,
   maybeNull,
-  foreignFree,
   newForeignPtr,
   withForeignPtrs,
 #if __GLASGOW_HASKELL__<602
@@ -65,21 +64,18 @@ newForeignPtr = flip Foreign.newForeignPtr
 unsafeForeignPtrToPtr = foreignPtrToPtr
 #endif
 
-#if __GLASGOW_HASKELL__>=600
-foreign import ccall unsafe "&free"	--TODO: should we be using g_free?
-  free' :: FinalizerPtr a
+foreign import ccall unsafe "&free"
+  freePtr :: FinalizerPtr a
 
-foreignFree :: Ptr a -> FinalizerPtr a
-foreignFree _ = free'
-
+#if __GLASGOW_HASKELL__>=602
 nullForeignPtr :: ForeignPtr a
-nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr free'
+nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
+#elif __GLASGOW_HASKELL__>=600
+nullForeignPtr :: ForeignPtr a
+nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr freePtr
 #else
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr (return ())
-
-foreignFree :: Ptr a -> IO ()
-foreignFree = free
 #endif
 
 -- This is useful when it comes to marshaling lists of GObjects
