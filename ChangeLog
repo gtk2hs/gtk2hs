@@ -36,6 +36,8 @@
 
 	* tools/apiGen/Makefile: minor update to the gdk section.
 
+	* TODO: add a few more notes.
+
 2005-07-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/General.chs,

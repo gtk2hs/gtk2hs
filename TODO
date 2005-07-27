@@ -1,5 +1,13 @@
 TODO for gtk2hs
 
+7/6/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* audit to make sure that all enums that are used are exported
+
+	* make sensitivity a widget attribute
+
+	* fix all FIXMEs in the documentation
+
 6/5/2005 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Image: bind the various get/set functions and sort out the NULL
