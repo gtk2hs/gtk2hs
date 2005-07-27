@@ -1,0 +1,17 @@
+name: gtk
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "@hidir@/gtk"
+library-dirs: @GTK_LIBDIR_CQ@
+hs-libraries: HSgtk
+extra-libraries: @GTK_LIBS_CQ@
+include-dirs: @GTK_CFLAGS_CQ@
+includes: gtk/gtk.h
+depends: glib-@PACKAGE_VERSION@
+ld-options: @GTK_LIBEXTRA_CQ@

@@ -1,0 +1,17 @@
+name: glade
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "@hidir@/glade"
+library-dirs: @LIBGLADE_LIBDIR_CQ@
+hs-libraries: HSglade
+extra-libraries: @LIBGLADE_LIBS_CQ@
+include-dirs: @LIBGLADE_CFLAGS_CQ@
+includes: glade/glade.h
+depends: gtk-@PACKAGE_VERSION@
+ld-options: @LIBGLADE_LIBEXTRA_CQ@

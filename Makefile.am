@@ -228,7 +228,7 @@ libHSglib_a_PACKAGEDEPS		=
 libHSglib_a_HEADER 		= glib-object.h
 libHSglib_a_PRECOMP		= glib/glib.precomp
 libHSglib_a_LIBS		= $(GLIB_LIBS)
-libHSglib_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
+libHSglib_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
 libHSglib_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS))
 libHSglib_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS))
 
@@ -323,7 +323,7 @@ libHSgtk_a_PACKAGEDEPS		=
 libHSgtk_a_HEADER 		= gtk/gtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
 libHSgtk_a_LIBS			= $(GLIB_LIBS) $(GTK_LIBS)
-libHSgtk_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
+libHSgtk_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
 libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
@@ -602,7 +602,7 @@ mogul_PKGNAME = libHSmogul_a
 libHSmogul_a_PACKAGE		= mogul/mogul.$(PKGEXT)
 libHSmogul_a_PACKAGEDEPS	= 
 libHSmogul_a_LIBS		= 
-libHSmogul_a_HCFLAGS		= -I. $(if $(USE_CABAL),-ignore-package glib)
+libHSmogul_a_HCFLAGS		= -I. $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
 libHSmogul_a_CFLAGS 		= 
 libHSmogul_a_CPPFLAGS 		= 
 
@@ -653,7 +653,7 @@ libHSglade_a_PACKAGEDEPS	=
 libHSglade_a_HEADER 		= glade/glade.h
 libHSglade_a_PRECOMP		= glade/glade.precomp
 libHSglade_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(LIBGLADE_LIBS)
-libHSglade_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
+libHSglade_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
 libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 
@@ -736,7 +736,7 @@ libHSgconf_a_HEADER 		= gconf/gconf-client.h
 libHSgconf_a_PRECOMP		= gconf/gconf.precomp
 libHSgconf_a_LIBS		= $(GLIB_LIBS) $(GCONF_LIBS)
 libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances \
-                                   $(if $(USE_CABAL),-ignore-package glib)
+                                   $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
 libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 
@@ -839,7 +839,7 @@ libHSsourceview_a_PACKAGEDEPS	=
 libHSsourceview_a_HEADER 	= sourceview.h
 libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
 libHSsourceview_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(SOURCEVIEW_LIBS)
-libHSsourceview_a_HCFLAGS	= -fffi $(if $(USE_CABAL),-ignore-package glib)
+libHSsourceview_a_HCFLAGS	= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
 libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
 libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
 
@@ -932,7 +932,7 @@ libHSmozembed_a_PACKAGEDEPS	=
 libHSmozembed_a_HEADER 		= gtkmozembed.h
 libHSmozembed_a_PRECOMP		= mozembed/mozembed.precomp
 libHSmozembed_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(MOZEMBED_LIBS)
-libHSmozembed_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
+libHSmozembed_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
 libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 
@@ -1109,12 +1109,13 @@ EXTRA_DIST +=								\
 #
 ################################################################################
 
-# Include all the .pkg/.cabal files in the install set, they're useful to distributors
-# and if your installation gets corrupt you can re-register the packages from them.
+# Include all the .pkg/.package.conf files in the install set, they're useful
+# to distributors and if your installation gets corrupt you can re-register the
+# packages from them.
 pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),PACKAGE))
 
-# Before we install the .pkg/.cabal files we need to substitute for the ${pkglibdir}
-# and ${modules} variables.
+# Before we install the .pkg/.package.conf files we need to substitute for the
+# ${pkglibdir} and ${modules} variables.
 if !WIN32_INSTALLER
 install-exec-local:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
@@ -1122,7 +1123,12 @@ install-exec-local:
 		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
 		$(call getVar,$(pkgname),PACKAGE) \
 	> $(call getVar,$(pkgname),PACKAGE).tmp; \
-	mv $(call getVar,$(pkgname),PACKAGE).tmp $(call getVar,$(pkgname),PACKAGE);)
+	mv $(call getVar,$(pkgname),PACKAGE).tmp $(call getVar,$(pkgname),PACKAGE); \
+	$(SED)	's|$${modules}|$(call getModules,$(pkgname))|' \
+		$(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),PACKAGE)) \
+	> $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),PACKAGE)).tmp; \
+	mv $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),PACKAGE)).tmp \
+	   $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),PACKAGE));)
 
 else WIN32_INSTALLER
 # Except on Windows if we're makeing an installer where we delay the variable
@@ -1155,7 +1161,7 @@ if ENABLE_PKGREG
 # ghc-pkg at install time. That is usually left for a post-install action.
 # Therefore these actions can be disabled by ./configure --without-pkgreg
 
-if USE_CABAL
+if USE_NEW_PKG_FORMAT
 
 install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
@@ -1163,7 +1169,7 @@ install-data-hook :
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	rm -f $(DESTDIR)$(pkglibdir)/$(patsubst lib%.a,%.o,$(pkgname)); \
 	$(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) --auto-ghci-libs \
-	update $(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.cabal,$(pkgname));)
+	update $(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.package.conf,$(pkgname));)
 
 uninstall-hook :
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
@@ -1174,7 +1180,7 @@ uninstall-hook :
 	  rm -f $(PKGCONF) $(PKGCONF).old; fi; \
 	fi)
 
-else !USE_CABAL
+else !USE_NEW_PKG_FORMAT
 
 install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
@@ -1194,7 +1200,7 @@ uninstall-hook :
 	  rm -f $(PKGCONF) $(PKGCONF).old; fi; \
 	fi)
 
-endif !USE_CABAL
+endif !USE_NEW_PKG_FORMAT
 
 else !ENABLE_PKGREG
 

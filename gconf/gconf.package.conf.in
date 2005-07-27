@@ -1,0 +1,17 @@
+name: gconf
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "@hidir@/gconf"
+library-dirs: @GCONF_LIBDIR_CQ@
+hs-libraries: HSgconf
+extra-libraries: @GCONF_LIBS_CQ@
+include-dirs: @GCONF_CFLAGS_CQ@
+includes: gconf/gconf-client.h
+depends: glib-@PACKAGE_VERSION@
+ld-options: @GCONF_LIBEXTRA_CQ@

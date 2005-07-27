@@ -5,13 +5,6 @@ license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
 stability: provisional
 homepage: http://haskell.org/gtk2hs/
-exposed: True
+category: System
+build-depends: haskell98
 exposed-modules: ${modules}
-import-dirs: "@hidir@/glib"
-library-dirs: @GLIB_LIBDIR_CQ@
-hs-libraries: HSglib
-extra-libraries: @GLIB_LIBS_CQ@
-include-dirs: @GLIB_CFLAGS_CQ@
-includes: glib.h, glib-object.h
-depends: haskell98
-ld-options: @GLIB_LIBEXTRA_CQ@

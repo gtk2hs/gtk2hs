@@ -151,15 +151,14 @@ GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.0.0, [
 GHCPKG_USE_AUTOLIBS="auto            = True,"
 ])
 
-dnl From ghc 6.4 onwards, ghc-pkg only understands the cabal package format
-dnl so we must produce and register .cabal files instead of the old .pkg
-dnl files.
+dnl From ghc 6.4 onwards, ghc-pkg uses a new package format so we must produce
+dnl and register .package.conf files instead of the old .pkg files.
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4.0, [
-USE_CABAL=yes
+USE_NEW_PKG_FORMAT=yes
 ])
-AM_CONDITIONAL(USE_CABAL, test "$USE_CABAL" = "yes")
-if test "$USE_CABAL" = "yes"; then
-  PKGEXT=cabal
+AM_CONDITIONAL(USE_NEW_PKG_FORMAT, test "$USE_NEW_PKG_FORMAT" = "yes")
+if test "$USE_NEW_PKG_FORMAT" = "yes"; then
+  PKGEXT=package.conf
 else
   PKGEXT=pkg
 fi
@@ -643,7 +642,7 @@ dnl Needed substitution.
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(PKGCONF)
-AC_SUBST(USE_CABAL)
+AC_SUBST(USE_NEW_PKG_FORMAT)
 AC_SUBST(PKGEXT)
 AC_SUBST(HCFLAGS)
 AC_SUBST(AM_HCFLAGS)
@@ -691,13 +690,35 @@ AC_OUTPUT([
   gtk2hs.spec
   mk/chsDepend
   docs/prologue.txt
-  glib/glib.pkg			glib/glib.cabal
-  gtk/gtk.pkg			gtk/gtk.cabal
-  mogul/mogul.pkg		mogul/mogul.cabal
-  glade/glade.pkg		glade/glade.cabal
-  gconf/gconf.pkg		gconf/gconf.cabal
-  sourceview/sourceview.pkg	sourceview/sourceview.cabal
-  mozembed/mozembed.pkg		mozembed/mozembed.cabal],
+
+  glib/glib.pkg
+  glib/glib.package.conf
+  glib/glib.cabal
+  
+  gtk/gtk.pkg
+  gtk/gtk.package.conf
+  gtk/gtk.cabal
+  
+  mogul/mogul.pkg
+  mogul/mogul.package.conf
+  mogul/mogul.cabal
+  
+  glade/glade.pkg
+  glade/glade.package.conf
+  glade/glade.cabal
+  
+  gconf/gconf.pkg
+  gconf/gconf.package.conf
+  gconf/gconf.cabal
+  
+  sourceview/sourceview.pkg
+  sourceview/sourceview.package.conf
+  sourceview/sourceview.cabal
+
+  mozembed/mozembed.pkg
+  mozembed/mozembed.package.conf
+  mozembed/mozembed.cabal
+  ],
   [chmod a+x mk/chsDepend && chmod a+x install-sh])
 
 dnl ...and chat with the user

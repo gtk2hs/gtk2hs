@@ -11,6 +11,26 @@
 	annotations on function declarations. Also support C string literal
 	concatentation (which is often used in asm statements).
 
+	* gconf/gconf.package.conf.in, glade/glade.package.conf.in
+	glib/glib.package.conf.in, gtk/gtk.package.conf.in, 
+	mogul/mogul.package.conf.in, mozembed/mozembed.package.conf.in,
+	sourceview/sourceview.package.conf.in: rename the <pkg>.cabal files to
+	<pkg>.package.conf files since these are not real cabal files but are
+	"installed package info" files for ghc-pkg.
+
+	* gconf/gconf.cabal.in, glade/glade.cabal.in, glib/glib.cabal.in,
+	gtk/gtk.cabal.in, mogul/mogul.cabal.in, mozembed/mozembed.cabal.in,
+	sourceview/sourceview.cabal.in: add genuine cabal files. These are
+	processed in much the same way as before but are never used.
+
+	* configure.ac: change the USE_CABAL var to USE_NEW_PKG_FORMAT and
+	reflect the change in the package names. Add the all .package.conf
+	files to the list of files that configure substitutes into.
+
+	* Makefile.am: change USE_CABAL to USE_NEW_PKG_FORMAT and .cabal to
+	.package.conf. Substitute into the .cabal files as well as the package
+	files.
+
 2005-07-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/General.chs,

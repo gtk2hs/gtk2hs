@@ -1,0 +1,17 @@
+name: mozembed
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "@hidir@/mozembed"
+library-dirs: @MOZEMBED_LIBDIR_CQ@
+hs-libraries: HSmozembed
+extra-libraries: @MOZEMBED_LIBS_CQ@
+include-dirs: @MOZEMBED_CFLAGS_CQ@
+includes: gtkmozembed.h
+depends: gtk-@PACKAGE_VERSION@
+ld-options: @MOZEMBED_LIBEXTRA_CQ@
