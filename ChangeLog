@@ -34,6 +34,8 @@
 	* docs/tools/AddLinks.hs: Add support for 'ordinary' html, rather than
 	xhtml. Currently doesn't do much highliting.
 
+	* tools/apiGen/Makefile: minor update to the gdk section.
+
 2005-07-23 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/General.chs,

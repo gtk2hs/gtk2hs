@@ -156,7 +156,9 @@ gtk-modules : gtk-docs.xml $(gtk_includeapi) $(gtk_excludeapi)
 #	Gdk modules
 #
 
-gdk_docs_dirs = gtk/docs/reference/gdk/xml gtk/docs/reference/gdk-pixbuf/xml
+gdk_docs_dirs   = gtk/docs/reference/gdk/xml gtk/docs/reference/gdk-pixbuf/xml
+gdk_includeapi  = pango-api.xml gobject-api.xml glib-api.xml
+gdk_excludeapi  = gtk.ignore
 gdk_modprefix   = Graphics.UI.Gtk.Gdk
 gdk_scanmodules = gtk/Graphics/UI/Gtk/Gdk
 gdk-modules : gdk-docs.xml
