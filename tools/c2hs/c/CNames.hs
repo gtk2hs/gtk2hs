@@ -3,7 +3,7 @@
 --  Author : Manuel M. T. Chakravarty
 --  Created: 16 October 99
 --
---  Version $Revision: 1.1 $ from $Date: 2004/11/21 21:05:27 $
+--  Version $Revision: 1.2 $ from $Date: 2005/07/29 01:26:56 $
 --
 --  Copyright (c) 1999 Manuel M. T. Chakravarty
 --
@@ -94,6 +94,7 @@ naCExtDecl :: CExtDecl -> NA ()
 naCExtDecl (CDeclExt decl                        ) = naCDecl decl
 naCExtDecl (CFDefExt (CFunDef specs declr _ _ at)) = 
   naCDecl $ CDecl specs [(Just declr, Nothing, Nothing)] at
+naCExtDecl (CAsmExt at                           ) = return ()
 
 naCDecl :: CDecl -> NA ()
 naCDecl decl@(CDecl specs decls _) =

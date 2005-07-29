@@ -1,3 +1,8 @@
+2005-07-29 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/c2hs/c/CNames.hs: add a case for CAsmExt that does nothing,
+	but at least doesn't cause a pattern match failure.
+
 2005-07-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CAST.hs: add new asm constructors for a couple data
