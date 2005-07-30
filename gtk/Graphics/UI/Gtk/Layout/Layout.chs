@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/07/03 12:27:10 $
+--  Version $Revision: 1.8 $ from $Date: 2005/07/30 17:32:05 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -63,6 +63,7 @@ module Graphics.UI.Gtk.Layout.Layout (
   layoutGetVAdjustment,
   layoutSetHAdjustment,
   layoutSetVAdjustment,
+  layoutGetDrawWindow,
 
 -- * Attributes
   layoutHAdjustment,
@@ -88,6 +89,7 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.General.Structs	(layoutGetDrawWindow)
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 
 {# context lib="gtk" prefix="gtk" #}

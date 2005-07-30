@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/08 12:59:27 $
+--  Version $Revision: 1.6 $ from $Date: 2005/07/30 17:32:05 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -51,7 +51,8 @@ module Graphics.UI.Gtk.Pango.Description (
   fontDescriptionMerge,
   fontDescriptionBetterMatch,
   fontDescriptionFromString,
-  fontDescriptionToString
+  fontDescriptionToString,
+  pangoScale -- FIXME: move to GlyphStorage once that file exists
   ) where
 
 import Monad    (liftM)
@@ -184,7 +185,7 @@ fontDescriptionGetSize :: FontDescription -> IO (Maybe Rational)
 fontDescriptionGetSize fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskSize) .&. (fromIntegral fields) /=0
-     then liftM (\x -> Just (fromIntegral x % pangoScale)) $ 
+     then liftM (\x -> Just (fromIntegral x % fromIntegral pangoScale)) $ 
 	      {#call unsafe get_size#} fd
      else return Nothing
 

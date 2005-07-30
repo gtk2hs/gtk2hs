@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.7 $ from $Date: 2005/07/30 17:32:04 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -89,6 +89,7 @@ module Graphics.UI.Gtk.General.Structs (
   priorityHigh,
   drawingAreaGetDrawWindow,
   drawingAreaGetSize,
+  layoutGetDrawWindow,
   pangoScale,
   styleGetForeground,
   styleGetBackground,
@@ -644,7 +645,7 @@ drawingAreaGetDrawWindow da = makeNewGObject mkDrawWindow $
 
 -- | Returns the current size.
 --
--- * This information may be out of date if the use is resizing the window.
+-- * This information may be out of date if the user is resizing the window.
 --
 drawingAreaGetSize :: DrawingArea -> IO (Int, Int)
 drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
@@ -654,19 +655,30 @@ drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
 				(#{ptr GtkWidget, allocation} wPtr)
     return (fromIntegral width, fromIntegral height)
 
+-- Layout related methods
+
+-- | Retrieves the 'Drawable' part.
+--
+layoutGetDrawWindow :: Layout -> IO DrawWindow
+layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
+  withForeignPtr (unLayout lay) $
+  \lay' -> liftM castPtr $ #{peek GtkLayout, bin_window} lay'
 
 -- PangoLayout related constant
 
 -- | Internal unit of measuring sizes.
 --
--- * The ref constant pangoScale constant represents the scale between
---   dimensions used for distances in text rendering and device units. (The
---   definition of device units is dependent on the output device; it will
---   typically be pixels for a screen, and points for a printer.)  When
+-- * This constant represents the scale between
+--   dimensions used for distances in text rendering and Pango device units.
+--   The
+--   definition of device unit is dependent on the output device; it will
+--   typically be pixels for a screen, and points for a printer.  When
 --   setting font sizes, device units are always considered to be points
---   (as in \"12 point font\"), rather than pixels.
+--   (as in \"12 point font\"), rather than pixels. For example, setting
+--   the indentation of a paragraph @lay@ to 10 pixels is done by calling
+--   @'layoutSetIndent' lay (10*pangoScale)@.
 --
-pangoScale :: Integer
+pangoScale :: Int
 pangoScale = #const PANGO_SCALE
 
 

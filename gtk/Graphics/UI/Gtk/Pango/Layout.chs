@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2005/02/12 17:19:24 $
+--  Version $Revision: 1.3 $ from $Date: 2005/07/30 17:32:05 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -50,6 +50,7 @@
 --
 module Graphics.UI.Gtk.Pango.Layout (
   PangoLayout,
+  layoutEmpty,
   layoutCopy,
   layoutGetContext,
   layoutContextChanged,
@@ -106,10 +107,16 @@ import System.Glib.GObject              (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Pango.Markup	(Markup)
 import Graphics.UI.Gtk.General.Enums
-import Graphics.UI.Gtk.General.Structs	(Rectangle)
+import Graphics.UI.Gtk.General.Structs	(Rectangle, pangoScale)
 {#import Graphics.UI.Gtk.Pango.Types#}
 
 {# context lib="pango" prefix="pango" #}
+
+-- | Create an empty 'Layout'.
+--
+layoutEmpty :: PangoContext -> IO PangoLayout
+layoutEmpty pc = makeNewGObject mkPangoLayout
+  ({#call unsafe layout_new#} (toPangoContext pc))
 
 -- | Create a copy of the 'Layout'.
 --
@@ -240,11 +247,12 @@ layoutGetWrap pl = liftM (toEnum.fromIntegral) $
 
 -- | Set the indentation of this paragraph.
 --
--- * Sets the amount by which the first line should be shorter than
---   the rest of the lines. This may be negative, in which case the
---   subsequent lines will be shorter than the first line. (However, in
---   either case, the entire width of the layout will be given by the
---   value.
+-- * Sets the amount by which the first line should
+--   be indented. A negative value will produce a hanging indent, that is,
+--   all subsequent lines will be indented while the first line has full
+--   width.
+--
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutSetIndent :: PangoLayout -> Int -> IO ()
 layoutSetIndent pl indent =
@@ -252,8 +260,10 @@ layoutSetIndent pl indent =
 
 -- | Gets the indentation of this paragraph.
 --
--- * Gets the amount by which the first line should be shorter than 
---   the rest of the lines.
+-- * Gets the amount by which the first line or the rest of the paragraph
+--   is indented.
+--
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutGetIndent :: PangoLayout -> IO Int
 layoutGetIndent pl = liftM fromIntegral $ {#call unsafe layout_get_indent#} pl
@@ -261,11 +271,15 @@ layoutGetIndent pl = liftM fromIntegral $ {#call unsafe layout_get_indent#} pl
 
 -- | Set the spacing between lines of this paragraph.
 --
+-- * The value is given in 1\/'pangoScale' device units.
+--
 layoutSetSpacing :: PangoLayout -> Int -> IO ()
 layoutSetSpacing pl spacing =
   {#call unsafe layout_set_spacing#} pl (fromIntegral spacing)
 
 -- | Gets the spacing between the lines.
+--
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutGetSpacing :: PangoLayout -> IO Int
 layoutGetSpacing pl = 
@@ -339,8 +353,7 @@ layoutGetSingleParagraphMode pl =
 --   bounding box that includes all character pixels. The ink size can be
 --   smaller or larger that the logical layout.
 --
--- * All values are in layout units. To get to device units (pixel for
---   'Drawable's) divide by 'pangoScale'.
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutGetExtents :: PangoLayout -> IO (Rectangle, Rectangle)
 layoutGetExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do
@@ -357,8 +370,7 @@ layoutGetExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do
 --   bounding box that includes all character pixels. The ink size can be
 --   smaller or larger that the logical layout.
 --
--- * All values are in device units. This function is a wrapper around
---   'layoutGetExtents' with scaling.
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutGetPixelExtents :: PangoLayout -> IO (Rectangle, Rectangle)
 layoutGetPixelExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do
@@ -466,8 +478,7 @@ layoutIterGetCharExtents li = alloca $ \logPtr ->
 -- * Computes the logical and the ink size of the cluster pointed to by
 --   'LayoutIter'.
 --
--- * All values are in layoutIter units. To get to device units (pixel for
---   'Drawable's) divide by 'pangoScale'.
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutIterGetClusterExtents :: LayoutIter -> IO (Rectangle, Rectangle)
 layoutIterGetClusterExtents li = alloca $ \logPtr -> alloca $ \inkPtr -> do
@@ -482,8 +493,7 @@ layoutIterGetClusterExtents li = alloca $ \logPtr -> alloca $ \inkPtr -> do
 -- * Computes the logical and the ink size of the run pointed to by
 --   'LayoutIter'.
 --
--- * All values are in layoutIter units. To get to device units (pixel for
---   'Drawable's) divide by 'pangoScale'.
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutIterGetRunExtents :: LayoutIter -> IO (Rectangle, Rectangle)
 layoutIterGetRunExtents li = alloca $ \logPtr -> alloca $ \inkPtr -> do
@@ -541,8 +551,7 @@ layoutIterGetLineExtents li = alloca $ \logPtr -> alloca $ \inkPtr -> do
 --   bounding box that includes all character pixels. The ink size can be
 --   smaller or larger that the logical layout.
 --
--- * All values are in layout units. To get to device units (pixel for
---   'Drawable's) divide by 'pangoScale'.
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutLineGetExtents :: LayoutLine -> IO (Rectangle, Rectangle)
 layoutLineGetExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do
@@ -558,8 +567,7 @@ layoutLineGetExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do
 --   bounding box that includes all character pixels. The ink size can be
 --   smaller or larger that the logical layout.
 --
--- * All values are in device units. This function is a wrapper around
---   'layoutLineGetExtents' with scaling.
+-- * The value is given in 1\/'pangoScale' device units.
 --
 layoutLineGetPixelExtents :: LayoutLine -> IO (Rectangle, Rectangle)
 layoutLineGetPixelExtents pl = alloca $ \logPtr -> alloca $ \inkPtr -> do

@@ -1,3 +1,20 @@
+2005-07-30  Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/Layout/Layout.chs: Added a function to
+	access the DrawWindow.
+
+	* gtk/Graphics/UI/Gtk/General/Structs.hsc: Meddled with pangoScale
+	again.
+
+	* gtk/Graphics/UI/Gtk/Pango/Description.chs,
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: Documentation fixes. In
+	particular, hide the Types module.
+
+	* gtk/Graphics/UI/Gtk/Pango/Layout.chs: Docu fixes and added a
+	constructor for the empty layout. The constructor is called
+	layoutEmpty so that it doesn't clash with Layout.Layout.layoutNew.
+	
 2005-07-29 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/c2hs/c/CNames.hs: add a case for CAsmExt that does nothing,

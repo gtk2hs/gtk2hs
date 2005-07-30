@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/30 17:32:05 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,6 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- #hide
+
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional

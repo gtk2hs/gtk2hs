@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.4 $ from $Date: 2005/07/30 17:32:05 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -39,6 +39,8 @@ module Graphics.UI.Gtk.Pango.Rendering (
   FontMetrics(..),
   contextSetFontDescription,
   contextGetFontDescription,
+  Language,
+  languageFromString,
   contextSetLanguage,
   contextGetLanguage,
   contextSetTextDir,
@@ -107,10 +109,10 @@ contextGetMetrics pc fd l = do
 	    {#call unsafe font_metrics_get_approximate_digit_width#} mPtr
   {#call unsafe font_metrics_unref#} mPtr
   return (FontMetrics
-	  (ascend % pangoScale)
-	  (descend % pangoScale)
-	  (cWidth % pangoScale)
-	  (dWidth % pangoScale))
+	  (ascend % fromIntegral pangoScale)
+	  (descend % fromIntegral pangoScale)
+	  (cWidth % fromIntegral pangoScale)
+	  (dWidth % fromIntegral pangoScale))
 
 -- | The characteristic measurements of a font.
 --
@@ -132,7 +134,7 @@ data FontMetrics = FontMetrics {
   --   initial size for a window. Actual characters in text will be
   --   wider and narrower than this.
   approximateCharWidth :: Rational,
-  -- | The approximate digit widt. This is merely a representative
+  -- | The approximate digit width. This is merely a representative
   --   value useful, for example, for determining the initial size for
   --   a window. Actual digits in text can be wider and narrower than
   --   this, though this value is generally somewhat more accurate
