@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.7 $ from $Date: 2005/07/30 18:52:08 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -156,25 +156,24 @@ toModifier i = toFlags ((fromIntegral i) .&. mask)
 -- * Property is a TODO. These come from RC files which are useful for
 --   custom widgets.
 
--- | Events that are delivered to a wdiget.
+-- | Events that are delivered to a widget.
 --
 -- * Any given signal only emits one of these variants as described
---   in 'Widget'. Many events share common attributes which are
---   described below.
+--   in 'Widget'. Many events share common attributes:
 --
--- ** The 'sent' attribute is @True@ if the event was not created by the
---    user but by another application.
+--   The 'sent' attribute is @True@ if the event was not created by the
+--   user but by another application.
 --
--- ** The 'time' attribute contains a time in milliseconds when the event
---    happened.
+--   The 'time' attribute contains a time in milliseconds when the event
+--   happened.
 --
--- ** The 'x' and 'y' attributes contain the coordinates relative to the
---    'DrawWindow' associated with this widget. The values can contain
---    sub-pixel information if the input device is a graphics tablet or
---    the like.
+--   The 'x' and 'y' attributes contain the coordinates relative to the
+--   'DrawWindow' associated with this widget. The values can contain
+--   sub-pixel information if the input device is a graphics tablet or
+--   the like.
 --
--- ** The 'modif' attribute denotes what modifier key was pressed during
---    the event.
+--   The 'modif' attribute denotes what modifier key was pressed during
+--   the event.
 --
 data Event
   = Event {
@@ -183,7 +182,8 @@ data Event
   --
   -- * A region of widget that receives this event needs to be redrawn.
   --   This event is the result of revealing part or all of a window
-  --   or by the application calling functions like 'widgetQueueDrawArea'.
+  --   or by the application calling functions like
+  --   'Graphics.UI.Gtk.Abstract.Widget.widgetQueueDrawArea'.
   --
   | Expose {
     sent	:: Bool,

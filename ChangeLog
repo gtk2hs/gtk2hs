@@ -1,5 +1,11 @@
 2005-07-30  Axel Simon <A.Simon@kent.ac.uk>
 
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/Events.hsc,
+	gtk/Graphics/UI/Gtk/General/IconFactory.chs.pp,
+	gtk/Graphics/UI/Gtk/General/Structs.hsc: Removed documentation
+	FIXMEs in Widget.chs.
+	
 	* gtk/Graphics/UI/Gtk/Layout/Layout.chs: Added a function to
 	access the DrawWindow.
 

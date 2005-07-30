@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/07/30 17:32:04 $
+--  Version $Revision: 1.8 $ from $Date: 2005/07/30 18:52:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -572,20 +572,31 @@ toolbarChildToggleButton = #const GTK_TOOLBAR_CHILD_TOGGLEBUTTON
 toolbarChildRadioButton  = #const GTK_TOOLBAR_CHILD_RADIOBUTTON
 #endif
 
--- IconSize is an enumeration in Gtk that can be extended by the user by adding
--- new names for sizes.
+-- | The size of an icon in pixels.
+--
 type IconSize = Int
 
+-- | Don't scale but use any of the available sizes.
 iconSizeInvalid      :: IconSize
 iconSizeInvalid      = #const GTK_ICON_SIZE_INVALID
+
+-- | Icon size to use in next to menu items in drop-down menus.
 iconSizeMenu	     :: IconSize
 iconSizeMenu	     = #const GTK_ICON_SIZE_MENU
+
+-- | Icon size for small toolbars.
 iconSizeSmallToolbar :: IconSize
 iconSizeSmallToolbar = #const GTK_ICON_SIZE_SMALL_TOOLBAR
+
+-- | Icon size for larger toolbars.
 iconSizeLargeToolbar :: IconSize
 iconSizeLargeToolbar = #const GTK_ICON_SIZE_LARGE_TOOLBAR
+
+-- | Icon size for icons in buttons, next to the label.
 iconSizeButton	     :: IconSize
 iconSizeButton	     = #const GTK_ICON_SIZE_BUTTON
+
+-- | Icon size for icons next to dialog text.
 iconSizeDialog	     :: IconSize
 iconSizeDialog	     = #const GTK_ICON_SIZE_DIALOG
 

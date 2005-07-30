@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/02/25 01:11:34 $
+--  Version $Revision: 1.5 $ from $Date: 2005/07/30 18:52:09 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -102,6 +102,7 @@ module Graphics.UI.Gtk.General.IconFactory (
   iconSourceSetState,
   iconSourceResetState,
   IconSize,
+  iconSizeInvalid,
   iconSizeMenu,
   iconSizeSmallToolbar,
   iconSizeLargeToolbar,

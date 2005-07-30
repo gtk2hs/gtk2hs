@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/16 10:06:09 $
+--  Version $Revision: 1.8 $ from $Date: 2005/07/30 18:52:08 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -34,7 +34,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Base class for all widgets
+-- The base class for all widgets. While a widget cannot be created directly,
+-- this module contains many useful methods common to all widgets. In
+-- particular, these functions are needed to add functionality to
+-- blank widgets such as 'DrawingArea' or 'Layout'.
 --
 module Graphics.UI.Gtk.Abstract.Widget (
 -- * Detail
@@ -52,19 +55,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
 -- |  'GObject'
 -- |   +----'Object'
 -- |         +----Widget
--- |               +----'Container'
--- |               +----'Misc'
--- |               +----'Calendar'
--- |               +----'CellView'
--- |               +----'DrawingArea'
--- |               +----'Entry'
--- |               +----'Ruler'
--- |               +----'Range'
--- |               +----'Separator'
--- |               +----'Invisible'
--- |               +----'OldEditable'
--- |               +----'Preview'
--- |               +----'Progress'
+-- |               +----<too many to list>
 -- @
 
 -- * Types
@@ -98,6 +89,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetAppPaintable,
   widgetSetName,		-- Naming, Themes
   widgetGetName,
+  widgetDelEvents,
   widgetAddEvents,
   widgetGetEvents,
   widgetSetExtensionEvents,
@@ -216,6 +208,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
 
 import Monad	(liftM, unless)
 import Maybe	(fromMaybe)
+import Data.Bits ((.&.), complement)
 
 import System.Glib.FFI
 import System.Glib.Flags		(fromFlags, toFlags)
@@ -235,6 +228,7 @@ import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
 					 marshExposeRect)
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..))
 {#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription))
+import Graphics.UI.Gtk.General.StockItems (StockId)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -496,7 +490,15 @@ widgetGrabFocus self =
   {# call widget_grab_focus #}
     (toWidget self)
 
--- | Sets some weired flag in the widget.
+-- | Sets whether the application intends to draw on the widget in response
+--   to an 'onExpose' signal.
+--
+-- * This is a hint to the widget and does not affect the behavior of the
+--   GTK+ core; many widgets ignore this flag entirely. For widgets that do
+--   pay attention to the flag, such as 'EventBox' and 'Window', the effect
+--   is to suppress default themed drawing of the widget's background.
+--   (Children of the widget will still be drawn.) The application is then
+--   entirely responsible for drawing the widget background.
 --
 widgetSetAppPaintable :: WidgetClass self => self
  -> Bool  -- ^ @appPaintable@ -
@@ -531,7 +533,24 @@ widgetGetName self =
     (toWidget self)
   >>= peekUTFString
 
+-- | Disable event signals.
+--
+-- * Remove events from the 'EventMask' of this widget. The event mask
+--   determines which events a widget will receive. Events are signals
+--   that return an 'Event' data type. On connecting to a such a signal,
+--   the event mask is automatically adjusted so that he signal is emitted.
+--   This function is useful to disable the reception of the signal. It
+--   should be called whenever a signal receiving an 'Event' is disconected. 
+--
+widgetDelEvents :: WidgetClass self => self -> [EventMask] -> IO ()
+widgetDelEvents self events = do
+  mask <- {#call unsafe widget_get_events#} (toWidget self)
+  let mask' = mask .&. (complement (fromIntegral $ fromFlags events))
+  {#call unsafe widget_set_events#} (toWidget self) mask'
+
 -- | Enable event signals.
+--
+-- * See 'widgetDelEvents'.
 --
 widgetAddEvents :: WidgetClass self => self -> [EventMask] -> IO ()
 widgetAddEvents self events =
@@ -539,8 +558,9 @@ widgetAddEvents self events =
     (toWidget self)
     (fromIntegral $ fromFlags events)
 
--- | Get enabled event signals. These are the events that the widget will
--- receive.
+-- | Get enabled event signals.
+--
+-- * See 'widgetDelEvents'.
 --
 widgetGetEvents :: WidgetClass self => self -> IO [EventMask]
 widgetGetEvents self =
@@ -844,13 +864,14 @@ widgetSetCompositeName self name =
 
 -- | Returns the parent container of @widget@.
 --
+-- * Returns the parent container of @widget@ if it has one.
+--
 widgetGetParent :: WidgetClass self => self
- -> IO Widget -- ^ returns the parent container of @widget@, or {@NULL@,
-              -- FIXME: this should probably be converted to a Maybe data type}
-widgetGetParent self =
-  makeNewObject mkWidget $
-  {# call gtk_widget_get_parent #}
-    (toWidget self)
+ -> IO (Maybe Widget) 
+widgetGetParent self = do
+  parentPtr <- {# call gtk_widget_get_parent #} (toWidget self)
+  if parentPtr==nullPtr then return Nothing else
+    liftM Just $ makeNewObject mkWidget (return parentPtr)
 
 -- | Sets the default reading direction for widgets where the direction has
 -- not been explicitly set by 'widgetSetDirection'.
@@ -1026,35 +1047,36 @@ widgetGetPangoContext self =
     (toWidget self)
 
 -- | A convenience function that uses the theme engine and RC file settings
--- for @widget@ to look up @stockId@ and render it to a pixbuf. @stockId@
--- should be a stock icon ID such as {GTK_STOCK_OPEN, FIXME: unknown
--- type/value} or {GTK_STOCK_OK, FIXME: unknown type/value}. @size@ should be a
--- size such as 'IconSizeMenu'. @detail@ should be a string that identifies the
+-- for @widget@ to look up the stock icon and render it to a
+-- 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf'.
+-- The icon should be one of the stock id constants such as
+-- 'Graphics.UI.Gtk.General.StockItems.stockOpen'. @size@ should be a
+-- size such as 'Graphics.UI.Gtk.General.IconFactory.iconSizeMenu'.
+-- @detail@ should be a string that identifies the
 -- widget or code doing the rendering, so that theme engines can special-case
 -- rendering for that widget or code.
 --
--- The pixels in the returned 'Pixbuf' are shared with the rest of the
--- application and should not be modified. The pixbuf should be freed after use
--- with 'gObjectUnref'.
+-- The pixels in the returned 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf' are
+-- shared with the rest of the
+-- application and should not be modified.
 --
 widgetRenderIcon :: WidgetClass self => self
- -> String    -- ^ @stockId@ - a stock ID
- -> IconSize  -- ^ @size@ - a stock size. A size of (GtkIconSize)-1 means
+ -> StockId    -- ^ the stock ID of the icon
+ -> IconSize  -- ^ @size@ - a stock size. The size
+	      -- 'Graphics.UI.Gtk.General.IconFactory.iconSizeInvalid' means
               -- render at the size of the source and don't scale (if there are
               -- multiple source sizes, Gtk+ picks one of the available sizes).
  -> String    -- ^ @detail@ - render detail to pass to theme engine
- -> IO Pixbuf -- ^ returns a new pixbuf, or {@NULL@, FIXME: this should
-              -- probably be converted to a Maybe data type} if the stock ID
-              -- wasn't known
-widgetRenderIcon self stockId size detail =
-  makeNewGObject mkPixbuf $
-  withUTFString detail $ \detailPtr ->
-  withUTFString stockId $ \stockIdPtr ->
-  {# call gtk_widget_render_icon #}
-    (toWidget self)
-    stockIdPtr
-    ((fromIntegral . fromEnum) size)
-    detailPtr
+ -> IO (Maybe Pixbuf) -- ^ the new 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf'
+		      --   if the stock icon was found
+widgetRenderIcon self stockId size detail = do
+  pixbufPtr <-
+    withUTFString detail $ \detailPtr ->
+    withUTFString stockId $ \stockIdPtr ->
+    {# call gtk_widget_render_icon #}
+      (toWidget self) stockIdPtr  ((fromIntegral . fromEnum) size) detailPtr
+  if pixbufPtr==nullPtr then return Nothing else 
+    liftM Just $ makeNewGObject mkPixbuf (return pixbufPtr)
 
 -- | Set if this widget can receive keyboard input.
 --
@@ -1297,7 +1319,7 @@ afterMnemonicActivate = connect_BOOL__BOOL "mnemonic_activate" True
 --   generated. To avoid a backlog of mouse messages, it is usually sufficient
 --   to sent @hint@ to True, generating only one event. The
 --   application now has to state that it is ready for the next message by
---   calling 'drawWindowGetPointer'.
+--   calling 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowGetPointer'.
 --
 onMotionNotify, afterMotionNotify :: WidgetClass w => w -> Bool ->
                                      (Event -> IO Bool) -> 
@@ -1358,7 +1380,7 @@ afterScroll = event "scroll_event" [ScrollMask] True
 -- | The widget was asked to show itself.
 --
 -- * This signal is emitted each time 'widgetShow' is called. Use
---   'connectToMap' when your application needs to be informed when
+--   'onMap' when your application needs to be informed when
 --   the widget is actually shown.
 --
 onShow, afterShow :: WidgetClass w => w -> IO () -> IO (ConnectId w)
