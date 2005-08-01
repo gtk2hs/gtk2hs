@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2005/07/14 14:31:15 $
+--  Version $Revision: 1.15 $ from $Date: 2005/08/01 21:33:08 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -45,6 +45,7 @@ module Graphics.UI.Gtk.Windows.Window (
   Window,
   WindowClass,
   castToWindow,
+  WindowType(..),
 
 -- * Constructors
   windowNew,
@@ -189,7 +190,7 @@ import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import Graphics.UI.Gtk.General.Enums	(WindowType(WindowToplevel), WindowPosition(..))
+import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)

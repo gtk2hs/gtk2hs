@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/07/16 14:07:13 $
+--  Version $Revision: 1.13 $ from $Date: 2005/08/01 21:33:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -147,6 +147,7 @@ module Graphics.UI.Gtk.Abstract.Container (
   ContainerClass,
   castToContainer,
   ContainerForeachCB,
+  ResizeMode(..),
 
 -- * Methods
   containerAdd,

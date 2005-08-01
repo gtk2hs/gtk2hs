@@ -1,3 +1,10 @@
+2005-08-1 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs,
+	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: export a few enum types.
+
 2005-07-30  Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,

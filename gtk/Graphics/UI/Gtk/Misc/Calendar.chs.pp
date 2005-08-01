@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/08 03:21:13 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/01 21:33:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -63,6 +63,7 @@ module Graphics.UI.Gtk.Misc.Calendar (
   Calendar,
   CalendarClass,
   castToCalendar,
+  CalendarDisplayOptions(..),
 
 -- * Constructors
   calendarNew,
