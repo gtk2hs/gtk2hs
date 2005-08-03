@@ -6,7 +6,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2005/07/14 14:31:15 $
+--  Version $Revision: 1.14 $ from $Date: 2005/08/03 01:25:09 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -205,6 +205,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Pango.Layout,
   module Graphics.UI.Gtk.Pango.Rendering,
   module Graphics.UI.Gtk.Pango.Description,
+  module Graphics.UI.Gtk.Pango.Enums,
   ) where
 
 -- general things, initialization
@@ -379,3 +380,5 @@ import Graphics.UI.Gtk.Pango.Markup
 import Graphics.UI.Gtk.Pango.Layout
 import Graphics.UI.Gtk.Pango.Rendering
 import Graphics.UI.Gtk.Pango.Description
+import Graphics.UI.Gtk.Pango.Enums
+

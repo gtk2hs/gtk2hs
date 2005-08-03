@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/07/30 18:52:08 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/03 01:25:08 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -89,9 +89,11 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetAppPaintable,
   widgetSetName,		-- Naming, Themes
   widgetGetName,
+  EventMask(..),
   widgetDelEvents,
   widgetAddEvents,
   widgetGetEvents,
+  ExtensionMode(..),
   widgetSetExtensionEvents,
   widgetGetExtensionEvents,
   widgetGetToplevel,		-- Widget browsing.
@@ -219,7 +221,7 @@ import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode)
+import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode(..))
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region(..), makeNewRegion)
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize,

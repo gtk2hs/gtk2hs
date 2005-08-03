@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.10 $ from $Date: 2005/07/23 01:09:51 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/03 01:25:08 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -66,7 +66,6 @@ import System.Glib.GObject		(DestroyNotify, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}	 
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums    (InputCondition(..))
 import Graphics.UI.Gtk.General.Structs	(priorityLow, priorityDefaultIdle,
 					priorityHighIdle, priorityDefault,
 					priorityHigh)

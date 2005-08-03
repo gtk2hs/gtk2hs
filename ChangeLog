@@ -1,3 +1,10 @@
+2005-08-3 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
+	gtk/Graphics/UI/Gtk/General/General.chs,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp,
+	gtk/Graphics/UI/Gtk.hs: export a few gdk and pango enum	types.
+
 2005-08-1 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Container.chs,
