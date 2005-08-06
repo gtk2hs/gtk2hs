@@ -264,7 +264,8 @@ html_HSFILES_EXCLUDE =				\
 	glib/System/Glib/Signals.hs
 
 html_HSFILES_PREPROC = glib/System/Glib/FFI.hs
-html_HSFILES_HIDDEN  = glib/System/Glib/FFI.hs
+html_HSFILES_HIDDEN  = glib/System/Glib/FFI.hs \
+		       gtk/Graphics/UI/Gtk/Pango/Types.hs
 
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
@@ -272,7 +273,7 @@ glib_System_Glib_Attributes_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_Signals_hs_HCFLAGS	= '-\#include"hsgclosure.h"'
 
 libHSglib_a_LIBADD  = glib/System/Glib/GObject_stub.o
-        
+
 if !USE_GCLOSUE_SIGNALS_IMPL
 libHSglib_a_LIBADD += glib/System/Glib/Signals_stub.o
 endif
@@ -1017,14 +1018,23 @@ html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE) $(html_HSFILES_PREPROC),	\
 		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))	\
 		$(html_HSFILES_PREPROC:.hs=.hs.uncpp)
 
-html_DATA =									\
-	$(foreach HSFILE, $(filter-out $(html_HSFILES_HIDDEN),$(html_HSFILES)),	\
-	    $(patsubst $(firstword $(subst /, ,$(HSFILE))).%.hs, docs/reference/%.html,	\
-		$(subst /,.,$(HSFILE:.uncpp=))))				\
-	docs/reference/haddock.css docs/reference/haskell_icon.gif		\
-	docs/reference/index.html docs/reference/doc-index.html			\
-	docs/reference/gtk2hs.haddock						\
-	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y 58,	\
+if HYPHENATED_DOCS
+DOCS_SEP =-
+else
+DOCS_SEP =.
+endif # HYPHENATED_DOCS
+
+html_DATA =									  \
+	$(foreach HSFILE, $(filter-out						  \
+	$(html_HSFILES_HIDDEN),$(html_HSFILES)),				  \
+	    $(patsubst $(firstword $(subst /,					  \
+	    ,$(HSFILE)))$(DOCS_SEP)%.hs,					  \
+	     docs/reference/%.html,						  \
+		$(subst /,$(DOCS_SEP),$(HSFILE:.uncpp=))))			  \
+	docs/reference/haddock.css docs/reference/haskell_icon.gif		  \
+	docs/reference/index.html docs/reference/doc-index.html			  \
+	docs/reference/gtk2hs.haddock						  \
+	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y 58,	  \
 		docs/reference/doc-index-$(LETTER).html) #missing letters Q and Z
 
 $(html_DATA) : $(html_HSFILES)

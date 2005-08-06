@@ -1,3 +1,14 @@
+2005-08-7  Axel Simon <A.Simon@kent.ac.uk>
+
+	* configure.ac, Makefile.am: Define the conditional variable
+	HYPENATED_DOCS which gets set if haddock with version greater than
+	0.6 is detected. The new version of haddock creates URLs with - in
+	them instead of . to separate modules.
+
+	* Makefile.am: Added Gtk.Pango.Types.hs to the html_HSFILES_HIDDEN
+	variable since make reinvokes haddock since it doesn't produce an
+	html page for this file - it is hidden.
+	
 2005-08-3 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
