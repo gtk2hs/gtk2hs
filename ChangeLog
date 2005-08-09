@@ -1,3 +1,7 @@
+2005-08-8  Axel Simon <A.Simon@kent.ac.uk>
+
+	* configure.ac: Bump version number to 0.9.9.
+	
 2005-08-7  Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac, Makefile.am: Define the conditional variable
