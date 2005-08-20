@@ -5,7 +5,7 @@
 --
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/19 02:15:32 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/20 13:25:16 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -40,7 +40,11 @@ module System.Glib.UTFString (
   withUTFStringArray,
   withUTFStringArray0,
   peekUTFStringArray,
-  peekUTFStringArray0
+  peekUTFStringArray0,
+  UTFCorrection,
+  genUTFOfs,
+  ofsToUTF,
+  ofsFromUTF
   ) where
 
 import Monad	(liftM)
@@ -167,3 +171,30 @@ fromUTF (all@(x:xs)) | ord x<=0x7F = x:fromUTF xs
     threeBytes _ = error "fromUTF: illegal three byte sequence" 
     
     err = error "fromUTF: illegal UTF-8 character"
+
+-- Offset correction for String<->UTF8 mapping.
+--
+newtype UTFCorrection = UTFCorrection [Int] deriving Show
+
+-- Create a list of offset corrections.
+genUTFOfs :: String -> UTFCorrection
+genUTFOfs str = UTFCorrection (gUO 0 str)
+  where
+  gUO n [] = []
+  gUO n (x:xs) | ord x<=0x007F = gUO (n+1) xs
+	       | ord x<=0x07FF = n:gUO (n+1) xs
+	       | otherwise     = n:n:gUO (n+1) xs
+
+ofsToUTF :: Int -> UTFCorrection -> Int
+ofsToUTF n (UTFCorrection oc) = oTU oc
+  where
+  oTU [] = n
+  oTU (x:xs) | n<=x = n
+	     | otherwise = 1+oTU xs
+
+ofsFromUTF :: Int -> UTFCorrection -> Int
+ofsFromUTF n (UTFCorrection oc) = oFU n oc
+  where
+  oFU n [] = n
+  oFU n (x:xs) | n<=x = n
+	       | otherwise = oFU (n-1) xs 

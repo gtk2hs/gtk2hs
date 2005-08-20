@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/08/03 01:25:08 $
+--  Version $Revision: 1.10 $ from $Date: 2005/08/20 13:25:18 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -75,7 +75,6 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetShowAll,
   widgetHideAll,
   widgetDestroy,
-  widgetCreateLayout,		-- Drawing text.
   widgetQueueDraw,		-- Functions to be used with DrawingArea.
   widgetHasIntersection,
   widgetIntersect,
@@ -122,6 +121,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetModifyText,
   widgetModifyBase,
   widgetModifyFont,
+  widgetCreateLayout,		-- Drawing text.
   widgetCreatePangoContext,
   widgetGetPangoContext,
   widgetRenderIcon,
@@ -229,8 +229,11 @@ import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
 					 marshExposeRect)
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..))
-{#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription))
+{#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription),
+					 PangoLayout(PangoLayout),
+					 makeNewPangoString )
 import Graphics.UI.Gtk.General.StockItems (StockId)
+import Data.IORef ( newIORef )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -326,12 +329,15 @@ widgetDestroy self =
 widgetCreateLayout :: WidgetClass self => self
  -> String    -- ^ @text@ - text to set on the layout
  -> IO PangoLayout
-widgetCreateLayout self text =
-  makeNewGObject mkPangoLayout $
-  withUTFString text $ \textPtr ->
-  {# call unsafe widget_create_pango_layout #}
-    (toWidget self)
-    textPtr
+widgetCreateLayout self text = do
+  pl <- makeNewGObject mkPangoLayoutRaw $
+    withUTFString text $ \textPtr ->
+    {# call unsafe widget_create_pango_layout #}
+      (toWidget self)
+      textPtr
+  ps <- makeNewPangoString text
+  psRef <- newIORef ps
+  return (PangoLayout psRef pl)
 
 -- | Send a redraw request to a widget. Equivalent to calling
 -- 'widgetQueueDrawArea' for the entire area of a widget.

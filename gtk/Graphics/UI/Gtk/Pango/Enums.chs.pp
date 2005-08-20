@@ -5,7 +5,7 @@
 --
 --  Created: 12 September 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/14 01:57:00 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/20 13:25:19 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -44,7 +44,7 @@ module Graphics.UI.Gtk.Pango.Enums (
 -- * 'StyleOblique' is a slanted font like 'StyleItalic', 
 --   but in a roman style.
 --
-{#enum Style as FontStyle {underscoreToCase}#}
+{#enum Style as FontStyle {underscoreToCase} deriving (Eq)#}
 
 instance Show FontStyle where
   showsPrec _ StyleNormal	   = shows "normal"
@@ -53,7 +53,7 @@ instance Show FontStyle where
 
 -- | Define attributes for 'FontWeight'.
 --
-{#enum Weight {underscoreToCase}#}
+{#enum Weight {underscoreToCase} deriving (Eq)#}
 
 instance Show Weight where
   showsPrec _ WeightUltralight	= shows "ultralight"
@@ -68,7 +68,7 @@ instance Show Weight where
 -- * The 'VariantCmallCaps' is a version of a font where lower case
 --   letters are shown as physically smaller upper case letters.
 --
-{#enum Variant {underscoreToCase}#}
+{#enum Variant {underscoreToCase} deriving (Eq)#}
 
 instance Show Variant where
   showsPrec _ VariantNormal       = shows "normal"
@@ -76,7 +76,7 @@ instance Show Variant where
 
 -- | Define how wide characters are.
 --
-{#enum Stretch {underscoreToCase}#}
+{#enum Stretch {underscoreToCase} deriving (Eq)#}
 
 instance Show Stretch where
   showsPrec _ StretchUltraCondensed	= shows "ultracondensed"
@@ -91,7 +91,9 @@ instance Show Stretch where
 
 -- | Define attributes for 'FontUnderline'.
 --
-{#enum Underline {underscoreToCase}#}
+-- * The squiggly underline for errors is only available in Gtk 2.4 and higher.
+--
+{#enum Underline {underscoreToCase} deriving (Eq)#}
 
 instance Show Underline where
   showsPrec _ UnderlineNone	= shows "none"
@@ -108,5 +110,6 @@ instance Show Underline where
 -- are removed from the text in order to make it fit to a given width and
 -- replaced with an ellipsis.
 --
-{# enum EllipsizeMode {underscoreToCase} #}
+{# enum EllipsizeMode {underscoreToCase} deriving (Eq) #}
 #endif
+

@@ -5,7 +5,7 @@
 --
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:41 $
+--  Version $Revision: 1.4 $ from $Date: 2005/08/20 13:25:19 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -85,7 +85,7 @@ data SpanAttribute
 
   -- | Choosing an alternative rendering for lower case letters.
   --
-  -- * The argument 'VariangtSmallCaps' will display lower case letters
+  -- * The argument 'VariantSmallCaps' will display lower case letters
   --   as smaller upper case letters, if this option is available.
   | FontVariant Pango.Variant
 

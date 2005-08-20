@@ -1,3 +1,33 @@
+2005-08-20  Axel Simon <A.Simon@kent.ac.uk>
+
+	* glib/System/Glib/UTFString.hs, gtk/Graphics/UI/Gtk.hs,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
+	gtk/Graphics/UI/Gtk/Display/Label.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp,
+	gtk/Graphics/UI/Gtk/General/Enums.chs.pp,
+	gtk/Graphics/UI/Gtk/General/Structs.hsc,
+	gtk/Graphics/UI/Gtk/Pango/Description.chs,
+	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Markup.hs,
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp : Major rework of the types
+	in Pango in order to add functions that take indices as offsets to
+	Haskell Strings but call Gtk with offsets to UTF-8 string buffers. 
+	The result is a data type UTFCorrection in UTFString.hs a change
+	of most pango newtypes to data types that contain this correction. 
+	The new pango interface is complete with the exceptions of
+	LogAttrs (to break unicode strings) and Tab Stops. In particular I
+	identified two data types (PangoItem and GlyphItem) that are
+	crucial and decided to hide all the other Pango types. 
+	PangoAttributes are, for example, are now completely represented
+	in Haskell and only used when creating a new PangoItem.
+
+	* Makefile.am, gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Layout.chs: Renamed the latter to the
+	former.
+
+	* configure.ac: Added a macro to check for the version of Pango.
+	
 2005-08-8  Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac: Bump version number to 0.9.9.

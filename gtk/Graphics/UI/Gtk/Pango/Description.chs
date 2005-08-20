@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.6 $ from $Date: 2005/07/30 17:32:05 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/20 13:25:19 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -51,8 +51,7 @@ module Graphics.UI.Gtk.Pango.Description (
   fontDescriptionMerge,
   fontDescriptionBetterMatch,
   fontDescriptionFromString,
-  fontDescriptionToString,
-  pangoScale -- FIXME: move to GlyphStorage once that file exists
+  fontDescriptionToString
   ) where
 
 import Monad    (liftM)

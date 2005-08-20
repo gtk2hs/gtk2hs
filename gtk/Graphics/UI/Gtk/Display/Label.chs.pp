@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/14 10:59:20 $
+--  Version $Revision: 1.5 $ from $Date: 2005/08/20 13:25:18 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -195,9 +195,12 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(Justification(..))
 import Graphics.UI.Gtk.Pango.Markup
+{#import Graphics.UI.Gtk.Pango.Types#}  (PangoLayout(PangoLayout),
+					 makeNewPangoString )
 #if GTK_CHECK_VERSION(2,6,0)
 import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode)
 #endif
+import Data.IORef ( newIORef )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -338,10 +341,13 @@ labelGetJustify self =
 -- 'labelGetLayoutOffsets'.
 --
 labelGetLayout :: LabelClass self => self -> IO PangoLayout
-labelGetLayout self =
-  makeNewGObject mkPangoLayout $
-  {# call unsafe label_get_layout #}
-    (toLabel self)
+labelGetLayout self = do
+  plr <- makeNewGObject mkPangoLayoutRaw $ 
+    {# call unsafe label_get_layout #} (toLabel self)
+  txt <- labelGetText self
+  ps <- makeNewPangoString txt
+  psRef <- newIORef ps
+  return (PangoLayout psRef plr)
 
 -- | Toggles line wrapping within the 'Label' widget. @True@ makes it break
 -- lines if text exceeds the widget's size. @False@ lets the text get cut off

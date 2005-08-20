@@ -5,7 +5,7 @@
 --
 --  Created: 13 January 1999
 --
---  Version $Revision: 1.6 $ from $Date: 2005/07/03 14:14:24 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/20 13:25:19 $
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
 --
@@ -88,17 +88,17 @@ import Graphics.UI.Gtk.Gdk.Enums
 
 -- | State of an accelerator
 --
-{#enum AccelFlags {underscoreToCase} deriving(Bounded)#}
+{#enum AccelFlags {underscoreToCase} deriving(Eq, Bounded)#}
 
 instance Flags AccelFlags
 
 -- | Arrow directions for the arrow widget
 --
-{#enum ArrowType {underscoreToCase}#}
+{#enum ArrowType {underscoreToCase} deriving (Eq)#}
 
 -- | Child widget attach options for table containers
 --
-{#enum AttachOptions {underscoreToCase} deriving(Bounded)#}
+{#enum AttachOptions {underscoreToCase} deriving(Eq, Bounded)#}
 
 instance Flags AttachOptions
 
@@ -107,6 +107,7 @@ instance Flags AttachOptions
 data Button = LeftButton
 	    | MiddleButton
 	    | RightButton
+	    deriving (Eq,Show)
 
 instance Enum Button where
   toEnum 1 = LeftButton
@@ -118,11 +119,11 @@ instance Enum Button where
 
 -- | Dictate the style that a ButtonBox uses to align it contents
 --
-{#enum ButtonBoxStyle {underscoreToCase}#}
+{#enum ButtonBoxStyle {underscoreToCase} deriving (Eq)#}
 
 -- | Specify which items of a calendar should be displayed.
 --
-{#enum CalendarDisplayOptions {underscoreToCase} deriving(Bounded)#}
+{#enum CalendarDisplayOptions {underscoreToCase} deriving(Eq, Bounded)#}
 
 instance Flags CalendarDisplayOptions
 
@@ -135,45 +136,45 @@ data Click = SingleClick
 
 -- | Specifies in which corner a child widget should be placed
 --
-{#enum CornerType {underscoreToCase}#}
+{#enum CornerType {underscoreToCase} deriving (Eq)#}
 
 -- | Specifies how curves in the gamma widget (?) are drawn
 --
-{#enum CurveType {underscoreToCase}#}
+{#enum CurveType {underscoreToCase} deriving (Eq)#}
 
 -- | Editing option
 --
-{#enum DeleteType {underscoreToCase}#}
+{#enum DeleteType {underscoreToCase} deriving (Eq)#}
 
 -- | Editing direction
 --
-{#enum DirectionType {underscoreToCase}#}
+{#enum DirectionType {underscoreToCase} deriving (Eq)#}
 
 -- | Justification for label and maybe other widgets (text?)
 --
-{#enum Justification {underscoreToCase}#}
+{#enum Justification {underscoreToCase} deriving (Eq)#}
 
 #ifndef DISABLE_DEPRECATED
 -- | Some kind of string search options
 --
-{#enum MatchType {underscoreToCase}#}
+{#enum MatchType {underscoreToCase} deriving (Eq)#}
 #endif
 
 -- | From where was a menu item entered?
 --
-{#enum MenuDirectionType {underscoreToCase}#}
+{#enum MenuDirectionType {underscoreToCase} deriving (Eq)#}
 
 -- | Units of measure
 --
-{#enum MetricType {underscoreToCase}#}
+{#enum MetricType {underscoreToCase} deriving (Eq)#}
 
 -- | Movement in text widget
 --
-{#enum MovementStep {underscoreToCase}#}
+{#enum MovementStep {underscoreToCase} deriving (Eq)#}
 
 -- | Orientation is good
 --
-{#enum Orientation {underscoreToCase}#}
+{#enum Orientation {underscoreToCase} deriving (Eq)#}
 
 -- | Packing parameters of a widget
 --
@@ -214,33 +215,33 @@ fromPacking PackNatural = (False,False)
 
 -- | Packing of widgets at start or end in a box
 --
-{#enum PackType {underscoreToCase}#}
+{#enum PackType {underscoreToCase} deriving (Eq)#}
 
 -- | Priorities
 --
-{#enum PathPriorityType {underscoreToCase}#}
+{#enum PathPriorityType {underscoreToCase} deriving (Eq)#}
 
 -- | Widget identification path
 --
-{#enum PathType {underscoreToCase}#}
+{#enum PathType {underscoreToCase} deriving (Eq)#}
 
 -- | Scrollbar policy types (for scrolled windows)
 --
-{#enum PolicyType {underscoreToCase}#}
+{#enum PolicyType {underscoreToCase} deriving (Eq)#}
 
 -- | Position a scale's value is drawn relative to the
 -- trough
 --
-{#enum PositionType {underscoreToCase}#}
+{#enum PositionType {underscoreToCase} deriving (Eq)#}
 
 -- | Is the ProgressBar horizontally or vertically
 -- directed?
 --
-{#enum ProgressBarOrientation {underscoreToCase}#}
+{#enum ProgressBarOrientation {underscoreToCase} deriving (Eq)#}
 
 -- | I don't have a clue.
 --
-{#enum ReliefStyle {underscoreToCase}#}
+{#enum ReliefStyle {underscoreToCase} deriving (Eq)#}
 
 -- | Resize mode, for containers
 --
@@ -250,11 +251,11 @@ fromPacking PackNatural = (False,False)
 --
 -- * 'ResizeImmediate' Perform the resizes now
 --
-{#enum ResizeMode {underscoreToCase}#}
+{#enum ResizeMode {underscoreToCase} deriving (Eq)#}
 
 -- | Scrolling type
 --
-{#enum ScrollType {underscoreToCase}#}
+{#enum ScrollType {underscoreToCase} deriving (Eq)#}
 
 -- | Mode in which selections can be performed
 --
@@ -266,82 +267,82 @@ data SelectionMode = SelectionNone
                    | SelectionBrowse
                    | SelectionMultiple
                    deriving (Enum)
--- {#enum SelectionMode {underscoreToCase}#}
+-- {#enum SelectionMode {underscoreToCase} deriving (Eq)#}
 
 -- | Shadow types
 --
-{#enum ShadowType {underscoreToCase}#}
+{#enum ShadowType {underscoreToCase} deriving (Eq)#}
 
 -- | Widget states
 --
-{#enum StateType {underscoreToCase}#}
+{#enum StateType {underscoreToCase} deriving (Eq)#}
 
 #ifndef DISABLE_DEPRECATED
 -- | Submenu direction policies
 --
-{#enum SubmenuDirection {underscoreToCase}#}
+{#enum SubmenuDirection {underscoreToCase} deriving (Eq)#}
 
 -- | Submenu placement policies
 --
-{#enum SubmenuPlacement {underscoreToCase}#}
+{#enum SubmenuPlacement {underscoreToCase} deriving (Eq)#}
 #endif
 
 -- | Whether to clamp or ignore illegal values.
 --
-{#enum SpinButtonUpdatePolicy {underscoreToCase}#}
+{#enum SpinButtonUpdatePolicy {underscoreToCase} deriving (Eq)#}
 
 -- | Spin a SpinButton with the following method.
 --
-{#enum SpinType {underscoreToCase}#}
+{#enum SpinType {underscoreToCase} deriving (Eq)#}
 
--- | Is the text written from left to right or the awkward way?
+-- | Is the text written from left to right or the exotic way?
 --
-{#enum TextDirection {underscoreToCase}#}
+{#enum TextDirection {underscoreToCase} deriving (Eq)#}
 
 -- | Specify the way the search function for 'TextBuffer' works.
 --
-{#enum TextSearchFlags {underscoreToCase} deriving(Bounded)#}
+{#enum TextSearchFlags {underscoreToCase} deriving(Eq, Bounded)#}
 
 instance Flags TextSearchFlags
 
 -- | The window type for coordinate translation.
 --
-{#enum TextWindowType {underscoreToCase}#}
+{#enum TextWindowType {underscoreToCase} deriving (Eq)#}
 
 -- | Where to place the toolbar?
 --
-{#enum ToolbarStyle {underscoreToCase}#}
+{#enum ToolbarStyle {underscoreToCase} deriving (Eq)#}
 
 -- | Wether columns of a tree or list widget can be resized.
 --
-{#enum TreeViewColumnSizing {underscoreToCase}#}
+{#enum TreeViewColumnSizing {underscoreToCase} deriving (Eq)#}
 
 -- hm... text editing?
---{#enum TroughType {underscoreToCase}#}
+--{#enum TroughType {underscoreToCase} deriving (Eq)#}
 
 
 -- | Updating types for range widgets (determines when the
 -- @\"connectToValueChanged\"@ signal is emitted by the widget)
 --
-{#enum UpdateType {underscoreToCase}#}
+{#enum UpdateType {underscoreToCase} deriving (Eq)#}
 
 -- | Visibility
 --
-{#enum Visibility {underscoreToCase}#}
+{#enum Visibility {underscoreToCase} deriving (Eq)#}
 
 -- | Window position types
 --
-{#enum WindowPosition {underscoreToCase}#}
+{#enum WindowPosition {underscoreToCase} deriving (Eq)#}
 
 -- | Interaction of a window with window manager
 --
-{#enum WindowType {underscoreToCase}#}
+{#enum WindowType {underscoreToCase} deriving (Eq)#}
 
 -- | Determine how lines are wrapped in a 'TextView'.
 --
-{#enum WrapMode {underscoreToCase}#}
+{#enum WrapMode {underscoreToCase} deriving (Eq)#}
 
 -- Sort in ascending or descending order (used in CList widget)
 --
-{#enum SortType {underscoreToCase}#}
+{#enum SortType {underscoreToCase} deriving (Eq)#}
 

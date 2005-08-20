@@ -197,7 +197,7 @@
 	GdkGC				as GC, gdk_gc_get_type
 ## These are Pango structures
 	PangoContext		as PangoContext, pango_context_get_type
-	PangoLayout		as PangoLayout, pango_layout_get_type
+	PangoLayout		as PangoLayoutRaw, pango_layout_get_type
 	PangoFont		as Font, pango_font_get_type
 	PangoFontFamily		as FontFamily, pango_font_family_get_type
 	PangoFontFace		as FontFace, pango_font_face_get_type

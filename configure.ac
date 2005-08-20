@@ -332,6 +332,23 @@ AH_BOTTOM([
       GTK_MICRO_VERSION >= (micro)))
 ])
 
+dnl Also allow us to conditionally compile bindings to Pango APIs.
+PANGO_VERSION=`$PKG_CONFIG pango --modversion`
+PANGO_MAJOR_VERSION=`echo $PANGO_VERSION | $CUT -d. -f1`
+PANGO_MINOR_VERSION=`echo $PANGO_VERSION | $CUT -d. -f2`
+PANGO_MICRO_VERSION=`echo $PANGO_VERSION | $CUT -d. -f3`
+AC_DEFINE_UNQUOTED(PANGO_MAJOR_VERSION, ($PANGO_MAJOR_VERSION), [Gtk major version number])
+AC_DEFINE_UNQUOTED(PANGO_MINOR_VERSION, ($PANGO_MINOR_VERSION), [Gtk minor version number])
+AC_DEFINE_UNQUOTED(PANGO_MICRO_VERSION, ($PANGO_MICRO_VERSION), [Gtk minor patch level])
+AH_BOTTOM([
+/* Allow code to be compiled differently for different versions of Pango */
+#define PANGO_CHECK_VERSION(major,minor,micro)    \
+    (PANGO_MAJOR_VERSION > (major) || \
+     (PANGO_MAJOR_VERSION == (major) && PANGO_MINOR_VERSION > (minor)) || \
+     (PANGO_MAJOR_VERSION == (major) && PANGO_MINOR_VERSION == (minor) && \
+      PANGO_MICRO_VERSION >= (micro)))
+])
+
 dnl For reasons know only to themselves, Sun decided to ship a development
 dnl version of Gtk+ (version 2.1.0). Being an intermediate development version
 dnl it had bugs/typos etc. The function gtk_icon_size_lookup was mistakenly

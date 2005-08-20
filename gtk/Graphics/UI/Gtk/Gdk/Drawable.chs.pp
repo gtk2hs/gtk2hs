@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/20 13:25:18 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -24,8 +24,6 @@
 -- if gdk_visuals are implemented, do: get_visual
 --
 -- if gdk_colormaps are implemented, do: set_colormap, get_colormap
---
--- add draw_glyphs if we are desparate
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -58,6 +56,7 @@ module Graphics.UI.Gtk.Gdk.Drawable (
   drawRectangle,
   drawArc,
   drawPolygon,
+  drawGlyphs,
   drawLayoutLine,
   drawLayoutLineWithColors,
   drawLayout,
@@ -254,6 +253,24 @@ drawPolygon d gc filled points =
   \(aPtr::Ptr {#type gint#}) -> {#call unsafe draw_polygon#} (toDrawable d)
   (toGC gc) (fromBool filled) (castPtr aPtr) (fromIntegral (length points))
 
+-- | Draw a segment of text.
+--
+-- * This function draws a segment of text. These segements are the result
+--   of itemizing a string into segments with the same characteristics
+--   (font, text direction, etc.) using
+--   'Graphics.UI.Gtk.Pango.Rendering.itemize'. Each item is then turned
+--   into a shapes by calling 'Graphics.UI.Gtk.Pango.Rendering.shape'.
+--   These shapes can then be drawn onto screen using this function.
+--   A simpler interface, that also takes care of breaking a paragraph
+--   into several lines is a 'Graphics.UI.Gtk.Pango.Layout.LayoutLine'.
+--
+drawGlyphs :: DrawableClass d => d -> GC -> Int -> Int -> GlyphItem -> IO ()
+drawGlyphs d gc x y (GlyphItem pi gs) = do
+  font <- pangoItemGetFont pi
+  {#call unsafe draw_glyphs#} (toDrawable d) (toGC gc) font
+    (fromIntegral x) (fromIntegral y) gs
+
+--   
 -- | Draw a single line of text.
 --
 -- * The @x@ coordinate specifies the start of the string,
@@ -261,9 +278,9 @@ drawPolygon d gc filled points =
 --
 drawLayoutLine :: DrawableClass d => d -> GC -> Int -> Int -> LayoutLine ->
 				     IO ()
-drawLayoutLine d gc x y text =
+drawLayoutLine d gc x y (LayoutLine _ ll) =
   {#call unsafe draw_layout_line#} (toDrawable d) (toGC gc)
-    (fromIntegral x) (fromIntegral y) text
+    (fromIntegral x) (fromIntegral y) ll
 
 -- | Draw a single line of text.
 --
@@ -276,14 +293,14 @@ drawLayoutLine d gc x y text =
 --
 drawLayoutLineWithColors :: DrawableClass d => d -> GC -> Int -> Int ->
 			    LayoutLine -> Maybe Color -> Maybe Color -> IO ()
-drawLayoutLineWithColors d gc x y text foreground background = let
+drawLayoutLineWithColors d gc x y (LayoutLine _ ll) foreground background = let
     withMB :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b
     withMB Nothing f = f nullPtr
     withMB (Just x) f = with x f
   in
     withMB foreground $ \fPtr -> withMB background $ \bPtr ->
     {#call unsafe draw_layout_line_with_colors#} (toDrawable d) (toGC gc)
-      (fromIntegral x) (fromIntegral y) text (castPtr fPtr) (castPtr bPtr)
+      (fromIntegral x) (fromIntegral y) ll (castPtr fPtr) (castPtr bPtr)
 
 
 -- | Draw a paragraph of text.
@@ -292,9 +309,9 @@ drawLayoutLineWithColors d gc x y text foreground background = let
 --   point of the layout. 
 --
 drawLayout :: DrawableClass d => d -> GC -> Int -> Int -> PangoLayout -> IO ()
-drawLayout d gc x y text =
+drawLayout d gc x y (PangoLayout _ pl) =
   {#call unsafe draw_layout#} (toDrawable d) (toGC gc)
-    (fromIntegral x) (fromIntegral y) (toPangoLayout text)
+    (fromIntegral x) (fromIntegral y) pl
 
 -- | Draw a paragraph of text.
 --
@@ -307,15 +324,14 @@ drawLayout d gc x y text =
 --
 drawLayoutWithColors :: DrawableClass d => d -> GC -> Int -> Int ->
 			PangoLayout -> Maybe Color -> Maybe Color -> IO ()
-drawLayoutWithColors d gc x y text foreground background = let
+drawLayoutWithColors d gc x y (PangoLayout _ pl) foreground background = let
     withMB :: Storable a => Maybe a -> (Ptr a -> IO b) -> IO b
     withMB Nothing f = f nullPtr
     withMB (Just x) f = with x f
   in
     withMB foreground $ \fPtr -> withMB background $ \bPtr ->
     {#call unsafe draw_layout_with_colors#} (toDrawable d) (toGC gc)
-      (fromIntegral x) (fromIntegral y) (toPangoLayout text)
-      (castPtr fPtr) (castPtr bPtr)
+      (fromIntegral x) (fromIntegral y) pl (castPtr fPtr) (castPtr bPtr)
 
 
 -- | Copies another 'Drawable'.

@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/07/30 18:52:09 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/20 13:25:19 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -91,6 +91,12 @@ module Graphics.UI.Gtk.General.Structs (
   drawingAreaGetSize,
   layoutGetDrawWindow,
   pangoScale,
+  PangoDirection(..),
+  pangodirToLevel,
+  setAttrPos,
+  pangoItemRawGetFont,
+  pangoItemRawAnalysis,
+  pangoItemRawGetLevel,
   styleGetForeground,
   styleGetBackground,
   styleGetLight,
@@ -107,6 +113,7 @@ import Control.Exception
 import Data.Bits        (testBit)
 
 import System.Glib.FFI
+import System.Glib.UTFString ( UTFCorrection, ofsToUTF )
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Types
@@ -677,7 +684,7 @@ layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
 
 -- PangoLayout related constant
 
--- | Internal unit of measuring sizes.
+-- Internal unit of measuring sizes.
 --
 -- * This constant represents the scale between
 --   dimensions used for distances in text rendering and Pango device units.
@@ -692,6 +699,76 @@ layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
 pangoScale :: Int
 pangoScale = #const PANGO_SCALE
 
+-- | The 'PangoDirection' type represents a direction in the Unicode
+-- bidirectional algorithm.
+--
+-- * The \"weak\" values denote a left-to-right or right-to-left direction
+--   only if there is no character with a strong direction in a paragraph.
+--   An example is a sequence of special, graphical characters which are
+--   neutral with respect to their rendering direction. A fresh
+--   'Graphics.UI.Gtk.Pango.Rendering.PangoContext' is by default weakly
+--   left-to-right.
+--
+-- * Not every value in this enumeration makes sense for every usage
+--   of 'PangoDirection'; for example, the return value of
+--   'unicharDirection' and 'findBaseDir' cannot be 'PangoDirectionWeakLtr'
+--   or 'PangoDirectionWeakRtl', since every character is either neutral or
+--   has a strong direction; on the other hand 'PangoDirectionNeutral'
+--   doesn't make sense to pass to 'log2visGetEmbeddingLevels'.
+--
+data PangoDirection = PangoDirectionLtr
+                    | PangoDirectionRtl
+                    | PangoDirectionWeakLtr
+                    | PangoDirectionWeakRtl
+                    | PangoDirectionNeutral
+                    deriving (Eq,Ord)
+
+instance Enum PangoDirection where
+  fromEnum PangoDirectionLtr        = #{const PANGO_DIRECTION_LTR }
+  fromEnum PangoDirectionRtl        = #{const PANGO_DIRECTION_RTL }
+  fromEnum PangoDirectionWeakLtr    = #{const PANGO_DIRECTION_WEAK_LTR }
+  fromEnum PangoDirectionWeakRtl    = #{const PANGO_DIRECTION_WEAK_RTL }
+  fromEnum PangoDirectionNeutral    = #{const PANGO_DIRECTION_NEUTRAL }
+  toEnum #{const PANGO_DIRECTION_LTR } = PangoDirectionLtr
+  toEnum #{const PANGO_DIRECTION_RTL } = PangoDirectionRtl
+  toEnum #{const PANGO_DIRECTION_TTB_LTR } = PangoDirectionLtr
+  toEnum #{const PANGO_DIRECTION_TTB_RTL } = PangoDirectionRtl
+  toEnum #{const PANGO_DIRECTION_WEAK_LTR } = PangoDirectionWeakLtr
+  toEnum #{const PANGO_DIRECTION_WEAK_RTL } = PangoDirectionWeakRtl
+  toEnum #{const PANGO_DIRECTION_NEUTRAL } = PangoDirectionNeutral
+
+-- This is a copy of the local function direction_simple in pango-layout.c
+pangodirToLevel :: PangoDirection -> Int
+pangodirToLevel PangoDirectionLtr = 1
+pangodirToLevel PangoDirectionRtl = -1
+pangodirToLevel PangoDirectionWeakLtr = 1
+pangodirToLevel PangoDirectionWeakRtl = -1
+pangodirToLevel PangoDirectionNeutral = 0
+
+-- Get the font of a PangoAnalysis within a PangoItem.
+pangoItemRawGetFont :: Ptr pangoItem -> IO Font
+pangoItemRawGetFont ptr =
+  makeNewGObject mkFont (#{peek PangoItem, analysis.font} ptr)
+
+-- Get the PangoAnalysis within a PangoItem
+pangoItemRawAnalysis :: Ptr pangoItem -> Ptr pangoAnalysis
+pangoItemRawAnalysis = #{ptr PangoItem, analysis}
+
+-- Get the text direction of this PangoItem.
+pangoItemRawGetLevel :: Ptr pangoItem -> IO Bool
+pangoItemRawGetLevel ptr = do
+  level <- #{peek PangoItem, analysis.level} ptr
+  return (toBool (level :: #{type guint8}))
+
+-- Set the start and end position of an attribute
+setAttrPos :: UTFCorrection -> Int -> Int -> IO (Ptr ()) -> IO (Ptr ())
+setAttrPos correct start end act = do
+  atPtr <- act
+  #{poke PangoAttribute, start_index} atPtr
+    (fromIntegral (ofsToUTF start correct) :: #{type guint})
+  #{poke PangoAttribute, end_index} atPtr
+    (fromIntegral (ofsToUTF end correct) :: #{type guint})
+  return atPtr
 
 -- Styles related methods
 
