@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.6 $ from $Date: 2005/08/20 13:25:19 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/20 13:37:43 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -261,9 +261,9 @@ data PangoItem = PangoItem PangoString PangoItemRaw
 -- | A sequence of glyphs for a chunk of a string.
 --
 -- * A glyph item contains the graphical representation of a 'PangoItem'.
---   Clusters (like "e" and an accent modifier) as well as legatures
---   (such as "ffi" turning into a single letter that omits the dot over the
---   "i") are usually represented as a single glyph. 
+--   Clusters (like @e@ and an accent modifier) as well as legatures
+--   (such as @ffi@ turning into a single letter that omits the dot over the
+--   @i@) are usually represented as a single glyph. 
 --
 data GlyphItem = GlyphItem PangoItem GlyphStringRaw 
 
