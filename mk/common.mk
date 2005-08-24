@@ -32,7 +32,7 @@ LINK = 	$(strip $(HC) -o $@ $(AM_HCFLAGS) $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
 	-c $< -o $@ $(AM_HCFLAGS) $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
-	$(addprefix -package-name ,$(notdir $(basename $($(PKG)_PACKAGE)))) \
+	$(addprefix -package-name ,$(notdir $(basename $(basename $($(PKG)_PACKAGE))))) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
 	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
 
