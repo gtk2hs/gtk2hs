@@ -3,6 +3,20 @@
 	* mk/common.mk: strip two suffixes off to get the package name, due to
 	the fact that we're now caling the package files foo.package.conf.
 
+	* gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs,
+	gtk/Graphics/UI/Gtk/Misc/Adjustment.chs,
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs,
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs,
+	gtk/Graphics/UI/Gtk/Windows/Dialog.chs,
+	gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/Adjustment.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs.pp,
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp: rename some .chs files to
+	.chs.pp	files in preparation for adding bits conditional on Gtk+ 2.8.
+
 2005-08-20  Axel Simon <A.Simon@kent.ac.uk>
 
 	* glib/System/Glib/UTFString.hs, gtk/Graphics/UI/Gtk.hs,
