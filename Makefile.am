@@ -355,7 +355,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp			\
 	gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp			\
 	gtk/Graphics/UI/Gtk/Buttons/CheckButton.chs			\
-	gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs			\
+	gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs.pp			\
 	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs			\
 	gtk/Graphics/UI/Gtk/Display/AccelLabel.chs			\
 	gtk/Graphics/UI/Gtk/Display/Image.chs.pp			\
@@ -391,7 +391,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBoxEntry.chs.pp	\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/ImageMenuItem.chs		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp		\
-	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs.pp		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuItem.chs		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs.pp		\
 	gtk/Graphics/UI/Gtk/MenuComboToolbar/OptionMenu.chs.pp		\
@@ -410,13 +410,13 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ToggleAction.chs.pp	\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs.pp	\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp		\
-	gtk/Graphics/UI/Gtk/Misc/Adjustment.chs				\
+	gtk/Graphics/UI/Gtk/Misc/Adjustment.chs.pp				\
 	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs			\
 	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Arrow.chs				\
 	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs				\
-	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs				\
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs.pp				\
 	gtk/Graphics/UI/Gtk/Misc/Tooltips.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Viewport.chs				\
 	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp			\
@@ -428,7 +428,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Ornaments/HSeparator.chs			\
 	gtk/Graphics/UI/Gtk/Ornaments/VSeparator.chs			\
 	gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs			\
-	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs		\
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs.pp		\
 	gtk/Graphics/UI/Gtk/Scrolling/VScrollbar.chs			\
 	gtk/Graphics/UI/Gtk/Selectors/ColorButton.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/ColorSelection.chs		\
@@ -458,7 +458,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp			\
-	gtk/Graphics/UI/Gtk/Windows/Dialog.chs				\
+	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs			\
 	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\
@@ -1063,13 +1063,10 @@ DEMOS = demo/hello demo/buttonbox demo/concurrent \
 if HAVE_GTK_VERSION_2_2
 DEMOS += demo/treeList demo/fastdraw
 endif
-if HAVE_GTK_VERSION_2_4
-DEMOS += demo/filechooser 
-endif
 if ENABLE_LIBGLADE
 DEMOS += demo/glade demo/calc
 if HAVE_GTK_VERSION_2_4
-DEMOS += demo/profileviewer
+DEMOS += demo/filechooser demo/profileviewer
 endif
 endif
 if ENABLE_GCONF
