@@ -94,6 +94,8 @@
 	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp,
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: Gtk+ 2.8 updates as above.
 
+	* glib/System/Glib/Properties.chs: add an extra property constructor.
+
 2005-08-20  Axel Simon <A.Simon@kent.ac.uk>
 
 	* glib/System/Glib/UTFString.hs, gtk/Graphics/UI/Gtk.hs,

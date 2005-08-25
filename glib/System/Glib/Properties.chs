@@ -5,7 +5,7 @@
 --
 --  Created: 16 April 2005
 --
---  Version $Revision: 1.6 $ from $Date: 2005/07/03 12:53:22 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/25 01:17:17 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -64,6 +64,7 @@ module System.Glib.Properties (
   readAttrFromEnumProperty,
   newAttrFromFlagsProperty,
   newAttrFromStringProperty,
+  readAttrFromStringProperty,
   writeAttrFromStringProperty,
   newAttrFromMaybeStringProperty,
   newAttrFromObjectProperty,
@@ -216,6 +217,10 @@ newAttrFromFlagsProperty propName =
 newAttrFromStringProperty :: GObjectClass gobj => String -> Attr gobj String
 newAttrFromStringProperty propName =
   newAttr (objectGetPropertyString propName) (objectSetPropertyString propName)
+
+readAttrFromStringProperty :: GObjectClass gobj => String -> ReadAttr gobj String
+readAttrFromStringProperty propName =
+  readAttr (objectGetPropertyString propName)
 
 writeAttrFromStringProperty :: GObjectClass gobj => String -> WriteAttr gobj String
 writeAttrFromStringProperty propName =
