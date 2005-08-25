@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/07/03 12:27:09 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -138,8 +138,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
 #if GTK_CHECK_VERSION(2,4,0)
   toolbarShowArrow,
 #endif
-  toolbarStyle,
+#if GTK_CHECK_VERSION(2,8,0)
   toolbarTooltips,
+#endif
+  toolbarStyle,
 
 -- * Child Attributes
   toolbarChildExpand,
@@ -558,15 +560,15 @@ toolbarGetNItems self =
   {# call unsafe toolbar_get_n_items #}
     (toToolbar self)
 
--- | Returns the @n@'th item on toolbar, or @Nothing@ if the toolbar does not
+-- | Returns the @n@\'th item on toolbar, or @Nothing@ if the toolbar does not
 -- contain an @n@'th item.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 toolbarGetNthItem :: ToolbarClass self => self
  -> Int                 -- ^ @n@ - A position on the toolbar
  -> IO (Maybe ToolItem) -- ^ returns The @n@'th 'ToolItem' on the toolbar, or
-                        -- @Nothing@ if there isn't an @n@'th item.
+                        -- @Nothing@ if there isn't an @n@\'th item.
 toolbarGetNthItem self n =
   maybeNull (makeNewObject mkToolItem) $
   {# call unsafe toolbar_get_nth_item #}
@@ -625,9 +627,9 @@ toolbarSetShowArrow self showArrow =
     (fromBool showArrow)
 
 -- | Returns whether the toolbar has an overflow menu. See
--- 'toolbarSetShowArrow'
+-- 'toolbarSetShowArrow'.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 toolbarGetShowArrow :: ToolbarClass self => self -> IO Bool
 toolbarGetShowArrow self =
@@ -637,7 +639,7 @@ toolbarGetShowArrow self =
 
 -- | Returns the relief style of buttons on the toolbar. See 'buttonSetRelief'.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 toolbarGetReliefStyle :: ToolbarClass self => self -> IO ReliefStyle
 toolbarGetReliefStyle self =
@@ -663,7 +665,7 @@ toolbarOrientation = newAttr
 -- Default value: 'ToolbarIcons'
 --
 toolbarToolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
-toolbarToolbarStyle = newAttrFromEnumProperty "toolbar_style"
+toolbarToolbarStyle = newAttrFromEnumProperty "toolbar-style"
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | If an arrow should be shown if the toolbar doesn't fit.
@@ -676,19 +678,21 @@ toolbarShowArrow = newAttr
   toolbarSetShowArrow
 #endif
 
+-- | If the tooltips of the toolbar should be active or not.
+--
+-- Default value: @True@
+--
+toolbarTooltips :: ToolbarClass self => Attr self Bool
+toolbarTooltips = newAttr
+  toolbarGetTooltips
+  toolbarSetTooltips
+
 -- | \'style\' property. See 'toolbarGetStyle' and 'toolbarSetStyle'
 --
 toolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
 toolbarStyle = newAttr
   toolbarGetStyle
   toolbarSetStyle
-
--- | \'tooltips\' property. See 'toolbarGetTooltips' and 'toolbarSetTooltips'
---
-toolbarTooltips :: ToolbarClass self => Attr self Bool
-toolbarTooltips = newAttr
-  toolbarGetTooltips
-  toolbarSetTooltips
 
 --------------------
 -- Child Attributes

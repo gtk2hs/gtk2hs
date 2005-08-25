@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/07 20:57:29 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -38,6 +38,11 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 -- not need to write an object that implements the 'FileChooser' interface
 -- unless you are trying to adapt an existing file selector to expose a
 -- standard programming interface.
+--
+-- 'FileChooser' allows for shortcuts to various places in the filesystem.
+-- In the default implementation these are displayed in the left pane. It may
+-- be a bit confusing at first taht these shortcuts come from various sources
+-- and in various flavours, so lets explain the terminology here:
 
 -- ** File Names and Encodings
 -- 
@@ -125,6 +130,8 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   FileChooserClass,
   castToFileChooser,
   FileChooserAction(..),
+  FileChooserError(..),
+  FileChooserConfirmation(..),
 
 -- * Methods
   fileChooserSetAction,
@@ -172,10 +179,13 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   fileChooserRemoveShortcutFolderURI,
   fileChooserListShortcutFolderURIs,
   fileChooserErrorDomain,
-  FileChooserError(..),
 #if GTK_CHECK_VERSION(2,6,0)
   fileChooserSetShowHidden,
   fileChooserGetShowHidden,
+#endif
+#if GTK_CHECK_VERSION(2,8,0)
+  fileChooserSetDoOverwriteConfirmation,
+  fileChooserGetDoOverwriteConfirmation,
 #endif
 
 -- * Attributes
@@ -189,6 +199,9 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   fileChooserLocalOnly,
   fileChooserFilter,
   fileChooserExtraWidget,
+#if GTK_CHECK_VERSION(2,8,0)
+  fileChooserDoOverwriteConfirmation,
+#endif
   fileChooserAction,
 
 -- * Signals
@@ -199,7 +212,10 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 --  onSelectionChanged,
 --  afterSelectionChanged,
   onUpdatePreview,
-  afterUpdatePreview
+  afterUpdatePreview,
+  onConfirmOverwrite,
+  afterConfirmOverwrite,
+
 #endif
   ) where
 
@@ -220,6 +236,7 @@ import System.Glib.GError		(propagateGError, GErrorDomain, GErrorClass(..))
 
 {# enum FileChooserAction {underscoreToCase} #}
 {# enum FileChooserError {underscoreToCase} #}
+{# enum FileChooserConfirmation {underscoreToCase} #}
 
 --------------------
 -- Methods
@@ -300,7 +317,9 @@ fileChooserGetSelectMultiple self =
 -- dialog.
 --
 -- If you want to preselect a particular existing file, you should use
--- 'fileChooserSetFilename' instead.
+-- 'fileChooserSetFilename' or 'fileChooserSetURI' instead. Please see the
+-- documentation for those functions for an example of using
+-- 'fileChooserSetCurrentName' as well.
 --
 fileChooserSetCurrentName :: FileChooserClass self => self
  -> FilePath -- ^ @name@ - the filename to use, as a Unicode string
@@ -331,15 +350,32 @@ fileChooserGetFilename self =
     (toFileChooser self)
   >>= maybePeek readCString
 
--- | Sets @filename@ as the current filename for the file chooser; If the file
--- name isn't in the current folder of the chooser, then the current folder of
--- the chooser will be changed to the folder containing @filename@. This is
--- equivalent to a sequence of 'fileChooserUnselectAll' followed by
--- 'fileChooserSelectFilename'.
+-- | Sets @filename@ as the current filename for the file chooser, by changing
+-- to the file's parent folder and actually selecting the file in list. If the
+-- @chooser@ is in 'FileChooserActionSave' mode, the file's base name will also
+-- appear in the dialog's file name entry.
+--
+-- If the file name isn't in the current folder of @chooser@, then the
+-- current folder of @chooser@ will be changed to the folder containing
+-- @filename@. This is equivalent to a sequence of 'fileChooserUnselectAll'
+-- followed by 'fileChooserSelectFilename'.
 --
 -- Note that the file must exist, or nothing will be done except for the
--- directory change. To pre-enter a filename for the user, as in a save-as
--- dialog, use 'fileChooserSetCurrentName'
+-- directory change.
+--
+-- If you are implementing a File\/Save As... dialog, you should use this
+-- function if you already have a file name to which the user may save; for
+-- example, when the user opens an existing file and then does File\/Save As...
+-- on it. If you don't have a file name already — for example, if the user
+-- just created a new file and is saving it for the first time, do not call
+-- this function. Instead, use something similar to this:
+--
+-- > if documentIsNew
+-- >   then do -- the user just created a new document
+-- >          fileChooserSetCurrentFolder chooser defaultFolderForSaving
+-- >          fileChooserSetCurrentName chooser "Untitled document"
+-- >   else do --the user edited an existing document
+-- >          fileChooserSetFilename chooser existingFilename
 --
 fileChooserSetFilename :: FileChooserClass self => self
  -> FilePath -- ^ @filename@ - the filename to set as current
@@ -472,14 +508,29 @@ fileChooserGetURI self =
   >>= maybePeek readCString
 
 -- | Sets the file referred to by @uri@ as the current file for the file
--- chooser; If the file name isn't in the current folder of the chooser, then
--- the current folder of the chooser will be changed to the folder containing
--- @uri@. This is equivalent to a sequence of 'fileChooserUnselectAll' followed
--- by 'fileChooserSelectURI'.
+-- chooser, by changing to the URI's parent folder and actually selecting the
+-- URI in the list. If the @chooser@ is 'FileChooserActionSave' mode, the URI's
+-- base name will also appear in the dialog's file name entry.
 --
--- Note that the file must exist, or nothing will be done except for the
--- directory change. To pre-enter a filename for the user, as in a save-as
--- dialog, use 'fileChooserSetCurrentName'
+-- If the URI isn't in the current folder of @chooser@, then the current
+-- folder of @chooser@ will be changed to the folder containing @uri@. This is
+-- equivalent to a sequence of 'fileChooserUnselectAll' followed by
+-- 'fileChooserSelectURI'.
+--
+-- Note that the URI must exist, or nothing will be done except for the
+-- directory change. If you are implementing a File\/Save As... dialog, you
+-- should use this function if you already have a file name to which the user
+-- may save; for example, when the user opens an existing file and then does
+-- File\/Save As... on it. If you don't have a file name already — for
+-- example, if the user just created a new file and is saving it for the first
+-- time, do not call this function. Instead, use something similar to this:
+--
+-- > if documentIsNew
+-- >   then do -- the user just created a new document
+-- >          fileChooserSetCurrentFolderURI chooser defaultFolderForSaving
+-- >          fileChooserSetCurrentName chooser "Untitled document"
+-- >   else do --the user edited an existing document
+-- >          fileChooserSetURI chooser existingURI
 --
 fileChooserSetURI :: FileChooserClass self => self
  -> String  -- ^ @uri@ - the URI to set as current
@@ -858,6 +909,44 @@ fileChooserGetShowHidden self =
     (toFileChooser self)
 #endif
 
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Sets whether a file chooser in 'FileChooserActionSave' mode will present
+-- a confirmation dialog if the user types a file name that already exists.
+-- This is @False@ by default.
+--
+-- Regardless of this setting, the @chooser@ will emit the
+-- \"confirm-overwrite\" signal when appropriate.
+--
+-- If all you need is the stock confirmation dialog, set this property to
+-- @True@. You can override the way confirmation is done by actually handling
+-- the \"confirm-overwrite\" signal; please refer to its documentation for the
+-- details.
+--
+-- * Available since Gtk+ version 2.8
+--
+fileChooserSetDoOverwriteConfirmation :: FileChooserClass self => self
+ -> Bool  -- ^ @doOverwriteConfirmation@ - whether to confirm overwriting in
+          -- save mode
+ -> IO ()
+fileChooserSetDoOverwriteConfirmation self doOverwriteConfirmation =
+  {# call gtk_file_chooser_set_do_overwrite_confirmation #}
+    (toFileChooser self)
+    (fromBool doOverwriteConfirmation)
+
+-- | Queries whether a file chooser is set to confirm for overwriting when the
+-- user types a file name that already exists.
+--
+-- * Available since Gtk+ version 2.8
+--
+fileChooserGetDoOverwriteConfirmation :: FileChooserClass self => self
+ -> IO Bool -- ^ returns @True@ if the file chooser will present a
+            -- confirmation dialog; @False@ otherwise.
+fileChooserGetDoOverwriteConfirmation self =
+  liftM toBool $
+  {# call gtk_file_chooser_get_do_overwrite_confirmation #}
+    (toFileChooser self)
+#endif
+
 --------------------
 -- Attributes
 
@@ -926,6 +1015,15 @@ fileChooserExtraWidget :: (FileChooserClass self, WidgetClass extraWidget) => Re
 fileChooserExtraWidget = newAttr
   fileChooserGetExtraWidget
   fileChooserSetExtraWidget
+
+-- | \'doOverwriteConfirmation\' property. See
+-- 'fileChooserGetDoOverwriteConfirmation' and
+-- 'fileChooserSetDoOverwriteConfirmation'
+--
+fileChooserDoOverwriteConfirmation :: FileChooserClass self => Attr self Bool
+fileChooserDoOverwriteConfirmation = newAttr
+  fileChooserGetDoOverwriteConfirmation
+  fileChooserSetDoOverwriteConfirmation
 
 -- | \'action\' property. See 'fileChooserGetAction' and
 -- 'fileChooserSetAction'
@@ -1014,6 +1112,32 @@ onFileActivated, afterFileActivated :: FileChooserClass self => self
  -> IO (ConnectId self)
 onFileActivated = connect_NONE__NONE "file-activated" False
 afterFileActivated = connect_NONE__NONE "file-activated" True
+
+-- | This signal gets emitted whenever it is appropriate to present a
+-- confirmation dialog when the user has selected a file name that already
+-- exists. The signal only gets emitted when the file chooser is in
+-- 'FileChooserActionSave' mode.
+--
+-- Most applications just need to turn on the do-overwrite-confirmation
+-- property (or call the 'fileChooserSetDoOverwriteConfirmation' function), and
+-- they will automatically get a stock confirmation dialog. Applications which
+-- need to customize this behavior should do that, and also connect to the
+-- confirm-overwrite signal.
+--
+-- A signal handler for this signal must return a 'FileChooserConfirmation'
+-- value, which indicates the action to take. If the handler determines that
+-- the user wants to select a different filename, it should return
+-- 'FileChooserConfirmationSelectAgain'. If it determines that the user is
+-- satisfied with his choice of file name, it should return
+-- 'FileChooserConfirmationAcceptFilename'. On the other hand, if it determines
+-- that the stock confirmation dialog should be used, it should return
+-- 'FileChooserConfirmationConfirm'.
+--
+onConfirmOverwrite, afterConfirmOverwrite :: FileChooserClass self => self
+ -> IO FileChooserConfirmation
+ -> IO (ConnectId self)
+onConfirmOverwrite = connect_NONE__ENUM "confirm-overwrite" False
+afterConfirmOverwrite = connect_NONE__ENUM "confirm-overwrite" True
 #endif
 
 ------------------------------------------------------
@@ -1024,8 +1148,3 @@ fromStringGSList :: GSList -> IO [String]
 fromStringGSList strList = do
   strPtrs <- fromGSList strList
   mapM readCString strPtrs
-
-toStringGSList :: [String] -> IO GSList
-toStringGSList strs = do
-  strPtrs <- mapM newCString strs
-  toGSList strPtrs

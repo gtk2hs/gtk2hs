@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/07/03 12:27:10 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -891,21 +891,21 @@ notebookTabPos = newAttr
 -- Default value: 2
 --
 notebookTabBorder :: NotebookClass self => WriteAttr self Int
-notebookTabBorder = writeAttrFromUIntProperty "tab_border"
+notebookTabBorder = writeAttrFromUIntProperty "tab-border"
 
 -- | Width of the horizontal border of tab labels.
 --
 -- Default value: 2
 --
 notebookTabHborder :: NotebookClass self => Attr self Int
-notebookTabHborder = newAttrFromUIntProperty "tab_hborder"
+notebookTabHborder = newAttrFromUIntProperty "tab-hborder"
 
 -- | Width of the vertical border of tab labels.
 --
 -- Default value: 2
 --
 notebookTabVborder :: NotebookClass self => Attr self Int
-notebookTabVborder = newAttrFromUIntProperty "tab_vborder"
+notebookTabVborder = newAttrFromUIntProperty "tab-vborder"
 
 -- | Whether tabs should be shown or not.
 --
@@ -940,7 +940,7 @@ notebookScrollable = newAttr
 -- Default value: @False@
 --
 notebookEnablePopup :: NotebookClass self => Attr self Bool
-notebookEnablePopup = newAttrFromBoolProperty "enable_popup"
+notebookEnablePopup = newAttrFromBoolProperty "enable-popup"
 
 -- | Whether tabs should have homogeneous sizes.
 --
@@ -965,14 +965,14 @@ notebookCurrentPage = newAttr
 -- Default value: @Nothing@
 --
 notebookChildTabLabel :: (NotebookClass self, WidgetClass child) => child -> Attr self String
-notebookChildTabLabel = newAttrFromContainerChildStringProperty "tab_label"
+notebookChildTabLabel = newAttrFromContainerChildStringProperty "tab-label"
 
 -- | The string displayed in the child's menu entry.
 --
 -- Default value: @Nothing@
 --
 notebookChildMenuLabel :: (NotebookClass self, WidgetClass child) => child -> Attr self String
-notebookChildMenuLabel = newAttrFromContainerChildStringProperty "menu_label"
+notebookChildMenuLabel = newAttrFromContainerChildStringProperty "menu-label"
 
 -- | The index of the child in the parent.
 --
@@ -990,14 +990,14 @@ notebookChildPosition = newAttrFromContainerChildIntProperty "position"
 notebookChildTabPacking :: (NotebookClass self, WidgetClass child) => child -> Attr self Packing
 notebookChildTabPacking child = newAttr
   (\container -> do
-     expand <- containerChildGetPropertyBool "tab_expand" child container
-     fill   <- containerChildGetPropertyBool "tab_fill"   child container
+     expand <- containerChildGetPropertyBool "tab-expand" child container
+     fill   <- containerChildGetPropertyBool "tab-fill"   child container
      return (toPacking expand fill))
   (\container packing ->
      case fromPacking packing of
        (expand, fill) -> do
-         containerChildSetPropertyBool "tab_expand" child container expand
-         containerChildSetPropertyBool "tab_fill"   child container fill)
+         containerChildSetPropertyBool "tab-expand" child container expand
+         containerChildSetPropertyBool "tab-fill"   child container fill)
 
 -- | A 'PackType' indicating whether the child is packed with reference to the
 -- start or end of the parent.
@@ -1005,7 +1005,7 @@ notebookChildTabPacking child = newAttr
 -- Default value: 'PackStart'
 --
 notebookChildTabPackType :: (NotebookClass self, WidgetClass child) => child -> Attr self PackType
-notebookChildTabPackType = newAttrFromContainerChildEnumProperty "tab_pack"
+notebookChildTabPackType = newAttrFromContainerChildEnumProperty "tab-pack"
 
 --------------------
 -- Signals

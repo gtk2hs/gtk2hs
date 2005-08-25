@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/21 02:11:30 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -378,7 +378,7 @@ comboBoxGetColumnSpanColumn self =
 
 -- | Returns the currently active string in @comboBox@ or @Nothing@ if none is
 -- selected. Note that you can only use this function with combo boxes
--- constructed with 'comboBoxNewText'.
+-- constructed with 'comboBoxNewText' and with 'ComboBoxEntry's.
 --
 -- * Available since Gtk+ version 2.6
 --
@@ -492,14 +492,22 @@ comboBoxColumnSpanColumn = newAttr
   comboBoxGetColumnSpanColumn
   comboBoxSetColumnSpanColumn
 
--- | 
+-- | The add-tearoffs property controls whether generated menus have tearoff
+-- menu items.
+--
+-- Note that this only affects menu style combo boxes.
+--
+-- Default value: @False@
 --
 comboBoxAddTearoffs :: ComboBoxClass self => Attr self Bool
 comboBoxAddTearoffs = newAttr
   comboBoxGetAddTearoffs
   comboBoxSetAddTearoffs
 
--- | 
+-- | The has-frame property controls whether a frame is drawn around the
+-- entry.
+--
+-- Default value: @True@
 --
 comboBoxHasFrame :: ComboBoxClass self => Attr self Bool
 comboBoxHasFrame = newAttrFromBoolProperty "has-frame"

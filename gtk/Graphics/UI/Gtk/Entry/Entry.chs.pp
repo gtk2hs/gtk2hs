@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/16 15:29:55 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -405,7 +405,7 @@ entryGetCompletion self =
 -- Default value: 0
 --
 entryCursorPosition :: EntryClass self => ReadAttr self Int
-entryCursorPosition = readAttrFromIntProperty "cursor_position"
+entryCursorPosition = readAttrFromIntProperty "cursor-position"
 
 -- | The position of the opposite end of the selection from the cursor in
 -- chars.
@@ -415,7 +415,7 @@ entryCursorPosition = readAttrFromIntProperty "cursor_position"
 -- Default value: 0
 --
 entrySelectionBound :: EntryClass self => ReadAttr self Int
-entrySelectionBound = readAttrFromIntProperty "selection_bound"
+entrySelectionBound = readAttrFromIntProperty "selection-bound"
 
 -- | Whether the entry contents can be edited.
 --
@@ -491,7 +491,7 @@ entryWidthChars = newAttr
 -- Default value: 0
 --
 entryScrollOffset :: EntryClass self => ReadAttr self Int
-entryScrollOffset = readAttrFromIntProperty "scroll_offset"
+entryScrollOffset = readAttrFromIntProperty "scroll-offset"
 
 -- | The contents of the entry.
 --

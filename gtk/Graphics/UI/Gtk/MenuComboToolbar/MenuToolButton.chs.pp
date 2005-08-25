@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.3 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -36,7 +36,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuToolButton (
 -- dropdown menu.
 --
 -- Use 'menuToolButtonNew' to create a new 'MenuToolButton'. Use
--- 'toggleToolButtonNewFromStock' to create a new 'MenuToolButton' containing a
+-- 'menuToolButtonNewFromStock' to create a new 'MenuToolButton' containing a
 -- stock item.
 
 -- * Class Hierarchy
@@ -144,12 +144,14 @@ menuToolButtonGetMenu self =
   {# call gtk_menu_tool_button_get_menu #}
     (toMenuToolButton self)
 
--- | 
+-- | Sets the 'Tooltips' object to be used for arrow button which pops up the
+-- menu. See 'toolItemSetTooltip' for setting a tooltip on the whole
+-- 'MenuToolButton'.
 --
 menuToolButtonSetArrowTooltip :: MenuToolButtonClass self => self
- -> Tooltips -- ^ @tooltips@
- -> String   -- ^ @tipText@
- -> String   -- ^ @tipPrivate@
+ -> Tooltips -- ^ @tooltips@ - the 'Tooltips' object to be used
+ -> String   -- ^ @tipText@ - text to be used as tooltip text for tool item
+ -> String   -- ^ @tipPrivate@ - text to be used as private tooltip text
  -> IO ()
 menuToolButtonSetArrowTooltip self tooltips tipText tipPrivate =
   withUTFString tipPrivate $ \tipPrivatePtr ->

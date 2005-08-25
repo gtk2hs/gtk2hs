@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/21 02:11:31 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -213,7 +213,7 @@ frameLabel = newAttr
 -- Default value: 0.5
 --
 frameLabelXAlign :: FrameClass self => Attr self Float
-frameLabelXAlign = newAttrFromFloatProperty "label_xalign"
+frameLabelXAlign = newAttrFromFloatProperty "label-xalign"
 
 -- | The vertical alignment of the label.
 --
@@ -222,7 +222,7 @@ frameLabelXAlign = newAttrFromFloatProperty "label_xalign"
 -- Default value: 0.5
 --
 frameLabelYAlign :: FrameClass self => Attr self Float
-frameLabelYAlign = newAttrFromFloatProperty "label_yalign"
+frameLabelYAlign = newAttrFromFloatProperty "label-yalign"
 
 -- | Appearance of the frame border.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/07 20:57:28 $
+--  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -925,7 +925,7 @@ textViewGetDefaultAttributes self =
 -- you have to convert those to buffer coordinates with
 -- 'textViewWindowToBufferCoords'.
 --
--- Note that this is diffferent from 'textViewGetIterAtLocation', which
+-- Note that this is different from 'textViewGetIterAtLocation', which
 -- returns cursor locations, i.e. positions /between/ characters.
 --
 -- * Available since Gtk+ version 2.6
@@ -934,7 +934,10 @@ textViewGetIterAtPosition :: TextViewClass self => self
  -> Int      -- ^ @x@ - x position, in buffer coordinates
  -> Int      -- ^ @y@ - y position, in buffer coordinates
  -> IO (TextIter, Int)   -- ^ @(iter, trailing)@ - returns the iterator and
-                         -- a \"trailing\" value which is sadly undocumented
+                         -- an integer indicating where in the grapheme the
+                         -- user clicked. It will either be zero, or the
+                         -- number of characters in the grapheme. 0 represents
+                         -- the trailing edge of the grapheme.
 textViewGetIterAtPosition self x y =
   alloca $ \trailingPtr -> do
   iter <- makeEmptyTextIter
@@ -1111,7 +1114,7 @@ textViewCursorVisible = newAttr
 
 -- | The buffer which is displayed.
 --
-textViewBuffer :: (TextViewClass self, TextBufferClass buffer) => ReadWriteAttr self TextBuffer buffer
+textViewBuffer :: TextViewClass self => Attr self TextBuffer
 textViewBuffer = newAttr
   textViewGetBuffer
   textViewSetBuffer

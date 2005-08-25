@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:24 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -144,6 +144,10 @@ spinButtonNew adjustment climbRate digits =
 -- 'SpinButton' without manually creating an adjustment. The value is initially
 -- set to the minimum value and a page increment of 10 * @step@ is the default.
 -- The precision of the spin button is equivalent to the precision of @step@.
+--
+-- Note that the way in which the precision is derived works best if @step@
+-- is a power of ten. If the resulting precision is not suitable for your
+-- needs, use 'spinButtonSetDigits' to correct it.
 --
 spinButtonNewWithRange :: 
     Double        -- ^ @min@ - Minimum allowable value
@@ -424,7 +428,7 @@ spinButtonAdjustment = newAttr
 -- Default value: 0
 --
 spinButtonClimbRate :: SpinButtonClass self => Attr self Double
-spinButtonClimbRate = newAttrFromDoubleProperty "climb_rate"
+spinButtonClimbRate = newAttrFromDoubleProperty "climb-rate"
 
 -- | The number of decimal places to display.
 --

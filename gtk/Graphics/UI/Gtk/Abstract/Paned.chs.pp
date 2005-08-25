@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/07/03 12:27:09 $
+--  Version $Revision: 1.12 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -244,7 +244,7 @@ panedPosition = newAttr
 -- Default value: @False@
 --
 panedPositionSet :: PanedClass self => Attr self Bool
-panedPositionSet = newAttrFromBoolProperty "position_set"
+panedPositionSet = newAttrFromBoolProperty "position-set"
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | The smallest possible value for the position property. This property is
@@ -255,7 +255,7 @@ panedPositionSet = newAttrFromBoolProperty "position_set"
 -- Default value: 0
 --
 panedMinPosition :: PanedClass self => ReadAttr self Int
-panedMinPosition = readAttrFromIntProperty "min_position"
+panedMinPosition = readAttrFromIntProperty "min-position"
 
 -- | The largest possible value for the position property. This property is
 -- derived from the size and shrinkability of the widget's children.
@@ -265,7 +265,7 @@ panedMinPosition = readAttrFromIntProperty "min_position"
 -- Default value: 2147483647
 --
 panedMaxPosition :: PanedClass self => ReadAttr self Int
-panedMaxPosition = readAttrFromIntProperty "max_position"
+panedMaxPosition = readAttrFromIntProperty "max-position"
 #endif
 
 --------------------

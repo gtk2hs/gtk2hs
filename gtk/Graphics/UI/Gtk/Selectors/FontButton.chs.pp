@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/21 02:22:22 $
+--  Version $Revision: 1.4 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -269,7 +269,7 @@ fontButtonTitle = newAttr
 -- Default value: \"Sans 12\"
 --
 fontButtonFontName :: FontButtonClass self => Attr self String
-fontButtonFontName = newAttrFromStringProperty "font_name"
+fontButtonFontName = newAttrFromStringProperty "font-name"
 
 -- | If this property is set to @True@, the label will be drawn in the
 -- selected font.
@@ -323,6 +323,6 @@ fontButtonShowSize = newAttr
 onFontSet, afterFontSet :: FontButtonClass self => self
  -> IO ()
  -> IO (ConnectId self)
-onFontSet = connect_NONE__NONE "font_set" False
-afterFontSet = connect_NONE__NONE "font_set" True
+onFontSet = connect_NONE__NONE "font-set" False
+afterFontSet = connect_NONE__NONE "font-set" True
 #endif

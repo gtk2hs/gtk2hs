@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/08 12:23:10 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -98,7 +98,10 @@ module Graphics.UI.Gtk.Multiline.TextTag (
   textTagStrikethrough,
   textTagUnderline,
   textTagWrapMode,
+#if GTK_CHECK_VERSION(2,8,0)
   textTagInvisible,
+  textTagParagraphBackground,
+#endif
   textTagPriority,
   ) where
 
@@ -210,12 +213,12 @@ textTagBackground = writeAttrFromStringProperty "background"
 -- Default value: @False@
 --
 textTagBackgroundFullHeight :: TextTagClass self => Attr self Bool
-textTagBackgroundFullHeight = newAttrFromBoolProperty "background_full_height"
+textTagBackgroundFullHeight = newAttrFromBoolProperty "background-full-height"
 
 -- | Bitmap to use as a mask when drawing the text background.
 --
 textTagBackgroundStipple :: (TextTagClass self, PixmapClass pixmap) => ReadWriteAttr self Pixmap pixmap
-textTagBackgroundStipple = newAttrFromObjectProperty "background_stipple"
+textTagBackgroundStipple = newAttrFromObjectProperty "background-stipple"
 
 -- | Foreground color as a string.
 --
@@ -227,7 +230,7 @@ textTagForeground = writeAttrFromStringProperty "foreground"
 -- | Bitmap to use as a mask when drawing the text foreground.
 --
 textTagForegroundStipple :: (TextTagClass self, PixmapClass pixmap) => ReadWriteAttr self Pixmap pixmap
-textTagForegroundStipple = newAttrFromObjectProperty "foreground_stipple"
+textTagForegroundStipple = newAttrFromObjectProperty "foreground-stipple"
 
 -- | Text direction, e.g. right-to-left or left-to-right.
 --
@@ -314,7 +317,7 @@ textTagScale = newAttrFromDoubleProperty "scale"
 -- Default value: 0
 --
 textTagSizePoints :: TextTagClass self => Attr self Double
-textTagSizePoints = newAttrFromDoubleProperty "size_points"
+textTagSizePoints = newAttrFromDoubleProperty "size-points"
 
 -- | Left, right, or center justification.
 --
@@ -339,7 +342,7 @@ textTagLanguage = newAttrFromStringProperty "language"
 -- Default value: 0
 --
 textTagLeftMargin :: TextTagClass self => Attr self Int
-textTagLeftMargin = newAttrFromIntProperty "left_margin"
+textTagLeftMargin = newAttrFromIntProperty "left-margin"
 
 -- | Width of the right margin in pixels.
 --
@@ -348,7 +351,7 @@ textTagLeftMargin = newAttrFromIntProperty "left_margin"
 -- Default value: 0
 --
 textTagRightMargin :: TextTagClass self => Attr self Int
-textTagRightMargin = newAttrFromIntProperty "right_margin"
+textTagRightMargin = newAttrFromIntProperty "right-margin"
 
 -- | Amount to indent the paragraph, in pixels.
 --
@@ -372,7 +375,7 @@ textTagRise = newAttrFromIntProperty "rise"
 -- Default value: 0
 --
 textTagPixelsAboveLines :: TextTagClass self => Attr self Int
-textTagPixelsAboveLines = newAttrFromIntProperty "pixels_above_lines"
+textTagPixelsAboveLines = newAttrFromIntProperty "pixels-above-lines"
 
 -- | Pixels of blank space below paragraphs.
 --
@@ -381,7 +384,7 @@ textTagPixelsAboveLines = newAttrFromIntProperty "pixels_above_lines"
 -- Default value: 0
 --
 textTagPixelsBelowLines :: TextTagClass self => Attr self Int
-textTagPixelsBelowLines = newAttrFromIntProperty "pixels_below_lines"
+textTagPixelsBelowLines = newAttrFromIntProperty "pixels-below-lines"
 
 -- | Pixels of blank space between wrapped lines in a paragraph.
 --
@@ -390,7 +393,7 @@ textTagPixelsBelowLines = newAttrFromIntProperty "pixels_below_lines"
 -- Default value: 0
 --
 textTagPixelsInsideWrap :: TextTagClass self => Attr self Int
-textTagPixelsInsideWrap = newAttrFromIntProperty "pixels_inside_wrap"
+textTagPixelsInsideWrap = newAttrFromIntProperty "pixels-inside-wrap"
 
 -- | Whether to strike through the text.
 --
@@ -412,14 +415,27 @@ textTagUnderline = newAttrFromEnumProperty "underline"
 -- Default value: 'WrapNone'
 --
 textTagWrapMode :: TextTagClass self => Attr self WrapMode
-textTagWrapMode = newAttrFromEnumProperty "wrap_mode"
+textTagWrapMode = newAttrFromEnumProperty "wrap-mode"
 
--- | Whether this text is hidden. Not implemented in Gtk+ 2.0.
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Whether this text is hidden.
+--
+-- Note that there may still be problems with the support for invisible
+-- text, in particular when navigating programmatically inside a buffer
+-- containing invisible segments.
 --
 -- Default value: @False@
 --
 textTagInvisible :: TextTagClass self => Attr self Bool
 textTagInvisible = newAttrFromBoolProperty "invisible"
+
+-- | The paragraph background color as a string.
+--
+-- Default value: ""
+--
+textTagParagraphBackground :: TextTagClass self => WriteAttr self String
+textTagParagraphBackground = writeAttrFromStringProperty "paragraph-background"
+#endif
 
 -- | \'priority\' property. See 'textTagGetPriority' and 'textTagSetPriority'
 --

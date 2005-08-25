@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/07/03 12:27:09 $
+--  Version $Revision: 1.10 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -100,7 +100,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.Menu (
 #endif
 
 -- * Attributes
+#if GTK_CHECK_VERSION(2,6,0)
   menuTearoffState,
+#endif
   menuAccelGroup,
   menuActive,
   menuTitle,
@@ -119,6 +121,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -406,12 +409,24 @@ menuGetForAttachWidget widget =
 --------------------
 -- Attributes
 
--- | 
+-- | A title that may be displayed by the window manager when this menu is
+-- torn-off.
+--
+-- Default value: \"\"
+--
+menuTearoffTitle :: MenuClass self => Attr self String
+menuTearoffTitle = newAttrFromStringProperty "tearoff-title"
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | A boolean that indicates whether the menu is torn-off.
+--
+-- Default value: @False@
 --
 menuTearoffState :: MenuClass self => Attr self Bool
 menuTearoffState = newAttr
   menuGetTearoffState
   menuSetTearoffState
+#endif
 
 -- | \'accelGroup\' property. See 'menuGetAccelGroup' and 'menuSetAccelGroup'
 --
@@ -444,7 +459,7 @@ menuTitle = newAttr
 -- Default value: -1
 --
 menuChildLeftAttach :: (MenuClass self, WidgetClass child) => child -> Attr self Int
-menuChildLeftAttach = newAttrFromContainerChildIntProperty "left_attach"
+menuChildLeftAttach = newAttrFromContainerChildIntProperty "left-attach"
 
 -- | The column number to attach the right side of the child to.
 --
@@ -453,7 +468,7 @@ menuChildLeftAttach = newAttrFromContainerChildIntProperty "left_attach"
 -- Default value: -1
 --
 menuChildRightAttach :: (MenuClass self, WidgetClass child) => child -> Attr self Int
-menuChildRightAttach = newAttrFromContainerChildIntProperty "right_attach"
+menuChildRightAttach = newAttrFromContainerChildIntProperty "right-attach"
 
 -- | The row number to attach the top of the child to.
 --
@@ -462,7 +477,7 @@ menuChildRightAttach = newAttrFromContainerChildIntProperty "right_attach"
 -- Default value: -1
 --
 menuChildTopAttach :: (MenuClass self, WidgetClass child) => child -> Attr self Int
-menuChildTopAttach = newAttrFromContainerChildIntProperty "top_attach"
+menuChildTopAttach = newAttrFromContainerChildIntProperty "top-attach"
 
 -- | The row number to attach the bottom of the child to.
 --
@@ -471,4 +486,4 @@ menuChildTopAttach = newAttrFromContainerChildIntProperty "top_attach"
 -- Default value: -1
 --
 menuChildBottomAttach :: (MenuClass self, WidgetClass child) => child -> Attr self Int
-menuChildBottomAttach = newAttrFromContainerChildIntProperty "bottom_attach"
+menuChildBottomAttach = newAttrFromContainerChildIntProperty "bottom-attach"

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:25 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -75,10 +75,10 @@ module Graphics.UI.Gtk.Layout.Alignment (
   alignmentYScale,
 #if GTK_CHECK_VERSION(2,4,0)
   alignmentTopPadding,
-#endif
   alignmentBottomPadding,
   alignmentLeftPadding,
   alignmentRightPadding,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -240,15 +240,14 @@ alignmentYScale :: AlignmentClass self => Attr self Float
 alignmentYScale = newAttrFromFloatProperty "yscale"
 
 #if GTK_CHECK_VERSION(2,4,0)
--- | The padding to insert at the right of the widget.
+-- | The padding to insert at the top of the widget.
 --
 -- Allowed values: \<= @('maxBound' :: Int)@
 --
 -- Default value: 0
 --
 alignmentTopPadding :: AlignmentClass self => Attr self Int
-alignmentTopPadding = newAttrFromUIntProperty "top_padding"
-#endif
+alignmentTopPadding = newAttrFromUIntProperty "top-padding"
 
 -- | The padding to insert at the bottom of the widget.
 --
@@ -257,7 +256,7 @@ alignmentTopPadding = newAttrFromUIntProperty "top_padding"
 -- Default value: 0
 --
 alignmentBottomPadding :: AlignmentClass self => Attr self Int
-alignmentBottomPadding = newAttrFromUIntProperty "bottom_padding"
+alignmentBottomPadding = newAttrFromUIntProperty "bottom-padding"
 
 -- | The padding to insert at the left of the widget.
 --
@@ -266,7 +265,7 @@ alignmentBottomPadding = newAttrFromUIntProperty "bottom_padding"
 -- Default value: 0
 --
 alignmentLeftPadding :: AlignmentClass self => Attr self Int
-alignmentLeftPadding = newAttrFromUIntProperty "left_padding"
+alignmentLeftPadding = newAttrFromUIntProperty "left-padding"
 
 -- | The padding to insert at the right of the widget.
 --
@@ -275,4 +274,5 @@ alignmentLeftPadding = newAttrFromUIntProperty "left_padding"
 -- Default value: 0
 --
 alignmentRightPadding :: AlignmentClass self => Attr self Int
-alignmentRightPadding = newAttrFromUIntProperty "right_padding"
+alignmentRightPadding = newAttrFromUIntProperty "right-padding"
+#endif

@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/08/20 13:25:18 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -509,7 +509,8 @@ widgetGrabFocus self =
 --   entirely responsible for drawing the widget background.
 --
 widgetSetAppPaintable :: WidgetClass self => self
- -> Bool  -- ^ @appPaintable@ -
+ -> Bool  -- ^ @appPaintable@ - @True@ if the application will paint on the
+          -- widget
  -> IO ()
 widgetSetAppPaintable self appPaintable =
   {# call widget_set_app_paintable #}
@@ -707,6 +708,10 @@ widgetQueueDrawArea self x y width height =
 -- only use this function to turn off double buffering if you had special needs
 -- and really knew what you were doing.
 --
+-- Note: if you turn off double-buffering, you have to handle expose events,
+-- since even the clearing to the background color or pixmap will not happen
+-- automatically (as it is done in 'windowBeginPaint').
+--
 widgetSetDoubleBuffered :: WidgetClass self => self
  -> Bool  -- ^ @doubleBuffered@ - @True@ to double-buffer a widget
  -> IO ()
@@ -715,9 +720,9 @@ widgetSetDoubleBuffered self doubleBuffered =
     (toWidget self)
     (fromBool doubleBuffered)
 
--- | Sets whether when a widgets size allocation changes, the entire widget
--- is queued for drawing. By default, this setting is @True@ and the entire
--- widget is redrawn on every size change. If your widget leaves the upper left
+-- | Sets whether the entire widget is queued for drawing when its size
+-- allocation changes. By default, this setting is @True@ and the entire widget
+-- is redrawn on every size change. If your widget leaves the upper left
 -- unchanged when made bigger, turning this setting on will improve
 -- performance.
 --
@@ -962,6 +967,13 @@ widgetModifyFg self state color =
 -- | Sets the background color for a widget in a particular state. All other
 -- style values are left untouched. See also 'widgetModifyStyle'.
 --
+-- Note that \"no window\" widgets (which have the 'NoWindow' flag set) draw
+-- on their parent container's window and thus may not draw any background
+-- themselves. This is the case for e.g. 'Label'. To modify the background of
+-- such widgets, you have to set the background color on their parent; if you
+-- want to set the background of a rectangular area around a label, try placing
+-- the label in a 'EventBox' widget and setting the background color on that.
+--
 widgetModifyBg :: WidgetClass self => self
  -> StateType -- ^ @state@ - the state for which to set the background color.
  -> Color     -- ^ @color@ - the color to assign (does not need to be
@@ -997,6 +1009,13 @@ widgetModifyText self state color =
 -- values are left untouched. The base color is the background color used along
 -- with the text color (see 'widgetModifyText') for widgets such as 'Entry' and
 -- 'TextView'. See also 'widgetModifyStyle'.
+--
+-- Note that \"no window\" widgets (which have the 'NoWindow' flag set) draw
+-- on their parent container's window and thus may not draw any background
+-- themselves. This is the case for e.g. 'Label'. To modify the background of
+-- such widgets, you have to set the base color on their parent; if you want to
+-- set the background of a rectangular area around a label, try placing the
+-- label in a 'EventBox' widget and setting the base color on that.
 --
 widgetModifyBase :: WidgetClass self => self
  -> StateType -- ^ @state@ - the state for which to set the base color.

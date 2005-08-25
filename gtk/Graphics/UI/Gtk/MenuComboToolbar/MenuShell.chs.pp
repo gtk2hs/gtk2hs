@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/07 00:34:49 $
+--  Version $Revision: 1.3 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -68,6 +68,15 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuShell (
 #if GTK_CHECK_VERSION(2,4,0)
   menuShellCancel,
 #endif
+#if GTK_CHECK_VERSION(2,8,0)
+  menuShellSetTakeFocus,
+  menuShellGetTakeFocus,
+#endif
+
+-- * Attributes
+#if GTK_CHECK_VERSION(2,8,0)
+  menuShellTakeFocus,
+#endif
 
 -- * Signals
   onActivateCurrent,
@@ -86,6 +95,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuShell (
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -196,6 +206,71 @@ menuShellCancel :: MenuShellClass self => self -> IO ()
 menuShellCancel self =
   {# call gtk_menu_shell_cancel #}
     (toMenuShell self)
+#endif
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | If @takeFocus@ is @True@ (the default) the menu shell will take the
+-- keyboard focus so that it will receive all keyboard events which is needed
+-- to enable keyboard navigation in menus.
+--
+-- Setting @takeFocus@ to @False@ is useful only for special applications
+-- like virtual keyboard implementations which should not take keyboard focus.
+--
+-- The @takeFocus@ state of a menu or menu bar is automatically propagated
+-- to submenus whenever a submenu is popped up, so you don't have to worry
+-- about recursively setting it for your entire menu hierarchy. Only when
+-- programmatically picking a submenu and popping it up manually, the
+-- @takeFocus@ property of the submenu needs to be set explicitely.
+--
+-- Note that setting it to @False@ has side-effects:
+--
+-- If the focus is in some other app, it keeps the focus and keynav in the
+-- menu doesn't work. Consequently, keynav on the menu will only work if the
+-- focus is on some toplevel owned by the onscreen keyboard.
+--
+-- To avoid confusing the user, menus with @takeFocus@ set to @False@ should
+-- not display mnemonics or accelerators, since it cannot be guaranteed that
+-- they will work.
+--
+-- See also 'keyboardGrab'
+--
+-- * Available since Gtk+ version 2.8
+--
+menuShellSetTakeFocus :: MenuShellClass self => self
+ -> Bool  -- ^ @takeFocus@ - @True@ if the menu shell should take the keyboard
+          -- focus on popup.
+ -> IO ()
+menuShellSetTakeFocus self takeFocus =
+  {# call gtk_menu_shell_set_take_focus #}
+    (toMenuShell self)
+    (fromBool takeFocus)
+
+-- | Returns @True@ if the menu shell will take the keyboard focus on popup.
+--
+-- * Available since Gtk+ version 2.8
+--
+menuShellGetTakeFocus :: MenuShellClass self => self
+ -> IO Bool -- ^ returns @True@ if the menu shell will take the keyboard focus
+            -- on popup.
+menuShellGetTakeFocus self =
+  liftM toBool $
+  {# call gtk_menu_shell_get_take_focus #}
+    (toMenuShell self)
+#endif
+
+--------------------
+-- Attributes
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | A boolean that determines whether the menu and its submenus grab the
+-- keyboard focus. See 'menuShellSetTakeFocus' and 'menuShellGetTakeFocus'.
+--
+-- Default value: @True@
+--
+menuShellTakeFocus :: MenuShellClass self => Attr self Bool
+menuShellTakeFocus = newAttr
+  menuShellGetTakeFocus
+  menuShellSetTakeFocus
 #endif
 
 --------------------

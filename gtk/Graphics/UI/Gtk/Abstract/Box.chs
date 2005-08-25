@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/07/03 14:14:21 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -39,6 +39,7 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- 'HBox' or 'VBox', respectively. Thus, all children of a 'Box' are allocated
 -- one dimension in common, which is the height of a row, or the width of a
 -- column.
+--
 -- 'Box' uses a notion of /packing/. Packing refers to adding widgets with
 -- reference to a particular position in a 'Container'. For a 'Box', there are
 -- two reference positions: the /start/ and the /end/ of the box. For a 'VBox',
@@ -385,7 +386,7 @@ boxChildPadding = newAttrFromContainerChildUIntProperty "padding"
 -- Default value: 'PackStart'
 --
 boxChildPackType :: (BoxClass self, WidgetClass child) => child -> Attr self PackType
-boxChildPackType = newAttrFromContainerChildEnumProperty "pack_type"
+boxChildPackType = newAttrFromContainerChildEnumProperty "pack-type"
 
 -- | The index of the child in the parent.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:27 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -222,7 +222,7 @@ handleBoxSnapEdge = newAttr
 -- Default value: @False@
 --
 handleBoxSnapEdgeSet :: HandleBoxClass self => Attr self Bool
-handleBoxSnapEdgeSet = newAttrFromBoolProperty "snap_edge_set"
+handleBoxSnapEdgeSet = newAttrFromBoolProperty "snap-edge-set"
 
 --------------------
 -- Signals

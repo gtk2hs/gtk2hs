@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/04/08 14:15:00 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -84,6 +84,10 @@ hScaleNew adjustment =
 -- between @min@ and @max@ (including @min@ and @max@) with the increment
 -- @step@. @step@ must be nonzero; it's the distance the slider moves when
 -- using the arrow keys to adjust the scale value.
+--
+-- Note that the way in which the precision is derived works best if @step@
+-- is a power of ten. If the resulting precision is not suitable for your
+-- needs, use 'scaleSetDigits' to correct it.
 --
 hScaleNewWithRange :: 
     Double    -- ^ @min@ - minimum value

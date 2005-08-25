@@ -5,7 +5,7 @@
 --
 --  Created: 4 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/07 20:57:30 $
+--  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -169,13 +169,16 @@ cellViewSetDisplayedRow self path =
     (toCellView self)
     path
 
--- | 
+-- | Returns a 'TreePath' referring to the currently displayed row. If no row
+-- is currently displayed, @Nothing@ is returned.
 --
-cellViewGetDisplayedRow :: CellViewClass self => self -> IO TreePath
+cellViewGetDisplayedRow :: CellViewClass self => self -> IO (Maybe TreePath)
 cellViewGetDisplayedRow self =
   {# call gtk_cell_view_get_displayed_row #}
     (toCellView self)
-  >>= fromTreePath
+  >>= \ptr -> if ptr == nullPtr
+                then return Nothing
+                else liftM Just (fromTreePath ptr)
 
 -- | Returns the size needed by the cell view to display the model
 -- row pointed to by @path@.
@@ -221,7 +224,7 @@ cellViewGetCellRenderers self =
 -- | \'displayedRow\' property. See 'cellViewGetDisplayedRow' and
 -- 'cellViewSetDisplayedRow'
 --
-cellViewDisplayedRow :: CellViewClass self => Attr self TreePath
+cellViewDisplayedRow :: CellViewClass self => ReadWriteAttr self (Maybe TreePath) TreePath
 cellViewDisplayedRow = newAttr
   cellViewGetDisplayedRow
   cellViewSetDisplayedRow

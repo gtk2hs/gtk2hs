@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:27 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -158,14 +158,20 @@ eventBoxGetAboveChild self =
 --------------------
 -- Attributes
 
--- | 
+-- | Whether the event box is visible, as opposed to invisible and only used
+-- to trap events.
+--
+-- Default value: @True@
 --
 eventBoxVisibleWindow :: Attr EventBox Bool
 eventBoxVisibleWindow = newAttr
   eventBoxGetVisibleWindow
   eventBoxSetVisibleWindow
 
--- | 
+-- | Whether the event-trapping window of the eventbox is above the window of
+-- the child widget as opposed to below it.
+--
+-- Default value: @False@
 --
 eventBoxAboveChild :: Attr EventBox Bool
 eventBoxAboveChild = newAttr

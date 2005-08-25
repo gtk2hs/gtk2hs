@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/07 20:57:27 $
+--  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -115,11 +115,11 @@ arrowSet self arrowType shadowType =
 -- Default value: 'ArrowRight'
 --
 arrowArrowType :: ArrowClass self => Attr self ArrowType
-arrowArrowType = newAttrFromEnumProperty "arrow_type"
+arrowArrowType = newAttrFromEnumProperty "arrow-type"
 
 -- | Appearance of the shadow surrounding the arrow.
 --
 -- Default value: 'ShadowOut'
 --
 arrowShadowType :: ArrowClass self => Attr self ShadowType
-arrowShadowType = newAttrFromEnumProperty "shadow_type"
+arrowShadowType = newAttrFromEnumProperty "shadow-type"

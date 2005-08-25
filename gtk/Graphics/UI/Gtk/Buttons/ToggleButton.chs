@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:22 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -145,7 +145,7 @@ toggleButtonNewWithMnemonic label =
 -- You can call this function on a 'CheckButton' or a 'RadioButton' with @False@
 -- to make the button look like a normal button.
 --
--- This function only effects instances of classes like 'CheckButton' and
+-- This function only affects instances of classes like 'CheckButton' and
 -- 'RadioButton' that derive from 'ToggleButton', not instances of
 -- 'ToggleButton' itself.
 --
@@ -252,7 +252,7 @@ toggleButtonInconsistent = newAttr
 -- Default value: @False@
 --
 toggleButtonDrawIndicator :: ToggleButtonClass self => Attr self Bool
-toggleButtonDrawIndicator = newAttrFromBoolProperty "draw_indicator"
+toggleButtonDrawIndicator = newAttrFromBoolProperty "draw-indicator"
 
 -- | \'mode\' property. See 'toggleButtonGetMode' and 'toggleButtonSetMode'
 --

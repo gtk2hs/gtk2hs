@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/08/24 23:40:42 $
+--  Version $Revision: 1.2 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -80,6 +80,11 @@ module Graphics.UI.Gtk.Buttons.RadioButton (
 -- >   containerAdd window box
 -- >   widgetShowAll window
 -- > 
+--
+-- When an unselected button in the group is clicked the clicked button
+-- receives the \"toggled\" signal, as does the previously selected button.
+-- Inside the \"toggled\" handler, 'toggleButtonGetActive' can be used to
+-- determine if the button has been selected or deselected.
 
 -- * Class Hierarchy
 -- |
@@ -121,8 +126,10 @@ module Graphics.UI.Gtk.Buttons.RadioButton (
   radioButtonGroup,
 
 -- * Signals
+#if GTK_CHECK_VERSION(2,4,0)
   onGroupChanged,
   afterGroupChanged,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -278,10 +285,16 @@ radioButtonGroup = newAttr
 --------------------
 -- Signals
 
--- | 
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Emitted when the group of radio buttons that a radio button belongs to
+-- changes. This is emitted when a radio button switches from being alone to
+-- being part of a group of 2 or more buttons, or vice-versa, and when a
+-- buttton is moved from one group of 2 or more buttons to a different one, but
+-- not when the composition of the group that a button belongs to changes.
 --
 onGroupChanged, afterGroupChanged :: RadioButtonClass self => self
  -> IO ()
  -> IO (ConnectId self)
 onGroupChanged = connect_NONE__NONE "group-changed" False
 afterGroupChanged = connect_NONE__NONE "group-changed" True
+#endif

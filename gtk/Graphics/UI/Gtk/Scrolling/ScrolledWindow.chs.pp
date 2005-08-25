@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/08/24 23:40:42 $
+--  Version $Revision: 1.2 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -96,6 +96,10 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   scrolledWindowGetShadowType,
   scrolledWindowSetHAdjustment,
   scrolledWindowSetVAdjustment,
+#if GTK_CHECK_VERSION(2,8,0)
+  scrolledWindowGetHScrollbar,
+  scrolledWindowGetVScrollbar,
+#endif
 
 -- * Attributes
   scrolledWindowHAdjustment,
@@ -264,11 +268,41 @@ scrolledWindowSetHAdjustment self hadjustment =
 
 -- | Sets the 'Adjustment' for the vertical scrollbar.
 --
-scrolledWindowSetVAdjustment :: ScrolledWindowClass self => self -> Adjustment -> IO ()
+scrolledWindowSetVAdjustment :: ScrolledWindowClass self => self
+ -> Adjustment -- ^ @vadjustment@ - Vertical scroll adjustment.
+ -> IO ()
 scrolledWindowSetVAdjustment self vadjustment =
   {# call scrolled_window_set_vadjustment #}
     (toScrolledWindow self)
     vadjustment
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Returns the horizontal scrollbar of @scrolledWindow@.
+--
+-- * Available since Gtk+ version 2.8
+--
+scrolledWindowGetHScrollbar :: ScrolledWindowClass self => self
+ -> IO (Maybe HScrollbar) -- ^ returns the horizontal scrollbar of the scrolled
+                          -- window, or @Nothing@ if it does not have one.
+scrolledWindowGetHScrollbar self =
+  maybeNull (makeNewObject mkHScrollbar) $
+  liftM (castPtr :: Ptr Widget -> Ptr HScrollbar) $
+  {# call gtk_scrolled_window_get_hscrollbar #}
+    (toScrolledWindow self)
+
+-- | Returns the vertical scrollbar of @scrolledWindow@.
+--
+-- * Available since Gtk+ version 2.8
+--
+scrolledWindowGetVScrollbar :: ScrolledWindowClass self => self
+ -> IO (Maybe VScrollbar) -- ^ returns the vertical scrollbar of the scrolled
+                          -- window, or @Nothing@ if it does not have one.
+scrolledWindowGetVScrollbar self =
+  maybeNull (makeNewObject mkVScrollbar) $
+  liftM (castPtr :: Ptr Widget -> Ptr VScrollbar) $
+  {# call gtk_scrolled_window_get_vscrollbar #}
+    (toScrolledWindow self)
+#endif
 
 --------------------
 -- Attributes
@@ -292,21 +326,21 @@ scrolledWindowVAdjustment = newAttr
 -- Default value: 'PolicyAlways'
 --
 scrolledWindowHscrollbarPolicy :: ScrolledWindowClass self => Attr self PolicyType
-scrolledWindowHscrollbarPolicy = newAttrFromEnumProperty "hscrollbar_policy"
+scrolledWindowHscrollbarPolicy = newAttrFromEnumProperty "hscrollbar-policy"
 
 -- | When the vertical scrollbar is displayed.
 --
 -- Default value: 'PolicyAlways'
 --
 scrolledWindowVscrollbarPolicy :: ScrolledWindowClass self => Attr self PolicyType
-scrolledWindowVscrollbarPolicy = newAttrFromEnumProperty "vscrollbar_policy"
+scrolledWindowVscrollbarPolicy = newAttrFromEnumProperty "vscrollbar-policy"
 
 -- | Where the contents are located with respect to the scrollbars.
 --
 -- Default value: 'CornerTopLeft'
 --
 scrolledWindowWindowPlacement :: ScrolledWindowClass self => Attr self CornerType
-scrolledWindowWindowPlacement = newAttrFromEnumProperty "window_placement"
+scrolledWindowWindowPlacement = newAttrFromEnumProperty "window-placement"
 
 -- | Style of bevel around the contents.
 --

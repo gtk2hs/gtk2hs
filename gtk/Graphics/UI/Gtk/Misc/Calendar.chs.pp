@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/08/01 21:33:07 $
+--  Version $Revision: 1.10 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -45,10 +45,6 @@ module Graphics.UI.Gtk.Misc.Calendar (
 --
 -- The selected date can be retrieved from a 'Calendar' using
 -- 'calendarGetDate'.
---
--- If performing many \'mark\' operations, the calendar can be frozen to
--- prevent flicker, using 'calendarFreeze', and \'thawed\' again using
--- 'calendarThaw'.
 
 -- * Class Hierarchy
 -- |
@@ -82,7 +78,9 @@ module Graphics.UI.Gtk.Misc.Calendar (
   calendarGetDisplayOptions,
 #endif
   calendarGetDate,
+#ifndef DISABLE_DEPRECATED
   calendarFreeze,
+#endif
 
 -- * Attributes
   calendarYear,
@@ -145,7 +143,7 @@ calendarNew =
 calendarSelectMonth :: CalendarClass self => self
  -> Int     -- ^ @month@ - a month number between 0 and 11.
  -> Int     -- ^ @year@ - the year the month is in.
- -> IO Bool -- ^ returns @True@ if the operation succeeded.
+ -> IO Bool -- ^ returns @True@, always
 calendarSelectMonth self month year =
   liftM toBool $
   {# call calendar_select_month #}
@@ -168,8 +166,7 @@ calendarSelectDay self day =
 --
 calendarMarkDay :: CalendarClass self => self
  -> Int     -- ^ @day@ - the day number to mark between 1 and 31.
- -> IO Bool -- ^ returns @True@ if the argument was within bounds and the day
-            -- was previously deselected.
+ -> IO Bool -- ^ returns @True@, always
 calendarMarkDay self day =
   liftM toBool $
   {# call calendar_mark_day #}
@@ -180,8 +177,7 @@ calendarMarkDay self day =
 --
 calendarUnmarkDay :: CalendarClass self => self
  -> Int     -- ^ @day@ - the day number to unmark between 1 and 31.
- -> IO Bool -- ^ returns @True@ if the argument was within bounds and the day
-            -- was previously selected.
+ -> IO Bool -- ^ returns @True@, always
 calendarUnmarkDay self day =
   liftM toBool $
   {# call calendar_unmark_day #}
@@ -199,7 +195,7 @@ calendarClearMarks self =
 -- | Sets display options (whether to display the heading and the month
 -- headings).
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 calendarSetDisplayOptions :: CalendarClass self => self
  -> [CalendarDisplayOptions]
@@ -211,7 +207,7 @@ calendarSetDisplayOptions self flags =
 
 -- | Returns the current display options for the calendar.
 --
--- * Available since Gtk version 2.4
+-- * Available since Gtk+ version 2.4
 --
 calendarGetDisplayOptions :: CalendarClass self => self
  -> IO [CalendarDisplayOptions]
@@ -254,8 +250,12 @@ calendarGetDate self =
   day   <- liftM fromIntegral $ peek dayPtr
   return (year,month,day)
 
--- | Freeze the calender for several update operations. This prevents flicker
--- that would otherwise result from a series of updates to the calendar.
+#ifndef DISABLE_DEPRECATED
+-- | Does nothing. Previously locked the display of the calendar for several
+-- update operations.
+--
+-- * Warning: this function is deprecated and should not be used in
+-- newly-written code.
 --
 calendarFreeze :: CalendarClass self => self
  -> IO a -- ^ An action that performs several update operations on the
@@ -267,6 +267,7 @@ calendarFreeze self update = do
   res <- update
   {# call calendar_thaw #} (toCalendar self)
   return res
+#endif
 
 --------------------
 -- Attributes
@@ -305,28 +306,28 @@ calendarDay = newAttrFromIntProperty "day"
 -- Default value: @True@
 --
 calendarShowHeading :: CalendarClass self => Attr self Bool
-calendarShowHeading = newAttrFromBoolProperty "show_heading"
+calendarShowHeading = newAttrFromBoolProperty "show-heading"
 
 -- | Determines whether day names are displayed.
 --
 -- Default value: @True@
 --
 calendarShowDayNames :: CalendarClass self => Attr self Bool
-calendarShowDayNames = newAttrFromBoolProperty "show_day_names"
+calendarShowDayNames = newAttrFromBoolProperty "show-day-names"
 
 -- | Determines whether the selected month can be changed.
 --
 -- Default value: @False@
 --
 calendarNoMonthChange :: CalendarClass self => Attr self Bool
-calendarNoMonthChange = newAttrFromBoolProperty "no_month_change"
+calendarNoMonthChange = newAttrFromBoolProperty "no-month-change"
 
 -- | Determines whether week numbers are displayed.
 --
 -- Default value: @False@
 --
 calendarShowWeekNumbers :: CalendarClass self => Attr self Bool
-calendarShowWeekNumbers = newAttrFromBoolProperty "show_week_numbers"
+calendarShowWeekNumbers = newAttrFromBoolProperty "show-week-numbers"
 #endif
 
 -- | \'displayOptions\' property. See 'calendarGetDisplayOptions' and

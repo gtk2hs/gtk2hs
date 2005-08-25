@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.1 $ from $Date: 2005/08/24 23:40:42 $
+--  Version $Revision: 1.2 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -75,9 +75,16 @@ module Graphics.UI.Gtk.Misc.SizeGroup (
   sizeGroupGetMode,
   sizeGroupAddWidget,
   sizeGroupRemoveWidget,
+#if GTK_CHECK_VERSION(2,8,0)
+  sizeGroupSetIgnoreHidden,
+  sizeGroupGetIgnoreHidden,
+#endif
 
 -- * Attributes
   sizeGroupMode,
+#if GTK_CHECK_VERSION(2,8,0)
+  sizeGroupIgnoreHidden,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -155,10 +162,37 @@ sizeGroupSetMode self mode =
     (toSizeGroup self)
     ((fromIntegral . fromEnum) mode)
 
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Sets whether invisible widgets should be ignored when calculating the
+-- size.
+--
+-- * Available since Gtk+ version 2.8
+--
+sizeGroupSetIgnoreHidden :: SizeGroupClass self => self
+ -> Bool  -- ^ @ignoreHidden@ - whether hidden widgets should be ignored when
+          -- calculating the size
+ -> IO ()
+sizeGroupSetIgnoreHidden self ignoreHidden =
+  {# call gtk_size_group_set_ignore_hidden #}
+    (toSizeGroup self)
+    (fromBool ignoreHidden)
+
+-- | Returns if invisible widgets are ignored when calculating the size.
+--
+-- * Available since Gtk+ version 2.8
+--
+sizeGroupGetIgnoreHidden :: SizeGroupClass self => self
+ -> IO Bool -- ^ returns @True@ if invisible widgets are ignored.
+sizeGroupGetIgnoreHidden self =
+  liftM toBool $
+  {# call gtk_size_group_get_ignore_hidden #}
+    (toSizeGroup self)
+#endif
+
 --------------------
 -- Attributes
 
--- | The directions in which the size group effects the requested sizes of its
+-- | The directions in which the size group affects the requested sizes of its
 -- component widgets.
 --
 -- Default value: 'SizeGroupHorizontal'
@@ -167,3 +201,15 @@ sizeGroupMode :: SizeGroupClass self => Attr self SizeGroupMode
 sizeGroupMode = newAttr
   sizeGroupGetMode
   sizeGroupSetMode
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | If @True@, hidden widgets are ignored when determining the size of the
+-- group.
+--
+-- Default value: @False@
+--
+sizeGroupIgnoreHidden :: SizeGroupClass self => Attr self Bool
+sizeGroupIgnoreHidden = newAttr
+  sizeGroupGetIgnoreHidden
+  sizeGroupSetIgnoreHidden
+#endif

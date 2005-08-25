@@ -5,7 +5,7 @@
 --
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -203,33 +203,33 @@ comboDisableActivate self =
 -- Default value: @True@
 --
 comboEnableArrowKeys :: ComboClass self => Attr self Bool
-comboEnableArrowKeys = newAttrFromBoolProperty "enable_arrow_keys"
+comboEnableArrowKeys = newAttrFromBoolProperty "enable-arrow-keys"
 
 -- | Obsolete property, ignored.
 --
 -- Default value: @True@
 --
 comboEnableArrowsAlways :: ComboClass self => Attr self Bool
-comboEnableArrowsAlways = newAttrFromBoolProperty "enable_arrows_always"
+comboEnableArrowsAlways = newAttrFromBoolProperty "enable-arrows-always"
 
 -- | Whether list item matching is case sensitive.
 --
 -- Default value: @False@
 --
 comboCaseSensitive :: ComboClass self => Attr self Bool
-comboCaseSensitive = newAttrFromBoolProperty "case_sensitive"
+comboCaseSensitive = newAttrFromBoolProperty "case-sensitive"
 
 -- | Whether an empty value may be entered in this field.
 --
 -- Default value: @True@
 --
 comboAllowEmpty :: ComboClass self => Attr self Bool
-comboAllowEmpty = newAttrFromBoolProperty "allow_empty"
+comboAllowEmpty = newAttrFromBoolProperty "allow-empty"
 
 -- | Whether entered values must already be present in the list.
 --
 -- Default value: @False@
 --
 comboValueInList :: ComboClass self => Attr self Bool
-comboValueInList = newAttrFromBoolProperty "value_in_list"
+comboValueInList = newAttrFromBoolProperty "value-in-list"
 #endif

@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/05/21 02:11:31 $
+--  Version $Revision: 1.13 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -455,6 +455,9 @@ treeViewMoveColumnFirst self which =
 -- * Sets the column to draw the expander arrow at. If @col@
 --   is @Nothing@, then the expander arrow is always at the first
 --   visible column.
+--
+-- If you do not want expander arrow to appear in your tree, set the
+-- expander column to a hidden column.
 --
 treeViewSetExpanderColumn :: TreeViewClass self => self
  -> Maybe TreeViewColumn
@@ -951,7 +954,8 @@ treeViewCreateRowDragIcon self path =
     (toTreeView self)
     path
 
--- | Set if user can search entries.
+-- | Returns whether or not the tree allows to start interactive searching by
+-- typing in text.
 --
 -- * If enabled, the user can type in text which will set the cursor to
 --   the first matching entry.
@@ -962,7 +966,12 @@ treeViewGetEnableSearch self =
   {# call unsafe tree_view_get_enable_search #}
     (toTreeView self)
 
--- | Check if user can search entries.
+-- | If this is set, then the user can type in text to search
+-- through the tree interactively (this is sometimes called \"typeahead
+-- find\").
+--
+-- Note that even if this is @False@, the user can still initiate a search
+-- using the \"start-interactive-search\" key binding.
 --
 treeViewSetEnableSearch :: TreeViewClass self => self -> Bool -> IO ()
 treeViewSetEnableSearch self enableSearch =
@@ -979,12 +988,18 @@ treeViewGetSearchColumn self =
   {# call unsafe tree_view_get_search_column #}
     (toTreeView self)
 
--- | Set the column searched on by by the interactive search.
+-- | Sets @column@ as the column where the interactive search code should
+-- search in.
 --
--- * Additionally, turns on interactive searching.
+-- If the sort column is set, users can use the \"start-interactive-search\"
+-- key binding to bring up search popup. The enable-search property controls
+-- whether simply typing text will also start an interactive search.
+--
+-- Note that @column@ refers to a column of the model.
 --
 treeViewSetSearchColumn :: TreeViewClass self => self
- -> Int
+ -> Int   -- ^ @column@ - the column of the model to search in, or -1 to
+          -- disable searching
  -> IO ()
 treeViewSetSearchColumn self column =
   {# call tree_view_set_search_column #}
@@ -1139,7 +1154,7 @@ treeViewHeadersVisible = newAttr
 -- Default value: @False@
 --
 treeViewHeadersClickable :: TreeViewClass self => Attr self Bool
-treeViewHeadersClickable = newAttrFromBoolProperty "headers_clickable"
+treeViewHeadersClickable = newAttrFromBoolProperty "headers-clickable"
 
 -- | Set the column for the expander column.
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2005/07/23 02:04:40 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -143,6 +143,9 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
 
 -- * Attributes
   textBufferTagTable,
+#if GTK_CHECK_VERSION(2,8,0)
+  textBufferText,
+#endif
   textBufferModified,
 
 -- * Signals
@@ -957,7 +960,17 @@ textBufferGetBounds self start end =
 -- | Text Tag Table.
 --
 textBufferTagTable :: (TextBufferClass self, TextTagTableClass textTagTable) => ReadWriteAttr self TextTagTable textTagTable
-textBufferTagTable = newAttrFromObjectProperty "tag_table"
+textBufferTagTable = newAttrFromObjectProperty "tag-table"
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | The text content of the buffer. Without child widgets and images, see
+-- 'textBufferGetText' for more information.
+--
+-- Default value: \"\"
+--
+textBufferText :: TextBufferClass self => Attr self String
+textBufferText = newAttrFromStringProperty "text"
+#endif
 
 -- | \'modified\' property. See 'textBufferGetModified' and
 -- 'textBufferSetModified'

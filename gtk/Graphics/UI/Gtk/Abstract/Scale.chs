@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 19:13:30 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -165,7 +165,7 @@ scaleDigits = newAttr
 
 -- | Whether the current value is displayed as a string next to the slider.
 --
--- Default value: @False@
+-- Default value: @True@
 --
 scaleDrawValue :: ScaleClass self => Attr self Bool
 scaleDrawValue = newAttr
@@ -174,7 +174,7 @@ scaleDrawValue = newAttr
 
 -- | The position in which the current value is displayed.
 --
--- Default value: 'PosLeft'
+-- Default value: 'PosTop'
 --
 scaleValuePos :: ScaleClass self => Attr self PositionType
 scaleValuePos = newAttr

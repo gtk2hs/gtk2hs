@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2005/08/01 21:33:08 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -130,6 +130,12 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   textIterBackwardSearch,
   textIterEqual,
   textIterCompare,
+#if GTK_CHECK_VERSION(2,8,0)
+  textIterForwardVisibleLine,
+  textIterBackwardVisibleLine,
+  textIterForwardVisibleLines,
+  textIterBackwardVisibleLines,
+#endif
 
 -- * Attributes
   textIterVisibleLineOffset,
@@ -794,6 +800,78 @@ textIterBackwardSearch ti str flags limit = do
     ((fromIntegral.fromFlags) flags) start end 
     (fromMaybe (TextIter nullForeignPtr) limit)
   return $ if found then Just (start,end) else Nothing
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Moves @iter@ to the start of the next visible line. Returns @True@ if
+-- there was a next line to move to, and @False@ if @iter@ was simply moved to
+-- the end of the buffer and is now not dereferenceable, or if @iter@ was
+-- already at the end of the buffer.
+--
+-- * Available since Gtk+ version 2.8
+--
+textIterForwardVisibleLine :: TextIter
+ -> IO Bool  -- ^ returns whether @iter@ can be dereferenced
+textIterForwardVisibleLine self =
+  liftM toBool $
+  {# call gtk_text_iter_forward_visible_line #}
+    self
+
+-- | Moves @iter@ to the start of the previous visible line. Returns @True@ if
+-- @iter@ could be moved; i.e. if @iter@ was at character offset 0, this
+-- function returns @False@. Therefore if @iter@ was already on line 0, but not
+-- at the start of the line, @iter@ is snapped to the start of the line and the
+-- function returns @True@. (Note that this implies that in a loop calling this
+-- function, the line number may not change on every iteration, if your first
+-- iteration is on line 0.)
+--
+-- * Available since Gtk+ version 2.8
+--
+textIterBackwardVisibleLine :: TextIter
+ -> IO Bool  -- ^ returns whether @iter@ moved
+textIterBackwardVisibleLine self =
+  liftM toBool $
+  {# call gtk_text_iter_backward_visible_line #}
+    self
+
+-- | Moves @count@ visible lines forward, if possible (if @count@ would move
+-- past the start or end of the buffer, moves to the start or end of the
+-- buffer). The return value indicates whether the iterator moved onto a
+-- dereferenceable position; if the iterator didn't move, or moved onto the end
+-- iterator, then @False@ is returned. If @count@ is 0, the function does
+-- nothing and returns @False@. If @count@ is negative, moves backward by 0 -
+-- @count@ lines.
+--
+-- * Available since Gtk+ version 2.8
+--
+textIterForwardVisibleLines :: TextIter
+ -> Int      -- ^ @count@ - number of lines to move forward
+ -> IO Bool  -- ^ returns whether @iter@ moved and is dereferenceable
+textIterForwardVisibleLines self count =
+  liftM toBool $
+  {# call gtk_text_iter_forward_visible_lines #}
+    self
+    (fromIntegral count)
+
+-- | Moves @count@ visible lines backward, if possible (if @count@ would move
+-- past the start or end of the buffer, moves to the start or end of the
+-- buffer). The return value indicates whether the iterator moved onto a
+-- dereferenceable position; if the iterator didn't move, or moved onto the end
+-- iterator, then @False@ is returned. If @count@ is 0, the function does
+-- nothing and returns @False@. If @count@ is negative, moves forward by 0 -
+-- @count@ lines.
+--
+-- * Available since Gtk+ version 2.8
+--
+textIterBackwardVisibleLines :: TextIter
+ -> Int      -- ^ @count@ - number of lines to move backward
+ -> IO Bool  -- ^ returns whether @iter@ moved and is dereferenceable
+textIterBackwardVisibleLines self count =
+  liftM toBool $
+  {# call gtk_text_iter_backward_visible_lines #}
+    self
+    (fromIntegral count)
+#endif
+
 
 -- | Compare two 'TextIter' for equality.
 --

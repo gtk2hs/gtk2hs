@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/14 10:59:21 $
+--  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -226,7 +226,8 @@ progressBarSetEllipsize self mode =
     (toProgressBar self)
     ((fromIntegral . fromEnum) mode)
 
--- | Gets the value set by 'progressBarSetEllipsize'.
+-- | Returns the ellipsizing position of the progressbar. See
+-- 'progressBarSetEllipsize'.
 --
 -- * Available since Gtk+ version 2.6
 --
@@ -257,7 +258,7 @@ progressBarOrientation = newAttr
 -- Default value: 10
 --
 progressBarDiscreteBlocks :: ProgressBarClass self => Attr self Int
-progressBarDiscreteBlocks = newAttrFromUIntProperty "discrete_blocks"
+progressBarDiscreteBlocks = newAttrFromUIntProperty "discrete-blocks"
 
 -- | The fraction of total work that has been completed.
 --

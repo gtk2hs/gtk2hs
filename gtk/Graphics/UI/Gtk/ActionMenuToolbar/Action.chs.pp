@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/09 23:07:46 $
+--  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -403,7 +403,7 @@ actionLabel = newAttrFromStringProperty "label"
 -- Default value: \"\"
 --
 actionShortLabel :: ActionClass self => Attr self String
-actionShortLabel = newAttrFromStringProperty "short_label"
+actionShortLabel = newAttrFromStringProperty "short-label"
 
 -- | A tooltip for this action.
 --
@@ -425,7 +425,7 @@ actionStockId = newAttrFromMaybeStringProperty "stock_id"
 -- Default value: @True@
 --
 actionVisibleHorizontal :: ActionClass self => Attr self Bool
-actionVisibleHorizontal = newAttrFromBoolProperty "visible_horizontal"
+actionVisibleHorizontal = newAttrFromBoolProperty "visible-horizontal"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | When @True@, toolitem proxies for this action are represented in the
@@ -436,7 +436,7 @@ actionVisibleHorizontal = newAttrFromBoolProperty "visible_horizontal"
 -- * Available since Gtk+ version 2.6
 --
 actionVisibleOverflown :: ActionClass self => Attr self Bool
-actionVisibleOverflown = newAttrFromBoolProperty "visible_overflown"
+actionVisibleOverflown = newAttrFromBoolProperty "visible-overflown"
 #endif
 
 -- | Whether the toolbar item is visible when the toolbar is in a vertical
@@ -445,7 +445,7 @@ actionVisibleOverflown = newAttrFromBoolProperty "visible_overflown"
 -- Default value: @True@
 --
 actionVisibleVertical :: ActionClass self => Attr self Bool
-actionVisibleVertical = newAttrFromBoolProperty "visible_vertical"
+actionVisibleVertical = newAttrFromBoolProperty "visible-vertical"
 
 -- | Whether the action is considered important. When @True@, toolitem proxies
 -- for this action show text in 'ToolbarBothHoriz' mode.
@@ -453,14 +453,14 @@ actionVisibleVertical = newAttrFromBoolProperty "visible_vertical"
 -- Default value: @False@
 --
 actionIsImportant :: ActionClass self => Attr self Bool
-actionIsImportant = newAttrFromBoolProperty "is_important"
+actionIsImportant = newAttrFromBoolProperty "is-important"
 
 -- | When @True@, empty menu proxies for this action are hidden.
 --
 -- Default value: @True@
 --
 actionHideIfEmpty :: ActionClass self => Attr self Bool
-actionHideIfEmpty = newAttrFromBoolProperty "hide_if_empty"
+actionHideIfEmpty = newAttrFromBoolProperty "hide-if-empty"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Whether the action is enabled.

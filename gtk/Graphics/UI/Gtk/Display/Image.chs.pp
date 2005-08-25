@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/05/14 01:54:26 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -110,6 +110,9 @@ module Graphics.UI.Gtk.Display.Image (
   imageSetPixelSize,
   imageGetPixelSize,
 #endif
+#if GTK_CHECK_VERSION(2,8,0)
+  imageClear,
+#endif
 
 -- * Icon Sizes
   IconSize,
@@ -206,7 +209,7 @@ imageNewFromPixbuf pixbuf =
     pixbuf
 
 -- | Creates a 'Image' displaying a stock icon. If the stock icon name isn't
--- known, a \"broken image\" icon will be displayed instead.
+-- known, the image will be empty.
 --
 imageNewFromStock :: 
     String   -- ^ @stockId@ - a stock icon name
@@ -336,6 +339,17 @@ imageGetPixelSize self =
     self
 #endif
 
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Resets the image to be empty.
+--
+-- * Available since Gtk+ version 2.8
+--
+imageClear :: Image -> IO ()
+imageClear self =
+  {# call gtk_image_clear #}
+    self
+#endif
+
 --------------------
 -- Attributes
 
@@ -361,8 +375,10 @@ imageMask = newAttrFromObjectProperty "mask"
 
 -- | Filename to load and display.
 --
-imageFile :: WriteAttr Image String
-imageFile = writeAttrFromStringProperty "file"
+-- Default value: ""
+--
+imageFile :: Attr Image String
+imageFile = newAttrFromStringProperty "file"
 
 -- | Stock ID for a stock image to display.
 --
@@ -378,7 +394,7 @@ imageStock = newAttrFromStringProperty "stock"
 -- Default value: 4
 --
 imageIconSize :: Attr Image Int
-imageIconSize = newAttrFromIntProperty "icon_size"
+imageIconSize = newAttrFromIntProperty "icon-size"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The pixel-size property can be used to specify a fixed size overriding
@@ -401,7 +417,7 @@ imagePixelSize = newAttr
 -- Default value: \"\"
 --
 imageIconName :: Attr Image String
-imageIconName = newAttrFromStringProperty "icon_name"
+imageIconName = newAttrFromStringProperty "icon-name"
 #endif
 
 -- | The representation being used for image data.
@@ -409,4 +425,4 @@ imageIconName = newAttrFromStringProperty "icon_name"
 -- Default value: 'ImageEmpty'
 --
 imageStorageType :: ReadAttr Image ImageType
-imageStorageType = readAttrFromEnumProperty "storage_type"
+imageStorageType = readAttrFromEnumProperty "storage-type"

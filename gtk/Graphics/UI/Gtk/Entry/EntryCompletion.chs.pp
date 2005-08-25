@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.14 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.15 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -94,6 +94,12 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionSetPopupCompletion,
   entryCompletionGetPopupCompletion,
 #endif
+#if GTK_CHECK_VERSION(2,8,0)
+  entryCompletionSetPopupSetWidth,
+  entryCompletionGetPopupSetWidth,
+  entryCompletionSetPopupSingleMatch,
+  entryCompletionGetPopupSingleMatch,
+#endif
 
 -- * Attributes
   entryCompletionModel,
@@ -102,6 +108,10 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionTextColumn,
   entryCompletionInlineCompletion,
   entryCompletionPopupCompletion,
+#endif
+#if GTK_CHECK_VERSION(2,8,0)
+  entryCompletionPopupSetWidth,
+  entryCompletionPopupSingleMatch,
 #endif
 
 -- * Signals
@@ -362,6 +372,63 @@ entryCompletionGetPopupCompletion self =
     self
 #endif
 
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Sets whether the completion popup window will be resized to be the same
+-- width as the entry.
+--
+-- * Available since Gtk+ version 2.8
+--
+entryCompletionSetPopupSetWidth :: EntryCompletion
+ -> Bool            -- ^ @popupSetWidth@ - @True@ to make the width of the
+                    -- popup the same as the entry
+ -> IO ()
+entryCompletionSetPopupSetWidth self popupSetWidth =
+  {# call gtk_entry_completion_set_popup_set_width #}
+    self
+    (fromBool popupSetWidth)
+
+-- | Returns whether the completion popup window will be resized to the width
+-- of the entry.
+--
+-- * Available since Gtk+ version 2.8
+--
+entryCompletionGetPopupSetWidth :: EntryCompletion
+ -> IO Bool         -- ^ returns @True@ if the popup window will be resized to
+                    -- the width of the entry
+entryCompletionGetPopupSetWidth self =
+  liftM toBool $
+  {# call gtk_entry_completion_get_popup_set_width #}
+    self
+
+-- | Sets whether the completion popup window will appear even if there is
+-- only a single match. You may want to set this to @False@ if you are using
+-- inline completion.
+--
+-- * Available since Gtk+ version 2.8
+--
+entryCompletionSetPopupSingleMatch :: EntryCompletion
+ -> Bool            -- ^ @popupSingleMatch@ - @True@ if the popup should
+                    -- appear even for a single match
+ -> IO ()
+entryCompletionSetPopupSingleMatch self popupSingleMatch =
+  {# call gtk_entry_completion_set_popup_single_match #}
+    self
+    (fromBool popupSingleMatch)
+
+-- | Returns whether the completion popup window will appear even if there is
+-- only a single match.
+--
+-- * Available since Gtk+ version 2.8
+--
+entryCompletionGetPopupSingleMatch :: EntryCompletion
+ -> IO Bool         -- ^ returns @True@ if the popup window will appear
+                    -- regardless of the number of matches.
+entryCompletionGetPopupSingleMatch self =
+  liftM toBool $
+  {# call gtk_entry_completion_get_popup_single_match #}
+    self
+#endif
+
 --------------------
 -- Attributes
 
@@ -396,7 +463,8 @@ entryCompletionTextColumn = newAttr
   entryCompletionSetTextColumn
 
 -- | Determines whether the common prefix of the possible completions should
--- be inserted automatically in the entry.
+-- be inserted automatically in the entry. Note that this requires text-column
+-- to be set, even if you are using a custom match function.
 --
 -- Default value: @False@
 --
@@ -414,6 +482,29 @@ entryCompletionPopupCompletion :: Attr EntryCompletion Bool
 entryCompletionPopupCompletion = newAttr
   entryCompletionGetPopupCompletion
   entryCompletionSetPopupCompletion
+#endif
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Determines whether the completions popup window will be resized to the
+-- width of the entry.
+--
+-- Default value: @True@
+--
+entryCompletionPopupSetWidth :: Attr EntryCompletion Bool
+entryCompletionPopupSetWidth = newAttr
+  entryCompletionGetPopupSetWidth
+  entryCompletionSetPopupSetWidth
+
+-- | Determines whether the completions popup window will shown for a single
+-- possible completion. You probably want to set this to @False@ if you are
+-- using inline completion.
+--
+-- Default value: @True@
+--
+entryCompletionPopupSingleMatch :: Attr EntryCompletion Bool
+entryCompletionPopupSingleMatch = newAttr
+  entryCompletionGetPopupSingleMatch
+  entryCompletionSetPopupSingleMatch
 #endif
 
 --------------------

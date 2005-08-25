@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/08/24 23:40:42 $
+--  Version $Revision: 1.2 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -75,10 +75,14 @@ module Graphics.UI.Gtk.Misc.Adjustment (
   adjustmentClampPage,
 
 -- * Attributes
+#if GTK_CHECK_VERSION(2,4,0)
   adjustmentValue,
+  adjustmentLower,
+  adjustmentUpper,
   adjustmentStepIncrement,
   adjustmentPageIncrement,
   adjustmentPageSize,
+#endif
 
 -- * Signals
   onAdjChanged,
@@ -212,6 +216,7 @@ adjustmentClampPage self lower upper =
 --------------------
 -- Attributes
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | The value of the adjustment.
 --
 -- Default value: 0
@@ -221,20 +226,44 @@ adjustmentValue = newAttr
   adjustmentGetValue
   adjustmentSetValue
 
--- | 
+-- | The minimum value of the adjustment.
+--
+-- Default value: 0
+--
+adjustmentLower :: Attr Adjustment Double
+adjustmentLower = newAttrFromDoubleProperty "lower"
+
+-- | The maximum value of the adjustment. Note that values will be restricted
+-- by @upper - page-size@ if the page-size property is nonzero.
+--
+-- Default value: 0
+--
+adjustmentUpper :: Attr Adjustment Double
+adjustmentUpper = newAttrFromDoubleProperty "upper"
+
+-- | The step increment of the adjustment.
+--
+-- Default value: 0
 --
 adjustmentStepIncrement :: Attr Adjustment Double
 adjustmentStepIncrement = newAttrFromDoubleProperty "step-increment"
 
--- | 
+-- | The page increment of the adjustment.
+--
+-- Default value: 0
 --
 adjustmentPageIncrement :: Attr Adjustment Double
 adjustmentPageIncrement = newAttrFromDoubleProperty "page-increment"
 
--- | 
+-- | The page size of the adjustment. Note that the page-size is irrelevant
+-- and should be set to zero if the adjustment is used for a simple scalar
+-- value, e.g. in a 'SpinButton'.
+--
+-- Default value: 0
 --
 adjustmentPageSize :: Attr Adjustment Double
 adjustmentPageSize = newAttrFromDoubleProperty "page-size"
+#endif
 
 --------------------
 -- Signals

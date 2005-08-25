@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.3 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -86,12 +86,19 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolButton (
   toolButtonGetIconWidget,
   toolButtonSetLabelWidget,
   toolButtonGetLabelWidget,
+#if GTK_CHECK_VERSION(2,8,0)
+  toolButtonSetIconName,
+  toolButtonGetIconName,
+#endif
 
 -- * Attributes
   toolButtonLabel,
   toolButtonUseUnderline,
   toolButtonLabelWidget,
   toolButtonStockId,
+#if GTK_CHECK_VERSION(2,8,0)
+  toolButtonIconName,
+#endif
   toolButtonIconWidget,
 
 -- * Signals
@@ -270,6 +277,38 @@ toolButtonGetLabelWidget self =
   {# call gtk_tool_button_get_label_widget #}
     (toToolButton self)
 
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Sets the icon for the tool button from a named themed icon. See the docs
+-- for 'IconTheme' for more details. The \"icon_name\" property only has an
+-- effect if not overridden by the \"label\", \"icon_widget\" and \"stock_id\"
+-- properties.
+--
+-- * Available since Gtk+ version 2.8
+--
+toolButtonSetIconName :: ToolButtonClass self => self
+ -> String -- ^ @iconName@ - the name of the themed icon
+ -> IO ()
+toolButtonSetIconName self iconName =
+  withUTFString iconName $ \iconNamePtr ->
+  {# call gtk_tool_button_set_icon_name #}
+    (toToolButton self)
+    iconNamePtr
+
+-- | Returns the name of the themed icon for the tool button, see
+-- 'toolButtonSetIconName'.
+--
+-- * Available since Gtk+ version 2.8
+--
+toolButtonGetIconName :: ToolButtonClass self => self
+ -> IO String -- ^ returns the icon name or {@NULL@, FIXME: this should
+              -- probably be converted to a Maybe data type} if the tool button
+              -- has no themed icon
+toolButtonGetIconName self =
+  {# call gtk_tool_button_get_icon_name #}
+    (toToolButton self)
+  >>= peekUTFString
+#endif
+
 --------------------
 -- Attributes
 
@@ -308,6 +347,19 @@ toolButtonStockId :: ToolButtonClass self => ReadWriteAttr self (Maybe String) (
 toolButtonStockId = newAttr
   toolButtonGetStockId
   toolButtonSetStockId
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | The name of the themed icon displayed on the item. This property only has
+-- an effect if not overridden by \"label\", \"icon_widget\" or \"stock_id\"
+-- properties.
+--
+-- Default value: ""
+--
+toolButtonIconName :: ToolButtonClass self => Attr self String
+toolButtonIconName = newAttr
+  toolButtonGetIconName
+  toolButtonSetIconName
+#endif
 
 -- | Icon widget to display in the item.
 --

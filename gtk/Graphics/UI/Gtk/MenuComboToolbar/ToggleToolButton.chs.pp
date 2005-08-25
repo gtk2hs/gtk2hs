@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 21:10:47 $
+--  Version $Revision: 1.3 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -66,7 +66,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToggleToolButton (
   toggleToolButtonGetActive,
 
 -- * Attributes
+#if GTK_CHECK_VERSION(2,8,0)
   toggleToolButtonActive,
+#endif
 
 -- * Signals
   onToolButtonToggled,
@@ -137,13 +139,16 @@ toggleToolButtonGetActive self =
 --------------------
 -- Attributes
 
--- | \'active\' property. See 'toggleToolButtonGetActive' and
--- 'toggleToolButtonSetActive'
+#if GTK_CHECK_VERSION(2,8,0)
+-- | If the toggle tool button should be pressed in or not.
+--
+-- Default value: @False@
 --
 toggleToolButtonActive :: ToggleToolButtonClass self => Attr self Bool
 toggleToolButtonActive = newAttr
   toggleToolButtonGetActive
   toggleToolButtonSetActive
+#endif
 
 --------------------
 -- Signals

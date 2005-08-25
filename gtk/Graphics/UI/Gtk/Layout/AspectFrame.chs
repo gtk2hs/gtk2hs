@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/07 20:57:25 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -162,4 +162,4 @@ aspectFrameRatio = newAttrFromFloatProperty "ratio"
 -- Default value: @True@
 --
 aspectFrameObeyChild :: AspectFrameClass self => Attr self Bool
-aspectFrameObeyChild = newAttrFromBoolProperty "obey_child"
+aspectFrameObeyChild = newAttrFromBoolProperty "obey-child"

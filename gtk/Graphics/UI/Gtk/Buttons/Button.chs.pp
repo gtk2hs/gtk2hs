@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/05/16 15:29:54 $
+--  Version $Revision: 1.12 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -399,7 +399,7 @@ buttonGetAlignment self =
 -- have been explicitly set by 'buttonSetImage' or constructed by
 -- 'buttonNewFromStock'.
 --
--- * Available since Gtk version 2.6
+-- * Available since Gtk+ version 2.6
 --
 buttonGetImage :: ButtonClass self => self
  -> IO (Maybe Widget) -- ^  a 'Widget' or @Nothing@ in case there is no image

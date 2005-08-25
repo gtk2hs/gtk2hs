@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/07/03 12:27:10 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -338,28 +338,28 @@ tableGetHomogeneous self =
 -- Default value: 0
 --
 tableNRows :: TableClass self => Attr self Int
-tableNRows = newAttrFromUIntProperty "n_rows"
+tableNRows = newAttrFromUIntProperty "n-rows"
 
 -- | The number of columns in the table.
 --
 -- Default value: 0
 --
 tableNColumns :: TableClass self => Attr self Int
-tableNColumns = newAttrFromUIntProperty "n_columns"
+tableNColumns = newAttrFromUIntProperty "n-columns"
 
 -- | The amount of space between two consecutive rows.
 --
 -- Default value: 0
 --
 tableRowSpacing :: TableClass self => Attr self Int
-tableRowSpacing = newAttrFromUIntProperty "row_spacing"
+tableRowSpacing = newAttrFromUIntProperty "row-spacing"
 
 -- | The amount of space between two consecutive columns.
 --
 -- Default value: 0
 --
 tableColumnSpacing :: TableClass self => Attr self Int
-tableColumnSpacing = newAttrFromUIntProperty "column_spacing"
+tableColumnSpacing = newAttrFromUIntProperty "column-spacing"
 
 -- | If @True@ this means the table cells are all the same width\/height.
 --
@@ -380,7 +380,7 @@ tableHomogeneous = newAttr
 -- Default value: 0
 --
 tableChildLeftAttach :: (TableClass self, WidgetClass child) => child -> Attr self Int
-tableChildLeftAttach = newAttrFromContainerChildUIntProperty "left_attach"
+tableChildLeftAttach = newAttrFromContainerChildUIntProperty "left-attach"
 
 -- | The column number to attach the right side of a child widget to.
 --
@@ -389,7 +389,7 @@ tableChildLeftAttach = newAttrFromContainerChildUIntProperty "left_attach"
 -- Default value: 1
 --
 tableChildRightAttach :: (TableClass self, WidgetClass child) => child -> Attr self Int
-tableChildRightAttach = newAttrFromContainerChildUIntProperty "right_attach"
+tableChildRightAttach = newAttrFromContainerChildUIntProperty "right-attach"
 
 -- | The row number to attach the top of a child widget to.
 --
@@ -398,7 +398,7 @@ tableChildRightAttach = newAttrFromContainerChildUIntProperty "right_attach"
 -- Default value: 0
 --
 tableChildTopAttach :: (TableClass self, WidgetClass child) => child -> Attr self Int
-tableChildTopAttach = newAttrFromContainerChildUIntProperty "top_attach"
+tableChildTopAttach = newAttrFromContainerChildUIntProperty "top-attach"
 
 -- | The row number to attach the bottom of the child to.
 --
@@ -407,21 +407,21 @@ tableChildTopAttach = newAttrFromContainerChildUIntProperty "top_attach"
 -- Default value: 1
 --
 tableChildBottomAttach :: (TableClass self, WidgetClass child) => child -> Attr self Int
-tableChildBottomAttach = newAttrFromContainerChildUIntProperty "bottom_attach"
+tableChildBottomAttach = newAttrFromContainerChildUIntProperty "bottom-attach"
 
 -- | Options specifying the horizontal behaviour of the child.
 --
 -- Default value: @['Expand', 'Fill']@
 --
 tableChildXOptions :: (TableClass self, WidgetClass child) => child -> Attr self [AttachOptions]
-tableChildXOptions = newAttrFromContainerChildFlagsProperty "x_options"
+tableChildXOptions = newAttrFromContainerChildFlagsProperty "x-options"
 
 -- | Options specifying the vertical behaviour of the child.
 --
 -- Default value: @['Expand', 'Fill']@
 --
 tableChildYOptions :: (TableClass self, WidgetClass child) => child -> Attr self [AttachOptions]
-tableChildYOptions = newAttrFromContainerChildFlagsProperty "y_options"
+tableChildYOptions = newAttrFromContainerChildFlagsProperty "y-options"
 
 -- | Extra space to put between the child and its left and right neighbors, in
 -- pixels.
@@ -431,7 +431,7 @@ tableChildYOptions = newAttrFromContainerChildFlagsProperty "y_options"
 -- Default value: 0
 --
 tableChildXPadding :: (TableClass self, WidgetClass child) => child -> Attr self Int
-tableChildXPadding = newAttrFromContainerChildUIntProperty "x_padding"
+tableChildXPadding = newAttrFromContainerChildUIntProperty "x-padding"
 
 -- | Extra space to put between the child and its upper and lower neighbors,
 -- in pixels.
@@ -441,4 +441,4 @@ tableChildXPadding = newAttrFromContainerChildUIntProperty "x_padding"
 -- Default value: 0
 --
 tableChildYPadding :: (TableClass self, WidgetClass child) => child -> Attr self Int
-tableChildYPadding = newAttrFromContainerChildUIntProperty "y_padding"
+tableChildYPadding = newAttrFromContainerChildUIntProperty "y-padding"

@@ -5,7 +5,7 @@
 --
 --  Created: 1 March 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/14 01:50:41 $
+--  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -97,6 +97,10 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogSetLogoIconName,
   aboutDialogSetEmailHook,
   aboutDialogSetUrlHook,
+#if GTK_CHECK_VERSION(2,8,0)
+  aboutDialogGetWrapLicense,
+  aboutDialogSetWrapLicense,
+#endif
 
 -- * Attributes
   aboutDialogName,
@@ -112,6 +116,9 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
   aboutDialogTranslatorCredits,
   aboutDialogLogo,
   aboutDialogLogoIconName,
+#endif
+#if GTK_CHECK_VERSION(2,8,0)
+  aboutDialogWrapLicense,
 #endif
   ) where
 
@@ -442,6 +449,31 @@ aboutDialogSetUrlHook func = do
 foreign import ccall "wrapper" mkAboutDialogActivateLinkFunc ::
   (Ptr AboutDialog -> CString -> Ptr () -> IO ()) -> IO AboutDialogActivateLinkFunc
 
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Returns whether the license text in @about@ is automatically wrapped.
+--
+-- * Available since Gtk+ version 2.8
+--
+aboutDialogGetWrapLicense :: AboutDialogClass self => self
+ -> IO Bool -- ^ returns @True@ if the license text is wrapped
+aboutDialogGetWrapLicense self =
+  liftM toBool $
+  {# call gtk_about_dialog_get_wrap_license #}
+    (toAboutDialog self)
+
+-- | Sets whether the license text in @about@ is automatically wrapped.
+--
+-- * Available since Gtk+ version 2.8
+--
+aboutDialogSetWrapLicense :: AboutDialogClass self => self
+ -> Bool  -- ^ @wrapLicense@ - whether to wrap the license
+ -> IO ()
+aboutDialogSetWrapLicense self wrapLicense =
+  {# call gtk_about_dialog_set_wrap_license #}
+    (toAboutDialog self)
+    (fromBool wrapLicense)
+#endif
+
 --------------------
 -- Attributes
 
@@ -478,7 +510,8 @@ aboutDialogComments = newAttr
 
 -- | The license of the program. This string is displayed in a text view in a
 -- secondary dialog, therefore it is fine to use a long multi-paragraph text.
--- Note that the text is not wrapped in the text view, thus it must contain the
+-- Note that the text is only wrapped in the text view if the 'aboutDialogWrapLicense'
+-- property is set to @True@; otherwise the text itself must contain the
 -- intended linebreaks.
 --
 -- Default value: @Nothing@
@@ -557,4 +590,15 @@ aboutDialogLogoIconName :: AboutDialogClass self => ReadWriteAttr self String (M
 aboutDialogLogoIconName = newAttr
   aboutDialogGetLogoIconName
   aboutDialogSetLogoIconName
+#endif
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Whether to wrap the text in the license dialog.
+--
+-- Default value: @False@
+--
+aboutDialogWrapLicense :: AboutDialogClass self => Attr self Bool
+aboutDialogWrapLicense = newAttr
+  aboutDialogGetWrapLicense
+  aboutDialogSetWrapLicense
 #endif

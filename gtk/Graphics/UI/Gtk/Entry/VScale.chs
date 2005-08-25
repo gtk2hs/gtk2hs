@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:22:04 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Entry.VScale (
 
 -- * Constructors
   vScaleNew,
-  vScaleNewWithRange
+  vScaleNewWithRange,
   ) where
 
 import Monad	(liftM)
@@ -85,11 +85,15 @@ vScaleNew adjustment =
 -- @step@. @step@ must be nonzero; it's the distance the slider moves when
 -- using the arrow keys to adjust the scale value.
 --
+-- Note that the way in which the precision is derived works best if @step@
+-- is a power of ten. If the resulting precision is not suitable for your
+-- needs, use 'scaleSetDigits' to correct it.
+--
 vScaleNewWithRange :: 
     Double    -- ^ @min@ - minimum value
  -> Double    -- ^ @max@ - maximum value
  -> Double    -- ^ @step@ - step increment (tick size) used with keyboard
-              -- shortcuts. Must be nonzero.
+              -- shortcuts
  -> IO VScale
 vScaleNewWithRange min max step =
   makeNewObject mkVScale $

@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/14 01:54:26 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
@@ -272,7 +272,7 @@ fileSelectionFilename = newAttr
 -- Default value: @False@
 --
 fileSelectionShowFileops :: FileSelectionClass self => Attr self Bool
-fileSelectionShowFileops = newAttrFromBoolProperty "show_fileops"
+fileSelectionShowFileops = newAttrFromBoolProperty "show-fileops"
 
 -- | Whether to allow multiple files to be selected.
 --

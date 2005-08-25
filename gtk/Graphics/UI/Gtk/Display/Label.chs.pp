@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/08/20 13:25:18 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -759,7 +759,7 @@ labelMnemonicWidget = newAttr
 -- Default value: 0
 --
 labelCursorPosition :: LabelClass self => ReadAttr self Int
-labelCursorPosition = readAttrFromIntProperty "cursor_position"
+labelCursorPosition = readAttrFromIntProperty "cursor-position"
 
 -- | The position of the opposite end of the selection from the cursor in
 -- chars.
@@ -769,7 +769,7 @@ labelCursorPosition = readAttrFromIntProperty "cursor_position"
 -- Default value: 0
 --
 labelSelectionBound :: LabelClass self => ReadAttr self Int
-labelSelectionBound = readAttrFromIntProperty "selection_bound"
+labelSelectionBound = readAttrFromIntProperty "selection-bound"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The preferred place to ellipsize the string, if the label does not have
@@ -804,7 +804,12 @@ labelWidthChars = newAttr
   labelGetWidthChars
   labelSetWidthChars
 
--- | 
+-- | Whether the label is in single line mode. In single line mode, the height
+-- of the label does not depend on the actual text, it is always set to ascent
+-- + descent of the font. This can be an advantage in situations where resizing
+-- the label because of text changes would be distracting, e.g. in a statusbar.
+--
+-- Default value: @False@
 --
 labelSingleLineMode :: LabelClass self => Attr self Bool
 labelSingleLineMode = newAttr

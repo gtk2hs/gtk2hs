@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/14 01:54:26 $
+--  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:14 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -54,27 +54,28 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- > <!ELEMENT toolitem     EMPTY >
 -- > <!ELEMENT separator    EMPTY >
 -- > <!ELEMENT accelerator  EMPTY >
--- > <!ATTLIST menubar      name               #IMPLIED 
--- >                        action             #IMPLIED >
--- > <!ATTLIST toolbar      name               #IMPLIED 
--- >                        action             #IMPLIED >
--- > <!ATTLIST popup        name               #IMPLIED 
--- >                        action             #IMPLIED >
--- > <!ATTLIST placeholder  name               #IMPLIED
--- >                        action             #IMPLIED >
--- > <!ATTLIST separator    name               #IMPLIED
--- >                        action             #IMPLIED >
--- > <!ATTLIST menu         name               #IMPLIED
--- >                        action             #REQUIRED
--- >                        position (top|bot) #IMPLIED >
--- > <!ATTLIST menuitem     name               #IMPLIED
--- >                        action             #REQUIRED
--- >                        position (top|bot) #IMPLIED >
--- > <!ATTLIST toolitem     name               #IMPLIED
--- >                        action             #REQUIRED
--- >                        position (top|bot) #IMPLIED >
--- > <!ATTLIST accelerator  name               #IMPLIED
--- >                        action             #REQUIRED >
+-- > <!ATTLIST menubar      name                  #IMPLIED 
+-- >                        action                #IMPLIED >
+-- > <!ATTLIST toolbar      name                  #IMPLIED 
+-- >                        action                #IMPLIED >
+-- > <!ATTLIST popup        name                  #IMPLIED 
+-- >                        action                #IMPLIED >
+-- > <!ATTLIST placeholder  name                  #IMPLIED
+-- >                        action                #IMPLIED
+-- >                        expand   (true|false) #IMPLIED >
+-- > <!ATTLIST separator    name                  #IMPLIED
+-- >                        action                #IMPLIED >
+-- > <!ATTLIST menu         name                  #IMPLIED
+-- >                        action                #REQUIRED
+-- >                        position (top|bot)    #IMPLIED >
+-- > <!ATTLIST menuitem     name                  #IMPLIED
+-- >                        action                #REQUIRED
+-- >                        position (top|bot)    #IMPLIED >
+-- > <!ATTLIST toolitem     name                  #IMPLIED
+-- >                        action                #REQUIRED
+-- >                        position (top|bot)    #IMPLIED >
+-- > <!ATTLIST accelerator  name                  #IMPLIED
+-- >                        action                #REQUIRED >
 --
 -- There are some additional restrictions beyond those specified in the DTD,
 -- e.g. every toolitem must have a toolbar in its anchestry and every menuitem
@@ -131,7 +132,9 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 --
 -- [menuitem] a 'MenuItem' subclass, the exact type depends on the action
 --
--- [toolitem] a 'ToolItem' subclass, the exact type depends on the action
+-- [toolitem] a 'ToolItem' subclass, the exact type depends on the action.
+-- Note that toolitem elements may contain a menu element, but only if their
+-- associated action specifies a 'MenuToolButton' as proxy.
 --
 -- [separator] a 'SeparatorMenuItem' or 'SeparatorToolItem'
 --
@@ -169,6 +172,10 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 -- hidden. This is a useful feature, since the merging of UI elements from
 -- multiple sources can make it hard or impossible to determine in advance
 -- whether a separator will end up in such an unfortunate position.
+--
+-- For separators in toolbars, you can set @expand=\"true\"@ to turn them
+-- from a small, visible separator to an expanding, invisible one. Toolitems
+-- following an expanding separator are effectively right-aligned.
 
 -- ** Empty Menus
 -- 
@@ -180,7 +187,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
 --
 -- * add an insensitive \"Empty\" item
 --
--- The behaviour is chosen based on the \"is_important\" property of the
+-- The behaviour is chosen based on the \"hide_if_empty\" property of the
 -- action to which the submenu is associated.
 -- 
 
@@ -247,6 +254,7 @@ import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.GError
 import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -450,6 +458,9 @@ uiManagerAddUiFromFile self filename =
 -- @path@. Otherwise @type@ must indicate an element that can be inserted at
 -- the place determined by @path@.
 --
+-- If @path@ points to a menuitem or toolitem, the new element will be
+-- inserted before or after this item, depending on @top@.
+--
 uiManagerAddUi :: UIManager
  -> MergeId             -- ^ @mergeId@ - the merge id for the merged UI, see
                         -- 'uiManagerNewMergeId'
@@ -531,6 +542,13 @@ uIManagerAddTearoffs :: Attr UIManager Bool
 uIManagerAddTearoffs = newAttr
   uiManagerGetAddTearoffs
   uiManagerSetAddTearoffs
+
+-- | An XML string describing the merged UI.
+--
+-- Default value: ""
+--
+uIManagerUi :: ReadAttr UIManager String
+uIManagerUi = readAttrFromStringProperty "ui"
 
 --------------------
 -- Signals

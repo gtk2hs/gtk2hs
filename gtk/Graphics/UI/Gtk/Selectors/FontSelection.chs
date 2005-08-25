@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/05/08 12:23:11 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -102,7 +102,8 @@ fontSelectionNew =
 -- | Gets the currently-selected font name.
 --
 fontSelectionGetFontName :: FontSelectionClass self => self
- -> IO (Maybe String) -- ^ returns @Nothing@ if no font is selected.
+ -> IO (Maybe String) -- ^ returns the name of the currently selected font, or
+                      -- @Nothing@ if no font is selected.
 fontSelectionGetFontName self =
   {# call unsafe font_selection_get_font_name #}
     (toFontSelection self)

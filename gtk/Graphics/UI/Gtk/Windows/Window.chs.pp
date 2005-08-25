@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.16 $ from $Date: 2005/08/03 01:25:08 $
+--  Version $Revision: 1.17 $ from $Date: 2005/08/25 01:16:15 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -144,6 +144,11 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetIconFromFile,
   windowSetAutoStartupNotification,
 #endif
+#if GTK_CHECK_VERSION(2,8,0)
+  windowPresentWithTime,
+  windowSetUrgencyHint,
+  windowGetUrgencyHint,
+#endif
 
 -- * Attributes
   windowTitle,
@@ -164,6 +169,9 @@ module Graphics.UI.Gtk.Windows.Window (
 #if GTK_CHECK_VERSION(2,2,0)
   windowSkipTaskbarHint,
   windowSkipPagerHint,
+#endif
+#if GTK_CHECK_VERSION(2,8,0)
+  windowUrgencyHint,
 #endif
 #if GTK_CHECK_VERSION(2,4,0)
   windowAcceptFocus,
@@ -477,6 +485,9 @@ windowHasToplevelFocus self =
 -- already open. Say for example the preferences dialog is currently open, and
 -- the user chooses Preferences from the menu a second time; use
 -- 'windowPresent' to move the already-open dialog where the user can see it.
+--
+-- If you are calling this function in response to a user interaction, it is
+-- preferable to use 'windowPresentWithTime'.
 --
 windowPresent :: WindowClass self => self -> IO ()
 windowPresent self =
@@ -1277,6 +1288,47 @@ windowGetTypeHint self =
   {# call gtk_window_get_type_hint #}
     (toWindow self)
 
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Presents a window to the user in response to a user interaction. If you
+-- need to present a window without a timestamp, use 'windowPresent'. See
+-- 'windowPresent' for details.
+--
+-- * Available since Gtk+ version 2.8
+--
+windowPresentWithTime :: WindowClass self => self
+ -> Integer -- ^ @timestamp@ - the timestamp of the user interaction (typically
+            -- a button or key press event) which triggered this call
+ -> IO ()
+windowPresentWithTime self timestamp =
+  {# call gtk_window_present_with_time #}
+    (toWindow self)
+    (fromIntegral timestamp)
+
+-- | Windows may set a hint asking the desktop environment to draw the users
+-- attention to the window. This function sets this hint.
+--
+-- * Available since Gtk+ version 2.8
+--
+windowSetUrgencyHint :: WindowClass self => self
+ -> Bool  -- ^ @setting@ - @True@ to mark this window as urgent
+ -> IO ()
+windowSetUrgencyHint self setting =
+  {# call gtk_window_set_urgency_hint #}
+    (toWindow self)
+    (fromBool setting)
+
+-- | Gets the value set by 'windowSetUrgencyHint'
+--
+-- * Available since Gtk+ version 2.8
+--
+windowGetUrgencyHint :: WindowClass self => self
+ -> IO Bool -- ^ returns @True@ if window is urgent
+windowGetUrgencyHint self =
+  liftM toBool $
+  {# call gtk_window_get_urgency_hint #}
+    (toWindow self)
+#endif
+
 --------------------
 -- Attributes
 
@@ -1300,14 +1352,14 @@ windowType = newAttrFromEnumProperty "type"
 -- Default value: @False@
 --
 windowAllowShrink :: WindowClass self => Attr self Bool
-windowAllowShrink = newAttrFromBoolProperty "allow_shrink"
+windowAllowShrink = newAttrFromBoolProperty "allow-shrink"
 
 -- | If @True@, users can expand the window beyond its minimum size.
 --
 -- Default value: @True@
 --
 windowAllowGrow :: WindowClass self => Attr self Bool
-windowAllowGrow = newAttrFromBoolProperty "allow_grow"
+windowAllowGrow = newAttrFromBoolProperty "allow-grow"
 
 -- | If @True@, users can resize the window.
 --
@@ -1333,7 +1385,7 @@ windowModal = newAttr
 -- Default value: 'WinPosNone'
 --
 windowWindowPosition :: WindowClass self => Attr self WindowPosition
-windowWindowPosition = newAttrFromEnumProperty "window_position"
+windowWindowPosition = newAttrFromEnumProperty "window-position"
 
 -- | The default width of the window, used when initially showing the window.
 --
@@ -1342,7 +1394,7 @@ windowWindowPosition = newAttrFromEnumProperty "window_position"
 -- Default value: -1
 --
 windowDefaultWidth :: WindowClass self => Attr self Int
-windowDefaultWidth = newAttrFromIntProperty "default_width"
+windowDefaultWidth = newAttrFromIntProperty "default-width"
 
 -- | The default height of the window, used when initially showing the window.
 --
@@ -1351,7 +1403,7 @@ windowDefaultWidth = newAttrFromIntProperty "default_width"
 -- Default value: -1
 --
 windowDefaultHeight :: WindowClass self => Attr self Int
-windowDefaultHeight = newAttrFromIntProperty "default_height"
+windowDefaultHeight = newAttrFromIntProperty "default-height"
 
 -- | If this window should be destroyed when the parent is destroyed.
 --
@@ -1407,6 +1459,16 @@ windowSkipPagerHint = newAttr
   windowGetSkipPagerHint
   windowSetSkipPagerHint
 #endif
+
+-- | @True@ if the window should be brought to the user's attention.
+--
+-- Default value: @False@
+--
+windowUrgencyHint :: WindowClass self => Attr self Bool
+windowUrgencyHint = newAttr
+  windowGetUrgencyHint
+  windowSetUrgencyHint
+
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | @True@ if the window should receive the input focus.
