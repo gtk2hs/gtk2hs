@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.1 $ from $Date: 2005/08/20 13:25:19 $
+--  Version $Revision: 1.2 $ from $Date: 2005/08/25 22:57:51 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -66,7 +66,7 @@ module Graphics.UI.Gtk.Pango.Layout (
   LayoutWrapMode(..),
   layoutSetWrap,
   layoutGetWrap,
-#if GTK_CHECK_VERSION(2,4,0)
+#if PANGO_CHECK_VERSION(1,6,0)
   EllipsizeMode(..),
   layoutSetEllipsize,
   layoutGetEllipsize,
@@ -128,6 +128,7 @@ import Graphics.UI.Gtk.Pango.Markup	(Markup)
 import Graphics.UI.Gtk.General.Enums
 import Graphics.UI.Gtk.General.Structs	(Rectangle, pangoScale)
 {#import Graphics.UI.Gtk.Pango.Types#}
+{#import Graphics.UI.Gtk.Pango.Enums#}	(EllipsizeMode(..))
 import Graphics.UI.Gtk.Pango.Rendering  -- for haddock
 import Data.IORef
 import Control.Exception ( throwIO,
@@ -309,21 +310,7 @@ layoutGetWrap :: PangoLayout -> IO LayoutWrapMode
 layoutGetWrap (PangoLayout _ pl) = liftM (toEnum.fromIntegral) $
   {#call unsafe layout_get_wrap#} pl
 
-#if GTK_CHECK_VERSION(1,4,0)
--- | Ellipsize a text if it is too long.
---
--- * The 'EllipsizeMode' type describes what sort of (if any) ellipsization
---   should be applied to a line of text. In the ellipsization process
---   characters are removed from the text in order to make it fit to a given
---   width and replaced with an ellipsis.
---
-{#enum PangoEllipsizeMode as EllipsizeMode
-  {underscoreToCase,
-  PANGO_ELLIPSIZE_NONE as EllipsizeNone,
-  PANGO_ELLIPSIZE_START as EllipsizeStart,
-  PANGO_ELLIPSIZE_MIDDLE as EllipsizeMiddle,
-  PANGO_ELLIPSIZE_END as EllipsizeEnd } #}
-
+#if PANGO_CHECK_VERSION(1,6,0)
 -- | Set how long lines should be abbreviated.
 --
 layoutSetEllipsize :: PangoLayout -> EllipsizeMode -> IO ()
@@ -335,7 +322,6 @@ layoutSetEllipsize (PangoLayout _ pl) em =
 layoutGetEllipsize :: PangoLayout -> IO EllipsizeMode
 layoutGetEllipsize (PangoLayout _ pl) = liftM (toEnum.fromIntegral) $
   {#call unsafe layout_get_ellipsize#} pl
-
 #endif
 
 -- | Set the indentation of this paragraph.
