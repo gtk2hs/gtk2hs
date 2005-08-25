@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.5 $ from $Date: 2005/08/20 13:25:19 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/25 13:10:06 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -376,9 +376,9 @@ crAttr c AttrRise { paStart=s, paEnd=e, paRise = pu } =
 #if PANGO_CHECK_VERSION(1,8,0)
 crAttr c AttrShape { paStart=s, paEnd=e, paInk = rect1, paLogical = rect2 } =
   setAttrPos c s e $ alloca $ \rect1Ptr -> alloca $ \rect2Ptr -> do
-    poke rect1Ptr rect1
-    poke rect2Ptr rect2
-    {#call unsafe attr_shape_new#} rect1 rect2
+    poke rect1Ptr (toRect rect1)
+    poke rect2Ptr (toRect rect2)
+    {#call unsafe attr_shape_new#} (castPtr rect1Ptr) (castPtr rect2Ptr)
 #endif
 crAttr c AttrScale { paStart=s, paEnd=e, paScale = scale } =
   setAttrPos c s e $ 
