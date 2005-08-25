@@ -22,6 +22,9 @@
 
 	* configure.ac: Add cases for Gtk+ 2.8.
 
+	* tools/callbackGen/gtkmarshal.list: add new signal type needed by
+	some new Gtk+ 2.8 signal.
+
 2005-08-20  Axel Simon <A.Simon@kent.ac.uk>
 
 	* glib/System/Glib/UTFString.hs, gtk/Graphics/UI/Gtk.hs,
