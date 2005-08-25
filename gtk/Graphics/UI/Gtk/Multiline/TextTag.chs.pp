@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.10 $ from $Date: 2005/08/25 23:06:20 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -431,7 +431,7 @@ textTagInvisible = newAttrFromBoolProperty "invisible"
 
 -- | The paragraph background color as a string.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 textTagParagraphBackground :: TextTagClass self => WriteAttr self String
 textTagParagraphBackground = writeAttrFromStringProperty "paragraph-background"

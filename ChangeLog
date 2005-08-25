@@ -1,3 +1,17 @@
+2005-08-25 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp: remove the definition of
+	the EllipsizeMode and import the version that already existed in the
+	Pango.Enum module instead. And use the PANGO_CHECK_VERSION test.
+
+	* gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: use the PANGO_CHECK_VERSION
+	test rather than GTK_CHECK_VERSION.
+
+	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp,
+	gtk/Graphics/UI/Gtk/Display/Image.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp: trivial haddock fixes.
+
 2005-08-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mk/common.mk: strip two suffixes off to get the package name, due to

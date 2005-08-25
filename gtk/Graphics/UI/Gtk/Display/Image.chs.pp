@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:14 $
+--  Version $Revision: 1.12 $ from $Date: 2005/08/25 23:06:20 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -375,7 +375,7 @@ imageMask = newAttrFromObjectProperty "mask"
 
 -- | Filename to load and display.
 --
--- Default value: ""
+-- Default value: \"\"
 --
 imageFile :: Attr Image String
 imageFile = newAttrFromStringProperty "file"
