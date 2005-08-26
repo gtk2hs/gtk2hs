@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.12 $ from $Date: 2005/08/26 07:49:53 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -131,7 +131,9 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
   castToFileChooser,
   FileChooserAction(..),
   FileChooserError(..),
+#if GTK_CHECK_VERSION(2,8,0)
   FileChooserConfirmation(..),
+#endif
 
 -- * Methods
   fileChooserSetAction,
@@ -213,9 +215,10 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 --  afterSelectionChanged,
   onUpdatePreview,
   afterUpdatePreview,
+#if GTK_CHECK_VERSION(2,8,0)
   onConfirmOverwrite,
   afterConfirmOverwrite,
-
+#endif
 #endif
   ) where
 
@@ -234,9 +237,27 @@ import System.Glib.GError		(propagateGError, GErrorDomain, GErrorClass(..))
 
 #if GTK_CHECK_VERSION(2,4,0)
 
+-- |  Describes whether a 'FileChooser' is being used to open existing files
+-- or to save to a possibly new file.
 {# enum FileChooserAction {underscoreToCase} #}
+
+-- |  These identify the various errors that can occur while calling
+-- 'FileChooser' functions.
 {# enum FileChooserError {underscoreToCase} #}
+
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- |  Used as a return value of handlers for the 'onConfirmOverwrite'
+--  signal of a 'FileChooser'.
+--
+-- * This value determines whether the file chooser will present the stock
+--   confirmation dialog, accept the user's choice of a filename, or let
+--   the user choose another filename.
+--
+-- Since Gtk 2.8.
+--
 {# enum FileChooserConfirmation {underscoreToCase} #}
+#endif
 
 --------------------
 -- Methods
@@ -885,7 +906,7 @@ fileChooserListShortcutFolderURIs self =
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Sets whether hidden files and folders are displayed in the file selector.
 --
--- * Available since Gtk+ version 2.6
+-- Available since Gtk+ version 2.6
 --
 fileChooserSetShowHidden :: FileChooserClass self => self
  -> Bool  -- ^ @showHidden@ - @True@ if hidden files and folders should be
@@ -922,7 +943,7 @@ fileChooserGetShowHidden self =
 -- the \"confirm-overwrite\" signal; please refer to its documentation for the
 -- details.
 --
--- * Available since Gtk+ version 2.8
+-- Available since Gtk+ version 2.8
 --
 fileChooserSetDoOverwriteConfirmation :: FileChooserClass self => self
  -> Bool  -- ^ @doOverwriteConfirmation@ - whether to confirm overwriting in
@@ -962,6 +983,7 @@ fileChooserUsePreviewLabel = newAttr
 -- | \'showHidden\' property. See 'fileChooserGetShowHidden' and
 -- 'fileChooserSetShowHidden'
 --
+-- Since Gtk 2.6.
 fileChooserShowHidden :: FileChooserClass self => Attr self Bool
 fileChooserShowHidden = newAttr
   fileChooserGetShowHidden
@@ -1016,6 +1038,7 @@ fileChooserExtraWidget = newAttr
   fileChooserGetExtraWidget
   fileChooserSetExtraWidget
 
+#if GTK_CHECK_VERSION(2,8,0)
 -- | \'doOverwriteConfirmation\' property. See
 -- 'fileChooserGetDoOverwriteConfirmation' and
 -- 'fileChooserSetDoOverwriteConfirmation'
@@ -1024,6 +1047,7 @@ fileChooserDoOverwriteConfirmation :: FileChooserClass self => Attr self Bool
 fileChooserDoOverwriteConfirmation = newAttr
   fileChooserGetDoOverwriteConfirmation
   fileChooserSetDoOverwriteConfirmation
+#endif
 
 -- | \'action\' property. See 'fileChooserGetAction' and
 -- 'fileChooserSetAction'
@@ -1113,6 +1137,7 @@ onFileActivated, afterFileActivated :: FileChooserClass self => self
 onFileActivated = connect_NONE__NONE "file-activated" False
 afterFileActivated = connect_NONE__NONE "file-activated" True
 
+#if GTK_CHECK_VERSION(2,8,0)
 -- | This signal gets emitted whenever it is appropriate to present a
 -- confirmation dialog when the user has selected a file name that already
 -- exists. The signal only gets emitted when the file chooser is in
@@ -1133,11 +1158,15 @@ afterFileActivated = connect_NONE__NONE "file-activated" True
 -- that the stock confirmation dialog should be used, it should return
 -- 'FileChooserConfirmationConfirm'.
 --
+-- Since Gtk 2.8.
+--
 onConfirmOverwrite, afterConfirmOverwrite :: FileChooserClass self => self
  -> IO FileChooserConfirmation
  -> IO (ConnectId self)
 onConfirmOverwrite = connect_NONE__ENUM "confirm-overwrite" False
 afterConfirmOverwrite = connect_NONE__ENUM "confirm-overwrite" True
+#endif
+
 #endif
 
 ------------------------------------------------------

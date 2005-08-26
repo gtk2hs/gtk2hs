@@ -1,3 +1,16 @@
+2005-08-26  Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: Derive Ord for Modifiers.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp: Pass a
+	TextTagTable as the Maybe argument to textBufferNew. Using a class
+	context only fails to compile if Nothing is passed in.
+
+	* gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs.pp: Conditionally
+	compile some functions for Gtk versions earlier than 2.8.
+	
 2005-08-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp: remove the definition of

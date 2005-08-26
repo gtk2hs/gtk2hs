@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.17 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.18 $ from $Date: 2005/08/26 07:49:53 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -1460,6 +1460,7 @@ windowSkipPagerHint = newAttr
   windowSetSkipPagerHint
 #endif
 
+#if GTK_CHECK_VERSION(2,8,0)
 -- | @True@ if the window should be brought to the user's attention.
 --
 -- Default value: @False@
@@ -1468,7 +1469,7 @@ windowUrgencyHint :: WindowClass self => Attr self Bool
 windowUrgencyHint = newAttr
   windowGetUrgencyHint
   windowSetUrgencyHint
-
+#endif
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | @True@ if the window should receive the input focus.

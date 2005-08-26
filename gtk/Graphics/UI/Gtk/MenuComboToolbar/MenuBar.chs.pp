@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.3 $ from $Date: 2005/08/26 07:49:53 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -49,7 +49,9 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuBar (
   MenuBar,
   MenuBarClass,
   castToMenuBar,
+#if GTK_CHECK_VERSION(2,8,0)
   PackDirection(..),
+#endif
 
 -- * Constructors
   menuBarNew,
@@ -79,7 +81,11 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,8,0)
+-- | Determines how to pack a menu bar: left-to-right, right-to-left,
+-- top-to-bottom or bottom-to-top.
 {# enum PackDirection {underscoreToCase} #}
+#endif
 
 --------------------
 -- Constructors

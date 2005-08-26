@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/07/30 18:52:08 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/26 07:49:53 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -103,7 +103,7 @@ data Modifier
   | Apple
   -- | Compose is often labelled Alt Gr.
   | Compose
-  deriving (Eq, Bounded)
+  deriving (Eq, Ord, Bounded)
 
 instance Enum Modifier where
   toEnum #{const GDK_SHIFT_MASK} = Shift

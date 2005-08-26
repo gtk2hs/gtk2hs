@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/26 07:49:53 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -194,8 +194,8 @@ import Graphics.UI.Gtk.Multiline.TextTag	(TextTag, TagName)
 
 -- | Creates a new text buffer.
 --
-textBufferNew :: TextTagTableClass table => 
-    Maybe table   -- ^ @table@ - a tag table, or @Nothing@ to create a new one
+textBufferNew :: 
+    Maybe TextTagTable   -- ^ @table@ - a tag table, or @Nothing@ to create a new one
  -> IO TextBuffer
 textBufferNew table =
   makeNewGObject mkTextBuffer $
