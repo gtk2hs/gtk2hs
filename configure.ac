@@ -241,8 +241,8 @@ AC_ARG_WITH(pkgconf,
 
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
-PKG_CHECK_MODULES(GLIB,[gobject-2.0 >= 2.0.0])
-PKG_CHECK_MODULES(GTK,[gdk-2.0 >= 2.0.0 gtk+-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0])
+PKG_CHECK_MODULES(GLIB,[glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0])
+PKG_CHECK_MODULES(GTK,[pango >= 1.0.0 gdk-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0 gtk+-2.0 >= 2.0.0])
 
 dnl Find the Gtk installation prefix which is used in packager mode on windows
 dnl for preparing the package files.
