@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/08/27 14:26:18 $
+--  Version $Revision: 1.2 $ from $Date: 2005/08/27 14:42:56 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -57,7 +57,7 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs (Rectangle(..), Color(..))
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
-import Graphics.Rendering.Cairo.Types as Cairo
+{#import Graphics.Rendering.Cairo.Types#} as Cairo
 import Graphics.Rendering.Cairo.Internal as Cairo
 #endif
 
