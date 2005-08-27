@@ -1,3 +1,27 @@
+2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,
+	cairo/cairo.package.conf.in, cairo/cairo.cabal.in,
+	cairo/Graphics/Rendering/Cairo.hs,
+	cairo/Graphics/Rendering/Cairo/Types.chs,
+	cairo/Graphics/Rendering/Cairo/Matrix.chs,
+	cairo/Graphics/Rendering/Cairo/PDF.hs,
+	cairo/Graphics/Rendering/Cairo/PS.hs,
+	cairo/Graphics/Rendering/Cairo/Internal.hs,
+	cairo/Graphics/Rendering/Cairo/Internal/Utilities.chs
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Cairo.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Paths.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Patterns.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Text.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Transformations.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Fonts/FontOptions.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Surface.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Image.chs
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs,
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs: add cairo
+	bindings package by Paolo Martini.
+
 2005-08-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add glib and pango to the PKG_CHECK_MODULES test.

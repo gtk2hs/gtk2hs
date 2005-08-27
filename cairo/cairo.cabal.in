@@ -1,0 +1,12 @@
+name: cairo
+version: @PACKAGE_VERSION@
+license: BSD
+license-file: cairo/COPYRIGHT
+copyright: (c) Paolo Martini 2005, (c) Abraham Egnor 2003, 2004, (c) Aetion Technologies LLC 2004
+author: Paolo Martini
+maintainer: gtk2hs-devel@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+category: Graphics
+build-depends: haskell98 mtl glib==@PACKAGE_VERSION@
+exposed-modules: ${modules}
