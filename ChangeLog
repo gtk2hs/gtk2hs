@@ -22,6 +22,17 @@
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs: add cairo
 	bindings package by Paolo Martini.
 
+	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: add Gtk/cairo integration module.
+
+	* gtk/Graphics/UI/Gtk.hs: re-export the Graphics.UI.Gtk.Cairo module.
+
+	* configure.ac, Makefile.am: add the cairo package to the build sytem.
+
+	* gtk/gtk.pkg.in, gtk/gtk.package.conf.in, gtk/gtk.cabal.in: make the
+	gtk package depend on the cairo package if we're building with cairo.
+
+	* AUTHORS: add Paolo Martini.
+
 2005-08-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add glib and pango to the PKG_CHECK_MODULES test.

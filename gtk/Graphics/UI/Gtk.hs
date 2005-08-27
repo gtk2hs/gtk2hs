@@ -6,7 +6,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.15 $ from $Date: 2005/08/20 13:25:17 $
+--  Version $Revision: 1.16 $ from $Date: 2005/08/27 14:26:18 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -48,6 +48,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.General.StockItems,
   module Graphics.UI.Gtk.Gdk.Keys,
   module Graphics.UI.Gtk.General.Style,
+  -- * Drawing
   module Graphics.UI.Gtk.Gdk.Drawable,
   module Graphics.UI.Gtk.Gdk.DrawWindow,
   module Graphics.UI.Gtk.Gdk.Region,
@@ -55,6 +56,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.Pixbuf,
   module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Gdk,
+  -- ** cairo integration
+  module Graphics.UI.Gtk.Cairo,
   -- * Windows
   module Graphics.UI.Gtk.Windows.Window,
   module Graphics.UI.Gtk.Windows.Dialog,
@@ -213,6 +216,7 @@ module Graphics.UI.Gtk (
 import Graphics.UI.Gtk.General.General
 import Graphics.UI.Gtk.General.IconFactory
 import Graphics.UI.Gtk.General.StockItems
+-- drawing
 import Graphics.UI.Gtk.Gdk.Keys
 import Graphics.UI.Gtk.General.Style
 import Graphics.UI.Gtk.Gdk.Drawable
@@ -222,6 +226,8 @@ import Graphics.UI.Gtk.Gdk.GC
 import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
 import Graphics.UI.Gtk.Gdk.Gdk
+-- cairo integration
+import Graphics.UI.Gtk.Cairo
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog
 import Graphics.UI.Gtk.Windows.Window

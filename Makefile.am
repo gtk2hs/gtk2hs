@@ -42,6 +42,9 @@ endif
 if ENABLE_MOZEMBED
 pkglib_LIBRARIES += libHSmozembed.a
 endif
+if ENABLE_CAIRO
+pkglib_LIBRARIES += libHScairo.a
+endif
 
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
@@ -331,6 +334,11 @@ libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 libHSgtk_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) gtk
 gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
 
+if ENABLE_CAIRO
+libHSgtk_a_SOURCESDIRS += cairo
+gtk/libHSgtk_a.deps	: cairo/libHScairo_a.deps
+endif
+
 libHSgtk_a_GENERATEDSOURCES =						\
 	gtk/Graphics/UI/Gtk/Types.chs					\
 	gtk/Graphics/UI/Gtk/Signals.chs
@@ -481,7 +489,8 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
 	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs			\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
-	gtk/Graphics/UI/Gtk/Pango/Markup.hs
+	gtk/Graphics/UI/Gtk/Pango/Markup.hs                             \
+        gtk/Graphics/UI/Gtk/Cairo.chs
 
 if !WIN32
 libHSgtk_a_SOURCES +=							\
@@ -1000,6 +1009,90 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
  endif
 
 endif #ENABLE_MOZEMBED
+
+#
+#	cairo package
+#
+################################################################################
+
+if ENABLE_CAIRO
+
+cairo_PKGNAME = libHScairo_a
+
+libHScairo_a_PACKAGE		= cairo/cairo.$(PKGEXT)
+libHScairo_a_PACKAGEDEPS	= 
+libHScairo_a_HEADER 		= cairo/cairo.h
+libHScairo_a_PRECOMP		= cairo/cairo.precomp
+libHScairo_a_LIBS		= $(CAIRO_LIBS)
+libHScairo_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHScairo_a_CFLAGS		= $(filter-out -I% -D%,$(CAIRO_CFLAGS))
+libHScairo_a_CPPFLAGS		= $(filter -I% -D%,$(CAIRO_CFLAGS)) -I.
+
+libHScairo_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) cairo
+cairo/libHScairo_a.deps: glib/libHSglib_a.deps
+
+libHScairo_a_GENERATEDSOURCES =
+
+nodist_libHScairo_a_SOURCES = $(libHScairo_a_GENERATEDSOURCES)
+
+libHScairo_a_SOURCES =							\
+	cairo/Graphics/Rendering/Cairo.hs                               \
+	cairo/Graphics/Rendering/Cairo/Matrix.chs                       \
+	cairo/Graphics/Rendering/Cairo/Types.chs                        \
+	cairo/Graphics/Rendering/Cairo/Internal.hs			\
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Cairo.chs       \
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Paths.chs       \
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Patterns.chs    \
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Text.chs        \
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Transformations.chs \
+	cairo/Graphics/Rendering/Cairo/Internal/Fonts/FontOptions.chs   \
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Image.chs      \
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs        \
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Surface.chs    \
+	cairo/Graphics/Rendering/Cairo/Internal/Utilities.chs
+#	cairo/Graphics/Rendering/Cairo/PDF.hs
+#	cairo/Graphics/Rendering/Cairo/PS.hs
+#	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs
+#	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs
+
+cairo_Graphics_Rendering_Cairo_hs_HCFLAGS = -fglasgow-exts
+
+html_HSFILES_HIDDEN += $(libHScairo_a_GENERATEDSOURCES:.chs=.hs)
+
+libHScairo_a_ALLSOURCES = $(libHScairo_a_SOURCES) $(nodist_libHScairo_a_SOURCES)
+
+am_libHScairo_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHScairo_a_ALLSOURCES))))
+
+libHScairo_a_CHSPPFILES = $(filter %.chs.pp,$(libHScairo_a_ALLSOURCES))
+libHScairo_a_CHSFILES = \
+  $(filter %.chs,$(libHScairo_a_ALLSOURCES:.chs.pp=.chs))
+libHScairo_a_CHSFILES_HS = $(libHScairo_a_CHSFILES:.chs=.hs)
+libHScairo_a_HSCFILES = $(filter %.hsc, $(libHScairo_a_ALLSOURCES))
+libHScairo_a_HSCFILES_HS = $(libHScairo_a_HSCFILES:.hsc=.hs)
+libHScairo_a_BUILDSOURCES = \
+	$(libHScairo_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHScairo_a_CHSFILES_HS) \
+        $(libHScairo_a_HSCFILES_HS) \
+        $(libHScairo_a_GENERATEDSOURCES)
+libHScairo_a_HSFILES  = \
+	$(filter %.hs,$(libHScairo_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHScairo_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHScairo_a_HSFILES:.hs=.hi)
+
+MOSTLYCLEANFILES += $(am_libHScairo_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHScairo_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += $(libHScairo_a_CHSFILES:.chs=.chi)
+CLEANFILES += $(libHScairo_a_BUILDSOURCES) 
+
+CLEANFILES+= cairo/libHScairo_a.deps $(libHScairo_a_CHSFILES_HS:.hs=.dep)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include $(libHScairo_a_CHSFILES:.chs=.dep) cairo/libHScairo_a.deps
+ endif
+
+endif #ENABLE_CAIRO
 
 #
 #	documentation

@@ -271,6 +271,10 @@ dnl GTKHS_PKG_CHECK(opengl, gtkgl, GTKGL, [gtkgl-2.0 >= 1.99.0],
 dnl 	[build GtkGLArea package (default=auto)],
 dnl 	[GtkGLArea library requirement not met. Perhaps you need to install gtkglarea or gtkglarea-devel])
 
+GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0],
+	[build bindings for the cairo vector graphics system (default=auto)],
+	[cairo requirement not met. Perhaps you need to install cairo or cairo-devel])
+
 
 dnl The following is a hack to fix the fact that
 dnl "pkg-config --libs mozilla-gtkmozembed" does not give us all the right
@@ -364,6 +368,16 @@ if $PKG_CONFIG gtk+-2.0 --exact-version 2.1.0; then
   that for some reason Sun decided it'd be a really good idea for them to ship. Grrr.])
 fi
 
+dnl If we're building with Gtk+ 2.8 or later then we also depend on the cairo
+dnl bindings for Haskell. So set the GTK_CAIRO_DEPEND variable to the
+dnl appropaiate value to substitute into the gtk package files
+
+if test "$HAVE_GTK_VERSION_2_8" = "yes" -a "$ENABLE_CAIRO" = "yes"; then
+  GTK_CAIRO_DEPEND=", \"cairo\""
+  AC_DEFINE(ENABLE_CAIRO, [],
+  [Whether or not to build the gtk/cairo integration code.])
+fi
+
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
 dnl does not like that, so we need to filter out non-existent directories.
@@ -387,6 +401,9 @@ GTKHS_PACKAGE_FILTER_LIBS([GCONF_LIBS], [$GLIB_LIBS], [$GCONF_LIBS])
 
 GTKHS_PACKAGE_FILTER_CFLAGS([MOZEMBED_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$MOZEMBED_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([MOZEMBED_LIBS], [$GLIB_LIBS $GTK_LIBS], [$MOZEMBED_LIBS])
+
+GTKHS_PACKAGE_FILTER_CFLAGS([CAIRO_CFLAGS], [], [$CAIRO_CFLAGS])
+GTKHS_PACKAGE_FILTER_LIBS([CAIRO_LIBS], [], [$CAIRO_LIBS])
 
 
 dnl Change the representation of these flags to "flag1","flag2". The
@@ -438,6 +455,14 @@ AC_SUBST(MOZEMBED_CFLAGS_CQ)
 AC_SUBST(MOZEMBED_LIBS_CQ)
 AC_SUBST(MOZEMBED_LIBDIR_CQ)
 AC_SUBST(MOZEMBED_LIBEXTRA_CQ)
+
+GTKHS_REFORMAT_PACKAGE_CFLAGS(CAIRO_CFLAGS, CAIRO_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(CAIRO_LIBS, CAIRO_LIBS_CQ, CAIRO_LIBDIR_CQ, CAIRO_LIBEXTRA_CQ)
+AC_SUBST(CAIRO_CFLAGS_CQ)
+AC_SUBST(CAIRO_LIBS_CQ)
+AC_SUBST(CAIRO_LIBDIR_CQ)
+AC_SUBST(CAIRO_LIBEXTRA_CQ)
+
 
 AC_ARG_WITH(hidir,
 	[  --with-hidir=DIR        specify install dir for .hi files],
@@ -688,6 +713,7 @@ AC_SUBST(LIBGLADE_CFLAGS)
 AC_SUBST(LIBGLADE_LIBS)
 AC_SUBST(GCONF_CFLAGS)
 AC_SUBST(GCONF_LIBS)
+AC_SUBST(GTK_CAIRO_DEPEND)
 dnl Documentation
 AC_SUBST(HADDOCK)
 AC_SUBST(GHC_DOCDIR)
@@ -741,6 +767,10 @@ AC_OUTPUT([
   mozembed/mozembed.pkg
   mozembed/mozembed.package.conf
   mozembed/mozembed.cabal
+  
+  cairo/cairo.pkg
+  cairo/cairo.package.conf
+  cairo/cairo.cabal
   ],
   [chmod a+x mk/chsDepend && chmod a+x install-sh])
 

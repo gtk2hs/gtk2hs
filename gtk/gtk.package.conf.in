@@ -13,5 +13,5 @@ hs-libraries: HSgtk
 extra-libraries: @GTK_LIBS_CQ@
 include-dirs: @GTK_CFLAGS_CQ@
 includes: gtk/gtk.h
-depends: glib-@PACKAGE_VERSION@
+depends: glib-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@
 ld-options: @GTK_LIBEXTRA_CQ@
