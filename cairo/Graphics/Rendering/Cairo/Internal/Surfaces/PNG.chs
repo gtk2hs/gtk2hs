@@ -28,7 +28,4 @@ imageSurfaceCreateFromPNG filename =
   withCString filename $ \filenamePtr ->
   {#call unsafe image_surface_create_from_png#} filenamePtr
 
-surfaceWriteToPNG :: Surface -> FilePath -> IO Status
-surfaceWriteToPNG surface filename = withCString filename $ \f ->
-  throwErrnoIf (/= StatusSuccess) "surfaceWriteToPNG" $
-    {#call unsafe surface_write_to_png#} surface f >>= return . cToEnum
+{#fun surface_write_to_png as surfaceWriteToPNG { unSurface `Surface', withCString* `FilePath' } -> `Status' cToEnum#}

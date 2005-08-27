@@ -35,6 +35,13 @@
 
 	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: make it build correctly.
 
+	* cairo/cairo.cabal.in, cairo/cairo.package.conf.in: use BSD3 rather
+	than BSD for the license field.
+
+	* cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs,
+	cairo/Graphics/Rendering/Cairo.hs: merge patches from Paolo to do the
+	error checking in surfaceWriteToPNG.
+
 2005-08-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: add glib and pango to the PKG_CHECK_MODULES test.

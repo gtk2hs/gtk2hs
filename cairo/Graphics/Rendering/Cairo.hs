@@ -480,8 +480,12 @@ withImageSurfaceFromPNG filename f =
                           liftIO $ Internal.surfaceDestroy surface
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
-surfaceWriteToPNG :: Surface -> FilePath -> Render Status
-surfaceWriteToPNG a b = liftIO $ Internal.surfaceWriteToPNG a b
+surfaceWriteToPNG :: Surface -> FilePath -> IO ()
+surfaceWriteToPNG surface filename = do
+  status <- Internal.surfaceWriteToPNG surface filename
+  unless (status == StatusSuccess) $
+    fail =<< Internal.statusToString status
+  return ()
 
 version :: Int
 version = Internal.version

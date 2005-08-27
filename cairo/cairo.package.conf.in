@@ -1,6 +1,6 @@
 name: cairo
 version: @PACKAGE_VERSION@
-license: BSD
+license: BSD3
 license-file: cairo/COPYRIGHT
 copyright: (c) Paolo Martini 2005, (c) Abraham Egnor 2003, 2004, (c) Aetion Technologies LLC 2004
 author: Paolo Martini
