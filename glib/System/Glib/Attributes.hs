@@ -25,7 +25,36 @@
 -- Stability   : experimental
 -- Portability : portable
 --
--- |
+-- Attributes interface
+--
+-- Attributes of an object can be get and set. Getting the value of an
+-- object's attribute is straingtforward. As an example consider a @button@
+-- widget and an attribute called @buttonLabel@.
+--
+-- > value <- get button buttonLabel
+--
+-- The syntax for setting or updating an attribute is only slightly more
+-- complex. At the simplest level it is just:
+--
+-- > set button [ buttonLabel := value ]
+--
+-- However as the list notation would indicate, you can set or update multiple
+-- attributes of the same object in one go:
+--
+-- > set button [ buttonLabel := value, buttonFocusOnClick := False ]
+--
+-- You are not limited to setting the value of an attribute, you can also
+-- apply an update function to an attribute's value. That is the function
+-- receives the current value of the attribute and returns the new value.
+--
+-- > set spinButton [ spinButtonValue :~ (+1) ]
+--
+-- There are other variants of these operators, (see 'Prop'). ':=>' and
+-- ':~>' and like ':=' and ':~' but operate in the 'IO' monad rather
+-- than being pure. There is also '::=' and '::~' which take the object
+-- as an extra parameter.
+--
+-- Attributes can be read only, write only or both read\/write.
 --
 module System.Glib.Attributes (
   -- * Attribute types
@@ -35,7 +64,7 @@ module System.Glib.Attributes (
   ReadWriteAttr,
 
   -- * Interface for getting, setting and updating attributes
-  Prop(..),
+  AttrOp(..),
   get,
   set,
   
@@ -73,9 +102,8 @@ writeAttr :: (o -> b -> IO ()) -> WriteAttr o b
 writeAttr setter = Attr (\_ -> return ()) setter
 
 
--- | A property of a object @o@ is an attribute that is already associated with
--- a value.
-data Prop o
+-- | A set or update operation on an attribute.
+data AttrOp o
   = forall a b.
       ReadWriteAttr o a b :=              b    -- ^ Assign a value to an
                                                --   attribute.
@@ -98,7 +126,7 @@ data Prop o
                                                --   as an argument.
 
 -- | Set a number of properties for some object.
-set :: w -> [Prop w] -> IO ()
+set :: o -> [AttrOp o] -> IO ()
 set obj = mapM_ app
  where
    app (Attr getter setter :=  x) = setter obj x
@@ -110,5 +138,5 @@ set obj = mapM_ app
    app (Attr getter setter ::~ f) = getter obj >>= \v -> setter obj (f obj v)
 
 -- | Get an Attr of an object.
-get :: w -> ReadWriteAttr w a b -> IO a
-get w (Attr getter setter) = getter w
+get :: o -> ReadWriteAttr o a b -> IO a
+get o (Attr getter setter) = getter o

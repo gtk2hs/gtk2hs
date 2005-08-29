@@ -37,6 +37,12 @@
 	* cairo/Graphics/Rendering/Cairo.hs: merge more documantation changes
 	by Paolo (and some small changes by myself).
 
+	* glib/System/Glib/Attributes.hs: improve the documentation for the
+	attributes api and rename the Prop type to something less confusing.
+
+	* glib/System/Glib/GError.chs.pp: simple doc reformatting and use
+	Gtk2Hs rather than gtk2hs.
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,

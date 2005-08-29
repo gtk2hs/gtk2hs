@@ -5,7 +5,7 @@
 --
 --  Created: 2 July 2004
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/19 02:15:32 $
+--  Version $Revision: 1.3 $ from $Date: 2005/08/29 21:14:35 $
 --
 --  Copyright (C) 2004 Duncan Coutts
 --  parts derived from Structs.hsc Copyright (c) 1999..2002 Axel Simon
@@ -43,18 +43,20 @@ module System.Glib.GError (
   GErrorMessage,
   
   -- * Catching GError exceptions
-  -- | To catch GError exceptions thrown by gtk2hs functions use the catchGError*
-  --   or handleGError* functions. They work in a similar way to the standard
-  --   'Control.Exception.catch' and 'Control.Exception.handle' functions.
+  -- | To catch GError exceptions thrown by Gtk2Hs functions use the
+  -- catchGError* or handleGError* functions. They work in a similar way to
+  -- the standard 'Control.Exception.catch' and 'Control.Exception.handle'
+  -- functions.
   --
-  --   'catchGError'\/'handleGError' catches all GError exceptions, you provide a
-  --   handler function that gets given the GError if an exception was thrown. This
-  --   is the most general but is probably not what you want most of the time. It
-  --   just gives you the raw error code rather than a Haskell enumeration of the
-  --   error codes. Most of the time you will only want to catch a specific error
-  --   or any error from a specific error domain. To catch just a single specific
-  --   error use 'catchGErrorJust'\/'handleGErrorJust'. To catch any error in a 
-  --   particular error domain use 'catchGErrorJustDomain'\/'handleGErrorJustDomain'
+  -- 'catchGError'\/'handleGError' catches all GError exceptions, you provide
+  -- a handler function that gets given the GError if an exception was thrown.
+  -- This is the most general but is probably not what you want most of the
+  -- time. It just gives you the raw error code rather than a Haskell
+  -- enumeration of the error codes. Most of the time you will only want to
+  -- catch a specific error or any error from a specific error domain. To
+  -- catch just a single specific error use
+  -- 'catchGErrorJust'\/'handleGErrorJust'. To catch any error in a particular
+  -- error domain use 'catchGErrorJustDomain'\/'handleGErrorJustDomain'
   --
   catchGError,
   catchGErrorJust,
@@ -70,14 +72,14 @@ module System.Glib.GError (
   -- * Checking for GErrors returned by glib\/gtk functions
   -- | * Note, these functions are only useful to implementors
   --
-  --   If you are wrapping a new API that reports 'GError's you should probably use
-  --   'propagateGError' to convert the GError into an exception. You should also
-  --   note in the documentation for the function that it throws GError exceptions
-  --   and the Haskell enumeration for the expected glib GError domain(s), so that
-  --   users know what exceptions they might want to catch.
+  -- If you are wrapping a new API that reports 'GError's you should probably
+  -- use 'propagateGError' to convert the GError into an exception. You should
+  -- also note in the documentation for the function that it throws GError
+  -- exceptions and the Haskell enumeration for the expected glib GError
+  -- domain(s), so that users know what exceptions they might want to catch.
   --
-  --   If you think it is more appropriate to use an alternate return value (eg
-  --   Either\/Maybe) then you should use 'checkGError' or 'checkGErrorWithCont'.
+  -- If you think it is more appropriate to use an alternate return value (eg
+  -- Either\/Maybe) then you should use 'checkGError' or 'checkGErrorWithCont'.
 
   GErrorClass(..),
   propagateGError,
