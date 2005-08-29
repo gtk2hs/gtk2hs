@@ -59,6 +59,10 @@
 	* Makefile.am: exclude the Gtk.Signals module from the haddock
 	documentation.
 
+	* configure.ac: bump version to 0.9.9.5 in preparation for a special
+	Gtk2Hs release including the cairo code. This is to mark the
+	completion of Paolo's Google Summer of Code project.
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,
