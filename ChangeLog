@@ -1,3 +1,11 @@
+2005-08-29 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* cairo/Graphics/Rendering/Cairo/Types.chs: merge patches from Paolo;
+	move the definition of the Render monad into the Types module.
+
+	* cairo/Graphics/Rendering/Cairo.hs: merge patches from Paolo; add
+	haddock documentation for many functions.
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,

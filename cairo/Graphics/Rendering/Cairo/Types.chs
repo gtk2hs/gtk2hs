@@ -13,6 +13,7 @@
 
 module Graphics.Rendering.Cairo.Types (
     Matrix(Matrix), MatrixPtr
+  , Render(..)
   , Cairo(Cairo), unCairo
   , Surface(Surface), unSurface
   , Pattern(Pattern), unPattern
@@ -58,8 +59,14 @@ import Foreign hiding (rotate)
 import CForeign
 
 import Monad (liftM)
+import Control.Monad.Reader
 
 {#context lib="cairo" prefix="cairo"#}
+
+-- newtype Render m = Render (ReaderT Cairo IO m)
+--   deriving (Functor, Monad, MonadIO, MonadReader Cairo)
+newtype Render m = Render { runRender :: ReaderT Cairo IO m }
+  deriving (Functor, Monad, MonadIO, MonadReader Cairo)
 
 {#pointer *cairo_t as Cairo newtype#}
 unCairo (Cairo x) = x
