@@ -28,6 +28,12 @@
 	* Makefile.am: build the cairo Types module using -fglasgow-exts and
 	exclude most other modules from the haddock docs.
 
+	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: merge patches from Paolo and
+	myself to make the Gtk cairo backend use the high level api style.
+
+	* demo/cairo/Drawing.hs: update the Gtk cairo demo to use the high
+	level api.
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,

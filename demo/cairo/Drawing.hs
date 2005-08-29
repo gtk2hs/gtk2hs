@@ -1,7 +1,6 @@
 -- Example of an drawing graphics onto a canvas.
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Cairo
-import qualified Graphics.Rendering.Cairo.Internal as Cairo
+import Graphics.Rendering.Cairo
 
 main = do
   initGUI
@@ -20,39 +19,40 @@ main = do
 updateCanvas :: DrawingArea -> PangoLayout -> Event -> IO Bool
 updateCanvas canvas text (Expose { area=rect }) = do
   win <- drawingAreaGetDrawWindow canvas
-  (width,height) <- drawingAreaGetSize canvas
+  (width',height') <- drawingAreaGetSize canvas
+  let width  = realToFrac width'
+      height = realToFrac height'
 
-  cr <- cairoCreate win
-  Cairo.setSourceRGB cr 1 0 0
-  Cairo.setLineWidth cr 20
-  Cairo.setLineCap cr Cairo.LineCapRound
-  Cairo.setLineJoin cr Cairo.LineJoinRound
+  -- Draw using the cairo api
+  renderWithDrawable win $ do
+    setSourceRGB 1 0 0
+    setLineWidth 20
+    setLineCap LineCapRound
+    setLineJoin LineJoinRound
 
-  Cairo.moveTo cr 30 30
-  Cairo.lineTo cr (realToFrac width-30) (realToFrac height-30)
-  Cairo.lineTo cr (realToFrac width-30) 30
-  Cairo.lineTo cr 30 (realToFrac height-30)
-  Cairo.stroke cr
+    moveTo 30 30
+    lineTo (width-30) (height-30)
+    lineTo (width-30) 30
+    lineTo 30 (height-30)
+    stroke
 
-  Cairo.setSourceRGB cr 1 1 0
-  Cairo.setLineWidth cr 4
+    setSourceRGB 1 1 0
+    setLineWidth 4
   
-  Cairo.save cr
-  Cairo.translate cr (realToFrac width / 2) (realToFrac height / 2)
-  Cairo.scale cr (realToFrac width / 2) (realToFrac height / 2)
-  Cairo.arc cr 0 0 1 (135 * pi/180) (225 * pi/180)
-  Cairo.restore cr
-  Cairo.stroke cr
+    save
+    translate (width / 2) (height / 2)
+    scale (width / 2) (height / 2)
+    arc 0 0 1 (135 * pi/180) (225 * pi/180)
+    restore
+    stroke
   
-  Cairo.setSourceRGB cr 0 0 0
-  Cairo.moveTo cr 30 (realToFrac height / 2)
-  Cairo.showText cr "Hello World."
+    setSourceRGB 0 0 0
+    moveTo 30 (realToFrac height / 2)
+    showText "Hello World."
 
-  Cairo.destroy cr
-
+  -- draw some text using the Gdk api
   gc <- gcNew win
-  drawLayoutWithColors win gc 30 (height `div` 2) text 
+  drawLayoutWithColors win gc 30 (height' `div` 2) text 
     (Just (Color 0 0 0)) Nothing
 
   return True
- 

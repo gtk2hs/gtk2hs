@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/08/27 14:42:56 $
+--  Version $Revision: 1.3 $ from $Date: 2005/08/29 11:41:34 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -41,15 +41,17 @@ module Graphics.UI.Gtk.Cairo (
 
 -- * Methods
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
-  cairoCreate,
+  renderWithDrawable,
   cairoRectangle,
   cairoRegion,
-  cairoSetSourceColor,
-  cairoSetSourcePixbuf,
+  setSourceColor,
+  setSourcePixbuf,
 #endif
   ) where
 
-import Monad	(liftM)
+import Monad	    (liftM,unless)
+import Control.Monad.Reader (runReaderT)
+import Control.Exception    (bracket)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
@@ -58,7 +60,9 @@ import Graphics.UI.Gtk.General.Structs (Rectangle(..), Color(..))
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
 {#import Graphics.Rendering.Cairo.Types#} as Cairo
-import Graphics.Rendering.Cairo.Internal as Cairo
+import Graphics.Rendering.Cairo.Internal as Cairo.Internal
+import Graphics.Rendering.Cairo as Cairo
+import Control.Monad.Reader
 #endif
 
 {# context lib="gdk" prefix="gdk" #}
@@ -71,21 +75,25 @@ import Graphics.Rendering.Cairo.Internal as Cairo
 --
 -- * Available since Gtk+ version 2.8
 --
-cairoCreate :: DrawableClass drawable =>
+renderWithDrawable :: DrawableClass drawable =>
     drawable -- ^ drawable - a 'Drawable'
- -> IO Cairo -- ^ A newly created Cairo context.
-cairoCreate drawable =
-  liftM Cairo $
-  {# call unsafe gdk_cairo_create #}
-    (toDrawable drawable)
+ -> Render a -- ^ A newly created Cairo context.
+ -> IO a
+renderWithDrawable drawable m =
+  bracket (liftM Cairo.Cairo $ {#call unsafe gdk_cairo_create#} (toDrawable drawable))
+          (\context -> do status <- Cairo.Internal.status context
+                          Cairo.Internal.destroy context
+                          unless (status == StatusSuccess) $
+                            fail =<< Cairo.Internal.statusToString status)
+          (\context -> runReaderT (runRender m) context)
 
 -- | Sets the specified 'Color' as the source color of @cr@.
 --
 -- * Available since Gtk+ version 2.8
 --
-cairoSetSourceColor :: Cairo -> Color -> IO ()
-cairoSetSourceColor cr (Color red green blue) =
-  Cairo.setSourceRGB cr
+setSourceColor :: Color -> Render ()
+setSourceColor (Color red green blue) =
+  Cairo.setSourceRGB
     (realToFrac red   / 65535.0)
     (realToFrac green / 65535.0)
     (realToFrac blue  / 65535.0)
@@ -96,9 +104,10 @@ cairoSetSourceColor cr (Color red green blue) =
 --
 -- * Available since Gtk+ version 2.8
 --
-cairoSetSourcePixbuf :: Cairo -> Pixbuf -> Double -> Double -> IO ()
-cairoSetSourcePixbuf cr pixbuf pixbufX pixbufY =
-  {# call unsafe gdk_cairo_set_source_pixbuf #}
+setSourcePixbuf :: Pixbuf -> Double -> Double -> Render ()
+setSourcePixbuf pixbuf pixbufX pixbufY = Render $ do
+  cr <- ask
+  liftIO $ {# call unsafe gdk_cairo_set_source_pixbuf #}
     cr
     pixbuf
     (realToFrac pixbufX)
@@ -108,10 +117,9 @@ cairoSetSourcePixbuf cr pixbuf pixbufX pixbufY =
 --
 -- * Available since Gtk+ version 2.8
 --
-cairoRectangle :: Cairo -> Rectangle -> IO ()
-cairoRectangle cr (Rectangle x y width height) =
+cairoRectangle :: Rectangle -> Render ()
+cairoRectangle (Rectangle x y width height) =
   Cairo.rectangle
-    cr
     (realToFrac x)
     (realToFrac y)
     (realToFrac width)
@@ -121,9 +129,11 @@ cairoRectangle cr (Rectangle x y width height) =
 --
 -- * Available since Gtk+ version 2.8
 --
-cairoRegion :: Cairo -> Region -> IO ()
-cairoRegion cr region =
-  {# call unsafe gdk_cairo_region #}
+cairoRegion :: Region -> Render ()
+cairoRegion region = Render $ do
+  cr <- ask
+  liftIO $ {# call unsafe gdk_cairo_region #}
     cr
     region
 #endif
+
