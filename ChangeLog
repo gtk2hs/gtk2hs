@@ -43,6 +43,10 @@
 	* glib/System/Glib/GError.chs.pp: simple doc reformatting and use
 	Gtk2Hs rather than gtk2hs.
 
+	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp: name the
+	attributes consistently with the other functions. Export the
+	uiManagerUi attribute and update its default value (as of Gtk+ 2.8.3).
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,

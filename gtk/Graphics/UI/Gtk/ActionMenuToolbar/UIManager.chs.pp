@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.6 $ from $Date: 2005/08/25 23:06:20 $
+--  Version $Revision: 1.7 $ from $Date: 2005/08/29 21:17:51 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -228,7 +228,8 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
   uiManagerEnsureUpdate,
 
 -- * Attributes
-  uIManagerAddTearoffs,
+  uiManagerAddTearoffs,
+  uiManagerUi,
 
 -- * Signals
   onAddWidget,
@@ -538,17 +539,17 @@ uiManagerEnsureUpdate self =
 --
 -- Default value: @False@
 --
-uIManagerAddTearoffs :: Attr UIManager Bool
-uIManagerAddTearoffs = newAttr
+uiManagerAddTearoffs :: Attr UIManager Bool
+uiManagerAddTearoffs = newAttr
   uiManagerGetAddTearoffs
   uiManagerSetAddTearoffs
 
 -- | An XML string describing the merged UI.
 --
--- Default value: \"\"
+-- Default value: @\"\<ui\>\\n\<\/ui\>\\n\"@
 --
-uIManagerUi :: ReadAttr UIManager String
-uIManagerUi = readAttrFromStringProperty "ui"
+uiManagerUi :: ReadAttr UIManager String
+uiManagerUi = readAttrFromStringProperty "ui"
 
 --------------------
 -- Signals
