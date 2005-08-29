@@ -25,6 +25,9 @@
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: pass the appropriate
 	enum/object GType as an extra argument to the property constructor.
 
+	* Makefile.am: build the cairo Types module using -fglasgow-exts and
+	exclude most other modules from the haddock docs.
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,

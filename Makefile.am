@@ -27,7 +27,11 @@ CHSDEPEND = $(srcdir)/mk/chsDepend
 
 # all packages and applications
 pkglib_LIBRARIES =	\
-        libHSglib.a	\
+        libHSglib.a
+if ENABLE_CAIRO
+pkglib_LIBRARIES += libHScairo.a
+endif
+pkglib_LIBRARIES +=	\
 	libHSgtk.a	\
         libHSmogul.a
 if ENABLE_LIBGLADE
@@ -41,9 +45,6 @@ pkglib_LIBRARIES += libHSsourceview.a
 endif
 if ENABLE_MOZEMBED
 pkglib_LIBRARIES += libHSmozembed.a
-endif
-if ENABLE_CAIRO
-pkglib_LIBRARIES += libHScairo.a
 endif
 
 noinst_PROGRAMS = \
@@ -1056,8 +1057,22 @@ libHScairo_a_SOURCES =							\
 #	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs
 
 cairo_Graphics_Rendering_Cairo_hs_HCFLAGS = -fglasgow-exts
+cairo_Graphics_Rendering_Cairo_Types_hs_HCFLAGS = -fglasgow-exts
 
 html_HSFILES_HIDDEN += $(libHScairo_a_GENERATEDSOURCES:.chs=.hs)
+html_HSFILES_EXCLUDE +=							\
+	cairo/Graphics/Rendering/Cairo/Types.hs				\
+	cairo/Graphics/Rendering/Cairo/Internal.hs			\
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Cairo.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Paths.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Patterns.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Text.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Transformations.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Fonts/FontOptions.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Image.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Surface.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Utilities.hs
 
 libHScairo_a_ALLSOURCES = $(libHScairo_a_SOURCES) $(nodist_libHScairo_a_SOURCES)
 
