@@ -6,6 +6,9 @@
 	* cairo/Graphics/Rendering/Cairo.hs: merge patches from Paolo; add
 	haddock documentation for many functions.
 
+	* demo/cairo/Drawing.hs, demo/cairo/StarAndRing.hs,
+	demo/cairo/Text.hs, demo/cairo/Makefile: add cairo demos.
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,
