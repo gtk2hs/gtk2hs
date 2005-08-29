@@ -34,6 +34,9 @@
 	* demo/cairo/Drawing.hs: update the Gtk cairo demo to use the high
 	level api.
 
+	* cairo/Graphics/Rendering/Cairo.hs: merge more documantation changes
+	by Paolo (and some small changes by myself).
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,

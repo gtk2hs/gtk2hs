@@ -8,16 +8,35 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- Higher level interface to cairo
+-- cairo 2D graphics library
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Cairo (
+-- * Detail
+--
+-- | Cairo is a 2D graphics library with support for multiple output devices.
+-- Currently supported output targets include the X Window System, win32, and
+-- image buffers. Experimental backends include OpenGL (through glitz), Quartz,
+-- XCB, PostScript and PDF file output.
 
-    liftIO
+-- Cairo is designed to produce consistent output on all output media while
+-- taking advantage of display hardware acceleration when available (eg.
+-- through the X Render Extension).
 
-  , Render(runRender)
-  , renderWith
+-- The cairo API provides operations similar to the drawing operators of
+-- PostScript and PDF. Operations in cairo including stroking and filling cubic
+-- Bezier splines, transforming and compositing translucent images, and
+-- antialiased text rendering. All drawing operations can be transformed by any
+-- affine transformation (scale, rotation, shear, etc.) 
+--
+-- * Note the Haskell bindings do not support all the possible cairo backends
+-- because it would require bindings for the associated technology (eg X11,
+-- glitz, etc) however bindings to other backends may be implemented
+-- externally. For example, Gtk2Hs provides a binding to the backend for X11
+-- (and win32 on Windows).
 
+  -- * Drawing
+    renderWith
   , save
   , restore
   , withTargetSurface
@@ -60,6 +79,7 @@ module Graphics.Rendering.Cairo (
   , copyPage
   , showPage
 
+  -- ** Paths
   , getCurrentPoint
   , newPath
   , closePath
@@ -74,6 +94,7 @@ module Graphics.Rendering.Cairo (
   , relLineTo
   , relMoveTo
 
+  -- ** Patterns
   , withRGBPattern
   , withRGBAPattern
   , withPatternForSurface
@@ -88,6 +109,7 @@ module Graphics.Rendering.Cairo (
   , patternSetFilter
   , patternGetFilter
 
+  -- ** Transformations
   , translate
   , scale
   , rotate
@@ -100,6 +122,7 @@ module Graphics.Rendering.Cairo (
   , deviceToUser
   , deviceToUserDistance
 
+  -- ** Text
   , selectFontFace
   , setFontSize
   , setFontMatrix
@@ -108,6 +131,9 @@ module Graphics.Rendering.Cairo (
   , fontExtents
   , textExtents
 
+  -- * Fonts
+
+  -- ** Font options
   , fontOptionsCreate
   , fontOptionsCopy
   , fontOptionsMerge
@@ -122,22 +148,32 @@ module Graphics.Rendering.Cairo (
   , fontOptionsSetHintMetrics
   , fontOptionsGetHintMetrics
 
+  -- * Surfaces
+
   , surfaceCreateSimilar
   , surfaceGetFontOptions
   , surfaceMarkDirty
   , surfaceMarkDirtyRectangle
   , surfaceSetDeviceOffset
 
+  -- ** Image surfaces
   , withImageSurface
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
 
+  -- ** PNG support
   , withImageSurfaceFromPNG
   , surfaceWriteToPNG
 
+  -- * Utilities
+
+  , liftIO
   , version
   , versionString
 
+  -- * Types
+
+  , Render(runRender)
   , Matrix
   , Surface
   , Pattern
@@ -250,7 +286,7 @@ setSourceRGBA = liftRender4 Internal.setSourceRGBA
 -- pattern. See 'setMatrix'.
 --
 setSource ::
-     Pattern -- ^ a @Pattern@ to be used as the source for subsequent drawing
+     Pattern -- ^ a 'Pattern@' to be used as the source for subsequent drawing
              -- operations.
   -> Render ()
 setSource = liftRender1 Internal.setSource
@@ -283,7 +319,7 @@ getSource = liftRender0 Internal.getSource
 
 -- | Set the antialiasing mode of the rasterizer used for drawing shapes. This
 -- value is a hint, and a particular backend may or may not support a particular
--- value. At the current time, no backend supports @AntialiasSubpixel@ when
+-- value. At the current time, no backend supports 'AntialiasSubpixel' when
 -- drawing shapes.
 --
 -- Note that this option does not affect text rendering, instead see
@@ -310,7 +346,7 @@ getAntialias = liftRender0 Internal.getAntialias
 -- off portions of the size specified by the single value in dashes.
 
 -- If any value in @dashes@ is negative, or if all values are 0, then context
--- will be put into an error state with a status of @StatusInvalidDash@.
+-- will be put into an error state with a status of 'StatusInvalidDash'.
 --
 setDash ::
      [Double] -- ^ @dashes@ a list specifying alternate lengths of on and off
@@ -510,7 +546,7 @@ inFill = liftRender2 Internal.inFill
 -- transparent areas are not painted.)
 --
 mask ::
-     Pattern -- ^ a @Pattern@
+     Pattern -- ^ a 'Pattern'
   -> Render ()
 mask = liftRender1 Internal.mask
 
@@ -519,7 +555,7 @@ mask = liftRender1 Internal.mask
 -- transparent areas are not painted.)
 --
 maskSurface ::
-     Surface -- ^ a @Surface@
+     Surface -- ^ a 'Surface'
   -> Double  -- ^ X coordinate at which to place the origin of surface
   -> Double  -- ^ Y coordinate at which to place the origin of surface
   -> Render ()
@@ -666,7 +702,7 @@ arcNegative ::
   -> Render ()
 arcNegative = liftRender5 Internal.arcNegative
 
--- | Adds a cubic Bézier spline to the path from the current point to position
+-- | Adds a cubic Bezier spline to the path from the current point to position
 -- (@x3@, @y3@) in user-space coordinates, using (@x1@, @y1@) and (@x2@, @y2@)
 -- as the control points. After this call the current point will be (@x3@, @y3@).
 --
@@ -717,7 +753,7 @@ textPath ::
 textPath = liftRender1 Internal.textPath
 
 -- | Relative-coordinate version of 'curveTo'. All offsets are relative to the
--- current point. Adds a cubic Bézier spline to the path from the current point
+-- current point. Adds a cubic Bezier spline to the path from the current point
 -- to a point offset from the current point by (@dx3@, @dy3@), using points
 -- offset by (@dx1@, @dy1@) and (@dx2@, @dy2@) as the control points. After this
 -- call the current point will be offset by (@dx3@, @dy3@).
@@ -760,7 +796,23 @@ relMoveTo ::
   -> Render ()
 relMoveTo = liftRender2 Internal.relMoveTo
 
-withRGBPattern :: Double -> Double -> Double -> (Pattern -> Render a) -> Render a
+
+-- | Creates a new 'Pattern' corresponding to an opaque color. The color
+-- components are floating point numbers in the range 0 to 1. If the values
+-- passed in are outside that range, they will be clamped.
+--
+-- For example to create a solid red pattern:
+--
+-- > withRBGPattern 1 0 0 $ do
+-- >   ...
+-- >   ...
+--
+withRGBPattern ::
+     Double -- ^ red component of the color
+  -> Double -- ^ green component of the color
+  -> Double -- ^ blue component of the color
+  -> (Pattern -> Render a) -- ^ a nested render action using the pattern
+  -> Render a
 withRGBPattern r g b f =
   bracketR (Internal.patternCreateRGB r g b)
            (\pattern -> do status <- Internal.patternStatus pattern
@@ -768,7 +820,24 @@ withRGBPattern r g b f =
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
-withRGBAPattern :: Double -> Double -> Double -> Double -> (Pattern -> Render a) -> Render a
+
+-- | Creates a new 'Pattern' corresponding to a translucent color. The color
+-- components are floating point numbers in the range 0 to 1. If the values
+-- passed in are outside that range, they will be clamped.
+--
+-- For example to create a solid red pattern at 50% transparency:
+--
+-- > withRBGPattern 1 0 0 0.5 $ do
+-- >   ...
+-- >   ...
+--
+withRGBAPattern ::
+     Double -- ^ red component of color
+  -> Double -- ^ green component of color
+  -> Double -- ^ blue component of color
+  -> Double -- ^ alpha component of color
+  -> (Pattern -> Render a) -- ^ a nested render action using the pattern
+  -> Render a
 withRGBAPattern r g b a f =
   bracketR (Internal.patternCreateRGBA r g b a)
            (\pattern -> do status <- Internal.patternStatus pattern
@@ -776,7 +845,13 @@ withRGBAPattern r g b a f =
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
-withPatternForSurface :: Surface -> (Pattern -> Render a) -> Render a
+
+-- | Create a new 'Pattern' for the given surface.
+--
+withPatternForSurface ::
+     Surface
+  -> (Pattern -> Render a) -- ^ a nested render action using the pattern
+  -> Render a
 withPatternForSurface surface f =
   bracketR (Internal.patternCreateForSurface surface)
            (\pattern -> do status <- Internal.patternStatus pattern
@@ -784,7 +859,22 @@ withPatternForSurface surface f =
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
-withLinearPattern :: Double -> Double -> Double -> Double -> (Pattern -> Render a) -> Render a
+
+-- | Create a new linear gradient 'Pattern' along the line defined by @(x0, y0)@
+-- and @(x1, y1)@. Before using the gradient pattern, a number of color stops
+-- should be defined using 'patternAddColorStopRGB' and 'patternAddColorStopRGBA'.
+--
+-- * Note: The coordinates here are in pattern space. For a new pattern,
+-- pattern space is identical to user space, but the relationship between the
+-- spaces can be changed with 'patternSetMatrix'.
+--
+withLinearPattern ::
+     Double -- ^ @x0@ - x coordinate of the start point
+  -> Double -- ^ @y0@ - y coordinate of the start point
+  -> Double -- ^ @x1@ - x coordinate of the end point
+  -> Double -- ^ @y1@ - y coordinate of the end point
+  -> (Pattern -> Render a) -- ^ a nested render action using the pattern
+  -> Render a
 withLinearPattern x0 y0 x1 y1 f =
   bracketR (Internal.patternCreateLinear x0 y0 x1 y1)
            (\pattern -> do status <- Internal.patternStatus pattern
@@ -792,7 +882,25 @@ withLinearPattern x0 y0 x1 y1 f =
                            unless (status == StatusSuccess) $
                              fail =<< Internal.statusToString status)
            (\pattern -> f pattern)
-withRadialPattern :: Double -> Double -> Double -> Double -> Double -> Double -> (Pattern -> Render a) -> Render a
+
+-- | Creates a new radial gradient 'Pattern' between the two circles defined by
+-- @(x0, y0, c0)@ and @(x1, y1, c0)@. Before using the gradient pattern, a
+-- number of color stops should be defined using 'patternAddColorStopRGB'
+-- or 'patternAddColorStopRGBA'.
+--
+-- * Note: The coordinates here are in pattern space. For a new pattern,
+-- pattern space is identical to user space, but the relationship between the
+-- spaces can be changed with 'patternSetMatrix'.
+--
+withRadialPattern ::
+     Double -- ^ @cx0@ - x coordinate for the center of the start circle
+  -> Double -- ^ @cy0@ - y coordinate for the center of the start circle
+  -> Double -- ^ @radius0@ - radius of the start cirle
+  -> Double -- ^ @cx1@ - x coordinate for the center of the end circle
+  -> Double -- ^ @cy1@ - y coordinate for the center of the end circle
+  -> Double -- ^ @radius1@ - radius of the end circle
+  -> (Pattern -> Render a) -- ^ a nested render action using the pattern
+  -> Render a
 withRadialPattern cx0 cy0 radius0 cx1 cy1 radius1 f =
   bracketR (Internal.patternCreateRadial cx0 cy0 radius0 cx1 cy1 radius1)
            (\pattern -> do status <- Internal.patternStatus pattern
@@ -814,7 +922,7 @@ withRadialPattern cx0 cy0 radius0 cx1 cy1 radius1 f =
 -- 'StatusPatternTypeMismatch'.
 --
 patternAddColorStopRGB ::
-     Pattern -- ^ a @Pattern@
+     Pattern -- ^ a 'Pattern'
   -> Double  -- ^ an offset in the range [0.0 .. 1.0]
   -> Double  -- ^ red component of color
   -> Double  -- ^ green component of color
@@ -832,10 +940,10 @@ patternAddColorStopRGB p offset r g b = liftIO $ Internal.patternAddColorStopRGB
 --
 -- Note: If the pattern is not a gradient pattern, (eg. a linear or radial
 -- pattern), then the pattern will be put into an error status with a status of
--- @StatusPatternTypeMismatch@.
+-- 'StatusPatternTypeMismatch'.
 --
 patternAddColorStopRGBA ::
-     Pattern -- ^ a @Pattern@
+     Pattern -- ^ a 'Pattern'
   -> Double  -- ^ an offset in the range [0.0 .. 1.0]
   -> Double  -- ^ red component of color
   -> Double  -- ^ green component of color
@@ -859,114 +967,412 @@ patternAddColorStopRGBA p offset r g b a = liftIO $ Internal.patternAddColorStop
 -- Also, please note the discussion of the user-space locking semantics of 'setSource'.
 --
 patternSetMatrix ::
-     Pattern -- ^ a @Pattern@
-  -> Matrix  -- ^ a @Matrix@
+     Pattern -- ^ a 'Pattern'
+  -> Matrix  -- ^ a 'Matrix'
   -> Render ()
 patternSetMatrix p m = liftIO $ Internal.patternSetMatrix p m
 
 -- | Get the pattern's transformation matrix.
 --
 patternGetMatrix ::
-     Pattern -- ^ a @Pattern@
+     Pattern -- ^ a 'Pattern'
   -> Render Matrix
 patternGetMatrix p = liftIO $ Internal.patternGetMatrix p
 
 -- | -
 --
 patternSetExtend ::
-     Pattern -- ^ a @Pattern@
-  -> Extend  -- ^ an @Extent@
+     Pattern -- ^ a 'Pattern'
+  -> Extend  -- ^ an 'Extent'
   -> Render ()
 patternSetExtend p e = liftIO $ Internal.patternSetExtend p e
-patternGetExtend :: Pattern -> Render Extend
+
+-- | -
+--
+patternGetExtend ::
+     Pattern -- ^ a 'Pattern'
+  -> Render Extend
 patternGetExtend p = liftIO $ Internal.patternGetExtend p
-patternSetFilter :: Pattern -> Filter -> Render ()
+
+-- | -
+--
+patternSetFilter ::
+     Pattern -- ^ a 'Pattern'
+  -> Filter  -- ^ a 'Filter'
+  -> Render ()
 patternSetFilter p f = liftIO $ Internal.patternSetFilter p f
-patternGetFilter :: Pattern -> Render Filter
+
+-- | -
+--
+patternGetFilter ::
+     Pattern -- ^ a 'Pattern'
+  -> Render Filter
 patternGetFilter p = liftIO $ Internal.patternGetFilter p
 
-translate :: Double -> Double -> Render ()
+
+-- | Modifies the current transformation matrix (CTM) by translating the
+-- user-space origin by @(tx, ty)@. This offset is interpreted as a user-space
+-- coordinate according to the CTM in place before the new call to 'translate'.
+-- In other words, the translation of the user-space origin takes place after
+-- any existing transformation.
+--
+translate ::
+     Double -- ^ @tx@ - amount to translate in the X direction
+  -> Double -- ^ @ty@ - amount to translate in the Y direction
+  -> Render ()
 translate = liftRender2 Internal.translate
-scale :: Double -> Double -> Render ()
+
+-- | Modifies the current transformation matrix (CTM) by scaling the X and Y
+-- user-space axes by sx and sy respectively. The scaling of the axes takes
+-- place after any existing transformation of user space.
+--
+scale ::
+     Double -- ^ @sx@ - scale factor for the X dimension
+  -> Double -- ^ @sy@ - scale factor for the Y dimension
+  -> Render ()
 scale = liftRender2 Internal.scale
-rotate :: Double -> Render ()
+
+-- | Modifies the current transformation matrix (CTM) by rotating the user-space
+-- axes by @angle@ radians. The rotation of the axes takes places after any
+-- existing transformation of user space. The rotation direction for positive
+-- angles is from the positive X axis toward the positive Y axis.
+--
+rotate ::
+     Double -- ^ @angle@ - angle (in radians) by which the user-space axes will
+            -- be rotated
+  -> Render ()
 rotate = liftRender1 Internal.rotate
-transform :: Matrix -> Render ()
+
+-- | Modifies the current transformation matrix (CTM) by applying matrix as an
+-- additional transformation. The new transformation of user space takes place
+-- after any existing transformation.
+--
+transform ::
+     Matrix -- ^ @matrix@ - a transformation to be applied to the user-space axes
+  -> Render ()
 transform = liftRender1 Internal.transform
-setMatrix :: Matrix -> Render ()
+
+-- | Modifies the current transformation matrix (CTM) by setting it equal to
+-- @matrix@.
+setMatrix ::
+     Matrix -- ^ @matrix@ - a transformation matrix from user space to device space
+  -> Render ()
 setMatrix = liftRender1 Internal.setMatrix
+
+-- | Gets the current transformation matrix, as set by 'setMatrix'.
+--
 getMatrix :: Render Matrix
 getMatrix = liftRender0 Internal.getMatrix
+
+-- | Resets the current transformation matrix (CTM) by setting it equal to the
+-- identity matrix. That is, the user-space and device-space axes will be
+-- aligned and one user-space unit will transform to one device-space unit.
+--
 identityMatrix :: Render ()
 identityMatrix = liftRender0 Internal.identityMatrix
-userToDevice :: Double -> Double -> Render (Double,Double)
+
+-- | Transform a coordinate from user space to device space by multiplying the
+-- given point by the current transformation matrix (CTM).
+--
+userToDevice ::
+     Double -- ^ X value of coordinate
+  -> Double -- ^ Y value of coordinate
+  -> Render (Double,Double)
 userToDevice = liftRender2 Internal.userToDevice
-userToDeviceDistance :: Double -> Double -> Render (Double,Double)
+
+-- | Transform a distance vector from user space to device space. This function
+-- is similar to 'userToDevice' except that the translation components of the
+-- CTM will be ignored when transforming @(dx,dy)@.
+--
+userToDeviceDistance ::
+     Double -- ^ @dx@ - X component of a distance vector
+  -> Double -- ^ @dy@ - Y component of a distance vector
+  -> Render (Double,Double)
 userToDeviceDistance = liftRender2 Internal.userToDeviceDistance
-deviceToUser :: Double -> Double -> Render (Double,Double)
+
+-- | Transform a coordinate from device space to user space by multiplying the
+-- given point by the inverse of the current transformation matrix (CTM).
+--
+deviceToUser ::
+     Double -- ^ X value of coordinate
+  -> Double -- ^ Y value of coordinate
+  -> Render (Double,Double)
 deviceToUser = liftRender2 Internal.deviceToUser
-deviceToUserDistance :: Double -> Double -> Render (Double,Double)
+
+-- | Transform a distance vector from device space to user space. This function
+-- is similar to 'deviceToUser' except that the translation components of the
+-- inverse CTM will be ignored when transforming @(dx,dy)@.
+--
+deviceToUserDistance ::
+     Double -- ^ @dx@ - X component of a distance vector
+  -> Double -- ^ @dy@ - Y component of a distance vector
+  -> Render (Double,Double)
 deviceToUserDistance = liftRender2 Internal.deviceToUserDistance
 
-selectFontFace :: String -> FontSlant -> FontWeight -> Render ()
+
+-- | Selects a family and style of font from a simplified description as a
+-- @family@ name, @slant@ and @weight@. This function is meant to be used only
+-- for applications with simple font needs: Cairo doesn't provide for operations
+-- such as listing all available fonts on the system, and it is expected that
+-- most applications will need to use a more comprehensive font handling and
+-- text layout library in addition to cairo.
+--
+selectFontFace ::
+     String     -- ^ @family@ - a font family name
+  -> FontSlant  -- ^ @slant@ - the slant for the font
+  -> FontWeight -- ^ @weight@ - the weight of the font
+  -> Render ()
 selectFontFace = liftRender3 Internal.selectFontFace
-setFontSize :: Double -> Render ()
+
+-- | Sets the current font matrix to a scale by a factor of @size@, replacing
+-- any font matrix previously set with 'setFontSize' or 'setFontMatrix'. This
+-- results in a font size of size user space units. (More precisely, this matrix
+-- will result in the font's em-square being a size by size square in user space.)
+--
+setFontSize ::
+     Double -- ^ @size@ - the new font size, in user space units
+  -> Render ()
 setFontSize = liftRender1 Internal.setFontSize
-setFontMatrix :: Matrix -> Render ()
+
+-- | Sets the current font matrix to @matrix@. The font matrix gives a
+-- transformation from the design space of the font (in this space, the
+-- em-square is 1 unit by 1 unit) to user space. Normally, a simple scale is
+-- used (see 'setFontSize'), but a more complex font matrix can be used to shear
+-- the font or stretch it unequally along the two axes.
+--
+setFontMatrix ::
+     Matrix -- ^ @matrix@ - a 'Matrix' describing a transform to be applied to
+            -- the current font.
+  -> Render ()
 setFontMatrix = liftRender1 Internal.setFontMatrix
+
+-- | Gets the current font matrix, as set by 'setFontMatrix'
+--
 getFontMatrix :: Render Matrix
 getFontMatrix = liftRender0 Internal.getFontMatrix
-showText :: String -> Render ()
+
+-- | A drawing operator that generates the shape from a string of UTF-8
+-- characters, rendered according to the current font face, font size (font
+-- matrix), and font options.
+--
+-- This function first computes a set of glyphs for the string of text. The
+-- first glyph is placed so that its origin is at the current point. The origin
+-- of each subsequent glyph is offset from that of the previous glyph by the
+-- advance values of the previous glyph.
+--
+-- After this call the current point is moved to the origin of where the next
+-- glyph would be placed in this same progression. That is, the current point
+-- will be at the origin of the final glyph offset by its advance values. This
+-- allows for easy display of a single logical string with multiple calls to
+-- 'showText'.
+--
+-- NOTE: The 'showText' function call is part of what the cairo designers call
+-- the "toy" text API. It is convenient for short demos and simple programs, but
+-- it is not expected to be adequate for the most serious of text-using
+-- applications.
+--
+showText ::
+     String -- ^ a string of text
+  -> Render ()
 showText = liftRender1 Internal.showText
+
+-- | Gets the font extents for the currently selected font.
+--
 fontExtents :: Render FontExtents
 fontExtents = liftRender0 Internal.fontExtents
-textExtents :: String -> Render TextExtents
+
+-- | Gets the extents for a string of text. The extents describe a user-space
+-- rectangle that encloses the "inked" portion of the text, (as it would be
+-- drawn by 'showText'). Additionally, the fontExtentsXadvance and
+-- fontExtentsYadvance values indicate the amount by which the current point
+-- would be advanced by 'showText'.
+--
+-- Note that whitespace characters do not directly contribute to the size of
+-- the rectangle (fontExtentsWidth and fontExtentsHeight). They do contribute
+-- indirectly by changing the position of non-whitespace characters.
+-- In particular, trailing whitespace characters are likely to not affect the
+-- size of the rectangle, though they will affect the fontExtentsXadvance and
+-- fontExtentsYadvance values.
+--
+textExtents ::
+     String -- ^ a string of text
+  -> Render TextExtents
 textExtents = liftRender1 Internal.textExtents
 
+
+-- | Allocates a new font options object with all options initialized to default
+-- values.
+--
 fontOptionsCreate :: Render FontOptions
 fontOptionsCreate = liftIO $ Internal.fontOptionsCreate
-fontOptionsCopy :: FontOptions -> Render FontOptions
+
+-- | Allocates a new font options object copying the option values from @original@.
+--
+fontOptionsCopy ::
+     FontOptions -- ^ @original@
+  -> Render FontOptions
 fontOptionsCopy a = liftIO $ Internal.fontOptionsCopy a
-fontOptionsMerge :: FontOptions -> FontOptions -> Render ()
+
+-- | Merges non-default options from @other@ into @options@, replacing existing
+-- values. This operation can be thought of as somewhat similar to compositing
+-- @other@ onto @options@ with the operation of 'OperationOver'.
+--
+fontOptionsMerge ::
+     FontOptions -- ^ @options@
+  -> FontOptions -- ^ @other@ 
+  -> Render ()
 fontOptionsMerge a b = liftIO $ Internal.fontOptionsMerge a b
+
+-- | Compute a hash for the font options object; this value will be useful when
+-- storing an object containing a 'FontOptions' in a hash table.
+--
 fontOptionsHash :: FontOptions -> Render Int
 fontOptionsHash a = liftIO $ Internal.fontOptionsHash a
+
+-- | Compares two font options objects for equality.
+--
 fontOptionsEqual :: FontOptions -> FontOptions -> Render Bool
 fontOptionsEqual a b = liftIO $ Internal.fontOptionsEqual a b
+
+-- | Sets the antiliasing mode for the font options object. This specifies the
+-- type of antialiasing to do when rendering text.
+--
 fontOptionsSetAntialias :: FontOptions -> Antialias -> Render ()
 fontOptionsSetAntialias a b = liftIO $ Internal.fontOptionsSetAntialias a b
+
+-- | Gets the antialising mode for the font options object.
+--
 fontOptionsGetAntialias :: FontOptions -> Render Antialias
 fontOptionsGetAntialias a = liftIO $ Internal.fontOptionsGetAntialias a
+
+-- | Sets the subpixel order for the font options object. The subpixel order
+-- specifies the order of color elements within each pixel on the display device
+-- when rendering with an antialiasing mode of 'AntialiasSubpixel'.
+-- See the documentation for 'SubpixelOrder' for full details.
+--
 fontOptionsSetSubpixelOrder :: FontOptions -> SubpixelOrder-> Render ()
 fontOptionsSetSubpixelOrder a b = liftIO $ Internal.fontOptionsSetSubpixelOrder a b
+
+-- | Gets the subpixel order for the font options object.
+-- See the documentation for 'SubpixelOrder' for full details.
+--
 fontOptionsGetSubpixelOrder :: FontOptions -> Render SubpixelOrder
 fontOptionsGetSubpixelOrder a = liftIO $ Internal.fontOptionsGetSubpixelOrder a
+
+-- | Sets the hint style for font outlines for the font options object.
+-- This controls whether to fit font outlines to the pixel grid, and if so,
+-- whether to optimize for fidelity or contrast. See the documentation for
+-- 'HintStyle' for full details.
+--
 fontOptionsSetHintStyle :: FontOptions -> HintStyle -> Render ()
 fontOptionsSetHintStyle a b = liftIO $ Internal.fontOptionsSetHintStyle a b
+
+-- | Gets the hint style for font outlines for the font options object.
+-- See the documentation for 'HintStyle' for full details.
+--
 fontOptionsGetHintStyle :: FontOptions -> Render HintStyle
 fontOptionsGetHintStyle a = liftIO $ Internal.fontOptionsGetHintStyle a
+
+-- | Sets the metrics hinting mode for the font options object. This controls
+-- whether metrics are quantized to integer values in device units. See the
+-- documentation for 'HintMetrics' for full details.
+--
 fontOptionsSetHintMetrics :: FontOptions -> HintMetrics -> Render ()
 fontOptionsSetHintMetrics a b = liftIO $ Internal.fontOptionsSetHintMetrics a b
+
+-- | Gets the metrics hinting mode for the font options object. See the
+-- documentation for 'HintMetrics' for full details.
+--
 fontOptionsGetHintMetrics :: FontOptions -> Render HintMetrics
 fontOptionsGetHintMetrics a = liftIO $ Internal.fontOptionsGetHintMetrics a
 
-surfaceCreateSimilar :: Surface -> Content -> Int -> Int -> Render Surface
+
+-- | Create a new surface that is as compatible as possible with an existing
+-- surface. The new surface will use the same backend as other unless that is
+-- not possible for some reason.
+--
+surfaceCreateSimilar ::
+     Surface -- ^ an existing surface used to select the backend of the new surface
+  -> Content -- ^ the content for the new surface
+  -> Int     -- ^ width of the new surface, (in device-space units)
+  -> Int     -- ^ height of the new surface (in device-space units)
+  -> Render Surface
 surfaceCreateSimilar a b c d = liftIO $ Internal.surfaceCreateSimilar a b c d
+
+-- | This function finishes the surface and drops all references to external
+-- resources. For example, for the Xlib backend it means that cairo will no
+-- longer access the drawable, which can be freed. After calling 'surfaceFinish'
+-- the only valid operations on a surface are getting and setting user data and
+-- referencing and destroying it. Further drawing to the surface will not affect
+-- the surface but will instead trigger a 'StatusSurfaceFinished' error.
+--
+-- When the last call to 'surfaceDestroy' decreases the reference count to zero,
+-- cairo will call 'surfaceFinish' if it hasn't been called already, before
+-- freeing the resources associated with the surface.
+--
 surfaceFlush :: Surface -> Render ()
 surfaceFlush a = liftIO $ Internal.surfaceFlush a
+
+-- | Retrieves the default font rendering options for the surface. This allows
+-- display surfaces to report the correct subpixel order for rendering on them,
+-- print surfaces to disable hinting of metrics and so forth. The result can
+-- then be used with 'scaledFontCreate'.
+--
 surfaceGetFontOptions :: Surface -> Render FontOptions
 surfaceGetFontOptions surface = do
   fontOptions <- fontOptionsCreate
   liftIO $ Internal.surfaceGetFontOptions surface fontOptions
   return fontOptions
+
+-- | Tells cairo that drawing has been done to surface using means other than
+-- cairo, and that cairo should reread any cached areas. Note that you must call
+-- 'surfaceFlush' before doing such drawing.
+--
 surfaceMarkDirty :: Surface -> Render ()
 surfaceMarkDirty a = liftIO $ Internal.surfaceMarkDirty a
-surfaceMarkDirtyRectangle :: Surface -> Int -> Int -> Int -> Int -> Render ()
+
+-- | Like 'surfaceMarkDirty', but drawing has been done only to the specified
+-- rectangle, so that cairo can retain cached contents for other parts of the
+-- surface.
+--
+surfaceMarkDirtyRectangle ::
+     Surface -- ^ a 'Surface'
+  -> Int     -- ^ X coordinate of dirty rectangle
+  -> Int     -- ^ Y coordinate of dirty rectangle
+  -> Int     -- ^ width of dirty rectangle
+  -> Int     -- ^ height of dirty rectangle
+  -> Render ()
 surfaceMarkDirtyRectangle a b c d e = liftIO $ Internal.surfaceMarkDirtyRectangle a b c d e
-surfaceSetDeviceOffset :: Surface -> Double -> Double -> Render ()
+
+-- | Sets an offset that is added to the device coordinates determined by the
+-- CTM when drawing to surface. One use case for this function is when we want
+-- to create a cairo_surface_t that redirects drawing for a portion of an
+-- onscreen surface to an offscreen surface in a way that is completely
+-- invisible to the user of the cairo API. Setting a transformation via
+-- 'translate' isn't sufficient to do this, since functions like 'deviceToUser'
+-- will expose the hidden offset.
+--
+-- Note that the offset only affects drawing to the surface, not using the
+-- surface in a surface pattern.
+--
+surfaceSetDeviceOffset ::
+     Surface -- ^ a 'Surface'
+  -> Double  -- ^ the offset in the X direction, in device units
+  -> Double  -- ^ the offset in the Y direction, in device units
+  -> Render ()
 surfaceSetDeviceOffset a b c = liftIO $ Internal.surfaceSetDeviceOffset a b c
 
-withImageSurface :: Format -> Int -> Int -> (Surface -> IO a) -> IO ()
+-- | Creates an image surface of the specified format and dimensions.
+-- The initial contents of the surface is undefined; you must explicitely
+-- clear the buffer, using, for example, 'rectangle' and 'fill' if you want it
+-- cleared.
+--
+withImageSurface ::
+     Format -- ^ format of pixels in the surface to create
+  -> Int    -- ^ width of the surface, in pixels
+  -> Int    -- ^ height of the surface, in pixels
+  -> (Surface -> IO a) -- ^
+  -> IO ()
 withImageSurface format width height f =
   bracket (liftIO $ Internal.imageSurfaceCreate format width height)
           (\surface -> f surface)
@@ -974,11 +1380,20 @@ withImageSurface format width height f =
                           liftIO $ Internal.surfaceDestroy surface
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
+
+-- | Get the width of the image surface in pixels.
+--
 imageSurfaceGetWidth :: Surface -> Render Int
 imageSurfaceGetWidth a = liftIO $ Internal.imageSurfaceGetWidth a
+
+-- | Get the height of the image surface in pixels.
+--
 imageSurfaceGetHeight :: Surface -> Render Int
 imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 
+-- | Creates a new image surface and initializes the contents to the given PNG
+-- file.
+--
 withImageSurfaceFromPNG :: FilePath -> (Surface -> IO a) -> IO ()
 withImageSurfaceFromPNG filename f =
   bracket (liftIO $ Internal.imageSurfaceCreateFromPNG filename)
@@ -987,14 +1402,26 @@ withImageSurfaceFromPNG filename f =
                           liftIO $ Internal.surfaceDestroy surface
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
-surfaceWriteToPNG :: Surface -> FilePath -> IO ()
+
+-- | Writes the contents of surface to a new file @filename@ as a PNG image.
+--
+surfaceWriteToPNG ::
+     Surface  -- ^ a 'Surface'
+  -> FilePath -- ^ @filename@ - the name of a file to write to
+  -> IO ()
 surfaceWriteToPNG surface filename = do
   status <- Internal.surfaceWriteToPNG surface filename
   unless (status == StatusSuccess) $
     fail =<< Internal.statusToString status
   return ()
 
+-- | Returns the version of the cairo library encoded in a single integer.
+--
 version :: Int
 version = Internal.version
+
+-- | Returns the version of the cairo library as a human-readable string of the
+-- form "X.Y.Z".
+--
 versionString :: String
 versionString = Internal.versionString
