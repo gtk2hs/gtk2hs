@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -166,6 +166,7 @@ optionMenuGetHistory self =
 --
 optionMenuMenu :: (OptionMenuClass self, MenuClass menu) => ReadWriteAttr self Menu menu
 optionMenuMenu = newAttrFromObjectProperty "menu"
+  {# call pure unsafe gtk_menu_get_type #}
 
 --------------------
 -- Signals

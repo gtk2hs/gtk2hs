@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/07/23 03:00:40 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -194,6 +194,7 @@ fileChooserButtonSetWidthChars self nChars =
 --
 fileChooserButtonDialog :: (FileChooserButtonClass self, FileChooserDialogClass fileChooserDialog) => WriteAttr self fileChooserDialog
 fileChooserButtonDialog = writeAttrFromObjectProperty "dialog"
+  {# call pure unsafe gtk_file_chooser_dialog_get_type #}
 
 -- | Title to put on the 'FileChooserDialog' associated with the button.
 --

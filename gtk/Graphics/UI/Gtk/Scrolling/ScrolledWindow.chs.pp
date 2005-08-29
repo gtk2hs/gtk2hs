@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.3 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -327,6 +327,7 @@ scrolledWindowVAdjustment = newAttr
 --
 scrolledWindowHscrollbarPolicy :: ScrolledWindowClass self => Attr self PolicyType
 scrolledWindowHscrollbarPolicy = newAttrFromEnumProperty "hscrollbar-policy"
+  {# call pure unsafe gtk_policy_type_get_type #}
 
 -- | When the vertical scrollbar is displayed.
 --
@@ -334,6 +335,7 @@ scrolledWindowHscrollbarPolicy = newAttrFromEnumProperty "hscrollbar-policy"
 --
 scrolledWindowVscrollbarPolicy :: ScrolledWindowClass self => Attr self PolicyType
 scrolledWindowVscrollbarPolicy = newAttrFromEnumProperty "vscrollbar-policy"
+  {# call pure unsafe gtk_policy_type_get_type #}
 
 -- | Where the contents are located with respect to the scrollbars.
 --
@@ -341,6 +343,7 @@ scrolledWindowVscrollbarPolicy = newAttrFromEnumProperty "vscrollbar-policy"
 --
 scrolledWindowWindowPlacement :: ScrolledWindowClass self => Attr self CornerType
 scrolledWindowWindowPlacement = newAttrFromEnumProperty "window-placement"
+  {# call pure unsafe gtk_corner_type_get_type #}
 
 -- | Style of bevel around the contents.
 --

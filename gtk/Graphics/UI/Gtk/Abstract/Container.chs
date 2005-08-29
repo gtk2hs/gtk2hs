@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2005/08/01 21:33:07 $
+--  Version $Revision: 1.14 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -483,6 +483,7 @@ containerBorderWidth = newAttr
 --
 containerChild :: (ContainerClass self, WidgetClass widget) => WriteAttr self widget
 containerChild = writeAttrFromObjectProperty "child"
+  {# call pure unsafe gtk_widget_get_type #}
 
 -- | \'focusHadjustment\' property. See 'containerGetFocusHAdjustment' and
 -- 'containerSetFocusHAdjustment'

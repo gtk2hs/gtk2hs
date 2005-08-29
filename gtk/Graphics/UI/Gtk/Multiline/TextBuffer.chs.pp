@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2005/08/26 07:49:53 $
+--  Version $Revision: 1.9 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -961,6 +961,7 @@ textBufferGetBounds self start end =
 --
 textBufferTagTable :: (TextBufferClass self, TextTagTableClass textTagTable) => ReadWriteAttr self TextTagTable textTagTable
 textBufferTagTable = newAttrFromObjectProperty "tag-table"
+  {# call pure unsafe gtk_text_tag_table_get_type #}
 
 #if GTK_CHECK_VERSION(2,8,0)
 -- | The text content of the buffer. Without child widgets and images, see

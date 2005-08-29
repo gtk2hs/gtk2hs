@@ -9,6 +9,22 @@
 	* demo/cairo/Drawing.hs, demo/cairo/StarAndRing.hs,
 	demo/cairo/Text.hs, demo/cairo/Makefile: add cairo demos.
 
+	* glib/System/Glib/Properties.chs: make the enum and object property
+	constructor functions take the enum/object GType as an argument. This
+	should make these types of properties actually work.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Container.chs,
+	gtk/Graphics/UI/Gtk/Display/Image.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/OptionMenu.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Toolbar.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/Arrow.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp,
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: pass the appropriate
+	enum/object GType as an extra argument to the property constructor.
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,

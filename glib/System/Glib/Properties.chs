@@ -5,7 +5,7 @@
 --
 --  Created: 16 April 2005
 --
---  Version $Revision: 1.7 $ from $Date: 2005/08/25 01:17:17 $
+--  Version $Revision: 1.8 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -127,11 +127,11 @@ objectSetPropertyBool = objectSetPropertyInternal GType.bool valueSetBool
 objectGetPropertyBool :: GObjectClass gobj => String -> gobj -> IO Bool
 objectGetPropertyBool = objectGetPropertyInternal GType.bool valueGetBool
 
-objectSetPropertyEnum :: (GObjectClass gobj, Enum enum) => String -> gobj -> enum -> IO ()
-objectSetPropertyEnum = objectSetPropertyInternal GType.enum valueSetEnum
+objectSetPropertyEnum :: (GObjectClass gobj, Enum enum) => GType -> String -> gobj -> enum -> IO ()
+objectSetPropertyEnum gtype = objectSetPropertyInternal gtype valueSetEnum
 
-objectGetPropertyEnum :: (GObjectClass gobj, Enum enum) => String -> gobj -> IO enum
-objectGetPropertyEnum = objectGetPropertyInternal GType.enum valueGetEnum
+objectGetPropertyEnum :: (GObjectClass gobj, Enum enum) => GType -> String -> gobj -> IO enum
+objectGetPropertyEnum gtype = objectGetPropertyInternal gtype valueGetEnum
 
 objectSetPropertyFlags :: (GObjectClass gobj, Flags flag) => String -> gobj -> [flag] -> IO ()
 objectSetPropertyFlags = objectSetPropertyInternal GType.flags valueSetFlags
@@ -163,11 +163,11 @@ objectSetPropertyMaybeString = objectSetPropertyInternal GType.string valueSetMa
 objectGetPropertyMaybeString :: GObjectClass gobj => String -> gobj -> IO (Maybe String)
 objectGetPropertyMaybeString = objectGetPropertyInternal GType.string valueGetMaybeString
 
-objectSetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => String -> gobj -> gobj' -> IO ()
-objectSetPropertyGObject = objectSetPropertyInternal GType.object valueSetGObject
+objectSetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => GType -> String -> gobj -> gobj' -> IO ()
+objectSetPropertyGObject gtype = objectSetPropertyInternal gtype valueSetGObject
 
-objectGetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => String -> gobj -> IO gobj'
-objectGetPropertyGObject = objectGetPropertyInternal GType.object valueGetGObject
+objectGetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => GType -> String -> gobj -> IO gobj'
+objectGetPropertyGObject gtype = objectGetPropertyInternal gtype valueGetGObject
 
 
 -- Convenience functions to make attribute implementations in the other modules
@@ -202,13 +202,13 @@ newAttrFromDoubleProperty :: GObjectClass gobj => String -> Attr gobj Double
 newAttrFromDoubleProperty propName =
   newAttr (objectGetPropertyDouble propName) (objectSetPropertyDouble propName)
 
-newAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> Attr gobj enum
-newAttrFromEnumProperty propName =
-  newAttr (objectGetPropertyEnum propName) (objectSetPropertyEnum propName)
+newAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -> Attr gobj enum
+newAttrFromEnumProperty propName gtype =
+  newAttr (objectGetPropertyEnum gtype propName) (objectSetPropertyEnum gtype propName)
 
-readAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> ReadAttr gobj enum
-readAttrFromEnumProperty propName =
-  readAttr (objectGetPropertyEnum propName)
+readAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -> ReadAttr gobj enum
+readAttrFromEnumProperty propName gtype =
+  readAttr (objectGetPropertyEnum gtype propName)
 
 newAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> Attr gobj [flag]
 newAttrFromFlagsProperty propName =
@@ -230,10 +230,10 @@ newAttrFromMaybeStringProperty :: GObjectClass gobj => String -> Attr gobj (Mayb
 newAttrFromMaybeStringProperty propName =
   newAttr (objectGetPropertyMaybeString propName) (objectSetPropertyMaybeString propName)
 
-newAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> ReadWriteAttr gobj gobj' gobj''
-newAttrFromObjectProperty propName =
-  newAttr (objectGetPropertyGObject propName) (objectSetPropertyGObject propName)
+newAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj gobj' gobj''
+newAttrFromObjectProperty propName gtype =
+  newAttr (objectGetPropertyGObject gtype propName) (objectSetPropertyGObject gtype propName)
 
-writeAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> WriteAttr gobj gobj'
-writeAttrFromObjectProperty propName =
-  writeAttr (objectSetPropertyGObject propName)
+writeAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> WriteAttr gobj gobj'
+writeAttrFromObjectProperty propName gtype =
+  writeAttr (objectSetPropertyGObject gtype propName)

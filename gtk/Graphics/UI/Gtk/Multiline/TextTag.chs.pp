@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.10 $ from $Date: 2005/08/25 23:06:20 $
+--  Version $Revision: 1.11 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -219,6 +219,7 @@ textTagBackgroundFullHeight = newAttrFromBoolProperty "background-full-height"
 --
 textTagBackgroundStipple :: (TextTagClass self, PixmapClass pixmap) => ReadWriteAttr self Pixmap pixmap
 textTagBackgroundStipple = newAttrFromObjectProperty "background-stipple"
+  {# call pure unsafe gdk_pixmap_get_type #}
 
 -- | Foreground color as a string.
 --
@@ -231,6 +232,7 @@ textTagForeground = writeAttrFromStringProperty "foreground"
 --
 textTagForegroundStipple :: (TextTagClass self, PixmapClass pixmap) => ReadWriteAttr self Pixmap pixmap
 textTagForegroundStipple = newAttrFromObjectProperty "foreground-stipple"
+  {# call pure unsafe gdk_pixmap_get_type #}
 
 -- | Text direction, e.g. right-to-left or left-to-right.
 --
@@ -238,6 +240,7 @@ textTagForegroundStipple = newAttrFromObjectProperty "foreground-stipple"
 --
 textTagDirection :: TextTagClass self => Attr self TextDirection
 textTagDirection = newAttrFromEnumProperty "direction"
+  {# call pure unsafe gtk_text_direction_get_type #}
 
 -- | Whether the text can be modified by the user.
 --
@@ -266,6 +269,7 @@ textTagFamily = newAttrFromStringProperty "family"
 --
 textTagStyle :: TextTagClass self => Attr self FontStyle
 textTagStyle = newAttrFromEnumProperty "style"
+  {# call pure unsafe pango_style_get_type #}
 
 -- | Font variant as a 'Variant', e.g. 'VariantSmallCaps'.
 --
@@ -273,6 +277,7 @@ textTagStyle = newAttrFromEnumProperty "style"
 --
 textTagVariant :: TextTagClass self => Attr self Variant
 textTagVariant = newAttrFromEnumProperty "variant"
+  {# call pure unsafe pango_variant_get_type #}
 
 -- | Font weight as an integer, see predefined values in 'Weight'; for
 -- example, 'WeightBold'.
@@ -290,6 +295,7 @@ textTagWeight = newAttrFromIntProperty "weight"
 --
 textTagStretch :: TextTagClass self => Attr self Stretch
 textTagStretch = newAttrFromEnumProperty "stretch"
+  {# call pure unsafe pango_stretch_get_type #}
 
 -- | Font size in Pango units.
 --
@@ -325,6 +331,7 @@ textTagSizePoints = newAttrFromDoubleProperty "size-points"
 --
 textTagJustification :: TextTagClass self => Attr self Justification
 textTagJustification = newAttrFromEnumProperty "justification"
+  {# call pure unsafe gtk_justification_get_type #}
 
 -- | The language this text is in, as an ISO code. Pango can use this as a
 -- hint when rendering the text. If not set, an appropriate default will be
@@ -408,6 +415,7 @@ textTagStrikethrough = newAttrFromBoolProperty "strikethrough"
 --
 textTagUnderline :: TextTagClass self => Attr self Underline
 textTagUnderline = newAttrFromEnumProperty "underline"
+  {# call pure unsafe pango_underline_get_type #}
 
 -- | Whether to wrap lines never, at word boundaries, or at character
 -- boundaries.
@@ -416,6 +424,7 @@ textTagUnderline = newAttrFromEnumProperty "underline"
 --
 textTagWrapMode :: TextTagClass self => Attr self WrapMode
 textTagWrapMode = newAttrFromEnumProperty "wrap-mode"
+  {# call pure unsafe gtk_wrap_mode_get_type #}
 
 #if GTK_CHECK_VERSION(2,8,0)
 -- | Whether this text is hidden.

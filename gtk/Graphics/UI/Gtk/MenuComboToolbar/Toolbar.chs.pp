@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.10 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -666,6 +666,7 @@ toolbarOrientation = newAttr
 --
 toolbarToolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
 toolbarToolbarStyle = newAttrFromEnumProperty "toolbar-style"
+  {# call pure unsafe gtk_toolbar_style_get_type #}
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | If an arrow should be shown if the toolbar doesn't fit.

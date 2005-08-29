@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/08/25 23:06:20 $
+--  Version $Revision: 1.13 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -357,21 +357,25 @@ imageClear self =
 --
 imagePixbuf :: PixbufClass pixbuf => ReadWriteAttr Image Pixbuf pixbuf
 imagePixbuf = newAttrFromObjectProperty "pixbuf"
+  {# call pure unsafe gdk_pixbuf_get_type #}
 
 -- | A 'Pixmap' to display.
 --
 imagePixmap :: PixmapClass pixmap => ReadWriteAttr Image Pixmap pixmap
 imagePixmap = newAttrFromObjectProperty "pixmap"
+  {# call pure unsafe gdk_pixmap_get_type #}
 
 -- | A 'Image' to display.
 --
 imageImage :: ImageClass image => ReadWriteAttr Image Image image
 imageImage = newAttrFromObjectProperty "image"
+  {# call pure unsafe gtk_image_get_type #}
 
 -- | Mask bitmap to use with 'Image' or 'Pixmap'.
 --
 imageMask :: PixmapClass pixmap => ReadWriteAttr Image Pixmap pixmap
 imageMask = newAttrFromObjectProperty "mask"
+  {# call pure unsafe gdk_pixmap_get_type #}
 
 -- | Filename to load and display.
 --
@@ -426,3 +430,4 @@ imageIconName = newAttrFromStringProperty "icon-name"
 --
 imageStorageType :: ReadAttr Image ImageType
 imageStorageType = readAttrFromEnumProperty "storage-type"
+  {# call pure unsafe gtk_image_type_get_type #}

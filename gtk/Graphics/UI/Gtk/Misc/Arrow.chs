@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.6 $ from $Date: 2005/08/29 11:15:58 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -116,6 +116,7 @@ arrowSet self arrowType shadowType =
 --
 arrowArrowType :: ArrowClass self => Attr self ArrowType
 arrowArrowType = newAttrFromEnumProperty "arrow-type"
+  {# call pure unsafe gtk_arrow_type_get_type #}
 
 -- | Appearance of the shadow surrounding the arrow.
 --
@@ -123,3 +124,4 @@ arrowArrowType = newAttrFromEnumProperty "arrow-type"
 --
 arrowShadowType :: ArrowClass self => Attr self ShadowType
 arrowShadowType = newAttrFromEnumProperty "shadow-type"
+  {# call pure unsafe gtk_shadow_type_get_type #}

@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.18 $ from $Date: 2005/08/26 07:49:53 $
+--  Version $Revision: 1.19 $ from $Date: 2005/08/29 11:15:59 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -1345,6 +1345,7 @@ windowTitle = newAttr
 --
 windowType :: WindowClass self => Attr self WindowType
 windowType = newAttrFromEnumProperty "type"
+  {# call pure unsafe gtk_window_type_get_type #}
 
 -- | If @True@, the window has no mimimum size. Setting this to @True@ is 99%
 -- of the time a bad idea.
@@ -1386,6 +1387,7 @@ windowModal = newAttr
 --
 windowWindowPosition :: WindowClass self => Attr self WindowPosition
 windowWindowPosition = newAttrFromEnumProperty "window-position"
+  {# call pure unsafe gtk_window_position_get_type #}
 
 -- | The default width of the window, used when initially showing the window.
 --
