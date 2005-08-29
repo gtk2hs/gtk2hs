@@ -508,6 +508,7 @@ EXTRA_libHSgtk_a_SOURCES =						\
 html_HSFILES_PREPROC += gtk/Graphics/UI/Gtk.hs
 html_HSFILES_HIDDEN  += $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)		\
 			gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs
+html_HSFILES_HIDDEN += gtk/Graphics/UI/Gtk/Signals.chs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts

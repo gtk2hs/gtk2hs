@@ -47,6 +47,18 @@
 	attributes consistently with the other functions. Export the
 	uiManagerUi attribute and update its default value (as of Gtk+ 2.8.3).
 
+	* gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs: add missing export for
+	toCellRenderer casting function.
+
+	* gtk/Graphics/UI/Gtk.hs: do not import toCellRenderer from
+	Graphics.UI.Gtk.Types, so no need to import Graphics.UI.Gtk.Types at
+	all. Import ConnectId, disconnect from System.Glib.Signals instead of
+	Graphics.UI.Gtk.Signals so Graphics.UI.Gtk.Signals does not need to be
+	imported at all.
+
+	* Makefile.am: exclude the Gtk.Signals module from the haddock
+	documentation.
+
 2005-08-27 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/COPYRIGHT, cairo/cairo.h, cairo/cairo.pkg.in,
