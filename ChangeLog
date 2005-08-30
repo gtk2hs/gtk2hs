@@ -1,3 +1,7 @@
+2005-08-30 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* cairo/Graphics/Rendering/Cairo.hs: fix bug with allocating surfaces.
+
 2005-08-29 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/Graphics/Rendering/Cairo/Types.chs: merge patches from Paolo;

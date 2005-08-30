@@ -1372,14 +1372,14 @@ withImageSurface ::
   -> Int    -- ^ width of the surface, in pixels
   -> Int    -- ^ height of the surface, in pixels
   -> (Surface -> IO a) -- ^
-  -> IO ()
+  -> IO a
 withImageSurface format width height f =
   bracket (liftIO $ Internal.imageSurfaceCreate format width height)
-          (\surface -> f surface)
           (\surface -> do status <- Internal.surfaceStatus surface
                           liftIO $ Internal.surfaceDestroy surface
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
+          (\surface -> f surface)
 
 -- | Get the width of the image surface in pixels.
 --
@@ -1394,14 +1394,14 @@ imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 -- | Creates a new image surface and initializes the contents to the given PNG
 -- file.
 --
-withImageSurfaceFromPNG :: FilePath -> (Surface -> IO a) -> IO ()
+withImageSurfaceFromPNG :: FilePath -> (Surface -> IO a) -> IO a
 withImageSurfaceFromPNG filename f =
   bracket (liftIO $ Internal.imageSurfaceCreateFromPNG filename)
-          (\surface -> f surface)
           (\surface -> do status <- Internal.surfaceStatus surface
                           liftIO $ Internal.surfaceDestroy surface
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
+          (\surface -> f surface)
 
 -- | Writes the contents of surface to a new file @filename@ as a PNG image.
 --
@@ -1425,3 +1425,4 @@ version = Internal.version
 --
 versionString :: String
 versionString = Internal.versionString
+
