@@ -28,30 +28,31 @@ default :
 #
 #	source code
 #
-packages = glib pango atk gtk glade gconf gnomecanvas sourceview
+packages = glib pango atk gtk glade gconf sourceview
 
+gtk_releases_url   = ftp://ftp.gtk.org/pub/gtk/v2.8
 gnome_platform_url = http://ftp.gnome.org/pub/gnome/platform/2.10/2.10.0/sources
 gnome_desktop_url  = http://ftp.gnome.org/pub/gnome/desktop/2.10/2.10.0/sources
 
-glib_version = 2.6.3
+glib_version = 2.8.1
 glib_dir = glib
 glib_tar = glib-$(glib_version).tar.bz2
-glib_url = $(gnome_platform_url)/$(glib_tar)
+glib_url = $(gtk_releases_url)/$(glib_tar)
 
-pango_version = 1.8.1
+pango_version = 1.10.0
 pango_dir = pango
 pango_tar = pango-$(pango_version).tar.bz2
-pango_url = $(gnome_platform_url)/$(pango_tar)
+pango_url = $(gtk_releases_url)/$(pango_tar)
 
-atk_version = 1.9.1
+atk_version = 1.10.3
 atk_dir = atk
 atk_tar = atk-$(atk_version).tar.bz2
-atk_url = $(gnome_platform_url)/$(atk_tar)
+atk_url = $(gtk_releases_url)/$(atk_tar)
 
-gtk_version = 2.6.4
+gtk_version = 2.8.3
 gtk_dir = gtk
 gtk_tar = gtk+-$(gtk_version).tar.bz2
-gtk_url = $(gnome_platform_url)/$(gtk_tar)
+gtk_url = $(gtk_releases_url)/$(gtk_tar)
 
 glade_version = 2.5.1
 glade_dir = glade
@@ -183,7 +184,7 @@ pango-modules : pango-docs.xml
 
 glib_docs_dirs   = glib/docs/reference/glib/xml
 glib_modprefix   = System.Glib
-glib_scanmodules = ../../glib/System/Glib
+glib_scanmodules = glib/System/Glib
 glib-modules : glib-api.xml glib-docs.xml Template.chs ApiGen
 
 gobject_docs_dirs = glib/docs/reference/gobject/xml

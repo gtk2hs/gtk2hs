@@ -1,3 +1,9 @@
+2005-09-9 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/apiGen/Makefile: update for Gtk+ 2.8 sources
+
+	* tools/apiGen/CodeGen.hs: small updates for Gtk+ 2.8
+
 2005-08-30 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/Graphics/Rendering/Cairo.hs: fix bug with allocating surfaces.

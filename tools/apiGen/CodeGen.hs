@@ -308,12 +308,12 @@ properties object docs =
 
  ++ [ (index :: Int
       ,(Right (getter, setter)
-       ,lookup (property_cname property) docmap))
+       ,lookup (map dashToUnderscore $ property_cname property) docmap))
     | ((property, index), (getter, setter)) <- directProps ]
 
  ++ [ (index :: Int
       ,(Left property
-       ,lookup (property_cname property) docmap))
+       ,lookup (map dashToUnderscore $ property_cname property) docmap))
     | (property, index) <- genericProps ]
 
   where docmap = [ (map dashToUnderscore (propdoc_name doc), doc)
@@ -375,6 +375,7 @@ genAtter knownSymbols object doc propertyName classConstraint getterType setterT
               | gt == st              -> (ss "Attr",          ss "newAttr", ss gt)
               | length (words st) > 1 -> (ss "ReadWriteAttr", ss "newAttr", ss gt. ss " (". ss st. sc ')')
               | otherwise             -> (ss "ReadWriteAttr", ss "newAttr", ss gt. sc ' '. ss st)
+	    _ -> error $ "no getter or setter for " ++ object_name object ++ " :: " ++ propertyName 
         attrBody =
           case (attrImpl) of
             Left (getter, setter) -> attrConstructor.
@@ -458,7 +459,7 @@ methodsThatLookLikeProperties object =
 
 childProperties :: Object -> [PropDoc] -> [(Property, Maybe PropDoc)]
 childProperties object docs =
-  [ (property, lookup (property_cname property) docmap)
+  [ (property, lookup (map dashToUnderscore $ property_cname property) docmap)
   | property <- object_childprops object ]
 
   where docmap = [ (map dashToUnderscore (propdoc_name doc), doc)
@@ -765,6 +766,7 @@ doVersionIfDefs sep =
         layoutChunks msep (BeginSinceChunk since :chunks) = msep. ifSinceVersion since. layoutChunks id chunks
         
         ifSinceVersion [major,'.',minor] = ss "#if GTK_CHECK_VERSION(". sc major. ss ",". sc minor. ss ",0)\n"
+	ifSinceVersion [major,'.',minor,minor'] = ss "#if GTK_CHECK_VERSION(". sc major. ss ",". sc minor. sc minor'. ss ",0)\n"
         ifndefDeprecated = ss "#ifndef DISABLE_DEPRECATED\n"
         endif = ss "\n#endif"
 
