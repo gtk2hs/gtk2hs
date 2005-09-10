@@ -18,16 +18,18 @@ module Graphics.Rendering.Cairo (
 -- Currently supported output targets include the X Window System, win32, and
 -- image buffers. Experimental backends include OpenGL (through glitz), Quartz,
 -- XCB, PostScript and PDF file output.
-
+--
 -- Cairo is designed to produce consistent output on all output media while
 -- taking advantage of display hardware acceleration when available (eg.
 -- through the X Render Extension).
-
+--
 -- The cairo API provides operations similar to the drawing operators of
 -- PostScript and PDF. Operations in cairo including stroking and filling cubic
 -- Bezier splines, transforming and compositing translucent images, and
 -- antialiased text rendering. All drawing operations can be transformed by any
 -- affine transformation (scale, rotation, shear, etc.) 
+--
+-- For more information see <http://cairographics.org>
 --
 -- * Note the Haskell bindings do not support all the possible cairo backends
 -- because it would require bindings for the associated technology (eg X11,

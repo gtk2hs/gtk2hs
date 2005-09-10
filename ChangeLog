@@ -1,4 +1,8 @@
-2005-09-9 Duncan Coutts <duncan@coutts.uklinux.net>
+2005-09-10 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* cairo/Graphics/Rendering/Cairo.hs: haddock fixes.
+
+2005-09-09 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/apiGen/Makefile: update for Gtk+ 2.8 sources
 
