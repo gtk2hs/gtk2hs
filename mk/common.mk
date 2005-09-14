@@ -20,7 +20,7 @@ tools_PKGNAME = $(call tools_$(word 2,$(subst /, ,$(1)))_PKGNAME,$(1))
 pkgVPATH = $(subst $(SPACE),:,$($(PKG)_SOURCESDIRS))
 getVar   = $($(subst .,_,$(subst /,_,$(1)))_$(2))
 
-LINK = 	$(strip $(HC) -o $@ $(AM_HCFLAGS) $(HCFLAGS) $($(PKG)_HCFLAGS) \
+LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(addprefix -package ,$($(PKG)_PACKAGEDEPS)) \
 	$(addprefix -optl,$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LDFLAGS)))
 
@@ -30,7 +30,7 @@ LINK = 	$(strip $(HC) -o $@ $(AM_HCFLAGS) $(HCFLAGS) $($(PKG)_HCFLAGS) \
 #Obviously the 'subdir-objects' option only works for C/C++ files.
 %.o : %.hs $(CONFIG_HEADER)
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
-	-c $< -o $@ $(AM_HCFLAGS) $(HCFLAGS) $($(PKG)_HCFLAGS) \
+	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
 	$(addprefix -package-name ,$(notdir $(basename $(basename $($(PKG)_PACKAGE))))) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
@@ -62,7 +62,7 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	$(if $(word 2,$($(PKG)_HSFILES)),\
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
 	  $(HC) -M $(addprefix -optdep,-f $@) -fglasgow-exts \
-	  $(AM_HCFLAGS) $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(pkgVPATH) \
+	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(pkgVPATH) \
 	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
 	fi;))
 

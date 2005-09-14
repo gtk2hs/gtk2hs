@@ -1,3 +1,12 @@
+2005-09-14 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* configure.ac: allow the gtkmozembed package to be built agsinst the
+	Mozilla Firefox libraries. It's configurable with --enable-firefox. Do
+	not use the AM_HCFLAGS variable since it upsets some versions of
+	autoconf.
+	
+	* mk/common.mk: remove use of AM_HCFLAGS
+
 2005-09-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/cairo.package.conf.in: remove cairo-pdf.h and cairo-ps.h from

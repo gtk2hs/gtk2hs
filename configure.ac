@@ -196,7 +196,7 @@ esac
 dnl Define WIN32 on win32 platform. Perhaps this should go in the
 dnl gtk2hs-config.h file?
 if test "$WIN32" = "yes"; then
-  AM_HCFLAGS="$AM_HCFLAGS -DWIN32"
+  HCFLAGS="$HCFLAGS -DWIN32"
 fi
 
 dnl packager mode is for people building packages, eg for linux distros.
@@ -267,6 +267,18 @@ GTKHS_PKG_CHECK(mozilla, mozembed, MOZEMBED, [mozilla-gtkmozembed >= 1.4],
 	[build bindings for the Mozilla display widget (default=auto)],
 	[Mozilla requirement not met. Perhaps you need to install mozilla or mozilla-devel])
 
+GTKHS_PKG_CHECK(firefox, mozembed, FIREFOX_MOZEMBED, [firefox-gtkmozembed >= 1.0],
+	[build bindings for the Mozilla display widget using the Firefox libs (default=auto)],
+	[Mozilla Firefox requirement not met. Perhaps you need to install firefox or firefox-devel])
+
+dnl If we have both mozilla and firefox enabled then the firefox settings
+dnl override the mozilla settings.
+if test "$ENABLE_FIREFOX_MOZEMBED" = "yes"; then
+	ENABLE_MOZEMBED="yes"
+	MOZEMBED_CFLAGS="$FIREFOX_MOZEMBED_CFLAGS"
+	MOZEMBED_LIBS="$FIREFOX_MOZEMBED_LIBS"
+fi
+
 dnl GTKHS_PKG_CHECK(opengl, gtkgl, GTKGL, [gtkgl-2.0 >= 1.99.0],
 dnl 	[build GtkGLArea package (default=auto)],
 dnl 	[GtkGLArea library requirement not met. Perhaps you need to install gtkglarea or gtkglarea-devel])
@@ -287,7 +299,9 @@ dnl modify the lib flags to add -Rfoo for each occurence of -Lfoo
 MOZEMBED_LIBS_TMP=;
 for FLAG in $MOZEMBED_LIBS; do
   case $FLAG in
-      -L*) MOZEMBED_LIBS_TMP="$MOZEMBED_LIBS_TMP $FLAG -Wl,-R${FLAG#-L}";;
+    -L*) if test -d "${FLAG#-L}"; then
+	   MOZEMBED_LIBS_TMP="$MOZEMBED_LIBS_TMP $FLAG -Wl,-R${FLAG#-L}"
+	 fi;;
       *)  MOZEMBED_LIBS_TMP="$MOZEMBED_LIBS_TMP $FLAG";;
   esac;
 done;
@@ -693,7 +707,6 @@ AC_SUBST(PKGCONF)
 AC_SUBST(USE_NEW_PKG_FORMAT)
 AC_SUBST(PKGEXT)
 AC_SUBST(HCFLAGS)
-AC_SUBST(AM_HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(HSC2HS)
 AC_SUBST(HSCPP)
