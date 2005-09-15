@@ -1,3 +1,7 @@
+2005-09-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* TODO: note a possible solution to the win32 non-console app problem.
+
 2005-09-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: allow the gtkmozembed package to be built agsinst the

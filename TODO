@@ -1,5 +1,14 @@
 TODO for gtk2hs
 
+15/9/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+	
+	* Make the stdin/stdout/stderr not cause errors on win32 when not
+	compiled as console apps by doing something like:
+	fd <- open "nul" 2 0
+	dup2 fd 0
+	dup2 fd 1
+	dup2 fd 2
+
 7/6/2005 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* audit to make sure that all enums that are used are exported
