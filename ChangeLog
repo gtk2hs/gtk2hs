@@ -1,3 +1,11 @@
+2005-09-16 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glade/Graphics/UI/Gtk/Glade.chs: make sure the widget returned from
+	xmlGetWidget is fully evaluated so that casting errors get reported
+	from xmlGetWidget rather than when the widget is first used and
+	restructure the code slightly so that the named widget not existing
+	also gets reported from xmlGetWidget rather than at first use.
+
 2005-09-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* TODO: note a possible solution to the win32 non-console app problem.

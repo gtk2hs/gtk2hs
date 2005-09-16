@@ -4,7 +4,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 13 March 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2005/01/08 15:57:06 $
+--  Version $Revision: 1.2 $ from $Date: 2005/09/16 03:46:45 $
 --
 --  Copyright (c) 2002 Manuel M T Chakravarty
 --  Modified 2003 by Duncan Coutts (gtk2hs port)
@@ -57,6 +57,7 @@ module Graphics.UI.Gtk.Glade (
 ) where
 
 import Monad	(liftM)
+import Control.Exception (evaluate)
 
 import System.Glib.FFI
 import System.Glib.GType
@@ -113,9 +114,10 @@ xmlNewWithRootAndDomain file rootWidgetName domain =
 xmlGetWidget :: (WidgetClass widget) => GladeXML -> (GObject -> widget) -> String -> IO widget
 xmlGetWidget xml cast name = do
   maybeWidget <- xmlGetWidgetRaw xml name
-  return $ case maybeWidget of
-    Just widget -> cast (toGObject widget) --the cast will return an error if the object is of the wrong type
-    Nothing -> error $ "glade.xmlGetWidget: no object named " ++ show name ++ " in the glade file"
+  case maybeWidget of
+    Just widget -> evaluate (cast (toGObject widget))
+    	--the cast will return an error if the object is of the wrong type
+    Nothing -> fail $ "glade.xmlGetWidget: no object named " ++ show name ++ " in the glade file"
 
 xmlGetWidgetRaw :: GladeXML -> String -> IO (Maybe Widget)
 xmlGetWidgetRaw xml name =
