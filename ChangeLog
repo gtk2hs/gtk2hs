@@ -1,3 +1,9 @@
+2005-09-19 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: bug fix. Add a special
+	case to widgetAddEvents work around a GTK+ bug. See
+	http://bugzilla.gnome.org/show_bug.cgi?id=316702
+
 2005-09-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glade/Graphics/UI/Gtk/Glade.chs: make sure the widget returned from

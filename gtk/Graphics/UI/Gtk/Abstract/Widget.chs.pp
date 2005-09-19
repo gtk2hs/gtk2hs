@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/08/25 01:16:14 $
+--  Version $Revision: 1.12 $ from $Date: 2005/09/19 14:34:57 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -562,6 +562,9 @@ widgetDelEvents self events = do
 -- * See 'widgetDelEvents'.
 --
 widgetAddEvents :: WidgetClass self => self -> [EventMask] -> IO ()
+widgetAddEvents self [] = return ()
+ -- special [] case to work around a GTK+ bug, see:
+ -- http://bugzilla.gnome.org/show_bug.cgi?id=316702
 widgetAddEvents self events =
   {# call widget_add_events #}
     (toWidget self)
