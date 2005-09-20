@@ -1,3 +1,15 @@
+2005-09-20 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* sourceview/Graphics/UI/Gtk/SourceView/SourceBuffer.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceLanguage.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceLanguagesManager.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceMarker.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceStyleScheme.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTag.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs,
+	sourceview/Graphics/UI/Gtk/SourceView/SourceView.chs: export the
+	castTo* functions.
+
 2005-09-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: bug fix. Add a special

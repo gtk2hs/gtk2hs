@@ -6,7 +6,7 @@
 --
 --  Created: 22 October 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/20 23:54:02 $
+--  Version $Revision: 1.3 $ from $Date: 2005/09/20 00:05:34 $
 --
 --  Copyright (C) 2003-2005 Duncan Coutts, Axel Simon
 --
@@ -27,6 +27,7 @@
 --
 module Graphics.UI.Gtk.SourceView.SourceStyleScheme (
   SourceStyleScheme,
+  castToSourceStyleScheme,
   sourceStyleSchemeGetTagStyle,
   sourceStyleSchemeGetName,
   sourceStyleSchemeGetDefault
