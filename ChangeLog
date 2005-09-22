@@ -1,3 +1,14 @@
+2005-09-22 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mozembed/Graphics/UI/Gtk/MozEmbed/.keep: add file just to ensure
+	that cvs creates the directory since otherwise it'd be empty and cvs
+	sometimes prunes empty directories.
+
+	* compile, missing: add these autotools files so that users don't have
+	to use autoreconf -i. (Other autotool projects seem to keep these
+	files in cvs and I'm getting tired of telling people they need to use
+	autoreconf with the -i flag.)
+	
 2005-09-20 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/Graphics/UI/Gtk/SourceView/SourceBuffer.chs,
