@@ -4,7 +4,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 13 March 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2004/05/25 00:38:48 $
+--  Version $Revision: 1.4 $ from $Date: 2005/09/25 08:40:26 $
 --
 --  Copyright (c) 2002 Manuel M T Chakravarty
 --  Modified 2003 by Duncan Coutts (gtk2hs port)
@@ -103,11 +103,11 @@ xmlNewWithRootAndDomain file rootWidgetName domain =
 -- the interface description. If the named widget cannot be found
 -- or is of the wrong type the result is an error.
 --
--- * the second parameter is the ID of the widget in the glade xml
---   file, eg \"button1\".
---
--- * the third parameter should be a dynamic cast function that
+-- * the second parameter should be a dynamic cast function that
 --   returns the type of object that you expect, eg castToButton
+--
+-- * the third parameter is the ID of the widget in the glade xml
+--   file, eg \"button1\".
 --
 xmlGetWidget :: (WidgetClass widget) => GladeXML -> (GObject -> widget) -> String -> IO widget
 xmlGetWidget xml cast name = do

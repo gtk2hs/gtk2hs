@@ -1,3 +1,11 @@
+2005-09-25 Axel Simon <A.Simon@kent.ac.uk>
+
+	* glade/Glade.chs: Fixed a comment reported by Marco Tulio Gontijo
+	e Silva.
+
+	* gtk/Graphics/UI/Gtk.hs: Only import Cairo stuff if Cairo is
+	present.
+
 2005-09-22 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mozembed/Graphics/UI/Gtk/MozEmbed/.keep: add file just to ensure
