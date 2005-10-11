@@ -14,6 +14,10 @@
 
 	* Makefile.am: build the cairo demo.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: for onMotionNotify in
+	the 'hint' mode we must enable the PointerMotionMask event as well as
+	the PointerMotionHintMask or we will not recieve any motion events.
+
 2005-09-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* glade/Glade.chs: Fixed a comment reported by Marco Tulio Gontijo

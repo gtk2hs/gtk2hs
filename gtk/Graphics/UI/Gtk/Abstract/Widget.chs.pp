@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/09/19 14:34:57 $
+--  Version $Revision: 1.13 $ from $Date: 2005/10/11 15:27:21 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -1355,9 +1355,11 @@ onMotionNotify, afterMotionNotify :: WidgetClass w => w -> Bool ->
                                      (Event -> IO Bool) -> 
                                      IO (ConnectId w)
 onMotionNotify w hint = event "motion_notify_event" 
-  (if hint then [PointerMotionHintMask] else [PointerMotionMask]) False w
+  (if hint then [PointerMotionMask, PointerMotionHintMask]
+           else [PointerMotionMask]) False w
 afterMotionNotify w hint = event "motion_notify_event" 
-  (if hint then [PointerMotionHintMask] else [PointerMotionMask]) True w
+  (if hint then [PointerMotionMask, PointerMotionHintMask]
+           else [PointerMotionMask]) True w
 
 -- | 
 --
