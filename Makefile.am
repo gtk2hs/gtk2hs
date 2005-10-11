@@ -1178,6 +1178,11 @@ if HAVE_GTK_VERSION_2_4
 DEMOS += demo/filechooser demo/profileviewer
 endif
 endif
+if HAVE_GTK_VERSION_2_8
+if ENABLE_CAIRO
+DEMOS += demo/cairo
+endif
+endif
 if ENABLE_GCONF
 DEMOS += demo/gconf
 endif

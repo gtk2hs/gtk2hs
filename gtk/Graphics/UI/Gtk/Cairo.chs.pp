@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/08/29 11:41:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/10/11 15:24:23 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -50,7 +50,6 @@ module Graphics.UI.Gtk.Cairo (
   ) where
 
 import Monad	    (liftM,unless)
-import Control.Monad.Reader (runReaderT)
 import Control.Exception    (bracket)
 
 import System.Glib.FFI
