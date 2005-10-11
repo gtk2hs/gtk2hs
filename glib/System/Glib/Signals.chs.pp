@@ -5,7 +5,7 @@
 --
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.5 $ from $Date: 2005/07/23 01:09:51 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/11 15:43:54 $
 --
 --  Copyright (C) 2000-2005 Axel Simon, Duncan Coutts
 --
@@ -83,7 +83,7 @@ connectGeneric :: GObjectClass obj =>
  -> IO (ConnectId obj)
 connectGeneric signal after obj user = do
   sptr <- newStablePtr user
-  gclosurePtr <- hsg_closure_new sptr
+  gclosurePtr <- gtk2hs_closure_new sptr
   sigId <- 
     withCString signal $ \signalPtr -> 
     withForeignPtr ((unGObject.toGObject) obj) $ \objPtr ->
@@ -94,8 +94,8 @@ connectGeneric signal after obj user = do
       (fromBool after)
   return $ ConnectId sigId obj
 
-foreign import ccall unsafe "hsg_closure_new"
-  hsg_closure_new :: StablePtr a -> IO (Ptr GClosure)
+foreign import ccall unsafe "gtk2hs_closure_new"
+  gtk2hs_closure_new :: StablePtr a -> IO (Ptr GClosure)
 
 #else
 

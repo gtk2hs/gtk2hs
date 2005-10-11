@@ -4,7 +4,7 @@
  *
  *  Created: 22 March 2005
  *
- *  Version $Revision: 1.1 $ from $Date: 2005/04/06 20:20:16 $
+ *  Version $Revision: 1.2 $ from $Date: 2005/10/11 15:43:54 $
  *
  *  Copyright (C) 2005 Duncan Coutts
  *
@@ -21,4 +21,4 @@
 
 #include <glib-object.h>
 
-GClosure * hsg_closure_new(HsStablePtr callback);
+GClosure * gtk2hs_closure_new(HsStablePtr callback);

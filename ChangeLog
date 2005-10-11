@@ -18,6 +18,14 @@
 	the 'hint' mode we must enable the PointerMotionMask event as well as
 	the PointerMotionHintMask or we will not recieve any motion events.
 
+	* glib/System/Glib/hsgclosure.c, glib/System/Glib/hsgclosure.h,
+	glib/System/Glib/Signals.chs.pp: cope with signal handlers that
+	provide a non-null return GValue but with an invalid type by ignoring
+	them (which is what the python version does too). This fixes the Entry
+	onEntryActivate signal and probably others. Also improve the debugging
+	and error checking code and rename the C functions to use the gtk2hs
+	namespace/prefix.
+
 2005-09-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* glade/Glade.chs: Fixed a comment reported by Marco Tulio Gontijo
