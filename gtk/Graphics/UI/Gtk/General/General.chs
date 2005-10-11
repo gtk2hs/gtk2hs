@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.11 $ from $Date: 2005/08/03 01:25:08 $
+--  Version $Revision: 1.12 $ from $Date: 2005/10/11 16:15:43 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -21,7 +21,7 @@
 --
 -- TODO
 --
--- quitAddDestroy, quitAdd, quitRemove, inputAdd, inputRemove
+-- quitAddDestroy, quitAdd, quitRemove
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -42,6 +42,7 @@ module Graphics.UI.Gtk.General.General (
   grabAdd,
   grabGetCurrent,
   grabRemove,
+  Priority,
   priorityLow,
   priorityDefaultIdle,
   priorityHighIdle,
@@ -52,23 +53,23 @@ module Graphics.UI.Gtk.General.General (
   timeoutRemove,
   idleAdd,
   idleRemove,
+  inputAdd,
+  inputRemove,
+  IOCondition,
   HandlerId
   ) where
 
 import System   (getProgName, getArgs, ExitCode(ExitSuccess, ExitFailure))
 import Monad	(liftM, mapM)
-import Data.IORef	 (newIORef, readIORef, writeIORef)
 import Control.Exception (ioError, Exception(ErrorCall))
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GObject		(DestroyNotify, mkFunPtrDestroyNotify)
+import System.Glib.MainLoop
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-{#import Graphics.UI.Gtk.Types#}	 
+{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Structs	(priorityLow, priorityDefaultIdle,
-					priorityHighIdle, priorityDefault,
-					priorityHigh)
 
 {#context lib="gtk" prefix ="gtk"#}
 
@@ -178,76 +179,3 @@ grabGetCurrent  = do
 --
 grabRemove :: WidgetClass w => w -> IO ()
 grabRemove  = {#call grab_remove#} . toWidget
-
-{#pointer GSourceFunc as Function#}
-
-foreign import ccall "wrapper" mkHandler :: IO {#type gint#} -> IO Function
-
-type HandlerId = {#type guint#}
-
--- Turn a function into a function pointer and a destructor pointer.
---
-makeCallback :: IO {#type gint#} -> IO (Function, DestroyNotify)
-makeCallback fun = do
-  funPtr <- mkHandler fun
-  dPtr <- mkFunPtrDestroyNotify funPtr
-  return (funPtr, dPtr)
-
--- | Sets a function to be called at regular intervals, with the default
--- priority 'priorityDefault'. The function is called repeatedly until it
--- returns @False@, after which point the timeout function will not be called
--- again. The first call to the function will be at the end of the first interval.
---
--- Note that timeout functions may be delayed, due to the processing of other
--- event sources. Thus they should not be relied on for precise timing. After
--- each call to the timeout function, the time of the next timeout is
--- recalculated based on the current time and the given interval (it does not
--- try to 'catch up' time lost in delays).
---
-timeoutAdd :: IO Bool -> Int -> IO HandlerId
-timeoutAdd fun msec = timeoutAddFull fun priorityDefault msec
-
--- | Sets a function to be called at regular intervals, with the given
--- priority. The function is called repeatedly until it returns @False@, after
--- which point the timeout function will not be called again. The first call
--- to the function will be at the end of the first interval.
---
--- Note that timeout functions may be delayed, due to the processing of other
--- event sources. Thus they should not be relied on for precise timing. After
--- each call to the timeout function, the time of the next timeout is
--- recalculated based on the current time and the given interval (it does not
--- try to 'catch up' time lost in delays).
---
-timeoutAddFull :: IO Bool -> Int -> Int -> IO HandlerId
-timeoutAddFull fun pri msec = do
-  (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
-  {#call unsafe g_timeout_add_full#}
-    (fromIntegral pri)
-    (fromIntegral msec)
-    funPtr
-    nullPtr
-    dPtr
-
--- | Remove a previously added timeout handler by its 'TimeoutId'.
---
-timeoutRemove :: HandlerId -> IO ()
-timeoutRemove id = {#call g_source_remove#} id >> return ()
-
--- | Add a callback that is called whenever the system is idle.
---
--- * A priority can be specified via an integer. This should usually be
---   'priorityDefaultIdle'.
---
--- * If the function returns @False@ it will be removed.
---
-idleAdd :: IO Bool -> Int -> IO HandlerId
-idleAdd fun pri = do
-  (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
-  {#call unsafe g_idle_add_full#} (fromIntegral pri) funPtr
-    nullPtr dPtr
-
--- | Remove a previously added idle handler by its 'TimeoutId'.
---
-idleRemove :: HandlerId -> IO ()
-idleRemove id = {#call g_source_remove#} id >> return ()
-

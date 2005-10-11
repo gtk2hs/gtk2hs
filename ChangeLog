@@ -26,6 +26,18 @@
 	and error checking code and rename the C functions to use the gtk2hs
 	namespace/prefix.
 
+	* glib/System/Glib/MainLoop.chs.pp: new module with glib main loop
+	functions ike the timout and idle functions and the priority
+	constants. Also add inputAdd for arranging callbacks upon activity on
+	a file descriptor.
+
+	* gtk/Graphics/UI/Gtk/General/Structs.hsc: remove priority constants.
+
+	* gtk/Graphics/UI/Gtk/General/General.chs: remove timeout and idle
+	callback functions and import them from System.Glib.MainLoop instead.
+
+	* Makefile.am: add MainLoop.chs.pp to glib SOURCES.
+
 2005-09-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* glade/Glade.chs: Fixed a comment reported by Marco Tulio Gontijo

@@ -255,7 +255,8 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/GError.chs.pp		\
 	glib/System/Glib/GList.chs		\
 	glib/System/Glib/Signals.chs.pp		\
-        glib/System/Glib/Flags.hs
+        glib/System/Glib/Flags.hs		\
+	glib/System/Glib/MainLoop.chs.pp
 
 if USE_GCLOSUE_SIGNALS_IMPL
 libHSglib_a_SOURCES += glib/System/Glib/hsgclosure.c
@@ -276,7 +277,9 @@ glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_Attributes_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_Signals_hs_HCFLAGS	= '-\#include"hsgclosure.h"'
 
-libHSglib_a_LIBADD  = glib/System/Glib/GObject_stub.o
+libHSglib_a_LIBADD  = 				\
+	glib/System/Glib/GObject_stub.o		\
+	glib/System/Glib/MainLoop_stub.o
 
 if !USE_GCLOSUE_SIGNALS_IMPL
 libHSglib_a_LIBADD += glib/System/Glib/Signals_stub.o

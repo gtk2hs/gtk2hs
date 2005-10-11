@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/08/20 13:25:19 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/11 16:15:43 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -82,11 +82,6 @@ module Graphics.UI.Gtk.General.Structs (
 #ifndef DISABLE_DEPRECATED
   comboGetList,
 #endif
-  priorityLow,
-  priorityDefaultIdle,
-  priorityHighIdle,
-  priorityDefault,
-  priorityHigh,
   drawingAreaGetDrawWindow,
   drawingAreaGetSize,
   layoutGetDrawWindow,
@@ -616,26 +611,6 @@ comboGetList :: Combo -> IO List
 comboGetList c = withForeignPtr (unCombo c) $ \cPtr ->
   makeNewObject mkList $ #{peek GtkCombo, list} cPtr
 #endif
-
--- General related constants
-
--- | For installing idle callbacks: Priorities.
---
-priorityHigh :: Int
-priorityHigh  = #const G_PRIORITY_HIGH
-
-priorityDefault :: Int
-priorityDefault = #const G_PRIORITY_DEFAULT
-
-priorityHighIdle :: Int
-priorityHighIdle  = #const G_PRIORITY_HIGH_IDLE
-
-priorityDefaultIdle :: Int
-priorityDefaultIdle = #const G_PRIORITY_DEFAULT_IDLE
-
-priorityLow :: Int
-priorityLow	= #const G_PRIORITY_LOW
-
 
 -- FileSelection related methods
 
