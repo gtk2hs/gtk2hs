@@ -1,8 +1,8 @@
 AUTOMAKE_OPTIONS = 1.8 foreign no-dependencies
 SUFFIXES = .hs.uncpp .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES = */*.deps.bak tools/*/*.deps.bak
-CLEANFILES =
-DISTCLEANFILES = */*.precomp
+CLEANFILES = */*.precomp
+DISTCLEANFILES =
 
 EXTRA_DIST = \
 	tools/callbackGen/Signal.chs.template	\

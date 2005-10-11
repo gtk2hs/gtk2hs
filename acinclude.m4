@@ -93,7 +93,7 @@ dnl                 pkg-config version requirements,
 dnl                 arg enable help string,
 dnl                 error if false)
 dnl perform the AC_ARG_ENABLE, PKG_CHECK_MODULES and AM_CONDITIONAL for a
-dnl pkh-config module and corresponding gtk2hs package.
+dnl pkg-config module and corresponding gtk2hs package.
 AC_DEFUN([GTKHS_PKG_CHECK],
 [
 # Check if user wants $1 bindings. Defaults to auto, or in packager
@@ -172,6 +172,7 @@ TMP_[$1]=;
 for FLAG in [$][$1]; do
   case [$]FLAG in
     -lpthread) TMP_[$1]="[$]TMP_[$1]";;
+    -lz)       TMP_[$1]="[$]TMP_[$1]";;
     *)         TMP_[$1]="[$]TMP_[$1] [$]FLAG";;
   esac;
 done;

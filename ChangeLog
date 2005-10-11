@@ -1,3 +1,13 @@
+2005-10-11 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: delete the .precomp files in an ordinary "make clean"
+	rather than "make distclean" since they are not so expensive to
+	re-generate anymore and it seems to trip people up when they rebuild
+	against different Gtk+ versions.
+
+	* acinclude.m4: deal with libz on glibc systems in the same way as the
+	pthread issue, ie don't directly link to it since it breaks ghci.
+
 2005-09-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* glade/Glade.chs: Fixed a comment reported by Marco Tulio Gontijo
