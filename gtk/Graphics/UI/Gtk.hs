@@ -6,7 +6,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.18 $ from $Date: 2005/09/25 08:40:26 $
+--  Version $Revision: 1.19 $ from $Date: 2005/10/13 23:37:57 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -56,10 +56,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.Pixbuf,
   module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Gdk,
-#ifdef ENABLE_CAIRO
   -- ** cairo integration
   module Graphics.UI.Gtk.Cairo,
-#endif
   -- * Windows
   module Graphics.UI.Gtk.Windows.Window,
   module Graphics.UI.Gtk.Windows.Dialog,
@@ -227,10 +225,8 @@ import Graphics.UI.Gtk.Gdk.GC
 import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
 import Graphics.UI.Gtk.Gdk.Gdk
-#ifdef ENABLE_CAIRO
 -- cairo integration
 import Graphics.UI.Gtk.Cairo
-#endif
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog
 import Graphics.UI.Gtk.Windows.Window
