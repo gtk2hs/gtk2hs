@@ -5,7 +5,7 @@
 --
 --  Created: 6 June 2003
 --
---  Version $Revision: 1.4 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/13 23:35:39 $
 --
 --  Copyright (C) 2003-2005 Jens-Ulrik Holger Petersen
 --
@@ -19,10 +19,6 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- TODO
---
--- Documentation
---
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -30,9 +26,20 @@
 --
 -- Gdk general functions.
 --
-module Graphics.UI.Gtk.Gdk.Gdk (beep) where
+module Graphics.UI.Gtk.Gdk.Gdk (
+  beep,
+  flush,
+  ) where
 
 {#context lib="gdk" prefix ="gdk"#}
 
+-- | Emits a short beep.
+--
 beep :: IO ()
 beep = {#call beep#}
+
+-- | Flushes the X output buffer and waits until all requests have been
+-- processed by the server. This is rarely needed by applications.
+--
+flush :: IO ()
+flush = {#call flush#}
