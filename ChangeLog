@@ -1,3 +1,8 @@
+2005-10-13 Axel Simon <A.Simon@kent.ac.uk>
+
+	* demo/actionMenu/ActionMenu.hs, demo/actionMenu/Makefile: Added
+	new demo.
+	
 2005-10-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: delete the .precomp files in an ordinary "make clean"
