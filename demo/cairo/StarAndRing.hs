@@ -68,28 +68,36 @@ clipToLeftAndRight width height = do
   clip
   newPath
 
-main :: IO ()
-main =
-  withImageSurface FormatARGB32 width height $ \result ->
-  withImageSurface FormatARGB32 width height $ \ringOverStar ->
-  withImageSurface FormatARGB32 width height $ \starOverRing -> do
+starAndRing :: Int -> Int -> Render ()
+starAndRing width height = do
+  setOperator OperatorClear
+  paint
+  
+  setOperator OperatorAdd
+
+  renderWithSimilarSurface ContentColorAlpha width height $ \ringOverStar -> do
     renderWith ringOverStar $ do
       clipToTopAndBottom width height
       fillStar
       fillRing
+    setSourceSurface ringOverStar 0 0
+    paint
+
+  renderWithSimilarSurface ContentColorAlpha width height $ \starOverRing -> do
     renderWith starOverRing $ do
       clipToLeftAndRight width height
       fillRing
       fillStar
-    renderWith result $ do
-      setOperator OperatorClear
-      paint
-      setOperator OperatorAdd
-      setSourceSurface ringOverStar 0 0
-      paint
-      setSourceSurface starOverRing 0 0
-      paint
-    surfaceWriteToPNG result "StarAndRing.png"
+    setSourceSurface starOverRing 0 0
+    paint
+
+main :: IO ()
+main =
+  withImageSurface FormatARGB32 width height $ \result -> do
+  renderWith result $ starAndRing width height
+  surfaceWriteToPNG result "StarAndRing.png"
 
     where width = 600
           height = 600
+
+

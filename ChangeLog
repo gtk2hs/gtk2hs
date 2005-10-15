@@ -20,6 +20,12 @@
 	context and a Render context. Also make some documentation
 	improvements. (Thanks to Paolo and Cale)
 
+	* cairo/Graphics/Rendering/Cairo.hs: more minor changes.
+
+	* demo/cairo/StarAndRing.hs: make this demo use the new
+	renderWithSimilarSurface function to make it more elegant and
+	symetric.
+
 2005-10-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Gdk.chs: bind gdk_flush function and

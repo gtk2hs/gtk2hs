@@ -29,6 +29,10 @@ module Graphics.Rendering.Cairo (
 -- antialiased text rendering. All drawing operations can be transformed by any
 -- affine transformation (scale, rotation, shear, etc.) 
 --
+-- Cairo is free software and is available to be redistributed and\/or modified
+-- under the terms of either the GNU Lesser General Public License (LGPL)
+-- version 2.1 or the Mozilla Public License (MPL) version 1.1.
+--
 -- For more information see <http://cairographics.org>
 --
 -- * Note the Haskell bindings do not support all the possible cairo backends
@@ -205,8 +209,9 @@ module Graphics.Rendering.Cairo (
 
   ) where
 
-import Control.Monad.Reader
-import Control.Exception
+import Control.Monad (unless)
+import Control.Monad.Reader (ReaderT(..), runReaderT, ask, MonadIO, liftIO)
+import Control.Exception (bracket)
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
 
@@ -234,7 +239,7 @@ bracketR begin end action = Render $ ReaderT $ \r ->
 -- | Creates a new Render context with all graphics state parameters set to
 -- default values and with the given surface as a target surface. The target
 -- surface should be constructed with a backend-specific function such as
--- 'withImageSurface' (or any other with<backend>Surface variant).
+-- 'withImageSurface' (or any other with\<backend\>Surface variant).
 -- 
 renderWith :: (MonadIO m) =>
      Surface  -- ^ the target surface for the Render context
@@ -309,7 +314,7 @@ setSourceRGBA = liftRender4 Internal.setSourceRGBA
 -- pattern. See 'setMatrix'.
 --
 setSource ::
-     Pattern -- ^ a 'Pattern@' to be used as the source for subsequent drawing
+     Pattern -- ^ a 'Pattern' to be used as the source for subsequent drawing
              -- operations.
   -> Render ()
 setSource = liftRender1 Internal.setSource
@@ -363,9 +368,9 @@ getAntialias = liftRender0 Internal.getAntialias
 -- length of altenate "on" and "off" portions of the stroke. The offset
 -- specifies an offset into the pattern at which the stroke begins.
 --
--- If @dashes@ is [] dashing is disabled.
+-- If @dashes@ is @[]@ then dashing is disabled.
 
--- If @dashes@ is [a] a symmetric pattern is assumed with alternating on and
+-- If @dashes@ is @[a]@ a symmetric pattern is assumed with alternating on and
 -- off portions of the size specified by the single value in dashes.
 
 -- If any value in @dashes@ is negative, or if all values are 0, then context
@@ -1174,7 +1179,7 @@ setFontMatrix = liftRender1 Internal.setFontMatrix
 getFontMatrix :: Render Matrix
 getFontMatrix = liftRender0 Internal.getFontMatrix
 
--- | A drawing operator that generates the shape from a string of UTF-8
+-- | A drawing operator that generates the shape from a string of Unicode
 -- characters, rendered according to the current font face, font size (font
 -- matrix), and font options.
 --
@@ -1190,8 +1195,8 @@ getFontMatrix = liftRender0 Internal.getFontMatrix
 -- 'showText'.
 --
 -- NOTE: The 'showText' function call is part of what the cairo designers call
--- the "toy" text API. It is convenient for short demos and simple programs, but
--- it is not expected to be adequate for the most serious of text-using
+-- the \"toy\" text API. It is convenient for short demos and simple programs,
+-- but it is not expected to be adequate for the most serious of text-using
 -- applications.
 --
 showText ::
@@ -1205,17 +1210,17 @@ fontExtents :: Render FontExtents
 fontExtents = liftRender0 Internal.fontExtents
 
 -- | Gets the extents for a string of text. The extents describe a user-space
--- rectangle that encloses the "inked" portion of the text, (as it would be
--- drawn by 'showText'). Additionally, the fontExtentsXadvance and
--- fontExtentsYadvance values indicate the amount by which the current point
+-- rectangle that encloses the \"inked\" portion of the text, (as it would be
+-- drawn by 'showText'). Additionally, the 'textExtentsXadvance' and
+-- 'textExtentsYadvance' values indicate the amount by which the current point
 -- would be advanced by 'showText'.
 --
 -- Note that whitespace characters do not directly contribute to the size of
--- the rectangle (fontExtentsWidth and fontExtentsHeight). They do contribute
+-- the rectangle ('textExtentsWidth' and 'textExtentsHeight'). They do contribute
 -- indirectly by changing the position of non-whitespace characters.
 -- In particular, trailing whitespace characters are likely to not affect the
--- size of the rectangle, though they will affect the fontExtentsXadvance and
--- fontExtentsYadvance values.
+-- size of the rectangle, though they will affect the 'textExtentsXadvance' and
+-- 'textExtentsYadvance' values.
 --
 textExtents ::
      String -- ^ a string of text
@@ -1486,7 +1491,7 @@ version :: Int
 version = Internal.version
 
 -- | Returns the version of the cairo library as a human-readable string of the
--- form "X.Y.Z".
+-- form \"X.Y.Z\".
 --
 versionString :: String
 versionString = Internal.versionString
