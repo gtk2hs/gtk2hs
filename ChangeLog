@@ -1,3 +1,12 @@
+2005-10-15 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* cairo/Graphics/Rendering/Cairo.hs: replace the unsafe
+	surfaceCreateSimilar with the safe withSimilarSurface. Also add
+	renderWithSimilarSurface which is more convenient when in a Render
+	context. Also generalise renderWith so that it can be used in an IO
+	context and a Render context. Also make some documentation
+	improvements. (Thanks to Paolo and Cale)
+
 2005-10-14 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Gdk.chs: bind gdk_flush function and

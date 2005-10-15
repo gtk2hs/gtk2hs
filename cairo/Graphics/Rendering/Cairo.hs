@@ -152,7 +152,8 @@ module Graphics.Rendering.Cairo (
 
   -- * Surfaces
 
-  , surfaceCreateSimilar
+  , withSimilarSurface
+  , renderWithSimilarSurface
   , surfaceGetFontOptions
   , surfaceMarkDirty
   , surfaceMarkDirtyRectangle
@@ -230,8 +231,16 @@ bracketR begin end action = Render $ ReaderT $ \r ->
           (\s -> end s)
           (\s -> runReaderT (runRender $ action s) r)
 
-renderWith :: Surface -> Render a -> IO a
-renderWith surface (Render m) =
+-- | Creates a new Render context with all graphics state parameters set to
+-- default values and with the given surface as a target surface. The target
+-- surface should be constructed with a backend-specific function such as
+-- 'withImageSurface' (or any other with<backend>Surface variant).
+-- 
+renderWith :: (MonadIO m) =>
+     Surface  -- ^ the target surface for the Render context
+  -> Render a
+  -> m a
+renderWith surface (Render m) = liftIO $
   bracket (Internal.create surface)
           (\context -> do status <- Internal.status context
                           Internal.destroy context
@@ -239,33 +248,45 @@ renderWith surface (Render m) =
                             fail =<< Internal.statusToString status)
           (\context -> runReaderT m context)
 
+-- | Makes a copy of the current state and saves it on an internal stack of
+-- saved states. When 'restore' is called, the saved state is restored.
+-- Multiple calls to 'save' and 'restore' can be nested; each call to 'restore'
+-- restores the state from the matching paired 'save'.
+--
 save :: Render ()
 save = liftRender0 Internal.save
+
+-- | Restores to the state saved by a preceding call to 'save' and removes that
+-- state from the stack of saved states.
+--
 restore :: Render ()
 restore = liftRender0 Internal.restore
+
+-- | Gets the target surface for the Render context as passed to 'renderWith'.
+--
 withTargetSurface :: (Surface -> Render a) -> Render a
 withTargetSurface f = do
   context <- ask
   surface <- liftIO $ Internal.getTarget context
   f surface
   
--- | Sets the source pattern within cr to an opaque color. This opaque color
--- will then be used for any subsequent drawing operation until a new source
+-- | Sets the source pattern within the context to an opaque color. This opaque
+-- color will then be used for any subsequent drawing operation until a new source
 -- pattern is set.
 --
 -- The color components are floating point numbers in the range 0 to 1. If the
 -- values passed in are outside that range, they will be clamped.
 --
 setSourceRGB ::
-     Double -- ^ red component of color
-  -> Double -- ^ green component of color
-  -> Double -- ^ blue compoment of color
+     Double -- ^ red component of colour
+  -> Double -- ^ green component of colour
+  -> Double -- ^ blue compoment of colour
   -> Render ()
 setSourceRGB = liftRender3 Internal.setSourceRGB
 
--- | Sets the source pattern within cr to a translucent color. This color will
--- then be used for any subsequent drawing operation until a new source pattern
--- is set.
+-- | Sets the source pattern within the context to a translucent color. This
+-- color will then be used for any subsequent drawing operation until a new
+-- source pattern is set.
 --
 -- The color and alpha components are floating point numbers in the range 0 to
 -- 1. If the values passed in are outside that range, they will be clamped.
@@ -425,7 +446,7 @@ setLineWidth = liftRender1 Internal.setLineWidth
 getLineWidth :: Render Double
 getLineWidth = liftRender0 Internal.getLineWidth
 
--- | -
+-- |
 --
 setMiterLimit ::
      Double -- ^ -
@@ -533,12 +554,12 @@ fill = liftRender0 Internal.fill
 fillPreserve :: Render ()
 fillPreserve = liftRender0 Internal.fillPreserve
 
--- | -
+-- |
 --
 fillExtents :: Render (Double,Double,Double,Double)
 fillExtents = liftRender0 Internal.fillExtents
 
--- | -
+-- |
 --
 inFill :: Double -> Double -> Render Bool
 inFill = liftRender2 Internal.inFill
@@ -596,22 +617,22 @@ stroke = liftRender0 Internal.stroke
 strokePreserve :: Render ()
 strokePreserve = liftRender0 Internal.strokePreserve
 
--- | -
+-- |
 --
 strokeExtents :: Render (Double,Double,Double,Double)
 strokeExtents = liftRender0 Internal.strokeExtents
 
--- | -
+-- |
 --
 inStroke :: Double -> Double -> Render Bool
 inStroke = liftRender2 Internal.inStroke
 
--- | -
+-- |
 --
 copyPage :: Render ()
 copyPage = liftRender0 Internal.copyPage
 
--- | -
+-- |
 --
 showPage :: Render ()
 showPage = liftRender0 Internal.showPage
@@ -747,7 +768,7 @@ rectangle ::
   -> Render ()
 rectangle = liftRender4 Internal.rectangle
 
--- | -
+-- |
 --
 textPath ::
      String -- ^ -
@@ -981,7 +1002,7 @@ patternGetMatrix ::
   -> Render Matrix
 patternGetMatrix p = liftIO $ Internal.patternGetMatrix p
 
--- | -
+-- |
 --
 patternSetExtend ::
      Pattern -- ^ a 'Pattern'
@@ -989,14 +1010,14 @@ patternSetExtend ::
   -> Render ()
 patternSetExtend p e = liftIO $ Internal.patternSetExtend p e
 
--- | -
+-- |
 --
 patternGetExtend ::
      Pattern -- ^ a 'Pattern'
   -> Render Extend
 patternGetExtend p = liftIO $ Internal.patternGetExtend p
 
--- | -
+-- |
 --
 patternSetFilter ::
      Pattern -- ^ a 'Pattern'
@@ -1004,7 +1025,7 @@ patternSetFilter ::
   -> Render ()
 patternSetFilter p f = liftIO $ Internal.patternSetFilter p f
 
--- | -
+-- |
 --
 patternGetFilter ::
      Pattern -- ^ a 'Pattern'
@@ -1289,17 +1310,59 @@ fontOptionsGetHintMetrics :: FontOptions -> Render HintMetrics
 fontOptionsGetHintMetrics a = liftIO $ Internal.fontOptionsGetHintMetrics a
 
 
--- | Create a new surface that is as compatible as possible with an existing
--- surface. The new surface will use the same backend as other unless that is
--- not possible for some reason.
+-- | Create a temporary surface that is as compatible as possible with an
+-- existing surface. The new surface will use the same backend as other unless
+-- that is not possible for some reason.
 --
-surfaceCreateSimilar ::
+withSimilarSurface ::
      Surface -- ^ an existing surface used to select the backend of the new surface
-  -> Content -- ^ the content for the new surface
+  -> Content -- ^ the content type for the new surface (color, color+alpha or alpha only)
   -> Int     -- ^ width of the new surface, (in device-space units)
   -> Int     -- ^ height of the new surface (in device-space units)
-  -> Render Surface
-surfaceCreateSimilar a b c d = liftIO $ Internal.surfaceCreateSimilar a b c d
+  -> (Surface -> IO a)
+  -> IO a
+withSimilarSurface surface contentType width height f =
+  bracket (Internal.surfaceCreateSimilar surface contentType width height)
+          (\surface' -> do status <- Internal.surfaceStatus surface'
+                           Internal.surfaceDestroy surface'
+                           unless (status == StatusSuccess) $
+                             Internal.statusToString status >>= fail)
+          (\surface' -> f surface')
+
+-- | Create a temporary surface that is compatible with the current target
+-- surface (like a combination of 'withTargetSurface' and 'withSimilarSurface').
+--
+-- This is useful for drawing to a temporary surface and then compositing it
+-- into the main suface. For example, the following code draws to a temporary
+-- surface and then uses that as a mask:
+--
+-- > renderWithSimilarSurface ContentAlpha 200 200 $ \tmpSurface -> do
+-- >   renderWith tmpSurface $ do
+-- >     ... -- draw onto the temporary surface
+-- >
+-- >   -- use the temporary surface as a mask, filling it with the
+-- >   -- current source which in this example is transparent red.
+-- >   setSourceRGBA 1 0 0 0.5
+-- >   setOperator Operator{something} -- think of something clever to do
+-- >   maskSurface tmpSurface 0 0)
+--
+renderWithSimilarSurface ::
+     Content -- ^ the content type for the new surface
+             -- (color, colour+alpha or alpha only)
+  -> Int     -- ^ width of the new surface, (in device-space units)
+  -> Int     -- ^ height of the new surface, (in device-space units)
+  -> (Surface -> Render a) -- ^ this action draws on the main surface,
+                           -- possibly making use of the temporary surface
+                           -- (which gets destroyed afterwards).
+  -> Render a
+renderWithSimilarSurface contentType width height render =
+  withTargetSurface $ \surface ->
+  bracketR (Internal.surfaceCreateSimilar surface contentType width height)
+           (\surface' -> do status <- Internal.surfaceStatus surface'
+                            Internal.surfaceDestroy surface'
+                            unless (status == StatusSuccess) $
+                              Internal.statusToString status >>= fail)
+           (\surface' -> render surface')
 
 -- | This function finishes the surface and drops all references to external
 -- resources. For example, for the Xlib backend it means that cairo will no
@@ -1376,9 +1439,9 @@ withImageSurface ::
   -> (Surface -> IO a) -- ^
   -> IO a
 withImageSurface format width height f =
-  bracket (liftIO $ Internal.imageSurfaceCreate format width height)
+  bracket (Internal.imageSurfaceCreate format width height)
           (\surface -> do status <- Internal.surfaceStatus surface
-                          liftIO $ Internal.surfaceDestroy surface
+                          Internal.surfaceDestroy surface
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
           (\surface -> f surface)
@@ -1398,9 +1461,9 @@ imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 --
 withImageSurfaceFromPNG :: FilePath -> (Surface -> IO a) -> IO a
 withImageSurfaceFromPNG filename f =
-  bracket (liftIO $ Internal.imageSurfaceCreateFromPNG filename)
+  bracket (Internal.imageSurfaceCreateFromPNG filename)
           (\surface -> do status <- Internal.surfaceStatus surface
-                          liftIO $ Internal.surfaceDestroy surface
+                          Internal.surfaceDestroy surface
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
           (\surface -> f surface)
