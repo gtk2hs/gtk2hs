@@ -88,7 +88,7 @@ main = do
 
   win <- windowNew
   win `onDestroy` mainQuit
-  win `onSizeRequest` return (Requisition 300 200)
+  win `onSizeRequest` return (Requisition 200 100)
   (Just menuBar) <- uiManagerGetWidget ui "/ui/menubar"
   (Just toolBar) <- uiManagerGetWidget ui "/ui/toolbar"
  

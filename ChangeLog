@@ -1,3 +1,16 @@
+2005-10-15 Axel Simon <A.Simon@kent.ac.uk>
+
+	* cairo/cairo.pkg.in, glib/System/Glib/FFI.hs,
+	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Cairo.chs: Make
+	compile with ghc 6.2: Fix typo in package file, remove dependency
+	on 'mtl' since it doesn't exist in 6.2, add withArrayLen to FFI.hs
+	since that doesn't come with 6.2.
+
+	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: Add function to render Pango
+	text in Cairo contexts.
+
+	* demo/actionMenu/ActionMenu.hs: Wiggles.
+	
 2005-10-15 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/Graphics/Rendering/Cairo.hs: replace the unsafe

@@ -3,12 +3,12 @@ Package {
      @GHCPKG_USE_AUTOLIBS@
      import_dirs     = ["@hidir@/cairo"],
      source_dirs     = [],
-     library_dirs    = [@CAIOR_LIBDIR_CQ@],
+     library_dirs    = [@CAIRO_LIBDIR_CQ@],
      hs_libraries    = ["HScairo"],
      extra_libraries = [@CAIRO_LIBS_CQ@],
      include_dirs    = [@CAIRO_CFLAGS_CQ@],
      c_includes      = ["cairo.h"],
-     package_deps    = ["haskell98", "mtl", "glib"],
+     package_deps    = ["haskell98", "glib"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],
      extra_ld_opts   = [@CAIRO_LIBEXTRA_CQ@]
