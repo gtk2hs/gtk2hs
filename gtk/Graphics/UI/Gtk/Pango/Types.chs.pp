@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.7 $ from $Date: 2005/08/20 13:37:43 $
+--  Version $Revision: 1.8 $ from $Date: 2005/10/16 15:05:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -72,6 +72,7 @@ module Graphics.UI.Gtk.Pango.Types (
 import Monad (liftM)
 import Data.Bits (shiftR)
 import Data.Ratio ((%))
+import Numeric ( showFFloat )
 import Data.IORef ( IORef )
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -113,7 +114,7 @@ uIntToPu :: {#type guint#} -> PangoUnit
 uIntToPu i = PangoUnit (fromIntegral i)
 
 instance Show PangoUnit where
-  show (PangoUnit u) = show (round (toRational u))
+  showsPrec _ pu = showFFloat (Just 2) (realToFrac pu)
 
 instance Enum PangoUnit where
   succ (PangoUnit u) = PangoUnit (u+1)

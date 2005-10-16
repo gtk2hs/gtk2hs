@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/15 16:59:09 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/16 15:05:34 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -31,21 +31,22 @@ module Graphics.UI.Gtk.Cairo (
 -- * Detail
 --
 -- | Cairo is a graphics library that supports vector graphics and image
--- compositing that can be used with Gdk. Since 2.8, Gtk+ does most of its
--- drawing using Cairo.
---
--- Gdk does not wrap the Cairo API, instead it allows to create Cairo contexts
+-- compositing that can be used with Gdk.
+-- The Cairo API is an addition to Gdk\/Gtk (rather than a replacement).
+-- As such the user needs to create Cairo contexts
 -- which can be used to draw on Gdk 'Drawable's. Additional functions allow to
--- convert Gdk's rectangles and regions into Cairo paths and to use 'Pixbuf's as
--- sources for drawing operations.
-
+-- convert Gdk's rectangles and regions into Cairo paths, to use 'Pixbuf's as
+-- sources for drawing operations and to draw text laid out by Pango.
+--
+-- * All functions in this module are only available in Gtk 2.8 or higher.
+--
 -- * Methods
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
   renderWithDrawable,
   setSourceColor,
   setSourcePixbuf,
-  cairoRectangle,
-  cairoRegion,
+  area,
+  region,
   cairoFontMapNew,
   cairoFontMapSetResolution,
   cairoFontMapGetResolution,
@@ -54,15 +55,15 @@ module Graphics.UI.Gtk.Cairo (
   cairoContextGetResolution,
   cairoContextSetFontOptions,
   cairoContextGetFontOptions,
-  cairoUpdateContext,
-  cairoCreateLayout,
-  cairoUpdateLayout,
-  cairoShowGlyphString,
-  cairoShowLayoutLine,
-  cairoShowLayout,
-  cairoGlyphStringPath,
-  cairoLayoutLinePath,
-  cairoLayoutPath
+  updateContext,
+  createLayout,
+  updateLayout,
+  showGlyphString,
+  showLayoutLine,
+  showLayout,
+  glyphStringPath,
+  layoutLinePath,
+  layoutPath
 #endif
   ) where
 
@@ -92,9 +93,6 @@ import Control.Monad.Reader
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
 -- | Creates a Cairo context for drawing to drawable.
---
--- * Available since Gtk+ version 2.8
---
 renderWithDrawable :: DrawableClass drawable =>
     drawable -- ^ drawable - a 'Drawable'
  -> Render a -- ^ A newly created Cairo context.
@@ -109,8 +107,6 @@ renderWithDrawable drawable m =
 
 -- | Sets the specified 'Color' as the source color of @cr@.
 --
--- * Available since Gtk+ version 2.8
---
 setSourceColor :: Color -> Render ()
 setSourceColor (Color red green blue) =
   Cairo.setSourceRGB
@@ -121,8 +117,6 @@ setSourceColor (Color red green blue) =
 -- | Sets the given pixbuf as the source pattern for the Cairo context. The
 -- pattern has an extend mode of CAIRO_EXTEND_NONE and is aligned so that the
 -- origin of pixbuf is pixbuf_x, pixbuf_y
---
--- * Available since Gtk+ version 2.8
 --
 setSourcePixbuf :: Pixbuf -> Double -> Double -> Render ()
 setSourcePixbuf pixbuf pixbufX pixbufY = Render $ do
@@ -135,10 +129,11 @@ setSourcePixbuf pixbuf pixbufX pixbufY = Render $ do
 
 -- | Adds the given rectangle to the current path of cr.
 --
--- * Available since Gtk+ version 2.8
+-- * Use qualified import as this name clashes with
+--   'Graphics.UI.Gtk.Gdk.Widget.area'.
 --
-cairoRectangle :: Rectangle -> Render ()
-cairoRectangle (Rectangle x y width height) =
+area :: Rectangle -> Render ()
+area (Rectangle x y width height) =
   Cairo.rectangle
     (realToFrac x)
     (realToFrac y)
@@ -147,10 +142,11 @@ cairoRectangle (Rectangle x y width height) =
 
 -- | Adds the given region to the current path of cr.
 --
--- * Available since Gtk+ version 2.8
+-- * Use qualified import as this name clashes with
+--   'Graphics.UI.Gtk.Gdk.Widget.region'.
 --
-cairoRegion :: Region -> Render ()
-cairoRegion region = Render $ do
+region :: Region -> Render ()
+region region = Render $ do
   cr <- ask
   liftIO $ {# call unsafe gdk_cairo_region #}
     cr
@@ -159,11 +155,13 @@ cairoRegion region = Render $ do
 
 -- | Create a 'PangoFontMap' that contains a list of available fonts.
 --
--- * The sole purpose of creating an explicit 'PangoFontMap' is to set
+-- * One purpose of creating an explicit
+--  'Graphics.UI.Gtk.Pango.Font.FontMap' is to set
 --   a different scaling factor between font sizes (in points, pt) and
 --   Cairo units (in pixels). The default is 96dpi (dots per inch) which
 --   corresponds to an average screen as output medium. A 10pt font will
---   therefore scale to @10pt * (1/72 pt/inch) * (96 pixel/inch) = 13.3 pixel@.
+--   therefore scale to
+--   @10pt * (1\/72 pt\/inch) * (96 pixel\/inch) = 13.3 pixel@.
 --
 cairoFontMapNew :: IO FontMap
 cairoFontMapNew = 
@@ -250,8 +248,8 @@ cairoContextGetFontOptions pc = do
 --    previously created with this context have to be update using
 --    'layoutContextChanged'.
 --
-cairoUpdateContext :: PangoContext -> Render ()
-cairoUpdateContext pc =  Render $ do
+updateContext :: PangoContext -> Render ()
+updateContext pc =  Render $ do
   cr <- ask
   liftIO $ {# call unsafe pango_cairo_update_context #} cr pc
 
@@ -262,8 +260,8 @@ cairoUpdateContext pc =  Render $ do
 --   If the transformation or target surface of the 'Render' context
 --   change, 'cairoUpdateLayout' has to be called on this layout.
 --
-cairoCreateLayout :: String -> Render PangoLayout
-cairoCreateLayout text = Render $ do
+createLayout :: String -> Render PangoLayout
+createLayout text = Render $ do
   cr <- ask
   liftIO $ do
     layRaw <- makeNewGObject mkPangoLayoutRaw $
@@ -282,8 +280,8 @@ cairoCreateLayout text = Render $ do
 --   'cairoCreateLayout' since a private 'PangoContext' is created that is
 --   not visible to the user.
 --
-cairoUpdateLayout :: PangoLayout -> Render ()
-cairoUpdateLayout (PangoLayout _ lay) = Render $ do
+updateLayout :: PangoLayout -> Render ()
+updateLayout (PangoLayout _ lay) = Render $ do
   cr <- ask
   liftIO $ {#call unsafe pango_cairo_update_layout#} cr lay
 
@@ -292,8 +290,8 @@ cairoUpdateLayout (PangoLayout _ lay) = Render $ do
 -- * The origin of the glyphs (the left edge of the baseline) will be drawn
 --   at the current point of the cairo context.
 --
-cairoShowGlyphString :: GlyphItem -> Render ()
-cairoShowGlyphString (GlyphItem pi gs) = Render $ do
+showGlyphString :: GlyphItem -> Render ()
+showGlyphString (GlyphItem pi gs) = Render $ do
   cr <- ask
   font <- liftIO $ pangoItemGetFont pi
   liftIO $ {#call unsafe pango_cairo_show_glyph_string#} cr font gs
@@ -303,8 +301,8 @@ cairoShowGlyphString (GlyphItem pi gs) = Render $ do
 -- * The origin of the glyphs (the left edge of the baseline) will be drawn
 --   at the current point of the cairo context.
 --
-cairoShowLayoutLine :: LayoutLine -> Render ()
-cairoShowLayoutLine (LayoutLine _ ll) = Render $ do
+showLayoutLine :: LayoutLine -> Render ()
+showLayoutLine (LayoutLine _ ll) = Render $ do
   cr <- ask
   liftIO $ {#call unsafe pango_cairo_show_layout_line#} cr ll
 
@@ -313,8 +311,8 @@ cairoShowLayoutLine (LayoutLine _ ll) = Render $ do
 -- * The origin of the glyphs (the left edge of the baseline) will be drawn
 --   at the current point of the cairo context.
 --
-cairoShowLayout :: PangoLayout -> Render ()
-cairoShowLayout (PangoLayout _ lay) = Render $ do
+showLayout :: PangoLayout -> Render ()
+showLayout (PangoLayout _ lay) = Render $ do
   cr <- ask
   liftIO $ {#call unsafe pango_cairo_show_layout#} cr lay
 
@@ -324,8 +322,8 @@ cairoShowLayout (PangoLayout _ lay) = Render $ do
 -- * The origin of the glyphs (the left edge of the line) will be at the
 --   current point of the cairo context.
 --
-cairoGlyphStringPath :: GlyphItem -> Render ()
-cairoGlyphStringPath (GlyphItem pi gs) = Render $ do
+glyphStringPath :: GlyphItem -> Render ()
+glyphStringPath (GlyphItem pi gs) = Render $ do
   cr <- ask
   font <- liftIO $ pangoItemGetFont pi
   liftIO $ {#call unsafe pango_cairo_glyph_string_path#} cr font gs
@@ -335,8 +333,8 @@ cairoGlyphStringPath (GlyphItem pi gs) = Render $ do
 -- * The origin of the glyphs (the left edge of the line) will be at the
 --   current point of the cairo context.
 --
-cairoLayoutLinePath :: LayoutLine -> Render ()
-cairoLayoutLinePath (LayoutLine _ ll) = Render $ do
+layoutLinePath :: LayoutLine -> Render ()
+layoutLinePath (LayoutLine _ ll) = Render $ do
   cr <- ask
   liftIO $ {#call unsafe pango_cairo_layout_line_path#} cr ll
 
@@ -345,8 +343,8 @@ cairoLayoutLinePath (LayoutLine _ ll) = Render $ do
 -- * The origin of the glyphs (the left edge of the line) will be at the
 --   current point of the cairo context.
 --
-cairoLayoutPath :: PangoLayout -> Render ()
-cairoLayoutPath (PangoLayout _ lay) = Render $ do
+layoutPath :: PangoLayout -> Render ()
+layoutPath (PangoLayout _ lay) = Render $ do
   cr <- ask
   liftIO $ {#call unsafe pango_cairo_layout_path#} cr lay
 

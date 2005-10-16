@@ -1,3 +1,31 @@
+2005-10-16 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am, gtk/Graphics/UI/Gtk.hs,
+	gtk/Graphics/UI/Gtk/Pango/Context.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Font.chs: Added new files to make the
+	interface to Pango easier. They regroup stuff relating to
+	PangoContext and Fonts into single modules. This also completes
+	the font module of Pango, still not bound are PangoFont and
+	PangoFontSet. PangoFont is already used internally and it is
+	questionable if any of these two types is useful to the
+	programmer.
+
+	* gtk/Graphics/UI/Gtk/Cairo.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Description.chs,
+	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp: Changed due to
+	regrouping of stuff; see above.
+
+	* gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: Fixed Show instance of
+	PangoUnits.
+
+	* demo/cairo/Drawing.hs: Only render with Pango via Cairo.
+	
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: Docu fixes.
+	
+	* demo/fonts/Fonts.hs, demo/fonts/Makefile: New demo listing all
+	fonts that are installed on the system.
+
 2005-10-15 Axel Simon <A.Simon@kent.ac.uk>
 
 	* cairo/cairo.pkg.in, glib/System/Glib/FFI.hs,

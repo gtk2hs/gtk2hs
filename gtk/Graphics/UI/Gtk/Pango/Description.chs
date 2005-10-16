@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.7 $ from $Date: 2005/08/20 13:25:19 $
+--  Version $Revision: 1.8 $ from $Date: 2005/10/16 15:05:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -19,14 +19,16 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- #hide
+
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Functions to manage font description.
+-- Functions to manage font descriptions.
 --
--- * Font descriptions provide a way to query and state requirements of
+-- * Font descriptions provide a way to query and state requirements on
 --   fonts. This data structure has several fields describing different
 --   characteristics of a font. Each of these fields can be set of left
 --   unspecified.
@@ -175,16 +177,16 @@ fontDescriptionGetStretch fd = do
 --
 -- * The given size is in points (pts). One point is 1\/72 inch.
 --
-fontDescriptionSetSize :: FontDescription -> Rational -> IO ()
+fontDescriptionSetSize :: FontDescription -> PangoUnit -> IO ()
 fontDescriptionSetSize fd p = 
-  {#call unsafe set_size#} fd (round (p*fromIntegral pangoScale))
+  {#call unsafe set_size#} fd (puToInt p)
 
 -- | Get the size field.
-fontDescriptionGetSize :: FontDescription -> IO (Maybe Rational)
+fontDescriptionGetSize :: FontDescription -> IO (Maybe PangoUnit)
 fontDescriptionGetSize fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskSize) .&. (fromIntegral fields) /=0
-     then liftM (\x -> Just (fromIntegral x % fromIntegral pangoScale)) $ 
+     then liftM (\x -> Just (intToPu x)) $ 
 	      {#call unsafe get_size#} fd
      else return Nothing
 
@@ -228,10 +230,10 @@ fontDescriptionBetterMatch fd fdA fdB = unsafePerformIO $ liftM toBool $
 -- | Create a font description from a string.
 --
 -- * The given argument must have the form 
---   "[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]" where FAMILY_LIST is a comma
+--   @[FAMILY-LIST] [STYLE-OPTIONS] [SIZE]@ where @FAMILY_LIST@ is a comma
 --   separated list of font families optionally terminated by a comma,
---   STYLE_OPTIONS is a whitespace separated list of words where each
---   word describes one of style, variant, weight or stretch. SIZE is
+--   @STYLE_OPTIONS@ is a whitespace separated list of words where each
+--   word describes one of style, variant, weight or stretch. @SIZE@ is
 --   a decimal number giving the size of the font in points. If any of
 --   these fields is absent, the resulting 'FontDescription' will have
 --   the corresponing fields unset.

@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2005/10/11 15:27:21 $
+--  Version $Revision: 1.14 $ from $Date: 2005/10/16 15:05:35 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -1065,8 +1065,9 @@ widgetCreatePangoContext self =
 -- attributes.
 --
 -- If you create and keep a 'PangoLayout' using this context, you must deal
--- with changes to the context by calling 'layoutContextChanged' on the layout
--- in response to the ::style-set and ::direction-changed signals for the
+-- with changes to the context by calling
+-- 'Graphics.UI.Gtk.Pango.Layout.layoutContextChanged' on the layout
+-- in response to the 'onStyleChanged' and 'onDirectionChanged' signals for the
 -- widget.
 --
 widgetGetPangoContext :: WidgetClass self => self

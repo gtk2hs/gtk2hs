@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.6 $ from $Date: 2005/08/25 13:10:06 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/16 15:05:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -27,53 +27,49 @@
 --
 -- Functions to run the rendering pipeline.
 --
+-- * This module provides elementary rendering functions. For a simpler
+--   interface, consider using 'PangoLayout's.
+--
 -- * The Pango rendering pipeline takes a string of Unicode characters,
 --   divides them into sequences of letters that have the same characteristics
 --   such as font, size, color, etc. Such a sequence is called 'PangoItem'.
---   Each 'PangoItem' is then converted into an actual sequence of glyphs,
---   where several characters might me turned into legatures or clusters,
---   like "e" and an accent modifier, are turned into a single glyph. These
+--   Each 'PangoItem' is then converted into one 'GlyphItem', that is
+--   an actual sequence of glyphs,
+--   where several characters might be turned into legatures or clusters,
+--   e.g. an "e" and an accent modifier are turned into a single glyph. These
 --   'GlyphItem's can then be rendered onto the output device with functions
---   such as 'Graphics.UI.Gtk.Cairo.Rendering.showGlyphString'.
+--   such as 'Graphics.UI.Gtk.Cairo.cairoShowGlyphString'.
 --
 module Graphics.UI.Gtk.Pango.Rendering (
--- * Types and Methods for Rendering
-  PangoItem,
-  pangoItemize,
-  pangoShape,
+  -- * 'PangoAttribute's: Applying emphasis to parts of an output string.
   PangoAttribute(..),
 
--- * Types and Methods for 'PangoContext's
-  PangoContext,
-  PangoDirection(..),
-  contextListFamilies,
---  contextLoadFont,
---  contextLoadFontSet,
-  contextGetMetrics,
-  FontMetrics(..),
-  contextSetFontDescription,
-  contextGetFontDescription,
-  Language,
-  languageFromString,
-  contextSetLanguage,
-  contextGetLanguage,
-  contextSetTextDir,
-  contextGetTextDir
+  -- * 'PangoItem's: Partition text into units with similar attributes.
+  PangoItem,
+  pangoItemize,
 
+  -- * 'GlyphItem's: Turn text segments into glyph sequences.
+  GlyphItem,
+  pangoShape,
+  glyphItemExtents,
+  glyphItemExtentsRange,
+  glyphItemIndexToX,
+  glyphItemXToIndex,
+  glyphItemGetLogicalWidths,
+  glyphItemSplit
   ) where
 
 import Monad    (liftM)
 import Data.Ratio
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs  (pangoScale, PangoDirection(..),
-					 setAttrPos, Color(..),
+import Graphics.UI.Gtk.General.Structs  (setAttrPos, Color(..),
 					 pangoItemRawAnalysis )
 {#import Graphics.UI.Gtk.Types#}
-import System.Glib.GObject  (makeNewGObject)
-import Graphics.UI.Gtk.General.Enums
+--import Graphics.UI.Gtk.General.Enums
 {#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Pango.Enums#}
+import Graphics.UI.Gtk.Pango.GlyphStorage
 import System.Glib.UTFString ( withUTFString, UTFCorrection )
 {#import System.Glib.GList#}
 import Data.List ( sortBy )
@@ -110,128 +106,6 @@ pangoShape pi@(PangoItem ps pir) =
   gs <- makeNewGlyphStringRaw gsPtr
   {#call unsafe shape#} strPtr l (pangoItemRawAnalysis pirPtr) gs
   return (GlyphItem pi gs)
-
--- | Retrieve a list of all available font families.
---
--- * A font family is the name of the font without further attributes
---   like slant, variant or size.
---
-contextListFamilies :: PangoContext -> IO [FontFamily]
-contextListFamilies c = alloca $ \sizePtr -> alloca $ \ptrPtr -> do
-  {#call unsafe context_list_families#} c ptrPtr sizePtr
-  ptr <- peek ptrPtr
-  size <- peek sizePtr
-  -- c2hs gets FontFamily*** wrong as FontFamily**, therefore the cast
-  familyPtrs <- peekArray (fromIntegral size) (castPtr ptr)
-  fams <- mapM (makeNewGObject mkFontFamily . return) familyPtrs
-  {#call unsafe g_free#} (castPtr ptr)
-  return fams
-
--- | Load a font.
---
---contextLoadFont :: PangoContext -> FontDescription -> Language ->
---		   IO (Maybe Font)
---contextLoadFont pc fd l = do
---  fsPtr <- {#call context_load_font#} pc fd l
---  if fsPtr==nullPtr then return Nothing else
---    liftM Just $ makeNewGObject mkFont (return fsPtr)
-
--- | Load a font set.
---
---contextLoadFontSet :: PangoContext -> FontDescription -> Language ->
---		      IO (Maybe FontSet)
---contextLoadFontSet pc fd l = do
---  fsPtr <- {#call context_load_fontset#} pc fd l
---  if fsPtr==nullPtr then return Nothing else
---    liftM Just $ makeNewGObject mkFontSet (return fsPtr)
-
--- | Query the metrics of the given font implied by the font description.
---
-contextGetMetrics :: PangoContext -> FontDescription -> Language ->
-		     IO FontMetrics
-contextGetMetrics pc fd l = do
-  mPtr <- {#call unsafe context_get_metrics#} pc fd l
-  ascend <- liftM fromIntegral $ {#call unsafe font_metrics_get_ascent#} mPtr
-  descend <- liftM fromIntegral $ {#call unsafe font_metrics_get_descent#} mPtr
-  cWidth <- liftM fromIntegral $
-	    {#call unsafe font_metrics_get_approximate_char_width#} mPtr
-  dWidth <- liftM fromIntegral $
-	    {#call unsafe font_metrics_get_approximate_digit_width#} mPtr
-  {#call unsafe font_metrics_unref#} mPtr
-  return (FontMetrics
-	  (ascend % fromIntegral pangoScale)
-	  (descend % fromIntegral pangoScale)
-	  (cWidth % fromIntegral pangoScale)
-	  (dWidth % fromIntegral pangoScale))
-
--- | The characteristic measurements of a font.
---
--- * All values are measured in pixels.
---
-data FontMetrics = FontMetrics {
-  -- | The ascent is the distance from the baseline to the logical top
-  --   of a line of text. (The logical top may be above or below the
-  --   top of the actual drawn ink. It is necessary to lay out the
-  --   text to figure where the ink will be.)
-  ascent :: Rational,
-  -- | The descent is the distance from the baseline to the logical
-  --   bottom of a line of text. (The logical bottom may be above or
-  --   below the bottom of the actual drawn ink. It is necessary to
-  --   lay out the text to figure where the ink will be.)
-  descent :: Rational,
-  -- | The approximate character width. This is merely a
-  --   representative value useful, for example, for determining the
-  --   initial size for a window. Actual characters in text will be
-  --   wider and narrower than this.
-  approximateCharWidth :: Rational,
-  -- | The approximate digit width. This is merely a representative
-  --   value useful, for example, for determining the initial size for
-  --   a window. Actual digits in text can be wider and narrower than
-  --   this, though this value is generally somewhat more accurate
-  --   than @approximateCharWidth@.
-  approximateDigitWidth :: Rational
-}
-
--- | Set the default 'FontDescription' of this context.
---
-contextSetFontDescription :: PangoContext -> FontDescription -> IO ()
-contextSetFontDescription pc fd =
-  {#call unsafe context_set_font_description#} pc fd
-
--- | Get the current 'FontDescription' of this context.
---
-contextGetFontDescription :: PangoContext -> IO FontDescription
-contextGetFontDescription pc = do
-  fdPtrConst <- {#call unsafe context_get_font_description#} pc
-  fdPtr <- pango_font_description_copy fdPtrConst
-  makeNewFontDescription fdPtr
-
-foreign import ccall unsafe "pango_font_description_copy"
-  pango_font_description_copy :: Ptr FontDescription -> 
-				 IO (Ptr FontDescription)
-
--- | Set the default 'Language' of this context.
---
-contextSetLanguage :: PangoContext -> Language -> IO ()
-contextSetLanguage = {#call unsafe context_set_language#}
-
--- | Get the current 'Language' of this context.
---
-contextGetLanguage :: PangoContext -> IO Language
-contextGetLanguage pc = liftM Language $
-			{#call unsafe context_get_language#} pc
-
--- | Set the default text direction of this context.
---
-contextSetTextDir :: PangoContext -> PangoDirection -> IO ()
-contextSetTextDir pc dir =
-  {#call unsafe context_set_base_dir#} pc (fromIntegral (fromEnum dir))
-
--- | Get the current text direction of this context.
---
-contextGetTextDir :: PangoContext -> IO PangoDirection
-contextGetTextDir pc = liftM (toEnum . fromIntegral) $
-		       {#call unsafe context_get_base_dir#} pc
 
 -- | Attributes for 'PangoItem's.
 --

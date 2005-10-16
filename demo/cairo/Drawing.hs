@@ -9,7 +9,9 @@ main = do
   contain <- dialogGetUpper dia
   canvas <- drawingAreaNew
   canvas `onSizeRequest` return (Requisition 40 40)
-  text <- canvas `widgetCreateLayout` "Hello World."
+  ctxt <- cairoCreateContext Nothing
+  text <- layoutEmpty ctxt
+  text `layoutSetText` "Hello World."
   canvas `onExpose` updateCanvas canvas text
   boxPackStartDefaults contain canvas
   widgetShow canvas
@@ -47,12 +49,9 @@ updateCanvas canvas text (Expose { area=rect }) = do
     stroke
   
     setSourceRGB 0 0 0
-    moveTo 30 (realToFrac height / 2)
-    showText "Hello World."
+    moveTo 30 (realToFrac height / 4)
+    rotate (pi/4)
+    showLayout text
 
-  -- draw some text using the Gdk api
-  gc <- gcNew win
-  drawLayoutWithColors win gc 30 (height' `div` 2) text 
-    (Just (Color 0 0 0)) Nothing
 
   return True

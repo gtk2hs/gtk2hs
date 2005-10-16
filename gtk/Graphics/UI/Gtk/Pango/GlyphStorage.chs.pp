@@ -5,7 +5,7 @@
 --
 --  Created: 31 July 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/08/25 07:22:29 $
+--  Version $Revision: 1.2 $ from $Date: 2005/10/16 15:05:35 $
 --
 --  Copyright (C) 2005 Axel Simon
 --
@@ -20,6 +20,8 @@
 --  Lesser General Public License for more details.
 --
 --
+-- #hide
+
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -28,10 +30,6 @@
 -- 
 --
 module Graphics.UI.Gtk.Pango.GlyphStorage (
-  -- * Types
-  GlyphItem,
-
-  -- * Methods
   glyphItemExtents,
   glyphItemExtentsRange,
   glyphItemIndexToX,
