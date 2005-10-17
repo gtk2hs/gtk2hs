@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/17 23:06:11 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -432,7 +432,7 @@ data FontMetrics = FontMetrics {
   --   value useful, for example, for determining the initial size for
   --   a window. Actual digits in text can be wider and narrower than
   --   this, though this value is generally somewhat more accurate
-  --   than @approximateCharWidth@.
+  --   than 'approximateCharWidth'.
   approximateDigitWidth :: PangoUnit
 #if PANGO_CHECK_VERSION(1,6,0)
   ,

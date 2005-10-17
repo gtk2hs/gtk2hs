@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.8 $ from $Date: 2005/10/16 15:05:35 $
+--  Version $Revision: 1.9 $ from $Date: 2005/10/17 23:06:11 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -49,6 +49,7 @@ module Graphics.UI.Gtk.Pango.Description (
   fontDescriptionGetStretch,
   fontDescriptionSetSize,
   fontDescriptionGetSize,
+  FontMask(..),
   fontDescriptionUnsetFields,
   fontDescriptionMerge,
   fontDescriptionBetterMatch,
@@ -105,14 +106,14 @@ fontDescriptionGetFamily fd = do
   if strPtr==nullPtr then return Nothing else
     liftM Just $ peekUTFString strPtr
 
--- Flags denoting which fields in a font description are set.
+-- | Flags denoting which fields in a font description are set.
 {#enum PangoFontMask as FontMask {underscoreToCase} deriving(Bounded) #}
 
 instance Flags FontMask
 
 -- | Set the style field.
 --
--- * Most fonts will have either a 'StyleItalic' or 'StyleQblique'
+-- * Most fonts will have either a 'StyleItalic' or 'StyleOblique'
 --   but rarely both.
 --
 fontDescriptionSetStyle :: FontDescription -> FontStyle -> IO ()
@@ -216,11 +217,11 @@ fontDescriptionIsMatch fdA fdB = unsafePerformIO $ liftM toBool $
 
 -- | Determine which of two descriptions matches a given description better.
 --
--- * Returns 'True' if the last description is a better match to the first
+-- * Returns @True@ if the last description is a better match to the first
 --   arguement than the middle one.
 --
 -- * Approximate matching is done on weight and style. If the other
---   attributes do not match, the function returns 'False'.
+--   attributes do not match, the function returns @False@.
 --
 fontDescriptionBetterMatch :: FontDescription -> FontDescription -> 
 			      FontDescription -> Bool
