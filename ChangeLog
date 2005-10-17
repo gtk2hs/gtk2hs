@@ -4,6 +4,9 @@
 
 	* configure.ac: fix for ./configure --disable-mozilla --enable-firefox
 
+	* tools/c2hs/gen/GenBind.hs: use "with" rather than "withObject". This
+	fixes deprecation warning when building cairo.
+
 2005-10-16 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, gtk/Graphics/UI/Gtk.hs,

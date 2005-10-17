@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 17 August 99
 --
---  Version $Revision: 1.2 $ from $Date: 2004/12/08 00:08:20 $
+--  Version $Revision: 1.3 $ from $Date: 2005/10/17 20:41:30 $
 --
 --  Copyright (c) [1999..2003] Manuel M T Chakravarty
 --
@@ -268,7 +268,7 @@ cFromBoolIde      = noPosIdent "cFromBool"
 cToBoolIde        = noPosIdent "cToBool"
 cIntConvIde       = noPosIdent "cIntConv"
 cFloatConvIde     = noPosIdent "cFloatConv"
-withIde           = noPosIdent "withObject"   -- FIXME: should be "with"
+withIde           = noPosIdent "with"
 withCStringIde    = noPosIdent "withCString"
 withCStringLenIde = noPosIdent "withCStringLenIntConv"
 withIntConvIde    = noPosIdent "withIntConv"
