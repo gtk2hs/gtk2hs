@@ -278,6 +278,7 @@ if test "$ENABLE_FIREFOX_MOZEMBED" = "yes"; then
 	MOZEMBED_CFLAGS="$FIREFOX_MOZEMBED_CFLAGS"
 	MOZEMBED_LIBS="$FIREFOX_MOZEMBED_LIBS"
 fi
+AM_CONDITIONAL(ENABLE_MOZEMBED, test "$ENABLE_MOZEMBED" = "yes")
 
 dnl GTKHS_PKG_CHECK(opengl, gtkgl, GTKGL, [gtkgl-2.0 >= 1.99.0],
 dnl 	[build GtkGLArea package (default=auto)],

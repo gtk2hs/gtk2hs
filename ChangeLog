@@ -2,6 +2,8 @@
 
 	* glib/System/Glib/FFI.hs: fix typo in withArrayLen #ifdef stuff.
 
+	* configure.ac: fix for ./configure --disable-mozilla --enable-firefox
+
 2005-10-16 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, gtk/Graphics/UI/Gtk.hs,
