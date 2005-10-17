@@ -5,7 +5,7 @@
 --
 --  Created: 13 January 1999
 --
---  Version $Revision: 1.7 $ from $Date: 2005/08/20 13:25:19 $
+--  Version $Revision: 1.8 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
 --
@@ -30,7 +30,7 @@ module Graphics.UI.Gtk.General.Enums (
   AccelFlags(..),
   ArrowType(..),
   AttachOptions(..),
-  Button(..),
+  MouseButton(..),
   ButtonBoxStyle(..),
   CalendarDisplayOptions(..),
   Click(..),
@@ -102,14 +102,14 @@ instance Flags AccelFlags
 
 instance Flags AttachOptions
 
--- | Button number
+-- | Mouse buttons.
 --
-data Button = LeftButton
-	    | MiddleButton
-	    | RightButton
-	    deriving (Eq,Show)
+data MouseButton = LeftButton
+		 | MiddleButton
+		 | RightButton
+		   deriving (Eq,Show)
 
-instance Enum Button where
+instance Enum MouseButton where
   toEnum 1 = LeftButton
   toEnum 2 = MiddleButton
   toEnum 3 = RightButton

@@ -5,7 +5,7 @@
 --
 --  Created: 12 September 2004
 --
---  Version $Revision: 1.8 $ from $Date: 2005/08/25 22:57:51 $
+--  Version $Revision: 1.9 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -65,7 +65,7 @@ instance Show Weight where
 
 -- | The variant of a font.
 --
--- * The 'VariantCmallCaps' is a version of a font where lower case
+-- * The 'VariantSmallCaps' is a version of a font where lower case
 --   letters are shown as physically smaller upper case letters.
 --
 {#enum Variant {underscoreToCase} deriving (Eq)#}

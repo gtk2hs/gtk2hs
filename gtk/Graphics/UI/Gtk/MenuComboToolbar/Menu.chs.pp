@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.11 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -127,7 +127,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
-import Graphics.UI.Gtk.Gdk.Events as Events (Event(Button), time, button)
+import Graphics.UI.Gtk.Gdk.Events as Events (Event(Button),
+					     eventTime, eventButton)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -161,7 +162,7 @@ menuReorderChild self child position =
 -- | Popup a context menu where a button press occurred. 
 --
 menuPopup :: MenuClass self => self -> Event -> IO ()
-menuPopup self (Events.Button { time=t, button=b }) =
+menuPopup self (Events.Button { eventTime=t, eventButton=b }) =
   {# call menu_popup #}
     (toMenu self)
     (mkWidget nullForeignPtr)

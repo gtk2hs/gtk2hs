@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.2 $ from $Date: 2005/08/25 22:57:51 $
+--  Version $Revision: 1.3 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -49,7 +49,6 @@
 --   'Graphics.UI.Gtk.Gdk.DrawWindow'.
 --
 module Graphics.UI.Gtk.Pango.Layout (
-  PangoUnit,
   PangoRectangle(..),
   PangoLayout,
   layoutEmpty,
@@ -82,6 +81,11 @@ module Graphics.UI.Gtk.Pango.Layout (
   LayoutAlignment(..),
   layoutSetAlignment,
   layoutGetAlignment,
+  TabAlign,
+  TabPosition,
+  layoutSetTabs,
+  layoutResetTabs,
+  layoutGetTabs,
   layoutSetSingleParagraphMode,
   layoutGetSingleParagraphMode,
   layoutXYToIndex,
@@ -429,7 +433,50 @@ layoutGetAlignment :: PangoLayout -> IO LayoutAlignment
 layoutGetAlignment (PangoLayout _ pl) = liftM (toEnum.fromIntegral) $
   {#call unsafe layout_get_alignment#} pl
 
--- functions are missing here
+-- | Specify where the Tab stop appears relative to the text.
+--
+-- * Only Tab stops that align text to the left are supported right now.
+--
+{#enum PangoTabAlign as TabAlign {underscoreToCase}#}
+
+-- | A Tab position.
+--
+type TabPosition = (PangoUnit, TabAlign)
+
+-- | Set a list of Tab positoins.
+--
+layoutSetTabs :: PangoLayout -> [TabPosition] -> IO ()
+layoutSetTabs (PangoLayout _ pl) tabs = do
+  let len = fromIntegral (length tabs)
+  tabPtr <- {#call unsafe tab_array_new#} len (fromBool False)
+  mapM_ (\(idx, (pos, align)) ->
+         {#call unsafe tab_array_set_tab#} tabPtr idx
+	    (fromIntegral (fromEnum align)) (puToInt pos)) (zip [0..] tabs)
+  {#call unsafe layout_set_tabs#} pl tabPtr
+  {#call unsafe tab_array_free#} tabPtr
+
+-- | Reset the original set of Tab positions.
+--
+-- * Restore the default which is a Tab stop every eight characters.
+--
+layoutResetTabs :: PangoLayout -> IO ()
+layoutResetTabs (PangoLayout _ pl) = {#call unsafe layout_set_tabs#} pl nullPtr
+
+-- | Retrieve the list of current Tab positions.
+--
+-- * If no Tab position where set, @Nothing@ is returned. In this case, Tab
+--   positions are implicit at every eight characters.
+--
+layoutGetTabs :: PangoLayout -> IO (Maybe [TabPosition])
+layoutGetTabs (PangoLayout _ pl) = do
+  tabPtr <- {#call unsafe layout_get_tabs#} pl
+  if tabPtr == nullPtr then return Nothing else liftM Just $ do
+    len <- {#call unsafe tab_array_get_size#} tabPtr
+    mapM (\idx -> alloca $ \posPtr -> alloca $ \alignPtr -> do
+	  {#call unsafe tab_array_get_tab#} tabPtr idx alignPtr posPtr
+	  align <- peek alignPtr
+	  pos <- peek posPtr
+	  return (intToPu pos, toEnum (fromIntegral align))) [0..len-1]
 
 -- | Honor newlines or not.
 --

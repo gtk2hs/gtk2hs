@@ -1,3 +1,29 @@
+2005-10-17 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
+	gtk/Graphics/UI/Gtk/Gdk/Events.hsc,
+	gtk/Graphics/UI/Gtk/General/Enums.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp: Qualify all
+	field names of Event, rename Button enumeration to MouseButton. 
+	This change breaks code, but avoids many annoying name clashes. In
+	particular Events doesn't have to be imported qualified anymore.
+	
+	* gtk/Graphics/UI/Gtk.hs, gtk/Graphics/UI/Gtk/Cairo.chs.pp: Export
+	all Cairo drawing primitives, remove the primitive to draw a Gtk
+	Rectangle.
+
+	* gtk/Graphics/UI/Gtk/General/Structs.hsc,
+	gtk/Graphics/UI/Gtk/Pango/Context.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Font.chs,
+	gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: Added Tab Stops (on the
+	fly). Move FontMetrics into the Type module and added a new
+	function to query the font metrics for a PangoItem. Added a new
+	accessor function in Structs.hsc to get at the language of a
+	PangoItem.
+	
 2005-10-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/FFI.hs: fix typo in withArrayLen #ifdef stuff.

@@ -6,7 +6,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.20 $ from $Date: 2005/10/16 15:05:34 $
+--  Version $Revision: 1.21 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -53,6 +53,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.DrawWindow,
   module Graphics.UI.Gtk.Gdk.Region,
   module Graphics.UI.Gtk.Gdk.GC,
+  module Graphics.UI.Gtk.Gdk.Events,
   module Graphics.UI.Gtk.Gdk.Pixbuf,
   module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Gdk,
@@ -207,7 +208,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Pango.Layout,
   module Graphics.UI.Gtk.Pango.Rendering,
   module Graphics.UI.Gtk.Pango.Font,
-  module Graphics.UI.Gtk.Pango.Enums,
+  module Graphics.UI.Gtk.Pango.Enums
   ) where
 
 -- general things, initialization
@@ -221,11 +222,13 @@ import Graphics.UI.Gtk.Gdk.Drawable
 import Graphics.UI.Gtk.Gdk.DrawWindow
 import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
 import Graphics.UI.Gtk.Gdk.GC
+import Graphics.UI.Gtk.Gdk.Events		hiding (marshExposeRect,
+							marshalEvent)
 import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
 import Graphics.UI.Gtk.Gdk.Gdk
 -- cairo integration
-import Graphics.UI.Gtk.Cairo		hiding ( region, area )
+import Graphics.UI.Gtk.Cairo
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog
 import Graphics.UI.Gtk.Windows.Window
@@ -385,4 +388,3 @@ import Graphics.UI.Gtk.Pango.Layout
 import Graphics.UI.Gtk.Pango.Rendering
 import Graphics.UI.Gtk.Pango.Font
 import Graphics.UI.Gtk.Pango.Enums
-

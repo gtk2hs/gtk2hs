@@ -5,7 +5,7 @@
 --
 --  Created: 16 October 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/10/16 15:05:35 $
+--  Version $Revision: 1.2 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -55,6 +55,7 @@ module Graphics.UI.Gtk.Pango.Context (
   contextSetFontDescription,
   contextGetFontDescription,
   Language,
+  emptyLanguage,
   languageFromString,
   contextSetLanguage,
   contextGetLanguage,
@@ -95,42 +96,40 @@ contextListFamilies c = alloca $ \sizePtr -> alloca $ \ptrPtr -> do
   {#call unsafe g_free#} (castPtr ptr)
   return fams
 
--- | Load a font.
---
---contextLoadFont :: PangoContext -> FontDescription -> Language ->
---		   IO (Maybe Font)
---contextLoadFont pc fd l = do
---  fsPtr <- {#call context_load_font#} pc fd l
---  if fsPtr==nullPtr then return Nothing else
---    liftM Just $ makeNewGObject mkFont (return fsPtr)
-
--- | Load a font set.
---
---contextLoadFontSet :: PangoContext -> FontDescription -> Language ->
---		      IO (Maybe FontSet)
---contextLoadFontSet pc fd l = do
---  fsPtr <- {#call context_load_fontset#} pc fd l
---  if fsPtr==nullPtr then return Nothing else
---    liftM Just $ makeNewGObject mkFontSet (return fsPtr)
-
 -- | Query the metrics of the given font implied by the font description.
 --
 contextGetMetrics :: PangoContext -> FontDescription -> Language ->
 		     IO FontMetrics
 contextGetMetrics pc fd l = do
   mPtr <- {#call unsafe context_get_metrics#} pc fd l
-  ascend <- liftM fromIntegral $ {#call unsafe font_metrics_get_ascent#} mPtr
-  descend <- liftM fromIntegral $ {#call unsafe font_metrics_get_descent#} mPtr
-  cWidth <- liftM fromIntegral $
-	    {#call unsafe font_metrics_get_approximate_char_width#} mPtr
-  dWidth <- liftM fromIntegral $
-	    {#call unsafe font_metrics_get_approximate_digit_width#} mPtr
-  {#call unsafe font_metrics_unref#} mPtr
+  ascent <- {#call unsafe font_metrics_get_ascent#} mPtr
+  descent <- {#call unsafe font_metrics_get_descent#} mPtr
+  approximate_char_width <-
+      {#call unsafe font_metrics_get_approximate_char_width#} mPtr
+  approximate_digit_width <-
+      {#call unsafe font_metrics_get_approximate_digit_width#} mPtr
+#if PANGO_CHECK_VERSION(1,6,0)
+  underline_position <-
+      {#call unsafe font_metrics_get_underline_position#} mPtr
+  underline_thickness <-
+      {#call unsafe font_metrics_get_underline_thickness#} mPtr
+  strikethrough_position <-
+      {#call unsafe font_metrics_get_strikethrough_position#} mPtr
+  strikethrough_thickness <-
+      {#call unsafe font_metrics_get_strikethrough_thickness#} mPtr
+#endif
   return (FontMetrics
-	  (ascend % fromIntegral pangoScale)
-	  (descend % fromIntegral pangoScale)
-	  (cWidth % fromIntegral pangoScale)
-	  (dWidth % fromIntegral pangoScale))
+	  (intToPu ascent)
+	  (intToPu descent)
+	  (intToPu approximate_char_width)
+	  (intToPu approximate_digit_width)
+#if PANGO_CHECK_VERSION(1,6,0)
+	  (intToPu underline_position)
+	  (intToPu underline_thickness)
+	  (intToPu strikethrough_position)
+	  (intToPu strikethrough_thickness)
+#endif
+	 )
 
 -- | Set the default 'FontDescription' of this context.
 --

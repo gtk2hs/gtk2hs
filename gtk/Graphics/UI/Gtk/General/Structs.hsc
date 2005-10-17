@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/10/11 16:15:43 $
+--  Version $Revision: 1.11 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -90,6 +90,7 @@ module Graphics.UI.Gtk.General.Structs (
   pangodirToLevel,
   setAttrPos,
   pangoItemRawGetFont,
+  pangoItemRawGetLanguage,
   pangoItemRawAnalysis,
   pangoItemRawGetLevel,
   styleGetForeground,
@@ -724,6 +725,11 @@ pangodirToLevel PangoDirectionNeutral = 0
 pangoItemRawGetFont :: Ptr pangoItem -> IO Font
 pangoItemRawGetFont ptr =
   makeNewGObject mkFont (#{peek PangoItem, analysis.font} ptr)
+
+-- Get the font of a PangoAnalysis within a PangoItem.
+pangoItemRawGetLanguage :: Ptr pangoItem -> IO (Ptr CChar)
+pangoItemRawGetLanguage ptr =
+  #{peek PangoItem, analysis.language} ptr
 
 -- Get the PangoAnalysis within a PangoItem
 pangoItemRawAnalysis :: Ptr pangoItem -> Ptr pangoAnalysis

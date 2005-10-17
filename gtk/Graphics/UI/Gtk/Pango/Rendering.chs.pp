@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/16 15:05:35 $
+--  Version $Revision: 1.8 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -41,14 +41,15 @@
 --   such as 'Graphics.UI.Gtk.Cairo.cairoShowGlyphString'.
 --
 module Graphics.UI.Gtk.Pango.Rendering (
-  -- * 'PangoAttribute's: Applying emphasis to parts of an output string.
+  -- * 'PangoAttribute': Apply emphasis to parts of an output string.
   PangoAttribute(..),
 
-  -- * 'PangoItem's: Partition text into units with similar attributes.
+  -- * 'PangoItem': Partition text into units with similar attributes.
   PangoItem,
   pangoItemize,
+  pangoItemGetFontMetrics,
 
-  -- * 'GlyphItem's: Turn text segments into glyph sequences.
+  -- * 'GlyphItem': Turn text segments into glyph sequences.
   GlyphItem,
   pangoShape,
   glyphItemExtents,
@@ -91,6 +92,47 @@ pangoItemize pc str attrs = do
     piPtrs <- fromGList glist
     piRaws <- mapM makeNewPangoItemRaw piPtrs
     return (map (PangoItem ps) piRaws)
+
+
+-- | Retrieve the metrics of the font that was chosen to break the given
+--   'PangoItem'.
+--
+pangoItemGetFontMetrics :: PangoItem -> IO FontMetrics
+pangoItemGetFontMetrics pi = do
+  font <- pangoItemGetFont pi
+  lang <- pangoItemGetLanguage pi
+  mPtr <- {#call unsafe font_get_metrics#} font lang
+  ascent <- {#call unsafe font_metrics_get_ascent#} mPtr
+  descent <- {#call unsafe font_metrics_get_descent#} mPtr
+  approximate_char_width <-
+      {#call unsafe font_metrics_get_approximate_char_width#} mPtr
+  approximate_digit_width <-
+      {#call unsafe font_metrics_get_approximate_digit_width#} mPtr
+#if PANGO_CHECK_VERSION(1,6,0)
+  underline_position <-
+      {#call unsafe font_metrics_get_underline_position#} mPtr
+  underline_thickness <-
+      {#call unsafe font_metrics_get_underline_thickness#} mPtr
+  strikethrough_position <-
+      {#call unsafe font_metrics_get_strikethrough_position#} mPtr
+  strikethrough_thickness <-
+      {#call unsafe font_metrics_get_strikethrough_thickness#} mPtr
+#endif
+  return (FontMetrics
+	  (intToPu ascent)
+	  (intToPu descent)
+	  (intToPu approximate_char_width)
+	  (intToPu approximate_digit_width)
+#if PANGO_CHECK_VERSION(1,6,0)
+	  (intToPu underline_position)
+	  (intToPu underline_thickness)
+	  (intToPu strikethrough_position)
+	  (intToPu strikethrough_thickness)
+#endif
+	 )
+
+		       
+
 
 -- | Turn a 'PangoItem' into a 'GlyphItem'.
 --

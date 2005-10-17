@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.8 $ from $Date: 2005/10/16 15:05:35 $
+--  Version $Revision: 1.9 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -45,6 +45,7 @@ module Graphics.UI.Gtk.Pango.Types (
   makeNewPangoItemRaw,
   withPangoItemRaw,
   pangoItemGetFont,
+  pangoItemGetLanguage,
 
   GlyphItem(GlyphItem),
   GlyphStringRaw(GlyphStringRaw),
@@ -66,7 +67,9 @@ module Graphics.UI.Gtk.Pango.Types (
   makeNewFontDescription,
   Language(Language),
   emptyLanguage,
-  languageFromString
+  languageFromString,
+
+  FontMetrics(..)
   ) where
 
 import Monad (liftM)
@@ -77,7 +80,8 @@ import Data.IORef ( IORef )
 import System.Glib.FFI
 import System.Glib.UTFString
 import Graphics.UI.Gtk.General.Structs ( pangoScale, Rectangle(..),
-					 pangoItemRawGetFont )
+					 pangoItemRawGetFont,
+					 pangoItemRawGetLanguage )
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="pango" prefix="pango" #}
@@ -238,6 +242,12 @@ pangoItemGetFont :: PangoItem -> IO Font
 pangoItemGetFont (PangoItem _ (PangoItemRaw pir)) =
   withForeignPtr pir pangoItemRawGetFont
 
+-- | Extract the 'Language' used for this 'PangoItem'.
+--
+pangoItemGetLanguage :: PangoItem -> IO Language
+pangoItemGetLanguage (PangoItem _ (PangoItemRaw pir)) =
+  liftM (Language . castPtr) $ withForeignPtr pir pangoItemRawGetLanguage
+
 {#pointer *PangoGlyphItem as GlyphItemRaw #}
 
 -- With each GlyphString we pair a UTFCorrection
@@ -372,7 +382,7 @@ foreign import ccall unsafe "pango_font_description_free"
 
 #endif
 
--- | A Language designator to choose fonts.
+-- | An RFC-3066 language designator to choose scripts.
 --
 {#pointer* Language newtype#} deriving Eq
 
@@ -384,8 +394,60 @@ instance Show Language where
 -- | Specifying no particular language.
 emptyLanguage = Language nullPtr
 
+-- | Take a RFC-3066 format language tag as a string and convert it to a
+--  'Language' type that can be efficiently passed around and compared with
+--  other language tags.
+--
+-- * This function first canonicalizes the string by converting it to
+--   lowercase, mapping \'_\' to \'-\', and stripping all characters
+--   other than letters and \'-\'.
+--
 languageFromString :: String -> IO Language
 languageFromString language = liftM Language $
   withUTFString language {#call language_from_string#}
 
-
+-- | The characteristic measurements of a font.
+--
+-- * All values are measured in points, expressed as 'PangoUnit's.
+--
+-- * The last four fields are only available in Pango 1.6 or higher.
+--
+data FontMetrics = FontMetrics {
+  -- | The ascent is the distance from the baseline to the logical top
+  --   of a line of text. (The logical top may be above or below the
+  --   top of the actual drawn ink. It is necessary to lay out the
+  --   text to figure where the ink will be.)
+  ascent :: PangoUnit,
+  -- | The descent is the distance from the baseline to the logical
+  --   bottom of a line of text. (The logical bottom may be above or
+  --   below the bottom of the actual drawn ink. It is necessary to
+  --   lay out the text to figure where the ink will be.)
+  descent :: PangoUnit,
+  -- | The approximate character width. This is merely a
+  --   representative value useful, for example, for determining the
+  --   initial size for a window. Actual characters in text will be
+  --   wider and narrower than this.
+  approximateCharWidth :: PangoUnit,
+  -- | The approximate digit width. This is merely a representative
+  --   value useful, for example, for determining the initial size for
+  --   a window. Actual digits in text can be wider and narrower than
+  --   this, though this value is generally somewhat more accurate
+  --   than @approximateCharWidth@.
+  approximateDigitWidth :: PangoUnit
+#if PANGO_CHECK_VERSION(1,6,0)
+  ,
+  -- | The suggested thickness to draw an underline.
+  underlineThickness :: PangoUnit,
+  -- | The suggested position to draw the underline. The value returned is
+  --   the distance above the baseline of the top of the underline. Since
+  --   most fonts have underline positions beneath the baseline, this value
+  --   is typically negative.
+  underlinePosition :: PangoUnit,
+  -- | The suggested thickness to draw for the strikethrough.
+  strikethroughThickenss :: PangoUnit,
+  -- | The suggested position to draw the strikethrough. The value
+  --   returned is the distance above the baseline of the top of the
+  --   strikethrough.
+  strikethroughPosition :: PangoUnit
+#endif
+  } deriving Show

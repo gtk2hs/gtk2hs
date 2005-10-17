@@ -5,7 +5,7 @@
 --
 --  Created: 16 October 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/10/16 15:05:35 $
+--  Version $Revision: 1.2 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -25,18 +25,15 @@
 -- Portability : portable (depends on GHC)
 --
 -- Fonts. The selection of an appropriate font to render text becomes a
--- substantial task in the presence of Unicode and rendering of scripts
--- that do not follow the simple one-to-one correspondance between character
--- and glyph (graphical representation of a character). Pango provides several
--- concepts to handle fonts:
+-- substantial task in the presence of Unicode where a single font does not
+-- over the whole range of possible characters. Pango provides several
+-- concepts to find appropriate fonts and to query information about them:
 --
 -- * 'FontDescription': Font descriptions provide a way to query and state
 --   requirements on
 --   fonts. This data structure has several fields describing different
 --   characteristics of a font. Each of these fields can be set of left
 --   unspecified.
---
--- * 'FontMetric': Information about a font.
 --
 -- * 'FontMap' : A font map represents the set of fonts available for a
 --   particular rendering system. In particular this map defines the
@@ -49,11 +46,14 @@
 -- * 'FontFace': A face is a specific font where all characteristics are
 --   fixed except for the size.
 --
+-- * 'FontMetrics': Information about the font that will be used to render
+--   a specific 'Graphics.UI.Gtk.Pango.Rendering.PangoItem'.
+--
 module Graphics.UI.Gtk.Pango.Font (
+  PangoUnit,
   -- Functions to manage font descriptions.
   module Graphics.UI.Gtk.Pango.Description,
   -- Font metrics.
-  FontMetrics(..),
   FontMap,
   pangoFontMapListFamilies,
   FontFamily,
@@ -61,7 +61,8 @@ module Graphics.UI.Gtk.Pango.Font (
   pangoFontFamilyListFaces,
   FontFace,
   pangoFontFaceListSizes,
-  pangoFontFaceDescribe
+  pangoFontFaceDescribe,
+  FontMetrics(..)
   ) where
 
 import Monad    (liftM)
@@ -75,33 +76,6 @@ import Graphics.UI.Gtk.Pango.Description
 
 {# context lib="pango" prefix="pango" #}
 
--- | The characteristic measurements of a font.
---
--- * All values are measured in pixels.
---
-data FontMetrics = FontMetrics {
-  -- | The ascent is the distance from the baseline to the logical top
-  --   of a line of text. (The logical top may be above or below the
-  --   top of the actual drawn ink. It is necessary to lay out the
-  --   text to figure where the ink will be.)
-  ascent :: Rational,
-  -- | The descent is the distance from the baseline to the logical
-  --   bottom of a line of text. (The logical bottom may be above or
-  --   below the bottom of the actual drawn ink. It is necessary to
-  --   lay out the text to figure where the ink will be.)
-  descent :: Rational,
-  -- | The approximate character width. This is merely a
-  --   representative value useful, for example, for determining the
-  --   initial size for a window. Actual characters in text will be
-  --   wider and narrower than this.
-  approximateCharWidth :: Rational,
-  -- | The approximate digit width. This is merely a representative
-  --   value useful, for example, for determining the initial size for
-  --   a window. Actual digits in text can be wider and narrower than
-  --   this, though this value is generally somewhat more accurate
-  --   than @approximateCharWidth@.
-  approximateDigitWidth :: Rational
-}
 
 -- | Ask for the different font families that a particular back-end supports.
 --

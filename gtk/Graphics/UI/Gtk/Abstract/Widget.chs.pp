@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2005/10/16 15:05:35 $
+--  Version $Revision: 1.15 $ from $Date: 2005/10/17 22:52:50 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -134,7 +134,6 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetCanFocus,
 
 -- * Signals
-  Event(..),
   onButtonPress,
   afterButtonPress,
   onButtonRelease,
