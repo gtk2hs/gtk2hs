@@ -1,3 +1,7 @@
+2005-10-17 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/FFI.hs: fix typo in withArrayLen #ifdef stuff.
+
 2005-10-16 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, gtk/Graphics/UI/Gtk.hs,

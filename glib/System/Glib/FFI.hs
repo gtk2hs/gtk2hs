@@ -5,7 +5,7 @@
 --
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/10/15 16:59:09 $
+--  Version $Revision: 1.9 $ from $Date: 2005/10/17 16:01:30 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -31,7 +31,7 @@ module System.Glib.FFI (
   maybeNull,
   newForeignPtr,
   withForeignPtrs,
-#if __GLASGOW_HASKELL__<640
+#if __GLASGOW_HASKELL__<604
   withArrayLen,
 #endif
 #if __GLASGOW_HASKELL__<602
@@ -59,7 +59,7 @@ import Foreign  hiding (with)
 with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
 with = Foreign.with
 
-#if __GLASGOW_HASKELL__<640
+#if __GLASGOW_HASKELL__<604
 withArrayLen :: Storable a => [a] -> (Int -> Ptr a -> IO b) -> IO b
 withArrayLen elems act = let len = length elems in withArray elems (act len)
 #endif
