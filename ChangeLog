@@ -40,6 +40,9 @@
 	haddock modules. Do not use the local cairo.h header but rather the
 	system one. Fix the list of expected haddock index html files.
 
+	* configure.ac: bump the revision to help people trak recent
+	incompatible changes.
+
 2005-10-17 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,
