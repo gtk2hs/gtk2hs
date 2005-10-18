@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/15 19:34:46 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/18 00:56:34 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -133,6 +133,7 @@ import System.Glib.Flags
 import System.Glib.FFI	(unsafePerformIO)	-- to read CStrings lazyly
 import System.Glib.GList	(GSList, fromGSListRev)
 import Graphics.UI.Gtk.Gdk.Events	(Modifier)
+import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)
 
 #include <gtk/gtk.h>
 
@@ -153,7 +154,7 @@ data StockItem = StockItem {
   siStockId :: StockId,
   siLabel   :: String,
   siModifier:: [Modifier],
-  siKeyval  :: Integer,
+  siKeyval  :: KeyVal,
   siTransDom:: String }
 
 instance Storable StockItem where
@@ -172,7 +173,7 @@ instance Storable StockItem where
       siLabel	 = unsafePerformIO $ peekUTFString' label,
       -- &%!?$ c2hs and hsc should agree on types
       siModifier = toFlags (fromIntegral modifier), 
-      siKeyval	 = fromIntegral keyval,
+      siKeyval	 = keyval,
       siTransDom = unsafePerformIO $ peekUTFString' transDom }
     where
       peekUTFString' :: CString -> IO String

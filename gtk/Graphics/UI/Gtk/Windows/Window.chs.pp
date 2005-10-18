@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.19 $ from $Date: 2005/08/29 11:15:59 $
+--  Version $Revision: 1.20 $ from $Date: 2005/10/18 00:56:34 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -1296,8 +1296,8 @@ windowGetTypeHint self =
 -- * Available since Gtk+ version 2.8
 --
 windowPresentWithTime :: WindowClass self => self
- -> Integer -- ^ @timestamp@ - the timestamp of the user interaction (typically
-            -- a button or key press event) which triggered this call
+ -> Word32 -- ^ @timestamp@ - the timestamp of the user interaction (typically
+           -- a button or key press event) which triggered this call
  -> IO ()
 windowPresentWithTime self timestamp =
   {# call gtk_window_present_with_time #}

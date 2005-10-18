@@ -1,3 +1,20 @@
+2005-10-18 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: more cleanups to the Event
+	structure. Rename various record selector names. Use Word32 for
+	timestamps rather than Integer. Use the Gtk.Keys module rather than
+	defining things locally.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Keys.chs: remove use of c2hs {# fun #}
+	hooks, use normal {# call #} hooks instead. Add keyvalToChar which is
+	used in the Event marshaling. Add documentation.
+
+	* gtk/Graphics/UI/Gtk/General/StockItems.hsc: use Gtk.Keys.KeyVal for
+	the Keyval rather than Integer.
+
+	* gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: use Word32 for timestamps
+	rather than Integer.
+
 2005-10-17 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,

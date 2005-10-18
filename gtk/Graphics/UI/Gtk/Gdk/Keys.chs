@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/18 00:56:34 $
 --
 --  Copyright (C) 2002-2005 Jens Petersen
 --
@@ -28,23 +28,50 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Gdk keyval functions.
+-- Gdk KeyVal functions.
 --
 module Graphics.UI.Gtk.Gdk.Keys (
+  KeyVal,
   keyvalName,
-  keyvalFromName
+  keyvalFromName,
+  keyvalToChar,
   ) where
 
+import Monad (liftM)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 
 {#context lib="gdk" prefix ="gdk"#}
 
-{#fun pure keyval_name as ^ {fromIntegral `Integer'} -> `Maybe String'
-    maybePeekUTFString#}
-  where
-  maybePeekUTFString = unsafePerformIO . (maybePeek peekCString)
---   maybePeekUTFString = maybePeek peekCString
+-- | Key values are the codes which are sent whenever a key is pressed or
+-- released.
+--
+type KeyVal = Word32
 
-{#fun pure keyval_from_name as ^ {`String'} -> `Integer' fromIntegral#}
+-- | Converts a key value into a symbolic name.
+--
+keyvalName :: KeyVal -> IO String
+keyvalName keyval =
+  {# call gdk_keyval_name #} (fromIntegral keyval)
+  >>= peekUTFString
 
+-- | Converts a key name to a key value.
+--
+keyvalFromName :: String -> IO KeyVal
+keyvalFromName keyvalName =
+  liftM fromIntegral $
+  withCString keyvalName $ \keyvalNamePtr ->
+  {# call gdk_keyval_from_name #}
+    keyvalNamePtr
+
+-- | Convert from a Gdk key symbol to the corresponding Unicode character.
+--
+keyvalToChar :: 
+    KeyVal          -- ^ @keyval@ - a Gdk key symbol
+ -> IO (Maybe Char) -- ^ returns the corresponding unicode character, or
+                    -- Nothing if there is no corresponding character.
+keyvalToChar keyval =
+  {# call gdk_keyval_to_unicode #} (fromIntegral keyval)
+  >>= \code -> if code == 0 then return Nothing
+                            else return $ Just $ toEnum $ fromIntegral code
