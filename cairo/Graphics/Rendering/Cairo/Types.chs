@@ -11,9 +11,9 @@
 -- Haskell bindings to the cairo types.
 -----------------------------------------------------------------------------
 
+-- #hide
 module Graphics.Rendering.Cairo.Types (
     Matrix(Matrix), MatrixPtr
-  , Render(..)
   , Cairo(Cairo), unCairo
   , Surface(Surface), unSurface
   , Pattern(Pattern), unPattern
@@ -59,14 +59,8 @@ import Foreign hiding (rotate)
 import CForeign
 
 import Monad (liftM)
-import Control.Monad.Reader
 
 {#context lib="cairo" prefix="cairo"#}
-
--- newtype Render m = Render (ReaderT Cairo IO m)
---   deriving (Functor, Monad, MonadIO, MonadReader Cairo)
-newtype Render m = Render { runRender :: ReaderT Cairo IO m }
-  deriving (Functor, Monad, MonadIO, MonadReader Cairo)
 
 {#pointer *cairo_t as Cairo newtype#}
 unCairo (Cairo x) = x
@@ -216,11 +210,6 @@ cIntConv  = fromIntegral
 
 cFloatConv :: (RealFloat a, RealFloat b) => a -> b
 cFloatConv  = realToFrac
--- As this conversion by default goes via `Rational', it can be very slow...
-{-# RULES
-  "cFloatConv/Float->Float"   forall (x::Float).  cFloatConv x = x;
-  "cFloatConv/Double->Double" forall (x::Double). cFloatConv x = x
- #-}
 
 cFromBool :: Num a => Bool -> a
 cFromBool  = fromBool

@@ -22,6 +22,13 @@
 	demo/graphic/Drawing.hs, demo/treeList/ListTest.hs: fix demos to use
 	new event record field names.
 
+	* cairo/Graphics/Rendering/Cairo/Types.chs: remove RULES pragma. It
+	duplicates rules from ghc's libraries anyway and causes compilation
+	problems with ghc-6.2.
+
+	* demo/cairo/Text.hs: fix the text demo to take account of the changed
+	behaviour of showText in cairo 1.0.
+
 2005-10-17 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,

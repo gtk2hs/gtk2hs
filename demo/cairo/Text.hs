@@ -15,10 +15,10 @@ boxText text x y = do
             (h + 2 * lineWidth)
   stroke
   moveTo x y
-  showText text
   textPath text
-  setSourceRGB 1 0 0
-  setLineWidth 1.0
+  fillPreserve
+  setSourceRGBA 0 0 1 0.5
+  setLineWidth 3.0
   stroke
 
   restore
