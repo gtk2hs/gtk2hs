@@ -29,6 +29,10 @@
 	* demo/cairo/Text.hs: fix the text demo to take account of the changed
 	behaviour of showText in cairo 1.0.
 
+	* cairo/Graphics/Rendering/Cairo/Internal.hs,
+	cairo/Graphics/Rendering/Cairo.hs: move the definition of the Render
+	monad into the Internal module.
+
 2005-10-17 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,

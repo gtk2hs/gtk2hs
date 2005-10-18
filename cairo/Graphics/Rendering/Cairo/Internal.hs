@@ -12,7 +12,7 @@
 -----------------------------------------------------------------------------
 
 module Graphics.Rendering.Cairo.Internal (
-
+    Render(..)
   , module Graphics.Rendering.Cairo.Types
   , module Graphics.Rendering.Cairo.Internal.Drawing.Cairo
   , module Graphics.Rendering.Cairo.Internal.Drawing.Paths
@@ -40,3 +40,11 @@ import Graphics.Rendering.Cairo.Internal.Surfaces.Image
 import Graphics.Rendering.Cairo.Internal.Surfaces.PNG
 import Graphics.Rendering.Cairo.Internal.Surfaces.Surface
 import Graphics.Rendering.Cairo.Internal.Utilities
+
+import Control.Monad.Reader
+
+-- | The Render monad. All drawing operations take place in a Render context.
+-- You can obtain a Render context for a 'Surface' using 'renderWith'.
+--
+newtype Render m = Render { runRender :: ReaderT Cairo IO m }
+  deriving (Functor, Monad, MonadIO, MonadReader Cairo)
