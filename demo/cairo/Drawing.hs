@@ -19,7 +19,7 @@ main = do
   return ()
 
 updateCanvas :: DrawingArea -> PangoLayout -> Event -> IO Bool
-updateCanvas canvas text (Expose { area=rect }) = do
+updateCanvas canvas text (Expose { eventArea=rect }) = do
   win <- drawingAreaGetDrawWindow canvas
   (width',height') <- drawingAreaGetSize canvas
   let width  = realToFrac width'

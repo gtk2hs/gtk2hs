@@ -18,6 +18,10 @@
 	* gtk/Graphics/UI/Gtk/Display/Label.chs.pp: use KeyVal imported from
 	Gtk.Keys module rather than local definition.
 
+	* demo/cairo/Drawing.hs, demo/fastdraw/FastDraw.hs,
+	demo/graphic/Drawing.hs, demo/treeList/ListTest.hs: fix demos to use
+	new event record field names.
+
 2005-10-17 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,

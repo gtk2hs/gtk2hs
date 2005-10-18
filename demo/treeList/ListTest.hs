@@ -74,10 +74,10 @@ createStore = do
 
   
 showMenu :: TreeView -> ListStore -> TreeSelection -> Event -> IO Bool
-showMenu tv tm sel (Button { x=xPos, 
-			     y=yPos, 
-			     click=SingleClick, 
-			     button=RightButton }) = do
+showMenu tv tm sel (Button { eventX=xPos, 
+			     eventY=yPos, 
+			     eventClick=SingleClick, 
+			     eventButton=RightButton }) = do
   res <- treeViewGetPathAtPos tv (round xPos, round yPos)
   case res of
     Nothing -> return ()
