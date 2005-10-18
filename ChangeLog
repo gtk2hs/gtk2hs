@@ -33,6 +33,13 @@
 	cairo/Graphics/Rendering/Cairo.hs: move the definition of the Render
 	monad into the Internal module.
 
+	* Makefile.am: various changes: do not exclude the System.Glib.Signals
+	module from the haddock docs, merely hide it. correct
+	gtk/Graphics/UI/Gtk/Cairo.chs to gtk/Graphics/UI/Gtk/Cairo.chs.pp in
+	the gtk soruces list. Add a couple pango modules to the list of hidden
+	haddock modules. Do not use the local cairo.h header but rather the
+	system one. Fix the list of expected haddock index html files.
+
 2005-10-17 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp,

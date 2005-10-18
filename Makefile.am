@@ -265,12 +265,11 @@ libHSglib_a_SOURCES += glib/System/Glib/hsgclosure.c
 glib_System_Glib_hsgclosure_c_CFLAGS = -Werror-implicit-function-declaration
 endif
 
-html_HSFILES_EXCLUDE =				\
-	glib/System/Glib/Signals.hs
-
 html_HSFILES_PREPROC = glib/System/Glib/FFI.hs
-html_HSFILES_HIDDEN  = glib/System/Glib/FFI.hs \
-		       gtk/Graphics/UI/Gtk/Pango/Types.hs
+html_HSFILES_HIDDEN  =				\
+	glib/System/Glib/FFI.hs			\
+	gtk/Graphics/UI/Gtk/Pango/Types.hs	\
+	glib/System/Glib/Signals.hs
 
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
@@ -496,7 +495,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs			\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs                             \
-        gtk/Graphics/UI/Gtk/Cairo.chs
+        gtk/Graphics/UI/Gtk/Cairo.chs.pp
 
 if !WIN32
 libHSgtk_a_SOURCES +=							\
@@ -512,7 +511,9 @@ EXTRA_libHSgtk_a_SOURCES =						\
 
 html_HSFILES_PREPROC += gtk/Graphics/UI/Gtk.hs
 html_HSFILES_HIDDEN  += $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)		\
-			gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs
+			gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs		\
+			gtk/Graphics/UI/Gtk/Pango/Description.hs	\
+			gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs
 html_HSFILES_HIDDEN += gtk/Graphics/UI/Gtk/Signals.chs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
@@ -1028,12 +1029,12 @@ cairo_PKGNAME = libHScairo_a
 
 libHScairo_a_PACKAGE		= cairo/cairo.$(PKGEXT)
 libHScairo_a_PACKAGEDEPS	= 
-libHScairo_a_HEADER 		= cairo/cairo.h
+libHScairo_a_HEADER 		= cairo.h
 libHScairo_a_PRECOMP		= cairo/cairo.precomp
 libHScairo_a_LIBS		= $(CAIRO_LIBS)
 libHScairo_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
 libHScairo_a_CFLAGS		= $(filter-out -I% -D%,$(CAIRO_CFLAGS))
-libHScairo_a_CPPFLAGS		= $(filter -I% -D%,$(CAIRO_CFLAGS)) -I.
+libHScairo_a_CPPFLAGS		= $(filter -I% -D%,$(CAIRO_CFLAGS))
 
 libHScairo_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) cairo
 cairo/libHScairo_a.deps: glib/libHSglib_a.deps
@@ -1062,11 +1063,10 @@ libHScairo_a_SOURCES =							\
 #	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs
 #	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs
 
-cairo_Graphics_Rendering_Cairo_hs_HCFLAGS = -fglasgow-exts
-cairo_Graphics_Rendering_Cairo_Types_hs_HCFLAGS = -fglasgow-exts
+cairo_Graphics_Rendering_Cairo_Internal_hs_HCFLAGS = -fglasgow-exts
 
 html_HSFILES_HIDDEN += $(libHScairo_a_GENERATEDSOURCES:.chs=.hs)
-html_HSFILES_EXCLUDE +=							\
+html_HSFILES_EXCLUDE =							\
 	cairo/Graphics/Rendering/Cairo/Types.hs				\
 	cairo/Graphics/Rendering/Cairo/Internal.hs			\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Cairo.hs	\
@@ -1149,7 +1149,7 @@ html_DATA =									  \
 	docs/reference/haddock.css docs/reference/haskell_icon.gif		  \
 	docs/reference/index.html docs/reference/doc-index.html			  \
 	docs/reference/gtk2hs.haddock						  \
-	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X Y 58,	  \
+	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X 58,	  \
 		docs/reference/doc-index-$(LETTER).html) #missing letters Q and Z
 
 $(html_DATA) : $(html_HSFILES)
