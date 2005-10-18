@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/08/25 01:16:14 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/18 00:57:44 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -193,6 +193,7 @@ import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)
 import Graphics.UI.Gtk.General.Enums	(Justification(..))
 import Graphics.UI.Gtk.Pango.Markup
 {#import Graphics.UI.Gtk.Pango.Types#}  (PangoLayout(PangoLayout),
@@ -391,15 +392,12 @@ labelGetLayoutOffsets self =
   y <- peek yPtr
   return (fromIntegral x, fromIntegral y)
 
--- | KeyVal is a synonym for a hot key number.
---
-type KeyVal = {#type guint#}
-
 -- | If the label has been set so that it has an mnemonic key this function
 -- returns the keyval used for the mnemonic accelerator.
 --
 labelGetMnemonicKeyval :: LabelClass self => self -> IO KeyVal
 labelGetMnemonicKeyval self =
+  liftM fromIntegral $
   {# call unsafe label_get_mnemonic_keyval #}
     (toLabel self)
 
