@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts, Axel Simon
 --
@@ -47,6 +47,7 @@ module Graphics.UI.Gtk.TreeList.TreeModelSort (
   TreeModelSort,
   TreeModelSortClass,
   castToTreeModelSort,
+  toTreeModelSort,
 
 -- * Constructors
   treeModelSortNewWithModel,

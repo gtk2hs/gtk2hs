@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/08/25 01:16:14 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -52,6 +52,7 @@ module Graphics.UI.Gtk.Entry.SpinButton (
   SpinButton,
   SpinButtonClass,
   castToSpinButton,
+  toSpinButton,
 
 -- * Constructors
   spinButtonNew,

@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/05/07 20:57:22 $
+--  Version $Revision: 1.3 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -48,6 +48,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction (
   ToggleAction,
   ToggleActionClass,
   castToToggleAction,
+  toToggleAction,
 
 -- * Constructors
   toggleActionNew,

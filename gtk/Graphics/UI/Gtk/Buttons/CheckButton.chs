@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/04/02 19:08:01 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -53,11 +53,12 @@ module Graphics.UI.Gtk.Buttons.CheckButton (
   CheckButton,
   CheckButtonClass,
   castToCheckButton,
+  toCheckButton,
 
 -- * Constructors
   checkButtonNew,
   checkButtonNewWithLabel,
-  checkButtonNewWithMnemonic
+  checkButtonNewWithMnemonic,
   ) where
 
 import Monad	(liftM)

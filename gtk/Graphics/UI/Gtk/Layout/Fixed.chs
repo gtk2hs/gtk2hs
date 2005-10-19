@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.8 $ from $Date: 2005/07/03 12:27:10 $
+--  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -77,6 +77,7 @@ module Graphics.UI.Gtk.Layout.Fixed (
   Fixed,
   FixedClass,
   castToFixed,
+  toFixed,
 
 -- * Constructors
   fixedNew,

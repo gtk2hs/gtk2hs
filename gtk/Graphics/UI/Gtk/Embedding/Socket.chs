@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:19:02 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -90,6 +90,7 @@ module Graphics.UI.Gtk.Embedding.Socket (
   Socket,
   SocketClass,
   castToSocket,
+  toSocket,
   NativeWindowId,
 
 -- * Constructors
@@ -104,7 +105,7 @@ module Graphics.UI.Gtk.Embedding.Socket (
   onPlugAdded,
   afterPlugAdded,
   onPlugRemoved,
-  afterPlugRemoved
+  afterPlugRemoved,
   ) where
 
 import Monad	(liftM)

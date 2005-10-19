@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -52,6 +52,7 @@ module Graphics.UI.Gtk.Selectors.FontButton (
   FontButton,
   FontButtonClass,
   castToFontButton,
+  toFontButton,
 
 -- * Constructors
   fontButtonNew,

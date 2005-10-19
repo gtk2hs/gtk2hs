@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/08/25 23:06:20 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -70,6 +70,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolButton (
   ToolButton,
   ToolButtonClass,
   castToToolButton,
+  toToolButton,
 
 -- * Constructors
   toolButtonNew,

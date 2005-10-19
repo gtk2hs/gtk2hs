@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/12 19:52:15 $
+--  Version $Revision: 1.2 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -50,6 +50,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.SeparatorMenuItem (
   SeparatorMenuItem,
   SeparatorMenuItemClass,
   castToSeparatorMenuItem,
+  toSeparatorMenuItem,
 
 -- * Constructors
   separatorMenuItemNew,

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2005/08/29 11:15:58 $
+--  Version $Revision: 1.14 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -90,6 +90,7 @@ module Graphics.UI.Gtk.Display.Image (
   Image,
   ImageClass,
   castToImage,
+  toImage,
 
 -- * Constructors
   imageNewFromFile,

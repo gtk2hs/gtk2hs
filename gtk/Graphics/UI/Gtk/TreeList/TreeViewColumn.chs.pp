@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 21:03:39 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -67,6 +67,7 @@ module Graphics.UI.Gtk.TreeList.TreeViewColumn (
   TreeViewColumn,
   TreeViewColumnClass,
   castToTreeViewColumn,
+  toTreeViewColumn,
 
 -- * Constructors
   treeViewColumnNew,

@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/07/02 19:22:04 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -57,6 +57,7 @@ module Graphics.UI.Gtk.Abstract.Object (
   Object,
   ObjectClass,
   castToObject,
+  toObject,
 
 -- * Methods
   objectSink,

@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/07 00:13:59 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -56,8 +56,10 @@ module Graphics.UI.Gtk.Abstract.Scrollbar (
 -- * Types
   Scrollbar,
   ScrollbarClass,
-  castToScrollbar
+  castToScrollbar,
+  toScrollbar,
   ) where
 
-import Graphics.UI.Gtk.Types (Scrollbar, ScrollbarClass, castToScrollbar)
+import Graphics.UI.Gtk.Types (Scrollbar, ScrollbarClass,
+                              castToScrollbar, toScrollbar)
 

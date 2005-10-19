@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.9 $ from $Date: 2005/08/29 11:15:58 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -66,7 +66,7 @@
 -- Stores attributed text for display in a 'TextView'
 --
 module Graphics.UI.Gtk.Multiline.TextBuffer (
--- * Description
+-- * Detail
 -- 
 -- | You may wish to begin by reading the text widget conceptual overview
 -- which gives an overview of all the objects and data types related to the
@@ -83,6 +83,7 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   TextBuffer,
   TextBufferClass,
   castToTextBuffer,
+  toTextBuffer,
 
 -- * Constructors
   textBufferNew,

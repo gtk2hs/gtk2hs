@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:25 $
+--  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -55,6 +55,7 @@ module Graphics.UI.Gtk.Layout.Expander (
   Expander,
   ExpanderClass,
   castToExpander,
+  toExpander,
 
 -- * Constructors
   expanderNew,

@@ -5,7 +5,7 @@
 --
 --  Created: 1 August 2004
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:26 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -56,6 +56,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.ToolItem (
   ToolItem,
   ToolItemClass,
   castToToolItem,
+  toToolItem,
 
 -- * Constructors
   toolItemNew,

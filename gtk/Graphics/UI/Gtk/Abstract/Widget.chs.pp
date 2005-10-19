@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.15 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.16 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -62,6 +62,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   Widget,
   WidgetClass,
   castToWidget,
+  toWidget,
   Allocation,
   Requisition(..),
   Rectangle(..),

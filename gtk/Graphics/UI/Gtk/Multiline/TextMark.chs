@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:28 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -62,6 +62,7 @@ module Graphics.UI.Gtk.Multiline.TextMark (
   TextMark,
   TextMarkClass,
   castToTextMark,
+  toTextMark,
   MarkName,
 
 -- * Methods

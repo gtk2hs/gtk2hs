@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/05/08 03:21:12 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -94,6 +94,7 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
   TreeModel,
   TreeModelClass,
   castToTreeModel,
+  toTreeModel,
   TreeModelFlags(..),
   TreePath,
   TreeRowReference,

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/08/29 11:15:58 $
+--  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -77,6 +77,7 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   ScrolledWindow,
   ScrolledWindowClass,
   castToScrolledWindow,
+  toScrolledWindow,
 
 -- * Constructors
   scrolledWindowNew,

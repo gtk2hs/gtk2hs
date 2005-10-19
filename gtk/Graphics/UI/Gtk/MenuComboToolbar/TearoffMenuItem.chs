@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/02 16:52:50 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -58,9 +58,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.TearoffMenuItem (
   TearoffMenuItem,
   TearoffMenuItemClass,
   castToTearoffMenuItem,
+  toTearoffMenuItem,
 
 -- * Constructors
-  tearoffMenuItemNew
+  tearoffMenuItemNew,
   ) where
 
 import Monad	(liftM)

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/07/02 23:24:37 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -48,6 +48,7 @@ module Graphics.UI.Gtk.TreeList.CellRendererText (
   CellRendererText,
   CellRendererTextClass,
   castToCellRendererText,
+  toCellRendererText,
 
 -- * Constructors
   cellRendererTextNew,

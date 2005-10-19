@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/05/07 20:57:27 $
+--  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -56,6 +56,7 @@ module Graphics.UI.Gtk.Misc.Viewport (
   Viewport,
   ViewportClass,
   castToViewport,
+  toViewport,
 
 -- * Constructors
   viewportNew,

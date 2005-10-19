@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/08/26 07:49:53 $
+--  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -49,6 +49,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuBar (
   MenuBar,
   MenuBarClass,
   castToMenuBar,
+  toMenuBar,
 #if GTK_CHECK_VERSION(2,8,0)
   PackDirection(..),
 #endif

@@ -4,6 +4,150 @@
 	being marshaled. Added a better error message in case we get any more
 	of these in future.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Bin.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Abstract/ButtonBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Container.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Misc.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Object.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/Abstract/Range.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scale.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs,
+	gtk/Graphics/UI/Gtk/Abstract/Separator.hs,
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: export to{Object}
+	functions.
+
+	* gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ToggleAction.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp: export
+	to{Object} functions.
+	
+	* gtk/Graphics/UI/Gtk/Buttons/Button.chs.pp,
+	gtk/Graphics/UI/Gtk/Buttons/CheckButton.chs,
+	gtk/Graphics/UI/Gtk/Buttons/RadioButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Buttons/ToggleButton.chs: export to{Object}
+	functions.
+	
+	* gtk/Graphics/UI/Gtk/Display/AccelLabel.chs,
+	gtk/Graphics/UI/Gtk/Display/Image.chs.pp,
+	gtk/Graphics/UI/Gtk/Display/Label.chs.pp,
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp,
+	/gtk/Graphics/UI/Gtk/Display/Statusbar.chs: export to{Object}
+	functions.
+	
+	* gtk/Graphics/UI/Gtk/Embedding/Plug.chs,
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs: export to{Object} functions.
+
+	* gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/HScale.chs,
+	gtk/Graphics/UI/Gtk/Entry/SpinButton.chs,
+	gtk/Graphics/UI/Gtk/Entry/VScale.chs: export to{Object} functions.
+
+	* gtk/Graphics/UI/Gtk/General/Style.chs: export to{Object} functions.
+
+	* gtk/Graphics/UI/Gtk/Layout/Alignment.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/AspectFrame.chs,
+	gtk/Graphics/UI/Gtk/Layout/Expander.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Fixed.chs,
+	gtk/Graphics/UI/Gtk/Layout/HBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/HButtonBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/HPaned.chs,
+	gtk/Graphics/UI/Gtk/Layout/Layout.chs,
+	gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp,
+	gtk/Graphics/UI/Gtk/Layout/Table.chs,
+	gtk/Graphics/UI/Gtk/Layout/VBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/VButtonBox.chs,
+	gtk/Graphics/UI/Gtk/Layout/VPaned.chs: export to{Object} functions.
+	
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/CheckMenuItem.chs.pp, 
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Combo.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBoxEntry.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ImageMenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/OptionMenu.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioMenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/SeparatorMenuItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/SeparatorToolItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/TearoffMenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToggleToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolItem.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/Toolbar.chs.pp: export to{Object}
+	functions.
+
+	* gtk/Graphics/UI/Gtk/Misc/Adjustment.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/Arrow.chs,
+	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs,
+	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs,
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/Tooltips.chs.pp,
+	gtk/Graphics/UI/Gtk/Misc/Viewport.chs: export to{Object} functions.
+	
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextTagTable.chs,
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs.pp: export to{Object}
+	functions.
+	
+	* gtk/Graphics/UI/Gtk/Ornaments/Frame.chs,
+	gtk/Graphics/UI/Gtk/Ornaments/HSeparator.chs,
+	gtk/Graphics/UI/Gtk/Ornaments/VSeparator.chs: export to{Object}
+	functions.
+	
+	* gtk/Graphics/UI/Gtk/Scrolling/HScrollbar.chs,
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs.pp,
+	gtk/Graphics/UI/Gtk/Scrolling/VScrollbar.chs: export to{Object}
+	functions.
+	
+	* gtk/Graphics/UI/Gtk/Selectors/ColorButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/ColorSelection.chs,
+	gtk/Graphics/UI/Gtk/Selectors/ColorSelectionDialog.chs,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FileSelection.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FontButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs,
+	gtk/Graphics/UI/Gtk/Selectors/FontSelectionDialog.chs: export
+	to{Object} functions.
+	
+	* gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs,
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs,
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs,
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererToggle.chs,
+	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeModelSort.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp: export to{Object}
+	functions.
+	
+	* gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs: export to{Object}
+	functions.
+
 2005-10-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: more cleanups to the Event

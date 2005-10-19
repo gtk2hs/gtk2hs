@@ -5,7 +5,7 @@
 --
 --  Created: 25 March 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/05 18:29:53 $
+--  Version $Revision: 1.2 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -39,6 +39,7 @@ module Graphics.UI.Gtk.Windows.WindowGroup (
   WindowGroup,
   WindowGroupClass,
   castToWindowGroup,
+  toWindowGroup,
 
 -- * Constructors
   windowGroupNew,

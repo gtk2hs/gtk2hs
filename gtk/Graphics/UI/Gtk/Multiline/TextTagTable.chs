@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/04 01:24:10 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -44,6 +44,7 @@ module Graphics.UI.Gtk.Multiline.TextTagTable (
   TextTagTable,
   TextTagTableClass,
   castToTextTagTable,
+  toTextTagTable,
 
 -- * Constructors
   textTagTableNew,

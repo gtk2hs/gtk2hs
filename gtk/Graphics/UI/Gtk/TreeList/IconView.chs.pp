@@ -5,7 +5,7 @@
 --
 --  Created: 25 March 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/07 20:57:30 $
+--  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -53,6 +53,7 @@ module Graphics.UI.Gtk.TreeList.IconView (
   IconView,
   IconViewClass,
   castToIconView,
+  toIconView,
 
 -- * Constructors
   iconViewNew,

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/03/24 15:16:18 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -52,6 +52,7 @@ module Graphics.UI.Gtk.Scrolling.VScrollbar (
   VScrollbar,
   VScrollbarClass,
   castToVScrollbar,
+  toVScrollbar,
 
 -- * Constructors
   vScrollbarNew,

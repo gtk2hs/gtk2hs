@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/08/25 01:16:14 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -80,6 +80,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.Action (
   Action,
   ActionClass,
   castToAction,
+  toAction,
 
 -- * Constructors
   actionNew,

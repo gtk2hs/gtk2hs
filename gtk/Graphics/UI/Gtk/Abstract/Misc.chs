@@ -5,7 +5,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 19:13:30 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -57,6 +57,7 @@ module Graphics.UI.Gtk.Abstract.Misc (
   Misc,
   MiscClass,
   castToMisc,
+  toMisc,
 
 -- * Methods
   miscSetAlignment,

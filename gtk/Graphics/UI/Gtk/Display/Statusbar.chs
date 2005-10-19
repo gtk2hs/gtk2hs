@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/07 20:57:23 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -71,6 +71,7 @@ module Graphics.UI.Gtk.Display.Statusbar (
   Statusbar,
   StatusbarClass,
   castToStatusbar,
+  toStatusbar,
 
 -- * Constructors
   statusbarNew,

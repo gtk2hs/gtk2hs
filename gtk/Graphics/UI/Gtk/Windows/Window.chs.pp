@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.20 $ from $Date: 2005/10/18 00:56:34 $
+--  Version $Revision: 1.21 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -45,6 +45,7 @@ module Graphics.UI.Gtk.Windows.Window (
   Window,
   WindowClass,
   castToWindow,
+  toWindow,
   WindowType(..),
   WindowEdge(..),
   WindowTypeHint(..),

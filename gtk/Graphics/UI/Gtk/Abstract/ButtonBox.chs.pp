@@ -5,7 +5,7 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/07/06 12:46:46 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/19 12:57:36 $
 --
 --  Copyright (C) 2004-2005 Matthew Walton
 --
@@ -46,6 +46,10 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
 -- 'buttonBoxGetLayout' and 'buttonBoxSetLayout' retrieve and alter the
 -- method used to spread the buttons in a button box across the container,
 -- respectively.
+--
+-- The main purpose of 'ButtonBox' is to make sure the children have all the
+-- same size. Therefore it ignores the homogeneous property which it inherited
+-- from 'Box', and always behaves as if homogeneous was @True@.
 
 -- * Class Hierarchy
 -- |
@@ -64,6 +68,7 @@ module Graphics.UI.Gtk.Abstract.ButtonBox (
   ButtonBox,
   ButtonBoxClass,
   castToButtonBox,
+  toButtonBox,
   ButtonBoxStyle(..),
 
 -- * Methods

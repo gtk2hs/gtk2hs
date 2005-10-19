@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.15 $ from $Date: 2005/08/25 01:16:14 $
+--  Version $Revision: 1.16 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -70,6 +70,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   EntryCompletion,
   EntryCompletionClass,
   castToEntryCompletion,
+  toEntryCompletion,
 
 -- * Constructors
   entryCompletionNew,

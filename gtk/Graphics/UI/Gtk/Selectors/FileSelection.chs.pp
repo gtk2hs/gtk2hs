@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 1999
 --
---  Version $Revision: 1.6 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Manuel M T Chakravarty, Jens Petersen
 --
@@ -74,6 +74,7 @@ module Graphics.UI.Gtk.Selectors.FileSelection (
   FileSelection,
   FileSelectionClass,
   castToFileSelection,
+  toFileSelection,
 
 -- * Constructors
   fileSelectionNew,
