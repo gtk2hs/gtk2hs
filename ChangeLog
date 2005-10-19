@@ -1,3 +1,9 @@
+2005-10-19 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: fix bug with delete events not
+	being marshaled. Added a better error message in case we get any more
+	of these in future.
+
 2005-10-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: more cleanups to the Event

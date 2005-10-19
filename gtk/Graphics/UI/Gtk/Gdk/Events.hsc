@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/10/18 00:56:34 $
+--  Version $Revision: 1.11 $ from $Date: 2005/10/19 11:58:57 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -184,6 +184,10 @@ toModifier i = toFlags ((fromIntegral i) .&. mask)
 --   the event.
 --
 data Event =
+  -- | The window manager has requested that the toplevel window be hidden or
+  -- destroyed, usually when the user clicks on a special icon in the title
+  -- bar.
+  Delete
   -- | The expose event.
   --
   -- * A region of widget that receives this event needs to be redrawn.
@@ -191,7 +195,7 @@ data Event =
   --   or by the application calling functions like
   --   'Graphics.UI.Gtk.Abstract.Widget.widgetQueueDrawArea'.
   --
-  Expose {
+  | Expose {
     eventSent	:: Bool,
     -- | A bounding box denoting what needs to be updated. For a more
     -- detailed information on the area that needs redrawing, use the
@@ -375,6 +379,7 @@ marshalEvent :: Ptr Event -> IO Event
 marshalEvent ptr = do
   (eType::#type GdkEventType) <- #{peek GdkEventAny,type} ptr
   (case eType of
+    #{const GDK_DELETE}         -> \_ -> return Delete
     #{const GDK_EXPOSE}		-> marshExpose
     #{const GDK_MOTION_NOTIFY}	-> marshMotion
     #{const GDK_BUTTON_PRESS}	-> marshButton SingleClick
@@ -392,8 +397,9 @@ marshalEvent ptr = do
     #{const GDK_VISIBILITY_NOTIFY}-> marshVisibility
     #{const GDK_SCROLL}		-> marshScroll
     #{const GDK_WINDOW_STATE}	-> marshWindowState
-    _				-> \_ -> fail
-                                   "marshalEvent: unhandled event type"
+    code			-> \_ -> fail $
+      "marshalEvent: unhandled event type " ++ show code ++
+      "\nplease report this as a bug to gtk2hs-devel@lists.sourceforge.net"
     ) ptr
 
 marshExpose ptr = do
