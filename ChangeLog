@@ -151,6 +151,9 @@
 	* glade/Graphics/UI/Gtk/Glade.chs: update docs and coding style of
 	bindings.
 
+	* tools/apiGen/CodeGen.hs, tools/apiGen/ModuleScan.hs: minor apigen
+	updates. Add the to{Object} functions to the export list.
+
 2005-10-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: more cleanups to the Event

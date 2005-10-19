@@ -632,7 +632,8 @@ genExports object docs modInfo =
   $  [(ss "-- * Types", defaultAttrs)
      ,(ss "  ".ss (object_name object).sc ',', defaultAttrs)
      ,(ss "  ".ss (object_name object).ss "Class,", defaultAttrs)
-     ,(ss "  ".ss "castTo".ss (object_name object).sc ',', defaultAttrs)] 
+     ,(ss "  ".ss "castTo".ss (object_name object).sc ',', defaultAttrs)
+     ,(ss "  ".ss "to".ss (object_name object).sc ',', defaultAttrs)]
   ++ (sectionHeader "Constructors"
     . map fst
     . sortBy (comparing snd))

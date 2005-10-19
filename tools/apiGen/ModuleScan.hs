@@ -212,6 +212,9 @@ scanImport line tokens = Import (concat $ takeWhile (\token -> isWord token || t
 scanCCall :: [String] -> Line
 scanCCall tokens =
   case takeWhile (\t -> t/="#}" && t/="#}."&& t/="#})") . tail . dropWhile (/="{#") $ tokens of
+    ("call":"pure":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
+                                                            methodinfo_shortcname = cname,
+                                                            methodinfo_unsafe = True }
     ("call":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
                                                      methodinfo_shortcname = cname,
                                                      methodinfo_unsafe = True }
