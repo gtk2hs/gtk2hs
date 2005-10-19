@@ -35,7 +35,7 @@
 	gtk/Graphics/UI/Gtk/Display/Image.chs.pp,
 	gtk/Graphics/UI/Gtk/Display/Label.chs.pp,
 	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp,
-	/gtk/Graphics/UI/Gtk/Display/Statusbar.chs: export to{Object}
+	gtk/Graphics/UI/Gtk/Display/Statusbar.chs: export to{Object}
 	functions.
 	
 	* gtk/Graphics/UI/Gtk/Embedding/Plug.chs,
@@ -147,6 +147,9 @@
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp,
 	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs: export to{Object}
 	functions.
+
+	* glade/Graphics/UI/Gtk/Glade.chs: update docs and coding style of
+	bindings.
 
 2005-10-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
