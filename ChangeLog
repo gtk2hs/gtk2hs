@@ -1,3 +1,20 @@
+2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am: Added a new file Attributes.chs.pp since they are
+	needed in two files in Pango. Added this and Pango.Types to the
+	list of no-html files.
+
+	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: New file used by
+	Rendering and Layout.
+
+	* gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp: Completed except for
+	two functions that are quite labor intensive.
+
+	* gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp: Remove the Attribute
+	type.
+
+	* gtk/Graphics/UI/Gtk/Pango/Font.chs: Docu fixes.
+	
 2005-10-19 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: fix bug with delete events not

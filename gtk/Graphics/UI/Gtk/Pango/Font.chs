@@ -5,7 +5,7 @@
 --
 --  Created: 16 October 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.3 $ from $Date: 2005/10/20 23:05:25 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -47,7 +47,8 @@
 --   fixed except for the size.
 --
 -- * 'FontMetrics': Information about the font that will be used to render
---   a specific 'Graphics.UI.Gtk.Pango.Rendering.PangoItem'.
+--   a specific 'Graphics.UI.Gtk.Pango.Context.Context' or
+--   'Graphics.UI.Gtk.Pango.Rendering.PangoItem'.
 --
 module Graphics.UI.Gtk.Pango.Font (
   PangoUnit,

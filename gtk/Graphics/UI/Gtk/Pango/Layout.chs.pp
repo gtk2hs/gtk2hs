@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.4 $ from $Date: 2005/10/20 23:05:25 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -21,21 +21,11 @@
 --
 -- Not bound:
 --
--- Functions that are missing:
---   pango_layout_set_attributes, pango_layout_get_attributes,
---   pango_layout_set_font_description, pango_layout_set_tabs,
---   pango_layout_get_tabs, pango_layout_get_log_attrs, 
---   pango_layout_iter_get_run
---
--- The following functions cannot be bound easily due to Unicode\/UTF8 issues:
---   pango_layout_xy_to_index, pango_layout_index_to_pos,
---   pango_layout_get_cursor_pos, pango_layout_move_cursor_visually,
---   pango_layout_iter_get_index, pango_layout_line_index_to_x,
---   pango_layout_line_x_to_index, pango_layout_line_get_x_ranges
---
--- These functions are not bound, because they're too easy:
---   pango_layout_get_size, pango_layout_get_pixel_size,
---   pango_layout_get_line 
+--  - pango_layout_get_attributes : need function to convert back to
+--    PangoAttribute type
+--  - pango_layout_get_log_attrs : difficult since it returns an array, where
+--    each element corresponds to a UTF8 character, conversion to wide
+--    characters means we need to do some semantic merging
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -45,7 +35,7 @@
 -- Functions to run the rendering pipeline.
 --
 -- * The objects in this model contain a rendered paragraph of text. This
---   interface is the easiest way to render text into a
+--   interface is the easiest way to render text with Cairo or into a
 --   'Graphics.UI.Gtk.Gdk.DrawWindow'.
 --
 module Graphics.UI.Gtk.Pango.Layout (
@@ -60,6 +50,9 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutSetMarkup,
   escapeMarkup,
   layoutSetMarkupWithAccel,
+  layoutSetAttributes,
+  layoutSetFontDescription,
+  layoutGetFontDescription,
   layoutSetWidth,
   layoutGetWidth,
   LayoutWrapMode(..),
@@ -117,7 +110,8 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutLineGetExtents,
   layoutLineGetPixelExtents,
   layoutLineIndexToX,
-  layoutLineXToIndex
+  layoutLineXToIndex,
+  layoutLineGetXRanges
   ) where
 
 import Monad    (liftM)
@@ -134,6 +128,7 @@ import Graphics.UI.Gtk.General.Structs	(Rectangle, pangoScale)
 {#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Pango.Enums#}	(EllipsizeMode(..))
 import Graphics.UI.Gtk.Pango.Rendering  -- for haddock
+import Graphics.UI.Gtk.Pango.Attributes ( PangoAttribute, withAttrList )
 import Data.IORef
 import Control.Exception ( throwIO,
 			   Exception(ArrayException),
@@ -148,6 +143,18 @@ layoutEmpty pc = do
   pl <- makeNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_new#} (toPangoContext pc))
   ps <- makeNewPangoString ""
+  psRef <- newIORef ps
+  return (PangoLayout psRef pl)
+
+-- | Create a new layout.
+--
+layoutNew :: PangoContext -> String -> IO PangoLayout
+layoutNew pc txt = do
+  pl <- makeNewGObject mkPangoLayoutRaw
+    ({#call unsafe layout_new#} (toPangoContext pc))
+  withUTFStringLen txt $ \(strPtr,len) ->
+    {#call unsafe layout_set_text#} pl strPtr (fromIntegral len)
+  ps <- makeNewPangoString txt
   psRef <- newIORef ps
   return (PangoLayout psRef pl)
 
@@ -195,7 +202,7 @@ layoutGetText :: PangoLayout -> IO String
 layoutGetText (PangoLayout _ pl) =
   {#call unsafe layout_get_text#} pl >>= peekUTFString
 
--- | Set the string in the layout.
+-- | Set the text of the layout, including attributes.
 --
 -- * The string may include 'Markup'. To print markup characters like
 --   "<", or "-", apply 'escapeMarkup' on it first. The function returns
@@ -226,7 +233,7 @@ escapeMarkup str = unsafePerformIO $ withUTFStringLen str $ \(strPtr,l) -> do
 -- | Set the string in the layout.
 --
 -- * The string may include 'Markup'. Furthermore, any underscore
---   character indicates that the next character should be
+--   character indicates that the next character will be
 --   marked as accelerator (i.e. underlined). A literal underscore character
 --   can be produced by placing it twice in the string.
 --
@@ -246,7 +253,48 @@ layoutSetMarkupWithAccel pl@(PangoLayout psRef plr) txt = do
   writeIORef psRef ps
   return (modif, txt')
 
--- there are a couple of functions missing here
+
+-- | Set text attributes of the text in the layout.
+--
+-- * This function replaces any text attributes that this layout contained,
+--   even those that were set by using 'layoutSetMarkup'.
+--
+layoutSetAttributes :: PangoLayout -> [PangoAttribute] -> IO ()
+layoutSetAttributes (PangoLayout psRef plr) attrs = do
+  ps <- readIORef psRef
+  withAttrList ps attrs $ \alPtr ->
+    {#call unsafe pango_layout_set_attributes#} plr alPtr
+
+-- function to extract attributes is missing here
+
+-- | Set a specific font description for this layout.
+--
+-- * Specifying @Nothing@ will unset the current font description, that is,
+--   the 'PangoLayout' will use the font description in the current
+--   'Context'.
+--
+layoutSetFontDescription :: PangoLayout -> Maybe FontDescription -> IO ()
+layoutSetFontDescription (PangoLayout _ plr) (Just fd) =
+  {#call unsafe layout_set_font_description#} plr fd
+layoutSetFontDescription (PangoLayout _ (PangoLayoutRaw plr)) Nothing =
+  withForeignPtr plr $ \plrPtr ->
+  pango_layout_set_font_description plrPtr nullPtr
+
+-- | Ask for the specifically set font description of this layout.
+--
+-- * Returns @Nothing@ if this layout uses the font description in the
+--   'Context' it was created in.
+--
+layoutGetFontDescription :: PangoLayout -> IO (Maybe FontDescription)
+layoutGetFontDescription (PangoLayout _ plr) = do
+  fdPtr <- {#call unsafe layout_get_font_description#} plr
+  if fdPtr==nullPtr then return Nothing else liftM Just $ do
+    fdPtr' <- font_description_copy fdPtr
+    makeNewFontDescription fdPtr'
+
+foreign import ccall unsafe "pango_font_description_copy"
+  font_description_copy :: Ptr FontDescription -> IO (Ptr FontDescription)
+
 
 -- | Set the width of this paragraph.
 --
@@ -953,4 +1001,44 @@ layoutLineXToIndex (LayoutLine psRef ll) pos =
     return (toBool inside, ofsFromUTF (fromIntegral idx) uc,
 	    fromIntegral trail)
 
--- FIXME: implement layout_line_get_x_ranges
+-- | Retrieve bounding boxes for a given piece of text contained in this
+--   'LayoutLine'.
+--
+-- * The result is a list to accommodate for mixed left-to-right and
+--   right-to-left text. Even if the text is not mixed, several
+--   ranges might be returned that are adjacent. The ranges are always
+--   sorted from left to right. The values are with respect to the left
+--   edge of the entire layout, not with respect to the line (which might
+--   be indented or not left aligned).
+--
+layoutLineGetXRanges :: LayoutLine -- ^ The line of interest.
+		     -> Int -- ^ The index of the start character
+			    -- (counting from 0). If this value is
+			    -- less than the start index for the line,
+			    -- then the first range will extend all the
+			    -- way to the leading edge of the layout. 
+			    -- Otherwise it will start at the leading
+			    -- edge of the first character.
+		     -> Int -- ^ The index after the last character. 
+			    -- If this value is greater than the end
+			    -- index for the line, then the last range
+			    -- will extend all the way to the trailing
+			    -- edge of the layout. Otherwise, it will end
+			    -- at the trailing edge of the last
+			    -- character.
+		     -> IO [(PangoUnit, PangoUnit)]
+layoutLineGetXRanges (LayoutLine psRef ll) start end = do
+  PangoString uc _ _ <- readIORef psRef
+  alloca $ \arrPtr -> alloca $ \szPtr -> do
+    {#call unsafe layout_line_get_x_ranges#} ll
+      (fromIntegral (ofsToUTF start uc))
+      (fromIntegral (ofsToUTF end uc))
+      arrPtr szPtr
+    sz <- peek szPtr
+    arr <- peek arrPtr
+    elems <- peekArray (2*fromIntegral sz) (castPtr arr:: Ptr {#type gint#})
+    {#call unsafe g_free#} (castPtr arr)
+    let toRange (s:e:rs) = (intToPu s, intToPu e):toRange rs
+	toRange [] = []
+    return (toRange elems)
+

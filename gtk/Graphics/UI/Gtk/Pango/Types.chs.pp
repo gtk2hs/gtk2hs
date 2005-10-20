@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.10 $ from $Date: 2005/10/17 23:06:11 $
+--  Version $Revision: 1.11 $ from $Date: 2005/10/20 23:05:25 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -451,3 +451,5 @@ data FontMetrics = FontMetrics {
   strikethroughPosition :: PangoUnit
 #endif
   } deriving Show
+
+

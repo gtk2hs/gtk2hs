@@ -480,6 +480,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs				\
 	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs				\
+	gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Description.chs			\
 	gtk/Graphics/UI/Gtk/Pango/Font.chs				\
 	gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp				\
@@ -513,6 +514,8 @@ html_HSFILES_PREPROC += gtk/Graphics/UI/Gtk.hs
 html_HSFILES_HIDDEN  += $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)		\
 			gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs		\
 			gtk/Graphics/UI/Gtk/Pango/Description.hs	\
+			gtk/Graphics/UI/Gtk/Pango/Types.hs		\
+			gtk/Graphics/UI/Gtk/Pango/Attributes.hs		\
 			gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs
 html_HSFILES_HIDDEN += gtk/Graphics/UI/Gtk/Signals.chs
 
