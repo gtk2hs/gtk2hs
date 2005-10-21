@@ -1,5 +1,9 @@
 TODO for gtk2hs
 
+12/10/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* export all the enums used in the Event, ie Button & Click
+
 15/9/2005 Duncan Coutts <duncan@coutts.uklinux.net>
 	
 	* Make the stdin/stdout/stderr not cause errors on win32 when not

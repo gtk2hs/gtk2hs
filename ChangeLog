@@ -41,6 +41,9 @@
 
 	* mk/chsDepend.in: make the script grock qualified c2hs import hooks.
 
+	* TODO: add entry: export all the enums used in the Event, ie Button &
+	Click
+
 2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Added a new file Attributes.chs.pp since they are
