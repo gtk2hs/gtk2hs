@@ -37,6 +37,10 @@
 	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: I misunderstod cpp
 	semantics first time round, so fix this again.
 
+	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: use qualified imports properly.
+
+	* mk/chsDepend.in: make the script grock qualified c2hs import hooks.
+
 2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Added a new file Attributes.chs.pp since they are

@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.8 $ from $Date: 2005/10/21 17:16:53 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -79,8 +79,9 @@ import Data.IORef
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
 {#import Graphics.Rendering.Cairo.Types#} as Cairo
-import Graphics.Rendering.Cairo.Internal as Cairo.Internal
-import Graphics.Rendering.Cairo as Cairo
+import qualified Graphics.Rendering.Cairo.Internal as Cairo.Internal
+import qualified Graphics.Rendering.Cairo as Cairo
+import Graphics.Rendering.Cairo.Internal (Render(Render))
 import Control.Monad.Reader
 #endif
 
@@ -99,9 +100,9 @@ renderWithDrawable drawable m =
   bracket (liftM Cairo.Cairo $ {#call unsafe gdk_cairo_create#} (toDrawable drawable))
           (\context -> do status <- Cairo.Internal.status context
                           Cairo.Internal.destroy context
-                          unless (status == StatusSuccess) $
+                          unless (status == Cairo.StatusSuccess) $
                             fail =<< Cairo.Internal.statusToString status)
-          (\context -> runReaderT (runRender m) context)
+          (\context -> runReaderT (Cairo.Internal.runRender m) context)
 
 -- | Sets the specified 'Color' as the source color of @cr@.
 --
