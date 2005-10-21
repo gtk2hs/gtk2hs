@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/10/19 11:58:57 $
+--  Version $Revision: 1.12 $ from $Date: 2005/10/21 13:16:03 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -184,10 +184,10 @@ toModifier i = toFlags ((fromIntegral i) .&. mask)
 --   the event.
 --
 data Event =
-  -- | The window manager has requested that the toplevel window be hidden or
-  -- destroyed, usually when the user clicks on a special icon in the title
-  -- bar.
-  Delete
+  -- | An event that is not in one of the more specific categories below. This
+  -- includes delete, destroy, map and unmap events. These events
+  -- have no extra information associated with them.
+  Event { eventSent :: Bool }
   -- | The expose event.
   --
   -- * A region of widget that receives this event needs to be redrawn.
@@ -379,7 +379,8 @@ marshalEvent :: Ptr Event -> IO Event
 marshalEvent ptr = do
   (eType::#type GdkEventType) <- #{peek GdkEventAny,type} ptr
   (case eType of
-    #{const GDK_DELETE}         -> \_ -> return Delete
+    #{const GDK_DELETE}         -> marshAny
+    #{const GDK_DESTROY}        -> marshAny
     #{const GDK_EXPOSE}		-> marshExpose
     #{const GDK_MOTION_NOTIFY}	-> marshMotion
     #{const GDK_BUTTON_PRESS}	-> marshButton SingleClick
@@ -391,6 +392,8 @@ marshalEvent ptr = do
     #{const GDK_ENTER_NOTIFY}	-> marshCrossing
     #{const GDK_FOCUS_CHANGE}	-> marshFocus
     #{const GDK_CONFIGURE}	-> marshConfigure
+    #{const GDK_MAP}            -> marshAny
+    #{const GDK_UNMAP}          -> marshAny    
 --    #{const GDK_PROPERTY_NOTIFY}-> marshProperty
     #{const GDK_PROXIMITY_IN}   -> marshProximity True
     #{const GDK_PROXIMITY_OUT}	-> marshProximity False
@@ -401,6 +404,12 @@ marshalEvent ptr = do
       "marshalEvent: unhandled event type " ++ show code ++
       "\nplease report this as a bug to gtk2hs-devel@lists.sourceforge.net"
     ) ptr
+
+marshAny ptr = do
+  (sent   ::#type gint8)	<- #{peek GdkEventAny, send_event} ptr
+  return Event {
+    eventSent = toBool sent
+  }
 
 marshExpose ptr = do
   (#{const GDK_EXPOSE}::#type GdkEventType) <- #{peek GdkEventAny,type} ptr

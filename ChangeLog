@@ -16,6 +16,9 @@
 	when using ghc 6.4 or later. Get the value of SIZEOF_VOID_P from ghc's
 	config.h or ghcconfig.h file.
 
+	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: add Event constructor and use
+	new marshAny for the delete, destroy, map and unmap events.
+
 2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Added a new file Attributes.chs.pp since they are
