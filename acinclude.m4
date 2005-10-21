@@ -113,7 +113,7 @@ fi
 AC_MSG_CHECKING([whether to build $2 package])
 AC_MSG_RESULT([$]ENABLE_$3)
 AM_CONDITIONAL(ENABLE_$3, test "[$]ENABLE_$3" = "yes")
-
+AC_DEFINE(ENABLE_$3, [], [Whether or not the $1 package is available.])
 ])dnl
 
 dnl GTKHS_REFORMAT_PACKAGE_CFLAGS(CFLAGS, CFLAGS_CQ)

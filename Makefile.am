@@ -52,6 +52,9 @@ noinst_PROGRAMS = \
 	tools/callbackGen/HookGenerator \
 	tools/c2hs/c2hsLocal
 
+pkglibincludedir = $(pkglibdir)/include
+pkglibinclude_DATA = gtk2hs-config.h
+
 #
 #	TypeGenerator Tool
 #

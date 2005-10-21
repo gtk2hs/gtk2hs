@@ -58,10 +58,6 @@ AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
 AC_PROG_RANLIB
 
-dnl The binary serialisation in c2hs depends on the machine word size
-dnl FIXME: this should probably be taken from ghc's config.h
-AC_CHECK_SIZEOF(void *, 4)
-
 dnl Figure out file extensions.
 AC_EXEEXT
 
@@ -137,7 +133,6 @@ GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/[[0-9]*\.\([0-9]]*\).*/0\1/"`
 GHC_VERSION_NUMBER=`echo $GHC_VERSION_NUMBER | $SED "s/[[0-9]*\([0-9][0-9]]\)/\1/"`
 GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/\([[0-9]]\).*/\1/"`$GHC_VERSION_NUMBER
 
-__GLASGOW_HASKELL__=$GHC_VERSION_NUMBER
 AC_DEFINE_UNQUOTED(__GLASGOW_HASKELL__, $GHC_VERSION_NUMBER,
 	[Version number of GHC.])
 
@@ -358,9 +353,9 @@ PANGO_VERSION=`$PKG_CONFIG pango --modversion`
 PANGO_MAJOR_VERSION=`echo $PANGO_VERSION | $CUT -d. -f1`
 PANGO_MINOR_VERSION=`echo $PANGO_VERSION | $CUT -d. -f2`
 PANGO_MICRO_VERSION=`echo $PANGO_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(PANGO_MAJOR_VERSION, ($PANGO_MAJOR_VERSION), [Gtk major version number])
-AC_DEFINE_UNQUOTED(PANGO_MINOR_VERSION, ($PANGO_MINOR_VERSION), [Gtk minor version number])
-AC_DEFINE_UNQUOTED(PANGO_MICRO_VERSION, ($PANGO_MICRO_VERSION), [Gtk minor patch level])
+AC_DEFINE_UNQUOTED(PANGO_MAJOR_VERSION, ($PANGO_MAJOR_VERSION), [Pango major version number])
+AC_DEFINE_UNQUOTED(PANGO_MINOR_VERSION, ($PANGO_MINOR_VERSION), [Pango minor version number])
+AC_DEFINE_UNQUOTED(PANGO_MICRO_VERSION, ($PANGO_MICRO_VERSION), [Pango minor patch level])
 AH_BOTTOM([
 /* Allow code to be compiled differently for different versions of Pango */
 #define PANGO_CHECK_VERSION(major,minor,micro)    \

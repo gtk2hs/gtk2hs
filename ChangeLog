@@ -19,6 +19,21 @@
 	* gtk/Graphics/UI/Gtk/Gdk/Events.hsc: add Event constructor and use
 	new marshAny for the delete, destroy, map and unmap events.
 
+	* acinclude.m4: add whether each package is going built in the
+	gtk2hs-config.h file.
+
+	* Makefile.am: install gtk2hs-config.h in $(pkglibdir)/include/
+
+	* glib/glib.package.conf.in: add the $(pkglibdir)/include/ directory
+	to the include search path so modules which use any gtk2hs package can
+	#include <gtk2hs-config.h> to find out what packages and versions are
+	available.
+
+	* configure.ac: no need for expensive AC_CHECK_SIZEOF(void *, 4) any
+	more since we get the SIZEOF_VOID_P from ghc's config header file.
+	Remove a redundent assignment. Correct the description of the pango
+	version numbers in the gtk2hs-config.h file.
+
 2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Added a new file Attributes.chs.pp since they are

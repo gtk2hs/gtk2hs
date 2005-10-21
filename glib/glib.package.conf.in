@@ -11,7 +11,7 @@ import-dirs: "@hidir@/glib"
 library-dirs: @GLIB_LIBDIR_CQ@
 hs-libraries: HSglib
 extra-libraries: @GLIB_LIBS_CQ@
-include-dirs: @GLIB_CFLAGS_CQ@
+include-dirs: @GLIB_CFLAGS_CQ@, "${pkglibdir}/include"
 includes: glib.h, glib-object.h
 depends: haskell98
 ld-options: @GLIB_LIBEXTRA_CQ@
