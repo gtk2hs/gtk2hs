@@ -5,7 +5,7 @@
 --
 --  Created: 20 October 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/10/21 09:14:47 $
+--  Version $Revision: 1.3 $ from $Date: 2005/10/21 17:14:35 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -130,7 +130,8 @@ data PangoAttribute
   | AttrBackground { paStart :: Int, paEnd :: Int, paColor :: Color }
   -- | Specify the kind of underline, e.g. 'UnderlineSingle'.
   | AttrUnderline { paStart :: Int, paEnd :: Int, paUnderline :: Underline }
-#if (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) || PANGO_CHECK_VERSION(1,8,0)
+#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
+ || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
   -- | Specify the color of an underline.
   --
   -- * Available in Pango 1.8.0 and higher.
@@ -139,7 +140,8 @@ data PangoAttribute
 #endif
   -- | Specify if this piece of text should have a line through it.
   | AttrStrikethrough { paStart :: Int, paEnd :: Int, paStrikethrough :: Bool }
-#if (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) || PANGO_CHECK_VERSION(1,8,0)
+#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
+ || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
   -- | Specify the color of the strike through line.
   --
   -- * Available in Pango 1.8.0 and higher.
@@ -218,7 +220,8 @@ crAttr c AttrBackground { paStart=s, paEnd=e, paColor = Color r g b } =
 crAttr c AttrUnderline { paStart=s, paEnd=e, paUnderline = underline } =
   setAttrPos c s e $ do
   {#call unsafe attr_underline_new#} (fromIntegral (fromEnum underline))
-#if (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) || PANGO_CHECK_VERSION(1,8,0)
+#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
+ || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
 crAttr c AttrUnderlineColor {paStart=s, paEnd=e, paColor = Color r g b } =
   setAttrPos c s e $ {#call unsafe attr_underline_color_new#}
   (fromIntegral r) (fromIntegral b) (fromIntegral b)
@@ -226,7 +229,8 @@ crAttr c AttrUnderlineColor {paStart=s, paEnd=e, paColor = Color r g b } =
 crAttr c AttrStrikethrough { paStart=s, paEnd=e, paStrikethrough = st } =
   setAttrPos c s e $ do
   {#call unsafe attr_strikethrough_new#} (fromIntegral (fromEnum st))
-#if (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) || PANGO_CHECK_VERSION(1,8,0)
+#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
+ || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
 crAttr c AttrStrikethroughColor {paStart=s, paEnd=e, paColor = Color r g b } =
   setAttrPos c s e $ {#call unsafe attr_strikethrough_color_new#}
   (fromIntegral r) (fromIntegral b) (fromIntegral b)

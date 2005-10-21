@@ -34,6 +34,9 @@
 	Remove a redundent assignment. Correct the description of the pango
 	version numbers in the gtk2hs-config.h file.
 
+	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: I misunderstod cpp
+	semantics first time round, so fix this again.
+
 2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Added a new file Attributes.chs.pp since they are
