@@ -48,7 +48,11 @@ module Binary
 
   ) where
 
+#if __GLASGOW_HASKELL__>=604
+#include "ghcconfig.h"
+#else
 #include "config.h"
+#endif
 
 import FastMutInt
 
@@ -80,7 +84,6 @@ import GHC.Handle		( hSetBinaryMode )
 import System.CPUTime           (getCPUTime)
 import Numeric                  (showFFloat)
 
--- FIXME: we should really get SIZEOF_HSINT directly from ghc's config.h
 #define SIZEOF_HSINT SIZEOF_VOID_P
 
 type BinArray = IOUArray Int Word8

@@ -12,6 +12,10 @@
 	* INSTALL: note the autoconf and automake version requirements. (patch
 	from dons via darcs)
 
+	* tools/c2hs/base/general/Binary.hs: #include the new ghconfig.h file
+	when using ghc 6.4 or later. Get the value of SIZEOF_VOID_P from ghc's
+	config.h or ghcconfig.h file.
+
 2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Added a new file Attributes.chs.pp since they are
