@@ -5,6 +5,13 @@
 	only pango 1.10.x. So complile them conditional on that pango version
 	on win32.
 
+	* Makefile.am: add new demos to EXTRA_DIST.
+
+	* configure.ac: require autoconf 2.59
+
+	* INSTALL: note the autoconf and automake version requirements. (patch
+	from dons via darcs)
+
 2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Added a new file Attributes.chs.pp since they are

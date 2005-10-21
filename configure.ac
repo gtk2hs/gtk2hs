@@ -24,9 +24,8 @@ dnl ######################################################################
 AC_INIT(gtk2hs, 0.9.9.6)
 AM_INIT_AUTOMAKE
 
-dnl * We require autoconf version 2.50
-dnl We need 2.50 due to the use of OBJEXT 
-AC_PREREQ(2.50)
+dnl * We require autoconf version 2.59
+AC_PREREQ(2.59)
 
 dnl Check system type.
 AC_CANONICAL_HOST

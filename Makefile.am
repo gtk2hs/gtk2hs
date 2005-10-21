@@ -1232,7 +1232,10 @@ EXTRA_DIST +=								\
 	demo/unicode/Arabic.hs demo/unicode/Makefile			\
 	demo/calc/CalcModel.hs demo/calc/Calc.hs demo/calc/Makefile	\
 		demo/calc/calc.glade					\
-	demo/fastdraw/FastDraw.hs demo/fastdraw/Makefile
+	demo/fastdraw/FastDraw.hs demo/fastdraw/Makefile		\
+	demo/actionMenu/ActionMenu.hs demo/actionMenu/Makefile		\
+	demo/cairo/StarAndRing.hs demo/cairo/Text.hs			\
+		demo/cairo/Drawing.hs demo/cairo/Makefile
 
 #
 #       installing and registering packages with the Haskell compiler

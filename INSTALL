@@ -195,7 +195,7 @@ HEAD is usually not as "unstable" as it is for most software projects.
 
 Building the CVS HEAD proceeds as normal building, except that you need to
 run "autoreconf" with sufficiently new versions of the automake/autoconf
-toolsuite installed.
+toolsuite installed. (automake 1.8.x, autoconf 2.59)
 
 Note that dependencies are generated only in a clean tree. Hence, if the
 import structure of files change, the build might fail due to missing
