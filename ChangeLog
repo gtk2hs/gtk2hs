@@ -1,3 +1,10 @@
+2005-10-21 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: for some reason a
+	couple pango functions are not available on windows in pango 1.8.x,
+	only pango 1.10.x. So complile them conditional on that pango version
+	on win32.
+
 2005-10-20 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am: Added a new file Attributes.chs.pp since they are
