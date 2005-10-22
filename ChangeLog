@@ -10,6 +10,8 @@
 	now it adds the -Wl,-rpath,${MOZEMBED_LIBDIR} if it's not there
 	already.
 
+	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: fix a warning.
+
 2005-10-22 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Pango/GlyphStorage.chs.pp: Docu fix.

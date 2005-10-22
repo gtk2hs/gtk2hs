@@ -5,7 +5,7 @@
 --
 --  Created: 20 October 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/21 17:14:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/10/22 16:11:06 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -30,7 +30,7 @@
 --
 module Graphics.UI.Gtk.Pango.Attributes (
   PangoAttribute(..),
-  PangoAttrList(..),
+  PangoAttrList,
   withAttrList
   ) where
 
