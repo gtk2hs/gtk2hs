@@ -5,7 +5,7 @@
 --
 --  Created: 31 July 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/10/16 15:05:35 $
+--  Version $Revision: 1.3 $ from $Date: 2005/10/22 15:50:35 $
 --
 --  Copyright (C) 2005 Axel Simon
 --
@@ -135,12 +135,14 @@ glyphItemXToIndex (GlyphItem (PangoItem ps pir) gs) pos =
 
 -- | Retrieve the width of every character in a string.
 --
--- * Note that text of both directions can be mixed in one
---   'GlyphItem', hence, in general, it is not possible to calculate
---   positions of characters with this function. The boolean parameter
+-- * The boolean parameter
 --   determines if the returned array starts with the leftmost glyph
 --   (@False@) or with the rightmost glyph (@True@). If @Nothing@ is
---   passed in, the direction is taken from the 'GlyphItem'.
+--   passed in, the direction is taken from the 'GlyphItem', i.e.,
+--   the array starts with the leftmost glyph for left-to-rigth text
+--   and with the rightmost glyph for right-to-left text. When multiple
+--   characters compose a single glyph, the width of this glyph is
+--   divided among the characters that compose this cluster.
 --
 glyphItemGetLogicalWidths :: GlyphItem -> Maybe Bool -> IO [PangoUnit]
 glyphItemGetLogicalWidths (GlyphItem (PangoItem ps pir) gs) mDir = do
