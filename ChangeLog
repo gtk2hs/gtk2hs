@@ -1,3 +1,15 @@
+2005-10-22 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: add documentation. 
+
+	* demo/mozembed/TestEmbedMoz.hs: fix demo code to not override the
+	components path (as suggested in the new documentation).
+
+	* configure.ac: find the MOZEMBED_LIBDIR. Change the hack we use for
+	adding the appropriate runtime LD path to the MOZEMBED_LIBS flags;
+	now it adds the -Wl,-rpath,${MOZEMBED_LIBDIR} if it's not there
+	already.
+
 2005-10-22 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Pango/GlyphStorage.chs.pp: Docu fix.

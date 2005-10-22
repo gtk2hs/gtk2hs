@@ -10,9 +10,8 @@ main :: IO ()
 main = do
   initGUI
   w <- windowNew
-  onDelete w (const $ return False)
   onDestroy w mainQuit
-  mozEmbedSetCompPath "/usr/lib/mozilla"
+  mozEmbedSetCompPath ""
 
   moz <- mozEmbedNew
   widgetShow moz

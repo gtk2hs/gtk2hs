@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/03/26 00:09:27 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/22 16:10:09 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -26,32 +26,51 @@
 --  * added additional interface functions
 --  * circumvented render_data problem
 --
--- | This widgets embeds Mozilla's browser engine (Gecko) into a GTK+ widget.
--- See <http://www.mozilla.org/unix/gtk-embedding.html> for an API reference.
+-- | This widgets embeds Mozilla's browser engine (Gecko) into a Gtk+ widget.
+--
+-- See <http://www.mozilla.org/unix/gtk-embedding.html> for a more detailed API
+-- reference.
 --
 module Graphics.UI.Gtk.MozEmbed (
-  MozEmbed, MozEmbedClass,
+-- * Types
+  MozEmbed,
 
-  mozEmbedNew, mozEmbedSetCompPath,
-
-  mozEmbedRenderData,
-  mozEmbedOpenStream, mozEmbedAppendData, mozEmbedCloseStream,
-
-  onOpenURI,
-
-  mozEmbedLoadUrl,
-
-  -- the functions below are untested.
-
-  onKeyDown, onKeyPress, onKeyUp,
-  onMouseDown, onMouseUp, onMouseClick, onMouseDoubleClick,
-  onMouseOver, onMouseOut,
-
+-- * Constructors
+  mozEmbedNew,
+  mozEmbedSetCompPath,
   mozEmbedSetProfilePath,
-  mozEmbedStopLoad, mozEmbedGoBack, mozEmbedGoForward, mozEmbedGetLinkMessage,
-  mozEmbedGetJsStatus, mozEmbedGetTitle, mozEmbedGetLocation,
-  mozEmbedCanGoBack, mozEmbedCanGoForward, mozEmbedPushStartup,
-  mozEmbedPopStartup
+  mozEmbedPushStartup,
+  mozEmbedPopStartup,
+
+-- * Methods
+  mozEmbedLoadUrl,
+  mozEmbedStopLoad,
+  
+  mozEmbedRenderData,
+  mozEmbedOpenStream,
+  mozEmbedAppendData,
+  mozEmbedCloseStream,
+
+  mozEmbedGoBack,
+  mozEmbedGoForward,
+  mozEmbedCanGoBack,
+  mozEmbedCanGoForward,
+  mozEmbedGetTitle,
+  mozEmbedGetLocation,
+  mozEmbedGetLinkMessage,
+  mozEmbedGetJsStatus,
+
+-- * Signals
+  onOpenURI,
+  onKeyDown,
+  onKeyPress,
+  onKeyUp,
+  onMouseDown,
+  onMouseUp,
+  onMouseClick,
+  onMouseDoubleClick,
+  onMouseOver,
+  onMouseOut,
 ) where
 
 import Monad		(liftM)
@@ -70,80 +89,123 @@ import Graphics.UI.Gtk.Abstract.Widget		(Widget)
 -- operations
 -- ----------
 
--- | Create a new MozEmbed
+-- | Create a new MozEmbed.
+--
+-- Note that the mozembed system must be initialised first using
+-- 'mozEmbedSetCompPath'.
 --
 mozEmbedNew :: IO MozEmbed
 mozEmbedNew = makeNewObject mkMozEmbed $ liftM castPtr {#call moz_embed_new#}
 
+-- | This function must be called before the first widget is created.
+--
+-- It allows you to set the path to the mozilla components, however unless
+-- you really know what you are doing, you should just use:
+--
+-- > mozEmbedSetCompPath ""
+--
 mozEmbedSetCompPath :: String -> IO ()
 mozEmbedSetCompPath str =
   withCString str $ \strPtr ->
    {#call moz_embed_set_comp_path#}
    strPtr
 
-mozEmbedSetProfilePath :: String -> String -> IO ()
+mozEmbedSetProfilePath ::
+    FilePath -- ^ profile directory
+ -> String   -- ^ profile name
+ -> IO ()
 mozEmbedSetProfilePath dir name =
   withCString dir $ \dirPtr ->
-   withCString name $ \namePtr ->
-    {#call moz_embed_set_profile_path#} dirPtr namePtr
-  
-mozEmbedLoadUrl :: MozEmbedClass m => m -> String -> IO ()
-mozEmbedLoadUrl m url =
+  withCString name $ \namePtr ->
+  {#call moz_embed_set_profile_path#} dirPtr namePtr
+
+-- | This function starts loading a url in the embedding widget. All loads are
+-- asynchronous. The url argument should be in the form of
+-- @\"http:\/\/www.haskell.org\"@.
+--
+mozEmbedLoadUrl :: MozEmbed -> String -> IO ()
+mozEmbedLoadUrl moz url =
   withCString url $ \urlPtr ->
    {#call moz_embed_load_url#}
-   (toMozEmbed m)
+   moz
    urlPtr
 
-mozEmbedStopLoad :: MozEmbedClass m => m -> IO ()
-mozEmbedStopLoad m = 
-  {#call moz_embed_stop_load#} (toMozEmbed m)
+-- | This function will allow you to stop the load of a document that is being
+-- loaded in the widget.
+--
+mozEmbedStopLoad :: MozEmbed -> IO ()
+mozEmbedStopLoad moz = 
+  {#call moz_embed_stop_load#} moz
 
-mozEmbedGoBack :: MozEmbedClass m => m -> IO ()
-mozEmbedGoBack m =
-  {#call moz_embed_go_back#} (toMozEmbed m)
+-- | This function will go backwards one step in the document's navigation
+-- history.
+--
+mozEmbedGoBack :: MozEmbed -> IO ()
+mozEmbedGoBack moz =
+  {#call moz_embed_go_back#} moz
 
-mozEmbedGoForward :: MozEmbedClass m => m -> IO ()
-mozEmbedGoForward m =
-  {#call moz_embed_go_forward#} (toMozEmbed m)
+-- | This function will go forward one step in the document's navigation
+-- history.
+--
+mozEmbedGoForward :: MozEmbed -> IO ()
+mozEmbedGoForward moz =
+  {#call moz_embed_go_forward#} moz
 
-mozEmbedGetLinkMessage :: MozEmbedClass m => m -> IO String
-mozEmbedGetLinkMessage m = 
-  do
-   str <- {#call moz_embed_get_link_message#} (toMozEmbed m)
-   peekCString str
+-- | This function returns the current link message of the document if there is
+-- one.
+--
+mozEmbedGetLinkMessage :: MozEmbed -> IO String
+mozEmbedGetLinkMessage moz = do
+  str <- {#call moz_embed_get_link_message#} moz
+  readCString str
 
-mozEmbedGetJsStatus :: MozEmbedClass m => m -> IO String
-mozEmbedGetJsStatus m =
-  do
-   str <- {#call moz_embed_get_js_status#} (toMozEmbed m)
-   peekCString str
+-- | This function returns the \"js_status\" message if there is one.
+--
+mozEmbedGetJsStatus :: MozEmbed -> IO String
+mozEmbedGetJsStatus moz = do
+  str <- {#call moz_embed_get_js_status#} moz
+  readCString str
 
-mozEmbedGetTitle :: MozEmbedClass m => m -> IO String
-mozEmbedGetTitle m = 
-  do
-   str <- {#call moz_embed_get_title#} (toMozEmbed m)
-   peekCString str
+-- | This function will get the current title for a document.
+--
+mozEmbedGetTitle :: MozEmbed -> IO String
+mozEmbedGetTitle moz = do
+  str <- {#call moz_embed_get_title#} moz
+  readCString str
 
-mozEmbedGetLocation :: MozEmbedClass m => m -> IO String
-mozEmbedGetLocation m = 
-  do
-   str <- {#call moz_embed_get_location#} (toMozEmbed m)
-   peekCString str
+-- |  This function will return the current location of the document.
+--
+mozEmbedGetLocation :: MozEmbed -> IO String
+mozEmbedGetLocation moz = do
+  str <- {#call moz_embed_get_location#} moz
+  readCString str
 
-mozEmbedCanGoBack :: MozEmbedClass m => m -> IO Bool
-mozEmbedCanGoBack m =
+-- | This function will return whether or not you can go backwards in the
+-- document's navigation history. It will return @True@ if it can go backwards,
+-- @False@ if it can't.
+-- 
+mozEmbedCanGoBack :: MozEmbed -> IO Bool
+mozEmbedCanGoBack moz =
   liftM toBool $ 
-   {#call moz_embed_can_go_back#} (toMozEmbed m)
+  {#call moz_embed_can_go_back#} moz
 
-mozEmbedCanGoForward :: MozEmbedClass m => m -> IO Bool
-mozEmbedCanGoForward m =
+-- | This function will return whether or not you can go forwards in the
+-- document's navigation history. It will return @True@ if it can go forwards,
+-- @False@ if it can't.
+--
+mozEmbedCanGoForward :: MozEmbed -> IO Bool
+mozEmbedCanGoForward moz =
   liftM toBool $ 
-   {#call moz_embed_can_go_forward#} (toMozEmbed m)
+  {#call moz_embed_can_go_forward#} moz
 
+-- | Sadly undocumented
+--
 mozEmbedPushStartup :: IO ()
 mozEmbedPushStartup =
   {#call moz_embed_push_startup#}
 
+-- | Sadly undocumented
+--
 mozEmbedPopStartup :: IO ()
 mozEmbedPopStartup =
   {#call moz_embed_pop_startup#}
@@ -157,33 +219,55 @@ void         gtk_moz_embed_append_data      (GtkMozEmbed *embed,
 void         gtk_moz_embed_close_stream     (GtkMozEmbed *embed);
 -}
 
-mozEmbedOpenStream :: MozEmbedClass m => m -> String -> String -> IO ()
-mozEmbedOpenStream m baseURI mimeType =
+-- | This function is used to start loading a document from an external source
+-- into the embedding widget. You need to pass in the base URI for resolving
+-- internal links and and the mime type of the document.
+--
+mozEmbedOpenStream ::
+    MozEmbed
+ -> String -- ^ base URL
+ -> String -- ^ mime type
+ -> IO ()
+mozEmbedOpenStream moz baseURI mimeType =
   withCString baseURI  $ \ basePtr ->
   withCString mimeType $ \ mtPtr ->
-  {#call gtk_moz_embed_open_stream#} (toMozEmbed m) basePtr mtPtr
+  {#call gtk_moz_embed_open_stream#} moz basePtr mtPtr
 
-mozEmbedAppendDataInternal :: MozEmbedClass m => m -> String -> IO ()
-mozEmbedAppendDataInternal m contents =
---  newCStringLen (toUTF contents) >>= \ (dataPtr,len) ->
-  withUTFStringLen contents $ \ (dataPtr,len) ->      -- alloca discouraged?
-  let len' = fromIntegral len in
-  {#call gtk_moz_embed_append_data#} (toMozEmbed m) dataPtr len'
---  >> free dataPtr
+mozEmbedAppendDataInternal :: MozEmbed -> String -> IO ()
+mozEmbedAppendDataInternal moz contents =
+  withUTFStringLen contents $ \(dataPtr,len) ->
+  {#call gtk_moz_embed_append_data#} moz dataPtr (fromIntegral len)
 
-mozEmbedCloseStream :: MozEmbedClass m => m -> IO ()
-mozEmbedCloseStream m =
-  {#call gtk_moz_embed_close_stream#} (toMozEmbed m)
+-- | This function closes the stream that you have been using to append data
+-- manually to the embedding widget.
+--
+mozEmbedCloseStream :: MozEmbed -> IO ()
+mozEmbedCloseStream moz =
+  {#call gtk_moz_embed_close_stream#} moz
 
-mozEmbedAppendData :: MozEmbedClass m => m -> String -> IO ()
-mozEmbedAppendData m contents =
-  mapM_ (mozEmbedAppendDataInternal m) (chunks 32768 contents)
+-- | This function allows you to append data to an already opened stream in the
+-- widget. You need to pass in the data that you want to append to the document
+-- and its length.
+--
+mozEmbedAppendData :: MozEmbed -> String -> IO ()
+mozEmbedAppendData moz contents =
+  mapM_ (mozEmbedAppendDataInternal moz) (chunks 32768 contents)
 
-mozEmbedRenderData :: MozEmbedClass m => m -> String -> String -> String -> IO ()
-mozEmbedRenderData m contents baseURI mimeType = do
-  mozEmbedOpenStream m baseURI mimeType
-  mozEmbedAppendData m contents
-  mozEmbedCloseStream m
+-- |  This function will allow you to take a chunk of random data and render it
+-- into the document. You need to pass in the data and the length of the data.
+-- The base URI is used to resolve internal references in the document and the
+-- mime type is used to determine how to render the document internally.
+--
+mozEmbedRenderData :: 
+    MozEmbed
+ -> String -- ^ content
+ -> String -- ^ base URI
+ -> String -- ^ mime type
+ -> IO ()
+mozEmbedRenderData moz contents baseURI mimeType = do
+  mozEmbedOpenStream moz baseURI mimeType
+  mozEmbedAppendData moz contents
+  mozEmbedCloseStream moz
 
 
 chunks :: Int -> [a] -> [[a]]
@@ -197,17 +281,14 @@ void         gtk_moz_embed_render_data      (GtkMozEmbed *embed,
                                              const char *base_uri, 
                                              const char *mime_type)
 -}
---  -- mozEmbedRenderDataInternal does not work for len' > 2^16
-mozEmbedRenderDataInternal :: MozEmbedClass m => m -> String -> String -> String -> IO ()
-mozEmbedRenderDataInternal m contents baseURI mimeType =
---  newCStringLen (toUTF contents) >>= \ (dataPtr,len) ->
+
+-- mozEmbedRenderDataInternal does not work for len' > 2^16
+mozEmbedRenderDataInternal :: MozEmbed -> String -> String -> String -> IO ()
+mozEmbedRenderDataInternal moz contents baseURI mimeType =
   withUTFStringLen contents $ \ (dataPtr,len) ->      -- alloca discouraged
-  let len' = fromIntegral len in
---  hPutStrLn stderr ("mozEmbedRenderData: " ++ shows len' " bytes") >>= \ _ ->
   withCString baseURI  $ \ basePrt ->
   withCString mimeType $ \ mtPtr ->
-  {#call gtk_moz_embed_render_data#} (toMozEmbed m) dataPtr len' basePrt mtPtr
---  >> free dataPtr
+  {#call gtk_moz_embed_render_data#} moz dataPtr (fromIntegral len) basePrt mtPtr
 
 {-
 struct _GtkMozEmbedClass
@@ -218,7 +299,7 @@ struct _GtkMozEmbedClass
 }
 -}
 
-onOpenURI :: MozEmbedClass m => m -> (String -> IO Bool) -> IO (ConnectId m)
+onOpenURI :: MozEmbed -> (String -> IO Bool) -> IO (ConnectId MozEmbed)
 onOpenURI = connect_STRING__BOOL "open_uri" after
  where
 -- Specify if the handler is to run before (False) or after (True) the
@@ -248,9 +329,9 @@ http://www.mozilla.org/unix/gtk-embedding.html
 onKeyDown, onKeyPress, onKeyUp,
  onMouseDown, onMouseUp, onMouseClick, onMouseDoubleClick,
  onMouseOver, onMouseOut
- :: MozEmbedClass self => self
+ :: MozEmbed
  -> (Ptr a -> IO Int)
- -> IO (ConnectId self)
+ -> IO (ConnectId MozEmbed)
 onKeyDown          = connect_PTR__INT "dom_key_down" False
 onKeyPress         = connect_PTR__INT "dom_key_press" False
 onKeyUp            = connect_PTR__INT "dom_key_up" False
@@ -260,4 +341,3 @@ onMouseClick       = connect_PTR__INT "dom_mouse_click" False
 onMouseDoubleClick = connect_PTR__INT "dom_mouse_dbl_click" False
 onMouseOver        = connect_PTR__INT "dom_mouse_over" False
 onMouseOut         = connect_PTR__INT "dom_mouse_out" False
-

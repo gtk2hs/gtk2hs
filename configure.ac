@@ -260,10 +260,12 @@ GTKHS_PKG_CHECK(sourceview, sourceview, SOURCEVIEW, [gtksourceview-1.0 >= 0.6.0]
 GTKHS_PKG_CHECK(mozilla, mozembed, MOZEMBED, [mozilla-gtkmozembed >= 1.4],
 	[build bindings for the Mozilla display widget (default=auto)],
 	[Mozilla requirement not met. Perhaps you need to install mozilla or mozilla-devel])
+MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir mozilla-gtkmozembed)
 
 GTKHS_PKG_CHECK(firefox, mozembed, FIREFOX_MOZEMBED, [firefox-gtkmozembed >= 1.0],
 	[build bindings for the Mozilla display widget using the Firefox libs (default=auto)],
 	[Mozilla Firefox requirement not met. Perhaps you need to install firefox or firefox-devel])
+FIREFOX_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir firefox-gtkmozembed)
 
 dnl If we have both mozilla and firefox enabled then the firefox settings
 dnl override the mozilla settings.
@@ -271,6 +273,7 @@ if test "$ENABLE_FIREFOX_MOZEMBED" = "yes"; then
 	ENABLE_MOZEMBED="yes"
 	MOZEMBED_CFLAGS="$FIREFOX_MOZEMBED_CFLAGS"
 	MOZEMBED_LIBS="$FIREFOX_MOZEMBED_LIBS"
+	MOZEMBED_LIBDIR="$FIREFOX_MOZEMBED_LIBDIR"
 fi
 AM_CONDITIONAL(ENABLE_MOZEMBED, test "$ENABLE_MOZEMBED" = "yes")
 
@@ -284,23 +287,17 @@ GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0],
 
 
 dnl The following is a hack to fix the fact that
-dnl "pkg-config --libs mozilla-gtkmozembed" does not give us all the right
-dnl stuff. On many systems, the mozilla .so files that we need to link with
-dnl are not installed on the standard library search path.
+dnl "pkg-config --libs mozilla-gtkmozembed" does not always give us all the
+dnl right stuff. On many systems, the mozilla .so files that we need to link
+dnl with are not installed on the standard library search path.
 dnl "pkg-config --libs mozilla-gtkmozembed" tells us -L/path/to/moz/libs which
 dnl helps with finding the .so libs at static link time but does nothing to
 dnl modify the search path at dynamic link/load time. Hence what we do here is
-dnl modify the lib flags to add -Rfoo for each occurence of -Lfoo
-MOZEMBED_LIBS_TMP=;
-for FLAG in $MOZEMBED_LIBS; do
-  case $FLAG in
-    -L*) if test -d "${FLAG#-L}"; then
-	   MOZEMBED_LIBS_TMP="$MOZEMBED_LIBS_TMP $FLAG -Wl,-R${FLAG#-L}"
-	 fi;;
-      *)  MOZEMBED_LIBS_TMP="$MOZEMBED_LIBS_TMP $FLAG";;
-  esac;
-done;
-MOZEMBED_LIBS=$MOZEMBED_LIBS_TMP
+dnl modify the lib flags to add -rpath${mozlibdir} if it is not there already.
+
+if ! echo ${MOZEMBED_LIBS} | $GREP -e "-Wl,-\(rpath\|-R\),${MOZEMBED_LIBDIR}" > /dev/null; then
+	MOZEMBED_LIBS="${MOZEMBED_LIBS} -Wl,-rpath,${MOZEMBED_LIBDIR}"
+fi
 
 dnl Another hack, on glibc systems GHCi cannot load the pthread library,
 dnl so do not include it in the LIBS list. This is not usually a problem since
@@ -715,12 +712,6 @@ AC_SUBST(CREATE_TYPES)
 AC_SUBST(GHCPKG_USE_AUTOLIBS)
 AC_SUBST(GHCPKG_BUILD_GHCI_LIB)
 dnl Optional packages
-AC_SUBST(SOURCEVIEW_CFLAGS)
-AC_SUBST(SOURCEVIEW_LIBS)
-AC_SUBST(LIBGLADE_CFLAGS)
-AC_SUBST(LIBGLADE_LIBS)
-AC_SUBST(GCONF_CFLAGS)
-AC_SUBST(GCONF_LIBS)
 AC_SUBST(GTK_CAIRO_DEPEND)
 dnl Documentation
 AC_SUBST(HADDOCK)
