@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/07/30 18:52:09 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/24 10:50:32 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -32,10 +32,10 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This module provides access to IconFactory, IconSet and IconSource.
+-- Manipulating stock icons
 --
 module Graphics.UI.Gtk.General.IconFactory (
--- * Description
+-- * Detail
 -- 
 -- | Browse the available stock icons in the list of stock IDs found here. You
 -- can also use the gtk-demo application for this purpose.
@@ -68,6 +68,7 @@ module Graphics.UI.Gtk.General.IconFactory (
   IconFactory,
   IconFactoryClass,
   castToIconFactory,
+  toIconFactory,
 
 -- * Constructors
   iconFactoryNew,
@@ -154,8 +155,8 @@ iconFactoryNew  = makeNewGObject mkIconFactory {#call unsafe icon_factory_new#}
 
 -- | Add an IconSet to an IconFactory.
 --
--- * In order to use the new stock object, the factory as to be added to the
---   default factories by iconFactoryAddDefault.
+-- In order to use the new stock object, the factory as to be added to the
+-- default factories by 'iconFactoryAddDefault'.
 --
 iconFactoryAdd :: IconFactory -> String -> IconSet -> IO ()
 iconFactoryAdd i stockId iconSet = withUTFString stockId $ \strPtr ->
@@ -183,7 +184,7 @@ iconFactoryLookup i stockId =
 
 -- | Looks for an icon in the list of default icon factories.
 --
--- * For display to the user, you should use 'styleLookupIconSet' on the "Style"
+-- For display to the user, you should use 'styleLookupIconSet' on the 'Style'
 -- for the widget that will display the icon, instead of using this function
 -- directly, so that themes are taken into account.
 --
@@ -263,14 +264,9 @@ foreign import ccall unsafe "&gtk_icon_set_unref"
 icon_set_unref :: Ptr IconSet -> FinalizerPtr IconSet
 icon_set_unref _ = icon_set_unref'
 
-#elif __GLASGOW_HASKELL__>=504
-
-foreign import ccall unsafe "gtk_icon_set_unref"
-  icon_set_unref :: Ptr IconSet -> IO ()
-
 #else
 
-foreign import ccall "gtk_icon_set_unref" unsafe
+foreign import ccall unsafe "gtk_icon_set_unref"
   icon_set_unref :: Ptr IconSet -> IO ()
 
 #endif
@@ -466,7 +462,3 @@ iconSourceSetState is state = do
 iconSourceResetState :: IconSource -> IO ()
 iconSourceResetState is = 
   {#call unsafe icon_source_set_state_wildcarded#} is (fromBool True)
-
-
-
-
