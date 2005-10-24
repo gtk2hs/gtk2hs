@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.8 $ from $Date: 2005/10/21 17:16:53 $
+--  Version $Revision: 1.9 $ from $Date: 2005/10/24 10:02:28 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -91,9 +91,10 @@ import Control.Monad.Reader
 -- Methods
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
--- | Creates a Cairo context for drawing to drawable.
+-- | Creates a Cairo context for drawing to a 'Drawable'.
+--
 renderWithDrawable :: DrawableClass drawable =>
-    drawable -- ^ drawable - a 'Drawable'
+    drawable -- ^ @drawable@ - a 'Drawable'
  -> Render a -- ^ A newly created Cairo context.
  -> IO a
 renderWithDrawable drawable m =
@@ -104,7 +105,7 @@ renderWithDrawable drawable m =
                             fail =<< Cairo.Internal.statusToString status)
           (\context -> runReaderT (Cairo.Internal.runRender m) context)
 
--- | Sets the specified 'Color' as the source color of @cr@.
+-- | Sets the specified 'Color' as the source color of the 'Render' context.
 --
 setSourceColor :: Color -> Render ()
 setSourceColor (Color red green blue) =
@@ -114,10 +115,14 @@ setSourceColor (Color red green blue) =
     (realToFrac blue  / 65535.0)
 
 -- | Sets the given pixbuf as the source pattern for the Cairo context. The
--- pattern has an extend mode of CAIRO_EXTEND_NONE and is aligned so that the
--- origin of pixbuf is pixbuf_x, pixbuf_y
+-- pattern has an extend mode of 'ExtendNone' and is aligned so that the
+-- origin of pixbuf is @(x, y)@.
 --
-setSourcePixbuf :: Pixbuf -> Double -> Double -> Render ()
+setSourcePixbuf ::
+    Pixbuf
+ -> Double    -- ^ x
+ -> Double    -- ^ y
+ -> Render ()
 setSourcePixbuf pixbuf pixbufX pixbufY = Render $ do
   cr <- ask
   liftIO $ {# call unsafe gdk_cairo_set_source_pixbuf #}
@@ -126,7 +131,7 @@ setSourcePixbuf pixbuf pixbufX pixbufY = Render $ do
     (realToFrac pixbufX)
     (realToFrac pixbufY)
 
--- | Adds the given region to the current path of cr.
+-- | Adds the given region to the current path of the 'Render' context.
 --
 region :: Region -> Render ()
 region region = Render $ do
@@ -187,6 +192,7 @@ cairoCreateContext Nothing = do
 --
 -- * Supplying zero or a negative value will result in the resolution value
 --   of the underlying 'FontMap' to be used. See also 'cairoFontMapNew'.
+--
 cairoContextSetResolution :: PangoContext -> Double -> IO ()
 cairoContextSetResolution pc dpi =
   {#call unsafe pango_cairo_context_set_resolution#} pc (realToFrac dpi)

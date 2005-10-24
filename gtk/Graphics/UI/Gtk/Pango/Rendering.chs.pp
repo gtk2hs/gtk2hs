@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/20 23:05:25 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/24 10:02:28 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -36,7 +36,7 @@
 --   Each 'PangoItem' is then converted into one 'GlyphItem', that is
 --   an actual sequence of glyphs,
 --   where several characters might be turned into legatures or clusters,
---   e.g. an "e" and an accent modifier are turned into a single glyph. These
+--   e.g. an \"e\" and an accent modifier are turned into a single glyph. These
 --   'GlyphItem's can then be rendered onto the output device with functions
 --   such as 'Graphics.UI.Gtk.Cairo.cairoShowGlyphString'.
 --

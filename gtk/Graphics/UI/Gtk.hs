@@ -6,7 +6,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.21 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.22 $ from $Date: 2005/10/24 10:02:28 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -204,6 +204,7 @@ module Graphics.UI.Gtk (
   module System.Glib.Attributes,
 
   -- * Pango text layout modules
+  module Graphics.UI.Gtk.Pango.Context,
   module Graphics.UI.Gtk.Pango.Markup,
   module Graphics.UI.Gtk.Pango.Layout,
   module Graphics.UI.Gtk.Pango.Rendering,
@@ -383,6 +384,7 @@ import System.Glib.Signals		(ConnectId, disconnect)
 import System.Glib.Attributes
 
 -- pango modules
+import Graphics.UI.Gtk.Pango.Context
 import Graphics.UI.Gtk.Pango.Markup
 import Graphics.UI.Gtk.Pango.Layout
 import Graphics.UI.Gtk.Pango.Rendering

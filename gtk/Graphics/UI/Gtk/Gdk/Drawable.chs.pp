@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2005/08/20 13:25:18 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/24 10:02:28 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -39,6 +39,7 @@ module Graphics.UI.Gtk.Gdk.Drawable (
   Drawable,
   DrawableClass,
   castToDrawable,
+  toDrawable,
   drawableGetDepth,
   drawableGetSize,
   drawableGetClipRegion,
