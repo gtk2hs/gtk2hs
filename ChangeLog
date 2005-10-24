@@ -7,6 +7,12 @@
 
 	* gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp: export toDrawable
 
+	* gtk/Graphics/UI/Gtk/General/Structs.hsc: make gcGetValues work
+	properly. Previously the forground and backround values were just
+	random. This is because gdk_gc_get_values only fills in the pixel
+	value for the colors fields. We now get the rgb values using
+	gdk_colormap_query_color.
+
 2005-10-22 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: add documentation. 

@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.12 $ from $Date: 2005/10/24 10:40:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -169,11 +169,16 @@ instance Storable Color where
     gdkColormapAllocColor cPtr ptr 0 1
     return ()
 
+type ColorMap = ()
+
 foreign import ccall unsafe "gdk_colormap_get_system"
-  gdkColormapGetSystem :: IO (Ptr ())
+  gdkColormapGetSystem :: IO (Ptr ColorMap)
 
 foreign import ccall unsafe "gdk_colormap_alloc_color"
-  gdkColormapAllocColor :: Ptr () -> Ptr Color -> CInt -> CInt -> IO CInt
+  gdkColormapAllocColor :: Ptr ColorMap -> Ptr Color -> CInt -> CInt -> IO CInt
+
+foreign import ccall unsafe "gdk_colormap_query_color"
+  gdkColormapQueryColor :: Ptr ColorMap -> CULong -> Ptr Color -> IO ()
 
 -- entry GC
 
@@ -207,6 +212,18 @@ instance Storable GCValues where
   sizeOf _ = #{const sizeof(GdkGCValues)}
   alignment _ = alignment (undefined::Color)
   peek ptr = do
+    -- gdk_gc_get_values does not fill in the r,g,b members of the foreground
+    -- and background colours (it only fills in the allocated pixel value),
+    -- so we have to fill them in here:
+    let foregroundPtr, backgroundPtr :: Ptr Color
+        foregroundPtr = #{ptr GdkGCValues, foreground} ptr
+        backgroundPtr = #{ptr GdkGCValues, background} ptr
+    (foregroundPixelPtr :: CULong) <- #{peek GdkColor, pixel} foregroundPtr
+    (backgroundPixelPtr :: CULong) <- #{peek GdkColor, pixel} backgroundPtr
+    colormapPtr <- gdkColormapGetSystem    
+    gdkColormapQueryColor colormapPtr foregroundPixelPtr foregroundPtr
+    gdkColormapQueryColor colormapPtr backgroundPixelPtr backgroundPtr
+
     foreground_ <- peek (#{ptr GdkGCValues, foreground} ptr)
     background_ <- peek (#{ptr GdkGCValues, background} ptr)
     (function_	:: #{type GdkFunction}) <- #{peek GdkGCValues, function} ptr
