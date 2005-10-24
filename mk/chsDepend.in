@@ -25,7 +25,7 @@ for FULLNAME in $@; do
   FULLNAMEHS=`echo "$FULLNAME" | $SED 's/\.chs/.hs/'`;
   if test -f "$FULLNAME"; then
     DEPS=`$GREP "{#import" $FULLNAME 2> /dev/null \
-        | $SED 'y/./\//;s/^{#import \(qualified \)\?\([a-zA-Z1-9/]*\)#}.*/\2/'`;
+        | $SED 'y/./\//;s/^{#import \(qualified \)*\([a-zA-Z1-9/]*\)#}.*/\2/'`;
     #echo Looking for dependent files: $DEPS
     DEPNAMES=;
     for DEP in $DEPS; do

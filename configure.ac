@@ -379,9 +379,7 @@ dnl bindings for Haskell. So set the GTK_CAIRO_DEPEND variable to the
 dnl appropaiate value to substitute into the gtk package files
 
 if test "$HAVE_GTK_VERSION_2_8" = "yes" -a "$ENABLE_CAIRO" = "yes"; then
-  GTK_CAIRO_DEPEND=", \"cairo\""
-  AC_DEFINE(ENABLE_CAIRO, [],
-  [Whether or not to build the gtk/cairo integration code.])
+  GTK_CAIRO_DEPEND=", cairo-${PACKAGE_VERSION}"
 fi
 
 dnl The configuration program for GTK is kind of stupid in that it

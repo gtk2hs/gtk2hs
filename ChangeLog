@@ -1,4 +1,17 @@
-2005-10-22 Axel Simon <A.Simon@kent.ac.uk>
+2005-10-24 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* Makefile.am: add demo/actionMenu to the list of demos to be built.
+
+	* configure.ac: specify the cairo version dependency exactly to
+	prevent problems with ghc-pkg when upgrading from older gtk2hs
+	versions. Remove redundant AC_DEFINE for the cairo package.
+
+	* acinclude.m4: do the AC_DEFINE for each package properly.
+
+	* mk/chsDepend.in: use * rather than ? in the sed RE, since the BSD/OSX
+	version of sed does not accept the latter.
+
+2005-10-24 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp,
 	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.chs.pp: Hide modules
