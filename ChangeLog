@@ -16,6 +16,9 @@
 	* gtk/Graphics/UI/Gtk/General/IconFactory.chs.pp: minor doc fixes and
 	export toIconFactory.
 
+	* configure.ac: bump version to 0.9.9.7 for the frist 0.9.10 release
+	candidate.
+
 2005-10-22 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* mozembed/Graphics/UI/Gtk/MozEmbed.chs: add documentation. 
