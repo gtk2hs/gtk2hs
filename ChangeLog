@@ -1,5 +1,9 @@
 2005-10-22 Axel Simon <A.Simon@kent.ac.uk>
 
+	* gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.chs.pp: Hide modules
+	in documentation.
+	
 	* gtk/Graphics/UI/Gtk/Pango/Markup.hs: Docu fix.
 
 2005-10-24 Duncan Coutts <duncan@coutts.uklinux.net>

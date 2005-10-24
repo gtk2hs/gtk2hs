@@ -5,7 +5,7 @@
 --
 --  Created: 14 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.2 $ from $Date: 2005/10/24 19:18:54 $
 --
 --  Copyright (C) 2005 Axel Simon, Duncan Coutts
 --
@@ -19,6 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- #hide
+
 -- TODO: the following varargs functions were not bound
 --   gtk_tree_path_new_from_indices
 --
