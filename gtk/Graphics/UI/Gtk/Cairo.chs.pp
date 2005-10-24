@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/24 10:02:28 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/24 19:13:38 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -141,7 +141,8 @@ region region = Render $ do
     region
 
 
--- | Create a 'PangoFontMap' that contains a list of available fonts.
+-- | Create a 'Graphics.UI.Gtk.Pango.FontMap' that contains a list of
+--   available fonts.
 --
 -- * One purpose of creating an explicit
 --  'Graphics.UI.Gtk.Pango.Font.FontMap' is to set
@@ -208,8 +209,8 @@ cairoContextGetResolution pc = liftM realToFrac $
 
 -- | Set Cairo font options.
 --
--- * Applied the given font options to the context. Values set through this
---   functions have override those that are applied by 'updateContext'.
+-- * Apply the given font options to the context. Values set through this
+--   functions override those that are set by 'updateContext'.
 --
 cairoContextSetFontOptions :: PangoContext -> FontOptions -> IO ()
 cairoContextSetFontOptions pc fo =
@@ -262,7 +263,7 @@ createLayout text = Render $ do
 
 -- | Propagate changed to the 'Render' context to a 'PangoLayout'.
 --
--- * This is a convenience function that calls 'cairoUpdateContext' on the
+-- * This is a convenience function that calls 'updateContext' on the
 --   (private) 'PangoContext' of the given layout to propagate changes
 --   from the 'Render' context to the 'PangoContext' and then calls
 --   'Graphics.UI.Gtk.Pango.Layout.layoutContextChanged' on the layout.

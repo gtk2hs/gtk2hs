@@ -5,7 +5,7 @@
 --
 --  Created: 5 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/08/20 13:25:19 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/24 19:13:39 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -25,11 +25,34 @@
 -- Portability : portable (depends on GHC)
 --
 -- This module defines some helper functions for generating texts with
--- embedded attributes.
+-- embedded attributes. Note that there is no need to use these functions.
+-- In particular, if you set markup in labels that are subject to
+-- internationalization, it can be of advantage to write out the markup
+-- instead of using the functions in this module.
 --
--- TODO
+-- When you write markup directly, you can make use of the following
+-- convenience tags:
 --
--- * Add a numeric value to 'FontWeightDef'.
+-- [@b@] Bold
+--
+-- [@big@] Makes font relatively larger
+--
+-- [@i@] Italic
+--
+-- [@s@] Strikethrough
+--
+-- [@sub@] Subscript
+--
+-- [@sup@] Superscript
+--
+-- [@small@] Makes font relatively smaller
+--
+-- [@tt@] Monospace font
+--
+-- [@u@] Underline 
+--
+-- The full markup language can be found at
+-- <http://developer.gnome.org/doc/API/2.0/pango/PangoMarkupFormat.html>.
 --
 module Graphics.UI.Gtk.Pango.Markup (
   Markup,
@@ -98,7 +121,10 @@ data SpanAttribute
   -- | Foreground color.
   --
   -- * This constructor and 'FontBackground' take both a description
-  --   of the color to be used for rendering.
+  --   of the color to be used for rendering. The name is either a 
+  --   hex code of the form \"#RRGGBB\" or an X11 color name like
+  --   \"dark olive green\".
+  --
   | FontForeground String	-- FIXME: should be ColorName from GDK or so
 
   -- | Background color.
