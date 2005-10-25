@@ -47,6 +47,8 @@
 
 	* Makefile.am: rename Font.chs -> Font.chs.pp
 
+	* glib/System/Glib/FFI.hs: make this compile with ghc 5.04.3
+
 2005-10-24 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp,

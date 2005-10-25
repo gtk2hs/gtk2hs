@@ -5,7 +5,7 @@
 --
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/17 16:01:30 $
+--  Version $Revision: 1.10 $ from $Date: 2005/10/25 19:56:47 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -73,15 +73,15 @@ newForeignPtr = flip Foreign.newForeignPtr
 unsafeForeignPtrToPtr = foreignPtrToPtr
 #endif
 
-foreign import ccall unsafe "&free"
-  freePtr :: FinalizerPtr a
-
 #if __GLASGOW_HASKELL__>=602
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
 #elif __GLASGOW_HASKELL__>=600
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr freePtr
+
+foreign import ccall unsafe "&free"
+  freePtr :: FinalizerPtr a
 #else
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr (return ())
