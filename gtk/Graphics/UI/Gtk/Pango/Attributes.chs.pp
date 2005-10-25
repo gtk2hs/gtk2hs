@@ -5,7 +5,7 @@
 --
 --  Created: 20 October 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/22 16:11:06 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/25 18:05:45 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -163,9 +163,14 @@ data PangoAttribute
   -- | Determine if a fall back font should be substituted if no matching
   -- font is available.
   | AttrFallback { paStart :: Int, paEnd :: Int, paFallback :: Bool }
+#if PANGO_CHECK_VERSION(1,6,0)
   -- | Add extra space between graphemes of the text.
+  --
+  -- * Available in Pango 1.6.0 and higher.
+  --
   | AttrLetterSpacing { paStart :: Int, paEnd :: Int, 
 			paLetterSpacing :: PangoUnit }
+#endif
  
 -- Attributes
 {#pointer *PangoAttrList #}
@@ -250,6 +255,9 @@ crAttr c AttrScale { paStart=s, paEnd=e, paScale = scale } =
 crAttr c AttrFallback { paStart=s, paEnd=e, paFallback = fb } =
   setAttrPos c s e $
   {#call unsafe attr_fallback_new#} (fromBool fb)
+#if PANGO_CHECK_VERSION(1,6,0)
 crAttr c AttrLetterSpacing { paStart=s, paEnd=e, paLetterSpacing = pu } =
   setAttrPos c s e $
   {#call unsafe attr_letter_spacing_new#} (puToInt pu)
+#endif
+

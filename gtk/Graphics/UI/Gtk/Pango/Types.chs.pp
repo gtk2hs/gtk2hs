@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.11 $ from $Date: 2005/10/20 23:05:25 $
+--  Version $Revision: 1.12 $ from $Date: 2005/10/25 18:05:45 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -50,9 +50,6 @@ module Graphics.UI.Gtk.Pango.Types (
   GlyphItem(GlyphItem),
   GlyphStringRaw(GlyphStringRaw),
   makeNewGlyphStringRaw,
-
-  PangoMatrix(PangoMatrix),
-  makeNewPangoMatrix,
 
   PangoLayout(PangoLayout),
 
@@ -277,28 +274,6 @@ data PangoItem = PangoItem PangoString PangoItemRaw
 --   @i@) are usually represented as a single glyph. 
 --
 data GlyphItem = GlyphItem PangoItem GlyphStringRaw 
-
-
-{#pointer *PangoMatrix foreign newtype #}
-
-makeNewPangoMatrix :: Ptr PangoMatrix -> IO PangoMatrix
-makeNewPangoMatrix mPtr = do
-  liftM PangoMatrix $ newForeignPtr mPtr (pango_matrix_free mPtr)
-
-#if __GLASGOW_HASKELL__>=600
-
-foreign import ccall unsafe "&pango_matrix_free"
-  pango_matrix_free' :: FinalizerPtr PangoMatrix
-
-pango_matrix_free :: Ptr PangoMatrix -> FinalizerPtr PangoMatrix
-pango_matrix_free _ = pango_matrix_free'
-
-#else
-
-foreign import ccall unsafe "pango_matrix_free"
-  pango_matrix_free :: Ptr PangoMatrix -> IO ()
-
-#endif
 
 -- | A rendered paragraph.
 data PangoLayout = PangoLayout (IORef PangoString) PangoLayoutRaw

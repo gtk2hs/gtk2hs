@@ -1,3 +1,14 @@
+2005-10-25 Axel Simon <A.Simon@kent.ac.uk>
+
+	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: Character distances
+	are only available in Pango 1.6 and higher.
+
+	* gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp: getLayoutFontDescription 
+	is not available in Pango 1.6 and lower.
+
+	* gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: Remove the PangoMatrix
+	type as we don't use it ever.
+
 2005-10-24 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: add demo/actionMenu to the list of demos to be built.

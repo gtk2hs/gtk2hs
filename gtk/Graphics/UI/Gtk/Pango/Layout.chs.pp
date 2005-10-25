@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/20 23:05:25 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/25 18:05:45 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -52,7 +52,9 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutSetMarkupWithAccel,
   layoutSetAttributes,
   layoutSetFontDescription,
+#if PANGO_CHECK_VERSION(1,8,0)
   layoutGetFontDescription,
+#endif
   layoutSetWidth,
   layoutGetWidth,
   LayoutWrapMode(..),
@@ -126,7 +128,9 @@ import Graphics.UI.Gtk.Pango.Markup	(Markup)
 import Graphics.UI.Gtk.General.Enums
 import Graphics.UI.Gtk.General.Structs	(Rectangle, pangoScale)
 {#import Graphics.UI.Gtk.Pango.Types#}
+#if PANGO_CHECK_VERSION(1,6,0)
 {#import Graphics.UI.Gtk.Pango.Enums#}	(EllipsizeMode(..))
+#endif
 import Graphics.UI.Gtk.Pango.Rendering  -- for haddock
 import Graphics.UI.Gtk.Pango.Attributes ( PangoAttribute, withAttrList )
 import Data.IORef
@@ -280,10 +284,13 @@ layoutSetFontDescription (PangoLayout _ (PangoLayoutRaw plr)) Nothing =
   withForeignPtr plr $ \plrPtr ->
   pango_layout_set_font_description plrPtr nullPtr
 
+#if PANGO_CHECK_VERSION(1,8,0)
 -- | Ask for the specifically set font description of this layout.
 --
 -- * Returns @Nothing@ if this layout uses the font description in the
 --   'Context' it was created in.
+--
+-- * Only available in Pango 1.8.0 or higher.
 --
 layoutGetFontDescription :: PangoLayout -> IO (Maybe FontDescription)
 layoutGetFontDescription (PangoLayout _ plr) = do
@@ -294,6 +301,7 @@ layoutGetFontDescription (PangoLayout _ plr) = do
 
 foreign import ccall unsafe "pango_font_description_copy"
   font_description_copy :: Ptr FontDescription -> IO (Ptr FontDescription)
+#endif
 
 
 -- | Set the width of this paragraph.
