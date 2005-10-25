@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.12 $ from $Date: 2005/10/25 18:05:45 $
+--  Version $Revision: 1.13 $ from $Date: 2005/10/25 19:51:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -245,7 +245,9 @@ pangoItemGetLanguage :: PangoItem -> IO Language
 pangoItemGetLanguage (PangoItem _ (PangoItemRaw pir)) =
   liftM (Language . castPtr) $ withForeignPtr pir pangoItemRawGetLanguage
 
+#if PANGO_CHECK_VERSION(1,2,0)
 {#pointer *PangoGlyphItem as GlyphItemRaw #}
+#endif
 
 -- With each GlyphString we pair a UTFCorrection
 -- and the marshalled UTF8 string. Together, this data

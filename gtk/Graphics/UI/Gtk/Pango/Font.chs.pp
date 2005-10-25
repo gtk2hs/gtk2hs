@@ -5,7 +5,7 @@
 --
 --  Created: 16 October 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/20 23:05:25 $
+--  Version $Revision: 1.1 $ from $Date: 2005/10/25 19:51:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -58,10 +58,14 @@ module Graphics.UI.Gtk.Pango.Font (
   FontMap,
   pangoFontMapListFamilies,
   FontFamily,
+#if PANGO_CHECK_VERSION(1,4,0)
   pangoFontFamilyIsMonospace,
+#endif
   pangoFontFamilyListFaces,
   FontFace,
+#if PANGO_CHECK_VERSION(1,4,0)
   pangoFontFaceListSizes,
+#endif
   pangoFontFaceDescribe,
   FontMetrics(..)
   ) where
@@ -99,6 +103,7 @@ instance Show FontFamily where
     strPtr <- {#call unsafe font_family_get_name#} ff
     peekUTFString strPtr
 
+#if PANGO_CHECK_VERSION(1,4,0)
 -- | Ask if the given family contains monospace fonts.
 --
 -- * A monospace font is a font designed for text display where the
@@ -113,6 +118,7 @@ instance Show FontFamily where
 pangoFontFamilyIsMonospace :: FontFamily -> Bool
 pangoFontFamilyIsMonospace ff = unsafePerformIO $
   liftM toBool $ {#call unsafe font_family_is_monospace#} ff
+#endif
 
 -- | Ask for the faces contained in a particular family.
 --
@@ -137,6 +143,7 @@ instance Show FontFace where
     strPtr <- {#call unsafe font_face_get_face_name#} ff
     peekUTFString strPtr
 
+#if PANGO_CHECK_VERSION(1,4,0)
 -- | Ask for available sizes of this font face.
 --
 -- * List the available sizes for a font. This is only applicable to bitmap
@@ -153,6 +160,7 @@ pangoFontFaceListSizes ff = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
     sizes <- peekArray (fromIntegral size) arrPtr
     {#call unsafe g_free#} (castPtr arrPtr)
     return (Just (map intToPu sizes))
+#endif
 
 -- | Ask for a description of this face.
 --

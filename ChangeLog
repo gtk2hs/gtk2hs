@@ -9,7 +9,7 @@
 	* gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: Remove the PangoMatrix
 	type as we don't use it ever.
 
-2005-10-24 Duncan Coutts <duncan@coutts.uklinux.net>
+2005-10-25 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: add demo/actionMenu to the list of demos to be built.
 
@@ -21,6 +21,31 @@
 
 	* mk/chsDepend.in: use * rather than ? in the sed RE, since the BSD/OSX
 	version of sed does not accept the latter.
+
+	* gtk/Graphics/UI/Gtk/Pango/Types.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp: PangoGlyphItem is only
+	available in Pango 1.2 and later.
+
+	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: the fall back font
+	attribute is only available in Pango 1.4 and later.
+
+	* gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp: the 'auto_dir' functions
+	are only available in Pango 1.4 and later. The layoutIterGetItem uses
+	the PangoGlyphItem type which is only available in Pango 1.2 and
+	later. Also export layoutIterGetItem (I assume it is supposed to be
+	exported as it is not used internally).
+
+	* gtk/Graphics/UI/Gtk/General/Structs.hsc: Some of the values in the
+	PangoDirection enumeration are only available in Pango 1.4 and later.
+
+	* gtk/Graphics/UI/Gtk/Pango/Font.chs,
+	gtk/Graphics/UI/Gtk/Pango/Font.chs.pp: rename to .pp version so we can
+	include things conditionally on the pango version. The
+	pangoFontFamilyIsMonospace and pangoFontFaceListSizes functions are
+	only in Pango 1.4 and later.
+
+	* Makefile.am: rename Font.chs -> Font.chs.pp
 
 2005-10-24 Axel Simon <A.Simon@kent.ac.uk>
 

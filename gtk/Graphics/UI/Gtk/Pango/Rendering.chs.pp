@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.10 $ from $Date: 2005/10/24 10:02:28 $
+--  Version $Revision: 1.11 $ from $Date: 2005/10/25 19:51:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -57,7 +57,9 @@ module Graphics.UI.Gtk.Pango.Rendering (
   glyphItemIndexToX,
   glyphItemXToIndex,
   glyphItemGetLogicalWidths,
+#if PANGO_CHECK_VERSION(1,2,0)
   glyphItemSplit
+#endif
   ) where
 
 import Monad    (liftM)

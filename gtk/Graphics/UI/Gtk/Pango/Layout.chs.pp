@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/25 18:05:45 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/25 19:51:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -71,8 +71,10 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutGetSpacing,
   layoutSetJustify,
   layoutGetJustify,
+#if PANGO_CHECK_VERSION(1,4,0)
   layoutSetAutoDir,
   layoutGetAutoDir,
+#endif
   LayoutAlignment(..),
   layoutSetAlignment,
   layoutGetAlignment,
@@ -102,6 +104,9 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutIterAtLastLine,
   layoutIterGetIndex,
   layoutIterGetBaseline,
+#if PANGO_CHECK_VERSION(1,2,0)
+  layoutIterGetItem,
+#endif
   layoutIterGetLine,
   layoutIterGetCharExtents,
   layoutIterGetClusterExtents,
@@ -438,6 +443,7 @@ layoutGetJustify :: PangoLayout -> IO Bool
 layoutGetJustify (PangoLayout _ pl) = 
   liftM toBool $ {#call unsafe layout_get_justify#} pl
 
+#if PANGO_CHECK_VERSION(1,4,0)
 -- | Set if the base text direction should be overridden.
 --
 -- * Sets whether to calculate the bidirectional base direction for the
@@ -467,6 +473,7 @@ layoutSetAutoDir (PangoLayout _ pl) j =
 layoutGetAutoDir :: PangoLayout -> IO Bool
 layoutGetAutoDir (PangoLayout _ pl) = 
   liftM toBool $ {#call unsafe layout_get_auto_dir#} pl
+#endif
 
 
 -- | Enumerate to which side incomplete lines are flushed.
@@ -819,6 +826,7 @@ layoutIterGetBaseline :: LayoutIter -> IO PangoUnit
 layoutIterGetBaseline (LayoutIter _ li) = 
   liftM intToPu $ {#call unsafe pango_layout_iter_get_baseline#} li
 
+#if PANGO_CHECK_VERSION(1,2,0)
 -- | Retrieve the current 'GlyphItem' under the iterator.
 --
 -- * Each 'LayoutLine' contains a list of 'GlyphItem's. This function
@@ -841,6 +849,7 @@ layoutIterGetItem (LayoutIter psRef li) = do
     gsr <- makeNewGlyphStringRaw gsrPtr'
     ps <- readIORef psRef
     return (GlyphItem (PangoItem ps pir) gsr)
+#endif
 
 -- | Extract the line under the iterator.
 --

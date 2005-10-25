@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/10/24 10:40:33 $
+--  Version $Revision: 1.13 $ from $Date: 2005/10/25 19:51:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -711,32 +711,40 @@ pangoScale = #const PANGO_SCALE
 --
 data PangoDirection = PangoDirectionLtr
                     | PangoDirectionRtl
+#if PANGO_CHECK_VERSION(1,4,0)
                     | PangoDirectionWeakLtr
                     | PangoDirectionWeakRtl
                     | PangoDirectionNeutral
+#endif
                     deriving (Eq,Ord)
 
 instance Enum PangoDirection where
   fromEnum PangoDirectionLtr        = #{const PANGO_DIRECTION_LTR }
   fromEnum PangoDirectionRtl        = #{const PANGO_DIRECTION_RTL }
+#if PANGO_CHECK_VERSION(1,4,0)
   fromEnum PangoDirectionWeakLtr    = #{const PANGO_DIRECTION_WEAK_LTR }
   fromEnum PangoDirectionWeakRtl    = #{const PANGO_DIRECTION_WEAK_RTL }
   fromEnum PangoDirectionNeutral    = #{const PANGO_DIRECTION_NEUTRAL }
+#endif
   toEnum #{const PANGO_DIRECTION_LTR } = PangoDirectionLtr
   toEnum #{const PANGO_DIRECTION_RTL } = PangoDirectionRtl
   toEnum #{const PANGO_DIRECTION_TTB_LTR } = PangoDirectionLtr
   toEnum #{const PANGO_DIRECTION_TTB_RTL } = PangoDirectionRtl
+#if PANGO_CHECK_VERSION(1,4,0)
   toEnum #{const PANGO_DIRECTION_WEAK_LTR } = PangoDirectionWeakLtr
   toEnum #{const PANGO_DIRECTION_WEAK_RTL } = PangoDirectionWeakRtl
   toEnum #{const PANGO_DIRECTION_NEUTRAL } = PangoDirectionNeutral
+#endif
 
 -- This is a copy of the local function direction_simple in pango-layout.c
 pangodirToLevel :: PangoDirection -> Int
 pangodirToLevel PangoDirectionLtr = 1
 pangodirToLevel PangoDirectionRtl = -1
+#if PANGO_CHECK_VERSION(1,4,0)
 pangodirToLevel PangoDirectionWeakLtr = 1
 pangodirToLevel PangoDirectionWeakRtl = -1
 pangodirToLevel PangoDirectionNeutral = 0
+#endif
 
 -- Get the font of a PangoAnalysis within a PangoItem.
 pangoItemRawGetFont :: Ptr pangoItem -> IO Font

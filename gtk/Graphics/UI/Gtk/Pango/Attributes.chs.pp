@@ -5,7 +5,7 @@
 --
 --  Created: 20 October 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/25 18:05:45 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/25 19:51:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -160,9 +160,11 @@ data PangoAttribute
 #endif
   -- | Scale the font up (values greater than one) or shrink the font.
   | AttrScale { paStart :: Int, paEnd :: Int, paScale :: Double }
+#if PANGO_CHECK_VERSION(1,4,0)
   -- | Determine if a fall back font should be substituted if no matching
   -- font is available.
   | AttrFallback { paStart :: Int, paEnd :: Int, paFallback :: Bool }
+#endif
 #if PANGO_CHECK_VERSION(1,6,0)
   -- | Add extra space between graphemes of the text.
   --
@@ -252,9 +254,11 @@ crAttr c AttrShape { paStart=s, paEnd=e, paInk = rect1, paLogical = rect2 } =
 crAttr c AttrScale { paStart=s, paEnd=e, paScale = scale } =
   setAttrPos c s e $ 
   {#call unsafe attr_scale_new#} (realToFrac scale)
+#if PANGO_CHECK_VERSION(1,4,0)
 crAttr c AttrFallback { paStart=s, paEnd=e, paFallback = fb } =
   setAttrPos c s e $
   {#call unsafe attr_fallback_new#} (fromBool fb)
+#endif
 #if PANGO_CHECK_VERSION(1,6,0)
 crAttr c AttrLetterSpacing { paStart=s, paEnd=e, paLetterSpacing = pu } =
   setAttrPos c s e $

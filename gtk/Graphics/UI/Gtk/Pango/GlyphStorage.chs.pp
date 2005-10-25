@@ -5,7 +5,7 @@
 --
 --  Created: 31 July 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/22 15:50:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/10/25 19:51:37 $
 --
 --  Copyright (C) 2005 Axel Simon
 --
@@ -35,7 +35,9 @@ module Graphics.UI.Gtk.Pango.GlyphStorage (
   glyphItemIndexToX,
   glyphItemXToIndex,
   glyphItemGetLogicalWidths,
+#if PANGO_CHECK_VERSION(1,2,0)
   glyphItemSplit
+#endif
   ) where
 
 import Monad	(liftM)
@@ -157,6 +159,7 @@ glyphItemGetLogicalWidths (GlyphItem (PangoItem ps pir) gs) mDir = do
       elems <- peekArray (fromIntegral logLen) arrPtr
       return (map intToPu elems)
 
+#if PANGO_CHECK_VERSION(1,2,0)
 -- | Split a 'GlyphItem' at the given index.
 --
 -- * The given 'GlyphItem' is split at the given index. The index must be
@@ -187,3 +190,4 @@ glyphItemSplit (GlyphItem (PangoItem ps pir) gs) pos = do
       gsr2 <- makeNewGlyphStringRaw gsrPtr2
       return (GlyphItem (PangoItem ps pir2) gsr2,
 	      GlyphItem (PangoItem ps pir1) gsr1)
+#endif
