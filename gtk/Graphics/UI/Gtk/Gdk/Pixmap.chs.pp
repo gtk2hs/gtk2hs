@@ -5,7 +5,7 @@
 --
 --  Created: 05 July 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/10/26 13:36:26 $
+--  Version $Revision: 1.2 $ from $Date: 2005/10/26 15:47:36 $
 --
 --  Copyright (C) 2005 Armin Groesslinger
 --
@@ -59,29 +59,42 @@ import Graphics.UI.Gtk.Gdk.Drawable  (Drawable, DrawableClass(..))
 
 {# context lib="gdk" prefix="gdk" #}
 
--- methods
-
 -- | Create a new pixmap.
--- If @drawable@ is @Nothing@, the depth of the pixmap is
--- taken from the @depth@ parameter, otherwise the pixmap
--- has the same depth as the 'Drawable' specified by @drawable@.
--- Therefore, at least one of @drawable@ and @depth@ must not be @Nothing@.
 --
+-- If @drawable@ is @Nothing@, the depth of the pixmap is taken from the
+-- @depth@ parameter, otherwise the pixmap has the same depth as the
+-- 'Drawable' specified by @drawable@. Therefore, at least one of @drawable@
+-- and @depth@ must not be @Nothing@.
+--
+-- * Note that in Gtk+ 2.0 the @drawable@ can only be a 'DrawWindow', not an
+-- arbitary 'Drawable'.
+--
+#if GTK_CHECK_VERSION(2,2,0)
 pixmapNew :: DrawableClass drawable
- => Maybe drawable -- ^ @drawable@ - drawable supplying default values for the pixmap
- -> Int       -- ^ @width@  - width of the pixmap
- -> Int       -- ^ @height@ - height of the pixmap
- -> Maybe Int -- ^ @depth@  - depth of the pixmap
+ => Maybe drawable -- ^ @drawable@ - drawable supplying default values for the
+                   --pixmap
+ -> Int            -- ^ @width@  - width of the pixmap
+ -> Int            -- ^ @height@ - height of the pixmap
+ -> Maybe Int      -- ^ @depth@  - depth of the pixmap
  -> IO Pixmap
-pixmapNew mbDrawable width height depth = 
+pixmapNew mbDrawable width height depth =
     makeNewGObject mkPixmap $
     {# call unsafe pixmap_new #}
-#if GTK_CHECK_VERSION(2,1,0) && !GTK_CHECK_VERSION(2,2,0)
-      -- support for the broken Gtk+ 2.1.x version that Sun shipped
-      (maybe (mkDrawWindow nullForeignPtr) (fromDrawable.toDrawable) mbDrawable)
-#else
       (maybe (mkDrawable nullForeignPtr) toDrawable mbDrawable)
-#endif
       (fromIntegral width) (fromIntegral height)
       (fromIntegral $ fromMaybe (negate 1) depth)
-
+#else
+pixmapNew ::
+    Maybe DrawWindow -- ^ @drawable@ - drawable supplying default values for
+                     -- the pixmap
+ -> Int              -- ^ @width@  - width of the pixmap
+ -> Int              -- ^ @height@ - height of the pixmap
+ -> Maybe Int        -- ^ @depth@  - depth of the pixmap
+ -> IO Pixmap
+pixmapNew mbDrawWindow width height depth =
+    makeNewGObject mkPixmap $
+    {# call unsafe pixmap_new #}
+      (maybe (mkDrawWindow nullForeignPtr) toDrawWindow mbDrawWindow)
+      (fromIntegral width) (fromIntegral height)
+      (fromIntegral $ fromMaybe (negate 1) depth)
+#endif
