@@ -23,6 +23,9 @@
 
 	* APICHANGES: note the renaming of the Event record field names.
 
+	* configure.ac: bump version to 0.9.9.8 for the second 0.9.10 release
+	candidate.
+
 2005-10-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: Character distances
