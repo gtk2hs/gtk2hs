@@ -1,3 +1,8 @@
+2005-10-26 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gconf/System/Gnome/GConf/GConfClient.chs: call g_type_init before
+	creating any GConfClient objects.
+
 2005-10-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: Character distances

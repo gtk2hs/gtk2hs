@@ -120,7 +120,11 @@ instance GErrorClass GConfError where
 -- | Create a new GConf object using the default configuration engine.
 --
 gconfGetDefault :: IO GConf
-gconfGetDefault =
+gconfGetDefault = do
+  -- make sure the glib type system is initialised, which it might not be if
+  -- we're using gconf without using gtk and initGUI.
+  -- It is safe to call g_type_init more than once.
+  {# call g_type_init #}
   makeNewGObject mkGConf {# call gconf_client_get_default #}
 
 
