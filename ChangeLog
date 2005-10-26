@@ -18,6 +18,9 @@
 	gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp,
 	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: minor fixes for ghc 5.04.
 
+	* Makefile.am: add TreePath.hs and TreeRowReference.hs to the
+	html_HSFILES_HIDDEN list.
+
 2005-10-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: Character distances

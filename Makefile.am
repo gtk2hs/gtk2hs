@@ -519,7 +519,9 @@ html_HSFILES_HIDDEN  += $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)		\
 			gtk/Graphics/UI/Gtk/Pango/Description.hs	\
 			gtk/Graphics/UI/Gtk/Pango/Types.hs		\
 			gtk/Graphics/UI/Gtk/Pango/Attributes.hs		\
-			gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs
+			gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs	\
+			gtk/Graphics/UI/Gtk/TreeList/TreePath.hs	\
+			gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.hs
 html_HSFILES_HIDDEN += gtk/Graphics/UI/Gtk/Signals.chs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
