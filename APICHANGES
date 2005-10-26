@@ -1,5 +1,9 @@
 # this file is for recording API changes that may affect users
 
+after 0.9.10
+
+renamed all the Event record member names
+
 after 0.9.7
 
 idle priorities now have right names. See eg progrss demo for how to change the code.

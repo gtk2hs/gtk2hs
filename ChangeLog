@@ -21,6 +21,8 @@
 	* Makefile.am: add TreePath.hs and TreeRowReference.hs to the
 	html_HSFILES_HIDDEN list.
 
+	* APICHANGES: note the renaming of the Event record field names.
+
 2005-10-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: Character distances
