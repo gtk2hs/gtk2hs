@@ -5,7 +5,7 @@
 --
 --  Created: 05 July 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/07/14 14:31:15 $
+--  Version $Revision: 1.1 $ from $Date: 2005/10/26 13:36:26 $
 --
 --  Copyright (C) 2005 Armin Groesslinger
 --
@@ -75,8 +75,13 @@ pixmapNew :: DrawableClass drawable
  -> IO Pixmap
 pixmapNew mbDrawable width height depth = 
     makeNewGObject mkPixmap $
-       {#call unsafe pixmap_new#}
-             (maybe (mkDrawable nullForeignPtr) toDrawable mbDrawable)
-	     (fromIntegral width) (fromIntegral height)
-             (fromIntegral $ fromMaybe (negate 1) depth)
+    {# call unsafe pixmap_new #}
+#if GTK_CHECK_VERSION(2,1,0) && !GTK_CHECK_VERSION(2,2,0)
+      -- support for the broken Gtk+ 2.1.x version that Sun shipped
+      (maybe (mkDrawWindow nullForeignPtr) (fromDrawable.toDrawable) mbDrawable)
+#else
+      (maybe (mkDrawable nullForeignPtr) toDrawable mbDrawable)
+#endif
+      (fromIntegral width) (fromIntegral height)
+      (fromIntegral $ fromMaybe (negate 1) depth)
 

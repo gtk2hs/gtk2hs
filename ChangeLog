@@ -3,6 +3,13 @@
 	* gconf/System/Gnome/GConf/GConfClient.chs: call g_type_init before
 	creating any GConfClient objects.
 
+	* gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs,
+	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs.pp: rename to .pp. Make pixmapNew
+	work even with the broken header files that come with Gtk+ 2.1.x that
+	Sun shipped for Solaris 9.
+
+	* Makefile.am: rename Pixmap.chs to Pixmap.chs.pp
+
 2005-10-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: Character distances

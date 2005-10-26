@@ -482,7 +482,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/Keys.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs				\
 	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp				\
-	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs				\
+	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs.pp				\
 	gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Description.chs			\
 	gtk/Graphics/UI/Gtk/Pango/Font.chs.pp				\
