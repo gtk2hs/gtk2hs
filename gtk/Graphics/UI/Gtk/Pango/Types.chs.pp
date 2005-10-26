@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.13 $ from $Date: 2005/10/25 19:51:37 $
+--  Version $Revision: 1.14 $ from $Date: 2005/10/26 15:49:45 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -177,7 +177,7 @@ makeNewPangoString str = do
 #if __GLASGOW_HASKELL__>=600
   liftM (PangoString correct cLen) $ newForeignPtr strPtr finalizerFree
 #else
-  liftM (PangoString correct cLen) $ newForeignPtr strPtr free
+  liftM (PangoString correct cLen) $ newForeignPtr strPtr (free strPtr)
 #endif
 
 withPangoString :: PangoString -> 

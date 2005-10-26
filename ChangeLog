@@ -14,6 +14,10 @@
 	broken header files but just a generalisation in the type from Gtk+
 	2.0 to 2.2. Make it work with both versions.
 
+	* gtk/Graphics/UI/Gtk/Pango/GlyphStorage.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: minor fixes for ghc 5.04.
+
 2005-10-25 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Pango/Attributes.chs.pp: Character distances

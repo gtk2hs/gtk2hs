@@ -5,7 +5,7 @@
 --
 --  Created: 31 July 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/25 19:51:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/26 15:49:45 $
 --
 --  Copyright (C) 2005 Axel Simon
 --
@@ -51,11 +51,17 @@ import Graphics.UI.Gtk.General.Structs (PangoDirection(..), pangodirToLevel,
 					pangoItemRawAnalysis,
 					pangoItemRawGetLevel )
 import Graphics.UI.Gtk.General.Enums (TextDirection(..))
-import Control.Exception ( throwIO,
-			   Exception(ArrayException),
+import Control.Exception ( Exception(ArrayException),
 			   ArrayException(IndexOutOfBounds) )
-{# context lib="pango" prefix="pango" #}
+#if __GLASGOW_HASKELL__>=600
+import Control.Exception (throwIO)
+#else
+import Control.Exception (throw)
+throwIO :: Exception -> IO a
+throwIO = throw
+#endif
 
+{# context lib="pango" prefix="pango" #}
 
 --------------------
 -- Methods

@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/25 19:51:37 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/26 15:49:45 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -139,9 +139,15 @@ import Graphics.UI.Gtk.General.Structs	(Rectangle, pangoScale)
 import Graphics.UI.Gtk.Pango.Rendering  -- for haddock
 import Graphics.UI.Gtk.Pango.Attributes ( PangoAttribute, withAttrList )
 import Data.IORef
-import Control.Exception ( throwIO,
-			   Exception(ArrayException),
-			   ArrayException(IndexOutOfBounds) )
+import Control.Exception ( Exception(ArrayException),
+                           ArrayException(IndexOutOfBounds) )
+#if __GLASGOW_HASKELL__>=600
+import Control.Exception (throwIO)
+#else
+import Control.Exception (throw)
+throwIO :: Exception -> IO a
+throwIO = throw
+#endif	   
 
 {# context lib="pango" prefix="pango" #}
 
