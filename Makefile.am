@@ -1188,11 +1188,11 @@ endif
 if ENABLE_LIBGLADE
 DEMOS += demo/glade demo/calc
 if HAVE_GTK_VERSION_2_4
-DEMOS += demo/filechooser demo/profileviewer
+DEMOS += demo/filechooser
 endif
 endif
 if HAVE_GTK_VERSION_2_6
-DEMOS += demo/actionMenu
+DEMOS += demo/actionMenu demo/profileviewer
 endif
 if HAVE_GTK_VERSION_2_8
 if ENABLE_CAIRO
