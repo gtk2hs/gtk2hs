@@ -972,7 +972,7 @@ libHSmozembed_a_GENERATEDSOURCES =			\
 nodist_libHSmozembed_a_SOURCES = $(libHSmozembed_a_GENERATEDSOURCES)
 
 libHSmozembed_a_SOURCES =				\
-	mozembed/Graphics/UI/Gtk/MozEmbed.chs
+	mozembed/Graphics/UI/Gtk/MozEmbed.chs.pp
 
 html_HSFILES_HIDDEN += $(libHSmozembed_a_GENERATEDSOURCES:.chs=.hs)
 

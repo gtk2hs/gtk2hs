@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/22 16:10:09 $
+--  Version $Revision: 1.1 $ from $Date: 2005/10/29 21:51:02 $
 --
 --  Copyright (c) 2002 Jonas Svensson
 --
@@ -25,7 +25,10 @@
 --  * ported to gtk2hs/c2hs
 --  * added additional interface functions
 --  * circumvented render_data problem
---
+
+-- cpp defines unix=1 which gets in the way here so we must undefine it 
+#undef unix
+
 -- | This widgets embeds Mozilla's browser engine (Gecko) into a Gtk+ widget.
 --
 -- See <http://www.mozilla.org/unix/gtk-embedding.html> for a more detailed API
@@ -38,6 +41,7 @@ module Graphics.UI.Gtk.MozEmbed (
 -- * Constructors
   mozEmbedNew,
   mozEmbedSetCompPath,
+  mozEmbedDefaultCompPath,
   mozEmbedSetProfilePath,
   mozEmbedPushStartup,
   mozEmbedPopStartup,
@@ -102,13 +106,20 @@ mozEmbedNew = makeNewObject mkMozEmbed $ liftM castPtr {#call moz_embed_new#}
 -- It allows you to set the path to the mozilla components, however unless
 -- you really know what you are doing, you should just use:
 --
--- > mozEmbedSetCompPath ""
+-- > mozEmbedSetCompPath mozEmbedDefaultCompPath
 --
 mozEmbedSetCompPath :: String -> IO ()
 mozEmbedSetCompPath str =
   withCString str $ \strPtr ->
    {#call moz_embed_set_comp_path#}
    strPtr
+
+-- | The directory containing the mozilla embedding libraries. Its actual value
+-- will depend on whether these bindings were built against the mozilla or
+-- firefox libraries and where these are installed in the build platform.
+--
+mozEmbedDefaultCompPath :: String
+mozEmbedDefaultCompPath = MOZEMBED_LIBDIR
 
 mozEmbedSetProfilePath ::
     FilePath -- ^ profile directory

@@ -11,7 +11,7 @@ main = do
   initGUI
   w <- windowNew
   onDestroy w mainQuit
-  mozEmbedSetCompPath ""
+  mozEmbedSetCompPath mozEmbedDefaultCompPath
 
   moz <- mozEmbedNew
   widgetShow moz

@@ -2,6 +2,19 @@
 
 	* Makefile.am: the profile viewer demo actually needs Gtk+ 2.6.
 
+	* configure.ac: put the mozilla lib dir into the gtk2hs-config.h file.
+
+	* mozembed/Graphics/UI/Gtk/MozEmbed.chs,
+	mozembed/Graphics/UI/Gtk/MozEmbed.chs.pp: rename to .pp and export a
+	new string value mozEmbedDefaultCompPath which is the mozilla lib dir.
+	This is the default value used to initialise the mozilla embeding
+	component.
+
+	* Makefile.am: rename MozEmbed.chs to MozEmbed.chs.pp
+
+	* demo/mozembed/TestEmbedMoz.hs: update the demo to use the
+	mozEmbedDefaultCompPath. Hopefully this will make it work on BSD too.
+
 2005-10-26 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gconf/System/Gnome/GConf/GConfClient.chs: call g_type_init before
