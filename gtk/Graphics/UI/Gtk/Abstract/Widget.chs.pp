@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.16 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.17 $ from $Date: 2005/10/29 23:44:32 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
 -- |  'GObject'
 -- |   +----'Object'
 -- |         +----Widget
--- |               +----<too many to list>
+-- |               +----/too many to list/
 -- @
 
 -- * Types
@@ -1163,7 +1163,7 @@ event name eMask after obj fun = do
 -- | A Button was pressed.
 --
 -- * This widget is part of a button which was just pressed. The event passed
---   to the user function is a 'Button' event.
+--   to the user function is a 'Graphics.UI.Gtk.Gdk.Events.Button' event.
 --
 onButtonPress, afterButtonPress :: WidgetClass w => w -> (Event -> IO Bool) ->
                                    IO (ConnectId w)

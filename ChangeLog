@@ -1,3 +1,19 @@
+2005-10-30 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/Signals.chs.pp: prune rather than hide this module
+	so that the things we do want documented are documented here and not
+	in the top level gtk module.
+
+	* gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.chs: hide this
+	module from haddock. It's purely an implementation detail.
+
+	* gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp: fix some incorrect
+	haddock markup and fully qualify the Button data constructor that was
+	getting	linked to the Button type instead which is totally different.
+
+	* Makefile.am: adjust the html_HSFILES_HIDDEN to reflect the above
+	changes as well as tidying up some duplication.
+
 2005-10-29 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: the profile viewer demo actually needs Gtk+ 2.6.

@@ -5,7 +5,7 @@
 --
 --  Created: 1 July 2000
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/11 15:43:54 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/29 23:44:32 $
 --
 --  Copyright (C) 2000-2005 Axel Simon, Duncan Coutts
 --
@@ -19,7 +19,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- #hide
+-- #prune
 
 --    The object system in the second version of GTK is based on GObject from
 --    GLIB. This base class is rather primitive in that it only implements
@@ -64,8 +64,15 @@ type ConnectAfter = Bool
 
 type SignalName = String
 
+-- | The type of signal handler ids. If you ever need to 'disconnect' a signal
+-- handler then you will need to retain the 'ConnectId' you got when you
+-- registered it.
+--
 data GObjectClass o => ConnectId o = ConnectId {#type gulong#} o
 
+-- | Disconnect a signal handler. After disconecting the handler will no
+-- longer be invoked when the event occurs.
+--
 disconnect :: GObjectClass obj => ConnectId obj -> IO ()
 disconnect (ConnectId handler obj) =
   withForeignPtr  ((unGObject.toGObject) obj) $ \objPtr ->

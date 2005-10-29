@@ -269,10 +269,6 @@ glib_System_Glib_hsgclosure_c_CFLAGS = -Werror-implicit-function-declaration
 endif
 
 html_HSFILES_PREPROC = glib/System/Glib/FFI.hs
-html_HSFILES_HIDDEN  =				\
-	glib/System/Glib/FFI.hs			\
-	gtk/Graphics/UI/Gtk/Pango/Types.hs	\
-	glib/System/Glib/Signals.hs
 
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
@@ -514,15 +510,17 @@ EXTRA_libHSgtk_a_SOURCES =						\
 	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
 
 html_HSFILES_PREPROC += gtk/Graphics/UI/Gtk.hs
-html_HSFILES_HIDDEN  += $(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)		\
-			gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs		\
-			gtk/Graphics/UI/Gtk/Pango/Description.hs	\
-			gtk/Graphics/UI/Gtk/Pango/Types.hs		\
-			gtk/Graphics/UI/Gtk/Pango/Attributes.hs		\
-			gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs	\
-			gtk/Graphics/UI/Gtk/TreeList/TreePath.hs	\
-			gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.hs
-html_HSFILES_HIDDEN += gtk/Graphics/UI/Gtk/Signals.chs
+html_HSFILES_HIDDEN  =						\
+	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
+	gtk/Graphics/UI/Gtk/Signals.hs				\
+	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs			\
+	gtk/Graphics/UI/Gtk/Pango/Description.hs		\
+	gtk/Graphics/UI/Gtk/Pango/Types.hs			\
+	gtk/Graphics/UI/Gtk/Pango/Attributes.hs			\
+	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs		\
+	gtk/Graphics/UI/Gtk/TreeList/TreePath.hs		\
+	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.hs	\
+	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts

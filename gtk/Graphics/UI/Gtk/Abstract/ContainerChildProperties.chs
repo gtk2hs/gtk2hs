@@ -5,7 +5,7 @@
 --
 --  Created: 16 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/07/03 12:27:09 $
+--  Version $Revision: 1.2 $ from $Date: 2005/10/29 23:44:32 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -19,6 +19,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- #hide
+
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
