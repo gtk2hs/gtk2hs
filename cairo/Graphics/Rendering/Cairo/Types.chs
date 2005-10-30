@@ -256,9 +256,9 @@ foreign import ccall unsafe "&cairo_font_options_destroy"
 -- | A Cairo path.
 --
 -- * A path is a sequence of drawing operations that are accumulated until
---   'Graphics.Render.Cairo.stroke' is called. Using a path is particularly
+--   'Graphics.Rendering.Cairo.stroke' is called. Using a path is particularly
 --   useful when drawing lines with special join styles and
---   'Graphics.Render.Cairo.closePath'.
+--   'Graphics.Rendering.Cairo.closePath'.
 --
 {#pointer *path_t as Path newtype#}
 unPath (Path x) = x
