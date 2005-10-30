@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.10 $ from $Date: 2005/10/24 19:13:38 $
+--  Version $Revision: 1.11 $ from $Date: 2005/10/30 11:55:28 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -299,8 +299,8 @@ showLayoutLine (LayoutLine _ ll) = Render $ do
 
 -- | Draw a 'PangoLayout'.
 --
--- * The origin of the glyphs (the left edge of the baseline) will be drawn
---   at the current point of the cairo context.
+-- * The top-left corner of the 'PangoLayout' will be drawn at the current
+--   point of the cairo context.
 --
 showLayout :: PangoLayout -> Render ()
 showLayout (PangoLayout _ lay) = Render $ do
@@ -308,7 +308,7 @@ showLayout (PangoLayout _ lay) = Render $ do
   liftIO $ {#call unsafe pango_cairo_show_layout#} cr lay
 
 
--- | Draw a glyph string.
+-- | Add the extent of a glyph string to the current path.
 --
 -- * The origin of the glyphs (the left edge of the line) will be at the
 --   current point of the cairo context.
@@ -319,7 +319,7 @@ glyphStringPath (GlyphItem pi gs) = Render $ do
   font <- liftIO $ pangoItemGetFont pi
   liftIO $ {#call unsafe pango_cairo_glyph_string_path#} cr font gs
 
--- | Draw a 'LayoutLine'.
+-- | Add the extent of a layout line to the current path.
 --
 -- * The origin of the glyphs (the left edge of the line) will be at the
 --   current point of the cairo context.
@@ -329,10 +329,10 @@ layoutLinePath (LayoutLine _ ll) = Render $ do
   cr <- ask
   liftIO $ {#call unsafe pango_cairo_layout_line_path#} cr ll
 
--- | Draw a 'PangoLayout'.
+-- | Add the layout to the current path.
 --
--- * The origin of the glyphs (the left edge of the line) will be at the
---   current point of the cairo context.
+-- * Adds the top-left corner of the text to the current path. Afterwards,
+--   the path position is at the bottom-right corner of the 'PangoLayout'.
 --
 layoutPath :: PangoLayout -> Render ()
 layoutPath (PangoLayout _ lay) = Render $ do

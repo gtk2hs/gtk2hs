@@ -10,7 +10,8 @@
 --
 -- Direct bindings to the cairo library.
 -----------------------------------------------------------------------------
-
+-- #hide
+--
 module Graphics.Rendering.Cairo.Internal (
     Render(..)
   , module Graphics.Rendering.Cairo.Types

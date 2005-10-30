@@ -1073,7 +1073,6 @@ cairo_Graphics_Rendering_Cairo_Internal_hs_HCFLAGS = -fglasgow-exts
 
 html_HSFILES_HIDDEN += $(libHScairo_a_GENERATEDSOURCES:.chs=.hs)
 html_HSFILES_EXCLUDE =							\
-	cairo/Graphics/Rendering/Cairo/Types.hs				\
 	cairo/Graphics/Rendering/Cairo/Internal.hs			\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Cairo.hs	\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Paths.hs	\

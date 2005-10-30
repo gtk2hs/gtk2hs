@@ -1,3 +1,19 @@
+2005-10-30 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am, cairo/Graphics/Rendering/Cairo.hs,
+	cairo/Graphics/Rendering/Cairo/Internal.hs,
+	cairo/Graphics/Rendering/Cairo/Types.chs: Create at least some
+	documentation for the Cairo types. Hide the Types module instead
+	of excluding it from documentation. We cannot include Internal.hs
+	since haddock cannot parse the deriving clause.
+
+	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: Documentation fixes.
+	
+	* gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp: Export a function to
+	create a layout and set its text at the same time. This function
+	is called layoutText instead of layoutNew since the latter clashed
+	with the Layout widget.
+	
 2005-10-30 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/Signals.chs.pp: prune rather than hide this module

@@ -8,13 +8,9 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- cairo 2D graphics library
------------------------------------------------------------------------------
-
-module Graphics.Rendering.Cairo (
--- * Detail
+-- The Cairo 2D graphics library.
 --
--- | Cairo is a 2D graphics library with support for multiple output devices.
+-- Cairo is a 2D graphics library with support for multiple output devices.
 -- Currently supported output targets include the X Window System, win32, and
 -- image buffers. Experimental backends include OpenGL (through glitz), Quartz,
 -- XCB, PostScript and PDF file output.
@@ -40,11 +36,13 @@ module Graphics.Rendering.Cairo (
 -- glitz, etc) however bindings to other backends may be implemented
 -- externally. For example, Gtk2Hs provides a binding to the backend for X11
 -- (and win32 on Windows).
-
+-----------------------------------------------------------------------------
+module Graphics.Rendering.Cairo (
   -- * Drawing
     renderWith
   , save
   , restore
+  , status
   , withTargetSurface
   , setSourceRGB
   , setSourceRGBA
@@ -214,7 +212,17 @@ import Control.Monad.Reader (ReaderT(..), runReaderT, ask, MonadIO, liftIO)
 import Control.Exception (bracket)
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
-import Graphics.Rendering.Cairo.Internal (Render(..))
+import Graphics.Rendering.Cairo.Internal (Render(..), Matrix, Surface,
+					  Pattern, Status(..), Operator(..),
+					  Antialias(..), FillRule(..),
+					  LineCap(..), LineJoin(..),
+					  ScaledFont, FontFace, Glyph,
+					  TextExtents(..), FontExtents(..),
+					  FontSlant(..), FontWeight(..),
+					  SubpixelOrder(..), HintStyle(..),
+					  HintMetrics(..), FontOptions, Path,
+					  Content(..), Format(..), Extend(..),
+					  Filter(..))	  
 
 liftRender0 :: (Cairo -> IO a) -> Render a
 liftRender0 f = ask >>= \context -> liftIO (f context)
@@ -267,6 +275,12 @@ save = liftRender0 Internal.save
 --
 restore :: Render ()
 restore = liftRender0 Internal.restore
+
+
+-- | Ask for the status of the current 'Render' monad.
+--
+status :: Render Status
+status = liftRender0 Internal.status
 
 -- | Gets the target surface for the Render context as passed to 'renderWith'.
 --
@@ -606,8 +620,8 @@ paintWithAlpha ::
 paintWithAlpha = liftRender1 Internal.paintWithAlpha
 
 -- | A drawing operator that strokes the current path according to the current
--- line width, line join, line cap, and dash settings. After cairo_stroke, the
--- current path will be cleared from the cairo context.
+-- line width, line join, line cap, and dash settings. After issuing 'stroke',
+-- the current path will be cleared from the 'Render' monad.
 --
 -- See 'setLineWidth', 'setLineJoin', 'setLineCap', 'setDash', and 'strokePreserve'.
 --
@@ -616,7 +630,7 @@ stroke = liftRender0 Internal.stroke
 
 -- | A drawing operator that strokes the current path according to the current
 -- line width, line join, line cap, and dash settings. Unlike 'stroke',
--- 'strokePreserve' preserves the path within the cairo context.
+-- 'strokePreserve' preserves the path within the 'Render' monad.
 --
 -- See 'setLineWidth', 'setLineJoin', 'setLineCap', 'setDash', and 'strokePreserve'.
 --
@@ -774,8 +788,10 @@ rectangle ::
   -> Render ()
 rectangle = liftRender4 Internal.rectangle
 
--- |
+-- | Render text at the current path.
 --
+-- * See 'showText' for why you should use Gtk functions.
+-- 
 textPath ::
      String -- ^ -
   -> Render ()

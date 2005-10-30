@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/26 15:49:45 $
+--  Version $Revision: 1.8 $ from $Date: 2005/10/30 11:55:28 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -42,6 +42,7 @@ module Graphics.UI.Gtk.Pango.Layout (
   PangoRectangle(..),
   PangoLayout,
   layoutEmpty,
+  layoutText,
   layoutCopy,
   layoutGetContext,
   layoutContextChanged,
@@ -163,8 +164,8 @@ layoutEmpty pc = do
 
 -- | Create a new layout.
 --
-layoutNew :: PangoContext -> String -> IO PangoLayout
-layoutNew pc txt = do
+layoutText :: PangoContext -> String -> IO PangoLayout
+layoutText pc txt = do
   pl <- makeNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_new#} (toPangoContext pc))
   withUTFStringLen txt $ \(strPtr,len) ->

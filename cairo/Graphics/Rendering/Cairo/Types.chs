@@ -62,25 +62,82 @@ import Monad (liftM)
 
 {#context lib="cairo" prefix="cairo"#}
 
+-- not visible
 {#pointer *cairo_t as Cairo newtype#}
 unCairo (Cairo x) = x
 
+-- | The medium to draw on.
 {#pointer *surface_t as Surface newtype#}
 unSurface (Surface x) = x
 
+-- | Attributes for drawing operations.
 {#pointer *pattern_t as Pattern newtype#}
 unPattern (Pattern x) = x
 
+-- | Cairo status.
+--
+-- * 'Status' is used to indicate errors that can occur when using
+--   Cairo. In some cases it is returned directly by functions. When using
+--   'Graphics.Rendering.Cairo.Render', the last error, if any, is stored
+--   in the monad and can be retrieved with 'Graphics.Rendering.Cairo.status'.
+--
 {#enum status_t as Status {underscoreToCase} deriving(Eq)#}
 
+-- | Composition operator for all drawing operations.
+--
 {#enum operator_t as Operator {underscoreToCase}#}
 
+-- | Specifies the type of antialiasing to do when rendering text or shapes
+--
+-- ['AntialiasDefault']  Use the default antialiasing for the subsystem
+-- and target device.
+--
+-- ['AntialiasNone']  Use a bilevel alpha mask.
+--
+-- ['AntialiasGray']  Perform single-color antialiasing (using shades of
+-- gray for black text on a white background, for example).
+--
+-- ['AntialiasSubpixel']  Perform antialiasing by taking advantage of
+-- the order of subpixel elements on devices such as LCD panels.
+--
 {#enum antialias_t as Antialias {underscoreToCase}#}
 
+-- | Specify how paths are filled.
+--
+-- * For both fill rules, whether or not a point is included in the fill is
+--   determined by taking a ray from that point to infinity and looking at
+--   intersections with the path. The ray can be in any direction, as long
+--   as it doesn't pass through the end point of a segment or have a tricky
+--   intersection such as intersecting tangent to the path. (Note that
+--   filling is not actually implemented in this way. This is just a
+--   description of the rule that is applied.)
+--
+-- ['FillRuleWinding']  If the path crosses the ray from left-to-right,
+--   counts +1. If the path crosses the ray from right to left, counts -1.
+--   (Left and right are determined from the perspective of looking along
+--   the ray from the starting point.) If the total count is non-zero, the
+--   point will be filled.
+--
+-- ['FillRuleEvenOdd']  Counts the total number of intersections,
+--   without regard to the orientation of the contour. If the total number
+--   of intersections is odd, the point will be filled.
+--
 {#enum fill_rule_t as FillRule {underscoreToCase}#}
 
+-- | Specify line endings.
+--
+-- ['LineCapButt'] Start(stop) the line exactly at the start(end) point.
+--
+-- ['LineCapRound'] Use a round ending, the center of the circle is the
+--   end point.
+--
+-- ['LineCapSquare'] Use squared ending, the center of the square is the
+--   end point
+--
 {#enum line_cap_t as LineCap {underscoreToCase}#}
 
+-- | Specify how lines join.
+--
 {#enum line_join_t as LineJoin {underscoreToCase}#}
 
 {#pointer *scaled_font_t as ScaledFont newtype#}
@@ -94,6 +151,7 @@ unGlyph (Glyph x) = x
 
 {#pointer *text_extents_t as TextExtentsPtr -> TextExtents#}
 
+-- | Specify the extents of a text.
 data TextExtents = TextExtents {
     textExtentsXbearing :: Double
   , textExtentsYbearing :: Double
@@ -127,6 +185,7 @@ instance Storable TextExtents where
 
 {#pointer *font_extents_t as FontExtentsPtr -> FontExtents#}
 
+-- | Result of querying the font extents.
 data FontExtents = FontExtents {
     fontExtentsAscent      :: Double
   , fontExtentsDescent     :: Double
@@ -154,16 +213,22 @@ instance Storable FontExtents where
     {#set font_extents_t->max_y_advance#} p (cFloatConv max_y_advance)
     return ()
 
+-- | Specify font slant.
 {#enum font_slant_t as FontSlant {underscoreToCase}#}
 
+-- | Specify font weight.
 {#enum font_weight_t as FontWeight {underscoreToCase}#}
 
+-- | Specify subpixel order.
 {#enum subpixel_order_t as SubpixelOrder {underscoreToCase}#}
 
+-- | FIXME: Document.
 {#enum hint_style_t as HintStyle {underscoreToCase}#}
 
+-- | FIXME: Document.
 {#enum hint_metrics_t as HintMetrics {underscoreToCase}#}
 
+-- | Specifies how to render text.
 {#pointer *font_options_t as FontOptions foreign newtype#}
 
 withFontOptions (FontOptions fptr) = withForeignPtr fptr
@@ -188,6 +253,13 @@ foreign import ccall unsafe "&cairo_font_options_destroy"
 --               | PathCurveTo Point Point Point
 --               | PathClose
 
+-- | A Cairo path.
+--
+-- * A path is a sequence of drawing operations that are accumulated until
+--   'Graphics.Render.Cairo.stroke' is called. Using a path is particularly
+--   useful when drawing lines with special join styles and
+--   'Graphics.Render.Cairo.closePath'.
+--
 {#pointer *path_t as Path newtype#}
 unPath (Path x) = x
 
@@ -199,8 +271,10 @@ data Format = FormatARGB32
             | FormatA1
             deriving (Enum)
 
+-- | FIX ME: We should find out about this.
 {#enum extend_t as Extend {underscoreToCase}#}
 
+-- | Specify how filtering is done.
 {#enum filter_t as Filter {underscoreToCase}#}
 
 -- Marshalling functions
