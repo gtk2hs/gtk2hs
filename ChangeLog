@@ -34,6 +34,10 @@
 	--auto-ghci-libs for platforms where the latter doesn't work (like
 	Solaris when not using GNU ld)
 
+	* Makefile.am: add cairo/Graphics/Rendering/Cairo/Types.hs to the
+	haddock hidden list so that make doesn't keep re-running haddock in an
+	attempt to generate what would be the corresponding html output file.
+
 2005-10-29 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: the profile viewer demo actually needs Gtk+ 2.6.
