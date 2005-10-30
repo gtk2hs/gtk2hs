@@ -1306,7 +1306,7 @@ install-data-hook :
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	rm -f $(DESTDIR)$(pkglibdir)/$(patsubst lib%.a,%.o,$(pkgname)); \
-	$(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) --auto-ghci-libs \
+	$(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) $(GHCPKG_BUILD_GHCI_LIB) \
 	update $(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.package.conf,$(pkgname));)
 
 uninstall-hook :

@@ -30,6 +30,10 @@
 	* Makefile.am: adjust the html_HSFILES_HIDDEN to reflect the above
 	changes as well as tidying up some duplication.
 
+	* Makefile.am: use $(GHCPKG_BUILD_GHCI_LIB) rather than literal
+	--auto-ghci-libs for platforms where the latter doesn't work (like
+	Solaris when not using GNU ld)
+
 2005-10-29 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Makefile.am: the profile viewer demo actually needs Gtk+ 2.6.
