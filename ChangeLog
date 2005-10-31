@@ -12,6 +12,8 @@
 	* cairo/Graphics/Rendering/Cairo/Types.chs: extend the documentation
 	in a few places.
 
+	* configure.ac: Bump version number to 0.9.10.
+
 2005-10-30 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, cairo/Graphics/Rendering/Cairo.hs,
