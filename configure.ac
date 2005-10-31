@@ -1,6 +1,7 @@
 dnl Gtk2hs - a wrapper around Gtk+ for Haskell 
 dnl
-dnl Copyright (c) 2001, 2002 Axel Simon <as49@ukc.ac.uk>
+dnl Copyright (c) 2001, 2002, 2003-2005 Axel Simon <as49@ukc.ac.uk>
+dnl Copyright (c) 2004-2005 Duncan Coutts <duncan@coutts.uklinux.net>
 dnl with parts stolen from Manuel Chakravaty, Sven Panne and Micheal Weber
 dnl
 dnl This library is free software; you can redistribute it and/or
@@ -21,7 +22,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.9.8)
+AC_INIT(gtk2hs, 0.9.10)
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.59
