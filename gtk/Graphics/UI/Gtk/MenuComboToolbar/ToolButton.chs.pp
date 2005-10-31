@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/10/31 20:21:13 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -301,13 +301,14 @@ toolButtonSetIconName self iconName =
 -- * Available since Gtk+ version 2.8
 --
 toolButtonGetIconName :: ToolButtonClass self => self
- -> IO String -- ^ returns the icon name or {@NULL@, FIXME: this should
-              -- probably be converted to a Maybe data type} if the tool button
-              -- has no themed icon
+ -> IO String -- ^ returns the icon name or @\"\"@ if the tool button has no
+              -- themed icon.
 toolButtonGetIconName self =
   {# call gtk_tool_button_get_icon_name #}
     (toToolButton self)
-  >>= peekUTFString
+  >>= \strPtr -> if strPtr == nullPtr
+                then return ""
+                else peekUTFString strPtr
 #endif
 
 --------------------

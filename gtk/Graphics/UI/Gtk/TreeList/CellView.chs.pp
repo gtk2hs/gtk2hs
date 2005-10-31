@@ -5,7 +5,7 @@
 --
 --  Created: 4 April 2005
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.7 $ from $Date: 2005/10/31 20:21:13 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -139,17 +139,16 @@ cellViewNewWithText text =
 -- Methods
 
 -- | Sets the model for @cellView@. If @cellView@ already has a model set, it
--- will remove it before setting the new model. If @model@ is {@NULL@, FIXME:
--- this should probably be converted to a Maybe data type}, then it will unset
--- the old model.
+-- will remove it before setting the new model. If @model@ is @Nothing@, then
+-- it will unset the old model.
 --
 cellViewSetModel :: (CellViewClass self, TreeModelClass model) => self
- -> model -- ^ @model@ - a 'TreeModel'
+ -> Maybe model -- ^ @model@ - a 'TreeModel'
  -> IO ()
 cellViewSetModel self model =
   {# call gtk_cell_view_set_model #}
     (toCellView self)
-    (toTreeModel model)
+    (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
 -- | Sets the row of the model that is currently displayed by the 'CellView'.
 -- If the path is unset, then the contents of the cellview \"stick\" at their

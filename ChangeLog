@@ -1,3 +1,14 @@
+2005-10-31 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp: fix a couple FIXMEs,
+	updating the documentation and implementation.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp: fix a FIXME. These
+	involve a couple minor type changes but they are not a commonly used
+	functions I think.
+
 2005-10-30 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, cairo/Graphics/Rendering/Cairo.hs,

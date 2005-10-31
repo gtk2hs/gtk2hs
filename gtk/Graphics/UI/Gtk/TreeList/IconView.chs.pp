@@ -5,7 +5,7 @@
 --
 --  Created: 25 March 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/10/31 20:21:13 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -165,28 +165,25 @@ iconViewNewWithModel model =
 -- Methods
 
 -- | Sets the model for a 'IconView'. If the @iconView@ already has a model
--- set, it will remove it before setting the new model. If @model@ is {@NULL@,
--- FIXME: this should probably be converted to a Maybe data type}, then it will
--- unset the old model.
+-- set, it will remove it before setting the new model. If @model@ is
+-- @Nothing@, then it will unset the old model.
 --
 iconViewSetModel :: (IconViewClass self, TreeModelClass model) => self
- -> model -- ^ @model@ - The model.
+ -> Maybe model -- ^ @model@ - The model.
  -> IO ()
 iconViewSetModel self model =
   {# call gtk_icon_view_set_model #}
     (toIconView self)
-    (toTreeModel model)
+    (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
--- | Returns the model the 'IconView' is based on. Returns {@NULL@, FIXME:
--- this should probably be converted to a Maybe data type} if the model is
--- unset.
+-- | Returns the model the 'IconView' is based on. Returns @Nothing@ if the
+-- model is unset.
 --
 iconViewGetModel :: IconViewClass self => self
- -> IO TreeModel -- ^ returns A 'TreeModel', or {@NULL@, FIXME: this should
-                 -- probably be converted to a Maybe data type} if none is
-                 -- currently being used.
+ -> IO (Maybe TreeModel) -- ^ returns a 'TreeModel', or @Nothing@ if none is
+                         -- currently being used.
 iconViewGetModel self =
-  makeNewGObject mkTreeModel $
+  maybeNull (makeNewGObject mkTreeModel) $
   {# call gtk_icon_view_get_model #}
     (toIconView self)
 
@@ -211,9 +208,8 @@ iconViewGetTextColumn self =
     (toIconView self)
 
 -- | Sets the column with markup information for @iconView@ to be @column@.
--- The markup column must be of type {G_TYPE_STRING, FIXME: unknown
--- type\/value}. If the markup column is set to something, it overrides the text
--- column set by 'iconViewSetTextColumn'.
+-- The markup column must be of type string. If the markup column is set to
+-- something, it overrides the text column set by 'iconViewSetTextColumn'.
 --
 iconViewSetMarkupColumn :: IconViewClass self => self
  -> Int   -- ^ @column@ - A column in the currently used model.
@@ -480,8 +476,8 @@ iconViewPathIsSelected self path =
 
 -- | Creates a list of paths of all selected items. Additionally, if you are
 -- planning on modifying the model after calling this function, you may want to
--- convert the returned list into a list of {GtkTreeRowReference, FIXME: boxed
--- type}s. To do this, you can use 'treeRowReferenceNew'.
+-- convert the returned list into a list of 'TreeRowReference's. To do this,
+-- you can use 'treeRowReferenceNew'.
 --
 iconViewGetSelectedItems :: IconViewClass self => self
  -> IO [TreePath] -- ^ returns a list of 'TreePath's, one for each selected row.
@@ -576,7 +572,8 @@ iconViewMarkupColumn = newAttr
 
 -- | The model for the icon view.
 --
-iconViewModel :: (IconViewClass self, TreeModelClass model) => ReadWriteAttr self TreeModel model
+iconViewModel :: (IconViewClass self, TreeModelClass model)
+ => ReadWriteAttr self (Maybe TreeModel) (Maybe model)
 iconViewModel = newAttr
   iconViewGetModel
   iconViewSetModel

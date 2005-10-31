@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.21 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.22 $ from $Date: 2005/10/31 20:21:13 $
 --
 --  Copyright (C) 2001-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -949,13 +949,14 @@ windowSetIconName self name =
 -- * Available since Gtk+ version 2.6
 --
 windowGetIconName :: WindowClass self => self
- -> IO String -- ^ returns the icon name or {@NULL@, FIXME: this should
-              -- probably be converted to a Maybe data type} if the window has
-              -- no themed icon
+ -> IO String -- ^ returns the icon name or @\"\"@ if the window has no themed
+              -- icon.
 windowGetIconName self =
   {# call gtk_window_get_icon_name #}
     (toWindow self)
-  >>= peekUTFString
+  >>= \strPtr -> if strPtr == nullPtr
+                then return ""
+                else peekUTFString strPtr
 
 -- | Sets an icon to be used as fallback for windows that haven't had
 -- 'windowSetIconList' called on them from a named themed icon, see
