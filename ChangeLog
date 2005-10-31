@@ -9,6 +9,9 @@
 	involve a couple minor type changes but they are not a commonly used
 	functions I think.
 
+	* cairo/Graphics/Rendering/Cairo/Types.chs: extend the documentation
+	in a few places.
+
 2005-10-30 Axel Simon <A.Simon@kent.ac.uk>
 
 	* Makefile.am, cairo/Graphics/Rendering/Cairo.hs,

@@ -70,7 +70,11 @@ unCairo (Cairo x) = x
 {#pointer *surface_t as Surface newtype#}
 unSurface (Surface x) = x
 
--- | Attributes for drawing operations.
+-- | Patterns can be simple solid colors, various kinds of gradients or
+-- bitmaps. The current pattern for a 'Render' context is used by the 'stroke',
+-- 'fill' and paint operations. These operations composite the current pattern
+-- with the target surface using the currently selected 'Operator'.
+--
 {#pointer *pattern_t as Pattern newtype#}
 unPattern (Pattern x) = x
 
@@ -219,13 +223,54 @@ instance Storable FontExtents where
 -- | Specify font weight.
 {#enum font_weight_t as FontWeight {underscoreToCase}#}
 
--- | Specify subpixel order.
+-- | The subpixel order specifies the order of color elements within each pixel
+-- on the display device when rendering with an antialiasing mode of
+-- 'AntialiasSubpixel'.
+--
+-- ['SubpixelOrderDefault'] Use the default subpixel order for for the
+--                          target device
+-- ['SubpixelOrderRgb']     Subpixel elements are arranged horizontally
+--                          with red at the left
+-- ['SubpixelOrderBgr']     Subpixel elements are arranged horizontally
+--                          with blue at the left
+-- ['SubpixelOrderVrgb']    Subpixel elements are arranged vertically
+--                          with red at the top
+-- ['SubpixelOrderVbgr']    Subpixel elements are arranged vertically
+--                          with blue at the top 
+--
 {#enum subpixel_order_t as SubpixelOrder {underscoreToCase}#}
 
--- | FIXME: Document.
+-- | Specifies the type of hinting to do on font outlines.
+--
+-- Hinting is the process of fitting outlines to the pixel grid in order to
+-- improve the appearance of the result. Since hinting outlines involves
+-- distorting them, it also reduces the faithfulness to the original outline
+-- shapes. Not all of the outline hinting styles are supported by all font
+-- backends.
+--
+-- ['HintStyleDefault']  Use the default hint style for for font backend and
+--                       target device
+-- ['HintStyleNone']     Do not hint outlines
+-- ['HintStyleSlight']   Hint outlines slightly to improve contrast while
+--                       retaining good fidelity to the original shapes.
+-- ['HintStyleMedium']   Hint outlines with medium strength giving a compromise
+--                       between fidelity to the original shapes and contrast
+-- ['HintStyleFull']     Hint outlines to maximize contrast
+--
 {#enum hint_style_t as HintStyle {underscoreToCase}#}
 
--- | FIXME: Document.
+-- | Specifies whether to hint font metrics.
+--
+-- Hinting font metrics means quantizing them so that they are integer values
+-- in device space. Doing this improves the consistency of letter and line
+-- spacing, however it also means that text will be laid out differently at
+-- different zoom factors.
+--
+-- ['HintMetricsDefault']  Hint metrics in the default manner for the font
+--                         backend and target device
+-- ['HintMetricsOff']      Do not hint font metrics
+-- ['HintMetricsOn']       Hint font metrics
+--
 {#enum hint_metrics_t as HintMetrics {underscoreToCase}#}
 
 -- | Specifies how to render text.
@@ -271,7 +316,7 @@ data Format = FormatARGB32
             | FormatA1
             deriving (Enum)
 
--- | FIX ME: We should find out about this.
+-- | FIXME: We should find out about this.
 {#enum extend_t as Extend {underscoreToCase}#}
 
 -- | Specify how filtering is done.
