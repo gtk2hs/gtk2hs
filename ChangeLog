@@ -1,3 +1,8 @@
+2005-11-01 Axel Simon <A.Simon@kent.ac.uk>
+
+	* cairo/Graphics/Rendering/Cairo/Types.chs: Force descriptions in
+	comments on separate lines.
+	
 2005-10-31 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/MenuComboToolbar/ToolButton.chs.pp,

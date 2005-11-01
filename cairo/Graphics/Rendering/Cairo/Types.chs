@@ -229,12 +229,16 @@ instance Storable FontExtents where
 --
 -- ['SubpixelOrderDefault'] Use the default subpixel order for for the
 --                          target device
+--
 -- ['SubpixelOrderRgb']     Subpixel elements are arranged horizontally
 --                          with red at the left
+--
 -- ['SubpixelOrderBgr']     Subpixel elements are arranged horizontally
 --                          with blue at the left
+--
 -- ['SubpixelOrderVrgb']    Subpixel elements are arranged vertically
 --                          with red at the top
+--
 -- ['SubpixelOrderVbgr']    Subpixel elements are arranged vertically
 --                          with blue at the top 
 --
@@ -250,11 +254,15 @@ instance Storable FontExtents where
 --
 -- ['HintStyleDefault']  Use the default hint style for for font backend and
 --                       target device
+--
 -- ['HintStyleNone']     Do not hint outlines
+--
 -- ['HintStyleSlight']   Hint outlines slightly to improve contrast while
 --                       retaining good fidelity to the original shapes.
+--
 -- ['HintStyleMedium']   Hint outlines with medium strength giving a compromise
 --                       between fidelity to the original shapes and contrast
+--
 -- ['HintStyleFull']     Hint outlines to maximize contrast
 --
 {#enum hint_style_t as HintStyle {underscoreToCase}#}
@@ -268,8 +276,11 @@ instance Storable FontExtents where
 --
 -- ['HintMetricsDefault']  Hint metrics in the default manner for the font
 --                         backend and target device
+--
 -- ['HintMetricsOff']      Do not hint font metrics
+--
 -- ['HintMetricsOn']       Hint font metrics
+--
 --
 {#enum hint_metrics_t as HintMetrics {underscoreToCase}#}
 
