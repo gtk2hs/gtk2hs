@@ -5,7 +5,7 @@
 --
 --  Created: 16 October 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/10/25 19:51:37 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/06 20:46:10 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -26,7 +26,7 @@
 --
 -- Fonts. The selection of an appropriate font to render text becomes a
 -- substantial task in the presence of Unicode where a single font does not
--- over the whole range of possible characters. Pango provides several
+-- cover the whole range of possible characters. Pango provides several
 -- concepts to find appropriate fonts and to query information about them:
 --
 -- * 'FontDescription': Font descriptions provide a way to query and state

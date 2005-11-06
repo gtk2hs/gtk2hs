@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2005/10/25 19:51:37 $
+--  Version $Revision: 1.14 $ from $Date: 2005/11/06 20:46:10 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -526,7 +526,7 @@ data ResponseId
   --
   -- * This value is returned from a user defined button
   | ResponseUser Int
-  deriving Show
+  deriving (Show, Eq)
 
 fromResponse :: Integral a => ResponseId -> a
 fromResponse ResponseNone = -1

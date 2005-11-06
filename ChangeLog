@@ -1,3 +1,19 @@
+2005-11-06 Axel Simon <A.Simon@kent.ac.uk>
+
+	* configure.ac, gtk/gtk.pkg: Make compile with ghc 6.2 (no cabal)
+	when Cairo is installed. The package file was actually broken.
+
+	* gtk/Graphics/UI/Gtk/Display/Statusbar.chs: Export MessageId and
+	ContextId.
+
+	* gtk/Graphics/UI/Gtk/General/StockItems.hsc: Add all available
+	stock ids but map them to missing image if Gtk is not new enough.
+
+	* gtk/Graphics/UI/Gtk/General/Structs.hsc: Make ResponseId instance
+	of Eq.
+
+	* gtk/Graphics/UI/Gtk/Pango/Font.chs.pp: Docu wibble.
+
 2005-11-06 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Pango/Context.chs.pp,

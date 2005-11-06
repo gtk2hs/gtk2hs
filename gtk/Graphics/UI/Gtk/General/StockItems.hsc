@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/18 00:56:34 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/06 20:46:10 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -45,6 +45,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockAddItem,
   stockLookupItem,
   stockListIds,
+  stockAbout,
   stockAdd,
   stockApply,
   stockBold,
@@ -54,6 +55,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockClose,
   stockColorPicker,
   stockConvert,
+  stockConnect,
   stockCopy,
   stockCut,
   stockDelete,
@@ -61,12 +63,17 @@ module Graphics.UI.Gtk.General.StockItems (
   stockDialogInfo,
   stockDialogQuestion,
   stockDialogWarning,
+  stockDirectory,
+  stockDisconnect,
   stockDnd,
   stockDndMultiple,
+  stockEdit,
   stockExecute,
+  stockFile,
   stockFind,
   stockFindAndRelpace,
   stockFloppy,
+  stockFullscreen,
   stockGotoBottom,
   stockGotoFirst,
   stockGotoLast,
@@ -75,16 +82,28 @@ module Graphics.UI.Gtk.General.StockItems (
   stockGoDown,
   stockGoForward,
   stockGoUp,
+  stockHarddisk,
   stockHelp,
   stockHome,
+  stockIndent,
   stockIndex,
+  stockInfo,
   stockItalic,
   stockJumpTo,
   stockJustifyCenter,
   stockJustifyFill,
   stockJustifyLeft,
   stockJustifyRight,
+  stockMediaForward,
+  stockMediaNext,
+  stockMediaPause,
+  stockMediaPlay,
+  stockMediaPrevious,
+  stockMediaRecord,
+  stockMediaRewind,
+  stockMediaStop,
   stockMissingImage,
+  stockNetwork,
   stockNew,
   stockNo,
   stockOk,
@@ -101,6 +120,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockRevertToSaved,
   stockSave,
   stockSaveAs,
+  stockSelectAll,
   stockSelectColor,
   stockSelectFont,
   stockSortAscending,
@@ -111,6 +131,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockUndelete,
   stockUnderline,
   stockUndo,
+  stockUnindent,
   stockYes,
   stockZoom100,
   stockZoomFit,
@@ -264,94 +285,17 @@ foreign import ccall "g_free" unsafe
   g_free :: Ptr a -> IO ()
 
 #endif
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
-#if GTK_CHECK_VERSION(2,2,0)
--- | Standard icon and menu entry.
---
--- * This icon is only available in Gtk 2.2 or higher.
---
-#endif
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
--- | Standard icon and menu entry.
 
-
-stockAdd,
+-- | Standard icon and menu entry.
+stockAbout,
+  stockAdd,
   stockApply,
   stockBold,
   stockCancel,
   stockCDROM,
   stockClear,
   stockClose,
-#if GTK_CHECK_VERSION(2,2,0)
   stockColorPicker,
-#endif
   stockConvert,
   stockCopy,
   stockCut,
@@ -384,7 +328,16 @@ stockAdd,
   stockJustifyLeft,
   stockJustifyRight,
   stockMissingImage,
+  stockMediaForward,
+  stockMediaNext,
+  stockMediaPause,
+  stockMediaPlay,
+  stockMediaPrevious,
+  stockMediaRecord,
+  stockMediaRewind,
+  stockMediaStop,
   stockNew,
+  stockNetwork,
   stockNo,
   stockOk,
   stockOpen,
@@ -400,6 +353,7 @@ stockAdd,
   stockRevertToSaved,
   stockSave,
   stockSaveAs,
+  stockSelectAll,
   stockSelectColor,
   stockSelectFont,
   stockSortAscending,
@@ -416,6 +370,11 @@ stockAdd,
   stockZoomIn,
   stockZoomOut :: StockId
 
+#if GTK_CHECK_VERSION(2,6,0)
+stockAbout		= #{const_str GTK_STOCK_ABOUT}
+#else
+stockAbout		= stockMissingImage
+#endif
 stockAdd		= #{const_str GTK_STOCK_ADD}
 stockApply		= #{const_str GTK_STOCK_APPLY}
 stockBold		= #{const_str GTK_STOCK_BOLD}
@@ -429,6 +388,11 @@ stockColorPicker	= #{const_str GTK_STOCK_COLOR_PICKER}
 stockColorPicker        = stockMissingImage
 #endif
 stockConvert		= #{const_str GTK_STOCK_CONVERT}
+#if GTK_CHECK_VERSION(2,6,0)
+stockConnect		= #{const_str GTK_STOCK_CONNECT}
+#else
+stockConnect		= stockMissingImage
+#endif
 stockCopy		= #{const_str GTK_STOCK_COPY}
 stockCut		= #{const_str GTK_STOCK_CUT}
 stockDelete		= #{const_str GTK_STOCK_DELETE}
@@ -436,12 +400,37 @@ stockDialogError	= #{const_str GTK_STOCK_DIALOG_ERROR}
 stockDialogInfo		= #{const_str GTK_STOCK_DIALOG_INFO}
 stockDialogQuestion	= #{const_str GTK_STOCK_DIALOG_QUESTION}
 stockDialogWarning	= #{const_str GTK_STOCK_DIALOG_WARNING}
+#if GTK_CHECK_VERSION(2,6,0)
+stockDirectory		= #{const_str GTK_STOCK_DIRECTORY}
+#else
+stockDirectory		= stockMissingImage
+#endif
+#if GTK_CHECK_VERSION(2,6,0)
+stockDisconnect		= #{const_str GTK_STOCK_DISCONNECT}
+#else
+stockDisconnect		= stockMissingImage
+#endif
 stockDnd		= #{const_str GTK_STOCK_DND}
 stockDndMultiple	= #{const_str GTK_STOCK_DND_MULTIPLE}
+#if GTK_CHECK_VERSION(2,6,0)
+stockEdit		= #{const_str GTK_STOCK_EDIT}
+#else
+stockEdit		= stockMissingImage
+#endif
 stockExecute		= #{const_str GTK_STOCK_EXECUTE}
+#if GTK_CHECK_VERSION(2,6,0)
+stockFile		= #{const_str GTK_STOCK_FILE}
+#else
+stockFile		= stockMissingImage
+#endif
 stockFind		= #{const_str GTK_STOCK_FIND}
 stockFindAndRelpace	= #{const_str GTK_STOCK_FIND_AND_REPLACE}
 stockFloppy		= #{const_str GTK_STOCK_FLOPPY}
+#if GTK_CHECK_VERSION(2,8,0)
+stockFullscreen		= #{const_str GTK_STOCK_FULLSCREEN}
+#else
+stockFullscreen		= stockMissingImage
+#endif
 stockGotoBottom		= #{const_str GTK_STOCK_GOTO_BOTTOM}
 stockGotoFirst		= #{const_str GTK_STOCK_GOTO_FIRST}
 stockGotoLast		= #{const_str GTK_STOCK_GOTO_LAST}
@@ -450,9 +439,24 @@ stockGoBack		= #{const_str GTK_STOCK_GO_BACK}
 stockGoDown		= #{const_str GTK_STOCK_GO_DOWN}
 stockGoForward		= #{const_str GTK_STOCK_GO_FORWARD}
 stockGoUp		= #{const_str GTK_STOCK_GO_UP}
+#if GTK_CHECK_VERSION(2,4,0)
+stockHarddisk		= #{const_str GTK_STOCK_HARDDISK}
+#else
+stockHarddisk		= stockMissingImage
+#endif
 stockHelp		= #{const_str GTK_STOCK_HELP}
 stockHome		= #{const_str GTK_STOCK_HOME}
+#if GTK_CHECK_VERSION(2,4,0)
+stockIndent		= #{const_str GTK_STOCK_INDENT}
+#else
+stockIndent		= stockMissingImage
+#endif
 stockIndex		= #{const_str GTK_STOCK_INDEX}
+#if GTK_CHECK_VERSION(2,8,0)
+stockInfo		= #{const_str GTK_STOCK_INFO}
+#else
+stockInfo		= stockMissingImage
+#endif
 stockItalic		= #{const_str GTK_STOCK_ITALIC}
 stockJumpTo		= #{const_str GTK_STOCK_JUMP_TO}
 stockJustifyCenter	= #{const_str GTK_STOCK_JUSTIFY_CENTER}
@@ -460,6 +464,30 @@ stockJustifyFill	= #{const_str GTK_STOCK_JUSTIFY_FILL}
 stockJustifyLeft	= #{const_str GTK_STOCK_JUSTIFY_LEFT}
 stockJustifyRight	= #{const_str GTK_STOCK_JUSTIFY_RIGHT}
 stockMissingImage	= #{const_str GTK_STOCK_MISSING_IMAGE}
+#if GTK_CHECK_VERSION(2,6,0)
+stockMediaForward	= #{const_str GTK_STOCK_MEDIA_FORWARD}
+stockMediaNext  	= #{const_str GTK_STOCK_MEDIA_NEXT}
+stockMediaPause		= #{const_str GTK_STOCK_MEDIA_PAUSE}
+stockMediaPlay		= #{const_str GTK_STOCK_MEDIA_PLAY}
+stockMediaPrevious	= #{const_str GTK_STOCK_MEDIA_PREVIOUS}
+stockMediaRecord	= #{const_str GTK_STOCK_MEDIA_RECORD}
+stockMediaRewind	= #{const_str GTK_STOCK_MEDIA_REWIND}
+stockMediaStop		= #{const_str GTK_STOCK_MEDIA_STOP}
+#else
+stockMediaForward	= stockMissingImage
+stockMediaNext  	= stockMissingImage
+stockMediaPause		= stockMissingImage
+stockMediaPlay		= stockMissingImage
+stockMediaPrevious	= stockMissingImage
+stockMediaRecord	= stockMissingImage
+stockMediaRewind	= stockMissingImage
+stockMediaStop		= stockMissingImage
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+stockNetwork		= #{const_str GTK_STOCK_NETWORK}
+#else
+stockNetwork		= stockMissingImage
+#endif
 stockNew		= #{const_str GTK_STOCK_NEW}
 stockNo			= #{const_str GTK_STOCK_NO}
 stockOk			= #{const_str GTK_STOCK_OK}
@@ -476,6 +504,11 @@ stockRemove		= #{const_str GTK_STOCK_REMOVE}
 stockRevertToSaved	= #{const_str GTK_STOCK_REVERT_TO_SAVED}
 stockSave		= #{const_str GTK_STOCK_SAVE}
 stockSaveAs		= #{const_str GTK_STOCK_SAVE_AS}
+#if GTK_CHECK_VERSION(2,10,0)
+stockSelectAll		= #{const_str GTK_STOCK_SELECT_ALL}
+#else
+stockSelectAll		= stockMissingImage
+#endif
 stockSelectColor	= #{const_str GTK_STOCK_SELECT_COLOR}
 stockSelectFont		= #{const_str GTK_STOCK_SELECT_FONT}
 stockSortAscending	= #{const_str GTK_STOCK_SORT_ASCENDING}
@@ -486,6 +519,11 @@ stockStrikethrough	= #{const_str GTK_STOCK_STRIKETHROUGH}
 stockUndelete		= #{const_str GTK_STOCK_UNDELETE}
 stockUnderline		= #{const_str GTK_STOCK_UNDERLINE}
 stockUndo		= #{const_str GTK_STOCK_UNDO}
+#if GTK_CHECK_VERSION(2,4,0)
+stockUnindent		= stockMissingImage
+#else
+stockUnindent		= #{const_str GTK_STOCK_UNINDENT}
+#endif
 stockYes		= #{const_str GTK_STOCK_YES}
 stockZoom100		= #{const_str GTK_STOCK_ZOOM_100}
 stockZoomFit		= #{const_str GTK_STOCK_ZOOM_FIT}

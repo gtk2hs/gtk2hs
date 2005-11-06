@@ -381,7 +381,8 @@ dnl bindings for Haskell. So set the GTK_CAIRO_DEPEND variable to the
 dnl appropaiate value to substitute into the gtk package files
 
 if test "$HAVE_GTK_VERSION_2_8" = "yes" -a "$ENABLE_CAIRO" = "yes"; then
-  GTK_CAIRO_DEPEND=", cairo-${PACKAGE_VERSION}"
+  GTK_CAIRO_DEPEND=", cairo-${PACKAGE_VERSION}";
+  GTK_CAIRO_DEPEND_NO_CABAL=",\"cairo\"";
 fi
 
 dnl The configuration program for GTK is kind of stupid in that it
@@ -713,6 +714,7 @@ AC_SUBST(GHCPKG_USE_AUTOLIBS)
 AC_SUBST(GHCPKG_BUILD_GHCI_LIB)
 dnl Optional packages
 AC_SUBST(GTK_CAIRO_DEPEND)
+AC_SUBST(GTK_CAIRO_DEPEND_NO_CABAL)
 dnl Documentation
 AC_SUBST(HADDOCK)
 AC_SUBST(GHC_DOCDIR)
