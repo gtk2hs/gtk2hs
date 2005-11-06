@@ -5,7 +5,7 @@
 --
 --  Created: 16 October 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.3 $ from $Date: 2005/11/06 19:10:14 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -73,7 +73,6 @@ import System.Glib.GObject  (makeNewGObject)
 import Graphics.UI.Gtk.General.Enums
 {#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Pango.Enums#}
-import System.Glib.UTFString ( withUTFString, UTFCorrection )
 {#import System.Glib.GList#}
 import Graphics.UI.Gtk.Pango.Font ( FontMetrics(..) )
 

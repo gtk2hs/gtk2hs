@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.11 $ from $Date: 2005/10/25 19:51:37 $
+--  Version $Revision: 1.12 $ from $Date: 2005/11/06 19:10:15 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -71,7 +71,6 @@ import Graphics.UI.Gtk.General.Structs  ( pangoItemRawAnalysis )
 {#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Pango.Attributes#}
 import Graphics.UI.Gtk.Pango.GlyphStorage
-import System.Glib.UTFString ( withUTFString, UTFCorrection )
 {#import System.Glib.GList#}
 
 {# context lib="pango" prefix="pango" #}

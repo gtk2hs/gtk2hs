@@ -5,7 +5,7 @@
 --
 --  Created: 8 December 1998
 --
---  Version $Revision: 1.12 $ from $Date: 2005/10/11 16:15:43 $
+--  Version $Revision: 1.13 $ from $Date: 2005/11/06 19:10:16 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty
 --
@@ -59,7 +59,7 @@ module Graphics.UI.Gtk.General.General (
   HandlerId
   ) where
 
-import System   (getProgName, getArgs, ExitCode(ExitSuccess, ExitFailure))
+import System   (getProgName, getArgs)
 import Monad	(liftM, mapM)
 import Control.Exception (ioError, Exception(ErrorCall))
 
@@ -106,9 +106,8 @@ initGUI = do
   prog <- getProgName
   args <- getArgs
   let allArgs = (prog:args)
-      argc    = length allArgs
   withMany withUTFString allArgs $ \addrs  ->
-    withArray	       addrs   $ \argv ->
+    withArrayLen       addrs   $ \argc argv ->
     with	       argv    $ \argvp ->
     with	       argc    $ \argcp -> do 
       res <- {#call unsafe init_check#} (castPtr argcp) (castPtr argvp)

@@ -1,3 +1,11 @@
+2005-11-06 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Pango/Context.chs.pp,
+	gtk/Graphics/UI/Gtk/Pango/Rendering.chs.pp: remove redundent imports.
+
+	* gtk/Graphics/UI/Gtk/General/General.chs: use withArrayLen rather
+	than withArray and length.
+
 2005-11-01 Axel Simon <A.Simon@kent.ac.uk>
 
 	* cairo/Graphics/Rendering/Cairo/Types.chs: Force descriptions in
