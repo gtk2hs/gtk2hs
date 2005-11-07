@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.15 $ from $Date: 2005/11/07 09:48:24 $
+--  Version $Revision: 1.16 $ from $Date: 2005/11/07 11:28:53 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -311,15 +311,21 @@ pokeGCValues ptr (GCValues {
     add r #{const GDK_GC_FILL } $
       #{poke GdkGCValues, fill} ptr 
       (fromIntegral (fromEnum fill_):: #{type GdkFill})
-    add r #{const GDK_GC_TILE} $
-      #{poke GdkGCValues, tile} ptr $
-        maybe nullPtr (unsafeForeignPtrToPtr.unPixmap) tile_
-    add r #{const GDK_GC_STIPPLE} $
-      #{poke GdkGCValues, stipple} ptr $
-        maybe nullPtr (unsafeForeignPtrToPtr.unPixmap) stipple_
-    add r #{const GDK_GC_CLIP_MASK } $
-      #{poke GdkGCValues, clip_mask} ptr $
-        maybe nullPtr (unsafeForeignPtrToPtr.unPixmap) clipMask_
+    case tile_ of 
+      Nothing -> return ()
+      Just tile_ -> add r #{const GDK_GC_TILE} $
+                    withForeignPtr (unPixmap tile_) $
+                    #{poke GdkGCValues, tile} ptr
+    case stipple_ of
+      Nothing -> return ()
+      Just stipple_ -> add r #{const GDK_GC_STIPPLE} $
+                       withForeignPtr (unPixmap stipple_) $
+                       #{poke GdkGCValues, stipple} ptr
+    case clipMask_ of
+      Nothing -> return ()
+      Just clipMask_ -> add r #{const GDK_GC_CLIP_MASK } $
+                        withForeignPtr (unPixmap clipMask_) $
+                        #{poke GdkGCValues, clip_mask} ptr
     add r #{const GDK_GC_SUBWINDOW } $
       #{poke GdkGCValues, subwindow_mode} ptr
       (fromIntegral (fromEnum subwindow_):: #{type GdkSubwindowMode})
@@ -368,9 +374,9 @@ newGCValues = GCValues {
     background = undefined,
     function   = undefined,
     fill       = undefined,
-    tile       = undefined,
-    stipple    = undefined,
-    clipMask   = undefined,
+    tile       = Nothing,
+    stipple    = Nothing,
+    clipMask   = Nothing,
     subwindowMode = undefined,
     tsXOrigin  = undefined,
     tsYOrigin  = undefined,
