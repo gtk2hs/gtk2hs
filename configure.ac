@@ -194,6 +194,12 @@ if test "$WIN32" = "yes"; then
   HCFLAGS="$HCFLAGS -DWIN32"
 fi
 
+AC_ARG_ENABLE(split-objs,
+	     [  --enable-split-objs     produce smaller executables (on supported platforms)],
+	     [ENABLE_SPLITOBJS=$enableval],[ENABLE_SPLITOBJS=no])
+AC_MSG_RESULT($ENABLE_SPLITOBJS)
+AM_CONDITIONAL(ENABLE_SPLITOBJS, test "$ENABLE_SPLITOBJS" = "yes")
+
 dnl packager mode is for people building packages, eg for linux distros.
 dnl in packager mode you do not get any optional dependancies unless you
 dnl explicitly ask for them with --enable-PACKAGE
@@ -739,6 +745,7 @@ AC_OUTPUT([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
+  mk/link-splitobjs.sh
   docs/prologue.txt
 
   glib/glib.pkg
@@ -773,7 +780,7 @@ AC_OUTPUT([
   cairo/cairo.package.conf
   cairo/cairo.cabal
   ],
-  [chmod a+x mk/chsDepend && chmod a+x install-sh])
+  [chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh])
 
 dnl ...and chat with the user
 echo "**************************************************"

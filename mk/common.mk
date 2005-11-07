@@ -28,6 +28,18 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 #and falsely concluding that two source files will produce the same object
 #file even though the object files will be in different directories.
 #Obviously the 'subdir-objects' option only works for C/C++ files.
+if ENABLE_SPLITOBJS
+%.o : %.hs $(CONFIG_HEADER)
+	mkdir -p $*_split
+	rm -f $*_split/*.o
+	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
+	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
+	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
+	$(addprefix -package-name ,$(notdir $(basename $(basename $($(PKG)_PACKAGE))))) \
+	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
+	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
+	touch $@
+else
 %.o : %.hs $(CONFIG_HEADER)
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
 	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
@@ -35,6 +47,7 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(addprefix -package-name ,$(notdir $(basename $(basename $($(PKG)_PACKAGE))))) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
 	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
+endif
 
 .DELETE_ON_ERROR : %.deps
 

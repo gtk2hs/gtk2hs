@@ -10,6 +10,19 @@
 
 	* TODO: remove some completed and old todo items.
 
+	* configure.ac: add --enable-split-objs option (off by default).
+	Substitute into mk/link-splitobjs.sh script and make it executable.
+
+	* mk/common.mk: add a slightly different .hs -> .o build rule when
+	using -split-objs
+
+	* Makefile.am: add -split-objs to the HCFLAGS of the libs and set
+	mk/link-splitobjs.sh as the linker command when	we configure using
+	--enable-split-objs.
+
+	* mk/link-splitobjs.sh.in: linker script to use when in
+	--enable-split-objs mode.
+
 2005-11-06 Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac, gtk/gtk.pkg: Make compile with ghc 6.2 (no cabal)
