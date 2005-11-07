@@ -14,7 +14,8 @@ EXTRA_DIST = \
         gconf/System/Gnome/GConf/marshal.list	\
 	sourceview/sourceview.h			\
 	gtk/wingtk.h				\
-        glib/System/Glib/hsgclosure.h
+        glib/System/Glib/hsgclosure.h		\
+	cairo/COPYRIGHT
 
 # There are no other files in these dirs and tar excludes empty dirs
 dist-hook:

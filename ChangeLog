@@ -27,6 +27,8 @@
 	checks for deprecated autoconf/automake macros. Also remove variables
 	which used to be used by c2hs but are no longer used.
 
+	* Makefile.am: add cairo/COPYRIGHT to EXTRA_DIST
+
 2005-11-06 Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac, gtk/gtk.pkg: Make compile with ghc 6.2 (no cabal)
