@@ -28,9 +28,9 @@ module Graphics.Rendering.Cairo.Matrix (
 import Foreign hiding (rotate)
 import CForeign
 
-data Matrix = Matrix { xx :: Double, yx :: Double,
-                       xy :: Double, yy :: Double,
-                       x0 :: Double, y0 :: Double }
+data Matrix = Matrix { xx :: !Double, yx :: !Double,
+                       xy :: !Double, yy :: !Double,
+                       x0 :: !Double, y0 :: !Double }
   deriving (Show, Eq)
 
 {#pointer *cairo_matrix_t as MatrixPtr -> Matrix#}
@@ -66,6 +66,25 @@ instance Num Matrix where
            (xy * yx' + yy * yy')
            (x0 * xx' + y0 * xy' + x0')
            (x0 * yx' + y0 * yy' + y0')
+
+  (+) = pointwise2 (+)
+  (-) = pointwise2 (-)
+
+  negate = pointwise negate
+  abs    = pointwise abs
+  signum = pointwise signum
+
+  -- this definition of fromInteger means that 2*m = scale 2 m
+  -- and it means 1 = identity
+  fromInteger n = Matrix (fromInteger n) 0 0 (fromInteger n) 0 0
+
+{-# INLINE pointwise #-}
+pointwise f (Matrix xx yx xy yy x0 y0) =
+  Matrix (f xx) (f yx) (f xy) (f yy) (f x0) (f y0)
+
+{-# INLINE pointwise2 #-}
+pointwise2 f (Matrix xx yx xy yy x0 y0) (Matrix xx' yx' xy' yy' x0' y0') =
+  Matrix (f xx xx') (f yx yx') (f xy xy') (f yy yy') (f x0 x0') (f y0 y0')
 
 identity :: Matrix
 identity = Matrix 1 0 0 1 0 0

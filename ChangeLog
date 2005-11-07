@@ -32,6 +32,10 @@
 	* cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs: correct
 	location of COPYRIGHT file.
 
+	* cairo/Graphics/Rendering/Cairo/Matrix.chs: add definitions of the
+	other Num class members for the Matrix data type. Also, make the
+	Matrix strict in its elements.
+
 2005-11-06 Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac, gtk/gtk.pkg: Make compile with ghc 6.2 (no cabal)
