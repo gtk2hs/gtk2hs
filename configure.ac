@@ -22,7 +22,7 @@ dnl ######################################################################
 dnl Process this file with autoconf to produce a configure script.
 dnl ######################################################################
 
-AC_INIT(gtk2hs, 0.9.10)
+AC_INIT([gtk2hs],[0.9.10])
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.59
@@ -31,7 +31,7 @@ AC_PREREQ(2.59)
 dnl Check system type.
 AC_CANONICAL_HOST
 
-AM_CONFIG_HEADER(gtk2hs-config.h)
+AC_CONFIG_HEADERS([gtk2hs-config.h])
 AH_TOP([
 /* Hack to suppress warnings that these symbols clash with
    the ones from ghc's version of config.h */
@@ -591,17 +591,6 @@ if test $BUILT_IN_C2HS = yes; then
   dnl Use the local c2hs.
   C2HS='./tools/c2hs/c2hsLocal$(EXEEXT)';
 
-  dnl These are the settings needed to compile c2hs.
-  LEGACY_FFI=no;
-  BEGIN_LEGACY_FFI="{- for systems including the Legacy FFI";
-  END_LEGACY_FFI="-}";
-  BEGIN_NEW_FFI=;
-  END_NEW_FFI=;
-  BEGIN_NHC="{- NHC does some things differently...";
-  END_NHC="-}";
-  BEGIN_NOT_NHC=;
-  END_NOT_NHC=;
-
 else
   AC_MSG_ERROR([Using an external c2hs is not supported in this release,
 		though hopefully this feature will return in the next release.
@@ -726,22 +715,13 @@ AC_SUBST(HADDOCK)
 AC_SUBST(GHC_DOCDIR)
 dnl The c2hs part.
 AC_SUBST(CPP)
-AC_SUBST(LEGACY_FFI)
-AC_SUBST(BEGIN_LEGACY_FFI)
-AC_SUBST(END_LEGACY_FFI)
-AC_SUBST(BEGIN_NEW_FFI)
-AC_SUBST(END_NEW_FFI)
-AC_SUBST(BEGIN_NHC)
-AC_SUBST(END_NHC)
-AC_SUBST(BEGIN_NOT_NHC)
-AC_SUBST(END_NOT_NHC)
 
 dnl write the results...
 AC_CONFIG_FILES([
   Makefile
 ])
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
@@ -779,8 +759,9 @@ AC_OUTPUT([
   cairo/cairo.pkg
   cairo/cairo.package.conf
   cairo/cairo.cabal
-  ],
-  [chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh])
+  ])
+AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
+AC_OUTPUT
 
 dnl ...and chat with the user
 echo "**************************************************"
