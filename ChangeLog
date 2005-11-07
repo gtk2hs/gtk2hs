@@ -8,6 +8,8 @@
 	GC attributes as null when they are Nothing as this causes an X11
 	'BadPixmap' error.
 
+	* TODO: remove some completed and old todo items.
+
 2005-11-06 Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac, gtk/gtk.pkg: Make compile with ghc 6.2 (no cabal)

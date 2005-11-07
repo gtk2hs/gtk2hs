@@ -1,9 +1,5 @@
 TODO for gtk2hs
 
-12/10/2005 Duncan Coutts <duncan@coutts.uklinux.net>
-
-	* export all the enums used in the Event, ie Button & Click
-
 15/9/2005 Duncan Coutts <duncan@coutts.uklinux.net>
 	
 	* Make the stdin/stdout/stderr not cause errors on win32 when not
@@ -53,13 +49,10 @@ TODO for gtk2hs
 12/3/2005  Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib timeouts and idle handlers:
-	move them to glib package but re-export from gtk package
 	make a newtype for priorities and add more of them
 	make the IO Bool arg be the last arg so you can say:
 	idleAdd priorityDefault $ do
 	  ...
-
-	add new menu toolbar API
 
 8/12/2004  Duncan Coutts <duncan@coutts.uklinux.net>
 
@@ -67,10 +60,6 @@ TODO for gtk2hs
 	.hs file still exists. Otherwise the build can stick and you have to
 	delete the .hs file to unstick it. Each .chs file should depend on the
 	.hs file and (or perhaps instead of) the .chi file.
-
-24/10/2004 Axel Simon <A.Simon@kent.ac.uk>
-	* Hierarchy.chs: c2hs 0.13.1 produces a with<Object> functions for
-	every newtype definition. Import withForeignPtr for this.
 
 28/07/2004  Duncan Coutts <duncan@coutts.uklinux.net>
 
