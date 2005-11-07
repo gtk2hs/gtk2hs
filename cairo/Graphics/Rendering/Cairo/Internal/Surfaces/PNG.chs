@@ -2,7 +2,7 @@
 -- |
 -- Module      :  Graphics.Rendering.Cairo.Internal.Surfaces.PNG
 -- Copyright   :  (c) Paolo Martini 2005
--- License     :  BSD-style (see doc/COPYRIGHT)
+-- License     :  BSD-style (see cairo/COPYRIGHT)
 --
 -- Maintainer  :  p.martini@neuralnoise.com
 -- Stability   :  experimental

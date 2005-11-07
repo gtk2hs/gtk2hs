@@ -29,6 +29,9 @@
 
 	* Makefile.am: add cairo/COPYRIGHT to EXTRA_DIST
 
+	* cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs: correct
+	location of COPYRIGHT file.
+
 2005-11-06 Axel Simon <A.Simon@kent.ac.uk>
 
 	* configure.ac, gtk/gtk.pkg: Make compile with ghc 6.2 (no cabal)
