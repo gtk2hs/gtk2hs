@@ -6,7 +6,7 @@
 --
 --  Created: 2 May 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2005/11/06 20:46:10 $
+--  Version $Revision: 1.15 $ from $Date: 2005/11/07 09:48:24 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -650,9 +650,12 @@ fileSelectionGetButtons fsel =
 -- | Retrieves the 'Drawable' part.
 --
 drawingAreaGetDrawWindow :: DrawingArea -> IO DrawWindow
-drawingAreaGetDrawWindow da = makeNewGObject mkDrawWindow $
-  withForeignPtr (unDrawingArea da) $ 
-  \da' -> liftM castPtr $ #{peek GtkWidget, window} da'
+drawingAreaGetDrawWindow da =
+  withForeignPtr (unDrawingArea da) $ \da' -> do
+  drawWindowPtr <- #{peek GtkWidget, window} da'
+  if drawWindowPtr == nullPtr
+    then fail "drawingAreaGetDrawWindow: no DrawWindow available (the DrawingArea is probably not realized)"
+    else makeNewGObject mkDrawWindow (return $ castPtr drawWindowPtr)
 
 -- | Returns the current size.
 --
