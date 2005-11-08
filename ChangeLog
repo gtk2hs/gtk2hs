@@ -3,6 +3,9 @@
 	* sourceview/sourceview.pkg.in: probable fix for the problem of
 	building the sourceview demo using -fvia-C with ghc 6.2 or earlier.
 
+	* Makefile.am: make it easier to use extra flags when building haddock
+	docs. Also add a "dist-docs" target for building a docs tarball.
+
 2005-11-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/Structs.hsc: deal with the case that

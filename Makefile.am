@@ -1221,12 +1221,18 @@ $(html_DATA) : $(html_HSFILES)
 		--title="Gtk2Hs" \
 		--dump-interface=docs/reference/gtk2hs.haddock \
 		--prologue=docs/prologue.txt \
-		$^)
+		$(HADDOCK_FLAGS) $^)
 
 .hs.hs.uncpp : $(CONFIG_HEADER)
 	$(HSCPP) -I. $< -o $@
 
 CLEANFILES += $(html_DATA) $(html_HSFILES_PREPROC:.hs=.hs.uncpp)
+
+docdistdir = $(PACKAGE)-docs-$(VERSION)
+dist-docs : $(html_DATA)
+	ln -s docs/reference $(docdistdir)
+	$(AMTAR) -c $(docdistdir) -hzf $(docdistdir).tar.gz
+	rm $(docdistdir)
 
 endif #BUILDDOCS
 
