@@ -1,3 +1,8 @@
+2005-11-08 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* sourceview/sourceview.pkg.in: probable fix for the problem of
+	building the sourceview demo using -fvia-C with ghc 6.2 or earlier.
+
 2005-11-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/Structs.hsc: deal with the case that
