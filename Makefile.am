@@ -47,6 +47,9 @@ endif
 if ENABLE_MOZEMBED
 pkglib_LIBRARIES += libHSmozembed.a
 endif
+if ENABLE_GTKGLEXT
+pkglib_LIBRARIES += libHSgtkglext.a
+endif
 
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
@@ -1179,6 +1182,102 @@ endif
 endif #ENABLE_CAIRO
 
 #
+#	gtkglext package
+#
+################################################################################
+
+if ENABLE_GTKGLEXT
+
+gtkglext_PKGNAME = libHSgtkglext_a
+
+libHSgtkglext_a_PACKAGE		= gtkglext/gtkglext.$(PKGEXT)
+libHSgtkglext_a_PACKAGEDEPS	= 
+libHSgtkglext_a_HEADER 		= gtk/gtkgl.h
+libHSgtkglext_a_PRECOMP		= gtkglext/gtkglext.precomp
+libHSgtkglext_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(GTKGLEXT_LIBS)
+libHSgtkglext_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
+libHSgtkglext_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GTKGLEXT_CFLAGS))
+libHSgtkglext_a_CPPFLAGS	= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GTKGLEXT_CFLAGS))
+
+libHSgtkglext_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gtkglext
+gtkglext/libHSgtkglext_a.deps	: gtk/libHSgtk_a.deps
+
+libHSgtkglext_a_GENERATEDSOURCES =					\
+	gtkglext/Graphics/UI/Gtk/OpenGL/Types.chs
+
+nodist_libHSgtkglext_a_SOURCES = $(libHSgtkglext_a_GENERATEDSOURCES)
+
+libHSgtkglext_a_SOURCES =						\
+	gtkglext/Graphics/UI/Gtk/OpenGL.hs				\
+	gtkglext/Graphics/UI/Gtk/OpenGL/Config.chs			\
+	gtkglext/Graphics/UI/Gtk/OpenGL/Context.chs			\
+	gtkglext/Graphics/UI/Gtk/OpenGL/Drawable.chs			\
+	gtkglext/Graphics/UI/Gtk/OpenGL/Pixmap.chs			\
+	gtkglext/Graphics/UI/Gtk/OpenGL/Window.chs			\
+	gtkglext/Graphics/UI/Gtk/OpenGL/General.chs			\
+	gtkglext/Graphics/UI/Gtk/OpenGL/DrawingArea.chs
+
+html_HSFILES_HIDDEN += $(libHSgtkglext_a_GENERATEDSOURCES:.chs=.hs)
+
+gtkglext_Graphics_UI_Gtk_OpenGL_Types_hs_HCFLAGS	= -fglasgow-exts
+
+gtkglext/Graphics/UI/Gtk/OpenGL/Types.chs :	\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+	$@ --tag=gtkglext --parentname=Graphics.UI.Gtk.Types \
+        --modname=Graphics.UI.Gtk.OpenGL.Types)
+
+libHSgtkglext_a_ALLSOURCES = $(libHSgtkglext_a_SOURCES) $(nodist_libHSgtkglext_a_SOURCES)
+
+am_libHSgtkglext_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtkglext_a_ALLSOURCES))))
+
+libHSgtkglext_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtkglext_a_ALLSOURCES))
+libHSgtkglext_a_CHSFILES = \
+  $(filter %.chs,$(libHSgtkglext_a_ALLSOURCES:.chs.pp=.chs))
+libHSgtkglext_a_CHSFILES_HS = $(libHSgtkglext_a_CHSFILES:.chs=.hs)
+libHSgtkglext_a_HSCFILES = $(filter %.hsc, $(libHSgtkglext_a_ALLSOURCES))
+libHSgtkglext_a_HSCFILES_HS = $(libHSgtkglext_a_HSCFILES:.hsc=.hs)
+libHSgtkglext_a_BUILDSOURCES = \
+	$(libHSgtkglext_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSgtkglext_a_CHSFILES_HS) \
+        $(libHSgtkglext_a_HSCFILES_HS) \
+        $(libHSgtkglext_a_GENERATEDSOURCES)
+libHSgtkglext_a_HSFILES  = \
+	$(filter %.hs,$(libHSgtkglext_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSgtkglext_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHSgtkglext_a_HSFILES:.hs=.hi)
+
+MOSTLYCLEANFILES += $(am_libHSgtkglext_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSgtkglext_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += $(libHSgtkglext_a_CHSFILES:.chs=.chi)
+CLEANFILES += $(libHSgtkglext_a_BUILDSOURCES) 
+
+CLEANFILES+= gtkglext/libHSgtkglext_a.deps $(libHSgtkglext_a_CHSFILES_HS:.hs=.dep)
+
+$(libHSgtkglext_a_CHSFILES:.chs=.dep) :	\
+	$(libHSgtk_a_GENERATEDSOURCES)		\
+	$(libHSgtkglext_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include $(libHSgtkglext_a_CHSFILES:.chs=.dep) gtkglext/libHSgtkglext_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSgtkglext_a_HCFLAGS += -split-objs
+libHSgtkglext_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSgtkglext_a_AR = $(AR) $(ARFLAGS)
+endif
+
+endif #ENABLE_GTKGLEXT
+
+#
 #	documentation
 #
 ################################################################################
@@ -1268,6 +1367,9 @@ DEMOS += demo/sourceview
 endif
 if ENABLE_MOZEMBED
 DEMOS += demo/mozembed
+endif
+if ENABLE_GTKGLEXT
+DEMOS += demo/opengl
 endif
 
 # For the install check just make sure all the demo programs compile and link

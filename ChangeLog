@@ -1,3 +1,26 @@
+2005-11-09 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtkglext/Graphics/UI/Gtk/OpenGL.hs,
+	gtkglext/Graphics/UI/Gtk/OpenGL/Config.chs,
+	gtkglext/Graphics/UI/Gtk/OpenGL/General.chs,
+	gtkglext/Graphics/UI/Gtk/OpenGL/Context.chs,
+	gtkglext/Graphics/UI/Gtk/OpenGL/Pixmap.chs,
+	gtkglext/Graphics/UI/Gtk/OpenGL/Drawable.chs,
+	gtkglext/Graphics/UI/Gtk/OpenGL/DrawingArea.chs,
+	gtkglext/Graphics/UI/Gtk/OpenGL/Window.chs: new gtkglext package, the
+	Gtk+ OpenGL extension.
+
+	* demo/opengl/RotatingCube.hs, demo/opengl/Makefile: add OpenGL demo.
+
+	* gtkglext/gtkglext.cabal.in, gtkglext/gtkglext.pkg.in,
+	gtkglext/gtkglext.package.conf.in: new build files for the gtkglext
+	package.
+
+	* tools/hierarchyGen/hierarchy.list: add extra GL classes.
+
+	* configure.ac, Makefile.am: add build system support for the new
+	gtkglext package.
+
 2005-11-08 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/sourceview.pkg.in: probable fix for the problem of

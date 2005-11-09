@@ -22,6 +22,8 @@
 #            GdkDrawableImplX11
 #                GdkWindowImplX11
             GdkPixmap
+            GdkGLPixmap		if gtkglext
+            GdkGLWindow		if gtkglext
         GdkColormap
 	GdkScreen		if gtk-2.2
 	GdkDisplay		if gtk-2.2
@@ -205,3 +207,8 @@
 	PangoFontset		as FontSet, pango_fontset_get_type
 ## This type is only available for PANGO_ENABLE_BACKEND compiled source
 ##	    PangoFontsetSimple	as FontSetSimple, pango_fontset_simple_get_type
+
+## GtkGlExt classes
+	GdkGLContext		if gtkglext
+	GdkGLConfig		if gtkglext
+	GdkGLDrawable		if gtkglext

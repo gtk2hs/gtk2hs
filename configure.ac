@@ -293,6 +293,10 @@ GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0],
 	[build bindings for the cairo vector graphics system (default=auto)],
 	[cairo requirement not met. Perhaps you need to install cairo or cairo-devel])
 
+GTKHS_PKG_CHECK(opengl, gtkglext, GTKGLEXT, [gtkglext-1.0 >= 1.0.5],
+ 	[build bindings for the Gtk OpenGL extension (default=auto)],
+ 	[GtkGLExt library requirement not met. Perhaps you need to install gtkglext or gtkglext-devel])
+
 
 dnl The following is a hack to fix the fact that
 dnl "pkg-config --libs mozilla-gtkmozembed" does not always give us all the
@@ -418,6 +422,9 @@ GTKHS_PACKAGE_FILTER_LIBS([MOZEMBED_LIBS], [$GLIB_LIBS $GTK_LIBS], [$MOZEMBED_LI
 GTKHS_PACKAGE_FILTER_CFLAGS([CAIRO_CFLAGS], [], [$CAIRO_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([CAIRO_LIBS], [], [$CAIRO_LIBS])
 
+GTKHS_PACKAGE_FILTER_CFLAGS([GTKGLEXT_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$GTKGLEXT_CFLAGS])
+GTKHS_PACKAGE_FILTER_LIBS([GTKGLEXT_LIBS], [$GLIB_LIBS $GTK_LIBS], [$GTKGLEXT_LIBS])
+
 
 dnl Change the representation of these flags to "flag1","flag2". The
 dnl letters CQ stand for Comma, Quote.
@@ -475,6 +482,13 @@ AC_SUBST(CAIRO_CFLAGS_CQ)
 AC_SUBST(CAIRO_LIBS_CQ)
 AC_SUBST(CAIRO_LIBDIR_CQ)
 AC_SUBST(CAIRO_LIBEXTRA_CQ)
+
+GTKHS_REFORMAT_PACKAGE_CFLAGS(GTKGLEXT_CFLAGS, GTKGLEXT_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(GTKGLEXT_LIBS, GTKGLEXT_LIBS_CQ, GTKGLEXT_LIBDIR_CQ, GTKGLEXT_LIBEXTRA_CQ)
+AC_SUBST(GTKGLEXT_CFLAGS_CQ)
+AC_SUBST(GTKGLEXT_LIBS_CQ)
+AC_SUBST(GTKGLEXT_LIBDIR_CQ)
+AC_SUBST(GTKGLEXT_LIBEXTRA_CQ)
 
 
 AC_ARG_WITH(hidir,
@@ -759,6 +773,10 @@ AC_CONFIG_FILES([
   cairo/cairo.pkg
   cairo/cairo.package.conf
   cairo/cairo.cabal
+
+  gtkglext/gtkglext.pkg
+  gtkglext/gtkglext.package.conf
+  gtkglext/gtkglext.cabal
   ])
 AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
 AC_OUTPUT

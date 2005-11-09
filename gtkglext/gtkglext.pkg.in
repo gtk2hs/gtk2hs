@@ -1,0 +1,15 @@
+Package {
+     name            = "gtkglext",
+     @GHCPKG_USE_AUTOLIBS@
+     import_dirs     = ["@hidir@/gtkglext"],
+     source_dirs     = [],
+     library_dirs    = [@GTKGLEXT_LIBDIR_CQ@],
+     hs_libraries    = ["HSgtkglext"],
+     extra_libraries = [@GTKGLEXT_LIBS_CQ@],
+     include_dirs    = [@GTKGLEXT_CFLAGS_CQ@],
+     c_includes      = [gtk/gtkgl.h],
+     package_deps    = ["gtk"],
+     extra_ghc_opts  = [],
+     extra_cc_opts   = [],
+     extra_ld_opts   = [@GTKGLEXT_LIBEXTRA_CQ@]
+}
