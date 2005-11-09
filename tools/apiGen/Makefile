@@ -127,6 +127,11 @@ gnomedb_dir = gnomedb
 gnomedb_tar = libgnomedb-$(gnomedb_version).tar.bz2
 gnomedb_url = $(call gnome_db_url,libgnomedb)/$(gnomedb_tar)
 
+gtkglext_version = 1.0.6
+gtkglext_dir = gtkglext
+gtkglext_tar = gtkglext-$(gtkglext_version).tar.bz2
+gtkglext_url = http://heanet.dl.sourceforge.net/sourceforge/gtkglext/$(gtkglext_tar)
+
 
 #following fixes borrowed from Gtk#
 gtk-post-download-hook = \
@@ -323,6 +328,31 @@ gtkhtml3_excludeapi = $(gtkhtml2_excludeapi)
 
 
 ########################
+#
+#       gtkglext modules
+#
+#
+
+gtkglext_docs_dirs   = gtkglext/docs/reference/gtkglext/xml
+gtkglext_includeapi  = gdkglext-api.xml gtk-api.xml gdk-api.xml pango-api.xml \
+                       gobject-api.xml glib-api.xml
+gtkglext_excludeapi  = gtk.ignore
+gtkglext_prefix      = gtk
+gtkglext_modprefix   = Graphics.UI.Gtk.OpenGL
+gtkglext_scanmodules = gtkglext/Graphics/UI/Gtk/OpenGL
+gtkglext-modules : gtkglext-docs.xml
+
+#gdkglext_docs_dirs   = gtkglext/docs/reference/gtkglext/xml
+gdkglext_includeapi  = gdk-api.xml pango-api.xml \
+                       gobject-api.xml glib-api.xml
+gdkglext_excludeapi  = gtk.ignore
+gdkglext_prefix      = gdk
+gdkglext_modprefix   = Graphics.UI.Gtk.Gdk.OpenGL
+gdkglext_scanmodules = gtkglext/Graphics/UI/Gtk/Gdk/OpenGL
+gdkglext-modules : gdkglext-docs.xml
+
+
+#######################
 #
 #       Dock widget from libegg
 #

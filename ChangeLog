@@ -31,6 +31,9 @@
 
 	* configure.ac: bump version to 0.9.10.1 to help track recent changes.
 
+	* tools/apiGen/Makefile: add the gtkglext package to the apiGen
+	system.
+
 2005-11-08 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/sourceview.pkg.in: probable fix for the problem of
