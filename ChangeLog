@@ -29,6 +29,8 @@
 
 	* docs/tutorial/Makefile: fix the base-url once and for all.
 
+	* configure.ac: bump version to 0.9.10.1 to help track recent changes.
+
 2005-11-08 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/sourceview.pkg.in: probable fix for the problem of
