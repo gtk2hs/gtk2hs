@@ -34,6 +34,9 @@
 	* tools/apiGen/Makefile: add the gtkglext package to the apiGen
 	system.
 
+	* tools/apiGen/Marshal.hs: use refGObject function for non-constructor
+	cases of marshaling GObject types.
+
 2005-11-08 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/sourceview.pkg.in: probable fix for the problem of
