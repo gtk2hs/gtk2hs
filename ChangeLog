@@ -21,6 +21,9 @@
 	* configure.ac, Makefile.am: add build system support for the new
 	gtkglext package.
 
+	* gtkglext/Graphics/UI/Gtk/OpenGL/Types.chs: remove file that was
+	accidentally added to cvs.
+
 2005-11-08 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/sourceview.pkg.in: probable fix for the problem of
