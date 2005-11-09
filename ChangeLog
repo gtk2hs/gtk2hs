@@ -27,6 +27,8 @@
 	* sourceview/sourceview.h, sourceview/sourceview.pkg.in,
 	sourceview/sourceview.package.conf.in: remove unnecessary include.
 
+	* docs/tutorial/Makefile: fix the base-url once and for all.
+
 2005-11-08 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* sourceview/sourceview.pkg.in: probable fix for the problem of

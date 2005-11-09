@@ -34,7 +34,7 @@ exports : $(hi-files)
 %.pdf : %.tex
 	pdflatex $<
 
-base-url = http://haskell.org/gtk2hs/docs/gtk2hs-docs-0.9.8/
+base-url = http://haskell.org/gtk2hs/docs/current/
 
 $(tools)/AddLinks : $(tools)/AddLinks.hs
 	$(HC) $< -o $@
