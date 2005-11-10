@@ -1,3 +1,8 @@
+2005-11-10 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/General/StockItems.hsc: fix inverted Gtk version
+	check for stockUnindent.
+
 2005-11-09 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtkglext/Graphics/UI/Gtk/OpenGL.hs,

@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/11/06 20:46:10 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/10 13:10:04 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -520,9 +520,9 @@ stockUndelete		= #{const_str GTK_STOCK_UNDELETE}
 stockUnderline		= #{const_str GTK_STOCK_UNDERLINE}
 stockUndo		= #{const_str GTK_STOCK_UNDO}
 #if GTK_CHECK_VERSION(2,4,0)
-stockUnindent		= stockMissingImage
-#else
 stockUnindent		= #{const_str GTK_STOCK_UNINDENT}
+#else
+stockUnindent		= stockMissingImage
 #endif
 stockYes		= #{const_str GTK_STOCK_YES}
 stockZoom100		= #{const_str GTK_STOCK_ZOOM_100}
