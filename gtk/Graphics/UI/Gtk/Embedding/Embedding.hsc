@@ -5,7 +5,7 @@
 --
 --  Created: 20 January 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/08 12:58:40 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/11 23:01:08 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -30,8 +30,10 @@
 --   fromIntegral to make it work, but it doesn't feel right.
 --
 module Graphics.UI.Gtk.Embedding.Embedding (
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
   socketHasPlug,
   NativeWindowId
+#endif
   ) where
 
 import Control.Exception
@@ -41,6 +43,7 @@ import Graphics.UI.Gtk.Types
 
 #include<gtk/gtk.h>
 
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 -- | The identifer of a window to be embedded.
 --
 type NativeWindowId = #type GdkNativeWindow
@@ -53,3 +56,4 @@ socketHasPlug socket = do
 	     #{peek GtkSocket, plug_window}
   return (plugPtr/=nullPtr)
 
+#endif

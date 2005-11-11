@@ -3,6 +3,40 @@
 	* demo/cairo/Drawing2.hs, demo/cairo/Makefile: new cairo demo thanks
 	to Johan Bockgård.
 
+	* glib/System/Glib/FFI.hs, glib/System/Glib/FFI.hs.pp,
+	mogul/Graphics/UI/Gtk/Mogul.hs, mogul/Graphics/UI/Gtk/Mogul.hs.pp,
+	mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs,
+	mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs.pp,
+	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs,
+	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs.pp: rename to .pp and remove
+	{-# OPTIONS -cpp #-} pragma and remove #include.
+
+	* gtk/Graphics/UI/Gtk/Embedding/Plug.chs,
+	gtk/Graphics/UI/Gtk/Embedding/Plug.chs.pp,
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs,
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs.pp: rename to .pp and
+	conditionally build the body of the modules if we are not building on
+	windows or we are using Gtk+ 2.8.
+
+	* gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc: conditionally build the
+	body of the module if we are not building on windows or we are using
+	Gtk+ 2.8.
+
+	* gtk/Graphics/UI/Gtk.hs: remove all conditional compilation. The
+	embedding modules are now re-exported unconditionally (though they may
+	export nothing).
+
+	* mk/common.mk: add rule for preprocessing .hs.pp to .hs
+
+	* Makefile.am: Rename various modules as above.	Add support for .hs.pp
+	files in the SOURCES lists. Move the embedding modules into
+	libHSgtk_a_SOURCES rather than including them in the list
+	conditionally. Remove the html_HSFILES_PREPROC variable and the .hs to
+	.hs.uncpp rule.
+
+	* configure.ac: build GtkPlug and GtkSocket on Win32 when using Gtk+
+	2.8 or later.
+
 2005-11-10 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/StockItems.hsc: fix inverted Gtk version

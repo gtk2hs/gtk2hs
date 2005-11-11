@@ -395,6 +395,11 @@ if test "$HAVE_GTK_VERSION_2_8" = "yes" -a "$ENABLE_CAIRO" = "yes"; then
   GTK_CAIRO_DEPEND_NO_CABAL=",\"cairo\"";
 fi
 
+dnl The GtkPlug/GtkSocket widgets have been ported to Win32 as of Gtk+ 2.8.0
+if test "$HAVE_GTK_VERSION_2_8" = "yes" -a "$WIN32" = "yes"; then
+  CREATE_TYPES="plugNsocket default"
+fi
+
 dnl The configuration program for GTK is kind of stupid in that it
 dnl lists directories which don't exist. ghc-pkg in ghc 5.04 or greater
 dnl does not like that, so we need to filter out non-existent directories.

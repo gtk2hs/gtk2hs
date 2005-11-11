@@ -115,6 +115,12 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	$(addprefix -include ,$(CONFIG_HEADER)) \
 	$< -o $@)
 
+.hs.pp.hs: $(CONFIG_HEADER)
+	$(strip $(HSCPP) $(AM_CPPFLAGS) \
+	$($(PKG)_CPPFLAGS) $($(PKG)_CFLAGS) \
+	$(addprefix -include ,$(CONFIG_HEADER)) \
+	$< -o $@)
+
 .hsc.hs: $(CONFIG_HEADER)
 	$(strip $(HSC2HS) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
         $(addprefix -L-optl,$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LIBS)) \

@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = 1.8 foreign no-dependencies
-SUFFIXES = .hs.uncpp .chs.pp .chs .hsc .deps .dep
+SUFFIXES = .hs.uncpp .hs.pp .chs.pp .chs .hsc .deps .dep
 MOSTLYCLEANFILES = */*.deps.bak tools/*/*.deps.bak
 CLEANFILES = */*.precomp
 DISTCLEANFILES =
@@ -247,7 +247,7 @@ libHSglib_a_SOURCESDIRS = glib
 
 libHSglib_a_SOURCES =	        		\
 	glib/System/Glib.hs			\
-	glib/System/Glib/FFI.hs			\
+	glib/System/Glib/FFI.hs.pp		\
 	glib/System/Glib/UTFString.hs		\
 	glib/System/Glib/Types.chs		\
 	glib/System/Glib/GType.chs		\
@@ -272,8 +272,6 @@ libHSglib_a_SOURCES += glib/System/Glib/hsgclosure.c
 glib_System_Glib_hsgclosure_c_CFLAGS = -Werror-implicit-function-declaration
 endif
 
-html_HSFILES_PREPROC = glib/System/Glib/FFI.hs
-
 glib_System_Glib_Types_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_GError_hs_HCFLAGS	= -fglasgow-exts
 glib_System_Glib_Attributes_hs_HCFLAGS	= -fglasgow-exts
@@ -290,6 +288,7 @@ endif
 am_libHSglib_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglib_a_SOURCES))))
 
+libHSglib_a_HSPPFILES  = $(filter %.hs.pp, $(libHSglib_a_SOURCES))
 libHSglib_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglib_a_SOURCES))
 libHSglib_a_CHSFILES = \
   $(filter %.chs,$(libHSglib_a_SOURCES:.chs.pp=.chs))
@@ -297,6 +296,7 @@ libHSglib_a_CHSFILES_HS = $(libHSglib_a_CHSFILES:.chs=.hs)
 libHSglib_a_HSCFILES    = $(filter %.hsc, $(libHSglib_a_SOURCES))
 libHSglib_a_HSCFILES_HS = $(libHSglib_a_HSCFILES:.hsc=.hs)
 libHSglib_a_BUILDSOURCES = \
+	$(libHSglib_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHSglib_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSglib_a_CHSFILES_HS) \
 	$(libHSglib_a_HSCFILES_HS)
@@ -383,6 +383,9 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Display/Label.chs.pp			\
 	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp			\
 	gtk/Graphics/UI/Gtk/Display/Statusbar.chs			\
+	gtk/Graphics/UI/Gtk/Embedding/Plug.chs.pp			\
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs.pp			\
+	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc			\
 	gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp			\
 	gtk/Graphics/UI/Gtk/Entry/Entry.chs.pp				\
 	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp		\
@@ -508,19 +511,6 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs                             \
         gtk/Graphics/UI/Gtk/Cairo.chs.pp
 
-if !WIN32
-libHSgtk_a_SOURCES +=							\
-	gtk/Graphics/UI/Gtk/Embedding/Plug.chs				\
-	gtk/Graphics/UI/Gtk/Embedding/Socket.chs			\
-	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
-endif
-
-EXTRA_libHSgtk_a_SOURCES =						\
-	gtk/Graphics/UI/Gtk/Embedding/Plug.chs				\
-	gtk/Graphics/UI/Gtk/Embedding/Socket.chs			\
-	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc
-
-html_HSFILES_PREPROC += gtk/Graphics/UI/Gtk.hs
 html_HSFILES_HIDDEN  =						\
 	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
 	gtk/Graphics/UI/Gtk/Signals.hs				\
@@ -594,6 +584,7 @@ libHSgtk_a_ALLSOURCES = $(libHSgtk_a_SOURCES) $(nodist_libHSgtk_a_SOURCES)
 am_libHSgtk_a_OBJECTS = \
   $(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtk_a_ALLSOURCES))))
 
+libHSgtk_a_HSPPFILES    = $(filter %.hs.pp, $(libHSgtk_a_ALLSOURCES))
 libHSgtk_a_CHSPPFILES   = $(filter %.chs.pp,$(libHSgtk_a_ALLSOURCES))
 libHSgtk_a_CHSFILES     = $(filter %.chs,$(libHSgtk_a_ALLSOURCES:.chs.pp=.chs))
 libHSgtk_a_CHSFILES_HS  = $(libHSgtk_a_CHSFILES:.chs=.hs)
@@ -601,6 +592,7 @@ libHSgtk_a_HSCFILES     = $(filter %.hsc, $(libHSgtk_a_ALLSOURCES))
 libHSgtk_a_HSCFILES_HS  = $(libHSgtk_a_HSCFILES:.hsc=.hs)
 
 libHSgtk_a_BUILDSOURCES = \
+	$(libHSgtk_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHSgtk_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgtk_a_CHSFILES_HS) \
 	$(libHSgtk_a_HSCFILES_HS) \
@@ -653,23 +645,22 @@ libHSmogul_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mogul
 mogul/libHSmogul_a.deps	: gtk/libHSgtk_a.deps
 
 libHSmogul_a_SOURCES =		\
-	mogul/Graphics/UI/Gtk/Mogul.hs			\
-	mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs	\
+	mogul/Graphics/UI/Gtk/Mogul.hs.pp		\
+	mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs.pp	\
 	mogul/Graphics/UI/Gtk/Mogul/MDialog.hs		\
-	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs	\
+	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs.pp	\
 	mogul/Graphics/UI/Gtk/Mogul/TreeList.hs		\
 	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs
-
-html_HSFILES_PREPROC += 	\
-	mogul/Graphics/UI/Gtk/Mogul.hs			\
-	mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs	\
-	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs
 
 am_libHSmogul_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmogul_a_SOURCES))))
 
-libHSmogul_a_HSFILES = $(libHSmogul_a_SOURCES)
-.PRECIOUS: $(libHSmogul_a_HSFILES:.hs=hi)
+libHSmogul_a_HSPPFILES    = $(filter %.hs.pp, $(libHSmogul_a_SOURCES))
+libHSmogul_a_BUILDSOURCES = \
+	$(libHSmogul_a_HSPPFILES:.hs.pp=.hs)
+libHSmogul_a_HSFILES  = \
+	$(filter %.hs,$(libHSmogul_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSmogul_a_ALLSOURCES))
 
 nobase_hi_DATA += $(libHSmogul_a_HSFILES:.hs=.hi)
 
@@ -737,6 +728,7 @@ libHSglade_a_ALLSOURCES = $(libHSglade_a_SOURCES) $(nodist_libHSglade_a_SOURCES)
 am_libHSglade_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSglade_a_ALLSOURCES))))
 
+libHSglade_a_HSPPFILES  = $(filter %.hs.pp, $(libHSglade_a_ALLSOURCES))
 libHSglade_a_CHSPPFILES = $(filter %.chs.pp,$(libHSglade_a_ALLSOURCES))
 libHSglade_a_CHSFILES = \
   $(filter %.chs,$(libHSglade_a_ALLSOURCES:.chs.pp=.chs))
@@ -744,6 +736,7 @@ libHSglade_a_CHSFILES_HS = $(libHSglade_a_CHSFILES:.chs=.hs)
 libHSglade_a_HSCFILES = $(filter %.hsc, $(libHSglade_a_ALLSOURCES))
 libHSglade_a_HSCFILES_HS = $(libHSglade_a_HSCFILES:.hsc=.hs)
 libHSglade_a_BUILDSOURCES = \
+	$(libHSglade_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHSglade_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSglade_a_CHSFILES_HS) \
         $(libHSglade_a_HSCFILES_HS) \
@@ -845,6 +838,7 @@ libHSgconf_a_ALLSOURCES = $(libHSgconf_a_SOURCES) $(nodist_libHSgconf_a_SOURCES)
 am_libHSgconf_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgconf_a_ALLSOURCES))))
 
+libHSgconf_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgconf_a_ALLSOURCES))
 libHSgconf_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgconf_a_ALLSOURCES))
 libHSgconf_a_CHSFILES = \
   $(filter %.chs,$(libHSgconf_a_ALLSOURCES:.chs.pp=.chs))
@@ -852,6 +846,7 @@ libHSgconf_a_CHSFILES_HS = $(libHSgconf_a_CHSFILES:.chs=.hs)
 libHSgconf_a_HSCFILES = $(filter %.hsc, $(libHSgconf_a_ALLSOURCES))
 libHSgconf_a_HSCFILES_HS = $(libHSgconf_a_HSCFILES:.hsc=.hs)
 libHSgconf_a_BUILDSOURCES = \
+	$(libHSgconf_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHSgconf_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgconf_a_CHSFILES_HS) \
         $(libHSgconf_a_HSCFILES_HS) \
@@ -948,6 +943,7 @@ libHSsourceview_a_ALLSOURCES = $(libHSsourceview_a_SOURCES) $(nodist_libHSsource
 am_libHSsourceview_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsourceview_a_ALLSOURCES))))
 
+libHSsourceview_a_HSPPFILES  = $(filter %.hs.pp, $(libHSsourceview_a_ALLSOURCES))
 libHSsourceview_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsourceview_a_ALLSOURCES))
 libHSsourceview_a_CHSFILES = \
   $(filter %.chs,$(libHSsourceview_a_ALLSOURCES:.chs.pp=.chs))
@@ -955,6 +951,7 @@ libHSsourceview_a_CHSFILES_HS = $(libHSsourceview_a_CHSFILES:.chs=.hs)
 libHSsourceview_a_HSCFILES = $(filter %.hsc, $(libHSsourceview_a_ALLSOURCES))
 libHSsourceview_a_HSCFILES_HS = $(libHSsourceview_a_HSCFILES:.hsc=.hs)
 libHSsourceview_a_BUILDSOURCES = \
+	$(libHSsourceview_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHSsourceview_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSsourceview_a_CHSFILES_HS) \
         $(libHSsourceview_a_HSCFILES_HS) \
@@ -1037,12 +1034,14 @@ libHSmozembed_a_ALLSOURCES = $(libHSmozembed_a_SOURCES) $(nodist_libHSmozembed_a
 am_libHSmozembed_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmozembed_a_ALLSOURCES))))
 
+libHSmozembed_a_HSPPFILES  = $(filter %.hs.pp, $(libHSmozembed_a_ALLSOURCES))
 libHSmozembed_a_CHSPPFILES = $(filter %.chs.pp,$(libHSmozembed_a_ALLSOURCES))
 libHSmozembed_a_CHSFILES = $(filter %.chs,$(libHSmozembed_a_ALLSOURCES:.chs.pp=.chs))
 libHSmozembed_a_CHSFILES_HS = $(libHSmozembed_a_CHSFILES:.chs=.hs)
 libHSmozembed_a_HSCFILES = $(filter %.hsc, $(libHSmozembed_a_ALLSOURCES))
 libHSmozembed_a_HSCFILES_HS = $(libHSmozembed_a_HSCFILES:.hsc=.hs)
 libHSmozembed_a_BUILDSOURCES = \
+	$(libHSmozembed_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHSmozembed_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSmozembed_a_CHSFILES_HS) \
         $(libHSmozembed_a_HSCFILES_HS) \
@@ -1144,6 +1143,7 @@ libHScairo_a_ALLSOURCES = $(libHScairo_a_SOURCES) $(nodist_libHScairo_a_SOURCES)
 am_libHScairo_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHScairo_a_ALLSOURCES))))
 
+libHScairo_a_HSPPFILES  = $(filter %.hs.pp, $(libHScairo_a_ALLSOURCES))
 libHScairo_a_CHSPPFILES = $(filter %.chs.pp,$(libHScairo_a_ALLSOURCES))
 libHScairo_a_CHSFILES = \
   $(filter %.chs,$(libHScairo_a_ALLSOURCES:.chs.pp=.chs))
@@ -1151,6 +1151,7 @@ libHScairo_a_CHSFILES_HS = $(libHScairo_a_CHSFILES:.chs=.hs)
 libHScairo_a_HSCFILES = $(filter %.hsc, $(libHScairo_a_ALLSOURCES))
 libHScairo_a_HSCFILES_HS = $(libHScairo_a_HSCFILES:.hsc=.hs)
 libHScairo_a_BUILDSOURCES = \
+	$(libHScairo_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHScairo_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHScairo_a_CHSFILES_HS) \
         $(libHScairo_a_HSCFILES_HS) \
@@ -1236,6 +1237,7 @@ libHSgtkglext_a_ALLSOURCES = $(libHSgtkglext_a_SOURCES) $(nodist_libHSgtkglext_a
 am_libHSgtkglext_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgtkglext_a_ALLSOURCES))))
 
+libHSgtkglext_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgtkglext_a_ALLSOURCES))
 libHSgtkglext_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgtkglext_a_ALLSOURCES))
 libHSgtkglext_a_CHSFILES = \
   $(filter %.chs,$(libHSgtkglext_a_ALLSOURCES:.chs.pp=.chs))
@@ -1243,6 +1245,7 @@ libHSgtkglext_a_CHSFILES_HS = $(libHSgtkglext_a_CHSFILES:.chs=.hs)
 libHSgtkglext_a_HSCFILES = $(filter %.hsc, $(libHSgtkglext_a_ALLSOURCES))
 libHSgtkglext_a_HSCFILES_HS = $(libHSgtkglext_a_HSCFILES:.hsc=.hs)
 libHSgtkglext_a_BUILDSOURCES = \
+	$(libHSgtkglext_a_HSPPFILES:.hs.pp=.hs) \
 	$(libHSgtkglext_a_CHSPPFILES:.chs.pp=.chs) \
 	$(libHSgtkglext_a_CHSFILES_HS) \
         $(libHSgtkglext_a_HSCFILES_HS) \
@@ -1291,9 +1294,8 @@ htmldir = $(datadir)/doc/gtk2hs/html
 
 PACKAGES = $(foreach PACKAGE,$(pkglib_LIBRARIES), $(patsubst libHS%.a,%,$(PACKAGE)))
 
-html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE) $(html_HSFILES_PREPROC),	\
-		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))	\
-		$(html_HSFILES_PREPROC:.hs=.hs.uncpp)
+html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE),	\
+		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))
 
 if HYPHENATED_DOCS
 DOCS_SEP =-
@@ -1322,10 +1324,7 @@ $(html_DATA) : $(html_HSFILES)
 		--prologue=docs/prologue.txt \
 		$(HADDOCK_FLAGS) $^)
 
-.hs.hs.uncpp : $(CONFIG_HEADER)
-	$(HSCPP) -I. $< -o $@
-
-CLEANFILES += $(html_DATA) $(html_HSFILES_PREPROC:.hs=.hs.uncpp)
+CLEANFILES += $(html_DATA)
 
 docdistdir = $(PACKAGE)-docs-$(VERSION)
 dist-docs : $(html_DATA)

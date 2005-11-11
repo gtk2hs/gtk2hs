@@ -1,4 +1,3 @@
-{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  The Monad GUI Library (Mogul): Retrieving a widget from the global store.
 --
@@ -6,7 +5,7 @@
 --
 --  Created: 4 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/20 23:54:00 $
+--  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:08 $
 --
 --  Copyright (C) 2001 Axel Simon
 --
@@ -24,8 +23,6 @@
 --
 -- Retrieve a widget by name from the global store.
 --
-#include <gtk2hs-config.h>
-
 module Graphics.UI.Gtk.Mogul.GetWidget (
   getMisc,
   getLabel,

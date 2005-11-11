@@ -1,4 +1,3 @@
-{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  The Monad GUI Library (Mogul): The all importing main file.
 --
@@ -6,7 +5,7 @@
 --
 --  Created: 3 June 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/20 23:54:01 $
+--  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:08 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -24,8 +23,6 @@
 --
 -- This module re-exports all unchanged Gtk and Mogul entities.
 --
-#include <gtk2hs-config.h>
-
 module Graphics.UI.Gtk.Mogul (
   module Graphics.UI.Gtk.Mogul.NewWidget,
   module Graphics.UI.Gtk.Mogul.GetWidget,

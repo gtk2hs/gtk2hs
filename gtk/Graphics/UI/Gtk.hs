@@ -1,4 +1,3 @@
-{-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK)
 --
@@ -6,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.22 $ from $Date: 2005/10/24 10:02:28 $
+--  Version $Revision: 1.23 $ from $Date: 2005/11/11 23:01:07 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -194,11 +193,9 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Abstract.Scrollbar,
   module Graphics.UI.Gtk.Abstract.Separator,
   module Graphics.UI.Gtk.Abstract.Widget,
-#ifndef WIN32
   -- * Cross-process embedding
   module Graphics.UI.Gtk.Embedding.Plug,
   module Graphics.UI.Gtk.Embedding.Socket,
-#endif
   -- * Non-widgets
   module System.Glib.Signals,
   module System.Glib.Attributes,
@@ -373,11 +370,9 @@ import Graphics.UI.Gtk.Abstract.Scale
 import Graphics.UI.Gtk.Abstract.Scrollbar
 import Graphics.UI.Gtk.Abstract.Separator
 import Graphics.UI.Gtk.Abstract.Widget
-#ifndef WIN32
 -- cross-process embedding
 import Graphics.UI.Gtk.Embedding.Plug
 import Graphics.UI.Gtk.Embedding.Socket
-#endif
 
 -- non widgets
 import System.Glib.Signals		(ConnectId, disconnect)

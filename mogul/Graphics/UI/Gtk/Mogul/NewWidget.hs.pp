@@ -1,11 +1,10 @@
-{-# OPTIONS -cpp #-}
 --  The Monad GUI Library (Mogul): Creation of new widgets.
 --
 --  Author : Axel Simon
 --
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/20 23:54:00 $
+--  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:08 $
 --
 --  Copyright (C) 2001 Axel Simon
 --
@@ -27,8 +26,6 @@
 --   soon as the widget is destroyed it is deleted from the store. If a given
 --   name is still available can be tested by the 'isValidName' function.
 --
-#include <gtk2hs-config.h>
-
 module Graphics.UI.Gtk.Mogul.NewWidget (
   newTextBuffer,
 --  newTextTag,

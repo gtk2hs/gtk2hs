@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:08 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -48,6 +48,7 @@ module Graphics.UI.Gtk.Embedding.Plug (
 -- |                                 +----Plug
 -- @
 
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 -- * Types
   Plug,
   PlugClass,
@@ -64,6 +65,7 @@ module Graphics.UI.Gtk.Embedding.Plug (
 -- * Signals
   onEmbedded,
   afterEmbedded,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -76,6 +78,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Embedding.Embedding (NativeWindowId)
 
 {# context lib="gtk" prefix="gtk" #}
+
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 
 --------------------
 -- Constructors
@@ -122,3 +126,5 @@ onEmbedded, afterEmbedded :: PlugClass self => self
  -> IO (ConnectId self)
 onEmbedded = connect_NONE__NONE "embedded" False
 afterEmbedded = connect_NONE__NONE "embedded" True
+
+#endif

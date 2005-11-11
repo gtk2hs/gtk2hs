@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:08 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -86,6 +86,7 @@ module Graphics.UI.Gtk.Embedding.Socket (
 -- |                     +----Socket
 -- @
 
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 -- * Types
   Socket,
   SocketClass,
@@ -106,6 +107,7 @@ module Graphics.UI.Gtk.Embedding.Socket (
   afterPlugAdded,
   onPlugRemoved,
   afterPlugRemoved,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -117,6 +119,8 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 import Graphics.UI.Gtk.Embedding.Embedding	(NativeWindowId, socketHasPlug)
 
 {# context lib="gtk" prefix="gtk" #}
+
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
 
 --------------------
 -- Constructors
@@ -186,3 +190,5 @@ onPlugRemoved, afterPlugRemoved :: SocketClass self => self
  -> IO (ConnectId self)
 onPlugRemoved = connect_NONE__NONE "plug-removed" False
 afterPlugRemoved = connect_NONE__NONE "plug-removed" True
+
+#endif

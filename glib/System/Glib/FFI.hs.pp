@@ -1,11 +1,10 @@
-{-# OPTIONS -cpp #-}
 --  GIMP Toolkit (GTK) FFI extras and version dependencies
 --
 --  Author : Axel Simon
 --
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/10/25 19:56:47 $
+--  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
