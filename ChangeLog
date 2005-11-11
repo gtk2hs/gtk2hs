@@ -37,6 +37,8 @@
 	* configure.ac: build GtkPlug and GtkSocket on Win32 when using Gtk+
 	2.8 or later.
 
+	* demo/opengl/RotatingCube.hs: minor changes to the OpenGL demo.
+
 2005-11-10 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/StockItems.hsc: fix inverted Gtk version

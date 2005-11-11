@@ -6,7 +6,7 @@ import qualified Graphics.UI.Gtk as Gtk
 import Graphics.UI.Gtk (AttrOp((:=)))
 import qualified Graphics.UI.Gtk.OpenGL as GtkGL
 
-import Graphics.Rendering.OpenGL.GL as GL
+import Graphics.Rendering.OpenGL as GL
 
 main :: IO ()
 main = do 
@@ -14,8 +14,7 @@ main = do
   
   -- Initialise the Gtk+ OpenGL extension
   -- (including reading various command line parameters)
-  args <- GtkGL.initGL
-  print args
+  GtkGL.initGL
 
   -- We need a OpenGL frame buffer configuration to be able to create other
   -- OpenGL objects.
@@ -62,18 +61,18 @@ main = do
   --
   window <- Gtk.windowNew
   Gtk.onDestroy window Gtk.mainQuit
-  Gtk.set window [ Gtk.containerBorderWidth Gtk.:= 8,
-                   Gtk.windowTitle Gtk.:= "Gtk2Hs + HOpenGL demo" ]
+  Gtk.set window [ Gtk.containerBorderWidth := 8,
+                   Gtk.windowTitle := "Gtk2Hs + HOpenGL demo" ]
 
   vbox <- Gtk.vBoxNew False 4
-  Gtk.set window [ Gtk.containerChild Gtk.:= vbox ]
+  Gtk.set window [ Gtk.containerChild := vbox ]
 
   label <- Gtk.labelNew (Just "Gtk2Hs using OpenGL via HOpenGL!")
   button <- Gtk.buttonNewWithLabel "Close"
   Gtk.onPressed button Gtk.mainQuit
-  Gtk.set vbox [ Gtk.containerChild Gtk.:= canvas,
-                 Gtk.containerChild Gtk.:= label,
-                 Gtk.containerChild Gtk.:= button ]
+  Gtk.set vbox [ Gtk.containerChild := canvas,
+                 Gtk.containerChild := label,
+                 Gtk.containerChild := button ]
 
   Gtk.widgetShowAll window
   Gtk.mainGUI
