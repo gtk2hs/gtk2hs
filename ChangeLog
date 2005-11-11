@@ -39,6 +39,8 @@
 
 	* demo/opengl/RotatingCube.hs: minor changes to the OpenGL demo.
 
+	* TODO: add item about cairo backends.
+
 2005-11-10 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/General/StockItems.hsc: fix inverted Gtk version

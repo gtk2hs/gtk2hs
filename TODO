@@ -1,5 +1,12 @@
 TODO for gtk2hs
 
+11/11/2005 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* add PDF & PS backends to cairo
+
+	* add _to/from_stream implementations of the png,ps,pdf backend
+	functions using native Handle operations System.IO.hPutBuf/hGetBuf.
+
 15/9/2005 Duncan Coutts <duncan@coutts.uklinux.net>
 	
 	* Make the stdin/stdout/stderr not cause errors on win32 when not
