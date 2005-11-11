@@ -1,11 +1,14 @@
 
-PROGS  = drawing starandring text
-SOURCES = Drawing.hs StarAndRing.hs Text.hs
+PROGS  = drawing drawing2 starandring text
+SOURCES = Drawing.hs Drawing2.hs StarAndRing.hs Text.hs
 PACKAGES = gtk cairo
 
 all : $(PROGS)
 
 drawing : Drawing.hs
+	$(HC_RULE)
+
+drawing2 : Drawing2.hs
 	$(HC_RULE)
 
 starandring : StarAndRing.hs
