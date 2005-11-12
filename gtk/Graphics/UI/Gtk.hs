@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.23 $ from $Date: 2005/11/11 23:01:07 $
+--  Version $Revision: 1.24 $ from $Date: 2005/11/12 15:10:38 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -102,6 +102,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.TreeList.CellRendererPixbuf,
   module Graphics.UI.Gtk.TreeList.CellRendererText,
   module Graphics.UI.Gtk.TreeList.CellRendererToggle,
+  module Graphics.UI.Gtk.TreeList.CellRendererProgress,
+  module Graphics.UI.Gtk.TreeList.CellRendererCombo,
   module Graphics.UI.Gtk.TreeList.ListStore,
   module Graphics.UI.Gtk.TreeList.TreeStore,
   -- * Menus, combo box, toolbar
@@ -277,6 +279,8 @@ import Graphics.UI.Gtk.TreeList.CellRenderer
 import Graphics.UI.Gtk.TreeList.CellRendererPixbuf
 import Graphics.UI.Gtk.TreeList.CellRendererText
 import Graphics.UI.Gtk.TreeList.CellRendererToggle
+import Graphics.UI.Gtk.TreeList.CellRendererProgress
+import Graphics.UI.Gtk.TreeList.CellRendererCombo
 import Graphics.UI.Gtk.TreeList.ListStore
 import Graphics.UI.Gtk.TreeList.TreeStore
 -- menus, combo box, toolbar

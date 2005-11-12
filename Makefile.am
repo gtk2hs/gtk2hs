@@ -469,6 +469,8 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererToggle.chs		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererCombo.chs.pp		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererProgress.chs.pp	\
 	gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeIter.chs.pp			\

@@ -168,6 +168,8 @@
 		GtkCellRendererText
 #		    GtkCellRendererTextPixbuf
 		GtkCellRendererToggle
+		GtkCellRendererProgress	if gtk-2.6
+		GtkCellRendererCombo	if gtk-2.6
 	    GtkFileFilter		if gtk-2.4
 # These are derived from GObject:
         GtkTreeSelection

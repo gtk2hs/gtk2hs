@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/12 15:10:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -57,7 +57,7 @@ module Graphics.UI.Gtk.TreeList.CellRendererPixbuf (
 
 -- * Constructors
   cellRendererPixbufNew,
---  cellPixbuf
+  cellPixbuf,
   ) where
 
 import Monad	(liftM)
@@ -87,10 +87,11 @@ cellRendererPixbufNew =
 --------------------
 -- Properties
 
--- | Define the attribute that specifies the
--- 'Pixbuf' to be rendered.
+-- FIXME: test if this code really works
+
+-- | Define the attribute that specifies the 'Pixbuf' to be rendered.
 --
---cellPixbuf :: Attribute CellRendererPixbuf Image
---cellPixbuf  = Attribute ["pixbuf"] [TMobject]
---  (liftM ((\x -> [x]) . GVobject . toGObject) . imageGetPixbuf)
---  (\[GVobject obj] -> imageNewFromPixbuf (fromGObject obj))
+cellPixbuf :: Attribute CellRendererPixbuf Pixbuf
+cellPixbuf  = Attribute ["pixbuf"] [TMobject]
+  (return .  (\x -> [x]) . GVobject . toGObject)
+  (\[GVobject obj] -> return (castToPixbuf obj))
