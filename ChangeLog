@@ -1,3 +1,19 @@
+2005-11-12 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs: implement
+	cellPixbuf attribute. Not properly tested yet.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRendererCombo.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererProgress.chs.pp: add new cell
+	renderers.
+
+	* tools/hierarchyGen/hierarchy.list: add GtkCellRendererProgress and
+	GtkCellRendererCombo classes.
+
+	* gtk/Graphics/UI/Gtk.hs: export the two new modules.
+
+	* Makefile.am: add the new files to the sources list.
+
 2005-11-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* demo/cairo/Drawing2.hs, demo/cairo/Makefile: new cairo demo thanks
