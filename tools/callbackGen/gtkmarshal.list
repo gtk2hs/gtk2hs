@@ -106,3 +106,6 @@ VOID:INT,BOOLEAN
 VOID:POINTER,STRING
 # This is for GtkMozEmbed
 BOOLEAN:STRING
+# This makes it possible to catch events on TextTags
+BOOLEAN:POINTER,BOXED,BOXED
+

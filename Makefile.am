@@ -655,6 +655,7 @@ libHSmogul_a_SOURCES =		\
 am_libHSmogul_a_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmogul_a_SOURCES))))
 
+libHSmogul_a_ALLSOURCES = $(libHSmogul_a_SOURCES)
 libHSmogul_a_HSPPFILES    = $(filter %.hs.pp, $(libHSmogul_a_SOURCES))
 libHSmogul_a_BUILDSOURCES = \
 	$(libHSmogul_a_HSPPFILES:.hs.pp=.hs)

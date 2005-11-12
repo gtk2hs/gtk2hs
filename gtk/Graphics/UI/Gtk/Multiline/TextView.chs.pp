@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/12 11:47:43 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -279,12 +279,15 @@ textViewScrollToMark self mark withinMargin align =
 -- possibly not scrolling at all. The effective screen for purposes of this
 -- function is reduced by a margin of size @withinMargin@.
 --
--- NOTE: This function
--- uses the currently-computed height of the lines in the text buffer. Note
--- that line heights are computed in an idle handler; so this function may not
--- have the desired effect if it's called before the height computations. To
--- avoid oddness, consider using 'textViewScrollToMark' which saves a point to
--- be scrolled to after line validation.
+-- * This function
+--   uses the currently-computed height of the lines in the text buffer. Note
+--   that line heights are computed in an idle handler; so this function may
+--   not
+--   have the desired effect if it's called before the height computations. To
+--   avoid oddness, consider using 'textViewScrollToMark' which saves a point
+--   to be scrolled to after line validation. This is particularly important
+--   if you add new text to the buffer and immediately ask the view to scroll
+--   to it (which it can't since it is not updated until the main loop runs).
 --
 textViewScrollToIter :: TextViewClass self => self
  -> TextIter -- ^ @iter@ - a 'TextIter'
@@ -292,7 +295,7 @@ textViewScrollToIter :: TextViewClass self => self
              -- size
  -> Maybe (Double, Double) -- ^ @Just (xalign, yalign)@ - horizontal and
              -- vertical alignment of mark within visible area (if @Nothing@,
-             -- scroll just enough to get the mark onscreen)
+             -- scroll just enough to get the iterator onscreen)
  -> IO Bool  -- ^ returns @True@ if scrolling occurred
 textViewScrollToIter self iter withinMargin align = 
   let (useAlign, xalign, yalign) = case align of

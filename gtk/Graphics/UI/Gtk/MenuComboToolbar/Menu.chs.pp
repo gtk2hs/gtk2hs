@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.13 $ from $Date: 2005/11/12 11:47:43 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -128,8 +128,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
-import Graphics.UI.Gtk.Gdk.Events as Events (Event(Button),
-					     eventTime, eventButton)
+import Graphics.UI.Gtk.Gdk.Events (MouseButton)
+import Data.Word ( Word32 )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -162,8 +162,22 @@ menuReorderChild self child position =
 
 -- | Popup a context menu where a button press occurred. 
 --
-menuPopup :: MenuClass self => self -> Event -> IO ()
-menuPopup self (Events.Button { eventTime=t, eventButton=b }) =
+-- * This function must be called in response to a button click. It opens
+--   the given menu at a place determined by the last emitted event (hence
+--   the requirement that this function is called as response to a button
+--   press signal).
+--
+menuPopup :: MenuClass self => self -- ^ The menu to be shown.
+  -> Maybe (MouseButton, Word32)
+  -- ^ The mouse button from the
+  -- 'Graphics.UI.Gtk.Gdk.Events.Button' event and
+  -- the time of the event.
+  -- These values are used to match the corresponding
+  -- relase of the button.
+  -- If this context menu is shown by
+  -- programmatic means, supply @Nothing@.
+  -> IO ()
+menuPopup self (Just (b,t)) =
   {# call menu_popup #}
     (toMenu self)
     (mkWidget nullForeignPtr)
@@ -172,7 +186,13 @@ menuPopup self (Events.Button { eventTime=t, eventButton=b }) =
     nullPtr
     ((fromIntegral . fromEnum) b)
     (fromIntegral t)
-menuPopup _ _ = error "menuPopup: Button event expected."
+menuPopup self Nothing = do
+  t <- {# call unsafe get_current_event_time #}
+  {# call menu_popup #}
+    (toMenu self)
+    (mkWidget nullForeignPtr)
+    (mkWidget nullForeignPtr)
+    nullFunPtr nullPtr 0 t
 
 -- | Set the 'AccelGroup' which holds global accelerators for the menu. This
 -- accelerator group needs to also be added to all windows that this menu is

@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.12 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.13 $ from $Date: 2005/11/12 11:47:43 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -104,6 +104,9 @@ module Graphics.UI.Gtk.Multiline.TextTag (
   textTagParagraphBackground,
 #endif
   textTagPriority,
+
+-- * Signals
+  onTextTagEvent
   ) where
 
 import Monad	(liftM)
@@ -116,6 +119,8 @@ import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Pango.Enums	(FontStyle, Variant, Stretch, Underline)
 import Graphics.UI.Gtk.General.Enums	(TextDirection, Justification, WrapMode)
+import Graphics.UI.Gtk.Multiline.TextIter ( TextIter, mkTextIterCopy )
+import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -126,12 +131,17 @@ type TagName = String
 
 -- | Creates a 'TextTag'.
 --
-textTagNew :: TagName -> IO TextTag
-textTagNew name =
+-- * Supplying @Nothing@ as tag name results in an anonymous tag.
+--
+textTagNew :: Maybe TagName -> IO TextTag
+textTagNew (Just name) =
   makeNewGObject mkTextTag $
   withCString name $ \namePtr ->
   {# call unsafe text_tag_new #}
     namePtr
+textTagNew Nothing =
+  makeNewGObject mkTextTag $ {# call unsafe text_tag_new #} nullPtr
+    
 
 --------------------
 -- Methods
@@ -453,3 +463,15 @@ textTagPriority :: TextTagClass self => Attr self Int
 textTagPriority = newAttr
   textTagGetPriority
   textTagSetPriority
+
+
+-- | An event has occurred that affects the given tag.
+--
+-- * Adding an event handler to the tag makes it possible to react on
+--   e.g. mouse clicks to implement hyperlinking.
+--
+onTextTagEvent :: TextTagClass t => t -> (Event -> TextIter -> IO ()) ->
+		  IO (ConnectId t)
+onTextTagEvent tt act =
+  connect_PTR_BOXED_BOXED__BOOL "event" marshalEvent mkTextIterCopy False tt
+    (\_ event iter -> act event iter >> return False)

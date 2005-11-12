@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.15 $ from $Date: 2005/11/12 11:47:43 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -789,7 +789,7 @@ treeViewSetReorderable self reorderable =
 --   coordinates @x@ and @y@ are relative to the top left
 --   corner of the 'TreeView' drawing window. As such, coordinates
 --   in a mouse click event can be used directly to determine the cell
---   which the user clicked on. This is therefore a way to realize for
+--   which the user clicked on. This function is useful to realize
 --   popup menus.
 --
 -- * The returned point is the input point relative to the cell's upper

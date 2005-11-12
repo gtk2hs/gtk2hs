@@ -212,17 +212,7 @@ import Control.Monad.Reader (ReaderT(..), runReaderT, ask, MonadIO, liftIO)
 import Control.Exception (bracket)
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
-import Graphics.Rendering.Cairo.Internal (Render(..), Matrix, Surface,
-					  Pattern, Status(..), Operator(..),
-					  Antialias(..), FillRule(..),
-					  LineCap(..), LineJoin(..),
-					  ScaledFont, FontFace, Glyph,
-					  TextExtents(..), FontExtents(..),
-					  FontSlant(..), FontWeight(..),
-					  SubpixelOrder(..), HintStyle(..),
-					  HintMetrics(..), FontOptions, Path,
-					  Content(..), Format(..), Extend(..),
-					  Filter(..))	  
+import Graphics.Rendering.Cairo.Internal (Render(..))	  
 
 liftRender0 :: (Cairo -> IO a) -> Render a
 liftRender0 f = ask >>= \context -> liftIO (f context)
