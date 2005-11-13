@@ -1,3 +1,8 @@
+2005-11-13 Axel Simon <A.Simon@kent.ac.uk>
+
+	* demo/cairo/CairoGhci.hs: Added this file so people can play with
+	Ciaro from within ghci.
+
 2005-11-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs: implement
@@ -13,6 +18,32 @@
 	* gtk/Graphics/UI/Gtk.hs: export the two new modules.
 
 	* Makefile.am: add the new files to the sources list.
+
+2005-11-12 Axel Simon <A.Simon@kent.ac.uk>
+
+	* Makefile.am: Corrected missing var definition that resulted in
+	generating insufficient dependencies for the mogul package.
+
+	* cairo/Graphics/Rendering/Cairo.hs: Remove imports that are
+	already available through the type module.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/Menu.chs.pp: Make the
+	pop-up menu function easier to use. Add more documentation.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp: Make the
+	constructor more generic, so it also takes a SourceTagTable for
+	the sourceview widget.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp,
+	tools/callbackGen/gtkmarshal.list: Add the onTextTagEvent. Don't
+	know if this is really useful.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextView.chs.pp: I got very
+	confused as to why the scroll function doesn't work as expected. 
+	Expand comment to reflect my misery.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp: Correct bad
+	English in comment.
 
 2005-11-11 Duncan Coutts <duncan@coutts.uklinux.net>
 
