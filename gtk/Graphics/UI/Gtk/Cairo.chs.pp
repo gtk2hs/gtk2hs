@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.11 $ from $Date: 2005/10/30 11:55:28 $
+--  Version $Revision: 1.12 $ from $Date: 2005/11/14 00:41:38 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -160,8 +160,8 @@ cairoFontMapNew =
 --
 -- * Value is in dots per inch (dpi). See 'cairoFontMapNew'.
 --
-cairoFontMapSetResolution :: Double -> FontMap -> IO ()
-cairoFontMapSetResolution dpi (FontMap fm) =
+cairoFontMapSetResolution :: FontMap -> Double -> IO ()
+cairoFontMapSetResolution (FontMap fm) dpi =
   withForeignPtr fm $ \fmPtr ->
   {#call unsafe pango_cairo_font_map_set_resolution#}
     (castPtr fmPtr) (realToFrac dpi)

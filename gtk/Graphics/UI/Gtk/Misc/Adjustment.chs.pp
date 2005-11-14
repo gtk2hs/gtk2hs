@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/14 00:41:39 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -74,6 +74,8 @@ module Graphics.UI.Gtk.Misc.Adjustment (
   adjustmentSetValue,
   adjustmentGetValue,
   adjustmentClampPage,
+  adjustmentAdjChanged,
+  adjustmentValueChanged,
 
 -- * Attributes
 #if GTK_CHECK_VERSION(2,4,0)
@@ -213,6 +215,19 @@ adjustmentClampPage self lower upper =
     self
     (realToFrac lower)
     (realToFrac upper)
+
+-- | Emit the 'onAdjChanged' signal.
+--
+adjustmentAdjChanged :: Adjustment -> IO ()
+adjustmentAdjChanged = {#call adjustment_changed#}
+
+-- | Emit the 'onValueChanged' signal.
+--
+-- * When adjusting the or bounds, this function can be called to enforce a
+--   visual update of the containing widget.
+--
+adjustmentValueChanged :: Adjustment -> IO ()
+adjustmentValueChanged = {#call adjustment_value_changed#}
 
 --------------------
 -- Attributes

@@ -1,5 +1,12 @@
 2005-11-13 Axel Simon <A.Simon@kent.ac.uk>
 
+	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: Flip arguments of
+	cairoFontMapSetResolution to make it consistent.
+
+	* gtk/Graphics/UI/Gtk/Misc/Adjustment.chs.pp: Added
+	signal-emitting functions that seem to be necessary to force the
+	Adjustment to update.
+	
 	* demo/cairo/CairoGhci.hs: Added this file so people can play with
 	Ciaro from within ghci.
 
