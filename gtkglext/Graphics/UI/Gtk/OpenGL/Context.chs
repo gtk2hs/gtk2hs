@@ -5,7 +5,7 @@
 --
 --  Created: 9 June 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/11/09 13:40:29 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/16 13:21:07 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -74,9 +74,9 @@ instance Enum GLRenderType where
 --
 glContextNew :: GLDrawableClass gldrawable => 
     gldrawable       -- ^ @gldrawable@ - a 'GLDrawable'.
- -> Maybe GLContext  -- ^ @shareList@ - the 'Context' with which to share
-                     -- display lists and texture objects. A value of @Nothing@
-                     -- indicates that no sharing is to take place.
+ -> Maybe GLContext  -- ^ @shareList@ - the 'GLContext' with which to share
+                     -- display lists and texture objects. A value of
+		     -- @Nothing@ indicates that no sharing is to take place.
  -> Bool             -- ^ @direct@ - whether rendering is to be done with a
                      -- direct connection to the graphics system.
  -> GLRenderType     -- ^ @renderType@ - 'RGBAType' or 'ColorIndexType'
@@ -117,7 +117,7 @@ glContextGetGLDrawable self =
   {# call gdk_gl_context_get_gl_drawable #}
     (toGLContext self)
 
--- | Gets 'Config' with which the 'GLContext' is configured.
+-- | Gets the 'GLConfig' with which the 'GLContext' is configured.
 --
 glContextGetGLConfig :: GLContext -> IO GLConfig
 glContextGetGLConfig self =
@@ -125,8 +125,8 @@ glContextGetGLConfig self =
   {# call gdk_gl_context_get_gl_config #}
     (toGLContext self)
 
--- | Gets 'Context' with which the @glcontext@ shares the display lists and
--- texture objects.
+-- | Gets the other 'GLContext' with which the 'GLContext' shares the display
+-- lists and texture objects.
 --
 glContextGetShareList :: GLContext -> IO GLContext
 glContextGetShareList self =
@@ -142,10 +142,9 @@ glContextIsDirect self =
   {# call gdk_gl_context_is_direct #}
     (toGLContext self)
 
--- | Gets the 'RenderType' of the 'GLContext'.
+-- | Gets the 'GLRenderType' of the 'GLContext'.
 --
-glContextGetRenderType :: GLContext
- -> IO GLRenderType
+glContextGetRenderType :: GLContext -> IO GLRenderType
 glContextGetRenderType self =
   liftM (toEnum.fromIntegral) $
   {# call gdk_gl_context_get_render_type #}

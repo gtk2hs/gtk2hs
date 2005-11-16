@@ -5,7 +5,7 @@
 --
 --  Created: 9 June 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/11/09 13:40:29 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/16 13:21:07 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -126,10 +126,9 @@ glDrawableGLEnd self =
   {# call gdk_gl_drawable_gl_end #}
     (toGLDrawable self)
 
--- | Gets 'GLConfig' with which the @gldrawable@ is configured.
+-- | Gets 'GLConfig' with which the GL drawable is configured.
 --
-glDrawableGetGLConfig :: GLDrawableClass self => self
- -> IO GLConfig -- ^ returns the 'Config'.
+glDrawableGetGLConfig :: GLDrawableClass self => self -> IO GLConfig
 glDrawableGetGLConfig self =
   makeNewGObject mkGLConfig $
   {# call gdk_gl_drawable_get_gl_config #}
