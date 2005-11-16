@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/07/02 19:22:04 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/16 13:14:16 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -47,7 +47,7 @@ import System.Glib.Properties	(objectSetPropertyInternal,
 
 -- | A union with information about the currently stored type.
 --
--- * Internally used by 'TreeStore'.
+-- * Internally used by "Graphics.UI.Gtk.TreeList.TreeModel".
 --
 data GenericValue = GVuint    Word
 		  | GVint     Int

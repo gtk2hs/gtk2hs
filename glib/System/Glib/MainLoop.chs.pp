@@ -5,7 +5,7 @@
 --
 --  Created: 11 October 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/10/11 16:15:43 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/16 13:14:16 $
 --
 --  Copyright (C) 2000..2005 Axel Simon, Manuel M. T. Chakravarty, Duncan Coutts
 --
@@ -101,7 +101,7 @@ timeoutAddFull fun pri msec = do
     nullPtr
     dPtr
 
--- | Remove a previously added timeout handler by its 'TimeoutId'.
+-- | Remove a previously added timeout handler by its 'HandlerId'.
 --
 timeoutRemove :: HandlerId -> IO ()
 timeoutRemove id = {#call g_source_remove#} id >> return ()
@@ -119,7 +119,7 @@ idleAdd fun pri = do
   {#call unsafe g_idle_add_full#} (fromIntegral pri) funPtr
     nullPtr dPtr
 
--- | Remove a previously added idle handler by its 'TimeoutId'.
+-- | Remove a previously added idle handler by its 'HandlerId'.
 --
 idleRemove :: HandlerId -> IO ()
 idleRemove id = {#call g_source_remove#} id >> return ()

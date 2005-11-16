@@ -49,7 +49,7 @@
 --
 -- > set spinButton [ spinButtonValue :~ (+1) ]
 --
--- There are other variants of these operators, (see 'Prop'). ':=>' and
+-- There are other variants of these operators, (see 'AttrOp'). ':=>' and
 -- ':~>' and like ':=' and ':~' but operate in the 'IO' monad rather
 -- than being pure. There is also '::=' and '::~' which take the object
 -- as an extra parameter.

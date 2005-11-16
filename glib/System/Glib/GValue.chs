@@ -5,7 +5,7 @@
 --
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/04/19 02:04:08 $
+--  Version $Revision: 1.3 $ from $Date: 2005/11/16 13:14:16 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -26,7 +26,8 @@
 --
 -- This module implements only the necessities for the GTK binding.
 --
--- * Everything here is only used by 'TreeStore' and friends.
+-- * Everything here is only used by "Graphics.UI.Gtk.TreeList.TreeModel" and
+-- friends.
 --
 module System.Glib.GValue (
   GValue(GValue),

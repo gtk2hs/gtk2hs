@@ -5,7 +5,7 @@
 --
 --  Created: 2 July 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/08/29 21:14:35 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/16 13:14:16 $
 --
 --  Copyright (C) 2004 Duncan Coutts
 --  parts derived from Structs.hsc Copyright (c) 1999..2002 Axel Simon
@@ -48,15 +48,16 @@ module System.Glib.GError (
   -- the standard 'Control.Exception.catch' and 'Control.Exception.handle'
   -- functions.
   --
-  -- 'catchGError'\/'handleGError' catches all GError exceptions, you provide
+  -- 'catchGError' \/ 'handleGError' catches all GError exceptions, you provide
   -- a handler function that gets given the GError if an exception was thrown.
   -- This is the most general but is probably not what you want most of the
   -- time. It just gives you the raw error code rather than a Haskell
   -- enumeration of the error codes. Most of the time you will only want to
   -- catch a specific error or any error from a specific error domain. To
   -- catch just a single specific error use
-  -- 'catchGErrorJust'\/'handleGErrorJust'. To catch any error in a particular
-  -- error domain use 'catchGErrorJustDomain'\/'handleGErrorJustDomain'
+  -- 'catchGErrorJust' \/ 'handleGErrorJust'. To catch any error in a
+  -- particular error domain use 'catchGErrorJustDomain' \/
+  -- 'handleGErrorJustDomain'
   --
   catchGError,
   catchGErrorJust,
@@ -142,21 +143,22 @@ instance Storable GError where
 -- | Each error domain's error enumeration type should be an instance of this
 --   class. This class helps to hide the raw error and domain codes from the
 --   user. This interface should be implemented by calling the approrpiate
---   @{error_domain}_error_quark@. It is safe to use 'unsafePerformIO' for this.
+--   @{error_domain}_error_quark@. It is safe to use a pure FFI call for this.
 --
--- Example for 'PixbufError':
+-- Example for 'Graphics.UI.Gtk.Gdk.Pixbuf.PixbufError':
 --
 -- > instance GErrorClass PixbufError where
--- >   gerrorDomain _ = unsafePerformIO {#call unsafe pixbuf_error_quark#}
+-- >   gerrorDomain _ = {#call pure unsafe pixbuf_error_quark#}
 --
 class Enum err => GErrorClass err where
-  gerrorDomain :: err -> GErrorDomain -- ^ This must not use the value of its parameter
-                                      --   so that it is safe to pass 'undefined'.
+  gerrorDomain :: err -> GErrorDomain -- ^ This must not use the value of its
+                                      -- parameter so that it is safe to pass
+				      -- 'undefined'.
 
--- | Glib functions which report 'GError's take as a parameter a @GError **error@.
---   Use this function to supply such a parameter. It checks if an error was
---   reported and if so throws it as a Haskell exception.
---   
+-- | Glib functions which report 'GError's take as a parameter a @GError
+-- **error@. Use this function to supply such a parameter. It checks if an
+-- error was reported and if so throws it as a Haskell exception.
+--
 -- Example of use:
 --
 -- > propagateGError $ \gerrorPtr ->

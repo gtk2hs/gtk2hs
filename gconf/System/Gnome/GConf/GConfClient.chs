@@ -17,24 +17,22 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
--- |
+-- | GConf is a system for maintaining program configuration information.
 --
---  GConf is a system for maintaining program configuration information.
---  The main difference between GConf and traditional configuration file
---  API's is that GConf is 'live'. Applications can be
---  notified of changes in their configuration, it allows desktop wide setting
---  to be propogated without restarting all applications, or multiple instances
---  of a single application to synchronise their configuration. It is similar
---  in many ways to the Win32 Registry with its directory-like structure.
+-- The main difference between GConf and traditional configuration file
+-- API's is that GConf is \'live\'. Applications can be notified of changes
+-- in their configuration, it allows desktop wide setting
+-- to be propogated without restarting all applications, or multiple instances
+-- of a single application to synchronise their configuration. It is similar
+-- in many ways to the Win32 Registry with its directory-like structure.
 --
---  This module only binds the client library which is the only interface that
---  normal applications should need. Only special GConf apps need lower level
---  access.
+-- This module only binds the client library which is the only interface that
+-- normal applications should need. Only special GConf apps need lower level
+-- access.
 --
 --  * Some low level functions have not been bound
 --  eg @gconf_client_get_for_engine@
 --
-
 module System.Gnome.GConf.GConfClient (
 
   -- * Data types
@@ -329,8 +327,8 @@ gconfGetDefaultFromSchema gc key = do
   marshalFromGConfValue (GConfValue value)
 
 -- | Unsets the value of key; if key is already unset, has no effect. An error
--- of note is 'GConfOverridden', indicating that the system administrator has
--- \"forced\" a value for this key.
+-- of note is 'GconfErrorOverridden', indicating that the system administrator
+-- has \"forced\" a value for this key.
 --
 gconfUnset :: GConf -> String -> IO ()
 gconfUnset gc key =

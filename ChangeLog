@@ -6,6 +6,14 @@
 	* mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs.pp: remove lookup for
 	GammaCurve.
 
+	* glib/System/Glib/Attributes.hs, glib/System/Glib/GError.chs.pp,
+	glib/System/Glib/GValue.chs, glib/System/Glib/MainLoop.chs.pp,
+	glib/System/Glib/StoreValue.hsc: minor haddock markup and
+	cross-reference fixes.
+
+	* gconf/System/Gnome/GConf/GConfClient.chs: minor haddock markup and
+	cross-reference fixes.
+
 2005-11-13 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: Flip arguments of
