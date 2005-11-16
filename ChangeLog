@@ -1,3 +1,11 @@
+2005-11-16 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* tools/hierarchyGen/hierarchy.list: remove GtkGammaCurve because it
+	is not bound.
+
+	* mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs.pp: remove lookup for
+	GammaCurve.
+
 2005-11-13 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/Cairo.chs.pp: Flip arguments of

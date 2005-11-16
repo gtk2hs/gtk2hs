@@ -5,7 +5,7 @@
 --
 --  Created: 4 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:08 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/16 12:56:02 $
 --
 --  Copyright (C) 2001 Axel Simon
 --
@@ -71,7 +71,6 @@ module Graphics.UI.Gtk.Mogul.GetWidget (
   getVBox,
   getColorSelection,
   getFontSelection,
-  getGammaCurve,
   getHBox,
 #ifndef DISABLE_DEPRECATED
   getCombo,
@@ -300,10 +299,6 @@ getColorSelection name =
 getFontSelection :: String -> IO FontSelection
 getFontSelection name = 
   widgetLookup name "FontSelection" mkFontSelection
-
-getGammaCurve :: String -> IO GammaCurve
-getGammaCurve name = 
-  widgetLookup name "GammaCurve" mkGammaCurve
 
 getHBox :: String -> IO HBox
 getHBox name = 

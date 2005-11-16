@@ -101,7 +101,6 @@
                         GtkVBox
                             GtkColorSelection
                             GtkFontSelection
-                            GtkGammaCurve
 			    GtkFileChooserWidget	if gtk-2.4
                         GtkHBox
                             GtkCombo	if deprecated
