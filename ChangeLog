@@ -1,3 +1,8 @@
+2005-11-17 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: use a pure FFI declaration
+	rather than using unsafePerformIO.
+
 2005-11-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/hierarchy.list: remove GtkGammaCurve because it

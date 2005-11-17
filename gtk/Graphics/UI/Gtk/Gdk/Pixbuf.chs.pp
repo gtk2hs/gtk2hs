@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.9 $ from $Date: 2005/07/21 13:13:27 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/17 16:50:56 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -223,7 +223,7 @@ pixbufGetOption pb key = withUTFString key $ \strPtr -> do
 
 -- helper functions
 pixbufErrorDomain :: GErrorDomain
-pixbufErrorDomain = unsafePerformIO {#call unsafe pixbuf_error_quark#}
+pixbufErrorDomain = {#call pure unsafe pixbuf_error_quark#}
 
 instance GErrorClass PixbufError where
   gerrorDomain _ = pixbufErrorDomain
