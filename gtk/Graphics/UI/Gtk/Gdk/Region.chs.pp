@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.6 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/17 17:12:55 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -61,7 +61,6 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle(..))
-import Graphics.UI.Gtk.Gdk.Enums	(FillRule(..), OverlapType(..))
 
 {# context lib="gdk" prefix="gdk" #}
 
@@ -89,6 +88,15 @@ foreign import ccall unsafe "gdk_region_destroy"
 
 #endif
 
+-- | Specify how to interpret a polygon.
+--
+-- * The flag determines what happens if a polygon has overlapping areas.
+--
+{#enum FillRule {underscoreToCase}#}
+
+-- | How a rectangle is contained in a 'Region'.
+--
+{#enum OverlapType {underscoreToCase}#}
 
 -- | Create an empty region.
 --

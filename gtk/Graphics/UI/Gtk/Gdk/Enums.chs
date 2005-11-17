@@ -5,7 +5,7 @@
 --
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.6 $ from $Date: 2005/05/15 19:34:46 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/17 17:12:55 $
 --
 --  Copyright (C) 1999-2005 Manuel M. T. Chakravarty, Axel Simon
 --
@@ -33,13 +33,11 @@ module Graphics.UI.Gtk.Gdk.Enums (
   EventMask(..),
   ExtensionMode(..),
   Fill(..),
-  FillRule(..),
   Function(..),
   InputCondition(..),
   JoinStyle(..),
   LineStyle(..),
   NotifyType(..),
-  OverlapType(..),
   ScrollDirection(..),
   SubwindowMode(..),
   VisibilityState(..),
@@ -85,12 +83,6 @@ instance Flags ExtensionMode
 --
 {#enum Function {underscoreToCase}#}
 
--- | Specify how to interpret a polygon.
---
--- * The flag determines what happens if a polygon has overlapping areas.
---
-{#enum FillRule {underscoreToCase}#}
-
 -- | Specify on what file condition a callback should be
 -- done.
 --
@@ -130,10 +122,6 @@ instance Flags InputCondition
 --
 {#enum NotifyType {underscoreToCase}#}
 
--- | How a rectangle is contained in a 'Region'.
---
-{#enum OverlapType {underscoreToCase}#}
-
 -- | in which direction was scrolled?
 --
 {#enum ScrollDirection {underscoreToCase}#}
@@ -167,7 +155,8 @@ instance Flags WindowState
 {#enum WindowTypeHint {underscoreToCase} #}
 
 -- | Defines the reference point of a window and the meaning of coordinates
--- passed to 'windowMove'. See 'windowMove' and the "implementation notes"
+-- passed to 'Graphics.UI.Gtk.Windows.Window.windowMove'. See
+-- 'Graphics.UI.Gtk.Windows.Window.windowMove' and the "implementation notes"
 -- section of the extended window manager hints specification for more details.
 --
 {#enum Gravity {underscoreToCase} #}

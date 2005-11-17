@@ -3,6 +3,13 @@
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: use a pure FFI declaration
 	rather than using unsafePerformIO.
 
+	* gtk/Graphics/UI/Gtk/Gdk/Enums.chs: move the definition of a couple
+	enums to the only module where they are used. Also fixup a
+	documentation cross-reference.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: move the enums into the
+	Region module.
+
 2005-11-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/hierarchy.list: remove GtkGammaCurve because it
