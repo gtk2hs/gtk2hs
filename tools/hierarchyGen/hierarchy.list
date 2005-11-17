@@ -129,7 +129,6 @@
                 GtkCalendar
                 GtkCellView		if gtk-2.6
 		GtkDrawingArea
-                    GtkCurve
                 GtkEntry
                     GtkSpinButton
                 GtkRuler

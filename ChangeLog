@@ -17,6 +17,12 @@
 	* gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs: remove doc reference to
 	Curve object.
 
+	* tools/hierarchyGen/hierarchy.list: remove the GtkCurve because it
+	is not bound.
+
+	* gtk/Graphics/UI/Gtk/Layout/VBox.chs: remove reference to the
+	GammaCurve object.
+
 2005-11-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/hierarchy.list: remove GtkGammaCurve because it

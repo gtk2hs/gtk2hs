@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/17 17:27:11 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -48,7 +48,6 @@ module Graphics.UI.Gtk.Layout.VBox (
 -- |                                 +----'ColorSelection'
 -- |                                 +----'FileChooserWidget'
 -- |                                 +----'FontSelection'
--- |                                 +----'GammaCurve'
 -- @
 
 -- * Types
