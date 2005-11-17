@@ -5,7 +5,7 @@
 --
 --  Created: 4 June 2001
 --
---  Version $Revision: 1.2 $ from $Date: 2005/11/16 12:56:02 $
+--  Version $Revision: 1.3 $ from $Date: 2005/11/17 17:31:42 $
 --
 --  Copyright (C) 2001 Axel Simon
 --
@@ -99,7 +99,6 @@ module Graphics.UI.Gtk.Mogul.GetWidget (
   getTreeView,
   getCalendar,
   getDrawingArea,
-  getCurve,
   getEntry,
   getSpinButton,
   getRuler,
@@ -393,10 +392,6 @@ getCalendar name =
 getDrawingArea :: String -> IO DrawingArea
 getDrawingArea name = 
   widgetLookup name "DrawingArea" mkDrawingArea
-
-getCurve :: String -> IO Curve
-getCurve name = 
-  widgetLookup name "Curve" mkCurve
 
 getEntry :: String -> IO Entry
 getEntry name = 

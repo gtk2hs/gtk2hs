@@ -26,6 +26,9 @@
 	* gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp: bind the
 	treeModelRefNode and treeModelUnrefNode functions. 
 
+	* mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs.pp: remove the getCurve
+	function since we've removed the Curve object.
+
 2005-11-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/hierarchy.list: remove GtkGammaCurve because it
