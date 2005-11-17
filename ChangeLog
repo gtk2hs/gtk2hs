@@ -23,6 +23,9 @@
 	* gtk/Graphics/UI/Gtk/Layout/VBox.chs: remove reference to the
 	GammaCurve object.
 
+	* gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp: bind the
+	treeModelRefNode and treeModelUnrefNode functions. 
+
 2005-11-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/hierarchy.list: remove GtkGammaCurve because it

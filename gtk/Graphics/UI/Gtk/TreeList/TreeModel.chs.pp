@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.11 $ from $Date: 2005/11/17 17:30:04 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -119,6 +119,8 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
   treeModelIterNChildren,
   treeModelIterNthChild,
   treeModelIterParent,
+  treeModelRefNode,
+  treeModelUnrefNode,
   ) where
 
 import Monad	(liftM, when)
@@ -185,7 +187,7 @@ treeModelGetColumnType self index =
     (toTreeModel self)
     (fromIntegral index)
 
--- | Read the value of at a specific column and 'Iterator'.
+-- | Read the value of at a specific column and 'TreeIter'.
 --
 treeModelGetValue :: TreeModelClass self => self
  -> TreeIter
@@ -364,3 +366,37 @@ treeModelIterParent self child =
     (toTreeModel self)
     iter
     child
+
+-- | Lets the tree ref the node. This is an optional method for models to
+-- implement. To be more specific, models may ignore this call as it exists
+-- primarily for performance reasons.
+--
+-- This function is primarily meant as a way for views to let caching model
+-- know when nodes are being displayed (and hence, whether or not to cache
+-- that node.) For example, a file-system based model would not want to keep
+-- the entire file-hierarchy in memory, just the sections that are currently
+-- being displayed by every current view.
+--
+-- A model should be expected to be able to get an iter independent of its
+-- reffed state.
+--
+treeModelRefNode :: TreeModelClass self => self -> TreeIter -> IO ()
+treeModelRefNode self iter =
+  {# call gtk_tree_model_ref_node #}
+    (toTreeModel self)
+    iter
+
+-- | Lets the tree unref the node. This is an optional method for models to
+-- implement. To be more specific, models may ignore this call as it exists
+-- primarily for performance reasons.
+--
+-- For more information on what this means, see 'treeModelRefNode'. Please
+-- note that nodes that are deleted are not unreffed.
+--
+treeModelUnrefNode :: TreeModelClass self => self
+ -> TreeIter -- ^ @iter@ - The 'TreeIter'.
+ -> IO ()
+treeModelUnrefNode self iter =
+  {# call gtk_tree_model_unref_node #}
+    (toTreeModel self)
+    iter
