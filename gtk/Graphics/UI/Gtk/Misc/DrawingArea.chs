@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/17 17:17:33 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -70,7 +70,6 @@ module Graphics.UI.Gtk.Misc.DrawingArea (
 -- |   +----'Object'
 -- |         +----'Widget'
 -- |               +----DrawingArea
--- |                     +----'Curve'
 -- @
 
 -- * Types

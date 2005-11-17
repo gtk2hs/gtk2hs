@@ -14,6 +14,9 @@
 	which would have been used by the GammaCurve object had it ever been
 	bound.
 
+	* gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs: remove doc reference to
+	Curve object.
+
 2005-11-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/hierarchy.list: remove GtkGammaCurve because it
