@@ -5,7 +5,7 @@
 --
 --  Created: 13 January 1999
 --
---  Version $Revision: 1.8 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.9 $ from $Date: 2005/11/17 17:15:51 $
 --
 --  Copyright (C) 1999..2005 Axel Simon, Manuel Chakravarty
 --
@@ -35,7 +35,6 @@ module Graphics.UI.Gtk.General.Enums (
   CalendarDisplayOptions(..),
   Click(..),
   CornerType(..),
-  CurveType(..),
   DeleteType(..),
   DirectionType(..),
   Justification(..),
@@ -137,10 +136,6 @@ data Click = SingleClick
 -- | Specifies in which corner a child widget should be placed
 --
 {#enum CornerType {underscoreToCase} deriving (Eq)#}
-
--- | Specifies how curves in the gamma widget (?) are drawn
---
-{#enum CurveType {underscoreToCase} deriving (Eq)#}
 
 -- | Editing option
 --

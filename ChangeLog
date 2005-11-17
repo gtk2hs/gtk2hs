@@ -10,6 +10,10 @@
 	* gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp: move the enums into the
 	Region module.
 
+	* gtk/Graphics/UI/Gtk/General/Enums.chs.pp: remove the CurveType enum
+	which would have been used by the GammaCurve object had it ever been
+	bound.
+
 2005-11-16 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* tools/hierarchyGen/hierarchy.list: remove GtkGammaCurve because it
