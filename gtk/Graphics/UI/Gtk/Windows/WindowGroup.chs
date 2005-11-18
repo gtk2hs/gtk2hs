@@ -5,7 +5,7 @@
 --
 --  Created: 25 March 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.3 $ from $Date: 2005/11/18 15:54:58 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -60,8 +60,9 @@ import System.Glib.GObject              (makeNewGObject)
 --------------------
 -- Constructors
 
--- | Creates a new 'WindowGroup' object. Grabs added with 'grabAdd' only
--- affect windows within the same 'WindowGroup'.
+-- | Creates a new 'WindowGroup' object. Grabs added with
+-- 'Graphics.UI.Gtk.General.General.grabAdd' only affect windows within the
+-- same 'WindowGroup'.
 --
 windowGroupNew :: IO WindowGroup
 windowGroupNew =

@@ -66,6 +66,35 @@
 	* gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp: cross-reference
 	the plural correctly.
 
+	* gtk/Graphics/UI/Gtk/Abstract/Box.chs,
+	gtk/Graphics/UI/Gtk/Abstract/Paned.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs.pp,
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ToggleAction.chs.pp,
+	gtk/Graphics/UI/Gtk/Buttons/CheckButton.chs,
+	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp,
+	gtk/Graphics/UI/Gtk/Embedding/Plug.chs.pp,
+	gtk/Graphics/UI/Gtk/Embedding/Socket.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp,
+	gtk/Graphics/UI/Gtk/Entry/HScale.chs,
+	gtk/Graphics/UI/Gtk/Layout/Expander.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ImageMenuItem.chs,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuToolButton.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/OptionMenu.chs.pp,
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/SeparatorToolItem.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp,
+	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs,
+	gtk/Graphics/UI/Gtk/Scrolling/ScrolledWindow.chs.pp,
+	gtk/Graphics/UI/Gtk/Selectors/FontButton.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs,
+	gtk/Graphics/UI/Gtk/TreeList/TreeIter.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp,
+	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs: fix many haddock
+	warnings. These are mostly cross-references to things that are not in
+	scope. This can be fixed either by importing the appropriate modules
+	or fully qualifing the references. I have taken the latter approach to
+	avoid introducing too many unnecessary inter-module dependencies (in
+	particular cyclic dependencies).
+
 2005-11-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: use a pure FFI declaration

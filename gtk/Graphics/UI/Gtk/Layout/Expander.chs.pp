@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -35,7 +35,8 @@ module Graphics.UI.Gtk.Layout.Expander (
 -- expander triangle similar to the triangles used in a 'TreeView'.
 --
 -- Normally you use an expander as you would use any other descendant of
--- 'Bin'; you create the child widget and use 'containerAdd' to add it to the
+-- 'Bin'; you create the child widget and use
+-- 'Graphics.UI.Gtk.Abstract.Container.containerAdd' to add it to the
 -- expander. When the expander is toggled, it will take care of showing and
 -- hiding the child automatically.
 
@@ -218,7 +219,7 @@ expanderGetUseUnderline self =
     self
 
 -- | Sets whether the text of the label contains markup in Pango's text markup
--- language. See 'labelSetMarkup'.
+-- language. See 'Graphics.UI.Gtk.Display.Label.labelSetMarkup'.
 --
 expanderSetUseMarkup :: Expander
  -> Bool     -- ^ @useMarkup@ - @True@ if the label's text should be parsed

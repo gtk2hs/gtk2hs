@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -146,8 +146,8 @@ menuToolButtonGetMenu self =
     (toMenuToolButton self)
 
 -- | Sets the 'Tooltips' object to be used for arrow button which pops up the
--- menu. See 'toolItemSetTooltip' for setting a tooltip on the whole
--- 'MenuToolButton'.
+-- menu. See 'Graphics.UI.Gtk.MenuComboToolbar.ToolItem.toolItemSetTooltip'
+-- for setting a tooltip on the whole 'MenuToolButton'.
 --
 menuToolButtonSetArrowTooltip :: MenuToolButtonClass self => self
  -> Tooltips -- ^ @tooltips@ - the 'Tooltips' object to be used

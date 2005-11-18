@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -95,8 +95,8 @@ checkButtonNewWithLabel label =
     labelPtr
 
 -- | Creates a new 'CheckButton' containing a label. The label will be created
--- using 'labelNewWithMnemonic', so underscores in @label@ indicate the
--- mnemonic for the check button.
+-- using 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic', so underscores
+-- in @label@ indicate the mnemonic for the check button.
 --
 checkButtonNewWithMnemonic :: 
     String         -- ^ @label@ - The text of the button, with an underscore

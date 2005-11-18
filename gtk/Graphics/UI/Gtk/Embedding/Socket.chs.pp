@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:08 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -71,10 +71,6 @@ module Graphics.UI.Gtk.Embedding.Socket (
 -- protocol. This protocol has also been implemented in other toolkits, e.g.
 -- Qt, allowing the same level of integration when embedding a Qt widget in
 -- Gtk+ or vice versa.
---
--- A socket can also be used to swallow arbitrary pre-existing top-level
--- windows using 'socketSteal', though the integration when this is done will
--- not be as close as between a 'Plug' and a 'Socket'.
 
 -- * Class Hierarchy
 -- |
@@ -144,9 +140,11 @@ socketNew =
 -- be in the same process or in a different process.
 --
 -- To embed a 'Plug' in a 'Socket', you can either create the 'Plug' with
--- @plugNew Nothing@, call 'plugGetId' to get the window ID of the plug, and
--- then pass that to the 'socketAddId', or you can call 'socketGetId' to get
--- the window ID for the socket, and call 'plugNew' passing in that ID.
+-- @Graphics.UI.Gtk.Embedding.Plug.plugNew Nothing@, call
+-- 'Graphics.UI.Gtk.Embedding.Plug.plugGetId' to get the window ID of the
+-- plug, and then pass that to the 'socketAddId', or you can call
+-- 'socketGetId' to get the window ID for the socket, and call
+-- 'Graphics.UI.Gtk.Embedding.Plug.plugNew' passing in that ID.
 --
 -- The 'Socket' must have already be added into a toplevel window before you
 -- can make this call.
@@ -161,7 +159,8 @@ socketAddId self windowId =
     (fromIntegral windowId)
 
 -- | Gets the window ID of a 'Socket' widget, which can then be used to create
--- a client embedded inside the socket, for instance with 'plugNew'.
+-- a client embedded inside the socket, for instance with
+-- 'Graphics.UI.Gtk.Embedding.Plug.plugNew'.
 --
 -- The 'Socket' must have already be added into a toplevel window before you
 -- can make this call.

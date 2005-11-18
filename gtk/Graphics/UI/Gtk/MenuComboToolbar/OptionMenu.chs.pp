@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -37,12 +37,13 @@ module Graphics.UI.Gtk.MenuComboToolbar.OptionMenu (
 -- the 'OptionMenu' displays a popup 'Menu' which allows the user to make a new
 -- choice.
 --
--- Using a 'OptionMenu' is simple; build a 'Menu', by calling 'menuNew',
--- then appending menu items to it with 'menuShellAppend'. Set that menu on the
--- option menu with 'optionMenuSetMenu'. Set the selected menu item with
--- 'optionMenuSetHistory'; connect to the \"changed\" signal on the option
--- menu; in the \"changed\" signal, check the new selected menu item with
--- 'optionMenuGetHistory'.
+-- Using a 'OptionMenu' is simple; build a 'Menu', by calling
+-- 'Graphics.UI.Gtk.MenuComboToolbar.Menu.menuNew', then appending menu items
+-- to it with 'Graphics.UI.Gtk.MenuComboToolbar.MenuShell.menuShellAppend'.
+-- Set that menu on the option menu with 'optionMenuSetMenu'. Set the selected
+-- menu item with 'optionMenuSetHistory'; connect to the \"changed\" signal on
+-- the option menu; in the \"changed\" signal, check the new selected menu
+-- item with 'optionMenuGetHistory'.
 --
 -- As of Gtk+ 2.4, 'OptionMenu' has been deprecated in favor of 'ComboBox'.
 

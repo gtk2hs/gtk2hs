@@ -5,7 +5,7 @@
 --
 --  Created: 14 April 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/04/20 03:51:38 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2005 Axel Simon, Duncan Coutts
 --
@@ -44,7 +44,8 @@ import Graphics.UI.Gtk.General.Structs	(treeIterSize)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- | Tree Iterator : A pointer to an entry in a 'TreeModel'.
+-- | Tree Iterator: a pointer to an entry in a
+-- 'Graphics.UI.Gtk.TreeList.TreeModel'.
 --
 {#pointer *TreeIter foreign newtype#}
 

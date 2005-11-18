@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -87,7 +87,7 @@ import System.Glib.GObject		(makeNewGObject)
 
 -- | Creates a new 'ToggleAction' object. To add the action to a 'ActionGroup'
 -- and set the accelerator for the action, call
--- 'actionGroupAddActionWithAccel'.
+-- 'Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup.actionGroupAddActionWithAccel'.
 --
 toggleActionNew :: 
     String          -- ^ @name@ - A unique name for the action

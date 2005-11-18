@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.13 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -65,10 +65,11 @@ module Graphics.UI.Gtk.Abstract.Box (
 -- each child widget determines how excess space is used by that particular
 -- widget. See the description of 'Packing' for a detailed explanaition.
 --
--- Because 'Box' is a 'Container', you may also use 'containerAdd' to insert
--- widgets into the box, and they will be packed as if with
--- 'boxPackStartDefaults'. Use 'containerRemove' to remove widgets from the
--- 'Box'.
+-- Because 'Box' is a 'Container', you may also use
+-- 'Graphics.UI.Gtk.Abstract.Container.containerAdd' to insert widgets into
+-- the box, and they will be packed as if with 'boxPackStartDefaults'. Use
+-- 'Graphics.UI.Gtk.Abstract.Container.containerRemove' to remove widgets
+-- from the 'Box'.
 --
 -- Use 'boxSetHomogeneous' to specify whether or not all children of the
 -- 'Box' are forced to get the same amount of space. Note that the

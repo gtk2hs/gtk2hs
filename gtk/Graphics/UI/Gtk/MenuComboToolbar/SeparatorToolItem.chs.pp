@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -96,9 +96,10 @@ separatorToolItemNew =
 --------------------
 -- Methods
 
--- | Whether the separator tool item is drawn as a vertical line, or just blank.
--- Setting this @False@ along with 'toolItemSetExpand' is useful to create an
--- item that forces following items to the end of the toolbar.
+-- | Whether the separator tool item is drawn as a vertical line, or just
+-- blank. Setting this @False@ along with
+-- 'Graphics.UI.Gtk.MenuComboToolbar.ToolItem.toolItemSetExpand' is useful to
+-- create an item that forces following items to the end of the toolbar.
 --
 separatorToolItemSetDraw :: SeparatorToolItemClass self => self -> Bool -> IO ()
 separatorToolItemSetDraw self draw =

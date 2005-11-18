@@ -5,7 +5,7 @@
 --
 --  Created: 12 Aug 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2002 Jonas Svensson
 --
@@ -121,8 +121,8 @@ imageMenuItemNewWithLabel label =
     labelPtr
 
 -- | Creates a new 'ImageMenuItem' containing a label. The label will be
--- created using 'labelNewWithMnemonic', so underscores in @label@ indicate the
--- mnemonic for the menu item.
+-- created using 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic', so
+-- underscores in @label@ indicate the mnemonic for the menu item.
 --
 imageMenuItemNewWithMnemonic :: 
     String           -- ^ @label@ - the text of the menu item, with an

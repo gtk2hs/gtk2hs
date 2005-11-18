@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2005/08/25 01:16:15 $
+--  Version $Revision: 1.9 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -340,8 +340,8 @@ textIterEditable ti def = liftM toBool $
 -- | Check if new text can be inserted at
 -- 'TextIter'.
 --
--- * Use 'textBufferInsertInteractive' if you want to insert text
---   depending on the current editable status.
+-- * Use 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferInsertInteractive'
+-- if you want to insert text depending on the current editable status.
 --
 textIterCanInsert :: TextIter -> Bool -> IO Bool
 textIterCanInsert ti def = liftM toBool $ 

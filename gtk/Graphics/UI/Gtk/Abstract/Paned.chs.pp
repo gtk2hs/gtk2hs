@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.13 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.14 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -39,8 +39,9 @@ module Graphics.UI.Gtk.Abstract.Paned (
 -- small handle that the user can drag to adjust the division. It does not draw
 -- any relief around the children or around the separator. (The space in which
 -- the separator is called the gutter.) Often, it is useful to put each child
--- inside a 'Frame' with the shadow type set to 'ShadowIn' so that the gutter
--- appears as a ridge.
+-- inside a 'Frame' with the shadow type set to
+-- 'Graphics.UI.Gtk.General.Enums.ShadowIn' so that the gutter appears as a
+-- ridge.
 --
 -- Each child has two options that can be set, @resize@ and @shrink@. If
 -- @resize@ is true, then when the 'Paned' is resized, that child will expand

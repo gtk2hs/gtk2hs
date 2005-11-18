@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.16 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.17 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -50,7 +50,8 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- signal and updating the entry in the signal handler. Note that you should
 -- return @True@ from the signal handler to suppress the default behaviour.
 --
--- To add completion functionality to an entry, use 'entrySetCompletion'.
+-- To add completion functionality to an entry, use
+-- 'Graphics.UI.Gtk.Entry.Entry.entrySetCompletion'.
 --
 -- In addition to regular completion matches, which will be inserted into
 -- the entry when they are selected, 'EntryCompletion' also allows to display

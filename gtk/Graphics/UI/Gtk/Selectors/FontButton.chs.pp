@@ -5,7 +5,7 @@
 --
 --  Created: 5 April 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -130,7 +130,7 @@ fontButtonNewWithFont fontname =
 --
 fontButtonSetFontName :: FontButtonClass self => self
  -> String  -- ^ @fontname@ - Name of font to display in font selection dialog
- -> IO Bool -- ^ returns Return value of 'fontSelectionDialogSetFontName' if
+ -> IO Bool -- ^ returns Return value of 'Graphics.UI.Gtk.Selectors.FontSelectionDialog.fontSelectionDialogSetFontName' if
             -- the font selection dialog exists, otherwise @False@.
 fontButtonSetFontName self fontname =
   liftM toBool $

@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -109,7 +109,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(ProgressBarOrientation(..))
 #if GTK_CHECK_VERSION(2,6,0)
-import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode)
+import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode(..))
 #endif
 
 {# context lib="gtk" prefix="gtk" #}
@@ -300,7 +300,7 @@ progressBarText = newAttr
 -- Note that setting this property to a value other than 'EllipsizeNone' has
 -- the side-effect that the progressbar requests only enough space to display
 -- the ellipsis \"...\". Another means to set a progressbar's width is
--- 'widgetSetSizeRequest'.
+-- 'Graphics.UI.Gtk.Abstract.Widget.widgetSetSizeRequest'.
 --
 -- Default value: 'EllipsizeNone'
 --

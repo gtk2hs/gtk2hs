@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -35,21 +35,23 @@ module Graphics.UI.Gtk.Multiline.TextMark (
 --
 -- A 'TextMark' is like a bookmark in a text buffer; it preserves a position
 -- in the text. You can convert the mark to an iterator using
--- 'textBufferGetIterAtMark'. Unlike iterators, marks remain valid across
--- buffer mutations, because their behavior is defined when text is inserted or
--- deleted. When text containing a mark is deleted, the mark remains in the
--- position originally occupied by the deleted text. When text is inserted at a
--- mark, a mark with left gravity will be moved to the beginning of the
--- newly-inserted text, and a mark with right gravity will be moved to the end.
+-- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferGetIterAtMark'. Unlike
+-- iterators, marks remain valid across buffer mutations, because their
+-- behavior is defined when text is inserted or deleted. When text containing
+-- a mark is deleted, the mark remains in the position originally occupied by
+-- the deleted text. When text is inserted at a mark, a mark with left
+-- gravity will be moved to the beginning of the newly-inserted text, and a
+-- mark with right gravity will be moved to the end.
 --
--- Marks can be deleted from the buffer at any time
--- with 'textBufferDeleteMark'. Once deleted from the buffer, a mark is
--- essentially useless.
+-- Marks can be deleted from the buffer at any time with
+-- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferDeleteMark'. Once deleted
+-- from the buffer, a mark is essentially useless.
 --
 -- Marks optionally have names; these can be convenient to avoid passing the
 -- 'TextMark' object around.
 --
--- Marks are typically created using the 'textBufferCreateMark' function.
+-- Marks are typically created using the
+-- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferCreateMark' function.
 
 -- * Class Hierarchy
 -- |
@@ -113,7 +115,8 @@ textMarkGetVisible self =
     (toTextMark self)
 
 -- | Returns @True@ if the mark has been removed from its buffer with
--- 'textBufferDeleteMark'. Marks can't be used once deleted.
+-- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferDeleteMark'. Marks can't
+-- be used once deleted.
 --
 textMarkGetDeleted :: TextMarkClass self => self -> IO Bool
 textMarkGetDeleted self =

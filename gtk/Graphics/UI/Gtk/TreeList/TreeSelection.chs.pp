@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.12 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -38,10 +38,10 @@ module Graphics.UI.Gtk.TreeList.TreeSelection (
 -- separate function.
 --
 -- The 'TreeSelection' object is gotten from a 'TreeView' by calling
--- 'treeViewGetSelection'. It can be manipulated to check the selection status
--- of the tree, as well as select and deselect individual rows. Selection is
--- done completely on the 'TreeView' side.
--- As a result, multiple views of the same model can
+-- 'Graphics.UI.Gtk.TreeList.TreeView.treeViewGetSelection'. It can be
+-- manipulated to check the selection status of the tree, as well as select
+-- and deselect individual rows. Selection is done completely on the
+-- 'TreeView' side. As a result, multiple views of the same model can
 -- have completely different selections. Additionally, you cannot change the
 -- selection of a row on the model that is not currently displayed by the view
 -- without expanding its parents first.

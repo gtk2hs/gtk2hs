@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:08 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -86,7 +86,7 @@ import Graphics.UI.Gtk.Embedding.Embedding (NativeWindowId)
 
 -- | Creates a new plug widget inside the 'Socket' identified by @socketId@.
 -- If @socketId@ is @Nothing@, the plug is left \"unplugged\" and can later be
--- plugged into a 'Socket' by 'socketAddId'.
+-- plugged into a 'Socket' by 'Graphics.UI.Gtk.Embedding.Socket.socketAddId'.
 --
 -- If a NativeWindowId is supplied the foreign application window will
 -- immediatly appear in this 'Plug' once it is shown. If @Nothing@ is passed
@@ -107,7 +107,8 @@ plugNew socketId =
 -- Methods
 
 -- | Gets the window ID of a 'Plug' widget, which can then be used to embed
--- this window inside another window, for instance with 'socketAddId'.
+-- this window inside another window, for instance with
+-- 'Graphics.UI.Gtk.Embedding.Socket.socketAddId'.
 --
 plugGetId :: PlugClass self => self
  -> IO NativeWindowId -- ^ returns the window ID for the plug

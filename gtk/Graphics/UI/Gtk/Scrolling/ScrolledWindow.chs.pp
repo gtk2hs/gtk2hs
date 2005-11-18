@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -44,10 +44,11 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
 -- widgets such as 'Table', 'Box', and so on.
 --
 -- If a widget has native scrolling abilities, it can be added to the
--- 'ScrolledWindow' with 'containerAdd'. If a widget does not, you must first
--- add the widget to a 'Viewport', then add the 'Viewport' to the scrolled
--- window. The convenience function 'scrolledWindowAddWithViewport' does
--- exactly this, so you can ignore the presence of the viewport.
+-- 'ScrolledWindow' with 'Graphics.UI.Gtk.Abstract.Container.containerAdd'.
+-- If a widget does not, you must first add the widget to a 'Viewport', then
+-- add the 'Viewport' to the scrolled window. The convenience function
+-- 'scrolledWindowAddWithViewport' does exactly this, so you can ignore the
+-- presence of the viewport.
 --
 -- The position of the scrollbars is controlled by the scroll adjustments.
 -- See 'Adjustment' for the fields in an adjustment - for 'Scrollbar', used by
@@ -202,7 +203,8 @@ scrolledWindowGetPolicy self =
 -- | Used to add children without native scrolling capabilities. This is
 -- simply a convenience function; it is equivalent to adding the unscrollable
 -- child to a viewport, then adding the viewport to the scrolled window. If a
--- child has native scrolling, use 'containerAdd' instead of this function.
+-- child has native scrolling, use
+-- 'Graphics.UI.Gtk.Abstract.Container.containerAdd' instead of this function.
 --
 -- The viewport scrolls the child by moving its 'DrawWindow', and takes the
 -- size of the child to be the size of its toplevel 'DrawWindow'. This will be
