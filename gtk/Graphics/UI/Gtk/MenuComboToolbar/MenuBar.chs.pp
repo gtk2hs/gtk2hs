@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -31,8 +31,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuBar (
 -- 
 -- | The 'MenuBar' is a subclass of 'MenuShell' which contains one to many
 -- 'MenuItem'. The result is a standard menu bar which can hold many menu
--- items. 'MenuBar' allows for a shadow type to be set for aesthetic purposes.
--- The shadow types are defined in the 'menuBarSetShadowType' function.
+-- items.
 
 -- * Class Hierarchy
 -- |

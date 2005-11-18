@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -72,7 +72,8 @@ import Graphics.UI.Gtk.Abstract.Object
 {#import Graphics.UI.Gtk.Types#}
 
 #if GTK_CHECK_VERSION(2,4,0)
-{#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction)
+{#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction,
+                                                  fileChooserSetLocalOnly)
 
 {# context lib="gtk" prefix="gtk" #}
 

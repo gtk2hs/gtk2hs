@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.13 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.14 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -1108,7 +1108,7 @@ afterCurrentFolderChanged = connect_NONE__NONE "current-folder-changed" True
 -- emitted. You can use the functions 'fileChooserGetPreviewFilename' or
 -- 'fileChooserGetPreviewURI' to get the name of the file to preview. Your
 -- widget may not be able to preview all kinds of files; your callback must
--- call 'fileChooserSetPreviewWigetActive' to inform the file chooser about
+-- call 'fileChooserSetPreviewWidgetActive' to inform the file chooser about
 -- whether the preview was generated successfully or not.
 --
 -- See also: 'fileChooserSetPreviewWidget',

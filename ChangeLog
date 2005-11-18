@@ -5,6 +5,67 @@
 	These functions are particularly useful for laoding svg files at
 	different zoom levels.
 
+	* gtk/Graphics/UI/Gtk/Entry/VScale.chs: correct mistake in doc
+	cross-reference.
+
+	* gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp: remove reference to the
+	unbound object type 'Bitmap'.
+
+	* gtk/Graphics/UI/Gtk/General/Style.chs: remove discussion of unbound
+	'rc' functions.
+
+	* gtk/Graphics/UI/Gtk/Layout/Notebook.chs.pp: remove reference to
+	function which we bind as part of another function.
+
+	* gtk/Graphics/UI/Gtk/Layout/Table.chs: correct spelling mistake in
+	doc cross-reference.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/CheckMenuItem.chs.pp: haddock
+	cannot cope with an ' character directly after a type.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/Combo.chs.pp: change doc
+	cross-reference to it's most likely target.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuBar.chs.pp: remove
+	discuccion of an unbound and deprecated function.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuShell.chs.pp: remove doc
+	cross-reference to the unbound Gdk function 'keyboardGrab'.
+
+	* gtk/Graphics/UI/Gtk/MenuComboToolbar/RadioToolButton.chs.pp: change
+	doc cross-reference to its intended target.
+
+	* gtk/Graphics/UI/Gtk/Pango/Enums.chs.pp: change the doc
+	cross-reference of a couple type names to their actual names.
+
+	* gtk/Graphics/UI/Gtk/Selectors/FileChooser.chs.pp: correct spelling
+	mistake in doc cross-reference.
+
+	* gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp: import an
+	extra function so it's in scope for a doc cross-reference.
+
+	* gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp: remove reference to
+	unbound function.
+
+	* gtk/Graphics/UI/Gtk/Selectors/FontSelection.chs: remove reference to
+	an unbound and deprecated function.
+
+	* gtk/Graphics/UI/Gtk/Selectors/FontSelectionDialog.chs: remove
+	reference to an unbound and deprecated function.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs: remove discussion of
+	unbound and semi-internal functions. Add newly bound class to the
+	class hierarchy doc section.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellRendererCombo.chs.pp: reference
+	cellRendererSet rather than gObjectSet.
+
+	* gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp: remove unhelpful
+	C-style return value documentation.
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp: cross-reference
+	the plural correctly.
+
 2005-11-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: use a pure FFI declaration

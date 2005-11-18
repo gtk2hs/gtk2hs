@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -30,7 +30,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem (
 -- * Detail
 -- 
 -- | A 'CheckMenuItem' is a menu item that maintains the state of a boolean
--- value in addition to a 'MenuItem''s usual role in activating application
+-- value in addition to a 'MenuItem's usual role in activating application
 -- code.
 --
 -- A check box indicating the state of the boolean value is displayed at the
@@ -115,8 +115,8 @@ checkMenuItemNewWithLabel label =
     labelPtr
 
 -- | Creates a new 'CheckMenuItem' containing a label. The label will be
--- created using 'labelNewWithMnemonic', so underscores in @label@ indicate the
--- mnemonic for the menu item.
+-- created using 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic', so
+-- underscores in @label@ indicate the mnemonic for the menu item.
 --
 checkMenuItemNewWithMnemonic :: 
     String           -- ^ @label@ - The text of the button, with an underscore

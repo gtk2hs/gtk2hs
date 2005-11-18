@@ -5,7 +5,7 @@
 --
 --  Created: 26 February 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -43,8 +43,7 @@ module Graphics.UI.Gtk.Selectors.FileFilter (
 -- a mime type, so you can e.g. filter for \"image\/\*\".
 --
 -- Normally, filters are used by adding them to a 'FileChooser', see
--- 'fileChooserAddFilter', but it is also possible to manually use a filter on
--- a file with 'fileFilterFilter'.
+-- 'Graphics.UI.Gtk.Selectors.FileChooser.fileChooserAddFilter'.
 
 -- * Class Hierarchy
 -- |

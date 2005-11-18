@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -47,9 +47,8 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
 -- elements on a 'Drawable'. Typically, one cell renderer is used to draw many
 -- cells on the screen. To this extent, it isn't expected that a CellRenderer
 -- keep any permanent state around. Instead, any state is set just prior to use
--- using 'GObject's property system. Then, the cell is measured using
--- 'cellRendererGetSize'. Finally, the cell is rendered in the correct location
--- using 'cellRendererRender'.
+-- using 'GObject's property system. Then, the cell is measured and rendered
+-- in the correct location
 --
 -- Beyond merely rendering a cell, cell renderers can optionally provide
 -- active user interface elements. A cell renderer can be activatable like
@@ -66,6 +65,7 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
 -- |               +----'CellRendererText'
 -- |               +----'CellRendererPixbuf'
 -- |               +----'CellRendererProgress'
+-- |               +----'CellRendererCombo'
 -- |               +----'CellRendererToggle'
 -- @
 

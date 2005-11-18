@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -36,8 +36,7 @@ module Graphics.UI.Gtk.Selectors.FontSelection (
 -- To set the font which is initially selected, use
 -- 'fontSelectionSetFontName'.
 --
--- To get the selected font use 'fontSelectionGetFont' or
--- 'fontSelectionGetFontName'.
+-- To get the selected font use 'fontSelectionGetFontName'.
 --
 -- To change the text which is shown in the preview area, use
 -- 'fontSelectionSetPreviewText'.

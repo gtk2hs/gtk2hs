@@ -5,7 +5,7 @@
 --
 --  Created: 13 February 2003
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -42,11 +42,8 @@ module Graphics.UI.Gtk.General.Style (
 -- one implements a new custom widgets via 'DrawingArea'. Although the
 -- parameterized drawing function don't have to be used, it is strongly
 -- advisable (and more robust) to make use of the predefined graphics contexts
--- for the different states of a widget (retrieved by 'widgetGetState').
---
--- When creating complicated objects in 'DrawingArea' the predefined graphics
--- contexts and the single font in the canvas might not be enough to customize
--- the rendering process. gtk_rc_get_style_by_paths is the solution for this.
+-- for the different states of a widget (retrieved by
+-- 'Graphics.UI.Gtk.Abstract.Widget.widgetGetState').
 --
 
 -- * Types

@@ -5,7 +5,7 @@
 --
 --  Created: 12 September 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/17 22:52:50 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -51,7 +51,7 @@ instance Show FontStyle where
   showsPrec _ StyleOblique	   = shows "oblique"
   showsPrec _ StyleItalic	   = shows "italic"
 
--- | Define attributes for 'FontWeight'.
+-- | Define attributes for 'Weight'.
 --
 {#enum Weight {underscoreToCase} deriving (Eq)#}
 
@@ -89,7 +89,7 @@ instance Show Stretch where
   showsPrec _ StretchExtraExpanded	= shows "extraexpanded"
   showsPrec _ StretchUltraExpanded	= shows "ultraexpanded"
 
--- | Define attributes for 'FontUnderline'.
+-- | Define attributes for 'Underline'.
 --
 -- * The squiggly underline for errors is only available in Gtk 2.4 and higher.
 --

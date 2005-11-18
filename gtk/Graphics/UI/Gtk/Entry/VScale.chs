@@ -5,7 +5,7 @@
 --
 --  Created: 23 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:06 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -30,7 +30,7 @@ module Graphics.UI.Gtk.Entry.VScale (
 -- * Detail
 -- 
 -- | The 'VScale' widget is used to allow the user to select a value using a
--- vertical slider. To create one, use 'hScaleNewWithRange'.
+-- vertical slider. To create one, use 'vScaleNewWithRange'.
 --
 -- The position to show the current value, and the number of decimal places
 -- shown can be set using the parent 'Scale' class's functions.
@@ -88,7 +88,7 @@ vScaleNew adjustment =
 --
 -- Note that the way in which the precision is derived works best if @step@
 -- is a power of ten. If the resulting precision is not suitable for your
--- needs, use 'scaleSetDigits' to correct it.
+-- needs, use 'Graphics.UI.Gtk.Abstract.Scale.scaleSetDigits' to correct it.
 --
 vScaleNewWithRange :: 
     Double    -- ^ @min@ - minimum value

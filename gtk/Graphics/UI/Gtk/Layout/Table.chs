@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.10 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.11 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -321,7 +321,7 @@ tableSetHomogeneous self homogeneous =
     (fromBool homogeneous)
 
 -- | Returns whether the table cells are all constrained to the same width and
--- height. (See 'tableSetHomogenous')
+-- height. (See 'tableSetHomogeneous')
 --
 tableGetHomogeneous :: TableClass self => self
  -> IO Bool -- ^ returns @True@ if the cells are all constrained to the same

@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -214,8 +214,7 @@ treeViewColumnPackEnd self cell expand =
     (toCellRenderer cell)
     (fromBool expand)
 
--- | Remove the associations of attributes
--- to a store for all 'CellRenderers'.
+-- | Remove the associations of attributes to a store for all 'CellRenderer's.
 --
 treeViewColumnClear :: TreeViewColumn -> IO ()
 treeViewColumnClear self =

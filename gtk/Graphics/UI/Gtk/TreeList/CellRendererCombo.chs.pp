@@ -5,7 +5,7 @@
 --
 --  Created: 2 November 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/11/12 15:10:37 $
+--  Version $Revision: 1.2 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -74,7 +74,8 @@ import Monad	(liftM)
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
+import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..),
+						cellRendererSet)
 import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
@@ -84,11 +85,11 @@ import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 -- Constructors
 
 -- | Creates a new 'CellRendererCombo'. Adjust how text is drawn using object
--- properties. Object properties can be set globally (with 'gObjectSet'). Also,
--- with 'TreeViewColumn', you can bind a property to a value in a 'TreeModel'.
--- For example, you can bind the \"text\" property on the cell renderer to a
--- string value in the model, thus rendering a different string in each row of
--- the 'TreeView'.
+-- properties. Object properties can be set globally (with 'cellRendererSet').
+-- Also, with 'TreeViewColumn', you can bind a property to a value in a
+-- 'TreeModel'. For example, you can bind the \"text\" property on the cell
+-- renderer to a string value in the model, thus rendering a different string
+-- in each row of the 'TreeView'.
 --
 cellRendererComboNew :: IO CellRendererCombo
 cellRendererComboNew =

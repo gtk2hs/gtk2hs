@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/24 10:02:28 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:06 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -32,8 +32,8 @@
 --
 -- Drawing primitives.
 --
--- This module defines drawing primitives that can operate on 'DrawWindow's,
--- 'Pixmap's and 'Bitmap's.
+-- This module defines drawing primitives that can operate on 'DrawWindow's
+-- and 'Pixmap's.
 --
 module Graphics.UI.Gtk.Gdk.Drawable (
   Drawable,

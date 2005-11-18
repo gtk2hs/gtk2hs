@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.12 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.13 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -42,7 +42,7 @@ module Graphics.UI.Gtk.Layout.Notebook (
 -- whether, if there are too many tabs to fit the noteobook should be made
 -- bigger or scrolling arrows added (see 'notebookSetScrollable'), and
 -- whether there will be a popup menu allowing the users to switch pages. (see
--- 'notebookEnablePopup', 'noteobookDisablePopup')
+-- 'notebookEnablePopup')
 
 -- * Class Hierarchy
 -- |
@@ -809,7 +809,8 @@ notebookQueryTabLabelPacking self child =
   return (toPacking expand fill, pt)
 
 -- | Sets the packing parameters for the tab label of the page containing
--- @child@. See 'boxPackStart' for the exact meaning of the parameters.
+-- @child@. See 'Graphics.UI.Gtk.Abstract.Box.boxPackStart' for the exact
+-- meaning of the parameters.
 --
 notebookSetTabLabelPacking :: (NotebookClass self, WidgetClass child) => self
  -> child    -- ^ @child@ - the child widget

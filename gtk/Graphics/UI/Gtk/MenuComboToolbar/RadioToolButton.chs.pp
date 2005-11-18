@@ -5,7 +5,7 @@
 --
 --  Created: 7 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -38,7 +38,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.RadioToolButton (
 -- Use 'radioToolButtonNew' to create a new 'RadioToolButton'. use
 -- 'radioToolButtonNewFromWidget' to create a new 'RadioToolButton' that is
 -- part of the same group as an existing 'RadioToolButton'. Use
--- 'radioToolButtonNewFromStock' or 'radioToolButtonNewFromWidgetWithStock' to
+-- 'radioToolButtonNewFromStock' or 'radioToolButtonNewWithStockFromWidget' to
 -- create a new 'RadioToolButton' containing a stock item.
 
 -- * Class Hierarchy

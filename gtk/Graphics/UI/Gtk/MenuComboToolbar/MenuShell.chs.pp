@@ -5,7 +5,7 @@
 --
 --  Created: 21 May 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -232,8 +232,6 @@ menuShellCancel self =
 -- To avoid confusing the user, menus with @takeFocus@ set to @False@ should
 -- not display mnemonics or accelerators, since it cannot be guaranteed that
 -- they will work.
---
--- See also 'keyboardGrab'
 --
 -- * Available since Gtk+ version 2.8
 --

@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -34,8 +34,7 @@ module Graphics.UI.Gtk.Selectors.FontSelectionDialog (
 -- To set the font which is initially selected, use
 -- 'fontSelectionDialogSetFontName'.
 --
--- To get the selected font use 'fontSelectionDialogGetFont' or
--- 'fontSelectionDialogGetFontName'.
+-- To get the selected font use 'fontSelectionDialogGetFontName'.
 --
 -- To change the text which is shown in the preview area, use
 -- 'fontSelectionDialogSetPreviewText'.

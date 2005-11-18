@@ -5,7 +5,7 @@
 --
 --  Created: 2 June 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -43,7 +43,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Combo (
 --
 -- List elements
 -- can contain arbitrary widgets, but if an element is not a plain label, then
--- you must use the 'listSetItemString' function. This sets the string which
+-- you must use the 'comboSetItemString' function. This sets the string which
 -- will be placed in the text entry field when the item is selected.
 --
 -- By default, the user can step through the items in the list using the
