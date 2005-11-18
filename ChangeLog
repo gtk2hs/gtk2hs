@@ -1,3 +1,10 @@
+2005-11-18 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: add pixbufNewFromFileAtSize
+	and pixbufNewFromFileAtScale. Also rearange export list slightly.
+	These functions are particularly useful for laoding svg files at
+	different zoom levels.
+
 2005-11-17 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: use a pure FFI declaration

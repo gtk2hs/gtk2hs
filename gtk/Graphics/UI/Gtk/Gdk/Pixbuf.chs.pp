@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.10 $ from $Date: 2005/11/17 16:50:56 $
+--  Version $Revision: 1.11 $ from $Date: 2005/11/18 14:04:17 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -53,10 +53,36 @@
 --   vanilla widget like 'DrawWindow' using 'drawPixbuf'.
 --
 module Graphics.UI.Gtk.Gdk.Pixbuf (
+-- * Class Hierarchy
+-- |
+-- @
+-- |  'GObject'
+-- |   +----Pixbuf
+-- @
+
+-- * Types
   Pixbuf,
   PixbufClass,
+  castToPixbuf,
+  toPixbuf,
   PixbufError(..),
   Colorspace(..),
+
+-- * Constructors
+  pixbufNew,
+  pixbufNewFromFile,
+#if GTK_CHECK_VERSION(2,4,0)
+  pixbufNewFromFileAtSize,
+#endif
+#if GTK_CHECK_VERSION(2,6,0)
+  pixbufNewFromFileAtScale,
+#endif
+  pixbufNewFromInline,
+  InlineImage,
+  pixbufNewSubpixbuf,
+  pixbufNewFromXPMData,
+
+-- * Methods
   pixbufGetColorSpace,
   pixbufGetNChannels,
   pixbufGetHasAlpha,
@@ -67,15 +93,9 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufGetHeight,
   pixbufGetRowstride,
   pixbufGetOption,
-  pixbufNewFromFile,
   ImageType,
   pixbufGetFormats,
   pixbufSave,
-  pixbufNew,
-  pixbufNewFromXPMData,
-  InlineImage,
-  pixbufNewFromInline,
-  pixbufNewSubpixbuf,
   pixbufCopy,
   InterpType(..),
   pixbufScaleSimple,
@@ -238,7 +258,7 @@ handlePixbufError (GError dom code msg)
 --
 -- * Use this function to load only small images as this call will block.
 --
--- * The function will return @Left (err,msg)@ where @err@
+-- * If an error occurs, the function will return @Left (err,msg)@ where @err@
 --   is the error code and @msg@ is a human readable description
 --   of the error. If an error occurs which is not captured by any of
 --   those in 'PixbufError', an exception is thrown.
@@ -256,6 +276,73 @@ pixbufNewFromFile fname =
     strPtr errPtrPtr)
     (\gerror -> liftM Left $ handlePixbufError gerror)
     (\pbPtr -> liftM Right $ makeNewGObject mkPixbuf (return pbPtr))
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- | Creates a new pixbuf by loading an image from a file. The file format is
+-- detected automatically. The image will be scaled to fit in the requested
+-- size, preserving the image's aspect ratio.
+--
+-- * If an error occurs, the function will return @Left (err,msg)@ where @err@
+--   is the error code and @msg@ is a human readable description
+--   of the error. If an error occurs which is not captured by any of
+--   those in 'PixbufError', an exception is thrown.
+--
+-- * Available since Gtk+ version 2.4
+--
+pixbufNewFromFileAtSize :: String -> Int -> Int -> IO (Either (PixbufError,String) Pixbuf)
+pixbufNewFromFileAtSize filename width height =
+  checkGErrorWithCont
+    (\errPtrPtr -> 
+    withUTFString filename $ \filenamePtr ->
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+    {# call gdk_pixbuf_new_from_file_at_size_utf8 #}
+#else
+    {# call gdk_pixbuf_new_from_file_at_size #}
+#endif
+    filenamePtr
+    (fromIntegral width)
+    (fromIntegral height)
+    errPtrPtr)
+    (\gerror -> liftM Left $ handlePixbufError gerror)
+    (\pbPtr -> liftM Right $ makeNewGObject mkPixbuf (return pbPtr))
+#endif
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Creates a new pixbuf by loading an image from a file. The file format is
+-- detected automatically. The image will be scaled to fit in the requested
+-- size, optionally preserving the image's aspect ratio.
+--
+-- When preserving the aspect ratio, a width of -1 will cause the image to be
+-- scaled to the exact given height, and a height of -1 will cause the image to
+-- be scaled to the exact given width. When not preserving aspect ratio, a width
+-- or height of -1 means to not scale the image at all in that dimension.
+-- Negative values for width and height are allowed since Gtk+ 2.8.
+--
+-- * If an error occurs, the function will return @Left (err,msg)@ where @err@
+--   is the error code and @msg@ is a human readable description
+--   of the error. If an error occurs which is not captured by any of
+--   those in 'PixbufError', an exception is thrown.
+--
+-- * Available since Gtk+ version 2.6
+--
+pixbufNewFromFileAtScale :: String -> Int -> Int -> Bool -> IO (Either (PixbufError,String) Pixbuf)
+pixbufNewFromFileAtScale filename width height preserveAspectRatio =
+  checkGErrorWithCont
+    (\errPtrPtr -> 
+    withUTFString filename $ \filenamePtr ->
+#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
+    {# call gdk_pixbuf_new_from_file_at_scale_utf8 #}
+#else
+    {# call gdk_pixbuf_new_from_file_at_scale #}
+#endif
+    filenamePtr
+    (fromIntegral width)
+    (fromIntegral height)
+    (fromBool preserveAspectRatio)
+    errPtrPtr)
+    (\gerror -> liftM Left $ handlePixbufError gerror)
+    (\pbPtr -> liftM Right $ makeNewGObject mkPixbuf (return pbPtr))
+#endif
 
 -- | A string representing an image file format.
 --
