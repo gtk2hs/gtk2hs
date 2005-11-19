@@ -1,3 +1,10 @@
+2005-11-19 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp: remove the
+	treeModelRefNode and treeModelUnrefNode functions since they would
+	only be used by implementations of views and we do not expect many of
+	these to be implemented in Haskell.
+
 2005-11-18 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: add pixbufNewFromFileAtSize
