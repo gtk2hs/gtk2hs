@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.14 $ from $Date: 2005/10/26 15:49:45 $
+--  Version $Revision: 1.15 $ from $Date: 2005/11/19 09:53:47 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -155,6 +155,7 @@ instance Fractional PangoUnit where
 -- * Specifies x, y, width and height
 --
 data PangoRectangle = PangoRectangle PangoUnit PangoUnit PangoUnit PangoUnit
+		      deriving Show
 
 -- Cheating functions: We marshal PangoRectangles as Rectangles.
 fromRect :: Rectangle -> PangoRectangle

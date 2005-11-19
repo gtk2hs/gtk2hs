@@ -5,7 +5,7 @@
 --
 --  Created: 15 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.9 $ from $Date: 2005/11/19 09:53:47 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -273,7 +273,10 @@ menuItemRightJustified = newAttr
 --------------------
 -- Signals
 
--- | The user has chosen the menu item and the item does not contain a submenu.
+-- | The user has chosen the menu item.
+--
+-- * This is the only function applications normally connect to.
+--   It is not emitted if the item has a submenu.
 --
 onActivateLeaf, afterActivateLeaf :: MenuItemClass self => self
  -> IO ()
@@ -281,7 +284,10 @@ onActivateLeaf, afterActivateLeaf :: MenuItemClass self => self
 onActivateLeaf = connect_NONE__NONE "activate" False
 afterActivateLeaf = connect_NONE__NONE "activate" True
 
--- | Emitted when the user chooses this item even if it has submenus.
+-- | Emitted when the user chooses a menu item that has a submenu.
+--
+-- * This signal is not emitted if the menu item does not have a
+--   submenu.
 --
 onActivateItem, afterActivateItem :: MenuItemClass self => self
  -> IO ()
