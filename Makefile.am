@@ -34,7 +34,8 @@ pkglib_LIBRARIES += libHScairo.a
 endif
 pkglib_LIBRARIES +=	\
 	libHSgtk.a	\
-        libHSmogul.a
+	libHSmogul.a	\
+	libHSsoegtk.a
 if ENABLE_LIBGLADE
 pkglib_LIBRARIES += libHSglade.a
 endif
@@ -1282,6 +1283,54 @@ libHSgtkglext_a_AR = $(AR) $(ARFLAGS)
 endif
 
 endif #ENABLE_GTKGLEXT
+
+#
+#	soegtk package
+#
+################################################################################
+
+soegtk_PKGNAME = libHSsoegtk_a
+
+libHSsoegtk_a_PACKAGE		= soegtk/soegtk.$(PKGEXT)
+libHSsoegtk_a_PACKAGEDEPS	= 
+libHSsoegtk_a_LIBS		= 
+libHSsoegtk_a_HCFLAGS		= $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSsoegtk_a_CFLAGS 		= 
+libHSsoegtk_a_CPPFLAGS 		= 
+
+libHSsoegtk_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) soegtk
+soegtk/libHSsoegtk_a.deps	: gtk/libHSgtk_a.deps
+
+libHSsoegtk_a_SOURCES =			\
+	soegtk/Graphics/SOE/Gtk.hs.pp
+
+am_libHSsoegtk_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsoegtk_a_SOURCES))))
+
+libHSsoegtk_a_HSPPFILES    = $(filter %.hs.pp, $(libHSsoegtk_a_SOURCES))
+libHSsoegtk_a_BUILDSOURCES = \
+	$(libHSsoegtk_a_HSPPFILES:.hs.pp=.hs)
+libHSsoegtk_a_HSFILES  = \
+	$(filter %.hs,$(libHSsoegtk_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSsoegtk_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHSsoegtk_a_HSFILES:.hs=.hi)
+
+MOSTLYCLEANFILES += $(am_libHSsoegtk_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.hi)
+
+CLEANFILES+= soegtk/libHSsoegtk_a.deps
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include soegtk/libHSsoegtk_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSsoegtk_a_HCFLAGS += -split-objs
+libHSsoegtk_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSsoegtk_a_AR = $(AR) $(ARFLAGS)
+endif
 
 #
 #	documentation

@@ -1,0 +1,13 @@
+name: soegtk
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: Graphics.SOE.Gtk
+import-dirs: "@hidir@/soegtk"
+library-dirs: @GTK_LIBDIR_CQ@
+hs-libraries: HSsoegtk
+depends: gtk-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@

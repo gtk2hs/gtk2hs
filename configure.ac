@@ -782,6 +782,10 @@ AC_CONFIG_FILES([
   gtkglext/gtkglext.pkg
   gtkglext/gtkglext.package.conf
   gtkglext/gtkglext.cabal
+
+  soegtk/soegtk.pkg
+  soegtk/soegtk.package.conf
+  soegtk/soegtk.cabal
   ])
 AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
 AC_OUTPUT

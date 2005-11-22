@@ -1,3 +1,12 @@
+2005-11-22 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* soegtk/Graphics/SOE/Gtk.hs.pp: add an implementation of the SOE API.
+
+	* soegtk/soegtk.cabal.in, soegtk/soegtk.pkg.in,
+	soegtk/soegtk.package.conf.in: add package files.
+
+	* configure.ac, Makefile.am: add support for building the new package.
+
 2005-11-19 Axel Simon <A.Simon@kent.ac.uk>
 
 	* gtk/Graphics/UI/Gtk/MenuComboToolbar/MenuItem.chs: Improve docs.
