@@ -5,7 +5,7 @@
 --
 --  Created: 30 July 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 1999-2005 Axel Simon, Duncan Coutts
 --
@@ -90,7 +90,6 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import System.Glib.GObject (makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 

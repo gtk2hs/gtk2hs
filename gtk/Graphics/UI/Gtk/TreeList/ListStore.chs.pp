@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -84,7 +84,7 @@ import Monad	(liftM, when)
 import Maybe	(fromMaybe)
 
 import System.Glib.FFI
-import System.Glib.GObject			(makeNewGObject)
+import System.Glib.GObject			(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
@@ -102,7 +102,7 @@ import System.Glib.StoreValue			(TMType(..), GenericValue(..)
 --
 listStoreNew :: [TMType] -> IO ListStore
 listStoreNew types =
-  makeNewGObject mkListStore $
+  constructNewGObject mkListStore $
   withArray (map (fromIntegral . fromEnum) types) $ \typesArr ->
   {# call unsafe list_store_newv #}
     ((fromIntegral . length) types)

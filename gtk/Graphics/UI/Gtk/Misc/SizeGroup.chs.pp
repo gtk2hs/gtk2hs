@@ -5,7 +5,7 @@
 --
 --  Created: 2 August 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -92,7 +92,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -109,7 +109,7 @@ sizeGroupNew ::
     SizeGroupMode -- ^ @mode@ - the mode for the new size group.
  -> IO SizeGroup
 sizeGroupNew mode =
-  makeNewGObject mkSizeGroup $
+  constructNewGObject mkSizeGroup $
   {# call unsafe size_group_new #}
     ((fromIntegral . fromEnum) mode)
 

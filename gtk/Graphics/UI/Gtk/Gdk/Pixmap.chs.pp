@@ -5,7 +5,7 @@
 --
 --  Created: 05 July 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/10/26 15:47:36 $
+--  Version $Revision: 1.3 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2005 Armin Groesslinger
 --
@@ -53,7 +53,7 @@ module Graphics.UI.Gtk.Gdk.Pixmap (
 
 import Maybe
 import System.Glib.FFI
-import System.Glib.GObject           (makeNewGObject)
+import System.Glib.GObject           (constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Gdk.Drawable  (Drawable, DrawableClass(..))
 
@@ -78,7 +78,7 @@ pixmapNew :: DrawableClass drawable
  -> Maybe Int      -- ^ @depth@  - depth of the pixmap
  -> IO Pixmap
 pixmapNew mbDrawable width height depth =
-    makeNewGObject mkPixmap $
+    constructNewGObject mkPixmap $
     {# call unsafe pixmap_new #}
       (maybe (mkDrawable nullForeignPtr) toDrawable mbDrawable)
       (fromIntegral width) (fromIntegral height)
@@ -92,7 +92,7 @@ pixmapNew ::
  -> Maybe Int        -- ^ @depth@  - depth of the pixmap
  -> IO Pixmap
 pixmapNew mbDrawWindow width height depth =
-    makeNewGObject mkPixmap $
+    constructNewGObject mkPixmap $
     {# call unsafe pixmap_new #}
       (maybe (mkDrawWindow nullForeignPtr) toDrawWindow mbDrawWindow)
       (fromIntegral width) (fromIntegral height)

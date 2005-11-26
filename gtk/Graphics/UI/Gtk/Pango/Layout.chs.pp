@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.8 $ from $Date: 2005/10/30 11:55:28 $
+--  Version $Revision: 1.9 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -128,7 +128,7 @@ import Char     (ord, chr)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList                (readGSList)
-import System.Glib.GObject              (makeNewGObject, objectRef)
+import System.Glib.GObject              (constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Pango.Markup	(Markup)
 import Graphics.UI.Gtk.General.Enums
@@ -156,7 +156,7 @@ throwIO = throw
 --
 layoutEmpty :: PangoContext -> IO PangoLayout
 layoutEmpty pc = do
-  pl <- makeNewGObject mkPangoLayoutRaw
+  pl <- constructNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_new#} (toPangoContext pc))
   ps <- makeNewPangoString ""
   psRef <- newIORef ps
@@ -166,7 +166,7 @@ layoutEmpty pc = do
 --
 layoutText :: PangoContext -> String -> IO PangoLayout
 layoutText pc txt = do
-  pl <- makeNewGObject mkPangoLayoutRaw
+  pl <- constructNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_new#} (toPangoContext pc))
   withUTFStringLen txt $ \(strPtr,len) ->
     {#call unsafe layout_set_text#} pl strPtr (fromIntegral len)
@@ -178,19 +178,15 @@ layoutText pc txt = do
 --
 layoutCopy :: PangoLayout -> IO PangoLayout
 layoutCopy (PangoLayout uc pl) = do
-  pl <- makeNewGObject mkPangoLayoutRaw
+  pl <- constructNewGObject mkPangoLayoutRaw
     ({#call unsafe layout_copy#} pl)
   return (PangoLayout uc pl)
 
 -- | Retrieves the 'PangoContext' from this layout.
 --
 layoutGetContext :: PangoLayout -> IO PangoContext
-layoutGetContext (PangoLayout _ pl) = do
-  pcPtr <- {#call unsafe layout_get_context#} pl
-  objectRef pcPtr
-  pc <- makeNewGObject mkPangoContext (return pcPtr)
-  return pc
-   
+layoutGetContext (PangoLayout _ pl) = makeNewGObject mkPangoContext $ do
+  {#call unsafe layout_get_context#} pl
 
 -- | Signal a 'Context' change.
 --

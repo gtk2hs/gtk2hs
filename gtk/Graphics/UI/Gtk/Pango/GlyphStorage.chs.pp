@@ -5,7 +5,7 @@
 --
 --  Created: 31 July 2005
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/26 15:49:45 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2005 Axel Simon
 --
@@ -45,7 +45,6 @@ import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.UTFString
 import System.Glib.GList                (readGSList)
-import System.Glib.GObject              (makeNewGObject)
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.General.Structs (PangoDirection(..), pangodirToLevel,
 					pangoItemRawAnalysis,

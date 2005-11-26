@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -60,7 +60,7 @@ module Graphics.UI.Gtk.Multiline.TextTagTable (
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GObject	(makeNewGObject)
+import System.Glib.GObject	(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -73,7 +73,7 @@ import System.Glib.GObject	(makeNewGObject)
 --
 textTagTableNew :: IO TextTagTable
 textTagTableNew =
-  makeNewGObject mkTextTagTable $
+  constructNewGObject mkTextTagTable $
   {# call unsafe text_tag_table_new #}
 
 --------------------

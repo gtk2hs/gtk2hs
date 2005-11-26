@@ -5,7 +5,7 @@
 --
 --  Created: 15 April 2004
 --
---  Version $Revision: 1.3 $ from $Date: 2005/05/20 23:54:02 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts, Axel Simon
 --
@@ -42,7 +42,6 @@ import Maybe    (fromMaybe)
 import System.Glib.FFI
 import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
-import System.Glib.GObject              (makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}

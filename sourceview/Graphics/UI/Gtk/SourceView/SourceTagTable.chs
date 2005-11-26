@@ -6,7 +6,7 @@
 --
 --  Created: 22 October 2003
 --
---  Version $Revision: 1.4 $ from $Date: 2005/09/20 00:05:34 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2003-2005 Duncan Coutts, Axel Simon
 --
@@ -38,7 +38,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GList        (fromGSList, toGSList)
-import System.Glib.GObject	(makeNewGObject)
+import System.Glib.GObject	(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -51,7 +51,7 @@ import Graphics.UI.Gtk.SourceView.SourceTag
 -- | Create a new 'SourceTagTable'
 --
 sourceTagTableNew :: IO SourceTagTable
-sourceTagTableNew = makeNewGObject mkSourceTagTable
+sourceTagTableNew = constructNewGObject mkSourceTagTable
   {#call unsafe source_tag_table_new#} 
 
 

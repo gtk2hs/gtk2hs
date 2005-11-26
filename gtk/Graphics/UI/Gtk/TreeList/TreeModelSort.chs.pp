@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts, Axel Simon
 --
@@ -68,7 +68,8 @@ module Graphics.UI.Gtk.TreeList.TreeModelSort (
 import Monad	(liftM, when)
 
 import System.Glib.FFI
-import System.Glib.GObject			(makeNewGObject)
+import System.Glib.GObject			(constructNewGObject,
+						 makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
@@ -90,7 +91,7 @@ instance TreeModelClass TreeModelSort
 --
 treeModelSortNewWithModel :: TreeModelClass childModel => childModel -> IO TreeModelSort
 treeModelSortNewWithModel childModel =
-  makeNewGObject mkTreeModelSort $
+  constructNewGObject mkTreeModelSort $
   liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelSort) $
   {# call unsafe tree_model_sort_new_with_model #}
     (toTreeModel childModel)

@@ -6,7 +6,7 @@
 --
 --  Created: 14 October 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2005/09/20 00:05:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2003-2005 Duncan Coutts, Axel Simon
 --
@@ -39,7 +39,7 @@ import Monad	(liftM, mapM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList        (readGSList)
-import System.Glib.GObject	(makeNewGObject)
+import System.Glib.GObject	(makeNewGObject, constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -52,10 +52,10 @@ import System.Glib.GObject	(makeNewGObject)
 -- | Create a new 'SourceLanguagesManager'.
 --
 sourceLanguagesManagerNew :: IO SourceLanguagesManager
-sourceLanguagesManagerNew = makeNewGObject mkSourceLanguagesManager
+sourceLanguagesManagerNew = constructNewGObject mkSourceLanguagesManager
   {#call source_languages_manager_new#} 
 
--- | 
+-- | Gets a list of available languages for the given language manager.
 -- 
 sourceLanguagesManagerGetAvailableLanguages :: SourceLanguagesManager -> 
 					       IO [SourceLanguage]
@@ -64,7 +64,8 @@ sourceLanguagesManagerGetAvailableLanguages lm = do
   wList <- readGSList gList
   mapM (makeNewGObject mkSourceLanguage) (map return wList)
 
--- | 
+-- | Gets the 'SourceLanguage' which is associated with the given mime type
+--   in the language manager.
 -- 
 sourceLanguagesManagerGetLanguageFromMimeType :: SourceLanguagesManager -> String -> IO (Maybe SourceLanguage)
 sourceLanguagesManagerGetLanguageFromMimeType lm mimeType = do

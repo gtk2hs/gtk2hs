@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.4 $ from $Date: 2005/05/14 01:50:38 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2001 Axel Simon
 --
@@ -38,6 +38,7 @@ module System.Glib.GObject (
   objectRef,
   objectUnref,
   makeNewGObject,
+  constructNewGObject,
   
   -- ** Callback support
   DestroyNotify,
@@ -97,10 +98,11 @@ foreign import ccall unsafe "g_object_unref"
 #endif
 
 
--- | This is a convenience function to generate an object that does not
--- derive from Object. It adds objectUnref as finalizer.
+-- | This function wraps any object that does not
+-- derive from Object. The object is reference, hence it should be used
+-- whenever a function returns a pointer to an internal 'GObject'.
 --
--- * The constr argument is the contructor of the specific object.
+-- * The first argument is the contructor of the specific object.
 --
 makeNewGObject :: GObjectClass obj => 
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
@@ -113,6 +115,20 @@ makeNewGObject constr generator = do
 {#pointer GDestroyNotify as DestroyNotify#}
 
 foreign import ccall "wrapper" mkDestroyNotifyPtr :: IO () -> IO DestroyNotify
+
+-- | This function wraps any object that does not
+-- derive from Object. The object is NOT reference, hence it should be used
+-- when a new object is created. Newly created 'GObject's have a reference
+-- count of one, hence don't need ref'ing.
+--
+-- * The first argument is the contructor of the specific object.
+--
+constructNewGObject :: GObjectClass obj => 
+  (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
+constructNewGObject constr generator = do
+  objPtr <- generator
+  obj <- newForeignPtr objPtr (objectUnref objPtr)
+  return $ constr obj
 
 -- | Many methods in classes derived from GObject take a callback function and
 -- a destructor function which is called to free that callback function when

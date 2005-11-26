@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Version $Revision: 1.17 $ from $Date: 2005/10/29 23:44:32 $
+--  Version $Revision: 1.18 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -217,7 +217,7 @@ import System.Glib.Flags		(fromFlags, toFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -330,7 +330,7 @@ widgetCreateLayout :: WidgetClass self => self
  -> String    -- ^ @text@ - text to set on the layout
  -> IO PangoLayout
 widgetCreateLayout self text = do
-  pl <- makeNewGObject mkPangoLayoutRaw $
+  pl <- constructNewGObject mkPangoLayoutRaw $
     withUTFString text $ \textPtr ->
     {# call unsafe widget_create_pango_layout #}
       (toWidget self)
@@ -1053,7 +1053,7 @@ widgetModifyFont self fontDesc =
 widgetCreatePangoContext :: WidgetClass self => self
  -> IO PangoContext -- ^ returns the new 'PangoContext'
 widgetCreatePangoContext self =
-  makeNewGObject mkPangoContext $
+  constructNewGObject mkPangoContext $
   {# call gtk_widget_create_pango_context #}
     (toWidget self)
 
@@ -1073,7 +1073,7 @@ widgetCreatePangoContext self =
 widgetGetPangoContext :: WidgetClass self => self
  -> IO PangoContext -- ^ returns the 'PangoContext' for the widget.
 widgetGetPangoContext self =
-  makeNewGObject mkPangoContext $
+  constructNewGObject mkPangoContext $
   {# call gtk_widget_get_pango_context #}
     (toWidget self)
 
@@ -1107,7 +1107,7 @@ widgetRenderIcon self stockId size detail = do
     {# call gtk_widget_render_icon #}
       (toWidget self) stockIdPtr  ((fromIntegral . fromEnum) size) detailPtr
   if pixbufPtr==nullPtr then return Nothing else 
-    liftM Just $ makeNewGObject mkPixbuf (return pixbufPtr)
+    liftM Just $ constructNewGObject mkPixbuf (return pixbufPtr)
 
 -- | Set if this widget can receive keyboard input.
 --

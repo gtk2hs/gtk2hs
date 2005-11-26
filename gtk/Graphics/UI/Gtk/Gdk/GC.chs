@@ -5,7 +5,7 @@
 --
 --  Created: 28 September 2002
 --
---  Version $Revision: 1.5 $ from $Date: 2005/06/22 16:00:48 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -82,7 +82,7 @@ import Maybe	(fromJust, isJust)
 import Control.Exception (handle)
 
 import System.Glib.FFI
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs
 import Graphics.UI.Gtk.General.Enums	(Function(..), Fill(..), SubwindowMode(..), LineStyle(..), 
@@ -97,7 +97,7 @@ gcNew :: DrawableClass d => d -> IO GC
 gcNew d = do
   gcPtr <- {#call unsafe gc_new#} (toDrawable d)
   if (gcPtr==nullPtr) then return (error "gcNew: null graphics context.")
-		      else makeNewGObject mkGC (return gcPtr)
+		      else constructNewGObject mkGC (return gcPtr)
 
 
 -- | Creates a graphics context with specific values.
@@ -105,7 +105,7 @@ gcNew d = do
 gcNewWithValues :: DrawableClass d => d -> GCValues -> IO GC
 gcNewWithValues d gcv = allocaBytes (sizeOf gcv) $ \vPtr -> do
   mask <- pokeGCValues vPtr gcv
-  gc <- makeNewGObject mkGC $ {#call unsafe gc_new_with_values#} 
+  gc <- constructNewGObject mkGC $ {#call unsafe gc_new_with_values#} 
     (toDrawable d) (castPtr vPtr) mask
   handle (const $ return ()) $ when (isJust (tile gcv)) $ 
     touchForeignPtr ((unPixmap.fromJust.tile) gcv)

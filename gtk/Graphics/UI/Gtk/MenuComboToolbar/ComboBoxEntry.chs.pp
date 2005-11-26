@@ -5,7 +5,7 @@
 --
 --  Created: 25 April 2004
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -82,7 +82,6 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
-import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}

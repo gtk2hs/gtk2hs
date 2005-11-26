@@ -4,7 +4,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 13 March 2002
 --
---  Version $Revision: 1.3 $ from $Date: 2005/10/19 22:13:29 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (c) 2002 Manuel M T Chakravarty
 --  Modified 2003, 2005 by Duncan Coutts (gtk2hs port)
@@ -62,7 +62,7 @@ import Control.Exception (evaluate)
 import System.Glib.FFI
 import System.Glib.GType
 import Graphics.UI.Gtk.Abstract.Object   (makeNewObject)
-import System.Glib.GObject  (makeNewGObject)
+import System.Glib.GObject  (constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Glade.Types#}
 import System.Glib.GList
@@ -81,7 +81,7 @@ xmlNew file =
   withCString file                $ \strPtr1 -> do
   xmlPtr <- {#call unsafe xml_new#} strPtr1 nullPtr nullPtr
   if xmlPtr==nullPtr then return Nothing
-                     else liftM Just $ makeNewGObject mkGladeXML (return xmlPtr)
+                     else liftM Just $ constructNewGObject mkGladeXML (return xmlPtr)
 
 -- | Create a new GladeXML object (and the corresponding widgets) from the
 -- given XML file.
@@ -102,7 +102,7 @@ xmlNewWithRootAndDomain ::
                   -- 'Nothing' for default)
  -> IO (Maybe GladeXML)
 xmlNewWithRootAndDomain file rootWidgetName domain =
-  maybeNull (makeNewGObject mkGladeXML) $
+  maybeNull (constructNewGObject mkGladeXML) $
   withCString file $ \filePtr ->
   maybeWith withCString rootWidgetName $ \rootWidgetNamePtr ->
   maybeWith withCString domain $ \domainPtr ->

@@ -6,7 +6,7 @@
 --
 --  Created: 15 October 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2005/09/20 00:05:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2003-2005 Duncan Coutts, Axel Simon
 --
@@ -65,7 +65,8 @@ import Maybe    (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.GList		(fromGSList)
-import System.Glib.GObject              (makeNewGObject)
+import System.Glib.GObject              (constructNewGObject,
+					 makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
@@ -82,7 +83,7 @@ import Graphics.UI.Gtk.SourceView.SourceMarker
 -- taking a 'SourceTagTable'.
 --
 sourceBufferNew :: Maybe SourceTagTable -> IO SourceBuffer
-sourceBufferNew tt = makeNewGObject mkSourceBuffer $
+sourceBufferNew tt = constructNewGObject mkSourceBuffer $
   {#call unsafe source_buffer_new#} 
   (fromMaybe (mkSourceTagTable nullForeignPtr) tt)
 
@@ -90,7 +91,7 @@ sourceBufferNew tt = makeNewGObject mkSourceBuffer $
 -- with a 'SourceLanguage'.
 --
 sourceBufferNewWithLanguage :: SourceLanguage -> IO SourceBuffer
-sourceBufferNewWithLanguage lang = makeNewGObject mkSourceBuffer $
+sourceBufferNewWithLanguage lang = constructNewGObject mkSourceBuffer $
   {#call unsafe source_buffer_new_with_language#} lang
 
 -- | 
@@ -197,12 +198,36 @@ sourceBufferEndNotUndoableAction :: SourceBuffer -> IO ()
 sourceBufferEndNotUndoableAction sb =
   {#call source_buffer_end_not_undoable_action#} sb
 
--- | 
+-- | Creates a marker in the buffer of the given type.
 --
-sourceBufferCreateMarker :: SourceBuffer -> String -> String -> TextIter -> IO SourceMarker
+-- *  A marker is
+--    semantically very similar to a 'Graphics.UI.Gtk.Multiline.TextMark',
+--    except it has a type
+--    which is used by the 'SourceView' displaying the buffer to show a
+--    pixmap on the left margin, at the line the marker is in.  Because
+--    of this, a marker is generally associated to a line and not a
+--    character position.  Markers are also accessible through a position
+--    or range in the buffer.
+--
+-- *  Markers are implemented using 'Graphics.UI.Gtk.Multiline.TextMark',
+--    so all characteristics
+--    and restrictions to marks apply to markers too.  These includes
+--    life cycle issues and 'Graphics.UI.Gtk.Multiline.TextMark.onMarkSet'
+--    and 'Graphics.UI.Gtk.Multiline.TextMark.onMarkDeleted' signal
+--    emissions.
+--
+-- *  Like a 'Graphics.UI.Gtk.Multiline.TextMark', a 'SourceMarker'
+--    can be anonymous if the
+--    passed name is @Nothing@.  Also, the buffer owns the markers so you
+--    shouldn't unreference it.
+
+sourceBufferCreateMarker :: SourceBuffer -- the buffer
+			 -> Maybe String -- the name of the marker
+			 -> String -- the type of the marker
+			 -> TextIter -> IO SourceMarker
 sourceBufferCreateMarker sb name markerType iter =
-  makeNewGObject mkSourceMarker $
-  withCString name       $ \strPtr1 ->
+  constructNewGObject mkSourceMarker $
+  maybeWith withCString name       $ \strPtr1 ->
   withCString markerType $ \strPtr2 ->
   {#call source_buffer_create_marker#} sb strPtr1 strPtr2 iter
 
@@ -220,13 +245,15 @@ sourceBufferDeleteMarker sb mark =
 
 -- | 
 --
-sourceBufferGetMarker :: SourceBuffer -> String -> IO SourceMarker
+sourceBufferGetMarker :: SourceBuffer -> String -> IO (Maybe SourceMarker)
 sourceBufferGetMarker sb name =
-  makeNewGObject mkSourceMarker $
+  maybeNull (makeNewGObject mkSourceMarker) $
   withCString name $ \strPtr1 ->
   {#call unsafe source_buffer_get_marker#} sb strPtr1
 
--- | 
+-- | Returns an /ordered/ (by position) list of 'SourceMarker's inside the
+--   region delimited by the two 'TextIter's. The iterators may be in any
+--   order.
 --
 sourceBufferGetMarkersInRegion :: SourceBuffer -> TextIter -> TextIter -> IO [SourceMarker]
 sourceBufferGetMarkersInRegion sb begin end = do
@@ -234,18 +261,18 @@ sourceBufferGetMarkersInRegion sb begin end = do
   wList <- fromGSList gList
   mapM (makeNewGObject mkSourceMarker) (map return wList)
 
--- | 
+-- | Returns the first (nearest to the top of the buffer) marker.
 --
-sourceBufferGetFirstMarker :: SourceBuffer -> IO SourceMarker
+sourceBufferGetFirstMarker :: SourceBuffer -> IO (Maybe SourceMarker)
 sourceBufferGetFirstMarker sb =
-  makeNewGObject mkSourceMarker $
+  maybeNull (makeNewGObject mkSourceMarker) $
   {#call unsafe source_buffer_get_first_marker#} sb
 
--- | 
+-- | Returns the last (nearest to the bottom of the buffer) marker.
 --
-sourceBufferGetLastMarker :: SourceBuffer -> IO SourceMarker
+sourceBufferGetLastMarker :: SourceBuffer -> IO (Maybe SourceMarker)
 sourceBufferGetLastMarker sb =
-  makeNewGObject mkSourceMarker $
+  maybeNull (makeNewGObject mkSourceMarker) $
   {#call unsafe source_buffer_get_last_marker#} sb
 
 -- | 
@@ -256,18 +283,24 @@ sourceBufferGetIterAtMarker sb mark = do
   {#call unsafe source_buffer_get_iter_at_marker#} sb iter mark
   return iter
 
--- | 
+-- | Returns the nearest marker to the right of the given iterator.
+-- If there are
+-- multiple markers at the same position, this function will always
+-- return the first one (from the internal linked list), even if
+-- starting the search exactly at its location.  You can get the
+-- others using 'sourceMarkerNext'.
 --
 sourceBufferGetNextMarker :: SourceBuffer -> TextIter -> IO (Maybe SourceMarker)
-sourceBufferGetNextMarker sb iter = do
-  markPtr <- {#call unsafe source_buffer_get_next_marker#} sb iter
-  if markPtr==nullPtr then return Nothing
-                      else liftM Just $ makeNewGObject mkSourceMarker (return markPtr)
+sourceBufferGetNextMarker sb iter = maybeNull (makeNewGObject mkSourceMarker) $
+  {#call unsafe source_buffer_get_next_marker#} sb iter
 
--- | 
+-- | Returns the nearest marker to the left of the given iterator.
+-- If there are
+-- multiple markers at the same position, this function will always
+-- return the last one (from the internal linked list), even if
+-- starting the search exactly at its location.  You can get the
+-- others using 'sourceMarkerPrev'.
 --
 sourceBufferGetPrevMarker :: SourceBuffer -> TextIter -> IO (Maybe SourceMarker)
-sourceBufferGetPrevMarker sb iter = do
-  markPtr <- {#call unsafe source_buffer_get_prev_marker#} sb iter
-  if markPtr==nullPtr then return Nothing
-                      else liftM Just $ makeNewGObject mkSourceMarker (return markPtr)
+sourceBufferGetPrevMarker sb iter = maybeNull (makeNewGObject mkSourceMarker) $
+  {#call unsafe source_buffer_get_prev_marker#} sb iter

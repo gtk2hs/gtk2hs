@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.11 $ from $Date: 2005/11/18 14:04:17 $
+--  Version $Revision: 1.12 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -275,7 +275,7 @@ pixbufNewFromFile fname =
 #endif
     strPtr errPtrPtr)
     (\gerror -> liftM Left $ handlePixbufError gerror)
-    (\pbPtr -> liftM Right $ makeNewGObject mkPixbuf (return pbPtr))
+    (\pbPtr -> liftM Right $ constructNewGObject mkPixbuf (return pbPtr))
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Creates a new pixbuf by loading an image from a file. The file format is
@@ -304,7 +304,7 @@ pixbufNewFromFileAtSize filename width height =
     (fromIntegral height)
     errPtrPtr)
     (\gerror -> liftM Left $ handlePixbufError gerror)
-    (\pbPtr -> liftM Right $ makeNewGObject mkPixbuf (return pbPtr))
+    (\pbPtr -> liftM Right $ constructNewGObject mkPixbuf (return pbPtr))
 #endif
 
 #if GTK_CHECK_VERSION(2,6,0)
@@ -341,7 +341,7 @@ pixbufNewFromFileAtScale filename width height preserveAspectRatio =
     (fromBool preserveAspectRatio)
     errPtrPtr)
     (\gerror -> liftM Left $ handlePixbufError gerror)
-    (\pbPtr -> liftM Right $ makeNewGObject mkPixbuf (return pbPtr))
+    (\pbPtr -> liftM Right $ constructNewGObject mkPixbuf (return pbPtr))
 #endif
 
 -- | A string representing an image file format.
@@ -407,7 +407,7 @@ pixbufSave pb fname iType options =
 --
 pixbufNew :: Colorspace -> Bool -> Int -> Int -> Int -> IO Pixbuf
 pixbufNew colorspace hasAlpha bitsPerSample width height =
-  makeNewGObject mkPixbuf $ 
+  constructNewGObject mkPixbuf $ 
     {#call pixbuf_new#} ((fromIntegral . fromEnum) colorspace)
       (fromBool hasAlpha) (fromIntegral bitsPerSample) (fromIntegral width)
       (fromIntegral height)
@@ -420,7 +420,7 @@ pixbufNewFromXPMData :: [String] -> IO Pixbuf
 pixbufNewFromXPMData s =
   bracket (mapM newUTFString s) (mapM free) $ \strPtrs ->
     withArray0 nullPtr strPtrs $ \strsPtr ->
-      makeNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
+      constructNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
 
 -- | A dymmy type for inline picture data.
 --
@@ -469,7 +469,7 @@ pixbufNewFromInline :: Ptr InlineImage -> IO Pixbuf
 pixbufNewFromInline iPtr = alloca $ \errPtrPtr -> do
   pbPtr <- {#call unsafe pixbuf_new_from_inline#} (-1) (castPtr iPtr)
     (fromBool False) (castPtr errPtrPtr)
-  if pbPtr/=nullPtr then makeNewGObject mkPixbuf (return pbPtr)
+  if pbPtr/=nullPtr then constructNewGObject mkPixbuf (return pbPtr)
     else do
       errPtr <- peek errPtrPtr
       (GError dom code msg) <- peek errPtr
@@ -485,7 +485,7 @@ pixbufNewFromInline iPtr = alloca $ \errPtrPtr -> do
 --
 pixbufNewSubpixbuf :: Pixbuf -> Int -> Int -> Int -> Int -> IO Pixbuf
 pixbufNewSubpixbuf pb srcX srcY height width =
-  makeNewGObject mkPixbuf $ do
+  constructNewGObject mkPixbuf $ do
     pbPtr <- {#call unsafe pixbuf_new_subpixbuf#} pb
       (fromIntegral srcX) (fromIntegral srcY)
       (fromIntegral height) (fromIntegral width)
@@ -495,7 +495,7 @@ pixbufNewSubpixbuf pb srcX srcY height width =
 -- | Create a deep copy of an image.
 --
 pixbufCopy :: Pixbuf -> IO Pixbuf
-pixbufCopy pb = makeNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
+pixbufCopy pb = constructNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 
 
 -- | How an image is scaled.
@@ -537,7 +537,7 @@ pixbufCopy pb = makeNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 --
 pixbufScaleSimple :: Pixbuf -> Int -> Int -> InterpType -> IO Pixbuf
 pixbufScaleSimple pb width height interp =
-    makeNewGObject mkPixbuf $ liftM castPtr $ 
+    constructNewGObject mkPixbuf $ liftM castPtr $ 
 	{#call pixbuf_scale_simple#} (toPixbuf pb) 
 	(fromIntegral width) (fromIntegral height)
 	(fromIntegral $ fromEnum interp)
@@ -598,9 +598,9 @@ pixbufComposite src dest destX destY destWidth destHeight
 --   during this substitution.
 --
 pixbufAddAlpha :: Pixbuf -> Maybe (Word8, Word8, Word8) -> IO Pixbuf
-pixbufAddAlpha pb Nothing = makeNewGObject mkPixbuf $
+pixbufAddAlpha pb Nothing = constructNewGObject mkPixbuf $
   {#call unsafe pixbuf_add_alpha#} pb (fromBool False) 0 0 0
-pixbufAddAlpha pb (Just (r,g,b)) = makeNewGObject mkPixbuf $
+pixbufAddAlpha pb (Just (r,g,b)) = constructNewGObject mkPixbuf $
   {#call unsafe pixbuf_add_alpha#} pb (fromBool True)
     (fromIntegral r) (fromIntegral g) (fromIntegral b)
 
@@ -643,10 +643,9 @@ pixbufFill pb red green blue alpha = {#call unsafe pixbuf_fill#} pb
 --   is not currently visible.
 --
 pixbufGetFromDrawable :: DrawableClass d => d -> Rectangle -> IO (Maybe Pixbuf)
-pixbufGetFromDrawable d (Rectangle x y width height) = do
-  pbPtr <- {#call unsafe pixbuf_get_from_drawable#} 
+pixbufGetFromDrawable d (Rectangle x y width height) =
+  maybeNull (constructNewGObject mkPixbuf) $
+  {#call unsafe pixbuf_get_from_drawable#} 
     (mkPixbuf nullForeignPtr) (toDrawable d) (mkColormap nullForeignPtr)
     (fromIntegral x) (fromIntegral y) 0 0
     (fromIntegral width) (fromIntegral height)
-  if pbPtr==nullPtr then return Nothing else liftM Just $
-    makeNewGObject mkPixbuf (return pbPtr)

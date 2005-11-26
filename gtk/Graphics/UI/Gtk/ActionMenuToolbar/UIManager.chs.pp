@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.8 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.9 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -257,7 +257,7 @@ import System.Glib.GList
 import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -280,7 +280,7 @@ newtype MergeId = MergeId { fromMergeId :: {# type guint #}}
 --
 uiManagerNew :: IO UIManager
 uiManagerNew =
-  makeNewGObject mkUIManager $
+  constructNewGObject mkUIManager $
   {# call gtk_ui_manager_new #}
 
 --------------------

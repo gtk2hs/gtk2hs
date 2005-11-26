@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.13 $ from $Date: 2005/11/12 11:47:43 $
+--  Version $Revision: 1.14 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -114,7 +114,7 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Pango.Enums	(FontStyle, Variant, Stretch, Underline)
@@ -135,12 +135,12 @@ type TagName = String
 --
 textTagNew :: Maybe TagName -> IO TextTag
 textTagNew (Just name) =
-  makeNewGObject mkTextTag $
+  constructNewGObject mkTextTag $
   withCString name $ \namePtr ->
   {# call unsafe text_tag_new #}
     namePtr
 textTagNew Nothing =
-  makeNewGObject mkTextTag $ {# call unsafe text_tag_new #} nullPtr
+  constructNewGObject mkTextTag $ {# call unsafe text_tag_new #} nullPtr
     
 
 --------------------

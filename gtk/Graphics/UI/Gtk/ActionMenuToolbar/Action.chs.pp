@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/19 12:57:36 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -143,7 +143,7 @@ import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -169,7 +169,7 @@ actionNew ::
                  -- representing the action
  -> IO Action
 actionNew name label tooltip stockId =
-  makeNewGObject mkAction $
+  constructNewGObject mkAction $
   maybeWith withUTFString stockId $ \stockIdPtr ->
   maybeWith withUTFString tooltip $ \tooltipPtr ->
   withUTFString label $ \labelPtr ->

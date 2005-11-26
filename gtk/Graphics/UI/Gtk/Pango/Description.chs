@@ -5,7 +5,7 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.9 $ from $Date: 2005/10/17 23:06:11 $
+--  Version $Revision: 1.10 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -65,7 +65,6 @@ import System.Glib.FFI
 import System.Glib.Flags		(Flags, fromFlags)
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
-import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Pango.Enums
 import Graphics.UI.Gtk.General.Enums

@@ -5,7 +5,7 @@
 --
 --  Created: 13 February 2003
 --
---  Version $Revision: 1.6 $ from $Date: 2005/11/18 15:41:07 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -65,7 +65,6 @@ module Graphics.UI.Gtk.General.Style (
 
 import Monad		(liftM)
 
-{#import System.Glib.GObject#}	(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums		(StateType)
 import Graphics.UI.Gtk.General.Structs		(styleGetForeground,

@@ -6,7 +6,7 @@
 --
 --  Created: 14 October 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2005/09/20 00:05:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2003-2005 Duncan Coutts, Axel Simon
 --
@@ -55,7 +55,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -69,14 +69,14 @@ import Graphics.UI.Gtk.SourceView.SourceBuffer
 -- | Create a new 'SourceView' widget with a default 'SourceBuffer'.
 --
 sourceViewNew :: IO SourceView
-sourceViewNew = makeNewGObject mkSourceView $ liftM castPtr 
+sourceViewNew = makeNewObject mkSourceView $ liftM castPtr 
   {#call unsafe source_view_new#}
 
 -- | Create a new 'SourceView'
 -- widget with the given 'SourceBuffer'.
 --
 sourceViewNewWithBuffer :: SourceBuffer -> IO SourceView
-sourceViewNewWithBuffer sb = makeNewGObject mkSourceView $ liftM castPtr $
+sourceViewNewWithBuffer sb = makeNewObject mkSourceView $ liftM castPtr $
   {#call unsafe source_view_new_with_buffer#} sb
 
 -- | 
@@ -173,7 +173,7 @@ sourceViewSetMarkerPixbuf sv markerType marker = withCString markerType $ \strPt
 --
 sourceViewGetMarkerPixbuf :: SourceViewClass sv => sv -> String -> IO Pixbuf 
 sourceViewGetMarkerPixbuf sv markerType = withCString markerType $ \strPtr ->
-  makeNewGObject mkPixbuf $
+  constructNewGObject mkPixbuf $
   {#call unsafe source_view_get_marker_pixbuf#} (toSourceView sv) strPtr
 
 -- | 

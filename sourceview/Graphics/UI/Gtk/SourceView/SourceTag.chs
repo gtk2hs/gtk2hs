@@ -6,7 +6,7 @@
 --
 --  Created: 22 October 2003
 --
---  Version $Revision: 1.3 $ from $Date: 2005/09/20 00:05:34 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2003-2005 Duncan Coutts, Axel Simon
 --
@@ -43,7 +43,7 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList   (toGSList, fromGSList)
-import System.Glib.GObject	(makeNewGObject)
+import System.Glib.GObject	(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
 import Graphics.UI.Gtk.SourceView.SourceTagStyle
@@ -56,7 +56,7 @@ import Graphics.UI.Gtk.SourceView.SourceTagStyle
 --
 syntaxTagNew :: String -> String -> String -> String -> IO SourceTag
 syntaxTagNew id name patternStart patternEnd =
-  makeNewGObject mkSourceTag $ liftM castPtr $
+  constructNewGObject mkSourceTag $ liftM castPtr $
   withCString id           $ \strPtr1 -> 
   withCString name         $ \strPtr2 -> 
   withCString patternStart $ \strPtr3 -> 
@@ -67,7 +67,7 @@ syntaxTagNew id name patternStart patternEnd =
 --
 patternTagNew :: String -> String -> String -> IO SourceTag
 patternTagNew id name pattern =
-  makeNewGObject mkSourceTag $ liftM castPtr $
+  constructNewGObject mkSourceTag $ liftM castPtr $
   withCString id      $ \strPtr1 -> 
   withCString name    $ \strPtr2 -> 
   withCString pattern $ \strPtr3 -> 
@@ -86,7 +86,7 @@ keywordListTagNew id name keywords
                   endRegex = do
   keywordPtrs <- mapM newUTFString keywords
   keywordList <- toGSList keywordPtrs
-  obj <- makeNewGObject mkSourceTag $ liftM castPtr $
+  obj <- constructNewGObject mkSourceTag $ liftM castPtr $
 	 withCString  id      $ \strPtr1 -> 
 	 withCString  name    $ \strPtr2 -> 
 	 withCString  beginningRegex $ \strPtr3 -> 
@@ -109,7 +109,7 @@ blockCommentTagNew = syntaxTagNew --in the C header this is just a macro
 --
 lineCommentTagNew :: String -> String -> String -> IO SourceTag
 lineCommentTagNew id name pattern =
-  makeNewGObject mkSourceTag $ liftM castPtr $
+  constructNewGObject mkSourceTag $ liftM castPtr $
   withCString id      $ \strPtr1 ->
   withCString name    $ \strPtr2 ->
   withCString pattern $ \strPtr3 ->
@@ -119,7 +119,7 @@ lineCommentTagNew id name pattern =
 --
 stringTagNew :: String -> String -> String -> String -> Bool -> IO SourceTag
 stringTagNew id name patternStart patternEnd endAtLineEnd =
-  makeNewGObject mkSourceTag $ liftM castPtr $
+  constructNewGObject mkSourceTag $ liftM castPtr $
   withCString id           $ \strPtr1 -> 
   withCString name         $ \strPtr2 -> 
   withCString patternStart $ \strPtr3 -> 

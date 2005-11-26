@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/10/24 10:50:32 $
+--  Version $Revision: 1.7 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -120,7 +120,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(TextDirection(..), StateType(..))
@@ -148,7 +148,8 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid,
 --   the application.
 --
 iconFactoryNew :: IO IconFactory
-iconFactoryNew  = makeNewGObject mkIconFactory {#call unsafe icon_factory_new#}
+iconFactoryNew  =
+  constructNewGObject mkIconFactory {#call unsafe icon_factory_new#}
 
 --------------------
 -- Methods
@@ -421,10 +422,8 @@ iconSourceSetFilename is name =
 -- | Retrieves the source pixbuf, or Nothing if none is set.
 --
 iconSourceGetPixbuf :: IconSource -> IO (Maybe Pixbuf)
-iconSourceGetPixbuf is = do
-  pixbufPtr <- {#call unsafe icon_source_get_pixbuf#} is
-  if pixbufPtr==nullPtr then return Nothing else liftM Just $
-    makeNewGObject mkPixbuf (return pixbufPtr)
+iconSourceGetPixbuf is = maybeNull (makeNewGObject mkPixbuf) $
+  {#call unsafe icon_source_get_pixbuf#} is
 
 -- | Sets a pixbuf to use as a base image when creating icon variants for
 -- 'IconSet'.

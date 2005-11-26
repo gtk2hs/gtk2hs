@@ -5,7 +5,7 @@
 --
 --  Created: 24 April 2004
 --
---  Version $Revision: 1.17 $ from $Date: 2005/11/18 15:54:57 $
+--  Version $Revision: 1.18 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts
 --
@@ -132,7 +132,8 @@ import Data.IORef (newIORef, readIORef, writeIORef)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject		(makeNewGObject, mkFunPtrDestroyNotify)
+import System.Glib.GObject		(constructNewGObject,
+					 makeNewGObject, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -148,7 +149,7 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 --
 entryCompletionNew :: IO EntryCompletion
 entryCompletionNew =
-  makeNewGObject mkEntryCompletion $
+  constructNewGObject mkEntryCompletion $
   {# call gtk_entry_completion_new #}
 
 --------------------

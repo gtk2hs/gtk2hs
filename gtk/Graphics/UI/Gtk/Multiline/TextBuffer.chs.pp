@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.11 $ from $Date: 2005/11/12 11:47:43 $
+--  Version $Revision: 1.12 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -181,7 +181,8 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject			(makeNewGObject)
+import System.Glib.GObject			(constructNewGObject,
+						 makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
@@ -199,7 +200,7 @@ textBufferNew :: TextTagTableClass tt =>
     Maybe tt   -- ^ @table@ - a tag table, or @Nothing@ to create a new one
  -> IO TextBuffer
 textBufferNew table =
-  makeNewGObject mkTextBuffer $
+  constructNewGObject mkTextBuffer $
   {# call unsafe text_buffer_new #}
     (maybe (TextTagTable nullForeignPtr) toTextTagTable table)
 
@@ -467,7 +468,7 @@ textBufferCreateMark :: TextBufferClass self => self
  -> Bool         -- ^ @leftGravity@ - whether the mark has left gravity
  -> IO TextMark  -- ^ returns the new 'TextMark' object
 textBufferCreateMark self markName where_ leftGravity =
-  makeNewGObject mkTextMark $
+  constructNewGObject mkTextMark $
   maybeWith withUTFString markName $ \markNamePtr ->
   {# call text_buffer_create_mark #}
     (toTextBuffer self)

@@ -5,7 +5,7 @@
 --
 --  Created: 17 August 2005
 --
---  Version $Revision: 1.12 $ from $Date: 2005/11/14 00:41:38 $
+--  Version $Revision: 1.13 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -72,7 +72,7 @@ import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Region#} (Region(..))
 import Graphics.UI.Gtk.General.Structs (Rectangle(..), Color(..))
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Pango.Layout ( layoutSetText )
 import Data.IORef
@@ -154,7 +154,7 @@ region region = Render $ do
 --
 cairoFontMapNew :: IO FontMap
 cairoFontMapNew = 
-  makeNewGObject mkFontMap $ {#call unsafe pango_cairo_font_map_new#}
+  constructNewGObject mkFontMap $ {#call unsafe pango_cairo_font_map_new#}
 
 -- | Set the scaling factor between font size and Cairo units.
 --
@@ -181,12 +181,12 @@ cairoFontMapGetResolution (FontMap fm) = liftM realToFrac $
 --   has a scaling factor of 96 dpi. See 'cairoFontMapNew'.
 --
 cairoCreateContext :: Maybe FontMap -> IO PangoContext
-cairoCreateContext (Just (FontMap fm)) = makeNewGObject mkPangoContext $
+cairoCreateContext (Just (FontMap fm)) = constructNewGObject mkPangoContext $
   withForeignPtr fm $ \fmPtr -> -- PangoCairoFontMap /= PangoFontMap
   {#call unsafe pango_cairo_font_map_create_context#} (castPtr fmPtr)
 cairoCreateContext Nothing = do
   fmPtr <- {#call pango_cairo_font_map_get_default#}
-  makeNewGObject mkPangoContext $
+  constructNewGObject mkPangoContext $
     {#call unsafe pango_cairo_font_map_create_context#} (castPtr fmPtr)
 
 -- | Set the scaling factor of the 'PangoContext'.
@@ -254,7 +254,7 @@ createLayout :: String -> Render PangoLayout
 createLayout text = Render $ do
   cr <- ask
   liftIO $ do
-    layRaw <- makeNewGObject mkPangoLayoutRaw $
+    layRaw <- constructNewGObject mkPangoLayoutRaw $
 	      {#call unsafe pango_cairo_create_layout#} cr
     textRef <- newIORef undefined
     let pl = (PangoLayout textRef layRaw)

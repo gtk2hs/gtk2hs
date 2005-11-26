@@ -5,7 +5,7 @@
 --
 --  Created: 25 March 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/11/18 15:54:58 $
+--  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -52,7 +52,7 @@ module Graphics.UI.Gtk.Windows.WindowGroup (
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GObject              (makeNewGObject)
+import System.Glib.GObject              (constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
@@ -66,7 +66,7 @@ import System.Glib.GObject              (makeNewGObject)
 --
 windowGroupNew :: IO WindowGroup
 windowGroupNew =
-  makeNewGObject mkWindowGroup $
+  constructNewGObject mkWindowGroup $
   {# call gtk_window_group_new #}
 
 --------------------

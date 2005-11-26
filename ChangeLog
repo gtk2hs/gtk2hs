@@ -1,3 +1,52 @@
+2005-11-26 Axel Simon <A.Simon@kent.ac.uk>
+
+	* glib/System/Glib/GObject.chs.pp: Add a new constructGObject
+	function that does not increment the reference count of the
+	GObject.
+	
+	* gconf/System/Gnome/GConf/GConfClient.chs
+	glade/Graphics/UI/Gtk/Glade.chs
+	gtk/Graphics/UI/Gtk/Cairo.chs.pp
+	gtk/Graphics/UI/Gtk/Abstract/Widget.chs.pp
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/Action.chs.pp
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup.chs.pp
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs.pp
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ToggleAction.chs.pp
+	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp
+	gtk/Graphics/UI/Gtk/Display/Image.chs.pp
+	gtk/Graphics/UI/Gtk/Display/Label.chs.pp
+	gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp
+	gtk/Graphics/UI/Gtk/Entry/EntryCompletion.chs.pp
+	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp
+	gtk/Graphics/UI/Gtk/Gdk/GC.chs
+	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp
+	gtk/Graphics/UI/Gtk/Gdk/Pixmap.chs.pp
+	gtk/Graphics/UI/Gtk/General/IconFactory.chs.pp
+	gtk/Graphics/UI/Gtk/General/Style.chs
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBoxEntry.chs.pp
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs.pp
+	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp
+	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp
+	gtk/Graphics/UI/Gtk/Multiline/TextTagTable.chs
+	gtk/Graphics/UI/Gtk/Multiline/TextView.chs.pp
+	gtk/Graphics/UI/Gtk/Pango/Description.chs
+	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.chs.pp
+	gtk/Graphics/UI/Gtk/Pango/Layout.chs.pp
+	gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp
+	gtk/Graphics/UI/Gtk/TreeList/TreeModelSort.chs.pp
+	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp
+	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp
+	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs
+	sourceview/Graphics/UI/Gtk/SourceView/SourceBuffer.chs
+	sourceview/Graphics/UI/Gtk/SourceView/SourceIter.chs
+	sourceview/Graphics/UI/Gtk/SourceView/SourceLanguagesManager.chs
+	sourceview/Graphics/UI/Gtk/SourceView/SourceStyleScheme.chs
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTag.chs
+	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs
+	sourceview/Graphics/UI/Gtk/SourceView/SourceView.chs: Replaced
+	occurrences of makeNewGObject with constructNewGObject if the
+	function does pass the reference count to the caller.
+	
 2005-11-22 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* soegtk/Graphics/SOE/Gtk.hs.pp: add an implementation of the SOE API.

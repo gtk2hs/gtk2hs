@@ -5,7 +5,7 @@
 --
 --  Created: 6 April 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/11/18 15:54:57 $
+--  Version $Revision: 1.5 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -75,7 +75,7 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 
@@ -98,7 +98,7 @@ toggleActionNew ::
                     -- representing the action
  -> IO ToggleAction
 toggleActionNew name label tooltip stockId =
-  makeNewGObject mkToggleAction $
+  constructNewGObject mkToggleAction $
   maybeWith withUTFString stockId $ \stockIdPtr ->
   maybeWith withUTFString tooltip $ \tooltipPtr ->
   withUTFString label $ \labelPtr ->

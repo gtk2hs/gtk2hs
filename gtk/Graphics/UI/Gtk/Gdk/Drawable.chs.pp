@@ -5,7 +5,7 @@
 --
 --  Created: 22 September 2002
 --
---  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:06 $
+--  Version $Revision: 1.9 $ from $Date: 2005/11/26 16:00:21 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -67,7 +67,6 @@ module Graphics.UI.Gtk.Gdk.Drawable (
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.General.Structs	(Point, Color)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region, makeNewRegion)

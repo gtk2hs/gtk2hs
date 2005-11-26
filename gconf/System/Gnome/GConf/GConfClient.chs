@@ -91,7 +91,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
 import System.Glib.GError   (GErrorDomain, GErrorClass(..), propagateGError)
-import System.Glib.GObject  (makeNewGObject)
+import System.Glib.GObject  (constructNewGObject)
 {#import System.Gnome.GConf.Signals#}
 {#import System.Gnome.GConf.Types#}
 {#import System.Gnome.GConf.GConfValue#}
@@ -123,7 +123,7 @@ gconfGetDefault = do
   -- we're using gconf without using gtk and initGUI.
   -- It is safe to call g_type_init more than once.
   {# call g_type_init #}
-  makeNewGObject mkGConf {# call gconf_client_get_default #}
+  constructNewGObject mkGConf {# call gconf_client_get_default #}
 
 
 -- Registering for change notifications

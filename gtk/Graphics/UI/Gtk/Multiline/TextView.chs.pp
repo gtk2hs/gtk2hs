@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.7 $ from $Date: 2005/11/12 11:47:43 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2002-2005 Axel Simon
 --
@@ -187,7 +187,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
-import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
@@ -662,7 +662,7 @@ textViewAddChildAtAnchor self child anchor =
 --
 textChildAnchorNew :: IO TextChildAnchor
 textChildAnchorNew =
-  makeNewGObject mkTextChildAnchor
+  constructNewGObject mkTextChildAnchor
   {# call unsafe text_child_anchor_new #}
 
 -- | Retrieve all 'Widget's at this
