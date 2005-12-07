@@ -1,5 +1,26 @@
 2005-11-26 Axel Simon <A.Simon@kent.ac.uk>
 
+	* glib/System/Glib/Signals.chs.pp, gtk/Graphics/UI/Gtk.hs: Add new
+	signal functions and export some of them.
+
+	* tools/callbackGen/gtkmarshal.list,
+	gtk/Graphics/UI/Gtk/Entry/Editable.chs.pp: Add text_insert signal
+	and the ability to stop the signal.
+
+	* gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp: Renamed
+	onInsertText to onBufferInsertText. This breaks the API but
+	changing this function seems more natural than the function in
+	Editable.
+
+	* gtk/Graphics/UI/Gtk/Pango/Types.chs.pp: Removed unnecessary
+	function.
+
+	* gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp,
+	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp: Fixed
+	documentation.
+
+2005-11-26 Axel Simon <A.Simon@kent.ac.uk>
+
 	* glib/System/Glib/GObject.chs.pp: Add a new constructGObject
 	function that does not increment the reference count of the
 	GObject.

@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.8 $ from $Date: 2005/11/26 16:00:22 $
+--  Version $Revision: 1.9 $ from $Date: 2005/12/07 12:57:37 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -167,8 +167,9 @@ listStoreRemove self iter =
 -- | Insert a new row into the list.
 --
 -- * The @pos@ parameter
--- determines the row number where the row should be inserted. Set this to
--- @-1@ to insert at the end of the list.
+-- determines the row number where the row should be inserted. If the position 
+-- is greater or equal to the number of rows, the new row will be inserted
+-- at the end.
 --
 listStoreInsert :: ListStoreClass self => self
  -> Int      -- ^ @position@ - position to insert the new row

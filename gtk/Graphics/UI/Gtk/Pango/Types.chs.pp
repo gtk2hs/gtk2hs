@@ -5,7 +5,7 @@
 --
 --  Created: 9 Feburary 2003
 --
---  Version $Revision: 1.15 $ from $Date: 2005/11/19 09:53:47 $
+--  Version $Revision: 1.16 $ from $Date: 2005/12/07 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -331,9 +331,6 @@ foreign import ccall unsafe "pango_layout_line_unref"
   pango_layout_line_unref :: Ptr LayoutLineRaw -> IO ()
 
 #endif
-
-foreign import ccall unsafe "pango_layout_line_ref"
-  pango_layout_line_ref :: Ptr LayoutLineRaw -> IO ()
 
 -- | A possibly partial description of font(s).
 --

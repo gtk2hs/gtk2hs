@@ -5,7 +5,7 @@
 --
 --  Created: 23 February 2002
 --
---  Version $Revision: 1.12 $ from $Date: 2005/11/26 16:00:22 $
+--  Version $Revision: 1.13 $ from $Date: 2005/12/07 12:57:37 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -162,8 +162,8 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   afterEndUserAction,
   onInsertPixbuf,
   afterInsertPixbuf,
-  onInsertText,
-  afterInsertText,
+  onBufferInsertText,
+  afterBufferInsertText,
   onMarkDeleted,
   afterMarkDeleted,
   onMarkSet,
@@ -468,7 +468,7 @@ textBufferCreateMark :: TextBufferClass self => self
  -> Bool         -- ^ @leftGravity@ - whether the mark has left gravity
  -> IO TextMark  -- ^ returns the new 'TextMark' object
 textBufferCreateMark self markName where_ leftGravity =
-  constructNewGObject mkTextMark $
+  makeNewGObject mkTextMark $
   maybeWith withUTFString markName $ \markNamePtr ->
   {# call text_buffer_create_mark #}
     (toTextBuffer self)
@@ -1054,15 +1054,15 @@ afterInsertPixbuf = connect_BOXED_OBJECT__NONE "insert_pixbuf" mkTextIterCopy Tr
 
 -- | Some text was inserted.
 --
-onInsertText, afterInsertText :: TextBufferClass self => self
+onBufferInsertText, afterBufferInsertText :: TextBufferClass self => self
  -> (TextIter -> String -> IO ())
  -> IO (ConnectId self)
-onInsertText self user = 
+onBufferInsertText self user = 
   connect_BOXED_PTR_INT__NONE "insert_text" mkTextIterCopy False self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)
       user iter str 
-afterInsertText self user = 
+afterBufferInsertText self user = 
   connect_BOXED_PTR_INT__NONE "insert_text" mkTextIterCopy True self $
     \iter strP strLen -> do
       str <- peekUTFStringLen (strP,strLen)

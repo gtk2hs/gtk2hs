@@ -5,7 +5,7 @@
 --
 --  Created: 9 April 2001
 --
---  Version $Revision: 1.24 $ from $Date: 2005/11/12 15:10:38 $
+--  Version $Revision: 1.25 $ from $Date: 2005/12/07 12:57:37 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -379,7 +379,10 @@ import Graphics.UI.Gtk.Embedding.Plug
 import Graphics.UI.Gtk.Embedding.Socket
 
 -- non widgets
-import System.Glib.Signals		(ConnectId, disconnect)
+import System.Glib.Signals		(ConnectId, disconnect,
+					 signalDisconnect,
+					 signalBlock,
+					 signalUnblock)
 import System.Glib.Attributes
 
 -- pango modules

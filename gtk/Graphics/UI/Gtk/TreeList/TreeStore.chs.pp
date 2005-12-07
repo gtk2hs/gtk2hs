@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.9 $ from $Date: 2005/11/26 16:00:22 $
+--  Version $Revision: 1.10 $ from $Date: 2005/12/07 12:57:38 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -153,8 +153,9 @@ treeStoreRemove self iter =
 
 -- | Insert a child node into the tree. If the parent
 -- is Nothing the insert at the root of the tree. The pos parameter determines
--- the position with respect to other siblings. Set this to -1 to insert the
--- node as last node.
+-- the position with respect to other siblings. If the position is larger than
+-- the number of rows at that level, then the new row will be inserted at the
+-- end of the list. 
 --
 treeStoreInsert :: TreeStoreClass self => self
  -> Maybe TreeIter -- ^ @parent@ - A valid 'TreeIter', or @Nothing@

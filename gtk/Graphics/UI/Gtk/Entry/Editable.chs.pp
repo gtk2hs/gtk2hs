@@ -5,7 +5,7 @@
 --
 --  Created: 30 July 2004
 --
---  Version $Revision: 1.10 $ from $Date: 2005/11/26 16:00:21 $
+--  Version $Revision: 1.11 $ from $Date: 2005/12/07 12:57:37 $
 --
 --  Copyright (C) 1999-2005 Axel Simon, Duncan Coutts
 --
@@ -18,11 +18,6 @@
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
---
--- TODO
---
--- Find out if \"insert-text\" signal is useful and how to bind it. It is
---   tricky because it has an in-out parameter.
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -82,6 +77,10 @@ module Graphics.UI.Gtk.Entry.Editable (
   afterEditableChanged,
   onDeleteText,
   afterDeleteText,
+  stopDeleteText,
+  onInsertText,
+  afterInsertText,
+  stopInsertText
   ) where
 
 import Monad	(liftM)
@@ -292,9 +291,72 @@ afterEditableChanged = connect_NONE__NONE "changed" True
 
 -- | Emitted when a piece of text is deleted from the 'Editable' widget.
 --
+-- * See 'onInsertText' for information on how to use this signal.
+--
 onDeleteText, afterDeleteText :: EditableClass self => self
  -> (Int -> Int -> IO ()) -- ^ @(\startPos endPos -> ...)@
  -> IO (ConnectId self)
 onDeleteText = connect_INT_INT__NONE "delete_text" False
 afterDeleteText = connect_INT_INT__NONE "delete_text" True
 
+-- | Stop the current signal that deletes text.
+stopDeleteText :: EditableClass self => ConnectId self -> IO ()
+stopDeleteText (ConnectId _ obj) =
+  signalStopEmission obj "delete_text"
+
+-- | Emitted when a piece of text is inserted into the 'Editable' widget.
+--
+-- * The connected signal receives the text that is inserted, together with
+--   the position in the entry widget. The return value should be the position
+--   in the entry widget that lies past the recently inserted text (i.e.
+--   you should return the given position plus the length of the string).
+--
+-- * To modify the text that the user inserts, you need to connect to this
+--   signal, modify the text the way you want and then call
+--   'editableInsertText'. To avoid that this signal handler is called
+--   recursively, you need to temporarily block it using
+--   'System.Glib.Signals.signalBlock'. After the default signal
+--   handler has inserted your modified text, it is important that you
+--   prevent the default handler from being executed again when this signal
+--   handler returns. To stop the current signal, use 'stopInsertText'.
+--   The following code is an example of how to turn all input into uppercase:
+--
+--   > idRef <- newIORef undefined
+--   > id <- onInsertText entry $ \str pos -> do
+--   >   id <- readIORef idRef
+--   >   signalBlock id
+--   >   pos' <- editableInsertText entry (map toUpper str) pos
+--   >   signalUnblock id
+--   >   stopInsertText id
+--   >   return pos'
+--   > writeIORef idRef id
+--
+--   Note that the 'afterInsertText' function is not very useful, except to
+--   track editing actions.
+--
+onInsertText, afterInsertText :: EditableClass self => self
+ -> (String -> Int -> IO Int)
+ -> IO (ConnectId self)
+onInsertText obj handler =
+  connect_PTR_INT_PTR__NONE "insert_text" False obj
+  (\strPtr strLen posPtr -> do
+    str <- if strLen<0 then peekUTFString strPtr
+	   else peekUTFStringLen (strPtr, strLen)
+    pos <- peek posPtr
+    pos' <- handler str pos
+    poke posPtr pos'
+  )
+afterInsertText obj handler =
+  connect_PTR_INT_PTR__NONE "insert_text" True obj
+  (\strPtr strLen posPtr -> do
+    str <- if strLen<0 then peekUTFString strPtr
+	   else peekUTFStringLen (strPtr, strLen)
+    pos <- peek posPtr
+    pos' <- handler str pos
+    poke posPtr pos'
+  )
+
+-- | Stop the current signal that inserts text.
+stopInsertText :: EditableClass self => ConnectId self -> IO ()
+stopInsertText (ConnectId _ obj) =
+  signalStopEmission obj "insert_text"
