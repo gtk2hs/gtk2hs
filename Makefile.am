@@ -484,6 +484,8 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/CustomStore.chs			\
+	gtk/Graphics/UI/Gtk/TreeList/Gtk2HsStore.c			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
@@ -549,6 +551,7 @@ libHSgtk_a_LIBADD =							\
         gtk/Graphics/UI/Gtk/TreeList/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/TreeList/TreeView_stub.o			\
 	gtk/Graphics/UI/Gtk/TreeList/IconView_stub.o			\
+	gtk/Graphics/UI/Gtk/TreeList/CustomStore_stub.o			\
 	gtk/Graphics/UI/Gtk/Selectors/FileFilter_stub.o			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog_stub.o			\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup_stub.o

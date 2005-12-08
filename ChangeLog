@@ -32,6 +32,8 @@
 	the implementation via a Haskell interface. This does not yet include
 	any actual implementations of the Haskell CustomStore interface.
 
+	* Makefile.am: build the new files.
+
 2005-12-7 Axel Simon <A.Simon@kent.ac.uk>
 
 	* glib/System/Glib/Signals.chs.pp, gtk/Graphics/UI/Gtk.hs: Add new
