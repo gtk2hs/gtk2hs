@@ -21,6 +21,9 @@
 	* sourceview/Graphics/UI/Gtk/SourceView/SourceTag.chs: use withGSList
 	and withUTFStrings rather than the more complex exising solution.
 
+	* gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp: export newTreePath for
+	use in other modules but not for top-level export.
+
 2005-12-7 Axel Simon <A.Simon@kent.ac.uk>
 
 	* glib/System/Glib/Signals.chs.pp, gtk/Graphics/UI/Gtk.hs: Add new

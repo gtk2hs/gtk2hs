@@ -5,7 +5,7 @@
 --
 --  Created: 14 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/10/24 19:18:54 $
+--  Version $Revision: 1.3 $ from $Date: 2005/12/08 18:07:52 $
 --
 --  Copyright (C) 2005 Axel Simon, Duncan Coutts
 --
@@ -38,6 +38,7 @@ module Graphics.UI.Gtk.TreeList.TreePath (
   NativeTreePath(..),
 
 -- * Internal Utils
+  newTreePath,
   withTreePath,
   peekTreePath,
   fromTreePath,
@@ -61,15 +62,15 @@ nativeTreePathFree :: NativeTreePath -> IO ()
 nativeTreePathFree =
   {# call unsafe tree_path_free #}
 
-nativeTreePathNew :: IO NativeTreePath
-nativeTreePathNew =
- liftM NativeTreePath
- {# call unsafe tree_path_new #}
+newTreePath :: TreePath -> IO NativeTreePath
+newTreePath path = do
+  nativePath <- liftM NativeTreePath {# call unsafe tree_path_new #}
+  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) path
+  return nativePath
 
 withTreePath :: TreePath -> (NativeTreePath -> IO a) -> IO a
 withTreePath tp act = do
-  nativePath <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) tp
+  nativePath <- newTreePath tp
   res <- act nativePath
   nativeTreePathFree nativePath
   return res
