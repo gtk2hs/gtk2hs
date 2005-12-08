@@ -24,6 +24,14 @@
 	* gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp: export newTreePath for
 	use in other modules but not for top-level export.
 
+	* gtk/Graphics/UI/Gtk/TreeList/CustomStore.chs,
+	gtk/Graphics/UI/Gtk/TreeList/Gtk2HsStore.c,
+	gtk/Graphics/UI/Gtk/TreeList/Gtk2HsStore.h: add low-level parts of an
+	implementation of custom GtkTreeModels. This includes a GObject
+	written in C that implements the GtkTreeModel interface and delegates
+	the implementation via a Haskell interface. This does not yet include
+	any actual implementations of the Haskell CustomStore interface.
+
 2005-12-7 Axel Simon <A.Simon@kent.ac.uk>
 
 	* glib/System/Glib/Signals.chs.pp, gtk/Graphics/UI/Gtk.hs: Add new
