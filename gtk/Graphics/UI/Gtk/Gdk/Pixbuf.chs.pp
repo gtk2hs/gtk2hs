@@ -5,7 +5,7 @@
 --
 --  Created: 26 March 2002
 --
---  Version $Revision: 1.12 $ from $Date: 2005/11/26 16:00:21 $
+--  Version $Revision: 1.13 $ from $Date: 2005/12/08 17:30:55 $
 --
 --  Copyright (C) 2002-2005 Axel Simon, Vincenzo Ciancia
 --
@@ -108,7 +108,6 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   ) where
 
 import Monad (liftM)
-import Control.Exception(bracket)
 import Data.Bits        ((.|.), shiftL)
 import Data.Ix
 import System.Glib.FFI
@@ -378,20 +377,14 @@ pixbufSave pb fname iType options =
   checkGError (\errPtrPtr ->
     withUTFString fname $ \fnPtr ->
     withUTFString iType $ \tyPtr ->
-    allocaArray0 optLen $ \keysPtr ->
-    allocaArray optLen $ \valuesPtr -> do
-      keyPtrs <- mapM newUTFString keys
-      valuePtrs <- mapM newUTFString values
-      pokeArray keysPtr (keyPtrs ++ [nullPtr])
-      pokeArray valuesPtr valuePtrs
+    withUTFStringArray0 keys $ \keysPtr ->
+    withUTFStringArray values $ \valuesPtr -> do
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,5)
       {# call unsafe pixbuf_savev_utf8 #}
 #else
       {# call unsafe pixbuf_savev #}
 #endif
         pb fnPtr tyPtr keysPtr valuesPtr errPtrPtr
-      mapM_ free keyPtrs
-      mapM_ free valuePtrs
       return Nothing)
   (\gerror -> liftM Just $ handlePixbufError gerror)
 
@@ -418,9 +411,8 @@ pixbufNew colorspace hasAlpha bitsPerSample width height =
 --
 pixbufNewFromXPMData :: [String] -> IO Pixbuf
 pixbufNewFromXPMData s =
-  bracket (mapM newUTFString s) (mapM free) $ \strPtrs ->
-    withArray0 nullPtr strPtrs $ \strsPtr ->
-      constructNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
+  withUTFStringArray0 s $ \strsPtr ->
+    constructNewGObject mkPixbuf $ {#call pixbuf_new_from_xpm_data#} strsPtr
 
 -- | A dymmy type for inline picture data.
 --

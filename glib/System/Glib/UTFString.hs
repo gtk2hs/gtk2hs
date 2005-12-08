@@ -5,7 +5,7 @@
 --
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.6 $ from $Date: 2005/08/20 13:25:16 $
+--  Version $Revision: 1.7 $ from $Date: 2005/12/08 17:30:54 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -88,7 +88,7 @@ peekUTFStringLen strPtr = liftM fromUTF $ peekCStringLen strPtr
 readUTFString :: CString -> IO String
 readUTFString strPtr = do
   str <- peekUTFString strPtr
-  free (castPtr strPtr)
+  gfree strPtr
   return str 
 
 -- like peekCString but then frees the string using g_free
@@ -96,8 +96,20 @@ readUTFString strPtr = do
 readCString :: CString -> IO String
 readCString strPtr = do
   str <- peekCString strPtr
-  free (castPtr strPtr)
+  gfree strPtr
   return str
+
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "g_free"
+  gfree :: Ptr a -> IO ()
+
+#else
+
+foreign import ccall "g_free" unsafe
+  gfree :: Ptr a -> IO ()
+
+#endif
 
 -- Temporarily allocate a list of UTF-8 Strings.
 --

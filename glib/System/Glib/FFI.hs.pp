@@ -4,7 +4,7 @@
 --
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.1 $ from $Date: 2005/11/11 23:01:07 $
+--  Version $Revision: 1.2 $ from $Date: 2005/12/08 17:30:54 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -47,12 +47,15 @@ module System.Glib.FFI (
 
 import System.IO.Unsafe (unsafePerformIO)
 
+-- We should almost certainly not be using the standard free function anywhere
+-- in the glib or gtk bindings, so we do not re-export it from this module.
+
 import Foreign.C
-import qualified Foreign
+import qualified Foreign hiding (free)
 # if __GLASGOW_HASKELL__>=602
-import Foreign  hiding	(with, newForeignPtr)
+import Foreign  hiding	(with, newForeignPtr, free)
 # else
-import Foreign  hiding (with)
+import Foreign  hiding (with, free)
 # endif
 
 with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b

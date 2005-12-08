@@ -6,7 +6,7 @@
 --
 --  Created: 22 October 2003
 --
---  Version $Revision: 1.4 $ from $Date: 2005/11/26 16:00:22 $
+--  Version $Revision: 1.5 $ from $Date: 2005/12/08 17:30:55 $
 --
 --  Copyright (C) 2003-2005 Duncan Coutts, Axel Simon
 --
@@ -42,7 +42,7 @@ import Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GList   (toGSList, fromGSList)
+import System.Glib.GList	(withGSList)
 import System.Glib.GObject	(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.SourceView.Types#}
@@ -83,22 +83,18 @@ keywordListTagNew id name keywords
                   matchEmptyStringAtBeginning
                   matchEmptyStringAtEnd
                   beginningRegex
-                  endRegex = do
-  keywordPtrs <- mapM newUTFString keywords
-  keywordList <- toGSList keywordPtrs
-  obj <- constructNewGObject mkSourceTag $ liftM castPtr $
-	 withCString  id      $ \strPtr1 -> 
-	 withCString  name    $ \strPtr2 -> 
-	 withCString  beginningRegex $ \strPtr3 -> 
-	 withCString  endRegex $ \strPtr4 -> {#call unsafe keyword_list_tag_new#}
-	   strPtr1 strPtr2 keywordList (fromBool caseSensitive)
-	   (fromBool matchEmptyStringAtBeginning) (fromBool matchEmptyStringAtEnd)
-	   strPtr3 strPtr4
-  -- destory the list
-  fromGSList keywordList
-  -- destory the elements
-  mapM_ free keywordPtrs
-  return obj
+                  endRegex =
+  withUTFStrings keywords $ \keywordPtrs ->
+  withGSList keywordPtrs $ \keywordList ->
+  constructNewGObject mkSourceTag $ liftM castPtr $
+  withCString  id      $ \idPtr -> 
+  withCString  name    $ \namePtr -> 
+  withCString  beginningRegex $ \beginPtr -> 
+  withCString  endRegex $ \endPtr ->
+  {# call unsafe keyword_list_tag_new #}
+    idPtr namePtr keywordList (fromBool caseSensitive)
+    (fromBool matchEmptyStringAtBeginning) (fromBool matchEmptyStringAtEnd)
+    beginPtr endPtr
 
 -- | Create a new 'SourceTag'
 --

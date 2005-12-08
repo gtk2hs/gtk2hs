@@ -5,7 +5,7 @@
 --
 --  Created: 19 March 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/04/19 02:15:32 $
+--  Version $Revision: 1.5 $ from $Date: 2005/12/08 17:30:54 $
 --
 --  Copyright (C) 2002 Axel Simon
 --
@@ -38,11 +38,13 @@ module System.Glib.GList (
   readGSList,
   fromGSList,
   fromGSListRev,
-  toGSList
+  toGSList,
+  withGSList,
   ) where
 
 import Monad	(liftM)
 import Foreign
+import Control.Exception	(bracket)
 
 {# context lib="glib" prefix="g" #}
 
@@ -132,4 +134,9 @@ toGSList xs = makeList nullPtr xs
       newHead <- {#call unsafe slist_prepend#} current (castPtr x)
       makeList newHead xs
     makeList current [] = return current
+
+-- Temporarily allocate a list of something
+--
+withGSList :: [Ptr a] -> (GSList -> IO b) -> IO b
+withGSList xs = bracket (toGSList xs) {# call unsafe g_slist_free #}
 

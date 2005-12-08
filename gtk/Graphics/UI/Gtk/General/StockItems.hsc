@@ -5,7 +5,7 @@
 --
 --  Created: 24 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/11/10 13:10:04 $
+--  Version $Revision: 1.8 $ from $Date: 2005/12/08 17:30:55 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -252,8 +252,7 @@ stockListIds :: IO [StockId]
 stockListIds = do
   lPtr <- stock_list_ids
   sPtrs <- fromGSListRev lPtr
-  res <- mapM peekUTFString sPtrs
-  mapM_ g_free sPtrs
+  res <- mapM readUTFString sPtrs
   return res
 
 #if __GLASGOW_HASKELL__>=600
@@ -267,9 +266,6 @@ foreign import ccall unsafe "gtk_stock_lookup"
 foreign import ccall unsafe "gtk_stock_list_ids"
   stock_list_ids :: IO GSList
 
-foreign import ccall unsafe "g_free"
-  g_free :: Ptr a -> IO ()
-
 #else
 
 foreign import ccall "gtk_stock_add" unsafe 
@@ -280,9 +276,6 @@ foreign import ccall "gtk_stock_lookup" unsafe
 
 foreign import ccall "gtk_stock_list_ids" unsafe
   stock_list_ids :: IO GSList
-
-foreign import ccall "g_free" unsafe
-  g_free :: Ptr a -> IO ()
 
 #endif
 

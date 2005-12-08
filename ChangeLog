@@ -1,4 +1,27 @@
-2005-11-26 Axel Simon <A.Simon@kent.ac.uk>
+2005-12-8 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* glib/System/Glib/FFI.hs.pp: We should almost certainly not be using
+	the standard free function anywhere in the glib or gtk bindings, so we
+	do not re-export it from this module. It is not gueranteed by the
+	Haskell FFI spec that free calls the C free() function. It is also not
+	guaranteed that g_free() simply calls the stanard C free() function.
+
+	* glib/System/Glib/UTFString.hs: call g_free() rather than Haskell
+	free for freeing glib strings (which of course were allocated with
+	g_new()).
+
+	* gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp: use withUTFStringArray and
+	withUTFStringArray0 rather than ad-hoc implementations.
+
+	* gtk/Graphics/UI/Gtk/General/StockItems.hsc: use readUTFString rather
+	than peekUTFString + g_free().
+
+	* glib/System/Glib/GList.chs: add withGSList function.
+
+	* sourceview/Graphics/UI/Gtk/SourceView/SourceTag.chs: use withGSList
+	and withUTFStrings rather than the more complex exising solution.
+
+2005-12-7 Axel Simon <A.Simon@kent.ac.uk>
 
 	* glib/System/Glib/Signals.chs.pp, gtk/Graphics/UI/Gtk.hs: Add new
 	signal functions and export some of them.
