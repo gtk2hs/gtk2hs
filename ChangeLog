@@ -1,3 +1,9 @@
+2005-12-9 Axel Simon <A.Simon@kent.ac.uk>
+
+	* glib/System/Glib/UTFString.hs.pp: Renamed from
+	glib/System/Glib/UTFString.hs since it needs to be run through CPP
+	to appease haddock.
+
 2005-12-8 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* glib/System/Glib/FFI.hs.pp: We should almost certainly not be using

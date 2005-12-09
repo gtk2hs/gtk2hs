@@ -1,11 +1,10 @@
-{-# OPTIONS -cpp #-}
 --  GIMP Toolkit (GTK) UTF aware string marshalling
 --
 --  Author : Axel Simon
 --
 --  Created: 22 June 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/12/08 17:30:54 $
+--  Version $Revision: 1.1 $ from $Date: 2005/12/09 18:32:00 $
 --
 --  Copyright (c) 1999..2002 Axel Simon
 --
@@ -184,7 +183,7 @@ fromUTF (all@(x:xs)) | ord x<=0x7F = x:fromUTF xs
     
     err = error "fromUTF: illegal UTF-8 character"
 
--- Offset correction for String<->UTF8 mapping.
+-- Offset correction for String to UTF8 mapping.
 --
 newtype UTFCorrection = UTFCorrection [Int] deriving Show
 

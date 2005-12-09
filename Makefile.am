@@ -249,7 +249,7 @@ libHSglib_a_SOURCESDIRS = glib
 libHSglib_a_SOURCES =	        		\
 	glib/System/Glib.hs			\
 	glib/System/Glib/FFI.hs.pp		\
-	glib/System/Glib/UTFString.hs		\
+	glib/System/Glib/UTFString.hs.pp	\
 	glib/System/Glib/Types.chs		\
 	glib/System/Glib/GType.chs		\
 	glib/System/Glib/GTypeConstants.hsc	\
