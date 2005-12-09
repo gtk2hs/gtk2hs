@@ -83,7 +83,7 @@ updateCanvas canvas pb Expose { eventRegion = region } = do
   rects <- regionGetRectangles region
 --  putStrLn ("redrawing: "++show rects)
   (flip mapM_) rects $ \(Rectangle x y w h) -> do
-    drawPixbuf win gc pb x y x y (-1) (-1) RgbDitherNone 0 0
+    drawPixbuf win gc pb x y x y w h RgbDitherNone 0 0
   return True
  
 -- GHC is much better at opimising loops like this:

@@ -1,5 +1,7 @@
 2005-12-9 Axel Simon <A.Simon@kent.ac.uk>
 
+	* demo/fastdraw/FastDraw.hs: Fixed two parameters.
+
 	* glib/System/Glib/UTFString.hs.pp: Renamed from
 	glib/System/Glib/UTFString.hs since it needs to be run through CPP
 	to appease haddock.
