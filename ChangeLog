@@ -1,3 +1,8 @@
+2005-12-9 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* demo/fastdraw/FastDraw.hs: intersect the exposed region with the
+	region covered by the pixbuf before drawing the rectangles.
+
 2005-12-9 Axel Simon <A.Simon@kent.ac.uk>
 
 	* demo/fastdraw/FastDraw.hs: Fixed two parameters.

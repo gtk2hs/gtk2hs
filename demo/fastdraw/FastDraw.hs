@@ -79,7 +79,10 @@ updateCanvas :: DrawingArea -> Pixbuf -> Event -> IO Bool
 updateCanvas canvas pb Expose { eventRegion = region } = do
   win <- drawingAreaGetDrawWindow canvas
   gc <- gcNew win
-  (width,height) <- drawingAreaGetSize canvas
+  width  <- pixbufGetWidth pb
+  height <- pixbufGetHeight pb
+  pbregion <- regionRectangle (Rectangle 0 0 width height)
+  regionIntersect region pbregion
   rects <- regionGetRectangles region
 --  putStrLn ("redrawing: "++show rects)
   (flip mapM_) rects $ \(Rectangle x y w h) -> do
