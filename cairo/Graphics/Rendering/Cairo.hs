@@ -314,7 +314,7 @@ setSourceRGBA = liftRender4 Internal.setSourceRGBA
 -- is set.
 --
 -- Note: The pattern's transformation matrix will be locked to the user space
--- in effect at the time of cairo_set_source(). This means that further
+-- in effect at the time of 'setSource'. This means that further
 -- modifications of the current transformation matrix will not affect the source
 -- pattern. See 'setMatrix'.
 --
@@ -503,7 +503,7 @@ getTolerance = liftRender0 Internal.getTolerance
 -- the current path as it would be filled by 'fill' and according to the current
 -- fill rule (see 'setFillRule').
 --
--- After cairo_clip, the current path will be cleared from the cairo context.
+-- After 'clip', the current path will be cleared from the cairo context.
 --
 -- The current clip region affects all drawing operations by effectively masking
 -- out any changes to the surface that are outside the current clip region.
@@ -1423,7 +1423,7 @@ surfaceMarkDirtyRectangle a b c d e = liftIO $ Internal.surfaceMarkDirtyRectangl
 
 -- | Sets an offset that is added to the device coordinates determined by the
 -- CTM when drawing to surface. One use case for this function is when we want
--- to create a cairo_surface_t that redirects drawing for a portion of an
+-- to create a 'Surface' that redirects drawing for a portion of an
 -- onscreen surface to an offscreen surface in a way that is completely
 -- invisible to the user of the cairo API. Setting a transformation via
 -- 'translate' isn't sufficient to do this, since functions like 'deviceToUser'
