@@ -1,3 +1,9 @@
+2006-01-06 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* cairo/Graphics/Rendering/Cairo/Matrix.chs: fix bugs reported by
+	"MenTaLguY" using a slight variation on the patch he supplied. Also
+	implement scalarMultiply using the 'pointwise' function.
+
 2005-12-12 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* cairo/Graphics/Rendering/Cairo.hs: fix some doc references.

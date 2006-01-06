@@ -60,7 +60,7 @@ instance Storable Matrix where
 
 instance Num Matrix where
   (*) (Matrix xx yx xy yy x0 y0) (Matrix xx' yx' xy' yy' x0' y0') =
-    Matrix (xx * xx' + yx * yx')
+    Matrix (xx * xx' + yx * xy')
            (xx * yx' + yx * yy')
            (xy * xx' + yy * xy')
            (xy * yx' + yy * yy')
@@ -101,27 +101,24 @@ rotate r m = m * (Matrix c s (-s) c 0 0)
         c = cos r
 
 transformDistance :: Matrix -> (Double,Double) -> (Double,Double)
-transformDistance (Matrix xx xy yx yy _ _) (dx,dy) = newX `seq` newY `seq` (newX,newY)
+transformDistance (Matrix xx yx xy yy _ _) (dx,dy) =
+  newX `seq` newY `seq` (newX,newY)
   where newX = xx * dx + xy * dy
         newY = yx * dx + yy * dy
 
 transformPoint :: Matrix -> (Double,Double) -> (Double,Double)
-transformPoint (Matrix xx xy yx yy x0 y0) (dx,dy) = newX `seq` newY `seq` (newX,newY)
+transformPoint (Matrix xx yx xy yy x0 y0) (dx,dy) =
+  newX `seq` newY `seq` (newX,newY)
   where newX = xx * dx + xy * dy + x0
         newY = yx * dx + yy * dy + y0
 
 scalarMultiply :: Double -> Matrix -> Matrix
-scalarMultiply scalar (Matrix xx yx xy yy x0 y0) =
-  Matrix (xx * scalar)
-         (yx * scalar)
-         (xy * scalar)
-         (yy * scalar)
-         (x0 * scalar)
-         (y0 * scalar)
+scalarMultiply scalar = pointwise (*scalar)
 
 adjoint :: Matrix -> Matrix
-adjoint (Matrix a b c d tx ty) = Matrix d (-b) (-c) a (c*ty - d*tx) (b*tx - a*ty)
+adjoint (Matrix a b c d tx ty) =
+  Matrix d (-b) (-c) a (c*ty - d*tx) (b*tx - a*ty)
 
 invert :: Matrix -> Matrix
-invert m@(Matrix xx yx xy yy _ _) = scalarMultiply det $ adjoint m
+invert m@(Matrix xx yx xy yy _ _) = scalarMultiply (recip det) $ adjoint m
   where det = xx*yx - xy*yy
