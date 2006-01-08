@@ -5,7 +5,7 @@
 --
 --  Created: 10 October 2005
 --
---  Version $Revision: 1.1 $ from $Date: 2005/11/22 19:39:53 $
+--  Version $Revision: 1.2 $ from $Date: 2006/01/08 12:12:19 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -168,7 +168,7 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer = do
 
   -- set up the fonts
 #ifdef USE_CAIRO
-  pc <- Gtk.cairoCreateContext Nothing
+  pc <- Gtk.Cairo.cairoCreateContext Nothing
 #else
   pc <- Gtk.widgetCreatePangoContext canvas
 #endif

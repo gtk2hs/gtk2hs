@@ -1,3 +1,8 @@
+2006-01-08 Axel Simon <A.Simon@kent.ac.uk>
+
+	* soegtk/Graphics/SOE/Gtk.hs.pp: Fixed a qualified name which made
+	ghc 6.2.2 fall over (when it shouldn't).
+	
 2006-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* configure.ac: bump version to 0.9.10.2 to help track recent
