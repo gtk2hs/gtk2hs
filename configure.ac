@@ -1,4 +1,4 @@
-dnl Gtk2hs - a wrapper around Gtk+ for Haskell 
+dnl Gtk2hs - A GUI Library for Haskell based on Gtk+
 dnl
 dnl Copyright (c) 2001, 2002, 2003-2005 Axel Simon <as49@ukc.ac.uk>
 dnl Copyright (c) 2004-2005 Duncan Coutts <duncan@coutts.uklinux.net>
