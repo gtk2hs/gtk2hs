@@ -642,10 +642,11 @@ mogul_PKGNAME = libHSmogul_a
 
 libHSmogul_a_PACKAGE		= mogul/mogul.$(PKGEXT)
 libHSmogul_a_PACKAGEDEPS	= 
+libHSmogul_a_HEADER		= $(libHSgtk_a_HEADER)
 libHSmogul_a_LIBS		= 
 libHSmogul_a_HCFLAGS		= -I. $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
-libHSmogul_a_CFLAGS 		= 
-libHSmogul_a_CPPFLAGS 		= 
+libHSmogul_a_CFLAGS 		= $(libHSgtk_a_CFLAGS)
+libHSmogul_a_CPPFLAGS 		= $(libHSgtk_a_CPPFLAGS)
 
 libHSmogul_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mogul
 mogul/libHSmogul_a.deps	: gtk/libHSgtk_a.deps
@@ -1296,10 +1297,11 @@ soegtk_PKGNAME = libHSsoegtk_a
 
 libHSsoegtk_a_PACKAGE		= soegtk/soegtk.$(PKGEXT)
 libHSsoegtk_a_PACKAGEDEPS	= 
+libHSsoegtk_a_HEADER		= $(libHSgtk_a_HEADER)
 libHSsoegtk_a_LIBS		= 
 libHSsoegtk_a_HCFLAGS		= $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
-libHSsoegtk_a_CFLAGS 		= 
-libHSsoegtk_a_CPPFLAGS 		= 
+libHSsoegtk_a_CFLAGS 		= $(libHSgtk_a_CFLAGS)
+libHSsoegtk_a_CPPFLAGS 		= $(libHSgtk_a_CPPFLAGS)
 
 libHSsoegtk_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) soegtk
 soegtk/libHSsoegtk_a.deps	: gtk/libHSgtk_a.deps
