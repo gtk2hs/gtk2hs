@@ -32,6 +32,9 @@ pkglib_LIBRARIES =	\
 if ENABLE_CAIRO
 pkglib_LIBRARIES += libHScairo.a
 endif
+if ENABLE_SVGCAIRO
+pkglib_LIBRARIES += libHSsvgcairo.a
+endif
 pkglib_LIBRARIES +=	\
 	libHSgtk.a	\
 	libHSmogul.a	\
@@ -1189,6 +1192,78 @@ libHScairo_a_AR = $(AR) $(ARFLAGS)
 endif
 
 endif #ENABLE_CAIRO
+
+#
+#	svgcairo package
+#
+################################################################################
+
+if ENABLE_SVGCAIRO
+
+svgcairo_PKGNAME = libHSsvgcairo_a
+
+libHSsvgcairo_a_PACKAGE		= svgcairo/svgcairo.$(PKGEXT)
+libHSsvgcairo_a_PACKAGEDEPS	= 
+libHSsvgcairo_a_HEADER 		= svg-cairo.h
+libHSsvgcairo_a_PRECOMP		= svgcairo/svgcairo.precomp
+libHSsvgcairo_a_LIBS		= $(SVGCAIRO_LIBS)
+libHSsvgcairo_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSsvgcairo_a_CFLAGS		= $(filter-out -I% -D%,$(CAIRO_CFLAGS) $(SVGCAIRO_CFLAGS))
+libHSsvgcairo_a_CPPFLAGS	= $(filter -I% -D%,$(CAIRO_CFLAGS) $(SVGCAIRO_CFLAGS))
+
+libHSsvgcairo_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) cairo svgcairo
+svgcairo/libHSsvgcairo_a.deps: cairo/libHSsvgcairo_a.deps
+
+libHSsvgcairo_a_GENERATEDSOURCES =
+
+nodist_libHSsvgcairo_a_SOURCES = $(libHSsvgcairo_a_GENERATEDSOURCES)
+
+libHSsvgcairo_a_SOURCES =							\
+	svgcairo/Graphics/Rendering/Cairo/SVG.chs
+
+libHSsvgcairo_a_ALLSOURCES = $(libHSsvgcairo_a_SOURCES) $(nodist_libHSsvgcairo_a_SOURCES)
+
+am_libHSsvgcairo_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSsvgcairo_a_ALLSOURCES))))
+
+libHSsvgcairo_a_HSPPFILES  = $(filter %.hs.pp, $(libHSsvgcairo_a_ALLSOURCES))
+libHSsvgcairo_a_CHSPPFILES = $(filter %.chs.pp,$(libHSsvgcairo_a_ALLSOURCES))
+libHSsvgcairo_a_CHSFILES = \
+  $(filter %.chs,$(libHSsvgcairo_a_ALLSOURCES:.chs.pp=.chs))
+libHSsvgcairo_a_CHSFILES_HS = $(libHSsvgcairo_a_CHSFILES:.chs=.hs)
+libHSsvgcairo_a_HSCFILES = $(filter %.hsc, $(libHSsvgcairo_a_ALLSOURCES))
+libHSsvgcairo_a_HSCFILES_HS = $(libHSsvgcairo_a_HSCFILES:.hsc=.hs)
+libHSsvgcairo_a_BUILDSOURCES = \
+	$(libHSsvgcairo_a_HSPPFILES:.hs.pp=.hs) \
+	$(libHSsvgcairo_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSsvgcairo_a_CHSFILES_HS) \
+        $(libHSsvgcairo_a_HSCFILES_HS) \
+        $(libHSsvgcairo_a_GENERATEDSOURCES)
+libHSsvgcairo_a_HSFILES  = \
+	$(filter %.hs,$(libHSsvgcairo_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSsvgcairo_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHSsvgcairo_a_HSFILES:.hs=.hi)
+
+MOSTLYCLEANFILES += $(am_libHSsvgcairo_a_OBJECTS)
+MOSTLYCLEANFILES += $(libHSsvgcairo_a_HSFILES:.hs=.hi)
+MOSTLYCLEANFILES += $(libHSsvgcairo_a_CHSFILES:.chs=.chi)
+CLEANFILES += $(libHSsvgcairo_a_BUILDSOURCES) 
+
+CLEANFILES+= svgcairo/libHSsvgcairo_a.deps $(libHSsvgcairo_a_CHSFILES_HS:.hs=.dep)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include $(libHSsvgcairo_a_CHSFILES:.chs=.dep) cairo/libHSsvgcairo_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSsvgcairo_a_HCFLAGS += -split-objs
+libHSsvgcairo_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSsvgcairo_a_AR = $(AR) $(ARFLAGS)
+endif
+
+endif #ENABLE_SVGCAIRO
 
 #
 #	gtkglext package

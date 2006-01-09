@@ -1,3 +1,13 @@
+2006-01-07 Duncan Coutts <duncan@coutts.uklinux.net>
+
+	* svgcairo/Graphics/Rendering/Cairo/SVG.chs: new libsvg-cairo binding.
+
+	* svgcairo/svgcairo.pkg.in, svgcairo/svgcairo.package.conf.in,
+	svgcairo/svgcairo.cabal.in: new package files
+
+	* configure.ac, Makefile.am: add build support for new svgcairo
+	package.
+
 2006-01-08 Axel Simon <A.Simon@kent.ac.uk>
 
 	* soegtk/Graphics/SOE/Gtk.hs.pp: Fixed a qualified name which made
