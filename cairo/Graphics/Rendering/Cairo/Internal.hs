@@ -13,7 +13,7 @@
 -- #hide
 --
 module Graphics.Rendering.Cairo.Internal (
-    Render(..)
+    Render(..), bracketR,
   , module Graphics.Rendering.Cairo.Types
   , module Graphics.Rendering.Cairo.Internal.Drawing.Cairo
   , module Graphics.Rendering.Cairo.Internal.Drawing.Paths
@@ -43,9 +43,19 @@ import Graphics.Rendering.Cairo.Internal.Surfaces.Surface
 import Graphics.Rendering.Cairo.Internal.Utilities
 
 import Control.Monad.Reader
+import Control.Exception (bracket)
 
 -- | The Render monad. All drawing operations take place in a Render context.
 -- You can obtain a Render context for a 'Surface' using 'renderWith'.
 --
 newtype Render m = Render { runRender :: ReaderT Cairo IO m }
   deriving (Functor, Monad, MonadIO, MonadReader Cairo)
+
+{-# INLINE bracketR #-}
+bracketR :: IO a -> (a -> IO b) -> (a -> Render c) -> Render c
+bracketR begin end action =
+  Render $
+  ReaderT $ \r ->
+  bracket begin end
+          (\s -> runReaderT (runRender $ action s) r)
+

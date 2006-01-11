@@ -212,7 +212,7 @@ import Control.Monad.Reader (ReaderT(..), runReaderT, ask, MonadIO, liftIO)
 import Control.Exception (bracket)
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
-import Graphics.Rendering.Cairo.Internal (Render(..))	  
+import Graphics.Rendering.Cairo.Internal (Render(..), bracketR)
 
 liftRender0 :: (Cairo -> IO a) -> Render a
 liftRender0 f = ask >>= \context -> liftIO (f context)
@@ -228,12 +228,6 @@ liftRender5 :: (Cairo -> a -> b -> c -> d -> e -> IO f) -> a -> b -> c -> d -> e
 liftRender5 f a b c d e = ask >>= \context -> liftIO (f context a b c d e)
 liftRender6 :: (Cairo -> a -> b -> c -> d -> e -> f -> IO g) -> a -> b -> c -> d -> e -> f -> Render g
 liftRender6 f a b c d e g = ask >>= \context -> liftIO (f context a b c d e g)
-
-bracketR :: IO a -> (a -> IO b) -> (a -> Render c) -> Render c
-bracketR begin end action = Render $ ReaderT $ \r ->
-  bracket (begin)
-          (\s -> end s)
-          (\s -> runReaderT (runRender $ action s) r)
 
 -- | Creates a new Render context with all graphics state parameters set to
 -- default values and with the given surface as a target surface. The target

@@ -14,23 +14,24 @@
 
 module Graphics.Rendering.Cairo.SVG (
   -- * Convenience API
-  renderSVGFromFile,
-  renderSVGFromString,
+  svgRenderFromFile,
+  svgRenderFromHandle,
+  svgRenderFromString,
   
   -- * Basic API
   SVG,
-  renderSVG,
-  sizeSVG,
+  svgRender,
+  svgGetSize,
 
   -- ** Block scoped versions
-  withSVGFromFile,
-  withSVGFromHandle,
-  withSVGFromString,
+  withSvgFromFile,
+  withSvgFromHandle,
+  withSvgFromString,
 
   -- ** GC-managed versions
-  newSVGFromFile,
-  newSVGFromHandle,
-  newSVGFromString,
+  svgNewFromFile,
+  svgNewFromHandle,
+  svgNewFromString,
   ) where
 
 import Control.Monad (liftM, when)
@@ -59,57 +60,56 @@ import Graphics.Rendering.Cairo.Internal hiding (Status(..))
 
 -- block scoped versions
 
-withSVGFromFile :: FilePath -> (SVG -> Render a) -> Render a
-withSVGFromFile file action =
+withSvgFromFile :: FilePath -> (SVG -> Render a) -> Render a
+withSvgFromFile file action =
   withSVG $ \svg -> do   
-    liftIO $ parseSVGFromFile file svg
+    liftIO $ svgParseFromFile file svg
     action svg
 
-withSVGFromHandle :: Handle -> (SVG -> Render a) -> Render a
-withSVGFromHandle hnd action =
+withSvgFromHandle :: Handle -> (SVG -> Render a) -> Render a
+withSvgFromHandle hnd action =
   withSVG $ \svg -> do   
-    liftIO $ parseSVGFromHandle hnd svg
+    liftIO $ svgParseFromHandle hnd svg
     action svg
 
-withSVGFromString :: String -> (SVG -> Render a) -> Render a
-withSVGFromString str action =
+withSvgFromString :: String -> (SVG -> Render a) -> Render a
+withSvgFromString str action =
   withSVG $ \svg -> do
-    liftIO $ parseSVGFromString str svg
+    liftIO $ svgParseFromString str svg
     action svg
 
 withSVG :: (SVG -> Render a) -> Render a
-withSVG action = Render $ ReaderT $ \r ->
-  bracket (alloca $ \svgPtrPtr -> do
-            {# call unsafe create #} (castPtr svgPtrPtr)
-            svgPtr <- peek (svgPtrPtr :: Ptr (Ptr SVG))
-            svgPtr' <- newForeignPtr_ svgPtr
-            return (SVG svgPtr'))
+withSVG =
+  bracketR (alloca $ \svgPtrPtr -> do
+             {# call unsafe create #} (castPtr svgPtrPtr)
+             svgPtr <- peek (svgPtrPtr :: Ptr (Ptr SVG))
+             svgPtr' <- newForeignPtr_ svgPtr
+             return (SVG svgPtr'))
              
           {# call unsafe destroy #}
-	  (\s -> runReaderT (runRender $ action s) r)
 
 -- GC managed versions
 
-newSVGFromFile :: FilePath -> IO SVG
-newSVGFromFile file = do
-  svg <- newSVG
-  parseSVGFromFile file svg
+svgNewFromFile :: FilePath -> IO SVG
+svgNewFromFile file = do
+  svg <- svgNew
+  svgParseFromFile file svg
   return svg
 
-newSVGFromHandle :: Handle -> IO SVG
-newSVGFromHandle hnd = do
-  svg <- newSVG
-  parseSVGFromHandle hnd svg
+svgNewFromHandle :: Handle -> IO SVG
+svgNewFromHandle hnd = do
+  svg <- svgNew
+  svgParseFromHandle hnd svg
   return svg
 
-newSVGFromString :: String -> IO SVG
-newSVGFromString str = do
-  svg <- newSVG
-  parseSVGFromString str svg
+svgNewFromString :: String -> IO SVG
+svgNewFromString str = do
+  svg <- svgNew
+  svgParseFromString str svg
   return svg
 
-newSVG :: IO SVG
-newSVG =
+svgNew :: IO SVG
+svgNew =
   alloca $ \svgPtrPtr -> do
     {# call unsafe create #} (castPtr svgPtrPtr)
     svgPtr <- peek (svgPtrPtr :: Ptr (Ptr SVG))
@@ -121,14 +121,14 @@ foreign import ccall unsafe "&svg_cairo_destroy"
 
 -- internal implementation
 
-parseSVGFromFile :: FilePath -> SVG -> IO ()
-parseSVGFromFile file svg =
+svgParseFromFile :: FilePath -> SVG -> IO ()
+svgParseFromFile file svg =
   checkStatus $
   withCString file $ \filePtr -> 
     {# call parse #} svg filePtr
 
-parseSVGFromHandle :: Handle -> SVG -> IO ()
-parseSVGFromHandle hnd svg =
+svgParseFromHandle :: Handle -> SVG -> IO ()
+svgParseFromHandle hnd svg =
   allocaBytes 4096 $ \bufferPtr -> do
   checkStatus $ {# call parse_chunk_begin #} svg
   let loop = do
@@ -140,8 +140,8 @@ parseSVGFromHandle hnd svg =
   loop
   checkStatus $ {# call parse_chunk_end #} svg
 
-parseSVGFromString :: String -> SVG -> IO ()
-parseSVGFromString str svg = do
+svgParseFromString :: String -> SVG -> IO ()
+svgParseFromString str svg = do
   checkStatus $ {# call parse_chunk_begin #} svg
   let loop ""  = return ()
       loop str =
@@ -156,14 +156,14 @@ parseSVGFromString str svg = do
 
 -- actually render it
 
-renderSVG :: SVG -> Render ()
-renderSVG svg = do
+svgRender :: SVG -> Render ()
+svgRender svg = do
   cr <- ask
   liftIO $ checkStatus $ {# call render #} svg cr
 
 -- find out how big the thing is supposed to be.
-sizeSVG :: SVG -> (Int, Int)
-sizeSVG svg = unsafePerformIO $
+svgGetSize :: SVG -> (Int, Int)
+svgGetSize svg = unsafePerformIO $
   alloca $ \widthPtr ->
   alloca $ \heightPtr -> do
   {# call unsafe get_size #} svg widthPtr heightPtr
@@ -175,12 +175,14 @@ sizeSVG svg = unsafePerformIO $
 -- Convenience API
 -- 
 
-renderSVGFromFile :: FilePath -> Render ()
-renderSVGFromFile file = withSVGFromFile file renderSVG
+svgRenderFromFile :: FilePath -> Render ()
+svgRenderFromFile file = withSvgFromFile file svgRender
 
-renderSVGFromString :: String -> Render ()
-renderSVGFromString str = withSVGFromString str renderSVG
+svgRenderFromHandle :: Handle -> Render ()
+svgRenderFromHandle hnd = withSvgFromHandle hnd svgRender
 
+svgRenderFromString :: String -> Render ()
+svgRenderFromString str = withSvgFromString str svgRender
 
 ---------------------
 -- Utils
