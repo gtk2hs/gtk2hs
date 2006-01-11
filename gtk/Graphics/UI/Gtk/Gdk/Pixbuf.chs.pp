@@ -101,6 +101,10 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufScaleSimple,
   pixbufScale,
   pixbufComposite,
+  pixbufFlipHorazontally,
+  pixbufFlipVertically,
+  pixbufRotateSimple,
+  PixbufRotation(..),
   pixbufAddAlpha,
   pixbufCopyArea,
   pixbufFill,
@@ -575,6 +579,40 @@ pixbufComposite src dest destX destY destWidth destHeight
   (fromIntegral destWidth) (realToFrac offsetX) (realToFrac offsetY)
   (realToFrac scaleX) (realToFrac scaleY)
   ((fromIntegral . fromEnum) interp) (fromIntegral alpha)
+
+-- | Flips a pixbuf horizontally and returns the result in a new pixbuf.
+--
+pixbufFlipHorazontally :: Pixbuf -> IO Pixbuf
+pixbufFlipHorazontally self =
+  constructNewGObject mkPixbuf $
+  {# call pixbuf_flip #}
+    self
+    (fromBool True)
+
+-- | Flips a pixbuf vertically and returns the result in a new pixbuf.
+--
+pixbufFlipVertically :: Pixbuf -> IO Pixbuf
+pixbufFlipVertically self =
+  constructNewGObject mkPixbuf $
+  {# call pixbuf_flip #}
+    self
+    (fromBool False)
+
+-- | Rotates a pixbuf by a multiple of 90 degrees, and returns the result in a
+-- new pixbuf.
+--
+pixbufRotateSimple :: Pixbuf -> PixbufRotation -> IO Pixbuf
+pixbufRotateSimple self angle =
+  constructNewGObject mkPixbuf $
+  {# call pixbuf_rotate_simple #}
+    self
+    ((fromIntegral . fromEnum) angle)
+
+-- | The possible rotations which can be passed to 'pixbufRotateSimple'.
+--
+-- To make them easier to use, their numerical values are the actual degrees.
+--
+{#enum PixbufRotation {underscoreToCase} #}
 
 -- | Add an opacity layer to the 'Pixbuf'.
 --
