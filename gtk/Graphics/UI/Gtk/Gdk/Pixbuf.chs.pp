@@ -124,13 +124,11 @@ import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
 import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData(PixbufData),
 					insertBounds )
 
-
-{#context prefix="gdk" #}
+{# context lib="gdk-pixbuf" prefix="gdk" #}
 
 -- | Error codes for loading image files.
 --
 {#enum PixbufError {underscoreToCase} #}
-
 
 -- | Enumerate all supported color spaces.
 --
