@@ -6,14 +6,14 @@ import Graphics.Rendering.Cairo.SVG
 
 main :: IO ()
 main = do
-  (file:_) <- getArgs
-  svg <- newSVGFromFile file
-  let (width, height) = sizeSVG svg
+  [inFile, outFile] <- getArgs
+  svg <- svgNewFromFile inFile
+  let (width, height) = svgGetSize svg
   withImageSurface FormatARGB32 width height $ \result -> do
     renderWith result $ do
       clear
-      renderSVG svg
-    surfaceWriteToPNG result ("output.png")
+      svgRender svg
+    surfaceWriteToPNG result outFile
 
 clear :: Render ()
 clear = do

@@ -9,8 +9,8 @@ main :: IO ()
 main = do
 
   (file:_) <- getArgs
-  svg <- newSVGFromFile file
-  let (width, height) = sizeSVG svg
+  svg <- svgNewFromFile file
+  let (width, height) = svgGetSize svg
 
   initGUI
   dia <- dialogNew
@@ -27,10 +27,10 @@ main = do
 updateCanvas :: DrawingArea -> SVG -> Event -> IO Bool
 updateCanvas canvas svg (Expose { eventArea=rect }) = do
   win <- drawingAreaGetDrawWindow canvas
-  let (width, height) = sizeSVG svg
+  let (width, height) = svgGetSize svg
   (width', height') <- drawingAreaGetSize canvas
   renderWithDrawable win $ do
     scale (realToFrac width'  / realToFrac width)
           (realToFrac height' / realToFrac height)
-    renderSVG svg
+    svgRender svg
   return True
