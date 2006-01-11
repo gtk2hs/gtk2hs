@@ -31,15 +31,15 @@ default :
 packages = glib pango atk gtk glade gconf sourceview
 
 gtk_releases_url   = ftp://ftp.gtk.org/pub/gtk/v2.8
-gnome_platform_url = http://ftp.gnome.org/pub/gnome/platform/2.10/2.10.0/sources
-gnome_desktop_url  = http://ftp.gnome.org/pub/gnome/desktop/2.10/2.10.0/sources
+gnome_platform_url = http://ftp.gnome.org/pub/gnome/platform/2.12/2.12.2/sources
+gnome_desktop_url  = http://ftp.gnome.org/pub/gnome/desktop/2.12/2.12.2/sources
 
-glib_version = 2.8.1
+glib_version = 2.8.5
 glib_dir = glib
 glib_tar = glib-$(glib_version).tar.bz2
 glib_url = $(gtk_releases_url)/$(glib_tar)
 
-pango_version = 1.10.0
+pango_version = 1.10.2
 pango_dir = pango
 pango_tar = pango-$(pango_version).tar.bz2
 pango_url = $(gtk_releases_url)/$(pango_tar)
@@ -49,7 +49,7 @@ atk_dir = atk
 atk_tar = atk-$(atk_version).tar.bz2
 atk_url = $(gtk_releases_url)/$(atk_tar)
 
-gtk_version = 2.8.3
+gtk_version = 2.8.9
 gtk_dir = gtk
 gtk_tar = gtk+-$(gtk_version).tar.bz2
 gtk_url = $(gtk_releases_url)/$(gtk_tar)
@@ -59,22 +59,22 @@ glade_dir = glade
 glade_tar = libglade-$(glade_version).tar.bz2
 glade_url = $(gnome_platform_url)/$(glade_tar)
 
-gconf_version = 2.10.0
+gconf_version = 2.12.0
 gconf_dir = gconf
 gconf_tar = GConf-$(gconf_version).tar.bz2
 gconf_url = $(gnome_platform_url)/$(gconf_tar)
 
-gnomecanvas_version = 2.10.0
+gnomecanvas_version = 2.12.0
 gnomecanvas_dir = gnomecanvas
 gnomecanvas_tar = libgnomecanvas-$(gnomecanvas_version).tar.bz2
 gnomecanvas_url = $(gnome_platform_url)/$(gnomecanvas_tar)
 
-sourceview_version = 1.2.0
+sourceview_version = 1.4.2
 sourceview_dir = sourceview
 sourceview_tar = gtksourceview-$(sourceview_version).tar.bz2
 sourceview_url = $(gnome_desktop_url)/$(sourceview_tar)
 
-vte_version = 0.11.12
+vte_version = 0.11.15
 vte_dir = vte
 vte_tar = vte-$(vte_version).tar.bz2
 vte_url = $(gnome_desktop_url)/$(vte_tar)
@@ -84,22 +84,17 @@ gtkhtml2_dir = gtkhtml2
 gtkhtml2_tar = libgtkhtml-$(gtkhtml2_version).tar.bz2
 gtkhtml2_url = $(gnome_desktop_url)/$(gtkhtml2_tar)
 
-gtkhtml3_version = 3.5.3
+gtkhtml3_version = 3.8.1
 gtkhtml3_dir = gtkhtml3
 gtkhtml3_tar = gtkhtml-$(gtkhtml3_version).tar.bz2
 gtkhtml3_url = $(gnome_desktop_url)/$(gtkhtml3_tar)
 
-gtkhtml3_version = 3.5.3
-gtkhtml3_dir = gtkhtml3
-gtkhtml3_tar = gtkhtml-$(gtkhtml3_version).tar.bz2
-gtkhtml3_url = $(gnome_desktop_url)/$(gtkhtml3_tar)
-
-gnome_version = 2.10.0
+gnome_version = 2.12.0.1
 gnome_dir = gnome
 gnome_tar = libgnome-$(gnome_version).tar.bz2
 gnome_url = $(gnome_platform_url)/$(gnome_tar)
 
-gnomeui_version = 2.10.0
+gnomeui_version = 2.12.0
 gnomeui_dir = gnomeui
 gnomeui_tar = libgnomeui-$(gnomeui_version).tar.bz2
 gnomeui_url = $(gnome_platform_url)/$(gnomeui_tar)
