@@ -14,21 +14,62 @@
 
 module Graphics.Rendering.Cairo.SVG (
   -- * Convenience API
+
+  -- | These operations render an SVG image directly in the current 'Render'
+  -- contect. Because they operate in the cairo 'Render' monad they are
+  -- affected by the current transformation matrix. So it is possible, for
+  -- example, to scale or rotate an SVG image.
+  --
+  -- In the following example we scale an SVG image to a unit square:
+  --
+  -- > let (width, height) = svgGetSize in
+  -- > do scale (1/width) (1/height)
+  -- >    svgRender svg
+
   svgRenderFromFile,
   svgRenderFromHandle,
   svgRenderFromString,
-  
-  -- * Basic API
+
+  -- * Standard API
+
+  -- | With this API there are seperate functions for loading the SVG and
+  -- rendering it. This allows us to be more effecient in the case that an SVG
+  -- image is used many times - since it can be loaded just once and rendered
+  -- many times. With the convenience API above the SVG would be parsed and
+  -- processed each time it is drawn.
+
   SVG,
   svgRender,
   svgGetSize,
 
   -- ** Block scoped versions
+
+  -- | These versions of the SVG loading operations give temporary access
+  -- to the 'SVG' object within the scope of the handler function. These
+  -- operations guarantee that the resources for the SVG object are deallocated
+  -- at the end of the handler block. If this form of resource allocation is
+  -- too restrictive you can use the GC-managed versions below.
+  --
+  -- These versions are ofen used in the following style:
+  --
+  -- > withSvgFromFile "foo.svg" $ \svg -> do
+  -- >   ...
+  -- >   svgRender svg
+  -- >   ...
+
   withSvgFromFile,
   withSvgFromHandle,
   withSvgFromString,
 
   -- ** GC-managed versions
+
+  -- | These versions of the SVG loading operations use the standard Haskell
+  -- garbage collector to manage the resources associated with the 'SVG' object.
+  -- As such they are more convenient to use but the GC cannot give
+  -- strong guarantees about when the resources associated with the 'SVG' object
+  -- will be released. In most circumstances this is not a problem, especially
+  -- if the SVG files being used are not very big.
+
   svgNewFromFile,
   svgNewFromHandle,
   svgNewFromString,
@@ -161,8 +202,11 @@ svgRender svg = do
   cr <- ask
   liftIO $ checkStatus $ {# call render #} svg cr
 
--- find out how big the thing is supposed to be.
-svgGetSize :: SVG -> (Int, Int)
+-- | Get the width and height of the SVG image.
+--
+svgGetSize :: 
+    SVG
+ -> (Int, Int) -- ^ @(width, height)@
 svgGetSize svg = unsafePerformIO $
   alloca $ \widthPtr ->
   alloca $ \heightPtr -> do
