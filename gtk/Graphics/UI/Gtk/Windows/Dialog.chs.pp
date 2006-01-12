@@ -241,6 +241,10 @@ dialogGetHasSeparator self =
 -- 'ResponseId' as the default widget for the dialog. Pressing \"Enter\"
 -- normally activates the default widget.
 --
+-- * The default response is reset once it is triggered. Hence, if you
+--   hide the dialog (rather than closing it) and re-display it later,
+--   you need to call this function again.
+--
 dialogSetDefaultResponse :: DialogClass self => self
  -> ResponseId
  -> IO ()
