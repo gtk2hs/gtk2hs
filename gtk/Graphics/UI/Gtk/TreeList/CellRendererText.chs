@@ -147,22 +147,22 @@ cellEditable = Attribute ["editable","editable-set"] [TMboolean,TMboolean]
 onEdited, afterEdited :: TreeModelClass tm => CellRendererText -> tm ->
 			 (TreeIter -> String -> IO ()) ->
 			 IO (ConnectId CellRendererText)
-onEdited cr tm user = connect_PTR_STRING__NONE "edited" False cr $
-  \strPtr string ->
-  mallocTreeIter >>= \iter ->
-  {# call gtk_tree_model_get_iter_from_string #}
-    (toTreeModel tm)
-    iter
-    strPtr
-  >>= \res -> if toBool res then user iter string else
-      putStrLn "edited signal: invalid tree path"
+onEdited = internalEdited False
+afterEdited = internalEdited True
 
-afterEdited cr tm user = connect_PTR_STRING__NONE "edited" True cr $
-  \strPtr string ->
-  mallocTreeIter >>= \iter ->
+internalEdited :: TreeModelClass tm => Bool -> 
+                  CellRendererText -> tm ->
+                  (TreeIter -> String -> IO ()) ->
+                  IO (ConnectId CellRendererText)
+internalEdited after cr tm user =
+  connect_PTR_STRING__NONE "edited" after cr $ \strPtr string ->
+  (receiveTreeIter $ \iterPtr ->
   {# call gtk_tree_model_get_iter_from_string #}
     (toTreeModel tm)
-    iter
-    strPtr
-  >>= \res -> if toBool res then user iter string else
-      putStrLn "edited signal: invalid tree path"
+    iterPtr
+    strPtr)
+  >>= \res ->
+  case res of
+    Nothing -> fail "edited signal: invalid tree path"
+    Just iter -> user iter string
+

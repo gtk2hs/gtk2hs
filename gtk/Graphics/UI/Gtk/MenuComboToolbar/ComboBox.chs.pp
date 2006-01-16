@@ -130,7 +130,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter(..), createTreeIter)
+{#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter(..), receiveTreeIter)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -234,12 +234,10 @@ comboBoxSetActive self index =
 --
 comboBoxGetActiveIter :: ComboBoxClass self => self -> IO (Maybe TreeIter)
 comboBoxGetActiveIter self =
-  allocaBytes {# sizeof TreeIter #} $ \iterPtr -> do
-  iter <- createTreeIter iterPtr
-  wasSet <- liftM toBool $ {# call gtk_combo_box_get_active_iter #}
-              (toComboBox self) iter
-  if wasSet then return (Just iter)
-            else return Nothing
+  receiveTreeIter $ \iterPtr ->
+  {# call gtk_combo_box_get_active_iter #}
+    (toComboBox self)
+    iterPtr
 
 -- | Sets the current active item to be the one referenced by @iter@. @iter@
 -- must correspond to a path of depth one.
@@ -248,9 +246,10 @@ comboBoxSetActiveIter :: ComboBoxClass self => self
  -> TreeIter -- ^ @iter@ - The 'TreeIter'.
  -> IO ()
 comboBoxSetActiveIter self iter =
+  with iter $ \iterPtr ->
   {# call gtk_combo_box_set_active_iter #}
     (toComboBox self)
-    iter
+    iterPtr
 
 -- | Returns the 'TreeModel' which is acting as data source for the combo box.
 --

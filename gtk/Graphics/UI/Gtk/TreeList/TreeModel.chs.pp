@@ -192,10 +192,11 @@ treeModelGetValue :: TreeModelClass self => self
  -> Int         -- ^ @column@ - The column to lookup the value at.
  -> IO GenericValue
 treeModelGetValue self iter column =
-  allocaGValue $ \vaPtr -> do
+  allocaGValue $ \vaPtr ->
+  with iter $ \iterPtr -> do
   {# call unsafe tree_model_get_value #}
     (toTreeModel self)
-    iter
+    iterPtr
     (fromIntegral column)
     vaPtr
   valueGetGenericValue vaPtr
@@ -206,12 +207,12 @@ treeModelGetValue self iter column =
 --
 treeModelForeach :: TreeModelClass self => self -> (TreeIter -> IO Bool) -> IO ()
 treeModelForeach self fun = do
-  fPtr <- mkTreeModelForeachFunc (\_ _ ti _ -> do
+  fPtr <- mkTreeModelForeachFunc (\_ _ iterPtr _ -> do
     -- make a deep copy of the iterator. This makes it possible to store this
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
     -- passed to the function due to performance reasons. But since it is
     -- a constant this does not matter.
-    iter <- createTreeIter ti
+    iter <- peek iterPtr
     liftM (fromIntegral.fromBool) $ fun iter
     )
   {# call tree_model_foreach #}
@@ -234,12 +235,11 @@ treeModelGetIterFromString :: TreeModelClass self => self
  -> String   -- ^ @pathString@ - A string representation of a 'TreePath'.
  -> IO (Maybe TreeIter)
 treeModelGetIterFromString self pathString =
-  receiveTreeIter $ \iter ->
-  liftM toBool $
+  receiveTreeIter $ \iterPtr ->
   withUTFString pathString $ \pathStringPtr ->
   {# call unsafe tree_model_get_iter_from_string #}
     (toTreeModel self)
-    iter
+    iterPtr
     pathStringPtr
 
 -- | Turn a 'TreePath' into a 'TreeIter'.
@@ -253,12 +253,11 @@ treeModelGetIter :: TreeModelClass self => self
  -> IO (Maybe TreeIter)
 treeModelGetIter _  [] = return Nothing
 treeModelGetIter self path =
-  receiveTreeIter $ \iter ->
-  liftM toBool $
+  receiveTreeIter $ \iterPtr ->
   withTreePath path $ \path ->
   {# call unsafe tree_model_get_iter #}
     (toTreeModel self)
-    iter
+    iterPtr
     path
 
 -- | Retrieves an 'TreeIter' to the first entry.
@@ -268,11 +267,10 @@ treeModelGetIter self path =
 treeModelGetIterFirst :: TreeModelClass self => self
  -> IO (Maybe TreeIter)
 treeModelGetIterFirst self =
-  receiveTreeIter $ \iter ->
-  liftM toBool $
+  receiveTreeIter $ \iterPtr ->
   {# call unsafe tree_model_get_iter_first #}
     (toTreeModel self)
-    iter
+    iterPtr
 
 -- | Turn an abstract 'TreeIter' into a 'TreePath'.
 --
@@ -281,9 +279,10 @@ treeModelGetIterFirst self =
 treeModelGetPath :: TreeModelClass self => self
  -> TreeIter -> IO TreePath
 treeModelGetPath self iter =
+  with iter $ \iterPtr ->
   {# call unsafe tree_model_get_path #}
     (toTreeModel self)
-    iter
+    iterPtr
   >>= fromTreePath
 
 -- | Advance the iterator to the next element.
@@ -293,9 +292,10 @@ treeModelGetPath self iter =
 treeModelIterNext :: TreeModelClass self => self -> TreeIter -> IO Bool
 treeModelIterNext self iter =
   liftM toBool $
+  with iter $ \iterPtr ->
   {# call unsafe tree_model_iter_next #}
     (toTreeModel self)
-    iter
+    iterPtr
 
 -- | Retrieve an iterator to the first child.
 --
@@ -303,12 +303,12 @@ treeModelIterChildren :: TreeModelClass self => self
  -> TreeIter
  -> IO (Maybe TreeIter)
 treeModelIterChildren self parent =
-  receiveTreeIter $ \iter ->
-  liftM toBool $
+  receiveTreeIter $ \iterPtr ->
+  with parent $ \parentPtr ->
   {# call unsafe tree_model_iter_children #}
     (toTreeModel self)
-    iter
-    parent
+    iterPtr
+    parentPtr
 
 -- | Returns @True@ if @iter@ has children, @False@ otherwise.
 --
@@ -317,9 +317,10 @@ treeModelIterHasChild :: TreeModelClass self => self
  -> IO Bool  -- ^ returns @True@ if @iter@ has children.
 treeModelIterHasChild self iter =
   liftM toBool $
+  with iter $ \iterPtr ->
   {# call unsafe tree_model_iter_has_child #}
     (toTreeModel self)
-    iter
+    iterPtr
 
 -- | Returns the number of children that @iter@ has. As a special case, if
 -- @iter@ is @Nothing@, then the number of toplevel nodes is returned.
@@ -329,9 +330,10 @@ treeModelIterNChildren :: TreeModelClass self => self
  -> IO Int         -- ^ returns The number of children of @iter@.
 treeModelIterNChildren self iter =
   liftM fromIntegral $
+  maybeWith with iter $ \iterPtr ->
   {# call unsafe tree_model_iter_n_children #}
     (toTreeModel self)
-    (fromMaybe (TreeIter nullForeignPtr) iter)
+    iterPtr
 
 -- | Retrieve the @n@th child.
 --
@@ -344,12 +346,12 @@ treeModelIterNthChild :: TreeModelClass self => self
  -> Int            -- ^ @n@ - Then index of the desired child.
  -> IO (Maybe TreeIter)
 treeModelIterNthChild self parent n =
-  receiveTreeIter $ \iter ->
-  liftM toBool $
+  receiveTreeIter $ \iterPtr ->
+  maybeWith with parent $ \parentPtr ->
   {# call unsafe tree_model_iter_nth_child #}
     (toTreeModel self)
-    iter
-    (fromMaybe (TreeIter nullForeignPtr) parent)
+    iterPtr
+    parentPtr
     (fromIntegral n)
 
 -- | Retrieve the parent of this iterator.
@@ -358,9 +360,9 @@ treeModelIterParent :: TreeModelClass self => self
  -> TreeIter
  -> IO (Maybe TreeIter)
 treeModelIterParent self child =
-  receiveTreeIter $ \iter ->
-  liftM toBool $
+  receiveTreeIter $ \iterPtr ->
+  with child $ \childPtr ->
   {# call unsafe tree_model_iter_parent #}
     (toTreeModel self)
-    iter
-    child
+    iterPtr
+    childPtr

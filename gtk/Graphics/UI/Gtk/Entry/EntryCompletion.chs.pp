@@ -137,7 +137,7 @@ import System.Glib.GObject		(constructNewGObject,
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter, createTreeIter)
+{#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -196,7 +196,7 @@ entryCompletionSetMatchFunc :: EntryCompletion -> (String -> TreeIter -> IO ()) 
 entryCompletionSetMatchFunc ec handler = do
   hPtr <- mkHandler_GtkEntryCompletionMatchFunc
     (\_ keyPtr iterPtr _ -> do key <- peekUTFString keyPtr
-                               iter <- createTreeIter iterPtr
+                               iter <- peek iterPtr
                                handler key iter)
   dPtr <- mkFunPtrDestroyNotify hPtr
   {# call gtk_entry_completion_set_match_func #} ec

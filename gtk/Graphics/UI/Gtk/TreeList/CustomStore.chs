@@ -28,13 +28,10 @@
 --
 module Graphics.UI.Gtk.TreeList.CustomStore (
   CustomStore(..),
-  Iter(..),
-  customStoreNew
+  customStoreNew,
   ) where
 
-import Monad	(liftM)
-import Maybe	(fromMaybe)
-import Data.Word
+import Monad	(liftM, when)
 
 import System.Glib.FFI			hiding	(maybeNull)
 import System.Glib.Flags
@@ -56,33 +53,18 @@ data CustomStore = CustomStore {
     customStoreGetFlags      :: IO [TreeModelFlags],
     customStoreGetNColumns   :: IO Int,
     customStoreGetColumnType :: Int -> IO GType,
-    customStoreGetIter       :: TreePath -> IO (Maybe Iter),          -- convert a path to an iterator
-    customStoreGetPath       :: Iter -> IO TreePath,                  -- convert an interator to a path
-    customStoreGetValue      :: Iter -> Int -> GValue -> IO (),       -- get the value at an iter and column
-    customStoreIterNext      :: Iter -> IO (Maybe Iter),              -- following row (if any)
-    customStoreIterChildren  :: Maybe Iter -> IO (Maybe Iter),        -- first child row (if any)
-    customStoreIterHasChild  :: Iter -> IO Bool,                      -- row has any children at all
-    customStoreIterNChildren :: Maybe Iter -> IO Int,                 -- number of children of a row
-    customStoreIterNthChild  :: Maybe Iter -> Int -> IO (Maybe Iter), -- nth child row of a given row
-    customStoreIterParent    :: Iter -> IO (Maybe Iter),              -- parent row of a row
-    customStoreRefNode       :: Iter -> IO (),                        -- caching hint
-    customStoreUnrefNode     :: Iter -> IO ()                         -- caching hint
+    customStoreGetIter       :: TreePath -> IO (Maybe TreeIter),              -- convert a path to an iterator
+    customStoreGetPath       :: TreeIter -> IO TreePath,                      -- convert an interator to a path
+    customStoreGetValue      :: TreeIter -> Int -> GValue -> IO (),           -- get the value at an iter and column
+    customStoreIterNext      :: TreeIter -> IO (Maybe TreeIter),              -- following row (if any)
+    customStoreIterChildren  :: Maybe TreeIter -> IO (Maybe TreeIter),        -- first child row (if any)
+    customStoreIterHasChild  :: TreeIter -> IO Bool,                          -- row has any children at all
+    customStoreIterNChildren :: Maybe TreeIter -> IO Int,                     -- number of children of a row
+    customStoreIterNthChild  :: Maybe TreeIter -> Int -> IO (Maybe TreeIter), -- nth child row of a given row
+    customStoreIterParent    :: TreeIter -> IO (Maybe TreeIter),              -- parent row of a row
+    customStoreRefNode       :: TreeIter -> IO (),                            -- caching hint
+    customStoreUnrefNode     :: TreeIter -> IO ()                             -- caching hint
   }
-
-data Iter = Iter !Word32 !Word32 !Word32
-
-peekIter :: Ptr TreeIter -> IO Iter
-peekIter ptr = do
-  user_data  <- peekByteOff ptr 4
-  user_data2 <- peekByteOff ptr 8
-  user_data3 <- peekByteOff ptr 12
-  return (Iter user_data user_data2 user_data3)
-
-pokeIter :: Ptr TreeIter -> Iter -> IO ()
-pokeIter ptr (Iter user_data user_data2 user_data3) = do
-  pokeByteOff ptr 4 user_data
-  pokeByteOff ptr 8 user_data2
-  pokeByteOff ptr 12 user_data3
 
 customStoreGetFlags_static :: StablePtr CustomStore -> IO CInt
 customStoreGetFlags_static storePtr = do
@@ -118,7 +100,7 @@ customStoreGetIter_static storePtr iterPtr pathPtr = do
   iter <- customStoreGetIter store path
   case iter of
     Nothing   -> return (fromBool False)
-    Just iter -> do pokeIter iterPtr iter
+    Just iter -> do poke iterPtr iter
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_get_iter_impl"
@@ -128,7 +110,7 @@ foreign export ccall "gtk2hs_store_get_iter_impl"
 customStoreGetPath_static :: StablePtr CustomStore -> Ptr TreeIter -> IO (Ptr NativeTreePath)
 customStoreGetPath_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
-  iter <- peekIter iterPtr
+  iter <- peek iterPtr
   path <- customStoreGetPath store iter
   NativeTreePath pathPtr <- newTreePath path
   return pathPtr
@@ -140,7 +122,7 @@ foreign export ccall "gtk2hs_store_get_path_impl"
 customStoreGetValue_static :: StablePtr CustomStore -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
 customStoreGetValue_static storePtr iterPtr column gvaluePtr = do
   store <- deRefStablePtr storePtr
-  iter <- peekIter iterPtr
+  iter <- peek iterPtr
   customStoreGetValue store iter (fromIntegral column) (GValue gvaluePtr)
 
 foreign export ccall "gtk2hs_store_get_value_impl"
@@ -150,11 +132,11 @@ foreign export ccall "gtk2hs_store_get_value_impl"
 customStoreIterNext_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
 customStoreIterNext_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
-  iter <- peekIter iterPtr
+  iter <- peek iterPtr
   iter' <- customStoreIterNext store iter
   case iter' of
     Nothing    -> return (fromBool False)
-    Just iter' -> do pokeIter iterPtr iter'
+    Just iter' -> do poke iterPtr iter'
                      return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_next_impl"
@@ -164,11 +146,11 @@ foreign export ccall "gtk2hs_store_iter_next_impl"
 customStoreIterChildren_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
 customStoreIterChildren_static storePtr iterPtr parentIterPtr = do
   store <- deRefStablePtr storePtr
-  parentIter <- maybeNull peekIter parentIterPtr
+  parentIter <- maybeNull peek parentIterPtr
   iter <- customStoreIterChildren store parentIter
   case iter of
     Nothing   -> return (fromBool False)
-    Just iter -> do pokeIter iterPtr iter
+    Just iter -> do poke iterPtr iter
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_children_impl"
@@ -178,7 +160,7 @@ foreign export ccall "gtk2hs_store_iter_children_impl"
 customStoreIterHasChild_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
 customStoreIterHasChild_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
-  iter <- peekIter iterPtr
+  iter <- peek iterPtr
   liftM fromBool $ customStoreIterHasChild store iter
 
 foreign export ccall "gtk2hs_store_iter_has_child_impl"
@@ -188,7 +170,7 @@ foreign export ccall "gtk2hs_store_iter_has_child_impl"
 customStoreIterNChildren_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
 customStoreIterNChildren_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
-  iter <- maybeNull peekIter iterPtr
+  iter <- maybeNull peek iterPtr
   liftM fromIntegral $ customStoreIterNChildren store iter
 
 foreign export ccall "gtk2hs_store_iter_n_children_impl"
@@ -198,11 +180,11 @@ foreign export ccall "gtk2hs_store_iter_n_children_impl"
 customStoreIterNthChild_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
 customStoreIterNthChild_static storePtr iterPtr parentIterPtr n = do
   store <- deRefStablePtr storePtr
-  parentIter <- maybeNull peekIter parentIterPtr
+  parentIter <- maybeNull peek parentIterPtr
   iter <- customStoreIterNthChild store parentIter (fromIntegral n)
   case iter of
     Nothing   -> return (fromBool False)
-    Just iter -> do pokeIter iterPtr iter
+    Just iter -> do poke iterPtr iter
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_nth_child_impl"
@@ -212,11 +194,11 @@ foreign export ccall "gtk2hs_store_iter_nth_child_impl"
 customStoreIterParent_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
 customStoreIterParent_static  storePtr iterPtr childIterPtr = do
   store <- deRefStablePtr storePtr
-  childIter <- peekIter childIterPtr
+  childIter <- peek childIterPtr
   iter <- customStoreIterParent store childIter
   case iter of
     Nothing   -> return (fromBool False)
-    Just iter -> do pokeIter iterPtr iter
+    Just iter -> do poke iterPtr iter
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_parent_impl"
@@ -226,7 +208,7 @@ foreign export ccall "gtk2hs_store_iter_parent_impl"
 customStoreRefNode_static :: StablePtr CustomStore -> Ptr TreeIter -> IO ()
 customStoreRefNode_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
-  iter <- peekIter iterPtr
+  iter <- peek iterPtr
   customStoreRefNode store iter
 
 foreign export ccall "gtk2hs_store_ref_node_impl"
@@ -236,7 +218,7 @@ foreign export ccall "gtk2hs_store_ref_node_impl"
 customStoreUnrefNode_static :: StablePtr CustomStore -> Ptr TreeIter -> IO ()
 customStoreUnrefNode_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
-  iter <- peekIter iterPtr
+  iter <- peek iterPtr
   customStoreUnrefNode store iter
 
 foreign export ccall "gtk2hs_store_unref_node_impl"

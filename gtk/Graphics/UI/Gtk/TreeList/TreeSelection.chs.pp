@@ -182,13 +182,12 @@ treeSelectionGetTreeView self =
 --
 treeSelectionGetSelected :: TreeSelectionClass self => self ->
                             IO (Maybe TreeIter)
-treeSelectionGetSelected self = do
-  iter <- mallocTreeIter
-  res <- {# call tree_selection_get_selected #}
+treeSelectionGetSelected self =
+  receiveTreeIter $ \iterPtr ->
+  {# call tree_selection_get_selected #}
     (toTreeSelection self)
     nullPtr
-    iter
-  return $ if (toBool res) then Just iter else Nothing
+    iterPtr
 
 -- | Execute a function for each selected node.
 --
@@ -199,12 +198,12 @@ treeSelectionSelectedForeach :: TreeSelectionClass self => self
  -> TreeSelectionForeachCB
  -> IO ()
 treeSelectionSelectedForeach self fun = do
-  fPtr <- mkTreeSelectionForeachFunc (\_ _ ti -> do
+  fPtr <- mkTreeSelectionForeachFunc (\_ _ iterPtr -> do
     -- make a deep copy of the iterator. This makes it possible to store this
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
     -- passed to the function due to performance reasons. But since it is
     -- a constant member of Selection this does not matter.
-    iter <- createTreeIter ti
+    iter <- peek iterPtr
     fun iter
     )
   {# call tree_selection_selected_foreach #}
@@ -291,17 +290,19 @@ treeSelectionPathIsSelected self path =
 --
 treeSelectionSelectIter :: TreeSelectionClass self => self -> TreeIter -> IO ()
 treeSelectionSelectIter self iter =
+  with iter $ \iterPtr ->
   {# call tree_selection_select_iter #}
     (toTreeSelection self)
-    iter
+    iterPtr
 
 -- | Deselect a specific item by 'TreeIter'.
 --
 treeSelectionUnselectIter :: TreeSelectionClass self => self -> TreeIter -> IO ()
 treeSelectionUnselectIter self iter =
+  with iter $ \iterPtr ->
   {# call tree_selection_unselect_iter #}
     (toTreeSelection self)
-    iter
+    iterPtr
 
 -- | Returns True if the row at the given iter is currently selected.
 --
@@ -310,9 +311,10 @@ treeSelectionIterIsSelected :: TreeSelectionClass self => self
  -> IO Bool
 treeSelectionIterIsSelected self iter =
   liftM toBool $
+  with iter $ \iterPtr ->
   {# call unsafe tree_selection_iter_is_selected #}
     (toTreeSelection self)
-    iter
+    iterPtr
 
 -- | Selects all the nodes. The tree selection must be set to
 -- 'SelectionMultiple' mode.
