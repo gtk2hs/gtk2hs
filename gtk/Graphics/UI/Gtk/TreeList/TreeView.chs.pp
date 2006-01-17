@@ -1025,7 +1025,7 @@ treeViewSetSearchEqualFunc self pred = do
   fPtr <- mkTreeViewSearchEqualFunc (\_ col keyPtr iterPtr _ -> do
     key <- peekUTFString keyPtr
     iter <- peek iterPtr
-    liftM fromBool $ pred (fromIntegral col) key iter)
+    liftM (fromBool.not) $ pred (fromIntegral col) key iter)
   dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
     nullPtr dPtr
