@@ -29,6 +29,13 @@
 module Graphics.UI.Gtk.TreeList.CustomStore (
   CustomStore(..),
   customStoreNew,
+
+  -- * View notifcation functions
+  treeModelRowChanged,
+  treeModelRowInserted,
+  treeModelRowHasChildToggled,
+  treeModelRowDeleted,
+  treeModelRowsReordered,
   ) where
 
 import Monad	(liftM, when)
@@ -237,3 +244,90 @@ maybeNull :: (Ptr a -> IO b) -> Ptr a -> IO (Maybe b)
 maybeNull marshal ptr
   | ptr == nullPtr = return Nothing
   | otherwise      = liftM Just (marshal ptr)
+
+
+-- | Emits the \"row_changed\" signal on the 'TreeModel'.
+--
+treeModelRowChanged :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row
+ -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the changed row
+ -> IO ()
+treeModelRowChanged self path iter =
+  withTreePath path $ \pathPtr ->
+  with iter $ \iterPtr ->
+  {# call gtk_tree_model_row_changed #}
+    (toTreeModel self)
+    pathPtr
+    iterPtr
+
+-- | Emits the \"row_inserted\" signal on the 'TreeModel'
+--
+treeModelRowInserted :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the inserted row
+ -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the inserted row
+ -> IO ()
+treeModelRowInserted self path iter =
+  withTreePath path $ \pathPtr ->
+  with iter $ \iterPtr ->
+  {# call gtk_tree_model_row_inserted #}
+    (toTreeModel self)
+    pathPtr
+    iterPtr
+
+-- | Emits the \"row_has_child_toggled\" signal on the 'TreeModel'. This should
+-- be called by models after the child state of a node changes.
+--
+treeModelRowHasChildToggled :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row
+ -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the changed row
+ -> IO ()
+treeModelRowHasChildToggled self path iter =
+  withTreePath path $ \pathPtr ->
+  with iter $ \iterPtr ->
+  {# call gtk_tree_model_row_has_child_toggled #}
+    (toTreeModel self)
+    pathPtr
+    iterPtr
+
+-- | Emits the \"row_deleted\" signal the 'TreeModel'. This should be called by
+-- models after a row has been removed. The location pointed to by @path@
+-- should be the location that the row previously was at. It may not be a valid
+-- location anymore.
+--
+treeModelRowDeleted :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the previous location of
+             -- the deleted row.
+ -> IO ()
+treeModelRowDeleted self path =
+  withTreePath path $ \pathPtr ->
+  {# call gtk_tree_model_row_deleted #}
+    (toTreeModel self)
+    pathPtr
+
+-- | Emits the \"rows_reordered\" signal on the 'TreeModel'. This should be
+-- called by models when their rows have been reordered.
+--
+treeModelRowsReordered :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the tree node whose
+             -- children have been reordered
+ -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the node whose
+             -- children have been reordered, or {@NULL@, FIXME: this should
+             -- probably be converted to a Maybe data type} if the depth of
+             -- @path@ is 0.
+ -> [Int]   -- ^ @newOrder@ - an array of integers mapping the current
+             -- position of each child to its old position before the
+             -- re-ordering, i.e. @newOrder@@[newpos] = oldpos@.
+ -> IO ()
+treeModelRowsReordered self path iter newOrder =
+  withTreePath path $ \pathPtr ->
+  with iter $ \iterPtr ->
+  withArrayLen (map fromIntegral newOrder) $ \newLength newOrderArrPtr -> do
+  --check newOrder is the right length or it'll overrun
+  curLength <- treeModelIterNChildren self (Just iter)
+  when (curLength /= newLength)
+       (fail "treeModelRowsReordered: mapping wrong length for store")
+  {# call gtk_tree_model_rows_reordered #}
+    (toTreeModel self)
+    pathPtr
+    iterPtr
+    newOrderArrPtr
