@@ -106,11 +106,12 @@ treeStoreSetValue :: TreeStoreClass self => self
  -> GenericValue
  -> IO ()
 treeStoreSetValue self iter column value =
+  with iter $ \iterPtr ->
   allocaGValue $ \gvalue -> do
   valueSetGenericValue gvalue value
   {# call unsafe tree_store_set_value #}
     (toTreeStore self)
-    iter
+    iterPtr
     (fromIntegral column)
     gvalue
 
@@ -129,9 +130,10 @@ treeStoreRemove :: TreeStoreClass self => self
  -> IO Bool
 treeStoreRemove self iter =
   liftM toBool $
+  with iter $ \iterPtr ->
   {# call tree_store_remove #}
     (toTreeStore self)
-    iter
+    iterPtr
 
 #else
 -- | Remove a specific node.
@@ -146,9 +148,10 @@ treeStoreRemove :: TreeStoreClass self => self
  -> TreeIter
  -> IO ()
 treeStoreRemove self iter =
+  with iter $ \iterPtr ->
   {# call tree_store_remove #}
     (toTreeStore self)
-    iter
+    iterPtr
 #endif
 
 -- | Insert a child node into the tree. If the parent
@@ -161,42 +164,45 @@ treeStoreInsert :: TreeStoreClass self => self
  -> Maybe TreeIter -- ^ @parent@ - A valid 'TreeIter', or @Nothing@
  -> Int            -- ^ @position@ - position to insert the new row
  -> IO TreeIter
-treeStoreInsert self parent position = do
-  iter <- mallocTreeIter
+treeStoreInsert self parent position =
+  maybeWith with parent $ \parentPtr ->
+  alloca $ \iterPtr -> do
   {# call tree_store_insert #}
     (toTreeStore self)
-    iter
-    (fromMaybe (TreeIter nullForeignPtr) parent)
+    iterPtr
+    parentPtr
     (fromIntegral position)
-  return iter
+  peek iterPtr
 
 -- | Insert a node in front of the @sibling@ node on the same level.
 --
 treeStoreInsertBefore :: TreeStoreClass self => self
  -> TreeIter
  -> IO TreeIter
-treeStoreInsertBefore self sibling = do
-  iter <- mallocTreeIter
+treeStoreInsertBefore self sibling =
+  with sibling $ \siblingPtr ->
+  alloca $ \iterPtr -> do
   {# call tree_store_insert_before #}
     (toTreeStore self)
-    iter
-    (TreeIter nullForeignPtr)
-    sibling
-  return iter
+    iterPtr
+    nullPtr
+    siblingPtr
+  peek iterPtr
 
 -- | Insert a node behind the @sibling@ node on the same level.
 --
 treeStoreInsertAfter :: TreeStoreClass self => self
  -> TreeIter
  -> IO TreeIter
-treeStoreInsertAfter self sibling = do
-  iter <- mallocTreeIter
+treeStoreInsertAfter self sibling =
+  with sibling $ \siblingPtr ->
+  alloca $ \iterPtr -> do
   {# call tree_store_insert_after #}
     (toTreeStore self)
-    iter
-    (TreeIter nullForeignPtr)
-    sibling
-  return iter
+    iterPtr
+    nullPtr
+    siblingPtr
+  peek iterPtr
 
 -- | Insert a child node in front of every other sibling.
 --
@@ -205,13 +211,14 @@ treeStoreInsertAfter self sibling = do
 treeStorePrepend :: TreeStoreClass self => self
  -> Maybe TreeIter -- ^ @parent@ - A valid 'TreeIter', or @Nothing@
  -> IO TreeIter
-treeStorePrepend self parent = do
-  iter <- mallocTreeIter
+treeStorePrepend self parent =
+  maybeWith with parent $ \parentPtr ->
+  alloca $ \iterPtr -> do
   {# call tree_store_prepend #}
     (toTreeStore self)
-    iter
-    (fromMaybe (TreeIter nullForeignPtr) parent)
-  return iter
+    iterPtr
+    parentPtr
+  peek iterPtr
 
 -- | Insert a child node behind other siblings.
 --
@@ -220,13 +227,14 @@ treeStorePrepend self parent = do
 treeStoreAppend :: TreeStoreClass self => self
  -> Maybe TreeIter -- ^ @parent@ - A valid 'TreeIter', or @Nothing@
  -> IO TreeIter
-treeStoreAppend self parent = do
-  iter <- mallocTreeIter
+treeStoreAppend self parent =
+  maybeWith with parent $ \parentPtr ->
+  alloca $ \iterPtr -> do
   {# call tree_store_append #}
     (toTreeStore self)
-    iter
-    (fromMaybe (TreeIter nullForeignPtr) parent)
-  return iter
+    iterPtr
+    parentPtr
+  peek iterPtr
 
 -- | Check if a node is in a parental relationship
 -- with another node. Returns True even if parent is grandparent,... of child.
@@ -237,10 +245,12 @@ treeStoreIsAncestor :: TreeStoreClass self => self
  -> IO Bool
 treeStoreIsAncestor self iter descendant =
   liftM toBool $
+  with iter $ \iterPtr ->
+  with descendant $ \descendantPtr ->
   {# call unsafe tree_store_is_ancestor #}
     (toTreeStore self)
-    iter
-    descendant
+    iterPtr
+    descendantPtr
 
 -- | Calculate the level of a node. Returns 1 for a root node.
 --
@@ -249,9 +259,10 @@ treeStoreIterDepth :: TreeStoreClass self => self
  -> IO Int
 treeStoreIterDepth self iter =
   liftM fromIntegral $
+  with iter $ \iterPtr ->
   {# call unsafe tree_store_iter_depth #}
     (toTreeStore self)
-    iter
+    iterPtr
 
 -- | Removes all rows from the store.
 --
