@@ -191,10 +191,10 @@ RES=;
 for FLAG in $3; do
   case [$]FLAG in
 	-I*) if test -d [$]{FLAG#-I}; then
-	       if test -z "`echo $2xxx | [$]GREP -e [$]{FLAG}xxx`"; then
+	       if test -z "`echo $2 | [$]GREP -e [$]FLAG`"; then
 	         RES="[$]RES [$]FLAG"; fi;
 	     fi;;
-	*) if test -z "`echo $2xxx | [$]GREP -e [$]{FLAG}xxx`"; then
+	*) if test -z "`echo $2 | [$]GREP -e [$]FLAG`"; then
 	     RES="[$]RES [$]FLAG"; fi;;
   esac
 done;
