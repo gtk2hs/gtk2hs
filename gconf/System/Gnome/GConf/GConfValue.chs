@@ -33,9 +33,7 @@
 
 module System.Gnome.GConf.GConfValue (
  GConfPrimitiveValueClass,
- GConfValueClass,
- marshalFromGConfValue,
- marshalToGConfValue,
+ GConfValueClass(marshalFromGConfValue, marshalToGConfValue),
  GConfValue(GConfValue),
  GConfValueDyn(..),
  ) where
