@@ -170,10 +170,11 @@ module CHSLexer (CHSToken(..), lexCHS)
 where 
 
 import List	 ((\\))
+import Char	 (isDigit)
 import Monad	 (liftM)
 import Numeric   (readDec, readOct, readHex)
 
-import Common    (Position, Pos(posOf), incPos, retPos, tabPos)
+import Common    (Position(Position), Pos(posOf), incPos, retPos, tabPos)
 import Errors    (ErrorLvl(..), Error, makeError)
 import UNames	 (NameSupply, Name, names)
 import Idents    (Ident, lexemeToIdent, identToLexeme)
@@ -231,6 +232,7 @@ data CHSToken = CHSTokArrow   Position		-- `->'
 	      | CHSTokIdent   Position Ident	-- identifier
 	      | CHSTokHaskell Position String	-- verbatim Haskell code
 	      | CHSTokCPP     Position String	-- pre-processor directive
+              | CHSTokLine    Position		-- line pragma
 	      | CHSTokC	      Position String	-- verbatim C code
 	      | CHSTokCtrl    Position Char	-- control code
 
@@ -567,6 +569,8 @@ hook  = string "{#"
 --
 -- * we lex `#c' as a directive and special case it in the action
 --
+-- * we lex C line number pragmas and special case it in the action
+--
 cpp :: CHSLexer
 cpp = directive
       where
@@ -580,9 +584,28 @@ cpp = directive
                  -- a #c may be followed by whitespace
 	         'c':sp:_ | sp `elem` " \t" ->		-- #c
 		   (Nothing, retPos pos, s, Just cLexer)
+                 ' ':line@(n:_) | isDigit n ->                 -- C line pragma
+                   let pos' = adjustPosByCLinePragma line pos
+                    in (Just $ Right (CHSTokLine pos'), pos', s, Nothing)
                  _                            ->        -- CPP directive
 		   (Just $ Right (CHSTokCPP pos dir), 
 		    retPos pos, s, Nothing)
+
+adjustPosByCLinePragma :: String -> Position -> Position
+adjustPosByCLinePragma str (Position fname _ _) = 
+  (Position fname' row' 0)
+  where
+    str'            = dropWhite str
+    (rowStr, str'') = span isDigit str'
+    row'	    = read rowStr
+    str'''	    = dropWhite str''
+    fnameStr	    = takeWhile (/= '"') . drop 1 $ str'''
+    fname'	    | null str''' || head str''' /= '"'	= fname
+		    -- try and get more sharing of file name strings
+		    | fnameStr == fname			= fname
+		    | otherwise				= fnameStr
+    --
+    dropWhite = dropWhile (\c -> c == ' ' || c == '\t')
 
 -- the binding hook lexer
 --

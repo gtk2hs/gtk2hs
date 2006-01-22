@@ -138,6 +138,7 @@ data CHSFrag = CHSVerb String			-- Haskell code
 	     | CHSHook CHSHook			-- binding hook
 	     | CHSCPP  String			-- pre-processor directive
 		       Position
+             | CHSLine Position                 -- line pragma
 	     | CHSC    String			-- C code
 		       Position
 	     | CHSCond [(Ident,			-- C variable repr. condition
@@ -148,6 +149,7 @@ instance Pos CHSFrag where
   posOf (CHSVerb _ pos ) = pos
   posOf (CHSHook hook  ) = posOf hook
   posOf (CHSCPP  _ pos ) = pos
+  posOf (CHSLine   pos ) = pos
   posOf (CHSC    _ pos ) = pos
   posOf (CHSCond alts _) = case alts of
 			     (_, frag:_):_ -> posOf frag
@@ -425,6 +427,8 @@ showCHSModule (CHSModule frags) pureHaskell  =
       . showString s
 --      . showChar '\n'
       . showFrags False Emit frags
+    showFrags pureHs _     (CHSLine s          : frags) =
+        showFrags pureHs Emit frags
     showFrags False  _     (CHSC    s    _     : frags) =
         showString "\n#c"
       . showString s
@@ -718,6 +722,9 @@ parseFrags toks  = do
     parseFrags0 (CHSTokCPP     pos s:toks) = do
 					       frags <- parseFrags toks
 					       return $ CHSCPP s pos : frags
+    parseFrags0 (CHSTokLine    pos  :toks) = do
+					       frags <- parseFrags toks
+					       return $ CHSLine pos : frags
     parseFrags0 (CHSTokC       pos s:toks) = parseC       pos s      toks 
     parseFrags0 (CHSTokImport  pos  :toks) = parseImport  pos        toks
     parseFrags0 (CHSTokContext pos  :toks) = parseContext pos        toks
