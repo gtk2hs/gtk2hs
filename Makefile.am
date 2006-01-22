@@ -489,6 +489,12 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/CustomStore.chs			\
 	gtk/Graphics/UI/Gtk/TreeList/Gtk2HsStore.c			\
+	gtk/Graphics/UI/Gtk/TreeList/Column.hs				\
+	gtk/Graphics/UI/Gtk/TreeList/Sequence.hs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/ListStoreNew.hs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/ListStoreStatic.hs			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeStoreNew.hs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeStoreStatic.hs			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Window.chs.pp			\
