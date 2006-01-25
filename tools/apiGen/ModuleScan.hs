@@ -32,7 +32,8 @@ data ModuleInfo = ModuleInfo {
     module_imports           :: [(String, String)], -- mod name and the whole line
     module_context_lib       :: String,
     module_context_prefix    :: String,
-    module_methods           :: [MethodInfo]
+    module_methods           :: [MethodInfo],
+    module_deprecated        :: [String]      -- {-# DEPRECATED #-} pragmas
   } deriving Show
 
 data MethodInfo = MethodInfo {
@@ -52,6 +53,7 @@ data Line = None
           | Import String String
           | Context String String
           | CCall MethodInfo
+          | Deprecated String
   deriving Show
 
 usefulLine None = False
@@ -149,7 +151,8 @@ scanModuleContent content filename =
     module_imports           = [ (name, line)   | Import name line    <- headerLines ],
     module_context_lib       = head $ [ lib     | Context lib prefix  <- headerLines ] ++ [missing],
     module_context_prefix    = head $ [ prefix  | Context lib prefix  <- headerLines ] ++ [missing],
-    module_methods           =        [ call    | CCall call  <- bodyLines ]
+    module_methods           =        [ call    | CCall call  <- bodyLines ],
+    module_deprecated        =        [ value   | Deprecated value    <- bodyLines ]
   }
   where missing = "{-missing-}"
 
@@ -174,6 +177,7 @@ scanLine _ (")":"where":[])             = ExportEnd
 scanLine _ ("{#":"context":context)     = scanContext context
 scanLine line ("import":moduleName)     = scanImport line moduleName
 scanLine line ("{#":"import":moduleName)= scanImport line moduleName
+scanLine _ ("{#-":"DEPRECATED":symbol:_)= Deprecated symbol
 scanLine _ tokens | "{#" `elem` tokens  = scanCCall tokens
 
 scanLine _ _ = None
@@ -230,6 +234,7 @@ scanCCall tokens =
     ("pointer*":_)             -> None
     ("enum":_)                 -> None
     ("get":_)                  -> None
+    ("set":_)                  -> None
     ("sizeof":_)                  -> None
     tokens -> error $ "scanCCall: " ++ show tokens
 

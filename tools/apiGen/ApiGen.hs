@@ -157,7 +157,8 @@ main = do
                     module_imports           = [],
                     module_context_lib       = if null lib then namespace_library namespace else lib,
                     module_context_prefix    = if null prefix then namespace_library namespace else prefix,
-                    module_methods           = []
+                    module_methods           = [],
+                    module_deprecated        = []
                   }
       writeFile (outdir ++ module_filename moduleInfo) $
         templateSubstitute template (\var ->

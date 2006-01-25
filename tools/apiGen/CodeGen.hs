@@ -544,9 +544,16 @@ genSignals knownSymbols object apiDoc =
 genSignal :: KnownSymbols -> Object -> Signal -> Maybe SignalDoc -> ShowS
 genSignal knownSymbols object signal doc = 
   formattedDoc.
-  ss "on". signalName. ss ", after". signalName. ss " :: ". signalType.
-  ss "on".    signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " False". nl.
-  ss "after". signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " True"
+  ss (lowerCaseFirstChar signalName). ss " :: ". signalType. nl.
+  ss (lowerCaseFirstChar signalName). ss " = Signal (connect_". connectCall. sc ' '. signalCName. sc ')'. nl.
+  nl.
+  ss "on". ss signalName. ss ", after". ss signalName. ss " :: ". oldSignalType.
+  ss "on".    ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " False". nl.
+  ss "after". ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " True". nl.
+  ss "{-# DEPRECATED on". ss signalName. ss " \"instead of 'on". ss signalName. ss " obj' use 'on obj ".
+                          ss (lowerCaseFirstChar signalName). ss "'\" #-}". nl.
+  ss "{-# DEPRECATED after". ss signalName. ss " \"instead of 'on". ss signalName. ss " obj' use 'after obj ".
+                          ss (lowerCaseFirstChar signalName). ss "'\" #-}"
 
   where connectCall = let paramCategories' = if null paramCategories then ["NONE"] else paramCategories
                        in sepBy "_" paramCategories' . ss "__" . ss returnCategory
@@ -557,12 +564,13 @@ genSignal knownSymbols object signal doc =
         (paramCategories, paramTypes) = unzip [ convertSignalType knownSymbols (parameter_type parameter)
                                               | parameter <- params ]
         (returnCategory, returnType) = convertSignalType knownSymbols (signal_return_type signal)
-        signalType = ss (object_name object). ss "Class self => self\n".
-                     ss " -> ". (if null paramTypes
-                                  then ss "IO ". ss returnType
-                                  else sc '('. sepBy " -> " (paramTypes ++ ["IO " ++ returnType]). sc ')').
+        signalType = ss (object_name object). ss "Class self => Signal self (". callbackType. sc ')'
+        oldSignalType = ss (object_name object). ss "Class self => self\n".
+                     ss " -> ". callbackType.
                      ss "\n -> IO (ConnectId self)\n"
-        signalName = ss (toStudlyCaps . canonicalSignalName . signal_cname $ signal)
+        callbackType | null paramTypes = ss "IO ". ss returnType
+                     | otherwise = sc '('. sepBy " -> " (paramTypes ++ ["IO " ++ returnType]). sc ')'
+        signalName = toStudlyCaps . canonicalSignalName . signal_cname $ signal
         signalCName = sc '"'. ss (signal_cname signal). sc '"'
         formattedDoc = haddocFormatDeclaration knownSymbols False signaldoc_paragraphs doc
 
@@ -665,8 +673,16 @@ genExports object docs modInfo =
     . map fst
     . sortBy (comparing snd))
      [ let signalName = (toStudlyCaps . canonicalSignalName . signal_cname) signal in 
+       ((ss "  ".      ss (lowerCaseFirstChar signalName). sc ','
+       ,(maybe "" signaldoc_since doc, notDeprecated))
+       ,fromMaybe (maxBound::Int) (lookup ("on"++signalName) exportIndexMap))
+     | (signal, doc) <- signals object (moduledoc_signals docs)]
+  ++ (sectionHeader "Deprecated"
+    . map fst
+    . sortBy (comparing snd))
+     [ let signalName = (toStudlyCaps . canonicalSignalName . signal_cname) signal in 
        ((ss "  on".    ss signalName. sc ','.nl.
-        ss "  after". ss signalName. sc ','
+         ss "  after". ss signalName. sc ','
        ,(maybe "" signaldoc_since doc, notDeprecated))
        ,fromMaybe (maxBound::Int) (lookup ("on"++signalName) exportIndexMap))
      | (signal, doc) <- signals object (moduledoc_signals docs)]
