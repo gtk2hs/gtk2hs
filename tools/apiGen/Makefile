@@ -369,6 +369,7 @@ eggdock-modules : eggdock-api.xml Template.chs ApiGen \
 
 .PRECIOUS : tars/%.stamp
 tars/%.stamp :
+	mkdir -p tars
 	wget -c $($*_url) --output-document=tars/$($*_tar) && touch $@
 
 % : tars/%.stamp
@@ -382,10 +383,14 @@ get-source-code: $(packages)
 
 .PRECIOUS : %-api.xml
 %-api.xml : %-sources.xml gapi_format_xml
+	chmod ug+x gapi_parser.pl
+	chmod ug+x gapi_pp.pl
+	chmod ug+x gapi2xml.pl
 	PATH=.:$$PATH ./gapi_parser.pl $<
 
 .PRECIOUS : %-docs.xml
 %-docs.xml : format-docs.xsl
+	chmod ug+x mkdocxml.sh 
 	./mkdocxml.sh $(if $($*_docs_standalone),--standalone) $($*_docs_dirs) \
 		| xsltproc format-docs.xsl - > $@
 
