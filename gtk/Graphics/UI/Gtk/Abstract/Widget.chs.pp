@@ -77,6 +77,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetHideAll,
   widgetDestroy,
   widgetQueueDraw,		-- Functions to be used with DrawingArea.
+  widgetGetDrawWindow,
+  widgetGetSize,
   widgetHasIntersection,
   widgetIntersect,
   widgetRegionIntersect,
@@ -225,7 +227,8 @@ import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode(..))
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region(..), makeNewRegion)
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,Requisition(..), Color, IconSize,
-					,widgetGetState, widgetGetSavedState)
+					,widgetGetState, widgetGetSavedState
+					,widgetGetDrawWindow, widgetGetSize)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
 					 marshExposeRect)
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..))

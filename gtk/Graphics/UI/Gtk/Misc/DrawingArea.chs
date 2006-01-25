@@ -92,7 +92,7 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Structs	(drawingAreaGetDrawWindow, drawingAreaGetSize)
+import Graphics.UI.Gtk.General.Structs	(widgetGetDrawWindow, widgetGetSize)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -106,3 +106,14 @@ drawingAreaNew =
   makeNewObject mkDrawingArea $
   liftM (castPtr :: Ptr Widget -> Ptr DrawingArea) $
   {# call unsafe drawing_area_new #}
+
+drawingAreaGetDrawWindow :: DrawingArea -> IO DrawWindow
+drawingAreaGetDrawWindow da = do
+  win <- widgetGetDrawWindow da
+  case win of
+    Nothing -> fail "drawingAreaGetDrawWindow: no DrawWindow available \
+                     \(the DrawingArea is probably not realized)"
+    Just win -> return win
+
+drawingAreaGetSize :: DrawingArea -> IO (Int, Int)
+drawingAreaGetSize = widgetGetSize

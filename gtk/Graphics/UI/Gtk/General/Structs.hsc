@@ -82,8 +82,8 @@ module Graphics.UI.Gtk.General.Structs (
 #ifndef DISABLE_DEPRECATED
   comboGetList,
 #endif
-  drawingAreaGetDrawWindow,
-  drawingAreaGetSize,
+  widgetGetDrawWindow,
+  widgetGetSize,
   layoutGetDrawWindow,
   pangoScale,
   PangoDirection(..),
@@ -653,22 +653,29 @@ fileSelectionGetButtons fsel =
 
 -- DrawingArea related methods
 
--- | Retrieves the 'Drawable' part.
+-- | Retrieves the 'DrawWindow' that the widget draws onto.
 --
-drawingAreaGetDrawWindow :: DrawingArea -> IO DrawWindow
-drawingAreaGetDrawWindow da =
-  withForeignPtr (unDrawingArea da) $ \da' -> do
+-- This may be @Nothing@ if the widget has not yet been realized, since a
+-- widget does not allocate its window resources until just before it is
+-- displayed on the screen. You can use the
+-- 'Graphics.UI.Gtk.Abstract.Widget.onRealize' signal to give you the
+-- opportunity to use a widget's 'DrawWindow' as soon as it has been created
+-- but before the widget is displayed.
+--
+widgetGetDrawWindow :: WidgetClass widget => widget -> IO (Maybe DrawWindow)
+widgetGetDrawWindow da =
+  withForeignPtr (unWidget.toWidget $ da) $ \da' -> do
   drawWindowPtr <- #{peek GtkWidget, window} da'
   if drawWindowPtr == nullPtr
-    then fail "drawingAreaGetDrawWindow: no DrawWindow available (the DrawingArea is probably not realized)"
-    else makeNewGObject mkDrawWindow (return $ castPtr drawWindowPtr)
+    then return Nothing
+    else liftM Just $ makeNewGObject mkDrawWindow (return $ castPtr drawWindowPtr)
 
 -- | Returns the current size.
 --
 -- * This information may be out of date if the user is resizing the window.
 --
-drawingAreaGetSize :: DrawingArea -> IO (Int, Int)
-drawingAreaGetSize da = withForeignPtr (unDrawingArea da) $ \wPtr -> do
+widgetGetSize :: WidgetClass widget => widget -> IO (Int, Int)
+widgetGetSize da = withForeignPtr (unWidget.toWidget $ da) $ \wPtr -> do
     (width :: #{type gint}) <- #{peek GtkAllocation, width} 
 			       (#{ptr GtkWidget, allocation} wPtr)
     (height :: #{type gint}) <- #{peek GtkAllocation, height}
