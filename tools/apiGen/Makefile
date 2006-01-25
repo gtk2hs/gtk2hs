@@ -34,7 +34,7 @@ gtk_releases_url   = ftp://ftp.gtk.org/pub/gtk/v2.8
 gnome_platform_url = http://ftp.gnome.org/pub/gnome/platform/2.12/2.12.2/sources
 gnome_desktop_url  = http://ftp.gnome.org/pub/gnome/desktop/2.12/2.12.2/sources
 
-glib_version = 2.8.5
+glib_version = 2.8.6
 glib_dir = glib
 glib_tar = glib-$(glib_version).tar.bz2
 glib_url = $(gtk_releases_url)/$(glib_tar)
@@ -49,7 +49,7 @@ atk_dir = atk
 atk_tar = atk-$(atk_version).tar.bz2
 atk_url = $(gtk_releases_url)/$(atk_tar)
 
-gtk_version = 2.8.9
+gtk_version = 2.8.10
 gtk_dir = gtk
 gtk_tar = gtk+-$(gtk_version).tar.bz2
 gtk_url = $(gtk_releases_url)/$(gtk_tar)
@@ -59,7 +59,7 @@ glade_dir = glade
 glade_tar = libglade-$(glade_version).tar.bz2
 glade_url = $(gnome_platform_url)/$(glade_tar)
 
-gconf_version = 2.12.0
+gconf_version = 2.12.1
 gconf_dir = gconf
 gconf_tar = GConf-$(gconf_version).tar.bz2
 gconf_url = $(gnome_platform_url)/$(gconf_tar)
