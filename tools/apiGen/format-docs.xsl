@@ -102,12 +102,12 @@
     <altname><xsl:value-of select="refentry/refsynopsisdiv/anchor/@id"/></altname>
     <summary><xsl:apply-templates select="refentry/refnamediv/refpurpose"/></summary>
     <description>
-      <xsl:for-each select="refentry/refsect1[title='Description']">
+      <xsl:for-each select="refentry/refsect1[@id='desc']">
         <xsl:apply-templates select="para | section | refsect2"/>
       </xsl:for-each>
     </description>
     <object-hierarchy>
-      <xsl:for-each select="refentry/refsect1[title='Object Hierarchy']/synopsis/node()">
+      <xsl:for-each select="refentry/refsect1[@id='object_hierarchy']/synopsis/node()">
         <xsl:choose>
 	  <xsl:when test="name(.)='link'">
 	    <xref-type><xsl:value-of select="."/></xref-type>
@@ -121,7 +121,7 @@
     </object-hierarchy>
   </module-info>
   <!-- Function documentation -->
-  <xsl:for-each select="refentry/refsect1[title='Details']/refsect2[contains(title,' ()')]">
+  <xsl:for-each select="refentry/refsect1[@id='details']/refsect2[contains(title,' ()')]">
     <function>
       <name><xsl:value-of select="indexterm/primary"/></name>
       <since>
@@ -155,7 +155,7 @@
   </xsl:for-each>
 -->
   <!-- Properties documentation (new formatting) -->
-  <xsl:for-each select="refentry/refsect1[title='Properties' or title='Style Properties']/refsect2">
+  <xsl:for-each select="refentry/refsect1[@id='property_details']/refsect2">
     <property>
       <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
       <since>
@@ -167,7 +167,7 @@
     </property>
   </xsl:for-each>
   <!-- Child Properties documentation -->
-  <xsl:for-each select="refentry/refsect1[title='Child Properties']/refsect2">
+  <xsl:for-each select="refentry/refsect1[@id='child_property_details']/refsect2">
     <childprop>
       <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
       <since>
@@ -179,7 +179,7 @@
     </childprop>
   </xsl:for-each>
   <!-- Signals documentation -->
-  <xsl:for-each select="refentry/refsect1[title='Signals']/refsect2">
+  <xsl:for-each select="refentry/refsect1[@id='signals']/refsect2">
     <signal>
       <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
       <since>
