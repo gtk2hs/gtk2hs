@@ -109,12 +109,14 @@ drawClockFace False = do
 
 drawHourMarks = do
   save
-  flip mapM_ [0..11] $ \_ -> do
+  forM_ [1..12] $ \_ -> do
     rotate (pi/6)
     moveTo (4.5/6) 0
     lineTo (5.0/6) 0
   stroke
   restore
+
+forM_ = flip mapM_
 
 drawHourHand quality hours minutes seconds = do
   save
@@ -126,12 +128,13 @@ drawHourHand quality hours minutes seconds = do
          + (pi/21600) * seconds)
   
   -- hour hand's shadow
-  setLineWidth (1.75/60)
-  setOperator OperatorAtop
-  setSourceRGBA 0.16 0.18 0.19 0.125
-  moveTo (-2/15 + 0.025) 0.025
-  lineTo (7/15 + 0.025) 0.025
-  stroke
+  when quality $ do
+    setLineWidth (1.75/60)
+    setOperator OperatorAtop
+    setSourceRGBA 0.16 0.18 0.19 0.125
+    moveTo (-2/15 + 0.025) 0.025
+    lineTo (7/15 + 0.025) 0.025
+    stroke
   
   -- the hand itself
   setLineWidth (1/60)
@@ -151,12 +154,13 @@ drawMinuteHand quality minutes seconds = do
          + (pi/1800) * seconds)
   
   -- minute hand's shadow
-  setLineWidth (1.75/60)
-  setOperator OperatorAtop
-  setSourceRGBA 0.16 0.18 0.19 0.125
-  moveTo (-16/75 - 0.025) (-0.025)
-  lineTo (2/3 - 0.025)    (-0.025)
-  stroke
+  when quality $ do
+    setLineWidth (1.75/60)
+    setOperator OperatorAtop
+    setSourceRGBA 0.16 0.18 0.19 0.125
+    moveTo (-16/75 - 0.025) (-0.025)
+    lineTo (2/3 - 0.025)    (-0.025)
+    stroke
   
   -- the minute hand itself
   setLineWidth (1/60)
@@ -175,12 +179,13 @@ drawSecondHand quality seconds = do
   rotate (seconds * pi/30);
 
   -- shadow of second hand-part
-  setOperator  OperatorAtop
-  setSourceRGBA 0.16 0.18 0.19 0.125
-  setLineWidth  (1.3125 / 60)
-  moveTo (-1.5/5 + 0.025) 0.025
-  lineTo (3/5 + 0.025) 0.025
-  stroke
+  when quality $ do
+    setOperator  OperatorAtop
+    setSourceRGBA 0.16 0.18 0.19 0.125
+    setLineWidth  (1.3125 / 60)
+    moveTo (-1.5/5 + 0.025) 0.025
+    lineTo (3/5 + 0.025) 0.025
+    stroke
 
   -- second hand
   setOperator OperatorOver
@@ -257,11 +262,16 @@ drawFrame True = do
     arc 0 0 (150/150) 0 (pi*2)
     stroke
   restore
-drawFrame False = return ()
-  --TODO draw low quality frame outline
+drawFrame False = do
+  save
+  setSourceRGB 0 0 0
+  setLineWidth (10/75)
+  arc 0 0 1 0 (pi*2)
+  stroke
+  restore
 
-defaultSize :: Int
-defaultSize = 256
+initialSize :: Int
+initialSize = 256
 
 main = do
   initGUI
@@ -275,7 +285,7 @@ main = do
   handleGError (\(GError dom code msg) -> fail msg) $
     windowSetIconFromFile window "cairo-clock-icon.png"
   windowSetTitle window "Gtk2Hs Cairo Clock"
-  windowSetDefaultSize window defaultSize defaultSize
+  windowSetDefaultSize window initialSize initialSize
   
 {-
   hints.min_width = 32;
@@ -310,28 +320,40 @@ main = do
 
   backgroundRef <- newIORef (Just undefined)
   foregroundRef <- newIORef (Just undefined)
-{-
+
   let redrawStaticLayers = do
         (width, height) <- widgetGetSize window
         drawWin <- widgetGetDrawWindow window
-        background <- imageSurfaceCreate RGBA32 width height
-        foreground <- imageSurfaceCreate RGBA32 width height
-        renderWith background $
+        background <- createImageSurface FormatARGB32 width height
+        foreground <- createImageSurface FormatARGB32 width height
+        let clear = do 
+              save
+              setOperator OperatorClear
+              paint
+              restore
+        renderWith background $ do
+          clear
           drawClockBackground True width height
-        renderWith foreground $
+        renderWith foreground $ do
+          clear
           drawClockForeground True width height
         writeIORef backgroundRef (Just background)
         writeIORef foregroundRef (Just foreground)
   
   onRealize window redrawStaticLayers
--}
-  sizeRef <- newIORef (defaultSize, defaultSize)
+
+  sizeRef <- newIORef (initialSize, initialSize)
   timeoutHandlerRef <- newIORef Nothing
   onConfigure window $ \Configure { eventWidth = w, eventHeight = h } -> do
     size <- readIORef sizeRef
     writeIORef sizeRef (w,h)
     when (size /= (w,h)) $ do
       
+      background <- readIORef backgroundRef
+      foreground <- readIORef foregroundRef
+      maybe (return ()) surfaceFinish background
+      maybe (return ()) surfaceFinish foreground
+
       writeIORef backgroundRef Nothing
       writeIORef foregroundRef Nothing
       
@@ -340,9 +362,7 @@ main = do
       
       handler <- timeoutAddFull (do
         writeIORef timeoutHandlerRef Nothing
-        --redrawStaticLayers                      --TODO uncomment
-        writeIORef backgroundRef (Just undefined) --TODO remove
-        writeIORef foregroundRef (Just undefined) --TODO remove
+        redrawStaticLayers
         widgetQueueDraw window
         return False
         ) priorityDefaultIdle 300
@@ -350,44 +370,36 @@ main = do
       
     return False
 
-  withImageSurface FormatARGB32 defaultSize defaultSize $ \background ->
-   withImageSurface FormatARGB32 defaultSize defaultSize $ \foreground -> do
-    renderWith background $
-      drawClockBackground True defaultSize defaultSize
-    
-    renderWith foreground $
-      drawClockForeground True defaultSize defaultSize
+  onExpose window $ \Expose { eventRegion = exposeRegion } -> do
 
-    onExpose window $ \Expose { eventRegion = exposeRegion } -> do
-        
-      (width, height) <- widgetGetSize window
-      drawWin <- widgetGetDrawWindow window
-      
-      background' <- readIORef backgroundRef
-      foreground' <- readIORef foregroundRef
-      
-      renderWithDrawable drawWin $ do
-        region exposeRegion
-        clip
+    (width, height) <- widgetGetSize window
+    drawWin <- widgetGetDrawWindow window
 
-        setSourceRGB 1 1 1
-        paint
+    background <- readIORef backgroundRef
+    foreground <- readIORef foregroundRef
 
-        case background' of
-          Nothing -> drawClockBackground False width height
-          Just _ -> do
-            setSourceSurface background 0 0
-            paint
+    renderWithDrawable drawWin $ do
+      region exposeRegion
+      clip
 
-        drawClockHands True width height
+      setSourceRGB 1 1 1
+      paint
 
-        case foreground' of
-          Nothing -> drawClockForeground False width height
-          Just _ -> do
-            setSourceSurface foreground 0 0
-            paint
+      case background of
+        Nothing -> drawClockBackground False width height
+        Just background -> do
+          setSourceSurface background 0 0
+          paint
 
-      return True
+      drawClockHands True width height
 
-    widgetShowAll window
-    mainGUI
+      case foreground of
+        Nothing -> drawClockForeground False width height
+        Just foreground -> do
+          setSourceSurface foreground 0 0
+          paint
+
+    return True
+
+  widgetShowAll window
+  mainGUI
