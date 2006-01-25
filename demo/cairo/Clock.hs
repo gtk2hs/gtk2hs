@@ -282,7 +282,7 @@ main = do
   windowSetPosition window WinPosCenterAlways
 
   widgetSetAppPaintable window True
-  handleGError (\(GError dom code msg) -> fail msg) $
+  handleGError (\_ -> return ()) $
     windowSetIconFromFile window "cairo-clock-icon.png"
   windowSetTitle window "Gtk2Hs Cairo Clock"
   windowSetDefaultSize window initialSize initialSize
