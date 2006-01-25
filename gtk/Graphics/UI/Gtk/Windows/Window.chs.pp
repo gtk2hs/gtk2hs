@@ -1003,15 +1003,16 @@ windowGetScreen self =
 -- This function is equivalent to calling 'windowSetIcon' with a pixbuf
 -- created by loading the image from @filename@.
 --
+-- This may throw an exception if the file cannot be loaded.
+--
 -- * Available since Gtk+ version 2.2
 --
 windowSetIconFromFile :: WindowClass self => self
  -> FilePath  -- ^ @filename@ - location of icon file
- -> IO Bool -- ^ returns @True@ if setting the icon succeeded.
+ -> IO ()
 windowSetIconFromFile self filename =
-  liftM toBool $
   propagateGError $ \errPtr ->
-  withUTFString filename $ \filenamePtr ->
+  withUTFString filename $ \filenamePtr -> do
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
   {# call gtk_window_set_icon_from_file_utf8 #}
 #else
@@ -1020,6 +1021,7 @@ windowSetIconFromFile self filename =
     (toWindow self)
     filenamePtr
     errPtr
+  return ()
 
 -- | By default, after showing the first 'Window' for each 'Screen', Gtk+
 -- calls 'screenNotifyStartupComplete'. Call this function to disable the
