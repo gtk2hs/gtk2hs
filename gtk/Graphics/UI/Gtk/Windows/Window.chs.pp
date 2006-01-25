@@ -205,8 +205,9 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
-import Graphics.UI.Gtk.Gdk.Enums	(WindowEdge(..), WindowTypeHint(..), Gravity(..))
+import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent, MouseButton)
+import Graphics.UI.Gtk.Gdk.Enums	(WindowEdge(..), WindowTypeHint(..),
+					Gravity(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -1135,7 +1136,7 @@ windowResize self width height =
 --
 windowBeginResizeDrag :: WindowClass self => self
  -> WindowEdge -- ^ @edge@ - position of the resize control
- -> Int        -- ^ @button@ - mouse button that initiated the drag
+ -> MouseButton -- ^ @button@ - mouse button that initiated the drag
  -> Int        -- ^ @rootX@ - X position where the user clicked to initiate
                -- the drag, in root window coordinates
  -> Int        -- ^ @rootY@ - Y position where the user clicked to initiate
@@ -1147,7 +1148,7 @@ windowBeginResizeDrag self edge button rootX rootY timestamp =
   {# call gtk_window_begin_resize_drag #}
     (toWindow self)
     ((fromIntegral . fromEnum) edge)
-    (fromIntegral button)
+    ((fromIntegral . fromEnum) button)
     (fromIntegral rootX)
     (fromIntegral rootY)
     (fromIntegral timestamp)
@@ -1159,7 +1160,7 @@ windowBeginResizeDrag self edge button rootX rootY timestamp =
 -- all that well, depending on the windowing system.
 --
 windowBeginMoveDrag :: WindowClass self => self
- -> Int    -- ^ @button@ - mouse button that initiated the drag
+ -> MouseButton -- ^ @button@ - mouse button that initiated the drag
  -> Int    -- ^ @rootX@ - X position where the user clicked to initiate the
            -- drag, in root window coordinates
  -> Int    -- ^ @rootY@ - Y position where the user clicked to initiate the
@@ -1170,7 +1171,7 @@ windowBeginMoveDrag :: WindowClass self => self
 windowBeginMoveDrag self button rootX rootY timestamp =
   {# call gtk_window_begin_move_drag #}
     (toWindow self)
-    (fromIntegral button)
+    ((fromIntegral . fromEnum) button)
     (fromIntegral rootX)
     (fromIntegral rootY)
     (fromIntegral timestamp)
