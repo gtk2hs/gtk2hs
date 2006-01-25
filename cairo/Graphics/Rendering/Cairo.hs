@@ -157,12 +157,15 @@ module Graphics.Rendering.Cairo (
   , withSimilarSurface
   , renderWithSimilarSurface
   , surfaceGetFontOptions
+  , surfaceFinish
+  , surfaceFlush
   , surfaceMarkDirty
   , surfaceMarkDirtyRectangle
   , surfaceSetDeviceOffset
 
   -- ** Image surfaces
   , withImageSurface
+  , createImageSurface
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
 
@@ -1381,6 +1384,19 @@ renderWithSimilarSurface contentType width height render =
 -- cairo will call 'surfaceFinish' if it hasn't been called already, before
 -- freeing the resources associated with the surface.
 --
+surfaceFinish :: (MonadIO m) => Surface -> m ()
+surfaceFinish surface = liftIO $ do
+  status <- Internal.surfaceStatus surface
+  Internal.surfaceFinish surface
+  unless (status == StatusSuccess) $
+    Internal.statusToString status >>= fail
+
+-- | Do any pending drawing for the surface and also restore any temporary
+-- modification's cairo has made to the surface's state. This function must be
+-- called before switching from drawing on the surface with cairo to drawing on
+-- it directly with native APIs. If the surface doesn't support direct access,
+-- then this function does nothing.
+--
 surfaceFlush :: Surface -> Render ()
 surfaceFlush a = liftIO $ Internal.surfaceFlush a
 
@@ -1442,7 +1458,8 @@ withImageSurface ::
      Format -- ^ format of pixels in the surface to create
   -> Int    -- ^ width of the surface, in pixels
   -> Int    -- ^ height of the surface, in pixels
-  -> (Surface -> IO a) -- ^
+  -> (Surface -> IO a) -- ^ an action that may use the surface. The surface is
+                       -- only valid within in this action.
   -> IO a
 withImageSurface format width height f =
   bracket (Internal.imageSurfaceCreate format width height)
@@ -1451,6 +1468,26 @@ withImageSurface format width height f =
                           unless (status == StatusSuccess) $
                             Internal.statusToString status >>= fail)
           (\surface -> f surface)
+
+-- | Like 'withImageSurface' but creates a Surface that is managed by the
+-- Haskell memory manager rather than only being temporaily allocated. This
+-- is more flexible and allows you to create surfaces that persist, which
+-- can be very useful, for example to cache static elements in an animation.
+-- 
+-- However you should be careful because surfaces can be expensive resources
+-- and the Haskell memory manager cannot guarantee when it will release them.
+-- You can manually release the resources used by a surface with
+-- 'surfaceFinish'.
+--
+createImageSurface ::
+     Format -- ^ format of pixels in the surface to create
+  -> Int    -- ^ width of the surface, in pixels
+  -> Int    -- ^ height of the surface, in pixels
+  -> IO Surface
+createImageSurface format width height = do
+  surface <- Internal.imageSurfaceCreate format width height
+  Internal.manageSurface surface
+  return surface
 
 -- | Get the width of the image surface in pixels.
 --

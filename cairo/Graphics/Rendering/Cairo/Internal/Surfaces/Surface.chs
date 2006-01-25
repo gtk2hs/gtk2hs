@@ -20,14 +20,14 @@ import CForeign
 
 {#context lib="cairo" prefix="cairo"#}
 
-{#fun surface_create_similar       as surfaceCreateSimilar      { unSurface `Surface', cFromEnum `Content', `Int', `Int' } -> `Surface' Surface#}
-{#fun surface_destroy              as surfaceDestroy            { unSurface `Surface' } -> `()'#}
-{#fun surface_finish               as surfaceFinish             { unSurface `Surface' } -> `()'#}
-{#fun surface_flush                as surfaceFlush              { unSurface `Surface' } -> `()'#}
-{#fun surface_get_font_options     as surfaceGetFontOptions     { unSurface `Surface', withFontOptions* `FontOptions'} -> `()'#}
-{#fun surface_mark_dirty           as surfaceMarkDirty          { unSurface `Surface' } -> `()'#}
-{#fun surface_mark_dirty_rectangle as surfaceMarkDirtyRectangle { unSurface `Surface', `Int', `Int', `Int', `Int' } -> `()'#}
-{#fun surface_reference            as surfaceReference          { unSurface `Surface' } -> `()'#}
-{#fun surface_set_device_offset    as surfaceSetDeviceOffset    { unSurface `Surface', `Double', `Double' } -> `()'#}
-{#fun surface_status               as surfaceStatus             { unSurface `Surface' } -> `Status' cToEnum#}
+{#fun surface_create_similar       as surfaceCreateSimilar      { withSurface* `Surface', cFromEnum `Content', `Int', `Int' } -> `Surface' mkSurface*#}
+{#fun surface_destroy              as surfaceDestroy            { withSurface* `Surface' } -> `()'#}
+{#fun surface_finish               as surfaceFinish             { withSurface* `Surface' } -> `()'#}
+{#fun surface_flush                as surfaceFlush              { withSurface* `Surface' } -> `()'#}
+{#fun surface_get_font_options     as surfaceGetFontOptions     { withSurface* `Surface', withFontOptions* `FontOptions'} -> `()'#}
+{#fun surface_mark_dirty           as surfaceMarkDirty          { withSurface* `Surface' } -> `()'#}
+{#fun surface_mark_dirty_rectangle as surfaceMarkDirtyRectangle { withSurface* `Surface', `Int', `Int', `Int', `Int' } -> `()'#}
+{#fun surface_reference            as surfaceReference          { withSurface* `Surface' } -> `()'#}
+{#fun surface_set_device_offset    as surfaceSetDeviceOffset    { withSurface* `Surface', `Double', `Double' } -> `()'#}
+{#fun surface_status               as surfaceStatus             { withSurface* `Surface' } -> `Status' cToEnum#}
 

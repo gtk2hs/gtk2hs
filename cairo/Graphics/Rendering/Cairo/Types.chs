@@ -15,7 +15,7 @@
 module Graphics.Rendering.Cairo.Types (
     Matrix(Matrix), MatrixPtr
   , Cairo(Cairo), unCairo
-  , Surface(Surface), unSurface
+  , Surface(Surface), withSurface, mkSurface, manageSurface,
   , Pattern(Pattern), unPattern
   , Status(..)
   , Operator(..)
@@ -67,8 +67,20 @@ import Monad (liftM)
 unCairo (Cairo x) = x
 
 -- | The medium to draw on.
-{#pointer *surface_t as Surface newtype#}
-unSurface (Surface x) = x
+{#pointer *surface_t as Surface foreign newtype#}
+withSurface (Surface x) = withForeignPtr x
+
+mkSurface :: Ptr Surface -> IO Surface
+mkSurface surfacePtr = do
+  surfaceForeignPtr <- newForeignPtr_ surfacePtr
+  return (Surface surfaceForeignPtr)
+
+manageSurface :: Surface -> IO ()
+manageSurface (Surface surfaceForeignPtr) = do
+  addForeignPtrFinalizer surfaceDestroy surfaceForeignPtr
+
+foreign import ccall unsafe "&cairo_surface_destroy"
+  surfaceDestroy :: FinalizerPtr Surface
 
 -- | Patterns can be simple solid colors, various kinds of gradients or
 -- bitmaps. The current pattern for a 'Render' context is used by the 'stroke',

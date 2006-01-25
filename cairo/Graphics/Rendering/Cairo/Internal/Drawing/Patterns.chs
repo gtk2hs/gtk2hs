@@ -24,7 +24,7 @@ import CForeign
 {#fun pattern_add_color_stop_rgba as patternAddColorStopRGBA { unPattern `Pattern', `Double', `Double', `Double', `Double', `Double' } -> `()'#}
 {#fun pattern_create_rgb          as patternCreateRGB        { `Double', `Double', `Double' } -> `Pattern' Pattern#}
 {#fun pattern_create_rgba         as patternCreateRGBA       { `Double', `Double', `Double', `Double' } -> `Pattern' Pattern#}
-{#fun pattern_create_for_surface  as patternCreateForSurface { unSurface `Surface' } -> `Pattern' Pattern#}
+{#fun pattern_create_for_surface  as patternCreateForSurface { withSurface* `Surface' } -> `Pattern' Pattern#}
 {#fun pattern_create_linear       as patternCreateLinear     { `Double', `Double', `Double', `Double' } -> `Pattern' Pattern#}
 {#fun pattern_create_radial       as patternCreateRadial     { `Double', `Double', `Double', `Double', `Double', `Double' } -> `Pattern' Pattern#}
 {#fun pattern_destroy    as patternDestroy   { unPattern `Pattern' } -> `()'#}

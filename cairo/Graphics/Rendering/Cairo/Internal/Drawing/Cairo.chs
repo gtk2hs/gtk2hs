@@ -19,17 +19,17 @@ import System.Glib.FFI
 
 {#context lib="cairo" prefix="cairo"#}
 
-{#fun create                                 { unSurface `Surface' } -> `Cairo' Cairo #}
+{#fun create                                 { withSurface* `Surface' } -> `Cairo' Cairo #}
 {#fun reference                              { unCairo `Cairo' } -> `()' #}
 {#fun destroy                                { unCairo `Cairo' } -> `()' #}
 {#fun save                                   { unCairo `Cairo' } -> `()' #}
 {#fun restore                                { unCairo `Cairo' } -> `()' #}
 {#fun status             as status           { unCairo `Cairo' } -> `Status' cToEnum#}
-{#fun get_target         as getTarget        { unCairo `Cairo' } -> `Surface' Surface#}
+{#fun get_target         as getTarget        { unCairo `Cairo' } -> `Surface' mkSurface*#}
 {#fun set_source_rgb     as setSourceRGB     { unCairo `Cairo', `Double', `Double', `Double' } -> `()'#}
 {#fun set_source_rgba    as setSourceRGBA    { unCairo `Cairo', `Double', `Double', `Double', `Double' } -> `()'#}
 {#fun set_source         as setSource        { unCairo `Cairo', unPattern `Pattern' } -> `()'#}
-{#fun set_source_surface as setSourceSurface { unCairo `Cairo', unSurface `Surface', `Double', `Double' } -> `()'#}
+{#fun set_source_surface as setSourceSurface { unCairo `Cairo', withSurface* `Surface', `Double', `Double' } -> `()'#}
 {#fun get_source         as getSource        { unCairo `Cairo' } -> `Pattern' Pattern#}
 {#fun set_antialias      as setAntialias     { unCairo `Cairo', cFromEnum `Antialias' } -> `()'#}
 {#fun get_antialias      as getAntialias     { unCairo `Cairo' } -> `Antialias' cToEnum#}
@@ -57,7 +57,7 @@ setDash context xs offset = withArrayLen (map (cFloatConv) xs) $ \len ptr ->
 {#fun fill_extents       as fillExtents      { unCairo `Cairo', alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv*, alloca- `Double' peekFloatConv* } -> `()'#}
 {#fun in_fill            as inFill           { unCairo `Cairo', `Double', `Double' } -> `Bool' cToBool#}
 {#fun mask               as mask             { unCairo `Cairo', unPattern `Pattern' } -> `()'#}
-{#fun mask_surface       as maskSurface      { unCairo `Cairo', unSurface `Surface', `Double', `Double' } -> `()'#}
+{#fun mask_surface       as maskSurface      { unCairo `Cairo', withSurface* `Surface', `Double', `Double' } -> `()'#}
 {#fun paint              as paint            { unCairo `Cairo' } -> `()'#}
 {#fun paint_with_alpha   as paintWithAlpha   { unCairo `Cairo', `Double' } -> `()'#}
 {#fun stroke             as stroke           { unCairo `Cairo' } -> `()'#}

@@ -20,7 +20,7 @@ import CForeign
 
 {#context lib="cairo" prefix="cairo"#}
 
-{#fun image_surface_create     as imageSurfaceCreate    { cFromEnum `Format', `Int', `Int' } -> `Surface' Surface#}
-{#fun image_surface_get_width  as imageSurfaceGetWidth  { unSurface `Surface' } -> `Int'#}
-{#fun image_surface_get_height as imageSurfaceGetHeight { unSurface `Surface' } -> `Int'#}
+{#fun image_surface_create     as imageSurfaceCreate    { cFromEnum `Format', `Int', `Int' } -> `Surface' mkSurface*#}
+{#fun image_surface_get_width  as imageSurfaceGetWidth  { withSurface* `Surface' } -> `Int'#}
+{#fun image_surface_get_height as imageSurfaceGetHeight { withSurface* `Surface' } -> `Int'#}
 
