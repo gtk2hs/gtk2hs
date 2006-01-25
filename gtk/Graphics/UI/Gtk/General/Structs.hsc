@@ -662,13 +662,13 @@ fileSelectionGetButtons fsel =
 -- opportunity to use a widget's 'DrawWindow' as soon as it has been created
 -- but before the widget is displayed.
 --
-widgetGetDrawWindow :: WidgetClass widget => widget -> IO (Maybe DrawWindow)
+widgetGetDrawWindow :: WidgetClass widget => widget -> IO DrawWindow
 widgetGetDrawWindow da =
   withForeignPtr (unWidget.toWidget $ da) $ \da' -> do
   drawWindowPtr <- #{peek GtkWidget, window} da'
   if drawWindowPtr == nullPtr
-    then return Nothing
-    else liftM Just $ makeNewGObject mkDrawWindow (return $ castPtr drawWindowPtr)
+    then fail "widgetGetDrawWindow: no DrawWindow available (the widget is probably not realized)"
+    else makeNewGObject mkDrawWindow (return $ castPtr drawWindowPtr)
 
 -- | Returns the current size.
 --

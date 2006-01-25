@@ -107,13 +107,12 @@ drawingAreaNew =
   liftM (castPtr :: Ptr Widget -> Ptr DrawingArea) $
   {# call unsafe drawing_area_new #}
 
+-- | See 'widgetGetDrawWindow'
+--
 drawingAreaGetDrawWindow :: DrawingArea -> IO DrawWindow
-drawingAreaGetDrawWindow da = do
-  win <- widgetGetDrawWindow da
-  case win of
-    Nothing -> fail "drawingAreaGetDrawWindow: no DrawWindow available \
-                     \(the DrawingArea is probably not realized)"
-    Just win -> return win
+drawingAreaGetDrawWindow = widgetGetDrawWindow
 
+-- | See 'widgetGetSize'
+--
 drawingAreaGetSize :: DrawingArea -> IO (Int, Int)
 drawingAreaGetSize = widgetGetSize
