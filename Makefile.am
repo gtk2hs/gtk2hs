@@ -37,7 +37,6 @@ pkglib_LIBRARIES += libHSsvgcairo.a
 endif
 pkglib_LIBRARIES +=	\
 	libHSgtk.a	\
-	libHSmogul.a	\
 	libHSsoegtk.a
 if ENABLE_LIBGLADE
 pkglib_LIBRARIES += libHSglade.a
@@ -640,61 +639,6 @@ libHSgtk_a_HCFLAGS += -split-objs
 libHSgtk_a_AR = $(srcdir)/mk/link-splitobjs.sh
 else
 libHSgtk_a_AR = $(AR) $(ARFLAGS)
-endif
-
-#
-#	mogul package
-#
-################################################################################
-
-mogul_PKGNAME = libHSmogul_a
-
-libHSmogul_a_PACKAGE		= mogul/mogul.$(PKGEXT)
-libHSmogul_a_PACKAGEDEPS	= 
-libHSmogul_a_HEADER		= $(libHSgtk_a_HEADER)
-libHSmogul_a_LIBS		= 
-libHSmogul_a_HCFLAGS		= -I. $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
-libHSmogul_a_CFLAGS 		= $(libHSgtk_a_CFLAGS)
-libHSmogul_a_CPPFLAGS 		= $(libHSgtk_a_CPPFLAGS)
-
-libHSmogul_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mogul
-mogul/libHSmogul_a.deps	: gtk/libHSgtk_a.deps
-
-libHSmogul_a_SOURCES =		\
-	mogul/Graphics/UI/Gtk/Mogul.hs.pp		\
-	mogul/Graphics/UI/Gtk/Mogul/GetWidget.hs.pp	\
-	mogul/Graphics/UI/Gtk/Mogul/MDialog.hs		\
-	mogul/Graphics/UI/Gtk/Mogul/NewWidget.hs.pp	\
-	mogul/Graphics/UI/Gtk/Mogul/TreeList.hs		\
-	mogul/Graphics/UI/Gtk/Mogul/WidgetTable.hs
-
-am_libHSmogul_a_OBJECTS = \
-	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSmogul_a_SOURCES))))
-
-libHSmogul_a_ALLSOURCES = $(libHSmogul_a_SOURCES)
-libHSmogul_a_HSPPFILES    = $(filter %.hs.pp, $(libHSmogul_a_SOURCES))
-libHSmogul_a_BUILDSOURCES = \
-	$(libHSmogul_a_HSPPFILES:.hs.pp=.hs)
-libHSmogul_a_HSFILES  = \
-	$(filter %.hs,$(libHSmogul_a_BUILDSOURCES)) \
-	$(filter %.hs,$(libHSmogul_a_ALLSOURCES))
-
-nobase_hi_DATA += $(libHSmogul_a_HSFILES:.hs=.hi)
-
-MOSTLYCLEANFILES += $(am_libHSmogul_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSmogul_a_HSFILES:.hs=.hi)
-
-CLEANFILES+= mogul/libHSmogul_a.deps
-
-ifeq (,$(findstring clean,$(MAKECMDGOALS)))
--include mogul/libHSmogul_a.deps
- endif
-
-if ENABLE_SPLITOBJS
-libHSmogul_a_HCFLAGS += -split-objs
-libHSmogul_a_AR = $(srcdir)/mk/link-splitobjs.sh
-else
-libHSmogul_a_AR = $(AR) $(ARFLAGS)
 endif
 
 #

@@ -769,10 +769,6 @@ AC_CONFIG_FILES([
   gtk/gtk.package.conf
   gtk/gtk.cabal
   
-  mogul/mogul.pkg
-  mogul/mogul.package.conf
-  mogul/mogul.cabal
-  
   glade/glade.pkg
   glade/glade.package.conf
   glade/glade.cabal
