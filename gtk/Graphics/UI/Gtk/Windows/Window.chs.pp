@@ -150,6 +150,7 @@ module Graphics.UI.Gtk.Windows.Window (
   windowSetUrgencyHint,
   windowGetUrgencyHint,
 #endif
+  windowSetGeometryHints,
 
 -- * Attributes
   windowTitle,
@@ -1333,6 +1334,102 @@ windowGetUrgencyHint self =
   {# call gtk_window_get_urgency_hint #}
     (toWindow self)
 #endif
+
+-- | This function sets up hints about how a window can be resized by the
+-- user. You can set a minimum and maximum size, the allowed resize increments
+-- (e.g. for xterm, you can only resize by the size of a character) and aspect
+-- ratios.
+--
+-- If you set a geometry widget, the hints will apply to the geometry widget
+-- instead of directly to the toplevel window. Of course since the geometry
+-- widget is a child widget of the top level window, constraining the sizing
+-- behaviour of the widget will have a knock-on effect on the sizing of the
+-- toplevel window.
+--
+-- The @minWidth@\/@minHeight@\/@maxWidth@\/@maxHeight@ fields may be set to
+-- @-1@, to use the size request of the window or geometry widget. If the
+-- minimum size hint is not provided, Gtk+ will use the size requisition of the
+-- window (or the geometry widget if it set) as the minimum size. The base size
+-- is treated similarly.
+--
+-- The canonical use-case for 'windowSetGeometryHints' is to get a terminal
+-- widget to resize properly. Here, the terminal text area should be the
+-- geometry widget. Gtk+ will then automatically set the base size of the
+-- terminal window to the size of other widgets in the terminal window, such as
+-- the menubar and scrollbar. Then, the @widthInc@ and @heightInc@ values
+-- should be set to the size of one character in the terminal. Finally, the
+-- base size should be set to the size of one character. The net effect is that
+-- the minimum size of the terminal will have a 1x1 character terminal area,
+-- and only terminal sizes on the \"character grid\" will be allowed.
+--
+-- The other useful settings are @minAspect@ and @maxAspect@. These specify a
+-- width\/height ratio as a floating point number. If a geometry widget is set,
+-- the aspect applies to the geometry widget rather than the entire window. The
+-- most common use of these hints is probably to set @minAspect@ and
+-- @maxAspect@ to the same value, thus forcing the window to keep a constant
+-- aspect ratio.
+--
+windowSetGeometryHints :: (WindowClass self, WidgetClass widget) =>
+    self             -- ^ @window@ - the top level window
+ -> Maybe widget     -- ^ @geometryWidget@ - optionall a widget the geometry
+                     -- hints will be applied to rather than directly to the
+                     -- top level window
+ -> Maybe (Int, Int) -- ^ @(minWidth, minHeight)@ - minimum width and height
+                     -- of window (or -1 to use requisition)
+ -> Maybe (Int, Int) -- ^ @(maxWidth, maxHeight)@ - maximum width and height
+                     -- of window (or -1 to use requisition)
+ -> Maybe (Int, Int) -- ^ @(baseWidth, baseHeight)@ - the allowed window widths
+                     -- are @base_width + width_inc * N@ for any int @N@.
+                     -- Similarly, the allowed window widths are @base_height +
+                     -- height_inc * N@ for any int @N@. For either the base
+                     -- width or height -1 is allowed as described above.
+ -> Maybe (Int, Int) -- ^ @(widthInc, heightInc)@ - width and height resize
+                     -- increment
+ -> Maybe (Double, Double) -- ^ @(minAspect, maxAspect)@ - minimum and maximum
+                           -- width/height ratio
+ -> IO ()
+windowSetGeometryHints self geometryWidget
+  minSize maxSize baseSize incSize aspect =
+  allocaBytes {# sizeof GdkGeometry #} $ \geometryPtr -> do
+  minSizeFlag <- case minSize of
+    Nothing -> return 0
+    Just (width, height) -> do
+      {# set GdkGeometry->min_width  #} geometryPtr (fromIntegral width)
+      {# set GdkGeometry->min_height #} geometryPtr (fromIntegral height)
+      return (fromEnum GdkHintMinSize)
+  maxSizeFlag <- case maxSize of
+    Nothing -> return 0
+    Just (width, height) -> do
+      {# set GdkGeometry->max_width  #} geometryPtr (fromIntegral width)
+      {# set GdkGeometry->max_height #} geometryPtr (fromIntegral height)
+      return (fromEnum GdkHintMaxSize)
+  baseSizeFlag <- case baseSize of
+    Nothing -> return 0
+    Just (width, height) -> do
+      {# set GdkGeometry->base_width  #} geometryPtr (fromIntegral width)
+      {# set GdkGeometry->base_height #} geometryPtr (fromIntegral height)
+      return (fromEnum GdkHintBaseSize)
+  incSizeFlag <- case incSize of
+    Nothing -> return 0
+    Just (width, height) -> do
+      {# set GdkGeometry->width_inc  #} geometryPtr (fromIntegral width)
+      {# set GdkGeometry->height_inc #} geometryPtr (fromIntegral height)
+      return (fromEnum GdkHintResizeInc)
+  aspectFlag <- case aspect of
+    Nothing -> return 0
+    Just (min, max) -> do
+      {# set GdkGeometry->min_aspect #} geometryPtr (realToFrac min)
+      {# set GdkGeometry->max_aspect #} geometryPtr (realToFrac max)
+      return (fromEnum GdkHintAspect)
+
+  {# call gtk_window_set_geometry_hints #}
+    (toWindow self)
+    (maybe (Widget nullForeignPtr) toWidget geometryWidget)
+    geometryPtr
+    (fromIntegral $ minSizeFlag .|. maxSizeFlag .|. baseSizeFlag
+                 .|. incSizeFlag .|. aspectFlag)
+
+{# enum GdkWindowHints {underscoreToCase} #}
 
 --------------------
 -- Attributes
