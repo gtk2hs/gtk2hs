@@ -15,7 +15,7 @@ import Graphics.UI.Gtk hiding (fill)
 import System.Glib (handleGError, GError(..))
 import System.Time
 import Control.Monad (when)
-import Data.Maybe (isNothing)
+import Data.Maybe (isJust)
 import Data.IORef
 
 drawClockBackground :: Bool -> Int -> Int -> Render ()
@@ -286,22 +286,10 @@ main = do
     windowSetIconFromFile window "cairo-clock-icon.png"
   windowSetTitle window "Gtk2Hs Cairo Clock"
   windowSetDefaultSize window initialSize initialSize
-  
-{-
-  hints.min_width = 32;
-  hints.min_height = 32;
-  hints.max_width = 512;
-  hints.max_height = 512;
-  hints.min_aspect = 1;
-  hints.max_aspect = 1;
+  windowSetGeometryHints window (Just window)
+    (Just (32, 32)) (Just (512, 512))
+    Nothing Nothing (Just (1,1))
 
-  gtk_window_set_geometry_hints (GTK_WINDOW (pWindow),
-							     pWindow,
-							     &hints,
-							     GDK_HINT_MIN_SIZE  |
-							     GDK_HINT_MAX_SIZE  |
-							     GDK_HINT_ASPECT);
--}
 --  on_alpha_screen_changed (pWindow, NULL, NULL);
 
   onKeyPress window $ \Key { eventKeyName = key } ->
@@ -391,7 +379,7 @@ main = do
           setSourceSurface background 0 0
           paint
 
-      drawClockHands True width height
+      drawClockHands (isJust background) width height
 
       case foreground of
         Nothing -> drawClockForeground False width height
