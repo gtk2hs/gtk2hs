@@ -25,13 +25,13 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
---  Error Reporting, glib's system for reporting errors.
+-- Error Reporting, glib's system for reporting errors.
 --
---  'GError's are used by glib to report recoverable runtime errors.
+-- 'GError's are used by glib to report recoverable runtime errors.
 --
---  This module provides functions for checking glib\/gtk functions that report
---  'GError's. It also provides functions for throwing and catching 'GError's as
---  Haskell exceptions.
+-- This module provides functions for checking glib\/gtk functions that report
+-- 'GError's. It also provides functions for throwing and catching 'GError's as
+-- Haskell exceptions.
 --
 module System.Glib.GError (
 
