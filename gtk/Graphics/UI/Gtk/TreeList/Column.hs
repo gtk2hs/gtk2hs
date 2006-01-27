@@ -1,4 +1,8 @@
-module Graphics.UI.Gtk.TreeList.Column where
+module Graphics.UI.Gtk.TreeList.Column (
+  Column(..),
+  columnGType,
+  columnSetGValue,
+  ) where
 
 import System.Glib.GType
 import qualified System.Glib.GTypeConstants as GType
