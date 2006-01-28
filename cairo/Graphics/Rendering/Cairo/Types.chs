@@ -15,7 +15,7 @@
 module Graphics.Rendering.Cairo.Types (
     Matrix(Matrix), MatrixPtr
   , Cairo(Cairo), unCairo
-  , Surface(Surface), withSurface, mkSurface, manageSurface,
+  , Surface(Surface), withSurface, mkSurface, manageSurface
   , Pattern(Pattern), unPattern
   , Status(..)
   , Operator(..)
