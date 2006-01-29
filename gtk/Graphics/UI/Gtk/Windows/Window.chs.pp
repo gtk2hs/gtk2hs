@@ -53,6 +53,7 @@ module Graphics.UI.Gtk.Windows.Window (
 
 -- * Constructors
   windowNew,
+  windowNewPopup,
 
 -- * Methods
   windowSetTitle,
@@ -223,6 +224,15 @@ windowNew =
   liftM (castPtr :: Ptr Widget -> Ptr Window) $
   {# call window_new #}
     ((fromIntegral . fromEnum) WindowToplevel)
+
+-- | Create a popup window.
+--
+windowNewPopup :: IO Window
+windowNewPopup =
+  makeNewObject mkWindow $
+  liftM (castPtr :: Ptr Widget -> Ptr Window) $
+  {# call window_new #}
+    ((fromIntegral . fromEnum) WindowPopup)
 
 --------------------
 -- Methods
@@ -1445,8 +1455,8 @@ windowTitle = newAttr
 --
 -- Default value: 'WindowToplevel'
 --
-windowType :: WindowClass self => Attr self WindowType
-windowType = newAttrFromEnumProperty "type"
+windowType :: WindowClass self => ReadAttr self WindowType
+windowType = readAttrFromEnumProperty "type"
   {# call pure unsafe gtk_window_type_get_type #}
 
 -- | If @True@, the window has no mimimum size. Setting this to @True@ is 99%
