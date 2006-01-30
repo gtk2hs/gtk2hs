@@ -103,7 +103,7 @@ objectGetPropertyInternal gtype valueGet prop obj =
   withCString prop $ \propPtr ->
   allocaGValue $ \gvalue -> do
   valueInit gvalue gtype
-  {# call unsafe g_object_get_property #}
+  {# call g_object_get_property #}
     (toGObject obj)
     propPtr
     gvalue
