@@ -71,7 +71,8 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowShapeCombineRegion,
   drawWindowSetChildShapes,
   drawWindowMergeChildShapes,
-  drawWindowGetPointer
+  drawWindowGetPointer,
+  drawWindowGetOrigin,
   ) where
 
 import Monad	(liftM)
@@ -455,4 +456,22 @@ drawWindowGetPointer self =
   m <- peek mPtr
   return (Just (same, fromIntegral x, fromIntegral y,
 		toFlags (fromIntegral m)))
+
+-- | Obtains the position of a window in screen coordinates.
+--
+-- You can use this to help convert a position between screen coordinates and
+-- local 'DrawWindow' relative coordinates.
+--
+drawWindowGetOrigin :: DrawWindow
+ -> IO (Int, Int) -- ^ @(x, y)@
+drawWindowGetOrigin self =
+  alloca $ \xPtr ->
+  alloca $ \yPtr -> do
+  {# call gdk_window_get_origin #}
+    (toDrawWindow self)
+    xPtr
+    yPtr
+  x <- peek xPtr
+  y <- peek yPtr
+  return (fromIntegral x, fromIntegral y)
 
