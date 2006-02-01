@@ -18,15 +18,10 @@ run act = do
   widgetShow canvas
   dialogRun dia
   widgetDestroy dia
-  -- run the main loop until all pending events are processed; this
-  -- ensures that the window is actually closed which is necessary to
-  -- allow ghci to display the prompt again
-  let finish = do
-	pen <- eventsPending
-	when (pen>0) $ do
-	  mainIterationDo False
-	  finish
-  finish
+  -- Flush all commands that are waiting to be sent to the graphics server.
+  -- This ensures that the window is actually closed before ghci displays the
+  -- prompt again.
+  flush
 
 
 updateCanvas :: DrawingArea -> Render () -> Event -> IO Bool
