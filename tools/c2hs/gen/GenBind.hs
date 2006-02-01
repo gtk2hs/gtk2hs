@@ -140,10 +140,11 @@ import C	  (AttrC, CObj(..), CTag(..), lookupDefObjC, lookupDefTagC,
 		   findTypeObj, applyPrefixToNameSpaces, isTypedef,
 		   simplifyDecl, declrFromDecl, declrNamed, structMembers,
 		   structName, tagName, declaredName , structFromDecl,
-		   funResultAndArgs, chaseDecl, findAndChaseDecl, findObjShadow,
+		   funResultAndArgs, chaseDecl, findAndChaseDecl,
+		   findObjShadow,
 		   checkForAlias, checkForOneAliasName, lookupEnum,
 		   lookupStructUnion, lookupDeclOrTag, isPtrDeclr,
-		   dropPtrDeclr, isPtrDecl, getDeclOf, isFunDeclr,
+		   isArrDeclr, dropPtrDeclr, isPtrDecl, getDeclOf, isFunDeclr,
 		   refersToNewDef, CDef(..))
 
 -- friends
@@ -1381,7 +1382,7 @@ extractPtrType cdecl  = do
 --		     definition of that pointer.
 --
 extractCompType :: CDecl -> GB CompType
-extractCompType cdecl@(CDecl specs declrs ats)  = 
+extractCompType cdecl@(CDecl specs declrs ats)  =
   if length declrs > 1 
   then interr "GenBind.extractCompType: Too many declarators!"
   else case declrs of
@@ -1666,6 +1667,8 @@ sizeAlignOf       :: CDecl -> GB (BitSize, Int)
 -- * we make use of the assertion that `extractCompType' can only return a
 --   `DefinedET' when the declaration is a pointer declaration
 --
+sizeAlignOf (CDecl specs [(Just declr, _, size)] ats) | isArrDeclr declr =
+  interr $ "sizeAlignOf: calculating size of constant array not supported."
 sizeAlignOf cdecl  = 
   do
     ct <- extractCompType cdecl

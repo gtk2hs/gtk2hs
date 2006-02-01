@@ -69,7 +69,9 @@ valueGetType (GValue gvPtr) = {# get GValue->g_type #} gvPtr
 --
 allocaGValue :: (GValue -> IO b) -> IO b
 allocaGValue body =
-  allocaBytes {# sizeof GValue #} $ \gvPtr -> do
+  -- c2hs is broken in that it can't handle arrays of compound arrays in the
+  -- sizeof hook
+  allocaBytes ({# sizeof GType #}+ 2* {# sizeof guint64 #}) $ \gvPtr -> do
   -- The g_type field of the value must be zero or g_value_init will fail.
   {# set GValue->g_type #} gvPtr (0 :: GType)
   result <- body (GValue gvPtr)

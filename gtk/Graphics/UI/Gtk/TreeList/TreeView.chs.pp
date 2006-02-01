@@ -204,6 +204,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.TreeList.TreeViewColumn#}
+{#import Graphics.UI.Gtk.TreeList.CustomStore#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -221,12 +222,12 @@ treeViewNew =
 -- | Create a new 'TreeView' 
 -- widget with @model@ as the storage model.
 --
-treeViewNewWithModel :: TreeModelClass model => model -> IO TreeView
+treeViewNewWithModel :: StoreClass model => model row -> IO TreeView
 treeViewNewWithModel model =
   makeNewObject mkTreeView $
   liftM (castPtr :: Ptr Widget -> Ptr TreeView) $
   {# call tree_view_new_with_model #}
-    (toTreeModel model)
+    (storeGetModel model)
 
 --------------------
 -- Methods

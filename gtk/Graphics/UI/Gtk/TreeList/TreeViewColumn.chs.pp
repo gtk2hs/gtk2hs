@@ -71,7 +71,6 @@ module Graphics.UI.Gtk.TreeList.TreeViewColumn (
 
 -- * Constructors
   treeViewColumnNew,
-  treeViewColumnNewWithAttributes,
 
 -- * Methods
   treeViewColumnPackStart,
@@ -152,7 +151,6 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..), SortType(..))
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
-import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -165,21 +163,6 @@ treeViewColumnNew :: IO TreeViewColumn
 treeViewColumnNew  = makeNewObject mkTreeViewColumn 
   {# call tree_view_column_new #}
 
--- | Returns a new TreeViewColumn with title @title@, cell renderer @cr@, and
--- attributes @attribs@.
---
-treeViewColumnNewWithAttributes :: CellRendererClass cr =>
-    String
- -> cr
- -> [(String, Int)]
- -> IO TreeViewColumn
-treeViewColumnNewWithAttributes title cr attribs =
-    do
-    tvc <- treeViewColumnNew
-    treeViewColumnSetTitle tvc title
-    treeViewColumnPackStart tvc  cr True
-    treeViewColumnAddAttributes tvc cr attribs
-    return tvc
 
 --------------------
 -- Methods

@@ -91,6 +91,7 @@ module Graphics.UI.Gtk (
   -- * Tree and list widget
   module Graphics.UI.Gtk.TreeList.TreeModel,
   module Graphics.UI.Gtk.TreeList.TreeSelection,
+  module Graphics.UI.Gtk.TreeList.CellLayout,
   module Graphics.UI.Gtk.TreeList.TreeViewColumn,
   module Graphics.UI.Gtk.TreeList.TreeView,
   module Graphics.UI.Gtk.TreeList.IconView,
@@ -268,6 +269,7 @@ import Graphics.UI.Gtk.Multiline.TextView hiding (afterSetScrollAdjustments,
 import Graphics.UI.Gtk.TreeList.TreeModel hiding (
 		gtk_tree_model_get_iter_from_string)
 import Graphics.UI.Gtk.TreeList.TreeSelection
+import Graphics.UI.Gtk.TreeList.CellLayout
 import Graphics.UI.Gtk.TreeList.TreeViewColumn
 import Graphics.UI.Gtk.TreeList.TreeView
 import Graphics.UI.Gtk.TreeList.IconView

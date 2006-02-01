@@ -27,6 +27,7 @@
 -- Allows a custom data structure to be used with the 'TreeView'
 --
 module Graphics.UI.Gtk.TreeList.CustomStore (
+  StoreClass(..),					     
   CustomStore(..),
   customStoreNew,
 
@@ -56,13 +57,17 @@ import System.Glib.GValueTypes                  (valueSetString)
 
 {# context lib="gtk" prefix="gtk" #}
 
+class StoreClass c where
+  storeGetModel :: c d -> TreeModel
+  storeGetValue :: c d -> TreeIter -> IO d
+
 data CustomStore = CustomStore {
     customStoreGetFlags      :: IO [TreeModelFlags],
-    customStoreGetNColumns   :: IO Int,
-    customStoreGetColumnType :: Int -> IO GType,
+--    customStoreGetNColumns   :: IO Int,
+--    customStoreGetColumnType :: Int -> IO GType,
     customStoreGetIter       :: TreePath -> IO (Maybe TreeIter),              -- convert a path to an iterator
     customStoreGetPath       :: TreeIter -> IO TreePath,                      -- convert an interator to a path
-    customStoreGetValue      :: TreeIter -> Int -> GValue -> IO (),           -- get the value at an iter and column
+--    customStoreGetValue      :: TreeIter -> Int -> GValue -> IO (),           -- get the value at an iter and column
     customStoreIterNext      :: TreeIter -> IO (Maybe TreeIter),              -- following row (if any)
     customStoreIterChildren  :: Maybe TreeIter -> IO (Maybe TreeIter),        -- first child row (if any)
     customStoreIterHasChild  :: TreeIter -> IO Bool,                          -- row has any children at all
@@ -81,7 +86,7 @@ customStoreGetFlags_static storePtr = do
 foreign export ccall "gtk2hs_store_get_flags_impl"
   customStoreGetFlags_static :: StablePtr CustomStore -> IO CInt
 
-
+{-
 customStoreGetNColumns_static :: StablePtr CustomStore -> IO CInt
 customStoreGetNColumns_static storePtr = do
   store <- deRefStablePtr storePtr
@@ -98,7 +103,7 @@ customStoreGetColumnType_static storePtr column = do
 
 foreign export ccall "gtk2hs_store_get_column_type_impl"
   customStoreGetColumnType_static :: StablePtr CustomStore -> CInt -> IO GType
-
+-}
 
 customStoreGetIter_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
 customStoreGetIter_static storePtr iterPtr pathPtr = do
@@ -113,7 +118,6 @@ customStoreGetIter_static storePtr iterPtr pathPtr = do
 foreign export ccall "gtk2hs_store_get_iter_impl"
   customStoreGetIter_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
 
-
 customStoreGetPath_static :: StablePtr CustomStore -> Ptr TreeIter -> IO (Ptr NativeTreePath)
 customStoreGetPath_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
@@ -125,7 +129,7 @@ customStoreGetPath_static storePtr iterPtr = do
 foreign export ccall "gtk2hs_store_get_path_impl"
   customStoreGetPath_static :: StablePtr CustomStore -> Ptr TreeIter -> IO (Ptr NativeTreePath)
 
-
+{-
 customStoreGetValue_static :: StablePtr CustomStore -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
 customStoreGetValue_static storePtr iterPtr column gvaluePtr = do
   store <- deRefStablePtr storePtr
@@ -134,6 +138,7 @@ customStoreGetValue_static storePtr iterPtr column gvaluePtr = do
 
 foreign export ccall "gtk2hs_store_get_value_impl"
   customStoreGetValue_static :: StablePtr CustomStore -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
+-}
 
 
 customStoreIterNext_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
@@ -231,7 +236,7 @@ customStoreUnrefNode_static storePtr iterPtr = do
 foreign export ccall "gtk2hs_store_unref_node_impl"
   customStoreUnrefNode_static :: StablePtr CustomStore -> Ptr TreeIter -> IO ()
 
-foreign import ccall unsafe "gtk2hs_store_new"
+foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"
   gtk2hs_store_new :: StablePtr CustomStore -> IO (Ptr TreeModel)
 
 customStoreNew :: CustomStore -> IO TreeModel

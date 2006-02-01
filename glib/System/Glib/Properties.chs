@@ -66,6 +66,7 @@ module System.Glib.Properties (
   newAttrFromStringProperty,
   readAttrFromStringProperty,
   writeAttrFromStringProperty,
+  writeAttrFromMaybeStringProperty,
   newAttrFromMaybeStringProperty,
   newAttrFromObjectProperty,
   writeAttrFromObjectProperty,
@@ -103,7 +104,7 @@ objectGetPropertyInternal gtype valueGet prop obj =
   withCString prop $ \propPtr ->
   allocaGValue $ \gvalue -> do
   valueInit gvalue gtype
-  {# call g_object_get_property #}
+  {# call unsafe g_object_get_property #}
     (toGObject obj)
     propPtr
     gvalue
@@ -225,6 +226,10 @@ readAttrFromStringProperty propName =
 writeAttrFromStringProperty :: GObjectClass gobj => String -> WriteAttr gobj String
 writeAttrFromStringProperty propName =
   writeAttr (objectSetPropertyString propName)
+
+writeAttrFromMaybeStringProperty :: GObjectClass gobj => String -> WriteAttr gobj (Maybe String)
+writeAttrFromMaybeStringProperty propName =
+  writeAttr (objectSetPropertyMaybeString propName)
 
 newAttrFromMaybeStringProperty :: GObjectClass gobj => String -> Attr gobj (Maybe String)
 newAttrFromMaybeStringProperty propName =

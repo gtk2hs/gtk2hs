@@ -73,7 +73,7 @@ module CTrav (CT, readCT, transCT, getCHeaderCT, runCT, throwCTExc, ifCTExc,
 	      --
 	      isTypedef, simplifyDecl, declrFromDecl, declrNamed,
 	      declaredDeclr, declaredName, structMembers, expandDecl,
-	      structName, enumName, tagName, isPtrDeclr, dropPtrDeclr,
+	      structName, enumName, tagName, isArrDeclr, isPtrDeclr, dropPtrDeclr,
 	      isPtrDecl, isFunDeclr, structFromDecl, funResultAndArgs,
 	      chaseDecl, findAndChaseDecl, checkForAlias,
 	      checkForOneAliasName, lookupEnum, lookupStructUnion,
@@ -536,6 +536,16 @@ isPtrDeclr (CArrDeclr (CVarDeclr _ _) _ _)  = True
 isPtrDeclr (CArrDeclr declr _           _)  = isPtrDeclr declr
 isPtrDeclr (CFunDeclr declr _ _         _)  = isPtrDeclr declr
 isPtrDeclr _                                = False
+
+-- checks whether the given declarator defines an object that is an array of
+-- some other type (EXPORTED)
+--
+-- * difference between arrays and pure pointers is important for size
+--   calculations
+--
+isArrDeclr                                 :: CDeclr -> Bool
+isArrDeclr (CArrDeclr declr _           _)  = True
+isArrDeclr _                                = False
 
 -- drops the first pointer level from the given declarator (EXPORTED)
 --

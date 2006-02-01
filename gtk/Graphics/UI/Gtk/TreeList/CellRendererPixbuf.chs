@@ -57,7 +57,6 @@ module Graphics.UI.Gtk.TreeList.CellRendererPixbuf (
 
 -- * Constructors
   cellRendererPixbufNew,
-  cellPixbuf,
   ) where
 
 import Monad	(liftM)
@@ -66,10 +65,8 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 import Graphics.UI.Gtk.Display.Image		(imageNewFromPixbuf,
 						 imageGetPixbuf)
-import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -87,11 +84,3 @@ cellRendererPixbufNew =
 --------------------
 -- Properties
 
--- FIXME: test if this code really works
-
--- | Define the attribute that specifies the 'Pixbuf' to be rendered.
---
-cellPixbuf :: Attribute CellRendererPixbuf Pixbuf
-cellPixbuf  = Attribute ["pixbuf"] [TMobject]
-  (return .  (\x -> [x]) . GVobject . toGObject)
-  (\[GVobject obj] -> return (castToPixbuf obj))

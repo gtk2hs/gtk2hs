@@ -46,6 +46,7 @@ import Graphics.UI.Gtk.General.Structs	(treeIterSize)
 -- 'Graphics.UI.Gtk.TreeList.TreeModel'.
 --
 data TreeIter = TreeIter {-# UNPACK #-} !CInt !Word !Word !Word
+	      deriving Show
 
 {#pointer *TreeIter as TreeIterPtr -> TreeIter #}
 

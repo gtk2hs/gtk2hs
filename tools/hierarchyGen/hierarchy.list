@@ -169,6 +169,9 @@
 		GtkCellRendererProgress	if gtk-2.6
 		GtkCellRendererCombo	if gtk-2.6
 	    GtkFileFilter		if gtk-2.4
+# This one is actually an interface, but all objects that implement it are at
+# least GObjects.
+	GtkCellLayout			if gtk-2.4
 # These are derived from GObject:
         GtkTreeSelection
         GtkTreeModel

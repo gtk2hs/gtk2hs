@@ -7,7 +7,7 @@
 --
 --  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:54:57 $
 --
---  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 1999-2006 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -57,9 +57,6 @@ module Graphics.UI.Gtk.TreeList.CellRendererText (
 -- * Attributes
   cellText,
   cellMarkup,
-  cellBackground,
-  cellForeground,
-  cellEditable,
 
 -- * Signals
   onEdited,
@@ -70,13 +67,13 @@ import Maybe	(fromMaybe)
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Properties
+import System.Glib.Attributes ( Attr, WriteAttr, ReadAttr )
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 import Graphics.UI.Gtk.General.Structs		(treeIterSize)
-import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
-import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -91,53 +88,18 @@ cellRendererTextNew =
   liftM (castPtr :: Ptr CellRenderer -> Ptr CellRendererText) $
   {# call unsafe cell_renderer_text_new #}
 
--- helper function
---
-strAttr :: [String] -> Attribute CellRendererText String
-strAttr str = Attribute str [TMstring]
-	        (return . (\x -> [x]) . GVstring . Just)
-		(\[GVstring str] -> return (fromMaybe "" str))
-
-mStrAttr :: [String] -> Attribute CellRendererText (Maybe String)
-mStrAttr str = Attribute str [TMstring]
-	        (return . (\x -> [x]) . GVstring)
-		(\[GVstring str] -> return str)
-
 --------------------
 -- Properties
 
--- | Define the attribute that specifies the text to be
--- rendered.
+-- | Define the attribute that specifies the text to be rendered.
 --
-cellText :: Attribute CellRendererText String
-cellText  = strAttr ["text"]
+cellText :: CellRendererTextClass cr => Attr cr (Maybe String)
+cellText  = newAttrFromMaybeStringProperty "text"
 
 -- | Define a markup string instead of a text.
 --
-cellMarkup :: Attribute CellRendererText String
-cellMarkup  = strAttr ["markup"]
-
--- | A named color for the background paint.
---
-cellBackground :: Attribute CellRendererText (Maybe String)
-cellBackground  = mStrAttr ["background"]
-
--- | A named color for the foreground paint.
---
-cellForeground :: Attribute CellRendererText (Maybe String)
-cellForeground  = mStrAttr ["foreground"]
-
--- | Determines wether the content can be altered.
---
--- * If this flag is set, the user can alter the cell.
---
-cellEditable :: Attribute CellRendererText (Maybe Bool)
-cellEditable = Attribute ["editable","editable-set"] [TMboolean,TMboolean]
-	         (\mb -> return $ case mb of
-		   (Just bool) -> [GVboolean bool, GVboolean True]
-		   Nothing     -> [GVboolean True, GVboolean False])
-		 (\[GVboolean e, GVboolean s] -> return $
-		   if s then Just e else Nothing)
+cellMarkup :: CellRendererTextClass cr => WriteAttr cr (Maybe String)
+cellMarkup  = writeAttrFromMaybeStringProperty "markup"
 
 -- | Emitted when the user finished editing a cell.
 --

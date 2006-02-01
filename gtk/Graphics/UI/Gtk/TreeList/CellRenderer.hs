@@ -7,7 +7,7 @@
 --
 --  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:07 $
 --
---  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 1999-2006 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
 -- elements on a 'Drawable'. Typically, one cell renderer is used to draw many
 -- cells on the screen. To this extent, it isn't expected that a CellRenderer
 -- keep any permanent state around. Instead, any state is set just prior to use
--- using 'GObject's property system. Then, the cell is measured and rendered
+-- by changing the 'System.Glib.Attributes'. Then, the cell is measured and rendered
 -- in the correct location
 --
 -- Beyond merely rendering a cell, cell renderers can optionally provide
@@ -74,61 +74,16 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
   CellRendererClass,
   castToCellRenderer,
   toCellRenderer,
-  Attribute(..),
 
 -- * Methods
-  cellRendererSet,
-  cellRendererGet
+  cellBackground
   ) where
 
-import Monad (zipWithM, zipWithM_)
-
 import Graphics.UI.Gtk.Types
-import System.Glib.StoreValue	(GenericValue, TMType,
-                                 valueSetGenericValue, valueGetGenericValue)
-import qualified System.Glib.GTypeConstants as GType
-import System.Glib.Properties	(objectSetPropertyInternal,
-                                 objectGetPropertyInternal)
+import System.Glib.Attributes ( Attr, ReadAttr, WriteAttr )
+import System.Glib.Properties
 
--- | Definition of the 'Attribute' data type.
+-- | Cell background color as a string.
 --
--- * Each 'CellRenderer' defines a set of attributes. They are used
---   by the Mogul layer to generate columns in a 'TreeStore' or
---   'ListStore'.
---
-data CellRendererClass cr => Attribute cr a = Attribute [String] [TMType]
-					      (a -> IO [GenericValue]) 
-					      ([GenericValue] -> IO a)
-
--- | Set a property statically.
---
--- * Instead of using a 'TreeStore' or 'ListStore' to set
---   properties of a 'CellRenderer' this method allows to set such
---   a property for the whole column.
---
-cellRendererSet :: CellRendererClass cr => 
-		   cr -> Attribute cr val -> val -> IO ()
-cellRendererSet cr (Attribute names types write _) val = do
-  values <- write val
-  sequence_ $ zipWith3 (\name tmtype value ->
-                            objectSetPropertyInternal
-                              (fromIntegral $ fromEnum tmtype)
-                              valueSetGenericValue name cr value)
-                names types values
-
--- | Get a static property.
---
--- * See 'cellRendererSet'. Note that calling this function on a
---   property of a 'CellRenderer' object which retrieves its values
---   from a 'ListStore' or 'TreeStore' will result in an
---   abitrary value.
---
-cellRendererGet :: CellRendererClass cr =>
-		   cr -> Attribute cr val -> IO val
-cellRendererGet cr (Attribute names types _ read) = do
-  values <- zipWithM (\name tmtype ->
-                         objectGetPropertyInternal
-                           (fromIntegral $ fromEnum tmtype)
-                           valueGetGenericValue name cr)
-              names types
-  read values
+cellBackground :: CellRendererClass cr => WriteAttr cr String
+cellBackground = writeAttrFromStringProperty "cell-background"

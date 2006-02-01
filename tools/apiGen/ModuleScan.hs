@@ -233,6 +233,7 @@ scanCCall tokens =
     ("pointer":_)              -> None
     ("pointer*":_)             -> None
     ("enum":_)                 -> None
+    ("set":_)                  -> None
     ("get":_)                  -> None
     ("set":_)                  -> None
     ("sizeof":_)                  -> None

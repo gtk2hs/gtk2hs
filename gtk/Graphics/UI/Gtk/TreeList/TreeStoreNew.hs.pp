@@ -256,20 +256,11 @@ setBitSlice (TreeIter stamp a b c) off count value =
 
 aforest :: SeqForest String
 aforest =
-  let leafNode a = Tree.Node { Tree.rootLabel = a, Tree.subForest = [] }
+  let leafNode a = Tree.Node a []
       trees =
-       [Tree.Node {
-          Tree.rootLabel = "A",
-          Tree.subForest = [leafNode "AA", leafNode "AB"]
-        },
-        Tree.Node {
-          Tree.rootLabel = "B",
-          Tree.subForest = [leafNode "BA", leafNode "BB"]
-        },
-        Tree.Node {
-          Tree.rootLabel = "C",
-          Tree.subForest = [leafNode "CA", leafNode "CB"]
-        },
+       [Tree.Node "A" [leafNode "AA", leafNode "AB"],
+        Tree.Node "B" [leafNode "BA", leafNode "BB"],
+        Tree.Node "C" [leafNode "CA", leafNode "CB"],
         leafNode "D"]
   in mkSeqForest trees
 

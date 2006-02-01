@@ -63,9 +63,6 @@ module Graphics.UI.Gtk.TreeList.CellRendererCombo (
   cellRendererComboNew,
 
 -- * Attributes
---  cellComboModel,
---  cellComboTextColumn,
---  cellComboHasEntry,
 #endif
   ) where
 
@@ -74,9 +71,6 @@ import Monad	(liftM)
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..),
-						cellRendererSet)
-import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -100,35 +94,4 @@ cellRendererComboNew =
 --------------------
 -- Attributes
 
--- | Holds a tree model containing the possible values for the combo box. Use
--- the text_column property to specify the column holding the values.
---
-cellComboModel :: Attribute CellRendererCombo TreeModel
-cellComboModel = Attribute ["model"] [TMobject]
-  (return .  (\x -> [x]) . GVobject . toGObject)
-  (\[GVobject obj] -> return (castToTreeModel obj))
-
--- | Specifies the model column which holds the possible values for the combo
--- box. Note that this refers to the model specified in the model property,
--- /not/ the model backing the tree view to which this cell renderer is
--- attached.
---
--- Allowed values: >= -1
---
--- Default value: -1
---
-cellComboTextColumn :: Attribute CellRendererCombo Int
-cellComboTextColumn = Attribute ["text-column"] [TMint]
-  (return . (\x -> [x]) . GVint)
-  (\[GVint n] -> return n)
-
--- | If @True@, the cell renderer will include an entry and allow to enter
--- values other than the ones in the popup list.
---
--- Default value: @True@
---
-cellComboHasEntry :: Attribute CellRendererCombo Bool
-cellComboHasEntry = Attribute ["has-entry"] [TMboolean]
-  (return.(\x -> [x]).GVboolean)
-  (\[GVboolean b] -> return b)
 #endif

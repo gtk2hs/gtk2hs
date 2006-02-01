@@ -1,7 +1,6 @@
 module Graphics.UI.Gtk.TreeList.ListStoreNew (
   ListStore,
   listStoreNew,
-  listStoreGetTreeModel,
   
   listStoreSetValue,
   listStoreInsert,
@@ -11,6 +10,7 @@ module Graphics.UI.Gtk.TreeList.ListStoreNew (
   listStoreClear,
   ) where
 
+import Prelude hiding (putStrLn, putStr )
 import Monad (when)
 import Data.Array
 import Data.IORef
@@ -27,33 +27,43 @@ import Graphics.UI.Gtk.TreeList.Sequence (Seq)
 import Graphics.UI.Gtk.TreeList.TreeModel
 import Graphics.UI.Gtk.TreeList.CustomStore
 import Graphics.UI.Gtk.TreeList.TreeIter
-import Graphics.UI.Gtk.TreeList.Column
+
+import System.IO ( hPutStr, hPutChar, hFlush, stderr )
+import System.Mem ( performGC )
+
+putStrLn str = hPutStr stderr str >> hPutChar stderr '\n'
+putStr str = hPutStr stderr str
+flush = hFlush stderr
 
 data ListStore a = ListStore {
     model :: TreeModel,
     rows :: IORef (Seq a)
   }
 
-listStoreGetTreeModel = model
+instance StoreClass ListStore where
+  storeGetModel = model
+  storeGetValue ListStore { rows = rowsRef } (TreeIter _ n _ _) = do
+      rows <- readIORef rowsRef
+      return (rows `Seq.index` fromIntegral n)
 
-listStoreNew :: [Column a] -> [a] -> IO (ListStore a)
-listStoreNew rs xs = do
-  let cols = listArray (0, length rs - 1) rs
+
+listStoreNew :: [a] -> IO (ListStore a)
+listStoreNew xs = do
   rows <- newIORef (Seq.fromList xs)
 
   model <- customStoreNew $
     CustomStore {
       customStoreGetFlags      = return [TreeModelListOnly],
-      customStoreGetNColumns   = case bounds cols of (_, upper) -> return (upper + 1),
-      customStoreGetColumnType = \n -> return (columnGType (cols ! n)),
+--      customStoreGetNColumns   = case bounds cols of (_, upper) -> return (upper + 1),
+--      customStoreGetColumnType = \n -> return (columnGType (cols ! n)),
       customStoreGetIter       = \[n] -> return (Just (TreeIter 0 (fromIntegral n) 0 0)),
       customStoreGetPath       = \(TreeIter _ n _ _) -> return [fromIntegral n],
-      customStoreGetValue      = \(TreeIter _ n _ _) i gvalue ->
-                                 readIORef rows >>= \rows ->
-                                 -- TODO: add caching of last lookup as a view
-                                   columnSetGValue (cols ! i)
-                                                   (rows `Seq.index` fromIntegral n)
-                                                   gvalue,
+--      customStoreGetValue      = \(TreeIter _ n _ _) i gvalue ->
+--                                 readIORef rows >>= \rows ->
+--                                 -- TODO: add caching of last lookup as a view
+--                                   columnSetGValue (cols ! i)
+--                                                   (rows `Seq.index` fromIntegral n)
+--                                                   gvalue,
       customStoreIterNext      = \(TreeIter _ n _ _) ->
                                  readIORef rows >>= \rows ->
                                     if n >= fromIntegral (Seq.length rows) - 1
@@ -69,7 +79,7 @@ listStoreNew rs xs = do
                                                Nothing -> return (Just (TreeIter 0 (fromIntegral n) 0 0))
                                                _       -> return Nothing,
       customStoreIterParent    = \_ -> return Nothing,
-      customStoreRefNode       = \_ -> return (),
+      customStoreRefNode       = \_ -> putStrLn "ref node",
       customStoreUnrefNode     = \_ -> return ()
     }
 

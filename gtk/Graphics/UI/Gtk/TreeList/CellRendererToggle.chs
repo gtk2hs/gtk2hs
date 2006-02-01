@@ -56,18 +56,17 @@ module Graphics.UI.Gtk.TreeList.CellRendererToggle (
   cellRendererToggleSetRadio,
   cellRendererToggleGetActive,
   cellRendererToggleSetActive,
-  cellActive,
-  cellRadio
+
+-- * Attributes
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
-import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -122,20 +121,3 @@ cellRendererToggleSetActive self setting =
     (toCellRendererToggle self)
     (fromBool setting)
 
--- helper function
---
-binAttr :: [String] -> Attribute CellRendererToggle Bool
-binAttr str = Attribute str [TMboolean]
-		(return.(\x -> [x]).GVboolean)
-	        (\[GVboolean b] -> return b)
-
--- | Define the attribute that reflects the state of the button.
---
-cellActive :: Attribute CellRendererToggle Bool
-cellActive  = binAttr ["active"]
-
--- | Define an attribute that determines whether this button
--- is shown as a 'RadioButton' or as a normal 'ToggleButton'.
---
-cellRadio :: Attribute CellRendererToggle Bool
-cellRadio  = binAttr ["radio"]
