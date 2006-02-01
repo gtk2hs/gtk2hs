@@ -49,9 +49,8 @@ import System.Glib.GType	(GType)
 -- | Clear a GValue.
 --
 valueInit :: GValue -> GType -> IO ()
-valueInit gv@(GValue gvPtr) gt = do
+valueInit gv gt = do
   -- The g_type field of the value must be zero or g_value_init will fail.
-  {# set GValue->g_type #} gvPtr (0 :: GType)
   {# call unsafe value_init #} gv gt
   return ()
 
