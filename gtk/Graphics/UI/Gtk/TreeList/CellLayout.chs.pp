@@ -74,12 +74,6 @@ import System.Glib.GObject ( mkFunPtrDestroyNotify, DestroyNotify )
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.TreeList.CustomStore#}
-import System.IO ( hPutStr, hPutChar, hFlush, stderr )
-import System.Mem ( performGC )
-
-putStrLn str = hPutStr stderr str >> hPutChar stderr '\n'
-putStr str = hPutStr stderr str
-flush = hFlush stderr
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -166,12 +160,11 @@ cellLayoutSetAttributes self cell store attributes = do
     let (CellRenderer cPtr) = (toCellRenderer cell)
     if unsafeForeignPtrToPtr mPtr/=modelPtr ||
        unsafeForeignPtrToPtr cPtr/=cellPtr then
-      putStrLn ("cellLayoutSetAttributes: attempt to set attributes of "++
-	       "CellRenderer from different model.")
+      error ("cellLayoutSetAttributes: attempt to set attributes of "++
+	     "CellRenderer from different model.")
       else do
     val <- storeGetValue store iter
     set cell (attributes val)
-    putStrLn ("done with setting attributes")
   destroy <- mkFunPtrDestroyNotify fPtr
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
     (toCellRenderer cell) fPtr nullPtr destroy
