@@ -155,6 +155,7 @@ module Graphics.Rendering.Cairo (
   -- * Surfaces
 
   , withSimilarSurface
+  , createSimilarSurface
   , renderWithSimilarSurface
   , surfaceGetFontOptions
   , surfaceFinish
@@ -1337,6 +1338,28 @@ withSimilarSurface surface contentType width height f =
                            unless (status == StatusSuccess) $
                              Internal.statusToString status >>= fail)
           (\surface' -> f surface')
+
+
+-- | Like 'withSimilarSurface' but creates a Surface that is managed by the
+-- Haskell memory manager rather than only being temporaily allocated. This
+-- is more flexible and allows you to create surfaces that persist, which
+-- can be very useful, for example to cache static elements in an animation.
+-- 
+-- However you should be careful because surfaces can be expensive resources
+-- and the Haskell memory manager cannot guarantee when it will release them.
+-- You can manually release the resources used by a surface with
+-- 'surfaceFinish'.
+--
+createSimilarSurface ::
+     Surface -- ^ an existing surface used to select the backend of the new surface
+  -> Content -- ^ the content type for the new surface (color, color+alpha or alpha only)
+  -> Int     -- ^ width of the surface, in pixels
+  -> Int     -- ^ height of the surface, in pixels
+  -> IO Surface
+createSimilarSurface surface contentType width height = do
+  surface <- Internal.surfaceCreateSimilar surface contentType width height
+  Internal.manageSurface surface
+  return surface
 
 -- | Create a temporary surface that is compatible with the current target
 -- surface (like a combination of 'withTargetSurface' and 'withSimilarSurface').
