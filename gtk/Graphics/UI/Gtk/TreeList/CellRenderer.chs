@@ -75,15 +75,122 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
   castToCellRenderer,
   toCellRenderer,
 
--- * Methods
-  cellBackground
+-- * Attributes
+  cellMode,
+  cellVisible,
+  cellSensitive,
+  cellXAlign,
+  cellYAlign,
+  cellXPad,
+  cellYPad,
+  cellWidth,
+  cellHeight,
+  cellIsExpander,
+  cellIsExpanded,
+  cellBackground,
   ) where
 
-import Graphics.UI.Gtk.Types
+import System.Glib.FFI
 import System.Glib.Attributes ( Attr, ReadAttr, WriteAttr )
 import System.Glib.Properties
+import Graphics.UI.Gtk.Types
+
+{#context lib="gtk" prefix ="gtk"#}
+
+{# enum CellRendererMode {underscoreToCase} deriving (Eq) #}
+
+--------------------
+-- Attributes
+
+-- | Editable mode of the CellRenderer.
+--
+-- Default value: 'CellRendererModeInert'
+--
+cellMode :: CellRendererClass self => Attr self CellRendererMode
+cellMode = newAttrFromEnumProperty "mode"
+  {# call pure unsafe gtk_cell_renderer_mode_get_type #}
+
+-- | Display the cell.
+--
+-- Default value: @True@
+--
+cellVisible :: CellRendererClass self => Attr self Bool
+cellVisible = newAttrFromBoolProperty "visible"
+
+-- | Display the cell sensitive.
+--
+-- Default value: @True@
+--
+cellSensitive :: CellRendererClass self => Attr self Bool
+cellSensitive = newAttrFromBoolProperty "sensitive"
+
+-- | The x-align.
+--
+-- Allowed values: @[0,1]@
+--
+-- Default value: @0.5@
+--
+cellXAlign :: CellRendererClass self => Attr self Float
+cellXAlign = newAttrFromFloatProperty "xalign"
+
+-- | The y-align.
+--
+-- Allowed values: @[0,1]@
+--
+-- Default value: @0.5@
+--
+cellYAlign :: CellRendererClass self => Attr self Float
+cellYAlign = newAttrFromFloatProperty "yalign"
+
+-- | The xpad.
+--
+-- Default value: @0@
+--
+cellXPad :: CellRendererClass self => Attr self Int
+cellXPad = newAttrFromUIntProperty "xpad"
+
+-- | The ypad.
+--
+-- Default value: @0@
+--
+cellYPad :: CellRendererClass self => Attr self Int
+cellYPad = newAttrFromUIntProperty "ypad"
+
+-- | The fixed width.
+--
+-- Allowed values: @>= -1@
+--
+-- Default value: @-1@
+--
+cellWidth :: CellRendererClass self => Attr self Int
+cellWidth = newAttrFromIntProperty "width"
+
+-- | The fixed height.
+--
+-- Allowed values: @>= -1@
+--
+-- Default value: @-1@
+--
+cellHeight :: CellRendererClass self => Attr self Int
+cellHeight = newAttrFromIntProperty "height"
+
+-- | Row has children.
+--
+-- Default value: @False@
+--
+cellIsExpander :: CellRendererClass self => Attr self Bool
+cellIsExpander = newAttrFromBoolProperty "is-expander"
+
+-- | Row is an expander row, and is expanded.
+--
+-- Default value: @False@
+--
+cellIsExpanded :: CellRendererClass self => Attr self Bool
+cellIsExpanded = newAttrFromBoolProperty "is-expanded"
 
 -- | Cell background color as a string.
 --
-cellBackground :: CellRendererClass cr => WriteAttr cr String
+-- Default value: @\"\"@
+--
+cellBackground :: CellRendererClass self => WriteAttr self String
 cellBackground = writeAttrFromStringProperty "cell-background"

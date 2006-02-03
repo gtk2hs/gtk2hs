@@ -63,12 +63,17 @@ module Graphics.UI.Gtk.TreeList.CellRendererCombo (
   cellRendererComboNew,
 
 -- * Attributes
+  cellComboModel,
+  cellComboTextColumn,
+  cellComboHasEntry,
 #endif
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes			(Attr, ReadWriteAttr)
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -94,4 +99,30 @@ cellRendererComboNew =
 --------------------
 -- Attributes
 
+-- | Holds a tree model containing the possible values for the combo box. Use
+-- the text_column property to specify the column holding the values.
+--
+cellComboModel :: (CellRendererComboClass self, TreeModelClass treeModel) => ReadWriteAttr self TreeModel treeModel
+cellComboModel = newAttrFromObjectProperty "model"
+  {# call pure unsafe gtk_tree_model_get_type #}
+
+-- | Specifies the model column which holds the possible values for the combo
+-- box. Note that this refers to the model specified in the model property,
+-- /not/ the model backing the tree view to which this cell renderer is
+-- attached.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+cellComboTextColumn :: CellRendererComboClass self => Attr self Int
+cellComboTextColumn = newAttrFromIntProperty "text-column"
+
+-- | If @True@, the cell renderer will include an entry and allow to enter
+-- values other than the ones in the popup list.
+--
+-- Default value: @True@
+--
+cellComboHasEntry :: CellRendererComboClass self => Attr self Bool
+cellComboHasEntry = newAttrFromBoolProperty "has-entry"
 #endif

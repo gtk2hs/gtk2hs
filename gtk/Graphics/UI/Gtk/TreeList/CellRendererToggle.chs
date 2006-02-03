@@ -58,12 +58,17 @@ module Graphics.UI.Gtk.TreeList.CellRendererToggle (
   cellRendererToggleSetActive,
 
 -- * Attributes
+  cellActive,
+  cellInconsistent,
+  cellActivatable,
+  cellRadio,
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Properties
+import System.Glib.Attributes                   (Attr)
+import System.Glib.Properties			(newAttrFromBoolProperty)
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -94,7 +99,7 @@ cellRendererToggleSetRadio self radio =
     (toCellRendererToggle self)
     (fromBool radio)
 
--- | Returns wether the button is drawn as 'RadioButton' or not.
+-- | Returns whether the button is drawn as 'RadioButton' or not.
 --
 cellRendererToggleGetRadio :: CellRendererToggleClass self => self -> IO Bool
 cellRendererToggleGetRadio self =
@@ -121,3 +126,33 @@ cellRendererToggleSetActive self setting =
     (toCellRendererToggle self)
     (fromBool setting)
 
+--------------------
+-- Attributes
+
+-- | The toggle state of the button.
+--
+-- Default value: @False@
+--
+cellActive :: CellRendererToggleClass self => Attr self Bool
+cellActive = newAttrFromBoolProperty "active"
+
+-- | The inconsistent state of the button.
+--
+-- Default value: @False@
+--
+cellInconsistent :: CellRendererToggleClass self => Attr self Bool
+cellInconsistent = newAttrFromBoolProperty "inconsistent"
+
+-- | The toggle button can be activated.
+--
+-- Default value: @True@
+--
+cellActivatable :: CellRendererToggleClass self => Attr self Bool
+cellActivatable = newAttrFromBoolProperty "activatable"
+
+-- | Draw the toggle button as a radio button.
+--
+-- Default value: @False@
+--
+cellRadio :: CellRendererToggleClass self => Attr self Bool
+cellRadio = newAttrFromBoolProperty "radio"

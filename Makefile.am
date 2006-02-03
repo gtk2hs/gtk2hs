@@ -469,8 +469,9 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs		\
-	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.chs			\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs.pp		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererToggle.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererCombo.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererProgress.chs.pp	\
@@ -516,7 +517,6 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/Events.hsc				\
 	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
-	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs			\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs                             \
         gtk/Graphics/UI/Gtk/Cairo.chs.pp

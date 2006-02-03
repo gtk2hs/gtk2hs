@@ -50,12 +50,16 @@ module Graphics.UI.Gtk.TreeList.CellRendererProgress (
   cellRendererProgressNew,
 
 -- * Attributes
+  cellProgressValue,
+  cellProgressText,
 #endif
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes			(Attr)
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -76,4 +80,23 @@ cellRendererProgressNew =
 --------------------
 -- Attributes
 
+-- | The \"value\" property determines the percentage to which the progress
+-- bar will be \"filled in\".
+--
+-- Allowed values: @[0,100]@
+--
+-- Default value: @0@
+--
+cellProgressValue :: CellRendererProgressClass self => Attr self Int
+cellProgressValue = newAttrFromIntProperty "value"
+
+-- | The 'cellProgressText' attribute determines the label which will be drawn
+-- over the progress bar. Setting this property to @Nothing@ causes the
+-- default label to be displayed. Setting this property to an empty string
+-- causes no label to be displayed.
+--
+-- Default value: @Nothing@
+--
+cellProgressText :: CellRendererProgressClass self => Attr self (Maybe String)
+cellProgressText = newAttrFromMaybeStringProperty "text"
 #endif

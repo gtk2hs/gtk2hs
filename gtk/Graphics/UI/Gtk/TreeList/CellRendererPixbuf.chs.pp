@@ -57,16 +57,27 @@ module Graphics.UI.Gtk.TreeList.CellRendererPixbuf (
 
 -- * Constructors
   cellRendererPixbufNew,
+-- * Attributes
+  cellPixbuf,
+  cellPixbufExpanderOpen,
+  cellPixbufExpanderClosed,
+  cellPixbufStockId,
+  cellPixbufStockSize,
+  cellPixbufStockDetail,
+#if GTK_CHECK_VERSION(2,8,0)
+  cellPixbufIconName,
+  cellPixbufFollowState,
+#endif
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
+import System.Glib.Attributes                   (Attr)
+import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Display.Image		(imageNewFromPixbuf,
-						 imageGetPixbuf)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -82,5 +93,61 @@ cellRendererPixbufNew =
   {# call unsafe cell_renderer_pixbuf_new #}
 
 --------------------
--- Properties
+-- Attributes
 
+-- | The pixbuf to render.
+--
+cellPixbuf :: CellRendererPixbufClass self => Attr self Pixbuf
+cellPixbuf = newAttrFromObjectProperty "pixbuf"
+  {# call pure unsafe gdk_pixbuf_get_type #}
+
+-- | Pixbuf for open expander.
+--
+cellPixbufExpanderOpen :: CellRendererPixbufClass self => Attr self Pixbuf
+cellPixbufExpanderOpen = newAttrFromObjectProperty "pixbuf-expander-open"
+  {# call pure unsafe gdk_pixbuf_get_type #}
+  
+-- | Pixbuf for closed expander.
+--
+cellPixbufExpanderClosed :: CellRendererPixbufClass self => Attr self Pixbuf
+cellPixbufExpanderClosed = newAttrFromObjectProperty "pixbuf-expander-closed"
+  {# call pure unsafe gdk_pixbuf_get_type #}
+
+-- | The stock ID of the stock icon to render.
+--
+-- Default value: @\"\"@
+--
+cellPixbufStockId :: CellRendererPixbufClass self => Attr self String
+cellPixbufStockId = newAttrFromStringProperty "stock-id"
+
+-- | The 'IconSize' value that specifies the size of the rendered icon.
+--
+-- Default value: 1
+--
+cellPixbufStockSize :: CellRendererPixbufClass self => Attr self Int
+cellPixbufStockSize = newAttrFromUIntProperty "stock-size"
+
+-- | Render detail to pass to the theme engine.
+--
+-- Default value: @\"\"@
+--
+cellPixbufStockDetail :: CellRendererPixbufClass self => Attr self String
+cellPixbufStockDetail = newAttrFromStringProperty "stock-detail"
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- | The name of the themed icon to display. This property only has an effect
+-- if not overridden by 'cellPixbufStockId' or 'cellPixbuf' attributes.
+--
+-- Default value: @\"\"@
+--
+cellPixbufIconName :: CellRendererPixbufClass self => Attr self String
+cellPixbufIconName = newAttrFromStringProperty "icon-name"
+
+-- | Specifies whether the rendered pixbuf should be colorized according to
+-- the 'CellRendererState'.
+--
+-- Default value: @False@
+--
+cellPixbufFollowState :: CellRendererPixbufClass self => Attr self Bool
+cellPixbufFollowState = newAttrFromBoolProperty "follow-state"
+#endif

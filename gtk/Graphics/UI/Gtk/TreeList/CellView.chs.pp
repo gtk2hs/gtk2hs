@@ -66,6 +66,7 @@ module Graphics.UI.Gtk.TreeList.CellView (
   cellViewGetCellRenderers,
 
 -- * Attributes
+  cellViewBackground,
   cellViewDisplayedRow,
 #endif
   ) where
@@ -218,7 +219,14 @@ cellViewGetCellRenderers self =
 --------------------
 -- Attributes
 
--- | \'displayedRow\' property. See 'cellViewGetDisplayedRow' and
+-- | Background color as a string.
+--
+-- Default value: @\"\"@
+--
+cellViewBackground :: CellViewClass self => WriteAttr self String
+cellViewBackground = writeAttrFromStringProperty "background"
+
+-- | 'cellViewDisplayedRow' attribute. See 'cellViewGetDisplayedRow' and
 -- 'cellViewSetDisplayedRow'
 --
 cellViewDisplayedRow :: CellViewClass self => ReadWriteAttr self (Maybe TreePath) TreePath
