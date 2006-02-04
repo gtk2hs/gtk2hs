@@ -487,13 +487,16 @@ treeViewGetExpanderColumn self =
 -- * Sets a user function for determining where a column may be dropped when
 --   dragged.  This function is called on every column pair in turn at the
 --   beginning of a column drag to determine where a drop can take place.
+--
 -- * The callback function take the 'TreeViewColumn' to be moved, the
 --   second and third arguments are the columns on the left and right side
 --   of the new location. At most one of them might be @Nothing@
 --   which indicates that the column is about to be dropped at the left or
 --   right end of the 'TreeView'.
+--
 -- * The predicate @pred@ should return @True@ if it is ok
 --   to insert the column at this place.
+--
 -- * Use @Nothing@ for the predicate if columns can be inserted
 --   anywhere.
 --
