@@ -52,9 +52,6 @@ module System.Glib.Properties (
   objectGetPropertyBoxedStorable,
   objectSetPropertyGObject,
   objectGetPropertyGObject,
-  
-  objectSetPropertyInternal,
-  objectGetPropertyInternal,
 
   -- * constructors for attributes backed by GObject properties
   newAttrFromIntProperty,

@@ -42,8 +42,6 @@ import System.Glib.GValue	(GValue, valueInit, valueGetType)
 import System.Glib.GValueTypes
 import qualified System.Glib.GTypeConstants as GType
 import System.Glib.Types	(GObject, GObjectClass)
-import System.Glib.Properties	(objectSetPropertyInternal,
-				 objectGetPropertyInternal)
 
 -- | A union with information about the currently stored type.
 --
