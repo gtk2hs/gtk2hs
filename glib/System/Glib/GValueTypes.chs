@@ -52,6 +52,8 @@ module System.Glib.GValueTypes (
   valueGetString,
   valueSetMaybeString,
   valueGetMaybeString,
+  valueSetBoxed,
+  valueGetBoxed,
   valueSetGObject,
   valueGetGObject,
   ) where
@@ -181,6 +183,15 @@ valueGetMaybeString :: GValue -> IO (Maybe String)
 valueGetMaybeString gvalue =
   {# call unsafe value_get_string #} gvalue
   >>= maybePeek peekUTFString
+
+valueSetBoxed :: (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> GValue -> boxed -> IO ()
+valueSetBoxed with gvalue boxed =
+  with boxed $ \boxedPtr -> do
+  {# call unsafe g_value_set_boxed #} gvalue (castPtr boxedPtr)
+
+valueGetBoxed :: (Ptr boxed -> IO boxed) -> GValue -> IO boxed
+valueGetBoxed peek gvalue =
+  {# call unsafe g_value_get_boxed #} gvalue >>= peek . castPtr
 
 -- for some weird reason the API says that gv is a gpointer, not a GObject
 --

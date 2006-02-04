@@ -46,6 +46,10 @@ module System.Glib.Properties (
   objectGetPropertyString,
   objectSetPropertyMaybeString,
   objectGetPropertyMaybeString,  
+  objectSetPropertyBoxedOpaque,
+  objectGetPropertyBoxedOpaque,
+  objectSetPropertyBoxedStorable,
+  objectGetPropertyBoxedStorable,
   objectSetPropertyGObject,
   objectGetPropertyGObject,
   
@@ -68,6 +72,9 @@ module System.Glib.Properties (
   writeAttrFromStringProperty,
   writeAttrFromMaybeStringProperty,
   newAttrFromMaybeStringProperty,
+  newAttrFromBoxedOpaqueProperty,
+  writeAttrFromBoxedOpaqueProperty,
+  newAttrFromBoxedStorableProperty,
   newAttrFromObjectProperty,
   writeAttrFromObjectProperty,
   ) where
@@ -164,6 +171,18 @@ objectSetPropertyMaybeString = objectSetPropertyInternal GType.string valueSetMa
 objectGetPropertyMaybeString :: GObjectClass gobj => String -> gobj -> IO (Maybe String)
 objectGetPropertyMaybeString = objectGetPropertyInternal GType.string valueGetMaybeString
 
+objectSetPropertyBoxedOpaque :: GObjectClass gobj => (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> GType -> String -> gobj -> boxed -> IO ()
+objectSetPropertyBoxedOpaque with gtype = objectSetPropertyInternal gtype (valueSetBoxed with)
+
+objectGetPropertyBoxedOpaque :: GObjectClass gobj => (Ptr boxed -> IO boxed) -> GType -> String -> gobj -> IO boxed
+objectGetPropertyBoxedOpaque peek gtype = objectGetPropertyInternal gtype (valueGetBoxed peek)
+
+objectSetPropertyBoxedStorable :: (GObjectClass gobj, Storable boxed) => GType -> String -> gobj -> boxed -> IO ()
+objectSetPropertyBoxedStorable = objectSetPropertyBoxedOpaque with
+
+objectGetPropertyBoxedStorable :: (GObjectClass gobj, Storable boxed) => GType -> String -> gobj -> IO boxed
+objectGetPropertyBoxedStorable = objectGetPropertyBoxedOpaque peek
+
 objectSetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => GType -> String -> gobj -> gobj' -> IO ()
 objectSetPropertyGObject gtype = objectSetPropertyInternal gtype valueSetGObject
 
@@ -234,6 +253,18 @@ writeAttrFromMaybeStringProperty propName =
 newAttrFromMaybeStringProperty :: GObjectClass gobj => String -> Attr gobj (Maybe String)
 newAttrFromMaybeStringProperty propName =
   newAttr (objectGetPropertyMaybeString propName) (objectSetPropertyMaybeString propName)
+
+newAttrFromBoxedOpaqueProperty :: GObjectClass gobj => (Ptr boxed -> IO boxed) -> (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> String -> GType -> Attr gobj boxed
+newAttrFromBoxedOpaqueProperty peek with propName gtype =
+  newAttr (objectGetPropertyBoxedOpaque peek gtype propName) (objectSetPropertyBoxedOpaque with gtype propName)
+
+writeAttrFromBoxedOpaqueProperty :: GObjectClass gobj => (boxed -> (Ptr boxed -> IO ()) -> IO ()) -> String -> GType -> WriteAttr gobj boxed
+writeAttrFromBoxedOpaqueProperty with propName gtype =
+  writeAttr (objectSetPropertyBoxedOpaque with gtype propName)
+
+newAttrFromBoxedStorableProperty :: (GObjectClass gobj, Storable boxed) => String -> GType -> Attr gobj boxed
+newAttrFromBoxedStorableProperty propName gtype =
+  newAttr (objectGetPropertyBoxedStorable gtype propName) (objectSetPropertyBoxedStorable gtype propName)
 
 newAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj gobj' gobj''
 newAttrFromObjectProperty propName gtype =
