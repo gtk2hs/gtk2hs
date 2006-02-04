@@ -32,7 +32,6 @@
 module System.Glib.GValue (
   GValue(GValue),
   valueInit,
-  valueUnset,
   valueGetType,
   allocaGValue
   ) where
@@ -54,11 +53,6 @@ valueInit gv gt = do
   {# call unsafe value_init #} gv gt
   return ()
 
--- | Free the data in a GValue.
---
-valueUnset :: GValue -> IO ()
-valueUnset = {#call unsafe value_unset#}
-
 -- | Get the type of the value stored in the GValue
 --
 valueGetType :: GValue -> IO GType
@@ -74,5 +68,5 @@ allocaGValue body =
   -- The g_type field of the value must be zero or g_value_init will fail.
   {# set GValue->g_type #} gvPtr (0 :: GType)
   result <- body (GValue gvPtr)
-  valueUnset (GValue gvPtr)
+  {#call unsafe value_unset#} (GValue gvPtr)
   return result
