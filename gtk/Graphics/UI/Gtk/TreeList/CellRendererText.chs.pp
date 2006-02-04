@@ -24,16 +24,17 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A 'CellRenderer' which displays a single-line text.
+-- Renders text in a cell
 --
 module Graphics.UI.Gtk.TreeList.CellRendererText (
 -- * Detail
 -- 
--- | This widget derives from 'CellRenderer'. It provides the 
--- possibility to display some text by setting the 'Attribute' 
--- 'cellText' to the column of a 'TreeModel' by means of 
--- 'Graphics.UI.Gtk.TreeList.TreeView.treeViewAddAttribute' from
--- 'TreeViewColumn'.
+-- | A 'CellRendererText' renders a given text in its cell, using the font,
+-- color and style information provided by its attributes. The text will be
+-- ellipsized if it is too long and the ellipsize property allows it.
+--
+-- If the 'cellMode' is 'CellRendererModeEditable', the 'CellRendererText'
+-- allows the user to edit its text using an 'Entry' widget.
 
 -- * Class Hierarchy
 -- |
@@ -60,25 +61,44 @@ module Graphics.UI.Gtk.TreeList.CellRendererText (
 -- * Attributes
   cellText,
   cellMarkup,
+--  cellAttributes,
   cellTextSingleParagraphMode,
   cellTextBackground,
+  cellTextBackgroundColor,
+  cellTextBackgroundSet,
   cellTextForeground,
+  cellTextForegroundColor,
+  cellTextForegroundSet,
   cellTextEditable,
+  cellTextEditableSet,
   cellTextFont,
+--  cellTextFontDescription,
   cellTextFamily,
+  cellTextFamilySet,
   cellTextStyle,
+  cellTextStyleSet,
   cellTextVariant,
+  cellTextVariantSet,
   cellTextWeight,
+  cellTextWeightSet,
   cellTextStretch,
+  cellTextStretchSet,
   cellTextSize,
+  cellTextSizeSet,
   cellTextSizePoints,
   cellTextScale,
+  cellTextScaleSet,
   cellTextRise,
+  cellTextRiseSet,
   cellTextStrikethrough,
+  cellTextStrikethroughSet,
   cellTextUnderline,
+  cellTextUnderlineSet,
   cellTextLanguage,
+  cellTextLanguageSet,
 #if GTK_CHECK_VERSION(2,6,0)
   cellTextEllipsize,
+  cellTextEllipsizeSet,
   cellTextWidthChars,
 #endif
 #if GTK_CHECK_VERSION(2,8,0)
@@ -104,6 +124,7 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 import Graphics.UI.Gtk.General.Structs		(treeIterSize)
 import Graphics.UI.Gtk.Pango.Enums
 import Graphics.UI.Gtk.General.Enums		(WrapMode)
+import Graphics.UI.Gtk.Gdk.GC			(Color)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -163,19 +184,50 @@ cellMarkup = writeAttrFromStringProperty "markup"
 cellTextSingleParagraphMode :: CellRendererTextClass self => Attr self Bool
 cellTextSingleParagraphMode = newAttrFromBoolProperty "single-paragraph-mode"
 
--- | Background color as a string.
+-- | Text background color as a string.
 --
 -- Default value: @\"\"@
 --
 cellTextBackground :: CellRendererTextClass self => WriteAttr self String
 cellTextBackground = writeAttrFromStringProperty "background"
 
--- | Foreground color as a string.
+-- | Text background color as a 'Color'.
+--
+cellTextBackgroundColor :: CellRendererClass self => Attr self Color
+cellTextBackgroundColor = newAttrFromBoxedStorableProperty "background-gdk"
+  {# call pure unsafe gdk_color_get_type #}
+
+-- | Whether the 'cellTextBackground'\/'cellTextBackgroundColor' attribute is
+-- set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextBackgroundSet :: CellRendererClass self => Attr self Bool
+cellTextBackgroundSet = newAttrFromBoolProperty "background-set"
+
+-- | Text foreground color as a string.
 --
 -- Default value: @\"\"@
 --
 cellTextForeground :: CellRendererTextClass self => WriteAttr self String
 cellTextForeground = writeAttrFromStringProperty "foreground"
+
+-- | Text foreground color as a 'Color'.
+--
+cellTextForegroundColor :: CellRendererClass self => Attr self Color
+cellTextForegroundColor = newAttrFromBoxedStorableProperty "foreground-gdk"
+  {# call pure unsafe gdk_color_get_type #}
+
+-- | Whether the 'cellTextForeground'\/'cellTextForegroundColor' attribute is
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextForegroundSet :: CellRendererClass self => Attr self Bool
+cellTextForegroundSet = newAttrFromBoolProperty "foreground-set"
 
 -- | Whether the text can be modified by the user.
 --
@@ -183,6 +235,15 @@ cellTextForeground = writeAttrFromStringProperty "foreground"
 --
 cellTextEditable :: CellRendererTextClass self => Attr self Bool
 cellTextEditable = newAttrFromBoolProperty "editable"
+
+-- | Whether the 'cellTextEditable' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextEditableSet :: CellRendererClass self => Attr self Bool
+cellTextEditableSet = newAttrFromBoolProperty "editable-set"
 
 -- | Font description as a string.
 --
@@ -198,6 +259,15 @@ cellTextFont = newAttrFromStringProperty "font"
 cellTextFamily :: CellRendererTextClass self => Attr self String
 cellTextFamily = newAttrFromStringProperty "family"
 
+-- | Whether the 'cellTextFamily' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextFamilySet :: CellRendererClass self => Attr self Bool
+cellTextFamilySet = newAttrFromBoolProperty "family-set"
+
 -- | Font style.
 --
 -- Default value: 'StyleNormal'
@@ -206,6 +276,15 @@ cellTextStyle :: CellRendererTextClass self => Attr self FontStyle
 cellTextStyle = newAttrFromEnumProperty "style"
   {# call pure unsafe pango_style_get_type #}
 
+-- | Whether the 'cellTextStyle' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextStyleSet :: CellRendererClass self => Attr self Bool
+cellTextStyleSet = newAttrFromBoolProperty "style-set"
+
 -- | Font variant.
 --
 -- Default value: 'VariantNormal'
@@ -213,6 +292,15 @@ cellTextStyle = newAttrFromEnumProperty "style"
 cellTextVariant :: CellRendererTextClass self => Attr self Variant
 cellTextVariant = newAttrFromEnumProperty "variant"
   {# call pure unsafe pango_variant_get_type #}
+
+-- | Whether the 'cellTextVariant' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextVariantSet :: CellRendererClass self => Attr self Bool
+cellTextVariantSet = newAttrFromBoolProperty "variant-set"
 
 -- | Font weight.
 --
@@ -223,6 +311,15 @@ cellTextVariant = newAttrFromEnumProperty "variant"
 cellTextWeight :: CellRendererTextClass self => Attr self Int
 cellTextWeight = newAttrFromIntProperty "weight"
 
+-- | Whether the 'cellTextWeight' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextWeightSet :: CellRendererClass self => Attr self Bool
+cellTextWeightSet = newAttrFromBoolProperty "weight-set"
+
 -- | Font stretch.
 --
 -- Default value: 'StretchNormal'
@@ -230,6 +327,15 @@ cellTextWeight = newAttrFromIntProperty "weight"
 cellTextStretch :: CellRendererTextClass self => Attr self Stretch
 cellTextStretch = newAttrFromEnumProperty "stretch"
   {# call pure unsafe pango_stretch_get_type #}
+
+-- | Whether the 'cellTextStretch' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextStretchSet :: CellRendererClass self => Attr self Bool
+cellTextStretchSet = newAttrFromBoolProperty "stretch-set"
 
 -- | Font size.
 --
@@ -239,6 +345,15 @@ cellTextStretch = newAttrFromEnumProperty "stretch"
 --
 cellTextSize :: CellRendererTextClass self => Attr self Int
 cellTextSize = newAttrFromIntProperty "size"
+
+-- | Whether the 'cellTextSize' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextSizeSet :: CellRendererClass self => Attr self Bool
+cellTextSizeSet = newAttrFromBoolProperty "size-set"
 
 -- | Font size in points.
 --
@@ -258,6 +373,15 @@ cellTextSizePoints = newAttrFromDoubleProperty "size-points"
 cellTextScale :: CellRendererTextClass self => Attr self Double
 cellTextScale = newAttrFromDoubleProperty "scale"
 
+-- | Whether the 'cellTextScale' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextScaleSet :: CellRendererClass self => Attr self Bool
+cellTextScaleSet = newAttrFromBoolProperty "scale-set"
+
 -- | Offset of text above the baseline (below the baseline if rise is
 -- negative).
 --
@@ -268,12 +392,30 @@ cellTextScale = newAttrFromDoubleProperty "scale"
 cellTextRise :: CellRendererTextClass self => Attr self Int
 cellTextRise = newAttrFromIntProperty "rise"
 
+-- | Whether the 'cellTextRise' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextRiseSet :: CellRendererClass self => Attr self Bool
+cellTextRiseSet = newAttrFromBoolProperty "rise-set"
+
 -- | Whether to strike through the text.
 --
 -- Default value: @False@
 --
 cellTextStrikethrough :: CellRendererTextClass self => Attr self Bool
 cellTextStrikethrough = newAttrFromBoolProperty "strikethrough"
+
+-- | Whether the 'cellTextStrikethrough' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextStrikethroughSet :: CellRendererClass self => Attr self Bool
+cellTextStrikethroughSet = newAttrFromBoolProperty "strikethrough-set"
 
 -- | Style of underline for this text.
 --
@@ -283,6 +425,15 @@ cellTextUnderline :: CellRendererTextClass self => Attr self Underline
 cellTextUnderline = newAttrFromEnumProperty "underline"
   {# call pure unsafe pango_underline_get_type #}
 
+-- | Whether the 'cellTextUnderline' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextUnderlineSet :: CellRendererClass self => Attr self Bool
+cellTextUnderlineSet = newAttrFromBoolProperty "underline-set"
+
 -- | The language this text is in, as an ISO code. Pango can use this as a
 -- hint when rendering the text. If you don't understand this parameter, you
 -- probably don't need it.
@@ -291,6 +442,15 @@ cellTextUnderline = newAttrFromEnumProperty "underline"
 --
 cellTextLanguage :: CellRendererTextClass self => Attr self String
 cellTextLanguage = newAttrFromStringProperty "language"
+
+-- | Whether the 'cellTextLanguage' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextLanguageSet :: CellRendererClass self => Attr self Bool
+cellTextLanguageSet = newAttrFromBoolProperty "language-set"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Specifies the preferred place to ellipsize the string, if the cell
@@ -303,6 +463,15 @@ cellTextLanguage = newAttrFromStringProperty "language"
 cellTextEllipsize :: CellRendererTextClass self => Attr self EllipsizeMode
 cellTextEllipsize = newAttrFromEnumProperty "ellipsize"
   {# call pure unsafe pango_ellipsize_mode_get_type #}
+
+-- | Whether the 'cellTextEllipsize' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellTextEllipsizeSet :: CellRendererClass self => Attr self Bool
+cellTextEllipsizeSet = newAttrFromBoolProperty "ellipsize-set"
 
 -- | The desired width of the cell, in characters. If this property is set to
 -- -1, the width will be calculated automatically, otherwise the cell will

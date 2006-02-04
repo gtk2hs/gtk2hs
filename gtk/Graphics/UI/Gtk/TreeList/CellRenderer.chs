@@ -27,7 +27,7 @@
 -- A 'CellRenderer' is an object that determines how the cell of a
 -- 'TreeView' widget is displayed. 
 --
--- * Each 'TreeViewColumn' has exactly one accociated 'CellRenderer'.
+-- * Each 'TreeViewColumn' has one or more accociated 'CellRenderer's.
 --   The data supply for a cell is contained in a 'TreeStore' or a
 --   'ListStore' (both subclasses of 'TreeModel'). Each 'CellRenderer'
 --   may have several attributes. Each 'Attribute' is associated with 
@@ -88,12 +88,16 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
   cellIsExpander,
   cellIsExpanded,
   cellBackground,
+  cellBackgroundColor,
+  cellBackgroundSet,
   ) where
 
 import System.Glib.FFI
 import System.Glib.Attributes ( Attr, ReadAttr, WriteAttr )
 import System.Glib.Properties
-import Graphics.UI.Gtk.Types
+{#import Graphics.UI.Gtk.Types#}
+import Graphics.UI.Gtk.Gdk.GC		(Color)
+
 
 {#context lib="gtk" prefix ="gtk"#}
 
@@ -194,3 +198,19 @@ cellIsExpanded = newAttrFromBoolProperty "is-expanded"
 --
 cellBackground :: CellRendererClass self => WriteAttr self String
 cellBackground = writeAttrFromStringProperty "cell-background"
+
+-- | Cell background color as a 'Color'.
+--
+cellBackgroundColor :: CellRendererClass self => Attr self Color
+cellBackgroundColor = newAttrFromBoxedStorableProperty "cell-background-gdk"
+  {# call pure unsafe gdk_color_get_type #}
+
+-- | Whether the 'cellBackground'\/'cellBackgroundColor' attribute is set.
+--
+-- You can use this to reset the attribute to its default.
+--
+-- Default value: @False@
+--
+cellBackgroundSet :: CellRendererClass self => Attr self Bool
+cellBackgroundSet = newAttrFromBoolProperty "cell-background-set"
+
