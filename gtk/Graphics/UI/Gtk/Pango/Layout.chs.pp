@@ -216,9 +216,10 @@ layoutGetText (PangoLayout _ pl) =
 
 -- | Set the text of the layout, including attributes.
 --
--- * The string may include 'Markup'. To print markup characters like
---   "<", or "-", apply 'escapeMarkup' on it first. The function returns
---   the text that is actually shown.
+-- The string may include 'Markup'. To print markup characters like
+-- @\'<\'@, or @\'-\'@, apply 'escapeMarkup' to the string first.
+--
+-- The function returns  the text that is actually shown.
 --
 layoutSetMarkup :: PangoLayout -> Markup -> IO String
 layoutSetMarkup pl@(PangoLayout psRef plr) txt = do
