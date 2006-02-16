@@ -719,9 +719,6 @@ if test "$BUILT_IN_C2HS" = yes; then
   fi
 fi
 
-dnl The preprocessor to use on Haskell sources
-HSCPP='$(CPP) -x c -traditional-cpp -P'
-
 dnl Documentation
 AC_ARG_ENABLE(docs,
               [  --enable-docs           build html documentation],
@@ -739,7 +736,8 @@ if test "$BUILDDOCS" = "yes"; then
     AC_MSG_ERROR([I need haddock 0.6 or later to build the documentation.
     Upgrade your version of haddock or re-run configure without --enable-docs])])
   HYPHENATED_DOCS="no";
-  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -gt, 0.6, [HYPHENATED_DOCS="yes";])
+  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 0.7, [HYPHENATED_DOCS="yes";])
+  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 0.8, [USE_CPP_LINES="yes";])
 fi
 AM_CONDITIONAL(BUILDDOCS, test "$BUILDDOCS" = "yes")
 AM_CONDITIONAL(HYPHENATED_DOCS, test "$HYPHENATED_DOCS" = "yes")
@@ -747,6 +745,13 @@ AM_CONDITIONAL(HYPHENATED_DOCS, test "$HYPHENATED_DOCS" = "yes")
 AC_ARG_WITH(ghc-docdir, 
             [  --with-ghc-docdir=GHC_DOCDIR  location of top of ghc haddockified html documentation],
 	    [GHC_DOCDIR=$withval])
+
+dnl The preprocessor to use on Haskell sources
+if test "$USE_CPP_LINES" = "yes"; then
+HSCPP='$(CPP) -x c -traditional-cpp'
+else
+HSCPP='$(CPP) -x c -traditional-cpp -P'
+fi
 
 dnl Needed substitution.
 AC_SUBST(BUILT_IN_C2HS)
