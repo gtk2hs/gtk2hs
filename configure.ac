@@ -241,8 +241,36 @@ AC_ARG_WITH(pkgconf,
 
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
-PKG_CHECK_MODULES(GLIB,[glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0])
-PKG_CHECK_MODULES(GTK,[pango >= 1.0.0 gdk-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0 gtk+-2.0 >= 2.0.0])
+PKG_CHECK_MODULES(GLIB,[glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0], [], AC_MSG_ERROR([
+
+The development files for the glib-2.x library were not found.
+Perhaps you need to install glib or glib-devel
+
+The exact error reported by pkg-config was:
+  "$GLIB_PKG_ERRORS"
+
+If you installed Glib or Gtk+ in a non-standard prefix then you may
+need to adjust the PKG_CONFIG_PATH environment variable.
+
+As a last resort you may set the environment variables GLIB_CFLAGS
+and GLIB_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+]))
+PKG_CHECK_MODULES(GTK,[pango >= 1.0.0 gdk-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0 gtk+-2.0 >= 2.0.0], [], AC_MSG_ERROR([
+
+The development files for the gtk-2.x library were not found.
+Perhaps you need to install gtk or gtk-devel.
+
+The exact error reported by pkg-config was:
+  "$GTK_PKG_ERRORS"
+
+If you installed Gtk+ in a non-standard prefix then you may need to
+adjust the PKG_CONFIG_PATH environment variable.
+
+As a last resort you may set the environment variables GTK_CFLAGS
+and GTK_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.
+]))
 
 dnl Find the Gtk installation prefix which is used in packager mode on windows
 dnl for preparing the package files.
