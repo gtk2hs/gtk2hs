@@ -1396,7 +1396,7 @@ windowSetGeometryHints :: (WindowClass self, WidgetClass widget) =>
  -> Maybe (Int, Int) -- ^ @(widthInc, heightInc)@ - width and height resize
                      -- increment
  -> Maybe (Double, Double) -- ^ @(minAspect, maxAspect)@ - minimum and maximum
-                           -- width/height ratio
+                           -- width\/height ratio
  -> IO ()
 windowSetGeometryHints self geometryWidget
   minSize maxSize baseSize incSize aspect =
