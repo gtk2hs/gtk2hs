@@ -20,7 +20,7 @@
 --  Lesser General Public License for more details.
 --
 -- |
--- Maintainer  : custom-users@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
