@@ -44,8 +44,6 @@ import Graphics.UI.Gtk.TreeList.TreeModel
 import Graphics.UI.Gtk.TreeList.CustomStore
 import Graphics.UI.Gtk.TreeList.TreeIter
 
-import Debug.Trace
-
 --------------------------------------------
 -- internal model data types
 --
@@ -168,7 +166,6 @@ getBitSlice (TreeIter _ a b c) off count =
 
 setBitSlice :: TreeIter -> Int -> Int -> Word -> TreeIter
 setBitSlice (TreeIter stamp a b c) off count value =
-  trace ("setting "++show value++" in "++show count++" bit field") $ 
   assert (value < 1 `shiftL` count) $
   TreeIter stamp
            (setBitSliceWord a  off     count value)
@@ -189,11 +186,6 @@ iterPrefixEqual (TreeIter _ a1 b1 c1) (TreeIter _ a2 b2 c2) pos
 	     a1==a2 && (b1 .&. mask) == (b2 .&. mask)
   | otherwise = let mask = 1 `shiftL` pos - 1 in
 		(a1 .&. mask) == (a2 .&. mask)
-
--- | Check if an iterator is legal.
---
-iterLegal (TreeIter _ 0 0 0) = False
-iterLegal _ = True
 
 -- | The invalid tree iterator.
 --
@@ -238,20 +230,6 @@ fromPath t = fP 0 (invalidIter t)
 
 type Cache a = [(TreeIter, Forest a)]
 
-showCache :: Depth -> Cache String -> String
-showCache ds [] = "empty tree"
-showCache ds ((iter,[]):parents) =
-  "current: "++show (toPath ds iter)++": invalid position; "++
-  show (length parents)++" parent(s):\n"++
-  "  "++showCache ds parents
-showCache ds ((iter,for):parents) =
-  "current: "++show (toPath ds iter)++": "++
-  (if iterLegal iter then "\""++concatMap rootLabel (take 1 for)++"\""
-   else "(root node)")++"; siblings: "++
-  (if length for==1 then "none" else show (length for-1))++"; "++
-  show (length parents)++" parent(s):\n"++
-  "  "++showCache ds parents
-
 
 -- | Create a traversal structure that allows a pre-order traversal in linear
 --   time.
@@ -271,7 +249,6 @@ storeToCache time forest = [(invalidIter time, [Node root forest])]
 advanceCache :: Depth -> TreeIter -> Cache a -> Cache a
 advanceCache depth goal [] = []
 advanceCache depth goal cache@((rootIter,_):_) = 
-  trace ("advanceCache: goal is "++show (toPath depth goal)) $
   moveToSameLevel 0 depth
   where
   moveToSameLevel pos [] = cache
@@ -281,14 +258,10 @@ advanceCache depth goal cache@((rootIter,_):_) =
       curIdx = getBitSlice rootIter pos d
       isNonZero pos d (ti,_) = getBitSlice ti pos d/=0
     in
-    trace ("moveToSameLevel: goalIdx="++show goalIdx++
-	   ", curIdx="++show curIdx) $
     if goalIdx==curIdx then moveToSameLevel (pos+d) ds else
-    if goalIdx==0 then trace "ascending immediately" $
-                       dropWhile (isNonZero pos d) cache else
-    if curIdx==0 then trace "descending immediately" $
-                      moveToChild pos (d:ds) cache else
-    if goalIdx<curIdx then trace "cannot move within level" $
+    if goalIdx==0 then dropWhile (isNonZero pos d) cache else
+    if curIdx==0 then moveToChild pos (d:ds) cache else
+    if goalIdx<curIdx then
       moveToChild pos (d:ds) (dropWhile (isNonZero pos d) cache)
     else let
       -- advance the current iterator to coincide with the goal iterator
@@ -299,8 +272,6 @@ advanceCache depth goal cache@((rootIter,_):_) =
 	  advance = length dropped
 	  ti' = setBitSlice ti pos d (curIdx+fromIntegral advance)
 	in
-	trace ("advancing from "++show curIdx++" by "++
-	      show advance++" elements on same level") $
 	if advance==diff then moveToChild (pos+d) ds ((ti',remain):parents)
 	else (ti',remain):parents -- node not found
     in moveWithinLevel pos d $ case ds of
@@ -315,8 +286,7 @@ advanceCache depth goal cache@((rootIter,_):_) =
   moveToChild pos (d:ds) cache@((ti,forest):parents)
     | getBitSlice goal pos d == 0 = cache
     | otherwise = case forest of
-      [] -> trace ("no children with index "++show (getBitSlice goal pos d)) $
-	    cache -- impossible request
+      [] -> cache -- impossible request
       Node { subForest = children }:_ ->
         let
 	  childIdx :: Int
@@ -325,7 +295,6 @@ advanceCache depth goal cache@((rootIter,_):_) =
 	  advanced = length dropped
 	  ti' = setBitSlice ti pos d (fromIntegral advanced+1)
 	in if advanced<childIdx then ((ti',remain):cache) else 
-	   trace ("advance to child "++show advanced) $
 	   moveToChild (pos+d) ds ((ti',remain):cache)
 
 -- | Advance to the given iterator and return weather this was successful.
