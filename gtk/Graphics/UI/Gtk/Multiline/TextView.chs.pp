@@ -190,6 +190,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+{#import Graphics.UI.Gtk.Multiline.Types#}
 {#import Graphics.UI.Gtk.Multiline.TextIter#}
 {#import Graphics.UI.Gtk.Multiline.TextTag#}
 import Graphics.UI.Gtk.General.Enums	(TextWindowType(..), DeleteType(..),

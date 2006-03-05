@@ -364,7 +364,7 @@ nodist_libHSgtk_a_SOURCES = $(libHSgtk_a_GENERATEDSOURCES)
 libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk.hs						\
 	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp				\
-	gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp			\
+	gtk/Graphics/UI/Gtk/Multiline/Types.chs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp				\
 	gtk/Graphics/UI/Gtk/Abstract/Bin.chs				\
 	gtk/Graphics/UI/Gtk/Abstract/Box.chs				\
@@ -437,16 +437,17 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ToggleAction.chs.pp	\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/RadioAction.chs.pp	\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/UIManager.chs.pp		\
-	gtk/Graphics/UI/Gtk/Misc/Adjustment.chs.pp				\
+	gtk/Graphics/UI/Gtk/Misc/Adjustment.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Calendar.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/DrawingArea.chs			\
 	gtk/Graphics/UI/Gtk/Misc/EventBox.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Arrow.chs				\
 	gtk/Graphics/UI/Gtk/Misc/HandleBox.chs				\
-	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs.pp				\
+	gtk/Graphics/UI/Gtk/Misc/SizeGroup.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Tooltips.chs.pp			\
 	gtk/Graphics/UI/Gtk/Misc/Viewport.chs				\
 	gtk/Graphics/UI/Gtk/Multiline/TextBuffer.chs.pp			\
+	gtk/Graphics/UI/Gtk/Multiline/TextIter.chs.pp			\
 	gtk/Graphics/UI/Gtk/Multiline/TextMark.chs			\
 	gtk/Graphics/UI/Gtk/Multiline/TextTag.chs.pp			\
 	gtk/Graphics/UI/Gtk/Multiline/TextTagTable.chs			\

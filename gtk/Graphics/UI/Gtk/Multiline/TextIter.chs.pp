@@ -35,11 +35,6 @@
 --
 -- TODO
 --
--- Bind the following function when GSList is bound:
---     gtk_text_iter_get_marks
---     gtk_text_iter_get_toggled_tags
---     gtk_text_iter_get_tags
---
 -- Bind the following functions when we are sure about anchors 
 --   (see 'TextBuffer'):
 --     gtk_text_iter_get_anchor
@@ -60,14 +55,12 @@
 module Graphics.UI.Gtk.Multiline.TextIter (
 
 -- * Types
-  TextIter(TextIter),
+  TextIter,
   TextSearchFlags(..),
 
 -- * Methods
-  mkTextIterCopy,
-  makeEmptyTextIter,	-- for internal use only
-  textIterGetBuffer,
   textIterCopy,
+  textIterGetBuffer,
   textIterGetOffset,
   textIterGetLine,
   textIterGetLineOffset,
@@ -78,10 +71,14 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   textIterGetVisibleSlice,
   textIterGetVisibleText,
   textIterGetPixbuf,
+  textIterGetMarks,
+  textIterGetToggledTags,
+  -- textIterGetChildAnchor,
   textIterBeginsTag,
   textIterEndsTag,
   textIterTogglesTag,
   textIterHasTag,
+  textIterGetTags,
   textIterEditable,
   textIterCanInsert,
   textIterStartsWord,
@@ -153,45 +150,17 @@ import System.Glib.Flags		(fromFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Structs	(textIterSize)
 import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
+{#import Graphics.UI.Gtk.Multiline.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
 
 -- methods
 
-{#pointer *TextIter foreign newtype #}
-
--- Create a copy of a TextIter from a pointer.
---
-mkTextIterCopy :: Ptr TextIter -> IO TextIter
-mkTextIterCopy iterPtr = do
-  iterPtr <- gtk_text_iter_copy iterPtr
-  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
-
-#if __GLASGOW_HASKELL__>=600
-
-foreign import ccall unsafe "&gtk_text_iter_free"
-  text_iter_free' :: FinalizerPtr TextIter
-
-text_iter_free :: Ptr TextIter -> FinalizerPtr TextIter
-text_iter_free _ = text_iter_free'
-
-#else
-
-foreign import ccall unsafe "gtk_text_iter_free"
-  text_iter_free :: Ptr TextIter -> IO ()
-
-#endif
-
--- Allocate memory to be filled with a TextIter.
---
-makeEmptyTextIter :: IO TextIter
-makeEmptyTextIter = do
-  iterPtr <- mallocBytes textIterSize
-  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
 
 -- | Return the 'TextBuffer' this iterator
 -- is associated with.
@@ -200,50 +169,55 @@ textIterGetBuffer :: TextIter -> IO TextBuffer
 textIterGetBuffer ti = makeNewGObject mkTextBuffer $
   {#call unsafe text_iter_get_buffer#} ti
 
--- | Copy the iterator.
---
-textIterCopy :: TextIter -> IO TextIter
-textIterCopy ti = do
-  iterPtr <- {#call unsafe text_iter_copy#} ti
-  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
-
--- | Extract the offset relative to the beginning of
--- the buffer.
+-- | Returns the character offset of an iterator. Each character in a
+-- 'TextBuffer' has an offset, starting with 0 for the first character in the
+-- buffer. Use 'textBufferGetIterAtOffset' to convert an offset back into an
+-- iterator.
 --
 textIterGetOffset :: TextIter -> IO Int
 textIterGetOffset ti = liftM fromIntegral $
   {#call unsafe text_iter_get_offset#} ti
 
--- | Extract the line of the buffer.
+-- | Returns the line number containing the iterator. Lines in a 'TextBuffer'
+-- are numbered beginning with 0 for the first line in the buffer.
 --
 textIterGetLine :: TextIter -> IO Int
 textIterGetLine ti = liftM fromIntegral $
   {#call unsafe text_iter_get_line#} ti
 
--- | Extract the offset relative to the beginning
--- of the line.
+-- | Returns the character offset of the iterator, counting from the start of
+-- a newline-terminated line. The first character on the line has offset 0.
 --
 textIterGetLineOffset :: TextIter -> IO Int
 textIterGetLineOffset ti = liftM fromIntegral $
   {#call unsafe text_iter_get_line_offset#} ti
 
--- | Extract the offset relative to the
--- beginning of the line skipping invisible parts of the line.
+-- | Returns the offset in characters from the start of the line to the given
+-- @iter@, not counting characters that are invisible due to tags with the
+-- \"invisible\" flag toggled on.
 --
 textIterGetVisibleLineOffset :: TextIter -> IO Int
 textIterGetVisibleLineOffset ti = liftM fromIntegral $
   {#call unsafe text_iter_get_visible_line_offset#} ti
 
--- | Return the character at this iterator.
+-- | Returns the Unicode character at this iterator.
+-- If the element at this iterator is a non-character
+-- element, such as an image embedded in the buffer, the Unicode \"unknown\"
+-- character 0xFFFC is returned. If invoked on the end iterator,
+-- @Nothigng@ is returned.
 --
 textIterGetChar :: TextIter -> IO (Maybe Char)
 textIterGetChar ti = do
   res <- liftM fromIntegral $ {#call unsafe text_iter_get_char#} ti
   return $ if res==0 then Nothing else Just (chr res)
 
--- | Return the text in a given range.
---
--- * Pictures (and other objects) are represented by 0xFFFC.
+-- | Returns the text in the given range. A \"slice\" is a list of
+-- characters, including the Unicode \"unknown\"
+-- character 0xFFFC for iterable non-character elements in the buffer, such as
+-- images. Because images are encoded in the slice, offsets
+-- in the returned array will correspond to offsets in the text buffer.
+-- Note that 0xFFFC can occur in normal text as well, so it is not a reliable
+-- indicator that a pixbuf or widget is in the buffer.
 --
 textIterGetSlice :: TextIter -> TextIter -> IO String
 textIterGetSlice end start = do
@@ -254,7 +228,8 @@ textIterGetSlice end start = do
 
 -- | Return the text in a given range.
 --
--- * Pictures (and other objects) are stripped form the output.
+-- * Pictures (and other objects) are stripped form the output. Thus, this
+--   function does not preserve offsets.
 --
 textIterGetText :: TextIter -> TextIter -> IO String
 textIterGetText start end = do
@@ -263,9 +238,9 @@ textIterGetText start end = do
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
--- | Return the visible text in a given range.
---
--- * Pictures (and other objects) are represented by 0xFFFC.
+-- | Like 'textIterGetSlice', but invisible text is not included. Invisible
+-- text is usually invisible because a 'TextTag' with the \"invisible\"
+-- attribute turned on has been applied to it.
 --
 textIterGetVisibleSlice :: TextIter -> TextIter -> IO String
 textIterGetVisibleSlice start end = do
@@ -274,9 +249,9 @@ textIterGetVisibleSlice start end = do
   {#call unsafe g_free#} (castPtr cStr)
   return str
 
--- | Return the visible text in a given range.
---
--- * Pictures (and other objects) are stripped form the output.
+-- | Like 'textIterGetText', but invisible text is not included. Invisible
+-- text is usually invisible because a 'TextTag' with the \"invisible\"
+-- attribute turned on has been applied to it.
 --
 textIterGetVisibleText :: TextIter -> TextIter -> IO String
 textIterGetVisibleText start end = do
@@ -293,45 +268,104 @@ textIterGetPixbuf it = do
   if pbPtr==nullPtr then return Nothing else liftM Just $
     makeNewGObject mkPixbuf (return pbPtr)
 
-
--- | Query whether a 'TextIter' is at the
--- start of a 'TextTag'.
+-- | Returns a list of all 'TextMark' at this location. Because marks are not
+-- iterable (they don't take up any \"space\" in the buffer, they are just
+-- marks in between iterable locations), multiple marks can exist in the same
+-- place. The returned list is not in any meaningful order.
 --
-textIterBeginsTag :: TextIter -> TextTag -> IO Bool
-textIterBeginsTag ti tt = liftM toBool $
+textIterGetMarks :: TextIter
+ -> IO [TextMark] -- ^ returns list of 'TextMark'
+textIterGetMarks self =
+  {# call gtk_text_iter_get_marks #}
+    self
+  >>= fromGSList
+  >>= mapM (\tm -> makeNewGObject mkTextMark (return tm))
+
+-- | Returns a list of 'TextTag' that are toggled on or off at this point. (If
+-- @toggledOn@ is @True@, the list contains tags that are toggled on.) If a tag
+-- is toggled on at @iter@, then some non-empty range of characters following
+-- @iter@ has that tag applied to it. If a tag is toggled off, then some
+-- non-empty range following @iter@ does /not/ have the tag applied to it.
+--
+textIterGetToggledTags :: TextIter
+ -> Bool                    -- ^ @toggledOn@ - @True@ to get toggled-on tags
+ -> IO [TextTag] -- ^ returns tags toggled at this point
+textIterGetToggledTags self toggledOn =
+  {# call gtk_text_iter_get_toggled_tags #}
+    self
+    (fromBool toggledOn)
+  >>= fromGSList
+  >>= mapM (\tt -> makeNewGObject mkTextTag (return tt))
+
+-- | Returns @True@ if @tag@ is toggled on at exactly this point. If @tag@ is
+-- @Nothing@,
+-- returns @True@ if any tag is toggled on at this point. Note that the
+-- 'textIterBeginsTag' returns @True@ if @iter@ is the /start/ of the tagged
+-- range; 'textIterHasTag' tells you whether an iterator is /within/ a tagged
+-- range.
+--
+textIterBeginsTag :: TextIter -> Maybe TextTag -> IO Bool
+textIterBeginsTag ti (Just tt) = liftM toBool $
   {#call unsafe text_iter_begins_tag#} ti tt
+textIterBeginsTag ti Nothing = liftM toBool $
+  {#call unsafe text_iter_begins_tag#} ti (mkTextTag nullForeignPtr)
 
-
--- | Query whether a 'TextIter' is at the end
--- of a 'TextTag'.
+-- | Returns @True@ if @tag@ is toggled off at exactly this point. If @tag@ is
+-- @Notihng@,
+-- returns @True@ if any tag is toggled off at this point. Note that the
+-- 'textIterEndsTag' returns @True@ if @iter@ is the /end/ of the tagged range;
+-- 'textIterHasTag' tells you whether an iterator is /within/ a tagged range.
 --
-textIterEndsTag :: TextIter -> TextTag -> IO Bool
-textIterEndsTag ti tt = liftM toBool $
+textIterEndsTag :: TextIter -> Maybe TextTag -> IO Bool
+textIterEndsTag ti (Just tt) = liftM toBool $
   {#call unsafe text_iter_ends_tag#} ti tt
+textIterEndsTag ti Nothing = liftM toBool $
+  {#call unsafe text_iter_ends_tag#} ti (mkTextTag nullForeignPtr)
 
 -- | Query if the 'TextIter' is at the
--- beginning or the end of a 'TextTag'.
+-- beginning or the end of a 'TextTag'. This is equivalent to 
+-- ('textIterBeginsTag' || 'textIterEndsTag'), i.e. it
+-- tells you whether a range with @tag@ applied to it begins /or/ ends at
+-- @iter@.
 --
-textIterTogglesTag :: TextIter -> TextTag -> IO Bool
-textIterTogglesTag ti tt = liftM toBool $
+textIterTogglesTag :: TextIter -> Maybe TextTag -> IO Bool
+textIterTogglesTag ti (Just tt) = liftM toBool $
   {#call unsafe text_iter_toggles_tag#} ti tt
+textIterTogglesTag ti Nothing = liftM toBool $
+  {#call unsafe text_iter_toggles_tag#} ti (mkTextTag nullForeignPtr)
 
 -- | Check if 'TextIter' is within a range
 -- tagged with tag.
 --
-textIterHasTag :: TextIter -> TextTag -> IO Bool
-textIterHasTag ti tt = liftM toBool $
+textIterHasTag :: TextIter -> Maybe TextTag -> IO Bool
+textIterHasTag ti (Just tt) = liftM toBool $
   {#call unsafe text_iter_has_tag#} ti tt
+textIterHasTag ti Nothing = liftM toBool $
+  {#call unsafe text_iter_has_tag#} ti (mkTextTag nullForeignPtr)
 
--- | Check if 'TextIter' is within an
--- editable region.
+-- | Returns a list of tags that apply to @iter@, in ascending order of
+-- priority (highest-priority tags are last).
 --
--- * If no tags that affect editability are attached to the current position
---   @def@ will be returned.
+textIterGetTags :: TextIter
+ -> IO [TextTag] -- ^ returns list of 'TextTag'
+textIterGetTags self =
+  {# call gtk_text_iter_get_tags #}
+    self
+  >>= fromGSList
+  >>= mapM (\tt -> makeNewGObject mkTextTag (return tt))
+
+
+-- | Returns whether the character at @iter@ is within an editable region of
+-- text. Non-editable text is \"locked\" and can't be changed by the user via
+-- 'TextView'. This function is simply a convenience wrapper around
+-- 'textIterGetAttributes'. If no tags applied to this text affect editability,
+-- @defaultSetting@ will be returned.
 --
--- * This function cannot be used to decide whether text can be inserted at
---   'TextIter'. Use the 'textIterCanInsert' function for
---   this purpose.
+-- You don't want to use this function to decide whether text can be
+-- inserted at @iter@, because for insertion you don't want to know whether the
+-- char at @iter@ is inside an editable range, you want to know whether a new
+-- character inserted at @iter@ would be inside an editable range. Use
+-- 'textIterCanInsert' to handle this case.
 --
 textIterEditable :: TextIter -> Bool -> IO Bool
 textIterEditable ti def = liftM toBool $ 
@@ -339,6 +373,12 @@ textIterEditable ti def = liftM toBool $
 
 -- | Check if new text can be inserted at
 -- 'TextIter'.
+--
+-- * Considering the default editability of the buffer, and tags that affect
+--   editability, determines whether text inserted at @iter@ would be editable.
+--   If text inserted at @iter@ would be editable then the user should be allowed
+--   to insert text at @iter@. 'textBufferInsertInteractive' uses this function
+--   to decide whether insertions are allowed at a given position.
 --
 -- * Use 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferInsertInteractive'
 -- if you want to insert text depending on the current editable status.
@@ -372,10 +412,13 @@ textIterInsideWord ti = liftM toBool $ {#call unsafe text_iter_inside_word#} ti
 textIterStartsLine :: TextIter -> IO Bool
 textIterStartsLine ti = liftM toBool $ {#call unsafe text_iter_starts_line#} ti
 
--- | Determine if 'TextIter' point to the
--- beginning of a line delimiter.
---
--- * Returns False if 'TextIter' points to the \n in a \r\n sequence.
+-- | Returns @True@ if @iter@ points to the start of the paragraph delimiter
+-- characters for a line (delimiters will be either a newline, a carriage
+-- return, a carriage return followed by a newline, or a Unicode paragraph
+-- separator character). Note that an iterator pointing to the \n of a \r\n
+-- pair will not be counted as the end of a line, the line ends before the \r.
+-- The end iterator is considered to be at the end of a line, even though there
+-- are no paragraph delimiter chars there.
 --
 textIterEndsLine :: TextIter -> IO Bool
 textIterEndsLine ti = liftM toBool $ {#call unsafe text_iter_ends_line#} ti
@@ -423,7 +466,8 @@ textIterGetCharsInLine ti = liftM fromIntegral $
 --
 -- * The function returns @Nothing@ if the text at the iterator has 
 --   the same attributes.
-textIterGetAttributes = undefined
+textIterGetAttributes = error "textIterGetAttributes: not implemented"
+
 
 -- | Determine if 'TextIter' is at the end of
 -- the buffer.
@@ -458,8 +502,12 @@ textIterBackwardChar ti = liftM toBool $
 -- | Move 'TextIter' forwards by
 -- @n@ characters.
 --
--- * Retuns True if the iterator is pointing to a new character (and False if
+-- * Retuns @True@ if the iterator is pointing to a new character (and @False@ if
 --   the iterator points to a picture or has not moved).
+--
+-- *  Note that images embedded
+-- in the buffer occupy 1 character slot, so 'textIterForwardChar' may actually
+-- move onto an image instead of a character.
 --
 textIterForwardChars :: TextIter -> Int -> IO Bool
 textIterForwardChars ti n = liftM toBool $ 
@@ -468,7 +516,7 @@ textIterForwardChars ti n = liftM toBool $
 -- | Move 'TextIter' backwards by
 -- @n@ characters.
 --
--- * Retuns True if the iterator is pointing to a new character (and False if
+-- * Retuns @True@ if the iterator is pointing to a new character (and @False@ if
 --   the iterator points to a picture or has not moved).
 --
 textIterBackwardChars :: TextIter -> Int -> IO Bool
@@ -660,35 +708,44 @@ textIterSetOffset ti n =
 -- | Set 'TextIter' to a line within the
 -- buffer.
 --
+-- * If number is negative or larger than the number of lines in the buffer,
+--   moves @iter@ to the start of the last line in the buffer.
+--
 textIterSetLine :: TextIter -> Int -> IO ()
 textIterSetLine ti n = 
   {#call unsafe text_iter_set_line#} ti (fromIntegral n)
 
--- | Set 'TextIter' to an offset within
--- the line.
+-- | Set 'TextIter' to an offset within the line.
+--
+-- * The
+--   given character offset must be less than or equal to the number of
+--   characters in the line; if equal, the iterator moves to the start of the
+--   next line.
 --
 textIterSetLineOffset :: TextIter -> Int -> IO ()
 textIterSetLineOffset ti n = 
   {#call unsafe text_iter_set_line_offset#} ti (fromIntegral n)
 
--- | Set 'TextIter' to an visible
--- character within the line.
+-- | Like 'textIterSetLineOffset', but the offset is in visible characters,
+-- i.e. text with a tag making it invisible is not counted in the offset.
 --
 textIterSetVisibleLineOffset :: TextIter -> Int -> IO ()
 textIterSetVisibleLineOffset ti n = 
   {#call unsafe text_iter_set_visible_line_offset#} ti (fromIntegral n)
 
--- | Moves 'TextIter' to the end of the
--- buffer.
+-- | Moves @iter@ forward to the \"end iterator,\" which points one past the
+-- last valid character in the buffer.
 --
 textIterForwardToEnd :: TextIter -> IO ()
 textIterForwardToEnd ti = {#call unsafe text_iter_forward_to_end#} ti
 
--- | Moves 'TextIter' to the end of
--- the line.
---
--- * Returns True if 'TextIter' moved to a new location which is not
---   the buffer end iterator.
+-- | Moves the iterator to point to the paragraph delimiter characters, which
+-- will be either a newline, a carriage return, a carriage return\/newline in
+-- sequence, or the Unicode paragraph separator character. If the iterator is
+-- already at the paragraph delimiter characters, moves to the paragraph
+-- delimiter characters for the next line. If @iter@ is on the last line in the
+-- buffer, which does not end in paragraph delimiters, moves to the end
+-- iterator (end of the last line), and returns @False@.
 --
 textIterForwardToLineEnd :: TextIter -> IO Bool
 textIterForwardToLineEnd ti = liftM toBool $
@@ -699,7 +756,7 @@ textIterForwardToLineEnd ti = liftM toBool $
 --
 -- * If Nothing is supplied, any 'TextTag' will be matched.
 --
--- * Returns True if there was a tag toggle after 'TextIter'.
+-- * Returns @True@ if there was a tag toggle after 'TextIter'.
 --
 textIterForwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
 textIterForwardToTagToggle ti tt = liftM toBool $
@@ -709,9 +766,9 @@ textIterForwardToTagToggle ti tt = liftM toBool $
 -- | Moves 'TextIter' backward to
 -- the next change of a 'TextTag'.
 --
--- * If Nothing is supplied, any 'TextTag' will be matched.
+-- * If @Nothing@ is supplied, any 'TextTag' will be matched.
 --
--- * Returns True if there was a tag toggle before 'TextIter'.
+-- * Returns @True@ if there was a tag toggle before 'TextIter'.
 --
 textIterBackwardToTagToggle :: TextIter -> Maybe TextTag -> IO Bool
 textIterBackwardToTagToggle ti tt = liftM toBool $
@@ -875,18 +932,10 @@ textIterBackwardVisibleLines self count =
 
 -- | Compare two 'TextIter' for equality.
 --
--- * 'TextIter' could be in class Eq and Ord if there is a guarantee
---   that each iterator is copied before it is modified in place. This is done
---   the next abstraction layer.
---
 textIterEqual :: TextIter -> TextIter -> IO Bool
 textIterEqual ti2 ti1 = liftM toBool $ {#call unsafe text_iter_equal#} ti1 ti2
 
 -- | Compare two 'TextIter'.
---
--- * 'TextIter' could be in class Eq and Ord if there is a guarantee
---   that each iterator is copied before it is modified in place. This could
---   be done the next abstraction layer.
 --
 textIterCompare :: TextIter -> TextIter -> IO Ordering
 textIterCompare ti2 ti1 = do
@@ -895,6 +944,8 @@ textIterCompare ti2 ti1 = do
     (-1)   -> LT
     0	   -> EQ
     1	   -> GT
+
+
 
 --------------------
 -- Attributes

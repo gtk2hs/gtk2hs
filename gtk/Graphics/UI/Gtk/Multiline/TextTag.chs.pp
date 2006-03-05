@@ -119,7 +119,7 @@ import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Pango.Enums	(FontStyle, Variant, Stretch, Underline)
 import Graphics.UI.Gtk.General.Enums	(TextDirection, Justification, WrapMode)
-import Graphics.UI.Gtk.Multiline.TextIter ( TextIter, mkTextIterCopy )
+import Graphics.UI.Gtk.Multiline.Types  ( TextIter, mkTextIterCopy )
 import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
 
 {# context lib="gtk" prefix="gtk" #}
