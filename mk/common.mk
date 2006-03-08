@@ -92,6 +92,8 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	$(strip $(HC) -c $< -o $@ $(INCLUDES) \
 		$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $(CPPFLAGS) \
 		$(addprefix -optc,$(AM_CFLAGS) $($(PKG)_CFLAGS) \
+				  $(call getVar,$<,CFLAGS) $(CFLAGS)) \
+		$(addprefix -opta,$(AM_CFLAGS) $($(PKG)_CFLAGS) \
 				  $(call getVar,$<,CFLAGS) $(CFLAGS)))
 
 # The cheeky rule for .hi files says that .hi files can be created as
@@ -125,11 +127,12 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	$(strip $(HSC2HS) $(HSCFLAGS) +RTS $(HSTOOLFLAGS) -RTS \
         $(addprefix -L-optl,$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LIBS)) \
         $(addprefix -C,	$(filter-out -I%,$(AM_CPPFLAGS) $(CPPFLAGS)) \
-	$(addprefix -optc,$(AM_CFLAGS) $(CFLAGS) $($(PKG)_CFLAGS)))\
+	$(addprefix -optc,$(AM_CFLAGS) $(CFLAGS) $($(PKG)_CFLAGS))\
+	$(addprefix -opta,$(AM_CFLAGS) $(CFLAGS) $($(PKG)_CFLAGS)))\
         $(filter -I%,$(AM_CPPFLAGS) $(CPPFLAGS)) $($(PKG)_CPPFLAGS)\
 	-C'-optc-include' -C'-optc$(CONFIG_HEADER)' \
 	--include $($(PKG)_HEADER) \
-        --cc=$(HC) --lflag=-no-hs-main $<)
+        --cc="$(HC)" --lflag=-no-hs-main $<)
 
 .chs.hs: 
 	$(if $(subst no,,$(BUILT_IN_C2HS)),$(strip \
