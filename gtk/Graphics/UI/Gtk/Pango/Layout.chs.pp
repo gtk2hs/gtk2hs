@@ -693,7 +693,7 @@ layoutMoveCursorVisually (PangoLayout psRef plr) strong index dir = do
 
 -- | Compute the physical size of the layout.
 --
--- * Computes the logical and the ink size of the 'Layout'. The
+-- * Computes the ink and the logical size of the 'Layout'. The
 --   logical extend is used for positioning, the ink size is the smallest
 --   bounding box that includes all character pixels. The ink size can be
 --   smaller or larger that the logical layout.
@@ -709,7 +709,7 @@ layoutGetExtents (PangoLayout _ pl) =
 
 -- | Compute the physical size of the layout.
 --
--- * Computes the logical and the ink size of the 'Layout' in device units,
+-- * Computes the ink and the logical size of the 'Layout' in device units,
 --   that is, pixels for a screen. Identical to 'layoutGetExtents' and
 --   converting the 'PangoUnit's in the 'PangoRectangle' to integers.
 --
@@ -879,7 +879,7 @@ layoutIterGetCharExtents (LayoutIter _ li) = alloca $ \logPtr ->
 
 -- | Compute the physical size of the cluster.
 --
--- * Computes the logical and the ink size of the cluster pointed to by
+-- * Computes the ink and the logical size of the cluster pointed to by
 --   'LayoutIter'.
 --
 layoutIterGetClusterExtents :: LayoutIter -> IO (PangoRectangle,
@@ -894,7 +894,7 @@ layoutIterGetClusterExtents (LayoutIter _ li) =
 
 -- | Compute the physical size of the run.
 --
--- * Computes the logical and the ink size of the run pointed to by
+-- * Computes the ink and the logical size of the run pointed to by
 --   'LayoutIter'.
 --
 layoutIterGetRunExtents :: LayoutIter -> IO (PangoRectangle, PangoRectangle)
@@ -929,7 +929,7 @@ layoutIterGetLineYRange (LayoutIter _ li) =
 
 -- | Compute the physical size of the line.
 --
--- * Computes the logical and the ink size of the line pointed to by
+-- * Computes the ink and the logical size of the line pointed to by
 --   'LayoutIter'. See 'layoutGetExtents'.
 --
 -- * Extents are in layout coordinates (origin is the top-left corner
@@ -950,7 +950,7 @@ layoutIterGetLineExtents (LayoutIter _ li) =
 
 -- | Compute the physical size of the line.
 --
--- * Computes the logical and the ink size of the 'LayoutLine'. 
+-- * Computes the ink and the logical size of the 'LayoutLine'. 
 --   See 'layoutGetExtents'.
 --
 layoutLineGetExtents :: LayoutLine -> IO (PangoRectangle, PangoRectangle)
@@ -963,7 +963,7 @@ layoutLineGetExtents (LayoutLine _ ll) =
 
 -- | Compute the physical size of the line.
 --
--- * Computes the logical and the ink size of the 'LayoutLine'. 
+-- * Computes the ink and the logical size of the 'LayoutLine'. 
 --   See 'layoutGetExtents'. The returned values are in device units, that
 --   is, pixels for the screen and points for printers.
 --
