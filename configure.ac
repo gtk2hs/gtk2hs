@@ -301,9 +301,20 @@ GTKHS_PKG_CHECK(firefox, mozembed, FIREFOX_MOZEMBED, [firefox-gtkmozembed >= 1.0
 	[Mozilla Firefox requirement not met. Perhaps you need to install firefox or firefox-devel])
 FIREFOX_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir firefox-gtkmozembed)
 
+GTKHS_PKG_CHECK(xulrunner, mozembed, XULRUNNER_MOZEMBED, [xulrunner-gtkmozembed >= 1.8.0.1],
+	[build bindings for the Mozilla display widget using the xul-runner libs (default=auto)],
+	[Mozilla Firefox requirement not met. Perhaps you need to install xulrunner or xulrunner-devel])
+XULRUNNER_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir xulrunner-gtkmozembed)
+
+dnl If we have xulrunner, use it instead of firefox or mozilla
+if test "$ENABLE_XULRUNNER_MOZEMBED" = "yes"; then
+	ENABLE_MOZEMBED="yes"
+	MOZEMBED_CFLAGS="$XULRUNNER_MOZEMBED_CFLAGS"
+	MOZEMBED_LIBS="$XULRUNNER_MOZEMBED_LIBS"
+	MOZEMBED_LIBDIR="$XULRUNNER_MOZEMBED_LIBDIR"
 dnl If we have both mozilla and firefox enabled then the firefox settings
 dnl override the mozilla settings.
-if test "$ENABLE_FIREFOX_MOZEMBED" = "yes"; then
+elif test "$ENABLE_FIREFOX_MOZEMBED" = "yes"; then
 	ENABLE_MOZEMBED="yes"
 	MOZEMBED_CFLAGS="$FIREFOX_MOZEMBED_CFLAGS"
 	MOZEMBED_LIBS="$FIREFOX_MOZEMBED_LIBS"
