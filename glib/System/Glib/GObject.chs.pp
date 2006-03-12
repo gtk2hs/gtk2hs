@@ -47,17 +47,28 @@ module System.Glib.GObject (
   -- ** Weak references
   GWeakNotify,
   objectWeakref,
-  objectWeakunref
+  objectWeakunref,
+
+  -- ** User-Defined Attributes
+  Quark,
+  quarkFromString,
+  objectCreateAttribute,
+  objectSetAttribute,
+  objectGetAttributeUnsafe
   ) where
 
 import Monad (liftM)
 import Data.IORef (newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
+import System.Glib.UTFString
 {#import System.Glib.Types#}
 import System.Glib.GValue (GValue)
 import System.Glib.GType  (GType)
 import System.Glib.GParameter
+import System.Glib.Attributes (newAttr, Attr)
+import Foreign.StablePtr
+import Control.Concurrent.MVar ( MVar, newMVar, modifyMVar )
 
 {# context lib="glib" prefix="g" #}
 
@@ -169,3 +180,55 @@ objectWeakunref :: GObjectClass o => o -> GWeakNotify -> IO ()
 objectWeakunref obj fun = 
   {#call unsafe object_weak_unref#} (toGObject obj) fun nullPtr
 
+
+type Quark = {#type GQuark#}
+
+-- | A counter for generating unique names.
+{-# NOINLINE uniqueCnt #-}
+uniqueCnt :: MVar Int
+uniqueCnt = unsafePerformIO $ newMVar 0
+
+-- | Create a unique id based on the given string.
+quarkFromString :: String -> IO Quark
+quarkFromString name = withUTFString name {#call unsafe quark_from_string#}
+
+-- | Add an attribute to this object.
+--
+-- * The function returns a new attribute that can be set or retrieved from
+--   any 'GObject'. The attribute is wrapped in a 'Maybe' type to reflect
+--   the circumstance when the attribute is not set or if it should be unset.
+--
+objectCreateAttribute :: GObjectClass o => IO (Attr o (Maybe a))
+objectCreateAttribute = do
+  cnt <- modifyMVar uniqueCnt (\cnt -> return (cnt+1, cnt))
+  attr <- quarkFromString ("Gtk2HsAttr"++show cnt)
+  return (newAttr (objectGetAttributeUnsafe attr)
+	          (objectSetAttribute attr)) 
+
+-- | Set the value of an association.
+--
+objectSetAttribute :: GObjectClass o => Quark -> o -> Maybe a -> IO ()
+objectSetAttribute attr obj Nothing = do
+  {#call object_set_qdata#} (toGObject obj) attr nullPtr
+objectSetAttribute attr obj (Just val) = do
+  sPtr <- newStablePtr val
+  funPtrContainer <- newIORef nullFunPtr
+  destrFunPtr <- mkDestroyNotifyPtr $ do
+    freeStablePtr sPtr
+    funPtr <- readIORef funPtrContainer
+    freeHaskellFunPtr funPtr
+  writeIORef funPtrContainer destrFunPtr
+  {#call object_set_qdata_full#} (toGObject obj) attr (castStablePtrToPtr sPtr)
+				 destrFunPtr
+
+-- | Get the value of an association.
+--
+-- * Note that this function may crash the Haskell run-time since the
+--   returned type can be forced to be anything. See 'objectAddAttribute'
+--   for a safe wrapper around this funciton.
+--
+objectGetAttributeUnsafe :: GObjectClass o => Quark -> o -> IO (Maybe a)
+objectGetAttributeUnsafe attr obj = do
+  sPtr <- {#call unsafe object_get_qdata#} (toGObject obj) attr
+  if sPtr==nullPtr then return Nothing else
+    liftM Just $ deRefStablePtr (castPtrToStablePtr sPtr)
