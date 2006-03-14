@@ -302,8 +302,8 @@ GTKHS_PKG_CHECK(firefox, mozembed, FIREFOX_MOZEMBED, [firefox-gtkmozembed >= 1.0
 FIREFOX_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir firefox-gtkmozembed)
 
 GTKHS_PKG_CHECK(xulrunner, mozembed, XULRUNNER_MOZEMBED, [xulrunner-gtkmozembed >= 1.8.0.1],
-	[build bindings for the Mozilla display widget using the xul-runner libs (default=auto)],
-	[Mozilla Firefox requirement not met. Perhaps you need to install xulrunner or xulrunner-devel])
+	[build bindings for the Mozilla display widget using the XULRunner libs (default=auto)],
+	[XULRunner requirement not met. Perhaps you need to install xulrunner or xulrunner-devel])
 XULRUNNER_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir xulrunner-gtkmozembed)
 
 dnl If we have xulrunner, use it instead of firefox or mozilla
