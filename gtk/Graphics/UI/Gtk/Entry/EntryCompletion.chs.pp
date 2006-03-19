@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 --
 -- In addition to regular completion matches, which will be inserted into
 -- the entry when they are selected, 'EntryCompletion' also allows to display
--- \"actions\" in the popup window. Their appearance is similar to menuitems,
+-- \"actions\" in the popup window. Their appearance is similar to menu items,
 -- to differentiate them clearly from completion strings. When an action is
 -- selected, the ::action-activated signal is emitted.
 

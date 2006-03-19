@@ -163,6 +163,8 @@ dialogNew =
 -- any time by calling 'dialogResponse' to emit the \"response\" signal.
 -- Destroying the dialog during 'dialogRun' is a very bad idea, because your
 -- post-run code won't know whether the dialog was destroyed or not.
+-- Hence, you should not call 'Graphics.UI.Gtk.Abstract.widgetDestroy'
+-- once 'dialogRun' has returned.
 --
 -- After 'dialogRun' returns, you are responsible for hiding or destroying
 -- the dialog if you wish to do so.
