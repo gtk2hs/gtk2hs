@@ -104,6 +104,8 @@ VOID:BOXED,POINTER,INT
 VOID:INT,BOOLEAN
 # This is for the "edited" signal in CellRendererText:
 VOID:POINTER,STRING
+# This is for the "editing-started" in CellRenderer
+VOID:OBJECT,POINTER
 # This is for GtkMozEmbed
 BOOLEAN:STRING
 # This makes it possible to catch events on TextTags

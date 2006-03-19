@@ -219,3 +219,19 @@ cellBackgroundColor = newAttrFromBoxedStorableProperty "cell-background-gdk"
 cellBackgroundSet :: CellRendererClass self => Attr self Bool
 cellBackgroundSet = newAttrFromBoolProperty "cell-background-set"
 
+-- | This signal gets emitted when a cell starts to be edited.
+--
+-- * The indended
+--   use of this signal is to do special setup on the widget that is created
+--   to allow the editing process. For example, the 'CellRendererText' uses
+--   an 'Entry' widget which has an 'EntryCompletion' interface. On reception
+--   of this signal, the program can set the model from which to retrieve the
+--   completions.
+--
+onEditingStarted, afterEditingStarted :: CellRendererClass self => self
+ -> (CellEditable -> TreePath -> IO ())
+ -> IO (ConnectId self)
+onEditingStarted cr act = connect_OBJECT_PTR__NONE "editing-started" False cr
+  $ \ce strPtr -> peekTreePath strPtr >>= act ce
+afterEditingStarted cr act = connect_OBJECT_PTR__NONE "editing-started" True cr
+  $ \ce strPtr -> peekTreePath strPtr >>= act ce
