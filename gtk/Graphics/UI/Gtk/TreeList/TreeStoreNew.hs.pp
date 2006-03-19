@@ -65,8 +65,8 @@ treeStoreNew rs ts = do
   model <- customStoreNew $
     CustomStore {
     customStoreGetFlags      = return [],
-    customStoreGetNColumns   = return (length rs),
-    customStoreGetColumnType = \n -> return $! columnGType (cols Array.! n),
+--    customStoreGetNColumns   = return (length rs),
+--    customStoreGetColumnType = \n -> return $! columnGType (cols Array.! n),
 
     customStoreGetIter       = \path -> readIORef forest >>= \forest ->
                                return $! pathToIter forest path,

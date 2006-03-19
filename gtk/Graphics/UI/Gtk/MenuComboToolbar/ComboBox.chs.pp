@@ -84,7 +84,6 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBox (
   comboBoxSetActive,
   comboBoxGetActiveIter,
   comboBoxSetActiveIter,
-  comboBoxGetModel,
   comboBoxSetModel,
   comboBoxAppendText,
   comboBoxInsertText,
@@ -131,6 +130,7 @@ import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter(..), receiveTreeIter)
+{#import Graphics.UI.Gtk.TreeList.CustomStore#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -160,14 +160,14 @@ comboBoxNewText =
 
 -- | Creates a new 'ComboBox' with the model initialized to @model@.
 --
-comboBoxNewWithModel :: TreeModelClass model => 
-    model       -- ^ @model@ - A 'TreeModel'.
+comboBoxNewWithModel :: StoreClass model => 
+    model row      -- ^ @model@ - A 'TreeModel'.
  -> IO ComboBox
 comboBoxNewWithModel model =
   makeNewObject mkComboBox $
   liftM (castPtr :: Ptr Widget -> Ptr ComboBox) $
   {# call gtk_combo_box_new_with_model #}
-    (toTreeModel model)
+    (storeGetModel model)
 
 --------------------
 -- Methods
@@ -251,16 +251,6 @@ comboBoxSetActiveIter self iter =
     (toComboBox self)
     iterPtr
 
--- | Returns the 'TreeModel' which is acting as data source for the combo box.
---
-comboBoxGetModel :: ComboBoxClass self => self
- -> IO (Maybe TreeModel) -- ^ returns the 'TreeModel' which was passed during
-                         -- construction.
-comboBoxGetModel self =
-  maybeNull (makeNewGObject mkTreeModel) $
-  {# call gtk_combo_box_get_model #}
-    (toComboBox self)
-
 -- | Sets the model used by @comboBox@ to be @model@. Will unset a previously
 -- set model (if applicable). If model is @Nothing@, then it will unset the
 -- model.
@@ -269,11 +259,12 @@ comboBoxGetModel self =
 -- call 'comboBoxCellLayoutClear' yourself if you need to set up different cell
 -- renderers for the new model.
 --
-comboBoxSetModel :: (ComboBoxClass self, TreeModelClass model) => self -> Maybe model -> IO ()
+comboBoxSetModel :: (ComboBoxClass self, StoreClass model) => self ->
+  Maybe (model row) -> IO ()
 comboBoxSetModel self model =
   {# call gtk_combo_box_set_model #}
     (toComboBox self)
-    (maybe (TreeModel nullForeignPtr) toTreeModel model)
+    (maybe (TreeModel nullForeignPtr) storeGetModel model)
 
 -- | Appends the given string to the list of strings stored in the combo box.
 -- Note that you can only use this function with combo boxes constructed with
@@ -444,9 +435,9 @@ comboBoxGetFocusOnClick self =
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The model from which the combo box takes the values shown in the list.
 --
-comboBoxModel :: (ComboBoxClass self, TreeModelClass model) => ReadWriteAttr self (Maybe TreeModel) (Maybe model)
-comboBoxModel = newAttr
-  comboBoxGetModel
+comboBoxModel :: (ComboBoxClass self, StoreClass model) =>
+		 WriteAttr self (Maybe (model row))
+comboBoxModel = writeAttr
   comboBoxSetModel
 
 -- | If wrap-width is set to a positive value, the list will be displayed in

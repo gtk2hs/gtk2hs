@@ -28,20 +28,24 @@
 --
 module Graphics.UI.Gtk.TreeList.TreeStoreAxel (
   TreeStore,
-  treeStoreNew
+  treeStoreNew,
+  treeStoreInsert,
+  treeStoreRemove,
+  treeStoreChange,
+  treeStoreChangeM,
+  treeStoreGet
   ) where
 
 import Data.Bits
 import Data.Word (Word)
 import Foreign.C.Types (CInt)
 import Data.Maybe ( fromMaybe, isJust )
-import Control.Monad (liftM)
 import Control.Exception (assert)
-import Data.IORef
-import Data.Tree
+import Control.Concurrent.MVar
 
-import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
-import Graphics.UI.Gtk.TreeList.TreePath (TreePath)
+import Data.Tree
+import System.Glib.FFI ( CInt )
+import Graphics.UI.Gtk.TreeList.TreeModel
 import Graphics.UI.Gtk.TreeList.CustomStore
 import Graphics.UI.Gtk.TreeList.TreeIter
 
@@ -49,7 +53,7 @@ import Graphics.UI.Gtk.TreeList.TreeIter
 -- internal model data types
 --
 
--- | The abstract store for hierarchical data.
+-- | A store for hierarchical data.
 --
 newtype TreeStore a = TreeStore (CustomTreeModel (IORef (Store a)))
 
@@ -70,10 +74,17 @@ data Store a = Store {
   content :: Cache a
 }
 
-instance TypedTreeModelClass TreeStore where
-  treeModelGetRow (TreeStore store) iter =
-    readIORef (customStoreGetPrivate store) >>=
-      \Store { depth = d, content = cache } ->
+-- | Ask for the time stamp of a 'TreeIter'.
+--
+iterTime :: TreeIter -> Timestamp
+iterTime (TreeIter t _ _ _) = t
+
+instance StoreClass TreeStore where
+  storeGetModel = model
+  storeGetValue TreeStore { store = mVar } iter = modifyMVar mVar $
+    \Store { depth = d, timestamp = t, content = cache } ->
+    if iterTime iter/=t then
+    error "TreeStore.storeGetValue: iter has wrong time stamp" else
     case checkSuccess d iter cache of
       (True, ((_, (Node { rootLabel = val }:_)):_)) -> return val
       _ -> error "TreeStore.getRow: iter does not refer to a valid entry"
@@ -98,39 +109,42 @@ treeStoreNew forest = do
 
   liftM TreeStore $ customStoreNew storeRef CustomStore {
     customStoreGetFlags = return [],
-
-    customStoreGetIter = \path -> withStore $
-      \Store { depth = d } -> fromPath d path,
-
-    customStoreGetPath = \iter -> withStore $
-      \Store { depth = d } -> toPath d iter,
-
-    customStoreIterNext = \iter -> withStoreUpdateCache $
-      \Store { depth = d, content = cache } -> iterNext d iter cache,
-
-    customStoreIterChildren = \mIter -> withStoreUpdateCache $
-      \Store { depth = d, content = cache } ->
-      let iter = fromMaybe invalidIter mIter
-       in iterNthChild d 0 iter cache,
-
-    customStoreIterHasChild = \iter -> withStoreUpdateCache $
-      \Store { depth = d, content = cache } ->
-       let (mIter, cache') = iterNthChild d 0 iter cache
-        in (isJust mIter, cache'),
-
-    customStoreIterNChildren = \mIter -> withStoreUpdateCache $
-      \Store { depth = d, content = cache } ->
-      let iter = fromMaybe invalidIter mIter
-       in iterNChildren d iter cache,
-
-    customStoreIterNthChild = \mIter idx  -> withStoreUpdateCache $
-      \Store { depth = d, content = cache } ->
-      let iter = fromMaybe invalidIter mIter
-       in iterNthChild d idx iter cache,
-
-    customStoreIterParent = \iter -> withStore $
-      \Store { depth = d } -> iterParent d iter,
-
+    customStoreGetIter = \path -> readMVar mVar >>=
+      \Store { depth = d, timestamp = t } -> return (fromPath t d path),
+    customStoreGetPath = \iter -> readMVar mVar >>=
+      \store@Store { depth = d, timestamp = t } ->
+      return (if iterTime iter/=t then [] else toPath d iter),
+    customStoreIterNext = \iter -> modifyMVar mVar $
+      \store@Store { depth = d, timestamp = t, content = cache } ->
+      let (mIter', cache') = iterNext d iter cache in
+      return (if iterTime iter/=t then (store, Nothing) else
+	      (Store { depth = d, timestamp = t, content = cache' }, mIter')),
+    customStoreIterChildren = \mIter -> modifyMVar mVar $
+      \store@Store { depth = d, timestamp = t, content = cache } ->
+      let iter = fromMaybe (invalidIter t) mIter
+          (mIter', cache') = iterNthChild d 0 iter cache in
+      return (if iterTime iter/=t then (store, Nothing) else
+	      (Store { depth = d, timestamp = t, content = cache' }, mIter')),
+    customStoreIterHasChild = \iter -> modifyMVar mVar $
+      \store@Store { depth = d, timestamp = t, content = cache } ->
+      let (mIter', cache') = iterNthChild d 0 iter cache in
+      return (if iterTime iter/=t then (store, False) else
+        (Store { depth = d, timestamp = t, content = cache' }, isJust mIter')),
+    customStoreIterNChildren = \mIter -> modifyMVar mVar $
+      \store@Store { depth = d, timestamp = t, content = cache } ->
+      let iter = fromMaybe (invalidIter t) mIter
+          (no, cache') = iterNChildren d iter cache in
+      return (if iterTime iter/=t then (store, 0) else
+        (Store { depth = d, timestamp = t, content = cache' }, no)),
+    customStoreIterNthChild = \mIter idx  -> modifyMVar mVar $
+      \store@Store { depth = d, timestamp = t, content = cache } ->
+      let iter = fromMaybe (invalidIter t) mIter
+          (mIter', cache') = iterNthChild d idx iter cache in
+      return (if iterTime iter/=t then (store, Nothing) else
+        (Store { depth = d, timestamp = t, content = cache' }, mIter')),
+    customStoreIterParent = \iter -> do
+      Store { depth = d, timestamp = t } <- readMVar mVar
+      return (if iterTime iter/=t then Nothing else iterParent d iter),
     customStoreRefNode = \_ -> return (),
     customStoreUnrefNode = \_ -> return ()
    }
@@ -211,8 +225,8 @@ toPath d iter = gP 0 d
 
 -- | Try to convert a path into a 'TreeIter'.
 --
-fromPath :: Depth -> TreePath -> Maybe TreeIter
-fromPath = fP 0 invalidIter
+fromPath :: Timestamp -> Depth -> TreePath -> Maybe TreeIter
+fromPath t = fP 0 (invalidIter t)
   where
   fP pos ti _ [] = Just ti -- the remaining bits are zero anyway
   fP pos ti [] _ = Nothing
@@ -220,9 +234,11 @@ fromPath = fP 0 invalidIter
     if idx >= bit d then Nothing else
     fP (pos+d) (setBitSlice ti pos d idx) ds ps
 
-type Cache a = [(TreeIter, Forest a)]
-
-
+-- | Convert a path to an iterator.
+--
+fromPath :: Timestamp -> Depth -> TreePath -> TreeIter
+fromPath t d tp = fromJust $ pathToIter t d tp
+		  
 -- | Create a traversal structure that allows a pre-order traversal in linear
 --   time.
 --
@@ -230,9 +246,9 @@ type Cache a = [(TreeIter, Forest a)]
 --   really exist, but serves to indicate that it is before the very first
 --   node.
 --
-storeToCache :: Forest a -> Cache a
-storeToCache [] = []
-storeToCache forest = [(invalidIter, [Node root forest])]
+storeToCache :: Timestamp -> Forest a -> Cache a
+storeToCache time [] = []
+storeToCache time forest = [(invalidIter time, [Node root forest])]
   where
   root = error "TreeStore.storeToCache: accessed non-exitent root of tree"
 
@@ -361,3 +377,163 @@ iterParent depth iter = let
   in if leaf==0 then Nothing else
      if getBitSlice iter pos leaf==0 then Nothing else
      Just (setBitSlice iter pos leaf 0)
+
+-- | Insert nodes into the store.
+--
+-- * The given list of nodes is inserted into given parent at @pos@.
+--   If the parent existed, the function returns @Just path@ where @path@
+--   is the position of the newly inserted elements. If @pos@ is negative
+--   or greater or equal to the number of children of the node at @path@,
+--   the new nodes are appended to the list.
+--
+treeStoreInsert :: TreeStore a -> TreePath -> Int -> Forest a ->
+		   IO (Maybe TreePath)
+treeStoreInsert TreeStore { model = m, store = mVar } path pos nodes = do
+  (paths, toggle) <- modifyMVar mVar $ \store@Store { depth = d,
+						      timestamp = t,
+						      content = cache } ->
+    return $
+    case insertIntoForest (snd (last cache)) nodes path pos of
+      Nothing -> (store, ([], False))
+      Just (newForest, idx, toggle) ->
+	let depth = calcForestDepth newForest
+	    t' = t+1
+        in (Store { depth = depth,
+		    timestamp = t',
+		    content = storeToCache t' newForest },
+	    (map (\idx -> path++[idx]) [idx..idx+length nodes-1], toggle))
+  if null paths then return Nothing else do
+    Store { depth = depth,
+	    timestamp = t } <- readMVar mVar
+    mapM_ (\path -> treeModelRowInserted m path (fromPath t depth path)) paths
+    when toggle $ treeModelRowHasChildToggled m path (fromPath t depth path)
+    return (Just (head paths))
+
+-- | Insert nodes into a forest.
+--
+-- * If the parent was found, returns the new tree, the child number
+--   and a flag denoting if these new nodes were the first children
+--   of the parent.
+--
+insertIntoForest :: Forest a -> Forest a -> TreePath -> Int ->
+		    Maybe (Forest a, Int, Bool)
+insertIntoForest forest nodes [] pos
+  | pos<0 = Just (forest++nodes, length forest, null forest)
+  | otherwise = Just (prev++nodes++next, length prev, null forest)
+    where (prev, next) = splitAt pos forest
+insertIntoForest forest nodes (p:ps) pos = case splitAt p forest of
+  (prev, []) -> Nothing
+  (prev, Node { rootLabel = val,
+		subForest = for}:next) ->
+    case insertIntoForest for nodes ps pos of
+      Nothing -> Nothing
+      Just (for, pos, toggle) -> Just (prev++Node { rootLabel = val,
+						    subForest = for }:next,
+				       pos, toggle)
+					       
+-- | Remove a node from the store.
+--
+-- * The node denoted by the path is removed, along with all its children.
+--   The function returns @True@ if the given node was found.
+--
+treeStoreRemove :: TreeStore a -> TreePath -> IO Bool
+treeStoreRemove TreeStore { model = m, store = mVar } path = do
+  (found, toggle) <- modifyMVar mVar $ \store@Store { depth = d,
+						      timestamp = t,
+						      content = cache } ->
+    return $
+    if null cache then (store, (False, False)) else
+    case deleteFromForest (snd (last cache)) path of
+      Nothing -> (store, (False, False))
+      Just (newForest, toggle) ->
+        (Store { depth = d, -- no need to invalidate iters
+		 timestamp = t,
+		 content = storeToCache t newForest }, (True, toggle))
+  when found $ do
+    when (toggle && not (null path)) $ do
+      Store { depth = depth,
+	      timestamp = t } <- readMVar mVar
+      let parent = init path
+      treeModelRowHasChildToggled m parent (fromPath t depth parent)
+    treeModelRowDeleted m path
+  return found
+
+-- | Remove a node from a rose tree.
+--
+-- * Returns the new tree if the node was found. The returned flag is
+--   @True@ if deleting the node left the parent without any children.
+--
+deleteFromForest :: Forest a -> TreePath -> Maybe (Forest a, Bool)
+deleteFromForest forest [] = Just ([], False)
+deleteFromForest forest (p:ps) =
+  case splitAt p forest of
+    (prev, kill@Node { rootLabel = val,
+		       subForest = for}:next) ->
+      if null ps then Just (prev++next, null prev && null next) else
+      case deleteFromForest for ps of
+        Nothing -> Nothing
+	Just (for,toggle) -> Just (prev++Node {rootLabel = val,
+					       subForest = for }:next, toggle)
+    (prev, []) -> Nothing
+
+
+
+-- | Change a node in the store.
+--
+-- * Returns @True@ if the node was found. For a monadic version, see
+--   'treeStoreChangeM'.
+--
+treeStoreChange :: TreeStore a -> (a -> a) -> TreePath -> IO Bool
+treeStoreChange store func path = treeStoreChangeM store (return . func) path
+
+
+-- | Change a node in the store.
+--
+-- * Returns @True@ if the node was found. For a purely functional version, see
+--   'treeStoreChange'.
+--
+treeStoreChangeM :: TreeStore a -> (a -> IO a) -> TreePath -> IO Bool
+treeStoreChangeM TreeStore { model = m, store = mVar } act path = do
+  found <- modifyMVar mVar $ \store@Store { depth = d,
+					    timestamp = t,
+					    content = cache } -> do
+    mRes <- changeForest (snd (last cache)) act path
+    return $ case mRes of
+      Nothing -> (store, False)
+      Just newForest -> (Store { depth = d,
+				 timestamp = t,
+				 content = storeToCache t newForest }, True)
+  when found $ do
+    Store { depth = depth,
+	    timestamp = t } <- readMVar mVar
+    treeModelRowChanged m path (fromPath t depth path)
+  return found
+
+-- | Change a node in the forest.
+--
+-- * Returns @True@ if the given node was found.
+--
+changeForest :: Forest a -> (a -> IO a) -> TreePath -> IO (Maybe (Forest a))
+changeForest forest act [] = return Nothing
+changeForest forest act (p:ps) = case splitAt p forest of
+  (prev, []) -> return Nothing
+  (prev, Node { rootLabel = val,
+		subForest = for}:next) ->
+    if null ps then do
+      val' <- act val
+      return (Just (prev++Node { rootLabel = val',
+				 subForest = for }:next))
+    else do
+      mFor <- changeForest for act ps
+      case mFor of
+        Nothing -> return Nothing
+	Just for -> return $ Just (prev++Node { rootLabel = val,
+						subForest = for }:next)
+
+-- | Extract the current data from the model.
+--
+treeStoreGet :: TreeStore a -> IO (Forest a)
+treeStoreGet TreeStore { store = mVar } = do
+  Store { content = cache } <- readMVar mVar
+  return (if null cache then [] else (snd (last cache)))
+

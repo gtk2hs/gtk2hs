@@ -118,7 +118,7 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
   treeModelIterHasChild,
   treeModelIterNChildren,
   treeModelIterNthChild,
-  treeModelIterParent,
+  treeModelIterParent
   ) where
 
 import Monad	(liftM, when)
@@ -366,3 +366,4 @@ treeModelIterParent self child =
     (toTreeModel self)
     iterPtr
     childPtr
+

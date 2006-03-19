@@ -315,7 +315,8 @@ treeModelRowInserted self path iter =
     iterPtr
 
 -- | Emits the \"row_has_child_toggled\" signal on the 'TreeModel'. This should
--- be called by models after the child state of a node changes.
+-- be called by models after a node went from having no children to having
+-- at least one child or vice versa.
 --
 treeModelRowHasChildToggled :: TreeModelClass self => self
  -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row

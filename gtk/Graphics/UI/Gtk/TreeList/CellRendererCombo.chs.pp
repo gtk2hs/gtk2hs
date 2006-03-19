@@ -63,9 +63,8 @@ module Graphics.UI.Gtk.TreeList.CellRendererCombo (
   cellRendererComboNew,
 
 -- * Attributes
-  cellComboModel,
-  cellComboTextColumn,
   cellComboHasEntry,
+
 #endif
   ) where
 
@@ -74,6 +73,8 @@ import Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.Attributes			(Attr, ReadWriteAttr)
 import System.Glib.Properties
+import System.Glib.StoreValue                   (TMType(TMstring))
+import System.Glib.GObject			(constructNewGObject)
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 
@@ -83,46 +84,34 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 --------------------
 -- Constructors
 
--- | Creates a new 'CellRendererCombo'. Adjust how text is drawn using object
--- properties. Object properties can be set globally (with 'cellRendererSet').
--- Also, with 'TreeViewColumn', you can bind a property to a value in a
--- 'TreeModel'. For example, you can bind the \"text\" property on the cell
--- renderer to a string value in the model, thus rendering a different string
--- in each row of the 'TreeView'.
+-- | Creates a new 'CellRendererCombo'. This 'Renderer' allows for displaying
+--   a fixed set of options the user can choose from, or, using
+--  'cellComboHasEntry', allows the user to add new elements. 
 --
 cellRendererComboNew :: IO CellRendererCombo
-cellRendererComboNew =
-  makeNewObject mkCellRendererCombo $
-  liftM (castPtr :: Ptr CellRenderer -> Ptr CellRendererCombo) $
-  {# call gtk_cell_renderer_combo_new #}
+cellRendererComboNew = do
+  ren <- makeNewObject mkCellRendererCombo $
+	 liftM (castPtr :: Ptr CellRenderer -> Ptr CellRendererCombo) $
+	 {# call gtk_cell_renderer_combo_new #}
+  -- Create a fake model with one string column in it. The model itself is
+  -- never used.
+  mod <- constructNewGObject mkListStore $
+	 withArray [fromIntegral (fromEnum TMstring)] $ \typesArr ->
+	 {# call unsafe list_store_newv #} 1 typesArr
+  objectSetPropertyGObject {# call pure unsafe gtk_tree_model_get_type #}
+    "model" ren mod
+  objectSetPropertyInt "text-column" ren 0  
+  return ren
 
 --------------------
 -- Attributes
 
--- | Holds a tree model containing the possible values for the combo box. Use
--- the text_column property to specify the column holding the values.
---
-cellComboModel :: (CellRendererComboClass self, TreeModelClass treeModel) => ReadWriteAttr self TreeModel treeModel
-cellComboModel = newAttrFromObjectProperty "model"
-  {# call pure unsafe gtk_tree_model_get_type #}
-
--- | Specifies the model column which holds the possible values for the combo
--- box. Note that this refers to the model specified in the model property,
--- /not/ the model backing the tree view to which this cell renderer is
--- attached.
---
--- Allowed values: >= -1
---
--- Default value: -1
---
-cellComboTextColumn :: CellRendererComboClass self => Attr self Int
-cellComboTextColumn = newAttrFromIntProperty "text-column"
-
--- | If @True@, the cell renderer will include an entry and allow to enter
+-- | If @True@, the cell renderer will allow the user to enter
 -- values other than the ones in the popup list.
 --
 -- Default value: @True@
 --
 cellComboHasEntry :: CellRendererComboClass self => Attr self Bool
 cellComboHasEntry = newAttrFromBoolProperty "has-entry"
+
 #endif

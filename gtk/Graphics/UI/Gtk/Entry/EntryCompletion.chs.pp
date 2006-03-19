@@ -40,7 +40,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- in the entry, 'EntryCompletion' checks which rows in the model match the
 -- current content of the entry, and displays a list of matches. By default,
 -- the matching is done by comparing the entry text case-insensitively against
--- the text column of the model (see 'entryCompletionSetTextColumn'), but this
+-- the text in a model (see 'entryCompletionSetTextModel'), but this
 -- can be overridden with a custom match function (see
 -- 'entryCompletionSetMatchFunc').
 --
@@ -79,7 +79,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- * Methods
   entryCompletionGetEntry,
   entryCompletionSetModel,
-  entryCompletionGetModel,
+  entryCompletionSetTextModel,
   entryCompletionSetMatchFunc,
   entryCompletionSetMinimumKeyLength,
   entryCompletionGetMinimumKeyLength,
@@ -87,10 +87,8 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionInsertActionText,
   entryCompletionInsertActionMarkup,
   entryCompletionDeleteAction,
-  entryCompletionSetTextColumn,
 #if GTK_CHECK_VERSION(2,6,0)
   entryCompletionInsertPrefix,
-  entryCompletionGetTextColumn,
   entryCompletionSetInlineCompletion,
   entryCompletionGetInlineCompletion,
   entryCompletionSetPopupCompletion,
@@ -107,7 +105,6 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionModel,
   entryCompletionMinimumKeyLength,
 #if GTK_CHECK_VERSION(2,6,0)
-  entryCompletionTextColumn,
   entryCompletionInlineCompletion,
   entryCompletionPopupCompletion,
 #endif
@@ -138,6 +135,9 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter)
+{#import Graphics.UI.Gtk.TreeList.CustomStore#}
+import Graphics.UI.Gtk.TreeList.CellRendererText
+import Graphics.UI.Gtk.TreeList.CellLayout
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -169,24 +169,29 @@ entryCompletionGetEntry self =
 -- model set, it will remove it before setting the new model. If model is
 -- @Nothing@, then it will unset the model.
 --
-entryCompletionSetModel :: TreeModelClass model => EntryCompletion
- -> Maybe model     -- ^ @model@ - The 'TreeModel'.
+entryCompletionSetModel :: StoreClass model => EntryCompletion
+ -> Maybe (model row)     -- ^ @model@ - The 'TreeModel'.
  -> IO ()
 entryCompletionSetModel self model =
   {# call gtk_entry_completion_set_model #}
     self
-    (maybe (TreeModel nullForeignPtr) toTreeModel model)
+    (maybe (TreeModel nullForeignPtr) storeGetModel model)
 
--- | Returns the model the 'EntryCompletion' is using as data source. Returns
--- @Nothing@ if the model is unset.
+-- | Convenience function for setting up the most used case of this code: a
+-- completion list with just strings. This function will set up @completion@ to
+-- have a list displaying all (and just) strings in the completion list, and to
+-- get those strings from @model@. This functions creates and adds a 
+-- 'CellRendererText' which retrieves its content from the given model.
 --
-entryCompletionGetModel :: EntryCompletion
- -> IO (Maybe TreeModel) -- ^ returns A 'TreeModel', or @Nothing@ if none is
-                         -- currently being used.
-entryCompletionGetModel self =
-  maybeNull (makeNewGObject mkTreeModel) $
-  {# call gtk_entry_completion_get_model #}
-    self
+entryCompletionSetTextModel :: StoreClass model =>
+ EntryCompletion -- ^ @completion@
+ -> model String    -- ^ the model containing 'String's
+ -> IO ()
+entryCompletionSetTextModel self model = do
+  entryCompletionSetModel self (Just model)
+  cell <- cellRendererTextNew
+  cellLayoutPackStart self cell True
+  cellLayoutSetAttributes self cell model (\str -> [cellText := Just str])
 
 -- | Sets the match function for @completion@ to be @func@. The match function
 -- is used to determine if a row should or should not be in the completion
@@ -288,23 +293,6 @@ entryCompletionDeleteAction self index =
     self
     (fromIntegral index)
 
--- | Convenience function for setting up the most used case of this code: a
--- completion list with just strings. This function will set up @completion@ to
--- have a list displaying all (and just) strings in the completion list, and to
--- get those strings from @column@ in the model of @completion@.
---
--- This functions creates and adds a 'CellRendererText' for the selected
--- column.
---
-entryCompletionSetTextColumn :: EntryCompletion
- -> Int             -- ^ @column@ - The column in the model of @completion@ to
-                    -- get strings from.
- -> IO ()
-entryCompletionSetTextColumn self column =
-  {# call gtk_entry_completion_set_text_column #}
-    self
-    (fromIntegral column)
-
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Requests a prefix insertion.
 --
@@ -313,17 +301,6 @@ entryCompletionSetTextColumn self column =
 entryCompletionInsertPrefix :: EntryCompletion -> IO ()
 entryCompletionInsertPrefix self =
   {# call gtk_entry_completion_insert_prefix #}
-    self
-
--- | Returns the column in the model of the completion to get strings from.
---
--- * Available since Gtk+ version 2.6
---
-entryCompletionGetTextColumn :: EntryCompletion
- -> IO Int          -- ^ returns the column containing the strings
-entryCompletionGetTextColumn self =
-  liftM fromIntegral $
-  {# call gtk_entry_completion_get_text_column #}
     self
 
 -- | Sets whether the common prefix of the possible completions should be
@@ -437,9 +414,8 @@ entryCompletionGetPopupSingleMatch self =
 
 -- | The model to find matches in.
 --
-entryCompletionModel :: TreeModelClass model => ReadWriteAttr EntryCompletion (Maybe TreeModel) (Maybe model)
-entryCompletionModel = newAttr
-  entryCompletionGetModel
+entryCompletionModel :: StoreClass model => WriteAttr EntryCompletion (Maybe (model row))
+entryCompletionModel = writeAttr
   entryCompletionSetModel
 
 -- | Minimum length of the search key in order to look up matches.
@@ -454,16 +430,6 @@ entryCompletionMinimumKeyLength = newAttr
   entryCompletionSetMinimumKeyLength
 
 #if GTK_CHECK_VERSION(2,6,0)
--- | The column of the model containing the strings.
---
--- Allowed values: >= -1
---
--- Default value: -1
---
-entryCompletionTextColumn :: Attr EntryCompletion Int
-entryCompletionTextColumn = newAttr
-  entryCompletionGetTextColumn
-  entryCompletionSetTextColumn
 
 -- | Determines whether the common prefix of the possible completions should
 -- be inserted automatically in the entry. Note that this requires text-column

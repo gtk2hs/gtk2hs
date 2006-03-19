@@ -60,6 +60,7 @@ module Graphics.UI.Gtk.TreeList.CellLayout (
   cellLayoutReorder,
   cellLayoutClear,
   cellLayoutSetAttributes,
+  cellLayoutSetAttributesM,
   cellLayoutClearAttributes
 #endif
   ) where
@@ -80,12 +81,11 @@ import System.Glib.GObject ( mkFunPtrDestroyNotify, DestroyNotify )
 #if GTK_CHECK_VERSION(2,4,0)
 
 instance CellLayoutClass CellView
---instance CellLayoutClass EntryCompletion
+instance CellLayoutClass EntryCompletion
 instance CellLayoutClass TreeViewColumn
 instance CellLayoutClass ComboBox
 instance CellLayoutClass IconView
 instance CellLayoutClass ComboBoxEntry
-
 
 --------------------
 -- Methods
@@ -157,8 +157,8 @@ cellLayoutSetAttributes
  -> model row -- ^ @model@ - A model containing rows of type @row@.
  -> (row -> [AttrOp cell]) -- ^ Attributes to be set on the renderer.
  -> IO ()
-cellLayoutSetAttributes self cell model attributes = do
-  fPtr <- mkSetAttributeFunc $ \_ cellPtr' modelPtr' iterPtr _ -> do
+cellLayoutSetAttributes self cell store attributes = do
+  fPtr <- mkSetAttributeFunc $ \_ cellPtr modelPtr iterPtr _ -> do
     iter <- peek iterPtr
     let (TreeModel modelPtr) = toTreeModel model
     let (CellRenderer cellPtr) = toCellRenderer cell
@@ -167,8 +167,8 @@ cellLayoutSetAttributes self cell model attributes = do
       error ("cellLayoutSetAttributes: attempt to set attributes of "++
 	     "CellRenderer from different model.")
       else do
-    row <- treeModelGetRow model iter
-    set cell (attributes row)
+    val <- storeGetValue store iter
+    set cell (attributes val)
   destroy <- mkFunPtrDestroyNotify fPtr
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
     (toCellRenderer cell) fPtr nullPtr destroy

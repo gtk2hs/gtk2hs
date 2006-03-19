@@ -149,7 +149,8 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..), SortType(..))
+import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..),
+						 SortType(..))
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 
 {# context lib="gtk" prefix="gtk" #}

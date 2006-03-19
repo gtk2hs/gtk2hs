@@ -24,7 +24,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Renders text in a cell
+-- A 'CellRenderer' which displays a single-line text.
 --
 module Graphics.UI.Gtk.TreeList.CellRendererText (
 -- * Detail
@@ -59,10 +59,6 @@ module Graphics.UI.Gtk.TreeList.CellRendererText (
   cellRendererTextSetFixedHeightFromFont,
 
 -- * Attributes
-  cellText,
-  cellMarkup,
---  cellAttributes,
-  cellTextSingleParagraphMode,
   cellTextBackground,
   cellTextBackgroundColor,
   cellTextBackgroundSet,

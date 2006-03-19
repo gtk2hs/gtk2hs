@@ -164,13 +164,13 @@
 	    GtkCellRenderer
 		GtkCellRendererPixbuf
 		GtkCellRendererText
-#		    GtkCellRendererTextPixbuf
+		    GtkCellRendererCombo	if gtk-2.6
 		GtkCellRendererToggle
 		GtkCellRendererProgress	if gtk-2.6
-		GtkCellRendererCombo	if gtk-2.6
 	    GtkFileFilter		if gtk-2.4
-# This one is actually an interface, but all objects that implement it are at
-# least GObjects.
+# These are actually interface, but all objects that implement it are at
+# least Widget or GObjects, repectively
+            GtkCellEditable		if gtk-2.4
 	GtkCellLayout			if gtk-2.4
 # These are derived from GObject:
         GtkTreeSelection
