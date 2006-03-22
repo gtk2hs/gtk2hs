@@ -33,14 +33,15 @@ module Graphics.UI.Gtk.TreeList.TreeStoreAxel (
 
 import Data.Bits
 import Data.Word (Word)
-import Data.Ix (inRange)
+import Foreign.C.Types (CInt)
 import Data.Maybe ( fromMaybe, isJust )
+import Control.Monad (liftM)
 import Control.Exception (assert)
-import Control.Concurrent.MVar
-
+import Data.IORef
 import Data.Tree
-import System.Glib.FFI ( CInt )
-import Graphics.UI.Gtk.TreeList.TreeModel
+
+import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
+import Graphics.UI.Gtk.TreeList.TreePath (TreePath)
 import Graphics.UI.Gtk.TreeList.CustomStore
 import Graphics.UI.Gtk.TreeList.TreeIter
 
@@ -50,10 +51,11 @@ import Graphics.UI.Gtk.TreeList.TreeIter
 
 -- | The abstract store for hierarchical data.
 --
-data TreeStore a = TreeStore {
-    model :: TreeModel,
-    store :: MVar (Store a)
-  }
+newtype TreeStore a = TreeStore (CustomTreeModel (IORef (Store a)))
+
+instance GObjectClass (TreeStore a)
+instance TreeModelClass (TreeStore a)
+
 
 -- | Maximum number of nodes on each level.
 --
@@ -63,31 +65,18 @@ data TreeStore a = TreeStore {
 --
 type Depth = [Int]
 
--- | A time stamp that is incremented each time iterators become invalid.
-type Timestamp = CInt
-
 data Store a = Store {
   depth :: Depth,
-  timestamp :: Timestamp,
   content :: Cache a
 }
 
--- | Ask for the time stamp of a 'TreeIter'.
---
-iterTime :: TreeIter -> Timestamp
-iterTime (TreeIter t _ _ _) = t
-
-instance StoreClass TreeStore where
-  storeGetModel = model
-  storeGetValue TreeStore { store = mVar } iter = modifyMVar mVar $
-    \Store { depth = d, timestamp = t, content = cache } ->
-    if iterTime iter/=t then
-    error "TreeStore.storeGetValue: iter has wrong time stamp" else
+instance TypedTreeModelClass TreeStore where
+  treeModelGetRow (TreeStore store) iter =
+    readIORef (customStoreGetPrivate store) >>=
+      \Store { depth = d, content = cache } ->
     case checkSuccess d iter cache of
-      (True, cache@((_, (Node { rootLabel = val }:_)):_)) ->
-	  return (Store { depth = d, timestamp = t, content = cache }, val)
-      _ ->
-	error "TreeStore.storeGetValue: iter does not refer to a valid entry"
+      (True, ((_, (Node { rootLabel = val }:_)):_)) -> return val
+      _ -> error "TreeStore.getRow: iter does not refer to a valid entry"
 
 -- | Create a new list store.
 --
@@ -96,52 +85,55 @@ instance StoreClass TreeStore where
 --
 treeStoreNew :: Forest a -> IO (TreeStore a)
 treeStoreNew forest = do
-  mVar <- newMVar Store { depth = calcForestDepth forest,
-			  timestamp = 0,
-			  content = storeToCache 0 forest }
-  model <- customStoreNew CustomStore {
+  storeRef <- newIORef Store {
+      depth = calcForestDepth forest,
+      content = storeToCache forest
+    }
+  let withStore f = readIORef storeRef >>= return . f
+      withStoreUpdateCache f = do
+        store <- readIORef storeRef
+        let (result, cache') = f store
+        writeIORef storeRef store { content = cache' }
+        return result
+
+  liftM TreeStore $ customStoreNew storeRef CustomStore {
     customStoreGetFlags = return [],
-    customStoreGetIter = \path -> readMVar mVar >>=
-      \Store { depth = d, timestamp = t } -> return (fromPath t d path),
-    customStoreGetPath = \iter -> readMVar mVar >>=
-      \store@Store { depth = d, timestamp = t } ->
-      return (if iterTime iter/=t then [] else toPath d iter),
-    customStoreIterNext = \iter -> modifyMVar mVar $
-      \store@Store { depth = d, timestamp = t, content = cache } ->
-      let (mIter', cache') = iterNext d iter cache in
-      return (if iterTime iter/=t then (store, Nothing) else
-	      (Store { depth = d, timestamp = t, content = cache' }, mIter')),
-    customStoreIterChildren = \mIter -> modifyMVar mVar $
-      \store@Store { depth = d, timestamp = t, content = cache } ->
-      let iter = fromMaybe (invalidIter t) mIter
-          (mIter', cache') = iterNthChild d 0 iter cache in
-      return (if iterTime iter/=t then (store, Nothing) else
-	      (Store { depth = d, timestamp = t, content = cache' }, mIter')),
-    customStoreIterHasChild = \iter -> modifyMVar mVar $
-      \store@Store { depth = d, timestamp = t, content = cache } ->
-      let (mIter', cache') = iterNthChild d 0 iter cache in
-      return (if iterTime iter/=t then (store, False) else
-        (Store { depth = d, timestamp = t, content = cache' }, isJust mIter')),
-    customStoreIterNChildren = \mIter -> modifyMVar mVar $
-      \store@Store { depth = d, timestamp = t, content = cache } ->
-      let iter = fromMaybe (invalidIter t) mIter
-          (no, cache') = iterNChildren d iter cache in
-      return (if iterTime iter/=t then (store, 0) else
-        (Store { depth = d, timestamp = t, content = cache' }, no)),
-    customStoreIterNthChild = \mIter idx  -> modifyMVar mVar $
-      \store@Store { depth = d, timestamp = t, content = cache } ->
-      let iter = fromMaybe (invalidIter t) mIter
-          (mIter', cache') = iterNthChild d idx iter cache in
-      return (if iterTime iter/=t then (store, Nothing) else
-        (Store { depth = d, timestamp = t, content = cache' }, mIter')),
-    customStoreIterParent = \iter -> do
-      Store { depth = d, timestamp = t } <- readMVar mVar
-      return (if iterTime iter/=t then Nothing else iterParent d iter),
+
+    customStoreGetIter = \path -> withStore $
+      \Store { depth = d } -> fromPath d path,
+
+    customStoreGetPath = \iter -> withStore $
+      \Store { depth = d } -> toPath d iter,
+
+    customStoreIterNext = \iter -> withStoreUpdateCache $
+      \Store { depth = d, content = cache } -> iterNext d iter cache,
+
+    customStoreIterChildren = \mIter -> withStoreUpdateCache $
+      \Store { depth = d, content = cache } ->
+      let iter = fromMaybe invalidIter mIter
+       in iterNthChild d 0 iter cache,
+
+    customStoreIterHasChild = \iter -> withStoreUpdateCache $
+      \Store { depth = d, content = cache } ->
+       let (mIter, cache') = iterNthChild d 0 iter cache
+        in (isJust mIter, cache'),
+
+    customStoreIterNChildren = \mIter -> withStoreUpdateCache $
+      \Store { depth = d, content = cache } ->
+      let iter = fromMaybe invalidIter mIter
+       in iterNChildren d iter cache,
+
+    customStoreIterNthChild = \mIter idx  -> withStoreUpdateCache $
+      \Store { depth = d, content = cache } ->
+      let iter = fromMaybe invalidIter mIter
+       in iterNthChild d idx iter cache,
+
+    customStoreIterParent = \iter -> withStore $
+      \Store { depth = d } -> iterParent d iter,
+
     customStoreRefNode = \_ -> return (),
     customStoreUnrefNode = \_ -> return ()
-  }
-  return TreeStore { model = model,
-		     store = mVar }
+   }
 
 --------------------------------------------
 -- low level bit-twiddling utility functions
@@ -189,8 +181,8 @@ iterPrefixEqual (TreeIter _ a1 b1 c1) (TreeIter _ a2 b2 c2) pos
 
 -- | The invalid tree iterator.
 --
-invalidIter :: Timestamp -> TreeIter
-invalidIter t = TreeIter t 0 0 0
+invalidIter :: TreeIter
+invalidIter = TreeIter 0 0 0 0
 
 showIterBits (TreeIter _ a b c) = [showBits a, showBits b, showBits c]
 
@@ -219,8 +211,8 @@ toPath d iter = gP 0 d
 
 -- | Try to convert a path into a 'TreeIter'.
 --
-fromPath :: Timestamp -> Depth -> TreePath -> Maybe TreeIter
-fromPath t = fP 0 (invalidIter t)
+fromPath :: Depth -> TreePath -> Maybe TreeIter
+fromPath = fP 0 invalidIter
   where
   fP pos ti _ [] = Just ti -- the remaining bits are zero anyway
   fP pos ti [] _ = Nothing
@@ -238,9 +230,9 @@ type Cache a = [(TreeIter, Forest a)]
 --   really exist, but serves to indicate that it is before the very first
 --   node.
 --
-storeToCache :: Timestamp -> Forest a -> Cache a
-storeToCache time [] = []
-storeToCache time forest = [(invalidIter time, [Node root forest])]
+storeToCache :: Forest a -> Cache a
+storeToCache [] = []
+storeToCache forest = [(invalidIter, [Node root forest])]
   where
   root = error "TreeStore.storeToCache: accessed non-exitent root of tree"
 

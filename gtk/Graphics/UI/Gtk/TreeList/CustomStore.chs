@@ -27,9 +27,13 @@
 -- Allows a custom data structure to be used with the 'TreeView'
 --
 module Graphics.UI.Gtk.TreeList.CustomStore (
-  StoreClass(..),					     
+  TypedTreeModelClass(..),
+  CustomTreeModel,
   CustomStore(..),
   customStoreNew,
+  customStoreGetPrivate,
+  customStoreGetStamp,
+  customStoreIncrementStamp,
 
   -- * View notifcation functions
   treeModelRowChanged,
@@ -57,9 +61,15 @@ import System.Glib.GValueTypes                  (valueSetString)
 
 {# context lib="gtk" prefix="gtk" #}
 
-class StoreClass c where
-  storeGetModel :: c d -> TreeModel
-  storeGetValue :: c d -> TreeIter -> IO d
+class TypedTreeModelClass model where
+  treeModelGetRow :: model row -> TreeIter -> IO row
+
+-- A CustomTreeModel is backed by a Gtk2HsStore
+-- which is an instance of the GtkTreeModel GInterface
+-- it also stores some extra per-model-type private data
+newtype CustomTreeModel private = CustomTreeModel (ForeignPtr (CustomTreeModel private))
+instance GObjectClass (CustomTreeModel private)
+instance TreeModelClass (CustomTreeModel private)
 
 data CustomStore = CustomStore {
     customStoreGetFlags      :: IO [TreeModelFlags],
@@ -77,6 +87,40 @@ data CustomStore = CustomStore {
     customStoreRefNode       :: TreeIter -> IO (),                            -- caching hint
     customStoreUnrefNode     :: TreeIter -> IO ()                             -- caching hint
   }
+
+customStoreNew :: private -> CustomStore -> IO (CustomTreeModel private)
+customStoreNew priv impl = do
+  implPtr <- newStablePtr impl
+  privPtr <- newStablePtr priv
+  makeNewGObject CustomTreeModel $
+    gtk2hs_store_new implPtr privPtr
+
+foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"
+  gtk2hs_store_new :: StablePtr CustomStore -> StablePtr private -> IO (Ptr (CustomTreeModel private))
+
+customStoreGetPrivate :: CustomTreeModel private -> private
+customStoreGetPrivate (CustomTreeModel model) =
+  unsafePerformIO $ -- this is safe because the priv member is set at
+                    -- construction time and never modified after that
+  withForeignPtr model gtk2hs_store_get_priv >>= deRefStablePtr
+
+foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_get_priv"
+  gtk2hs_store_get_priv :: Ptr (CustomTreeModel private) -> IO (StablePtr private)
+
+customStoreGetStamp :: CustomTreeModel private -> IO CInt
+customStoreGetStamp (CustomTreeModel model) =
+  withForeignPtr model gtk2hs_store_get_stamp
+
+foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_get_stamp"
+  gtk2hs_store_get_stamp :: Ptr (CustomTreeModel private) -> IO CInt
+
+customStoreIncrementStamp :: CustomTreeModel private -> IO ()
+customStoreIncrementStamp (CustomTreeModel model) =
+  withForeignPtr model gtk2hs_store_increment_stamp
+
+foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_increment_stamp"
+  gtk2hs_store_increment_stamp :: Ptr (CustomTreeModel private) -> IO ()
+
 
 customStoreGetFlags_static :: StablePtr CustomStore -> IO CInt
 customStoreGetFlags_static storePtr = do
@@ -235,15 +279,6 @@ customStoreUnrefNode_static storePtr iterPtr = do
 
 foreign export ccall "gtk2hs_store_unref_node_impl"
   customStoreUnrefNode_static :: StablePtr CustomStore -> Ptr TreeIter -> IO ()
-
-foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"
-  gtk2hs_store_new :: StablePtr CustomStore -> IO (Ptr TreeModel)
-
-customStoreNew :: CustomStore -> IO TreeModel
-customStoreNew impl = do
-  implPtr <- newStablePtr impl
-  makeNewGObject mkTreeModel $
-    gtk2hs_store_new implPtr
 
 maybeNull :: (Ptr a -> IO b) -> Ptr a -> IO (Maybe b)
 maybeNull marshal ptr

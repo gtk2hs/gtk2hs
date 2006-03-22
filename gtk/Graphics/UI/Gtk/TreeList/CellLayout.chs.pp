@@ -147,24 +147,28 @@ cellLayoutClear self =
 -- | Insert a 'CellRenderer' @cell@ into the layout and specify how a
 --   row of the @store@ defines the attributes of this renderer.
 --
-cellLayoutSetAttributes :: (CellLayoutClass self, CellRendererClass cell,
-			   StoreClass store) => self
- -> cell   -- ^ @cell@ - A 'CellRenderer'.
- -> store a -- ^ @store@ - A store (model) containing rows of type @a@.
- -> (a -> [AttrOp cell]) -- ^ Attributes to be set on the renderer.
+cellLayoutSetAttributes
+ :: (CellLayoutClass self,
+     CellRendererClass cell,
+     TreeModelClass (model row),
+     TypedTreeModelClass model)
+ => self
+ -> cell      -- ^ @cell@ - A 'CellRenderer'.
+ -> model row -- ^ @model@ - A model containing rows of type @row@.
+ -> (row -> [AttrOp cell]) -- ^ Attributes to be set on the renderer.
  -> IO ()
-cellLayoutSetAttributes self cell store attributes = do
-  fPtr <- mkSetAttributeFunc $ \_ cellPtr modelPtr iterPtr _ -> do
+cellLayoutSetAttributes self cell model attributes = do
+  fPtr <- mkSetAttributeFunc $ \_ cellPtr' modelPtr' iterPtr _ -> do
     iter <- peek iterPtr
-    let model@(TreeModel mPtr) = storeGetModel store
-    let (CellRenderer cPtr) = (toCellRenderer cell)
-    if unsafeForeignPtrToPtr mPtr/=modelPtr ||
-       unsafeForeignPtrToPtr cPtr/=cellPtr then
+    let (TreeModel modelPtr) = toTreeModel model
+    let (CellRenderer cellPtr) = toCellRenderer cell
+    if unsafeForeignPtrToPtr modelPtr /= modelPtr' ||
+       unsafeForeignPtrToPtr cellPtr  /= cellPtr' then
       error ("cellLayoutSetAttributes: attempt to set attributes of "++
 	     "CellRenderer from different model.")
       else do
-    val <- storeGetValue store iter
-    set cell (attributes val)
+    row <- treeModelGetRow model iter
+    set cell (attributes row)
   destroy <- mkFunPtrDestroyNotify fPtr
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
     (toCellRenderer cell) fPtr nullPtr destroy

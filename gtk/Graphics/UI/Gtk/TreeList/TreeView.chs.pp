@@ -222,12 +222,12 @@ treeViewNew =
 -- | Create a new 'TreeView' 
 -- widget with @model@ as the storage model.
 --
-treeViewNewWithModel :: StoreClass model => model row -> IO TreeView
+treeViewNewWithModel :: TreeModelClass model => model -> IO TreeView
 treeViewNewWithModel model =
   makeNewObject mkTreeView $
   liftM (castPtr :: Ptr Widget -> Ptr TreeView) $
   {# call tree_view_new_with_model #}
-    (storeGetModel model)
+    (toTreeModel model)
 
 --------------------
 -- Methods

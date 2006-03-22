@@ -3,7 +3,6 @@
 #define DEBUG
 
 #ifdef DEBUG
-#include <stdio.h>
 #define WHEN_DEBUG(a) a
 #else
 #define WHEN_DEBUG(a)
@@ -108,7 +107,7 @@ gtk2hs_store_get_type (void)
 static void
 gtk2hs_store_class_init (Gtk2HsStoreClass *class)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_class_init\t\t(%p)\n", class));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_class_init\t\t(%p)\n", class));
   GObjectClass *object_class;
 
   parent_class = g_type_class_peek_parent (class);
@@ -128,7 +127,7 @@ gtk2hs_store_class_init (Gtk2HsStoreClass *class)
 static void
 gtk2hs_store_tree_model_init (GtkTreeModelIface *iface)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_tree_model_init\t(%p)\n", iface));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_tree_model_init\t(%p)\n", iface));
   iface->get_flags       = gtk2hs_store_get_flags;
   iface->get_n_columns   = gtk2hs_store_get_n_columns;
   iface->get_column_type = gtk2hs_store_get_column_type;
@@ -156,7 +155,7 @@ gtk2hs_store_tree_model_init (GtkTreeModelIface *iface)
 static void
 gtk2hs_store_init (Gtk2HsStore *store)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_init\t\t(%p)\n", store));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_init\t\t(%p)\n", store));
 
   store->stamp = g_random_int();  /* Random int to check whether an iter belongs to our model */
 }
@@ -171,11 +170,13 @@ gtk2hs_store_init (Gtk2HsStore *store)
 static void
 gtk2hs_store_finalize (GObject *object)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_finalize\t(%p)\n", object));
-  Gtk2HsStore *store = GTK2HS_STORE(object);
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_finalize\t(%p)\n", object));
+  Gtk2HsStore *store = (Gtk2HsStore *) object;
+  g_return_if_fail(GTK2HS_IS_STORE (object));
 
   /* free all memory used by the store */
   hs_free_stable_ptr(store->impl);
+  hs_free_stable_ptr(store->priv);
 
   /* must chain up - finalize parent */
   (* parent_class->finalize) (object);
@@ -194,12 +195,12 @@ gtk2hs_store_finalize (GObject *object)
 static GtkTreeModelFlags
 gtk2hs_store_get_flags (GtkTreeModel *tree_model)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_get_flags\t\t(%p)\n", tree_model));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_get_flags\t\t(%p)\n", tree_model));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), 0);
 
   GtkTreeModelFlags result = gtk2hs_store_get_flags_impl(store->impl);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_get_flags\t\t=%#x\n", result));
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_get_flags\t\t=%#x\n", result));
   return result;
 }
 
@@ -213,14 +214,14 @@ gtk2hs_store_get_flags (GtkTreeModel *tree_model)
 static gint
 gtk2hs_store_get_n_columns (GtkTreeModel *tree_model)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_get_n_columns\t(%p)\n", tree_model));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_get_n_columns\t(%p)\n", tree_model));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), 0);
 
   return 0;
   /*
   gint result = gtk2hs_store_get_n_columns_impl(store->impl);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_get_n_columns\t=%d\n", result));
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_get_n_columns\t=%d\n", result));
   return result;
   */
 }
@@ -236,14 +237,14 @@ static GType
 gtk2hs_store_get_column_type (GtkTreeModel *tree_model,
                               gint          index)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_get_column_type\t(%p, %d)\n", tree_model, index));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_get_column_type\t(%p, %d)\n", tree_model, index));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), G_TYPE_INVALID);
   
   return G_TYPE_INVALID;
   /*
   GType result = gtk2hs_store_get_column_type_impl(store->impl, index);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_get_column_type\t=%s\n", g_type_name(result)));
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_get_column_type\t=%s\n", g_type_name(result)));
   return result;
   */
 }
@@ -258,19 +259,20 @@ gtk2hs_store_get_column_type (GtkTreeModel *tree_model,
  **/
 static gboolean
 gtk2hs_store_get_iter (GtkTreeModel *tree_model,
-                       GtkTreeIter  *iter,
-                       GtkTreePath  *path)
+                       GtkTreeIter  *iter,       /* out */
+                       GtkTreePath  *path        /* in  */)
 {
-  gchar *path_str = gtk_tree_path_to_string(path);
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_get_iter\t\t(%p, %p, \"%s\")\n", tree_model, iter, path_str));
-  g_free(path_str);
+  WHEN_DEBUG(
+    gchar *path_str = gtk_tree_path_to_string(path);
+    g_debug("calling gtk2hs_store_get_iter\t\t(%p, %p, \"%s\")\n", tree_model, iter, path_str);
+    g_free(path_str);
+  )
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
 
-  /* We simply store a pointer to our custom record in the iter */
-  iter->stamp     = store->stamp;
   gboolean result = gtk2hs_store_get_iter_impl(store->impl, iter, path);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_get_iter\t\t=%s\n", result ? "TRUE" : "FALSE"));
+  if (result) iter->stamp = store->stamp;
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_get_iter\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
 
@@ -283,16 +285,19 @@ gtk2hs_store_get_iter (GtkTreeModel *tree_model,
  **/
 static GtkTreePath *
 gtk2hs_store_get_path (GtkTreeModel *tree_model,
-                       GtkTreeIter  *iter)
+                       GtkTreeIter  *iter        /* in */)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_get_path\t\t(%p, %p)\n", tree_model, iter));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_get_path\t\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), NULL);
+  g_return_val_if_fail (iter->stamp == store->stamp, NULL);
   
   GtkTreePath * result = gtk2hs_store_get_path_impl(store->impl, iter);
-  gchar *result_str = gtk_tree_path_to_string(result);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_get_path\t\t=\"%s\"\n", result_str));
-  g_free(result_str);
+  WHEN_DEBUG(
+    gchar *result_str = gtk_tree_path_to_string(result);
+    g_debug("return  gtk2hs_store_get_path\t\t=\"%s\"\n", result_str);
+    g_free(result_str);
+  )
   return result;
 }
 
@@ -305,21 +310,24 @@ gtk2hs_store_get_path (GtkTreeModel *tree_model,
  **/
 static void
 gtk2hs_store_get_value (GtkTreeModel *tree_model,
-                        GtkTreeIter  *iter,
+                        GtkTreeIter  *iter,       /* in */
                         gint          column,
-                        GValue       *value)
+                        GValue       *value       /* out */)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_get_value\t\t(%p, %p, %d, %p)\n", tree_model, iter, column, value));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_get_value\t\t(%p, %p, %d, %p)\n", tree_model, iter, column, value));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_if_fail (GTK2HS_IS_STORE (tree_model));
+  g_return_if_fail (iter->stamp == store->stamp);
 
   g_value_init(value, G_TYPE_INVALID);
   
   /*
     gtk2hs_store_get_value_impl(store->impl, iter, column, value);
-    gchar *result = g_strdup_value_contents(value);
-    WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_get_value\t\t=%s\n", result));
-    g_free(result);
+    WHEN_DEBUG(
+      gchar *result = g_strdup_value_contents(value);
+      g_debug("return  gtk2hs_store_get_value\t\t=%s\n", result);
+      g_free(result);
+    )
   */
 }
 
@@ -332,14 +340,16 @@ gtk2hs_store_get_value (GtkTreeModel *tree_model,
  **/
 static gboolean
 gtk2hs_store_iter_next (GtkTreeModel  *tree_model,
-                        GtkTreeIter   *iter)
+                        GtkTreeIter   *iter        /* in+out */)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_iter_next\t\t(%p, %p)\n", tree_model, iter));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_next\t\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
+  g_return_val_if_fail (iter->stamp == store->stamp, FALSE);
 
   gboolean result = gtk2hs_store_iter_next_impl(store->impl, iter);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_iter_next\t\t=%s\n", result ? "TRUE" : "FALSE"));
+  if (result) iter->stamp = store->stamp;
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_iter_next\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
 
@@ -356,15 +366,17 @@ gtk2hs_store_iter_next (GtkTreeModel  *tree_model,
  **/
 static gboolean
 gtk2hs_store_iter_children (GtkTreeModel *tree_model,
-                            GtkTreeIter  *iter,
-                            GtkTreeIter  *parent)
+                            GtkTreeIter  *iter,       /* out */
+                            GtkTreeIter  *parent      /* in, maybe NULL */)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_iter_children\t(%p, %p, %p)\n", tree_model, iter, parent));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_children\t(%p, %p, %p)\n", tree_model, iter, parent));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
+  g_return_val_if_fail (parent == NULL || parent->stamp == store->stamp, FALSE);
 
   gboolean result = gtk2hs_store_iter_children_impl(store->impl, iter, parent);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_iter_children\t=%s\n", result ? "TRUE" : "FALSE"));
+  if (result) iter->stamp = store->stamp;
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_iter_children\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
 
@@ -377,14 +389,15 @@ gtk2hs_store_iter_children (GtkTreeModel *tree_model,
  **/
 static gboolean
 gtk2hs_store_iter_has_child (GtkTreeModel *tree_model,
-                             GtkTreeIter  *iter)
+                             GtkTreeIter  *iter        /* in */)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_iter_has_child\t(%p, %p)\n", tree_model, iter));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_has_child\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
+  g_return_val_if_fail (iter->stamp == store->stamp, FALSE);
   
   gboolean result = gtk2hs_store_iter_has_child_impl(store->impl, iter);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_iter_has_child\t=%s\n", result ? "TRUE" : "FALSE"));
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_iter_has_child\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
 
@@ -402,14 +415,15 @@ gtk2hs_store_iter_has_child (GtkTreeModel *tree_model,
  **/
 static gint
 gtk2hs_store_iter_n_children (GtkTreeModel *tree_model,
-                              GtkTreeIter  *iter)
+                              GtkTreeIter  *iter        /* in, maybe NULL */)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_iter_n_children\t(%p, %p)\n", tree_model, iter));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_n_children\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), 0);
+  g_return_val_if_fail (iter == NULL || iter->stamp == store->stamp, 0);
 
   gboolean result = gtk2hs_store_iter_n_children_impl(store->impl, iter);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_iter_n_children\t=%d\n", result));
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_iter_n_children\t=%d\n", result));
   return result;
 }
 
@@ -426,38 +440,40 @@ gtk2hs_store_iter_n_children (GtkTreeModel *tree_model,
  **/
 static gboolean
 gtk2hs_store_iter_nth_child (GtkTreeModel *tree_model,
-                             GtkTreeIter  *iter,
-                             GtkTreeIter  *parent,
+                             GtkTreeIter  *iter,       /* out */
+                             GtkTreeIter  *parent,     /* in, maybe NULL */
                              gint          n)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_iter_nth_child\t(%p, %p, %p, %d)\n", tree_model, iter, parent, n));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_nth_child\t(%p, %p, %p, %d)\n", tree_model, iter, parent, n));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
+  g_return_val_if_fail (parent == NULL || parent->stamp == store->stamp, FALSE);
 
   gboolean result = gtk2hs_store_iter_nth_child_impl(store->impl, iter, parent, n);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_iter_nth_child\t=%s\n", result ? "TRUE" : "FALSE"));
+  if (result) iter->stamp = store->stamp;
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_iter_nth_child\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
 
 
 /**
  *
- *  gtk2hs_store_iter_parent: Point 'iter' to the parent node of 'child'. As
- *                            we have a list and thus no children and no
- *                            parents of children, we can just return FALSE.
+ *  gtk2hs_store_iter_parent: Point 'iter' to the parent node of 'child'.
  *
  **/
 static gboolean
 gtk2hs_store_iter_parent (GtkTreeModel *tree_model,
-                          GtkTreeIter  *iter,
-                          GtkTreeIter  *child)
+                          GtkTreeIter  *iter,       /* out */
+                          GtkTreeIter  *child       /* in  */)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_iter_parent\t\t(%p, %p, %p)\n", tree_model, iter, child));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_iter_parent\t\t(%p, %p, %p)\n", tree_model, iter, child));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), FALSE);
+  g_return_val_if_fail (child != NULL, FALSE);
+  g_return_val_if_fail (child->stamp == store->stamp, FALSE);
  
   gboolean result = gtk2hs_store_iter_parent_impl(store->impl, iter, child);
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_iter_parent\t\t=%s\n", result ? "TRUE" : "FALSE"));
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_iter_parent\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
 
@@ -466,9 +482,14 @@ static void
 gtk2hs_store_ref_node (GtkTreeModel *tree_model,
                        GtkTreeIter  *iter)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_ref_node\t\t(%p, %p)\n", tree_model, iter));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_ref_node\t\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_if_fail (GTK2HS_IS_STORE (tree_model));
+  
+  if (iter->stamp != store->stamp)
+    g_critical ("iter->stamp == %d\t\tstore->stamp == %d\n", iter->stamp, store->stamp);
+  
+  g_return_if_fail (iter->stamp == store->stamp);
 
   gtk2hs_store_ref_node_impl(store->impl, iter);
 }
@@ -477,27 +498,54 @@ static void
 gtk2hs_store_unref_node (GtkTreeModel *tree_model,
                          GtkTreeIter  *iter)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_unref_node\t\t(%p, %p)\n", tree_model, iter));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_unref_node\t\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
-  g_assert (GTK2HS_IS_STORE(tree_model));
+  g_return_if_fail (GTK2HS_IS_STORE (tree_model));
+
+  if (iter->stamp != store->stamp)
+    g_critical ("iter->stamp == %d\t\tstore->stamp == %d\n", iter->stamp, store->stamp);
+
+  g_return_if_fail (iter->stamp == store->stamp);
 
   gtk2hs_store_unref_node_impl(store->impl, iter);
 }
 
 /**
  *
- *  gtk2hs_store_new:  This is what you use in your own code to create a
- *                     new custom list tree model for you to use.
+ *  gtk2hs_store_new:  Create a new custom tree model which delegates to a
+ *                     Haskell implementation.
  *
  **/
 Gtk2HsStore *
-gtk2hs_store_new (HsStablePtr impl)
+gtk2hs_store_new (HsStablePtr impl, HsStablePtr priv)
 {
-  WHEN_DEBUG(fprintf(stderr, "calling gtk2hs_store_new\t\t(%p)\n", impl));
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_new\t\t(%p)\n", impl));
   Gtk2HsStore *newstore = (Gtk2HsStore*) g_object_new (GTK2HS_TYPE_STORE, NULL);
 
   newstore->impl = impl;
+  newstore->priv = priv;
 
-  WHEN_DEBUG(fprintf(stderr, "return  gtk2hs_store_new\t\t=%p\n", newstore));
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_new\t\t=%p\n", newstore));
   return newstore;
+}
+
+HsStablePtr gtk2hs_store_get_priv (Gtk2HsStore *store)
+{
+  return store->priv;
+}
+
+gint
+gtk2hs_store_get_stamp (Gtk2HsStore *store)
+{
+  return store->stamp;
+}
+
+void
+gtk2hs_store_increment_stamp (Gtk2HsStore *store)
+{
+  do
+    {
+      store->stamp++;
+    }
+  while (store->stamp == 0);
 }
