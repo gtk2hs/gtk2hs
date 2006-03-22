@@ -1,99 +1,61 @@
--- Test file for the ListView widget.
-module Main(main) where
+module Main where
 
-import Graphics.UI.Gtk.Mogul
-import Graphics.UI.Gtk.Gdk.Events
+import Graphics.UI.Gtk hiding (
+  listStorePrepend,
+  listStoreAppend,
+  listStoreInsert,
+  listStoreSetValue,
+  listStoreRemove,
+  listStoreClear,
+  listStoreNew
+  )
+
+import Graphics.UI.Gtk.TreeList.ListStoreNew
+import Graphics.UI.Gtk.TreeList.CellLayout
+
+
+data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
 main = do
   initGUI
-  win <- newWindow
-  win `onDestroy` mainQuit
 
-  -- create a new TextView Widget
-  (store, r, w, attrs) <- createStore
-  tv <- newTreeViewWithModel store
-  tv `treeViewSetHeadersVisible` True
-  sel <- treeViewGetSelection tv
-  sel `treeSelectionSetMode` SelectionMultiple
-  win `containerAdd` tv
+  win <- windowNew
+  onDestroy win mainQuit
 
-  -- add a single column
-  tvc <- newTreeViewColumn
-  treeViewAppendColumn tv tvc
+  -- create a new list model
+  model <- listStoreNew
+    [Phone { name = "Foo", number = 12345, marked = False }
+    ,Phone { name = "Bar", number = 67890, marked = True  }
+    ,Phone { name = "Baz", number = 39496, marked = False }]
+  view <- treeViewNewWithModel model
 
-  -- create a single text renderer within this column
-  tRen <- treeViewColumnNewText tvc True True
-  tvc `treeViewColumnSetTitle` "My Title"
-  treeViewColumnAssociate tRen attrs
+  treeViewSetHeadersVisible view True
 
-  -- set an attribute on the renderer that applies to all the rows, ie it's
-  -- global rather than being determined on a per-row bssis by the data model
-  cellRendererSetAttribute tRen cellEditable (Just True)
+  -- add a couple columns
+  col1 <- treeViewColumnNew
+  col2 <- treeViewColumnNew
+  col3 <- treeViewColumnNew
 
-  -- fill the list with some entries
-  mapM_ (\txt -> do
-    iter <- listStoreAppend store
-    w iter txt (Just "red") Nothing) 
-    ["Hello", "how", "are", "you"]
+  treeViewColumnSetTitle col1 "String column"
+  treeViewColumnSetTitle col2 "Int column"
+  treeViewColumnSetTitle col3 "Bool column"
 
-  tv `onButtonPress` showMenu tv store sel
+  renderer1 <- cellRendererTextNew
+  renderer2 <- cellRendererTextNew
+  renderer3 <- cellRendererToggleNew
 
-  -- show the widget and run the main loop
-  widgetShow tv
-  widgetShow win
+  cellLayoutPackStart col1 renderer1 True
+  cellLayoutPackStart col2 renderer2 True
+  cellLayoutPackStart col3 renderer3 True
+
+  cellLayoutSetAttributes col1 renderer1 model $ \row -> [ cellText := name row ]
+  cellLayoutSetAttributes col2 renderer2 model $ \row -> [ cellText := show (number row) ]
+  cellLayoutSetAttributes col3 renderer3 model $ \row -> [ cellActive := marked row ]
+
+  treeViewAppendColumn view col1
+  treeViewAppendColumn view col2
+  treeViewAppendColumn view col3
+
+  containerAdd win view
+  widgetShowAll win
   mainGUI 
-
-
-createStore = do
-  -- Start by creating a description of how the database (the store) looks
-  -- like. We call this descripton the skeleton of the store.
-  skel <- emptyListSkel
-  (tAttr, tRead, tWrite) <- listSkelAddAttribute skel cellText
-  (fAttr, fRead, fWrite) <- listSkelAddAttribute skel cellForeground
-  (bAttr, bRead, bWrite) <- listSkelAddAttribute skel cellBackground
-  
-  -- Now create the real store from this skeleton. The skeleton is of no use
-  -- after this function call.
-  store <- newListStore skel
-
-  -- Return this store and read and write functions that read and write a
-  -- whole line in the store.
-
-  let writeStore :: TreeIter -> String -> Maybe String -> Maybe String -> IO ()
-      writeStore iter txt fore back = do
-        tWrite iter txt
-	fWrite iter fore
-	bWrite iter back
-  let readStore :: TreeIter -> IO (String, Maybe String, Maybe String)
-      readStore iter = do
-	txt  <- tRead iter
-	fore <- fRead iter
-	back <- bRead iter
-	return (txt, fore, back)
-  return (store, readStore, writeStore, [tAttr, fAttr, bAttr])
-
-  
-showMenu :: TreeView -> ListStore -> TreeSelection -> Event -> IO Bool
-showMenu tv tm sel (Button { eventX=xPos, 
-			     eventY=yPos, 
-			     eventClick=SingleClick, 
-			     eventButton=RightButton }) = do
-  res <- treeViewGetPathAtPos tv (round xPos, round yPos)
-  case res of
-    Nothing -> return ()
-    (Just (tp, ti, _)) -> do
-      putStrLn ("right click in cell "++(show tp))
-
-  -- first way to get the selected rows
-  treeSelectionSelectedForeach sel $ \ti -> do
-    path <- treeModelGetPath tm ti
-    putStrLn ("selected: "++show path)
-
-  -- second way to get the selected rows
-  rows <- treeSelectionGetSelectedRows sel
-  putStrLn ("selected rows: "++show rows)
-
-  return True
-
--- let Gtk handle normal button clicks
-showMenu tv _ _ _ = return False

@@ -34,12 +34,12 @@ main = do
   text <- cellRendererTextNew
   treeViewColumnPackStart tvc text True
   cellLayoutSetAttributes tvc text store
-    (\FileInfo { fName = name } -> [cellText := Just name])
+    (\FileInfo { fName = name } -> [cellText := name])
 
   size <- cellRendererTextNew
   treeViewColumnPackStart tvc size True
   cellLayoutSetAttributes tvc size store
-    (\FileInfo { fSize = size } -> [cellText := Just (show size)])
+    (\FileInfo { fSize = size } -> [cellText := show size])
 
   widgetShowAll win
   mainGUI
