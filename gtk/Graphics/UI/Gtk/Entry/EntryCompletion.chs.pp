@@ -169,13 +169,13 @@ entryCompletionGetEntry self =
 -- model set, it will remove it before setting the new model. If model is
 -- @Nothing@, then it will unset the model.
 --
-entryCompletionSetModel :: StoreClass model => EntryCompletion
- -> Maybe (model row)     -- ^ @model@ - The 'TreeModel'.
+entryCompletionSetModel :: TreeModelClass model => EntryCompletion
+ -> Maybe model     -- ^ @model@ - The 'TreeModel'.
  -> IO ()
 entryCompletionSetModel self model =
   {# call gtk_entry_completion_set_model #}
     self
-    (maybe (TreeModel nullForeignPtr) storeGetModel model)
+    (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
 -- | Convenience function for setting up the most used case of this code: a
 -- completion list with just strings. This function will set up @completion@ to
@@ -183,8 +183,9 @@ entryCompletionSetModel self model =
 -- get those strings from @model@. This functions creates and adds a 
 -- 'CellRendererText' which retrieves its content from the given model.
 --
-entryCompletionSetTextModel :: StoreClass model =>
- EntryCompletion -- ^ @completion@
+entryCompletionSetTextModel :: (TreeModelClass (model String),
+				TypedTreeModelClass model)
+ => EntryCompletion -- ^ @completion@
  -> model String    -- ^ the model containing 'String's
  -> IO ()
 entryCompletionSetTextModel self model = do
@@ -414,7 +415,7 @@ entryCompletionGetPopupSingleMatch self =
 
 -- | The model to find matches in.
 --
-entryCompletionModel :: StoreClass model => WriteAttr EntryCompletion (Maybe (model row))
+entryCompletionModel :: TreeModelClass model => WriteAttr EntryCompletion (Maybe model)
 entryCompletionModel = writeAttr
   entryCompletionSetModel
 

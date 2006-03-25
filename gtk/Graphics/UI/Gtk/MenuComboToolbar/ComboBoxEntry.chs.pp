@@ -106,7 +106,8 @@ comboBoxEntryNew =
 -- 'binGetChild'. To add and remove strings from the list, just modify @model@
 -- using its data manipulation API.
 --
-comboBoxEntryNewWithModel :: StoreClass model => 
+comboBoxEntryNewWithModel :: (TypedTreeModelClass model,
+			      TreeModelClass (model String)) => 
     model String        -- ^ @model@ - A 'CustomStore'.
  -> IO ComboBoxEntry
 comboBoxEntryNewWithModel model = do
@@ -128,7 +129,8 @@ comboBoxEntryNewText =
 
 -- | Sets the model of 'String's, inserts a 'CellRendererText'.
 --
-comboBoxEntrySetTextModel :: StoreClass model
+comboBoxEntrySetTextModel :: (TypedTreeModelClass model,
+			      TreeModelClass (model String))
  => ComboBoxEntry
  -> model String   -- ^ @model@ - The model of 'String's.
  -> IO ()

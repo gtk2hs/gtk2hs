@@ -29,23 +29,7 @@ import Graphics.UI.Gtk.TreeList.TreeModel (TreeModelFlags(TreeModelListOnly))
 import Graphics.UI.Gtk.TreeList.CustomStore
 import Graphics.UI.Gtk.TreeList.TreeIter
 
-import System.IO ( hPutStr, hPutChar, hFlush, stderr )
-import System.Mem ( performGC )
-
-putStrLn str = hPutStr stderr str >> hPutChar stderr '\n'
-putStr str = hPutStr stderr str
-flush = hFlush stderr
-
-data ListStore a = ListStore {
-    model :: TreeModel,
-    rows :: IORef (Seq a)
-  }
-
-instance StoreClass ListStore where
-  storeGetModel = model
-  storeGetValue ListStore { rows = rowsRef } (TreeIter _ n _ _) = do
-      rows <- readIORef rowsRef
-      return (rows `Seq.index` fromIntegral n)
+newtype ListStore a = ListStore (CustomTreeModel (IORef (Seq a)))
 
 instance GObjectClass (ListStore a)
 instance TreeModelClass (ListStore a)

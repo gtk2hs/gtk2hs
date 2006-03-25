@@ -69,7 +69,6 @@ module Graphics.UI.Gtk.TreeList.CellView (
   ) where
 
 import Monad	(liftM)
-
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
@@ -141,13 +140,13 @@ cellViewNewWithText text =
 -- will remove it before setting the new model. If @model@ is @Nothing@, then
 -- it will unset the old model.
 --
-cellViewSetModel :: (CellViewClass self, StoreClass model) => self
- -> Maybe (model row) -- ^ @model@ - a 'TreeModel'
+cellViewSetModel :: (CellViewClass self, TreeModelClass model) => self
+ -> Maybe model -- ^ @model@ - a 'TreeModel'
  -> IO ()
 cellViewSetModel self model =
   {# call gtk_cell_view_set_model #}
     (toCellView self)
-    (maybe (TreeModel nullForeignPtr) storeGetModel model)
+    (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
 -- | Returns the size needed by the cell view to display the model
 -- row pointed to by @path@.
