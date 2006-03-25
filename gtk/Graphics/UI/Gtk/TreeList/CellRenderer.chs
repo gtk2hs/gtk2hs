@@ -231,7 +231,9 @@ cellBackgroundSet = newAttrFromBoolProperty "cell-background-set"
 onEditingStarted, afterEditingStarted :: CellRendererClass self => self
  -> (CellEditable -> TreePath -> IO ())
  -> IO (ConnectId self)
-onEditingStarted cr act = connect_OBJECT_PTR__NONE "editing-started" False cr
-  $ \ce strPtr -> peekTreePath strPtr >>= act ce
-afterEditingStarted cr act = connect_OBJECT_PTR__NONE "editing-started" True cr
-  $ \ce strPtr -> peekTreePath strPtr >>= act ce
+onEditingStarted cr act =
+  connect_OBJECT_STRING__NONE "editing-started" False cr
+  $ \ce path -> act ce (stringToTreePath path)
+afterEditingStarted cr act =
+  connect_OBJECT_STRING__NONE "editing-started" True cr
+  $ \ce path -> act ce (stringToTreePath path)

@@ -448,6 +448,5 @@ internalEdited :: CellRendererTextClass cr =>
                   (TreePath -> String -> IO ()) ->
                   IO (ConnectId cr)
 internalEdited after cr user =
-  connect_PTR_STRING__NONE "edited" after cr $ \pathPtr string -> do
-    path <- peekTreePath pathPtr
-    user path string
+  connect_STRING_STRING__NONE "edited" after cr $ \path string -> do
+    user (stringToTreePath path) string
