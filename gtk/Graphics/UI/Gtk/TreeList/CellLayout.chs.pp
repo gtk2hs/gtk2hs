@@ -60,7 +60,6 @@ module Graphics.UI.Gtk.TreeList.CellLayout (
   cellLayoutReorder,
   cellLayoutClear,
   cellLayoutSetAttributes,
-  cellLayoutSetAttributesM,
   cellLayoutClearAttributes
 #endif
   ) where
@@ -147,33 +146,16 @@ cellLayoutClear self =
 -- | Insert a 'CellRenderer' @cell@ into the layout and specify how a
 --   row of the @store@ defines the attributes of this renderer.
 --
-cellLayoutSetAttributes
- :: (CellLayoutClass self,
-     CellRendererClass cell,
-     TreeModelClass (model row),
-     TypedTreeModelClass model)
- => self
- -> cell      -- ^ @cell@ - A 'CellRenderer'.
- -> model row -- ^ @model@ - A model containing rows of type @row@.
- -> (row -> [AttrOp cell]) -- ^ Attributes to be set on the renderer.
- -> IO ()
-cellLayoutSetAttributes self cell store attributes =
-  cellLayoutSetAttributesM self cell store (\val -> set cell (attributes val))
-
--- | Insert a 'CellRenderer' @cell@ into the layout and specify how a
---   row of the @store@ defines the attributes of this renderer. Setting
---   the attributes occurs in the IO monad.
---
-cellLayoutSetAttributesM :: (CellLayoutClass self,
+cellLayoutSetAttributes :: (CellLayoutClass self,
 			     CellRendererClass cell,
 			     TreeModelClass (model row),
 			     TypedTreeModelClass model)
  => self
  -> cell   -- ^ @cell@ - A 'CellRenderer'.
  -> model row -- ^ @model@ - A model containing rows of type @row@.
- -> (row -> IO ()) -- ^ Function to set attributes on the cell renderer.
+ -> (row -> [AttrOp cell]) -- ^ Function to set attributes on the cell renderer.
  -> IO ()
-cellLayoutSetAttributesM self cell model setAttrs = do
+cellLayoutSetAttributes self cell model attributes = do
   fPtr <- mkSetAttributeFunc $ \_ cellPtr' modelPtr' iterPtr _ -> do
     iter <- peek iterPtr
     let (TreeModel modelPtr) = toTreeModel model
@@ -184,7 +166,7 @@ cellLayoutSetAttributesM self cell model setAttrs = do
 	     "CellRenderer from different model.")
       else do
     row <- treeModelGetRow model iter
-    setAttrs row
+    set cell (attributes row)
   destroy <- mkFunPtrDestroyNotify fPtr
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
     (toCellRenderer cell) fPtr nullPtr destroy
