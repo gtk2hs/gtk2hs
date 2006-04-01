@@ -25,6 +25,7 @@ import Graphics.UI.Gtk.TreeList.Sequence (Seq)
 #endif
 
 import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
+import Graphics.UI.Gtk.TreeList.Types (TypedTreeModelClass)
 import Graphics.UI.Gtk.TreeList.TreeModel (TreeModelFlags(TreeModelListOnly))
 import Graphics.UI.Gtk.TreeList.CustomStore
 import Graphics.UI.Gtk.TreeList.TreeIter

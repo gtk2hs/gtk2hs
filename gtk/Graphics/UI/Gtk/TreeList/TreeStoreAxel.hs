@@ -45,6 +45,7 @@ import Control.Exception (assert)
 import Data.IORef
 import Data.Tree
 import System.Glib.FFI ( CInt )
+import Graphics.UI.Gtk.TreeList.Types
 import Graphics.UI.Gtk.TreeList.TreeModel
 import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
 import Graphics.UI.Gtk.TreeList.TreePath (TreePath)

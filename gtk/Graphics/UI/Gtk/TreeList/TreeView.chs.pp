@@ -203,7 +203,6 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.TreeList.TreeViewColumn#}
-{#import Graphics.UI.Gtk.TreeList.CustomStore#}
 
 {# context lib="gtk" prefix="gtk" #}
 

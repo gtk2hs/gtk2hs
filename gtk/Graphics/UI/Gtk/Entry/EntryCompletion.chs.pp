@@ -135,7 +135,7 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter)
-{#import Graphics.UI.Gtk.TreeList.CustomStore#}
+{#import Graphics.UI.Gtk.TreeList.Types#}
 import Graphics.UI.Gtk.TreeList.CellRendererText
 import Graphics.UI.Gtk.TreeList.CellLayout
 

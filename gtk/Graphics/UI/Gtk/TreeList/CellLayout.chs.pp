@@ -71,9 +71,10 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.GObject ( mkFunPtrDestroyNotify, DestroyNotify )
 {#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.TreeList.Types#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
-{#import Graphics.UI.Gtk.TreeList.CustomStore#}
+{#import Graphics.UI.Gtk.TreeList.CustomStore#} (treeModelGetRow)
 
 {# context lib="gtk" prefix="gtk" #}
 
