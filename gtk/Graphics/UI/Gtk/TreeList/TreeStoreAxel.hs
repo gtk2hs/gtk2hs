@@ -320,10 +320,8 @@ checkSuccess depth iter cache = (cmp cur iter && not (null sibs), cache')
 --   index and pos+leaf..pos+leaf+zero denotes the bit field that is zero.
 --
 getTreeIterLeaf :: Depth -> TreeIter -> (Int, Int, Int)
-getTreeIterLeaf ds ti = topLevel ds
+getTreeIterLeaf ds ti = gTIL 0 0 ds
   where
-  topLevel [] = (0,0,0)
-  topLevel (d:ds) = gTIL 0 d ds
   gTIL pos dCur (dNext:ds)
     | getBitSlice ti (pos+dCur) dNext==0 = (pos,dCur,dNext)
     | otherwise = gTIL (pos+dCur) dNext ds
