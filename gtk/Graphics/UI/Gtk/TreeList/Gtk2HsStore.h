@@ -35,7 +35,8 @@ struct _Gtk2HsStoreClass
 
 GType             gtk2hs_store_get_type (void) G_GNUC_CONST;
 Gtk2HsStore      *gtk2hs_store_new (HsStablePtr, HsStablePtr);
-HsStablePtr       gtk2hs_store_get_priv (Gtk2HsStore *);
+HsStablePtr       gtk2hs_store_get_impl  (Gtk2HsStore *);
+HsStablePtr       gtk2hs_store_get_priv  (Gtk2HsStore *);
 gint              gtk2hs_store_get_stamp (Gtk2HsStore *);
 void              gtk2hs_store_increment_stamp (Gtk2HsStore *);
 

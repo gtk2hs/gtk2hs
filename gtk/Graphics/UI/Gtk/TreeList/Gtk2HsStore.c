@@ -529,6 +529,11 @@ gtk2hs_store_new (HsStablePtr impl, HsStablePtr priv)
   return newstore;
 }
 
+HsStablePtr gtk2hs_store_get_impl (Gtk2HsStore *store)
+{
+  return store->impl;
+}
+
 HsStablePtr gtk2hs_store_get_priv (Gtk2HsStore *store)
 {
   return store->priv;
