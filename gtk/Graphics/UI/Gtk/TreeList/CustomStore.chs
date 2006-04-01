@@ -27,13 +27,13 @@
 -- Allows a custom data structure to be used with the 'TreeView'
 --
 module Graphics.UI.Gtk.TreeList.CustomStore (
-  TypedTreeModelClass(..),
+  treeModelGetRow,
+
   CustomTreeModel,
-  CustomStore(..),
-  customStoreNew,
-  customStoreGetPrivate,
-  customStoreGetStamp,
-  customStoreIncrementStamp,
+  CustomTreeModelImplementation(..),
+  customTreeModelNew,
+  customTreeModelGetPrivate,
+  customTreeModelInvalidateIters,
 
   -- * View notifcation functions
   treeModelRowChanged,
@@ -62,224 +62,235 @@ import System.Glib.GValueTypes                  (valueSetString)
 
 {# context lib="gtk" prefix="gtk" #}
 
-class TypedTreeModelClass model where
-  treeModelGetRow :: model row -> TreeIter -> IO row
-
 -- A CustomTreeModel is backed by a Gtk2HsStore
 -- which is an instance of the GtkTreeModel GInterface
 -- it also stores some extra per-model-type private data
-newtype CustomTreeModel private = CustomTreeModel (ForeignPtr (CustomTreeModel private))
-instance GObjectClass (CustomTreeModel private)
-instance TreeModelClass (CustomTreeModel private)
+newtype CustomTreeModel private row = CustomTreeModel (ForeignPtr (CustomTreeModel private row))
+instance GObjectClass (CustomTreeModel private row)
+instance TreeModelClass (CustomTreeModel private row)
 
-data CustomStore = CustomStore {
-    customStoreGetFlags      :: IO [TreeModelFlags],
---    customStoreGetNColumns   :: IO Int,
---    customStoreGetColumnType :: Int -> IO GType,
-    customStoreGetIter       :: TreePath -> IO (Maybe TreeIter),              -- convert a path to an iterator
-    customStoreGetPath       :: TreeIter -> IO TreePath,                      -- convert an interator to a path
---    customStoreGetValue      :: TreeIter -> Int -> GValue -> IO (),           -- get the value at an iter and column
-    customStoreIterNext      :: TreeIter -> IO (Maybe TreeIter),              -- following row (if any)
-    customStoreIterChildren  :: Maybe TreeIter -> IO (Maybe TreeIter),        -- first child row (if any)
-    customStoreIterHasChild  :: TreeIter -> IO Bool,                          -- row has any children at all
-    customStoreIterNChildren :: Maybe TreeIter -> IO Int,                     -- number of children of a row
-    customStoreIterNthChild  :: Maybe TreeIter -> Int -> IO (Maybe TreeIter), -- nth child row of a given row
-    customStoreIterParent    :: TreeIter -> IO (Maybe TreeIter),              -- parent row of a row
-    customStoreRefNode       :: TreeIter -> IO (),                            -- caching hint
-    customStoreUnrefNode     :: TreeIter -> IO ()                             -- caching hint
+
+data CustomTreeModelImplementation row = CustomTreeModelImplementation {
+    customTreeModelGetFlags      :: IO [TreeModelFlags],
+--    customTreeModelGetNColumns   :: IO Int,
+--    customTreeModelGetColumnType :: Int -> IO GType,
+    customTreeModelGetIter       :: TreePath -> IO (Maybe TreeIter),              -- convert a path to an iterator
+    customTreeModelGetPath       :: TreeIter -> IO TreePath,                      -- convert an interator to a path
+--    customTreeModelGetValue      :: TreeIter -> Int -> GValue -> IO (),           -- get the value at an iter and column
+    customTreeModelGetRow        :: TreeIter -> IO row,                           -- get the row at an iter
+    customTreeModelIterNext      :: TreeIter -> IO (Maybe TreeIter),              -- following row (if any)
+    customTreeModelIterChildren  :: Maybe TreeIter -> IO (Maybe TreeIter),        -- first child row (if any)
+    customTreeModelIterHasChild  :: TreeIter -> IO Bool,                          -- row has any children at all
+    customTreeModelIterNChildren :: Maybe TreeIter -> IO Int,                     -- number of children of a row
+    customTreeModelIterNthChild  :: Maybe TreeIter -> Int -> IO (Maybe TreeIter), -- nth child row of a given row
+    customTreeModelIterParent    :: TreeIter -> IO (Maybe TreeIter),              -- parent row of a row
+    customTreeModelRefNode       :: TreeIter -> IO (),                            -- caching hint
+    customTreeModelUnrefNode     :: TreeIter -> IO ()                             -- caching hint
   }
 
-customStoreNew :: private -> CustomStore -> IO (CustomTreeModel private)
-customStoreNew priv impl = do
+customTreeModelNew :: private -> CustomTreeModelImplementation row -> IO (CustomTreeModel private row)
+customTreeModelNew priv impl = do
   implPtr <- newStablePtr impl
   privPtr <- newStablePtr priv
   makeNewGObject CustomTreeModel $
     gtk2hs_store_new implPtr privPtr
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"
-  gtk2hs_store_new :: StablePtr CustomStore -> StablePtr private -> IO (Ptr (CustomTreeModel private))
+  gtk2hs_store_new :: StablePtr (CustomTreeModelImplementation row)
+                   -> StablePtr private
+                   -> IO (Ptr (CustomTreeModel private row))
 
-customStoreGetPrivate :: CustomTreeModel private -> private
-customStoreGetPrivate (CustomTreeModel model) =
+treeModelGetRow :: TypedTreeModelClass model => model row -> TreeIter -> IO row
+treeModelGetRow model iter = 
+  case toTypedTreeModel model of
+    TypedTreeModel model -> do
+      impl <- withForeignPtr model gtk2hs_store_get_impl >>= deRefStablePtr
+      customTreeModelGetRow impl iter
+
+foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_get_impl"
+  gtk2hs_store_get_impl :: Ptr (TypedTreeModel row) -> IO (StablePtr (CustomTreeModelImplementation row))
+
+customTreeModelGetPrivate :: CustomTreeModel private row -> private
+customTreeModelGetPrivate (CustomTreeModel model) =
   unsafePerformIO $ -- this is safe because the priv member is set at
                     -- construction time and never modified after that
   withForeignPtr model gtk2hs_store_get_priv >>= deRefStablePtr
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_get_priv"
-  gtk2hs_store_get_priv :: Ptr (CustomTreeModel private) -> IO (StablePtr private)
+  gtk2hs_store_get_priv :: Ptr (CustomTreeModel private row) -> IO (StablePtr private)
 
-customStoreGetStamp :: CustomTreeModel private -> IO CInt
-customStoreGetStamp (CustomTreeModel model) =
+customTreeModelGetStamp :: CustomTreeModel private row -> IO CInt
+customTreeModelGetStamp (CustomTreeModel model) =
   withForeignPtr model gtk2hs_store_get_stamp
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_get_stamp"
-  gtk2hs_store_get_stamp :: Ptr (CustomTreeModel private) -> IO CInt
+  gtk2hs_store_get_stamp :: Ptr (CustomTreeModel private row) -> IO CInt
 
-customStoreIncrementStamp :: CustomTreeModel private -> IO ()
-customStoreIncrementStamp (CustomTreeModel model) =
+customTreeModelInvalidateIters :: CustomTreeModel private row -> IO ()
+customTreeModelInvalidateIters (CustomTreeModel model) =
   withForeignPtr model gtk2hs_store_increment_stamp
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_increment_stamp"
-  gtk2hs_store_increment_stamp :: Ptr (CustomTreeModel private) -> IO ()
+  gtk2hs_store_increment_stamp :: Ptr (CustomTreeModel private row) -> IO ()
 
 
-customStoreGetFlags_static :: StablePtr CustomStore -> IO CInt
-customStoreGetFlags_static storePtr = do
+customTreeModelGetFlags_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
+customTreeModelGetFlags_static storePtr = do
   store <- deRefStablePtr storePtr
-  liftM (fromIntegral . fromFlags) $ customStoreGetFlags store
+  liftM (fromIntegral . fromFlags) $ customTreeModelGetFlags store
 
 foreign export ccall "gtk2hs_store_get_flags_impl"
-  customStoreGetFlags_static :: StablePtr CustomStore -> IO CInt
+  customTreeModelGetFlags_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
 
 {-
-customStoreGetNColumns_static :: StablePtr CustomStore -> IO CInt
-customStoreGetNColumns_static storePtr = do
+customTreeModelGetNColumns_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
+customTreeModelGetNColumns_static storePtr = do
   store <- deRefStablePtr storePtr
-  liftM fromIntegral $ customStoreGetNColumns store
+  liftM fromIntegral $ customTreeModelGetNColumns store
 
 foreign export ccall "gtk2hs_store_get_n_columns_impl"
-  customStoreGetNColumns_static :: StablePtr CustomStore -> IO CInt
+  customTreeModelGetNColumns_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
 
 
-customStoreGetColumnType_static :: StablePtr CustomStore -> CInt -> IO GType
-customStoreGetColumnType_static storePtr column = do
+customTreeModelGetColumnType_static :: StablePtr (CustomTreeModelImplementation row) -> CInt -> IO GType
+customTreeModelGetColumnType_static storePtr column = do
   store <- deRefStablePtr storePtr
-  customStoreGetColumnType store (fromIntegral column)
+  customTreeModelGetColumnType store (fromIntegral column)
 
 foreign export ccall "gtk2hs_store_get_column_type_impl"
-  customStoreGetColumnType_static :: StablePtr CustomStore -> CInt -> IO GType
+  customTreeModelGetColumnType_static :: StablePtr (CustomTreeModelImplementation row) -> CInt -> IO GType
 -}
 
-customStoreGetIter_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
-customStoreGetIter_static storePtr iterPtr pathPtr = do
+customTreeModelGetIter_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
+customTreeModelGetIter_static storePtr iterPtr pathPtr = do
   store <- deRefStablePtr storePtr
   path <- peekTreePath pathPtr
-  iter <- customStoreGetIter store path
+  iter <- customTreeModelGetIter store path
   case iter of
     Nothing   -> return (fromBool False)
     Just iter -> do poke iterPtr iter
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_get_iter_impl"
-  customStoreGetIter_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
+  customTreeModelGetIter_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
 
-customStoreGetPath_static :: StablePtr CustomStore -> Ptr TreeIter -> IO (Ptr NativeTreePath)
-customStoreGetPath_static storePtr iterPtr = do
+customTreeModelGetPath_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO (Ptr NativeTreePath)
+customTreeModelGetPath_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
   iter <- peek iterPtr
-  path <- customStoreGetPath store iter
+  path <- customTreeModelGetPath store iter
   NativeTreePath pathPtr <- newTreePath path
   return pathPtr
 
 foreign export ccall "gtk2hs_store_get_path_impl"
-  customStoreGetPath_static :: StablePtr CustomStore -> Ptr TreeIter -> IO (Ptr NativeTreePath)
+  customTreeModelGetPath_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO (Ptr NativeTreePath)
 
 {-
-customStoreGetValue_static :: StablePtr CustomStore -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
-customStoreGetValue_static storePtr iterPtr column gvaluePtr = do
+customTreeModelGetValue_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
+customTreeModelGetValue_static storePtr iterPtr column gvaluePtr = do
   store <- deRefStablePtr storePtr
   iter <- peek iterPtr
-  customStoreGetValue store iter (fromIntegral column) (GValue gvaluePtr)
+  customTreeModelGetValue store iter (fromIntegral column) (GValue gvaluePtr)
 
 foreign export ccall "gtk2hs_store_get_value_impl"
-  customStoreGetValue_static :: StablePtr CustomStore -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
+  customTreeModelGetValue_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
 -}
 
 
-customStoreIterNext_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
-customStoreIterNext_static storePtr iterPtr = do
+customTreeModelIterNext_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+customTreeModelIterNext_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
   iter <- peek iterPtr
-  iter' <- customStoreIterNext store iter
+  iter' <- customTreeModelIterNext store iter
   case iter' of
     Nothing    -> return (fromBool False)
     Just iter' -> do poke iterPtr iter'
                      return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_next_impl"
-  customStoreIterNext_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
+  customTreeModelIterNext_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
 
 
-customStoreIterChildren_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
-customStoreIterChildren_static storePtr iterPtr parentIterPtr = do
+customTreeModelIterChildren_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
+customTreeModelIterChildren_static storePtr iterPtr parentIterPtr = do
   store <- deRefStablePtr storePtr
   parentIter <- maybeNull peek parentIterPtr
-  iter <- customStoreIterChildren store parentIter
+  iter <- customTreeModelIterChildren store parentIter
   case iter of
     Nothing   -> return (fromBool False)
     Just iter -> do poke iterPtr iter
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_children_impl"
-  customStoreIterChildren_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
+  customTreeModelIterChildren_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
 
 
-customStoreIterHasChild_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
-customStoreIterHasChild_static storePtr iterPtr = do
+customTreeModelIterHasChild_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+customTreeModelIterHasChild_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
   iter <- peek iterPtr
-  liftM fromBool $ customStoreIterHasChild store iter
+  liftM fromBool $ customTreeModelIterHasChild store iter
 
 foreign export ccall "gtk2hs_store_iter_has_child_impl"
-  customStoreIterHasChild_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
+  customTreeModelIterHasChild_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
 
 
-customStoreIterNChildren_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
-customStoreIterNChildren_static storePtr iterPtr = do
+customTreeModelIterNChildren_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+customTreeModelIterNChildren_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
   iter <- maybeNull peek iterPtr
-  liftM fromIntegral $ customStoreIterNChildren store iter
+  liftM fromIntegral $ customTreeModelIterNChildren store iter
 
 foreign export ccall "gtk2hs_store_iter_n_children_impl"
-  customStoreIterNChildren_static :: StablePtr CustomStore -> Ptr TreeIter -> IO CInt
+  customTreeModelIterNChildren_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
 
 
-customStoreIterNthChild_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
-customStoreIterNthChild_static storePtr iterPtr parentIterPtr n = do
+customTreeModelIterNthChild_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
+customTreeModelIterNthChild_static storePtr iterPtr parentIterPtr n = do
   store <- deRefStablePtr storePtr
   parentIter <- maybeNull peek parentIterPtr
-  iter <- customStoreIterNthChild store parentIter (fromIntegral n)
+  iter <- customTreeModelIterNthChild store parentIter (fromIntegral n)
   case iter of
     Nothing   -> return (fromBool False)
     Just iter -> do poke iterPtr iter
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_nth_child_impl"
-  customStoreIterNthChild_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
+  customTreeModelIterNthChild_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
 
 
-customStoreIterParent_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
-customStoreIterParent_static  storePtr iterPtr childIterPtr = do
+customTreeModelIterParent_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
+customTreeModelIterParent_static  storePtr iterPtr childIterPtr = do
   store <- deRefStablePtr storePtr
   childIter <- peek childIterPtr
-  iter <- customStoreIterParent store childIter
+  iter <- customTreeModelIterParent store childIter
   case iter of
     Nothing   -> return (fromBool False)
     Just iter -> do poke iterPtr iter
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_parent_impl"
-  customStoreIterParent_static :: StablePtr CustomStore -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
+  customTreeModelIterParent_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
 
 
-customStoreRefNode_static :: StablePtr CustomStore -> Ptr TreeIter -> IO ()
-customStoreRefNode_static storePtr iterPtr = do
+customTreeModelRefNode_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO ()
+customTreeModelRefNode_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
   iter <- peek iterPtr
-  customStoreRefNode store iter
+  customTreeModelRefNode store iter
 
 foreign export ccall "gtk2hs_store_ref_node_impl"
-  customStoreRefNode_static :: StablePtr CustomStore -> Ptr TreeIter -> IO ()
+  customTreeModelRefNode_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO ()
 
 
-customStoreUnrefNode_static :: StablePtr CustomStore -> Ptr TreeIter -> IO ()
-customStoreUnrefNode_static storePtr iterPtr = do
+customTreeModelUnrefNode_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO ()
+customTreeModelUnrefNode_static storePtr iterPtr = do
   store <- deRefStablePtr storePtr
   iter <- peek iterPtr
-  customStoreUnrefNode store iter
+  customTreeModelUnrefNode store iter
 
 foreign export ccall "gtk2hs_store_unref_node_impl"
-  customStoreUnrefNode_static :: StablePtr CustomStore -> Ptr TreeIter -> IO ()
+  customTreeModelUnrefNode_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO ()
 
 maybeNull :: (Ptr a -> IO b) -> Ptr a -> IO (Maybe b)
 maybeNull marshal ptr
@@ -287,69 +298,80 @@ maybeNull marshal ptr
   | otherwise      = liftM Just (marshal ptr)
 
 
--- | Emits the \"row_changed\" signal on the 'TreeModel'.
+iterSetStamp :: CInt -> TreeIter -> TreeIter
+iterSetStamp t (TreeIter _ a b c) = (TreeIter t a b c)
+
+-- | Emits the \"row_changed\" signal on the 'CustomTreeModel'.
 --
-treeModelRowChanged :: TreeModelClass self => self
+treeModelRowChanged ::
+    CustomTreeModel private row
  -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row
  -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the changed row
  -> IO ()
-treeModelRowChanged self path iter =
+treeModelRowChanged model path iter =
   withTreePath path $ \pathPtr ->
-  with iter $ \iterPtr ->
+  customTreeModelGetStamp model >>= \stamp ->
+  with (iterSetStamp stamp iter) $ \iterPtr ->
   {# call gtk_tree_model_row_changed #}
-    (toTreeModel self)
+    (toTreeModel model)
     pathPtr
     iterPtr
 
--- | Emits the \"row_inserted\" signal on the 'TreeModel'
+-- | Emits the \"row_inserted\" signal on the 'CustomTreeModel'
 --
-treeModelRowInserted :: TreeModelClass self => self
+treeModelRowInserted ::
+    CustomTreeModel private row
  -> TreePath -- ^ @path@ - A 'TreePath' pointing to the inserted row
  -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the inserted row
  -> IO ()
-treeModelRowInserted self path iter =
+treeModelRowInserted model path iter =
   withTreePath path $ \pathPtr ->
-  with iter $ \iterPtr ->
+  customTreeModelGetStamp model >>= \stamp ->
+  with (iterSetStamp stamp iter) $ \iterPtr ->
   {# call gtk_tree_model_row_inserted #}
-    (toTreeModel self)
+    (toTreeModel model)
     pathPtr
     iterPtr
 
--- | Emits the \"row_has_child_toggled\" signal on the 'TreeModel'. This should
+-- | Emits the \"row_has_child_toggled\" signal on the 'CustomTreeModel'. This should
 -- be called by models after a node went from having no children to having
 -- at least one child or vice versa.
 --
-treeModelRowHasChildToggled :: TreeModelClass self => self
+treeModelRowHasChildToggled ::
+    CustomTreeModel private row
  -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row
  -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the changed row
  -> IO ()
-treeModelRowHasChildToggled self path iter =
+treeModelRowHasChildToggled model path iter =
   withTreePath path $ \pathPtr ->
-  with iter $ \iterPtr ->
+  customTreeModelGetStamp model >>= \stamp ->
+  with (iterSetStamp stamp iter) $ \iterPtr ->
   {# call gtk_tree_model_row_has_child_toggled #}
-    (toTreeModel self)
+    (toTreeModel model)
     pathPtr
     iterPtr
 
--- | Emits the \"row_deleted\" signal the 'TreeModel'. This should be called by
+-- | Emits the \"row_deleted\" signal the 'CustomTreeModel'. This should be called by
 -- models after a row has been removed. The location pointed to by @path@
 -- should be the location that the row previously was at. It may not be a valid
 -- location anymore.
 --
-treeModelRowDeleted :: TreeModelClass self => self
+treeModelRowDeleted ::
+    CustomTreeModel private row
  -> TreePath -- ^ @path@ - A 'TreePath' pointing to the previous location of
              -- the deleted row.
  -> IO ()
-treeModelRowDeleted self path =
+treeModelRowDeleted model path =
   withTreePath path $ \pathPtr ->
   {# call gtk_tree_model_row_deleted #}
-    (toTreeModel self)
+    (toTreeModel model)
     pathPtr
 
--- | Emits the \"rows_reordered\" signal on the 'TreeModel'. This should be
+-- | Emits the \"rows_reordered\" signal on the 'CustomTreeModel'. This should be
 -- called by models when their rows have been reordered.
 --
-treeModelRowsReordered :: TreeModelClass self => self
+treeModelRowsReordered ::
+    CustomTreeModel private row
  -> TreePath -- ^ @path@ - A 'TreePath' pointing to the tree node whose
              -- children have been reordered
  -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the node whose
@@ -360,16 +382,17 @@ treeModelRowsReordered :: TreeModelClass self => self
              -- position of each child to its old position before the
              -- re-ordering, i.e. @newOrder@@[newpos] = oldpos@.
  -> IO ()
-treeModelRowsReordered self path iter newOrder =
+treeModelRowsReordered model path iter newOrder =
   withTreePath path $ \pathPtr ->
-  with iter $ \iterPtr ->
+  customTreeModelGetStamp model >>= \stamp ->
+  with (iterSetStamp stamp iter) $ \iterPtr ->
   withArrayLen (map fromIntegral newOrder) $ \newLength newOrderArrPtr -> do
   --check newOrder is the right length or it'll overrun
-  curLength <- treeModelIterNChildren self (Just iter)
+  curLength <- treeModelIterNChildren model (Just iter)
   when (curLength /= newLength)
        (fail "treeModelRowsReordered: mapping wrong length for store")
   {# call gtk_tree_model_rows_reordered #}
-    (toTreeModel self)
+    (toTreeModel model)
     pathPtr
     iterPtr
     newOrderArrPtr

@@ -58,11 +58,11 @@ import Graphics.UI.Gtk.TreeList.TreeIter
 
 -- | A store for hierarchical data.
 --
-newtype TreeStore a = TreeStore (CustomTreeModel (IORef (Store a)))
+newtype TreeStore a = TreeStore (CustomTreeModel (IORef (Store a)) a)
 
 instance GObjectClass (TreeStore a)
 instance TreeModelClass (TreeStore a)
-
+instance TypedTreeModelClass TreeStore
 
 -- | Maximum number of nodes on each level.
 --
@@ -76,14 +76,6 @@ data Store a = Store {
   depth :: Depth,
   content :: Cache a
 }
-
-instance TypedTreeModelClass TreeStore where
-  treeModelGetRow (TreeStore store) iter =
-    readIORef (customStoreGetPrivate store) >>=
-      \Store { depth = d, content = cache } ->
-    case checkSuccess d iter cache of
-      (True, ((_, (Node { rootLabel = val }:_)):_)) -> return val
-      _ -> error "TreeStore.getRow: iter does not refer to a valid entry"
 
 -- | Create a new list store.
 --
@@ -103,43 +95,50 @@ treeStoreNew forest = do
         writeIORef storeRef store { content = cache' }
         return result
 
-  liftM TreeStore $ customStoreNew storeRef CustomStore {
-    customStoreGetFlags = return [],
+  liftM TreeStore $ customTreeModelNew storeRef CustomTreeModelImplementation {
+    customTreeModelGetFlags = return [],
 
-    customStoreGetIter = \path -> withStore $
+    customTreeModelGetIter = \path -> withStore $
       \Store { depth = d } -> fromPath d path,
 
-    customStoreGetPath = \iter -> withStore $
+    customTreeModelGetPath = \iter -> withStore $
       \Store { depth = d } -> toPath d iter,
 
-    customStoreIterNext = \iter -> withStoreUpdateCache $
+    customTreeModelGetRow  = \iter ->
+      readIORef storeRef >>=
+        \Store { depth = d, content = cache } ->
+      case checkSuccess d iter cache of
+        (True, ((_, (Node { rootLabel = val }:_)):_)) -> return val
+        _ -> error "TreeStore.getRow: iter does not refer to a valid entry",
+
+    customTreeModelIterNext = \iter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } -> iterNext d iter cache,
 
-    customStoreIterChildren = \mIter -> withStoreUpdateCache $
+    customTreeModelIterChildren = \mIter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
       let iter = fromMaybe invalidIter mIter
        in iterNthChild d 0 iter cache,
 
-    customStoreIterHasChild = \iter -> withStoreUpdateCache $
+    customTreeModelIterHasChild = \iter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
        let (mIter, cache') = iterNthChild d 0 iter cache
         in (isJust mIter, cache'),
 
-    customStoreIterNChildren = \mIter -> withStoreUpdateCache $
+    customTreeModelIterNChildren = \mIter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
       let iter = fromMaybe invalidIter mIter
        in iterNChildren d iter cache,
 
-    customStoreIterNthChild = \mIter idx  -> withStoreUpdateCache $
+    customTreeModelIterNthChild = \mIter idx  -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
       let iter = fromMaybe invalidIter mIter
        in iterNthChild d idx iter cache,
 
-    customStoreIterParent = \iter -> withStore $
+    customTreeModelIterParent = \iter -> withStore $
       \Store { depth = d } -> iterParent d iter,
 
-    customStoreRefNode = \_ -> return (),
-    customStoreUnrefNode = \_ -> return ()
+    customTreeModelRefNode = \_ -> return (),
+    customTreeModelUnrefNode = \_ -> return ()
    }
 
 --------------------------------------------
@@ -324,8 +323,7 @@ getTreeIterLeaf :: Depth -> TreeIter -> (Int, Int, Int)
 getTreeIterLeaf ds ti = topLevel ds
   where
   topLevel [] = (0,0,0)
-  topLevel (d:ds) | getBitSlice ti 0 d==0 = (0,0,0)
-		  | otherwise = gTIL 0 d ds
+  topLevel (d:ds) = gTIL 0 d ds
   gTIL pos dCur (dNext:ds)
     | getBitSlice ti (pos+dCur) dNext==0 = (pos,dCur,dNext)
     | otherwise = gTIL (pos+dCur) dNext ds
@@ -372,7 +370,7 @@ iterNChildren depth iter cache = case checkSuccess depth iter cache of
 iterParent :: Depth -> TreeIter -> Maybe TreeIter
 iterParent depth iter = let
     (pos,leaf,child) = getTreeIterLeaf depth iter
-  in if leaf==0 then Nothing else
+  in if pos==0 then Nothing else
      if getBitSlice iter pos leaf==0 then Nothing else
      Just (setBitSlice iter pos leaf 0)
 
@@ -386,8 +384,9 @@ iterParent depth iter = let
 --
 treeStoreInsert :: TreeStore a -> TreePath -> Int -> Forest a ->
 		   IO (Maybe TreePath)
-treeStoreInsert (TreeStore store) path pos nodes = do
-  (paths, toggle) <- atomicModifyIORef (customStoreGetPrivate store) $
+treeStoreInsert (TreeStore model) path pos nodes = do
+  customTreeModelInvalidateIters model
+  (paths, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
     \store@Store { depth = d, content = cache } ->
     case insertIntoForest (snd (last cache)) nodes path pos of
       Nothing -> (store, ([], False))
@@ -397,11 +396,11 @@ treeStoreInsert (TreeStore store) path pos nodes = do
 		    content = storeToCache newForest },
 	    (map (\idx -> path++[idx]) [idx..idx+length nodes-1], toggle))
   if null paths then return Nothing else do
-    Store { depth = depth } <- readIORef (customStoreGetPrivate store)
+    Store { depth = depth } <- readIORef (customTreeModelGetPrivate model)
     mapM_ (\path -> let Just iter = fromPath depth path in
-	   treeModelRowInserted store path iter) paths
+	   treeModelRowInserted model path iter) paths
     let Just iter = fromPath depth path
-    when toggle $ treeModelRowHasChildToggled store path iter
+    when toggle $ treeModelRowHasChildToggled model path iter
     return (Just (head paths))
 
 -- | Insert nodes into a forest.
@@ -432,8 +431,9 @@ insertIntoForest forest nodes (p:ps) pos = case splitAt p forest of
 --   The function returns @True@ if the given node was found.
 --
 treeStoreRemove :: TreeStore a -> TreePath -> IO Bool
-treeStoreRemove (TreeStore store) path = do
-  (found, toggle) <- atomicModifyIORef (customStoreGetPrivate store) $
+treeStoreRemove (TreeStore model) path = do
+  customTreeModelInvalidateIters model
+  (found, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
     \store@Store { depth = d, content = cache } ->
     if null cache then (store, (False, False)) else
     case deleteFromForest (snd (last cache)) path of
@@ -443,11 +443,11 @@ treeStoreRemove (TreeStore store) path = do
 		 content = storeToCache newForest }, (True, toggle))
   when found $ do
     when (toggle && not (null path)) $ do
-      Store { depth = depth } <- readIORef (customStoreGetPrivate store)
+      Store { depth = depth } <- readIORef (customTreeModelGetPrivate model)
       let parent = init path
 	  Just iter = fromPath depth parent
-      treeModelRowHasChildToggled store parent iter
-    treeModelRowDeleted store path
+      treeModelRowHasChildToggled model parent iter
+    treeModelRowDeleted model path
   return found
 
 -- | Remove a node from a rose tree.
@@ -486,15 +486,16 @@ treeStoreChange store func path = treeStoreChangeM store (return . func) path
 --
 treeStoreChangeM :: TreeStore a -> (a -> IO a) -> TreePath -> IO Bool
 treeStoreChangeM (TreeStore model) act path = do
+  customTreeModelInvalidateIters model
   store@Store { depth = d, content = cache } <- 
-      readIORef (customStoreGetPrivate model)
+      readIORef (customTreeModelGetPrivate model)
   (store'@Store { depth = d, content = cache }, found) <- do
     mRes <- changeForest (snd (last cache)) act path
     return $ case mRes of
       Nothing -> (store, False)
       Just newForest -> (Store { depth = d,
 				 content = storeToCache newForest }, True)
-  writeIORef (customStoreGetPrivate model) store'
+  writeIORef (customTreeModelGetPrivate model) store'
   let Just iter = fromPath d path
   when found $ treeModelRowChanged model path iter
   return found
@@ -524,6 +525,6 @@ changeForest forest act (p:ps) = case splitAt p forest of
 --
 treeStoreGet :: TreeStore a -> IO (Forest a)
 treeStoreGet (TreeStore store) = do
-  Store { content = cache } <- readIORef (customStoreGetPrivate store)
+  Store { content = cache } <- readIORef (customTreeModelGetPrivate store)
   return (if null cache then [] else (snd (last cache)))
 
