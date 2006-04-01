@@ -486,6 +486,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp		\
+	gtk/Graphics/UI/Gtk/TreeList/Types.chs				\
 	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/CustomStore.chs			\
@@ -543,6 +544,7 @@ gtk_Graphics_UI_Gtk_Gdk_Events_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_General_StockItems_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Region_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Drawable_hs_HCFLAGS	= -fglasgow-exts
+gtk_Graphics_UI_Gtk_TreeList_Types_hs_HCFLAGS	= -fglasgow-exts
 
 if WIN32
 gtk_Graphics_UI_Gtk_General_General_hs_HCFLAGS	= '-\#include"gtk/wingtk.h"' -I.
