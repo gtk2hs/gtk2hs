@@ -192,7 +192,7 @@ entryCompletionSetTextModel self model = do
   entryCompletionSetModel self (Just model)
   cell <- cellRendererTextNew
   cellLayoutPackStart self cell True
-  cellLayoutSetAttributes self cell model (\str -> [cellText := Just str])
+  cellLayoutSetAttributes self cell model (\str -> [cellText := str])
 
 -- | Sets the match function for @completion@ to be @func@. The match function
 -- is used to determine if a row should or should not be in the completion

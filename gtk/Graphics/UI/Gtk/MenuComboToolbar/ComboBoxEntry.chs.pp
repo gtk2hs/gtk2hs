@@ -138,6 +138,6 @@ comboBoxEntrySetTextModel self model = do
   comboBoxSetModel self (Just model)
   cell <- cellRendererTextNew
   cellLayoutPackStart self cell True
-  cellLayoutSetAttributes self cell model (\str -> [cellText := Just str])
+  cellLayoutSetAttributes self cell model (\str -> [cellText := str])
 
 #endif

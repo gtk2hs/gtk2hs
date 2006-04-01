@@ -345,8 +345,8 @@ cellStyleSet = newAttrFromBoolProperty "style-set"
 -- | Define the attribute that specifies the text to be rendered. See
 --   also 'cellMarkup'.
 --
-cellText :: CellRendererTextClass cr => Attr cr (Maybe String)
-cellText  = newAttrFromMaybeStringProperty "text"
+cellText :: CellRendererTextClass cr => Attr cr String
+cellText  = newAttrFromStringProperty "text"
 
 -- | Style of underline for this text.
 --
