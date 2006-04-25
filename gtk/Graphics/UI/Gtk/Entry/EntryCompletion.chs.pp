@@ -198,12 +198,20 @@ entryCompletionSetTextModel self model = do
 -- is used to determine if a row should or should not be in the completion
 -- list.
 --
-entryCompletionSetMatchFunc :: EntryCompletion -> (String -> TreeIter -> IO ()) -> IO ()
+-- * The passed-in function decides whether the row indicated by the
+--   'TreeIter' matches a given key, and should be displayed as a possible
+--   completion for key. Note that key is normalized and case-folded.
+--   Normalization will standardizing such issues as whether a character
+--   with an accent is represented as a base character and combining accent
+--   or as a single precomposed character. If this is not appropriate you
+--   can extract the original text from the entry.
+--
+entryCompletionSetMatchFunc :: EntryCompletion -> (String -> TreeIter -> IO Bool) -> IO ()
 entryCompletionSetMatchFunc ec handler = do
   hPtr <- mkHandler_GtkEntryCompletionMatchFunc
     (\_ keyPtr iterPtr _ -> do key <- peekUTFString keyPtr
                                iter <- peek iterPtr
-                               handler key iter)
+                               liftM fromBool $ handler key iter)
   dPtr <- mkFunPtrDestroyNotify hPtr
   {# call gtk_entry_completion_set_match_func #} ec
     (castFunPtr hPtr) nullPtr dPtr
@@ -217,7 +225,7 @@ type GtkEntryCompletionMatchFunc =
   Ptr CChar ->           --const gchar *key
   Ptr TreeIter ->        --GtkTreeIter *iter
   Ptr () ->              --gpointer user_data
-  IO ()
+  IO {#type gboolean#}
 
 foreign import ccall "wrapper" mkHandler_GtkEntryCompletionMatchFunc ::
   GtkEntryCompletionMatchFunc -> 
