@@ -40,7 +40,7 @@
  * do not need to replace these calls with anything else, so just define them
  * to expand to nothing: */
 #define rts_lock()
-#define rts_unlock(x)
+#define rts_unlock()
 #endif
 
 #if __GLASGOW_HASKELL__>604
@@ -137,7 +137,11 @@ gtk2hs_closure_marshal(GClosure *closure,
         gtk2hs_value_from_haskellobj(return_value, ret);
     }
     
-    rts_unlock(CAP);
+#ifdef GHC_RTS_USES_CAPABILITY
+    rts_unlock(cap);
+#else
+    rts_unlock();
+#endif
     WHEN_DEBUG(g_debug("gtk2hs_closure_marshal: done running callback"));
 }
 
