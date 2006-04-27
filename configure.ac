@@ -743,15 +743,12 @@ if test "$BUILDDOCS" = "yes"; then
   AC_MSG_CHECKING([version of haddock])
   HADDOCK_VERSION=`$HADDOCK --version | $CUT -d' ' -f3 | $CUT -d, -f1`
   AC_MSG_RESULT([$HADDOCK_VERSION])  
-  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -lt, 0.6, [
-    AC_MSG_ERROR([I need haddock 0.6 or later to build the documentation.
+  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -lt, 0.7, [
+    AC_MSG_ERROR([I need haddock 0.7 or later to build the documentation.
     Upgrade your version of haddock or re-run configure without --enable-docs])])
-  HYPHENATED_DOCS="no";
-  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 0.7, [HYPHENATED_DOCS="yes";])
   GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 0.8, [USE_CPP_LINES="yes";])
 fi
 AM_CONDITIONAL(BUILDDOCS, test "$BUILDDOCS" = "yes")
-AM_CONDITIONAL(HYPHENATED_DOCS, test "$HYPHENATED_DOCS" = "yes")
 
 AC_ARG_WITH(ghc-docdir, 
             [  --with-ghc-docdir=GHC_DOCDIR  location of top of ghc haddockified html documentation],

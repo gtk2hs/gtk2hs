@@ -1381,20 +1381,15 @@ PACKAGES = $(foreach PACKAGE,$(pkglib_LIBRARIES), $(patsubst libHS%.a,%,$(PACKAG
 html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE),	\
 		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))
 
-if HYPHENATED_DOCS
-DOCS_SEP =-
-else
-DOCS_SEP =.
-endif # HYPHENATED_DOCS
-
 html_DATA =									  \
 	$(foreach HSFILE, $(filter-out						  \
 	$(html_HSFILES_HIDDEN),$(html_HSFILES)),				  \
 	    $(patsubst $(firstword $(subst /,					  \
-	    ,$(HSFILE)))$(DOCS_SEP)%.hs,					  \
+	    ,$(HSFILE)))-%.hs,							  \
 	     docs/reference/%.html,						  \
-		$(subst /,$(DOCS_SEP),$(HSFILE:.uncpp=))))			  \
+		$(subst /,-,$(HSFILE:.uncpp=))))				  \
 	docs/reference/haddock.css docs/reference/haskell_icon.gif		  \
+	docs/reference/minus.gif docs/reference/haddock.js			  \
 	docs/reference/index.html docs/reference/doc-index.html			  \
 	docs/reference/gtk2hs.haddock						  \
 	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X 58,	  \
