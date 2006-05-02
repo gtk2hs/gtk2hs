@@ -77,12 +77,27 @@ import Control.Concurrent.MVar ( MVar, newMVar, modifyMVar )
 -- | Construct a new object (should rairly be used directly)
 --
 objectNew :: GType -> [(String, GValue)] -> IO (Ptr GObject)
-objectNew objType parameters =
-  liftM castPtr $ --caller must makeNewGObject as we don't know
+objectNew objType parameters = do
+  obj <- liftM castPtr $ --caller must makeNewGObject as we don't know
                   --if it this a GObject or a GtkObject
-  withArray (map GParameter parameters) $ \paramArrayPtr ->
-  {# call g_object_newv #} objType
-  (fromIntegral $ length parameters) paramArrayPtr
+    withArray (map GParameter parameters) $ \paramArrayPtr ->
+    {# call g_object_newv #} objType
+    (fromIntegral $ length parameters) paramArrayPtr
+  objectRefSink obj
+  return obj
+
+
+#if GTK_CHECK_VERSION(2,10,0)
+-- | Reference and sink an object.
+objectRefSink :: GObjectClass obj => Ptr obj -> IO ()
+objectRefSink obj = do
+  {#call unsafe object_ref_sink#} (castPtr obj)
+  return ()
+
+#else
+objectRefSink :: GObjectClass obj => Ptr obj -> IO ()
+objectRefSink obj = return ()
+#endif
 
 -- | Increase the reference counter of an object
 --
@@ -108,7 +123,6 @@ foreign import ccall unsafe "g_object_unref"
 
 #endif
 
-
 -- | This function wraps any object that does not
 -- derive from Object. The object is reference, hence it should be used
 -- whenever a function returns a pointer to an internal 'GObject'.
@@ -132,12 +146,18 @@ foreign import ccall "wrapper" mkDestroyNotifyPtr :: IO () -> IO DestroyNotify
 -- when a new object is created. Newly created 'GObject's have a reference
 -- count of one, hence don't need ref'ing.
 --
--- * The first argument is the contructor of the specific object.
+-- * Note that from Glib 2.10 onwards, 'makeNewGObject' and
+--   'constructNewGObject' are semantically synonyms. In these new Glib
+--   implementations, each newly created 'GObject' has a reference count
+--   of zero (and a floating reference to keep it alive until it is
+--   referenced). However, for older Glib releases, the distinction
+--   is crucial.
 --
 constructNewGObject :: GObjectClass obj => 
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
 constructNewGObject constr generator = do
   objPtr <- generator
+  objectRefSink objPtr
   obj <- newForeignPtr objPtr (objectUnref objPtr)
   return $ constr obj
 
