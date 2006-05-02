@@ -40,7 +40,7 @@
 module Graphics.UI.Gtk.Cairo (
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
   -- * Global Cairo settings.
-  cairoFontMapNew,
+  cairoFontMapGetDefault,
   cairoFontMapSetResolution,
   cairoFontMapGetResolution,
   cairoCreateContext,
@@ -141,8 +141,12 @@ region region = Render $ do
     region
 
 
--- | Create a 'Graphics.UI.Gtk.Pango.FontMap' that contains a list of
---   available fonts.
+-- cairo_font_map_new cannot be bound due to incorrect memory management
+-- in functions like font_map_list_families that create new structures
+-- that store the font map without referencing them
+
+-- | Retrieve the default 'Graphics.UI.Gtk.Pango.FontMap' that contains a
+--   list of available fonts.
 --
 -- * One purpose of creating an explicit
 --  'Graphics.UI.Gtk.Pango.Font.FontMap' is to set
@@ -152,9 +156,9 @@ region region = Render $ do
 --   therefore scale to
 --   @10pt * (1\/72 pt\/inch) * (96 pixel\/inch) = 13.3 pixel@.
 --
-cairoFontMapNew :: IO FontMap
-cairoFontMapNew = 
-  constructNewGObject mkFontMap $ {#call unsafe pango_cairo_font_map_new#}
+cairoFontMapGetDefault :: IO FontMap
+cairoFontMapGetDefault = 
+  makeNewGObject mkFontMap $ {#call unsafe pango_cairo_font_map_get_default#}
 
 -- | Set the scaling factor between font size and Cairo units.
 --
@@ -185,7 +189,7 @@ cairoCreateContext (Just (FontMap fm)) = constructNewGObject mkPangoContext $
   withForeignPtr fm $ \fmPtr -> -- PangoCairoFontMap /= PangoFontMap
   {#call unsafe pango_cairo_font_map_create_context#} (castPtr fmPtr)
 cairoCreateContext Nothing = do
-  fmPtr <- {#call pango_cairo_font_map_get_default#}
+  fmPtr <- {#call unsafe pango_cairo_font_map_get_default#}
   constructNewGObject mkPangoContext $
     {#call unsafe pango_cairo_font_map_create_context#} (castPtr fmPtr)
 

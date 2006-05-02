@@ -84,8 +84,8 @@ import Graphics.UI.Gtk.Pango.Description
 
 -- | Ask for the different font families that a particular back-end supports.
 --
--- * The given 'FontMap' can be acquired by calling
---   'Graphics.UI.Gtk.Cairo.cairoFontMapNew' or 
+-- * The 'FontMap' can be acquired by calling
+--   'Graphics.UI.Gtk.Cairo.cairoFontMapGetDefault'. 
 --
 pangoFontMapListFamilies :: FontMap -> IO [FontFamily]
 pangoFontMapListFamilies fm = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
@@ -94,9 +94,8 @@ pangoFontMapListFamilies fm = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   size <- peek sizePtr
   ffsPtr <- peekArray (fromIntegral size) 
 	    (castPtr arrPtr::Ptr (Ptr FontFamily)) -- c2hs is wrong here
-  ffs <- mapM (makeNewGObject mkFontFamily . return . castPtr) ffsPtr
   {#call unsafe g_free#} (castPtr arrPtr)
-  return ffs
+  mapM (makeNewGObject mkFontFamily . return . castPtr) ffsPtr
 
 instance Show FontFamily where
   show ff = unsafePerformIO $ do
@@ -134,9 +133,8 @@ pangoFontFamilyListFaces ff = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   size <- peek sizePtr
   ffsPtr <- peekArray (fromIntegral size) 
 	    (castPtr arrPtr::Ptr (Ptr FontFace)) -- c2hs is wrong here
-  ffs <- mapM (makeNewGObject mkFontFace . return . castPtr) ffsPtr
   {#call unsafe g_free#} (castPtr arrPtr)
-  return ffs
+  mapM (makeNewGObject mkFontFace . return . castPtr) ffsPtr
 
 instance Show FontFace where
   show ff = unsafePerformIO $ do

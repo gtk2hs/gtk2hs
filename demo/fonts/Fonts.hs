@@ -4,7 +4,7 @@ import Data.List ( intersperse )
 
 main = do
   initGUI
-  fm <- cairoFontMapNew
+  fm <- cairoFontMapGetDefault
   ffs <- pangoFontMapListFamilies fm
   mapM_ (\ff -> do
     putStrLn (show ff++": ")
