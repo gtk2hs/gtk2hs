@@ -87,7 +87,7 @@ objectNew objType parameters = do
   return obj
 
 
-#if GTK_CHECK_VERSION(2,10,0)
+#if GLIB_CHECK_VERSION(2,10,0)
 -- | Reference and sink an object.
 objectRefSink :: GObjectClass obj => Ptr obj -> IO ()
 objectRefSink obj = do
@@ -145,13 +145,6 @@ foreign import ccall "wrapper" mkDestroyNotifyPtr :: IO () -> IO DestroyNotify
 -- derive from Object. The object is NOT reference, hence it should be used
 -- when a new object is created. Newly created 'GObject's have a reference
 -- count of one, hence don't need ref'ing.
---
--- * Note that from Glib 2.10 onwards, 'makeNewGObject' and
---   'constructNewGObject' are semantically synonyms. In these new Glib
---   implementations, each newly created 'GObject' has a reference count
---   of zero (and a floating reference to keep it alive until it is
---   referenced). However, for older Glib releases, the distinction
---   is crucial.
 --
 constructNewGObject :: GObjectClass obj => 
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
