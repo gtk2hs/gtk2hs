@@ -176,7 +176,7 @@ data Click = SingleClick
 -- * The 'Packing' parameter determines how the child behaves in the horizontal
 --   or vertical way in an 'HBox' or 'VBox', respectively. 'PackNatural'
 --   means the child is as big as it reqests. It will stay at the start
---   of the end of a 'Box' if there is more space availble.
+--   of the end of a 'Box' if there is more space available.
 --   All children packed with 'PackRepel' will be padded on both sides with
 --   additional space. 'PackGrow' will increase the size of a widget so that it
 --   covers the available space. A menu bar, for instance, should always
