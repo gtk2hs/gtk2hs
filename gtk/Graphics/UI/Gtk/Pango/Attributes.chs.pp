@@ -45,54 +45,6 @@ import Data.List ( sortBy )
 
 {# context lib="pango" prefix="pango" #}
 
-
--- | The characteristic measurements of a font.
---
--- * All values are measured in points, expressed as 'PangoUnit's.
---
--- * The last four fields are only available in Pango 1.6 or higher.
---
-data FontMetrics = FontMetrics {
-  -- | The ascent is the distance from the baseline to the logical top
-  --   of a line of text. (The logical top may be above or below the
-  --   top of the actual drawn ink. It is necessary to lay out the
-  --   text to figure where the ink will be.)
-  ascent :: PangoUnit,
-  -- | The descent is the distance from the baseline to the logical
-  --   bottom of a line of text. (The logical bottom may be above or
-  --   below the bottom of the actual drawn ink. It is necessary to
-  --   lay out the text to figure where the ink will be.)
-  descent :: PangoUnit,
-  -- | The approximate character width. This is merely a
-  --   representative value useful, for example, for determining the
-  --   initial size for a window. Actual characters in text will be
-  --   wider and narrower than this.
-  approximateCharWidth :: PangoUnit,
-  -- | The approximate digit width. This is merely a representative
-  --   value useful, for example, for determining the initial size for
-  --   a window. Actual digits in text can be wider and narrower than
-  --   this, though this value is generally somewhat more accurate
-  --   than 'approximateCharWidth'.
-  approximateDigitWidth :: PangoUnit
-#if PANGO_CHECK_VERSION(1,6,0)
-  ,
-  -- | The suggested thickness to draw an underline.
-  underlineThickness :: PangoUnit,
-  -- | The suggested position to draw the underline. The value returned is
-  --   the distance above the baseline of the top of the underline. Since
-  --   most fonts have underline positions beneath the baseline, this value
-  --   is typically negative.
-  underlinePosition :: PangoUnit,
-  -- | The suggested thickness to draw for the strikethrough.
-  strikethroughThickenss :: PangoUnit,
-  -- | The suggested position to draw the strikethrough. The value
-  --   returned is the distance above the baseline of the top of the
-  --   strikethrough.
-  strikethroughPosition :: PangoUnit
-#endif
-  } deriving Show
-
-
 -- | Attributes for 'PangoItem's.
 --
 -- * A given attribute is applied from its start position 'paStart' up,
@@ -113,13 +65,13 @@ data PangoAttribute
   -- | Stretch or condense the width of the letters.
   | AttrStretch { paStart :: Int, paEnd :: Int, paStretch :: Stretch }
   -- | Specify the size of the font in points.
-  | AttrSize { paStart :: Int, paEnd :: Int, paSize :: PangoUnit }
+  | AttrSize { paStart :: Int, paEnd :: Int, paSize :: Double }
 #if PANGO_CHECK_VERSION(1,8,0)
   -- | Specify the size of the font in device units (pixels).
   --
   -- * Available in Pango 1.8.0 and higher.
   --
-  | AttrAbsSize { paStart :: Int, paEnd :: Int, paSize :: PangoUnit }
+  | AttrAbsSize { paStart :: Int, paEnd :: Int, paSize :: Double }
 #endif
   -- | Specify several attributes of a font at once.
   | AttrFontDescription { paStart :: Int, paEnd :: Int,
@@ -149,7 +101,7 @@ data PangoAttribute
   | AttrStrikethroughColor { paStart :: Int, paEnd :: Int, paColor :: Color }
 #endif
   -- | Displace the text vertically. Positive values move the text upwards.
-  | AttrRise { paStart :: Int, paEnd :: Int, paRise :: PangoUnit }
+  | AttrRise { paStart :: Int, paEnd :: Int, paRise :: Double }
 #if PANGO_CHECK_VERSION(1,8,0)
   -- | Restrict the amount of what is drawn of the marked shapes.
   --
@@ -171,7 +123,7 @@ data PangoAttribute
   -- * Available in Pango 1.6.0 and higher.
   --
   | AttrLetterSpacing { paStart :: Int, paEnd :: Int, 
-			paLetterSpacing :: PangoUnit }
+			paLetterSpacing :: Double }
 #endif
  
 -- Attributes

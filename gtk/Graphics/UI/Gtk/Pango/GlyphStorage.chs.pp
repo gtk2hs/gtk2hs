@@ -112,7 +112,7 @@ glyphItemIndexToX :: GlyphItem -- ^ the rendered string
 		    -> Int -- ^ the index into the string
 		    -> Bool -- ^ return the beginning (@False@) or the end 
 			    -- of the character
-		    -> IO PangoUnit
+		    -> IO Double
 glyphItemIndexToX (GlyphItem (PangoItem ps pir) gs) pos beg =
   withPangoItemRaw pir $ \pirPtr -> alloca $ \intPtr -> 
   withPangoString ps $ \uc l strPtr -> do
@@ -129,7 +129,7 @@ glyphItemIndexToX (GlyphItem (PangoItem ps pir) gs) pos beg =
 --   to the given horizontal location. Furthermore, if the position lies
 --   on the first half of the character, @False@ is returned.
 --
-glyphItemXToIndex :: GlyphItem -> PangoUnit -> IO (Int, Bool)
+glyphItemXToIndex :: GlyphItem -> Double -> IO (Int, Bool)
 glyphItemXToIndex (GlyphItem (PangoItem ps pir) gs) pos =
   withPangoItemRaw pir $ \pirPtr -> alloca $ \intPtr -> 
   alloca $ \boolPtr -> withPangoString ps $ \uc l strPtr -> do
@@ -151,7 +151,7 @@ glyphItemXToIndex (GlyphItem (PangoItem ps pir) gs) pos =
 --   characters compose a single glyph, the width of this glyph is
 --   divided among the characters that compose this cluster.
 --
-glyphItemGetLogicalWidths :: GlyphItem -> Maybe Bool -> IO [PangoUnit]
+glyphItemGetLogicalWidths :: GlyphItem -> Maybe Bool -> IO [Double]
 glyphItemGetLogicalWidths (GlyphItem (PangoItem ps pir) gs) mDir = do
   dir <- case mDir of
     Just dir -> return dir

@@ -29,7 +29,7 @@
 -- Define types used in Pango which are not derived from GObject.
 --
 module Graphics.UI.Gtk.Pango.Types (
-  PangoUnit(PangoUnit),
+  PangoUnit,
   puToInt, puToUInt,
   intToPu, uIntToPu,
   PangoRectangle(PangoRectangle),
@@ -83,89 +83,45 @@ import Graphics.UI.Gtk.General.Structs ( pangoScale, Rectangle(..),
 
 {# context lib="pango" prefix="pango" #}
 
--- | A pango unit is an internal euclidian metric, that is, a measure for 
---   lengths and position.
+-- A pango unit is an internal euclidian metric, that is, a measure for 
+-- lengths and position.
 --
--- * Converting pango units to integers or rationals results in device units
---   which are pixels for on-screen texts and points (1\/72 inch) for printers.
---   Internally, a pango unit
---   is a device unit scaled by 1024, hence allowing
---   more precise sub-pixel\/sub-point calculations. As a rule of thumb,
---   any pango function that passes sizes or positions as @Int@ expects
---   a measurement in points, all function that take a 'PangoUnit'
---   expect a measures in pixels. However, some functions that take
---   'PangoUnit's or 'PangoRectangle's have convenience variant that
---   take 'Int's as measurements in pixels. A 'PangoUnit's can be converted
---   to and from device units (pixels or points) using @fromIntegral@ and
---   @fromRational@, respectively.
---
-newtype PangoUnit = PangoUnit Int
-  deriving (Eq, Ord)
+-- * Deprecated. Replaced by Double.
+type PangoUnit = Double
 
-puToInt :: PangoUnit -> {#type gint#}
-puToInt (PangoUnit u) = fromIntegral u
+puToInt :: Double -> {#type gint#}
+puToInt u = truncate (u*pangoScale)
 
-puToUInt :: PangoUnit -> {#type guint#}
-puToUInt (PangoUnit u) = fromIntegral u
+puToUInt :: Double -> {#type guint#}
+puToUInt u = let u' = u*pangoScale in if u<0 then 0 else truncate u
 
-intToPu :: {#type gint#} -> PangoUnit
-intToPu i = PangoUnit (fromIntegral i)
+intToPu :: {#type gint#} -> Double
+intToPu i = fromIntegral i/pangoScale
 
-uIntToPu :: {#type guint#} -> PangoUnit
-uIntToPu i = PangoUnit (fromIntegral i)
-
-instance Show PangoUnit where
-  showsPrec _ pu = showFFloat (Just 2) (realToFrac pu)
-
-instance Enum PangoUnit where
-  succ (PangoUnit u) = PangoUnit (u+1)
-  pred (PangoUnit u) = PangoUnit (u-1)
-  toEnum u = PangoUnit u
-  fromEnum (PangoUnit u) = u
-
-instance Num PangoUnit where
-  (PangoUnit u1) + (PangoUnit u2) = PangoUnit (u1+u2)
-  (PangoUnit u1) - (PangoUnit u2) = PangoUnit (u1-u2)
-  (PangoUnit u1) * (PangoUnit u2) = PangoUnit (u1*u2 `div` pangoScale)
-  negate (PangoUnit u) = PangoUnit (-u)
-  abs (PangoUnit u) = PangoUnit (abs u)
-  signum (PangoUnit u) = PangoUnit (pangoScale * signum u)
-  fromInteger i = PangoUnit (fromIntegral i * pangoScale)
-
-instance Real PangoUnit where
-  toRational (PangoUnit u) = fromIntegral u % fromIntegral pangoScale
-
-instance Integral PangoUnit where
-  (PangoUnit u1) `quot` (PangoUnit u2) = PangoUnit (u1*pangoScale `quot` u2)
-  (PangoUnit u1) `rem` (PangoUnit u2) = PangoUnit (u1*pangoScale `rem` u2)
-  pu1 `quotRem` pu2 = (pu1 `quot` pu2, pu1 `rem` pu2)
-  (PangoUnit u1) `div` (PangoUnit u2) = PangoUnit (u1*pangoScale `div` u2)
-  (PangoUnit u1) `mod` (PangoUnit u2) = PangoUnit (u1*pangoScale `mod` u2)
-  pu1 `divMod` pu2 = (pu1 `div` pu2, pu1 `mod` pu2)
-  toInteger (PangoUnit u) = fromIntegral 
-    ((u+(pangoScale `shiftR` 1)) `div` pangoScale)
-
-instance Fractional PangoUnit where
-  (PangoUnit u1) / (PangoUnit u2) = PangoUnit (u1*pangoScale `quot` u2)
-  fromRational r = PangoUnit (round (r*fromIntegral pangoScale))
+uIntToPu :: {#type guint#} -> Double
+uIntToPu i = fromIntegral i/pangoScale
 
 
--- | Rectangles describing an area in 'PangoUnit's.
+-- | Rectangles describing an area in 'Double's.
 --
 -- * Specifies x, y, width and height
 --
-data PangoRectangle = PangoRectangle PangoUnit PangoUnit PangoUnit PangoUnit
+data PangoRectangle = PangoRectangle Double Double Double Double
 		      deriving Show
 
 -- Cheating functions: We marshal PangoRectangles as Rectangles.
 fromRect :: Rectangle -> PangoRectangle
 fromRect (Rectangle x y w h) =
-  PangoRectangle (PangoUnit x) (PangoUnit y) (PangoUnit w) (PangoUnit h)
+  PangoRectangle (fromIntegral x/pangoScale)
+		 (fromIntegral y/pangoScale)
+		 (fromIntegral w/pangoScale)
+		 (fromIntegral h/pangoScale)
 
 toRect :: PangoRectangle -> Rectangle
-toRect (PangoRectangle (PangoUnit x) (PangoUnit y) (PangoUnit w) 
-	(PangoUnit h)) = Rectangle x y w h
-  
+toRect (PangoRectangle x y w h) = Rectangle (truncate (x*pangoScale))
+				            (truncate (y*pangoScale))
+				            (truncate (w*pangoScale))
+				            (truncate (h*pangoScale))
 
 -- A string that is stored with each GlyphString, PangoItem
 data PangoString = PangoString UTFCorrection CInt (ForeignPtr CChar)
@@ -383,47 +339,48 @@ languageFromString language = liftM Language $
 
 -- | The characteristic measurements of a font.
 --
--- * All values are measured in points, expressed as 'PangoUnit's.
+-- * All values are measured in pixels.
 --
--- * The last four fields are only available in Pango 1.6 or higher.
+-- * In Pango versions before 1.6 only 'ascent', 'descent',
+--   'approximateCharWidth' and 'approximateDigitWidth' are available.
 --
 data FontMetrics = FontMetrics {
   -- | The ascent is the distance from the baseline to the logical top
   --   of a line of text. (The logical top may be above or below the
   --   top of the actual drawn ink. It is necessary to lay out the
   --   text to figure where the ink will be.)
-  ascent :: PangoUnit,
+  ascent :: Double,
   -- | The descent is the distance from the baseline to the logical
   --   bottom of a line of text. (The logical bottom may be above or
   --   below the bottom of the actual drawn ink. It is necessary to
   --   lay out the text to figure where the ink will be.)
-  descent :: PangoUnit,
+  descent :: Double,
   -- | The approximate character width. This is merely a
   --   representative value useful, for example, for determining the
   --   initial size for a window. Actual characters in text will be
   --   wider and narrower than this.
-  approximateCharWidth :: PangoUnit,
+  approximateCharWidth :: Double,
   -- | The approximate digit width. This is merely a representative
   --   value useful, for example, for determining the initial size for
   --   a window. Actual digits in text can be wider and narrower than
   --   this, though this value is generally somewhat more accurate
   --   than 'approximateCharWidth'.
-  approximateDigitWidth :: PangoUnit
+  approximateDigitWidth :: Double
 #if PANGO_CHECK_VERSION(1,6,0)
   ,
   -- | The suggested thickness to draw an underline.
-  underlineThickness :: PangoUnit,
+  underlineThickness :: Double,
   -- | The suggested position to draw the underline. The value returned is
   --   the distance above the baseline of the top of the underline. Since
   --   most fonts have underline positions beneath the baseline, this value
   --   is typically negative.
-  underlinePosition :: PangoUnit,
+  underlinePosition :: Double,
   -- | The suggested thickness to draw for the strikethrough.
-  strikethroughThickenss :: PangoUnit,
+  strikethroughThickenss :: Double,
   -- | The suggested position to draw the strikethrough. The value
   --   returned is the distance above the baseline of the top of the
   --   strikethrough.
-  strikethroughPosition :: PangoUnit
+  strikethroughPosition :: Double
 #endif
   } deriving Show
 

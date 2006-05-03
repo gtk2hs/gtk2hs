@@ -177,12 +177,12 @@ fontDescriptionGetStretch fd = do
 --
 -- * The given size is in points (pts). One point is 1\/72 inch.
 --
-fontDescriptionSetSize :: FontDescription -> PangoUnit -> IO ()
+fontDescriptionSetSize :: FontDescription -> Double -> IO ()
 fontDescriptionSetSize fd p = 
   {#call unsafe set_size#} fd (puToInt p)
 
 -- | Get the size field.
-fontDescriptionGetSize :: FontDescription -> IO (Maybe PangoUnit)
+fontDescriptionGetSize :: FontDescription -> IO (Maybe Double)
 fontDescriptionGetSize fd = do
   fields <- {#call unsafe get_set_fields#} fd
   if (fromEnum PangoFontMaskSize) .&. (fromIntegral fields) /=0

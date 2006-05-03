@@ -701,11 +701,9 @@ layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
 --   definition of device unit is dependent on the output device; it will
 --   typically be pixels for a screen, and points for a printer.  When
 --   setting font sizes, device units are always considered to be points
---   (as in \"12 point font\"), rather than pixels. For example, setting
---   the indentation of a paragraph @lay@ to 10 pixels is done by calling
---   @'layoutSetIndent' lay (10*pangoScale)@.
+--   (as in \"12 point font\"), rather than pixels.
 --
-pangoScale :: Int
+pangoScale :: Double
 pangoScale = #const PANGO_SCALE
 
 -- | The 'PangoDirection' type represents a direction in the Unicode

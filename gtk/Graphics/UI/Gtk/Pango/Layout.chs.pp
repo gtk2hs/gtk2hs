@@ -320,7 +320,7 @@ foreign import ccall unsafe "pango_font_description_copy"
 --
 -- * Pass in @Nothing@ to indicate that no wrapping is to be performed.
 --
-layoutSetWidth :: PangoLayout -> Maybe PangoUnit -> IO ()
+layoutSetWidth :: PangoLayout -> Maybe Double -> IO ()
 layoutSetWidth (PangoLayout _ pl) Nothing =
   {#call unsafe layout_set_width#} pl (-1)
 layoutSetWidth (PangoLayout _ pl) (Just pu) =
@@ -334,7 +334,7 @@ layoutSetWidth (PangoLayout _ pl) (Just pu) =
 -- * Returns is the current width, or @Nothing@ to indicate that
 --   no wrapping is performed.
 --
-layoutGetWidth :: PangoLayout -> IO (Maybe PangoUnit)
+layoutGetWidth :: PangoLayout -> IO (Maybe Double)
 layoutGetWidth (PangoLayout _ pl) = do
   w <- {#call unsafe layout_get_width#} pl
   return (if w==(-1) then Nothing else Just (intToPu w))
@@ -400,7 +400,7 @@ layoutGetEllipsize (PangoLayout _ pl) = liftM (toEnum.fromIntegral) $
 --   all subsequent lines will be indented while the first line has full
 --   width.
 --
-layoutSetIndent :: PangoLayout -> PangoUnit -> IO ()
+layoutSetIndent :: PangoLayout -> Double -> IO ()
 layoutSetIndent (PangoLayout _ pl) indent =
   {#call unsafe layout_set_indent#} pl (puToInt indent)
 
@@ -409,20 +409,20 @@ layoutSetIndent (PangoLayout _ pl) indent =
 -- * Gets the amount by which the first line or the rest of the paragraph
 --   is indented.
 --
-layoutGetIndent :: PangoLayout -> IO PangoUnit
+layoutGetIndent :: PangoLayout -> IO Double
 layoutGetIndent (PangoLayout _ pl) = 
   liftM intToPu $ {#call unsafe layout_get_indent#} pl
 
 
 -- | Set the spacing between lines of this paragraph.
 --
-layoutSetSpacing :: PangoLayout -> PangoUnit -> IO ()
+layoutSetSpacing :: PangoLayout -> Double -> IO ()
 layoutSetSpacing (PangoLayout _ pl) spacing =
   {#call unsafe layout_set_spacing#} pl (puToInt spacing)
 
 -- | Gets the spacing between the lines.
 --
-layoutGetSpacing :: PangoLayout -> IO PangoUnit
+layoutGetSpacing :: PangoLayout -> IO Double
 layoutGetSpacing (PangoLayout _ pl) = 
   liftM intToPu $ {#call unsafe layout_get_spacing#} pl
 
@@ -508,7 +508,7 @@ layoutGetAlignment (PangoLayout _ pl) = liftM (toEnum.fromIntegral) $
 
 -- | A Tab position.
 --
-type TabPosition = (PangoUnit, TabAlign)
+type TabPosition = (Double, TabAlign)
 
 -- | Set a list of Tab positoins.
 --
@@ -583,8 +583,8 @@ layoutGetSingleParagraphMode (PangoLayout _ pl) =
 --   may be greater than one, indicating where in the grapheme the position
 --   lies. Zero represents the trailing edge on the grapheme.
 --
-layoutXYToIndex :: PangoLayout -> PangoUnit -- ^ the @x@ position
-		-> PangoUnit -- ^ the @y@ position
+layoutXYToIndex :: PangoLayout -> Double -- ^ the @x@ position
+		-> Double -- ^ the @y@ position
 		-> IO (Bool, Int, Int)
 layoutXYToIndex (PangoLayout psRef pl) x y = 
   alloca $ \idxPtr -> alloca $ \trailPtr -> do
@@ -711,7 +711,7 @@ layoutGetExtents (PangoLayout _ pl) =
 --
 -- * Computes the ink and the logical size of the 'Layout' in device units,
 --   that is, pixels for a screen. Identical to 'layoutGetExtents' and
---   converting the 'PangoUnit's in the 'PangoRectangle' to integers.
+--   converting the 'Double's in the 'PangoRectangle' to integers.
 --
 layoutGetPixelExtents :: PangoLayout -> IO (Rectangle, Rectangle)
 layoutGetPixelExtents (PangoLayout _ pl) =
@@ -826,7 +826,7 @@ layoutIterGetIndex (LayoutIter psRef li) = do
 -- * Gets the y position of the current line's baseline (origin at top
 --   left of the entire layout).
 --
-layoutIterGetBaseline :: LayoutIter -> IO PangoUnit
+layoutIterGetBaseline :: LayoutIter -> IO Double
 layoutIterGetBaseline (LayoutIter _ li) = 
   liftM intToPu $ {#call unsafe pango_layout_iter_get_baseline#} li
 
@@ -919,7 +919,7 @@ layoutIterGetRunExtents (LayoutIter _ li) =
 -- * The first element in the returned tuple is the start, the second is
 --   the end of this line.
 --
-layoutIterGetLineYRange :: LayoutIter -> IO (PangoUnit, PangoUnit)
+layoutIterGetLineYRange :: LayoutIter -> IO (Double, Double)
 layoutIterGetLineYRange (LayoutIter _ li) =
   alloca $ \sPtr -> alloca $ \ePtr -> do
   {#call unsafe layout_iter_get_line_extents#} li (castPtr sPtr) (castPtr ePtr)
@@ -982,7 +982,7 @@ layoutLineIndexToX :: LayoutLine
 		   -> Int -- ^ the index into the string
 		   -> Bool -- ^ return the beginning (@False@) or the end 
 			    -- of the character
-		   -> IO PangoUnit
+		   -> IO Double
 layoutLineIndexToX (LayoutLine psRef ll) pos beg =
   alloca $ \intPtr -> do
     (PangoString uc _ _) <- readIORef psRef
@@ -1010,7 +1010,7 @@ layoutLineIndexToX (LayoutLine psRef ll) pos beg =
 --   0 for the trailing edge of the cluster.
 --
 layoutLineXToIndex :: LayoutLine 
-		   -> PangoUnit -- ^ The @x@ position.
+		   -> Double -- ^ The @x@ position.
 		   -> IO (Bool, Int, Int)
 layoutLineXToIndex (LayoutLine psRef ll) pos =
   alloca $ \idxPtr -> alloca $ \trailPtr -> do
@@ -1047,7 +1047,7 @@ layoutLineGetXRanges :: LayoutLine -- ^ The line of interest.
 			    -- edge of the layout. Otherwise, it will end
 			    -- at the trailing edge of the last
 			    -- character.
-		     -> IO [(PangoUnit, PangoUnit)]
+		     -> IO [(Double, Double)]
 layoutLineGetXRanges (LayoutLine psRef ll) start end = do
   PangoString uc _ _ <- readIORef psRef
   alloca $ \arrPtr -> alloca $ \szPtr -> do

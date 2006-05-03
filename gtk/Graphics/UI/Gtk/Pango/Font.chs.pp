@@ -149,7 +149,7 @@ instance Show FontFace where
 --   fonts, this function returns @Nothing@. The sizes returned are in
 --   ascending order, their unit is points (1\/72 inch).
 --
-pangoFontFaceListSizes :: FontFace -> IO (Maybe [PangoUnit])
+pangoFontFaceListSizes :: FontFace -> IO (Maybe [Double])
 pangoFontFaceListSizes ff = alloca $ \arrPtrPtr -> alloca $ \sizePtr -> do
   {#call unsafe font_face_list_sizes#} ff arrPtrPtr sizePtr
   arrPtr <- peek arrPtrPtr
