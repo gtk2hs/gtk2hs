@@ -92,6 +92,7 @@ findModules excludePaths path = do
   files <- getDirectoryContents path
   let (chsFiles, maybeDirs) = partition (\file -> ".chs.pp" `isSuffixOf` file
                                                || ".chs"    `isSuffixOf` file
+--                                               || ".hs.pp"  `isSuffixOf` file
                                                || ".hs"     `isSuffixOf` file) files
       modules = map head
               . group
@@ -100,6 +101,7 @@ findModules excludePaths path = do
               $ chsFiles
       extractModule [] = []
       extractModule ('.':'h':'s':[]) = []
+--      extractModule ('.':'h':'s':'.':'p':'p':[]) = []
       extractModule ('.':'c':'h':'s':[]) = []
       extractModule ('.':'c':'h':'s':'.':'p':'p':[]) = []
       extractModule (c:cs) = c : extractModule cs
