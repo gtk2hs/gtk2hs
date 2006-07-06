@@ -374,7 +374,7 @@ genMarshalResult knownSymbols _ _ typeName
   \body -> ss "liftM (toFlags . fromIntegral) $".
            indent 1. body)
   where shortTypeName = cTypeNameToHSType typeName
-        typeKind = Map.lookup (init typeName) knownSymbols
+        typeKind = Map.lookup typeName knownSymbols
 
 genMarshalResult _ _ _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
