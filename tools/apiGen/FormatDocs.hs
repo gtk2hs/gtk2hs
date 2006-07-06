@@ -30,7 +30,7 @@ import StringUtils
 import Maybe (isJust)
 import Char (toLower, isUpper, isAlpha, isSpace)
 import qualified List (lines)
-import Data.FiniteMap
+import qualified Data.Map as Map
 
 -------------------------------------------------------------------------------
 -- Functions for formatting haddock documentation
@@ -183,7 +183,7 @@ haddocFormatSpans knownSymbols handleNULLs initialCol =
 haddocFormatSpan :: KnownSymbols -> Bool -> DocParaSpan -> String
 haddocFormatSpan _ _ (DocText text)       = escapeHaddockSpecialChars text
 haddocFormatSpan knownSymbols handleNULLs (DocTypeXRef text) =
-  case lookupFM knownSymbols text of
+  case Map.lookup text knownSymbols of
     Nothing | text == "TRUE"  -> "@True@"
             | text == "FALSE"          -> "@False@"
             | otherwise                -> "{" ++ text ++ ", FIXME: unknown type/value}"
@@ -208,7 +208,7 @@ haddocFormatSpan _ handleNULLs (DocLiteral "NULL") =
    then "@Nothing@"
    else "{@NULL@, FIXME: this should probably be converted to a Maybe data type}"
 haddocFormatSpan knownSymbols _ (DocLiteral text) =
-  case lookupFM knownSymbols text of
+  case Map.lookup text knownSymbols of
     Nothing                            -> "@" ++ escapeHaddockSpecialChars text ++ "@"
     Just SymEnumValue                  -> "'" ++ cConstNameToHsName text ++ "'"
     Just (SymObjectType _)             -> "'" ++ cTypeNameToHSType text ++ "'"
@@ -285,5 +285,5 @@ mungeWord knownSymbols handleNULLs word
                                 Just SymTypeAlias      -> "{" ++ word' ++ ", FIXME: type alias}"
                                 Just SymCallbackType   -> "{" ++ word' ++ ", FIXME: callback type}"
                  | otherwise = word
-  where e = lookupFM knownSymbols word'
+  where e = Map.lookup word' knownSymbols
         (word', remainder) = span (\c -> isAlpha c || c == '_') word

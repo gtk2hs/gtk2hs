@@ -16,9 +16,10 @@ import MarshalFixup
 import StringUtils
 import Char (isUpper)
 import Maybe (fromJust)
-import Data.FiniteMap
+import qualified Data.Map as Map
+import Data.Map (Map)
 
-type KnownSymbols = FiniteMap String CSymbol
+type KnownSymbols = Map String CSymbol
 
 data CSymbol = SymObjectType { sym_object_parents :: [String] }
              | SymEnumType   EnumKind
@@ -148,7 +149,7 @@ genMarshalParameter knownSymbols funcName name typeName'
                indent 2. implementation)
   where typeName = init typeName'
         shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup typeName knownSymbols
 
 -- Enums -------------------------------
 genMarshalParameter knownSymbols _ name typeName
@@ -158,7 +159,7 @@ genMarshalParameter knownSymbols _ name typeName
 	\body -> body.
                  indent 2. ss "((fromIntegral . fromEnum) ". ss name. ss ")")
   where shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup typeName knownSymbols
 
 -- Flags -------------------------------
 genMarshalParameter knownSymbols _ name typeName
@@ -168,7 +169,7 @@ genMarshalParameter knownSymbols _ name typeName
 	\body -> body.
                  indent 2. ss "((fromIntegral . fromFlags) ". ss name. ss ")")
   where shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup typeName knownSymbols
 
 genMarshalParameter _ _ name textIter | textIter == "const-GtkTextIter*"
                                      || textIter == "GtkTextIter*" =
@@ -340,7 +341,7 @@ genMarshalResult knownSymbols funcName funcIsConstructor typeName'
                   indent 1. body)
   where typeName = init typeName'
         shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup typeName knownSymbols
         constructor | "GtkObject" `elem` sym_object_parents (fromJust typeKind)
                                 = "makeNewObject"
                     | "GObject" `elem` sym_object_parents (fromJust typeKind)
@@ -364,7 +365,7 @@ genMarshalResult knownSymbols _ _ typeName
   \body -> ss "liftM (toEnum . fromIntegral) $".
            indent 1. body)
   where shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup typeName knownSymbols
 
 genMarshalResult knownSymbols _ _ typeName
             | isUpper (head typeName)
@@ -373,7 +374,7 @@ genMarshalResult knownSymbols _ _ typeName
   \body -> ss "liftM (toFlags . fromIntegral) $".
            indent 1. body)
   where shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup (init typeName) knownSymbols
 
 genMarshalResult _ _ _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
@@ -392,21 +393,21 @@ genMarshalProperty knownSymbols typeName
            && symbolIsObject typeKind =
   (shortTypeName, "Object")
   where shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup typeName knownSymbols
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
   (shortTypeName, "Enum")
   where shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup typeName knownSymbols
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
   (shortTypeName, "Flags")
   where shortTypeName = cTypeNameToHSType typeName
-        typeKind = lookupFM knownSymbols typeName
+        typeKind = Map.lookup typeName knownSymbols
 
 genMarshalProperty _ unknown = ("{-" ++ unknown ++ "-}", "{-" ++ unknown ++ "-}")
 
@@ -430,13 +431,13 @@ convertSignalType _ "const-gchar*" = ("STRING", "String")
 convertSignalType knownSymbols typeName
   | symbolIsEnum   typeKind    = ("ENUM",  cTypeNameToHSType typeName)
   | symbolIsFlags  typeKind    = ("FLAGS", cTypeNameToHSType typeName)
-  where typeKind = lookupFM knownSymbols typeName
+  where typeKind = Map.lookup typeName knownSymbols
 convertSignalType knownSymbols typeName@(_:_)
     | last typeName == '*'
    && symbolIsBoxed  typeKind  = ("BOXED",  cTypeNameToHSType (init typeName))
     | last typeName == '*'
    && symbolIsObject typeKind  = ("OBJECT", cTypeNameToHSType (init typeName))
-  where typeKind = lookupFM knownSymbols (init typeName)
+  where typeKind = Map.lookup (init typeName) knownSymbols
 convertSignalType _ typeName   =  ("{-" ++ typeName ++ "-}", "{-" ++ typeName ++ "-}")
 
 -------------------------------------------------------------------------------

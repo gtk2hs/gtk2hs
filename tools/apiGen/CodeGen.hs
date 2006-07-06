@@ -21,7 +21,7 @@ import MarshalFixup (cTypeNameToHSType, maybeNullParameter, maybeNullResult,
 import Prelude hiding (Enum, lines)
 import List   (groupBy, sortBy, isPrefixOf, isSuffixOf, partition, find)
 import Maybe  (isNothing, fromMaybe, catMaybes)
-import Data.FiniteMap
+import qualified Data.Map as Map
 
 import Debug.Trace (trace)
 
@@ -589,7 +589,7 @@ canonicalSignalName = map dashToUnderscore
 
 makeKnownSymbolsMap :: API -> KnownSymbols
 makeKnownSymbolsMap api =
-   (listToFM
+   (Map.fromList
   . reverse
   . concat)
   [ [ (enum_cname enum
