@@ -456,7 +456,7 @@ fi
 
 dnl The GtkPlug/GtkSocket widgets have been ported to Win32 as of Gtk+ 2.8.0
 if test "$HAVE_GTK_VERSION_2_8" = "yes" -a "$WIN32" = "yes"; then
-  CREATE_TYPES="plugNsocket default"
+  CREATE_TYPES="$CREATE_TYPES plugNsocket"
 fi
 
 dnl The configuration program for GTK is kind of stupid in that it
