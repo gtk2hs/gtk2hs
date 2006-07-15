@@ -349,7 +349,7 @@ dnl helps with finding the .so libs at static link time but does nothing to
 dnl modify the search path at dynamic link/load time. Hence what we do here is
 dnl modify the lib flags to add -rpath${mozlibdir} if it is not there already.
 
-if ! echo ${MOZEMBED_LIBS} | $GREP -e "-Wl,-\(rpath\|-R\),${MOZEMBED_LIBDIR}" > /dev/null; then
+if ! echo ${MOZEMBED_LIBS} | $GREP -e "-Wl,-\(rpath\|R\),\?${MOZEMBED_LIBDIR}" > /dev/null; then
 	MOZEMBED_LIBS="${MOZEMBED_LIBS} -Wl,-rpath,${MOZEMBED_LIBDIR}"
 fi
 
