@@ -337,10 +337,6 @@ fi
 AC_DEFINE_UNQUOTED(MOZEMBED_LIBDIR,"$MOZEMBED_LIBDIR",[The mozembed library directory])
 AM_CONDITIONAL(ENABLE_MOZEMBED, test "$ENABLE_MOZEMBED" = "yes")
 
-dnl GTKHS_PKG_CHECK(opengl, gtkgl, GTKGL, [gtkgl-2.0 >= 1.99.0],
-dnl 	[build GtkGLArea package (default=auto)],
-dnl 	[GtkGLArea library requirement not met. Perhaps you need to install gtkglarea or gtkglarea-devel])
-
 GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0],
 	[build bindings for the cairo vector graphics system (default=auto)],
 	[cairo requirement not met. Perhaps you need to install cairo or cairo-devel])
