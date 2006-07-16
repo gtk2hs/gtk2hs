@@ -291,10 +291,15 @@ GTKHS_PKG_CHECK(sourceview, sourceview, SOURCEVIEW, [gtksourceview-1.0 >= 0.6.0]
 	[build sourceview package (default=auto)],
 	[GtkSourceView requirement not met. Perhaps you need to install gtksourceview or gtksourceview-devel])
 
-GTKHS_PKG_CHECK(mozilla, mozembed, MOZEMBED, [mozilla-gtkmozembed >= 1.4],
+GTKHS_PKG_CHECK(mozilla, mozembed, MOZILLA_MOZEMBED, [mozilla-gtkmozembed >= 1.4],
 	[build bindings for the Mozilla display widget (default=auto)],
 	[Mozilla requirement not met. Perhaps you need to install mozilla or mozilla-devel])
-MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir mozilla-gtkmozembed)
+MOZILLA_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir mozilla-gtkmozembed)
+
+GTKHS_PKG_CHECK(seamonkey, mozembed, SEAMONKEY_MOZEMBED, [seamonkey-gtkmozembed >= 1.0],
+        [build bindings for the Mozilla display widget using the Seamonkey libs (default=auto)],
+        [Seamonkey requirement not met. Perhaps you need to install seamonkey or seamonkey-devel])
+SEAMONKEY_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir seamonkey-gtkmozembed)
 
 GTKHS_PKG_CHECK(firefox, mozembed, FIREFOX_MOZEMBED, [firefox-gtkmozembed >= 1.0],
 	[build bindings for the Mozilla display widget using the Firefox libs (default=auto)],
@@ -306,19 +311,28 @@ GTKHS_PKG_CHECK(xulrunner, mozembed, XULRUNNER_MOZEMBED, [xulrunner-gtkmozembed 
 	[XULRunner requirement not met. Perhaps you need to install xulrunner or xulrunner-devel])
 XULRUNNER_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir xulrunner-gtkmozembed)
 
+dnl Use in this order of preference: seamonkey, firefox, xulrunner, mozilla
 dnl If we have xulrunner, use it instead of firefox or mozilla
-if test "$ENABLE_XULRUNNER_MOZEMBED" = "yes"; then
+if test "$ENABLE_SEAMONKEY_MOZEMBED" = "yes"; then
 	ENABLE_MOZEMBED="yes"
-	MOZEMBED_CFLAGS="$XULRUNNER_MOZEMBED_CFLAGS"
-	MOZEMBED_LIBS="$XULRUNNER_MOZEMBED_LIBS"
-	MOZEMBED_LIBDIR="$XULRUNNER_MOZEMBED_LIBDIR"
-dnl If we have both mozilla and firefox enabled then the firefox settings
-dnl override the mozilla settings.
+	MOZEMBED_CFLAGS="$SEAMONKEY_MOZEMBED_CFLAGS"
+	MOZEMBED_LIBS="$SEAMONKEY_MOZEMBED_LIBS"
+	MOZEMBED_LIBDIR="$SEAMONKEY_MOZEMBED_LIBDIR"
 elif test "$ENABLE_FIREFOX_MOZEMBED" = "yes"; then
 	ENABLE_MOZEMBED="yes"
 	MOZEMBED_CFLAGS="$FIREFOX_MOZEMBED_CFLAGS"
 	MOZEMBED_LIBS="$FIREFOX_MOZEMBED_LIBS"
 	MOZEMBED_LIBDIR="$FIREFOX_MOZEMBED_LIBDIR"
+elif test "$ENABLE_XULRUNNER_MOZEMBED" = "yes"; then
+	ENABLE_MOZEMBED="yes"
+	MOZEMBED_CFLAGS="$XULRUNNER_MOZEMBED_CFLAGS"
+	MOZEMBED_LIBS="$XULRUNNER_MOZEMBED_LIBS"
+	MOZEMBED_LIBDIR="$XULRUNNER_MOZEMBED_LIBDIR"
+elif test "$ENABLE_MOZILLA_MOZEMBED" = "yes"; then
+	ENABLE_MOZEMBED="yes"
+	MOZEMBED_CFLAGS="$MOZILLA_MOZEMBED_CFLAGS"
+	MOZEMBED_LIBS="$MOZILLA_MOZEMBED_LIBS"
+	MOZEMBED_LIBDIR="$MOZILLA_MOZEMBED_LIBDIR"
 fi
 AC_DEFINE_UNQUOTED(MOZEMBED_LIBDIR,"$MOZEMBED_LIBDIR",[The mozembed library directory])
 AM_CONDITIONAL(ENABLE_MOZEMBED, test "$ENABLE_MOZEMBED" = "yes")
