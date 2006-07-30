@@ -336,6 +336,8 @@ elif test "$ENABLE_MOZILLA_MOZEMBED" = "yes"; then
 fi
 AC_DEFINE_UNQUOTED(MOZEMBED_LIBDIR,"$MOZEMBED_LIBDIR",[The mozembed library directory])
 AM_CONDITIONAL(ENABLE_MOZEMBED, test "$ENABLE_MOZEMBED" = "yes")
+AC_SUBST(MOZEMBED_CFLAGS)
+AC_SUBST(MOZEMBED_LIBS)
 
 GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0],
 	[build bindings for the cairo vector graphics system (default=auto)],
