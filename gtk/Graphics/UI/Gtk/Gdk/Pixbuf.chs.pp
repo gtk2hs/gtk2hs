@@ -632,17 +632,25 @@ pixbufAddAlpha pb (Just (r,g,b)) = constructNewGObject mkPixbuf $
   {#call unsafe pixbuf_add_alpha#} pb (fromBool True)
     (fromIntegral r) (fromIntegral g) (fromIntegral b)
 
--- | Copy a rectangular portion into another
--- 'Pixbuf'.
+-- | Copy a rectangular portion into another 'Pixbuf'.
 --
--- * The source 'Pixbuf' remains unchanged. Converion between
---   different formats is done automatically.
+-- The source 'Pixbuf' remains unchanged. Converion between
+-- different formats is done automatically.
 --
-pixbufCopyArea :: Pixbuf -> Int -> Int -> Int -> Int ->
-		  Pixbuf -> Int -> Int -> IO ()
+pixbufCopyArea ::
+    Pixbuf -- ^ Source pixbuf
+ -> Int    -- ^ Source X coordinate within the source pixbuf
+ -> Int    -- ^ Source Y coordinate within the source pixbuf
+ -> Int    -- ^ Width of the area to copy
+ -> Int    -- ^ Height of the area to copy
+ -> Pixbuf -- ^ Destination pixbuf
+ -> Int    -- ^ X coordinate within the destination pixbuf
+ -> Int    -- ^ Y coordinate within the destination pixbuf
+ -> IO ()
 pixbufCopyArea src srcX srcY srcWidth srcHeight dest destX destY =
-  {#call unsafe pixbuf_copy_area#} src (fromIntegral srcX)
-    (fromIntegral srcY) (fromIntegral srcWidth) (fromIntegral srcHeight)
+  {#call unsafe pixbuf_copy_area#} src
+    (fromIntegral srcX) (fromIntegral srcY)
+    (fromIntegral srcWidth) (fromIntegral srcHeight)
     dest (fromIntegral destX) (fromIntegral destY)
 
 -- | Fills a 'Pixbuf' with a color.
