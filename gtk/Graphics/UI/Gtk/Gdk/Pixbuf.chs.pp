@@ -642,7 +642,7 @@ pixbufCopyArea :: Pixbuf -> Int -> Int -> Int -> Int ->
 		  Pixbuf -> Int -> Int -> IO ()
 pixbufCopyArea src srcX srcY srcWidth srcHeight dest destX destY =
   {#call unsafe pixbuf_copy_area#} src (fromIntegral srcX)
-    (fromIntegral srcY) (fromIntegral srcHeight) (fromIntegral srcWidth)
+    (fromIntegral srcY) (fromIntegral srcWidth) (fromIntegral srcHeight)
     dest (fromIntegral destX) (fromIntegral destY)
 
 -- | Fills a 'Pixbuf' with a color.
