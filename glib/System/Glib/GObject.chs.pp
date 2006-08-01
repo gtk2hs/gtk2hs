@@ -134,7 +134,7 @@ makeNewGObject constr generator = do
   objPtr <- generator
   objectRef objPtr
   obj <- newForeignPtr objPtr (objectUnref objPtr)
-  return $ constr obj
+  return $! constr obj
 
 {#pointer GDestroyNotify as DestroyNotify#}
 
@@ -150,7 +150,7 @@ constructNewGObject :: GObjectClass obj =>
 constructNewGObject constr generator = do
   objPtr <- generator
   obj <- newForeignPtr objPtr (objectUnref objPtr)
-  return $ constr obj
+  return $! constr obj
 
 -- | Many methods in classes derived from GObject take a callback function and
 -- a destructor function which is called to free that callback function when
@@ -242,4 +242,4 @@ objectGetAttributeUnsafe :: GObjectClass o => Quark -> o -> IO (Maybe a)
 objectGetAttributeUnsafe attr obj = do
   sPtr <- {#call unsafe object_get_qdata#} (toGObject obj) attr
   if sPtr==nullPtr then return Nothing else
-    liftM Just $ deRefStablePtr (castPtrToStablePtr sPtr)
+    liftM Just $! deRefStablePtr (castPtrToStablePtr sPtr)

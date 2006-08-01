@@ -105,7 +105,7 @@ makeNewObject constr generator = do
   objectRefSink objPtr
 #else
   objectRef objPtr
-  objectSink objPtr 
+  objectSink objPtr
 #endif
   obj <- newForeignPtr objPtr (objectUnref objPtr)
-  return $ constr obj
+  return $! constr obj
