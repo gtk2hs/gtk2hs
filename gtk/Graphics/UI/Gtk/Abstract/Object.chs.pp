@@ -60,13 +60,15 @@ module Graphics.UI.Gtk.Abstract.Object (
   toObject,
 
 -- * Methods
-  objectSink,
   makeNewObject,
   ) where
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GObject	(objectRef, objectUnref)
+#if GLIB_CHECK_VERSION(2,10,0)
+import System.Glib.GObject	(objectRefSink)
+#endif
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
 
@@ -85,11 +87,10 @@ import System.Glib.GObject	(objectRef, objectUnref)
 --
 -- * This function cannot be bound by c2hs because it is not possible to
 --   override the pointer hook.
-objectSink :: ObjectClass obj => Ptr obj -> IO ()
-objectSink = object_sink.castPtr
-
+#if !GLIB_CHECK_VERSION(2,10,0)
 foreign import ccall unsafe "gtk_object_sink"
-  object_sink :: Ptr Object -> IO ()
+  objectSink :: Ptr obj -> IO ()
+#endif
 
 -- This is a convenience function to generate a new widget. It adds the
 -- finalizer with the method described under objectSink.
@@ -100,7 +101,11 @@ makeNewObject :: ObjectClass obj =>
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
 makeNewObject constr generator = do
   objPtr <- generator
+#if GLIB_CHECK_VERSION(2,10,0)
+  objectRefSink objPtr
+#else
   objectRef objPtr
+  objectSink objPtr 
+#endif
   obj <- newForeignPtr objPtr (objectUnref objPtr)
-  objectSink objPtr
   return $ constr obj

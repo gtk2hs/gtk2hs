@@ -37,6 +37,9 @@ module System.Glib.GObject (
   objectNew,
   objectRef,
   objectUnref,
+#if GLIB_CHECK_VERSION(2,10,0)
+  objectRefSink,
+#endif
   makeNewGObject,
   constructNewGObject,
   
@@ -77,15 +80,12 @@ import Control.Concurrent.MVar ( MVar, newMVar, modifyMVar )
 -- | Construct a new object (should rairly be used directly)
 --
 objectNew :: GType -> [(String, GValue)] -> IO (Ptr GObject)
-objectNew objType parameters = do
-  obj <- liftM castPtr $ --caller must makeNewGObject as we don't know
+objectNew objType parameters =
+  liftM castPtr $ --caller must makeNewGObject as we don't know
                   --if it this a GObject or a GtkObject
-    withArray (map GParameter parameters) $ \paramArrayPtr ->
-    {# call g_object_newv #} objType
-    (fromIntegral $ length parameters) paramArrayPtr
-  objectRefSink obj
-  return obj
-
+  withArray (map GParameter parameters) $ \paramArrayPtr ->
+  {# call g_object_newv #} objType
+  (fromIntegral $ length parameters) paramArrayPtr
 
 #if GLIB_CHECK_VERSION(2,10,0)
 -- | Reference and sink an object.
@@ -93,10 +93,6 @@ objectRefSink :: GObjectClass obj => Ptr obj -> IO ()
 objectRefSink obj = do
   {#call unsafe object_ref_sink#} (castPtr obj)
   return ()
-
-#else
-objectRefSink :: GObjectClass obj => Ptr obj -> IO ()
-objectRefSink obj = return ()
 #endif
 
 -- | Increase the reference counter of an object
@@ -123,14 +119,17 @@ foreign import ccall unsafe "g_object_unref"
 
 #endif
 
--- | This function wraps any object that does not
--- derive from Object. The object is reference, hence it should be used
--- whenever a function returns a pointer to an internal 'GObject'.
+-- | This function wraps any object that does not derive from Object.
+-- It should be used whenever a function returns a pointer to an existing
+-- 'GObject' (as opposed to a function that constructs a new object).
 --
 -- * The first argument is the contructor of the specific object.
 --
-makeNewGObject :: GObjectClass obj => 
-  (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
+makeNewGObject ::
+    GObjectClass obj
+ => (ForeignPtr obj -> obj) -- ^ constructor for the Haskell object
+ -> IO (Ptr obj)            -- ^ action which yields a pointer to the C object
+ -> IO obj
 makeNewGObject constr generator = do
   objPtr <- generator
   objectRef objPtr
@@ -150,7 +149,6 @@ constructNewGObject :: GObjectClass obj =>
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
 constructNewGObject constr generator = do
   objPtr <- generator
-  objectRefSink objPtr
   obj <- newForeignPtr objPtr (objectUnref objPtr)
   return $ constr obj
 
