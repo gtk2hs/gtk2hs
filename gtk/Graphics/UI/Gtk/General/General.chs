@@ -59,9 +59,10 @@ module Graphics.UI.Gtk.General.General (
   HandlerId
   ) where
 
-import System   (getProgName, getArgs)
-import Monad	(liftM, mapM)
-import Control.Exception (ioError, Exception(ErrorCall))
+import System.Environment (getProgName, getArgs)
+import Control.Monad      (liftM, mapM, when)
+import Control.Exception  (ioError, Exception(ErrorCall))
+import Control.Concurrent (rtsSupportsBoundThreads)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -103,6 +104,10 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 --
 initGUI :: IO [String]
 initGUI = do
+  when rtsSupportsBoundThreads
+    (fail $ "initGUI: Gtk2Hs does not currently support the threaded RTS\n"
+         ++ "see http://haskell.org/gtk2hs/archives/2005/07/24/writing-multi-threaded-guis/2/\n"
+	 ++ "Please relink your program without using the '-threaded' flag.")
   prog <- getProgName
   args <- getArgs
   let allArgs = (prog:args)
