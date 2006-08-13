@@ -39,7 +39,11 @@ import System.Glib.FFI
 
 newtype TypedTreeModel row = TypedTreeModel (ForeignPtr (TypedTreeModel row))
 
-class TypedTreeModelClass (model :: * -> *) where
+class TypedTreeModelClass model where
+  dummy :: model a -> a
+  -- this is to get the right kind for model :: * -> *
+  -- TODO: when haddock is fixed we can use an explicit kind annotation
+
 toTypedTreeModel :: TypedTreeModelClass model => model row -> TypedTreeModel row
 toTypedTreeModel = unsafeCoerce#
 
