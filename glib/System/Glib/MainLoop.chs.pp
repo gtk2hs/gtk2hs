@@ -33,7 +33,7 @@ module System.Glib.MainLoop (
   timeoutRemove,
   idleAdd,
   idleRemove,
-  IOCondition,
+  IOCondition(..),
   inputAdd,
   inputRemove,
   Priority,
