@@ -137,7 +137,7 @@ statusbarGetContextId self contextDescription =
     (toStatusbar self)
     contextDescriptionPtr
 
-type MessageId = {#type guint#}
+newtype MessageId = MessageId {#type guint#}
 
 -- | Pushes a new message onto the Statusbar's stack. It will
 -- be displayed as long as it is on top of the stack.
@@ -149,6 +149,7 @@ statusbarPush :: StatusbarClass self => self
  -> IO MessageId -- ^ returns the message's new message id for use with
                  -- 'statusbarRemove'.
 statusbarPush self contextId text =
+  liftM MessageId $
   withUTFString text $ \textPtr ->
   {# call statusbar_push #}
     (toStatusbar self)
@@ -174,7 +175,7 @@ statusbarRemove :: StatusbarClass self => self
  -> MessageId -- ^ @messageId@ - a message identifier, as returned by
               -- 'statusbarPush'.
  -> IO ()
-statusbarRemove self contextId messageId =
+statusbarRemove self contextId (MessageId messageId) =
   {# call statusbar_remove #}
     (toStatusbar self)
     contextId
