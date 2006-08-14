@@ -42,7 +42,8 @@
 module Marks (Marks, newMarks, mark, isMarked) 
 where
 
-import Data.Set	  (Set, emptySet, addToSet, elementOf)
+import Data.Set	  (Set)
+import qualified Data.Set as Set (empty, insert, member)
 import Attributes (Attrs, Attributed(..))
 
 
@@ -55,15 +56,15 @@ data Attributed a => Marks a = Marks (Set Attrs)
 -- get a new collection of marks (EXPORTED)
 --
 newMarks :: Attributed a => Marks a
-newMarks  = Marks emptySet
+newMarks  = Marks Set.empty
 
 -- mark an entity in a specific collection of marks (EXPORTED)
 --
 mark              :: Attributed a => Marks a -> a -> Marks a
-mark (Marks ms) e  = Marks $ addToSet ms (attrsOf e)
+mark (Marks ms) e  = Marks $ Set.insert (attrsOf e) ms
 
 -- test whether a given entity is marked in a given collection of marks
 -- (EXPORTED) 
 --
 isMarked              :: Attributed a => Marks a -> a -> Bool
-isMarked (Marks ms) e  = (attrsOf e) `elementOf` ms
+isMarked (Marks ms) e  = (attrsOf e) `Set.member` ms
