@@ -45,7 +45,7 @@ module State (-- the PreCST monad
 	      readCST, writeCST, transCST, run, runCST, 
 	      StateTrans.MVar, StateTrans.MArr,		   -- reexport
 	      newMV, readMV, assignMV, newMA, readMA,	   -- reexport lifted
-	      writeMA, StateTrans.boundsMA,		   -- reexport lifted
+	      writeMA, getBoundsMA,			   -- reexport lifted
 	      --
 	      -- reexport compiler I/O
 	      --
@@ -84,7 +84,8 @@ import StateTrans  (STB,
 import qualified
        StateTrans  (interleave, throwExc, fatal, catchExc, fatalsHandledBy, 
 		    MVar, MArr,
-		    newMV, readMV, assignMV, newMA, readMA, writeMA, boundsMA)
+		    newMV, readMV, assignMV,
+		    newMA, readMA, writeMA, getBoundsMA)
 import StateBase   (PreCST(..), ErrorState(..), BaseState(..),
 		    nop, yield, (+>=), (+>), fixCST,
 		    unpackCST, readCST, writeCST, transCST,
@@ -208,6 +209,8 @@ readMA  m i  = CST $ StateTrans.readMA m i
 writeMA       :: Ix i => StateTrans.MArr i a -> i -> a -> PreCST e s ()
 writeMA m i a  = CST $ StateTrans.writeMA m i a
 
+getBoundsMA :: Ix i => StateTrans.MArr i a -> PreCST e s (i, i)
+getBoundsMA  = CST . StateTrans.getBoundsMA
 
 -- read identification
 -- -------------------

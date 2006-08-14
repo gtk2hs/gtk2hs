@@ -77,7 +77,7 @@ module StateTrans (-- the monad and the generic operations
 		   -- mutable variables and arrays
 		   --
 		   MVar, newMV, readMV, assignMV, 
-		   MArr, newMA, readMA, writeMA, boundsMA)
+		   MArr, newMA, readMA, writeMA, getBoundsMA)
 where
 
 import Ix     (Ix)
@@ -88,7 +88,7 @@ import SysDep (ioError,
 	       -- mutable variables and arrays (in IO)
 	       --
 	       IORef, newIORef, readIORef, writeIORef,
-	       IOArray, newIOArray, boundsIOArray, readIOArray,
+	       IOArray, newIOArray, getBoundsIOArray, readIOArray,
 	       writeIOArray)
 import Common (assert)
 import Errors (interr)
@@ -369,8 +369,8 @@ assignMV mv x  = liftIO (writeIORef mv x)
 newMA        :: Ix i => (i, i) -> a -> STB bs gs (MArr i a)
 newMA bnds x  = liftIO (newIOArray bnds x)
 
-boundsMA :: Ix i => IOArray i a -> (i, i)
-boundsMA  = boundsIOArray
+getBoundsMA :: Ix i => IOArray i a -> STB bs gs (i, i)
+getBoundsMA ma = liftIO (getBoundsIOArray ma)
 
 readMA      :: Ix i => MArr i a -> i -> STB bs gs a
 readMA ma i  = liftIO (readIOArray ma i)

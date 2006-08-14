@@ -71,7 +71,7 @@ module SysDep (
   -- mutable variables and arrays (in IO)
   --
   IORef, newIORef, readIORef, writeIORef,
-  IOArray, newIOArray, boundsIOArray, readIOArray, writeIOArray, 
+  IOArray, newIOArray, getBoundsIOArray, readIOArray, writeIOArray,
   --
   -- fork
   --
@@ -92,7 +92,8 @@ import Monad	  (when)
 import System.IO	 (fixIO)
 import System.IO.Unsafe  (unsafePerformIO, unsafeInterleaveIO)
 import Data.IORef	 (IORef, newIORef, readIORef, writeIORef)
-import Data.Array.IO	 (IOArray, newArray, bounds, readArray, writeArray)
+import Data.Array.IO	 (IOArray, newArray, readArray, writeArray, unsafeFreeze)
+import Data.Array	 (bounds)
 import Debug.Trace	 (trace)
 
 -- other system-dependent components
@@ -103,8 +104,11 @@ import SysDepPosix
 --
 newIOArray :: Ix i => (i, i) -> e -> IO (IOArray i e)
 newIOArray = newArray
-boundsIOArray :: Ix i => IOArray i e -> (i, i)
-boundsIOArray = bounds 
+-- NOTE: base-2.0 eliminates the HasBounds class and its instance for IOArray
+-- and provides a getBounds function with the signature below instead.
+-- The following implementation works for base-1.0 and base-2.0
+getBoundsIOArray :: Ix i => IOArray i e -> IO (i, i)
+getBoundsIOArray a = unsafeFreeze a >>= return . bounds
 readIOArray :: Ix i => IOArray i e -> i -> IO e
 readIOArray = readArray 
 writeIOArray :: Ix i => IOArray i e -> i -> e -> IO ()

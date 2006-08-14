@@ -46,7 +46,7 @@ import Common (assert)
 import State  (PreCST,
 	       yield, nop,
 	       MArr, MVar,
-	       newMV, newMA, readMV, assignMV, readMA, writeMA, boundsMA)
+	       newMV, newMA, readMV, assignMV, readMA, writeMA, getBoundsMA)
 
 
 -- dynamic arrays (EXPORTED ABSTRACT)
@@ -89,9 +89,7 @@ newDA  = newMA (0, initSize - 1) err		>>= \ma ->
 newDAS                :: (DynArr a) -> PreCST e s DASlot
 newDAS (DynArr daRef)  = 
   readMV daRef					>>= \(k, ma) ->
-  let 
-    (_, size) = boundsMA ma
-  in
+  getBoundsMA ma				>>= \(_, size) ->
     if k < size
     then					-- still fits
       daRef `assignMV` (k + 1, ma)		>>
@@ -152,4 +150,3 @@ slotsDA                :: DynArr a -> PreCST e s [DASlot]
 slotsDA (DynArr daRef)  =
   readMV daRef					>>= \(k, _) ->
   yield (map DASlot [0..k - 1])
-
