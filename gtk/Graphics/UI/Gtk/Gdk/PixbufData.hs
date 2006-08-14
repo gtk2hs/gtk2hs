@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS -fglasgow-exts -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pixbuf as Array
 --
@@ -39,7 +39,12 @@ import Graphics.UI.Gtk.Types
 import Data.Ix
 -- internal module of GHC
 import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
-			 HasBounds, bounds )
+#if __GLASGOW_HASKELL__ < 605
+			 HasBounds, bounds
+#else
+			 getBounds
+#endif
+                       )
 
 -- | An array that stored the raw pixel data of a 'Pixbuf'.
 --
@@ -47,8 +52,10 @@ import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
 --
 data Ix i => PixbufData i e = PixbufData Pixbuf (Ptr e) (i,i)
 
+#if __GLASGOW_HASKELL__ < 605
 instance HasBounds PixbufData where
   bounds (PixbufData pb ptr bd) = bd
+#endif
 
 -- | 'PixbufData' is a mutable array.
 instance Storable e => MArray PixbufData e IO where
@@ -63,6 +70,10 @@ instance Storable e => MArray PixbufData e IO where
   unsafeWrite (PixbufData (Pixbuf pb) pixPtr _) idx elem = do
       pokeElemOff pixPtr idx elem
       touchForeignPtr pb
+#if __GLASGOW_HASKELL__ >= 605
+  {-# INLINE getBounds #-}
+  getBounds (PixbufData pb ptr bd) = return bd
+#endif
 
 -- Insert bounds into a PixbufData.
 insertBounds :: (Num i, Ix i, Storable e) => Int -> 
