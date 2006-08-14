@@ -56,7 +56,8 @@ module Binary
 
 import FastMutInt
 
-import Data.FiniteMap
+import Data.Map (Map)
+import qualified Data.Map as Map
 # if __GLASGOW_HASKELL__>=602
 import Data.HashTable as HashTable
 # endif
@@ -451,12 +452,12 @@ instance (Binary a, Binary i, Ix i) => Binary (Array i a) where
               elems <- get bh
               return $ listArray bounds elems
 
-instance (Binary key, Ord key, Binary elem) => Binary (FiniteMap key elem) where
---    put_ bh fm = put_ bh (fmToList fm)
+instance (Binary key, Ord key, Binary elem) => Binary (Map key elem) where
+--    put_ bh fm = put_ bh (Map.toList fm)
 --    get bh = do list <- get bh
---                return (listToFM list)
+--                return (Map.fromList list)
 
-    put_ bh fm = do let list = fmToList fm
+    put_ bh fm = do let list = Map.toList fm
                     put_ bh (length list)
                     mapM_ (\(key, val) -> do put_ bh key
                                              lazyPut bh val) list
@@ -467,10 +468,10 @@ instance (Binary key, Ord key, Binary elem) => Binary (FiniteMap key elem) where
                                    val <- lazyGet bh
                                    xs <- getMany (n-1)
                                    return ((key,val):xs)
---                printElapsedTime "before get FiniteMap"
+--                printElapsedTime "before get Map"
                 list <- getMany len
---                printElapsedTime "after get FiniteMap"
-                return (listToFM list)
+--                printElapsedTime "after get Map"
+                return (Map.fromList list)
 
 #ifdef __GLASGOW_HASKELL__
 instance Binary Integer where
@@ -633,7 +634,7 @@ putBinFileWithDict file_path the_thing = do
 #if __GLASGOW_HASKELL__>=602
   fm <- HashTable.toList (ud_map  usr_state)
 #else
-  fm <- liftM fmToList $ readIORef (ud_map  usr_state)
+  fm <- liftM Map.toList $ readIORef (ud_map  usr_state)
 #endif
   dict_p <- tellBin bh	-- This is where the dictionary will start
 
@@ -661,7 +662,7 @@ data UserData =
 #if __GLASGOW_HASKELL__>=602
 	      ud_map  :: HashTable String Int -- The index of each string
 #else
-	      ud_map  :: IORef (FiniteMap String Int)
+	      ud_map  :: IORef (Map String Int)
 #endif
 	}
 
@@ -678,7 +679,7 @@ newWriteState = do
 #if __GLASGOW_HASKELL__>=602
   out_r <- HashTable.new (==) HashTable.hashString
 #else
-  out_r <- newIORef emptyFM
+  out_r <- newIORef Map.empty
 #endif
   return (UserData { ud_dict = error "dict",
 		     ud_next = j_r,
@@ -720,7 +721,7 @@ putSharedString bh str =
       entry <- HashTable.lookup out_r str
 #else
       fm <- readIORef out_r
-      let entry = lookupFM fm str
+      let entry = Map.lookup str fm
 #endif
       case entry of
 	Just j  -> put_ bh j
@@ -731,7 +732,7 @@ putSharedString bh str =
 #if __GLASGOW_HASKELL__>=602
 		     HashTable.insert out_r str j
 #else
-		     modifyIORef out_r (\fm -> addToFM fm str j)
+		     modifyIORef out_r (\fm -> Map.insert str j fm)
 #endif
 
 getSharedString :: BinHandle -> IO String

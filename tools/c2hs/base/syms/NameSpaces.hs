@@ -42,7 +42,8 @@ module NameSpaces (NameSpace, nameSpace, defGlobal, enterNewRange, leaveRange,
 where
 
 import Common	  (Position, Pos(posOf))	      -- for importing `Idents'
-import Data.FiniteMap (FiniteMap, emptyFM, addToFM, lookupFM, fmToList, listToFM)
+import Data.Map   (Map)
+import qualified Data.Map as Map (empty, insert, lookup, toList)
 import Idents     (Ident)
 import Errors     (interr)
 import Binary     (Binary(..))
@@ -66,13 +67,13 @@ import Binary     (Binary(..))
 --   relatively low number of local definitions together with frequent lookup
 --   of the most recently defined local identifiers
 --
-data NameSpace a = NameSpace (FiniteMap Ident a)  -- defs in global range
+data NameSpace a = NameSpace (Map Ident a)  -- defs in global range
 			     [[(Ident, a)]]       -- stack of local ranges
 
 -- create a name space (EXPORTED)
 --
 nameSpace :: NameSpace a
-nameSpace  = NameSpace emptyFM []
+nameSpace  = NameSpace Map.empty []
 
 -- add global definition (EXPORTED)
 --
@@ -84,8 +85,8 @@ nameSpace  = NameSpace emptyFM []
 --   name space anymore)
 --
 defGlobal :: NameSpace a -> Ident -> a -> (NameSpace a, Maybe a)
-defGlobal (NameSpace gs lss) id def  = (NameSpace (addToFM gs id def) lss, 
-				        lookupFM gs id)
+defGlobal (NameSpace gs lss) id def  = (NameSpace (Map.insert id def gs) lss, 
+				        Map.lookup id gs)
 
 -- add new range (EXPORTED)
 --
@@ -126,7 +127,7 @@ defLocal (NameSpace    gs (ls:lss)) id def =
 --
 find                       :: NameSpace a -> Ident -> Maybe a
 find (NameSpace gs lss) id  = case (lookup lss) of
-			        Nothing  -> lookupFM gs id
+			        Nothing  -> Map.lookup id gs
 			        Just def -> Just def
 			      where
 			        lookup []       = Nothing
@@ -144,7 +145,7 @@ find (NameSpace gs lss) id  = case (lookup lss) of
 -- * local ranges are concatenated
 --
 nameSpaceToList                    :: NameSpace a -> [(Ident, a)]
-nameSpaceToList (NameSpace gs lss)  = fmToList gs ++ concat lss
+nameSpaceToList (NameSpace gs lss)  = Map.toList gs ++ concat lss
 
 
 {-! for NameSpace derive : GhcBinary !-}

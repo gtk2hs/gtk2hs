@@ -80,8 +80,8 @@ import Maybe	  (fromMaybe)
 import Common     (Position, Pos(posOf), nopos, builtinPos)
 import Errors	  (interr)
 import Idents     (Ident, identToLexeme, onlyPosIdent)
-import Data.FiniteMap (FiniteMap, emptyFM, addToFM, lookupFM, plusFM,
-		       fmToList, listToFM)
+import Data.Map   (Map)
+import qualified Data.Map as Map (empty, insert, lookup, fromList, toList, union)
 
 -- C -> Haskell
 import C	  (CT, readCT, transCT, raiseErrorCTExc)
@@ -168,7 +168,7 @@ transTabToTransFun prefix (CHSTrans _2Case table) =
 -- * the co-domain details how this pointer is represented in Haskell.
 --   See HsPtrRep.
 --
-type PointerMap = FiniteMap (Bool, Ident) HsPtrRep
+type PointerMap = Map (Bool, Ident) HsPtrRep
 
 
 -- Define how pointers are represented in Haskell.
@@ -199,7 +199,7 @@ data HsObject    = Pointer {
 		     ptrHO	  :: Ident	   -- pointer
 		   }
                  deriving (Show, Read)
-type HsObjectMap = FiniteMap Ident HsObject
+type HsObjectMap = Map Ident HsObject
 
 {- FIXME: What a mess...
 instance Show HsObject where
@@ -247,8 +247,8 @@ initialGBState  = GBState {
 		    lib    = "",
 		    prefix = "",
 		    frags  = [],
-		    ptrmap = emptyFM,
-		    objmap = emptyFM
+		    ptrmap = Map.empty,
+		    objmap = Map.empty
 		  }
 
 -- set the dynamic library and library prefix
@@ -309,7 +309,7 @@ getDelayedCode  = readCT (map snd . frags)
 ptrMapsTo :: (Bool, Ident) -> HsPtrRep -> GB ()
 (isStar, cName) `ptrMapsTo` hsRepr =
   transCT (\state -> (state { 
-		        ptrmap = addToFM (ptrmap state) (isStar, cName) hsRepr
+		        ptrmap = Map.insert (isStar, cName) hsRepr (ptrmap state)
 		      }, ()))
 
 -- query the pointer map
@@ -317,14 +317,14 @@ ptrMapsTo :: (Bool, Ident) -> HsPtrRep -> GB ()
 queryPtr        :: (Bool, Ident) -> GB (Maybe HsPtrRep)
 queryPtr pcName  = do
 		     fm <- readCT ptrmap
-		     return $ lookupFM fm pcName
+		     return $ Map.lookup pcName fm
 
 -- add an entry to the Haskell object map
 --
 objIs :: Ident -> HsObject -> GB ()
 hsName `objIs` obj =
   transCT (\state -> (state { 
-		        objmap = addToFM (objmap state) hsName obj
+		        objmap = Map.insert hsName obj (objmap state)
 		      }, ()))
 
 -- query the Haskell object map
@@ -332,7 +332,7 @@ hsName `objIs` obj =
 queryObj        :: Ident -> GB (Maybe HsObject)
 queryObj hsName  = do
 		     fm <- readCT objmap
-		     return $ lookupFM fm hsName
+		     return $ Map.lookup hsName fm
 
 -- query the Haskell object map for a class
 --
@@ -377,14 +377,14 @@ queryPointer hsName  = do
 mergeMaps     :: String -> GB ()
 mergeMaps str  =
   transCT (\state -> (state { 
-		        ptrmap = plusFM readPtrMap (ptrmap state),
-		        objmap = plusFM readObjMap (objmap state)
+		        ptrmap = Map.union readPtrMap (ptrmap state),
+		        objmap = Map.union readObjMap (objmap state)
 		      }, ()))
   where
     (ptrAssoc, objAssoc) = read str
-    readPtrMap           = listToFM [((isStar, onlyPosIdent nopos ide), repr)
+    readPtrMap           = Map.fromList [((isStar, onlyPosIdent nopos ide), repr)
 			            | ((isStar, ide), repr) <- ptrAssoc]
-    readObjMap           = listToFM [(onlyPosIdent nopos ide, obj)
+    readObjMap           = Map.fromList [(onlyPosIdent nopos ide, obj)
 			            | (ide, obj)            <- objAssoc]
 
 -- convert the whole pointer and Haskell object maps into printable form
@@ -394,9 +394,9 @@ dumpMaps  = do
 	      ptrFM <- readCT ptrmap
 	      objFM <- readCT objmap
 	      let dumpable = ([((isStar, identToLexeme ide), repr)
-			      | ((isStar, ide), repr) <- fmToList ptrFM],
+			      | ((isStar, ide), repr) <- Map.toList ptrFM],
 			      [(identToLexeme ide, obj)
-			      | (ide, obj)            <- fmToList objFM])
+			      | (ide, obj)            <- Map.toList objFM])
 	      return $ show dumpable
 
 

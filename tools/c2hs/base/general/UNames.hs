@@ -31,7 +31,7 @@
 --  language: Haskell 98
 --
 --  * This module provides an ordering relation on names (e.g., for using
---    `FiniteMaps'), but no assumption maybe made on the order in which names
+--    `Maps'), but no assumption maybe made on the order in which names
 --    are generated from the name space.  Furthermore, names are instances of
 --    `Ix' to allow to use them as indicies.
 --

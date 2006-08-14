@@ -83,7 +83,8 @@ where
 import List       (sort)
 
 import Common     (Position, Pos (posOf), nopos)
-import Data.FiniteMap (FiniteMap, unitFM, plusFM_C, mapFM, lookupFM, fmToList)
+import Data.Map   (Map)
+import qualified Data.Map as Map (singleton, unionWith, map, lookup, toList)
 import Errors     (interr, ErrorLvl(..), Error, makeError)
 
 infix  5 `opt`
@@ -121,7 +122,7 @@ data Token t =>
 		  -- selection of acceptable tokens paired with following 
 		  -- parser state
 		  --
-		| Alts (FiniteMap t (Parser a t r))
+		| Alts (Map t (Parser a t r))
 		  --
 		  -- represents an automaton without any transitions
 		  -- (semantically equivalent to `Alts zeroFM', but easier to
@@ -157,7 +158,7 @@ nometa              :: Token t => (t -> q -> r) -> Action a t q r
 nometa simpleAction  = Action (\s -> (s, ())) (\_ -> simpleAction)
 
 singleton     :: Token t => t -> Parser a t r -> Cont a t r
-singleton t p  = Alts $ unitFM t p
+singleton t p  = Alts $ Map.singleton t p
 
 noaction :: Token t => Cont a t q -> Parser a t q
 noaction  = Parser $ nometa (flip const)
@@ -207,10 +208,10 @@ p                       <|> (Parser _ Done)          = p
 (Parser a (Empty x p))  <|> q                        = mergeEpsilon a  x p q
 p                       <|> (Parser a' (Empty x q))  = mergeEpsilon a' x q p
 (Parser a (Alts alts1)) <|> (Parser a' (Alts alts2)) = 
-  Parser (a `joinActions` a') $ Alts (plusFM_C (<|>) alts1' alts2')
+  Parser (a `joinActions` a') $ Alts (Map.unionWith (<|>) alts1' alts2')
   where
-    alts1' = mapFM (\_ p -> Left  $> p) alts1
-    alts2' = mapFM (\_ p -> Right $> p) alts2
+    alts1' = Map.map (\p -> Left  $> p) alts1
+    alts2' = Map.map (\p -> Right $> p) alts2
 
 grammarErr     :: Token t => Parser a t r -> Parser a t r -> b
 grammarErr p q  = interr $ "Parsers.<|>: Ambiguous grammar!\n\
@@ -264,7 +265,7 @@ joinMeta meta meta' = \s -> let
 --  _scc_ "*$>:Alt"
   let con' x' t (xp, xq) = con x' t xp xq
   in
-  Parser (Action m con') (Alts $ mapFM (\_ p -> p *> q) alts)
+  Parser (Action m con') (Alts $ Map.map (\p -> p *> q) alts)
 
 contract :: Token t => Action a t q r -> Parser a t q -> Parser a t r
 contract (Action m con) (Parser (Action m' con') c) =
@@ -437,7 +438,7 @@ execParser (Parser (Action m con) c) a f ts =   -- eat one token
 	 => Cont a t r -> a -> (t -> t) -> [t] -> (t, (r, [Error], [t]))
     cont Done        _ f (t:_)  = makeErr (posOf (f t)) trailErr
     cont (Alts alts) a f (t:ts) = let t' = f t
-				  in case lookupFM alts t' of
+				  in case Map.lookup t' alts of
 				    Nothing -> makeErr (posOf t') (illErr t')
 				    Just p  -> (t', execParser p a f ts)
     cont (Empty x p) a f ts     =
@@ -470,7 +471,7 @@ first (Parser _ (Alts  alts)) =   show
 				. sort 
 				. map show 
 				. map fst 
-				. fmToList
+				. Map.toList
 				$ alts
 
 --instance Token t => Show (Parser a t r) where

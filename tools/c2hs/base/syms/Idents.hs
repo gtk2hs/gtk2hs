@@ -32,7 +32,7 @@
 --  * The ordering relation on identifiers is also oriented at the
 --    identification number and, hence, does *not* follow the alphanumerical
 --    ordering of the lexemes of the identifiers. Instead, it provides a fast
---    ordering when identifiers are used as keys in a `FiniteMap'.
+--    ordering when identifiers are used as keys in a `Map'.
 --
 --  * The ambiguousness resolving number of an identifier is `-1' when no such
 --    number is present (so, such identifiers are distinguished from
