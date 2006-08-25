@@ -13,7 +13,7 @@
 -- #hide
 --
 module Graphics.Rendering.Cairo.Internal (
-    Render(..), bracketR,
+    Render(..), bracketR
   , module Graphics.Rendering.Cairo.Types
   , module Graphics.Rendering.Cairo.Internal.Drawing.Cairo
   , module Graphics.Rendering.Cairo.Internal.Drawing.Paths

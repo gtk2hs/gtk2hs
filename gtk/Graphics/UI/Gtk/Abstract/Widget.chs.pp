@@ -226,7 +226,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode(..))
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region(..), makeNewRegion)
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
-					,Requisition(..), Color, IconSize,
+					,Requisition(..), Color, IconSize
 					,widgetGetState, widgetGetSavedState
 					,widgetGetDrawWindow, widgetGetSize)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
