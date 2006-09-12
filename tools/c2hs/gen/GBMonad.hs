@@ -377,8 +377,8 @@ queryPointer hsName  = do
 mergeMaps     :: String -> GB ()
 mergeMaps str  =
   transCT (\state -> (state { 
-		        ptrmap = Map.union readPtrMap (ptrmap state),
-		        objmap = Map.union readObjMap (objmap state)
+		        ptrmap = Map.union (ptrmap state) readPtrMap,
+		        objmap = Map.union (objmap state) readObjMap
 		      }, ()))
   where
     (ptrAssoc, objAssoc) = read str
