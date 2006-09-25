@@ -27,7 +27,7 @@ HS_SEARCH_PATH = $(subst $(SPACE),:,$($(PKG)_SOURCESDIRS))
 CHS_SEARCH_PATH = $(subst $(SPACE),:,$($(PKG)_INTERNALDEPS) $($(PKG)_NAME))
 
 HCFLAGS_PACKAGE_DEPS = \
-	-package-conf package.conf.inplace \
+	-package-conf package.conf.inplace $(HIDE_ALL_PACKAGES) \
 	$(if $(USE_NEW_PKG_FORMAT),$(addprefix -ignore-package ,$($(PKG)_NAME))) \
 	$(addprefix -package ,$($(PKG)_EXTERNALDEPS)) \
 	$(addprefix -package ,$(addsuffix -$(VERSION),$($(PKG)_INTERNALDEPS)))

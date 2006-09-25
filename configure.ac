@@ -158,6 +158,16 @@ else
   PKGEXT=pkg
 fi
 
+dnl From ghc-6.4.1 onwards, ghc supports a -hide-all-packages flag which means
+dnl that we start with an empty package environment. This makes it easier to
+dnl check that we are not depending on packages from the environment but have
+dnl stated our package deps explicitly.
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4.1, [
+HIDE_ALL_PACKAGES=-hide-all-packages
+])
+AC_SUBST(HIDE_ALL_PACKAGES)
+
+
 GHCBARE=`basename $GHC`
 GHCDIR=`dirname $GHC`
 GHCPKGNAME=ghc-pkg`echo $GHCBARE | $SED s/ghc//`
