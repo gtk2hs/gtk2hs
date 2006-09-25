@@ -158,15 +158,6 @@ else
   PKGEXT=pkg
 fi
 
-dnl ghc-pkg 5 searches for libxxx.a, even on Windows. Hence, we need to
-dnl create libraries with these names instead of the windows names.
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 6.0.0, [
-  SLSUFFIX=".a";
-  SLPREFIX="lib";
-  DLSUFFIX=".so";
-  DLPREFIX="lib";
-])
-
 GHCBARE=`basename $GHC`
 GHCDIR=`dirname $GHC`
 GHCPKGNAME=ghc-pkg`echo $GHCBARE | $SED s/ghc//`
