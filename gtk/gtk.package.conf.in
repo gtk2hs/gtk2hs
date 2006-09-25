@@ -7,7 +7,7 @@ stability: provisional
 homepage: http://haskell.org/gtk2hs/
 exposed: True
 exposed-modules: ${modules}
-import-dirs: "@hidir@/gtk"
+import-dirs: "${pkglibdir}/imports/gtk"
 library-dirs: @GTK_LIBDIR_CQ@
 hs-libraries: HSgtk
 extra-libraries: @GTK_LIBS_CQ@

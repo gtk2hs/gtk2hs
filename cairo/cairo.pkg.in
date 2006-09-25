@@ -1,7 +1,7 @@
 Package {
      name            = "cairo",
      @GHCPKG_USE_AUTOLIBS@
-     import_dirs     = ["@hidir@/cairo"],
+     import_dirs     = ["${pkglibdir}/imports/cairo"],
      source_dirs     = [],
      library_dirs    = [@CAIRO_LIBDIR_CQ@],
      hs_libraries    = ["HScairo"],

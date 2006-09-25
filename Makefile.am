@@ -62,6 +62,8 @@ noinst_PROGRAMS = \
 pkglibincludedir = $(pkglibdir)/include
 pkglibinclude_DATA = gtk2hs-config.h
 
+hidir = $(pkglibdir)/imports
+
 #
 #	TypeGenerator Tool
 #

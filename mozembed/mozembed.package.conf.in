@@ -7,7 +7,7 @@ stability: provisional
 homepage: http://haskell.org/gtk2hs/
 exposed: True
 exposed-modules: ${modules}
-import-dirs: "@hidir@/mozembed"
+import-dirs: "${pkglibdir}/imports/mozembed"
 library-dirs: @MOZEMBED_LIBDIR_CQ@
 hs-libraries: HSmozembed
 extra-libraries: @MOZEMBED_LIBS_CQ@

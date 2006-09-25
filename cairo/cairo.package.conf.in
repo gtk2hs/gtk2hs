@@ -9,7 +9,7 @@ stability: provisional
 homepage: http://haskell.org/gtk2hs/
 exposed: True
 exposed-modules: ${modules}
-import-dirs: "@hidir@/cairo"
+import-dirs: "${pkglibdir}/imports/cairo"
 library-dirs: @CAIRO_LIBDIR_CQ@
 hs-libraries: HScairo
 extra-libraries: @CAIRO_LIBS_CQ@

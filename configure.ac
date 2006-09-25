@@ -577,12 +577,6 @@ AC_SUBST(GTKGLEXT_LIBDIR_CQ)
 AC_SUBST(GTKGLEXT_LIBEXTRA_CQ)
 
 
-AC_ARG_WITH(hidir,
-	[  --with-hidir=DIR        specify install dir for .hi files],
-	[hidir=$withval],
-	[hidir='${pkglibdir}/imports'])
-AC_SUBST(hidir)
-
 dnl Check if user wants bindings for deprecated APIs. Defaults to yes.
 AC_MSG_CHECKING([whether to build deprecated bindings])
 

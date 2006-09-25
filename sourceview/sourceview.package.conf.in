@@ -7,7 +7,7 @@ stability: provisional
 homepage: http://haskell.org/gtk2hs/
 exposed: True
 exposed-modules: ${modules}
-import-dirs: "@hidir@/sourceview"
+import-dirs: "${pkglibdir}/imports/sourceview"
 library-dirs: @SOURCEVIEW_LIBDIR_CQ@
 hs-libraries: HSsourceview
 extra-libraries: @SOURCEVIEW_LIBS_CQ@

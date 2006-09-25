@@ -9,7 +9,7 @@ stability: provisional
 homepage: http://haskell.org/gtk2hs/
 exposed: True
 exposed-modules: ${modules}
-import-dirs: "@hidir@/svgcairo"
+import-dirs: "${pkglibdir}/imports/svgcairo"
 library-dirs: @SVGCAIRO_LIBDIR_CQ@
 hs-libraries: HSsvgcairo
 extra-libraries: @SVGCAIRO_LIBS_CQ@

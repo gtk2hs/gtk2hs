@@ -1,7 +1,7 @@
 Package {
      name            = "glade",
      @GHCPKG_USE_AUTOLIBS@
-     import_dirs     = ["@hidir@/glade"],
+     import_dirs     = ["${pkglibdir}/imports/glade"],
      source_dirs     = [],
      library_dirs    = [@LIBGLADE_LIBDIR_CQ@],
      hs_libraries    = ["HSglade"],

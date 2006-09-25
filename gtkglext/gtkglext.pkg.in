@@ -1,7 +1,7 @@
 Package {
      name            = "gtkglext",
      @GHCPKG_USE_AUTOLIBS@
-     import_dirs     = ["@hidir@/gtkglext"],
+     import_dirs     = ["${pkglibdir}/imports/gtkglext"],
      source_dirs     = [],
      library_dirs    = [@GTKGLEXT_LIBDIR_CQ@],
      hs_libraries    = ["HSgtkglext"],

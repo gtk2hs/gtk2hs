@@ -7,7 +7,7 @@ stability: provisional
 homepage: http://haskell.org/gtk2hs/
 exposed: True
 exposed-modules: ${modules}
-import-dirs: "@hidir@/gconf"
+import-dirs: "${pkglibdir}/imports/gconf"
 library-dirs: @GCONF_LIBDIR_CQ@
 hs-libraries: HSgconf
 extra-libraries: @GCONF_LIBS_CQ@
