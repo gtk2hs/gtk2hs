@@ -17,12 +17,23 @@ PKG = \
 # necessary so support packages under the tools directory
 tools_PKGNAME = $(call tools_$(word 2,$(subst /, ,$(1)))_PKGNAME,$(1))
 
-pkgVPATH = $(subst $(SPACE),:,$($(PKG)_SOURCESDIRS))
 getVar   = $($(subst .,_,$(subst /,_,$(1)))_$(2))
 
 LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
-	$(addprefix -package ,$($(PKG)_PACKAGEDEPS)) \
+	$(addprefix -package ,$($(PKG)_EXTERNALDEPS)) \
 	$(addprefix -optl,$(AM_LDFLAGS) $(LDFLAGS) $($(PKG)_LDFLAGS)))
+
+HS_SEARCH_PATH = $(subst $(SPACE),:,$($(PKG)_SOURCESDIRS))
+CHS_SEARCH_PATH = $(subst $(SPACE),:,$($(PKG)_INTERNALDEPS) $($(PKG)_NAME))
+
+HCFLAGS_PACKAGE_DEPS = \
+	-package-conf package.conf.inplace \
+	$(if $(USE_NEW_PKG_FORMAT),$(addprefix -ignore-package ,$($(PKG)_NAME))) \
+	$(addprefix -package ,$($(PKG)_EXTERNALDEPS)) \
+	$(addprefix -package ,$(addsuffix -$(VERSION),$($(PKG)_INTERNALDEPS)))
+
+HCFLAGS_PACKAGE_NAME = \
+	$(addprefix -package-name ,$(addsuffix -$(VERSION),$($(PKG)_NAME)))
 
 #Using pattern rule here to prevent automake from understanding the rule
 #and falsely concluding that two source files will produce the same object
@@ -34,8 +45,8 @@ if ENABLE_SPLITOBJS
 	rm -f $*_split/*.o
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
 	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
-	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
-	$(addprefix -package-name ,$(notdir $(basename $(basename $($(PKG)_PACKAGE))))) \
+	$(call getVar,$<,HCFLAGS) -i$(HS_SEARCH_PATH) \
+	$(HCFLAGS_PACKAGE_DEPS) $(HCFLAGS_PACKAGE_NAME) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
 	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
 	touch $@
@@ -43,8 +54,8 @@ else
 %.o : %.hs $(CONFIG_HEADER)
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
 	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
-	$(call getVar,$<,HCFLAGS) -i$(pkgVPATH) \
-	$(addprefix -package-name ,$(notdir $(basename $(basename $($(PKG)_PACKAGE))))) \
+	$(call getVar,$<,HCFLAGS) -i$(HS_SEARCH_PATH) \
+	$(HCFLAGS_PACKAGE_DEPS) $(HCFLAGS_PACKAGE_NAME) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
 	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
 endif
@@ -66,7 +77,7 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 # another module. A sound fix would be to calculate dependencies each
 # time which is too time consuming.
 
-%.deps :
+%.deps : package.conf.inplace
 	$(if $(strip \
 	  $(if $(findstring c2hs,$@),\
 	  $(findstring clean,$(MAKECMDGOALS)),$(noDeps))),,\
@@ -75,12 +86,13 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	$(if $(word 2,$($(PKG)_HSFILES)),\
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
 	  $(HC) -M $(addprefix -optdep,-f $@) -fglasgow-exts \
-	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(pkgVPATH) \
+	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(HS_SEARCH_PATH) \
+	  $(HCFLAGS_PACKAGE_DEPS) \
 	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
 	fi;))
 
 .chs.dep :
-	$(CHSDEPEND) -i$(pkgVPATH) $<
+	$(CHSDEPEND) -i$(CHS_SEARCH_PATH) $<
 
 .hs.chi :
 	@:
@@ -143,5 +155,5 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_PRECOMP); fi;)
 	$(strip $(C2HS) $(C2HS_FLAGS) \
 	+RTS $(HSTOOLFLAGS) -RTS \
-	-i$(pkgVPATH) --precomp=$($(PKG)_PRECOMP) -o $@ $<)
+	-i$(CHS_SEARCH_PATH) --precomp=$($(PKG)_PRECOMP) -o $@ $<)
 

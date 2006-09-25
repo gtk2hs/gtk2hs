@@ -70,14 +70,14 @@ hidir = $(pkglibdir)/imports
 ################################################################################
 
 # While building the program <name>, set the variable NAME to <name> so
-# we can access program-specific variables like <name>_PACKAGEDEPS. The
+# we can access program-specific variables like <name>_EXTERNALDEPS. The
 # following is a hack to prevent automake from assuming that we are overriding
 # the tools/hierarchyGen/TypeGenerator goal.
 tools_hierarchyGen_PKGNAME = tools_hierarchyGen_TypeGenerator
 
 tools_hierarchyGen_TypeGenerator_MAIN = \
   $(tools_hierarchyGen_TypeGenerator_SOURCES)
-tools_hierarchyGen_TypeGenerator_PACKAGEDEPS = 
+tools_hierarchyGen_TypeGenerator_EXTERNALDEPS = base haskell98
 tools_hierarchyGen_TypeGenerator_SOURCESDIRS = tools/hierarchyGen
 tools_hierarchyGen_TypeGenerator_SOURCES = \
   tools/hierarchyGen/TypeGen.hs
@@ -96,7 +96,7 @@ tools_callbackGen_PKGNAME = tools_callbackGen_HookGenerator
 
 tools_callbackGen_HookGenerator_MAIN = \
   $(tools_callbackGen_HookGenerator_SOURCES)
-tools_callbackGen_HookGenerator_PACKAGEDEPS = 
+tools_callbackGen_HookGenerator_EXTERNALDEPS = base haskell98
 tools_callbackGen_HookGenerator_SOURCESDIRS = tools/callbackGen
 tools_callbackGen_HookGenerator_SOURCES = \
   tools/callbackGen/HookGenerator.hs
@@ -115,7 +115,7 @@ MOSTLYCLEANFILES+= $(tools_callbackGen_HookGenerator_SOURCES:.hs=.hi)
 #
 #tools_apicoverage_Exclude_MAIN = \
 #  $(tools_apicoverage_Exclude_SOURCES)
-#tools_apicoverage_Exclude_PACKAGEDEPS = 
+#tools_apicoverage_Exclude_EXTERNALDEPS = base haskell98
 #tools_apicoverage_Exclude_SOURCESDIRS = tools/apicoverage
 #tools_apicoverage_Exclude_SOURCES = \
 #  tools/apicoverage/Exclude.hs
@@ -132,7 +132,7 @@ MOSTLYCLEANFILES+= $(tools_callbackGen_HookGenerator_SOURCES:.hs=.hi)
 tools_c2hs_PKGNAME = tools_c2hs_c2hsLocal
 
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
-tools_c2hs_c2hsLocal_PACKAGEDEPS	= 
+tools_c2hs_c2hsLocal_EXTERNALDEPS	= base haskell98
 tools_c2hs_c2hsLocal_HEADER		= 
 tools_c2hs_c2hsLocal_HCFLAGS		= 
 
@@ -239,16 +239,18 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 glib_PKGNAME = libHSglib_a
 
-libHSglib_a_PACKAGE		= glib/glib.$(PKGEXT)
-libHSglib_a_PACKAGEDEPS		= 
+libHSglib_a_NAME		= glib
+libHSglib_a_CONFIG		= glib/glib.$(PKGEXT)
+libHSglib_a_EXTERNALDEPS	= base haskell98
+libHSglib_a_INTERNALDEPS	= 
 libHSglib_a_HEADER 		= glib-object.h
 libHSglib_a_PRECOMP		= glib/glib.precomp
 libHSglib_a_LIBS		= $(GLIB_LIBS)
-libHSglib_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSglib_a_HCFLAGS		= -fffi
 libHSglib_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS))
 libHSglib_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS))
 
-libHSglib_a_SOURCESDIRS = glib
+libHSglib_a_SOURCESDIRS		= glib
 
 libHSglib_a_SOURCES =	        		\
 	glib/System/Glib.hs			\
@@ -340,20 +342,24 @@ endif
 
 gtk_PKGNAME = libHSgtk_a
 
-libHSgtk_a_PACKAGE		= gtk/gtk.$(PKGEXT)
-libHSgtk_a_PACKAGEDEPS		= 
+libHSgtk_a_NAME			= gtk
+libHSgtk_a_CONFIG		= gtk/gtk.$(PKGEXT)
+libHSgtk_a_EXTERNALDEPS		= base haskell98
+libHSgtk_a_INTERNALDEPS		= glib
 libHSgtk_a_HEADER 		= gtk/gtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
 libHSgtk_a_LIBS			= $(GLIB_LIBS) $(GTK_LIBS)
-libHSgtk_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSgtk_a_HCFLAGS		= -fffi
 libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
-libHSgtk_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) gtk
+libHSgtk_a_SOURCESDIRS		= gtk
+
 gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
 
 if ENABLE_CAIRO
-libHSgtk_a_SOURCESDIRS += cairo
+libHSgtk_a_EXTERNALDEPS += mtl
+libHSgtk_a_INTERNALDEPS += cairo
 gtk/libHSgtk_a.deps	: cairo/libHScairo_a.deps
 endif
 
@@ -654,16 +660,19 @@ if ENABLE_LIBGLADE
 
 glade_PKGNAME = libHSglade_a
 
-libHSglade_a_PACKAGE		= glade/glade.$(PKGEXT)
-libHSglade_a_PACKAGEDEPS	= 
+libHSglade_a_NAME		= glade
+libHSglade_a_CONFIG		= glade/glade.$(PKGEXT)
+libHSglade_a_EXTERNALDEPS	= base haskell98
+libHSglade_a_INTERNALDEPS	= gtk glib
 libHSglade_a_HEADER 		= glade/glade.h
 libHSglade_a_PRECOMP		= glade/glade.precomp
 libHSglade_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(LIBGLADE_LIBS)
-libHSglade_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSglade_a_HCFLAGS		= -fffi
 libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 
-libHSglade_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) glade
+libHSglade_a_SOURCESDIRS	= glade
+
 glade/libHSglade_a.deps	: gtk/libHSgtk_a.deps
 
 libHSglade_a_GENERATEDSOURCES =	\
@@ -745,17 +754,19 @@ if ENABLE_GCONF
 
 gconf_PKGNAME = libHSgconf_a
 
-libHSgconf_a_PACKAGE		= gconf/gconf.$(PKGEXT)
-libHSgconf_a_PACKAGEDEPS	= 
+libHSgconf_a_NAME		= gconf
+libHSgconf_a_CONFIG		= gconf/gconf.$(PKGEXT)
+libHSgconf_a_EXTERNALDEPS	= base haskell98
+libHSgconf_a_INTERNALDEPS	= glib
 libHSgconf_a_HEADER 		= gconf/gconf-client.h
 libHSgconf_a_PRECOMP		= gconf/gconf.precomp
 libHSgconf_a_LIBS		= $(GLIB_LIBS) $(GCONF_LIBS)
-libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances \
-                                   $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances
 libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 
-libHSgconf_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) gconf
+libHSgconf_a_SOURCESDIRS	= gconf
+
 gconf/libHSgconf_a.deps	: glib/libHSglib_a.deps
 
 libHSgconf_a_GENERATEDSOURCES =				\
@@ -858,16 +869,19 @@ if ENABLE_SOURCEVIEW
 
 sourceview_PKGNAME = libHSsourceview_a
 
-libHSsourceview_a_PACKAGE	= sourceview/sourceview.$(PKGEXT)
-libHSsourceview_a_PACKAGEDEPS	= 
+libHSsourceview_a_NAME		= sourceview
+libHSsourceview_a_CONFIG	= sourceview/sourceview.$(PKGEXT)
+libHSsourceview_a_EXTERNALDEPS	= base haskell98
+libHSsourceview_a_INTERNALDEPS	= glib gtk
 libHSsourceview_a_HEADER 	= sourceview.h
 libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
 libHSsourceview_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(SOURCEVIEW_LIBS)
-libHSsourceview_a_HCFLAGS	= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSsourceview_a_HCFLAGS	= -fffi
 libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
 libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
 
-libHSsourceview_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) sourceview
+libHSsourceview_a_SOURCESDIRS	= sourceview
+
 sourceview/libHSsourceview_a.deps	: gtk/libHSgtk_a.deps
 
 libHSsourceview_a_GENERATEDSOURCES =						\
@@ -960,16 +974,19 @@ if ENABLE_MOZEMBED
 
 mozembed_PKGNAME = libHSmozembed_a
 
-libHSmozembed_a_PACKAGE		= mozembed/mozembed.$(PKGEXT)
-libHSmozembed_a_PACKAGEDEPS	= 
+libHSmozembed_a_NAME		= mozembed
+libHSmozembed_a_CONFIG		= mozembed/mozembed.$(PKGEXT)
+libHSmozembed_a_EXTERNALDEPS	= base haskell98
+libHSmozembed_a_INTERNALDEPS	= glib gtk
 libHSmozembed_a_HEADER 		= gtkmozembed.h
 libHSmozembed_a_PRECOMP		= mozembed/mozembed.precomp
 libHSmozembed_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(MOZEMBED_LIBS)
-libHSmozembed_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSmozembed_a_HCFLAGS		= -fffi
 libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 
-libHSmozembed_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) mozembed
+libHSmozembed_a_SOURCESDIRS	= mozembed
+
 mozembed/libHSmozembed_a.deps	: gtk/libHSgtk_a.deps
 
 libHSmozembed_a_GENERATEDSOURCES =			\
@@ -1050,16 +1067,19 @@ if ENABLE_CAIRO
 
 cairo_PKGNAME = libHScairo_a
 
-libHScairo_a_PACKAGE		= cairo/cairo.$(PKGEXT)
-libHScairo_a_PACKAGEDEPS	= 
+libHScairo_a_NAME		= cairo
+libHScairo_a_CONFIG		= cairo/cairo.$(PKGEXT)
+libHScairo_a_EXTERNALDEPS	= base haskell98 mtl
+libHScairo_a_INTERNALDEPS	= glib
 libHScairo_a_HEADER 		= cairo.h
 libHScairo_a_PRECOMP		= cairo/cairo.precomp
 libHScairo_a_LIBS		= $(CAIRO_LIBS)
-libHScairo_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHScairo_a_HCFLAGS		= -fffi
 libHScairo_a_CFLAGS		= $(filter-out -I% -D%,$(CAIRO_CFLAGS))
 libHScairo_a_CPPFLAGS		= $(filter -I% -D%,$(CAIRO_CFLAGS))
 
-libHScairo_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) cairo
+libHScairo_a_SOURCESDIRS	= cairo
+
 cairo/libHScairo_a.deps: glib/libHSglib_a.deps
 
 libHScairo_a_GENERATEDSOURCES =
@@ -1156,16 +1176,19 @@ if ENABLE_SVGCAIRO
 
 svgcairo_PKGNAME = libHSsvgcairo_a
 
-libHSsvgcairo_a_PACKAGE		= svgcairo/svgcairo.$(PKGEXT)
-libHSsvgcairo_a_PACKAGEDEPS	= 
+libHSsvgcairo_a_NAME		= svgcairo
+libHSsvgcairo_a_CONFIG		= svgcairo/svgcairo.$(PKGEXT)
+libHSsvgcairo_a_EXTERNALDEPS	= base haskell98 mtl
+libHSsvgcairo_a_INTERNALDEPS	= glib cairo
 libHSsvgcairo_a_HEADER 		= svg-cairo.h
 libHSsvgcairo_a_PRECOMP		= svgcairo/svgcairo.precomp
 libHSsvgcairo_a_LIBS		= $(SVGCAIRO_LIBS)
-libHSsvgcairo_a_HCFLAGS		= -fffi $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSsvgcairo_a_HCFLAGS		= -fffi
 libHSsvgcairo_a_CFLAGS		= $(filter-out -I% -D%,$(CAIRO_CFLAGS) $(SVGCAIRO_CFLAGS))
 libHSsvgcairo_a_CPPFLAGS	= $(filter -I% -D%,$(CAIRO_CFLAGS) $(SVGCAIRO_CFLAGS))
 
-libHSsvgcairo_a_SOURCESDIRS = $(libHSglib_a_SOURCESDIRS) cairo svgcairo
+libHSsvgcairo_a_SOURCESDIRS	= svgcairo
+
 svgcairo/libHSsvgcairo_a.deps: cairo/libHSsvgcairo_a.deps
 
 libHSsvgcairo_a_GENERATEDSOURCES =
@@ -1228,16 +1251,19 @@ if ENABLE_GTKGLEXT
 
 gtkglext_PKGNAME = libHSgtkglext_a
 
-libHSgtkglext_a_PACKAGE		= gtkglext/gtkglext.$(PKGEXT)
-libHSgtkglext_a_PACKAGEDEPS	= 
+libHSgtkglext_a_NAME		= gtkglext
+libHSgtkglext_a_CONFIG		= gtkglext/gtkglext.$(PKGEXT)
+libHSgtkglext_a_EXTERNALDEPS	= base haskell98
+libHSgtkglext_a_INTERNALDEPS	= glib gtk
 libHSgtkglext_a_HEADER 		= gtk/gtkgl.h
 libHSgtkglext_a_PRECOMP		= gtkglext/gtkglext.precomp
 libHSgtkglext_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(GTKGLEXT_LIBS)
-libHSgtkglext_a_HCFLAGS		= -fffi $(if $(USE_CABAL),-ignore-package glib)
+libHSgtkglext_a_HCFLAGS		= -fffi
 libHSgtkglext_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GTKGLEXT_CFLAGS))
 libHSgtkglext_a_CPPFLAGS	= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GTKGLEXT_CFLAGS))
 
-libHSgtkglext_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) gtkglext
+libHSgtkglext_a_SOURCESDIRS	= gtkglext
+
 gtkglext/libHSgtkglext_a.deps	: gtk/libHSgtk_a.deps
 
 libHSgtkglext_a_GENERATEDSOURCES =					\
@@ -1324,16 +1350,25 @@ endif #ENABLE_GTKGLEXT
 
 soegtk_PKGNAME = libHSsoegtk_a
 
-libHSsoegtk_a_PACKAGE		= soegtk/soegtk.$(PKGEXT)
-libHSsoegtk_a_PACKAGEDEPS	= 
+libHSsoegtk_a_NAME		= soegtk
+libHSsoegtk_a_CONFIG		= soegtk/soegtk.$(PKGEXT)
+libHSsoegtk_a_EXTERNALDEPS	= base haskell98
+libHSsoegtk_a_INTERNALDEPS	= glib gtk
 libHSsoegtk_a_HEADER		= $(libHSgtk_a_HEADER)
 libHSsoegtk_a_LIBS		= 
-libHSsoegtk_a_HCFLAGS		= $(if $(USE_NEW_PKG_FORMAT),-ignore-package glib)
+libHSsoegtk_a_HCFLAGS		=
 libHSsoegtk_a_CFLAGS 		= $(libHSgtk_a_CFLAGS)
 libHSsoegtk_a_CPPFLAGS 		= $(libHSgtk_a_CPPFLAGS)
 
-libHSsoegtk_a_SOURCESDIRS = $(libHSgtk_a_SOURCESDIRS) soegtk
+libHSsoegtk_a_SOURCESDIRS	= soegtk
+
 soegtk/libHSsoegtk_a.deps	: gtk/libHSgtk_a.deps
+
+if ENABLE_CAIRO
+libHSsoegtk_a_EXTERNALDEPS += mtl
+libHSsoegtk_a_INTERNALDEPS += cairo
+gtk/libHSsoegtk_a.deps	: cairo/libHScairo_a.deps
+endif
 
 libHSsoegtk_a_SOURCES =			\
 	soegtk/Graphics/SOE/Gtk.hs.pp
@@ -1365,6 +1400,30 @@ libHSsoegtk_a_AR = $(srcdir)/mk/link-splitobjs.sh
 else
 libHSsoegtk_a_AR = $(AR) $(ARFLAGS)
 endif
+
+#
+#       inplace package registration
+#
+################################################################################
+
+# As of GHC 6.6 it is no longer possible to build multiple packages without
+# registering dependent ones first. So what we have to do now is to create a
+# package.conf.inplace package db and register all our packages in it. Then we
+# use this package db when building the other packages.
+
+package.conf.inplace:
+	echo "[]" > $@
+	$(foreach pkg,$(pkglib_LIBRARIES), \
+	$(SED)	-e 's|$${pkglibdir}/imports|.|' \
+		-e 's|"$${pkglibdir}/include"|.|' \
+		-e 's|$${pkglibdir}|.|' \
+		-e 's|$${modules}|$(call getModules,$(pkg))|' \
+		$(call getVar,$(pkg),CONFIG) \
+		| $(GHCPKG) update - --force --package-conf=$@; )
+
+.DELETE_ON_ERROR: package.conf.inplace
+
+CLEANFILES += package.conf.inplace package.conf.inplace.old
 
 #
 #	documentation
@@ -1496,7 +1555,7 @@ EXTRA_DIST +=								\
 # Include all the .pkg/.package.conf files in the install set, they're useful
 # to distributors and if your installation gets corrupt you can re-register the
 # packages from them.
-pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),PACKAGE))
+pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),CONFIG))
 
 # Before we install the .pkg/.package.conf files we need to substitute for the
 # ${pkglibdir} and ${modules} variables.
@@ -1505,14 +1564,14 @@ install-exec-local:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	$(SED)	-e 's|$${pkglibdir}|$(pkglibdir)|g' \
 		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
-		$(call getVar,$(pkgname),PACKAGE) \
-	> $(call getVar,$(pkgname),PACKAGE).tmp; \
-	mv $(call getVar,$(pkgname),PACKAGE).tmp $(call getVar,$(pkgname),PACKAGE); \
+		$(call getVar,$(pkgname),CONFIG) \
+	> $(call getVar,$(pkgname),CONFIG).tmp; \
+	mv $(call getVar,$(pkgname),CONFIG).tmp $(call getVar,$(pkgname),CONFIG); \
 	$(SED)	's|$${modules}|$(call getModules,$(pkgname))|' \
-		$(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),PACKAGE)) \
-	> $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),PACKAGE)).tmp; \
-	mv $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),PACKAGE)).tmp \
-	   $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),PACKAGE));)
+		$(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),CONFIG)) \
+	> $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),CONFIG)).tmp; \
+	mv $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),CONFIG)).tmp \
+	   $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),CONFIG));)
 
 else WIN32_INSTALLER
 # Except on Windows if we're makeing an installer where we delay the variable
@@ -1524,9 +1583,9 @@ install-exec-local:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	$(SED)	-e 's|$(GTK_BASEPATH)|$${GTK_BASEPATH}|g' \
 		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
-		$(call getVar,$(pkgname),PACKAGE) \
-	> $(call getVar,$(pkgname),PACKAGE).tmp; \
-	mv $(call getVar,$(pkgname),PACKAGE).tmp $(call getVar,$(pkgname),PACKAGE);)
+		$(call getVar,$(pkgname),CONFIG) \
+	> $(call getVar,$(pkgname),CONFIG).tmp; \
+	mv $(call getVar,$(pkgname),CONFIG).tmp $(call getVar,$(pkgname),CONFIG);)
 endif WIN32_INSTALLER
 
 COMMA := ,
