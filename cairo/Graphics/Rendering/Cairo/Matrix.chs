@@ -139,4 +139,4 @@ adjoint (Matrix a b c d tx ty) =
 
 invert :: Matrix -> Matrix
 invert m@(Matrix xx yx xy yy _ _) = scalarMultiply (recip det) $ adjoint m
-  where det = xx*yx - xy*yy
+  where det = xx*yy - yx*xy
