@@ -19,6 +19,7 @@ module Api (
 
 import Prelude hiding (Enum)
 import Maybe  (catMaybes)
+import Char (isSpace)
 
 import qualified Text.XML.HaXml as Xml
 
@@ -147,8 +148,13 @@ data Misc =
 -- extract functions to convert the api xml file to the internal representation
 -------------------------------------------------------------------------------
 extractAPI :: Xml.Document -> API
-extractAPI (Xml.Document _ _ (Xml.Elem "api" [] namespaces)) =
-  catMaybes (map extractNameSpace namespaces)
+extractAPI (Xml.Document _ _ (Xml.Elem "api" [] namespaces) _) =
+  catMaybes (map extractNameSpace (concatMap (Xml.foldXml white) namespaces))
+  where
+  -- remove empty CString constructors from the whole document
+  white :: Xml.CFilter
+  white (Xml.CString False str) | all isSpace str = []
+  white elem = [elem]
 
 extractNameSpace :: Xml.Content -> Maybe NameSpace
 extractNameSpace (Xml.CElem (Xml.Elem "namespace"

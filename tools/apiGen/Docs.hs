@@ -15,7 +15,7 @@ module Docs (
 
 import qualified Text.XML.HaXml as Xml
 
-import Char (isUpper)
+import Char (isUpper,isSpace)
 import List (partition)
 
 -------------------------------------------------------------------------------
@@ -105,8 +105,13 @@ data DocParaSpan = DocText String       -- just simple text
 -- extract functions to convert the doc xml file to the internal representation
 -------------------------------------------------------------------------------
 extractDocumentation :: Xml.Document -> ApiDoc
-extractDocumentation (Xml.Document _ _ (Xml.Elem "apidoc" [] modules)) =
-  map extractDocModule modules
+extractDocumentation (Xml.Document _ _ (Xml.Elem "apidoc" [] modules) _) =
+  map extractDocModule (concatMap (Xml.foldXml white) modules)
+  where
+  -- remove empty CString constructors from the whole document
+  white :: Xml.CFilter
+  white (Xml.CString False str) | all isSpace str = []
+  white elem = [elem]
 
 extractDocModule :: Xml.Content -> ModuleDoc
 extractDocModule (Xml.CElem (Xml.Elem "module" [] (moduleinfo:rest))) =
