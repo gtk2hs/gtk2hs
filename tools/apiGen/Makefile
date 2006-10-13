@@ -49,7 +49,7 @@ atk_dir = atk
 atk_tar = atk-$(atk_version).tar.bz2
 atk_url = $(gtk_releases_url)/$(atk_tar)
 
-gtk_version = 2.8.10
+gtk_version = 2.8.9
 gtk_dir = gtk
 gtk_tar = gtk+-$(gtk_version).tar.bz2
 gtk_url = $(gtk_releases_url)/$(gtk_tar)

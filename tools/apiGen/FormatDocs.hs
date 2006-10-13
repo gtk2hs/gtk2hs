@@ -53,7 +53,7 @@ genModuleDocumentation knownSymbols moduledoc =
           comment.ss "|".nl.
           comment.ss "@".nl.
           comment.ss "|  ".haddocFormatHierarchy knownSymbols
-	                     (moduledoc_name moduledoc)
+	                     (moduledoc_name moduledoc) (moduledoc_altname moduledoc)
 	                     (moduledoc_hierarchy moduledoc).nl.
           comment.ss "@".nl)
 
@@ -63,12 +63,12 @@ haddocFormatDeclaration knownSymbols handleNULLs doc_paragraphs (Just doc)
   = ss "-- | ". haddocFormatParas knownSymbols handleNULLs (doc_paragraphs doc). nl.
     ss "--\n"
 
-haddocFormatHierarchy :: KnownSymbols -> String -> Forest String -> ShowS
-haddocFormatHierarchy knownSymbols moduledoc_name =
+haddocFormatHierarchy :: KnownSymbols -> String -> String -> Forest String -> ShowS
+haddocFormatHierarchy knownSymbols moduledoc_name1 moduledoc_name2 =
     sepBy "\n-- |  "
   . concatMap drawHierarchy
   . map (fmap (haddocFormatSpan knownSymbols False))
-  . map (fmap (\s -> if s == moduledoc_name
+  . map (fmap (\s -> if s == moduledoc_name1 || s == moduledoc_name2
                        then DocText (cTypeNameToHSType s)
 		       else DocTypeXRef s))
   . filterForest (/="GInitiallyUnowned")

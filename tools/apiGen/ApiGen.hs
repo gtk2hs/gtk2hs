@@ -16,8 +16,8 @@ import ModuleScan
 import ExcludeApi
 import MarshalFixup (fixModuleDocMapping)
 
-import Monad  (when, liftM)
-import List   (isPrefixOf, intersperse)
+import Control.Monad  (when, liftM)
+import Data.List   (isPrefixOf, intersperse)
 import System (getArgs, exitWith, ExitCode(..))
 import Directory (doesDirectoryExist, createDirectory)
 
