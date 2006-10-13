@@ -15,8 +15,9 @@ module Docs (
 
 import qualified Text.XML.HaXml as Xml
 
-import Char (isUpper,isSpace)
-import List (partition)
+import Char (isUpper, isSpace, isAlphaNum)
+import List (partition, groupBy)
+import Data.Tree (Forest, unfoldForest)
 
 -------------------------------------------------------------------------------
 -- Types representing the content of the documentation XML file
@@ -29,7 +30,7 @@ data ModuleDoc = ModuleDoc {
     moduledoc_summary :: [DocPara],        -- usually a one line summary
     moduledoc_description :: [DocPara],    -- the main description
     moduledoc_sections :: [DocSection],    -- any additional titled subsections
-    moduledoc_hierarchy :: [DocParaSpan],  -- a tree of parent objects (as text)
+    moduledoc_hierarchy :: Forest String,  -- a tree of parent objects (as text)
     moduledoc_functions :: [FuncDoc],      -- documentation for each function
     moduledoc_callbacks :: [FuncDoc],      -- documentation for callback types
     moduledoc_properties :: [PropDoc],     -- documentation for each property
@@ -148,7 +149,8 @@ extractDocModuleinfo
     moduledoc_summary = [DocParaText (map extractDocParaSpan summary)],
     moduledoc_description = concatMap extractDocPara paras,
     moduledoc_sections = map extractDocSection sections,
-    moduledoc_hierarchy = map extractDocParaSpan objHierSpans,
+    moduledoc_hierarchy = parseHierarchyDocs
+                            (map extractDocParaSpan objHierSpans),
     moduledoc_functions = undefined,
     moduledoc_callbacks = undefined,
     moduledoc_properties = undefined,
@@ -300,3 +302,40 @@ extractDocParaSpan (Xml.CElem (Xml.Elem tag [] content)) =
 
 extractDocParaSpan other@(Xml.CRef (Xml.RefEntity entity)) = DocText (Xml.verbatim other)
 extractDocParaSpan other = error $ "extractDocParaSpan: " ++ Xml.verbatim other
+
+
+parseHierarchyDocs :: [DocParaSpan] -> Forest String
+parseHierarchyDocs =
+    forestFromPaths
+  . map (reverse . map snd)
+  . paths []
+  . map extractLine
+  . lines
+  . extractLines
+
+extractLines :: [DocParaSpan] -> String
+extractLines = concatMap getText
+  where getText (DocTypeXRef t) = t
+        getText (DocText t)     = t
+
+extractLine line =
+  case span (==' ') line of
+    (spaces, '+':'-':'-':'-':'-':remainder) -> (length spaces, remainder)
+    (spaces, remainder)                     -> (length spaces, remainder)
+
+paths :: [(Int,String)] -> [(Int,String)] -> [[(Int,String)]]
+paths ps [] = []
+paths ps ((col,name):rem) = spec : paths spec rem
+  where
+    parents = dropWhile (\(c,_) -> c>=col) ps
+    spec = (col,name):parents
+
+forestFromPaths :: Eq a => [[a]] -> Forest a
+forestFromPaths = unfoldForest step . groupBy (equating head)
+  where step paths = (label, children)
+          where label = head (head paths)
+                children = groupBy (equating head)
+                             [ path | (_:path@(_:_)) <- paths ]
+
+equating :: Eq a => (b -> a) -> b -> b -> Bool
+equating p x y = p x == p y

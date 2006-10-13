@@ -29,6 +29,7 @@ import StringUtils
 
 import Maybe (isJust)
 import Char (toLower, isUpper, isAlpha, isSpace)
+import Data.Tree
 import qualified List (lines)
 import qualified Data.Map as Map
 
@@ -51,7 +52,9 @@ genModuleDocumentation knownSymbols moduledoc =
      else nl.comment.ss "* Class Hierarchy".nl.
           comment.ss "|".nl.
           comment.ss "@".nl.
-          comment.ss "|  ".haddocFormatHierarchy knownSymbols (moduledoc_hierarchy moduledoc).nl.
+          comment.ss "|  ".haddocFormatHierarchy knownSymbols
+	                     (moduledoc_name moduledoc)
+	                     (moduledoc_hierarchy moduledoc).nl.
           comment.ss "@".nl)
 
 haddocFormatDeclaration :: KnownSymbols -> Bool -> (doc -> [DocPara]) -> Maybe doc -> ShowS
@@ -60,18 +63,29 @@ haddocFormatDeclaration knownSymbols handleNULLs doc_paragraphs (Just doc)
   = ss "-- | ". haddocFormatParas knownSymbols handleNULLs (doc_paragraphs doc). nl.
     ss "--\n"
 
-haddocFormatHierarchy :: KnownSymbols -> [DocParaSpan] -> ShowS
-haddocFormatHierarchy knownSymbols =
-    sepBy "\n-- |"
-  . map haddocTweakHierarchy
-  . Prelude.lines
-  . concatMap (haddocFormatSpan knownSymbols False)
+haddocFormatHierarchy :: KnownSymbols -> String -> Forest String -> ShowS
+haddocFormatHierarchy knownSymbols moduledoc_name =
+    sepBy "\n-- |  "
+  . concatMap drawHierarchy
+  . map (fmap (haddocFormatSpan knownSymbols False))
+  . map (fmap (\s -> if s == moduledoc_name
+                       then DocText (cTypeNameToHSType s)
+		       else DocTypeXRef s))
+  . filterForest (/="GInitiallyUnowned")
 
-haddocTweakHierarchy :: String -> String
-haddocTweakHierarchy ('+':'-':'-':'-':'-':cs@(c:_)) | c /= '\'' =
-  case span isAlpha cs of (word, rest) -> "+----" ++ cTypeNameToHSType word ++ rest
-haddocTweakHierarchy (c:cs) = c : haddocTweakHierarchy cs
-haddocTweakHierarchy [] = []
+drawHierarchy :: Tree String -> [String]
+drawHierarchy (Node x ts0) = x : drawSubTrees ts0
+  where drawSubTrees [] = []
+        drawSubTrees (t:ts) =
+          shift " +----" "      " (drawHierarchy t) ++ drawSubTrees ts
+        shift first other = zipWith (++) (first : repeat other)
+
+filterForest :: (a -> Bool) -> Forest a -> Forest a
+filterForest p = concatMap (filterTree p)
+
+filterTree :: (a -> Bool) -> Tree a -> Forest a
+filterTree p (Node x ts) | p x       = [Node x (filterForest p ts)]
+                         | otherwise = ts
 
 addVersionParagraphs :: NameSpace -> ModuleDoc -> ModuleDoc
 addVersionParagraphs namespace apiDoc =

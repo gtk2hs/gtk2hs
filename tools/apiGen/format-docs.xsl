@@ -12,6 +12,10 @@
 <xref-type><xsl:value-of select="."/></xref-type>
 </xsl:template>
 
+<xsl:template match="synopsis/link">
+<xref-type><xsl:value-of select="."/></xref-type>
+</xsl:template>
+
 <xsl:template match="xref">
 <xref-other><xsl:value-of select="@linkend"/></xref-other>
 </xsl:template>
@@ -107,17 +111,7 @@
       </xsl:for-each>
     </description>
     <object-hierarchy>
-      <xsl:for-each select="refentry/refsect1[@id='object_hierarchy']/synopsis/node()">
-        <xsl:choose>
-	  <xsl:when test="name(.)='link'">
-	    <xref-type><xsl:value-of select="."/></xref-type>
-	  </xsl:when>
-	  <xsl:otherwise>
-	    <xsl:value-of select="."/>
-	    <xsl:value-of select="name(.)"/>
-	  </xsl:otherwise>
-	</xsl:choose>
-      </xsl:for-each>
+      <xsl:apply-templates select="refentry/refsect1[@id='object_hierarchy']/synopsis"/>
     </object-hierarchy>
   </module-info>
   <!-- Function documentation -->
