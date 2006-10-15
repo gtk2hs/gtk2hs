@@ -944,6 +944,7 @@ sub addSignalElem
 		$sig_elem->setAttribute('cname', $1);
 	}
 	$sig_elem->setAttribute('when', $1) if ($spec =~ /_RUN_(\w+)/);
+	$sig_elem->setAttribute('action', 'true') if ($spec =~ /_ACTION/);
 
 	my $method = "";
 	if ($spec =~ /_OFFSET\s*\(\w+,\s*(\w+)\)/) {

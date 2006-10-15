@@ -18,8 +18,9 @@ module Api (
   ) where
 
 import Prelude hiding (Enum)
-import Maybe  (catMaybes)
+import Maybe  (catMaybes, isJust)
 import Char (isSpace)
+import List (find)
 
 import qualified Text.XML.HaXml as Xml
 
@@ -129,6 +130,7 @@ data Signal = Signal {
     signal_name :: String,
     signal_cname :: String,
     signal_when :: String,
+    signal_action :: Bool,
     signal_return_type :: String,
     signal_parameters :: [Parameter]    
   } deriving Show
@@ -500,16 +502,16 @@ extractChildProperty _ = Nothing
 extractSignal :: Xml.Content -> Maybe Signal
 extractSignal (Xml.CElem (Xml.Elem "signal"
                      (("name", Xml.AttValue name):
-                      ("cname", Xml.AttValue cname):when)
+                      ("cname", Xml.AttValue cname):remainder)
                      (Xml.CElem (Xml.Elem "return-type"
                             [("type", Xml.AttValue return_type)] [])
                       :content))) =
   Just $ Signal {
     signal_name = Xml.verbatim name,
     signal_cname = Xml.verbatim cname,
-    signal_when = case when of
-                    [] -> ""
-                    [("when", Xml.AttValue when)] -> Xml.verbatim when,
+    signal_when = head [ Xml.verbatim when
+                       | ("when", Xml.AttValue when) <- remainder ] ++ "",
+    signal_action = isJust $ find ((== "action") . fst) remainder,
     signal_return_type = Xml.verbatim return_type,
     signal_parameters =
       case content of
