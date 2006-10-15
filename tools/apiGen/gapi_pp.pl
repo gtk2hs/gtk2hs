@@ -24,8 +24,8 @@
 # Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-$private_regex = "^#if.*(ENABLE_BACKEND|ENABLE_ENGINE)";
-$eatit_regex = "^#if.*(__cplusplus|DEBUG|DISABLE_COMPAT|ENABLE_BROKEN)";
+$private_regex = '^#if.*(ENABLE_BACKEND|ENABLE_ENGINE)';
+$eatit_regex = '^#if(.*(__cplusplus|DEBUG|DISABLE_COMPAT|ENABLE_BROKEN)|\s+0\s*$)';
 $ignoreit_regex = '^\s+\*|#ident|#error|#\s*include|#\s*else|#\s*undef|G_(BEGIN|END)_DECLS|GDKVAR|GTKVAR|GTKMAIN_C_VAR|GTKTYPEUTILS_VAR|VARIABLE|GTKTYPEBUILTIN';
 
 foreach $arg (@ARGV) {
@@ -81,6 +81,8 @@ foreach $fname (@hdrs) {
 			while ($line !~ /\*\//) {$line = <INFILE>;}
 		} elsif ($line =~ /^extern/) {
 			while ($line !~ /;/) {$line = <INFILE>;}
+		} elsif ($line =~ /^#ifndef\s+\w+_H_*\b/) {
+			while ($line !~ /#define/) {$line = <INFILE>;}
 		} elsif ($line =~ /$private_regex/) {
 			$nested = 0;
 			while ($line = <INFILE>) {
@@ -189,7 +191,28 @@ foreach $fname (@srcs, @privhdrs) {
 	}
 
 	while ($line = <INFILE>) {
-		next if ($line !~ /^(struct|\w+_class_init|\w+_base_init|\w+_get_type\b)/);
+		next if ($line !~ /^(struct|\w+_class_init|\w+_base_init|\w+_get_type\b|G_DEFINE_TYPE_WITH_CODE)/);
+
+		if ($line =~ /^G_DEFINE_TYPE_WITH_CODE/) {
+			my $macro;
+			my $parens = 0;
+			do {
+				chomp ($line);
+				$line =~ s/(.*)\\$/\1/;
+				$line =~ s/^\s+(.*)/ \1/;
+				$macro .= $line;
+				foreach $chr (split (//, $line)) {
+					if ($chr eq "(") {
+						$parens++;
+					} elsif ($chr eq ")") {
+						$parens--;
+					}
+				}
+				$line = <INFILE>;
+			} while ($parens > 0);
+			print "$macro\n";
+			next if ($line !~ /^(struct|\w+_class_init|\w+_base_init)/);
+		}
 
 		if ($line =~ /^struct/) {
 			# need some of these to parse out parent types

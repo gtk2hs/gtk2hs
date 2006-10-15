@@ -87,6 +87,7 @@ data Field = Field {
     field_name :: String,
     field_cname :: String,
     field_type :: String,
+    field_public :: Bool, --public or private
     field_bits :: Int
   } deriving Show
 
@@ -98,6 +99,7 @@ data Constructor = Constructor {
 data Parameter = Parameter {
     parameter_type :: String,
     parameter_name :: String,
+    parameter_out  :: Bool,
     parameter_isArray :: Bool
   }
                | VarArgs
@@ -107,6 +109,7 @@ data Method = Method {
     method_name :: String,
     method_cname :: String,
     method_return_type :: String,
+    method_return_owned :: Bool,
     method_parameters :: [Parameter],
     method_shared :: Bool,
     method_deprecated :: Bool
@@ -175,6 +178,7 @@ extractEnum :: Xml.Content -> Maybe Enum
 extractEnum (Xml.CElem (Xml.Elem "enum"
                      [("name", Xml.AttValue name),
                       ("cname", Xml.AttValue cname),
+                      ("gtype", Xml.AttValue gtype),
                       ("type", Xml.AttValue variety)] members)) =
   Just $ Enum {
     enum_name = Xml.verbatim name,
@@ -184,6 +188,46 @@ extractEnum (Xml.CElem (Xml.Elem "enum"
                      "flags" -> FlagsVariety,
     enum_members = map extractEnumMember members
   }
+extractEnum (Xml.CElem (Xml.Elem "enum"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname),
+                      ("type", Xml.AttValue variety)] members)) =
+  Just $ Enum {
+    enum_name = Xml.verbatim name,
+    enum_cname = Xml.verbatim cname,
+    enum_variety = case Xml.verbatim variety of
+                     "enum" -> EnumVariety
+                     "flags" -> FlagsVariety,
+    enum_members = map extractEnumMember members
+  }
+extractEnum (Xml.CElem (Xml.Elem "enum"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname),
+                      ("deprecated", Xml.AttValue [Left "1"]),
+                      ("gtype", Xml.AttValue gtype),
+                      ("type", Xml.AttValue variety)] members)) =
+  Just $ Enum {
+    enum_name = Xml.verbatim name,
+    enum_cname = Xml.verbatim cname,
+    enum_variety = case Xml.verbatim variety of
+                     "enum" -> EnumVariety
+                     "flags" -> FlagsVariety,
+    enum_members = map extractEnumMember members
+  }
+extractEnum (Xml.CElem (Xml.Elem "enum"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname),
+                      ("deprecated", Xml.AttValue [Left "1"]),
+                      ("type", Xml.AttValue variety)] members)) =
+  Just $ Enum {
+    enum_name = Xml.verbatim name,
+    enum_cname = Xml.verbatim cname,
+    enum_variety = case Xml.verbatim variety of
+                     "enum" -> EnumVariety
+                     "flags" -> FlagsVariety,
+    enum_members = map extractEnumMember members
+  }
+extractEnum other@(Xml.CElem (Xml.Elem "enum" _ _)) = error $ "extractEnum: " ++ Xml.verbatim other
 extractEnum _ = Nothing
 
 extractEnumMember :: Xml.Content -> Member
@@ -278,8 +322,21 @@ extractField (Xml.CElem (Xml.Elem "field"
                       ("type", Xml.AttValue type_)] content)) =
   Just $ Field {
     field_name = Xml.verbatim name,
+    field_cname = Xml.verbatim cname,
+    field_type = Xml.verbatim type_,
+    field_public = False,
+    field_bits = -1
+  }
+extractField (Xml.CElem (Xml.Elem "field"
+                     [("name", Xml.AttValue name),
+                      ("cname", Xml.AttValue cname),
+                      ("type", Xml.AttValue type_),
+                      ("access", Xml.AttValue [Left "public"])] content)) =
+  Just $ Field {
+    field_name = Xml.verbatim name,
     field_cname = Xml.verbatim cname,    
     field_type = Xml.verbatim type_,
+    field_public = True,
     field_bits = -1
   }
 extractField (Xml.CElem (Xml.Elem "field"
@@ -291,6 +348,7 @@ extractField (Xml.CElem (Xml.Elem "field"
     field_name = Xml.verbatim name,
     field_cname = Xml.verbatim cname,
     field_type = Xml.verbatim type_,
+    field_public = False,
     field_bits = read (Xml.verbatim bits)
   }
 extractField _ = Nothing
@@ -301,7 +359,7 @@ extractMethod (Xml.CElem (Xml.Elem "method"
                       ("cname", Xml.AttValue cname):
                       remainder)
                      (Xml.CElem (Xml.Elem "return-type"
-                            [("type", Xml.AttValue return_type)] [])
+                            (("type", Xml.AttValue return_type):remainder') [])
                       :content))) =
   let (shared, deprecated) =
         case remainder of 
@@ -309,10 +367,15 @@ extractMethod (Xml.CElem (Xml.Elem "method"
           [("shared", _)]                    -> (True,  False)
           [("deprecated", _)]                -> (False, True)
           [("deprecated", _), ("shared", _)] -> (True,  True)
+      owned =
+        case remainder' of
+          []                                      -> False
+          [("owned", Xml.AttValue [Left "true"])] -> True
   in Just $ Method {
     method_name = Xml.verbatim name,
     method_cname = Xml.verbatim cname,
     method_return_type = Xml.verbatim return_type,
+    method_return_owned = owned,
     method_parameters =
       case content of
         [] -> []
@@ -336,6 +399,17 @@ extractParameter (Xml.CElem (Xml.Elem "parameter"
   Parameter {
     parameter_type = Xml.verbatim type_,
     parameter_name = Xml.verbatim name,
+    parameter_out  = False,
+    parameter_isArray = False
+  }
+extractParameter (Xml.CElem (Xml.Elem "parameter"
+                        [("type", Xml.AttValue type_),
+                         ("pass_as", Xml.AttValue [Left "out"]),
+                         ("name", Xml.AttValue name)] [])) =
+  Parameter {
+    parameter_type = Xml.verbatim type_,
+    parameter_name = Xml.verbatim name,
+    parameter_out  = True,
     parameter_isArray = False
   }
 extractParameter (Xml.CElem (Xml.Elem "parameter"
@@ -344,6 +418,7 @@ extractParameter (Xml.CElem (Xml.Elem "parameter"
   Parameter {
     parameter_type = Xml.verbatim type_,
     parameter_name = Xml.verbatim name,
+    parameter_out  = False,
     parameter_isArray = False
   }
 extractParameter (Xml.CElem (Xml.Elem "parameter"
@@ -353,6 +428,7 @@ extractParameter (Xml.CElem (Xml.Elem "parameter"
   Parameter {
     parameter_type = Xml.verbatim type_,
     parameter_name = Xml.verbatim name,
+    parameter_out  = False,
     parameter_isArray = False
   }
 extractParameter (Xml.CElem (Xml.Elem "parameter"
@@ -362,6 +438,7 @@ extractParameter (Xml.CElem (Xml.Elem "parameter"
    Parameter {
      parameter_type = Xml.verbatim type_,
      parameter_name = Xml.verbatim name,
+     parameter_out  = False,
      parameter_isArray = True
    }
 extractParameter (Xml.CElem (Xml.Elem "callback"
@@ -369,8 +446,10 @@ extractParameter (Xml.CElem (Xml.Elem "callback"
    Parameter {
      parameter_type = "callback",
      parameter_name = Xml.verbatim cname,
+     parameter_out  = False,
      parameter_isArray = False
    }
+extractParameter other = error $ "extractParameter: " ++ Xml.verbatim other
   
 extractConstructor :: Xml.Content -> Maybe Constructor
 extractConstructor (Xml.CElem (Xml.Elem "constructor"
@@ -396,7 +475,7 @@ extractProperty (Xml.CElem (Xml.Elem "property"
     property_type = Xml.verbatim type_,
     property_readable  = (not.null) [ () | ("readable", _) <- others],
     property_writeable = (not.null) [ () | ("writeable", _) <- others],
-    property_constructonly  = (not.null) [ () | ("construct-only", _) <- others]
+    property_constructonly  = (not.null) [ () | ("construct", _) <- others]
   }
 extractProperty _ = Nothing
 

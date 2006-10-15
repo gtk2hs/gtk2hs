@@ -220,6 +220,7 @@ mungeMethod object method =
   let self = Parameter {
                parameter_type = object_cname object ++ "*",
                parameter_name = "self",
+               parameter_out  = False,
                parameter_isArray = False
              }
    in method {
@@ -260,6 +261,7 @@ mungeConstructor object constructor =
     method_name = cFuncNameToHsName (constructor_cname constructor),
     method_cname = constructor_cname constructor,
     method_return_type = object_cname object ++ "*",
+    method_return_owned = False,
     method_parameters = constructor_parameters constructor,
     method_shared = False,
     method_deprecated = False

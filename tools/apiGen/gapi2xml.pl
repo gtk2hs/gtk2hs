@@ -73,7 +73,7 @@ while ($line = <STDIN>) {
 		$sdef = $line;
 		while ($line = <STDIN>) {
 			$sdef .= $line;
-			last if ($line =~ /^}/);
+			last if ($line =~ /^(deprecated)?}/);
 		}
 		$sdef =~ s!/\*.*?(\*/|\n)!!g;
 		$sdef =~ s/\n\s*//g;
@@ -121,13 +121,13 @@ while ($line = <STDIN>) {
 		}
 		$sdef =~ s!/\*[^<].*?(\*/|\n)!!g;
 		$sdef =~ s/\n\s*//g;
-		$sdefs{$sname} = $sdef;
+		$sdefs{$sname} = $sdef if (!exists ($sdefs{$sname}));
 	} elsif ($line =~ /^(\w+)_(class|base)_init\b/) {
 		$class = StudlyCaps($1);
 		$pedef = $line;
 		while ($line = <STDIN>) {
 			$pedef .= $line;
-			last if ($line =~ /^}/);
+			last if ($line =~ /^(deprecated)?}/);
 		}
 		$pedefs{lc($class)} = $pedef;
 	} elsif ($line =~ /^(\w+)_get_type\b/) {
@@ -145,12 +145,17 @@ while ($line = <STDIN>) {
 				my $boxtype = $1;
 				$boxtype =~ s/($ns)Type(\w+)/$ns$2/;
 				$boxdefs{$boxtype} = $boxdef;
+			} elsif ($line =~ /g_(enum|flags)_register_static/) {
+				$pedef =~ /^(\w+_get_type)/;
+				$enum_gtype{$class} = $1;
 			}
-			last if ($line =~ /^}/);
+			last if ($line =~ /^(deprecated)?}/);
 		}
 		$typefuncs{lc($class)} = $pedef;
-	} elsif ($line =~ /^(deprecated)?(const|G_CONST_RETURN)?\s*(struct\s+)?\w+\s*\**\s*(\w+)\s*\(/) {
-		$fname = $4;
+	} elsif ($line =~ /^G_DEFINE_TYPE_WITH_CODE\s*\(\s*(\w+)/) {
+		$typefuncs{lc($1)} = $line;
+	} elsif ($line =~ /^(deprecated)?(const|G_CONST_RETURN)?\s*(struct\s+)?\w+\s*\**(\s*(const|G_CONST_RETURN)\s*\**)?\s*(\w+)\s*\(/) {
+		$fname = $6;
 		$fdef = "";
 		while ($line !~ /;/) {
 			$fdef .= $line;
@@ -222,12 +227,15 @@ foreach $cname (sort(keys(%edefs))) {
 		$enum_elem->setAttribute("deprecated", "1");
 		$def =~ s/deprecated//g;
 	}
-	if ($def =~ /=\s*1\s*<<\s*\d+/) {
+	if ($enum_gtype{$cname}) {
+		$enum_elem->setAttribute("gtype", $enum_gtype{$cname});
+	}
+	if ($def =~ /<</) {
 		$enum_elem->setAttribute('type', "flags");
 	} else {
 		$enum_elem->setAttribute('type', "enum");
 	}
-	$def =~ /\{(.*)\}/;
+	$def =~ /\{(.*\S)\s*\}/;
 	@vals = split(/,\s*/, $1);
 	$vals[0] =~ s/^\s+//;
 	@v0 = split(/_/, $vals[0]);
@@ -246,12 +254,14 @@ foreach $cname (sort(keys(%edefs))) {
 	}
 	
 	foreach $val (@vals) {
-		if ($val =~ /$common\_?(\w+)\s*=\s*(\-?\d+.*)/) {
+		$val =~ s/=\s*\(\s*(.*\S)\s*\)\s*/= \1/;
+		if ($val =~ /$common\_?(\w+)\s*=\s*(.*)$/) {
 			$name = $1;
-			if ($2 =~ /1u?\s*<<\s*(\d+)/) {
-				$enumval = "1 << $1";
-			} else {
-				$enumval = $2;
+			$enumval = $2;
+			if ($enumval =~ /^(\d+|0x[0-9A-Fa-f]+)u?\s*<<\s*(\d+)$/) {
+				$enumval = "$1 << $2";
+			} elsif ($enumval =~ /^$common\_?(\w+)$/) {
+				$enumval = StudlyCaps(lc($1))
 			}
 		} elsif ($val =~ /$common\_?(\w+)/) {
 			$name = $1; $enumval = "";
@@ -367,7 +377,11 @@ foreach $type (sort(keys(%objects))) {
 
 	# Get the interfaces from the class_init func.
 	if ($typefunc) {
-		parseTypeFunc($obj_el, $typefunc);
+		if ($typefunc =~ /G_DEFINE_TYPE_WITH_CODE/) {
+			parseTypeFuncMacro($obj_el, $typefunc);
+		} else {
+			parseTypeFunc($obj_el, $typefunc);
+		}
 	} else {
 		warn "Don't have a GetType func for $inst.\n" if $debug;
 	}
@@ -483,13 +497,14 @@ sub addFieldElems
 	my $access = $defaultaccess;
 
 	foreach $field (@fields) {
-		if ($field =~ m!^/\*< (public|private) >.*\*/(.*)$!) {
+		if ($field =~ m!/\*< (public|private) >.*\*/(.*)$!) {
 			$access = $1;
 			$field = $2;
 		}
 		next if ($field !~ /\S/);
 		$field =~ s/\s+(\*+)/\1 /g;
-		$field =~ s/(\w+)\s+const /const \1 /g;
+		$field =~ s/(const\s+)?(\w+)\*\s+const\*/const \2\*/g;
+		$field =~ s/(\w+)\s+const\s*\*/const \1\*/g;
 		$field =~ s/const /const\-/g;
 		$field =~ s/struct /struct\-/g;
 		$field =~ s/.*\*\///g;
@@ -582,6 +597,18 @@ sub addFuncElems
 
 		parseParms ($el, $mdef, $drop_1st);
 
+		# Don't add "free" to this regexp; that will wrongly catch all boxed types
+		if ($mname =~ /$prefix(new|destroy|ref|unref)/ &&
+		    ($obj_el->nodeName eq "boxed" || $obj_el->nodeName eq "struct") &&
+		    $obj_el->getAttribute("opaque") ne "true") {
+			$obj_el->setAttribute("opaque", "true");
+			for my $field ($obj_el->getElementsByTagName("field")) {
+				if (!$field->getAttribute("access")) {
+					$field->setAttribute("access", "public");
+					$field->setAttribute("writeable", "true");
+				}
+			}
+		}
 	}
 }
 
@@ -760,17 +787,28 @@ sub addParamsElem
 	foreach $parm (@params) {
 		$parm_num++;
 		$parm =~ s/\s+(\*+)/\1 /g;
-		$parm =~ s/(\w+)\s+const /const \1 /g;
+		my $out = $parm =~ s/G_CONST_RETURN/const/g;
+		$parm =~ s/(const\s+)?(\w+)\*\s+const\*/const \2\*/g;
 		$parm =~ s/(\*+)\s*const\s+/\1 /g;
+		$parm =~ s/(\w+)\s+const\s*\*/const \1\*/g;
 		$parm =~ s/const\s+/const-/g;
 		$parm =~ s/unsigned\s+/unsigned-/g;
 		if ($parm =~ /(.*)\(\s*\**\s*(\w+)\)\s+\((.*)\)/) {
 			my $ret = $1; my $cbn = $2; my $params = $3;
-			$cb_elem = addNameElem($parms_elem, 'callback', $cbn);
+			my $type = $parent->getAttribute('name') . StudlyCaps($cbn);
+			$cb_elem = addNameElem($ns_elem, 'callback', $type, $ns);
 			addReturnElem($cb_elem, $ret);
 			if ($params && ($params ne "void")) {
 				addParamsElem($cb_elem, split(/,/, $params));
+				my $data_parm = $cb_elem->lastChild()->lastChild();
+				if ($data_parm && $data_parm->getAttribute('type') eq "gpointer") {
+				    $data_parm->setAttribute('name', 'data');
+				}
 			}
+			$parm_elem = $doc->createElement('parameter');
+			$parm_elem->setAttribute('type', $type);
+			$parm_elem->setAttribute('name', $cbn);
+			$parms_elem->appendChild($parm_elem);
 			next;
 		} elsif ($parm =~ /\.\.\./) {
 			$parm_elem = $doc->createElement('parameter');
@@ -795,6 +833,9 @@ sub addParamsElem
 			$name = $1;
 			$parm_elem->setAttribute('array', "true");
 		}
+		if ($out) {
+			$parm_elem->setAttribute('pass_as', "out");
+		}
 		$parm_elem->setAttribute('name', $name);
 	}
 }
@@ -803,11 +844,16 @@ sub addReturnElem
 {
 	my ($parent, $ret) = @_;
 
+	$ret =~ s/(\w+)\s+const\s*\*/const \1\*/g;
 	$ret =~ s/const|G_CONST_RETURN/const-/g;
 	$ret =~ s/\s+//g;
+	$ret =~ s/(const-)?(\w+)\*(const-)\*/const-\2\*\*/g;
 	my $ret_elem = $doc->createElement('return-type');
 	$parent->appendChild($ret_elem);
 	$ret_elem->setAttribute('type', $ret);
+	if ($parent->getAttribute('name') eq "Copy" && $ret =~ /\*$/) {
+		$ret_elem->setAttribute('owned', 'true');
+	}
 	return $ret_elem;
 }
 
@@ -852,7 +898,8 @@ sub addPropElem
 
 	$prop_elem->setAttribute('readable', "true") if ($mode =~ /READ/);
 	$prop_elem->setAttribute('writeable', "true") if ($mode =~ /WRIT/);
-	$prop_elem->setAttribute('construct-only', "true") if ($mode =~ /CONS/);
+	$prop_elem->setAttribute('construct', "true") if ($mode =~ /CONSTRUCT(?!_)/);
+	$prop_elem->setAttribute('construct-only', "true") if ($mode =~ /CONSTRUCT_ONLY/);
 }
 
 sub parseTypeToken
@@ -923,13 +970,13 @@ sub addSignalElem
 		return $class;
 	}
 
-	if ($class =~ /;\s*(G_CONST_RETURN\s+)?(\w+\s*\**)\s*\(\*\s*$method\)\s*\((.*?)\);/) {
-		$ret = $2; $parms = $3;
+	if ($class =~ /;\s*(\/\*< (public|protected) >\s*\*\/)?(G_CONST_RETURN\s+)?(\w+\s*\**)\s*\(\s*\*\s*$method\)\s*\((.*?)\);/) {
+		$ret = $4; $parms = $5;
 		addReturnElem($sig_elem, $ret);
 		if ($parms && ($parms ne "void")) {
 			addParamsElem($sig_elem, split(/,/, $parms));
 		}
-		$class =~ s/;\s*(G_CONST_RETURN\s+)?\w+\s*\**\s*\(\*\s*$method\)\s*\(.*?\);/;/;
+		$class =~ s/;\s*(\/\*< (public|protected) >\s*\*\/)?(G_CONST_RETURN\s+)?\w+\s*\**\s*\(\s*\*\s*$method\)\s*\(.*?\);/;/;
 	} else {
 		die "$method $class";
 	}
@@ -943,7 +990,7 @@ sub addVirtualMethods
 	$class =~ s/\n\s*//g;
 	$class =~ s/\/\*.*?\*\///g;
 
-	while ($class =~ /;\s*(G_CONST_RETURN\s+)?(\S+\s*\**)\s*\(\*\s*(\w+)\)\s*\((.*?)\);/) {
+	while ($class =~ /;\s*(G_CONST_RETURN\s+)?(\S+\s*\**)\s*\(\s*\*\s*(\w+)\)\s*\((.*?)\);/) {
 		$ret = $1 . $2; $cname = $3; $parms = $4;
 		if ($cname !~ /reserved/) {
 			$vm_elem = $doc->createElement('virtual_method');
@@ -955,7 +1002,7 @@ sub addVirtualMethods
 				addParamsElem($vm_elem, split(/,/, $parms));
 			}
 		}
-		$class =~ s/;\s*(G_CONST_RETURN\s+)?\S+\s*\**\s*\(\*\s*\w+\)\s*\(.*?\);/;/;
+		$class =~ s/;\s*(G_CONST_RETURN\s+)?\S+\s*\**\s*\(\s*\*\s*\w+\)\s*\(.*?\);/;/;
 	}
 }
 
@@ -985,7 +1032,7 @@ sub parseInitFunc
 			
 		if ($line =~ /#define/) {
 			# FIXME: This ignores the bool helper macro thingie.
-		} elsif ($line =~ /g_object_class_install_prop/) {
+		} elsif ($line =~ /g_object_(class|interface)_install_prop/) {
 			my $prop = $line;
 			do {
 				$prop .= $init_lines[++$linenum];
@@ -1011,6 +1058,28 @@ sub parseInitFunc
 	}
 
 	addVirtualMethods ($classdef, $obj_el);
+}
+
+sub parseTypeFuncMacro
+{
+	my ($obj_el, $typefunc) = @_;
+
+	$impls_node = undef;
+	while ($typefunc =~ /G_IMPLEMENT_INTERFACE\s*\(\s*(\w+)/) {
+		$iface = $1;
+		if (not $impls_node) {
+			$impls_node = $doc->createElement ("implements");
+			$obj_el->appendChild ($impls_node);
+		}
+		addImplementsElem ($prop, $impl_node);
+		if ($iface =~ /(\w+)_TYPE_(\w+)/) {
+			$impl_elem = $doc->createElement('interface');
+			$name = StudlyCaps (lc ("$1_$2"));
+			$impl_elem->setAttribute ("cname", "$name");
+			$impls_node->appendChild($impl_elem);
+		}
+		$typefunc =~ s/G_IMPLEMENT_INTERFACE\s*\(.*?\)//;
+	}
 }
 
 sub parseTypeFunc
