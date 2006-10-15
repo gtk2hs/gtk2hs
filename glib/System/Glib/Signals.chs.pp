@@ -34,6 +34,8 @@
 --    pointer to a string and its length in a separate integer.
 --
 module System.Glib.Signals (
+  Signal(Signal),
+  on, after,
   SignalName,
   ConnectAfter,
   ConnectId(ConnectId),
@@ -60,6 +62,16 @@ import System.Glib.GError      (failOnGError)
 
 {#context lib="glib" prefix="g" #}
 
+newtype Signal object handler =
+  Signal (Bool -> object -> handler -> IO (ConnectId object))
+
+on, after ::
+    object
+ -> Signal object callback
+ -> callback
+ -> IO (ConnectId object)
+on    object (Signal connect) handler = connect False object handler
+after object (Signal connect) handler = connect True  object handler
 
 -- Specify if the handler is to run before (False) or after (True) the
 -- default handler.
