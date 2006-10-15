@@ -121,6 +121,7 @@ data Property = Property {
     property_type :: String,
     property_readable :: Bool,
     property_writeable :: Bool,
+    property_construct :: Bool,
     property_constructonly :: Bool
   } deriving Show
 
@@ -475,7 +476,8 @@ extractProperty (Xml.CElem (Xml.Elem "property"
     property_type = Xml.verbatim type_,
     property_readable  = (not.null) [ () | ("readable", _) <- others],
     property_writeable = (not.null) [ () | ("writeable", _) <- others],
-    property_constructonly  = (not.null) [ () | ("construct", _) <- others]
+    property_construct = (not.null) [ () | ("construct", _) <- others],
+    property_constructonly  = (not.null) [ () | ("construct-only", _) <- others]
   }
 extractProperty _ = Nothing
 
@@ -490,6 +492,7 @@ extractChildProperty (Xml.CElem (Xml.Elem "childprop"
     property_type = Xml.verbatim type_,
     property_readable  = (not.null) [ () | ("readable", _) <- others],
     property_writeable = (not.null) [ () | ("writeable", _) <- others],
+    property_construct = (not.null) [ () | ("construct", _) <- others],
     property_constructonly  = (not.null) [ () | ("construct-only", _) <- others]
   }
 extractChildProperty _ = Nothing
