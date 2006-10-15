@@ -31,6 +31,7 @@ import Debug.Trace (trace)
 genFunction :: KnownSymbols -> Bool -> Method -> Maybe FuncDoc -> Maybe MethodInfo -> ShowS
 genFunction knownSymbols isConstructor method doc info =
   formattedDoc.
+  dperecatedNote.
   ss functionName. ss " :: ". functionType. nl.
   ss functionName. sc ' '. formattedParamNames. sc '='.
   indent 1. body
@@ -99,6 +100,10 @@ genFunction knownSymbols isConstructor method doc info =
 		      , not $ nukeParameterDocumentation
                                 (method_cname method)
                                 (cParamNameToHsName (paramdoc_name paramdoc)) ]
+        dperecatedNote
+          | method_deprecated method = ss "{-# DEPRECATED ". ss functionName.
+              ss " \"this function should not be used in newly-written code\" #-}". nl
+          | otherwise = id
         
         formatParamTypes :: [(String, Maybe [DocParaSpan])] -> ShowS
         formatParamTypes paramTypes = format True False paramTypes
