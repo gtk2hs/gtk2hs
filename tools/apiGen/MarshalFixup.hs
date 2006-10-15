@@ -525,3 +525,8 @@ win32FileNameFunctions =
   ,"gtk_file_selection_get_selections"
   ,"gtk_ui_manager_add_ui_from_file"
   ,"gtk_window_set_icon_from_file"]
+
+actionSignalWanted "GtkButton" "clicked" = True
+actionSignalWanted "GtkWidget" "popup_menu" = True
+actionSignalWanted "GtkWidget" "show_help" = True
+actionSignalWanted _ _ = False

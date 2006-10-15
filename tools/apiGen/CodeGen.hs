@@ -17,7 +17,8 @@ import Marshal
 import StringUtils
 import ModuleScan
 import MarshalFixup (cTypeNameToHSType, maybeNullParameter, maybeNullResult,
-                     fixCFunctionName, leafClass, nukeParameterDocumentation)
+                     fixCFunctionName, leafClass, nukeParameterDocumentation,
+                     actionSignalWanted)
 
 import Prelude hiding (Enum, lines)
 import List   (groupBy, sortBy, isPrefixOf, isSuffixOf, partition, find)
@@ -559,20 +560,31 @@ genSignals knownSymbols object apiDoc =
   | (signal, doc) <- signals object apiDoc ] 
 
 genSignal :: KnownSymbols -> Object -> Signal -> Maybe SignalDoc -> ShowS
-genSignal knownSymbols object signal doc = 
-  formattedDoc.
-  ss (lowerCaseFirstChar signalName). ss " :: ". signalType. nl.
-  ss (lowerCaseFirstChar signalName). ss " = Signal (connect_". connectCall. sc ' '. signalCName. sc ')'. nl.
-  nl.
-  ss "on". ss signalName. ss ", after". ss signalName. ss " :: ". oldSignalType.
-  ss "on".    ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " False". nl.
-  ss "after". ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " True". nl.
-  ss "{-# DEPRECATED on". ss signalName. ss " \"instead of 'on". ss signalName. ss " obj' use 'on obj ".
-                          ss (lowerCaseFirstChar signalName). ss "'\" #-}". nl.
-  ss "{-# DEPRECATED after". ss signalName. ss " \"instead of 'on". ss signalName. ss " obj' use 'after obj ".
-                          ss (lowerCaseFirstChar signalName). ss "'\" #-}"
+genSignal knownSymbols object signal doc
+  | signal_action signal
+ && not (actionSignalWanted (object_cname object) (signal_cname signal)) =
+      formattedDoc.
+      oldStyleSignal
+  | otherwise = 
+      formattedDoc.
+      newStyleSignal.
+      nl.
+      oldStyleSignal
 
-  where connectCall = let paramCategories' = if null paramCategories then ["NONE"] else paramCategories
+  where newStyleSignal =
+          ss (lowerCaseFirstChar signalName). ss " :: ". signalType. nl.
+          ss (lowerCaseFirstChar signalName). ss " = Signal (connect_". connectCall. sc ' '. signalCName. sc ')'. nl
+
+        oldStyleSignal =
+          ss "on". ss signalName. ss ", after". ss signalName. ss " :: ". oldSignalType.
+          ss "on".    ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " False". nl.
+          ss "after". ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " True". nl.
+          ss "{-# DEPRECATED on". ss signalName. ss " \"instead of 'on". ss signalName. ss " obj' use 'on obj ".
+                                  ss (lowerCaseFirstChar signalName). ss "'\" #-}". nl.
+          ss "{-# DEPRECATED after". ss signalName. ss " \"instead of 'on". ss signalName. ss " obj' use 'after obj ".
+                                  ss (lowerCaseFirstChar signalName). ss "'\" #-}"
+
+        connectCall = let paramCategories' = if null paramCategories then ["NONE"] else paramCategories
                        in sepBy "_" paramCategories' . ss "__" . ss returnCategory
         -- strip off the object arg to the signal handler
         params = case signal_parameters signal of
@@ -693,7 +705,8 @@ genExports object docs modInfo =
        ((ss "  ".      ss (lowerCaseFirstChar signalName). sc ','
        ,(maybe "" signaldoc_since doc, notDeprecated))
        ,fromMaybe (maxBound::Int) (lookup ("on"++signalName) exportIndexMap))
-     | (signal, doc) <- signals object (moduledoc_signals docs)]
+     | (signal, doc) <- signals object (moduledoc_signals docs)
+     , not (signal_action signal) || actionSignalWanted (object_cname object) (signal_cname signal) ]
   ++ (sectionHeader "Deprecated"
     . map fst
     . sortBy (comparing snd))
