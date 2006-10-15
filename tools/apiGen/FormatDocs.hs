@@ -30,7 +30,7 @@ import StringUtils
 import Maybe (isJust)
 import Char (toLower, isUpper, isAlpha, isSpace)
 import Data.Tree
-import qualified List (lines)
+import qualified List (lines, span)
 import qualified Data.Map as Map
 
 -------------------------------------------------------------------------------
@@ -193,6 +193,14 @@ haddocFormatSpans knownSymbols handleNULLs initialCol =
   . map (mungeWord knownSymbols handleNULLs)
   . words
   . concatMap (haddocFormatSpan knownSymbols handleNULLs)
+  . concatMap fixSpan
+
+fixSpan :: DocParaSpan -> [DocParaSpan]
+fixSpan span@(DocTypeXRef text) =
+  case List.span (/= ':') text of
+    (text', remainder@(':':_)) -> DocTypeXRef text' : DocText remainder : []
+    _                          -> [span]
+fixSpan span = [span]
 
 haddocFormatSpan :: KnownSymbols -> Bool -> DocParaSpan -> String
 haddocFormatSpan _ _ (DocText text)       = escapeHaddockSpecialChars text
