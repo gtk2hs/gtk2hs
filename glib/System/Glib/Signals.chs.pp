@@ -89,6 +89,7 @@ data GObjectClass o => ConnectId o = ConnectId {#type gulong#} o
 -- old name for backwards compatability
 disconnect :: GObjectClass obj => ConnectId obj -> IO ()
 disconnect = signalDisconnect
+{-# DEPRECATED disconnect "use signalDisconnect instead" #-}
 
 -- | Disconnect a signal handler. After disconecting the handler will no
 -- longer be invoked when the event occurs.
