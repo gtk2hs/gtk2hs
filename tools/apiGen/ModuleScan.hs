@@ -237,7 +237,6 @@ scanCCall tokens =
     ("enum":_)                 -> None
     ("set":_)                  -> None
     ("get":_)                  -> None
-    ("set":_)                  -> None
     ("sizeof":_)                  -> None
     tokens -> error $ "scanCCall: " ++ show tokens
 
