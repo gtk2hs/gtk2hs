@@ -345,8 +345,8 @@ genMarshalResult knownSymbols funcName funcIsConstructor typeName'
         constructor | "GtkObject" `elem` sym_object_parents (fromJust typeKind)
                                 = "makeNewObject"
                     | "GObject" `elem` sym_object_parents (fromJust typeKind)
-                                = if funcIsConstructor then "makeNewGObject"
-                                                       else "refGObject"
+                                = if funcIsConstructor then "constructNewGObject"
+                                                       else "makeNewGObject"
         cast | funcIsConstructor
             && constructorReturnType /= typeName = 
             indent 1. ss "liftM (castPtr :: Ptr ". ss (cTypeNameToHSType constructorReturnType).
