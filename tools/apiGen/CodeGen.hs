@@ -1,4 +1,5 @@
 module CodeGen (
+  genModuleName,
   genModuleBody,
   genExports,
   genImports,
@@ -147,6 +148,15 @@ mergeParamDocs doc docs =
 		returnValName = DocLiteral ("(" ++ sepBy ", " varNames "" ++ ")")
                 fixmeMessage  = DocText " {FIXME: merge return value docs} "
              in Just $ returnValName : fixmeMessage : concat paramDocs
+
+genModuleName :: Object -> ModuleInfo -> ShowS
+genModuleName object moduleInfo = name . deprecated
+  where name | null (module_prefix moduleInfo) = ss (module_name moduleInfo)
+             | otherwise = ss (module_prefix moduleInfo). ss ".". ss (module_name moduleInfo)
+
+        deprecated | object_deprecated object =
+          nl. ss "{-# DEPRECATED \"this module should not be used in newly-written code.\" #-}"
+                   | otherwise = id
 
 genModuleBody :: KnownSymbols -> Object -> ModuleDoc -> ModuleInfo -> ShowS
 genModuleBody knownSymbols object apiDoc modInfo =

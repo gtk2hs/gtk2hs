@@ -202,6 +202,8 @@ scanModuleName line | ("(":moduleName:".":modulePrefix) <- reverse line =
   Module moduleName (concat (reverse modulePrefix))
 scanModuleName line | ("where":")":_:"(":moduleName:".":modulePrefix) <- reverse line =
   Module moduleName (concat (reverse modulePrefix))
+scanModuleName line | (moduleName:".":modulePrefix) <- reverse line =
+  Module moduleName (concat (reverse modulePrefix))
 scanModuleName ("Graphics":".":"UI":".":"Gtk":".":"Gdk":".":"Enums":[]) = None
 scanModuleName line = error $ "scanModuleName: " ++ show line
 

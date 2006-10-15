@@ -174,9 +174,7 @@ main = do
             "DESCRIPTION"    -> haddocFormatParas knownTypes False (moduledoc_summary moduleDoc)
 	    "DOCUMENTATION"  -> genModuleDocumentation knownTypes moduleDoc
 	    "TODO"           -> genTodoItems object
-	    "MODULE_NAME"    -> ss $ if null (module_prefix moduleInfo)
-                                 then module_name moduleInfo
-                                 else module_prefix moduleInfo ++ "." ++ module_name moduleInfo
+	    "MODULE_NAME"    -> genModuleName object moduleInfo
 	    "EXPORTS"        -> genExports object moduleDoc moduleInfo
 	    "IMPORTS"        -> genImports moduleInfo
 	    "CONTEXT_LIB"    -> ss $ module_context_lib moduleInfo
