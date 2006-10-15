@@ -180,7 +180,7 @@
         <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
       </since>
       <doc>
-        <xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
+        <xsl:apply-templates select="para[not(starts-with(text(),'Since'))]"/>
       </doc>
       <params>
         <xsl:for-each select="variablelist/varlistentry">
