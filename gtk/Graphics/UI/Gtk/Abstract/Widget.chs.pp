@@ -1060,7 +1060,7 @@ widgetCreatePangoContext self =
   {# call gtk_widget_create_pango_context #}
     (toWidget self)
 
--- | Gets a 'Context' with the appropriate colormap, font description and base
+-- | Gets a 'Context' with the appropriate font description and base
 -- direction for this widget. Unlike the context returned by
 -- 'widgetCreatePangoContext', this context is owned by the widget (it can be
 -- used until the screen for the widget changes or the widget is removed from
@@ -1076,7 +1076,7 @@ widgetCreatePangoContext self =
 widgetGetPangoContext :: WidgetClass self => self
  -> IO PangoContext -- ^ returns the 'PangoContext' for the widget.
 widgetGetPangoContext self =
-  constructNewGObject mkPangoContext $
+  makeNewGObject mkPangoContext $
   {# call gtk_widget_get_pango_context #}
     (toWidget self)
 
