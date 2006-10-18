@@ -299,6 +299,7 @@ escapeHaddockSpecialChars = escape
                      || c == '"' || c == '@'
                      || c == '<' || c == '\''
                       = '\\': c : escape cs
+        escape ('\226':'\128':'\148':cs) = '-' : '-' : escape cs  -- UTF8 for EM dash
         escape (c:cs) =       c : escape cs
 
 mungeWord :: KnownSymbols -> Bool -> String -> String
