@@ -11,6 +11,8 @@ module FormatDocs (
   haddocFormatDeclaration,
   cFuncNameToHsName,
   cParamNameToHsName,
+  cAttrNametoHsName,
+  cFuncNameToHsPropName,
   toStudlyCaps,
   haddocFormatParas,
   haddocFormatSpans,
@@ -254,6 +256,21 @@ cConstNameToHsName  =          --change "GTK_UPDATE_DISCONTINUOUS" to "UpdateDis
     cTypeNameToHSType
   . toStudlyCaps
   . map toLower
+
+cAttrNametoHsName :: String -> String
+cAttrNametoHsName  =          --change "label-xalign" to "LabelXAlign"
+    toStudlyCapsWithFixups
+  . map dashToUnderscore
+  where dashToUnderscore '-' = '_'
+        dashToUnderscore  c  =  c
+
+cFuncNameToHsPropName =
+    concatMap upperCaseFirstChar
+  . map fixCFunctionName
+  . tail
+  . dropWhile (/="get")
+  . filter (not.null)
+  . splitBy '_'
 
 toStudlyCaps :: String -> String
 toStudlyCaps =                 --change "gtk_foo_bar" to "GtkFooBar"

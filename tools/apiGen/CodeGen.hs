@@ -406,7 +406,7 @@ genAtter knownSymbols object doc propertyName classConstraint getterType setterT
 genAtterFromProperty :: KnownSymbols -> Object -> Property -> Maybe PropDoc -> ShowS
 genAtterFromProperty knownSymbols object property doc =
   genAtter knownSymbols object doc propertyName classConstraint getterType setterType (Right body)
-  where propertyName = lowerCaseFirstChar (object_name object ++ property_name property)
+  where propertyName = lowerCaseFirstChar (object_name object) ++ cAttrNametoHsName (property_cname property)
         (propertyType, gvalueKind) = genMarshalProperty knownSymbols (property_type property)
         body = ss attrType. ss "AttrFrom". ss gvalueKind. ss "Property \"". ss (property_cname property). ss "\""
           where attrType | property_readable property
@@ -428,8 +428,9 @@ genAtterFromGetterSetter knownSymbols object getterMethod setterMethod doc =
   genAtter knownSymbols object doc propertyName classConstraint
            (Just getterType) (Just setterType)
            (Left (ss getter, ss setter))
-  where --propertyName = cFuncNameToHsPropName (method_cname getterMethod)
-        propertyName = lowerCaseFirstChar (object_name object ++ drop 3 (method_name getterMethod))
+  where propertyName = lowerCaseFirstChar (object_name object)
+                    ++ cFuncNameToHsPropName (method_cname getterMethod)
+        --propertyName = lowerCaseFirstChar (object_name object ++ drop 3 (method_name getterMethod))
         (getterType, _) = genMarshalResult knownSymbols (method_cname getterMethod) False
                               (method_return_type getterMethod)
         (classConstraint, setterType) =
@@ -441,14 +442,6 @@ genAtterFromGetterSetter knownSymbols object getterMethod setterMethod doc =
             (_, OutParam _, _)  -> (Nothing, "{- FIXME: should be in param -}")
         getter = cFuncNameToHsName (method_cname getterMethod)
         setter = cFuncNameToHsName (method_cname setterMethod)
---        cFuncNameToHsPropName =
---            lowerCaseFirstChar
---          . concatMap upperCaseFirstChar
---          . map fixCFunctionName
---          . tail
---          . dropWhile (/="get")
---          . filter (not.null)
---          . splitBy '_'
 
 methodsThatLookLikeProperties :: Object -> [(Method, Method)]
 methodsThatLookLikeProperties object =
@@ -689,13 +682,14 @@ genExports object docs modInfo =
      | (method, doc, _) <- methods object (moduledoc_functions docs)
                              (module_methods modInfo) False]
   ++ sectionHeader "Attributes"
-     [ (let propertyName = either property_name (drop 3.method_name.fst) property in
-        ss "  ". ss (lowerCaseFirstChar (object_name object ++ propertyName)). sc ','
+     [ (let propertyName = either (cAttrNametoHsName . property_cname)
+                                  (cFuncNameToHsPropName.method_cname.fst) property in
+        ss "  ". ss (lowerCaseFirstChar (object_name object) ++ propertyName). sc ','
        ,(maybe "" propdoc_since doc, notDeprecated))
      | (property, doc) <- properties object (moduledoc_properties docs)]
   ++ sectionHeader "Child Attributes"
      [ (let propertyName = property_name property in
-        ss "  ". ss (lowerCaseFirstChar (object_name object ++ "Child" ++ propertyName)). sc ','
+        ss "  ". ss (lowerCaseFirstChar (object_name object) ++ "Child" ++ propertyName). sc ','
        ,(maybe "" propdoc_since doc, notDeprecated))
      | (property, doc) <- childProperties object (moduledoc_childprops docs)]
   ++ (sectionHeader "Signals"

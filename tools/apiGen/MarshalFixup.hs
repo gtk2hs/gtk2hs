@@ -39,6 +39,12 @@ fixCFunctionName "hscrollbar" = "HScrollbar"
 fixCFunctionName "vscrollbar" = "VScrollbar"
 fixCFunctionName "uri" = "URI"
 fixCFunctionName "uris" = "URIs"
+fixCFunctionName "xscale" = "XScale"
+fixCFunctionName "yscale" = "YScale"
+fixCFunctionName "xalign" = "XAlign"
+fixCFunctionName "yalign" = "YAlign"
+fixCFunctionName "xpad"   = "XPad"
+fixCFunctionName "ypad"   = "YPad"
 fixCFunctionName other = other
 
 -- In some cases the way we work out the minimum version of the module doesn't
