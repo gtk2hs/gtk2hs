@@ -63,6 +63,7 @@ module System.Glib.Properties (
   newAttrFromDoubleProperty,
   newAttrFromEnumProperty,
   readAttrFromEnumProperty,
+  writeAttrFromEnumProperty,
   newAttrFromFlagsProperty,
   newAttrFromStringProperty,
   readAttrFromStringProperty,
@@ -226,6 +227,10 @@ newAttrFromEnumProperty propName gtype =
 readAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -> ReadAttr gobj enum
 readAttrFromEnumProperty propName gtype =
   readAttr (objectGetPropertyEnum gtype propName)
+
+writeAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -> WriteAttr gobj enum
+writeAttrFromEnumProperty propName gtype =
+  writeAttr (objectSetPropertyEnum gtype propName)
 
 newAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> Attr gobj [flag]
 newAttrFromFlagsProperty propName =
