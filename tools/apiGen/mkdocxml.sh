@@ -8,6 +8,13 @@
 echo '<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
      "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
      <!ENTITY gdk-pixbuf "<application>gdk-pixbuf</application>">
+     <!ENTITY nbsp        "&#x00A0;">
+     <!ENTITY mdash       "&#x2014;">
+     <!ENTITY times       "&#x00D7;">
+     <!ENTITY percnt      "&#x0025;">
+     <!ENTITY num "&#x0023;">
+     <!ENTITY lt  "&#38;#60;">
+     <!ENTITY gt  "&#x003E;">
      ]>'
 echo "<apidoc>"
 

@@ -392,7 +392,7 @@ get-source-code: $(packages)
 %-docs.xml : format-docs.xsl
 	chmod ug+x mkdocxml.sh 
 	./mkdocxml.sh $(if $($*_docs_standalone),--standalone) $($*_docs_dirs) \
-		| xsltproc format-docs.xsl - > $@
+		| xsltproc --novalid format-docs.xsl - > $@
 
 %-modules : %-api.xml % Template.chs ApiGen
 	@mkdir -p $@
