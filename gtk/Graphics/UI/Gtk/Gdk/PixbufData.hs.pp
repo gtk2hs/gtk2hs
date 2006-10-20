@@ -1,4 +1,3 @@
-{-# OPTIONS -fglasgow-exts -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Pixbuf as Array
 --
