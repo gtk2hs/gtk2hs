@@ -543,6 +543,7 @@ html_HSFILES_HIDDEN  =						\
 	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs		\
 	gtk/Graphics/UI/Gtk/TreeList/TreePath.hs		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.hs	\
+	gtk/Graphics/UI/Gtk/Multiline/Types.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
