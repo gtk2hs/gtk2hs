@@ -66,11 +66,11 @@ module Graphics.UI.Gtk.Windows.Dialog (
 -- recursive main loop and waits for the user to respond to the dialog,
 -- returning the response ID corresponding to the button the user clicked.
 --
--- For the simple dialog in the following example, in reality you'd
--- probably use 'MessageDialog' to save yourself some effort. But you'd need
--- to create the dialog contents manually if you had more than a simple message
--- in the dialog.
-
+-- For a simple message box, you probably want to use 
+-- 'Graphics.UI.Gtk.Windows.MessageDialog' which provides convenience functions
+-- for creating standard dialogs containing simple messages to inform
+-- or ask the user.
+--
 -- * Class Hierarchy
 -- |
 -- @

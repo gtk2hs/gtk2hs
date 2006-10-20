@@ -62,6 +62,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Windows.Window,
   module Graphics.UI.Gtk.Windows.Dialog,
   module Graphics.UI.Gtk.Windows.AboutDialog,
+  module Graphics.UI.Gtk.Windows.MessageDialog,
   module Graphics.UI.Gtk.Windows.WindowGroup,
   -- * Display widgets,
   module Graphics.UI.Gtk.Display.AccelLabel,
@@ -234,6 +235,7 @@ import Graphics.UI.Gtk.Cairo
 import Graphics.UI.Gtk.Windows.Dialog
 import Graphics.UI.Gtk.Windows.Window
 import Graphics.UI.Gtk.Windows.AboutDialog
+import Graphics.UI.Gtk.Windows.MessageDialog
 import Graphics.UI.Gtk.Windows.WindowGroup
 -- display widgets
 import Graphics.UI.Gtk.Display.AccelLabel
