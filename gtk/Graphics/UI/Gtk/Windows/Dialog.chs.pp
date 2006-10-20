@@ -67,7 +67,8 @@ module Graphics.UI.Gtk.Windows.Dialog (
 -- returning the response ID corresponding to the button the user clicked.
 --
 -- For a simple message box, you probably want to use 
--- 'Graphics.UI.Gtk.Windows.MessageDialog' which provides convenience functions
+-- 'Graphics.UI.Gtk.Windows.MessageDialog.MessageDialog' which provides
+-- convenience functions
 -- for creating standard dialogs containing simple messages to inform
 -- or ask the user.
 --
