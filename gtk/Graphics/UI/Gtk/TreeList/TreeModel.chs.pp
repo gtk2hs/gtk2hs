@@ -162,7 +162,7 @@ instance Flags TreeModelFlags
 treeModelGetFlags :: TreeModelClass self => self -> IO [TreeModelFlags]
 treeModelGetFlags self =
   liftM (toFlags . fromIntegral) $
-  {# call unsafe gtk_tree_model_get_flags #}
+  {# call gtk_tree_model_get_flags #}
     (toTreeModel self)
 
 -- | Returns the number of columns supported by the tree model.
@@ -181,7 +181,7 @@ treeModelGetColumnType :: TreeModelClass self => self
  -> IO TMType
 treeModelGetColumnType self index =
   liftM (toEnum.fromIntegral) $
-  {# call unsafe tree_model_get_column_type #}
+  {# call tree_model_get_column_type #}
     (toTreeModel self)
     (fromIntegral index)
 
@@ -194,7 +194,7 @@ treeModelGetValue :: TreeModelClass self => self
 treeModelGetValue self iter column =
   allocaGValue $ \vaPtr ->
   with iter $ \iterPtr -> do
-  {# call unsafe tree_model_get_value #}
+  {# call tree_model_get_value #}
     (toTreeModel self)
     iterPtr
     (fromIntegral column)
@@ -237,7 +237,7 @@ treeModelGetIterFromString :: TreeModelClass self => self
 treeModelGetIterFromString self pathString =
   receiveTreeIter $ \iterPtr ->
   withUTFString pathString $ \pathStringPtr ->
-  {# call unsafe tree_model_get_iter_from_string #}
+  {# call tree_model_get_iter_from_string #}
     (toTreeModel self)
     iterPtr
     pathStringPtr
@@ -255,7 +255,7 @@ treeModelGetIter _  [] = return Nothing
 treeModelGetIter self path =
   receiveTreeIter $ \iterPtr ->
   withTreePath path $ \path ->
-  {# call unsafe tree_model_get_iter #}
+  {# call tree_model_get_iter #}
     (toTreeModel self)
     iterPtr
     path
@@ -268,7 +268,7 @@ treeModelGetIterFirst :: TreeModelClass self => self
  -> IO (Maybe TreeIter)
 treeModelGetIterFirst self =
   receiveTreeIter $ \iterPtr ->
-  {# call unsafe tree_model_get_iter_first #}
+  {# call tree_model_get_iter_first #}
     (toTreeModel self)
     iterPtr
 
@@ -280,7 +280,7 @@ treeModelGetPath :: TreeModelClass self => self
  -> TreeIter -> IO TreePath
 treeModelGetPath self iter =
   with iter $ \iterPtr ->
-  {# call unsafe tree_model_get_path #}
+  {# call tree_model_get_path #}
     (toTreeModel self)
     iterPtr
   >>= fromTreePath
@@ -293,7 +293,7 @@ treeModelIterNext :: TreeModelClass self => self -> TreeIter -> IO Bool
 treeModelIterNext self iter =
   liftM toBool $
   with iter $ \iterPtr ->
-  {# call unsafe tree_model_iter_next #}
+  {# call tree_model_iter_next #}
     (toTreeModel self)
     iterPtr
 
@@ -305,7 +305,7 @@ treeModelIterChildren :: TreeModelClass self => self
 treeModelIterChildren self parent =
   receiveTreeIter $ \iterPtr ->
   with parent $ \parentPtr ->
-  {# call unsafe tree_model_iter_children #}
+  {# call tree_model_iter_children #}
     (toTreeModel self)
     iterPtr
     parentPtr
@@ -318,7 +318,7 @@ treeModelIterHasChild :: TreeModelClass self => self
 treeModelIterHasChild self iter =
   liftM toBool $
   with iter $ \iterPtr ->
-  {# call unsafe tree_model_iter_has_child #}
+  {# call tree_model_iter_has_child #}
     (toTreeModel self)
     iterPtr
 
@@ -331,7 +331,7 @@ treeModelIterNChildren :: TreeModelClass self => self
 treeModelIterNChildren self iter =
   liftM fromIntegral $
   maybeWith with iter $ \iterPtr ->
-  {# call unsafe tree_model_iter_n_children #}
+  {# call tree_model_iter_n_children #}
     (toTreeModel self)
     iterPtr
 
@@ -348,7 +348,7 @@ treeModelIterNthChild :: TreeModelClass self => self
 treeModelIterNthChild self parent n =
   receiveTreeIter $ \iterPtr ->
   maybeWith with parent $ \parentPtr ->
-  {# call unsafe tree_model_iter_nth_child #}
+  {# call tree_model_iter_nth_child #}
     (toTreeModel self)
     iterPtr
     parentPtr
@@ -362,7 +362,7 @@ treeModelIterParent :: TreeModelClass self => self
 treeModelIterParent self child =
   receiveTreeIter $ \iterPtr ->
   with child $ \childPtr ->
-  {# call unsafe tree_model_iter_parent #}
+  {# call tree_model_iter_parent #}
     (toTreeModel self)
     iterPtr
     childPtr
