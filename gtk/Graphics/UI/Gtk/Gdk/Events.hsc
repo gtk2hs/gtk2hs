@@ -205,7 +205,7 @@ data Event =
     eventRegion      :: Region,
 
     -- | The number of contiguous 'Expose' events following this
-    --   one. The only use for this is "exposure compression", i.e. 
+    --   one. The only use for this is \"exposure compression\", i.e. 
     --   handling all contiguous 'Expose' events in one go, though Gdk
     --   performs some exposure compression so this is not normally needed.
     eventCount	:: Int }
