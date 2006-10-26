@@ -18,46 +18,94 @@ import MarshalFixup (fixModuleDocMapping)
 
 import Control.Monad  (when, liftM)
 import Data.List   (isPrefixOf, intersperse)
-import System (getArgs, exitWith, ExitCode(..))
+import System.Environment (getArgs)
+import System.Exit (exitFailure)
 import Directory (doesDirectoryExist, createDirectory)
 
 import qualified Text.XML.HaXml.Parse as Xml
 
 import qualified System.Time
 
+import System.Console.GetOpt
+
 -------------------------------------------------------------------------------
 -- Top level stuff
 -------------------------------------------------------------------------------
 
+data Flag = Doc FilePath | Lib String | Prefix String
+          | ModPrefix String | OutDir FilePath
+          | IncludeAPI FilePath | ExcludeAPI FilePath
+          | ScanModule FilePath | ExcludeScan FilePath
+
+options :: [OptDescr Flag]
+options =
+ [ Option []     ["outdir"]      (ReqArg OutDir "DIR")
+     "is the name and path of the output file"
+
+ , Option []     ["doc"]         (ReqArg Doc "FILE")
+     "api doc file output from format-doc.xsl"
+
+ , Option []     ["lib"]         (ReqArg Lib "LIB")
+     ("set the lib to use in the c2hs {#context #}\n"
+   ++ "declaration (the default is taken from the api file)")
+
+ , Option []     ["prefix"]      (ReqArg Prefix "PREFIX")
+     ("set the prefix to use in the c2hs {#context #}\n"
+   ++ "declaration (the default is taken from the api file)")
+
+ , Option []     ["modprefix"]   (ReqArg ModPrefix "PREFIX")
+     ("specify module name prefix, eg if using hierarchical\n"
+   ++ "module names")
+
+ , Option []     ["includeapi"]  (ReqArg IncludeAPI "FILE")
+     ("the api xml file for a parent api, for example Gtk uses\n"      
+   ++ "types defined by Gdk and Pango")
+
+ , Option []     ["excludeapi"]  (ReqArg ExcludeAPI "FILE")
+     ("an 'api.ignore' file of regexps which can be used to\n"
+   ++ "stop specific API bindings being generated")
+
+ , Option []     ["scanmodules"] (ReqArg ScanModule "DIR")
+     "the path to the existing modules"
+
+ , Option []     ["excludescan"] (ReqArg ExcludeScan "DIR")
+     ("path to existing modules that you do not want to have\n"
+   ++ "scanned, perhaps because they are from a different\n"
+   ++" library than the one being generated")
+ ]
+
+header = unlines
+  ["Program to generate a .chs Haskell binding module from an xml"
+  ,"description of a GObject-style API."
+  ,"usage: ApiGen <apiFile> <templateFile> [option]"
+  ,"    <apiFile>           an xml api file produced by gapi_parser.pl"
+  ,"    <templateFile>      is the name and path of the output template file"]
+
 main = do
   args <- getArgs
-  when (length args < 2) usage
+  (flags, apiFile, templateFile) <-
+    case getOpt Permute options args of
+      (flags, [apiFile, templateFile], []) ->
+        return (flags, apiFile, templateFile)
+
+      (_,_,errs) -> do putStrLn (concat errs ++ usageInfo header options)
+                       exitFailure
 
   -----------------------------------------------------------------------------
   -- Parse command line parameters
   --
-  let (apiFile: templateFile: rem) = args
-      docFile = case map (drop 6) (filter ("--doc=" `isPrefixOf`)  rem) of
-                  [] -> ""
-		  (docFile:_) -> docFile
-      lib = case map (drop 6) (filter ("--lib=" `isPrefixOf`)  rem) of
-              [] -> ""
-	      (lib:_) -> lib
-      prefix = case map (drop 9) (filter ("--prefix=" `isPrefixOf`)  rem) of
-                 [] -> ""
-                 (prefix:_) -> prefix
-      modPrefix = case map (drop 12) (filter ("--modprefix=" `isPrefixOf`)  rem) of
-                    [] -> ""
-		    (modPrefix:_) -> modPrefix
-      outdir = case map (drop 9) (filter ("--outdir=" `isPrefixOf`)  rem) of
-                 [] -> ""
-                 (outdir:_) -> if last outdir == '/' then outdir else outdir ++ "/"
-      includeApiFiles = map (drop 13) (filter ("--includeapi=" `isPrefixOf`)  rem)
-      excludeApiFiles = map (drop 13) (filter ("--excludeapi=" `isPrefixOf`)  rem)
-      moduleRoot = case map (drop 14) (filter ("--scanmodules=" `isPrefixOf`)  rem) of
-                     [] -> ""
-                     (moduleRoot:_) -> moduleRoot
-      excludePaths = map (drop 14) (filter ("--excludescan=" `isPrefixOf`)  rem)
+  let firstOr x []    = x
+      firstOr _ (x:_) = x
+      docFile   = firstOr "" [ file | Doc file <- flags ]
+      lib       = firstOr "" [ file | Lib file <- flags ]
+      prefix    = firstOr "" [ prefix | Prefix prefix <- flags ]
+      modPrefix = firstOr "" [ prefix | ModPrefix prefix <- flags ]
+      outdir    = (\dir -> if last dir == '/' then dir else dir ++ "/") $
+                  firstOr "" [ file | OutDir file <- flags ]
+      includeApiFiles = [ file | IncludeAPI file <- flags ]
+      excludeApiFiles = [ file | ExcludeAPI file <- flags ]
+      moduleRoot      = firstOr "" [ dir | ScanModule dir <- flags ]
+      excludePaths    = [ dir | ExcludeScan dir <- flags ]
 
   -----------------------------------------------------------------------------
   -- Read in the input files
@@ -189,35 +237,6 @@ main = do
       , object <- namespace_objects namespace
                ++ map mungeClassToObject (namespace_classes namespace)
                ++ map mungeBoxedToObject (namespace_boxed namespace) ]
-
-usage = do
-  putStr "\nProgram to generate a .chs Haskell binding module from an xml\n\
-	\description of a GObject-style API. Usage:\n\
-	\ApiGen <apiFile> <templateFile>\n\
-	\         {--doc=<docFile>} {--lib=<lib>} {--prefix=<prefix>}\n\
-	\         {--outdir=<outDir>} {--modprefix=<modPrefix>}\n\
-	\         {--includeapi=<incApiFile>} {--excludeapi=<exclApiFile>}\n\
-	\         {--scanmodules=<modulesRoot>} {--excludescan=<excludePath>}\n\
-	\where\n\
-	\  <apiFile>       an xml api file produced by gapi_parser.pl\n\
-	\  <templateFile>  is the name and path of the output template file\n\
-	\  <outDir>        is the name and path of the output file\n\
-	\  <docFile>       api doc file output from format-doc.xsl\n\
-	\  <lib>           set the lib to use in the c2hs {#context #}\n\
-	\                  declaration (the default is taken from the api file)\n\
-	\  <prefix>        set the prefix to use in the c2hs {#context #}\n\
-	\                  declaration (the default is taken from the api file)\n\
-	\  <modPrefix>     specify module name prefix, eg if using\n\
-	\                  hierarchical module names\n\
-	\  <incApiFile>    the api xml file for a parent api, for example Gtk\n\
-	\                  uses types defined by Gdk and Pango.\n\
-	\  <exclApiFile>   an 'api.ignore' file of regexps which can be used\n\
-	\                  to stop specific API bindings being generated.\n\
-        \  <modulesRoot>   the path to the existing modules.\n\
-        \  <excludePath>   path to existing modules that you do not want to\n\
-        \                  have scanned, perhaps because they are from a\n\
-        \                  different library than the one being generated.\n"
-  exitWith $ ExitFailure 1
 
 formatCopyrightDates :: String -> Either String (String, String) -> String
 formatCopyrightDates currentYear (Left year) | year == currentYear = year
