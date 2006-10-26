@@ -21,6 +21,7 @@ import Data.List   (isPrefixOf, intersperse)
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
 import Directory (doesDirectoryExist, createDirectory)
+import System.Directory (createDirectoryIfMissing)
 
 import qualified Text.XML.HaXml.Parse as Xml
 
@@ -186,7 +187,8 @@ main = do
       moduleInfo <-
             liftM (mungeMethodInfo object) $
             case maybeModuleInfo of
-              Just moduleInfo -> do mkDirHier outdir (splitOn '.' (module_prefix moduleInfo))
+              Just moduleInfo -> do createDirectoryIfMissing True
+                                      outdir (splitOn '.' (module_prefix moduleInfo))
                                     return moduleInfo
               Nothing -> do
                 return ModuleInfo {
@@ -242,12 +244,3 @@ formatCopyrightDates :: String -> Either String (String, String) -> String
 formatCopyrightDates currentYear (Left year) | year == currentYear = year
                                              | otherwise = year ++ "-" ++ currentYear
 formatCopyrightDates currentYear (Right (from, to)) = from ++ "-" ++ currentYear
-
-mkDirHier :: String -> [String] -> IO ()
-mkDirHier base [] = return ()
-mkDirHier base (dir:dirs) = do
-  let dirPath = base ++ "/" ++ dir
-  exists <- doesDirectoryExist dirPath
-  when (not exists) $
-    createDirectory dirPath
-  mkDirHier dirPath dirs
