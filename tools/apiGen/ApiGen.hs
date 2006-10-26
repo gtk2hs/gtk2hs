@@ -20,7 +20,6 @@ import Control.Monad  (when, liftM)
 import Data.List   (isPrefixOf, intersperse)
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
-import Directory (doesDirectoryExist, createDirectory)
 import System.Directory (createDirectoryIfMissing)
 
 import qualified Text.XML.HaXml.Parse as Xml
@@ -187,8 +186,11 @@ main = do
       moduleInfo <-
             liftM (mungeMethodInfo object) $
             case maybeModuleInfo of
-              Just moduleInfo -> do createDirectoryIfMissing True
-                                      outdir (splitOn '.' (module_prefix moduleInfo))
+              Just moduleInfo -> do let modulePrefixToPath = map dotToPath
+                                        dotToPath '.' = '/'
+                                        dotToPath  c  =  c
+                                    createDirectoryIfMissing True
+                                      (outdir ++ '/' : modulePrefixToPath (module_prefix moduleInfo))
                                     return moduleInfo
               Nothing -> do
                 return ModuleInfo {
