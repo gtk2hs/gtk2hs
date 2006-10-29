@@ -106,12 +106,12 @@ treeStoreNew forest = do
     customTreeModelGetPath = \iter -> withStore $
       \Store { depth = d } -> toPath d iter,
 
-    customTreeModelGetRow  = \iter ->
-      readIORef storeRef >>=
-        \Store { depth = d, content = cache } ->
-      case checkSuccess d iter cache of
-        (True, ((_, (Node { rootLabel = val }:_)):_)) -> return val
-        _ -> error "TreeStore.getRow: iter does not refer to a valid entry",
+    customTreeModelGetRow  = \iter -> withStoreUpdateCache $
+      \Store { depth = d, content = cache } ->
+        case checkSuccess d iter cache of
+          (True, cache'@((_, (Node { rootLabel = val }:_)):_)) ->
+            (val, cache')
+          _ -> error "TreeStore.getRow: iter does not refer to a valid entry",
 
     customTreeModelIterNext = \iter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } -> iterNext d iter cache,
