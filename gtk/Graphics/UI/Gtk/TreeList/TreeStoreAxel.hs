@@ -251,6 +251,11 @@ storeToCache forest = [(invalidIter, [Node root forest])]
   where
   root = error "TreeStore.storeToCache: accessed non-exitent root of tree"
 
+-- | Extract the store from the cache data structure.
+cacheToStore :: Cache a -> Forest a
+cacheToStore [] = []
+cacheToStore cache = let (_, [Node _ forest]) = last cache in forest
+
 -- | Advance the traversal structure to the given 'TreeIter'.
 --
 advanceCache :: Depth -> TreeIter -> Cache a -> Cache a
@@ -391,7 +396,7 @@ treeStoreInsert (TreeStore model) path pos nodes = do
   customTreeModelInvalidateIters model
   (paths, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
     \store@Store { depth = d, content = cache } ->
-    case insertIntoForest (snd (last cache)) nodes path pos of
+    case insertIntoForest (cacheToStore cache) nodes path pos of
       Nothing -> (store, ([], False))
       Just (newForest, idx, toggle) ->
 	let depth = calcForestDepth newForest
@@ -452,7 +457,7 @@ treeStoreRemove (TreeStore model) path = do
   (found, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
     \store@Store { depth = d, content = cache } ->
     if null cache then (store, (False, False)) else
-    case deleteFromForest (snd (last cache)) path of
+    case deleteFromForest (cacheToStore cache) path of
       Nothing -> (store, (False, False))
       Just (newForest, toggle) ->
         (Store { depth = d,
@@ -506,7 +511,7 @@ treeStoreChangeM (TreeStore model) act path = do
   store@Store { depth = d, content = cache } <- 
       readIORef (customTreeModelGetPrivate model)
   (store'@Store { depth = d, content = cache }, found) <- do
-    mRes <- changeForest (snd (last cache)) act path
+    mRes <- changeForest (cacheToStore cache) act path
     return $ case mRes of
       Nothing -> (store, False)
       Just newForest -> (Store { depth = d,
@@ -542,7 +547,7 @@ changeForest forest act (p:ps) = case splitAt p forest of
 treeStoreGet :: TreeStore a -> IO (Forest a)
 treeStoreGet (TreeStore store) = do
   Store { content = cache } <- readIORef (customTreeModelGetPrivate store)
-  return (if null cache then [] else (snd (last cache)))
+  return (cacheToStore cache)
 
 -- | Extract one node from the current model. Returns 'Nothing' if the given
 --   'TreePath' refers to a non-existent node.
