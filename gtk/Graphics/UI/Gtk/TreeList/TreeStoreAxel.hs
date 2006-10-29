@@ -496,8 +496,8 @@ deleteFromForest forest (p:ps) =
 -- * Returns @True@ if the node was found. For a monadic version, see
 --   'treeStoreChangeM'.
 --
-treeStoreChange :: TreeStore a -> (a -> a) -> TreePath -> IO Bool
-treeStoreChange store func path = treeStoreChangeM store (return . func) path
+treeStoreChange :: TreeStore a -> TreePath -> (a -> a) -> IO Bool
+treeStoreChange store path func = treeStoreChangeM store path (return . func)
 
 
 -- | Change a node in the store.
@@ -505,8 +505,8 @@ treeStoreChange store func path = treeStoreChangeM store (return . func) path
 -- * Returns @True@ if the node was found. For a purely functional version, see
 --   'treeStoreChange'.
 --
-treeStoreChangeM :: TreeStore a -> (a -> IO a) -> TreePath -> IO Bool
-treeStoreChangeM (TreeStore model) act path = do
+treeStoreChangeM :: TreeStore a -> TreePath -> (a -> IO a) -> IO Bool
+treeStoreChangeM (TreeStore model) path act = do
   customTreeModelInvalidateIters model
   store@Store { depth = d, content = cache } <- 
       readIORef (customTreeModelGetPrivate model)
