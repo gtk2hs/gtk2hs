@@ -30,10 +30,12 @@ module Graphics.UI.Gtk.TreeList.TreeStoreAxel (
   TreeStore,
   treeStoreNew,
   treeStoreInsert,
+  treeStoreInsertNode,
   treeStoreRemove,
   treeStoreChange,
   treeStoreChangeM,
-  treeStoreGet
+  treeStoreGet,
+  treeStoreGetNode
   ) where
 
 import Data.Bits
@@ -380,8 +382,11 @@ iterParent depth iter = let
 --   or greater or equal to the number of children of the node at @path@,
 --   the new nodes are appended to the list.
 --
-treeStoreInsert :: TreeStore a -> TreePath -> Int -> Forest a ->
-		   IO (Maybe TreePath)
+treeStoreInsert :: TreeStore a -- ^ the store
+		-> TreePath -- ^ @path@ - the position of the parent
+		-> Int   -- ^ @pos@ - the index of the new tree
+		-> Forest a  -- ^ the list of trees to be inserted
+		-> IO (Maybe TreePath)
 treeStoreInsert (TreeStore model) path pos nodes = do
   customTreeModelInvalidateIters model
   (paths, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
@@ -400,6 +405,19 @@ treeStoreInsert (TreeStore model) path pos nodes = do
     let Just iter = fromPath depth path
     when toggle $ treeModelRowHasChildToggled model path iter
     return (Just (head paths))
+
+-- | Insert a single node into the store.
+--
+-- * This function inserts a single node without children into the tree.
+--   Its arguments are similar to those of 'treeStoreInsert'.
+--
+treeStoreInsertNode :: TreeStore a -- ^ the store
+		    -> TreePath -- ^ @path@ - the position of the parent
+		    -> Int   -- ^ @pos@ - the index of the new tree
+		    -> a  -- ^ the value to be inserted
+		    -> IO (Maybe TreePath)
+treeStoreInsertNode store path pos node =
+  treeStoreInsert store path pos [Node node []]
 
 -- | Insert nodes into a forest.
 --
@@ -526,3 +544,19 @@ treeStoreGet (TreeStore store) = do
   Store { content = cache } <- readIORef (customTreeModelGetPrivate store)
   return (if null cache then [] else (snd (last cache)))
 
+-- | Extract one node from the current model. Returns 'Nothing' if the given
+--   'TreePath' refers to a non-existent node.
+--
+treeStoreGetNode :: TreeStore a -> TreePath -> IO (Maybe a)
+treeStoreGetNode (TreeStore model) path = do
+  store@Store { depth = d, content = cache } <- 
+      readIORef (customTreeModelGetPrivate model)
+  case fromPath d path of
+    Nothing -> return Nothing
+    (Just iter) -> do
+      let (res, cache') = checkSuccess d iter cache
+      writeIORef (customTreeModelGetPrivate model) store { content = cache' }
+      if not res then return Nothing else
+        case cache' of
+          ((_,Node { rootLabel = val }:_):_) -> return (Just val)
+          _ -> return Nothing
