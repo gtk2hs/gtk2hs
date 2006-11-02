@@ -35,8 +35,8 @@ import Debug.Trace (trace)
 genDecl :: KnownSymbols -> Decl -> ShowS
 genDecl knownSymbols decl =
   formattedDoc.
-  deprecatedNote.
-  genDeclCode knownSymbols decl
+  genDeclCode knownSymbols decl.
+  deprecatedNote
 
   where
     formattedDoc =
@@ -53,8 +53,8 @@ genDecl knownSymbols decl =
                 | Api.Parameter { Api.parameter_name = pname } <- params ]
         _ -> False                                
     deprecatedNote
-      | decl_deprecated decl = ss "{-# DEPRECATED ". ss (decl_name decl).
-          ss " \"this function should not be used in newly-written code\" #-}". nl
+      | decl_deprecated decl = nl. ss "{-# DEPRECATED ". ss (decl_name decl).
+          ss " \"". ss (decl_deprecated_comment decl). ss "\" #-}"
       | otherwise = id
 
 
