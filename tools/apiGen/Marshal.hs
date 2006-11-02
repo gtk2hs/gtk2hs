@@ -386,7 +386,9 @@ genMarshalProperty _ "guint"     = ("Int",    "UInt")
 genMarshalProperty _ "gfloat"    = ("Float",  "Float")
 genMarshalProperty _ "gdouble"   = ("Double", "Double")
 genMarshalProperty _ "gboolean"  = ("Bool",   "Bool")
+genMarshalProperty _ "gunichar"  = ("Char",   "Char")
 genMarshalProperty _ "gchar*"    = ("String", "String")
+genMarshalProperty _ "GStrv"     = ("[String]", "Strings")
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
