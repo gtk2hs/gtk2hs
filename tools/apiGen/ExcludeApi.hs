@@ -3,10 +3,10 @@ module ExcludeApi (
   matcher
   ) where
 
-import Char  (isSpace)
-import Maybe (catMaybes, isJust)
-import List  (isPrefixOf, intersperse)
-import Text.Regex
+import Data.Char  (isSpace)
+import Data.Maybe (catMaybes, isJust)
+import Data.List  (isPrefixOf, intersperse)
+import Text.Regex (mkRegex, matchRegex)
 
 data FilterSpec = Exclude String
                 | NotExclude String     -- override Exclude but not AlwaysExclude

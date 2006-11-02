@@ -7,11 +7,12 @@
 
 module Main (main) where
 
-import Module
-import Api
-import qualified Docs
-import FormatDocs
-import CodeGen
+import Module (Module(..))
+import qualified Module
+import qualified Api (API, extractAPI)
+import qualified Docs (extractDocumentation, moduledoc_summary)
+import qualified FormatDocs (haddocFormatParas, genModuleDocumentation)
+import qualified CodeGen
 import StringUtils (ss, sc, templateSubstitute)
 import qualified ModuleScan
 
@@ -111,13 +112,13 @@ main = do
   -- Parse the contents of the xml api file
   --
   let document = Xml.xmlParse apiFile apicontent
-      api = extractAPI document
+      api = Api.extractAPI document
   
       -- For example whe processing Gtk we'd like to know about the types
       -- included from Gdk and Pango
-      includeApi = [ extractAPI (Xml.xmlParse apiFile' content')
+      includeApi = [ Api.extractAPI (Xml.xmlParse apiFile' content')
                    | (apiFile', content') <- zip includeApiFiles includeApiFilesContents]  
-      knownTypes = makeKnownSymbolsMap (api ++ concat includeApi)
+      knownTypes = CodeGen.makeKnownSymbolsMap (api ++ concat includeApi)
 
   -----------------------------------------------------------------------------
   -- Read in the documentation xml file if supplied
@@ -126,7 +127,7 @@ main = do
               then return []
               else do content <- readFile docFile
                       return $ Docs.extractDocumentation (Xml.xmlParse docFile content)
-  let apiDocMap = mkModuleDocMap apiDoc
+  let apiDocMap = Module.mkModuleDocMap apiDoc
 
   -----------------------------------------------------------------------------
   -- Scan the existing modules if their root path is supplied
@@ -153,21 +154,21 @@ main = do
       year  = show (System.Time.ctYear calendarTime)
       date  = day ++ " " ++ month ++ " " ++ year
 
-  let doEverything :: API -> [Module]
+  let doEverything :: Api.API -> [Module]
       doEverything =
-          map reorderDecls
-        . map addDeclAvailableSincePara
-        . map fixModuleAvailableSince
-        . map filterNewActionSignals
-        . map makeGetSetProps
-        . map makeOldSignals
-        . map filterVarArgs
-        . map filterDeprecated
-        . map (applyModuleScanInfo modPrefix date year moduleInfoMap)
-        . map deleteUnnecessaryDocs
-        . map (addDocsToModule apiDocMap)
-        . map (excludeApi excludeApiFilesContents)
-        . convertAPI
+          map Module.reorderDecls
+        . map Module.addDeclAvailableSincePara
+        . map Module.fixModuleAvailableSince
+        . map Module.filterNewActionSignals
+        . map Module.makeGetSetProps
+        . map Module.makeOldSignals
+        . map Module.filterVarArgs
+        . map Module.filterDeprecated
+        . map (Module.applyModuleScanInfo modPrefix date year moduleInfoMap)
+        . map Module.deleteUnnecessaryDocs
+        . map (Module.addDocsToModule apiDocMap)
+        . map (Module.excludeApi excludeApiFilesContents)
+        . Module.convertAPI
 
   -----------------------------------------------------------------------------
   -- Write the result file(s) by substituting values into the template file
@@ -187,15 +188,15 @@ main = do
 	  "OBJECT_NAME"    -> ss $ module_name module_
 	  "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors module_
           "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders module_
-          "DESCRIPTION"    -> haddocFormatParas knownTypes False (Docs.moduledoc_summary (module_doc module_))
-	  "DOCUMENTATION"  -> genModuleDocumentation knownTypes (module_doc module_)
-	  "TODO"           -> genTodoItems module_
-	  "MODULE_NAME"    -> genModuleName module_
-	  "EXPORTS"        -> genExports module_
-	  "IMPORTS"        -> genImports module_
+          "DESCRIPTION"    -> FormatDocs.haddocFormatParas knownTypes False (Docs.moduledoc_summary (module_doc module_))
+	  "DOCUMENTATION"  -> FormatDocs.genModuleDocumentation knownTypes (module_doc module_)
+	  "TODO"           -> CodeGen.genTodoItems module_
+	  "MODULE_NAME"    -> CodeGen.genModuleName module_
+	  "EXPORTS"        -> CodeGen.genExports module_
+	  "IMPORTS"        -> CodeGen.genImports module_
 	  "CONTEXT_LIB"    -> ss $ module_context_lib module_
 	  "CONTEXT_PREFIX" -> ss $ module_context_prefix module_
-	  "MODULE_BODY"    -> genModuleBody knownTypes module_
+	  "MODULE_BODY"    -> CodeGen.genModuleBody knownTypes module_
 	  _ -> ss "" ) ""
 
 formatCopyrightDates :: String -> Either String (String, String) -> String

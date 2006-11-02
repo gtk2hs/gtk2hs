@@ -7,18 +7,23 @@ module CodeGen (
   makeKnownSymbolsMap
   ) where
 
-import Module
+import Module       (Module(..), Decl(..), DeclBody(..),isAttr, comparing)
 import qualified Api
-import Docs
-import FormatDocs
-import Marshal
+import Docs         (ParamDoc(..), DocParaSpan(..), Since)
+import FormatDocs   (haddocFormatDeclaration, cParamNameToHsName,
+                     cFuncNameToHsName, changeIllegalNames, mungeWord,
+                     haddocFormatSpan)
+import Marshal      (CSymbol(..), ParameterKind(..), EnumKind(..),
+                     KnownSymbols, genMarshalParameter, genMarshalResult,
+                     genMarshalOutParameter, genCall, genMarshalProperty,
+                     convertSignalType)
 import StringUtils
-import MarshalFixup (maybeNullParameter, maybeNullResult,
-                     leafClass, nukeParameterDocumentation)
+import MarshalFixup (maybeNullParameter, maybeNullResult, leafClass,
+                     nukeParameterDocumentation)
 
 import Prelude hiding (Enum, lines)
-import Data.List   (groupBy, sortBy, partition)
-import Data.Maybe  (fromMaybe, catMaybes)
+import Data.List    (groupBy, sortBy, partition)
+import Data.Maybe   (fromMaybe, catMaybes)
 import qualified Data.Map as Map
 
 import Debug.Trace (trace)

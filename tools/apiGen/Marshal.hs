@@ -14,8 +14,8 @@ module Marshal (
 import MarshalFixup
 
 import StringUtils
-import Char (isUpper)
-import Maybe (fromJust)
+import Data.Char (isUpper)
+import Data.Maybe (fromJust)
 import qualified Data.Map as Map
 import Data.Map (Map)
 
