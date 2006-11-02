@@ -161,8 +161,8 @@ main = do
         . map filterNewActionSignals
         . map makeGetSetProps
         . map makeOldSignals
-        . map filterDeprecated --swap
-        . map filterVarArgs    -- these two
+        . map filterVarArgs
+        . map filterDeprecated
         . map (applyModuleScanInfo modPrefix date year moduleInfoMap)
         . map deleteUnnecessaryDocs
         . map (addDocsToModule apiDocMap)
