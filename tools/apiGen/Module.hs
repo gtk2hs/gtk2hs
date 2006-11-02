@@ -707,11 +707,8 @@ addDeclAvailableSincePara module_@Module { module_doc = doc,
                   in [Docs.DocParaListItem [Docs.DocText line]]
             else []
 
-        addAvailablePara decl@Decl { decl_since = since,
-                                     --FIXME: no reason at all to restrict to methods
-                                     decl_body = Method {}
-                         } | not (null since)
-                          && since > baseVersion =
+        addAvailablePara decl@Decl { decl_since = since }
+          | not (null since) && since > baseVersion =
           decl {
             decl_doc =
               let line = "Available since "
@@ -721,10 +718,8 @@ addDeclAvailableSincePara module_@Module { module_doc = doc,
           }
         addAvailablePara decl = decl
 
-        addDeprecatedPara decl@Decl { decl_deprecated = True,
-                                     --FIXME: no reason at all to restrict to methods
-                                     decl_body = Method {}
-                         } | not (module_deprecated module_) =
+        addDeprecatedPara decl@Decl { decl_deprecated = True }
+          | not (module_deprecated module_) =
           decl {
             decl_doc =
               let line = "Warning: this function is deprecated "
