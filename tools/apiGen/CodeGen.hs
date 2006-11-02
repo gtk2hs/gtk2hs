@@ -13,14 +13,12 @@ import Docs
 import FormatDocs
 import Marshal
 import StringUtils
-import qualified ModuleScan
-import MarshalFixup (cTypeNameToHSType, maybeNullParameter, maybeNullResult,
-                     fixCFunctionName, leafClass, nukeParameterDocumentation,
-                     actionSignalWanted)
+import MarshalFixup (maybeNullParameter, maybeNullResult,
+                     leafClass, nukeParameterDocumentation)
 
 import Prelude hiding (Enum, lines)
-import List   (groupBy, sortBy, isPrefixOf, isSuffixOf, partition, find)
-import Maybe  (isNothing, fromMaybe, catMaybes)
+import Data.List   (groupBy, sortBy, partition)
+import Data.Maybe  (fromMaybe, catMaybes)
 import qualified Data.Map as Map
 
 import Debug.Trace (trace)
@@ -56,14 +54,12 @@ genDecl knownSymbols decl =
 
 
 genDeclCode :: KnownSymbols -> Decl -> ShowS
-genDeclCode knownSymbols decl@(Decl{ decl_body = method@(Method {}) }) =
+genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
   ss functionName. ss " :: ". functionType. nl.
   ss functionName. sc ' '. formattedParamNames. sc '='.
-  indent 1. body
+  indent 1. codebody
 
-  where info = Nothing
-
-        functionName = cFuncNameToHsName (method_cname method)
+  where functionName = cFuncNameToHsName (method_cname method)
 	(classConstraints', paramTypes', paramMarshalers) =
 	  unzip3 [ case genMarshalParameter knownSymbols (method_cname method)
                           (changeIllegalNames (cParamNameToHsName (Api.parameter_name p)))
@@ -89,7 +85,7 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = method@(Method {}) }) =
 					 docs = mergeParamDocs (lookup "Returns" paramDocMap) docs'
 				      in (case types of
 				            [t] -> "IO " ++ t
-					    ts  -> "IO (" ++ sepBy ", " types "" ++ ")"
+					    _   -> "IO (" ++ sepBy ", " types "" ++ ")"
 					 ,docs)
 	(outParamMarshalersBefore, outParamMarshalersAfter, returnOutParamFragments) =
              unzip3 [ genMarshalOutParameter outParamType (changeIllegalNames (cParamNameToHsName name))
@@ -100,9 +96,9 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = method@(Method {}) }) =
         functionType = (case classConstraints of
 	                  []  -> id
 			  [c] -> ss c. ss " => "
-			  cs  -> sc '('. sepBy ", " classConstraints. ss ") => ").
+			  _   -> sc '('. sepBy ", " classConstraints. ss ") => ").
                        formatParamTypes (inParamTypes ++ [returnType])
-	body = foldl (\body marshaler -> marshaler body)
+	codebody = foldl (\body marshaler -> marshaler body)
                      call (paramMarshalers
                        ++ [ (\body -> frag. body) | frag <- reverse outParamMarshalersBefore ]
                        ++ [ (\body -> body. frag) | frag <- outParamMarshalersAfter ]
@@ -132,7 +128,7 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = method@(Method {}) }) =
                                                      format False False ts
                 format True _ ((t,Just doc)   :ts) = ss "\n    ". ss t.
                                                      ss (replicate (columnIndent - length t) ' ').
-                                                     ss " -- ^ ". formatDoc t doc.
+                                                     ss " -- ^ ". formatDoc doc.
                                                      format False True  ts
                 format _ True  ((t, Nothing)  :ts) = ss "\n -> ". ss t.
                                                      format False False ts
@@ -140,10 +136,10 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = method@(Method {}) }) =
                                                      format False False ts
                 format _ _     ((t, Just doc) :ts) = ss "\n -> ". ss t.
                                                      ss (replicate (columnIndent - length t) ' ').
-                                                     ss " -- ^ ". formatDoc t doc.
+                                                     ss " -- ^ ". formatDoc doc.
                                                      format False True  ts
-                formatDoc :: String -> [DocParaSpan] -> ShowS
-                formatDoc typeName =
+                formatDoc :: [DocParaSpan] -> ShowS
+                formatDoc =
                     sepBy' ("\n" ++ replicate (columnIndent+5) ' ' ++  "-- ")
                   . map (sepBy " ")
                   . wrapText 3 (80 - columnIndent - 8)
@@ -153,7 +149,7 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = method@(Method {}) }) =
                 columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute_is_child = False }) }) =
-  genAtter knownSymbols decl propertyName classConstraint getterType setterType (Right body)
+  genAtter decl propertyName classConstraint getterType setterType (Right body)
   where propertyName = decl_name decl
         (propertyType, gvalueKind) = genMarshalProperty knownSymbols (attribute_type attr)
         body = ss attrType. ss "AttrFrom". ss gvalueKind. ss "Property \"". ss (attribute_cname attr). ss "\""
@@ -166,14 +162,14 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
         (setterType, classConstraint)
                    | attribute_writeable attr 
                   && gvalueKind == "Object"  = let typeVar = lowerCaseFirstChar propertyType
-                                                   classConstraint = propertyType ++ "Class " ++ typeVar
-                                                in (Just typeVar, Just classConstraint)
+                                                   classConstraint' = propertyType ++ "Class " ++ typeVar
+                                                in (Just typeVar, Just classConstraint')
                    | attribute_writeable attr = (Just propertyType, Nothing)
                    | otherwise                = (Nothing, Nothing)
 
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute_is_child = True }) }) =
-  genChildAtter knownSymbols decl propertyName classConstraint getterType setterType (Right body)
+  genChildAtter decl propertyName classConstraint getterType setterType (Right body)
   where propertyName = decl_name decl
         (propertyType, gvalueKind) = genMarshalProperty knownSymbols (attribute_type attr)
         body = ss attrType. ss "AttrFromContainerChild". ss gvalueKind. ss "Property \"". ss (attribute_cname attr). ss "\""
@@ -186,15 +182,15 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
         (setterType, classConstraint)
                    | attribute_writeable attr 
                   && gvalueKind == "Object"   = let typeVar = lowerCaseFirstChar propertyType
-                                                    classConstraint = propertyType ++ "Class " ++ typeVar
+                                                    classConstraint' = propertyType ++ "Class " ++ typeVar
                                                                       ++ ", WidgetClass child"
-                                                 in (Just typeVar, Just classConstraint)
+                                                 in (Just typeVar, Just classConstraint')
                    | attribute_writeable attr = (Just propertyType, Just "WidgetClass child")
                    | otherwise                = (Nothing, Just "WidgetClass child")
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeGetSet {}) }) =
 --  trace (show (propertyName, getterType, method_cname setter_body, setterType)) $
-  genAtter knownSymbols decl propertyName classConstraint
+  genAtter decl propertyName classConstraint
            (Just getterType) (Just setterType)
            (Left (ss (decl_name getter), ss (decl_name setter)))
   where propertyName = decl_name decl
@@ -205,13 +201,13 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeGetSet {}) }) =
                    paramName = changeIllegalNames (cParamNameToHsName (Api.parameter_name param))
                    paramType = Api.parameter_type param
                 in genMarshalParameter knownSymbols (method_cname setter_body) paramName paramType of
-            (classConstraint, InParam setterType, _) -> (classConstraint, setterType)
+            (classConstraint', InParam setterType', _) -> (classConstraint', setterType')
             (_, OutParam _, _)  -> (Nothing, "{- FIXME: should be in param -}")
         getter@Decl { decl_body = getter_body } = attribute_getter attr
         setter@Decl { decl_body = setter_body } = attribute_setter attr
 
-genDeclCode knownSymbols decl@(Decl{ decl_module = module_,
-                                     decl_body = signal@(Module.Signal {}) })
+genDeclCode knownSymbols Decl{ decl_module = module_,
+                               decl_body = signal@Module.Signal {} }
   | signal_is_old_style signal =
           ss "on". ss signalName. ss ", after". ss signalName. ss " :: ". oldSignalType.
           ss "on".    ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " False". nl.
@@ -229,9 +225,9 @@ genDeclCode knownSymbols decl@(Decl{ decl_module = module_,
                        in sepBy "_" paramCategories' . ss "__" . ss returnCategory
         -- strip off the object arg to the signal handler
         params = case Module.signal_parameters signal of
-                   (param:params) | Api.parameter_type param
-                                 == (module_cname module_) ++ "*" -> params
-                   params -> params
+                   (param:params') | Api.parameter_type param
+                                  == (module_cname module_) ++ "*" -> params'
+                   params' -> params'
         (paramCategories, paramTypes) = unzip [ convertSignalType knownSymbols (Api.parameter_type parameter)
                                               | parameter <- params ]
         (returnCategory, returnType) = convertSignalType knownSymbols (Module.signal_return_type signal)
@@ -244,7 +240,7 @@ genDeclCode knownSymbols decl@(Decl{ decl_module = module_,
         signalName = Module.signal_name signal
         signalCName = sc '"'. ss (Module.signal_cname signal). sc '"'
 
-genDeclCode knownSymbols
+genDeclCode _
   Decl { decl_body = Instance { instance_class_name = className,
                                 instance_type_name  = typeName }} =
   ss "instance ".ss className. sc ' '. ss typeName
@@ -254,15 +250,15 @@ mergeParamDocs :: Maybe [DocParaSpan] -> [Maybe [DocParaSpan]] -> Maybe [DocPara
 mergeParamDocs doc docs =
   case catMaybes (doc:docs) of
     [] -> Nothing
-    [doc] -> Just doc
-    docs -> let (varNames, paramDocs) =
-                  unzip [ case doc of 
-                            doc@(DocArg varName : _) -> (cParamNameToHsName varName, doc)
-			    _                        -> ("_", doc)
-			| doc <- docs ]
-		returnValName = DocLiteral ("(" ++ sepBy ", " varNames "" ++ ")")
-                fixmeMessage  = DocText " {FIXME: merge return value docs} "
-             in Just $ returnValName : fixmeMessage : concat paramDocs
+    [doc'] -> Just doc'
+    docs' -> let (varNames, paramDocs) =
+                   unzip [ case doc' of 
+                            (DocArg varName : _) -> (cParamNameToHsName varName, doc')
+                            _                    -> ("_", doc')
+                         | doc' <- docs' ]
+                 returnValName = DocLiteral ("(" ++ sepBy ", " varNames "" ++ ")")
+                 fixmeMessage  = DocText " {FIXME: merge return value docs} "
+              in Just $ returnValName : fixmeMessage : concat paramDocs
 
 genModuleName :: Module -> ShowS
 genModuleName module_ = name . deprecated
@@ -279,8 +275,10 @@ genModuleBody knownSymbols module_ =
   doVersionIfDefs (nl.nl) $
   map adjustDeprecatedAndSinceVersion $
      sectionHeader "Interfaces"
-     [ (genDecl knownSymbols decl, ("", notDeprecated))
-     | decl@Decl { decl_body = Instance { }
+     [ (genDecl knownSymbols decl, (since, deprecated))
+     | decl@Decl { decl_since = since,
+                   decl_deprecated = deprecated,
+                   decl_body = Instance { }
        } <- module_decls module_ ]
   ++ sectionHeader "Constructors"
      [ (genDecl knownSymbols decl, (since, deprecated))
@@ -311,18 +309,18 @@ genModuleBody knownSymbols module_ =
                    decl_deprecated = deprecated,
                    decl_body = Module.Signal {}
        } <- module_decls module_ ]
-  where sectionHeader name []      = []
+  where sectionHeader _    []      = []
         sectionHeader name entries =
-          let header = (ss "--------------------\n-- ". ss name, ("", notDeprecated))
+          let header = (ss "--------------------\n-- ". ss name, ("", False))
            in header : entries
         adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
           (doc, (module_since module_ `max` since, Module.module_deprecated module_ || deprecated))
         
 
-genAtter :: KnownSymbols -> Decl -> String
+genAtter :: Decl -> String
          -> Maybe String -> Maybe String -> Maybe String
          -> Either (ShowS, ShowS) ShowS -> ShowS
-genAtter knownSymbols (Decl { decl_module = module_, decl_body = attr })
+genAtter Decl { decl_module = module_ }
          propertyName classConstraint getterType setterType attrImpl =
   ss propertyName. ss " :: ". classContext. attrType. sc ' '. objectParamType. sc ' '. attrArgs. nl.
   ss propertyName. ss " = ". attrBody
@@ -332,9 +330,9 @@ genAtter knownSymbols (Decl { decl_module = module_, decl_body = attr })
         classContext = case (leafClass (module_cname module_), classConstraint) of 
                          (True,  Nothing)              -> id
                          (False, Nothing)              -> objectType. ss "Class self => "
-                         (True,  Just classConstraint) -> ss classConstraint. ss " => "
-                         (False, Just classConstraint) -> sc '('. objectType. ss "Class self, ".
-                                                          ss classConstraint. ss ") => "
+                         (True,  Just classConstraint') -> ss classConstraint'. ss " => "
+                         (False, Just classConstraint') -> sc '('. objectType. ss "Class self, ".
+                                                           ss classConstraint'. ss ") => "
         (attrType, attrConstructor, attrArgs) =
           case (getterType, setterType) of
             (Just gt, Nothing)        -> (ss "ReadAttr",     ss "readAttr", ss gt)
@@ -354,9 +352,9 @@ genAtter knownSymbols (Decl { decl_module = module_, decl_body = attr })
             Right body            -> body
 
 
-genChildAtter :: KnownSymbols -> Decl -> String
+genChildAtter :: Decl -> String
  -> Maybe String -> Maybe String -> Maybe String -> Either (ShowS, ShowS) ShowS -> ShowS
-genChildAtter knownSymbols (Decl { decl_module = module_, decl_body = attr })
+genChildAtter Decl { decl_module = module_ }
               propertyName classConstraint getterType setterType attrImpl =
   ss propertyName. ss " :: ". classContext. ss "child -> ". attrType. sc ' '. objectParamType. sc ' '. attrArgs. nl.
   ss propertyName. ss " = ". attrBody
@@ -366,9 +364,9 @@ genChildAtter knownSymbols (Decl { decl_module = module_, decl_body = attr })
         classContext = case (leafClass (module_cname module_), classConstraint) of 
                          (True,  Nothing)              -> id
                          (False, Nothing)              -> objectType. ss "Class self => "
-                         (True,  Just classConstraint) -> ss classConstraint. ss " => "
-                         (False, Just classConstraint) -> sc '('. objectType. ss "Class self, ".
-                                                          ss classConstraint. ss ") => "
+                         (True,  Just classConstraint') -> ss classConstraint'. ss " => "
+                         (False, Just classConstraint') -> sc '('. objectType. ss "Class self, ".
+                                                           ss classConstraint'. ss ") => "
         (attrType, attrConstructor, attrArgs) =
           case (getterType, setterType) of
             (Just gt, Nothing)        -> (ss "ReadAttr",     ss "readAttr", ss gt)
@@ -472,7 +470,6 @@ genExports module_ =
      | Decl { decl_name = name,
               decl_since = since,
               decl_deprecated = deprecated,
-              decl_index_export = index,
               decl_body = Module.Signal { signal_is_old_style = False }}
        <- exports ]
   ++ sectionHeader "Deprecated"
@@ -484,8 +481,8 @@ genExports module_ =
                                           signal_is_old_style = True }}
        <- exports ]
 
-  where defaultAttrs = ("", notDeprecated)
-        sectionHeader name []      = []
+  where defaultAttrs = ("", False)
+        sectionHeader _    []      = []
         sectionHeader name entries = (id, defaultAttrs):(ss "-- * ". ss name, defaultAttrs):entries
         adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
           (doc, (Module.module_since module_ `max` since, Module.module_deprecated module_ || deprecated))
@@ -494,18 +491,18 @@ genExports module_ =
 genImports :: Module -> ShowS
 genImports module_ = 
   (case [ ss importLine
-        | (importModule, importLine) <- stdModules ] of
+        | (_, importLine) <- stdModules ] of
      []   -> id
      mods -> lines mods. ss "\n\n").
   lines [ ss importLine
-        | (importModule, importLine) <- extraModules ]
+        | (_, importLine) <- extraModules ]
   where (stdModules, extraModules)
           | null (Module.module_imports module_) =
              ([(undefined, "import Monad\t(liftM)")]
              ,[(undefined, "import System.Glib.FFI")
              ,(undefined, "{#import Graphics.UI.Gtk.Types#}")
              ,(undefined, "-- CHECKME: extra imports may be required")])
-          | otherwise = partition (\(mod, _) -> mod `elem` knownStdModules)
+          | otherwise = partition (\(m, _) -> m `elem` knownStdModules)
                                   (Module.module_imports module_)
         knownStdModules = ["Maybe", "Monad", "Char", "List", "Data.IORef"]
 
@@ -520,7 +517,6 @@ genTodoItems module_ =
              ss "\n--"
 
 type Deprecated = Bool
-notDeprecated = False
 
 doVersionIfDefs :: ShowS -> [(ShowS, (Since, Deprecated))] -> ShowS
 doVersionIfDefs sep =
@@ -542,21 +538,21 @@ doVersionIfDefs sep =
           | otherwise                   = SimpleChunk group     : makeChunks sinceStack prevDeprecated rest
         
         renestChunks :: Int -> [Chunk] -> [Chunk]
-        renestChunks depth [] = []
+        renestChunks _     [] = []
         renestChunks depth (chunk:chunks) =
           case chunk of
-            SimpleChunk group     -> chunk : renestChunks  depth    chunks
-            BeginDeprecatedChunk  -> chunk : renestChunks (depth+1) chunks
-            BeginSinceChunk since -> case renestSinceChunks depth (depth+1) chunks of
-                                       (chunks', True)  -> EndChunk : chunk : renestChunks (depth+1) chunks'
-                                       (chunks', False) ->            chunk : renestChunks (depth+1) chunks'
-            EndChunk              -> chunk : renestChunks (depth-1) chunks
+            SimpleChunk _group     -> chunk : renestChunks  depth    chunks
+            BeginDeprecatedChunk   -> chunk : renestChunks (depth+1) chunks
+            BeginSinceChunk _since -> case renestSinceChunks depth (depth+1) chunks of
+                                        (chunks', True)  -> EndChunk : chunk : renestChunks (depth+1) chunks'
+                                        (chunks', False) ->            chunk : renestChunks (depth+1) chunks'
+            EndChunk               -> chunk : renestChunks (depth-1) chunks
         
         renestSinceChunks :: Int -> Int -> [Chunk] -> ([Chunk], Bool)
-        renestSinceChunks baseDepth curDepth cs@(chunk:chunks) = 
-          case cs of
-            (SimpleChunk group:_)       -> chunk `prepend` renestSinceChunks baseDepth  curDepth    chunks
-            (BeginSinceChunk since:_)   -> chunk `prepend` renestSinceChunks baseDepth (curDepth+1) chunks
+        renestSinceChunks baseDepth curDepth chunks'@(chunk:chunks) = 
+          case chunks' of
+            (SimpleChunk _group:_)       -> chunk `prepend` renestSinceChunks baseDepth  curDepth    chunks
+            (BeginSinceChunk _since:_)   -> chunk `prepend` renestSinceChunks baseDepth (curDepth+1) chunks
             (EndChunk:EndChunk    :_)
               | curDepth-1 == baseDepth -> (chunks, True)
             (EndChunk             :_)
@@ -565,9 +561,9 @@ doVersionIfDefs sep =
           where prepend c (cs,b) = (c:cs,b)
         
         layoutChunks :: ShowS -> [Chunk] -> ShowS
-        layoutChunks msep [] = id
-        layoutChunks msep (EndChunk              :[])     = endif
-        layoutChunks msep (EndChunk              :chunks) = endif. layoutChunks sep chunks
+        layoutChunks _    [] = id
+        layoutChunks _    (EndChunk              :[])     = endif
+        layoutChunks _    (EndChunk              :chunks) = endif. layoutChunks sep chunks
         layoutChunks msep (SimpleChunk group     :chunks) = msep. sepBy' (sep []) group. layoutChunks sep chunks
         layoutChunks msep (BeginDeprecatedChunk  :chunks) = msep. ifndefDeprecated. layoutChunks id chunks
         layoutChunks msep (BeginSinceChunk since :chunks) = msep. ifSinceVersion since. layoutChunks id chunks

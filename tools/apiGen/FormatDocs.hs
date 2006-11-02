@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
 -- ApiGen: takes an xml description of a GObject-style API and produces a .chs
 -- binding module. Optionally it can be supplied with an xml documentation file
 -- in which case the .chs file will contain haddock-format documentation too.
@@ -29,10 +30,10 @@ import MarshalFixup (cTypeNameToHSType, knownMiscType, fixCFunctionName
                     ,fixModuleAvailableSince)
 import StringUtils
 
-import Maybe (isJust)
-import Char (toLower, isUpper, isAlpha, isSpace)
+import Prelude hiding (span)
+import Data.Char (toLower, isAlpha, isSpace)
 import Data.Tree
-import qualified List (lines, span)
+import qualified Data.List as List (lines, span)
 import qualified Data.Map as Map
 
 -------------------------------------------------------------------------------
@@ -60,7 +61,7 @@ genModuleDocumentation knownSymbols moduledoc =
           comment.ss "@".nl)
 
 haddocFormatDeclaration :: KnownSymbols -> Bool -> [DocPara] -> ShowS
-haddocFormatDeclaration knownSymbols handleNULLs [] = ss "-- | \n--\n"
+haddocFormatDeclaration _            _           [] = ss "-- | \n--\n"
 haddocFormatDeclaration knownSymbols handleNULLs paragraphs
   = ss "-- | ". haddocFormatParas knownSymbols handleNULLs paragraphs. nl.
     ss "--\n"
@@ -150,8 +151,8 @@ addVersionParagraphs namespace apiDoc =
             else []
         
         object = lookup (moduledoc_name apiDoc)
-                   [ (object_cname object, object)
-                   | object <- namespace_objects namespace ]
+                   [ (object_cname obj, obj)
+                   | obj <- namespace_objects namespace ]
   
 haddocFormatSections :: KnownSymbols -> [DocSection] -> ShowS
 haddocFormatSections knownSymbols = 
@@ -167,14 +168,16 @@ haddocFormatParas knownSymbols handleNULLs =
   . map (haddocFormatPara knownSymbols handleNULLs)
 
 haddocFormatPara :: KnownSymbols -> Bool -> DocPara -> ShowS
-haddocFormatPara knownSymbols handleNULLs (DocParaText spans) = haddocFormatSpans knownSymbols handleNULLs 3 spans
-haddocFormatPara knownSymbols _ (DocParaProgram prog) =
+haddocFormatPara knownSymbols handleNULLs (DocParaText spans) =
+  haddocFormatSpans knownSymbols handleNULLs 3 spans
+
+haddocFormatPara _ _ (DocParaProgram prog) =
     ((ss "* FIXME: if the follwing is a C code example, port it to Haskell or remove it".nl.
       comment).)
   . sepBy "\n-- > "
   . List.lines
   $ prog
-haddocFormatPara knownSymbols _ (DocParaTitle title) =
+haddocFormatPara _ _ (DocParaTitle title) =
     ss "* ". ss title
 haddocFormatPara knownSymbols handleNULLs (DocParaDefItem term spans) =
   let def = (unwords . words . escape . concatMap (haddocFormatSpan knownSymbols handleNULLs)) term in
@@ -205,8 +208,8 @@ fixSpan span@(DocTypeXRef text) =
 fixSpan span = [span]
 
 haddocFormatSpan :: KnownSymbols -> Bool -> DocParaSpan -> String
-haddocFormatSpan _ _ (DocText text)       = escapeHaddockSpecialChars text
-haddocFormatSpan knownSymbols handleNULLs (DocTypeXRef text) =
+haddocFormatSpan _            _ (DocText text)     = escapeHaddockSpecialChars text
+haddocFormatSpan knownSymbols _ (DocTypeXRef text) =
   case Map.lookup text knownSymbols of
     Nothing | text == "TRUE"  -> "@True@"
             | text == "FALSE"          -> "@False@"
@@ -264,6 +267,7 @@ cAttrNametoHsName  =          --change "label-xalign" to "LabelXAlign"
   where dashToUnderscore '-' = '_'
         dashToUnderscore  c  =  c
 
+cFuncNameToHsPropName :: String -> String
 cFuncNameToHsPropName =
     concatMap upperCaseFirstChar
   . map fixCFunctionName
@@ -291,6 +295,7 @@ changeIllegalNames "where" = "where_" --of course are keywords in Haskell
 changeIllegalNames "data" = "data_"
 changeIllegalNames other = other
 
+escapeHaddockSpecialChars :: String -> String
 escapeHaddockSpecialChars = escape
   where escape [] = []
         escape ('\'':'s':s:cs) | isSpace s = '\'' : 's' : ' ' : escape cs --often don't need to escape
@@ -303,8 +308,8 @@ escapeHaddockSpecialChars = escape
         escape (c:cs) =       c : escape cs
 
 mungeWord :: KnownSymbols -> Bool -> String -> String
-mungeWord knownSymbols _ ('G':'T':'K':[])            = "Gtk+"
-mungeWord knownSymbols _ ('G':'T':'K':'+':remainder) = "Gtk+" ++ remainder
+mungeWord _ _ ('G':'T':'K':[])            = "Gtk+"
+mungeWord _ _ ('G':'T':'K':'+':remainder) = "Gtk+" ++ remainder
 mungeWord knownSymbols handleNULLs word
                  | word' == "TRUE"       = "@True@"  ++ remainder
                  | word' == "FALSE"      = "@False@" ++ remainder
@@ -313,17 +318,17 @@ mungeWord knownSymbols handleNULLs word
                                        else "{@NULL@, FIXME: this should probably "
                                          ++ "be converted to a Maybe data type}" ++ remainder
                  | word' == "G_MAXINT"   = "@('maxBound' :: Int)@" ++ remainder
-                 | isJust e = case e of
-                                Just (SymObjectType _) -> "'" ++ cTypeNameToHSType word' ++ "'" ++ remainder
-                                Just (SymEnumType _)   -> "'" ++ cTypeNameToHSType word' ++ "'" ++ remainder
-                                Just SymEnumValue      -> "'" ++ cConstNameToHsName word' ++ "'" ++ remainder
-                                Just SymStructType     -> "{" ++ word' ++ ", FIXME: struct type}"
-                                Just SymBoxedType      -> if knownMiscType word'
-                                                            then "'" ++ cTypeNameToHSType word' ++ "'"
-                                                            else "{" ++ word' ++ ", FIXME: boxed type}"
-                                Just SymClassType      -> "{" ++ word' ++ ", FIXME: class type}"
-                                Just SymTypeAlias      -> "{" ++ word' ++ ", FIXME: type alias}"
-                                Just SymCallbackType   -> "{" ++ word' ++ ", FIXME: callback type}"
+                 | Just e <- Map.lookup word' knownSymbols =
+                     case e of
+                       (SymObjectType _) -> "'" ++ cTypeNameToHSType word' ++ "'" ++ remainder
+                       (SymEnumType _)   -> "'" ++ cTypeNameToHSType word' ++ "'" ++ remainder
+                       SymEnumValue      -> "'" ++ cConstNameToHsName word' ++ "'" ++ remainder
+                       SymStructType     -> "{" ++ word' ++ ", FIXME: struct type}"
+                       SymBoxedType      -> if knownMiscType word'
+                                              then "'" ++ cTypeNameToHSType word' ++ "'"
+                                              else "{" ++ word' ++ ", FIXME: boxed type}"
+                       SymClassType      -> "{" ++ word' ++ ", FIXME: class type}"
+                       SymTypeAlias      -> "{" ++ word' ++ ", FIXME: type alias}"
+                       SymCallbackType   -> "{" ++ word' ++ ", FIXME: callback type}"
                  | otherwise = word
-  where e = Map.lookup word' knownSymbols
-        (word', remainder) = span (\c -> isAlpha c || c == '_') word
+  where (word', remainder) = List.span (\c -> isAlpha c || c == '_') word

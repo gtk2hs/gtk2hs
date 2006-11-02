@@ -267,7 +267,7 @@ genMarshalOutParameter "Color"  name = (ss "alloca $ \\". ss name. ss "Ptr ->". 
                                         ,indent 1. ss "peek ". ss name. ss "Ptr >>= \\". ss name. ss " ->"
                                         ,ss name)
 
-genMarshalOutParameter paramType name = (id, id, ss name)
+genMarshalOutParameter _        name = (id, id, ss name)
 
 -- Takes the type string and returns the Haskell Type and the marshaling code
 --
@@ -446,8 +446,8 @@ convertSignalType _ typeName   =  ("{-" ++ typeName ++ "-}", "{-" ++ typeName ++
 
 -- The ordinary case:
 genCallOrdinary :: String -> Bool -> String
-genCallOrdinary cname unsafe@True  = "{# call unsafe " ++ cname ++ " #}"
-genCallOrdinary cname unsafe@False = "{# call "        ++ cname ++ " #}"
+genCallOrdinary cname _unsafe@True  = "{# call unsafe " ++ cname ++ " #}"
+genCallOrdinary cname _unsafe@False = "{# call "        ++ cname ++ " #}"
 
 -- On win32 for glib/gtk 2.6 they changed the interpretation of functions that
 -- take or return system file names (as opposed to user displayable

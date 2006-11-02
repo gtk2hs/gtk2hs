@@ -51,6 +51,7 @@ fixCFunctionName other = other
 -- work (since the docs sometimes miss marking the version of some functions)
 -- So to fix it just specify here the version of the library from which the
 -- module is available.
+fixModuleAvailableSince :: String -> String
 fixModuleAvailableSince "GtkComboBox" = "2.4"
 fixModuleAvailableSince "GtkFileChooser" = "2.4"
 fixModuleAvailableSince "GtkCellView" = "2.6"
@@ -61,6 +62,7 @@ fixModuleAvailableSince _ = ""
 -- Most of the time the gtk-doc documentation have titles that correspond to
 -- the C name of the object. But sadly sometimes they don't so we fix up that
 -- mapping here.
+fixModuleDocMapping :: String -> String
 fixModuleDocMapping "GtkClipboard" = "Clipboards"
 fixModuleDocMapping "GtkSettings"  = "Settings"
 fixModuleDocMapping "GtkStyle"     = "Styles"
@@ -493,6 +495,8 @@ nukeParamDoc "gtk_tree_model_get_flags" "returns"		= True
 --nukeParamDoc "" ""			= True
 --nukeParamDoc "" ""			= True
 nukeParamDoc _ _ = False
+
+nukeParameterDocumentation :: String -> String -> Bool
 nukeParameterDocumentation = nukeParamDoc
 
 -- On win32 for glib/gtk 2.6 they changed the interpretation of functions that
@@ -508,6 +512,7 @@ nukeParameterDocumentation = nukeParamDoc
 -- generate code uses the _utf8 version if we're building on windows and using
 -- gtk version 2.6 or later. Ugh.
 
+win32FileNameFunctions :: [String]
 win32FileNameFunctions =
   ["gtk_image_new_from_file"
   ,"gdk_pixbuf_new_from_file"
@@ -532,6 +537,7 @@ win32FileNameFunctions =
   ,"gtk_ui_manager_add_ui_from_file"
   ,"gtk_window_set_icon_from_file"]
 
+actionSignalWanted :: String -> String -> Bool
 actionSignalWanted "GtkButton" "clicked" = True
 actionSignalWanted "GtkWidget" "popup_menu" = True
 actionSignalWanted "GtkWidget" "show_help" = True

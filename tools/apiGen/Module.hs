@@ -6,7 +6,7 @@ import qualified Api
 import qualified Docs
 import qualified ModuleScan
 import qualified FormatDocs (cFuncNameToHsPropName, cFuncNameToHsName,
-                             cAttrNametoHsName, toStudlyCaps)
+                             cAttrNametoHsName)
 import qualified MarshalFixup (cTypeNameToHSType, actionSignalWanted,
                                fixModuleAvailableSince, fixModuleDocMapping)
 import qualified ExcludeApi
@@ -14,7 +14,6 @@ import StringUtils
 
 import qualified Data.Map as Map
 import Data.Map (Map)
-import Data.Tree (Forest)
 import qualified Data.List as List
 import Data.Maybe (fromMaybe)
 
@@ -78,6 +77,7 @@ data Decl = Decl {
   decl_module             :: Module
 }
 
+declDefaults :: Decl
 declDefaults = Decl {
     decl_comment = "",
     decl_doc = Just [],
@@ -220,7 +220,7 @@ convertObject namespace object =
                  }
                | (n, prop) <- zip [1..] (Api.object_childprops object) ]
 
-            ++ [ (convertSignals object signal) {
+            ++ [ (convertSignals signal) {
                    decl_index_api = n,
                    decl_module = module_
                  }
@@ -300,8 +300,8 @@ convertProperty isChild object property =
   }
 
 
-convertSignals :: Api.Object -> Api.Signal -> Decl
-convertSignals object signal =
+convertSignals :: Api.Signal -> Decl
+convertSignals signal =
   declDefaults {
     decl_name = lowerCaseFirstChar (Api.signal_name signal),
     decl_body = Signal {
@@ -344,10 +344,10 @@ addDocsToModule moduleDocMap module_ =
               method@Method { method_cname = name } -> 
                 case Map.lookup name methodDocMap of
                   Nothing -> decl { decl_index_doc = endDocIndex }
-                  Just (n, Docs.FuncDoc { Docs.funcdoc_paragraphs = doc,
+                  Just (n, Docs.FuncDoc { Docs.funcdoc_paragraphs = fundoc,
                                           Docs.funcdoc_params = paramDocs,
                                           Docs.funcdoc_since  = since })
-                          -> decl { decl_doc = Just doc,
+                          -> decl { decl_doc = Just fundoc,
                                     decl_index_doc = n,
                                     decl_body = method {
                                       method_param_docs = paramDocs
@@ -359,9 +359,9 @@ addDocsToModule moduleDocMap module_ =
                               attribute_cname = name } ->
                 case Map.lookup name propDocMap of
                   Nothing -> decl
-                  Just (n, Docs.PropDoc { Docs.propdoc_paragraphs = doc,
+                  Just (n, Docs.PropDoc { Docs.propdoc_paragraphs = fundoc,
                                           Docs.propdoc_since = since })
-                          -> decl { decl_doc = Just doc,
+                          -> decl { decl_doc = Just fundoc,
                                     decl_index_doc = n,
                                     decl_since = since }
 
@@ -369,30 +369,30 @@ addDocsToModule moduleDocMap module_ =
                               attribute_cname = name } ->
                 case Map.lookup name childPropDocMap of
                   Nothing -> decl
-                  Just (n, Docs.PropDoc { Docs.propdoc_paragraphs = doc,
+                  Just (n, Docs.PropDoc { Docs.propdoc_paragraphs = fundoc,
                                           Docs.propdoc_since = since })
-                          -> decl { decl_doc = Just doc,
+                          -> decl { decl_doc = Just fundoc,
                                     decl_index_doc = n,
                                     decl_since = since }
 
               Signal { signal_cname = name } ->
                 case Map.lookup (canonicalSignalName name) signalDocMap of
                   Nothing -> decl
-                  Just (n, Docs.SignalDoc { Docs.signaldoc_paragraphs = doc,
+                  Just (n, Docs.SignalDoc { Docs.signaldoc_paragraphs = fundoc,
                                             Docs.signaldoc_since = since })
-                          -> decl { decl_doc = Just doc,
+                          -> decl { decl_doc = Just fundoc,
                                     decl_index_doc = n,
                                     decl_since = since }
               _ -> decl
             
-          since = case map Docs.funcdoc_since (Docs.moduledoc_functions doc) of
+          modsince = case map Docs.funcdoc_since (Docs.moduledoc_functions doc) of
                     [] -> ""
                     versions -> minimum versions
 
        in module_ {
             module_doc = doc,
             module_decls = decls,
-            module_since = since
+            module_since = modsince
           }
 
   where mkDeclDocMap :: (doc -> String) -> [doc] -> Map String (Int, doc)
@@ -460,18 +460,18 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
             addMethodScanInfo decl@Decl { decl_body = method@Method { } } =
               case Map.lookup (method_cname method) declInfoMap of
                 Nothing -> decl { decl_index_code = endIndex }
-                Just (n, info) ->
+                Just (n, dinfo) ->
                   decl {
                     decl_index_code = n,
                     decl_bound = True,
                     decl_body =
                       method {
                         method_shortcname =
-                          let shortcname = ModuleScan.methodinfo_shortcname info
+                          let shortcname = ModuleScan.methodinfo_shortcname dinfo
                            in if null shortcname
                                 then Nothing
                                 else Just shortcname,
-                        method_is_unsafe_ffi = ModuleScan.methodinfo_unsafe info
+                        method_is_unsafe_ffi = ModuleScan.methodinfo_unsafe dinfo
                       }
                   }
             addMethodScanInfo decl = decl
@@ -620,15 +620,15 @@ makeGetSetProps module_ =
       = StringUtils.mergeBy (\(Decl { decl_body = prop }) (Decl { decl_body = func }, _) ->
                   attribute_name prop `compare` drop 3 (method_name func))
                 (List.sortBy (comparing (attribute_name.decl_body)) props)
-                (List.sortBy (comparing (method_name.decl_body.fst)) (methodsThatLookLikeProperties module_))
+                (List.sortBy (comparing (method_name.decl_body.fst)) methodsThatLookLikeProperties)
 
     (props, nonPropsDecls) = List.partition isProp (module_decls module_)
     
     isProp (Decl { decl_body = AttributeProp {} }) = True
     isProp _                                       = False
 
-    methodsThatLookLikeProperties :: Module -> [(Decl, Decl)]
-    methodsThatLookLikeProperties module_ =
+    methodsThatLookLikeProperties :: [(Decl, Decl)]
+    methodsThatLookLikeProperties =
       intersectBy (equating (drop 3 . method_name . decl_body)) getters setters
       where getters = [ decl
                       | decl@Decl{decl_body = method@Method{}} <- module_decls module_
@@ -646,6 +646,8 @@ makeGetSetProps module_ =
 
             intersectBy :: (a -> a -> Bool) -> [a] -> [a] -> [(a,a)]
             intersectBy eq xs ys = [ (x,y) | x <- xs, Just y <- [List.find (eq x) ys] ]
+
+isAttr, isMethod :: Decl -> Bool
 
 isAttr (Decl { decl_body = AttributeProp { attribute_is_child = False } }) = True
 isAttr (Decl { decl_body = AttributeGetSet {} }) = True
@@ -737,6 +739,7 @@ canonicalSignalName = map dashToUnderscore
         dashToUnderscore  c  =  c
 
 
+excludeApi :: [String] -> Module -> Module
 excludeApi [] module_ = module_
 excludeApi excludeApiFilesContents module_ =
   module_ {

@@ -8,11 +8,10 @@ module ModuleScan (
 
 import StringUtils (splitOn)
 
-import Char (isSpace, isAlpha)
-import List (intersperse, partition, isSuffixOf, group, sort)
+import Data.Char (isSpace, isAlpha)
+import Data.List (partition, isSuffixOf, group, sort)
 import Prelude hiding (unwords)
 
-import System (getArgs)
 import Directory (getDirectoryContents, doesDirectoryExist, doesFileExist)
 
 data ModuleInfo = ModuleInfo {
@@ -56,8 +55,11 @@ data Line = None
           | Deprecated String
   deriving Show
 
+usefulLine, isModuleLine, isExportEndLine, isCCallLine :: Line -> Bool
+
 usefulLine None = False
 usefulLine _    = True
+
 
 isModuleLine (Module _ _) = True
 isModuleLine _            = False
@@ -65,14 +67,6 @@ isExportEndLine ExportEnd = True
 isExportEndLine _         = False
 isCCallLine (CCall _) = True
 isCCallLine _         = False
-
-main = do
-  [path] <- getArgs
-  modules <- findModules [] path
-  modInfos <- mapM (\moduleName -> do ppExists <- doesFileExist (moduleName ++ ".chs.pp")
-                                      if ppExists then scanModule (moduleName ++ ".chs.pp")
-                                                  else scanModule (moduleName ++ ".chs")) modules
-  print modInfos
 
 scanModules :: FilePath -> [FilePath] -> IO [ModuleInfo]
 scanModules path excludePaths = do
@@ -133,8 +127,8 @@ scanModuleContent content filename =
        . filter usefulLine
        $ [ scanLine line (tokenise line) | line <- lines content ]
   in ModuleInfo {
-    module_name              = head $ [ name    | Module name prefix  <- headerLines ] ++ [missing],
-    module_prefix            = head $ [ prefix  | Module name prefix  <- headerLines ] ++ [missing],
+    module_name              = head $ [ name    | Module name _   <- headerLines ] ++ [missing],
+    module_prefix            = head $ [ prefix  | Module _ prefix <- headerLines ] ++ [missing],
     module_needspreproc      = ".chs.pp" `isSuffixOf` filename,
     module_needsc2hs         = ".chs" `isSuffixOf` filename,
     module_filename          = "",
@@ -149,12 +143,12 @@ scanModuleContent content filename =
     module_exports           = let exportLines = takeWhile (not.isExportEndLine)
                                                . dropWhile (not.isModuleLine)
                                                $ headerLines
-                                in [ name       | Export name         <- exportLines ],
-    module_imports           = [ (name, line)   | Import name line    <- headerLines ],
-    module_context_lib       = head $ [ lib     | Context lib prefix  <- headerLines ] ++ [missing],
-    module_context_prefix    = head $ [ prefix  | Context lib prefix  <- headerLines ] ++ [missing],
+                                in [ name       | Export name      <- exportLines ],
+    module_imports           = [ (name, line)   | Import name line <- headerLines ],
+    module_context_lib       = head $ [ lib     | Context lib _    <- headerLines ] ++ [missing],
+    module_context_prefix    = head $ [ prefix  | Context _ prefix <- headerLines ] ++ [missing],
     module_methods           =        [ call    | CCall call  <- bodyLines ],
-    module_deprecated        =        [ value   | Deprecated value    <- bodyLines ]
+    module_deprecated        =        [ value   | Deprecated value <- bodyLines ]
   }
   where missing = "{-missing-}"
 
@@ -169,7 +163,7 @@ scanLine :: String -> [String] -> Line
 scanLine _ ("--":"Author":":":author)   = scanAuthor author
 scanLine _ ("--":"Created:":created)    = Created (unwords created)
 scanLine _ ["--","Version",_,major,".",minor,_,_,_,date,time,_] = Version major minor date time
-scanLine _ ("--":"Copyright":"(":c:")":copyright) = scanCopyright copyright
+scanLine _ ("--":"Copyright":"(":_C:")":copyright) = scanCopyright copyright
 scanLine (' ':' ':_) ("module":moduleName) = Export (concat moduleName)
 scanLine _ ("module":moduleName)        = scanModuleName moduleName
 scanLine (' ':' ':_) (export:",":[])    = Export export
@@ -235,15 +229,15 @@ scanCCall tokens =
     ("call":"fun":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
                                                            methodinfo_shortcname = cname,
                                                            methodinfo_unsafe = True }
-    ("fun":"pure":_)           -> None
-    ("type":_)                 -> None
-    ("pointer":_)              -> None
-    ("pointer*":_)             -> None
-    ("enum":_)                 -> None
-    ("set":_)                  -> None
-    ("get":_)                  -> None
-    ("sizeof":_)                  -> None
-    tokens -> error $ "scanCCall: " ++ show tokens
+    ("fun":"pure":_) -> None
+    ("type":_)       -> None
+    ("pointer":_)    -> None
+    ("pointer*":_)   -> None
+    ("enum":_)       -> None
+    ("set":_)        -> None
+    ("get":_)        -> None
+    ("sizeof":_)     -> None
+    other -> error $ "scanCCall: " ++ show other
 
 tokenise :: String -> [String]
 tokenise s = case dropWhile isSpace s of

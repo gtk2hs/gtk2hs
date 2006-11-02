@@ -17,10 +17,10 @@ module Api (
   extractAPI
   ) where
 
-import Prelude hiding (Enum)
-import Maybe  (catMaybes, isJust)
-import Char (isSpace)
-import List (find)
+import Prelude hiding (Enum, elem)
+import Data.Maybe  (catMaybes, isJust)
+import Data.Char   (isSpace)
+import Data.List   (find)
 
 import qualified Text.XML.HaXml as Xml
 
@@ -161,6 +161,7 @@ extractAPI (Xml.Document _ _ (Xml.Elem "api" [] namespaces) _) =
   white :: Xml.CFilter
   white (Xml.CString False str) | all isSpace str = []
   white elem = [elem]
+extractAPI _other = error $ "extractAPI: other"
 
 extractNameSpace :: Xml.Content -> Maybe NameSpace
 extractNameSpace (Xml.CElem (Xml.Elem "namespace"
@@ -181,7 +182,7 @@ extractEnum :: Xml.Content -> Maybe Enum
 extractEnum (Xml.CElem (Xml.Elem "enum"
                      [("name", Xml.AttValue name),
                       ("cname", Xml.AttValue cname),
-                      ("gtype", Xml.AttValue gtype),
+                      ("gtype", Xml.AttValue _gtype),
                       ("type", Xml.AttValue variety)] members)) =
   Just $ Enum {
     enum_name = Xml.verbatim name,
@@ -207,7 +208,7 @@ extractEnum (Xml.CElem (Xml.Elem "enum"
                      [("name", Xml.AttValue name),
                       ("cname", Xml.AttValue cname),
                       ("deprecated", Xml.AttValue [Left "1"]),
-                      ("gtype", Xml.AttValue gtype),
+                      ("gtype", Xml.AttValue _gtype),
                       ("type", Xml.AttValue variety)] members)) =
   Just $ Enum {
     enum_name = Xml.verbatim name,
@@ -243,8 +244,9 @@ extractEnumMember (Xml.CElem (Xml.Elem "member"
     member_value =
       case value of
         [] -> ""
-        [("value", Xml.AttValue value)] -> Xml.verbatim value
+        [("value", Xml.AttValue v)] -> Xml.verbatim v
   }
+extractEnumMember other = error $ "extractEnumMember: " ++ Xml.verbatim other
 
 extractObject :: Xml.Content -> Maybe Object
 extractObject (Xml.CElem (Xml.Elem "object"
@@ -254,9 +256,9 @@ extractObject (Xml.CElem (Xml.Elem "object"
   let (parent, deprecated) =
         case remainder of
           [] -> ([Left "Unknown"], False)
-          [("parent", Xml.AttValue parent)] -> (parent, False)
-          [("deprecated", Xml.AttValue deprecated),
-           ("parent", Xml.AttValue parent)] -> (parent, True)
+          [("parent", Xml.AttValue parent')] -> (parent', False)
+          [("deprecated", Xml.AttValue _),
+           ("parent", Xml.AttValue parent')] -> (parent', True)
   in Just $ Object {
     object_name = Xml.verbatim name,
     object_cname = Xml.verbatim cname,
@@ -322,7 +324,7 @@ extractField :: Xml.Content -> Maybe Field
 extractField (Xml.CElem (Xml.Elem "field"
                      [("name", Xml.AttValue name),
                       ("cname", Xml.AttValue cname),
-                      ("type", Xml.AttValue type_)] content)) =
+                      ("type", Xml.AttValue type_)] _content)) =
   Just $ Field {
     field_name = Xml.verbatim name,
     field_cname = Xml.verbatim cname,
@@ -334,7 +336,7 @@ extractField (Xml.CElem (Xml.Elem "field"
                      [("name", Xml.AttValue name),
                       ("cname", Xml.AttValue cname),
                       ("type", Xml.AttValue type_),
-                      ("access", Xml.AttValue [Left "public"])] content)) =
+                      ("access", Xml.AttValue [Left "public"])] _content)) =
   Just $ Field {
     field_name = Xml.verbatim name,
     field_cname = Xml.verbatim cname,    
@@ -346,7 +348,7 @@ extractField (Xml.CElem (Xml.Elem "field"
                      [("name", Xml.AttValue name),
                       ("cname", Xml.AttValue cname),
                       ("bits", Xml.AttValue bits),
-                      ("type", Xml.AttValue type_)] content)) =
+                      ("type", Xml.AttValue type_)] _content)) =
   Just $ Field {
     field_name = Xml.verbatim name,
     field_cname = Xml.verbatim cname,
@@ -529,6 +531,7 @@ extractImplements _ = Nothing
 extractInterface :: Xml.Content -> String
 extractInterface (Xml.CElem (Xml.Elem "interface"
                     [("cname", Xml.AttValue cname)] [] )) = Xml.verbatim cname
+extractInterface other = error $ "extractInterface: " ++ Xml.verbatim other
 
 extractMisc :: Xml.Content -> Maybe Misc
 extractMisc (Xml.CElem (Xml.Elem elem

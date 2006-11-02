@@ -6,7 +6,6 @@ module ExcludeApi (
 import Char  (isSpace)
 import Maybe (catMaybes, isJust)
 import List  (isPrefixOf, intersperse)
-import System (getArgs)
 import Text.Regex
 
 data FilterSpec = Exclude String
@@ -25,7 +24,8 @@ parseFilterFile = catMaybes . map parseLine . lines
         trim = takeWhile (not . isSpace) . dropWhile isSpace
 
 matcher :: [FilterSpec] -> (String -> Bool)
-matcher spec line = match line
+matcher spec line = not $ (matchExclude && (not matchNotExclude))
+                        || matchAlwaysExclude
   where excludeRegexFragments       = [ regex | Exclude       regex <- spec ]
         noExcludeRegexFragments     = [ regex | NotExclude    regex <- spec ]
         alwaysExcludeRegexFragments = [ regex | AlwaysExclude regex <- spec ]
@@ -34,9 +34,6 @@ matcher spec line = match line
         noExcludeRegex     = mkRegex $ concat $ intersperse "|" noExcludeRegexFragments
         alwaysExcludeRegex = mkRegex $ concat $ intersperse "|" alwaysExcludeRegexFragments
         
-        matchExclude       line = isJust (matchRegex excludeRegex line) && not (null excludeRegexFragments)
-        matchNotExclude    line = isJust (matchRegex noExcludeRegex line) && not (null noExcludeRegexFragments)
-        matchAlwaysExclude line = isJust (matchRegex alwaysExcludeRegex line) && not (null alwaysExcludeRegexFragments)
-        
-        match line = not $ (matchExclude line && (not $ matchNotExclude line))
-                        || matchAlwaysExclude line
+        matchExclude       = isJust (matchRegex excludeRegex line) && not (null excludeRegexFragments)
+        matchNotExclude    = isJust (matchRegex noExcludeRegex line) && not (null noExcludeRegexFragments)
+        matchAlwaysExclude = isJust (matchRegex alwaysExcludeRegex line) && not (null alwaysExcludeRegexFragments)

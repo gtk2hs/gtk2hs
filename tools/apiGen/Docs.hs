@@ -15,8 +15,9 @@ module Docs (
 
 import qualified Text.XML.HaXml as Xml
 
-import Char (isUpper, isSpace, isAlphaNum)
-import List (partition, groupBy)
+import Prelude hiding (elem)
+import Data.Char (isUpper, isSpace)
+import Data.List (partition, groupBy)
 import Data.Tree (Forest, unfoldForest)
 
 -------------------------------------------------------------------------------
@@ -39,6 +40,7 @@ data ModuleDoc = ModuleDoc {
     moduledoc_since :: String              -- which version of the api the
   }  					   -- module is available from, eg "2.4"
 
+noModuleDoc :: ModuleDoc
 noModuleDoc = ModuleDoc {
     moduledoc_name = "",
     moduledoc_altname = "",
@@ -180,8 +182,8 @@ extractDocFunc
   )) =
   let since = case since' of
                 [] -> ""
-		[Xml.CString _ since] | last since == '.' -> init since
-                                      | otherwise         -> since
+		[Xml.CString _ since''] | last since'' == '.' -> init since''
+                                        | otherwise           -> since''
    in FuncDoc {
         funcdoc_name = name,
 	funcdoc_paragraphs = concatMap extractDocPara paras,
@@ -298,9 +300,9 @@ extractDocParaSpan (Xml.CElem (Xml.Elem tag [] content)) =
     "emphasis"   -> DocEmphasis text
     "literal"    -> DocLiteral text
     "arg"        -> DocArg text
-    other -> error $ "extractDocParaSpan: other tag " ++ tag
+    _other -> error $ "extractDocParaSpan: other tag " ++ tag
 
-extractDocParaSpan other@(Xml.CRef (Xml.RefEntity entity)) = DocText (Xml.verbatim other)
+extractDocParaSpan other@(Xml.CRef (Xml.RefEntity _entity)) = DocText (Xml.verbatim other)
 extractDocParaSpan other = error $ "extractDocParaSpan: " ++ Xml.verbatim other
 
 
@@ -318,14 +320,15 @@ extractLines = concatMap getText
   where getText (DocTypeXRef t) = t
         getText (DocText t)     = t
 
+extractLine :: String -> (Int, String)
 extractLine line =
   case span (==' ') line of
     (spaces, '+':'-':'-':'-':'-':remainder) -> (length spaces, remainder)
     (spaces, remainder)                     -> (length spaces, remainder)
 
 paths :: [(Int,String)] -> [(Int,String)] -> [[(Int,String)]]
-paths ps [] = []
-paths ps ((col,name):rem) = spec : paths spec rem
+paths _ [] = []
+paths ps ((col,name):remainder) = spec : paths spec remainder
   where
     parents = dropWhile (\(c,_) -> c>=col) ps
     spec = (col,name):parents

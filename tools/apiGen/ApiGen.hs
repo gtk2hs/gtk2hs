@@ -13,12 +13,10 @@ import qualified Docs
 import FormatDocs
 import CodeGen
 import StringUtils (ss, sc, templateSubstitute)
-import MarshalFixup (fixModuleDocMapping)
 import qualified ModuleScan
 
-import Control.Monad  (when, liftM)
-import Data.List   (isPrefixOf, intersperse)
-import qualified Data.Map as Map (empty, fromList)
+import Data.List   (intersperse)
+import qualified Data.Map as Map (fromList)
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
 import System.Directory (createDirectoryIfMissing)
@@ -33,8 +31,7 @@ import System.Console.GetOpt
 -- Top level stuff
 -------------------------------------------------------------------------------
 
-data Flag = Doc FilePath | Lib String | Prefix String
-          | ModPrefix String | OutDir FilePath
+data Flag = Doc FilePath | ModPrefix String | OutDir FilePath
           | IncludeAPI FilePath | ExcludeAPI FilePath
           | ScanModule FilePath | ExcludeScan FilePath
 
@@ -45,14 +42,6 @@ options =
 
  , Option []     ["doc"]         (ReqArg Doc "FILE")
      "api doc file output from format-doc.xsl"
-
- , Option []     ["lib"]         (ReqArg Lib "LIB")
-     ("set the lib to use in the c2hs {#context #}\n"
-   ++ "declaration (the default is taken from the api file)")
-
- , Option []     ["prefix"]      (ReqArg Prefix "PREFIX")
-     ("set the prefix to use in the c2hs {#context #}\n"
-   ++ "declaration (the default is taken from the api file)")
 
  , Option []     ["modprefix"]   (ReqArg ModPrefix "PREFIX")
      ("specify module name prefix, eg if using hierarchical\n"
@@ -75,6 +64,7 @@ options =
    ++" library than the one being generated")
  ]
 
+header :: String
 header = unlines
   ["Program to generate a .chs Haskell binding module from an xml"
   ,"description of a GObject-style API."
@@ -82,6 +72,7 @@ header = unlines
   ,"    <apiFile>           an xml api file produced by gapi_parser.pl"
   ,"    <templateFile>      is the name and path of the output template file"]
 
+main :: IO ()
 main = do
   args <- getArgs
   (flags, apiFile, templateFile) <-
@@ -98,9 +89,7 @@ main = do
   let firstOr x []    = x
       firstOr _ (x:_) = x
       docFile   = firstOr "" [ file | Doc file <- flags ]
-      lib       = firstOr "" [ file | Lib file <- flags ]
-      prefix    = firstOr "" [ prefix | Prefix prefix <- flags ]
-      modPrefix = firstOr "" [ prefix | ModPrefix prefix <- flags ]
+      modPrefix = firstOr "" [ prefix' | ModPrefix prefix' <- flags ]
       outdir    = (\dir -> if last dir == '/' then dir else dir ++ "/") $
                   firstOr "" [ file | OutDir file <- flags ]
       includeApiFiles = [ file | IncludeAPI file <- flags ]
@@ -111,7 +100,7 @@ main = do
   -----------------------------------------------------------------------------
   -- Read in the input files
   --
-  content <- if apiFile == "-"
+  apicontent <- if apiFile == "-"
                then getContents	      -- read stdin
 	       else readFile apiFile
   template <- readFile templateFile
@@ -121,13 +110,13 @@ main = do
   -----------------------------------------------------------------------------
   -- Parse the contents of the xml api file
   --
-  let document = Xml.xmlParse apiFile content
+  let document = Xml.xmlParse apiFile apicontent
       api = extractAPI document
   
       -- For example whe processing Gtk we'd like to know about the types
       -- included from Gdk and Pango
-      includeApi = [ extractAPI (Xml.xmlParse apiFile content)
-                   | (apiFile, content) <- zip includeApiFiles includeApiFilesContents]  
+      includeApi = [ extractAPI (Xml.xmlParse apiFile' content')
+                   | (apiFile', content') <- zip includeApiFiles includeApiFilesContents]  
       knownTypes = makeKnownSymbolsMap (api ++ concat includeApi)
 
   -----------------------------------------------------------------------------
@@ -183,7 +172,7 @@ main = do
   -----------------------------------------------------------------------------
   -- Write the result file(s) by substituting values into the template file
   --
-  flip mapM (doEverything api) $ \module_ -> do
+  flip mapM_ (doEverything api) $ \module_ -> do
     let modulePrefixToPath = map dotToPath
         dotToPath '.' = '/'
         dotToPath  c  =  c
@@ -214,4 +203,4 @@ main = do
 formatCopyrightDates :: String -> Either String (String, String) -> String
 formatCopyrightDates currentYear (Left year) | year == currentYear = year
                                              | otherwise = year ++ "-" ++ currentYear
-formatCopyrightDates currentYear (Right (from, to)) = from ++ "-" ++ currentYear
+formatCopyrightDates currentYear (Right (from, _)) = from ++ "-" ++ currentYear

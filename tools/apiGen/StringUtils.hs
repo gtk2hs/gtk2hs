@@ -1,16 +1,19 @@
 module StringUtils where
 
-import Prelude hiding (lines)
-import Char   (toLower, toUpper, isSpace, isAlpha, isAlphaNum, isUpper)
-import List   (unfoldr)
+import Prelude hiding (lines, words)
+import Data.Char (toLower, toUpper)
+import Data.List (unfoldr)
 
 -------------------------------------------------------------------------------
 -- Helper functions
 -------------------------------------------------------------------------------
-
+ss :: String -> ShowS
 ss = showString
+
+sc :: Char -> ShowS
 sc = showChar
 
+nl :: ShowS
 nl = sc '\n'
 
 indent :: Int -> ShowS
@@ -34,13 +37,13 @@ lines [x]    = x
 lines (x:xs) = x. sc '\n'. lines xs
 
 sepBy :: String -> [String] -> ShowS
-sepBy s []     = id
-sepBy s [x]    = ss x
+sepBy _ []     = id
+sepBy _ [x]    = ss x
 sepBy s (x:xs) = ss x. ss s. sepBy s xs
 
 sepBy' :: String -> [ShowS] -> ShowS
-sepBy' s []     = id
-sepBy' s [x]    = x
+sepBy' _ []     = id
+sepBy' _ [x]    = x
 sepBy' s (x:xs) = x. ss s. sepBy' s xs
 
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
