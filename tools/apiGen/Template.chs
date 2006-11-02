@@ -5,8 +5,6 @@
 --
 --  Created: @DATE@
 --
---  Version @RCS_VERSION@ from @RCS_TIMESTAMP@
---
 --  Copyright (C) @YEAR@ @COPYRIGHT@
 --
 --  This library is free software; you can redistribute it and/or

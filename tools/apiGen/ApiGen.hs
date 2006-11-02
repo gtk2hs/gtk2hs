@@ -186,8 +186,6 @@ main = do
 	  "OBJECT_KIND"    -> ss $ show (module_kind module_)
 	  "OBJECT_NAME"    -> ss $ module_name module_
 	  "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors module_
-	  "RCS_VERSION"    -> sc '$'. ss "Revision". ss ": ". ss (module_rcs_version module_). ss " $"
-	  "RCS_TIMESTAMP"  -> sc '$'. ss "Date". ss ": ". ss (module_rcs_timestamp module_). ss " $"
           "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders module_
           "DESCRIPTION"    -> haddocFormatParas knownTypes False (Docs.moduledoc_summary (module_doc module_))
 	  "DOCUMENTATION"  -> genModuleDocumentation knownTypes (module_doc module_)

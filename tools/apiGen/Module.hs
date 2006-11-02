@@ -28,8 +28,6 @@ data Module = Module {
   
   module_authors           :: [String],
   module_created           :: String,
-  module_rcs_version       :: String,
-  module_rcs_timestamp     :: String,
   module_copyright_dates   :: Either String (String, String),
                               -- eg "2004" or "2004-2005"
   module_copyright_holders :: [String],
@@ -430,9 +428,7 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
         module_prefix          = modPrefix,
         module_filename        = module_name module_ ++ ".chs",
         module_copyright_dates = Left year,
-        module_created         = date,
-        module_rcs_version     = "",
-        module_rcs_timestamp   = ""
+        module_created         = date
       }
     Just info ->
       module_ {
@@ -443,8 +439,6 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
         module_copyright_dates   = ModuleScan.module_copyright_dates info,
         module_copyright_holders = ModuleScan.module_copyright_holders info,
         module_created           = ModuleScan.module_created info,
-        module_rcs_version       = ModuleScan.module_rcs_version info,
-        module_rcs_timestamp     = ModuleScan.module_rcs_timestamp info,
         
         module_imports           = ModuleScan.module_imports info,
         
