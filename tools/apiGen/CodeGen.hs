@@ -526,7 +526,6 @@ type Deprecated = Bool
 doVersionIfDefs :: ShowS -> [(ShowS, (Since, Deprecated))] -> ShowS
 doVersionIfDefs sep =
     layoutChunks id
-  . renestChunks 0
   . makeChunks [""] False
   . map (\group@((_,(since, deprecated)):_) -> (map fst group, since, deprecated))
   . groupBy (\(_,a) (_,b) -> a == b)
@@ -541,29 +540,6 @@ doVersionIfDefs sep =
           | deprecated > prevDeprecated = BeginDeprecatedChunk  : makeChunks sinceStack deprecated whole
           | since > sinceContext        = BeginSinceChunk since : makeChunks (since:sinceStack) prevDeprecated whole
           | otherwise                   = SimpleChunk group     : makeChunks sinceStack prevDeprecated rest
-        
-        renestChunks :: Int -> [Chunk] -> [Chunk]
-        renestChunks _     [] = []
-        renestChunks depth (chunk:chunks) =
-          case chunk of
-            SimpleChunk _group     -> chunk : renestChunks  depth    chunks
-            BeginDeprecatedChunk   -> chunk : renestChunks (depth+1) chunks
-            BeginSinceChunk _since -> case renestSinceChunks depth (depth+1) chunks of
-                                        (chunks', True)  -> EndChunk : chunk : renestChunks (depth+1) chunks'
-                                        (chunks', False) ->            chunk : renestChunks (depth+1) chunks'
-            EndChunk               -> chunk : renestChunks (depth-1) chunks
-        
-        renestSinceChunks :: Int -> Int -> [Chunk] -> ([Chunk], Bool)
-        renestSinceChunks baseDepth curDepth chunks'@(chunk:chunks) = 
-          case chunks' of
-            (SimpleChunk _group:_)       -> chunk `prepend` renestSinceChunks baseDepth  curDepth    chunks
-            (BeginSinceChunk _since:_)   -> chunk `prepend` renestSinceChunks baseDepth (curDepth+1) chunks
-            (EndChunk:EndChunk    :_)
-              | curDepth-1 == baseDepth -> (chunks, True)
-            (EndChunk             :_)
-              | curDepth-1 == baseDepth -> (chunk : chunks, False)
-              | otherwise               -> chunk `prepend` renestSinceChunks baseDepth (curDepth-1) chunks
-          where prepend c (cs,b) = (c:cs,b)
         
         layoutChunks :: ShowS -> [Chunk] -> ShowS
         layoutChunks _    [] = id
