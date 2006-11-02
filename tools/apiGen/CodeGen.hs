@@ -166,9 +166,12 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                    | otherwise                = Nothing
         (setterType, classConstraint)
                    | attribute_writeable attr 
-                  && gvalueKind == "Object"  = let typeVar = lowerCaseFirstChar propertyType
-                                                   classConstraint' = propertyType ++ "Class " ++ typeVar
-                                                in (Just typeVar, Just classConstraint')
+                  && gvalueKind == "Object"  =
+                    if leafClass (attribute_type attr)
+                      then (Just propertyType, Nothing)
+                      else let typeVar = lowerCaseFirstChar propertyType
+                               classConstraint' = propertyType ++ "Class " ++ typeVar
+                            in (Just typeVar, Just classConstraint')
                    | attribute_writeable attr = (Just propertyType, Nothing)
                    | otherwise                = (Nothing, Nothing)
 
@@ -186,10 +189,12 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                    | otherwise                = Nothing
         (setterType, classConstraint)
                    | attribute_writeable attr 
-                  && gvalueKind == "Object"   = let typeVar = lowerCaseFirstChar propertyType
-                                                    classConstraint' = propertyType ++ "Class " ++ typeVar
-                                                                      ++ ", WidgetClass child"
-                                                 in (Just typeVar, Just classConstraint')
+                  && gvalueKind == "Object"   =
+                    if leafClass (attribute_type attr)
+                      then (Just propertyType, Nothing)
+                      else let typeVar = lowerCaseFirstChar propertyType
+                               classConstraint' = propertyType ++ "Class " ++ typeVar ++ ", WidgetClass child"
+                            in (Just typeVar, Just classConstraint')
                    | attribute_writeable attr = (Just propertyType, Just "WidgetClass child")
                    | otherwise                = (Nothing, Just "WidgetClass child")
 

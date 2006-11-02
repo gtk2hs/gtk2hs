@@ -612,17 +612,7 @@ makeGetSetProps module_ =
       | (getter@Decl { decl_body = getter_body }
         ,setter@Decl { decl_body = setter_body }) <- extraProps ]
 
-   ++ [ property {
-          decl_body = AttributeGetSet {
-            attribute_type = attribute_type (decl_body property),
-            attribute_readable  = True,
-            attribute_writeable = True,
-            attribute_getter = getter,
-            attribute_setter = setter
-          }            
-        }
-      | (property, (getter, setter)) <- directProps ]
-
+   ++ map fst directProps
    ++ genericProps
    ++ nonPropsDecls
   }
