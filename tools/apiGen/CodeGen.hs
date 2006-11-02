@@ -183,7 +183,7 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                          | attribute_readable  attr = "read"
                          | attribute_writeable attr = "write"
         getterType | attribute_readable attr  = Just propertyType 
-                   | otherwise                 = Nothing
+                   | otherwise                = Nothing
         (setterType, classConstraint)
                    | attribute_writeable attr 
                   && gvalueKind == "Object"   = let typeVar = lowerCaseFirstChar propertyType
@@ -194,7 +194,6 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                    | otherwise                = (Nothing, Just "WidgetClass child")
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeGetSet {}) }) =
---  trace (show (propertyName, getterType, method_cname setter_body, setterType)) $
   genAtter decl propertyName classConstraint
            (Just getterType) (Just setterType)
            (Left (ss (decl_name getter), ss (decl_name setter)))
