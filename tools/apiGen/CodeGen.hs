@@ -212,15 +212,11 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeGetSet {}) }) =
         setter@Decl { decl_body = setter_body } = attribute_setter attr
 
 genDeclCode knownSymbols Decl{ decl_module = module_,
+                               decl_name = signalName,
                                decl_body = signal@Module.Signal {} }
   | signal_is_old_style signal =
-          ss "on". ss signalName. ss ", after". ss signalName. ss " :: ". oldSignalType.
-          ss "on".    ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " False". nl.
-          ss "after". ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. ss " True". nl.
-          ss "{-# DEPRECATED on". ss signalName. ss " \"instead of 'on". ss signalName. ss " obj' use 'on obj ".
-                                  ss (lowerCaseFirstChar signalName). ss "'\" #-}". nl.
-          ss "{-# DEPRECATED after". ss signalName. ss " \"instead of 'on". ss signalName. ss " obj' use 'after obj ".
-                                  ss (lowerCaseFirstChar signalName). ss "'\" #-}"
+          ss signalName. ss " :: ". oldSignalType.
+          ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. sc ' '. shows (signal_is_after signal)
 
   | otherwise =
       ss (lowerCaseFirstChar signalName). ss " :: ". signalType. nl.
@@ -242,7 +238,6 @@ genDeclCode knownSymbols Decl{ decl_module = module_,
                      ss "\n -> IO (ConnectId self)\n"
         callbackType | null paramTypes = ss "IO ". ss returnType
                      | otherwise = sc '('. sepBy " -> " (paramTypes ++ ["IO " ++ returnType]). sc ')'
-        signalName = Module.signal_name signal
         signalCName = sc '"'. ss (Module.signal_cname signal). sc '"'
 
 genDeclCode _
@@ -478,12 +473,11 @@ genExports module_ =
               decl_body = Module.Signal { signal_is_old_style = False }}
        <- exports ]
   ++ sectionHeader "Deprecated"
-     [ (ss "  on".    ss name. sc ','.nl.
-        ss "  after". ss name. sc ',', (since, deprecated))
-     | Decl { decl_since = since,
+     [ (ss "  ". ss name. sc ',', (since, deprecated))
+     | Decl { decl_name = name,
+              decl_since = since,
               decl_deprecated = deprecated,
-              decl_body = Module.Signal { Module.signal_name = name,
-                                          signal_is_old_style = True }}
+              decl_body = Module.Signal { signal_is_old_style = True }}
        <- exports ]
 
   where defaultAttrs = ("", False)

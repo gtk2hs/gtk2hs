@@ -516,14 +516,34 @@ makeOldSignals module_ =
   module_ {
     module_decls = makeOldSignal (module_decls module_)
   }
-  where makeOldSignal (decl@Decl { decl_body = signal@Signal {} } : decls) =
+  where makeOldSignal (decl@Decl { decl_name = newName,
+                                   decl_body = signal@Signal {} } : decls) =
           decl :
+          let oldName = "on" ++ upperCaseFirstChar(decl_name decl) in
           decl {
+            decl_name = oldName,
+            decl_deprecated = True,
+            decl_deprecated_comment = "instead of '" ++ oldName ++ " obj' "
+                                   ++ "use 'on obj " ++ newName ++ "'",
+            decl_doc = Nothing,
             decl_body = signal {
               signal_is_old_style = True,
               signal_is_after     = False
             }
-          } : makeOldSignal decls
+          } :
+          let oldName = "after" ++ upperCaseFirstChar(decl_name decl) in
+          decl {
+            decl_name = oldName,
+            decl_deprecated = True,
+            decl_deprecated_comment = "instead of '" ++ oldName ++ " obj' "
+                                   ++ "use 'after obj " ++ newName ++ "'",
+            decl_doc = Nothing,
+            decl_body = signal {
+              signal_is_old_style = True,
+              signal_is_after     = True
+            }
+          } :
+          makeOldSignal decls
 
         makeOldSignal (decl:decls) = decl : makeOldSignal decls
         makeOldSignal [] = []
