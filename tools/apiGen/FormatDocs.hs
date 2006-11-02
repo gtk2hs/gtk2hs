@@ -59,10 +59,10 @@ genModuleDocumentation knownSymbols moduledoc =
 	                     (moduledoc_hierarchy moduledoc).nl.
           comment.ss "@".nl)
 
-haddocFormatDeclaration :: KnownSymbols -> Bool -> (doc -> [DocPara]) -> Maybe doc -> ShowS
-haddocFormatDeclaration knownSymbols handleNULLs doc_paragraphs Nothing = ss "-- | \n--\n"
-haddocFormatDeclaration knownSymbols handleNULLs doc_paragraphs (Just doc)
-  = ss "-- | ". haddocFormatParas knownSymbols handleNULLs (doc_paragraphs doc). nl.
+haddocFormatDeclaration :: KnownSymbols -> Bool -> [DocPara] -> ShowS
+haddocFormatDeclaration knownSymbols handleNULLs [] = ss "-- | \n--\n"
+haddocFormatDeclaration knownSymbols handleNULLs paragraphs
+  = ss "-- | ". haddocFormatParas knownSymbols handleNULLs paragraphs. nl.
     ss "--\n"
 
 haddocFormatHierarchy :: KnownSymbols -> String -> String -> Forest String -> ShowS

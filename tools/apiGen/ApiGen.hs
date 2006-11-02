@@ -7,17 +7,18 @@
 
 module Main (main) where
 
+import Module
 import Api
-import Docs
+import qualified Docs
 import FormatDocs
 import CodeGen
-import StringUtils (ss, sc, templateSubstitute, splitOn)
-import ModuleScan
-import ExcludeApi
+import StringUtils (ss, sc, templateSubstitute)
 import MarshalFixup (fixModuleDocMapping)
+import qualified ModuleScan
 
 import Control.Monad  (when, liftM)
 import Data.List   (isPrefixOf, intersperse)
+import qualified Data.Map as Map (empty, fromList)
 import System.Environment (getArgs)
 import System.Exit (exitFailure)
 import System.Directory (createDirectoryIfMissing)
@@ -135,27 +136,23 @@ main = do
   apiDoc <- if null docFile
               then return []
               else do content <- readFile docFile
-                      return $ extractDocumentation (Xml.xmlParse docFile content)
-  let apiDocMap = [ (moduledoc_name    moduleDoc, moduleDoc) | moduleDoc <- apiDoc ]
-               ++ [ (moduledoc_altname moduleDoc, moduleDoc) | moduleDoc <- apiDoc ]
+                      return $ Docs.extractDocumentation (Xml.xmlParse docFile content)
+  let apiDocMap = mkModuleDocMap apiDoc
 
   -----------------------------------------------------------------------------
   -- Scan the existing modules if their root path is supplied
   --
   modulesInfo <- if null moduleRoot
                    then return []
-                   else scanModules moduleRoot excludePaths
-  let moduleInfoMap = [ (module_name moduleInfo, moduleInfo)
-                      | moduleInfo <- modulesInfo ]
+                   else ModuleScan.scanModules moduleRoot excludePaths
+  let moduleInfoMap = Map.fromList
+        [ (ModuleScan.module_name moduleInfo, moduleInfo)
+        | moduleInfo <- modulesInfo ]
 
   -----------------------------------------------------------------------------
   -- Load up any api.exclude files supplied to filter out unwanted APIs
   --
   excludeApiFilesContents <- mapM readFile excludeApiFiles
-  let filterSpecs = map parseFilterFile excludeApiFilesContents
-      okAPI :: String -> Bool   --returns False to exclude the C function name
-      okAPI | null (concat filterSpecs) = const True
-            | otherwise = matcher (concat filterSpecs)
   
   -----------------------------------------------------------------------------
   -- A few values that are used in the template
@@ -167,80 +164,52 @@ main = do
       year  = show (System.Time.ctYear calendarTime)
       date  = day ++ " " ++ month ++ " " ++ year
 
+  let doEverything :: API -> [Module]
+      doEverything =
+          map reorderDecls
+        . map addDeclAvailableSincePara
+        . map fixModuleAvailableSince
+        . map filterNewActionSignals
+        . map makeGetSetProps
+        . map makeOldSignals
+        . map filterDeprecated --swap
+        . map filterVarArgs    -- these two
+        . map (applyModuleScanInfo modPrefix date year moduleInfoMap)
+        . map deleteUnnecessaryDocs
+        . map (addDocsToModule apiDocMap)
+        . map (excludeApi excludeApiFilesContents)
+        . convertAPI
+
   -----------------------------------------------------------------------------
   -- Write the result file(s) by substituting values into the template file
   --
-  mapM 
-    (\(namespace, object', maybeModuleDoc, maybeModuleInfo) -> do
-      let object = object' {
-              object_methods = [ method
-                               | method <- object_methods object'
-                               , okAPI (method_cname method) ]
-            }
-      moduleDoc <- case maybeModuleDoc of
-                     Nothing -> do when (not (null apiDoc)) $
-		                     putStrLn ("Warning: no documentation found for module "
-			                    ++ show (object_name object))
-			           return noModuleDoc
-		     Just moduleDoc -> return $ addVersionParagraphs namespace moduleDoc
-      moduleInfo <-
-            liftM (mungeMethodInfo object) $
-            case maybeModuleInfo of
-              Just moduleInfo -> do let modulePrefixToPath = map dotToPath
-                                        dotToPath '.' = '/'
-                                        dotToPath  c  =  c
-                                    createDirectoryIfMissing True
-                                      (outdir ++ '/' : modulePrefixToPath (module_prefix moduleInfo))
-                                    return moduleInfo
-              Nothing -> do
-                return ModuleInfo {
-                    module_name              = object_name object,
-                    module_prefix            = modPrefix,
-                    module_needspreproc      = False,
-                    module_needsc2hs         = True,
-                    module_filename          = object_name object ++ ".chs",
-                    module_authors           = ["[Insert your full name here]"],
-                    module_created           = date,
-                    module_rcs_version       = "",
-		    module_rcs_timestamp     = "",
-		    module_copyright_dates   = Left year,
-                    module_copyright_holders = ["[Insert your full name here]"],
-                    module_exports           = [],
-                    module_imports           = [],
-                    module_context_lib       = if null lib then namespace_library namespace else lib,
-                    module_context_prefix    = if null prefix then namespace_library namespace else prefix,
-                    module_methods           = [],
-                    module_deprecated        = []
-                  }
-      writeFile (outdir ++ module_filename moduleInfo) $
-        templateSubstitute template (\var ->
-          case var of
-	    "YEAR"           -> ss $ formatCopyrightDates year (module_copyright_dates moduleInfo)
-	    "DATE"           -> ss $ module_created moduleInfo
-	    "OBJECT_KIND"    -> ss $ if object_isinterface object then "Interface" else "Widget"
-	    "OBJECT_NAME"    -> ss $ module_name moduleInfo
-	    "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors moduleInfo
-	    "RCS_VERSION"    -> sc '$'. ss "Revision". ss ": ". ss (module_rcs_version moduleInfo). ss " $"
-	    "RCS_TIMESTAMP"  -> sc '$'. ss "Date". ss ": ". ss (module_rcs_timestamp moduleInfo). ss " $"
-            "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders moduleInfo
-            "DESCRIPTION"    -> haddocFormatParas knownTypes False (moduledoc_summary moduleDoc)
-	    "DOCUMENTATION"  -> genModuleDocumentation knownTypes moduleDoc
-	    "TODO"           -> genTodoItems object
-	    "MODULE_NAME"    -> genModuleName object moduleInfo
-	    "EXPORTS"        -> genExports object moduleDoc moduleInfo
-	    "IMPORTS"        -> genImports moduleInfo
-	    "CONTEXT_LIB"    -> ss $ module_context_lib moduleInfo
-	    "CONTEXT_PREFIX" -> ss $ module_context_prefix  moduleInfo
-	    "MODULE_BODY"    -> genModuleBody knownTypes object moduleDoc moduleInfo
-	    _ -> ss "" ) ""
-    ) [ (namespace
-        ,object
-        ,lookup (fixModuleDocMapping (object_cname object)) apiDocMap
-        ,lookup (object_name object) moduleInfoMap)
-      | namespace <- api
-      , object <- namespace_objects namespace
-               ++ map mungeClassToObject (namespace_classes namespace)
-               ++ map mungeBoxedToObject (namespace_boxed namespace) ]
+  flip mapM (doEverything api) $ \module_ -> do
+    let modulePrefixToPath = map dotToPath
+        dotToPath '.' = '/'
+        dotToPath  c  =  c
+    createDirectoryIfMissing True
+      (outdir ++ '/' : modulePrefixToPath (module_prefix module_))
+    writeFile (outdir ++ module_filename module_) $
+      templateSubstitute template (\var ->
+        case var of
+	  "YEAR"           -> ss $ formatCopyrightDates year (module_copyright_dates module_)
+	  "DATE"           -> ss $ module_created module_
+	  "OBJECT_KIND"    -> ss $ show (module_kind module_)
+	  "OBJECT_NAME"    -> ss $ module_name module_
+	  "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors module_
+	  "RCS_VERSION"    -> sc '$'. ss "Revision". ss ": ". ss (module_rcs_version module_). ss " $"
+	  "RCS_TIMESTAMP"  -> sc '$'. ss "Date". ss ": ". ss (module_rcs_timestamp module_). ss " $"
+          "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders module_
+          "DESCRIPTION"    -> haddocFormatParas knownTypes False (Docs.moduledoc_summary (module_doc module_))
+	  "DOCUMENTATION"  -> genModuleDocumentation knownTypes (module_doc module_)
+	  "TODO"           -> genTodoItems module_
+	  "MODULE_NAME"    -> genModuleName module_
+	  "EXPORTS"        -> genExports module_
+	  "IMPORTS"        -> genImports module_
+	  "CONTEXT_LIB"    -> ss $ module_context_lib module_
+	  "CONTEXT_PREFIX" -> ss $ module_context_prefix module_
+	  "MODULE_BODY"    -> genModuleBody knownTypes module_
+	  _ -> ss "" ) ""
 
 formatCopyrightDates :: String -> Either String (String, String) -> String
 formatCopyrightDates currentYear (Left year) | year == currentYear = year

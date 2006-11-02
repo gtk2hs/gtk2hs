@@ -413,7 +413,7 @@ TOP = ../..
 #
 
 ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs CodeGen.hs Marshal.hs \
-	MarshalFixup.hs ModuleScan.hs ExcludeApi.hs StringUtils.hs
+	MarshalFixup.hs ModuleScan.hs ExcludeApi.hs StringUtils.hs Module.hs
 	$(HC) --make $< -o $@
 HC=ghc
 
