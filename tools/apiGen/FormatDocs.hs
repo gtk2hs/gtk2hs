@@ -10,11 +10,13 @@
 module FormatDocs (
   genModuleDocumentation,
   haddocFormatDeclaration,
+  haddocFormatDescription,
   cFuncNameToHsName,
   cParamNameToHsName,
   cAttrNametoHsName,
   cFuncNameToHsPropName,
   haddocFormatParas,
+  haddocFormatPara,
   haddocFormatSpan,
   mungeWord,
   changeIllegalNames,
@@ -23,53 +25,95 @@ module FormatDocs (
 import Docs
 import Marshal (KnownSymbols, CSymbol(..))
 import MarshalFixup (cTypeNameToHSType, knownMiscType, fixCFunctionName)
-import StringUtils
+import StringUtils (wrapText, splitBy, lowerCaseFirstChar, upperCaseFirstChar)
 
 import Prelude hiding (span)
 import Data.Char (toLower, isAlpha, isSpace)
 import Data.Tree
-import qualified Data.List as List (lines, span)
+import qualified Data.List as List (lines, span, intersperse)
 import qualified Data.Map as Map
+
+import Text.PrettyPrint hiding (($$), ($+$))
+import qualified Text.PrettyPrint (($+$))
+
+-------------------------------------------------------------------------------
+-- Fix Text.PrettyPrint to mean the right thing
+-------------------------------------------------------------------------------
+
+infixl 5 $$, $+$
+
+emptyLine = text ""
+
+($$) = (Text.PrettyPrint.$+$)
+d1 $+$ d2 | isEmpty d1 = d2
+          | isEmpty d2 = d1
+          | otherwise  = d1
+                      $$ emptyLine
+                      $$ d2
+
+-- some useful extensions
+vsep = foldr ($+$) empty
+comment = text "--"
+
+commentBlock = vcat . map (comment <+>)
+
+prependToFirstLine :: Doc -> [Doc] -> [Doc]
+prependToFirstLine start [] = []
+prependToFirstLine start (line:lines) =
+  start <+> line : lines
+
+haddockSection :: Doc -> [Doc] -> Doc
+haddockSection start = commentBlock . prependToFirstLine start
 
 -------------------------------------------------------------------------------
 -- Functions for formatting haddock documentation
 -------------------------------------------------------------------------------
 
-genModuleDocumentation :: KnownSymbols -> ModuleDoc -> ShowS
-genModuleDocumentation knownSymbols moduledoc =
-  (if null (moduledoc_description moduledoc)
-     then id
-     else comment.ss "* Detail".nl.
-          comment.nl.
-          comment.ss "| ".haddocFormatParas knownSymbols False (moduledoc_description moduledoc).nl).
-  (if null (moduledoc_sections moduledoc)
-     then id
-     else nl.comment.haddocFormatSections knownSymbols (moduledoc_sections moduledoc).nl.comment.nl).
-  (if null (moduledoc_hierarchy moduledoc)
-     then id
-     else nl.comment.ss "* Class Hierarchy".nl.
-          comment.ss "|".nl.
-          comment.ss "@".nl.
-          comment.ss "|  ".haddocFormatHierarchy knownSymbols
-	                     (moduledoc_name moduledoc) (moduledoc_altname moduledoc)
-	                     (moduledoc_hierarchy moduledoc).nl.
-          comment.ss "@".nl)
+genModuleDocumentation :: KnownSymbols -> String -> [DocPara] -> [DocSection] -> Forest String -> Doc
+genModuleDocumentation knownSymbols name description sections hierarchy =
+      formattedDetail
+  $+$ formattedSections
+  $+$ formattedHierarchy
+ 
+  where formattedDetail
+          | null description = empty
+          | otherwise =
+                comment <+> text "* Detail"
+             $$ comment <> space
+             $$ haddocFormatParas knownSymbols False description
 
-haddocFormatDeclaration :: KnownSymbols -> Bool -> [DocPara] -> ShowS
-haddocFormatDeclaration _            _           [] = ss "-- | \n--\n"
-haddocFormatDeclaration knownSymbols handleNULLs paragraphs
-  = ss "-- | ". haddocFormatParas knownSymbols handleNULLs paragraphs. nl.
-    ss "--\n"
+        formattedSections
+          | null sections = empty
+          | otherwise =
+                haddocFormatSections knownSymbols sections
+             $$ comment <> space
 
-haddocFormatHierarchy :: KnownSymbols -> String -> String -> Forest String -> ShowS
-haddocFormatHierarchy knownSymbols moduledoc_name1 moduledoc_name2 =
-    sepBy "\n-- |  "
+        formattedHierarchy
+          | null hierarchy = empty
+          | otherwise =
+                comment <+> text "* Class Hierarchy"
+             $$ comment <+> char '|'
+             $$ comment <+> char '@'
+             $$ haddocFormatHierarchy knownSymbols name hierarchy
+             $$ comment <+> char '@'
+
+haddocFormatDeclaration :: KnownSymbols -> Bool -> [DocPara] -> Doc
+haddocFormatDeclaration _            _           [] = comment <+> char '|' <> space
+                                                   $$ comment
+haddocFormatDeclaration knownSymbols handleNULLs paragraphs =
+      haddocFormatParas knownSymbols handleNULLs paragraphs
+   $$ comment
+
+haddocFormatHierarchy :: KnownSymbols -> String -> Forest String -> Doc
+haddocFormatHierarchy knownSymbols module_cname =
+    vcat
+  . map (\line -> comment <+> text "|  " <> text line)
   . concatMap drawHierarchy
   . map (fmap (haddocFormatSpan knownSymbols False))
-  . map (fmap (\s -> if s == moduledoc_name1 || s == moduledoc_name2
+  . map (fmap (\s -> if s == module_cname
                        then DocText (cTypeNameToHSType s)
 		       else DocTypeXRef s))
-  . filterForest (/="GInitiallyUnowned")
+  . filterForest (/="GInitiallyUnowned") --TODO: do seperately
 
 drawHierarchy :: Tree String -> [String]
 drawHierarchy (Node x ts0) = x : drawSubTrees ts0
@@ -84,47 +128,66 @@ filterForest p = concatMap (filterTree p)
 filterTree :: (a -> Bool) -> Tree a -> Forest a
 filterTree p (Node x ts) | p x       = [Node x (filterForest p ts)]
                          | otherwise = ts
-  
-haddocFormatSections :: KnownSymbols -> [DocSection] -> ShowS
-haddocFormatSections knownSymbols = 
-    sepBy' "\n\n-- "
-  . map (\section ->
-         ss "** ". ss (section_title section). nl.
-         comment.nl.
-         comment.ss "| ".haddocFormatParas knownSymbols False (section_paras section))
 
-haddocFormatParas :: KnownSymbols -> Bool -> [DocPara] -> ShowS
+haddocFormatDescription :: KnownSymbols -> [DocPara] -> Doc
+haddocFormatDescription _ [] = comment <+> space
+haddocFormatDescription knownSymbols paras =
+    haddockSection empty
+  . concat
+  . List.intersperse [empty]
+  . map (haddocFormatPara knownSymbols False)
+  $ paras
+
+haddocFormatSections :: KnownSymbols -> [DocSection] -> Doc
+haddocFormatSections knownSymbols = 
+    vcat
+  . List.intersperse emptyLine
+  . map (\section ->
+         comment <+> text "**" <+> text (section_title section)
+      $$ comment <> space
+      $$ haddocFormatParas knownSymbols False (section_paras section))
+
+haddocFormatParas :: KnownSymbols -> Bool -> [DocPara] -> Doc
 haddocFormatParas knownSymbols handleNULLs =
-    sepBy' "\n--\n-- "
+    haddockSection (char '|')
+  . concat
+  . List.intersperse [empty]
   . map (haddocFormatPara knownSymbols handleNULLs)
 
-haddocFormatPara :: KnownSymbols -> Bool -> DocPara -> ShowS
+haddocFormatPara :: KnownSymbols -> Bool -> DocPara -> [Doc]
 haddocFormatPara knownSymbols handleNULLs (DocParaText spans) =
   haddocFormatSpans knownSymbols handleNULLs 3 spans
 
 haddocFormatPara _ _ (DocParaProgram prog) =
-    ((ss "* FIXME: if the follwing is a C code example, port it to Haskell or remove it".nl.
-      comment).)
-  . sepBy "\n-- > "
-  . List.lines
-  $ prog
+     [text "* FIXME: if the follwing is a C code example, port it to Haskell or remove it"
+     ,emptyLine]
+  ++ code
+  where code = map (\line -> char '>' <+> text line)
+             . reverse
+             . dropWhile (all isSpace)
+             . reverse
+             . dropWhile (all isSpace)
+             . List.lines
+             $ prog
 haddocFormatPara _ _ (DocParaTitle title) =
-    ss "* ". ss title
+    [char '*' <+> text title]
+
 haddocFormatPara knownSymbols handleNULLs (DocParaDefItem term spans) =
-  let def = (unwords . words . escape . concatMap (haddocFormatSpan knownSymbols handleNULLs)) term in
-  sc '['. ss def. ss "] ".
-  haddocFormatSpans knownSymbols handleNULLs (length def + 6) spans
+  let def = unwords . words . escape . concatMap (haddocFormatSpan knownSymbols handleNULLs) $ term
+   in prependToFirstLine (brackets (text def)) (haddocFormatSpans knownSymbols handleNULLs (length def + 6) spans)
   where escape [] = []
         escape (']':cs) = '\\': ']' : escape cs --we must escape ] in def terms
         escape (c:cs)   =        c  : escape cs
-haddocFormatPara knownSymbols handleNULLs (DocParaListItem spans) =
-  ss "* ".
-  haddocFormatSpans knownSymbols handleNULLs 5 spans
 
-haddocFormatSpans :: KnownSymbols -> Bool -> Int -> [DocParaSpan] -> ShowS
+haddocFormatPara knownSymbols handleNULLs (DocParaListItem spans) =
+  case haddocFormatSpans knownSymbols handleNULLs 5 spans of
+    [] -> []
+    (line:lines) -> char '*' <+> line : lines
+
+
+haddocFormatSpans :: KnownSymbols -> Bool -> Int -> [DocParaSpan] -> [Doc]
 haddocFormatSpans knownSymbols handleNULLs initialCol =
-    sepBy' "\n-- "
-  . map (sepBy " ")
+    map (hsep . map text)
   . wrapText initialCol 77
   . map (mungeWord knownSymbols handleNULLs)
   . words

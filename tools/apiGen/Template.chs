@@ -22,7 +22,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- @DESCRIPTION@
+@DESCRIPTION@
 --
 module @MODULE_NAME@ (
 @DOCUMENTATION@

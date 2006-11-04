@@ -26,6 +26,8 @@ import Data.List    (groupBy, sortBy, partition)
 import Data.Maybe   (fromMaybe, catMaybes)
 import qualified Data.Map as Map
 
+import Text.PrettyPrint (render)
+
 import Debug.Trace (trace)
 
 -------------------------------------------------------------------------------
@@ -42,7 +44,7 @@ genDecl knownSymbols decl =
     formattedDoc =
       case decl_doc decl of
         Nothing  -> id
-        Just doc -> haddocFormatDeclaration knownSymbols docNullsAllFixed doc
+        Just doc -> ss (render (haddocFormatDeclaration knownSymbols docNullsAllFixed doc)). nl
     docNullsAllFixed =
       case decl_body decl of
         Method {

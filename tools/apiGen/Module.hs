@@ -16,6 +16,7 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.List as List
 import Data.Maybe (fromMaybe)
+import Data.Tree (Forest)
 
 data Module = Module {
   module_name         :: String,  -- Hs module and type name, eg "Container"
@@ -44,14 +45,11 @@ data Module = Module {
   module_deprecated   :: Bool,
   module_since        :: String, --DODO: use Maybe Version
 
-  module_doc         :: Docs.ModuleDoc,
-{-  
   module_summary     :: [Docs.DocPara],      -- usually a one line summary
   module_description :: [Docs.DocPara],      -- the main description
   module_sections    :: [Docs.DocSection],   -- any additional titled subsections
-  module_hierarchy   :: Forest String,  -- a tree of parent objects (as text)
-  module_since       :: String,
--}
+  module_hierarchy   :: Forest String,       -- a tree of parent objects (as text)
+
   module_decls :: [Decl]
 }
 
@@ -327,7 +325,12 @@ convertInterfaces object interfaceName =
 addDocsToModule :: Map String Docs.ModuleDoc -> Module -> Module
 addDocsToModule moduleDocMap module_ =
   case Map.lookup (MarshalFixup.fixModuleDocMapping (module_cname module_)) moduleDocMap of
-    Nothing -> module_ { module_doc = Docs.noModuleDoc }
+    Nothing -> module_ {
+        module_summary     = [],
+        module_description = [],
+        module_sections    = [],
+        module_hierarchy   = []
+      }
     Just doc ->
       let methodDocMap    = mkDeclDocMap Docs.funcdoc_name (Docs.moduledoc_functions doc)
           propDocMap      = mkDeclDocMap Docs.propdoc_name (Docs.moduledoc_properties doc)
@@ -388,7 +391,10 @@ addDocsToModule moduleDocMap module_ =
                     versions -> minimum versions
 
        in module_ {
-            module_doc = doc,
+            module_summary     = Docs.moduledoc_summary doc,
+            module_description = Docs.moduledoc_description doc,
+            module_sections    = Docs.moduledoc_sections doc,
+            module_hierarchy   = Docs.moduledoc_hierarchy doc,
             module_decls = decls,
             module_since = modsince
           }
@@ -685,16 +691,13 @@ fixModuleAvailableSince module_ =
         fixed = MarshalFixup.fixModuleAvailableSince (module_cname module_)
 
 addDeclAvailableSincePara :: Module -> Module
-addDeclAvailableSincePara module_@Module { module_doc = doc,
-                                           module_since = baseVersion } =
+addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
   module_ {
     module_decls = map (addDeprecatedPara . addAvailablePara)
                        (module_decls module_),
-    module_doc = doc {
-      Docs.moduledoc_summary = Docs.moduledoc_summary doc
-                            ++ moduleVersionParagraph
-                            ++ moduleDeprecatedParagraph      
-    }
+    module_summary = module_summary module_
+                  ++ moduleVersionParagraph
+                  ++ moduleDeprecatedParagraph
   }
   where moduleVersionParagraph =
           case module_since module_ of

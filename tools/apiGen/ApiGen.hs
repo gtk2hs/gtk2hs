@@ -11,9 +11,9 @@ import Module (Module(..))
 import qualified Module
 import qualified Api (API, extractAPI)
 import qualified Docs (extractDocumentation, moduledoc_summary)
-import qualified FormatDocs (haddocFormatParas, genModuleDocumentation)
+import qualified FormatDocs (haddocFormatDescription, genModuleDocumentation)
 import qualified CodeGen
-import StringUtils (ss, sc, templateSubstitute)
+import StringUtils (ss, sc, nl, templateSubstitute)
 import qualified ModuleScan
 
 import Data.List   (intersperse)
@@ -27,6 +27,8 @@ import qualified Text.XML.HaXml.Parse as Xml
 import qualified System.Time
 
 import System.Console.GetOpt
+
+import Text.PrettyPrint (render)
 
 -------------------------------------------------------------------------------
 -- Top level stuff
@@ -188,8 +190,13 @@ main = do
 	  "OBJECT_NAME"    -> ss $ module_name module_
 	  "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors module_
           "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders module_
-          "DESCRIPTION"    -> FormatDocs.haddocFormatParas knownTypes False (Docs.moduledoc_summary (module_doc module_))
-	  "DOCUMENTATION"  -> FormatDocs.genModuleDocumentation knownTypes (module_doc module_)
+          "DESCRIPTION"    -> ss $ render $ FormatDocs.haddocFormatDescription knownTypes
+                                              (module_summary module_)
+	  "DOCUMENTATION"  -> ss ( render ( FormatDocs.genModuleDocumentation knownTypes
+                                              (module_cname module_)
+                                              (module_description module_)
+                                              (module_sections module_)
+                                              (module_hierarchy module_))) . nl
 	  "TODO"           -> CodeGen.genTodoItems module_
 	  "MODULE_NAME"    -> CodeGen.genModuleName module_
 	  "EXPORTS"        -> CodeGen.genExports module_
