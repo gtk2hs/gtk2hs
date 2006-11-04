@@ -9,7 +9,7 @@ module CodeGen (
 
 import Module       (Module(..), Decl(..), DeclBody(..),isAttr, comparing)
 import qualified Api
-import Docs         (ParamDoc(..), DocParaSpan(..), Since)
+import Docs         (ParamDoc(..), DocParaSpan(..))
 import FormatDocs   (haddocFormatDeclaration, cParamNameToHsName,
                      cFuncNameToHsName, changeIllegalNames, mungeWord,
                      haddocFormatSpan)
@@ -25,6 +25,7 @@ import Prelude hiding (Enum, lines)
 import Data.List    (groupBy, sortBy, partition)
 import Data.Maybe   (fromMaybe, catMaybes)
 import qualified Data.Map as Map
+import Data.Version
 
 import Text.PrettyPrint (render)
 
@@ -317,7 +318,7 @@ genModuleBody knownSymbols module_ =
        } <- module_decls module_ ]
   where sectionHeader _    []      = []
         sectionHeader name entries =
-          let header = (ss "--------------------\n-- ". ss name, ("", False))
+          let header = (ss "--------------------\n-- ". ss name, (Nothing, False))
            in header : entries
         adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
           (doc, (module_since module_ `max` since, Module.module_deprecated module_ || deprecated))
@@ -486,7 +487,7 @@ genExports module_ =
               decl_body = Module.Signal { signal_is_old_style = True }}
        <- exports ]
 
-  where defaultAttrs = ("", False)
+  where defaultAttrs = (Nothing, False)
         sectionHeader _    []      = []
         sectionHeader name entries = (id, defaultAttrs):(ss "-- * ". ss name, defaultAttrs):entries
         adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
@@ -522,11 +523,12 @@ genTodoItems module_ =
              ss "\n--"
 
 type Deprecated = Bool
+type Since = Maybe Version
 
 doVersionIfDefs :: ShowS -> [(ShowS, (Since, Deprecated))] -> ShowS
 doVersionIfDefs sep =
     layoutChunks id
-  . makeChunks [""] False
+  . makeChunks [Nothing] False
   . map (\group@((_,(since, deprecated)):_) -> (map fst group, since, deprecated))
   . groupBy (\(_,a) (_,b) -> a == b)
 
@@ -549,8 +551,8 @@ doVersionIfDefs sep =
         layoutChunks msep (BeginDeprecatedChunk  :chunks) = msep. ifndefDeprecated. layoutChunks id chunks
         layoutChunks msep (BeginSinceChunk since :chunks) = msep. ifSinceVersion since. layoutChunks id chunks
         
-        ifSinceVersion [major,'.',minor] = ss "#if GTK_CHECK_VERSION(". sc major. ss ",". sc minor. ss ",0)\n"
-	ifSinceVersion [major,'.',minor,minor'] = ss "#if GTK_CHECK_VERSION(". sc major. ss ",". sc minor. sc minor'. ss ",0)\n"
+        ifSinceVersion (Just Version { versionBranch = [major,minor] }) =
+          ss "#if GTK_CHECK_VERSION(". shows major. ss ",". shows minor. ss ",0)\n"
         ifndefDeprecated = ss "#ifndef DISABLE_DEPRECATED\n"
         endif = ss "\n#endif"
 

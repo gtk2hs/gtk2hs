@@ -3,7 +3,6 @@ module Docs (
   ModuleDoc(..),
   noModuleDoc,
   DocSection(..),
-  Since,
   FuncDoc(..),
   ParamDoc(..),
   PropDoc(..),

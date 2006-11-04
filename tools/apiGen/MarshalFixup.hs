@@ -5,6 +5,8 @@
 
 module MarshalFixup where
 
+import Data.Version
+
 cTypeNameToHSType :: String -> String
 cTypeNameToHSType ('A':'t':'k':remainder) = remainder
 cTypeNameToHSType ('G':'t':'k':remainder) = remainder
@@ -51,13 +53,15 @@ fixCFunctionName other = other
 -- work (since the docs sometimes miss marking the version of some functions)
 -- So to fix it just specify here the version of the library from which the
 -- module is available.
-fixModuleAvailableSince :: String -> String
-fixModuleAvailableSince "GtkComboBox" = "2.4"
-fixModuleAvailableSince "GtkFileChooser" = "2.4"
-fixModuleAvailableSince "GtkCellView" = "2.6"
-fixModuleAvailableSince "GtkIconView" = "2.6"
-fixModuleAvailableSince "GtkMenuToolButton" = "2.6"
-fixModuleAvailableSince _ = ""
+fixModuleAvailableSince :: String -> Maybe Version
+fixModuleAvailableSince "GtkComboBox"    = version [2,4]
+fixModuleAvailableSince "GtkFileChooser" = version [2,4]
+fixModuleAvailableSince "GtkCellView"    = version [2,6]
+fixModuleAvailableSince "GtkIconView"    = version [2,6]
+fixModuleAvailableSince "GtkMenuToolButton" = version [2,6]
+fixModuleAvailableSince _ = Nothing
+
+version v = Just Version { versionBranch = v, versionTags = [] }
 
 -- Most of the time the gtk-doc documentation have titles that correspond to
 -- the C name of the object. But sadly sometimes they don't so we fix up that

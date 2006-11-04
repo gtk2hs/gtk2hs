@@ -17,6 +17,8 @@ import Data.Map (Map)
 import qualified Data.List as List
 import Data.Maybe (fromMaybe)
 import Data.Tree (Forest)
+import Data.Version hiding (parseVersion)
+import Control.Monad (mplus)
 
 data Module = Module {
   module_name         :: String,  -- Hs module and type name, eg "Container"
@@ -43,7 +45,7 @@ data Module = Module {
   module_todos        :: [String],
   
   module_deprecated   :: Bool,
-  module_since        :: String, --DODO: use Maybe Version
+  module_since        :: Maybe Version,
 
   module_summary     :: [Docs.DocPara],      -- usually a one line summary
   module_description :: [Docs.DocPara],      -- the main description
@@ -60,7 +62,7 @@ data Decl = Decl {
   decl_name               :: String,
   decl_comment            :: String,
   decl_doc                :: Maybe [Docs.DocPara],
-  decl_since              :: String, --TODO: use Maybe Data.Version
+  decl_since              :: Maybe Version,
   decl_deprecated         :: Bool,
   decl_deprecated_comment :: String,
   decl_index_api          :: Int,
@@ -77,7 +79,7 @@ declDefaults :: Decl
 declDefaults = Decl {
     decl_comment = "",
     decl_doc = Just [],
-    decl_since = "",
+    decl_since = Nothing,
     decl_deprecated = False,
     decl_deprecated_comment = "this function should not be used in newly-written code",
     decl_index_doc = 0,
@@ -187,7 +189,7 @@ convertObject namespace object =
           module_kind = if Api.object_isinterface object then Interface else Widget,
 
           module_deprecated = Api.object_deprecated object,
-          module_since = "",
+          module_since = Nothing,
 
           module_imports = [],
           
@@ -353,7 +355,7 @@ addDocsToModule moduleDocMap module_ =
                                     decl_body = method {
                                       method_param_docs = paramDocs
                                     },
-                                    decl_since = since
+                                    decl_since = parseVersion since
                              }
 
               AttributeProp { attribute_is_child = False,
@@ -364,7 +366,7 @@ addDocsToModule moduleDocMap module_ =
                                           Docs.propdoc_since = since })
                           -> decl { decl_doc = Just fundoc,
                                     decl_index_doc = n,
-                                    decl_since = since }
+                                    decl_since = parseVersion since }
 
               AttributeProp { attribute_is_child = True,
                               attribute_cname = name } ->
@@ -374,7 +376,7 @@ addDocsToModule moduleDocMap module_ =
                                           Docs.propdoc_since = since })
                           -> decl { decl_doc = Just fundoc,
                                     decl_index_doc = n,
-                                    decl_since = since }
+                                    decl_since = parseVersion since }
 
               Signal { signal_cname = name } ->
                 case Map.lookup (canonicalSignalName name) signalDocMap of
@@ -383,7 +385,7 @@ addDocsToModule moduleDocMap module_ =
                                             Docs.signaldoc_since = since })
                           -> decl { decl_doc = Just fundoc,
                                     decl_index_doc = n,
-                                    decl_since = since }
+                                    decl_since = parseVersion since }
               _ -> decl
             
           modsince = case map Docs.funcdoc_since (Docs.moduledoc_functions doc) of
@@ -396,13 +398,19 @@ addDocsToModule moduleDocMap module_ =
             module_sections    = Docs.moduledoc_sections doc,
             module_hierarchy   = Docs.moduledoc_hierarchy doc,
             module_decls = decls,
-            module_since = modsince
+            module_since = parseVersion modsince
           }
 
   where mkDeclDocMap :: (doc -> String) -> [doc] -> Map String (Int, doc)
         mkDeclDocMap key docs =
           Map.fromList [ (key doc, (n, doc)) | (n, doc) <- zip [1..] docs ]
 
+
+parseVersion "" = Nothing
+parseVersion v  = Just Version {
+                    versionBranch = map read (splitBy '.' v),
+                    versionTags = []
+                  }
 
 mkModuleDocMap :: Docs.ApiDoc -> Map String Docs.ModuleDoc
 mkModuleDocMap apiDoc =
@@ -684,11 +692,9 @@ reorderDecls module_ =
 fixModuleAvailableSince :: Module -> Module
 fixModuleAvailableSince module_ =
   module_ {
-    module_since = since
+    module_since = MarshalFixup.fixModuleAvailableSince (module_cname module_)
+           `mplus` module_since module_
   }
-  where since | null fixed = module_since module_
-              | otherwise  = fixed
-        fixed = MarshalFixup.fixModuleAvailableSince (module_cname module_)
 
 addDeclAvailableSincePara :: Module -> Module
 addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
@@ -701,11 +707,11 @@ addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
   }
   where moduleVersionParagraph =
           case module_since module_ of
-            "" -> []
-            since ->
+            Nothing -> []
+            Just since ->
               let line = "Module available since "
                       ++ fixNamespace (module_namespace module_)
-                      ++ " version " ++ since
+                      ++ " version " ++ showVersion since
                in [Docs.DocParaListItem [Docs.DocText line]]
 
         moduleDeprecatedParagraph =
@@ -716,13 +722,13 @@ addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
                   in [Docs.DocParaListItem [Docs.DocText line]]
             else []
 
-        addAvailablePara decl@Decl { decl_since = since }
-          | not (null since) && since > baseVersion =
+        addAvailablePara decl@Decl { decl_since = Just since }
+          | Just since > baseVersion =
           decl {
             decl_doc =
               let line = "Available since "
                       ++ fixNamespace (module_namespace module_)
-                      ++ " version " ++ since
+                      ++ " version " ++ showVersion since
                in fmap (++[Docs.DocParaListItem [Docs.DocText line]]) (decl_doc decl)
           }
         addAvailablePara decl = decl
