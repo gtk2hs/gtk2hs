@@ -168,6 +168,7 @@ main = do
         . map Module.filterDeprecated
         . map (Module.applyModuleScanInfo modPrefix date year moduleInfoMap)
         . map Module.deleteUnnecessaryDocs
+        . map Module.fixModuleHierarchy
         . map (Module.addDocsToModule apiDocMap)
         . map (Module.excludeApi excludeApiFilesContents)
         . Module.convertAPI

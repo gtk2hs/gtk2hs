@@ -16,7 +16,7 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.List as List
 import Data.Maybe (fromMaybe)
-import Data.Tree (Forest)
+import Data.Tree (Forest, Tree(Node))
 import Data.Version hiding (parseVersion)
 import Control.Monad (mplus)
 
@@ -766,6 +766,19 @@ excludeApi excludeApiFilesContents module_ =
           = match cname
         okAPI _ = True
 
+
+fixModuleHierarchy :: Module -> Module
+fixModuleHierarchy module_ =
+  module_ {
+    module_hierarchy = filterForest (\s -> s /= "GInitiallyUnowned" && s /= "")
+                         (module_hierarchy module_)
+  }
+  where filterForest :: (a -> Bool) -> Forest a -> Forest a
+        filterForest p = concatMap (filterTree p)
+
+        filterTree :: (a -> Bool) -> Tree a -> Forest a
+        filterTree p (Node x ts) | p x       = [Node x (filterForest p ts)]
+                                 | otherwise = ts
 
 equating :: Eq a => (b -> a) -> b -> b -> Bool
 equating p x y = p x == p y

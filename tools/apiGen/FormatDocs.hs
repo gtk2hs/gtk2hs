@@ -113,7 +113,6 @@ haddocFormatHierarchy knownSymbols module_cname =
   . map (fmap (\s -> if s == module_cname
                        then DocText (cTypeNameToHSType s)
 		       else DocTypeXRef s))
-  . filterForest (/="GInitiallyUnowned") --TODO: do seperately
 
 drawHierarchy :: Tree String -> [String]
 drawHierarchy (Node x ts0) = x : drawSubTrees ts0
@@ -121,13 +120,6 @@ drawHierarchy (Node x ts0) = x : drawSubTrees ts0
         drawSubTrees (t:ts) =
           shift " +----" "      " (drawHierarchy t) ++ drawSubTrees ts
         shift first other = zipWith (++) (first : repeat other)
-
-filterForest :: (a -> Bool) -> Forest a -> Forest a
-filterForest p = concatMap (filterTree p)
-
-filterTree :: (a -> Bool) -> Tree a -> Forest a
-filterTree p (Node x ts) | p x       = [Node x (filterForest p ts)]
-                         | otherwise = ts
 
 haddocFormatDescription :: KnownSymbols -> [DocPara] -> Doc
 haddocFormatDescription _ [] = comment <+> space
