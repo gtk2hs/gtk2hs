@@ -12,9 +12,9 @@ import qualified Module
 import qualified Api (API, extractAPI)
 import qualified Docs (extractDocumentation, moduledoc_summary)
 import qualified FormatDocs (haddocFormatDescription, genModuleDocumentation)
-import qualified CodeGen
-import StringUtils (ss, sc, nl, templateSubstitute)
+import qualified CodeGen (genModuleBody, genTodoItems, makeKnownSymbolsMap)
 import qualified ModuleScan
+import Utils
 
 import Data.List   (intersperse)
 import qualified Data.Map as Map (fromList)
@@ -27,8 +27,6 @@ import qualified Text.XML.HaXml.Parse as Xml
 import qualified System.Time
 
 import System.Console.GetOpt
-
-import Text.PrettyPrint (render)
 
 -------------------------------------------------------------------------------
 -- Top level stuff
@@ -182,30 +180,18 @@ main = do
         dotToPath  c  =  c
     createDirectoryIfMissing True
       (outdir ++ '/' : modulePrefixToPath (module_prefix module_))
-    writeFile (outdir ++ module_filename module_) $
-      templateSubstitute template (\var ->
+    writeFile (outdir ++ module_filename module_) $ render $
+      templateSubstitute template $ \var ->
         case var of
-	  "YEAR"           -> ss $ formatCopyrightDates year (module_copyright_dates module_)
-	  "DATE"           -> ss $ module_created module_
-	  "OBJECT_KIND"    -> ss $ show (module_kind module_)
-	  "OBJECT_NAME"    -> ss $ module_name module_
-	  "AUTHORS"        -> ss $ concat $ intersperse ", " $ module_authors module_
-          "COPYRIGHT"      -> ss $ concat $ intersperse ", " $ module_copyright_holders module_
-          "DESCRIPTION"    -> ss $ render $ FormatDocs.haddocFormatDescription knownTypes
-                                              (module_summary module_)
-	  "DOCUMENTATION"  -> ss ( render ( FormatDocs.genModuleDocumentation knownTypes
-                                              (module_cname module_)
-                                              (module_description module_)
-                                              (module_sections module_)
-                                              (module_hierarchy module_))) . nl
-	  "TODO"           -> CodeGen.genTodoItems module_
-	  "MODULE_NAME"    -> CodeGen.genModuleName module_
-	  "EXPORTS"        -> CodeGen.genExports module_
-	  "IMPORTS"        -> CodeGen.genImports module_
-	  "CONTEXT_LIB"    -> ss $ module_context_lib module_
-	  "CONTEXT_PREFIX" -> ss $ module_context_prefix module_
-	  "MODULE_BODY"    -> CodeGen.genModuleBody knownTypes module_
-	  _ -> ss "" ) ""
+          "YEAR"           -> text $ formatCopyrightDates year (module_copyright_dates module_)
+          "DATE"           -> text $ module_created module_
+          "OBJECT_KIND"    -> text $ show (module_kind module_)
+          "OBJECT_NAME"    -> text $ module_name module_
+          "AUTHORS"        -> hsep $ punctuate comma $ map text (module_authors module_)
+          "COPYRIGHT"      -> hsep $ punctuate comma $ map text (module_copyright_holders module_)
+          "TODO"           -> CodeGen.genTodoItems module_
+          "MODULE_BODY"    -> CodeGen.genModuleBody knownTypes module_
+	  name             -> empty
 
 formatCopyrightDates :: String -> Either String (String, String) -> String
 formatCopyrightDates currentYear (Left year) | year == currentYear = year

@@ -39,11 +39,3 @@ sepBy' :: String -> [ShowS] -> ShowS
 sepBy' _ []     = id
 sepBy' _ [x]    = x
 sepBy' s (x:xs) = x. ss s. sepBy' s xs
-
-templateSubstitute :: String -> (String -> ShowS) -> ShowS
-templateSubstitute template varSubst = doSubst template
-  where doSubst [] = id
-        doSubst ('\\':'@':cs) = sc '@' . doSubst cs
-        doSubst ('@':cs) = let (var,_:cs') = span ('@'/=) cs
-                            in varSubst var . doSubst cs'
-        doSubst (c:cs) = sc c . doSubst cs

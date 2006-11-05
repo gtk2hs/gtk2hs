@@ -13,6 +13,7 @@ module Utils (
   upperCaseFirstChar,
   splitBy,
   wrapText,
+  templateSubstitute,
   
   -- generic things
   equating,
@@ -73,6 +74,16 @@ wrapText initialCol width = wrap initialCol []
         wrap col line (word:words) = wrap (col + length word + 1) (word:line) words
         wrap _ []   [] = []
         wrap _ line [] = [reverse line]
+
+templateSubstitute :: String -> (String -> Doc) -> Doc
+templateSubstitute template varSubst = vcat . map substLine . lines $ template
+  where substLine ('$':var) = varSubst (init var)
+        substLine line =
+          case span (/= '<') line of
+            (chunk, []) -> text chunk
+            (chunk, '<':rest) ->
+              case span (/= '>') rest of
+                (var, '>':rest) -> text chunk <> varSubst var <> substLine rest
 
 -------------------------------------------------------------------------------
 -- Totally generic things

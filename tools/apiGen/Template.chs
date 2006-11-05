@@ -1,11 +1,11 @@
 -- -*-haskell-*-
---  GIMP Toolkit (GTK) @OBJECT_KIND@ @OBJECT_NAME@
+--  GIMP Toolkit (GTK) <OBJECT_KIND> <OBJECT_NAME>
 --
---  Author : @AUTHORS@
+--  Author : <AUTHORS>
 --
---  Created: @DATE@
+--  Created: <DATE>
 --
---  Copyright (C) @YEAR@ @COPYRIGHT@
+--  Copyright (C) <YEAR> <COPYRIGHT>
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -16,21 +16,12 @@
 --  but WITHOUT ANY WARRANTY; without even the implied warranty of
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
---@TODO@
+--
+$TODO$
 -- |
--- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
-@DESCRIPTION@
---
-module @MODULE_NAME@ (
-@DOCUMENTATION@
-@EXPORTS@
-  ) where
+$MODULE_BODY$
 
-@IMPORTS@
-
-{# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
-
-@MODULE_BODY@

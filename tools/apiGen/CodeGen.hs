@@ -1,7 +1,4 @@
 module CodeGen (
-  genModuleName,
-  genExports,
-  genImports,
   genModuleBody,
   genTodoItems,
   makeKnownSymbolsMap
@@ -10,7 +7,8 @@ module CodeGen (
 import Module       (Module(..), Decl(..), DeclBody(..), isAttr)
 import qualified Api
 import Docs         (ParamDoc(..), DocParaSpan(..))
-import FormatDocs   (haddocFormatDeclaration, cParamNameToHsName,
+import FormatDocs   (genModuleDocumentation, haddocFormatDescription, 
+                     haddocFormatDeclaration, cParamNameToHsName,
                      cFuncNameToHsName, changeIllegalNames, mungeWord,
                      haddocFormatSpan)
 import Marshal      (CSymbol(..), ParameterKind(..), EnumKind(..),
@@ -34,17 +32,17 @@ import Debug.Trace (trace)
 -- Now lets actually generate some code fragments based on the api info
 -------------------------------------------------------------------------------
 
-genDecl :: KnownSymbols -> Decl -> ShowS
+genDecl :: KnownSymbols -> Decl -> Doc
 genDecl knownSymbols decl =
-  formattedDoc.
-  genDeclCode knownSymbols decl.
-  deprecatedNote
+     formattedDoc
+  $$ text (genDeclCode knownSymbols decl "")
+  $$ deprecatedNote
 
   where
     formattedDoc =
       case decl_doc decl of
-        Nothing  -> id
-        Just doc -> ss (render (haddocFormatDeclaration knownSymbols docNullsAllFixed doc)). nl
+        Nothing  -> empty
+        Just doc -> haddocFormatDeclaration knownSymbols docNullsAllFixed doc
     docNullsAllFixed =
       case decl_body decl of
         Method {
@@ -55,10 +53,16 @@ genDecl knownSymbols decl =
                 | Api.Parameter { Api.parameter_name = pname } <- params ]
         _ -> False                                
     deprecatedNote
-      | decl_deprecated decl = nl. ss "{-# DEPRECATED ". ss (decl_name decl).
-          ss " \"". ss (decl_deprecated_comment decl). ss "\" #-}"
-      | otherwise = id
+      | decl_deprecated decl
+                  = deprecated (text $ decl_name decl)
+                               (text $ decl_deprecated_comment decl)
+      | otherwise = empty
 
+deprecated name comment =
+  pragma $ text "DEPRECATED" <+> name <+> doubleQuotes comment
+
+pragma d = text "{-#" <+> d <+> text "#-}"
+c2hsHook name d = text "{#" <+> text name <+> d <+> text "#}"
 
 genDeclCode :: KnownSymbols -> Decl -> ShowS
 genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
@@ -266,21 +270,51 @@ mergeParamDocs doc docs =
                  fixmeMessage  = DocText " {FIXME: merge return value docs} "
               in Just $ returnValName : fixmeMessage : concat paramDocs
 
-genModuleName :: Module -> ShowS
-genModuleName module_ = name . deprecated
-  where name | null (Module.module_prefix module_) = ss (Module.module_name module_)
-             | otherwise = ss (Module.module_prefix module_). ss ".". ss (Module.module_name module_)
+genModuleBody :: KnownSymbols -> Module -> Doc
+genModuleBody knownTypes module_ =
+     summary
+  $$ comment
+  $$ (if Module.module_deprecated module_
+        then text "module" <+> moduleName
+          $$ deprecatedNote <+> lparen
+        else text "module" <+> moduleName <+> lparen)
+ $+$ documentation
+ $+$ exports
+  $$ nest 2 (rparen <+> text "where")
+ $+$ imports
+ $+$ context
+ $+$ decls
+  
+  where summary = haddocFormatDescription knownTypes
+                    (module_summary module_)
 
-        deprecated | Module.module_deprecated module_ =
-          nl. ss "{-# DEPRECATED \"this module should not be used in newly-written code.\" #-}"
-                   | otherwise = id
+        moduleName | isEmpty prefix = name
+                   | otherwise      = prefix <> char '.' <> name
+          where name = text (Module.module_name module_)
+                prefix = text (Module.module_prefix module_)
 
+        deprecatedNote | Module.module_deprecated module_ =
+          deprecated empty (text "this module should not be used in newly-written code.")
+                       | otherwise = empty
 
-genModuleBody :: KnownSymbols -> Module -> ShowS
-genModuleBody knownSymbols module_ =
-  doVersionIfDefs (nl.nl) $
-  map adjustDeprecatedAndSinceVersion $
-     sectionHeader "Interfaces"
+        documentation = genModuleDocumentation knownTypes
+                          (module_cname module_) (module_description module_)
+                          (module_sections module_) (module_hierarchy module_)
+
+        exports = genExports module_
+        imports = genImports module_
+
+        context = c2hsHook "context" $
+                    text "lib" <> equals <> doubleQuotes (text $ module_context_lib module_)
+                <+> text "prefix" <> equals <> doubleQuotes (text $ module_context_prefix module_)
+
+        decls = genDecls knownTypes module_
+
+genDecls :: KnownSymbols -> Module -> Doc
+genDecls knownSymbols module_ =
+    doVersionIfDefs vsep
+  . map adjustDeprecatedAndSinceVersion
+  $  sectionHeader "Interfaces"
      [ (genDecl knownSymbols decl, (since, deprecated))
      | decl@Decl { decl_since = since,
                    decl_deprecated = deprecated,
@@ -317,7 +351,8 @@ genModuleBody knownSymbols module_ =
        } <- module_decls module_ ]
   where sectionHeader _    []      = []
         sectionHeader name entries =
-          let header = (ss "--------------------\n-- ". ss name, (Nothing, False))
+          let header = (text "--------------------"
+                     $$ comment <+> text name, (Nothing, False))
            in header : entries
         adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
           (doc, (module_since module_ `max` since, Module.module_deprecated module_ || deprecated))
@@ -436,71 +471,77 @@ makeKnownSymbolsMap api =
         miscToCSymbol (Api.Alias    _ _) = SymTypeAlias
         miscToCSymbol (Api.Callback _ _) = SymCallbackType
 
-genExports :: Module -> ShowS
+genExports :: Module -> Doc
 genExports module_ =
-    doVersionIfDefs nl
+    doVersionIfDefs vcat
   . map adjustDeprecatedAndSinceVersion
-  $  [(ss "-- * Types", defaultAttrs)
-     ,(ss "  ".ss (Module.module_name module_).sc ',', defaultAttrs)
-     ,(ss "  ".ss (Module.module_name module_).ss "Class,", defaultAttrs)
-     ,(ss "  ".ss "castTo".ss (Module.module_name module_).sc ',', defaultAttrs)
-     ,(ss "  ".ss "to".ss (Module.module_name module_).sc ',', defaultAttrs)]
-  ++ sectionHeader "Constructors"
-     [ (ss "  ". ss name. sc ',', (since, deprecated))
+  $  sectionHeader False "Types"
+     [(text (Module.module_name module_), defaultAttrs)
+     ,(text (Module.module_name module_) <> text "Class", defaultAttrs)
+     ,(text "castTo" <> text (Module.module_name module_), defaultAttrs)
+     ,(text "to"     <> text (Module.module_name module_), defaultAttrs)]
+  ++ sectionHeader True "Constructors"
+     [ (text name, (since, deprecated))
      | Decl { decl_name = name,
               decl_since = since,
               decl_deprecated = deprecated,
-              decl_body = Method { method_is_constructor = True } }
-       <- exports ]
-  ++ sectionHeader "Methods"
-     [ (ss "  ". ss name. sc ',', (since, deprecated))
+              decl_body = Method { method_is_constructor = True }
+       } <- exports ]
+  ++ sectionHeader True "Methods"
+     [ (text name, (since, deprecated))
      | Decl { decl_name = name,
               decl_since = since,
               decl_deprecated = deprecated,
-              decl_body = Method { method_is_constructor = False } }
-       <- exports ]
-  ++ sectionHeader "Attributes"
-     [ (ss "  ". ss name. sc ',', (since, deprecated))
+              decl_body = Method { method_is_constructor = False }
+       } <- exports ]
+  ++ sectionHeader True "Attributes"
+     [ (text name, (since, deprecated))
      | decl@Decl { decl_since = since,
                    decl_deprecated = deprecated,
-                   decl_name = name } <- module_decls module_, isAttr decl ]
-  ++ sectionHeader "Child Attributes"
-     [ (ss "  ". ss name. sc ',', (since, deprecated))
+                   decl_name = name 
+       } <- module_decls module_
+       , isAttr decl ]
+  ++ sectionHeader True "Child Attributes"
+     [ (text name, (since, deprecated))
      | Decl { decl_name = name,
               decl_since = since,
               decl_deprecated = deprecated,
-              decl_body = AttributeProp { attribute_is_child = True } }
-       <- module_decls module_ ]
-  ++ sectionHeader "Signals"
-     [ (ss "  ". ss name. sc ',', (since, deprecated))
+              decl_body = AttributeProp { attribute_is_child = True }
+       } <- module_decls module_ ]
+  ++ sectionHeader True "Signals"
+     [ (text name, (since, deprecated))
      | Decl { decl_name = name,
               decl_since = since,
               decl_deprecated = deprecated,
-              decl_body = Module.Signal { signal_is_old_style = False }}
-       <- exports ]
-  ++ sectionHeader "Deprecated"
-     [ (ss "  ". ss name. sc ',', (since, deprecated))
+              decl_body = Module.Signal { signal_is_old_style = False }
+       } <- exports ]
+  ++ sectionHeader True "Deprecated"
+     [ (text name, (since, deprecated))
      | Decl { decl_name = name,
               decl_since = since,
               decl_deprecated = deprecated,
-              decl_body = Module.Signal { signal_is_old_style = True }}
-       <- exports ]
+              decl_body = Module.Signal { signal_is_old_style = True }
+       } <- exports ]
 
   where defaultAttrs = (Nothing, False)
-        sectionHeader _    []      = []
-        sectionHeader name entries = (id, defaultAttrs):(ss "-- * ". ss name, defaultAttrs):entries
+        sectionHeader _ _    []      = []
+        sectionHeader False name entries = (text "-- * " <> text name, defaultAttrs)
+                                   : map (\(doc, attrs) -> (nest 2 (doc <> comma), attrs)) entries
+        sectionHeader True name entries = (emptyLine, defaultAttrs)
+                                   : (text "-- * " <> text name, defaultAttrs)
+                                   : map (\(doc, attrs) -> (nest 2 (doc <> comma), attrs)) entries
         adjustDeprecatedAndSinceVersion (doc, (since, deprecated)) =
           (doc, (Module.module_since module_ `max` since, Module.module_deprecated module_ || deprecated))
         exports = sortBy (comparing decl_index_export) (module_decls module_)
 
-genImports :: Module -> ShowS
+genImports :: Module -> Doc
 genImports module_ = 
-  (case [ ss importLine
+  (case [ text importLine
         | (_, importLine) <- stdModules ] of
-     []   -> id
-     mods -> lines mods. ss "\n\n").
-  lines [ ss importLine
-        | (_, importLine) <- extraModules ]
+     []   -> empty
+     mods -> vcat mods)
+  $+$ vcat [ text importLine
+           | (_, importLine) <- extraModules ]
   where (stdModules, extraModules)
           | null (Module.module_imports module_) =
              ([(undefined, "import Monad\t(liftM)")]
@@ -511,27 +552,26 @@ genImports module_ =
                                   (Module.module_imports module_)
         knownStdModules = ["Maybe", "Monad", "Char", "List", "Data.IORef"]
 
-genTodoItems :: Module -> ShowS
-genTodoItems module_ =
-  let varargsFunctions = map ss (module_todos module_)
-   in if null varargsFunctions
-        then id
-        else nl. comment.
-             ss "TODO: the following varargs functions were not bound\n".
-             lines (map (ss "--   ".) varargsFunctions).
-             ss "\n--"
+genTodoItems :: Module -> Doc
+genTodoItems Module { module_todos = varargsFunctions } 
+  | null varargsFunctions = empty
+  | otherwise =
+       comment <+> text "TODO: the following varargs functions were not bound"
+    $$ (commentBlock . map ((text "  " <>) . text)) varargsFunctions
+    $$ comment
 
 type Deprecated = Bool
 type Since = Maybe Version
 
-doVersionIfDefs :: ShowS -> [(ShowS, (Since, Deprecated))] -> ShowS
+doVersionIfDefs :: ([Doc] -> Doc) -> [(Doc, (Since, Deprecated))] -> Doc
 doVersionIfDefs sep =
-    layoutChunks id
+    sep
+  . layoutChunks True empty
   . makeChunks [Nothing] False
   . map (\group@((_,(since, deprecated)):_) -> (map fst group, since, deprecated))
-  . groupBy (\(_,a) (_,b) -> a == b)
+  . groupBy (equating snd)
 
-  where makeChunks :: [Since] -> Deprecated -> [([ShowS], Since, Deprecated)] -> [Chunk]
+  where makeChunks :: [Since] -> Deprecated -> [([Doc], Since, Deprecated)] -> [Chunk]
         makeChunks    sinceStack  True [] = EndChunk : makeChunks sinceStack False []
         makeChunks (_:[])         _    [] = []
         makeChunks (_:sinceStack) _    [] = EndChunk : makeChunks sinceStack False []
@@ -542,20 +582,20 @@ doVersionIfDefs sep =
           | since > sinceContext        = BeginSinceChunk since : makeChunks (since:sinceStack) prevDeprecated whole
           | otherwise                   = SimpleChunk group     : makeChunks sinceStack prevDeprecated rest
         
-        layoutChunks :: ShowS -> [Chunk] -> ShowS
-        layoutChunks _    [] = id
-        layoutChunks _    (EndChunk              :[])     = endif
-        layoutChunks _    (EndChunk              :chunks) = endif. layoutChunks sep chunks
-        layoutChunks msep (SimpleChunk group     :chunks) = msep. sepBy' (sep []) group. layoutChunks sep chunks
-        layoutChunks msep (BeginDeprecatedChunk  :chunks) = msep. ifndefDeprecated. layoutChunks id chunks
-        layoutChunks msep (BeginSinceChunk since :chunks) = msep. ifSinceVersion since. layoutChunks id chunks
+        layoutChunks :: Bool -> Doc -> [Chunk] -> [Doc]
+        layoutChunks _     doc  []                             = doc : []
+        layoutChunks _     doc (EndChunk              :chunks) =       layoutChunks False (doc $$ endif) chunks
+        layoutChunks False doc (SimpleChunk group     :chunks) = doc : layoutChunks False (sep group) chunks
+        layoutChunks True  doc (SimpleChunk group     :chunks) =       layoutChunks False (doc $$ sep group) chunks
+        layoutChunks _     doc (BeginDeprecatedChunk  :chunks) = doc : layoutChunks True ifndefDeprecated chunks
+        layoutChunks _     doc (BeginSinceChunk since :chunks) = doc : layoutChunks True (ifSinceVersion since) chunks
         
         ifSinceVersion (Just Version { versionBranch = [major,minor] }) =
-          ss "#if GTK_CHECK_VERSION(". shows major. ss ",". shows minor. ss ",0)\n"
-        ifndefDeprecated = ss "#ifndef DISABLE_DEPRECATED\n"
-        endif = ss "\n#endif"
+          text "#if GTK_CHECK_VERSION(" <> int major <> comma <> int minor <> text ",0)"
+        ifndefDeprecated = text "#ifndef DISABLE_DEPRECATED"
+        endif = text "#endif"
 
-data Chunk = SimpleChunk [ShowS]
+data Chunk = SimpleChunk [Doc]
            | BeginDeprecatedChunk
            | BeginSinceChunk Since
            | EndChunk
