@@ -780,12 +780,6 @@ fixModuleHierarchy module_ =
         filterTree p (Node x ts) | p x       = [Node x (filterForest p ts)]
                                  | otherwise = ts
 
-equating :: Eq a => (b -> a) -> b -> b -> Bool
-equating p x y = p x == p y
-
-comparing :: (Ord a) => (b -> a) -> b -> b -> Ordering
-comparing p x y = compare (p x) (p y)
-
 {-
 content <- readFile "gtk-api.xml"
 let api = Api.extractAPI (Text.XML.HaXml.Parse.xmlParse "gtk-api.xml" content)
