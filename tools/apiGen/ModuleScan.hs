@@ -6,7 +6,7 @@ module ModuleScan (
   scanModules
   ) where
 
-import StringUtils (splitOn)
+import Utils (splitBy)
 
 import Data.Char (isSpace, isAlpha)
 import Data.List (partition, isSuffixOf, group, sort)
@@ -182,13 +182,13 @@ scanAuthor :: [String] -> Line
 scanAuthor = 
     Authors
   . map unwords
-  . splitOn ","
+  . splitBy ","
 
 scanCopyright :: [String] -> Line
-scanCopyright (from:"..":to:name)         = Copyright (Right (from, to)) (map unwords $ splitOn "," name)
-scanCopyright (from:"-":to:name)          = Copyright (Right (from, to)) (map unwords $ splitOn "," name)
-scanCopyright ("[":from:"..":to:"]":name) = Copyright (Right (from, to)) (map unwords $ splitOn "," name)
-scanCopyright (year:name)                 = Copyright (Left year)        (map unwords $ splitOn "," name)
+scanCopyright (from:"..":to:name)         = Copyright (Right (from, to)) (map unwords $ splitBy "," name)
+scanCopyright (from:"-":to:name)          = Copyright (Right (from, to)) (map unwords $ splitBy "," name)
+scanCopyright ("[":from:"..":to:"]":name) = Copyright (Right (from, to)) (map unwords $ splitBy "," name)
+scanCopyright (year:name)                 = Copyright (Left year)        (map unwords $ splitBy "," name)
 scanCopyright line = error $ "scanCopyright: " ++ show line
 
 scanModuleName :: [String] -> Line

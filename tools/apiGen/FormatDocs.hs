@@ -25,7 +25,7 @@ module FormatDocs (
 import Docs
 import Marshal (KnownSymbols, CSymbol(..))
 import MarshalFixup (cTypeNameToHSType, knownMiscType, fixCFunctionName)
-import StringUtils (wrapText, splitBy, lowerCaseFirstChar, upperCaseFirstChar)
+import Utils
 
 import Prelude hiding (span)
 import Data.Char (toLower, isAlpha, isSpace)
@@ -33,29 +33,10 @@ import Data.Tree
 import qualified Data.List as List (lines, span, intersperse)
 import qualified Data.Map as Map
 
-import Text.PrettyPrint hiding (($$), ($+$))
-import qualified Text.PrettyPrint (($+$))
 
 -------------------------------------------------------------------------------
--- Fix Text.PrettyPrint to mean the right thing
+-- Extra pretty printing bits
 -------------------------------------------------------------------------------
-
-infixl 5 $$, $+$
-
-emptyLine = text ""
-
-($$) = (Text.PrettyPrint.$+$)
-d1 $+$ d2 | isEmpty d1 = d2
-          | isEmpty d2 = d1
-          | otherwise  = d1
-                      $$ emptyLine
-                      $$ d2
-
--- some useful extensions
-vsep = foldr ($+$) empty
-comment = text "--"
-
-commentBlock = vcat . map (comment <+>)
 
 prependToFirstLine :: Doc -> [Doc] -> [Doc]
 prependToFirstLine start [] = []

@@ -10,7 +10,7 @@ import qualified FormatDocs (cFuncNameToHsPropName, cFuncNameToHsName,
 import qualified MarshalFixup (cTypeNameToHSType, actionSignalWanted,
                                fixModuleAvailableSince, fixModuleDocMapping)
 import qualified ExcludeApi
-import StringUtils
+import Utils
 
 import qualified Data.Map as Map
 import Data.Map (Map)
@@ -635,7 +635,7 @@ makeGetSetProps module_ =
     (genericProps, -- existing GObject properties with generic implementation
      directProps,  -- existing GObject properties but with direct implementation
      extraProps)   -- extra properties with direct implementation
-      = StringUtils.mergeBy (\(Decl { decl_body = prop }) (Decl { decl_body = func }, _) ->
+      = mergeBy (\(Decl { decl_body = prop }) (Decl { decl_body = func }, _) ->
                   attribute_name prop `compare` drop 3 (method_name func))
                 (List.sortBy (comparing (attribute_name.decl_body)) props)
                 (List.sortBy (comparing (method_name.decl_body.fst)) methodsThatLookLikeProperties)
