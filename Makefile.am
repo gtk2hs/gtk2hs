@@ -15,7 +15,9 @@ EXTRA_DIST = \
 	sourceview/sourceview.h			\
 	gtk/wingtk.h				\
         glib/System/Glib/hsgclosure.h		\
-	cairo/COPYRIGHT
+	cairo/COPYRIGHT				\
+	cairo/cairo.h				\
+	gtk/Graphics/UI/Gtk/TreeList/Gtk2HsStore.h
 
 # There are no other files in these dirs and tar excludes empty dirs
 dist-hook:
