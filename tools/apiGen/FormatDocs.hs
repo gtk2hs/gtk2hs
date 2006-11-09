@@ -20,6 +20,7 @@ module FormatDocs (
   haddocFormatSpan,
   mungeWord,
   changeIllegalNames,
+  haddockSection,
 ) where
 
 import Docs

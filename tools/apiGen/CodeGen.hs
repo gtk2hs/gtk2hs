@@ -10,23 +10,38 @@ import Docs         (ParamDoc(..), DocParaSpan(..))
 import FormatDocs   (genModuleDocumentation, haddocFormatDescription, 
                      haddocFormatDeclaration, cParamNameToHsName,
                      cFuncNameToHsName, changeIllegalNames, mungeWord,
-                     haddocFormatSpan)
+                     haddocFormatSpan, haddockSection)
 import Marshal      (CSymbol(..), ParameterKind(..), EnumKind(..),
                      KnownSymbols, genMarshalParameter, genMarshalResult,
                      genMarshalOutParameter, genCall, genMarshalProperty,
                      convertSignalType)
-import StringUtils hiding (comment)
-import Utils hiding (cat)
+import Utils
 import MarshalFixup (maybeNullParameter, maybeNullResult, leafClass,
                      nukeParameterDocumentation)
 
 import Prelude hiding (Enum, lines)
-import Data.List    (groupBy, sortBy, partition)
-import Data.Maybe   (fromMaybe, catMaybes)
+import Data.List    (groupBy, sortBy, partition, intersperse)
+import Data.Maybe   (fromMaybe, catMaybes, isNothing)
 import qualified Data.Map as Map
 import Data.Version
 
 import Debug.Trace (trace)
+
+-------------------------------------------------------------------------------
+-- More doc formatting utils
+-------------------------------------------------------------------------------
+
+deprecated name comment =
+  pragma $ text "DEPRECATED" <+> name <+> doubleQuotes comment
+
+pragma d = text "{-#" <+> d <+> text "#-}"
+c2hsHook name d = text "{#" <+> text name <+> d <+> text "#}"
+
+tuple []  = empty
+tuple [x] = x
+tuple  xs = parens (hsep $ punctuate comma xs)
+
+tuple' xs = parens (hsep $ punctuate comma xs)
 
 -------------------------------------------------------------------------------
 -- Now lets actually generate some code fragments based on the api info
@@ -35,7 +50,7 @@ import Debug.Trace (trace)
 genDecl :: KnownSymbols -> Decl -> Doc
 genDecl knownSymbols decl =
      formattedDoc
-  $$ text (genDeclCode knownSymbols decl "")
+  $$ genDeclCode knownSymbols decl
   $$ deprecatedNote
 
   where
@@ -58,33 +73,27 @@ genDecl knownSymbols decl =
                                (text $ decl_deprecated_comment decl)
       | otherwise = empty
 
-deprecated name comment =
-  pragma $ text "DEPRECATED" <+> name <+> doubleQuotes comment
-
-pragma d = text "{-#" <+> d <+> text "#-}"
-c2hsHook name d = text "{#" <+> text name <+> d <+> text "#}"
-
-genDeclCode :: KnownSymbols -> Decl -> ShowS
+genDeclCode :: KnownSymbols -> Decl -> Doc
 genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
-  ss functionName. ss " :: ". functionType. nl.
-  ss functionName. sc ' '. formattedParamNames. sc '='.
-  indent 1. codebody
+     text functionName <+> text "::" <+> classContext <+> firstLineParamsType
+  $$ nest 1 multiLineParamsType
+  $$ text functionName <+> formattedParamNames <+> equals
+  $$ nest 2 codebody
 
   where functionName = cFuncNameToHsName (method_cname method)
-	(classConstraints', paramTypes', paramMarshalers) =
+	(classConstraints, paramTypes', paramMarshalers) =
 	  unzip3 [ case genMarshalParameter knownSymbols (method_cname method)
                           (changeIllegalNames (cParamNameToHsName (Api.parameter_name p)))
 	                  (Api.parameter_type p) of
                      (c, ty, m) -> (c, (ty, Api.parameter_name p), m)
 		 | p <- method_parameters method ]
-	classConstraints = [ c | Just c <- classConstraints' ]
 	inParamTypes = [ (paramType, lookup name paramDocMap)
                      | (InParam paramType, name) <- paramTypes' ]
 	inParamNames = [ changeIllegalNames (cParamNameToHsName (Api.parameter_name p))
 		     | ((InParam _, _), p) <- zip paramTypes' (method_parameters method) ]
 	outParamTypes = [ (paramType, lookup name paramDocMap)
                         | (OutParam paramType, name) <- paramTypes' ]
-        formattedParamNames = cat (map (\name -> ss name.sc ' ') inParamNames)
+        formattedParamNames = hsep $ map text inParamNames
 	(returnType', returnMarshaler) =
 		genMarshalResult knownSymbols (method_cname method)
                                   (method_is_constructor method) (method_return_type method)
@@ -96,26 +105,21 @@ genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
 					 docs = mergeParamDocs (lookup "Returns" paramDocMap) docs'
 				      in (case types of
 				            [t] -> "IO " ++ t
-					    _   -> "IO (" ++ sepBy ", " types "" ++ ")"
+					    _   -> "IO (" ++ concat (intersperse ", " types) ++ ")"
 					 ,docs)
 	(outParamMarshalersBefore, outParamMarshalersAfter, returnOutParamFragments) =
              unzip3 [ genMarshalOutParameter outParamType (changeIllegalNames (cParamNameToHsName name))
                     | (OutParam outParamType, name) <- paramTypes' ]
         returnOutParams body | null outParamTypes = body
                              | otherwise = body
-                                         . indent 1. ss "return (". sepBy' ", " returnOutParamFragments. ss ")"
-        functionType = (case classConstraints of
-	                  []  -> id
-			  [c] -> ss c. ss " => "
-			  _   -> sc '('. sepBy ", " classConstraints. ss ") => ").
-                       formatParamTypes (inParamTypes ++ [returnType])
+                                        $$ text "return" <+> tuple' returnOutParamFragments
 	codebody = foldl (\body marshaler -> marshaler body)
                      call (paramMarshalers
-                       ++ [ (\body -> frag. body) | frag <- reverse outParamMarshalersBefore ]
-                       ++ [ (\body -> body. frag) | frag <- outParamMarshalersAfter ]
+                       ++ [ (\body -> frag $$ body) | frag <- reverse outParamMarshalersBefore ]
+                       ++ [ (\body -> body $$ frag) | frag <- outParamMarshalersAfter ]
                        ++ [returnMarshaler,returnOutParams])
-	call = ss (genCall (fromMaybe (method_cname method) (method_shortcname method))
-                           (method_is_unsafe_ffi method))
+	call = genCall (fromMaybe (method_cname method) (method_shortcname method))
+                       (method_is_unsafe_ffi method)
         docNullsAllFixed = maybeNullResult (method_cname method)
                         || or [ maybeNullParameter (method_cname method) (cParamNameToHsName (Api.parameter_name p))
                               | p <- method_parameters method ]
@@ -129,41 +133,52 @@ genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
 		      , not $ nukeParameterDocumentation
                                 (method_cname method)
                                 (cParamNameToHsName (paramdoc_name paramdoc)) ]
+
+        classContext = case catMaybes classConstraints of
+	                 []  -> empty
+			 cs  -> tuple (map text cs) <+> text "=>"
         
-        formatParamTypes :: [(String, Maybe [DocParaSpan])] -> ShowS
-        formatParamTypes paramTypes = format True False paramTypes
-                                             -- True to indicate first elem
-                                             -- False to mean previous param had no doc
-          where format _    _ []                   = id
-                format True _ ((t,Nothing)    :ts) =               ss t.
-                                                     format False False ts
-                format True _ ((t,Just doc)   :ts) = ss "\n    ". ss t.
-                                                     ss (replicate (columnIndent - length t) ' ').
-                                                     ss " -- ^ ". formatDoc doc.
-                                                     format False True  ts
-                format _ True  ((t, Nothing)  :ts) = ss "\n -> ". ss t.
-                                                     format False False ts
-                format _ False ((t, Nothing)  :ts) = ss   " -> ". ss t.
-                                                     format False False ts
-                format _ _     ((t, Just doc) :ts) = ss "\n -> ". ss t.
-                                                     ss (replicate (columnIndent - length t) ' ').
-                                                     ss " -- ^ ". formatDoc doc.
-                                                     format False True  ts
-                formatDoc :: [DocParaSpan] -> ShowS
-                formatDoc =
-                    sepBy' ("\n" ++ replicate (columnIndent+5) ' ' ++  "-- ")
-                  . map (sepBy " ")
-                  . wrapText 3 (80 - columnIndent - 8)
-                  . map (mungeWord knownSymbols docNullsAllFixed)
-                  . words
-                  . concatMap (haddocFormatSpan knownSymbols docNullsAllFixed)
-                columnIndent = maximum [ length parmType | (parmType, _) <- paramTypes ]
+        (firstLineParams, multiLineParams) = span (isNothing.snd) (inParamTypes ++ [returnType])
+        
+        firstLineParamsType :: Doc
+        firstLineParamsType =
+            hsep
+          . intersperse (text "->")
+          . map (text.fst)
+          $ firstLineParams
+        
+        multiLineParamsType :: Doc
+        multiLineParamsType =
+            vcat
+          . (\lines ->
+             case lines of
+               [] -> []
+               (l:ls) | null firstLineParams -> nest 3 l : map (text "->" <+>) ls
+                      | otherwise -> map (text "->" <+>) lines)
+          . map (\(type_, doc) ->
+            case doc of
+              Nothing  -> text type_
+              Just doc -> text type_
+                       <> text (replicate (columnIndent - length type_) ' ')
+                      <+> formatDoc doc)
+          $ multiLineParams
+
+        formatDoc :: [DocParaSpan] -> Doc
+        formatDoc =
+            haddockSection (char '^')
+          . map (hsep . map text)
+          . wrapText 3 (80 - columnIndent - 8)
+          . map (mungeWord knownSymbols docNullsAllFixed)
+          . words
+          . concatMap (haddocFormatSpan knownSymbols docNullsAllFixed)
+        columnIndent = maximum [ length parmType | (parmType, Just _) <- multiLineParams ]
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute_is_child = False }) }) =
-  genAtter decl propertyName classConstraint getterType setterType (Right body)
+  genAtter decl propertyName classConstraint getterType setterType False (Right body)
   where propertyName = decl_name decl
         (propertyType, gvalueKind) = genMarshalProperty knownSymbols (attribute_type attr)
-        body = ss attrType. ss "AttrFrom". ss gvalueKind. ss "Property \"". ss (attribute_cname attr). ss "\""
+        body = text attrType <> text "AttrFrom" <> text gvalueKind <> text "Property"
+           <+> doubleQuotes (text (attribute_cname attr))
           where attrType | attribute_readable attr
                         && attribute_writeable attr = "new"
                          | attribute_readable  attr = "read"
@@ -183,10 +198,11 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
 
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute_is_child = True }) }) =
-  genChildAtter decl propertyName classConstraint getterType setterType (Right body)
+  genAtter decl propertyName classConstraint getterType setterType True (Right body)
   where propertyName = decl_name decl
         (propertyType, gvalueKind) = genMarshalProperty knownSymbols (attribute_type attr)
-        body = ss attrType. ss "AttrFromContainerChild". ss gvalueKind. ss "Property \"". ss (attribute_cname attr). ss "\""
+        body = text attrType <> text "AttrFromContainerChild" <> text gvalueKind <> text "Property"
+           <+> doubleQuotes (text (attribute_cname attr))
           where attrType | attribute_readable attr
                         && attribute_writeable attr = "new"
                          | attribute_readable  attr = "read"
@@ -206,8 +222,8 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeGetSet {}) }) =
   genAtter decl propertyName classConstraint
-           (Just getterType) (Just setterType)
-           (Left (ss (decl_name getter), ss (decl_name setter)))
+           (Just getterType) (Just setterType) False
+           (Left (text (decl_name getter), text (decl_name setter)))
   where propertyName = decl_name decl
         (getterType, _) = genMarshalResult knownSymbols (method_cname getter_body) False
                               (method_return_type getter_body)
@@ -225,15 +241,15 @@ genDeclCode knownSymbols Decl{ decl_module = module_,
                                decl_name = signalName,
                                decl_body = signal@Module.Signal {} }
   | signal_is_old_style signal =
-          ss signalName. ss " :: ". oldSignalType.
-          ss signalName. ss " = connect_". connectCall. sc ' '. signalCName. sc ' '. shows (signal_is_after signal)
+      text signalName <+> text "::" <+> oldSignalType
+   $$ text signalName <+> equals <+> text "connect_" <> connectCall <+> signalCName <+> text (show $ signal_is_after signal)
 
   | otherwise =
-      ss (lowerCaseFirstChar signalName). ss " :: ". signalType. nl.
-      ss (lowerCaseFirstChar signalName). ss " = Signal (connect_". connectCall. sc ' '. signalCName. sc ')'
+      text (lowerCaseFirstChar signalName) <+> text "::" <+> signalType
+   $$ text (lowerCaseFirstChar signalName) <+> equals <+> text "Signal" <+> parens (text "connect_" <> connectCall <+> signalCName)
 
-  where connectCall = let paramCategories' = if null paramCategories then ["NONE"] else paramCategories
-                       in sepBy "_" paramCategories' . ss "__" . ss returnCategory
+  where connectCall = let paramCategories' = if null paramCategories then [text "NONE"] else map text paramCategories
+                       in hcat (punctuate (char '_') paramCategories') <> text "__" <> text returnCategory
         -- strip off the object arg to the signal handler
         params = case Module.signal_parameters signal of
                    (param:params') | Api.parameter_type param
@@ -242,18 +258,19 @@ genDeclCode knownSymbols Decl{ decl_module = module_,
         (paramCategories, paramTypes) = unzip [ convertSignalType knownSymbols (Api.parameter_type parameter)
                                               | parameter <- params ]
         (returnCategory, returnType) = convertSignalType knownSymbols (Module.signal_return_type signal)
-        signalType = ss (module_name module_). ss "Class self => Signal self (". callbackType. sc ')'
-        oldSignalType = ss (module_name module_). ss "Class self => self\n".
-                     ss " -> ". callbackType.
-                     ss "\n -> IO (ConnectId self)\n"
-        callbackType | null paramTypes = ss "IO ". ss returnType
-                     | otherwise = sc '('. sepBy " -> " (paramTypes ++ ["IO " ++ returnType]). sc ')'
-        signalCName = sc '"'. ss (Module.signal_cname signal). sc '"'
+        signalType = text (module_name module_) <> text "Class self => Signal self" <+> parens callbackType
+        oldSignalType = text (module_name module_) <> text "Class self => self"
+                     $$ nest nestLevel (text "->" <+> callbackType
+                             $$ text "->" <+> text "IO (ConnectId self)")
+          where nestLevel = -(length signalName + 3)
+        callbackType | null paramTypes = text "IO" <+> text returnType
+                     | otherwise = parens (hsep . intersperse (text "->") . map text $ (paramTypes ++ ["IO " ++ returnType]))
+        signalCName = doubleQuotes (text $ Module.signal_cname signal)
 
 genDeclCode _
   Decl { decl_body = Instance { instance_class_name = className,
                                 instance_type_name  = typeName }} =
-  ss "instance ".ss className. sc ' '. ss typeName
+  text "instance" <+> text className <+> text typeName
 
 
 mergeParamDocs :: Maybe [DocParaSpan] -> [Maybe [DocParaSpan]] -> Maybe [DocParaSpan]
@@ -266,7 +283,7 @@ mergeParamDocs doc docs =
                             (DocArg varName : _) -> (cParamNameToHsName varName, doc')
                             _                    -> ("_", doc')
                          | doc' <- docs' ]
-                 returnValName = DocLiteral ("(" ++ sepBy ", " varNames "" ++ ")")
+                 returnValName = DocLiteral ("(" ++ concat (intersperse ", " varNames) ++ ")")
                  fixmeMessage  = DocText " {FIXME: merge return value docs} "
               in Just $ returnValName : fixmeMessage : concat paramDocs
 
@@ -359,71 +376,46 @@ genDecls knownSymbols module_ =
         
 
 genAtter :: Decl -> String
-         -> Maybe String -> Maybe String -> Maybe String
-         -> Either (ShowS, ShowS) ShowS -> ShowS
+         -> Maybe String -> Maybe String -> Maybe String -> Bool
+         -> Either (Doc, Doc) Doc -> Doc
 genAtter Decl { decl_module = module_ }
-         propertyName classConstraint getterType setterType attrImpl =
-  ss propertyName. ss " :: ". classContext. attrType. sc ' '. objectParamType. sc ' '. attrArgs. nl.
-  ss propertyName. ss " = ". attrBody
-  where objectType = ss (module_name module_)
+         propertyName classConstraint getterType setterType isChild attrImpl =
+    text propertyName <+> text "::" <+> classContext <+> child <+> attrType <+> objectParamType <+> attrArgs
+ $$ text propertyName <+> equals <+> body
+ $$ nest 2 body'
+  where objectType = text (module_name module_)
         objectParamType | leafClass (module_cname module_) = objectType
-                        | otherwise                        = ss "self"
+                        | otherwise                        = text "self"
         classContext = case (leafClass (module_cname module_), classConstraint) of 
-                         (True,  Nothing)              -> id
-                         (False, Nothing)              -> objectType. ss "Class self => "
-                         (True,  Just classConstraint') -> ss classConstraint'. ss " => "
-                         (False, Just classConstraint') -> sc '('. objectType. ss "Class self, ".
-                                                           ss classConstraint'. ss ") => "
+                         (True,  Nothing)              -> empty
+                         (False, Nothing)              ->
+                           objectType <> text "Class self =>"
+                         (True,  Just classConstraint') ->
+                           text classConstraint' <+> text "=>"
+                         (False, Just classConstraint') ->
+                           parens (objectType <> text "Class self" <> comma
+                               <+> text classConstraint') <+> text "=>"
         (attrType, attrConstructor, attrArgs) =
           case (getterType, setterType) of
-            (Just gt, Nothing)        -> (ss "ReadAttr",     ss "readAttr", ss gt)
-            (Nothing, Just st)        -> (ss "WriteAttr",    ss "writeAttr", ss st)
+            (Just gt, Nothing)        -> (text "ReadAttr",     text "readAttr", text gt)
+            (Nothing, Just st)        -> (text "WriteAttr",    text "writeAttr", text st)
             (Just gt, Just st)
-              | gt == st              -> (ss "Attr",          ss "newAttr", ss gt)
-              | length (words st) > 1 -> (ss "ReadWriteAttr", ss "newAttr", ss gt. ss " (". ss st. sc ')')
-              | otherwise             -> (ss "ReadWriteAttr", ss "newAttr", ss gt. sc ' '. ss st)
+              | gt == st              -> (text "Attr",          text "newAttr", text gt)
+              | length (words st) > 1 -> (text "ReadWriteAttr", text "newAttr", text gt <+> parens (text st))
+              | otherwise             -> (text "ReadWriteAttr", text "newAttr", text gt <+> text st)
 	    _ -> error $ "no getter or setter for " ++ module_name module_ ++ " :: " ++ propertyName 
-        attrBody =
-          case (attrImpl) of
-            Left (getter, setter) -> attrConstructor.
-              case (getterType, setterType) of
-                (Just _, Nothing) -> indent 1. getter
-                (Nothing, Just _) -> indent 1. setter
-                (Just _,  Just _) -> indent 1. getter. indent 1. setter
-            Right body            -> body
-
-
-genChildAtter :: Decl -> String
- -> Maybe String -> Maybe String -> Maybe String -> Either (ShowS, ShowS) ShowS -> ShowS
-genChildAtter Decl { decl_module = module_ }
-              propertyName classConstraint getterType setterType attrImpl =
-  ss propertyName. ss " :: ". classContext. ss "child -> ". attrType. sc ' '. objectParamType. sc ' '. attrArgs. nl.
-  ss propertyName. ss " = ". attrBody
-  where objectType = ss (module_name module_)
-        objectParamType | leafClass (module_cname module_) = objectType
-                        | otherwise                        = ss "self"
-        classContext = case (leafClass (module_cname module_), classConstraint) of 
-                         (True,  Nothing)              -> id
-                         (False, Nothing)              -> objectType. ss "Class self => "
-                         (True,  Just classConstraint') -> ss classConstraint'. ss " => "
-                         (False, Just classConstraint') -> sc '('. objectType. ss "Class self, ".
-                                                           ss classConstraint'. ss ") => "
-        (attrType, attrConstructor, attrArgs) =
-          case (getterType, setterType) of
-            (Just gt, Nothing)        -> (ss "ReadAttr",     ss "readAttr", ss gt)
-            (Nothing, Just st)        -> (ss "WriteAttr",    ss "writeAttr", ss st)
-            (Just gt, Just st)
-              | gt == st              -> (ss "Attr",          ss "newAttr", ss gt)
-              | length (words st) > 1 -> (ss "ReadWriteAttr", ss "newAttr", ss gt. ss " (". ss st. sc ')')
-              | otherwise             -> (ss "ReadWriteAttr", ss "newAttr", ss gt. sc ' '. ss st)
-        attrBody =
-          case (attrImpl) of
-            Left (getter, setter) -> attrConstructor.
-              case (getterType, setterType) of
-                (Just _, Nothing) -> indent 1. getter
-                (Nothing, Just _) -> indent 1. setter
-                (Just _,  Just _) -> indent 1. getter. indent 1. setter
-            Right body            -> body
+        child | isChild   = text "child" <+> text "->"
+              | otherwise = empty
+        body  = case attrImpl of
+                  Left  _ -> attrConstructor
+                  Right b -> b
+        body' = case attrImpl of
+                  Left (getter, setter) ->
+                    case (getterType, setterType) of
+                      (Just _, Nothing) -> getter
+                      (Nothing, Just _) -> setter
+                      (Just _,  Just _) -> getter $$ setter
+                  Right _ -> empty
 
 makeKnownSymbolsMap :: Api.API -> KnownSymbols
 makeKnownSymbolsMap api =
