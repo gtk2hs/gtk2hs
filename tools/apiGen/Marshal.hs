@@ -16,6 +16,8 @@ import MarshalFixup
 import Utils
 import Data.Char (isUpper)
 import Data.Maybe (fromJust)
+import qualified Data.Set as Set
+import Data.Set (Set)
 import qualified Data.Map as Map
 import Data.Map (Map)
 
@@ -478,7 +480,7 @@ genCallOrdinary cname _unsafe@False = c2hsHook "call" (text cname)
 -- gtk version 2.6 or later. Ugh.
 
 genCall :: String -> Bool -> Doc
-genCall cname safty | cname `elem` win32FileNameFunctions
+genCall cname safty | cname `Set.member` win32FileNameFunctions
                            = nest (-2) (text "#if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)")
                           $$ genCallOrdinary (cname ++ "_utf8") safty
                           $$ nest (-2) (text "#else")

@@ -6,6 +6,10 @@
 module MarshalFixup where
 
 import Data.Version
+import qualified Data.Set as Set
+import Data.Set (Set)
+import qualified Data.Map as Map
+import Data.Map (Map)
 
 cTypeNameToHSType :: String -> String
 cTypeNameToHSType ('A':'t':'k':remainder) = remainder
@@ -89,27 +93,30 @@ knownMiscType _ = False
 -- rather than
 -- > AdjustmentClass adjustment => adjustment -> ...
 leafClass :: String -> Bool
-leafClass "GtkAdjustment" = True
-leafClass "GdkPixbuf"     = True
-leafClass "GtkImage"      = True
-leafClass "GtkIconFactory"  = True
-leafClass "GtkEntryCompletion" = True
-leafClass "GtkFileFilter"   = True
-leafClass "GtkUIManager"    = True
-leafClass "GtkActionGroup"  = True
-leafClass "GtkRadioButton"  = True
-leafClass "GtkEventBox"     = True
-leafClass "GtkExpander"     = True
-leafClass "GtkAccelGroup"   = True
-leafClass "GtkTooltips"     = True
-leafClass "GtkTextChildAnchor" = True
-leafClass "GdkWindow"       = True
-leafClass "GdkDisplay"      = True
-leafClass "GdkScreen"       = True
-leafClass "GdkColormap"     = True
-leafClass "GtkTreeViewColumn" = True
-leafClass "GtkStyle"        = True
-leafClass _ = False
+leafClass = flip Set.member leafClasses
+
+leafClasses = Set.fromList
+  ["GtkAdjustment"
+  ,"GdkPixbuf"
+  ,"GtkImage"
+  ,"GtkIconFactory"
+  ,"GtkEntryCompletion"
+  ,"GtkFileFilter"
+  ,"GtkUIManager"
+  ,"GtkActionGroup"
+  ,"GtkRadioButton"
+  ,"GtkEventBox"
+  ,"GtkExpander"
+  ,"GtkAccelGroup"
+  ,"GtkTooltips"
+  ,"GtkTextChildAnchor"
+  ,"GdkWindow"
+  ,"GdkDisplay"
+  ,"GdkScreen"
+  ,"GdkColormap"
+  ,"GtkTreeViewColumn"
+  ,"GtkStyle"
+  ]
 
 -- This is a table of fixup information. It lists function parameters that
 -- can be null and so should therefore be converted to use a Maybe type.
@@ -122,383 +129,387 @@ leafClass _ = False
 -- out which function doc NULLs correspond to which parameters).
 --
 maybeNullParameter :: String -> String -> Bool
-maybeNullParameter "gtk_entry_completion_set_model" "model"	= True
-maybeNullParameter "gtk_label_new" "str"			= True
-maybeNullParameter "gtk_about_dialog_set_license" "license"	= True
-maybeNullParameter "gtk_about_dialog_set_logo" "logo"		= True
-maybeNullParameter "gtk_about_dialog_set_logo_icon_name" "logo" = True
-maybeNullParameter "gtk_layout_new" _				= True
-maybeNullParameter "gtk_notebook_set_menu_label" "menuLabel"	= True
-maybeNullParameter "gtk_scrolled_window_new" "hadjustment"	= True
-maybeNullParameter "gtk_scrolled_window_new" "vadjustment"	= True
-maybeNullParameter "gtk_combo_box_set_model" "model"		= True
-maybeNullParameter "gtk_menu_set_screen" "screen"		= True
-maybeNullParameter "gtk_menu_item_set_accel_path" "accelPath"	= True
-maybeNullParameter "gtk_toolbar_set_drop_highlight_item" "toolItem"	= True
-maybeNullParameter "gtk_text_buffer_new" "table"		= True
-maybeNullParameter "gtk_text_buffer_create_mark" "markName"	= True
-maybeNullParameter "gtk_cell_view_set_displayed_row" "path"	= True
-maybeNullParameter "gtk_about_dialog_set_logo_icon_name" "iconName"	= True
-maybeNullParameter "gtk_widget_modify_fg" "color"		= True
-maybeNullParameter "gtk_widget_modify_bg" "color"		= True
-maybeNullParameter "gtk_widget_modify_text" "color"		= True
-maybeNullParameter "gtk_widget_modify_base" "color"		= True
-maybeNullParameter "gtk_action_group_add_action_with_accel" "accelerator"	= True
-maybeNullParameter "gtk_radio_tool_button_new" "group"		= True
-maybeNullParameter "gtk_radio_tool_button_new_from_stock" "group"	= True
-maybeNullParameter "gtk_tool_button_set_label" "label"		= True
-maybeNullParameter "gtk_tool_button_set_icon_widget" "iconWidget"	= True
-maybeNullParameter "gtk_tool_button_set_label_widget" "labelWidget"	= True
-maybeNullParameter "gtk_ui_manager_add_ui" "action"		= True
-maybeNullParameter "gtk_menu_tool_button_new" "iconWidget"	= True
-maybeNullParameter "gtk_menu_tool_button_new" "label"		= True
-maybeNullParameter "gtk_menu_tool_button_set_menu" "menu"	= True
-maybeNullParameter "gtk_tool_button_new" "iconWidget"		= True
-maybeNullParameter "gtk_tool_button_new" "label"		= True
-maybeNullParameter "gtk_tool_button_set_stock_id" "stockId"	= True
-maybeNullParameter "gtk_action_new" "tooltip"			= True
-maybeNullParameter "gtk_action_new" "stockId"			= True
-maybeNullParameter "gtk_toggle_action_new" "tooltip"		= True
-maybeNullParameter "gtk_toggle_action_new" "stockId"		= True
-maybeNullParameter "gtk_radio_action_new" "tooltip"		= True
-maybeNullParameter "gtk_radio_action_new" "stockId"		= True
-maybeNullParameter "gtk_tree_model_iter_n_children" "iter"  	= True
-maybeNullParameter "gtk_tree_model_iter_nth_child" "parent"	= True
-maybeNullParameter "gtk_tree_store_insert" "parent"		= True
-maybeNullParameter "gtk_tree_store_prepend" "parent"		= True
-maybeNullParameter "gtk_tree_store_append" "parent"		= True
-maybeNullParameter "gtk_list_store_move_before" "sibling"	= True
-maybeNullParameter "gtk_list_store_move_after" "sibling"	= True
-maybeNullParameter "gtk_tree_view_set_expander_column" "column"	= True
-maybeNullParameter "gtk_tree_view_set_hadjustment" "adjustment" = True
-maybeNullParameter "gtk_tree_view_set_vadjustment" "adjustment" = True
---maybeNullParameter "" ""	= True
---maybeNullParameter "" ""	= True
-maybeNullParameter _ _ = False
+maybeNullParameter fun param =
+  case Map.lookup fun maybeNullParameters of
+    Nothing -> False
+    Just [param'] -> param == param'
+    Just  params  -> param `elem` params
+
+maybeNullParameters :: Map String [String]
+maybeNullParameters = Map.fromList
+  [("gtk_entry_completion_set_model", ["model"])
+  ,("gtk_label_new", ["str"])
+  ,("gtk_about_dialog_set_license", ["license"])
+  ,("gtk_about_dialog_set_logo", ["logo"])
+  ,("gtk_about_dialog_set_logo_icon_name", ["logo"])
+  ,("gtk_layout_new", ["hadjustment", "vadjustment"])
+  ,("gtk_notebook_set_menu_label", ["menuLabel"])
+  ,("gtk_scrolled_window_new", ["hadjustment", "vadjustment"])
+  ,("gtk_combo_box_set_model", ["model"])
+  ,("gtk_menu_set_screen", ["screen"])
+  ,("gtk_menu_item_set_accel_path", ["accelPath"])
+  ,("gtk_toolbar_set_drop_highlight_item", ["toolItem"])
+  ,("gtk_text_buffer_new", ["table"])
+  ,("gtk_text_buffer_create_mark", ["markName"])
+  ,("gtk_cell_view_set_displayed_row", ["path"])
+  ,("gtk_about_dialog_set_logo_icon_name", ["iconName"])
+  ,("gtk_widget_modify_fg", ["color"])
+  ,("gtk_widget_modify_bg", ["color"])
+  ,("gtk_widget_modify_text", ["color"])
+  ,("gtk_widget_modify_base", ["color"])
+  ,("gtk_action_group_add_action_with_accel", ["accelerator"])
+  ,("gtk_radio_tool_button_new", ["group"])
+  ,("gtk_radio_tool_button_new_from_stock", ["group"])
+  ,("gtk_tool_button_set_label", ["label"])
+  ,("gtk_tool_button_set_icon_widget", ["iconWidget"])
+  ,("gtk_tool_button_set_label_widget", ["labelWidget"])
+  ,("gtk_ui_manager_add_ui", ["action"])
+  ,("gtk_menu_tool_button_new", ["iconWidget", "label"])
+  ,("gtk_menu_tool_button_set_menu", ["menu"])
+  ,("gtk_tool_button_new", ["iconWidget", "label"])
+  ,("gtk_tool_button_set_stock_id", ["stockId"])
+  ,("gtk_action_new", ["tooltip", "stockId"])
+  ,("gtk_toggle_action_new", ["tooltip", "stockId"])
+  ,("gtk_radio_action_new", ["tooltip", "stockId"])
+  ,("gtk_tree_model_iter_n_children", ["iter"])  
+  ,("gtk_tree_model_iter_nth_child", ["parent"])
+  ,("gtk_tree_store_insert", ["parent"])
+  ,("gtk_tree_store_prepend", ["parent"])
+  ,("gtk_tree_store_append", ["parent"])
+  ,("gtk_list_store_move_before", ["sibling"])
+  ,("gtk_list_store_move_after", ["sibling"])
+  ,("gtk_tree_view_set_expander_column", ["column"])
+  ,("gtk_tree_view_set_hadjustment", ["adjustment"])
+  ,("gtk_tree_view_set_vadjustment", ["adjustment"])
+  ]
 
 -- similarly for method return values/types.
 maybeNullResult :: String -> Bool
-maybeNullResult "gtk_entry_completion_get_entry" = True
-maybeNullResult "gtk_entry_completion_get_model" = True
-maybeNullResult "gtk_accel_label_get_accel_widget" = True
-maybeNullResult "gtk_progress_bar_get_text" = True
-maybeNullResult "gtk_bin_get_child" = True
-maybeNullResult "gtk_container_get_focus_hadjustment" = True
-maybeNullResult "gtk_container_get_focus_vadjustment" = True
-maybeNullResult "gtk_paned_get_child1" = True
-maybeNullResult "gtk_paned_get_child2" = True
-maybeNullResult "gtk_label_get_mnemonic_widget" = True
-maybeNullResult "gtk_notebook_get_menu_label" = True
-maybeNullResult "gtk_notebook_get_menu_label_text" = True
-maybeNullResult "gtk_notebook_get_nth_page" = True
-maybeNullResult "gtk_notebook_get_tab_label" = True
-maybeNullResult "gtk_notebook_get_tab_label_text" = True
-maybeNullResult "gtk_combo_box_get_model" = True
-maybeNullResult "gtk_image_menu_item_get_image" = True
-maybeNullResult "gtk_menu_get_title" = True
-maybeNullResult "gtk_menu_item_get_submenu" = True
-maybeNullResult "gtk_tool_item_retrieve_proxy_menu_item" = True
-maybeNullResult "gtk_tool_item_get_proxy_menu_item" = True
-maybeNullResult "gtk_toolbar_get_nth_item" = True
-maybeNullResult "gtk_file_chooser_get_filename" = True
-maybeNullResult "gtk_file_chooser_get_current_folder" = True
-maybeNullResult "gtk_file_chooser_get_uri" = True
-maybeNullResult "gtk_file_chooser_get_preview_widget" = True
-maybeNullResult "gtk_file_chooser_get_preview_filename" = True
-maybeNullResult "gtk_file_chooser_get_preview_uri" = True
-maybeNullResult "gtk_file_chooser_get_extra_widget" = True
-maybeNullResult "gtk_file_chooser_get_filter" = True
-maybeNullResult "gtk_font_selection_get_font_name" = True
-maybeNullResult "gtk_font_selection_dialog_get_font_name" = True
-maybeNullResult "gtk_text_mark_get_name" = True
-maybeNullResult "gtk_text_mark_get_buffer" = True
-maybeNullResult "gtk_text_tag_table_lookup" = True
-maybeNullResult "gtk_text_buffer_get_mark" = True
-maybeNullResult "gtk_text_view_get_window" = True
-maybeNullResult "gtk_icon_view_get_path_at_pos" = True
-maybeNullResult "gtk_combo_box_get_active_text" = True
-maybeNullResult "gtk_scale_get_layout" = True
-maybeNullResult "gtk_button_get_image" = True
-maybeNullResult "gtk_image_get_animation" = True
-maybeNullResult "gtk_window_get_transient_for" = True
-maybeNullResult "gtk_window_get_role" = True
-maybeNullResult "gtk_window_get_title" = True
-maybeNullResult "gtk_widget_render_icon" = True
-maybeNullResult "gtk_widget_get_composite_name" = True
-maybeNullResult "gtk_action_get_accel_path" = True
-maybeNullResult "gtk_action_group_get_action" = True
-maybeNullResult "gtk_tool_button_get_label" = True
-maybeNullResult "gtk_tool_button_get_icon_widget" = True
-maybeNullResult "gtk_tool_button_get_label_widget" = True
-maybeNullResult "gtk_ui_manager_get_widget" = True
-maybeNullResult "gtk_ui_manager_get_action" = True
-maybeNullResult "gtk_menu_tool_button_get_menu" = True
-maybeNullResult "gtk_tool_button_get_stock_id" = True
-maybeNullResult "gtk_about_dialog_get_license" = True
-maybeNullResult "gtk_menu_get_attach_widget" = True
-maybeNullResult "gtk_tree_view_column_get_title" = True
-maybeNullResult "gtk_frame_get_label_widget" = True
-maybeNullResult "gtk_tree_view_get_model" = True
-maybeNullResult "gtk_tree_view_get_hadjustment" = True
-maybeNullResult "gtk_tree_view_get_vadjustment" = True
---maybeNullResult "" = True
---maybeNullResult "" = True
-maybeNullResult _ = False
+maybeNullResult = flip Set.member maybeNullResults
+
+maybeNullResults :: Set String
+maybeNullResults = Set.fromList
+  ["gtk_entry_completion_get_entry"
+  ,"gtk_entry_completion_get_model"
+  ,"gtk_accel_label_get_accel_widget"
+  ,"gtk_progress_bar_get_text"
+  ,"gtk_bin_get_child"
+  ,"gtk_container_get_focus_hadjustment"
+  ,"gtk_container_get_focus_vadjustment"
+  ,"gtk_paned_get_child1"
+  ,"gtk_paned_get_child2"
+  ,"gtk_label_get_mnemonic_widget"
+  ,"gtk_notebook_get_menu_label"
+  ,"gtk_notebook_get_menu_label_text"
+  ,"gtk_notebook_get_nth_page"
+  ,"gtk_notebook_get_tab_label"
+  ,"gtk_notebook_get_tab_label_text"
+  ,"gtk_combo_box_get_model"
+  ,"gtk_image_menu_item_get_image"
+  ,"gtk_menu_get_title"
+  ,"gtk_menu_item_get_submenu"
+  ,"gtk_tool_item_retrieve_proxy_menu_item"
+  ,"gtk_tool_item_get_proxy_menu_item"
+  ,"gtk_toolbar_get_nth_item"
+  ,"gtk_file_chooser_get_filename"
+  ,"gtk_file_chooser_get_current_folder"
+  ,"gtk_file_chooser_get_uri"
+  ,"gtk_file_chooser_get_preview_widget"
+  ,"gtk_file_chooser_get_preview_filename"
+  ,"gtk_file_chooser_get_preview_uri"
+  ,"gtk_file_chooser_get_extra_widget"
+  ,"gtk_file_chooser_get_filter"
+  ,"gtk_font_selection_get_font_name"
+  ,"gtk_font_selection_dialog_get_font_name"
+  ,"gtk_text_mark_get_name"
+  ,"gtk_text_mark_get_buffer"
+  ,"gtk_text_tag_table_lookup"
+  ,"gtk_text_buffer_get_mark"
+  ,"gtk_text_view_get_window"
+  ,"gtk_icon_view_get_path_at_pos"
+  ,"gtk_combo_box_get_active_text"
+  ,"gtk_scale_get_layout"
+  ,"gtk_button_get_image"
+  ,"gtk_image_get_animation"
+  ,"gtk_window_get_transient_for"
+  ,"gtk_window_get_role"
+  ,"gtk_window_get_title"
+  ,"gtk_widget_render_icon"
+  ,"gtk_widget_get_composite_name"
+  ,"gtk_action_get_accel_path"
+  ,"gtk_action_group_get_action"
+  ,"gtk_tool_button_get_label"
+  ,"gtk_tool_button_get_icon_widget"
+  ,"gtk_tool_button_get_label_widget"
+  ,"gtk_ui_manager_get_widget"
+  ,"gtk_ui_manager_get_action"
+  ,"gtk_menu_tool_button_get_menu"
+  ,"gtk_tool_button_get_stock_id"
+  ,"gtk_about_dialog_get_license"
+  ,"gtk_menu_get_attach_widget"
+  ,"gtk_tree_view_column_get_title"
+  ,"gtk_frame_get_label_widget"
+  ,"gtk_tree_view_get_model"
+  ,"gtk_tree_view_get_hadjustment"
+  ,"gtk_tree_view_get_vadjustment"
+  ]
 
 -- Often the documentation for parameters or the return value of functions
 -- that is included in the gtk-doc docs are just pointless. So this table
 -- lists the function and parameter names for which we do not want to use the
 -- gtk-doc documentation.
 nukeParamDoc :: String -> String -> Bool
-nukeParamDoc "gtk_button_box_get_layout" "returns"		= True
-nukeParamDoc "gtk_button_set_label" "label"			= True
-nukeParamDoc "gtk_button_get_label" "returns" 			= True
-nukeParamDoc "gtk_toggle_button_get_active" "returns"		= True
-nukeParamDoc "gtk_image_new_from_file" "filename"		= True
-nukeParamDoc "gtk_image_new_from_pixbuf" "pixbuf"		= True
-nukeParamDoc "gtk_label_new" "str"				= True
-nukeParamDoc "gtk_label_set_text" "str"				= True
-nukeParamDoc "gtk_label_set_label" "str"			= True
-nukeParamDoc "gtk_label_set_justify" "jtype"			= True
-nukeParamDoc "gtk_label_get_justify" "returns"			= True
-nukeParamDoc "gtk_label_set_use_underline" "setting"		= True
-nukeParamDoc "gtk_label_get_use_underline" "returns"		= True
-nukeParamDoc "gtk_label_get_layout" "returns"			= True
-nukeParamDoc "gtk_label_get_text" "returns"			= True
-nukeParamDoc "gtk_label_get_label" "returns"			= True
-nukeParamDoc "gtk_label_set_text_with_mnemonic" "str"		= True
-nukeParamDoc "gtk_progress_bar_set_text" "text"			= True
-nukeParamDoc "gtk_progress_bar_get_orientation" "returns"	= True
-nukeParamDoc "gtk_progress_bar_set_orientation" "orientation"	= True
-nukeParamDoc "gtk_statusbar_set_has_resize_grip" "setting"	= True
-nukeParamDoc "gtk_statusbar_get_has_resize_grip" "returns"	= True	
-nukeParamDoc "gtk_editable_get_editable" "returns"		= True
-nukeParamDoc "gtk_entry_set_text" "text"			= True
-nukeParamDoc "gtk_entry_get_text" "returns"			= True
-nukeParamDoc "gtk_entry_append_text" "text"			= True
-nukeParamDoc "gtk_entry_prepend_text" "text"			= True
-nukeParamDoc "gtk_entry_set_invisible_char" "ch"		= True
-nukeParamDoc "gtk_entry_set_has_frame" "setting"		= True
-nukeParamDoc "gtk_entry_set_completion" "completion"		= True
-nukeParamDoc "gtk_spin_button_get_value" "returns"		= True
-nukeParamDoc "gtk_spin_button_get_value_as_int" "returns"	= True
-nukeParamDoc "gtk_spin_button_set_value" "value"		= True
-nukeParamDoc "gtk_expander_new" "label"				= True
-nukeParamDoc "gtk_expander_set_expanded" "expanded"		= True
-nukeParamDoc "gtk_expander_get_expanded" "returns"		= True
-nukeParamDoc "gtk_expander_set_spacing" "spacing"		= True
-nukeParamDoc "gtk_expander_set_label" "label"			= True
-nukeParamDoc "gtk_expander_get_label" "returns"			= True
-nukeParamDoc "gtk_expander_get_use_markup" "returns"		= True
-nukeParamDoc "gtk_fixed_set_has_window" "hasWindow"		= True
-nukeParamDoc "gtk_fixed_get_has_window" "returns"		= True
-nukeParamDoc "gtk_notebook_get_n_pages" "returns"		= True
-nukeParamDoc "gtk_adjustment_set_value" "value"			= True
-nukeParamDoc "gtk_adjustment_get_value" "returns"		= True
-nukeParamDoc "gtk_arrow_new" "arrowType"			= True
-nukeParamDoc "gtk_arrow_new" "shadowType"			= True
-nukeParamDoc "gtk_arrow_set" "arrowType"			= True
-nukeParamDoc "gtk_arrow_set" "shadowType"			= True
-nukeParamDoc "gtk_calendar_set_display_options" "flags"		= True
-nukeParamDoc "gtk_calendar_display_options" "flags"		= True
-nukeParamDoc "gtk_calendar_get_display_options" "returns"	= True
-nukeParamDoc "gtk_event_box_set_visible_window" "visibleWindow"	= True
-nukeParamDoc "gtk_event_box_get_visible_window" "returns"	= True
-nukeParamDoc "gtk_event_box_set_above_child" "aboveChild"	= True
-nukeParamDoc "gtk_event_box_get_above_child" "returns"		= True
-nukeParamDoc "gtk_handle_box_set_shadow_type" "type"		= True
-nukeParamDoc "gtk_viewport_get_hadjustment" "returns"		= True
-nukeParamDoc "gtk_viewport_get_vadjustment" "returns"		= True
-nukeParamDoc "gtk_viewport_set_hadjustment" "adjustment"	= True
-nukeParamDoc "gtk_viewport_set_vadjustment" "adjustment"	= True
-nukeParamDoc "gtk_frame_set_label_widget" "labelWidget"		= True
-nukeParamDoc "gtk_frame_set_shadow_type" "type"			= True
-nukeParamDoc "gtk_frame_get_shadow_type" "returns"		= True
-nukeParamDoc "gtk_scrolled_window_get_hadjustment" "returns"	= True
-nukeParamDoc "gtk_scrolled_window_get_vadjustment" "returns"	= True
-nukeParamDoc "gtk_scrolled_window_get_placement" "returns"	= True
-nukeParamDoc "gtk_scrolled_window_set_shadow_type" "type"	= True
-nukeParamDoc "gtk_scrolled_window_get_shadow_type" "returns"	= True
-nukeParamDoc "gtk_scrolled_window_set_hadjustment" "hadjustment"= True
-nukeParamDoc "gtk_scrolled_window_set_vadjustment" "hadjustment"= True
-nukeParamDoc "gtk_window_set_title" "title"			= True
-nukeParamDoc "gtk_window_set_resizable" "resizable"		= True
-nukeParamDoc "gtk_window_set_position" "position"		= True
-nukeParamDoc "gtk_window_set_destroy_with_parent" "setting"	= True
-nukeParamDoc "gtk_window_set_decorated" "setting"		= True
-nukeParamDoc "gtk_color_selection_is_adjusting" "returns"	= True
-nukeParamDoc "gtk_check_menu_item_set_active" "isActive"	= True
-nukeParamDoc "gtk_check_menu_item_get_active" "returns"		= True
-nukeParamDoc "gtk_check_menu_item_set_inconsistent" "setting"	= True
-nukeParamDoc "gtk_check_menu_item_get_inconsistent" "returns"	= True
-nukeParamDoc "gtk_check_menu_item_set_draw_as_radio" "drawAsRadio"	= True
-nukeParamDoc "gtk_check_menu_item_get_draw_as_radio" "returns"	= True
-nukeParamDoc "gtk_combo_set_use_arrows" "val"			= True
-nukeParamDoc "gtk_combo_set_use_arrows_always" "val"		= True
-nukeParamDoc "gtk_combo_set_case_sensitive" "val"		= True
-nukeParamDoc "gtk_combo_box_set_wrap_width" "width"		= True
-nukeParamDoc "gtk_combo_box_set_row_span_column" "rowSpan"	= True
-nukeParamDoc "gtk_combo_box_set_column_span_column" "columnSpan"= True
-nukeParamDoc "gtk_combo_box_set_model" "model"			= True
-nukeParamDoc "gtk_combo_box_append_text" "text"			= True
-nukeParamDoc "gtk_combo_box_prepend_text" "text"		= True
-nukeParamDoc "gtk_menu_set_title" "title"			= True
-nukeParamDoc "gtk_menu_item_set_submenu" "submenu"		= True
-nukeParamDoc "gtk_menu_item_get_right_justified" "returns"	= True
-nukeParamDoc "gtk_option_menu_get_menu" "returns"		= True
-nukeParamDoc "gtk_option_menu_set_menu" "menu"			= True
-nukeParamDoc "gtk_tool_item_get_homogeneous" "returns"		= True
-nukeParamDoc "gtk_tool_item_set_expand" "expand"		= True
-nukeParamDoc "gtk_tool_item_get_expand" "returns"		= True
-nukeParamDoc "gtk_tool_item_set_use_drag_window" "useDragWindow"= True
-nukeParamDoc "gtk_tool_item_get_use_drag_window" "returns"	= True
-nukeParamDoc "gtk_tool_item_set_visible_horizontal" "visibleHorizontal"	= True
-nukeParamDoc "gtk_tool_item_get_visible_horizontal" "returns"	= True
-nukeParamDoc "gtk_tool_item_set_visible_vertical" "visibleVertical"	= True
-nukeParamDoc "gtk_tool_item_get_visible_vertical" "returns"	= True
-nukeParamDoc "gtk_tool_item_set_is_important" "isImportant"	= True
-nukeParamDoc "gtk_tool_item_get_icon_size" "returns"		= True
-nukeParamDoc "gtk_tool_item_get_orientation" "returns"		= True
-nukeParamDoc "gtk_tool_item_get_toolbar_style" "returns"	= True
-nukeParamDoc "gtk_tool_item_get_relief_style" "returns"		= True
-nukeParamDoc "gtk_tool_item_get_is_important" "returns"		= True
-nukeParamDoc "gtk_tool_item_retrieve_proxy_menu_item" "returns"	= True
-nukeParamDoc "gtk_toolbar_set_orientation" "orientation"	= True
-nukeParamDoc "gtk_toolbar_get_orientation" "returns"		= True
-nukeParamDoc "gtk_toolbar_set_style" "style"			= True
-nukeParamDoc "gtk_toolbar_get_style" "returns"			= True
-nukeParamDoc "gtk_toolbar_get_tooltips" "returns"		= True
-nukeParamDoc "gtk_toolbar_get_icon_size" "returns"		= True
-nukeParamDoc "gtk_toolbar_get_n_items" "returns"		= True
-nukeParamDoc "gtk_toolbar_set_show_arrow" "showArrow"		= True
-nukeParamDoc "gtk_toolbar_get_show_arrow" "returns"		= True
-nukeParamDoc "gtk_toolbar_get_relief_style" "returns"		= True
-nukeParamDoc "gtk_toolbar_set_icon_size" "iconSize"		= True
-nukeParamDoc "gtk_file_chooser_get_action" "returns"		= True
-nukeParamDoc "gtk_file_chooser_set_local_only" "localOnly"	= True
-nukeParamDoc "gtk_file_chooser_get_local_only" "returns"	= True
-nukeParamDoc "gtk_file_chooser_set_select_multiple" "selectMultiple"	= True
-nukeParamDoc "gtk_file_chooser_get_select_multiple" "returns"	= True
-nukeParamDoc "gtk_file_chooser_get_filenames" "returns"		= True
-nukeParamDoc "gtk_file_chooser_add_filter" "filter"		= True
-nukeParamDoc "gtk_file_chooser_remove_filter" "filter"		= True
-nukeParamDoc "gtk_file_chooser_set_filter" "filter"		= True
-nukeParamDoc "gtk_file_chooser_add_shortcut_folder" "returns"	= True
-nukeParamDoc "gtk_file_chooser_remove_shortcut_folder" "returns"= True
-nukeParamDoc "gtk_file_chooser_add_shortcut_folder_uri" "returns"	= True
-nukeParamDoc "gtk_file_chooser_remove_shortcut_folder_uri" "returns"	= True
-nukeParamDoc "gtk_file_chooser_get_uris" "returns"		= True
-nukeParamDoc "gtk_file_chooser_list_filters" "returns"		= True
-nukeParamDoc "gtk_file_chooser_list_shortcut_folders" "returns"	= True
-nukeParamDoc "gtk_file_chooser_list_shortcut_folder_uris" "returns"	= True
-nukeParamDoc "gtk_font_selection_get_preview_text" "returns"	= True
-nukeParamDoc "gtk_font_selection_set_preview_text" "text"	= True
-nukeParamDoc "gtk_font_selection_dialog_get_preview_text" "returns"	= True
-nukeParamDoc "gtk_font_selection_dialog_set_preview_text" "text"	= True
-nukeParamDoc "gtk_text_mark_get_name" "returns"			= True
-nukeParamDoc "gtk_text_mark_get_buffer" "returns"		= True
-nukeParamDoc "gtk_text_mark_get_visible" "returns"		= True
-nukeParamDoc "gtk_text_mark_get_deleted" "returns"		= True
-nukeParamDoc "gtk_text_mark_set_visible" "setting"		= True
-nukeParamDoc "gtk_text_mark_get_left_gravity" "returns"		= True
-nukeParamDoc "gtk_text_tag_new" "name"				= True
-nukeParamDoc "gtk_text_tag_get_priority" "returns"		= True
-nukeParamDoc "gtk_text_tag_set_priority" "priority"		= True
-nukeParamDoc "gtk_text_tag_table_add" "tag"			= True
-nukeParamDoc "gtk_text_tag_table_remove" "tag"			= True
-nukeParamDoc "gtk_text_tag_table_get_size" "returns"		= True
-nukeParamDoc "gtk_text_buffer_get_line_count" "returns"		= True
-nukeParamDoc "gtk_text_buffer_get_char_count" "returns"		= True
-nukeParamDoc "gtk_text_buffer_get_tag_table" "returns"		= True
-nukeParamDoc "gtk_text_buffer_get_text" "returns"		= True
-nukeParamDoc "gtk_text_buffer_get_slice" "returns"		= True
-nukeParamDoc "gtk_text_buffer_insert_at_cursor" "text"		= True
-nukeParamDoc "gtk_text_buffer_insert_at_cursor" "len"		= True
-nukeParamDoc "gtk_text_buffer_get_insert" "returns"		= True
-nukeParamDoc "gtk_text_buffer_get_selection_bound" "returns"	= True
-nukeParamDoc "gtk_text_buffer_set_modified" "setting"		= True
-nukeParamDoc "gtk_text_buffer_get_end_iter" "iter"		= True
-nukeParamDoc "gtk_text_view_new_with_buffer" "buffer"		= True
-nukeParamDoc "gtk_text_view_set_buffer" "buffer"		= True
-nukeParamDoc "gtk_text_view_get_buffer" "returns"		= True
-nukeParamDoc "gtk_text_view_get_iter_location" "iter"		= True
-nukeParamDoc "gtk_text_view_get_iter_location" "location"	= True
-nukeParamDoc "gtk_text_view_set_wrap_mode" "wrapMode"		= True
-nukeParamDoc "gtk_text_view_get_wrap_mode" "returns"		= True
-nukeParamDoc "gtk_text_view_set_editable" "setting"		= True
-nukeParamDoc "gtk_text_view_get_editable" "returns"		= True
-nukeParamDoc "gtk_text_view_set_cursor_visible" "setting"	= True
-nukeParamDoc "gtk_text_view_get_cursor_visible" "returns"  	= True
-nukeParamDoc "gtk_text_view_set_pixels_above_lines" "pixelsAboveLines"	= True
-nukeParamDoc "gtk_text_view_get_pixels_above_lines" "returns"	= True
-nukeParamDoc "gtk_text_view_set_pixels_below_lines" "pixelsBelowLines"	= True
-nukeParamDoc "gtk_text_view_get_pixels_below_lines" "returns"	= True
-nukeParamDoc "gtk_text_view_set_pixels_inside_wrap" "pixelsInsideWrap"	= True
-nukeParamDoc "gtk_text_view_get_pixels_inside_wrap" "returns"	= True
-nukeParamDoc "gtk_text_view_set_justification" "justification"	= True
-nukeParamDoc "gtk_text_view_get_justification" "returns"	= True
-nukeParamDoc "gtk_text_view_get_default_attributes" "returns"	= True
-nukeParamDoc "gtk_color_button_get_color" "color"		= True
-nukeParamDoc "gtk_combo_box_get_wrap_width" "returns"		= True
-nukeParamDoc "gtk_combo_box_get_row_span_column" "returns"	= True
-nukeParamDoc "gtk_combo_box_get_column_span_column" "returns"	= True
-nukeParamDoc "gtk_combo_box_get_active_text" "returns"		= True
-nukeParamDoc "gtk_combo_box_get_add_tearoffs" "returns"		= True
-nukeParamDoc "gtk_combo_box_set_focus_on_click" "returns"	= True
-nukeParamDoc "gtk_image_get_pixel_size" "returns"		= True
-nukeParamDoc "gtk_image_set_from_file" "filename"		= True
-nukeParamDoc "gtk_progress_bar_set_ellipsize" "mode"		= True
-nukeParamDoc "gtk_progress_bar_get_ellipsize" "returns"		= True
-nukeParamDoc "gtk_widget_get_modifier_style" "returns"		= True
-nukeParamDoc "gtk_widget_get_default_direction" "returns"	= True
-nukeParamDoc "gtk_widget_get_direction" "returns"		= True
-nukeParamDoc "gtk_widget_set_direction" "dir"			= True
-nukeParamDoc "gtk_widget_get_name" "returns"			= True
-nukeParamDoc "gtk_text_view_get_overwrite" "returns"		= True
-nukeParamDoc "gtk_action_get_name" "returns"			= True
 nukeParamDoc ('g':'t':'k':'_':'u':'i':'_':'m':'a':'n':'a':'g':'e':'r':'_':_) "self" = True
-nukeParamDoc "gtk_toggle_action_get_active" "returns"		= True
-nukeParamDoc "gtk_toggle_action_set_draw_as_radio" "drawAsRadio"= True
-nukeParamDoc "gtk_toggle_action_get_draw_as_radio" "returns"	= True
-nukeParamDoc "gtk_separator_tool_item_set_draw" "draw"		= True
-nukeParamDoc "gtk_separator_tool_item_get_draw" "returns"	= True
-nukeParamDoc "gtk_tool_button_get_stock_id" "returns"		= True
-nukeParamDoc "gtk_ui_manager_get_action_groups" "returns"	= True
-nukeParamDoc "gtk_action_group_set_sensitive" "sensitive"	= True
-nukeParamDoc "gtk_action_group_get_sensitive" "returns"		= True
-nukeParamDoc "gtk_action_group_get_visible" "returns"		= True
-nukeParamDoc "gtk_action_group_set_visible" "visible"		= True
-nukeParamDoc "gtk_action_group_remove_action" "action"		= True
-nukeParamDoc "gtk_menu_tool_button_get_menu" "returns"		= True
-nukeParamDoc "gtk_toggle_tool_button_set_active" "isActive"	= True
-nukeParamDoc "gtk_toggle_tool_button_get_active" "returns"	= True
-nukeParamDoc "gtk_tool_button_get_label" "returns"		= True
-nukeParamDoc "gtk_tool_button_get_use_underline" "returns"	= True
-nukeParamDoc "gtk_tool_button_set_use_underline" "useUnderline"	= True
-nukeParamDoc "gtk_action_group_add_action" "action"		= True
-nukeParamDoc "gtk_action_get_proxies" "returns"			= True
-nukeParamDoc "gtk_about_dialog_get_authors" "returns"		= True
-nukeParamDoc "gtk_about_dialog_get_artists" "returns"		= True
-nukeParamDoc "gtk_about_dialog_get_documenters" "returns"	= True
-nukeParamDoc "gtk_about_dialog_get_license" "returns"		= True
-nukeParamDoc "gtk_about_dialog_get_version" "returns"		= True
-nukeParamDoc "gtk_about_dialog_get_copyright" "returns"		= True
-nukeParamDoc "gtk_about_dialog_get_comments" "returns"		= True
-nukeParamDoc "gtk_about_dialog_get_website" "returns"		= True
-nukeParamDoc "gtk_about_dialog_get_website_label" "returns"	= True
-nukeParamDoc "gtk_about_dialog_get_translator_credits" "returns"= True
-nukeParamDoc "gtk_about_dialog_get_logo" "returns"		= True
-nukeParamDoc "gtk_about_dialog_get_logo_icon_name" "returns"	= True
-nukeParamDoc "gtk_about_dialog_set_version" "version"		= True
-nukeParamDoc "gtk_about_dialog_set_copyright" "copyright"	= True
-nukeParamDoc "gtk_about_dialog_set_comments" "comments"		= True
-nukeParamDoc "gtk_about_dialog_set_website_label" "websiteLabel"= True
-nukeParamDoc "gtk_about_dialog_set_translator_credits" "translatorCredits"	= True
-nukeParamDoc "gtk_file_selection_get_selections" "returns"	= True
-nukeParamDoc "gtk_tree_model_get_flags" "returns"		= True
---nukeParamDoc "" ""			= True
---nukeParamDoc "" ""			= True
-nukeParamDoc _ _ = False
+nukeParamDoc fun param =
+  case Map.lookup fun nukeParamDocs of
+    Nothing -> False
+    Just [param'] -> param == param'
+    Just  params  -> param `elem` params
+
+nukeParamDocs :: Map String [String]
+nukeParamDocs = Map.fromList
+  [("gtk_button_box_get_layout", ["returns"])
+  ,("gtk_button_set_label", ["label"])
+  ,("gtk_button_get_label", ["returns"]) 
+  ,("gtk_toggle_button_get_active", ["returns"])
+  ,("gtk_image_new_from_file", ["filename"])
+  ,("gtk_image_new_from_pixbuf", ["pixbuf"])
+  ,("gtk_label_new", ["str"])
+  ,("gtk_label_set_text", ["str"])
+  ,("gtk_label_set_label", ["str"])
+  ,("gtk_label_set_justify", ["jtype"])
+  ,("gtk_label_get_justify", ["returns"])
+  ,("gtk_label_set_use_underline", ["setting"])
+  ,("gtk_label_get_use_underline", ["returns"])
+  ,("gtk_label_get_layout", ["returns"])
+  ,("gtk_label_get_text", ["returns"])
+  ,("gtk_label_get_label", ["returns"])
+  ,("gtk_label_set_text_with_mnemonic", ["str"])
+  ,("gtk_progress_bar_set_text", ["text"])
+  ,("gtk_progress_bar_get_orientation", ["returns"])
+  ,("gtk_progress_bar_set_orientation", ["orientation"])
+  ,("gtk_statusbar_set_has_resize_grip", ["setting"])
+  ,("gtk_statusbar_get_has_resize_grip", ["returns"])	
+  ,("gtk_editable_get_editable", ["returns"])
+  ,("gtk_entry_set_text", ["text"])
+  ,("gtk_entry_get_text", ["returns"])
+  ,("gtk_entry_append_text", ["text"])
+  ,("gtk_entry_prepend_text", ["text"])
+  ,("gtk_entry_set_invisible_char", ["ch"])
+  ,("gtk_entry_set_has_frame", ["setting"])
+  ,("gtk_entry_set_completion", ["completion"])
+  ,("gtk_spin_button_get_value", ["returns"])
+  ,("gtk_spin_button_get_value_as_int", ["returns"])
+  ,("gtk_spin_button_set_value", ["value"])
+  ,("gtk_expander_new", ["label"])
+  ,("gtk_expander_set_expanded", ["expanded"])
+  ,("gtk_expander_get_expanded", ["returns"])
+  ,("gtk_expander_set_spacing", ["spacing"])
+  ,("gtk_expander_set_label", ["label"])
+  ,("gtk_expander_get_label", ["returns"])
+  ,("gtk_expander_get_use_markup", ["returns"])
+  ,("gtk_fixed_set_has_window", ["hasWindow"])
+  ,("gtk_fixed_get_has_window", ["returns"])
+  ,("gtk_notebook_get_n_pages", ["returns"])
+  ,("gtk_adjustment_set_value", ["value"])
+  ,("gtk_adjustment_get_value", ["returns"])
+  ,("gtk_arrow_new", ["arrowType", "shadowType"])
+  ,("gtk_arrow_set", ["arrowType", "shadowType"])
+  ,("gtk_calendar_set_display_options", ["flags"])
+  ,("gtk_calendar_display_options", ["flags"])
+  ,("gtk_calendar_get_display_options", ["returns"])
+  ,("gtk_event_box_set_visible_window", ["visibleWindow"])
+  ,("gtk_event_box_get_visible_window", ["returns"])
+  ,("gtk_event_box_set_above_child", ["aboveChild"])
+  ,("gtk_event_box_get_above_child", ["returns"])
+  ,("gtk_handle_box_set_shadow_type", ["type"])
+  ,("gtk_viewport_get_hadjustment", ["returns"])
+  ,("gtk_viewport_get_vadjustment", ["returns"])
+  ,("gtk_viewport_set_hadjustment", ["adjustment"])
+  ,("gtk_viewport_set_vadjustment", ["adjustment"])
+  ,("gtk_frame_set_label_widget", ["labelWidget"])
+  ,("gtk_frame_set_shadow_type", ["type"])
+  ,("gtk_frame_get_shadow_type", ["returns"])
+  ,("gtk_scrolled_window_get_hadjustment", ["returns"])
+  ,("gtk_scrolled_window_get_vadjustment", ["returns"])
+  ,("gtk_scrolled_window_get_placement", ["returns"])
+  ,("gtk_scrolled_window_set_shadow_type", ["type"])
+  ,("gtk_scrolled_window_get_shadow_type", ["returns"])
+  ,("gtk_scrolled_window_set_hadjustment", ["hadjustment"])
+  ,("gtk_scrolled_window_set_vadjustment", ["hadjustment"])
+  ,("gtk_window_set_title", ["title"])
+  ,("gtk_window_set_resizable", ["resizable"])
+  ,("gtk_window_set_position", ["position"])
+  ,("gtk_window_set_destroy_with_parent", ["setting"])
+  ,("gtk_window_set_decorated", ["setting"])
+  ,("gtk_color_selection_is_adjusting", ["returns"])
+  ,("gtk_check_menu_item_set_active", ["isActive"])
+  ,("gtk_check_menu_item_get_active", ["returns"])
+  ,("gtk_check_menu_item_set_inconsistent", ["setting"])
+  ,("gtk_check_menu_item_get_inconsistent", ["returns"])
+  ,("gtk_check_menu_item_set_draw_as_radio", ["drawAsRadio"])
+  ,("gtk_check_menu_item_get_draw_as_radio", ["returns"])
+  ,("gtk_combo_set_use_arrows", ["val"])
+  ,("gtk_combo_set_use_arrows_always", ["val"])
+  ,("gtk_combo_set_case_sensitive", ["val"])
+  ,("gtk_combo_box_set_wrap_width", ["width"])
+  ,("gtk_combo_box_set_row_span_column", ["rowSpan"])
+  ,("gtk_combo_box_set_column_span_column", ["columnSpan"])
+  ,("gtk_combo_box_set_model", ["model"])
+  ,("gtk_combo_box_append_text", ["text"])
+  ,("gtk_combo_box_prepend_text", ["text"])
+  ,("gtk_menu_set_title", ["title"])
+  ,("gtk_menu_item_set_submenu", ["submenu"])
+  ,("gtk_menu_item_get_right_justified", ["returns"])
+  ,("gtk_option_menu_get_menu", ["returns"])
+  ,("gtk_option_menu_set_menu", ["menu"])
+  ,("gtk_tool_item_get_homogeneous", ["returns"])
+  ,("gtk_tool_item_set_expand", ["expand"])
+  ,("gtk_tool_item_get_expand", ["returns"])
+  ,("gtk_tool_item_set_use_drag_window", ["useDragWindow"])
+  ,("gtk_tool_item_get_use_drag_window", ["returns"])
+  ,("gtk_tool_item_set_visible_horizontal", ["visibleHorizontal"])
+  ,("gtk_tool_item_get_visible_horizontal", ["returns"])
+  ,("gtk_tool_item_set_visible_vertical", ["visibleVertical"])
+  ,("gtk_tool_item_get_visible_vertical", ["returns"])
+  ,("gtk_tool_item_set_is_important", ["isImportant"])
+  ,("gtk_tool_item_get_icon_size", ["returns"])
+  ,("gtk_tool_item_get_orientation", ["returns"])
+  ,("gtk_tool_item_get_toolbar_style", ["returns"])
+  ,("gtk_tool_item_get_relief_style", ["returns"])
+  ,("gtk_tool_item_get_is_important", ["returns"])
+  ,("gtk_tool_item_retrieve_proxy_menu_item", ["returns"])
+  ,("gtk_toolbar_set_orientation", ["orientation"])
+  ,("gtk_toolbar_get_orientation", ["returns"])
+  ,("gtk_toolbar_set_style", ["style"])
+  ,("gtk_toolbar_get_style", ["returns"])
+  ,("gtk_toolbar_get_tooltips", ["returns"])
+  ,("gtk_toolbar_get_icon_size", ["returns"])
+  ,("gtk_toolbar_get_n_items", ["returns"])
+  ,("gtk_toolbar_set_show_arrow", ["showArrow"])
+  ,("gtk_toolbar_get_show_arrow", ["returns"])
+  ,("gtk_toolbar_get_relief_style", ["returns"])
+  ,("gtk_toolbar_set_icon_size", ["iconSize"])
+  ,("gtk_file_chooser_get_action", ["returns"])
+  ,("gtk_file_chooser_set_local_only", ["localOnly"])
+  ,("gtk_file_chooser_get_local_only", ["returns"])
+  ,("gtk_file_chooser_set_select_multiple", ["selectMultiple"])
+  ,("gtk_file_chooser_get_select_multiple", ["returns"])
+  ,("gtk_file_chooser_get_filenames", ["returns"])
+  ,("gtk_file_chooser_add_filter", ["filter"])
+  ,("gtk_file_chooser_remove_filter", ["filter"])
+  ,("gtk_file_chooser_set_filter", ["filter"])
+  ,("gtk_file_chooser_add_shortcut_folder", ["returns"])
+  ,("gtk_file_chooser_remove_shortcut_folder", ["returns"])
+  ,("gtk_file_chooser_add_shortcut_folder_uri", ["returns"])
+  ,("gtk_file_chooser_remove_shortcut_folder_uri", ["returns"])
+  ,("gtk_file_chooser_get_uris", ["returns"])
+  ,("gtk_file_chooser_list_filters", ["returns"])
+  ,("gtk_file_chooser_list_shortcut_folders", ["returns"])
+  ,("gtk_file_chooser_list_shortcut_folder_uris", ["returns"])
+  ,("gtk_font_selection_get_preview_text", ["returns"])
+  ,("gtk_font_selection_set_preview_text", ["text"])
+  ,("gtk_font_selection_dialog_get_preview_text", ["returns"])
+  ,("gtk_font_selection_dialog_set_preview_text", ["text"])
+  ,("gtk_text_mark_get_name", ["returns"])
+  ,("gtk_text_mark_get_buffer", ["returns"])
+  ,("gtk_text_mark_get_visible", ["returns"])
+  ,("gtk_text_mark_get_deleted", ["returns"])
+  ,("gtk_text_mark_set_visible", ["setting"])
+  ,("gtk_text_mark_get_left_gravity", ["returns"])
+  ,("gtk_text_tag_new", ["name"])
+  ,("gtk_text_tag_get_priority", ["returns"])
+  ,("gtk_text_tag_set_priority", ["priority"])
+  ,("gtk_text_tag_table_add", ["tag"])
+  ,("gtk_text_tag_table_remove", ["tag"])
+  ,("gtk_text_tag_table_get_size", ["returns"])
+  ,("gtk_text_buffer_get_line_count", ["returns"])
+  ,("gtk_text_buffer_get_char_count", ["returns"])
+  ,("gtk_text_buffer_get_tag_table", ["returns"])
+  ,("gtk_text_buffer_get_text", ["returns"])
+  ,("gtk_text_buffer_get_slice", ["returns"])
+  ,("gtk_text_buffer_insert_at_cursor", ["text", "len"])
+  ,("gtk_text_buffer_get_insert", ["returns"])
+  ,("gtk_text_buffer_get_selection_bound", ["returns"])
+  ,("gtk_text_buffer_set_modified", ["setting"])
+  ,("gtk_text_buffer_get_end_iter", ["iter"])
+  ,("gtk_text_view_new_with_buffer", ["buffer"])
+  ,("gtk_text_view_set_buffer", ["buffer"])
+  ,("gtk_text_view_get_buffer", ["returns"])
+  ,("gtk_text_view_get_iter_location", ["iter", "location"])
+  ,("gtk_text_view_set_wrap_mode", ["wrapMode"])
+  ,("gtk_text_view_get_wrap_mode", ["returns"])
+  ,("gtk_text_view_set_editable", ["setting"])
+  ,("gtk_text_view_get_editable", ["returns"])
+  ,("gtk_text_view_set_cursor_visible", ["setting"])
+  ,("gtk_text_view_get_cursor_visible", ["returns"])  
+  ,("gtk_text_view_set_pixels_above_lines", ["pixelsAboveLines"])
+  ,("gtk_text_view_get_pixels_above_lines", ["returns"])
+  ,("gtk_text_view_set_pixels_below_lines", ["pixelsBelowLines"])
+  ,("gtk_text_view_get_pixels_below_lines", ["returns"])
+  ,("gtk_text_view_set_pixels_inside_wrap", ["pixelsInsideWrap"])
+  ,("gtk_text_view_get_pixels_inside_wrap", ["returns"])
+  ,("gtk_text_view_set_justification", ["justification"])
+  ,("gtk_text_view_get_justification", ["returns"])
+  ,("gtk_text_view_get_default_attributes", ["returns"])
+  ,("gtk_color_button_get_color", ["color"])
+  ,("gtk_combo_box_get_wrap_width", ["returns"])
+  ,("gtk_combo_box_get_row_span_column", ["returns"])
+  ,("gtk_combo_box_get_column_span_column", ["returns"])
+  ,("gtk_combo_box_get_active_text", ["returns"])
+  ,("gtk_combo_box_get_add_tearoffs", ["returns"])
+  ,("gtk_combo_box_set_focus_on_click", ["returns"])
+  ,("gtk_image_get_pixel_size", ["returns"])
+  ,("gtk_image_set_from_file", ["filename"])
+  ,("gtk_progress_bar_set_ellipsize", ["mode"])
+  ,("gtk_progress_bar_get_ellipsize", ["returns"])
+  ,("gtk_widget_get_modifier_style", ["returns"])
+  ,("gtk_widget_get_default_direction", ["returns"])
+  ,("gtk_widget_get_direction", ["returns"])
+  ,("gtk_widget_set_direction", ["dir"])
+  ,("gtk_widget_get_name", ["returns"])
+  ,("gtk_text_view_get_overwrite", ["returns"])
+  ,("gtk_action_get_name", ["returns"])
+  ,("gtk_toggle_action_get_active", ["returns"])
+  ,("gtk_toggle_action_set_draw_as_radio", ["drawAsRadio"])
+  ,("gtk_toggle_action_get_draw_as_radio", ["returns"])
+  ,("gtk_separator_tool_item_set_draw", ["draw"])
+  ,("gtk_separator_tool_item_get_draw", ["returns"])
+  ,("gtk_tool_button_get_stock_id", ["returns"])
+  ,("gtk_ui_manager_get_action_groups", ["returns"])
+  ,("gtk_action_group_set_sensitive", ["sensitive"])
+  ,("gtk_action_group_get_sensitive", ["returns"])
+  ,("gtk_action_group_get_visible", ["returns"])
+  ,("gtk_action_group_set_visible", ["visible"])
+  ,("gtk_action_group_remove_action", ["action"])
+  ,("gtk_menu_tool_button_get_menu", ["returns"])
+  ,("gtk_toggle_tool_button_set_active", ["isActive"])
+  ,("gtk_toggle_tool_button_get_active", ["returns"])
+  ,("gtk_tool_button_get_label", ["returns"])
+  ,("gtk_tool_button_get_use_underline", ["returns"])
+  ,("gtk_tool_button_set_use_underline", ["useUnderline"])
+  ,("gtk_action_group_add_action", ["action"])
+  ,("gtk_action_get_proxies", ["returns"])
+  ,("gtk_about_dialog_get_authors", ["returns"])
+  ,("gtk_about_dialog_get_artists", ["returns"])
+  ,("gtk_about_dialog_get_documenters", ["returns"])
+  ,("gtk_about_dialog_get_license", ["returns"])
+  ,("gtk_about_dialog_get_version", ["returns"])
+  ,("gtk_about_dialog_get_copyright", ["returns"])
+  ,("gtk_about_dialog_get_comments", ["returns"])
+  ,("gtk_about_dialog_get_website", ["returns"])
+  ,("gtk_about_dialog_get_website_label", ["returns"])
+  ,("gtk_about_dialog_get_translator_credits", ["returns"])
+  ,("gtk_about_dialog_get_logo", ["returns"])
+  ,("gtk_about_dialog_get_logo_icon_name", ["returns"])
+  ,("gtk_about_dialog_set_version", ["version"])
+  ,("gtk_about_dialog_set_copyright", ["copyright"])
+  ,("gtk_about_dialog_set_comments", ["comments"])
+  ,("gtk_about_dialog_set_website_label", ["websiteLabel"])
+  ,("gtk_about_dialog_set_translator_credits", ["translatorCredits"])
+  ,("gtk_file_selection_get_selections", ["returns"])
+  ,("gtk_tree_model_get_flags", ["returns"])
+  ]
 
 nukeParameterDocumentation :: String -> String -> Bool
 nukeParameterDocumentation = nukeParamDoc
@@ -516,8 +527,8 @@ nukeParameterDocumentation = nukeParamDoc
 -- generate code uses the _utf8 version if we're building on windows and using
 -- gtk version 2.6 or later. Ugh.
 
-win32FileNameFunctions :: [String]
-win32FileNameFunctions =
+win32FileNameFunctions :: Set String
+win32FileNameFunctions = Set.fromList
   ["gtk_image_new_from_file"
   ,"gdk_pixbuf_new_from_file"
   ,"gdk_pixbuf_savev"
