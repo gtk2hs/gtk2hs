@@ -33,9 +33,6 @@ import qualified Text.PrettyPrint (($+$))
 
 infixl 5 $$, $+$
 
-emptyLine = text ""
-commentBlock = vcat . map (comment <+>)
-
 ($$) = (Text.PrettyPrint.$+$)
 d1 $+$ d2 | isEmpty d1 = d2
           | isEmpty d2 = d1
@@ -45,7 +42,9 @@ d1 $+$ d2 | isEmpty d1 = d2
 
 -- some useful extensions
 vsep = foldr ($+$) empty
+emptyLine = text ""
 comment = text "--"
+commentBlock = vcat . map (comment <+>)
 
 -------------------------------------------------------------------------------
 -- Stringy things
