@@ -98,6 +98,9 @@ leafClass = flip Set.member leafClasses
 leafClasses = Set.fromList
   ["GtkAdjustment"
   ,"GdkPixbuf"
+  ,"GdkPixbufAnimation"
+  ,"GdkBitmap"
+  ,"GdkPixmap"
   ,"GtkImage"
   ,"GtkIconFactory"
   ,"GtkEntryCompletion"
