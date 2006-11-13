@@ -411,8 +411,7 @@ genAtter Decl { decl_module = module_ }
 
 makeKnownSymbolsMap :: Api.API -> KnownSymbols
 makeKnownSymbolsMap api =
-   (Map.fromList
-  . reverse
+   (Map.fromListWith (\a b -> b)
   . concat)
   [ [ (Api.enum_cname enum
       ,case Api.enum_variety enum of
@@ -435,20 +434,18 @@ makeKnownSymbolsMap api =
         -- find if an object inherits via GtkObject or directly from GObject
   where objectKind :: Api.Object -> CSymbol
         objectKind object | "GObject" `elem` parents = SymObjectType parents
+                          | Api.object_parent object == "GTypeInstance" = SymStructType
                           -- FIXME: These hacks should go elsewhere
-                          | Api.object_cname object == "GtkClipboard" = SymObjectType ["GtkClipboard", "GObject"]
-                          | Api.object_cname object == "GParamSpec" = SymStructType
-                          | Api.object_cname object == "GdkBitmap" = SymStructType
-                          | otherwise = trace ("Warning: non-GObject "
-                                            ++ Api.object_cname object) SymStructType
+                          | otherwise = SymObjectType [Api.object_cname object, "GObject"]
           where parents = objectParents object
         objectParents :: Api.Object -> [String]
         objectParents object = Api.object_cname object :
-          case Api.object_parent object `lookup` objectMap of
+          case Api.object_parent object `Map.lookup` objectMap of
             Nothing -> [Api.object_parent object]
             Just parent -> objectParents parent
-        objectMap :: [(String, Api.Object)]
-        objectMap = [ (Api.object_cname object, object)
+        objectMap :: Map String Api.Object
+        objectMap = Map.fromList
+                    [ (Api.object_cname object, object)
                     | namespace <- api
                     , object <- Api.namespace_objects namespace ]
         miscToCSymbol (Api.Struct   _ _) = SymStructType
