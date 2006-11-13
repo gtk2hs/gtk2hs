@@ -6,15 +6,14 @@ module CodeGen (
 
 import Module       (Module(..), Decl(..), DeclBody(..), isAttr)
 import qualified Api
-import Docs         (ParamDoc(..), DocParaSpan(..))
-import FormatDocs   (genModuleDocumentation, haddocFormatDescription, 
-                     haddocFormatDeclaration, cParamNameToHsName,
-                     cFuncNameToHsName, changeIllegalNames, mungeWord,
-                     haddocFormatSpan, haddockSection)
+import qualified HaddockDocs (Span(..), formatParasFragment, formatSections,
+                     formatParas, formatSpans, haddockSection)
+import HaddockDocs  (Span(..))
 import Marshal      (CSymbol(..), ParameterKind(..), EnumKind(..),
                      KnownSymbols, genMarshalParameter, genMarshalResult,
                      genMarshalOutParameter, genCall, genMarshalProperty,
                      convertSignalType)
+import Names        (cParamNameToHsName, cFuncNameToHsName)
 import Utils
 import MarshalFixup (maybeNullParameter, maybeNullResult, leafClass,
                      nukeParameterDocumentation)
@@ -23,6 +22,7 @@ import Prelude hiding (Enum, lines)
 import Data.List    (groupBy, sortBy, partition, intersperse)
 import Data.Maybe   (fromMaybe, catMaybes, isNothing)
 import qualified Data.Map as Map
+import Data.Map (Map)
 import Data.Version
 
 import Debug.Trace (trace)
@@ -57,16 +57,11 @@ genDecl knownSymbols decl =
     formattedDoc =
       case decl_doc decl of
         Nothing  -> empty
-        Just doc -> haddocFormatDeclaration knownSymbols docNullsAllFixed doc
-    docNullsAllFixed =
-      case decl_body decl of
-        Method {
-          method_cname = cname,
-          method_parameters = params
-        } -> maybeNullResult cname
-          || or [ maybeNullParameter cname (cParamNameToHsName pname)
-                | Api.Parameter { Api.parameter_name = pname } <- params ]
-        _ -> False                                
+        Just []  -> comment <+> char '|'
+                 $$ comment
+        Just doc -> HaddockDocs.formatParas 77 doc
+                 $$ comment
+
     deprecatedNote
       | decl_deprecated decl
                   = deprecated (text $ decl_name decl)
@@ -123,16 +118,16 @@ genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
         docNullsAllFixed = maybeNullResult (method_cname method)
                         || or [ maybeNullParameter (method_cname method) (cParamNameToHsName (Api.parameter_name p))
                               | p <- method_parameters method ]
-        paramDocMap = [ (paramdoc_name paramdoc
-                        ,(if paramdoc_name paramdoc == "Returns"
-                           then [DocText "returns "]
-                           else [DocArg (paramdoc_name paramdoc)
-                                ,DocText " - "]
-                         ) ++ paramdoc_paragraph paramdoc)
-                      | paramdoc <- method_param_docs method
+        paramDocMap = [ (name
+                        ,(if name == "Returns"
+                           then [SpanText "returns "]
+                           else [SpanMonospace [SpanText (Names.cParamNameToHsName name)]
+                                ,SpanText " - "]
+                         ) ++ paragraph)
+                      | (name, paragraph) <- method_param_docs method
 		      , not $ nukeParameterDocumentation
                                 (method_cname method)
-                                (cParamNameToHsName (paramdoc_name paramdoc)) ]
+                                (cParamNameToHsName name) ]
 
         classContext = case catMaybes classConstraints of
 	                 []  -> empty
@@ -160,17 +155,10 @@ genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
               Nothing  -> text type_
               Just doc -> text type_
                        <> text (replicate (columnIndent - length type_) ' ')
-                      <+> formatDoc doc)
+                      <+> HaddockDocs.haddockSection (char '^')
+                            (HaddockDocs.formatSpans 3 (80 - columnIndent - 8) doc))
           $ multiLineParams
 
-        formatDoc :: [DocParaSpan] -> Doc
-        formatDoc =
-            haddockSection (char '^')
-          . map (hsep . map text)
-          . wrapText 3 (80 - columnIndent - 8)
-          . map (mungeWord knownSymbols docNullsAllFixed)
-          . words
-          . concatMap (haddocFormatSpan knownSymbols docNullsAllFixed)
         columnIndent = maximum [ length parmType | (parmType, Just _) <- multiLineParams ]
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute_is_child = False }) }) =
@@ -273,19 +261,26 @@ genDeclCode _
   text "instance" <+> text className <+> text typeName
 
 
-mergeParamDocs :: Maybe [DocParaSpan] -> [Maybe [DocParaSpan]] -> Maybe [DocParaSpan]
+mergeParamDocs :: Maybe [Span] -> [Maybe [Span]] -> Maybe [Span]
 mergeParamDocs doc docs =
   case catMaybes (doc:docs) of
     [] -> Nothing
     [doc'] -> Just doc'
     docs' -> let (varNames, paramDocs) =
                    unzip [ case doc' of 
-                            (DocArg varName : _) -> (cParamNameToHsName varName, doc')
-                            _                    -> ("_", doc')
+                            (SpanMonospace [SpanText varName] : _)
+                               -> (cParamNameToHsName varName, doc')
+                            _  -> ("_", doc')
                          | doc' <- docs' ]
-                 returnValName = DocLiteral ("(" ++ concat (intersperse ", " varNames) ++ ")")
-                 fixmeMessage  = DocText " {FIXME: merge return value docs} "
+                 returnValName = SpanMonospace [SpanText $ "(" ++ concat (intersperse ", " varNames) ++ ")"]
+                 fixmeMessage  = SpanText " {FIXME: merge return value docs} "
               in Just $ returnValName : fixmeMessage : concat paramDocs
+
+changeIllegalNames :: String -> String
+changeIllegalNames "type" = "type_"   --these are common variable names in C but
+changeIllegalNames "where" = "where_" --of course are keywords in Haskell
+changeIllegalNames "data" = "data_"
+changeIllegalNames other = other
 
 genModuleBody :: KnownSymbols -> Module -> Doc
 genModuleBody knownTypes module_ =
@@ -302,8 +297,7 @@ genModuleBody knownTypes module_ =
  $+$ context
  $+$ decls
   
-  where summary = haddocFormatDescription knownTypes
-                    (module_summary module_)
+  where summary = HaddockDocs.formatParasFragment (module_summary module_)
 
         moduleName | isEmpty prefix = name
                    | otherwise      = prefix <> char '.' <> name
@@ -314,9 +308,7 @@ genModuleBody knownTypes module_ =
           deprecated empty (text "this module should not be used in newly-written code.")
                        | otherwise = empty
 
-        documentation = genModuleDocumentation knownTypes
-                          (module_cname module_) (module_description module_)
-                          (module_sections module_) (module_hierarchy module_)
+        documentation = HaddockDocs.formatSections (module_description module_)
 
         exports = genExports module_
         imports = genImports module_
