@@ -57,11 +57,10 @@ upperCaseFirstChar :: String -> String
 upperCaseFirstChar (c:cs) = toUpper c : cs
 
 splitBy :: Eq a => a -> [a] -> [[a]]
-splitBy sep = 
-  unfoldr (\s -> case break (sep==) s of
-                   ([],_) -> Nothing
-                   (w,_:r) -> Just (w,r)
-                   (w,[]) -> Just (w,[]))
+splitBy sep xs = split xs
+  where split xs = case break (==sep) xs of
+          (chunk,[])     -> chunk : []
+          (chunk,_:rest) -> chunk : split rest
 
 -- wraps a list of words to lines of words
 wrapText :: Int -> Int -> [String] -> [[String]]
