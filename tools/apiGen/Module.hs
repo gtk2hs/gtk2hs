@@ -5,11 +5,14 @@ import Data.Version (Version)
 import qualified Api
 import qualified Docs
 import qualified ModuleScan
-import qualified FormatDocs (cFuncNameToHsPropName, cFuncNameToHsName,
+import qualified Names (cFuncNameToHsPropName, cFuncNameToHsName,
                              cAttrNametoHsName)
+import HaddockDocs (Section(..), Para(..), Span(..))
 import qualified MarshalFixup (cTypeNameToHSType, actionSignalWanted,
                                fixModuleAvailableSince, fixModuleDocMapping)
 import qualified ExcludeApi
+import qualified Names (cFuncNameToHsPropName, cFuncNameToHsName,
+                        cAttrNametoHsName)
 import Utils
 
 import qualified Data.Map as Map
@@ -17,7 +20,7 @@ import Data.Map (Map)
 import qualified Data.List as List
 import Data.Maybe (fromMaybe)
 import Data.Tree (Forest, Tree(Node))
-import Data.Version hiding (parseVersion)
+import Data.Version
 import Control.Monad (mplus)
 
 data Module = Module {
@@ -47,10 +50,9 @@ data Module = Module {
   module_deprecated   :: Bool,
   module_since        :: Maybe Version,
 
-  module_summary     :: [Docs.DocPara],      -- usually a one line summary
-  module_description :: [Docs.DocPara],      -- the main description
-  module_sections    :: [Docs.DocSection],   -- any additional titled subsections
-  module_hierarchy   :: Forest String,       -- a tree of parent objects (as text)
+  module_summary     :: [Para],        -- usually a one line summary
+  module_description :: [Section],     -- the main description (including subsections)
+  module_hierarchy   :: Forest [Span], -- a tree of parent objects (as text)
 
   module_decls :: [Decl]
 }
@@ -61,7 +63,7 @@ data ModuleKind = Interface | Widget | Object
 data Decl = Decl {
   decl_name               :: String,
   decl_comment            :: String,
-  decl_doc                :: Maybe [Docs.DocPara],
+  decl_doc                :: Maybe [Para],
   decl_since              :: Maybe Version,
   decl_deprecated         :: Bool,
   decl_deprecated_comment :: String,
@@ -70,7 +72,7 @@ data Decl = Decl {
   decl_index_code         :: Int,
   decl_index_export       :: Int,
   decl_bound              :: Bool,
---  decl_code               :: ShowS, -- TODO: change to Doc
+--  decl_code               :: Doc,
   decl_body               :: DeclBody,
   decl_module             :: Module
 }
@@ -95,7 +97,7 @@ data DeclBody
       method_shortcname     :: Maybe String,
       method_return_type    :: String,
       method_parameters     :: [Api.Parameter],
-      method_param_docs     :: [Docs.ParamDoc],
+      method_param_docs     :: [(String, [Span])],
       method_is_unsafe_ffi  :: Bool, -- {#call unsafe foo#} rather than {#call foo#}
       method_is_shared      :: Bool,
       method_is_constructor :: Bool
@@ -234,9 +236,9 @@ convertObject namespace object =
 
 convertConstructor :: Api.Object -> Api.Constructor -> Decl
 convertConstructor object constructor = declDefaults {
-    decl_name = FormatDocs.cFuncNameToHsName (Api.constructor_cname constructor),
+    decl_name = Names.cFuncNameToHsName (Api.constructor_cname constructor),
     decl_body = Method {
-      method_name  = error "constructor method_name", --FormatDocs.cFuncNameToHsName (constructor_cname constructor),
+      method_name  = error "constructor method_name", --Names.cFuncNameToHsName (constructor_cname constructor),
       method_cname = Api.constructor_cname constructor,
       method_shortcname  = Nothing,
       method_return_type = Api.object_cname object ++ "*",
@@ -250,7 +252,7 @@ convertConstructor object constructor = declDefaults {
 
 convertMethod :: Module -> Api.Object -> Api.Method -> Decl
 convertMethod module_ object method =
-  let funcName = FormatDocs.cFuncNameToHsName (Api.method_cname method)
+  let funcName = Names.cFuncNameToHsName (Api.method_cname method)
       methodName = drop (length (module_name module_)) funcName
    in declDefaults {
         decl_name = funcName,
@@ -281,12 +283,12 @@ convertProperty isChild object property =
   declDefaults {
     decl_name =
       let objName  = lowerCaseFirstChar (Api.object_name object)
-          propName = FormatDocs.cAttrNametoHsName (Api.property_cname property)
+          propName = Names.cAttrNametoHsName (Api.property_cname property)
        in if isChild
             then objName ++ "Child" ++ propName
             else objName ++ propName,
     decl_body = AttributeProp {
-      attribute_name = FormatDocs.cAttrNametoHsName (Api.property_cname property),
+      attribute_name = Names.cAttrNametoHsName (Api.property_cname property),
       attribute_cname = Api.property_cname property,
       attribute_type = Api.property_type property,
       attribute_readable = Api.property_readable property,
@@ -324,100 +326,6 @@ convertInterfaces object interfaceName =
       }
   }
 
-addDocsToModule :: Map String Docs.ModuleDoc -> Module -> Module
-addDocsToModule moduleDocMap module_ =
-  case Map.lookup (MarshalFixup.fixModuleDocMapping (module_cname module_)) moduleDocMap of
-    Nothing -> module_ {
-        module_summary     = [],
-        module_description = [],
-        module_sections    = [],
-        module_hierarchy   = []
-      }
-    Just doc ->
-      let methodDocMap    = mkDeclDocMap Docs.funcdoc_name (Docs.moduledoc_functions doc)
-          propDocMap      = mkDeclDocMap Docs.propdoc_name (Docs.moduledoc_properties doc)
-          childPropDocMap = mkDeclDocMap Docs.propdoc_name (Docs.moduledoc_childprops doc)
-          signalDocMap    = mkDeclDocMap (canonicalSignalName.Docs.signaldoc_name)
-                                         (Docs.moduledoc_signals doc)
-          
-          endDocIndex = 1 + length (Docs.moduledoc_functions doc)
-
-          decls = flip map (module_decls module_) $ \decl ->
-            case decl_body decl of
-              method@Method { method_cname = name } -> 
-                case Map.lookup name methodDocMap of
-                  Nothing -> decl { decl_index_doc = endDocIndex }
-                  Just (n, Docs.FuncDoc { Docs.funcdoc_paragraphs = fundoc,
-                                          Docs.funcdoc_params = paramDocs,
-                                          Docs.funcdoc_since  = since })
-                          -> decl { decl_doc = Just fundoc,
-                                    decl_index_doc = n,
-                                    decl_body = method {
-                                      method_param_docs = paramDocs
-                                    },
-                                    decl_since = parseVersion since
-                             }
-
-              AttributeProp { attribute_is_child = False,
-                              attribute_cname = name } ->
-                case Map.lookup name propDocMap of
-                  Nothing -> decl
-                  Just (n, Docs.PropDoc { Docs.propdoc_paragraphs = fundoc,
-                                          Docs.propdoc_since = since })
-                          -> decl { decl_doc = Just fundoc,
-                                    decl_index_doc = n,
-                                    decl_since = parseVersion since }
-
-              AttributeProp { attribute_is_child = True,
-                              attribute_cname = name } ->
-                case Map.lookup name childPropDocMap of
-                  Nothing -> decl
-                  Just (n, Docs.PropDoc { Docs.propdoc_paragraphs = fundoc,
-                                          Docs.propdoc_since = since })
-                          -> decl { decl_doc = Just fundoc,
-                                    decl_index_doc = n,
-                                    decl_since = parseVersion since }
-
-              Signal { signal_cname = name } ->
-                case Map.lookup (canonicalSignalName name) signalDocMap of
-                  Nothing -> decl
-                  Just (n, Docs.SignalDoc { Docs.signaldoc_paragraphs = fundoc,
-                                            Docs.signaldoc_since = since })
-                          -> decl { decl_doc = Just fundoc,
-                                    decl_index_doc = n,
-                                    decl_since = parseVersion since }
-              _ -> decl
-            
-          modsince = case map Docs.funcdoc_since (Docs.moduledoc_functions doc) of
-                    [] -> ""
-                    versions -> minimum versions
-
-       in module_ {
-            module_summary     = Docs.moduledoc_summary doc,
-            module_description = Docs.moduledoc_description doc,
-            module_sections    = Docs.moduledoc_sections doc,
-            module_hierarchy   = Docs.moduledoc_hierarchy doc,
-            module_decls = decls,
-            module_since = parseVersion modsince
-          }
-
-  where mkDeclDocMap :: (doc -> String) -> [doc] -> Map String (Int, doc)
-        mkDeclDocMap key docs =
-          Map.fromList [ (key doc, (n, doc)) | (n, doc) <- zip [1..] docs ]
-
-
-parseVersion "" = Nothing
-parseVersion v  = Just Version {
-                    versionBranch = map read (splitBy '.' v),
-                    versionTags = []
-                  }
-
-mkModuleDocMap :: Docs.ApiDoc -> Map String Docs.ModuleDoc
-mkModuleDocMap apiDoc =
-  Map.fromList $ [ (Docs.moduledoc_name    moduleDoc, moduleDoc) | moduleDoc <- apiDoc ]
-              ++ [ (Docs.moduledoc_altname moduleDoc, moduleDoc) | moduleDoc <- apiDoc ]
-
-
 deleteUnnecessaryDocs :: Module -> Module
 deleteUnnecessaryDocs module_ =
   module_ {
@@ -428,7 +336,7 @@ deleteUnnecessaryDocs module_ =
                                       method_is_constructor = True }
         } = decl {
           decl_body = method {
-            method_param_docs = filter ((/="Returns") . Docs.paramdoc_name) param_docs
+            method_param_docs = filter ((/="Returns") . fst) param_docs
           }
         }
         delDocs decl = decl
@@ -603,7 +511,7 @@ makeGetSetProps :: Module -> Module
 makeGetSetProps module_ =
   module_ {
     module_decls =
-      [ let attrName = FormatDocs.cFuncNameToHsPropName (method_cname getter_body)
+      [ let attrName = Names.cFuncNameToHsPropName (method_cname getter_body)
          in declDefaults {
               decl_name = lowerCaseFirstChar (module_name module_) ++ attrName,
               decl_body = AttributeGetSet {
@@ -614,11 +522,11 @@ makeGetSetProps module_ =
                 attribute_setter = setter
               },
               decl_doc = Just
-                [Docs.DocParaText
-                  [Docs.DocText ("'" ++ lowerCaseFirstChar attrName ++ "' property. See ")
-                  ,Docs.DocFuncXRef (method_cname getter_body)
-                  ,Docs.DocText " and "
-                  ,Docs.DocFuncXRef (method_cname setter_body)]
+                [ParaText
+                  [SpanText ("'" ++ lowerCaseFirstChar attrName ++ "' property. See ")
+                  ,SpanIdent (Names.cFuncNameToHsName (method_cname getter_body))
+                  ,SpanText " and "
+                  ,SpanIdent (Names.cFuncNameToHsName (method_cname setter_body))]
                 ],
               decl_module = module_,
               decl_index_api = maxBound :: Int
@@ -712,14 +620,14 @@ addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
               let line = "Module available since "
                       ++ fixNamespace (module_namespace module_)
                       ++ " version " ++ showVersion since
-               in [Docs.DocParaListItem [Docs.DocText line]]
+               in [ParaListItem [SpanText line]]
 
         moduleDeprecatedParagraph =
           if module_deprecated module_
             then let line = "Warning: this module is deprecated "
                          ++ "and should not be used in newly-written code."
             
-                  in [Docs.DocParaListItem [Docs.DocText line]]
+                  in [ParaListItem [SpanText line]]
             else []
 
         addAvailablePara decl@Decl { decl_since = Just since }
@@ -729,7 +637,7 @@ addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
               let line = "Available since "
                       ++ fixNamespace (module_namespace module_)
                       ++ " version " ++ showVersion since
-               in fmap (++[Docs.DocParaListItem [Docs.DocText line]]) (decl_doc decl)
+               in fmap (++[ParaListItem [SpanText line]]) (decl_doc decl)
           }
         addAvailablePara decl = decl
 
@@ -739,7 +647,7 @@ addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
             decl_doc =
               let line = "Warning: this function is deprecated "
                       ++ "and should not be used in newly-written code."
-               in fmap (++[Docs.DocParaListItem [Docs.DocText line]]) (decl_doc decl)
+               in fmap (++[ParaListItem [SpanText line]]) (decl_doc decl)
           }
         addDeprecatedPara decl = decl
         
@@ -766,19 +674,6 @@ excludeApi excludeApiFilesContents module_ =
           = match cname
         okAPI _ = True
 
-
-fixModuleHierarchy :: Module -> Module
-fixModuleHierarchy module_ =
-  module_ {
-    module_hierarchy = filterForest (\s -> s /= "GInitiallyUnowned" && s /= "")
-                         (module_hierarchy module_)
-  }
-  where filterForest :: (a -> Bool) -> Forest a -> Forest a
-        filterForest p = concatMap (filterTree p)
-
-        filterTree :: (a -> Bool) -> Tree a -> Forest a
-        filterTree p (Node x ts) | p x       = [Node x (filterForest p ts)]
-                                 | otherwise = ts
 
 {-
 content <- readFile "gtk-api.xml"
