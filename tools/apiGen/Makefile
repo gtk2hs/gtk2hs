@@ -412,8 +412,9 @@ TOP = ../..
 #	tools
 #
 
-ApiGen : ApiGen.hs Api.hs Docs.hs FormatDocs.hs CodeGen.hs Marshal.hs \
-	MarshalFixup.hs ModuleScan.hs ExcludeApi.hs Utils.hs Module.hs
+ApiGen : ApiGen.hs Api.hs Docs.hs AddDocs.hs HaddockDocs.hs CodeGen.hs \
+	Marshal.hs MarshalFixup.hs ModuleScan.hs ExcludeApi.hs Utils.hs \
+	Module.hs Names.hs
 	$(HC) --make $< -o $@
 HC=ghc
 
