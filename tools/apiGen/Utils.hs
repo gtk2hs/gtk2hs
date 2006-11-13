@@ -67,9 +67,18 @@ wrapText :: Int -> Int -> [String] -> [[String]]
 wrapText initialCol width = wrap initialCol []
   
   where wrap :: Int -> [String] -> [String] -> [[String]]
-        wrap 0   []   (word:words) |       length word + 1 > width = wrap (length word) [word] words
-        wrap col line (word:words) | col + length word + 1 > width = reverse line : wrap 0 [] (word:words)
-        wrap col line (word:words) = wrap (col + length word + 1) (word:line) words
+        wrap 0   []   (word:words)
+          | length word + 1 > width
+          = wrap (length word) [word] words
+
+        wrap col line (word:words)
+          | col + length word + 1 > width
+          = reverse line : wrap 0 [] (word:words)
+
+        wrap col line (word:words)
+          = let col' = col + length word + 1
+             in wrap col' (word:line) words
+
         wrap _ []   [] = []
         wrap _ line [] = [reverse line]
 
