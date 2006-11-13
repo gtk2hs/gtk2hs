@@ -11,7 +11,8 @@ import Module (Module(..))
 import qualified Module
 import qualified Api (API, extractAPI)
 import qualified Docs (extractDocumentation, moduledoc_summary)
-import qualified FormatDocs (haddocFormatDescription, genModuleDocumentation)
+import qualified AddDocs (addDocsToModule, mkModuleDocMap,
+                          handleDocNULLs, fixModuleHierarchy)
 import qualified CodeGen (genModuleBody, genTodoItems, makeKnownSymbolsMap)
 import qualified ModuleScan
 import Utils
@@ -127,7 +128,7 @@ main = do
               then return []
               else do content <- readFile docFile
                       return $ Docs.extractDocumentation (Xml.xmlParse docFile content)
-  let apiDocMap = Module.mkModuleDocMap apiDoc
+  let apiDocMap = AddDocs.mkModuleDocMap apiDoc
 
   -----------------------------------------------------------------------------
   -- Scan the existing modules if their root path is supplied
@@ -165,9 +166,10 @@ main = do
         . map Module.filterVarArgs
         . map Module.filterDeprecated
         . map (Module.applyModuleScanInfo modPrefix date year moduleInfoMap)
+        . map AddDocs.handleDocNULLs
+        . map AddDocs.fixModuleHierarchy
         . map Module.deleteUnnecessaryDocs
-        . map Module.fixModuleHierarchy
-        . map (Module.addDocsToModule apiDocMap)
+        . map (AddDocs.addDocsToModule knownTypes apiDocMap)
         . map (Module.excludeApi excludeApiFilesContents)
         . Module.convertAPI
 
