@@ -18,7 +18,7 @@ import Utils
 import qualified Data.Map as Map
 import Data.Map (Map)
 import qualified Data.List as List
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, listToMaybe)
 import Data.Tree (Forest, Tree(Node))
 import Data.Version
 import Control.Monad (mplus)
@@ -364,36 +364,44 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
         
         module_imports           = ModuleScan.module_imports info,
         
-        module_decls = map (addExportIndex . addMethodScanInfo)
+        module_decls = map (addExportIndex . addDeclScanInfo)
                            (module_decls module_)
       }
-      where declInfoMap = Map.fromList $ reverse --TODO don't reverse
-              [ (fullCName (ModuleScan.methodinfo_cname minfo), (n, minfo))
-              | (n, minfo) <- zip [1..] (ModuleScan.module_methods info) ]
+      where declInfoMap = Map.fromListWith (\a b -> b)
+              [ (ModuleScan.func_name funcinfo, (n, funcinfo))
+              | (n, funcinfo) <- zip [1..] (ModuleScan.module_functions info) ]
 
-            endIndex = 1 + length (ModuleScan.module_methods info)
-                       
-            addMethodScanInfo decl@Decl { decl_body = method@Method { } } =
-              case Map.lookup (method_cname method) declInfoMap of
-                Nothing -> decl { decl_index_code = endIndex }
-                Just (n, dinfo) ->
+            addDeclScanInfo decl@Decl { decl_body = body } =
+              case Map.lookup (decl_name decl) declInfoMap of
+                Nothing -> decl { decl_index_code = maxBound }
+                Just (n, funcinfo) ->
                   decl {
                     decl_index_code = n,
                     decl_bound = True,
-                    decl_body =
-                      method {
-                        method_shortcname =
-                          let shortcname = ModuleScan.methodinfo_shortcname dinfo
-                           in if null shortcname
-                                then Nothing
-                                else Just shortcname,
-                        method_is_unsafe_ffi = ModuleScan.methodinfo_unsafe dinfo
-                      }
+                    decl_body = addDeclBodyScanInfo funcinfo body
                   }
-            addMethodScanInfo decl = decl
             
+            addDeclBodyScanInfo funcinfo method@Method{} =
+              method {
+                method_shortcname = shortcname,
+                method_is_unsafe_ffi = unsafe
+              }
+              where fullCName cname | prefix `List.isPrefixOf` cname = cname
+                                    | otherwise = prefix ++ cname
+                    prefix = module_context_prefix module_ ++ "_"
+                    isshortcname ccall =
+                         fullCName (ModuleScan.ccall_name ccall)
+                      == method_cname method
+                    ccalls = ModuleScan.func_ccalls funcinfo
+                    ccall  = listToMaybe (filter isshortcname ccalls)
+                    shortcname = fmap ModuleScan.ccall_name ccall
+                    unsafe = maybe False ModuleScan.ccall_unsafe ccall
+
+            addDeclBodyScanInfo funcinfo body = body
+
             exportIndexMap = Map.fromList (zip (ModuleScan.module_exports info) [1..])
 
+            --TODO: remove the special case for signals and on.
             addExportIndex decl@Decl { decl_body = Signal { signal_name = name } } =
               decl {
                 decl_index_export = fromMaybe maxBound
@@ -404,11 +412,6 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
                 decl_index_export = fromMaybe maxBound
                                       (Map.lookup name exportIndexMap)
               }
-        
-            fullCName cname | prefix `List.isPrefixOf` cname = cname
-                            | otherwise = prefix ++ cname
-            prefix = module_context_prefix module_ ++ "_"
-
 
 -- only use this until we have scan info, because we don't remove ones
 -- that are currently bound

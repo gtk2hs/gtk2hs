@@ -2,14 +2,16 @@
 
 module ModuleScan (
   ModuleInfo(..),
-  MethodInfo(..),
+  FuncInfo(..),
+  CCallInfo(..),
   scanModules
   ) where
 
-import Utils (splitBy)
+import Utils (splitBy, splitOn)
 
 import Data.Char (isSpace, isAlpha)
 import Data.List (partition, isSuffixOf, group, sort)
+import Data.Maybe (catMaybes)
 import Prelude hiding (unwords)
 
 import Directory (getDirectoryContents, doesDirectoryExist, doesFileExist)
@@ -31,14 +33,20 @@ data ModuleInfo = ModuleInfo {
     module_imports           :: [(String, String)], -- mod name and the whole line
     module_context_lib       :: String,
     module_context_prefix    :: String,
-    module_methods           :: [MethodInfo],
+    module_functions         :: [FuncInfo],
     module_deprecated        :: [String]      -- {-# DEPRECATED #-} pragmas
   } deriving Show
 
-data MethodInfo = MethodInfo {
-    methodinfo_cname :: String,       -- the full gtk_foo_bar
-    methodinfo_shortcname :: String,  -- just foo_bar
-    methodinfo_unsafe :: Bool    -- {#call unsafe foo#} rather than {#call foo#}
+data FuncInfo = FuncInfo {
+    func_name   :: String,
+    func_docs   :: [String],
+    func_body   :: [String],
+    func_ccalls :: [CCallInfo]
+  } deriving Show
+
+data CCallInfo = CCallInfo {
+    ccall_name   :: String,
+    ccall_unsafe :: Bool    
   } deriving Show
 
 data Line = None
@@ -51,22 +59,20 @@ data Line = None
           | ExportEnd
           | Import String String
           | Context String String
-          | CCall MethodInfo
           | Deprecated String
+          | TypeSig String String
+          | DocBegin String
+          | Line String
   deriving Show
 
-usefulLine, isModuleLine, isExportEndLine, isCCallLine :: Line -> Bool
-
-usefulLine None = False
-usefulLine _    = True
-
+isModuleLine, isExportEndLine, isContextLine :: Line -> Bool
 
 isModuleLine (Module _ _) = True
 isModuleLine _            = False
 isExportEndLine ExportEnd = True
 isExportEndLine _         = False
-isCCallLine (CCall _) = True
-isCCallLine _         = False
+isContextLine (Context _ _) = True
+isContextLine _             = False
 
 scanModules :: FilePath -> [FilePath] -> IO [ModuleInfo]
 scanModules path excludePaths = do
@@ -123,9 +129,8 @@ scanModule file = do
 scanModuleContent :: String -> String -> ModuleInfo
 scanModuleContent content filename =
   let (headerLines, bodyLines) =
-         break isCCallLine
-       . filter usefulLine
-       $ [ scanLine line (tokenise line) | line <- lines content ]
+         break isContextLine
+         [ scanLine line (tokenise line) | line <- lines content ]
   in ModuleInfo {
     module_name              = head $ [ name    | Module name _   <- headerLines ] ++ [missing],
     module_prefix            = head $ [ prefix  | Module _ prefix <- headerLines ] ++ [missing],
@@ -147,7 +152,7 @@ scanModuleContent content filename =
     module_imports           = [ (name, line)   | Import name line <- headerLines ],
     module_context_lib       = head $ [ lib     | Context lib _    <- headerLines ] ++ [missing],
     module_context_prefix    = head $ [ prefix  | Context _ prefix <- headerLines ] ++ [missing],
-    module_methods           =        [ call    | CCall call  <- bodyLines ],
+    module_functions         = scanFunctions bodyLines,
     module_deprecated        =        [ value   | Deprecated value <- bodyLines ]
   }
   where missing = "{-missing-}"
@@ -174,9 +179,9 @@ scanLine _ ("{#":"context":context)     = scanContext context
 scanLine line ("import":moduleName)     = scanImport line moduleName
 scanLine line ("{#":"import":moduleName)= scanImport line moduleName
 scanLine _ ("{#-":"DEPRECATED":symbol:_)= Deprecated symbol
-scanLine _ tokens | "{#" `elem` tokens  = scanCCall tokens
-
-scanLine _ _ = None
+scanLine line ("--":"|":_)              = DocBegin line
+scanLine line (name:"::":_)             = TypeSig name line
+scanLine line _                         = Line line
 
 scanAuthor :: [String] -> Line
 scanAuthor = 
@@ -211,33 +216,63 @@ scanImport :: String -> [String] -> Line
 scanImport line tokens = Import (concat $ takeWhile (\token -> isWord token || token == ".") tokens) line
   where isWord = all isAlpha
 
-scanCCall :: [String] -> Line
-scanCCall tokens =
-  case takeWhile (\t -> t/="#}" && t/="#}."&& t/="#})") . tail . dropWhile (/="{#") $ tokens of
-    ("call":"pure":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
-                                                            methodinfo_shortcname = cname,
-                                                            methodinfo_unsafe = True }
-    ("call":"pure":cname:[])   -> CCall MethodInfo { methodinfo_cname = cname,
-                                                     methodinfo_shortcname = cname,
-                                                     methodinfo_unsafe = True }
-    ("call":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
-                                                     methodinfo_shortcname = cname,
-                                                     methodinfo_unsafe = True }
-    ("call":         cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
-                                                     methodinfo_shortcname = cname,
-                                                     methodinfo_unsafe = False }
-    ("call":"fun":"unsafe":cname:[]) -> CCall MethodInfo { methodinfo_cname = cname,
-                                                           methodinfo_shortcname = cname,
-                                                           methodinfo_unsafe = True }
-    ("fun":"pure":_) -> None
-    ("type":_)       -> None
-    ("pointer":_)    -> None
-    ("pointer*":_)   -> None
-    ("enum":_)       -> None
-    ("set":_)        -> None
-    ("get":_)        -> None
-    ("sizeof":_)     -> None
-    other -> error $ "scanCCall: " ++ show other
+scanCCall :: String -> Maybe CCallInfo
+scanCCall line
+  | "{#" `notElem` tokens = Nothing
+  | otherwise =
+  case takeWhile (\t -> t/="#}" && t/="#}."&& t/="#})")
+     . tail
+     . dropWhile (/="{#")
+     $ tokens
+    of ["call","pure","unsafe",cname] -> Just $ CCallInfo cname True
+       ["call","pure"         ,cname] -> Just $ CCallInfo cname True
+       ["call","unsafe"       ,cname] -> Just $ CCallInfo cname True
+       ["call"                ,cname] -> Just $ CCallInfo cname False
+       ["call","fun","unsafe" ,cname] -> Just $ CCallInfo cname True
+       _                              -> Nothing
+  where tokens = tokenise line
+
+scanFunctions :: [Line] -> [FuncInfo]
+scanFunctions =
+    groupDocWithFunc
+  . amalgamateLines 
+  . splitOn isInterestingLine
+
+  where isInterestingLine (TypeSig _ _) = True
+        isInterestingLine (DocBegin  _) = True
+        isInterestingLine _             = False
+
+        amalgamateLines :: [[Line]] -> [[Line]]
+        amalgamateLines ([ty@(TypeSig _ _)]:prog@(Line _:_):chunks) =
+          (ty:prog)  : amalgamateLines chunks
+        amalgamateLines ([doc@(DocBegin _)]:docs@(Line _:_):chunks) =
+          (doc:docs) : amalgamateLines chunks
+        amalgamateLines (chunk:chunks) = chunk : amalgamateLines chunks
+        amalgamateLines [] = []
+
+        groupDocWithFunc :: [[Line]] -> [FuncInfo]
+        groupDocWithFunc ((DocBegin dl:dls):(TypeSig name tl:tls):chunks) =
+          mungeFuncInfo FuncInfo {
+            func_name   = name,
+            func_docs   = dl : [ dl | Line dl <- dls ],
+            func_body   = tl : [ tl | Line tl <- tls ],
+            func_ccalls = []
+          } : groupDocWithFunc chunks
+        groupDocWithFunc ((TypeSig name tl:tls):chunks) = 
+          mungeFuncInfo FuncInfo {
+            func_name   = name,
+            func_docs   = [],
+            func_body   = tl : [ tl | Line tl <- tls ],
+            func_ccalls = []
+          } : groupDocWithFunc chunks
+        groupDocWithFunc (chunk:chunks) = groupDocWithFunc chunks
+        groupDocWithFunc [] = []
+        
+        mungeFuncInfo func@FuncInfo { func_body = body } =
+          func {
+            func_body   = reverse . dropWhile (all isSpace) . reverse $ body,
+            func_ccalls = catMaybes (map scanCCall body)
+          }
 
 tokenise :: String -> [String]
 tokenise s = case dropWhile isSpace s of
