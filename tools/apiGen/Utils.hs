@@ -11,7 +11,7 @@ module Utils (
   -- string things
   lowerCaseFirstChar,
   upperCaseFirstChar,
-  splitBy,
+  splitBy, splitOn,
   wrapText,
   templateSubstitute,
   
@@ -61,6 +61,17 @@ splitBy sep xs = split xs
   where split xs = case break (==sep) xs of
           (chunk,[])     -> chunk : []
           (chunk,_:rest) -> chunk : split rest
+
+splitOn :: (a -> Bool) -> [a] -> [[a]]
+splitOn sep xs = split xs
+  where split [] = []
+        split xs = case break sep xs of
+          (chunk,[])         -> chunk : []
+          (chunk,rest)       ->
+            case span sep rest of
+              (seps, rest)
+                | null chunk ->         seps : split rest
+                | otherwise  -> chunk : seps : split rest
 
 -- wraps a list of words to lines of words
 wrapText :: Int -> Int -> [String] -> [[String]]
