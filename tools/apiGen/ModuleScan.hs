@@ -36,10 +36,12 @@ data ModuleInfo = ModuleInfo {
   } deriving Show
 
 data FuncInfo = FuncInfo {
-    func_name   :: String,
-    func_docs   :: [String],
-    func_body   :: [String],
-    func_ccalls :: [CCallInfo]
+    func_name      :: String,
+    func_docs      :: [String],
+    func_docs_hash :: String,
+    func_body      :: [String],
+    func_body_hash :: String,
+    func_ccalls    :: [CCallInfo]
   } deriving Show
 
 data CCallInfo = CCallInfo {
@@ -59,6 +61,7 @@ data Line = None
           | Deprecated String
           | TypeSig String String
           | DocBegin String
+          | Hash String String
           | Line String
   deriving Show
 
@@ -171,8 +174,12 @@ scanLine _ ("{#":"context":context)     = scanContext context
 scanLine line ("import":moduleName)     = scanImport line moduleName
 scanLine line ("{#":"import":moduleName)= scanImport line moduleName
 scanLine _ ("{#-":"DEPRECATED":symbol:_)= Deprecated symbol
-scanLine line ("--":"|":_)              = DocBegin line
-scanLine line (name:"::":_)             = TypeSig name line
+scanLine line@('-':_) ("--":"|":_)      = DocBegin line
+scanLine line@(c:_) (name:"::":_) | isAlpha c = TypeSig name line
+scanLine _ ["--","%hash",('c':':':code)
+                        ,('d':':':doc)] = Hash code doc
+scanLine _ ["--","%hash",('d':':':doc)] = Hash "" doc
+scanLine _ ["--","%hash",('c':':':code)] = Hash code ""
 scanLine line _                         = Line line
 
 scanAuthor :: [String] -> Line
@@ -232,9 +239,12 @@ scanFunctions =
 
   where isInterestingLine (TypeSig _ _) = True
         isInterestingLine (DocBegin  _) = True
+        isInterestingLine (Hash    _ _) = True
         isInterestingLine _             = False
 
         amalgamateLines :: [[Line]] -> [[Line]]
+        amalgamateLines ([hash@(Hash _ _), doc@(DocBegin _)]:chunks) =
+          [hash] : amalgamateLines ([doc] : chunks)
         amalgamateLines ([ty@(TypeSig _ _)]:prog@(Line _:_):chunks) =
           (ty:prog)  : amalgamateLines chunks
         amalgamateLines ([doc@(DocBegin _)]:docs@(Line _:_):chunks) =
@@ -243,28 +253,29 @@ scanFunctions =
         amalgamateLines [] = []
 
         groupDocWithFunc :: [[Line]] -> [FuncInfo]
+        groupDocWithFunc ([Hash ch dh]:(DocBegin dl:dls):(TypeSig name tl:tls):chunks) =
+          addDoc dl dls (funcInfo name tl tls ch dh) : groupDocWithFunc chunks
         groupDocWithFunc ((DocBegin dl:dls):(TypeSig name tl:tls):chunks) =
-          mungeFuncInfo FuncInfo {
-            func_name   = name,
-            func_docs   = dl : [ dl | Line dl <- dls ],
-            func_body   = tl : [ tl | Line tl <- tls ],
-            func_ccalls = []
-          } : groupDocWithFunc chunks
+          addDoc dl dls (funcInfo name tl tls "" "") : groupDocWithFunc chunks
+        groupDocWithFunc ([Hash ch dh]:(TypeSig name tl:tls):chunks) = 
+          funcInfo name tl tls ch dh : groupDocWithFunc chunks
         groupDocWithFunc ((TypeSig name tl:tls):chunks) = 
-          mungeFuncInfo FuncInfo {
-            func_name   = name,
-            func_docs   = [],
-            func_body   = tl : [ tl | Line tl <- tls ],
-            func_ccalls = []
-          } : groupDocWithFunc chunks
+          funcInfo name tl tls "" "" : groupDocWithFunc chunks
         groupDocWithFunc (chunk:chunks) = groupDocWithFunc chunks
         groupDocWithFunc [] = []
-        
-        mungeFuncInfo func@FuncInfo { func_body = body } =
-          func {
-            func_body   = reverse . dropWhile (all isSpace) . reverse $ body,
-            func_ccalls = catMaybes (map scanCCall body)
-          }
+
+        funcInfo name tl tls ch dh =
+          let dropTailingBlanks = reverse . dropWhile (all isSpace) . reverse
+              body = dropTailingBlanks (tl : [ tl | Line tl <- tls ])
+           in FuncInfo {
+                func_name   = name,
+                func_docs   = [],
+                func_body   = body,
+                func_ccalls = catMaybes (map scanCCall body),
+                func_docs_hash = dh,
+                func_body_hash = ch
+              }
+        addDoc dl dls inf = inf { func_docs = dl : [ dl | Line dl <- dls ] }
 
 tokenise :: String -> [String]
 tokenise s = case dropWhile isSpace s of
