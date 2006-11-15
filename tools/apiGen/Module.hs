@@ -71,7 +71,10 @@ data Decl = Decl {
   decl_index_code         :: Int,
   decl_index_export       :: Int,
   decl_bound              :: Bool,
---  decl_code               :: Doc,
+  decl_user_code          :: [String],
+  decl_user_docs          :: [String],
+  decl_user_code_hash     :: String,
+  decl_user_docs_hash     :: String,
   decl_body               :: DeclBody,
   decl_module             :: Module
 }
@@ -85,7 +88,11 @@ declDefaults = Decl {
     decl_index_doc = 0,
     decl_index_code = 0,
     decl_index_export = 0,
-    decl_bound = False
+    decl_bound = False,
+    decl_user_code = [],
+    decl_user_docs = [],
+    decl_user_code_hash = [],
+    decl_user_docs_hash = []
   }
 
 data DeclBody
@@ -376,6 +383,10 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
                   decl {
                     decl_index_code = n,
                     decl_bound = True,
+                    decl_user_code = ModuleScan.func_body funcinfo, 
+                    decl_user_docs = ModuleScan.func_docs funcinfo,
+                    decl_user_code_hash = ModuleScan.func_body_hash funcinfo,
+                    decl_user_docs_hash = ModuleScan.func_docs_hash funcinfo,
                     decl_body = addDeclBodyScanInfo funcinfo body
                   }
             
