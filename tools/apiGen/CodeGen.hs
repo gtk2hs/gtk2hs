@@ -25,7 +25,10 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import Data.Version
 
-import Debug.Trace (trace)
+import Numeric (showHex)
+import Data.List (foldl')
+import Data.Word (Word16)
+import Data.Char (ord)
 
 -------------------------------------------------------------------------------
 -- More doc formatting utils
@@ -49,18 +52,51 @@ tuple' xs = parens (hsep $ punctuate comma xs)
 
 genDecl :: KnownSymbols -> Decl -> Doc
 genDecl knownSymbols decl =
-     formattedDoc
-  $$ genDeclCode knownSymbols decl
+     hashes
+  $$ formattedDocs
+  $$ formattedCode
   $$ deprecatedNote
 
   where
-    formattedDoc =
+    generatedDocs =
       case decl_doc decl of
         Nothing  -> empty
         Just []  -> comment <+> char '|'
                  $$ comment
         Just doc -> HaddockDocs.formatParas 77 doc
                  $$ comment
+    handWrittenDocs = vcat (map text $ decl_user_docs decl)
+    generatedDocsHash   = hash generatedDocs
+    handWrittenDocsHash = hash handWrittenDocs
+    formattedDocs
+      | decl_user_docs_hash decl
+     == generatedDocsHash = handWrittenDocs
+      | otherwise         = generatedDocs
+
+    generatedCode = genDeclCode knownSymbols decl
+    handWrittenCode = vcat (map text $ decl_user_code decl)
+    generatedCodeHash   = hash generatedCode
+    handWrittenCodeHash = hash handWrittenCode
+    formattedCode
+      | decl_user_code_hash decl
+     == generatedCodeHash = handWrittenCode
+      | otherwise         = generatedCode
+
+    dhash | generatedDocsHash == handWrittenDocsHash = empty
+          | otherwise = text "d:" <> text generatedDocsHash
+    chash | generatedCodeHash == handWrittenCodeHash = empty
+          | otherwise = text "c:" <> text generatedCodeHash
+    hashes | isEmpty chash && isEmpty dhash = empty
+           | otherwise = comment <+> text "%hash" <+> chash <+> dhash
+--                    $$ comment <+> text "%hash" <+> text "c:" <> text (decl_user_code_hash decl)
+--                                                <+> text "d:" <> text (decl_user_docs_hash decl)
+
+    hash :: Doc -> String
+    hash = ($[])
+         . showHex
+         . foldl' (\h c -> h * 33 + (fromIntegral (ord c)))
+                  (5381 :: Word16)
+         . render
 
     deprecatedNote
       | decl_deprecated decl
