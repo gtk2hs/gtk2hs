@@ -62,7 +62,6 @@ data ModuleKind = Interface | Widget | Object
 
 data Decl = Decl {
   decl_name               :: String,
-  decl_comment            :: String,
   decl_doc                :: Maybe [Para],
   decl_since              :: Maybe Version,
   decl_deprecated         :: Bool,
@@ -79,7 +78,6 @@ data Decl = Decl {
 
 declDefaults :: Decl
 declDefaults = Decl {
-    decl_comment = "",
     decl_doc = Just [],
     decl_since = Nothing,
     decl_deprecated = False,
