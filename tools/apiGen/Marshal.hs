@@ -128,6 +128,12 @@ genMarshalParameter _ funcName name typeName | typeName == "const-gchar*"
                $$ body
                $$ nest 2 (ptr name))
 
+genMarshalParameter _ funcName name "const-gchar**" =
+  (Nothing, InParam "[String]",
+   \body -> text "withUTFStringArray0" <+> text name <+> char '$' <+> lambda (ptr name)
+         $$ body
+         $$ nest 2 (ptr name))
+
 genMarshalParameter _ _ name "GError**" =
 	(Nothing, UnusedParam,
 	\body -> text "propagateGError $" <+> lambda (text name <> text "Ptr")
@@ -309,6 +315,9 @@ genMarshalResult _ funcName _ "const-gchar*" =
     else ("String",
          \body -> body
                $$ text ">>= peekUTFString")
+genMarshalResult _ funcName _ "const-gchar**" =
+  ("[String]",\body -> body
+                    $$ text ">>= peekUTFStringArray0")
 genMarshalResult _ funcName _ typeName 
                             | typeName == "gchar*"
 			   || typeName == "char*" =
