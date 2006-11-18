@@ -203,41 +203,27 @@ convertObject namespace object =
 
           module_imports = [],
           
-          module_decls = 
-               [ (convertConstructor object constructor) {
+          module_decls =
+            let addIndexAndModule n decl = decl {
                    decl_index_api = n,
                    decl_module = module_
                  }
+            in [ addIndexAndModule n (convertConstructor object constructor)
                | (n, constructor) <- zip [1..] (Api.object_constructors object) ]
 
-            ++ [ (convertMethod module_ object method) {
-                   decl_index_api = n,
-                   decl_module = module_
-                 }
+            ++ [ addIndexAndModule n (convertMethod module_ object method)
                | (n, method) <- zip [1..] (Api.object_methods object) ]
 
-            ++ [ (convertProperty False object prop) {
-                   decl_index_api = n,
-                   decl_module = module_
-                 }
+            ++ [ addIndexAndModule n (convertProperty False object prop)
                | (n, prop) <- zip [1..] (Api.object_properties object) ]
 
-            ++ [ (convertProperty True object prop) {
-                   decl_index_api = n,
-                   decl_module = module_
-                 }
+            ++ [ addIndexAndModule n (convertProperty True object prop)
                | (n, prop) <- zip [1..] (Api.object_childprops object) ]
 
-            ++ [ (convertSignals signal) {
-                   decl_index_api = n,
-                   decl_module = module_
-                 }
+            ++ [ addIndexAndModule n (convertSignals object signal)
                | (n, signal) <- zip [1..] (Api.object_signals object) ]
 
-            ++ [ (convertInterfaces object class_) {
-                   decl_index_api = n,
-                   decl_module = module_
-                 }
+            ++ [ addIndexAndModule n (convertInterfaces object class_)
                | (n, class_) <- zip [1..] (Api.object_implements object) ]
         }
    in module_
