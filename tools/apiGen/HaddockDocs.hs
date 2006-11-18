@@ -113,6 +113,7 @@ escapeHaddockSpecialChars = escape
   where escape [] = []
         escape ('\'':'s':s:cs) | isSpace s = '\'' : 's' : ' ' : escape cs --often don't need to escape
         escape ('\'':'t':s:cs) | isSpace s = '\'' : 't' : ' ' : escape cs --eg it's & don't
+        escape ('\'':'l':'l':s:cs) | isSpace s = '\'' : 'l' : 'l' : s : escape cs --and you'll
         escape (c:cs) | c == '/' || c == '`'
                      || c == '"' || c == '@'
                      || c == '<' || c == '\''
