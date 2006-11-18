@@ -13,7 +13,7 @@ import Marshal      (CSymbol(..), ParameterKind(..), EnumKind(..),
                      KnownSymbols, genMarshalParameter, genMarshalResult,
                      genMarshalOutParameter, genCall, genMarshalProperty,
                      convertSignalType)
-import Names        (cParamNameToHsName, cFuncNameToHsName)
+import Names        (cParamNameToHsName, cFuncNameToHsName, hsTypeNameToCGetType)
 import Utils
 import MarshalFixup (maybeNullParameter, maybeNullResult, leafClass,
                      nukeParameterDocumentation)
@@ -200,9 +200,15 @@ genDeclCode knownSymbols Decl{ decl_body = method@(Method {}) } =
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute_is_child = False }) }) =
   genAtter decl propertyName classConstraint getterType setterType False (Right body)
   where propertyName = decl_name decl
-        (propertyType, gvalueKind) = genMarshalProperty knownSymbols (attribute_type attr)
+        (propertyType, gvalueKind, needsGetTypeCCall) =
+          genMarshalProperty knownSymbols (attribute_type attr)
         body = text attrType <> text "AttrFrom" <> text gvalueKind <> text "Property"
            <+> doubleQuotes (text (attribute_cname attr))
+            $$ if needsGetTypeCCall
+                  then let attrType  = attribute_type attr
+                           ccall_name = text (hsTypeNameToCGetType attrType)
+                        in nest 2 $ c2hsHook "call pure unsafe" ccall_name
+                  else empty
           where attrType | attribute_readable attr
                         && attribute_writeable attr = "new"
                          | attribute_readable  attr = "read"
@@ -224,9 +230,15 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute_is_child = True }) }) =
   genAtter decl propertyName classConstraint getterType setterType True (Right body)
   where propertyName = decl_name decl
-        (propertyType, gvalueKind) = genMarshalProperty knownSymbols (attribute_type attr)
+        (propertyType, gvalueKind, needsGetTypeCCall) =
+          genMarshalProperty knownSymbols (attribute_type attr)
         body = text attrType <> text "AttrFromContainerChild" <> text gvalueKind <> text "Property"
            <+> doubleQuotes (text (attribute_cname attr))
+            $$ if needsGetTypeCCall
+                  then let attrType  = attribute_type attr
+                           ccall_name = text (hsTypeNameToCGetType attrType)
+                        in nest 2 $ c2hsHook "call pure unsafe" ccall_name
+                  else empty
           where attrType | attribute_readable attr
                         && attribute_writeable attr = "new"
                          | attribute_readable  attr = "read"

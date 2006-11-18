@@ -2,7 +2,7 @@ module Names where
 
 import MarshalFixup (cTypeNameToHSType, fixCFunctionName)
 import Utils (splitBy, lowerCaseFirstChar, upperCaseFirstChar)
-import Data.Char as Char (toLower)
+import Data.Char as Char (toLower, isUpper, isLower)
 
 cFuncNameToHsName :: String -> String
 cFuncNameToHsName =
@@ -50,3 +50,10 @@ toStudlyCapsWithFixups =                 --change "gtk_foo_bar" to "GtkFooBar"
   . map MarshalFixup.fixCFunctionName
   . filter (not.null) --to ignore tailing underscores
   . splitBy '_'
+
+hsTypeNameToCGetType :: String -> String
+hsTypeNameToCGetType hsTypeName =
+  convert False hsTypeName ++ "_get_type"
+  where convert _         []                 = []
+        convert True      (c:cs) | isUpper c = '_' : convert False (c:cs)
+        convert lastLower (c:cs)             = toLower c : convert (isLower c) cs

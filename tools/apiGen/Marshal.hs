@@ -395,38 +395,39 @@ genMarshalResult _ _ _ unknownType = ("{-" ++ unknownType ++ "-}", id)
 
 -- Takes the type string and returns the Haskell Type and the GValue variety
 --
-genMarshalProperty :: KnownSymbols -> String -> (String, String)
-genMarshalProperty _ "gint"      = ("Int",    "Int")
-genMarshalProperty _ "guint"     = ("Int",    "UInt")
-genMarshalProperty _ "gfloat"    = ("Float",  "Float")
-genMarshalProperty _ "gdouble"   = ("Double", "Double")
-genMarshalProperty _ "gboolean"  = ("Bool",   "Bool")
-genMarshalProperty _ "gunichar"  = ("Char",   "Char")
-genMarshalProperty _ "gchar*"    = ("String", "String")
-genMarshalProperty _ "GStrv"     = ("[String]", "Strings")
+genMarshalProperty :: KnownSymbols -> String -> (String, String, Bool)
+genMarshalProperty _ "gint"      = ("Int",    "Int",       False)
+genMarshalProperty _ "guint"     = ("Int",    "UInt",      False)
+genMarshalProperty _ "gfloat"    = ("Float",  "Float",     False)
+genMarshalProperty _ "gdouble"   = ("Double", "Double",    False)
+genMarshalProperty _ "gboolean"  = ("Bool",   "Bool",      False)
+genMarshalProperty _ "gunichar"  = ("Char",   "Char",      False)
+genMarshalProperty _ "gchar*"    = ("String", "String",    False)
+genMarshalProperty _ "GStrv"     = ("[String]", "Strings", False)
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsObject typeKind =
-  (shortTypeName, "Object")
+  (shortTypeName, "Object", True)
   where shortTypeName = cTypeNameToHSType typeName
         typeKind = Map.lookup typeName knownSymbols
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsEnum typeKind =
-  (shortTypeName, "Enum")
+  (shortTypeName, "Enum", True)
   where shortTypeName = cTypeNameToHSType typeName
         typeKind = Map.lookup typeName knownSymbols
 
 genMarshalProperty knownSymbols typeName
             | isUpper (head typeName)
            && symbolIsFlags typeKind =
-  (shortTypeName, "Flags")
+  ("[" ++ shortTypeName ++ "]", "Flags", True)
   where shortTypeName = cTypeNameToHSType typeName
         typeKind = Map.lookup typeName knownSymbols
 
-genMarshalProperty _ unknown = ("{-" ++ unknown ++ "-}", "{-" ++ unknown ++ "-}")
+genMarshalProperty _ unknown = ("{-" ++ unknown ++ "-}",
+                                "{-" ++ unknown ++ "-}", False)
 
 -- Takes the type string and returns the signal marshaing category and the
 -- Haskell type
