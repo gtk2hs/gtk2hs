@@ -412,10 +412,10 @@ TOP = ../..
 #	tools
 #
 
-ApiGen : ApiGen.hs Api.hs Docs.hs AddDocs.hs HaddockDocs.hs CodeGen.hs \
-	Marshal.hs MarshalFixup.hs ModuleScan.hs ExcludeApi.hs Utils.hs \
-	Module.hs Names.hs
-	$(HC) --make $< -o $@
+ApiGen : $(addprefix src/,ApiGen.hs Api.hs Docs.hs AddDocs.hs HaddockDocs.hs \
+	CodeGen.hs Marshal.hs MarshalFixup.hs ModuleScan.hs ExcludeApi.hs \
+	Utils.hs Module.hs Names.hs)
+	$(HC) -isrc --make $< -o $@
 HC=ghc
 
 gapi_format_xml : formatXml.c
