@@ -209,7 +209,8 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                            ccall_name = text (hsTypeNameToCGetType attrType)
                         in nest 2 $ c2hsHook "call pure unsafe" ccall_name
                   else empty
-          where attrType | attribute_readable attr
+          where attrType | not (attribute_constructonly attr)
+                        && attribute_readable attr
                         && attribute_writeable attr = "new"
                          | attribute_readable  attr = "read"
                          | attribute_writeable attr = "write"
@@ -217,13 +218,15 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                    | otherwise                = Nothing
         (setterType, classConstraint)
                    | attribute_writeable attr 
-                  && gvalueKind == "Object"  =
+                  && gvalueKind == "Object"
+                  && not (attribute_constructonly attr) =
                     if leafClass (attribute_type attr)
                       then (Just propertyType, Nothing)
                       else let typeVar = lowerCaseFirstChar propertyType
                                classConstraint' = propertyType ++ "Class " ++ typeVar
                             in (Just typeVar, Just classConstraint')
-                   | attribute_writeable attr = (Just propertyType, Nothing)
+                   | not (attribute_constructonly attr)
+                  && attribute_writeable attr = (Just propertyType, Nothing)
                    | otherwise                = (Nothing, Nothing)
 
 
@@ -239,7 +242,8 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                            ccall_name = text (hsTypeNameToCGetType attrType)
                         in nest 2 $ c2hsHook "call pure unsafe" ccall_name
                   else empty
-          where attrType | attribute_readable attr
+          where attrType | not (attribute_constructonly attr)
+                        && attribute_readable attr
                         && attribute_writeable attr = "new"
                          | attribute_readable  attr = "read"
                          | attribute_writeable attr = "write"
@@ -247,13 +251,15 @@ genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeProp { attribute
                    | otherwise                = Nothing
         (setterType, classConstraint)
                    | attribute_writeable attr 
-                  && gvalueKind == "Object"   =
+                  && gvalueKind == "Object"
+                  && not (attribute_constructonly attr) =
                     if leafClass (attribute_type attr)
                       then (Just propertyType, Nothing)
                       else let typeVar = lowerCaseFirstChar propertyType
                                classConstraint' = propertyType ++ "Class " ++ typeVar ++ ", WidgetClass child"
                             in (Just typeVar, Just classConstraint')
-                   | attribute_writeable attr = (Just propertyType, Just "WidgetClass child")
+                   | not (attribute_constructonly attr)
+                  && attribute_writeable attr = (Just propertyType, Just "WidgetClass child")
                    | otherwise                = (Nothing, Just "WidgetClass child")
 
 genDeclCode knownSymbols decl@(Decl{ decl_body = attr@(AttributeGetSet {}) }) =
