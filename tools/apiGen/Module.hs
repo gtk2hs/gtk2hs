@@ -31,6 +31,7 @@ data Module = Module {
   module_namespace    :: String,  -- C object namespace, eg "Gtk"
 
   module_filename          :: String,  -- name part of the file including ext
+  module_needs_c2hs        :: Bool,
   
   module_authors           :: [String],
   module_created           :: String,
@@ -186,6 +187,8 @@ convertObject namespace object =
           module_cname = Api.object_cname object,
           
           module_namespace = Api.namespace_name namespace,
+
+          module_needs_c2hs = True,
 
           module_authors = ["[Insert your full name here]"],
           module_copyright_holders = ["[Insert your full name here]"],
@@ -361,6 +364,7 @@ applyModuleScanInfo modPrefix date year modInfoMap module_ =
       module_ {
         module_prefix            = ModuleScan.module_prefix info,
         module_filename          = ModuleScan.module_filename info,
+        module_needs_c2hs        = ModuleScan.module_needsc2hs info,
 
         module_authors           = ModuleScan.module_authors info,
         module_copyright_dates   = ModuleScan.module_copyright_dates info,

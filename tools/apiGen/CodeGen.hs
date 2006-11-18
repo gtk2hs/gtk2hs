@@ -342,7 +342,7 @@ genModuleBody knownTypes module_ =
  $+$ exports
   $$ nest 2 (rparen <+> text "where")
  $+$ imports
- $+$ context
+ $+$ (if module_needs_c2hs module_ then context else empty)
  $+$ decls
   
   where summary = HaddockDocs.formatParasFragment (module_summary module_)

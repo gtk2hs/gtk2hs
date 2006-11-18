@@ -134,8 +134,10 @@ scanModuleContent content filename =
   in ModuleInfo {
     module_name              = head $ [ name    | Module name _   <- headerLines ] ++ [missing],
     module_prefix            = head $ [ prefix  | Module _ prefix <- headerLines ] ++ [missing],
-    module_needspreproc      = ".chs.pp" `isSuffixOf` filename,
-    module_needsc2hs         = ".chs" `isSuffixOf` filename,
+    module_needspreproc      = ".chs.pp" `isSuffixOf` filename
+                            ||     ".pp" `isSuffixOf` filename,
+    module_needsc2hs         = ".chs"    `isSuffixOf` filename
+                            || ".chs.pp" `isSuffixOf` filename,
     module_filename          = "",
     module_authors           = head $ [ authors | Authors authors     <- headerLines ] ++ [[missing]],
     module_created           = head $ [ created | Created created     <- headerLines ] ++ [missing],
