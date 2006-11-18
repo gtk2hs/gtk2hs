@@ -161,6 +161,7 @@ main = do
         . map Module.addDeclAvailableSincePara
         . map Module.fixModuleAvailableSince
         . map Module.filterNewActionSignals
+        . map Module.excludeConstructOnlyAttrs
         . map Module.makeGetSetProps
         . map Module.makeOldSignals
         . map Module.filterVarArgs

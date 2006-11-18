@@ -691,6 +691,20 @@ excludeApi excludeApiFilesContents module_ =
         okAPI _ = True
 
 
+excludeConstructOnlyAttrs :: Module -> Module
+excludeConstructOnlyAttrs module_ =
+  module_ {
+    module_decls = filter (not . isConstructOnly) (module_decls module_)
+  }
+  where isConstructOnly Decl {
+                          decl_body = AttributeProp {
+                            attribute_constructonly = True,
+                            attribute_readable = False
+                          }
+                        } =  True
+        isConstructOnly _ = False
+
+
 {-
 content <- readFile "gtk-api.xml"
 let api = Api.extractAPI (Text.XML.HaXml.Parse.xmlParse "gtk-api.xml" content)
