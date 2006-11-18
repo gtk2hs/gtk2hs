@@ -403,7 +403,13 @@ genDecls knownSymbols module_ =
   ++ sectionHeader "Signals"
      [ (genDecl knownSymbols decl, (since, deprecated))
      | decl@Decl { decl_since = since,
-                   decl_deprecated = deprecated,
+                   decl_deprecated = deprecated@False,
+                   decl_body = Module.Signal {}
+       } <- module_decls module_ ]
+  ++ sectionHeader "Deprecated Signals"
+     [ (genDecl knownSymbols decl, (since, deprecated))
+     | decl@Decl { decl_since = since,
+                   decl_deprecated = deprecated@True,
                    decl_body = Module.Signal {}
        } <- module_decls module_ ]
   where sectionHeader _    []      = []
