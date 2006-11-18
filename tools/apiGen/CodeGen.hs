@@ -294,13 +294,16 @@ genDeclCode knownSymbols Decl{ decl_module = module_,
         (paramCategories, paramTypes) = unzip [ convertSignalType knownSymbols (Api.parameter_type parameter)
                                               | parameter <- params ]
         (returnCategory, returnType) = convertSignalType knownSymbols (Module.signal_return_type signal)
-        signalType = text (module_name module_) <> text "Class self => Signal self" <+> parens callbackType
+        signalType = text (module_name module_) <> text "Class self => Signal self" <+> callbackType True
         oldSignalType = text (module_name module_) <> text "Class self => self"
-                     $$ nest nestLevel (text "->" <+> callbackType
+                     $$ nest nestLevel (text "->" <+> callbackType False
                              $$ text "->" <+> text "IO (ConnectId self)")
           where nestLevel = -(length signalName + 3)
-        callbackType | null paramTypes = text "IO" <+> text returnType
-                     | otherwise = parens (hsep . intersperse (text "->") . map text $ (paramTypes ++ ["IO " ++ returnType]))
+        callbackType needsParens
+                     | null paramTypes = (if needsParens then parens else id)
+                                           (text "IO" <+> text returnType)
+                     | otherwise = parens (hsep . intersperse (text "->") . map text $
+                                          (paramTypes ++ ["IO " ++ returnType]))
         signalCName = doubleQuotes (text $ Module.signal_cname signal)
 
 genDeclCode _
