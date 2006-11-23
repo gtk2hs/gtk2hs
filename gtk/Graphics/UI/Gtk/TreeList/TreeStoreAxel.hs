@@ -26,7 +26,7 @@
 --
 -- Standard model to store hierarchical data.
 --
-module Graphics.UI.Gtk.TreeList.TreeStoreAxel (
+module Graphics.UI.Gtk.TreeList.TreeStoreNew (
   TreeStore,
   treeStoreNew,
   treeStoreInsert,
