@@ -1,8 +1,36 @@
-
+-- -*-haskell-*-
+--  GIMP Toolkit (GTK) CustomStore TreeModel
+--
+--  Author : Duncan Coutts, Axel Simon
+--
+--  Created: 11 Feburary 2006
+--
+--  Version $Revision: 1.1 $ from $Date: 2005/12/08 18:12:43 $
+--
+--  Copyright (C) 2005 Duncan Coutts, Axel Simon
+--
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
+--
+--  This library is distributed in the hope that it will be useful,
+--  but WITHOUT ANY WARRANTY; without even the implied warranty of
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
+--
+-- |
+-- Maintainer  : gtk2hs-users@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- Standard model to store list data.
+--
 module Graphics.UI.Gtk.TreeList.ListStoreNew (
   ListStore,
   listStoreNew,
   
+  listStoreGetValue,
   listStoreSetValue,
   listStoreInsert,
   listStorePrepend,
@@ -76,6 +104,10 @@ listStoreNew xs = do
       customTreeModelRefNode       = \_ -> return (),
       customTreeModelUnrefNode     = \_ -> return ()
     }
+
+listStoreGetValue :: ListStore a -> Int -> IO a
+listStoreGetValue (ListStore model) index =
+  readIORef (customTreeModelGetPrivate model) >>= return . (`Seq.index` index)
 
 listStoreSetValue :: ListStore a -> Int -> a -> IO ()
 listStoreSetValue (ListStore model) index value = do
