@@ -21,7 +21,7 @@ You will need:
 - [Gnome http://www.gnome.org/] libraries
 - [Glade http://glade.gnome.org/]
 - [Gtk2Hs http://haskell.org/gtk2hs/download/]
-- Basic Haskell know how
+- Basic Haskell know-how
 
 
 You will be creating a modified "Hello World!" application like this:
@@ -42,7 +42,7 @@ Start up glade. You should see the following three windows:
 
 The first window controls your project. The palette allows you to add widgets
 to your application, while the properties window will allow a selected widget's
-properties to be modified and signals (more on this later) to be defined. 
+properties to be modified and signals (more on this later) to be defined.
 
 Open a new project. The first thing we're going to need is a place to add
 widgets, so lets first create a window by clicking on the window icon from the
@@ -67,7 +67,6 @@ frees the developer from writing resizing code. Packing is done by creating
 //boxes// or //tables//. These widgets are invisible, meaning they can't be
 seen at run time however they have a direct effect on the application.
 
-
 If you look back at the app we'll be creating, you can see that you can divide
 up the window into three rows: the label at the top, the text entry in the
 middle and the two buttons at the bottom. So what we'll do is create a
@@ -75,9 +74,6 @@ middle and the two buttons at the bottom. So what we'll do is create a
 and then click anywhere in the window we just created.
 
 [vbox.png] Vertical Box palette icon.
-
-Specify that you want three rows created and click OK. The window will now be
-divided up into three rows, ready for more widgets to be added.
 
 Specify that you want three rows created and click OK. The window will now be
 divided up into three rows, ready for more widgets to be added.
@@ -100,13 +96,13 @@ Specify two columns and click OK. The third row will now be divided
 horizontally into two equal section.
 
 Perhaps this would be a good time to save our project. By default Glade will
-save your project under a ``Projects`` directory in your home directory. 
+save your project under a ``Projects`` directory in your home directory.
 Name your project something simple such as ``hellohaskell``.
 
 Let's move on to the buttons. Each of the sections we created in the third row
 will each hold a button. So let's add a button to each section by clicking the
-//Button// icon from the palette and clicking in the first section. 
-Perform a similar action for the second section.
+//Button// icon from the palette and clicking in the first section. Perform a
+similar action for the second section.
 
 [button.png] Button palette icon.
 
@@ -159,7 +155,7 @@ First, however, you have to take care of some administration. This includes
 importing the modules in lines 1 and 2, initializing the graphics in line 5 and
 adding the main graphics function at the end on line 9. This is the basic
 template for all Gtk2Hs user modules. To use a //.glade// file you must also
-add something like lines 6 to the template. If the specified file is found, you
+add something like line 6 to the template. If the specified file is found, you
 now have a handle to access all your widgets.
 
 ```
@@ -174,13 +170,13 @@ now have a handle to access all your widgets.
 9   mainGUI
 ```
 
-Line 7 shows you how to get a handle to a specified widget using the general 
-``xmlGetWidget`` function. Its first argument is the handle to the glade, 
-its second a cast to the desired type, and its third the name (its //id// 
+Line 7 shows you how to get a handle to a specified widget using the general
+``xmlGetWidget`` function. Its first argument is the handle to the glade,
+its second a cast to the desired type, and its third the name (its //id//
 attribute) in the XML file. We'll use this function again and again. Lastly,
 line 8 contains the action to be taken when the user closes the window. If you
 have the Glasgow Haskell Compiler installed you can use its interactive version
-//ghci// to run (your copy of) this listing. 
+//ghci// to run (your copy of) this listing.
 
 Now all this fun is well and good.... but our app is still kind of blah when it
 doesn't actually do anything. So let's start up on the coding!
@@ -245,7 +241,7 @@ in a myriad of places. We'll need the [Gtk2Hs API http://haskell.org/gtk2hs/docs
 and, among other things, this has functions specific to our immediate needs:
 labels and text entries.
 
-The first thing we'll need is a way to obtain the text the user had entered. 
+The first thing we'll need is a way to obtain the text the user had entered.
 This is done with the ``get`` function and the ``entryText`` attribute.
 Secondly we need a way to set the text in our label. This is done with the
 ``set`` function and the ``labelText`` attribute. And, of course, we need to
@@ -293,7 +289,7 @@ and verify that the name has changed. Experiment to find out what other changes
 you can make in your GUI with the same Haskell code. 
 
 === What Next: ===
- 
+
 For Glade see [part 2 http://eddy.writelinux.com/part2/] of the
 [original tutorial http://www.writelinux.com/glade/].
 
