@@ -21,9 +21,10 @@
 
 module Main (main) where
 
-import Char   (isUpper, isLower, isSpace, isDigit)
-import List   (isPrefixOf)
-import System (getArgs)
+import Data.Char          (isUpper, isLower, isSpace, isDigit)
+import Data.List          (isPrefixOf, intersperse)
+import System.Environment (getArgs)
+
 
 import qualified Data.Map as Map
 
@@ -114,7 +115,20 @@ substitute dt conc baseUrl = substNormal dt
                               where (ts',ts'') = findCodeArea dt ts
         
         substCodeArea LaTeX = map (addLinks dt)
-        substCodeArea XHTML = map (\s -> renderTag dt (classifyToken s) (addLinks dt s)) . glue
+        substCodeArea XHTML = concat
+                            . intersperse ["\n"]
+                            . map highlightLine
+                            . map dropLeadingSpaces
+                            . splitBy (=="\n")
+
+          where highlightLine l@("$":_) = l -- assme these are console commands
+                highlightLine l = map (\s -> renderTag dt (classifyToken s)
+                                                          (addLinks dt s))
+                                      (glue l)
+
+                dropLeadingSpaces ((' ':' ':[]):l) =     l
+                dropLeadingSpaces ((' ':' ':s ):l) = s : l
+                dropLeadingSpaces               l  =     l
         
         addLinks LaTeX str | Just modName <- conc str = "\\href{"
                                            ++ haddockUrl baseUrl modName str
@@ -152,9 +166,9 @@ tokenise = checkSpace
   where checkSpace s =
           case span isSpace s of
             ("","") -> []
-            (sp,"") -> [sp]
+            (sp,"") -> splitOn (=='\n') sp
             ("",s') -> checkLexable s'
-            (sp,s') -> sp : checkLexable s'
+            (sp,s') -> splitOn (=='\n') sp ++ checkLexable s'
         
         checkLexable s =
           case Prelude.lex s of
@@ -172,6 +186,23 @@ data Classification = Space
   | ConId | VarId | ConOp | VarOp
   | String | Char | Number
   | Selection
+
+splitOn :: (a -> Bool) -> [a] -> [[a]]
+splitOn sep xs = split xs
+  where split [] = []
+        split xs = case break sep xs of
+          (chunk,[])         -> chunk : []
+          (chunk,rest)       ->
+            case span sep rest of
+              (seps, rest)
+                | null chunk ->         seps : split rest
+                | otherwise  -> chunk : seps : split rest
+
+splitBy :: (a -> Bool) -> [a] -> [[a]]
+splitBy sep xs = split xs
+  where split xs = case break sep xs of
+          (chunk,[])     -> chunk : []
+          (chunk,_:rest) -> chunk : split rest
 
 -- Glue sequences of tokens into more useful blobs
 glue ("`":rest) =				-- `varid` -> varop
