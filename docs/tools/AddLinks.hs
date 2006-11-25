@@ -42,7 +42,6 @@ main = do
   
       target = case map (drop 9) (filter ("--target=" `isPrefixOf`)  rem) of
                     ("tex":_) -> LaTeX
-                    ("html":_) -> HTML
                     ("xhtml":_) -> XHTML
                     [] -> error "please specify --target=<target>"
                     _  -> error "supported targets: tex, xhtml"
@@ -90,7 +89,7 @@ parseExports content = flip Map.lookup concordance
 -- to find the code snippets and to do all necesary conversion/escaping
 -- and add in the links and call the next bit to do any syntax highliting
 --
-data DocType = LaTeX | XHTML | HTML
+data DocType = LaTeX | XHTML
 
 substitute :: DocType -> Concordance -> String -> [String] -> [String]
 substitute dt conc baseUrl = substNormal dt
@@ -107,23 +106,15 @@ substitute dt conc baseUrl = substNormal dt
                                    : substCodeArea dt codeArea
                                   ++ "</pre>"
                                    : substNormal dt ts'
-        substNormal  HTML ("<":"pre":">":('\n':s)
-                          :ts) = let (codeArea, ts') = findCodeArea dt (s:ts)
-                                  in "<pre>"
-                                   : substCodeArea dt codeArea
-                                  ++ "</pre>"
-                                   : substNormal dt ts'
         substNormal dt (t:ts)  = t : substNormal dt ts
         
         findCodeArea LaTeX ("\\":"end":"{":"verbatim":"}":ts) = ([], ts)
         findCodeArea XHTML ("</":"pre":">"               :ts) = ([], ts)
-        findCodeArea  HTML ("</":"pre":">"               :ts) = ([], ts)
         findCodeArea dt (t:ts)  = (t:ts',ts'')
                               where (ts',ts'') = findCodeArea dt ts
         
         substCodeArea LaTeX = map (addLinks dt)
         substCodeArea XHTML = map (\s -> renderTag dt (classifyToken s) (addLinks dt s)) . glue
-        substCodeArea  HTML = map (\s -> renderTag dt (classifyToken s) (addLinks dt s)) . glue
         
         addLinks LaTeX str | Just modName <- conc str = "\\href{"
                                            ++ haddockUrl baseUrl modName str
@@ -131,9 +122,6 @@ substitute dt conc baseUrl = substNormal dt
                            | all isSpace str  = convertLatexSpace str
                            | otherwise        = escapeLatexSymbol str
         addLinks XHTML str | Just modName <- conc str = "<a href=\""
-                                           ++ haddockUrl baseUrl modName str
-                                           ++ "\">" ++ str ++ "</a>"
-        addLinks  HTML str | Just modName <- conc str = "<a href=\""
                                            ++ haddockUrl baseUrl modName str
                                            ++ "\">" ++ str ++ "</a>"
         addLinks _     str = str
@@ -246,19 +234,6 @@ renderTag XHTML String     = spanTag "string"
 renderTag XHTML Char       = spanTag "char"
 renderTag XHTML Number     = spanTag "number"
 renderTag XHTML Selection  = spanTag "selection"
-
-renderTag HTML Keyword    = tag "strong"
-renderTag HTML Keyglyph   = tag "strong"
-renderTag HTML Layout     = id
-renderTag HTML Comment    = tag "emphasis"
-renderTag HTML ConId      = id
-renderTag HTML VarId      = id
-renderTag HTML ConOp      = id
-renderTag HTML VarOp      = id
-renderTag HTML String     = id
-renderTag HTML Char       = id
-renderTag HTML Number     = id
-renderTag HTML Selection  = id
 
 spanTag className s = "<span class=\"haskellcode-" ++ className ++ "\">" ++ s ++ "</span>"
 
