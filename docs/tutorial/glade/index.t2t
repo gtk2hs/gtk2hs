@@ -10,12 +10,12 @@ Hans van Thiel
 
 This tutorial will attempt to provide a step by step guide for developers
 wanting to write Gtk+ apps using Glade. We assume you are using Linux, but
-because the GTK+ toolkit, the Glade Interface Designer and Gtk2Hs are available
+because the Gtk+ toolkit, the Glade Interface Designer and Gtk2Hs are available
 on other platforms too, this might also help you get started there.
 
 This tutorial page is an adaptation for [Haskell http://www.haskell.org] and
 [Gtk2Hs http://haskell.org/gtk2hs/] of an
-[original tutorial http://www.writelinux.com/glade/] for C and Gtk+'s C API.
+[original tutorial http://www.writelinux.com/glade/] for C and the Gtk+ C API.
 
 You will need:
 
