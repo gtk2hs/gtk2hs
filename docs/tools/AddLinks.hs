@@ -25,7 +25,7 @@ import Char   (isUpper, isLower, isSpace, isDigit)
 import List   (isPrefixOf)
 import System (getArgs)
 
-import qualified Data.FiniteMap as Map
+import qualified Data.Map as Map
 
 -------------------------------------------------------------------------------
 -- Top level stuff
@@ -75,8 +75,8 @@ main = do
 type Concordance = (String -> Maybe String)
 
 parseExports :: String -> Concordance
-parseExports content = Map.lookupFM concordance
-  where concordance = Map.listToFM
+parseExports content = flip Map.lookup concordance
+  where concordance = Map.fromList
                     . concat
                     . map (extractLine . words)
                     . lines
