@@ -22,7 +22,7 @@ $(TOP)/exports : $(hi-files)
 
 %.html : %.t2t $(TOP)/exports $(TOOLSDIR)/AddLinks
 	if [ -f $(TOP)/headder.html.fragment -a -f $(TOP)/footer.html.fragment ]; then \
-	  ( cat $(TOP)/headder.html.fragment; \
+	  ( sed -e "s/%TITLE%/$$(head -n 1 $<)/" $(TOP)/headder.html.fragment; \
 	    txt2tags --target=xhtml --no-headers --infile=$< --outfile=- \
 	    | $(TOOLSDIR)/AddLinks $(TOP)/exports --target=xhtml \
 		--baseurl=$(base-url); \
