@@ -139,7 +139,9 @@ substitute dt conc baseUrl = substNormal dt
         addLinks _     str = str
 
 haddockUrl baseUrl modName varName =
-  baseUrl ++ modName ++ ".html#v:" ++ varName
+  baseUrl ++ map dotToDash modName ++ ".html#v:" ++ varName
+  where dotToDash '.' = '-'
+        dotToDash  c  =  c
 
 convertLatexSpace :: String -> String
 convertLatexSpace []        = []
