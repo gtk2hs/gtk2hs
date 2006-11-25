@@ -1,7 +1,7 @@
 
 TOP = .
 
-SUBDIRS = glade
+SUBDIRS = intro glade
 
 default :
 	for dir in $(SUBDIRS); do $(MAKE) -C $${dir}; done

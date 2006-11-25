@@ -1,0 +1,91 @@
+Intro Tutorial
+Duncan Coutts
+November 2006
+
+This is just a sketch/skeleton of what a tutorial could look like. Feel free to
+"darcs send" your contributions so we can turn it into a real tutorial.
+
+== Introduction ==
+
+Want to say who this tutorial is aimed at etc.
+
+== Hello World with Gtk2Hs ==
+
+Start with the most basic working hello world app.
+Then we compile it...
+
+Here's the most basic Gtk2Hs prog:
+
+```
+import Graphics.UI.Gtk
+
+main = do
+  initGUI
+  window <- windowNew
+  widgetShow window
+  mainGUI
+```
+
+=== Compiling Hello World ===
+
+How to compile it with GHC on linux/mac/win32
+
+``` $ ghc --make Hello.hs -o hello
+
+=== Stepping through Hello World ===
+
+Go through line by line of the hello world code to explain what each one does.
+It should not mention in too much detail how signals work yet, but note that
+they will be explained more fully shorty.
+
+== Signals ==
+
+The concept of event driven GUI programming. What GObject signals are
+(without necessarily mentioning the term GObject yet)
+
+== Widget Types ==
+
+The way that the class heiriaharcy is represented in Haskell using type
+classes. Breif mention of up casting & downcasting. We'll come back to
+downcasting in the glade section.
+
+== Attributes ==
+
+Show the
+
+``` set object [ attr := value ]
+
+style syntax. Reccomend it over the more verbose ``objectSetAttr object value``
+style.
+
+== Using Glade ==
+
+We want to encourage people to use Glade to do their widget layout rather than
+doing it all in code. We can explain manual widget layout as a more advanced
+topic next.
+
+Fortunately we do now have a glade tutorial so we can referr to that.
+
+== Widget Layout ==
+
+Doing widget layout in code rather than with Glade.
+
+== Basic Concepts ==
+
+Brief explanation of basic and general concepts. With references to the API
+functions whenever possible. (probably in form of examples?).
+
+- signal
+- event
+- window
+- widget
+- container
+- box
+- layout
+- button
+- label
+
+
+The idea is to get the user with as general and useful concepts as possible so
+it makes it easier for him to surf the API since the beginning and write simple
+code.
