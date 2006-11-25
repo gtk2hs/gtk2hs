@@ -100,7 +100,7 @@ substitute dt conc baseUrl = substNormal dt
                                     : substCodeArea dt codeArea
                                    ++ "\\end{tabbing}"
                                     : substNormal dt ts'
-        substNormal XHTML ("<":"pre":">":('\n':s)
+        substNormal XHTML ("<":"pre":">":s
                           :ts) = let (codeArea, ts') = findCodeArea dt (s:ts)
                                   in "<pre class=\"haskellcode\">"
                                    : substCodeArea dt codeArea
@@ -124,6 +124,7 @@ substitute dt conc baseUrl = substNormal dt
         addLinks XHTML str | Just modName <- conc str = "<a href=\""
                                            ++ haddockUrl baseUrl modName str
                                            ++ "\">" ++ str ++ "</a>"
+        addLinks XHTML ('\n':' ':' ':str) = '\n' : addLinks XHTML str
         addLinks _     str = str
 
 haddockUrl baseUrl modName varName =
