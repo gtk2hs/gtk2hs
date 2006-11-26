@@ -504,7 +504,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/CellLayout.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/Sequence.hs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/ListStoreNew.hs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/TreeStoreAxel.hs			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeStoreNew.hs			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/MessageDialog.chs.pp		\
