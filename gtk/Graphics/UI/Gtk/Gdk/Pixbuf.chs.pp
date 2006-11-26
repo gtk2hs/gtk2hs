@@ -538,25 +538,38 @@ pixbufScaleSimple pb width height interp =
 
 -- | Copy a scaled image part to another image.
 --
--- * This function is the generic version of 'pixbufScaleSimple'.
---   It scales @src@ by @scaleX@ and @scaleY@ and
---   translate the image by @offsetX@ and @offsetY@. Whatever
---   is in the intersection with the rectangle @destX@,
---   @destY@, @destWidth@, @destHeight@ will be
---   rendered into @dest@.
+-- * This function is the generic version of 'pixbufScaleSimple'. It scales
+-- @src@ by @scaleX@ and @scaleY@ and translate the image by @offsetX@ and
+-- @offsetY@. Whatever is in the intersection with the rectangle @destX@,
+-- @destY@, @destWidth@, @destHeight@ will be rendered into @dest@.
 --
 -- * The rectangle in the destination is simply overwritten. Use
---   'pixbufComposite' if you need to blend the source
---   image onto the destination.
+-- 'pixbufComposite' if you need to blend the source image onto the
+-- destination.
 --
-pixbufScale :: Pixbuf -> Pixbuf -> Int -> Int -> Int -> Int ->
-	       Double -> Double -> Double -> Double -> InterpType -> IO ()
+pixbufScale :: 
+    Pixbuf     -- ^ @src@ - the source pixbuf
+ -> Pixbuf     -- ^ @dest@ - the pixbuf into which to render the results
+ -> Int        -- ^ @destX@ - the left coordinate for region to render
+ -> Int        -- ^ @destY@ - the top coordinate for region to render 
+ -> Int        -- ^ @destWidth@ - the width of the region to render
+ -> Int        -- ^ @destHeight@ - the height of the region to render
+ -> Double     -- ^ @offsetX@ - the offset in the X direction (currently
+               -- rounded to an integer)
+ -> Double     -- ^ @offsetY@ - the offset in the Y direction 
+               -- (currently rounded to an integer)
+ -> Double     -- ^ @scaleX@ - the scale factor in the X direction
+ -> Double     -- ^ @scaleY@ - the scale factor in the Y direction
+ -> InterpType -- ^ the interpolation type for the transformation.
+ -> IO ()
 pixbufScale src dest destX destY destWidth destHeight offsetX offsetY
-            scaleX scaleY interp = {#call unsafe pixbuf_scale#} src dest
-  (fromIntegral destX) (fromIntegral destY) (fromIntegral destHeight)
-  (fromIntegral destWidth) (realToFrac offsetX) (realToFrac offsetY)
-  (realToFrac scaleX) (realToFrac scaleY)
-  ((fromIntegral . fromEnum) interp)
+  scaleX scaleY interp =
+  {#call unsafe pixbuf_scale#} src dest
+    (fromIntegral destX) (fromIntegral destY)
+    (fromIntegral destWidth) (fromIntegral destHeight)
+    (realToFrac offsetX) (realToFrac offsetY)
+    (realToFrac scaleX) (realToFrac scaleY)
+    ((fromIntegral . fromEnum) interp)
 
 -- | Blend a scaled image part onto another image.
 --
