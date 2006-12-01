@@ -285,17 +285,16 @@ treeModelGetPath self iter =
     iterPtr
   >>= fromTreePath
 
--- | Advance the iterator to the next element.
+-- | Retrieve an iterator to the next child.
 --
--- If there is no other element on this hierarchy level, return @False@.
---
-treeModelIterNext :: TreeModelClass self => self -> TreeIter -> IO Bool
+treeModelIterNext :: TreeModelClass self => self -> TreeIter -> IO (Maybe TreeIter)
 treeModelIterNext self iter =
-  liftM toBool $
-  with iter $ \iterPtr ->
-  {# call tree_model_iter_next #}
-    (toTreeModel self)
-    iterPtr
+  with iter $ \iterPtr -> do
+    isMore <- liftM toBool $ 
+              {# call tree_model_iter_next #}
+                (toTreeModel self)
+                iterPtr
+    if isMore then liftM Just $ peek iterPtr else return Nothing
 
 -- | Retrieve an iterator to the first child.
 --
