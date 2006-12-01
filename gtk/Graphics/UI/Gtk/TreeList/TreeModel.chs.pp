@@ -289,12 +289,10 @@ treeModelGetPath self iter =
 --
 treeModelIterNext :: TreeModelClass self => self -> TreeIter -> IO (Maybe TreeIter)
 treeModelIterNext self iter =
-  with iter $ \iterPtr -> do
-    isMore <- liftM toBool $ 
-              {# call tree_model_iter_next #}
-                (toTreeModel self)
-                iterPtr
-    if isMore then liftM Just $ peek iterPtr else return Nothing
+  receiveTreeIter $ \iterPtr ->
+  {# call tree_model_iter_next #}
+    (toTreeModel self)
+    iterPtr
 
 -- | Retrieve an iterator to the first child.
 --
