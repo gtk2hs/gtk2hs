@@ -74,8 +74,8 @@ module Graphics.UI.Gtk.Abstract.Range (
   afterMoveSlider,
   onAdjustBounds,
   afterAdjustBounds,
---  onValueChanged,
---  afterValueChanged,
+  onRangeValueChanged,
+  afterRangeValueChanged
   ) where
 
 import Monad	(liftM)
@@ -254,16 +254,17 @@ rangeValue = newAttr
 -- | Emitted when the range value is changed either programmatically or by
 -- user action.
 --
-onValueChanged, afterValueChanged :: RangeClass self => self
+onRangeValueChanged, afterRangeValueChanged :: RangeClass self => self
  -> IO ()
  -> IO (ConnectId self)
-onValueChanged = connect_NONE__NONE "value_changed" False
-afterValueChanged = connect_NONE__NONE "value_changed" True
+onRangeValueChanged = connect_NONE__NONE "value_changed" False
+afterRangeValueChanged = connect_NONE__NONE "value_changed" True
 
 -- | Emitted when the range is adjusted by user action. Note the value can be
 -- outside the bounds of the range since it depends on the mouse position.
 --
--- Usually you should use 'onValueChanged' \/ 'afterValueChanged' instead.
+-- Usually you should use 'onRangeValueChanged' \/ 'afterRangeValueChanged'
+-- instead.
 --
 onAdjustBounds, afterAdjustBounds :: RangeClass self => self
  -> (Double -> IO ())
@@ -274,7 +275,8 @@ afterAdjustBounds = connect_DOUBLE__NONE "adjust_bounds" True
 -- | Emitted when the user presses a key (e.g. Page Up, Home, Right Arrow) to
 -- move the slider. The 'ScrollType' parameter gives the key that was pressed.
 --
--- Usually you should use 'onValueChanged' \/ 'afterValueChanged' instead.
+-- Usually you should use 'onRangeValueChanged' \/
+-- 'afterRangeValueChanged' instead.
 --
 onMoveSlider, afterMoveSlider :: RangeClass self => self
  -> (ScrollType -> IO ())
