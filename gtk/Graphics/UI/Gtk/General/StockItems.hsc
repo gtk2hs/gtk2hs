@@ -59,6 +59,7 @@ module Graphics.UI.Gtk.General.StockItems (
   stockCopy,
   stockCut,
   stockDelete,
+  stockDialogAuthentication,
   stockDialogError,
   stockDialogInfo,
   stockDialogQuestion,
@@ -108,6 +109,10 @@ module Graphics.UI.Gtk.General.StockItems (
   stockNo,
   stockOk,
   stockOpen,
+  stockOrientationLandscape,
+  stockOrientationReverseLandscape,
+  stockOrientationPortrait,
+  stockOrientationReversePortrait,
   stockPaste,
   stockPreferences,
   stockPrint,
@@ -389,6 +394,17 @@ stockConnect		= stockMissingImage
 stockCopy		= #{const_str GTK_STOCK_COPY}
 stockCut		= #{const_str GTK_STOCK_CUT}
 stockDelete		= #{const_str GTK_STOCK_DELETE}
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- | <<images/stock-icons/stock_dialog_authentication_48.png>>
+stockDialogAuthentication :: StockId
+stockDialogAuthentication = #{const_str GTK_STOCK_DIALOG_AUTHENTICATION}
+#else
+stockDialogAuthentication = stockDialogQuestion
+#endif
+
+-- | <<images/stock-icons/stock_dialog_error_48.png>>
+stockDialogError	:: StockId
 stockDialogError	= #{const_str GTK_STOCK_DIALOG_ERROR}
 stockDialogInfo		= #{const_str GTK_STOCK_DIALOG_INFO}
 stockDialogQuestion	= #{const_str GTK_STOCK_DIALOG_QUESTION}
@@ -485,6 +501,32 @@ stockNew		= #{const_str GTK_STOCK_NEW}
 stockNo			= #{const_str GTK_STOCK_NO}
 stockOk			= #{const_str GTK_STOCK_OK}
 stockOpen		= #{const_str GTK_STOCK_OPEN}
+#if GTK_CHECK_VERSION(2,10,0)
+
+-- | <<images/stock-icons/stock_orientation_landscape_24.png>>
+stockOrientationLandscape :: StockId
+stockOrientationLandscape = #{const_str GTK_STOCK_ORIENTATION_LANDSCAPE}
+
+-- | <<images/stock-icons/stock_orientation_reverse_landscape_24.png>>
+stockOrientationReverseLandscape :: StockId
+stockOrientationReverseLandscape = #{const_str GTK_STOCK_ORIENTATION_REVERSE_LANDSCAPE}
+
+-- | <<images/stock-icons/stock_orientation_portrait_24.png>>
+stockOrientationPortrait  :: StockId
+stockOrientationPortrait  = #{const_str GTK_STOCK_ORIENTATION_PORTRAIT}
+
+-- | <<images/stock-icons/stock_orientation_reverse_portrait_24.png>>
+stockOrientationReversePortrait  :: StockId
+stockOrientationReversePortrait  = #{const_str GTK_STOCK_ORIENTATION_REVERSE_PORTRAIT}
+#else
+stockOrientationLandscape = stockMissingImage
+stockOrientationReverseLandscape = stockMissingImage
+stockOrientationPortrait  = stockMissingImage
+stockOrientationReversePortrait  = stockMissingImage
+#endif
+
+-- | <<images/stock-icons/stock_paste_24.png>>
+stockPaste		:: StockId
 stockPaste		= #{const_str GTK_STOCK_PASTE}
 stockPreferences	= #{const_str GTK_STOCK_PREFERENCES}
 stockPrint		= #{const_str GTK_STOCK_PRINT}
