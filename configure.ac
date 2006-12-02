@@ -774,9 +774,10 @@ if test "$BUILDDOCS" = "yes"; then
 fi
 AM_CONDITIONAL(BUILDDOCS, test "$BUILDDOCS" = "yes")
 
-AC_ARG_WITH(ghc-docdir, 
-            [  --with-ghc-docdir=GHC_DOCDIR  location of top of ghc haddockified html documentation],
-	    [GHC_DOCDIR=$withval])
+dnl Define the set of packages that Haddock should cross-reference into. This
+dnl should include all modules of GHC that contain the definitions of e.g.
+dnl Maybe and Bool, etc. This setting is likely dependent on the GHC version.
+HADDOCK_PACKAGES='base'
 
 dnl The preprocessor to use on Haskell sources
 if test "$USE_CPP_LINES" = "yes"; then
@@ -809,7 +810,7 @@ AC_SUBST(GTK_CAIRO_DEPEND)
 AC_SUBST(GTK_CAIRO_DEPEND_NO_CABAL)
 dnl Documentation
 AC_SUBST(HADDOCK)
-AC_SUBST(GHC_DOCDIR)
+AC_SUBST(HADDOCK_PACKAGES)
 dnl The c2hs part.
 AC_SUBST(CPP)
 

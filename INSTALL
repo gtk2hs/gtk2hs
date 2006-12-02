@@ -95,10 +95,6 @@ NOTE: using an external version of c2hs is not currently working!
   from the website but you may prefer to keep a local copy. You will need
   haddock version 0.6 or later to build the documentation.
 
---with-ghc-docdir=<dir to haddock documentation of GHC libraries>
-  This option is necessary if haddock should link standard data types
-  (like Maybe) to the GHC documentation.
-
 With --help you can ask ./configure what options it supports.
 
 Add any of these options to the following command:

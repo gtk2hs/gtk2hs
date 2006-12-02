@@ -1467,6 +1467,7 @@ $(html_DATA) : $(html_HSFILES)
 		--title="Gtk2Hs" \
 		--dump-interface=docs/reference/gtk2hs.haddock \
 		--prologue=docs/prologue.txt \
+		$(addprefix --use-package=,$(HADDOCK_PACKAGES)) \
 		$(HADDOCK_FLAGS) $^)
 
 CLEANFILES += $(html_DATA)
