@@ -156,7 +156,8 @@ import Graphics.UI.Gtk.General.Structs	(IconSize)
 -- Constructors
 
 -- | Creates a new 'Action' object. To add the action to a 'ActionGroup' and
--- set the accelerator for the action, call 'actionGroupAddActionWithAccel'.
+-- set the accelerator for the action, call
+-- 'Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup.actionGroupAddActionWithAccel'.
 -- See "Graphics.UI.Gtk.ActionMenuToolbar.UIManager#XML-UI" for information on
 -- allowed action names.
 --
@@ -449,7 +450,8 @@ actionVisibleVertical :: ActionClass self => Attr self Bool
 actionVisibleVertical = newAttrFromBoolProperty "visible-vertical"
 
 -- | Whether the action is considered important. When @True@, toolitem proxies
--- for this action show text in 'ToolbarBothHoriz' mode.
+-- for this action show text in
+-- 'Graphics.UI.Gtk.MenuComboToolbar.Toolbar.ToolbarBothHoriz' mode.
 --
 -- Default value: @False@
 --

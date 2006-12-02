@@ -32,13 +32,15 @@ module Graphics.UI.Gtk.Abstract.Scale (
 -- | A 'Scale' is a slider control used to select a numeric value. To use it,
 -- you'll probably want to investigate the methods on its base class, 'Range',
 -- in addition to the methods for 'Scale' itself. To set the value of a scale,
--- you would normally use 'rangeSetValue'. To detect changes to the value, you
--- would normally use the 'onValueChanged' signal.
+-- you would normally use 'Graphics.UI.Gtk.Abstract.Range.rangeSetValue'.
+-- To detect changes to the value, you would normally use the
+-- 'Graphics.UI.Gtk.Abstract.Range.onRangeValueChanged' signal.
 --
 -- The 'Scale' widget is an abstract class, used only for deriving the
 -- subclasses 'HScale' and 'VScale'. To create a scale widget, call
--- 'hScaleNewWithRange' or 'vScaleNewWithRange'.
-
+-- 'Graphics.UI.Gtk.Entry.HScale.hScaleNewWithRange' or
+-- 'Graphics.UI.Gtk.Entry.VScale.vScaleNewWithRange'.
+--
 -- * Class Hierarchy
 -- |
 -- @

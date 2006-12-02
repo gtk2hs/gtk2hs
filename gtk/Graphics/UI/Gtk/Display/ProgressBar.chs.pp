@@ -58,8 +58,7 @@ module Graphics.UI.Gtk.Display.ProgressBar (
 -- |  'GObject'
 -- |   +----'Object'
 -- |         +----'Widget'
--- |               +----'Progress'
--- |                     +----ProgressBar
+-- |               +----ProgressBar
 -- @
 
 -- * Types

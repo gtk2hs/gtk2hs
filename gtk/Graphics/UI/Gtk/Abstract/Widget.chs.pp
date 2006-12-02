@@ -66,7 +66,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   Allocation,
   Requisition(..),
   Rectangle(..),
-
+  AccelFlags(..),
+  
 -- * Methods
   widgetGetState,
   widgetGetSavedState,
@@ -231,7 +232,8 @@ import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 					,widgetGetDrawWindow, widgetGetSize)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
 					 marshExposeRect)
-import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..))
+import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
+					 AccelFlags(..))
 {#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription),
 					 PangoLayout(PangoLayout),
 					 makeNewPangoString )
@@ -293,7 +295,8 @@ widgetHideAll self =
   {# call widget_hide_all #}
     (toWidget self)
 
--- | Destroys a widget. Equivalent to 'objectDestroy'.
+-- | Destroys a widget. Equivalent to
+--   'Graphics.UI.Gtk.Abstract.Object.objectDestroy'.
 --
 -- When a widget is destroyed it will be removed from the screen and
 -- unrealized. When a widget is destroyed, it will break any references it
@@ -315,10 +318,10 @@ widgetDestroy self =
 -- | Prepare text for display.
 --
 -- The 'PangoLayout' represents the rendered text. It can be shown on screen
--- by calling 'drawLayout'.
+-- by calling 'Graphics.UI.Gtk.Gdk.Drawable.drawLayout'.
 --
--- The returned 'Layout' shares the same font information ('Context') as this
--- widget. If this information changes, the 'Layout' should change. The
+-- The returned 'PangoLayout' shares the same font information ('PangoContext') as this
+-- widget. If this information changes, the 'PangoLayout' should change. The
 -- following code ensures that the displayed text always reflects the widget's
 -- settings:
 --
@@ -381,7 +384,8 @@ widgetIntersect self area =
     else return Nothing
 
 -- | Computes the intersection of a widget's area and @region@, returning
--- the intersection. The result may be empty, use 'regionEmpty' to check.
+-- the intersection. The result may be empty, use
+-- 'Graphics.UI.Gtk.Gdk.Region.regionEmpty' to check.
 --
 widgetRegionIntersect :: WidgetClass self => self
  -> Region    -- ^ @region@ - a 'Region' in the same coordinate system as the
@@ -391,9 +395,8 @@ widgetRegionIntersect :: WidgetClass self => self
               -- their own 'DrawWindow'.
  -> IO Region -- ^ returns A region holding the intersection of the widget and
               --  @region@. The coordinates of the return value are relative to
-              -- the widget's 'DrawWindow' for 'NoWindow' widgets, and relative
-              --  to the parent 'DrawWindow' of the widget's 'DrawWindow' for
-              -- widgets with their own 'DrawWindow'.
+              -- the widget's 'DrawWindow', if it has one, otherwise
+              -- it is relative to the parent's 'DrawWindow'.
 widgetRegionIntersect self region = do
   intersectionPtr <- {# call gtk_widget_region_intersect #}
     (toWidget self)
@@ -431,11 +434,13 @@ widgetSetSensitivity self sensitive =
 -- will be @width@ by @height@. You can use this function to force a widget to
 -- be either larger or smaller than it normally would be.
 --
--- In most cases, 'windowSetDefaultSize' is a better choice for toplevel
+-- In most cases, 'Graphics.UI.Gtk.Windows.Window.windowSetDefaultSize'
+-- is a better choice for toplevel
 -- windows than this function; setting the default size will still allow users
 -- to shrink the window. Setting the size request will force them to leave the
 -- window at least as large as the size request. When dealing with window
--- sizes, 'windowSetGeometryHints' can be a useful function as well.
+-- sizes, 'Graphics.UI.Gtk.Windows.Window.windowSetGeometryHints' can be a
+-- useful function as well.
 --
 -- Note the inherent danger of setting any fixed size - themes, translations
 -- into other languages, different fonts, and user action can all change the
@@ -467,8 +472,8 @@ widgetSetSizeRequest self width height =
 -- 'widgetSetSizeRequest'. A value of -1 for @width@ or @height@
 -- indicates that that dimension has not been set explicitly and the natural
 -- requisition of the widget will be used intead. See 'widgetSetSizeRequest'.
--- To get the size a widget will actually use, call 'widgetSizeRequest' instead
--- of this function.
+-- To get the size a widget will actually use, call connect to the
+-- signal 'onSizeRequest' instead of calling this function.
 --
 widgetGetSizeRequest :: WidgetClass self => self
  -> IO (Int, Int) -- ^ @(width, height)@
@@ -494,7 +499,7 @@ widgetIsFocus self =
 
 -- | Causes the widget to have the keyboard focus for the 'Window' it's inside.
 -- The widget must be a focusable widget, such as a 'Entry'; something like
--- 'Frame' won't work. (More precisely, it must have the 'CanFocus' flag set.)
+-- 'Frame' won't work. (More precisely, it must have the "CanFocus" flag set.)
 --
 widgetGrabFocus :: WidgetClass self => self -> IO ()
 widgetGrabFocus self =
@@ -594,7 +599,7 @@ widgetSetExtensionEvents self mode =
     ((fromIntegral . fromFlags) mode)
 
 -- | Retrieves the extension events the widget will receive; see
--- 'inputSetExtensionEvents'.
+-- 'widgetSetExtensionEvents'.
 --
 widgetGetExtensionEvents :: WidgetClass self => self
  -> IO [ExtensionMode]
@@ -670,17 +675,22 @@ widgetGetDirection self =
     (toWidget self)
 
 -- | Invalidates the rectangular area of @widget@ defined by @x@, @y@, @width@
--- and @height@ by calling 'windowInvalidateRect' on the widget's window and
+-- and @height@ by calling
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowInvalidateRect' on the widget's
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' and
 -- all its child windows. Once the main loop becomes idle (after the current
 -- batch of events has been processed, roughly), the window will receive expose
 -- events for the union of all regions that have been invalidated.
 --
 -- Normally you would only use this function in widget implementations. You
--- might also use it, or 'windowInvalidateRect' directly, to schedule a redraw
--- of a 'DrawingArea' or some portion thereof.
+-- might also use it, or 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowInvalidateRect'
+-- directly, to schedule a redraw
+-- of a 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawingArea' or some portion thereof.
 --
--- Frequently you can just call 'windowInvalidateRect' or
--- 'windowInvalidateRegion' instead of this function. Those functions will
+-- Frequently you can just call
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.windowInvalidateRect' or
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.windowInvalidateRegion' instead of this
+-- function. Those functions will
 -- invalidate only a single window, instead of the widget and all its children.
 --
 -- The advantage of adding to the invalidated region compared to simply
@@ -703,9 +713,12 @@ widgetQueueDrawArea self x y width height =
 
 -- | Widgets are double buffered by default; you can use this function to turn
 -- off the buffering. \"Double buffered\" simply means that
--- 'windowBeginPaintRegion' and 'windowEndPaint' are called automatically
--- around expose events sent to the widget. 'windowBeginPaint' diverts all
--- drawing to a widget's window to an offscreen buffer, and 'windowEndPaint'
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaintRegion' and
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowEndPaint' are called automatically
+-- around expose events sent to the widget.
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaintRegion' diverts all
+-- drawing to a widget's window to an offscreen buffer, and
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowEndPaint'
 -- draws the buffer to the screen. The result is that users see the window
 -- update in one smooth step, and don't see individual graphics primitives
 -- being rendered.
@@ -716,7 +729,8 @@ widgetQueueDrawArea self x y width height =
 --
 -- Note: if you turn off double-buffering, you have to handle expose events,
 -- since even the clearing to the background color or pixmap will not happen
--- automatically (as it is done in 'windowBeginPaint').
+-- automatically (as it is done in
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaint').
 --
 widgetSetDoubleBuffered :: WidgetClass self => self
  -> Bool  -- ^ @doubleBuffered@ - @True@ to double-buffer a widget
@@ -869,8 +883,9 @@ widgetGetCompositeName self =
     (toWidget self)
   >>= maybePeek peekUTFString
 
--- | Sets a widgets composite name. The widget must be a composite child of
--- its parent; see 'widgetPushCompositeChild'.
+-- | Sets a widgets composite name. A child widget of a container is
+--   composite if it serves as an internal widget and, thus, is not
+--   added by the user.
 --
 widgetSetCompositeName :: WidgetClass self => self
  -> String -- ^ @name@ - the name to set.
@@ -1049,7 +1064,7 @@ widgetModifyFont self fontDesc =
     (toWidget self)
     (fromMaybe (FontDescription nullForeignPtr) fontDesc)
 
--- | Creates a new 'Context' with the appropriate colormap, font description,
+-- | Creates a new 'PangoContext' with the appropriate colormap, font description,
 -- and base direction for drawing text for this widget. See also
 -- 'widgetGetPangoContext'.
 --
@@ -1060,7 +1075,7 @@ widgetCreatePangoContext self =
   {# call gtk_widget_create_pango_context #}
     (toWidget self)
 
--- | Gets a 'Context' with the appropriate font description and base
+-- | Gets a 'PangoContext' with the appropriate font description and base
 -- direction for this widget. Unlike the context returned by
 -- 'widgetCreatePangoContext', this context is owned by the widget (it can be
 -- used until the screen for the widget changes or the widget is removed from
@@ -1307,7 +1322,7 @@ afterDestroy = connect_NONE__NONE "destroy" True
 -- | The widget was asked to hide itself.
 --
 -- * This signal is emitted each time 'widgetHide' is called. Use
---   'connectToUnmap' when your application needs to be informed
+--   'onUnmap' when your application needs to be informed
 --   when the widget is actually removed from screen.
 --
 onHide, afterHide :: WidgetClass w => w -> IO () -> IO (ConnectId w)

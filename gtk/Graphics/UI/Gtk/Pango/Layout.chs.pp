@@ -188,7 +188,7 @@ layoutGetContext :: PangoLayout -> IO PangoContext
 layoutGetContext (PangoLayout _ pl) = makeNewGObject mkPangoContext $ do
   {#call unsafe layout_get_context#} pl
 
--- | Signal a 'Context' change.
+-- | Signal a 'PangoContext' change.
 --
 -- * Forces recomputation of any state in the 'PangoLayout' that
 --   might depend on the layout's context. This function should
@@ -284,7 +284,7 @@ layoutSetAttributes (PangoLayout psRef plr) attrs = do
 --
 -- * Specifying @Nothing@ will unset the current font description, that is,
 --   the 'PangoLayout' will use the font description in the current
---   'Context'.
+--   'PangoContext'.
 --
 layoutSetFontDescription :: PangoLayout -> Maybe FontDescription -> IO ()
 layoutSetFontDescription (PangoLayout _ plr) (Just fd) =
@@ -297,7 +297,7 @@ layoutSetFontDescription (PangoLayout _ (PangoLayoutRaw plr)) Nothing =
 -- | Ask for the specifically set font description of this layout.
 --
 -- * Returns @Nothing@ if this layout uses the font description in the
---   'Context' it was created in.
+--   'PangoContext' it was created in.
 --
 -- * Only available in Pango 1.8.0 or higher.
 --
@@ -460,7 +460,7 @@ layoutGetJustify (PangoLayout _ pl) =
 --
 -- * When @False@, the choice between left-to-right and right-to-left
 --   layout is done by according to the base direction of the layout's
---   'PangoContext'. (See 'contextSetBaseDir').
+--   'PangoContext'. (See 'Graphics.UI.Gtk.Pango.Context.contextSetTextDir').
 --
 -- * When the auto-computed direction or a paragraph differs from the base
 --   direction of the context, then the interpretation of
@@ -912,7 +912,7 @@ layoutIterGetRunExtents (LayoutIter _ li) =
 --   iterated over between the lines in the layout, and returns the
 --   space belonging to the current line. A line's range includes the
 --   line's logical extents, plus half of the spacing above and below
---   the line, if 'pangoLayoutSetSpacing' has been called
+--   the line, if 'layoutSetSpacing' has been called
 --   to set layout spacing. The y positions are in layout coordinates
 --   (origin at top left of the entire layout).
 --
@@ -936,7 +936,7 @@ layoutIterGetLineYRange (LayoutIter _ li) =
 --   of the entire 'PangoLayout'). Thus the extents returned
 --   by this function will be the same width\/height but not at the
 --   same x\/y as the extents returned from
---   'pangoLayoutLineGetExtents'.
+--   'layoutLineGetExtents'.
 --
 layoutIterGetLineExtents :: LayoutIter -> IO (PangoRectangle, PangoRectangle)
 layoutIterGetLineExtents (LayoutIter _ li) =

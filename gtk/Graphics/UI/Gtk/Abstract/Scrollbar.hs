@@ -24,16 +24,19 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Base class for 'HScrollbar' and 'VScrollbar'
+-- Base class for 'Graphics.UI.Gtk.Scrolling.HScrollbar' and
+-- 'Graphics.UI.Gtk.Scrolling.VScrollbar'
 --
 module Graphics.UI.Gtk.Abstract.Scrollbar (
 -- * Detail
 -- 
--- | The 'Scrollbar' widget is an abstract base class for 'HScrollbar' and
--- 'VScrollbar'. It is not very useful in itself.
+-- | The 'Scrollbar' widget is an abstract base class for 
+--   'Graphics.UI.Gtk.Scrolling.HScrollbar' and
+--   'Graphics.UI.Gtk.Scrolling.VScrollbar'. It is not very useful in itself.
 --
 -- The position of the thumb in a scrollbar is controlled by the scroll
--- adjustments. See 'Adjustment' for the fields in an adjustment - for
+-- adjustments. See 'Graphics.UI.Gtk.Misc.Adjustment' for the fields in an
+-- adjustment - for
 -- 'Scrollbar', the \"value\" field represents the position of the scrollbar,
 -- which must be between the \"lower\" field and \"upper - page_size.\" The
 -- \"page_size\" field represents the size of the visible scrollable area. The
@@ -44,13 +47,13 @@ module Graphics.UI.Gtk.Abstract.Scrollbar (
 -- * Class Hierarchy
 -- |
 -- @
--- |  'GObject'
--- |   +----'Object'
--- |         +----'Widget'
--- |               +----'Range'
+-- |  'System.Glib.GObject'
+-- |   +----'Graphics.UI.Gtk.Abstract.Object'
+-- |         +----'Graphics.UI.Gtk.Abstract.Widget'
+-- |               +----'Graphics.UI.Gtk.Abstract.Range'
 -- |                     +----Scrollbar
--- |                           +----'HScrollbar'
--- |                           +----'VScrollbar'
+-- |                           +----'Graphics.UI.Gtk.Scrolling.HScrollbar'
+-- |                           +----'Graphics.UI.Gtk.Scrolling.VScrollbar'
 -- @
 
 -- * Types

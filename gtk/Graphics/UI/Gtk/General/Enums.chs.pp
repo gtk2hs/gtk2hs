@@ -57,6 +57,7 @@ module Graphics.UI.Gtk.General.Enums (
   ScrollType(..),
   SelectionMode(..),
   ShadowType(..),
+  SortType(..),
   StateType(..),
 #ifndef DISABLE_DEPRECATED
   SubmenuDirection(..),
@@ -75,7 +76,6 @@ module Graphics.UI.Gtk.General.Enums (
   WindowPosition(..),
   WindowType(..),
   WrapMode(..), 
-  SortType(..),
   module Graphics.UI.Gtk.Gdk.Enums
   ) where
 
@@ -174,14 +174,16 @@ data Click = SingleClick
 -- | Packing parameters of a widget
 --
 -- * The 'Packing' parameter determines how the child behaves in the horizontal
---   or vertical way in an 'HBox' or 'VBox', respectively. 'PackNatural'
---   means the child is as big as it reqests. It will stay at the start
---   of the end of a 'Box' if there is more space available.
+--   or vertical way in an 'Graphics.UI.Gtk.Layout.HBox' or
+--   'Graphics.UI.Gtk.Layout.VBox', respectively. 'PackNatural'
+--   means the child is as big as it reqests. It will stay at the start of the
+--   end of a 'Graphics.UI.Gtk.Layout.Box' if there is more space available.
 --   All children packed with 'PackRepel' will be padded on both sides with
 --   additional space. 'PackGrow' will increase the size of a widget so that it
 --   covers the available space. A menu bar, for instance, should always
 --   stay at the top of a window and should only occupy as little space
---   as possible. Hence it should be packed at the start of a 'VBox' with
+--   as possible. Hence it should be packed at the start of a
+--  'Graphics.UI.Gtk.Layout.VBox' with
 --   the packing option 'PackNatural'. The working area of a window
 --   (e.g. the text area in an editor) should expand when the window is
 --   resized. Here the packing option 'PackGrow' is the right choice and
@@ -268,6 +270,11 @@ data SelectionMode = SelectionNone
 --
 {#enum ShadowType {underscoreToCase} deriving (Eq)#}
 
+-- Sort a 'Graphics.UI.Gtk.TreeList.TreeViewColumn' in ascending or descending
+-- order.
+--
+{#enum SortType {underscoreToCase} deriving (Eq)#}
+
 -- | Widget states
 --
 {#enum StateType {underscoreToCase} deriving (Eq)#}
@@ -294,7 +301,8 @@ data SelectionMode = SelectionNone
 --
 {#enum TextDirection {underscoreToCase} deriving (Eq)#}
 
--- | Specify the way the search function for 'TextBuffer' works.
+-- | Specify the way the search function for
+--   'Graphics.UI.Gtk.Multiline.TextBuffer' works.
 --
 {#enum TextSearchFlags {underscoreToCase} deriving(Eq, Bounded)#}
 
@@ -333,11 +341,8 @@ instance Flags TextSearchFlags
 --
 {#enum WindowType {underscoreToCase} deriving (Eq)#}
 
--- | Determine how lines are wrapped in a 'TextView'.
+-- | Determine how lines are wrapped in a 'Graphics.UI.Gtk.Multiline.TextView'.
 --
 {#enum WrapMode {underscoreToCase} deriving (Eq)#}
 
--- Sort in ascending or descending order (used in CList widget)
---
-{#enum SortType {underscoreToCase} deriving (Eq)#}
 

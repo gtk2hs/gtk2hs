@@ -48,7 +48,8 @@ module Graphics.UI.Gtk.Display.Image (
 -- successfully, the image will contain a \"broken image\" icon similar to that
 -- used in many web browsers. If you want to handle errors in loading the file
 -- yourself, for example by displaying an error message, then load the image
--- with 'pixbufNewFromFile', then create the 'Image' with 'imageNewFromPixbuf'.
+-- with 'Graphics.UI.Gtk.Gdk.Pixbuf.pixbufNewFromFile', then create the
+-- 'Image' with 'imageNewFromPixbuf'.
 --
 -- >   image <- imageNewFromFile "myfile.png"
 --
@@ -74,7 +75,7 @@ module Graphics.UI.Gtk.Display.Image (
 -- files, such as image files. Gtk+ comes with a program to avoid this, called
 -- gdk-pixbuf-csource. This program allows you to convert an image into a C
 -- variable declaration, which can then be loaded into a 'Pixbuf' using
--- 'pixbufNewFromInline'.
+-- 'Graphics.UI.Gtk.Gdk.Pixbuf.pixbufNewFromInline'.
 
 -- * Class Hierarchy
 -- |
@@ -91,7 +92,8 @@ module Graphics.UI.Gtk.Display.Image (
   ImageClass,
   castToImage,
   toImage,
-
+  ImageType(..),
+  
 -- * Constructors
   imageNewFromFile,
   imageNewFromPixbuf,
@@ -161,7 +163,7 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid, iconSizeMenu,
 
 -- | Describes the image data representation used by a 'Image'. If you want to
 -- get the image from the widget, you can only get the currently-stored
--- representation. e.g. if the 'imageGetStorageType' returns 'ImagePixbuf',
+-- representation. e.g. if the 'imageStorageType' is 'ImagePixbuf',
 -- then you can call 'imageGetPixbuf' but not 'imageGetStock'. For empty
 -- images, you can request any storage type (call any of the "get" functions),
 -- but they will all return @Nothing@.
@@ -177,9 +179,11 @@ import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid, iconSizeMenu,
 --
 -- If the file contains an animation, the image will contain an animation.
 --
--- If you need to detect failures to load the file, use 'pixbufNewFromFile'
+-- If you need to detect failures to load the file, use
+-- 'Graphics.UI.Gtk.Gdk.Pixbuf.pixbufNewFromFile'
 -- to load the file yourself, then create the 'Image' from the pixbuf. (Or for
--- animations, use 'pixbufAnimationNewFromFile').
+-- animations, use
+-- 'Graphics.UI.Gtk.Gdk.Pixbuf.pixbufAnimationNewFromFile').
 --
 -- The storage type ('imageGetStorageType') of the returned image is not
 -- defined, it will be whatever is appropriate for displaying the file.

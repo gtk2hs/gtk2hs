@@ -171,8 +171,8 @@ textIterGetBuffer ti = makeNewGObject mkTextBuffer $
 
 -- | Returns the character offset of an iterator. Each character in a
 -- 'TextBuffer' has an offset, starting with 0 for the first character in the
--- buffer. Use 'textBufferGetIterAtOffset' to convert an offset back into an
--- iterator.
+-- buffer. Use 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferGetIterAtOffset'
+-- to convert an offset back into an iterator.
 --
 textIterGetOffset :: TextIter -> IO Int
 textIterGetOffset ti = liftM fromIntegral $
@@ -371,13 +371,14 @@ textIterEditable :: TextIter -> Bool -> IO Bool
 textIterEditable ti def = liftM toBool $ 
   {#call unsafe text_iter_editable#} ti (fromBool def)
 
--- | Check if new text can be inserted at
--- 'TextIter'.
+-- | Check if new text can be inserted at 'TextIter'.
 --
 -- * Considering the default editability of the buffer, and tags that affect
 --   editability, determines whether text inserted at @iter@ would be editable.
 --   If text inserted at @iter@ would be editable then the user should be allowed
---   to insert text at @iter@. 'textBufferInsertInteractive' uses this function
+--   to insert text at @iter@.
+--   'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferInsertInteractive'
+--   uses this function
 --   to decide whether insertions are allowed at a given position.
 --
 -- * Use 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferInsertInteractive'

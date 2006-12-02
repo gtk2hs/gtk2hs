@@ -37,10 +37,12 @@ module Graphics.UI.Gtk.Multiline.TextTag (
 -- which gives an overview of all the objects and data types related to the
 -- text widget and how they work together.
 --
--- Tags should be in the 'TextTagTable' for a given 'TextBuffer' before
+-- Tags should be in the 'TextTagTable' for a given
+-- 'Graphics.UI.Gtk.Multiline.TextBuffer.TextBuffer' before
 -- using them with that buffer.
 --
--- 'textBufferCreateTag' is the best way to create tags.
+-- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferCreateTag' is the best way
+-- to create tags.
 --
 -- The \"invisible\" property was not implemented for Gtk+ 2.0; it's planned
 -- to be implemented in future releases.
@@ -117,8 +119,11 @@ import System.Glib.Properties
 import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Pango.Enums	(FontStyle, Variant, Stretch, Underline)
-import Graphics.UI.Gtk.General.Enums	(TextDirection, Justification, WrapMode)
+import Graphics.UI.Gtk.Pango.Enums	(FontStyle(..), Variant(..),
+					 Stretch(..), Underline(..),
+					 Weight(..))
+import Graphics.UI.Gtk.General.Enums	(TextDirection(..),
+					 Justification(..), WrapMode(..))
 import Graphics.UI.Gtk.Multiline.Types  ( TextIter, mkTextIterCopy )
 import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent)
 
@@ -155,14 +160,16 @@ textTagGetPriority self =
     (toTextTag self)
 
 -- | Sets the priority of a 'TextTag'. Valid priorities are start at 0 and go
--- to one less than 'textTagTableGetSize'. Each tag in a table has a unique
+-- to one less than
+-- 'Graphics.UI.Gtk.Multiline.TextTagTable.textTagTableGetSize'.
+-- Each tag in a table has a unique
 -- priority; setting the priority of one tag shifts the priorities of all the
 -- other tags in the table to maintain a unique priority for each tag. Higher
 -- priority tags \"win\" if two tags both set the same text attribute. When
 -- adding a tag to a tag table, it will be assigned the highest priority in the
 -- table by default; so normally the precedence of a set of tags is the order
 -- in which they were added to the table, or created with
--- 'textBufferCreateTag', which adds the tag to the buffer's table
+-- 'Graphics.UI.Gtk.Multiline.TextBuffer.textBufferCreateTag', which adds the tag to the buffer's table
 -- automatically.
 --
 textTagSetPriority :: TextTagClass self => self -> Int -> IO ()

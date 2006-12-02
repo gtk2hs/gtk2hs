@@ -138,7 +138,7 @@ import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
 -- Constructors
 
 -- | Creates a new 'Button' widget. To add a child widget to the button, use
--- 'containerAdd'.
+-- 'Graphics.UI.Gtk.Abstract.Container.containerAdd'.
 --
 buttonNew :: IO Button
 buttonNew =
@@ -360,7 +360,7 @@ buttonGetFocusOnClick self =
     (toButton self)
 
 -- | Sets the alignment of the child. This has no effect unless the child
--- derives from 'Misc' or 'Aligment'.
+-- derives from 'Misc' or 'Alignment'.
 --
 -- * Available since Gtk version 2.4
 --

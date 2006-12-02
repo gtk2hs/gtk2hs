@@ -24,7 +24,8 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- This is used by the implementation of properties and by the 'TreeModel' and
+-- This is used by the implementation of properties and by the 
+-- 'Graphics.UI.Gtk.TreeList.TreeModel' and
 -- related modules.
 --
 module System.Glib.GValueTypes (

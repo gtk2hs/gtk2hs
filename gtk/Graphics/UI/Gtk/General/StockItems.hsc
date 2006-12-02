@@ -249,7 +249,7 @@ stockLookupItem stockId =
 --
 -- * Retrieve a list of all known stock identifiers. These can either be
 --   added by 'stockAddItem' or by adding items to a
---   'IconFactory'.
+--   'Graphics.UI.Gtk.General.IconFactory.IconFactory'.
 --
 -- * The list is sorted alphabetically (sorting is not Unicode aware).
 --
@@ -284,115 +284,73 @@ foreign import ccall "gtk_stock_list_ids" unsafe
 
 #endif
 
--- | Standard icon and menu entry.
-stockAbout,
-  stockAdd,
-  stockApply,
-  stockBold,
-  stockCancel,
-  stockCDROM,
-  stockClear,
-  stockClose,
-  stockColorPicker,
-  stockConvert,
-  stockCopy,
-  stockCut,
-  stockDelete,
-  stockDialogError,
-  stockDialogInfo,
-  stockDialogQuestion,
-  stockDialogWarning,
-  stockDnd,
-  stockDndMultiple,
-  stockExecute,
-  stockFind,
-  stockFindAndRelpace,
-  stockFloppy,
-  stockGotoBottom,
-  stockGotoFirst,
-  stockGotoLast,
-  stockGotoTop,
-  stockGoBack,
-  stockGoDown,
-  stockGoForward,
-  stockGoUp,
-  stockHelp,
-  stockHome,
-  stockIndex,
-  stockItalic,
-  stockJumpTo,
-  stockJustifyCenter,
-  stockJustifyFill,
-  stockJustifyLeft,
-  stockJustifyRight,
-  stockMissingImage,
-  stockMediaForward,
-  stockMediaNext,
-  stockMediaPause,
-  stockMediaPlay,
-  stockMediaPrevious,
-  stockMediaRecord,
-  stockMediaRewind,
-  stockMediaStop,
-  stockNew,
-  stockNetwork,
-  stockNo,
-  stockOk,
-  stockOpen,
-  stockPaste,
-  stockPreferences,
-  stockPrint,
-  stockPrintPreview,
-  stockProperties,
-  stockQuit,
-  stockRedo,
-  stockRefresh,
-  stockRemove,
-  stockRevertToSaved,
-  stockSave,
-  stockSaveAs,
-  stockSelectAll,
-  stockSelectColor,
-  stockSelectFont,
-  stockSortAscending,
-  stockSortDescending,
-  stockSpellCheck,
-  stockStop,
-  stockStrikethrough,
-  stockUndelete,
-  stockUnderline,
-  stockUndo,
-  stockYes,
-  stockZoom100,
-  stockZoomFit,
-  stockZoomIn,
-  stockZoomOut :: StockId
-
 #if GTK_CHECK_VERSION(2,6,0)
+
+-- | <<images/stock-icons/stock_about_24.png>>
+stockAbout		:: StockId
 stockAbout		= #{const_str GTK_STOCK_ABOUT}
 #else
 stockAbout		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_add_24.png>>
+stockAdd		:: StockId
 stockAdd		= #{const_str GTK_STOCK_ADD}
+
+-- | <<images/stock-icons/stock_apply_24.png>>
+stockApply		:: StockId
 stockApply		= #{const_str GTK_STOCK_APPLY}
+
+-- | <<images/stock-icons/stock_bold_24.png>>
+stockBold		:: StockId
 stockBold		= #{const_str GTK_STOCK_BOLD}
+
+-- | <<images/stock-icons/stock_cancel_24.png>>
+stockCancel		:: StockId
 stockCancel		= #{const_str GTK_STOCK_CANCEL}
+
+-- | <<images/stock-icons/stock_cdrom_24.png>>
+stockCDROM		:: StockId
 stockCDROM		= #{const_str GTK_STOCK_CDROM}
+
+-- | <<images/stock-icons/stock_clear_24.png>>
+stockClear		:: StockId
 stockClear		= #{const_str GTK_STOCK_CLEAR}
+
+-- | <<images/stock-icons/stock_close_24.png>>
+stockClose		:: StockId
 stockClose		= #{const_str GTK_STOCK_CLOSE}
 #if GTK_CHECK_VERSION(2,2,0)
+
+-- | <<images/stock-icons/stock_color_picker_24.png>>
+stockColorPicker	:: StockId
 stockColorPicker	= #{const_str GTK_STOCK_COLOR_PICKER}
 #else
 stockColorPicker        = stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_convert_24.png>>
+stockConvert		:: StockId
 stockConvert		= #{const_str GTK_STOCK_CONVERT}
 #if GTK_CHECK_VERSION(2,6,0)
+
+-- | <<images/stock-icons/stock_connect_24.png>>
+stockConnect		:: StockId
 stockConnect		= #{const_str GTK_STOCK_CONNECT}
 #else
 stockConnect		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_copy_24.png>>
+stockCopy		:: StockId
 stockCopy		= #{const_str GTK_STOCK_COPY}
+
+-- | <<images/stock-icons/stock_cut_24.png>>
+stockCut		:: StockId
 stockCut		= #{const_str GTK_STOCK_CUT}
+
+-- | <<images/stock-icons/stock_delete_24.png>>
+stockDelete		:: StockId
 stockDelete		= #{const_str GTK_STOCK_DELETE}
 
 #if GTK_CHECK_VERSION(2,6,0)
@@ -406,81 +364,210 @@ stockDialogAuthentication = stockDialogQuestion
 -- | <<images/stock-icons/stock_dialog_error_48.png>>
 stockDialogError	:: StockId
 stockDialogError	= #{const_str GTK_STOCK_DIALOG_ERROR}
+
+-- | <<images/stock-icons/stock_dialog_info_48.png>>
+stockDialogInfo		:: StockId
 stockDialogInfo		= #{const_str GTK_STOCK_DIALOG_INFO}
+
+-- | <<images/stock-icons/stock_dialog_question_48.png>>
+stockDialogQuestion	:: StockId
 stockDialogQuestion	= #{const_str GTK_STOCK_DIALOG_QUESTION}
+
+-- | <<images/stock-icons/stock_dialog_warning_48.png>>
+stockDialogWarning	:: StockId
 stockDialogWarning	= #{const_str GTK_STOCK_DIALOG_WARNING}
 #if GTK_CHECK_VERSION(2,6,0)
+
+-- | <<images/stock-icons/stock_directory_24.png>>
+stockDirectory		:: StockId
 stockDirectory		= #{const_str GTK_STOCK_DIRECTORY}
 #else
 stockDirectory		= stockMissingImage
 #endif
 #if GTK_CHECK_VERSION(2,6,0)
+
+-- | <<images/stock-icons/stock_disconnect_24.png>>
+stockDisconnect		:: StockId
 stockDisconnect		= #{const_str GTK_STOCK_DISCONNECT}
 #else
 stockDisconnect		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_dnd_24.png>>
+stockDnd		:: StockId
 stockDnd		= #{const_str GTK_STOCK_DND}
+
+-- | <<images/stock-icons/stock_dnd_multiple_24.png>>
+stockDndMultiple	:: StockId
 stockDndMultiple	= #{const_str GTK_STOCK_DND_MULTIPLE}
 #if GTK_CHECK_VERSION(2,6,0)
+
+-- | <<images/stock-icons/stock_edit_24.png>>
+stockEdit		:: StockId
 stockEdit		= #{const_str GTK_STOCK_EDIT}
 #else
 stockEdit		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_execute_24.png>>
+stockExecute		:: StockId
 stockExecute		= #{const_str GTK_STOCK_EXECUTE}
 #if GTK_CHECK_VERSION(2,6,0)
+
+-- | <<images/stock-icons/stock_file_24.png>>
+stockFile		:: StockId
 stockFile		= #{const_str GTK_STOCK_FILE}
 #else
 stockFile		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_find_24.png>>
+stockFind		:: StockId
 stockFind		= #{const_str GTK_STOCK_FIND}
+
+-- | <<images/stock-icons/stock_find_and_replace_24.png>>
+stockFindAndRelpace	:: StockId
 stockFindAndRelpace	= #{const_str GTK_STOCK_FIND_AND_REPLACE}
+
+-- | <<images/stock-icons/stock_floppy_24.png>>
+stockFloppy		:: StockId
 stockFloppy		= #{const_str GTK_STOCK_FLOPPY}
 #if GTK_CHECK_VERSION(2,8,0)
+
+-- | <<images/stock-icons/stock_fullscreen_24.png>>
+stockFullscreen		:: StockId
 stockFullscreen		= #{const_str GTK_STOCK_FULLSCREEN}
 #else
 stockFullscreen		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_goto_bottom_24.png>>
+stockGotoBottom		:: StockId
 stockGotoBottom		= #{const_str GTK_STOCK_GOTO_BOTTOM}
+
+-- | <<images/stock-icons/stock_goto_first_24.png>>
+stockGotoFirst		:: StockId
 stockGotoFirst		= #{const_str GTK_STOCK_GOTO_FIRST}
+
+-- | <<images/stock-icons/stock_goto_last_24.png>>
+stockGotoLast		:: StockId
 stockGotoLast		= #{const_str GTK_STOCK_GOTO_LAST}
+
+-- | <<images/stock-icons/stock_goto_top_24.png>>
+stockGotoTop		:: StockId
 stockGotoTop		= #{const_str GTK_STOCK_GOTO_TOP}
+
+-- | <<images/stock-icons/stock_go_back_24.png>>
+stockGoBack		:: StockId
 stockGoBack		= #{const_str GTK_STOCK_GO_BACK}
+
+-- | <<images/stock-icons/stock_go_down_24.png>>
+stockGoDown		:: StockId
 stockGoDown		= #{const_str GTK_STOCK_GO_DOWN}
+
+-- | <<images/stock-icons/stock_go_forward_24.png>>
+stockGoForward		:: StockId
 stockGoForward		= #{const_str GTK_STOCK_GO_FORWARD}
+
+-- | <<images/stock-icons/stock_go_up_24.png>>
+stockGoUp		:: StockId
 stockGoUp		= #{const_str GTK_STOCK_GO_UP}
 #if GTK_CHECK_VERSION(2,4,0)
+
+-- | <<images/stock-icons/stock_harddisk_24.png>>
+stockHarddisk		:: StockId
 stockHarddisk		= #{const_str GTK_STOCK_HARDDISK}
 #else
 stockHarddisk		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_help_24.png>>
+stockHelp		:: StockId
 stockHelp		= #{const_str GTK_STOCK_HELP}
+
+-- | <<images/stock-icons/stock_home_24.png>>
+stockHome		:: StockId
 stockHome		= #{const_str GTK_STOCK_HOME}
 #if GTK_CHECK_VERSION(2,4,0)
+
+-- | <<images/stock-icons/stock_indent_24.png>>
+stockIndent		:: StockId
 stockIndent		= #{const_str GTK_STOCK_INDENT}
 #else
 stockIndent		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_index_24.png>>
+stockIndex		:: StockId
 stockIndex		= #{const_str GTK_STOCK_INDEX}
 #if GTK_CHECK_VERSION(2,8,0)
+
+-- | <<images/stock-icons/stock_info_24.png>>
+stockInfo		:: StockId
 stockInfo		= #{const_str GTK_STOCK_INFO}
 #else
 stockInfo		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_italic_24.png>>
+stockItalic		:: StockId
 stockItalic		= #{const_str GTK_STOCK_ITALIC}
+
+-- | <<images/stock-icons/stock_jump_to_24.png>>
+stockJumpTo		:: StockId
 stockJumpTo		= #{const_str GTK_STOCK_JUMP_TO}
+
+-- | <<images/stock-icons/stock_justify_center_24.png>>
+stockJustifyCenter	:: StockId
 stockJustifyCenter	= #{const_str GTK_STOCK_JUSTIFY_CENTER}
+
+-- | <<images/stock-icons/stock_justify_fill_24.png>>
+stockJustifyFill	:: StockId
 stockJustifyFill	= #{const_str GTK_STOCK_JUSTIFY_FILL}
+
+-- | <<images/stock-icons/stock_justify_left_24.png>>
+stockJustifyLeft	:: StockId
 stockJustifyLeft	= #{const_str GTK_STOCK_JUSTIFY_LEFT}
+
+-- | <<images/stock-icons/stock_justify_right_24.png>>
+stockJustifyRight	:: StockId
 stockJustifyRight	= #{const_str GTK_STOCK_JUSTIFY_RIGHT}
+
+-- | <<images/stock-icons/stock_missing_image_24.png>>
+stockMissingImage	:: StockId
 stockMissingImage	= #{const_str GTK_STOCK_MISSING_IMAGE}
 #if GTK_CHECK_VERSION(2,6,0)
+
+-- | <<images/stock-icons/stock_media_forward_24.png>>
+stockMediaForward	:: StockId
 stockMediaForward	= #{const_str GTK_STOCK_MEDIA_FORWARD}
+
+-- | <<images/stock-icons/stock_media_next_24.png>>
+stockMediaNext  	:: StockId
 stockMediaNext  	= #{const_str GTK_STOCK_MEDIA_NEXT}
+
+-- | <<images/stock-icons/stock_media_pause_24.png>>
+stockMediaPause		:: StockId
 stockMediaPause		= #{const_str GTK_STOCK_MEDIA_PAUSE}
+
+-- | <<images/stock-icons/stock_media_play_24.png>>
+stockMediaPlay		:: StockId
 stockMediaPlay		= #{const_str GTK_STOCK_MEDIA_PLAY}
+
+-- | <<images/stock-icons/stock_media_previous_24.png>>
+stockMediaPrevious	:: StockId
 stockMediaPrevious	= #{const_str GTK_STOCK_MEDIA_PREVIOUS}
+
+-- | <<images/stock-icons/stock_media_record_24.png>>
+stockMediaRecord	:: StockId
 stockMediaRecord	= #{const_str GTK_STOCK_MEDIA_RECORD}
+
+-- | <<images/stock-icons/stock_media_rewind_24.png>>
+stockMediaRewind	:: StockId
 stockMediaRewind	= #{const_str GTK_STOCK_MEDIA_REWIND}
+
+-- | <<images/stock-icons/stock_media_stop_24.png>>
+stockMediaStop		:: StockId
 stockMediaStop		= #{const_str GTK_STOCK_MEDIA_STOP}
 #else
 stockMediaForward	= stockMissingImage
@@ -493,13 +580,28 @@ stockMediaRewind	= stockMissingImage
 stockMediaStop		= stockMissingImage
 #endif
 #if GTK_CHECK_VERSION(2,4,0)
+
+-- | <<images/stock-icons/stock_network_24.png>>
+stockNetwork		:: StockId
 stockNetwork		= #{const_str GTK_STOCK_NETWORK}
 #else
 stockNetwork		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_new_24.png>>
+stockNew		:: StockId
 stockNew		= #{const_str GTK_STOCK_NEW}
+
+-- | <<images/stock-icons/stock_no_24.png>>
+stockNo			:: StockId
 stockNo			= #{const_str GTK_STOCK_NO}
+
+-- | <<images/stock-icons/stock_ok_24.png>>
+stockOk			:: StockId
 stockOk			= #{const_str GTK_STOCK_OK}
+
+-- | <<images/stock-icons/stock_open_24.png>>
+stockOpen		:: StockId
 stockOpen		= #{const_str GTK_STOCK_OPEN}
 #if GTK_CHECK_VERSION(2,10,0)
 
@@ -528,41 +630,125 @@ stockOrientationReversePortrait  = stockMissingImage
 -- | <<images/stock-icons/stock_paste_24.png>>
 stockPaste		:: StockId
 stockPaste		= #{const_str GTK_STOCK_PASTE}
+
+-- | <<images/stock-icons/stock_preferences_24.png>>
+stockPreferences	:: StockId
 stockPreferences	= #{const_str GTK_STOCK_PREFERENCES}
+
+-- | <<images/stock-icons/stock_print_24.png>>
+stockPrint		:: StockId
 stockPrint		= #{const_str GTK_STOCK_PRINT}
+
+-- | <<images/stock-icons/stock_print_preview_24.png>>
+stockPrintPreview	:: StockId
 stockPrintPreview	= #{const_str GTK_STOCK_PRINT_PREVIEW}
+
+-- | <<images/stock-icons/stock_properties_24.png>>
+stockProperties		:: StockId
 stockProperties		= #{const_str GTK_STOCK_PROPERTIES}
+
+-- | <<images/stock-icons/stock_quit_24.png>>
+stockQuit		:: StockId
 stockQuit		= #{const_str GTK_STOCK_QUIT}
+
+-- | <<images/stock-icons/stock_redo_24.png>>
+stockRedo		:: StockId
 stockRedo		= #{const_str GTK_STOCK_REDO}
+
+-- | <<images/stock-icons/stock_refresh_24.png>>
+stockRefresh		:: StockId
 stockRefresh		= #{const_str GTK_STOCK_REFRESH}
+
+-- | <<images/stock-icons/stock_remove_24.png>>
+stockRemove		:: StockId
 stockRemove		= #{const_str GTK_STOCK_REMOVE}
+
+-- | <<images/stock-icons/stock_revert_to_saved_24.png>>
+stockRevertToSaved	:: StockId
 stockRevertToSaved	= #{const_str GTK_STOCK_REVERT_TO_SAVED}
+
+-- | <<images/stock-icons/stock_save_24.png>>
+stockSave		:: StockId
 stockSave		= #{const_str GTK_STOCK_SAVE}
+
+-- | <<images/stock-icons/stock_save_as_24.png>>
+stockSaveAs		:: StockId
 stockSaveAs		= #{const_str GTK_STOCK_SAVE_AS}
 #if GTK_CHECK_VERSION(2,10,0)
+
+-- | <<images/stock-icons/stock_select_all_24.png>>
+stockSelectAll		:: StockId
 stockSelectAll		= #{const_str GTK_STOCK_SELECT_ALL}
 #else
 stockSelectAll		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_select_color_24.png>>
+stockSelectColor	:: StockId
 stockSelectColor	= #{const_str GTK_STOCK_SELECT_COLOR}
+
+-- | <<images/stock-icons/stock_select_font_24.png>>
+stockSelectFont		:: StockId
 stockSelectFont		= #{const_str GTK_STOCK_SELECT_FONT}
+
+-- | <<images/stock-icons/stock_sort_ascending_24.png>>
+stockSortAscending	:: StockId
 stockSortAscending	= #{const_str GTK_STOCK_SORT_ASCENDING}
+
+-- | <<images/stock-icons/stock_sort_descending_24.png>>
+stockSortDescending	:: StockId
 stockSortDescending	= #{const_str GTK_STOCK_SORT_DESCENDING}
+
+-- | <<images/stock-icons/stock_spell_check_24.png>>
+stockSpellCheck		:: StockId
 stockSpellCheck		= #{const_str GTK_STOCK_SPELL_CHECK}
+
+-- | <<images/stock-icons/stock_stop_24.png>>
+stockStop		:: StockId
 stockStop		= #{const_str GTK_STOCK_STOP}
+
+-- | <<images/stock-icons/stock_strikethrough_24.png>>
+stockStrikethrough	:: StockId
 stockStrikethrough	= #{const_str GTK_STOCK_STRIKETHROUGH}
+
+-- | <<images/stock-icons/stock_undelete_24.png>>
+stockUndelete		:: StockId
 stockUndelete		= #{const_str GTK_STOCK_UNDELETE}
+
+-- | <<images/stock-icons/stock_underline_24.png>>
+stockUnderline		:: StockId
 stockUnderline		= #{const_str GTK_STOCK_UNDERLINE}
+
+-- | <<images/stock-icons/stock_undo_24.png>>
+stockUndo		:: StockId
 stockUndo		= #{const_str GTK_STOCK_UNDO}
 #if GTK_CHECK_VERSION(2,4,0)
+
+-- | <<images/stock-icons/stock_unindent_24.png>>
+stockUnindent		:: StockId
 stockUnindent		= #{const_str GTK_STOCK_UNINDENT}
 #else
 stockUnindent		= stockMissingImage
 #endif
+
+-- | <<images/stock-icons/stock_yes_24.png>>
+stockYes		:: StockId
 stockYes		= #{const_str GTK_STOCK_YES}
+
+-- | <<images/stock-icons/stock_zoom_100_24.png>>
+stockZoom100		:: StockId
 stockZoom100		= #{const_str GTK_STOCK_ZOOM_100}
+
+-- | <<images/stock-icons/stock_zoom_fit_24.png>>
+stockZoomFit		:: StockId
 stockZoomFit		= #{const_str GTK_STOCK_ZOOM_FIT}
+
+-- | <<images/stock-icons/stock_zoom_in_24.png>>
+stockZoomIn		:: StockId
 stockZoomIn		= #{const_str GTK_STOCK_ZOOM_IN}
+
+-- | <<images/stock-icons/stock_zoom_out_24.png>>
+stockZoomOut		:: StockId
 stockZoomOut		= #{const_str GTK_STOCK_ZOOM_OUT}
 
 

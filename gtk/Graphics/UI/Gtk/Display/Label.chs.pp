@@ -77,7 +77,7 @@ module Graphics.UI.Gtk.Display.Label (
 -- \<\/>\/& characters must be escaped as @\"&lt;\"@, @\"&gt;\"@, and
 -- @\"&amp;@\". If you pass
 -- text obtained from the user, file, or a network to 'labelSetMarkup', you\'ll
--- want to escape it with 'gMarkupEscapeText'.
+-- want to escape it with 'Graphics.UI.Gtk.Pango.Layout.escapeMarkup'.
 
 -- ** Selectable labels
 -- 
@@ -96,7 +96,7 @@ module Graphics.UI.Gtk.Display.Label (
 --
 -- 'labelSetJustify' sets how the lines in a label align with one another.
 -- If you want to set how the label as a whole aligns in its available space,
--- see 'miscSetAlignment'.
+-- see 'Graphics.UI.Gtk.Abstract.Misc.miscSetAlignment'.
 -- 
 
 -- * Class Hierarchy
@@ -200,7 +200,7 @@ import Graphics.UI.Gtk.Pango.Markup
 {#import Graphics.UI.Gtk.Pango.Types#}  (PangoLayout(PangoLayout),
 					 makeNewPangoString )
 #if GTK_CHECK_VERSION(2,6,0)
-import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode)
+import Graphics.UI.Gtk.Pango.Enums	(EllipsizeMode(..))
 #endif
 import Data.IORef ( newIORef )
 
@@ -321,8 +321,8 @@ labelSetPattern self list =
 -- | Sets the alignment of the lines in the text of the label relative to each
 -- other. 'JustifyLeft' is the default value when the widget is first created
 -- with 'labelNew'. If you instead want to set the alignment of the label as a
--- whole, use 'miscSetAlignment' instead. 'labelSetJustify' has no effect on
--- labels containing only a single line.
+-- whole, use 'Graphics.UI.Gtk.Abstract.Misc.miscSetAlignment' instead.
+-- 'labelSetJustify' has no effect on labels containing only a single line.
 --
 labelSetJustify :: LabelClass self => self -> Justification -> IO ()
 labelSetJustify self jtype =
@@ -772,13 +772,14 @@ labelSelectionBound = readAttrFromIntProperty "selection-bound"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The preferred place to ellipsize the string, if the label does not have
--- enough room to display the entire string, specified as a 'EllisizeMode'.
+-- enough room to display the entire string, specified as a 'EllipsizeMode'.
 --
 -- Note that setting this property to a value other than 'EllipsizeNone' has
 -- the side-effect that the label requests only enough space to display the
 -- ellipsis \"...\". In particular, this means that ellipsizing labels don't
 -- work well in notebook tabs, unless the tab's tab-expand property is set to
--- @True@. Other means to set a label's width are 'widgetSetSizeRequest' and
+-- @True@. Other means to set a label's width are
+-- 'Graphics.UI.Gtk.Abstract.Widget.widgetSetSizeRequest' and
 -- 'labelSetWidthChars'.
 --
 -- Default value: 'EllipsizeNone'

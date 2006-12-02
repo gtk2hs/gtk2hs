@@ -386,7 +386,7 @@ actionGroupSetTranslationDomain self domain =
     domainPtr
 
 #if GTK_CHECK_VERSION(2,6,0)
--- | Translates a string using the specified 'translateFunc'.
+-- | Translates a string.
 --
 -- * Available since Gtk+ version 2.6
 --

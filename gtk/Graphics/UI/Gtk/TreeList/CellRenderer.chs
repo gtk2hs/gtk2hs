@@ -30,8 +30,8 @@
 -- * Each 'TreeViewColumn' has one or more accociated 'CellRenderer's.
 --   The data supply for a cell is contained in a 'TreeStore' or a
 --   'ListStore' (both subclasses of 'TreeModel'). Each 'CellRenderer'
---   may have several attributes. Each 'Attribute' is associated with 
---   one column of the 'TreeModel' database. Thus several columns of a 
+--   may have several attributes. Each attribute is associated with 
+--   one column of the 'TreeModel' database. Thus, several columns of a 
 --   'TreeModel' may be the supply for one 'TreeViewColumn'.
 --
 
@@ -210,7 +210,7 @@ cellBackgroundColor :: CellRendererClass self => Attr self Color
 cellBackgroundColor = newAttrFromBoxedStorableProperty "cell-background-gdk"
   {# call pure unsafe gdk_color_get_type #}
 
--- | Whether the 'cellBackground'\/'cellBackgroundColor' attribute is set.
+-- | Whether the 'cellBackground' \/ 'cellBackgroundColor' attribute is set.
 --
 -- You can use this to reset the attribute to its default.
 --

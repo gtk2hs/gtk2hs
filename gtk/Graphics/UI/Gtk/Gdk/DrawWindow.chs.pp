@@ -68,6 +68,7 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
 #if GTK_CHECK_VERSION(2,4,0)
   drawWindowSetAcceptFocus,
 #endif
+  drawWindowShapeCombineMask,
   drawWindowShapeCombineRegion,
   drawWindowSetChildShapes,
   drawWindowMergeChildShapes,
@@ -173,16 +174,18 @@ drawWindowRaise self =
      (toDrawWindow self)
 
 -- | Lowers @DrawWindow@ to the bottom of the Z-order (stacking order), so that
--- other drawWindows with the same parent drawWindow appear above @DrawWindow@. This is
--- true whether or not the other drawWindows are visible.
+-- other windows with the same parent window appear above @DrawWindow@. This is
+-- true whether or not the other windows are visible.
 --
--- If @DrawWindow@ is a toplevel, the drawWindow manager may choose to deny the
--- request to move the drawWindow in the Z-order, 'drawWindowLower' only requests the
--- restack, does not guarantee it.
+-- If @DrawWindow@ is a toplevel, the window manager may choose to deny the
+-- request to move the drawWindow in the Z-order, 'drawWindowLower' only
+-- requests the restack, does not guarantee it.
 --
--- Note that 'drawWindowShow' raises the drawWindow again, so don\'t call this
--- function before 'drawWindowShow'. (Try 'drawWindowShowUnraised'.)
--- 
+-- Note that a widget is raised automatically when it is mapped, thus you
+-- need to call 'drawWindowLower' after
+	-- 'Graphics.UI.Gtk.Abstract.Widget.widgetShow' if the window should
+-- not appear above other windows.
+--
 drawWindowLower :: DrawWindowClass self => self -> IO ()
 drawWindowLower self =
   {# call gdk_window_lower #}
@@ -233,7 +236,7 @@ drawWindowBeginPaintRect self rectangle = with rectangle $ \rectPtr ->
 -- already has a backing store. Therefore in most cases, application code need
 -- not call 'drawWindowBeginPaintRegion'. (You can disable the automatic calls
 -- around expose events on a widget-by-widget basis by calling
--- 'widgetSetDoubleBuffered'.)
+-- 'Graphics.UI.Gtk.Abstract.Widget.widgetSetDoubleBuffered'.)
 --
 -- If you call this function multiple times before calling the matching
 -- 'drawWindowEndPaint', the backing stores are pushed onto a stack.
@@ -337,7 +340,7 @@ drawWindowThawUpdates self =
 -- * The areas in each expose
 -- event will cover the entire update area for the window (see
 -- 'drawWindowInvalidateRegion' for details). Normally Gtk calls
--- 'drawWindowProcessAllUpdates' on your behalf, so there's no need to call this
+-- 'drawWindowProcessUpdates' on your behalf, so there's no need to call this
 -- function unless you want to force expose events to be delivered immediately
 -- and synchronously (vs. the usual case, where Gtk delivers them in an idle
 -- handler). Occasionally this is useful to produce nicer scrolling behavior,
@@ -370,15 +373,53 @@ drawWindowSetAcceptFocus self acceptFocus =
      (fromBool acceptFocus)
 #endif
 
+-- | Applies a shape mask to window. Pixels in window corresponding to set
+--   bits in the mask will be visible; pixels in window corresponding to
+--   unset bits in the mask will be transparent. This gives a non-rectangular
+--   window.
+--
+-- * If @mask@ is @Nothing@, the shape mask will be unset, and the x\/y parameters
+--   are not used. The @mask@ must be a bitmap, that is, a 'Pixmap' of depth
+--   one.
+--
+-- * On the X11 platform, this uses an X server extension which is widely
+--   available on most common platforms, but not available on very old
+--   X servers, and occasionally the implementation will be buggy. 
+--   On servers without the shape extension, this function will do nothing.
+--   On the Win32 platform the functionality is always present.
+--
+-- * This function works on both toplevel and child windows.
+--
+drawWindowShapeCombineMask :: DrawWindowClass self => self
+ -> Maybe Pixmap -- ^ @mask@ - region of drawWindow to be non-transparent
+ -> Int            -- ^ @offsetX@ - X position of @shapeRegion@ in @DrawWindow@
+                   -- coordinates
+ -> Int            -- ^ @offsetY@ - Y position of @shapeRegion@ in @DrawWindow@
+                   -- coordinates
+ -> IO ()
+drawWindowShapeCombineMask self (Just (Pixmap mask)) offsetX offsetY =
+  withForeignPtr mask $ \maskPtr ->
+  {# call gdk_window_shape_combine_mask #}
+     (toDrawWindow self)
+     (castPtr maskPtr)
+     (fromIntegral offsetX)
+     (fromIntegral offsetY)
+drawWindowShapeCombineMask self Nothing offsetX offsetY =
+  {# call gdk_window_shape_combine_mask #}
+     (toDrawWindow self)
+     nullPtr
+     (fromIntegral offsetX)
+     (fromIntegral offsetY)
+
 
 -- | Makes pixels in @DrawWindow@ outside @shapeRegion@ transparent.
 --
 -- * Makes pixels in @DrawWindow@ outside @shapeRegion@ transparent, so that
 -- the window may be nonrectangular.
 --
--- If @shapeRegion@ is 'Nothing', the shape will be unset, so the whole drawWindow will be
--- opaque again. @offsetX@ and @offsetY@ are ignored if @shapeRegion@ is
--- 'Nothing'.
+-- If @shapeRegion@ is 'Nothing', the shape will be unset, so the whole
+-- 'DrawWindow' will be opaque again. The parameters @offsetX@ and @offsetY@
+-- are ignored if @shapeRegion@ is 'Nothing'.
 --
 -- On the X11 platform, this uses an X server extension which is widely
 -- available on most common platforms, but not available on very old X servers,

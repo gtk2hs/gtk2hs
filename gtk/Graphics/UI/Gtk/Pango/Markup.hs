@@ -30,6 +30,9 @@
 -- internationalization, it can be of advantage to write out the markup
 -- instead of using the functions in this module.
 --
+-- In order to display a string that may contain markup characters, use
+-- 'Graphics.UI.Gtk.Pango.Layout.escapeMarkup'.
+--
 -- When you write markup directly, you can make use of the following
 -- convenience tags:
 --
@@ -102,19 +105,19 @@ data SpanAttribute
   -- | Change the thickness of the current font.
   --
   -- * The constructor takes one of the six predefined weights. Most likely to
-  --   be supported: 'WeightBold'.
+  --   be supported: 'Pango.WeightBold'.
   --
   | FontWeight Pango.Weight
 
   -- | Choosing an alternative rendering for lower case letters.
   --
-  -- * The argument 'VariantSmallCaps' will display lower case letters
+  -- * The argument 'Pango.VariantSmallCaps' will display lower case letters
   --   as smaller upper case letters, if this option is available.
   | FontVariant Pango.Variant
 
   -- | Choose a different width.
   --
-  -- * Takes one of nine font widths, e.g. 'WidthExpanded'.
+  -- * Takes one of nine font widths, e.g. 'Pango.WidthExpanded'.
   --
   | FontStretch Pango.Stretch
 

@@ -189,7 +189,7 @@ cellTextBackgroundSet = newAttrFromBoolProperty "cell-background-set"
 cellEditable :: CellRendererTextClass self => Attr self Bool
 cellEditable = newAttrFromBoolProperty "editable"
 
--- | Whether the text can be modified by the user.
+-- | Whether the 'cellEditable' flag affects text editability.
 --
 cellEditableSet :: CellRendererTextClass self => Attr self Bool
 cellEditableSet = newAttrFromBoolProperty "editable-set"

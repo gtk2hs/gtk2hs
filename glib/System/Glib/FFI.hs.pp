@@ -18,6 +18,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- #hide
+
 -- |
 --
 -- This module serves as an impedance matcher for different compiler

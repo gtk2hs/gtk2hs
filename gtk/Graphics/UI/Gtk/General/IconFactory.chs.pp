@@ -52,8 +52,10 @@ module Graphics.UI.Gtk.General.IconFactory (
 -- icon factory with their icons, which will allow themes to override the icons
 -- for the application.
 --
--- To display an icon, always use 'styleLookupIconSet' on the widget that
--- will display the icon, or the convenience function 'widgetRenderIcon'. These
+-- To display an icon, always use
+-- 'Graphics.UI.Gtk.General.Style.styleLookupIconSet' on the widget that
+-- will display the icon, or the convenience function
+-- 'Graphics.UI.Gtk.Abstract.Widget.widgetRenderIcon'. These
 -- functions take the theme into account when looking up the icon to use for a
 -- given stock ID.
 
@@ -172,7 +174,9 @@ iconFactoryAddDefault  = {#call unsafe icon_factory_add_default#}
 -- | Looks up the stock id in the icon factory, returning an icon set if found,
 -- otherwise Nothing.
 --
--- * For display to the user, you should use 'styleLookupIconSet' on the "Style"
+-- For display to the user, you should use
+-- 'Graphics.UI.Gtk.General.Style.styleLookupIconSet' on the
+-- 'Graphics.UI.Gtk.General.Style.Style'
 -- for the widget that will display the icon, instead of using this function
 -- directly, so that themes are taken into account.
 --
@@ -185,7 +189,9 @@ iconFactoryLookup i stockId =
 
 -- | Looks for an icon in the list of default icon factories.
 --
--- For display to the user, you should use 'styleLookupIconSet' on the 'Style'
+-- For display to the user, you should use
+-- 'Graphics.UI.Gtk.General.Style.styleLookupIconSet' on the
+-- 'Graphics.UI.Gtk.General.Style.Style'
 -- for the widget that will display the icon, instead of using this function
 -- directly, so that themes are taken into account.
 --
@@ -406,6 +412,7 @@ iconSourceSetDirection is td = do
 -- | Reset the specific
 -- 'TextDirection' set with 'iconSourceSetDirection'.
 --
+iconSourceResetDirection :: IconSource -> IO ()
 iconSourceResetDirection is =
   {#call unsafe icon_source_set_direction_wildcarded#} is (fromBool True)
 

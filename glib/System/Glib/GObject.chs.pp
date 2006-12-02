@@ -235,7 +235,7 @@ objectSetAttribute attr obj (Just val) = do
 -- | Get the value of an association.
 --
 -- * Note that this function may crash the Haskell run-time since the
---   returned type can be forced to be anything. See 'objectAddAttribute'
+--   returned type can be forced to be anything. See 'objectCreateAttribute'
 --   for a safe wrapper around this funciton.
 --
 objectGetAttributeUnsafe :: GObjectClass o => Quark -> o -> IO (Maybe a)

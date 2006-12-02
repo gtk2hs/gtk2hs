@@ -83,7 +83,8 @@ module Graphics.UI.Gtk.Buttons.RadioButton (
 --
 -- When an unselected button in the group is clicked the clicked button
 -- receives the \"toggled\" signal, as does the previously selected button.
--- Inside the \"toggled\" handler, 'toggleButtonGetActive' can be used to
+-- Inside the \"toggled\" handler,
+-- 'Graphics.UI.Gtk.Buttons.ToggleButton.toggleButtonGetActive' can be used to
 -- determine if the button has been selected or deselected.
 
 -- * Class Hierarchy
@@ -170,7 +171,8 @@ radioButtonNewWithLabel label =
     labelPtr
 
 -- | Creates a new 'RadioButton' containing a label. The label will be created
--- using 'labelNewWithMnemonic', so underscores in @label@ indicate the mnemonic
+-- using 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic',
+-- so underscores in @label@ indicate the mnemonic
 -- for the button.
 --
 radioButtonNewWithMnemonic :: 
@@ -218,8 +220,8 @@ radioButtonNewWithLabelFromWidget group label =
 
 -- | Creates a new 'RadioButton' containing a label, adding it to the same group
 -- as the group to which @groupMember@ belongs. The label will be created using
--- 'labelNewWithMnemonic', so underscores in @label@ indicate the mnemonic for
--- the button.
+-- 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic',
+-- so underscores in @label@ indicate the mnemonic for the button.
 --
 radioButtonNewWithMnemonicFromWidget :: 
     RadioButton    -- ^ @groupMember@ - a member of an existing radio button
@@ -236,18 +238,34 @@ radioButtonNewWithMnemonicFromWidget group label =
     labelPtr
 
 -- | Alias for 'radioButtonNewFromWidget'.
+radioButtonNewJoinGroup :: 
+    RadioButton    -- ^ @groupMember@ - a member of an existing radio button
+                   -- group, to which the new radio button will be added.
+ -> IO RadioButton
 radioButtonNewJoinGroup = radioButtonNewFromWidget
 
--- | Alias for 'radioButtonNewFromWidgetWithLabelFromWidget'.
+-- | Alias for 'radioButtonNewWithLabelFromWidget'.
+radioButtonNewJoinGroupWithLabel :: 
+    RadioButton    -- ^ @groupMember@ - a member of an existing radio button
+                   -- group, to which the new radio button will be added.
+ -> String         -- ^ @label@ - a text string to display next to the radio
+                   -- button.
+ -> IO RadioButton
 radioButtonNewJoinGroupWithLabel = radioButtonNewWithLabelFromWidget
 
--- | Alias for 'radioButtonNewFromWidgetWithMnemonicFromWidget'.
+-- | Alias for 'radioButtonNewWithMnemonicFromWidget'.
+radioButtonNewJoinGroupWithMnemonic :: 
+    RadioButton    -- ^ @groupMember@ - a member of an existing radio button
+                   -- group, to which the new radio button will be added.
+ -> String         -- ^ @label@ - the text of the button, with an underscore
+                   -- in front of the mnemonic character
+ -> IO RadioButton
 radioButtonNewJoinGroupWithMnemonic = radioButtonNewWithMnemonicFromWidget
 
 --------------------
 -- Methods
 
--- | Sets a 'RadioButton''s group. It should be noted that this does not
+-- | Sets a 'RadioButton's group. It should be noted that this does not
 -- change the layout of your interface in any way, so if you are changing the
 -- group, it is likely you will need to re-arrange the user interface to
 -- reflect these changes.

@@ -44,8 +44,8 @@ module Graphics.UI.Gtk.Misc.SizeGroup (
 -- size that the widgets finally receive. If you want the widgets in a
 -- 'SizeGroup' to actually be the same size, you need to pack them in such a
 -- way that they get the size they request and not more. For example, if you
--- are packing your widgets into a table, you would not include the 'Fill'
--- flag.
+-- are packing your widgets into a table, you would not include the
+-- 'Graphics.UI.Gtk.Layout.Table.Fill' flag.
 --
 -- Widgets can be part of multiple size groups; Gtk+ will compute the
 -- horizontal size of a widget from the horizontal requisition of all widgets
@@ -151,9 +151,9 @@ sizeGroupRemoveWidget self widget =
 
 -- | Sets the 'SizeGroupMode' of the size group. The mode of the size group
 -- determines whether the widgets in the size group should all have the same
--- horizontal requisition 'SizeGroupModeHorizontal' all have the same vertical
--- requisition 'SizeGroupModeVertical', or should all have the same requisition
--- in both directions 'SizeGroupModeBoth'.
+-- horizontal requisition 'SizeGroupHorizontal' all have the same vertical
+-- requisition 'SizeGroupVertical', or should all have the same requisition
+-- in both directions 'SizeGroupBoth'.
 --
 sizeGroupSetMode :: SizeGroupClass self => self
  -> SizeGroupMode -- ^ @mode@ - the mode to set for the size group.

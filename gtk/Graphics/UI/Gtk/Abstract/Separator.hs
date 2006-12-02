@@ -24,23 +24,25 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Base class for 'HSeparator' and 'VSeparator'
+-- Base class for 'Graphics.UI.Gtk.Ornaments.HSeparator' and
+-- 'Graphics.UI.Gtk.Ornaments.VSeparator'.
 --
 module Graphics.UI.Gtk.Abstract.Separator (
 -- * Detail
 -- 
 -- | The 'Separator' widget is an abstract class, used only for deriving the
--- subclasses 'HSeparator' and 'VSeparator'.
+-- subclasses 'Graphics.UI.Gtk.Ornaments.HSeparator' and
+-- 'Graphics.UI.Gtk.Ornaments.VSeparator'.
 
 -- * Class Hierarchy
 -- |
 -- @
--- |  'GObject'
--- |   +----'Object'
--- |         +----'Widget'
+-- |  'System.Glib.GObject'
+-- |   +----'Graphics.UI.Gtk.Abstract.Object'
+-- |         +----'Graphics.UI.Gtk.Abstract.Widget'
 -- |               +----Separator
--- |                     +----'HSeparator'
--- |                     +----'VSeparator'
+-- |                     +----'Graphics.UI.Gtk.Ornaments.HSeparator'
+-- |                     +----'Graphics.UI.Gtk.Ornaments.VSeparator'
 -- @
 
 -- * Types

@@ -43,13 +43,16 @@ module Graphics.UI.Gtk.Display.AccelLabel (
 -- 'accelLabelSetAccelWidget' is called with the 'MenuItem' as the second
 -- argument. The 'AccelLabel' will now display \'Ctl+S\' after its label.
 --
--- Note that creating a 'MenuItem' with 'menuItemNewWithLabel' (or one of
+-- Note that creating a 'MenuItem' with 
+-- 'Graphics.UI.Gtk.MenuComboToolbar.MenuItem.menuItemNewWithLabel' (or one of
 -- the similar functions for 'CheckMenuItem' and 'RadioMenuItem') automatically
 -- adds a 'AccelLabel' to the 'MenuItem' and calls 'accelLabelSetAccelWidget'
 -- to set it up for you.
 --
--- A 'AccelLabel' will only display accelerators which have 'AccelVisible'
--- set (see 'AccelFlags'). A 'AccelLabel' can display multiple accelerators and
+-- An 'AccelLabel' will only display accelerators which have
+-- 'Graphics.UI.Gtk.Abstract.Widget.AccelVisible'
+-- set (see 'Graphics.UI.Gtk.Abstract.Widget.AccelFlags').
+-- A 'AccelLabel' can display multiple accelerators and
 -- even signal names, though it is almost always used to display just one
 -- accelerator key.
 

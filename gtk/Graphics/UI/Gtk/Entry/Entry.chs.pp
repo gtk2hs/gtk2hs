@@ -160,7 +160,8 @@ entrySetText self text =
     (toEntry self)
     textPtr
 
--- | Retrieves the contents of the entry widget. See also 'editableGetChars'.
+-- | Retrieves the contents of the entry widget.
+-- See also 'Graphics.UI.Gtk.Display.Entry.Editable.editableGetChars'.
 --
 entryGetText :: EntryClass self => self -> IO String
 entryGetText self =
@@ -285,7 +286,8 @@ entryGetActivatesDefault self =
 -- is usually one of the dialog buttons.
 --
 -- (For experts: if @setting@ is @True@, the entry calls
--- 'windowActivateDefault' on the window containing the entry, in the default
+-- 'Graphics.UI.Gtk.Windows.Window.windowActivateDefault' on the window
+-- containing the entry, in the default
 -- handler for the \"activate\" signal.)
 --
 -- This setting is useful in 'Dialog' boxes where enter should press the

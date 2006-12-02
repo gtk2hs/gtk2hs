@@ -103,7 +103,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- Constructors
 
 -- | Creates a new toggle button. A widget should be packed into the button,
--- as in 'buttonNew'.
+-- as in 'Graphics.UI.Gtk.Buttons.Button.buttonNew'.
 --
 toggleButtonNew :: IO ToggleButton
 toggleButtonNew =
@@ -125,7 +125,8 @@ toggleButtonNewWithLabel label =
     labelPtr
 
 -- | Creates a new 'ToggleButton' containing a label. The label will be
--- created using 'labelNewWithMnemonic', so underscores in @label@ indicate the
+-- created using 'Graphics.UI.Gtk.Display.Label.labelNewWithMnemonic',
+-- so underscores in @label@ indicate the
 -- mnemonic for the button.
 --
 toggleButtonNewWithMnemonic :: 

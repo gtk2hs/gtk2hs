@@ -167,21 +167,22 @@ toModifier i = toFlags ((fromIntegral i) .&. mask)
 -- | Events that are delivered to a widget.
 --
 -- * Any given signal only emits one of these variants as described
---   in 'Widget'. Many events share common attributes:
+--   in 'Graphics.UI.Gtk.Abstract.Widget.Widget'.
+--   Many events share common attributes:
 --
---   The 'sent' attribute is @True@ if the event was not created by the
---   user but by another application.
+--   ** The 'eventSent' attribute is @True@ if the event was not created by the
+--      user but by another application.
 --
---   The 'time' attribute contains a time in milliseconds when the event
---   happened.
+--   ** The 'eventTime' attribute contains a time in milliseconds when the event
+--      happened.
 --
---   The 'x' and 'y' attributes contain the coordinates relative to the
---   'DrawWindow' associated with this widget. The values can contain
---   sub-pixel information if the input device is a graphics tablet or
---   the like.
+--   ** The 'eventX' and 'eventY' attributes contain the coordinates relative
+--      to the 'Graphics.UI.Gtk.Abstract.Gdk.DrawWindow' associated with this
+--      widget. The values can contain sub-pixel information if the input
+--      device is a graphics tablet or the like.
 --
---   The 'modif' attribute denotes what modifier key was pressed during
---   the event.
+--   ** The 'eventModifier' attribute denotes what modifier key was pressed
+--      during the event.
 --
 data Event =
   -- | An event that is not in one of the more specific categories below. This
@@ -221,9 +222,11 @@ data Event =
     eventModifier 	:: [Modifier],
     -- | Indicate if this event is only a hint of the motion.
     --
-    -- * If the 'PointerMotionHintMask' is set with 'widgetAddEvents' then
-    --   mouse positions are only generated each time a 'drawWindowGetPointer'
-    --   is called. In this case 'isHint' is set to @True@.
+    -- * If the 'Graphics.UI.Gtk.Abstract.Widget.PointerMotionHintMask'
+    --  is set with 'Data.Array.MArray.widgetAddEvents' then
+    --   mouse positions are only generated each time
+    --  'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowGetPointer'
+    --   is called. In this case 'eventIsHint' is set to @True@.
     --
     eventIsHint	:: Bool,
     eventXRoot,
@@ -236,7 +239,8 @@ data Event =
   | Button {
     eventSent	:: Bool,
     -- | The kind of button press, see 'Click'. Note that double clicks will
-    --   trigger this event with 'click' set to 'SingleClick', 'ReleaseClick',
+    --   trigger this event with 'eventClick' set to 'SingleClick',
+    --   'ReleaseClick',
     --   'SingleClick', 'DoubleClick', 'ReleaseClick'. Triple clicks will
     --   produce this sequence followed by 'SingleClick', 'DoubleClick',
     --   'TripleClick', 'ReleaseClick'.
@@ -252,7 +256,8 @@ data Event =
     eventYRoot	:: Double }
   -- | A key was pressed while the widget had the input focus.
   --
-  -- * If the widget has the current input focus (see 'widgetSetCanFocus')
+  -- * If the widget has the current input focus (see
+  --   'Graphics.UI.Gtk.Abstract.Widget.widgetSetCanFocus')
   --   it will receive key pressed events. Certain key combinations are of
   --   no interest to a normal widget like Alt-F to access the file menu.
   --   For all these keys, the handler must return @False@ to indicate that
@@ -262,7 +267,9 @@ data Event =
   --
   | Key {
     -- | This flag is set if the key was released. This flag makes it possible
-    -- to connect the same handler to 'onKeyPress' and 'onKeyRelease'.
+    --   to connect the same handler to
+    --  'Graphics.UI.Gtk.Abstract.Widget.onKeyPress' and
+    --  'Graphics.UI.Gtk.Abstract.Widget.onKeyRelease'.
     eventRelease	:: Bool,
     eventSent	:: Bool,
     eventTime	:: Word32,
@@ -345,7 +352,7 @@ data Event =
   -- * This action denotes that the content of the widget should be scrolled.
   --   The event is triggered by the movement of the mouse wheel. Surrounding
   --   scroll bars are independant of this signal. Most mice do not have
-  --   buttons for horizontal scrolling, hence 'direc' will usually not
+  --   buttons for horizontal scrolling, hence 'eventDirection' will usually not
   --   contain 'ScrollLeft' and 'ScrollRight'. Mice with additional
   --   buttons may not work on X since only five buttons are supported
   --   (the three main buttons and two for the wheel).

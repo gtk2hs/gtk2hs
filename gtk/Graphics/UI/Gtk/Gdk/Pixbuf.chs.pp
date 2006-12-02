@@ -50,7 +50,8 @@
 --
 -- * 'Pixbuf's can be displayed on screen by either creating an 'Image' that
 --   from the 'Pixbuf' or by rendering (part of) the 'Pixbuf' into a
---   vanilla widget like 'DrawWindow' using 'drawPixbuf'.
+--   vanilla widget like 'DrawWindow' using
+--  'Graphics.UI.Gtk.Gdk.Drawable.drawPixbuf'.
 --
 module Graphics.UI.Gtk.Gdk.Pixbuf (
 -- * Class Hierarchy
@@ -93,7 +94,7 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufGetHeight,
   pixbufGetRowstride,
   pixbufGetOption,
-  ImageType,
+  ImageFormat,
   pixbufGetFormats,
   pixbufSave,
   pixbufCopy,
@@ -193,9 +194,10 @@ pixbufGetBitsPerSample pb = liftM fromIntegral $
 --   @pbData <- (pixbufGetPixels pb :: IO (PixbufData Int Word8))@
 --
 -- * If modifying an image through Haskell\'s array interface is not
---   fast enough, it is possible to use 'unsafeRead' and
---   'unsafeWrite' from "Data.Array.Base" which have the same type signatures
---   as 'readArray' and 'writeArray'. Note that these are internal
+--   fast enough, it is possible to use 'Data.Array.Base.unsafeRead' and
+--   'Data.Array.Base.unsafeWrite' which have the same type signatures
+--   as 'Data.Array.MArray.readArray' and 'Data.Array.MArray.writeArray'.
+--   Note that these are internal
 --   functions that might change with GHC.
 --
 pixbufGetPixels :: (Ix i, Num i, Storable e) => Pixbuf -> IO (PixbufData i e)
@@ -347,11 +349,11 @@ pixbufNewFromFileAtScale filename width height preserveAspectRatio =
 
 -- | A string representing an image file format.
 --
-type ImageType = String
+type ImageFormat = String
 
 -- constant pixbufGetFormats A list of valid image file formats.
 --
-pixbufGetFormats :: [ImageType]
+pixbufGetFormats :: [ImageFormat]
 
 pixbufGetFormats = ["png","bmp","wbmp", "gif","ico","ani","jpeg","pnm",
 		    "ras","tiff","xpm","xbm","tga"]
@@ -371,7 +373,7 @@ pixbufGetFormats = ["png","bmp","wbmp", "gif","ico","ani","jpeg","pnm",
 --   if the error is not captured by one of the error codes in
 --   'PixbufError', an exception is thrown.
 --
-pixbufSave :: Pixbuf -> FilePath -> ImageType -> [(String, String)] ->
+pixbufSave :: Pixbuf -> FilePath -> ImageFormat -> [(String, String)] ->
 	      IO (Maybe (PixbufError, String))
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
@@ -520,7 +522,7 @@ pixbufCopy pb = constructNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 
 -- | Scale an image.
 --
--- * Creates a new 'GdkPixbuf' containing a copy of 
+-- * Creates a new 'Pixbuf' containing a copy of 
 --   @src@ scaled to the given measures. Leaves @src@
 --   unaffected. 
 --

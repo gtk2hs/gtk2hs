@@ -27,7 +27,7 @@
 --     gtk_text_buffer_insert_child_anchor
 --     gtk_text_buffer_create_child_anchor
 --     gtk_text_buffer_get_iter_at_anchor
---     connectToInsertChildAnchor
+--     onInsertChildAnchor
 --     
 -- Check 'textBufferGetInsert', in case there is no cursor in 
 --   the editor,
@@ -269,7 +269,7 @@ textBufferInsertAtCursor self text =
 --
 -- If no tag is at the specified position, use the default value @def@ to
 -- decide if the text should be inserted. This value could be set to the result
--- of 'textViewGetEditable'.
+-- of 'Graphics.UI.Gtk.Multiline.TextView.textViewGetEditable'.
 --
 textBufferInsertInteractive :: TextBufferClass self => self
  -> TextIter -- ^ @iter@ - a position in @buffer@
@@ -325,7 +325,8 @@ textBufferInsertRange self iter start end =
 -- | Same as 'textBufferInsertRange', but does nothing if the insertion point
 -- isn't editable. The @defaultEditable@ parameter indicates whether the text
 -- is editable at @iter@ if no tags enclosing @iter@ affect editability.
--- Typically the result of 'textViewGetEditable' is appropriate here.
+-- Typically the result of
+-- 'Graphics.UI.Gtk.Multiline.TextView.textViewGetEditable' is appropriate here.
 --
 textBufferInsertRangeInteractive :: TextBufferClass self => self
  -> TextIter -- ^ @iter@ - a position in the buffer
@@ -506,8 +507,10 @@ textBufferMoveMarkByName self name where_ =
 
 -- | Deletes @mark@, so that it's no longer located anywhere in the buffer.
 -- Most operations on @mark@ become invalid. There is no way to undelete a
--- mark. 'textMarkGetDeleted' will return @True@ after this function has been
--- called on a mark; 'textMarkGetDeleted' indicates that a mark no longer
+-- mark. 'Graphics.UI.Gtk.Multiline.TextMark.textMarkGetDeleted' will
+-- return @True@ after this function has been
+-- called on a mark; 'Graphics.UI.Gtk.Multiline.TextMark.textMarkGetDeleted'
+-- indicates that a mark no longer
 -- belongs to a buffer. The \"mark_deleted\" signal will be emitted as
 -- notification after the mark is deleted.
 --
@@ -618,8 +621,8 @@ textBufferRemoveTag self tag start end =
     start
     end
 
--- | Calls 'textTagTableLookup' on the buffer's tag table to get a 'TextTag',
--- then calls 'textBufferApplyTag'.
+-- | Calls 'Graphics.UI.Gtk.Multiline.TextTagTable.textTagTableLookup' on the
+--   buffer's tag table to get a 'TextTag', then calls 'textBufferApplyTag'.
 --
 textBufferApplyTagByName :: TextBufferClass self => self
  -> TagName  -- ^ @name@ - name of a named 'TextTag'
@@ -634,8 +637,8 @@ textBufferApplyTagByName self name start end =
     start
     end
 
--- | Calls 'textTagTableLookup' on the buffer's tag table to get a 'TextTag',
--- then calls 'textBufferRemoveTag'.
+-- | Calls 'Graphics.UI.Gtk.Multiline.TextTagTable.textTagTableLookup' on the
+--   buffer's tag table to get a 'TextTag', then calls 'textBufferRemoveTag'.
 --
 textBufferRemoveTagByName :: TextBufferClass self => self
  -> TagName  -- ^ @name@ - name of a 'TextTag'
@@ -739,7 +742,8 @@ textBufferGetStartIter self = do
   return iter
 
 -- | Returns the \"end iterator,\" one past the last valid
--- character in the text buffer. If dereferenced with 'textIterGetChar', the
+-- character in the text buffer. If dereferenced with
+-- 'Graphics.UI.Gtk.Multiline.TextIter.textIterGetChar', the
 -- end iterator has a character value of 0. The entire buffer lies in the range
 -- from the first position in the buffer (call 'textBufferGetStartIter' to get
 -- character position 0) to the end iterator.
@@ -898,8 +902,8 @@ textBufferInsertChildAnchor self iter anchor =
     anchor
 
 -- | This is a convenience function which simply creates a child anchor with
--- 'textChildAnchorNew' and inserts it into the buffer with
--- 'textBufferInsertChildAnchor'.
+-- 'Graphics.UI.Gtk.Multiline.TextView.textBufferChildAnchorNew' and inserts
+-- it into the buffer with 'textBufferInsertChildAnchor'.
 --
 textBufferCreateChildAnchor :: TextBufferClass self => self
  -> TextIter           -- ^ @iter@ - location in the buffer
@@ -999,7 +1003,7 @@ afterApplyTag = connect_OBJECT_BOXED_BOXED__NONE "apply-tag"
 
 -- | A new atomic user action is started.
 --
--- * Together with 'connectToEndUserAction' these signals can be
+-- * Together with 'onEndUserAction' these signals can be
 --   used to build an undo stack.
 --
 onBeginUserAction, afterBeginUserAction :: TextBufferClass self => self
@@ -1029,7 +1033,7 @@ afterDeleteRange = connect_BOXED_BOXED__NONE "delete_range"
 
 -- | An atomic action has ended.
 --
--- * see 'connectToBeginUserAction'
+-- * see 'onBeginUserAction'
 --
 onEndUserAction, afterEndUserAction :: TextBufferClass self => self
  -> IO ()
@@ -1038,10 +1042,10 @@ onEndUserAction = connect_NONE__NONE "end_user_action" False
 afterEndUserAction = connect_NONE__NONE "end_user_action" True
 
 -- | A widgets is inserted into the buffer.
---connectToInsertChildAnchor :: TextBufferClass self =>
+--onInsertChildAnchor :: TextBufferClass self =>
 -- (TextIter -> TextChildAnchor -> IO ()) -> ConnectAfter -> self -> 
 --  IO (ConnectId self)
---connectToInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor"
+--onInsertChildAnchor = connect_BOXED_OBJECT__NONE "insert_child_anchor"
 --  mkTextIterCopy
 
 -- | A 'Pixbuf' is inserted into the
