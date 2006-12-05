@@ -289,7 +289,8 @@ treeModelGetPath self iter =
 --
 treeModelIterNext :: TreeModelClass self => self -> TreeIter -> IO (Maybe TreeIter)
 treeModelIterNext self iter =
-  receiveTreeIter $ \iterPtr ->
+  receiveTreeIter $ \iterPtr -> do
+  poke iterPtr iter
   {# call tree_model_iter_next #}
     (toTreeModel self)
     iterPtr
