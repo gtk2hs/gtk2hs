@@ -1,0 +1,42 @@
+body {
+  background-color : lightgrey;
+  text-align : center;
+}
+
+.header {
+  display: none;
+}
+
+.body {
+  width: 18cm;
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: 45px;
+  padding-right: 45px;
+  border: thin solid darkgray;
+  background-color: white;
+  text-align: justify;
+  font-family: sans-serif;
+}
+
+.haskellcode {
+  border: medium solid #4081b7;
+  padding: 3pt;
+  width: 14cm;
+  background-color: #e6f0ff;
+  font-family: courier, monospace;
+  overflow: auto;
+}
+
+.haskellcode-keyword { color: darkred; font-weight: bold }
+.haskellcode-keyglyph { color: black; font-weight: bold }
+.haskellcode-layout { color: #990000 }
+.haskellcode-comment { color: #006633 }
+.haskellcode-conid { color: #228B22; font-weight: bold }
+.haskellcode-varid {  }
+.haskellcode-conop { color: #228B22; font-weight: bold }
+.haskellcode-varop { color : blue }
+.haskellcode-string { color: #ff33ff }
+.haskellcode-char { color: #BC8F8F}
+.haskellcode-number { }
+.haskellcode-selection { color: magenta; font-weight: bold }
