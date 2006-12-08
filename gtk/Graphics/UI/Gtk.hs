@@ -92,7 +92,7 @@ module Graphics.UI.Gtk (
   -- * Tree and list widget
   module Graphics.UI.Gtk.TreeList.TreeModel,
   module Graphics.UI.Gtk.TreeList.TreeSelection,
-  module Graphics.UI.Gtk.TreeList.CellLayout,
+--  module Graphics.UI.Gtk.TreeList.CellLayout,
   module Graphics.UI.Gtk.TreeList.TreeViewColumn,
   module Graphics.UI.Gtk.TreeList.TreeView,
   module Graphics.UI.Gtk.TreeList.IconView,
@@ -104,8 +104,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.TreeList.CellRendererPixbuf,
   module Graphics.UI.Gtk.TreeList.CellRendererText,
   module Graphics.UI.Gtk.TreeList.CellRendererToggle,
-  module Graphics.UI.Gtk.TreeList.CellRendererProgress,
-  module Graphics.UI.Gtk.TreeList.CellRendererCombo,
+--  module Graphics.UI.Gtk.TreeList.CellRendererProgress,
+--  module Graphics.UI.Gtk.TreeList.CellRendererCombo,
   module Graphics.UI.Gtk.TreeList.ListStore,
   module Graphics.UI.Gtk.TreeList.TreeStore,
   -- * Menus, combo box, toolbar
@@ -271,7 +271,7 @@ import Graphics.UI.Gtk.Multiline.TextView hiding (afterSetScrollAdjustments,
 import Graphics.UI.Gtk.TreeList.TreeModel hiding (
 		gtk_tree_model_get_iter_from_string)
 import Graphics.UI.Gtk.TreeList.TreeSelection
-import Graphics.UI.Gtk.TreeList.CellLayout
+--import Graphics.UI.Gtk.TreeList.CellLayout
 import Graphics.UI.Gtk.TreeList.TreeViewColumn
 import Graphics.UI.Gtk.TreeList.TreeView
 import Graphics.UI.Gtk.TreeList.IconView
@@ -283,8 +283,8 @@ import Graphics.UI.Gtk.TreeList.CellRenderer
 import Graphics.UI.Gtk.TreeList.CellRendererPixbuf
 import Graphics.UI.Gtk.TreeList.CellRendererText
 import Graphics.UI.Gtk.TreeList.CellRendererToggle
-import Graphics.UI.Gtk.TreeList.CellRendererProgress
-import Graphics.UI.Gtk.TreeList.CellRendererCombo
+--import Graphics.UI.Gtk.TreeList.CellRendererProgress
+--import Graphics.UI.Gtk.TreeList.CellRendererCombo
 import Graphics.UI.Gtk.TreeList.ListStore
 import Graphics.UI.Gtk.TreeList.TreeStore
 -- menus, combo box, toolbar
