@@ -146,22 +146,32 @@ cellEditable = Attribute ["editable","editable-set"] [TMboolean,TMboolean]
 onEdited, afterEdited :: TreeModelClass tm => CellRendererText -> tm ->
 			 (TreeIter -> String -> IO ()) ->
 			 IO (ConnectId CellRendererText)
-onEdited cr tm user = connect_PTR_STRING__NONE "edited" False cr $
-  \strPtr string ->
-  mallocTreeIter >>= \iter ->
-  {# call gtk_tree_model_get_iter_from_string #}
+onEdited cr tm user = connect_STRING_STRING__NONE "edited" False cr $
+  \path string ->
+  alloca $ \iterPtr ->
+  withCString path $ \pathPtr -> do
+  res <- {# call gtk_tree_model_get_iter_from_string #}
     (toTreeModel tm)
-    iter
-    strPtr
-  >>= \res -> if toBool res then user iter string else
+    iterPtr
+    pathPtr
+  if toBool res
+    then do
+      iter <- peek iterPtr
+      user iter string
+    else
       putStrLn "edited signal: invalid tree path"
 
-afterEdited cr tm user = connect_PTR_STRING__NONE "edited" True cr $
-  \strPtr string ->
-  mallocTreeIter >>= \iter ->
-  {# call gtk_tree_model_get_iter_from_string #}
+afterEdited cr tm user = connect_STRING_STRING__NONE "edited" True cr $
+  \path string ->
+  alloca $ \iterPtr ->
+  withCString path $ \pathPtr -> do
+  res <- {# call gtk_tree_model_get_iter_from_string #}
     (toTreeModel tm)
-    iter
-    strPtr
-  >>= \res -> if toBool res then user iter string else
+    iterPtr
+    pathPtr
+  if toBool res
+    then do
+      iter <- peek iterPtr
+      user iter string
+    else
       putStrLn "edited signal: invalid tree path"
