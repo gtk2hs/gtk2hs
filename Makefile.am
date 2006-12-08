@@ -484,31 +484,45 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.chs			\
-	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs.pp		\
-	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs.pp		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs			\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs		\
+	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererToggle.chs		\
-	gtk/Graphics/UI/Gtk/TreeList/CellRendererCombo.chs.pp		\
-	gtk/Graphics/UI/Gtk/TreeList/CellRendererProgress.chs.pp	\
+	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/ListStore.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeIter.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeModelSort.chs.pp		\
+	gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp		\
-	gtk/Graphics/UI/Gtk/TreeList/Types.chs				\
-	gtk/Graphics/UI/Gtk/TreeList/IconView.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/CellView.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/CustomStore.chs			\
-	gtk/Graphics/UI/Gtk/TreeList/Gtk2HsStore.c			\
-	gtk/Graphics/UI/Gtk/TreeList/CellLayout.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/Sequence.hs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/ListStoreNew.hs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/TreeStoreNew.hs			\
+	gtk/Graphics/UI/Gtk/ModelView/CellLayout.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/CellRenderer.chs			\
+	gtk/Graphics/UI/Gtk/ModelView/CellRendererCombo.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/CellRendererPixbuf.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/CellRendererProgress.chs.pp	\
+	gtk/Graphics/UI/Gtk/ModelView/CellRendererText.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/CellRendererToggle.chs		\
+	gtk/Graphics/UI/Gtk/ModelView/CellView.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/CustomStore.chs			\
+	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.c			\
+	gtk/Graphics/UI/Gtk/ModelView/IconView.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/ListStore.hs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/Sequence.hs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/TreeIter.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/TreeModel.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/TreeModelSort.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/TreePath.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/TreeRowReference.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/TreeSelection.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/TreeStore.hs			\
+	gtk/Graphics/UI/Gtk/ModelView/TreeView.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/TreeViewColumn.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/Types.chs				\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/MessageDialog.chs.pp		\
@@ -549,6 +563,9 @@ html_HSFILES_HIDDEN +=						\
 	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs		\
 	gtk/Graphics/UI/Gtk/TreeList/TreePath.hs		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.hs	\
+	gtk/Graphics/UI/Gtk/ModelView/TreePath.hs		\
+	gtk/Graphics/UI/Gtk/ModelView/TreeRowReference.hs	\
+	gtk/Graphics/UI/Gtk/ModelView/Types.hs			\
 	gtk/Graphics/UI/Gtk/Multiline/Types.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs
 
