@@ -5,7 +5,7 @@
 --
 --  Created: 4 April 2005
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/31 20:21:13 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2005 Duncan Coutts
 --
@@ -59,26 +59,23 @@ module Graphics.UI.Gtk.TreeList.CellView (
 
 -- * Methods
   cellViewSetModel,
-  cellViewSetDisplayedRow,
-  cellViewGetDisplayedRow,
   cellViewGetSizeOfRow,
   cellViewSetBackgroundColor,
   cellViewGetCellRenderers,
 
 -- * Attributes
-  cellViewDisplayedRow,
+  cellViewBackground
 #endif
   ) where
 
 import Monad	(liftM)
-
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
+import System.Glib.Properties			(writeAttrFromStringProperty)
 {#import System.Glib.GList#}
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
-{#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 import Graphics.UI.Gtk.General.Structs		(Color, Requisition)
 
@@ -97,7 +94,7 @@ cellViewNew =
   {# call gtk_cell_view_new #}
 
 -- | Creates a new 'CellView' widget, adds a 'CellRendererText' to it, and
--- makes its show @markup@. The text can text can be marked up with the Pango
+-- makes its show @markup@. The text can be marked up with the Pango
 -- text markup language.
 --
 cellViewNewWithMarkup :: 
@@ -150,36 +147,6 @@ cellViewSetModel self model =
     (toCellView self)
     (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
--- | Sets the row of the model that is currently displayed by the 'CellView'.
--- If the path is unset, then the contents of the cellview \"stick\" at their
--- last value; this is not normally a desired result, but may be a needed
--- intermediate state if say, the model for the 'CellView' becomes temporarily
--- empty.
---
-cellViewSetDisplayedRow :: CellViewClass self => self
- -> TreePath -- ^ @path@ - a 'TreePath' or @[]@ to unset.
- -> IO ()
-cellViewSetDisplayedRow self [] =
-  {# call gtk_cell_view_set_displayed_row #}
-    (toCellView self)
-    (NativeTreePath nullPtr)
-cellViewSetDisplayedRow self path =
-  withTreePath path $ \path ->
-  {# call gtk_cell_view_set_displayed_row #}
-    (toCellView self)
-    path
-
--- | Returns a 'TreePath' referring to the currently displayed row. If no row
--- is currently displayed, @Nothing@ is returned.
---
-cellViewGetDisplayedRow :: CellViewClass self => self -> IO (Maybe TreePath)
-cellViewGetDisplayedRow self =
-  {# call gtk_cell_view_get_displayed_row #}
-    (toCellView self)
-  >>= \ptr -> if ptr == nullPtr
-                then return Nothing
-                else liftM Just (fromTreePath ptr)
-
 -- | Returns the size needed by the cell view to display the model
 -- row pointed to by @path@.
 --
@@ -208,10 +175,7 @@ cellViewSetBackgroundColor self color =
 
 -- | Returns the cell renderers which have been added to @cellView@.
 --
-cellViewGetCellRenderers :: CellViewClass self => self
- -> IO [CellRenderer] -- ^ returns a list of cell renderers. The list, but not
-                      -- the renderers has been newly allocated and should be
-                      -- freed with 'gListFree' when no longer needed.
+cellViewGetCellRenderers :: CellViewClass self => self -> IO [CellRenderer]
 cellViewGetCellRenderers self =
   {# call gtk_cell_view_get_cell_renderers #}
     (toCellView self)
@@ -221,11 +185,11 @@ cellViewGetCellRenderers self =
 --------------------
 -- Attributes
 
--- | \'displayedRow\' property. See 'cellViewGetDisplayedRow' and
--- 'cellViewSetDisplayedRow'
+-- | Background color as a string.
 --
-cellViewDisplayedRow :: CellViewClass self => ReadWriteAttr self (Maybe TreePath) TreePath
-cellViewDisplayedRow = newAttr
-  cellViewGetDisplayedRow
-  cellViewSetDisplayedRow
+-- Default value: @\"\"@
+--
+cellViewBackground :: CellViewClass self => WriteAttr self String
+cellViewBackground = writeAttrFromStringProperty "background"
+
 #endif

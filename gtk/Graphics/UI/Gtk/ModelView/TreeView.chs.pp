@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.14 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.15 $ from $Date: 2005/11/12 11:47:43 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -200,7 +200,6 @@ import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.TreeList.TreeViewColumn#}
@@ -486,13 +485,16 @@ treeViewGetExpanderColumn self =
 -- * Sets a user function for determining where a column may be dropped when
 --   dragged.  This function is called on every column pair in turn at the
 --   beginning of a column drag to determine where a drop can take place.
+--
 -- * The callback function take the 'TreeViewColumn' to be moved, the
 --   second and third arguments are the columns on the left and right side
 --   of the new location. At most one of them might be @Nothing@
 --   which indicates that the column is about to be dropped at the left or
 --   right end of the 'TreeView'.
+--
 -- * The predicate @pred@ should return @True@ if it is ok
 --   to insert the column at this place.
+--
 -- * Use @Nothing@ for the predicate if columns can be inserted
 --   anywhere.
 --
@@ -789,7 +791,7 @@ treeViewSetReorderable self reorderable =
 --   coordinates @x@ and @y@ are relative to the top left
 --   corner of the 'TreeView' drawing window. As such, coordinates
 --   in a mouse click event can be used directly to determine the cell
---   which the user clicked on. This is therefore a way to realize for
+--   which the user clicked on. This function is useful to realize
 --   popup menus.
 --
 -- * The returned point is the input point relative to the cell's upper
@@ -1022,10 +1024,10 @@ treeViewSetSearchEqualFunc :: TreeViewClass self => self
  -> (Int -> String -> TreeIter -> IO Bool)
  -> IO ()
 treeViewSetSearchEqualFunc self pred = do
-  fPtr <- mkTreeViewSearchEqualFunc (\_ col keyPtr itPtr _ -> do
+  fPtr <- mkTreeViewSearchEqualFunc (\_ col keyPtr iterPtr _ -> do
     key <- peekUTFString keyPtr
-    iter <- createTreeIter itPtr
-    liftM fromBool $ pred (fromIntegral col) key iter)
+    iter <- peek iterPtr
+    liftM (fromBool.not) $ pred (fromIntegral col) key iter)
   dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
     nullPtr dPtr
@@ -1280,9 +1282,9 @@ onRowCollapsed, afterRowCollapsed :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO ())
  -> IO (ConnectId self)
 onRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
-  createTreeIter readNTP False
+  peek readNTP False
 afterRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
-  createTreeIter readNTP True
+  peek readNTP True
 
 -- | Children of this node are made visible.
 --
@@ -1290,9 +1292,9 @@ onRowExpanded, afterRowExpanded :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO ())
  -> IO (ConnectId self)
 onRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
-  createTreeIter readNTP False
+  peek readNTP False
 afterRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
-  createTreeIter readNTP True
+  peek readNTP True
 
 -- | The user wants to search interactively.
 --
@@ -1327,9 +1329,9 @@ onTestCollapseRow, afterTestCollapseRow :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO Bool)
  -> IO (ConnectId self)
 onTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
-  createTreeIter readNTP False
+  peek readNTP False
 afterTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
-  createTreeIter readNTP True
+  peek readNTP True
 
 -- | Determine if this row should be expanded.
 --
@@ -1340,6 +1342,6 @@ onTestExpandRow, afterTestExpandRow :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO Bool)
  -> IO (ConnectId self)
 onTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
-  createTreeIter readNTP False
+  peek readNTP False
 afterTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
-  createTreeIter readNTP True
+  peek readNTP True

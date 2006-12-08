@@ -5,7 +5,7 @@
 --
 --  Created: 14 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/11/18 15:54:57 $
+--  Version $Revision: 1.1 $ from $Date: 2005/04/20 03:51:38 $
 --
 --  Copyright (C) 2005 Axel Simon, Duncan Coutts
 --
@@ -32,6 +32,8 @@ module Graphics.UI.Gtk.TreeList.TreeIter (
   TreeIter(..),
 
 -- * Methods
+  createTreeIter,
+  mallocTreeIter,
   receiveTreeIter
   ) where
 
@@ -42,45 +44,44 @@ import Graphics.UI.Gtk.General.Structs	(treeIterSize)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- | Tree Iterator: a pointer to an entry in a
--- 'Graphics.UI.Gtk.TreeList.TreeModel'.
+-- | Tree Iterator : A pointer to an entry in a 'TreeModel'.
 --
-data TreeIter = TreeIter {-# UNPACK #-} !CInt !Word !Word !Word
-	      deriving Show
-
-{#pointer *TreeIter as TreeIterPtr -> TreeIter #}
-
-instance Storable TreeIter where
-  sizeOf _ = {# sizeof TreeIter #}
-  alignment _ = alignment (undefined :: CInt)
-  peek ptr = do
-    stamp      <- {# get TreeIter->stamp      #} ptr
-    user_data  <- {# get TreeIter->user_data  #} ptr
-    user_data2 <- {# get TreeIter->user_data2 #} ptr
-    user_data3 <- {# get TreeIter->user_data3 #} ptr
-    return (TreeIter stamp (ptrToWord user_data)
-                           (ptrToWord user_data2)
-                           (ptrToWord user_data3))
-
-    where ptrToWord :: Ptr a -> Word
-          ptrToWord ptr = fromIntegral (ptr `minusPtr` nullPtr)
-
-  poke ptr (TreeIter stamp user_data user_data2 user_data3) = do
-    {# set TreeIter->stamp      #} ptr stamp
-    {# set TreeIter->user_data  #} ptr (wordToPtr user_data)
-    {# set TreeIter->user_data2 #} ptr (wordToPtr user_data2)
-    {# set TreeIter->user_data3 #} ptr (wordToPtr user_data3)
-
-    where wordToPtr :: Word -> Ptr a
-          wordToPtr word = nullPtr `plusPtr` fromIntegral word
+{#pointer *TreeIter foreign newtype#}
 
 --------------------
 -- Methods
 
-receiveTreeIter :: (Ptr TreeIter -> IO CInt) -> IO (Maybe TreeIter)
-receiveTreeIter body =
-  alloca $ \iterPtr -> do
-  result <- body iterPtr
-  if toBool result
-    then liftM Just (peek iterPtr)
-    else return Nothing
+createTreeIter :: Ptr TreeIter -> IO TreeIter
+createTreeIter tiPtr = do
+  tiPtr' <- tree_iter_copy tiPtr
+  liftM TreeIter $ newForeignPtr tiPtr' (tree_iter_free tiPtr')
+
+mallocTreeIter :: IO TreeIter
+mallocTreeIter = do
+  iterPtr <- mallocBytes treeIterSize
+  liftM TreeIter $ newForeignPtr iterPtr (tree_iter_free iterPtr)
+
+receiveTreeIter :: (TreeIter -> IO Bool) -> IO (Maybe TreeIter)
+receiveTreeIter body = do
+  iter <- mallocTreeIter
+  result <- body iter
+  if result then return (Just iter)
+            else return Nothing
+
+foreign import ccall unsafe "gtk_tree_iter_copy"
+  tree_iter_copy :: Ptr TreeIter -> IO (Ptr TreeIter)
+
+#if __GLASGOW_HASKELL__>=600
+
+foreign import ccall unsafe "&gtk_tree_iter_free"
+  tree_iter_free' :: FinalizerPtr TreeIter
+
+tree_iter_free :: Ptr TreeIter -> FinalizerPtr TreeIter
+tree_iter_free _ = tree_iter_free'
+
+#else
+
+foreign import ccall unsafe "gtk_tree_iter_free"
+  tree_iter_free :: Ptr TreeIter -> IO ()
+
+#endif

@@ -5,7 +5,7 @@
 --
 --  Created: 14 April 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/10/24 19:18:54 $
+--  Version $Revision: 1.3 $ from $Date: 2005/12/08 18:07:52 $
 --
 --  Copyright (C) 2005 Axel Simon, Duncan Coutts
 --
@@ -38,15 +38,18 @@ module Graphics.UI.Gtk.TreeList.TreePath (
   NativeTreePath(..),
 
 -- * Internal Utils
+  newTreePath,
   withTreePath,
   peekTreePath,
   fromTreePath,
+  stringToTreePath
   ) where
 
 import Monad	(liftM)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
+import Data.Char ( isDigit )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -61,15 +64,15 @@ nativeTreePathFree :: NativeTreePath -> IO ()
 nativeTreePathFree =
   {# call unsafe tree_path_free #}
 
-nativeTreePathNew :: IO NativeTreePath
-nativeTreePathNew =
- liftM NativeTreePath
- {# call unsafe tree_path_new #}
+newTreePath :: TreePath -> IO NativeTreePath
+newTreePath path = do
+  nativePath <- liftM NativeTreePath {# call unsafe tree_path_new #}
+  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) path
+  return nativePath
 
 withTreePath :: TreePath -> (NativeTreePath -> IO a) -> IO a
 withTreePath tp act = do
-  nativePath <- nativeTreePathNew
-  mapM_ ({#call unsafe tree_path_append_index#} nativePath . fromIntegral) tp
+  nativePath <- newTreePath tp
   res <- act nativePath
   nativeTreePathFree nativePath
   return res
@@ -93,3 +96,19 @@ fromTreePath tpPtr | tpPtr==nullPtr = return []
   path <- nativeTreePathGetIndices (NativeTreePath tpPtr)
   nativeTreePathFree (NativeTreePath tpPtr)
   return path
+
+stringToTreePath :: String -> TreePath
+stringToTreePath "" = []
+stringToTreePath path = getNum 0 (dropWhile (not . isDigit) path)
+  where
+  getNum acc ('0':xs) = getNum (10*acc) xs
+  getNum acc ('1':xs) = getNum (10*acc+1) xs
+  getNum acc ('2':xs) = getNum (10*acc+2) xs
+  getNum acc ('3':xs) = getNum (10*acc+3) xs
+  getNum acc ('4':xs) = getNum (10*acc+4) xs
+  getNum acc ('5':xs) = getNum (10*acc+5) xs
+  getNum acc ('6':xs) = getNum (10*acc+6) xs
+  getNum acc ('7':xs) = getNum (10*acc+7) xs
+  getNum acc ('8':xs) = getNum (10*acc+8) xs
+  getNum acc ('9':xs) = getNum (10*acc+9) xs
+  getNum acc xs = acc:stringToTreePath (dropWhile (not . isDigit) xs)

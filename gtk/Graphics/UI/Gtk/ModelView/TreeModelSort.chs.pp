@@ -5,7 +5,7 @@
 --
 --  Created: 4 August 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.6 $ from $Date: 2005/11/26 16:00:22 $
 --
 --  Copyright (C) 2004-2005 Duncan Coutts, Axel Simon
 --
@@ -68,7 +68,8 @@ module Graphics.UI.Gtk.TreeList.TreeModelSort (
 import Monad	(liftM, when)
 
 import System.Glib.FFI
-import System.Glib.GObject			(makeNewGObject)
+import System.Glib.GObject			(constructNewGObject,
+						 makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
@@ -90,7 +91,7 @@ instance TreeModelClass TreeModelSort
 --
 treeModelSortNewWithModel :: TreeModelClass childModel => childModel -> IO TreeModelSort
 treeModelSortNewWithModel childModel =
-  makeNewGObject mkTreeModelSort $
+  constructNewGObject mkTreeModelSort $
   liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelSort) $
   {# call unsafe tree_model_sort_new_with_model #}
     (toTreeModel childModel)
@@ -144,13 +145,14 @@ treeModelSortConvertPathToChildPath self sortedPath =
 treeModelSortConvertChildIterToIter :: TreeModelSortClass self => self
  -> TreeIter
  -> IO TreeIter
-treeModelSortConvertChildIterToIter self childIter = do
-  sortIter <- mallocTreeIter
+treeModelSortConvertChildIterToIter self childIter =
+  with childIter $ \childIterPtr -> 
+  alloca $ \sortIterPtr -> do
   {# call tree_model_sort_convert_child_iter_to_iter #}
     (toTreeModelSort self)
-    sortIter
-    childIter
-  return sortIter
+    sortIterPtr
+    childIterPtr
+  peek sortIterPtr
 
 -- | Return an iterator in the unsorted model that points to the row pointed to
 -- by the given iter from the sorted model.
@@ -158,13 +160,14 @@ treeModelSortConvertChildIterToIter self childIter = do
 treeModelSortConvertIterToChildIter :: TreeModelSortClass self => self
  -> TreeIter
  -> IO TreeIter
-treeModelSortConvertIterToChildIter self sortedIter = do
-  childIter <- mallocTreeIter
+treeModelSortConvertIterToChildIter self sortedIter =
+  with sortedIter $ \sortedIterPtr ->
+  alloca $ \childIterPtr -> do
   {# call unsafe tree_model_sort_convert_iter_to_child_iter #}
     (toTreeModelSort self)
-    childIter
-    sortedIter
-  return childIter
+    childIterPtr
+    sortedIterPtr
+  peek childIterPtr
 
 -- | This resets the default sort function to be in the \'unsorted\' state. That
 -- is, it is in the same order as the child model. It will re-sort the model to
@@ -204,7 +207,8 @@ treeModelSortIterIsValid :: TreeModelSortClass self => self
              -- invalid.
 treeModelSortIterIsValid self iter =
   liftM toBool $
+  with iter $ \iterPtr ->
   {# call gtk_tree_model_sort_iter_is_valid #}
     (toTreeModelSort self)
-    iter
+    iterPtr
 #endif

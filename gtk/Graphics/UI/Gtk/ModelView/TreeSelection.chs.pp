@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Version $Revision: 1.11 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.12 $ from $Date: 2005/11/18 15:54:57 $
 --
 --  Copyright (C) 1999-2005 Axel Simon
 --
@@ -38,10 +38,10 @@ module Graphics.UI.Gtk.TreeList.TreeSelection (
 -- separate function.
 --
 -- The 'TreeSelection' object is gotten from a 'TreeView' by calling
--- 'treeViewGetSelection'. It can be manipulated to check the selection status
--- of the tree, as well as select and deselect individual rows. Selection is
--- done completely on the 'TreeView' side.
--- As a result, multiple views of the same model can
+-- 'Graphics.UI.Gtk.TreeList.TreeView.treeViewGetSelection'. It can be
+-- manipulated to check the selection status of the tree, as well as select
+-- and deselect individual rows. Selection is done completely on the
+-- 'TreeView' side. As a result, multiple views of the same model can
 -- have completely different selections. Additionally, you cannot change the
 -- selection of a row on the model that is not currently displayed by the view
 -- without expanding its parents first.
@@ -182,13 +182,12 @@ treeSelectionGetTreeView self =
 --
 treeSelectionGetSelected :: TreeSelectionClass self => self ->
                             IO (Maybe TreeIter)
-treeSelectionGetSelected self = do
-  iter <- mallocTreeIter
-  res <- {# call tree_selection_get_selected #}
+treeSelectionGetSelected self =
+  receiveTreeIter $ \iterPtr ->
+  {# call tree_selection_get_selected #}
     (toTreeSelection self)
     nullPtr
-    iter
-  return $ if (toBool res) then Just iter else Nothing
+    iterPtr
 
 -- | Execute a function for each selected node.
 --
@@ -199,12 +198,12 @@ treeSelectionSelectedForeach :: TreeSelectionClass self => self
  -> TreeSelectionForeachCB
  -> IO ()
 treeSelectionSelectedForeach self fun = do
-  fPtr <- mkTreeSelectionForeachFunc (\_ _ ti -> do
+  fPtr <- mkTreeSelectionForeachFunc (\_ _ iterPtr -> do
     -- make a deep copy of the iterator. This makes it possible to store this
     -- iterator in Haskell land somewhere. The TreeModel parameter is not
     -- passed to the function due to performance reasons. But since it is
     -- a constant member of Selection this does not matter.
-    iter <- createTreeIter ti
+    iter <- peek iterPtr
     fun iter
     )
   {# call tree_selection_selected_foreach #}
@@ -291,17 +290,19 @@ treeSelectionPathIsSelected self path =
 --
 treeSelectionSelectIter :: TreeSelectionClass self => self -> TreeIter -> IO ()
 treeSelectionSelectIter self iter =
+  with iter $ \iterPtr ->
   {# call tree_selection_select_iter #}
     (toTreeSelection self)
-    iter
+    iterPtr
 
 -- | Deselect a specific item by 'TreeIter'.
 --
 treeSelectionUnselectIter :: TreeSelectionClass self => self -> TreeIter -> IO ()
 treeSelectionUnselectIter self iter =
+  with iter $ \iterPtr ->
   {# call tree_selection_unselect_iter #}
     (toTreeSelection self)
-    iter
+    iterPtr
 
 -- | Returns True if the row at the given iter is currently selected.
 --
@@ -310,9 +311,10 @@ treeSelectionIterIsSelected :: TreeSelectionClass self => self
  -> IO Bool
 treeSelectionIterIsSelected self iter =
   liftM toBool $
+  with iter $ \iterPtr ->
   {# call unsafe tree_selection_iter_is_selected #}
     (toTreeSelection self)
-    iter
+    iterPtr
 
 -- | Selects all the nodes. The tree selection must be set to
 -- 'SelectionMultiple' mode.

@@ -5,7 +5,7 @@
 --
 --  Created: 9 May 2001
 --
---  Version $Revision: 1.7 $ from $Date: 2005/10/19 12:57:37 $
+--  Version $Revision: 1.8 $ from $Date: 2005/11/18 15:41:07 $
 --
 --  Copyright (C) 2001-2005 Axel Simon
 --
@@ -71,7 +71,6 @@ module Graphics.UI.Gtk.TreeList.TreeViewColumn (
 
 -- * Constructors
   treeViewColumnNew,
-  treeViewColumnNewWithAttributes,
 
 -- * Methods
   treeViewColumnPackStart,
@@ -150,9 +149,9 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..), SortType(..))
+import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..),
+						 SortType(..))
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
-import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -165,21 +164,6 @@ treeViewColumnNew :: IO TreeViewColumn
 treeViewColumnNew  = makeNewObject mkTreeViewColumn 
   {# call tree_view_column_new #}
 
--- | Returns a new TreeViewColumn with title @title@, cell renderer @cr@, and
--- attributes @attribs@.
---
-treeViewColumnNewWithAttributes :: CellRendererClass cr =>
-    String
- -> cr
- -> [(String, Int)]
- -> IO TreeViewColumn
-treeViewColumnNewWithAttributes title cr attribs =
-    do
-    tvc <- treeViewColumnNew
-    treeViewColumnSetTitle tvc title
-    treeViewColumnPackStart tvc  cr True
-    treeViewColumnAddAttributes tvc cr attribs
-    return tvc
 
 --------------------
 -- Methods
@@ -214,8 +198,7 @@ treeViewColumnPackEnd self cell expand =
     (toCellRenderer cell)
     (fromBool expand)
 
--- | Remove the associations of attributes
--- to a store for all 'CellRenderers'.
+-- | Remove the associations of attributes to a store for all 'CellRenderer's.
 --
 treeViewColumnClear :: TreeViewColumn -> IO ()
 treeViewColumnClear self =
