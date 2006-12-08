@@ -131,7 +131,6 @@ import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter(..), receiveTreeIter)
-{#import Graphics.UI.Gtk.TreeList.CustomStore#}
 
 {# context lib="gtk" prefix="gtk" #}
 

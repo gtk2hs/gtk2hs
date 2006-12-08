@@ -80,10 +80,10 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.TreeList.Types
+--import Graphics.UI.Gtk.TreeList.Types
 import Graphics.UI.Gtk.MenuComboToolbar.ComboBox
 import Graphics.UI.Gtk.TreeList.CellRendererText
-import Graphics.UI.Gtk.TreeList.CellLayout
+--import Graphics.UI.Gtk.TreeList.CellLayout
 
 {# context lib="gtk" prefix="gtk" #}
 
