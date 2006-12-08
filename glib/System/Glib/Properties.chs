@@ -75,6 +75,10 @@ module System.Glib.Properties (
   newAttrFromBoxedStorableProperty,
   newAttrFromObjectProperty,
   writeAttrFromObjectProperty,
+
+  -- TODO: do not export these once we dump the old TreeList API:
+  objectGetPropertyInternal,
+  objectSetPropertyInternal,
   ) where
 
 import Monad (liftM)
