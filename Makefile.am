@@ -513,11 +513,8 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ModelView/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/ListStore.hs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/Sequence.hs.pp			\
-	gtk/Graphics/UI/Gtk/ModelView/TreeIter.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeModel.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeModelSort.chs.pp		\
-	gtk/Graphics/UI/Gtk/ModelView/TreePath.chs.pp			\
-	gtk/Graphics/UI/Gtk/ModelView/TreeRowReference.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeStore.hs			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeView.chs.pp			\
@@ -577,7 +574,7 @@ gtk_Graphics_UI_Gtk_Gdk_Events_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_General_StockItems_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Region_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Drawable_hs_HCFLAGS	= -fglasgow-exts
-gtk_Graphics_UI_Gtk_TreeList_Types_hs_HCFLAGS	= -fglasgow-exts
+gtk_Graphics_UI_Gtk_ModelView_Types_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_PixbufData_hs_HCFLAGS	= -fglasgow-exts
 
 if WIN32
