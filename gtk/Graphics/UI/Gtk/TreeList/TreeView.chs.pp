@@ -1022,10 +1022,10 @@ treeViewSetSearchEqualFunc :: TreeViewClass self => self
  -> (Int -> String -> TreeIter -> IO Bool)
  -> IO ()
 treeViewSetSearchEqualFunc self pred = do
-  fPtr <- mkTreeViewSearchEqualFunc (\_ col keyPtr itPtr _ -> do
+  fPtr <- mkTreeViewSearchEqualFunc (\_ col keyPtr iterPtr _ -> do
     key <- peekUTFString keyPtr
-    iter <- createTreeIter itPtr
-    liftM fromBool $ pred (fromIntegral col) key iter)
+    iter <- peek iterPtr
+    liftM (fromBool.not) $ pred (fromIntegral col) key iter)
   dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
     nullPtr dPtr
@@ -1280,9 +1280,9 @@ onRowCollapsed, afterRowCollapsed :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO ())
  -> IO (ConnectId self)
 onRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
-  createTreeIter readNTP False
+  peek readNTP False
 afterRowCollapsed = connect_BOXED_BOXED__NONE "row_collapsed"
-  createTreeIter readNTP True
+  peek readNTP True
 
 -- | Children of this node are made visible.
 --
@@ -1290,9 +1290,9 @@ onRowExpanded, afterRowExpanded :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO ())
  -> IO (ConnectId self)
 onRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
-  createTreeIter readNTP False
+  peek readNTP False
 afterRowExpanded = connect_BOXED_BOXED__NONE "row_expanded"
-  createTreeIter readNTP True
+  peek readNTP True
 
 -- | The user wants to search interactively.
 --
@@ -1327,9 +1327,9 @@ onTestCollapseRow, afterTestCollapseRow :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO Bool)
  -> IO (ConnectId self)
 onTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
-  createTreeIter readNTP False
+  peek readNTP False
 afterTestCollapseRow = connect_BOXED_BOXED__BOOL "test_collapse_row"
-  createTreeIter readNTP True
+  peek readNTP True
 
 -- | Determine if this row should be expanded.
 --
@@ -1340,6 +1340,6 @@ onTestExpandRow, afterTestExpandRow :: TreeViewClass self => self
  -> (TreeIter -> TreePath -> IO Bool)
  -> IO (ConnectId self)
 onTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
-  createTreeIter readNTP False
+  peek readNTP False
 afterTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
-  createTreeIter readNTP True
+  peek readNTP True

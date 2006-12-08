@@ -84,7 +84,7 @@ import Monad	(liftM, when)
 import Maybe	(fromMaybe)
 
 import System.Glib.FFI
-import System.Glib.GObject			(makeNewGObject)
+import System.Glib.GObject			(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
@@ -102,7 +102,7 @@ import System.Glib.StoreValue			(TMType(..), GenericValue(..)
 --
 listStoreNew :: [TMType] -> IO ListStore
 listStoreNew types =
-  makeNewGObject mkListStore $
+  constructNewGObject mkListStore $
   withArray (map (fromIntegral . fromEnum) types) $ \typesArr ->
   {# call unsafe list_store_newv #}
     ((fromIntegral . length) types)
@@ -120,11 +120,12 @@ listStoreSetValue :: ListStoreClass self => self -> TreeIter
  -> GenericValue
  -> IO ()
 listStoreSetValue self iter column value =
+  with iter $ \iterPtr ->
   allocaGValue $ \gvalue -> do
   valueSetGenericValue gvalue value
   {# call unsafe list_store_set_value #}
     (toListStore self)
-    iter
+    iterPtr
     (fromIntegral column)
     gvalue
 
@@ -143,9 +144,10 @@ listStoreRemove :: ListStoreClass self => self
  -> IO Bool
 listStoreRemove self iter =
   liftM toBool $
+  with iter $ \iterPtr ->
   {# call list_store_remove #}
     (toListStore self)
-    iter
+    iterPtr
 
 #else
 -- | Remove a specific node.
@@ -159,53 +161,57 @@ listStoreRemove :: ListStoreClass self => self
  -> TreeIter
  -> IO ()
 listStoreRemove self iter =
+  with iter $ \iterPtr ->
   {# call list_store_remove #}
     (toListStore self)
-    iter
+    iterPtr
 #endif
 
 -- | Insert a new row into the list.
 --
 -- * The @pos@ parameter
--- determines the row number where the row should be inserted. Set this to
--- @-1@ to insert at the end of the list.
+-- determines the row number where the row should be inserted. If the position 
+-- is greater or equal to the number of rows, the new row will be inserted
+-- at the end.
 --
 listStoreInsert :: ListStoreClass self => self
  -> Int      -- ^ @position@ - position to insert the new row
  -> IO TreeIter
-listStoreInsert self position = do
-  iter <- mallocTreeIter
+listStoreInsert self position =
+  alloca $ \iterPtr -> do
   {# call list_store_insert #}
     (toListStore self)
-    iter
+    iterPtr
     (fromIntegral position)
-  return iter
+  peek iterPtr
 
 -- | Insert a row in front of the @sibling@ node.
 --
 listStoreInsertBefore :: ListStoreClass self => self
  -> TreeIter
  -> IO TreeIter
-listStoreInsertBefore self sibling = do
-  iter <- mallocTreeIter
+listStoreInsertBefore self sibling =
+  alloca $ \iterPtr ->
+  with sibling $ \siblingPtr -> do
   {# call list_store_insert_before #}
     (toListStore self)
-    iter
-    sibling
-  return iter
+    iterPtr
+    siblingPtr
+  peek iterPtr
 
 -- | Insert a row behind the @sibling@ row.
 --
 listStoreInsertAfter :: ListStoreClass self => self
  -> TreeIter
  -> IO TreeIter
-listStoreInsertAfter self sibling = do
-  iter <- mallocTreeIter
+listStoreInsertAfter self sibling =
+  alloca $ \iterPtr ->
+  with sibling $ \siblingPtr -> do
   {# call list_store_insert_after #}
     (toListStore self)
-    iter
-    sibling
-  return iter
+    iterPtr
+    siblingPtr
+  peek iterPtr
 
 -- | Insert a row in front of every other row.
 --
@@ -213,12 +219,12 @@ listStoreInsertAfter self sibling = do
 --
 listStorePrepend :: ListStoreClass self => self
  -> IO TreeIter
-listStorePrepend self = do
-  iter <- mallocTreeIter
+listStorePrepend self =
+  alloca $ \iterPtr -> do
   {# call list_store_prepend #}
     (toListStore self)
-    iter
-  return iter
+    iterPtr
+  peek iterPtr
 
 -- | Insert a row at the end of the table .
 --
@@ -226,12 +232,12 @@ listStorePrepend self = do
 --
 listStoreAppend :: ListStoreClass self => self
  -> IO TreeIter
-listStoreAppend self = do
-  iter <- mallocTreeIter
+listStoreAppend self =
+  alloca $ \iterPtr -> do
   {# call list_store_append #}
     (toListStore self)
-    iter
-  return iter
+    iterPtr
+  peek iterPtr
 
 -- | Removes all rows from the list store.
 --
@@ -272,10 +278,12 @@ listStoreSwap :: ListStoreClass self => self
  -> TreeIter
  -> IO ()
 listStoreSwap self a b =
+  with b $ \aPtr ->
+  with a $ \bPtr ->
   {# call list_store_swap #}
     (toListStore self)
-    a
-    b
+    aPtr
+    bPtr
 
 -- | Moves the item in the store to before the given position. If the position
 -- is @Nothing@ the item will be moved to then end of the list.
@@ -289,10 +297,12 @@ listStoreMoveBefore :: ListStoreClass self => self
  -> Maybe TreeIter -- ^ Iter for the position or @Nothing@.
  -> IO ()
 listStoreMoveBefore self iter position =
+  with iter $ \iterPtr ->
+  maybeWith with position $ \positionPtr ->
   {# call list_store_move_before #}
     (toListStore self)
-    iter
-    (fromMaybe (TreeIter nullForeignPtr) position)
+    iterPtr
+    positionPtr
 
 -- | Moves the item in the store to after the given position. If the position
 -- is @Nothing@ the item will be moved to then start of the list.
@@ -304,8 +314,10 @@ listStoreMoveAfter :: ListStoreClass self => self
  -> Maybe TreeIter -- ^ Iter for the position or @Nothing@.
  -> IO ()
 listStoreMoveAfter self iter position =
+  with iter $ \iterPtr ->
+  maybeWith with position $ \positionPtr ->
   {# call list_store_move_after #}
     (toListStore self)
-    iter
-    (fromMaybe (TreeIter nullForeignPtr) position)
+    iterPtr
+    positionPtr
 #endif
