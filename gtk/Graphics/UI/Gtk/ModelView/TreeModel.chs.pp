@@ -26,7 +26,7 @@
 --
 -- The tree interface used by 'TreeView'
 --
-module Graphics.UI.Gtk.TreeList.TreeModel (
+module Graphics.UI.Gtk.ModelView.TreeModel (
 -- * Detail
 -- 
 -- | The 'TreeModel' interface defines a generic storage object for use by the

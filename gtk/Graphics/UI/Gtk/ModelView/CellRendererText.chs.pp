@@ -26,7 +26,7 @@
 --
 -- A 'CellRenderer' which displays a single-line text.
 --
-module Graphics.UI.Gtk.TreeList.CellRendererText (
+module Graphics.UI.Gtk.ModelView.CellRendererText (
 -- * Detail
 -- 
 -- | A 'CellRendererText' renders a given text in its cell, using the font,

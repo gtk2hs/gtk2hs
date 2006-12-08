@@ -26,7 +26,7 @@
 --
 -- Renders a toggle button in a cell
 --
-module Graphics.UI.Gtk.TreeList.CellRendererToggle (
+module Graphics.UI.Gtk.ModelView.CellRendererToggle (
 -- * Detail
 -- 
 -- | 'CellRendererToggle' renders a toggle button in a cell. The button is

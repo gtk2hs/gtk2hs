@@ -35,7 +35,7 @@
 --   'TreeModel' may be the supply for one 'TreeViewColumn'.
 --
 
-module Graphics.UI.Gtk.TreeList.CellRenderer (
+module Graphics.UI.Gtk.ModelView.CellRenderer (
 -- * Detail
 -- 
 -- | The 'CellRenderer' is a base class of a set of objects used for rendering

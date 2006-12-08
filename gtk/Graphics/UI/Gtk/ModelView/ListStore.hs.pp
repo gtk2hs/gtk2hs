@@ -26,7 +26,7 @@
 --
 -- Standard model to store list data.
 --
-module Graphics.UI.Gtk.TreeList.ListStoreNew (
+module Graphics.UI.Gtk.ModelView.ListStore (
   ListStore,
   listStoreNew,
   
@@ -48,14 +48,14 @@ import Foreign.C.Types (CInt)
 import qualified Data.Sequence as Seq
 import Data.Sequence (Seq)
 #else
-import qualified Graphics.UI.Gtk.TreeList.Sequence as Seq
-import Graphics.UI.Gtk.TreeList.Sequence (Seq)
+import qualified Graphics.UI.Gtk.ModelView.Sequence as Seq
+import Graphics.UI.Gtk.ModelView.Sequence (Seq)
 #endif
 
 import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
-import Graphics.UI.Gtk.TreeList.Types (TypedTreeModelClass)
-import Graphics.UI.Gtk.TreeList.TreeModel (TreeModelFlags(TreeModelListOnly))
-import Graphics.UI.Gtk.TreeList.CustomStore
+import Graphics.UI.Gtk.ModelView.Types (TypedTreeModelClass)
+import Graphics.UI.Gtk.ModelView.TreeModel (TreeModelFlags(TreeModelListOnly))
+import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.TreeList.TreeIter
 
 newtype ListStore a = ListStore (CustomTreeModel (IORef (Seq a)) a)

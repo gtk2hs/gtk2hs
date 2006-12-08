@@ -26,7 +26,7 @@
 --
 -- Renders a pixbuf in a cell
 --
-module Graphics.UI.Gtk.TreeList.CellRendererPixbuf (
+module Graphics.UI.Gtk.ModelView.CellRendererPixbuf (
 -- * Detail
 -- 
 -- | A 'CellRendererPixbuf' can be used to render an image in a cell. It

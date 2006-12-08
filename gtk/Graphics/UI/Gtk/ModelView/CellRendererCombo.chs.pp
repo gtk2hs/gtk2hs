@@ -28,7 +28,7 @@
 --
 -- * Module available since Gtk+ version 2.6
 --
-module Graphics.UI.Gtk.TreeList.CellRendererCombo (
+module Graphics.UI.Gtk.ModelView.CellRendererCombo (
 -- * Detail
 -- 
 -- | 'CellRendererCombo' renders text in a cell like 'CellRendererText' from

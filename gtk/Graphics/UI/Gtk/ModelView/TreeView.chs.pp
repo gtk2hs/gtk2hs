@@ -54,7 +54,7 @@
 --
 -- A widget for displaying both trees and lists.
 --
-module Graphics.UI.Gtk.TreeList.TreeView (
+module Graphics.UI.Gtk.ModelView.TreeView (
 -- * Description
 -- 
 -- | Widget that displays any object that implements the 'TreeModel'
@@ -202,7 +202,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
-{#import Graphics.UI.Gtk.TreeList.TreeViewColumn#}
+{#import Graphics.UI.Gtk.ModelView.TreeViewColumn#}
 
 {# context lib="gtk" prefix="gtk" #}
 

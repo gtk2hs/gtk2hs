@@ -26,7 +26,7 @@
 --
 -- A 'TreeModel' which makes an underlying tree model sortable
 --
-module Graphics.UI.Gtk.TreeList.TreeModelSort (
+module Graphics.UI.Gtk.ModelView.TreeModelSort (
 -- * Detail
 -- 
 -- | The 'TreeModelSort' is a model which implements the 'TreeSortable'
@@ -71,7 +71,7 @@ import System.Glib.FFI
 import System.Glib.GObject			(constructNewGObject,
 						 makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.ModelView.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 import Graphics.UI.Gtk.General.Structs		(treeIterSize)

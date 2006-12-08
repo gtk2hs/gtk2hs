@@ -28,7 +28,7 @@
 --
 -- * Module available since Gtk+ version 2.6
 --
-module Graphics.UI.Gtk.TreeList.IconView (
+module Graphics.UI.Gtk.ModelView.IconView (
 -- * Detail
 -- 
 -- | 'IconView' provides an alternative view on a list model. It displays the
@@ -133,7 +133,7 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.General.Enums#}	(Orientation, SelectionMode,
 						MovementStep)
-{#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.ModelView.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 
 {# context lib="gtk" prefix="gtk" #}

@@ -1,14 +1,14 @@
-module Graphics.UI.Gtk.TreeList.ListStoreStatic (
+module Graphics.UI.Gtk.ModelView.ListStoreStatic (
   listStoreNewStatic
   ) where
 
 import Data.Word  (Word)
 import Data.Array
 
-import Graphics.UI.Gtk.TreeList.TreeModel
-import Graphics.UI.Gtk.TreeList.CustomStore
-import Graphics.UI.Gtk.TreeList.TreeIter
-import Graphics.UI.Gtk.TreeList.Column
+import Graphics.UI.Gtk.ModelView.TreeModel
+import Graphics.UI.Gtk.ModelView.CustomStore
+import Graphics.UI.Gtk.ModelView.TreeIter
+--import Graphics.UI.Gtk.ModelView.Column
 
 listStoreNewStatic :: [Column a] -> [a] -> IO TreeModel
 listStoreNewStatic rs xs = do

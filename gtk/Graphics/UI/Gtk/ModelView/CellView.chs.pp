@@ -28,7 +28,7 @@
 --
 -- * Module available since Gtk+ version 2.6
 --
-module Graphics.UI.Gtk.TreeList.CellView (
+module Graphics.UI.Gtk.ModelView.CellView (
 -- * Detail
 -- 
 -- | A 'CellView' displays a single row of a 'TreeModel', using cell renderers

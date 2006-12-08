@@ -1,4 +1,4 @@
-module Graphics.UI.Gtk.TreeList.TreeStoreStatic (
+module Graphics.UI.Gtk.ModelView.TreeStoreStatic (
   treeStoreNewStatic
   ) where
 
@@ -8,10 +8,10 @@ import qualified Data.Tree as Tree
 import Data.Tree (Tree)
 import Data.Array
 
-import Graphics.UI.Gtk.TreeList.TreeModel
-import Graphics.UI.Gtk.TreeList.CustomStore
-import Graphics.UI.Gtk.TreeList.TreeIter
-import Graphics.UI.Gtk.TreeList.Column
+import Graphics.UI.Gtk.ModelView.TreeModel
+import Graphics.UI.Gtk.ModelView.CustomStore
+import Graphics.UI.Gtk.ModelView.TreeIter
+import Graphics.UI.Gtk.ModelView.Column
 
 import Control.Exception (assert)
 

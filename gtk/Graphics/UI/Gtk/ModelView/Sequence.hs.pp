@@ -26,7 +26,7 @@
 --
 -----------------------------------------------------------------------------
 
-module Graphics.UI.Gtk.TreeList.Sequence (
+module Graphics.UI.Gtk.ModelView.Sequence (
 	Seq,
 	-- * Construction
 	empty,		-- :: Seq a

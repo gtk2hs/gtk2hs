@@ -43,7 +43,7 @@
 --
 -- A visible column in a 'TreeView' widget
 --
-module Graphics.UI.Gtk.TreeList.TreeViewColumn (
+module Graphics.UI.Gtk.ModelView.TreeViewColumn (
 -- * Detail
 -- 
 -- | The 'TreeViewColumn' object represents a visible column in a 'TreeView'
@@ -151,7 +151,7 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..),
 						 SortType(..))
-{#import Graphics.UI.Gtk.TreeList.TreeModel#}
+{#import Graphics.UI.Gtk.ModelView.TreeModel#}
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -24,7 +24,7 @@
 --
 -- Common types and classes for the TreeList modules.
 --
-module Graphics.UI.Gtk.TreeList.Types (
+module Graphics.UI.Gtk.ModelView.Types (
   TypedTreeModel(..),
   TypedTreeModelClass,
   toTypedTreeModel,

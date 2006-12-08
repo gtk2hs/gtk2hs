@@ -28,7 +28,7 @@
 --
 -- * Module available since Gtk+ version 2.6
 --
-module Graphics.UI.Gtk.TreeList.CellRendererProgress (
+module Graphics.UI.Gtk.ModelView.CellRendererProgress (
 
 -- * Class Hierarchy
 -- |
