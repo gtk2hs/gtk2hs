@@ -28,6 +28,7 @@
 -- #prune
 module Graphics.UI.Gtk.Gdk.Events (
   Modifier(..),		-- a mask of control keys
+  TimeStamp,
   Event(..),		-- information in event callbacks from Gdk
   marshExposeRect,
 
@@ -164,6 +165,12 @@ toModifier i = toFlags ((fromIntegral i) .&. mask)
 -- * Property is a TODO. These come from RC files which are useful for
 --   custom widgets.
 
+-- | The time (in milliseconds) when an event happened. This is used mostly
+-- for ordering events and responses to events.
+--
+type TimeStamp = Word32
+-- TODO: make this a newtype
+
 -- | Events that are delivered to a widget.
 --
 -- * Any given signal only emits one of these variants as described
@@ -217,7 +224,7 @@ data Event =
   --
   | Motion {
     eventSent	:: Bool,
-    eventTime	:: Word32,
+    eventTime	:: TimeStamp,
     eventX,eventY	:: Double,
     eventModifier 	:: [Modifier],
     -- | Indicate if this event is only a hint of the motion.
@@ -246,7 +253,7 @@ data Event =
     --   'TripleClick', 'ReleaseClick'.
     eventClick	:: Click,
     -- | The time of the event in milliseconds.
-    eventTime	:: Word32,
+    eventTime	:: TimeStamp,
     eventX,eventY	:: Double,
     eventModifier	:: [Modifier],
     -- | The button that was pressed.
@@ -272,7 +279,7 @@ data Event =
     --  'Graphics.UI.Gtk.Abstract.Widget.onKeyRelease'.
     eventRelease	:: Bool,
     eventSent	:: Bool,
-    eventTime	:: Word32,
+    eventTime	:: TimeStamp,
     eventModifier	:: [Modifier],
     -- | This flag is @True@ if Caps Lock is on while this key was pressed.
     eventWithCapsLock   :: Bool,
@@ -304,7 +311,7 @@ data Event =
   --
   | Crossing {
     eventSent	:: Bool,
-    eventTime	:: Word32,
+    eventTime	:: TimeStamp,
     eventX,eventY	:: Double,
     eventXRoot,
     eventYRoot	:: Double,
@@ -362,7 +369,7 @@ data Event =
   --
   | Scroll {
     eventSent	:: Bool,
-    eventTime	:: Word32,
+    eventTime	:: TimeStamp,
     eventX,eventY	:: Double,
     eventDirection	:: ScrollDirection,
     eventXRoot,
@@ -377,7 +384,7 @@ data Event =
   -- | The state of the pen of a graphics tablet pen or touchscreen device.
   | Proximity {
     eventSent	:: Bool,
-    eventTime	:: Word32,
+    eventTime	:: TimeStamp,
     -- | Whether the stylus has moved in or out of contact with the tablet.
     eventInContact     :: Bool
   }

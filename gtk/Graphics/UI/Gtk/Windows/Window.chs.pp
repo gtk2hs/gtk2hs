@@ -207,7 +207,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent, MouseButton)
+import Graphics.UI.Gtk.Gdk.Events	(Event, marshalEvent, MouseButton,
+					TimeStamp)
 import Graphics.UI.Gtk.Gdk.Enums	(WindowEdge(..), WindowTypeHint(..),
 					Gravity(..))
 
@@ -1152,7 +1153,7 @@ windowBeginResizeDrag :: WindowClass self => self
                -- the drag, in root window coordinates
  -> Int        -- ^ @rootY@ - Y position where the user clicked to initiate
                -- the drag
- -> Word32     -- ^ @timestamp@ - timestamp from the click event that
+ -> TimeStamp  -- ^ @timestamp@ - timestamp from the click event that
                -- initiated the drag
  -> IO ()
 windowBeginResizeDrag self edge button rootX rootY timestamp =
@@ -1176,7 +1177,7 @@ windowBeginMoveDrag :: WindowClass self => self
            -- drag, in root window coordinates
  -> Int    -- ^ @rootY@ - Y position where the user clicked to initiate the
            -- drag
- -> Word32 -- ^ @timestamp@ - timestamp from the click event that initiated
+ -> TimeStamp -- ^ @timestamp@ - timestamp from the click event that initiated
            -- the drag
  -> IO ()
 windowBeginMoveDrag self button rootX rootY timestamp =
@@ -1312,8 +1313,9 @@ windowGetTypeHint self =
 -- * Available since Gtk+ version 2.8
 --
 windowPresentWithTime :: WindowClass self => self
- -> Word32 -- ^ @timestamp@ - the timestamp of the user interaction (typically
-           -- a button or key press event) which triggered this call
+ -> TimeStamp -- ^ @timestamp@ - the timestamp of the user interaction
+              -- (typically a button or key press event) which triggered this
+              -- call
  -> IO ()
 windowPresentWithTime self timestamp =
   {# call gtk_window_present_with_time #}

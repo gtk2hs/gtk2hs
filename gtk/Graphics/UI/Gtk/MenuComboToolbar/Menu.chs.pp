@@ -128,8 +128,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
-import Graphics.UI.Gtk.Gdk.Events (MouseButton)
-import Data.Word ( Word32 )
+import Graphics.UI.Gtk.Gdk.Events (MouseButton, TimeStamp)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -168,14 +167,11 @@ menuReorderChild self child position =
 --   press signal).
 --
 menuPopup :: MenuClass self => self -- ^ The menu to be shown.
-  -> Maybe (MouseButton, Word32)
-  -- ^ The mouse button from the
-  -- 'Graphics.UI.Gtk.Gdk.Events.Button' event and
-  -- the time of the event.
-  -- These values are used to match the corresponding
-  -- relase of the button.
-  -- If this context menu is shown by
-  -- programmatic means, supply @Nothing@.
+  -> Maybe (MouseButton, TimeStamp)
+  -- ^ The mouse button from the 'Graphics.UI.Gtk.Gdk.Events.Button' event and
+  -- the time of the event. These values are used to match the corresponding
+  -- relase of the button. If this context menu is shown by programmatic
+  -- means, supply @Nothing@.
   -> IO ()
 menuPopup self (Just (b,t)) =
   {# call menu_popup #}
