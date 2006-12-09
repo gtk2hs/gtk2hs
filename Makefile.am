@@ -274,6 +274,10 @@ libHSglib_a_SOURCES =	        		\
         glib/System/Glib/Flags.hs		\
 	glib/System/Glib/MainLoop.chs.pp
 
+html_HSFILES_HIDDEN =				\
+	glib/System/Glib/FFI.hs			\
+	glib/System/Glib/Types.hs
+
 if USE_GCLOSUE_SIGNALS_IMPL
 libHSglib_a_SOURCES += glib/System/Glib/hsgclosure.c
 # make calling an undefined function an error so we can catch changes in the
@@ -535,7 +539,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs                             \
         gtk/Graphics/UI/Gtk/Cairo.chs.pp
 
-html_HSFILES_HIDDEN  =						\
+html_HSFILES_HIDDEN +=						\
 	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
 	gtk/Graphics/UI/Gtk/Signals.hs				\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs			\
