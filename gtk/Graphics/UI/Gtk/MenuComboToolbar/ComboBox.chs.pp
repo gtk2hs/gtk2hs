@@ -250,13 +250,12 @@ comboBoxSetActiveIter self iter =
     (toComboBox self)
     iterPtr
 
--- | Returns the 'TreeModel' which is acting as data source for @comboBox@.
+-- | Returns the 'TreeModel' which is acting as data source for the combo box.
 --
-comboBoxGetModel :: (ComboBoxClass self, TreeModelClass model)
- => self
- -> IO (Maybe model) -- ^ returns A 'TreeModel' which was passed during
+comboBoxGetModel :: ComboBoxClass self => self
+ -> IO (Maybe TreeModel) -- ^ returns the 'TreeModel' which was passed during
                          -- construction.
-comboBoxGetModel self = liftM (fmap fromTreeModel) $
+comboBoxGetModel self =
   maybeNull (makeNewGObject mkTreeModel) $
   {# call gtk_combo_box_get_model #}
     (toComboBox self)
@@ -445,8 +444,7 @@ comboBoxGetFocusOnClick self =
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The model from which the combo box takes the values shown in the list.
 --
-comboBoxModel :: (ComboBoxClass self, TreeModelClass model) =>
-		 Attr self (Maybe model)
+comboBoxModel :: (ComboBoxClass self, TreeModelClass model) => ReadWriteAttr self (Maybe TreeModel) (Maybe model)
 comboBoxModel = newAttr
   comboBoxGetModel
   comboBoxSetModel

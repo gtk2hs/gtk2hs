@@ -68,8 +68,13 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
   comboBoxEntryNew,
   comboBoxEntryNewWithModel,
   comboBoxEntryNewText,
-  comboBoxEntrySetTextModel
 
+-- * Methods
+  comboBoxEntrySetTextColumn,
+  comboBoxEntryGetTextColumn,
+
+-- * Attributes
+  comboBoxEntryTextColumn,
 #endif
   ) where
 
@@ -80,10 +85,6 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
---import Graphics.UI.Gtk.TreeList.Types
-import Graphics.UI.Gtk.MenuComboToolbar.ComboBox
-import Graphics.UI.Gtk.TreeList.CellRendererText
---import Graphics.UI.Gtk.TreeList.CellLayout
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -106,14 +107,17 @@ comboBoxEntryNew =
 -- 'binGetChild'. To add and remove strings from the list, just modify @model@
 -- using its data manipulation API.
 --
-comboBoxEntryNewWithModel :: (TypedTreeModelClass model,
-			      TreeModelClass (model String)) => 
-    model String        -- ^ @model@ - A 'CustomStore'.
+comboBoxEntryNewWithModel :: TreeModelClass model => 
+    model            -- ^ @model@ - A 'TreeModel'.
+ -> Int              -- ^ @textColumn@ - A column in @model@ to get the
+                     -- strings from.
  -> IO ComboBoxEntry
-comboBoxEntryNewWithModel model = do
-  combo <- comboBoxEntryNew
-  comboBoxSetModel combo (Just model)
-  return combo
+comboBoxEntryNewWithModel model textColumn =
+  makeNewObject mkComboBoxEntry $
+  liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
+  {# call gtk_combo_box_entry_new_with_model #}
+    (toTreeModel model)
+    (fromIntegral textColumn)
 
 -- | Convenience function which constructs a new editable text combo box,
 -- which is a 'ComboBoxEntry' just displaying strings. If you use this function
@@ -127,17 +131,40 @@ comboBoxEntryNewText =
   liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
   {# call gtk_combo_box_entry_new_text #}
 
--- | Sets the model of 'String's, inserts a 'CellRendererText'.
---
-comboBoxEntrySetTextModel :: (TypedTreeModelClass model,
-			      TreeModelClass (model String))
- => ComboBoxEntry
- -> model String   -- ^ @model@ - The model of 'String's.
- -> IO ()
-comboBoxEntrySetTextModel self model = do
-  comboBoxSetModel self (Just model)
-  cell <- cellRendererTextNew
-  cellLayoutPackStart self cell True
-  cellLayoutSetAttributes self cell model (\str -> [cellText := str])
+--------------------
+-- Methods
 
+-- | Sets the model column which the entry box should use to get strings from to
+-- be @textColumn@.
+--
+comboBoxEntrySetTextColumn :: ComboBoxEntryClass self => self
+ -> Int   -- ^ @textColumn@ - A column in the model to get the strings from.
+ -> IO ()
+comboBoxEntrySetTextColumn self textColumn =
+  {# call gtk_combo_box_entry_set_text_column #}
+    (toComboBoxEntry self)
+    (fromIntegral textColumn)
+
+-- | Returns the column which the entry box is using to get the strings from.
+--
+comboBoxEntryGetTextColumn :: ComboBoxEntryClass self => self
+ -> IO Int -- ^ returns a column in the data source model of the entry box.
+comboBoxEntryGetTextColumn self =
+  liftM fromIntegral $
+  {# call gtk_combo_box_entry_get_text_column #}
+    (toComboBoxEntry self)
+
+--------------------
+-- Attributes
+
+-- | A column in the data source model to get the strings from.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+comboBoxEntryTextColumn :: ComboBoxEntryClass self => Attr self Int
+comboBoxEntryTextColumn = newAttr
+  comboBoxEntryGetTextColumn
+  comboBoxEntrySetTextColumn
 #endif
