@@ -208,10 +208,7 @@ cellViewSetBackgroundColor self color =
 
 -- | Returns the cell renderers which have been added to @cellView@.
 --
-cellViewGetCellRenderers :: CellViewClass self => self
- -> IO [CellRenderer] -- ^ returns a list of cell renderers. The list, but not
-                      -- the renderers has been newly allocated and should be
-                      -- freed with 'gListFree' when no longer needed.
+cellViewGetCellRenderers :: CellViewClass self => self -> IO [CellRenderer]
 cellViewGetCellRenderers self =
   {# call gtk_cell_view_get_cell_renderers #}
     (toCellView self)
