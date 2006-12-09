@@ -243,6 +243,7 @@ radioButtonNewJoinGroup ::
                    -- group, to which the new radio button will be added.
  -> IO RadioButton
 radioButtonNewJoinGroup = radioButtonNewFromWidget
+{-# DEPRECATED radioButtonNewJoinGroup "use radioButtonNewFromWidget instead" #-}
 
 -- | Alias for 'radioButtonNewWithLabelFromWidget'.
 radioButtonNewJoinGroupWithLabel :: 
@@ -252,6 +253,7 @@ radioButtonNewJoinGroupWithLabel ::
                    -- button.
  -> IO RadioButton
 radioButtonNewJoinGroupWithLabel = radioButtonNewWithLabelFromWidget
+{-# DEPRECATED radioButtonNewJoinGroupWithLabel "use radioButtonNewWithLabelFromWidget instead" #-}
 
 -- | Alias for 'radioButtonNewWithMnemonicFromWidget'.
 radioButtonNewJoinGroupWithMnemonic :: 
@@ -261,6 +263,7 @@ radioButtonNewJoinGroupWithMnemonic ::
                    -- in front of the mnemonic character
  -> IO RadioButton
 radioButtonNewJoinGroupWithMnemonic = radioButtonNewWithMnemonicFromWidget
+{-# DEPRECATED radioButtonNewJoinGroupWithMnemonic "use radioButtonNewWithMnemonicFromWidget instead" #-}
 
 --------------------
 -- Methods

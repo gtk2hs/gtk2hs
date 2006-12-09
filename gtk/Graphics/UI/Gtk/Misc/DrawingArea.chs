@@ -111,8 +111,10 @@ drawingAreaNew =
 --
 drawingAreaGetDrawWindow :: DrawingArea -> IO DrawWindow
 drawingAreaGetDrawWindow = widgetGetDrawWindow
+{-# DEPRECATED drawingAreaGetDrawWindow "use widgetGetDrawWindow instead" #-}
 
 -- | See 'widgetGetSize'
 --
 drawingAreaGetSize :: DrawingArea -> IO (Int, Int)
 drawingAreaGetSize = widgetGetSize
+{-# DEPRECATED drawingAreaGetSize "use widgetGetSize instead" #-}
