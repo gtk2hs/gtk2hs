@@ -4,32 +4,39 @@ module Main where
 import Data.Char as Char hiding (isSymbol)
 import Data.List as List (nub, isPrefixOf, sortBy)
 import Data.Maybe as Maybe (catMaybes)
-import Control.Monad
+import Control.Monad (unless)
 import System.Environment (getArgs)
 
 main = do
-  [original, modified] <- getArgs
-  diff original modified
+  [name, original, modified] <- getArgs
+  diff name original modified
 
-diff :: FilePath -> FilePath -> IO ()
-diff originalFile modifiedFile = do
+diff :: String -> FilePath -> FilePath -> IO ()
+diff moduleName originalFile modifiedFile = do
   original <- readFile originalFile
   modified <- readFile modifiedFile
   let (added, removed, changed) =
         classify (extractFunctionsFromHi original)
                  (extractFunctionsFromHi modified)
+
 --  putStrLn "Functions added:"
 --  mapM_ putStrLn added
-  
-  when (not $ null removed)
-       (do putStrLn "Functions removed:"
-           mapM_ putStrLn removed)
 
-  when (not $ null changed)
-       (do putStrLn "Functions changed:"
-           mapM_ putStrLn [ name ++ " changed from\n   :: " ++ originalType
-                                              ++ "\nto :: " ++ modifiedType
-                          | (name, originalType, modifiedType) <- changed ])
+  unless (null removed && null changed) $
+    putStrLn ("module " ++ moduleName)
+
+  unless (null removed) $ do
+    putStrLn " functions removed:"
+    mapM_ (putStrLn . ("  "++)) removed
+    putStrLn ""
+
+  unless (null changed) $ do
+    putStrLn " functions changed:"
+    mapM_ putStrLn [ "  " ++ name ++ " changed from"
+                          ++ "\n     :: " ++ originalType
+                          ++ "\n  to :: " ++ modifiedType
+                   | (name, originalType, modifiedType) <- changed ]
+    putStrLn ""
 
 
 classify :: [(String, String)] -> [(String, String)] -> ([String], [String], [(String, String, String)])

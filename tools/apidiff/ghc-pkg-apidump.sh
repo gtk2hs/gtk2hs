@@ -23,9 +23,8 @@ for pkg in ${originalexposedmodules}; do
   modifiedhifile=${modifiedimportdirs}/${pkg//./\/}.hi
 
   if test -f ${modifiedhifile}; then
-    echo "dumping ${pkg}..." > /dev/stderr
-    ./hidiff <($GHC --show-iface ${originalhifile}) \
-             <($GHC --show-iface ${modifiedhifile})
+    ./hidiff "${pkg}" <($GHC --show-iface ${originalhifile}) \
+                      <($GHC --show-iface ${modifiedhifile})
   else
     echo "${pkg} missing from $2 (can't find ${modifiedhifile})"
   fi
