@@ -369,10 +369,10 @@ actionGroupSetTranslateFunc self func = do
 foreign import ccall "wrapper" mkTranslateFunc ::
   (CString -> Ptr () -> IO CString) -> IO TranslateFunc
 
--- | Sets the translation domain and uses 'dgettext' for translating the
+-- | Sets the translation domain and uses \'dgettext\' for translating the
 -- @label@ and @tooltip@ of 'ActionEntry's added by 'actionGroupAddActions'.
 --
--- If you\'re not using 'gettext' for localization, see
+-- If you\'re not using \'gettext\' for localization, see
 -- 'actionGroupSetTranslateFunc'.
 --
 actionGroupSetTranslationDomain :: ActionGroup
