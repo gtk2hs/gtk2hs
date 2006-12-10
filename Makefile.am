@@ -591,8 +591,12 @@ libHSgtk_a_LIBADD =							\
         gtk/Graphics/UI/Gtk/TreeList/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/TreeList/TreeView_stub.o			\
 	gtk/Graphics/UI/Gtk/TreeList/IconView_stub.o			\
-	gtk/Graphics/UI/Gtk/TreeList/CustomStore_stub.o			\
-	gtk/Graphics/UI/Gtk/TreeList/CellLayout_stub.o			\
+        gtk/Graphics/UI/Gtk/ModelView/TreeModel_stub.o			\
+        gtk/Graphics/UI/Gtk/ModelView/TreeSelection_stub.o		\
+        gtk/Graphics/UI/Gtk/ModelView/TreeView_stub.o			\
+	gtk/Graphics/UI/Gtk/ModelView/IconView_stub.o			\
+	gtk/Graphics/UI/Gtk/ModelView/CustomStore_stub.o			\
+	gtk/Graphics/UI/Gtk/ModelView/CellLayout_stub.o			\
 	gtk/Graphics/UI/Gtk/Selectors/FileFilter_stub.o			\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog_stub.o			\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup_stub.o
