@@ -297,15 +297,15 @@ stockAbout		= stockMissingImage
 stockAdd		:: StockId
 stockAdd		= #{const_str GTK_STOCK_ADD}
 
--- | <<images/stock-icons/stock_apply_24.png>>
+-- | <<images/stock-icons/stock_apply_20.png>>
 stockApply		:: StockId
 stockApply		= #{const_str GTK_STOCK_APPLY}
 
--- | <<images/stock-icons/stock_bold_24.png>>
+-- | <<images/stock-icons/stock_text_bold_24.png>>
 stockBold		:: StockId
 stockBold		= #{const_str GTK_STOCK_BOLD}
 
--- | <<images/stock-icons/stock_cancel_24.png>>
+-- | <<images/stock-icons/stock_cancel_20.png>>
 stockCancel		:: StockId
 stockCancel		= #{const_str GTK_STOCK_CANCEL}
 
@@ -322,7 +322,7 @@ stockClose		:: StockId
 stockClose		= #{const_str GTK_STOCK_CLOSE}
 #if GTK_CHECK_VERSION(2,2,0)
 
--- | <<images/stock-icons/stock_color_picker_24.png>>
+-- | <<images/stock-icons/stock_color_picker_25.png>>
 stockColorPicker	:: StockId
 stockColorPicker	= #{const_str GTK_STOCK_COLOR_PICKER}
 #else
@@ -349,7 +349,7 @@ stockCopy		= #{const_str GTK_STOCK_COPY}
 stockCut		:: StockId
 stockCut		= #{const_str GTK_STOCK_CUT}
 
--- | <<images/stock-icons/stock_delete_24.png>>
+-- | <<images/stock-icons/stock_trash_24.png>>
 stockDelete		:: StockId
 stockDelete		= #{const_str GTK_STOCK_DELETE}
 
@@ -393,11 +393,11 @@ stockDisconnect		= #{const_str GTK_STOCK_DISCONNECT}
 stockDisconnect		= stockMissingImage
 #endif
 
--- | <<images/stock-icons/stock_dnd_24.png>>
+-- | <<images/stock-icons/stock_dnd_32.png>>
 stockDnd		:: StockId
 stockDnd		= #{const_str GTK_STOCK_DND}
 
--- | <<images/stock-icons/stock_dnd_multiple_24.png>>
+-- | <<images/stock-icons/stock_dnd_multiple_32.png>>
 stockDndMultiple	:: StockId
 stockDndMultiple	= #{const_str GTK_STOCK_DND_MULTIPLE}
 #if GTK_CHECK_VERSION(2,6,0)
@@ -409,7 +409,7 @@ stockEdit		= #{const_str GTK_STOCK_EDIT}
 stockEdit		= stockMissingImage
 #endif
 
--- | <<images/stock-icons/stock_execute_24.png>>
+-- | <<images/stock-icons/stock_exec_24.png>>
 stockExecute		:: StockId
 stockExecute		= #{const_str GTK_STOCK_EXECUTE}
 #if GTK_CHECK_VERSION(2,6,0)
@@ -421,15 +421,15 @@ stockFile		= #{const_str GTK_STOCK_FILE}
 stockFile		= stockMissingImage
 #endif
 
--- | <<images/stock-icons/stock_find_24.png>>
+-- | <<images/stock-icons/stock_search_24.png>>
 stockFind		:: StockId
 stockFind		= #{const_str GTK_STOCK_FIND}
 
--- | <<images/stock-icons/stock_find_and_replace_24.png>>
+-- | <<images/stock-icons/stock_search_replace_24.png>>
 stockFindAndRelpace	:: StockId
 stockFindAndRelpace	= #{const_str GTK_STOCK_FIND_AND_REPLACE}
 
--- | <<images/stock-icons/stock_floppy_24.png>>
+-- | <<images/stock-icons/stock_save_24.png>>
 stockFloppy		:: StockId
 stockFloppy		= #{const_str GTK_STOCK_FLOPPY}
 #if GTK_CHECK_VERSION(2,8,0)
@@ -441,35 +441,35 @@ stockFullscreen		= #{const_str GTK_STOCK_FULLSCREEN}
 stockFullscreen		= stockMissingImage
 #endif
 
--- | <<images/stock-icons/stock_goto_bottom_24.png>>
+-- | <<images/stock-icons/stock_bottom_24.png>>
 stockGotoBottom		:: StockId
 stockGotoBottom		= #{const_str GTK_STOCK_GOTO_BOTTOM}
 
--- | <<images/stock-icons/stock_goto_first_24.png>>
+-- | <<images/stock-icons/stock_first_24.png>>
 stockGotoFirst		:: StockId
 stockGotoFirst		= #{const_str GTK_STOCK_GOTO_FIRST}
 
--- | <<images/stock-icons/stock_goto_last_24.png>>
+-- | <<images/stock-icons/stock_last_24.png>>
 stockGotoLast		:: StockId
 stockGotoLast		= #{const_str GTK_STOCK_GOTO_LAST}
 
--- | <<images/stock-icons/stock_goto_top_24.png>>
+-- | <<images/stock-icons/stock_top_24.png>>
 stockGotoTop		:: StockId
 stockGotoTop		= #{const_str GTK_STOCK_GOTO_TOP}
 
--- | <<images/stock-icons/stock_go_back_24.png>>
+-- | <<images/stock-icons/stock_left_arrow_24.png>>
 stockGoBack		:: StockId
 stockGoBack		= #{const_str GTK_STOCK_GO_BACK}
 
--- | <<images/stock-icons/stock_go_down_24.png>>
+-- | <<images/stock-icons/stock_down_arrow_24.png>>
 stockGoDown		:: StockId
 stockGoDown		= #{const_str GTK_STOCK_GO_DOWN}
 
--- | <<images/stock-icons/stock_go_forward_24.png>>
+-- | <<images/stock-icons/stock_right_arrow_24.png>>
 stockGoForward		:: StockId
 stockGoForward		= #{const_str GTK_STOCK_GO_FORWARD}
 
--- | <<images/stock-icons/stock_go_up_24.png>>
+-- | <<images/stock-icons/stock_up_arrow_24.png>>
 stockGoUp		:: StockId
 stockGoUp		= #{const_str GTK_STOCK_GO_UP}
 #if GTK_CHECK_VERSION(2,4,0)
@@ -490,7 +490,7 @@ stockHome		:: StockId
 stockHome		= #{const_str GTK_STOCK_HOME}
 #if GTK_CHECK_VERSION(2,4,0)
 
--- | <<images/stock-icons/stock_indent_24.png>>
+-- | <<images/stock-icons/stock_text_indent_24.png>>
 stockIndent		:: StockId
 stockIndent		= #{const_str GTK_STOCK_INDENT}
 #else
@@ -509,7 +509,7 @@ stockInfo		= #{const_str GTK_STOCK_INFO}
 stockInfo		= stockMissingImage
 #endif
 
--- | <<images/stock-icons/stock_italic_24.png>>
+-- | <<images/stock-icons/stock_text_italic_24.png>>
 stockItalic		:: StockId
 stockItalic		= #{const_str GTK_STOCK_ITALIC}
 
@@ -517,23 +517,23 @@ stockItalic		= #{const_str GTK_STOCK_ITALIC}
 stockJumpTo		:: StockId
 stockJumpTo		= #{const_str GTK_STOCK_JUMP_TO}
 
--- | <<images/stock-icons/stock_justify_center_24.png>>
+-- | <<images/stock-icons/stock_align_center_24.png>>
 stockJustifyCenter	:: StockId
 stockJustifyCenter	= #{const_str GTK_STOCK_JUSTIFY_CENTER}
 
--- | <<images/stock-icons/stock_justify_fill_24.png>>
+-- | <<images/stock-icons/stock_align_justify_24.png>>
 stockJustifyFill	:: StockId
 stockJustifyFill	= #{const_str GTK_STOCK_JUSTIFY_FILL}
 
--- | <<images/stock-icons/stock_justify_left_24.png>>
+-- | <<images/stock-icons/stock_align_left_24.png>>
 stockJustifyLeft	:: StockId
 stockJustifyLeft	= #{const_str GTK_STOCK_JUSTIFY_LEFT}
 
--- | <<images/stock-icons/stock_justify_right_24.png>>
+-- | <<images/stock-icons/stock_align_right_24.png>>
 stockJustifyRight	:: StockId
 stockJustifyRight	= #{const_str GTK_STOCK_JUSTIFY_RIGHT}
 
--- | <<images/stock-icons/stock_missing_image_24.png>>
+-- | <<images/stock-icons/stock_broken_image_24.png>>
 stockMissingImage	:: StockId
 stockMissingImage	= #{const_str GTK_STOCK_MISSING_IMAGE}
 #if GTK_CHECK_VERSION(2,6,0)
@@ -592,11 +592,11 @@ stockNetwork		= stockMissingImage
 stockNew		:: StockId
 stockNew		= #{const_str GTK_STOCK_NEW}
 
--- | <<images/stock-icons/stock_no_24.png>>
+-- | <<images/stock-icons/stock_no_20.png>>
 stockNo			:: StockId
 stockNo			= #{const_str GTK_STOCK_NO}
 
--- | <<images/stock-icons/stock_ok_24.png>>
+-- | <<images/stock-icons/stock_ok_20.png>>
 stockOk			:: StockId
 stockOk			= #{const_str GTK_STOCK_OK}
 
@@ -647,7 +647,7 @@ stockPrintPreview	= #{const_str GTK_STOCK_PRINT_PREVIEW}
 stockProperties		:: StockId
 stockProperties		= #{const_str GTK_STOCK_PROPERTIES}
 
--- | <<images/stock-icons/stock_quit_24.png>>
+-- | <<images/stock-icons/stock_exit_24.png>>
 stockQuit		:: StockId
 stockQuit		= #{const_str GTK_STOCK_QUIT}
 
@@ -663,7 +663,7 @@ stockRefresh		= #{const_str GTK_STOCK_REFRESH}
 stockRemove		:: StockId
 stockRemove		= #{const_str GTK_STOCK_REMOVE}
 
--- | <<images/stock-icons/stock_revert_to_saved_24.png>>
+-- | <<images/stock-icons/stock_revert_24.png>>
 stockRevertToSaved	:: StockId
 stockRevertToSaved	= #{const_str GTK_STOCK_REVERT_TO_SAVED}
 
@@ -683,11 +683,11 @@ stockSelectAll		= #{const_str GTK_STOCK_SELECT_ALL}
 stockSelectAll		= stockMissingImage
 #endif
 
--- | <<images/stock-icons/stock_select_color_24.png>>
+-- | <<images/stock-icons/stock_colorselector_24.png>>
 stockSelectColor	:: StockId
 stockSelectColor	= #{const_str GTK_STOCK_SELECT_COLOR}
 
--- | <<images/stock-icons/stock_select_font_24.png>>
+-- | <<images/stock-icons/stock_font_24.png>>
 stockSelectFont		:: StockId
 stockSelectFont		= #{const_str GTK_STOCK_SELECT_FONT}
 
@@ -699,7 +699,7 @@ stockSortAscending	= #{const_str GTK_STOCK_SORT_ASCENDING}
 stockSortDescending	:: StockId
 stockSortDescending	= #{const_str GTK_STOCK_SORT_DESCENDING}
 
--- | <<images/stock-icons/stock_spell_check_24.png>>
+-- | <<images/stock-icons/stock_spellcheck_24.png>>
 stockSpellCheck		:: StockId
 stockSpellCheck		= #{const_str GTK_STOCK_SPELL_CHECK}
 
@@ -707,7 +707,7 @@ stockSpellCheck		= #{const_str GTK_STOCK_SPELL_CHECK}
 stockStop		:: StockId
 stockStop		= #{const_str GTK_STOCK_STOP}
 
--- | <<images/stock-icons/stock_strikethrough_24.png>>
+-- | <<images/stock-icons/stock_text_strikethrough_24.png>>
 stockStrikethrough	:: StockId
 stockStrikethrough	= #{const_str GTK_STOCK_STRIKETHROUGH}
 
@@ -715,7 +715,7 @@ stockStrikethrough	= #{const_str GTK_STOCK_STRIKETHROUGH}
 stockUndelete		:: StockId
 stockUndelete		= #{const_str GTK_STOCK_UNDELETE}
 
--- | <<images/stock-icons/stock_underline_24.png>>
+-- | <<images/stock-icons/stock_text_underline_24.png>>
 stockUnderline		:: StockId
 stockUnderline		= #{const_str GTK_STOCK_UNDERLINE}
 
@@ -724,18 +724,18 @@ stockUndo		:: StockId
 stockUndo		= #{const_str GTK_STOCK_UNDO}
 #if GTK_CHECK_VERSION(2,4,0)
 
--- | <<images/stock-icons/stock_unindent_24.png>>
+-- | <<images/stock-icons/stock_text_unindent_24.png>>
 stockUnindent		:: StockId
 stockUnindent		= #{const_str GTK_STOCK_UNINDENT}
 #else
 stockUnindent		= stockMissingImage
 #endif
 
--- | <<images/stock-icons/stock_yes_24.png>>
+-- | <<images/stock-icons/stock_yes_20.png>>
 stockYes		:: StockId
 stockYes		= #{const_str GTK_STOCK_YES}
 
--- | <<images/stock-icons/stock_zoom_100_24.png>>
+-- | <<images/stock-icons/stock_zoom_1_24.png>>
 stockZoom100		:: StockId
 stockZoom100		= #{const_str GTK_STOCK_ZOOM_100}
 
