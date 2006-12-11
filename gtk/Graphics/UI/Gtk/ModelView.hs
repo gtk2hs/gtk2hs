@@ -41,7 +41,6 @@ module Graphics.UI.Gtk.ModelView (
   module Graphics.UI.Gtk.ModelView.CustomStore,
   module Graphics.UI.Gtk.ModelView.IconView,
   module Graphics.UI.Gtk.ModelView.ListStore,
-  module Graphics.UI.Gtk.ModelView.Sequence,
   module Graphics.UI.Gtk.ModelView.TreeModel,
   module Graphics.UI.Gtk.ModelView.TreeModelSort,
   module Graphics.UI.Gtk.ModelView.TreeSelection,
@@ -62,7 +61,6 @@ import Graphics.UI.Gtk.ModelView.CellView
 import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.ModelView.IconView
 import Graphics.UI.Gtk.ModelView.ListStore
-import Graphics.UI.Gtk.ModelView.Sequence
 import Graphics.UI.Gtk.ModelView.TreeModel
 import Graphics.UI.Gtk.ModelView.TreeModelSort
 import Graphics.UI.Gtk.ModelView.TreeSelection
