@@ -22,7 +22,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- New model-based tree/list widget system.
+-- New model-based tree\/list widget system.
 -- 
 -- This just re-exports the Graphics.UI.Gtk.* modules.
 --
