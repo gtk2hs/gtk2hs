@@ -509,7 +509,10 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererText.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererToggle.chs		\
 	gtk/Graphics/UI/Gtk/ModelView/CellView.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/ComboBox.chs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/ComboBoxEntry.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CustomStore.chs			\
+	gtk/Graphics/UI/Gtk/ModelView/EntryCompletion.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.c			\
 	gtk/Graphics/UI/Gtk/ModelView/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/ListStore.hs.pp			\

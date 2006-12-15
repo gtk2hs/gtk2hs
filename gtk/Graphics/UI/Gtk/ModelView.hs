@@ -38,7 +38,10 @@ module Graphics.UI.Gtk.ModelView (
   module Graphics.UI.Gtk.ModelView.CellRendererText,
   module Graphics.UI.Gtk.ModelView.CellRendererToggle,
   module Graphics.UI.Gtk.ModelView.CellView,
+  module Graphics.UI.Gtk.ModelView.ComboBox,
+  module Graphics.UI.Gtk.ModelView.ComboBoxEntry,
   module Graphics.UI.Gtk.ModelView.CustomStore,
+  module Graphics.UI.Gtk.ModelView.EntryCompletion,
   module Graphics.UI.Gtk.ModelView.IconView,
   module Graphics.UI.Gtk.ModelView.ListStore,
   module Graphics.UI.Gtk.ModelView.TreeModel,
@@ -58,7 +61,10 @@ import Graphics.UI.Gtk.ModelView.CellRendererProgress
 import Graphics.UI.Gtk.ModelView.CellRendererText
 import Graphics.UI.Gtk.ModelView.CellRendererToggle
 import Graphics.UI.Gtk.ModelView.CellView
+import Graphics.UI.Gtk.ModelView.ComboBox
+import Graphics.UI.Gtk.ModelView.ComboBoxEntry
 import Graphics.UI.Gtk.ModelView.CustomStore
+import Graphics.UI.Gtk.ModelView.EntryCompletion
 import Graphics.UI.Gtk.ModelView.IconView
 import Graphics.UI.Gtk.ModelView.ListStore
 import Graphics.UI.Gtk.ModelView.TreeModel
