@@ -27,9 +27,14 @@
 -- Standard model to store list data.
 --
 module Graphics.UI.Gtk.ModelView.ListStore (
+
+-- * Types 
   ListStore,
+
+-- * Constructors
   listStoreNew,
-  
+
+-- * Methods
   listStoreGetValue,
   listStoreSetValue,
   listStoreInsert,

@@ -27,8 +27,14 @@
 -- Standard model to store hierarchical data.
 --
 module Graphics.UI.Gtk.ModelView.TreeStore (
+
+-- * Types
   TreeStore,
+
+-- * Constructors
   treeStoreNew,
+
+-- * Methods
   treeStoreInsert,
   treeStoreInsertNode,
   treeStoreRemove,
