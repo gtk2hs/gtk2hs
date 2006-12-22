@@ -274,7 +274,7 @@ libHSglib_a_SOURCES =	        		\
         glib/System/Glib/Flags.hs		\
 	glib/System/Glib/MainLoop.chs.pp
 
-html_HSFILES_HIDDEN =				\
+htmldoc_HSFILES_HIDDEN =				\
 	glib/System/Glib/FFI.hs			\
 	glib/System/Glib/Types.hs
 
@@ -554,7 +554,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs                             \
         gtk/Graphics/UI/Gtk/Cairo.chs.pp
 
-html_HSFILES_HIDDEN +=						\
+htmldoc_HSFILES_HIDDEN +=						\
 	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
 	gtk/Graphics/UI/Gtk/Signals.hs				\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs			\
@@ -715,7 +715,7 @@ nodist_libHSglade_a_SOURCES = $(libHSglade_a_GENERATEDSOURCES)
 libHSglade_a_SOURCES =	        \
         glade/Graphics/UI/Gtk/Glade.chs
 
-html_HSFILES_HIDDEN += $(libHSglade_a_GENERATEDSOURCES:.chs=.hs)
+htmldoc_HSFILES_HIDDEN += $(libHSglade_a_GENERATEDSOURCES:.chs=.hs)
 
 glade_Graphics_UI_Gtk_Glade_Types_hs_HCFLAGS	= -fglasgow-exts
 
@@ -812,7 +812,7 @@ libHSgconf_a_SOURCES =					\
 	gconf/System/Gnome/GConf/GConfClient.chs	\
 	gconf/System/Gnome/GConf.hs
 
-html_HSFILES_HIDDEN += $(libHSgconf_a_GENERATEDSOURCES:.chs=.hs)
+htmldoc_HSFILES_HIDDEN += $(libHSgconf_a_GENERATEDSOURCES:.chs=.hs)
 
 libHSgconf_a_LIBADD =	\
 	gconf/System/Gnome/GConf/GConfClient_stub.o
@@ -934,7 +934,7 @@ libHSsourceview_a_SOURCES =							\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceTagTable.chs		\
 	sourceview/Graphics/UI/Gtk/SourceView/SourceView.chs
 
-html_HSFILES_HIDDEN += $(libHSsourceview_a_GENERATEDSOURCES:.chs=.hs)
+htmldoc_HSFILES_HIDDEN += $(libHSsourceview_a_GENERATEDSOURCES:.chs=.hs)
 
 sourceview_Graphics_UI_Gtk_SourceView_Types_hs_HCFLAGS	= -fglasgow-exts
 sourceview_Graphics_UI_Gtk_SourceView_SourceTagStyle_hs_HCFLAGS	= -fglasgow-exts
@@ -1029,7 +1029,7 @@ nodist_libHSmozembed_a_SOURCES = $(libHSmozembed_a_GENERATEDSOURCES)
 libHSmozembed_a_SOURCES =				\
 	mozembed/Graphics/UI/Gtk/MozEmbed.chs.pp
 
-html_HSFILES_HIDDEN += $(libHSmozembed_a_GENERATEDSOURCES:.chs=.hs)
+htmldoc_HSFILES_HIDDEN += $(libHSmozembed_a_GENERATEDSOURCES:.chs=.hs)
 
 mozembed_Graphics_UI_Gtk_MozEmbed_Types_hs_HCFLAGS = -fglasgow-exts
 
@@ -1140,9 +1140,9 @@ libHScairo_a_SOURCES =							\
 
 cairo_Graphics_Rendering_Cairo_Internal_hs_HCFLAGS = -fglasgow-exts
 
-html_HSFILES_HIDDEN += 							\
+htmldoc_HSFILES_HIDDEN += 							\
 	cairo/Graphics/Rendering/Cairo/Types.hs
-html_HSFILES_EXCLUDE =							\
+htmldoc_HSFILES_EXCLUDE =							\
 	cairo/Graphics/Rendering/Cairo/Internal.hs			\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Cairo.hs	\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Paths.hs	\
@@ -1313,7 +1313,7 @@ libHSgtkglext_a_SOURCES =						\
 	gtkglext/Graphics/UI/Gtk/OpenGL/General.chs			\
 	gtkglext/Graphics/UI/Gtk/OpenGL/DrawingArea.chs
 
-html_HSFILES_HIDDEN += $(libHSgtkglext_a_GENERATEDSOURCES:.chs=.hs)
+htmldoc_HSFILES_HIDDEN += $(libHSgtkglext_a_GENERATEDSOURCES:.chs=.hs)
 
 gtkglext_Graphics_UI_Gtk_OpenGL_Types_hs_HCFLAGS	= -fglasgow-exts
 
@@ -1467,16 +1467,16 @@ if BUILDDOCS
 # For now just build all the docs together, we can think about doing it in a
 # more modular fashion later if it turns out to be useful.
 
-htmldir = $(datadir)/doc/gtk2hs/html
+htmldocdir = $(datadir)/doc/gtk2hs/html
 
 PACKAGES = $(foreach PACKAGE,$(pkglib_LIBRARIES), $(patsubst libHS%.a,%,$(PACKAGE)))
 
-html_HSFILES =  $(filter-out $(html_HSFILES_EXCLUDE),	\
+htmldoc_HSFILES =  $(filter-out $(htmldoc_HSFILES_EXCLUDE),	\
 		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))
 
-html_DATA =									  \
+htmldoc_DATA =									  \
 	$(foreach HSFILE, $(filter-out						  \
-	$(html_HSFILES_HIDDEN),$(html_HSFILES)),				  \
+	$(htmldoc_HSFILES_HIDDEN),$(htmldoc_HSFILES)),				  \
 	    $(patsubst $(firstword $(subst /,					  \
 	    ,$(HSFILE)))-%.hs,							  \
 	     docs/reference/%.html,						  \
@@ -1488,7 +1488,7 @@ html_DATA =									  \
 	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X 58,	  \
 		docs/reference/doc-index-$(LETTER).html) #missing letters Q and Z
 
-$(html_DATA) : $(html_HSFILES)
+$(htmldoc_DATA) : $(htmldoc_HSFILES)
 	mkdir -p docs/reference
 	$(strip $(HADDOCK) --html --odir=docs/reference \
 		--title="Gtk2Hs" \
@@ -1497,10 +1497,10 @@ $(html_DATA) : $(html_HSFILES)
 		$(addprefix --use-package=,$(HADDOCK_PACKAGES)) \
 		$(HADDOCK_FLAGS) $^)
 
-CLEANFILES += $(html_DATA)
+CLEANFILES += $(htmldoc_DATA)
 
 docdistdir = $(PACKAGE)-docs-$(VERSION)
-dist-docs : $(html_DATA)
+dist-docs : $(htmldoc_DATA)
 	ln -s docs/reference $(docdistdir)
 	$(AMTAR) -c $(docdistdir) -hzf $(docdistdir).tar.gz
 	rm $(docdistdir)
