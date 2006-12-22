@@ -66,7 +66,7 @@ NOTE: using an external version of c2hs is not currently working!
   file. If this file doesn't exit, it is created. Useful for people who do
   not have sufficient priviliges to install into the global GHC package file.
 
---enable-PACKAGE
+--enable-PACKAGE      {- substitute package name for PACKAGE -}
 --disable-PACKAGE
   Gtk2Hs contains bindings to some libraries that are not part of Gtk+ but
   closely related. This option forces a particular package to be built or
@@ -82,7 +82,13 @@ NOTE: using an external version of c2hs is not currently working!
   sourceview : An enhancement of the TextView-widget of Gtk+. It adds features
 	useful for editing source code, e.g. syntax highlighting.
 
-  mozilla : A widget that renders HTML. This library is part of Mozilla 1.4.
+  mozilla / seamonkey / firefox : A widget that renders HTML.
+
+  cairo : A library for rendering vector graphics.
+
+  svg-cairo : SVG file rendering for cairo.
+
+  opengl : Bindings for the Gtk OpenGL extension
 
 --disable-deprecated
   There are many Gtk+ APIs that have been deprecated as new versions of Gtk+
