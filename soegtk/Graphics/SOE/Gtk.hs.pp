@@ -178,14 +178,14 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer = do
   Gtk.contextSetFontDescription pc fd
 
 #ifndef USE_CAIRO
-  win <- Gtk.drawingAreaGetDrawWindow canvas
+  win <- Gtk.widgetGetDrawWindow canvas
   -- set up the graphics context
   gc <- Gtk.gcNew win
 #endif
   Gtk.onExpose canvas $ \Gtk.Expose { Gtk.eventArea = eventArea,
                                       Gtk.eventRegion = exposeRegion } -> do
     Graphic graphic <- readMVar graphicVar
-    win <- Gtk.drawingAreaGetDrawWindow canvas
+    win <- Gtk.widgetGetDrawWindow canvas
 #ifdef USE_CAIRO
     Gtk.Cairo.renderWithDrawable win $ do
       -- clip to the exposed region
@@ -258,7 +258,7 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer = do
   }
 
 getWindowSize :: Window -> IO Size
-getWindowSize win = Gtk.drawingAreaGetSize (canvas win)
+getWindowSize win = Gtk.widgetGetSize (canvas win)
 
 clearWindow :: Window -> IO ()
 clearWindow win = setGraphic win emptyGraphic
@@ -690,7 +690,7 @@ getWindowEvent win = do
   -- this says we are ready for another mouse move event
   -- (this is part of the pointer move event flood prevention system)
   case event of
-    MouseMove _ -> Gtk.drawingAreaGetDrawWindow (canvas win)
+    MouseMove _ -> Gtk.widgetGetDrawWindow (canvas win)
                    >>= Gtk.drawWindowGetPointer
                    >> return ()
     _ -> return ()
@@ -702,7 +702,7 @@ maybeGetWindowEvent win = do
   if noEvents then return Nothing
               else do event <- readChan (eventsChan win)
                       case event of
-                        MouseMove _ -> Gtk.drawingAreaGetDrawWindow (canvas win)
+                        MouseMove _ -> Gtk.widgetGetDrawWindow (canvas win)
                                        >>= Gtk.drawWindowGetPointer
                                        >> return ()
                         _ -> return ()
