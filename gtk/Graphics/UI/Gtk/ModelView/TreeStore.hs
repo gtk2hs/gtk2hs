@@ -481,6 +481,8 @@ insertIntoForest forest nodes (p:ps) pos = case splitAt p forest of
 --   The function returns @True@ if the given node was found.
 --
 treeStoreRemove :: TreeStore a -> TreePath -> IO Bool
+  --TODO: eliminate this special case without segfaulting!
+treeStoreRemove (TreeStore model) [] = return False
 treeStoreRemove (TreeStore model) path = do
   customTreeModelInvalidateIters model
   (found, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
