@@ -35,13 +35,16 @@ module Graphics.UI.Gtk.ModelView.TreeStore (
   treeStoreNew,
 
 -- * Methods
+  treeStoreGetValue,
+  treeStoreGetTree,
+
+  treeStoreSetValue,
+--  treeStoreSetTree,
+
   treeStoreInsert,
-  treeStoreInsertNode,
+  treeStoreInsertTree,
+
   treeStoreRemove,
-  treeStoreChange,
-  treeStoreChangeM,
-  treeStoreGet,
-  treeStoreGetNode
   ) where
 
 import Data.Bits
@@ -393,42 +396,61 @@ iterParent depth iter = let
 --   or greater or equal to the number of children of the node at @path@,
 --   the new nodes are appended to the list.
 --
-treeStoreInsert :: TreeStore a -- ^ the store
-		-> TreePath -- ^ @path@ - the position of the parent
-		-> Int   -- ^ @pos@ - the index of the new tree
-		-> Forest a  -- ^ the list of trees to be inserted
-		-> IO (Maybe TreePath)
-treeStoreInsert (TreeStore model) path pos nodes = do
+treeStoreInsertForest ::
+    TreeStore a -- ^ the store
+ -> TreePath    -- ^ @path@ - the position of the parent
+ -> Int         -- ^ @pos@ - the index of the new tree
+ -> Forest a    -- ^ the list of trees to be inserted
+ -> IO ()
+treeStoreInsertForest (TreeStore model) path pos nodes = do
   customTreeModelInvalidateIters model
-  (paths, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
+  (idx, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
     \store@Store { depth = d, content = cache } ->
     case insertIntoForest (cacheToStore cache) nodes path pos of
-      Nothing -> (store, ([], False))
+      Nothing -> error ("treeStoreInsertForest: path does not exist " ++ show path)
       Just (newForest, idx, toggle) ->
-	let depth = calcForestDepth newForest
+       let depth = calcForestDepth newForest
         in (Store { depth = depth,
-		    content = storeToCache newForest },
-	    (map (\idx -> path++[idx]) [idx..idx+length nodes-1], toggle))
-  if null paths then return Nothing else do
-    Store { depth = depth } <- readIORef (customTreeModelGetPrivate model)
-    mapM_ (\path -> let Just iter = fromPath depth path in
-	   treeModelRowInserted model path iter) paths
-    let Just iter = fromPath depth path
-    when toggle $ treeModelRowHasChildToggled model path iter
-    return (Just (head paths))
+                    content = storeToCache newForest },
+           (idx, toggle))
+  Store { depth = depth } <- readIORef (customTreeModelGetPrivate model)
+  let rpath = reverse path
+  sequence_ [ let p' = reverse p
+                  Just iter = fromPath depth p'
+               in treeModelRowInserted model p' iter
+            | (i, node) <- zip [idx..] nodes
+            , p <- paths (i : rpath) node ]
+  let Just iter = fromPath depth path
+  when toggle $ treeModelRowHasChildToggled model path iter
+
+  where paths :: TreePath -> Tree a -> [TreePath]
+        paths path Node { subForest = ts } =
+          path : concat [ paths (n:path) t | (n, t) <- zip [0..] ts ]
+
+-- | Insert a node into the store.
+--
+treeStoreInsertTree ::
+    TreeStore a -- ^ the store
+ -> TreePath    -- ^ @path@ - the position of the parent
+ -> Int         -- ^ @pos@ - the index of the new tree
+ -> Tree a      -- ^ the value to be inserted
+ -> IO ()
+treeStoreInsertTree store path pos node =
+  treeStoreInsertForest store path pos [node]
 
 -- | Insert a single node into the store.
 --
 -- * This function inserts a single node without children into the tree.
 --   Its arguments are similar to those of 'treeStoreInsert'.
 --
-treeStoreInsertNode :: TreeStore a -- ^ the store
-		    -> TreePath -- ^ @path@ - the position of the parent
-		    -> Int   -- ^ @pos@ - the index of the new tree
-		    -> a  -- ^ the value to be inserted
-		    -> IO (Maybe TreePath)
-treeStoreInsertNode store path pos node =
-  treeStoreInsert store path pos [Node node []]
+treeStoreInsert ::
+    TreeStore a -- ^ the store
+ -> TreePath    -- ^ @path@ - the position of the parent
+ -> Int         -- ^ @pos@ - the index of the new tree
+ -> a           -- ^ the value to be inserted
+ -> IO ()
+treeStoreInsert store path pos node =
+  treeStoreInsertForest store path pos [Node node []]
 
 -- | Insert nodes into a forest.
 --
@@ -496,6 +518,12 @@ deleteFromForest forest (p:ps) =
     (prev, []) -> Nothing
 
 
+-- | Set a node in the store.
+--
+treeStoreSetValue :: TreeStore a -> TreePath -> a -> IO ()
+treeStoreSetValue store path value = treeStoreChangeM store path (\_ -> return value)
+                                  >> return ()
+
 
 -- | Change a node in the store.
 --
@@ -548,26 +576,24 @@ changeForest forest act (p:ps) = case splitAt p forest of
 	Just for -> return $ Just (prev++Node { rootLabel = val,
 						subForest = for }:next)
 
--- | Extract the current data from the model.
---
-treeStoreGet :: TreeStore a -> IO (Forest a)
-treeStoreGet (TreeStore store) = do
-  Store { content = cache } <- readIORef (customTreeModelGetPrivate store)
-  return (cacheToStore cache)
-
--- | Extract one node from the current model. Returns 'Nothing' if the given
+-- | Extract one node from the current model. Fails if the given
 --   'TreePath' refers to a non-existent node.
 --
-treeStoreGetNode :: TreeStore a -> TreePath -> IO (Maybe a)
-treeStoreGetNode (TreeStore model) path = do
+treeStoreGetValue :: TreeStore a -> TreePath -> IO a
+treeStoreGetValue model path = fmap rootLabel (treeStoreGetTree model path)
+
+-- | Extract a subtree from the current model. Fails if the given
+--   'TreePath' refers to a non-existent node.
+--
+treeStoreGetTree :: TreeStore a -> TreePath -> IO (Tree a)
+treeStoreGetTree (TreeStore model) path = do
   store@Store { depth = d, content = cache } <- 
       readIORef (customTreeModelGetPrivate model)
   case fromPath d path of
-    Nothing -> return Nothing
     (Just iter) -> do
       let (res, cache') = checkSuccess d iter cache
       writeIORef (customTreeModelGetPrivate model) store { content = cache' }
-      if not res then return Nothing else
-        case cache' of
-          ((_,Node { rootLabel = val }:_):_) -> return (Just val)
-          _ -> return Nothing
+      case cache' of
+        ((_,node:_):_) | res -> return node
+        _ -> fail ("treeStoreGetTree: path does not exist " ++ show path)
+    _ -> fail ("treeStoreGetTree: path does not exist " ++ show path)
