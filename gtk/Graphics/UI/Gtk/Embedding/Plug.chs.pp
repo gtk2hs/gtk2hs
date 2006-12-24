@@ -75,7 +75,7 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.Embedding.Embedding (NativeWindowId)
+import Graphics.UI.Gtk.Embedding.Embedding
 
 {# context lib="gtk" prefix="gtk" #}
 
