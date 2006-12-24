@@ -1,10 +1,10 @@
 module Main where
 
-import Graphics.UI.Gtk hiding (treeStoreNew)
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.ModelView as New
 
 import qualified Data.Tree as Tree
 
-import Graphics.UI.Gtk.TreeList.TreeStoreAxel (treeStoreNew)
 
 main = do
   initGUI
@@ -13,31 +13,31 @@ main = do
 
   -- create a new TreeView Widget
   model <- storeImpl
-  view <- treeViewNewWithModel model
-  treeViewSetHeadersVisible view True
+  view <- New.treeViewNewWithModel model
+  New.treeViewSetHeadersVisible view True
   containerAdd win view
 
   -- add a couple columns
-  renderer1 <- cellRendererTextNew
-  col1 <- treeViewColumnNew
-  treeViewColumnPackStart col1 renderer1 True
-  cellLayoutSetAttributes col1 renderer1 model $ \row -> [ cellText := name row ]
-  treeViewColumnSetTitle col1 "String column"
-  treeViewAppendColumn view col1
+  renderer1 <- New.cellRendererTextNew
+  col1 <- New.treeViewColumnNew
+  New.treeViewColumnPackStart col1 renderer1 True
+  New.cellLayoutSetAttributes col1 renderer1 model $ \row -> [ New.cellText := name row ]
+  New.treeViewColumnSetTitle col1 "String column"
+  New.treeViewAppendColumn view col1
 
-  renderer2 <- cellRendererTextNew
-  col2 <- treeViewColumnNew
-  treeViewColumnPackStart col2 renderer2 True
-  cellLayoutSetAttributes col2 renderer2 model $ \row -> [ cellText := show (number row) ]
-  treeViewColumnSetTitle col2 "Int column"
-  treeViewAppendColumn view col2
+  renderer2 <- New.cellRendererTextNew
+  col2 <- New.treeViewColumnNew
+  New.treeViewColumnPackStart col2 renderer2 True
+  New.cellLayoutSetAttributes col2 renderer2 model $ \row -> [ New.cellText := show (number row) ]
+  New.treeViewColumnSetTitle col2 "Int column"
+  New.treeViewAppendColumn view col2
 
-  renderer3 <- cellRendererToggleNew
-  col3 <- treeViewColumnNew
-  treeViewColumnPackStart col3 renderer3 True
-  cellLayoutSetAttributes col3 renderer3 model $ \row -> [ cellActive := marked row ]
-  treeViewColumnSetTitle col3 "Check box column"
-  treeViewAppendColumn view col3
+  renderer3 <- New.cellRendererToggleNew
+  col3 <- New.treeViewColumnNew
+  New.treeViewColumnPackStart col3 renderer3 True
+  New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellActive := marked row ]
+  New.treeViewColumnSetTitle col3 "Check box column"
+  New.treeViewAppendColumn view col3
   
   widgetShowAll win
   mainGUI 
@@ -45,7 +45,7 @@ main = do
 data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
 storeImpl =
-  treeStoreNew
+  New.treeStoreNew
     [Tree.Node {
        Tree.rootLabel = Phone { name = "Foo", number = 1, marked = False },
        Tree.subForest = [leafNode Phone { name = "Bar", number = 11, marked = True  }

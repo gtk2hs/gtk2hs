@@ -2,18 +2,9 @@ module Main where
 
 import qualified Data.Tree as Tree
 
-import Graphics.UI.Gtk hiding (
-  listStorePrepend,
-  listStoreAppend,
-  listStoreInsert,
-  listStoreSetValue,
-  listStoreRemove,
-  listStoreClear,
-  listStoreNew
-  )
+import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Glade
-
-import Graphics.UI.Gtk.TreeList.ListStoreNew
+import Graphics.UI.Gtk.ModelView as New
 
 main = do
   initGUI
@@ -41,7 +32,7 @@ main = do
 
   -- create a new list store
   store <- storeImpl
-  treeViewSetModel view store
+  New.treeViewSetModel view store
   setupView view store
 
   let getValues = do
@@ -54,58 +45,58 @@ main = do
           marked = marked
         }
 
-  onClicked prependButton $ getValues >>= listStorePrepend store
-  onClicked appendButton $ getValues >>= listStoreAppend store
+  onClicked prependButton $ getValues >>= New.listStorePrepend store
+  onClicked appendButton $ getValues >>= New.listStoreAppend store
 
   onClicked insertButton $ do
     value <- getValues
     index <- fmap floor $ spinButtonGetValue newIndex
-    listStoreInsert store index value
+    New.listStoreInsert store index value
 
   onClicked updateButton $ do
     value <- getValues
     index <- fmap floor $ spinButtonGetValue updateIndex
-    listStoreSetValue store index value
+    New.listStoreSetValue store index value
   
   onClicked removeButton $ do
     index <- fmap floor $ spinButtonGetValue removeIndex
-    listStoreRemove store index
+    New.listStoreRemove store index
 
-  onClicked clearButton $ listStoreClear store
+  onClicked clearButton $ New.listStoreClear store
   
 --  containerAdd win view
   widgetShowAll win
   mainGUI 
 
 setupView view model = do
-  treeViewSetHeadersVisible view True
+  New.treeViewSetHeadersVisible view True
 
   -- add a couple columns
-  renderer1 <- cellRendererTextNew
-  col1 <- treeViewColumnNew
-  treeViewColumnPackStart col1 renderer1 True
-  cellLayoutSetAttributes col1 renderer1 model $ \row -> [ cellText := name row ]
-  treeViewColumnSetTitle col1 "String column"
-  treeViewAppendColumn view col1
+  renderer1 <- New.cellRendererTextNew
+  col1 <- New.treeViewColumnNew
+  New.treeViewColumnPackStart col1 renderer1 True
+  New.cellLayoutSetAttributes col1 renderer1 model $ \row -> [ New.cellText := name row ]
+  New.treeViewColumnSetTitle col1 "String column"
+  New.treeViewAppendColumn view col1
 
-  renderer2 <- cellRendererTextNew
-  col2 <- treeViewColumnNew
-  treeViewColumnPackStart col2 renderer2 True
-  cellLayoutSetAttributes col2 renderer2 model $ \row -> [ cellText := show (number row) ]
-  treeViewColumnSetTitle col2 "Int column"
-  treeViewAppendColumn view col2
+  renderer2 <- New.cellRendererTextNew
+  col2 <- New.treeViewColumnNew
+  New.treeViewColumnPackStart col2 renderer2 True
+  New.cellLayoutSetAttributes col2 renderer2 model $ \row -> [ New.cellText := show (number row) ]
+  New.treeViewColumnSetTitle col2 "Int column"
+  New.treeViewAppendColumn view col2
 
-  renderer3 <- cellRendererToggleNew
-  col3 <- treeViewColumnNew
-  treeViewColumnPackStart col3 renderer3 True
-  cellLayoutSetAttributes col3 renderer3 model $ \row -> [ cellActive := marked row ]
-  treeViewColumnSetTitle col3 "Check box column"
-  treeViewAppendColumn view col3
+  renderer3 <- New.cellRendererToggleNew
+  col3 <- New.treeViewColumnNew
+  New.treeViewColumnPackStart col3 renderer3 True
+  New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellActive := marked row ]
+  New.treeViewColumnSetTitle col3 "Check box column"
+  New.treeViewAppendColumn view col3
 
 data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
 storeImpl =
-  listStoreNew
+  New.listStoreNew
     [Phone { name = "Foo", number = 12345, marked = False }
     ,Phone { name = "Bar", number = 67890, marked = True  }
     ,Phone { name = "Baz", number = 39496, marked = False }]

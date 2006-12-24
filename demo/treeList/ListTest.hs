@@ -1,18 +1,7 @@
 module Main where
 
-import Graphics.UI.Gtk hiding (
-  listStorePrepend,
-  listStoreAppend,
-  listStoreInsert,
-  listStoreSetValue,
-  listStoreRemove,
-  listStoreClear,
-  listStoreNew
-  )
-
-import Graphics.UI.Gtk.TreeList.ListStoreNew
-import Graphics.UI.Gtk.TreeList.CellLayout
-
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.ModelView as New
 
 data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
@@ -23,38 +12,38 @@ main = do
   onDestroy win mainQuit
 
   -- create a new list model
-  model <- listStoreNew
+  model <- New.listStoreNew
     [Phone { name = "Foo", number = 12345, marked = False }
     ,Phone { name = "Bar", number = 67890, marked = True  }
     ,Phone { name = "Baz", number = 39496, marked = False }]
-  view <- treeViewNewWithModel model
+  view <- New.treeViewNewWithModel model
 
-  treeViewSetHeadersVisible view True
+  New.treeViewSetHeadersVisible view True
 
   -- add a couple columns
-  col1 <- treeViewColumnNew
-  col2 <- treeViewColumnNew
-  col3 <- treeViewColumnNew
+  col1 <- New.treeViewColumnNew
+  col2 <- New.treeViewColumnNew
+  col3 <- New.treeViewColumnNew
 
-  treeViewColumnSetTitle col1 "String column"
-  treeViewColumnSetTitle col2 "Int column"
-  treeViewColumnSetTitle col3 "Bool column"
+  New.treeViewColumnSetTitle col1 "String column"
+  New.treeViewColumnSetTitle col2 "Int column"
+  New.treeViewColumnSetTitle col3 "Bool column"
 
-  renderer1 <- cellRendererTextNew
-  renderer2 <- cellRendererTextNew
-  renderer3 <- cellRendererToggleNew
+  renderer1 <- New.cellRendererTextNew
+  renderer2 <- New.cellRendererTextNew
+  renderer3 <- New.cellRendererToggleNew
 
-  cellLayoutPackStart col1 renderer1 True
-  cellLayoutPackStart col2 renderer2 True
-  cellLayoutPackStart col3 renderer3 True
+  New.cellLayoutPackStart col1 renderer1 True
+  New.cellLayoutPackStart col2 renderer2 True
+  New.cellLayoutPackStart col3 renderer3 True
 
-  cellLayoutSetAttributes col1 renderer1 model $ \row -> [ cellText := name row ]
-  cellLayoutSetAttributes col2 renderer2 model $ \row -> [ cellText := show (number row) ]
-  cellLayoutSetAttributes col3 renderer3 model $ \row -> [ cellActive := marked row ]
+  New.cellLayoutSetAttributes col1 renderer1 model $ \row -> [ New.cellText := name row ]
+  New.cellLayoutSetAttributes col2 renderer2 model $ \row -> [ New.cellText := show (number row) ]
+  New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellActive := marked row ]
 
-  treeViewAppendColumn view col1
-  treeViewAppendColumn view col2
-  treeViewAppendColumn view col3
+  New.treeViewAppendColumn view col1
+  New.treeViewAppendColumn view col2
+  New.treeViewAppendColumn view col3
 
   containerAdd win view
   widgetShowAll win

@@ -1,10 +1,11 @@
 -- Test file for the ListView widget.
 module Main(main) where
 
-import Graphics.UI.Gtk hiding (listStoreNew)
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.ModelView as New
+
 import System.Directory
 import System.Posix.Files
-import Graphics.UI.Gtk.TreeList.ListStoreNew
 
 data FileInfo = FileInfo {
   fName :: String,
@@ -23,23 +24,23 @@ main = do
     return FileInfo { fName = f,
 		      fSize = fromIntegral (fileSize status) }
 
-  store <- listStoreNew fInfos
+  store <- New.listStoreNew fInfos
 
-  tv <- treeViewNewWithModel store
+  tv <- New.treeViewNewWithModel store
   win `containerAdd` tv
 
-  tvc <- treeViewColumnNew
-  treeViewAppendColumn tv tvc
+  tvc <- New.treeViewColumnNew
+  New.treeViewAppendColumn tv tvc
 
-  text <- cellRendererTextNew
-  treeViewColumnPackStart tvc text True
-  cellLayoutSetAttributes tvc text store
-    (\FileInfo { fName = name } -> [cellText := name])
+  text <- New.cellRendererTextNew
+  New.treeViewColumnPackStart tvc text True
+  New.cellLayoutSetAttributes tvc text store
+    (\FileInfo { fName = name } -> [New.cellText := name])
 
-  size <- cellRendererTextNew
-  treeViewColumnPackStart tvc size True
-  cellLayoutSetAttributes tvc size store
-    (\FileInfo { fSize = size } -> [cellText := show size])
+  size <- New.cellRendererTextNew
+  New.treeViewColumnPackStart tvc size True
+  New.cellLayoutSetAttributes tvc size store
+    (\FileInfo { fSize = size } -> [New.cellText := show size])
 
   widgetShowAll win
   mainGUI
