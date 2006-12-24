@@ -1451,7 +1451,7 @@ package.conf.inplace:
 		-e 's|$${pkglibdir}|.|' \
 		-e 's|$${modules}|$(call getModules,$(pkg))|' \
 		$(call getVar,$(pkg),CONFIG) \
-		| $(GHCPKG) update - --force -f $@; )
+		| $(GHCPKG) update - --force --package-conf=$@; )
 
 .DELETE_ON_ERROR: package.conf.inplace
 
