@@ -102,8 +102,10 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufScaleSimple,
   pixbufScale,
   pixbufComposite,
+#if GTK_CHECK_VERSION(2,6,0)
   pixbufFlipHorazontally,
   pixbufFlipVertically,
+#endif
   pixbufRotateSimple,
   PixbufRotation(..),
   pixbufAddAlpha,
@@ -593,6 +595,7 @@ pixbufComposite src dest destX destY destWidth destHeight
   (realToFrac scaleX) (realToFrac scaleY)
   ((fromIntegral . fromEnum) interp) (fromIntegral alpha)
 
+#if GTK_CHECK_VERSION(2,6,0)
 -- | Flips a pixbuf horizontally and returns the result in a new pixbuf.
 --
 pixbufFlipHorazontally :: Pixbuf -> IO Pixbuf
@@ -610,6 +613,7 @@ pixbufFlipVertically self =
   {# call pixbuf_flip #}
     self
     (fromBool False)
+#endif
 
 -- | Rotates a pixbuf by a multiple of 90 degrees, and returns the result in a
 -- new pixbuf.
