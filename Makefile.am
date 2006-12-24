@@ -1571,14 +1571,19 @@ EXTRA_DIST +=								\
 		demo/profileviewer/Makefile				\
 	demo/sourceview/SourceViewTest.hs demo/sourceview/Makefile	\
 		demo/sourceview/haskell.lang				\
-	demo/treeList/ListTest.hs demo/treeList/Makefile		\
+	demo/treeList/ListTest.hs demo/treeList/ListTest2.hs		\
+		demo/treeList/SimpleList.hs demo/treeList/TreeTest.hs	\
+		demo/treeList/Makefile					\
 	demo/unicode/Arabic.hs demo/unicode/Makefile			\
 	demo/calc/CalcModel.hs demo/calc/Calc.hs demo/calc/Makefile	\
 		demo/calc/calc.glade					\
 	demo/fastdraw/FastDraw.hs demo/fastdraw/Makefile		\
 	demo/actionMenu/ActionMenu.hs demo/actionMenu/Makefile		\
-	demo/cairo/StarAndRing.hs demo/cairo/Text.hs			\
-		demo/cairo/Drawing.hs demo/cairo/Makefile
+	demo/cairo/CairoGhci.hs demo/cairo/Clock.hs			\
+		demo/cairo/Drawing.hs demo/cairo/Drawing2.hs		\
+		demo/cairo/Graph.hs demo/cairo/StarAndRing.hs		\
+		demo/cairo/Text.hs demo/cairo/Makefile 			\
+		demo/cairo/cairo-clock-icon.png
 
 #
 #       installing and registering packages with the Haskell compiler
