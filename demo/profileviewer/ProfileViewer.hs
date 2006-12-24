@@ -16,15 +16,16 @@
 module Main where
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Mogul
 import Graphics.UI.Gtk.Glade
+import Graphics.UI.Gtk.ModelView as New
 
 import ParseProfile
 
-import Maybe (isJust, fromJust)
-import Monad (when)
-import List  (unfoldr, intersperse)
-import System (getArgs)
+import Data.Maybe         (isJust, fromJust)
+import Control.Monad      (when)
+import Data.List          (unfoldr, intersperse)
+import qualified Data.Tree as Tree
+import System.Environment (getArgs)
 import Data.IORef
 
 main :: IO ()
@@ -36,15 +37,11 @@ main = do
   -- initialisation stuff
   initGUI
 
-  dialogXmlM <- xmlNew "ProfileViewer.glade"
-  let dialogXml = case dialogXmlM of
-        (Just dialogXml) -> dialogXml
-        Nothing -> error $ "can't find the glade file \"ProfileViewer.glade\""
-                        ++ "in the current directory"
+  Just dialogXml <- xmlNew "ProfileViewer.glade"
 
   -- get a handle on a various objects from the glade file
   mainWindow <- xmlGetWidget dialogXml castToWindow "mainWindow"
-  mainWindow `onDestroy` mainQuit
+  onDestroy mainWindow mainQuit
 
   mainView <- xmlGetWidget dialogXml castToTreeView "mainView"
 
@@ -54,38 +51,37 @@ main = do
   totalAllocLabel <- xmlGetWidget dialogXml castToLabel "totalAllocLabel"
   
   -- create the tree model
-  skel <- emptyTreeSkel
-  
-  let createTextColumn name = do
-        (attr, _, set) <- treeSkelAddAttribute skel cellText
-        column <- newTreeViewColumn
-        column `treeViewColumnSetTitle` name
-        mainView `treeViewAppendColumn` column
-        renderer <- treeViewColumnNewText column True True
-        renderer `treeViewColumnAssociate` [attr]
-        return set
+  store <- New.treeStoreNew []
+  New.treeViewSetModel mainView store
+
+  let createTextColumn name field = do
+        column <- New.treeViewColumnNew
+        New.treeViewAppendColumn mainView column
+        New.treeViewColumnSetTitle column name
+        cell <- New.cellRendererTextNew
+        New.treeViewColumnPackStart column cell True
+        New.cellLayoutSetAttributes column cell store
+          (\record -> [New.cellText := field record])
 
   -- create the various columns in both the model and view
-  setCostCentre <- createTextColumn "Cost Centre"
-  setModule     <- createTextColumn "Module"
-  setEntries    <- createTextColumn "Entries"
-  setIndiTime   <- createTextColumn "Individual %time"
-  setIndiAlloc  <- createTextColumn "Individual %alloc"
-  setInhTime    <- createTextColumn "Inherited %time"
-  setInhAlloc   <- createTextColumn "Inherited %alloc"
-
-  store <- newTreeStore skel
-  mainView `treeViewSetModel` store
+  createTextColumn "Cost Centre"       costCentre
+  createTextColumn "Module"            moduleName
+  createTextColumn "Entries"           (show.entries)
+  createTextColumn "Individual %time"  (show.(/10).fromIntegral.individualTime)
+  createTextColumn "Individual %alloc" (show.(/10).fromIntegral.individualAlloc)
+  createTextColumn "Inherited %time"   (show.(/10).fromIntegral.inheritedTime)
+  createTextColumn "Inherited %alloc"  (show.(/10).fromIntegral.inheritedAlloc)
 
   -- this action clears the tree model and then populates it with the
   -- profile contained in the profileVar, taking into account the current
   -- threshold value kept in the thresholdVar 
   let repopulateTreeStore = do
         profile <- readIORef profileVar
-        when (isJust profile)
-             (repopulateTreeStore' $ fromJust profile)
+        maybe (return ()) repopulateTreeStore' profile
+
       repopulateTreeStore' profile = do
-        treeStoreClear store
+        New.treeStoreClear store
+
         titleLabel `labelSetText` (title profile)
         commandLabel `labelSetText` (command profile)
         totalTimeLabel `labelSetText` (show (totalTime profile) ++ " sec")
@@ -95,21 +91,11 @@ main = do
         let node = if threshold > 0
                      then pruneOnThreshold threshold (breakdown profile)
                      else Just (breakdown profile)
-        when (isJust node)
-             (addProfileNode Nothing (fromJust node))
-
-      addProfileNode :: Maybe TreeIter -> ProfileNode -> IO ()
-      addProfileNode parentNode profile = do
-        iter <- treeStoreAppend store parentNode
-        setCostCentre iter (costCentre profile)
-        setModule     iter (moduleName profile)
-        setEntries    iter (show $ entries profile)
-        setIndiTime   iter (show $ fromIntegral (individualTime profile) / 10)
-        setIndiAlloc  iter (show $ fromIntegral (individualAlloc profile)/ 10)
-        setInhTime    iter (show $ fromIntegral (inheritedTime profile)  / 10)
-        setInhAlloc   iter (show $ fromIntegral (inheritedAlloc profile) / 10)
-	return iter
-        mapM_ (addProfileNode (Just iter)) (children profile)
+            toTree :: ProfileNode -> Tree.Tree ProfileNode
+            toTree = Tree.unfoldTree (\node -> (node, children node))
+        case node of
+          Nothing -> return ()
+          Just node -> New.treeStoreInsertTree store [] 0 (toTree node)
 
   -- associate actions with the menus
   
@@ -166,7 +152,7 @@ openFileDialog parentWindow = do
   case response of
       ResponseAccept -> fileChooserGetFilename dialog
       _ -> return Nothing
- 
+
 -- just to display a number using thousand seperators
 -- eg "3,456,235,596"
 formatNumber :: Integer -> String
@@ -181,19 +167,19 @@ showAboutDialog :: Window -> IO ()
 showAboutDialog parent = do
   -- create the about dialog
   aboutDialog <- aboutDialogNew
-  
+
   -- set some attributes
   set aboutDialog [
       aboutDialogName      := "profileviewer",
-      aboutDialogVersion   := "0.1",
+      aboutDialogVersion   := "0.2",
       aboutDialogCopyright := "Duncan Coutts",
       aboutDialogComments  := "A viewer for GHC time profiles.",
       aboutDialogWebsite   := "http://haskell.org/gtk2hs/"
     ]
-  
+
   -- make the about dialog appear above the main window
   windowSetTransientFor aboutDialog parent
-  
+
   -- make the dialog non-modal. When the user closes the dialog destroy it.
-  aboutDialog `afterResponse` (\_ -> widgetDestroy aboutDialog)
+  afterResponse aboutDialog $ \_ -> widgetDestroy aboutDialog
   widgetShow aboutDialog
