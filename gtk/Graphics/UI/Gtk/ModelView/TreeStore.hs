@@ -45,6 +45,7 @@ module Graphics.UI.Gtk.ModelView.TreeStore (
   treeStoreInsertTree,
 
   treeStoreRemove,
+  treeStoreClear,
   ) where
 
 import Data.Bits
@@ -498,6 +499,19 @@ treeStoreRemove (TreeStore model) path = do
       treeModelRowHasChildToggled model parent iter
     treeModelRowDeleted model path
   return found
+
+treeStoreClear :: TreeStore a -> IO ()
+treeStoreClear (TreeStore model) = do
+  customTreeModelInvalidateIters model
+  Store { content = cache } <- readIORef (customTreeModelGetPrivate model)
+  let forest = cacheToStore cache
+  writeIORef (customTreeModelGetPrivate model) Store {
+      depth = calcForestDepth [],
+      content = storeToCache []
+    }
+  let loop (-1) = return ()
+      loop   n  = treeModelRowDeleted model [n] >> loop (n-1)
+  loop (length forest - 1)
 
 -- | Remove a node from a rose tree.
 --
