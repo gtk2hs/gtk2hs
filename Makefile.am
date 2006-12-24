@@ -1583,7 +1583,8 @@ EXTRA_DIST +=								\
 		demo/cairo/Drawing.hs demo/cairo/Drawing2.hs		\
 		demo/cairo/Graph.hs demo/cairo/StarAndRing.hs		\
 		demo/cairo/Text.hs demo/cairo/Makefile 			\
-		demo/cairo/cairo-clock-icon.png
+		demo/cairo/cairo-clock-icon.png				\
+	demo/opengl/RotatingCube.hs demo/opengl/Makefile
 
 #
 #       installing and registering packages with the Haskell compiler
