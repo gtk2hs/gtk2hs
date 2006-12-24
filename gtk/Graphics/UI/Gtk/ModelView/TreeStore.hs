@@ -264,7 +264,7 @@ storeToCache forest = [(invalidIter, [Node root forest])]
 -- | Extract the store from the cache data structure.
 cacheToStore :: Cache a -> Forest a
 cacheToStore [] = []
-cacheToStore cache = let (_, [Node _ forest]) = last cache in forest
+cacheToStore cache = case last cache of (_, [Node _ forest]) -> forest
 
 -- | Advance the traversal structure to the given 'TreeIter'.
 --
