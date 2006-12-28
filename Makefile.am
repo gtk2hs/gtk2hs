@@ -1443,6 +1443,8 @@ endif
 # package.conf.inplace package db and register all our packages in it. Then we
 # use this package db when building the other packages.
 
+if USE_NEW_PKG_FORMAT
+
 package.conf.inplace:
 	echo "[]" > $@
 	$(foreach pkg,$(pkglib_LIBRARIES), \
@@ -1452,6 +1454,20 @@ package.conf.inplace:
 		-e 's|$${modules}|$(call getModules,$(pkg))|' \
 		$(call getVar,$(pkg),CONFIG) \
 		| $(GHCPKG) update - --force --package-conf=$@; )
+
+else
+
+package.conf.inplace:
+	echo "[]" > $@
+	$(foreach pkg,$(pkglib_LIBRARIES), \
+	$(SED)  -e 's|$${pkglibdir}/imports|.|' \
+		-e 's|"$${pkglibdir}/include"|.|' \
+		-e 's|$${pkglibdir}|.|' \
+		-e 's|$${modules}|$(call getModules,$(pkg))|' \
+		$(call getVar,$(pkg),CONFIG) \
+		| $(GHCPKG) --update-package --input=- --force | --config-file=$@; )
+
+endif
 
 .DELETE_ON_ERROR: package.conf.inplace
 
