@@ -56,8 +56,8 @@ module Binary
 
 import FastMutInt
 
-import Data.Map (Map)
-import qualified Data.Map as Map
+import Map (Map)
+import qualified Map as Map
 # if __GLASGOW_HASKELL__>=602
 import Data.HashTable as HashTable
 # endif

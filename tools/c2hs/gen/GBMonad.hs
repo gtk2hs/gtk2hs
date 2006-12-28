@@ -80,8 +80,8 @@ import Maybe	  (fromMaybe)
 import Common     (Position, Pos(posOf), nopos, builtinPos)
 import Errors	  (interr)
 import Idents     (Ident, identToLexeme, onlyPosIdent)
-import Data.Map   (Map)
-import qualified Data.Map as Map (empty, insert, lookup, fromList, toList, union)
+import Map        (Map)
+import qualified  Map as Map (empty, insert, lookup, fromList, toList, union)
 
 -- C -> Haskell
 import C	  (CT, readCT, transCT, raiseErrorCTExc)

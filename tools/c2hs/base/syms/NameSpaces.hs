@@ -42,8 +42,8 @@ module NameSpaces (NameSpace, nameSpace, defGlobal, enterNewRange, leaveRange,
 where
 
 import Common	  (Position, Pos(posOf))	      -- for importing `Idents'
-import Data.Map   (Map)
-import qualified Data.Map as Map (empty, insert, lookup, toList)
+import Map        (Map)
+import qualified  Map as Map (empty, insert, lookup, toList)
 import Idents     (Ident)
 import Errors     (interr)
 import Binary     (Binary(..))

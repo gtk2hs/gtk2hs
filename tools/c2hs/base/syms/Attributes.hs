@@ -94,8 +94,8 @@ import Common     (Position, Pos(posOf), nopos, isNopos, dontCarePos,
 import Errors     (interr)
 import UNames	  (NameSupply, Name,
 		   rootSupply, splitSupply, names)
-import Data.Map   (Map)
-import qualified Data.Map as Map (fromList, toList, insert,
+import Map        (Map)
+import qualified  Map as Map (fromList, toList, insert,
 		   Map.findWithDefault, empty)
 import Binary     (Binary(..), putByte, getByte)
 

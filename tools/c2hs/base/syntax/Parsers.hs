@@ -83,8 +83,8 @@ where
 import List       (sort)
 
 import Common     (Position, Pos (posOf), nopos)
-import Data.Map   (Map)
-import qualified Data.Map as Map (singleton, unionWith, map, lookup, toList)
+import Map        (Map)
+import qualified  Map as Map (singleton, unionWith, map, lookup, toList)
 import Errors     (interr, ErrorLvl(..), Error, makeError)
 
 infix  5 `opt`
