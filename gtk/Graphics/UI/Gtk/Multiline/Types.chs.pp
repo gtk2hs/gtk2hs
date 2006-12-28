@@ -24,7 +24,6 @@ module Graphics.UI.Gtk.Multiline.Types (
 
 -- * Types
   TextIter(TextIter),
-  TextSearchFlags(..),
 
 -- * Methods
   textIterCopy,
@@ -32,18 +31,8 @@ module Graphics.UI.Gtk.Multiline.Types (
   makeEmptyTextIter
   ) where
 
-import Monad	(liftM)
-import Maybe	(fromMaybe)
-import Char	(chr)
-
 import System.Glib.FFI
-import System.Glib.Flags		(fromFlags)
-import System.Glib.UTFString
-import System.Glib.GObject		(makeNewGObject)
-{#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Structs	(textIterSize)
-import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -54,36 +43,25 @@ import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
 -- | Copy the iterator.
 --
 textIterCopy :: TextIter -> IO TextIter
-textIterCopy ti = do
-  iterPtr <- {#call unsafe text_iter_copy#} ti
-  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
+textIterCopy (TextIter iter) = do
+  iter' <- mallocForeignPtrBytes textIterSize
+  withForeignPtr iter' $ \iterPtr' ->
+    withForeignPtr iter $ \iterPtr ->
+      copyBytes iterPtr' iterPtr textIterSize
+  return (TextIter iter')
 
--- Create a copy of a TextIter from a pointer.
+-- | Interal marshaling util
 --
 mkTextIterCopy :: Ptr TextIter -> IO TextIter
 mkTextIterCopy iterPtr = do
-  iterPtr <- gtk_text_iter_copy iterPtr
-  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
+  iter' <- mallocForeignPtrBytes textIterSize
+  withForeignPtr iter' $ \iterPtr' ->
+    copyBytes iterPtr' iterPtr textIterSize
+  return (TextIter iter')
 
-#if __GLASGOW_HASKELL__>=600
-
-foreign import ccall unsafe "&gtk_text_iter_free"
-  text_iter_free' :: FinalizerPtr TextIter
-
-text_iter_free :: Ptr TextIter -> FinalizerPtr TextIter
-text_iter_free _ = text_iter_free'
-
-#else
-
-foreign import ccall unsafe "gtk_text_iter_free"
-  text_iter_free :: Ptr TextIter -> IO ()
-
-#endif
-
--- Allocate memory to be filled with a TextIter.
+-- | Allocate memory to be filled with a TextIter.
 --
 makeEmptyTextIter :: IO TextIter
 makeEmptyTextIter = do
-  iterPtr <- mallocBytes textIterSize
-  liftM TextIter $ newForeignPtr iterPtr (text_iter_free iterPtr)
-
+  iter <- mallocForeignPtrBytes textIterSize
+  return (TextIter iter)

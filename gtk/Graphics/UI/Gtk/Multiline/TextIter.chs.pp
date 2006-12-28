@@ -153,7 +153,6 @@ import System.Glib.GObject		(makeNewGObject)
 import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Structs	(textIterSize)
 import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
 {#import Graphics.UI.Gtk.Multiline.Types#}
 
