@@ -1,91 +1,183 @@
-Intro Tutorial
-Duncan Coutts
-November 2006
+Gtk2Hs: Getting Started
+Duncan Coutts, Hans van Thiel
+November, December  2006
 
-This is just a sketch/skeleton of what a tutorial could look like. Feel free to
-"darcs send" your contributions so we can turn it into a real tutorial.
+This is an unreviewed first draft of a //Getting Started// tutorial to Gtk2Hs.
 
 == Introduction ==
 
-Want to say who this tutorial is aimed at etc.
+GTK+ started life as the Gimp Tool Kit, that is, the user interface library for the Gimp drawing program. It has grown to a general-purpose, multi-platform user interface library, with bindings for many programming languages. This tutorial describes Gtk2Hs, a binding for the functional programming language Haskell. Gtk+ and Gtk2Hs offer a large number of widgets, ranging from windows and buttons to menus and tree widgets that feature a separation of the GUI element (the view) from the data store (the model). The toolkit includes a visual interface designer, Glade, which stores the composition of several widgets (user interface elements), their layout and many attributes in an XML file. 
+An application can use Gtk2Hs to load these so created windows at runtime and connect the individual widgets to the application logic. Of course, anything that can be created using Glade can also be constructed programatically. Building and destroying, accessing and manipulating widgets is all done through the Gtk2Hs library [API http://haskell.org/gtk2hs/docs/current/].
+
+Gtk+ itself is written in C, even though the widgets are described in an objects-oriented fashion with attributes and methods, derived from a single root object. This class hierarchy is reflected in Gtk2Hs using the Haskell type classes and data types. Gtk2Hs provides a Haskell equivalent to most functions in Gtk+. Since
+a graphical user interface is concerned with input and output of an application, most Gtk2Hs functions live in the Haskell IO monad.
+Users who interact with widgets generate **signals** in GTK+. The application programmer can register **callbacks** with the signal of a given widget and thereby
+determines what happens when the user interacts with the program. The following "Hello World" example shows the basic structure of a program using Gtk2Hs:
 
 == Hello World with Gtk2Hs ==
-
-Start with the most basic working hello world app.
-Then we compile it...
-
-Here's the most basic Gtk2Hs prog:
 
 ```
 import Graphics.UI.Gtk
 
 main = do
   initGUI
-  window <- windowNew
-  widgetShow window
+  window1 <- windowNew
+  windowSetTitle window1 "Hello World"
+  widgetShowAll window1
+  onDestroy window1 mainQuit
   mainGUI
+
 ```
 
 === Compiling Hello World ===
 
-How to compile it with GHC on linux/mac/win32
+This is the command to compile it with GHC on a Unix or Windows platform:
 
-``` $ ghc --make Hello.hs -o hello
+``$ ghc --make Hello.hs -o hello``
+
+[HelloWorld.png]
+
+In older versions of the Glasgow Haskell compiler (before 6.4.2) you can also use ghci but the
+newer versions of ghci use multi-threading, which doesn't work with a graphics toolkit. Because of
+other technical reasons Hugs and YHC don't work either (yet).
 
 === Stepping through Hello World ===
 
-Go through line by line of the hello world code to explain what each one does.
-It should not mention in too much detail how signals work yet, but note that
-they will be explained more fully shorty.
+Each Gtk2Hs program exhibits the following structure which can serve as a template for new programs:
 
-== Signals ==
+```
+import Graphics.UI.Gtk
 
-The concept of event driven GUI programming. What GObject signals are
-(without necessarily mentioning the term GObject yet)
+main = do
+  initGUI
+  ...
+  ... 
+  mainGUI
 
-== Widget Types ==
+```
 
-The way that the class heiriaharcy is represented in Haskell using type
-classes. Breif mention of up casting & downcasting. We'll come back to
-downcasting in the glade section.
+First of all the graphics library must be imported. Then, in ``main``, it must be initialized on the first line with ``initGUI``, and the function that runs the main event loop (which generates the signals) ``mainGUI`` must be on the last line. The actual code of any Gtk2Hs program is always placed between these two functions. 
 
-== Attributes ==
+The next line in the Hello World program is ``window1 <- windowNew``. The [API http://haskell.org/gtk2hs/docs/current/] documents ``windowNew :: IO Window`` as a so called constructor, which creates a new top level window. A window can have attributes, and they are also listed in the [API http://haskell.org/gtk2hs/docs/current/]. One of these is the title, documented as ``windowTitle :: WindowClass self => Attr self String``. This attribute is accessible through methods, and the method to set a title is ``windowSetTitle :: WindowClass self => self -> String -> IO ()``. This all looks very much like standard object oriented programming and is the mapping of GTK+ to the Haskell type system.
 
-Show the
+The window must be shown on the screen before the user can interact with its individual widgets. A window is not the only widget that can be shown on screen and, hence, this method belongs to a super type of ``Window``, namely ``Widget``. It is documented as ``widgetShowAll :: WidgetClass self => self -> IO ()``. There are other possibilities to construct, show or hide widgets, but ``widgetShowAll window1`` is the most common one.
 
-``` set object [ attr := value ]
+The next line contains the only user interaction in Hello World. Closing a window is a **signal**, which is handled by Gtk+ and can, in principle, be ignored in a Gtk2Hs program. However, ``onDestroy`` is the function that a widget sends when it is about to be destroyed. The widget here is ``window1``, and the action to be taken is ``mainQuit``. This causes the termination of ``mainGUI``, which results in the termination of ``main`` and returns to the operating system or shell. Without the
+call to ``mainQuit``, the window would merely close but the application would keep on running.
 
-style syntax. Reccomend it over the more verbose ``objectSetAttr object value``
-style.
+== Widgets at a Glance ==
 
-== Using Glade ==
+Gtk+ is a very powerful and the sheer amount of functions in Gtk2Hs may seem daunting at first. However, there are few basic principles to help. First of all, a particular widget like a window or a button, must be constructed. The functions to do this are always listed in the **Constructors** section. As you can see in the [Window http://www.haskell.org/gtk2hs/docs/current/Graphics-UI-Gtk-Windows-Window.html#1] page, there is only one constructor for a top level window.
 
-We want to encourage people to use Glade to do their widget layout rather than
-doing it all in code. We can explain manual widget layout as a more advanced
-topic next.
+Secondly, widgets will have attributes, listed in the **Attributes** section. Often each of these attributes has a methods to set or query it. However,
+attributes can be queries and set using the following the syntax which is often more concise:
 
-Fortunately we do now have a glade tutorial so we can referr to that.
+ ``get object attr``
 
-== Widget Layout ==
+ ``set object [ attr1 := value1, attr2 := value2 ]``
 
-Doing widget layout in code rather than with Glade.
+So, in the Hello World example, we could have set the window title with ``set window1 [ windowTitle := "Hello World" ]``. The alternative way is to use the object's methods, which are the functions that are associated with a particular widget, listed in the **Methods** section. Note: setting and getting attributes through named methods will be deprecated in the future, in favor of the more general syntax.
 
-== Basic Concepts ==
+Thirdly, a widget will be able to send specific signals, which is documented in the **Signals** section. 
+The general rule here is that there is an ``on`` and ``after`` function per signal. These can be used to specify  control in a Gtk2Hs program. Gtk+ provides a default handler for signals, and the ``on`` functions will run before this, the ``after`` after. Many signals return a Boolean value. If the ``on`` returns ``True`` then the default handler and the ``after`` handler will be run, otherwise they will not. But since most default Gtk+ handlers do nothing, the ``after`` is the one to use after the ``on`` handler has completed. This provides some additional control.
 
-Brief explanation of basic and general concepts. With references to the API
-functions whenever possible. (probably in form of examples?).
+When you look at the signals for a window, you will not see the ``onDestroy`` signal. This is because it is not sent by a window as such, but by the more general widget. Hence, it is listed on the [Widget http://www.haskell.org/gtk2hs/docs/current/Graphics-UI-Gtk-Abstract-Widget.html#6] page of the api. Returning to the [Window http://www.haskell.org/gtk2hs/docs/current/Graphics-UI-Gtk-Windows-Window.html#1] page, you see there is a **Class Hierarchy** section, which shows all the superclasses (ancestors) of a window, and widget is one of them. In fact all Gtk2Hs graphical objects are part of a single tree which starts from ``GObject``. Objects lower in the tree inherit attributes, methods and signals from the higher ones, and you can use the class hierarchy to find them.
 
-- signal
-- event
-- window
-- widget
-- container
-- box
-- layout
-- button
-- label
+Finally, there is a **Types** section on the [Window http://www.haskell.org/gtk2hs/docs/current/Graphics-UI-Gtk-Windows-Window.html#1] page. Everything in Haskell must have a type. For instance, a window object has a type ``Window``, a widget a type ``Widget`` and so on. 
+Besides defining a type for each widget, Gtk2Hs defines a Haskell class for each Gtk+ type.
+For instance, Gtk2Hs defines ``WindowClass``, and ``WidgetClass``, and so on.
 
+In order to provide an inheritance relationship between the widgets, each widget is an instance of one or more Haskell classes. 
+For starters, a widget such as ``Window`` is an instance of its own ``WindowClass`` class.
+The inheritance relationship between a base class ``Widget`` and its more derived ``Window`` is expressed in Haskell by defining an instance ``WidgetClass Window``,
+that is, ``Window`` is declared to have all the functions defines in ``WidgetClass``.
+In general, Gtk2Hs models the type hierarchy of the Gtk+ widgets by making each instance of a class an instance of all the Gtk+ super classes as well. This is what you see in the first instance listing in the [Window http://www.haskell.org/gtk2hs/docs/current/Graphics-UI-Gtk-Windows-Window.html#1] API section. In the second listing of instances,  you see all the instances the ``WindowClass`` can have. One of these is ``Dialog``. When you click on it, you'll find all the classes and superclasses of a Dialog object. The second listing now contains all instances of the ``DialogClass``. This is how the OO class tree is mapped onto the Haskell type system. The instance section also lists functions to perform //casts// of objects from one type into another. 
 
-The idea is to get the user with as general and useful concepts as possible so
-it makes it easier for him to surf the API since the beginning and write simple
-code.
+So, basically, we have objects in Gtk2Hs, which are OOP style objects with mutable state. The object types form a hierarchy, for example ``Widget`` is an ``Object`` and ``Window`` is a ``Widget`` (and an ``Object``). This hierarchy is mapped into the Haskell type system of types and type classes. Objects can have attributes, signals and methods. Each object type has a couple of type casting functions (for safe upcasting and checked downcasting). Most object types have a constructor function so that you can actually create them (though some are abstract, like ``Widget`` or ``Object``).
+
+=== Using Glade ===
+
+To actually build a graphical user interface you must also have some knowledge of how graphical widgets are used in general and in Gtk+ in particular. The actual objects like windows, labels, text boxes, not to mention the more complicated ones, have many attributes and constructed objects (can) interact with each other. Fortunately Gtk+ comes with a visual interface designer, Glade, which is fully supported in Gtk2Hs. There is also a [tutorial http://haskell.org/gtk2hs/docs/tutorial/glade/] for using Glade with Gtk2Hs, translated from the [C version http://www.writelinux.com/glade/] by Eddy Ahmed. [Part 2 http://eddy.writelinux.com/part2/] of this general tutorial is also recommended for learning about actual object dependencies and layout. Here we'll just concentrate on the basic Gtk2Hs usage.
+
+The most important thing is that an actual GUI itself consists of a tree of actual objects with one, usually the main window, at the top. This is a layout tree, not a class tree, of course. The Glade visual interface designer stores your graphical interface in XML format. An XML file is a textual markup file consisting of a tree of elements, which can have attributes. One of these XML attributes is the element identifier ``id`` , which must be unique. In Gtk2Hs you can directly access this file with:
+
+``Just xml <- xmlNew "hellohaskell.glade"``
+
+``xmlNew`` is the standard function and the argument is the file name. ``Just`` is a constructor of ``Maybe``. (Note that ``xml`` is not a keyword, but your variable name.) From the ``xml`` handle you can get all widgets you've made with Glade through the function ``xmlGetWidget``, which has your variable ``xml`` as its argument, as well as the ``id`` identifier of that widget. For example:
+
+```
+window   <- xmlGetWidget xml castToWindow "window1"
+okbutton <- xmlGetWidget xml castToButton "button1"
+clbutton <- xmlGetWidget xml castToButton "button2"
+```
+
+The second argument is a type cast. It is needed because ``xmlGetWidget`` has no way to derive the type of the widget from the textual XML element in the //.glade// file. In the API you'll see the types as ``castToWindow :: GObjectClass obj => obj -> Window``, and so on, all from the general type ``obj`` to the specific type of the particular widget. This is called //downcasting//.
+
+Layout and presentation of widgets is visual by definition, so the obvious way to initialize a GUI is through Glade. Of course the GUI can also be coded directly, and this is the only way to change widgets dynamically.
+
+=== Widget Layout ===
+
+The Gtk2Hs distribution includes some examples (/usr/share/gtk2hs-doc-0.9.10.2/demo/ in fc6). See [Demos http://www.haskell.org/gtk2hs/gallery/Demos] for how they all look.) The ButtonBox is one of these examples.
+
+[bub.png]
+
+```
+module Main (main) where
+
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+
+  -- Create a new window
+  window <- windowNew
+
+  -- Here we connect the "destroy" event to a signal handler.
+  -- This event occurs when we call widgetDestroy on the window,
+  -- or if the user closes the window.
+  window `onDestroy` mainQuit
+
+  -- Sets the border width of the window.
+  set window [ containerBorderWidth := 10 ]
+  
+  hbuttonbox <- hButtonBoxNew
+
+  set window [ containerChild := hbuttonbox ]
+
+  button1 <- buttonNewWithLabel "One"
+  button2 <- buttonNewWithLabel "Two"
+  button3 <- buttonNewWithLabel "Three"
+
+  -- Add each button to the button box with the default packing and padding
+  set hbuttonbox [ containerChild := button
+                 | button <- [button1, button2, button3] ]
+  
+  -- This sets button3 to be a so called 'secondary child'. When the layout
+  -- stlye is ButtonboxStart or ButtonboxEnd, the secondary children are
+  -- grouped seperately from the others. Resize the window to see the effect.
+  --
+  -- This is not interesting in itself but shows how to set child attributes.
+  -- Note that the child attribute 'buttonBoxChildSecondary' takes the
+  -- button box container child 'button3' as a parameter.
+  set hbuttonbox [ buttonBoxLayoutStyle := ButtonboxStart
+		 , buttonBoxChildSecondary button3 := True ]
+
+  -- The final step is to display everything (the window and all the widgets
+  -- contained within it)
+  widgetShowAll window
+
+  -- All Gtk+ applications must run the main event loop. Control ends here and
+  -- waits for an event to occur (like a key press or mouse event).
+  mainGUI
+```
+
+When you compare the code of the ButtonBox with that of Hello World you'll notice the many similarities. The structure of ``main`` is identical, the needed widgets are constructed with constructors, and attributes are set. Note the way the buttons are constructed with labels and the usage of the list comprehension notation to set a ``hbuttonbox`` attribute. The main difference between Button Box and Hello World is the usage of a ``HButtonBox`` for the layout. The ``hbuttonbox`` is a value of the window attribute ``containerChild``. But this attribute is not specific for a window, you'll have to walk up the Class Hierarchy to find it. It is a container attribute. But a HButtonBox is also a (subclass of a) container, and so it also has a ``containerChild`` attribute, which in this case has the list of buttons as its value. Finally, some advanced usage of hButtonBox attributes provides a special effect. This is what the the code yields:
+
+[resized_bub.png]
+
+=== What Next ===
+
+From the [GTK+ http://www.gtk.org/] homepage (quote): GTK+ is based on three libraries developed by the GTK+ team. **GLib** is the low-level core library that forms the basis of GTK+ and GNOME. It provides data structure handling for C, portability wrappers, and interfaces for such runtime functionality as an event loop, threads, dynamic loading, and an object system. **Pango** is a library for layout and rendering of text, with an emphasis on internationalization. It forms the core of text and font handling for GTK+-2.0. The **ATK** library provides a set of interfaces for accessibility. By supporting the ATK interfaces, an application or toolkit can be used with such tools as screen readers, magnifiers, and alternative input devices (end quote). Because Gtk2Hs is an interface to Gtk+, you'll also see this structure in Gtk2Hs (and the [api http://haskell.org/gtk2hs/docs/current/]). Gtk+ and Gtk2Hs also support the 2D graphics **Cairo** library.
+
+Because of all this, Gtk2Hs is potentially very powerful but can be daunting at first. The thing to keep in mind, however, is that it is all about graphical objects like windows, combo boxes and so on. You need to understand those to a larger or lesser degree in order to use them in your programs. Then, there is the way they are handled in GTK+ and then how they are handled in Gtk2Hs. In general Gtk2Hs is easier to use than GTK+ itself, because all the C functionality is encapsulated in standard Gtk2Hs functions, which are all in the [API http://haskell.org/gtk2hs/docs/current/]. The names of these standard functions usually hint at their purpose. Working with Glade also helps to learn about available widgets, their properties, and the way you can combine them. Last but not least, there is the user list (gtk2hs-users@lists.sourceforge.net) where you can discuss Gtk2Hs.
