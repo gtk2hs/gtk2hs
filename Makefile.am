@@ -155,6 +155,7 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/base/general/FNameOps.hs	\
 	tools/c2hs/base/general/GetOpt.hs	\
 	tools/c2hs/base/general/Map.hs		\
+	tools/c2hs/base/general/Set.hs		\
 	tools/c2hs/base/general/UNames.hs	\
 	tools/c2hs/base/general/Utils.hs	\
 	tools/c2hs/base/general/Binary.hs	\

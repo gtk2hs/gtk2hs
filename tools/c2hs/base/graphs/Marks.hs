@@ -42,8 +42,8 @@
 module Marks (Marks, newMarks, mark, isMarked) 
 where
 
-import Data.Set	  (Set)
-import qualified Data.Set as Set (empty, insert, member)
+import Set	  (Set)
+import qualified Set as Set (empty, insert, member)
 import Attributes (Attrs, Attributed(..))
 
 

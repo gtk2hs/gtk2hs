@@ -75,8 +75,8 @@ import Errors    (interr)
 import UNames	 (Name)
 import Idents    (Ident, lexemeToIdent, identToLexeme)
 
-import Data.Set  (Set)
-import qualified Data.Set as Set (fromList, insert, member)
+import Set  (Set)
+import qualified Set as Set (fromList, insert, member)
 
 }
 
