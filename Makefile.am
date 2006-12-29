@@ -1466,7 +1466,7 @@ package.conf.inplace:
 		-e 's|$${pkglibdir}|.|' \
 		-e 's|$${modules}|$(call getModules,$(pkg))|' \
 		$(call getVar,$(pkg),CONFIG) \
-		| $(GHCPKG) --update-package --input=- --force | --config-file=$@; )
+		| $(GHCPKG) --update-package --input=- --force --config-file=$@; )
 
 endif
 
