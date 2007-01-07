@@ -191,6 +191,7 @@ static		{ CTokStatic	_ }	-- 73
 struct		{ CTokStruct	_ }	-- 74
 switch		{ CTokSwitch	_ }	-- 75
 typedef		{ CTokTypedef	_ }	-- 76
+typeof 		{ CTokTypeof	_ }
 union		{ CTokUnion	_ }	-- 77
 unsigned	{ CTokUnsigned	_ }	-- 78
 void		{ CTokVoid	_ }	-- 79
@@ -486,6 +487,8 @@ type_specifier
   | struct_or_union_specifier	{% withAttrs $1 $ CSUType $1 }
   | enum_specifier		{% withAttrs $1 $ CEnumType $1 }
   | tyident			{% withAttrs $1 $ CTypeDef $1 }
+  | typeof '(' expression ')'	{% withAttrs $1 $ CTypeofExpr $3 }
+  | typeof '(' type_name ')'	{% withAttrs $1 $ CTypeofType $3 }
 
 
 -- parse C type qualifier (K&R A8.2)

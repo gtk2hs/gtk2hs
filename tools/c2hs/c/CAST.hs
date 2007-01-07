@@ -281,6 +281,10 @@ data CTypeSpec = CVoidType    Attrs
 			      Attrs
 	       | CTypeDef     Ident		-- typedef name
 			      Attrs
+	       | CTypeofExpr  CExpr
+			      Attrs
+	       | CTypeofType  CDecl		-- type name
+			      Attrs
 
 instance Pos CTypeSpec where
   posOf (CVoidType      at) = posOf at
@@ -295,6 +299,8 @@ instance Pos CTypeSpec where
   posOf (CSUType     _  at) = posOf at
   posOf (CEnumType   _  at) = posOf at
   posOf (CTypeDef    _  at) = posOf at
+  posOf (CTypeofExpr _  at) = posOf at
+  posOf (CTypeofType _  at) = posOf at
 
 instance Eq CTypeSpec where
   (CVoidType     at1) == (CVoidType     at2) = at1 == at2
@@ -309,6 +315,8 @@ instance Eq CTypeSpec where
   (CSUType     _ at1) == (CSUType     _ at2) = at1 == at2
   (CEnumType   _ at1) == (CEnumType   _ at2) = at1 == at2
   (CTypeDef    _ at1) == (CTypeDef    _ at2) = at1 == at2
+  (CTypeofExpr _ at1) == (CTypeofExpr _ at2) = at1 == at2
+  (CTypeofType _ at1) == (CTypeofType _ at2) = at1 == at2
 
 -- C type qualifier (K&R A8.2) (EXPORTED)
 --
@@ -935,6 +943,14 @@ instance Binary CTypeSpec where
             putByte bh 11
             put_ bh an
             put_ bh ao
+    put_ bh (CTypeofExpr ap aq) = do
+            putByte bh 12
+            put_ bh ap
+            put_ bh aq
+    put_ bh (CTypeofType ar as) = do
+            putByte bh 13
+            put_ bh ar
+            put_ bh as
     get bh = do
             h <- getByte bh
             case h of
@@ -977,6 +993,14 @@ instance Binary CTypeSpec where
                     an <- get bh
                     ao <- get bh
                     return (CTypeDef an ao)
+              12 -> do
+                    ap <- get bh
+                    aq <- get bh
+                    return (CTypeofExpr ap aq)
+              13 -> do
+                    ar <- get bh
+                    as <- get bh
+                    return (CTypeofType ar as)
 
 instance Binary CStorageSpec where
     put_ bh (CAuto aa) = do

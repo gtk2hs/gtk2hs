@@ -324,6 +324,9 @@ data CToken = CTokLParen   Position		-- `('
 	    | CTokUnion    Position		-- `union'
 	    | CTokUnsigned Position		-- `unsigned'
 	    | CTokVoid     Position		-- `void'
+	    | CTokTypeof   Position		-- `typeof'
+						-- (or `__typeof',
+						-- `__typeof__')
 	    | CTokVolatile Position		-- `volatile'
 						-- (or `__volatile', 
 						-- `__volatile__')
@@ -425,6 +428,7 @@ instance Pos CToken where
   posOf (CTokUnion    pos  ) = pos
   posOf (CTokUnsigned pos  ) = pos
   posOf (CTokVoid     pos  ) = pos
+  posOf (CTokTypeof   pos  ) = pos
   posOf (CTokVolatile pos  ) = pos
   posOf (CTokWhile    pos  ) = pos
   posOf (CTokCLit     pos _) = pos
@@ -516,6 +520,7 @@ instance Show CToken where
   showsPrec _ (CTokUnion    _  ) = showString "union"
   showsPrec _ (CTokUnsigned _  ) = showString "unsigned"
   showsPrec _ (CTokVoid     _  ) = showString "void"
+  showsPrec _ (CTokTypeof   _  ) = showString "typeof"
   showsPrec _ (CTokVolatile _  ) = showString "volatile"
   showsPrec _ (CTokWhile    _  ) = showString "while"
   showsPrec _ (CTokCLit     _ c) = showChar c
@@ -580,6 +585,9 @@ idkwtok ('t':'y':'p':'e':'d':'e':'f':[])		     = tok CTokTypedef
 idkwtok ('u':'n':'i':'o':'n':[])			     = tok CTokUnion
 idkwtok ('u':'n':'s':'i':'g':'n':'e':'d':[])		     = tok CTokUnsigned
 idkwtok ('v':'o':'i':'d':[])				     = tok CTokVoid
+idkwtok ('t':'y':'p':'e':'o':'f':[])			     = tok CTokTypeof
+idkwtok ('_':'_':'t':'y':'p':'e':'o':'f':[])		     = tok CTokTypeof
+idkwtok ('_':'_':'t':'y':'p':'e':'o':'f':'_':'_':[])	     = tok CTokTypeof
 idkwtok ('v':'o':'l':'a':'t':'i':'l':'e':[])		     = tok CTokVolatile
 idkwtok ('_':'_':'v':'o':'l':'a':'t':'i':'l':'e':[])	     = tok CTokVolatile
 idkwtok ('_':'_':'v':'o':'l':'a':'t':'i':'l':'e':'_':'_':[]) = tok CTokVolatile
