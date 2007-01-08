@@ -1,7 +1,6 @@
 module Main where
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Glade
 import Graphics.UI.Gtk.ModelView as New
 
 import qualified Data.Tree as Tree
@@ -10,62 +9,14 @@ data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
 main = do
   initGUI
-  Just xml <- xmlNew "TreeTest.glade"
-  
-  win <- xmlGetWidget xml castToWindow "window"
+
+  win <- windowNew
   onDestroy win mainQuit
 
-  view <- xmlGetWidget xml castToTreeView "view"
+  -- create a new tree model
+  model <- storeImpl
+  view <- New.treeViewNewWithModel model
 
-  stringValue <- xmlGetWidget xml castToEntry "stringValue"
-  intValue    <- xmlGetWidget xml castToSpinButton "intValue"
-  boolValue   <- xmlGetWidget xml castToCheckButton "boolValue"
-
-  insertButton  <- xmlGetWidget xml castToButton "insert"
-  updateButton  <- xmlGetWidget xml castToButton "update"
-  newPath       <- xmlGetWidget xml castToEntry "newPath"
-  updatePath    <- xmlGetWidget xml castToEntry "updatePath"
-
-  removeButton  <- xmlGetWidget xml castToButton "remove"
-  clearButton   <- xmlGetWidget xml castToButton "clear"
-  removePath    <- xmlGetWidget xml castToEntry "removePath"
-
-  -- create a new list store
-  store <- storeImpl
-  New.treeViewSetModel view store
-  setupView view store
-
-  let getValues = do
-        name   <- entryGetText stringValue
-        number <- spinButtonGetValue intValue
-        marked <- toggleButtonGetActive boolValue
-        return Phone {
-          name = name,
-          number = floor number,
-          marked = marked
-        }
-
-  onClicked insertButton $ do
-    value <- getValues
-    path <- fmap read $ get newPath entryText
-    New.treeStoreInsert store (init path) (last path) value
-
-  onClicked updateButton $ do
-    value <- getValues
-    path <- fmap read $ get updatePath entryText
-    New.treeStoreSetValue store path value
-  
-  onClicked removeButton $ do
-    path <- fmap read $ get removePath entryText
-    New.treeStoreRemove store path
-    return ()
-
-  onClicked clearButton $ New.treeStoreClear store
-
-  widgetShowAll win
-  mainGUI 
-
-setupView view model = do
   New.treeViewSetHeadersVisible view True
 
   -- add three columns
@@ -92,6 +43,10 @@ setupView view model = do
   New.treeViewAppendColumn view col1
   New.treeViewAppendColumn view col2 
   New.treeViewAppendColumn view col3
+  
+  containerAdd win view
+  widgetShowAll win
+  mainGUI 
 
 storeImpl =
   New.treeStoreNew
