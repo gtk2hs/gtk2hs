@@ -152,6 +152,9 @@ else
 fi
 AM_CONDITIONAL(HAVE_DATA_TREE, test "$HAVE_DATA_TREE" = "yes")
 AM_CONDITIONAL(HAVE_MTL_PACKAGE, test "$HAVE_MTL_PACKAGE" = "yes")
+AC_SUBST(USE_NEW_PKG_FORMAT)
+AC_SUBST(HAVE_DATA_TREE)
+AC_SUBST(HAVE_MTL_PACKAGE)
 
 dnl From ghc-6.4.1 onwards, ghc supports a -hide-all-packages flag which means
 dnl that we start with an empty package environment. This makes it easier to
@@ -785,7 +788,6 @@ dnl Needed substitution.
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(PKGCONF)
-AC_SUBST(USE_NEW_PKG_FORMAT)
 AC_SUBST(PKGEXT)
 AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)

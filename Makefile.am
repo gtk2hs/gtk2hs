@@ -363,6 +363,10 @@ libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
 libHSgtk_a_SOURCESDIRS		= gtk
 
+if !HAVE_DATA_TREE
+libHSgtk_a_SOURCESDIRS		+= compat
+endif
+
 gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
 
 if ENABLE_CAIRO
@@ -559,7 +563,7 @@ libHSgtk_a_SOURCES =					 		\
         gtk/Graphics/UI/Gtk/Cairo.chs.pp
 
 if !HAVE_DATA_TREE
-libHSgtk_a_SOURCES += gtk/Data/Tree.hs
+libHSgtk_a_SOURCES += compat/Data/Tree.hs
 endif
 
 htmldoc_HSFILES_HIDDEN +=						\
