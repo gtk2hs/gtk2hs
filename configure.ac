@@ -116,7 +116,7 @@ AC_PATH_PROG(HC, [$HC ghc], ghc-not-found)
 if test $HC = ghc-not-found; then
  AC_MSG_ERROR([
 Could not find GHC!  This is the only supported compiler.
-You need GHC 5.04 upwards.])
+You need GHC 6.0 or later.])
 fi
 
 GHC=$HC
@@ -126,8 +126,8 @@ AC_MSG_CHECKING([version of GHC])
 GHC_VERSION=`$GHC --numeric-version`
 AC_MSG_RESULT([$GHC_VERSION])
 
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 5.0.4, [
-  AC_MSG_ERROR([I need the FFI of GHC 5.04 upwards!])])
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 6.0, [
+  AC_MSG_ERROR([Gtk2Hs requires GHC 6.0 or later])])
 
 dnl Calculate a version number with 3 digits (i.e. 502 for 5.2)
 GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/[[0-9]*\.\([0-9]]*\).*/0\1/"`
@@ -136,15 +136,6 @@ GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/\([[0-9]]\).*/\1/"`$GHC_VERSION_
 
 AC_DEFINE_UNQUOTED(__GLASGOW_HASKELL__, $GHC_VERSION_NUMBER,
 	[Version number of GHC.])
-
-dnl From ghc 6 onwards, ghc-pkg has the "auto libs" feature which means
-dnl users do not have to specify the -package flag most of the time.
-dnl All our packages support this mode now.
-dnl Earlieir version of ghc-pkg choke on this package configuration option,
-dnl hence this test which only enables it for ghc 6 onwards.
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.0.0, [
-GHCPKG_USE_AUTOLIBS="auto            = True,"
-])
 
 dnl From ghc 6.4 onwards, ghc-pkg uses a new package format so we must produce
 dnl and register .package.conf files instead of the old .pkg files.
@@ -803,7 +794,6 @@ AC_SUBST(C2HSFLAGS)
 AC_SUBST(HSTOOLFLAGS)
 dnl Versionitis
 AC_SUBST(CREATE_TYPES)
-AC_SUBST(GHCPKG_USE_AUTOLIBS)
 AC_SUBST(GHCPKG_BUILD_GHCI_LIB)
 dnl Optional packages
 AC_SUBST(GTK_CAIRO_DEPEND)

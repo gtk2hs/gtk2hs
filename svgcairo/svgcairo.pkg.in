@@ -1,6 +1,6 @@
 Package {
      name            = "svgcairo",
-     @GHCPKG_USE_AUTOLIBS@
+     auto            = True,
      import_dirs     = ["${pkglibdir}/imports/svgcairo"],
      source_dirs     = [],
      library_dirs    = [@SVGCAIRO_LIBDIR_CQ@],

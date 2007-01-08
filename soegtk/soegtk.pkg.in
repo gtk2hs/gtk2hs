@@ -1,6 +1,6 @@
 Package {
      name            = "soegtk",
-     @GHCPKG_USE_AUTOLIBS@
+     auto            = True,
      import_dirs     = ["${pkglibdir}/imports/soegtk"],
      source_dirs     = [],
      library_dirs    = [@GTK_LIBDIR_CQ@],
