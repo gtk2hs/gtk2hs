@@ -16,8 +16,11 @@ import Data.Set
 empty :: Set a
 empty = emptySet
 
+member :: Ord a => a -> Set a -> Bool
+member = elementOf
+
 insert :: Ord a => a -> Set a -> Set a
-insert = addToSet
+insert a s = addToSet s a
 
 fromList :: Ord a => [a] -> Set a
 fromList = mkSet
