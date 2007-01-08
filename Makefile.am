@@ -1556,7 +1556,7 @@ DEMOS += demo/filechooser demo/treeList
 endif
 endif
 if HAVE_GTK_VERSION_2_6
-DEMOS += demo/actionMenu demo/profileviewer
+DEMOS += demo/actionMenu demo/profileviewer demo/carsim
 endif
 if HAVE_GTK_VERSION_2_8
 if ENABLE_CAIRO
@@ -1617,7 +1617,8 @@ EXTRA_DIST +=								\
 		demo/cairo/Graph.hs demo/cairo/StarAndRing.hs		\
 		demo/cairo/Text.hs demo/cairo/Makefile 			\
 		demo/cairo/cairo-clock-icon.png				\
-	demo/opengl/RotatingCube.hs demo/opengl/Makefile
+	demo/opengl/RotatingCube.hs demo/opengl/Makefile		\
+	demo/carsim/CarSim.hs demo/carsim/Makefile
 
 #
 #       installing and registering packages with the Haskell compiler
