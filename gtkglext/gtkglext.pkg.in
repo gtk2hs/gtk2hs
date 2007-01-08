@@ -7,7 +7,7 @@ Package {
      hs_libraries    = ["HSgtkglext"],
      extra_libraries = [@GTKGLEXT_LIBS_CQ@],
      include_dirs    = [@GTKGLEXT_CFLAGS_CQ@],
-     c_includes      = [gtk/gtkgl.h],
+     c_includes      = ["gtk/gtkgl.h"],
      package_deps    = ["gtk"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],
