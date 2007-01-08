@@ -141,6 +141,8 @@ dnl From ghc 6.4 onwards, ghc-pkg uses a new package format so we must produce
 dnl and register .package.conf files instead of the old .pkg files.
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4.0, [
 USE_NEW_PKG_FORMAT=yes
+HAVE_DATA_TREE=yes
+HAVE_MTL_PACKAGE=yes
 ])
 AM_CONDITIONAL(USE_NEW_PKG_FORMAT, test "$USE_NEW_PKG_FORMAT" = "yes")
 if test "$USE_NEW_PKG_FORMAT" = "yes"; then
@@ -148,6 +150,8 @@ if test "$USE_NEW_PKG_FORMAT" = "yes"; then
 else
   PKGEXT=pkg
 fi
+AM_CONDITIONAL(HAVE_DATA_TREE, test "$HAVE_DATA_TREE" = "yes")
+AM_CONDITIONAL(HAVE_MTL_PACKAGE, test "$HAVE_MTL_PACKAGE" = "yes")
 
 dnl From ghc-6.4.1 onwards, ghc supports a -hide-all-packages flag which means
 dnl that we start with an empty package environment. This makes it easier to

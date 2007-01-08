@@ -26,6 +26,7 @@ LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 HS_SEARCH_PATH = $(subst $(SPACE),:,$($(PKG)_SOURCESDIRS))
 CHS_SEARCH_PATH = $(subst $(SPACE),:,$($(PKG)_INTERNALDEPS) $($(PKG)_NAME))
 
+if USE_NEW_PKG_FORMAT
 HCFLAGS_PACKAGE_DEPS = \
 	-package-conf package.conf.inplace $(HIDE_ALL_PACKAGES) \
 	$(if $(USE_NEW_PKG_FORMAT),$(addprefix -ignore-package ,$($(PKG)_NAME))) \
@@ -34,6 +35,19 @@ HCFLAGS_PACKAGE_DEPS = \
 
 HCFLAGS_PACKAGE_NAME = \
 	$(addprefix -package-name ,$(addsuffix -$(VERSION),$($(PKG)_NAME)))
+
+else
+
+HCFLAGS_PACKAGE_DEPS = \
+	-package-conf package.conf.inplace $(HIDE_ALL_PACKAGES) \
+	$(if $(USE_NEW_PKG_FORMAT),$(addprefix -ignore-package ,$($(PKG)_NAME))) \
+	$(addprefix -package ,$($(PKG)_EXTERNALDEPS)) \
+	$(addprefix -package ,$($(PKG)_INTERNALDEPS))
+
+HCFLAGS_PACKAGE_NAME = \
+	$(addprefix -package-name ,$($(PKG)_NAME))
+
+endif
 
 #Using pattern rule here to prevent automake from understanding the rule
 #and falsely concluding that two source files will produce the same object

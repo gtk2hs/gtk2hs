@@ -366,7 +366,9 @@ libHSgtk_a_SOURCESDIRS		= gtk
 gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
 
 if ENABLE_CAIRO
+if HAVE_MTL_PACKAGE
 libHSgtk_a_EXTERNALDEPS += mtl
+endif
 libHSgtk_a_INTERNALDEPS += cairo
 gtk/libHSgtk_a.deps	: cairo/libHScairo_a.deps
 endif
@@ -555,6 +557,10 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs                             \
         gtk/Graphics/UI/Gtk/Cairo.chs.pp
+
+if !HAVE_DATA_TREE
+libHSgtk_a_SOURCES += gtk/Data/Tree.hs
+endif
 
 htmldoc_HSFILES_HIDDEN +=						\
 	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
@@ -1103,7 +1109,10 @@ cairo_PKGNAME = libHScairo_a
 
 libHScairo_a_NAME		= cairo
 libHScairo_a_CONFIG		= cairo/cairo.$(PKGEXT)
-libHScairo_a_EXTERNALDEPS	= base haskell98 mtl
+libHScairo_a_EXTERNALDEPS	= base haskell98
+if HAVE_MTL_PACKAGE
+libHScairo_a_EXTERNALDEPS	+= mtl
+endif
 libHScairo_a_INTERNALDEPS	= glib
 libHScairo_a_HEADER 		= cairo.h
 libHScairo_a_PRECOMP		= cairo/cairo.precomp
@@ -1212,7 +1221,10 @@ svgcairo_PKGNAME = libHSsvgcairo_a
 
 libHSsvgcairo_a_NAME		= svgcairo
 libHSsvgcairo_a_CONFIG		= svgcairo/svgcairo.$(PKGEXT)
-libHSsvgcairo_a_EXTERNALDEPS	= base haskell98 mtl
+libHSsvgcairo_a_EXTERNALDEPS	= base haskell98
+if HAVE_MTL_PACKAGE
+libHSsvgcairo_a_EXTERNALDEPS	+= mtl
+endif
 libHSsvgcairo_a_INTERNALDEPS	= glib cairo
 libHSsvgcairo_a_HEADER 		= svg-cairo.h
 libHSsvgcairo_a_PRECOMP		= svgcairo/svgcairo.precomp
@@ -1399,7 +1411,9 @@ libHSsoegtk_a_SOURCESDIRS	= soegtk
 soegtk/libHSsoegtk_a.deps	: gtk/libHSgtk_a.deps
 
 if ENABLE_CAIRO
+if HAVE_MTL_PACKAGE
 libHSsoegtk_a_EXTERNALDEPS += mtl
+endif
 libHSsoegtk_a_INTERNALDEPS += cairo
 gtk/libHSsoegtk_a.deps	: cairo/libHScairo_a.deps
 endif
@@ -1533,12 +1547,12 @@ endif #BUILDDOCS
 DEMOS = demo/hello demo/buttonbox demo/concurrent \
 	demo/graphic demo/unicode
 if HAVE_GTK_VERSION_2_2
-DEMOS += demo/treeList demo/fastdraw
+DEMOS += demo/fastdraw
 endif
 if ENABLE_LIBGLADE
 DEMOS += demo/glade demo/calc
 if HAVE_GTK_VERSION_2_4
-DEMOS += demo/filechooser
+DEMOS += demo/filechooser demo/treeList
 endif
 endif
 if HAVE_GTK_VERSION_2_6
@@ -1589,9 +1603,10 @@ EXTRA_DIST +=								\
 		demo/profileviewer/Makefile				\
 	demo/sourceview/SourceViewTest.hs demo/sourceview/Makefile	\
 		demo/sourceview/haskell.lang				\
-	demo/treeList/ListTest.hs demo/treeList/ListTest2.hs		\
-		demo/treeList/SimpleList.hs demo/treeList/TreeTest.hs	\
-		demo/treeList/Makefile					\
+	demo/treeList/ListDemo.hs demo/treeList/TreeDemo.hs		\
+		demo/treeList/ListTest.hs demo/treeList/ListTest.glade	\
+		demo/treeList/TreeTest.hs demo/treeList/TreeTest.glade	\
+		demo/treeList/DirList.hs demo/treeList/Makefile		\
 	demo/unicode/Arabic.hs demo/unicode/Makefile			\
 	demo/calc/CalcModel.hs demo/calc/Calc.hs demo/calc/Makefile	\
 		demo/calc/calc.glade					\
