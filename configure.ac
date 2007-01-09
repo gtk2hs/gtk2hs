@@ -195,7 +195,7 @@ fi
 
 AC_ARG_ENABLE(split-objs,
 	     [  --enable-split-objs     produce smaller executables (on supported platforms)],
-	     [ENABLE_SPLITOBJS=$enableval],[ENABLE_SPLITOBJS=no])
+	     [ENABLE_SPLITOBJS=$enableval],[ENABLE_SPLITOBJS=yes])
 AM_CONDITIONAL(ENABLE_SPLITOBJS, test "$ENABLE_SPLITOBJS" = "yes")
 
 dnl packager mode is for people building packages, eg for linux distros.
