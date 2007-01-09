@@ -51,9 +51,10 @@ NOTE: using an external version of c2hs is not currently working!
   Use this specific installation of c2hs. Make sure you specify the c2hs-config
   program, not c2hs itself.
 
---packager-mode
+--enable-packager-mode
   Enables --without-pkgreg and does not build any optional packages unless
-  these are specified with --enable-PACKAGE.
+  these are specified with --enable-PACKAGE. On Windows it also does some
+  other stuff that helps with building an installer.
 
 --without-pkgreg
   This option disables registering the packages with GHC. This
@@ -82,7 +83,7 @@ NOTE: using an external version of c2hs is not currently working!
   sourceview : An enhancement of the TextView-widget of Gtk+. It adds features
 	useful for editing source code, e.g. syntax highlighting.
 
-  mozilla / seamonkey / firefox : A widget that renders HTML.
+  firefox / seamonkey / xulrunner / mozilla : A widget that renders HTML.
 
   cairo : A library for rendering vector graphics.
 
