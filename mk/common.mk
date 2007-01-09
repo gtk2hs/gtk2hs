@@ -17,6 +17,10 @@ PKG = \
 # necessary so support packages under the tools directory
 tools_PKGNAME = $(call tools_$(word 2,$(subst /, ,$(1)))_PKGNAME,$(1))
 
+# necessary to support optional compat extensions to other packages
+# we map compat_foo_PKGNAME to foo_PKGNAME
+compat_PKGNAME = $(call $(word 2,$(subst /, ,$(1)))_PKGNAME,$(1))
+
 getVar   = $($(subst .,_,$(subst /,_,$(1)))_$(2))
 
 LINK = 	$(strip $(HC) -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
