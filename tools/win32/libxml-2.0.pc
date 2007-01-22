@@ -1,0 +1,11 @@
+prefix=/ignore
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libXML
+Version: 2.6.20
+Description: libXML library version 2.
+Requires:
+Libs: -L${libdir} -lxml2  -lz
+Cflags:
