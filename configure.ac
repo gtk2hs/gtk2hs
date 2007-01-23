@@ -401,16 +401,16 @@ GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
 GTK_MAJOR_VERSION=`echo $GTK_VERSION | $CUT -d. -f1`
 GTK_MINOR_VERSION=`echo $GTK_VERSION | $CUT -d. -f2`
 GTK_MICRO_VERSION=`echo $GTK_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(GTK_MAJOR_VERSION, ($GTK_MAJOR_VERSION), [Gtk major version number])
-AC_DEFINE_UNQUOTED(GTK_MINOR_VERSION, ($GTK_MINOR_VERSION), [Gtk minor version number])
-AC_DEFINE_UNQUOTED(GTK_MICRO_VERSION, ($GTK_MICRO_VERSION), [Gtk minor patch level])
+AC_DEFINE_UNQUOTED(_GTK_MAJOR_VERSION, ($GTK_MAJOR_VERSION), [Gtk major version number])
+AC_DEFINE_UNQUOTED(_GTK_MINOR_VERSION, ($GTK_MINOR_VERSION), [Gtk minor version number])
+AC_DEFINE_UNQUOTED(_GTK_MICRO_VERSION, ($GTK_MICRO_VERSION), [Gtk minor patch level])
 AH_BOTTOM([
 /* Allow code to be compiled differently for different versions of GTK+ */
 #define GTK_CHECK_VERSION(major,minor,micro)    \
-    (GTK_MAJOR_VERSION > (major) || \
-     (GTK_MAJOR_VERSION == (major) && GTK_MINOR_VERSION > (minor)) || \
-     (GTK_MAJOR_VERSION == (major) && GTK_MINOR_VERSION == (minor) && \
-      GTK_MICRO_VERSION >= (micro)))
+    (_GTK_MAJOR_VERSION > (major) || \
+     (_GTK_MAJOR_VERSION == (major) && _GTK_MINOR_VERSION > (minor)) || \
+     (_GTK_MAJOR_VERSION == (major) && _GTK_MINOR_VERSION == (minor) && \
+      _GTK_MICRO_VERSION >= (micro)))
 ])
 
 dnl Also allow us to conditionally compile bindings to Pango APIs.
@@ -418,16 +418,16 @@ PANGO_VERSION=`$PKG_CONFIG pango --modversion`
 PANGO_MAJOR_VERSION=`echo $PANGO_VERSION | $CUT -d. -f1`
 PANGO_MINOR_VERSION=`echo $PANGO_VERSION | $CUT -d. -f2`
 PANGO_MICRO_VERSION=`echo $PANGO_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(PANGO_MAJOR_VERSION, ($PANGO_MAJOR_VERSION), [Pango major version number])
-AC_DEFINE_UNQUOTED(PANGO_MINOR_VERSION, ($PANGO_MINOR_VERSION), [Pango minor version number])
-AC_DEFINE_UNQUOTED(PANGO_MICRO_VERSION, ($PANGO_MICRO_VERSION), [Pango minor patch level])
+AC_DEFINE_UNQUOTED(_PANGO_MAJOR_VERSION, ($PANGO_MAJOR_VERSION), [Pango major version number])
+AC_DEFINE_UNQUOTED(_PANGO_MINOR_VERSION, ($PANGO_MINOR_VERSION), [Pango minor version number])
+AC_DEFINE_UNQUOTED(_PANGO_MICRO_VERSION, ($PANGO_MICRO_VERSION), [Pango minor patch level])
 AH_BOTTOM([
 /* Allow code to be compiled differently for different versions of Pango */
 #define PANGO_CHECK_VERSION(major,minor,micro)    \
-    (PANGO_MAJOR_VERSION > (major) || \
-     (PANGO_MAJOR_VERSION == (major) && PANGO_MINOR_VERSION > (minor)) || \
-     (PANGO_MAJOR_VERSION == (major) && PANGO_MINOR_VERSION == (minor) && \
-      PANGO_MICRO_VERSION >= (micro)))
+    (_PANGO_MAJOR_VERSION > (major) || \
+     (_PANGO_MAJOR_VERSION == (major) && _PANGO_MINOR_VERSION > (minor)) || \
+     (_PANGO_MAJOR_VERSION == (major) && _PANGO_MINOR_VERSION == (minor) && \
+      _PANGO_MICRO_VERSION >= (micro)))
 ])
 
 dnl Also allow us to conditionally compile bindings to Glib APIs.
@@ -435,16 +435,16 @@ GLIB_VERSION=`$PKG_CONFIG glib-2.0 --modversion`
 GLIB_MAJOR_VERSION=`echo $GLIB_VERSION | $CUT -d. -f1`
 GLIB_MINOR_VERSION=`echo $GLIB_VERSION | $CUT -d. -f2`
 GLIB_MICRO_VERSION=`echo $GLIB_VERSION | $CUT -d. -f3`
-AC_DEFINE_UNQUOTED(GLIB_MAJOR_VERSION, ($GLIB_MAJOR_VERSION), [Glib major version number])
-AC_DEFINE_UNQUOTED(GLIB_MINOR_VERSION, ($GLIB_MINOR_VERSION), [Glib minor version number])
-AC_DEFINE_UNQUOTED(GLIB_MICRO_VERSION, ($GLIB_MICRO_VERSION), [Glib minor patch level])
+AC_DEFINE_UNQUOTED(_GLIB_MAJOR_VERSION, ($GLIB_MAJOR_VERSION), [Glib major version number])
+AC_DEFINE_UNQUOTED(_GLIB_MINOR_VERSION, ($GLIB_MINOR_VERSION), [Glib minor version number])
+AC_DEFINE_UNQUOTED(_GLIB_MICRO_VERSION, ($GLIB_MICRO_VERSION), [Glib minor patch level])
 AH_BOTTOM([
 /* Allow code to be compiled differently for different versions of Glib */
 #define GLIB_CHECK_VERSION(major,minor,micro)    \
-    (GLIB_MAJOR_VERSION > (major) || \
-     (GLIB_MAJOR_VERSION == (major) && GLIB_MINOR_VERSION > (minor)) || \
-     (GLIB_MAJOR_VERSION == (major) && GLIB_MINOR_VERSION == (minor) && \
-      GLIB_MICRO_VERSION >= (micro)))
+    (_GLIB_MAJOR_VERSION > (major) || \
+     (_GLIB_MAJOR_VERSION == (major) && _GLIB_MINOR_VERSION > (minor)) || \
+     (_GLIB_MAJOR_VERSION == (major) && _GLIB_MINOR_VERSION == (minor) && \
+      _GLIB_MICRO_VERSION >= (micro)))
 ])
 
 dnl For reasons know only to themselves, Sun decided to ship a development
