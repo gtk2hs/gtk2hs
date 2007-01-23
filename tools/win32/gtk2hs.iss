@@ -4,35 +4,42 @@
 [Setup]
 AppName=Gtk2Hs
 AppId=Gtk2Hs
-AppVerName=Gtk2Hs @VERSION@
-AppVersion=@VERSION@
+AppVerName=Gtk2Hs 0.9.10.5
+AppVersion=0.9.10.5
 AppPublisher=The Gtk2Hs Team
 AppPublisherURL=http://haskell.org/gtk2hs/
 AppSupportURL=http://haskell.org/gtk2hs/
 AppUpdatesURL=http://haskell.org/gtk2hs/
 
 DefaultDirName={pf}\Gtk2Hs
-OutputBaseFilename=gtk2hs-@VERSION@
+OutputBaseFilename=gtk2hs-0.9.10.5
+
+VersionInfoVersion=0.9.10.5
+VersionInfoCopyright=Copyright (C) 2001-2007 The Gtk2Hs Team
+
 Compression=lzma/max
 SolidCompression=yes
 
+ChangesEnvironment=yes
+
 [Components]
 Name: "gtk";    Description: "Gtk+ libraries"; Types: full compact custom; Flags: fixed
-Name: "gtk2hs"; Description: "Gtk2Hs libraries"; Types: full compact custom; Flags: fixed
+Name: "gtk2hs1"; Description: "Gtk2Hs libraries for GHC 6.4.2"; Check: UseWithGhcVersion('6.4.2'); Types: full compact custom; Flags: fixed
+Name: "gtk2hs2"; Description: "Gtk2Hs libraries for GHC 6.6"; Check: UseWithGhcVersion('6.6'); Types: full compact custom; Flags: fixed
 Name: "docs";   Description: "API reference documentation"; Types: full
 Name: "demos";  Description: "Source files for the Gtk2Hs demo programs"; Types: full
 
 [Files]
 Source: "gtk+-2.10.8\*"; DestDir: "{app}"; Components: gtk; Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "gtk2hs-@VERSION@-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}"; Components: gtk2hs; Check: UseWithGhcVersion('6.4.2'); Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-@VERSION@-ghc-6.6-gtk-2.10\*";   DestDir: "{app}"; Components: gtk2hs; Check: UseWithGhcVersion('6.6'); Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-@VERSION@-demo\*"; DestDir: "{app}\demos"; Components: demos; Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "gtk2hs-@VERSION@-docs\*"; DestDir: "{app}\docs";  Components: docs;  Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "COPYING.txt"; DestDir: "{app}"; Components: gtk2hs; Flags: ignoreversion;
-Source: "AUTHORS.txt"; DestDir: "{app}"; Components: gtk2hs; Flags: ignoreversion;
+Source: "gtk2hs-0.9.10.5-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}"; Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-0.9.10.5-ghc-6.6-gtk-2.10\*";   DestDir: "{app}"; Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-0.9.10.5-demo\*"; DestDir: "{app}\demos"; Components: demos; Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk2hs-0.9.10.5-docs\*"; DestDir: "{app}\docs";  Components: docs;  Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "COPYING.txt"; DestDir: "{app}"; Flags: ignoreversion;
+Source: "AUTHORS.txt"; DestDir: "{app}"; Flags: ignoreversion;
 
 [Registry]
-Root: HKCU; Subkey: "Environment"; ValueName: "PATH"; ValueType: "string"; ValueData: "{app}\bin;{olddata}"; Check: NotOnPathAlready(); Flags: preservestringtype;
+Root: HKCU; Subkey: "Environment"; ValueName: "Path"; ValueType: "string"; ValueData: "{app}\bin;{olddata}"; Check: NotOnPathAlready(); Flags: preservestringtype;
 
 [Run]
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glib.package.conf""";  StatusMsg: "Registering glib package...";  Flags: runhidden
@@ -42,28 +49,26 @@ Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf"""; St
 ; Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkgl.package.conf"""; StatusMsg: "Registering gtkgl package..."; Flags: runhidden
 
 [UninstallRun]
-; Filename: "{code:ghcpkg}"; Parameters: "unregister gtkgl-0.9.10.4"; RunOnceId: "gtkgl"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.10.4"; RunOnceId: "glade"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.10.4";   RunOnceId: "gtk";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.10.4"; RunOnceId: "cairo"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.10.4";  RunOnceId: "glib";  Flags: runhidden
+; Filename: "{code:ghcpkg}"; Parameters: "unregister gtkgl-0.9.10.5"; RunOnceId: "gtkgl"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.10.5"; RunOnceId: "glade"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.10.5";   RunOnceId: "gtk";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.10.5"; RunOnceId: "cairo"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.10.5";  RunOnceId: "glib";  Flags: runhidden
 
 [Code]
 var
   GhcInstallDir: String;
   GhcInstallVersion: String;
-  
+
   CheckingPage: TOutputProgressWizardPage;
-  ErrorReportPage: TOutputMsgWizardPage;
+  ErrorReportPage: TOutputMsgMemoWizardPage;
+  InstallationErrorCaption: String;
+  InstallationErrorMessage: String;
+  InstallationErrorDetail: String;
 
 function ghcpkg(Param: String): String;
 begin
   Result := AddBackslash(GhcInstallDir) + 'bin\ghc-pkg.exe';
-end;
-
-function UseWithGhcVersion(const GhcVersion: String): Boolean;
-begin
-  Result := (GhcVersion = GhcInstallVersion);
 end;
 
 function NotOnPathAlready(): Boolean;
@@ -71,7 +76,7 @@ var
   BinDir, Path: String;
 begin
   Log('Checking if Gtk2Hs\bin dir is already on the %PATH%');
-  if RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'PATH', Path) then
+  if RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', Path) then
   begin // Successfully read the value
     Log('HKCU\Environment\PATH = ' + Path);
     BinDir := ExpandConstant('{app}\bin');
@@ -128,11 +133,19 @@ begin
          or (Version = '6.6');
 end;
 
+var
+  DetectValidGhcInstallationCached: Boolean;
+  DetectValidGhcInstallationResult: Boolean;
+
 function DetectValidGhcInstallation(): Boolean;
 var
   HaveSomeGHCInstalled: Boolean;
   GHCVersion: String;
 
+begin
+if DetectValidGhcInstallationCached then
+  Result := DetectValidGhcInstallationResult
+else
 begin
   Result := False;
 
@@ -186,87 +199,143 @@ begin
   else if HaveSomeGHCInstalled and (GHCVersion <> '') then
   begin
     Log('DetectValidGhcInstallation: incorrect ghc version installed: ' + GHCVersion);
-    SuppressibleMsgBox('This version of Gtk2Hs requires GHC version 6.6 or 6.4.2 (found GHC version ' + GHCVersion + ')', mbError, MB_OK, IDOK);
+    InstallationErrorCaption := 'The version of GHC currently installed is not suitable.';
+    InstallationErrorMessage := 'This version of Gtk2Hs requires GHC version 6.6 or 6.4.2 (found GHC version ' + GHCVersion + ')'
   end
   else if HaveSomeGHCInstalled and (GhcInstallDir <> '') then
   begin
     Log('DetectValidGhcInstallation: some non-working version of ghc appears to be installed at: ' + GhcInstallDir);
-    SuppressibleMsgBox('GHC does not appear to be installed correctly, try reinstalling GHC version 6.6 or 6.4.2', mbError, MB_OK, IDOK);
+    InstallationErrorCaption := 'GHC does not seem to be working.';
+    InstallationErrorMessage := 'GHC does not appear to be installed correctly, try reinstalling GHC version 6.6 or 6.4.2'
   end
   else if HaveSomeGHCInstalled then
   begin
     Log('DetectValidGhcInstallation: corrupted ghc installation detected, probably messed up registry keys');
-    SuppressibleMsgBox('GHC does not appear to be installed (or the installation is corrupted), please install GHC version 6.2.2 or 6.4.1', mbError, MB_OK, IDOK);
+    InstallationErrorCaption := 'GHC was not found on your computer.';
+    InstallationErrorMessage := 'GHC does not appear to be installed (or the installation is corrupted), please install GHC version 6.6 or 6.4.2';
   end
   else
   begin
     Log('DetectValidGhcInstallation: no installation of ghc detected');
-    SuppressibleMsgBox('Gtk2Hs requires GHC to be installed first, please install GHC version 6.2.2 or 6.4.2', mbError, MB_OK, IDOK);
+    InstallationErrorCaption := 'GHC was not found on your computer.';
+    InstallationErrorMessage := 'Gtk2Hs requires GHC to be installed first, please install GHC version 6.6 or 6.4.2';
+  end;
+  
+  If not Result then
+  begin
+    Log(InstallationErrorCaption);
+    Log(InstallationErrorMessage);
   end;
 
+  DetectValidGhcInstallationResult := Result;
+  DetectValidGhcInstallationCached := True;
+end;
 end;
 
-procedure ParseVersionString(Version: String; var MajorVersion, MinorVersion, MicroVersion: Integer);
-var
-  N, M : Integer;
-  MajorVersionStr, MinorVersionStr, MicroVersionStr: String;
+function UseWithGhcVersion(const GhcVersion: String): Boolean;
 begin
-  N := 1;
-  M := 1;
-  SetLength(MajorVersionStr, Length(Version));
-  while (N < Length(Version) + 1) and (Version[N] >= '0') and (Version[N] <= '9') do
-  begin
-    MajorVersionStr[M] := Version[N];
-    N := N + 1; M := M + 1;
-  end;
-  SetLength(MajorVersionStr, M - 1);
-
-  while (N < Length(Version) + 1) and ((Version[N] < '0') or (Version[N] > '9')) do
-    N := N + 1;
-
-  M := 1;
-  SetLength(MinorVersionStr, Length(Version));
-  while (N < Length(Version) + 1) and (Version[N] >= '0') and (Version[N] <= '9') do
-  begin
-    MinorVersionStr[M] := Version[N];
-    N := N + 1; M := M + 1;
-  end;
-  SetLength(MinorVersionStr, M - 1);
-
-  while (N < Length(Version) + 1) and ((Version[N] < '0') or (Version[N] > '9')) do
-    N := N + 1;
-
-  M := 1;
-  SetLength(MicroVersionStr, Length(Version));
-  while (N < Length(Version) + 1) and (Version[N] >= '0') and (Version[N] <= '9') do
-  begin
-    MicroVersionStr[M] := Version[N];
-    N := N + 1; M := M + 1;
-  end;
-  SetLength(MicroVersionStr, M - 1);
-  
-  MajorVersion := StrToIntDef(MajorVersionStr, 0);
-  MinorVersion := StrToIntDef(MinorVersionStr, 0);
-  MicroVersion := StrToIntDef(MicroVersionStr, 0);
-
-  Log('ParseVersionString: Version = ' + Version);
-  Log('ParseVersionString: MajorVersion = ' + IntToStr(MajorVersion));
-  Log('ParseVersionString: MinorVersion = ' + IntToStr(MinorVersion));
-  Log('ParseVersionString: MicroVersion = ' + IntToStr(MicroVersion));
+  DetectValidGhcInstallation();
+  Result := (GhcVersion = GhcInstallVersion);
 end;
 
 var
   ChecksOk : Boolean;
 
+function ShouldSkipPage(CurPageID: Integer): Boolean;
+begin
+  Log('ShouldSkipPage: CurPageID = ' + IntToStr(CurPageID));
+  if CurPageID = ErrorReportPage.ID then
+  begin
+    if ChecksOk then
+      Log('ChecksOk = True')
+    else
+      Log('ChecksOk = False');
+    Result := ChecksOk
+  end
+  else
+    Result := False;
+end;
+
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
-  I: Integer;
+  DllFiles, Offenders: array of String;
+  Path, Offender: String;
+  N, M, NumFiles: Integer;
 begin
   Log('NextButtonClick: CurPageID = ' + IntToStr(CurPageID));
   if CurPageID = wpWelcome then
-    Result := DetectValidGhcInstallation()
-  else
-    Result := True;
+  begin
+    if not DetectValidGhcInstallation() then
+      ChecksOk := False
+    else
+    begin
+      DllFiles := ['charset.dll', 'gspawn-win32-helper-console.exe',
+        'gspawn-win32-helper.exe', 'iconv.dll', 'intl.dll',
+        'jpeg62.dll', 'libatk-1.0-0.dll', 'libcairo-2.dll',
+        'libgdk-win32-2.0-0.dll', 'libgdk_pixbuf-2.0-0.dll',
+        'libglade-2.0-0.dll', 'libglib-2.0-0.dll',
+        'libgmodule-2.0-0.dll', 'libgobject-2.0-0.dll',
+        'libgthread-2.0-0.dll', 'libgtk-win32-2.0-0.dll',
+        'libpango-1.0-0.dll', 'libpangocairo-1.0-0.dll',
+        'libpangoft2-1.0-0.dll', 'libpangowin32-1.0-0.dll',
+        'libpng13.dll', 'libxml2.dll', 'zlib1.dll'];
+      NumFiles := GetArrayLength(DllFiles);
+      SetArrayLength(Offenders, NumFiles);
+
+      RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', Path);
+      Path := GetSystemDir() + ';' + GetWinDir() + ';' + Path
+      
+      Log('Checking DLL path: ' + Path);
+
+      CheckingPage.SetText('Checking Gtk+ DLL search path...', '');
+      CheckingPage.SetProgress(0, NumFiles);
+      CheckingPage.Show;
+      try
+        M := 0;
+        for N := 0 to NumFiles - 1 do
+        begin
+          Offender := FileSearch(DllFiles[N], Path);
+          if Offender <> '' then
+          begin
+            Log('Found clashing dll/exe file at ' + Offender);
+            Offenders[M] := Offender;
+            M := M + 1;
+          end
+          CheckingPage.SetProgress(N+1, NumFiles);
+          Sleep(10);
+        end;
+        if M > 0 then
+        begin
+          ChecksOk := False;
+          InstallationErrorCaption := 'Clashing DLL files found on the search path.';
+          InstallationErrorMessage := 'Clashing DLL files found on the search path.';
+
+          InstallationErrorDetail :=
+              'For Haskell Gtk programs to work properly, the Gtk+ DLL files need to be in the DLL '
+            + 'search path. However, the following DLLs files that Gtk+ uses are already on the '
+            + 'system-wide search path:' #13#10
+
+          for N := 0 to M - 1 do
+            InstallationErrorDetail := InstallationErrorDetail + #13#10 + Offenders[N];
+
+          InstallationErrorDetail := InstallationErrorDetail + #13#10 #13#10
+              'The problem is that when you run a Haskell Gtk program these DLLs would get used '
+            + 'rather than the proper versions of the Gtk+ DLLs installed by this setup program.'
+            + 'This would almost certainly cause all your Haskell Gtk programs to not work.' #13#10 #13#10
+              'You can fix this problem in a couple of ways:' #13#10 #13#10
+              '1) You could uninstall or delete the program that installed the offending files '
+            + '(eg it might be that you have an old version of Gtk+ installed).' #13#10 #13#10
+              '2) You could modify the system-wide "Path" envrionment variable and remove the '
+            + 'offending directory from it.'
+        end
+        else
+          ChecksOk := True;
+      finally
+        CheckingPage.Hide;
+      end;
+    end;
+  end
+  Result := True;
 end;
 
 procedure PackageFileVarSubstitute(const PackageFile: String);
@@ -303,11 +372,6 @@ begin
 		        + Space + GhcInstallDir + NewLine
 end;
 
-procedure ErrorReportPageNotify(Sender: TWizardPage);
-begin
-  WizardForm.NextButton.Enabled := False;
-end;
-
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
   BinDir, Path: String;
@@ -322,5 +386,25 @@ begin
       RegWriteStringValue(HKEY_CURRENT_USER, 'Environment', 'PATH', Path);
     end;
   end;
+end;
+
+procedure ErrorReportPageNotify(Sender: TWizardPage);
+begin
+  WizardForm.NextButton.Enabled := False;
+  ErrorReportPage.Description      := InstallationErrorCaption;
+  ErrorReportPage.SubCaptionLabel.Caption := InstallationErrorMessage;
+  if InstallationErrorDetail <> '' then
+  begin
+    ErrorReportPage.RichEditViewer.RTFText := InstallationErrorDetail
+    ErrorReportPage.RichEditViewer.Show();
+  end;
+end;
+
+procedure InitializeWizard();
+begin
+  CheckingPage := CreateOutputProgressPage('Checking requirements', 'Checking for GHC and Gtk+');
+  ErrorReportPage := CreateOutputMsgMemoPage(wpWelcome, 'Setup Problem', 'GHC or Gtk+ problem', 'Your installation of GHC or Gtk+ is messed up!', 'Foo bar!');
+  ErrorReportPage.OnActivate := @ErrorReportPageNotify;
+  ErrorReportPage.RichEditViewer.Hide();
 end;
 
