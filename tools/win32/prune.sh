@@ -12,6 +12,10 @@ sed -i -e 's/Requires.private: libpng13/#Requires.private: libpng13/' lib/pkgcon
 sed -i -e 's/Libs.private: -lz -lz -lm/Libs.private: -lz -lz -lm -lpng13/' lib/pkgconfig/cairo.pc
 popd
 
+pushd gtk+-${GTK_VERSION}
+echo 'gtk-theme-name = "MS-Windows"' > etc/gtk-2.0/gtkrc
+popd
+
 pushd libglade-dev-${LIBGLADE_VERSION}
 mv lib/libglade-2.0.dll.a lib/glade-2.0.lib
 popd
