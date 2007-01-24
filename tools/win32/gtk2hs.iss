@@ -23,14 +23,14 @@ SolidCompression=yes
 ChangesEnvironment=yes
 
 [Components]
-Name: "gtk";    Description: "Gtk+ libraries"; Types: full compact custom; Flags: fixed
+Name: "gtk";     Description: "Gtk+ libraries"; Types: full compact custom; Flags: fixed
 Name: "gtk2hs1"; Description: "Gtk2Hs libraries for GHC 6.4.2"; Check: UseWithGhcVersion('6.4.2'); Types: full compact custom; Flags: fixed
 Name: "gtk2hs2"; Description: "Gtk2Hs libraries for GHC 6.6"; Check: UseWithGhcVersion('6.6'); Types: full compact custom; Flags: fixed
-Name: "docs";   Description: "API reference documentation"; Types: full
-Name: "demos";  Description: "Source files for the Gtk2Hs demo programs"; Types: full
+Name: "docs";    Description: "API reference documentation"; Types: full
+Name: "demos";   Description: "Source files for the Gtk2Hs demo programs"; Types: full
 
 [Files]
-Source: "gtk+-2.10.8\*"; DestDir: "{app}"; Components: gtk; Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk+-2.10.9\*"; DestDir: "{app}"; Components: gtk; Flags: ignoreversion recursesubdirs createallsubdirs;
 Source: "gtk2hs-0.9.10.5-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}"; Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
 Source: "gtk2hs-0.9.10.5-ghc-6.6-gtk-2.10\*";   DestDir: "{app}"; Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
 Source: "gtk2hs-0.9.10.5-demo\*"; DestDir: "{app}\demos"; Components: demos; Flags: ignoreversion recursesubdirs createallsubdirs;
@@ -42,18 +42,20 @@ Source: "AUTHORS.txt"; DestDir: "{app}"; Flags: ignoreversion;
 Root: HKCU; Subkey: "Environment"; ValueName: "Path"; ValueType: "string"; ValueData: "{app}\bin;{olddata}"; Check: NotOnPathAlready(); Flags: preservestringtype;
 
 [Run]
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glib.package.conf""";  StatusMsg: "Registering glib package...";  Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\cairo.package.conf"""; StatusMsg: "Registering cairo package..."; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtk.package.conf""";   StatusMsg: "Registering gtk package...";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf"""; StatusMsg: "Registering glade package..."; Flags: runhidden
-; Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkgl.package.conf"""; StatusMsg: "Registering gtkgl package..."; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glib.package.conf""";   StatusMsg: "Registering glib package...";  Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\cairo.package.conf""";  StatusMsg: "Registering cairo package..."; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtk.package.conf""";    StatusMsg: "Registering gtk package...";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf""";  StatusMsg: "Registering glade package..."; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\soegtk.package.conf"""; StatusMsg: "Registering soegtk package..."; Flags: runhidden
+; Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkgl.package.conf""";  StatusMsg: "Registering gtkgl package..."; Flags: runhidden
 
 [UninstallRun]
-; Filename: "{code:ghcpkg}"; Parameters: "unregister gtkgl-0.9.10.5"; RunOnceId: "gtkgl"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.10.5"; RunOnceId: "glade"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.10.5";   RunOnceId: "gtk";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.10.5"; RunOnceId: "cairo"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.10.5";  RunOnceId: "glib";  Flags: runhidden
+; Filename: "{code:ghcpkg}"; Parameters: "unregister gtkgl-0.9.10.5";  RunOnceId: "gtkgl"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.10.5"; RunOnceId: "soegtk"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.10.5";  RunOnceId: "glade"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.10.5";    RunOnceId: "gtk";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.10.5";  RunOnceId: "cairo"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.10.5";   RunOnceId: "glib";  Flags: runhidden
 
 [Code]
 var
@@ -200,25 +202,30 @@ begin
   begin
     Log('DetectValidGhcInstallation: incorrect ghc version installed: ' + GHCVersion);
     InstallationErrorCaption := 'The version of GHC currently installed is not suitable.';
-    InstallationErrorMessage := 'This version of Gtk2Hs requires GHC version 6.6 or 6.4.2 (found GHC version ' + GHCVersion + ')'
+    InstallationErrorMessage := 'This version of Gtk2Hs requires GHC version 6.6 or 6.4.2.' #13#10 #13#10
+                                'Setup found GHC version ' + GHCVersion + ' installed in the folder:' #13#10
+                              + GhcInstallDir
   end
   else if HaveSomeGHCInstalled and (GhcInstallDir <> '') then
   begin
     Log('DetectValidGhcInstallation: some non-working version of ghc appears to be installed at: ' + GhcInstallDir);
     InstallationErrorCaption := 'GHC does not seem to be working.';
-    InstallationErrorMessage := 'GHC does not appear to be installed correctly, try reinstalling GHC version 6.6 or 6.4.2'
+    InstallationErrorMessage := 'GHC does not appear to be installed correctly, try reinstalling GHC version 6.6 or 6.4.2' #13#10 #13#10
+                                'Setup found what appears to be a non-working installation of GHC in the folder:' #13#10
+                              + GhcInstallDir
   end
   else if HaveSomeGHCInstalled then
   begin
     Log('DetectValidGhcInstallation: corrupted ghc installation detected, probably messed up registry keys');
-    InstallationErrorCaption := 'GHC was not found on your computer.';
+    InstallationErrorCaption := 'Setup did not find GHC on your computer.';
     InstallationErrorMessage := 'GHC does not appear to be installed (or the installation is corrupted), please install GHC version 6.6 or 6.4.2';
   end
   else
   begin
     Log('DetectValidGhcInstallation: no installation of ghc detected');
-    InstallationErrorCaption := 'GHC was not found on your computer.';
-    InstallationErrorMessage := 'Gtk2Hs requires GHC to be installed first, please install GHC version 6.6 or 6.4.2';
+    InstallationErrorCaption := 'Setup did not find GHC on your computer.';
+    InstallationErrorMessage := 'Gtk2Hs requires GHC to be installed first, please install GHC version 6.6 or 6.4.2' #13#10 #13#10
+                                'If you installed GHC manually then make sure ghc.exe is on the path.';
   end;
   
   If not Result then
@@ -283,7 +290,7 @@ begin
       SetArrayLength(Offenders, NumFiles);
 
       RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path', Path);
-      Path := GetSystemDir() + ';' + GetWinDir() + ';' + Path
+      Path := GetSystemDir() + ';' + GetWinDir() + ';' + Path;
       
       Log('Checking DLL path: ' + Path);
 
@@ -307,8 +314,8 @@ begin
         if M > 0 then
         begin
           ChecksOk := False;
-          InstallationErrorCaption := 'Clashing DLL files found on the search path.';
-          InstallationErrorMessage := 'Clashing DLL files found on the search path.';
+          InstallationErrorCaption := 'Setup found clashing DLL files on the search path.';
+          InstallationErrorMessage := 'Please read the following description of the problem and how to fix it:';
 
           InstallationErrorDetail :=
               'For Haskell Gtk programs to work properly, the Gtk+ DLL files need to be in the DLL '
@@ -393,7 +400,9 @@ begin
   WizardForm.NextButton.Enabled := False;
   ErrorReportPage.Description      := InstallationErrorCaption;
   ErrorReportPage.SubCaptionLabel.Caption := InstallationErrorMessage;
-  if InstallationErrorDetail <> '' then
+  if InstallationErrorDetail = '' then
+    ErrorReportPage.SubCaptionLabel.Height := 50
+  else
   begin
     ErrorReportPage.RichEditViewer.RTFText := InstallationErrorDetail
     ErrorReportPage.RichEditViewer.Show();
@@ -403,7 +412,7 @@ end;
 procedure InitializeWizard();
 begin
   CheckingPage := CreateOutputProgressPage('Checking requirements', 'Checking for GHC and Gtk+');
-  ErrorReportPage := CreateOutputMsgMemoPage(wpWelcome, 'Setup Problem', 'GHC or Gtk+ problem', 'Your installation of GHC or Gtk+ is messed up!', 'Foo bar!');
+  ErrorReportPage := CreateOutputMsgMemoPage(wpWelcome, 'Setup cannot continue', 'GHC or Gtk+ problem', 'Your installation of GHC or Gtk+ is messed up!', 'Foo bar!');
   ErrorReportPage.OnActivate := @ErrorReportPageNotify;
   ErrorReportPage.RichEditViewer.Hide();
 end;
