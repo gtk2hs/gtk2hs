@@ -50,9 +50,14 @@ rm -rf */lib/locale/ */share/locale/
 ## package-specific pruning
 ###########################
 
-# don't need gtk demo
-pushd gtk+-${GTK_VERSION}
+# don't need the gtk demo
+pushd gtk+-dev-${GTK_VERSION}
 rm -rf share/gtk-2.0
+popd
+
+# don't need the glib gettext stuff
+pushd gtk+-dev-${GTK_VERSION}
+rm -rf share/glib-2.0
 popd
 
 pushd libiconv-${LIBICONV_VERSION}.bin.woe32

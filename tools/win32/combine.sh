@@ -6,6 +6,7 @@ pushd zips
 
 for dir in */
 do
+  rm -f $dir.tar
   pushd $dir
   tar -c -f ../$(basename $dir).tar *
   popd
