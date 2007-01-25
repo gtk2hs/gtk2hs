@@ -52,13 +52,7 @@ import Graphics.UI.Gtk.General.Structs (PangoDirection(..), pangodirToLevel,
 import Graphics.UI.Gtk.General.Enums (TextDirection(..))
 import Control.Exception ( Exception(ArrayException),
 			   ArrayException(IndexOutOfBounds) )
-#if __GLASGOW_HASKELL__>=600
 import Control.Exception (throwIO)
-#else
-import Control.Exception (throw)
-throwIO :: Exception -> IO a
-throwIO = throw
-#endif
 
 {# context lib="pango" prefix="pango" #}
 

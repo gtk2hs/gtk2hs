@@ -38,11 +38,6 @@ module System.Glib.FFI (
 #if __GLASGOW_HASKELL__<602
   unsafeForeignPtrToPtr,
 #endif
-# if __GLASGOW_HASKELL__<600
-  -- ghc 6 exports unsafePerformIO from module Foreign
-  -- provide it here for ghc 5
-  unsafePerformIO,
-# endif
   module Foreign,
   module Foreign.C
   ) where
@@ -80,15 +75,12 @@ unsafeForeignPtrToPtr = foreignPtrToPtr
 #if __GLASGOW_HASKELL__>=602
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
-#elif __GLASGOW_HASKELL__>=600
+#else
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr freePtr
 
 foreign import ccall unsafe "&free"
   freePtr :: FinalizerPtr a
-#else
-nullForeignPtr :: ForeignPtr a
-nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr (return ())
 #endif
 
 -- This is useful when it comes to marshaling lists of GObjects

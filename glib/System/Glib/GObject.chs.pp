@@ -104,20 +104,8 @@ objectRef obj = do
 
 -- | Decrease the reference counter of an object
 --
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall unsafe "&g_object_unref"
-  object_unref' :: FinalizerPtr a
-
-objectUnref :: Ptr a -> FinalizerPtr a
-objectUnref _ = object_unref'
-
-#else
-
-foreign import ccall unsafe "g_object_unref"
-  objectUnref :: Ptr a -> IO ()
-
-#endif
+  objectUnref :: FinalizerPtr a
 
 -- | This function wraps any object that does not derive from Object.
 -- It should be used whenever a function returns a pointer to an existing
@@ -133,7 +121,7 @@ makeNewGObject ::
 makeNewGObject constr generator = do
   objPtr <- generator
   objectRef objPtr
-  obj <- newForeignPtr objPtr (objectUnref objPtr)
+  obj <- newForeignPtr objPtr objectUnref
   return $! constr obj
 
 {#pointer GDestroyNotify as DestroyNotify#}
@@ -149,7 +137,7 @@ constructNewGObject :: GObjectClass obj =>
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
 constructNewGObject constr generator = do
   objPtr <- generator
-  obj <- newForeignPtr objPtr (objectUnref objPtr)
+  obj <- newForeignPtr objPtr objectUnref
   return $! constr obj
 
 -- | Many methods in classes derived from GObject take a callback function and

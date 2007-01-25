@@ -33,38 +33,6 @@ module Graphics.UI.Gtk.Gdk.Events (
   marshExposeRect,
 
   -- selector functions
-#if __GLASGOW_HASKELL__<600
-  eventSent,
-  eventArea,
-  eventRegion,
-  eventCount,
-  eventTime,
-  eventX,
-  eventY,
-  eventIsHint,
-  eventXRoot,
-  eventYRoot,
-  eventModifier,
-  eventClick,
-  eventButton,
-  eventRelease,
-  eventWithCapsLock,
-  eventWithNumLock,
-  eventWithScrollLock,
-  eventKeyName,
-  eventKeyChar,
-  eventCrossingMode,
-  eventNotifyType,
-  eventInFocus,
-  eventXParent,
-  eventYParent,
-  eventWidth,
-  eventHeight,
-  eventVisible,
-  eventWindowMask,
-  eventWindowState,
-  eventInContact,
-#endif
   marshalEvent,		-- convert a pointer to an event data structure
   -- used data structures
   VisibilityState(..),

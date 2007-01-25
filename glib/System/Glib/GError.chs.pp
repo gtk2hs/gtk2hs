@@ -100,15 +100,7 @@ import Data.Dynamic
 
 -- | A GError consists of a domain, code and a human readable message.
 data GError = GError !GErrorDomain !GErrorCode !GErrorMessage
-# if __GLASGOW_HASKELL__>=600
   deriving Typeable
-#else
-{-# NOINLINE gerrorTypeRep #-}
-gerrorTypeRep :: TypeRep
-gerrorTypeRep = mkAppTy (mkTyCon "Graphics.UI.Gtk.GError.GError") []
-instance Typeable GError where
-  typeOf _ = gerrorTypeRep
-#endif
 
 type GQuark = {#type GQuark #}
 

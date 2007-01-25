@@ -142,13 +142,7 @@ import Graphics.UI.Gtk.Pango.Attributes ( PangoAttribute, withAttrList )
 import Data.IORef
 import Control.Exception ( Exception(ArrayException),
                            ArrayException(IndexOutOfBounds) )
-#if __GLASGOW_HASKELL__>=600
 import Control.Exception (throwIO)
-#else
-import Control.Exception (throw)
-throwIO :: Exception -> IO a
-throwIO = throw
-#endif	   
 
 {# context lib="pango" prefix="pango" #}
 

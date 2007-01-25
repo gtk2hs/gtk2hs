@@ -131,11 +131,7 @@ makeNewPangoString str = do
   let correct = genUTFOfs str
   (strPtr, len) <- newUTFStringLen str
   let cLen = fromIntegral len
-#if __GLASGOW_HASKELL__>=600
   liftM (PangoString correct cLen) $ newForeignPtr strPtr finalizerFree
-#else
-  liftM (PangoString correct cLen) $ newForeignPtr strPtr (free strPtr)
-#endif
 
 withPangoString :: PangoString -> 
 		   (UTFCorrection -> CInt -> Ptr CChar -> IO a) -> IO a
@@ -147,48 +143,23 @@ withPangoString (PangoString c l ptr) act = withForeignPtr ptr $ \strPtr ->
 
 makeNewGlyphStringRaw :: Ptr GlyphStringRaw -> IO GlyphStringRaw
 makeNewGlyphStringRaw llPtr = do
-  liftM GlyphStringRaw $ newForeignPtr llPtr (pango_glyph_string_free llPtr)
-
-
-#if __GLASGOW_HASKELL__>=600
+  liftM GlyphStringRaw $ newForeignPtr llPtr pango_glyph_string_free
 
 foreign import ccall unsafe "&pango_glyph_string_free"
-  pango_glyph_string_free' :: FinalizerPtr GlyphStringRaw
-
-pango_glyph_string_free :: Ptr GlyphStringRaw -> FinalizerPtr GlyphStringRaw
-pango_glyph_string_free _ = pango_glyph_string_free'
-
-#else
-
-foreign import ccall unsafe "pango_glyph_string_free"
-  pango_glyph_string_free :: Ptr GlyphStringRaw -> IO ()
-
-#endif
+  pango_glyph_string_free :: FinalizerPtr GlyphStringRaw
 
 -- paired with PangoString and UTFCorrection to create a Haskell PangoItem
 {#pointer *PangoItem as PangoItemRaw foreign newtype #}
 
 makeNewPangoItemRaw :: Ptr PangoItemRaw -> IO PangoItemRaw
 makeNewPangoItemRaw llPtr = do
-  liftM PangoItemRaw $ newForeignPtr llPtr (pango_item_free llPtr)
+  liftM PangoItemRaw $ newForeignPtr llPtr pango_item_free
 
 withPangoItemRaw :: PangoItemRaw -> (Ptr PangoItemRaw -> IO a) -> IO a
 withPangoItemRaw (PangoItemRaw pir) act = withForeignPtr pir act
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall unsafe "&pango_item_free"
-  pango_item_free' :: FinalizerPtr PangoItemRaw
-
-pango_item_free :: Ptr PangoItemRaw -> FinalizerPtr PangoItemRaw
-pango_item_free _ = pango_item_free'
-
-#else
-
-foreign import ccall unsafe "pango_item_free"
-  pango_item_free :: Ptr PangoItemRaw -> IO ()
-
-#endif
+  pango_item_free :: FinalizerPtr PangoItemRaw
 
 -- | Extract the font used for this 'PangoItem'.
 --
@@ -245,22 +216,10 @@ data LayoutIter = LayoutIter (IORef PangoString) LayoutIterRaw
 
 makeNewLayoutIterRaw :: Ptr LayoutIterRaw -> IO LayoutIterRaw
 makeNewLayoutIterRaw liPtr =
-  liftM LayoutIterRaw $ newForeignPtr liPtr (layout_iter_free liPtr)
-
-#if __GLASGOW_HASKELL__>=600
+  liftM LayoutIterRaw $ newForeignPtr liPtr layout_iter_free
 
 foreign import ccall unsafe "&pango_layout_iter_free"
-  layout_iter_free' :: FinalizerPtr LayoutIterRaw
-
-layout_iter_free :: Ptr LayoutIterRaw -> FinalizerPtr LayoutIterRaw
-layout_iter_free _ = layout_iter_free'
-
-#else
-
-foreign import ccall unsafe "pango_layout_iter_free"
-  layout_iter_free :: Ptr LayoutIterRaw -> IO ()
-
-#endif
+  layout_iter_free :: FinalizerPtr LayoutIterRaw
 
 -- | A single line in a 'PangoLayout'.
 --
@@ -270,23 +229,10 @@ data LayoutLine = LayoutLine (IORef PangoString) LayoutLineRaw
 
 makeNewLayoutLineRaw :: Ptr LayoutLineRaw -> IO LayoutLineRaw
 makeNewLayoutLineRaw llPtr = do
-  liftM LayoutLineRaw $ newForeignPtr llPtr (pango_layout_line_unref llPtr)
-
-
-#if __GLASGOW_HASKELL__>=600
+  liftM LayoutLineRaw $ newForeignPtr llPtr pango_layout_line_unref
 
 foreign import ccall unsafe "&pango_layout_line_unref"
-  pango_layout_line_unref' :: FinalizerPtr LayoutLineRaw
-
-pango_layout_line_unref :: Ptr LayoutLineRaw -> FinalizerPtr LayoutLineRaw
-pango_layout_line_unref _ = pango_layout_line_unref'
-
-#else
-
-foreign import ccall unsafe "pango_layout_line_unref"
-  pango_layout_line_unref :: Ptr LayoutLineRaw -> IO ()
-
-#endif
+  pango_layout_line_unref :: FinalizerPtr LayoutLineRaw
 
 -- | A possibly partial description of font(s).
 --
@@ -294,24 +240,10 @@ foreign import ccall unsafe "pango_layout_line_unref"
 
 makeNewFontDescription :: Ptr FontDescription -> IO FontDescription
 makeNewFontDescription llPtr = do
-  liftM FontDescription $ newForeignPtr llPtr
-	    (pango_font_description_free llPtr)
-
-#if __GLASGOW_HASKELL__>=600
+  liftM FontDescription $ newForeignPtr llPtr pango_font_description_free
 
 foreign import ccall unsafe "&pango_font_description_free"
-  pango_font_description_free' :: FinalizerPtr FontDescription
-
-pango_font_description_free :: Ptr FontDescription -> 
-				FinalizerPtr FontDescription
-pango_font_description_free _ = pango_font_description_free'
-
-#else
-
-foreign import ccall unsafe "pango_font_description_free"
-  pango_font_description_free :: Ptr FontDescription -> IO ()
-
-#endif
+  pango_font_description_free :: FinalizerPtr FontDescription
 
 -- | An RFC-3066 language designator to choose scripts.
 --

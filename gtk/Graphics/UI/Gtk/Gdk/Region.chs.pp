@@ -70,23 +70,11 @@ import Graphics.UI.Gtk.General.Structs	(Point, Rectangle(..))
 --
 makeNewRegion :: Ptr Region -> IO Region
 makeNewRegion rPtr = do
-  region <- newForeignPtr rPtr (region_destroy rPtr)
+  region <- newForeignPtr rPtr region_destroy
   return (Region region)
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall unsafe "&gdk_region_destroy"
-  region_destroy' :: FinalizerPtr Region
-
-region_destroy :: Ptr Region -> FinalizerPtr Region
-region_destroy _ = region_destroy'
-
-#else
-
-foreign import ccall unsafe "gdk_region_destroy"
-  region_destroy :: Ptr Region -> IO ()
-
-#endif
+  region_destroy :: FinalizerPtr Region
 
 -- | Specify how to interpret a polygon.
 --

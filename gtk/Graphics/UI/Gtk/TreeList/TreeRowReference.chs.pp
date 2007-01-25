@@ -68,7 +68,7 @@ treeRowReferenceNew self path = do
   rowRefPtr <- throwIfNull "treeRowReferenceNew: invalid path given" $
     {#call unsafe gtk_tree_row_reference_new#} (toTreeModel self) path
   liftM TreeRowReference $
-    newForeignPtr rowRefPtr (tree_row_reference_free rowRefPtr)
+    newForeignPtr rowRefPtr tree_row_reference_free
 
 --------------------
 -- Methods
@@ -90,17 +90,6 @@ treeRowReferenceValid self =
   {# call unsafe tree_row_reference_valid #}
     self
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall unsafe "&gtk_tree_row_reference_free"
-  tree_row_reference_free' :: FinalizerPtr TreeRowReference
+  tree_row_reference_free :: FinalizerPtr TreeRowReference
 
-tree_row_reference_free :: Ptr TreeRowReference -> FinalizerPtr TreeRowReference
-tree_row_reference_free _ = tree_row_reference_free'
-
-#else
-
-foreign import ccall unsafe "gtk_tree_row_reference_free"
-  tree_row_reference_free :: Ptr TreeRowReference -> IO ()
-
-#endif

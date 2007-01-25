@@ -191,22 +191,10 @@ textAttributesNew =
 
 makeNewTextAttributes :: Ptr TextAttributes -> IO TextAttributes
 makeNewTextAttributes ptr =
-  liftM TextAttributes $ newForeignPtr ptr (text_attributes_unref ptr)
+  liftM TextAttributes $ newForeignPtr ptr text_attributes_unref
 
-#if __GLASGOW_HASKELL__>=600
-                                                                                
 foreign import ccall unsafe "&gtk_text_attributes_unref"
-  text_attributes_unref' :: FinalizerPtr TextAttributes
-                                                                                
-text_attributes_unref :: Ptr TextAttributes -> FinalizerPtr TextAttributes
-text_attributes_unref _ = text_attributes_unref'
-                                                                                
-#else
-                                                                                
-foreign import ccall unsafe "gtk_text_attributes_unref"
-  text_attributes_unref :: Ptr TextAttributes -> IO ()
-                                                                                
-#endif
+  text_attributes_unref :: FinalizerPtr TextAttributes
 
 --------------------
 -- Attributes
