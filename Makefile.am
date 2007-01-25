@@ -1522,8 +1522,8 @@ htmldoc_DATA =									  \
 	docs/reference/minus.gif docs/reference/haddock.js			  \
 	docs/reference/index.html docs/reference/doc-index.html			  \
 	docs/reference/gtk2hs.haddock						  \
-	$(foreach LETTER, A B C D E F G H I J K L M N O P R S T U V W X 58,	  \
-		docs/reference/doc-index-$(LETTER).html) #missing letters Q and Z
+	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X	  \
+		58 60 62 124, docs/reference/doc-index-$(LETTER).html) #missing Z
 
 $(htmldoc_DATA) : $(htmldoc_HSFILES)
 	mkdir -p docs/reference
