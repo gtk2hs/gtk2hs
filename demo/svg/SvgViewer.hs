@@ -26,9 +26,9 @@ main = do
 
 updateCanvas :: DrawingArea -> SVG -> Event -> IO Bool
 updateCanvas canvas svg (Expose { eventArea=rect }) = do
-  win <- drawingAreaGetDrawWindow canvas
+  win <- widgetGetDrawWindow canvas
   let (width, height) = svgGetSize svg
-  (width', height') <- drawingAreaGetSize canvas
+  (width', height') <- widgetGetSize canvas
   renderWithDrawable win $ do
     scale (realToFrac width'  / realToFrac width)
           (realToFrac height' / realToFrac height)
