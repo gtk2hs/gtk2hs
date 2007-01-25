@@ -278,6 +278,7 @@ labelSetLabel self str =
 -}
 
 -- | Parses @str@ which is marked up with the Pango text markup language,
+-- as defined in "Graphics.UI.Gtk.Pango.Markup",
 -- setting the label's text and attribute list based on the parse results. If
 -- the @str@ is external data, you may need to escape it.
 --
@@ -291,6 +292,7 @@ labelSetMarkup self str =
     strPtr
 
 -- | Parses @str@ which is marked up with the Pango text markup language,
+-- as defined in "Graphics.UI.Gtk.Pango.Markup",
 -- setting the label's text and attribute list based on the parse results. If
 -- characters in @str@ are preceded by an underscore, they are underlined
 -- indicating that they represent a keyboard accelerator called a mnemonic.
