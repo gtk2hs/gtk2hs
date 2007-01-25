@@ -7,7 +7,7 @@ Package {
      hs_libraries    = ["HSsvgcairo"],
      extra_libraries = [@SVGCAIRO_LIBS_CQ@],
      include_dirs    = [@SVGCAIRO_CFLAGS_CQ@],
-     c_includes      = ["svg-cairo.h"],
+     c_includes      = ["librsvg/rsvg-cairo.h", "librsvg/rsvg.h"],
      package_deps    = ["haskell98", "glib", "cairo"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],

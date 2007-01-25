@@ -342,9 +342,9 @@ GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0],
 	[build bindings for the cairo vector graphics system (default=auto)],
 	[cairo requirement not met. Perhaps you need to install cairo or cairo-devel])
 
-GTKHS_PKG_CHECK(svg-cairo, svgcairo, SVGCAIRO, [libsvg-cairo >= 0.1.4],
+GTKHS_PKG_CHECK(svg, svgcairo, SVGCAIRO, [librsvg-2.0 >= 2.16.0],
 	[build bindings for the cairo svg extension (default=auto)],
-	[libsvg-cairo requirement not met. Perhaps you need to install libsvg-cairo or libsvg-cairo-devel])
+	[librsvg requirement not met. Perhaps you need to install librsvg or librsvg-devel])
 
 GTKHS_PKG_CHECK(opengl, gtkglext, GTKGLEXT, [gtkglext-1.0 >= 1.0.5],
  	[build bindings for the Gtk OpenGL extension (default=auto)],

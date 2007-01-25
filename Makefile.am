@@ -17,6 +17,7 @@ EXTRA_DIST = \
         glib/System/Glib/hsgclosure.h		\
 	cairo/COPYRIGHT				\
 	cairo/cairo.h				\
+	svgcairo/svgcairo.h			\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
 
 # There are no other files in these dirs and tar excludes empty dirs
@@ -1230,7 +1231,7 @@ if HAVE_MTL_PACKAGE
 libHSsvgcairo_a_EXTERNALDEPS	+= mtl
 endif
 libHSsvgcairo_a_INTERNALDEPS	= glib cairo
-libHSsvgcairo_a_HEADER 		= svg-cairo.h
+libHSsvgcairo_a_HEADER 		= svgcairo/svgcairo.h
 libHSsvgcairo_a_PRECOMP		= svgcairo/svgcairo.precomp
 libHSsvgcairo_a_LIBS		= $(SVGCAIRO_LIBS)
 libHSsvgcairo_a_HCFLAGS		= -fffi

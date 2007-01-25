@@ -75,25 +75,27 @@ module Graphics.Rendering.Cairo.SVG (
   svgNewFromString,
   ) where
 
-import Control.Monad (liftM, when)
-import Foreign hiding (rotate)
-import CForeign
-import Control.Exception (bracket)
-import Control.Monad.Reader (ReaderT(..), runReaderT, ask, MonadIO, liftIO)
-import System.IO
+import Control.Monad (when)
+import Foreign
+import Foreign.C
+import Control.Monad.Reader (ask, liftIO)
+import System.IO (Handle, openFile, IOMode(ReadMode), hGetBuf)
 
-import Graphics.Rendering.Cairo.Internal hiding (Status(..))
-{# import Graphics.Rendering.Cairo.Types #} hiding (Status(..))
+import System.Glib.GError (GError(GError), checkGError)
+import System.Glib.GObject (GObjectClass, constructNewGObject)
 
-{# context lib="svg-cairo" prefix="svg_cairo" #}
+import Graphics.Rendering.Cairo.Internal (Render, bracketR)
+{# import Graphics.Rendering.Cairo.Types #} (Cairo(Cairo))
+
+{# context lib="librsvg" prefix="rsvg_handle" #}
 
 ---------------------
 -- Types
 -- 
 
-{# pointer *svg_cairo_t as SVG foreign newtype #}
+{# pointer *RsvgHandle as SVG foreign newtype #}
 
-{# enum status_t as Status {underscoreToCase} deriving(Eq, Show) #}
+instance GObjectClass SVG
 
 ---------------------
 -- Basic API
@@ -121,13 +123,13 @@ withSvgFromString str action =
 
 withSVG :: (SVG -> Render a) -> Render a
 withSVG =
-  bracketR (alloca $ \svgPtrPtr -> do
-             {# call unsafe create #} (castPtr svgPtrPtr)
-             svgPtr <- peek (svgPtrPtr :: Ptr (Ptr SVG))
+  bracketR (do
+             {# call g_type_init #}
+             svgPtr <- {# call unsafe new #}
              svgPtr' <- newForeignPtr_ svgPtr
-             return (SVG svgPtr'))
-             
-          {# call unsafe destroy #}
+             return (SVG svgPtr'))             
+          (\(SVG fptr) -> withForeignPtr fptr $ \ptr ->
+                            {# call unsafe g_object_unref #} (castPtr ptr))
 
 -- GC managed versions
 
@@ -150,57 +152,49 @@ svgNewFromString str = do
   return svg
 
 svgNew :: IO SVG
-svgNew =
-  alloca $ \svgPtrPtr -> do
-    {# call unsafe create #} (castPtr svgPtrPtr)
-    svgPtr <- peek (svgPtrPtr :: Ptr (Ptr SVG))
-    svgPtr' <- newForeignPtr svg_cairo_destroy_ptr svgPtr
-    return (SVG svgPtr')
+svgNew = do
+  {# call g_type_init #}
+  constructNewGObject SVG {# call unsafe new #}
 
-foreign import ccall unsafe "&svg_cairo_destroy"
-  svg_cairo_destroy_ptr :: FinalizerPtr SVG
 
 -- internal implementation
 
 svgParseFromFile :: FilePath -> SVG -> IO ()
-svgParseFromFile file svg =
-  checkStatus $
-  withCString file $ \filePtr -> 
-    {# call parse #} svg filePtr
+svgParseFromFile file svg = do
+  hnd <- openFile file ReadMode
+  svgParseFromHandle hnd svg
 
 svgParseFromHandle :: Handle -> SVG -> IO ()
 svgParseFromHandle hnd svg =
   allocaBytes 4096 $ \bufferPtr -> do
-  checkStatus $ {# call parse_chunk_begin #} svg
   let loop = do
         count <- hGetBuf hnd bufferPtr 4096
         when (count > 0)
-             (checkStatus $ {# call parse_chunk #}
-                svg bufferPtr (fromIntegral count))
+             (checkStatus $ {# call unsafe rsvg_handle_write #}
+                svg (castPtr bufferPtr) (fromIntegral count))
         when (count == 4096) loop
   loop
-  checkStatus $ {# call parse_chunk_end #} svg
+  checkStatus $ {# call unsafe rsvg_handle_close #} svg
 
 svgParseFromString :: String -> SVG -> IO ()
 svgParseFromString str svg = do
-  checkStatus $ {# call parse_chunk_begin #} svg
   let loop ""  = return ()
       loop str =
         case splitAt 4096 str of
           (chunk, str') -> do
             withCStringLen chunk $ \(chunkPtr, len) ->
-              checkStatus $ {# call parse_chunk #}
-                svg chunkPtr (fromIntegral len)
+              checkStatus $ {# call unsafe rsvg_handle_write #}
+                svg (castPtr chunkPtr) (fromIntegral len)
             loop str'
   loop str
-  checkStatus $ {# call parse_chunk_end #} svg
+  checkStatus $ {# call unsafe rsvg_handle_close #} svg
 
 -- actually render it
 
 svgRender :: SVG -> Render ()
 svgRender svg = do
   cr <- ask
-  liftIO $ checkStatus $ {# call render #} svg cr
+  liftIO $ {# call unsafe render_cairo #} svg cr
 
 -- | Get the width and height of the SVG image.
 --
@@ -208,11 +202,10 @@ svgGetSize ::
     SVG
  -> (Int, Int) -- ^ @(width, height)@
 svgGetSize svg = unsafePerformIO $
-  alloca $ \widthPtr ->
-  alloca $ \heightPtr -> do
-  {# call unsafe get_size #} svg widthPtr heightPtr
-  width <- peek widthPtr
-  height <- peek heightPtr
+  allocaBytes {# sizeof RsvgDimensionData #} $ \dimentionsPtr -> do
+  {# call unsafe get_dimensions #} svg dimentionsPtr
+  width  <- {# get RsvgDimensionData->width  #} dimentionsPtr
+  height <- {# get RsvgDimensionData->height #} dimentionsPtr
   return (fromIntegral width, fromIntegral height)
 
 ---------------------
@@ -232,9 +225,7 @@ svgRenderFromString str = withSvgFromString str svgRender
 -- Utils
 -- 
 
-checkStatus :: IO CInt -> IO ()
-checkStatus action = do
-  status <- liftM (toEnum . fromIntegral) action
-  if status == StatusSuccess
-    then return ()
-    else fail ("svg-cairo error: " ++ show status)
+checkStatus :: (Ptr (Ptr ()) -> IO CInt) -> IO ()
+checkStatus action =
+  checkGError (\ptr -> action ptr >> return ())
+    (\(GError domain code msg) -> fail ("svg cairo error: " ++ msg))
