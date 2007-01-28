@@ -20,6 +20,13 @@ pushd libglade-dev-${LIBGLADE_VERSION}
 mv lib/libglade-2.0.dll.a lib/glade-2.0.lib
 popd
 
+mkdir gtkglext-${GTKGLEXT_VERSION}
+mkdir gtkglext-dev-${GTKGLEXT_VERSION}
+mv gtkglext-win32-${GTKGLEXT_VERSION}/bin gtkglext-${GTKGLEXT_VERSION}
+mv gtkglext-win32-${GTKGLEXT_VERSION}/include gtkglext-dev-${GTKGLEXT_VERSION}
+mv gtkglext-win32-${GTKGLEXT_VERSION}/lib gtkglext-dev-${GTKGLEXT_VERSION}
+rm -rf gtkglext-win32-${GTKGLEXT_VERSION}
+
 pushd libxml2-dev-${LIBXML_VERSION}
 rm -r readme.txt include/
 rm lib/libxml2_a.lib
@@ -60,7 +67,7 @@ rm -rf share/gtk-2.0
 popd
 
 # don't need the glib gettext stuff
-pushd gtk+-dev-${GTK_VERSION}
+pushd glib-dev-${GLIB_VERSION}
 rm -rf share/glib-2.0
 popd
 

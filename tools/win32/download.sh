@@ -25,6 +25,8 @@ wget -c $BASE_URL/gtk+/2.10/gtk+-dev-${GTK_VERSION}.zip || exit
 wget -c $BASE_URL/libglade/2.6/libglade-${LIBGLADE_VERSION}.zip || exit
 wget -c $BASE_URL/libglade/2.6/libglade-dev-${LIBGLADE_VERSION}.zip || exit
 
+wget -c http://downloads.sourceforge.net/gtkglext/gtkglext-win32-${GTKGLEXT_VERSION}.zip
+
 wget -c $BASE_URL/dependencies/libiconv-${LIBICONV_VERSION}.bin.woe32.zip || exit
 wget -c $BASE_URL/dependencies/gettext-${GETTEXT_VERSION}.zip || exit
 wget -c $BASE_URL/dependencies/gettext-dev-${GETTEXT_VERSION}.zip || exit
