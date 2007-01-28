@@ -77,7 +77,7 @@ instance Show Rectangle where
 
 updateCanvas :: DrawingArea -> Pixbuf -> Event -> IO Bool
 updateCanvas canvas pb Expose { eventRegion = region } = do
-  win <- drawingAreaGetDrawWindow canvas
+  win <- widgetGetDrawWindow canvas
   gc <- gcNew win
   width  <- pixbufGetWidth pb
   height <- pixbufGetHeight pb

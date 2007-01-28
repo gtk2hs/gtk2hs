@@ -17,7 +17,7 @@ main = do
 
 updateCanvas :: DrawingArea -> PangoLayout -> Event -> IO Bool
 updateCanvas canvas text (Expose { eventArea=rect }) = do
-  win <- drawingAreaGetDrawWindow canvas
+  win <- widgetGetDrawWindow canvas
   (width,height) <- drawingAreaGetSize canvas
   gc <- gcNew win
   gcSetValues gc $ newGCValues {

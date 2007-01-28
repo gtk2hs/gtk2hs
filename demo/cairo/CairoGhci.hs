@@ -26,7 +26,7 @@ run act = do
 
 updateCanvas :: DrawingArea -> Render () -> Event -> IO Bool
 updateCanvas canvas act (Expose {}) = do
-  win <- drawingAreaGetDrawWindow canvas
+  win <- widgetGetDrawWindow canvas
   renderWithDrawable win act
   return True
 updateCanvas canvas act _ = return False
