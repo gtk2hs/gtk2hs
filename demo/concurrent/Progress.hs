@@ -16,7 +16,7 @@ main = do
   dia <- dialogNew
   dialogAddButton dia stockClose ResponseClose
   contain <- dialogGetUpper dia
-  pb <- progressBarNew 
+  pb <- progressBarNew
   boxPackStartDefaults contain pb
   widgetShowAll dia
   forkIO (doTask pb)
