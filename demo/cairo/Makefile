@@ -29,6 +29,5 @@ HCEXTRAFLAGS = $(if $(HCNEEDSPACKAGE), $(addprefix -package ,$(PACKAGES)))
 
 clean:
 	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROGS)
-	rm -f *.png
 
 HC=ghc

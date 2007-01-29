@@ -14,6 +14,6 @@ progressThreadedRTS : ProgressThreadedRTS.hs
 HCEXTRAFLAGS = $(if $(HCNEEDSPACKAGE), $(addprefix -package ,$(PACKAGES)))
 
 clean:
-	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROG)
+	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROGS)
 
 HC=ghc

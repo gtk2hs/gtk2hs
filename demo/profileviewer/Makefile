@@ -1,7 +1,7 @@
 
 PROG  = profileviewer
 SOURCES = ProfileViewer.hs ParseProfile.hs
-PACKAGES = glade mogul
+PACKAGES = glade
 
 $(PROG) : $(SOURCES)
 	$(HC) --make $< -o $@ $(HCFLAGS) $(HCEXTRAFLAGS)
