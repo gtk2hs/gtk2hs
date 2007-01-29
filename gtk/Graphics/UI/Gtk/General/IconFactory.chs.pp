@@ -185,7 +185,7 @@ iconFactoryLookup i stockId =
   withUTFString stockId $ \strPtr -> do
   iconSetPtr <- {#call unsafe icon_factory_lookup#} i strPtr
   if iconSetPtr == nullPtr then return Nothing else liftM (Just . IconSet) $
-    newForeignPtr iconSetPtr (icon_set_unref iconSetPtr)
+    newForeignPtr iconSetPtr icon_set_unref
 
 -- | Looks for an icon in the list of default icon factories.
 --
@@ -200,7 +200,7 @@ iconFactoryLookupDefault stockId =
   withUTFString stockId $ \strPtr -> do
   iconSetPtr <- {#call unsafe icon_factory_lookup_default#} strPtr
   if iconSetPtr == nullPtr then return Nothing else liftM (Just . IconSet) $
-    newForeignPtr iconSetPtr (icon_set_unref iconSetPtr)
+    newForeignPtr iconSetPtr icon_set_unref
 
 -- | Remove an IconFactory from the
 -- application's stock database.
@@ -238,7 +238,7 @@ iconSetRenderIcon set dir state size widget = makeNewGObject mkPixbuf $
 iconSetNew :: IO IconSet
 iconSetNew  = do
   isPtr <- {#call unsafe icon_set_new#}
-  liftM IconSet $ newForeignPtr isPtr (icon_set_unref isPtr)
+  liftM IconSet $ newForeignPtr isPtr icon_set_unref
 
 -- | Creates a new 'IconSet' with the given pixbuf as the default\/fallback
 -- source image. If you don't add any additional "IconSource" to the icon set,
@@ -249,7 +249,7 @@ iconSetNew  = do
 iconSetNewFromPixbuf :: Pixbuf -> IO IconSet
 iconSetNewFromPixbuf pixbuf = do
   isPtr <- {#call unsafe icon_set_new_from_pixbuf#} pixbuf
-  liftM IconSet $ newForeignPtr isPtr (icon_set_unref isPtr)
+  liftM IconSet $ newForeignPtr isPtr icon_set_unref
 
 -- | Obtains a list of icon sizes this icon set can render.
 --
@@ -263,21 +263,8 @@ iconSetGetSizes set =
   {#call unsafe g_free#} (castPtr sizesArr)
   return $ map (toEnum.fromIntegral) list
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall unsafe "&gtk_icon_set_unref"
-  icon_set_unref' :: FinalizerPtr IconSet
-
-icon_set_unref :: Ptr IconSet -> FinalizerPtr IconSet
-icon_set_unref _ = icon_set_unref'
-
-#else
-
-foreign import ccall unsafe "gtk_icon_set_unref"
-  icon_set_unref :: Ptr IconSet -> IO ()
-
-#endif
-
+  icon_set_unref :: FinalizerPtr IconSet
 
 -- | Check if a given IconSize is registered.
 --
@@ -378,28 +365,10 @@ iconSourceGetState is = do
 iconSourceNew :: IO IconSource
 iconSourceNew  = do
   isPtr <- {#call unsafe icon_source_new#}
-  liftM IconSource $ newForeignPtr isPtr (icon_source_free isPtr)
-
-#if __GLASGOW_HASKELL__>=600
+  liftM IconSource $ newForeignPtr isPtr icon_source_free
 
 foreign import ccall unsafe "&gtk_icon_source_free"
-  icon_source_free' :: FinalizerPtr IconSource
-
-icon_source_free :: Ptr IconSource -> FinalizerPtr IconSource
-icon_source_free _ = icon_source_free'
-
-#elif __GLASGOW_HASKELL__>=504
-
-foreign import ccall unsafe "gtk_icon_source_free"
-  icon_source_free :: Ptr IconSource -> IO ()
-
-#else
-
-foreign import ccall "gtk_icon_source_free" unsafe
-  icon_source_free :: Ptr IconSource -> IO ()
-
-#endif
-
+  icon_source_free :: FinalizerPtr IconSource
 
 -- | Mark this 'IconSource' that it
 -- should only apply to the specified 'TextDirection'.

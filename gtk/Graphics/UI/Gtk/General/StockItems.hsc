@@ -260,8 +260,6 @@ stockListIds = do
   res <- mapM readUTFString sPtrs
   return res
 
-#if __GLASGOW_HASKELL__>=600
-
 foreign import ccall unsafe "gtk_stock_add"
   stock_add :: Ptr StockItem -> #{type guint} -> IO ()
 
@@ -270,19 +268,6 @@ foreign import ccall unsafe "gtk_stock_lookup"
 
 foreign import ccall unsafe "gtk_stock_list_ids"
   stock_list_ids :: IO GSList
-
-#else
-
-foreign import ccall "gtk_stock_add" unsafe 
-  stock_add :: Ptr StockItem -> #{type guint} -> IO ()
-
-foreign import ccall "gtk_stock_lookup" unsafe
-  stock_lookup :: CString -> Ptr StockItem -> IO #type gboolean
-
-foreign import ccall "gtk_stock_list_ids" unsafe
-  stock_list_ids :: IO GSList
-
-#endif
 
 #if GTK_CHECK_VERSION(2,6,0)
 
