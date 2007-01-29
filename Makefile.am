@@ -1326,12 +1326,12 @@ nodist_libHSgtkglext_a_SOURCES = $(libHSgtkglext_a_GENERATEDSOURCES)
 
 libHSgtkglext_a_SOURCES =						\
 	gtkglext/Graphics/UI/Gtk/OpenGL.hs				\
-	gtkglext/Graphics/UI/Gtk/OpenGL/Config.chs			\
+	gtkglext/Graphics/UI/Gtk/OpenGL/Config.chs.pp			\
 	gtkglext/Graphics/UI/Gtk/OpenGL/Context.chs			\
 	gtkglext/Graphics/UI/Gtk/OpenGL/Drawable.chs			\
 	gtkglext/Graphics/UI/Gtk/OpenGL/Pixmap.chs			\
 	gtkglext/Graphics/UI/Gtk/OpenGL/Window.chs			\
-	gtkglext/Graphics/UI/Gtk/OpenGL/General.chs			\
+	gtkglext/Graphics/UI/Gtk/OpenGL/General.chs.pp			\
 	gtkglext/Graphics/UI/Gtk/OpenGL/DrawingArea.chs
 
 htmldoc_HSFILES_HIDDEN += $(libHSgtkglext_a_GENERATEDSOURCES:.chs=.hs)

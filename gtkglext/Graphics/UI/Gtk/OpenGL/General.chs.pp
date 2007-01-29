@@ -32,13 +32,19 @@ module Graphics.UI.Gtk.OpenGL.General (
   initGL,
 -- ** Query
   glQueryExtension,
+#if GTK_CHECK_VERSION(2,2,0)
   glQueryExtensionForDisplay,
+#endif
   glQueryGLExtension,
   glQueryVersion,
+#if GTK_CHECK_VERSION(2,2,0)
   glQueryVersionForDisplay,
+#endif
 -- ** Fonts
   glFontUsePangoFont,
+#if GTK_CHECK_VERSION(2,2,0)
   glFontUsePangoFontForDisplay,
+#endif
   ) where
 
 import Monad	(liftM)
@@ -80,6 +86,7 @@ glQueryExtension =
   liftM toBool $
   {# call gdk_gl_query_extension #}
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- | 
 --
 glQueryExtensionForDisplay :: Display -> IO Bool
@@ -87,6 +94,7 @@ glQueryExtensionForDisplay display =
   liftM toBool $
   {# call gdk_gl_query_extension_for_display #}
     display
+#endif
 
 -- | 
 --
@@ -113,6 +121,7 @@ glQueryVersion =
          return (Just (fromIntegral major, fromIntegral minor))
     else return Nothing
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- | 
 --
 glQueryVersionForDisplay :: Display -> IO (Maybe (Int, Int))
@@ -129,6 +138,7 @@ glQueryVersionForDisplay display =
          peek minorPtr >>= \minor ->
          return (Just (fromIntegral major, fromIntegral minor))
     else return Nothing
+#endif
 
 -- | 
 --
@@ -141,6 +151,7 @@ glFontUsePangoFont fontDesc first count listBase =
     (fromIntegral count)
     (fromIntegral listBase)
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- | 
 --
 glFontUsePangoFontForDisplay :: Display -> FontDescription -> Int -> Int -> Int -> IO Font
@@ -152,3 +163,4 @@ glFontUsePangoFontForDisplay display fontDesc first count listBase =
     (fromIntegral first)
     (fromIntegral count)
     (fromIntegral listBase)
+#endif
