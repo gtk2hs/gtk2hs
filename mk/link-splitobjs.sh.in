@@ -4,9 +4,9 @@ lib=$1
 shift
 rm -f ${lib}.list
 for obj in $@; do
-	dir="${obj%.o}_split"
-	if test -d $dir; then
-		find ${dir} -name '*.o' >> ${lib}.list
+	dir=`dirname ${obj}`/`basename ${obj} .o`_split
+	if test -d ${dir}; then
+		find ${dir}/ -name '*.o' >> ${lib}.list
 	else
 		echo ${obj} >> ${lib}.list
 	fi
