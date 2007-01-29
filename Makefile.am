@@ -513,7 +513,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeViewColumn.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView.hs				\
 	gtk/Graphics/UI/Gtk/ModelView/CellLayout.chs.pp			\
-	gtk/Graphics/UI/Gtk/ModelView/CellRenderer.chs			\
+	gtk/Graphics/UI/Gtk/ModelView/CellRenderer.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererCombo.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererPixbuf.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererProgress.chs.pp	\

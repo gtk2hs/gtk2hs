@@ -91,9 +91,11 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
   cellBackgroundColor,
   cellBackgroundSet,
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- * Signals
   onEditingStarted,
   afterEditingStarted
+#endif
   ) where
 
 import System.Glib.FFI
@@ -219,6 +221,7 @@ cellBackgroundColor = newAttrFromBoxedStorableProperty "cell-background-gdk"
 cellBackgroundSet :: CellRendererClass self => Attr self Bool
 cellBackgroundSet = newAttrFromBoolProperty "cell-background-set"
 
+#if GTK_CHECK_VERSION(2,4,0)
 -- | This signal gets emitted when a cell starts to be edited.
 --
 -- * The indended
@@ -237,3 +240,4 @@ onEditingStarted cr act =
 afterEditingStarted cr act =
   connect_OBJECT_STRING__NONE "editing-started" True cr
   $ \ce path -> act ce (stringToTreePath path)
+#endif
