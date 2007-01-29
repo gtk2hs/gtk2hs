@@ -238,6 +238,9 @@ AC_ARG_WITH(pkgconf,
 	    [  --with-pkgconf=FILE     GHC package file to install packages],
 	    [PKGCONF=$withval;],[PKGCONF=;])
 
+dnl Check for various GHC packages:
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -gt, 6.4.0, [GHC_PKG_CHECK(mtl)])
+
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
 PKG_CHECK_MODULES(GLIB,[glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0], [], AC_MSG_ERROR([

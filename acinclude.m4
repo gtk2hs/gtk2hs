@@ -88,6 +88,19 @@ ifelse([$5],,,
   $5])
 fi])dnl
 
+dnl GHC_PKG_CHECK(PKG_NAME)
+AC_DEFUN([GHC_PKG_CHECK],
+[
+AC_MSG_CHECKING([for the GHC package "$1"])
+if ${GHCPKG} --simple-output list $1 > /dev/null 2> /dev/null
+then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_ERROR([
+Missing GHC package "$1". Install "$1" and re-run ./configure])
+fi
+])
+
 dnl GTKHS_PKG_CHECK(arg enable name, package name, package var name,
 dnl                 pkg-config version requirements,
 dnl                 arg enable help string,
