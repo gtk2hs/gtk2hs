@@ -2,8 +2,6 @@
 import Graphics.UI.Gtk
 import Graphics.Rendering.Cairo
 import Control.Monad.Trans ( liftIO )
-import Control.Monad
-import Control.Concurrent
 
 run :: Render () -> IO ()
 run act = do
@@ -13,7 +11,7 @@ run act = do
   contain <- dialogGetUpper dia
   canvas <- drawingAreaNew
   canvas `onSizeRequest` return (Requisition 250 250)
-  canvas `onExpose` updateCanvas canvas act 
+  canvas `onExpose` updateCanvas canvas act
   boxPackStartDefaults contain canvas
   widgetShow canvas
   dialogRun dia
@@ -23,13 +21,14 @@ run act = do
   -- prompt again.
   flush
 
+  where updateCanvas :: DrawingArea -> Render () -> Event -> IO Bool
+        updateCanvas canvas act (Expose {}) = do
+          win <- widgetGetDrawWindow canvas
+          renderWithDrawable win act
+          return True
+        updateCanvas canvas act _ = return False
 
-updateCanvas :: DrawingArea -> Render () -> Event -> IO Bool
-updateCanvas canvas act (Expose {}) = do
-  win <- widgetGetDrawWindow canvas
-  renderWithDrawable win act
-  return True
-updateCanvas canvas act _ = return False
+
 
 setRed :: Render ()
 setRed = do
@@ -55,9 +54,7 @@ drawSquare width height = do
 
 
 
-
-
-drawHCirc :: Double -> Double -> Double -> Render () 
+drawHCirc :: Double -> Double -> Double -> Render ()
 drawHCirc x y radius = do
   arc x y radius 0 pi
   stroke
@@ -70,13 +67,13 @@ drawStr txt = do
   showLayout lay
 
 
- 
+
 drawStr_ :: String -> Render ()
 drawStr_ txt = do
   lay <- liftIO $ do
     ctxt <- cairoCreateContext Nothing
-    descr <- contextGetFontDescription ctxt 
+    descr <- contextGetFontDescription ctxt
     descr `fontDescriptionSetSize` 20
     ctxt `contextSetFontDescription` descr
     layoutText ctxt txt
-  showLayout lay 
+  showLayout lay
