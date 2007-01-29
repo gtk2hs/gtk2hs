@@ -1595,7 +1595,8 @@ installcheck-local:
 
 EXTRA_DIST +=								\
 	demo/buttonbox/ButtonBox.hs demo/buttonbox/Makefile		\
-	demo/concurrent/Progress.hs demo/concurrent/Makefile 		\
+	demo/concurrent/Progress.hs demo/concurrent/Makefile		\
+		demo/concurrent/ProgressThreadedRTS.hs			\
 	demo/filechooser/FileChooserDemo.hs demo/filechooser/Makefile	\
 		demo/filechooser/FileChooserDemo.glade			\
 	demo/gconf/GConfDemo.hs demo/gconf/Makefile			\
@@ -1625,7 +1626,13 @@ EXTRA_DIST +=								\
 		demo/cairo/Text.hs demo/cairo/Makefile 			\
 		demo/cairo/cairo-clock-icon.png				\
 	demo/opengl/RotatingCube.hs demo/opengl/Makefile		\
-	demo/carsim/CarSim.hs demo/carsim/Makefile
+	demo/carsim/CarSim.hs demo/carsim/Makefile			\
+	demo/fonts/Fonts.hs demo/fonts/Makefile				\
+	demo/noughty/Noughty.hs demo/noughty/NoughtyGlade.hs		\
+		demo/noughty/noughty.glade demo/noughty/License		\
+		demo/noughty/Nought.png demo/noughty/Cross.png		\
+		demo/noughty/Makefile					\
+	demo/svg/Makefile  demo/svg/Svg2Png.hs  demo/svg/SvgViewer.hs
 
 #
 #       installing and registering packages with the Haskell compiler
