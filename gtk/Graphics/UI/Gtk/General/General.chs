@@ -32,16 +32,30 @@
 --
 module Graphics.UI.Gtk.General.General (
 --  getDefaultLanguage,
+  -- * Initialisation
   initGUI,
-  eventsPending,
+
+  -- ** Support for OS threads
+  unsafeInitGUIForThreadedRTS,
+  postGUISync,
+  postGUIAsync,
+
+  -- * Main event loop
   mainGUI,
-  mainLevel,
   mainQuit,
+
+  -- ** Less commonly used event loop functions
+  eventsPending,
+  mainLevel,
   mainIteration,
   mainIterationDo,
+  
+  -- * Grab widgets
   grabAdd,
   grabGetCurrent,
   grabRemove,
+  
+  -- * Timeout and idle callbacks
   Priority,
   priorityLow,
   priorityDefaultIdle,
@@ -62,7 +76,8 @@ module Graphics.UI.Gtk.General.General (
 import System.Environment (getProgName, getArgs)
 import Control.Monad      (liftM, mapM, when)
 import Control.Exception  (ioError, Exception(ErrorCall))
-import Control.Concurrent (rtsSupportsBoundThreads)
+import Control.Concurrent (rtsSupportsBoundThreads, newEmptyMVar,
+                           putMVar, takeMVar)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -93,21 +108,44 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- bypass the abi check and would fail on startup. So to stop that we must
 -- prevent initGUI from being inlined.
 {-# NOINLINE initGUI #-}
--- | Initialize the GUI binding.
+-- | Initialize the GUI.
 --
--- * This function initialized the GUI toolkit and parses all Gtk
---   specific arguments. The remaining arguments are returned. If the
---   initialization of the toolkit fails for whatever reason, an exception
---   is thrown.
+-- This must be called before any other function in the Gtk2Hs library.
 --
--- * Throws: @ErrorCall \"Cannot initialize GUI.\"@
+-- This function initializes the GUI toolkit and parses all Gtk
+-- specific arguments. The remaining arguments are returned. If the
+-- initialization of the toolkit fails for whatever reason, an exception
+-- is thrown.
+--
+-- * Throws: @error \"Cannot initialize GUI.\"@
 --
 initGUI :: IO [String]
 initGUI = do
-  when rtsSupportsBoundThreads
-    (fail $ "initGUI: Gtk2Hs does not currently support the threaded RTS\n"
-         ++ "see http://haskell.org/gtk2hs/archives/2005/07/24/writing-multi-threaded-guis/2/\n"
-	 ++ "Please relink your program without using the '-threaded' flag.")
+  name <- getProgName
+  when (rtsSupportsBoundThreads && name /= "<interactive>") $ fail $ "\n" ++
+    "initGUI: Gtk+ is single threaded and so cannot safely be used from\n" ++
+    "multiple Haskell threads when using GHC's threaded RTS. You can\n" ++
+    "avoid this error by relinking your program without using the\n" ++
+    "'-threaded' flag. If you have to use the threaded RTS and are\n" ++
+    "absolutely sure that you only ever call Gtk+ from a single OS\n" ++
+    "thread then you can use the function: unsafeInitGUIForThreadedRTS\n"
+
+  unsafeInitGUIForThreadedRTS
+
+{-# NOINLINE unsafeInitGUIForThreadedRTS #-}
+-- | Same as initGUI except that it prints no warning when used with GHC's
+-- threaded RTS.
+--
+-- If you want to use Gtk2Hs and the threaded RTS then it is your obligation
+-- to ensure that all calls to Gtk+ happen on a single OS thread.
+-- If you want to make calls to Gtk2Hs functions from a Haskell thread other
+-- than the one that calls this functions and mainGUI then you will have to
+-- 'post' your GUI actions to the main GUI thread. You can do this using
+-- 'postGUISync' or 'postGUIAsync'.
+--
+unsafeInitGUIForThreadedRTS :: IO [String]
+unsafeInitGUIForThreadedRTS = do
+  when rtsSupportsBoundThreads gtk2hs_thread_init
   prog <- getProgName
   args <- getArgs
   let allArgs = (prog:args)
@@ -122,6 +160,30 @@ initGUI = do
         _:addrs'  <- peekArray argc' argv'  -- drop the program name
         mapM peekUTFString addrs'
         else error "Cannot initialize GUI."
+
+foreign import ccall unsafe "hsgthread.h gtk2hs_thread_init"
+  gtk2hs_thread_init :: IO ()
+
+-- | Post an action to be run in the main GUI thread.
+--
+-- The current thread blocks until the action completes and the result is
+-- returned.
+--
+postGUISync :: IO a -> IO a
+postGUISync action = do
+  resultVar <- newEmptyMVar
+  idleAdd (action >>= putMVar resultVar >> return False) priorityDefault
+  takeMVar resultVar
+
+-- | Post an action to be run in the main GUI thread.
+--
+-- The current thread continues and does not wait for the result of the
+-- action.
+--
+postGUIAsync :: IO () -> IO ()
+postGUIAsync action = do
+  idleAdd (action >> return False) priorityDefault
+  return ()
 
 -- | Inquire the number of events pending on the event queue
 --
