@@ -650,70 +650,9 @@ else
   esac
 fi
 
-dnl c2hs Dilemma.
-dnl Check if the user supplied a specific C->Haskell installation or wants to
-dnl use the version in the current search path (--with-c2hs-config=yes). 
-dnl The default is to use the built-in version.
-AC_ARG_WITH(c2hs, 
-  [  --with-c2hs=C2HS        use an external C->Haskell installation (slower!)],
-  [
-    case $withval in
-      yes) {
-	BUILT_IN_C2HS=no;
-        AC_PATH_PROG(C2HS, c2hs, notfound)
-        if test $C2HS = notfound; then
-          AC_MSG_ERROR([C->Haskell was not found in current search path.
-	          Try compiling with the built-in c2hs by omitting
-		  --with-c2hs=... when calling ./configure .])
-	fi
-	} ;;
-      no) {
-	BUILT_IN_C2HS=yes
-	} ;;
-      *) {
-	BUILT_IN_C2HS=no;
-	AC_PATH_PROG(C2HS, $withval, notfound)
-        if test $C2HS = notfound; then
-	  AC_MSG_ERROR([The specified C->Haskell tool was not found.
-	          Try compiling with the built-in c2hs by omitting
-		  --with-c2hs=... when calling ./configure .])
-	fi
-	} ;;
-    esac
-  ],[BUILT_IN_C2HS=yes])
-
-dnl The big switch differing between built-in and external c2hs.
-
-AC_MSG_CHECKING([kind of C->Haskell])
-if test $BUILT_IN_C2HS = yes; then
-  AC_MSG_RESULT([built-in])
-  dnl Use the local c2hs.
-  C2HS='./tools/c2hs/c2hsLocal$(EXEEXT)';
-
-else
-  AC_MSG_ERROR([Using an external c2hs is not supported in this release,
-		though hopefully this feature will return in the next release.
-		Please try compiling with the built-in c2hs by omitting
-		--with-c2hs=... when calling ./configure .])
-  AC_MSG_RESULT([external])
-  case $C2HS in
-    c2hs-gtk2hs) {
-      MULTIPLE_CHS=yes;
-      } ;;
-    *) {
-      MULTIPLE_CHS=no;
-      dnl Find C->Haskell and check its version.
-      dnl Check the version of c2hs
-      AC_CACHE_CHECK([c2hs version], c2hs_version, [
-        c2hs_version=`$C2HS --version | $SED "s/[[^0-9.]*\([0-9.]*\) .*]/\1/"`;
-      ])
-      GTKHS_PROG_CHECK_VERSION($c2hs_version, -lt, 0.13.4,
-        AC_MSG_ERROR([You need C->Haskell version 0.13.4 upwards!
-          ** Download from \"http://www.cse.unsw.edu.au/~chak/haskell/c2hs/\". **]))
-      dnl C->Haskell configuration.
-      } ;;
-  esac;
-fi
+dnl Always use the local c2hs.
+BUILT_IN_C2HS=yes
+C2HS='./tools/c2hs/c2hsLocal$(EXEEXT)'
 
 dnl The hsc2hs preprocessor
 AC_PATH_PROG(HSC2HS,hsc2hs, no)
