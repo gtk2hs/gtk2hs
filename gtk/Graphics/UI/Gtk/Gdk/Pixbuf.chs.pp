@@ -105,9 +105,9 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
 #if GTK_CHECK_VERSION(2,6,0)
   pixbufFlipHorazontally,
   pixbufFlipVertically,
-#endif
   pixbufRotateSimple,
   PixbufRotation(..),
+#endif
   pixbufAddAlpha,
   pixbufCopyArea,
   pixbufFill,
@@ -613,7 +613,6 @@ pixbufFlipVertically self =
   {# call pixbuf_flip #}
     self
     (fromBool False)
-#endif
 
 -- | Rotates a pixbuf by a multiple of 90 degrees, and returns the result in a
 -- new pixbuf.
@@ -630,6 +629,7 @@ pixbufRotateSimple self angle =
 -- To make them easier to use, their numerical values are the actual degrees.
 --
 {#enum PixbufRotation {underscoreToCase} #}
+#endif
 
 -- | Add an opacity layer to the 'Pixbuf'.
 --
