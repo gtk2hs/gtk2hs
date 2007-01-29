@@ -3,7 +3,7 @@ TOP = .
 
 SUBDIRS = intro glade
 
-default :
+default : tutorial.html
 	for dir in $(SUBDIRS); do $(MAKE) -C $${dir}; done
 
 EXTRA_CLEANFILES += exports $(TOOLSDIR)/AddLinks \

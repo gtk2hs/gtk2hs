@@ -1,0 +1,445 @@
+Gtk2Hs Tutorial
+A Haskell wrapper around the Gtk+ GUI library suite.
+%%Date
+
+% latex will pick up .ps files, pdflatex .pdf files
+%!preproc(tex): ".diag_ext" ""
+%!preproc(xhtml): ".diag_ext" ".png"
+
+
+= Foreword =
+
+Gtk2Hs is a Haskell wrapper around the Gtk+ Graphical User Interface
+library. 
+Gtk+ started its life as the Gimp Tool Kit, but has grown over time to
+a general-purpose, multi-platform GUI 
+library, with wrappers for many programming languages.
+Gtk2Hs  exposes all relevant functions of Gtk+ and its accompanying 
+libraries in simple and convenient way, by making use of key features
+of Haskell such as its strong type system, the garbage collector and
+closures (partially applied functions). The benefits of building user
+interfaces in Haskell using Gtk2Hs are shorter development times,
+robust code and a simplified API that enables the programmer to use
+even the most advanced widgets without a steep learning curve.
+
+This manual is meant to be a tutorial as well as a reference. As such,
+each chapter covers a certain topic, ranging from elementary
+principles to advanced aspects. Hence, people who are new to Gtk2Hs
+may want to skip later sections of each chapter.
+
++ Introduction + 
+
+This chapter introduces fundamental concepts of Gtk+ that are necessary to understand the structure of Gtk2Hs programs. For a more hands-on experience, a simple example is used to show the basics.
+
+++ A First Gtk2Hs Program ++
+
+Once Gtk2Hs is installed on the computer you are using, an application
+with a GUI interface can simply import the Gtk2Hs library. The basic
+structure of an application is shown in the following "Hello World"
+example:
+
+```
+import Graphics.UI.Gtk
+
+main = do
+  initGUI
+  window <- windowNew
+  set window [ windowTitle := "Hello World" ]
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+```
+
+Gtk2Hs programs can be compiled and run on most current operating systems such as Linux, Mac OS X, Windows, FreeBSD or Solaris. However, so far the library requires the Glasgow Haskell Compiler version 6 or higher. Assuming the program above is stored in a file called ``Hello.hs``, the command to create an executable is as follows:
+
+``$ ghc --make Hello.hs -o hello``
+
+Running the application ``./hello`` will bring up a window not unlike the on below:
+
+[HelloWorld.png]
+
+++ Control Flow ++
+
+The structure of most Gtk2Hs applications follow the following template:
+
+```
+import Graphics.UI.Gtk
+
+main = do
+  initGUI
+  ...
+  ... 
+  mainGUI
+
+```
+
+The first line merely imports the library. Then, in ``main``, the library
+is initialized with ``initGUI``. What follows are application-specific
+function calls to set up the user interface. Finally a function called ``mainGUI`` is called.
+This function waits for any user input and calls the Haskell functions that the programmer set up to deal with the user's actions.
+
+Note that while ``mainGUI`` is active, the Haskell world stops working unless you use GHC's threaded run-time system. The latter is not without problems which is why ``initGUI`` will print a warning message about using the threaded RTS. Please see the remarks on [threads #control] for further information.
+
+++ UI Elements and their Properties ++
+The Hello World program fleshes out the above template with instructions
+to create a window, i.e. ``window <- windowNew``. The so-called
+constructor ``windowNew :: IO Window`` creates a new top level window. A
+window has certain property which are defined in the 
+[Window module http://haskell.org/gtk2hs/current/Graphics/UI/Gtk/Windows/Window.html].
+One of these properties is the name that appears in the title bar,
+documented as ``windowTitle :: WindowClas s self => Attr self String``.
+This property is accessible through the ``set`` and ``get`` functions. For
+instance, the line ``set window [ windowTitle := "Hello World" ]`` sets
+the ``windowTitle`` property of ``window`` to the given string.
+
+++ Layout ++
+
+The next line, ``widgetShowAll window`` places the window onto the screen.
+Note that there is no need to say how large the window is. Gtk+ will
+allocated enough space for the window (and user interface elements inside
+it) so that that everything fits into the window. The allocation of sizes
+happens when the when ``widgetShowAll`` is called.
+
+++ Widgets, Events and Signals ++
+
+The next line ``onDestroy window mainQuit`` specifies the functionality of
+the GUI. In Gtk+, the user interface is made up of so-called **widgets**.
+In the running example, the only widget is ``window``. Gtk+ uses this term
+for any visible user interface element. The user interacts with these
+widgets, thereby creating so-called **events** such as mouse movements,
+clicks, drags or just plain keyboard input. Widgets normally consume these
+events and emit **signals** signals to the application program. Events
+often have an effect on widgets, for instance, typing text will insert the
+text into a text buffer widget. Signals are the effects that an
+application is interested in, for instance, the fact that the user has
+finished filling in a text entry box, presumably because enter or tab was
+pressed. Normally, an application is interested in the signals emitted by
+the widgets and not the events that reflect how the user currently uses
+the mouse and keyboard.
+
+In the example, the **destroy** signal of the widget ``window`` is
+connected to the Haskell function ``mainQuit``. The latter is, in turn, a
+function which is provided by Gtk2Hs. It simply sets a flag in Gtk+ that
+signals to the main loop that it should exit. Thus, whenever the window is
+closed, the main loop entered with ``mainGUI`` exists and, since no other
+instructions follow ``mainGUI``, the program terminates.
+
+++ Containers ++
+
+User interfaces in Gtk+ are built by placing user interface elements into so-called containers which themselves are widgets with the sole purpose of containing other widgets. Our example uses a ``Window`` which, in fact, is merely a container which is able to hold one so-called **child** widget. The child of the window is a property called ``containerChild``. Thus, we can extend our example by creating a button and making this button the child of the window. We augment the "Hello World" example as follows:
+
+```
+main = do
+  initGUI
+  window <- windowNew
+  button <- buttonNew
+  set button [ buttonLabel := "Click me!"]
+  onClicked button (putStrLn "Button clicked!")
+  set window [ windowTitle := "Hello World",
+               containerChild := button ]
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+```
+
+This new example creates a ``Button`` called button and sets its label to
+"Click me!". The **clicked** signal of the button is then set to execute
+``putStrLn "Button clicked!"`` so that the text is printed to the console
+every time the user clicks the button. The line that is interesting is the
+attribute ``containerChild`` that is set to ``button``. Since the
+``Button`` now resides within the window, the call to ``widgetShowAll``
+now operates on the window and the contained button. Thus, enough space is
+allocated for the window to contain the button with its "Click me!" text.
+Furthermore, both widgets are shown on screen. Note that it is possible to
+execute ``widgetShow window`` instead of ``widgetShowAll window``. In this
+case, only the window is shown without the button. More information on how
+sizes are allocated and how widgets can be selectively hidden is presented
+in the section on [containers #containers].
+
+++ Object Hierarchy ++
+
+The Gtk+ library is written in an object-oriented way. In particular, the
+different user interface elements form an inheritance tree. At the root of
+all user interface elements is the ``Widget`` object. The ``Window``
+object derives from ``Container`` and from ``Widget`` and, thus, every
+method that is defined for ``Widget`` can also be used on a ``Window``.
+For instance, the example uses the functions ``widgetShowAll`` and
+``onDestroy`` which both take a ``Widget`` as argument. The type safety of
+Gtk2Hs is guaranteed by virtue of the Haskell class system. In particular,
+for every UI element, Gtk2Hs defines a class and makes that UI element and
+all its derivatives instances. For instance, ``Window`` has an instance
+for the class ``WindowClass``, ``ContainerClass`` and ``WidgetClass``
+whereas ``Widget`` only has an instance for the ``WidgetClass``. All
+functions that manipulate a ``Window`` are defined such that they accept
+any argument that is an instance of the ``WindowClass`` without the need
+for casting. In the example, ``widgetShowAll`` is defined in the
+``Widget`` object and can therefore be used on any ``Container`` or, as in
+this case, any ``Window``. Similarly, the attributes ``windowTitle`` and
+``containerChild`` require at least a instance of class ``WindowClass``
+and ``ContainerClass``, respectively. Thus, setting them on a
+``window :: Window`` is type correct. On the contrary, the **clicked** signal
+is defined for the ``Button`` class, but not for ``Widgets``.
+The following code does therefore not type check:
+
+```
+  window <- windowNew
+  button <- buttonNew
+  set button [ buttonLabel := "Click me!"]
+  set window [ windowTitle := "Hello World",
+               containerChild := button ]
+  [badBut] <- containerGetChildren window 
+  onClicked badBut (putStrLn "Button clicked!")
+```
+
+Here, the function ``containerGetChildren`` will extract the only child from the window, namely the previously added button. However, Gtk2Hs does not know the types of the contained widgets and, hence, the the type of the extraction function is ``containerGetChildren :: ContainerClass self => self -> IO [Widget]``, that is, the function extracts the children from any container widget, and these children are returned as a list of ``Widget``s. Thus, connecting this **clicked** signal using ``onClicked badBut ...`` is type incorrect since ``onClicked :: ButtonClass b => b -> IO () -> IO (ConnectId b)``, that is, ``onClicked`` expects a widget that is at least a ``Button``, but ``Widget`` is not a ``Button``. What is required here is an explicit cast to make the code type correct:
+
+```
+  [badBut] <- containerGetChildren window 
+  onClicked (castToButton badBut)
+    (putStrLn "Button clicked!")
+```
+
+The function ``castToButton :: GObjectClass obj => obj -> Button`` tries to convert any ``GObject`` (a class that is even more general than ``Widget``) to a ``Button``. Obviously, this conversion can fail in which case an exception is thrown.
+
+
++ Main Loop, Timers and Threads +[control]
+
+TODO:
+
+- more on main loop
+- all details on signals
+- timers
+- idle handlers
+- concurrency
+- bounded threads
+
+
++ Containers: Widget in Widgets +[containers]
+
+TODO
+
+- packing concepts of boxes
+- how space is allocated
+- selectively hiding widgets in a widget hierarchy
+- using notebooks to switch between several containers
+- scrolled windows
+
+
++ Menus and Toolbars +[menu]
+
+TODO
+
+- creating menus and toolbars
+- probably implement a combinator library instead of explaining the messy Gtk+ solution
+
+
++ Custom Widgets +[custom]
+
+TODO
+
+- drawing area
+- size allocation, configuration, exposure, updating
+- cairo drawing
+- text drawing: pango
+- input focus
+- mouse and keyboard events
+
+
++ Text Editing +[editing]
+
+TODO: TextView widget
+
++ Tree and List Widgets +[treelist]
+
+The ``TreeView`` widget in Gtk+ displays any data that is organized in
+rows. Similar to the ``TextView`` widget, it follows the
+model-view-controller paradigm in that the storage of data is
+separated from the widget (the view). In contrast to the ``TextView``
+widget, there are several views and several stores to choose from.  We
+will start off with the simplest combination, namely a list store and
+a combo box.
+
+++ The ListStore Model ++
+
+To the programmer the ``ListStore`` looks like a polymorphic list that has
+to be modified in the IO monad. Keeping the list in the IO monad
+allows the view to extract values from it whenever the user interface
+requires it. A Haskell list can be converted to a ``ListStore`` by simply
+calling the``CellRenderer`` constructor:
+
+
+``store <- listStoreNew ["red", "green", "magenta"]``
+
+
+The result is ``store :: ListStore String``, that is, a store that
+contains Haskell Strings. This store can be changed with functions
+such as
+
+- ``listStoreSetValue``,
+- ``listStoreInsert``,
+- ``listStorePrepend``,
+- ``listStoreAppend``,
+- etc.
+
+
+For example the action
+
+	``listStoreSetValue 2 "blue"``
+
+will replace the entry ``"magenta"`` with ``"blue"`` (without actually
+traversing the whole list). Given this store, we can now create a
+widget that uses its content:
+
+```
+  combo <- comboBoxNewWithModel store
+  ren <- cellRendererTextNew
+  cellLayoutPackEnd combo ren
+  cellLayoutSetAttributes combo ren store
+    (\txt -> [cellText := Just txt])
+```
+
+After creating a combo box with the model from above (i.e. the list
+store), we create a so-called ``CellRenderer`` that visualizes data from
+the model in the combo box and add it to the combo box (third line). A
+``CellRenderer`` has several attributes which can be set with the store's
+data. In the example, we set the ``cellText`` attribute to the string in
+our store. The given function ``\txt -> [cellText := Just txt]``
+provides the connection between a row ''txt'' in the model and one or
+more attributes of the ``CellRenderer``. For example, we can set the
+background color of the text in each row to a different value, like
+so:
+
+```
+  cellLayoutSetAttributes combo ren store
+    (\txt -> [cellText := Just txt,
+	      cellBackground := txt])
+```
+
+Many other attributes are possible, depending on the kind of
+``CellRenderer``. It might seem a bit clumsy to separate out objects that
+render cells (``CellRenderer``) from the view itself (ComboBox). However,
+it is actually possible to insert more than one ``CellRenderer`` into a
+ComboBox. For example, we might let the user select hats of different
+color, but also provide the name of the color. 
+
+```
+  [Right rHat, Right gHat, Right bHat]
+      <- mapM pixbufNewFromFile
+         ["redHat.png", "greenHat.png", "blueHat.png"]
+  store <- listStoreNew [(rHat, "red"),
+         (gHat, "green"),
+         (bHat, "blue")]
+  combo <- comboBoxNewWithModel store
+
+  -- Create a cell with text.
+  ren <- cellRendererTextNew
+  cellLayoutPackEnd combo ren
+  cellLayoutSetAttributes combo ren store
+    (\(_, txt) -> [cellText := Just txt])
+
+  -- Create a cell with images.
+  ren' <- cellRendererPixbufNew
+  cellLayoutPackStart combo ren'
+  cellLayoutSetAttributes combo ren' store
+    (\(img, _) -> [cellPixbuf := img])
+```
+
+The result is a combo box that shows the pictures of the hat and the
+color of each, in textual form, next to it:
+
+[images/colorHats.png]
+
+Hence, the ability to insert several ``CellRenderer`` makes it possible to
+create easier-to-use user interface elements. That said, the ComboBox
+widget has convenience functions like ``comboBoxNewText``,
+``comboBoxAppendText`` in case a simple list of strings is sufficient
+as content. 
+
+The naming of the function to associate ``CellRenderer`` with the ComboBox
+might seem odd. The reason for the use of functions starting with
+``cellLayout`` is that a CellLayout is an interface of every view, in
+particular, ComboBox implements the functions defined by CellLayout
+while itself is derived from Widget. In UML parlance, we have the
+following structure:
+
+[images/ComboRenderer.diag_ext]
+
+Note that all renderers derive from the same base class, namely
+``CellRenderer``, which defines many attributes itself.  While any
+attribute can be set on a per-row basis through
+``cellLayoutSetAttributes``, it is also possible to set an attribute
+on a ``CellRenderer`` itself. In the above example, we might want to
+separate the hats from the colors by a few pixels. To do this, we set
+the ``cellXPad`` attribute of the text ``CellRenderer``:
+
+```
+  set ren [cellXPad := 5]
+```
+
+While setting the attribute on a ``CellRenderer`` directly will affect the
+whole column, it is possible to override this value for specific rows
+by supplying a more sophisticated mapping between the model and the
+renderers when connecting them using
+``cellLayoutSetAttributes``. Suppose that no padding should be added
+whenever the size of the color text is greater than six
+characters. The attributes of the ``CellRendererText`` could be set as
+follows:
+
+```
+  cellLayoutSetAttributes combo ren store
+    (\(_, txt) ->
+      if length txt<=6 then [cellText := Just txt]
+      else [cellText := Just txt, cellXPad := 0])
+```
+
+For some properties the ``CellRenderer`` provides two attributes, one to
+specify the value of the property and one to determine if it should be
+set or ignored when rendering the specific cell. Suppose we want to
+highlight rows that are particularly dangerous with red. We can set
+the background color of all rows to red (``cellBackground``) but only
+enable this background color if the entry in the list is deemed to be
+dangerous (``cellBackgroundSet``):
+
+```
+  set ren [cellBackground := "red"]
+  cellLayoutSetAttributes combo ren store
+    (\(_, txt) -> (cellBackgroundSet := txt=="black"):
+      if length txt<=6 then [cellText := Just txt]
+      else [cellText := Just txt, cellXPad := 0])
+```
+
+The advantage of this approach is that the background color of
+dangerous items can be changed without changing the model or the
+attribute mapping. Care must be taken to set both attributes of
+properties that are split into the value and an "enabled" flag.
+
+++ Editing and Adding Entries ++
+
+For a choosing among a small set of options, it is best to use a group
+of RadioButtons. A ComboBox is useful if the number of options is
+large or if the user should be able add new entries. The list store
+presented in the last section can be filled by the program, thereby
+providing a way to choose between a larger or changing number of
+options. However, Gtk provides a way to let the user directly enter
+values in addition to choose among a given set. This widget is an
+extension of the ComboBox called ComboBoxEntry. It allows the user to
+chose one of the given option or to enter a new text. In the latter
+case, the new entry can be added to the model as follows:
+
+```
+  combo <- comboBoxEntryNewWithModel store
+  -- set up renderers here
+  entry <- binGetChild combo
+  entry -- and here we are lacking the API functions
+```
+
+TODO:
+
+- tree model
+- combo boxes in within trees, entry completion
+- custom model
+
+
+
+
+
