@@ -4,17 +4,17 @@
 [Setup]
 AppName=Gtk2Hs
 AppId=Gtk2Hs
-AppVerName=Gtk2Hs 0.9.10.5
-AppVersion=0.9.10.5
+AppVerName=Gtk2Hs 0.9.10.6
+AppVersion=0.9.10.6
 AppPublisher=The Gtk2Hs Team
 AppPublisherURL=http://haskell.org/gtk2hs/
 AppSupportURL=http://haskell.org/gtk2hs/
 AppUpdatesURL=http://haskell.org/gtk2hs/
 
 DefaultDirName={pf}\Gtk2Hs
-OutputBaseFilename=gtk2hs-0.9.10.5
+OutputBaseFilename=gtk2hs-0.9.10.6
 
-VersionInfoVersion=0.9.10.5
+VersionInfoVersion=0.9.10.6
 VersionInfoCopyright=Copyright (C) 2001-2007 The Gtk2Hs Team
 
 Compression=lzma/max
@@ -30,32 +30,34 @@ Name: "docs";    Description: "API reference documentation"; Types: full
 Name: "demos";   Description: "Source files for the Gtk2Hs demo programs"; Types: full
 
 [Files]
-Source: "gtk+-2.10.9\*"; DestDir: "{app}"; Components: gtk; Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "gtk2hs-0.9.10.5-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}"; Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-0.9.10.5-ghc-6.6-gtk-2.10\*";   DestDir: "{app}"; Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-0.9.10.5-demo\*"; DestDir: "{app}\demos"; Components: demos; Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "gtk2hs-0.9.10.5-docs\*"; DestDir: "{app}\docs";  Components: docs;  Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "COPYING.txt"; DestDir: "{app}"; Flags: ignoreversion;
-Source: "AUTHORS.txt"; DestDir: "{app}"; Flags: ignoreversion;
+Source: "gtk+-2.10.9\*";                        DestDir: "{app}";       Components: gtk;     Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk2hs-0.9.10.6-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-0.9.10.6-ghc-6.6-gtk-2.10\*";   DestDir: "{app}";       Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-0.9.10.6-demo\*";               DestDir: "{app}\demos"; Components: demos;   Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk2hs-0.9.10.6-docs\*";               DestDir: "{app}\docs";  Components: docs;    Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "COPYING.txt";                          DestDir: "{app}";                            Flags: ignoreversion;
+Source: "AUTHORS.txt";                          DestDir: "{app}";                            Flags: ignoreversion;
 
 [Registry]
 Root: HKCU; Subkey: "Environment"; ValueName: "Path"; ValueType: "string"; ValueData: "{app}\bin;{olddata}"; Check: NotOnPathAlready(); Flags: preservestringtype;
 
 [Run]
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glib.package.conf""";   StatusMsg: "Registering glib package...";  Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\cairo.package.conf""";  StatusMsg: "Registering cairo package..."; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtk.package.conf""";    StatusMsg: "Registering gtk package...";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf""";  StatusMsg: "Registering glade package..."; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\soegtk.package.conf"""; StatusMsg: "Registering soegtk package..."; Flags: runhidden
-; Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkgl.package.conf""";  StatusMsg: "Registering gtkgl package..."; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glib.package.conf""";     StatusMsg: "Registering glib package...";     Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\cairo.package.conf""";    StatusMsg: "Registering cairo package...";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\svgcairo.package.conf"""; StatusMsg: "Registering svgcairo package..."; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtk.package.conf""";      StatusMsg: "Registering gtk package...";      Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf""";    StatusMsg: "Registering glade package...";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\soegtk.package.conf""";   StatusMsg: "Registering soegtk package...";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkglext.package.conf"""; StatusMsg: "Registering gtkglext package..."; Flags: runhidden
 
 [UninstallRun]
-; Filename: "{code:ghcpkg}"; Parameters: "unregister gtkgl-0.9.10.5";  RunOnceId: "gtkgl"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.10.5"; RunOnceId: "soegtk"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.10.5";  RunOnceId: "glade"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.10.5";    RunOnceId: "gtk";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.10.5";  RunOnceId: "cairo"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.10.5";   RunOnceId: "glib";  Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtkglext-0.9.10.6"; RunOnceId: "gtkglext"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.10.6";   RunOnceId: "soegtk";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.10.6";    RunOnceId: "glade";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.10.6";      RunOnceId: "gtk";      Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.10.6"; RunOnceId: "svgcairo"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.10.6";    RunOnceId: "cairo";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.10.6";     RunOnceId: "glib";     Flags: runhidden
 
 [Code]
 var
