@@ -78,6 +78,7 @@ import Control.Monad      (liftM, mapM, when)
 import Control.Exception  (ioError, Exception(ErrorCall))
 import Control.Concurrent (rtsSupportsBoundThreads, newEmptyMVar,
                            putMVar, takeMVar)
+import Data.IORef         (IORef, newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -145,7 +146,7 @@ initGUI = do
 --
 unsafeInitGUIForThreadedRTS :: IO [String]
 unsafeInitGUIForThreadedRTS = do
-  when rtsSupportsBoundThreads gtk2hs_thread_init
+  when rtsSupportsBoundThreads initialiseGThreads
   prog <- getProgName
   args <- getArgs
   let allArgs = (prog:args)
@@ -161,8 +162,20 @@ unsafeInitGUIForThreadedRTS = do
         mapM peekUTFString addrs'
         else error "Cannot initialize GUI."
 
-foreign import ccall unsafe "hsgthread.h gtk2hs_thread_init"
-  gtk2hs_thread_init :: IO ()
+{-# NOINLINE gthreadsInitialisedRef #-}
+gthreadsInitialisedRef :: IORef Bool
+gthreadsInitialisedRef = unsafePerformIO (newIORef False)
+
+-- g_thread_init aborts the whole program if it's called more than once so
+-- we've got to keep track of whether or not we've called it already, hence
+-- the ugly top-level IORef trick. Sigh.
+--
+initialiseGThreads :: IO ()
+initialiseGThreads = do
+  gthreadsInitialised <- readIORef gthreadsInitialisedRef
+  when (not gthreadsInitialised) $ do
+    {# call unsafe g_thread_init #} nullPtr
+    writeIORef gthreadsInitialisedRef True
 
 -- | Post an action to be run in the main GUI thread.
 --
