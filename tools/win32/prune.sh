@@ -4,38 +4,6 @@
 
 cd zips
 
-## package-specific fixing
-###########################
-
-pushd cairo-dev-${CAIRO_VERSION}
-sed -i -e 's/Requires.private: libpng13/#Requires.private: libpng13/' lib/pkgconfig/cairo.pc
-sed -i -e 's/Libs.private: -lz -lz -lm/Libs.private: -lz -lz -lm -lpng13/' lib/pkgconfig/cairo.pc
-popd
-
-pushd gtk+-${GTK_VERSION}
-echo 'gtk-theme-name = "MS-Windows"' > etc/gtk-2.0/gtkrc
-popd
-
-pushd libglade-dev-${LIBGLADE_VERSION}
-mv lib/libglade-2.0.dll.a lib/glade-2.0.lib
-popd
-
-mkdir gtkglext-${GTKGLEXT_VERSION}
-mkdir gtkglext-dev-${GTKGLEXT_VERSION}
-mv gtkglext-win32-${GTKGLEXT_VERSION}/bin gtkglext-${GTKGLEXT_VERSION}
-mv gtkglext-win32-${GTKGLEXT_VERSION}/include gtkglext-dev-${GTKGLEXT_VERSION}
-mv gtkglext-win32-${GTKGLEXT_VERSION}/lib gtkglext-dev-${GTKGLEXT_VERSION}
-rm -rf gtkglext-win32-${GTKGLEXT_VERSION}
-
-pushd libxml2-dev-${LIBXML_VERSION}
-rm -r readme.txt include/
-rm lib/libxml2_a.lib
-mv lib/libxml2.lib lib/xml2.lib
-mkdir lib/pkgconfig
-cp ../../libxml-2.0.pc lib/pkgconfig/
-popd
-
-
 ## generic pruning
 ##################
 
@@ -71,8 +39,12 @@ pushd glib-dev-${GLIB_VERSION}
 rm -rf share/glib-2.0
 popd
 
+pushd pango-${PANGO_VERSION}
+rm bin/pango-querymodules.exe
+popd
+
 pushd libiconv-${LIBICONV_VERSION}.bin.woe32
-rm -rf README.libiconv share/doc share/man lib/libiconv.a
+rm -rf README.libiconv share/doc share/man lib/libiconv.a bin/iconv.exe
 popd
 
 pushd gettext-dev-${GETTEXT_VERSION}
