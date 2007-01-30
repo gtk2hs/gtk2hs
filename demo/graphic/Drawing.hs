@@ -18,7 +18,7 @@ main = do
 updateCanvas :: DrawingArea -> PangoLayout -> Event -> IO Bool
 updateCanvas canvas text (Expose { eventArea=rect }) = do
   win <- widgetGetDrawWindow canvas
-  (width,height) <- drawingAreaGetSize canvas
+  (width,height) <- widgetGetSize canvas
   gc <- gcNew win
   gcSetValues gc $ newGCValues {
     foreground = Color 65535 0 0,
