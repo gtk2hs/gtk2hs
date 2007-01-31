@@ -87,14 +87,6 @@ fi;
 
 AM_CONDITIONAL(WIN32, test "$WIN32" = "yes")
 
-dnl Check for libraries.
-
-dnl Is Manuels Ports library present?
-dnl AC_ARG_WITH(ports, 
-dnl	    [  --with-ports=PORTS-CONFIG use this Haskell Ports Library],
-dnl	    [PORTS_CONFIG=$withval])
-
-
 dnl Select a specific Haskell compiler and/or flags.
 AC_ARG_WITH(hc, 
             [  --with-hc=HC            use Haskell compiler HC],
@@ -106,7 +98,7 @@ AC_ARG_WITH(hcflags,
 
 
 
-dnl Check for GHC-5.04 or greater.
+dnl Check for GHC-6.0 or greater.
 dnl (The next command is not executed, if $HC is already set.)
 AC_PATH_PROG(HC, [$HC ghc], ghc-not-found)
 if test $HC = ghc-not-found; then
