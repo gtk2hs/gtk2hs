@@ -231,7 +231,7 @@ GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -gt, 6.4.0, [GHC_PKG_CHECK(mtl)])
 
 dnl Check for the GTK&Co libraries. Use the special PKG_CHECK_MODULES
 dnl macro from the pkg-config program.
-PKG_CHECK_MODULES(GLIB,[glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0 gthread-2.0 >= 2.0.0], [], AC_MSG_ERROR([
+PKG_CHECK_MODULES(GLIB,[glib-2.0 >= 2.0.0 gobject-2.0 >= 2.0.0], [], AC_MSG_ERROR([
 
 The development files for the glib-2.x library were not found.
 Perhaps you need to install glib or glib-devel
@@ -246,7 +246,7 @@ As a last resort you may set the environment variables GLIB_CFLAGS
 and GLIB_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details.
 ]))
-PKG_CHECK_MODULES(GTK,[pango >= 1.0.0 gdk-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0 gtk+-2.0 >= 2.0.0], [], AC_MSG_ERROR([
+PKG_CHECK_MODULES(GTK,[pango >= 1.0.0 gdk-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0 gtk+-2.0 >= 2.0.0 gthread-2.0 >= 2.0.0], [], AC_MSG_ERROR([
 
 The development files for the gtk-2.x library were not found.
 Perhaps you need to install gtk or gtk-devel.
