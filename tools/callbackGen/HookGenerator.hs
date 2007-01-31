@@ -328,8 +328,7 @@ marshExec Tptr	  n = indent 4.ss "let ptr".shows n.ss "' = castPtr ptr".
 marshExec Tobject n = indent 4.ss "objectRef obj".shows n.
 		      indent 4.ss "obj".shows n.
 		      ss "' <- liftM (fromGObject.mkGObject) $".
-		      indent 5.ss "newForeignPtr obj".shows n.
-		      ss " (objectUnref obj".shows n.sc ')'
+		      indent 5.ss "newForeignPtr obj".shows n.ss " objectUnref"
 marshExec _	  _ = id
 
 marshRet :: Types -> ShowS
