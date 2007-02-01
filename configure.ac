@@ -62,7 +62,7 @@ LD_X_FLAG
 dnl Figure out file extensions.
 AC_EXEEXT
 
-dnl Check for library pre- and suffixes.
+dnl Check if we're on windows
 case "$host_os" in
   mingw* | *cygwin* )
     WIN32=yes
