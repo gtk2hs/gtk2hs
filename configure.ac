@@ -696,7 +696,11 @@ AM_CONDITIONAL(BUILDDOCS, test "$BUILDDOCS" = "yes")
 dnl Define the set of packages that Haddock should cross-reference into. This
 dnl should include all modules of GHC that contain the definitions of e.g.
 dnl Maybe and Bool, etc. This setting is likely dependent on the GHC version.
-HADDOCK_PACKAGES='base'
+if test "$HAVE_MTL_PACKAGE" = "yes"; then
+HADDOCK_PACKAGES="base mtl"
+else
+HADDOCK_PACKAGES="base"
+fi
 
 dnl The preprocessor to use on Haskell sources
 if test "$USE_CPP_LINES" = "yes"; then
