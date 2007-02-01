@@ -1777,8 +1777,7 @@ DEMOS += demo/opengl
 endif
 
 # For the install check just make sure all the demo programs compile and link
-DEMO_MAKE_ARGS= $(if $(PKGCONF), HCFLAGS="-package-conf $(PKGCONF)") \
-		$(if $(GHCPKG_USE_AUTOLIBS),, HCNEEDSPACKAGE=yes) HC=$(HC)
+DEMO_MAKE_ARGS= $(if $(PKGCONF), HCFLAGS="-package-conf $(PKGCONF)") HC=$(HC)
 
 installcheck-local:
 	$(foreach DEMO,$(DEMOS),$(strip	\
@@ -1891,6 +1890,7 @@ install-data-hook :
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	$(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) \
+	$(if $(USERPKGCONF),--user) \
 	update $(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.package.conf,$(pkgname));)
 
 uninstall-hook :

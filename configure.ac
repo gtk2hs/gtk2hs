@@ -210,9 +210,14 @@ AC_ARG_WITH(pkgreg,
 AM_CONDITIONAL(ENABLE_PKGREG, test "$PKGREG" = "yes")
 
 dnl Check whether to use a local package file.
+AC_ARG_WITH(user-pkgconf,
+	   [  --with-user-pkgconf     use the current user's GHC package database],
+	   [USERPKGCONF=yes;],[USERPKGCONF=;])
+
 AC_ARG_WITH(pkgconf,
-	    [  --with-pkgconf=FILE     GHC package file to install packages],
-	    [PKGCONF=$withval;],[PKGCONF=;])
+	   [  --with-pkgconf=FILE     GHC package file to install packages],
+	   [PKGCONF=$withval;],[PKGCONF=;])
+
 
 dnl Check for various GHC packages:
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -gt, 6.4.0, [GHC_PKG_CHECK(mtl)])
@@ -714,6 +719,7 @@ fi
 dnl Needed substitution.
 AC_SUBST(BUILT_IN_C2HS)
 AC_SUBST(MULTIPLE_CHS)
+AC_SUBST(USERPKGCONF)
 AC_SUBST(PKGCONF)
 AC_SUBST(PKGEXT)
 AC_SUBST(HCFLAGS)
