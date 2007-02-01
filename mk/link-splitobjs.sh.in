@@ -13,3 +13,4 @@ for obj in $@; do
 done
 echo "Linking ${lib}, for larger libs this can take quite some time..."
 cat ${lib}.list | xargs @AR@ q ${lib}
+rm ${lib}.list
