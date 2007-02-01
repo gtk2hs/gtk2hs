@@ -110,24 +110,6 @@ MOSTLYCLEANFILES+= $(am_tools_callbackGen_HookGenerator_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_callbackGen_HookGenerator_SOURCES:.hs=.hi)
 
 #
-#	API Coverage Tool
-#
-################################################################################
-
-#tools_apicoverage_PKGNAME = tools_apicoverage_Exclude
-#
-#tools_apicoverage_Exclude_MAIN = \
-#  $(tools_apicoverage_Exclude_SOURCES)
-#tools_apicoverage_Exclude_EXTERNALDEPS = base haskell98
-#tools_apicoverage_Exclude_SOURCESDIRS = tools/apicoverage
-#tools_apicoverage_Exclude_SOURCES = \
-#  tools/apicoverage/Exclude.hs
-#am_tools_apicoverage_Exclude_OBJECTS = $(addsuffix .$(OBJEXT),\
-#  $(basename $(tools_apicoverage_Exclude_SOURCES)))
-#MOSTLYCLEANFILES+= $(am_tools_apicoverage_Exclude_OBJECTS)
-#MOSTLYCLEANFILES+= $(tools_apicoverage_Exclude_SOURCES:.hs=.hi)
-
-#
 #	c2hs interface generator
 #
 ################################################################################
