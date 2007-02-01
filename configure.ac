@@ -59,32 +59,20 @@ dnl Figure out file extensions.
 AC_EXEEXT
 
 dnl Check for library pre- and suffixes.
-if test x$EXEEXT = x; then
-  dnl must be unix
-  HSCFLAGS=;
-  C2HSFLAGS=;
-  dnl Where are we? (only used during configuration)
-  CREATE_TYPES="plugNsocket default";
-  STARTUP_CODE=;
-else
-  dnl must be Win32
-  HSCFLAGS="-C -optc-mms-bitfields"
-  C2HSFLAGS=;
-  dnl Where are we? (only used during configuration)
-  WIN32=yes;
-  CREATE_TYPES=default;
-  # It would be nice to say -Wl,--subsystem,windows which seems to be the
-  # normal way. However, Solaris' sed is broken and won't deal with the
-  # commas correctly: Symptom: "./configure: Bad substitution"
-  
-  # For the moment do not use the --subsystem windows flag since if you write
-  # to stdout the program will throw an IO exception and die without any
-  # explanation. Apparently ghc 6.4 will make this better in that it will
-  # display the exception so it will not be so confusing.
-  #STARTUP_CODE="-mwindows";
-  STARTUP_CODE=;
-fi;
-
+case "$host_os" in
+  mingw* | *cygwin* )
+    WIN32=yes
+    HSCFLAGS="-C -optc-mms-bitfields"
+    CREATE_TYPES="default"
+    dnl we could set -optl-mwindows by default on windows, but then you
+    dnl an exception if you use standard IO, hmmm.
+    STARTUP_CODE=;;
+  *)
+    WIN32=no
+    HSCFLAGS=""
+    CREATE_TYPES="plugNsocket default"
+    STARTUP_CODE=;;
+esac
 AM_CONDITIONAL(WIN32, test "$WIN32" = "yes")
 
 dnl Select a specific Haskell compiler and/or flags.
