@@ -311,6 +311,8 @@ elif test "$ENABLE_MOZILLA_MOZEMBED" = "yes"; then
 	MOZEMBED_CFLAGS="$MOZILLA_MOZEMBED_CFLAGS"
 	MOZEMBED_LIBS="$MOZILLA_MOZEMBED_LIBS"
 	MOZEMBED_LIBDIR="$MOZILLA_MOZEMBED_LIBDIR"
+else
+	ENABLE_MOZEMBED="no"
 fi
 AC_DEFINE_UNQUOTED(MOZEMBED_LIBDIR,"$MOZEMBED_LIBDIR",[The mozembed library directory])
 AM_CONDITIONAL(ENABLE_MOZEMBED, test "$ENABLE_MOZEMBED" = "yes")
@@ -792,39 +794,22 @@ AC_OUTPUT
 
 dnl ...and chat with the user
 echo "**************************************************"
-echo "* Configuration completed successfully.          *"
-echo "*                                                *"
-dnl if test x$BUILDDOCS = xyes && test -z "$HADDOCK"; then
-dnl 	echo "* Warning: The documentation will not be built:  *"
-dnl 	echo "*   - haddock was not found                      *"
-dnl 	echo "*                                                *"
-dnl fi
-dnl if test $BUILDDOCS = no; then
-dnl   echo "* Warning: The documentation will not be built:  *"
-dnl   if test $FOUNDTRANSLATOR = no; then
-dnl     echo "*   - the xsltproc translator was not found      *"
-dnl   fi;
-dnl   if test $FOUNDCATALOG = no; then
-dnl     echo "*   - no XML catalog files were found            *"
-dnl   fi;
-dnl   if test $FOUNDHTML = no; then
-dnl     echo "*   - no HTML XSL translation file was found     *"
-dnl   fi;
-dnl   if test $FOUNDFO = no; then
-dnl     echo "*   - no FO XSL translation file was found       *"
-dnl   fi;
-dnl   echo "*                                                *"
-dnl fi;
-dnl if test $ENABLE_OPENGL = no; then
-dnl  echo "* Warning: OpenGL support is not available:      *"
-dnl  if test x$FOUNDGLEXT = xno; then
-dnl    echo "*   - the GtkGLExt widget is not installed       *"
-dnl  fi;
-dnl  if test x$FOUNDHOPENGL = xno; then
-dnl    echo "*   - HOpenGL is not installed in the specified  *"
-dnl    echo "*     GHC installation                           *"
-dnl  fi;
-dnl  echo "*                                                *"
-dnl fi;
-echo "* Now do \"(g)make\" followed by \"(g)make install\" *"
+echo "* Configuration completed successfully.           "
+echo "*                                                 "
+echo "* The following packages will be built:           "
+echo "*                                                 "
+echo "* glib          : yes                             "
+echo "* gtk           : yes                             "
+echo "* glade         : ${ENABLE_LIBGLADE}              "
+echo "* cairo         : ${ENABLE_CAIRO}                 "
+echo "* svgcairo      : ${ENABLE_SVGCAIRO}              "
+echo "* gtkglext      : ${ENABLE_GTKGLEXT}              "
+echo "* gconf         : ${ENABLE_GCONF}                 "
+echo "* sourceview    : ${ENABLE_SOURCEVIEW}            "
+echo "* mozembed      : ${ENABLE_MOZEMBED}              "
+echo "* soegtk        : yes                             "
+echo "* documentation : ${BUILDDOCS}                    "
+dnl echo "* tutorials     : no                              "
+echo "*                                                 "
+echo "* Now do \"(g)make\" followed by \"(g)make install\""
 echo "**************************************************"
