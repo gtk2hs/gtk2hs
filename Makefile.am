@@ -584,7 +584,6 @@ libHSgtk_a_LIBADD =							\
 	gtk/Graphics/UI/Gtk/Multiline/TextIter_stub.o			\
 	gtk/Graphics/UI/Gtk/Entry/EntryCompletion_stub.o		\
         gtk/Graphics/UI/Gtk/Multiline/TextTagTable_stub.o		\
-	gtk/Graphics/UI/Gtk/General/General_stub.o			\
         gtk/Graphics/UI/Gtk/TreeList/TreeModel_stub.o			\
         gtk/Graphics/UI/Gtk/TreeList/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/TreeList/TreeView_stub.o			\
@@ -603,11 +602,6 @@ libHSgtk_a_LIBADD =							\
 if !USE_GCLOSUE_SIGNALS_IMPL
 libHSgtk_a_LIBADD += gtk/Graphics/UI/Gtk/Signals_stub.o
 endif
-
-# Pretend these stub files can be created by a simple rule.
-$(libHSgtk_a_LIBADD) :
-	touch $(@:.o=.c)
-	$(CC) -c -o $@ $(@:.o=.c)
 
 gtk/Graphics/UI/Gtk/Types.chs : \
 	$(srcdir)/tools/hierarchyGen/hierarchy.list \
