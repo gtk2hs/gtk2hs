@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = 1.8 foreign no-dependencies
-SUFFIXES = .hs.uncpp .hs.pp .chs.pp .chs .hsc .deps .dep
+SUFFIXES = .hs.uncpp .hs.pp .chs.pp .chs .hsc .deps .p_deps .dep
 MOSTLYCLEANFILES = */*.bak tools/*/*.bak
-CLEANFILES = */*.precomp $(pkglib_LIBRARIES:.a=.p_a) */*.deps
+CLEANFILES = */*.precomp $(pkglib_LIBRARIES:.a=.p_a) */*.deps */*.p_deps
 DISTCLEANFILES =
 
 EXTRA_DIST = \
@@ -329,6 +329,24 @@ libHSglib_a_DEPENDENCIES = HSglib.o
 pkglib_DATA = HSglib.o
 HSglib.o : $(libHSglib_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSglib_a_OBJECTS) $(libHSglib_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSglib_a_DEPENDENCIES += libHSglib.p_a
+pkglib_DATA += libHSglib.p_a
+libHSglib.p_a : $(libHSglib_a_HSFILES:.hs=.p_o) \
+		$(libHSglib_a_SOURCES:.c=.o) \
+		$(libHSglib_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include glib/libHSglib_a.p_deps
+ endif
+
+nobase_hi_DATA        += $(libHSglib_a_HSFILES:.hs=.p_hi)
+glib_MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.p_hi)
+glib_MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.p_o)
+glib_MOSTLYCLEANFILES += $(libHSglib_a_LIBADD:.o=.p_o)
+endif
 
 #
 #	gtk package
@@ -680,6 +698,24 @@ pkglib_DATA += HSgtk.o
 HSgtk.o : $(libHSgtk_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSgtk_a_OBJECTS) $(libHSgtk_a_LIBADD)
 
+if ENABLE_PROFILING
+libHSgtk_a_DEPENDENCIES += libHSgtk.p_a
+pkglib_DATA += libHSgtk.p_a
+libHSgtk.p_a : $(libHSgtk_a_HSFILES:.hs=.p_o) \
+		$(libHSgtk_a_SOURCES:.c=.o) \
+		$(libHSgtk_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include gtk/libHSgtk_a.p_deps
+ endif
+
+nobase_hi_DATA       += $(libHSgtk_a_HSFILES:.hs=.p_hi)
+gtk_MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.p_hi)
+gtk_MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.p_o)
+gtk_MOSTLYCLEANFILES += $(libHSgtk_a_LIBADD:.o=.p_o)
+endif
+
 #
 #	glade package
 #
@@ -775,6 +811,24 @@ libHSglade_a_DEPENDENCIES = HSglade.o
 pkglib_DATA += HSglade.o
 HSglade.o : $(libHSglade_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSglade_a_OBJECTS) $(libHSglade_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSglade_a_DEPENDENCIES += libHSglade.p_a
+pkglib_DATA += libHSglade.p_a
+libHSglade.p_a : $(libHSglade_a_HSFILES:.hs=.p_o) \
+		$(libHSglade_a_SOURCES:.c=.o) \
+		$(libHSglade_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include glade/libHSglade_a.p_deps
+ endif
+
+nobase_hi_DATA         += $(libHSglade_a_HSFILES:.hs=.p_hi)
+glade_MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.p_hi)
+glade_MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.p_o)
+glade_MOSTLYCLEANFILES += $(libHSglade_a_LIBADD:.o=.p_o)
+endif
 
 endif #ENABLE_LIBGLADE
 
@@ -895,6 +949,24 @@ pkglib_DATA += HSgconf.o
 HSgconf.o : $(libHSgconf_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSgconf_a_OBJECTS) $(libHSgconf_a_LIBADD)
 
+if ENABLE_PROFILING
+libHSgconf_a_DEPENDENCIES += libHSgconf.p_a
+pkglib_DATA += libHSgconf.p_a
+libHSgconf.p_a : $(libHSgconf_a_HSFILES:.hs=.p_o) \
+		$(libHSgconf_a_SOURCES:.c=.o) \
+		$(libHSgconf_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include gconf/libHSgconf_a.p_deps
+ endif
+
+nobase_hi_DATA         += $(libHSgconf_a_HSFILES:.hs=.p_hi)
+gconf_MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.p_hi)
+gconf_MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.p_o)
+gconf_MOSTLYCLEANFILES += $(libHSgconf_a_LIBADD:.o=.p_o)
+endif
+
 endif #ENABLE_GCONF
 
 #
@@ -1004,6 +1076,24 @@ pkglib_DATA += HSsourceview.o
 HSsourceview.o : $(libHSsourceview_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSsourceview_a_OBJECTS) $(libHSsourceview_a_LIBADD)
 
+if ENABLE_PROFILING
+libHSsourceview_a_DEPENDENCIES += libHSsourceview.p_a
+pkglib_DATA += libHSsourceview.p_a
+libHSsourceview.p_a : $(libHSsourceview_a_HSFILES:.hs=.p_o) \
+		$(libHSsourceview_a_SOURCES:.c=.o) \
+		$(libHSsourceview_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include sourceview/libHSsourceview_a.p_deps
+ endif
+
+nobase_hi_DATA              += $(libHSsourceview_a_HSFILES:.hs=.p_hi)
+sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.p_hi)
+sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.p_o)
+sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_LIBADD:.o=.p_o)
+endif
+
 endif #ENABLE_SOURCEVIEW
 
 #
@@ -1100,6 +1190,24 @@ libHSmozembed_a_DEPENDENCIES = HSmozembed.o
 pkglib_DATA += HSmozembed.o
 HSmozembed.o : $(libHSmozembed_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSmozembed_a_OBJECTS) $(libHSmozembed_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSmozembed_a_DEPENDENCIES += libHSmozembed.p_a
+pkglib_DATA += libHSmozembed.p_a
+libHSmozembed.p_a : $(libHSmozembed_a_HSFILES:.hs=.p_o) \
+		$(libHSmozembed_a_SOURCES:.c=.o) \
+		$(libHSmozembed_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include mozembed/libHSmozembed_a.p_deps
+ endif
+
+nobase_hi_DATA            += $(libHSmozembed_a_HSFILES:.hs=.p_hi)
+mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.p_hi)
+mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.p_o)
+mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_LIBADD:.o=.p_o)
+endif
 
 endif #ENABLE_MOZEMBED
 
@@ -1217,6 +1325,24 @@ pkglib_DATA += HScairo.o
 HScairo.o : $(libHScairo_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHScairo_a_OBJECTS) $(libHScairo_a_LIBADD)
 
+if ENABLE_PROFILING
+libHScairo_a_DEPENDENCIES += libHScairo.p_a
+pkglib_DATA += libHScairo.p_a
+libHScairo.p_a : $(libHScairo_a_HSFILES:.hs=.p_o) \
+		$(libHScairo_a_SOURCES:.c=.o) \
+		$(libHScairo_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include cairo/libHScairo_a.p_deps
+ endif
+
+nobase_hi_DATA         += $(libHScairo_a_HSFILES:.hs=.p_hi)
+cairo_MOSTLYCLEANFILES += $(libHScairo_a_HSFILES:.hs=.p_hi)
+cairo_MOSTLYCLEANFILES += $(libHScairo_a_HSFILES:.hs=.p_o)
+cairo_MOSTLYCLEANFILES += $(libHScairo_a_LIBADD:.o=.p_o)
+endif
+
 endif #ENABLE_CAIRO
 
 #
@@ -1298,6 +1424,24 @@ libHSsvgcairo_a_DEPENDENCIES = HSsvgcairo.o
 pkglib_DATA += HSsvgcairo.o
 HSsvgcairo.o : $(libHSsvgcairo_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSsvgcairo_a_OBJECTS) $(libHSsvgcairo_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSsvgcairo_a_DEPENDENCIES += libHSsvgcairo.p_a
+pkglib_DATA += libHSsvgcairo.p_a
+libHSsvgcairo.p_a : $(libHSsvgcairo_a_HSFILES:.hs=.p_o) \
+		$(libHSsvgcairo_a_SOURCES:.c=.o) \
+		$(libHSsvgcairo_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include svgcairo/libHSsvgcairo_a.p_deps
+ endif
+
+nobase_hi_DATA            += $(libHSsvgcairo_a_HSFILES:.hs=.p_hi)
+svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_HSFILES:.hs=.p_hi)
+svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_HSFILES:.hs=.p_o)
+svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_LIBADD:.o=.p_o)
+endif
 
 endif #ENABLE_SVGCAIRO
 
@@ -1404,6 +1548,24 @@ pkglib_DATA += HSgtkglext.o
 HSgtkglext.o : $(libHSgtkglext_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSgtkglext_a_OBJECTS) $(libHSgtkglext_a_LIBADD)
 
+if ENABLE_PROFILING
+libHSgtkglext_a_DEPENDENCIES += libHSgtkglext.p_a
+pkglib_DATA += libHSgtkglext.p_a
+libHSgtkglext.p_a : $(libHSgtkglext_a_HSFILES:.hs=.p_o) \
+		$(libHSgtkglext_a_SOURCES:.c=.o) \
+		$(libHSgtkglext_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include gtkglext/libHSgtkglext_a.p_deps
+ endif
+
+nobase_hi_DATA            += $(libHSgtkglext_a_HSFILES:.hs=.p_hi)
+gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_HSFILES:.hs=.p_hi)
+gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_HSFILES:.hs=.p_o)
+gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_LIBADD:.o=.p_o)
+endif
+
 endif #ENABLE_GTKGLEXT
 
 #
@@ -1468,6 +1630,24 @@ libHSsoegtk_a_DEPENDENCIES = HSsoegtk.o
 pkglib_DATA += HSsoegtk.o
 HSsoegtk.o : $(libHSsoegtk_a_OBJECTS)
 	$(LD) -r $(LD_X) -o $@ $(libHSsoegtk_a_OBJECTS) $(libHSsoegtk_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSsoegtk_a_DEPENDENCIES += libHSsoegtk.p_a
+pkglib_DATA += libHSsoegtk.p_a
+libHSsoegtk.p_a : $(libHSsoegtk_a_HSFILES:.hs=.p_o) \
+		$(libHSsoegtk_a_SOURCES:.c=.o) \
+		$(libHSsoegtk_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include soegtk/libHSsoegtk_a.p_deps
+ endif
+
+nobase_hi_DATA          += $(libHSsoegtk_a_HSFILES:.hs=.p_hi)
+soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.p_hi)
+soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.p_o)
+soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_LIBADD:.o=.p_o)
+endif
 
 #
 #       inplace package registration

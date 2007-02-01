@@ -78,7 +78,16 @@ else
 	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
 endif
 
-.DELETE_ON_ERROR : %.deps
+%.p_o : %.hs $(CONFIG_HEADER)
+	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
+        -prof -hisuf p_hi -osuf p_o \
+	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
+	$(call getVar,$<,HCFLAGS) -i$(HS_SEARCH_PATH) \
+	$(HCFLAGS_PACKAGE_DEPS) $(HCFLAGS_PACKAGE_NAME) \
+	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
+	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
+
+.DELETE_ON_ERROR : %.deps %.p_deps
 
 # A string that is non-empty if dependencies should not be calculated. 
 # All but the "clean" target are run during dependencies calculation
@@ -109,6 +118,21 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
 	fi;))
 
+%.p_deps : package.conf.inplace
+	$(if $(strip \
+	  $(if $(findstring c2hs,$@),\
+	  $(findstring clean,$(MAKECMDGOALS)),$(noDeps))),,\
+	$(strip if test -f $@; then touch $@; else \
+	touch $@; \
+	$(if $(word 2,$($(PKG)_HSFILES)),\
+	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_HSFILES); \
+	  $(HC) -M $(addprefix -optdep,-f $@) -fglasgow-exts \
+	  -hisuf p_hi -osuf p_o \
+	  $(HCFLAGS) $($(PKG)_HCFLAGS) -i$(HS_SEARCH_PATH) \
+	  $(HCFLAGS_PACKAGE_DEPS) \
+	  $(AM_CPPFLAGS) $($(PKG)_CPPFLAGS) $($(PKG)_HSFILES);) \
+	fi;))
+
 .chs.dep :
 	$(CHSDEPEND) -i$(CHS_SEARCH_PATH) $<
 
@@ -116,6 +140,9 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	@:
 
 .o.hi:
+	@:
+
+.p_o.p_hi:
 	@:
 
 .c.o:
@@ -129,7 +156,7 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 # The cheeky rule for .hi files says that .hi files can be created as
 # side-effect of generating a .o file. Make sure the .hi files are not
 # deleted as normal intermediate files are.
-.PRECIOUS: %.hi
+.PRECIOUS: %.hi %.p_hi
 
 # Same for .chi
 .PRECIOUS: %.chi

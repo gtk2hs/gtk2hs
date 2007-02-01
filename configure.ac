@@ -164,6 +164,11 @@ if test "$WIN32" = "yes"; then
   HCFLAGS="$HCFLAGS -DWIN32"
 fi
 
+AC_ARG_ENABLE(profiling,
+	     [  --enable-profiling      additionally build profiling versions of all libs],
+	     [ENABLE_PROFILING=$enableval],[ENABLE_PROFILING=no])
+AM_CONDITIONAL(ENABLE_PROFILING, test "$ENABLE_PROFILING" = "yes")
+
 AC_ARG_ENABLE(split-objs,
 	     [  --enable-split-objs     produce smaller executables (on supported platforms)],
 	     [ENABLE_SPLITOBJS=$enableval],[ENABLE_SPLITOBJS=yes])
