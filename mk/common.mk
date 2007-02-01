@@ -192,10 +192,8 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
         --cc="$(HC)" --lflag=-no-hs-main $<)
 
 .chs.hs: 
-	$(if $(subst no,,$(BUILT_IN_C2HS)),$(strip \
-	if test -x $(C2HS); then :; else \
-	  $(MAKE) $(AM_MAKEFLAGS) \
-	  tools/c2hs/c2hsLocal$(EXEEXT); fi;))
+	$(strip if test -x $(C2HS); then :; else \
+	  $(MAKE) $(AM_MAKEFLAGS) $(C2HS); fi;)
 	$(strip if test -f $($(PKG)_PRECOMP); then :; else \
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_PRECOMP); fi;)
 	$(strip $(C2HS) $(C2HS_FLAGS) \

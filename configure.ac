@@ -634,7 +634,6 @@ else
 fi
 
 dnl Always use the local c2hs.
-BUILT_IN_C2HS=yes
 C2HS='./tools/c2hs/c2hsLocal$(EXEEXT)'
 
 dnl The hsc2hs preprocessor
@@ -644,39 +643,35 @@ if test "$HSC2HS" = "no"; then
 fi
 
 dnl The happy parser generator
-if test "$BUILT_IN_C2HS" = yes; then
-  AC_PATH_PROG(HAPPY,happy, no)
-  if test "$HAPPY" = no; then
-    HAPPY_ERROR="Could not find happy which is needed to build c2hs."
-  else
-    AC_MSG_CHECKING([version of happy])
-    HAPPY_VERSION=`$HAPPY --version | $SED "s/[[^0-9.]*\([0-9.]*\) .*]/\1/"`;
-    AC_MSG_RESULT([$HAPPY_VERSION])
-    GTKHS_PROG_CHECK_VERSION($HAPPY_VERSION, -lt, 1.15.0, [
-      HAPPY_ERROR="Version 1.15 or later of happy is required."])
-  fi
-  if test -n "$HAPPY_ERROR"; then
-    dnl We only need to complain if we would actually have to invoke happy
-    dnl which would not be the case for a normal distribution tarball in which
-    dnl the parser .hs file exists and is newer then the parser .y file
-    CParser=${srcdir}/tools/c2hs/c/CParser
-    if test ! -f ${CParser}.hs -o ${CParser}.hs -ot ${CParser}.y; then
-      AC_MSG_ERROR([$HAPPY_ERROR])
-    fi
+AC_PATH_PROG(HAPPY,happy, no)
+if test "$HAPPY" = no; then
+  HAPPY_ERROR="Could not find happy which is needed to build c2hs."
+else
+  AC_MSG_CHECKING([version of happy])
+  HAPPY_VERSION=`$HAPPY --version | $SED "s/[[^0-9.]*\([0-9.]*\) .*]/\1/"`;
+  AC_MSG_RESULT([$HAPPY_VERSION])
+  GTKHS_PROG_CHECK_VERSION($HAPPY_VERSION, -lt, 1.15.0, [
+    HAPPY_ERROR="Version 1.15 or later of happy is required."])
+fi
+if test -n "$HAPPY_ERROR"; then
+  dnl We only need to complain if we would actually have to invoke happy
+  dnl which would not be the case for a normal distribution tarball in which
+  dnl the parser .hs file exists and is newer then the parser .y file
+  CParser=${srcdir}/tools/c2hs/c/CParser
+  if test ! -f ${CParser}.hs -o ${CParser}.hs -ot ${CParser}.y; then
+    AC_MSG_ERROR([$HAPPY_ERROR])
   fi
 fi
 
 dnl The alex lexer generator
-if test "$BUILT_IN_C2HS" = yes; then
-  AC_PATH_PROG(ALEX,alex, no)
-  if test "$ALEX" = no; then
-    dnl We only need to complain if we would actually have to invoke alex
-    dnl which would not be the case for a normal distribution tarball in which
-    dnl the lexer .hs file exists and is newer then the lexer .x file
-    CLexer=${srcdir}/tools/c2hs/c/CLexer
-    if test ! -f ${CLexer}.hs -o ${CLexer}.hs -ot ${CLexer}.x; then
-      AC_MSG_ERROR([Could not find alex which is needed to build c2hs.])
-    fi
+AC_PATH_PROG(ALEX,alex, no)
+if test "$ALEX" = no; then
+  dnl We only need to complain if we would actually have to invoke alex
+  dnl which would not be the case for a normal distribution tarball in which
+  dnl the lexer .hs file exists and is newer then the lexer .x file
+  CLexer=${srcdir}/tools/c2hs/c/CLexer
+  if test ! -f ${CLexer}.hs -o ${CLexer}.hs -ot ${CLexer}.x; then
+    AC_MSG_ERROR([Could not find alex which is needed to build c2hs.])
   fi
 fi
 
