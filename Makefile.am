@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = 1.8 foreign no-dependencies
 SUFFIXES = .hs.uncpp .hs.pp .chs.pp .chs .hsc .deps .dep
-MOSTLYCLEANFILES = */*.deps.bak tools/*/*.deps.bak
-CLEANFILES = */*.precomp
+MOSTLYCLEANFILES = */*.bak tools/*/*.bak
+CLEANFILES = */*.precomp $(pkglib_LIBRARIES:.a=.p_a) */*.deps
 DISTCLEANFILES =
 
 EXTRA_DIST = \
@@ -312,7 +312,7 @@ glib_MOSTLYCLEANFILES += \
 	$(libHSglib_a_CHSFILES:.chs=_stub.o)	\
 	$(libHSglib_a_CHSFILES:.chs=_stub.c)
 glib_CLEANFILES  = $(libHSglib_a_BUILDSOURCES)
-glib_CLEANFILES += glib/libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
+glib_CLEANFILES += $(libHSglib_a_CHSFILES_HS:.hs=.dep)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
@@ -657,11 +657,11 @@ gtk_MOSTLYCLEANFILES  = $(am_libHSgtk_a_OBJECTS)
 gtk_MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)
 gtk_MOSTLYCLEANFILES += \
 	$(libHSgtk_a_CHSFILES:.chs=.chi)	\
-	$(libHSgtk_a_CHSFILES:.chs=_stub.h)	\
-	$(libHSgtk_a_CHSFILES:.chs=_stub.o)	\
-	$(libHSgtk_a_CHSFILES:.chs=_stub.c)
+	$(libHSgtk_a_LIBADD)	\
+	$(libHSgtk_a_LIBADD:.o=_.c)	\
+	$(libHSgtk_a_LIBADD:.o=_.h)
 gtk_CLEANFILES  = $(libHSgtk_a_BUILDSOURCES)
-gtk_CLEANFILES += gtk/libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+gtk_CLEANFILES += $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
 
@@ -750,7 +750,7 @@ glade_MOSTLYCLEANFILES  = $(am_libHSglade_a_OBJECTS)
 glade_MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
 glade_MOSTLYCLEANFILES += $(libHSglade_a_CHSFILES:.chs=.chi)
 glade_CLEANFILES  = $(libHSglade_a_BUILDSOURCES)
-glade_CLEANFILES += glade/libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
+glade_CLEANFILES += $(libHSglade_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSglade_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)	\
@@ -861,11 +861,11 @@ gconf_MOSTLYCLEANFILES  = $(am_libHSgconf_a_OBJECTS)
 gconf_MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
 gconf_MOSTLYCLEANFILES += \
 	$(libHSgconf_a_CHSFILES:.chs=.chi)	\
-	$(libHSgconf_a_CHSFILES:.chs=_stub.h)	\
-	$(libHSgconf_a_CHSFILES:.chs=_stub.o)	\
-	$(libHSgconf_a_CHSFILES:.chs=_stub.c)
+	$(libHSgconf_a_LIBADD)	\
+	$(libHSgconf_a_LIBADD:.o=_.c)	\
+	$(libHSgconf_a_LIBADD:.o=_.h)
 gconf_CLEANFILES  = $(libHSgconf_a_BUILDSOURCES)
-gconf_CLEANFILES += gconf/libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
+gconf_CLEANFILES += $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgconf_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgconf_a_GENERATEDSOURCES)
@@ -968,7 +968,7 @@ sourceview_MOSTLYCLEANFILES  = $(am_libHSsourceview_a_OBJECTS)
 sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
 sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_CHSFILES:.chs=.chi)
 sourceview_CLEANFILES  = $(libHSsourceview_a_BUILDSOURCES)
-sourceview_CLEANFILES += sourceview/libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
+sourceview_CLEANFILES += $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSsourceview_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
@@ -1060,7 +1060,7 @@ mozembed_MOSTLYCLEANFILES  = $(am_libHSmozembed_a_OBJECTS)
 mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
 mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_CHSFILES:.chs=.chi)
 mozembed_CLEANFILES  = $(libHSmozembed_a_BUILDSOURCES)
-mozembed_CLEANFILES += mozembed/libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
+mozembed_CLEANFILES += $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSmozembed_a_CHSFILES:.chs=.dep) : \
 	$(libHSgtk_a_GENERATEDSOURCES)	\
@@ -1175,7 +1175,7 @@ cairo_MOSTLYCLEANFILES  = $(am_libHScairo_a_OBJECTS)
 cairo_MOSTLYCLEANFILES += $(libHScairo_a_HSFILES:.hs=.hi)
 cairo_MOSTLYCLEANFILES += $(libHScairo_a_CHSFILES:.chs=.chi)
 cairo_CLEANFILES  = $(libHScairo_a_BUILDSOURCES)
-cairo_CLEANFILES += cairo/libHScairo_a.deps $(libHScairo_a_CHSFILES_HS:.hs=.dep)
+cairo_CLEANFILES += $(libHScairo_a_CHSFILES_HS:.hs=.dep)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHScairo_a_CHSFILES:.chs=.dep) cairo/libHScairo_a.deps
@@ -1252,7 +1252,7 @@ svgcairo_MOSTLYCLEANFILES  = $(am_libHSsvgcairo_a_OBJECTS)
 svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_HSFILES:.hs=.hi)
 svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_CHSFILES:.chs=.chi)
 svgcairo_CLEANFILES  = $(libHSsvgcairo_a_BUILDSOURCES)
-svgcairo_CLEANFILES += svgcairo/libHSsvgcairo_a.deps $(libHSsvgcairo_a_CHSFILES_HS:.hs=.dep)
+svgcairo_CLEANFILES += $(libHSsvgcairo_a_CHSFILES_HS:.hs=.dep)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSsvgcairo_a_CHSFILES:.chs=.dep) cairo/libHSsvgcairo_a.deps
@@ -1348,7 +1348,7 @@ gtkglext_MOSTLYCLEANFILES  = $(am_libHSgtkglext_a_OBJECTS)
 gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_HSFILES:.hs=.hi)
 gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_CHSFILES:.chs=.chi)
 gtkglext_CLEANFILES  = $(libHSgtkglext_a_BUILDSOURCES)
-gtkglext_CLEANFILES += gtkglext/libHSgtkglext_a.deps $(libHSgtkglext_a_CHSFILES_HS:.hs=.dep)
+gtkglext_CLEANFILES += $(libHSgtkglext_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgtkglext_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
@@ -1413,7 +1413,6 @@ nobase_hi_DATA += $(libHSsoegtk_a_HSFILES:.hs=.hi)
 
 soegtk_MOSTLYCLEANFILES  = $(am_libHSsoegtk_a_OBJECTS)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.hi)
-soegtk_CLEANFILES  = soegtk/libHSsoegtk_a.deps
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include soegtk/libHSsoegtk_a.deps
