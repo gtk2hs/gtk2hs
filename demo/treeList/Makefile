@@ -1,7 +1,6 @@
 
 PROGS  = listdemo treedemo listtest treetest dirlist
 SOURCES = ListDemo.hs TreeDemo.hs ListTest.hs TreeTest.hs DirList.hs
-PACKAGES = glade
 
 all : $(PROGS)
 
@@ -20,9 +19,7 @@ treetest : TreeTest.hs
 dirlist : DirList.hs
 	$(HC_RULE)
 
-HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS) $(HCEXTRAFLAGS)
-
-HCEXTRAFLAGS = $(if $(HCNEEDSPACKAGE), $(addprefix -package ,$(PACKAGES)))
+HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS)
 
 clean:
 	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROGS)

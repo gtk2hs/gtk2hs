@@ -1,4 +1,4 @@
- -- program: S.A.R.A.H. road simulator
+-- program: S.A.R.A.H. road simulator
 -- author: Maurício C. Antunes
 -- e-mail: mauricio.antunes@gmail.com
 -- license: public domain

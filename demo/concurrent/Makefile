@@ -1,17 +1,14 @@
 
 PROGS  = progress progressThreadedRTS
 SOURCES = Progress.hs ProgressThreadedRTS.hs
-PACKAGES = gtk
 
 all : $(PROGS)
 
 progress : Progress.hs
-	$(HC) --make $< -o $@ $(HCFLAGS) $(HCEXTRAFLAGS)
+	$(HC) --make $< -o $@ $(HCFLAGS)
 
 progressThreadedRTS : ProgressThreadedRTS.hs
-	$(HC) --make $< -o $@ -threaded $(HCFLAGS) $(HCEXTRAFLAGS)
-
-HCEXTRAFLAGS = $(if $(HCNEEDSPACKAGE), $(addprefix -package ,$(PACKAGES)))
+	$(HC) --make $< -o $@ -threaded $(HCFLAGS)
 
 clean:
 	rm -f $(SOURCES:.hs=.hi) $(SOURCES:.hs=.o) $(PROGS)
