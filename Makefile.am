@@ -211,9 +211,9 @@ tools_c2hs_c2hsLocal_HSFILES		= \
 # Fix automake - the subdir-objects option doesn't work here.
 am_tools_c2hs_c2hsLocal_OBJECTS = \
 	$(addsuffix .$(OBJEXT),$(basename $(tools_c2hs_c2hsLocal_ALLSOURCES)))
-MOSTLYCLEANFILES+= $(am_tools_c2hs_c2hsLocal_OBJECTS)
-MOSTLYCLEANFILES+= $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
-CLEANFILES+= tools/c2hs/c2hsLocal.deps
+c2hs_MOSTLYCLEANFILES  = $(am_tools_c2hs_c2hsLocal_OBJECTS)
+c2hs_MOSTLYCLEANFILES += $(tools_c2hs_c2hsLocal_HSFILES:.hs=.hi)
+c2hs_CLEANFILES = tools/c2hs/c2hsLocal.deps
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include tools/c2hs/c2hsLocal.deps
@@ -304,16 +304,15 @@ libHSglib_a_HSFILES  = \
 
 nobase_hi_DATA = $(libHSglib_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSglib_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += \
+glib_MOSTLYCLEANFILES  = $(am_libHSglib_a_OBJECTS)
+glib_MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.hi)
+glib_MOSTLYCLEANFILES += \
 	$(libHSglib_a_CHSFILES:.chs=.chi)	\
 	$(libHSglib_a_CHSFILES:.chs=_stub.h)	\
 	$(libHSglib_a_CHSFILES:.chs=_stub.o)	\
 	$(libHSglib_a_CHSFILES:.chs=_stub.c)
-CLEANFILES += $(libHSglib_a_BUILDSOURCES)
-
-CLEANFILES+= glib/libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
+glib_CLEANFILES  = $(libHSglib_a_BUILDSOURCES)
+glib_CLEANFILES += glib/libHSglib_a.deps $(libHSglib_a_CHSFILES_HS:.hs=.dep)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
@@ -654,16 +653,15 @@ libHSgtk_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHSgtk_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSgtk_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += \
+gtk_MOSTLYCLEANFILES  = $(am_libHSgtk_a_OBJECTS)
+gtk_MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)
+gtk_MOSTLYCLEANFILES += \
 	$(libHSgtk_a_CHSFILES:.chs=.chi)	\
 	$(libHSgtk_a_CHSFILES:.chs=_stub.h)	\
 	$(libHSgtk_a_CHSFILES:.chs=_stub.o)	\
 	$(libHSgtk_a_CHSFILES:.chs=_stub.c)
-CLEANFILES+= $(libHSgtk_a_BUILDSOURCES)
-
-CLEANFILES+= gtk/libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
+gtk_CLEANFILES  = $(libHSgtk_a_BUILDSOURCES)
+gtk_CLEANFILES += gtk/libHSgtk_a.deps $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgtk_a_CHSFILES:.chs=.dep) : $(libHSgtk_a_GENERATEDSOURCES)
 
@@ -748,12 +746,11 @@ libHSglade_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHSglade_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSglade_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += $(libHSglade_a_CHSFILES:.chs=.chi)
-CLEANFILES += $(libHSglade_a_BUILDSOURCES) 
-
-CLEANFILES+= glade/libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
+glade_MOSTLYCLEANFILES  = $(am_libHSglade_a_OBJECTS)
+glade_MOSTLYCLEANFILES += $(libHSglade_a_HSFILES:.hs=.hi)
+glade_MOSTLYCLEANFILES += $(libHSglade_a_CHSFILES:.chs=.chi)
+glade_CLEANFILES  = $(libHSglade_a_BUILDSOURCES)
+glade_CLEANFILES += glade/libHSglade_a.deps $(libHSglade_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSglade_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)	\
@@ -860,16 +857,15 @@ libHSgconf_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHSgconf_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSgconf_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += \
+gconf_MOSTLYCLEANFILES  = $(am_libHSgconf_a_OBJECTS)
+gconf_MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
+gconf_MOSTLYCLEANFILES += \
 	$(libHSgconf_a_CHSFILES:.chs=.chi)	\
 	$(libHSgconf_a_CHSFILES:.chs=_stub.h)	\
 	$(libHSgconf_a_CHSFILES:.chs=_stub.o)	\
 	$(libHSgconf_a_CHSFILES:.chs=_stub.c)
-CLEANFILES += $(libHSgconf_a_BUILDSOURCES) 
-
-CLEANFILES+= gconf/libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
+gconf_CLEANFILES  = $(libHSgconf_a_BUILDSOURCES)
+gconf_CLEANFILES += gconf/libHSgconf_a.deps $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgconf_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgconf_a_GENERATEDSOURCES)
@@ -968,12 +964,11 @@ libHSsourceview_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHSsourceview_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSsourceview_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += $(libHSsourceview_a_CHSFILES:.chs=.chi)
-CLEANFILES += $(libHSsourceview_a_BUILDSOURCES) 
-
-CLEANFILES+= sourceview/libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
+sourceview_MOSTLYCLEANFILES  = $(am_libHSsourceview_a_OBJECTS)
+sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_HSFILES:.hs=.hi)
+sourceview_MOSTLYCLEANFILES += $(libHSsourceview_a_CHSFILES:.chs=.chi)
+sourceview_CLEANFILES  = $(libHSsourceview_a_BUILDSOURCES)
+sourceview_CLEANFILES += sourceview/libHSsourceview_a.deps $(libHSsourceview_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSsourceview_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
@@ -1061,12 +1056,11 @@ libHSmozembed_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHSmozembed_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSmozembed_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += $(libHSmozembed_a_CHSFILES:.chs=.chi)
-CLEANFILES += $(libHSmozembed_a_BUILDSOURCES) 
-
-CLEANFILES+= mozembed/libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
+mozembed_MOSTLYCLEANFILES  = $(am_libHSmozembed_a_OBJECTS)
+mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_HSFILES:.hs=.hi)
+mozembed_MOSTLYCLEANFILES += $(libHSmozembed_a_CHSFILES:.chs=.chi)
+mozembed_CLEANFILES  = $(libHSmozembed_a_BUILDSOURCES)
+mozembed_CLEANFILES += mozembed/libHSmozembed_a.deps $(libHSmozembed_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSmozembed_a_CHSFILES:.chs=.dep) : \
 	$(libHSgtk_a_GENERATEDSOURCES)	\
@@ -1177,12 +1171,11 @@ libHScairo_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHScairo_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHScairo_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHScairo_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += $(libHScairo_a_CHSFILES:.chs=.chi)
-CLEANFILES += $(libHScairo_a_BUILDSOURCES) 
-
-CLEANFILES+= cairo/libHScairo_a.deps $(libHScairo_a_CHSFILES_HS:.hs=.dep)
+cairo_MOSTLYCLEANFILES  = $(am_libHScairo_a_OBJECTS)
+cairo_MOSTLYCLEANFILES += $(libHScairo_a_HSFILES:.hs=.hi)
+cairo_MOSTLYCLEANFILES += $(libHScairo_a_CHSFILES:.chs=.chi)
+cairo_CLEANFILES  = $(libHScairo_a_BUILDSOURCES)
+cairo_CLEANFILES += cairo/libHScairo_a.deps $(libHScairo_a_CHSFILES_HS:.hs=.dep)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHScairo_a_CHSFILES:.chs=.dep) cairo/libHScairo_a.deps
@@ -1255,12 +1248,11 @@ libHSsvgcairo_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHSsvgcairo_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSsvgcairo_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSsvgcairo_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += $(libHSsvgcairo_a_CHSFILES:.chs=.chi)
-CLEANFILES += $(libHSsvgcairo_a_BUILDSOURCES) 
-
-CLEANFILES+= svgcairo/libHSsvgcairo_a.deps $(libHSsvgcairo_a_CHSFILES_HS:.hs=.dep)
+svgcairo_MOSTLYCLEANFILES  = $(am_libHSsvgcairo_a_OBJECTS)
+svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_HSFILES:.hs=.hi)
+svgcairo_MOSTLYCLEANFILES += $(libHSsvgcairo_a_CHSFILES:.chs=.chi)
+svgcairo_CLEANFILES  = $(libHSsvgcairo_a_BUILDSOURCES)
+svgcairo_CLEANFILES += svgcairo/libHSsvgcairo_a.deps $(libHSsvgcairo_a_CHSFILES_HS:.hs=.dep)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSsvgcairo_a_CHSFILES:.chs=.dep) cairo/libHSsvgcairo_a.deps
@@ -1352,12 +1344,11 @@ libHSgtkglext_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHSgtkglext_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSgtkglext_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSgtkglext_a_HSFILES:.hs=.hi)
-MOSTLYCLEANFILES += $(libHSgtkglext_a_CHSFILES:.chs=.chi)
-CLEANFILES += $(libHSgtkglext_a_BUILDSOURCES) 
-
-CLEANFILES+= gtkglext/libHSgtkglext_a.deps $(libHSgtkglext_a_CHSFILES_HS:.hs=.dep)
+gtkglext_MOSTLYCLEANFILES  = $(am_libHSgtkglext_a_OBJECTS)
+gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_HSFILES:.hs=.hi)
+gtkglext_MOSTLYCLEANFILES += $(libHSgtkglext_a_CHSFILES:.chs=.chi)
+gtkglext_CLEANFILES  = $(libHSgtkglext_a_BUILDSOURCES)
+gtkglext_CLEANFILES += gtkglext/libHSgtkglext_a.deps $(libHSgtkglext_a_CHSFILES_HS:.hs=.dep)
 
 $(libHSgtkglext_a_CHSFILES:.chs=.dep) :	\
 	$(libHSgtk_a_GENERATEDSOURCES)		\
@@ -1420,10 +1411,9 @@ libHSsoegtk_a_HSFILES  = \
 
 nobase_hi_DATA += $(libHSsoegtk_a_HSFILES:.hs=.hi)
 
-MOSTLYCLEANFILES += $(am_libHSsoegtk_a_OBJECTS)
-MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.hi)
-
-CLEANFILES+= soegtk/libHSsoegtk_a.deps
+soegtk_MOSTLYCLEANFILES  = $(am_libHSsoegtk_a_OBJECTS)
+soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.hi)
+soegtk_CLEANFILES  = soegtk/libHSsoegtk_a.deps
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include soegtk/libHSsoegtk_a.deps
@@ -1516,7 +1506,7 @@ $(htmldoc_DATA) : $(htmldoc_HSFILES)
 		$(addprefix --use-package=,$(HADDOCK_PACKAGES)) \
 		$(HADDOCK_FLAGS) $^)
 
-CLEANFILES += $(htmldoc_DATA)
+doc_CLEANFILES  = $(htmldoc_DATA)
 
 docdistdir = $(PACKAGE)-docs-$(VERSION)
 dist-docs : $(htmldoc_DATA)
@@ -1718,5 +1708,48 @@ install-data-hook :
 uninstall-hook :
 
 endif !ENABLE_PKGREG
+
+#
+#	cleaning
+#
+################################################################################
+
+# We have so many files to clean we can't do it all in on go as it overflows
+# the command line length. So we have to do it in batches:
+
+mostlyclean: mostlyclean-am
+	rm -f $(c2hs_MOSTLYCLEANFILES)
+	rm -f $(glib_MOSTLYCLEANFILES)
+	rm -f $(gtk_MOSTLYCLEANFILES)
+	rm -f $(glade_MOSTLYCLEANFILES)
+	rm -f $(gconf_MOSTLYCLEANFILES)
+	rm -f $(sourceview_MOSTLYCLEANFILES)
+	rm -f $(mozembed_MOSTLYCLEANFILES)
+	rm -f $(cairo_MOSTLYCLEANFILES)
+	rm -f $(svgcairo_MOSTLYCLEANFILES)
+	rm -f $(gtkglext_MOSTLYCLEANFILES)
+	rm -f $(soegtk_MOSTLYCLEANFILES)
+	rm -f $(doc_MOSTLYCLEANFILES)
+
+clean: mostlyclean clean-am
+	rm -f $(c2hs_CLEANFILES)
+	rm -f $(glib_CLEANFILES)
+	rm -f $(gtk_CLEANFILES)
+	rm -f $(glade_CLEANFILES)
+	rm -f $(gconf_CLEANFILES)
+	rm -f $(sourceview_CLEANFILES)
+	rm -f $(mozembed_CLEANFILES)
+	rm -f $(cairo_CLEANFILES)
+	rm -f $(svgcairo_CLEANFILES)
+	rm -f $(gtkglext_CLEANFILES)
+	rm -f $(soegtk_CLEANFILES)
+	rm -f $(doc_CLEANFILES)
+
+distclean: clean distclean-am
+	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
+	-rm -f Makefile
+
+maintainer-clean: distclean maintainer-clean-am
+	-rm -rf $(top_srcdir)/autom4te.cache
 
 include mk/common.mk
