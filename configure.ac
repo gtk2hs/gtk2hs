@@ -46,6 +46,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PATH_PROG(AR,ar)
+AC_PATH_PROG(LD,ld)
 AC_PATH_PROG(BASENAME,basename)
 AC_PROG_GREP
 AC_PATH_PROG(GZIP,gzip)
@@ -54,6 +55,9 @@ AC_PATH_PROG(CUT,cut)
 AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
 AC_PROG_RANLIB
+
+dnl Does ld support -x ?
+LD_X_FLAG
 
 dnl Figure out file extensions.
 AC_EXEEXT
@@ -153,15 +157,6 @@ AC_PATH_PROGS(GHCPKG, $GHCPKGNAME ghc-pkg, ghcpkg-not-found, $GHCDIR)
 if test $GHCPKG = ghcpkg-not-found; then
   AC_MSG_ERROR([ghc-pkg not found. (But ghc exists!?)]);
 fi
-
-dnl On Solaris ghc-pkg fails to build GHCi .o files when installing because
-dnl it uses a linker command that is only appropriate for GNU ld, not the
-dnl Solaris native ld. Disable building GHCi .o files on Solaris until this
-dnl is fixed. (And then make it conditional on the GHC version, ho hum)
-case "$host_os" in
-  solaris2*) GHCPKG_BUILD_GHCI_LIB=;;
-          *) GHCPKG_BUILD_GHCI_LIB=--auto-ghci-libs;;
-esac
 
 dnl Define WIN32 on win32 platform. Perhaps this should go in the
 dnl gtk2hs-config.h file?
@@ -727,7 +722,6 @@ AC_SUBST(C2HSFLAGS)
 AC_SUBST(HSTOOLFLAGS)
 dnl Versionitis
 AC_SUBST(CREATE_TYPES)
-AC_SUBST(GHCPKG_BUILD_GHCI_LIB)
 dnl Optional packages
 AC_SUBST(GTK_CAIRO_DEPEND)
 AC_SUBST(GTK_CAIRO_DEPEND_NO_CABAL)

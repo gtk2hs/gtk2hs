@@ -233,3 +233,20 @@ for FLAG in $3; do
 done;
 $1=`echo [$]RES`;
 ])
+
+dnl LD_X_FLAG
+dnl
+dnl Sets the output variable LD_X to -x if ld supports this flag, otherwise the
+dnl variable's value is empty.
+AC_DEFUN([LD_X_FLAG],
+[
+echo 'foo() {}' > conftest.c
+${CC} -c conftest.c
+if ${LD} -r -x -o conftest2.o conftest.o > /dev/null 2>&1; then
+   LD_X=-x
+else
+   LD_X=
+fi
+rm -f conftest.c conftest.o conftest2.o
+AC_SUBST(LD_X)
+])# LD_X

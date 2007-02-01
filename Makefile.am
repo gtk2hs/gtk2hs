@@ -325,6 +325,11 @@ else
 libHSglib_a_AR = $(AR) $(ARFLAGS)
 endif
 
+libHSglib_a_DEPENDENCIES = HSglib.o
+pkglib_DATA = HSglib.o
+HSglib.o : $(libHSglib_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSglib_a_OBJECTS) $(libHSglib_a_LIBADD)
+
 #
 #	gtk package
 #
@@ -670,6 +675,11 @@ else
 libHSgtk_a_AR = $(AR) $(ARFLAGS)
 endif
 
+libHSgtk_a_DEPENDENCIES = HSgtk.o
+pkglib_DATA += HSgtk.o
+HSgtk.o : $(libHSgtk_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSgtk_a_OBJECTS) $(libHSgtk_a_LIBADD)
+
 #
 #	glade package
 #
@@ -760,6 +770,11 @@ libHSglade_a_AR = $(srcdir)/mk/link-splitobjs.sh
 else
 libHSglade_a_AR = $(AR) $(ARFLAGS)
 endif
+
+libHSglade_a_DEPENDENCIES = HSglade.o
+pkglib_DATA += HSglade.o
+HSglade.o : $(libHSglade_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSglade_a_OBJECTS) $(libHSglade_a_LIBADD)
 
 endif #ENABLE_LIBGLADE
 
@@ -875,6 +890,11 @@ else
 libHSgconf_a_AR = $(AR) $(ARFLAGS)
 endif
 
+libHSgconf_a_DEPENDENCIES = HSgconf.o
+pkglib_DATA += HSgconf.o
+HSgconf.o : $(libHSgconf_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSgconf_a_OBJECTS) $(libHSgconf_a_LIBADD)
+
 endif #ENABLE_GCONF
 
 #
@@ -979,6 +999,11 @@ else
 libHSsourceview_a_AR = $(AR) $(ARFLAGS)
 endif
 
+libHSsourceview_a_DEPENDENCIES = HSsourceview.o
+pkglib_DATA += HSsourceview.o
+HSsourceview.o : $(libHSsourceview_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSsourceview_a_OBJECTS) $(libHSsourceview_a_LIBADD)
+
 endif #ENABLE_SOURCEVIEW
 
 #
@@ -1070,6 +1095,11 @@ libHSmozembed_a_AR = $(srcdir)/mk/link-splitobjs.sh
 else
 libHSmozembed_a_AR = $(AR) $(ARFLAGS)
 endif
+
+libHSmozembed_a_DEPENDENCIES = HSmozembed.o
+pkglib_DATA += HSmozembed.o
+HSmozembed.o : $(libHSmozembed_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSmozembed_a_OBJECTS) $(libHSmozembed_a_LIBADD)
 
 endif #ENABLE_MOZEMBED
 
@@ -1182,6 +1212,11 @@ else
 libHScairo_a_AR = $(AR) $(ARFLAGS)
 endif
 
+libHScairo_a_DEPENDENCIES = HScairo.o
+pkglib_DATA += HScairo.o
+HScairo.o : $(libHScairo_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHScairo_a_OBJECTS) $(libHScairo_a_LIBADD)
+
 endif #ENABLE_CAIRO
 
 #
@@ -1258,6 +1293,11 @@ libHSsvgcairo_a_AR = $(srcdir)/mk/link-splitobjs.sh
 else
 libHSsvgcairo_a_AR = $(AR) $(ARFLAGS)
 endif
+
+libHSsvgcairo_a_DEPENDENCIES = HSsvgcairo.o
+pkglib_DATA += HSsvgcairo.o
+HSsvgcairo.o : $(libHSsvgcairo_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSsvgcairo_a_OBJECTS) $(libHSsvgcairo_a_LIBADD)
 
 endif #ENABLE_SVGCAIRO
 
@@ -1359,6 +1399,11 @@ else
 libHSgtkglext_a_AR = $(AR) $(ARFLAGS)
 endif
 
+libHSgtkglext_a_DEPENDENCIES = HSgtkglext.o
+pkglib_DATA += HSgtkglext.o
+HSgtkglext.o : $(libHSgtkglext_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSgtkglext_a_OBJECTS) $(libHSgtkglext_a_LIBADD)
+
 endif #ENABLE_GTKGLEXT
 
 #
@@ -1418,6 +1463,11 @@ libHSsoegtk_a_AR = $(srcdir)/mk/link-splitobjs.sh
 else
 libHSsoegtk_a_AR = $(AR) $(ARFLAGS)
 endif
+
+libHSsoegtk_a_DEPENDENCIES = HSsoegtk.o
+pkglib_DATA += HSsoegtk.o
+HSsoegtk.o : $(libHSsoegtk_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSsoegtk_a_OBJECTS) $(libHSsoegtk_a_LIBADD)
 
 #
 #       inplace package registration
@@ -1605,7 +1655,7 @@ EXTRA_DIST +=								\
 # Include all the .pkg/.package.conf files in the install set, they're useful
 # to distributors and if your installation gets corrupt you can re-register the
 # packages from them.
-pkglib_DATA = $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),CONFIG))
+pkglib_DATA += $(foreach pkgname,$(pkglib_LIBRARIES), $(call getVar,$(pkgname),CONFIG))
 
 # Before we install the .pkg/.package.conf files we need to substitute for the
 # ${pkglibdir} and ${modules} variables.
@@ -1660,8 +1710,7 @@ install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
-	rm -f $(DESTDIR)$(pkglibdir)/$(patsubst lib%.a,%.o,$(pkgname)); \
-	$(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) $(GHCPKG_BUILD_GHCI_LIB) \
+	$(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) \
 	update $(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.package.conf,$(pkgname));)
 
 uninstall-hook :
@@ -1679,9 +1728,8 @@ install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
 	else echo "[]" > $(PKGCONF); fi;)
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
-	rm -f $(DESTDIR)$(pkglibdir)/$(patsubst lib%.a,%.o,$(pkgname)); \
 	$(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
-	$(GHCPKG_BUILD_GHCI_LIB) --update-package --force \
+	--update-package --force \
 	--input-file=$(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.pkg,$(pkgname));)
 
 uninstall-hook :
