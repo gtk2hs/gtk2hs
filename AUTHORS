@@ -19,6 +19,21 @@ Wolfram Kahl <kahl@cas.mcmaster.ca>
 with help from Scott West and Jonas Svensson
 (binding for GtkMozEmbed the mozilla rendering engine in a widget)
 
+Hans van Thiel <hthiel.char@zonnet.nl>
+(tutorials)
+
+Bertram Felgenhauer <int-e@gmx.de>
+(ghc 6.6 fixes)
+
+Michael G. Sloan <mgsloan@gmail.com>
+(graph demo)
+
+Wouter Swierstra
+(Noughts and crosses demo)
+
+Maurício C. Antunes  <mauricio.antunes@gmail.com>
+(traffic simulator demo)
+
 Armin Groesslinger <fmi.uni-passau.de>
 JP Bernardy <jyp_7@yahoo.com>
 Jonas Svensson <d99josve@dtek.chalmers.se>

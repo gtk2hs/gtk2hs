@@ -1,31 +1,29 @@
-Gtk2Hs: A binding of Gtk+ Version 2.x for the programming language Haskell
+Gtk2Hs: A GUI Library for Haskell based on Gtk+
 
-http://www.haskell.org/gtk2hs
+http://haskell.org/gtk2hs/
 
-The library currently wraps most functions for GUI programming from
-the gtk 2.6 libraries. Furthermore there is support for the Pixbuf
-functions, the libglade UI loader, the SourceView widget, the GConf
-configuration system, and the Mozilla rendering engine, embedded in a widget.
+The library currently wraps most functions from the Gtk+ 2.8 libraries.
+Furthermore there is support for cairo, cairo svg loader, pango, the libglade
+UI loader, the Gtk+ OpenGL extension, the SourceView widget, the GConf
+configuration system, and the Mozilla rendering engine embedded in a widget.
 
-The GHC Haskell compiler, version 5.04 or greater, is required.
-Gtk2hs is known to compile on FreeBSD, Linux, Solaris, OS X and
-Windows (MinGW).
+The GHC Haskell compiler, version 6.0 or greater, is required.
+Gtk2Hs is known to compile on Linux, Windows, OSX, FreeBSD, and Solaris.
 
-You are reading these instructions because you want to build Gtk2Hs from
-source. If you would rather install a binary (pre-compiled) package,
-please check the Gtk2Hs web site.
+These instruuctions are about building Gtk2Hs from source. If you would rather
+install a binary (pre-compiled) package, please check the Gtk2Hs web site.
 
 Building
 --------
 
 This section assumes that you are building a source distribution (.tar.gz).
 If you are building on Windows, read "Building on Windows" first. If you
-are interested in using ghci on Solaris, read "ghci on Solaris". If you
-are using the CVS repository, please read "Building from the CVS HEAD".
+are using the darcs version, please read "Building from darcs".
 
 The following assumes that the sources are in ~/gtk2hs.
 
 1. Run the configure script.
+----------------------------
 
 The configure script has several useful options, particularly:
 
@@ -35,37 +33,28 @@ The configure script has several useful options, particularly:
 --with-hcflags=<path to your ghc>
   If you find that you need to pass any special flags to the Haskell compiler
   then use this option to specify them. This overrides the default flags which
-  is just "-O" to compile using optimisations.
+  is just "-O" to compile using optimisations. Use -O0 for a quicker build.
 
---with-c2hs=no
-  Uses the c2hs binding tool that comes with gtk2hs. This special version
-  translates the header files only once, thereby accelerating generating
-  Haskell files from .chs sources. This setting is the default.
+--enable-profiling
+  Build profiling versions of all the libraries in addition to the normal ones.
 
---with-c2hs=yes
-  Search for a c2hs installation in the current PATH.
+--disable-split-objs
+  By default the libraries are built using GHC's 'split-objs' feature. This
+  makes for considerably smaller binaries since it allows the linker to
+  include only the functions needed. However split-objs doesn't work on every
+  platform so if you get linker errors then you can can try disabling it.
+  Building the Gtk2Hs libs with split-objs turned on is considerably
+  slower and uses more memory so you may prefer to turn it off.
 
-NOTE: using an external version of c2hs is not currently working!
+--with-user-pkgconf
+  Instead of registering Gtk2Hs with GHC's global package file, register in the
+  user's one instead. This is useful if you want to install to your own user
+  space rather than system wide.
 
---with-c2hs=<path to your c2hs-config>
-  Use this specific installation of c2hs. Make sure you specify the c2hs-config
-  program, not c2hs itself.
-
---enable-packager-mode
-  Enables --without-pkgreg and does not build any optional packages unless
-  these are specified with --enable-PACKAGE. On Windows it also does some
-  other stuff that helps with building an installer.
-
---without-pkgreg
-  This option disables registering the packages with GHC. This
-  is useful to people building on one machine but wanting to install on
-  another, e.g. people packaging Gtk2Hs for use with a package management
-  system.
-
---with-pkgconf=<path to a local .conf file>
-  Instead of registering Gtk2Hs with GHC's global package file, use the given
-  file. If this file doesn't exit, it is created. Useful for people who do
-  not have sufficient priviliges to install into the global GHC package file.
+--enable-docs
+  This builds reference documentation in html format. These are also available
+  from the website but you may prefer to keep a local copy. You will need
+  haddock version 0.7 or later to build the documentation.
 
 --enable-PACKAGE      {- substitute package name for PACKAGE -}
 --disable-PACKAGE
@@ -87,7 +76,7 @@ NOTE: using an external version of c2hs is not currently working!
 
   cairo : A library for rendering vector graphics.
 
-  svg-cairo : SVG file rendering for cairo.
+  svg : SVG file rendering for cairo.
 
   opengl : Bindings for the Gtk OpenGL extension
 
@@ -97,16 +86,29 @@ NOTE: using an external version of c2hs is not currently working!
   might want to use this option to make sure that you are not using deprecated
   APIs in your new programs.
 
---enable-docs
-  This builds reference documentation in html format. These are also available
-  from the website but you may prefer to keep a local copy. You will need
-  haddock version 0.6 or later to build the documentation.
+--with-pkgconf=<path to a local .conf file>
+  Instead of registering Gtk2Hs with GHC's global package file, use a specific
+  file. If this file doesn't exit, it is created.
 
-With --help you can ask ./configure what options it supports.
+--without-pkgreg
+  This option disables registering the packages with GHC at all. This
+  is useful to people building on one machine but wanting to install on
+  another, e.g. people packaging Gtk2Hs for use with a package management
+  system.
 
-Add any of these options to the following command:
+--enable-packager-mode
+  Enables --without-pkgreg and does not build any optional packages unless
+  these are specified with --enable-PACKAGE. On Windows it also does some
+  other stuff that helps with building an installer.
 
-~/gtk2hs:$ ./configure
+
+If you want to do a quick build use:
+
+~/gtk2hs:$ ./configure --with-hcflags=-O0 --disable-split-objs
+
+If you want to install into your home directory rather than system-wide use:
+
+~/gtk2hs:$ ./configure --prefix=$HOME --with-user-pkgconf
 
 2. Building the sources.
 
@@ -117,16 +119,26 @@ To build the sources you issue:
 
 ~/gtk2hs:$ make
 
+
 3. Install the libraries.
+-------------------------
 
-Become root and say:
+If you are installing system-wide then use:
 
+~/gtk2hs:$ sudo make install
+
+or if you use the 'su' command rather than 'sudo':
+
+~/gtk2hs:$ su
 ~/gtk2hs:# make install
 
-With the --prefix= and --pkg-conf= options, it is possible to compile and
-install Gtk2Hs without root privileges.
+If you configured to install into your home directory then just say:
+
+~/gtk2hs:$ make install
+
 
 4. Compiling a program.
+-----------------------
 
 To get started, you can compile and run one of the programs that reside in
 the demo/ directory in the gtk2hs source directory. For example:
@@ -137,20 +149,22 @@ which has the same effect as typing
 
 ~/gtk2hs/demo/hello:$ ghc --make World.hs -o helloworld
 
-(If you are using ghc 6.0 or earlier you also need to use -package gtk)
-
 The program should pop up a dialog box when you say
 
 ~/gtk2hs/demo/hello:$ ./helloworld
 
+
 5. Documentation
+----------------
 
 The documentation is avaliable on the website. You can also build the
 documentation locally. You say
 
 ~/gtk2hs:$ ./configure --enable-docs
 
+
 6. Deinstallation
+-----------------
 
 So long as you do not delete the source tree you can easily uninstall
 everything that gtk2hs installed by saying
@@ -166,39 +180,31 @@ installed files. Assuming that you installed in the default location
 (ie did not specify --prefix= during ./configure) then that would mean
 doing the following:
 
-# for pkg in glib gtk mogul glade gconf sourceview mozembed; \
-> do ghc-pkg -r $pkg; done
+# for pkg in glib gtk cairo glade gtkglext svgcairo gconf sourceview mozembed soegtk; \
+> do ghc-pkg unregister $pkg; done
 # rm -rf /usr/local/lib/gtk2hs/
 # rm -rf /usr/local/share/doc/gtk2hs/  #if you installed the docs
+
 
 Building on Windows
 --------------------
 
-Install MSYS and MinGW.  Download the the binary installer for
-Gtk and Glade. Make sure that GHC and all Gtk libraries are on your
-path. The configure script should complain if this is not the case.
+Install MSYS and MinGW. Download a build of Gtk+, you will need the "dev"
+version which includes all the header files and libraries. Make sure that GHC
+and that pkg-config.exe can find all your Gtk+ libraries. The configure script
+should complain if this is not the case.
 
 
-ghci on Solaris
----------------
+Building from darcs
+-------------------
 
-The ghc-pkg program tends to pick up the Solaris linker which does not
-understand the GNU ld option --whole-archive which is necessary to
-build a package that can be used with ghci. You can build the object
-files for interactive use manually by following the instructions that
-come with GHC.
+Building the latest sources from the darcs repository is normally straight
+forward. In fact, since Gtk2Hs is only a wrapper around Gtk+, the development
+version is usually not as "unstable" as it is for most software projects.
 
-
-Building from CVS HEAD
-----------------------
-
-Building the latest sources from the CVS repository is normally straight
-forward. In fact, since Gtk2Hs is only a wrapper around Gtk+, the CVS
-HEAD is usually not as "unstable" as it is for most software projects.
-
-Building the CVS HEAD proceeds as normal building, except that you need to
-run "autoreconf" with sufficiently new versions of the automake/autoconf
-toolsuite installed. (automake 1.8.x, autoconf 2.59)
+Building the development version proceeds as normal building, except that you
+need to run "autoreconf" first. You will need sufficiently new versions of the
+automake/autoconf toolsuite installed. (automake 1.8.x, autoconf 2.59)
 
 Note that dependencies are generated only in a clean tree. Hence, if the
 import structure of files change, the build might fail due to missing
@@ -211,4 +217,3 @@ Please report problems to the Gtk2hs mailing list
 <gtk2hs-users@lists.sourceforge.net>.
 
 The Gtk2Hs team.
-
