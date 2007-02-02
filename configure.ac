@@ -56,8 +56,10 @@ AC_PATH_PROG(TAR,tar)
 AC_PATH_PROG(TOUCH,touch)
 AC_PROG_RANLIB
 
-dnl Does ld support -x ?
-LD_X_FLAG
+dnl Does ld support -x and the @FILE input style?
+PROG_LD_X
+PROG_LD_INPUT
+AM_CONDITIONAL(LD_INPUT, test "$LD_INPUT" = "yes")
 
 dnl Figure out file extensions.
 AC_EXEEXT

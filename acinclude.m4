@@ -234,11 +234,11 @@ done;
 $1=`echo [$]RES`;
 ])
 
-dnl LD_X_FLAG
+dnl PROG_LD_X_FLAG
 dnl
 dnl Sets the output variable LD_X to -x if ld supports this flag, otherwise the
 dnl variable's value is empty.
-AC_DEFUN([LD_X_FLAG],
+AC_DEFUN([PROG_LD_X],
 [
 echo 'foo() {}' > conftest.c
 ${CC} -c conftest.c
@@ -249,4 +249,22 @@ else
 fi
 rm -f conftest.c conftest.o conftest2.o
 AC_SUBST(LD_X)
-])# LD_X
+])dnl LD_X
+
+dnl PROG_LD_INPUT
+dnl
+dnl Sets the output variable LD_INPUT to yes or no, depending on whether it
+dnl supports the @FILE style of reading commands from a file.
+AC_DEFUN([PROG_LD_INPUT],
+[
+echo 'foo() {}' > conftest.c
+${CC} -c conftest.c
+echo conftest.o > conftest.list
+if ${LD} -r -o conftest2.o @conftest.list > /dev/null 2>&1; then
+  LD_INPUT=yes
+else
+  LD_INPUT=no
+fi
+rm -f conftest.c conftest.o conftest2.o conftest.list
+AC_SUBST([LD_INPUT])
+])dnl PROG_LD_INPUT

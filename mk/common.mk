@@ -59,16 +59,30 @@ endif
 #Obviously the 'subdir-objects' option only works for C/C++ files.
 if ENABLE_SPLITOBJS
 %.o : %.hs $(CONFIG_HEADER)
+	rm -rf $@ $*_split/
 	mkdir -p $*_split
-	rm -f $@ $*_split/*.o
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
 	-c $< -o $@ -split-objs $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(HS_SEARCH_PATH) \
 	$(HCFLAGS_PACKAGE_DEPS) $(HCFLAGS_PACKAGE_NAME) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
 	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
-	$(strip if test -f $@; then :; else cd $*_split/; \
-	$(LD) -r $(LD_X) -o ../$(notdir $@) *.o; cd ..; fi)
+	$(strip if test -f $@; then :; else $(LINK_SPLIT_OBJS); fi)
+
+if LD_INPUT
+# On some platforms (notably Windows) the length of command lines
+# is a real limitation. We often bump into the problem that there
+# are so many .o files in the _split/ directory that we can not
+# link them all in a single ivocation. Fortunately the recent mingw
+# versions of GNU ld support the @FILE option to read commands from
+# a file rather than as command line args. So we dump the names of
+# all the .o files into another file and use ld @ on that.
+LINK_SPLIT_OBJS=find $*_split/ -name '*.o' > $*_split/list; \
+		$(LD) -r $(LD_X) -o $@ @$*_split/list
+else
+LINK_SPLIT_OBJS=$(LD) -r $(LD_X) -o $@ $*_split/*.o
+endif
+
 else
 %.o : %.hs $(CONFIG_HEADER)
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
