@@ -301,6 +301,7 @@ libHSglib_a_BUILDSOURCES = \
 libHSglib_a_HSFILES  = \
 	$(filter %.hs,$(libHSglib_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSglib_a_SOURCES))
+libHSglib_a_CFILES  = $(filter %.c,$(libHSglib_a_SOURCES))
 
 nobase_hi_DATA = $(libHSglib_a_HSFILES:.hs=.hi)
 
@@ -334,7 +335,7 @@ if ENABLE_PROFILING
 libHSglib_a_DEPENDENCIES += libHSglib_p.a
 pkglib_DATA += libHSglib_p.a
 libHSglib_p.a : $(libHSglib_a_HSFILES:.hs=.p_o) \
-		$(libHSglib_a_SOURCES:.c=.o) \
+		$(libHSglib_a_CFILES:.c=.o) \
 		$(libHSglib_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -667,6 +668,7 @@ libHSgtk_a_BUILDSOURCES = \
 libHSgtk_a_HSFILES  = \
 	$(filter %.hs,$(libHSgtk_a_BUILDSOURCES)) \
 	$(filter %.hs,$(libHSgtk_a_ALLSOURCES))
+libHSgtk_a_CFILES   = $(filter %.c,$(libHSgtk_a_ALLSOURCES))
 
 nobase_hi_DATA += $(libHSgtk_a_HSFILES:.hs=.hi)
 
@@ -702,7 +704,7 @@ if ENABLE_PROFILING
 libHSgtk_a_DEPENDENCIES += libHSgtk_p.a
 pkglib_DATA += libHSgtk_p.a
 libHSgtk_p.a : $(libHSgtk_a_HSFILES:.hs=.p_o) \
-		$(libHSgtk_a_SOURCES:.c=.o) \
+		$(libHSgtk_a_CFILES:.c=.o) \
 		$(libHSgtk_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -816,7 +818,6 @@ if ENABLE_PROFILING
 libHSglade_a_DEPENDENCIES += libHSglade_p.a
 pkglib_DATA += libHSglade_p.a
 libHSglade_p.a : $(libHSglade_a_HSFILES:.hs=.p_o) \
-		$(libHSglade_a_SOURCES:.c=.o) \
 		$(libHSglade_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -953,7 +954,6 @@ if ENABLE_PROFILING
 libHSgconf_a_DEPENDENCIES += libHSgconf_p.a
 pkglib_DATA += libHSgconf_p.a
 libHSgconf_p.a : $(libHSgconf_a_HSFILES:.hs=.p_o) \
-		$(libHSgconf_a_SOURCES:.c=.o) \
 		$(libHSgconf_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -1080,7 +1080,6 @@ if ENABLE_PROFILING
 libHSsourceview_a_DEPENDENCIES += libHSsourceview_p.a
 pkglib_DATA += libHSsourceview_p.a
 libHSsourceview_p.a : $(libHSsourceview_a_HSFILES:.hs=.p_o) \
-		$(libHSsourceview_a_SOURCES:.c=.o) \
 		$(libHSsourceview_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -1195,7 +1194,6 @@ if ENABLE_PROFILING
 libHSmozembed_a_DEPENDENCIES += libHSmozembed_p.a
 pkglib_DATA += libHSmozembed_p.a
 libHSmozembed_p.a : $(libHSmozembed_a_HSFILES:.hs=.p_o) \
-		$(libHSmozembed_a_SOURCES:.c=.o) \
 		$(libHSmozembed_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -1329,7 +1327,6 @@ if ENABLE_PROFILING
 libHScairo_a_DEPENDENCIES += libHScairo_p.a
 pkglib_DATA += libHScairo_p.a
 libHScairo_p.a : $(libHScairo_a_HSFILES:.hs=.p_o) \
-		$(libHScairo_a_SOURCES:.c=.o) \
 		$(libHScairo_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -1429,7 +1426,6 @@ if ENABLE_PROFILING
 libHSsvgcairo_a_DEPENDENCIES += libHSsvgcairo_p.a
 pkglib_DATA += libHSsvgcairo_p.a
 libHSsvgcairo_p.a : $(libHSsvgcairo_a_HSFILES:.hs=.p_o) \
-		$(libHSsvgcairo_a_SOURCES:.c=.o) \
 		$(libHSsvgcairo_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -1552,7 +1548,6 @@ if ENABLE_PROFILING
 libHSgtkglext_a_DEPENDENCIES += libHSgtkglext_p.a
 pkglib_DATA += libHSgtkglext_p.a
 libHSgtkglext_p.a : $(libHSgtkglext_a_HSFILES:.hs=.p_o) \
-		$(libHSgtkglext_a_SOURCES:.c=.o) \
 		$(libHSgtkglext_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
@@ -1635,7 +1630,6 @@ if ENABLE_PROFILING
 libHSsoegtk_a_DEPENDENCIES += libHSsoegtk_p.a
 pkglib_DATA += libHSsoegtk_p.a
 libHSsoegtk_p.a : $(libHSsoegtk_a_HSFILES:.hs=.p_o) \
-		$(libHSsoegtk_a_SOURCES:.c=.o) \
 		$(libHSsoegtk_a_LIBADD:.o=.p_o)
 	$(AR) $(ARFLAGS) $@ $^
 
