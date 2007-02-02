@@ -319,6 +319,12 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSglib_a_CHSFILES:.chs=.dep) glib/libHSglib_a.deps
  endif
 
+if ENABLE_SPLITOBJS
+libHSglib_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSglib_a_AR = $(AR) $(ARFLAGS)
+endif
+
 libHSglib_a_DEPENDENCIES = HSglib.o
 pkglib_DATA = HSglib.o
 HSglib.o : $(libHSglib_a_OBJECTS)
@@ -689,6 +695,12 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSgtk_a_CHSFILES_HS:.hs=.dep) gtk/libHSgtk_a.deps
  endif
 
+if ENABLE_SPLITOBJS
+libHSgtk_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSgtk_a_AR = $(AR) $(ARFLAGS)
+endif
+
 libHSgtk_a_DEPENDENCIES = HSgtk.o
 pkglib_DATA += HSgtk.o
 HSgtk.o : $(libHSgtk_a_OBJECTS)
@@ -795,6 +807,12 @@ $(libHSglade_a_CHSFILES:.chs=.dep) :	\
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSglade_a_CHSFILES:.chs=.dep) glade/libHSglade_a.deps
  endif
+
+if ENABLE_SPLITOBJS
+libHSglade_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSglade_a_AR = $(AR) $(ARFLAGS)
+endif
 
 libHSglade_a_DEPENDENCIES = HSglade.o
 pkglib_DATA += HSglade.o
@@ -925,6 +943,12 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSgconf_a_CHSFILES:.chs=.dep) gconf/libHSgconf_a.deps
  endif
 
+if ENABLE_SPLITOBJS
+libHSgconf_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSgconf_a_AR = $(AR) $(ARFLAGS)
+endif
+
 libHSgconf_a_DEPENDENCIES = HSgconf.o
 pkglib_DATA += HSgconf.o
 HSgconf.o : $(libHSgconf_a_OBJECTS)
@@ -1044,6 +1068,12 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSsourceview_a_CHSFILES:.chs=.dep) sourceview/libHSsourceview_a.deps
  endif
 
+if ENABLE_SPLITOBJS
+libHSsourceview_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSsourceview_a_AR = $(AR) $(ARFLAGS)
+endif
+
 libHSsourceview_a_DEPENDENCIES = HSsourceview.o
 pkglib_DATA += HSsourceview.o
 HSsourceview.o : $(libHSsourceview_a_OBJECTS)
@@ -1150,6 +1180,12 @@ $(libHSmozembed_a_CHSFILES:.chs=.dep) : \
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSmozembed_a_CHSFILES:.chs=.dep) mozembed/libHSmozembed_a.deps
  endif
+
+if ENABLE_SPLITOBJS
+libHSmozembed_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSmozembed_a_AR = $(AR) $(ARFLAGS)
+endif
 
 libHSmozembed_a_DEPENDENCIES = HSmozembed.o
 pkglib_DATA += HSmozembed.o
@@ -1277,6 +1313,12 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHScairo_a_CHSFILES:.chs=.dep) cairo/libHScairo_a.deps
  endif
 
+if ENABLE_SPLITOBJS
+libHScairo_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHScairo_a_AR = $(AR) $(ARFLAGS)
+endif
+
 libHScairo_a_DEPENDENCIES = HScairo.o
 pkglib_DATA += HScairo.o
 HScairo.o : $(libHScairo_a_OBJECTS)
@@ -1368,6 +1410,12 @@ svgcairo_CLEANFILES += $(libHSsvgcairo_a_CHSFILES_HS:.hs=.dep)
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSsvgcairo_a_CHSFILES:.chs=.dep) cairo/libHSsvgcairo_a.deps
  endif
+
+if ENABLE_SPLITOBJS
+libHSsvgcairo_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSsvgcairo_a_AR = $(AR) $(ARFLAGS)
+endif
 
 libHSsvgcairo_a_DEPENDENCIES = HSsvgcairo.o
 pkglib_DATA += HSsvgcairo.o
@@ -1484,6 +1532,12 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSgtkglext_a_CHSFILES:.chs=.dep) gtkglext/libHSgtkglext_a.deps
  endif
 
+if ENABLE_SPLITOBJS
+libHSgtkglext_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSgtkglext_a_AR = $(AR) $(ARFLAGS)
+endif
+
 libHSgtkglext_a_DEPENDENCIES = HSgtkglext.o
 pkglib_DATA += HSgtkglext.o
 HSgtkglext.o : $(libHSgtkglext_a_OBJECTS)
@@ -1558,6 +1612,12 @@ soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.hi)
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include soegtk/libHSsoegtk_a.deps
  endif
+
+if ENABLE_SPLITOBJS
+libHSsoegtk_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSsoegtk_a_AR = $(AR) $(ARFLAGS)
+endif
 
 libHSsoegtk_a_DEPENDENCIES = HSsoegtk.o
 pkglib_DATA += HSsoegtk.o

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+lib=$1
+shift
+rm -f ${lib}.list
+for obj in $@; do
+	dir=`dirname ${obj}`/`basename ${obj} .o`_split
+	if test -d ${dir}; then
+		find ${dir}/ -name '*.o' >> ${lib}.list
+	else
+		echo ${obj} >> ${lib}.list
+	fi
+done
+echo "Linking ${lib}, for larger libs this can take quite some time..."
+cat ${lib}.list | xargs @AR@ q ${lib}
+rm ${lib}.list
