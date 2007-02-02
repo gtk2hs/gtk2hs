@@ -67,7 +67,8 @@ if ENABLE_SPLITOBJS
 	$(HCFLAGS_PACKAGE_DEPS) $(HCFLAGS_PACKAGE_NAME) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
 	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
-	if test -f $@; then :; else $(LD) -r $(LD_X) -o $@ $*_split/*.o; fi
+	$(strip if test -f $@; then :; else cd $*_split/; \
+	$(LD) -r $(LD_X) -o ../$(notdir $@) *.o; cd ..; fi)
 else
 %.o : %.hs $(CONFIG_HEADER)
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
