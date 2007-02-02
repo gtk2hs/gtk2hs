@@ -194,8 +194,8 @@ The following code does therefore not type check:
 Here, the function ``containerGetChildren`` will extract the only child from the window, namely the previously added button. However, Gtk2Hs does not know the types of the contained widgets and, hence, the the type of the extraction function is ``containerGetChildren :: ContainerClass self => self -> IO [Widget]``, that is, the function extracts the children from any container widget, and these children are returned as a list of ``Widget``s. Thus, connecting this **clicked** signal using ``onClicked badBut ...`` is type incorrect since ``onClicked :: ButtonClass b => b -> IO () -> IO (ConnectId b)``, that is, ``onClicked`` expects a widget that is at least a ``Button``, but ``Widget`` is not a ``Button``. What is required here is an explicit cast to make the code type correct:
 
 ```
-  [badBut] <- containerGetChildren window 
-  onClicked (castToButton badBut)
+  [goodBut] <- containerGetChildren window 
+  onClicked (castToButton goodBut)
     (putStrLn "Button clicked!")
 ```
 
