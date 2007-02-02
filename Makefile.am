@@ -1686,9 +1686,12 @@ DEMOS += demo/glade demo/calc
 if HAVE_GTK_VERSION_2_4
 DEMOS += demo/filechooser demo/treeList
 endif
+if HAVE_GTK_VERSION_2_6
+DEMOS += demo/profileviewer
+endif
 endif
 if HAVE_GTK_VERSION_2_6
-DEMOS += demo/actionMenu demo/profileviewer demo/carsim
+DEMOS += demo/actionMenu demo/carsim
 endif
 if HAVE_GTK_VERSION_2_8
 if ENABLE_CAIRO
