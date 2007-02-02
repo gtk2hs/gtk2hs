@@ -60,14 +60,14 @@ endif
 if ENABLE_SPLITOBJS
 %.o : %.hs $(CONFIG_HEADER)
 	mkdir -p $*_split
-	rm -f $*_split/*.o
+	rm -f $@ $*_split/*.o
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
-	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
+	-c $< -o $@ -split-objs $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(HS_SEARCH_PATH) \
 	$(HCFLAGS_PACKAGE_DEPS) $(HCFLAGS_PACKAGE_NAME) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
 	$(AM_CPPFLAGS) $($(PKG)_CPPFLAGS))
-	touch $@
+	if test -f $@; then :; else $(LD) -r $(LD_X) -o $@ $*_split/*.o; fi
 else
 %.o : %.hs $(CONFIG_HEADER)
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \

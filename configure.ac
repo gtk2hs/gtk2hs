@@ -746,7 +746,6 @@ AC_CONFIG_FILES([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
-  mk/link-splitobjs.sh
   docs/prologue.txt
 
   glib/glib.pkg
@@ -789,7 +788,7 @@ AC_CONFIG_FILES([
   soegtk/soegtk.package.conf
   soegtk/soegtk.cabal
   ])
-AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
+AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend install-sh]])
 AC_OUTPUT
 
 dnl ...and chat with the user
