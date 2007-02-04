@@ -173,7 +173,7 @@ listStoreClear :: ListStore a -> IO ()
 listStoreClear (ListStore model) = do
   seq <- readIORef (customTreeModelGetPrivate model)
   writeIORef (customTreeModelGetPrivate model) Seq.empty
-  let loop 0 = treeModelRowDeleted model [0]
+  let loop (-1) = return ()
       loop n = treeModelRowDeleted model [n] >> loop (n-1)
   loop (Seq.length seq - 1)
 
