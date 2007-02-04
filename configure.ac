@@ -26,6 +26,8 @@ AC_INIT([gtk2hs],[0.9.10.6])
 AM_INIT_AUTOMAKE
 
 dnl * We require autoconf version 2.59
+dnl When this is bumped up to 2.61 then remove the definitions of AC_PROG_SED and
+dnl AC_PROG_GREP and everthing used by these macros from acinclude.m4.
 AC_PREREQ(2.59)
 
 dnl Check system type.
