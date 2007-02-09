@@ -23,6 +23,8 @@
 --
 -- A couple of signals are not bound because I could not figure out what
 --   they mean. Some of them do not seem to be emitted at all.
+-- I removed onInsertAtCursor since it is internal and not emitted. The usable funtions
+-- are in Editable.
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
@@ -111,8 +113,6 @@ module Graphics.UI.Gtk.Entry.Entry (
   afterCutClipboard,
   onPasteClipboard,
   afterPasteClipboard,
-  onInsertAtCursor,
-  afterInsertAtCursor,
   onToggleOverwrite,
   afterToggleOverwrite,
   ) where
@@ -582,15 +582,6 @@ onDeleteText, afterDeleteText :: EntryClass ec => ec ->
                                  (Int -> Int -> IO ()) -> IO (ConnectId ec)
 onDeleteText = connect_INT_INT__NONE "delete_text" False
 afterDeleteText = connect_INT_INT__NONE "delete_text" True
-
--- | Emitted when a piece of text is inserted
--- at the cursor position.
---
-onInsertAtCursor, afterInsertAtCursor :: EntryClass ec => ec ->
-                                         (String -> IO ()) ->
-                                         IO (ConnectId ec)
-onInsertAtCursor = connect_STRING__NONE "insert_at_cursor" False
-afterInsertAtCursor = connect_STRING__NONE "insert_at_cursor" True
 
 -- | Emitted when the user changes from
 -- overwriting to inserting.
