@@ -222,7 +222,7 @@ textViewNewWithBuffer :: TextBufferClass buffer => buffer -> IO TextView
 textViewNewWithBuffer buffer =
   makeNewObject mkTextView $
   liftM (castPtr :: Ptr Widget -> Ptr TextView) $
-  {# call unsafe text_view_new_with_buffer #}
+  {# call text_view_new_with_buffer #}
     (toTextBuffer buffer)
 
 --------------------
@@ -265,7 +265,7 @@ textViewScrollToMark self mark withinMargin align =
         Nothing -> (False, 0, 0)
         Just (xalign, yalign) -> (True, xalign, yalign)
   in
-  {# call unsafe text_view_scroll_to_mark #}
+  {# call text_view_scroll_to_mark #}
     (toTextView self)
     (toTextMark mark)
     (realToFrac withinMargin)
@@ -304,7 +304,7 @@ textViewScrollToIter self iter withinMargin align =
         Just (xalign, yalign) -> (True, xalign, yalign)
   in
   liftM toBool $
-  {# call unsafe text_view_scroll_to_iter #}
+  {# call text_view_scroll_to_iter #}
     (toTextView self)
     iter
     (realToFrac withinMargin)
@@ -319,7 +319,7 @@ textViewScrollMarkOnscreen :: (TextViewClass self, TextMarkClass mark) => self
  -> mark  -- ^ @mark@ - a mark in the buffer for the text view
  -> IO ()
 textViewScrollMarkOnscreen self mark =
-  {# call unsafe text_view_scroll_mark_onscreen #}
+  {# call text_view_scroll_mark_onscreen #}
     (toTextView self)
     (toTextMark mark)
 
@@ -331,7 +331,7 @@ textViewMoveMarkOnscreen :: (TextViewClass self, TextMarkClass mark) => self
  -> IO Bool -- ^ returns @True@ if the mark moved (wasn't already onscreen)
 textViewMoveMarkOnscreen self mark =
   liftM toBool $
-  {# call unsafe text_view_move_mark_onscreen #}
+  {# call text_view_move_mark_onscreen #}
     (toTextView self)
     (toTextMark mark)
 
@@ -342,7 +342,7 @@ textViewPlaceCursorOnscreen :: TextViewClass self => self
  -> IO Bool -- ^ returns @True@ if the cursor had to be moved.
 textViewPlaceCursorOnscreen self =
   liftM toBool $
-  {# call unsafe text_view_place_cursor_onscreen #}
+  {# call text_view_place_cursor_onscreen #}
     (toTextView self)
 
 -- | Returns the currently-visible region of the buffer, in
@@ -518,7 +518,7 @@ textViewSetBorderWindowSize :: TextViewClass self => self
  -> Int            -- ^ @size@ - width or height of the window
  -> IO ()
 textViewSetBorderWindowSize self type_ size =
-  {# call unsafe text_view_set_border_window_size #}
+  {# call text_view_set_border_window_size #}
     (toTextView self)
     ((fromIntegral . fromEnum) type_)
     (fromIntegral size)
@@ -651,7 +651,7 @@ textViewAddChildAtAnchor :: (TextViewClass self, WidgetClass child) => self
                     -- for the text view
  -> IO ()
 textViewAddChildAtAnchor self child anchor =
-  {# call unsafe text_view_add_child_at_anchor #}
+  {# call text_view_add_child_at_anchor #}
     (toTextView self)
     (toWidget child)
     anchor

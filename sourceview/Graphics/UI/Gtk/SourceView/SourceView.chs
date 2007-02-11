@@ -77,13 +77,13 @@ sourceViewNew = makeNewObject mkSourceView $ liftM castPtr
 --
 sourceViewNewWithBuffer :: SourceBuffer -> IO SourceView
 sourceViewNewWithBuffer sb = makeNewObject mkSourceView $ liftM castPtr $
-  {#call unsafe source_view_new_with_buffer#} sb
+  {#call source_view_new_with_buffer#} sb
 
 -- | 
 --
 sourceViewSetShowLineNumbers :: SourceViewClass sv => sv -> Bool -> IO ()
 sourceViewSetShowLineNumbers sv newVal =
-  {#call unsafe source_view_set_show_line_numbers#} (toSourceView sv) (fromBool newVal)
+  {#call source_view_set_show_line_numbers#} (toSourceView sv) (fromBool newVal)
   
 -- | 
 --
@@ -95,7 +95,7 @@ sourceViewGetShowLineNumbers sv = liftM toBool $
 --
 sourceViewSetShowLineMarkers :: SourceViewClass sv => sv -> Bool -> IO ()
 sourceViewSetShowLineMarkers sv newVal =
-  {#call unsafe source_view_set_show_line_markers#} (toSourceView sv) (fromBool newVal)
+  {#call source_view_set_show_line_markers#} (toSourceView sv) (fromBool newVal)
   
 -- | 
 --
@@ -107,7 +107,7 @@ sourceViewGetShowLineMarkers sv = liftM toBool $
 --
 sourceViewSetTabsWidth :: SourceViewClass sv => sv -> Int -> IO ()
 sourceViewSetTabsWidth sv width =
-  {#call unsafe source_view_set_tabs_width#} (toSourceView sv) (fromIntegral width)
+  {#call source_view_set_tabs_width#} (toSourceView sv) (fromIntegral width)
   
 -- | 
 --
@@ -119,7 +119,7 @@ sourceViewGetTabsWidth sv = liftM fromIntegral $
 --
 sourceViewSetAutoIndent :: SourceViewClass sv => sv -> Bool -> IO ()
 sourceViewSetAutoIndent sv newVal =
-  {#call unsafe source_view_set_auto_indent#} (toSourceView sv) (fromBool newVal)
+  {#call source_view_set_auto_indent#} (toSourceView sv) (fromBool newVal)
   
 -- | 
 --
@@ -131,7 +131,7 @@ sourceViewGetAutoIndent sv = liftM toBool $
 --
 sourceViewSetInsertSpacesInsteadOfTabs :: SourceViewClass sv => sv -> Bool -> IO ()
 sourceViewSetInsertSpacesInsteadOfTabs sv newVal =
-  {#call unsafe source_view_set_insert_spaces_instead_of_tabs#} (toSourceView sv) (fromBool newVal)
+  {#call source_view_set_insert_spaces_instead_of_tabs#} (toSourceView sv) (fromBool newVal)
   
 -- | 
 --
@@ -143,7 +143,7 @@ sourceViewGetInsertSpacesInsteadOfTabs sv = liftM toBool $
 --
 sourceViewSetShowMargin :: SourceViewClass sv => sv -> Bool -> IO ()
 sourceViewSetShowMargin sv newVal =
-  {#call unsafe source_view_set_show_margin#} (toSourceView sv) (fromBool newVal)
+  {#call source_view_set_show_margin#} (toSourceView sv) (fromBool newVal)
   
 -- | 
 --
@@ -155,7 +155,7 @@ sourceViewGetShowMargin sv = liftM toBool $
 --
 sourceViewSetMargin :: SourceViewClass sv => sv -> Int -> IO ()
 sourceViewSetMargin sv margin =
-  {#call unsafe source_view_set_margin#} (toSourceView sv) (fromIntegral margin)
+  {#call source_view_set_margin#} (toSourceView sv) (fromIntegral margin)
   
 -- | 
 --
@@ -167,7 +167,7 @@ sourceViewGetMargin sv = liftM fromIntegral $
 --
 sourceViewSetMarkerPixbuf :: SourceViewClass sv => sv -> String -> Pixbuf -> IO ()
 sourceViewSetMarkerPixbuf sv markerType marker = withCString markerType $ \strPtr ->
-  {#call unsafe source_view_set_marker_pixbuf#} (toSourceView sv) strPtr marker
+  {#call source_view_set_marker_pixbuf#} (toSourceView sv) strPtr marker
   
 -- | 
 --
@@ -180,7 +180,7 @@ sourceViewGetMarkerPixbuf sv markerType = withCString markerType $ \strPtr ->
 --
 sourceViewSetSmartHomeEnd :: SourceViewClass sv => sv -> Bool -> IO ()
 sourceViewSetSmartHomeEnd sv newVal =
-  {#call unsafe source_view_set_smart_home_end#} (toSourceView sv) (fromBool newVal)
+  {#call source_view_set_smart_home_end#} (toSourceView sv) (fromBool newVal)
   
 -- | 
 --
