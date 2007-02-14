@@ -77,7 +77,9 @@ listStoreNew xs = do
       customTreeModelGetFlags      = return [TreeModelListOnly],
 --      customTreeModelGetNColumns   = case bounds cols of (_, upper) -> return (upper + 1),
 --      customTreeModelGetColumnType = \n -> return (columnGType (cols ! n)),
-      customTreeModelGetIter       = \[n] -> return (Just (TreeIter 0 (fromIntegral n) 0 0)),
+      customTreeModelGetIter       = \[n] -> readIORef rows >>= \rows ->
+                                     return (if Seq.null rows then Nothing else
+                                             Just (TreeIter 0 (fromIntegral n) 0 0)),
       customTreeModelGetPath       = \(TreeIter _ n _ _) -> return [fromIntegral n],
 --      customTreeModelGetValue      = \(TreeIter _ n _ _) i gvalue ->
 --                                 readIORef rows >>= \rows ->
@@ -93,7 +95,7 @@ listStoreNew xs = do
 
       customTreeModelIterNext      = \(TreeIter _ n _ _) ->
                                  readIORef rows >>= \rows ->
-                                    if n >= fromIntegral (Seq.length rows) - 1
+                                    if n+1 >= fromIntegral (Seq.length rows)
                                       then return Nothing
                                       else return (Just (TreeIter 0 (n+1) 0 0)),
       customTreeModelIterChildren  = \_ -> return Nothing,
