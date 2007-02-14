@@ -118,6 +118,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetParent,
   widgetSetDefaultDirection,
   widgetGetDefaultDirection,
+  widgetGetStyle,
   widgetModifyStyle,
   widgetGetModifierStyle,
   widgetModifyFg,
@@ -925,6 +926,13 @@ widgetGetDefaultDirection :: IO TextDirection
 widgetGetDefaultDirection =
   liftM (toEnum . fromIntegral) $
   {# call gtk_widget_get_default_direction #}
+
+-- | Retrieve the 'Style' associated with the widget.
+--
+widgetGetStyle :: WidgetClass widget => widget -> IO Style
+widgetGetStyle widget = do
+  {# call gtk_widget_ensure_style #} (toWidget widget)
+  makeNewGObject mkStyle $ {# call gtk_widget_get_style #} (toWidget widget)
 
 -- | Modifies style values on the widget. Modifications made using this
 -- technique take precedence over style values set via an RC file, however,

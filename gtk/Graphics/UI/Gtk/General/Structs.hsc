@@ -773,109 +773,96 @@ setAttrPos correct start end act = do
 
 -- Styles related methods
 
--- helper function to index into an array: hsc2hs turns a pointer
-index :: Int -> Ptr GC -> IO (Ptr GC)
-index off ptr = return 
-  (castPtr (advancePtr ((castPtr ptr)::Ptr (Ptr GC)) off)::Ptr GC)
-
--- | Retrieve the 'GC' for the foreground
--- color.
+-- | Retrieve the the foreground color.
 --
 -- * The parameter @state@ determines for which widget
---   state (one of 'StateType') the 'GC' should be recieved.
+--   state (one of 'StateType') the 'Color' should be retrieved.
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetForeground :: StateType -> Style -> IO GC
-styleGetForeground ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, fg_gc} stPtr))
+styleGetForeground :: StateType -> Style -> IO Color
+styleGetForeground ty st = withForeignPtr (unStyle st) $ \stPtr -> do
+  peek $ advancePtr (#{ptr GtkStyle, fg} stPtr) (fromEnum ty)
 
--- | Retrieve the 'GC' for the background
--- color.
+-- | Retrieve the background color.
 --
 -- * The parameter @state@ determines for which widget
---   state (one of 'StateType') the 'GC' should be recieved.
+--   state (one of 'StateType') the 'Color' should be retrieved.
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetBackground :: StateType -> Style -> IO GC
+styleGetBackground :: StateType -> Style -> IO Color
 styleGetBackground ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, bg_gc} stPtr))
+  peek $ advancePtr (#{ptr GtkStyle, bg} stPtr) (fromEnum ty)
 
--- | Retrieve the 'GC' for a light
--- color.
+-- | Retrieve a light color.
 --
 -- * The parameter @state@ determines for which widget
---   state (one of 'StateType') the 'GC' should be recieved.
+--   state (one of 'StateType') the 'Color' should be retrieved.
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetLight :: StateType -> Style -> IO GC
+styleGetLight :: StateType -> Style -> IO Color
 styleGetLight ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, light_gc} stPtr))
+  peek $ advancePtr (#{ptr GtkStyle, light} stPtr) (fromEnum ty)
 
--- | Retrieve the 'GC' for a middle
--- color.
+-- | Retrieve a middle color.
 --
 -- * The parameter @state@ determines for which widget
---   state (one of 'StateType') the 'GC' should be recieved.
+--   state (one of 'StateType') the 'Color' should be retrieved.
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetMiddle :: StateType -> Style -> IO GC
+styleGetMiddle :: StateType -> Style -> IO Color
 styleGetMiddle ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, mid_gc} stPtr))
+  peek $ advancePtr (#{ptr GtkStyle, mid} stPtr) (fromEnum ty)
 
--- | Retrieve the 'GC' for a dark
--- color.
+-- | Retrieve a dark color.
 --
 -- * The parameter @state@ determines for which widget
---   state (one of 'StateType') the 'GC' should be recieved.
+--   state (one of 'StateType') the 'Color' should be retrieved.
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetDark :: StateType -> Style -> IO GC
+styleGetDark :: StateType -> Style -> IO Color
 styleGetDark ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, dark_gc} stPtr))
+  peek $ advancePtr (#{ptr GtkStyle, dark} stPtr) (fromEnum ty)
 
--- | Retrieve the 'GC' for the text
--- color.
+-- | Retrieve the text color.
 --
 -- * The parameter @state@ determines for which widget
---   state (one of 'StateType') the 'GC' should be recieved.
+--   state (one of 'StateType') the 'Color' should be retrieved.
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetText :: StateType -> Style -> IO GC
+styleGetText :: StateType -> Style -> IO Color
 styleGetText ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, text_gc} stPtr))
+  peek $ advancePtr (#{ptr GtkStyle, text} stPtr) (fromEnum ty)
 
--- | Retrieve the 'GC' for the base
--- color.
+-- | Retrieve the base color.
 --
 -- * The base color is the standard text background of a widget.
 --
 -- * The parameter @state@ determines for which widget
---   state (one of 'StateType') the 'GC' should be recieved.
+--   state (one of 'StateType') the 'Color' should be retrieved.
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetBase :: StateType -> Style -> IO GC
+styleGetBase :: StateType -> Style -> IO Color
 styleGetBase ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, base_gc} stPtr))
+  peek $ advancePtr (#{ptr GtkStyle, base} stPtr) (fromEnum ty)
 
--- | Retrieve the 'GC' for drawing
--- anti-aliased text.
+-- | Retrieve the color for drawing anti-aliased text.
 --
 -- * The anti-aliasing color is the color which is used when the rendering
 --   of a character does not make it clear if a certain pixel shoud be set
 --   or not. This color is between the text and the base color.
 --
 -- * The parameter @state@ determines for which widget
---   state (one of 'StateType') the 'GC' should be recieved.
+--   state (one of 'StateType') the 'Color' should be retrieved.
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetAntiAliasing :: StateType -> Style -> IO GC
+styleGetAntiAliasing :: StateType -> Style -> IO Color
 styleGetAntiAliasing ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  makeNewGObject mkGC (index (fromEnum ty) (#{ptr GtkStyle, text_aa_gc} stPtr))
+  peek $ advancePtr (#{ptr GtkStyle, text_aa} stPtr) (fromEnum ty)
