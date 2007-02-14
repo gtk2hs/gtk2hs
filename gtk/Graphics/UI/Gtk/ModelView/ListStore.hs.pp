@@ -95,9 +95,9 @@ listStoreNew xs = do
 
       customTreeModelIterNext      = \(TreeIter _ n _ _) ->
                                  readIORef rows >>= \rows ->
-                                    if n+1 >= fromIntegral (Seq.length rows)
-                                      then return Nothing
-                                      else return (Just (TreeIter 0 (n+1) 0 0)),
+                                 if inRange (0, Seq.length rows - 1) (fromIntegral (n+1))
+                                   then return (Just (TreeIter 0 (n+1) 0 0))
+                                   else return Nothing,
       customTreeModelIterChildren  = \_ -> return Nothing,
       customTreeModelIterHasChild  = \_ -> return False,
       customTreeModelIterNChildren = \index -> readIORef rows >>= \rows ->
