@@ -63,6 +63,8 @@ module Graphics.UI.Gtk.Abstract.Object (
   makeNewObject,
   ) where
 
+import Control.Monad (when)
+
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GObject	(objectRef, objectUnref)
@@ -101,6 +103,7 @@ makeNewObject :: ObjectClass obj =>
   (ForeignPtr obj -> obj) -> IO (Ptr obj) -> IO obj
 makeNewObject constr generator = do
   objPtr <- generator
+  when (objPtr == nullPtr) (fail "makeNewObject: object is NULL")
 #if GLIB_CHECK_VERSION(2,10,0)
   objectRefSink objPtr
 #else

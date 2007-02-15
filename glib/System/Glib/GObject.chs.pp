@@ -60,7 +60,7 @@ module System.Glib.GObject (
   objectGetAttributeUnsafe
   ) where
 
-import Monad (liftM)
+import Control.Monad (liftM, when)
 import Data.IORef (newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
@@ -120,6 +120,7 @@ makeNewGObject ::
  -> IO obj
 makeNewGObject constr generator = do
   objPtr <- generator
+  when (objPtr == nullPtr) (fail "makeNewGObject: object is NULL")
   objectRef objPtr
   obj <- newForeignPtr objPtr objectUnref
   return $! constr obj
