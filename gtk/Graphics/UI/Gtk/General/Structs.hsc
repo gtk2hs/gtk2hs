@@ -780,9 +780,10 @@ setAttrPos correct start end act = do
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetForeground :: StateType -> Style -> IO Color
-styleGetForeground ty st = withForeignPtr (unStyle st) $ \stPtr -> do
-  peek $ advancePtr (#{ptr GtkStyle, fg} stPtr) (fromEnum ty)
+styleGetForeground :: Style -> StateType -> IO Color
+styleGetForeground st ty =
+  withForeignPtr (unStyle st) $ \stPtr -> do
+    peekElemOff (#{ptr GtkStyle, fg} stPtr) (fromEnum ty)
 
 -- | Retrieve the background color.
 --
@@ -791,9 +792,10 @@ styleGetForeground ty st = withForeignPtr (unStyle st) $ \stPtr -> do
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetBackground :: StateType -> Style -> IO Color
-styleGetBackground ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  peek $ advancePtr (#{ptr GtkStyle, bg} stPtr) (fromEnum ty)
+styleGetBackground :: Style -> StateType -> IO Color
+styleGetBackground st ty =
+  withForeignPtr (unStyle st) $ \stPtr ->
+    peekElemOff (#{ptr GtkStyle, bg} stPtr) (fromEnum ty)
 
 -- | Retrieve a light color.
 --
@@ -802,9 +804,10 @@ styleGetBackground ty st = withForeignPtr (unStyle st) $ \stPtr ->
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetLight :: StateType -> Style -> IO Color
-styleGetLight ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  peek $ advancePtr (#{ptr GtkStyle, light} stPtr) (fromEnum ty)
+styleGetLight :: Style -> StateType -> IO Color
+styleGetLight st ty =
+  withForeignPtr (unStyle st) $ \stPtr ->
+    peekElemOff (#{ptr GtkStyle, light} stPtr) (fromEnum ty)
 
 -- | Retrieve a middle color.
 --
@@ -813,9 +816,10 @@ styleGetLight ty st = withForeignPtr (unStyle st) $ \stPtr ->
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetMiddle :: StateType -> Style -> IO Color
-styleGetMiddle ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  peek $ advancePtr (#{ptr GtkStyle, mid} stPtr) (fromEnum ty)
+styleGetMiddle :: Style -> StateType -> IO Color
+styleGetMiddle st ty =
+  withForeignPtr (unStyle st) $ \stPtr ->
+    peekElemOff (#{ptr GtkStyle, mid} stPtr) (fromEnum ty)
 
 -- | Retrieve a dark color.
 --
@@ -824,9 +828,10 @@ styleGetMiddle ty st = withForeignPtr (unStyle st) $ \stPtr ->
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetDark :: StateType -> Style -> IO Color
-styleGetDark ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  peek $ advancePtr (#{ptr GtkStyle, dark} stPtr) (fromEnum ty)
+styleGetDark :: Style -> StateType -> IO Color
+styleGetDark st ty =
+  withForeignPtr (unStyle st) $ \stPtr ->
+    peekElemOff (#{ptr GtkStyle, dark} stPtr) (fromEnum ty)
 
 -- | Retrieve the text color.
 --
@@ -835,9 +840,10 @@ styleGetDark ty st = withForeignPtr (unStyle st) $ \stPtr ->
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetText :: StateType -> Style -> IO Color
-styleGetText ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  peek $ advancePtr (#{ptr GtkStyle, text} stPtr) (fromEnum ty)
+styleGetText :: Style -> StateType -> IO Color
+styleGetText st ty =
+  withForeignPtr (unStyle st) $ \stPtr ->
+    peekElemOff (#{ptr GtkStyle, text} stPtr) (fromEnum ty)
 
 -- | Retrieve the base color.
 --
@@ -848,9 +854,10 @@ styleGetText ty st = withForeignPtr (unStyle st) $ \stPtr ->
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetBase :: StateType -> Style -> IO Color
-styleGetBase ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  peek $ advancePtr (#{ptr GtkStyle, base} stPtr) (fromEnum ty)
+styleGetBase :: Style -> StateType -> IO Color
+styleGetBase st ty =
+  withForeignPtr (unStyle st) $ \stPtr ->
+    peekElemOff (#{ptr GtkStyle, base} stPtr) (fromEnum ty)
 
 -- | Retrieve the color for drawing anti-aliased text.
 --
@@ -863,6 +870,7 @@ styleGetBase ty st = withForeignPtr (unStyle st) $ \stPtr ->
 --   Use 'widgetGetState' to determine the current state of the
 --   widget.
 --
-styleGetAntiAliasing :: StateType -> Style -> IO Color
-styleGetAntiAliasing ty st = withForeignPtr (unStyle st) $ \stPtr ->
-  peek $ advancePtr (#{ptr GtkStyle, text_aa} stPtr) (fromEnum ty)
+styleGetAntiAliasing :: Style -> StateType -> IO Color
+styleGetAntiAliasing st ty =
+  withForeignPtr (unStyle st) $ \stPtr ->
+    peekElemOff (#{ptr GtkStyle, text_aa} stPtr) (fromEnum ty)
