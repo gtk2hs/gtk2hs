@@ -80,7 +80,7 @@ if LD_INPUT
 LINK_SPLIT_OBJS=find $*_split/ -name '*.o' > $*_split/list; \
 		$(LD) -r $(LD_X) -o $@ @$*_split/list
 else
-LINK_SPLIT_OBJS=$(LD) -r $(LD_X) -o $@ $*_split/*.o
+LINK_SPLIT_OBJS=cd $*_split/; $(LD) -r $(LD_X) -o ../$(notdir $@) *.o; cd ..
 endif
 
 else
