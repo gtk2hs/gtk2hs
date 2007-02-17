@@ -51,7 +51,7 @@ import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Flags
-import Graphics.UI.Gtk.Gdk.Keys		(keyvalToChar, keyvalName)
+import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
 import Graphics.UI.Gtk.Gdk.Enums	(VisibilityState(..),
 					 CrossingMode(..),
@@ -255,6 +255,9 @@ data Event =
     eventWithNumLock    :: Bool,
     -- | This flag is @True@ if Scroll Lock is on while this key was pressed.
     eventWithScrollLock :: Bool,
+    -- | A number representing the key that was pressed or released. A more convenient
+    --   interface is provided by the next two fields.
+    eventKeyVal :: KeyVal,
     -- | A string representing the key that was pressed or released.
     --
     -- * This string contains a description of the key rather than what
@@ -473,6 +476,7 @@ marshKey up ptr = do
     eventWithCapsLock = (modif_ .&. #{const GDK_LOCK_MASK})/=0,
     eventWithNumLock = (modif_ .&. #{const GDK_MOD2_MASK})/=0,
     eventWithScrollLock = (modif_ .&. #{const GDK_MOD3_MASK})/=0,
+    eventKeyVal = keyval_,
     eventKeyName = keyName,
     eventKeyChar = keyChar }
 

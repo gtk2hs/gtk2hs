@@ -52,9 +52,9 @@ type KeyVal = Word32
 -- | Converts a key value into a symbolic name.
 --
 keyvalName :: KeyVal -> IO String
-keyvalName keyval =
-  {# call gdk_keyval_name #} (fromIntegral keyval)
-  >>= peekUTFString
+keyvalName keyval = do
+  strPtr <- {# call gdk_keyval_name #} (fromIntegral keyval)
+  if strPtr==nullPtr then return "" else peekUTFString strPtr
 
 -- | Converts a key name to a key value.
 --
