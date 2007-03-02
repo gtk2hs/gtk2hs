@@ -172,12 +172,23 @@ listStoreRemove (ListStore model) index = do
           where (front, back) = Seq.splitAt i xs
 
 listStoreClear :: ListStore a -> IO ()
-listStoreClear (ListStore model) = do
-  seq <- readIORef (customTreeModelGetPrivate model)
-  writeIORef (customTreeModelGetPrivate model) Seq.empty
-  let loop (-1) = return ()
-      loop n = treeModelRowDeleted model [n] >> loop (n-1)
-  loop (Seq.length seq - 1)
+listStoreClear (ListStore model) =
+
+  -- Since deleting rows can cause callbacks (eg due to selection changes)
+  -- we have to make sure the model is consitent with the view at each
+  -- intermediate step of clearing the store. Otherwise at some intermediate
+  -- stage when the view has only been informed about some delections, the
+  -- user might query the model expecting to find the remaining rows are there
+  -- but find them deleted. That'd be bad.
+  --
+  let loop (-1) Seq.EmptyR = return ()
+      loop n (seq Seq.:> _) = do
+        writeIORef (customTreeModelGetPrivate model) seq
+	treeModelRowDeleted model [n]
+	loop (n-1) (Seq.viewr seq)
+
+   in do seq <- readIORef (customTreeModelGetPrivate model)
+         loop (Seq.length seq - 1) (Seq.viewr seq)
 
 -- moving rows about
 listStoreReorder :: ListStore a -> [Int] -> IO ()
