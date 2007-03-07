@@ -294,8 +294,8 @@ convertProperty isChild object property =
   }
 
 
-convertSignals :: Api.Signal -> Decl
-convertSignals signal =
+convertSignals :: Api.Object -> Api.Signal -> Decl
+convertSignals object signal =
   declDefaults {
     decl_name = lowerCaseFirstChar (Api.signal_name signal),
     decl_body = Signal {
