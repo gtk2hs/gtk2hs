@@ -63,7 +63,10 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup (
   ActionGroupClass,
   castToActionGroup,
   toActionGroup,
-
+  ActionEntry(..),
+  ToggleActionEntry(..),
+  RadioActionEntry(..),
+      
 -- * Constructors
   actionGroupNew,
 
@@ -252,13 +255,15 @@ actionGroupRemoveAction self action =
 -- callback doesn't allow for propper memory management. So like pygtk we
 -- implement them natively since they are only convenience functions afterall.
 
+
+-- | A description of an action.
 data ActionEntry = ActionEntry {
-       actionName        :: String,
-       actionLabel       :: String,
-       actionStockId     :: Maybe String,
-       actionAccelerator :: Maybe String,
-       actionTooltip     :: Maybe String,
-       actionCallback    :: IO ()
+       actionEntryName        :: String,
+       actionEntryLabel       :: String,
+       actionEntryStockId     :: Maybe String,
+       actionEntryAccelerator :: Maybe String,
+       actionEntryTooltip     :: Maybe String,
+       actionEntryCallback    :: IO ()
      }
 
 -- | This is a convenience function to create a number of actions and add them
@@ -277,6 +282,7 @@ actionGroupAddActions self entries =
     onActionActivate action callback
     actionGroupAddActionWithAccel self action accelerator
 
+-- | A description of an action for an entry that can be toggled.
 data ToggleActionEntry = ToggleActionEntry {
        toggleActionName        :: String,
        toggleActionLabel       :: String,
@@ -304,6 +310,7 @@ actionGroupAddToggleActions self entries =
     onActionActivate action callback
     actionGroupAddActionWithAccel self action accelerator
 
+-- | A description of an action for an entry that provides a multiple choice.
 data RadioActionEntry = RadioActionEntry {
        radioActionName        :: String,
        radioActionLabel       :: String,
