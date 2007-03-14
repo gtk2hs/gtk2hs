@@ -123,10 +123,10 @@ contextGetMetrics pc fd l = do
 	  (intToPu approximate_char_width)
 	  (intToPu approximate_digit_width)
 #if PANGO_CHECK_VERSION(1,6,0)
-	  (intToPu underline_position)
 	  (intToPu underline_thickness)
-	  (intToPu strikethrough_position)
+	  (intToPu underline_position)
 	  (intToPu strikethrough_thickness)
+	  (intToPu strikethrough_position)
 #endif
 	 )
 
