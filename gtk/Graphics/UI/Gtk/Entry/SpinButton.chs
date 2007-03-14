@@ -136,7 +136,7 @@ spinButtonNew ::
 spinButtonNew adjustment climbRate digits =
   makeNewObject mkSpinButton $
   liftM (castPtr :: Ptr Widget -> Ptr SpinButton) $
-  {# call unsafe spin_button_new #}
+  {# call spin_button_new #}
     adjustment
     (realToFrac climbRate)
     (fromIntegral digits)
