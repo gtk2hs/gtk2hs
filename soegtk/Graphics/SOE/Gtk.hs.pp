@@ -348,14 +348,15 @@ text (x,y) str = Graphic $ \pc -> do
 type Point = (Int, Int)
 
 ellipse :: Point -> Point -> Graphic
-ellipse pt1 pt2 = Graphic $ \pc -> do
-  let (x,y,width,height) = normaliseBounds pt1 pt2
-  Cairo.save
-  Cairo.translate (x + width / 2) (y + height / 2)
-  Cairo.scale (width / 2) (height / 2)
-  Cairo.arc 0 0 1 0 (2*pi)
-  Cairo.fill
-  Cairo.restore
+ellipse pt1 pt2 = Graphic $ \pc -> case normaliseBounds pt1 pt2 of
+  Nothing -> return ()
+  Just  (x,y,width,height) -> do
+    Cairo.save
+    Cairo.translate (x + width / 2) (y + height / 2)
+    Cairo.scale (width / 2) (height / 2)
+    Cairo.arc 0 0 1 0 (2*pi)
+    Cairo.fill
+    Cairo.restore
 
 shearEllipse :: Point -> Point -> Point -> Graphic
 shearEllipse (x1,y1) (x2,y2) (x3,y3) = Graphic $ \pc -> do
@@ -365,7 +366,7 @@ shearEllipse (x1,y1) (x2,y2) (x3,y3) = Graphic $ \pc -> do
       scaley = fromIntegral $ abs $ y1 - y2
       shearx = fromIntegral $ abs $ x1 - x2
       sheary = fromIntegral $ abs $ y1 - y3
-  
+
   Cairo.save
   Cairo.transform (Matrix.Matrix scalex sheary shearx scaley x y)
   Cairo.arc 0.5 0.5 0.5 0 (2 * pi)
@@ -408,15 +409,16 @@ polyBezier ((x,y):ps) = Graphic $ \pc -> do
   Cairo.stroke
 
 arc :: Point -> Point -> Angle -> Angle -> Graphic
-arc pt1 pt2 start extent = Graphic $ \pc -> do
-  let (x,y,width,height) = normaliseBounds pt1 pt2
-  Cairo.save
-  Cairo.translate (x + width / 2) (y + height / 2)
-  Cairo.scale (width / 2) (height / 2)
-  Cairo.moveTo 0 0
-  Cairo.arcNegative 0 0 1 (-start * pi / 180) (-(start+extent) * pi / 180)
-  Cairo.fill
-  Cairo.restore
+arc pt1 pt2 start extent = Graphic $ \pc -> case normaliseBounds pt1 pt2 of
+  Nothing -> return ()
+  Just  (x,y,width,height) -> do
+    Cairo.save
+    Cairo.translate (x + width / 2) (y + height / 2)
+    Cairo.scale (width / 2) (height / 2)
+    Cairo.moveTo 0 0
+    Cairo.arcNegative 0 0 1 (-start * pi / 180) (-(start+extent) * pi / 180)
+    Cairo.fill
+    Cairo.restore
 
 data Region = Region {
   regionGraphic :: Int -> Int -> Cairo.Render (),
@@ -439,7 +441,8 @@ createRectangle pt1 pt2 =
 createEllipse :: Point -> Point -> Region
 createEllipse pt1 pt2 =
   let (x,y,width,height) = normaliseBounds' pt1 pt2
-      drawing x y = do
+      drawing x y | width==0 || height==0 = return ()
+                  | otherwise = do
         Cairo.save
         Cairo.translate (fromIntegral x + fromIntegral width / 2)
                         (fromIntegral y + fromIntegral height / 2)
@@ -651,8 +654,9 @@ drawRegion (Region mkRegion) = Graphic $ \dw gc pc -> do
 
 #endif
 
-normaliseBounds :: Point -> Point -> (Double,Double,Double,Double)
-normaliseBounds (x1,y1) (x2,y2) = (x, y, width, height)
+normaliseBounds :: Point -> Point -> Maybe (Double,Double,Double,Double)
+normaliseBounds (x1,y1) (x2,y2) = 
+  if x1==x2 || y1==y2 then Nothing else Just (x, y, width, height)
   where x = fromIntegral $ min x1 x2
         y = fromIntegral $ min y1 y2
         width  = fromIntegral $ abs $ x1 - x2
