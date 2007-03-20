@@ -82,6 +82,10 @@ module Graphics.UI.Gtk.General.Structs (
   styleGetText,
   styleGetBase,
   styleGetAntiAliasing,
+  colorSelectionDialogGetColor,
+  colorSelectionDialogGetOkButton,
+  colorSelectionDialogGetCancelButton,
+  colorSelectionDialogGetHelpButton,
   ) where
 
 import Monad		(liftM)
@@ -874,3 +878,31 @@ styleGetAntiAliasing :: Style -> StateType -> IO Color
 styleGetAntiAliasing st ty =
   withForeignPtr (unStyle st) $ \stPtr ->
     peekElemOff (#{ptr GtkStyle, text_aa} stPtr) (fromEnum ty)
+
+-- | Retrieve the ColorSelection object contained within the dialog.
+colorSelectionDialogGetColor :: ColorSelectionDialog -> IO ColorSelection
+colorSelectionDialogGetColor cd =
+  makeNewObject mkColorSelection $ liftM castPtr $
+    withForeignPtr (unColorSelectionDialog cd)
+      #{peek GtkColorSelectionDialog, colorsel}
+
+-- | Retrieve the OK button widget contained within the dialog.
+colorSelectionDialogGetOkButton :: ColorSelectionDialog -> IO Button
+colorSelectionDialogGetOkButton cd =
+  makeNewObject mkButton $ liftM castPtr $
+    withForeignPtr (unColorSelectionDialog cd)
+      #{peek GtkColorSelectionDialog, ok_button}
+
+-- | Retrieve the Cancel button widget contained within the dialog.
+colorSelectionDialogGetCancelButton :: ColorSelectionDialog -> IO Button
+colorSelectionDialogGetCancelButton cd =
+  makeNewObject mkButton $ liftM castPtr $
+    withForeignPtr (unColorSelectionDialog cd)
+      #{peek GtkColorSelectionDialog, cancel_button}
+
+-- | Retrieve the Help button widget contained within the dialog.
+colorSelectionDialogGetHelpButton :: ColorSelectionDialog -> IO Button
+colorSelectionDialogGetHelpButton cd =
+  makeNewObject mkButton $ liftM castPtr $
+    withForeignPtr (unColorSelectionDialog cd)
+      #{peek GtkColorSelectionDialog, help_button}
