@@ -132,6 +132,7 @@ data Click = SingleClick
 	   | DoubleClick
 	   | TripleClick
 	   | ReleaseClick
+  deriving Eq
 
 -- | Specifies in which corner a child widget should be placed
 --
@@ -263,7 +264,7 @@ data SelectionMode = SelectionNone
                    | SelectionSingle
                    | SelectionBrowse
                    | SelectionMultiple
-                   deriving (Enum)
+                   deriving (Enum, Eq)
 -- {#enum SelectionMode {underscoreToCase} deriving (Eq)#}
 
 -- | Shadow types
