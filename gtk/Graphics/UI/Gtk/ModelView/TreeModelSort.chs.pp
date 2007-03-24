@@ -81,7 +81,10 @@ import Graphics.UI.Gtk.General.Structs		(treeIterSize)
 --------------------
 -- Interfaces
 
-instance TreeModelClass TreeModelSort
+--instance TreeModelClass TreeModelSort
+--TODO: this is only commented out because the old version also defines this
+-- instance. When we delete the old api, re-enable this instance. (That is
+-- if we keep this module at all)
 
 --------------------
 -- Constructors
