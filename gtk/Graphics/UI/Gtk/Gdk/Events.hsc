@@ -145,18 +145,18 @@ type TimeStamp = Word32
 --   in 'Graphics.UI.Gtk.Abstract.Widget.Widget'.
 --   Many events share common attributes:
 --
---   ** The 'eventSent' attribute is @True@ if the event was not created by the
+--   * The 'eventSent' attribute is @True@ if the event was not created by the
 --      user but by another application.
 --
---   ** The 'eventTime' attribute contains a time in milliseconds when the event
+--   * The 'eventTime' attribute contains a time in milliseconds when the event
 --      happened.
 --
---   ** The 'eventX' and 'eventY' attributes contain the coordinates relative
+--   * The 'eventX' and 'eventY' attributes contain the coordinates relative
 --      to the 'Graphics.UI.Gtk.Abstract.Gdk.DrawWindow' associated with this
 --      widget. The values can contain sub-pixel information if the input
 --      device is a graphics tablet or the like.
 --
---   ** The 'eventModifier' attribute denotes what modifier key was pressed
+--   * The 'eventModifier' attribute denotes what modifier key was pressed
 --      during the event.
 --
 data Event =
@@ -286,6 +286,9 @@ data Event =
     eventX,eventY	:: Double,
     eventXRoot,
     eventYRoot	:: Double,
+    -- | This flag is false if the widget was entered, it is true when the
+    --   widget the mouse cursor left the widget.
+    eventLeaves :: Bool,
     -- | Kind of enter\/leave event.
     --
     -- * The mouse cursor might enter this widget because it grabs the mouse
@@ -374,7 +377,8 @@ marshalEvent ptr = do
     #{const GDK_BUTTON_RELEASE}	-> marshButton ReleaseClick
     #{const GDK_KEY_PRESS}	-> marshKey False
     #{const GDK_KEY_RELEASE}	-> marshKey True
-    #{const GDK_ENTER_NOTIFY}	-> marshCrossing
+    #{const GDK_ENTER_NOTIFY}	-> marshCrossing False
+    #{const GDK_LEAVE_NOTIFY}	-> marshCrossing True
     #{const GDK_FOCUS_CHANGE}	-> marshFocus
     #{const GDK_CONFIGURE}	-> marshConfigure
     #{const GDK_MAP}            -> marshAny
@@ -480,7 +484,7 @@ marshKey up ptr = do
     eventKeyName = keyName,
     eventKeyChar = keyChar }
 
-marshCrossing ptr = do
+marshCrossing leave ptr = do
   (sent_   ::#type gint8)	<- #{peek GdkEventCrossing, send_event} ptr
   (time_   ::#type guint32)	<- #{peek GdkEventCrossing, time} ptr
   (x_	   ::#type gdouble)	<- #{peek GdkEventCrossing, x} ptr
@@ -500,6 +504,7 @@ marshCrossing ptr = do
     eventY	   = realToFrac y_,
     eventXRoot  = realToFrac xRoot_,
     eventYRoot  = realToFrac yRoot_,
+    eventLeaves = leave,
     eventCrossingMode  = (toEnum.fromIntegral) cMode_,
     eventNotifyType    = (toEnum.fromIntegral) nType_,
     eventModifier      = toModifier modif_}
