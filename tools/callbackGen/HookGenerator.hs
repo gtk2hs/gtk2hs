@@ -430,7 +430,7 @@ usage = do
    "where\n"++
    "  <signatureFile> is gtkmarshal.list from the the source Gtk+ tree\n"++
    "  <templateFile>  the name and path of the Signal.chs.template file\n"++
-   "  <outFile>	      is the name and path of the output file.\n"++
+   "  <outFile>       is the name and path of the output file.\n"++
    "  <moduleName>    the module name for <outFile>\n"
  exitWith $ ExitFailure 1
 
