@@ -30,6 +30,7 @@ module Graphics.UI.Gtk.Gdk.Enums (
   CapStyle(..),
   CrossingMode(..),
   Dither(..),
+  DragProtocol(..),
   EventMask(..),
   ExtensionMode(..),
   Fill(..),
@@ -58,6 +59,10 @@ import System.Glib.Flags	(Flags, fromFlags, toFlags)
 -- | How focus is crossing the widget.
 --
 {#enum CrossingMode {underscoreToCase}#}
+
+-- | Used in 'Graphics.UI.Gtk.Gdk.Drag.DragContext' to indicate the protocol according to which DND is done.
+--
+{#enum DragProtocol {underscoreToCase} deriving (Bounded)#}
 
 -- | Specify how to dither colors onto the screen.
 --

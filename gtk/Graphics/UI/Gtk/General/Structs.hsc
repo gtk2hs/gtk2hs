@@ -86,6 +86,12 @@ module Graphics.UI.Gtk.General.Structs (
   colorSelectionDialogGetOkButton,
   colorSelectionDialogGetCancelButton,
   colorSelectionDialogGetHelpButton,
+  dragContextGetActions,
+  dragContextSetActions,
+  dragContextGetSuggestedAction,
+  dragContextSetSuggestedAction,
+  dragContextGetAction,
+  dragContextSetAction
   ) where
 
 import Monad		(liftM)
@@ -906,3 +912,27 @@ colorSelectionDialogGetHelpButton cd =
   makeNewObject mkButton $ liftM castPtr $
     withForeignPtr (unColorSelectionDialog cd)
       #{peek GtkColorSelectionDialog, help_button}
+
+dragContextGetActions :: DragContext -> IO Int
+dragContextGetActions dc = liftM (fromIntegral :: #{type int} -> Int) $
+  withForeignPtr (unDragContext dc) #{peek GdkDragContext, actions}
+
+dragContextSetActions :: DragContext -> Int -> IO ()
+dragContextSetActions dc val = withForeignPtr (unDragContext dc) $ \ptr ->
+  #{poke GdkDragContext, actions} ptr (fromIntegral val :: #{type int})
+
+dragContextGetAction :: DragContext -> IO Int
+dragContextGetAction dc = liftM (fromIntegral :: #{type int} -> Int) $
+  withForeignPtr (unDragContext dc) #{peek GdkDragContext, action}
+
+dragContextSetAction :: DragContext -> Int -> IO ()
+dragContextSetAction dc val = withForeignPtr (unDragContext dc) $ \ptr ->
+  #{poke GdkDragContext, action} ptr (fromIntegral val :: #{type int})
+
+dragContextGetSuggestedAction :: DragContext -> IO Int
+dragContextGetSuggestedAction dc = liftM (fromIntegral :: #{type int} -> Int) $
+  withForeignPtr (unDragContext dc) #{peek GdkDragContext, suggested_action}
+
+dragContextSetSuggestedAction :: DragContext -> Int -> IO ()
+dragContextSetSuggestedAction dc val = withForeignPtr (unDragContext dc) $ \ptr ->
+  #{poke GdkDragContext, suggested_action} ptr (fromIntegral val :: #{type int})

@@ -36,6 +36,7 @@ module Graphics.UI.Gtk.General.Enums (
   Click(..),
   CornerType(..),
   DeleteType(..),
+  DestDefaults(..),
   DirectionType(..),
   Justification(..),
 #ifndef DISABLE_DEPRECATED
@@ -65,6 +66,7 @@ module Graphics.UI.Gtk.General.Enums (
 #endif
   SpinButtonUpdatePolicy(..),
   SpinType(..),
+  TargetFlags(..),
   TextDirection(..),
   TextSearchFlags(..),
   TextWindowType(..),
@@ -141,6 +143,30 @@ data Click = SingleClick
 -- | Editing option
 --
 {#enum DeleteType {underscoreToCase} deriving (Eq)#}
+
+-- | The 'DestDefaults' enumeration specifies the various types of action that
+-- will be taken on behalf of the user for a drag destination site.
+--
+-- * 'DestDefaultMotion':   If set for a widget, GTK+, during a drag over this
+--   widget will check if the drag matches this widget's list of possible
+--   targets and actions. GTK+ will then call
+--   'Graphics.UI.Gtk.Gdk.Drag.dragStatus' as appropriate.
+-- * 'DestDefaultHightlight':   If set for a widget, GTK+ will draw a
+--   highlight on this widget as long as a drag is over this widget and the
+--   widget drag format and action are acceptable.
+-- * 'DestDefaultDrop':   If set for a widget, when a drop occurs, GTK+ will
+--   will check if the drag matches this widget's list of possible targets and
+--   actions. If so, GTK+ will call 'Graphics.UI.Gtk.Gdk.Drag.dragGetData' on
+--   behalf of the widget. Whether or not the drop is successful, GTK+ will
+--   call 'Graphics.UI.Gtk.Gdk.Drag.dragFinish'. If the action was a move,
+--   then if the drag was successful, then @True@ will be passed for the
+--   delete parameter to 'Graphics.UI.Gtk.Gdk.Drag.dragFinish'
+-- * 'DestDefaultAll':   If set, specifies that all default actions should be
+--   taken.
+--
+{#enum DestDefaults {underscoreToCase} deriving (Bounded,Eq)#}
+
+instance Flags DestDefaults
 
 -- | Editing direction
 --
@@ -297,6 +323,20 @@ data SelectionMode = SelectionNone
 -- | Spin a SpinButton with the following method.
 --
 {#enum SpinType {underscoreToCase} deriving (Eq)#}
+
+-- | The 'TargetFlags' enumeration is used to specify constraints on an entry
+--	 in a 'Graphics.UI.Gtk.Gdk.Selection.TargetList'. These flags are only
+--	 used for drag and drop.
+--
+-- * If the 'TargetSameApp' flag is set, the target will only be selected for
+--	 drags within a single application.
+--
+-- * If the 'TargetSameWidget' flag is set, the target will only be selected
+--	 for drags within a single widget.
+--
+{#enum TargetFlags {underscoreToCase} deriving(Bounded) #}
+
+instance Flags TargetFlags
 
 -- | Is the text written from left to right or the exotic way?
 --

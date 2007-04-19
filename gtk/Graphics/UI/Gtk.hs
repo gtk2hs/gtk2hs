@@ -45,9 +45,11 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.General.General,
   module Graphics.UI.Gtk.General.IconFactory,
   module Graphics.UI.Gtk.General.StockItems,
+  module Graphics.UI.Gtk.General.Selection,
+  module Graphics.UI.Gtk.General.Drag,
   module Graphics.UI.Gtk.Gdk.Keys,
   module Graphics.UI.Gtk.General.Style,
-  -- * Drawing
+  -- * Drawing and other Low-Level Operations
   module Graphics.UI.Gtk.Gdk.Drawable,
   module Graphics.UI.Gtk.Gdk.DrawWindow,
   module Graphics.UI.Gtk.Gdk.Region,
@@ -217,6 +219,8 @@ module Graphics.UI.Gtk (
 import Graphics.UI.Gtk.General.General
 import Graphics.UI.Gtk.General.IconFactory
 import Graphics.UI.Gtk.General.StockItems
+import Graphics.UI.Gtk.General.Selection
+import Graphics.UI.Gtk.General.Drag
 -- drawing
 import Graphics.UI.Gtk.Gdk.Keys
 import Graphics.UI.Gtk.General.Style

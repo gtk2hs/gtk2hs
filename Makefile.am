@@ -564,8 +564,11 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
-	gtk/Graphics/UI/Gtk/Pango/Markup.hs                             \
-        gtk/Graphics/UI/Gtk/Cairo.chs.pp
+	gtk/Graphics/UI/Gtk/Pango/Markup.hs \
+	gtk/Graphics/UI/Gtk/Cairo.chs.pp \
+	gtk/Graphics/UI/Gtk/General/Selection.chs.pp \
+	gtk/Graphics/UI/Gtk/General/Drag.chs.pp \
+	gtk/Graphics/UI/Gtk/General/DNDTypes.chs
 
 if !HAVE_DATA_TREE
 libHSgtk_a_SOURCES += compat/gtk/Data/Tree.hs
@@ -585,7 +588,8 @@ htmldoc_HSFILES_HIDDEN +=						\
 	gtk/Graphics/UI/Gtk/ModelView/TreeRowReference.hs	\
 	gtk/Graphics/UI/Gtk/ModelView/Types.hs			\
 	gtk/Graphics/UI/Gtk/Multiline/Types.hs			\
-	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs
+	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs \
+	gtk/Graphics/UI/Gtk/General/DNDTypes.chs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
