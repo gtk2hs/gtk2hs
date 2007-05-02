@@ -14,7 +14,8 @@ import Data.List (partition, isSuffixOf, group, sort)
 import Data.Maybe (catMaybes)
 import Prelude hiding (unwords)
 
-import Directory (getDirectoryContents, doesDirectoryExist, doesFileExist)
+import System.Directory (getDirectoryContents, doesDirectoryExist,
+                         doesFileExist)
 
 data ModuleInfo = ModuleInfo {
     module_name              :: String,
