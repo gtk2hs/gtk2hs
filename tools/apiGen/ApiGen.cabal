@@ -1,0 +1,10 @@
+name:           ApiGen
+version:        0.3
+build-depends:  base, HaXml >= 1.13 && < 1.14, regex-compat
+license:        GPL
+
+executable:     ApiGen
+main-is:        ApiGen.hs
+hs-source-dirs: src
+other-modules:  Api, Docs, AddDocs, HaddockDocs, CodeGen, Marshal, 
+                MarshalFixup, ModuleScan, ExcludeApi, Utils, Module, Names
