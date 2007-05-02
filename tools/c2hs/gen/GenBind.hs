@@ -1740,7 +1740,7 @@ evalConstCExpr (CComma _ at) =
   illegalConstExprErr (posOf at) "a comma expression"
 evalConstCExpr (CAssign _ _ _ at) =
   illegalConstExprErr (posOf at) "an assignment"
-evalConstCExpr (CCond b t e _) =
+evalConstCExpr (CCond b (Just t) e _) =
   do
     bv <- evalConstCExpr b
     case bv of

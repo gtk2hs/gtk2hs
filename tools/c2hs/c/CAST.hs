@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 7 March 99
 --
---  Version $Revision: 1.4 $ from $Date: 2005/07/27 16:28:30 $
+--  Version $Revision: 1.10 $ from $Date: 2004/06/11 07:10:16 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --
@@ -40,11 +40,11 @@
 --- TODO ----------------------------------------------------------------------
 --
 
-module CAST (CHeader(..), CExtDecl(..), CFunDef(..), CStat(..), CDecl(..),
-	     CDeclSpec(..), CStorageSpec(..), CTypeSpec(..), CTypeQual(..),
-	     CStructUnion(..),  CStructTag(..), CEnum(..), CDeclr(..),
-	     CInit(..), CExpr(..), CAssignOp(..), CBinaryOp(..), CUnaryOp(..),
-	     CConst (..)) 
+module CAST (CHeader(..), CExtDecl(..), CFunDef(..), CStat(..), CBlockItem(..),
+	     CDecl(..), CDeclSpec(..), CStorageSpec(..), CTypeSpec(..),
+	     CTypeQual(..), CStructUnion(..),  CStructTag(..), CEnum(..),
+             CDeclr(..), CInit(..), CInitList, CDesignator(..), CExpr(..),
+             CAssignOp(..), CBinaryOp(..), CUnaryOp(..), CConst (..))
 where
 
 import Common     (Position, Pos(posOf), nopos)
@@ -112,12 +112,15 @@ data CStat = CLabel    Ident		-- label
            | CCase     CExpr		-- constant expression
 		       CStat
 		       Attrs
+           | CCases    CExpr		-- case range
+		       CExpr		-- `case lower .. upper :'
+		       CStat
+		       Attrs
            | CDefault  CStat		-- default case
 		       Attrs
            | CExpr     (Maybe CExpr)	-- expression statement, maybe empty
 		       Attrs
-           | CCompound [CDecl]		-- optional declaration list
-		       [CStat]		-- optional statement list
+           | CCompound [CBlockItem]	-- list of declarations and statements
 		       Attrs
            | CIf       CExpr		-- conditional expression
 		       CStat
@@ -130,12 +133,15 @@ data CStat = CLabel    Ident		-- label
 		       CStat
 		       Bool		-- `True' implies "do-while" statement
 		       Attrs
-           | CFor      (Maybe CExpr)
+           | CFor      (Either (Maybe CExpr)
+			       CDecl)
 		       (Maybe CExpr)
 		       (Maybe CExpr)
 		       CStat
 		       Attrs
            | CGoto     Ident		-- label
+		       Attrs
+           | CGotoPtr  CExpr		-- computed address
 		       Attrs
            | CCont     Attrs		-- continue statement
 	   | CBreak    Attrs		-- break statement
@@ -147,14 +153,16 @@ data CStat = CLabel    Ident		-- label
 instance Pos CStat where
   posOf (CLabel    _ _     at) = posOf at
   posOf (CCase     _ _     at) = posOf at
+  posOf (CCases    _ _ _   at) = posOf at
   posOf (CDefault  _       at) = posOf at
   posOf (CExpr     _       at) = posOf at
-  posOf (CCompound _ _     at) = posOf at
+  posOf (CCompound _       at) = posOf at
   posOf (CIf       _ _ _   at) = posOf at
   posOf (CSwitch   _ _     at) = posOf at
   posOf (CWhile    _ _ _   at) = posOf at
   posOf (CFor      _ _ _ _ at) = posOf at
   posOf (CGoto     _	   at) = posOf at
+  posOf (CGotoPtr     _    at) = posOf at
   posOf (CCont     	   at) = posOf at
   posOf (CBreak    	   at) = posOf at
   posOf (CReturn   _   	   at) = posOf at
@@ -163,18 +171,36 @@ instance Pos CStat where
 instance Eq CStat where
   (CLabel    _ _     at1) == (CLabel    _ _     at2) = at1 == at2
   (CCase     _ _     at1) == (CCase     _ _     at2) = at1 == at2
+  (CCases    _ _ _   at1) == (CCases    _ _ _   at2) = at1 == at2
   (CDefault  _       at1) == (CDefault  _       at2) = at1 == at2
   (CExpr     _       at1) == (CExpr     _       at2) = at1 == at2
-  (CCompound _ _     at1) == (CCompound _ _     at2) = at1 == at2
+  (CCompound _       at1) == (CCompound _       at2) = at1 == at2
   (CIf       _ _ _   at1) == (CIf       _ _ _   at2) = at1 == at2
   (CSwitch   _ _     at1) == (CSwitch   _ _     at2) = at1 == at2
   (CWhile    _ _ _   at1) == (CWhile    _ _ _   at2) = at1 == at2
   (CFor      _ _ _ _ at1) == (CFor      _ _ _ _ at2) = at1 == at2
   (CGoto     _	     at1) == (CGoto     _	at2) = at1 == at2
+  (CGotoPtr  _	     at1) == (CGotoPtr  _	at2) = at1 == at2
   (CCont	     at1) == (CCont		at2) = at1 == at2
   (CBreak	     at1) == (CBreak		at2) = at1 == at2
   (CReturn   _	     at1) == (CReturn   _	at2) = at1 == at2
   (CAsm              at1) == (CAsm              at2) = at1 == at2
+
+-- C99 Block items, things that may appear in compound statements
+data CBlockItem = CBlockStmt    CStat
+                | CBlockDecl    CDecl
+                | CNestedFunDef CFunDef		-- GNU C has nested functions
+
+instance Pos CBlockItem where
+  posOf (CBlockStmt stmt)  = posOf stmt
+  posOf (CBlockDecl decl)  = posOf decl
+  posOf (CNestedFunDef fdef) = posOf fdef
+
+instance Eq CBlockItem where
+  CBlockStmt    stmt1 == CBlockStmt    stmt2 = stmt1 == stmt2
+  CBlockDecl    decl1 == CBlockDecl    decl2 = decl1 == decl2
+  CNestedFunDef fdef1 == CNestedFunDef fdef2 = fdef1 == fdef2
+
 
 -- C declaration (K&R A8), structure declaration (K&R A8.3), parameter
 -- declaration (K&R A8.6.3), and type name (K&R A8.8) (EXPORTED) 
@@ -249,6 +275,7 @@ data CStorageSpec = CAuto     Attrs
 		  | CStatic   Attrs
 		  | CExtern   Attrs
 		  | CTypedef  Attrs	-- syntactic awkwardness of C
+                  | CThread   Attrs	-- GNUC thread local storage
 
 instance Pos CStorageSpec where
   posOf (CAuto     at) = posOf at
@@ -256,6 +283,7 @@ instance Pos CStorageSpec where
   posOf (CStatic   at) = posOf at
   posOf (CExtern   at) = posOf at
   posOf (CTypedef  at) = posOf at
+  posOf (CThread   at) = posOf at
 
 instance Eq CStorageSpec where
   (CAuto     at1) == (CAuto     at2) = at1 == at2
@@ -263,6 +291,7 @@ instance Eq CStorageSpec where
   (CStatic   at1) == (CStatic   at2) = at1 == at2
   (CExtern   at1) == (CExtern   at2) = at1 == at2
   (CTypedef  at1) == (CTypedef  at2) = at1 == at2
+  (CThread   at1) == (CThread   at2) = at1 == at2
 
 -- C type specifier (K&R A8.2) (EXPORTED)
 --
@@ -275,15 +304,17 @@ data CTypeSpec = CVoidType    Attrs
 	       | CDoubleType  Attrs
 	       | CSignedType  Attrs
 	       | CUnsigType   Attrs
+	       | CBoolType    Attrs
+	       | CComplexType Attrs
 	       | CSUType      CStructUnion
 			      Attrs
 	       | CEnumType    CEnum
 			      Attrs
 	       | CTypeDef     Ident		-- typedef name
 			      Attrs
-	       | CTypeofExpr  CExpr
+               | CTypeOfExpr  CExpr
 			      Attrs
-	       | CTypeofType  CDecl		-- type name
+               | CTypeOfType  CDecl
 			      Attrs
 
 instance Pos CTypeSpec where
@@ -296,11 +327,13 @@ instance Pos CTypeSpec where
   posOf (CDoubleType    at) = posOf at
   posOf (CSignedType    at) = posOf at
   posOf (CUnsigType     at) = posOf at
+  posOf (CBoolType      at) = posOf at
+  posOf (CComplexType   at) = posOf at
   posOf (CSUType     _  at) = posOf at
   posOf (CEnumType   _  at) = posOf at
   posOf (CTypeDef    _  at) = posOf at
-  posOf (CTypeofExpr _  at) = posOf at
-  posOf (CTypeofType _  at) = posOf at
+  posOf (CTypeOfExpr _  at) = posOf at
+  posOf (CTypeOfType _  at) = posOf at
 
 instance Eq CTypeSpec where
   (CVoidType     at1) == (CVoidType     at2) = at1 == at2
@@ -312,11 +345,13 @@ instance Eq CTypeSpec where
   (CDoubleType   at1) == (CDoubleType   at2) = at1 == at2
   (CSignedType   at1) == (CSignedType   at2) = at1 == at2
   (CUnsigType    at1) == (CUnsigType    at2) = at1 == at2
+  (CBoolType     at1) == (CBoolType     at2) = at1 == at2
+  (CComplexType  at1) == (CComplexType  at2) = at1 == at2
   (CSUType     _ at1) == (CSUType     _ at2) = at1 == at2
   (CEnumType   _ at1) == (CEnumType   _ at2) = at1 == at2
   (CTypeDef    _ at1) == (CTypeDef    _ at2) = at1 == at2
-  (CTypeofExpr _ at1) == (CTypeofExpr _ at2) = at1 == at2
-  (CTypeofType _ at1) == (CTypeofType _ at2) = at1 == at2
+  (CTypeOfExpr _ at1) == (CTypeOfExpr _ at2) = at1 == at2
+  (CTypeOfType _ at1) == (CTypeOfType _ at2) = at1 == at2
 
 -- C type qualifier (K&R A8.2) (EXPORTED)
 --
@@ -402,10 +437,11 @@ instance Eq CEnum where
 --
 data CDeclr = CVarDeclr (Maybe Ident)		-- declared identifier
 		        Attrs
-	    | CPtrDeclr [[CTypeQual]]		-- indirections (non-empty)
+	    | CPtrDeclr [CTypeQual]		-- indirections
 		        CDeclr
 		        Attrs
             | CArrDeclr CDeclr
+                        [CTypeQual]
 			(Maybe CExpr)		-- array size
 			Attrs
 	    | CFunDeclr CDeclr
@@ -416,21 +452,23 @@ data CDeclr = CVarDeclr (Maybe Ident)		-- declared identifier
 instance Pos CDeclr where
   posOf (CVarDeclr _     at) = posOf at
   posOf (CPtrDeclr _ _   at) = posOf at
-  posOf (CArrDeclr _ _   at) = posOf at
+  posOf (CArrDeclr _ _ _ at) = posOf at
   posOf (CFunDeclr _ _ _ at) = posOf at
 
 instance Eq CDeclr where
   (CVarDeclr _     at1) == (CVarDeclr _     at2) = at1 == at2
   (CPtrDeclr _ _   at1) == (CPtrDeclr _ _   at2) = at1 == at2
-  (CArrDeclr _ _   at1) == (CArrDeclr _ _   at2) = at1 == at2
+  (CArrDeclr _ _ _ at1) == (CArrDeclr _ _ _ at2) = at1 == at2
   (CFunDeclr _ _ _ at1) == (CFunDeclr _ _ _ at2) = at1 == at2
 
 -- C initializer (K&R A8.7) (EXPORTED)
 --
 data CInit = CInitExpr CExpr
 		       Attrs		-- assignment expression
-           | CInitList [CInit]
+           | CInitList CInitList
 		       Attrs
+
+type CInitList = [([CDesignator], CInit)]
 
 instance Pos CInit where
   posOf (CInitExpr _ at) = posOf at
@@ -439,6 +477,26 @@ instance Pos CInit where
 instance Eq CInit where
   (CInitExpr _ at1) == (CInitExpr _ at2) = at1 == at2
   (CInitList _ at1) == (CInitList _ at2) = at1 == at2
+
+-- C initializer designator (EXPORTED)
+--
+data CDesignator = CArrDesig     CExpr
+				 Attrs
+                 | CMemberDesig  Ident
+				 Attrs
+                 | CRangeDesig   CExpr	-- GNUC array range designator
+				 CExpr
+				 Attrs
+
+instance Pos CDesignator where
+  posOf (CArrDesig     _ at) = posOf at
+  posOf (CMemberDesig  _ at) = posOf at
+  posOf (CRangeDesig _ _ at) = posOf at
+
+instance Eq CDesignator where
+  (CArrDesig     _ at1) == (CArrDesig     _ at2) = at1 == at2
+  (CMemberDesig  _ at1) == (CMemberDesig  _ at2) = at1 == at2
+  (CRangeDesig _ _ at1) == (CRangeDesig _ _ at2) = at1 == at2
 
 -- C expression (K&R A7) (EXPORTED)
 --
@@ -454,7 +512,7 @@ data CExpr = CComma       [CExpr]	-- comma expression list, n >= 2
 		          CExpr		-- r-value
 		          Attrs
 	   | CCond        CExpr		-- conditional
-		          CExpr		-- true-expression
+		   (Maybe CExpr)	-- true-expression (GNU allows omitting)
 		          CExpr		-- false-expression
 		          Attrs
 	   | CBinary      CBinaryOp	-- binary operator
@@ -489,6 +547,14 @@ data CExpr = CComma       [CExpr]	-- comma expression list, n >= 2
 			  Attrs
            | CConst       CConst		-- includes strings
 			  Attrs
+	   | CCompoundLit CDecl		-- C99 compound literal
+	   		  CInitList	-- type name & initialiser list
+	   		  Attrs
+	   | CStatExpr    CStat		-- GNUC compound statement as expr
+	   		  Attrs
+           | CLabAddrExpr Ident         -- GNUC address of label
+	   		  Attrs
+	   | CBuiltinExpr Attrs		-- place holder for GNUC builtin exprs
 
 instance Pos CExpr where
   posOf (CComma       _     at) = posOf at
@@ -506,6 +572,10 @@ instance Pos CExpr where
   posOf (CMember      _ _ _ at) = posOf at
   posOf (CVar         _     at) = posOf at
   posOf (CConst       _     at) = posOf at
+  posOf (CCompoundLit _ _   at) = posOf at
+  posOf (CStatExpr    _     at) = posOf at
+  posOf (CLabAddrExpr _     at) = posOf at
+  posOf (CBuiltinExpr       at) = posOf at
 
 instance Eq CExpr where
   (CComma      	_     at1) == (CComma       _     at2) = at1 == at2
@@ -523,6 +593,10 @@ instance Eq CExpr where
   (CMember     	_ _ _ at1) == (CMember	    _ _ _ at2) = at1 == at2
   (CVar        	_     at1) == (CVar	    _     at2) = at1 == at2
   (CConst      	_     at1) == (CConst	    _	  at2) = at1 == at2
+  (CCompoundLit _ _   at1) == (CCompoundLit _ _   at2) = at1 == at2
+  (CStatExpr    _     at1) == (CStatExpr    _     at2) = at1 == at2
+  (CLabAddrExpr _     at1) == (CLabAddrExpr _     at2) = at1 == at2
+  (CBuiltinExpr       at1) == (CBuiltinExpr       at2) = at1 == at2
 
 -- C assignment operators (K&R A7.17) (EXPORTED)
 --
@@ -835,6 +909,37 @@ instance Binary CInit where
                     ad <- get bh
                     return (CInitList ac ad)
 
+instance Binary CDesignator where
+    put_ bh (CArrDesig aa ab) = do
+            putByte bh 0
+            put_ bh aa
+            put_ bh ab
+    put_ bh (CMemberDesig ac ad) = do
+            putByte bh 1
+            put_ bh ac
+            put_ bh ad
+    put_ bh (CRangeDesig ae af ag) = do
+            putByte bh 2
+            put_ bh ae
+            put_ bh af
+            put_ bh ag
+    get bh = do
+            h <- getByte bh
+            case h of
+              0 -> do
+                    aa <- get bh
+                    ab <- get bh
+                    return (CArrDesig aa ab)
+              1 -> do
+                    ac <- get bh
+                    ad <- get bh
+                    return (CMemberDesig ac ad)
+              2 -> do
+                    ae <- get bh
+                    af <- get bh
+                    ag <- get bh
+                    return (CRangeDesig ae af ag)
+
 instance Binary CDeclr where
     put_ bh (CVarDeclr aa ab) = do
             putByte bh 0
@@ -845,11 +950,12 @@ instance Binary CDeclr where
             put_ bh ac
             put_ bh ad
             put_ bh ae
-    put_ bh (CArrDeclr af ag ah) = do
+    put_ bh (CArrDeclr af ag ah ai) = do
             putByte bh 2
             put_ bh af
             put_ bh ag
             put_ bh ah
+            put_ bh ai
     put_ bh (CFunDeclr ai aj ak al) = do
             putByte bh 3
             put_ bh ai
@@ -872,7 +978,8 @@ instance Binary CDeclr where
                     af <- get bh
                     ag <- get bh
                     ah <- get bh
-                    return (CArrDeclr af ag ah)
+                    ai <- get bh
+                    return (CArrDeclr af ag ah ai)
               3 -> do
                     ai <- get bh
                     aj <- get bh
@@ -943,11 +1050,11 @@ instance Binary CTypeSpec where
             putByte bh 11
             put_ bh an
             put_ bh ao
-    put_ bh (CTypeofExpr ap aq) = do
+    put_ bh (CTypeOfExpr ap aq) = do
             putByte bh 12
             put_ bh ap
             put_ bh aq
-    put_ bh (CTypeofType ar as) = do
+    put_ bh (CTypeOfType ar as) = do
             putByte bh 13
             put_ bh ar
             put_ bh as
@@ -996,11 +1103,11 @@ instance Binary CTypeSpec where
               12 -> do
                     ap <- get bh
                     aq <- get bh
-                    return (CTypeofExpr ap aq)
+                    return (CTypeOfExpr ap aq)
               13 -> do
                     ar <- get bh
                     as <- get bh
-                    return (CTypeofType ar as)
+                    return (CTypeOfType ar as)
 
 instance Binary CStorageSpec where
     put_ bh (CAuto aa) = do

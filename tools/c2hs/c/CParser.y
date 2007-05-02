@@ -1,12 +1,11 @@
 --  C -> Haskell Compiler: Parser for C Header Files
 --
---  Author : Manuel M T Chakravarty, Duncan Coutts
+--  Author : Duncan Coutts, Manuel M T Chakravarty
 --  Created: 29 May 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/07/27 16:28:47 $
---
+--  Copyright (c) 2005-2007 Duncan Coutts
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
---  Copyright (c) 2005 Duncan Coutts
+--  Portions Copyright (c) 1989, 1990 James A. Roskind
 --
 --  This file is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -20,20 +19,60 @@
 --
 --- DESCRIPTION ---------------------------------------------------------------
 --
---  Parser for C header files, which have already been run through the C
+--  Parser for C translation units, which have already been run through the C
 --  preprocessor.  
 --
 --- DOCU ----------------------------------------------------------------------
 --
 --  language: Haskell 98
 --
---  The parser recognizes all of ANCI C.  The parser combinators follow K&R
---  Appendix A, but we make use of the richer grammar constructs provided by
---  `Parsers'.  It supports the C99 `restrict' extension and `inline'.  The
---  parser is rather permissive with respect to the formation of declarators
---  in function definitions (it doesn't enforce strict function syntax).
---  Non-complying definitions need to be detected by subsequent passes if
---  strict checking is required.
+--  The parser recognizes all of ISO C 99 and most common GNU C extensions.
+--
+--  With C99 we refer to the ISO C99 standard, specifically the section numbers
+--  used below refer to this report:
+--
+--    http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1124.pdf
+--
+--
+--  Since some of the grammar productions are quite difficult to read
+--  (especially those involved with the decleration syntax) we document them
+--  with an extended syntax that allows a more consise representation:
+--
+--  Ordinary rules
+--
+--   foo      named terminal or non-terminal
+--
+--   'c'      terminal, literal character token
+--
+--   A B      concatenation
+--
+--   A | B    alternation
+--
+--   (A)      grouping
+--
+--  Extended rules
+--
+--   A?       optional, short hand for (A|) or [A]{ 0==A || 1==A }
+--
+--   ...      stands for some part of the grammar omitted for clarity
+--
+--   [A]      represents sequences, 0 or more.
+--
+--   [A]{C}   sequences with some constraint, usually on the number of
+--            terminals or non-terminals appearing in the sequence.
+--
+--  Constraints on sequences
+--
+--   n==t     terminal or non-terminal t must appear exactly n times
+--
+--   n>=t     terminal or non-terminal t must appear at least n times
+--
+--   C1 && C1 conjunction of constraints
+--
+--   C1 || C2 disjunction of constraints
+--
+--   C1 |x| C2 exclusive disjunction of constraints
+--
 --
 --  Comments:
 --
@@ -41,212 +80,240 @@
 --    at' have *no* valid attribute handle in `at' (only a `newAttrsOnlyPos
 --    nopos').
 --
---  * Details on the C99 restrict extension are at:
---    <http://www.lysator.liu.se/c/restrict.html>.
---
---  With K&R we refer to ``The C Programming Language'', second edition, Brain
---  W. Kernighan and Dennis M. Ritchie, Prentice Hall, 1988.
---
---  Supported GNU C extensions:
---
---  * We also recognize GNU C `__attribute__' annotations (however, they are
---    not entered into the structure tree, but ignored).  More specifically, 
---
---      '__attribute__' '(' '(' attr ')' ')'
---
---    may occur after declarator specifiers or after a declarator itself (only
---    meaningful if it is a typedef), where `attr' is either just an 
---    identifier or an identifier followed by a comma-separated list of
---    constant expressions as follows:
---
---      attr  -> id ['(' const_1 ',' ... ',' const_n ')']
---	       | 'const'
---	const -> <constant expression>
---
---  * We also recognize GNU C `__extension__' annotations (however, they are
---    not entered into the structure tree, but ignored).  More specifically, 
---
---      __extension__
---
---    may occur in a specifier list.
---
---  * There may be a `,' behind the last element of a enum.
---
---  * Structs and unions may lack any declarations; eg, `struct { } foo;' is
---    valid. 
---
 --  * Builtin type names are imported from `CBuiltin'.
 --
 --- TODO ----------------------------------------------------------------------
+--
+--  * GNUC __attribute__s should be enetered into the parse tree since they
+--    contain useful api/abi information.
+--
+--  * Some other extensions are currently recognised by the parser but not
+--    entered into the parse tree.
 --
 
 {
 module CParser (parseC) where
 
-import Monad	  (when)
-import Maybe      (catMaybes)
+import Prelude    hiding (reverse)
+import qualified Data.List as List
 
 import Common     (Position, Pos(..), nopos)
-import Utils      (Tag(tag))
-import UNames     (Name, NameSupply, names)
+import UNames     (names)
 import Idents     (Ident)
 import Attributes (Attrs, newAttrs, newAttrsOnlyPos)
 
-import C2HSState  (CST, raiseFatal, getNameSupply)
-import CLexer     (CToken(..), GnuCTok(..), lexC,
-                   P, execParser, parseError, getNewName, addTypedef)
+import State      (PreCST, raiseFatal, getNameSupply)
+import CLexer     (lexC, parseError)
 import CAST       (CHeader(..), CExtDecl(..), CFunDef(..), CStat(..),
-		   CDecl(..), CDeclSpec(..), CStorageSpec(..), CTypeSpec(..),
-		   CTypeQual(..), CStructUnion(..), CStructTag(..), CEnum(..),
-		   CDeclr(..), CInit(..), CExpr(..), CAssignOp(..),
-		   CBinaryOp(..), CUnaryOp(..), CConst (..))
+                   CBlockItem(..), CDecl(..), CDeclSpec(..), CStorageSpec(..),
+                   CTypeSpec(..), CTypeQual(..), CStructUnion(..),
+                   CStructTag(..), CEnum(..), CDeclr(..), CInit(..), CInitList,
+                   CDesignator(..), CExpr(..), CAssignOp(..), CBinaryOp(..),
+                   CUnaryOp(..), CConst (..))
 import CBuiltin   (builtinTypeNames)
+import CTokens    (CToken(..), GnuCTok(..))
+import CParserMonad (P, execParser, getNewName, addTypedef, shadowTypedef,
+                     enterScope, leaveScope )
 }
 
-%name parseCHeader header
+%name header header
 %tokentype { CToken }
 
 %monad { P } { >>= } { return }
 %lexer { lexC } { CTokEof }
 
--- we have 1 shift/reduce confilict because of the "if then else" syntax.
 %expect 1
 
 %token
 
-'('		{ CTokLParen	_ }	-- 1
-')'		{ CTokRParen	_ }	-- 2
-'['		{ CTokLBracket	_ }	-- 3
-']'		{ CTokRBracket	_ }	-- 4
-"->"		{ CTokArrow	_ }	-- 5
-'.'		{ CTokDot	_ }	-- 6
-'!'		{ CTokExclam	_ }	-- 7
-'~'		{ CTokTilde	_ }	-- 8
-"++"		{ CTokInc	_ }	-- 9
-"--"		{ CTokDec	_ }	-- 10
-'+'		{ CTokPlus	_ }	-- 11
-'-'		{ CTokMinus	_ }	-- 12
-'*'		{ CTokStar	_ }	-- 13
-'/'		{ CTokSlash	_ }	-- 14
-'%'		{ CTokPercent	_ }	-- 15
-'&'		{ CTokAmper	_ }	-- 16
-"<<"		{ CTokShiftL	_ }	-- 17
-">>"		{ CTokShiftR	_ }	-- 18
-'<'		{ CTokLess	_ }	-- 19
-"<="		{ CTokLessEq	_ }	-- 20
-'>'		{ CTokHigh	_ }	-- 21
-">="		{ CTokHighEq	_ }	-- 22
-"=="		{ CTokEqual	_ }	-- 23
-"!="		{ CTokUnequal	_ }	-- 24
-'^'		{ CTokHat	_ }	-- 25
-'|'		{ CTokBar	_ }	-- 26
-"&&"		{ CTokAnd	_ }	-- 27
-"||"		{ CTokOr	_ }	-- 28
-'?'		{ CTokQuest	_ }	-- 29
-':'		{ CTokColon	_ }	-- 30
-'='		{ CTokAssign	_ }	-- 31
-"+="		{ CTokPlusAss	_ }	-- 32
-"-="		{ CTokMinusAss	_ }	-- 33
-"*="		{ CTokStarAss	_ }	-- 34
-"/="		{ CTokSlashAss	_ }	-- 35
-"%="		{ CTokPercAss	_ }	-- 36
-"&="		{ CTokAmpAss	_ }	-- 37
-"^="		{ CTokHatAss	_ }	-- 38
-"|="		{ CTokBarAss	_ }	-- 39
-"<<="		{ CTokSLAss	_ }	-- 40
-">>="		{ CTokSRAss	_ }	-- 41
-','		{ CTokComma	_ }	-- 42
-';'		{ CTokSemic	_ }	-- 43
-'{'		{ CTokLBrace	_ }	-- 44
-'}'		{ CTokRBrace	_ }	-- 45
-"..."		{ CTokEllipsis	_ }	-- 46
-alignof		{ CTokAlignof	_ }	-- 47
+'('		{ CTokLParen	_ }
+')'		{ CTokRParen	_ }
+'['		{ CTokLBracket	_ }
+']'		{ CTokRBracket	_ }
+"->"		{ CTokArrow	_ }
+'.'		{ CTokDot	_ }
+'!'		{ CTokExclam	_ }
+'~'		{ CTokTilde	_ }
+"++"		{ CTokInc	_ }
+"--"		{ CTokDec	_ }
+'+'		{ CTokPlus	_ }
+'-'		{ CTokMinus	_ }
+'*'		{ CTokStar	_ }
+'/'		{ CTokSlash	_ }
+'%'		{ CTokPercent	_ }
+'&'		{ CTokAmper	_ }
+"<<"		{ CTokShiftL	_ }
+">>"		{ CTokShiftR	_ }
+'<'		{ CTokLess	_ }
+"<="		{ CTokLessEq	_ }
+'>'		{ CTokHigh	_ }
+">="		{ CTokHighEq	_ }
+"=="		{ CTokEqual	_ }
+"!="		{ CTokUnequal	_ }
+'^'		{ CTokHat	_ }
+'|'		{ CTokBar	_ }
+"&&"		{ CTokAnd	_ }
+"||"		{ CTokOr	_ }
+'?'		{ CTokQuest	_ }
+':'		{ CTokColon	_ }
+'='		{ CTokAssign	_ }
+"+="		{ CTokPlusAss	_ }
+"-="		{ CTokMinusAss	_ }
+"*="		{ CTokStarAss	_ }
+"/="		{ CTokSlashAss	_ }
+"%="		{ CTokPercAss	_ }
+"&="		{ CTokAmpAss	_ }
+"^="		{ CTokHatAss	_ }
+"|="		{ CTokBarAss	_ }
+"<<="		{ CTokSLAss	_ }
+">>="		{ CTokSRAss	_ }
+','		{ CTokComma	_ }
+';'		{ CTokSemic	_ }
+'{'		{ CTokLBrace	_ }
+'}'		{ CTokRBrace	_ }
+"..."		{ CTokEllipsis	_ }
+alignof		{ CTokAlignof	_ }
 asm		{ CTokAsm	_ }
-auto		{ CTokAuto	_ }	-- 48
-break		{ CTokBreak	_ }	-- 49
-case		{ CTokCase	_ }	-- 50
-char		{ CTokChar	_ }	-- 51
-const		{ CTokConst	_ }	-- 52
-continue	{ CTokContinue	_ }	-- 53
-default		{ CTokDefault	_ }	-- 54
-do		{ CTokDo	_ }	-- 55
-double		{ CTokDouble	_ }	-- 56
-else		{ CTokElse	_ }	-- 57
-enum		{ CTokEnum	_ }	-- 58
-extern		{ CTokExtern	_ }	-- 59
-float		{ CTokFloat	_ }	-- 60
-for		{ CTokFor	_ }	-- 61
-goto		{ CTokGoto	_ }	-- 62
-if		{ CTokIf	_ }	-- 63
-inline		{ CTokInline	_ }	-- 64
-int		{ CTokInt	_ }	-- 65
-long		{ CTokLong	_ }	-- 66
-register	{ CTokRegister	_ }	-- 67
-restrict	{ CTokRestrict	_ }	-- 68
-return		{ CTokReturn	_ }	-- 69
-short		{ CTokShort	_ }	-- 70
-signed		{ CTokSigned	_ }	-- 71
-sizeof		{ CTokSizeof	_ }	-- 72
-static		{ CTokStatic	_ }	-- 73
-struct		{ CTokStruct	_ }	-- 74
-switch		{ CTokSwitch	_ }	-- 75
-typedef		{ CTokTypedef	_ }	-- 76
-typeof 		{ CTokTypeof	_ }
-union		{ CTokUnion	_ }	-- 77
-unsigned	{ CTokUnsigned	_ }	-- 78
-void		{ CTokVoid	_ }	-- 79
-volatile	{ CTokVolatile	_ }	-- 80
-while		{ CTokWhile	_ }	-- 81
-cchar		{ CTokCLit   _ _ }	-- 82		-- character constant
-cint		{ CTokILit   _ _ }	-- 83		-- integer constant
-cfloat		{ CTokFLit   _ _ }	-- 84		-- float constant
-cstr		{ CTokSLit   _ _ }	-- 85		-- string constant (no escapes)
-ident		{ CTokIdent  _ $$ }	-- 86		-- identifier
-tyident		{ CTokTyIdent _ $$ }	-- 87		-- `typedef-name' identifier
-attribute	{ CTokGnuC GnuCAttrTok _ }		-- special GNU C tokens
-extension	{ CTokGnuC GnuCExtTok  _ }		-- special GNU C tokens
+auto		{ CTokAuto	_ }
+break		{ CTokBreak	_ }
+"_Bool"		{ CTokBool	_ }
+case		{ CTokCase	_ }
+char		{ CTokChar	_ }
+const		{ CTokConst	_ }
+continue	{ CTokContinue	_ }
+"_Complex"	{ CTokComplex	_ }
+default		{ CTokDefault	_ }
+do		{ CTokDo	_ }
+double		{ CTokDouble	_ }
+else		{ CTokElse	_ }
+enum		{ CTokEnum	_ }
+extern		{ CTokExtern	_ }
+float		{ CTokFloat	_ }
+for		{ CTokFor	_ }
+goto		{ CTokGoto	_ }
+if		{ CTokIf	_ }
+inline		{ CTokInline	_ }
+int		{ CTokInt	_ }
+long		{ CTokLong	_ }
+"__label__"	{ CTokLabel	_ }
+register	{ CTokRegister	_ }
+restrict	{ CTokRestrict	_ }
+return		{ CTokReturn	_ }
+short		{ CTokShort	_ }
+signed		{ CTokSigned	_ }
+sizeof		{ CTokSizeof	_ }
+static		{ CTokStatic	_ }
+struct		{ CTokStruct	_ }
+switch		{ CTokSwitch	_ }
+typedef		{ CTokTypedef	_ }
+typeof		{ CTokTypeof	_ }
+"__thread"	{ CTokThread	_ }
+union		{ CTokUnion	_ }
+unsigned	{ CTokUnsigned	_ }
+void		{ CTokVoid	_ }
+volatile	{ CTokVolatile	_ }
+while		{ CTokWhile	_ }
+cchar		{ CTokCLit   _ _ }		-- character constant
+cint		{ CTokILit   _ _ }		-- integer constant
+cfloat		{ CTokFLit   _ _ }		-- float constant
+cstr		{ CTokSLit   _ _ }		-- string constant (no escapes)
+ident		{ CTokIdent  _ $$ }		-- identifier
+tyident		{ CTokTyIdent _ $$ }		-- `typedef-name' identifier
+"__attribute__"	{ CTokGnuC GnuCAttrTok _ }	-- special GNU C tokens
+"__extension__"	{ CTokGnuC GnuCExtTok  _ }	-- special GNU C tokens
+
+-- special GNU C builtin 'functions' that actually take types as parameters:
+"__builtin_va_arg"		{ CTokGnuC GnuCVaArg    _ }
+"__builtin_offsetof"		{ CTokGnuC GnuCOffsetof _ }
+"__builtin_types_compatible_p"	{ CTokGnuC GnuCTyCompat _ }
 
 %%
 
 
--- parse a complete C header file (K&R A10)
+-- parse a complete C header file
 --
--- * we supply the attr externally for exact compatability with the old parser
---   in terms of use of the unique name supply.
---
-header :: { Attrs -> CHeader }
+header :: { CHeader }
 header
-  : translation_unit				{ CHeader (reverse $1) }
+  : translation_unit	{% withAttrs $1 $ CHeader (reverse $1) }
 
 
-translation_unit :: { [CExtDecl] }
+-- parse a complete C translation unit (C99 6.9)
+--
+-- * GNU extensions:
+--     allow empty translation_unit
+--     allow redundant ';'
+--
+translation_unit :: { Reversed [CExtDecl] }
 translation_unit
-  : {- empty -}					{ [] }
-  | translation_unit external_declaration	{ $2 : $1 }
-  | translation_unit asm '(' expression ')' ';'
-	{% withAttrs $2 $ \at -> CAsmExt at : $1 }
+  : {- empty -}					{ empty }
+  | translation_unit ';'			{ $1 }
+  | translation_unit external_declaration	{ $1 `snoc` $2 }
 
 
--- parse external C declaration (K&R A10)
+-- parse external C declaration (C99 6.9)
+--
+-- * GNU extensions:
+--     allow extension keyword before external declaration
+--     asm definitions
 --
 external_declaration :: { CExtDecl }
 external_declaration
-  : function_definition			{ CFDefExt $1 }
-  | declaration ';'			{ CDeclExt $1 }
+  : attrs_opt function_definition		{ CFDefExt $2 }
+  | attrs_opt declaration			{ CDeclExt $2 }
+  | "__extension__" external_declaration	{ $2 }
+  | asm '(' string_literal ')' ';'		{% withAttrs $2 CAsmExt }
 
 
--- parse C function definition (K&R A10.1)
+-- parse C function definition (C99 6.9.1)
 --
 function_definition :: { CFunDef }
 function_definition
-  : declaration_specifiers declarator declaration_list compound_statement
-	{% withAttrs $1 $ CFunDef $1 $2 (reverse $3) $4 }
+  :                            function_declarator compound_statement
+  	{% leaveScope >> (withAttrs $1 $ CFunDef [] $1 [] $2) }
 
-  | declarator declaration_list compound_statement
+  | declaration_specifier      function_declarator compound_statement
+	{% leaveScope >> (withAttrs $1 $ CFunDef $1 $2 [] $3) }
+
+  | type_specifier             function_declarator compound_statement
+	{% leaveScope >> (withAttrs $1 $ CFunDef $1 $2 [] $3) }
+
+  | declaration_qualifier_list function_declarator compound_statement
+	{% leaveScope >> (withAttrs $1 $ CFunDef (reverse $1) $2 [] $3) }
+
+  | type_qualifier_list        function_declarator compound_statement
+	{% leaveScope >> (withAttrs $1 $ CFunDef (liftTypeQuals $1) $2 [] $3) }
+
+  |                            old_function_declarator declaration_list compound_statement
   	{% withAttrs $1 $ CFunDef [] $1 (reverse $2) $3 }
 
+  | declaration_specifier      old_function_declarator declaration_list compound_statement
+  	{% withAttrs $1 $ CFunDef $1 $2 (reverse $3) $4 }
 
--- parse C statement (K&R A9)
+  | type_specifier             old_function_declarator declaration_list compound_statement
+  	{% withAttrs $1 $ CFunDef $1 $2 (reverse $3) $4 }
+
+  | declaration_qualifier_list old_function_declarator declaration_list compound_statement
+  	{% withAttrs $1 $ CFunDef (reverse $1) $2 (reverse $3) $4 }
+
+  | type_qualifier_list        old_function_declarator declaration_list compound_statement
+  	{% withAttrs $1 $ CFunDef (liftTypeQuals $1) $2 (reverse $3) $4 }
+
+
+function_declarator :: { CDeclr }
+function_declarator
+  : identifier_declarator
+  	{% enterScope >> doFuncParamDeclIdent $1 >> return $1 }
+
+
+declaration_list :: { Reversed [CDecl] }
+declaration_list
+  : {- empty -}					{ empty }
+  | declaration_list declaration		{ $1 `snoc` $2 }
+
+
+-- parse C statement (C99 6.8)
+--
+-- * GNU extension: ' __asm__ (...); ' statements
 --
 statement :: { CStat }
 statement
@@ -259,22 +326,83 @@ statement
   | asm_statement			{ $1 }
 
 
-statement_list :: { [CStat] }
-statement_list
-  : {- empty -}				{ [] }
-  | statement_list statement		{ $2 : $1 }
-
-
--- parse C labeled statement (K&R A9.1)
+-- parse C labeled statement (C99 6.8.1)
+--
+-- * GNU extension: case ranges
 --
 labeled_statement :: { CStat }
 labeled_statement
-  : ident ':' statement				{% withAttrs $2 $ CLabel $1 $3}
+  : identifier ':' attrs_opt statement		{% withAttrs $2 $ CLabel $1 $4}
   | case constant_expression ':' statement	{% withAttrs $1 $ CCase $2 $4 }
   | default ':' statement			{% withAttrs $1 $ CDefault $3 }
+  | case constant_expression "..." constant_expression ':' statement
+  	{% withAttrs $1 $ CCases $2 $4 $6 }
 
 
--- parse C expression statement (K&R A9.2)
+-- parse C compound statement (C99 6.8.2)
+--
+-- * GNU extension: '__label__ ident;' declarations
+--
+compound_statement :: { CStat }
+compound_statement
+  : '{' enter_scope block_item_list leave_scope '}'
+  	{% withAttrs $1 $ CCompound (reverse $3) }
+
+  | '{' enter_scope label_declarations block_item_list leave_scope '}'
+  	{% withAttrs $1 $ CCompound (reverse $4) }
+
+
+-- No syntax for these, just side effecting semantic actions.
+--
+enter_scope :: { () }
+enter_scope : {% enterScope }
+leave_scope :: { () }
+leave_scope : {% leaveScope }
+
+
+block_item_list :: { Reversed [CBlockItem] }
+block_item_list
+  : {- empty -}			{ empty }
+  | block_item_list block_item	{ $1 `snoc` $2 }
+
+
+block_item :: { CBlockItem }
+block_item
+  : statement			{ CBlockStmt $1 }
+  | nested_declaration		{ $1 }
+
+
+nested_declaration :: { CBlockItem }
+nested_declaration
+  : declaration				{ CBlockDecl $1 }
+  | attrs declaration			{ CBlockDecl $2 }
+  | nested_function_definition		{ CNestedFunDef $1 }
+  | attrs nested_function_definition	{ CNestedFunDef $2 }
+  | "__extension__" nested_declaration	{ $2 }
+
+
+nested_function_definition :: { CFunDef }
+nested_function_definition
+  : declaration_specifier      function_declarator compound_statement
+	{% leaveScope >> (withAttrs $1 $ CFunDef $1 $2 [] $3) }
+
+  | type_specifier             function_declarator compound_statement
+	{% leaveScope >> (withAttrs $1 $ CFunDef $1 $2 [] $3) }
+
+  | declaration_qualifier_list function_declarator compound_statement
+	{% leaveScope >> (withAttrs $1 $ CFunDef (reverse $1) $2 [] $3) }
+
+  | type_qualifier_list        function_declarator compound_statement
+	{% leaveScope >> (withAttrs $1 $ CFunDef (liftTypeQuals $1) $2 [] $3) }
+
+
+label_declarations :: { () }
+label_declarations
+  : "__label__" identifier_list ';'			{ () }
+  | label_declarations "__label__" identifier_list ';'	{ () }
+
+
+-- parse C expression statement (C99 6.8.3)
 --
 expression_statement :: { CStat }
 expression_statement
@@ -282,15 +410,7 @@ expression_statement
   | expression ';'		{% withAttrs $1 $ CExpr (Just $1) }
 
 
--- parse C compound statement (K&R A9.3)
---
-compound_statement :: { CStat }
-compound_statement
-  : '{' declaration_list statement_list '}'
-  	{% withAttrs $1 $ CCompound (reverse $2) (reverse $3) }
-
-
--- parse C selection statement (K&R A9.4)
+-- parse C selection statement (C99 6.8.4)
 --
 selection_statement :: { CStat }
 selection_statement
@@ -304,7 +424,7 @@ selection_statement
 	{% withAttrs $1 $ CSwitch $3 $5 }
 
 
--- parse C iteration statement (K&R A9.5)
+-- parse C iteration statement (C99 6.8.5)
 --
 iteration_statement :: { CStat }
 iteration_statement
@@ -314,28 +434,24 @@ iteration_statement
   | do statement while '(' expression ')' ';'
   	{% withAttrs $1 $ CWhile $5 $2 True }
 
-  | for '(' expression_statement expression_statement ')' statement
-  	{% withAttrs $1 $ case $3 of
-	                    CExpr e3 _ ->
-			      case $4 of
-			        CExpr e4 _ -> CFor e3 e4 Nothing $6 }
+  | for '(' expression_opt ';' expression_opt ';' expression_opt ')' statement
+	{% withAttrs $1 $ CFor (Left $3) $5 $7 $9 }
 
-  | for '(' expression_statement expression_statement expression ')' statement
-  	{% withAttrs $1 $ case $3 of
-	                    CExpr e3 _ ->
-			      case $4 of
-			        CExpr e4 _ -> CFor e3 e4 (Just $5) $7 }
+  | for '(' enter_scope declaration expression_opt ';' expression_opt ')' statement leave_scope
+	{% withAttrs $1 $ CFor (Right $4) $5 $7 $9 }
 
 
--- parse C jump statement (K&R A9.6)
+-- parse C jump statement (C99 6.8.6)
+--
+-- * GNU extension: computed gotos
 --
 jump_statement :: { CStat }
 jump_statement
-  : goto ident ';'			{% withAttrs $1 $ CGoto $2 }
+  : goto identifier ';'			{% withAttrs $1 $ CGoto $2 }
+  | goto '*' expression ';'		{% withAttrs $1 $ CGotoPtr $3 }
   | continue ';'			{% withAttrs $1 $ CCont }
   | break ';'				{% withAttrs $1 $ CBreak }
-  | return ';'				{% withAttrs $1 $ CReturn Nothing }
-  | return expression ';'		{% withAttrs $1 $ CReturn (Just $2) }
+  | return expression_opt ';'		{% withAttrs $1 $ CReturn $2 }
 
 
 -- parse GNU C __asm__ (...) statement (recording only a place holder result)
@@ -344,14 +460,17 @@ asm_statement :: { CStat }
 asm_statement
   : asm maybe_type_qualifier '(' expression ')' ';'
   	{% withAttrs $1 CAsm }
+
   | asm maybe_type_qualifier '(' expression ':' asm_operands ')' ';'
   	{% withAttrs $1 CAsm }
+
   | asm maybe_type_qualifier '(' expression ':' asm_operands
 					    ':' asm_operands ')' ';'
   	{% withAttrs $1 CAsm }
   | asm maybe_type_qualifier '(' expression ':' asm_operands ':' asm_operands
 					    ':' asm_clobbers ')' ';'
   	{% withAttrs $1 CAsm }
+
 
 maybe_type_qualifier :: { () }
 maybe_type_qualifier
@@ -373,108 +492,162 @@ nonnull_asm_operands
 
 asm_operand :: { () }
 asm_operand
-  : string '(' expression ')'			{ () }
-  | '[' ident ']' string '(' expression ')'	{ () }
-  | '[' tyident ']' string '(' expression ')'	{ () }
+  : string_literal '(' expression ')'			{ () }
+  | '[' ident ']' string_literal '(' expression ')'	{ () }
+  | '[' tyident ']' string_literal '(' expression ')'	{ () }
 
 
 asm_clobbers :: { () }
 asm_clobbers
-  : string			{ () }
-  | asm_clobbers ',' string	{ () }
+  : string_literal			{ () }
+  | asm_clobbers ',' string_literal	{ () }
 
 
--- parse C declaration (K&R A8)
---
--- * We allow the GNU C extension keyword before a declaration and GNU C
---   attribute annotations after declaration specifiers, but they are not
---   entered into the structure tree.
+-- parse C declaration (C99 6.7)
 --
 declaration :: { CDecl }
 declaration
-  : declaration_specifiers
-  	{% withAttrs $1 $ CDecl $1 [] }
+  : sue_declaration_specifier ';'
+  	{% withAttrs $1 $ CDecl (reverse $1) [] }
 
-  | declaration_specifiers init_declarator_list
-	{% let declrs = reverse $2
-	    in when (isTypeDef $1)
-	            (mapM_ addTypedef (getTypeDefIdents (map fst declrs)))
-	    >> getNewName >>= \name ->
-	       let attrs = newAttrs (posOf $1) name
-	           declrs' = [ (Just d, i, Nothing) | (d, i) <- declrs ]
-	        in attrs `seq`
-	           return (CDecl $1 declrs' attrs) }
+  | sue_type_specifier ';'
+  	{% withAttrs $1 $ CDecl (reverse $1) [] }
 
+  | declaring_list ';'
+  	{ case $1 of
+            CDecl declspecs dies attr ->
+              CDecl declspecs (List.reverse dies) attr }
 
-declaration_list :: { [CDecl] }
-declaration_list
-  : {- empty -}					{ [] }
-  | declaration_list declaration ';'		{ $2 : $1 }
+  | default_declaring_list ';'
+  	{ case $1 of
+            CDecl declspecs dies attr ->
+              CDecl declspecs (List.reverse dies) attr }
 
 
--- parse C declaration specifiers (K&R A8)
+-- Note that if a typedef were redeclared, then a declaration
+-- specifier must be supplied
 --
-declaration_specifiers :: { [CDeclSpec] }
-declaration_specifiers
-  : ignore_extension declaration_specifiers_			{ $2 }
-
-
-declaration_specifiers_ :: { [CDeclSpec] }
-declaration_specifiers_
-  : storage_class_specifier gnuc_attrs
-  	{ [CStorageSpec $1] }
-
-  | storage_class_specifier gnuc_attrs declaration_specifiers_
-  	{ CStorageSpec $1 : $3 }
-
-  | type_specifier gnuc_attrs
-  	{ [CTypeSpec $1] }
-
-  | type_specifier gnuc_attrs declaration_specifiers_
-  	{ CTypeSpec $1 : $3 }
-
-  | type_qualifier gnuc_attrs
-  	{ [CTypeQual $1] }
-
-  | type_qualifier gnuc_attrs declaration_specifiers_
-  	{ CTypeQual $1 : $3 }
-
-
--- parse C init declarator (K&R A8)
+-- Can't redeclare typedef names
 --
-init_declarator :: { (CDeclr, Maybe CInit) }
-init_declarator
-  : declarator maybe_asm				{ ($1, Nothing) }
-  | declarator maybe_asm '=' initializer		{ ($1, Just $4) }
+default_declaring_list :: { CDecl }
+default_declaring_list
+  : declaration_qualifier_list identifier_declarator asm_opt attrs_opt {-{}-} initializer_opt
+  	{% let declspecs = reverse $1 in
+           doDeclIdent declspecs $2
+        >> (withAttrs $1 $ CDecl declspecs [(Just $2, $5, Nothing)]) }
+
+  | type_qualifier_list identifier_declarator asm_opt attrs_opt {-{}-} initializer_opt
+  	{% let declspecs = liftTypeQuals $1 in
+           doDeclIdent declspecs $2
+        >> (withAttrs $1 $ CDecl declspecs [(Just $2, $5, Nothing)]) }
+
+  | default_declaring_list ',' identifier_declarator asm_opt attrs_opt {-{}-} initializer_opt
+  	{% case $1 of
+             CDecl declspecs dies attr -> do
+               doDeclIdent declspecs $3
+               return (CDecl declspecs ((Just $3, $6, Nothing) : dies) attr) }
 
 
-maybe_asm :: { () }
-maybe_asm
-  : {- empty -}		{ () }
-  | asm '(' string ')'	{ () }
+declaring_list :: { CDecl }
+declaring_list
+  : declaration_specifier declarator asm_opt attrs_opt {-{}-} initializer_opt
+  	{% doDeclIdent $1 $2
+        >> (withAttrs $1 $ CDecl $1 [(Just $2, $5, Nothing)]) }
+
+  | type_specifier declarator asm_opt attrs_opt {-{}-} initializer_opt
+  	{% doDeclIdent $1 $2
+        >> (withAttrs $1 $ CDecl $1 [(Just $2, $5, Nothing)]) }
+
+  | declaring_list ',' declarator asm_opt attrs_opt {-{}-} initializer_opt
+  	{% case $1 of
+             CDecl declspecs dies attr -> do
+               doDeclIdent declspecs $3
+               return (CDecl declspecs ((Just $3, $6, Nothing) : dies) attr) }
 
 
-init_declarator_list :: { [(CDeclr, Maybe CInit)] }
-init_declarator_list
-  : init_declarator					{ [$1] }
-  | init_declarator_list ',' init_declarator		{ $3 : $1 }
-
-
--- parse C storage class specifier (K&R A8.1)
+-- parse C declaration specifiers (C99 6.7)
 --
-storage_class_specifier :: { CStorageSpec }
-storage_class_specifier
+-- * summary:
+--   [ type_qualifier | storage_class
+--   | basic_type_name | elaborated_type_name | tyident ]{
+--     (    1 >= basic_type_name
+--      |x| 1 == elaborated_type_name
+--      |x| 1 == tyident
+--     ) && 1 >= storage_class
+--   }
+--
+declaration_specifier :: { [CDeclSpec] }
+declaration_specifier
+  : basic_declaration_specifier		{ reverse $1 }	-- Arithmetic or void
+  | sue_declaration_specifier		{ reverse $1 }	-- Struct/Union/Enum
+  | typedef_declaration_specifier	{ reverse $1 }	-- Typedef
+
+
+-- A mixture of type qualifiers and storage class specifiers in any order, but
+-- containing at least one storage class specifier.
+--
+-- * summary:
+--   [type_qualifier | storage_class]{ 1 >= storage_class }
+--
+-- * detail:
+--   [type_qualifier] storage_class [type_qualifier | storage_class]
+--
+declaration_qualifier_list :: { Reversed [CDeclSpec] }
+declaration_qualifier_list
+  : storage_class
+  	{ singleton (CStorageSpec $1) }
+
+  | type_qualifier_list storage_class
+  	{ rmap CTypeQual $1 `snoc` CStorageSpec $2 }
+
+  | declaration_qualifier_list declaration_qualifier
+  	{ $1 `snoc` $2 }
+
+  | declaration_qualifier_list attr
+  	{ $1 }
+
+
+declaration_qualifier :: { CDeclSpec }
+declaration_qualifier
+  : storage_class		{ CStorageSpec $1 }
+  | type_qualifier		{ CTypeQual $1 }     -- const or volatile
+
+
+-- parse C storage class specifier (C99 6.7.1)
+--
+-- * GNU extensions: '__thread' thread local storage
+--
+storage_class :: { CStorageSpec }
+storage_class
   : typedef			{% withAttrs $1 $ CTypedef }
   | extern			{% withAttrs $1 $ CExtern }
   | static			{% withAttrs $1 $ CStatic }
   | auto			{% withAttrs $1 $ CAuto }
   | register			{% withAttrs $1 $ CRegister }
+  | "__thread"			{% withAttrs $1 $ CThread }
 
 
--- parse C type specifier (K&R A8.2)
+-- parse C type specifier (C99 6.7.2)
 --
-type_specifier :: { CTypeSpec }
+-- This recignises a whole list of type specifiers rather than just one
+-- as in the C99 grammar.
+--
+-- * summary:
+--   [type_qualifier | basic_type_name | elaborated_type_name | tyident]{
+--         1 >= basic_type_name
+--     |x| 1 == elaborated_type_name
+--     |x| 1 == tyident
+--   }
+--
+type_specifier :: { [CDeclSpec] }
 type_specifier
+  : basic_type_specifier		{ reverse $1 }	-- Arithmetic or void
+  | sue_type_specifier			{ reverse $1 }	-- Struct/Union/Enum
+  | typedef_type_specifier		{ reverse $1 }	-- Typedef
+
+
+basic_type_name :: { CTypeSpec }
+basic_type_name
   : void			{% withAttrs $1 $ CVoidType }
   | char			{% withAttrs $1 $ CCharType }
   | short			{% withAttrs $1 $ CShortType }
@@ -484,16 +657,313 @@ type_specifier
   | double			{% withAttrs $1 $ CDoubleType }
   | signed			{% withAttrs $1 $ CSignedType }
   | unsigned			{% withAttrs $1 $ CUnsigType }
-  | struct_or_union_specifier	{% withAttrs $1 $ CSUType $1 }
-  | enum_specifier		{% withAttrs $1 $ CEnumType $1 }
-  | tyident			{% withAttrs $1 $ CTypeDef $1 }
-  | typeof '(' expression ')'	{% withAttrs $1 $ CTypeofExpr $3 }
-  | typeof '(' type_name ')'	{% withAttrs $1 $ CTypeofType $3 }
+  | "_Bool"			{% withAttrs $1 $ CBoolType }
+  | "_Complex"			{% withAttrs $1 $ CComplexType }
 
 
--- parse C type qualifier (K&R A8.2)
+-- A mixture of type qualifiers, storage class and basic type names in any
+-- order, but containing at least one basic type name and at least one storage
+-- class specifier.
 --
--- * plus `restrict' from C99 and `inline'
+-- * summary:
+--   [type_qualifier | storage_class | basic_type_name]{
+--     1 >= storage_class && 1 >= basic_type_name
+--   }
+--
+basic_declaration_specifier :: { Reversed [CDeclSpec] }
+basic_declaration_specifier
+  : declaration_qualifier_list basic_type_name
+  	{ $1 `snoc` CTypeSpec $2 }
+
+  | basic_type_specifier storage_class
+  	{ $1 `snoc` CStorageSpec $2 }
+
+  | basic_declaration_specifier declaration_qualifier
+  	{ $1 `snoc` $2 }
+
+  | basic_declaration_specifier basic_type_name
+  	{ $1 `snoc` CTypeSpec $2 }
+
+  | basic_declaration_specifier attr
+  	{ $1 }
+
+
+-- A mixture of type qualifiers and basic type names in any order, but
+-- containing at least one basic type name.
+--
+-- * summary:
+--   [type_qualifier | basic_type_name]{ 1 >= basic_type_name }
+--
+basic_type_specifier :: { Reversed [CDeclSpec] }
+basic_type_specifier
+  -- Arithmetic or void
+  : basic_type_name
+  	{ singleton (CTypeSpec $1) }
+
+  | type_qualifier_list basic_type_name
+  	{ rmap CTypeQual $1 `snoc` CTypeSpec $2 }
+
+  | basic_type_specifier type_qualifier
+  	{ $1 `snoc` CTypeQual $2 }
+
+  | basic_type_specifier basic_type_name
+  	{ $1 `snoc` CTypeSpec $2 }
+
+  | basic_type_specifier attr
+  	{ $1 }
+
+
+-- A named or anonymous struct, union or enum type along with at least one
+-- storage class and any mix of type qualifiers.
+-- 
+-- * summary:
+--   [type_qualifier | storage_class | elaborated_type_name]{ 
+--     1 == elaborated_type_name && 1 >= storage_class
+--   }
+--
+sue_declaration_specifier :: { Reversed [CDeclSpec] }
+sue_declaration_specifier
+  : declaration_qualifier_list elaborated_type_name
+  	{ $1 `snoc` CTypeSpec $2 }
+
+  | sue_type_specifier storage_class
+  	{ $1 `snoc` CStorageSpec $2 }
+
+  | sue_declaration_specifier declaration_qualifier
+  	{ $1 `snoc` $2 }
+
+  | sue_declaration_specifier attr
+  	{ $1 }
+
+
+-- A struct, union or enum type (named or anonymous) with optional leading and
+-- trailing type qualifiers.
+--
+-- * summary:
+--   [type_qualifier] elaborated_type_name [type_qualifier]
+--
+sue_type_specifier :: { Reversed [CDeclSpec] }
+sue_type_specifier
+  -- struct/union/enum
+  : elaborated_type_name
+  	{ singleton (CTypeSpec $1) }
+
+  | type_qualifier_list elaborated_type_name
+  	{ rmap CTypeQual $1 `snoc` CTypeSpec $2 }
+
+  | sue_type_specifier type_qualifier
+  	{ $1 `snoc` CTypeQual $2 }
+
+  | sue_type_specifier attr
+  	{ $1 }
+
+
+-- A typedef'ed type identifier with at least one storage qualifier and any
+-- number of type qualifiers
+--
+-- * Summary:
+--   [type_qualifier | storage_class | tyident]{
+--     1 == tyident && 1 >= storage_class
+--   }
+--
+-- * Note:
+--   the tyident can also be a: typeof '(' ... ')'
+--
+typedef_declaration_specifier :: { Reversed [CDeclSpec] }
+typedef_declaration_specifier
+  : typedef_type_specifier storage_class
+  	{ $1 `snoc` CStorageSpec $2 }
+
+  | declaration_qualifier_list tyident
+  	{% withAttrs $1 $ \attr -> $1 `snoc` CTypeSpec (CTypeDef $2 attr) }
+
+  | declaration_qualifier_list typeof '(' expression ')'
+  	{% withAttrs $1 $ \attr -> $1 `snoc` CTypeSpec (CTypeOfExpr $4 attr) }
+
+  | declaration_qualifier_list typeof '(' type_name ')'
+  	{% withAttrs $1 $ \attr -> $1 `snoc` CTypeSpec (CTypeOfType $4 attr) }
+
+  | typedef_declaration_specifier declaration_qualifier
+  	{ $1 `snoc` $2 }
+
+  | typedef_declaration_specifier attr
+  	{ $1 }
+
+
+-- typedef'ed type identifier with optional leading and trailing type qualifiers
+--
+-- * Summary:
+--   [type_qualifier] ( tyident | typeof '('...')' ) [type_qualifier]
+--
+typedef_type_specifier :: { Reversed [CDeclSpec] }
+typedef_type_specifier
+  : tyident
+  	{% withAttrs $1 $ \attr -> singleton (CTypeSpec (CTypeDef $1 attr)) }
+
+  | typeof '(' expression ')'
+  	{% withAttrs $1 $ \attr -> singleton (CTypeSpec (CTypeOfExpr $3 attr)) }
+
+  | typeof '(' type_name ')'
+  	{% withAttrs $1 $ \attr -> singleton (CTypeSpec (CTypeOfType $3 attr)) }
+
+  | type_qualifier_list tyident
+  	{% withAttrs $2 $ \attr -> rmap CTypeQual $1 `snoc` CTypeSpec (CTypeDef $2 attr) }
+
+  | type_qualifier_list typeof '(' expression ')'
+  	{% withAttrs $2 $ \attr -> rmap CTypeQual $1 `snoc` CTypeSpec (CTypeOfExpr $4 attr) }
+
+  | type_qualifier_list typeof '(' type_name ')'
+  	{% withAttrs $2 $ \attr -> rmap CTypeQual $1 `snoc` CTypeSpec (CTypeOfType $4 attr) }
+
+  | typedef_type_specifier type_qualifier
+  	{ $1 `snoc` CTypeQual $2 }
+
+  | typedef_type_specifier attr
+  	{ $1 }
+
+
+-- A named or anonymous struct, union or enum type.
+--
+-- * summary:
+--   (struct|union|enum) (identifier? '{' ... '}' | identifier)
+--
+elaborated_type_name :: { CTypeSpec }
+elaborated_type_name
+  : struct_or_union_specifier	{% withAttrs $1 $ CSUType $1 }
+  | enum_specifier		{% withAttrs $1 $ CEnumType $1 }
+
+
+-- parse C structure or union declaration (C99 6.7.2.1)
+--
+-- * summary:
+--   (struct|union) (identifier? '{' ... '}' | identifier)
+--
+struct_or_union_specifier :: { CStructUnion }
+struct_or_union_specifier
+  : struct_or_union attrs_opt identifier '{' struct_declaration_list '}'
+  	{% withAttrs $1 $ CStruct (unL $1) (Just $3) (reverse $5) }
+
+  | struct_or_union attrs_opt '{' struct_declaration_list '}'
+  	{% withAttrs $1 $ CStruct (unL $1) Nothing   (reverse $4) }
+
+  | struct_or_union attrs_opt identifier
+  	{% withAttrs $1 $ CStruct (unL $1) (Just $3) [] }
+
+
+struct_or_union :: { Located CStructTag }
+struct_or_union
+  : struct			{ L CStructTag (posOf $1) }
+  | union			{ L CUnionTag (posOf $1) }
+
+
+struct_declaration_list :: { Reversed [CDecl] }
+struct_declaration_list
+  : {- empty -}						{ empty }
+  | struct_declaration_list ';'				{ $1 }
+  | struct_declaration_list struct_declaration		{ $1 `snoc` $2 }
+
+
+-- parse C structure declaration (C99 6.7.2.1)
+--
+struct_declaration :: { CDecl }
+struct_declaration
+  : struct_declaring_list ';'
+  	{ case $1 of CDecl declspecs dies attr -> CDecl declspecs (List.reverse dies) attr }
+
+  | struct_default_declaring_list ';'
+  	{ case $1 of CDecl declspecs dies attr -> CDecl declspecs (List.reverse dies) attr }
+
+  | "__extension__" struct_declaration	{ $2 }
+
+
+-- doesn't redeclare typedef
+struct_default_declaring_list :: { CDecl }
+struct_default_declaring_list
+  : attrs_opt type_qualifier_list struct_identifier_declarator attrs_opt
+  	{% withAttrs $2 $ case $3 of (d,s) -> CDecl (liftTypeQuals $2) [(d,Nothing,s)] }
+
+  | struct_default_declaring_list ',' attrs_opt struct_identifier_declarator attrs_opt
+  	{ case $1 of
+            CDecl declspecs dies attr ->
+              case $4 of
+                (d,s) -> CDecl declspecs ((d,Nothing,s) : dies) attr }
+
+
+-- * GNU extensions:
+--     allow anonymous nested structures and unions
+--
+struct_declaring_list :: { CDecl }
+struct_declaring_list
+  : attrs_opt type_specifier struct_declarator attrs_opt
+  	{% withAttrs $2 $ case $3 of (d,s) -> CDecl $2 [(d,Nothing,s)] }
+
+  | struct_declaring_list ',' attrs_opt struct_declarator attrs_opt
+  	{ case $1 of
+            CDecl declspecs dies attr ->
+              case $4 of
+                (d,s) -> CDecl declspecs ((d,Nothing,s) : dies) attr }
+
+  -- We're being far too liberal in the parsing here, we realyl want to just
+  -- allow unnamed struct and union fields but we're actually allowing any
+  -- unnamed struct member. Making it allow only unnamed structs or unions in
+  -- the parser is far too tricky, it makes things ambiguous. So we'll have to
+  -- diagnose unnamed fields that are not structs/unions in a later stage.
+  | attrs_opt type_specifier
+        {% withAttrs $2 $ CDecl $2 [] }
+
+
+-- parse C structure declarator (C99 6.7.2.1)
+--
+struct_declarator :: { (Maybe CDeclr, Maybe CExpr) }
+struct_declarator
+  : declarator					{ (Just $1, Nothing) }
+  | ':' constant_expression			{ (Nothing, Just $2) }
+  | declarator ':' constant_expression		{ (Just $1, Just $3) }
+
+
+struct_identifier_declarator :: { (Maybe CDeclr, Maybe CExpr) }
+struct_identifier_declarator
+  : identifier_declarator				{ (Just $1, Nothing) }
+  | ':' constant_expression				{ (Nothing, Just $2) }
+  | identifier_declarator ':' constant_expression	{ (Just $1, Just $3) }
+
+
+-- parse C enumeration declaration (C99 6.7.2.2)
+--
+-- * summary:
+--   enum (identifier? '{' ... '}' | identifier)
+--
+enum_specifier :: { CEnum }
+enum_specifier
+  : enum attrs_opt '{' enumerator_list '}'
+  	{% withAttrs $1 $ CEnum Nothing   (reverse $4) }
+
+  | enum attrs_opt '{' enumerator_list ',' '}'
+  	{% withAttrs $1 $ CEnum Nothing   (reverse $4) }
+
+  | enum attrs_opt identifier '{' enumerator_list '}'
+  	{% withAttrs $1 $ CEnum (Just $3) (reverse $5) }
+
+  | enum attrs_opt identifier '{' enumerator_list ',' '}'
+  	{% withAttrs $1 $ CEnum (Just $3) (reverse $5) }
+
+  | enum attrs_opt identifier
+  	{% withAttrs $1 $ CEnum (Just $3) []           }
+
+
+enumerator_list :: { Reversed [(Ident, Maybe CExpr)] }
+enumerator_list
+  : enumerator					{ singleton $1 }
+  | enumerator_list ',' enumerator		{ $1 `snoc` $3 }
+
+
+enumerator :: { (Ident, Maybe CExpr) }
+enumerator
+  : identifier					{ ($1, Nothing) }
+  | identifier '=' constant_expression		{ ($1, Just $3) }
+
+
+-- parse C type qualifier (C99 6.7.3)
 --
 type_qualifier :: { CTypeQual }
 type_qualifier
@@ -503,171 +973,215 @@ type_qualifier
   | inline		{% withAttrs $1 $ CInlinQual }
 
 
--- parse C structure of union declaration (K&R A8.3)
---
--- * Note: an identifier after a struct tag *may* be a type name; thus, we need
---	   to use `tyident' as well rather than just `ident'
---
--- * GNU C: Structs and unions may lack any declarations; eg, `struct { }
---   foo;' is valid. 
---
-struct_or_union_specifier :: { CStructUnion }
-struct_or_union_specifier
-  : struct_or_union ident '{' struct_declaration_list '}'
-  	{% withAttrs $1 $ CStruct (unL $1) (Just $2) (reverse $4) }
-
-  | struct_or_union tyident '{' struct_declaration_list '}'
-  	{% withAttrs $1 $ CStruct (unL $1) (Just $2) (reverse $4) }
-
-  | struct_or_union '{' struct_declaration_list '}'
-  	{% withAttrs $1 $ CStruct (unL $1) Nothing   (reverse $3) }
-
-  | struct_or_union ident
-  	{% withAttrs $1 $ CStruct (unL $1) (Just $2) [] }
-
-  | struct_or_union tyident
-  	{% withAttrs $1 $ CStruct (unL $1) (Just $2) [] }
-
-
-struct_or_union :: { Located CStructTag }
-struct_or_union
-  : struct			{ L CStructTag (posOf $1) }
-  | union			{ L CUnionTag (posOf $1) }
-
-
-struct_declaration_list :: { [CDecl] }
-struct_declaration_list
-  : {- empty -}						{ [] }
-  | struct_declaration_list struct_declaration		{ $2 : $1 }
-
-
--- parse C structure declaration (K&R A8.3)
---
--- * We allow the GNU C extension keyword before a declaration, but it is
---   not entered into the structure tree.
---
-struct_declaration :: { CDecl }
-struct_declaration
-  : ignore_extension specifier_qualifier_list struct_declarator_list ';'
-  	{% withAttrs $2 $ CDecl $2 [(d,Nothing,s) | (d,s) <- reverse $3] }
-
-
--- parse C specifier qualifier (K&R A8.3)
---
-specifier_qualifier_list :: { [CDeclSpec] }
-specifier_qualifier_list
-  : type_specifier				{ [CTypeSpec $1] }
-  | type_specifier specifier_qualifier_list	{ CTypeSpec $1 : $2 }
-  | type_qualifier				{ [CTypeQual $1] }
-  | type_qualifier specifier_qualifier_list	{ CTypeQual $1 : $2 }
-
-
--- parse C structure declarator (K&R A8.3)
---
-struct_declarator :: { (Maybe CDeclr, Maybe CExpr) }
-struct_declarator
-  : declarator					{ (Just $1, Nothing) }
-  | ':' constant_expression			{ (Nothing, Just $2) }
-  | declarator ':' constant_expression		{ (Just $1, Just $3) }
-
-
-struct_declarator_list :: { [(Maybe CDeclr, Maybe CExpr)] }
-struct_declarator_list
-  : struct_declarator					{ [$1] }
-  | struct_declarator_list ',' struct_declarator	{ $3 : $1 }
-
-
--- parse C enumeration declaration (K&R A8.4)
---
---  * There may be a `,' behind the last element of a enum.
---
-enum_specifier :: { CEnum }
-enum_specifier
-  : enum '{' enumerator_list '}'
-  	{% withAttrs $1 $ CEnum Nothing   (reverse $3) }
-
-  | enum ident '{' enumerator_list '}'
-  	{% withAttrs $1 $ CEnum (Just $2) (reverse $4) }
-
-  | enum ident
-  	{% withAttrs $1 $ CEnum (Just $2) []           }
-
-
-enumerator_list :: { [(Ident,	Maybe CExpr)] }
-enumerator_list
-  : enumerator_list_				{ $1 }
-  | enumerator_list_ ','			{ $1 }
-
-
-enumerator_list_ :: { [(Ident,	Maybe CExpr)] }
-enumerator_list_
-  : enumerator					{ [$1] }
-  | enumerator_list_ ',' enumerator		{ $3 : $1 }
-
-
-enumerator :: { (Ident,	Maybe CExpr) }
-enumerator
-  : ident					{ ($1, Nothing) }
-  | ident '=' constant_expression		{ ($1, Just $3) }
-
-
--- parse C declarator (K&R A8.5)
---
--- * We allow GNU C attribute annotations at the end of a declerator,
---   but they are not entered into the structure tree.
+-- parse C declarator (C99 6.7.5)
 --
 declarator :: { CDeclr }
 declarator
-  : pointer direct_declarator gnuc_attrs
-  	{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
+  : identifier_declarator		{ $1 }
+  | typedef_declarator			{ $1 }
 
-  | pointer gnuc_attrs_nonempty direct_declarator gnuc_attrs
-  	{% withAttrs $1 $ CPtrDeclr (map unL $1) $3 }
 
-  | direct_declarator gnuc_attrs
+-- Parse GNU C's asm annotations
+--
+asm_opt :: { () }
+asm_opt
+  : {- empty -}				{ () }
+  | asm '(' string_literal_list ')'	{ () }
+
+
+typedef_declarator :: { CDeclr }
+typedef_declarator
+  -- would be ambiguous as parameter
+  : paren_typedef_declarator		{ $1 }
+  
+  -- not ambiguous as param
+  | parameter_typedef_declarator	{ $1 }
+
+
+parameter_typedef_declarator :: { CDeclr }
+parameter_typedef_declarator
+  : tyident
+  	{% withAttrs $1 $ CVarDeclr (Just $1) }
+
+  | tyident postfixing_abstract_declarator
+  	{% withAttrs $1 $ \attrs -> $2 (CVarDeclr (Just $1) attrs) }
+
+  | clean_typedef_declarator
   	{ $1 }
 
 
-direct_declarator :: { CDeclr }
-direct_declarator
+-- The  following have at least one '*'.
+-- There is no (redundant) '(' between the '*' and the tyident.
+clean_typedef_declarator :: { CDeclr }
+clean_typedef_declarator
+  : clean_postfix_typedef_declarator
+  	{ $1 }
+
+  | '*' parameter_typedef_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $2 }
+
+  | '*' type_qualifier_list parameter_typedef_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $2) $3 }
+
+  | '*' attrs parameter_typedef_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $3 }
+
+  | '*' attrs type_qualifier_list parameter_typedef_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $3) $4 }
+
+
+clean_postfix_typedef_declarator :: { CDeclr }
+clean_postfix_typedef_declarator
+  : '(' clean_typedef_declarator ')'						{ $2 }
+  | '(' attrs clean_typedef_declarator ')'					{ $3 }
+  | '(' clean_typedef_declarator ')' postfixing_abstract_declarator		{ $4 $2 }
+  | '(' attrs clean_typedef_declarator ')' postfixing_abstract_declarator	{ $5 $3 }
+
+
+-- The following have a redundant '(' placed
+-- immediately to the left of the tyident
+paren_typedef_declarator :: { CDeclr }
+paren_typedef_declarator
+  : paren_postfix_typedef_declarator
+  	{ $1 }
+
+  -- redundant paren
+  | '*' '(' simple_paren_typedef_declarator ')'
+  	{% withAttrs $1 $ CPtrDeclr [] $3 }
+
+  -- redundant paren
+  | '*' type_qualifier_list '(' simple_paren_typedef_declarator ')'
+  	{% withAttrs $1 $ CPtrDeclr (reverse $2) $4 }
+
+  | '*' paren_typedef_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $2 }
+
+  | '*' type_qualifier_list paren_typedef_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $2) $3 }
+
+  | '*' attrs '(' simple_paren_typedef_declarator ')'
+  	{% withAttrs $1 $ CPtrDeclr [] $4 }
+
+  -- redundant paren
+  | '*' attrs type_qualifier_list '(' simple_paren_typedef_declarator ')'
+  	{% withAttrs $1 $ CPtrDeclr (reverse $3) $5 }
+
+  | '*' attrs paren_typedef_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $3 }
+
+  | '*' attrs type_qualifier_list paren_typedef_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $3) $4 }
+
+
+-- redundant paren to left of tname
+paren_postfix_typedef_declarator :: { CDeclr }
+paren_postfix_typedef_declarator
+  : '(' paren_typedef_declarator ')'
+  	{ $2 }
+
+  -- redundant paren
+  | '(' simple_paren_typedef_declarator postfixing_abstract_declarator ')'
+  	{ $3 $2 }
+
+  | '(' paren_typedef_declarator ')' postfixing_abstract_declarator
+  	{ $4 $2 }
+
+
+-- Just a type name in any number of nested brackets
+--
+simple_paren_typedef_declarator :: { CDeclr }
+simple_paren_typedef_declarator
+  : tyident
+  	{% withAttrs $1 $ CVarDeclr (Just $1) }
+
+  | '(' simple_paren_typedef_declarator ')'
+  	{ $2 }
+
+
+identifier_declarator :: { CDeclr }
+identifier_declarator
+  : unary_identifier_declarator			{ $1 }
+  | paren_identifier_declarator			{ $1 }
+
+
+unary_identifier_declarator :: { CDeclr }
+unary_identifier_declarator
+  : postfix_identifier_declarator
+  	{ $1 }
+
+  | '*' identifier_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $2 }
+
+  | '*' type_qualifier_list identifier_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $2) $3 }
+
+  | '*' attrs identifier_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $3 }
+
+  | '*' attrs type_qualifier_list identifier_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $3) $4 }
+
+
+postfix_identifier_declarator :: { CDeclr }
+postfix_identifier_declarator
+  : paren_identifier_declarator postfixing_abstract_declarator
+  	{ $2 $1 }
+
+  | '(' unary_identifier_declarator ')'
+  	{ $2 }
+
+  | '(' unary_identifier_declarator ')' postfixing_abstract_declarator
+  	{ $4 $2 }
+
+  | '(' attrs unary_identifier_declarator ')'
+  	{ $3 }
+
+  | '(' attrs unary_identifier_declarator ')' postfixing_abstract_declarator
+  	{ $5 $3 }
+
+
+paren_identifier_declarator :: { CDeclr }
+paren_identifier_declarator
   : ident
   	{% withAttrs $1 $ CVarDeclr (Just $1) }
 
-  | '(' declarator ')'
+  | '(' paren_identifier_declarator ')'
   	{ $2 }
 
-  | direct_declarator '[' constant_expression ']'
-  	{% withAttrs $2 $ CArrDeclr $1 (Just $3) }
 
-  | direct_declarator '[' ']'
-  	{% withAttrs $2 $ CArrDeclr $1  Nothing  }
+old_function_declarator :: { CDeclr }
+old_function_declarator
+  : postfix_old_function_declarator
+  	{ $1 }
 
-  | direct_declarator '(' parameter_type_list ')'
-  	{% withAttrs $2 $ case $3 of
-	                    (parms, variadic) -> CFunDeclr $1 parms variadic }
+  | '*' old_function_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $2 }
 
-  | direct_declarator '(' identifier_list ')'
+  | '*' type_qualifier_list old_function_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $2) $3 }
+
+
+postfix_old_function_declarator :: { CDeclr }
+postfix_old_function_declarator
+  : paren_identifier_declarator '(' identifier_list ')'
   	{% withAttrs $2 $ CFunDeclr $1 [] False }
 
+  | '(' old_function_declarator ')'
+  	{ $2 }
 
-identifier_list :: { () }
-identifier_list
-  : ident				{ () }
-  | identifier_list ',' ident		{ () }
-
-
-pointer :: { [Located [CTypeQual]] }
-pointer
-  : '*' type_qualifier_list		{ [L (reverse $2) (posOf $1)] }
-  | '*' type_qualifier_list pointer	{  L (reverse $2) (posOf $1) : $3 }
+  | '(' old_function_declarator ')' postfixing_abstract_declarator
+  	{ $4 $2 }
 
 
-type_qualifier_list :: { [CTypeQual] }
+type_qualifier_list :: { Reversed [CTypeQual] }
 type_qualifier_list
-  : {- empty -}				{ [] }
-  | type_qualifier_list type_qualifier	{ $2 : $1 }
+  : type_qualifier			{ singleton $1 }
+  | type_qualifier_list type_qualifier	{ $1 `snoc` $2 }
+  | type_qualifier_list attr		{ $1 }
 
 
+-- parse C parameter type list (C99 6.7.5)
+--
 parameter_type_list :: { ([CDecl], Bool) }
 parameter_type_list
   : {- empty -}				{ ([], False)}
@@ -675,107 +1189,269 @@ parameter_type_list
   | parameter_list ',' "..."		{ (reverse $1, True) }
 
 
--- parse C parameter type list (K&R A8.6.3)
---
-parameter_list :: { [CDecl] }
+parameter_list :: { Reversed [CDecl] }
 parameter_list
-  : parameter_declaration			{ [$1] }
-  | parameter_list ',' parameter_declaration	{ $3 : $1 }
+  : parameter_declaration				{ singleton $1 }
+  | attrs parameter_declaration				{ singleton $2 }
+  | parameter_list ',' attrs_opt parameter_declaration	{ $1 `snoc` $4 }
 
 
 parameter_declaration :: { CDecl }
 parameter_declaration
-  : declaration_specifiers declarator
-  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
-
-  | declaration_specifiers abstract_declarator
-  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
-
-  | declaration_specifiers
+  : declaration_specifier
   	{% withAttrs $1 $ CDecl $1 [] }
 
+  | declaration_specifier abstract_declarator
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
 
--- parse C initializer (K&R AA8.7)
+  | declaration_specifier identifier_declarator attrs_opt
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
+
+  | declaration_specifier parameter_typedef_declarator attrs_opt
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
+
+  | declaration_qualifier_list
+  	{% withAttrs $1 $ CDecl (reverse $1) [] }
+
+  | declaration_qualifier_list abstract_declarator
+  	{% withAttrs $1 $ CDecl (reverse $1) [(Just $2, Nothing, Nothing)] }
+
+  | declaration_qualifier_list identifier_declarator attrs_opt
+  	{% withAttrs $1 $ CDecl (reverse $1) [(Just $2, Nothing, Nothing)] }
+
+  | type_specifier
+  	{% withAttrs $1 $ CDecl $1 [] }
+
+  | type_specifier abstract_declarator
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
+
+  | type_specifier identifier_declarator attrs_opt
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
+
+  | type_specifier parameter_typedef_declarator attrs_opt
+  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
+
+  | type_qualifier_list
+  	{% withAttrs $1 $ CDecl (liftTypeQuals $1) [] }
+
+  | type_qualifier_list abstract_declarator
+  	{% withAttrs $1 $ CDecl (liftTypeQuals $1) [(Just $2, Nothing, Nothing)] }
+
+  | type_qualifier_list identifier_declarator attrs_opt
+  	{% withAttrs $1 $ CDecl (liftTypeQuals $1) [(Just $2, Nothing, Nothing)] }
+
+
+identifier_list :: { Reversed [Ident] }
+identifier_list
+  : ident				{ singleton $1 }
+  | identifier_list ',' ident		{ $1 `snoc` $3 }
+
+
+-- parse C type name (C99 6.7.6)
+--
+type_name :: { CDecl }
+type_name
+  : attrs_opt type_specifier
+  	{% withAttrs $2 $ CDecl $2 [] }
+
+  | attrs_opt type_specifier abstract_declarator
+  	{% withAttrs $2 $ CDecl $2 [(Just $3, Nothing, Nothing)] }
+
+  | attrs_opt type_qualifier_list
+  	{% withAttrs $2 $ CDecl (liftTypeQuals $2) [] }
+
+  | attrs_opt type_qualifier_list abstract_declarator
+  	{% withAttrs $2 $ CDecl (liftTypeQuals $2) [(Just $3, Nothing, Nothing)] }
+
+
+-- parse C abstract declarator (C99 6.7.6)
+--
+abstract_declarator :: { CDeclr }
+abstract_declarator
+  : unary_abstract_declarator			{ $1 }
+  | postfix_abstract_declarator			{ $1 }
+  | postfixing_abstract_declarator attrs_opt	{ $1 emptyDeclr }
+
+
+postfixing_abstract_declarator :: { CDeclr -> CDeclr }
+postfixing_abstract_declarator
+  : array_abstract_declarator
+  	{ $1 }
+
+  | '(' parameter_type_list ')'
+  	{% withAttrs $1 $ \attrs declr -> case $2 of
+             (params, variadic) -> CFunDeclr declr params variadic attrs }
+
+
+-- * Note that we recognise but ignore the C99 static keyword (see C99 6.7.5.3)
+--
+-- * We do not distinguish in the AST between incomplete array types and
+-- complete variable length arrays ([ '*' ] means the latter). (see C99 6.7.5.2)
+--
+array_abstract_declarator :: { CDeclr -> CDeclr }
+array_abstract_declarator
+  : postfix_array_abstract_declarator
+  	{ $1 }
+
+  | array_abstract_declarator postfix_array_abstract_declarator
+  	{ \decl -> $2 ($1 decl) }
+
+
+postfix_array_abstract_declarator :: { CDeclr -> CDeclr }
+postfix_array_abstract_declarator
+  : '[' assignment_expression_opt ']'
+  	{% withAttrs $1 $ \attrs declr -> CArrDeclr declr [] $2 attrs }
+
+  | '[' type_qualifier_list assignment_expression_opt ']'
+  	{% withAttrs $1 $ \attrs declr -> CArrDeclr declr (reverse $2) $3 attrs }
+
+  | '[' static assignment_expression ']'
+  	{% withAttrs $1 $ \attrs declr -> CArrDeclr declr [] (Just $3) attrs }
+
+  | '[' static type_qualifier_list assignment_expression ']'
+  	{% withAttrs $1 $ \attrs declr -> CArrDeclr declr (reverse $3) (Just $4) attrs }
+
+  | '[' type_qualifier_list static assignment_expression ']'
+  	{% withAttrs $1 $ \attrs declr -> CArrDeclr declr (reverse $2) (Just $4) attrs }
+
+  | '[' '*' ']'
+  	{% withAttrs $1 $ \attrs declr -> CArrDeclr declr [] Nothing attrs }
+
+  | '[' type_qualifier_list '*' ']'
+  	{% withAttrs $1 $ \attrs declr -> CArrDeclr declr (reverse $2) Nothing attrs }
+
+
+unary_abstract_declarator :: { CDeclr }
+unary_abstract_declarator
+  : '*'
+  	{% withAttrs $1 $ CPtrDeclr [] emptyDeclr }
+
+  | '*' type_qualifier_list
+  	{% withAttrs $1 $ CPtrDeclr (reverse $2) emptyDeclr }
+
+  | '*' abstract_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $2 }
+
+  | '*' type_qualifier_list abstract_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $2) $3 }
+
+  | '*' attrs
+  	{% withAttrs $1 $ CPtrDeclr [] emptyDeclr }
+
+  | '*' attrs type_qualifier_list
+  	{% withAttrs $1 $ CPtrDeclr (reverse $3) emptyDeclr }
+
+  | '*' attrs abstract_declarator
+  	{% withAttrs $1 $ CPtrDeclr [] $3 }
+
+  | '*' attrs type_qualifier_list abstract_declarator
+  	{% withAttrs $1 $ CPtrDeclr (reverse $3) $4 }
+
+
+postfix_abstract_declarator :: { CDeclr }
+postfix_abstract_declarator
+  : '(' unary_abstract_declarator ')'					{ $2 }
+  | '(' postfix_abstract_declarator ')'					{ $2 }
+  | '(' postfixing_abstract_declarator ')'				{ $2 emptyDeclr }
+  | '(' unary_abstract_declarator ')' postfixing_abstract_declarator	{ $4 $2 }
+  | '(' attrs unary_abstract_declarator ')'					{ $3 }
+  | '(' attrs postfix_abstract_declarator ')'					{ $3 }
+  | '(' attrs postfixing_abstract_declarator ')'				{ $3 emptyDeclr }
+  | '(' attrs unary_abstract_declarator ')' postfixing_abstract_declarator	{ $5 $3 }
+  | postfix_abstract_declarator attr						{ $1 }
+
+
+-- parse C initializer (C99 6.7.8)
 --
 initializer :: { CInit }
 initializer
   : assignment_expression		{% withAttrs $1 $ CInitExpr $1 }
-  | '{' initializer_list '}'		{% withAttrs $1 $ CInitList $2 }
-  | '{' initializer_list ',' '}'	{% withAttrs $1 $ CInitList $2 }
+  | '{' initializer_list '}'		{% withAttrs $1 $ CInitList (reverse $2) }
+  | '{' initializer_list ',' '}'	{% withAttrs $1 $ CInitList (reverse $2) }
 
 
-initializer_list :: { [CInit] }
+initializer_opt :: { Maybe CInit }
+initializer_opt
+  : {- empty -}			{ Nothing }
+  | '=' initializer		{ Just $2 }
+
+
+initializer_list :: { Reversed CInitList }
 initializer_list
-  : initializer				{ [$1] }
-  | initializer_list ',' initializer	{ $3 : $1 }
+  : {- empty -}						{ empty }
+  | initializer						{ singleton ([],$1) }
+  | designation initializer				{ singleton ($1,$2) }
+  | initializer_list ',' initializer			{ $1 `snoc` ([],$3) }
+  | initializer_list ',' designation initializer	{ $1 `snoc` ($3,$4) }
 
 
--- parse C type name (K&R A8.8)
+-- designation
 --
-type_name :: { CDecl }
-type_name
-  : specifier_qualifier_list
-  	{% withAttrs $1 $ CDecl $1 [] }
-
-  | specifier_qualifier_list abstract_declarator
-  	{% withAttrs $1 $ CDecl $1 [(Just $2, Nothing, Nothing)] }
-
-
--- parse C abstract declarator (K&R A8.8)
+-- * GNU extensions:
+--     old style member designation: 'ident :'
+--     array range designation
 --
--- * following K&R, we do not allow old style function types (except empty
---   argument lists) in abstract declarators; unfortunately, gcc allows them
+designation :: { [CDesignator] }
+designation
+  : designator_list '='		{ reverse $1 }
+  | identifier ':'		{% withAttrs $1 $ \at -> [CMemberDesig $1 at] }
+  | array_designator		{ [$1] }
+
+
+designator_list :: { Reversed [CDesignator] }
+designator_list
+ : designator				{ singleton $1 }
+ | designator_list designator		{ $1 `snoc` $2 }
+
+
+designator :: { CDesignator }
+designator
+  : '[' constant_expression ']'		{% withAttrs $1 $ CArrDesig $2 }
+  | '.' identifier			{% withAttrs $1 $ CMemberDesig $2 }
+  | array_designator			{ $1 }
+
+
+array_designator :: { CDesignator }
+array_designator
+  : '[' constant_expression "..." constant_expression ']'
+  	{% withAttrs $1 $ CRangeDesig $2 $4 }
+
+
+-- parse C primary expression (C99 6.5.1)
 --
-abstract_declarator :: { CDeclr }
-abstract_declarator
-  : pointer
-  	{% withAttrs $1 $ CPtrDeclr (map unL $1) emptyDeclr }
-
-  | direct_abstract_declarator
-  	{ $1 }
-
-  | pointer direct_abstract_declarator
-  	{% withAttrs $1 $ CPtrDeclr (map unL $1) $2 }
-
-
-direct_abstract_declarator :: { CDeclr }
-direct_abstract_declarator
-  : '(' abstract_declarator ')'
-  	{ $2 }
-
-  | '[' ']'
-  	{% withAttrs $1 $ CArrDeclr emptyDeclr  Nothing  }
-
-  | '[' constant_expression ']'
-  	{% withAttrs $1 $ CArrDeclr emptyDeclr (Just $2) }
-
-  | direct_abstract_declarator '[' ']'
-  	{% withAttrs $2 $ CArrDeclr $1  Nothing  }
-
-  | direct_abstract_declarator '[' constant_expression ']'
-  	{% withAttrs $2 $ CArrDeclr $1 (Just $3) }
-
-  | '(' parameter_type_list ')'
-  	{% withAttrs $1 $ case $2 of
-	                    (parms, variadic) ->
-			      CFunDeclr emptyDeclr parms variadic }
-
-  | direct_abstract_declarator '(' parameter_type_list ')'
-  	{% withAttrs $2 $ case $3 of (parms, variadic) -> CFunDeclr $1 parms variadic }
-
-
--- parse C primary expression (K&R A7.2)
+-- We cannot use a typedef name as a variable
 --
--- * contrary to K&R, we regard parsing strings as parsing constants
+-- * GNU extensions:
+--     allow a compound statement as an expression
+--     various __builtin_* forms that take type parameters
 --
 primary_expression :: { CExpr }
 primary_expression
   : ident		{% withAttrs $1 $ CVar $1 }
-  | literal_expression	{% withAttrs $1 $ CConst $1 }
+  | constant	  	{% withAttrs $1 $ CConst $1 }
+  | string_literal	{% withAttrs $1 $ CConst $1 }
   | '(' expression ')'	{ $2 }
+  | '(' compound_statement ')'
+  	{% withAttrs $1 $ CStatExpr $2 }
+
+  | "__builtin_va_arg" '(' assignment_expression ',' type_name ')'
+  	{% withAttrs $1 CBuiltinExpr }
+
+  | "__builtin_offsetof" '(' type_name ',' offsetof_member_designator ')'
+  	{% withAttrs $1 CBuiltinExpr }
+
+  | "__builtin_types_compatible_p" '(' type_name ',' type_name ')'
+  	{% withAttrs $1 CBuiltinExpr }
 
 
---parse C postfix expression (K&R A7.3)
+offsetof_member_designator :: { () }
+offsetof_member_designator
+  : ident						{ () }
+  | offsetof_member_designator '.' ident		{ () }
+  | offsetof_member_designator '[' expression ']'	{ () }
+
+
+--parse C postfix expression (C99 6.5.2)
 --
 postfix_expression :: { CExpr }
 postfix_expression
@@ -791,10 +1467,10 @@ postfix_expression
   | postfix_expression '(' argument_expression_list ')'
   	{% withAttrs $2 $ CCall $1 (reverse $3) }
 
-  | postfix_expression '.' ident
+  | postfix_expression '.' identifier
   	{% withAttrs $2 $ CMember $1 $3 False }
 
-  | postfix_expression "->" ident
+  | postfix_expression "->" identifier
   	{% withAttrs $2 $ CMember $1 $3 True }
 
   | postfix_expression "++"
@@ -803,40 +1479,51 @@ postfix_expression
   | postfix_expression "--"
   	{% withAttrs $2 $ CUnary CPostDecOp $1 }
 
+  | '(' type_name ')' '{' initializer_list '}'
+  	{% withAttrs $4 $ CCompoundLit $2 (reverse $5) }
 
-argument_expression_list :: { [CExpr] }
+  | '(' type_name ')' '{' initializer_list ',' '}'
+  	{% withAttrs $4 $ CCompoundLit $2 (reverse $5) }
+
+
+argument_expression_list :: { Reversed [CExpr] }
 argument_expression_list
-  : assignment_expression				{ [$1] }
-  | argument_expression_list ',' assignment_expression	{ $3 : $1 }
+  : assignment_expression				{ singleton $1 }
+  | argument_expression_list ',' assignment_expression	{ $1 `snoc` $3 }
 
 
--- parse C unary expression (K&R A7.4)
+-- parse C unary expression (C99 6.5.3)
 --
--- * GNU extension: `alignof'
+-- * GNU extensions:
+--     'alignof' expression or type
+--     '__extension__' to suppress warnings about extensions
+--     allow taking address of a label with: && label
 --
 unary_expression :: { CExpr }
 unary_expression
   : postfix_expression			{ $1 }
   | "++" unary_expression		{% withAttrs $1 $ CUnary CPreIncOp $2 }
   | "--" unary_expression		{% withAttrs $1 $ CUnary CPreDecOp $2 }
+  | "__extension__" cast_expression	{ $2 }
   | unary_operator cast_expression	{% withAttrs $1 $ CUnary (unL $1) $2 }
   | sizeof unary_expression		{% withAttrs $1 $ CSizeofExpr $2 }
   | sizeof '(' type_name ')'		{% withAttrs $1 $ CSizeofType $3 }
   | alignof unary_expression		{% withAttrs $1 $ CAlignofExpr $2 }
   | alignof '(' type_name ')'		{% withAttrs $1 $ CAlignofType $3 }
+  | "&&" identifier			{% withAttrs $1 $ CLabAddrExpr $2 }
 
 
 unary_operator :: { Located CUnaryOp }
 unary_operator
-  : '&'		{ L CAdrOp (posOf $1) }
-  | '*'		{ L CIndOp (posOf $1) }
+  : '&'		{ L CAdrOp  (posOf $1) }
+  | '*'		{ L CIndOp  (posOf $1) }
   | '+'		{ L CPlusOp (posOf $1) }
-  | '-'		{ L CMinOp (posOf $1) }
+  | '-'		{ L CMinOp  (posOf $1) }
   | '~'		{ L CCompOp (posOf $1) }
-  | '!'		{ L CNegOp (posOf $1) }
+  | '!'		{ L CNegOp  (posOf $1) }
 
 
--- parse C cast expression (K&R A7.5)
+-- parse C cast expression (C99 6.5.4)
 --
 cast_expression :: { CExpr }
 cast_expression
@@ -844,7 +1531,7 @@ cast_expression
   | '(' type_name ')' cast_expression	{% withAttrs $1 $ CCast $2 $4 }
 
 
--- parse C multiplicative expression (K&R A7.6)
+-- parse C multiplicative expression (C99 6.5.5)
 --
 multiplicative_expression :: { CExpr }
 multiplicative_expression
@@ -861,7 +1548,7 @@ multiplicative_expression
   	{% withAttrs $2 $ CBinary CRmdOp $1 $3 }
 
 
--- parse C additive expression (K&R A7.7)
+-- parse C additive expression (C99 6.5.6)
 --
 additive_expression :: { CExpr }
 additive_expression
@@ -875,7 +1562,7 @@ additive_expression
   	{% withAttrs $2 $ CBinary CSubOp $1 $3 }
 
 
--- parse C shift expression (K&R A7.8)
+-- parse C shift expression (C99 6.5.7)
 --
 shift_expression :: { CExpr }
 shift_expression
@@ -889,7 +1576,7 @@ shift_expression
   	{% withAttrs $2 $ CBinary CShrOp $1 $3 }
 
 
--- parse C relational expression (K&R A7.9)
+-- parse C relational expression (C99 6.5.8)
 --
 relational_expression :: { CExpr }
 relational_expression
@@ -909,7 +1596,7 @@ relational_expression
   	{% withAttrs $2 $ CBinary CGeqOp $1 $3 }
 
 
--- parse C equality expression (K&R A7.10)
+-- parse C equality expression (C99 6.5.9)
 --
 equality_expression :: { CExpr }
 equality_expression
@@ -923,7 +1610,7 @@ equality_expression
   	{% withAttrs $2 $ CBinary CNeqOp $1 $3 }
 
 
--- parse C bitwise and expression (K&R A7.11)
+-- parse C bitwise and expression (C99 6.5.10)
 --
 and_expression :: { CExpr }
 and_expression
@@ -934,7 +1621,7 @@ and_expression
   	{% withAttrs $2 $ CBinary CAndOp $1 $3 }
 
 
--- parse C bitwise exclusive or expression (K&R A7.12)
+-- parse C bitwise exclusive or expression (C99 6.5.11)
 --
 exclusive_or_expression :: { CExpr }
 exclusive_or_expression
@@ -945,7 +1632,7 @@ exclusive_or_expression
   	{% withAttrs $2 $ CBinary CXorOp $1 $3 }
 
 
--- parse C bitwise or expression (K&R A7.13)
+-- parse C bitwise or expression (C99 6.5.12)
 --
 inclusive_or_expression :: { CExpr }
 inclusive_or_expression
@@ -956,7 +1643,7 @@ inclusive_or_expression
   	{% withAttrs $2 $ CBinary COrOp $1 $3 }
 
 
--- parse C logical and expression (K&R A7.14)
+-- parse C logical and expression (C99 6.5.13)
 --
 logical_and_expression :: { CExpr }
 logical_and_expression
@@ -967,7 +1654,7 @@ logical_and_expression
   	{% withAttrs $2 $ CBinary CLndOp $1 $3 }
 
 
--- parse C logical or expression (K&R A7.15)
+-- parse C logical or expression (C99 6.5.14)
 --
 logical_or_expression :: { CExpr }
 logical_or_expression
@@ -978,7 +1665,10 @@ logical_or_expression
   	{% withAttrs $2 $ CBinary CLorOp $1 $3 }
 
 
--- parse C conditional expression (K&R A7.16)
+-- parse C conditional expression (C99 6.5.15)
+--
+-- * GNU extensions:
+--     omitting the `then' part
 --
 conditional_expression :: { CExpr }
 conditional_expression
@@ -986,10 +1676,13 @@ conditional_expression
   	{ $1 }
 
   | logical_or_expression '?' expression ':' conditional_expression
-  	{% withAttrs $2 $ CCond $1 $3 $5 }
+  	{% withAttrs $2 $ CCond $1 (Just $3) $5 }
+
+  | logical_or_expression '?' ':' conditional_expression
+  	{% withAttrs $2 $ CCond $1 Nothing $4 }
 
 
--- parse C assignment expression (K&R A7.17)
+-- parse C assignment expression (C99 6.5.16)
 --
 assignment_expression :: { CExpr }
 assignment_expression
@@ -1015,22 +1708,38 @@ assignment_operator
   | "|="		{ L COrAssOp  (posOf $1) }
 
 
--- parse C expression (K&R A7.18)
+-- parse C expression (C99 6.5.17)
 --
 expression :: { CExpr }
 expression
-  : expression_				{% case $1 of
-					   [e] -> return e
-					   _   -> let es = reverse $1 
-					          in withAttrs es $ CComma es }
+  : assignment_expression
+  	{ $1 }
 
-expression_ :: { [CExpr] }
-expression_
-  : assignment_expression			{ [$1] }
-  | expression_ ',' assignment_expression	{ $3 : $1 }
+  | assignment_expression ',' comma_expression
+  	{% let es = reverse $3 in withAttrs es $ CComma ($1:es) }
 
 
--- parse C constant expression (K&R A7.19)
+comma_expression :: { Reversed [CExpr] }
+comma_expression
+  : assignment_expression			{ singleton $1 }
+  | comma_expression ',' assignment_expression	{ $1 `snoc` $3 }
+
+
+-- The following was used for clarity
+expression_opt :: { Maybe CExpr }
+expression_opt
+  : {- empty -}		{ Nothing }
+  | expression		{ Just $1 }
+
+
+-- The following was used for clarity
+assignment_expression_opt :: { Maybe CExpr }
+assignment_expression_opt
+  : {- empty -}				{ Nothing }
+  | assignment_expression		{ Just $1 }
+
+
+-- parse C constant expression (C99 6.6)
 --
 constant_expression :: { CExpr }
 constant_expression
@@ -1039,81 +1748,102 @@ constant_expression
 
 -- parse C constants
 --
--- * we include strings in constants
---
-literal_expression :: { CConst }
-literal_expression
+constant :: { CConst }
+constant
   : cint	{% withAttrs $1 $ case $1 of CTokILit _ i -> CIntConst i }
   | cchar	{% withAttrs $1 $ case $1 of CTokCLit _ c -> CCharConst c }
   | cfloat	{% withAttrs $1 $ case $1 of CTokFLit _ f -> CFloatConst f }
-  | string	{% withAttrs $1 $ CStrConst (unL $1) }
 
 
--- deal with C string liternal concatination
---
-string :: { Located String }
-string
-  : cstr		{ case $1 of CTokSLit _ s -> L s (posOf $1) }
-  | cstr string_	{ case $1 of CTokSLit _ s ->
-                                       let s' = concat (s : reverse $2)
-				        in L s' (posOf $1) }
+string_literal :: { CConst }
+string_literal
+  : cstr
+  	{% withAttrs $1 $ case $1 of CTokSLit _ s -> CStrConst s }
+
+  | cstr string_literal_list
+  	{% withAttrs $1 $ case $1 of CTokSLit _ s -> CStrConst (concat (s : reverse $2)) }
 
 
-string_ :: { [String] }
-string_
-  : cstr		{ case $1 of CTokSLit _ s -> [s] }
-  | string_ cstr	{ case $2 of CTokSLit _ s -> s : $1 }
+string_literal_list :: { Reversed [String] }
+string_literal_list
+  : cstr			{ case $1 of CTokSLit _ s -> singleton s }
+  | string_literal_list cstr	{ case $2 of CTokSLit _ s -> $1 `snoc` s }
 
 
--- parse GNU C __extension__ annotation (junking the result)
---
-ignore_extension :: { () }
-ignore_extension
-  : {- empty -}					{ () }
-  | extension					{ () }
+identifier :: { Ident }
+identifier
+  : ident		{ $1 }
+  | tyident		{ $1 }
+
 
 
 -- parse GNU C attribute annotation (junking the result)
 --
-gnuc_attrs ::	{ () }
-gnuc_attrs
+attrs_opt ::	{ () }
+attrs_opt
   : {- empty -}						{ () }
-  | gnuc_attrs gnuc_attribute_specifier			{ () }
+  | attrs_opt attr					{ () }
 
 
-gnuc_attrs_nonempty :: { () }
-gnuc_attrs_nonempty
-  : gnuc_attribute_specifier				{ () }
-  | gnuc_attrs_nonempty gnuc_attribute_specifier	{ () }
+attrs :: { () }
+attrs
+  : attr						{ () }
+  | attrs attr	{ () }
 
 
-gnuc_attribute_specifier :: { () }
-gnuc_attribute_specifier
-  : attribute '(' '(' gnuc_attribute_list ')' ')'	{ () }
+attr :: { () }
+attr
+  : "__attribute__" '(' '(' attribute_list ')' ')'	{ () }
 
 
-gnuc_attribute_list :: { () }
-  : gnuc_attribute					{ () } 
-  | gnuc_attribute_list ',' gnuc_attribute		{ () } 
+attribute_list :: { () }
+  : attribute						{ () } 
+  | attribute_list ',' attribute			{ () } 
 
 
-gnuc_attribute :: { () }
-gnuc_attribute
+attribute :: { () }
+attribute
   : {- empty -}						{ () }
   | ident						{ () }
   | const						{ () }
-  | ident '(' gnuc_attribute_param_exps ')'		{ () }
+  | ident '(' attribute_params ')'			{ () }
   | ident '(' ')'					{ () }
 
 
-gnuc_attribute_param_exps :: { () }
-gnuc_attribute_param_exps
+attribute_params :: { () }
+attribute_params
   : constant_expression					{ () }
-  | gnuc_attribute_param_exps ',' constant_expression	{ () }
+  | attribute_params ',' constant_expression		{ () }
 
 
 {
 
+infixr 5 `snoc`
+
+-- Due to the way the grammar is constructed we very often have to build lists
+-- in reverse. To make sure we do this consistently and correctly we have a
+-- newtype to wrap the reversed style of list:
+--
+newtype Reversed a = Reversed a
+
+empty :: Reversed [a]
+empty = Reversed []
+
+singleton :: a -> Reversed [a]
+singleton x = Reversed [x]
+
+snoc :: Reversed [a] -> a -> Reversed [a]
+snoc (Reversed xs) x = Reversed (x : xs)
+
+rmap :: (a -> b) -> Reversed [a] -> Reversed [b]
+rmap f (Reversed xs) = Reversed (map f xs)
+
+reverse :: Reversed [a] -> [a]
+reverse (Reversed xs) = List.reverse xs
+
+-- We occasionally need things to have a location when they don't naturally
+-- have one built in as tokens and most AST elements do.
+--
 data Located a = L !a !Position
 
 unL :: Located a -> a
@@ -1129,39 +1859,68 @@ withAttrs node mkAttributedNode = do
   let attrs = newAttrs (posOf node) name
   attrs `seq` return (mkAttributedNode attrs)
 
+-- this functions gets used repeatedly so take them out of line:
+--
+liftTypeQuals :: Reversed [CTypeQual] -> [CDeclSpec]
+liftTypeQuals (Reversed xs) = revmap [] xs
+  where revmap a []     = a
+        revmap a (x:xs) = revmap (CTypeQual x : a) xs
+
+
 -- convenient instance, the position of a list of things is the position of
 -- the first thing in the list
 --
 instance Pos a => Pos [a] where
   posOf (x:_) = posOf x
 
+instance Pos a => Pos (Reversed a) where
+  posOf (Reversed x) = posOf x
+
 emptyDeclr = CVarDeclr Nothing (newAttrsOnlyPos nopos)
 
--- extract all identifiers turned into `typedef-name's
+-- Take the identifiers and use them to update the typedef'ed identifier set
+-- if the decl is defining a typedef then we add it to the set,
+-- if it's a var decl then that shadows typedefed identifiers
 --
-isTypeDef :: [CDeclSpec] -> Bool
-isTypeDef specs = (not . null) [()| CStorageSpec (CTypedef _) <- specs]
+doDeclIdent :: [CDeclSpec] -> CDeclr -> P ()
+doDeclIdent declspecs declr =
+  case getCDeclrIdent declr of
+    Nothing -> return ()
+    Just ident | any isTypeDef declspecs -> addTypedef ident
+               | otherwise               -> shadowTypedef ident
 
-getTypeDefIdents :: [CDeclr] -> [Ident]
-getTypeDefIdents declrs = catMaybes [declrToOptIdent declr | declr <- declrs]
-  where
-    declrToOptIdent :: CDeclr -> Maybe Ident
-    declrToOptIdent (CVarDeclr optIde    _) = optIde
-    declrToOptIdent (CPtrDeclr _ declr   _) = declrToOptIdent declr
-    declrToOptIdent (CArrDeclr declr _   _) = declrToOptIdent declr
-    declrToOptIdent (CFunDeclr declr _ _ _) = declrToOptIdent declr
+  where isTypeDef (CStorageSpec (CTypedef _)) = True
+        isTypeDef _                           = False
+
+doFuncParamDeclIdent :: CDeclr -> P ()
+doFuncParamDeclIdent (CFunDeclr _ params _ _) =
+  sequence_
+    [ case getCDeclrIdent declr of
+        Nothing -> return ()
+        Just ident -> shadowTypedef ident
+    | CDecl _ dle _ <- params
+    , (Just declr, _, _) <- dle ]
+doFuncParamDeclIdent (CPtrDeclr _ declr _ ) = doFuncParamDeclIdent declr
+doFuncParamDeclIdent _ = return ()
+
+-- extract all identifiers
+getCDeclrIdent :: CDeclr -> Maybe Ident
+getCDeclrIdent (CVarDeclr optIde    _) = optIde
+getCDeclrIdent (CPtrDeclr _ declr   _) = getCDeclrIdent declr
+getCDeclrIdent (CArrDeclr declr _ _ _) = getCDeclrIdent declr
+getCDeclrIdent (CFunDeclr declr _ _ _) = getCDeclrIdent declr
+
 
 happyError :: P a
 happyError = parseError
 
-parseC :: String -> Position -> CST s CHeader
+parseC :: String -> Position -> PreCST s s' CHeader
 parseC input initialPosition  = do
   nameSupply <- getNameSupply
-  let (n:ns) = names nameSupply
-      at     = newAttrs initialPosition n
-  case execParser parseCHeader input
+  let ns = names nameSupply
+  case execParser header input
                   initialPosition (map fst builtinTypeNames) ns of
-    Left header -> return (header at)
+    Left header -> return header
     Right (message, position) -> raiseFatal "Error in C header file."
                                             position message
 }

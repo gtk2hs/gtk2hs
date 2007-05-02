@@ -3,7 +3,7 @@
 --  Author : Manuel M T Chakravarty, Duncan Coutts
 --  Created: 24 May 2005
 --
---  Version $Revision: 1.4 $ from $Date: 2005/07/27 16:28:31 $
+--  Version $Revision: 1.1.2.1 $ from $Date: 2005/06/14 00:16:14 $
 --
 --  Copyright (c) [1999..2004] Manuel M T Chakravarty
 --  Copyright (c) 2005 Duncan Coutts
@@ -64,19 +64,18 @@
 
 {
 
-module CLexer (CToken(..), GnuCTok(..), lexC,
-               P, execParser, parseError, getNewName, addTypedef) where 
+module CLexer (lexC, parseError) where
 
 import Char      (isDigit)
 import Numeric   (readDec, readOct, readHex)
 
-import Common    (Position(Position), Pos(posOf))
+import Common    (Position(..), Pos(posOf))
 import Errors    (interr)
 import UNames	 (Name)
 import Idents    (Ident, lexemeToIdent, identToLexeme)
 
-import Set  (Set)
-import qualified Set as Set (fromList, insert, member)
+import CTokens
+import CParserMonad
 
 }
 
@@ -89,8 +88,8 @@ $digit    = 0-9
 $digitNZ  = 1-9
 $hexdigit = [0-9a-fA-F]
 
-$inchar   = \0-\255 # [ \\ \' \n \f \r \v ]
-$instr    = \0-\255 # [ \\ \" \n \f \r \v ]
+$inchar   = \0-\255 # [ \\ \' \n \r ]
+$instr    = \0-\255 # [ \\ \" \n \r ]
 $anyButNL = \0-\255 # \n
 $infname  = \ -\127 # [ \\ \" ]
 $visible  = \ -\127
@@ -102,7 +101,7 @@ $visible  = \ -\127
 --
 -- * also used for strings
 --
-@charesc  = \\([ntvbrfa\\\?\'\"]|$octdigit{1,3}|x$hexdigit+)
+@charesc  = \\([ntvbrfae\\\?\'\"]|$octdigit{1,3}|x$hexdigit+)
 
 -- components of float constants (follows K&R A2.5.3)
 --
@@ -110,7 +109,7 @@ $visible  = \ -\127
 @intpart   = @digits
 @fractpart = @digits
 @mantpart  = @intpart?\.@fractpart|@intpart\.
-@exppart   = [eE]\-?@digits
+@exppart   = [eE][\+\-]?@digits
 @suffix    = [fFlL]
 
 
@@ -159,13 +158,14 @@ $letter($letter|$digit)*	{ \pos len str -> idkwtok (take len str) pos }
 
 -- integer constants (follows K&R A2.5.1)
 --
-0$octdigit*[uUlL]{0,2}		{ token CTokILit (fst . head . readOct) }
-$digitNZ$digit*[uUlL]{0,2}	{ token CTokILit (fst . head . readDec) }
-0[xX]$hexdigit*[uUlL]{0,2}	{ token CTokILit (fst . head . readHex . drop 2) }
+0$octdigit*[uUlL]{0,3}		{ token CTokILit (fst . head . readOct) }
+$digitNZ$digit*[uUlL]{0,3}	{ token CTokILit (fst . head . readDec) }
+0[xX]$hexdigit*[uUlL]{0,3}	{ token CTokILit (fst . head . readHex . drop 2) }
 
 -- character constants (follows K&R A2.5.2)
 --
-\'($inchar|@charesc)\'		{ token CTokCLit (fst . oneChar . tail) }
+\'($inchar|@charesc)\'	{ token CTokCLit (fst . oneChar . tail) }
+L\'($inchar|@charesc)\'	{ token CTokCLit (fst . oneChar . tail . tail) }
 
 -- float constants (follows K&R A2.5.3)
 --
@@ -174,6 +174,7 @@ $digitNZ$digit*[uUlL]{0,2}	{ token CTokILit (fst . head . readDec) }
 -- string literal (follows K&R A2.6)
 --
 \"($instr|@charesc)*\"			{ token CTokSLit normalizeEscapes }
+L\"($instr|@charesc)*\"			{ token CTokSLit (normalizeEscapes . tail) }
 
 
 -- operators and separators
@@ -228,310 +229,6 @@ $digitNZ$digit*[uUlL]{0,2}	{ token CTokILit (fst . head . readDec) }
 
 {
 
--- token definition
--- ----------------
-
--- possible tokens (EXPORTED)
---
-data CToken = CTokLParen   Position		-- `('
-	    | CTokRParen   Position		-- `)'
-	    | CTokLBracket Position		-- `['
-	    | CTokRBracket Position		-- `]'
-	    | CTokArrow	   Position		-- `->'
-	    | CTokDot	   Position		-- `.'
-	    | CTokExclam   Position		-- `!'
-	    | CTokTilde	   Position		-- `~'
-	    | CTokInc	   Position		-- `++'
-	    | CTokDec	   Position		-- `--'
-	    | CTokPlus	   Position		-- `+'
-	    | CTokMinus	   Position		-- `-'
-	    | CTokStar	   Position		-- `*'
-	    | CTokSlash	   Position		-- `/'
-	    | CTokPercent  Position		-- `%'
-	    | CTokAmper	   Position		-- `&'
-	    | CTokShiftL   Position		-- `<<'
-	    | CTokShiftR   Position		-- `>>'
-	    | CTokLess	   Position		-- `<'
-	    | CTokLessEq   Position		-- `<='
-	    | CTokHigh	   Position		-- `>'
-	    | CTokHighEq   Position		-- `>='
-	    | CTokEqual	   Position		-- `=='
-	    | CTokUnequal  Position		-- `!='
-	    | CTokHat	   Position		-- `^'
-	    | CTokBar	   Position		-- `|'
-	    | CTokAnd	   Position		-- `&&'
-	    | CTokOr	   Position		-- `||'
-	    | CTokQuest	   Position		-- `?'
-	    | CTokColon	   Position		-- `:'
-	    | CTokAssign   Position		-- `='
-	    | CTokPlusAss  Position		-- `+='
-	    | CTokMinusAss Position		-- `-='
-	    | CTokStarAss  Position		-- `*='
-	    | CTokSlashAss Position		-- `/='
-	    | CTokPercAss  Position		-- `%='
-	    | CTokAmpAss   Position		-- `&='
-	    | CTokHatAss   Position		-- `^='
-	    | CTokBarAss   Position		-- `|='
-	    | CTokSLAss	   Position		-- `<<='
-	    | CTokSRAss	   Position		-- `>>='
-	    | CTokComma	   Position		-- `,'
-	    | CTokSemic	   Position		-- `;'
-	    | CTokLBrace   Position		-- `{'
-	    | CTokRBrace   Position		--
-	    | CTokEllipsis Position		-- `...'
-	    | CTokAlignof  Position		-- `alignof' 
-						-- (or `__alignof', 
-						-- `__alignof__')
-	    | CTokAsm      Position		-- `asm'
-	    					-- (or `__asm',
-						-- `__asm__')
-	    | CTokAuto     Position		-- `auto'
-	    | CTokBreak    Position		-- `break'
-	    | CTokCase     Position		-- `case'
-	    | CTokChar     Position		-- `char'
-	    | CTokConst    Position		-- `const' 
-						-- (or `__const', `__const__')
-	    | CTokContinue Position		-- `continue' 
-	    | CTokDefault  Position		-- `default'
-	    | CTokDo       Position		-- `do'
-	    | CTokDouble   Position		-- `double'
-	    | CTokElse     Position		-- `else'
-	    | CTokEnum     Position		-- `enum'
-	    | CTokExtern   Position		-- `extern'
- 	    | CTokFloat    Position		-- `float'
- 	    | CTokFor      Position		-- `for'
- 	    | CTokGoto     Position		-- `goto'
- 	    | CTokIf       Position		-- `if'
-	    | CTokInline   Position		-- `inline'
-						-- (or `__inline', 
-						-- `__inline__')
-	    | CTokInt      Position		-- `int'
-	    | CTokLong     Position		-- `long'
-	    | CTokRegister Position		-- `register'
-	    | CTokRestrict Position		-- `restrict'
-						-- (or `__restrict', 
-						-- `__restrict__')
-	    | CTokReturn   Position		-- `return'
-	    | CTokShort    Position		-- `short'
-	    | CTokSigned   Position		-- `signed'
-						-- (or `__signed', 
-						-- `__signed__')
-	    | CTokSizeof   Position		-- `sizeof'
-	    | CTokStatic   Position		-- `static'
-	    | CTokStruct   Position		-- `struct'
-	    | CTokSwitch   Position		-- `switch'
-	    | CTokTypedef  Position		-- `typedef'
-	    | CTokUnion    Position		-- `union'
-	    | CTokUnsigned Position		-- `unsigned'
-	    | CTokVoid     Position		-- `void'
-	    | CTokTypeof   Position		-- `typeof'
-						-- (or `__typeof',
-						-- `__typeof__')
-	    | CTokVolatile Position		-- `volatile'
-						-- (or `__volatile', 
-						-- `__volatile__')
-	    | CTokWhile    Position		-- `while'
-	    | CTokCLit	   Position Char	-- character constant
-	    | CTokILit	   Position Integer	-- integer constant
-	    | CTokFLit	   Position String	-- float constant
-	    | CTokSLit	   Position String	-- string constant (no escapes)
-	    | CTokIdent	   Position Ident	-- identifier
-
-	      -- not generated here, but in `CParser.parseCHeader'
-	    | CTokTyIdent  Position Ident	-- `typedef-name' identifier
-	    | CTokGnuC GnuCTok Position		-- special GNU C tokens
-	    | CTokEof				-- end of file
-
--- special tokens used in GNU C extensions to ANSI C
---
-data GnuCTok = GnuCAttrTok		-- `__attribute__'
-	     | GnuCExtTok		-- `__extension__'
-
-instance Pos CToken where
-  posOf (CTokLParen   pos  ) = pos
-  posOf (CTokRParen   pos  ) = pos
-  posOf (CTokLBracket pos  ) = pos
-  posOf (CTokRBracket pos  ) = pos
-  posOf (CTokArrow    pos  ) = pos
-  posOf (CTokDot      pos  ) = pos
-  posOf (CTokExclam   pos  ) = pos
-  posOf (CTokTilde    pos  ) = pos
-  posOf (CTokInc      pos  ) = pos
-  posOf (CTokDec      pos  ) = pos
-  posOf (CTokPlus     pos  ) = pos
-  posOf (CTokMinus    pos  ) = pos
-  posOf (CTokStar     pos  ) = pos
-  posOf (CTokSlash    pos  ) = pos
-  posOf (CTokPercent  pos  ) = pos
-  posOf (CTokAmper    pos  ) = pos
-  posOf (CTokShiftL   pos  ) = pos
-  posOf (CTokShiftR   pos  ) = pos
-  posOf (CTokLess     pos  ) = pos
-  posOf (CTokLessEq   pos  ) = pos
-  posOf (CTokHigh     pos  ) = pos
-  posOf (CTokHighEq   pos  ) = pos
-  posOf (CTokEqual    pos  ) = pos
-  posOf (CTokUnequal  pos  ) = pos
-  posOf (CTokHat      pos  ) = pos
-  posOf (CTokBar      pos  ) = pos
-  posOf (CTokAnd      pos  ) = pos
-  posOf (CTokOr	      pos  ) = pos
-  posOf (CTokQuest    pos  ) = pos
-  posOf (CTokColon    pos  ) = pos
-  posOf (CTokAssign   pos  ) = pos
-  posOf (CTokPlusAss  pos  ) = pos
-  posOf (CTokMinusAss pos  ) = pos
-  posOf (CTokStarAss  pos  ) = pos
-  posOf (CTokSlashAss pos  ) = pos
-  posOf (CTokPercAss  pos  ) = pos
-  posOf (CTokAmpAss   pos  ) = pos
-  posOf (CTokHatAss   pos  ) = pos
-  posOf (CTokBarAss   pos  ) = pos
-  posOf (CTokSLAss    pos  ) = pos
-  posOf (CTokSRAss    pos  ) = pos
-  posOf (CTokComma    pos  ) = pos
-  posOf (CTokSemic    pos  ) = pos
-  posOf (CTokLBrace   pos  ) = pos
-  posOf (CTokRBrace   pos  ) = pos
-  posOf (CTokEllipsis pos  ) = pos
-  posOf (CTokAlignof  pos  ) = pos
-  posOf (CTokAsm      pos  ) = pos
-  posOf (CTokAuto     pos  ) = pos
-  posOf (CTokBreak    pos  ) = pos
-  posOf (CTokCase     pos  ) = pos
-  posOf (CTokChar     pos  ) = pos
-  posOf (CTokConst    pos  ) = pos
-  posOf (CTokContinue pos  ) = pos
-  posOf (CTokDefault  pos  ) = pos
-  posOf (CTokDo       pos  ) = pos
-  posOf (CTokDouble   pos  ) = pos
-  posOf (CTokElse     pos  ) = pos
-  posOf (CTokEnum     pos  ) = pos
-  posOf (CTokExtern   pos  ) = pos
-  posOf (CTokFloat    pos  ) = pos
-  posOf (CTokFor      pos  ) = pos
-  posOf (CTokGoto     pos  ) = pos
-  posOf (CTokInt      pos  ) = pos
-  posOf (CTokInline   pos  ) = pos
-  posOf (CTokIf       pos  ) = pos
-  posOf (CTokLong     pos  ) = pos
-  posOf (CTokRegister pos  ) = pos
-  posOf (CTokRestrict pos  ) = pos
-  posOf (CTokReturn   pos  ) = pos
-  posOf (CTokShort    pos  ) = pos
-  posOf (CTokSigned   pos  ) = pos
-  posOf (CTokSizeof   pos  ) = pos
-  posOf (CTokStatic   pos  ) = pos
-  posOf (CTokStruct   pos  ) = pos
-  posOf (CTokSwitch   pos  ) = pos
-  posOf (CTokTypedef  pos  ) = pos
-  posOf (CTokUnion    pos  ) = pos
-  posOf (CTokUnsigned pos  ) = pos
-  posOf (CTokVoid     pos  ) = pos
-  posOf (CTokTypeof   pos  ) = pos
-  posOf (CTokVolatile pos  ) = pos
-  posOf (CTokWhile    pos  ) = pos
-  posOf (CTokCLit     pos _) = pos
-  posOf (CTokILit     pos _) = pos
-  posOf (CTokFLit     pos _) = pos
-  posOf (CTokSLit     pos _) = pos
-  posOf (CTokIdent    pos _) = pos
-  posOf (CTokTyIdent  pos _) = pos
-  posOf (CTokGnuC   _ pos  ) = pos
-
-instance Show CToken where
-  showsPrec _ (CTokLParen   _  ) = showString "("
-  showsPrec _ (CTokRParen   _  ) = showString ")"
-  showsPrec _ (CTokLBracket _  ) = showString "["
-  showsPrec _ (CTokRBracket _  ) = showString "]"
-  showsPrec _ (CTokArrow    _  ) = showString "->"
-  showsPrec _ (CTokDot	    _  ) = showString "."
-  showsPrec _ (CTokExclam   _  ) = showString "!"
-  showsPrec _ (CTokTilde    _  ) = showString "~"
-  showsPrec _ (CTokInc	    _  ) = showString "++"
-  showsPrec _ (CTokDec	    _  ) = showString "--"
-  showsPrec _ (CTokPlus	    _  ) = showString "+"
-  showsPrec _ (CTokMinus    _  ) = showString "-"
-  showsPrec _ (CTokStar	    _  ) = showString "*"
-  showsPrec _ (CTokSlash    _  ) = showString "/"
-  showsPrec _ (CTokPercent  _  ) = showString "%"
-  showsPrec _ (CTokAmper    _  ) = showString "&"
-  showsPrec _ (CTokShiftL   _  ) = showString "<<"
-  showsPrec _ (CTokShiftR   _  ) = showString ">>"
-  showsPrec _ (CTokLess	    _  ) = showString "<"
-  showsPrec _ (CTokLessEq   _  ) = showString "<="
-  showsPrec _ (CTokHigh	    _  ) = showString ">"
-  showsPrec _ (CTokHighEq   _  ) = showString ">="
-  showsPrec _ (CTokEqual    _  ) = showString "=="
-  showsPrec _ (CTokUnequal  _  ) = showString "!="
-  showsPrec _ (CTokHat	    _  ) = showString "^"
-  showsPrec _ (CTokBar	    _  ) = showString "|"
-  showsPrec _ (CTokAnd	    _  ) = showString "&&"
-  showsPrec _ (CTokOr	    _  ) = showString "||"
-  showsPrec _ (CTokQuest    _  ) = showString "?"
-  showsPrec _ (CTokColon    _  ) = showString ":"
-  showsPrec _ (CTokAssign   _  ) = showString "="
-  showsPrec _ (CTokPlusAss  _  ) = showString "+="
-  showsPrec _ (CTokMinusAss _  ) = showString "-="
-  showsPrec _ (CTokStarAss  _  ) = showString "*="
-  showsPrec _ (CTokSlashAss _  ) = showString "/="
-  showsPrec _ (CTokPercAss  _  ) = showString "%="
-  showsPrec _ (CTokAmpAss   _  ) = showString "&="
-  showsPrec _ (CTokHatAss   _  ) = showString "^="
-  showsPrec _ (CTokBarAss   _  ) = showString "|="
-  showsPrec _ (CTokSLAss    _  ) = showString "<<="
-  showsPrec _ (CTokSRAss    _  ) = showString ">>="
-  showsPrec _ (CTokComma    _  ) = showString ","
-  showsPrec _ (CTokSemic    _  ) = showString ";"
-  showsPrec _ (CTokLBrace   _  ) = showString "{"
-  showsPrec _ (CTokRBrace   _  ) = showString "}"
-  showsPrec _ (CTokEllipsis _  ) = showString "..."
-  showsPrec _ (CTokAlignof  _  ) = showString "alignof"
-  showsPrec _ (CTokAsm      _  ) = showString "asm"
-  showsPrec _ (CTokAuto     _  ) = showString "auto"
-  showsPrec _ (CTokBreak    _  ) = showString "break"
-  showsPrec _ (CTokCase     _  ) = showString "case"
-  showsPrec _ (CTokChar     _  ) = showString "char"
-  showsPrec _ (CTokConst    _  ) = showString "const"
-  showsPrec _ (CTokContinue _  ) = showString "continue"
-  showsPrec _ (CTokDefault  _  ) = showString "default"
-  showsPrec _ (CTokDouble   _  ) = showString "double"
-  showsPrec _ (CTokDo       _  ) = showString "do"
-  showsPrec _ (CTokElse     _  ) = showString "else"
-  showsPrec _ (CTokEnum     _  ) = showString "enum"
-  showsPrec _ (CTokExtern   _  ) = showString "extern"
-  showsPrec _ (CTokFloat    _  ) = showString "float"
-  showsPrec _ (CTokFor      _  ) = showString "for"
-  showsPrec _ (CTokGoto     _  ) = showString "goto"
-  showsPrec _ (CTokIf       _  ) = showString "if"
-  showsPrec _ (CTokInline   _  ) = showString "inline"
-  showsPrec _ (CTokInt      _  ) = showString "int"
-  showsPrec _ (CTokLong     _  ) = showString "long"
-  showsPrec _ (CTokRegister _  ) = showString "register"
-  showsPrec _ (CTokRestrict _  ) = showString "restrict"
-  showsPrec _ (CTokReturn   _  ) = showString "return"
-  showsPrec _ (CTokShort    _  ) = showString "short"
-  showsPrec _ (CTokSigned   _  ) = showString "signed"
-  showsPrec _ (CTokSizeof   _  ) = showString "sizeof"
-  showsPrec _ (CTokStatic   _  ) = showString "static"
-  showsPrec _ (CTokStruct   _  ) = showString "struct"
-  showsPrec _ (CTokSwitch   _  ) = showString "switch"
-  showsPrec _ (CTokTypedef  _  ) = showString "typedef"
-  showsPrec _ (CTokUnion    _  ) = showString "union"
-  showsPrec _ (CTokUnsigned _  ) = showString "unsigned"
-  showsPrec _ (CTokVoid     _  ) = showString "void"
-  showsPrec _ (CTokTypeof   _  ) = showString "typeof"
-  showsPrec _ (CTokVolatile _  ) = showString "volatile"
-  showsPrec _ (CTokWhile    _  ) = showString "while"
-  showsPrec _ (CTokCLit     _ c) = showChar c
-  showsPrec _ (CTokILit     _ i) = (showString . show) i
-  showsPrec _ (CTokFLit     _ s) = showString s
-  showsPrec _ (CTokSLit     _ s) = showString s
-  showsPrec _ (CTokIdent    _ i) = (showString . identToLexeme) i
-  showsPrec _ (CTokTyIdent  _ i) = (showString . identToLexeme) i
-  showsPrec _ (CTokGnuC GnuCAttrTok _) = showString "__attribute__"
-  showsPrec _ (CTokGnuC GnuCExtTok  _) = showString "__extension__"
-
 -- We use the odd looking list of string patterns here rather than normal
 -- string literals since GHC converts the latter into a sequence of string
 -- comparisons (ie a linear search) but it translates the former using its
@@ -547,12 +244,14 @@ idkwtok ('_':'_':'a':'s':'m':[])			     = tok CTokAsm
 idkwtok ('_':'_':'a':'s':'m':'_':'_':[])		     = tok CTokAsm
 idkwtok ('a':'u':'t':'o':[])				     = tok CTokAuto
 idkwtok ('b':'r':'e':'a':'k':[])			     = tok CTokBreak
+idkwtok ('_':'B':'o':'o':'l':[])			     = tok CTokBool
 idkwtok ('c':'a':'s':'e':[])				     = tok CTokCase
 idkwtok ('c':'h':'a':'r':[])				     = tok CTokChar
 idkwtok ('c':'o':'n':'s':'t':[])			     = tok CTokConst
 idkwtok ('_':'_':'c':'o':'n':'s':'t':[])		     = tok CTokConst
 idkwtok ('_':'_':'c':'o':'n':'s':'t':'_':'_':[])	     = tok CTokConst
 idkwtok ('c':'o':'n':'t':'i':'n':'u':'e':[])		     = tok CTokContinue
+idkwtok ('_':'C':'o':'m':'p':'l':'e':'x':[])		     = tok CTokComplex
 idkwtok ('d':'e':'f':'a':'u':'l':'t':[])		     = tok CTokDefault
 idkwtok ('d':'o':[])					     = tok CTokDo
 idkwtok ('d':'o':'u':'b':'l':'e':[])			     = tok CTokDouble
@@ -582,27 +281,46 @@ idkwtok ('s':'t':'a':'t':'i':'c':[])			     = tok CTokStatic
 idkwtok ('s':'t':'r':'u':'c':'t':[])			     = tok CTokStruct
 idkwtok ('s':'w':'i':'t':'c':'h':[])			     = tok CTokSwitch
 idkwtok ('t':'y':'p':'e':'d':'e':'f':[])		     = tok CTokTypedef
-idkwtok ('u':'n':'i':'o':'n':[])			     = tok CTokUnion
-idkwtok ('u':'n':'s':'i':'g':'n':'e':'d':[])		     = tok CTokUnsigned
-idkwtok ('v':'o':'i':'d':[])				     = tok CTokVoid
 idkwtok ('t':'y':'p':'e':'o':'f':[])			     = tok CTokTypeof
 idkwtok ('_':'_':'t':'y':'p':'e':'o':'f':[])		     = tok CTokTypeof
 idkwtok ('_':'_':'t':'y':'p':'e':'o':'f':'_':'_':[])	     = tok CTokTypeof
+idkwtok ('_':'_':'t':'h':'r':'e':'a':'d':[])		     = tok CTokThread
+idkwtok ('u':'n':'i':'o':'n':[])			     = tok CTokUnion
+idkwtok ('u':'n':'s':'i':'g':'n':'e':'d':[])		     = tok CTokUnsigned
+idkwtok ('v':'o':'i':'d':[])				     = tok CTokVoid
 idkwtok ('v':'o':'l':'a':'t':'i':'l':'e':[])		     = tok CTokVolatile
 idkwtok ('_':'_':'v':'o':'l':'a':'t':'i':'l':'e':[])	     = tok CTokVolatile
 idkwtok ('_':'_':'v':'o':'l':'a':'t':'i':'l':'e':'_':'_':[]) = tok CTokVolatile
 idkwtok ('w':'h':'i':'l':'e':[])			     = tok CTokWhile
-idkwtok ('_':'_':'a':'t':'t':'r':'i':'b':'u':'t':'e':'_':'_':[]) =
-						tok (CTokGnuC GnuCAttrTok)
+idkwtok ('_':'_':'l':'a':'b':'e':'l':'_':'_':[])             = tok CTokLabel
+idkwtok ('_':'_':'a':'t':'t':'r':'i':'b':'u':'t':'e':[]) = tok (CTokGnuC GnuCAttrTok)
+--						ignoreAttribute >> lexToken
+idkwtok ('_':'_':'a':'t':'t':'r':'i':'b':'u':'t':'e':'_':'_':[]) = tok (CTokGnuC GnuCAttrTok)
+--						ignoreAttribute >> lexToken
 idkwtok ('_':'_':'e':'x':'t':'e':'n':'s':'i':'o':'n':'_':'_':[]) =
 						tok (CTokGnuC GnuCExtTok)
+idkwtok ('_':'_':'b':'u':'i':'l':'t':'i':'n':'_':rest)
+        | rest == "va_arg"             = tok (CTokGnuC GnuCVaArg)
+        | rest == "offsetof"           = tok (CTokGnuC GnuCOffsetof)
+        | rest == "types_compatible_p" = tok (CTokGnuC GnuCTyCompat)
+
 idkwtok cs = \pos -> do
   name <- getNewName
-  tdefs <- getTypedefs
   let ident = lexemeToIdent pos cs name
-  if ident `Set.member` tdefs
+  tyident <- isTypeIdent ident
+  if tyident
     then return (CTokTyIdent pos ident)
     else return (CTokIdent   pos ident)
+
+ignoreAttribute :: P ()
+ignoreAttribute = skipTokens 0
+  where skipTokens n = do
+          tok <- lexToken
+          case tok of
+            CTokRParen _ | n == 1    -> return ()
+                         | otherwise -> skipTokens (n-1)
+            CTokLParen _             -> skipTokens (n+1)
+            _                        -> skipTokens n
 
 tok :: (Position -> CToken) -> Position -> P CToken
 tok tc pos = return (tc pos)
@@ -619,6 +337,7 @@ oneChar ('\\':c:cs)  = case c of
 			 'r'  -> ('\r', cs)
 			 'f'  -> ('\f', cs)
 			 'a'  -> ('\a', cs)
+			 'e'  -> ('\ESC', cs)  --GNU C extension
 			 '\\' -> ('\\', cs)
 			 '?'  -> ('?', cs)
 			 '\'' -> ('\'', cs)
@@ -634,7 +353,7 @@ normalizeEscapes cs = case oneChar cs of
                         (c, cs') -> c : normalizeEscapes cs'
 
 adjustPos :: String -> Position -> Position
-adjustPos str (Position fname row _) = (Position fname' row' 0)
+adjustPos str (Position fname row _) = Position fname' row' 0
   where
     str'            = dropWhite . drop 1 $ str
     (rowStr, str'') = span isDigit str'
@@ -675,64 +394,14 @@ alexGetChar (p,(c:s))  = let p' = alexMove p c in p' `seq`
                            Just (c, (p', s))
 
 alexMove :: Position -> Char -> Position
-alexMove (Position f l c) '\t' = Position f  l    (((c+7) `div` 8)*8+1)
-alexMove (Position f l c) '\n' = Position f (l+1)  1
-alexMove (Position f l c) _    = Position f  l    (c+1)
-
-
--- -----------------------------------------------------------------------------
--- The lexer & parser monad
-
-data ParseResult a
-  = POk !PState a
-  | PFailed [String] Position	-- The error message and position
-
-data PState = PState { 
-	alex_pos :: !Position,	-- position at current input location
-	alex_inp :: String,	-- the current input
-	alex_last  :: CToken,	-- the previous token
-	alex_names :: [Name],	-- the name unique supply
-	alex_tdefs :: Set Ident	-- the set of typedef'ed identifiers
-     }
-
-newtype P a = P { unP :: PState -> ParseResult a }
-
-instance Monad P where
-  return = returnP
-  (>>=) = thenP
-  fail m = getPos >>= \pos -> failP pos [m]
-
-execParser :: P a -> String -> Position -> [Ident] -> [Name]
-           -> Either a ([String], Position)
-execParser (P parser) input pos builtins names =
-  case parser initialState of
-    POk _ result -> Left result
-    PFailed message pos -> Right (message, pos)
-  where initialState = PState {
-          alex_pos = pos,
-	  alex_inp = input,
-	  alex_last = interr "CLexer.execParser: Touched undefined token!",
-	  alex_names = names,
-	  alex_tdefs = Set.fromList builtins
-        }
-
-{-# INLINE returnP #-}
-returnP :: a -> P a
-returnP a = P $ \s -> POk s a
-
-{-# INLINE thenP #-}
-thenP :: P a -> (a -> P b) -> P b
-(P m) `thenP` k = P $ \s ->
-	case m s of
-		POk s' a        -> (unP (k a)) s'
-		PFailed err pos -> PFailed err pos
-
-failP :: Position -> [String] -> P a
-failP pos msg = P $ \_ -> PFailed msg pos
+alexMove (Position f l c) '\t' = Position f l     (((c+7) `div` 8)*8+1)
+alexMove (Position f l c) '\n' = Position f (l+1) 1
+alexMove (Position f l c) _    = Position f l     (c+1)
 
 lexicalError :: P a
 lexicalError = do
-  (pos, (c:cs)) <- getInput
+  pos <- getPos
+  (c:cs) <- getInput
   failP pos
         ["Lexical error!",
          "The character " ++ show c ++ " does not fit here."]
@@ -744,48 +413,23 @@ parseError = do
         ["Syntax error!",
          "The symbol `" ++ show tok ++ "' does not fit here."]
 
-getNewName :: P Name
-getNewName = P $ \s@PState{alex_names=(n:ns)} -> POk s{alex_names=ns} n
-
-setPos :: Position -> P ()
-setPos pos = P $ \s -> POk s{alex_pos=pos} ()
-
-getPos :: P Position
-getPos = P $ \s@PState{alex_pos=pos} -> POk s pos
-
-getTypedefs :: P (Set Ident)
-getTypedefs = P $ \s@PState{alex_tdefs=tdefs} -> POk s tdefs
-
-addTypedef :: Ident -> P ()
-addTypedef ident = (P $ \s@PState{alex_tdefs=tdefs} ->
-                             POk s{alex_tdefs = Set.insert ident tdefs} ())
-
-getInput :: P AlexInput
-getInput = P $ \s@PState{alex_pos=p, alex_inp=i} -> POk s (p,i)
-
-setInput :: AlexInput -> P ()
-setInput (p,i) = P $ \s -> POk s{alex_pos=p, alex_inp=i} ()
-
-getLastToken :: P CToken
-getLastToken = P $ \s@PState{alex_last=tok} -> POk s tok
-
-setLastToken :: CToken -> P ()
-setLastToken tok = P $ \s -> POk s{alex_last=tok} ()
-
 lexToken :: P CToken
 lexToken = do
-  inp@(pos, str) <- getInput
-  case alexScan inp 0 of
+  pos <- getPos
+  inp <- getInput
+  case alexScan (pos, inp) 0 of
     AlexEOF -> return CTokEof
     AlexError inp' -> lexicalError
-    AlexSkip  inp' len -> do
-	setInput inp'
+    AlexSkip  (pos', inp') len -> do
+        setPos pos'
+        setInput inp'
 	lexToken
-    AlexToken inp' len action -> do
-	setInput inp'
-	tok <- action pos len str
-	setLastToken tok
-	return tok
+    AlexToken (pos', inp') len action -> do
+        setPos pos'
+        setInput inp'
+        tok <- action pos len inp
+        setLastToken tok
+        return tok
 
 lexC :: (CToken -> P a) -> P a
 lexC cont = do

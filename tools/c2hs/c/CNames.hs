@@ -144,7 +144,7 @@ naCDeclr obj (CVarDeclr oide _) =
   mapMaybeM_ (`defObjOrErr` obj) oide
 naCDeclr obj (CPtrDeclr _ declr _   ) =
   naCDeclr obj declr
-naCDeclr obj (CArrDeclr declr oexpr _   ) =
+naCDeclr obj (CArrDeclr declr _ oexpr _   ) =
   do
     naCDeclr obj declr
     mapMaybeM_ naCExpr oexpr
@@ -157,12 +157,12 @@ naCDeclr obj (CFunDeclr declr decls _ _ ) =
 
 naCInit :: CInit -> NA ()
 naCInit (CInitExpr expr  _) = naCExpr expr
-naCInit (CInitList inits _) = mapM_ naCInit inits
+naCInit (CInitList inits _) = mapM_ (naCInit . snd) inits
 
 naCExpr :: CExpr -> NA ()
 naCExpr (CComma      exprs             _) = mapM_ naCExpr exprs
 naCExpr (CAssign     _ expr1 expr2     _) = naCExpr expr1 >> naCExpr expr2
-naCExpr (CCond       expr1 expr2 expr3 _) = naCExpr expr1 >> naCExpr expr2
+naCExpr (CCond       expr1 expr2 expr3 _) = naCExpr expr1 >> mapMaybeM_ naCExpr expr2
 					    >> naCExpr expr3
 naCExpr (CBinary     _ expr1 expr2     _) = naCExpr expr1 >> naCExpr expr2
 naCExpr (CCast       decl expr	       _) = naCDecl decl >> naCExpr expr
@@ -178,6 +178,7 @@ naCExpr (CVar	      ide	       _) = do
 					     (obj, _) <- findValueObj ide False
 					     ide `refersToDef` ObjCD obj
 naCExpr (CConst	      _		       _) = nop
+naCExpr (CCompoundLit _ inits          _) = mapM_ (naCInit . snd) inits
 
 
 -- auxilliary functions
