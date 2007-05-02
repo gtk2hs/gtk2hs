@@ -121,31 +121,27 @@ tools_c2hs_c2hsLocal_EXTERNALDEPS	= base haskell98
 tools_c2hs_c2hsLocal_HEADER		= 
 tools_c2hs_c2hsLocal_HCFLAGS		= 
 
-tools_c2hs_c2hsLocal_SOURCESDIRS = 					     \
-	tools/c2hs/base/admin tools/c2hs/base/errors			     \
-	tools/c2hs/base/general tools/c2hs/base/graphs			     \
-	tools/c2hs/base/state tools/c2hs/base/syms			     \
-	tools/c2hs/base/syntax tools/c2hs/base/sysdep tools/c2hs/c	     \
-	tools/c2hs/chs tools/c2hs/gen tools/c2hs/state tools/c2hs/toplevel
+tools_c2hs_c2hsLocal_SOURCESDIRS = 			\
+	tools/c2hs/base/admin tools/c2hs/base/errors	\
+	tools/c2hs/base/general tools/c2hs/base/state	\
+	tools/c2hs/base/syms tools/c2hs/base/syntax	\
+	tools/c2hs/c tools/c2hs/chs tools/c2hs/gen	\
+	tools/c2hs/state tools/c2hs/toplevel
 
 tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/base/admin/BaseVersion.hs	\
-	tools/c2hs/base/admin/Common.hs		\
 	tools/c2hs/base/admin/Config.hs		\
 	tools/c2hs/base/errors/Errors.hs	\
 	tools/c2hs/base/general/DLists.hs	\
 	tools/c2hs/base/general/FileOps.hs	\
 	tools/c2hs/base/general/FNameOps.hs	\
-	tools/c2hs/base/general/GetOpt.hs	\
 	tools/c2hs/base/general/Map.hs		\
+	tools/c2hs/base/general/Position.hs	\
 	tools/c2hs/base/general/Set.hs		\
 	tools/c2hs/base/general/UNames.hs	\
-	tools/c2hs/base/general/Utils.hs	\
 	tools/c2hs/base/general/Binary.hs	\
 	tools/c2hs/base/general/FastMutInt.hs	\
-	tools/c2hs/base/graphs/Marks.hs		\
 	tools/c2hs/base/state/CIO.hs		\
-	tools/c2hs/base/state/DynArrays.hs	\
 	tools/c2hs/base/state/StateBase.hs	\
 	tools/c2hs/base/state/State.hs		\
 	tools/c2hs/base/state/StateTrans.hs	\
@@ -153,11 +149,6 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/base/syms/Idents.hs		\
 	tools/c2hs/base/syms/NameSpaces.hs	\
 	tools/c2hs/base/syntax/Lexers.hs	\
-	tools/c2hs/base/syntax/ParserMonad.hs	\
-	tools/c2hs/base/syntax/Parsers.hs	\
-	tools/c2hs/base/syntax/Pretty.hs	\
-	tools/c2hs/base/sysdep/SysDep.hs	\
-	tools/c2hs/base/sysdep/SysDepPosix.hs	\
 	tools/c2hs/c/CAST.hs			\
 	tools/c2hs/c/CAttrs.hs			\
 	tools/c2hs/c/CBuiltin.hs		\
@@ -165,7 +156,9 @@ tools_c2hs_c2hsLocal_SOURCES =			\
 	tools/c2hs/c/CLexer.hs			\
 	tools/c2hs/c/CNames.hs			\
 	tools/c2hs/c/CParser.hs			\
+	tools/c2hs/c/CParserMonad.hs		\
 	tools/c2hs/c/CPretty.hs			\
+	tools/c2hs/c/CTokens.hs			\
 	tools/c2hs/c/CTrav.hs			\
 	tools/c2hs/chs/CHS.hs			\
 	tools/c2hs/chs/CHSLexer.hs		\

@@ -76,21 +76,13 @@ module StateTrans (-- the monad and the generic operations
 		   --
 		   -- mutable variables and arrays
 		   --
-		   MVar, newMV, readMV, assignMV, 
-		   MArr, newMA, readMA, writeMA, getBoundsMA)
+		   MVar, newMV, readMV, assignMV)
 where
 
-import Ix     (Ix)
-import Monad  (liftM)
-import SysDep (ioError,
-	       fixIO,
-	       --
-	       -- mutable variables and arrays (in IO)
-	       --
-	       IORef, newIORef, readIORef, writeIORef,
-	       IOArray, newIOArray, getBoundsIOArray, readIOArray,
-	       writeIOArray)
-import Common (assert)
+import Monad      (liftM)
+import System.IO  (fixIO)
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+
 import Errors (interr)
 
 infixr 1 +>=, +>
@@ -355,7 +347,6 @@ fatalsHandledBy m handler  =
 -- ------------------------------------------------------------------
 
 type MVar a   = IORef a
-type MArr i a = IOArray i a
 
 newMV   :: a -> STB bs gs (MVar a)
 newMV x  = liftIO (newIORef x)
@@ -365,15 +356,3 @@ readMV mv  = liftIO (readIORef mv)
 
 assignMV      :: MVar a -> a -> STB bs gs ()
 assignMV mv x  = liftIO (writeIORef mv x)
-
-newMA        :: Ix i => (i, i) -> a -> STB bs gs (MArr i a)
-newMA bnds x  = liftIO (newIOArray bnds x)
-
-getBoundsMA :: Ix i => IOArray i a -> STB bs gs (i, i)
-getBoundsMA ma = liftIO (getBoundsIOArray ma)
-
-readMA      :: Ix i => MArr i a -> i -> STB bs gs a
-readMA ma i  = liftIO (readIOArray ma i)
-
-writeMA        :: Ix i => MArr i a -> i -> a -> STB bs gs ()
-writeMA ma i x  = liftIO (writeIOArray ma i x)

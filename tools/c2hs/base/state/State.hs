@@ -43,9 +43,8 @@ module State (-- the PreCST monad
 	      nop, yield, (+>=), (+>), fixCST,             -- reexport
 	      throwExc, fatal, catchExc, fatalsHandledBy,  -- reexport lifted
 	      readCST, writeCST, transCST, run, runCST, 
-	      StateTrans.MVar, StateTrans.MArr,		   -- reexport
-	      newMV, readMV, assignMV, newMA, readMA,	   -- reexport lifted
-	      writeMA, getBoundsMA,			   -- reexport lifted
+	      StateTrans.MVar, 				   -- reexport
+	      newMV, readMV, assignMV,			   -- reexport lifted
 	      --
 	      -- reexport compiler I/O
 	      --
@@ -72,20 +71,18 @@ where
 
 import Ix
 import Monad       (when)
+import List        (sort)
 
 import BaseVersion (version, copyright, disclaimer)
 import Config	   (errorLimit)
-import Common      (Position, errorCodeFatal)
-import Utils	   (sort)
+import Position    (Position)
 import UNames      (NameSupply,
 	            rootSupply, splitSupply)
 import StateTrans  (STB,
 		    readBase, transBase, runSTB)
 import qualified
        StateTrans  (interleave, throwExc, fatal, catchExc, fatalsHandledBy, 
-		    MVar, MArr,
-		    newMV, readMV, assignMV,
-		    newMA, readMA, writeMA, getBoundsMA)
+		    MVar, newMV, readMV, assignMV)
 import StateBase   (PreCST(..), ErrorState(..), BaseState(..),
 		    nop, yield, (+>=), (+>), fixCST,
 		    unpackCST, readCST, writeCST, transCST,
@@ -127,7 +124,7 @@ run vcd es cst  = runSTB m (initialBaseState vcd es) ()
 	  cst
 	  `fatalsHandledBy` \err ->
 	    putStrCIO ("Uncaught fatal error: " ++ show err)	>>
-	    exitWithCIO (ExitFailure errorCodeFatal)
+	    exitWithCIO (ExitFailure 1)
 	)
 
 -- run a PreCST in the context of another PreCST (EXPORTED)
@@ -199,18 +196,6 @@ readMV  = CST . StateTrans.readMV
 
 assignMV     :: StateTrans.MVar a -> a -> PreCST e s ()
 assignMV m a  = CST $ StateTrans.assignMV m a
-
-newMA     :: Ix i => (i, i) -> a -> PreCST e s (StateTrans.MArr i a)
-newMA b a  = CST $ StateTrans.newMA b a
-
-readMA      :: Ix i => StateTrans.MArr i a -> i -> PreCST e s a
-readMA  m i  = CST $ StateTrans.readMA m i
-
-writeMA       :: Ix i => StateTrans.MArr i a -> i -> a -> PreCST e s ()
-writeMA m i a  = CST $ StateTrans.writeMA m i a
-
-getBoundsMA :: Ix i => StateTrans.MArr i a -> PreCST e s (i, i)
-getBoundsMA  = CST . StateTrans.getBoundsMA
 
 -- read identification
 -- -------------------

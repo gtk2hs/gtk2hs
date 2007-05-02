@@ -174,7 +174,7 @@ import Char	 (isDigit)
 import Monad	 (liftM)
 import Numeric   (readDec, readOct, readHex)
 
-import Common    (Position(Position), Pos(posOf), incPos, retPos, tabPos)
+import Position  (Position(..), Pos(posOf), incPos, retPos, tabPos)
 import Errors    (ErrorLvl(..), Error, makeError)
 import UNames	 (NameSupply, Name, names)
 import Idents    (Ident, lexemeToIdent, identToLexeme)

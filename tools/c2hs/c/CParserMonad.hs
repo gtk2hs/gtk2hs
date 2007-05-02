@@ -56,7 +56,7 @@ module CParserMonad (
   setLastToken,      -- :: CToken -> P ()
   ) where
 
-import Common    (Position(..), Pos(posOf))
+import Position  (Position(..), Pos(posOf))
 import Errors    (interr)
 import UNames	 (Name)
 import Idents    (Ident, lexemeToIdent, identToLexeme)

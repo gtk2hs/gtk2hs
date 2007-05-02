@@ -39,8 +39,7 @@ where
 
 import Monad	 (when, mapM_)
 
-import Common	 (Position, posOf)
-import Utils     (mapMaybeM_)
+import Position  (Position, posOf)
 import Idents	 (Ident, identToLexeme)
 
 import C2HSState (CST, nop)
@@ -200,6 +199,12 @@ ide `defTagOrErr` tag  = do
 --
 defObjOrErr           :: Ident -> CObj -> NA ()
 ide `defObjOrErr` obj  = ide `defObj` obj >> nop
+
+-- maps some monad operation into a `Maybe', discarding the result
+--
+mapMaybeM_ :: Monad m => (a -> m b) -> Maybe a -> m ()
+mapMaybeM_ m Nothing   =        return ()
+mapMaybeM_ m (Just a)  = m a >> return ()
 
 
 -- error messages

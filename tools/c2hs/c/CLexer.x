@@ -69,7 +69,7 @@ module CLexer (lexC, parseError) where
 import Char      (isDigit)
 import Numeric   (readDec, readOct, readHex)
 
-import Common    (Position(..), Pos(posOf))
+import Position  (Position(..), Pos(posOf))
 import Errors    (interr)
 import UNames	 (Name)
 import Idents    (Ident, lexemeToIdent, identToLexeme)

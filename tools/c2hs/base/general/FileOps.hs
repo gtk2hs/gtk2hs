@@ -38,7 +38,6 @@ import IO	 (Handle, IOMode(..), openFile)
 import Monad	 (liftM)
 import Random    (newStdGen, randomRs)
 
-import SysDep	 (ioError)
 import FNameOps  (dirname, stripDirname, addPath)
 
 
@@ -52,7 +51,7 @@ import FNameOps  (dirname, stripDirname, addPath)
 --   the path component is retained while searching the directories
 --
 fileFindIn              :: FilePath -> [FilePath] -> IO FilePath
-""   `fileFindIn` paths  = ioError $ userError "Empty file name"
+""   `fileFindIn` paths  = fail "Empty file name"
 file `fileFindIn` paths  =
   do
     let (paths', file') = if head file == '/' 
@@ -62,7 +61,7 @@ file `fileFindIn` paths  =
     existsFlags <- mapM doesFileExist files
     let existingFiles = [file | (file, flag) <- zip files existsFlags, flag]
     if null existingFiles
-      then ioError $ userError (file ++ ": File does not exist")
+      then fail (file ++ ": File does not exist")
       else return $ head existingFiles
 
 -- |Create a temporary file with a unique name.
@@ -84,7 +83,7 @@ mktemp pre post =
 			 -- range for lower and upper case letters plus digits
     createLoop 100 rs
   where
-    createLoop 0        _  = ioError . userError $ "mktemp: failed 100 times"
+    createLoop 0        _  = fail "mktemp: failed 100 times"
     createLoop attempts rs = let
 			       (rs', fname) = nextName rs
 			     in do

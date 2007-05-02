@@ -47,7 +47,7 @@ module CAST (CHeader(..), CExtDecl(..), CFunDef(..), CStat(..), CBlockItem(..),
              CAssignOp(..), CBinaryOp(..), CUnaryOp(..), CConst (..))
 where
 
-import Common     (Position, Pos(posOf), nopos)
+import Position   (Position, Pos(posOf), nopos)
 import Idents     (Ident)
 import Attributes (Attrs)
 import Binary     (Binary(..), putByte, getByte)

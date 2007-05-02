@@ -25,7 +25,7 @@
 
 module CTokens (CToken(..), GnuCTok(..)) where 
 
-import Common    (Position(..), Pos(posOf))
+import Position  (Position(..), Pos(posOf))
 import Idents    (Ident, identToLexeme)
 
 

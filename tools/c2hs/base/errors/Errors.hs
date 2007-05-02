@@ -41,9 +41,7 @@ module Errors (
   ErrorLvl(..), Error, makeError, errorLvl, showError, errorAtPos
 ) where
 
-import Config (assertEnabled)
-import Common (Position(Position), isInternalPos)
-import Utils  (indentMultilineString)
+import Position (Position(..), isInternalPos)
 
 
 -- internal errors
@@ -148,3 +146,10 @@ showError (Error _  _                  []   )   = interr "Errors: showError:\
 
 errorAtPos         :: Position -> [String] -> a
 errorAtPos pos msg  = (error . showError . makeError ErrorErr pos) msg
+
+-- indent the given multiline text by the given number of spaces
+--
+indentMultilineString   :: Int -> String -> String
+indentMultilineString n  = unlines . (map (spaces++)) . lines
+                           where
+			     spaces = take n (repeat ' ')

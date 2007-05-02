@@ -41,7 +41,6 @@ module NameSpaces (NameSpace, nameSpace, defGlobal, enterNewRange, leaveRange,
 		   defLocal, find, nameSpaceToList)
 where
 
-import Common	  (Position, Pos(posOf))	      -- for importing `Idents'
 import Map        (Map)
 import qualified  Map as Map (empty, insert, lookup, toList)
 import Idents     (Ident)

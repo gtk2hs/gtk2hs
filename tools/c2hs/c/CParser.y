@@ -97,7 +97,7 @@ module CParser (parseC) where
 import Prelude    hiding (reverse)
 import qualified Data.List as List
 
-import Common     (Position, Pos(..), nopos)
+import Position   (Position, Pos(..), nopos)
 import UNames     (names)
 import Idents     (Ident)
 import Attributes (Attrs, newAttrs, newAttrsOnlyPos)

@@ -137,9 +137,8 @@ import Monad      (when, unless, mapM)
 import Maybe      (fromJust)
 
 -- base libraries
-import Common     (errorCodeFatal)
-import GetOpt     (ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo,
-		   getOpt)
+import System.Console.GetOpt     
+		  (ArgOrder(..), OptDescr(..), ArgDescr(..), usageInfo, getOpt)
 import FNameOps   (suffix, basename, dirname, stripSuffix, addPath)
 import Errors	  (interr)
 import UNames     (saveRootNameSupply, restoreRootNameSupply)
