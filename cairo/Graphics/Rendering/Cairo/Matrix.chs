@@ -28,24 +28,20 @@ module Graphics.Rendering.Cairo.Matrix (
 import Foreign hiding (rotate)
 import CForeign
 
--- | Representation of a 2-D affine transformation as a matrix.
+-- | Representation of a 2-D affine transformation.
 --
--- The 'Matrix' type actually represents as 3x3 matrix but with some elements
--- are constant and so are not included. Specifically if we assume that our
--- coordinates are row vectors then correspondence is:
+--  The Matrix type represents a 2x2 transformation matrix along with a
+--  translation vector. @Matrix a1 a2 b1 b2 c1 c2@ describes the
+--  transformation of a point with coordinates x,y that is defined by
 --
--- >    Matrix xx yx xy yy x0 y0
--- > ==
--- >    / xx yx 0 \
--- >    | xy yy 0 |
--- >    \ x0 y0 1 /
+--  >   / x' \  =  / a1 b1 \  / x \  + / c1 \
+--  >   \ y' /     \ a2 b2 /  \ y /    \ c2 /
 --
--- and the matrix operates on @(x,y)@ coordinates:
+--  or
 --
--- > (x y 1) / xx yx 0 \  = (x' y' 1)
--- >         | xy yy 0 |  where x' = xx * x + xy * y + x0
--- >         \ x0 y0 1 /        y' = yx * x + yy * y + y0
---
+--  >   x' =  a1 * x + b1 * y + c1
+--  >   y' =  a2 * x + b2 * y + c2
+
 data Matrix = Matrix { xx :: !Double, yx :: !Double,
                        xy :: !Double, yy :: !Double,
                        x0 :: !Double, y0 :: !Double }
