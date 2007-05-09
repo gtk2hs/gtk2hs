@@ -18,5 +18,7 @@ module Graphics.Rendering.Cairo.Internal.Surfaces.PDF where
 import Foreign
 import CForeign
 
-{#fun cairo_pdf_surface_create  as pdfSurfaceCreate { `FilePath', `Double', `Double' } -> `Surface' Surface#}
-{#fun cairo_pdf_surface_set_dpi as pdfSurfaceSetDPI { `Surface', `Double', `Double' } -> `()'#}
+{#context lib="cairo" prefix="cairo"#}
+
+{#fun pdf_surface_create  as pdfSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
+{#fun pdf_surface_set_size as pdfSurfaceSetSize { withSurface* `Surface', `Double', `Double' } -> `()'#}

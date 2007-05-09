@@ -92,10 +92,14 @@ starAndRing width height = do
     paint
 
 main :: IO ()
-main =
+main = do
   withImageSurface FormatARGB32 width height $ \result -> do
-  renderWith result $ starAndRing width height
-  surfaceWriteToPNG result "StarAndRing.png"
+    renderWith result $ starAndRing width height
+    surfaceWriteToPNG result "StarAndRing.png"
+  withPDFSurface "StarAndRing.pdf" (fromIntegral width) (fromIntegral height)
+    (flip renderWith $ starAndRing width height >> showPage)
+  withPSSurface "StarAndRing.ps" (fromIntegral width) (fromIntegral height)
+    (flip renderWith $ starAndRing width height >> showPage)
 
     where width = 600
           height = 600

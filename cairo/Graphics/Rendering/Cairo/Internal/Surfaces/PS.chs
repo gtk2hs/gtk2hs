@@ -15,7 +15,10 @@ module Graphics.Rendering.Cairo.Internal.Surfaces.PS where
 
 {#import Graphics.Rendering.Cairo.Types#}
 
+import Foreign
 import CForeign
 
-{#fun cairo_ps_surface_create  as psSurfaceCreate { `FilePath', `Double', `Double' } -> `Surface' Surface#}
-{#fun cairo_ps_surface_set_dpi as psSurfaceSetDPI { `Surface', `Double', `Double' } -> `()'#}
+{#context lib="cairo" prefix="cairo"#}
+
+{#fun ps_surface_create  as psSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
+{#fun cairo_ps_surface_set_size as psSurfaceSetSize { withSurface* `Surface', `Double', `Double' } -> `()'#}

@@ -1224,7 +1224,7 @@ if HAVE_MTL_PACKAGE
 libHScairo_a_EXTERNALDEPS	+= mtl
 endif
 libHScairo_a_INTERNALDEPS	= glib
-libHScairo_a_HEADER 		= cairo.h
+libHScairo_a_HEADER 		= cairo/cairo.h
 libHScairo_a_PRECOMP		= cairo/cairo.precomp
 libHScairo_a_LIBS		= $(CAIRO_LIBS)
 libHScairo_a_HCFLAGS		= -fffi
@@ -1251,13 +1251,11 @@ libHScairo_a_SOURCES =							\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Transformations.chs \
 	cairo/Graphics/Rendering/Cairo/Internal/Fonts/FontOptions.chs   \
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Image.chs      \
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs        \
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs        \
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs         \
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Surface.chs    \
 	cairo/Graphics/Rendering/Cairo/Internal/Utilities.chs
-#	cairo/Graphics/Rendering/Cairo/PDF.hs
-#	cairo/Graphics/Rendering/Cairo/PS.hs
-#	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs
-#	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs
 
 cairo_Graphics_Rendering_Cairo_Internal_hs_HCFLAGS = -fglasgow-exts
 
@@ -1272,7 +1270,9 @@ htmldoc_HSFILES_EXCLUDE =							\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Transformations.hs	\
 	cairo/Graphics/Rendering/Cairo/Internal/Fonts/FontOptions.hs	\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Image.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.hs         \
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.hs	\
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.hs          \
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Surface.hs	\
 	cairo/Graphics/Rendering/Cairo/Internal/Utilities.hs
 

@@ -170,9 +170,17 @@ module Graphics.Rendering.Cairo (
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
 
+  -- ** PDF surfaces
+  , withPDFSurface
+  , pdfSurfaceSetSize
+
   -- ** PNG support
   , withImageSurfaceFromPNG
   , surfaceWriteToPNG
+
+  -- ** PS surfaces
+  , withPSSurface
+  , psSurfaceSetSize
 
   -- * Utilities
 
@@ -1522,6 +1530,37 @@ imageSurfaceGetWidth a = liftIO $ Internal.imageSurfaceGetWidth a
 imageSurfaceGetHeight :: Surface -> Render Int
 imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 
+-- | Creates a PostScript surface of the specified size in points to
+-- be written to @filename@.
+--
+-- Note that the size of individual pages of the PostScript output can
+-- vary.  See 'psSurfaceSetSize'.
+--
+withPDFSurface ::
+     FilePath -- ^ @filename@ - a filename for the PS output (must be writable)
+  -> Double   -- ^ width of the surface, in points (1 point == 1\/72.0 inch)
+  -> Double   -- ^ height of the surface, in points (1 point == 1\/72.0 inch)
+  -> (Surface -> IO a) -- ^ an action that may use the surface. The surface is
+                       -- only valid within in this action.
+  -> IO a
+withPDFSurface filename width height f = do
+  surface <- Internal.pdfSurfaceCreate filename width height
+  ret <- f surface
+  Internal.surfaceDestroy surface
+  return ret
+
+-- | Changes the size of a PDF surface for the current (and
+-- subsequent) pages.
+--
+-- This function should only be called before any drawing operations
+-- have been performed on the current page. The simplest way to do
+-- this is to call this function immediately after creating the
+-- surface or immediately after completing a page with either
+-- 'showPage' or 'copyPage'.
+--
+pdfSurfaceSetSize :: Surface -> Double -> Double -> Render ()
+pdfSurfaceSetSize s x y = liftIO $ Internal.pdfSurfaceSetSize s x y
+
 -- | Creates a new image surface and initializes the contents to the given PNG
 -- file.
 --
@@ -1545,6 +1584,39 @@ surfaceWriteToPNG surface filename = do
   unless (status == StatusSuccess) $
     fail =<< Internal.statusToString status
   return ()
+
+-- | Creates a PostScript surface of the specified size in points to
+-- be written to @filename@.
+--
+-- Note that the size of individual pages of the PostScript output can
+-- vary.  See 'psSurfaceSetSize'.
+--
+withPSSurface ::
+     FilePath -- ^ @filename@ - a filename for the PS output (must be writable)
+  -> Double   -- ^ width of the surface, in points (1 point == 1\/72.0 inch)
+  -> Double   -- ^ height of the surface, in points (1 point == 1\/72.0 inch)
+  -> (Surface -> IO a) -- ^ an action that may use the surface. The surface is
+                       -- only valid within in this action.
+  -> IO a
+withPSSurface filename width height f = 
+  bracket (Internal.psSurfaceCreate filename width height)
+          (\surface -> do status <- Internal.surfaceStatus surface
+                          Internal.surfaceDestroy surface
+                          unless (status == StatusSuccess) $
+                            Internal.statusToString status >>= fail)
+          (\surface -> f surface)
+
+-- | Changes the size of a PostScript surface for the current (and
+-- subsequent) pages.
+--
+-- This function should only be called before any drawing operations
+-- have been performed on the current page. The simplest way to do
+-- this is to call this function immediately after creating the
+-- surface or immediately after completing a page with either
+-- 'showPage' or 'copyPage'.
+--
+psSurfaceSetSize :: Surface -> Double -> Double -> Render ()
+psSurfaceSetSize s x y = liftIO $ Internal.psSurfaceSetSize s x y
 
 -- | Returns the version of the cairo library encoded in a single integer.
 --
