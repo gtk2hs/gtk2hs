@@ -156,7 +156,6 @@ module Graphics.UI.Gtk.Abstract.Container (
   containerForeach,
   containerForall,
   containerGetChildren,
-  DirectionType(..),
   containerSetFocusChild,
   containerSetFocusChain,
   containerGetFocusChain,
@@ -183,8 +182,6 @@ module Graphics.UI.Gtk.Abstract.Container (
   afterAdd,
   onCheckResize,
   afterCheckResize,
-  onFocus,
-  afterFocus,
   onRemove,
   afterRemove,
   onSetFocusChild,
@@ -201,7 +198,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import System.Glib.GList		(fromGList, toGList)
-import Graphics.UI.Gtk.General.Enums	(DirectionType(..), ResizeMode(..))
+import Graphics.UI.Gtk.General.Enums	(ResizeMode(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -520,15 +517,6 @@ onCheckResize, afterCheckResize :: ContainerClass self => self
  -> IO (ConnectId self)
 onCheckResize = connect_NONE__NONE "check-resize" False
 afterCheckResize = connect_NONE__NONE "check-resize" True
-
--- | This signal is called if the container receives the
--- input focus.
---
-onFocus, afterFocus :: ContainerClass con => con ->
-                       (DirectionType -> IO DirectionType) ->
-                       IO (ConnectId con)
-onFocus = connect_ENUM__ENUM "focus" False
-afterFocus = connect_ENUM__ENUM "focus" True
 
 -- | This signal is called for each widget that is removed from the container.
 --

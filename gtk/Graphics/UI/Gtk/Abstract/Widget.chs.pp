@@ -67,6 +67,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   Requisition(..),
   Rectangle(..),
   AccelFlags(..),
+  DirectionType(..),
   
 -- * Methods
   widgetGetState,
@@ -161,6 +162,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   afterExpose,
   onExposeRect,
   afterExposeRect,
+  onFocus,
+  afterFocus,
   onFocusIn,
   afterFocusIn,
   onFocusOut,
@@ -234,7 +237,7 @@ import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
 					 marshExposeRect)
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
-					 AccelFlags(..))
+					 AccelFlags(..), DirectionType(..))
 {#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription),
 					 PangoLayout(PangoLayout),
 					 makeNewPangoString )
@@ -1292,6 +1295,13 @@ onExposeRect w act = connect_BOXED__BOOL "expose_event"
   marshExposeRect False w (\r -> act r >> return True)
 afterExposeRect w act = connect_BOXED__BOOL "expose_event" 
   marshExposeRect True w (\r -> act r >> return True)
+
+-- | This signal is called if the widget receives the input focus.
+--
+onFocus, afterFocus :: WidgetClass w => w -> (DirectionType -> IO Bool) ->
+                       IO (ConnectId w)
+onFocus = connect_ENUM__BOOL "focus" False
+afterFocus = connect_ENUM__BOOL "focus" True
 
 -- | Widget gains input focus.
 --
