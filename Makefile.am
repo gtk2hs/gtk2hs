@@ -582,7 +582,7 @@ htmldoc_HSFILES_HIDDEN +=						\
 	gtk/Graphics/UI/Gtk/ModelView/Types.hs			\
 	gtk/Graphics/UI/Gtk/Multiline/Types.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs \
-	gtk/Graphics/UI/Gtk/General/DNDTypes.chs
+	gtk/Graphics/UI/Gtk/General/DNDTypes.hs
 
 gtk_Graphics_UI_Gtk_hs_HCFLAGS			= -fno-warn-duplicate-exports	#FIXME
 gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
