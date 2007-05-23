@@ -437,6 +437,57 @@ AH_BOTTOM([
       _GLIB_MICRO_VERSION >= (micro)))
 ])
 
+dnl Also allow us to conditionally compile bindings to Glib APIs.
+dnl We also want to know if certain cairo backends are enabled or not
+dnl we can find out by checking the appropriate cpp defines in cairo-features.h
+dnl Actually getting at these cpp defines is a bit tricky, what we do is
+dnl pre-process a shell file and include cairo-features.h then we run that
+dnl shell file to bring in the values of the shell vars it defines.
+dnl Then finally we substitute those into our config header file.
+CAIRO_CPP_FLAGS="`$PKG_CONFIG --cflags cairo` -include cairo-features.h"
+$CPP $CAIRO_CPP_FLAGS - > conftest.sh <<_ACEOF
+#ifdef CAIRO_HAS_PS_SURFACE
+_CAIRO_HAS_PS_SURFACE=1
+#endif
+#ifdef CAIRO_HAS_PDF_SURFACE
+_CAIRO_HAS_PDF_SURFACE=1
+#endif
+#ifdef CAIRO_HAS_SVG_SURFACE
+_CAIRO_HAS_SVG_SURFACE=1
+#endif
+#ifdef CAIRO_HAS_PNG_FUNCTIONS
+_CAIRO_HAS_PNG_FUNCTIONS=1
+#endif
+_CAIRO_VERSION_MAJOR=CAIRO_VERSION_MAJOR
+_CAIRO_VERSION_MINOR=CAIRO_VERSION_MINOR
+_CAIRO_VERSION_MICRO=CAIRO_VERSION_MICRO
+_ACEOF
+. ./conftest.sh
+if test ${_CAIRO_HAS_PS_SURFACE}; then
+AC_DEFINE_UNQUOTED(ENABLE_CAIRO_PS_SURFACE, [], [cairo ps backend enabled])
+fi
+if test ${_CAIRO_HAS_PDF_SURFACE}; then
+AC_DEFINE_UNQUOTED(ENABLE_CAIRO_PDF_SURFACE, [], [cairo pdf backend enabled])
+fi
+if test ${_CAIRO_HAS_SVG_SURFACE}; then
+AC_DEFINE_UNQUOTED(ENABLE_CAIRO_SVG_SURFACE, [], [cairo svg backend enabled])
+fi
+if test ${_CAIRO_HAS_PNG_FUNCTIONS}; then
+AC_DEFINE_UNQUOTED(ENABLE_CAIRO_PNG_FUNCTIONS, [], [cairo png functions available])
+fi
+AC_DEFINE_UNQUOTED(_CAIRO_MAJOR_VERSION, (${_CAIRO_VERSION_MAJOR}), [cairo major version number])
+AC_DEFINE_UNQUOTED(_CAIRO_MINOR_VERSION, (${_CAIRO_VERSION_MINOR}), [cairo minor version number])
+AC_DEFINE_UNQUOTED(_CAIRO_MICRO_VERSION, (${_CAIRO_VERSION_MICRO}), [cairo minor patch level])
+AH_BOTTOM([
+/* Allow code to be compiled differently for different versions of cairo */
+#define CAIRO_CHECK_VERSION(major,minor,micro)    \
+    (_CAIRO_MAJOR_VERSION > (major) || \
+     (_CAIRO_MAJOR_VERSION == (major) && _CAIRO_MINOR_VERSION > (minor)) || \
+     (_CAIRO_MAJOR_VERSION == (major) && _CAIRO_MINOR_VERSION == (minor) && \
+      _CAIRO_MICRO_VERSION >= (micro)))
+])
+
+
 dnl For reasons know only to themselves, Sun decided to ship a development
 dnl version of Gtk+ (version 2.1.0). Being an intermediate development version
 dnl it had bugs/typos etc. The function gtk_icon_size_lookup was mistakenly
