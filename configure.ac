@@ -328,7 +328,7 @@ AM_CONDITIONAL(ENABLE_MOZEMBED, test "$ENABLE_MOZEMBED" = "yes")
 AC_SUBST(MOZEMBED_CFLAGS)
 AC_SUBST(MOZEMBED_LIBS)
 
-GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.2.0],
+GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0],
 	[build bindings for the cairo vector graphics system (default=auto)],
 	[cairo requirement not met. Perhaps you need to install cairo or cairo-devel])
 
