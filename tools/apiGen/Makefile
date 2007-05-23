@@ -30,51 +30,45 @@ default :
 #
 packages = glib pango atk gtk glade gconf sourceview
 
-gtk_releases_url   = ftp://ftp.gtk.org/pub/gtk/v2.8
-gnome_platform_url = http://ftp.gnome.org/pub/gnome/platform/2.12/2.12.2/sources
-gnome_desktop_url  = http://ftp.gnome.org/pub/gnome/desktop/2.12/2.12.2/sources
+gnome_platform_url = http://ftp.gnome.org/pub/gnome/platform/2.18/2.18.1/sources
+gnome_desktop_url  = http://ftp.gnome.org/pub/gnome/desktop/2.18/2.18.1/sources
 
-glib_version = 2.8.6
+glib_version = 2.12.11
 glib_dir = glib
 glib_tar = glib-$(glib_version).tar.bz2
-glib_url = $(gtk_releases_url)/$(glib_tar)
+glib_url = $(gnome_platform_url)/$(glib_tar)
 
-pango_version = 1.10.2
+pango_version = 1.16.2
 pango_dir = pango
 pango_tar = pango-$(pango_version).tar.bz2
-pango_url = $(gtk_releases_url)/$(pango_tar)
+pango_url = $(gnome_platform_url)/$(pango_tar)
 
-atk_version = 1.10.3
+atk_version = 1.18.0
 atk_dir = atk
 atk_tar = atk-$(atk_version).tar.bz2
-atk_url = $(gtk_releases_url)/$(atk_tar)
+atk_url = $(gnome_platform_url)/$(atk_tar)
 
-gtk_version = 2.8.20
+gtk_version = 2.10.11
 gtk_dir = gtk
 gtk_tar = gtk+-$(gtk_version).tar.bz2
-gtk_url = $(gtk_releases_url)/$(gtk_tar)
+gtk_url = $(gnome_platform_url)/$(gtk_tar)
 
-glade_version = 2.5.1
+glade_version = 2.6.0
 glade_dir = glade
 glade_tar = libglade-$(glade_version).tar.bz2
 glade_url = $(gnome_platform_url)/$(glade_tar)
 
-gconf_version = 2.12.1
+gconf_version = 2.18.0.1
 gconf_dir = gconf
 gconf_tar = GConf-$(gconf_version).tar.bz2
 gconf_url = $(gnome_platform_url)/$(gconf_tar)
 
-gnomecanvas_version = 2.12.0
-gnomecanvas_dir = gnomecanvas
-gnomecanvas_tar = libgnomecanvas-$(gnomecanvas_version).tar.bz2
-gnomecanvas_url = $(gnome_platform_url)/$(gnomecanvas_tar)
-
-sourceview_version = 1.4.2
+sourceview_version = 1.8.5
 sourceview_dir = sourceview
 sourceview_tar = gtksourceview-$(sourceview_version).tar.bz2
 sourceview_url = $(gnome_desktop_url)/$(sourceview_tar)
 
-vte_version = 0.11.15
+vte_version = 0.16.1
 vte_dir = vte
 vte_tar = vte-$(vte_version).tar.bz2
 vte_url = $(gnome_desktop_url)/$(vte_tar)
@@ -84,27 +78,27 @@ gtkhtml2_dir = gtkhtml2
 gtkhtml2_tar = libgtkhtml-$(gtkhtml2_version).tar.bz2
 gtkhtml2_url = $(gnome_desktop_url)/$(gtkhtml2_tar)
 
-gtkhtml3_version = 3.8.1
+gtkhtml3_version = 3.14.1
 gtkhtml3_dir = gtkhtml3
 gtkhtml3_tar = gtkhtml-$(gtkhtml3_version).tar.bz2
 gtkhtml3_url = $(gnome_desktop_url)/$(gtkhtml3_tar)
 
-gnome_version = 2.12.0.1
+gnome_version = 2.18.0
 gnome_dir = gnome
 gnome_tar = libgnome-$(gnome_version).tar.bz2
 gnome_url = $(gnome_platform_url)/$(gnome_tar)
 
-gnomeui_version = 2.12.0
+gnomeui_version = 2.18.0
 gnomeui_dir = gnomeui
 gnomeui_tar = libgnomeui-$(gnomeui_version).tar.bz2
 gnomeui_url = $(gnome_platform_url)/$(gnomeui_tar)
 
-gnomeprint_version = 2.10.0
+gnomeprint_version = 2.17.92
 gnomeprint_dir = gnomeprint
 gnomeprint_tar = libgnomeprint-$(gnomeprint_version).tar.bz2
 gnomeprint_url = $(gnome_platform_url)/$(gnomeprint_tar)
 
-gnomeprintui_version = 2.10.0.1
+gnomeprintui_version = 2.18.0
 gnomeprintui_dir = gnomeprintui
 gnomeprintui_tar = libgnomeprintui-$(gnomeprintui_version).tar.bz2
 gnomeprintui_url = $(gnome_platform_url)/$(gnomeprintui_tar)
@@ -122,7 +116,7 @@ gnomedb_dir = gnomedb
 gnomedb_tar = libgnomedb-$(gnomedb_version).tar.bz2
 gnomedb_url = $(call gnome_db_url,libgnomedb)/$(gnomedb_tar)
 
-gtkglext_version = 1.0.6
+gtkglext_version = 1.2.0
 gtkglext_dir = gtkglext
 gtkglext_tar = gtkglext-$(gtkglext_version).tar.bz2
 gtkglext_url = http://heanet.dl.sourceforge.net/sourceforge/gtkglext/$(gtkglext_tar)
@@ -427,5 +421,5 @@ gapi_format_xml : formatXml.c
 #
 
 clean :
-	rm *.o *.hi ApiGen gapi_format_xml
+	rm src/*.o src/*.hi ApiGen gapi_format_xml
 	rm *-api.xml *-docs.xml

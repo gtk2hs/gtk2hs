@@ -103,29 +103,29 @@
   <!-- top level module information -->
   <module-info>
     <name><xsl:value-of select="refentry/refnamediv/refname"/></name>
-    <altname><xsl:value-of select="refentry/refsynopsisdiv/anchor/@id"/></altname>
+    <altname><xsl:value-of select="refentry/refsynopsisdiv/anchor/@role"/></altname>
     <summary><xsl:apply-templates select="refentry/refnamediv/refpurpose"/></summary>
     <description>
-      <xsl:for-each select="refentry/refsect1[@id='desc']">
+      <xsl:for-each select="refentry/refsect1[@role='desc']">
         <xsl:apply-templates select="para | section | refsect2"/>
       </xsl:for-each>
     </description>
     <object-hierarchy>
-      <xsl:apply-templates select="refentry/refsect1[@id='object_hierarchy']/synopsis"/>
+      <xsl:apply-templates select="refentry/refsect1[@role='object_hierarchy']/synopsis"/>
     </object-hierarchy>
   </module-info>
   <!-- Function documentation -->
-  <xsl:for-each select="refentry/refsect1[@id='details']/refsect2[contains(title,' ()')]">
+  <xsl:for-each select="refentry/refsect1[@role='details']/refsect2[title/anchor/@role='function']">
     <function>
       <name><xsl:value-of select="indexterm/primary"/></name>
       <since>
-               <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
+               <xsl:value-of select="indexterm[not(@role='deprecated')]/@role"/>
       </since>
       <doc>
-	<xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
+	<xsl:apply-templates select="para[not(@role='since') and normalize-space(text())!='']"/>
       </doc>
       <params>
-	<xsl:for-each select="variablelist/varlistentry">
+	<xsl:for-each select="variablelist[@role='params']/varlistentry">
 	  <param>
 	    <name><xsl:value-of select="term/parameter | term/emphasis"/></name>
 	    <xsl:apply-templates select="listitem/simpara"/>
@@ -149,11 +149,11 @@
   </xsl:for-each>
 -->
   <!-- Properties documentation (new formatting) -->
-  <xsl:for-each select="refentry/refsect1[@id='property_details']/refsect2">
+  <xsl:for-each select="refentry/refsect1[@role='property_details']/refsect2">
     <property>
-      <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
+      <name><xsl:value-of select="title/literal"/></name>
       <since>
-        <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
+        <xsl:value-of select="indexterm[not(@role='deprecated')]/@role"/>
       </since>
       <doc>
         <xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
@@ -161,11 +161,11 @@
     </property>
   </xsl:for-each>
   <!-- Child Properties documentation -->
-  <xsl:for-each select="refentry/refsect1[@id='child_property_details']/refsect2">
+  <xsl:for-each select="refentry/refsect1[@role='child_property_details']/refsect2">
     <childprop>
-      <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
+      <name><xsl:value-of select="substring-after(indexterm/primary,':')"/></name>
       <since>
-        <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
+        <xsl:value-of select="indexterm[not(@role='deprecated')]/@role"/>
       </since>
       <doc>
         <xsl:apply-templates select="para[not(starts-with(text(),'Since')) and normalize-space(text())!='']"/>
@@ -173,17 +173,17 @@
     </childprop>
   </xsl:for-each>
   <!-- Signals documentation -->
-  <xsl:for-each select="refentry/refsect1[@id='signals']/refsect2">
+  <xsl:for-each select="refentry/refsect1[@role='signals']/refsect2">
     <signal>
-      <name><xsl:value-of select="substring-before(substring-after(title,'&quot;'),'&quot;')"/></name>
+      <name><xsl:value-of select="substring-after(indexterm/primary,'::')"/></name>
       <since>
-        <xsl:value-of select="normalize-space(substring-after(para[starts-with(text(),'Since')], 'Since'))"/>
+        <xsl:value-of select="indexterm[not(@role='deprecated')]/@role"/>
       </since>
       <doc>
         <xsl:apply-templates select="para[not(starts-with(text(),'Since'))]"/>
       </doc>
       <params>
-        <xsl:for-each select="variablelist/varlistentry">
+        <xsl:for-each select="variablelist[@role='params']/varlistentry">
           <param>
             <name><xsl:value-of select="term/parameter"/></name>
             <xsl:apply-templates select="listitem/simpara"/>
@@ -197,4 +197,3 @@
   </apidoc>
 </xsl:template>
 </xsl:transform>
-

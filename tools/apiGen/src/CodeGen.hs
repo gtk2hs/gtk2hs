@@ -496,7 +496,8 @@ makeKnownSymbolsMap api =
 
         -- find if an object inherits via GtkObject or directly from GObject
   where objectKind :: Api.Object -> CSymbol
-        objectKind object | "GObject" `elem` parents = SymObjectType parents
+        objectKind object | "GObject" `elem` parents
+                         || "GInitiallyUnowned" `elem` parents = SymObjectType parents
                           | Api.object_parent object == "GTypeInstance" = SymStructType
                           -- FIXME: These hacks should go elsewhere
                           | otherwise = SymObjectType [Api.object_cname object, "GObject"]

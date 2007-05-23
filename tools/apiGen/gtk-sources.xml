@@ -5,8 +5,13 @@
         <dir>gtk/gtk</dir>
       	<!-- Stuff that breaks the gapi parser -->
 	<exclude>gtk/gtk/gtkclipboard.c</exclude>
+	<exclude>gtk/gtk/gtkquartz.h</exclude>
+	<exclude>gtk/gtk/gtkclipboard-quartz.c</exclude>
 <!--	<exclude>gtk+/gtk/gtkfilechooser.c</exclude>	-->
-        <!-- Internal stuff -->
+        <!-- Bitmaps -->
+	<exclude>gtk/gtk/gtkdndcursors.h</exclude>
+	<exclude>gtk/gtk/gtkbuiltincache.h</exclude>
+	<!-- Internal stuff -->
         <exclude>gtk/gtk/gtkfilechooserdefault.c</exclude>
         <exclude>gtk/gtk/gtkfilechooserdefault.h</exclude>
         <exclude>gtk/gtk/gtkfilechooserentry.c</exclude>
