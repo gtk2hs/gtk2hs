@@ -80,13 +80,11 @@ module System.Glib.GError (
   -- domain(s), so that users know what exceptions they might want to catch.
   --
   -- If you think it is more appropriate to use an alternate return value (eg
-  -- Either\/Maybe) then you should use 'checkGError' or 'checkGErrorWithCont'.
+  -- Either\/Maybe) then you should use 'checkGError'.
 
   GErrorClass(..),
   propagateGError,
-  checkGError,
-  checkGErrorWithCont
-  
+  checkGError
   ) where
 
 import Monad (when)
@@ -176,30 +174,6 @@ checkGError action handler =
   errPtr <- peek errPtrPtr
   if errPtr == nullPtr
     then return result
-    else do gerror <- peek errPtr
-            {# call unsafe g_error_free #} (castPtr errPtr)
-            handler gerror
-
--- | Like 'checkGError' but with an extra continuation applied to the result.
---   This can be useful when something needs to be done after making the call
---   to the function that can raise an error but is should only be done if there
---   was no error.
---
--- Example of use:
---
--- > checkGErrorWithCont (\gerrorPtr ->
--- >   {# call g_some_function_that_might_return_an_error #} a b gerrorPtr)
--- > (\(GError domain code msg) -> ...) -- what to do in case of error
--- > (\result -> ...)                   -- what to do after if no error
---
-checkGErrorWithCont :: (Ptr (Ptr ()) -> IO b) -> (GError -> IO a) -> (b -> IO a) -> IO a
-checkGErrorWithCont action handler cont =
-  alloca $ \(errPtrPtr  :: Ptr (Ptr GError)) -> do
-  poke errPtrPtr nullPtr
-  result <- action (castPtr errPtrPtr)
-  errPtr <- peek errPtrPtr
-  if errPtr == nullPtr
-    then cont result
     else do gerror <- peek errPtr
             {# call unsafe g_error_free #} (castPtr errPtr)
             handler gerror
