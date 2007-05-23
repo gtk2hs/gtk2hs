@@ -170,20 +170,20 @@ module Graphics.Rendering.Cairo (
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
 
-  -- ** PDF surfaces
-#ifdef ENABLE_CAIRO_PDF_SURFACE
-  , withPDFSurface
-  , pdfSurfaceSetSize
-#endif
-
-  -- ** PNG support
 #ifdef ENABLE_CAIRO_PNG_FUNCTIONS
+  -- ** PNG support
   , withImageSurfaceFromPNG
   , surfaceWriteToPNG
 #endif
 
-  -- ** PS surfaces
+#ifdef ENABLE_CAIRO_PDF_SURFACE
+  -- ** PDF surfaces
+  , withPDFSurface
+  , pdfSurfaceSetSize
+#endif
+
 #ifdef ENABLE_CAIRO_PS_SURFACE
+  -- ** PS surfaces
   , withPSSurface
   , psSurfaceSetSize
 #endif
