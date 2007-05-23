@@ -123,7 +123,7 @@ import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Structs		(Rectangle(..))
 import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
-				checkGError, checkGErrorWithCont)
+				propagateGError)
 import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData(PixbufData),
 					insertBounds )
 
@@ -253,11 +253,6 @@ pixbufErrorDomain = {#call pure unsafe pixbuf_error_quark#}
 instance GErrorClass PixbufError where
   gerrorDomain _ = pixbufErrorDomain
 
-handlePixbufError :: GError -> IO (PixbufError,String)
-handlePixbufError (GError dom code msg)
-  | dom == pixbufErrorDomain = return (toEnum code, msg)
-  | otherwise                = fail msg
-
 
 -- | Load an image synchonously.
 --
@@ -268,19 +263,17 @@ handlePixbufError (GError dom code msg)
 --   of the error. If an error occurs which is not captured by any of
 --   those in 'PixbufError', an exception is thrown.
 --
-pixbufNewFromFile :: FilePath -> IO (Either (PixbufError,String) Pixbuf)
+pixbufNewFromFile :: FilePath -> IO Pixbuf
 pixbufNewFromFile fname = 
-  checkGErrorWithCont
-    (\errPtrPtr -> 
+  constructNewGObject mkPixbuf $
+  propagateGError $ \errPtrPtr ->
      withUTFString fname $ \strPtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
      {#call unsafe pixbuf_new_from_file_utf8#}
 #else
      {#call unsafe pixbuf_new_from_file#}
 #endif
-    strPtr errPtrPtr)
-    (\gerror -> liftM Left $ handlePixbufError gerror)
-    (\pbPtr -> liftM Right $ constructNewGObject mkPixbuf (return pbPtr))
+    strPtr errPtrPtr
 
 #if GTK_CHECK_VERSION(2,4,0)
 -- | Creates a new pixbuf by loading an image from a file. The file format is
@@ -294,10 +287,10 @@ pixbufNewFromFile fname =
 --
 -- * Available since Gtk+ version 2.4
 --
-pixbufNewFromFileAtSize :: String -> Int -> Int -> IO (Either (PixbufError,String) Pixbuf)
+pixbufNewFromFileAtSize :: String -> Int -> Int -> IO Pixbuf
 pixbufNewFromFileAtSize filename width height =
-  checkGErrorWithCont
-    (\errPtrPtr -> 
+  constructNewGObject mkPixbuf $
+  propagateGError $ \errPtrPtr ->
     withUTFString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
     {# call gdk_pixbuf_new_from_file_at_size_utf8 #}
@@ -307,9 +300,7 @@ pixbufNewFromFileAtSize filename width height =
     filenamePtr
     (fromIntegral width)
     (fromIntegral height)
-    errPtrPtr)
-    (\gerror -> liftM Left $ handlePixbufError gerror)
-    (\pbPtr -> liftM Right $ constructNewGObject mkPixbuf (return pbPtr))
+    errPtrPtr
 #endif
 
 #if GTK_CHECK_VERSION(2,6,0)
@@ -330,10 +321,10 @@ pixbufNewFromFileAtSize filename width height =
 --
 -- * Available since Gtk+ version 2.6
 --
-pixbufNewFromFileAtScale :: String -> Int -> Int -> Bool -> IO (Either (PixbufError,String) Pixbuf)
+pixbufNewFromFileAtScale :: String -> Int -> Int -> Bool -> IO Pixbuf
 pixbufNewFromFileAtScale filename width height preserveAspectRatio =
-  checkGErrorWithCont
-    (\errPtrPtr -> 
+  constructNewGObject mkPixbuf $
+  propagateGError $ \errPtrPtr ->
     withUTFString filename $ \filenamePtr ->
 #if defined (WIN32) && GTK_CHECK_VERSION(2,6,0)
     {# call gdk_pixbuf_new_from_file_at_scale_utf8 #}
@@ -344,9 +335,7 @@ pixbufNewFromFileAtScale filename width height preserveAspectRatio =
     (fromIntegral width)
     (fromIntegral height)
     (fromBool preserveAspectRatio)
-    errPtrPtr)
-    (\gerror -> liftM Left $ handlePixbufError gerror)
-    (\pbPtr -> liftM Right $ constructNewGObject mkPixbuf (return pbPtr))
+    errPtrPtr
 #endif
 
 -- | A string representing an image file format.
@@ -380,7 +369,7 @@ pixbufSave :: Pixbuf -> FilePath -> ImageFormat -> [(String, String)] ->
 pixbufSave pb fname iType options =
   let (keys, values) = unzip options in
   let optLen = length keys in
-  checkGError (\errPtrPtr ->
+  propagateGError $ \errPtrPtr ->
     withUTFString fname $ \fnPtr ->
     withUTFString iType $ \tyPtr ->
     withUTFStringArray0 keys $ \keysPtr ->
@@ -391,8 +380,7 @@ pixbufSave pb fname iType options =
       {# call unsafe pixbuf_savev #}
 #endif
         pb fnPtr tyPtr keysPtr valuesPtr errPtrPtr
-      return Nothing)
-  (\gerror -> liftM Just $ handlePixbufError gerror)
+      return Nothing
 
 -- | Create a new image in memory.
 --
