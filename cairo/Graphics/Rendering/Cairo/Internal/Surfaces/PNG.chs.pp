@@ -22,6 +22,8 @@ import Monad (liftM)
 
 {#context lib="cairo" prefix="cairo"#}
 
+#ifdef ENABLE_CAIRO_PNG_FUNCTIONS
+
 imageSurfaceCreateFromPNG :: FilePath -> IO Surface
 imageSurfaceCreateFromPNG filename =
   withCString filename $ \filenamePtr ->
@@ -29,3 +31,5 @@ imageSurfaceCreateFromPNG filename =
   >>= mkSurface
 
 {#fun surface_write_to_png as surfaceWriteToPNG { withSurface* `Surface', withCString* `FilePath' } -> `Status' cToEnum#}
+
+#endif

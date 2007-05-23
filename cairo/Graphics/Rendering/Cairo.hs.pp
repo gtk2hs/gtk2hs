@@ -171,16 +171,22 @@ module Graphics.Rendering.Cairo (
   , imageSurfaceGetHeight
 
   -- ** PDF surfaces
+#ifdef ENABLE_CAIRO_PDF_SURFACE
   , withPDFSurface
   , pdfSurfaceSetSize
+#endif
 
   -- ** PNG support
+#ifdef ENABLE_CAIRO_PNG_FUNCTIONS
   , withImageSurfaceFromPNG
   , surfaceWriteToPNG
+#endif
 
   -- ** PS surfaces
+#ifdef ENABLE_CAIRO_PS_SURFACE
   , withPSSurface
   , psSurfaceSetSize
+#endif
 
   -- * Utilities
 
@@ -1530,6 +1536,7 @@ imageSurfaceGetWidth a = liftIO $ Internal.imageSurfaceGetWidth a
 imageSurfaceGetHeight :: Surface -> Render Int
 imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 
+#ifdef ENABLE_CAIRO_PDF_SURFACE
 -- | Creates a PostScript surface of the specified size in points to
 -- be written to @filename@.
 --
@@ -1560,7 +1567,9 @@ withPDFSurface filename width height f = do
 --
 pdfSurfaceSetSize :: Surface -> Double -> Double -> Render ()
 pdfSurfaceSetSize s x y = liftIO $ Internal.pdfSurfaceSetSize s x y
+#endif
 
+#ifdef ENABLE_CAIRO_PNG_FUNCTIONS
 -- | Creates a new image surface and initializes the contents to the given PNG
 -- file.
 --
@@ -1584,7 +1593,9 @@ surfaceWriteToPNG surface filename = do
   unless (status == StatusSuccess) $
     fail =<< Internal.statusToString status
   return ()
+#endif
 
+#ifdef ENABLE_CAIRO_PS_SURFACE
 -- | Creates a PostScript surface of the specified size in points to
 -- be written to @filename@.
 --
@@ -1617,6 +1628,7 @@ withPSSurface filename width height f =
 --
 psSurfaceSetSize :: Surface -> Double -> Double -> Render ()
 psSurfaceSetSize s x y = liftIO $ Internal.psSurfaceSetSize s x y
+#endif
 
 -- | Returns the version of the cairo library encoded in a single integer.
 --

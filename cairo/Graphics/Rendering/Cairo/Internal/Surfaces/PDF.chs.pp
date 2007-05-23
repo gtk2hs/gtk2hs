@@ -20,5 +20,9 @@ import CForeign
 
 {#context lib="cairo" prefix="cairo"#}
 
+#ifdef ENABLE_CAIRO_PDF_SURFACE
+
 {#fun pdf_surface_create  as pdfSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
 {#fun pdf_surface_set_size as pdfSurfaceSetSize { withSurface* `Surface', `Double', `Double' } -> `()'#}
+
+#endif

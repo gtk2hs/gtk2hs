@@ -1240,7 +1240,7 @@ libHScairo_a_GENERATEDSOURCES =
 nodist_libHScairo_a_SOURCES = $(libHScairo_a_GENERATEDSOURCES)
 
 libHScairo_a_SOURCES =							\
-	cairo/Graphics/Rendering/Cairo.hs                               \
+	cairo/Graphics/Rendering/Cairo.hs.pp				\
 	cairo/Graphics/Rendering/Cairo/Matrix.chs                       \
 	cairo/Graphics/Rendering/Cairo/Types.chs                        \
 	cairo/Graphics/Rendering/Cairo/Internal.hs			\
@@ -1251,9 +1251,9 @@ libHScairo_a_SOURCES =							\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Transformations.chs \
 	cairo/Graphics/Rendering/Cairo/Internal/Fonts/FontOptions.chs   \
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Image.chs      \
-	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs        \
-	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs        \
-	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs         \
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs.pp	\
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs.pp	\
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs.pp	\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Surface.chs    \
 	cairo/Graphics/Rendering/Cairo/Internal/Utilities.chs
 
