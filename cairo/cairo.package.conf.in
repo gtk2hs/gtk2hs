@@ -14,6 +14,6 @@ library-dirs: @CAIRO_LIBDIR_CQ@
 hs-libraries: HScairo
 extra-libraries: @CAIRO_LIBS_CQ@
 include-dirs: @CAIRO_CFLAGS_CQ@
-includes: cairo.h
+includes: @CAIRO_HEADERS@
 depends: haskell98 mtl glib-@PACKAGE_VERSION@
 ld-options: @CAIRO_LIBEXTRA_CQ@

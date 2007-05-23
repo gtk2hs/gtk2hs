@@ -7,7 +7,7 @@ Package {
      hs_libraries    = ["HScairo"],
      extra_libraries = [@CAIRO_LIBS_CQ@],
      include_dirs    = [@CAIRO_CFLAGS_CQ@],
-     c_includes      = ["cairo.h"],
+     c_includes      = [@CAIRO_HEADERS@],
      package_deps    = ["haskell98", "glib"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],
