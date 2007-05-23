@@ -96,12 +96,16 @@ main = do
   withImageSurface FormatARGB32 width height $ \result -> do
     renderWith result $ starAndRing width height
     surfaceWriteToPNG result "StarAndRing.png"
+  putStrLn "wrote StarAndRing.png"
   withPDFSurface "StarAndRing.pdf" (fromIntegral width) (fromIntegral height)
     (flip renderWith $ starAndRing width height >> showPage)
+  putStrLn "wrote StarAndRing.pdf"
   withPSSurface "StarAndRing.ps" (fromIntegral width) (fromIntegral height)
     (flip renderWith $ starAndRing width height >> showPage)
+  putStrLn "wrote StarAndRing.ps"
+  withSVGSurface "StarAndRing.svg" (fromIntegral width) (fromIntegral height)
+    (flip renderWith $ starAndRing width height)
+  putStrLn "wrote StarAndRing.svg"
 
     where width = 600
           height = 600
-
-
