@@ -11,8 +11,6 @@ TODO for gtk2hs
 
 24/1/2007 Duncan Coutts <duncan@coutts.uklinux.net>
 
-	* eliminate checkGErrorWithCont, it's ugly
-
 	* Make sure the dirlist demo works on win32.
 
 	* make SOE give an error in GHCi since it uses threads.
@@ -23,8 +21,6 @@ TODO for gtk2hs
 	to use constructNewObject vs makeNewGObject in non-constructors.
 
 11/11/2005 Duncan Coutts <duncan@coutts.uklinux.net>
-
-	* add PDF & PS backends to cairo
 
 	* add _to/from_stream implementations of the png,ps,pdf backend
 	functions using native Handle operations System.IO.hPutBuf/hGetBuf.
