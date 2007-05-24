@@ -103,7 +103,7 @@
   <!-- top level module information -->
   <module-info>
     <name><xsl:value-of select="refentry/refnamediv/refname"/></name>
-    <altname><xsl:value-of select="refentry/refsynopsisdiv/anchor/@role"/></altname>
+    <altname><xsl:value-of select="refentry/refsynopsisdiv/anchor/@id"/></altname>
     <summary><xsl:apply-templates select="refentry/refnamediv/refpurpose"/></summary>
     <description>
       <xsl:for-each select="refentry/refsect1[@role='desc']">
