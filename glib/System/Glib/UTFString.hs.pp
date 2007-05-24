@@ -46,9 +46,8 @@ module System.Glib.UTFString (
   ofsFromUTF
   ) where
 
-import Monad	(liftM)
-import Char
-import Data.Bits
+import Control.Monad	(liftM)
+import Data.Char (ord, chr)
 
 import System.Glib.FFI
 

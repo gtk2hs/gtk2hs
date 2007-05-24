@@ -84,14 +84,12 @@ module System.Glib.Properties (
   objectSetPropertyInternal,
   ) where
 
-import Monad (liftM)
+import Control.Monad (liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags	(Flags, fromFlags, toFlags)
-import System.Glib.UTFString
+import System.Glib.Flags	(Flags)
 {#import System.Glib.Types#}
 {#import System.Glib.GValue#}	(GValue(GValue), valueInit, allocaGValue)
-import System.Glib.GObject	(makeNewGObject)
 import qualified System.Glib.GTypeConstants as GType
 import System.Glib.GType
 import System.Glib.GValueTypes

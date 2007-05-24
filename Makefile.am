@@ -221,7 +221,7 @@ glib_PKGNAME = libHSglib_a
 
 libHSglib_a_NAME		= glib
 libHSglib_a_CONFIG		= glib/glib.$(PKGEXT)
-libHSglib_a_EXTERNALDEPS	= base haskell98
+libHSglib_a_EXTERNALDEPS	= base
 libHSglib_a_INTERNALDEPS	= 
 libHSglib_a_HEADER 		= glib-object.h
 libHSglib_a_PRECOMP		= glib/glib.precomp

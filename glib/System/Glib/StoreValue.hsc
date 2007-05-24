@@ -34,14 +34,14 @@ module System.Glib.StoreValue (
   valueGetGenericValue,
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 import Control.Exception  (throw, Exception(AssertionFailed))
 
 import System.Glib.FFI
 import System.Glib.GValue	(GValue, valueInit, valueGetType)
 import System.Glib.GValueTypes
 import qualified System.Glib.GTypeConstants as GType
-import System.Glib.Types	(GObject, GObjectClass)
+import System.Glib.Types	(GObject)
 
 -- | A union with information about the currently stored type.
 --

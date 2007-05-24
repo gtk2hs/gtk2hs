@@ -53,11 +53,7 @@ module System.Glib.Signals (
 #endif
   ) where
 
-import Data.IORef              (newIORef, readIORef, writeIORef)
-
 import System.Glib.FFI
-import System.Glib.UTFString   (peekUTFString, newUTFString)
-import System.Glib.GError      (failOnGError)
 {#import System.Glib.GObject#}
 
 {#context lib="glib" prefix="g" #}

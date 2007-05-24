@@ -44,7 +44,7 @@ module System.Glib.MainLoop (
   priorityHigh,
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags

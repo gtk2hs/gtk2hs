@@ -42,7 +42,6 @@ module System.Glib.GList (
   withGSList,
   ) where
 
-import Monad	(liftM)
 import Foreign
 import Control.Exception	(bracket)
 

@@ -33,7 +33,6 @@ module System.Glib.GType (
   typeInstanceIsA
   ) where
 
-import Monad	(liftM)
 import System.Glib.FFI
 
 {# context lib="glib" prefix="g" #}

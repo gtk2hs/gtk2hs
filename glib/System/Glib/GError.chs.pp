@@ -87,7 +87,6 @@ module System.Glib.GError (
   checkGError
   ) where
 
-import Monad (when)
 import Foreign
 import Foreign.C
 import System.Glib.UTFString

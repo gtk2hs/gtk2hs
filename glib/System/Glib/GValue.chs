@@ -36,8 +36,6 @@ module System.Glib.GValue (
   allocaGValue
   ) where
 
-import Monad	(liftM)
-
 import System.Glib.FFI
 import System.Glib.GType	(GType)
 
