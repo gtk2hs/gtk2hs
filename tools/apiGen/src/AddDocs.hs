@@ -90,8 +90,8 @@ addDocsToModule knownSymbols moduleDocMap module_ =
               _ -> decl
             
           modsince = case map Docs.funcdoc_since (Docs.moduledoc_functions doc) of
-                    [] -> ""
-                    versions -> minimum versions
+                    [] -> Nothing
+                    versions -> minimum (map parseVersion versions)
 
        in module_ {
             module_summary = convertParas knownSymbols (Docs.moduledoc_summary doc),
@@ -100,7 +100,7 @@ addDocsToModule knownSymbols moduleDocMap module_ =
               : convertSections knownSymbols (Docs.moduledoc_sections doc),
             module_hierarchy = convertHierarchy (Docs.moduledoc_hierarchy doc),
             module_decls = decls,
-            module_since = parseVersion modsince
+            module_since = modsince
           }
 
   where mkDeclDocMap :: (doc -> String) -> [doc] -> Map String (Int, doc)
