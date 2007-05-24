@@ -6,10 +6,10 @@ module Main(main) where
 
 #include "gtk2hs-config.h"
 
-import Char(showLitChar)
-import List(nub, partition)
-import Maybe(catMaybes)
-import System(getArgs, exitWith, ExitCode(..))
+import Data.Char   (showLitChar)
+import Data.List   (nub)
+import System.Environment (getArgs)
+import System.Exit (exitWith, ExitCode(..))
 
 -- Define all possible data types the GTK will supply in callbacks.
 --

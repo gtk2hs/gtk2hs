@@ -1,13 +1,13 @@
 -- TypeGenerator.hs
 -- Takes a hierarchical list of all objects in GTK+ and produces
 -- Haskell class that reflect this hierarchy.
-module Main(main) where
+module Main (main) where
 
-import Char(showLitChar, isAlpha, isAlphaNum, isSpace, toLower, toUpper, isUpper)
-import List(nub, isPrefixOf, partition)
-import Maybe(catMaybes, fromMaybe)
-import Monad(when)
-import System(getArgs, exitWith, ExitCode(..))
+import Data.Char     (isAlpha, isAlphaNum, toLower, toUpper, isUpper)
+import Data.List     (isPrefixOf)
+import Control.Monad (when)
+import System.Environment (getArgs)
+import System.Exit   (exitWith, ExitCode(..))
 
 -- The current object and its inheritence relationship is defined by all
 -- ancestors and their column position.

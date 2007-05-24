@@ -80,7 +80,7 @@ tools_hierarchyGen_PKGNAME = tools_hierarchyGen_TypeGenerator
 
 tools_hierarchyGen_TypeGenerator_MAIN = \
   $(tools_hierarchyGen_TypeGenerator_SOURCES)
-tools_hierarchyGen_TypeGenerator_EXTERNALDEPS = base haskell98
+tools_hierarchyGen_TypeGenerator_EXTERNALDEPS = base
 tools_hierarchyGen_TypeGenerator_SOURCESDIRS = tools/hierarchyGen
 tools_hierarchyGen_TypeGenerator_SOURCES = \
   tools/hierarchyGen/TypeGen.hs
@@ -99,7 +99,7 @@ tools_callbackGen_PKGNAME = tools_callbackGen_HookGenerator
 
 tools_callbackGen_HookGenerator_MAIN = \
   $(tools_callbackGen_HookGenerator_SOURCES)
-tools_callbackGen_HookGenerator_EXTERNALDEPS = base haskell98
+tools_callbackGen_HookGenerator_EXTERNALDEPS = base
 tools_callbackGen_HookGenerator_SOURCESDIRS = tools/callbackGen
 tools_callbackGen_HookGenerator_SOURCES = \
   tools/callbackGen/HookGenerator.hs
