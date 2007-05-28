@@ -83,7 +83,7 @@ module System.Gnome.GConf.GConfClient (
   
 ) where
 
-import Monad	(liftM, when)
+import Control.Monad	(liftM, when)
 import Data.IORef (newIORef, readIORef, writeIORef)
 import System.IO.Unsafe (unsafePerformIO)
 

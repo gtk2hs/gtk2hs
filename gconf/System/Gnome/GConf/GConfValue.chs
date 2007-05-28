@@ -38,7 +38,7 @@ module System.Gnome.GConf.GConfValue (
  GConfValueDyn(..),
  ) where
 
-import Monad (liftM, when)
+import Control.Monad (liftM, when)
 
 import System.Glib.FFI
 import System.Glib.UTFString
