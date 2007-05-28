@@ -732,7 +732,14 @@ layoutGetLineCount (PangoLayout _ pl) = liftM fromIntegral $
 --
 layoutGetLine :: PangoLayout -> Int -> IO LayoutLine
 layoutGetLine (PangoLayout psRef pl) idx = do
-  llPtr <- {#call unsafe layout_get_line#} pl (fromIntegral idx)
+  llPtr <-
+#if PANGO_CHECK_VERSION(1,16,0)
+    -- use the optimised read-only version if available
+    {#call unsafe layout_get_line_readonly#}
+#else
+    {#call unsafe layout_get_line#}
+#endif
+      pl (fromIntegral idx)
   if llPtr==nullPtr then 
      throwIO (ArrayException (IndexOutOfBounds
       ("Graphics.UI.Gtk.Pango.Layout.layoutGetLine: "++
@@ -749,7 +756,14 @@ layoutGetLine (PangoLayout psRef pl) idx = do
 --
 layoutGetLines :: PangoLayout -> IO [LayoutLine]
 layoutGetLines (PangoLayout psRef pl) = do
-  listPtr <- {#call unsafe layout_get_lines#} pl
+  listPtr <-
+#if PANGO_CHECK_VERSION(1,16,0)
+    -- use the optimised read-only version if available
+    {#call unsafe layout_get_lines_readonly#}
+#else
+    {#call unsafe layout_get_lines#}
+#endif
+    pl
   list <- readGSList listPtr
   pls <- mapM makeNewLayoutLineRaw list
   mapM_ {#call unsafe layout_line_ref#} pls
