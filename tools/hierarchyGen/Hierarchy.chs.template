@@ -32,8 +32,8 @@ module @MODULE_NAME@ (
 @MODULE_EXPORTS@
   ) where
 
-import System.Glib.FFI		(ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr,
-                                 CULong, withForeignPtr)
+import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
+import Foreign.C.Types    (CULong)
 import System.Glib.GType	(GType, typeInstanceIsA)
 import GHC.Base			(unsafeCoerce#)
 @IMPORT_PARENT@
