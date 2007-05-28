@@ -56,9 +56,9 @@ module Graphics.Rendering.Cairo.Types (
 {#import Graphics.Rendering.Cairo.Matrix#}
 
 import Foreign hiding (rotate)
-import CForeign
+import Foreign.C
 
-import Monad (liftM)
+import Control.Monad (liftM)
 
 {#context lib="cairo" prefix="cairo"#}
 

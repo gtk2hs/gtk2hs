@@ -26,7 +26,7 @@ module Graphics.Rendering.Cairo.Matrix (
   ) where
 
 import Foreign hiding (rotate)
-import CForeign
+import Foreign.C
 
 -- | Representation of a 2-D affine transformation.
 --

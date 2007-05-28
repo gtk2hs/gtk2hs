@@ -226,7 +226,7 @@ module Graphics.Rendering.Cairo (
   ) where
 
 import Control.Monad (unless)
-import Control.Monad.Reader (ReaderT(..), runReaderT, ask, MonadIO, liftIO)
+import Control.Monad.Reader (ReaderT(runReaderT), ask, MonadIO, liftIO)
 import Control.Exception (bracket)
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal

@@ -18,7 +18,7 @@ module Graphics.Rendering.Cairo.Internal.Drawing.Text where
 import System.Glib.UTFString (withUTFString)
 
 import Foreign
-import CForeign
+import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 

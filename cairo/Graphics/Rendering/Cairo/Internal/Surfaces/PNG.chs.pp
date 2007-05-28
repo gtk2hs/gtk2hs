@@ -16,9 +16,7 @@ module Graphics.Rendering.Cairo.Internal.Surfaces.PNG where
 {#import Graphics.Rendering.Cairo.Types#}
 
 import Foreign
-import CForeign
-
-import Monad (liftM)
+import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 

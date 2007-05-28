@@ -16,7 +16,7 @@ module Graphics.Rendering.Cairo.Internal.Drawing.Patterns where
 {#import Graphics.Rendering.Cairo.Types#}
 
 import Foreign
-import CForeign
+import Foreign.C
 
 {#context lib="cairo" prefix="cairo"#}
 
