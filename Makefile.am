@@ -350,7 +350,7 @@ gtk_PKGNAME = libHSgtk_a
 
 libHSgtk_a_NAME			= gtk
 libHSgtk_a_CONFIG		= gtk/gtk.$(PKGEXT)
-libHSgtk_a_EXTERNALDEPS		= base haskell98
+libHSgtk_a_EXTERNALDEPS		= base
 libHSgtk_a_INTERNALDEPS		= glib
 libHSgtk_a_HEADER 		= gtk/gtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
@@ -732,7 +732,7 @@ glade_PKGNAME = libHSglade_a
 
 libHSglade_a_NAME		= glade
 libHSglade_a_CONFIG		= glade/glade.$(PKGEXT)
-libHSglade_a_EXTERNALDEPS	= base haskell98
+libHSglade_a_EXTERNALDEPS	= base
 libHSglade_a_INTERNALDEPS	= gtk glib
 libHSglade_a_HEADER 		= glade/glade.h
 libHSglade_a_PRECOMP		= glade/glade.precomp
@@ -846,7 +846,7 @@ gconf_PKGNAME = libHSgconf_a
 
 libHSgconf_a_NAME		= gconf
 libHSgconf_a_CONFIG		= gconf/gconf.$(PKGEXT)
-libHSgconf_a_EXTERNALDEPS	= base haskell98
+libHSgconf_a_EXTERNALDEPS	= base
 libHSgconf_a_INTERNALDEPS	= glib
 libHSgconf_a_HEADER 		= gconf/gconf-client.h
 libHSgconf_a_PRECOMP		= gconf/gconf.precomp
@@ -981,7 +981,7 @@ sourceview_PKGNAME = libHSsourceview_a
 
 libHSsourceview_a_NAME		= sourceview
 libHSsourceview_a_CONFIG	= sourceview/sourceview.$(PKGEXT)
-libHSsourceview_a_EXTERNALDEPS	= base haskell98
+libHSsourceview_a_EXTERNALDEPS	= base
 libHSsourceview_a_INTERNALDEPS	= glib gtk
 libHSsourceview_a_HEADER 	= sourceview.h
 libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
@@ -1106,7 +1106,7 @@ mozembed_PKGNAME = libHSmozembed_a
 
 libHSmozembed_a_NAME		= mozembed
 libHSmozembed_a_CONFIG		= mozembed/mozembed.$(PKGEXT)
-libHSmozembed_a_EXTERNALDEPS	= base haskell98
+libHSmozembed_a_EXTERNALDEPS	= base
 libHSmozembed_a_INTERNALDEPS	= glib gtk
 libHSmozembed_a_HEADER 		= gtkmozembed.h
 libHSmozembed_a_PRECOMP		= mozembed/mozembed.precomp
@@ -1219,7 +1219,7 @@ cairo_PKGNAME = libHScairo_a
 
 libHScairo_a_NAME		= cairo
 libHScairo_a_CONFIG		= cairo/cairo.$(PKGEXT)
-libHScairo_a_EXTERNALDEPS	= base haskell98
+libHScairo_a_EXTERNALDEPS	= base
 if HAVE_MTL_PACKAGE
 libHScairo_a_EXTERNALDEPS	+= mtl
 endif
@@ -1351,7 +1351,7 @@ svgcairo_PKGNAME = libHSsvgcairo_a
 
 libHSsvgcairo_a_NAME		= svgcairo
 libHSsvgcairo_a_CONFIG		= svgcairo/svgcairo.$(PKGEXT)
-libHSsvgcairo_a_EXTERNALDEPS	= base haskell98
+libHSsvgcairo_a_EXTERNALDEPS	= base
 if HAVE_MTL_PACKAGE
 libHSsvgcairo_a_EXTERNALDEPS	+= mtl
 endif
@@ -1449,7 +1449,7 @@ gtkglext_PKGNAME = libHSgtkglext_a
 
 libHSgtkglext_a_NAME		= gtkglext
 libHSgtkglext_a_CONFIG		= gtkglext/gtkglext.$(PKGEXT)
-libHSgtkglext_a_EXTERNALDEPS	= base haskell98
+libHSgtkglext_a_EXTERNALDEPS	= base
 libHSgtkglext_a_INTERNALDEPS	= glib gtk
 libHSgtkglext_a_HEADER 		= gtk/gtkgl.h
 libHSgtkglext_a_PRECOMP		= gtkglext/gtkglext.precomp
@@ -1568,7 +1568,7 @@ soegtk_PKGNAME = libHSsoegtk_a
 
 libHSsoegtk_a_NAME		= soegtk
 libHSsoegtk_a_CONFIG		= soegtk/soegtk.$(PKGEXT)
-libHSsoegtk_a_EXTERNALDEPS	= base haskell98
+libHSsoegtk_a_EXTERNALDEPS	= base
 libHSsoegtk_a_INTERNALDEPS	= glib gtk
 libHSsoegtk_a_HEADER		= $(libHSgtk_a_HEADER)
 libHSsoegtk_a_LIBS		= 
