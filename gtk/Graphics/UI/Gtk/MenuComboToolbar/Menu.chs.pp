@@ -432,8 +432,8 @@ menuGetForAttachWidget widget =
 --
 -- Default value: \"\"
 --
-menuTearoffTitle :: MenuClass self => Attr self String
-menuTearoffTitle = newAttrFromStringProperty "tearoff-title"
+menuTitle :: MenuClass self => Attr self String
+menuTitle = newAttrFromStringProperty "tearoff-title"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | A boolean that indicates whether the menu is torn-off.
@@ -459,13 +459,6 @@ menuActive :: MenuClass self => ReadWriteAttr self MenuItem Int
 menuActive = newAttr
   menuGetActive
   menuSetActive
-
--- | \'title\' property. See 'menuGetTitle' and 'menuSetTitle'
---
-menuTitle :: MenuClass self => ReadWriteAttr self (Maybe String) String
-menuTitle = newAttr
-  menuGetTitle
-  menuSetTitle
 
 --------------------
 -- Child Attributes
