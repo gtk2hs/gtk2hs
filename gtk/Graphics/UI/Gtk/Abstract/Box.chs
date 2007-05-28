@@ -389,6 +389,7 @@ boxChildPadding = newAttrFromContainerChildUIntProperty "padding"
 --
 boxChildPackType :: (BoxClass self, WidgetClass child) => child -> Attr self PackType
 boxChildPackType = newAttrFromContainerChildEnumProperty "pack-type"
+                     {# call pure unsafe gtk_pack_type_get_type #}
 
 -- | The index of the child in the parent.
 --

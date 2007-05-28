@@ -416,6 +416,7 @@ tableChildBottomAttach = newAttrFromContainerChildUIntProperty "bottom-attach"
 --
 tableChildXOptions :: (TableClass self, WidgetClass child) => child -> Attr self [AttachOptions]
 tableChildXOptions = newAttrFromContainerChildFlagsProperty "x-options"
+                       {# call pure unsafe gtk_attach_options_get_type #}
 
 -- | Options specifying the vertical behaviour of the child.
 --
@@ -423,6 +424,7 @@ tableChildXOptions = newAttrFromContainerChildFlagsProperty "x-options"
 --
 tableChildYOptions :: (TableClass self, WidgetClass child) => child -> Attr self [AttachOptions]
 tableChildYOptions = newAttrFromContainerChildFlagsProperty "y-options"
+                       {# call pure unsafe gtk_attach_options_get_type #}
 
 -- | Extra space to put between the child and its left and right neighbors, in
 -- pixels.

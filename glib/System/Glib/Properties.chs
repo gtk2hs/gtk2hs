@@ -152,11 +152,11 @@ objectSetPropertyEnum gtype = objectSetPropertyInternal gtype valueSetEnum
 objectGetPropertyEnum :: (GObjectClass gobj, Enum enum) => GType -> String -> gobj -> IO enum
 objectGetPropertyEnum gtype = objectGetPropertyInternal gtype valueGetEnum
 
-objectSetPropertyFlags :: (GObjectClass gobj, Flags flag) => String -> gobj -> [flag] -> IO ()
-objectSetPropertyFlags = objectSetPropertyInternal GType.flags valueSetFlags
+objectSetPropertyFlags :: (GObjectClass gobj, Flags flag) => GType -> String -> gobj -> [flag] -> IO ()
+objectSetPropertyFlags gtype = objectSetPropertyInternal gtype valueSetFlags
 
-objectGetPropertyFlags :: (GObjectClass gobj, Flags flag) => String -> gobj -> IO [flag]
-objectGetPropertyFlags = objectGetPropertyInternal GType.flags valueGetFlags
+objectGetPropertyFlags :: (GObjectClass gobj, Flags flag) => GType -> String -> gobj -> IO [flag]
+objectGetPropertyFlags gtype = objectGetPropertyInternal gtype valueGetFlags
 
 objectSetPropertyFloat :: GObjectClass gobj => String -> gobj -> Float -> IO ()
 objectSetPropertyFloat = objectSetPropertyInternal GType.float valueSetFloat
@@ -249,9 +249,9 @@ writeAttrFromEnumProperty :: (GObjectClass gobj, Enum enum) => String -> GType -
 writeAttrFromEnumProperty propName gtype =
   writeAttr (objectSetPropertyEnum gtype propName)
 
-newAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> Attr gobj [flag]
-newAttrFromFlagsProperty propName =
-  newAttr (objectGetPropertyFlags propName) (objectSetPropertyFlags propName)
+newAttrFromFlagsProperty :: (GObjectClass gobj, Flags flag) => String -> GType -> Attr gobj [flag]
+newAttrFromFlagsProperty propName gtype =
+  newAttr (objectGetPropertyFlags gtype propName) (objectSetPropertyFlags gtype propName)
 
 newAttrFromStringProperty :: GObjectClass gobj => String -> Attr gobj String
 newAttrFromStringProperty propName =

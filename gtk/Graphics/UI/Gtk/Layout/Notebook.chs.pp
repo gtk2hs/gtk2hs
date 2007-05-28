@@ -1008,6 +1008,7 @@ notebookChildTabPacking child = newAttr
 --
 notebookChildTabPackType :: (NotebookClass self, WidgetClass child) => child -> Attr self PackType
 notebookChildTabPackType = newAttrFromContainerChildEnumProperty "tab-pack"
+                         {# call pure unsafe gtk_pack_type_get_type #}
 
 --------------------
 -- Signals

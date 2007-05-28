@@ -137,17 +137,17 @@ newAttrFromContainerChildBoolProperty propName child = newAttr
 
 newAttrFromContainerChildEnumProperty ::
  (ContainerClass container, WidgetClass child, Enum enum)
- => String -> child -> Attr container enum
-newAttrFromContainerChildEnumProperty propName child = newAttr
-  (containerChildGetPropertyInternal GType.enum valueGetEnum propName child)
-  (containerChildSetPropertyInternal GType.enum valueSetEnum propName child)
+ => String -> GType -> child -> Attr container enum
+newAttrFromContainerChildEnumProperty propName gtype child = newAttr
+  (containerChildGetPropertyInternal gtype valueGetEnum propName child)
+  (containerChildSetPropertyInternal gtype valueSetEnum propName child)
 
 newAttrFromContainerChildFlagsProperty ::
  (ContainerClass container, WidgetClass child, Flags flag)
- => String -> child -> Attr container [flag]
-newAttrFromContainerChildFlagsProperty propName child = newAttr
-  (containerChildGetPropertyInternal GType.flags valueGetFlags propName child)
-  (containerChildSetPropertyInternal GType.flags valueSetFlags propName child)
+ => String -> GType -> child -> Attr container [flag]
+newAttrFromContainerChildFlagsProperty propName gtype child = newAttr
+  (containerChildGetPropertyInternal gtype valueGetFlags propName child)
+  (containerChildSetPropertyInternal gtype valueSetFlags propName child)
 
 newAttrFromContainerChildStringProperty ::
  (ContainerClass container, WidgetClass child)
