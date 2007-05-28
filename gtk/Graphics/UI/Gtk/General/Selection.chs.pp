@@ -43,6 +43,7 @@ module Graphics.UI.Gtk.General.Selection (
   targetListNew,
   
 -- * Methods
+  targetListAdd,
 #if GTK_CHECK_VERSION(2,6,0)
   targetListAddTextTargets,
   targetListAddImageTargets,
@@ -83,7 +84,7 @@ module Graphics.UI.Gtk.General.Selection (
   ) where
 
 import System.Glib.FFI
-import System.Glib.Flags
+import System.Glib.Flags	(fromFlags)
 import System.Glib.Signals
 import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
@@ -103,7 +104,7 @@ import Control.Monad.Reader (runReaderT, ask)
 --------------------
 -- Methods
 
--- | Append anoter target to the given 'TargetList'.
+-- | Append another target to the given 'TargetList'.
 --
 -- * Note that the 'TargetFlags' are only used for drag and drop, not in normal
 --   selection handling.
