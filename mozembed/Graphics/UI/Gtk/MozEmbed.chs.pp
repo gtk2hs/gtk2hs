@@ -77,7 +77,7 @@ module Graphics.UI.Gtk.MozEmbed (
   onMouseOut,
 ) where
 
-import Monad		(liftM)
+import Control.Monad		(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

@@ -56,7 +56,7 @@ module Graphics.UI.Gtk.Glade (
 
 ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 import Control.Exception (evaluate)
 
 import System.Glib.FFI
