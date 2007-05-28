@@ -51,7 +51,7 @@ module Graphics.UI.Gtk.OpenGL.DrawingArea (
   glDrawingAreaGetGLWindow,
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GObject			(makeNewGObject)

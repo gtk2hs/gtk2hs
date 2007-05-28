@@ -47,8 +47,8 @@ module Graphics.UI.Gtk.OpenGL.General (
 #endif
   ) where
 
-import Monad	(liftM)
-import System	(getProgName, getArgs)
+import Control.Monad	(liftM)
+import System.Environment	(getProgName, getArgs)
 
 import System.Glib.FFI
 import System.Glib.UTFString
