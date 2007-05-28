@@ -665,8 +665,8 @@ toolbarOrientation = newAttr
 --
 -- Default value: 'ToolbarIcons'
 --
-toolbarToolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
-toolbarToolbarStyle = newAttrFromEnumProperty "toolbar-style"
+toolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
+toolbarStyle = newAttrFromEnumProperty "toolbar-style"
   {# call pure unsafe gtk_toolbar_style_get_type #}
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -688,13 +688,6 @@ toolbarTooltips :: ToolbarClass self => Attr self Bool
 toolbarTooltips = newAttr
   toolbarGetTooltips
   toolbarSetTooltips
-
--- | \'style\' property. See 'toolbarGetStyle' and 'toolbarSetStyle'
---
-toolbarStyle :: ToolbarClass self => Attr self ToolbarStyle
-toolbarStyle = newAttr
-  toolbarGetStyle
-  toolbarSetStyle
 
 --------------------
 -- Child Attributes
