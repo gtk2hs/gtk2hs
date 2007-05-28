@@ -34,7 +34,7 @@ module Graphics.UI.Gtk.SourceView.SourceLanguagesManager (
   sourceLanguagesManagerGetLangFilesDirs
   ) where
 
-import Monad	(liftM, mapM)
+import Control.Monad	(liftM, mapM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

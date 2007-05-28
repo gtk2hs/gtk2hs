@@ -29,7 +29,7 @@ module Graphics.UI.Gtk.SourceView.SourceTagStyle (
   SourceTagStyle(..),
 ) where
 
-import Maybe (isJust, fromMaybe)
+import Data.Maybe (isJust, fromMaybe)
 import Data.Bits (testBit, bit, (.|.))
 
 import System.Glib.FFI

@@ -34,7 +34,7 @@ module Graphics.UI.Gtk.SourceView.SourceTagTable (
   sourceTagTableRemoveSourceTags
 ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GList        (fromGSList, toGSList)

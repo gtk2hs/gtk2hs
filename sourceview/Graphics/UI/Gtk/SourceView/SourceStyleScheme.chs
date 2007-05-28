@@ -33,7 +33,7 @@ module Graphics.UI.Gtk.SourceView.SourceStyleScheme (
   sourceStyleSchemeGetDefault
 ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

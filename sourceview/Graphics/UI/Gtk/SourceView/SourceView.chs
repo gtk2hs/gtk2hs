@@ -51,7 +51,7 @@ module Graphics.UI.Gtk.SourceView.SourceView (
   sourceViewGetSmartHomeEnd,
 ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
