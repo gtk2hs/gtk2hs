@@ -111,7 +111,7 @@ module Graphics.UI.Gtk.Multiline.TextTag (
   onTextTagEvent
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
@@ -120,8 +120,7 @@ import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Pango.Enums	(FontStyle(..), Variant(..),
-					 Stretch(..), Underline(..),
-					 Weight(..))
+					 Stretch(..), Underline(..))
 import Graphics.UI.Gtk.General.Enums	(TextDirection(..),
 					 Justification(..), WrapMode(..))
 import Graphics.UI.Gtk.Multiline.Types  ( TextIter, mkTextIterCopy )

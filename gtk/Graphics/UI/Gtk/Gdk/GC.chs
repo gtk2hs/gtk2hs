@@ -77,8 +77,8 @@ module Graphics.UI.Gtk.Gdk.GC (
   gcSetClipRegion,
   gcSetDashes) where
 
-import Monad	(liftM, when)
-import Maybe	(fromJust, isJust)
+import Control.Monad	(when)
+import Data.Maybe	(fromJust, isJust)
 import Control.Exception (handle)
 
 import System.Glib.FFI

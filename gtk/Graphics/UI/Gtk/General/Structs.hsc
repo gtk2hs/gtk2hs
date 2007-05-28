@@ -94,10 +94,9 @@ module Graphics.UI.Gtk.General.Structs (
   dragContextSetAction
   ) where
 
-import Monad		(liftM)
+import Control.Monad		(liftM)
 import Data.IORef
 import Control.Exception
-import Data.Bits        (testBit)
 
 import System.Glib.FFI
 import System.Glib.UTFString ( UTFCorrection, ofsToUTF )

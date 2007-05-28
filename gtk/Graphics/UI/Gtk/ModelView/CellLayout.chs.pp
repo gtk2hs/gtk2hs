@@ -64,12 +64,9 @@ module Graphics.UI.Gtk.ModelView.CellLayout (
 #endif
   ) where
 
-import Monad	(liftM)
-import Prelude hiding ( putStrLn, putStr )
 import System.Glib.FFI
-import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject ( mkFunPtrDestroyNotify, DestroyNotify )
+import System.Glib.GObject (mkFunPtrDestroyNotify)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}

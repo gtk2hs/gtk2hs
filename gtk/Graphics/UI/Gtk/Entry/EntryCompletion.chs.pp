@@ -126,8 +126,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 #endif
   ) where
 
-import Monad	(liftM)
-import Data.IORef (newIORef, readIORef, writeIORef)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

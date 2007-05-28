@@ -84,17 +84,16 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
   messageDialogButtons,
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.Flags	(Flags, fromFlags, toFlags)
+import System.Glib.Flags	(Flags, fromFlags)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Pango.Markup (Markup)
-import Data.Maybe (fromMaybe, maybe)
 
 {# context lib="gtk" prefix="gtk" #}
 

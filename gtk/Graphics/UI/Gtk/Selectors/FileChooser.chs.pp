@@ -223,7 +223,7 @@ module Graphics.UI.Gtk.Selectors.FileChooser (
 #endif
   ) where
 
-import Monad (liftM, when)
+import Control.Monad (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

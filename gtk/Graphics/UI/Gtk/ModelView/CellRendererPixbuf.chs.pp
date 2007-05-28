@@ -70,14 +70,13 @@ module Graphics.UI.Gtk.ModelView.CellRendererPixbuf (
 #endif
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes                   (Attr)
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 

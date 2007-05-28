@@ -63,10 +63,7 @@ module Graphics.UI.Gtk.General.Style (
   styleGetAntiAliasing
   ) where
 
-import Monad		(liftM)
-
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.General.Enums		(StateType)
 import Graphics.UI.Gtk.General.Structs		(styleGetForeground,
 			 styleGetBackground,
 			 styleGetLight,

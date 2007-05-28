@@ -82,13 +82,10 @@ module Graphics.UI.Gtk.Misc.Tooltips (
   tooltipsDataGet
   ) where
 
-import Monad	(liftM)
-
 import System.Glib.FFI
 import System.Glib.UTFString
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 

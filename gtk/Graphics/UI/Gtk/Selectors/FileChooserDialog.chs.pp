@@ -74,8 +74,8 @@ module Graphics.UI.Gtk.Selectors.FileChooserDialog (
 #endif
   ) where
 
-import Monad (liftM, when)
-import Maybe (isJust, fromJust)
+import Control.Monad (liftM, when)
+import Data.Maybe (isJust, fromJust)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}

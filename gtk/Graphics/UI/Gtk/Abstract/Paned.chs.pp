@@ -113,7 +113,7 @@ module Graphics.UI.Gtk.Abstract.Paned (
   afterCancelPosition,
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes

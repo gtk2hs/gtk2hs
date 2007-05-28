@@ -45,11 +45,8 @@ module Graphics.UI.Gtk.Gdk.Events (
   Rectangle(..)
   ) where
 
-import Data.Bits ((.&.), (.|.))
-import Data.Char ( chr )
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Glib.FFI
-import System.Glib.UTFString
 import System.Glib.Flags
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)

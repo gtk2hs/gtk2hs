@@ -55,7 +55,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererProgress (
 #endif
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes			(Attr)

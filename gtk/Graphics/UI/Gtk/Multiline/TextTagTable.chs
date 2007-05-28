@@ -57,12 +57,11 @@ module Graphics.UI.Gtk.Multiline.TextTagTable (
   textTagTableGetSize
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GObject	(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 
 {# context lib="gtk" prefix="gtk" #}
 

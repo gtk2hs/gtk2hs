@@ -117,8 +117,8 @@ module Graphics.UI.Gtk.Entry.Entry (
   afterToggleOverwrite,
   ) where
 
-import Monad	(liftM)
-import Char	(ord, chr)
+import Control.Monad	(liftM)
+import Data.Char	(ord, chr)
 
 import System.Glib.FFI
 import System.Glib.UTFString

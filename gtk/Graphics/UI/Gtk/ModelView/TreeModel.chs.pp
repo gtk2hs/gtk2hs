@@ -121,15 +121,12 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
   treeModelIterParent
   ) where
 
-import Monad	(liftM, when)
-import Maybe	(fromMaybe)
-import List   (intersperse)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags		(Flags, toFlags)
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 import System.Glib.StoreValue		(TMType, GenericValue,
 					 valueGetGenericValue)
 {#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)

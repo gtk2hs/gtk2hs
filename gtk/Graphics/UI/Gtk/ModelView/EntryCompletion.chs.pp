@@ -123,14 +123,12 @@ module Graphics.UI.Gtk.ModelView.EntryCompletion (
 #endif
   ) where
 
-import Monad	(liftM)
-import Data.IORef (newIORef, readIORef, writeIORef)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
-import System.Glib.GObject		(constructNewGObject,
-					 makeNewGObject, mkFunPtrDestroyNotify)
+import System.Glib.GObject	(constructNewGObject, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}

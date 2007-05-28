@@ -93,11 +93,10 @@ module Graphics.UI.Gtk.MenuComboToolbar.MenuShell (
   afterSelectionDone
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
-import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(MenuDirectionType(..))

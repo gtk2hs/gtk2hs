@@ -122,26 +122,25 @@ module Graphics.UI.Gtk.General.Drag (
   dragMotion
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags
-import System.Glib.UTFString ( peekUTFString, withUTFString )
-import System.Glib.GObject		(constructNewGObject, makeNewGObject)
+import System.Glib.UTFString ( withUTFString )
+import System.Glib.GObject		(makeNewGObject)
 import System.Glib.Attributes ( Attr, newAttr )
 import Graphics.UI.Gtk.General.StockItems ( StockId )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}
 {#import Graphics.UI.Gtk.General.Selection#} ( TargetList )
-import Graphics.UI.Gtk.General.Enums ( TargetFlags(..), DestDefaults(..),
-                                       DragProtocol(..) )
+import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..) )
 import Graphics.UI.Gtk.Gdk.Events ( TimeStamp, Modifier )
 import Graphics.UI.Gtk.General.Structs ( Point, 
   dragContextGetActions, dragContextSetActions,
   dragContextGetSuggestedAction, dragContextSetSuggestedAction,
   dragContextGetAction, dragContextSetAction )
 import Graphics.UI.Gtk.Signals
-import Control.Monad.Reader (runReaderT, ask)
+import Control.Monad.Reader (runReaderT)
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -48,7 +48,7 @@ module Graphics.UI.Gtk.Gdk.Enums (
   Gravity(..)
   ) where
 
-import System.Glib.Flags	(Flags, fromFlags, toFlags)
+import System.Glib.Flags	(Flags)
 
 {#context lib="gdk" prefix ="gdk"#}
 

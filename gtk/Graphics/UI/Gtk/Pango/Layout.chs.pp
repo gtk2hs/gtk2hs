@@ -122,8 +122,8 @@ module Graphics.UI.Gtk.Pango.Layout (
   layoutLineGetXRanges
   ) where
 
-import Monad    (liftM)
-import Char     (ord, chr)
+import Control.Monad    (liftM)
+import Data.Char     (ord, chr)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -131,8 +131,7 @@ import System.Glib.GList                (readGSList)
 import System.Glib.GObject              (constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Pango.Markup	(Markup)
-import Graphics.UI.Gtk.General.Enums
-import Graphics.UI.Gtk.General.Structs	(Rectangle, pangoScale)
+import Graphics.UI.Gtk.General.Structs	(Rectangle)
 {#import Graphics.UI.Gtk.Pango.Types#}
 #if PANGO_CHECK_VERSION(1,6,0)
 {#import Graphics.UI.Gtk.Pango.Enums#}	(EllipsizeMode(..))

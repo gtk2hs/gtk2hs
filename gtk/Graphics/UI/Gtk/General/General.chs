@@ -75,18 +75,15 @@ module Graphics.UI.Gtk.General.General (
 
 import System.Environment (getProgName, getArgs)
 import Control.Monad      (liftM, mapM, when)
-import Control.Exception  (ioError, Exception(ErrorCall))
 import Control.Concurrent (rtsSupportsBoundThreads, newEmptyMVar,
                            putMVar, takeMVar)
 import Data.IORef         (IORef, newIORef, readIORef, writeIORef)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GObject		(DestroyNotify, mkFunPtrDestroyNotify)
 import System.Glib.MainLoop
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 
 {#context lib="gtk" prefix ="gtk"#}
 

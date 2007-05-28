@@ -142,7 +142,7 @@ module Graphics.UI.Gtk.Display.Image (
   imageStorageType,
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -151,10 +151,9 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid, iconSizeMenu,
-					 iconSizeSmallToolbar, iconSizeLargeToolbar,
-					 iconSizeButton, iconSizeDialog)
+import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeMenu,
+					 iconSizeSmallToolbar, iconSizeButton,
+                                         iconSizeLargeToolbar, iconSizeDialog)
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -195,7 +195,7 @@ module Graphics.UI.Gtk.Windows.Window (
   afterSetFocus
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

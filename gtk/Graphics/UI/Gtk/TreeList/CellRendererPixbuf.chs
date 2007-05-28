@@ -60,16 +60,11 @@ module Graphics.UI.Gtk.TreeList.CellRendererPixbuf (
 --  cellPixbuf
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
-import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
-import Graphics.UI.Gtk.Display.Image		(imageNewFromPixbuf,
-						 imageGetPixbuf)
-import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 
 {# context lib="gtk" prefix="gtk" #}
 

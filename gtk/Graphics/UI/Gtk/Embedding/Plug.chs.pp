@@ -68,8 +68,8 @@ module Graphics.UI.Gtk.Embedding.Plug (
 #endif
   ) where
 
-import Monad	(liftM)
-import Maybe	(fromMaybe)
+import Control.Monad	(liftM)
+import Data.Maybe	(fromMaybe)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)

@@ -151,12 +151,11 @@ module Graphics.UI.Gtk.General.StockItems (
 -- name will never be freed. This deficiency is built into Gtk however.
 --
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Flags
-import System.Glib.FFI	(unsafePerformIO)	-- to read CStrings lazyly
 import System.Glib.GList	(GSList, fromGSListRev)
 import Graphics.UI.Gtk.Gdk.Events	(Modifier)
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)

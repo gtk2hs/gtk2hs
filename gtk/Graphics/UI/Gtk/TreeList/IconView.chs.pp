@@ -122,7 +122,7 @@ module Graphics.UI.Gtk.TreeList.IconView (
 #endif
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
@@ -131,8 +131,7 @@ import System.Glib.GObject			(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.General.Enums#}	(Orientation, SelectionMode,
-						MovementStep)
+{#import Graphics.UI.Gtk.General.Enums#}	(Orientation, SelectionMode)
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 

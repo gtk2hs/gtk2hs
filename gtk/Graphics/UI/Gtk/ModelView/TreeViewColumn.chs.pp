@@ -139,7 +139,7 @@ module Graphics.UI.Gtk.ModelView.TreeViewColumn (
   afterColClicked
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -151,7 +151,7 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..),
 						 SortType(..))
-{#import Graphics.UI.Gtk.ModelView.TreeModel#}
+{#import Graphics.UI.Gtk.ModelView.TreeModel#}	()
 
 {# context lib="gtk" prefix="gtk" #}
 

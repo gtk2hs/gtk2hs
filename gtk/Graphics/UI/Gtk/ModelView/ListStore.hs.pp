@@ -44,10 +44,9 @@ module Graphics.UI.Gtk.ModelView.ListStore (
   listStoreClear,
   ) where
 
-import Monad (liftM, when)
+import Control.Monad (liftM, when)
 import Data.IORef
 import Data.Ix (inRange)
-import Foreign.C.Types (CInt)
 
 #if __GLASGOW_HASKELL__>=606
 import qualified Data.Sequence as Seq

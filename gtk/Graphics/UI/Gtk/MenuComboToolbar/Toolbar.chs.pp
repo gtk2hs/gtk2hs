@@ -157,8 +157,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   afterPopupContextMenu,
   ) where
 
-import Monad	(liftM)
-import Maybe	(fromJust, fromMaybe)
+import Control.Monad	(liftM)
+import Data.Maybe	(fromJust)
 
 import System.Glib.FFI
 import System.Glib.UTFString

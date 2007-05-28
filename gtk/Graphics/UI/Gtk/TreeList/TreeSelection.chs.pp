@@ -100,10 +100,10 @@ module Graphics.UI.Gtk.TreeList.TreeSelection (
   afterSelectionChanged
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.GList                (GList, fromGList, toGList)
+import System.Glib.GList                (fromGList)
 import System.Glib.Attributes
 import System.Glib.GObject		(mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
@@ -113,7 +113,6 @@ import Graphics.UI.Gtk.General.Enums    (SelectionMode(..))
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
-import Graphics.UI.Gtk.General.Structs	(treeIterSize)
 
 {# context lib="gtk" prefix="gtk" #}
 

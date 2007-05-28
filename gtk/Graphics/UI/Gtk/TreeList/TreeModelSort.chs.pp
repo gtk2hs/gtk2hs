@@ -65,7 +65,7 @@ module Graphics.UI.Gtk.TreeList.TreeModelSort (
 #endif
   ) where
 
-import Monad	(liftM, when)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.GObject			(constructNewGObject,
@@ -74,7 +74,6 @@ import System.Glib.GObject			(constructNewGObject,
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
-import Graphics.UI.Gtk.General.Structs		(treeIterSize)
 
 {# context lib="gtk" prefix="gtk" #}
 

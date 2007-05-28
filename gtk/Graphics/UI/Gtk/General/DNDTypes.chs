@@ -40,11 +40,8 @@ module Graphics.UI.Gtk.General.DNDTypes (
   mkTargetList  
   ) where
 
-import Monad	(liftM)
-
 import System.Glib.FFI
-import System.Glib.Flags
-{#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.Types#} ()
 import System.Glib.UTFString ( peekUTFString, withUTFString )
 import Control.Monad ( liftM )
 import Control.Monad.Reader ( ReaderT )

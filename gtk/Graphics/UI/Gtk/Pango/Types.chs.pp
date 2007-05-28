@@ -69,17 +69,14 @@ module Graphics.UI.Gtk.Pango.Types (
   FontMetrics(..)
   ) where
 
-import Monad (liftM)
-import Data.Bits (shiftR)
-import Data.Ratio ((%))
-import Numeric ( showFFloat )
+import Control.Monad (liftM)
 import Data.IORef ( IORef )
 import System.Glib.FFI
 import System.Glib.UTFString
 import Graphics.UI.Gtk.General.Structs ( pangoScale, Rectangle(..),
 					 pangoItemRawGetFont,
 					 pangoItemRawGetLanguage )
-{#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.Types#} (Font, PangoLayoutRaw)
 
 {# context lib="pango" prefix="pango" #}
 

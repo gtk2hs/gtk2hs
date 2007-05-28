@@ -57,7 +57,7 @@ module Graphics.UI.Gtk.Gdk.Region (
   regionSubtract,
   regionXor) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle(..))

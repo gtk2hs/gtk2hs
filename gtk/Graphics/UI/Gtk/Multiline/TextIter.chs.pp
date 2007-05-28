@@ -141,9 +141,9 @@ module Graphics.UI.Gtk.Multiline.TextIter (
   textIterLine,
   ) where
 
-import Monad	(liftM)
-import Maybe	(fromMaybe)
-import Char	(chr)
+import Control.Monad	(liftM)
+import Data.Maybe	(fromMaybe)
+import Data.Char	(chr)
 
 import System.Glib.FFI
 import System.Glib.Flags		(fromFlags)
@@ -152,7 +152,6 @@ import System.Glib.Attributes
 import System.Glib.GObject		(makeNewGObject)
 import System.Glib.GList
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(TextSearchFlags(..))
 {#import Graphics.UI.Gtk.Multiline.Types#}
 

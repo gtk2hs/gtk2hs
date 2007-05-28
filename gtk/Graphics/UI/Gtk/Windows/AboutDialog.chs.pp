@@ -123,8 +123,8 @@ module Graphics.UI.Gtk.Windows.AboutDialog (
 #endif
   ) where
 
-import Monad	(liftM)
-import Maybe	(fromMaybe)
+import Control.Monad	(liftM)
+import Data.Maybe	(fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString

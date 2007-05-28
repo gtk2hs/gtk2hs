@@ -107,7 +107,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ActionGroup (
 #endif
   ) where
 
-import Monad	(liftM, foldM, when)
+import Control.Monad	(liftM, foldM, when)
 
 import System.Glib.FFI
 import System.Glib.UTFString

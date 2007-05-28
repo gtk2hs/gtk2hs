@@ -215,9 +215,8 @@ module Graphics.UI.Gtk.Abstract.Widget (
   afterWindowState
   ) where
 
-import Monad	(liftM, unless)
-import Maybe	(fromMaybe)
-import Data.Bits ((.&.), complement)
+import Control.Monad	(liftM, unless)
+import Data.Maybe	(fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.Flags		(fromFlags, toFlags)

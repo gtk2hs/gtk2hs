@@ -50,15 +50,12 @@ module Graphics.UI.Gtk.ModelView.TreeStore (
 
 import Data.Bits
 import Data.Word (Word)
-import Data.Maybe ( fromMaybe, isJust, fromJust )
+import Data.Maybe ( fromMaybe, isJust )
 import Data.Tree
 import Control.Monad ( liftM, when )
 import Control.Exception (assert)
 import Data.IORef
-import Data.Tree
-import System.Glib.FFI ( CInt )
 import Graphics.UI.Gtk.ModelView.Types
-import Graphics.UI.Gtk.ModelView.TreeModel
 import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
 import Graphics.UI.Gtk.TreeList.TreePath (TreePath)
 import Graphics.UI.Gtk.ModelView.CustomStore

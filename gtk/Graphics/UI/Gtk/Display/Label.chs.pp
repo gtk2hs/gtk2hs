@@ -184,7 +184,7 @@ module Graphics.UI.Gtk.Display.Label (
   labelText,
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -193,7 +193,6 @@ import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal)
 import Graphics.UI.Gtk.General.Enums	(Justification(..))
 import Graphics.UI.Gtk.Pango.Markup

@@ -49,8 +49,6 @@ module Graphics.UI.Gtk.Windows.WindowGroup (
   windowGroupRemoveWindow,
   ) where
 
-import Monad	(liftM)
-
 import System.Glib.FFI
 import System.Glib.GObject              (constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}

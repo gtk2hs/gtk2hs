@@ -65,13 +65,12 @@ module Graphics.UI.Gtk.Cairo (
 #endif
   ) where
 
-import Monad	    (liftM,unless)
 import Control.Exception    (bracket)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Region#} (Region(..))
-import Graphics.UI.Gtk.General.Structs (Rectangle(..), Color(..))
+import Graphics.UI.Gtk.General.Structs (Color(..))
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Pango.Layout ( layoutSetText )

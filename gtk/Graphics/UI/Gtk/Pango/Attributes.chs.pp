@@ -34,11 +34,9 @@ module Graphics.UI.Gtk.Pango.Attributes (
   withAttrList
   ) where
 
-import Monad (liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import Graphics.UI.Gtk.General.Structs  (setAttrPos, Color(..))
-{#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Pango.Enums#}
 import Data.List ( sortBy )

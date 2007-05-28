@@ -76,7 +76,7 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowGetOrigin,
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags		(toFlags)

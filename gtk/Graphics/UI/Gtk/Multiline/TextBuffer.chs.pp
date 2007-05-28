@@ -174,8 +174,7 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   afterRemoveTag
   ) where
 
-import Monad	(liftM)
-import Maybe	(fromMaybe)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

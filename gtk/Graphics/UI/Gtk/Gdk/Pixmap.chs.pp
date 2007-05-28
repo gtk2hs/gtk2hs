@@ -51,7 +51,7 @@ module Graphics.UI.Gtk.Gdk.Pixmap (
   pixmapNew
   ) where
 
-import Maybe
+import Data.Maybe
 import System.Glib.FFI
 import System.Glib.GObject           (constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}

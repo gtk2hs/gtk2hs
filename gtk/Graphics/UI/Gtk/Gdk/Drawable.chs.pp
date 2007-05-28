@@ -64,7 +64,7 @@ module Graphics.UI.Gtk.Gdk.Drawable (
   drawLayoutWithColors,
   drawDrawable) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs	(Point, Color)

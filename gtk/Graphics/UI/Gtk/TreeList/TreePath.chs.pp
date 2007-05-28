@@ -45,11 +45,10 @@ module Graphics.UI.Gtk.TreeList.TreePath (
   stringToTreePath
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
+import Data.Char	(isDigit)
 
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Types#}
-import Data.Char ( isDigit )
 
 {# context lib="gtk" prefix="gtk" #}
 

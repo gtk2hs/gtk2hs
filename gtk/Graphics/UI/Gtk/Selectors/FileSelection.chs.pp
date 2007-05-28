@@ -96,7 +96,7 @@ module Graphics.UI.Gtk.Selectors.FileSelection (
   fileSelectionSelectMultiple,
   ) where
 
-import Monad            (liftM)
+import Control.Monad            (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

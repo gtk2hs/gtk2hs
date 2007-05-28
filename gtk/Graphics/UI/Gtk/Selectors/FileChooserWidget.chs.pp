@@ -65,15 +65,14 @@ module Graphics.UI.Gtk.Selectors.FileChooserWidget (
 #endif
   ) where
 
-import Monad (liftM)
+import Control.Monad (liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object
 {#import Graphics.UI.Gtk.Types#}
 
 #if GTK_CHECK_VERSION(2,4,0)
-{#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction,
-                                                  fileChooserSetLocalOnly)
+{#import Graphics.UI.Gtk.Selectors.FileChooser#} (FileChooserAction)
 
 {# context lib="gtk" prefix="gtk" #}
 

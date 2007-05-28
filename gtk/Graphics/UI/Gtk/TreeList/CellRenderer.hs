@@ -81,12 +81,11 @@ module Graphics.UI.Gtk.TreeList.CellRenderer (
   cellRendererGet
   ) where
 
-import Monad (zipWithM, zipWithM_)
+import Control.Monad (zipWithM)
 
 import Graphics.UI.Gtk.Types
 import System.Glib.StoreValue	(GenericValue, TMType,
                                  valueSetGenericValue, valueGetGenericValue)
-import qualified System.Glib.GTypeConstants as GType
 import System.Glib.Properties	(objectSetPropertyInternal,
                                  objectGetPropertyInternal)
 

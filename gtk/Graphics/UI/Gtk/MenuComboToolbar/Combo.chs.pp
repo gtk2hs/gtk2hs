@@ -91,7 +91,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Combo (
 #endif
   ) where
 
-import Monad	(liftM, mapM_)
+import Control.Monad	(liftM, mapM_)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -101,7 +101,6 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 import Graphics.UI.Gtk.Abstract.Widget		(widgetShow)
 import Graphics.UI.Gtk.Abstract.Container	(containerAdd)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 
 #ifndef DISABLE_DEPRECATED
 import Graphics.UI.Gtk.General.Structs		(comboGetList)

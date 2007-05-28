@@ -66,12 +66,12 @@ module Graphics.UI.Gtk.Abstract.Object (
 import Control.Monad (when)
 
 import System.Glib.FFI
-import System.Glib.UTFString
-import System.Glib.GObject	(objectRef, objectUnref)
+import System.Glib.GObject	(objectUnref)
 #if GLIB_CHECK_VERSION(2,10,0)
 import System.Glib.GObject	(objectRefSink)
+#else
+import System.Glib.GObject      (objectRef)
 #endif
-{#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
 
 {# context lib="gtk" prefix="gtk" #}

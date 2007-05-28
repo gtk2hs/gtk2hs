@@ -114,8 +114,7 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufGetFromDrawable
   ) where
 
-import Monad (liftM)
-import Data.Bits        ((.|.), shiftL)
+import Control.Monad (liftM)
 import Data.Ix
 import System.Glib.FFI
 import System.Glib.UTFString

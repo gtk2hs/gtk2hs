@@ -118,13 +118,12 @@ module Graphics.UI.Gtk.General.IconFactory (
   iconSizeGetName
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(TextDirection(..), StateType(..))
 import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid,
 					 iconSizeMenu, iconSizeSmallToolbar,

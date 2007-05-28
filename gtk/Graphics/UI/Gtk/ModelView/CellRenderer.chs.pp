@@ -99,7 +99,7 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
   ) where
 
 import System.Glib.FFI
-import System.Glib.Attributes ( Attr, ReadAttr, WriteAttr )
+import System.Glib.Attributes ( Attr, WriteAttr )
 import System.Glib.Properties
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.Gdk.GC		(Color)

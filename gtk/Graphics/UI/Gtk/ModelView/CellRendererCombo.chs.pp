@@ -68,10 +68,10 @@ module Graphics.UI.Gtk.ModelView.CellRendererCombo (
 #endif
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Attributes			(Attr, ReadWriteAttr)
+import System.Glib.Attributes			(Attr)
 import System.Glib.Properties
 import System.Glib.StoreValue                   (TMType(TMstring))
 import System.Glib.GObject			(constructNewGObject)

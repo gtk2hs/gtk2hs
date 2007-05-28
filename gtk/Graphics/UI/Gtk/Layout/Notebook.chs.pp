@@ -136,8 +136,8 @@ module Graphics.UI.Gtk.Layout.Notebook (
   afterSwitchPage
   ) where
 
-import Monad	(liftM)
-import Maybe	(maybe)
+import Control.Monad	(liftM)
+import Data.Maybe	(maybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString

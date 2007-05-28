@@ -81,8 +81,8 @@ module Graphics.UI.Gtk.Layout.Layout (
   afterSetScrollAdjustments,
   ) where
 
-import Maybe	(fromMaybe)
-import Monad	(liftM)
+import Data.Maybe	(fromMaybe)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes

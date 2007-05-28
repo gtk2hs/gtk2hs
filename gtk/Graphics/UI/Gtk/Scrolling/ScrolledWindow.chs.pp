@@ -113,15 +113,14 @@ module Graphics.UI.Gtk.Scrolling.ScrolledWindow (
   scrolledWindowPlacement,
   ) where
 
-import Monad	(liftM)
-import Maybe    (fromMaybe)
+import Control.Monad	(liftM)
+import Data.Maybe    (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(PolicyType(..), CornerType(..), ShadowType(..))
 
 {# context lib="gtk" prefix="gtk" #}

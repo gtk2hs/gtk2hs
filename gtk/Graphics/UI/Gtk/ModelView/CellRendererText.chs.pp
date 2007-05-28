@@ -110,12 +110,11 @@ module Graphics.UI.Gtk.ModelView.CellRendererText (
   afterEdited
   ) where
 
-import Maybe	(fromMaybe)
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Properties
-import System.Glib.Attributes ( Attr, WriteAttr, ReadAttr )
+import System.Glib.Attributes (Attr, WriteAttr)
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}

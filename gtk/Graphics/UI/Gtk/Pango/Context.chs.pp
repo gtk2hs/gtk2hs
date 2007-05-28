@@ -63,17 +63,13 @@ module Graphics.UI.Gtk.Pango.Context (
   contextGetTextDir
   ) where
 
-import Monad    (liftM)
-import Data.Ratio
+import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs  (pangoScale, PangoDirection(..))
+import Graphics.UI.Gtk.General.Structs  (PangoDirection(..))
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.GObject  (makeNewGObject)
-import Graphics.UI.Gtk.General.Enums
 {#import Graphics.UI.Gtk.Pango.Types#}
-{#import Graphics.UI.Gtk.Pango.Enums#}
-{#import System.Glib.GList#}
 import Graphics.UI.Gtk.Pango.Font ( FontMetrics(..) )
 
 {# context lib="pango" prefix="pango" #}

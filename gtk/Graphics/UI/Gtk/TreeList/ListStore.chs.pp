@@ -80,13 +80,11 @@ module Graphics.UI.Gtk.TreeList.ListStore (
 #endif
   ) where
 
-import Monad	(liftM, when)
-import Maybe	(fromMaybe)
+import Control.Monad	(liftM, when)
 
 import System.Glib.FFI
 import System.Glib.GObject			(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 import System.Glib.StoreValue			(TMType(..), GenericValue(..)

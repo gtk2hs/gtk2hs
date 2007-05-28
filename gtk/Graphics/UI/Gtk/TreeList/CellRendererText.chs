@@ -65,15 +65,14 @@ module Graphics.UI.Gtk.TreeList.CellRendererText (
   afterEdited
   ) where
 
-import Maybe	(fromMaybe)
-import Monad	(liftM)
+import Data.Maybe	(fromMaybe)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
-import Graphics.UI.Gtk.General.Structs		(treeIterSize)
 import Graphics.UI.Gtk.TreeList.CellRenderer	(Attribute(..))
 import System.Glib.StoreValue			(GenericValue(..), TMType(..))
 

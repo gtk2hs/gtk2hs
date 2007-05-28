@@ -40,18 +40,16 @@ module Graphics.UI.Gtk.Abstract.ContainerChildProperties (
   newAttrFromContainerChildStringProperty,
   ) where
 
-import Monad (liftM)
+import Control.Monad (liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags
-import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.GType
 import qualified System.Glib.GTypeConstants as GType
 import System.Glib.GValueTypes
 {#import System.Glib.GValue#}		(GValue(GValue), allocaGValue, valueInit)
-import System.Glib.Attributes		(Attr, ReadAttr, WriteAttr, ReadWriteAttr,
-					newAttr, readAttr, writeAttr)
+import System.Glib.Attributes		(Attr, newAttr)
 
 {# context lib="gtk" prefix="gtk" #}
 

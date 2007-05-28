@@ -36,8 +36,6 @@ module Graphics.UI.Gtk.Embedding.Embedding (
 #endif
   ) where
 
-import Control.Exception
-
 import System.Glib.FFI
 import Graphics.UI.Gtk.Types
 

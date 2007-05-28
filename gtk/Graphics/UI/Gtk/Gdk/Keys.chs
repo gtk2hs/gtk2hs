@@ -37,7 +37,7 @@ module Graphics.UI.Gtk.Gdk.Keys (
   keyvalToChar,
   ) where
 
-import Monad (liftM)
+import Control.Monad (liftM)
 
 import System.Glib.FFI
 import System.Glib.UTFString

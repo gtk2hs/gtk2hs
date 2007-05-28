@@ -68,7 +68,7 @@ module Graphics.UI.Gtk.ModelView.CellView (
 #endif
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes

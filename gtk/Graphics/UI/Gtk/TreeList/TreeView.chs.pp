@@ -187,12 +187,12 @@ module Graphics.UI.Gtk.TreeList.TreeView (
   afterTestExpandRow
   ) where
 
-import Monad	(liftM, mapM)
-import Maybe	(fromMaybe)
+import Control.Monad	(liftM, mapM)
+import Data.Maybe	(fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import System.Glib.GList		(GList, fromGList)
+import System.Glib.GList		(fromGList)
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject, mkFunPtrDestroyNotify)

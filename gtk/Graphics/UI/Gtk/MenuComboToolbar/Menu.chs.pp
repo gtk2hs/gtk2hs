@@ -115,8 +115,8 @@ module Graphics.UI.Gtk.MenuComboToolbar.Menu (
   menuChildBottomAttach,
   ) where
 
-import Monad	(liftM)
-import Maybe  (fromMaybe)
+import Control.Monad	(liftM)
+import Data.Maybe  (fromMaybe)
 
 import System.Glib.FFI
 import System.Glib.UTFString
@@ -126,7 +126,6 @@ import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 import Graphics.UI.Gtk.Gdk.Events (MouseButton, TimeStamp)
 

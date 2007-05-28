@@ -43,22 +43,18 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   treeModelRowsReordered,
   ) where
 
-import Monad	(liftM, when)
+import Control.Monad	(liftM, when)
 
 import System.Glib.FFI			hiding	(maybeNull)
-import System.Glib.Flags
+import System.Glib.Flags			(fromFlags)
 import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
-import System.Glib.StoreValue			(TMType(..), GenericValue(..)
-						,valueSetGenericValue)
-{#import System.Glib.GValue#}			(GValue(GValue), allocaGValue)
-{#import System.Glib.GType#}			(GType)
-import System.Glib.GValueTypes                  (valueSetString)
+{#import System.Glib.GValue#}			()
+{#import System.Glib.GType#}			()
 
 {# context lib="gtk" prefix="gtk" #}
 

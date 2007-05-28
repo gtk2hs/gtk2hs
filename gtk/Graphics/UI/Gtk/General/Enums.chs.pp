@@ -81,7 +81,7 @@ module Graphics.UI.Gtk.General.Enums (
   module Graphics.UI.Gtk.Gdk.Enums
   ) where
 
-import System.Glib.Flags	(Flags, fromFlags, toFlags)
+import System.Glib.Flags	(Flags)
 import Graphics.UI.Gtk.Gdk.Enums
 
 {#context lib="gtk" prefix ="gtk"#}

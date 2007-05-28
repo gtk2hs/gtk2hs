@@ -181,10 +181,9 @@ module Graphics.UI.Gtk.Multiline.TextView (
   afterToggleOverwrite
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.UTFString
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)

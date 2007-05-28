@@ -33,7 +33,7 @@ module Graphics.UI.Gtk.ModelView.Types (
 import GHC.Exts (unsafeCoerce#)
 
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.Types#}	()
 
 {# context lib="gtk" prefix="gtk" #}
 

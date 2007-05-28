@@ -40,16 +40,13 @@ module Graphics.UI.Gtk.Pango.GlyphStorage (
 #endif
   ) where
 
-import Monad	(liftM)
+import Control.Monad	(liftM)
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.Types#} (Font(..))
 import System.Glib.UTFString
-import System.Glib.GList                (readGSList)
 {#import Graphics.UI.Gtk.Pango.Types#}
-import Graphics.UI.Gtk.General.Structs (PangoDirection(..), pangodirToLevel,
-					pangoItemRawAnalysis,
+import Graphics.UI.Gtk.General.Structs (pangoItemRawAnalysis,
 					pangoItemRawGetLevel )
-import Graphics.UI.Gtk.General.Enums (TextDirection(..))
 import Control.Exception ( Exception(ArrayException),
 			   ArrayException(IndexOutOfBounds) )
 import Control.Exception (throwIO)

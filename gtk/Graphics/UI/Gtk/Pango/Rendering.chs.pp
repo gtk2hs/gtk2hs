@@ -62,12 +62,9 @@ module Graphics.UI.Gtk.Pango.Rendering (
 #endif
   ) where
 
-import Monad    (liftM)
-import Data.Ratio
-
 import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs  ( pangoItemRawAnalysis )
-{#import Graphics.UI.Gtk.Types#}
+{#import Graphics.UI.Gtk.Types#}	(PangoContext(..), Font(..))
 {#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Pango.Attributes#}
 import Graphics.UI.Gtk.Pango.GlyphStorage

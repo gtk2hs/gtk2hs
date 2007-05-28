@@ -92,7 +92,7 @@ import System.Glib.GObject
 import Graphics.UI.Gtk.Gdk.Events (TimeStamp)
 import Graphics.UI.Gtk.General.Enums (TargetFlags)
 import Graphics.UI.Gtk.Signals
-import System.Glib.UTFString ( peekUTFString, withUTFString, withUTFStringLen,
+import System.Glib.UTFString ( peekUTFString, withUTFStringLen,
                                withUTFStringArray0, peekUTFStringArray0 )
 import Control.Monad ( liftM )
 import Control.Monad.Trans ( liftIO )
