@@ -4,8 +4,6 @@
 --  Author : Manuel M T Chakravarty
 --  Created: 13 March 2002
 --
---  Version $Revision: 1.4 $ from $Date: 2005/09/25 08:40:26 $
---
 --  Copyright (c) 2002 Manuel M T Chakravarty
 --  Modified 2003 by Duncan Coutts (gtk2hs port)
 --

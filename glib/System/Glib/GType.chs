@@ -5,8 +5,6 @@
 --
 --  Created: 1 June 2001
 --
---  Version $Revision: 1.3 $ from $Date: 2005/04/19 02:15:32 $
---
 --  Copyright (c) 1999..2002 Axel Simon
 --
 --  Copyright (C) 2001 Axel Simon

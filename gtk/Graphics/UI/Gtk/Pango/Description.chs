@@ -5,8 +5,6 @@
 --
 --  Created: 8 Feburary 2003
 --
---  Version $Revision: 1.10 $ from $Date: 2005/11/26 16:00:22 $
---
 --  Copyright (C) 1999-2005 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or

@@ -5,8 +5,6 @@
 --
 --  Created: 26 February 2002
 --
---  Version $Revision: 1.1 $ from $Date: 2005/10/29 21:51:02 $
---
 --  Copyright (c) 2002 Jonas Svensson
 --
 --  This library is free software; you can redistribute it and/or

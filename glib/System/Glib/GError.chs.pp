@@ -5,8 +5,6 @@
 --
 --  Created: 2 July 2004
 --
---  Version $Revision: 1.4 $ from $Date: 2005/11/16 13:14:16 $
---
 --  Copyright (C) 2004 Duncan Coutts
 --  parts derived from Structs.hsc Copyright (c) 1999..2002 Axel Simon
 --

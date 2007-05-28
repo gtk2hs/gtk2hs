@@ -5,8 +5,6 @@
 --
 --  Created: 05 July 2005
 --
---  Version $Revision: 1.3 $ from $Date: 2005/11/26 16:00:21 $
---
 --  Copyright (C) 2005 Armin Groesslinger
 --
 --  This library is free software; you can redistribute it and/or

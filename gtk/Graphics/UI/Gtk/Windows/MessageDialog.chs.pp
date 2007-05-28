@@ -5,8 +5,6 @@
 --
 --  Created: 20 October 2006
 --
---  Version $Revision:  $ from $Date:  $
---
 --  Copyright (C) 2006 [Insert your full name here]
 --
 --  This library is free software; you can redistribute it and/or

@@ -5,8 +5,6 @@
 --
 --  Created: 28 April 2004
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/19 12:57:37 $
---
 --  Copyright (C) 2004-2005 Matthew Walton
 --
 --  This library is free software; you can redistribute it and/or

@@ -5,8 +5,6 @@
 --
 --  Created: 13 Januar 1999
 --
---  Version $Revision: 1.7 $ from $Date: 2005/11/17 17:12:55 $
---
 --  Copyright (C) 1999-2005 Manuel M. T. Chakravarty, Axel Simon
 --
 --  This library is free software; you can redistribute it and/or

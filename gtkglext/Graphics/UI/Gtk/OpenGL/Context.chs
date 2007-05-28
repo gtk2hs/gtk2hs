@@ -5,8 +5,6 @@
 --
 --  Created: 9 June 2005
 --
---  Version $Revision: 1.2 $ from $Date: 2005/11/16 13:21:07 $
---
 --  Copyright (C) 2005 Duncan Coutts
 --
 --  This library is free software; you can redistribute it and/or

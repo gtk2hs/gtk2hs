@@ -5,8 +5,6 @@
 --
 --  Created: 6 June 2003
 --
---  Version $Revision: 1.5 $ from $Date: 2005/10/13 23:35:39 $
---
 --  Copyright (C) 2003-2005 Jens-Ulrik Holger Petersen
 --
 --  This library is free software; you can redistribute it and/or
