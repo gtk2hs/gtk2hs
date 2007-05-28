@@ -32,6 +32,8 @@ module System.Glib.Properties (
   objectGetPropertyInt,
   objectSetPropertyUInt,
   objectGetPropertyUInt,
+  objectSetPropertyChar,
+  objectGetPropertyChar,
   objectSetPropertyBool,
   objectGetPropertyBool,
   objectSetPropertyEnum,
@@ -57,6 +59,7 @@ module System.Glib.Properties (
   newAttrFromIntProperty,
   readAttrFromIntProperty,
   newAttrFromUIntProperty,
+  newAttrFromCharProperty,
   writeAttrFromUIntProperty,
   newAttrFromBoolProperty,
   newAttrFromFloatProperty,
@@ -130,6 +133,12 @@ objectSetPropertyUInt = objectSetPropertyInternal GType.uint (\gv v -> valueSetU
 
 objectGetPropertyUInt :: GObjectClass gobj => String -> gobj -> IO Int
 objectGetPropertyUInt = objectGetPropertyInternal GType.uint (\gv -> liftM fromIntegral $ valueGetUInt gv)
+
+objectSetPropertyChar :: GObjectClass gobj => String -> gobj -> Char -> IO ()
+objectSetPropertyChar = objectSetPropertyInternal GType.uint (\gv v -> valueSetUInt gv (fromIntegral (fromEnum v)))
+
+objectGetPropertyChar :: GObjectClass gobj => String -> gobj -> IO Char
+objectGetPropertyChar = objectGetPropertyInternal GType.uint (\gv -> liftM (toEnum . fromIntegral) $ valueGetUInt gv)
 
 objectSetPropertyBool :: GObjectClass gobj => String -> gobj -> Bool -> IO ()
 objectSetPropertyBool = objectSetPropertyInternal GType.bool valueSetBool
@@ -207,6 +216,10 @@ readAttrFromIntProperty propName =
 newAttrFromUIntProperty :: GObjectClass gobj => String -> Attr gobj Int
 newAttrFromUIntProperty propName =
   newAttr (objectGetPropertyUInt propName) (objectSetPropertyUInt propName)
+
+newAttrFromCharProperty :: GObjectClass gobj => String -> Attr gobj Char
+newAttrFromCharProperty propName =
+  newAttr (objectGetPropertyChar propName) (objectSetPropertyChar propName)
 
 writeAttrFromUIntProperty :: GObjectClass gobj => String -> WriteAttr gobj Int
 writeAttrFromUIntProperty propName =
