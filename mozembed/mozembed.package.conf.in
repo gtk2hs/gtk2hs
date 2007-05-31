@@ -13,5 +13,5 @@ hs-libraries: HSmozembed
 extra-libraries: @MOZEMBED_LIBS_CQ@
 include-dirs: @MOZEMBED_CFLAGS_CQ@
 includes: gtkmozembed.h
-depends: gtk-@PACKAGE_VERSION@
+depends: base gtk-@PACKAGE_VERSION@
 ld-options: @MOZEMBED_LIBEXTRA_CQ@

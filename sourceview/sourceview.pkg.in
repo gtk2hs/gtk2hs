@@ -11,7 +11,7 @@ Package {
                         "gtksourceview/gtksourcetag.h",
                         "gtksourceview/gtksourceiter.h",
                         "gtksourceview/gtksourceview.h"],
-     package_deps    = ["gtk"],
+     package_deps    = ["base", "gtk"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],
      extra_ld_opts   = [@SOURCEVIEW_LIBEXTRA_CQ@]

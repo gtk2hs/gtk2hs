@@ -13,5 +13,5 @@ hs-libraries: HSglade
 extra-libraries: @LIBGLADE_LIBS_CQ@
 include-dirs: @LIBGLADE_CFLAGS_CQ@
 includes: glade/glade.h
-depends: gtk-@PACKAGE_VERSION@
+depends: base gtk-@PACKAGE_VERSION@
 ld-options: @LIBGLADE_LIBEXTRA_CQ@

@@ -13,5 +13,5 @@ hs-libraries: HSglib
 extra-libraries: @GLIB_LIBS_CQ@
 include-dirs: @GLIB_CFLAGS_CQ@, "${pkglibdir}/include"
 includes: glib.h, glib-object.h
-depends: haskell98
+depends: base
 ld-options: @GLIB_LIBEXTRA_CQ@

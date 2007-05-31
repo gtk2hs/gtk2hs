@@ -10,4 +10,4 @@ exposed-modules: Graphics.SOE.Gtk
 import-dirs: "${pkglibdir}/imports/soegtk"
 library-dirs: @GTK_LIBDIR_CQ@
 hs-libraries: HSsoegtk
-depends: gtk-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@
+depends: base gtk-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@

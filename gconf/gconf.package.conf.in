@@ -13,5 +13,5 @@ hs-libraries: HSgconf
 extra-libraries: @GCONF_LIBS_CQ@
 include-dirs: @GCONF_CFLAGS_CQ@
 includes: gconf/gconf-client.h
-depends: glib-@PACKAGE_VERSION@
+depends: base glib-@PACKAGE_VERSION@
 ld-options: @GCONF_LIBEXTRA_CQ@

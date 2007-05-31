@@ -6,5 +6,5 @@ maintainer: gtk2hs-users@lists.sourceforge.net
 stability: provisional
 homepage: http://haskell.org/gtk2hs/
 category: Graphics
-build-depends: glib==@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@
+build-depends: base glib==@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@
 exposed-modules: ${modules}

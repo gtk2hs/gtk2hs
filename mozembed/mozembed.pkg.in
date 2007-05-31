@@ -8,7 +8,7 @@ Package {
      extra_libraries = [@MOZEMBED_LIBS_CQ@],
      include_dirs    = [@MOZEMBED_CFLAGS_CQ@],
      c_includes      = ["gtkmozembed.h"],
-     package_deps    = ["gtk"],
+     package_deps    = ["base", "gtk"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],
      extra_ld_opts   = [@MOZEMBED_LIBEXTRA_CQ@]
