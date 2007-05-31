@@ -351,6 +351,9 @@ gtk_PKGNAME = libHSgtk_a
 libHSgtk_a_NAME			= gtk
 libHSgtk_a_CONFIG		= gtk/gtk.$(PKGEXT)
 libHSgtk_a_EXTERNALDEPS		= base
+if HAVE_MTL_PACKAGE
+libHSgtk_a_EXTERNALDEPS += mtl
+endif
 libHSgtk_a_INTERNALDEPS		= glib
 libHSgtk_a_HEADER 		= gtk/gtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
@@ -368,9 +371,6 @@ endif
 gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
 
 if ENABLE_CAIRO
-if HAVE_MTL_PACKAGE
-libHSgtk_a_EXTERNALDEPS += mtl
-endif
 libHSgtk_a_INTERNALDEPS += cairo
 gtk/libHSgtk_a.deps	: cairo/libHScairo_a.deps
 endif
