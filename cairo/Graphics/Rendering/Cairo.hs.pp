@@ -179,13 +179,17 @@ module Graphics.Rendering.Cairo (
 #ifdef ENABLE_CAIRO_PDF_SURFACE
   -- ** PDF surfaces
   , withPDFSurface
+#if CAIRO_CHECK_VERSION(1,2,0)
   , pdfSurfaceSetSize
+#endif
 #endif
 
 #ifdef ENABLE_CAIRO_PS_SURFACE
   -- ** PS surfaces
   , withPSSurface
+#if CAIRO_CHECK_VERSION(1,2,0)
   , psSurfaceSetSize
+#endif
 #endif
 
   -- * Utilities
@@ -1556,6 +1560,7 @@ withPDFSurface filename width height f = do
   Internal.surfaceDestroy surface
   return ret
 
+#if CAIRO_CHECK_VERSION(1,2,0)
 -- | Changes the size of a PDF surface for the current (and
 -- subsequent) pages.
 --
@@ -1567,6 +1572,7 @@ withPDFSurface filename width height f = do
 --
 pdfSurfaceSetSize :: Surface -> Double -> Double -> Render ()
 pdfSurfaceSetSize s x y = liftIO $ Internal.pdfSurfaceSetSize s x y
+#endif
 #endif
 
 #ifdef ENABLE_CAIRO_PNG_FUNCTIONS
@@ -1617,6 +1623,7 @@ withPSSurface filename width height f =
                             Internal.statusToString status >>= fail)
           (\surface -> f surface)
 
+#if CAIRO_CHECK_VERSION(1,2,0)
 -- | Changes the size of a PostScript surface for the current (and
 -- subsequent) pages.
 --
@@ -1628,6 +1635,7 @@ withPSSurface filename width height f =
 --
 psSurfaceSetSize :: Surface -> Double -> Double -> Render ()
 psSurfaceSetSize s x y = liftIO $ Internal.psSurfaceSetSize s x y
+#endif
 #endif
 
 -- | Returns the version of the cairo library encoded in a single integer.

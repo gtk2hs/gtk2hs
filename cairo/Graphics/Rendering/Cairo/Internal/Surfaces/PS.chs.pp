@@ -23,6 +23,9 @@ import Foreign.C
 #ifdef ENABLE_CAIRO_PS_SURFACE
 
 {#fun ps_surface_create  as psSurfaceCreate { withCString* `FilePath', `Double', `Double' } -> `Surface' mkSurface*#}
+
+#if CAIRO_CHECK_VERSION(1,2,0)
 {#fun cairo_ps_surface_set_size as psSurfaceSetSize { withSurface* `Surface', `Double', `Double' } -> `()'#}
+#endif
 
 #endif
