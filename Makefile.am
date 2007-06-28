@@ -1734,12 +1734,12 @@ endif #BUILDDOCS
 ################################################################################
 
 DEMOS = demo/hello demo/buttonbox demo/concurrent \
-	demo/graphic demo/unicode
+	demo/graphic demo/unicode demo/soe
 if HAVE_GTK_VERSION_2_2
 DEMOS += demo/fastdraw
 endif
 if ENABLE_LIBGLADE
-DEMOS += demo/glade demo/calc
+DEMOS += demo/glade demo/calc demo/noughty
 if HAVE_GTK_VERSION_2_4
 DEMOS += demo/filechooser demo/treeList
 endif
@@ -1816,7 +1816,10 @@ EXTRA_DIST +=								\
 		demo/noughty/noughty.glade demo/noughty/License		\
 		demo/noughty/Nought.png demo/noughty/Cross.png		\
 		demo/noughty/Makefile					\
-	demo/svg/Makefile  demo/svg/Svg2Png.hs  demo/svg/SvgViewer.hs
+	demo/svg/Makefile  demo/svg/Svg2Png.hs  demo/svg/SvgViewer.hs	\
+	demo/soe/BouncingBall.hs demo/soe/Demo1.hs demo/soe/Demo2.hs	\
+		demo/soe/Snowflake.hs demo/soe/Makefile
+
 
 #
 #       installing and registering packages with the Haskell compiler
