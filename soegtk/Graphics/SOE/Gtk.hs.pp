@@ -105,7 +105,7 @@ import qualified System.IO (hPutStrLn, stderr)
 
 runGraphics :: IO () -> IO ()
 runGraphics main = do
-  Gtk.initGUI
+  Gtk.unsafeInitGUIForThreadedRTS
   quitVar <- newIORef False
   forkIO (main >> writeIORef quitVar True)
   let loop = do
@@ -141,7 +141,8 @@ openWindowEx ::
  -> RedrawMode
  -> Maybe Word32
  -> IO Window
-openWindowEx title position size (RedrawMode useDoubleBuffer) timer = do
+openWindowEx title position size (RedrawMode useDoubleBuffer) timer =
+  Gtk.postGUISync $ do
   window <- Gtk.windowNew
   Gtk.windowSetTitle window title
 
@@ -256,7 +257,7 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer = do
   }
 
 getWindowSize :: Window -> IO Size
-getWindowSize win = Gtk.widgetGetSize (canvas win)
+getWindowSize win = Gtk.postGUISync $ Gtk.widgetGetSize (canvas win)
 
 clearWindow :: Window -> IO ()
 clearWindow win = setGraphic win emptyGraphic
@@ -264,7 +265,7 @@ clearWindow win = setGraphic win emptyGraphic
 drawInWindow :: Window -> Graphic -> IO ()
 drawInWindow win graphic = do
   modifyMVar_ (graphicVar win) (return . overGraphic graphic)
-  Gtk.widgetQueueDraw (canvas win)
+  Gtk.postGUIAsync $ Gtk.widgetQueueDraw (canvas win)
 
 drawInWindowNow :: Window -> Graphic -> IO ()
 drawInWindowNow = drawInWindow
@@ -272,10 +273,10 @@ drawInWindowNow = drawInWindow
 setGraphic :: Window -> Graphic -> IO ()
 setGraphic win graphic = do
   modifyMVar_ (graphicVar win) (\_ -> return graphic)
-  Gtk.widgetQueueDraw (canvas win)
+  Gtk.postGUIAsync $ Gtk.widgetQueueDraw (canvas win)
 
 closeWindow :: Window -> IO ()
-closeWindow win = Gtk.widgetHide (window win)
+closeWindow win = Gtk.postGUIAsync $ Gtk.widgetHide (window win)
 
 newtype RedrawMode = RedrawMode Bool
 
@@ -692,7 +693,8 @@ getWindowEvent win = do
   -- this says we are ready for another mouse move event
   -- (this is part of the pointer move event flood prevention system)
   case event of
-    MouseMove _ -> Gtk.widgetGetDrawWindow (canvas win)
+    MouseMove _ -> Gtk.postGUIAsync $
+                   Gtk.widgetGetDrawWindow (canvas win)
                    >>= Gtk.drawWindowGetPointer
                    >> return ()
     _ -> return ()
@@ -704,7 +706,8 @@ maybeGetWindowEvent win = do
   if noEvents then return Nothing
               else do event <- readChan (eventsChan win)
                       case event of
-                        MouseMove _ -> Gtk.widgetGetDrawWindow (canvas win)
+                        MouseMove _ -> Gtk.postGUIAsync $
+                                       Gtk.widgetGetDrawWindow (canvas win)
                                        >>= Gtk.drawWindowGetPointer
                                        >> return ()
                         _ -> return ()
