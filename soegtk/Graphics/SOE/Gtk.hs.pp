@@ -431,7 +431,7 @@ createRectangle :: Point -> Point -> Region
 createRectangle pt1 pt2 =
   let (x,y,width,height) = normaliseBounds' pt1 pt2 
       drawing x y = do
-        Cairo.liftIO $ print ("createRectangle",x,y,width,height)
+--        Cairo.liftIO $ print ("createRectangle",x,y,width,height)
         Cairo.rectangle (fromIntegral x) (fromIntegral y)
                         (fromIntegral width) (fromIntegral height)
         Cairo.fill
@@ -491,7 +491,7 @@ combineRegion operator a b =
       width  = x' - x
       height = y' - y
       drawing x'' y'' = do
-        Cairo.liftIO $ print ("combineRegion",x,y,width,height)
+--        Cairo.liftIO $ print ("combineRegion",x,y,width,height)
         Cairo.renderWithSimilarSurface Cairo.ContentAlpha width height $
           \surface -> do
           Cairo.renderWith surface $ do
@@ -501,7 +501,7 @@ combineRegion operator a b =
             Cairo.setOperator operator
             regionGraphic b (regionOriginX b - x)
                             (regionOriginY b - y)
-          Cairo.liftIO $ print ("mask surface",x,y)
+--          Cairo.liftIO $ print ("mask surface",x,y)
           Cairo.maskSurface surface (fromIntegral x'') (fromIntegral y'')
    in Region drawing x y width height
 
