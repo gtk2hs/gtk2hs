@@ -6,7 +6,7 @@ module Main where
 import Graphics.SOE.Gtk
 
 main = runGraphics $
-       do w <- openWindowEx "Bouncing Ball" (Just (800,800)) (Just (200, 600)) drawBufferedGraphic (Just 30)
+       do w <- openWindowEx "Bouncing Ball" Nothing (Just (300, 300)) drawBufferedGraphic (Just 30)
           let loop x y xd yd
                   = do setGraphic w $ withColor Yellow $
                                     ellipse (x-5,y-5) (x+5,y+5)

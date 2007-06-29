@@ -106,18 +106,8 @@ import qualified System.IO (hPutStrLn, stderr)
 runGraphics :: IO () -> IO ()
 runGraphics main = do
   Gtk.unsafeInitGUIForThreadedRTS
-  quitVar <- newIORef False
-  forkIO (main >> writeIORef quitVar True)
-  let loop = do
-        yield
-        Gtk.mainIteration
-        quit <- readIORef quitVar
-        if quit then return ()
-                else loop
-  loop
-  -- give any windows a chance to close
-  Gtk.flush
-  return ()
+  forkIO (main >> Gtk.postGUIAsync Gtk.mainQuit)
+  Gtk.mainGUI
 
 type Title = String
 type Size = (Int, Int)
@@ -210,6 +200,7 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer =
     return True
 
   Gtk.onDelete window $ \_ -> do writeChan eventsChan Closed
+                                 Gtk.widgetHide window
                                  return True
                      
   Gtk.onMotionNotify canvas True $ \Gtk.Motion { Gtk.eventX=x, Gtk.eventY=y} ->
@@ -217,14 +208,17 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer =
       pt = (round x, round y)
     } >> return True
   
-  Gtk.onButtonPress canvas $ \event@Gtk.Button { Gtk.eventX=x, Gtk.eventY=y } ->
-    writeChan eventsChan Button {
-      pt = (round x,round y),
-      isLeft = Gtk.eventButton event == Gtk.LeftButton,
-      isDown = case Gtk.eventClick event of
-                 Gtk.ReleaseClick -> False
-                 _                     -> True
-    } >> return True
+  let mouseButtonHandler event@Gtk.Button { Gtk.eventX=x, Gtk.eventY=y } = do
+        writeChan eventsChan Button {
+            pt = (round x,round y),
+            isLeft = Gtk.eventButton event == Gtk.LeftButton,
+            isDown = case Gtk.eventClick event of
+                       Gtk.ReleaseClick -> False
+                       _                -> True
+          }
+        return True
+  Gtk.onButtonPress canvas mouseButtonHandler
+  Gtk.onButtonRelease canvas mouseButtonHandler
 
   let keyPressHandler Gtk.Key { Gtk.eventKeyChar = Nothing } = return True
       keyPressHandler Gtk.Key { Gtk.eventKeyChar = Just char, Gtk.eventRelease = release } =
