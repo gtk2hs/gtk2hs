@@ -157,20 +157,17 @@ unsafeInitGUIForThreadedRTS = do
         mapM peekUTFString addrs'
         else error "Cannot initialize GUI."
 
-{-# NOINLINE gthreadsInitialisedRef #-}
-gthreadsInitialisedRef :: IORef Bool
-gthreadsInitialisedRef = unsafePerformIO (newIORef False)
-
 -- g_thread_init aborts the whole program if it's called more than once so
--- we've got to keep track of whether or not we've called it already, hence
--- the ugly top-level IORef trick. Sigh.
+-- we've got to keep track of whether or not we've called it already. Sigh.
 --
 initialiseGThreads :: IO ()
 initialiseGThreads = do
-  gthreadsInitialised <- readIORef gthreadsInitialisedRef
+  gthreadsInitialised <- liftM (toBool . fromIntegral) gtk2hs_thread_supported
   when (not gthreadsInitialised) $ do
     {# call unsafe g_thread_init #} nullPtr
-    writeIORef gthreadsInitialisedRef True
+
+foreign import ccall "hsgthread.h gtk2hs_thread_supported"
+  gtk2hs_thread_supported :: IO CInt
 
 -- | Post an action to be run in the main GUI thread.
 --

@@ -18,6 +18,7 @@ EXTRA_DIST = \
 	cairo/COPYRIGHT				\
 	cairo/cairo.h				\
 	svgcairo/svgcairo.h			\
+	gtk/Graphics/UI/Gtk/General/hsgthread.h	\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
 
 # There are no other files in these dirs and tar excludes empty dirs
@@ -417,6 +418,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Entry/VScale.chs				\
 	gtk/Graphics/UI/Gtk/General/Enums.chs.pp			\
 	gtk/Graphics/UI/Gtk/General/General.chs				\
+	gtk/Graphics/UI/Gtk/General/hsgthread.c				\
 	gtk/Graphics/UI/Gtk/General/IconFactory.chs.pp			\
 	gtk/Graphics/UI/Gtk/General/Style.chs				\
 	gtk/Graphics/UI/Gtk/Layout/Alignment.chs.pp			\
