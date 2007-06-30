@@ -88,7 +88,7 @@ module Graphics.SOE.Gtk (
 import Data.Ix (Ix)
 import Data.Word (Word32)
 import Data.IORef (newIORef, readIORef, writeIORef)
-import Control.Concurrent (forkIO, yield)
+import Control.Concurrent (forkIO, yield, rtsSupportsBoundThreads)
 import Control.Concurrent.MVar
 import Control.Concurrent.Chan
 
@@ -107,7 +107,16 @@ runGraphics :: IO () -> IO ()
 runGraphics main = do
   Gtk.unsafeInitGUIForThreadedRTS
   forkIO (main >> Gtk.postGUIAsync Gtk.mainQuit)
-  Gtk.mainGUI
+  if rtsSupportsBoundThreads
+    then Gtk.mainGUI
+    else let loop = do
+               yield
+               quit <- Gtk.mainIteration
+               if quit then return ()
+                       else loop
+          in do loop
+                -- give any windows a chance to close
+                Gtk.flush
 
 type Title = String
 type Size = (Int, Int)

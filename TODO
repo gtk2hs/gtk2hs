@@ -13,8 +13,6 @@ TODO for gtk2hs
 
 	* Make sure the dirlist demo works on win32.
 
-	* make SOE give an error in GHCi since it uses threads.
-
 15/10/2006 Duncan Coutts <duncan@coutts.uklinux.net>
 
 	* Add a mechanism to the code generator to add exceptions for when
