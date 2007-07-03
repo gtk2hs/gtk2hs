@@ -104,19 +104,24 @@ import qualified System.IO (hPutStrLn, stderr)
 #endif
 
 runGraphics :: IO () -> IO ()
-runGraphics main = do
-  Gtk.unsafeInitGUIForThreadedRTS
-  forkIO (main >> Gtk.postGUIAsync Gtk.mainQuit)
-  if rtsSupportsBoundThreads
-    then Gtk.mainGUI
-    else let loop = do
-               yield
-               quit <- Gtk.mainIteration
-               if quit then return ()
-                       else loop
-          in do loop
-                -- give any windows a chance to close
-                Gtk.flush
+runGraphics main
+  | rtsSupportsBoundThreads = do
+      Gtk.unsafeInitGUIForThreadedRTS
+      forkIO (main >> Gtk.postGUIAsync Gtk.mainQuit)
+      Gtk.mainGUI
+  | otherwise = do
+      Gtk.initGUI
+      quitVar <- newIORef False
+      forkIO (main >> writeIORef quitVar True)
+      let loop = do
+            yield
+            Gtk.mainIteration
+            quit <- readIORef quitVar
+            if quit then return ()
+                    else loop
+      loop
+      -- give any windows a chance to close
+      Gtk.flush
 
 type Title = String
 type Size = (Int, Int)
