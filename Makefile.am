@@ -1855,10 +1855,23 @@ else WIN32_INSTALLER
 # ${modules} variable, but we don't substitute for ${pkglibdir} and we
 # "reverse" substitute occurences of the Gtk installation prefix for
 # ${GTK_BASEPATH} (that is the string literal, not the value of the variable)
+#
+# Annother annoying thing is that the .lib names and .dll names on windows do
+# not match up, so we have to specify different libraries for ghci than for
+# ghc. Eg while it's gtk-2.0.lib it's libgtk-2.0-0.dll.
+# We generate the "extra-ghci-libraries:" field from the "extra-libraries:"
+# field using a bit of cunning sed hackery.
 install-exec-local:
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
 	$(SED)	-e 's|$(GTK_BASEPATH)|$${GTK_BASEPATH}|g' \
 		-e 's|$${modules}|$(call getModules,$(pkgname))|' \
+		-e '/^extra-libraries:/ \
+			p; \
+			s/extra-libraries/extra-ghci-libraries/; \
+			s/"\([a-z0-9.-]*\.0\)"/"lib\1-0"/g; \
+			s/"cairo"/"libcairo-2"/; \
+			s/"rsvg-2"/"librsvg-2-2"/; \
+			s/"xml2"/"libxml2"/' \
 		$(call getVar,$(pkgname),CONFIG) \
 	> $(call getVar,$(pkgname),CONFIG).tmp; \
 	mv $(call getVar,$(pkgname),CONFIG).tmp $(call getVar,$(pkgname),CONFIG);)
