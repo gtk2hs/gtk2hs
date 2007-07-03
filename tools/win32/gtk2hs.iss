@@ -4,17 +4,17 @@
 [Setup]
 AppName=Gtk2Hs
 AppId=Gtk2Hs
-AppVerName=Gtk2Hs 0.9.10.6
-AppVersion=0.9.10.6
+AppVerName=Gtk2Hs 0.9.11.3
+AppVersion=0.9.11.3
 AppPublisher=The Gtk2Hs Team
 AppPublisherURL=http://haskell.org/gtk2hs/
 AppSupportURL=http://haskell.org/gtk2hs/
 AppUpdatesURL=http://haskell.org/gtk2hs/
 
 DefaultDirName={pf}\Gtk2Hs
-OutputBaseFilename=gtk2hs-0.9.10.6
+OutputBaseFilename=gtk2hs-0.9.11.3
 
-VersionInfoVersion=0.9.10.6
+VersionInfoVersion=0.9.11.3
 VersionInfoCopyright=Copyright (C) 2001-2007 The Gtk2Hs Team
 
 Compression=lzma/max
@@ -24,17 +24,17 @@ ChangesEnvironment=yes
 
 [Components]
 Name: "gtk";     Description: "Gtk+ libraries"; Types: full compact custom; Flags: fixed
-Name: "gtk2hs1"; Description: "Gtk2Hs libraries for GHC 6.4.2"; Check: UseWithGhcVersion('6.4.2'); Types: full compact custom; Flags: fixed
-Name: "gtk2hs2"; Description: "Gtk2Hs libraries for GHC 6.6"; Check: UseWithGhcVersion('6.6'); Types: full compact custom; Flags: fixed
+;Name: "gtk2hs1"; Description: "Gtk2Hs libraries for GHC 6.4.2"; Check: UseWithGhcVersion('6.4.2'); Types: full compact custom; Flags: fixed
+Name: "gtk2hs2"; Description: "Gtk2Hs libraries for GHC 6.6.1"; Check: UseWithGhcVersion('6.6.1'); Types: full compact custom; Flags: fixed
 Name: "docs";    Description: "API reference documentation"; Types: full
 Name: "demos";   Description: "Source files for the Gtk2Hs demo programs"; Types: full
 
 [Files]
-Source: "gtk+-2.10.9\*";                        DestDir: "{app}";       Components: gtk;     Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "gtk2hs-0.9.10.6-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-0.9.10.6-ghc-6.6-gtk-2.10\*";   DestDir: "{app}";       Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-0.9.10.6-demo\*";               DestDir: "{app}\demos"; Components: demos;   Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "gtk2hs-0.9.10.6-docs\*";               DestDir: "{app}\docs";  Components: docs;    Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk+-2.10.13\*";                        DestDir: "{app}";       Components: gtk;     Flags: ignoreversion recursesubdirs createallsubdirs;
+;Source: "gtk2hs-0.9.11.3-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-0.9.11.3-ghc-6.6.1-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-0.9.11.3-demo\*";               DestDir: "{app}\demos"; Components: demos;   Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk2hs-0.9.11.3-docs\*";               DestDir: "{app}\docs";  Components: docs;    Flags: ignoreversion recursesubdirs createallsubdirs;
 Source: "COPYING.txt";                          DestDir: "{app}";                            Flags: ignoreversion;
 Source: "AUTHORS.txt";                          DestDir: "{app}";                            Flags: ignoreversion;
 
@@ -49,15 +49,16 @@ Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtk.package.conf""";     
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf""";    StatusMsg: "Registering glade package...";    Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\soegtk.package.conf""";   StatusMsg: "Registering soegtk package...";   Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkglext.package.conf"""; StatusMsg: "Registering gtkglext package..."; Flags: runhidden
-
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\sourceview.package.conf"""; StatusMsg: "Registering sourceview package..."; Flags: runhidden
 [UninstallRun]
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtkglext-0.9.10.6"; RunOnceId: "gtkglext"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.10.6";   RunOnceId: "soegtk";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.10.6";    RunOnceId: "glade";    Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.10.6";      RunOnceId: "gtk";      Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.10.6"; RunOnceId: "svgcairo"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.10.6";    RunOnceId: "cairo";    Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.10.6";     RunOnceId: "glib";     Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister sourceview-0.9.11.3"; RunOnceId: "gtkglext"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtkglext-0.9.11.3";   RunOnceId: "gtkglext"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.11.3";     RunOnceId: "soegtk";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.11.3";      RunOnceId: "glade";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.11.3";        RunOnceId: "gtk";      Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.11.3";   RunOnceId: "svgcairo"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.11.3";      RunOnceId: "cairo";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.11.3";       RunOnceId: "glib";     Flags: runhidden
 
 [Code]
 var
@@ -133,8 +134,8 @@ begin
   Version := ExecOutput(AddBackslash(Path) + 'bin\ghc.exe', '--numeric-version');
   GhcInstallVersion := Version;
   
-  Result := (Version = '6.4.2')
-         or (Version = '6.6');
+  Result := {-(Version = '6.4.2')
+           or-} (Version = '6.6.1');
 end;
 
 var
@@ -170,10 +171,10 @@ begin
   begin
     Log('DetectValidGhcInstallation: found HKCU\Software\Haskell\GHC');
     HaveSomeGHCInstalled := True;
-    RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Haskell\GHC\ghc-6.6', 'InstallDir', GhcInstallDir);
+    RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Haskell\GHC\ghc-6.6.1', 'InstallDir', GhcInstallDir);
     Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
   end;
-
+{-
   if (Result = False) and RegKeyExists(HKEY_CURRENT_USER, 'Software\Haskell\GHC') then
   begin
     Log('DetectValidGhcInstallation: found HKCU\Software\Haskell\GHC');
@@ -181,15 +182,15 @@ begin
     RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Haskell\GHC\ghc-6.4.2', 'InstallDir', GhcInstallDir);
     Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
   end;
-
+-}
   if (Result = False) and RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC') then
   begin
     Log('DetectValidGhcInstallation: found HKLM\SOFTWARE\Haskell\GHC');
     HaveSomeGHCInstalled := True;
-    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC\ghc-6.6', 'InstallDir', GhcInstallDir);
+    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC\ghc-6.6.1', 'InstallDir', GhcInstallDir);
     Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
   end;
-
+{-
   if (Result = False) and RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC') then
   begin
     Log('DetectValidGhcInstallation: found HKLM\SOFTWARE\Haskell\GHC');
@@ -197,14 +198,14 @@ begin
     RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC\ghc-6.4.2', 'InstallDir', GhcInstallDir);
     Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
   end;
-
+-}
   if Result then
     Log('DetectValidGhcInstallation: correct version of ghc found at: ' + GhcInstallDir)
   else if HaveSomeGHCInstalled and (GHCVersion <> '') then
   begin
     Log('DetectValidGhcInstallation: incorrect ghc version installed: ' + GHCVersion);
     InstallationErrorCaption := 'The version of GHC currently installed is not suitable.';
-    InstallationErrorMessage := 'This version of Gtk2Hs requires GHC version 6.6 or 6.4.2.' #13#10 #13#10
+    InstallationErrorMessage := 'This version of Gtk2Hs requires GHC version 6.6.1.' #13#10 #13#10
                                 'Setup found GHC version ' + GHCVersion + ' installed in the folder:' #13#10
                               + GhcInstallDir
   end
@@ -212,7 +213,7 @@ begin
   begin
     Log('DetectValidGhcInstallation: some non-working version of ghc appears to be installed at: ' + GhcInstallDir);
     InstallationErrorCaption := 'GHC does not seem to be working.';
-    InstallationErrorMessage := 'GHC does not appear to be installed correctly, try reinstalling GHC version 6.6 or 6.4.2' #13#10 #13#10
+    InstallationErrorMessage := 'GHC does not appear to be installed correctly, try reinstalling GHC version 6.6.1' #13#10 #13#10
                                 'Setup found what appears to be a non-working installation of GHC in the folder:' #13#10
                               + GhcInstallDir
   end
@@ -220,13 +221,13 @@ begin
   begin
     Log('DetectValidGhcInstallation: corrupted ghc installation detected, probably messed up registry keys');
     InstallationErrorCaption := 'Setup did not find GHC on your computer.';
-    InstallationErrorMessage := 'GHC does not appear to be installed (or the installation is corrupted), please install GHC version 6.6 or 6.4.2';
+    InstallationErrorMessage := 'GHC does not appear to be installed (or the installation is corrupted), please install GHC version 6.6.1';
   end
   else
   begin
     Log('DetectValidGhcInstallation: no installation of ghc detected');
     InstallationErrorCaption := 'Setup did not find GHC on your computer.';
-    InstallationErrorMessage := 'Gtk2Hs requires GHC to be installed first, please install GHC version 6.6 or 6.4.2' #13#10 #13#10
+    InstallationErrorMessage := 'Gtk2Hs requires GHC to be installed first, please install GHC version 6.6.1' #13#10 #13#10
                                 'If you installed GHC manually then make sure ghc.exe is on the path.';
   end;
   
