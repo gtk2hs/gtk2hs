@@ -5,9 +5,9 @@
 PATH=${BASE_PATH}
 case $1 in
 	ghc-6.2.2) PATH="${PATH}:${GHC_622_PATH}";;
-	ghc-6.4.2)   PATH="${PATH}:${GHC_642_PATH}";;
-	ghc-6.6)   PATH="${PATH}:${GHC_66_PATH}";;
-	*) echo "GHC version parameter must be one of ghc-6.2.2, ghc-6.4.2 or ghc-6.6"; exit;;
+	ghc-6.4.2) PATH="${PATH}:${GHC_642_PATH}";;
+	ghc-6.6.1) PATH="${PATH}:${GHC_66_PATH}";;
+	*) echo "GHC version parameter must be one of ghc-6.2.2, ghc-6.4.2 or ghc-6.6.1"; exit;;
 esac
 case $2 in
 	gtk-2.4) GTK_BASEPATH=${GTK_24_BASEPATH};;
@@ -37,12 +37,14 @@ VERSION_SUFFIX="ghc-${GHC_VERSION}-gtk-${GTK_VERSION}"
 VERSIONED_DIR="gtk2hs-${VERSION}-${VERSION_SUFFIX}"
 BUILD_DIR="build-${VERSIONED_DIR}"
 
+CONFIGURE_FLAGS="--enable-packager-mode --enable-split-objs --enable-libglade --enable-opengl"
+
 rm -rf ${BUILD_DIR}
 mkdir ${BUILD_DIR}
 cd ${BUILD_DIR}
 tar -xzf ../gtk2hs-${VERSION}.tar.gz
 cd gtk2hs-${VERSION}
-./configure --enable-packager-mode --enable-split-objs --enable-libglade --prefix=/ ${CONFIGURE_EXTRAFLAGS}
+./configure --prefix=/ ${CONFIGURE_FLAGS} ${CONFIGURE_EXTRAFLAGS}
 make
 make install DESTDIR="${INSTALL_SOURCE_DIR}/tmp-${VERSIONED_DIR}"
 rm -rf ${INSTALL_SOURCE_DIR}/${VERSIONED_DIR}

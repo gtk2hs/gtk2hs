@@ -12,8 +12,3 @@ do
 	unzip -q ../$f
 	popd
 done
-
-rm -rf libxml2-dev-${LIBXML_VERSION}/
-mv libxml2-${LIBXML_VERSION}.win32 libxml2-dev-${LIBXML_VERSION}
-mv libxml2-dev-${LIBXML_VERSION}/libxml2-${LIBXML_VERSION}.win32/* libxml2-dev-${LIBXML_VERSION}/
-rmdir libxml2-dev-${LIBXML_VERSION}/libxml2-${LIBXML_VERSION}.win32/

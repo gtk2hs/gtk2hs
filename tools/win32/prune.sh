@@ -54,3 +54,7 @@ popd
 pushd libglade-dev-${LIBGLADE_VERSION}
 rm -rf share/xml
 popd
+
+pushd libxml2-dev-${LIBXML_VERSION}
+rm -rf include
+popd

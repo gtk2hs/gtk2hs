@@ -10,11 +10,11 @@ BASE_URL=http://ftp.gnome.org/pub/GNOME/binaries/win32
 wget -c $BASE_URL/glib/2.12/glib-${GLIB_VERSION}.zip || exit
 wget -c $BASE_URL/glib/2.12/glib-dev-${GLIB_VERSION}.zip || exit
 
-wget -c $BASE_URL/pango/1.14/pango-${PANGO_VERSION}.zip || exit
-wget -c $BASE_URL/pango/1.14/pango-dev-${PANGO_VERSION}.zip || exit
+wget -c $BASE_URL/pango/1.16/pango-${PANGO_VERSION}.zip || exit
+wget -c $BASE_URL/pango/1.16/pango-dev-${PANGO_VERSION}.zip || exit
 
-wget -c $BASE_URL/atk/1.12/atk-${ATK_VERSION}.zip || exit
-wget -c $BASE_URL/atk/1.12/atk-dev-${ATK_VERSION}.zip || exit
+wget -c $BASE_URL/atk/1.18/atk-${ATK_VERSION}.zip || exit
+wget -c $BASE_URL/atk/1.18/atk-dev-${ATK_VERSION}.zip || exit
 
 wget -c $BASE_URL/dependencies/cairo-${CAIRO_VERSION}.zip || exit
 wget -c $BASE_URL/dependencies/cairo-dev-${CAIRO_VERSION}.zip || exit
@@ -35,8 +35,18 @@ wget -c $BASE_URL/dependencies/libpng-${LIBPNG_VERSION}.zip || exit
 wget -c $BASE_URL/dependencies/libjpeg-${LIBJPEG_VERSION}.zip || exit
 
 wget -c $BASE_URL/dependencies/libxml2-${LIBXML_VERSION}.zip || exit
-wget -c http://www.zlatkovic.com/pub/libxml/oldreleases/libxml2-${LIBXML_VERSION}.win32.zip || exit
+wget -c $BASE_URL/dependencies/libxml2-dev-${LIBXML_VERSION}.zip || exit
 
 wget -c $BASE_URL/dependencies/zlib-${ZLIB_VERSION}.zip || exit
 
 wget -c $BASE_URL/dependencies/pkg-config-${PKGCONFIG_VERSION}.zip || exit
+
+if test ${GTK_EXTRAS}
+then
+wget -c $BASE_URL/librsvg/2.16/librsvg-${LIBRSVG_VERSION}.zip
+wget -c $BASE_URL/librsvg/2.16/librsvg-dev-${LIBRSVG_VERSION}.zip
+wget -c $BASE_URL/librsvg/2.16/svg-gdk-pixbuf-loader-${LIBRSVG_VERSION}.zip
+
+wget -c $BASE_URL/gtksourceview/1.8/gtksourceview-${SOURCEVIEW_VERSION}.zip
+wget -c $BASE_URL/gtksourceview/1.8/gtksourceview-dev-${SOURCEVIEW_VERSION}.zip
+fi
