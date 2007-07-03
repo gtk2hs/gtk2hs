@@ -34,6 +34,15 @@ Wouter Swierstra
 Maurício C. Antunes  <mauricio.antunes@gmail.com>
 (traffic simulator demo)
 
+Toby Allsopp <toby@mi6.gen.nz>
+(work on cairo ps & psf backends)
+
+Malte Milatz <malte@gmx-topmail.de>
+(cairo matrix documentation)
+
+Maxime Henrion <mux@FreeBSD.org>
+(ColorSelectionDialog improvements)
+
 Armin Groesslinger <fmi.uni-passau.de>
 JP Bernardy <jyp_7@yahoo.com>
 Jonas Svensson <d99josve@dtek.chalmers.se>
