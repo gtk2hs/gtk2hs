@@ -137,8 +137,8 @@ main = do
   mainGUI
 
 guiActions buttons images label = do
-  Right noughtPic <- pixbufNewFromFile "Nought.png"
-  Right crossPic  <- pixbufNewFromFile "Cross.png"
+  noughtPic <- pixbufNewFromFile "Nought.png"
+  crossPic  <- pixbufNewFromFile "Cross.png"
   return GUI {
     disableBoard = mapM_ (flip widgetSetSensitivity False) buttons,
     resetBoard = do
