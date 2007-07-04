@@ -192,6 +192,11 @@ module Graphics.Rendering.Cairo (
 #endif
 #endif
 
+#ifdef ENABLE_CAIRO_SVG_SURFACE
+  -- ** SVG surfaces
+  , withSVGSurface
+#endif
+
   -- * Utilities
 
   , liftIO
@@ -1636,6 +1641,27 @@ withPSSurface filename width height f =
 psSurfaceSetSize :: Surface -> Double -> Double -> Render ()
 psSurfaceSetSize s x y = liftIO $ Internal.psSurfaceSetSize s x y
 #endif
+#endif
+
+
+#ifdef ENABLE_CAIRO_SVG_SURFACE
+-- | Creates a SVG surface of the specified size in points
+-- be written to @filename@.
+--
+withSVGSurface ::
+     FilePath -- ^ @filename@ - a filename for the SVG output (must be writable)
+  -> Double   -- ^ width of the surface, in points (1 point == 1\/72.0 inch)
+  -> Double   -- ^ height of the surface, in points (1 point == 1\/72.0 inch)
+  -> (Surface -> IO a) -- ^ an action that may use the surface. The surface is
+                       -- only valid within in this action.
+  -> IO a
+withSVGSurface filename width height f =
+  bracket (Internal.svgSurfaceCreate filename width height)
+          (\surface -> do status <- Internal.surfaceStatus surface
+                          Internal.surfaceDestroy surface
+                          unless (status == StatusSuccess) $
+                            Internal.statusToString status >>= fail)
+          (\surface -> f surface)
 #endif
 
 -- | Returns the version of the cairo library encoded in a single integer.

@@ -1256,6 +1256,7 @@ libHScairo_a_SOURCES =							\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs.pp	\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs.pp	\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs.pp	\
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/SVG.chs.pp	\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Surface.chs    \
 	cairo/Graphics/Rendering/Cairo/Internal/Utilities.chs
 

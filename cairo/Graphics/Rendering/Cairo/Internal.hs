@@ -25,6 +25,7 @@ module Graphics.Rendering.Cairo.Internal (
   , module Graphics.Rendering.Cairo.Internal.Surfaces.PDF
   , module Graphics.Rendering.Cairo.Internal.Surfaces.PNG
   , module Graphics.Rendering.Cairo.Internal.Surfaces.PS
+  , module Graphics.Rendering.Cairo.Internal.Surfaces.SVG
   , module Graphics.Rendering.Cairo.Internal.Surfaces.Surface
   , module Graphics.Rendering.Cairo.Internal.Utilities
 
@@ -41,6 +42,7 @@ import Graphics.Rendering.Cairo.Internal.Surfaces.Image
 import Graphics.Rendering.Cairo.Internal.Surfaces.PDF
 import Graphics.Rendering.Cairo.Internal.Surfaces.PNG
 import Graphics.Rendering.Cairo.Internal.Surfaces.PS
+import Graphics.Rendering.Cairo.Internal.Surfaces.SVG
 import Graphics.Rendering.Cairo.Internal.Surfaces.Surface
 import Graphics.Rendering.Cairo.Internal.Utilities
 
