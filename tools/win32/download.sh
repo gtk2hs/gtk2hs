@@ -27,6 +27,9 @@ wget -c $BASE_URL/libglade/2.6/libglade-dev-${LIBGLADE_VERSION}.zip || exit
 
 wget -c http://downloads.sourceforge.net/gtkglext/gtkglext-win32-${GTKGLEXT_VERSION}.zip
 
+wget -c $BASE_URL/gtksourceview/1.8/gtksourceview-${SOURCEVIEW_VERSION}.zip
+wget -c $BASE_URL/gtksourceview/1.8/gtksourceview-dev-${SOURCEVIEW_VERSION}.zip
+
 wget -c $BASE_URL/dependencies/libiconv-${LIBICONV_VERSION}.bin.woe32.zip || exit
 wget -c $BASE_URL/dependencies/gettext-${GETTEXT_VERSION}.zip || exit
 wget -c $BASE_URL/dependencies/gettext-dev-${GETTEXT_VERSION}.zip || exit
@@ -41,12 +44,8 @@ wget -c $BASE_URL/dependencies/zlib-${ZLIB_VERSION}.zip || exit
 
 wget -c $BASE_URL/dependencies/pkg-config-${PKGCONFIG_VERSION}.zip || exit
 
-if test ${GTK_EXTRAS}
-then
-wget -c $BASE_URL/librsvg/2.16/librsvg-${LIBRSVG_VERSION}.zip
-wget -c $BASE_URL/librsvg/2.16/librsvg-dev-${LIBRSVG_VERSION}.zip
-wget -c $BASE_URL/librsvg/2.16/svg-gdk-pixbuf-loader-${LIBRSVG_VERSION}.zip
-
-wget -c $BASE_URL/gtksourceview/1.8/gtksourceview-${SOURCEVIEW_VERSION}.zip
-wget -c $BASE_URL/gtksourceview/1.8/gtksourceview-dev-${SOURCEVIEW_VERSION}.zip
-fi
+#if test ${GTK_EXTRAS}
+#then
+#wget -c $BASE_URL/librsvg/2.16/librsvg-${LIBRSVG_VERSION}.zip
+#wget -c $BASE_URL/librsvg/2.16/librsvg-dev-${LIBRSVG_VERSION}.zip
+#fi

@@ -34,14 +34,14 @@ mv lib/libxml2.lib lib/xml2.lib
 sed -i -e 's/-lz//' lib/pkgconfig/libxml-2.0.pc
 popd
 
-if test ${GTK_EXTRAS}
-then
-pushd librsvg-dev-${LIBRSVG_VERSION}
-mv lib/librsvg-2.dll.a lib/rsvg-2.lib
-popd
-
 pushd gtksourceview-dev-${SOURCEVIEW_VERSION}
 mv lib/libgtksourceview-1.0.dll.a lib/gtksourceview-1.0.lib
 sed -i -e 's/libgnomeprint-2.2//' lib/pkgconfig/gtksourceview-1.0.pc 
 popd
-fi
+
+#if test ${GTK_EXTRAS}
+#then
+#pushd librsvg-dev-${LIBRSVG_VERSION}
+#mv lib/librsvg-2.dll.a lib/rsvg-2.lib
+#popd
+#fi

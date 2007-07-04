@@ -44,7 +44,7 @@ Root: HKCU; Subkey: "Environment"; ValueName: "Path"; ValueType: "string"; Value
 [Run]
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glib.package.conf""";     StatusMsg: "Registering glib package...";     Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\cairo.package.conf""";    StatusMsg: "Registering cairo package...";    Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\svgcairo.package.conf"""; StatusMsg: "Registering svgcairo package..."; Flags: runhidden
+;Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\svgcairo.package.conf"""; StatusMsg: "Registering svgcairo package..."; Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtk.package.conf""";      StatusMsg: "Registering gtk package...";      Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf""";    StatusMsg: "Registering glade package...";    Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\soegtk.package.conf""";   StatusMsg: "Registering soegtk package...";   Flags: runhidden
@@ -56,7 +56,7 @@ Filename: "{code:ghcpkg}"; Parameters: "unregister gtkglext-0.9.11.3";   RunOnce
 Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.11.3";     RunOnceId: "soegtk";   Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.11.3";      RunOnceId: "glade";    Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.11.3";        RunOnceId: "gtk";      Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.11.3";   RunOnceId: "svgcairo"; Flags: runhidden
+;Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.11.3";   RunOnceId: "svgcairo"; Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.11.3";      RunOnceId: "cairo";    Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.11.3";       RunOnceId: "glib";     Flags: runhidden
 
