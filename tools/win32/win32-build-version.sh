@@ -6,7 +6,7 @@ PATH=${BASE_PATH}
 case $1 in
 	ghc-6.2.2) PATH="${PATH}:${GHC_622_PATH}";;
 	ghc-6.4.2) PATH="${PATH}:${GHC_642_PATH}";;
-	ghc-6.6.1) PATH="${PATH}:${GHC_66_PATH}";;
+	ghc-6.6.1) PATH="${PATH}:${GHC_661_PATH}";;
 	*) echo "GHC version parameter must be one of ghc-6.2.2, ghc-6.4.2 or ghc-6.6.1"; exit;;
 esac
 case $2 in
