@@ -1868,7 +1868,7 @@ install-exec-local:
 		-e '/^extra-libraries:/ \
 			p; \
 			s/extra-libraries/extra-ghci-libraries/; \
-			s/"\([a-z0-9.-]*\.0\)"/"lib\1-0"/g; \
+			s/"\([a-z0-9._-]*\.0\)"/"lib\1-0"/g; \
 			s/"cairo"/"libcairo-2"/; \
 			s/"rsvg-2"/"librsvg-2-2"/; \
 			s/"xml2"/"libxml2"/' \
