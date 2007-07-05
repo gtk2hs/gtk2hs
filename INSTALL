@@ -120,6 +120,10 @@ To build the sources you issue:
 ~/gtk2hs:$ make
 
 
+Note: using make -j2 will *not* work. Our makefiles are not safe for
+      use with parallel make unfortunately.
+
+
 3. Install the libraries.
 -------------------------
 
