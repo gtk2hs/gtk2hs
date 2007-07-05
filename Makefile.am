@@ -68,6 +68,10 @@ pkglibinclude_DATA = gtk2hs-config.h
 
 hidir = $(pkglibdir)/imports
 
+# Sadly the generated Makefile is not safe for parallel builds
+# so prevent people from shooting themselves in the foot:
+.NOTPARALLEL:
+
 #
 #	TypeGenerator Tool
 #
