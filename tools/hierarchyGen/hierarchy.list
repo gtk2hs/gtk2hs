@@ -215,3 +215,8 @@
 	GdkGLContext		if gtkglext
 	GdkGLConfig		if gtkglext
 	GdkGLDrawable		if gtkglext
+
+## GnomeVFS classes
+	GnomeVFSVolume		as Volume, gnome_vfs_volume_get_type if gnomevfs
+	GnomeVFSDrive		as Drive, gnome_vfs_drive_get_type if gnomevfs
+	GnomeVFSVolumeMonitor	as VolumeMonitor, gnome_vfs_volume_monitor_get_type if gnomevfs

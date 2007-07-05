@@ -1,0 +1,15 @@
+Package {
+     name            = "gnomevfs",
+     auto            = True,
+     import_dirs     = ["${pkglibdir}/imports/gnomevfs"],
+     source_dirs     = [],
+     library_dirs    = [@GNOMEVFS_LIBDIR_CQ@],
+     hs_libraries    = ["HSgnomevfs"],
+     extra_libraries = [@GNOMEVFS_LIBS_CQ@],
+     include_dirs    = [@GNOMEVFS_CFLAGS_CQ@],
+     c_includes      = ["libgnomevfs/gnome-vfs.h", "libgnomevfs/gnome-vfs-mime.h"],
+     package_deps    = ["glib"],
+     extra_ghc_opts  = [],
+     extra_cc_opts   = [],
+     extra_ld_opts   = [@GNOMEVFS_LIBEXTRA_CQ@]
+}

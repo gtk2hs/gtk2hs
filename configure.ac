@@ -340,6 +340,9 @@ GTKHS_PKG_CHECK(opengl, gtkglext, GTKGLEXT, [gtkglext-1.0 >= 1.0.5],
  	[build bindings for the Gtk OpenGL extension (default=auto)],
  	[GtkGLExt library requirement not met. Perhaps you need to install gtkglext or gtkglext-devel])
 
+GTKHS_PKG_CHECK(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0],
+	[build gnome-vfs package (default=auto)],
+	[gnomevfs library requirement not met. Perhaps you need to install libgnomevfs or libgnomevfs-devel])
 
 dnl The following is a hack to fix the fact that
 dnl "pkg-config --libs mozilla-gtkmozembed" does not always give us all the
@@ -623,6 +626,13 @@ AC_SUBST(GTKGLEXT_LIBS_CQ)
 AC_SUBST(GTKGLEXT_LIBDIR_CQ)
 AC_SUBST(GTKGLEXT_LIBEXTRA_CQ)
 
+GTKHS_REFORMAT_PACKAGE_CFLAGS(GNOMEVFS_CFLAGS, GNOMEVFS_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(GNOMEVFS_LIBS, GNOMEVFS_LIBS_CQ, GNOMEVFS_LIBDIR_CQ, GNOMEVFS_LIBEXTRA_CQ)
+AC_SUBST(GNOMEVFS_CFLAGS_CQ)
+AC_SUBST(GNOMEVFS_LIBS_CQ)
+AC_SUBST(GNOMEVFS_LIBDIR_CQ)
+AC_SUBST(GNOMEVFS_LIBEXTRA_CQ)
+
 
 dnl Check if user wants bindings for deprecated APIs. Defaults to yes.
 AC_MSG_CHECKING([whether to build deprecated bindings])
@@ -850,6 +860,10 @@ AC_CONFIG_FILES([
   soegtk/soegtk.pkg
   soegtk/soegtk.package.conf
   soegtk/soegtk.cabal
+
+  gnomevfs/gnomevfs.pkg
+  gnomevfs/gnomevfs.package.conf
+  gnomevfs/gnomevfs.cabal
   ])
 AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
 AC_OUTPUT
@@ -870,6 +884,7 @@ echo "* gconf         : ${ENABLE_GCONF}                 "
 echo "* sourceview    : ${ENABLE_SOURCEVIEW}            "
 echo "* mozembed      : ${ENABLE_MOZEMBED}              "
 echo "* soegtk        : yes                             "
+echo "* gnomevfs      : ${ENABLE_GNOMEVFS}              "
 echo "* documentation : ${BUILDDOCS}                    "
 dnl echo "* tutorials     : no                              "
 echo "*                                                 "

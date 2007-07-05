@@ -1,0 +1,17 @@
+name: gnomevfs
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "${pkglibdir}/imports/gnomevfs"
+library-dirs: @GNOMEVFS_LIBDIR_CQ@
+hs-libraries: HSgnomevfs
+extra-libraries: @GNOMEVFS_LIBS_CQ@
+include-dirs: @GNOMEVFS_CFLAGS_CQ@
+includes: libgnomevfs/gnome-vfs.h libgnomevfs/gnome-vfs-mime.h
+depends: glib-@PACKAGE_VERSION@
+ld-options: @GTK_LIBEXTRA_CQ@

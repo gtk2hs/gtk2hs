@@ -19,7 +19,9 @@ EXTRA_DIST = \
 	cairo/cairo.h				\
 	svgcairo/svgcairo.h			\
 	gtk/Graphics/UI/Gtk/General/hsgthread.h	\
-	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
+	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h \
+	gnomevfs/System/Gnome/VFS/hsfileinfo.h	\
+	gnomevfs/marshal.list
 
 # There are no other files in these dirs and tar excludes empty dirs
 dist-hook:
@@ -56,6 +58,9 @@ pkglib_LIBRARIES += libHSmozembed.a
 endif
 if ENABLE_GTKGLEXT
 pkglib_LIBRARIES += libHSgtkglext.a
+endif
+if ENABLE_GNOMEVFS
+pkglib_LIBRARIES += libHSgnomevfs.a
 endif
 
 noinst_PROGRAMS = \
@@ -1646,6 +1651,168 @@ soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_LIBADD:.o=.p_o)
 endif
 
 #
+#      gnomevfs package
+#
+################################################################################
+
+if ENABLE_GNOMEVFS
+
+gnomevfs_PKGNAME = libHSgnomevfs_a
+
+libHSgnomevfs_a_NAME			= gnomevfs
+libHSgnomevfs_a_CONFIG			= gnomevfs/gnomevfs.$(PKGEXT)
+libHSgnomevfs_a_EXTERNALDEPS		= base haskell98 mtl
+libHSgnomevfs_a_INTERNALDEPS		= glib
+libHSgnomevfs_a_HEADER			= libgnomevfs/gnome-vfs.h
+libHSgnomevfs_a_PRECOMP			= gnomevfs/gnomevfs.precomp
+libHSgnomevfs_a_LIBS			= $(GLIB_LIBS) $(GNOMEVFS_LIBS) $(GCONF_LIBS)
+libHSgnomevfs_a_HCFLAGS			= -fffi
+libHSgnomevfs_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GNOMEVFS_CFLAGS))
+libHSgnomevfs_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GNOMEVFS_CFLAGS))
+
+libHSgnomevfs_a_SOURCESDIRS		= gnomevfs
+
+libHSgnomevfs_a_LIBADD			=		\
+	gnomevfs/System/Gnome/VFS/Directory_stub.o      \
+	gnomevfs/System/Gnome/VFS/Marshal_stub.o       \
+	gnomevfs/System/Gnome/VFS/Monitor_stub.o	\
+	gnomevfs/System/Gnome/VFS/Xfer_stub.o
+
+if !USE_GCLOSUE_SIGNALS_IMPL
+libHSgnomevfs_a_LIBADD += gnomevfs/System/Gnome/VFS/Signals_stub.o
+endif
+
+gnomevfs/libHSgnomevfs_a.deps	: glib/libHSglib_a.deps
+
+libHSgnomevfs_a_GENERATEDSOURCES	=		\
+	gnomevfs/System/Gnome/VFS/Signals.chs		\
+	gnomevfs/System/Gnome/VFS/Hierarchy.chs
+
+nodist_libHSgnomevfs_a_SOURCES		= $(libHSgnomevfs_a_GENERATEDSOURCES)
+
+libHSgnomevfs_a_SOURCES			=               \
+	gnomevfs/System/Gnome/VFS/Types.chs             \
+	gnomevfs/System/Gnome/VFS/Error.hs		\
+	gnomevfs/System/Gnome/VFS/Marshal.chs		\
+	gnomevfs/System/Gnome/VFS/Init.chs              \
+	gnomevfs/System/Gnome/VFS/hsfileinfo.c          \
+	gnomevfs/System/Gnome/VFS/FileInfo.chs          \
+	gnomevfs/System/Gnome/VFS/Monitor.chs           \
+	gnomevfs/System/Gnome/VFS/Ops.chs               \
+	gnomevfs/System/Gnome/VFS/Directory.chs         \
+	gnomevfs/System/Gnome/VFS/URI.chs               \
+	gnomevfs/System/Gnome/VFS/Util.chs              \
+	gnomevfs/System/Gnome/VFS/Xfer.chs              \
+	gnomevfs/System/Gnome/VFS/Cancellation.chs      \
+	gnomevfs/System/Gnome/VFS/Volume.chs            \
+	gnomevfs/System/Gnome/VFS/Drive.chs             \
+	gnomevfs/System/Gnome/VFS/VolumeMonitor.chs     \
+	gnomevfs/System/Gnome/VFS/MIME.chs              \
+	gnomevfs/System/Gnome/VFS.hs
+
+htmldoc_HSFILES_HIDDEN				+=	\
+	$(libHSgnomevfs_a_GENERATEDSOURCES:.chs=.hs)	\
+	gnomevfs/System/Gnome/VFS/Types.hs		\
+	gnomevfs/System/Gnome/VFS/Marshal.hs
+
+gnomevfs_System_Gnome_VFS_FileInfo_hs_HCFLAGS	 = '-\#include "hsfileinfo.h"'
+gnomevfs_System_Gnome_VFS_MIME_hs_HCFLAGS        = '-\#include "libgnomevfs/gnome-vfs-mime.h"'
+gnomevfs_System_Gnome_VFS_Types_hs_HCFLAGS	 = -fglasgow-exts
+gnomevfs_System_Gnome_VFS_Directory_hs_HCFLAGS	 = -fglasgow-exts
+
+libHSgnomevfs_a_ALLSOURCES			 = $(libHSgnomevfs_a_SOURCES) $(nodist_libHSgnomevfs_a_SOURCES)
+
+gnomevfs/System/Gnome/VFS/Hierarchy.chs :			\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+	$@ --tag=gnomevfs --lib=gnomevfs --prefix=gnome_vfs \
+	--modname=System.Gnome.VFS.Hierarchy --parentname=System.Glib.GObject)
+
+gnomevfs/System/Gnome/VFS/Signals.chs : \
+	$(srcdir)/tools/callbackGen/Signal.chs.template \
+	$(srcdir)/gnomevfs/marshal.list \
+	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) \
+	$(srcdir)/gnomevfs/marshal.list \
+	$(srcdir)/tools/callbackGen/Signal.chs.template $@ \
+	System.Gnome.VFS.Signals)
+
+am_libHSgnomevfs_a_OBJECTS			 =	\
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgnomevfs_a_ALLSOURCES))))
+
+libHSgnomevfs_a_HSPPFILES	= $(filter %.hs.pp, $(libHSgnomevfs_a_ALLSOURCES))
+libHSgnomevfs_a_CHSPPFILES	= $(filter %.chs.pp,$(libHSgnomevfs_a_ALLSOURCES))
+libHSgnomevfs_a_CHSFILES	=			\
+	$(filter %.chs,$(libHSgnomevfs_a_ALLSOURCES:.chs.pp=.chs))
+libHSgnomevfs_a_CHSFILES_HS	= $(libHSgnomevfs_a_CHSFILES:.chs=.hs)
+libHSgnomevfs_a_HSCFILES	= $(filter %.hsc, $(libHSgnomevfs_a_ALLSOURCES))
+libHSgnomevfs_a_HSCFILES_HS	= $(libHSgnomevfs_a_HSCFILES:.hsc=.hs)
+libHSgnomevfs_a_BUILDSOURCES	=			\
+	$(libHSgnomevfs_a_HSPPFILES:.hs.pp=.hs)		\
+	$(libHSgnomevfs_a_CHSPPFILES:.chs.pp=.chs)	\
+	$(libHSgnomevfs_a_CHSFILES_HS)			\
+	$(libHSgnomevfs_a_HSCFILES_HS)			\
+	$(libHSgnomevfs_a_GENERATEDSOURCES)
+libHSgnomevfs_a_HSFILES  =				\
+	$(filter %.hs,$(libHSgnomevfs_a_BUILDSOURCES))	\
+	$(filter %.hs,$(libHSgnomevfs_a_ALLSOURCES))
+libHSgnomevfs_a_CFILES = $(filter %.c,$(libHSgnomevfs_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHSgnomevfs_a_HSFILES:.hs=.hi)
+
+gnomevfs_MOSTLYCLEANFILES  = $(am_libHSgnomevfs_a_OBJECTS)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_HSFILES:.hs=.hi)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_CHSFILES:.chs=.chi)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_CHSFILES:.chs=.h)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_CHSFILES:.chs=_stub.h)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_CHSFILES:.chs=_stub.o)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_CHSFILES:.chs=_stub.c)
+gnomevfs_CLEANFILES	   = $(libHSgnomevfs_a_BUILDSOURCES)
+gnomevfs_CLEANFILES 	  += $(libHSgnomevfs_a_CHSFILES_HS:.hs=.dep)
+
+$(libHSgnomevfs_a_CHSFILES:.chs=.dep) :		\
+	$(libHSgnomevfs_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include $(libHSgnomevfs_a_CHSFILES:.chs=.dep) gnomevfs/libHSgnomevfs_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSgnomevfs_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSgnomevfs_a_AR = $(AR) $(ARFLAGS)
+endif
+
+libHSgnomevfs_a_DEPENDENCIES = HSgnomevfs.o
+pkglib_DATA += HSgnomevfs.o
+HSgnomevfs.o : $(libHSgnomevfs_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSgnomevfs_a_OBJECTS) $(libHSgnomevfs_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSgnomevfs_a_DEPENDENCIES += libHSgnomevfs_p.a
+pkglib_DATA += libHSgnomevfs_p.a
+libHSgnomevfs_p.a : $(libHSgnomevfs_a_HSFILES:.hs=.p_o) \
+	$(libHSgnomevfs_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include gnomevfs/libHSgnomevfs_a.p_deps
+ endif
+
+nobase_hi_DATA            += $(libHSgnomevfs_a_HSFILES:.hs=.p_hi)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_HSFILES:.hs=.p_hi)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_HSFILES:.hs=.p_o)
+gnomevfs_MOSTLYCLEANFILES += $(libHSgnomevfs_a_LIBADD:.o=.p_o)
+
+endif
+
+endif
+
+#
 #       inplace package registration
 #
 ################################################################################
@@ -1965,6 +2132,7 @@ mostlyclean: mostlyclean-am
 	rm -f $(svgcairo_MOSTLYCLEANFILES)
 	rm -f $(gtkglext_MOSTLYCLEANFILES)
 	rm -f $(soegtk_MOSTLYCLEANFILES)
+	rm -f $(gnomevfs_MOSTLYCLEANFILES)
 	rm -f $(doc_MOSTLYCLEANFILES)
 
 clean: mostlyclean clean-am
@@ -1979,6 +2147,7 @@ clean: mostlyclean clean-am
 	rm -f $(svgcairo_CLEANFILES)
 	rm -f $(gtkglext_CLEANFILES)
 	rm -f $(soegtk_CLEANFILES)
+	rm -f $(gnomevfs_CLEANFILES)
 	rm -f $(doc_CLEANFILES)
 
 distclean: clean distclean-am
