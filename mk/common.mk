@@ -213,6 +213,5 @@ noDeps   := $(strip $(findstring clean,$(MAKECMDGOALS)) \
 	  $(MAKE) $(AM_MAKEFLAGS) $($(PKG)_PRECOMP); fi;)
 	$(strip $(C2HS) $(C2HS_FLAGS) \
 	+RTS $(HSTOOLFLAGS) -RTS \
-	-C "$(filter -I%,$(AM_CPPFLAGS) $(CPPFLAGS)) $($(PKG)_CPPFLAGS)" \
 	-i$(CHS_SEARCH_PATH) --precomp=$($(PKG)_PRECOMP) -o $@ $<)
 

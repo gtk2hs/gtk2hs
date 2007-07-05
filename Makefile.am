@@ -1663,7 +1663,7 @@ libHSgnomevfs_a_NAME			= gnomevfs
 libHSgnomevfs_a_CONFIG			= gnomevfs/gnomevfs.$(PKGEXT)
 libHSgnomevfs_a_EXTERNALDEPS		= base haskell98 mtl
 libHSgnomevfs_a_INTERNALDEPS		= glib
-libHSgnomevfs_a_HEADER			= libgnomevfs/gnome-vfs.h
+libHSgnomevfs_a_HEADER			= gnomevfs/gnomevfs.h
 libHSgnomevfs_a_PRECOMP			= gnomevfs/gnomevfs.precomp
 libHSgnomevfs_a_LIBS			= $(GLIB_LIBS) $(GNOMEVFS_LIBS) $(GCONF_LIBS)
 libHSgnomevfs_a_HCFLAGS			= -fffi
@@ -1716,7 +1716,6 @@ htmldoc_HSFILES_HIDDEN				+=	\
 	gnomevfs/System/Gnome/VFS/Marshal.hs
 
 gnomevfs_System_Gnome_VFS_FileInfo_hs_HCFLAGS	 = '-\#include "hsfileinfo.h"'
-gnomevfs_System_Gnome_VFS_MIME_hs_HCFLAGS        = '-\#include "libgnomevfs/gnome-vfs-mime.h"'
 gnomevfs_System_Gnome_VFS_Types_hs_HCFLAGS	 = -fglasgow-exts
 gnomevfs_System_Gnome_VFS_Directory_hs_HCFLAGS	 = -fglasgow-exts
 

@@ -42,10 +42,6 @@ import System.Glib.UTFString
 {#import System.Gnome.VFS.Types#}
 {#import System.Gnome.VFS.Marshal#}
 
-#c
-#include <libgnomevfs/gnome-vfs-mime.h>
-#endc
-
 {# context lib = "gnomevfs" prefix = "gnome_vfs" #}
 
 -- | Try to determine the MIME-type of the file at @filename@, using
