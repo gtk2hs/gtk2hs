@@ -61,44 +61,74 @@ import System.IO (FilePath)
 volumeMonitor :: VolumeMonitor
 volumeMonitor = unsafePerformIO $ {# call get_volume_monitor #} >>= wrapVolumeMonitor
 
--- | 
+-- | Returns a list of all drives connected to the machine.
 volumeMonitorGetConnectedDrives :: VolumeMonitorClass volumeMonitor =>
-                                   volumeMonitor
-                                -> IO [Drive]
+                                   volumeMonitor -- ^ @volumeMonitor@ - the volume monitor
+                                -> IO [Drive]    -- ^ the drives connected to the machine
 volumeMonitorGetConnectedDrives volumeMonitor =
     {# call volume_monitor_get_connected_drives #} (castToVolumeMonitor volumeMonitor) >>=
         readGList >>= mapM newDrive
 
+-- | Try to find the 'Drive' with ID @id@.
 volumeMonitorGetDriveByID :: VolumeMonitorClass volumeMonitor =>
-                             volumeMonitor
-                          -> Word
-                          -> IO Drive
+                             volumeMonitor    -- ^ @volumeMonitor@ - the volume monitor
+                          -> DriveID          -- ^ @id@ - the drive ID
+                          -> IO (Maybe Drive) -- ^ the requested
+                                              --   drive, or 'Nothing'
+                                              --   if no drive with
+                                              --   that ID could be
+                                              --   found
 volumeMonitorGetDriveByID volumeMonitor id =
-    {# call volume_monitor_get_drive_by_id #} (castToVolumeMonitor volumeMonitor) (fromIntegral id) >>=
-        newDrive
+    {# call volume_monitor_get_drive_by_id #} (castToVolumeMonitor volumeMonitor) id >>=
+        maybePeek newDrive
 
+-- | Returns a list of all volumes currently mounted on the machine.
 volumeMonitorGetMountedVolumes :: VolumeMonitorClass volumeMonitor =>
-                                  volumeMonitor
-                               -> IO [Volume]
+                                  volumeMonitor -- ^ @volumeMonitor@ - the volume monitor
+                               -> IO [Volume]   -- ^ the volumes
+                                                --   currently mounted
+                                                --   on the machine
 volumeMonitorGetMountedVolumes volumeMonitor =
     {# call volume_monitor_get_mounted_volumes #} (castToVolumeMonitor volumeMonitor) >>=
         readGList >>= mapM newVolume
 
+-- | Try to find the 'Volume' with ID @id@.
 volumeMonitorGetVolumeByID :: VolumeMonitorClass volumeMonitor =>
-                              volumeMonitor
-                           -> Word
-                           -> IO Drive
+                              volumeMonitor     -- ^ @volumeMonitor@ - the volume monitor
+                           -> VolumeID          -- ^ @id@ - the volume ID
+                           -> IO (Maybe Volume) -- ^ the requested
+                                                --   volume, or
+                                                --   'Nothing' if no
+                                                --   volume with that
+                                                --   ID could be found
 volumeMonitorGetVolumeByID volumeMonitor id =
-    {# call volume_monitor_get_drive_by_id #} (castToVolumeMonitor volumeMonitor) (fromIntegral id) >>=
-        newDrive
+    {# call volume_monitor_get_volume_by_id #} (castToVolumeMonitor volumeMonitor) id >>=
+        maybePeek newVolume
 
+-- | Returns the 'Volume' corresponding to path, or 'Nothing'.
+--   
+--   The volume referring to path is found by calling @stat@ on path,
+--   and then iterating through the list of volumes that refer to
+--   currently mounted local file systems. The first volume in this
+--   list maching the path's UNIX device is returned.
+--   
+--   If the @stat@ on path was not successful, or no volume matches
+--   path, 'Nothing' is returned.
 volumeMonitorGetVolumeForPath :: VolumeMonitorClass volumeMonitor =>
-                                 volumeMonitor
-                              -> FilePath
-                              -> IO Volume
+                                 volumeMonitor     -- ^ @volumeMonitor@ - the volume monitor
+                              -> FilePath          -- ^ the path to
+                                                   --   find the volume
+                                                   --   for
+                              -> IO (Maybe Volume) -- ^ the volume the
+                                                   --   path resides
+                                                   --   on, or
+                                                   --   'Nothing' if
+                                                   --   the volume
+                                                   --   could not be
+                                                   --   determined
 volumeMonitorGetVolumeForPath volumeMonitor path =
     (withUTFString path $ {# call volume_monitor_get_volume_for_path #} (castToVolumeMonitor volumeMonitor)) >>=
-        newVolume
+        maybePeek newVolume
 
 onVolumeMonitorDriveConnected,
     afterVolumeMonitorDriveConnected,
@@ -110,10 +140,10 @@ onVolumeMonitorDriveConnected,
     afterVolumeMonitorVolumePreUnmount,
     onVolumeMonitorVolumeUnmounted,
     afterVolumeMonitorVolumeUnmounted
-    :: (VolumeMonitorClass drive, VolumeClass volume) =>
-       drive
-    -> (volume -> IO ())
-    -> IO (ConnectId drive)
+    :: (VolumeMonitorClass volumeMonitor, VolumeClass volume) =>
+       volumeMonitor                -- ^ @volumeMonitor@ - the volume monitor
+    -> (volume -> IO ())            -- ^ @handler@ - the signal handling function
+    -> IO (ConnectId volumeMonitor) -- ^ the identifier for the connection
 
 onVolumeMonitorDriveConnected       = connect_OBJECT__NONE "drive-connected" False
 afterVolumeMonitorDriveConnected    = connect_OBJECT__NONE "drive-connected" True

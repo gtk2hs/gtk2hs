@@ -24,6 +24,7 @@ module System.Gnome.VFS.Volume (
   -- | An abstraction for a mounted filesystem or network location.
   Volume,
   VolumeClass,
+  VolumeID,
   -- | Safely cast an object to a 'Volume'.
   castToVolume,
   
@@ -87,9 +88,13 @@ import System.Glib.FFI
 volumeCompare :: (VolumeClass volume1, VolumeClass volume2)
               => volume1
               -> volume2
-              -> IO Int
+              -> IO Ordering
 volumeCompare a b =
-    liftM fromIntegral $ {# call volume_compare #} (castToVolume a) (castToVolume b)
+    do result <- liftM fromIntegral $ {# call volume_compare #} (castToVolume a) (castToVolume b)
+       let ordering | result < 0 = LT
+                    | result > 0 = GT
+                    | otherwise  = EQ
+       return ordering
 
 -- Requests ejection of a 'Volume'.
 -- 
@@ -213,10 +218,10 @@ volumeGetIcon =
 
 -- | Returns a unique identifier for a 'Volume' object.
 volumeGetID :: VolumeClass volume =>
-               volume  -- ^ @volume@ - a volume object
-            -> IO Word -- ^ a unique identifier for the volume
+               volume      -- ^ @volume@ - a volume object
+            -> IO VolumeID -- ^ a unique identifier for the volume
 volumeGetID volume =
-    liftM fromIntegral $ {# call volume_get_id #} (castToVolume volume)
+    {# call volume_get_id #} (castToVolume volume)
 
 -- | Returns the volume type of @volume@.
 volumeGetVolumeType     :: VolumeClass volume =>

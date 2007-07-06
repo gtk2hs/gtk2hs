@@ -94,9 +94,11 @@ module System.Gnome.VFS.Types (
   
   module System.Gnome.VFS.Hierarchy,
   
+  DriveID,
   newDrive,
   withDrive,
   
+  VolumeID,
   newVolume,
   withVolume,
   
@@ -494,6 +496,9 @@ type CVolumeOpCallback =  {# type gboolean #}
 
 --------------------------------------------------------------------
 
+-- | Identifies a 'Drive'
+type DriveID = {# type gulong #}
+
 withDrive (Drive cDrive) = withForeignPtr cDrive
 newDrive :: Ptr Drive
           -> IO Drive
@@ -503,6 +508,9 @@ foreign import ccall unsafe "&gnome_vfs_drive_unref"
   driveFinalizer :: FunPtr (Ptr Drive -> IO ())
 
 --------------------------------------------------------------------
+
+-- | Identifies a 'Volume'.
+type VolumeID = {# type gulong #}
 
 withVolumeMonitor (VolumeMonitor cVolumeMonitor) = withForeignPtr cVolumeMonitor
 wrapVolumeMonitor :: Ptr VolumeMonitor

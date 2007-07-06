@@ -24,6 +24,7 @@ module System.Gnome.VFS.Drive (
   -- | A container for 'Volume's.
   Drive,
   DriveClass,
+  DriveID,
   DeviceType,
 
 -- * Type Conversion
@@ -191,10 +192,10 @@ driveGetIcon =
 
 -- | Returns a unique identifier for a 'Drive' object.
 driveGetID :: DriveClass drive =>
-              drive   -- ^ @drive@ - a drive object
-           -> IO Word -- ^ a unique identifier for the drive
+              drive      -- ^ @drive@ - a drive object
+           -> IO DriveID -- ^ a unique identifier for the drive
 driveGetID drive =
-    liftM fromIntegral $ {# call drive_get_id #} (castToDrive drive)
+    {# call drive_get_id #} (castToDrive drive)
 
 -- | Returns a list of mounted volumes for a 'Drive' object.
 driveGetMountedVolumes :: DriveClass drive =>
@@ -256,9 +257,9 @@ onDriveVolumeMounted,
     onDriveVolumeUnmounted,
     afterDriveVolumeUnmounted
     :: (DriveClass drive, VolumeClass volume) =>
-       drive
-    -> (volume -> IO ())
-    -> IO (ConnectId drive)
+       drive                -- ^ @drive@ - the drive to connect the signal handler to
+    -> (volume -> IO ())    -- ^ @handler@ - the signal handling function
+    -> IO (ConnectId drive) -- ^ the identifier for the connection
 
 onDriveVolumeMounted       = connect_OBJECT__NONE "volume-mounted" False
 afterDriveVolumeMounted    = connect_OBJECT__NONE "volume-mounted" True
