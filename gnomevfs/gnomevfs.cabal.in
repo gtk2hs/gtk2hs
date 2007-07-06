@@ -5,6 +5,6 @@ license-file: COPYING.LIB
 maintainer: gtk2hs-users@lists.sourceforge.net
 stability: provisional
 homepage: http://haskell.org/gtk2hs/
-category: Graphics
+category: System
 build-depends: glib==@PACKAGE_VERSION@
 exposed-modules: ${modules}

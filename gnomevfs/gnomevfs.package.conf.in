@@ -14,4 +14,4 @@ extra-libraries: @GNOMEVFS_LIBS_CQ@
 include-dirs: @GNOMEVFS_CFLAGS_CQ@
 includes: libgnomevfs/gnome-vfs.h libgnomevfs/gnome-vfs-mime.h
 depends: glib-@PACKAGE_VERSION@
-ld-options: @GTK_LIBEXTRA_CQ@
+ld-options: @GNOMEVFS_LIBEXTRA_CQ@
