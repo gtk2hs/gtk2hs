@@ -140,9 +140,9 @@ onVolumeMonitorDriveConnected,
     afterVolumeMonitorVolumePreUnmount,
     onVolumeMonitorVolumeUnmounted,
     afterVolumeMonitorVolumeUnmounted
-    :: (VolumeMonitorClass volumeMonitor, VolumeClass volume) =>
+    :: (VolumeMonitorClass volumeMonitor) =>
        volumeMonitor                -- ^ @volumeMonitor@ - the volume monitor
-    -> (volume -> IO ())            -- ^ @handler@ - the signal handling function
+    -> (Volume -> IO ())            -- ^ @handler@ - the signal handling function
     -> IO (ConnectId volumeMonitor) -- ^ the identifier for the connection
 
 onVolumeMonitorDriveConnected       = connect_OBJECT__NONE "drive-connected" False

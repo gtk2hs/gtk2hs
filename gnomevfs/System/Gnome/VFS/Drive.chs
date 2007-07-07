@@ -256,9 +256,9 @@ onDriveVolumeMounted,
     afterDriveVolumePreUnmount,
     onDriveVolumeUnmounted,
     afterDriveVolumeUnmounted
-    :: (DriveClass drive, VolumeClass volume) =>
+    :: (DriveClass drive) =>
        drive                -- ^ @drive@ - the drive to connect the signal handler to
-    -> (volume -> IO ())    -- ^ @handler@ - the signal handling function
+    -> (Volume -> IO ())    -- ^ @handler@ - the signal handling function
     -> IO (ConnectId drive) -- ^ the identifier for the connection
 
 onDriveVolumeMounted       = connect_OBJECT__NONE "volume-mounted" False
