@@ -1,6 +1,6 @@
 
-PROGS  = test-sync test-dir test-xfer test-drive-volume
-SOURCES = TestSync.hs TestDir.hs TestXfer.hs TestDriveVolume.hs
+PROGS  = test-sync test-dir test-xfer test-drive-volume test-volume-monitor
+SOURCES = TestSync.hs TestDir.hs TestXfer.hs TestDriveVolume.hs TestVolumeMonitor.hs
 
 all: $(PROGS)
 
@@ -11,6 +11,8 @@ test-dir : TestDir.hs
 test-xfer : TestXfer.hs
 	$(HC_RULE)
 test-drive-volume : TestDriveVolume.hs
+	$(HC_RULE)
+test-volume-monitor : TestVolumeMonitor.hs
 	$(HC_RULE)
 
 HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS)

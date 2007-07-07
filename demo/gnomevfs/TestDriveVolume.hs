@@ -30,7 +30,7 @@ main =
                    volumes <- VFS.driveGetMountedVolumes drive
                    flip mapM_ volumes $ \volume ->
                        do VFS.volumeGetDisplayName volume >>= printf "\tVolume %s:\n"
-                          VFS.volumeGetDevicePath volume >>=  printf "\t\tDevice Path: %s\n"
-                          VFS.volumeGetFilesystemType volume >>= printf "\t\tFilesystem Type: %s\n"
+                          VFS.volumeGetDevicePath volume >>=  (printf "\t\tDevice Path: %s\n") . show
+                          VFS.volumeGetFilesystemType volume >>= (printf "\t\tFilesystem Type: %s\n") . show
            
            return ()

@@ -80,8 +80,7 @@ main =
            hPutStrLn stderr "executing transfer"
            
            VFS.xferURI sourceURI targetURI []
-                       VFS.XferErrorModeQuery VFS.XferOverwriteModeQuery
                        (Just xferProgressCallback) (Just xferErrorCallback)
-                       (Just xferOverwriteCallback) Nothing
+                       (Right xferOverwriteCallback) Nothing
            
            return ()
