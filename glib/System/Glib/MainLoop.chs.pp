@@ -40,6 +40,15 @@ module System.Glib.MainLoop (
   priorityHighIdle,
   priorityDefault,
   priorityHigh,
+  MainLoop,
+  mainLoopNew,
+  mainLoopRun,
+  mainLoopQuit,
+  mainLoopIsRunning,
+  MainContext,
+  mainContextNew,
+  mainContextDefault,
+  mainContextIteration,
   ) where
 
 import Control.Monad	(liftM)
@@ -200,3 +209,84 @@ priorityDefaultIdle = G_PRIORITY_DEFAULT_IDLE
 
 priorityLow :: Int
 priorityLow = G_PRIORITY_LOW
+
+-- | A main event loop abstraction.
+{# pointer *GMainLoop as MainLoop foreign newtype #}
+
+-- | An opaque datatype representing a set of sources to be handled in
+--   a main loop.
+{# pointer *GMainContext as MainContext foreign newtype #}
+
+-- | Create a new 'MainLoop'.
+mainLoopNew :: Maybe MainContext -- ^ @context@ - the context to use, or 'Nothing' to use the default context
+            -> Bool              -- ^ @isRunning@ - 'True' to indicate that the loop is running; 'False' otherwise
+            -> IO MainLoop       -- ^ the new 'MainLoop'
+mainLoopNew context isRunning =
+    do let context' = maybe (MainContext nullForeignPtr) id context
+       loopPtr <- {# call main_loop_new #} context' $ fromBool isRunning
+       liftM MainLoop $ newForeignPtr loopPtr mainLoopFinalizer
+foreign import ccall unsafe "&g_main_loop_unref"
+    mainLoopFinalizer :: FunPtr (Ptr MainLoop -> IO ())
+
+-- | Runs a main loop until 'mainLoopQuit' is called on the
+--   loop. If this is called for the thread of the loop's
+--   'MainContext', it will process events from the loop, otherwise it
+--   will simply wait.
+mainLoopRun :: MainLoop
+            -> IO ()
+mainLoopRun loop =
+    {# call main_loop_run #} loop
+
+-- | Stops a 'MainLoop' from running. Any calls to mainLoopRun for the
+--   loop will return.
+mainLoopQuit :: MainLoop
+             -> IO ()
+mainLoopQuit loop =
+    {# call main_loop_quit #} loop
+
+-- | Checks to see if the main loop is currently being run via mainLoopRun.
+mainLoopIsRunning :: MainLoop
+                  -> IO Bool
+mainLoopIsRunning loop =
+    liftM toBool $ {# call main_loop_is_running #} loop
+
+-- | Gets a 'MainLoop's context.
+mainLoopGetContext :: MainLoop
+                   -> MainContext
+mainLoopGetContext loop =
+    MainContext $ unsafePerformIO $
+        {# call main_loop_get_context #} loop >>=
+            flip newForeignPtr mainContextFinalizer
+
+foreign import ccall unsafe "&g_main_context_unref"
+    mainContextFinalizer :: FunPtr (Ptr MainContext -> IO ())
+
+-- | Creates a new 'MainContext'.
+mainContextNew :: IO MainContext
+mainContextNew =
+    newContextMarshal {# call main_context_new #}
+
+-- | The default 'MainContext'. This is the main context used for main
+--   loop functions when a main loop is not explicitly specified.
+mainContextDefault :: MainContext
+mainContextDefault =
+    unsafePerformIO $ newContextMarshal {# call main_context_default #}
+
+newContextMarshal action =
+    do ptr <- action
+       liftM MainContext $ newForeignPtr ptr mainContextFinalizer
+
+-- | Runs a single iteration for the given main loop. This involves
+--   checking to see if any event sources are ready to be processed,
+--   then if no events sources are ready and @mayBlock@ is 'True',
+--   waiting for a source to become ready, then dispatching the
+--   highest priority events sources that are ready. Note that even
+--   when @mayBlock@ is 'True', it is still possible for
+--   'mainContextIteration' to return FALSE, since the the wait
+--   may be interrupted for other reasons than an event source
+--   becoming ready.
+mainContextIteration :: MainContext
+                     -> Bool
+                     -> IO Bool
+mainContextIteration context mayBlock =
+    liftM toBool $ {# call main_context_iteration #} context (fromBool mayBlock)
