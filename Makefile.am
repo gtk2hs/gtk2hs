@@ -260,7 +260,8 @@ libHSglib_a_SOURCES =	        		\
 	glib/System/Glib/GList.chs		\
 	glib/System/Glib/Signals.chs.pp		\
         glib/System/Glib/Flags.hs		\
-	glib/System/Glib/MainLoop.chs.pp
+	glib/System/Glib/MainLoop.chs.pp	\
+	glib/System/Glib/GDateTime.chs
 
 htmldoc_HSFILES_HIDDEN =				\
 	glib/System/Glib/FFI.hs			\
