@@ -22,7 +22,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
-module System.Glib.GDate (
+module System.Glib.GDateTime (
   GTimeValPart,
   GTimeVal(..),
   gGetCurrentTime,
