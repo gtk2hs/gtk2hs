@@ -49,6 +49,10 @@ module System.Glib.MainLoop (
   mainContextNew,
   mainContextDefault,
   mainContextIteration,
+  Source,
+  sourceAttach,
+  sourceSetPriority,
+  sourceGetPriority
   ) where
 
 import Control.Monad	(liftM)
@@ -290,3 +294,29 @@ mainContextIteration :: MainContext
                      -> IO Bool
 mainContextIteration context mayBlock =
     liftM toBool $ {# call main_context_iteration #} context (fromBool mayBlock)
+
+{# pointer *GSource as Source foreign newtype #}
+newSource :: Ptr Source
+          -> IO Source
+newSource sourcePtr =
+    liftM Source $ newForeignPtr sourcePtr sourceFinalizer
+foreign import ccall unsafe "&g_source_unref"
+    sourceFinalizer :: FunPtr (Ptr Source -> IO ())
+
+sourceAttach :: Source
+             -> MainContext
+             -> IO Word
+sourceAttach source context =
+    liftM fromIntegral $ {# call source_attach #} source context
+
+sourceSetPriority :: Source
+                  -> Priority
+                  -> IO ()
+sourceSetPriority source priority =
+    {# call source_set_priority #} source $ fromIntegral priority
+
+sourceGetPriority :: Source
+                  -> IO Priority
+sourceGetPriority source =
+    liftM fromIntegral $ {# call source_get_priority #} source
+
