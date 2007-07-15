@@ -243,6 +243,14 @@ dragDestFindTarget widget context (Just targetList) = do
     (toDragContext context)
     targetList
   if ttPtr==nullPtr then return Nothing else return (Just (TargetTag ttPtr))
+dragDestFindTarget widget context Nothing = do
+  ttPtr <-
+    {# call gtk_drag_dest_find_target #}
+    (toWidget widget)
+    (toDragContext context)
+    (TargetList nullForeignPtr)
+  if ttPtr==nullPtr then return Nothing else return (Just (TargetTag ttPtr))
+	
 -- %hash c:41c7 d:af3f
 -- | Returns the list of targets this widget can accept from drag-and-drop.
 --
@@ -274,9 +282,10 @@ dragDestAddTextTargets widget =
     (toWidget widget)
 
 -- %hash c:691c d:af3f
--- | Add image targets supported by the selection mechanism to the target
--- list of the drag source. The targets are added with an 'InfoId' of 0. If
--- you need another value, use 'Graphics.UI.Gtk.General.Selection.targetListAddTextTargets' and
+-- | Add image targets supported by the selection mechanism to the target list
+-- of the drag source. The targets are added with an 'InfoId' of 0. If you
+-- need another value, use
+-- 'Graphics.UI.Gtk.General.Selection.targetListAddTextTargets' and
 -- 'dragSourceSetTargetList'.
 --
 dragDestAddImageTargets :: WidgetClass widget => widget -> IO ()
@@ -285,9 +294,10 @@ dragDestAddImageTargets widget =
     (toWidget widget)
 
 -- %hash c:6f83 d:af3f
--- | Add URI targets supported by the selection mechanism to the target
--- list of the drag source. The targets are added with an 'InfoId' of 0. If
--- you need another value, use 'Graphics.UI.Gtk.General.Selection.targetListAddTextTargets' and
+-- | Add URI targets supported by the selection mechanism to the target list
+-- of the drag source. The targets are added with an 'InfoId' of 0. If you
+-- need another value, use
+-- 'Graphics.UI.Gtk.General.Selection.targetListAddTextTargets' and
 -- 'dragSourceSetTargetList'.
 --
 dragDestAddURITargets :: WidgetClass widget => widget -> IO ()
