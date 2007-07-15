@@ -27,7 +27,7 @@
 module Graphics.UI.Gtk.ModelView.Types (
   TypedTreeModel(..),
   TypedTreeModelClass,
-  toTypedTreeModel,
+  toTypedTreeModel
   ) where
 
 import GHC.Exts (unsafeCoerce#)
@@ -48,3 +48,4 @@ toTypedTreeModel :: TypedTreeModelClass model => model row -> TypedTreeModel row
 toTypedTreeModel = unsafeCoerce#
 
 instance TypedTreeModelClass TypedTreeModel
+

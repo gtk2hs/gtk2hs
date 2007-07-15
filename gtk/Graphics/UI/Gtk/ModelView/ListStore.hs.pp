@@ -35,6 +35,7 @@ module Graphics.UI.Gtk.ModelView.ListStore (
 -- * Methods
   listStoreGetValue,
   listStoreSetValue,
+  listStoreToList,
   listStoreInsert,
   listStorePrepend,
   listStoreAppend,
@@ -49,6 +50,7 @@ import Data.Ix (inRange)
 #if __GLASGOW_HASKELL__>=606
 import qualified Data.Sequence as Seq
 import Data.Sequence (Seq)
+import qualified Data.Foldable as F
 #else
 import qualified Graphics.UI.Gtk.ModelView.Sequence as Seq
 import Graphics.UI.Gtk.ModelView.Sequence (Seq)
@@ -69,21 +71,15 @@ instance TypedTreeModelClass ListStore
 listStoreNew :: [a] -> IO (ListStore a)
 listStoreNew xs = do
   rows <- newIORef (Seq.fromList xs)
+  cMap <- columnMapNew
 
   liftM ListStore $ customTreeModelNew rows CustomTreeModelImplementation {
       customTreeModelGetFlags      = return [TreeModelListOnly],
---      customTreeModelGetNColumns   = case bounds cols of (_, upper) -> return (upper + 1),
---      customTreeModelGetColumnType = \n -> return (columnGType (cols ! n)),
+      customTreeModelColumns	   = cMap,
       customTreeModelGetIter       = \[n] -> readIORef rows >>= \rows ->
                                      return (if Seq.null rows then Nothing else
                                              Just (TreeIter 0 (fromIntegral n) 0 0)),
       customTreeModelGetPath       = \(TreeIter _ n _ _) -> return [fromIntegral n],
---      customTreeModelGetValue      = \(TreeIter _ n _ _) i gvalue ->
---                                 readIORef rows >>= \rows ->
---                                 -- TODO: add caching of last lookup as a view
---                                   columnSetGValue (cols ! i)
---                                                   (rows `Seq.index` fromIntegral n)
---                                                   gvalue,
       customTreeModelGetRow        = \(TreeIter _ n _ _) ->
                                  readIORef rows >>= \rows -> 
                                  if inRange (0, Seq.length rows - 1) (fromIntegral n)
@@ -109,15 +105,33 @@ listStoreNew xs = do
       customTreeModelUnrefNode     = \_ -> return ()
     }
 
+-- | Extract the value at the given index.
+--
 listStoreGetValue :: ListStore a -> Int -> IO a
 listStoreGetValue (ListStore model) index =
   readIORef (customTreeModelGetPrivate model) >>= return . (`Seq.index` index)
 
+-- | Update the value at the given index. The index must exist.
+--
 listStoreSetValue :: ListStore a -> Int -> a -> IO ()
 listStoreSetValue (ListStore model) index value = do
   modifyIORef (customTreeModelGetPrivate model) (Seq.update index value)
   treeModelRowChanged model [index] (TreeIter 0 (fromIntegral index) 0 0)
 
+-- | Extract all data from the store.
+--
+listStoreToList :: ListStore a -> IO [a]
+listStoreToList (ListStore model) =
+  liftM
+#if __GLASGOW_HASKELL__>=606
+  F.toList
+#else
+  Seq.toList
+#endif
+  $ readIORef (customTreeModelGetPrivate model)
+
+-- | Insert an element in front of the given element. The element is appended
+-- if the index is greater or equal to the size of the list.
 listStoreInsert :: ListStore a -> Int -> a -> IO ()
 listStoreInsert (ListStore model) index value = do
   seq <- readIORef (customTreeModelGetPrivate model)
@@ -131,20 +145,26 @@ listStoreInsert (ListStore model) index value = do
         insert i x xs = front Seq.>< x Seq.<| back
           where (front, back) = Seq.splitAt i xs
 
+-- | Prepend the element to the store.
 listStorePrepend :: ListStore a -> a -> IO ()
 listStorePrepend (ListStore model) value = do
   modifyIORef (customTreeModelGetPrivate model)
               (\seq -> value Seq.<| seq)
   treeModelRowInserted model [0] (TreeIter 0 0 0 0)
 
+-- | Prepend a list to the store. Not implemented yet.
 listStorePrependList :: ListStore a -> [a] -> IO ()
 listStorePrependList = undefined
 
-listStoreAppend :: ListStore a -> a -> IO ()
+-- | Append an element to the store. Returns the index of the inserted
+-- element.
+listStoreAppend :: ListStore a -> a -> IO Int
 listStoreAppend (ListStore model) value = do
   index <- atomicModifyIORef (customTreeModelGetPrivate model)
                              (\seq -> (seq Seq.|> value, Seq.length seq))
   treeModelRowInserted model [index] (TreeIter 0 (fromIntegral index) 0 0)
+  return index
+
 {-
 listStoreAppendList :: ListStore a -> [a] -> IO ()
 listStoreAppendList (ListStore model) values = do
@@ -156,6 +176,9 @@ listStoreAppendList (ListStore model) values = do
   flip mapM [startIndex..endIndex] $ \index ->    
     treeModelRowInserted model [index] (TreeIter 0 (fromIntegral index) 0 0)
 -}
+
+-- | Remove the element at the given index.
+--
 listStoreRemove :: ListStore a -> Int -> IO ()
 listStoreRemove (ListStore model) index = do
   seq <- readIORef (customTreeModelGetPrivate model)
@@ -168,6 +191,7 @@ listStoreRemove (ListStore model) index = do
         delete i xs = front Seq.>< Seq.drop 1 back
           where (front, back) = Seq.splitAt i xs
 
+-- | Empty the store.
 listStoreClear :: ListStore a -> IO ()
 listStoreClear (ListStore model) =
 
@@ -187,15 +211,20 @@ listStoreClear (ListStore model) =
    in do seq <- readIORef (customTreeModelGetPrivate model)
          loop (Seq.length seq - 1) (Seq.viewr seq)
 
--- moving rows about
+-- | Permute the rows of the store. Not yet implemented.
 listStoreReorder :: ListStore a -> [Int] -> IO ()
 listStoreReorder store = undefined
 
+-- | Swap two rows of the store. Not yet implemented.
 listStoreSwap :: ListStore a -> Int -> Int -> IO ()
 listStoreSwap store = undefined
 
+-- | Move the element at the first index in front of the element denoted by
+-- the second index. Not yet implemented.
 listStoreMoveBefore :: ListStore a -> Int -> Int -> IO ()
 listStoreMoveBefore store = undefined
 
+-- | Move the element at the first index past the element denoted by the
+-- second index. Not yet implemented.
 listStoreMoveAfter :: ListStore a -> Int -> Int -> IO ()
 listStoreMoveAfter store = undefined

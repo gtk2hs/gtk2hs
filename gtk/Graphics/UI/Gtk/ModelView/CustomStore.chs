@@ -25,6 +25,12 @@
 -- Allows a custom data structure to be used with the 'TreeView'
 --
 module Graphics.UI.Gtk.ModelView.CustomStore (
+  ColumnMap,
+  ColumnAccess(..),
+  ColumnId,
+  columnMapNew,
+
+  treeModelUpdateColumn,
   treeModelGetRow,
 
   CustomTreeModel,
@@ -33,7 +39,7 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   customTreeModelGetPrivate,
   customTreeModelInvalidateIters,
 
-  -- * View notifcation functions
+  -- * View notification functions
   treeModelRowChanged,
   treeModelRowInserted,
   treeModelRowHasChildToggled,
@@ -42,7 +48,7 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   ) where
 
 import Control.Monad	(liftM, when)
-
+import Data.IORef
 import System.Glib.FFI			hiding	(maybeNull)
 import System.Glib.Flags			(fromFlags)
 import System.Glib.GObject			(makeNewGObject)
@@ -51,8 +57,15 @@ import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
-{#import System.Glib.GValue#}			()
-{#import System.Glib.GType#}			()
+
+import System.Glib.StoreValue			(TMType(..), GenericValue(..)
+						,valueSetGenericValue)
+{#import System.Glib.GValue#}			(GValue(GValue), allocaGValue)
+{#import System.Glib.GType#}			(GType)
+import System.Glib.GValueTypes                  (valueSetString)
+import qualified System.Glib.GTypeConstants as GConst
+{#import System.Glib.GValueTypes#}
+{#import System.Glib.GValue#}			(valueInit)
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -63,14 +76,51 @@ newtype CustomTreeModel private row = CustomTreeModel (ForeignPtr (CustomTreeMod
 instance GObjectClass (CustomTreeModel private row)
 instance TreeModelClass (CustomTreeModel private row)
 
+-- | Accessing a row for a specific value. Used for 'ColumnMap'.
+data ColumnAccess row
+  = CAInt (row -> Int)
+  | CABool (row -> Bool)
+  | CAString (row -> String)
+  | CAPixbuf (row -> Pixbuf)
+
+-- | Type synonym for viewing the store as a set of columns.
+type ColumnMap row = IORef [ColumnAccess row]
+
+-- | Create a new 'ColumnMap' value.
+columnMapNew :: IO (ColumnMap row)
+columnMapNew = newIORef []
+
+-- | The type of a tree column.
+type ColumnId = Int
+	
+-- | Insert or update a column mapping.
+treeModelUpdateColumn :: TypedTreeModelClass model 
+	=> model row -- ^ the store in which to allocate a new column
+	-> ColumnId -- ^ the column that should be updated, 
+	            --   or 'invalidColumnId' to request a new column
+	-> ColumnAccess row -- ^ the function that sets the property
+	-> IO ColumnId -- ^ returns the newly assigned column
+treeModelUpdateColumn model oldC acc =
+  case toTypedTreeModel model of
+    TypedTreeModel model -> do
+      ptr <- withForeignPtr model gtk2hs_store_get_impl
+      impl <- deRefStablePtr ptr
+      let cMap = customTreeModelColumns impl
+      cols <- readIORef cMap
+      let l = length cols
+      if oldC<0 || oldC>=l then do
+         writeIORef cMap (cols++[acc])
+         return l
+       else do
+         let (beg,_:end) = splitAt oldC cols
+         writeIORef cMap (beg++acc:end)
+         return oldC
 
 data CustomTreeModelImplementation row = CustomTreeModelImplementation {
     customTreeModelGetFlags      :: IO [TreeModelFlags],
---    customTreeModelGetNColumns   :: IO Int,
---    customTreeModelGetColumnType :: Int -> IO GType,
+    customTreeModelColumns   	 :: ColumnMap row,				  -- provide access via columns
     customTreeModelGetIter       :: TreePath -> IO (Maybe TreeIter),              -- convert a path to an iterator
     customTreeModelGetPath       :: TreeIter -> IO TreePath,                      -- convert an interator to a path
---    customTreeModelGetValue      :: TreeIter -> Int -> GValue -> IO (),           -- get the value at an iter and column
     customTreeModelGetRow        :: TreeIter -> IO row,                           -- get the row at an iter
     customTreeModelIterNext      :: TreeIter -> IO (Maybe TreeIter),              -- following row (if any)
     customTreeModelIterChildren  :: Maybe TreeIter -> IO (Maybe TreeIter),        -- first child row (if any)
@@ -136,24 +186,34 @@ customTreeModelGetFlags_static storePtr = do
 foreign export ccall "gtk2hs_store_get_flags_impl"
   customTreeModelGetFlags_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
 
-{-
+
 customTreeModelGetNColumns_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
 customTreeModelGetNColumns_static storePtr = do
   store <- deRefStablePtr storePtr
-  liftM fromIntegral $ customTreeModelGetNColumns store
+  cmap <- readIORef (customTreeModelColumns store)
+  return (fromIntegral (length cmap))
 
 foreign export ccall "gtk2hs_store_get_n_columns_impl"
   customTreeModelGetNColumns_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
 
+-- Get the 'GType' for a given 'ColumnAccess'.
+caToGType :: ColumnAccess row -> GType
+caToGType (CAInt _) = GConst.int
+caToGType (CABool _) = GConst.bool
+caToGType (CAString _) = GConst.string
+caToGType (CAPixbuf _) = {#call fun unsafe gdk_pixbuf_get_type#}
 
 customTreeModelGetColumnType_static :: StablePtr (CustomTreeModelImplementation row) -> CInt -> IO GType
 customTreeModelGetColumnType_static storePtr column = do
   store <- deRefStablePtr storePtr
-  customTreeModelGetColumnType store (fromIntegral column)
+  cols <- readIORef (customTreeModelColumns store)
+  case drop (fromIntegral column) cols of
+     [] -> return GConst.invalid
+     (ca:_) -> return (caToGType ca)
 
 foreign export ccall "gtk2hs_store_get_column_type_impl"
   customTreeModelGetColumnType_static :: StablePtr (CustomTreeModelImplementation row) -> CInt -> IO GType
--}
+
 
 customTreeModelGetIter_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
 customTreeModelGetIter_static storePtr iterPtr pathPtr = do
@@ -179,16 +239,26 @@ customTreeModelGetPath_static storePtr iterPtr = do
 foreign export ccall "gtk2hs_store_get_path_impl"
   customTreeModelGetPath_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO (Ptr NativeTreePath)
 
-{-
+
 customTreeModelGetValue_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
 customTreeModelGetValue_static storePtr iterPtr column gvaluePtr = do
   store <- deRefStablePtr storePtr
   iter <- peek iterPtr
-  customTreeModelGetValue store iter (fromIntegral column) (GValue gvaluePtr)
+  row <- customTreeModelGetRow store iter
+  cols <- readIORef (customTreeModelColumns store)
+  let gVal = (GValue gvaluePtr)
+  0 <- {# get GValue->g_type #} gvaluePtr
+  case drop (fromIntegral column) cols of
+    [] -> valueInit gVal GConst.invalid -- column number out of range
+    (acc:_) -> case acc of
+      (CAInt ca) -> valueInit gVal GConst.int >> valueSetInt gVal (ca row)
+      (CABool ca) -> valueInit gVal GConst.bool >> valueSetBool gVal (ca row)
+      (CAString ca) -> valueInit gVal GConst.string >> valueSetString gVal (ca row)
+      (CAPixbuf ca) -> valueInit gVal {#call fun unsafe gdk_pixbuf_get_type#} >>
+			valueSetGObject gVal (ca row)
 
 foreign export ccall "gtk2hs_store_get_value_impl"
   customTreeModelGetValue_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
--}
 
 
 customTreeModelIterNext_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt

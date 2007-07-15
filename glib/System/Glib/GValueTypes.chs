@@ -55,6 +55,7 @@ module System.Glib.GValueTypes (
   valueGetBoxed,
   valueSetGObject,
   valueGetGObject,
+  valueSetMaybeGObject,
   ) where
 
 import Control.Monad	(liftM)
@@ -198,6 +199,11 @@ valueSetGObject :: GObjectClass gobj => GValue -> gobj -> IO ()
 valueSetGObject gvalue obj =
   withForeignPtr ((unGObject.toGObject) obj) $ \objPtr ->
     {# call unsafe g_value_set_object #} gvalue (castPtr objPtr)
+
+valueSetMaybeGObject :: GObjectClass gobj => GValue -> (Maybe gobj) -> IO ()
+valueSetMaybeGObject gvalue (Just obj) = valueSetGObject gvalue obj
+valueSetMaybeGObject gvalue Nothing =
+    {# call unsafe g_value_set_object #} gvalue nullPtr
 
 -- Unsafe because it performs an unchecked downcast. Only for internal use.
 --

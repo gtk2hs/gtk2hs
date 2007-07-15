@@ -101,9 +101,12 @@ treeStoreNew forest = do
         let (result, cache') = f store
         writeIORef storeRef store { content = cache' }
         return result
+  cMap <- columnMapNew
 
   liftM TreeStore $ customTreeModelNew storeRef CustomTreeModelImplementation {
     customTreeModelGetFlags = return [],
+
+    customTreeModelColumns = cMap,
 
     customTreeModelGetIter = \path -> withStore $
       \Store { depth = d } -> fromPath d path,

@@ -193,7 +193,8 @@ import System.Glib.UTFString
 import System.Glib.GList		(fromGList)
 import System.Glib.Attributes
 import System.Glib.Properties
-import System.Glib.GObject		(makeNewGObject, mkFunPtrDestroyNotify)
+import System.Glib.GObject		(makeNewGObject, constructNewGObject,
+					 mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -949,7 +950,7 @@ treeViewCreateRowDragIcon :: TreeViewClass self => self
  -> TreePath
  -> IO Pixmap
 treeViewCreateRowDragIcon self path =
-  makeNewGObject mkPixmap $
+  constructNewGObject mkPixmap $
   withTreePath path $ \path ->
   {# call unsafe tree_view_create_row_drag_icon #}
     (toTreeView self)

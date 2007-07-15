@@ -60,6 +60,7 @@ module System.Glib.Properties (
   newAttrFromCharProperty,
   writeAttrFromUIntProperty,
   newAttrFromBoolProperty,
+  readAttrFromBoolProperty,
   newAttrFromFloatProperty,
   newAttrFromDoubleProperty,
   newAttrFromEnumProperty,
@@ -224,6 +225,10 @@ writeAttrFromUIntProperty propName =
 newAttrFromBoolProperty :: GObjectClass gobj => String -> Attr gobj Bool
 newAttrFromBoolProperty propName =
   newAttr (objectGetPropertyBool propName) (objectSetPropertyBool propName)
+
+readAttrFromBoolProperty :: GObjectClass gobj => String -> ReadAttr gobj Bool
+readAttrFromBoolProperty propName =
+  readAttr (objectGetPropertyBool propName)
 
 newAttrFromFloatProperty :: GObjectClass gobj => String -> Attr gobj Float
 newAttrFromFloatProperty propName =

@@ -28,15 +28,17 @@ module Graphics.UI.Gtk.ModelView.CellRendererPixbuf (
 -- * Detail
 -- 
 -- | A 'CellRendererPixbuf' can be used to render an image in a cell. It
--- allows to render either a given 'Pixbuf' (set via the pixbuf property) or a
--- stock icon (set via the stock-id property).
+-- allows to render either a given 'Pixbuf' (set via the 'cellPixbuf'
+-- property) or a stock icon (set via the 'cellPixbufStockId' property).
 --
--- To support the tree view, 'CellRendererPixbuf' also supports rendering
--- two alternative pixbufs, when the is-expander property is @True@. If the
--- is-expanded property is @True@ and the pixbuf-expander-open property is set
--- to a pixbuf, it renders that pixbuf, if the is-expanded property is @False@
--- and the pixbuf-expander-closed property is set to a pixbuf, it renders that
--- one.
+-- To support the tree view, 'CellRendererPixbuf' also supports rendering two
+-- alternative pixbufs, when the
+-- 'Graphics.UI.Gtk.ModelView.CellRenderer.cellIsExpander' property is @True@.
+-- If the this property is @True@ and the 'cellPixbufExpanderOpen' property is
+-- set to a pixbuf, it renders that pixbuf, if the
+-- 'Graphics.UI.Gtk.ModelView.CellRenderer.cellIsExpanded' property is @False@
+-- and the 'cellPixbufExpanderClosed' property is set to a pixbuf, it renders
+-- that one.
 
 -- * Class Hierarchy
 -- |
@@ -55,6 +57,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererPixbuf (
 
 -- * Constructors
   cellRendererPixbufNew,
+
 -- * Attributes
   cellPixbuf,
   cellPixbufExpanderOpen,

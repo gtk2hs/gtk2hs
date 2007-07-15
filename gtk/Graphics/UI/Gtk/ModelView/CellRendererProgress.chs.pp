@@ -27,6 +27,11 @@
 -- * Module available since Gtk+ version 2.6
 --
 module Graphics.UI.Gtk.ModelView.CellRendererProgress (
+-- * Detail
+--
+-- | 'CellRendererProgress' renders a numeric value as a progress par in a
+-- cell. Additionally, it can display a text on top of the progress bar.
+--
 
 -- * Class Hierarchy
 -- |

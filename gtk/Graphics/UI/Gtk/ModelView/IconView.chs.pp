@@ -5,7 +5,7 @@
 --
 --  Created: 25 March 2005
 --
---  Copyright (C) 2005 Duncan Coutts
+--  Copyright (C) 2005-2007 Duncan Coutts, Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@
 --
 module Graphics.UI.Gtk.ModelView.IconView (
 -- * Detail
--- 
+--
 -- | 'IconView' provides an alternative view on a list model. It displays the
 -- model as a grid of icons with labels. Like 'TreeView', it allows to select
 -- one or multiple items (depending on the selection mode, see
@@ -37,6 +37,7 @@ module Graphics.UI.Gtk.ModelView.IconView (
 -- the pointer.
 
 -- * Class Hierarchy
+--
 -- |
 -- @
 -- |  'GObject'
@@ -60,12 +61,9 @@ module Graphics.UI.Gtk.ModelView.IconView (
 -- * Methods
   iconViewSetModel,
   iconViewGetModel,
-  iconViewSetTextColumn,
-  iconViewGetTextColumn,
-  iconViewSetMarkupColumn,
-  iconViewGetMarkupColumn,
-  iconViewSetPixbufColumn,
-  iconViewGetPixbufColumn,
+  iconViewSetTextSource,
+  iconViewSetMarkupSource,
+  iconViewSetPixbufSource,
   iconViewGetPathAtPos,
   iconViewSelectedForeach,
   iconViewSetSelectionMode,
@@ -91,12 +89,29 @@ module Graphics.UI.Gtk.ModelView.IconView (
   iconViewSelectAll,
   iconViewUnselectAll,
   iconViewItemActivated,
+#if GTK_CHECK_VERSION(2,8,0)
+{-  iconViewGetItemAtPos,
+  iconViewSetCursor,
+  iconViewGetCursor,
+  iconViewScrollToPath,
+  iconViewGetVisibleRange,
+  iconViewEnableModelDragSource,
+  iconViewEnableModelDragDest,
+  iconViewUnsetModelDragSource,
+  iconViewUnsetModelDragDest,
+  iconViewSetReorderable,
+  iconViewGetReorderable,
+  iconViewSetDragDestItem,
+  iconViewGetDragDestItem,
+  iconViewGetDestItemAtPos,
+ -} iconViewCreateDragIcon,
+#endif
 
 -- * Attributes
   iconViewSelectionMode,
-  iconViewPixbufColumn,
-  iconViewTextColumn,
-  iconViewMarkupColumn,
+  iconViewTextSource,
+  iconViewMarkupSource,
+  iconViewPixbufSource,
   iconViewModel,
   iconViewColumns,
   iconViewItemWidth,
@@ -105,18 +120,14 @@ module Graphics.UI.Gtk.ModelView.IconView (
   iconViewColumnSpacing,
   iconViewMargin,
   iconViewOrientation,
+#if GTK_CHECK_VERSION(2,8,0)
+  iconViewReorderable,
+#endif
 
 -- * Signals
-  onSelectAll,
-  afterSelectAll,
-  onUnselectAll,
-  afterUnselectAll,
-  onSelectCursorItem,
-  afterSelectCursorItem,
-  onToggleCursorItem,
-  afterToggleCursorItem,
-  onActivateCursorItem,
-  afterActivateCursorItem,
+  setScrollAdjustments,
+  itemActivated,
+  selectionChanged
 #endif
   ) where
 
@@ -124,18 +135,28 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Attributes
+import System.Glib.Properties
 {#import System.Glib.GList#}
-import System.Glib.GObject			(makeNewGObject)
+import System.Glib.GObject			(makeNewGObject, constructNewGObject)
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.General.Enums#}	(Orientation, SelectionMode)
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
+{#import Graphics.UI.Gtk.ModelView.CustomStore#}
+{#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
+import Graphics.UI.Gtk.Pango.Markup 		(Markup)
 
 {# context lib="gtk" prefix="gtk" #}
 
 #if GTK_CHECK_VERSION(2,6,0)
+--------------------
+-- Interfaces
+
+-- %hash c:4792
+instance CellLayoutClass IconView
+
 --------------------
 -- Constructors
 
@@ -147,20 +168,23 @@ iconViewNew =
   liftM (castPtr :: Ptr Widget -> Ptr IconView) $
   {# call gtk_icon_view_new #}
 
--- | Creates a new 'IconView' widget with the model @model@.
+-- %hash c:dbf4
+-- | Creates a new 'IconView' widget with the model @model@ and defines
+--   how to extract a string and a pixbuf from the model.
 --
-iconViewNewWithModel :: TreeModelClass model => 
-    model       -- ^ @model@ - The model.
+iconViewNewWithModel :: TreeModelClass model =>
+    model -- ^ @model@ - The model.
  -> IO IconView
 iconViewNewWithModel model =
   makeNewObject mkIconView $
-  liftM (castPtr :: Ptr Widget -> Ptr IconView) $
-  {# call gtk_icon_view_new_with_model #}
+    liftM (castPtr :: Ptr Widget -> Ptr IconView) $
+    {# call gtk_icon_view_new_with_model #}
     (toTreeModel model)
 
 --------------------
 -- Methods
 
+-- %hash c:5ba8 d:c5c8
 -- | Sets the model for a 'IconView'. If the @iconView@ already has a model
 -- set, it will remove it before setting the new model. If @model@ is
 -- @Nothing@, then it will unset the old model.
@@ -173,6 +197,7 @@ iconViewSetModel self model =
     (toIconView self)
     (maybe (TreeModel nullForeignPtr) toTreeModel model)
 
+-- %hash c:6709 d:c0c5
 -- | Returns the model the 'IconView' is based on. Returns @Nothing@ if the
 -- model is unset.
 --
@@ -181,71 +206,96 @@ iconViewGetModel :: IconViewClass self => self
                          -- currently being used.
 iconViewGetModel self =
   maybeNull (makeNewGObject mkTreeModel) $
-  {# call gtk_icon_view_get_model #}
+  {# call unsafe gtk_icon_view_get_model #}
     (toIconView self)
 
--- | Sets the column with text for @iconView@ to be @column@. The text column
--- must be of type string.
+-- %hash c:c3fe d:fb7b
+-- | Sets the source of the text for entries in the 'IconView'. The given
+-- model must be set beforehand using 'iconViewSetModel'. If a markup source
+-- is set using 'iconViewSetMarkupSource', then the text source is ignored.
 --
-iconViewSetTextColumn :: IconViewClass self => self
- -> Int   -- ^ @column@ - A column in the currently used model.
- -> IO ()
-iconViewSetTextColumn self column =
+iconViewSetTextSource :: (IconViewClass self,
+			  TreeModelClass (model row),
+			  TypedTreeModelClass model)
+  => self -- ^ the 'IconView' widget
+  -> Maybe (model row, row -> String)
+  -- ^ The model and a function to extract	 
+  -- a string from the model. If set to @Nothing@, the mapping is reset.
+  -> IO ()
+iconViewSetTextSource self Nothing =
   {# call gtk_icon_view_set_text_column #}
-    (toIconView self)
-    (fromIntegral column)
+    (toIconView self) (-1)
+iconViewSetTextSource self (Just (model,extract)) = do
+  modelPtr <- {#call unsafe gtk_icon_view_get_model#} (toIconView self)
+  let (TreeModel modelFPtr) = toTreeModel model
+  if modelPtr/=unsafeForeignPtrToPtr modelFPtr then
+    error ("iconViewSetTextSource: given model is different from what "++
+	   "iconViewGetModel returns") else do
+  col <- {# call gtk_icon_view_get_text_column #} (toIconView self)
+  col <- treeModelUpdateColumn model (fromIntegral col) (CAString extract)
+  {#call gtk_icon_view_set_text_column #} (toIconView self) (fromIntegral col)
 
--- | Returns the column with text for @iconView@.
---
-iconViewGetTextColumn :: IconViewClass self => self
- -> IO Int -- ^ returns the text column, or -1 if it's unset.
-iconViewGetTextColumn self =
-  liftM fromIntegral $
-  {# call gtk_icon_view_get_text_column #}
-    (toIconView self)
 
--- | Sets the column with markup information for @iconView@ to be @column@.
--- The markup column must be of type string. If the markup column is set to
--- something, it overrides the text column set by 'iconViewSetTextColumn'.
+-- %hash c:995f d:801c
+-- | Sets the source of the text for entries in the 'IconView' as a markup
+-- string (see 'Graphics.UI.Gtk.Pango.Markup'). The given model must be set
+-- beforehand using 'iconViewSetModel'. A text source that is set using
+-- 'iconViewSetTextSource' is ignored once a markup source is set.
 --
-iconViewSetMarkupColumn :: IconViewClass self => self
- -> Int   -- ^ @column@ - A column in the currently used model.
- -> IO ()
-iconViewSetMarkupColumn self column =
+iconViewSetMarkupSource :: (IconViewClass self,
+			  TreeModelClass (model row),
+			  TypedTreeModelClass model)
+  => self -- ^ the 'IconView' widget
+  -> Maybe (model row, row -> Markup)
+  -- ^ The model and a function to extract	 
+  -- a string from the model. If set to @Nothing@, the mapping is reset.
+  -> IO ()
+iconViewSetMarkupSource self Nothing =
   {# call gtk_icon_view_set_markup_column #}
-    (toIconView self)
-    (fromIntegral column)
+    (toIconView self) (-1)
+iconViewSetMarkupSource self (Just (model,extract)) = do
+  modelPtr <- {#call unsafe gtk_icon_view_get_model#} (toIconView self)
+  let (TreeModel modelFPtr) = toTreeModel model
+  if modelPtr/=unsafeForeignPtrToPtr modelFPtr then
+    error ("iconViewSetMarkupSource: given model is different from what "++
+	   "iconViewGetModel returns") else do
+  col <- {# call gtk_icon_view_get_markup_column #} (toIconView self)
+  col <- treeModelUpdateColumn model (fromIntegral col) (CAString extract)
+  {#call gtk_icon_view_set_markup_column #} (toIconView self)
+    (fromIntegral col)
 
--- | Returns the column with markup text for @iconView@.
+
+-- %hash c:4079 d:bf8
+-- | Sets the source of the 'Graphics.UI.Gtk.Gdk.Pixbuf' for entries in the
+-- 'IconView'. The given model must be set beforehand using
+-- 'iconViewSetModel'.
 --
-iconViewGetMarkupColumn :: IconViewClass self => self
- -> IO Int -- ^ returns the markup column, or -1 if it's unset.
-iconViewGetMarkupColumn self =
-  liftM fromIntegral $
-  {# call gtk_icon_view_get_markup_column #}
-    (toIconView self)
+iconViewSetPixbufSource :: (IconViewClass self,
+			  TreeModelClass (model row),
+			  TypedTreeModelClass model)
+  => self -- ^ the 'IconView' widget
+  -> Maybe (model row, row -> Pixbuf)
+  -- ^ The model and a function to extract	 
+  -- a 'Graphics.UI.Gtk.Gdk.Pixbuf' from the model. If set to @Nothing@, the
+  -- mapping is reset.
+  -> IO ()
+iconViewSetPixbufSource self Nothing =
+  {# call gtk_icon_view_set_pixbuf_column #} (toIconView self) (-1)
+iconViewSetPixbufSource self (Just (model,extract)) = do
+  modelPtr <- {#call unsafe gtk_icon_view_get_model#} (toIconView self)
+  let (TreeModel modelFPtr) = toTreeModel model
+  if modelPtr/=unsafeForeignPtrToPtr modelFPtr then
+    error ("iconViewSetPixbufSource: given model is different from what "++
+	   "iconViewGetModel returns") else do
+  col <- {# call gtk_icon_view_get_pixbuf_column #} (toIconView self)
+  col <- treeModelUpdateColumn model (fromIntegral col) (CAPixbuf extract)
+  {#call gtk_icon_view_set_pixbuf_column #} (toIconView self)
+    (fromIntegral col)
 
--- | Sets the column with pixbufs for @iconView@ to be @column@. The pixbuf
--- column must be of type pixbuf.
---
-iconViewSetPixbufColumn :: IconViewClass self => self
- -> Int   -- ^ @column@ - A column in the currently used model.
- -> IO ()
-iconViewSetPixbufColumn self column =
-  {# call gtk_icon_view_set_pixbuf_column #}
-    (toIconView self)
-    (fromIntegral column)
-
--- | Returns the column with pixbufs for @iconView@.
---
-iconViewGetPixbufColumn :: IconViewClass self => self
- -> IO Int -- ^ returns the pixbuf column, or -1 if it's unset.
-iconViewGetPixbufColumn self =
-  liftM fromIntegral $
-  {# call gtk_icon_view_get_pixbuf_column #}
-    (toIconView self)
-
+-- %hash c:2486 d:5e7
 -- | Finds the path at the point (@x@, @y@), relative to widget coordinates.
+-- See 'iconViewGetItemAtPos', if you are also interested in the cell at the
+-- specified position.
 --
 iconViewGetPathAtPos :: IconViewClass self => self
  -> Int         -- ^ @x@ - The x position to be identified
@@ -259,6 +309,7 @@ iconViewGetPathAtPos self x y =
     (fromIntegral y)
   >>= fromTreePath
 
+-- %hash c:dfc5
 -- | Calls a function for each selected icon. Note that the model or selection
 -- cannot be modified from within this function.
 --
@@ -322,120 +373,141 @@ iconViewGetOrientation self =
   {# call gtk_icon_view_get_orientation #}
     (toIconView self)
 
--- | 
+-- %hash c:7d23 d:d4e7
+-- | Sets the ::columns property which determines in how many columns the
+-- icons are arranged. If @columns@ is -1, the number of columns will be chosen
+-- automatically to fill the available area.
 --
 iconViewSetColumns :: IconViewClass self => self
- -> Int   -- ^ @columns@ -
+ -> Int -- ^ @columns@ - the number of columns
  -> IO ()
 iconViewSetColumns self columns =
   {# call gtk_icon_view_set_columns #}
     (toIconView self)
     (fromIntegral columns)
 
--- | 
+-- %hash c:f0f6 d:fc0e
+-- | Returns the value of the ::columns property.
 --
 iconViewGetColumns :: IconViewClass self => self
- -> IO Int -- ^ returns
+ -> IO Int -- ^ returns the number of columns, or -1
 iconViewGetColumns self =
   liftM fromIntegral $
   {# call gtk_icon_view_get_columns #}
     (toIconView self)
 
--- | 
+-- %hash c:643e d:b756
+-- | Sets the ::item-width property which specifies the width to use for each
+-- item. If it is set to -1, the icon view will automatically determine a
+-- suitable item size.
 --
 iconViewSetItemWidth :: IconViewClass self => self
- -> Int   -- ^ @itemWidth@ -
+ -> Int -- ^ @itemWidth@ - the width for each item
  -> IO ()
 iconViewSetItemWidth self itemWidth =
   {# call gtk_icon_view_set_item_width #}
     (toIconView self)
     (fromIntegral itemWidth)
 
--- | 
+-- %hash c:9f27 d:8569
+-- | Returns the value of the ::item-width property.
 --
 iconViewGetItemWidth :: IconViewClass self => self
- -> IO Int -- ^ returns
+ -> IO Int -- ^ returns the width of a single item, or -1
 iconViewGetItemWidth self =
   liftM fromIntegral $
   {# call gtk_icon_view_get_item_width #}
     (toIconView self)
 
--- | 
+-- %hash c:7e61 d:3186
+-- | Sets the ::spacing property which specifies the space which is inserted
+-- between the cells (i.e. the icon and the text) of an item.
 --
 iconViewSetSpacing :: IconViewClass self => self
- -> Int   -- ^ @spacing@ -
+ -> Int -- ^ @spacing@ - the spacing
  -> IO ()
 iconViewSetSpacing self spacing =
   {# call gtk_icon_view_set_spacing #}
     (toIconView self)
     (fromIntegral spacing)
 
--- | 
+-- %hash c:5bc1 d:a1d2
+-- | Returns the value of the ::spacing property.
 --
 iconViewGetSpacing :: IconViewClass self => self
- -> IO Int -- ^ returns
+ -> IO Int -- ^ returns the space between cells
 iconViewGetSpacing self =
   liftM fromIntegral $
   {# call gtk_icon_view_get_spacing #}
     (toIconView self)
 
--- | 
+-- %hash c:dd08 d:730c
+-- | Sets the ::row-spacing property which specifies the space which is
+-- inserted between the rows of the icon view.
 --
 iconViewSetRowSpacing :: IconViewClass self => self
- -> Int   -- ^ @rowSpacing@ -
+ -> Int -- ^ @rowSpacing@ - the row spacing
  -> IO ()
 iconViewSetRowSpacing self rowSpacing =
   {# call gtk_icon_view_set_row_spacing #}
     (toIconView self)
     (fromIntegral rowSpacing)
 
--- | 
+-- %hash c:a040 d:bc37
+-- | Returns the value of the ::row-spacing property.
 --
 iconViewGetRowSpacing :: IconViewClass self => self
- -> IO Int -- ^ returns
+ -> IO Int -- ^ returns the space between rows
 iconViewGetRowSpacing self =
   liftM fromIntegral $
   {# call gtk_icon_view_get_row_spacing #}
     (toIconView self)
 
--- | 
+-- %hash c:3042 d:b4f8
+-- | Sets the ::column-spacing property which specifies the space which is
+-- inserted between the columns of the icon view.
 --
 iconViewSetColumnSpacing :: IconViewClass self => self
- -> Int   -- ^ @columnSpacing@ -
+ -> Int -- ^ @columnSpacing@ - the column spacing
  -> IO ()
 iconViewSetColumnSpacing self columnSpacing =
   {# call gtk_icon_view_set_column_spacing #}
     (toIconView self)
     (fromIntegral columnSpacing)
 
--- | 
+-- %hash c:3818 d:c1cd
+-- | Returns the value of the ::column-spacing property.
 --
 iconViewGetColumnSpacing :: IconViewClass self => self
- -> IO Int -- ^ returns
+ -> IO Int -- ^ returns the space between columns
 iconViewGetColumnSpacing self =
   liftM fromIntegral $
   {# call gtk_icon_view_get_column_spacing #}
     (toIconView self)
 
--- | 
+-- %hash c:990 d:d43c
+-- | Sets the ::margin property which specifies the space which is inserted at
+-- the top, bottom, left and right of the icon view.
 --
 iconViewSetMargin :: IconViewClass self => self
- -> Int   -- ^ @margin@ -
+ -> Int -- ^ @margin@ - the margin
  -> IO ()
 iconViewSetMargin self margin =
   {# call gtk_icon_view_set_margin #}
     (toIconView self)
     (fromIntegral margin)
 
--- | 
+-- %hash c:a116 d:6fab
+-- | Returns the value of the ::margin property.
 --
 iconViewGetMargin :: IconViewClass self => self
- -> IO Int -- ^ returns
+ -> IO Int -- ^ returns the space at the borders
 iconViewGetMargin self =
   liftM fromIntegral $
   {# call gtk_icon_view_get_margin #}
     (toIconView self)
 
+-- %hash c:77b3
 -- | Selects the row at @path@.
 --
 iconViewSelectPath :: IconViewClass self => self
@@ -447,6 +519,7 @@ iconViewSelectPath self path =
     (toIconView self)
     path
 
+-- %hash c:7e5f
 -- | Unselects the row at @path@.
 --
 iconViewUnselectPath :: IconViewClass self => self
@@ -458,6 +531,7 @@ iconViewUnselectPath self path =
     (toIconView self)
     path
 
+-- %hash c:8ea0
 -- | Returns @True@ if the icon pointed to by @path@ is currently selected. If
 -- @icon@ does not point to a valid location, @False@ is returned.
 --
@@ -471,10 +545,11 @@ iconViewPathIsSelected self path =
     (toIconView self)
     path
 
+-- %hash c:90f8 d:9c43
 -- | Creates a list of paths of all selected items. Additionally, if you are
--- planning on modifying the model after calling this function, you may want to
--- convert the returned list into a list of 'TreeRowReference's. To do this,
--- you can use 'treeRowReferenceNew'.
+-- planning on modifying the model after calling this function, you may want
+-- to convert the returned list into a list of 'TreeRowReference's. To do
+-- this, you can use 'treeRowReferenceNew'.
 --
 iconViewGetSelectedItems :: IconViewClass self => self
  -> IO [TreePath] -- ^ returns a list of 'TreePath's, one for each selected row.
@@ -499,6 +574,7 @@ iconViewUnselectAll self =
   {# call gtk_icon_view_unselect_all #}
     (toIconView self)
 
+-- %hash c:6916
 -- | Activates the item determined by @path@.
 --
 iconViewItemActivated :: IconViewClass self => self
@@ -509,6 +585,336 @@ iconViewItemActivated self path =
   {# call gtk_icon_view_item_activated #}
     (toIconView self)
     path
+
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- %hash c:3122 d:346e
+-- | Finds the path at the point (@x@, @y@), relative to widget coordinates.
+-- In contrast to 'iconViewGetPathAtPos', this function also obtains the cell
+-- at the specified position.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewGetItemAtPos :: IconViewClass self => self
+ -> Int                   -- ^ @x@ - The x position to be identified
+ -> Int                   -- ^ @y@ - The y position to be identified
+ -> IO (Maybe (TreePath, CellRenderer)) 
+                          -- specified position
+iconViewGetItemAtPos self x y =
+  alloca $ \pathPtrPtr -> alloca $ \crPtrPtr -> do
+  success <- liftM toBool $ {# call gtk_icon_view_get_item_at_pos #}
+    (toIconView self)
+    (fromIntegral x)
+    (fromIntegral y)
+    (castPtr pathPtrPtr)
+    (castPtr crPtrPtr)
+  if not success then return Nothing else do
+  pathPtr <- peek pathPtrPtr
+  crPtr <- peek crPtrPtr
+  path <- fromTreePath pathPtr
+  cr <- makeNewGObject mkCellRenderer (return crPtr)
+  return (Just (path, cr))
+
+-- %hash c:357b d:32d6
+-- | Given @Left path@ as argument , sets the current keyboard focus to be at
+-- @path@, and selects it. This is useful when you want to focus the user's
+-- attention on a particular item. If @Right cell@ is given, then focus is
+-- given to the cell specified by it. Additionally, if @startEditing@ is
+-- @True@, then editing should be started in the specified cell.
+--
+-- This function is often followed by
+-- 'Graphics.UI.Gtk.Abstract.Widget.widgetGrabFocus' in order to give keyboard
+-- focus to the widget. Please note that editing can only happen when the
+-- widget is realized.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewSetCursor :: (IconViewClass self, CellRendererClass cell) => self
+ -> (Either TreePath cell) -- ^ the path or the cell
+ -> Bool     -- ^ @startEditing@ - @True@ if the specified cell should start
+             -- being edited.
+ -> IO ()
+iconViewSetCursor self (Left path) startEditing =
+  withTreePath path $ \path ->
+  {# call gtk_icon_view_set_cursor #}
+    (toIconView self)
+    path
+    (mkCellRenderer nullForeignPtr)
+    (fromBool startEditing)
+iconViewSetCursor self (Right cell) startEditing =
+  {# call gtk_icon_view_set_cursor #}
+    (toIconView self)
+    (NativeTreePath nullPtr)
+    (toCellRenderer cell)
+    (fromBool startEditing)
+
+-- %hash c:3307 d:9cf8
+-- | Return a @path@ and a @cell@ with the current cursor path and cell. If the
+-- cursor isn't currently set, then @[]@ will be returned for the @path@. If no cell currently has focus,
+-- then @cell@ will be @Nothing@.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewGetCursor :: IconViewClass self => self
+ -> IO (TreePath, Maybe CellRenderer)               -- ^ returns a @path@ to the cursor and a @cell@ if the widget has the input focus
+iconViewGetCursor self =
+  alloca $ \pathPtrPtr -> alloca $ \crPtrPtr -> do
+  {# call gtk_icon_view_get_cursor #}
+    (toIconView self)
+    (castPtr pathPtrPtr)
+    (castPtr crPtrPtr)
+  pathPtr <- peek pathPtrPtr
+  crPtr <- peek crPtrPtr
+  path <- fromTreePath pathPtr
+  cr <- if crPtr==nullPtr then return Nothing else
+	liftM Just $ makeNewGObject mkCellRenderer (return crPtr)
+  return (path, cr)
+
+-- %hash c:1c9e d:20c5
+-- | Moves the alignments of @iconView@ to the position specified by @path@.
+-- @rowAlign@ determines where the row is placed, and @colAlign@ determines
+-- where @column@ is placed. Both are expected to be between 0.0 and 1.0. 0.0
+-- means left\/top alignment, 1.0 means right\/bottom alignment, 0.5 means
+-- center.
+--
+-- If @useAlign@ is @False@, then the alignment arguments are ignored, and the
+-- tree does the minimum amount of work to scroll the item onto the screen.
+-- This means that the item will be scrolled to the edge closest to its
+-- current position. If the item is currently visible on the screen, nothing
+-- is done.
+--
+-- This function only works if the model is set, and @path@ is a valid row on
+-- the model. If the model changes before the @iconView@ is realized, the
+-- centered path will be modified to reflect this change.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewScrollToPath :: IconViewClass self => self
+ -> TreePath -- ^ @path@ - The path of the item to move to.
+ -> Bool     -- ^ @useAlign@ - whether to use alignment arguments, or @False@.
+ -> Float    -- ^ @rowAlign@ - The vertical alignment of the item specified by
+             -- @path@.
+ -> Float    -- ^ @colAlign@ - The horizontal alignment of the item specified
+             -- by @path@.
+ -> IO ()
+iconViewScrollToPath self path useAlign rowAlign colAlign =
+  withTreePath path $ \path ->
+  {# call gtk_icon_view_scroll_to_path #}
+    (toIconView self)
+    path
+    (fromBool useAlign)
+    (realToFrac rowAlign)
+    (realToFrac colAlign)
+
+-- %hash c:8354 d:f7f3
+-- | Retrieve the first and last visible path.
+-- Note that there may be invisible paths inbetween.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewGetVisibleRange :: IconViewClass self => self
+ -> IO (Maybe (TreePath, TreePath))
+		-- ^ returns the first and last visible path, the return value
+		-- @Nothing@ if every element is visible
+iconViewGetVisibleRange self = alloca $ \fPtrPtr -> alloca $ \lPtrPtr -> do
+  success <- liftM toBool $ {# call gtk_icon_view_get_visible_range #}
+    (toIconView self)
+    (castPtr fPtrPtr)
+    (castPtr lPtrPtr)
+  if not success then return Nothing else do
+  fPtr <- peek fPtrPtr
+  lPtr <- peek lPtrPtr
+  f <- fromTreePath fPtr
+  l <- fromTreePath lPtr
+  return (Just (f,l))
+
+{-
+-- %hash c:bd16 d:3f4f
+-- | Turns @iconView@ into a drag source for automatic DND.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewEnableModelDragSource :: IconViewClass self => self
+ -> [ModifierType]            -- ^ @startButtonMask@ - Mask of allowed buttons
+                              -- to start drag
+ -> {-const-GtkTargetEntry*-} -- ^ @targets@ - the table of targets that the
+                              -- drag will support
+ -> Int                       -- ^ @nTargets@ - the number of items in
+                              -- @targets@
+ -> [DragAction]              -- ^ @actions@ - the bitmask of possible actions
+                              -- for a drag from this widget
+ -> IO ()
+iconViewEnableModelDragSource self startButtonMask targets nTargets actions =
+  {# call gtk_icon_view_enable_model_drag_source #}
+    (toIconView self)
+    ((fromIntegral . fromFlags) startButtonMask)
+    {-targets-}
+    (fromIntegral nTargets)
+    ((fromIntegral . fromFlags) actions)
+
+-- %hash c:b14d d:23d7
+-- | Turns @iconView@ into a drop destination for automatic DND.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewEnableModelDragDest :: IconViewClass self => self
+ -> {-const-GtkTargetEntry*-} -- ^ @targets@ - the table of targets that the
+                              -- drag will support
+ -> Int                       -- ^ @nTargets@ - the number of items in
+                              -- @targets@
+ -> [DragAction]              -- ^ @actions@ - the bitmask of possible actions
+                              -- for a drag to this widget
+ -> IO ()
+iconViewEnableModelDragDest self targets nTargets actions =
+  {# call gtk_icon_view_enable_model_drag_dest #}
+    (toIconView self)
+    {-targets-}
+    (fromIntegral nTargets)
+    ((fromIntegral . fromFlags) actions)
+
+-- %hash c:25b0 d:5a6b
+-- | Undoes the effect of 'iconViewEnableModelDragSource'.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewUnsetModelDragSource :: IconViewClass self => self -> IO ()
+iconViewUnsetModelDragSource self =
+  {# call gtk_icon_view_unset_model_drag_source #}
+    (toIconView self)
+-}
+
+-- %hash c:d76d d:f18a
+-- | Undoes the effect of 'iconViewEnableModelDragDest'.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewUnsetModelDragDest :: IconViewClass self => self -> IO ()
+iconViewUnsetModelDragDest self =
+  {# call gtk_icon_view_unset_model_drag_dest #}
+    (toIconView self)
+
+-- %hash c:c270 d:b94d
+-- | This function is a convenience function to allow you to reorder models
+-- that support the {GtkTreeDragSourceIface, FIXME: unknown type\/value} and
+-- the {GtkTreeDragDestIface, FIXME: unknown type\/value}. Both 'TreeStore' and
+-- 'ListStore' support these. If @reorderable@ is @True@, then the user can
+-- reorder the model by dragging and dropping rows. The developer can listen to
+-- these changes by connecting to the model's row_inserted and row_deleted
+-- signals.
+--
+-- This function does not give you any degree of control over the order --
+-- any reordering is allowed. If more control is needed, you should probably
+-- handle drag and drop manually.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewSetReorderable :: IconViewClass self => self
+ -> Bool -- ^ @reorderable@ - @True@, if the list of items can be reordered.
+ -> IO ()
+iconViewSetReorderable self reorderable =
+  {# call gtk_icon_view_set_reorderable #}
+    (toIconView self)
+    (fromBool reorderable)
+
+-- %hash c:532 d:1d07
+-- | Retrieves whether the user can reorder the list via drag-and-drop. See
+-- 'iconViewSetReorderable'.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewGetReorderable :: IconViewClass self => self
+ -> IO Bool -- ^ returns @True@ if the list can be reordered.
+iconViewGetReorderable self =
+  liftM toBool $
+  {# call gtk_icon_view_get_reorderable #}
+    (toIconView self)
+
+{-
+-- %hash c:9574 d:34ea
+-- | Sets the item that is highlighted for feedback.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewSetDragDestItem :: IconViewClass self => self
+ -> TreePath             -- ^ @path@ - The path of the item to highlight, or
+                         -- {@NULL@, FIXME: this should probably be converted
+                         -- to a Maybe data type}.
+ -> IconViewDropPosition -- ^ @pos@ - Specifies where to drop, relative to the
+                         -- item
+ -> IO ()
+iconViewSetDragDestItem self path pos =
+  withTreePath path $ \path ->
+  {# call gtk_icon_view_set_drag_dest_item #}
+    (toIconView self)
+    path
+    ((fromIntegral . fromEnum) pos)
+
+-- %hash c:92a7 d:8b3f
+-- | Gets information about the item that is highlighted for feedback.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewGetDragDestItem :: IconViewClass self => self
+ -> {-GtkTreePath**-}            -- ^ @path@ - Return location for the path of
+                                 -- the highlighted item, or {@NULL@, FIXME:
+                                 -- this should probably be converted to a
+                                 -- Maybe data type}.
+ -> {-GtkIconViewDropPosition*-} -- ^ @pos@ - Return location for the drop
+                                 -- position, or {@NULL@, FIXME: this should
+                                 -- probably be converted to a Maybe data type}
+ -> IO ()
+iconViewGetDragDestItem self path pos =
+  {# call gtk_icon_view_get_drag_dest_item #}
+    (toIconView self)
+    {-path-}
+    {-pos-}
+
+-- %hash c:28ff d:dcf9
+-- | Determines the destination item for a given position.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewGetDestItemAtPos :: IconViewClass self => self
+ -> Int                          -- ^ @dragX@ - the position to determine the
+                                 -- destination item for
+ -> Int                          -- ^ @dragY@ - the position to determine the
+                                 -- destination item for
+ -> {-GtkTreePath**-}            -- ^ @path@ - Return location for the path of
+                                 -- the item, or {@NULL@, FIXME: this should
+                                 -- probably be converted to a Maybe data
+                                 -- type}.
+ -> {-GtkIconViewDropPosition*-} -- ^ @pos@ - Return location for the drop
+                                 -- position, or {@NULL@, FIXME: this should
+                                 -- probably be converted to a Maybe data type}
+ -> IO Bool                      -- ^ returns whether there is an item at the
+                                 -- given position.
+iconViewGetDestItemAtPos self dragX dragY path pos =
+  liftM toBool $
+  {# call gtk_icon_view_get_dest_item_at_pos #}
+    (toIconView self)
+    (fromIntegral dragX)
+    (fromIntegral dragY)
+    {-path-}
+    {-pos-}
+
+-}
+
+-- %hash c:e65a d:3e9
+-- | Creates a 'Pixmap' representation of the item at @path@. This image is
+-- used for a drag icon.
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewCreateDragIcon :: IconViewClass self => self
+ -> TreePath  -- ^ @path@ - a 'TreePath' in @iconView@
+ -> IO Pixmap -- ^ returns a pixmap of the drag icon.
+iconViewCreateDragIcon self path =
+  constructNewGObject mkPixmap $
+  withTreePath path $ \path ->
+  {# call gtk_icon_view_create_drag_icon #}
+    (toIconView self)
+    path
+#endif
 
 --------------------
 -- Attributes
@@ -524,49 +930,41 @@ iconViewSelectionMode = newAttr
   iconViewGetSelectionMode
   iconViewSetSelectionMode
 
--- | The ::pixbuf-column property contains the number of the model column
--- containing the pixbufs which are displayed. The pixbuf column must be of
--- type pixbuf. Setting this property to
--- -1 turns off the display of pixbufs.
+-- %hash c:4ce5 d:c77a
+-- | Sets the source of the 'Graphics.UI.Gtk.Gdk.Pixbuf' for entries in the
+-- 'IconView'. The given model must be set beforehand using
+-- 'iconViewSetModel'.
 --
--- Allowed values: >= -1
---
--- Default value: -1
---
-iconViewPixbufColumn :: IconViewClass self => Attr self Int
-iconViewPixbufColumn = newAttr
-  iconViewGetPixbufColumn
-  iconViewSetPixbufColumn
+iconViewPixbufSource :: (IconViewClass self,
+		       TreeModelClass (model row),
+		       TypedTreeModelClass model) =>
+		       WriteAttr self (Maybe (model row, row -> Pixbuf))
+iconViewPixbufSource = writeAttr iconViewSetPixbufSource
 
--- | The ::text-column property contains the number of the model column
--- containing the texts which are displayed. The text column must be of type
--- string. If this property and the
--- :markup-column property are both set to -1, no texts are displayed.
+-- %hash c:702a d:f7ed
+-- | Sets the source of the text for entries in the 'IconView'. The given
+-- model must be set beforehand using 'iconViewSetModel'. If a markup source
+-- is set using 'iconViewSetMarkupSource', then the text source is ignored.
 --
--- Allowed values: >= -1
---
--- Default value: -1
---
-iconViewTextColumn :: IconViewClass self => Attr self Int
-iconViewTextColumn = newAttr
-  iconViewGetTextColumn
-  iconViewSetTextColumn
+iconViewTextSource :: (IconViewClass self,
+		       TreeModelClass (model row),
+		       TypedTreeModelClass model) =>
+		       WriteAttr self (Maybe (model row, row -> String))
+iconViewTextSource = writeAttr iconViewSetTextSource
 
--- | The ::markup-column property contains the number of the model column
--- containing markup information to be displayed. The markup column must be of
--- type string. If this property and the
--- :text-column property are both set to column numbers, it overrides the text
--- column. If both are set to -1, no texts are displayed.
+-- %hash c:37cb d:ee83
+-- | Sets the source of the text for entries in the 'IconView' as a markup
+-- string (see 'Graphics.UI.Gtk.Pango.Markup'). The given model must be set
+-- beforehand using 'iconViewSetModel'. A text source that is set using
+-- 'iconViewSetTextSource' is ignored once a markup source is set.
 --
--- Allowed values: >= -1
---
--- Default value: -1
---
-iconViewMarkupColumn :: IconViewClass self => Attr self Int
-iconViewMarkupColumn = newAttr
-  iconViewGetMarkupColumn
-  iconViewSetMarkupColumn
+iconViewMarkupSource :: (IconViewClass self,
+		       TreeModelClass (model row),
+		       TypedTreeModelClass model) =>
+		       WriteAttr self (Maybe (model row, row -> Markup))
+iconViewMarkupSource = writeAttr iconViewSetMarkupSource
 
+-- %hash c:723d
 -- | The model for the icon view.
 --
 iconViewModel :: (IconViewClass self, TreeModelClass model)
@@ -575,6 +973,7 @@ iconViewModel = newAttr
   iconViewGetModel
   iconViewSetModel
 
+-- %hash c:6347
 -- | The columns property contains the number of the columns in which the
 -- items should be displayed. If it is -1, the number of columns will be chosen
 -- automatically to fill the available area.
@@ -584,114 +983,105 @@ iconViewModel = newAttr
 -- Default value: -1
 --
 iconViewColumns :: IconViewClass self => Attr self Int
-iconViewColumns = newAttr
-  iconViewGetColumns
-  iconViewSetColumns
+iconViewColumns = newAttrFromIntProperty "columns"
 
--- | The width used for each item.
+-- %hash c:d0fe d:42c5
+-- | The item-width property specifies the width to use for each item. If it
+-- is set to -1, the icon view will automatically determine a suitable item
+-- size.
 --
 -- Allowed values: >= -1
 --
 -- Default value: -1
 --
 iconViewItemWidth :: IconViewClass self => Attr self Int
-iconViewItemWidth = newAttr
-  iconViewGetItemWidth
-  iconViewSetItemWidth
+iconViewItemWidth = newAttrFromIntProperty "item-width"
 
--- | Space which is inserted between cells of an item.
+-- %hash c:3813 d:23f9
+-- | The spacing property specifies the space which is inserted between the
+-- cells (i.e. the icon and the text) of an item.
 --
 -- Allowed values: >= 0
 --
 -- Default value: 0
 --
 iconViewSpacing :: IconViewClass self => Attr self Int
-iconViewSpacing = newAttr
-  iconViewGetSpacing
-  iconViewSetSpacing
+iconViewSpacing = newAttrFromIntProperty "spacing"
 
--- | Space which is inserted between grid rows.
+-- %hash c:6a28 d:8e65
+-- | The row-spacing property specifies the space which is inserted between
+-- the rows of the icon view.
 --
 -- Allowed values: >= 0
 --
 -- Default value: 6
 --
 iconViewRowSpacing :: IconViewClass self => Attr self Int
-iconViewRowSpacing = newAttr
-  iconViewGetRowSpacing
-  iconViewSetRowSpacing
+iconViewRowSpacing = newAttrFromIntProperty "row-spacing"
 
--- | Space which is inserted between grid column.
+-- %hash c:56a d:2971
+-- | The column-spacing property specifies the space which is inserted between
+-- the columns of the icon view.
 --
 -- Allowed values: >= 0
 --
 -- Default value: 6
 --
 iconViewColumnSpacing :: IconViewClass self => Attr self Int
-iconViewColumnSpacing = newAttr
-  iconViewGetColumnSpacing
-  iconViewSetColumnSpacing
+iconViewColumnSpacing = newAttrFromIntProperty "column-spacing"
 
--- | Space which is inserted at the edges of the icon view.
+-- %hash c:89de d:8e41
+-- | The margin property specifies the space which is inserted at the edges of
+-- the icon view.
 --
 -- Allowed values: >= 0
 --
 -- Default value: 6
 --
 iconViewMargin :: IconViewClass self => Attr self Int
-iconViewMargin = newAttr
-  iconViewGetMargin
-  iconViewSetMargin
+iconViewMargin = newAttrFromIntProperty "margin"
 
--- | How the text and icon of each item are positioned relative to each other.
+-- %hash c:b606 d:31c3
+-- | The orientation property specifies how the cells (i.e. the icon and the
+-- text) of the item are positioned relative to each other.
 --
 -- Default value: 'OrientationVertical'
 --
 iconViewOrientation :: IconViewClass self => Attr self Orientation
-iconViewOrientation = newAttr
-  iconViewGetOrientation
-  iconViewSetOrientation
+iconViewOrientation = newAttrFromEnumProperty "orientation"
+                        {# call pure unsafe gtk_orientation_get_type #}
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- %hash c:f17b d:54d0
+-- | The reorderable property specifies if the items can be reordered by DND.
+--
+-- Default value: @False@
+--
+-- * Available since Gtk+ version 2.8
+--
+iconViewReorderable :: IconViewClass self => Attr self Bool
+iconViewReorderable = newAttrFromBoolProperty "reorderable"
+#endif
 
 --------------------
 -- Signals
 
--- | 
+-- %hash c:4671 d:af3f
+-- | New scroll adjustment have been set for this widget.
 --
-onSelectAll, afterSelectAll :: IconViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onSelectAll = connect_NONE__NONE "select_all" False
-afterSelectAll = connect_NONE__NONE "select_all" True
+setScrollAdjustments :: IconViewClass self => Signal self (Adjustment -> Adjustment -> IO ())
+setScrollAdjustments = Signal (connect_OBJECT_OBJECT__NONE "set_scroll_adjustments")
 
--- | 
+-- %hash c:4090 d:af3f
+-- | A specific element has been activated (by pressing enter or double clicking).
 --
-onUnselectAll, afterUnselectAll :: IconViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onUnselectAll = connect_NONE__NONE "unselect_all" False
-afterUnselectAll = connect_NONE__NONE "unselect_all" True
+itemActivated :: IconViewClass self => Signal self (TreePath -> IO ())
+itemActivated = Signal (connect_BOXED__NONE "item_activated" (peekTreePath . castPtr))
 
--- | 
+-- %hash c:6098 d:af3f
+-- | The selected item changed.
 --
-onSelectCursorItem, afterSelectCursorItem :: IconViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onSelectCursorItem = connect_NONE__NONE "select_cursor_item" False
-afterSelectCursorItem = connect_NONE__NONE "select_cursor_item" True
+selectionChanged :: IconViewClass self => Signal self (IO ())
+selectionChanged = Signal (connect_NONE__NONE "selection-changed")
 
--- | 
---
-onToggleCursorItem, afterToggleCursorItem :: IconViewClass self => self
- -> IO ()
- -> IO (ConnectId self)
-onToggleCursorItem = connect_NONE__NONE "toggle_cursor_item" False
-afterToggleCursorItem = connect_NONE__NONE "toggle_cursor_item" True
-
--- | 
---
-onActivateCursorItem, afterActivateCursorItem :: IconViewClass self => self
- -> IO Bool
- -> IO (ConnectId self)
-onActivateCursorItem = connect_NONE__BOOL "activate_cursor_item" False
-afterActivateCursorItem = connect_NONE__BOOL "activate_cursor_item" True
 #endif

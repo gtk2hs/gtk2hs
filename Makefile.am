@@ -524,7 +524,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererPixbuf.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererProgress.chs.pp	\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererText.chs.pp		\
-	gtk/Graphics/UI/Gtk/ModelView/CellRendererToggle.chs		\
+	gtk/Graphics/UI/Gtk/ModelView/CellRendererToggle.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CellView.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/ComboBox.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/ComboBoxEntry.chs.pp		\

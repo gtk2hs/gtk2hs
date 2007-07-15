@@ -22,20 +22,11 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A 'CellRenderer' is an object that determines how the cell of a
--- 'TreeView' widget is displayed. 
+-- An object for rendering a cell in a list, icon or combo box widget.
 --
--- * Each 'TreeViewColumn' has one or more accociated 'CellRenderer's.
---   The data supply for a cell is contained in a 'TreeStore' or a
---   'ListStore' (both subclasses of 'TreeModel'). Each 'CellRenderer'
---   may have several attributes. Each attribute is associated with 
---   one column of the 'TreeModel' database. Thus, several columns of a 
---   'TreeModel' may be the supply for one 'TreeViewColumn'.
---
-
 module Graphics.UI.Gtk.ModelView.CellRenderer (
 -- * Detail
--- 
+--	 
 -- | The 'CellRenderer' is a base class of a set of objects used for rendering
 -- a cell to a 'Drawable'. These objects are used primarily by the 'TreeView'
 -- widget, though they aren't tied to them in any specific way. It is worth
@@ -43,16 +34,17 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
 --
 -- The primary use of a 'CellRenderer' is for drawing a certain graphical
 -- elements on a 'Drawable'. Typically, one cell renderer is used to draw many
--- cells on the screen. To this extent, it isn't expected that a CellRenderer
--- keep any permanent state around. Instead, any state is set just prior to use
--- by changing the 'System.Glib.Attributes'. Then, the cell is measured and rendered
--- in the correct location
+-- cells on the screen. To this extent, it isn't expected that a
+-- 'CellRenderer' keep any permanent state around. Instead, any state is set
+-- just prior to use by changing the attributes of the cell. Then, the cell is
+-- measured and rendered in the correct location.
 --
 -- Beyond merely rendering a cell, cell renderers can optionally provide
 -- active user interface elements. A cell renderer can be activatable like
--- 'CellRendererToggle', which toggles when it gets activated by a mouse click,
--- or it can be editable like 'CellRendererText', which allows the user to edit
--- the text using a 'Entry'.
+-- 'Graphics.UI.Gtk.ModelView.CellRendererToggle', which toggles when it gets
+-- activated by a mouse click, or it can be editable like
+-- 'Graphics.UI.Gtk.ModelView.CellRendererText', which allows the user to edit
+-- the text using a 'Graphics.UI.Gtk.Entry.Entry'.
 
 -- * Class Hierarchy
 -- |
@@ -72,6 +64,14 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
   CellRendererClass,
   castToCellRenderer,
   toCellRenderer,
+  CellRendererMode,
+
+-- * Methods
+#if GTK_CHECK_VERSION(2,6,0)
+  cellRendererStopEditing,
+#endif
+  cellRendererGetFixedSize,
+  cellRendererSetFixedSize,
 
 -- * Attributes
   cellMode,
@@ -89,10 +89,24 @@ module Graphics.UI.Gtk.ModelView.CellRenderer (
   cellBackgroundColor,
   cellBackgroundSet,
 
-#if GTK_CHECK_VERSION(2,4,0)
 -- * Signals
+#if GTK_CHECK_VERSION(2,6,0)
+  editingStarted,
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+  editingCanceled,
+#endif
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
+#if GTK_CHECK_VERSION(2,6,0)
   onEditingStarted,
-  afterEditingStarted
+  afterEditingStarted,
+#endif
+#if GTK_CHECK_VERSION(2,4,0)
+  onEditingCanceled,
+  afterEditingCanceled,
+#endif
 #endif
   ) where
 
@@ -107,6 +121,53 @@ import Graphics.UI.Gtk.Gdk.GC		(Color)
 {#context lib="gtk" prefix ="gtk"#}
 
 {# enum CellRendererMode {underscoreToCase} deriving (Eq) #}
+
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- %hash c:75b3 d:45ca
+-- | Informs the cell renderer that the editing is stopped. If @canceled@ is
+-- @True@, the cell renderer will emit the 'editingCanceled' signal.
+--
+-- * Available since Gtk+ version 2.6
+--
+cellRendererStopEditing :: CellRendererClass self => self
+ -> Bool -- ^ @canceled@ - @True@ if the editing has been canceled
+ -> IO ()
+cellRendererStopEditing self canceled =
+  {# call gtk_cell_renderer_stop_editing #}
+    (toCellRenderer self)
+    (fromBool canceled)
+#endif
+
+-- %hash c:6d51 d:dc3e
+-- | Returns	@(width, height)@	denoting the size of the fixed size of
+-- @cell@. If no fixed size is set, returns @-1@ for that value.
+--
+cellRendererGetFixedSize :: CellRendererClass self => self
+ -> IO (Int, Int) -- ^ @(width, height)@
+cellRendererGetFixedSize self =
+  alloca $ \widthPtr ->
+  alloca $ \heightPtr ->
+  {# call gtk_cell_renderer_get_fixed_size #}
+    (toCellRenderer self)
+    widthPtr
+    heightPtr >>
+  peek widthPtr >>= \width ->
+  peek heightPtr >>= \height ->
+  return (fromIntegral width, fromIntegral height)
+
+-- %hash c:85dc d:5fd4
+-- | Sets the renderer size to be explicit, independent of the properties set.
+--
+cellRendererSetFixedSize :: CellRendererClass self => self
+ -> Int -- ^ @width@ - the width of the cell renderer, or -1
+ -> Int -- ^ @height@ - the height of the cell renderer, or -1
+ -> IO ()
+cellRendererSetFixedSize self width height =
+  {# call gtk_cell_renderer_set_fixed_size #}
+    (toCellRenderer self)
+    (fromIntegral width)
+    (fromIntegral height)
 
 --------------------
 -- Attributes
@@ -219,23 +280,85 @@ cellBackgroundColor = newAttrFromBoxedStorableProperty "cell-background-gdk"
 cellBackgroundSet :: CellRendererClass self => Attr self Bool
 cellBackgroundSet = newAttrFromBoolProperty "cell-background-set"
 
+
+--------------------
+-- Signals
+
 #if GTK_CHECK_VERSION(2,4,0)
--- | This signal gets emitted when a cell starts to be edited.
+-- %hash c:eff4 d:fc12
+-- | This signal gets emitted when the user cancels the process of editing a
+-- cell. For example, an editable cell renderer could be written to cancel
+-- editing when the user presses Escape.
 --
--- * The indended
---   use of this signal is to do special setup on the widget that is created
---   to allow the editing process. For example, the 'CellRendererText' uses
---   an 'Entry' widget which has an 'EntryCompletion' interface. On reception
---   of this signal, the program can set the model from which to retrieve the
---   completions.
+-- * Available since Gtk+ version 2.4
 --
-onEditingStarted, afterEditingStarted :: CellRendererClass self => self
- -> (CellEditable -> TreePath -> IO ())
+editingCanceled :: CellRendererClass self => Signal self (IO ())
+editingCanceled = Signal (connect_NONE__NONE "editing-canceled")
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- %hash c:41f0 d:49f
+-- | This signal gets emitted when a cell starts to be edited. The indended
+-- use of this signal is to do special setup on @editable@, e.g. adding a
+-- 'EntryCompletion' or setting up additional columns in a 'ComboBox'.
+--
+-- * The widget that is passed to the handler contains the widget that is used
+--   by the 'CellRenderer' to interact with the user. The widget must be
+--   casted to the appropriate widget. For instance, a
+--   'Graphics.UI.Gtk.ModelView.CellRendererText' uses an
+--   'Graphics.UI.Gtk.Entry.Entry' widget, while a
+--   'Graphics.UI.Gtk.ModelView.CellRendererCombo' uses a
+--   'Graphics.UI.Gtk.ModelView.ComboBox.ComboBox' (if
+--   'Graphics.UI.Gtk.ModelView.CellRendererCombo.cellComboHasEntry' is
+--   @False@) or a 'Graphics.UI.Gtk.ModelView.ComboBoxEntry.ComboBoxEntry' (if
+--   'Graphics.UI.Gtk.ModelView.CellRendererCombo.cellComboHasEntry' is
+--   @True@).
+--
+-- * Available since Gtk+ version 2.6
+--
+editingStarted :: CellRendererClass self =>
+		  Signal self (Widget -> TreePath -> IO ())
+editingStarted = Signal editingStartedInternal
+
+editingStartedInternal after cr act =
+ connect_OBJECT_STRING__NONE "editing-started" after cr
+ $ \ce path -> act ce (stringToTreePath path)
+#endif
+#endif
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- %hash c:b10f
+onEditingCanceled :: CellRendererClass self => self
+ -> IO ()
  -> IO (ConnectId self)
-onEditingStarted cr act =
-  connect_OBJECT_STRING__NONE "editing-started" False cr
-  $ \ce path -> act ce (stringToTreePath path)
-afterEditingStarted cr act =
-  connect_OBJECT_STRING__NONE "editing-started" True cr
-  $ \ce path -> act ce (stringToTreePath path)
+onEditingCanceled = connect_NONE__NONE "editing-canceled" False
+{-# DEPRECATED onEditingCanceled "instead of 'onEditingCanceled obj' use 'on obj editingCanceled'" #-}
+
+-- %hash c:808e
+afterEditingCanceled :: CellRendererClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+afterEditingCanceled = connect_NONE__NONE "editing-canceled" True
+{-# DEPRECATED afterEditingCanceled "instead of 'afterEditingCanceled obj' use 'after obj editingCanceled'" #-}
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- %hash c:6d9c
+onEditingStarted :: CellRendererClass self => self
+ -> (Widget -> TreePath -> IO ())
+ -> IO (ConnectId self)
+onEditingStarted = editingStartedInternal False
+{-# DEPRECATED onEditingStarted "instead of 'onEditingStarted obj' use 'on obj editingStarted'" #-}
+
+-- %hash c:ef1b
+afterEditingStarted :: CellRendererClass self => self
+ -> (Widget -> TreePath -> IO ())
+ -> IO (ConnectId self)
+afterEditingStarted = editingStartedInternal True
+{-# DEPRECATED afterEditingStarted "instead of 'afterEditingStarted obj' use 'after obj editingStarted'" #-}
+#endif
+#endif
 #endif

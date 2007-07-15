@@ -33,7 +33,7 @@ module Graphics.UI.Gtk.ModelView.CellRendererText (
 --
 -- If the 'cellMode' is 'CellRendererModeEditable', the 'CellRendererText'
 -- allows the user to edit its text using an 'Entry' widget.
---
+
 -- * Class Hierarchy
 -- |
 -- @
@@ -57,55 +57,64 @@ module Graphics.UI.Gtk.ModelView.CellRendererText (
   cellRendererTextSetFixedHeightFromFont,
 
 -- * Attributes
+  cellText,
+  cellTextMarkup,
+  --cellTextAttributes,
+  cellTextSingleParagraphMode,
   cellTextBackground,
   cellTextBackgroundColor,
   cellTextBackgroundSet,
-  cellEditable,
-  cellEditableSet,
-#if GTK_CHECK_VERSION(2,6,0)
-  cellEllipsize,
-  cellEllipsizeSet,
-#endif
-  cellFamily,
-  cellFamilySet,
-  cellFont,
-  cellFontDesc,
   cellTextForeground,
   cellTextForegroundColor,
   cellTextForegroundSet,
-  cellLanguage,
-  cellLanguageSet,
-  cellMarkup,
-  cellRise,
-  cellRiseSet,
-  cellScale,
-  cellScaleSet,
-  cellSingleParagraphMode,
-  cellSize,
-  cellStretch,
-  cellStretchSet,
-  cellStrikethrough,
-  cellStrikethroughSet,
-  cellStyle,
-  cellStyleSet,
-  cellText,
-  cellUnderline,
-  cellUnderlineSet,
-  cellVariant,
-  cellVariantSet,
-  cellWeight,
-  cellWeightSet,
+  cellTextEditable,
+  cellTextEditableSet,
+  cellTextFont,
+  cellTextFontDesc,
+  cellTextFamily,
+  cellTextFamilySet,
+  cellTextStyle,
+  cellTextStyleSet,
+  cellTextVariant,
+  cellTextVariantSet,
+  cellTextWeight,
+  cellTextWeightSet,
+  cellTextStretch,
+  cellTextStretchSet,
+  cellTextSize,
+  cellTextSizePoints,
+  cellTextSizeSet,
+  cellTextScale,
+  cellTextScaleSet,
+  cellTextRise,
+  cellTextRiseSet,
+  cellTextStrikethrough,
+  cellTextStrikethroughSet,
+  cellTextUnderline,
+  cellTextUnderlineSet,
+  cellTextLanguage,
+  cellTextLanguageSet,
 #if GTK_CHECK_VERSION(2,6,0)
-  cellWidthChars,
+  cellTextEllipsize,
+  cellTextEllipsizeSet,
+  cellTextWidthChars,
 #endif
 #if GTK_CHECK_VERSION(2,8,0)
-  cellWrapMode,
-  cellWrapWidth,
+  cellTextWrapMode,
+  cellTextWrapWidth,
+#endif
+#if GTK_CHECK_VERSION(2,10,0)
+  cellTextAlignment,
 #endif
 
 -- * Signals
+  edited,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onEdited,
   afterEdited
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -121,7 +130,7 @@ import Graphics.UI.Gtk.General.Structs		(Color(..))
 import Graphics.UI.Gtk.Pango.Enums
 {#import Graphics.UI.Gtk.Pango.Types#} ( FontDescription(..),
 					 makeNewFontDescription )
-import Graphics.UI.Gtk.Pango.Layout    ( LayoutWrapMode )
+{#import Graphics.UI.Gtk.Pango.Layout#}	( LayoutAlignment, LayoutWrapMode )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -140,13 +149,13 @@ cellRendererTextNew =
 -- Methods
 
 -- | Sets the height of a renderer to explicitly be determined by the
--- 'cellTextFont' and 'cellYPad' attribute set on it. Further changes in these
--- properties do not
--- affect the height, so they must be accompanied by a subsequent call to this
--- function. Using this function is unflexible, and should really only be used
--- if calculating the size of a cell is too slow (ie, a massive number of cells
--- displayed). If @numberOfRows@ is -1, then the fixed height is unset, and the
--- height is determined by the properties again.
+-- 'cellTextFont' and 'Graphics.UI.Gtk.ModelView.CellRenderer.cellYPad'
+-- attribute set on it. Further changes in these properties do not affect the
+-- height, so they must be accompanied by a subsequent call to this function.
+-- Using this function is unflexible, and should really only be used if
+-- calculating the size of a cell is too slow (ie, a massive number of cells
+-- displayed). If @numberOfRows@ is -1, then the fixed height is unset, and
+-- the height is determined by the properties again.
 --
 cellRendererTextSetFixedHeightFromFont :: CellRendererTextClass self => self
  -> Int   -- ^ @numberOfRows@ - Number of rows of text each cell renderer is
@@ -183,54 +192,54 @@ cellTextBackgroundSet = newAttrFromBoolProperty "cell-background-set"
 
 -- | Whether the text can be modified by the user.
 --
-cellEditable :: CellRendererTextClass self => Attr self Bool
-cellEditable = newAttrFromBoolProperty "editable"
+cellTextEditable :: CellRendererTextClass self => Attr self Bool
+cellTextEditable = newAttrFromBoolProperty "editable"
 
--- | Whether the 'cellEditable' flag affects text editability.
+-- | Whether the 'cellTextEditable' flag affects text editability.
 --
-cellEditableSet :: CellRendererTextClass self => Attr self Bool
-cellEditableSet = newAttrFromBoolProperty "editable-set"
+cellTextEditableSet :: CellRendererTextClass self => Attr self Bool
+cellTextEditableSet = newAttrFromBoolProperty "editable-set"
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Specifies the preferred place to ellipsize the string, if the cell
 --   renderer does not have enough room to display the entire string.
 --   Setting it to 'Graphics.UI.Gtk.Pango.Enums.EllipsizeNone' turns off
---   ellipsizing. See the 'cellWrapWidth' property for another way of
+--   ellipsizing. See the 'cellTextWrapWidth' property for another way of
 --   making the text fit into a given width.
 --
 -- * Available in Gtk 2.6 or higher.
 --
-cellEllipsize :: CellRendererTextClass self => Attr self EllipsizeMode
-cellEllipsize = newAttrFromEnumProperty "ellipsize"
+cellTextEllipsize :: CellRendererTextClass self => Attr self EllipsizeMode
+cellTextEllipsize = newAttrFromEnumProperty "ellipsize"
 		{# call pure pango_ellipsize_mode_get_type #}
 
--- | Whether the 'cellEllipsize' tag affects the ellipsize mode.
+-- | Whether the 'cellTextEllipsize' tag affects the ellipsize mode.
 --
 -- * Available in Gtk 2.6 or higher.
 --
-cellEllipsizeSet :: CellRendererTextClass self => Attr self Bool
-cellEllipsizeSet = newAttrFromBoolProperty "ellipsize-set"
+cellTextEllipsizeSet :: CellRendererTextClass self => Attr self Bool
+cellTextEllipsizeSet = newAttrFromBoolProperty "ellipsize-set"
 #endif
 
 -- | Name of the font family, e.g. Sans, Helvetica, Times, Monospace.
 --
-cellFamily :: CellRendererTextClass self => Attr self String
-cellFamily = newAttrFromStringProperty "family"
+cellTextFamily :: CellRendererTextClass self => Attr self String
+cellTextFamily = newAttrFromStringProperty "family"
 
--- | Determines if 'cellFamily' has an effect.
+-- | Determines if 'cellTextFamily' has an effect.
 --
-cellFamilySet :: CellRendererTextClass self => Attr self Bool
-cellFamilySet = newAttrFromBoolProperty "family-set"
+cellTextFamilySet :: CellRendererTextClass self => Attr self Bool
+cellTextFamilySet = newAttrFromBoolProperty "family-set"
 
 -- | Font description as a string.
 --
-cellFont :: CellRendererTextClass self => Attr self String
-cellFont = newAttrFromStringProperty "font"
+cellTextFont :: CellRendererTextClass self => Attr self String
+cellTextFont = newAttrFromStringProperty "font"
 
 -- | Font description as a 'Graphics.UI.Gtk.Pango.FontDescription'.
 --
-cellFontDesc :: CellRendererTextClass self => Attr self FontDescription
-cellFontDesc = newAttrFromBoxedOpaqueProperty makeNewFontDescription
+cellTextFontDesc :: CellRendererTextClass self => Attr self FontDescription
+cellTextFontDesc = newAttrFromBoxedOpaqueProperty makeNewFontDescription
   (\(FontDescription fd) act -> withForeignPtr fd act) "font-desc"
   {# call pure unsafe pango_font_description_get_type #}
 
@@ -258,124 +267,142 @@ cellTextForegroundSet = newAttrFromBoolProperty "cell-foreground-set"
 --   a hint when rendering the text. If you don't understand this parameter,
 --   you probably don't need it.
 --
-cellLanguage :: CellRendererTextClass self => Attr self (Maybe String)
-cellLanguage = newAttrFromMaybeStringProperty "language"
+cellTextLanguage :: CellRendererTextClass self => Attr self (Maybe String)
+cellTextLanguage = newAttrFromMaybeStringProperty "language"
 
--- | Whether the 'cellLanguage' tag is used, default is @False@.
+-- | Whether the 'cellTextLanguage' tag is used, default is @False@.
 --
-cellLanguageSet :: CellRendererTextClass self => Attr self Bool
-cellLanguageSet = newAttrFromBoolProperty "language-set"
+cellTextLanguageSet :: CellRendererTextClass self => Attr self Bool
+cellTextLanguageSet = newAttrFromBoolProperty "language-set"
 
 -- | Define a markup string instead of a text. See 'cellText'.
 --
-cellMarkup :: CellRendererTextClass cr => WriteAttr cr (Maybe String)
-cellMarkup  = writeAttrFromMaybeStringProperty "markup"
+cellTextMarkup :: CellRendererTextClass cr => WriteAttr cr (Maybe String)
+cellTextMarkup  = writeAttrFromMaybeStringProperty "markup"
 
+-- %hash c:4e25 d:f7c6
 -- | Offset of text above the baseline (below the baseline if rise is
 --   negative).
 --
-cellRise :: CellRendererTextClass self => Attr self Int
-cellRise = newAttrFromIntProperty "rise"
-
--- | Whether the 'cellRise' tag is used, default is @False@.
+-- Allowed values: >= -2147483647
 --
-cellRiseSet :: CellRendererTextClass self => Attr self Bool
-cellRiseSet = newAttrFromBoolProperty "rise-set"
+-- Default value: 0
+--
+cellTextRise :: CellRendererTextClass self => Attr self Int
+cellTextRise = newAttrFromIntProperty "rise"
+
+-- | Whether the 'cellTextRise' tag is used, default is @False@.
+--
+cellTextRiseSet :: CellRendererTextClass self => Attr self Bool
+cellTextRiseSet = newAttrFromBoolProperty "rise-set"
 
 -- | Font scaling factor. Default is 1.
 --
-cellScale :: CellRendererTextClass self => Attr self Double
-cellScale = newAttrFromDoubleProperty "scale"
+cellTextScale :: CellRendererTextClass self => Attr self Double
+cellTextScale = newAttrFromDoubleProperty "scale"
 
--- | Whether the 'cellScale' tag is used, default is @False@.
+-- | Whether the 'cellTextScale' tag is used, default is @False@.
 --
-cellScaleSet :: CellRendererTextClass self => Attr self Bool
-cellScaleSet = newAttrFromBoolProperty "scale-set"
+cellTextScaleSet :: CellRendererTextClass self => Attr self Bool
+cellTextScaleSet = newAttrFromBoolProperty "scale-set"
 
+-- %hash c:d85f d:9cfb
 -- | Whether or not to keep all text in a single paragraph.
 --
-cellSingleParagraphMode :: CellRendererTextClass self => Attr self Bool
-cellSingleParagraphMode = newAttrFromBoolProperty "single-paragraph-mode"
+-- Default value: @False@
+--
+cellTextSingleParagraphMode :: CellRendererTextClass self => Attr self Bool
+cellTextSingleParagraphMode = newAttrFromBoolProperty "single-paragraph-mode"
 
 -- | Font size in points.
 --
-cellSize :: CellRendererTextClass self => Attr self Double
-cellSize = newAttrFromDoubleProperty "size-points"
+cellTextSize :: CellRendererTextClass self => Attr self Double
+cellTextSize = newAttrFromDoubleProperty "size-points"
 
--- | Whether the 'cellSize' tag is used, default is @False@.
+-- %hash c:d281 d:3b0c
+-- | Font size in points.
 --
-cellSizeSet :: CellRendererTextClass self => Attr self Bool
-cellSizeSet = newAttrFromBoolProperty "size-set"
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+cellTextSizePoints :: CellRendererTextClass self => Attr self Double
+cellTextSizePoints = newAttrFromDoubleProperty "size-points"
+
+-- | Whether the 'cellTextSize' tag is used, default is @False@.
+--
+cellTextSizeSet :: CellRendererTextClass self => Attr self Bool
+cellTextSizeSet = newAttrFromBoolProperty "size-set"
 
 -- | Font stretch.
 --
-cellStretch :: CellRendererTextClass self => Attr self Stretch
-cellStretch = newAttrFromEnumProperty "stretch"
+cellTextStretch :: CellRendererTextClass self => Attr self Stretch
+cellTextStretch = newAttrFromEnumProperty "stretch"
 	      {# call pure pango_stretch_get_type #}
 
--- | Whether the 'cellStretch' tag is used, default is @False@.
+-- | Whether the 'cellTextStretch' tag is used, default is @False@.
 --
-cellStretchSet :: CellRendererTextClass self => Attr self Bool
-cellStretchSet = newAttrFromBoolProperty "stretch-set"
+cellTextStretchSet :: CellRendererTextClass self => Attr self Bool
+cellTextStretchSet = newAttrFromBoolProperty "stretch-set"
 
 -- | Whether to strike through the text.
 --
-cellStrikethrough :: CellRendererTextClass self => Attr self Bool
-cellStrikethrough = newAttrFromBoolProperty "strikethrough"
+cellTextStrikethrough :: CellRendererTextClass self => Attr self Bool
+cellTextStrikethrough = newAttrFromBoolProperty "strikethrough"
 
--- | Whether the 'cellStrikethrough' tag is used, default is @False@.
+-- | Whether the 'cellTextStrikethrough' tag is used, default is @False@.
 --
-cellStrikethroughSet :: CellRendererTextClass self => Attr self Bool
-cellStrikethroughSet = newAttrFromBoolProperty "strikethrough-set"
+cellTextStrikethroughSet :: CellRendererTextClass self => Attr self Bool
+cellTextStrikethroughSet = newAttrFromBoolProperty "strikethrough-set"
 
 -- | Font style (e.g. normal or italics).
 --
-cellStyle :: CellRendererTextClass self => Attr self FontStyle
-cellStyle = newAttrFromEnumProperty "style"
+cellTextStyle :: CellRendererTextClass self => Attr self FontStyle
+cellTextStyle = newAttrFromEnumProperty "style"
 	    {# call pure pango_style_get_type #}
 
--- | Whether the 'cellStyle' tag is used, default is @False@.
+-- | Whether the 'cellTextStyle' tag is used, default is @False@.
 --
-cellStyleSet :: CellRendererTextClass self => Attr self Bool
-cellStyleSet = newAttrFromBoolProperty "style-set"
+cellTextStyleSet :: CellRendererTextClass self => Attr self Bool
+cellTextStyleSet = newAttrFromBoolProperty "style-set"
 
 -- | Define the attribute that specifies the text to be rendered. See
---   also 'cellMarkup'.
+--   also 'cellTextMarkup'.
 --
 cellText :: CellRendererTextClass cr => Attr cr String
 cellText  = newAttrFromStringProperty "text"
 
 -- | Style of underline for this text.
 --
-cellUnderline :: CellRendererTextClass self => Attr self Underline
-cellUnderline = newAttrFromEnumProperty "underline"
+cellTextUnderline :: CellRendererTextClass self => Attr self Underline
+cellTextUnderline = newAttrFromEnumProperty "underline"
 		{# call pure pango_underline_get_type #}
 
--- | Whether the 'cellUnderline' tag is used, default is @False@.
+-- | Whether the 'cellTextUnderline' tag is used, default is @False@.
 --
-cellUnderlineSet :: CellRendererTextClass self => Attr self Bool
-cellUnderlineSet = newAttrFromBoolProperty "underline-set"
+cellTextUnderlineSet :: CellRendererTextClass self => Attr self Bool
+cellTextUnderlineSet = newAttrFromBoolProperty "underline-set"
 
 -- | Font variant (e.g. small caps).
 --
-cellVariant :: CellRendererTextClass self => Attr self Variant
-cellVariant = newAttrFromEnumProperty "variant"
+cellTextVariant :: CellRendererTextClass self => Attr self Variant
+cellTextVariant = newAttrFromEnumProperty "variant"
 	      {# call pure pango_variant_get_type #}
 
--- | Whether the 'cellVariant' tag is used, default is @False@.
+-- | Whether the 'cellTextVariant' tag is used, default is @False@.
 --
-cellVariantSet :: CellRendererTextClass self => Attr self Bool
-cellVariantSet = newAttrFromBoolProperty "variant-set"
+cellTextVariantSet :: CellRendererTextClass self => Attr self Bool
+cellTextVariantSet = newAttrFromBoolProperty "variant-set"
 
 -- | Font weight, default: 400.
 --
-cellWeight :: CellRendererTextClass self => Attr self Int
-cellWeight = newAttrFromIntProperty "weight"
+cellTextWeight :: CellRendererTextClass self => Attr self Int
+cellTextWeight = newAttrFromIntProperty "weight"
 
--- | Whether the 'cellWeight' tag is used, default is @False@.
+-- | Whether the 'cellTextWeight' tag is used, default is @False@.
 --
-cellWeightSet :: CellRendererTextClass self => Attr self Bool
-cellWeightSet = newAttrFromBoolProperty "weight-set"
+cellTextWeightSet :: CellRendererTextClass self => Attr self Bool
+cellTextWeightSet = newAttrFromBoolProperty "weight-set"
 
 #if GTK_CHECK_VERSION(2,6,0)
 
@@ -386,8 +413,8 @@ cellWeightSet = newAttrFromBoolProperty "weight-set"
 --
 -- * Available in Gtk 2.6 or higher.
 --
-cellWidthChars :: CellRendererTextClass self => Attr self Int
-cellWidthChars = newAttrFromIntProperty "width-chars"
+cellTextWidthChars :: CellRendererTextClass self => Attr self Int
+cellTextWidthChars = newAttrFromIntProperty "width-chars"
 
 #endif
 
@@ -395,12 +422,12 @@ cellWidthChars = newAttrFromIntProperty "width-chars"
 
 -- | Specifies how to break the string into multiple lines, if the cell
 --   renderer does not have enough room to display the entire string.
---   This property has no effect unless the 'cellWrapWidth' property is set.
+--   This property has no effect unless the 'cellTextWrapWidth' property is set.
 --
 -- * Available in Gtk 2.8 or higher.
 --
-cellWrapMode :: CellRendererTextClass self => Attr self LayoutWrapMode
-cellWrapMode = newAttrFromEnumProperty "wrap-mode"
+cellTextWrapMode :: CellRendererTextClass self => Attr self LayoutWrapMode
+cellTextWrapMode = newAttrFromEnumProperty "wrap-mode"
 	       {# call pure pango_wrap_mode_get_type #}
 
 -- | Specifies the width at which the text is wrapped. The wrap-mode
@@ -409,36 +436,67 @@ cellWrapMode = newAttrFromEnumProperty "wrap-mode"
 --
 -- * Available in Gtk 2.8 or higher.
 --
-cellWrapWidth :: CellRendererTextClass self => Attr self Int
-cellWrapWidth = newAttrFromIntProperty "wrap-width"
+cellTextWrapWidth :: CellRendererTextClass self => Attr self Int
+cellTextWrapWidth = newAttrFromIntProperty "wrap-width"
 
 #endif
 
+
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:a59c d:a84a
+-- | Specifies how to align the lines of text with respect to each other.
+--
+-- Note that this property describes how to align the lines of text in case
+-- there are several of them. The
+-- 'Graphics.UI.Gtk.ModelView.CellRenderer.cellXAlign' property of
+-- 'CellRenderer', on the other hand, sets the horizontal alignment of the
+-- whole text.
+--
+-- Default value: 'Graphics.UI.Gtk.Pango.Layout.AlignLeft'
+--
+-- * Available since Gtk+ version 2.10
+--
+cellTextAlignment :: CellRendererTextClass self => Attr self LayoutAlignment
+cellTextAlignment = newAttrFromEnumProperty "alignment"
+                              {# call pure unsafe pango_alignment_get_type #}
+#endif
+
+--------------------
+-- Signals
+
+-- %hash c:a541 d:18f9
 -- | Emitted when the user finished editing a cell.
 --
--- * Whenever editing is finished successfully, this signal is emitted which
---   indicates that the model should be updated with the supplied value.
---   The value is always a string which matches 'CellRendererText' renderers
---   and 'CellRendererCombo' when the combo box accepts additional entries.
---   If the combo box has a predefined set of possible selections, the
---   string that this handler receives is always empty. In this case the
---   handler
---   of this signal needs to query the currently selected index of the combo
---   box and store that index in the model of this cell renderer. The only
---   time this combo box is passed to the user program is in the
---   'onEditingStarted' signal of the 'CellRenderer' base class. Hence,
---   when this handler is run, the handler to store the resulting value
---   needs to be installed using this function. See the
---   user manual for an example of this.
---
+-- Whenever editing is finished successfully, this signal is emitted which
+-- indicates that the model should be updated with the supplied value.
+-- The value is always a string which matches the 'cellText' attribute of
+-- 'CellRendererText' (and its derivates like 'CellRendererCombo').
+-- 
 -- * This signal is not emitted when editing is disabled (see 
---   'cellEditable') or when the user aborts editing.
+--   'cellTextEditable') or when the user aborts editing.
 --
-onEdited, afterEdited :: CellRendererTextClass cr =>
-			 cr -> (TreePath -> String -> IO ()) ->
-			 IO (ConnectId cr)
+edited :: CellRendererTextClass self =>
+	  Signal self (TreePath -> String -> IO ())
+edited = Signal internalEdited
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
+-- %hash c:76ed
+onEdited :: CellRendererTextClass self => self
+ -> (TreePath -> String -> IO ())
+ -> IO (ConnectId self)
 onEdited = internalEdited False
+{-# DEPRECATED onEdited "instead of 'onEdited obj' use 'on obj edited'" #-}
+
+-- %hash c:f70c
+afterEdited :: CellRendererTextClass self => self
+ -> (TreePath -> String -> IO ())
+ -> IO (ConnectId self)
 afterEdited = internalEdited True
+{-# DEPRECATED afterEdited "instead of 'afterEdited obj' use 'after obj edited'" #-}
+#endif
 
 internalEdited :: CellRendererTextClass cr =>
 		  Bool -> cr ->

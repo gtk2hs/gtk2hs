@@ -218,12 +218,9 @@ gtk2hs_store_get_n_columns (GtkTreeModel *tree_model)
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
   g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), 0);
 
-  return 0;
-  /*
   gint result = gtk2hs_store_get_n_columns_impl(store->impl);
   WHEN_DEBUG(g_debug("return  gtk2hs_store_get_n_columns\t=%d\n", result));
   return result;
-  */
 }
 
 
@@ -241,12 +238,9 @@ gtk2hs_store_get_column_type (GtkTreeModel *tree_model,
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
   g_return_val_if_fail (GTK2HS_IS_STORE (tree_model), G_TYPE_INVALID);
   
-  return G_TYPE_INVALID;
-  /*
   GType result = gtk2hs_store_get_column_type_impl(store->impl, index);
   WHEN_DEBUG(g_debug("return  gtk2hs_store_get_column_type\t=%s\n", g_type_name(result)));
   return result;
-  */
 }
 
 
@@ -319,16 +313,12 @@ gtk2hs_store_get_value (GtkTreeModel *tree_model,
   g_return_if_fail (GTK2HS_IS_STORE (tree_model));
   g_return_if_fail (iter->stamp == store->stamp);
 
-  g_value_init(value, G_TYPE_INVALID);
-  
-  /*
-    gtk2hs_store_get_value_impl(store->impl, iter, column, value);
+  gtk2hs_store_get_value_impl(store->impl, iter, column, value);
     WHEN_DEBUG(
       gchar *result = g_strdup_value_contents(value);
       g_debug("return  gtk2hs_store_get_value\t\t=%s\n", result);
       g_free(result);
     )
-  */
 }
 
 
