@@ -318,7 +318,12 @@ pixbufNewFromFileAtSize filename width height =
 --
 -- * Available since Gtk+ version 2.6
 --
-pixbufNewFromFileAtScale :: String -> Int -> Int -> Bool -> IO Pixbuf
+pixbufNewFromFileAtScale :: 
+     String -- ^ the name of the file
+  -> Int -- ^ target width
+  -> Int -- ^ target height
+  -> Bool -- ^ whether to preserve the aspect ratio
+  -> IO Pixbuf
 pixbufNewFromFileAtScale filename width height preserveAspectRatio =
   constructNewGObject mkPixbuf $
   propagateGError $ \errPtrPtr ->
@@ -518,7 +523,12 @@ pixbufCopy pb = constructNewGObject mkPixbuf $ {#call unsafe pixbuf_copy#} pb
 --   when scaling down. 'InterpBilinear' is a good trade-off between
 --   speed and quality and should thus be used as a default.
 --
-pixbufScaleSimple :: Pixbuf -> Int -> Int -> InterpType -> IO Pixbuf
+pixbufScaleSimple :: 
+  Pixbuf -- ^ @src@ - the source image
+  -> Int -- ^ @width@ - the target width
+  -> Int -- ^ @height@ the target height
+  -> InterpType -- ^ interpolation type
+  -> IO Pixbuf
 pixbufScaleSimple pb width height interp =
     constructNewGObject mkPixbuf $ liftM castPtr $ 
 	{#call pixbuf_scale_simple#} (toPixbuf pb) 
@@ -569,9 +579,22 @@ pixbufScale src dest destX destY destWidth destHeight offsetX offsetY
 --   @255@ has the
 --   same effect as calling 'pixbufScale'.
 --
-pixbufComposite :: Pixbuf -> Pixbuf -> Int -> Int -> Int -> Int ->
-		   Double -> Double -> Double -> Double -> InterpType ->
-	       	   Word8 -> IO ()
+pixbufComposite ::
+     Pixbuf     -- ^ @src@ - the source pixbuf
+  -> Pixbuf     -- ^ @dest@ - the pixbuf into which to render the results
+  -> Int        -- ^ @destX@ - the left coordinate for region to render
+  -> Int        -- ^ @destY@ - the top coordinate for region to render 
+  -> Int        -- ^ @destWidth@ - the width of the region to render
+  -> Int        -- ^ @destHeight@ - the height of the region to render
+  -> Double     -- ^ @offsetX@ - the offset in the X direction (currently
+                -- rounded to an integer)
+  -> Double     -- ^ @offsetY@ - the offset in the Y direction 
+                -- (currently rounded to an integer)
+  -> Double     -- ^ @scaleX@ - the scale factor in the X direction
+  -> Double     -- ^ @scaleY@ - the scale factor in the Y direction
+  -> InterpType -- ^ the interpolation type for the transformation.
+  -> Word8 	-- ^ @alpha@ - the transparency
+  -> IO ()
 pixbufComposite src dest destX destY destWidth destHeight
   offsetX offsetY scaleX scaleY interp alpha =
   {#call unsafe pixbuf_composite#} src dest

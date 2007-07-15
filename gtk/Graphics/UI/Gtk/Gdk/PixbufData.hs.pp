@@ -45,7 +45,7 @@ import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
 
 -- | An array that stored the raw pixel data of a 'Pixbuf'.
 --
--- * See 'pixbufGetPixels'.
+-- * See 'Graphics.UI.Gtk.Gdk.Pixbuf.pixbufGetPixels'.
 --
 data Ix i => PixbufData i e = PixbufData Pixbuf (Ptr e) (i,i)
 
