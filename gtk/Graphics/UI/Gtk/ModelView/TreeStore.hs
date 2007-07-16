@@ -319,7 +319,9 @@ advanceCache depth goal cache@((rootIter,_):_) =
 -- | Advance to the given iterator and return weather this was successful.
 --    
 checkSuccess :: Depth -> TreeIter -> Cache a -> (Bool, Cache a)
-checkSuccess depth iter cache = (cmp cur iter && not (null sibs), cache')
+checkSuccess depth iter cache = case advanceCache depth iter cache of
+    cache'@((cur,sibs):_) -> (cmp cur iter && not (null sibs), cache')
+    [] -> (False, [])
   where
   cmp (TreeIter _ a1 b1 c1) (TreeIter _ a2 b2 c2) =
       a1==a2 && b1==b2 && c2==c2
