@@ -109,8 +109,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums    (SelectionMode(..))
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
-{#import Graphics.UI.Gtk.TreeList.TreePath#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#}
+{#import Graphics.UI.Gtk.ModelView.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
 

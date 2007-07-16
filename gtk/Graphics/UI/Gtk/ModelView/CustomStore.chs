@@ -25,6 +25,8 @@
 -- Allows a custom data structure to be used with the 'TreeView'
 --
 module Graphics.UI.Gtk.ModelView.CustomStore (
+  TreeModelFlags(..),
+  
   ColumnMap,
   ColumnAccess(..),
   ColumnId,
@@ -38,26 +40,15 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   customTreeModelNew,
   customTreeModelGetPrivate,
   customTreeModelInvalidateIters,
-
-  -- * View notification functions
-  treeModelRowChanged,
-  treeModelRowInserted,
-  treeModelRowHasChildToggled,
-  treeModelRowDeleted,
-  treeModelRowsReordered,
   ) where
 
 import Control.Monad	(liftM, when)
 import Data.IORef
 import System.Glib.FFI			hiding	(maybeNull)
-import System.Glib.Flags			(fromFlags)
+import System.Glib.Flags			(Flags, fromFlags)
 import System.Glib.GObject			(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
-{#import Graphics.UI.Gtk.ModelView.TreeModel#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#}
-{#import Graphics.UI.Gtk.TreeList.TreePath#}
-
 import System.Glib.StoreValue			(TMType(..), GenericValue(..)
 						,valueSetGenericValue)
 {#import System.Glib.GValue#}			(GValue(GValue), allocaGValue)
@@ -68,6 +59,18 @@ import qualified System.Glib.GTypeConstants as GConst
 {#import System.Glib.GValue#}			(valueInit)
 
 {# context lib="gtk" prefix="gtk" #}
+
+-- | These flags indicate various properties of a 'TreeModel'.
+--
+-- * If a model has "TreeModelItersPersist" set, iterators remain valid
+--   after a "TreeModel" signal was emitted.
+--
+-- * The "TreeModelListOnly" flag is set if the rows are arranged in a
+--   simple flat list. This is set in the "ListStore" implementation.
+--
+{#enum TreeModelFlags {underscoreToCase} deriving(Bounded)#}
+
+instance Flags TreeModelFlags
 
 -- A CustomTreeModel is backed by a Gtk2HsStore
 -- which is an instance of the GtkTreeModel GInterface
@@ -361,102 +364,6 @@ maybeNull marshal ptr
   | ptr == nullPtr = return Nothing
   | otherwise      = liftM Just (marshal ptr)
 
-
 iterSetStamp :: CInt -> TreeIter -> TreeIter
 iterSetStamp t (TreeIter _ a b c) = (TreeIter t a b c)
 
--- | Emits the \"row_changed\" signal on the 'CustomTreeModel'.
---
-treeModelRowChanged ::
-    CustomTreeModel private row
- -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row
- -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the changed row
- -> IO ()
-treeModelRowChanged model path iter =
-  withTreePath path $ \pathPtr ->
-  customTreeModelGetStamp model >>= \stamp ->
-  with (iterSetStamp stamp iter) $ \iterPtr ->
-  {# call gtk_tree_model_row_changed #}
-    (toTreeModel model)
-    pathPtr
-    iterPtr
-
--- | Emits the \"row_inserted\" signal on the 'CustomTreeModel'
---
-treeModelRowInserted ::
-    CustomTreeModel private row
- -> TreePath -- ^ @path@ - A 'TreePath' pointing to the inserted row
- -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the inserted row
- -> IO ()
-treeModelRowInserted model path iter =
-  withTreePath path $ \pathPtr ->
-  customTreeModelGetStamp model >>= \stamp ->
-  with (iterSetStamp stamp iter) $ \iterPtr ->
-  {# call gtk_tree_model_row_inserted #}
-    (toTreeModel model)
-    pathPtr
-    iterPtr
-
--- | Emits the \"row_has_child_toggled\" signal on the 'CustomTreeModel'. This should
--- be called by models after a node went from having no children to having
--- at least one child or vice versa.
---
-treeModelRowHasChildToggled ::
-    CustomTreeModel private row
- -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row
- -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the changed row
- -> IO ()
-treeModelRowHasChildToggled model path iter =
-  withTreePath path $ \pathPtr ->
-  customTreeModelGetStamp model >>= \stamp ->
-  with (iterSetStamp stamp iter) $ \iterPtr ->
-  {# call gtk_tree_model_row_has_child_toggled #}
-    (toTreeModel model)
-    pathPtr
-    iterPtr
-
--- | Emits the \"row_deleted\" signal the 'CustomTreeModel'. This should be called by
--- models after a row has been removed. The location pointed to by @path@
--- should be the location that the row previously was at. It may not be a valid
--- location anymore.
---
-treeModelRowDeleted ::
-    CustomTreeModel private row
- -> TreePath -- ^ @path@ - A 'TreePath' pointing to the previous location of
-             -- the deleted row.
- -> IO ()
-treeModelRowDeleted model path =
-  withTreePath path $ \pathPtr ->
-  {# call gtk_tree_model_row_deleted #}
-    (toTreeModel model)
-    pathPtr
-
--- | Emits the \"rows_reordered\" signal on the 'CustomTreeModel'. This should be
--- called by models when their rows have been reordered.
---
-treeModelRowsReordered ::
-    CustomTreeModel private row
- -> TreePath -- ^ @path@ - A 'TreePath' pointing to the tree node whose
-             -- children have been reordered
- -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the node whose
-             -- children have been reordered, or {@NULL@, FIXME: this should
-             -- probably be converted to a Maybe data type} if the depth of
-             -- @path@ is 0.
- -> [Int]   -- ^ @newOrder@ - an array of integers mapping the current
-             -- position of each child to its old position before the
-             -- re-ordering, i.e. @newOrder@@[newpos] = oldpos@.
- -> IO ()
-treeModelRowsReordered model path iter newOrder =
-  withTreePath path $ \pathPtr ->
-  customTreeModelGetStamp model >>= \stamp ->
-  with (iterSetStamp stamp iter) $ \iterPtr ->
-  withArrayLen (map fromIntegral newOrder) $ \newLength newOrderArrPtr -> do
-  --check newOrder is the right length or it'll overrun
-  curLength <- treeModelIterNChildren model (Just iter)
-  when (curLength /= newLength)
-       (fail "treeModelRowsReordered: mapping wrong length for store")
-  {# call gtk_tree_model_rows_reordered #}
-    (toTreeModel model)
-    pathPtr
-    iterPtr
-    newOrderArrPtr

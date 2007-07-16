@@ -130,7 +130,6 @@ import System.Glib.GObject	(constructNewGObject, mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter)
 {#import Graphics.UI.Gtk.ModelView.Types#}
 import Graphics.UI.Gtk.ModelView.CellRendererText
 import Graphics.UI.Gtk.ModelView.CellLayout

@@ -17,16 +17,20 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- #hide
-
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- 
+-- A persistent index into a tree model.
 --
-module Graphics.UI.Gtk.TreeList.TreeRowReference (
+module Graphics.UI.Gtk.ModelView.TreeRowReference (
+-- * Detail
+--
+-- | A 'RowReference' is an index into a
+-- 'Graphics.UI.Gtk.ModelView.TreeModel.TreeModel' that is persistent even if
+-- rows are inserted, deleted or reordered.
+--
 
 -- * Types
   TreeRowReference,
@@ -43,7 +47,7 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
-{#import Graphics.UI.Gtk.TreeList.TreePath#}
+{#import Graphics.UI.Gtk.ModelView.Types#}
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -57,15 +61,16 @@ import System.Glib.FFI
 -- Constructors
 
 -- | Creates a row reference based on a path. This reference will keep pointing
--- to the node pointed to by the given path, so long as it exists.
+-- to the node pointed to by the given path, so long as it exists. Returns @Nothing@ if there is no node at the given path.
 --
 treeRowReferenceNew :: TreeModelClass self => self
- -> NativeTreePath
- -> IO TreeRowReference
-treeRowReferenceNew self path = do
-  rowRefPtr <- throwIfNull "treeRowReferenceNew: invalid path given" $
+ -> TreePath
+ -> IO (Maybe TreeRowReference)
+treeRowReferenceNew self path = withTreePath path $ \path -> do
+  rowRefPtr <- 
     {#call unsafe gtk_tree_row_reference_new#} (toTreeModel self) path
-  liftM TreeRowReference $
+  if rowRefPtr==nullPtr then return Nothing else
+    liftM (Just . TreeRowReference) $
     newForeignPtr rowRefPtr tree_row_reference_free
 
 --------------------
@@ -78,7 +83,7 @@ treeRowReferenceNew self path = do
 treeRowReferenceGetPath :: TreeRowReference -> IO TreePath
 treeRowReferenceGetPath ref =
   {# call unsafe tree_row_reference_get_path #} ref
-  >>= fromTreePath
+  >>= fromTreePath -- path must be freed
 
 -- | Returns True if the reference refers to a current valid path.
 --

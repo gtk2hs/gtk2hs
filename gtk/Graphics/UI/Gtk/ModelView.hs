@@ -46,11 +46,11 @@ module Graphics.UI.Gtk.ModelView (
   module Graphics.UI.Gtk.ModelView.ListStore,
   module Graphics.UI.Gtk.ModelView.TreeModel,
   module Graphics.UI.Gtk.ModelView.TreeModelSort,
+  module Graphics.UI.Gtk.ModelView.TreeRowReference,
   module Graphics.UI.Gtk.ModelView.TreeSelection,
   module Graphics.UI.Gtk.ModelView.TreeStore,
   module Graphics.UI.Gtk.ModelView.TreeView,
-  module Graphics.UI.Gtk.ModelView.TreeViewColumn,
-  module Graphics.UI.Gtk.ModelView.Types,
+  module Graphics.UI.Gtk.ModelView.TreeViewColumn
   ) where
 
 import Graphics.UI.Gtk.ModelView.CellLayout
@@ -69,8 +69,8 @@ import Graphics.UI.Gtk.ModelView.IconView
 import Graphics.UI.Gtk.ModelView.ListStore
 import Graphics.UI.Gtk.ModelView.TreeModel
 import Graphics.UI.Gtk.ModelView.TreeModelSort
+import Graphics.UI.Gtk.ModelView.TreeRowReference
 import Graphics.UI.Gtk.ModelView.TreeSelection
 import Graphics.UI.Gtk.ModelView.TreeStore
 import Graphics.UI.Gtk.ModelView.TreeView
 import Graphics.UI.Gtk.ModelView.TreeViewColumn
-import Graphics.UI.Gtk.ModelView.Types

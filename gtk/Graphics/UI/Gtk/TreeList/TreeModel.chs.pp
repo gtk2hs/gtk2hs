@@ -95,7 +95,6 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
   toTreeModel,
   TreeModelFlags(..),
   TreePath,
-  TreeRowReference,
   TreeIter,
 
 -- * Methods
@@ -103,9 +102,6 @@ module Graphics.UI.Gtk.TreeList.TreeModel (
   treeModelGetNColumns,
   treeModelGetColumnType,
   treeModelGetValue,
-  treeRowReferenceNew,
-  treeRowReferenceGetPath,
-  treeRowReferenceValid,
   treeModelGetIter,
   treeModelGetIterFromString,
   gtk_tree_model_get_iter_from_string,	-- internal
@@ -130,7 +126,6 @@ import System.Glib.StoreValue		(TMType, GenericValue,
 {#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)
 {#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.TreeList.TreePath#}
-{#import Graphics.UI.Gtk.TreeList.TreeRowReference#}
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -26,7 +26,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CellRendererPixbuf (
 -- * Detail
--- 
+--
 -- | A 'CellRendererPixbuf' can be used to render an image in a cell. It
 -- allows to render either a given 'Pixbuf' (set via the 'cellPixbuf'
 -- property) or a stock icon (set via the 'cellPixbufStockId' property).

@@ -57,10 +57,9 @@ import Graphics.UI.Gtk.ModelView.Sequence (Seq)
 #endif
 
 import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
-import Graphics.UI.Gtk.ModelView.Types (TypedTreeModelClass)
-import Graphics.UI.Gtk.ModelView.TreeModel (TreeModelFlags(TreeModelListOnly))
+import Graphics.UI.Gtk.ModelView.Types (TypedTreeModelClass, TreeIter(..))
 import Graphics.UI.Gtk.ModelView.CustomStore
-import Graphics.UI.Gtk.TreeList.TreeIter
+import Graphics.UI.Gtk.ModelView.TreeModel
 
 newtype ListStore a = ListStore (CustomTreeModel (IORef (Seq a)) a)
 

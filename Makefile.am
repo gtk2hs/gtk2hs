@@ -512,7 +512,6 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeModel.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeModelSort.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreePath.chs.pp			\
-	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/TreeList/TreeStore.chs.pp			\
 	gtk/Graphics/UI/Gtk/TreeList/TreeView.chs.pp			\
@@ -540,6 +539,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeStore.hs			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeView.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeViewColumn.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/TreeRowReference.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/Types.chs				\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog.chs.pp			\
 	gtk/Graphics/UI/Gtk/Windows/Dialog.chs.pp			\
@@ -587,9 +587,6 @@ htmldoc_HSFILES_HIDDEN +=						\
 	gtk/Graphics/UI/Gtk/Pango/Attributes.hs			\
 	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs		\
 	gtk/Graphics/UI/Gtk/TreeList/TreePath.hs		\
-	gtk/Graphics/UI/Gtk/TreeList/TreeRowReference.hs	\
-	gtk/Graphics/UI/Gtk/ModelView/TreePath.hs		\
-	gtk/Graphics/UI/Gtk/ModelView/TreeRowReference.hs	\
 	gtk/Graphics/UI/Gtk/ModelView/Types.hs			\
 	gtk/Graphics/UI/Gtk/Multiline/Types.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/ContainerChildProperties.hs \

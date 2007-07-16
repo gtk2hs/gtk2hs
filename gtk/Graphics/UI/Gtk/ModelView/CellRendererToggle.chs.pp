@@ -205,7 +205,7 @@ cellToggleIndicatorSize = newAttrFromIntProperty "indicator-size"
 -- Signals
 
 -- %hash c:33ab d:1ba3
--- | The ::toggled signal is emitted when the cell is toggled.
+-- | The 'toggled' signal is emitted when the cell is toggled.
 --
 toggled :: CellRendererToggleClass self => Signal self (String -> IO ())
 toggled = Signal (connect_STRING__NONE "toggled")

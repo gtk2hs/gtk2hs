@@ -5,7 +5,7 @@
 --
 --  Created: 8 May 2001
 --
---  Copyright (C) 1999-2005 Axel Simon
+--  Copyright (C) 1999-2007 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -22,63 +22,48 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The tree interface used by 'TreeView'
+-- The tree interface used by 'TreeView'.
 --
 module Graphics.UI.Gtk.ModelView.TreeModel (
 -- * Detail
--- 
+--        
 -- | The 'TreeModel' interface defines a generic storage object for use by the
--- 'TreeView' widget. It is purely abstract, concrete implementations that
--- store data for a list or tree are 'ListStore' and 'TreeStore'.
+-- 'TreeView' widget. In other words, this module exposes the C interface that
+-- Gtk uses to populate the 'TreeView' widget. While this module is an
+-- interface from the perspective of Gtk, this module provides a skeleton to
+-- create an object that implements this interface. Two implementations that
+-- come with Gtk2Hs are 'ListStore' and 'TreeStore'.
 --
--- The model is represented as a hierarchical tree of strongly-typed,
--- columned data. In other words, the model can be seen as a tree where every
--- node has different values depending on which column is being queried. The
--- type of data found in a column can be arbitrary, ranging from basic
--- types like 'String's or 'Int' to user specific types. The types are
--- homogeneous per column across all nodes. It is important to note that this
--- interface only provides a way of examining a model and observing changes.
--- The implementation of each individual model decides how and if changes are
--- made.
+-- The model is represented as a hierarchical tree of values. It is important
+-- to note that this interface only provides a way of examining a model and
+-- observing changes. The implementation of each individual model decides how
+-- and if changes are made.
 --
 -- Two generic models are provided that implement the 'TreeModel' interface:
--- the
--- 'TreeStore' and the 'ListStore'. To use these, the developer simply pushes
--- data into these models as necessary. These models provide the data 
+-- the 'TreeStore' and the 'ListStore'. To use these, the developer simply
+-- inserts data into these models as necessary. These models provide the data
 -- structure as well as the 'TreeModel' interface. In fact, they implement
--- other interfaces making drag
--- and drop, sorting, and storing data trivial.
+-- other interfaces making drag and drop and storing data trivial.
 --
--- Models are accessed on a node\/column level of granularity. One can query
--- for the value of a model at a certain node and a certain column on that
--- node. There are two structures used to reference a particular node in a
--- model. They are the 'TreePath' and the 'TreeIter' Most of the interface
--- consists of operations on a 'TreeIter'.
+-- Models are accessed on a node level of granularity. There are two index
+-- types used to reference a particular node in a model. They are the
+-- 'TreePath' and the 'TreeIter'. Most of the interface consists of operations
+-- on a 'TreeIter'.
 --
 -- A path is essentially a potential node. It is a location on a model that
 -- may or may not actually correspond to a node on a specific model. A
--- 'TreePath' is in fact just a list of 'Int's and hence are easy to
--- manipulate. Each number refers to the offset at that level. Thus, the 
--- path @[0]@ refers to the
--- root node and the path @[2,4]@ refers to the fifth child of the third node.
+-- 'TreePath' is in fact a synonym for a list of 'Int's and hence are easy to
+-- manipulate. Each number refers to the offset at that level. Thus, the path
+-- @[0]@ refers to the root node and the path @[2,4]@ refers to the fifth
+-- child of the third node.
 --
 -- By contrast, a 'TreeIter' is a reference to a specific node on a specific
--- model. It is an abstract data type filled in by the model. One can convert a
--- path to an iterator by calling 'treeModelGetIter'. These iterators are the
--- primary way of accessing a model and are similar to the iterators used by
--- 'TextBuffer'. The model interface defines a set of operations using
--- them for navigating the model.
---
--- The lifecycle of an iterator can be a little confusing at first.
--- Iterators are expected to always be valid for as long as the model is
--- unchanged (and doesn't emit a signal). 
--- Additionally, the 'TreeStore' and 'ListStore' models guarantee that 
--- an iterator is valid for as long as the node it refers to is valid.
--- Although generally uninteresting, as one
--- always has to allow for the case where iterators do not persist beyond a
--- signal, some very important performance enhancements were made in the sort
--- model. As a result, the 'TreeModelItersPersist' flag was added to indicate
--- this behavior.
+-- model. It is an abstract data type filled in by the model. One can convert
+-- a path to an iterator by calling 'treeModelGetIter'. These iterators are
+-- the primary way of accessing a model and are similar to the iterators used
+-- by 'TextBuffer'. The model interface defines a set of operations using them
+-- for navigating the model. Iterators are expected to always be valid for as
+-- long as the model is unchanged (and doesn't emit a signal).
 --
 
 -- * Class Hierarchy
@@ -86,6 +71,7 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
 -- @
 -- |  GInterface
 -- |   +----TreeModel
+-- |   +--------TypedTreeModel
 -- @
 
 -- * Types
@@ -93,22 +79,20 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
   TreeModelClass,
   castToTreeModel,
   toTreeModel,
+
+  TypedTreeModel,
+  TypedTreeModelClass,
+  toTypedTreeModel,
+  
   TreeModelFlags(..),
+  TreeIter(..),
   TreePath,
-  TreeRowReference,
-  TreeIter,
 
 -- * Methods
+  stringToTreePath,
   treeModelGetFlags,
-  treeModelGetNColumns,
-  treeModelGetColumnType,
-  treeModelGetValue,
-  treeRowReferenceNew,
-  treeRowReferenceGetPath,
-  treeRowReferenceValid,
   treeModelGetIter,
   treeModelGetIterFromString,
-  gtk_tree_model_get_iter_from_string,	-- internal
   treeModelGetIterFirst,
   treeModelGetPath,
   treeModelIterNext,
@@ -116,39 +100,60 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
   treeModelIterHasChild,
   treeModelIterNChildren,
   treeModelIterNthChild,
-  treeModelIterParent
+  treeModelIterParent,
+  treeModelForeach,
+#if GTK_CHECK_VERSION(2,2,0)
+  treeModelGetStringFromIter,
+#endif
+  treeModelRefNode,
+  treeModelUnrefNode,
+  treeModelRowChanged,
+  treeModelRowInserted,
+  treeModelRowHasChildToggled,
+  treeModelRowDeleted,
+  treeModelRowsReordered,
+
+-- * Signals
+  rowChanged,
+  rowInserted,
+  rowHasChildToggled,
+  rowDeleted,
+  rowsReordered,
+
   ) where
 
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
-import System.Glib.Flags		(Flags, toFlags)
+import System.Glib.Flags		(toFlags)
 import System.Glib.UTFString
+{#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.StoreValue		(TMType, GenericValue,
 					 valueGetGenericValue)
 {#import System.Glib.GValue#}		(GValue(GValue), allocaGValue)
-{#import Graphics.UI.Gtk.TreeList.TreeIter#}
-{#import Graphics.UI.Gtk.TreeList.TreePath#}
-{#import Graphics.UI.Gtk.TreeList.TreeRowReference#}
+{#import Graphics.UI.Gtk.ModelView.CustomStore#} (TreeModelFlags(..),
+                                                  treeModelGetRow)
+{#import Graphics.UI.Gtk.ModelView.Types#}  (TypedTreeModel,
+                                             TypedTreeModelClass,
+                                             toTypedTreeModel,
+                                             TreeIter(..),
+                                             receiveTreeIter,
+                                             peekTreeIter,
+                                             TreePath,
+                                             NativeTreePath(..),
+                                             withTreePath,
+                                             fromTreePath,
+                                             peekTreePath,
+                                             stringToTreePath)
 
 {# context lib="gtk" prefix="gtk" #}
 
--- | These flags indicate various properties of a 'TreeModel'.
---
--- * If a model has "TreeModelItersPersist" set, iterators remain valid
---   after a "TreeModel" signal was emitted.
---
--- * The "TreeModelListOnly" flag is set if the rows are arranged in a
---   simple flat list. This is set in the "ListStore" implementation.
---
-{#enum TreeModelFlags {underscoreToCase} deriving(Bounded)#}
-
-instance Flags TreeModelFlags
 
 --------------------
 -- Methods
 
+-- %hash d:35ea
 -- | Returns a set of flags supported by this interface.
 --
 -- The flags supported should not
@@ -160,42 +165,158 @@ treeModelGetFlags self =
   {# call gtk_tree_model_get_flags #}
     (toTreeModel self)
 
--- | Returns the number of columns supported by the tree model.
+-- %hash c:35a1 d:49a2
+-- | Turn a 'String' into a 'TreeIter'.
 --
-treeModelGetNColumns :: TreeModelClass self => self
- -> IO Int -- ^ returns The number of columns.
-treeModelGetNColumns self =
-  liftM fromIntegral $
-  {# call gtk_tree_model_get_n_columns #}
-    (toTreeModel self)
-
--- | Returns the type of the column.
+-- * Returns @Nothing@ if the string is not a colon separated list of numbers
+--   that references a valid node.
 --
-treeModelGetColumnType :: TreeModelClass self => self
- -> Int          -- ^ @index@ - The column index.
- -> IO TMType
-treeModelGetColumnType self index =
-  liftM (toEnum.fromIntegral) $
-  {# call tree_model_get_column_type #}
-    (toTreeModel self)
-    (fromIntegral index)
-
--- | Read the value of at a specific column and 'TreeIter'.
---
-treeModelGetValue :: TreeModelClass self => self
- -> TreeIter
- -> Int         -- ^ @column@ - The column to lookup the value at.
- -> IO GenericValue
-treeModelGetValue self iter column =
-  allocaGValue $ \vaPtr ->
-  with iter $ \iterPtr -> do
-  {# call tree_model_get_value #}
+treeModelGetIterFromString :: TreeModelClass self => self
+ -> String   -- ^ @pathString@ - A string representation of a 'TreePath'.
+ -> IO (Maybe TreeIter)
+treeModelGetIterFromString self pathString =
+  receiveTreeIter $ \iterPtr ->
+  withUTFString pathString $ \pathStringPtr ->
+  {# call tree_model_get_iter_from_string #}
     (toTreeModel self)
     iterPtr
-    (fromIntegral column)
-    vaPtr
-  valueGetGenericValue vaPtr
+    pathStringPtr
 
+-- %hash c:4cd2 d:ad96
+-- | Turn a 'TreePath' into a 'TreeIter'.
+--
+-- Returns @Nothing@ if the given 'TreePath' was invalid. The empty list
+-- is always invalid. The root node of a tree can be accessed by passing
+-- @[0]@ as @path@.
+--
+treeModelGetIter :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - The 'TreePath'.
+ -> IO (Maybe TreeIter)
+treeModelGetIter _  [] = return Nothing
+treeModelGetIter self path =
+  receiveTreeIter $ \iterPtr ->
+  withTreePath path $ \path ->
+  {# call tree_model_get_iter #}
+    (toTreeModel self)
+    iterPtr
+    path
+
+-- %hash c:103f d:8041
+-- | Retrieves an 'TreeIter' to the first entry.
+--
+-- Returns @Nothing@ if the table is empty.
+--
+treeModelGetIterFirst :: TreeModelClass self => self
+ -> IO (Maybe TreeIter)
+treeModelGetIterFirst self =
+  receiveTreeIter $ \iterPtr ->
+  {# call tree_model_get_iter_first #}
+    (toTreeModel self)
+    iterPtr
+
+-- %hash c:ec20 d:d43e
+-- | Turn an abstract 'TreeIter' into a 'TreePath'.
+--
+-- In case the given 'TreeIter' was invalid, an empty list is returned.
+--
+treeModelGetPath :: TreeModelClass self => self
+ -> TreeIter -> IO TreePath
+treeModelGetPath self iter =
+  with iter $ \iterPtr ->
+  {# call tree_model_get_path #}
+    (toTreeModel self)
+    iterPtr
+  >>= fromTreePath
+
+-- %hash c:5c12 d:d7db
+-- | Retrieve an iterator to the node following it at the current level. If
+-- there is no next node, @Nothing@ is returned.
+--
+treeModelIterNext :: TreeModelClass self => self -> TreeIter -> IO (Maybe TreeIter)
+treeModelIterNext self iter =
+  receiveTreeIter $ \iterPtr -> do
+  poke iterPtr iter
+  {# call tree_model_iter_next #}
+    (toTreeModel self)
+    iterPtr
+
+-- %hash c:7eba d:27e8
+-- | Retrieve an iterator to the first child of @parent@. If @parent@ has no
+-- children, @Nothing@.
+--
+treeModelIterChildren :: TreeModelClass self => self
+ -> TreeIter -- ^ @parent@ - a pointer to the parent
+ -> IO (Maybe TreeIter)
+treeModelIterChildren self parent =
+  receiveTreeIter $ \iterPtr ->
+  with parent $ \parentPtr ->
+  {# call tree_model_iter_children #}
+    (toTreeModel self)
+    iterPtr
+    parentPtr
+
+-- %hash c:dcc3
+-- | Returns @True@ if @iter@ has children, @False@ otherwise.
+--
+treeModelIterHasChild :: TreeModelClass self => self
+ -> TreeIter -- ^ @iter@ - The 'TreeIter' to test for children.
+ -> IO Bool  -- ^ returns @True@ if @iter@ has children.
+treeModelIterHasChild self iter =
+  liftM toBool $
+  with iter $ \iterPtr ->
+  {# call tree_model_iter_has_child #}
+    (toTreeModel self)
+    iterPtr
+
+-- %hash c:eed
+-- | Returns the number of children that @iter@ has. As a special case, if
+-- @iter@ is @Nothing@, then the number of toplevel nodes is returned.
+--
+treeModelIterNChildren :: TreeModelClass self => self
+ -> Maybe TreeIter -- ^ @iter@ - The 'TreeIter', or @Nothing@.
+ -> IO Int         -- ^ returns The number of children of @iter@.
+treeModelIterNChildren self iter =
+  liftM fromIntegral $
+  maybeWith with iter $ \iterPtr ->
+  {# call tree_model_iter_n_children #}
+    (toTreeModel self)
+    iterPtr
+
+-- %hash c:6950 d:6f4d
+-- | Retrieve the @n@th child of @parent@, counting from zero. If @n@ is too
+-- big or @parent@ has no children, @Nothing@ is returned. If @Nothing@ is
+-- specified for the @parent@ argument, the function will return the @n@th
+-- root node.
+--
+treeModelIterNthChild :: TreeModelClass self => self
+ -> Maybe TreeIter -- ^ @parent@ - The 'TreeIter' to get the child from, or
+                   -- @Nothing@.
+ -> Int            -- ^ @n@ - Then index of the desired child.
+ -> IO (Maybe TreeIter)
+treeModelIterNthChild self parent n =
+  receiveTreeIter $ \iterPtr ->
+  maybeWith with parent $ \parentPtr ->
+  {# call tree_model_iter_nth_child #}
+    (toTreeModel self)
+    iterPtr
+    parentPtr
+    (fromIntegral n)
+
+-- %hash c:8f01 d:70ff
+-- | Retrieve the parent of this iterator.
+--
+treeModelIterParent :: TreeModelClass self => self
+ -> TreeIter
+ -> IO (Maybe TreeIter)
+treeModelIterParent self child =
+  receiveTreeIter $ \iterPtr ->
+  with child $ \childPtr ->
+  {# call tree_model_iter_parent #}
+    (toTreeModel self)
+    iterPtr
+    childPtr
+
+-- %hash c:154f d:a6d
 -- | Maps a function over each node in model in a depth-first fashion. If it
 -- returns @True@, then the tree ceases to be walked, and 'treeModelForeach'
 -- returns.
@@ -219,144 +340,234 @@ treeModelForeach self fun = do
 {#pointer TreeModelForeachFunc#}
 
 foreign import ccall "wrapper"  mkTreeModelForeachFunc ::
-  (Ptr () -> Ptr () -> Ptr TreeIter -> Ptr () -> IO CInt) -> IO TreeModelForeachFunc
+  (Ptr () -> Ptr () -> Ptr TreeIter -> Ptr () -> IO CInt) ->
+  IO TreeModelForeachFunc
 
--- | Turn a 'String' into a 'TreeIter'.
+#if GTK_CHECK_VERSION(2,2,0)
+-- %hash c:f04a d:94fd
+-- | Generates a string representation of the iter. This string is a \':\'
+-- separated list of numbers. For example, \"4:10:0:3\" would be an acceptable
+-- return value for this string.
 --
--- * Returns @Nothing@ if the string is not a colon separated list of numbers
---   that references a valid node.
+-- * Available since Gtk+ version 2.2
 --
-treeModelGetIterFromString :: TreeModelClass self => self
- -> String   -- ^ @pathString@ - A string representation of a 'TreePath'.
- -> IO (Maybe TreeIter)
-treeModelGetIterFromString self pathString =
-  receiveTreeIter $ \iterPtr ->
-  withUTFString pathString $ \pathStringPtr ->
-  {# call tree_model_get_iter_from_string #}
+treeModelGetStringFromIter :: TreeModelClass self => self
+ -> TreeIter  -- ^ @iter@ - An 'TreeIter'.
+ -> IO String -- ^ returns A newly-allocated string. Must be freed with
+              -- 'gFree'.
+treeModelGetStringFromIter self iter = with iter $ \iter ->
+  {# call gtk_tree_model_get_string_from_iter #}
     (toTreeModel self)
-    iterPtr
-    pathStringPtr
+    iter
+  >>= readUTFString
+#endif
 
--- | Turn a 'TreePath' into a 'TreeIter'.
+-- %hash c:228e d:304e
+-- | Lets the tree ref the node. This is an optional method for models to
+-- implement. To be more specific, models may ignore this call as it exists
+-- primarily for performance reasons.
 --
--- Returns @Nothing@ if the given 'TreePath' was invalid. The empty list
--- is always invalid. The root node of a tree can be accessed by passing
--- @[0]@ as @path@.
+-- This function is primarily meant as a way for views to let caching model
+-- know when nodes are being displayed (and hence, whether or not to cache that
+-- node.) For example, a file-system based model would not want to keep the
+-- entire file-hierarchy in memory, just the sections that are currently being
+-- displayed by every current view.
 --
-treeModelGetIter :: TreeModelClass self => self
- -> TreePath -- ^ @path@ - The 'TreePath'.
- -> IO (Maybe TreeIter)
-treeModelGetIter _  [] = return Nothing
-treeModelGetIter self path =
-  receiveTreeIter $ \iterPtr ->
+-- A model should be expected to be able to get an iter independent of its
+-- reffed state.
+--
+treeModelRefNode :: TreeModelClass self => self
+ -> TreeIter -- ^ @iter@ - The 'TreeIter'.
+ -> IO ()
+treeModelRefNode self iter = with iter $ \iter ->
+  {# call gtk_tree_model_ref_node #}
+    (toTreeModel self)
+    iter
+
+-- %hash c:f5d7 d:22a6
+-- | Lets the tree unref the node. This is an optional method for models to
+-- implement. To be more specific, models may ignore this call as it exists
+-- primarily for performance reasons.
+--
+-- For more information on what this means, see 'treeModelRefNode'. Please
+-- note that nodes that are deleted are not unreffed.
+--
+treeModelUnrefNode :: TreeModelClass self => self
+ -> TreeIter -- ^ @iter@ - The 'TreeIter'.
+ -> IO ()
+treeModelUnrefNode self iter = with iter $ \iter ->
+  {# call gtk_tree_model_unref_node #}
+    (toTreeModel self)
+    iter
+
+-- %hash c:8d25 d:a7c9
+-- | Emits the 'rowChanged' signal on the model.
+--
+-- * This function is only necessary to implement a custom tree model. When
+--   using 'Graphics.UI.Gtk.ModelView.ListStore' or
+--   'Graphics.UI.Gtk.ModelView.TreeStore', this function is called
+--   automatically.
+--
+treeModelRowChanged :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row
+ -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the changed row
+ -> IO ()
+treeModelRowChanged self path iter =
+  with iter $ \iter ->
   withTreePath path $ \path ->
-  {# call tree_model_get_iter #}
+  {# call gtk_tree_model_row_changed #}
     (toTreeModel self)
-    iterPtr
+    path
+    iter
+
+-- %hash c:f809 d:57af
+-- | Emits the 'rowInserted' signal on the model.
+--
+-- * This function is only necessary to implement a custom tree model. When
+--   using 'Graphics.UI.Gtk.ModelView.ListStore' or
+--   'Graphics.UI.Gtk.ModelView.TreeStore', this function is called
+--   automatically.
+--
+treeModelRowInserted :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the inserted row
+ -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the inserted row
+ -> IO ()
+treeModelRowInserted self path iter =
+  with iter $ \iter ->
+  withTreePath path $ \path ->
+  {# call gtk_tree_model_row_inserted #}
+    (toTreeModel self)
+    path
+    iter
+
+-- %hash c:e917 d:6534
+-- | Emits the 'rowHasChildToggled' signal on the model. This should be
+-- called by models after the child state of a node changes.
+--
+-- * This function is only necessary to implement a custom tree model. When
+--   using 'Graphics.UI.Gtk.ModelView.ListStore' or
+--   'Graphics.UI.Gtk.ModelView.TreeStore', this function is called
+--   automatically.
+--
+treeModelRowHasChildToggled :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the changed row
+ -> TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the changed row
+ -> IO ()
+treeModelRowHasChildToggled self path iter =
+  with iter $ \iter ->
+  withTreePath path $ \path ->
+  {# call gtk_tree_model_row_has_child_toggled #}
+    (toTreeModel self)
+    path
+    iter
+
+-- %hash c:c0a2 d:7ca6
+-- | Emits the 'rowDeleted' signal on the model. This should be called by
+-- models after a row has been removed. The location pointed to by @path@
+-- should be the location that the row previously was at. It may not be a
+-- valid location anymore.
+--
+-- * This function is only necessary to implement a custom tree model. When
+--   using 'Graphics.UI.Gtk.ModelView.ListStore' or
+--   'Graphics.UI.Gtk.ModelView.TreeStore', this function is called
+--   automatically.
+--
+treeModelRowDeleted :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the previous location of
+             -- the deleted row.
+ -> IO ()
+treeModelRowDeleted self path =
+  withTreePath path $ \path ->
+  {# call gtk_tree_model_row_deleted #}
+    (toTreeModel self)
     path
 
--- | Retrieves an 'TreeIter' to the first entry.
+-- %hash c:f0f3 d:a8c5
+-- | Emits the 'rowsReordered' signal on the model. This should be called by
+-- models when their rows have been reordered. The length  of @newOrder@ must
+-- be equal to the value returned by @treeModelIterNChildren self iter@.
 --
--- Returns @Nothing@ if the table is empty.
+-- * This function is only necessary to implement a custom tree model. When
+--   using 'Graphics.UI.Gtk.ModelView.ListStore' or
+--   'Graphics.UI.Gtk.ModelView.TreeStore', this function is called
+--   automatically.
 --
-treeModelGetIterFirst :: TreeModelClass self => self
- -> IO (Maybe TreeIter)
-treeModelGetIterFirst self =
-  receiveTreeIter $ \iterPtr ->
-  {# call tree_model_get_iter_first #}
-    (toTreeModel self)
-    iterPtr
+treeModelRowsReordered :: TreeModelClass self => self
+ -> TreePath -- ^ @path@ - A 'TreePath' pointing to the tree node whose
+             -- children have been reordered
+ -> Maybe TreeIter -- ^ @iter@ - A valid 'TreeIter' pointing to the node whose
+                   -- children have been reordered, or @Nothing@ if 
+                   -- @path@ is @[]@.
+ -> [Int]   -- ^ @newOrder@ - a list of integers giving the previous position
+            -- of each node at this hierarchy level.
+ 
+ -> IO ()
+treeModelRowsReordered self path iter array = do
+  n <- treeModelIterNChildren self iter
+  let l = length array
+  if n/=l then error ("treeModelRowsReordered: passed-in array is of size "
+                      ++show l++" but there are "++show n++
+                      " children at path "++show path) else
+    withTreePath path $ \path ->
+    maybeWith with iter $ \iter ->
+    withArray (map fromIntegral array) $ \newOrderPtr ->
+    {# call gtk_tree_model_rows_reordered #}
+      (toTreeModel self)
+      path
+      iter
+      newOrderPtr
 
--- | Turn an abstract 'TreeIter' into a 'TreePath'.
---
--- In case the given 'TreeIter' was invalid, an empty list is returned.
---
-treeModelGetPath :: TreeModelClass self => self
- -> TreeIter -> IO TreePath
-treeModelGetPath self iter =
-  with iter $ \iterPtr ->
-  {# call tree_model_get_path #}
-    (toTreeModel self)
-    iterPtr
-  >>= fromTreePath
+--------------------
+-- Signals
 
--- | Retrieve an iterator to the next child.
+-- %hash c:50c7 d:8da5
+-- | This signal is emitted when a row in the model has changed.
 --
-treeModelIterNext :: TreeModelClass self => self -> TreeIter -> IO (Maybe TreeIter)
-treeModelIterNext self iter =
-  receiveTreeIter $ \iterPtr -> do
-  poke iterPtr iter
-  {# call tree_model_iter_next #}
-    (toTreeModel self)
-    iterPtr
+rowChanged :: TreeModelClass self => Signal self (TreePath -> TreeIter -> IO ())
+rowChanged = Signal (connect_BOXED_BOXED__NONE "row_changed" peekTreePath peekTreeIter)
 
--- | Retrieve an iterator to the first child.
+-- %hash c:f31a d:3c6b
+-- | This signal is emitted when a new row has been inserted in the model.
 --
-treeModelIterChildren :: TreeModelClass self => self
- -> TreeIter
- -> IO (Maybe TreeIter)
-treeModelIterChildren self parent =
-  receiveTreeIter $ \iterPtr ->
-  with parent $ \parentPtr ->
-  {# call tree_model_iter_children #}
-    (toTreeModel self)
-    iterPtr
-    parentPtr
+--
+rowInserted :: TreeModelClass self => Signal self (TreePath -> TreeIter -> IO ())
+rowInserted = Signal (connect_BOXED_BOXED__NONE "row_inserted" peekTreePath peekTreeIter)
 
--- | Returns @True@ if @iter@ has children, @False@ otherwise.
+-- %hash c:7279 d:5ef
+-- | This signal is emitted when a row has gotten the first child row or lost
+-- its last child row.
 --
-treeModelIterHasChild :: TreeModelClass self => self
- -> TreeIter -- ^ @iter@ - The 'TreeIter' to test for children.
- -> IO Bool  -- ^ returns @True@ if @iter@ has children.
-treeModelIterHasChild self iter =
-  liftM toBool $
-  with iter $ \iterPtr ->
-  {# call tree_model_iter_has_child #}
-    (toTreeModel self)
-    iterPtr
+rowHasChildToggled :: TreeModelClass self => Signal self (TreePath -> TreeIter -> IO ())
+rowHasChildToggled = Signal (connect_BOXED_BOXED__NONE "row_has_child_toggled" peekTreePath peekTreeIter)
 
--- | Returns the number of children that @iter@ has. As a special case, if
--- @iter@ is @Nothing@, then the number of toplevel nodes is returned.
+-- %hash c:f669 d:367f
+-- | This signal is emitted when a row has been deleted.
 --
-treeModelIterNChildren :: TreeModelClass self => self
- -> Maybe TreeIter -- ^ @iter@ - The 'TreeIter', or @Nothing@.
- -> IO Int         -- ^ returns The number of children of @iter@.
-treeModelIterNChildren self iter =
-  liftM fromIntegral $
-  maybeWith with iter $ \iterPtr ->
-  {# call tree_model_iter_n_children #}
-    (toTreeModel self)
-    iterPtr
+-- Note that no iterator is passed to the signal handler, since the row is
+-- already deleted.
+--
+-- Implementations of 'TreeModel' must emit row-deleted /before/ removing the
+-- node from its internal data structures. This is because models and views
+-- which access and monitor this model might have references on the node which
+-- need to be released in the 'rowDeleted' handler.
+--
+rowDeleted :: TreeModelClass self => Signal self (TreePath -> IO ())
+rowDeleted = Signal (connect_BOXED__NONE "row_deleted" peekTreePath)
 
--- | Retrieve the @n@th child.
+-- %hash c:46dd d:b2e5
+-- | This signal is emitted when the children of a node in the 'TreeModel'
+-- have been reordered. See 'treeModelRowsReordered' for more information
+-- about the parameters that this signal carries.
 --
--- If @Nothing@ is specified for the @self@ argument, the function will work
--- on toplevel elements.
+-- Note that this signal is /not/ emitted when rows are reordered by DND,
+-- since this is implemented by removing and then reinserting the row.
 --
-treeModelIterNthChild :: TreeModelClass self => self
- -> Maybe TreeIter -- ^ @parent@ - The 'TreeIter' to get the child from, or
-                   -- @Nothing@.
- -> Int            -- ^ @n@ - Then index of the desired child.
- -> IO (Maybe TreeIter)
-treeModelIterNthChild self parent n =
-  receiveTreeIter $ \iterPtr ->
-  maybeWith with parent $ \parentPtr ->
-  {# call tree_model_iter_nth_child #}
-    (toTreeModel self)
-    iterPtr
-    parentPtr
-    (fromIntegral n)
-
--- | Retrieve the parent of this iterator.
---
-treeModelIterParent :: TreeModelClass self => self
- -> TreeIter
- -> IO (Maybe TreeIter)
-treeModelIterParent self child =
-  receiveTreeIter $ \iterPtr ->
-  with child $ \childPtr ->
-  {# call tree_model_iter_parent #}
-    (toTreeModel self)
-    iterPtr
-    childPtr
-
+rowsReordered :: TreeModelClass self =>
+                 Signal self (TreePath -> Maybe TreeIter -> [Int] -> IO ())
+rowsReordered = Signal $ \after model user ->
+  connect_BOXED_BOXED_PTR__NONE "rows_reordered" peekTreePath
+    (maybePeek peekTreeIter) after model $ \path iter arrayPtr -> do
+      n <- treeModelIterNChildren model iter
+      -- hopefully the model is never buggy, otherwise this can segfault
+      newOrder <- peekArray n arrayPtr
+      user path iter (map fromIntegral (newOrder :: [{#type gint#}]))

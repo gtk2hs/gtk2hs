@@ -68,7 +68,6 @@ import System.Glib.GObject (mkFunPtrDestroyNotify)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.ModelView.CustomStore#} (treeModelGetRow)
 
 {# context lib="gtk" prefix="gtk" #}

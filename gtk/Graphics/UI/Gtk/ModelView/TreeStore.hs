@@ -55,9 +55,8 @@ import Control.Exception (assert)
 import Data.IORef
 import Graphics.UI.Gtk.ModelView.Types
 import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
-import Graphics.UI.Gtk.TreeList.TreePath (TreePath)
 import Graphics.UI.Gtk.ModelView.CustomStore
-import Graphics.UI.Gtk.TreeList.TreeIter
+import Graphics.UI.Gtk.ModelView.TreeModel
 
 --------------------------------------------
 -- internal model data types

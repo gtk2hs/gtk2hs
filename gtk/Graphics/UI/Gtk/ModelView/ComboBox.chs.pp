@@ -141,9 +141,10 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject,
 					 mkFunPtrDestroyNotify)
 {#import Graphics.UI.Gtk.Types#} hiding (ListStore)
-import Graphics.UI.Gtk.ModelView.Types (TypedTreeModelClass)
+{#import Graphics.UI.Gtk.ModelView.Types#} (TypedTreeModelClass,
+                                            TreeIter,
+                                            receiveTreeIter)
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter(..), receiveTreeIter)
 {#import Graphics.UI.Gtk.ModelView.CustomStore#} (treeModelUpdateColumn,
                                                   treeModelGetRow,
                                                   ColumnAccess(CAInt))
@@ -644,7 +645,7 @@ changed = Signal (connect_NONE__NONE "changed")
 -- | The combo box was dropped down or collapsed.
 --
 popupShownNotify :: ComboBoxClass self => Signal self (IO ())
-popupShownNotify = Signal (Connect_NONE__NONE "notify::popup-shown")
+popupShownNotify = Signal (connect_NONE__NONE "notify::popup-shown")
 
 --------------------
 -- Deprecated Signals
