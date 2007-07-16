@@ -1233,7 +1233,7 @@ if HAVE_MTL_PACKAGE
 libHScairo_a_EXTERNALDEPS	+= mtl
 endif
 libHScairo_a_INTERNALDEPS	= glib
-libHScairo_a_HEADER 		= cairo/cairo.h
+libHScairo_a_HEADER 		= cairo/cairo-gtk2hs.h
 libHScairo_a_PRECOMP		= cairo/cairo.precomp
 libHScairo_a_LIBS		= $(CAIRO_LIBS)
 libHScairo_a_HCFLAGS		= -fffi
