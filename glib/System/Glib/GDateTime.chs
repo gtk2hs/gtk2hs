@@ -3,9 +3,9 @@
 --
 --  Author : Peter Gavin
 --
---  Created: 19 March 2002
+--  Created: July 2007
 --
---  Copyright (C) 2002 Axel Simon
+--  Copyright (C) 2007 Peter Gavin 
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public

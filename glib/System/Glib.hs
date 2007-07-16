@@ -7,7 +7,7 @@ module System.Glib (
   module System.Glib.GParameter,
   module System.Glib.GError,
   module System.Glib.GList,
-  module System.Glib.GDate
+  module System.Glib.GDateTime
   ) where
 
 import System.Glib.UTFString
@@ -17,5 +17,5 @@ import System.Glib.GObject
 import System.Glib.GParameter
 import System.Glib.GError
 import System.Glib.GList
-import System.Glib.GDate
+import System.Glib.GDateTime
 -- do not import System.Glib.FFI
