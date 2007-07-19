@@ -1,0 +1,15 @@
+Package {
+     name            = "gstreamer",
+     auto            = True,
+     import_dirs     = ["${pkglibdir}/imports/gstreamer"],
+     source_dirs     = [],
+     library_dirs    = [@GSTREAMER_LIBDIR_CQ@],
+     hs_libraries    = ["HSgstreamer"],
+     extra_libraries = [@GSTREAMER_LIBS_CQ@],
+     include_dirs    = [@GSTREAMER_CFLAGS_CQ@],
+     c_includes      = ["gst/gst.h"],
+     package_deps    = ["glib"],
+     extra_ghc_opts  = [],
+     extra_cc_opts   = [],
+     extra_ld_opts   = [@GSTREAMER_LIBEXTRA_CQ@]
+}

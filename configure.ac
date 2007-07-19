@@ -343,6 +343,10 @@ GTKHS_PKG_CHECK(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0],
 	[build gnome-vfs package (default=auto)],
 	[gnomevfs library requirement not met. Perhaps you need to install libgnomevfs or libgnomevfs-devel])
 
+GTKHS_PKG_CHECK(gstreamer, gstreamer, GSTREAMER, [gstreamer-0.10 >= 0.10],
+	[build gstreamer package (default=auto)],
+	[gstreamer library requirement not met. Perhaps you need to install libgstreamer or libgstreamer-devel])
+
 dnl The following is a hack to fix the fact that
 dnl "pkg-config --libs mozilla-gtkmozembed" does not always give us all the
 dnl right stuff. On many systems, the mozilla .so files that we need to link
@@ -635,6 +639,13 @@ AC_SUBST(GNOMEVFS_LIBS_CQ)
 AC_SUBST(GNOMEVFS_LIBDIR_CQ)
 AC_SUBST(GNOMEVFS_LIBEXTRA_CQ)
 
+GTKHS_REFORMAT_PACKAGE_CFLAGS(GSTREAMER_CFLAGS, GSTREAMER_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(GSTREAMER_LIBS, GSTREAMER_LIBS_CQ, GSTREAMER_LIBDIR_CQ, GSTREAMER_LIBEXTRA_CQ)
+AC_SUBST(GSTREAMER_CFLAGS_CQ)
+AC_SUBST(GSTREAMER_LIBS_CQ)
+AC_SUBST(GSTREAMER_LIBDIR_CQ)
+AC_SUBST(GSTREAMER_LIBEXTRA_CQ)
+
 
 dnl Check if user wants bindings for deprecated APIs. Defaults to yes.
 AC_MSG_CHECKING([whether to build deprecated bindings])
@@ -866,6 +877,10 @@ AC_CONFIG_FILES([
   gnomevfs/gnomevfs.pkg
   gnomevfs/gnomevfs.package.conf
   gnomevfs/gnomevfs.cabal
+
+  gstreamer/gstreamer.pkg
+  gstreamer/gstreamer.package.conf
+  gstreamer/gstreamer.cabal
   ])
 AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
 AC_OUTPUT
@@ -887,6 +902,7 @@ echo "* sourceview    : ${ENABLE_SOURCEVIEW}            "
 echo "* mozembed      : ${ENABLE_MOZEMBED}              "
 echo "* soegtk        : yes                             "
 echo "* gnomevfs      : ${ENABLE_GNOMEVFS}              "
+echo "* gstreamer     : ${ENABLE_GSTREAMER}             "
 echo "* documentation : ${BUILDDOCS}                    "
 dnl echo "* tutorials     : no                              "
 echo "*                                                 "

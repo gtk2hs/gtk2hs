@@ -1,0 +1,17 @@
+name: gstreamer
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "${pkglibdir}/imports/gstreamer"
+library-dirs: @GSTREAMER_LIBDIR_CQ@
+hs-libraries: HSgstreamer
+extra-libraries: @GSTREAMER_LIBS_CQ@
+include-dirs: @GSTREAMER_CFLAGS_CQ@
+includes: gst/gst.h
+depends: glib-@PACKAGE_VERSION@
+ld-options: @GSTREAMER_LIBEXTRA_CQ@

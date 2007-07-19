@@ -21,7 +21,9 @@ EXTRA_DIST = \
 	gtk/Graphics/UI/Gtk/General/hsgthread.h	\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h \
 	gnomevfs/System/Gnome/VFS/hsfileinfo.h	\
-	gnomevfs/marshal.list
+	gnomevfs/marshal.list 			\
+	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h \
+	gstreamer/hsgstreamer.h
 
 # There are no other files in these dirs and tar excludes empty dirs
 dist-hook:
@@ -61,6 +63,9 @@ pkglib_LIBRARIES += libHSgtkglext.a
 endif
 if ENABLE_GNOMEVFS
 pkglib_LIBRARIES += libHSgnomevfs.a
+endif
+if ENABLE_GSTREAMER
+pkglib_LIBRARIES += libHSgstreamer.a
 endif
 
 noinst_PROGRAMS = \
@@ -1824,6 +1829,169 @@ endif
 endif
 
 #
+#      gstreamer package
+#
+################################################################################
+
+if ENABLE_GSTREAMER
+
+gstreamer_PKGNAME = libHSgstreamer_a
+
+libHSgstreamer_a_NAME			= gstreamer
+libHSgstreamer_a_CONFIG			= gstreamer/gstreamer.$(PKGEXT)
+libHSgstreamer_a_EXTERNALDEPS		= base haskell98 mtl
+libHSgstreamer_a_INTERNALDEPS		= glib
+libHSgstreamer_a_HEADER			= gstreamer/hsgstreamer.h
+libHSgstreamer_a_PRECOMP		= gstreamer/gstreamer.precomp
+libHSgstreamer_a_LIBS			= $(GLIB_LIBS) $(GSTREAMER_LIBS) $(GCONF_LIBS)
+libHSgstreamer_a_HCFLAGS		= -fffi
+libHSgstreamer_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS))
+libHSgstreamer_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS))
+
+libHSgstreamer_a_SOURCESDIRS		= gstreamer
+
+libHSgstreamer_a_LIBADD			=
+
+gstreamer/libHSgstreamer_a.deps	: glib/libHSglib_a.deps
+
+libHSgstreamer_a_GENERATEDSOURCES	=			\
+	gstreamer/Media/Streaming/GStreamer/Hierarchy.chs	\
+	gstreamer/Media/Streaming/GStreamer/Signals.chs
+
+nodist_libHSgstreamer_a_SOURCES		= $(libHSgstreamer_a_GENERATEDSOURCES)
+
+libHSgstreamer_a_SOURCES		=               	\
+	gstreamer/Media/Streaming/GStreamer/Types.chs		\
+	gstreamer/Media/Streaming/GStreamer/Init.chs		\
+	gstreamer/Media/Streaming/GStreamer/Object.chs		\
+	gstreamer/Media/Streaming/GStreamer/Element.chs		\
+	gstreamer/Media/Streaming/GStreamer/Pad.chs		\
+	gstreamer/Media/Streaming/GStreamer/GhostPad.chs	\
+	gstreamer/Media/Streaming/GStreamer/Bin.chs		\
+	gstreamer/Media/Streaming/GStreamer/Format.chs		\
+	gstreamer/Media/Streaming/GStreamer/ElementFactory.chs	\
+	gstreamer/Media/Streaming/GStreamer/Caps.chs		\
+	gstreamer/Media/Streaming/GStreamer/Structure.chs	\
+	gstreamer/Media/Streaming/GStreamer/Message.chs		\
+	gstreamer/Media/Streaming/GStreamer/Bus.chs		\
+	gstreamer/Media/Streaming/GStreamer/Clock.chs		\
+	gstreamer/Media/Streaming/GStreamer/PadTemplate.chs	\
+	gstreamer/Media/Streaming/GStreamer/ImplementsInterface.chs \
+	gstreamer/Media/Streaming/GStreamer/Index.chs		\
+	gstreamer/Media/Streaming/GStreamer/IndexFactory.chs	\
+	gstreamer/Media/Streaming/GStreamer/Iterator.chs	\
+	gstreamer/Media/Streaming/GStreamer/Parse.chs		\
+	gstreamer/Media/Streaming/GStreamer/Pipeline.chs	\
+	gstreamer/Media/Streaming/GStreamer/Plugin.chs		\
+	gstreamer/Media/Streaming/GStreamer/PluginFeature.chs	\
+	gstreamer/Media/Streaming/GStreamer/Registry.chs	\
+	gstreamer/Media/Streaming/GStreamer/Segment.chs		\
+	gstreamer/Media/Streaming/GStreamer/SystemClock.chs	\
+	gstreamer/Media/Streaming/GStreamer/TagList.chs		\
+	gstreamer/Media/Streaming/GStreamer.hs			\
+	gstreamer/hsgstreamer.c
+
+htmldoc_HSFILES_HIDDEN				+= $(libHSgstreamer_a_GENERATEDSOURCES:.chs=.hs)
+
+gstreamer_Media_Streaming_GStreamer_Types_hs_HCFLAGS	 	= -fglasgow-exts
+gstreamer_Media_Streaming_GStreamer_Pad_hs_HCFLAGS	 	= -fglasgow-exts
+gstreamer_Media_Streaming_GStreamer_Element_hs_HCFLAGS	 	= -fglasgow-exts
+gstreamer_Media_Streaming_GStreamer_Iterator_hs_HCFLAGS	 	= -fglasgow-exts
+gstreamer_Media_Streaming_GStreamer_Plugin_hs_HCFLAGS	 	= -fglasgow-exts
+gstreamer_Media_Streaming_GStreamer_PluginFeature_hs_HCFLAGS	= -fglasgow-exts
+
+libHSgstreamer_a_ALLSOURCES			 = $(libHSgstreamer_a_SOURCES) $(nodist_libHSgstreamer_a_SOURCES)
+
+gstreamer/Media/Streaming/GStreamer/Hierarchy.chs :			\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list			\
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)		\
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)	\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list			\
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template		\
+	$@ --tag=gstreamer --lib=gstreamer --prefix=gstreamer		\
+	--modname=Media.Streaming.GStreamer.Hierarchy --parentname=System.Glib.GObject)
+
+gstreamer/Media/Streaming/GStreamer/Signals.chs : \
+	$(srcdir)/tools/callbackGen/Signal.chs.template \
+	$(srcdir)/gnomevfs/marshal.list \
+	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) \
+	$(srcdir)/gstreamer/marshal.list \
+	$(srcdir)/tools/callbackGen/Signal.chs.template $@ \
+	Media.Streaming.GStreamer.Signals)
+
+am_libHSgstreamer_a_OBJECTS			 =	\
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgstreamer_a_ALLSOURCES))))
+
+libHSgstreamer_a_HSPPFILES	= $(filter %.hs.pp, $(libHSgstreamer_a_ALLSOURCES))
+libHSgstreamer_a_CHSPPFILES	= $(filter %.chs.pp,$(libHSgstreamer_a_ALLSOURCES))
+libHSgstreamer_a_CHSFILES	=			\
+	$(filter %.chs,$(libHSgstreamer_a_ALLSOURCES:.chs.pp=.chs))
+libHSgstreamer_a_CHSFILES_HS	= $(libHSgstreamer_a_CHSFILES:.chs=.hs)
+libHSgstreamer_a_HSCFILES	= $(filter %.hsc, $(libHSgstreamer_a_ALLSOURCES))
+libHSgstreamer_a_HSCFILES_HS	= $(libHSgstreamer_a_HSCFILES:.hsc=.hs)
+libHSgstreamer_a_BUILDSOURCES	=			\
+	$(libHSgstreamer_a_HSPPFILES:.hs.pp=.hs)		\
+	$(libHSgstreamer_a_CHSPPFILES:.chs.pp=.chs)	\
+	$(libHSgstreamer_a_CHSFILES_HS)			\
+	$(libHSgstreamer_a_HSCFILES_HS)			\
+	$(libHSgstreamer_a_GENERATEDSOURCES)
+libHSgstreamer_a_HSFILES  =				\
+	$(filter %.hs,$(libHSgstreamer_a_BUILDSOURCES))	\
+	$(filter %.hs,$(libHSgstreamer_a_ALLSOURCES))
+
+nobase_hi_DATA += $(libHSgstreamer_a_HSFILES:.hs=.hi)
+
+gstreamer_MOSTLYCLEANFILES  = $(am_libHSgstreamer_a_OBJECTS)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_HSFILES:.hs=.hi)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=.chi)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=_stub.h)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=_stub.o)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=_stub.c)
+gstreamer_CLEANFILES	   = $(libHSgstreamer_a_BUILDSOURCES)
+gstreamer_CLEANFILES 	  += $(libHSgstreamer_a_CHSFILES_HS:.hs=.dep)
+
+$(libHSgstreamer_a_CHSFILES:.chs=.dep) :        \
+       $(libHSgtk_a_GENERATEDSOURCES)          \
+       $(libHSgstreamer_a_GENERATEDSOURCES)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include $(libHSgstreamer_a_CHSFILES:.chs=.dep) gstreamer/libHSgstreamer_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSgstreamer_a_AR = $(srcdir)/mk/link-splitobjs.sh
+else
+libHSgstreamer_a_AR = $(AR) $(ARFLAGS)
+endif
+
+libHSgstreamer_a_DEPENDENCIES = HSgstreamer.o
+pkglib_DATA += HSgstreamer.o
+HSgstreamer.o : $(libHSgstreamer_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSgstreamer_a_OBJECTS) $(libHSgstreamer_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSgstreamer_a_DEPENDENCIES += libHSgstreamer_p.a
+pkglib_DATA += libHSgstreamer_p.a
+libHSgstreamer_p.a : $(libHSgstreamer_a_HSFILES:.hs=.p_o) \
+	$(libHSgstreamer_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include gstreamer/libHSgstreamer_a.p_deps
+ endif
+
+nobase_hi_DATA            += $(libHSgstreamer_a_HSFILES:.hs=.p_hi)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_HSFILES:.hs=.p_hi)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_HSFILES:.hs=.p_o)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_LIBADD:.o=.p_o)
+
+endif
+
+endif
+
+#
 #       inplace package registration
 #
 ################################################################################
@@ -2149,34 +2317,22 @@ mostlyclean: mostlyclean-am
 	rm -f $(gtkglext_MOSTLYCLEANFILES)
 	rm -f $(soegtk_MOSTLYCLEANFILES)
 	rm -f $(gnomevfs_MOSTLYCLEANFILES)
+	rm -f $(gstreamer_MOSTLYCLEANFILES)
 	rm -f $(doc_MOSTLYCLEANFILES)
 
 clean: mostlyclean clean-am
-	rm -f  $(c2hs_CLEANFILES)
-	rm -rf $(c2hs_CLEANFILES_SPLIT)
-	rm -f  $(glib_CLEANFILES)
-	rm -rf $(glib_CLEANFILES_SPLIT)
-	rm -f  $(gtk_CLEANFILES)
-	rm -rf $(gtk_CLEANFILES_SPLIT)
-	rm -f  $(glade_CLEANFILES)
-	rm -rf $(glade_CLEANFILES_SPLIT)
-	rm -f  $(gconf_CLEANFILES)
-	rm -rf $(gconf_CLEANFILES_SPLIT)
-	rm -f  $(sourceview_CLEANFILES)
-	rm -rf $(sourceview_CLEANFILES_SPLIT)
-	rm -f  $(mozembed_CLEANFILES)
-	rm -rf $(mozembed_CLEANFILES_SPLIT)
-	rm -f  $(cairo_CLEANFILES)
-	rm -rf $(cairo_CLEANFILES_SPLIT)
-	rm -f  $(svgcairo_CLEANFILES)
-	rm -rf $(svgcairo_CLEANFILES_SPLIT)
-	rm -f  $(gtkglext_CLEANFILES)
-	rm -rf $(gtkglext_CLEANFILES_SPLIT)
-	rm -f  $(soegtk_CLEANFILES)
-	rm -rf $(soegtk_CLEANFILES_SPLIT)
-	rm -f  $(gnomevfs_CLEANFILES)
-	rm -rf $(gnomevfs_CLEANFILES_SPLIT)
-	rm -f  $(doc_CLEANFILES)
+	rm -f $(c2hs_CLEANFILES)
+	rm -f $(glib_CLEANFILES)
+	rm -f $(gtk_CLEANFILES)
+	rm -f $(glade_CLEANFILES)
+	rm -f $(gconf_CLEANFILES)
+	rm -f $(sourceview_CLEANFILES)
+	rm -f $(mozembed_CLEANFILES)
+	rm -f $(cairo_CLEANFILES)
+	rm -f $(svgcairo_CLEANFILES)
+	rm -f $(gtkglext_CLEANFILES)
+	rm -f $(soegtk_CLEANFILES)
+	rm -f $(doc_CLEANFILES)
 
 distclean: clean distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
