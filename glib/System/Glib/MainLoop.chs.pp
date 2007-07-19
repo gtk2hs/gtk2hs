@@ -49,7 +49,7 @@ module System.Glib.MainLoop (
   mainContextNew,
   mainContextDefault,
   mainContextIteration,
-  Source,
+  Source(..),
   sourceAttach,
   sourceSetPriority,
   sourceGetPriority
