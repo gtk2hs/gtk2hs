@@ -11,6 +11,8 @@
 static void         gtk2hs_store_init            (Gtk2HsStore      *pkg_tree);
 static void         gtk2hs_store_class_init      (Gtk2HsStoreClass *klass);
 static void         gtk2hs_store_tree_model_init (GtkTreeModelIface *iface);
+static void         gtk2hs_store_tree_drag_source_init (GtkTreeDragSourceIface *iface);
+static void         gtk2hs_store_tree_drag_dest_init (GtkTreeDragDestIface *iface);
 static void         gtk2hs_store_finalize        (GObject           *object);
 static GtkTreeModelFlags gtk2hs_store_get_flags  (GtkTreeModel      *tree_model);
 static gint         gtk2hs_store_get_n_columns   (GtkTreeModel      *tree_model);
@@ -45,7 +47,39 @@ static void         gtk2hs_store_ref_node        (GtkTreeModel      *tree_model,
                                                   GtkTreeIter       *iter);
 static void         gtk2hs_store_unref_node      (GtkTreeModel      *tree_model,
                                                   GtkTreeIter       *iter);
+/* The TreeSortable interface is currently not implemented and may never be.
+static gbooelan     gtk2hs_store_get_sort_column_id     (GtkTreeSortable        *sortable,
+                                                         gint                   sort_column_id,
+                                                         GtkSortType            *order);
+static void         gtk2hs_store_set_sort_column_id     (GtkTreeSortable        *sortable,
+                                                         gint                   sort_column_id,
+                                                         GtkSortType            order);
+static void	    gtk2hs_store_set_sort_func		(GtkTreeSortable        *sortable,
+                                                         gint                   sort_column_id,
+                                                         GtkTreeIterCompareFunc func,
+                                                         gpointer               data,
+                                                         GtkDestroyNotify       destroy);
+static void         gtk2hs_store_set_default_sort_func  (GtkTreeSortable        *sortable,
+                                                         GtkTreeIterCompareFunc func,
+                                                         gpointer               data,
+                                                         GtkDestroyNotify       destroy);
+static gboolean     gtk2hs_store_has_default_sort_func  (GtkTreeSortable        *sortable);
+*/
 
+static gboolean     gtk2hs_store_row_draggable          (GtkTreeDragSource      *drag_source,
+                                                         GtkTreePath            *path);
+static gboolean     gtk2hs_store_drag_data_get          (GtkTreeDragSource      *drag_source,
+                                                         GtkTreePath            *path,
+                                                         GtkSelectionData       *selection_data);
+static gboolean     gtk2hs_store_drag_data_delete       (GtkTreeDragSource      *drag_source,
+                                                         GtkTreePath            *path);
+static gboolean     gtk2hs_store_drag_data_received     (GtkTreeDragDest        *drag_dest,
+                                                         GtkTreePath            *dest_path,
+                                                         GtkSelectionData       *selection_data);
+static gboolean     gtk2hs_store_row_drop_possible      (GtkTreeDragDest        *drag_dest,
+                                                         GtkTreePath            *dest_path,
+                                                         GtkSelectionData       *selection_data);
+                                                                                          
 static GObjectClass *parent_class = NULL;
 
 
@@ -84,6 +118,28 @@ gtk2hs_store_get_type (void)
       NULL
     };
 
+/* The TreeSortable interface is currently not implemented.
+    static const GInterfaceInfo tree_sortable_info =
+    {
+      (GInterfaceInitFunc) gtk2hs_store_tree_sortable_init,
+      NULL,
+      NULL
+    };
+*/
+    static const GInterfaceInfo tree_drag_source_info =
+    {
+      (GInterfaceInitFunc) gtk2hs_store_tree_drag_source_init,
+      NULL,
+      NULL
+    };
+
+    static const GInterfaceInfo tree_drag_dest_info =
+    {
+      (GInterfaceInitFunc) gtk2hs_store_tree_drag_dest_init,
+      NULL,
+      NULL
+    };
+
     gtk2hs_store_type = g_type_register_static (G_TYPE_OBJECT, "Gtk2HsStore",
                                                &gtk2hs_store_info,
                                                (GTypeFlags) 0);
@@ -91,6 +147,20 @@ gtk2hs_store_get_type (void)
     g_type_add_interface_static (gtk2hs_store_type,
                                  GTK_TYPE_TREE_MODEL,
                                  &tree_model_info);
+                                 
+/* The TreeSortable interface is currently not implemented.
+    g_type_add_interface_static (gtk2hs_store_type,
+                                 GTK_TYPE_TREE_SORTABLE,
+                                 &tree_sortable_info);
+*/
+                                 
+    g_type_add_interface_static (gtk2hs_store_type,
+                                 GTK_TYPE_TREE_DRAG_SOURCE,
+                                 &tree_drag_source_info);
+                                 
+    g_type_add_interface_static (gtk2hs_store_type,
+                                 GTK_TYPE_TREE_DRAG_DEST,
+                                 &tree_drag_dest_info);
   }
 
   return gtk2hs_store_type;
@@ -144,6 +214,59 @@ gtk2hs_store_tree_model_init (GtkTreeModelIface *iface)
   iface->unref_node      = gtk2hs_store_unref_node;
 }
 
+/**
+ *
+ *  gtk2hs_store_tree_sortable_init: init callback for the interface registration
+ *                                   in gtk2hs_store_get_type. Here we override
+ *                                   the GtkTreeSortable interface functions that
+ *                                   we implement.
+ *
+ **/
+/* The TreeSortable interface is currently not implemented.
+static void
+gtk2hs_store_tree_sortable_init (GtkTreeModelIface *iface)
+{
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_tree_sortable_init\t(%p)\n", iface));
+  iface->get_sort_column_id     = gtk2hs_store_get_sort_column_id;
+  iface->set_sort_column_id     = gtk2hs_store_set_sort_column_id;
+  iface->set_sort_func          = gtk2hs_store_set_sort_func;
+  iface->set_default_sort_func  = gtk2hs_store_set_default_sort_func;
+  iface->has_default_sort_func  = gtk2hs_store_has_default_sort_func;
+}
+*/
+
+/**
+ *
+ *  gtk2hs_store_tree_drag_source_init: init callback for the interface registration
+ *                                      in gtk2hs_store_get_type. Here we override
+ *                                      the GtkTreeDragSource interface functions that
+ *                                      we implement.
+ *
+ **/
+static void
+gtk2hs_store_tree_drag_source_init (GtkTreeDragSourceIface *iface)
+{
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_tree_drag_source_init\t(%p)\n", iface));
+  iface->row_draggable          = gtk2hs_store_row_draggable;
+  iface->drag_data_get          = gtk2hs_store_drag_data_get;
+  iface->drag_data_delete       = gtk2hs_store_drag_data_delete;
+}
+
+/**
+ *
+ *  gtk2hs_store_tree_drag_dest_init: init callback for the interface registration
+ *                                    in gtk2hs_store_get_type. Here we override
+ *                                    the GtkTreeDragDest interface functions that
+ *                                    we implement.
+ *
+ **/
+static void
+gtk2hs_store_tree_drag_dest_init (GtkTreeDragDestIface *iface)
+{
+  WHEN_DEBUG(g_debug("calling gtk2hs_store_tree_drag_dest_init\t(%p)\n", iface));
+  iface->drag_data_received     = gtk2hs_store_drag_data_received;
+  iface->row_drop_possible      = gtk2hs_store_row_drop_possible;
+}
 
 /**
  *
@@ -498,6 +621,92 @@ gtk2hs_store_unref_node (GtkTreeModel *tree_model,
   g_return_if_fail (iter->stamp == store->stamp);
 
   gtk2hs_store_unref_node_impl(store->impl, iter);
+}
+
+static gboolean
+gtk2hs_store_row_draggable (GtkTreeDragSource *drag_source,
+                            GtkTreePath       *path) {
+  WHEN_DEBUG(
+    gchar *path_str = gtk_tree_path_to_string(path);
+    g_debug("calling gtk2hs_store_row_draggable\t\t(%p, \"%s\")\n", drag_source, path_str);
+    g_free(path_str);
+  )
+  Gtk2HsStore *store = (Gtk2HsStore *) drag_source;
+  g_return_val_if_fail (GTK2HS_IS_STORE (drag_source), FALSE);
+                    
+  gboolean result = gtk2hs_store_row_draggable_impl(store->impl, path);
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_row_draggable\t\t=%s\n", result ? "TRUE" : "FALSE"));
+  return result;
+}
+
+static gboolean
+gtk2hs_store_drag_data_get (GtkTreeDragSource *drag_source,
+                            GtkTreePath       *path,
+                            GtkSelectionData  *selection_data) {
+  WHEN_DEBUG(
+    gchar *path_str = gtk_tree_path_to_string(path);
+    g_debug("calling gtk2hs_store_drag_data_get\t\t(%p, \"%s\", %p)\n", drag_source, path_str, selection_data);
+    g_free(path_str);
+  )
+  Gtk2HsStore *store = (Gtk2HsStore *) drag_source;
+  g_return_val_if_fail (GTK2HS_IS_STORE (drag_source), FALSE);
+  g_return_val_if_fail (selection_data!=NULL, FALSE);
+  
+  gboolean result = gtk2hs_store_drag_data_get_impl(store->impl, path, selection_data);
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_drag_data_get\t\t=%s\n", result ? "TRUE" : "FALSE"));
+  return result;
+}
+
+static gboolean
+gtk2hs_store_drag_data_delete (GtkTreeDragSource *drag_source,
+                               GtkTreePath       *path) {
+  WHEN_DEBUG(
+    gchar *path_str = gtk_tree_path_to_string(path);
+    g_debug("calling gtk2hs_store_drag_data_delete\t\t(%p, \"%s\")\n", drag_source, path_str);
+    g_free(path_str);
+  )
+  Gtk2HsStore *store = (Gtk2HsStore *) drag_source;
+  g_return_val_if_fail (GTK2HS_IS_STORE (drag_source), FALSE);
+
+  gboolean result = gtk2hs_store_drag_data_delete_impl(store->impl, path);
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_drag_data_delete\t\t=%s\n", result ? "TRUE" : "FALSE"));
+  return result;
+}
+
+static gboolean
+gtk2hs_store_drag_data_received (GtkTreeDragDest  *drag_dest,
+                                 GtkTreePath      *dest_path,
+                                 GtkSelectionData *selection_data) {
+  WHEN_DEBUG(
+    gchar *path_str = gtk_tree_path_to_string(dest_path);
+    g_debug("calling gtk2hs_store_drag_data_received\t\t(%p, \"%s\", %p)\n", drag_dest, path_str, selection_data);
+    g_free(path_str);
+  )
+  Gtk2HsStore *store = (Gtk2HsStore *) drag_dest;
+  g_return_val_if_fail (GTK2HS_IS_STORE (drag_dest), FALSE);
+  g_return_val_if_fail (selection_data!=NULL, FALSE);
+
+  gboolean result = gtk2hs_store_drag_data_received_impl(store->impl, dest_path, selection_data);
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_drag_data_received\t\t=%s\n", result ? "TRUE" : "FALSE"));
+  return result;
+}
+
+static gboolean
+gtk2hs_store_row_drop_possible (GtkTreeDragDest  *drag_dest,
+                                GtkTreePath      *dest_path,
+                                GtkSelectionData *selection_data) {
+  WHEN_DEBUG(
+    gchar *path_str = gtk_tree_path_to_string(dest_path);
+    g_debug("calling gtk2hs_store_row_drop_possible\t\t(%p, \"%s\", %p)\n", drag_dest, path_str, selection_data);
+    g_free(path_str);
+  )
+  Gtk2HsStore *store = (Gtk2HsStore *) drag_dest;
+  g_return_val_if_fail (GTK2HS_IS_STORE (drag_dest), FALSE);
+  g_return_val_if_fail (selection_data!=NULL, FALSE);
+
+  gboolean result = gtk2hs_store_row_drop_possible_impl(store->impl, dest_path, selection_data);
+  WHEN_DEBUG(g_debug("return  gtk2hs_store_row_drop_possible\t\t=%s\n", result ? "TRUE" : "FALSE"));
+  return result;
 }
 
 /**

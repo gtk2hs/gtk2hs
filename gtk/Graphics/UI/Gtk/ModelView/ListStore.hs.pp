@@ -72,39 +72,37 @@ instance GObjectClass (ListStore a) where
 listStoreNew :: [a] -> IO (ListStore a)
 listStoreNew xs = do
   rows <- newIORef (Seq.fromList xs)
-  cMap <- columnMapNew
 
-  liftM ListStore $ customTreeModelNew rows CustomTreeModelImplementation {
-      customTreeModelGetFlags      = return [TreeModelListOnly],
-      customTreeModelColumns	   = cMap,
-      customTreeModelGetIter       = \[n] -> readIORef rows >>= \rows ->
+  liftM ListStore $ customTreeModelNew rows TreeModelIface {
+      treeModelIfaceGetFlags      = return [TreeModelListOnly],
+      treeModelIfaceGetIter       = \[n] -> readIORef rows >>= \rows ->
                                      return (if Seq.null rows then Nothing else
                                              Just (TreeIter 0 (fromIntegral n) 0 0)),
-      customTreeModelGetPath       = \(TreeIter _ n _ _) -> return [fromIntegral n],
-      customTreeModelGetRow        = \(TreeIter _ n _ _) ->
+      treeModelIfaceGetPath       = \(TreeIter _ n _ _) -> return [fromIntegral n],
+      treeModelIfaceGetRow        = \(TreeIter _ n _ _) ->
                                  readIORef rows >>= \rows -> 
                                  if inRange (0, Seq.length rows - 1) (fromIntegral n)
                                    then return (rows `Seq.index` fromIntegral n)
                                    else fail "ListStore.getRow: iter does not refer to a valid entry",
 
-      customTreeModelIterNext      = \(TreeIter _ n _ _) ->
+      treeModelIfaceIterNext      = \(TreeIter _ n _ _) ->
                                  readIORef rows >>= \rows ->
                                  if inRange (0, Seq.length rows - 1) (fromIntegral (n+1))
                                    then return (Just (TreeIter 0 (n+1) 0 0))
                                    else return Nothing,
-      customTreeModelIterChildren  = \_ -> return Nothing,
-      customTreeModelIterHasChild  = \_ -> return False,
-      customTreeModelIterNChildren = \index -> readIORef rows >>= \rows ->
+      treeModelIfaceIterChildren  = \_ -> return Nothing,
+      treeModelIfaceIterHasChild  = \_ -> return False,
+      treeModelIfaceIterNChildren = \index -> readIORef rows >>= \rows ->
                                            case index of
                                              Nothing -> return $! Seq.length rows
                                              _       -> return 0,
-      customTreeModelIterNthChild  = \index n -> case index of
+      treeModelIfaceIterNthChild  = \index n -> case index of
                                                Nothing -> return (Just (TreeIter 0 (fromIntegral n) 0 0))
                                                _       -> return Nothing,
-      customTreeModelIterParent    = \_ -> return Nothing,
-      customTreeModelRefNode       = \_ -> return (),
-      customTreeModelUnrefNode     = \_ -> return ()
-    }
+      treeModelIfaceIterParent    = \_ -> return Nothing,
+      treeModelIfaceRefNode       = \_ -> return (),
+      treeModelIfaceUnrefNode     = \_ -> return ()
+    } Nothing Nothing
 
 -- | Extract the value at the given index.
 --

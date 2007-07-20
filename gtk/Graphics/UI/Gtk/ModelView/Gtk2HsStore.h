@@ -2,6 +2,7 @@
 #define __GTK2HS_STORE_H__
 
 #include <gtk/gtktreemodel.h>
+#include <gtk/gtktreednd.h>
 #include "CustomStore_stub.h"
 
 G_BEGIN_DECLS

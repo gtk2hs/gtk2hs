@@ -102,55 +102,52 @@ treeStoreNew forest = do
         let (result, cache') = f store
         writeIORef storeRef store { content = cache' }
         return result
-  cMap <- columnMapNew
 
-  liftM TreeStore $ customTreeModelNew storeRef CustomTreeModelImplementation {
-    customTreeModelGetFlags = return [],
+  liftM TreeStore $ customTreeModelNew storeRef TreeModelIface {
+    treeModelIfaceGetFlags = return [],
 
-    customTreeModelColumns = cMap,
-
-    customTreeModelGetIter = \path -> withStore $
+    treeModelIfaceGetIter = \path -> withStore $
       \Store { depth = d } -> fromPath d path,
 
-    customTreeModelGetPath = \iter -> withStore $
+    treeModelIfaceGetPath = \iter -> withStore $
       \Store { depth = d } -> toPath d iter,
 
-    customTreeModelGetRow  = \iter -> withStoreUpdateCache $
+    treeModelIfaceGetRow  = \iter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
         case checkSuccess d iter cache of
           (True, cache'@((_, (Node { rootLabel = val }:_)):_)) ->
             (val, cache')
           _ -> error "TreeStore.getRow: iter does not refer to a valid entry",
 
-    customTreeModelIterNext = \iter -> withStoreUpdateCache $
+    treeModelIfaceIterNext = \iter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } -> iterNext d iter cache,
 
-    customTreeModelIterChildren = \mIter -> withStoreUpdateCache $
+    treeModelIfaceIterChildren = \mIter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
       let iter = fromMaybe invalidIter mIter
        in iterNthChild d 0 iter cache,
 
-    customTreeModelIterHasChild = \iter -> withStoreUpdateCache $
+    treeModelIfaceIterHasChild = \iter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
        let (mIter, cache') = iterNthChild d 0 iter cache
         in (isJust mIter, cache'),
 
-    customTreeModelIterNChildren = \mIter -> withStoreUpdateCache $
+    treeModelIfaceIterNChildren = \mIter -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
       let iter = fromMaybe invalidIter mIter
        in iterNChildren d iter cache,
 
-    customTreeModelIterNthChild = \mIter idx  -> withStoreUpdateCache $
+    treeModelIfaceIterNthChild = \mIter idx  -> withStoreUpdateCache $
       \Store { depth = d, content = cache } ->
       let iter = fromMaybe invalidIter mIter
        in iterNthChild d idx iter cache,
 
-    customTreeModelIterParent = \iter -> withStore $
+    treeModelIfaceIterParent = \iter -> withStore $
       \Store { depth = d } -> iterParent d iter,
 
-    customTreeModelRefNode = \_ -> return (),
-    customTreeModelUnrefNode = \_ -> return ()
-   }
+    treeModelIfaceRefNode = \_ -> return (),
+    treeModelIfaceUnrefNode = \_ -> return ()
+   } Nothing Nothing
 
 --------------------------------------------
 -- low level bit-twiddling utility functions
