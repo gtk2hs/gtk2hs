@@ -43,7 +43,7 @@ module Media.Streaming.GStreamer.Message (
   messageParseBuffering,
   messageParseWarning,
   messageParseDuration, 
-  --messageParseAsyncStart
+  
   ) where
 
 import Control.Monad (liftM)
@@ -245,13 +245,3 @@ messageParseDuration message =
                format <- peek formatPtr
                position <- peek positionPtr
                return (toEnum $ fromIntegral format, fromIntegral position)
-
-{-
-messageParseAsyncStart :: Message
-                       -> Bool
-messageParseAsyncStart message =
-    toBool $ unsafePerformIO $ alloca $ \newBaseTimePtr ->
-        do poke newBaseTimePtr $ fromBool False
-           {# call message_parse_async_start #} message newBaseTimePtr
-           peek newBaseTimePtr
--}
