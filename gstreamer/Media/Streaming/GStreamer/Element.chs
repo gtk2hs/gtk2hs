@@ -502,7 +502,7 @@ afterElementNoMorePads =
 
 onElementPadAdded, afterElementPadAdded :: (ElementClass element)
                                         => element
-                                        -> (GObject -> IO ())
+                                        -> (Pad -> IO ())
                                         -> IO (ConnectId element)
 onElementPadAdded =
     connect_OBJECT__NONE "pad-added" False
@@ -511,7 +511,7 @@ afterElementPadAdded =
 
 onElementPadRemoved, afterElementPadRemoved :: (ElementClass element)
                                             => element
-                                            -> (GObject -> IO ())
+                                            -> (Pad -> IO ())
                                             -> IO (ConnectId element)
 onElementPadRemoved =
     connect_OBJECT__NONE "pad-removed" False
