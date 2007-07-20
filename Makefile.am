@@ -1850,7 +1850,11 @@ libHSgstreamer_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFL
 
 libHSgstreamer_a_SOURCESDIRS		= gstreamer
 
-libHSgstreamer_a_LIBADD			=
+libHSgstreamer_a_LIBADD			=			\
+	gstreamer/Media/Streaming/GStreamer/Bus_stub.o		\
+	gstreamer/Media/Streaming/GStreamer/Index_stub.o	\
+	gstreamer/Media/Streaming/GStreamer/Iterator_stub.o	\
+	gstreamer/Media/Streaming/GStreamer/Registry_stub.o
 
 gstreamer/libHSgstreamer_a.deps	: glib/libHSglib_a.deps
 
