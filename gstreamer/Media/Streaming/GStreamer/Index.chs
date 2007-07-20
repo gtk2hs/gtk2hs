@@ -16,6 +16,28 @@
 --  Library General Public License for more details.
 --
 module Media.Streaming.GStreamer.Index (
+  
+  Index,
+  IndexClass,
+  castToIndex,
+  toIndex,
+  fromIndex,
+  indexNew,
+  indexCommit,
+  indexGetGroup,
+  indexNewGroup,
+  indexSetGroup,
+  indexSetCertainty,
+  indexSetFilter,
+  indexGetWriterId,
+  indexAddFormat,
+  indexAddAssociations,
+  indexAddId,
+  indexGetAssocEntry,
+  indexEntryAssocMap,
+  onIndexEntryAdded,
+  afterIndexEntryAdded,
+  
   ) where
 
 import Control.Monad (liftM)

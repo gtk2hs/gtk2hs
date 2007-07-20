@@ -16,6 +16,48 @@
 --  Library General Public License for more details.
 --
 module Media.Streaming.GStreamer.TagList (
+  
+  StandardTag(..),
+  standardTagToString,
+  tagNick,
+  tagDescription,
+  tagGetFlag,
+  tagIsFixed,
+  tagListEmpty,
+  tagListIsEmpty,
+  tagListMerge,
+  tagListGetTagSize,
+  tagListCreate,
+  tagListModify,
+  tagListInsert,
+  tagListRemoveTag,
+  tagListGetChar,
+  tagListGetCharIndex,
+  tagListGetUChar,
+  tagListGetUCharIndex,
+  tagListGetBool,
+  tagListGetBoolIndex,
+  tagListGetInt,
+  tagListGetIntIndex,
+  tagListGetUInt,
+  tagListGetUIntIndex,
+  tagListGetLong,
+  tagListGetLongIndex,
+  tagListGetULong,
+  tagListGetULongIndex,
+  tagListGetInt64,
+  tagListGetInt64Index,
+  tagListGetUInt64,
+  tagListGetUInt64Index,
+  tagListGetFloat,
+  tagListGetFloatIndex,
+  tagListGetDouble,
+  tagListGetDoubleIndex,
+  tagListGetString,
+  tagListGetStringIndex,
+  tagListGetDate,
+  tagListGetDateIndex
+  
   ) where
 
 import Control.Monad (liftM)

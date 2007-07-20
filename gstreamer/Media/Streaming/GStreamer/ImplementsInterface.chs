@@ -18,6 +18,9 @@
 module Media.Streaming.GStreamer.ImplementsInterface (
   ImplementsInterface,
   ImplementsInterfaceClass,
+  castToImplementsInterface,
+  toImplementsInterface,
+  fromImplementsInterface,
   elementImplementsInterface
   ) where
 

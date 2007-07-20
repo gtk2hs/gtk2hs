@@ -18,8 +18,12 @@
 --  Library General Public License for more details.
 --
 module Media.Streaming.GStreamer.Bus (
+  
   Bus,
   BusClass,
+  castToBus,
+  toBus,
+  fromBus,
   busNew,
   busPost,
   busHavePending,

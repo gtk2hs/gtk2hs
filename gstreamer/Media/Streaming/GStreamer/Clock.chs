@@ -16,6 +16,27 @@
 --  Library General Public License for more details.
 --
 module Media.Streaming.GStreamer.Clock (
+  
+  Clock,
+  ClockClass,
+  castToClock,
+  toClock,
+  fromClock,
+  clockAddObservation,
+  clockSetMaster,
+  clockGetMaster,
+  clockSetResolution,
+  clockGetResolution,
+  clockGetTime,
+  clockNewSingleShotID,
+  clockNewPeriodicID,
+  clockGetInternalTime,
+  clockGetCalibration,
+  clockSetCalibration,
+  clockIDGetTime,
+  clockIDWait,
+  clockIDUnschedule
+  
   ) where
 
 import Control.Monad (liftM, liftM4)

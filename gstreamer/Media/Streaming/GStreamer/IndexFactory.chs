@@ -16,7 +16,12 @@
 --  Library General Public License for more details.
 --
 module Media.Streaming.GStreamer.IndexFactory (
+  
   IndexFactory,
+  IndexFactoryClass,
+  castToIndexFactory,
+  toIndexFactory,
+  fromIndexFactory,
   indexFactoryFind,
   indexFactoryCreate,
   indexFactoryMake

@@ -16,7 +16,9 @@
 --  Library General Public License for more details.
 --
 module Media.Streaming.GStreamer.Segment (
+  
   Segment(..),
+  
   segmentClip,
   segmentSetDuration,
   segmentSetLastStop,
@@ -24,6 +26,7 @@ module Media.Streaming.GStreamer.Segment (
   segmentSetSeek,
   segmentToRunningTime,
   segmentToStreamTime
+  
   ) where
 
 {# context lib = "gstreamer" prefix = "gst" #}

@@ -16,6 +16,42 @@
 --  Library General Public License for more details.
 --
 module Media.Streaming.GStreamer.Registry (
+  
+  Registry,
+  RegistryClass,
+  castToRegistry,
+  toRegistry,
+  fromRegistry,
+  defaultRegistry,
+  registryGetFeatureList,
+  registryGetFeatureListByPlugin,
+  registryGetPathList,
+  registryGetPluginList,
+  registryAddPlugin,
+  registryRemovePlugin,
+  registryPluginFilter,
+  registryFeatureFilter,
+  registryFindPlugin,
+  registryFindFeature,
+  registryLookupFeature,
+  registryScanPath,
+  registryXMLReadCache,
+  registryXMLWriteCache,
+  registryLookup,
+  registryRemoveFeature,
+  registryAddFeature,
+  defaultRegistryCheckFeatureVersion,
+  defaultRegistryGetPathList,
+  defaultRegistryAddPlugin,
+  defaultRegistryScanPath,
+  defaultRegistryFindPlugin,
+  defaultRegistryFindFeature,
+  defaultRegistryFeatureFilter,
+  onRegistryFeatureAdded,
+  afterRegistryFeatureAdded,
+  onRegistryPluginAdded,
+  afterRegistryPluginAdded
+  
   ) where
 
 import Control.Monad (liftM)

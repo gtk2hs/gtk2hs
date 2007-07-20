@@ -16,7 +16,13 @@
 --  Library General Public License for more details.
 --
 module Media.Streaming.GStreamer.Message (
+  
   Message,
+  MessageClass,
+  castToMessage,
+  toMessage,
+  fromMessage,
+  MessageType(..),
   messageTypeGetName,
   messageTypeToQuark,
   messageSrc,

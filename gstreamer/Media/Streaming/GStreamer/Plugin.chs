@@ -18,6 +18,9 @@
 module Media.Streaming.GStreamer.Plugin (
   Plugin,
   PluginClass,
+  castToPlugin,
+  toPlugin,
+  fromPlugin,
   pluginGetName,
   pluginGetDescription,
   pluginGetFilename,
