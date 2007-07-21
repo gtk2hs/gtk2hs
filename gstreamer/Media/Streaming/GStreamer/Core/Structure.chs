@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Structure (
+module Media.Streaming.GStreamer.Core.Structure (
   Structure,
   structureEmpty,
   structureToString,
@@ -55,7 +55,7 @@ import Data.Ratio ( (%)
                   , denominator
                   )
 import Control.Monad (liftM)
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.UTFString
 import System.Glib.FFI
 {#import System.Glib.GDateTime#}

@@ -17,7 +17,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.GhostPad (
+module Media.Streaming.GStreamer.Core.GhostPad (
   
   GhostPad,
   GhostPadClass,
@@ -36,7 +36,7 @@ module Media.Streaming.GStreamer.GhostPad (
 import Control.Monad (liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 

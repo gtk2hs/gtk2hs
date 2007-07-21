@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Index (
+module Media.Streaming.GStreamer.Core.Index (
   
   Index,
   IndexClass,
@@ -41,8 +41,8 @@ module Media.Streaming.GStreamer.Index (
   ) where
 
 import Control.Monad (liftM)
-{#import Media.Streaming.GStreamer.Types#}
-{#import Media.Streaming.GStreamer.Signals#}
+{#import Media.Streaming.GStreamer.Core.Types#}
+{#import Media.Streaming.GStreamer.Core.Signals#}
 import System.Glib.Flags
 import System.Glib.FFI
 import System.Glib.UTFString

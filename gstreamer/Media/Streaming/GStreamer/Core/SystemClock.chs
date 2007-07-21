@@ -15,25 +15,20 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.ImplementsInterface (
-  ImplementsInterface,
-  ImplementsInterfaceClass,
-  castToImplementsInterface,
-  toImplementsInterface,
-  fromImplementsInterface,
-  elementImplementsInterface
+module Media.Streaming.GStreamer.Core.SystemClock (
+  SystemClock,
+  SystemClockClass,
+  toSystemClock,
+  fromSystemClock,
+  castToSystemClock,
+  systemClockObtain
   ) where
 
-import Control.Monad (liftM)
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
-{#import System.Glib.GType#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
-elementImplementsInterface :: ElementClass element
-                           => element
-                           -> GType
-                           -> IO Bool
-elementImplementsInterface element ifaceType =
-    liftM toBool $ {# call element_implements_interface #} (toElement element) ifaceType
+systemClockObtain :: IO Clock
+systemClockObtain =
+    {# call system_clock_obtain #} >>= newClock

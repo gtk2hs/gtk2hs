@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Clock (
+module Media.Streaming.GStreamer.Core.Clock (
   
   Clock,
   ClockClass,
@@ -40,7 +40,7 @@ module Media.Streaming.GStreamer.Clock (
   ) where
 
 import Control.Monad (liftM, liftM4)
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
 
 {# context lib = "gstreamer" prefix = "gst" #}

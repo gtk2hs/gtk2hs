@@ -17,7 +17,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Format (
+module Media.Streaming.GStreamer.Core.Format (
   
   Format(..),
   formatGetName,
@@ -30,7 +30,7 @@ module Media.Streaming.GStreamer.Format (
   
   ) where
 
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 

@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Pipeline (
+module Media.Streaming.GStreamer.Core.Pipeline (
   Pipeline,
   PipelineClass,
   castToPipeline,
@@ -34,7 +34,7 @@ module Media.Streaming.GStreamer.Pipeline (
   ) where
 
 import Control.Monad (liftM)
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.UTFString
 import System.Glib.FFI
 

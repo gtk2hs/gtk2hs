@@ -15,9 +15,9 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Types (
+module Media.Streaming.GStreamer.Core.Types (
   
-  module Media.Streaming.GStreamer.Hierarchy,
+  module Media.Streaming.GStreamer.Core.Hierarchy,
   
   FourCC,
   Fraction,
@@ -266,7 +266,7 @@ import System.Glib.Flags
 {#import System.Glib.GValue#}
 import System.Glib.UTFString
 import GHC.Base            ( unsafeCoerce# )
-{#import Media.Streaming.GStreamer.Hierarchy#}
+{#import Media.Streaming.GStreamer.Core.Hierarchy#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 

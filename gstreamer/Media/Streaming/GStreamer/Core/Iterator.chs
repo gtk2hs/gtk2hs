@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Iterator (
+module Media.Streaming.GStreamer.Core.Iterator (
   
   Iterator,
   Iteratable,
@@ -32,7 +32,7 @@ module Media.Streaming.GStreamer.Iterator (
   
   ) where
 
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 
 import Data.Maybe (fromJust)
 import System.Glib.FFI

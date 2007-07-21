@@ -17,7 +17,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Pad (
+module Media.Streaming.GStreamer.Core.Pad (
   
   Pad,
   PadClass,
@@ -75,8 +75,8 @@ module Media.Streaming.GStreamer.Pad (
 
 import Control.Monad (liftM)
 import Data.Maybe (fromMaybe)
-{#import Media.Streaming.GStreamer.Types#}
-{#import Media.Streaming.GStreamer.Signals#}
+{#import Media.Streaming.GStreamer.Core.Types#}
+{#import Media.Streaming.GStreamer.Core.Signals#}
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList

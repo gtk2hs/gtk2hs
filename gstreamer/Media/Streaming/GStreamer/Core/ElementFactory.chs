@@ -17,7 +17,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.ElementFactory (
+module Media.Streaming.GStreamer.Core.ElementFactory (
   
   ElementFactory,
   ElementFactoryClass,
@@ -45,7 +45,7 @@ import System.Glib.UTFString ( withUTFString
                              , peekUTFString
                              , peekUTFStringArray0 )
 import System.Glib.GType     ( GType )
-{# import Media.Streaming.GStreamer.Types #}
+{# import Media.Streaming.GStreamer.Core.Types #}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 

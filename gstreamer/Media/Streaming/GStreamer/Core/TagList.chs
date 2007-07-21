@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.TagList (
+module Media.Streaming.GStreamer.Core.TagList (
   
   StandardTag(..),
   standardTagToString,
@@ -61,7 +61,7 @@ module Media.Streaming.GStreamer.TagList (
   ) where
 
 import Control.Monad (liftM)
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import System.Glib.GDateTime#}

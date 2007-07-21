@@ -17,7 +17,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Init (
+module Media.Streaming.GStreamer.Core.Init (
   init,
   initCheck,
   deinit,

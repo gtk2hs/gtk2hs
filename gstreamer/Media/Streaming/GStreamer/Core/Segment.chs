@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Segment (
+module Media.Streaming.GStreamer.Core.Segment (
   
   Segment(..),
   
@@ -34,7 +34,7 @@ module Media.Streaming.GStreamer.Segment (
 import Control.Monad (liftM)
 import System.Glib.FFI
 import System.Glib.Flags
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 
 segmentClip :: Segment
             -> Format

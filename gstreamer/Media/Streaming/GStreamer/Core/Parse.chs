@@ -15,13 +15,13 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Parse (
+module Media.Streaming.GStreamer.Core.Parse (
   parseLaunch,
   parseLaunchFromArgs,
   parseBinFromDescription
   ) where
 
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.GError
 import System.Glib.UTFString
 import System.Glib.FFI

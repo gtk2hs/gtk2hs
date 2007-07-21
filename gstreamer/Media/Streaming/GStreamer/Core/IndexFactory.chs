@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.IndexFactory (
+module Media.Streaming.GStreamer.Core.IndexFactory (
   
   IndexFactory,
   IndexFactoryClass,
@@ -27,7 +27,7 @@ module Media.Streaming.GStreamer.IndexFactory (
   indexFactoryMake
   ) where
 
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
 import System.Glib.UTFString
 

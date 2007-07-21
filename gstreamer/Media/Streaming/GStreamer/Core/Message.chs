@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Message (
+module Media.Streaming.GStreamer.Core.Message (
   
   Message,
   MessageClass,
@@ -47,7 +47,7 @@ module Media.Streaming.GStreamer.Message (
   ) where
 
 import Control.Monad (liftM)
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
 import System.Glib.GObject
 import System.Glib.UTFString

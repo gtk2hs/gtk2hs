@@ -15,7 +15,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.PluginFeature (
+module Media.Streaming.GStreamer.Core.PluginFeature (
   PluginFeature,
   PluginFeatureClass,
   castToPluginFeature,
@@ -26,7 +26,7 @@ module Media.Streaming.GStreamer.PluginFeature (
   ) where
 
 import Control.Monad (liftM)
-{#import Media.Streaming.GStreamer.Types#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
 import GHC.Base (unsafeCoerce#)
 

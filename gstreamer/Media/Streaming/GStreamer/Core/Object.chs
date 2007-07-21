@@ -17,7 +17,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer.Object (
+module Media.Streaming.GStreamer.Core.Object (
 
   Object,
   ObjectClass,
@@ -48,7 +48,7 @@ import System.Glib.FFI
 import System.Glib.GObject
 import System.Glib.UTFString ( withUTFString
                              , readUTFString )
-{# import Media.Streaming.GStreamer.Types #}
+{# import Media.Streaming.GStreamer.Core.Types #}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
