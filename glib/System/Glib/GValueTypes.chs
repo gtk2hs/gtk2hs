@@ -31,6 +31,10 @@ module System.Glib.GValueTypes (
   valueGetUInt,
   valueSetInt,
   valueGetInt,
+  valueSetUInt64,
+  valueGetUInt64,
+  valueSetInt64,
+  valueGetInt64,
 --  valueSetUChar,
 --  valueGetUChar,
 --  valueSetChar,
@@ -85,6 +89,24 @@ valueGetInt :: GValue -> IO Int
 valueGetInt gvalue =
   liftM fromIntegral $
   {# call unsafe value_get_int #} gvalue
+
+valueSetUInt64 :: GValue -> Word64 -> IO ()
+valueSetUInt64 gvalue value =
+  {# call unsafe value_set_uint64 #} gvalue (fromIntegral value)
+
+valueGetUInt64 :: GValue -> IO Word64
+valueGetUInt64 gvalue =
+  liftM fromIntegral $
+  {# call unsafe value_get_uint64 #} gvalue
+
+valueSetInt64 :: GValue -> Int64 -> IO ()
+valueSetInt64 gvalue value =
+  {# call unsafe value_set_int64 #} gvalue (fromIntegral value)
+
+valueGetInt64 :: GValue -> IO Int64
+valueGetInt64 gvalue =
+  liftM fromIntegral $
+  {# call unsafe value_get_int64 #} gvalue
 
 {-
 valueSetUChar :: GValue -> Word8 -> IO ()
