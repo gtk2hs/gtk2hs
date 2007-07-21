@@ -276,7 +276,8 @@ structureSetClockTime :: String
                       -> ClockTime
                       -> StructureM ()
 structureSetClockTime =
-    marshalStructureSet {# call g_value_set_uint64 #}
+    marshalStructureSet $ \gValue clockTime ->
+        {# call g_value_set_uint64 #} gValue $ fromIntegral clockTime
 
 structureSetFraction :: String
                      -> Fraction

@@ -39,6 +39,10 @@ module Media.Streaming.GStreamer.Core.Clock (
   
   ) where
 
+import Data.Ratio ( Ratio
+                  , (%)
+                  , numerator
+                  , denominator )
 import Control.Monad (liftM, liftM4)
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
@@ -52,7 +56,10 @@ clockAddObservation :: ClockClass clock
                     -> IO (Maybe Double)
 clockAddObservation clock slave master =
     alloca $ \rSquaredPtr ->
-        do success <- {# call clock_add_observation #} (toClock clock) slave master rSquaredPtr
+        do success <- {# call clock_add_observation #} (toClock clock)
+                                                       (fromIntegral slave)
+                                                       (fromIntegral master)
+                                                       rSquaredPtr
            if toBool success
                then liftM (Just . realToFrac) $ peek rSquaredPtr
                else return Nothing
@@ -74,27 +81,32 @@ clockSetResolution :: ClockClass clock
                    => clock
                    -> ClockTime
                    -> IO ClockTime
-clockSetResolution =
-    {# call clock_set_resolution #} . toClock
+clockSetResolution clock resolution =
+    liftM fromIntegral $
+        {# call clock_set_resolution #} (toClock clock)
+                                        (fromIntegral resolution)
 
 clockGetResolution :: ClockClass clock
                    => clock
                    -> IO ClockTime
-clockGetResolution =
-    {# call clock_get_resolution #} . toClock
+clockGetResolution clock =
+    liftM fromIntegral $
+        {# call clock_get_resolution #} (toClock clock)
 
 clockGetTime :: ClockClass clock
              => clock
              -> IO ClockTime
-clockGetTime =
-    {# call clock_get_time #} . toClock
+clockGetTime clock =
+    liftM fromIntegral $
+        {# call clock_get_time #} (toClock clock)
 
 clockNewSingleShotID :: ClockClass clock
                      => clock
                      -> ClockTime
                      -> IO ClockID
 clockNewSingleShotID clock time =
-    {# call clock_new_single_shot_id #} (toClock clock) time >>=
+    {# call clock_new_single_shot_id #} (toClock clock)
+                                        (fromIntegral time) >>=
         newClockID . castPtr
 
 clockNewPeriodicID :: ClockClass clock
@@ -103,18 +115,21 @@ clockNewPeriodicID :: ClockClass clock
                    -> ClockTime
                    -> IO ClockID
 clockNewPeriodicID clock startTime interval =
-    {# call clock_new_periodic_id #} (toClock clock) startTime interval >>=
+    {# call clock_new_periodic_id #} (toClock clock)
+                                     (fromIntegral startTime)
+                                     (fromIntegral interval) >>=
         newClockID . castPtr
 
 clockGetInternalTime :: ClockClass clock
                      => clock
                      -> IO ClockTime
-clockGetInternalTime =
-    {# call clock_get_internal_time #} . toClock
+clockGetInternalTime clock =
+    liftM fromIntegral $
+        {# call clock_get_internal_time #} (toClock clock)
 
 clockGetCalibration :: ClockClass clock
                     => clock
-                    -> IO (ClockTime, ClockTime, ClockTime, ClockTime)
+                    -> IO (ClockTime, ClockTime, Ratio ClockTime)
 clockGetCalibration clock =
     alloca $ \internalPtr ->
         alloca $ \externalPtr ->
@@ -125,7 +140,10 @@ clockGetCalibration clock =
                                                         externalPtr
                                                         rateNumPtr
                                                         rateDenomPtr
-                       liftM4 (\a b c d -> (a, b, c, d))
+                       liftM4 (\a b c d ->
+                               (fromIntegral a,
+                                fromIntegral b,
+                                (fromIntegral c) % (fromIntegral d)))
                               (peek internalPtr)
                               (peek externalPtr)
                               (peek rateNumPtr)
@@ -135,16 +153,20 @@ clockSetCalibration :: ClockClass clock
                     => clock
                     -> ClockTime
                     -> ClockTime
-                    -> ClockTime
-                    -> ClockTime
+                    -> Ratio ClockTime
                     -> IO ()
-clockSetCalibration =
-    {# call clock_set_calibration #} . toClock
+clockSetCalibration clock internal external rate =
+    {# call clock_set_calibration #} (toClock clock)
+                                     (fromIntegral internal)
+                                     (fromIntegral external)
+                                     (fromIntegral $ numerator rate)
+                                     (fromIntegral $ denominator rate)
 
 clockIDGetTime :: ClockID
                -> IO ClockTime
 clockIDGetTime clockID =
-    withClockID clockID $ {# call clock_id_get_time #} . castPtr
+    liftM fromIntegral $ withClockID clockID $
+        {# call clock_id_get_time #} . castPtr
 
 clockIDWait :: ClockID
             -> IO (ClockReturn, ClockTimeDiff)
@@ -153,7 +175,7 @@ clockIDWait clockID =
         do result <- withClockID clockID $ \clockIDPtr ->
                          {# call clock_id_wait #} (castPtr clockIDPtr) jitterPtr
            jitter <- peek jitterPtr
-           return $ (toClockReturn result, jitter)
+           return $ (toClockReturn result, fromIntegral jitter)
 
 clockIDUnschedule :: ClockID
                   -> IO ()

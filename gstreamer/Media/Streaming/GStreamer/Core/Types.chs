@@ -646,8 +646,8 @@ instance Enum ClockFlags where
     fromEnum ClockCanSetMaster       = shiftL objectFlagLast 5
 instance Flags ClockFlags
 
-type ClockTime = {# type GstClockTime #}
-type ClockTimeDiff = {# type GstClockTimeDiff #}
+type ClockTime = Word64
+type ClockTimeDiff = Int64
 
 {# enum GstClockReturn as ClockReturn {underscoreToCase} with prefix = "GST" deriving (Eq) #}
 toClockReturn int = (toEnum $ fromIntegral int) :: ClockReturn

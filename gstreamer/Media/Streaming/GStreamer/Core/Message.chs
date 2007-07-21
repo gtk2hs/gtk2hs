@@ -76,7 +76,7 @@ messageSrc message =
 messageTimestamp :: Message
                  -> ClockTime
 messageTimestamp message =
-    unsafePerformIO $ withMessage message {# get GstMessage->timestamp #}
+    fromIntegral $ unsafePerformIO $ withMessage message {# get GstMessage->timestamp #}
 
 messageType :: Message
             -> MessageType

@@ -72,13 +72,15 @@ pipelineSetNewStreamTime :: PipelineClass pipeline
                          -> ClockTime
                          -> IO ()
 pipelineSetNewStreamTime pipeline time =
-    {# call pipeline_set_new_stream_time #} (toPipeline pipeline) time
+    {# call pipeline_set_new_stream_time #} (toPipeline pipeline)
+                                            (fromIntegral time)
 
 pipelineGetLastStreamTime :: PipelineClass pipeline
                           => pipeline
                           -> IO ClockTime
-pipelineGetLastStreamTime =
-    {# call pipeline_get_last_stream_time #} . toPipeline
+pipelineGetLastStreamTime pipeline =
+    liftM fromIntegral $
+        {# call pipeline_get_last_stream_time #} (toPipeline pipeline)
 
 pipelineSetAutoFlushBus :: PipelineClass pipeline
                         => pipeline
@@ -99,10 +101,12 @@ pipelineSetDelay :: PipelineClass pipeline
                  -> ClockTime
                  -> IO ()
 pipelineSetDelay pipeline delay =
-    {# call pipeline_set_delay #} (toPipeline pipeline) delay
+    {# call pipeline_set_delay #} (toPipeline pipeline)
+                                  (fromIntegral delay)
 
 pipelineGetDelay :: PipelineClass pipeline
                  => pipeline
                  -> IO ClockTime
 pipelineGetDelay pipeline =
-    {# call pipeline_get_delay #} (toPipeline pipeline)
+    liftM fromIntegral $
+        {# call pipeline_get_delay #} (toPipeline pipeline)
