@@ -29,6 +29,7 @@ module Media.Streaming.GStreamer.Core.Types (
   
   ObjectFlags(..),
   withObject,
+  isObject,
   newObject,
   newObject_,
   giveObject,
@@ -42,26 +43,32 @@ module Media.Streaming.GStreamer.Core.Types (
   FlowReturn(..),
   ActivateMode(..),
   withPad,
+  isPad,
   newPad,
   newPad_,
   
   withGhostPad,
+  isGhostPad,
   newGhostPad,
   newGhostPad_,
 
   withPluginFeature,
+  isPluginFeature,
   newPluginFeature,
   newPluginFeature_,
 
   withElementFactory,
+  isElementFactory,
   newElementFactory,
   newElementFactory_,
   
   withTypeFindFactory,
+  isTypeFindFactory,
   newTypeFindFactory,
   newTypeFindFactory_,
   
   withIndexFactory,
+  isIndexFactory,
   newIndexFactory,
   newIndexFactory_,
   
@@ -74,24 +81,39 @@ module Media.Streaming.GStreamer.Core.Types (
   fromSeekType,
   toSeekType,
   withElement,
+  isElement,
   newElement,
   newElement_,
   
+  withImplementsInterface,
+  isImplementsInterface,
+  newImplementsInterface,
+  newImplementsInterface_,
+  
+  withTagSetter,
+  isTagSetter,
+  newTagSetter,
+  newTagSetter_,
+  
   withBin,
+  isBin,
   newBin,
   newBin_,
   
   withPipeline,
+  isPipeline,
   newPipeline,
   newPipeline_,
   
   withPlugin,
+  isPlugin,
   newPlugin,
   newPlugin_,
   
   PluginFilter,
   PluginFeatureFilter,
   withRegistry,
+  isRegistry,
   newRegistry,
   newRegistry_,
   
@@ -99,6 +121,7 @@ module Media.Streaming.GStreamer.Core.Types (
   BusFlags(..),
   BusSyncReply(..),
   withBus,
+  isBus,
   newBus,
   newBus_,
   
@@ -109,6 +132,7 @@ module Media.Streaming.GStreamer.Core.Types (
   toClockReturn,
   fromClockReturn,
   withClock,
+  isClock,
   newClock,
   newClock_,
   ClockID(..),
@@ -117,11 +141,13 @@ module Media.Streaming.GStreamer.Core.Types (
   newClockID_,
   
   withSystemClock,
+  isSystemClock,
   newSystemClock,
   newSystemClock_,
   
   IndexFlags(..),
   withIndex,
+  isIndex,
   newIndex,
   newIndex_,
   IndexCertainty(..),
@@ -140,22 +166,34 @@ module Media.Streaming.GStreamer.Core.Types (
   
   StaticPadTemplate(..),
   withPadTemplate,
+  isPadTemplate,
   newPadTemplate,
   newPadTemplate_,
   
   withTask,
+  isTask,
   newTask,
   newTask_,
   
   withXML,
+  isXML,
   newXML,
   newXML_,
+  
+  withChildProxy,
+  isChildProxy,
+  newChildProxy,
+  newChildProxy_,
+  
+  withURIHandler,
+  isURIHandler,
   
   MiniObject(..),
   MiniObjectClass,
   mkMiniObject,
   unMiniObject,
   withMiniObject,
+  isMiniObject,
   toMiniObject,
   fromMiniObject,
   castToMiniObject,
@@ -168,6 +206,7 @@ module Media.Streaming.GStreamer.Core.Types (
   mkBuffer,
   unBuffer,
   withBuffer,
+  isBuffer,
   toBuffer,
   fromBuffer,
   newBuffer,
@@ -179,6 +218,7 @@ module Media.Streaming.GStreamer.Core.Types (
   mkEvent,
   unEvent,
   withEvent,
+  isEvent,
   toEvent,
   fromEvent,
   newEvent,
@@ -191,6 +231,7 @@ module Media.Streaming.GStreamer.Core.Types (
   mkMessage,
   unMessage,
   withMessage,
+  isMessage,
   toMessage,
   fromMessage,
   newMessage,
@@ -203,6 +244,7 @@ module Media.Streaming.GStreamer.Core.Types (
   mkQuery,
   unQuery,
   withQuery,
+  isQuery,
   toQuery,
   fromQuery,
   newQuery,
@@ -264,6 +306,7 @@ import System.Glib.Flags
 {#import System.Glib.GType#}
 {#import System.Glib.GObject#}
 {#import System.Glib.GValue#}
+{#import System.Glib.GType#}
 import System.Glib.UTFString
 import GHC.Base            ( unsafeCoerce# )
 {#import Media.Streaming.GStreamer.Core.Hierarchy#}
@@ -306,13 +349,20 @@ withObject :: Object
            -> IO a
 withObject = withForeignPtr . unObject
 
-newObject, newObject_ :: (ObjectClass obj, ObjectClass obj')
-                      => (ForeignPtr obj' -> obj')
-                      -> Ptr obj
-                      -> IO obj'
--- | Use 'newObject_' when a function returns an object that is owned
---   elsewhere, or objects with floating references.
-newObject_ cons cObject =
+mkIsObject :: GObjectClass obj
+           => GType
+           -> obj
+           -> Bool
+mkIsObject gType obj =
+    unsafePerformIO $
+        withForeignPtr (unGObject $ toGObject obj) $ \objPtr ->
+            return $ typeInstanceIsA (castPtr objPtr) gType
+
+mkNewObject, mkNewObject_ :: (ObjectClass obj, ObjectClass obj')
+                          => (ForeignPtr obj' -> obj')
+                          -> Ptr obj
+                          -> IO obj'
+mkNewObject_ cons cObject =
     liftM (cons . castForeignPtr) $ do
       cObjectTakeOwnership $ castPtr cObject
       newForeignPtr (castPtr cObject) objectFinalizer
@@ -322,12 +372,25 @@ foreign import ccall unsafe "_hs_gst_object_take_ownership"
   cObjectTakeOwnership :: Ptr ()
                        -> IO ()
 
+mkNewObject cons cObject =
+    liftM (cons . castForeignPtr) $
+        newForeignPtr (castPtr cObject) objectFinalizer
+
+isObject :: ObjectClass obj
+         => obj
+         -> Bool
+isObject = mkIsObject {# call fun unsafe gst_object_get_type #}
+
 -- | Use 'newObject' when a function returns an object that must be
 --   unreffed when you're done with it; i.e., the object is owned by
 --   the caller.
-newObject cons cObject =
-    liftM (cons . castForeignPtr) $
-        newForeignPtr (castPtr cObject) objectFinalizer
+newObject, newObject_ :: Ptr Object
+                      -> IO Object
+newObject = mkNewObject Object
+
+-- | Use 'newObject_' when a function returns an object that is owned
+--   elsewhere, or objects with floating references.
+newObject_ = mkNewObject_ Object
 
 -- | Use 'giveObject' to pass an object to a function that takes
 --   ownership of it.
@@ -355,10 +418,15 @@ withPad :: Pad
         -> IO a
 withPad = withForeignPtr . unPad
 
+isPad :: ObjectClass obj
+      => obj
+      -> Bool
+isPad = mkIsObject {# call fun unsafe gst_pad_get_type #}
+
 newPad, newPad_ :: Ptr Pad
                 -> IO Pad
-newPad  = newObject Pad
-newPad_ = newObject_ Pad
+newPad  = mkNewObject Pad
+newPad_ = mkNewObject_ Pad
 
 data PadFlags = PadBlocked
               | PadFlushing
@@ -400,10 +468,15 @@ withGhostPad :: GhostPad
                   -> IO a
 withGhostPad = withForeignPtr . unGhostPad
 
+isGhostPad :: ObjectClass obj
+      => obj
+      -> Bool
+isGhostPad = mkIsObject {# call fun unsafe gst_ghost_pad_get_type #}
+
 newGhostPad, newGhostPad_ :: Ptr GhostPad
                           -> IO GhostPad
-newGhostPad  = newObject  GhostPad
-newGhostPad_ = newObject_ GhostPad
+newGhostPad  = mkNewObject  GhostPad
+newGhostPad_ = mkNewObject_ GhostPad
 
 --------------------------------------------------------------------
 
@@ -412,10 +485,15 @@ withPluginFeature :: PluginFeature
                   -> IO a
 withPluginFeature = withForeignPtr . unPluginFeature
 
+isPluginFeature :: ObjectClass obj
+                => obj
+                -> Bool
+isPluginFeature = mkIsObject {# call fun unsafe gst_plugin_feature_get_type #}
+
 newPluginFeature, newPluginFeature_ :: Ptr PluginFeature
                                     -> IO PluginFeature
-newPluginFeature  = newObject PluginFeature
-newPluginFeature_ = newObject_ PluginFeature
+newPluginFeature  = mkNewObject PluginFeature
+newPluginFeature_ = mkNewObject_ PluginFeature
 
 {# enum GstPluginError as PluginError {underscoreToCase} with prefix = "GST" deriving (Eq, Show) #}
 
@@ -426,10 +504,15 @@ withElementFactory :: ElementFactory
                    -> IO a
 withElementFactory = withForeignPtr . unElementFactory
 
+isElementFactory :: ObjectClass obj
+                 => obj
+                 -> Bool
+isElementFactory = mkIsObject {# call fun unsafe gst_element_factory_get_type #}
+
 newElementFactory, newElementFactory_ :: Ptr ElementFactory
                                       -> IO ElementFactory
-newElementFactory  = newObject  ElementFactory
-newElementFactory_ = newObject_ ElementFactory
+newElementFactory  = mkNewObject  ElementFactory
+newElementFactory_ = mkNewObject_ ElementFactory
 
 --------------------------------------------------------------------
 
@@ -438,10 +521,15 @@ withTypeFindFactory :: TypeFindFactory
                    -> IO a
 withTypeFindFactory = withForeignPtr . unTypeFindFactory
 
+isTypeFindFactory :: ObjectClass obj
+                 => obj
+                 -> Bool
+isTypeFindFactory = mkIsObject {# call fun unsafe gst_type_find_factory_get_type #}
+
 newTypeFindFactory, newTypeFindFactory_ :: Ptr TypeFindFactory
                                         -> IO TypeFindFactory
-newTypeFindFactory  = newObject  TypeFindFactory
-newTypeFindFactory_ = newObject_ TypeFindFactory
+newTypeFindFactory  = mkNewObject  TypeFindFactory
+newTypeFindFactory_ = mkNewObject_ TypeFindFactory
 
 --------------------------------------------------------------------
 
@@ -450,10 +538,15 @@ withIndexFactory :: IndexFactory
                  -> IO a
 withIndexFactory = withForeignPtr . unIndexFactory
 
+isIndexFactory :: ObjectClass obj
+               => obj
+               -> Bool
+isIndexFactory = mkIsObject {# call fun unsafe gst_index_factory_get_type #}
+
 newIndexFactory, newIndexFactory_ :: Ptr IndexFactory
                                   -> IO IndexFactory
-newIndexFactory  = newObject  IndexFactory
-newIndexFactory_ = newObject_ IndexFactory
+newIndexFactory  = mkNewObject  IndexFactory
+newIndexFactory_ = mkNewObject_ IndexFactory
 
 --------------------------------------------------------------------
 
@@ -461,10 +554,16 @@ withElement :: Element
             -> (Ptr Element -> IO a)
             -> IO a
 withElement (Element cElement) = withForeignPtr cElement
+
+isElement :: ObjectClass obj
+          => obj
+          -> Bool
+isElement = mkIsObject {# call fun unsafe gst_element_get_type #}
+
 newElement, newElement_ :: Ptr Element
                         -> IO Element
-newElement  = newObject  Element
-newElement_ = newObject_ Element
+newElement  = mkNewObject  Element
+newElement_ = mkNewObject_ Element
 
 data ElementFlags = ElementLockedState
                   | ElementIsSink
@@ -524,10 +623,16 @@ withImplementsInterface :: ImplementsInterface
                         -> (Ptr ImplementsInterface -> IO a)
                         -> IO a
 withImplementsInterface = withForeignPtr . unImplementsInterface
+
+isImplementsInterface :: ObjectClass obj
+                      => obj
+                      -> Bool
+isImplementsInterface = mkIsObject {# call fun unsafe gst_implements_interface_get_type #}
+
 newImplementsInterface, newImplementsInterface_ :: Ptr ImplementsInterface
                                                 -> IO ImplementsInterface
-newImplementsInterface  = newObject ImplementsInterface
-newImplementsInterface_ = newObject_ ImplementsInterface
+newImplementsInterface  = mkNewObject ImplementsInterface
+newImplementsInterface_ = mkNewObject_ ImplementsInterface
 
 --------------------------------------------------------------------
 
@@ -535,10 +640,16 @@ withTagSetter :: TagSetter
               -> (Ptr TagSetter -> IO a)
               -> IO a
 withTagSetter = withForeignPtr . unTagSetter
+
+isTagSetter :: ObjectClass obj
+            => obj
+            -> Bool
+isTagSetter = mkIsObject {# call fun unsafe gst_tag_setter_get_type #}
+
 newTagSetter, newTagSetter_ :: Ptr TagSetter
-                                                -> IO TagSetter
-newTagSetter  = newObject TagSetter
-newTagSetter_ = newObject_ TagSetter
+                            -> IO TagSetter
+newTagSetter  = mkNewObject TagSetter
+newTagSetter_ = mkNewObject_ TagSetter
 
 --------------------------------------------------------------------
 
@@ -546,10 +657,16 @@ withBin :: Bin
         -> (Ptr Bin -> IO a)
         -> IO a
 withBin = withForeignPtr . unBin
+
+isBin :: ObjectClass obj
+      => obj
+      -> Bool
+isBin = mkIsObject {# call fun unsafe gst_bin_get_type #}
+
 newBin, newBin_ :: Ptr Bin
                 -> IO Bin
-newBin  = newObject Bin
-newBin_ = newObject_ Bin
+newBin  = mkNewObject Bin
+newBin_ = mkNewObject_ Bin
 
 --------------------------------------------------------------------
 
@@ -557,10 +674,16 @@ withPipeline :: Pipeline
              -> (Ptr Pipeline -> IO a)
              -> IO a
 withPipeline = withForeignPtr . unPipeline
+
+isPipeline :: ObjectClass obj
+           => obj
+           -> Bool
+isPipeline = mkIsObject {# call fun unsafe gst_index_factory_get_type #}
+
 newPipeline, newPipeline_ :: Ptr Pipeline
                           -> IO Pipeline
-newPipeline  = newObject  Pipeline
-newPipeline_ = newObject_ Pipeline
+newPipeline  = mkNewObject  Pipeline
+newPipeline_ = mkNewObject_ Pipeline
 
 --------------------------------------------------------------------
 
@@ -568,10 +691,16 @@ withPlugin :: Plugin
            -> (Ptr Plugin -> IO a)
            -> IO a
 withPlugin = withForeignPtr . unPlugin
+
+isPlugin :: ObjectClass obj
+         => obj
+         -> Bool
+isPlugin = mkIsObject {# call fun unsafe gst_plugin_get_type #}
+
 newPlugin, newPlugin_ :: Ptr Plugin
                       -> IO Plugin
-newPlugin  = newObject  Plugin
-newPlugin_ = newObject_ Plugin
+newPlugin  = mkNewObject  Plugin
+newPlugin_ = mkNewObject_ Plugin
 
 --------------------------------------------------------------------
 
@@ -579,10 +708,16 @@ withRegistry :: Registry
              -> (Ptr Registry -> IO a)
              -> IO a
 withRegistry = withForeignPtr . unRegistry
+
+isRegistry :: ObjectClass obj
+           => obj
+           -> Bool
+isRegistry = mkIsObject {# call fun unsafe gst_registry_get_type #}
+
 newRegistry, newRegistry_ :: Ptr Registry
                           -> IO Registry
-newRegistry  = newObject  Registry
-newRegistry_ = newObject_ Registry
+newRegistry  = mkNewObject  Registry
+newRegistry_ = mkNewObject_ Registry
 
 type PluginFilter = Plugin -> IO Bool
 type PluginFeatureFilter = PluginFeature -> IO Bool
@@ -606,10 +741,16 @@ withBus :: Bus
         -> (Ptr Bus -> IO a)
         -> IO a
 withBus = withForeignPtr . unBus
+
+isBus :: ObjectClass obj
+      => obj
+      -> Bool
+isBus = mkIsObject {# call fun unsafe gst_bus_get_type #}
+
 newBus, newBus_ :: Ptr Bus
                 -> IO Bus
-newBus  = newObject  Bus
-newBus_ = newObject_ Bus
+newBus  = mkNewObject  Bus
+newBus_ = mkNewObject_ Bus
 
 --------------------------------------------------------------------
 
@@ -618,10 +759,15 @@ withClock :: Clock
           -> IO a
 withClock = withForeignPtr . unClock
 
+isClock :: ObjectClass obj
+        => obj
+        -> Bool
+isClock = mkIsObject {# call fun unsafe gst_clock_get_type #}
+
 newClock, newClock_ :: Ptr Clock
                     -> IO Clock
-newClock  = newObject Clock
-newClock_ = newObject_ Clock
+newClock  = mkNewObject Clock
+newClock_ = mkNewObject_ Clock
 
 data ClockFlags = ClockCanDoSingleSync
                 | ClockCanDoSingleAsync
@@ -677,8 +823,14 @@ withSystemClock :: SystemClock
 withSystemClock = withForeignPtr . unSystemClock
 newSystemClock, newSystemClock_ :: Ptr SystemClock
                                 -> IO SystemClock
-newSystemClock  = newObject  SystemClock
-newSystemClock_ = newObject_ SystemClock
+
+isSystemClock :: ObjectClass obj
+              => obj
+              -> Bool
+isSystemClock = mkIsObject {# call fun unsafe gst_system_clock_get_type #}
+
+newSystemClock  = mkNewObject  SystemClock
+newSystemClock_ = mkNewObject_ SystemClock
 
 --------------------------------------------------------------------
 
@@ -687,10 +839,15 @@ withIndex :: Index
           -> IO a
 withIndex = withForeignPtr . unIndex
 
+isIndex :: ObjectClass obj
+        => obj
+        -> Bool
+isIndex = mkIsObject {# call fun unsafe gst_index_get_type #}
+
 newIndex, newIndex_ :: Ptr Index
                     -> IO Index
-newIndex  = newObject Index
-newIndex_ = newObject_ Index
+newIndex  = mkNewObject Index
+newIndex_ = mkNewObject_ Index
 
 data IndexFlags = IndexWritable
                 | IndexReadable
@@ -754,10 +911,15 @@ withPadTemplate :: PadTemplate
                 -> IO a
 withPadTemplate = withForeignPtr . unPadTemplate
 
+isPadTemplate :: ObjectClass obj
+              => obj
+              -> Bool
+isPadTemplate = mkIsObject {# call fun unsafe gst_pad_template_get_type #}
+
 newPadTemplate, newPadTemplate_ :: Ptr PadTemplate
                                 -> IO PadTemplate
-newPadTemplate  = newObject PadTemplate
-newPadTemplate_ = newObject_ PadTemplate
+newPadTemplate  = mkNewObject PadTemplate
+newPadTemplate_ = mkNewObject_ PadTemplate
 
 --------------------------------------------------------------------
 
@@ -765,10 +927,16 @@ withTask :: Task
          -> (Ptr Task -> IO a)
          -> IO a
 withTask = withForeignPtr . unTask
+
+isTask :: ObjectClass obj
+        => obj
+        -> Bool
+isTask = mkIsObject {# call fun unsafe gst_task_get_type #}
+
 newTask, newTask_ :: Ptr Task
                   -> IO Task
-newTask  = newObject  Task
-newTask_ = newObject_ Task
+newTask  = mkNewObject  Task
+newTask_ = mkNewObject_ Task
 
 --------------------------------------------------------------------
 
@@ -776,10 +944,16 @@ withXML :: XML
         -> (Ptr XML -> IO a)
         -> IO a
 withXML = withForeignPtr . unXML
+
+isXML :: ObjectClass obj
+      => obj
+      -> Bool
+isXML = mkIsObject {# call fun unsafe gst_xml_get_type #}
+
 newXML, newXML_ :: Ptr XML
                 -> IO XML
-newXML  = newObject  XML
-newXML_ = newObject_ XML
+newXML  = mkNewObject  XML
+newXML_ = mkNewObject_ XML
 
 --------------------------------------------------------------------
 
@@ -787,10 +961,16 @@ withChildProxy :: ChildProxy
                -> (Ptr ChildProxy -> IO a)
                -> IO a
 withChildProxy = withForeignPtr . unChildProxy
+
+isChildProxy :: ObjectClass obj
+             => obj
+             -> Bool
+isChildProxy = mkIsObject {# call fun unsafe gst_child_proxy_get_type #}
+
 newChildProxy, newChildProxy_ :: Ptr ChildProxy
                 -> IO ChildProxy
-newChildProxy  = newObject  ChildProxy
-newChildProxy_ = newObject_ ChildProxy
+newChildProxy  = mkNewObject  ChildProxy
+newChildProxy_ = mkNewObject_ ChildProxy
 
 --------------------------------------------------------------------
 
@@ -798,6 +978,11 @@ withURIHandler :: URIHandler
                -> (Ptr URIHandler -> IO a)
                -> IO a
 withURIHandler = withForeignPtr . unURIHandler
+
+isURIHandler :: ObjectClass obj
+             => obj
+             -> Bool
+isURIHandler = mkIsObject {# call fun unsafe gst_uri_handler_get_type #}
 
 --------------------------------------------------------------------
 
@@ -812,6 +997,19 @@ withMiniObject :: MiniObject
 withMiniObject = withForeignPtr . unMiniObject
 
 class MiniObjectClass o
+
+mkIsMiniObject :: MiniObjectClass obj
+               => GType
+               -> obj
+               -> Bool
+mkIsMiniObject gType obj =
+    unsafePerformIO $ withMiniObject (toMiniObject obj) $ \objPtr ->
+        return $ typeInstanceIsA (castPtr objPtr) gType
+
+isMiniObject :: MiniObjectClass obj
+             => obj
+             -> Bool
+isMiniObject = mkIsMiniObject {# call fun unsafe gst_mini_object_get_type #}
 
 toMiniObject :: MiniObjectClass o => o -> MiniObject
 toMiniObject = unsafeCoerce#
@@ -839,13 +1037,11 @@ castToMiniObject :: MiniObjectClass obj
 castToMiniObject =
     castToMini {# call fun unsafe gst_mini_object_get_type #} "MiniObject"
 
-newMiniObject, newMiniObject_ :: (MiniObjectClass obj, MiniObjectClass obj')
-                              => (ForeignPtr obj' -> obj')
-                              -> Ptr obj
-                              -> IO obj'
--- | Use 'newMiniObject_' when a function returns an object that is owned
---   elsewhere.
-newMiniObject_ cons cObject =
+mkNewMiniObject, mkNewMiniObject_ :: (MiniObjectClass obj, MiniObjectClass obj')
+                                  => (ForeignPtr obj' -> obj')
+                                  -> Ptr obj
+                                  -> IO obj'
+mkNewMiniObject_ cons cObject =
     liftM (cons . castForeignPtr) $ do
       cMiniObjectRef $ castPtr cObject
       newForeignPtr (castPtr cObject) miniObjectFinalizer
@@ -855,12 +1051,21 @@ foreign import ccall unsafe "gst_mini_object_ref"
   cMiniObjectRef :: Ptr ()
                  -> IO (Ptr ())
 
+mkNewMiniObject cons cObject =
+    liftM (cons . castForeignPtr) $
+        newForeignPtr (castPtr cObject) miniObjectFinalizer
+
+newMiniObject, newMiniObject_ :: Ptr MiniObject
+                              -> IO MiniObject
+
 -- | Use 'newMiniObject' when a function returns an object that must be
 --   unreffed when you're done with it; i.e., the object is owned by
 --   the caller.
-newMiniObject cons cObject =
-    liftM (cons . castForeignPtr) $
-        newForeignPtr (castPtr cObject) miniObjectFinalizer
+newMiniObject = mkNewMiniObject MiniObject
+
+-- | Use 'newMiniObject_' when a function returns an object that is owned
+--   elsewhere.
+newMiniObject_ = mkNewMiniObject_ MiniObject
 
 -- | Use 'giveMiniObject' to pass an object to a function that takes
 --   ownership of it.
@@ -884,6 +1089,11 @@ withBuffer :: Buffer
            -> IO a
 withBuffer = withForeignPtr . unBuffer
 
+isBuffer :: MiniObjectClass obj
+         => obj
+         -> Bool
+isBuffer = mkIsMiniObject {# call fun unsafe gst_buffer_get_type #}
+
 class MiniObjectClass o => BufferClass o
 toBuffer   :: BufferClass o => o -> Buffer
 toBuffer   = unsafeCoerce#
@@ -895,8 +1105,8 @@ instance MiniObjectClass Buffer
 
 newBuffer, newBuffer_ :: Ptr Buffer
                       -> IO Buffer
-newBuffer  = newMiniObject  Buffer
-newBuffer_ = newMiniObject_ Buffer
+newBuffer  = mkNewMiniObject  Buffer
+newBuffer_ = mkNewMiniObject_ Buffer
 
 castToBuffer :: MiniObjectClass obj
              => obj
@@ -916,6 +1126,11 @@ withEvent :: Event
           -> IO a
 withEvent = withForeignPtr . unEvent
 
+isEvent :: MiniObjectClass obj
+        => obj
+        -> Bool
+isEvent = mkIsMiniObject {# call fun unsafe gst_event_get_type #}
+
 class MiniObjectClass o => EventClass o
 toEvent   :: EventClass o => o -> Event
 toEvent   = unsafeCoerce#
@@ -927,8 +1142,8 @@ instance MiniObjectClass Event
 
 newEvent, newEvent_ :: Ptr Event
                     -> IO Event
-newEvent  = newMiniObject  Event
-newEvent_ = newMiniObject_ Event
+newEvent  = mkNewMiniObject  Event
+newEvent_ = mkNewMiniObject_ Event
 
 castToEvent :: MiniObjectClass obj
             => obj
@@ -1017,6 +1232,11 @@ withMessage :: Message
             -> IO a
 withMessage = withForeignPtr . unMessage
 
+isMessage :: MiniObjectClass obj
+          => obj
+          -> Bool
+isMessage = mkIsMiniObject {# call fun unsafe gst_message_get_type #}
+
 class MiniObjectClass o => MessageClass o
 toMessage   :: MessageClass o => o -> Message
 toMessage   = unsafeCoerce#
@@ -1028,8 +1248,8 @@ instance MiniObjectClass Message
 
 newMessage, newMessage_ :: Ptr Message
                     -> IO Message
-newMessage  = newMiniObject  Message
-newMessage_ = newMiniObject_ Message
+newMessage  = mkNewMiniObject  Message
+newMessage_ = mkNewMiniObject_ Message
 
 castToMessage :: MiniObjectClass obj
               => obj
@@ -1050,6 +1270,11 @@ withQuery :: Query
           -> IO a
 withQuery = withForeignPtr . unQuery
 
+isQuery :: MiniObjectClass obj
+        => obj
+        -> Bool
+isQuery = mkIsMiniObject {# call fun unsafe gst_query_get_type #}
+
 class MiniObjectClass o => QueryClass o
 toQuery   :: QueryClass o => o -> Query
 toQuery   = unsafeCoerce#
@@ -1061,8 +1286,8 @@ instance MiniObjectClass Query
 
 newQuery, newQuery_ :: Ptr Query
                     -> IO Query
-newQuery  = newMiniObject  Query
-newQuery_ = newMiniObject_ Query
+newQuery  = mkNewMiniObject  Query
+newQuery_ = mkNewMiniObject_ Query
 
 castToQuery :: MiniObjectClass obj
             => obj

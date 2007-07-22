@@ -58,8 +58,8 @@ import System.Glib.UTFString ( withUTFString
 import System.Glib.Properties ( newAttrFromMaybeStringProperty )
 import System.Glib.Attributes ( Attr )
 import System.Glib.Signals
-{# import Media.Streaming.GStreamer.Core.Types #}
-{# import Media.Streaming.GStreamer.Core.Signals #}
+{#import Media.Streaming.GStreamer.Core.Types#}
+{#import Media.Streaming.GStreamer.Core.Signals#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -90,7 +90,7 @@ objectGetParent :: ObjectClass obj =>
                 -> IO (Maybe Object)
 objectGetParent obj =
     {# call object_get_parent #} (toObject obj) >>=
-        (maybePeek $ newObject Object)
+        maybePeek newObject
 
 objectUnparent :: ObjectClass obj =>
                   obj

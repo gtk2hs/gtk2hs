@@ -71,7 +71,7 @@ messageSrc :: Message
            -> Object
 messageSrc message =
     unsafePerformIO $ withMessage message {# get GstMessage->src #} >>=
-        newObject_ Object
+        newObject_
 
 messageTimestamp :: Message
                  -> ClockTime
