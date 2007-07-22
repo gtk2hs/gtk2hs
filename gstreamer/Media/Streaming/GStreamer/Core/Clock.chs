@@ -35,7 +35,11 @@ module Media.Streaming.GStreamer.Core.Clock (
   clockSetCalibration,
   clockIDGetTime,
   clockIDWait,
-  clockIDUnschedule
+  clockIDUnschedule,
+  
+  clockTimeout,
+  clockWindowSize,
+  clockWindowThreshold
   
   ) where
 
@@ -46,6 +50,9 @@ import Data.Ratio ( Ratio
 import Control.Monad (liftM, liftM4)
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
+import System.Glib.Attributes ( Attr
+                              , newAttr )
+import System.Glib.Properties
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -182,3 +189,18 @@ clockIDUnschedule :: ClockID
 clockIDUnschedule clockID =
     withClockID clockID $ {# call clock_id_unschedule #} . castPtr
 
+clockTimeout :: ClockClass clockT
+             => Attr clockT ClockTime
+clockTimeout = newAttr
+    (objectGetPropertyUInt64 "timeout")
+    (objectSetPropertyUInt64 "timeout")
+
+clockWindowSize :: ClockClass clockT
+                => Attr clockT Int
+clockWindowSize =
+    newAttrFromIntProperty "window-size"
+
+clockWindowThreshold :: ClockClass clockT
+                     => Attr clockT Int
+clockWindowThreshold =
+    newAttrFromIntProperty "window-threshold"

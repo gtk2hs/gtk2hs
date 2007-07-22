@@ -30,14 +30,19 @@ module Media.Streaming.GStreamer.Core.PadTemplate (
   padTemplateGetCaps,
   padTemplateGetNameTemplate,
   padTemplateGetDirection,
-  padTemplateGetPresence
+  padTemplateGetPresence,
+  
+  onPadTemplatePadCreated,
+  afterPadTemplatePadCreated
   
   ) where
 
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
+{#import Media.Streaming.GStreamer.Core.Signals#}
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Signals
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -82,3 +87,12 @@ padTemplateGetPresence :: PadTemplateClass padTemplate
 padTemplateGetPresence padTemplate =
     liftM (toEnum . fromIntegral) $
         withPadTemplate (toPadTemplate padTemplate) {# get PadTemplate->presence #}
+
+onPadTemplatePadCreated, afterPadTemplatePadCreated :: PadTemplateClass padTemplateT
+                                                    => padTemplateT
+                                                    -> (Pad -> IO ())
+                                                    -> IO (ConnectId padTemplateT)
+onPadTemplatePadCreated =
+    connect_OBJECT__NONE "pad-created" False
+afterPadTemplatePadCreated =
+    connect_OBJECT__NONE "pad-created" True

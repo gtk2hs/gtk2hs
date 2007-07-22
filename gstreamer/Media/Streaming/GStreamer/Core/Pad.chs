@@ -63,13 +63,16 @@ module Media.Streaming.GStreamer.Core.Pad (
   padQueryPeerDuration,
   padQueryPeerConvert,
   padGetQueryTypes,
-  padGetInternalLinks,
   onPadLinked,
   afterPadLinked,
   onPadRequestLink,
   afterPadRequestLink,
   onPadUnlinked,
-  afterPadUnlinked
+  afterPadUnlinked,
+  
+  padCaps,
+  padDirection,
+  padTemplate,
   
   ) where
 
@@ -80,6 +83,9 @@ import Data.Maybe (fromMaybe)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
+import System.Glib.Properties ( objectGetPropertyGObject )
+import System.Glib.Attributes ( ReadAttr
+                              , readAttr )
 {#import System.Glib.Signals#}
 import GHC.Base (unsafeCoerce#)
 
@@ -375,14 +381,6 @@ padGetQueryTypes pad =
         {# call pad_get_query_types #} (toPad pad) >>=
             peekArray0 0
 
-padGetInternalLinks :: PadClass pad
-                    => pad
-                    -> IO [Pad]
-padGetInternalLinks pad =
-    {# call pad_get_internal_links #} (toPad pad) >>=
-        fromGList >>=
-            mapM newPad_
-
 onPadLinked, afterPadLinked :: (PadClass pad)
                             => pad
                             -> (Pad -> IO ())
@@ -410,3 +408,28 @@ onPadUnlinked =
 afterPadUnlinked =
     connect_OBJECT__NONE "unlinked" True
 
+padCaps :: PadClass pad
+        => ReadAttr pad Caps
+padCaps = readAttr
+    padGetCaps
+
+padDirection :: PadClass pad
+             => ReadAttr pad PadDirection
+padDirection = readAttr
+    padGetDirection
+
+padTemplate :: PadClass pad
+            => ReadAttr pad PadTemplate
+padTemplate = readAttr $
+    objectGetPropertyGObject {# call fun gst_pad_template_get_type #}
+                             "template"
+
+padParentElement :: PadClass pad
+                 => ReadAttr pad Element
+padParentElement = readAttr
+    padGetParentElement
+
+padQueryTypes :: PadClass pad
+              => ReadAttr pad [QueryType]
+padQueryTypes = readAttr
+    padGetQueryTypes

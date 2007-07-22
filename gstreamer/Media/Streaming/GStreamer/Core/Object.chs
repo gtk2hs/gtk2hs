@@ -36,8 +36,15 @@ module Media.Streaming.GStreamer.Core.Object (
   objectWithTrylock,
   objectLock,
   objectTrylock,
-  objectUnlock
-
+  objectUnlock,
+  
+  onObjectParentSet,
+  afterObjectParentSet,
+  onObjectParentUnset,
+  afterObjectParentUnset,
+  
+  objectName
+  
   ) where
 
 import Control.Exception     ( bracket,
@@ -48,7 +55,11 @@ import System.Glib.FFI
 import System.Glib.GObject
 import System.Glib.UTFString ( withUTFString
                              , readUTFString )
+import System.Glib.Properties ( newAttrFromMaybeStringProperty )
+import System.Glib.Attributes ( Attr )
+import System.Glib.Signals
 {# import Media.Streaming.GStreamer.Core.Types #}
+{# import Media.Streaming.GStreamer.Core.Signals #}
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -153,3 +164,25 @@ objectUnlock object =
 foreign import ccall unsafe "_hs_gst_object_unlock"
     cGstObjectUnlock :: Ptr Object
                      -> IO ()
+
+onObjectParentSet, afterObjectParentSet :: ObjectClass objectT
+                                        => objectT
+                                        -> (GObject -> IO ())
+                                        -> IO (ConnectId objectT)
+onObjectParentSet =
+    connect_OBJECT__NONE "parent-set" False
+afterObjectParentSet =
+    connect_OBJECT__NONE "parent-set" True
+
+onObjectParentUnset, afterObjectParentUnset :: ObjectClass objectT
+                                            => objectT
+                                            -> (GObject -> IO ())
+                                            -> IO (ConnectId objectT)
+onObjectParentUnset =
+    connect_OBJECT__NONE "parent-unset" False
+afterObjectParentUnset =
+    connect_OBJECT__NONE "parent-unset" True
+
+objectName :: ObjectClass objectT
+           => Attr objectT (Maybe String)
+objectName = newAttrFromMaybeStringProperty "name"

@@ -1913,8 +1913,18 @@ gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs :		\
 	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)	\
 	$(srcdir)/tools/hierarchyGen/hierarchy.list			\
 	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template		\
-	$@ --tag=gstreamer --lib=gstreamer --prefix=gstreamer		\
+	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gstreamer	\
 	--modname=Media.Streaming.GStreamer.Core.Hierarchy --parentname=System.Glib.GObject)
+
+gstreamer/Media/Streaming/GStreamer/Base/Hierarchy.chs :		\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list			\
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)		\
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)	\
+	$(srcdir)/tools/hierarchyGen/hierarchy.list			\
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template		\
+	$@ --tag=gstreamer-base --lib=gstreamer --prefix=gstreamer	\
+	--modname=Media.Streaming.GStreamer.Base.Hierarchy --parentname=Media.Streaming.GStreamer.Base.Hierarchy)
 
 gstreamer/Media/Streaming/GStreamer/Core/Signals.chs : \
 	$(srcdir)/tools/callbackGen/Signal.chs.template \

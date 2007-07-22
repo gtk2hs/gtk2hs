@@ -35,7 +35,11 @@ module Media.Streaming.GStreamer.Core.Bus (
   busAddWatch,
   busAddSignalWatch,
   busRemoveSignalWatch,
-  busPoll
+  busPoll,
+  
+  onBusMessage,
+  afterBusMessage
+  
   ) where
 
 import Control.Monad (liftM)
@@ -79,7 +83,8 @@ busTimedPop :: Bus
             -> ClockTime
             -> IO (Maybe Message)
 busTimedPop bus timeout =
-    {# call bus_timed_pop #} bus timeout >>= maybePeek newMessage
+    {# call bus_timed_pop #} bus (fromIntegral timeout) >>=
+        maybePeek newMessage
 
 busSetFlushing :: Bus
                -> Bool
@@ -143,7 +148,9 @@ busPoll :: Bus
         -> ClockTimeDiff
         -> IO Message
 busPoll bus events timeout =
-    {# call bus_poll #} bus (fromIntegral $ fromFlags events) timeout >>=
+    {# call bus_poll #} bus
+                        (fromIntegral $ fromFlags events)
+                        (fromIntegral timeout) >>=
         newMessage
 
 onBusMessage, afterBusMessage :: BusClass bus

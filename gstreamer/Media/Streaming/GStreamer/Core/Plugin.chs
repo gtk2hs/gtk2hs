@@ -32,12 +32,24 @@ module Media.Streaming.GStreamer.Core.Plugin (
   pluginIsLoaded,
   pluginLoadByName,
   pluginLoad,
+  
+  pluginName,
+  pluginDescription,
+  pluginFilename,
+  pluginLicense,
+  pluginPackage,
+  pluginOrigin,
+  pluginSource,
+  pluginVersion
+  
   ) where
 
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
 import System.Glib.UTFString
+import System.Glib.Attributes ( ReadAttr
+                              , readAttr )
 import GHC.Base (unsafeCoerce#)
 
 {# context lib = "gstreamer" prefix = "gst" #}
@@ -95,6 +107,38 @@ pluginIsLoaded :: PluginClass plugin
                -> IO Bool
 pluginIsLoaded =
     (liftM toBool) . {# call plugin_is_loaded #} . toPlugin
+
+pluginName :: PluginClass plugin
+           => ReadAttr plugin String
+pluginName = readAttr pluginGetName
+
+pluginDescription :: PluginClass plugin
+                  => ReadAttr plugin String
+pluginDescription = readAttr pluginGetDescription
+
+pluginFilename :: PluginClass plugin
+               => ReadAttr plugin FilePath
+pluginFilename = readAttr pluginGetFilename
+
+pluginLicense :: PluginClass plugin
+              => ReadAttr plugin String
+pluginLicense = readAttr pluginGetLicense
+
+pluginPackage :: PluginClass plugin
+              => ReadAttr plugin String
+pluginPackage = readAttr pluginGetPackage
+
+pluginOrigin :: PluginClass plugin
+             => ReadAttr plugin String
+pluginOrigin = readAttr pluginGetOrigin
+
+pluginSource :: PluginClass plugin
+             => ReadAttr plugin String
+pluginSource = readAttr pluginGetSource
+
+pluginVersion :: PluginClass plugin
+              => ReadAttr plugin String
+pluginVersion = readAttr pluginGetVersion
 
 pluginLoad :: PluginClass plugin
            => plugin

@@ -30,13 +30,18 @@ module Media.Streaming.GStreamer.Core.Pipeline (
   pipelineSetAutoFlushBus,
   pipelineGetAutoFlushBus,
   pipelineSetDelay,
-  pipelineGetDelay
+  pipelineGetDelay,
+  
+  pipelineAutoFlushBus,
+  pipelineDelay
   ) where
 
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.UTFString
 import System.Glib.FFI
+import System.Glib.Attributes ( Attr
+                              , newAttr )
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -110,3 +115,15 @@ pipelineGetDelay :: PipelineClass pipeline
 pipelineGetDelay pipeline =
     liftM fromIntegral $
         {# call pipeline_get_delay #} (toPipeline pipeline)
+
+pipelineAutoFlushBus :: PipelineClass pipelineT
+                     => Attr pipelineT Bool
+pipelineAutoFlushBus = newAttr
+    pipelineGetAutoFlushBus
+    pipelineSetAutoFlushBus
+
+pipelineDelay :: PipelineClass pipelineT
+              => Attr pipelineT ClockTime
+pipelineDelay = newAttr
+    pipelineGetDelay
+    pipelineSetDelay

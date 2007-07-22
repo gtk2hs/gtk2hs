@@ -35,7 +35,12 @@ module Media.Streaming.GStreamer.Core.Bin (
   binIterateSorted,
   binIterateSources,
   binIterateAllByInterface,
-  binFindUnconnectedPad
+  binFindUnconnectedPad,
+  
+  onBinElementAdded,
+  afterBinElementAdded,
+  onBinElementRemoved,
+  afterBinElementRemoved
   
   ) where
 
