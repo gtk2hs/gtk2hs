@@ -70,6 +70,7 @@ endif
 
 noinst_PROGRAMS = \
 	tools/hierarchyGen/TypeGenerator \
+	tools/hierarchyGenGst/TypeGenerator \
 	tools/callbackGen/HookGenerator \
 	tools/c2hs/c2hsLocal
 
@@ -105,6 +106,20 @@ am_tools_hierarchyGen_TypeGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
   $(basename $(tools_hierarchyGen_TypeGenerator_SOURCES)))
 MOSTLYCLEANFILES+= $(am_tools_hierarchyGen_TypeGenerator_OBJECTS)
 MOSTLYCLEANFILES+= $(tools_hierarchyGen_TypeGenerator_SOURCES:.hs=.hi)
+
+tools_hierarchyGenGst_PKGNAME = tools_hierarchyGenGst_TypeGenerator
+
+tools_hierarchyGenGst_TypeGenerator_MAIN = \
+  $(tools_hierarchyGenGst_TypeGenerator_SOURCES)
+tools_hierarchyGenGst_TypeGenerator_EXTERNALDEPS = base
+tools_hierarchyGenGst_TypeGenerator_SOURCESDIRS = tools/hierarchyGenGst
+tools_hierarchyGenGst_TypeGenerator_SOURCES = \
+  tools/hierarchyGenGst/TypeGen.hs
+# Fix automake - the subdir-objects option doesn't work here.
+am_tools_hierarchyGenGst_TypeGenerator_OBJECTS = $(addsuffix .$(OBJEXT),\
+  $(basename $(tools_hierarchyGenGst_TypeGenerator_SOURCES)))
+MOSTLYCLEANFILES+= $(am_tools_hierarchyGenGst_TypeGenerator_OBJECTS)
+MOSTLYCLEANFILES+= $(tools_hierarchyGenGst_TypeGenerator_SOURCES:.hs=.hi)
 
 #
 #	HookGenerator Tool
