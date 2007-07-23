@@ -87,7 +87,7 @@ fontDescriptionCopy fd = {#call unsafe copy#} fd >>= makeNewFontDescription
 --
 fontDescriptionSetFamily :: FontDescription -> String -> IO ()
 fontDescriptionSetFamily fd family = withUTFString family $ \strPtr ->
-  {#call unsafe set_family_static#} fd strPtr
+  {#call unsafe set_family#} fd strPtr
 
 -- | Get the font family.
 --
