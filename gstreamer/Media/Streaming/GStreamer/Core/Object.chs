@@ -90,7 +90,7 @@ objectGetParent :: ObjectClass obj =>
                 -> IO (Maybe Object)
 objectGetParent obj =
     {# call object_get_parent #} (toObject obj) >>=
-        maybePeek newObject
+        maybePeek takeObject
 
 objectUnparent :: ObjectClass obj =>
                   obj

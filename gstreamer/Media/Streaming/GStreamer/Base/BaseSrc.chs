@@ -3,6 +3,8 @@
 --  Author : Peter Gavin
 --  Created: 1-Apr-2007
 --
+--  Version $Revision$ from $Date$
+--
 --  Copyright (c) 2007 Peter Gavin
 --
 --  This library is free software; you can redistribute it and/or
@@ -15,12 +17,11 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Library General Public License for more details.
 --
-module Media.Streaming.GStreamer (
+module Media.Streaming.GStreamer.Base.BaseSrc (
   
-  module Media.Streaming.GStreamer.Core,
-  module Media.Streaming.GStreamer.Base
+  BaseSrc,
+  BaseSrcClass,
   
   ) where
 
-import Media.Streaming.GStreamer.Core
-import Media.Streaming.GStreamer.Base
+{#import Media.Streaming.GStreamer.Base.Types#}

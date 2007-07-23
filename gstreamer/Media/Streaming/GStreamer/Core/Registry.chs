@@ -67,7 +67,7 @@ import System.Glib.Signals
 
 defaultRegistry :: Registry
 defaultRegistry =
-    unsafePerformIO $ {# call registry_get_default #} >>= newRegistry_
+    unsafePerformIO $ {# call registry_get_default #} >>= peekRegistry
 
 registryGetFeatureList :: RegistryClass registry
                        => registry
@@ -75,7 +75,7 @@ registryGetFeatureList :: RegistryClass registry
                        -> IO [PluginFeature]
 registryGetFeatureList registry gType =
     {# call registry_get_feature_list #} (toRegistry registry) gType >>=
-            fromGList >>= mapM newPluginFeature
+            fromGList >>= mapM takePluginFeature
 
 registryGetFeatureListByPlugin :: RegistryClass registry
                                => registry
@@ -84,7 +84,7 @@ registryGetFeatureListByPlugin :: RegistryClass registry
 registryGetFeatureListByPlugin registry name =
     withUTFString name $ \cName ->
         {# call registry_get_feature_list_by_plugin #} (toRegistry registry) cName >>=
-            fromGList >>= mapM newPluginFeature
+            fromGList >>= mapM takePluginFeature
 
 registryGetPathList :: RegistryClass registry
                     => registry
@@ -98,7 +98,7 @@ registryGetPluginList :: RegistryClass registry
                       -> IO [Plugin]
 registryGetPluginList registry =
     {# call registry_get_plugin_list #} (toRegistry registry) >>=
-        fromGList >>= mapM newPlugin
+        fromGList >>= mapM takePlugin
 
 registryAddPlugin :: (RegistryClass registry, PluginClass plugin)
                   => registry
@@ -123,7 +123,7 @@ marshalPluginFilter pluginFilter =
     makePluginFilter cPluginFilter
     where cPluginFilter :: CPluginFilter
           cPluginFilter pluginPtr _ =
-               liftM fromBool $ newPlugin_ pluginPtr >>= pluginFilter
+               liftM fromBool $ peekPlugin pluginPtr >>= pluginFilter
 foreign import ccall "wrapper"
     makePluginFilter :: CPluginFilter
                      -> IO {# type GstPluginFilter #}
@@ -139,7 +139,7 @@ registryPluginFilter registry pluginFilter first =
                                          cPluginFilter
                                          (fromBool first)
                                          nullPtr >>=
-           fromGList >>= mapM newPlugin
+           fromGList >>= mapM takePlugin
 
 
 type CPluginFeatureFilter = Ptr PluginFeature
@@ -151,7 +151,7 @@ marshalPluginFeatureFilter pluginFeatureFilter =
     makePluginFeatureFilter cPluginFeatureFilter
     where cPluginFeatureFilter :: CPluginFeatureFilter
           cPluginFeatureFilter pluginFeaturePtr _ =
-               liftM fromBool $ newPluginFeature_ pluginFeaturePtr >>= pluginFeatureFilter
+               liftM fromBool $ peekPluginFeature pluginFeaturePtr >>= pluginFeatureFilter
 foreign import ccall "wrapper"
     makePluginFeatureFilter :: CPluginFeatureFilter
                             -> IO {# type GstPluginFeatureFilter #}
@@ -167,7 +167,7 @@ registryFeatureFilter registry featureFilter first =
                                          cPluginFeatureFilter
                                          (fromBool first)
                                          nullPtr >>=
-           fromGList >>= mapM newPluginFeature
+           fromGList >>= mapM takePluginFeature
 
 
 registryFindPlugin :: RegistryClass registry
@@ -176,7 +176,7 @@ registryFindPlugin :: RegistryClass registry
                    -> IO (Maybe Plugin)
 registryFindPlugin registry name =
     (withUTFString name $ {# call registry_find_plugin #} (toRegistry registry)) >>=
-        maybePeek newPlugin
+        maybePeek takePlugin
 
 registryFindFeature :: RegistryClass registry
                     => registry
@@ -188,7 +188,7 @@ registryFindFeature registry name gType =
         {# call registry_find_feature #} (toRegistry registry)
                                          cName
                                          gType >>=
-            maybePeek newPluginFeature
+            maybePeek takePluginFeature
 
 registryLookupFeature :: RegistryClass registry
                       => registry
@@ -196,7 +196,7 @@ registryLookupFeature :: RegistryClass registry
                       -> IO (Maybe PluginFeature)
 registryLookupFeature registry name =
     (withUTFString name $ {# call registry_lookup_feature #} (toRegistry registry)) >>=
-        maybePeek newPluginFeature
+        maybePeek takePluginFeature
 
 registryScanPath :: RegistryClass registry
                  => registry
@@ -232,7 +232,7 @@ registryLookup :: RegistryClass registry
 registryLookup registry filename =
     (withUTFString filename $
          {# call registry_lookup #} (toRegistry registry)) >>=
-        newPlugin
+        takePlugin
 
 registryRemoveFeature :: (RegistryClass registry, PluginFeatureClass pluginFeature)
                       => registry

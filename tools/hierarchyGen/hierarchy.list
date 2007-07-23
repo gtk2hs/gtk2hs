@@ -221,35 +221,3 @@
 	GnomeVFSDrive		as Drive, gnome_vfs_drive_get_type if gnomevfs
 	GnomeVFSVolumeMonitor	as VolumeMonitor, gnome_vfs_volume_monitor_get_type if gnomevfs
 
-## GStreamer classes
-	GstObject			as Object,		gst_object_get_type			if gstreamer-core
-	    GstPad			as Pad,			gst_pad_get_type			if gstreamer-core
-	        GstGhostPad		as GhostPad,		gst_ghost_pad_get_type			if gstreamer-core
-	    GstPluginFeature		as PluginFeature,	gst_plugin_feature_get_type		if gstreamer-core
-	        GstElementFactory	as ElementFactory,	gst_element_factory_get_type		if gstreamer-core
-	        GstTypeFindFactory	as TypeFindFactory,	gst_type_find_factory_get_type		if gstreamer-core
-	        GstIndexFactory		as IndexFactory,	gst_index_factory_get_type		if gstreamer-core
-	    GstElement			as Element,		gst_element_get_type			if gstreamer-core
-	        GstBin			as Bin,			gst_bin_get_type			if gstreamer-core
-	            GstPipeline		as Pipeline,		gst_pipeline_get_type			if gstreamer-core
-	        GstImplementsInterface  as ImplementsInterface, gst_implements_interface_get_type	if gstreamer-core
-	        GstTagSetter            as TagSetter,           gst_tag_setter_get_type			if gstreamer-core
-                GstBaseSrc              as BaseSrc,             gst_base_src_get_type			if gstreamer-base
-                    GstPushSrc          as PushSrc,             gst_push_src_get_type                   if gstreamer-base
-                GstBaseSink             as BaseSink,            gst_base_sink_get_type                  if gstreamer-base
-                GstBaseTransform        as BaseTransform,       gst_base_transform_get_type             if gstreamer-base
-	    GstPlugin			as Plugin,		gst_plugin_get_type			if gstreamer-core
-	    GstRegistry			as Registry,		gst_registry_get_type			if gstreamer-core
-	    GstBus			as Bus,			gst_bus_get_type			if gstreamer-core
-	    GstClock			as Clock,		gst_clock_get_type			if gstreamer-core
-	        GstSystemClock		as SystemClock,		gst_system_clock_get_type		if gstreamer-core
-	    GstIndex			as Index,		gst_index_get_type			if gstreamer-core
-	    GstPadTemplate		as PadTemplate,		gst_pad_template_get_type		if gstreamer-core
-	    GstTask			as Task,		gst_task_get_type			if gstreamer-core
-	    GstXML			as XML,			gst_xml_get_type			if gstreamer-core
-	    GstChildProxy               as ChildProxy,          gst_child_proxy_get_type		if gstreamer-core
-            GstCollectPads              as CollectPads,         gst_collect_pads_get_type               if gstreamer-base
-	
-	GstURIHandler                   as URIHandler,          gst_uri_handler_get_type		if gstreamer-core
-        GstController                   as Controller,          gst_controller_get_type                 if gstreamer-base
-        GstAdapter                      as Adapter,             gst_adapter_get_type                    if gstreamer-base

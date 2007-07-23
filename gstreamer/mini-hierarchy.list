@@ -1,0 +1,6 @@
+    GstMiniObject                       as MiniObject
+## GStreamer classes
+        GstBuffer                       as Buffer,		gst_buffer_get_type			if gstreamer-core
+        GstEvent                        as Event, 		gst_event_get_type			if gstreamer-core
+        GstMessage                      as Message,		gst_message_get_type			if gstreamer-core
+        GstQuery                        as Query,  		gst_query_get_type			if gstreamer-core

@@ -1,0 +1,87 @@
+-- -*-haskell-*-
+{-# OPTIONS -fglasgow-exts #-}  --due to use of unsafeCoerce#
+-- -------------------- automatically generated file - do not edit ----------
+--  Object hierarchy for the GIMP Toolkit (GTK) Binding for Haskell
+--
+--  Author : Axel Simon
+--
+--  Copyright (C) 2001-2005 Axel Simon
+--
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
+--
+--  This library is distributed in the hope that it will be useful,
+--  but WITHOUT ANY WARRANTY; without even the implied warranty of
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
+--
+-- #hide
+
+-- |
+-- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- This file reflects the Gtk+ object hierarchy in terms of Haskell classes.
+--
+module @MODULE_NAME@ (
+@MODULE_EXPORTS@
+  ) where
+
+import Control.Monad      (liftM)
+import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
+import Foreign.C.Types    (CULong)
+import System.Glib.GType	(GType, typeInstanceIsA)
+import GHC.Base			(unsafeCoerce#)
+import System.Glib.FFI
+{#import System.Glib.GObject#}
+@IMPORT_PARENT@
+
+{# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
+
+-- The usage of foreignPtrToPtr should be safe as the evaluation will only be
+-- forced if the object is used afterwards
+--
+mkCastToObject :: (GObjectClass obj, GObjectClass obj')
+               => GType
+               -> String
+               -> (obj -> obj')
+mkCastToObject gtype objTypeName obj =
+  case toGObject obj of
+    gobj\@(GObject objFPtr)
+      | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
+                  -> fromGObject gobj
+      | otherwise -> error $ "Cannot cast object to " ++ objTypeName
+
+mkIsObject :: GObjectClass obj
+           => GType
+           -> obj
+           -> Bool
+mkIsObject gType obj =
+    unsafePerformIO $
+        withForeignPtr (unGObject $ toGObject obj) $ \objPtr ->
+            return $ typeInstanceIsA (castPtr objPtr) gType
+
+mkTakeObject, mkPeekObject :: (GObjectClass obj)
+                           => (ForeignPtr obj -> obj)
+                           -> Ptr obj
+                           -> IO obj
+mkPeekObject cons cObject =
+    liftM (cons . castForeignPtr) $ do
+      cObjectRef $ castPtr cObject
+      newForeignPtr (castPtr cObject) objectFinalizer
+foreign import ccall unsafe "&g_object_unref"
+  objectFinalizer :: FunPtr (Ptr () -> IO ())
+foreign import ccall unsafe "g_object_ref"
+  cObjectRef :: Ptr ()
+             -> IO ()
+
+mkTakeObject cons cObject =
+    liftM (cons . castForeignPtr) $
+        newForeignPtr (castPtr cObject) objectFinalizer
+
+@CASTING_FUNCTIONS@
+
+@CLASS_DECLERATIONS@

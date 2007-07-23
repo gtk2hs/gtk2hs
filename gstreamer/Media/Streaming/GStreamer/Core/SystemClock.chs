@@ -31,4 +31,4 @@ import System.Glib.FFI
 
 systemClockObtain :: IO Clock
 systemClockObtain =
-    {# call system_clock_obtain #} >>= newClock
+    {# call system_clock_obtain #} >>= takeClock

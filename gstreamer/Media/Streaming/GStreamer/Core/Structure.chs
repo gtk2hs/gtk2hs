@@ -69,7 +69,7 @@ structureEmpty :: String
 structureEmpty name =
     unsafePerformIO $
         withUTFString name {# call structure_empty_new #} >>=
-            newStructure
+            takeStructure
 
 structureToString :: Structure
                   -> String
@@ -85,7 +85,7 @@ structureFromString string =
         withUTFString string $ \cString ->
             alloca $ \endPtr ->
                 do structure <- {# call structure_from_string #} cString endPtr >>=
-                                    maybePeek newStructure
+                                    maybePeek takeStructure
                    end <- peek endPtr
                    offset <- {# call g_utf8_pointer_to_offset #} cString end
                    return (structure, fromIntegral offset)
@@ -190,9 +190,9 @@ marshalStructureModify :: IO (Ptr Structure)
 marshalStructureModify mkStructure (StructureM action) =
     unsafePerformIO $
         do ptr <- mkStructure
-           structure <- newStructure_ ptr
+           structure <- liftM Structure $ newForeignPtr_ ptr
            result <- action structure
-           structure' <- newStructure ptr
+           structure' <- takeStructure ptr
            return (structure', result)
 
 structureCreate :: String

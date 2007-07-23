@@ -83,4 +83,4 @@ formatGetDetails format =
 
 formatIterateDefinitions :: IO (Iterator FormatDefinition)
 formatIterateDefinitions =
-    {# call format_iterate_definitions #} >>= newIterator
+    {# call format_iterate_definitions #} >>= takeIterator

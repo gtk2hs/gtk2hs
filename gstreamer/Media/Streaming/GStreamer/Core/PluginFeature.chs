@@ -38,7 +38,7 @@ pluginFeatureLoad :: PluginFeatureClass pluginFeature
 pluginFeatureLoad pluginFeature =
     liftM unsafeCoerce# $
         {# call plugin_feature_load #} (toPluginFeature pluginFeature) >>=
-            newPluginFeature
+            takePluginFeature
 
 pluginFeatureCheckVersion :: PluginFeatureClass pluginFeature
                           => pluginFeature

@@ -1,0 +1,4 @@
+    GObject 
+	GstURIHandler                   as URIHandler,          gst_uri_handler_get_type		if gstreamer-core
+        GstController                   as Controller,          gst_controller_get_type                 if gstreamer-base
+        GstAdapter                      as Adapter,             gst_adapter_get_type                    if gstreamer-base

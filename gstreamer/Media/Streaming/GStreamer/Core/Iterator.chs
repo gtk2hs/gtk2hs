@@ -77,7 +77,7 @@ iteratorFilter :: Iteratable a
 iteratorFilter (Iterator iterator) filter =
     do cFilter <- marshalIteratorFilter filter
        {# call iterator_filter #} iterator cFilter nullPtr >>=
-           newIterator
+           takeIterator
 
 {- type IteratorFoldFunction itemT accumT = itemT
                                          -> accumT

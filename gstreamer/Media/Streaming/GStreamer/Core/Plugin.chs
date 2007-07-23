@@ -145,10 +145,10 @@ pluginLoad :: PluginClass plugin
            -> IO plugin
 pluginLoad plugin =
     liftM unsafeCoerce# $ {# call plugin_load #} (toPlugin plugin) >>=
-        newPlugin
+        takePlugin
 
 pluginLoadByName :: String
                  -> IO Plugin
 pluginLoadByName name =
     withUTFString name {# call plugin_load_by_name #} >>=
-        newPlugin
+        takePlugin

@@ -71,7 +71,7 @@ messageSrc :: Message
            -> Object
 messageSrc message =
     unsafePerformIO $ withMessage message {# get GstMessage->src #} >>=
-        newObject_
+        peekObject
 
 messageTimestamp :: Message
                  -> ClockTime
@@ -95,14 +95,14 @@ messageTypeName =
 messageStructure :: Message
                  -> Structure
 messageStructure message =
-    unsafePerformIO $ {# call message_get_structure #} message >>= newStructure_
+    unsafePerformIO $ {# call message_get_structure #} message >>= peekStructure
 
 messageNewApplication :: Object
                       -> Structure
                       -> IO Message
 messageNewApplication object structure =
     (giveStructure structure $ {# call message_new_application #} object) >>=
-        newMessage
+        takeMessage
 
 messageParseClockLost :: Message
                       -> Maybe Clock
@@ -110,7 +110,7 @@ messageParseClockLost message =
     unsafePerformIO $ alloca $ \clockPtr ->
         do poke clockPtr nullPtr
            {# call message_parse_clock_lost #} message $ castPtr clockPtr
-           liftM Just $ peek clockPtr >>= newClock_
+           liftM Just $ peek clockPtr >>= peekClock
 
 messageParseClockProvide :: Message
                          -> Maybe (Clock, Bool)
@@ -120,7 +120,7 @@ messageParseClockProvide message =
             do poke clockPtr nullPtr
                poke readyPtr $ fromBool False
                {# call message_parse_clock_provide #} message (castPtr clockPtr) readyPtr
-               clock <- peek clockPtr >>= maybePeek newClock_
+               clock <- peek clockPtr >>= maybePeek peekClock
                ready <- peek readyPtr
                return $ maybe Nothing (\clock -> Just (clock, toBool ready)) clock
 
@@ -162,7 +162,7 @@ messageParseNewClock message =
     unsafePerformIO $ alloca $ \clockPtr ->
         do poke clockPtr nullPtr
            {# call message_parse_clock_lost #} message $ castPtr clockPtr
-           peek clockPtr >>= maybePeek newClock_
+           peek clockPtr >>= maybePeek peekClock
 
 messageParseSegmentDone :: Message
                         -> (Format, Int64)
@@ -208,7 +208,7 @@ messageParseTag message =
     unsafePerformIO $ alloca $ \tagListPtr ->
         do poke tagListPtr nullPtr
            {# call message_parse_tag #} message $ castPtr tagListPtr
-           peek tagListPtr >>= newTagList
+           peek tagListPtr >>= takeTagList
 
 messageParseBuffering :: Message
                       -> Int

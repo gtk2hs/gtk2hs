@@ -3,6 +3,16 @@
 
 #include <gst/gst.h>
 
+#include <gst/base/gstadapter.h>
+#include <gst/base/gstbasesink.h>
+#include <gst/base/gstbasesrc.h>
+#include <gst/base/gstbasetransform.h>
+#include <gst/base/gstcollectpads.h>
+#include <gst/base/gstdataqueue.h>
+#include <gst/base/gstpushsrc.h>
+#include <gst/base/gsttypefindhelper.h>
+#include <gst/controller/gstcontroller.h>
+
 void     _hs_gst_object_lock    (GstObject* obj);
 gboolean _hs_gst_object_trylock (GstObject* obj);
 void     _hs_gst_object_unlock  (GstObject* obj);

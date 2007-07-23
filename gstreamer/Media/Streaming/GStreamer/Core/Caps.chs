@@ -49,17 +49,18 @@ module Media.Streaming.GStreamer.Core.Caps (
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
+import Control.Monad (liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 {#import Media.Streaming.GStreamer.Core.Types#}
 
 capsNone :: Caps
 capsNone =
-    unsafePerformIO $ {# call caps_new_empty #} >>= newCaps
+    unsafePerformIO $ {# call caps_new_empty #} >>= takeCaps
 
 capsAny :: Caps
 capsAny =
-    unsafePerformIO $ {# call caps_new_any #} >>= newCaps
+    unsafePerformIO $ {# call caps_new_any #} >>= takeCaps
 
 capsSize :: Caps
          -> Word
@@ -72,7 +73,7 @@ capsGetStructure :: Caps
 capsGetStructure caps index =
     unsafePerformIO $
         {# call caps_get_structure #} caps (fromIntegral index) >>=
-            maybePeek newStructure_
+            maybePeek peekStructure
 
 capsIsEmpty :: Caps
             -> Bool
@@ -123,7 +124,7 @@ capsIntersect :: Caps
 capsIntersect caps1 caps2 =
     unsafePerformIO $
         {# call caps_intersect #} caps1 caps2 >>=
-            newCaps
+            takeCaps
 
 capsUnion :: Caps
           -> Caps
@@ -131,7 +132,7 @@ capsUnion :: Caps
 capsUnion caps1 caps2 =
     unsafePerformIO $
         {# call caps_union #} caps1 caps2 >>=
-            newCaps
+            takeCaps
 
 capsSubtract :: Caps
              -> Caps
@@ -139,13 +140,13 @@ capsSubtract :: Caps
 capsSubtract caps1 caps2 =
     unsafePerformIO $
         {# call caps_subtract #} caps1 caps2 >>=
-            newCaps
+            takeCaps
 
 capsNormalize :: Caps
               -> Caps
 capsNormalize caps =
     unsafePerformIO $
-        {# call caps_normalize #} caps >>= newCaps
+        {# call caps_normalize #} caps >>= takeCaps
 
 capsToString :: Caps
              -> String
@@ -158,7 +159,7 @@ capsFromString :: String
 capsFromString string =
     unsafePerformIO $
         withUTFString string {# call caps_from_string #} >>=
-            newCaps
+            takeCaps
 
 newtype CapsM a = CapsM (CapsMRep a)
 type CapsMRep a = (Caps -> IO a)
@@ -177,9 +178,9 @@ marshalCapsModify :: IO (Ptr Caps)
 marshalCapsModify mkCaps (CapsM action) =
     unsafePerformIO $
         do ptr <- mkCaps
-           caps <- newCaps_ ptr
+           caps <- liftM Caps $ newForeignPtr_ ptr
            result <- action caps
-           caps' <- newCaps ptr
+           caps' <- takeCaps ptr
            return (caps', result)
 
 capsCreate :: CapsM a
@@ -201,14 +202,14 @@ capsAppend :: Caps
            -> CapsM ()
 capsAppend caps2 =
     CapsM $ \caps1 ->
-        {# call caps_copy #} caps2 >>= newCaps_ >>=
+        {# call caps_copy #} caps2 >>= takeCaps >>=
             {# call caps_append #} caps1
 
 capsMerge :: Caps
           -> CapsM ()
 capsMerge caps2 =
     CapsM $ \caps1 ->
-        {# call caps_copy #} caps2 >>= newCaps_ >>=
+        {# call caps_copy #} caps2 >>= takeCaps >>=
             {# call caps_merge #} caps1
 
 capsAppendStructure :: Structure

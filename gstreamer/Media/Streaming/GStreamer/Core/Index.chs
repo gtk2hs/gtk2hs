@@ -53,7 +53,7 @@ import System.Glib.UTFString
 
 indexNew :: IO Index
 indexNew =
-    {# call index_new #} >>= newIndex
+    {# call index_new #} >>= takeIndex
 
 indexCommit :: IndexClass index
             => index
@@ -98,8 +98,8 @@ marshalIndexFilter indexFilter =
     makeIndexFilter cIndexFilter
     where cIndexFilter :: CIndexFilter
           cIndexFilter cIndex cIndexEntry _ =
-              do index <- newIndex_ cIndex
-                 indexEntry <- newIndexEntry_ cIndexEntry
+              do index <- peekIndex cIndex
+                 indexEntry <- peekIndexEntry cIndexEntry
                  liftM fromBool $ indexFilter index indexEntry
 foreign import ccall "wrapper"
     makeIndexFilter :: CIndexFilter
@@ -134,7 +134,7 @@ indexAddFormat index id format =
     {# call index_add_format #} (toIndex index)
                                 (fromIntegral id)
                                 (fromFormat format) >>=
-        newIndexEntry_
+        peekIndexEntry
 
 indexAddAssociations :: IndexClass index
                      => index
@@ -149,7 +149,7 @@ indexAddAssociations index id flags associations =
                                           (fromIntegral $ fromFlags flags)
                                           (fromIntegral numAssociations)
                                           (castPtr cAssociations) >>=
-            newIndexEntry_
+            peekIndexEntry
 
 indexAddId :: IndexClass index
            => index
@@ -159,7 +159,7 @@ indexAddId :: IndexClass index
 indexAddId index id description =
     withUTFString description
                   ({# call index_add_id #} (toIndex index) $ fromIntegral id) >>=
-        newIndexEntry_
+        peekIndexEntry
 
 indexGetAssocEntry :: IndexClass index
                    => index
@@ -176,7 +176,7 @@ indexGetAssocEntry index id method flags format value =
                                      (fromIntegral $ fromFlags flags)
                                      (fromFormat format)
                                      (fromIntegral value) >>=
-        maybePeek newIndexEntry_
+        maybePeek peekIndexEntry
 
 indexEntryAssocMap :: IndexEntry
                    -> Format
@@ -195,6 +195,6 @@ onIndexEntryAdded, afterIndexEntryAdded :: IndexClass index
                                         -> (IndexEntry -> IO ())
                                         -> IO (ConnectId index)
 onIndexEntryAdded =
-    connect_BOXED__NONE "entry-added" newIndexEntry_ False
+    connect_BOXED__NONE "entry-added" peekIndexEntry False
 afterIndexEntryAdded =
-    connect_BOXED__NONE "entry-added" newIndexEntry_ True
+    connect_BOXED__NONE "entry-added" peekIndexEntry True

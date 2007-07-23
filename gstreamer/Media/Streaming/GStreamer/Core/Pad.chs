@@ -97,7 +97,7 @@ padNew :: String
 padNew name direction =
     withUTFString name $ \cName ->
         {# call pad_new #} cName (fromIntegral $ fromEnum direction) >>=
-            newPad
+            takePad
 
 padGetDirection :: PadClass pad
                 => pad
@@ -111,7 +111,7 @@ padGetParentElement :: PadClass pad
                     -> IO Element
 padGetParentElement pad =
     {# call pad_get_parent_element #} (toPad pad) >>=
-        newElement
+        peekElement
 
 padLink :: (PadClass srcpad, PadClass sinkpad)
         => srcpad
@@ -148,21 +148,21 @@ padGetCaps :: PadClass pad
            => pad
            -> IO Caps
 padGetCaps pad =
-    {# call pad_get_caps #} (toPad pad) >>= newCaps
+    {# call pad_get_caps #} (toPad pad) >>= takeCaps
 
 padGetAllowedCaps :: PadClass pad
                   => pad
                   -> IO (Maybe Caps)
 padGetAllowedCaps pad =
     {# call pad_get_allowed_caps #} (toPad pad) >>=
-        maybePeek newCaps
+        maybePeek takeCaps
 
 padGetNegotiatedCaps :: PadClass pad
                      => pad
                      -> IO (Maybe Caps)
 padGetNegotiatedCaps pad =
     {# call pad_get_negotiated_caps #} (toPad pad) >>=
-        maybePeek newCaps
+        maybePeek takeCaps
 
 padGetPadTemplateCaps :: PadClass pad
                       => pad
@@ -171,7 +171,7 @@ padGetPadTemplateCaps pad =
     (liftM Caps $
          {# call pad_get_pad_template_caps #} (toPad pad) >>=
              newForeignPtr_) >>=
-        {# call caps_copy #} >>= newCaps
+        {# call caps_copy #} >>= takeCaps
 
 padSetCaps :: PadClass pad
            => pad
@@ -185,13 +185,13 @@ padGetPeer :: PadClass pad
            => pad
            -> IO (Maybe Pad)
 padGetPeer pad =
-    {# call pad_get_peer #} (toPad pad) >>= maybePeek newPad
+    {# call pad_get_peer #} (toPad pad) >>= maybePeek takePad
 
 padPeerGetCaps :: PadClass pad
                => pad
                -> IO (Maybe Caps)
 padPeerGetCaps pad =
-    {# call pad_peer_get_caps #} (toPad pad) >>= maybePeek newCaps
+    {# call pad_peer_get_caps #} (toPad pad) >>= maybePeek takeCaps
 
 padIsActive :: PadClass pad
             => pad
@@ -226,7 +226,7 @@ padNewFromTemplate :: PadTemplateClass padTemplate
 padNewFromTemplate padTemplate name =
     withUTFString name $ \cName ->
         {# call pad_new_from_template #} (toPadTemplate padTemplate) cName >>=
-            maybePeek newPad
+            maybePeek takePad
 
 padAcceptCaps :: PadClass pad
               => pad
@@ -239,7 +239,7 @@ padProxyGetcaps :: PadClass pad
                 => pad
                 -> IO Caps
 padProxyGetcaps pad =
-    {# call pad_proxy_getcaps #} (toPad pad) >>= newCaps
+    {# call pad_proxy_getcaps #} (toPad pad) >>= takeCaps
 
 padFixateCaps :: PadClass pad
               => pad
@@ -248,7 +248,7 @@ padFixateCaps :: PadClass pad
 padFixateCaps pad caps =
     do caps' <- {# call caps_copy #} caps >>= newForeignPtr_
        {# call pad_fixate_caps #} (toPad pad) (Caps caps')
-       withForeignPtr caps' newCaps
+       withForeignPtr caps' takeCaps
 
 padPeerAcceptCaps :: PadClass pad
                   => pad
@@ -274,7 +274,7 @@ padQuery pad query =
                     newForeignPtr_ . castPtr
        success <- {# call pad_query #} (toPad pad) $ Query query'
        if toBool success
-           then liftM (Just . unsafeCoerce#) $ withForeignPtr query' $ newQuery . castPtr
+           then liftM (Just . unsafeCoerce#) $ withForeignPtr query' $ takeQuery . castPtr
            else return Nothing
 
 padQueryPosition :: PadClass pad

@@ -29,8 +29,6 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
---   
---   Types used by GnomeVFS.
 module System.Gnome.VFS.Types (
   
   Handle(..),

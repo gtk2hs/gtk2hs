@@ -1,0 +1,140 @@
+-- -*-haskell-*-
+{-# OPTIONS -fglasgow-exts #-}  --due to use of unsafeCoerce#
+-- -------------------- automatically generated file - do not edit ----------
+--  Object hierarchy for the GIMP Toolkit (GTK) Binding for Haskell
+--
+--  Author : Axel Simon
+--
+--  Copyright (C) 2001-2005 Axel Simon
+--
+--  This library is free software; you can redistribute it and/or
+--  modify it under the terms of the GNU Lesser General Public
+--  License as published by the Free Software Foundation; either
+--  version 2.1 of the License, or (at your option) any later version.
+--
+--  This library is distributed in the hope that it will be useful,
+--  but WITHOUT ANY WARRANTY; without even the implied warranty of
+--  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+--  Lesser General Public License for more details.
+--
+-- #hide
+
+-- |
+-- Maintainer  : gtk2hs-users\@lists.sourceforge.net
+-- Stability   : provisional
+-- Portability : portable (depends on GHC)
+--
+-- This file reflects the Gtk+ object hierarchy in terms of Haskell classes.
+--
+module @MODULE_NAME@ (
+  MiniObject(..),
+  MiniObjectClass,
+  mkMiniObject,
+  unMiniObject,
+  withMiniObject,
+  isMiniObject,
+  toMiniObject,
+  fromMiniObject,
+  castToMiniObject,
+  peekMiniObject,
+  takeMiniObject,
+  
+@MODULE_EXPORTS@
+  ) where
+
+import Control.Monad      (liftM)
+import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
+import Foreign.C.Types    (CULong)
+import System.Glib.GType	(GType, typeInstanceIsA)
+import System.Glib.FFI
+{#import System.Glib.GObject#}
+import GHC.Base			(unsafeCoerce#)
+@IMPORT_PARENT@
+
+{# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
+
+-- The usage of foreignPtrToPtr should be safe as the evaluation will only be
+-- forced if the object is used afterwards
+--
+mkCastToObject :: (MiniObjectClass obj, MiniObjectClass obj')
+               => GType
+               -> String
+               -> (obj -> obj')
+mkCastToObject gtype objTypeName obj =
+  case toMiniObject obj of
+    gobj\@(MiniObject objFPtr)
+      | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
+                  -> fromMiniObject gobj
+      | otherwise -> error $ "Cannot cast object to " ++ objTypeName
+
+mkIsObject :: MiniObjectClass obj
+           => GType
+           -> obj
+           -> Bool
+mkIsObject gType obj =
+    unsafePerformIO $
+        withMiniObject (toMiniObject obj) $ \objPtr ->
+            return $ typeInstanceIsA (castPtr objPtr) gType
+
+mkTakeObject, mkPeekObject :: (MiniObjectClass obj)
+                           => (ForeignPtr obj -> obj)
+                           -> Ptr obj
+                           -> IO obj
+mkPeekObject cons cObject =
+    liftM (cons . castForeignPtr) $ do
+      cMiniObjectRef $ castPtr cObject
+      newForeignPtr (castPtr cObject) miniObjectFinalizer
+foreign import ccall unsafe "&gst_mini_object_unref"
+  miniObjectFinalizer :: FunPtr (Ptr () -> IO ())
+foreign import ccall unsafe "gst_mini_object_ref"
+  cMiniObjectRef :: Ptr ()
+                 -> IO (Ptr ())
+
+mkTakeObject cons cObject =
+    liftM (cons . castForeignPtr) $
+        newForeignPtr (castPtr cObject) miniObjectFinalizer
+
+{# pointer *GstMiniObject as MiniObject foreign newtype #}
+
+mkMiniObject = MiniObject
+unMiniObject (MiniObject o) = o
+
+withMiniObject :: MiniObject
+               -> (Ptr MiniObject -> IO a)
+               -> IO a
+withMiniObject = withForeignPtr . unMiniObject
+
+isMiniObject :: MiniObjectClass obj
+             => obj
+             -> Bool
+isMiniObject = mkIsObject {# call fun unsafe gst_mini_object_get_type #}
+
+toMiniObject :: MiniObjectClass o => o -> MiniObject
+toMiniObject = unsafeCoerce#
+fromMiniObject :: MiniObjectClass o => MiniObject -> o
+fromMiniObject = unsafeCoerce#
+
+class MiniObjectClass o
+instance MiniObjectClass MiniObject
+
+castToMiniObject :: MiniObjectClass obj
+                 => obj
+                 -> MiniObject
+castToMiniObject =
+    mkCastToObject {# call fun unsafe gst_mini_object_get_type #} "MiniObject"
+
+peekMiniObject, takeMiniObject :: Ptr MiniObject
+                               -> IO MiniObject
+
+-- | Use 'newMiniObject' when a function returns an object that must be
+--   unreffed when you're done with it; i.e., the object is owned by
+--   the caller.
+peekMiniObject = mkPeekObject MiniObject
+
+-- | Use 'newMiniObject_' when a function returns an object that is owned
+--   elsewhere.
+takeMiniObject = mkTakeObject MiniObject
+
+@CASTING_FUNCTIONS@
+
+@CLASS_DECLERATIONS@

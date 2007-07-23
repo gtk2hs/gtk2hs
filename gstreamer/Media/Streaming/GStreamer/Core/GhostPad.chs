@@ -47,7 +47,7 @@ ghostPadNew :: PadClass pad
 ghostPadNew name target =
     (withUTFString name $
          flip {# call ghost_pad_new #} $ toPad target) >>=
-        maybePeek newPad
+        maybePeek takePad
 
 ghostPadNewNoTarget :: String
                     -> PadDirection
@@ -55,7 +55,7 @@ ghostPadNewNoTarget :: String
 ghostPadNewNoTarget name dir =
     (withUTFString name $
          flip {# call ghost_pad_new_no_target #} $ fromPadDirection dir) >>=
-        maybePeek newPad
+        maybePeek takePad
 
 ghostPadNewFromTemplate :: String
                         -> Pad
@@ -64,7 +64,7 @@ ghostPadNewFromTemplate :: String
 ghostPadNewFromTemplate name target templ =
     withUTFString name $ \cName ->
         {# call ghost_pad_new_from_template #} cName target templ >>=
-            maybePeek newPad
+            maybePeek takePad
 
 ghostPadNewNoTargetFromTemplate :: String
                                 -> PadTemplate
@@ -72,7 +72,7 @@ ghostPadNewNoTargetFromTemplate :: String
 ghostPadNewNoTargetFromTemplate name templ =
     withUTFString name $ \cName ->
         {# call ghost_pad_new_no_target_from_template #} cName templ >>=
-            maybePeek newPad
+            maybePeek takePad
 
 ghostPadSetTarget :: GhostPad
                   -> Pad
@@ -83,4 +83,4 @@ ghostPadSetTarget gpad newtarget =
 ghostPadGetTarget :: GhostPad
                   -> IO Pad
 ghostPadGetTarget gpad =
-    {# call ghost_pad_get_target #} gpad >>= newPad
+    {# call ghost_pad_get_target #} gpad >>= takePad

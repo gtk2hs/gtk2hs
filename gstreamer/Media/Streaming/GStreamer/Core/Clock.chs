@@ -82,7 +82,7 @@ clockGetMaster :: ClockClass clock
                => clock
                -> IO (Maybe Clock)
 clockGetMaster clock =
-    {# call clock_get_master #} (toClock clock) >>= maybePeek newClock
+    {# call clock_get_master #} (toClock clock) >>= maybePeek takeClock
 
 clockSetResolution :: ClockClass clock
                    => clock
@@ -114,7 +114,7 @@ clockNewSingleShotID :: ClockClass clock
 clockNewSingleShotID clock time =
     {# call clock_new_single_shot_id #} (toClock clock)
                                         (fromIntegral time) >>=
-        newClockID . castPtr
+        takeClockID . castPtr
 
 clockNewPeriodicID :: ClockClass clock
                    => clock
@@ -125,7 +125,7 @@ clockNewPeriodicID clock startTime interval =
     {# call clock_new_periodic_id #} (toClock clock)
                                      (fromIntegral startTime)
                                      (fromIntegral interval) >>=
-        newClockID . castPtr
+        takeClockID . castPtr
 
 clockGetInternalTime :: ClockClass clock
                      => clock

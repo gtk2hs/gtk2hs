@@ -58,14 +58,14 @@ padTemplateNew nameTemplate direction presence caps =
                                     (fromIntegral $ fromEnum direction)
                                     (fromIntegral $ fromEnum presence)
                                     caps' >>=
-            newPadTemplate
+            takePadTemplate
 
 padTemplateGetCaps :: PadTemplateClass padTemplate
                    => padTemplate
                    -> IO Caps
 padTemplateGetCaps padTemplate =
     {# call pad_template_get_caps #} (toPadTemplate padTemplate) >>=
-        newCaps_
+        peekCaps
 
 padTemplateGetNameTemplate :: PadTemplateClass padTemplate
                            => padTemplate

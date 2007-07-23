@@ -181,7 +181,7 @@ tagIsFixed tag =
 
 tagListEmpty :: TagList
 tagListEmpty =
-    unsafePerformIO $ {# call tag_list_new #} >>= newTagList . castPtr
+    unsafePerformIO $ {# call tag_list_new #} >>= takeTagList . castPtr
 
 tagListIsEmpty :: TagList
                -> Bool
@@ -198,7 +198,7 @@ tagListMerge list1 list2 mode =
             {# call tag_list_merge #} (castPtr listPtr1)
                                       (castPtr listPtr2)
                                       (fromTagMergeMode mode) >>=
-                newTagList . castPtr
+                takeTagList . castPtr
 
 tagListGetTagSize :: TagList
                   -> Tag
@@ -216,7 +216,7 @@ tagListCreate (StructureM action) =
         do tagListPtr <- liftM castPtr {# call tag_list_new #}
            tagList <- liftM Structure $ newForeignPtr_ tagListPtr
            result <- action tagList
-           tagList' <- newTagList tagListPtr
+           tagList' <- takeTagList tagListPtr
            return (tagList', result)
 
 tagListModify :: TagList
@@ -227,7 +227,7 @@ tagListModify tagList (StructureM action) =
         do tagListPtr <- withTagList tagList $ {# call tag_list_copy #} . castPtr
            tagList' <- liftM Structure $ newForeignPtr_ $ castPtr tagListPtr
            result <- action tagList'
-           tagList'' <- newTagList $ castPtr tagListPtr
+           tagList'' <- takeTagList $ castPtr tagListPtr
            return $ (tagList'', result)
 
 tagListInsert :: TagList

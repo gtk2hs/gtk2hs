@@ -55,7 +55,7 @@ import System.Glib.FFI
 
 busNew :: IO Bus
 busNew =
-    {# call bus_new #} >>= newBus
+    {# call bus_new #} >>= takeBus
 
 busPost :: Bus
         -> Message
@@ -72,19 +72,19 @@ busHavePending bus =
 busPeek :: Bus
         -> IO (Maybe Message)
 busPeek bus =
-    {# call bus_peek #} bus >>= maybePeek newMessage
+    {# call bus_peek #} bus >>= maybePeek takeMessage
 
 busPop :: Bus
        -> IO (Maybe Message)
 busPop bus =
-    {# call bus_pop #} bus >>= maybePeek newMessage
+    {# call bus_pop #} bus >>= maybePeek takeMessage
 
 busTimedPop :: Bus
             -> ClockTime
             -> IO (Maybe Message)
 busTimedPop bus timeout =
     {# call bus_timed_pop #} bus (fromIntegral timeout) >>=
-        maybePeek newMessage
+        maybePeek takeMessage
 
 busSetFlushing :: Bus
                -> Bool
@@ -110,8 +110,8 @@ marshalBusFunc busFunc =
     makeBusFunc cBusFunc
     where cBusFunc :: CBusFunc
           cBusFunc busPtr messagePtr userData =
-              do bus <- newBus_ busPtr
-                 message <- newMessage_ messagePtr
+              do bus <- peekBus busPtr
+                 message <- peekMessage messagePtr
                  liftM fromBool $ busFunc bus message
 foreign import ccall "wrapper"
     makeBusFunc :: CBusFunc
@@ -151,13 +151,13 @@ busPoll bus events timeout =
     {# call bus_poll #} bus
                         (fromIntegral $ fromFlags events)
                         (fromIntegral timeout) >>=
-        newMessage
+        takeMessage
 
 onBusMessage, afterBusMessage :: BusClass bus
                               => bus
                               -> (Message -> IO ())
                               -> IO (ConnectId bus)
 onBusMessage =
-    connect_BOXED__NONE "message" newMessage_ False
+    connect_BOXED__NONE "message" peekMessage False
 afterBusMessage =
-    connect_BOXED__NONE "message" newMessage_ True
+    connect_BOXED__NONE "message" peekMessage True
