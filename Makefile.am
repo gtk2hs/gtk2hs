@@ -1927,6 +1927,9 @@ if ENABLE_CAIRO
 DEMOS += demo/cairo
 endif
 endif
+if HAVE_GTK_VERSION_2_10
+DEMOS += demo/statusicon
+endif
 if ENABLE_GCONF
 DEMOS += demo/gconf
 endif
