@@ -298,9 +298,13 @@ GTKHS_PKG_CHECK(xulrunner, mozembed, XULRUNNER_MOZEMBED, [xulrunner-gtkmozembed 
 	[XULRunner requirement not met. Perhaps you need to install xulrunner or xulrunner-devel])
 XULRUNNER_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir xulrunner-gtkmozembed)
 
-dnl Use in this order of preference: seamonkey, firefox, xulrunner, mozilla
-dnl If we have xulrunner, use it instead of firefox or mozilla
-if test "$ENABLE_SEAMONKEY_MOZEMBED" = "yes"; then
+dnl Use in this order of preference: xulrunner, seamonkey, firefox, mozilla
+if test "$ENABLE_XULRUNNER_MOZEMBED" = "yes"; then
+        ENABLE_MOZEMBED="yes"
+	MOZEMBED_CFLAGS="$XULRUNNER_MOZEMBED_CFLAGS"
+	MOZEMBED_LIBS="$XULRUNNER_MOZEMBED_LIBS"
+	MOZEMBED_LIBDIR="$XULRUNNER_MOZEMBED_LIBDIR"
+elif test "$ENABLE_SEAMONKEY_MOZEMBED" = "yes"; then
 	ENABLE_MOZEMBED="yes"
 	MOZEMBED_CFLAGS="$SEAMONKEY_MOZEMBED_CFLAGS"
 	MOZEMBED_LIBS="$SEAMONKEY_MOZEMBED_LIBS"
@@ -310,11 +314,6 @@ elif test "$ENABLE_FIREFOX_MOZEMBED" = "yes"; then
 	MOZEMBED_CFLAGS="$FIREFOX_MOZEMBED_CFLAGS"
 	MOZEMBED_LIBS="$FIREFOX_MOZEMBED_LIBS"
 	MOZEMBED_LIBDIR="$FIREFOX_MOZEMBED_LIBDIR"
-elif test "$ENABLE_XULRUNNER_MOZEMBED" = "yes"; then
-	ENABLE_MOZEMBED="yes"
-	MOZEMBED_CFLAGS="$XULRUNNER_MOZEMBED_CFLAGS"
-	MOZEMBED_LIBS="$XULRUNNER_MOZEMBED_LIBS"
-	MOZEMBED_LIBDIR="$XULRUNNER_MOZEMBED_LIBDIR"
 elif test "$ENABLE_MOZILLA_MOZEMBED" = "yes"; then
 	ENABLE_MOZEMBED="yes"
 	MOZEMBED_CFLAGS="$MOZILLA_MOZEMBED_CFLAGS"
