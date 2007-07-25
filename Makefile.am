@@ -417,6 +417,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Display/Label.chs.pp			\
 	gtk/Graphics/UI/Gtk/Display/ProgressBar.chs.pp			\
 	gtk/Graphics/UI/Gtk/Display/Statusbar.chs			\
+	gtk/Graphics/UI/Gtk/Display/StatusIcon.chs.pp			\
 	gtk/Graphics/UI/Gtk/Embedding/Plug.chs.pp			\
 	gtk/Graphics/UI/Gtk/Embedding/Socket.chs.pp			\
 	gtk/Graphics/UI/Gtk/Embedding/Embedding.hsc			\

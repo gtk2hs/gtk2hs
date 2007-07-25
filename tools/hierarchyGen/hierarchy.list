@@ -172,6 +172,7 @@
 # least GObjects.
 	GtkCellLayout			if gtk-2.4
 # These are derived from GObject:
+  	GtkStatusIcon                   if gtk-2.10
         GtkTreeSelection
         GtkTreeModel
             GtkTreeStore
