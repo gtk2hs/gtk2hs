@@ -375,18 +375,21 @@ HAVE_GTK_VERSION_2_4=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.4 && echo yes || 
 HAVE_GTK_VERSION_2_6=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.6 && echo yes || echo no`
 HAVE_GTK_VERSION_2_8=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.8 && echo yes || echo no`
 HAVE_GTK_VERSION_2_10=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.10 && echo yes || echo no`
+HAVE_GTK_VERSION_2_12=`$PKG_CONFIG gtk+-2.0 --atleast-version=2.12 && echo yes || echo no`
 
 AM_CONDITIONAL(HAVE_GTK_VERSION_2_2, test "$HAVE_GTK_VERSION_2_2" = "yes")
 AM_CONDITIONAL(HAVE_GTK_VERSION_2_4, test "$HAVE_GTK_VERSION_2_4" = "yes")
 AM_CONDITIONAL(HAVE_GTK_VERSION_2_6, test "$HAVE_GTK_VERSION_2_6" = "yes")
 AM_CONDITIONAL(HAVE_GTK_VERSION_2_8, test "$HAVE_GTK_VERSION_2_8" = "yes")
 AM_CONDITIONAL(HAVE_GTK_VERSION_2_10, test "$HAVE_GTK_VERSION_2_10" = "yes")
+AM_CONDITIONAL(HAVE_GTK_VERSION_2_12, test "$HAVE_GTK_VERSION_2_12" = "yes")
 
 CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_2" = "yes" && echo gtk-2.2`"
 CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_4" = "yes" && echo gtk-2.4`"
 CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_6" = "yes" && echo gtk-2.6`"
 CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_8" = "yes" && echo gtk-2.8`"
 CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_10" = "yes" && echo gtk-2.10`"
+CREATE_TYPES="$CREATE_TYPES `test "$HAVE_GTK_VERSION_2_12" = "yes" && echo gtk-2.12`"
 
 dnl Also allow us to conditionally compile binding to the new Gtk+ APIs.
 GTK_VERSION=`$PKG_CONFIG gtk+-2.0 --modversion`
