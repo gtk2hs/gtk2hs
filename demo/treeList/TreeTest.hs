@@ -87,7 +87,7 @@ setupView view model = do
 
   New.cellLayoutSetAttributes col1 renderer1 model $ \row -> [ New.cellText := name row ]
   New.cellLayoutSetAttributes col2 renderer2 model $ \row -> [ New.cellText := show (number row) ]
-  New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellActive := marked row ]
+  New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellToggleActive := marked row ]
 
   New.treeViewAppendColumn view col1
   New.treeViewAppendColumn view col2 

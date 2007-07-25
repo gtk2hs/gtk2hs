@@ -46,7 +46,7 @@ main = do
         }
 
   onClicked prependButton $ getValues >>= New.listStorePrepend store
-  onClicked appendButton $ getValues >>= New.listStoreAppend store
+  onClicked appendButton $ getValues >>= New.listStoreAppend store >> return ()
 
   onClicked insertButton $ do
     value <- getValues
@@ -89,7 +89,7 @@ setupView view model = do
   renderer3 <- New.cellRendererToggleNew
   col3 <- New.treeViewColumnNew
   New.treeViewColumnPackStart col3 renderer3 True
-  New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellActive := marked row ]
+  New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellToggleActive := marked row ]
   New.treeViewColumnSetTitle col3 "Check box column"
   New.treeViewAppendColumn view col3
 
