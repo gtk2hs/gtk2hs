@@ -1,7 +1,7 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget StatusIcon
 --
---  Author : [Insert your full name here]
+--  Author : Andrea Vezzosi
 --
 --  Created: 19 July 2007
 --
