@@ -21,64 +21,84 @@ module Media.Streaming.GStreamer.Core.Types (
   module Media.Streaming.GStreamer.Core.MiniHierarchy,
   module Media.Streaming.GStreamer.Core.GObjectHierarchy,
   
+  cToFlags,
+  cFromFlags,
+  cToEnum,
+  cFromEnum,
+  
   FourCC,
   Fraction,
   
   Format(..),
-  toFormat,
-  fromFormat,
   FormatDefinition(..),
   
+  mkObjectGetFlags,
+  mkObjectSetFlags,
+  mkObjectUnsetFlags,
   ObjectFlags(..),
+  objectFlagLast,
+  objectGetFlags,
+  objectSetFlags,
+  objectUnsetFlags,
   giveObject,
   
   PadFlags(..),
+  padFlagLast,
+  padGetFlags,
+  padSetFlags,
+  padUnsetFlags,
   PadDirection(..),
-  toPadDirection,
-  fromPadDirection,
   PadPresence(..),
   PadLinkReturn(..),
   FlowReturn(..),
   ActivateMode(..),
   
   ElementFlags(..),
+  elementFlagLast,
+  elementGetFlags,
+  elementSetFlags,
+  elementUnsetFlags,
   State(..),
   StateChange(..),
   StateChangeReturn(..),
   SeekFlags(..),
   SeekType(..),
-  fromSeekType,
-  toSeekType,
   
   PluginFilter,
   PluginFeatureFilter,
   
   BusFunc,
   BusFlags(..),
+  busFlagLast,
+  busGetFlags,
+  busSetFlags,
+  busUnsetFlags,
   BusSyncReply(..),
   
   ClockFlags(..),
+  clockFlagLast,
+  clockGetFlags,
+  clockSetFlags,
+  clockUnsetFlags,
   ClockTime,
   ClockTimeDiff,
   ClockReturn(..),
-  toClockReturn,
-  fromClockReturn,
   ClockID(..),
   withClockID,
   takeClockID,
   peekClockID,
   
   IndexFlags(..),
+  indexFlagLast,
+  indexGetFlags,
+  indexSetFlags,
+  indexUnsetFlags,
   IndexCertainty(..),
-  toIndexCertainty,
-  fromIndexCertainty,
   IndexEntry(..),
   takeIndexEntry,
   peekIndexEntry,
   IndexEntryType(..),
   IndexLookupMethod(..),
-  fromIndexLookupMethod,
-  toIndexLookupMethod,
   IndexFilter,
   IndexAssociation(..),
   AssocFlags(..),
@@ -124,11 +144,7 @@ module Media.Streaming.GStreamer.Core.Types (
   giveTagList,
   Tag,
   TagFlag,
-  toTagFlag,
-  fromTagFlag,
   TagMergeMode,
-  toTagMergeMode,
-  fromTagMergeMode,
   
   Segment(..),
   
@@ -158,11 +174,27 @@ type Fraction = Ratio Int
 
 {# enum GstParseError as ParseError {underscoreToCase} with prefix = "GST" deriving (Eq) #}
 
+cToFlags :: (Integral int, Flags flags)
+         => int
+         -> [flags]
+cToFlags = toFlags . fromIntegral
+cFromFlags :: (Integral int, Flags flags)
+           => [flags]
+           -> int
+cFromFlags = fromIntegral . fromFlags
+
+cToEnum :: (Integral int, Enum enum)
+        => int
+        -> enum
+cToEnum = toEnum . fromIntegral
+cFromEnum :: (Integral int, Enum enum)
+           => enum
+           -> int
+cFromEnum = fromIntegral . fromEnum
+
 --------------------------------------------------------------------
 
 {# enum GstFormat as Format {underscoreToCase} with prefix = "GST" deriving (Eq) #}
-toFormat int = (toEnum $ fromIntegral int) :: Format
-fromFormat (format :: Format) = fromIntegral $ fromEnum format
 
 data FormatDefinition = FormatDefinition { formatValue       :: Format
                                          , formatNick        :: String
@@ -172,7 +204,7 @@ instance Storable FormatDefinition where
     sizeOf = undefined
     alignment = undefined
     peek ptr =
-        do value       <- liftM toFormat $ {# get GstFormatDefinition->value #} ptr
+        do value       <- liftM cToEnum $ {# get GstFormatDefinition->value #} ptr
            nick        <- {# get GstFormatDefinition->nick #} ptr >>= peekUTFString
            description <- {# get GstFormatDefinition->description #} ptr >>= peekUTFString
            quark       <- {# get GstFormatDefinition->quark #} ptr
@@ -183,6 +215,40 @@ instance Iteratable FormatDefinition where
     withIteratable = with
 
 --------------------------------------------------------------------
+
+mkObjectGetFlags :: (ObjectClass objectT, Flags flagsT)
+                 => objectT
+                 -> IO [flagsT]
+mkObjectGetFlags object =
+    liftM (toFlags . fromIntegral) $
+        withObject object cObjectGetFlags
+foreign import ccall unsafe "_hs_gst_object_flags"
+    cObjectGetFlags :: Ptr Object
+                    -> IO CUInt
+
+mkObjectSetFlags :: (ObjectClass objectT, Flags flagsT)
+                 => objectT
+                 -> [flagsT]
+                 -> IO ()
+mkObjectSetFlags object flags =
+    withObject object $ \cObject ->
+        cObjectSetFlags cObject (fromIntegral $ fromFlags flags)
+foreign import ccall unsafe "_hs_gst_object_flag_set"
+    cObjectSetFlags :: Ptr Object
+                    -> CUInt
+                    -> IO ()
+
+mkObjectUnsetFlags :: (ObjectClass objectT, Flags flagsT)
+                   => objectT
+                   -> [flagsT]
+                   -> IO ()
+mkObjectUnsetFlags object flags =
+    withObject object $ \cObject ->
+        cObjectUnsetFlags cObject (fromIntegral $ fromFlags flags)
+foreign import ccall unsafe "_hs_gst_object_flag_unset"
+    cObjectUnsetFlags :: Ptr Object
+                    -> CUInt
+                    -> IO ()
 
 -- | Use 'giveObject' to pass an object to a function that takes
 --   ownership of it.
@@ -199,9 +265,26 @@ data ObjectFlags = ObjectDisposing
 instance Enum ObjectFlags where
     toEnum n | n == (shiftL 1 0) = ObjectDisposing
     fromEnum ObjectDisposing = (shiftL 1 0)
+instance Flags ObjectFlags
 objectFlagLast :: Int
 objectFlagLast = shiftL 1 4
-instance Flags ObjectFlags
+
+objectGetFlags :: ObjectClass objectT
+               => objectT
+               -> IO [ObjectFlags]
+objectGetFlags = mkObjectGetFlags
+
+objectSetFlags :: ObjectClass objectT
+               => objectT
+               -> [ObjectFlags]
+               -> IO ()
+objectSetFlags = mkObjectSetFlags
+
+objectUnsetFlags :: ObjectClass objectT
+                 => objectT
+                 -> [ObjectFlags]
+                 -> IO ()
+objectUnsetFlags = mkObjectUnsetFlags
 
 --------------------------------------------------------------------
 
@@ -217,18 +300,33 @@ instance Enum PadFlags where
              | n == (shiftL objectFlagLast 2) = PadInGetcaps
              | n == (shiftL objectFlagLast 3) = PadInSetcaps
              | n == (shiftL objectFlagLast 4) = PadBlocking
-    
     fromEnum PadBlocked   = shiftL objectFlagLast 0
     fromEnum PadFlushing  = shiftL objectFlagLast 1
     fromEnum PadInGetcaps = shiftL objectFlagLast 2
     fromEnum PadInSetcaps = shiftL objectFlagLast 3
     fromEnum PadBlocking  = shiftL objectFlagLast 4
 instance Flags PadFlags
+padFlagLast :: Int
+padFlagLast = shiftL objectFlagLast 8
+
+padGetFlags :: PadClass padT
+            => padT
+            -> IO [PadFlags]
+padGetFlags = mkObjectGetFlags
+
+padSetFlags :: PadClass padT
+            => padT
+            -> [PadFlags]
+            -> IO ()
+padSetFlags = mkObjectSetFlags
+
+padUnsetFlags :: PadClass padT
+              => padT
+              -> [PadFlags]
+              -> IO ()
+padUnsetFlags = mkObjectUnsetFlags
 
 {# enum GstPadDirection  as PadDirection  {underscoreToCase} with prefix = "GST" deriving (Eq, Show) #}
-toPadDirection n = (toEnum $ fromIntegral n) :: PadDirection
-fromPadDirection (n :: PadDirection) = fromIntegral $ fromEnum n
-
 {# enum GstPadPresence   as PadPresence   {underscoreToCase} with prefix = "GST" deriving (Eq, Show) #}
 {# enum GstPadLinkReturn as PadLinkReturn {underscoreToCase} with prefix = "GST" deriving (Eq, Show) #}
 {# enum GstFlowReturn    as FlowReturn    {underscoreToCase} with prefix = "GST" deriving (Eq, Show) #}
@@ -256,13 +354,29 @@ instance Enum ElementFlags where
     fromEnum ElementIsSink      = (shiftL objectFlagLast 1)
     fromEnum ElementUnparenting = (shiftL objectFlagLast 2)
 instance Flags ElementFlags
+elementFlagLast :: Int
+elementFlagLast = shiftL objectFlagLast 16
+
+elementGetFlags :: ElementClass elementT
+                => elementT
+                -> IO [ElementFlags]
+elementGetFlags = mkObjectGetFlags
+
+elementSetFlags :: ElementClass elementT
+                => elementT
+                -> [ElementFlags]
+                -> IO ()
+elementSetFlags = mkObjectSetFlags
+
+elementUnsetFlags :: ElementClass elementT
+                  => elementT
+                  -> [ElementFlags]
+                  -> IO ()
+elementUnsetFlags = mkObjectUnsetFlags
 
 {# enum GstSeekFlags as SeekFlags {underscoreToCase} with prefix = "GST" deriving (Eq, Bounded) #}
 instance Flags SeekFlags
 {# enum GstSeekType as SeekType {underscoreToCase} with prefix = "GST" deriving (Eq, Bounded) #}
-toSeekType int = (toEnum $ fromIntegral int) :: SeekType
-fromSeekType (seekType :: SeekType) = fromIntegral $ fromEnum seekType
-
 {# enum GstState as State {underscoreToCase} with prefix = "GST" deriving (Eq) #}
 data StateChange = StateChangeNullToReady
                  | StateChangeReadyToPaused
@@ -309,6 +423,25 @@ instance Enum BusFlags where
     toEnum n | n == (shiftL objectFlagLast 0) = BusFlushing
     fromEnum BusFlushing  = shiftL objectFlagLast 0
 instance Flags BusFlags
+busFlagLast :: Int
+busFlagLast = shiftL objectFlagLast 1
+
+busGetFlags :: BusClass busT
+            => busT
+            -> IO [BusFlags]
+busGetFlags = mkObjectGetFlags
+
+busSetFlags :: BusClass busT
+            => busT
+            -> [BusFlags]
+            -> IO ()
+busSetFlags = mkObjectSetFlags
+
+busUnsetFlags :: BusClass busT
+              => busT
+              -> [BusFlags]
+              -> IO ()
+busUnsetFlags = mkObjectUnsetFlags
 
 {# enum GstBusSyncReply as BusSyncReply {underscoreToCase} with prefix = "GST" deriving (Eq) #}
 
@@ -340,13 +473,30 @@ instance Enum ClockFlags where
     fromEnum ClockCanSetResolution   = shiftL objectFlagLast 4
     fromEnum ClockCanSetMaster       = shiftL objectFlagLast 5
 instance Flags ClockFlags
+clockFlagLast :: Int
+clockFlagLast = shiftL objectFlagLast 8
+
+clockGetFlags :: ClockClass clockT
+              => clockT
+              -> IO [ClockFlags]
+clockGetFlags = mkObjectGetFlags
+
+clockSetFlags :: ClockClass clockT
+              => clockT
+              -> [ClockFlags]
+              -> IO ()
+clockSetFlags = mkObjectSetFlags
+
+clockUnsetFlags :: ClockClass clockT
+                => clockT
+                -> [ClockFlags]
+                -> IO ()
+clockUnsetFlags = mkObjectUnsetFlags
 
 type ClockTime = Word64
 type ClockTimeDiff = Int64
 
 {# enum GstClockReturn as ClockReturn {underscoreToCase} with prefix = "GST" deriving (Eq) #}
-toClockReturn int = (toEnum $ fromIntegral int) :: ClockReturn
-fromClockReturn (clockReturn :: ClockReturn) = fromIntegral $ fromEnum clockReturn
 
 {# pointer *GstClockID as ClockID foreign newtype #}
 withClockID :: ClockID
@@ -375,15 +525,29 @@ instance Enum IndexFlags where
     fromEnum IndexWritable = (shiftL objectFlagLast 0)
     fromEnum IndexReadable = (shiftL objectFlagLast 1)
 instance Flags IndexFlags
+indexFlagLast :: Int
+indexFlagLast = shiftL objectFlagLast 8
+
+indexGetFlags :: IndexClass indexT
+              => indexT
+              -> IO [IndexFlags]
+indexGetFlags = mkObjectGetFlags
+
+indexSetFlags :: IndexClass indexT
+              => indexT
+              -> [IndexFlags]
+              -> IO ()
+indexSetFlags = mkObjectSetFlags
+
+indexUnsetFlags :: IndexClass indexT
+                => indexT
+                -> [IndexFlags]
+                -> IO ()
+indexUnsetFlags = mkObjectUnsetFlags
 
 {# enum GstIndexCertainty as IndexCertainty {underscoreToCase} with prefix = "GST" deriving (Eq) #}
-toIndexCertainty int = (toEnum $ fromIntegral int) :: IndexCertainty
-fromIndexCertainty (certainty :: IndexCertainty) = fromIntegral $ fromEnum certainty
-
 {# enum GstIndexEntryType as IndexEntryType {underscoreToCase} with prefix = "GST" deriving (Eq) #}
 {# enum GstIndexLookupMethod as IndexLookupMethod {underscoreToCase} with prefix = "GST" deriving (Eq) #}
-toIndexLookupMethod int = (toEnum $ fromIntegral int) :: IndexLookupMethod
-fromIndexLookupMethod (format :: IndexLookupMethod) = fromIntegral $ fromEnum format
 
 {# pointer *GstIndexEntry as IndexEntry foreign newtype #}
 
@@ -411,9 +575,9 @@ instance Storable IndexAssociation where
     peek ptr =
         do format <- {# get GstIndexAssociation->format #} ptr
            value <- {# get GstIndexAssociation->value #} ptr
-           return $ IndexAssociation (toFormat format) (fromIntegral value)
+           return $ IndexAssociation (cToEnum format) (fromIntegral value)
     poke ptr (IndexAssociation format value) =
-        do {# set GstIndexAssociation->format #} ptr $ fromFormat format
+        do {# set GstIndexAssociation->format #} ptr $ cFromEnum format
            {# set GstIndexAssociation->value #} ptr $ fromIntegral value
 
 {# enum GstAssocFlags as AssocFlags {underscoreToCase} with prefix = "GST" deriving (Eq, Bounded) #}
@@ -661,12 +825,7 @@ giveTagList = giveStructure
 type Tag = String
 
 {# enum GstTagFlag as TagFlag {underscoreToCase} with prefix = "GST" deriving (Eq) #}
-toTagFlag int = (toEnum $ fromIntegral int) :: TagFlag
-fromTagFlag (tagFlag :: TagFlag) = fromIntegral $ fromEnum tagFlag
-
 {# enum GstTagMergeMode as TagMergeMode {underscoreToCase} with prefix = "GST" deriving (Eq) #}
-toTagMergeMode int = (toEnum $ fromIntegral int) :: TagMergeMode
-fromTagMergeMode (tagMergeMode :: TagMergeMode) = fromIntegral $ fromEnum tagMergeMode
 
 --------------------------------------------------------------------
 
@@ -696,7 +855,7 @@ instance Storable Segment where
            duration    <- {# get GstSegment->duration #} ptr
            return $ Segment (realToFrac rate)
                             (realToFrac absRate)
-                            (toFormat format)
+                            (cToEnum format)
                             (toFlags $ fromIntegral flags)
                             (fromIntegral start)
                             (fromIntegral stop)
@@ -715,10 +874,10 @@ instance Storable Segment where
                       lastStop
                       duration) =
         do {# call segment_init #} (castPtr ptr)
-                                   (fromFormat format)
+                                   (cFromEnum format)
            {# set GstSegment->rate #} ptr $ realToFrac rate
            {# set GstSegment->abs_rate #} ptr $ realToFrac absRate
-           {# set GstSegment->format #} ptr $ fromFormat format
+           {# set GstSegment->format #} ptr $ cFromEnum format
            {# set GstSegment->flags #} ptr $ fromIntegral $ fromFlags flags
            {# set GstSegment->start #} ptr $ fromIntegral start
            {# set GstSegment->stop #} ptr $ fromIntegral stop
@@ -730,4 +889,3 @@ foreign import ccall unsafe "_hs_gst_segment_sizeof"
     cSegmentSizeof :: {# type gsize #}
 
 --------------------------------------------------------------------
-

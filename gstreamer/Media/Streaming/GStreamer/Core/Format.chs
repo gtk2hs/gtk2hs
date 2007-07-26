@@ -71,14 +71,14 @@ formatsContains :: [Format]
                 -> Bool
 formatsContains formats format =
     toBool $ unsafePerformIO $
-        withArray0 0 (map fromFormat formats) $ \cFormats ->
-            {# call formats_contains #} cFormats $ fromFormat format
+        withArray0 0 (map cFromEnum formats) $ \cFormats ->
+            {# call formats_contains #} cFormats $ cFromEnum format
 
 formatGetDetails :: Format
                  -> FormatDefinition
 formatGetDetails format =
     unsafePerformIO $
-        ({# call format_get_details #} $ fromFormat format) >>=
+        ({# call format_get_details #} $ cFromEnum format) >>=
             peek . castPtr
 
 formatIterateDefinitions :: IO (Iterator FormatDefinition)

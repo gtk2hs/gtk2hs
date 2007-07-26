@@ -13,6 +13,9 @@
 #include <gst/base/gsttypefindhelper.h>
 #include <gst/controller/gstcontroller.h>
 
+guint    _hs_gst_object_flags (GstObject* obj);
+void     _hs_gst_object_flag_set (GstObject* obj, guint flags);
+void     _hs_gst_object_flag_unset (GstObject* obj, guint flags);
 void     _hs_gst_object_lock    (GstObject* obj);
 gboolean _hs_gst_object_trylock (GstObject* obj);
 void     _hs_gst_object_unlock  (GstObject* obj);

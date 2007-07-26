@@ -170,7 +170,7 @@ tagDescription tag =
 tagGetFlag :: Tag
            -> TagFlag
 tagGetFlag tag =
-    toTagFlag $ unsafePerformIO $
+    cToEnum $ unsafePerformIO $
         withUTFString tag {# call tag_get_flag #}
 
 tagIsFixed :: Tag
@@ -197,7 +197,7 @@ tagListMerge list1 list2 mode =
         withTagList list2 $ \listPtr2 ->
             {# call tag_list_merge #} (castPtr listPtr1)
                                       (castPtr listPtr2)
-                                      (fromTagMergeMode mode) >>=
+                                      (cFromEnum mode) >>=
                 takeTagList . castPtr
 
 tagListGetTagSize :: TagList
@@ -239,7 +239,7 @@ tagListInsert tagList1 mode =
             withTagList tagList2 $ \tagListPtr2 ->
                 {# call tag_list_insert #} (castPtr tagListPtr1)
                                            (castPtr tagListPtr2)
-                                           (fromTagMergeMode mode)
+                                           (cFromEnum mode)
 
 tagListRemoveTag :: Tag
                  -> StructureM ()

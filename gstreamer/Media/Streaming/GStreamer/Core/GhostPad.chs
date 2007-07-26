@@ -54,7 +54,7 @@ ghostPadNewNoTarget :: String
                     -> IO (Maybe Pad)
 ghostPadNewNoTarget name dir =
     (withUTFString name $
-         flip {# call ghost_pad_new_no_target #} $ fromPadDirection dir) >>=
+         flip {# call ghost_pad_new_no_target #} $ cFromEnum dir) >>=
         maybePeek takePad
 
 ghostPadNewFromTemplate :: String

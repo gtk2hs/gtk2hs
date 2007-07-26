@@ -182,7 +182,7 @@ clockIDWait clockID =
         do result <- withClockID clockID $ \clockIDPtr ->
                          {# call clock_id_wait #} (castPtr clockIDPtr) jitterPtr
            jitter <- peek jitterPtr
-           return $ (toClockReturn result, fromIntegral jitter)
+           return $ (cToEnum result, fromIntegral jitter)
 
 clockIDUnschedule :: ClockID
                   -> IO ()

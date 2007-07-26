@@ -86,7 +86,7 @@ indexSetCertainty :: IndexClass index
                   -> IndexCertainty
                   -> IO ()
 indexSetCertainty index certainty =
-    {# call index_set_certainty #} (toIndex index) $ fromIndexCertainty certainty
+    {# call index_set_certainty #} (toIndex index) $ cFromEnum certainty
 
 type CIndexFilter =  Ptr Index
                   -> Ptr IndexEntry
@@ -133,7 +133,7 @@ indexAddFormat :: IndexClass index
 indexAddFormat index id format =
     {# call index_add_format #} (toIndex index)
                                 (fromIntegral id)
-                                (fromFormat format) >>=
+                                (cFromEnum format) >>=
         peekIndexEntry
 
 indexAddAssociations :: IndexClass index
@@ -172,9 +172,9 @@ indexGetAssocEntry :: IndexClass index
 indexGetAssocEntry index id method flags format value =
     {# call index_get_assoc_entry #} (toIndex index)
                                      (fromIntegral id)
-                                     (fromIndexLookupMethod method)
+                                     (cFromEnum method)
                                      (fromIntegral $ fromFlags flags)
-                                     (fromFormat format)
+                                     (cFromEnum format)
                                      (fromIntegral value) >>=
         maybePeek peekIndexEntry
 
@@ -184,7 +184,7 @@ indexEntryAssocMap :: IndexEntry
 indexEntryAssocMap entry format =
     unsafePerformIO $ alloca $ \valuePtr ->
         do result <- {# call gst_index_entry_assoc_map #} entry
-                                                          (fromFormat format)
+                                                          (cFromEnum format)
                                                           valuePtr
            if toBool result
                then liftM (Just . fromIntegral) $ peek valuePtr

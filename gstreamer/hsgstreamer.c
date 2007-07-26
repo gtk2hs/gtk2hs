@@ -1,5 +1,14 @@
 #include "hsgstreamer.h"
 
+guint _hs_gst_object_flags (GstObject* obj)
+{ return GST_OBJECT_FLAGS (obj); }
+
+void _hs_gst_object_flag_set (GstObject* obj, guint flags)
+{ GST_OBJECT_FLAG_SET (obj, flags); }
+
+void _hs_gst_object_flag_unset (GstObject* obj, guint flags)
+{ GST_OBJECT_FLAG_UNSET (obj, flags); }
+
 void _hs_gst_object_lock (GstObject* obj)
 { GST_OBJECT_LOCK (obj); }
 
