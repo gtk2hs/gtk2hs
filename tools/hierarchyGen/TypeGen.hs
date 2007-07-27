@@ -138,14 +138,13 @@ main = do
     templateSubstitute template (\var ->
       case var of
         "MODULE_NAME"    -> ss modName
-        "MODULE_EXPORTS" -> generateExports objs
+        "MODULE_EXPORTS" -> generateExports parentName objs
 	"IMPORT_PARENT"  -> if null parentName
 	                      then ss ""
 	                      else ss "{#import " .ss parentName .ss "#}"
 	"CONTEXT_LIB"    -> ss lib
 	"CONTEXT_PREFIX" -> ss prefix
-	"CASTING_FUNCTIONS"  -> generateCastFunctions            objs specialQueries
-	"CLASS_DECLERATIONS" -> generateClassDeclerations prefix objs specialQueries
+	"DECLERATIONS"   -> generateDeclerations prefix objs specialQueries
 	_ -> ss ""
     ) ""
 
@@ -178,21 +177,26 @@ usage = do
 -- generate dynamic fragments
 -------------------------------------------------------------------------------
 
-generateExports :: [[String]] -> ShowS
-generateExports objs =
-  tail.
-  foldl (\s1 s2 -> s1.ss ", ".s2) id (map (\(n:_) -> 
-		indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
-		indent 1.ss "to".ss n.ss ", ".
-		indent 1.ss "from".ss n.ss ", ".
-		indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
-		indent 1.ss "castTo".ss n) objs)
+generateExports :: String -> [[String]] -> ShowS
+generateExports parent objs =
+  (if null parent
+     then ss ""
+     else ss "  module " .ss parent. ss ",").
+  drop 2.
+  foldl (\s1 s2 -> s1.ss ", ".s2) id
+    [ indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
+      indent 1.ss "to".ss n.ss ", ".
+      indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
+      indent 1.ss "castTo".ss n
+    | (n:_) <- objs
+    , n /= "GObject" ]
 
-generateCastFunctions :: [[String]] -> TypeTable -> ShowS
-generateCastFunctions objs typeTable = foldl (.) id (map (makeUpcast typeTable) objs)
-
-generateClassDeclerations :: String -> [[String]] -> TypeTable -> ShowS
-generateClassDeclerations prefix objs typeTable = foldl (.) id (map (makeClass prefix typeTable) objs)
+generateDeclerations :: String -> [[String]] -> TypeTable -> ShowS
+generateDeclerations prefix objs typeTable =
+  foldl (.) id
+  [ makeClass prefix typeTable obj
+  . makeUpcast typeTable obj
+  | obj <- objs ]
 
 makeUpcast :: TypeTable -> [String] -> ShowS
 makeUpcast table [obj]	   = id -- no casting for GObject
@@ -246,19 +250,24 @@ makeClass prefix table (name:parents) =
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".
   indent 0.
   indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".
-  indent 0.ss "to".ss name.ss "   :: ".ss name.ss "Class o => o -> ".ss name.
-  indent 0.ss "to".ss name.ss "   = unsafeCoerce#".
-  indent 0.ss "from".ss name.ss " :: ".ss name.ss "Class o => ".ss name.ss " -> o".
-  indent 0.ss "from".ss name.ss " = unsafeCoerce#".
+  indent 0.ss "to".ss name.ss " :: ".ss name.ss "Class o => o -> ".ss name.
+  indent 0.ss "to".ss name.ss " = unsafeCastGObject . toGObject".
   indent 0.
-  makeInstance name (name:parents).
+  makeInstance name (name:init parents).
+  makeGObjectInstance name.
   indent 0
 
 makeInstance :: String -> [String] -> ShowS
-makeInstance name [] = indent 0
+makeInstance name [] = id
 makeInstance name (par:ents) =
   indent 0.ss "instance ".ss par.ss "Class ".ss name.
   makeInstance name ents
+
+makeGObjectInstance :: String -> ShowS
+makeGObjectInstance name =
+  indent 0.ss "instance GObjectClass ".ss name.ss " where".
+  indent 1.ss "toGObject = mkGObject . castForeignPtr . un".ss name.
+  indent 1.ss "unsafeCastGObject = mk".ss name.ss" . castForeignPtr . unGObject"
 
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
 templateSubstitute template varSubst = doSubst template 

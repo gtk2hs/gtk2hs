@@ -1,4 +1,3 @@
-{-# OPTIONS -fglasgow-exts #-}  --due to use of unsafeCoerce#
 -- -*-haskell-*-
 -- -------------------- automatically generated file - do not edit ----------
 --  Object hierarchy for the GIMP Toolkit (GTK) Binding for Haskell
@@ -33,7 +32,6 @@ module @MODULE_NAME@ (
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
 import Foreign.C.Types    (CULong)
 import System.Glib.GType	(GType, typeInstanceIsA)
-import GHC.Base			(unsafeCoerce#)
 @IMPORT_PARENT@
 
 {# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
@@ -47,9 +45,7 @@ castTo gtype objTypeName obj =
   case toGObject obj of
     gobj\@(GObject objFPtr)
       | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
-                  -> fromGObject gobj
+                  -> unsafeCastGObject gobj
       | otherwise -> error $ "Cannot cast object to " ++ objTypeName
 
-@CASTING_FUNCTIONS@
-
-@CLASS_DECLERATIONS@
+@DECLERATIONS@

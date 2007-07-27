@@ -209,7 +209,7 @@ valueSetMaybeGObject gvalue Nothing =
 --
 valueGetGObject :: GObjectClass gobj => GValue -> IO gobj
 valueGetGObject gvalue =
-  liftM fromGObject $
+  liftM unsafeCastGObject $
   makeNewGObject mkGObject $
   throwIfNull "GValue.valueGetObject: extracting invalid object" $
   liftM castPtr $

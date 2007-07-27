@@ -32,12 +32,11 @@ module System.Glib.Types (
   mkGObject,
   unGObject,
   toGObject,
-  fromGObject,
+  unsafeCastGObject,
   castToGObject,
   ) where
 
 import Foreign (ForeignPtr)
-import GHC.Base (unsafeCoerce#)
 
 {# context lib="glib" prefix="g" #}
 
@@ -46,14 +45,17 @@ import GHC.Base (unsafeCoerce#)
 mkGObject = GObject
 unGObject (GObject o) = o
 
-class GObjectClass o
-toGObject   :: GObjectClass o => o -> GObject
-toGObject   = unsafeCoerce#
-fromGObject :: GObjectClass o => GObject -> o
-fromGObject = unsafeCoerce#
+class GObjectClass o where
+  -- | Safe upcast.
+  toGObject         :: GObjectClass o => o -> GObject
+  -- | Unchecked downcast.
+  unsafeCastGObject :: GObjectClass o => GObject -> o
+  {-# INLINE toGObject #-}
+  {-# INLINE unsafeCastGObject #-}
 
-instance GObjectClass GObject
+instance GObjectClass GObject where
+  toGObject = id
+  unsafeCastGObject = id
 
 castToGObject :: GObjectClass obj => obj -> obj
 castToGObject = id
-

@@ -118,7 +118,7 @@ import System.Glib.Flags
 {#import System.Glib.GObject#} (GObject(..),
                                 GObjectClass,
                                 toGObject,
-                                fromGObject)
+                                unsafeCastGObject)
 {#import System.Glib.GType#} (GType,
                               typeInstanceIsA)
 {#import System.Gnome.VFS.Hierarchy#}
@@ -135,7 +135,7 @@ gTypeCast gtype objTypeName obj =
   case toGObject obj of
     gobj@(GObject objFPtr)
       | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
-                  -> fromGObject gobj
+                  -> unsafeCastGObject gobj
       | otherwise -> error $ "Cannot cast object to " ++ objTypeName
 
 --------------------------------------------------------------------

@@ -278,7 +278,7 @@ marshExec Tboxed  arg n body = indent 5. ss "boxedPre". ss (show n). ss " (castP
                                body. sc ' '. arg. sc '\''
 marshExec Tptr	  arg _ body = body. ss " (castPtr ". arg. sc ')'
 marshExec Tobject arg _ body = indent 5.ss "makeNewGObject mkGObject (return ". arg. ss ") >>= \\". arg. ss "\' ->".
-                               body. ss " (fromGObject ". arg. ss "\')"
+                               body. ss " (unsafeCastGObject ". arg. ss "\')"
 
 marshRet :: Types -> (ShowS -> ShowS)
 marshRet Tunit	 body = body
@@ -327,7 +327,7 @@ marshExec Tptr	  n = indent 4.ss "let ptr".shows n.ss "' = castPtr ptr".
 		      shows n
 marshExec Tobject n = indent 4.ss "objectRef obj".shows n.
 		      indent 4.ss "obj".shows n.
-		      ss "' <- liftM (fromGObject.mkGObject) $".
+		      ss "' <- liftM (unsafeCastGObject.mkGObject) $".
 		      indent 5.ss "newForeignPtr obj".shows n.ss " objectUnref"
 marshExec _	  _ = id
 
