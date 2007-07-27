@@ -337,11 +337,11 @@ comboBoxSetActiveIter self iter =
 -- %hash c:2460
 -- | Returns the 'TreeModel' which is acting as data source for @comboBox@.
 --
-comboBoxGetModel :: (ComboBoxClass self, TreeModelClass model)
+comboBoxGetModel :: ComboBoxClass self
  => self
- -> IO (Maybe model) -- ^ returns A 'TreeModel' which was passed during
+ -> IO (Maybe TreeModel) -- ^ returns A 'TreeModel' which was passed during
                          -- construction.
-comboBoxGetModel self = liftM (fmap fromTreeModel) $
+comboBoxGetModel self =
   maybeNull (makeNewGObject mkTreeModel) $
   {# call unsafe gtk_combo_box_get_model #}
     (toComboBox self)
