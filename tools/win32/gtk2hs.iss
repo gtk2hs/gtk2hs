@@ -4,17 +4,17 @@
 [Setup]
 AppName=Gtk2Hs
 AppId=Gtk2Hs
-AppVerName=Gtk2Hs 0.9.11.3
-AppVersion=0.9.11.3
+AppVerName=Gtk2Hs 0.9.12
+AppVersion=0.9.12
 AppPublisher=The Gtk2Hs Team
 AppPublisherURL=http://haskell.org/gtk2hs/
 AppSupportURL=http://haskell.org/gtk2hs/
 AppUpdatesURL=http://haskell.org/gtk2hs/
 
 DefaultDirName={pf}\Gtk2Hs
-OutputBaseFilename=gtk2hs-0.9.11.3
+OutputBaseFilename=gtk2hs-0.9.12
 
-VersionInfoVersion=0.9.11.3
+VersionInfoVersion=0.9.12
 VersionInfoCopyright=Copyright (C) 2001-2007 The Gtk2Hs Team
 
 Compression=lzma/max
@@ -30,13 +30,13 @@ Name: "docs";    Description: "API reference documentation"; Types: full
 Name: "demos";   Description: "Source files for the Gtk2Hs demo programs"; Types: full
 
 [Files]
-Source: "gtk+-2.10.13\*";                        DestDir: "{app}";       Components: gtk;     Flags: ignoreversion recursesubdirs createallsubdirs;
-;Source: "gtk2hs-0.9.11.3-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-0.9.11.3-ghc-6.6.1-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-0.9.11.3-demo\*";               DestDir: "{app}\demos"; Components: demos;   Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "gtk2hs-0.9.11.3-docs\*";               DestDir: "{app}\docs";  Components: docs;    Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "COPYING.txt";                          DestDir: "{app}";                            Flags: ignoreversion;
-Source: "AUTHORS.txt";                          DestDir: "{app}";                            Flags: ignoreversion;
+Source: "gtk+-2.10.14\*";                     DestDir: "{app}";       Components: gtk;     Flags: ignoreversion recursesubdirs createallsubdirs;
+;Source: "gtk2hs-0.9.12-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-0.9.12-ghc-6.6.1-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-0.9.12-demo\*";               DestDir: "{app}\demos"; Components: demos;   Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk2hs-0.9.12-docs\*";               DestDir: "{app}\docs";  Components: docs;    Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "COPYING.txt";                        DestDir: "{app}";                            Flags: ignoreversion;
+Source: "AUTHORS.txt";                        DestDir: "{app}";                            Flags: ignoreversion;
 
 [Registry]
 Root: HKCU; Subkey: "Environment"; ValueName: "Path"; ValueType: "string"; ValueData: "{app}\bin;{olddata}"; Check: NotOnPathAlready(); Flags: preservestringtype;
@@ -51,14 +51,14 @@ Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\soegtk.package.conf""";  
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkglext.package.conf"""; StatusMsg: "Registering gtkglext package..."; Flags: runhidden
 Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\sourceview.package.conf"""; StatusMsg: "Registering sourceview package..."; Flags: runhidden
 [UninstallRun]
-Filename: "{code:ghcpkg}"; Parameters: "unregister sourceview-0.9.11.3"; RunOnceId: "gtkglext"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtkglext-0.9.11.3";   RunOnceId: "gtkglext"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.11.3";     RunOnceId: "soegtk";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.11.3";      RunOnceId: "glade";    Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.11.3";        RunOnceId: "gtk";      Flags: runhidden
-;Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.11.3";   RunOnceId: "svgcairo"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.11.3";      RunOnceId: "cairo";    Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.11.3";       RunOnceId: "glib";     Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister sourceview-0.9.12"; RunOnceId: "gtkglext"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtkglext-0.9.12";   RunOnceId: "gtkglext"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.12";     RunOnceId: "soegtk";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.12";      RunOnceId: "glade";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.12";        RunOnceId: "gtk";      Flags: runhidden
+;Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.12";   RunOnceId: "svgcairo"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.12";      RunOnceId: "cairo";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.12";       RunOnceId: "glib";     Flags: runhidden
 
 [Code]
 var
@@ -67,6 +67,7 @@ var
 
   CheckingPage: TOutputProgressWizardPage;
   ErrorReportPage: TOutputMsgMemoWizardPage;
+  ErrorContinueBox: TCheckBox;
   InstallationErrorCaption: String;
   InstallationErrorMessage: String;
   InstallationErrorDetail: String;
@@ -280,12 +281,13 @@ begin
     else
     begin
       DllFiles := ['charset.dll', 'gspawn-win32-helper-console.exe',
-        'gspawn-win32-helper.exe', 'iconv.dll', 'intl.dll',
-        'jpeg62.dll', 'libatk-1.0-0.dll', 'libcairo-2.dll',
-        'libgdk-win32-2.0-0.dll', 'libgdk_pixbuf-2.0-0.dll',
+        'gspawn-win32-helper.exe', 'iconv.dll', 'intl.dll', 'jpeg62.dll',
+        'libatk-1.0-0.dll', 'libcairo-2.dll', 'libgdk_pixbuf-2.0-0.dll',
+        'libgdkglext-win32-1.0-0.dll', 'libgdk-win32-2.0-0.dll',
         'libglade-2.0-0.dll', 'libglib-2.0-0.dll',
         'libgmodule-2.0-0.dll', 'libgobject-2.0-0.dll',
-        'libgthread-2.0-0.dll', 'libgtk-win32-2.0-0.dll',
+        'libgthread-2.0-0.dll', 'libgtkglext-win32-1.0-0.dll',
+        'libgtksourceview-1.0-0.dll', 'libgtk-win32-2.0-0.dll',
         'libpango-1.0-0.dll', 'libpangocairo-1.0-0.dll',
         'libpangoft2-1.0-0.dll', 'libpangowin32-1.0-0.dll',
         'libpng13.dll', 'libxml2.dll', 'zlib1.dll'];
@@ -400,8 +402,8 @@ end;
 
 procedure ErrorReportPageNotify(Sender: TWizardPage);
 begin
-  WizardForm.NextButton.Enabled := False;
-  ErrorReportPage.Description      := InstallationErrorCaption;
+  WizardForm.NextButton.Enabled := ErrorContinueBox.Checked;
+  ErrorReportPage.Description := InstallationErrorCaption;
   ErrorReportPage.SubCaptionLabel.Caption := InstallationErrorMessage;
   if InstallationErrorDetail = '' then
     ErrorReportPage.SubCaptionLabel.Height := 50
@@ -409,14 +411,30 @@ begin
   begin
     ErrorReportPage.RichEditViewer.RTFText := InstallationErrorDetail
     ErrorReportPage.RichEditViewer.Show();
+    ErrorContinueBox.Show();
   end;
+end;
+
+procedure ErrorContinueClicked(Sender: TObject);
+begin
+  WizardForm.NextButton.Enabled := ErrorContinueBox.Checked;
 end;
 
 procedure InitializeWizard();
 begin
   CheckingPage := CreateOutputProgressPage('Checking requirements', 'Checking for GHC and Gtk+');
+
   ErrorReportPage := CreateOutputMsgMemoPage(wpWelcome, 'Setup cannot continue', 'GHC or Gtk+ problem', 'Your installation of GHC or Gtk+ is messed up!', 'Foo bar!');
+  ErrorReportPage.RichEditViewer.Height := ErrorReportPage.RichEditViewer.Height - ScaleY(22);
   ErrorReportPage.OnActivate := @ErrorReportPageNotify;
   ErrorReportPage.RichEditViewer.Hide();
+
+  ErrorContinueBox := TCheckBox.Create(ErrorReportPage);
+  ErrorContinueBox.Parent := ErrorReportPage.Surface;
+  ErrorContinueBox.Top := ErrorReportPage.RichEditViewer.Height + ErrorReportPage.RichEditViewer.Top + ScaleY(8);
+  ErrorContinueBox.Width  := ErrorReportPage.RichEditViewer.Width;
+  ErrorContinueBox.Caption := 'Continue anyway. (You will have to fix the DLL search path problem yourself later.)';
+  ErrorContinueBox.Checked := False;
+  ErrorContinueBox.OnClick := @ErrorContinueClicked;
 end;
 
