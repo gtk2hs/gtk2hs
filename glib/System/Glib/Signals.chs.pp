@@ -59,6 +59,18 @@ import System.Glib.FFI
 newtype Signal object handler =
   Signal (Bool -> object -> handler -> IO (ConnectId object))
 
+-- | Perform an action in response to a signal.
+--
+-- Use it like this:
+--
+-- > on obj sig $ do
+-- >   ...
+--
+-- or if the signal handler takes any arguments:
+--
+-- > on obj sig $ \args -> do
+-- >   ...
+--
 on, after ::
     object
  -> Signal object callback
