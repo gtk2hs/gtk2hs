@@ -16,7 +16,7 @@ EXTRA_DIST = \
 	gtk/wingtk.h				\
         glib/System/Glib/hsgclosure.h		\
 	cairo/COPYRIGHT				\
-	cairo/cairo.h				\
+	cairo/cairo-gtk2hs.h			\
 	svgcairo/svgcairo.h			\
 	gtk/Graphics/UI/Gtk/General/hsgthread.h	\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h \
