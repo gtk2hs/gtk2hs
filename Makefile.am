@@ -91,6 +91,7 @@ tools_hierarchyGen_PKGNAME = tools_hierarchyGen_TypeGenerator
 tools_hierarchyGen_TypeGenerator_MAIN = \
   $(tools_hierarchyGen_TypeGenerator_SOURCES)
 tools_hierarchyGen_TypeGenerator_EXTERNALDEPS = base
+tools_hierarchyGen_TypeGenerator_NOSPLITOBJS = yes
 tools_hierarchyGen_TypeGenerator_SOURCESDIRS = tools/hierarchyGen
 tools_hierarchyGen_TypeGenerator_SOURCES = \
   tools/hierarchyGen/TypeGen.hs
@@ -110,6 +111,7 @@ tools_callbackGen_PKGNAME = tools_callbackGen_HookGenerator
 tools_callbackGen_HookGenerator_MAIN = \
   $(tools_callbackGen_HookGenerator_SOURCES)
 tools_callbackGen_HookGenerator_EXTERNALDEPS = base
+tools_callbackGen_HookGenerator_NOSPLITOBJS = yes
 tools_callbackGen_HookGenerator_SOURCESDIRS = tools/callbackGen
 tools_callbackGen_HookGenerator_SOURCES = \
   tools/callbackGen/HookGenerator.hs
@@ -128,8 +130,7 @@ tools_c2hs_PKGNAME = tools_c2hs_c2hsLocal
 
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
 tools_c2hs_c2hsLocal_EXTERNALDEPS	= base haskell98
-tools_c2hs_c2hsLocal_HEADER		= 
-tools_c2hs_c2hsLocal_HCFLAGS		= 
+tools_c2hs_c2hsLocal_NOSPLITOBJS	= yes
 
 tools_c2hs_c2hsLocal_SOURCESDIRS = 			\
 	tools/c2hs/base/admin tools/c2hs/base/errors	\
@@ -325,6 +326,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSglib_a_AR = $(srcdir)/mk/link-splitobjs.sh
+glib_CLEANFILES_SPLIT = $(libHSglib_a_HSFILES:.hs=_split/)
 else
 libHSglib_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -690,9 +692,9 @@ gtk_MOSTLYCLEANFILES  = $(am_libHSgtk_a_OBJECTS)
 gtk_MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.hi)
 gtk_MOSTLYCLEANFILES += \
 	$(libHSgtk_a_CHSFILES:.chs=.chi)	\
-	$(libHSgtk_a_LIBADD)	\
-	$(libHSgtk_a_LIBADD:.o=_.c)	\
-	$(libHSgtk_a_LIBADD:.o=_.h)
+	$(libHSgtk_a_CHSFILES:.chs=_stub.h)	\
+	$(libHSgtk_a_CHSFILES:.chs=_stub.o)	\
+	$(libHSgtk_a_CHSFILES:.chs=_stub.c)
 gtk_CLEANFILES  = $(libHSgtk_a_BUILDSOURCES)
 gtk_CLEANFILES += $(libHSgtk_a_CHSFILES_HS:.hs=.dep)
 
@@ -704,6 +706,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSgtk_a_AR = $(srcdir)/mk/link-splitobjs.sh
+gtk_CLEANFILES_SPLIT = $(libHSgtk_a_HSFILES:.hs=_split/)
 else
 libHSgtk_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -817,6 +820,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSglade_a_AR = $(srcdir)/mk/link-splitobjs.sh
+glade_CLEANFILES_SPLIT = $(libHSglade_a_HSFILES:.hs=_split/)
 else
 libHSglade_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -937,9 +941,9 @@ gconf_MOSTLYCLEANFILES  = $(am_libHSgconf_a_OBJECTS)
 gconf_MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
 gconf_MOSTLYCLEANFILES += \
 	$(libHSgconf_a_CHSFILES:.chs=.chi)	\
-	$(libHSgconf_a_LIBADD)	\
-	$(libHSgconf_a_LIBADD:.o=_.c)	\
-	$(libHSgconf_a_LIBADD:.o=_.h)
+	$(libHSgconf_a_CHSFILES:.chs=_stub.h)	\
+	$(libHSgconf_a_CHSFILES:.chs=_stub.h)	\
+	$(libHSgconf_a_CHSFILES:.chs=_stub.c)
 gconf_CLEANFILES  = $(libHSgconf_a_BUILDSOURCES)
 gconf_CLEANFILES += $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
 
@@ -952,6 +956,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSgconf_a_AR = $(srcdir)/mk/link-splitobjs.sh
+gconf_CLEANFILES_SPLIT = $(libHSgconf_a_HSFILES:.hs=_split/)
 else
 libHSgconf_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -1077,6 +1082,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSsourceview_a_AR = $(srcdir)/mk/link-splitobjs.sh
+sourceview_CLEANFILES_SPLIT = $(libHSsourceview_a_HSFILES:.hs=_split/)
 else
 libHSsourceview_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -1190,6 +1196,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSmozembed_a_AR = $(srcdir)/mk/link-splitobjs.sh
+mozembed_CLEANFILES_SPLIT = $(libHSmozembed_a_HSFILES:.hs=_split/)
 else
 libHSmozembed_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -1323,6 +1330,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHScairo_a_AR = $(srcdir)/mk/link-splitobjs.sh
+cairo_CLEANFILES_SPLIT = $(libHScairo_a_HSFILES:.hs=_split/)
 else
 libHScairo_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -1421,6 +1429,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSsvgcairo_a_AR = $(srcdir)/mk/link-splitobjs.sh
+svgcairo_CLEANFILES_SPLIT = $(libHSsvgcairo_a_HSFILES:.hs=_split/)
 else
 libHSsvgcairo_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -1542,6 +1551,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSgtkglext_a_AR = $(srcdir)/mk/link-splitobjs.sh
+gtkglext_CLEANFILES_SPLIT = $(libHSgtkglext_a_HSFILES:.hs=_split/)
 else
 libHSgtkglext_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -1616,6 +1626,7 @@ nobase_hi_DATA += $(libHSsoegtk_a_HSFILES:.hs=.hi)
 
 soegtk_MOSTLYCLEANFILES  = $(am_libHSsoegtk_a_OBJECTS)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.hi)
+soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_BUILDSOURCES)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include soegtk/libHSsoegtk_a.deps
@@ -1623,6 +1634,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 
 if ENABLE_SPLITOBJS
 libHSsoegtk_a_AR = $(srcdir)/mk/link-splitobjs.sh
+soegtk_CLEANFILES_SPLIT = $(libHSsoegtk_a_HSFILES:.hs=_split/)
 else
 libHSsoegtk_a_AR = $(AR) $(ARFLAGS)
 endif
@@ -2148,7 +2160,6 @@ clean: mostlyclean clean-am
 	rm -f $(svgcairo_CLEANFILES)
 	rm -f $(gtkglext_CLEANFILES)
 	rm -f $(soegtk_CLEANFILES)
-	rm -f $(gnomevfs_CLEANFILES)
 	rm -f $(doc_CLEANFILES)
 
 distclean: clean distclean-am

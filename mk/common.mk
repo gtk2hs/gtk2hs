@@ -59,10 +59,10 @@ endif
 #Obviously the 'subdir-objects' option only works for C/C++ files.
 if ENABLE_SPLITOBJS
 %.o : %.hs $(CONFIG_HEADER)
-	rm -rf $@ $*_split/
-	mkdir -p $*_split
+	$(if $($(PKG)_NOSPLITOBJS),,rm -rf $@ $*_split/; mkdir -p $*_split)
 	$(strip $(HC) +RTS $(HSTOOLFLAGS) -RTS \
-	-c $< -o $@ -split-objs $(HCFLAGS) $($(PKG)_HCFLAGS) \
+	$(if $($(PKG)_NOSPLITOBJS),,-split-objs) \
+	-c $< -o $@ $(HCFLAGS) $($(PKG)_HCFLAGS) \
 	$(call getVar,$<,HCFLAGS) -i$(HS_SEARCH_PATH) \
 	$(HCFLAGS_PACKAGE_DEPS) $(HCFLAGS_PACKAGE_NAME) \
 	$(addprefix '-#include<,$(addsuffix >', $($(PKG)_HEADER))) \
