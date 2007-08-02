@@ -221,7 +221,7 @@ data Event =
     eventModifier	:: [Modifier],
     -- | The button that was pressed.
     eventButton	:: MouseButton,
-    -- | The coordinates of the click relative the the screen origin.
+    -- | The coordinates of the click relative to the screen origin.
     eventXRoot,
     eventYRoot	:: Double }
   -- | A key was pressed while the widget had the input focus.
