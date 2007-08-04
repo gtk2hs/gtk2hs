@@ -23,7 +23,6 @@ module Media.Streaming.GStreamer.Core.GhostPad (
   GhostPadClass,
   castToGhostPad,
   toGhostPad,
-  fromGhostPad,
   ghostPadNew,
   ghostPadNewNoTarget,
   ghostPadNewFromTemplate,

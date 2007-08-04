@@ -23,7 +23,6 @@ module Media.Streaming.GStreamer.Core.Bus (
   BusClass,
   castToBus,
   toBus,
-  fromBus,
   busNew,
   busPost,
   busHavePending,

@@ -23,7 +23,6 @@ module Media.Streaming.GStreamer.Core.Bin (
   BinClass,
   castToBin,
   toBin,
-  fromBin,
   binAdd,
   binRemove,
   binGetByName,

@@ -34,7 +34,6 @@ module @MODULE_NAME@ (
   withMiniObject,
   isMiniObject,
   toMiniObject,
-  fromMiniObject,
   castToMiniObject,
   peekMiniObject,
   takeMiniObject,
@@ -64,7 +63,7 @@ mkCastToObject gtype objTypeName obj =
   case toMiniObject obj of
     gobj\@(MiniObject objFPtr)
       | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
-                  -> fromMiniObject gobj
+                  -> unsafeCastMiniObject gobj
       | otherwise -> error $ "Cannot cast object to " ++ objTypeName
 
 mkIsObject :: MiniObjectClass obj
@@ -109,13 +108,13 @@ isMiniObject :: MiniObjectClass obj
              -> Bool
 isMiniObject = mkIsObject {# call fun unsafe gst_mini_object_get_type #}
 
-toMiniObject :: MiniObjectClass o => o -> MiniObject
-toMiniObject = unsafeCoerce#
-fromMiniObject :: MiniObjectClass o => MiniObject -> o
-fromMiniObject = unsafeCoerce#
+class MiniObjectClass o where
+    toMiniObject :: MiniObjectClass o => o -> MiniObject
+    unsafeCastMiniObject :: MiniObjectClass o => MiniObject -> o
 
-class MiniObjectClass o
-instance MiniObjectClass MiniObject
+instance MiniObjectClass MiniObject where
+    toMiniObject = id
+    unsafeCastMiniObject = id
 
 castToMiniObject :: MiniObjectClass obj
                  => obj

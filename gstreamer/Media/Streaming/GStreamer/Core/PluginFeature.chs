@@ -20,7 +20,6 @@ module Media.Streaming.GStreamer.Core.PluginFeature (
   PluginFeatureClass,
   castToPluginFeature,
   toPluginFeature,
-  fromPluginFeature,
   pluginFeatureLoad,
   pluginFeatureCheckVersion
   ) where

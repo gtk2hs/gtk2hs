@@ -23,7 +23,6 @@ module Media.Streaming.GStreamer.Core.PadTemplate (
   PadTemplateClass,
   castToPadTemplate,
   toPadTemplate,
-  fromPadTemplate,
   PadPresence(..),
   
   padTemplateNew,

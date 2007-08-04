@@ -21,7 +21,6 @@ module Media.Streaming.GStreamer.Core.Clock (
   ClockClass,
   castToClock,
   toClock,
-  fromClock,
   clockAddObservation,
   clockSetMaster,
   clockGetMaster,

@@ -21,7 +21,6 @@ module Media.Streaming.GStreamer.Core.Message (
   MessageClass,
   castToMessage,
   toMessage,
-  fromMessage,
   MessageType(..),
   messageTypeGetName,
   messageTypeToQuark,

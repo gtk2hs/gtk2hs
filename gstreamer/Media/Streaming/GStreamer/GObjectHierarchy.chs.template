@@ -37,6 +37,7 @@ import System.Glib.GType	(GType, typeInstanceIsA)
 import GHC.Base			(unsafeCoerce#)
 import System.Glib.FFI
 {#import System.Glib.GObject#}
+{#import System.Glib.Types#}
 @IMPORT_PARENT@
 
 {# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
@@ -52,7 +53,7 @@ mkCastToObject gtype objTypeName obj =
   case toGObject obj of
     gobj\@(GObject objFPtr)
       | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
-                  -> fromGObject gobj
+                  -> unsafeCastGObject gobj
       | otherwise -> error $ "Cannot cast object to " ++ objTypeName
 
 mkIsObject :: GObjectClass obj

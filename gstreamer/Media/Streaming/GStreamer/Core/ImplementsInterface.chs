@@ -20,7 +20,6 @@ module Media.Streaming.GStreamer.Core.ImplementsInterface (
   ImplementsInterfaceClass,
   castToImplementsInterface,
   toImplementsInterface,
-  fromImplementsInterface,
   elementImplementsInterface
   ) where
 

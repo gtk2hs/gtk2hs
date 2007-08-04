@@ -21,7 +21,6 @@ module Media.Streaming.GStreamer.Core.IndexFactory (
   IndexFactoryClass,
   castToIndexFactory,
   toIndexFactory,
-  fromIndexFactory,
   indexFactoryFind,
   indexFactoryCreate,
   indexFactoryMake

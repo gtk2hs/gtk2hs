@@ -19,7 +19,6 @@ module Media.Streaming.GStreamer.Core.SystemClock (
   SystemClock,
   SystemClockClass,
   toSystemClock,
-  fromSystemClock,
   castToSystemClock,
   systemClockObtain
   ) where

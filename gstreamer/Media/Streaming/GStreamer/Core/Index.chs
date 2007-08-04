@@ -21,7 +21,6 @@ module Media.Streaming.GStreamer.Core.Index (
   IndexClass,
   castToIndex,
   toIndex,
-  fromIndex,
   indexNew,
   indexCommit,
   indexGetGroup,

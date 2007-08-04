@@ -148,8 +148,8 @@ main = do
 	                      else ss "{#import " .ss parentName .ss "#}"
 	"CONTEXT_LIB"    -> ss lib
 	"CONTEXT_PREFIX" -> ss prefix
-	"CASTING_FUNCTIONS"  -> generateCastFunctions     rootObject objs specialQueries
-	"CLASS_DECLERATIONS" -> generateClassDeclerations prefix     objs specialQueries
+	"CASTING_FUNCTIONS"  -> generateCastFunctions                objs specialQueries rootObject
+	"CLASS_DECLERATIONS" -> generateClassDeclerations prefix     objs specialQueries rootObject
 	_ -> ss ""
     ) ""
 
@@ -188,7 +188,6 @@ generateExports objs =
   foldl (\s1 s2 -> s1.ss ", ".s2) id (map (\(n:_) -> 
 		indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
 		indent 1.ss "to".ss n.ss ", ".
-		indent 1.ss "from".ss n.ss ", ".
 		indent 1.ss "with".ss n.ss ", ".
 		indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
 		indent 1.ss "castTo".ss n.ss ",".
@@ -196,11 +195,11 @@ generateExports objs =
                 indent 1.ss "peek".ss n.ss ",".
                 indent 1.ss "take".ss n) objs)
 
-generateCastFunctions :: String -> [[String]] -> TypeTable -> ShowS
-generateCastFunctions rootObject objs typeTable = foldl (.) id (map (makeUpcast rootObject typeTable) objs)
+generateCastFunctions :: [[String]] -> TypeTable -> String -> ShowS
+generateCastFunctions objs typeTable rootObject = foldl (.) id (map (makeUpcast rootObject typeTable) objs)
 
-generateClassDeclerations :: String -> [[String]] -> TypeTable -> ShowS
-generateClassDeclerations prefix objs typeTable = foldl (.) id (map (makeClass prefix typeTable) objs)
+generateClassDeclerations :: String -> [[String]] -> TypeTable -> String -> ShowS
+generateClassDeclerations prefix objs typeTable rootObject = foldl (.) id (map (makeClass prefix typeTable rootObject) objs)
 
 makeUpcast :: String -> TypeTable -> [String] -> ShowS
 makeUpcast rootObject table [obj]	   = id -- no casting for GObject
@@ -210,10 +209,6 @@ makeUpcast rootObject table (obj:_:_) =
   indent 1.get_type_func.ss " \"".ss obj.ss "\"".
   indent 0.ss "is".ss obj.ss " :: ".ss obj.ss "Class o => o -> Bool".
   indent 0.ss "is".ss obj.ss " = mkIsObject ".get_type_func.
-  indent 0.ss "peek".ss obj.ss " :: Ptr ".ss obj.ss " -> IO ".ss obj.
-  indent 0.ss "peek".ss obj.ss " = mkPeekObject ".ss obj.
-  indent 0.ss "take".ss obj.ss " :: Ptr ".ss obj.ss " -> IO ".ss obj.
-  indent 0.ss "take".ss obj.ss " = mkTakeObject ".ss obj.
   indent 0
   where
     get_type_func =
@@ -242,9 +237,9 @@ makeOrd fill (obj:preds) = indent 1.ss "compare ".ss obj.ss "Tag ".
 			  fill obj.ss pr.ss "Tag".fill pr.
 			  ss " = GT".makeGT obj eds
 
-makeClass :: String -> TypeTable -> [String] -> ShowS
-makeClass prefix table (name:[])      = id
-makeClass prefix table (name:parents) =
+makeClass :: String -> TypeTable -> String -> [String] -> ShowS
+makeClass prefix table rootObject (name:[])      = id
+makeClass prefix table rootObject (name:parents) =
   indent 0.ss "-- ".ss (replicate (75-length name) '*').sc ' '.ss name.
   indent 0.
   indent 0.ss "{#pointer *".
@@ -260,23 +255,32 @@ makeClass prefix table (name:parents) =
   indent 0.
   indent 0.ss "mk".ss name.ss " = ".ss name.
   indent 0.ss "un".ss name.ss " (".ss name.ss " o) = o".
+  indent 0.ss "peek".ss name.ss " :: Ptr ".ss name.ss " -> IO ".ss name.
+  indent 0.ss "peek".ss name.ss " = mkPeekObject ".ss name.
+  indent 0.ss "take".ss name.ss " :: Ptr ".ss name.ss " -> IO ".ss name.
+  indent 0.ss "take".ss name.ss " = mkTakeObject ".ss name.
   indent 0.
   indent 0.ss "class ".ss (head parents).ss "Class o => ".ss name.ss "Class o".
   indent 0.ss "to".ss name.ss "   :: ".ss name.ss "Class o => o -> ".ss name.
-  indent 0.ss "to".ss name.ss "   = unsafeCoerce#".
-  indent 0.ss "from".ss name.ss " :: ".ss name.ss "Class o => ".ss name.ss " -> o".
-  indent 0.ss "from".ss name.ss " = unsafeCoerce#".
+  indent 0.ss "to".ss name.ss "   = unsafeCast".ss rootObject.ss " . to".ss rootObject.
   indent 0.ss "with".ss name.ss " :: ".ss name.ss "Class o => o -> (Ptr ".ss name.ss " -> IO a) -> IO a".
   indent 0.ss "with".ss name.ss " = withForeignPtr . un".ss name.ss " . to".ss name.
   indent 0.
   makeInstance name (name:parents).
+  makeRootInstance name rootObject.
   indent 0
 
 makeInstance :: String -> [String] -> ShowS
-makeInstance name [] = indent 0
+makeInstance name (rootObj:[]) = indent 0
 makeInstance name (par:ents) =
   indent 0.ss "instance ".ss par.ss "Class ".ss name.
   makeInstance name ents
+
+makeRootInstance :: String -> String -> ShowS
+makeRootInstance name rootObject =
+  indent 0.ss "instance ".ss rootObject.ss "Class ".ss name.ss " where".
+  indent 1.ss "to".ss rootObject.ss " = ".ss "mk".ss rootObject.ss" . castForeignPtr . un".ss name.
+  indent 1.ss "unsafeCast".ss rootObject.ss " = mk".ss name.ss " . castForeignPtr . un".ss rootObject
 
 templateSubstitute :: String -> (String -> ShowS) -> ShowS
 templateSubstitute template varSubst = doSubst template 
