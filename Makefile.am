@@ -111,6 +111,7 @@ tools_hierarchyGenGst_PKGNAME = tools_hierarchyGenGst_TypeGenerator
 tools_hierarchyGenGst_TypeGenerator_MAIN = \
   $(tools_hierarchyGenGst_TypeGenerator_SOURCES)
 tools_hierarchyGenGst_TypeGenerator_EXTERNALDEPS = base
+tools_hierarchyGenGst_TypeGenerator_NOSPLITOBJS = yes
 tools_hierarchyGenGst_TypeGenerator_SOURCESDIRS = tools/hierarchyGenGst
 tools_hierarchyGenGst_TypeGenerator_SOURCES = \
   tools/hierarchyGenGst/TypeGen.hs
