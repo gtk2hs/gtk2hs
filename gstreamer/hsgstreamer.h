@@ -24,4 +24,9 @@ GstMessageType _hs_gst_message_get_message_type (GstMessage *message);
 void _hs_gst_structure_make_immutable (GstStructure *structure);
 gsize _hs_gst_segment_sizeof (void) G_GNUC_CONST;
 
+GstPad *_hs_gst_base_src_get_pad (GstBaseSrc *base_src);
+GstPad *_hs_gst_base_sink_get_pad (GstBaseSink *base_sink);
+GstPad *_hs_gst_base_transform_get_sink_pad (GstBaseTransform *base_transform);
+GstPad *_hs_gst_base_transform_get_src_pad (GstBaseTransform *base_transform);
+
 #endif

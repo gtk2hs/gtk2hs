@@ -23,13 +23,18 @@
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
 --  
--- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
+-- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module Media.Streaming.GStreamer.Base (
+module Media.Streaming.GStreamer.Base.PushSrc (
   
-  module Media.Streaming.GStreamer.Base.BaseSrc
+  PushSrc,
+  PushSrcClass,
+  castToPushSrc,
+  toPushSrc,
   
   ) where
 
-import Media.Streaming.GStreamer.Base.BaseSrc
+{#import Media.Streaming.GStreamer.Base.Types#}
+
+{# context lib = "gstreamer" prefix = "gst" #}

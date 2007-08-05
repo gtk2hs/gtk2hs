@@ -1,4 +1,4 @@
---  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
+--  GIMP Toolkit (GTK) Binding for Haskell: binding to gstreamer -*-haskell-*-
 --
 --  Author : Peter Gavin
 --  Created: 1-Apr-2007
@@ -19,23 +19,65 @@
 --  License along with this program.  If not, see
 --  <http://www.gnu.org/licenses/>.
 --  
---  GnomeVFS, the C library which this Haskell library depends on, is
+--  GStreamer, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
---  this library is based on the original GnomeVFS documentation,
---  Copyright (c) 2001 Seth Nickell <snickell@stanford.edu>. The
---  documentation is covered by the GNU Free Documentation License,
---  version 1.2.
+--  this library is based on the original GStreamer documentation.
 --  
--- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
+-- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
+-- 
+-- #hide
 module Media.Streaming.GStreamer.Base.Types (
   
+  module Media.Streaming.GStreamer.Core.Types,
   module Media.Streaming.GStreamer.Base.Hierarchy,
+  
+  BaseSrcFlags,
+  baseSrcFlagLast,
+  baseSrcGetFlags,
+  baseSrcSetFlags,
+  baseSrcUnsetFlags,
+  
+  Adapter,
   
   ) where
 
+import Data.Bits ( shiftL )
 {#import Media.Streaming.GStreamer.Core.Types#}
 {#import Media.Streaming.GStreamer.Base.Hierarchy#}
 {#import System.Glib.GObject#}
+import System.Glib.Flags
+import System.Glib.FFI
 
+{# context lib = "gstreamer" prefix = "gst" #}
+
+data BaseSrcFlags = BaseSrcStarted
+                deriving (Eq, Bounded)
+instance Enum BaseSrcFlags where
+    toEnum n | n == (shiftL elementFlagLast 0) = BaseSrcStarted
+    fromEnum BaseSrcStarted = (shiftL elementFlagLast 0)
+instance Flags BaseSrcFlags
+baseSrcFlagLast :: Int
+baseSrcFlagLast = shiftL elementFlagLast 2
+
+baseSrcGetFlags :: BaseSrcClass baseSrcT
+                => baseSrcT
+                -> IO [BaseSrcFlags]
+baseSrcGetFlags = mkObjectGetFlags
+
+baseSrcSetFlags :: BaseSrcClass baseSrcT
+                => baseSrcT
+                -> [BaseSrcFlags]
+                -> IO ()
+baseSrcSetFlags = mkObjectSetFlags
+
+baseSrcUnsetFlags :: BaseSrcClass baseSrcT
+                  => baseSrcT
+                  -> [BaseSrcFlags]
+                  -> IO ()
+baseSrcUnsetFlags = mkObjectUnsetFlags
+
+-------------------------------------------------------------------
+
+{# pointer *GstAdapter as Adapter foreign newtype #}

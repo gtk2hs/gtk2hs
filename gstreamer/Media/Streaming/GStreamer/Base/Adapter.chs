@@ -26,10 +26,17 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module Media.Streaming.GStreamer.Base (
+module Media.Streaming.GStreamer.Base.Adapter (
   
-  module Media.Streaming.GStreamer.Base.BaseSrc
+  Adapter,
   
   ) where
 
-import Media.Streaming.GStreamer.Base.BaseSrc
+import Control.Monad (liftM)
+{#import Media.Streaming.GStreamer.Base.Types#}
+import System.Glib.FFI
+import System.Glib.Flags
+import System.Glib.Attributes
+{#import System.Glib.Properties#}
+
+{# context lib = "gstreamer" prefix = "gst" #}
