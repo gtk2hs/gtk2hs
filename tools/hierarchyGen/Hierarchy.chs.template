@@ -30,7 +30,7 @@ module @MODULE_NAME@ (
   ) where
 
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
-import Foreign.C.Types    (CULong)
+import Foreign.C.Types    (CULong, CUInt)
 import System.Glib.GType	(GType, typeInstanceIsA)
 @IMPORT_PARENT@
 
