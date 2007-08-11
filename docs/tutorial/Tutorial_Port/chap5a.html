@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux/x86 (vers 11 February 2007), see www.w3.org">
+  <meta http-equiv="CONTENT-TYPE" content=
+  "text/html; charset=us-ascii">
+
+  <title>Packing Demonstration Program</title>
+</head>
+
+<body lang="en-US" text="#000000" link="#0000FF" vlink="#840084"
+bgcolor="#FFFFFF" dir="ltr">
+  <table summary="links to other pages" width="100%" border="0"
+  cellpadding="0" cellspacing="0" style=
+  "page-break-before: always">
+    <tr>
+      <th colspan="3">
+        <p align="center">Gtk2HsTutorial</p>
+      </th>
+    </tr>
+
+    <tr valign="bottom">
+      <td width="10%">
+        <p align="left"><a href=
+        "chap4.html">&lt;&lt;&lt;Previous</a></p>
+      </td>
+
+      <td width="80%">
+        <p align="center">Packing Demonstration</p>
+      </td>
+
+      <td width="10%">
+        <p align="right"><a href="chap5b.html">Next
+        &gt;&gt;&gt;</a></p>
+      </td>
+    </tr>
+  </table>
+  <hr>
+
+  <h1><a name="SEC-PACKINGDEMONSTRATIONPROGRAM" id=
+  "SEC-PACKINGDEMONSTRATIONPROGRAM"></a>Packing Demonstration
+  Program</h1>
+
+  <p>The base of all widgets here is a vertical box, which itself
+  is a child of the window. The child widgets are not displayed
+  homogeneously and there is no additional spacing (other than the
+  standard spacing). There are 6 horizontal boxes in the vertical
+  box, as defined by the function makeBox, which has the type as
+  shown. Furthermore, there are 2 labels in the vertical box as
+  well as 2 horizontal separators. The last widget is the quit
+  button, whose <i>onClicked</i> signal is attached to the
+  <i>mainQuit</i> function.</p>
+
+  <p>The separators are created with <i>hSeparatorNew</i> and they
+  are spaced by <i>boxPackStart</i> with a padding of 10 pixels.
+  The labels are created by <i>labelNew</i> which takes a <i>Maybe
+  String</i> and their positioning is set by
+  <i>miscSetAlignment</i> to be left and top justified.</p>
+
+  <p><br></p>
+
+  <p><img src="Images/GtkChap5a1.png" name="graphics1" alt=
+  "GtkChap5a" align="bottom" width="505" height="328" border="0"
+  id="graphics1"></p>
+
+  <p>The function <i>makeBox :: Bool -&gt; Int -&gt; Packing -&gt;
+  Int -&gt; IO HBox</i> demonstrates how Gtk2Hs widgets fit into
+  the Haskell type system. <i>Packing</i> is just a type like
+  <i>Int</i> and <i>Bool</i> and <i>IO HBox is just like IO
+  String</i> in the usual IO. The function creates 5 buttons,
+  labels them with the appropriate text and packs them into a
+  horizontal box. The function is then used in the main program to
+  create the desired ways of packing.</p><br>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+   initGUI
+   window &lt;- windowNew
+   vbox &lt;- vBoxNew False 0
+   set window [containerBorderWidth := 10, 
+               windowTitle := "Packing Demonstration",
+               containerChild := vbox ]
+   label1 &lt;- labelNew (Just "hBoxNew False 0")
+   miscSetAlignment label1 0 0
+   boxPackStart vbox label1 PackNatural 0
+   box1 &lt;- makeBox False 0 PackNatural 0
+   boxPackStart vbox box1 PackNatural 0
+   box2 &lt;- makeBox False 0 PackRepel 0
+   boxPackStart vbox box2 PackNatural 0 
+   box3 &lt;- makeBox False 0 PackGrow 0
+   boxPackStart vbox box3 PackNatural 0
+   sep1 &lt;- hSeparatorNew
+   boxPackStart vbox sep1 PackNatural 10  
+   label2 &lt;- labelNew (Just "hBoxNew True 0")
+   miscSetAlignment label2 0 0
+   boxPackStart vbox label2 PackNatural 0
+   box4 &lt;- makeBox True 0 PackNatural 0
+   boxPackStart vbox box4 PackNatural 0
+   box5 &lt;- makeBox True 0 PackRepel 0
+   boxPackStart vbox box5 PackNatural 0 
+   box6 &lt;- makeBox False 0 PackGrow 0
+   boxPackStart vbox box6 PackNatural 0
+   sep &lt;- hSeparatorNew
+   boxPackStart vbox sep PackNatural 10 
+   quitbox &lt;- hBoxNew False 0
+   boxPackStart vbox quitbox PackNatural 0
+   quitbutton &lt;- buttonNewWithLabel "Quit"
+   boxPackStart quitbox quitbutton PackRepel 0
+   onClicked quitbutton mainQuit 
+   onDestroy window mainQuit  
+   widgetShowAll window
+   mainGUI
+
+
+makeBox :: Bool -&gt; Int -&gt; Packing -&gt; Int -&gt; IO HBox
+makeBox homogeneous spacing packing padding = do
+    box &lt;- hBoxNew homogeneous spacing
+    button1 &lt;- buttonNewWithLabel "boxPackStart"
+    boxPackStart box button1 packing padding
+    button2 &lt;- buttonNewWithLabel "box"
+    boxPackStart box button2 packing padding
+    button3 &lt;- buttonNewWithLabel "button"
+    boxPackStart box button3 packing padding
+    button4 &lt;- case packing of 
+                   PackNatural -&gt; buttonNewWithLabel "PackNatural"
+                   PackRepel   -&gt; buttonNewWithLabel "PackRepel"
+                   PackGrow    -&gt; buttonNewWithLabel "PackGrow"
+    boxPackStart box button4 packing padding 
+    button5 &lt;- buttonNewWithLabel (show padding)
+    boxPackStart box button5 packing padding  
+    return box
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The image below shows the effects of resizing the window
+  horizontally. In the first group, with homogeneous <i>False</i>
+  horizontal resizing leaves the first row of buttons as it is,
+  spaces the second row evenly, and enlarges the buttons in the
+  third row. In the second group the buttons are set to be packed
+  homogeneously, and the first 2 rows will look the same. Resizing
+  the window vertically just add extra space at the end, because
+  the vertical box was initialized with <i>False</i>.</p><img src=
+  "Images/GtkChap5a2.png" name="graphics2" alt="GtkChap5a resized"
+  align="bottom" id="graphics2"><br>
+  <hr>
+
+  <table summary="links to other pages" width="100%" border="0"
+  cellpadding="0" cellspacing="0">
+    <tr valign="top">
+      <td width="33%">
+        <p align="left"><a href="chap4.html">&lt;&lt;&lt;
+        Previous</a></p>
+      </td>
+
+      <td width="34%">
+        <p align="center"><a href="chap1.html">Home</a></p>
+      </td>
+
+      <td width="33%">
+        <p align="right"><a href="chap5b.html">Next
+        &gt;&gt;&gt;</a></p>
+      </td>
+    </tr>
+
+    <tr valign="top">
+      <td width="50%">
+        <p align="left">Packing Widgets</p>
+      </td>
+
+      <td width="50%">
+        <p align="right">Packing Using Tables</p>
+      </td>
+    </tr>
+  </table>
+
+  <p><br>
+  <br></p>
+</body>
+</html>

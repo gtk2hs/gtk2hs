@@ -1,0 +1,712 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux/x86 (vers 11 February 2007), see www.w3.org">
+  <meta http-equiv="CONTENT-TYPE" content=
+  "text/html; charset=us-ascii">
+
+  <title>Adjustments</title>
+</head>
+
+<body lang="en-US" text="#000000" link="#0000FF" vlink="#840084"
+bgcolor="#FFFFFF" dir="ltr">
+  <table summary="links to other pages" width="100%" border="0"
+  cellpadding="0" cellspacing="0">
+    <tr>
+      <th colspan="3">
+        <p align="center">GTK2Hs Tutorial</p>
+      </th>
+    </tr>
+
+    <tr valign="bottom">
+      <td width="10%">
+        <p align="left"><a href=
+        "chap6.html">&lt;&lt;&lt;Previous</a></p>
+      </td>
+
+      <td width="80%"></td>
+
+      <td width="10%">
+        <p align="right"><a href="chap8.html">Next
+        &gt;&gt;&gt;</a></p>
+      </td>
+    </tr>
+  </table>
+  <hr>
+
+  <h2><a name="CH-ADJUSTMENTS" id="CH-ADJUSTMENTS"></a>Adjustments,
+  Scale and Range</h2>
+
+  <p>GTK has various widgets that can be visually adjusted by the
+  user using the mouse or the keyboard, such as the range widgets,
+  described in the range widget section. There are also a few
+  widgets that display some adjustable portion of a larger area of
+  data, such as the text widget and the viewport widget.</p>
+
+  <p>Obviously, an application needs to be able to react to changes
+  the user makes in range widgets. One way to do this would be to
+  have each widget emit its own type of signal when its adjustment
+  changes. But you may also want to connect the adjustments of
+  several widgets together, so that adjusting one adjusts the
+  others. The most obvious example of this is connecting a
+  scrollbar to a panning viewport or a scrolling text area.</p>
+
+  <p>The adjustment object can be used to store the configuration
+  parameters and values of range widgets, such as scrollbars and
+  scale controls. Because <i>Adjustment</i> is derived from
+  <i>GObject</i> and <i>Object</i>, adjustments can emit signals,
+  which can be used not only to allow your program to react to user
+  input on adjustable widgets, but also to propagate adjustment
+  values transparently between adjustable widgets.</p>
+
+  <p>Many of the widgets which use adjustment objects, like
+  <i>ScrolledWindow</i>, can create their own adjustments, but you
+  create one yourself with:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+adjustmentNew 
+:: Double            -- value, the initial value of the range
+-&gt; Double            -- lower, the minimum value of the range
+-&gt; Double            -- upper, the maximum value of the range
+-&gt; Double            -- stepIncrement, the smaller of two possible increments
+-&gt; Double            -- pageIncrement, the larger of two possible increments
+-&gt; Double            -- pageSize, the size of the visible area
+-&gt; IO Adjustment
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The creation function takes every value that is contained in
+  the object: <tt>value</tt> is the initial value and should be
+  between the <tt>upper</tt> and <tt>lower</tt> bounds of the
+  slider. Clicking on the arrows increases this value by
+  <tt>stepIncrement</tt>. Clicking in the slider advances by
+  <tt>pageIncrement</tt>. The <tt>pageSize</tt> is needed to
+  determine if the end of the slider is still in the range. You can
+  get and set all the parameters of an adjustment by methods or
+  using the general <i>set</i> and <i>get</i> functions on the
+  adjustment attributes.</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+onValueChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>is the signal emitted when the value of the adjustment
+  changes, and</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+onAdjChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>is the signal emitted when one or more of the other than the
+  value fields have changed.</p>
+
+  <h2>Scale and Range Widgets</h2>
+
+  <p>Scale widgets are used to allow the user to visually select
+  and manipulate a value within a specific range using a slider.
+  You might want to use a scale widget, for example, to adjust the
+  magnification level on a zoomed preview of a picture, or to
+  control the brightness of a color, or to specify the number of
+  minutes of inactivity before a screensaver takes over the
+  screen.</p>
+
+  <p>The following functions create vertical and horizontal scale
+  widgets, respectively:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+vScaleNew :: Adjustment -&gt; IO VScale
+
+hScaleNew :: Adjustment -&gt; IO Hscale
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>There are also two constructors which do not take an
+  adjustment:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+vScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO VScale
+
+hScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO Hscale
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The <i>Double</i> parameters refer to the minimum and maximum
+  values and the step. The step increment (preferably a power of
+  10) is the value the scale moves when the arrow keys are
+  used.</p>
+
+  <p>Horizontal and vertical scales are instances of
+  <i>ScaleClass</i> and their common behaviors are defined in the
+  module: Graphics.UI.Gtk.Abstract.Scale.</p>
+
+  <p>Scale widgets can display their current value as a number
+  beside the trough. The default behaviour is to show the value,
+  but you can change this with this function:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+scaleSetDrawValue :: ScaleClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The value displayed by a scale widget is rounded to one
+  decimal point by default, as is the <tt>value</tt> field in its
+  Adjustment. You can change this with:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+scaleSetDigits :: ScaleClass self =&gt; self -&gt; Int -&gt; IO ()
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>Finally, the value can be drawn in different positions
+  relative to the trough:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+scaleSetValuePos :: ScaleClass self =&gt; self -&gt; PositionType -&gt; IO ()
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The <i>PositionType</i> is defined as:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+data PositionType = PosLeft | PosRight | PosTop | PosBottom
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p><i>Scale</i> itself inherits many methods form its base class,
+  which is <i>Range</i>.</p>
+
+  <h3><a name="AEN690" id="AEN690"></a>Setting the Update
+  Policy</h3>
+
+  <p>The "update policy" of a range widget defines at what points
+  during user interaction it will change the <tt>value</tt> field
+  of its Adjustment and emit the <i>onRangeValueChanged</i> signal
+  on this Adjustment. The update policies, are defined by the
+  <i>UpdateType</i>, which has three constructors:</p>
+
+  <dl>
+    <dt><tt>UpdateContinuous</tt></dt>
+
+    <dd>This is the default. The <i>onRangeValueChanged</i> signal
+    is emitted continuously, i.e., whenever the slider is moved by
+    even the tiniest amount.</dd>
+
+    <dt><tt>UpdateDiscontinuous</tt></dt>
+
+    <dd>The <i>onRangeValueChanged</i> signal is only emitted once
+    the slider has stopped moving and the user has released the
+    mouse button.</dd>
+
+    <dt><tt>UpdateDelayed</tt></dt>
+
+    <dd>The <i>onRangeValueChanged</i> signal is emitted when the
+    user releases the mouse button, or if the slider stops moving
+    for a short period of time.</dd>
+  </dl>
+
+  <p>The update policy of a range widget can be set by:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+rangeSetUpdatePolicy :: RangeClass self =&gt; self -&gt; UpdateType -&gt; IO ()
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <h3><a name="AEN715" id="AEN715"></a>Getting and Setting
+  Adjustments</h3>
+
+  <p>Getting and setting the adjustment for a range widget "on the
+  fly" is done, predictably, with:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+rangeGetAdjustment :: RangeClass self =&gt; self -&gt; IO Adjustment
+
+rangeSetAdjustment :: RangeClass self =&gt; self -&gt; Adjustment -&gt; IO ()
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p><tt><i>rangeSetAdjustment</i></tt> does absolutely nothing if
+  you pass it the adjustment that <tt>it</tt> is already using,
+  regardless of whether you changed any of its fields or not. If
+  you pass it a new Adjustment, it will unreference the old one if
+  it exists (possibly destroying it), connect the appropriate
+  signals to the new one, and call the private function
+  <tt>gtk_range_adjustment_changed()</tt>, which will (or at least,
+  is supposed to...) recalculate the size and/or position of the
+  slider and redraw if necessary. As mentioned in the section on
+  adjustments, if you wish to reuse the same Adjustment, when you
+  modify its values directly, you should emit the "changed" signal
+  on it.</p>
+
+  <h2><a name="SEC-KEYANDMOUSEBINDINGS" id=
+  "SEC-KEYANDMOUSEBINDINGS"></a>Key and Mouse bindings</h2>
+
+  <p>All of the GTK range widgets react to mouse clicks in more or
+  less the same way. Clicking button-1 in the trough will cause its
+  adjustment's <tt><i>stepIncrement</i></tt> to be added or
+  subtracted from its <tt><i>value</i></tt>, and the slider to be
+  moved accordingly. Clicking mouse button-2 in the trough will
+  jump the slider to the point at which the button was clicked.
+  Clicking button-3 in the trough of a range or any button on a
+  scrollbar's arrows will cause its adjustment's value to change by
+  <i>stepIncrement</i> at a time.</p>
+
+  <p>Note: this did not work on Linux Fedora 6 with the standard
+  mouse bindings.</p>
+
+  <p>Scrollbars are not focusable, thus have no key bindings. The
+  key bindings for the other range widgets (which are, of course,
+  only active when the widget has focus) do <i>not</i>
+  differentiate between horizontal and vertical range widgets.</p>
+
+  <p>All range widgets can be operated with the left, right, up and
+  down arrow keys, as well as with the <tt>Page Up</tt> and
+  <tt>Page Down</tt> keys. The arrows move the slider up and down
+  by <tt><i>stepIncrement</i></tt>, while <tt>Page Up</tt> and
+  <tt>Page Down</tt> move it by <tt><i>pageIncrement</i></tt>.
+  <tt>Home</tt>and <tt>End</tt>move to the beginning and end of the
+  slide.</p>
+
+  <p>The user can also move the slider all the way to one end or
+  the other of the trough using the keyboard. This is done with the
+  <tt>Home</tt> and <tt>End</tt> keys.</p>
+  <hr>
+
+  <h2><a name="SEC-RANGEWIDGETSEXAMPLE1" id=
+  "SEC-RANGEWIDGETSEXAMPLE1"></a>Example</h2>
+
+  <p>This example puts up a window with three range widgets all
+  connected to the same adjustment, and a couple of controls for
+  adjusting some of the parameters mentioned above, so you can see
+  how they affect the way these widgets work for the user.</p>
+
+  <p><img src="./Images/GtkChap7.png" name="graphics2" align=
+  "bottom" alt="GtkChap7" id="graphics2"></p>
+
+  <p>The three scales are placed so the vertical is next to the two
+  horizontal ones, one above the other. So we need a horizontal box
+  for the vertical scale and a vertical box next to it for the
+  horizontal scales. The scales and the boxes must be packed with
+  <i>PackGrow</i> so the scales will resize with the main box,
+  which is a vertical box in the window.</p>
+
+  <p>All three scales ar constructed with the same adjustment,
+  setting the initial value at 0.0, the minimum value at 0.0, the
+  maximu value at 101.0, the step increment at 0.1 , the page
+  increment at 1.0 and the page size at 1.0 .</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+  adj1 &lt;- adjustmentNew 0.0 0.0 101.0 0.1 1.0 1.0
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p><br>
+  <br></p>
+
+  <p>The user can control whether the scale values are displayed
+  with a <i>checkButton</i>. This is packed into the main box and
+  set to be active initially. A check button is a toggle button and
+  when the user checks or uncehecks it th <i>onToggled</i> signal
+  is sent. this causes the toggleDisplay function to be evaluated,
+  which is defined as:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+toggleDisplay :: ScaleClass self =&gt; CheckButton -&gt; [self] -&gt; IO ()
+toggleDisplay b scls = sequence_ (map change scls) where 
+                         change sc = do st &lt;- toggleButtonGetActive b
+                                        scaleSetDrawValue sc st
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The function has a <i>checkButton</i> type as its parameter,
+  and a list of instances of <i>ScaleClass</i> . However, a list
+  can only contain values of the same type, and vScale and hScale
+  are different types. So, we can use the function on lists of
+  vertical scales or horizontal scales, but lists containing both
+  types result in a typing error.</p>
+
+  <p>The user can select the <i>positionType</i> using a widget not
+  mentioned before, a <i>ComboBox</i>. This allows a selection of
+  choices as shown below. The one to be set active is determined by
+  an index, which is 0 here, the first one.</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+makeOpt1 :: IO ComboBox
+makeOpt1 = do
+  cb &lt;- comboBoxNewText
+  comboBoxAppendText cb "TOP" 
+  comboBoxAppendText cb "BOTTOM"
+  comboBoxAppendText cb "LEFT" 
+  comboBoxAppendText cb "RIGHT"  
+  comboBoxSetActive cb 0
+  return cb
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>A second <i>comboBox</i> lets the user select the update
+  policy, one of the three UpDateType constructors.</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+makeOpt2 :: IO ComboBox
+makeOpt2 = do
+  cb &lt;- comboBoxNewText
+  comboBoxAppendText cb "Continuous" 
+  comboBoxAppendText cb "Discontinuous"
+  comboBoxAppendText cb "Delayed" 
+  comboBoxSetActive cb 0
+  return cb
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The combo boxes themselves just display text, of course. To
+  select the position, respectively the update policy, we
+  define:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+setScalePos :: ScaleClass self =&gt; ComboBox -&gt; self -&gt; IO ()
+setScalePos cb sc = do
+    ntxt &lt;- comboBoxGetActiveText cb
+    let pos = case ntxt of
+                (Just "TOP") -&gt; PosTop
+                (Just "BOTTOM") -&gt; PosBottom
+                (Just "LEFT") -&gt; PosLeft
+                (Just "RIGHT") -&gt; PosRight
+                Nothing -&gt; error "GtkChap9.hs setScalePos: no position set"
+    scaleSetValuePos sc pos 
+
+setUpdatePol :: RangeClass self =&gt; ComboBox -&gt; self -&gt; IO ()
+setUpdatePol cb sc = do
+    ntxt &lt;- comboBoxGetActiveText cb
+    let pol = case ntxt of
+                (Just "Continuous") -&gt; UpdateContinuous
+                (Just "Discontinuous") -&gt; UpdateDiscontinuous
+                (Just "Delayed") -&gt; UpdateDelayed
+                Nothing -&gt; error "GtkChap9.hs setUpdatePol: no policy set"
+    rangeSetUpdatePolicy sc pol 
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>Here we have not used lists to manage the vertical and
+  horizontal scales, so each horizontal scale is addressed
+  separately.</p>
+
+  <p>The number of precision shown on the three scles will be
+  managed with another scale, for which we use a new adjustment.
+  The maximum precision is 10 and each increment is 1. The
+  precision of this control scale itself is set to 1.</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+  adj2 &lt;- adjustmentNew 1.0 0.0 5.0 1.0 1.0 0.0
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>When the control adjustment changes the signal
+  <i>onValueChanged</i> will be emitted and then the defined
+  function <i>setDigits</i> is evaluated.</p>
+
+  <p><br></p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+setDigits :: ScaleClass self =&gt; self -&gt; Adjustment -&gt; IO ()
+setDigits sc adj = do val &lt;- get adj adjustmentValue
+                      set sc [scaleDigits := (round val) ]
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>Here we use the general functions <i>set</i> and <i>get</i> on
+  the attributes; we might have used the appropriate methods as
+  well. Note that the <i>Double</i> of the adjustment value must be
+  rounded to an Integral type.</p>
+
+  <p>We use another horizontal scale to manage the page size of the
+  three example scales. When set at 0.0 the scales can reach their
+  initial maximum of 100.0 and when set at 100.0 the scales are
+  fixed at the lowest value. This involves the adjusting of the
+  adjustment by a the <i>onValueChanged</i> signal from a third
+  adjustment by this code snippet:</p>
+
+  <p><br></p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+  onValueChanged adj3 $ do val &lt;- adjustmentGetValue adj3
+                           adjustmentSetPageSize adj1 val
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p><br></p>
+
+  <p>The main function is:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  set window [windowTitle := "range controls",
+              windowDefaultWidth := 250 ]
+  mainbox &lt;- vBoxNew False 10
+  containerAdd window mainbox
+  containerSetBorderWidth mainbox 10
+
+  box1 &lt;- hBoxNew False 0
+  boxPackStart mainbox box1 PackGrow 0
+  adj1 &lt;- adjustmentNew 0.0 0.0 101.0 0.1 1.0 1.0
+  vsc &lt;- vScaleNew adj1
+  boxPackStart box1 vsc PackGrow 0
+
+  box2 &lt;- vBoxNew False 0
+  boxPackStart box1 box2 PackGrow 0 
+
+  hsc1 &lt;- hScaleNew adj1
+  boxPackStart box2 hsc1 PackGrow 0
+  hsc2 &lt;- hScaleNew adj1
+  boxPackStart box2 hsc2 PackGrow 0
+
+  chb &lt;- checkButtonNewWithLabel "Display Value on Scale Widgets"
+  boxPackStart mainbox chb PackNatural 10
+  toggleButtonSetActive chb True
+
+  box3 &lt;- hBoxNew False 10
+  boxPackStart mainbox box3 PackNatural 0
+  label1 &lt;- labelNew (Just "Scale Value Position:")
+  boxPackStart box3 label1 PackNatural 0
+  opt1 &lt;- makeOpt1
+  boxPackStart box3 opt1 PackNatural 0
+
+  box4 &lt;- hBoxNew False 10
+  boxPackStart mainbox box4 PackNatural 0
+  label2 &lt;- labelNew (Just "Scale Update Policy:")
+  boxPackStart box4 label2 PackNatural 0
+  opt2 &lt;- makeOpt2
+  boxPackStart box4 opt2 PackNatural 0
+
+  adj2 &lt;- adjustmentNew 1.0 0.0 5.0 1.0 1.0 0.0
+
+  box5 &lt;- hBoxNew False 0
+  containerSetBorderWidth box5 10
+  boxPackStart mainbox box5 PackGrow 0
+  label3 &lt;- labelNew (Just "Scale Digits:")
+  boxPackStart box5 label3 PackNatural 10
+  dsc &lt;- hScaleNew adj2
+  boxPackStart box5 dsc PackGrow 0
+  scaleSetDigits dsc 0
+
+  adj3 &lt;- adjustmentNew 1.0 1.0 101.0 1.0 1.0 0.0
+
+  box6 &lt;- hBoxNew False 0
+  containerSetBorderWidth box6 10
+  boxPackStart mainbox box6 PackGrow 0
+  label4 &lt;- labelNew (Just "Scrollbar Page Size:")
+  boxPackStart box6 label4 PackNatural 10
+  psc &lt;- hScaleNew adj3
+  boxPackStart box6 psc PackGrow 0
+  scaleSetDigits psc 0
+
+  onToggled chb $ do toggleDisplay chb [hsc1,hsc2]
+                     toggleDisplay chb [vsc]
+
+  onChanged opt1 $ do setScalePos opt1 hsc1 
+                      setScalePos opt1 hsc2
+                      setScalePos opt1 vsc
+
+  onChanged opt2 $ do setUpdatePol opt2 hsc1 
+                      setUpdatePol opt2 hsc2
+                      setUpdatePol opt2 vsc
+
+  onValueChanged adj2 $ do setDigits hsc1 adj2
+                           setDigits hsc2 adj2
+                           setDigits vsc  adj2
+
+  onValueChanged adj3 $ do val &lt;- adjustmentGetValue adj3
+                           adjustmentSetPageSize adj1 val
+
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The non standard functions used in the listing have already
+  been listed above.</p>
+  <hr>
+
+  <table summary="Links to other pages" width="100%" border="0"
+  cellpadding="0" cellspacing="0">
+    <tr valign="top">
+      <td width="33%">
+        <p align="left"><a href="chap6.html">&lt;&lt;&lt;
+        Previous</a></p>
+      </td>
+
+      <td width="34%">
+        <p align="center"><a href="chap1.html">Home</a></p>
+      </td>
+
+      <td width="33%">
+        <p align="right"><a href="chap8.html">Next
+        &gt;&gt;&gt;</a></p>
+      </td>
+    </tr>
+
+    <tr valign="top">
+      <td width="33%">
+        <p align="left">Button</p>
+      </td>
+
+      <td width="33%">
+        <p align="right">to be continued...</p>
+      </td>
+    </tr>
+  </table>
+
+  <p><br>
+  <br></p>
+</body>
+</html>

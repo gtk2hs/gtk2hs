@@ -1,0 +1,414 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux/x86 (vers 11 February 2007), see www.w3.org">
+  <meta http-equiv="CONTENT-TYPE" content=
+  "text/html; charset=us-ascii">
+
+  <title>The Button Widget</title>
+</head>
+
+<body lang="en-US" text="#000000" link="#0000FF" vlink="#840084"
+bgcolor="#FFFFFF" dir="ltr">
+  <table summary="links to other pages" width="100%" border="0"
+  cellpadding="0" cellspacing="0">
+    <tr>
+      <th colspan="3">
+        <p align="center">GTK2Hs Tutorial</p>
+      </th>
+    </tr>
+
+    <tr valign="bottom">
+      <td width="10%">
+        <p align="left"><a href=
+        "chap5b.html">&lt;&lt;&lt;Previous</a></p>
+      </td>
+
+      <td width="80%"></td>
+
+      <td width="10%">
+        <p align="right"><a href="chap7.html">Next
+        &gt;&gt;&gt;</a></p>
+      </td>
+    </tr>
+  </table>
+  <hr>
+
+  <h2><a name="CH-BUTTONWIDGET" id="CH-BUTTONWIDGET"></a>The Button
+  Widget</h2>
+
+  <h2><a name="SEC-NORMALBUTTONS" id="SEC-NORMALBUTTONS"></a>Normal
+  Buttons</h2>
+
+  <p>We've almost seen all there is to see of the button widget.
+  It's pretty simple. There is however more than one way to create
+  a button. You can use the <i>buttonNewWithLabel</i> or
+  <i>buttonNewWithMnemonic</i> to create a button with a label, use
+  <i>buttonNewFromStock</i> to create a button containing the image
+  and text from a stock item or use <i>buttonNew</i> to create a
+  blank button. It's then up to you to pack a label or pixmap into
+  this new button. To do this, create a new box, and then pack your
+  objects into this box using the usual <i>boxPackStart</i> (or
+  <i>boxPackEnd</i> to pack from the end), and then use
+  <i>containerAdd</i> to pack the box into the button.</p>
+
+  <p align="center"><i>buttonNewWithMnemonic</i> and
+  <i>buttonNewFromStock</i> both take a string as first argument.
+  Use an underline to mark a character as a mnemonic, which is a
+  keyboard accelarator. Pressing Alt and that key activates the
+  button. In the second function the string is a <i>stockId</i>, an
+  identifier to a list of predefined images with labels.</p>
+
+  <p>Here's an example of using <i>buttonNew</i> to create a button
+  with a image and a label in it.</p>
+
+  <p><img src="./Images/GtkChap6a.png" name="graphics1" alt=
+  "Chap6a" align="bottom" id="graphics1"></p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  set window [windowTitle := "Pix",
+              containerBorderWidth := 10 ]
+  button &lt;- buttonNew
+  onClicked button (putStrLn "button clicked")
+  box &lt;- labelBox "info.xpm" "cool button"
+  containerAdd button box
+  containerAdd window button
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+
+labelBox :: FilePath -&gt; String -&gt; IO HBox
+labelBox fn txt = do
+  box &lt;- hBoxNew False 0
+  set box [containerBorderWidth := 2 ]
+  image &lt;- imageNewFromFile fn
+  label &lt;- labelNew (Just txt)
+  boxPackStart box image PackNatural 3 
+  boxPackStart box label PackNatural 3
+  return box 
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The <i>labelBox</i> function could be used to pack images and
+  labels into any widget that can be a container. The image comes
+  from a file using <i>imageNewFromFile</i> and the label comes
+  from <i>labelNew</i> , which takes a <i>Maybe String</i> as its
+  argument. <i>Nothing</i> means no label.</p>
+
+  <p>The <i>Button</i> widget has the following basic signals,
+  which are almost self explaining:</p>
+
+  <ul>
+    <li>
+      <p><tt>onPressed</tt> - emitted when pointer button is
+      pressed within Button widget</p>
+    </li>
+
+    <li>
+      <p><tt>onReleased</tt> - emitted when pointer button is
+      released within Button widget</p>
+    </li>
+
+    <li>
+      <p><tt>onClicked</tt> - emitted when pointer button is
+      pressed and then released within Button widget</p>
+    </li>
+
+    <li>
+      <p><tt>onEnter</tt> - emitted when pointer enters Button
+      widget</p>
+    </li>
+
+    <li>
+      <p><tt>onLeave</tt> - emitted when pointer leaves Button
+      widget</p>
+    </li>
+  </ul>
+  <hr>
+
+  <h2><a name="SEC-TOGGLEBUTTONS" id="SEC-TOGGLEBUTTONS"></a>Toggle
+  Buttons</h2>
+
+  <p>Toggle buttons are derived from normal buttons and are very
+  similar, except they will always be in one of two states,
+  alternated by a click. They may be depressed, and when you click
+  again, they will pop back up. Click again, and they will pop back
+  down.</p>
+
+  <p>Toggle buttons are the basis for check buttons and radio
+  buttons, as such, many of the calls used for toggle buttons are
+  inherited by radio and check buttons. I will point these out when
+  we come to them.</p>
+
+  <p>Creating a new toggle button:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+toggleButtonNew :: IO ToggleButton
+
+toggleButtonNewWithLabel :: String -&gt; IO Togglebutton
+
+toggleButtonNewWithMnemonic :: String -&gt; IO ToggleButton
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>As you can imagine, these work identically to the normal
+  button widget calls. The first creates a blank toggle button, and
+  the last two, a button with a label widget already packed into
+  it. The mnemonic variant additionally parses the label for
+  '_'-prefixed mnemonic characters.</p>
+
+  <p>To retrieve the state of the toggle widget, including radio
+  and check buttons, we use:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+toggleButtonGetActive :: ToggleButtonClass self =&gt; self -&gt; IO Bool
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>Returns <i>True</i> if the toggle button is pressed in and
+  <i>False</i> if it is raised.</p>
+
+  <p>To force the state of a toggle button, and its children, the
+  radio and check buttons, use this function:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The above call can be used to set the state of the toggle
+  button, and its children the radio and check buttons. Passing in
+  your created button as the first argument, and <i>True</i> of
+  <i>False</i> for the second state argument to specify whether it
+  should be down (depressed) or up (released). Default is up, or
+  <i>False</i>.</p>
+
+  <p>Note that when you use the toggleButtonSetActive function, and
+  the state is actually changed, it causes the <i>onClicked</i> and
+  <i>onToggled</i> signals to be emitted from the button.</p>
+  <hr>
+
+  <h2>Check Buttons</h2>
+
+  <p>Check buttons inherit many properties and functions from the
+  the toggle buttons above, but look a little different. Rather
+  than being buttons with text inside them, they are small squares
+  with the text to the right of them. These are often used for
+  toggling options on and off in applications.</p>
+
+  <p>The creation functions are similar to those of the normal
+  button.</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+checkButtonNew :: IO CheckButton
+
+checkButtonNewWithLabel :: String -&gt; IO Checkbutton
+
+checkButtonNewWithMnemonic :: String -&gt; IO CheckButton
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>The checkButtonNewWithLabel function creates a check button
+  with a label beside it.</p>
+
+  <p><i>CheckButton</i> is an instance of <i>ToggleButtonClass</i>
+  and the <i>onToggled</i> signal is used when a <i>CheckButton</i>
+  is checked or unchecked, just as with the toggle button.</p>
+  <hr>
+
+  <h2>Radio Buttons</h2>
+
+  <p>Radio buttons are similar to check buttons except they are
+  grouped so that only one may be selected/depressed at a time.
+  This is good for places in your application where you need to
+  select from a short list of options. Creating a new radio button
+  is done with one of these calls:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+radioButtonNew :: IO RadioButton
+
+radioButtonNewWithLabel :: String -&gt; IO RadioButton
+
+radioButtonNewWithMnemonic :: String -&gt; IO RadioButton
+
+radioButtonNewFromWidget :: RadioButton -&gt; IO RadioButton 
+
+radioButtonNewWithLabelFromWidget :: RadioButton -&gt; String -&gt; IO RadioButton
+
+radioButtonNewWithMnemonicFromWidget :: RadioButton -&gt; String -&gt; IO RadioButton
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>You'll notice the extra argument to tthe last three functions.
+  They are used to link the new buttons to the ones constructed
+  earlier in a group.</p>
+
+  <p>It is also a good idea to explicitly set which button should
+  be the default depressed button with:</p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
+    <tr>
+      <td>
+        <pre>
+toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+      </td>
+    </tr>
+  </table>
+
+  <p>This is described in the section on toggle buttons, and works
+  in exactly the same way. Once the radio buttons are grouped
+  together, only one of the group may be active at a time. If the
+  user clicks on one radio button, and then on another, the first
+  radio button will first emit a <i>onToggled</i> signal (to report
+  becoming inactive), and then the second will emit its
+  <i>onToggled</i> signal (to report becoming active).</p>
+
+  <p>The following example creates a radio button group with three
+  buttons, and when the user presses one of the radiobuttons, the
+  toggled ones will report this to stdout , using <i>putStrLn</i>
+  in the <i>setRadioState</i> function defined below.</p>
+
+  <p><br>
+  <img src="./Images/GtkChap6b.png" alt="Chap6b" align=
+  "bottom"></p>
+
+  <table summary="Haskell code" width="100%" border="0"
+  cellpadding="2" cellspacing="0" bgcolor="#E0E0E0">
+    <col width="256*">
+
+    <tr>
+      <td width="100%">
+        <pre>
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  set window [windowTitle := "Radio Button", containerBorderWidth := 5 ,
+              windowDefaultWidth := 200, windowDefaultHeight := 150 ]
+  box1 &lt;- vBoxNew False 0
+  containerAdd window box1
+  box2 &lt;- vBoxNew False 10
+  containerSetBorderWidth box2 10
+  boxPackStart box1 box2 PackNatural 0
+  button1 &lt;- radioButtonNewWithLabel "button 1"
+  boxPackStart box2 button1 PackNatural 0
+  button2 &lt;- radioButtonNewWithLabelFromWidget button1 "button 2"
+  boxPackStart box2 button2 PackNatural 0
+  button3 &lt;- radioButtonNewWithLabelFromWidget button2 "button 3"
+  boxPackStart box2 button3 PackNatural 0
+  toggleButtonSetActive button2 True
+  onToggled button1 (setRadioState button1)
+  onToggled button2 (setRadioState button2)
+  onToggled button3 (setRadioState button3)
+  sep &lt;- hSeparatorNew
+  boxPackStart box1 sep PackNatural 0
+  box3 &lt;- vBoxNew False 10
+  containerSetBorderWidth box3 10
+  boxPackStart box1 box3 PackNatural 0
+  closeb &lt;- buttonNewWithLabel "close"
+  boxPackStart box3 closeb PackNatural 0
+  onClicked closeb mainQuit
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+
+setRadioState :: RadioButton -&gt; IO ()
+setRadioState b = do
+  state &lt;- toggleButtonGetActive b
+  label &lt;- get b buttonLabel
+  putStrLn ("State " ++ label ++ " now is " ++ (show state))
+</pre>
+      </td>
+    </tr>
+  </table>
+  <hr>
+
+  <table summary="links to other pages" width="100%" border="0"
+  cellpadding="0" cellspacing="0">
+    <col width="84*">
+    <col width="87*">
+    <col width="84*">
+
+    <tr valign="top">
+      <td width="33%">
+        <p align="left"><a href="chap5b.html">&lt;&lt;&lt;
+        Previous</a></p>
+      </td>
+
+      <td width="34%">
+        <p align="center"><a href="chap1.html">Home</a></p>
+      </td>
+
+      <td width="33%">
+        <p align="right"><a href="chap7.html">Next
+        &gt;&gt;&gt;</a></p>
+      </td>
+    </tr>
+
+    <tr valign="top">
+      <td width="33%">
+        <p align="left">Tables</p>
+      </td>
+
+      <td width="34%">
+        <p align="center">&nbsp;</p>
+      </td>
+
+      <td width="33%">
+        <p align="right">Adjustments</p>
+      </td>
+    </tr>
+  </table>
+
+  <p><br>
+  <br></p>
+</body>
+</html>
