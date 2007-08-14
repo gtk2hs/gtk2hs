@@ -225,7 +225,7 @@ sourceBufferCreateMarker :: SourceBuffer -- the buffer
 			 -> String -- the type of the marker
 			 -> TextIter -> IO SourceMarker
 sourceBufferCreateMarker sb name markerType iter =
-  constructNewGObject mkSourceMarker $
+  makeNewGObject mkSourceMarker $
   maybeWith withCString name       $ \strPtr1 ->
   withCString markerType $ \strPtr2 ->
   {#call source_buffer_create_marker#} sb strPtr1 strPtr2 iter
