@@ -2001,6 +2001,7 @@ EXTRA_DIST +=								\
 	demo/opengl/RotatingCube.hs demo/opengl/Makefile		\
 	demo/carsim/CarSim.hs demo/carsim/Makefile			\
 	demo/fonts/Fonts.hs demo/fonts/Makefile				\
+	demo/pango/Layout.hs demo/pango/Makefile			\
 	demo/noughty/Noughty.hs demo/noughty/NoughtyGlade.hs		\
 		demo/noughty/noughty.glade demo/noughty/License		\
 		demo/noughty/Nought.png demo/noughty/Cross.png		\
