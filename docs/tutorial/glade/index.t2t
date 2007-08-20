@@ -1,5 +1,4 @@
 Glade Tutorial
-Hans van Thiel
 %%mtime(%m/%d/%Y)
 
 %!encoding: utf8
@@ -8,10 +7,11 @@ Hans van Thiel
 
 === What? ===
 
-This tutorial will attempt to provide a step by step guide for developers
-wanting to write Gtk+ apps using Glade. We assume you are using Linux, but
-because the Gtk+ toolkit, the Glade Interface Designer and Gtk2Hs are available
-on other platforms too, this might also help you get started there.
+This tutorial will attempt to provide a step by step guide for Haskell
+developers wanting to write Gtk+ apps using Glade. We assume you are using
+Linux, but because the Gtk+ toolkit, the Glade Interface Designer and Gtk2Hs
+bindings are available on other platforms too, this might also help you get
+started there.
 
 This tutorial page is an adaptation for [Haskell http://www.haskell.org] and
 [Gtk2Hs http://haskell.org/gtk2hs/] of an
@@ -20,12 +20,13 @@ This tutorial page is an adaptation for [Haskell http://www.haskell.org] and
 You will need:
 
 - [Gtk+ http://www.gtk.org/] libraries
-- [Glade http://glade.gnome.org/] version 2 or 3
+- [Glade http://glade.gnome.org/] version 3 (or version 2, but beware of minor
+  differences)
 - [Gtk2Hs http://haskell.org/gtk2hs/download/]
 - Basic Haskell know-how
 
 
-You will be creating a modified "Hello World!" application like this:
+You will be creating a "Hello World"-style application like this:
 
 [main.png]
 
@@ -37,162 +38,174 @@ instead of being bogged down with user interface issues.
 
 === How? ===
 
-Start up glade. You should see the following three windows:
+Start up Glade. It will open with a new untitled project. You should see the
+following (click on screenshots to see full size):
 
-[screen1.png]
+[[screen1_small.png] screen1.png]
 
-The first window controls your project. The palette allows you to add widgets
-to your application, while the properties window will allow a selected widget's
+The palette on the left allows you to add widgets to your application, while
+the properties pane on the lower right will allow a selected widget's
 properties to be modified and signals (more on this later) to be defined.
 
-Open a new project. The first thing we're going to need is a place to add
-widgets, so lets first create a window by clicking on the window icon from the
-palette.
+The first thing we're going to need is a place to add widgets, so let's create
+a window by clicking on the //Window// icon from the palette.
 
-[window.png] Window palette icon.
+[window.png] //Window palette icon//
 
-A new window will pop-up ready to be modified. Notice the properties for the
-window, particularly that the name of the window is ``"window1"``. Lets modify
-the title of this window which is displayed in the title bar to something a
-little more descriptive. Simply change ``"window1"`` in the Widget tab
-from the Properties window to something like ``"My First Gtk+ App"``.
+A new Window widget will appear on the canvas ready to be modified. Notice the
+properties (under the //General// tab) for the window, particularly that its
+name is ``window1``. Let's assign a descriptive title which will be displayed
+in the window's title bar at run time. In the Window Title property field type
+``Hello Gtk2Hs``.
 
-OK, so the window is all set up, now to add some buttons and labels.... but
-wait! We can't just add widgets just yet... Widgets in Gtk+ apps are
-//packed//. Packing widgets may seem to be a burden at first but is actually an
-ingenious method to allow many nifty things, the most immediate being automatic
-resizing. When a user resizes an app we usually would like the widgets in the
-window to be resized to take advantage of a bigger space or to shrink to fit in
-a newly sized window. Packing allows this to be done automatically and greatly
-frees the developer from writing resizing code. Packing is done by creating
-//boxes// or //tables//. These widgets are invisible, meaning they can't be
-seen at run time however they have a direct effect on the application.
+OK, so the window is all set up, now to add some buttons and labels... but
+wait! We can't add widgets just yet. Widgets in Gtk+ apps are //packed//.
+Packing widgets may seem to be a burden at first but is actually an ingenious
+method to allow many nifty things, the most immediate being automatic resizing.
+When a user resizes an app we usually would like the widgets in the window to
+be resized to take advantage of a bigger space or shrink. Packing allows this
+to be done automatically and greatly frees the developer from writing resizing
+code. Packing is done by creating //boxes// or //tables//. These widgets are
+invisible, meaning they can't be seen at run time, however they have a direct
+effect on the application.
 
 If you look back at the app we'll be creating, you can see that you can divide
-up the window into three rows: the label at the top, the text entry in the
-middle and the two buttons at the bottom. So what we'll do is create a
-//Vertical Box// with three rows. Click the Vertical Box icon in the palette
-and then click anywhere in the window we just created.
+up the window into three rows: the label at the top, the text entry field in
+the middle and the two buttons at the bottom. So what we'll do is create a
+VBox widget with three rows. Click the //Vertical Box// icon in the palette and
+then click anywhere in the window we just created.
 
-[vbox.png] Vertical Box palette icon.
+[vbox.png] //VBox palette icon//
 
-Specify that you want three rows created and click OK. The window will now be
-divided up into three rows, ready for more widgets to be added.
+Specify that you want three rows created and click //OK//. The window will now
+be divided up into three rows, ready for more widgets to be added. Add a Label
+widget to the first (top) row.
 
-[labeltext.png] Label and Text Entry palette icons.
+[label.png] //Label palette icon//
+
+In the second row place an Entry widget (its tooltip refers to it as
+//Text Entry//).
+
+[entry.png] //Entry palette icon//
 
 Your application window and corresponding widget tree should now look something
 like this:
 
-[screen2.png]
+[[screen2_small.png] screen2.png]
 
 Before we can add the buttons in the third row we must create a horizontal box
-within the third row of the vertical box. The new horizontal box will have two
-columns, one for each button. So lets do this by clicking the horizontal box
-icon from the palette and clicking in the third row of our window.
+within it. The new HBox widget will have two columns, one for each button, so
+let's do this by clicking the //Horizontal Box// icon from the palette and
+clicking in the third row of our window.
 
-[horizontal.png] Horizontal Box palette icon.
+[hbox.png] //HBox palette icon//
 
-Specify two columns and click OK. The third row will now be divided
-horizontally into two equal section.
+Specify two columns and click //OK//. The third row will now be divided
+horizontally into two equal sections.
 
-Perhaps this would be a good time to save our project. By default Glade will
-save your project under a ``Projects`` directory in your home directory.
-Name your project something simple such as ``hellohaskell``.
+Perhaps this would be a good time to save your project. By default Glade will
+save it as a ``.glade`` file in your home directory. Name your project
+``hellogtk2hs``.
 
 Let's move on to the buttons. Each of the sections we created in the third row
-will each hold a button. So let's add a button to each section by clicking the
-//Button// icon from the palette and clicking in the first section. Perform a
-similar action for the second section.
+of the VBox will hold a button, so let's add a Button widget by clicking the
+//Button// icon in the palette then clicking in the first (left) section. Do
+the same for the second section.
 
-[button.png] Button palette icon.
+[button.png] //Button palette icon//
 
-OK, so our buttons are there.... but they don't look quite right. This is
-because we have to pack them properly. Do this by clicking on the first button
-and from the //Properties// window selecting the //Packing// tab. Enable both
-the //Expand// and //Fill// property for the button by setting both to //Yes//.
-You should see the first button fill up a bit. Do the same thing to the second
-button and you should get it looking a bit better:
+OK, so our buttons are in place:
 
-[screen3.png]
+[[screen3_small.png] screen3.png]
 
-We can make things look even better yet. Change the following:
+Now we'll change some packing properties to improve the look, and give our
+buttons identities (remember that you can select widgets easily from the
+//Inspector// pane):
 
-Remember you can select widgets easily from the //Widget Tree// window.
-
-- Change the //Homogeneous// property of //hbox1// to //Yes//
-- Change the //Border Width// of //hbox1// and //vbox1// to //4//
-- Change the //Spacing// of //hbox1// and //vbox1// to //4//
-- Change the //Stock Button// property of //button1// to //OK//
-- Change the //Stock Button// property of //button2// to //Close//
+- Change the //Homogeneous// property in the //General// tab for ``hbox1`` to
+  //Yes//
+- Change the //Spacing// property in the //General// tab for ``hbox1`` and
+  ``vbox1`` to //4//
+- Change the //Border width// property in the //Common// tab for ``hbox1`` and
+  ``vbox1`` to //4//
+- Change the //Edit Type// property in the //General// tab for ``button1`` to
+  //Stock//, then change the //Stock Button// property to //Apply//
+- Change the //Edit Type// property in the //General// tab for ``button2`` to
+  //Stock//, then change the //Stock Button// property to //Close//
 
 
 The great thing when developing with Glade is you can immediately see what your
-app will look like... so play around with the properties till it looks just the
+app will look like, so play around with the properties till it looks just the
 way you want it.
 
 One last property to set before we start on the coding. Change the //Label//
-property of //label1// to "Enter your name:"
+property in the //General// tab for ``label1`` to ``Enter your name:``, then
+save the project.
 
-Without writing one line of code we've actually created a full UI mockup. Next
-we will write a little code to get our appliation running.
+If you now look in your home directory (or whichever directory you chose to
+save the project to earlier) all you'll see is the file with the ``.glade``
+extension. This is an XML file and therefore you can inspect it with an editor
+or a browser. If you do this, you'll see every widget you've specified as an
+XML element, each with an ``id`` attribute. This unique name, in our case
+assigned by default by Glade, is used by Gtk2Hs to access the widgets (as you
+can see in //Code Listing A// below).
 
-If you now look in your Project directory (remember we saved it in
-~/Projects/hellohaskell) you'll see the files Glade has created.
+	Side note: Back in the dark mists of time it was recommended practice for C
+	programmers to generate C code from their Glade UI designs. Glade version 2
+	supports this directly with the //Build// button on the toolbar, however
+	you should ignore that feature as it only applies to C. Indeed the
+	recommendation these days—even for C programmers—is to load the UI at
+	runtime, as this is much more maintainable and flexible.
 
-	Side note: back in the dark mists of time it was recommended practice
-	for C programmers to generate C code from their glade UI designs. Glade
-	version 2 supports this directly with the //Build// button on the
-	toolbar however you should ignore that feature as it only applies to C.
-	Indeed the recommendation these days - even for C programmers - is to
-	load the UI at runtime as this is much more maintainable and flexible.
+Without writing one line of code we've actually created a full UI mockup. Now
+we will write a little code to get our application running.
 
-All we need is the file with the //.glade// extension. This is an XML file and
-therefore you can inspect it with an editor or a browser. If you do this,
-you'll see every widget you've specified as an XML element, each with an //id//
-attribute. This unique name, in our case assigned by default by Glade, is used
-by Gtk2Hs to access the widgets, as you can see in line 9 of the following
-listing.
-
-First, however, you have to take care of some administration. This includes
-importing the modules in lines 1 and 2, initializing the graphics in line 5 and
-adding the main graphics function at the end on line 9. This is the basic
-template for all Gtk2Hs user modules. To use a //.glade// file you must also
-add something like line 6 to the template. If the specified file is found, you
-now have a handle to access all your widgets.
+First, some administration. This includes importing the necessary Gtk2Hs
+modules in lines 3 and 4, initializing the graphics in line 7, exposing the
+window in line 11 after all the widgets have been added, and calling the main
+graphics function at the end. This is the basic template for all Gtk2Hs user
+modules. To utilize our ``.glade`` file you must also add something like line
+8. If the specified file is found, you now have a handle to access all your
+widgets.
 
 ```
-1 import Graphics.UI.Gtk
-2 import Graphics.UI.Gtk.Glade
-3
-4 main = do
-5   initGUI
-6   Just xml <- xmlNew "hellohaskell.glade"
-7   window <- xmlGetWidget xml castToWindow "window1"
-8   onDestroy window mainQuit
-9   mainGUI
+1  module Main where
+2
+3  import Graphics.UI.Gtk
+4  import Graphics.UI.Gtk.Glade
+5
+6  main = do
+7      initGUI
+8      Just xml <- xmlNew "hellogtk2hs.glade"
+9      window   <- xmlGetWidget xml castToWindow "window1"
+10     onDestroy window mainQuit
+11     widgetShowAll window
+12     mainGUI
 ```
+//Code Listing A//
 
-Line 7 shows you how to get a handle to a specified widget using the general
-``xmlGetWidget`` function. Its first argument is the handle to the glade,
-its second a cast to the desired type, and its third the name (its //id//
-attribute) in the XML file. We'll use this function again and again. Lastly,
-line 8 contains the action to be taken when the user closes the window. If you
-have the Glasgow Haskell Compiler installed you can use its interactive version
-``ghci`` to run (your copy of) this listing.
+Line 9 shows you how to get a handle to a specified widget using the general
+``xmlGetWidget`` function. The first argument to the function is the handle to
+our Glade XML. The second argument is a cast to the desired widget type, and
+the third argument is the widget's name (its ``id`` attribute) as specified in
+the XML. We'll use this function again and again. Lastly, line 10 contains the
+action to be taken when the user closes the window.
 
-Now all this fun is well and good.... but our app is still kind of blah when it
-doesn't actually do anything. So let's start up on the coding!
+If you have the Glasgow Haskell Compiler installed you can use its interactive
+version ``ghci`` to quickly test what we have so far for our ``main`` function.
+
+Now all this fun is well and good, but our app is still kind of blah when it
+doesn't actually do anything. So let's start on the coding!
 
 Since this is just an introductory tutorial we won't do anything too fancy.
-What we would like to accomplish is for the user to type in his/her name in the
-text entry field and when OK is clicked for the label to change to greet the
-user with a Hello followed by the entered name. Also the Close button should
-quit the application.
+What we would like to accomplish is to let the user type his/her name in the
+text entry field and—when they click //Apply//—change the label to greet the
+user with a "Hello" followed by the name they entered. Also, the //Close//
+button should cause the application to terminate.
 
-The general idea is that when something of interest happens to a widget (eg a
-when button is clicked), a signal is emitted, and the programmer codes what the
-response will be. For example:
+The general idea is that when something of interest happens to a widget (//eg//
+when a button is clicked), a signal is emitted, and the programmer codes what
+the response will be. For example:
 
 ```
 onClicked button $ do
@@ -200,103 +213,111 @@ onClicked button $ do
 ```
 
 (Recall that ``$`` is the right-associative function application operator and
-is only used so that we don't have to enclose the whole 'do' block in brackets)
+is only used here so that we don't have to enclose the whole ``do`` block in
+brackets.)
 
-So let's start by creating two signal handlers, one for each button. We'll
-start off with the Close button, since that is the easiest to implement. Let's
-add some trivial code too, just to see our event in action. The ``putStrLn``
-function is used to print to standard out, so let's add some code to signify
-that button2 was clicked.
+Let's start by creating two signal handlers, one for each button. First up is
+the //Close// button since that's the easiest to implement. Let's add some
+trivial code too, just to see our event in action. The ``putStrLn`` function
+prints to standard out, so let's use it to signify that ``button2`` was
+clicked.
 
-Before ``mainGUI``, which always must be last, add the following two lines:
-
-```
-clbutton <- xmlGetWidget xml castToButton "button2"
-onClicked clbutton $ do
-  putStrLn "Close Button Clicked"
-```
-
-As you see, you use the ``xmlGetWidget`` function again, but with a different
-typecast than before. To actually implement the Close button like its name
-says, you might try to use ``mainQuit`` in place of ``putStrLn``. If you do
-this in ``ghci`` you'll see that pressing the button will indeed exit to ``ghci``,
-but leave the window and its descendants on the screen. When you try to close
-the window you'll probably get a message from the operating system that the
-application is not responding, or something like that. What you need is:
+Before ``mainGUI``, which must always be last, and ``widgetShowAll window``,
+add the following two lines:
 
 ```
-onClicked clbutton $ do
-  widgetDestroy window
+closeButton <- xmlGetWidget xml castToButton "button2"
+onClicked closeButton $ do
+    putStrLn "Close Button Clicked"
 ```
 
-This will do as advertised, and because of line 8 (see the listing) the
-program will also exit cleanly.
+As you can see, you're using the ``xmlGetWidget`` function again, but with a
+different typecast than before. To actually implement the //Close// button like
+its name implies, you might try to use ``mainQuit`` in place of ``putStrLn``.
+If you do this in ``ghci`` you'll see that pressing the button will indeed exit
+to ``ghci``, but leave the window and its descendants on the screen. When you
+try to close the window you'll probably get a message from the operating system
+that the application is not responding, or something similar. What you need is:
 
-And you now have a fully functioning Close button!
+```
+onClicked closeButton $ do
+    widgetDestroy window
+```
 
-Let's re-cap what we want our OK button to do. After a user types in their name
-in the text entry field we will change the label to display "Hello User", with
-User being the contents of the text entry field. This will involve two basic
-concepts: retrieving data from a widget and setting a widgets property.
+This will do as advertised, and because of line 10 in //Code Listing A// above,
+the program will also exit cleanly. And you now have a fully functioning
+//Close// button!
+
+Let's re-cap what we want our //Apply// button to do. After a user types their
+name in the text entry field we will change the label to display "Hello
+//user//", where //user// represents the text the user entered. This will
+involve two basic concepts: retrieving data from a widget and setting a
+widget's property.
 
 Functions specific to widgets are well [documented http://haskell.org/gtk2hs/docs/current].
 There is even an [API search http://haskell.org/hoogle/?package=gtk]. Among
 other things, we can find functions specific to our immediate needs: labels and
-text entries.
+text entry fields.
 
-The first thing we'll need is a way to obtain the text the user had entered.
-This is done with the ``get`` function and the ``entryText`` attribute.
-Secondly we need a way to set the text in our label. This is done with the
-``set`` function and the ``labelText`` attribute. And, of course, we need to
-create handles for the new widgets we want to use. Lines 12 - 14 in the listing
-won't surprise you, and the functionality of lines 15 - 17 is no rocket science
-either.
-
-```
-1  import Graphics.UI.Gtk
-2  import Graphics.UI.Gtk.Glade
-3
-4  main = do
-5    initGUI
-6    Just xml <- xmlNew "hellohaskell.glade"
-7    window   <- xmlGetWidget xml castToWindow "window1"
-8    onDestroy window mainQuit
-9    clbutton <- xmlGetWidget xml castToButton "button2"
-10   onClicked clbutton $ do
-11     widgetDestroy window
-12   prompt   <- xmlGetWidget xml castToLabel "label1"
-13   txtfield <- xmlGetWidget xml castToEntry "entry1"
-14   okbutton <- xmlGetWidget xml castToButton "button1"
-15   onClicked okbutton $ do
-16     name <- get txtfield entryText
-17     set prompt [ labelText := "Hello " ++ name ]
-18   mainGUI
-```
-
-We're done! Edit the program and compile with ``ghci`` or ``ghc``. eg:
+The first thing we'll need is a way to obtain the text the user entered. This
+is done with the ``get`` function and the ``entryText`` attribute. Secondly we
+need a way to set the text in our label. This is done with the ``set`` function
+and the ``labelText`` attribute. And, of course, we need to create handles for
+the new widgets we want to use. Lines 14–16 in //Code Listing B// below won't
+surprise you, and the functionality of lines 17–19 is no rocket science either.
 
 ```
-$ ghc --make HelloWorld.hs -o helloworld
-$ ./helloworld
+1  module Main where
+2
+3  import Graphics.UI.Gtk
+4  import Graphics.UI.Gtk.Glade
+5
+6  main = do
+7      initGUI
+8      Just xml    <- xmlNew "hellogtk2hs.glade"
+9      window      <- xmlGetWidget xml castToWindow "window1"
+10     onDestroy window mainQuit
+11     closeButton <- xmlGetWidget xml castToButton "button2"
+12     onClicked closeButton $ do
+13         widgetDestroy window
+14     label       <- xmlGetWidget xml castToLabel "label1"
+15     entry       <- xmlGetWidget xml castToEntry "entry1"
+16     applyButton <- xmlGetWidget xml castToButton "button1"
+17     onClicked applyButton $ do
+18         name <- get entry entryText
+19         set label [ labelText := "Hello " ++ name ]
+20     widgetShowAll window
+21     mainGUI
+```
+//Code Listing B//
+
+We're done! Save the program as ``HelloGtk2Hs.hs`` in the same directory as our
+Glade XML file, compile it using ``ghc``, then launch the new binary:
+
+```
+$ ghc --make HelloGtk2Hs.hs -o hellogtk2hs
+$ ./hellogtk2hs
 ```
 
-Type your name in the entry field and click OK. Hello User! Not too shabby
-huh...
+Type your name in the text entry field and click //Apply//. Hello //user//! Not
+too shabby huh...
 
-[screen6.png]
+[screen4.png]
 
 ==== Exercise: ====
+
 Look up the Gtk2Hs API documentation to find the function for the event when
-the user presses //Enter//, and use this it to implement the same functionality
-as the //OK button//.
+the user presses //Enter// and use this to implement the same functionality the
+//Apply// button provides.
 
 ==== Exercise: ====
-Run one of the listings with ``ghci``, using the ``main`` command, and close
-the window, but don't leave the module. Now open the Glade Interface Designer
-and open your project. Change the name of the window and use //save// to
-implement the change in the //glade// file. Now run ``./helloworld`` again (or
-``main``  in ``ghci``) and verify that the name has changed. Experiment to find
-out what other changes you can make in your GUI with the same Haskell code.
+
+Run one of the code listings with ``ghci``, using the ``main`` command, and
+close the window, but don't leave the module. Now open your project in Glade.
+Change the name of the window and hit //Save// to implement the change in the
+``.glade`` file. Now run ``./hellogtk2hs`` again (or ``main`` in ``ghci``) and
+verify that the name has changed. Experiment to find out what other changes you
+can make in your GUI with the same Haskell code.
 
 === What Next: ===
 
@@ -311,7 +332,8 @@ by Kenneth Hoste.
 
 The original [C version http://writelinux.com/glade/] of this tutorial was
 written by Eddy Ahmed. It was adapted for Haskell and Gtk2Hs by
-[Hans van Thiel http://j-van-thiel.speedlinq.nl/] October 2006.
+[Hans van Thiel http://j-van-thiel.speedlinq.nl/], October 2006. Text and
+images updated for Glade 3 by Alex Tarkovsky, August 2007.
 
 Copyright 2002 [Eddy Ahmed http://www.writelinux.com/]
 
