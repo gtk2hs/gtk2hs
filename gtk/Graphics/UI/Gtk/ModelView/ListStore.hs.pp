@@ -56,16 +56,18 @@ import qualified Graphics.UI.Gtk.ModelView.Sequence as Seq
 import Graphics.UI.Gtk.ModelView.Sequence (Seq)
 #endif
 
-import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
+import Graphics.UI.Gtk.Types (GObjectClass(..), TreeModelClass)
 import Graphics.UI.Gtk.ModelView.Types (TypedTreeModelClass, TreeIter(..))
 import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.ModelView.TreeModel
 
 newtype ListStore a = ListStore (CustomTreeModel (IORef (Seq a)) a)
 
-instance GObjectClass (ListStore a)
-instance TreeModelClass (ListStore a)
 instance TypedTreeModelClass ListStore
+instance TreeModelClass (ListStore a)
+instance GObjectClass (ListStore a) where
+  toGObject (ListStore tm) = toGObject tm
+  unsafeCastGObject = ListStore . unsafeCastGObject
 
 listStoreNew :: [a] -> IO (ListStore a)
 listStoreNew xs = do

@@ -76,8 +76,10 @@ instance Flags TreeModelFlags
 -- which is an instance of the GtkTreeModel GInterface
 -- it also stores some extra per-model-type private data
 newtype CustomTreeModel private row = CustomTreeModel (ForeignPtr (CustomTreeModel private row))
-instance GObjectClass (CustomTreeModel private row)
 instance TreeModelClass (CustomTreeModel private row)
+instance GObjectClass (CustomTreeModel private row) where
+  toGObject (CustomTreeModel tm) = mkGObject (castForeignPtr tm)
+  unsafeCastGObject = CustomTreeModel . castForeignPtr . unGObject
 
 -- | Accessing a row for a specific value. Used for 'ColumnMap'.
 data ColumnAccess row

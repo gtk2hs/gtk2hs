@@ -54,7 +54,7 @@ import Control.Monad ( liftM, when )
 import Control.Exception (assert)
 import Data.IORef
 import Graphics.UI.Gtk.ModelView.Types
-import Graphics.UI.Gtk.Types (GObjectClass, TreeModelClass)
+import Graphics.UI.Gtk.Types (GObjectClass(..), TreeModelClass)
 import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.ModelView.TreeModel
 
@@ -66,9 +66,11 @@ import Graphics.UI.Gtk.ModelView.TreeModel
 --
 newtype TreeStore a = TreeStore (CustomTreeModel (IORef (Store a)) a)
 
-instance GObjectClass (TreeStore a)
-instance TreeModelClass (TreeStore a)
 instance TypedTreeModelClass TreeStore
+instance TreeModelClass (TreeStore a)
+instance GObjectClass (TreeStore a) where
+  toGObject (TreeStore tm) = toGObject tm
+  unsafeCastGObject = TreeStore . unsafeCastGObject
 
 -- | Maximum number of nodes on each level.
 --
