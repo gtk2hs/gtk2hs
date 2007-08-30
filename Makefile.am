@@ -640,6 +640,7 @@ libHSgtk_a_LIBADD =							\
         gtk/Graphics/UI/Gtk/ModelView/TreeModel_stub.o			\
         gtk/Graphics/UI/Gtk/ModelView/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/ModelView/TreeView_stub.o			\
+	gtk/Graphics/UI/Gtk/ModelView/ComboBox_stub.o			\
 	gtk/Graphics/UI/Gtk/ModelView/CustomStore_stub.o
 
 if HAVE_GTK_VERSION_2_4
