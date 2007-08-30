@@ -1,11 +1,14 @@
 -- -*-haskell-*-
---  SOE implementation based on Gtk and cairo or Gdk.
+--  SOE implementation based on Gtk and cairo (or Gdk).
+--  Some code borrowed from SOE implementation based on OpenGL and GLFW by
+--  Paul Liu, http://www.haskell.org/soe/
 --
 --  Author : Duncan Coutts
 --
 --  Created: 10 October 2005
 --
---  Copyright (C) 2005 Duncan Coutts
+--  Copyright (C) 2005-2007 Duncan Coutts
+--  Copyright (C) 2007 Paul Liu
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -76,15 +79,15 @@ module Graphics.SOE.Gtk (
   maybeGetWindowEvent,
   getWindowEvent,
   Word32,
-  getWindowTick,
   timeGetTime,
   word32ToInt
   ) where
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
-#define USE_CAIRO
+define USE_CAIRO
 #endif
 
+import Data.List (foldl')
 import Data.Ix (Ix)
 import Data.Word (Word32)
 import Data.IORef (newIORef, readIORef, writeIORef)
@@ -102,6 +105,10 @@ import qualified Graphics.Rendering.Cairo.Matrix as Matrix
 #else
 import qualified System.IO (hPutStrLn, stderr)
 #endif
+
+-------------------
+-- Window Functions
+-------------------
 
 runGraphics :: IO () -> IO ()
 runGraphics main
@@ -130,22 +137,15 @@ data Window = Window {
   window :: Gtk.Window,
   canvas :: Gtk.DrawingArea,
   graphicVar :: MVar Graphic,
-  eventsChan :: Chan Event,
-  timerVar   :: MVar [MVar ()]
+  eventsChan :: Chan Event
 }
 
 openWindow :: Title -> Size -> IO Window
 openWindow title size =
-  openWindowEx title Nothing (Just size) drawBufferedGraphic Nothing
+  openWindowEx title Nothing (Just size) drawBufferedGraphic
 
-openWindowEx ::
-    Title
- -> Maybe Point
- -> Maybe Size
- -> RedrawMode
- -> Maybe Word32
- -> IO Window
-openWindowEx title position size (RedrawMode useDoubleBuffer) timer =
+openWindowEx :: Title -> Maybe Point -> Maybe Size -> RedrawMode -> IO Window
+openWindowEx title position size (RedrawMode useDoubleBuffer) =
   Gtk.postGUISync $ do
   window <- Gtk.windowNew
   Gtk.windowSetTitle window title
@@ -164,10 +164,9 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer =
     Just (width, height) -> Gtk.windowSetDefaultSize window width height
 
   Gtk.widgetShowAll window
-  
+
   graphicVar <- newMVar emptyGraphic
   eventsChan <- newChan
-  timerVar   <- newMVar []
 
   -- set up the fonts
 #ifdef USE_CAIRO
@@ -196,7 +195,7 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer =
       Cairo.clip
       Cairo.paint                 --fill backgound with black
       Cairo.setSourceRGB 1 1 1    --use white default colour
-      Cairo.setLineWidth 1
+      Cairo.setLineWidth 1.5
       -- actually do the drawing
       graphic pc
 #else
@@ -244,24 +243,12 @@ openWindowEx title position size (RedrawMode useDoubleBuffer) timer =
   Gtk.onKeyRelease canvas keyPressHandler
 
   Gtk.onSizeAllocate canvas $ \_ -> writeChan eventsChan Resize
-  
-  case timer of
-    Nothing -> return ()
-    Just delay -> do
-      let tick = do
-            ps <- takeMVar timerVar
-            mapM_ (\p -> putMVar p ()) ps
-            putMVar timerVar []
-            return True
-      Gtk.timeoutAddFull tick Gtk.priorityDefaultIdle (fromIntegral delay)
-      return ()
 
   return Window {
     window  = window,
     canvas  = canvas,
     graphicVar = graphicVar,
-    eventsChan = eventsChan,
-    timerVar   = timerVar
+    eventsChan = eventsChan
   }
 
 getWindowSize :: Window -> IO Size
@@ -286,6 +273,10 @@ setGraphic win graphic = do
 closeWindow :: Window -> IO ()
 closeWindow win = Gtk.postGUIAsync $ Gtk.widgetHide (window win)
 
+--------------------
+-- Drawing Functions
+--------------------
+
 newtype RedrawMode = RedrawMode Bool
 
 drawGraphic :: RedrawMode
@@ -304,7 +295,7 @@ data Color = Black
            | White
   deriving (Eq, Ord, Bounded, Enum, Ix, Show, Read)
 
-type Angle = Double
+type Angle = Float
 
 #ifdef USE_CAIRO
 
@@ -388,7 +379,7 @@ line (x1, y1) (x2, y2) = Graphic $ \pc -> do
 
 polygon :: [Point] -> Graphic
 polygon [] = Graphic (\_ -> return ())
-polygon (p@(x,y):ps) = Graphic $ \pc -> do
+polygon ((x,y):ps) = Graphic $ \pc -> do
   Cairo.moveTo (fromIntegral x) (fromIntegral y)
   sequence_ [ Cairo.lineTo (fromIntegral x) (fromIntegral y)
             | (x,y) <- ps ]
@@ -396,7 +387,7 @@ polygon (p@(x,y):ps) = Graphic $ \pc -> do
 
 polyline :: [Point] -> Graphic
 polyline [] = Graphic (\_ -> return ())
-polyline (p@(x,y):ps) = Graphic $ \pc -> do
+polyline ((x,y):ps) = Graphic $ \pc -> do
   Cairo.moveTo (fromIntegral x) (fromIntegral y)
   sequence_ [ Cairo.lineTo (fromIntegral x) (fromIntegral y)
             | (x,y) <- ps ]
@@ -407,7 +398,7 @@ polyBezier [] = Graphic (\_ -> return ())
 polyBezier ((x,y):ps) = Graphic $ \pc -> do
   Cairo.moveTo (fromIntegral x) (fromIntegral y)
   let loop ((x1,y1):(x2,y2):(x3,y3):ps) = do
-        Cairo.curveTo (fromIntegral x1) (fromIntegral y2)
+        Cairo.curveTo (fromIntegral x1) (fromIntegral y1)
                       (fromIntegral x2) (fromIntegral y2)
                       (fromIntegral x3) (fromIntegral y3)
         loop ps
@@ -416,7 +407,7 @@ polyBezier ((x,y):ps) = Graphic $ \pc -> do
   Cairo.stroke
 
 arc :: Point -> Point -> Angle -> Angle -> Graphic
-arc pt1 pt2 start extent = Graphic $ \pc -> case normaliseBounds pt1 pt2 of
+arc pt1 pt2 start_ extent_ = Graphic $ \pc -> case normaliseBounds pt1 pt2 of
   Nothing -> return ()
   Just  (x,y,width,height) -> do
     Cairo.save
@@ -426,6 +417,12 @@ arc pt1 pt2 start extent = Graphic $ \pc -> case normaliseBounds pt1 pt2 of
     Cairo.arcNegative 0 0 1 (-start * pi / 180) (-(start+extent) * pi / 180)
     Cairo.fill
     Cairo.restore
+  where start  = realToFrac start_
+        extent = realToFrac extent_
+
+-------------------
+-- Region Functions
+-------------------
 
 data Region = Region {
   regionGraphic :: Int -> Int -> Cairo.Render (),
@@ -435,11 +432,12 @@ data Region = Region {
   regionHeight  :: !Int
 }
 
+instance Show Region where show (Region _ x y w h) = show (x,y,w,h)
+
 createRectangle :: Point -> Point -> Region
 createRectangle pt1 pt2 =
   let (x,y,width,height) = normaliseBounds' pt1 pt2 
       drawing x y = do
---        Cairo.liftIO $ print ("createRectangle",x,y,width,height)
         Cairo.rectangle (fromIntegral x) (fromIntegral y)
                         (fromIntegral width) (fromIntegral height)
         Cairo.fill
@@ -447,34 +445,37 @@ createRectangle pt1 pt2 =
 
 createEllipse :: Point -> Point -> Region
 createEllipse pt1 pt2 =
-  let (x,y,width,height) = normaliseBounds' pt1 pt2
+  let (x0,y0,width,height) = normaliseBounds' pt1 pt2
       drawing x y | width==0 || height==0 = return ()
                   | otherwise = do
         Cairo.save
-        Cairo.translate (fromIntegral x + fromIntegral width / 2)
-                        (fromIntegral y + fromIntegral height / 2)
+        Cairo.translate (fromIntegral (x) + fromIntegral width / 2)
+                        (fromIntegral (y) + fromIntegral height / 2)
         Cairo.scale (fromIntegral width / 2) (fromIntegral height / 2)
         Cairo.arc 0 0 1 0 (2*pi)
         Cairo.fill
         Cairo.restore
-  in Region drawing x y width height
+  in Region drawing x0 y0 width height
 
 createPolygon :: [Point] -> Region
 createPolygon [] = Region (\_ _ -> return ()) 0 0 0 0
-createPolygon (p@(x,y):ps) =
-  let minMax (x,y) (minx,maxx,miny,maxy) =
+createPolygon (p@(x0,y0):ps) =
+  let minMax (minx,maxx,miny,maxy) (x,y) =
         let minx' = min minx x
             maxx' = max maxx x
             miny' = min miny y
             maxy' = max maxy y
          in seq minx' $ seq maxx' $ seq miny' $ seq maxy' $
             (minx',maxx',miny',maxy')
-      (minx,maxx,miny,maxy) = foldr minMax (x,x,y,y) ps          
+      (minx,maxx,miny,maxy) = foldl' minMax (x0,x0,y0,y0) (p:ps)
       drawing x y = do
-        Cairo.moveTo (fromIntegral x) (fromIntegral y)
+        Cairo.save
+        Cairo.translate (fromIntegral (x-minx)) (fromIntegral (y-miny))
+        Cairo.moveTo (fromIntegral x0) (fromIntegral y0)
         sequence_ [ Cairo.lineTo (fromIntegral x) (fromIntegral y)
                   | (x,y) <- ps ]
         Cairo.fill
+        Cairo.restore
    in Region drawing minx miny (maxx - minx) (maxy - miny)
 
 andRegion, orRegion, xorRegion, diffRegion :: Region -> Region -> Region
@@ -499,7 +500,6 @@ combineRegion operator a b =
       width  = x' - x
       height = y' - y
       drawing x'' y'' = do
---        Cairo.liftIO $ print ("combineRegion",x,y,width,height)
         Cairo.renderWithSimilarSurface Cairo.ContentAlpha width height $
           \surface -> do
           Cairo.renderWith surface $ do
@@ -509,7 +509,6 @@ combineRegion operator a b =
             Cairo.setOperator operator
             regionGraphic b (regionOriginX b - x)
                             (regionOriginY b - y)
---          Cairo.liftIO $ print ("mask surface",x,y)
           Cairo.maskSurface surface (fromIntegral x'') (fromIntegral y'')
    in Region drawing x y width height
 
@@ -676,6 +675,10 @@ normaliseBounds' (x1,y1) (x2,y2) = (x, y, width, height)
         width  = abs $ x1 - x2
         height = abs $ y1 - y2
 
+---------------------------
+-- Event Handling Functions
+---------------------------
+
 data Event = Key {
                char :: Char,
                isDown :: Bool
@@ -711,7 +714,20 @@ getWindowEvent win = do
 maybeGetWindowEvent :: Window -> IO (Maybe Event)
 maybeGetWindowEvent win = do
   noEvents <- isEmptyChan (eventsChan win)
-  if noEvents then return Nothing
+  if noEvents then -- Sync with the main GUI loop or we can end up spinning on
+                   -- maybeGetWindowEvent and prevent the screen redrawing.
+                   -- We also introduce a very short delay here of 5ms. This
+                   -- prevents the program from using 100% cpu and redrawing
+                   -- constantly. This actually makes animation much smoother
+                   -- since the process gets treated as interactive rather than
+                   -- as a CPU hog so the scheduler gives us the benefit on
+                   -- latency. Even with a 5ms delay here we can animate at up
+                   -- to 200fps.
+                   do syncVar <- newEmptyMVar
+                      Gtk.timeoutAddFull (putMVar syncVar () >> return False)
+                                         Gtk.priorityDefaultIdle 10
+                      takeMVar syncVar
+                      return Nothing
               else do event <- readChan (eventsChan win)
                       case event of
                         MouseMove _ -> Gtk.postGUIAsync $
@@ -728,10 +744,14 @@ getKeyEx win down = loop
                   case e of
                     (Key { char = ch, isDown = d })
                       | d == down -> return ch
+                    Closed -> return '\x0'
                     _ -> loop
 
 getKey :: Window -> IO Char
-getKey win = getKeyEx win True >> getKeyEx win False
+getKey win = do
+  ch <- getKeyEx win True
+  if ch == '\x0' then return ch
+    else getKeyEx win False
 
 getButton :: Window -> Int -> Bool -> IO Point
 getButton win but down = loop
@@ -746,13 +766,6 @@ getLBP w = getButton w 1 True
 
 getRBP :: Window -> IO Point
 getRBP w = getButton w 2 True
-
-getWindowTick :: Window -> IO ()
-getWindowTick win = do
-  ps <- takeMVar (timerVar win)
-  p  <- newEmptyMVar
-  putMVar (timerVar win) (p:ps)
-  takeMVar p  --block until the timer fills this MVar
 
 timeGetTime :: IO Word32
 timeGetTime = do
