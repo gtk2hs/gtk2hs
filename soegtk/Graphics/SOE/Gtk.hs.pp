@@ -84,7 +84,7 @@ module Graphics.SOE.Gtk (
   ) where
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
-define USE_CAIRO
+#define USE_CAIRO
 #endif
 
 import Data.List (foldl')
