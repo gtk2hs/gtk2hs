@@ -432,8 +432,6 @@ data Region = Region {
   regionHeight  :: !Int
 }
 
-instance Show Region where show (Region _ x y w h) = show (x,y,w,h)
-
 createRectangle :: Point -> Point -> Region
 createRectangle pt1 pt2 =
   let (x,y,width,height) = normaliseBounds' pt1 pt2 
@@ -449,8 +447,8 @@ createEllipse pt1 pt2 =
       drawing x y | width==0 || height==0 = return ()
                   | otherwise = do
         Cairo.save
-        Cairo.translate (fromIntegral (x) + fromIntegral width / 2)
-                        (fromIntegral (y) + fromIntegral height / 2)
+        Cairo.translate (fromIntegral x + fromIntegral width / 2)
+                        (fromIntegral y + fromIntegral height / 2)
         Cairo.scale (fromIntegral width / 2) (fromIntegral height / 2)
         Cairo.arc 0 0 1 0 (2*pi)
         Cairo.fill
