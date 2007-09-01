@@ -52,8 +52,7 @@ bgcolor="#FFFFFF" dir="ltr">
   list all modules and there is also an <i>index</i>. Inside each
   module description there is also a class hierarchy. If a method,
   attribute or signal you expect is missing, it might belong to one
-  of the super classes of which your widget type is an
-  instance.</p>
+  of the superclasses of which your widget type is an instance.</p>
 
   <p>To begin our introduction to Gk2Hs, we'll start with the
   simplest program possible. This program will create a 200x200
@@ -71,7 +70,7 @@ bgcolor="#FFFFFF" dir="ltr">
 import Graphics.UI.Gtk
 
 main :: IO ()
-main = do 
+main = do
   initGUI
   window &lt;- windowNew
   widgetShowAll window
@@ -166,10 +165,10 @@ main = do
 
   <p>Widgets, and the classes their types belong to, usually have
   attributes. These can be set either by named methods or by the
-  general <i>set</i> function, which uses a list like notation as
+  general <i>set</i> function, which uses a list-like notation as
   shown below. Of special interest here is the
-  <i>containerChild</i> attribute of the window (actually a super
-  class of the window) which states the relationship with the
+  <i>containerChild</i> attribute of the window (actually a
+  superclass of the window) which states the relationship with the
   button. Because of this <i>widgetShowAll window</i> will also
   make the button visible.</p>
 
@@ -177,8 +176,9 @@ main = do
   dependency tree (not to be confused with the class hierarchy).
   Gtk2hs also works with the Glade visual interface designer and,
   if you use Glade, such connections are visible in the <i>Widget
-  tree</i> window. There is a separate introductory tutorial on how
-  to use Glade with Gtk2Hs.</p>
+      tree</i> window. There is a <a href=
+  "http://haskell.org/gtk2hs/docs/tutorial/glade/">separate
+  introductory tutorial</a> on how to use Glade with Gtk2Hs.</p>
 
   <table summary="haskell code" width="100%" border="0"
   cellpadding="2" cellspacing="2" bgcolor="#E0E0E0">
@@ -191,7 +191,7 @@ hello :: (ButtonClass o) =&gt; o -&gt; IO ()
 hello b = set b [buttonLabel := "Hello World"]
 
 main :: IO ()
-main = do 
+main = do
   initGUI
   window &lt;- windowNew
   button &lt;- buttonNew
@@ -200,7 +200,7 @@ main = do
   onClicked button (hello button)
   onDestroy window mainQuit
   widgetShowAll window
-  mainGUI   
+  mainGUI
 </pre>
       </td>
     </tr>
