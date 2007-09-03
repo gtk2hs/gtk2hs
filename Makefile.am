@@ -962,7 +962,7 @@ gconf_MOSTLYCLEANFILES += $(libHSgconf_a_HSFILES:.hs=.hi)
 gconf_MOSTLYCLEANFILES += \
 	$(libHSgconf_a_CHSFILES:.chs=.chi)	\
 	$(libHSgconf_a_CHSFILES:.chs=_stub.h)	\
-	$(libHSgconf_a_CHSFILES:.chs=_stub.h)	\
+	$(libHSgconf_a_CHSFILES:.chs=_stub.o)	\
 	$(libHSgconf_a_CHSFILES:.chs=_stub.c)
 gconf_CLEANFILES  = $(libHSgconf_a_BUILDSOURCES)
 gconf_CLEANFILES += $(libHSgconf_a_CHSFILES_HS:.hs=.dep)
