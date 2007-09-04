@@ -8,18 +8,18 @@ Glade Tutorial
 === What? ===
 
 This tutorial will attempt to provide a step by step guide for Haskell
-developers wanting to write Gtk+ apps using Glade. We assume you are using
-Linux, but because the Gtk+ toolkit, the Glade Interface Designer and Gtk2Hs
+developers wanting to write GTK+ apps using Glade. We assume you are using
+Linux, but because the GTK+ toolkit, the Glade Interface Designer and Gtk2Hs
 bindings are available on other platforms too, this might also help you get
 started there.
 
 This tutorial page is an adaptation for [Haskell http://www.haskell.org] and
-[Gtk2Hs http://haskell.org/gtk2hs/] of an
-[original tutorial http://www.writelinux.com/glade/] for C and the Gtk+ C API.
+[Gtk2Hs http://haskell.org/gtk2hs/] of an original tutorial for C and the GTK+
+C API.
 
 You will need:
 
-- [Gtk+ http://www.gtk.org/] libraries
+- [GTK+ http://www.gtk.org/] libraries
 - [Glade http://glade.gnome.org/] version 3 (or version 2, but beware of minor
   differences)
 - [Gtk2Hs http://haskell.org/gtk2hs/download/]
@@ -59,7 +59,7 @@ in the window's title bar at run time. In the Window Title property field type
 ``Hello Gtk2Hs``.
 
 OK, so the window is all set up, now to add some buttons and labels... but
-wait! We can't add widgets just yet. Widgets in Gtk+ apps are //packed//.
+wait! We can't add widgets just yet. Widgets in GTK+ apps are //packed//.
 Packing widgets may seem to be a burden at first but is actually an ingenious
 method to allow many nifty things, the most immediate being automatic resizing.
 When a user resizes an app we usually would like the widgets in the window to
@@ -321,21 +321,18 @@ can make in your GUI with the same Haskell code.
 
 === What Next: ===
 
-For Glade see [part 2 http://eddy.writelinux.com/part2/] of the
-[original tutorial http://www.writelinux.com/glade/].
-
 For Gtk2Hs see
 [An Introduction to Gtk2Hs, A Haskell GUI Library http://haskell.org/~shae/memory.pdf]
 by Kenneth Hoste.
 
 === Credits and Copyright notice ===
 
-The original [C version http://writelinux.com/glade/] of this tutorial was
-written by Eddy Ahmed. It was adapted for Haskell and Gtk2Hs by
+The original C version of this tutorial was written by Eddy Ahmed. It was
+adapted for Haskell and Gtk2Hs by
 [Hans van Thiel http://j-van-thiel.speedlinq.nl/], October 2006. Text and
 images updated for Glade 3 by Alex Tarkovsky, August 2007.
 
-Copyright 2002 [Eddy Ahmed http://www.writelinux.com/]
+Copyright 2002 Eddy Ahmed.
 
 Text and images have been adapted and/or used with permission of the author and
 retainer of the copyright.
