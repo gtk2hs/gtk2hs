@@ -29,14 +29,128 @@
 module Media.Streaming.GStreamer.Base.Adapter (
   
   Adapter,
+  AdapterClass,
+  toAdapter,
+  castToAdapter,
+  isAdapter,
+  adapterNew,
+  adapterClear,
+  adapterPush,
+  adapterPeek,
+  adapterCopy,
+  adapterCopyInto,
+  adapterFlush,
+  adapterAvailable,
+  adapterAvailableFast,
+  adapterTake,
+  adapterTakeBuffer
   
   ) where
 
 import Control.Monad (liftM)
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Base as BS
 {#import Media.Streaming.GStreamer.Base.Types#}
 import System.Glib.FFI
+import System.Glib.GObject
 import System.Glib.Flags
 import System.Glib.Attributes
 {#import System.Glib.Properties#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
+
+adapterNew :: IO Adapter
+adapterNew =
+    constructNewGObject mkAdapter {# call adapter_new #}
+
+adapterClear :: AdapterClass adapterT
+             => adapterT
+             -> IO ()
+adapterClear =
+    {# call adapter_clear #} . toAdapter
+
+adapterPush :: (AdapterClass adapterT, BufferClass bufferT)
+            => adapterT
+            -> bufferT
+            -> IO ()
+adapterPush adapter buffer =
+    {# call adapter_push #} (toAdapter adapter) (toBuffer buffer)
+
+adapterPeek :: AdapterClass adapterT
+            => adapterT
+            -> Word
+            -> IO (Maybe BS.ByteString)
+adapterPeek adapter size =
+    do ptr <- {# call adapter_peek #} (toAdapter adapter) (fromIntegral size)
+       if ptr == nullPtr
+           then return Nothing
+           else liftM Just $ BS.copyCStringLen (castPtr ptr, fromIntegral size)
+
+adapterCopy :: AdapterClass adapterT
+            => adapterT
+            -> Word
+            -> Word
+            -> IO BS.ByteString
+adapterCopy adapter offset size =
+    BS.create (fromIntegral size) $ \dest ->
+        {# call adapter_copy #} (toAdapter adapter)
+                                (castPtr dest)
+                                (fromIntegral offset)
+                                (fromIntegral size)
+
+adapterCopyInto :: AdapterClass adapterT
+                => adapterT
+                -> BS.ByteString
+                -> Word
+                -> IO ()
+adapterCopyInto adapter dest offset =
+    BS.useAsCStringLen dest $ \(destPtr, size) ->
+        {# call adapter_copy #} (toAdapter adapter)
+                                (castPtr destPtr)
+                                (fromIntegral offset)
+                                (fromIntegral size)
+
+adapterFlush :: AdapterClass adapterT
+             => adapterT
+             -> Word
+             -> IO ()
+adapterFlush adapter flush =
+    {# call adapter_flush #} (toAdapter adapter) $ fromIntegral flush
+
+adapterAvailable :: AdapterClass adapterT
+                 => adapterT
+                 -> IO Word
+adapterAvailable adapter =
+    liftM fromIntegral $
+        {# call adapter_available #} $ toAdapter adapter
+
+adapterAvailableFast :: AdapterClass adapterT
+                     => adapterT
+                     -> IO Word
+adapterAvailableFast adapter =
+    liftM fromIntegral $
+        {# call adapter_available_fast #} $ toAdapter adapter
+
+adapterTake :: AdapterClass adapterT
+            => adapterT
+            -> Word
+            -> IO (Maybe BS.ByteString)
+adapterTake adapter nBytes =
+    do ptr <- {# call adapter_take #} (toAdapter adapter)
+                                      (fromIntegral nBytes)
+       if ptr == nullPtr
+          then do fPtr <- newForeignPtr (castPtr ptr) gFreePtr
+                  return $ Just $
+                      BS.fromForeignPtr (castForeignPtr fPtr) $
+                          fromIntegral nBytes
+          else return Nothing
+foreign import ccall unsafe "&g_free"
+    gFreePtr :: FunPtr (Ptr () -> IO ())
+
+adapterTakeBuffer :: AdapterClass adapterT
+                  => adapterT
+                  -> Word
+                  -> IO (Maybe Buffer)
+adapterTakeBuffer adapter nBytes =
+    {# call adapter_take_buffer #} (toAdapter adapter) (fromIntegral nBytes) >>=
+        maybePeek takeMiniObject

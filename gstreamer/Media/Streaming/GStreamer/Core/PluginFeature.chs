@@ -40,7 +40,7 @@ module Media.Streaming.GStreamer.Core.PluginFeature (
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
-import GHC.Base (unsafeCoerce#)
+import System.Glib.GObject
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -48,9 +48,9 @@ pluginFeatureLoad :: PluginFeatureClass pluginFeature
                   => pluginFeature
                   -> IO pluginFeature
 pluginFeatureLoad pluginFeature =
-    liftM unsafeCoerce# $
+    liftM (unsafeCastGObject . toGObject) $
         {# call plugin_feature_load #} (toPluginFeature pluginFeature) >>=
-            takePluginFeature
+            takeObject
 
 pluginFeatureCheckVersion :: PluginFeatureClass pluginFeature
                           => pluginFeature

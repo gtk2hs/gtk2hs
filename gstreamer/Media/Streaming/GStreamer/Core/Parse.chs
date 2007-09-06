@@ -45,7 +45,7 @@ parseLaunch pipelineDescription =
     withUTFString pipelineDescription $ \cPipelineDescription ->
         alloca $ \gErrorPtr ->
             do element <- {# call parse_launch #} cPipelineDescription (castPtr gErrorPtr) >>=
-                              maybePeek takeElement
+                              maybePeek takeObject
                gError <- peek gErrorPtr >>= maybePeek peek
                return (element, gError)
 
@@ -55,7 +55,7 @@ parseLaunchFromArgs args =
     withUTFStringArray0 args $ \cArgs ->
         alloca $ \gErrorPtr ->
             do element <- {# call parse_launchv #} (castPtr cArgs) (castPtr gErrorPtr) >>=
-                              maybePeek takeElement
+                              maybePeek takeObject
                gError <- peek gErrorPtr >>= maybePeek peek
                return (element, gError)
 
@@ -68,6 +68,6 @@ parseBinFromDescription binDescription ghostUnconnectedPads =
             do element <- {# call parse_bin_from_description #} cBinDescription
                                                                 (fromBool ghostUnconnectedPads)
                                                                 (castPtr gErrorPtr) >>=
-                              maybePeek takeElement
+                              maybePeek takeObject
                gError <- peek gErrorPtr >>= maybePeek peek
                return (element, gError)

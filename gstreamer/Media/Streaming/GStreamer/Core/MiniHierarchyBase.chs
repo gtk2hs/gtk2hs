@@ -22,66 +22,71 @@
 --  GStreamer, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
---  
+
+-- #hide
+
 -- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module @MODULE_NAME@ (
-@MODULE_EXPORTS@
+module Media.Streaming.GStreamer.Core.MiniHierarchyBase (
+  MiniObject(..),
+  MiniObjectClass(..),
+  mkMiniObject,
+  unMiniObject,
+  isMiniObject,
+  castToMiniObject,
+  mkCastToMiniObject,
+  mkIsMiniObject,
   ) where
 
-import Control.Monad      (liftM)
-import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
-import Foreign.C.Types    (CULong)
-import System.Glib.GType	(GType, typeInstanceIsA)
 import System.Glib.FFI
-{#import System.Glib.GObject#}
-{#import System.Glib.Types#}
-@IMPORT_PARENT@
+import System.Glib.GType
+import System.Glib.GObject
 
-{# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
+{# context lib = "gstreamer" prefix = "gst" #}
+
+{# pointer *GstMiniObject as MiniObject foreign newtype #}
+
+mkMiniObject = MiniObject
+unMiniObject (MiniObject o) = o
+
+isMiniObject :: MiniObjectClass obj
+             => obj
+             -> Bool
+isMiniObject _ = True
+
+class MiniObjectClass o where
+    toMiniObject :: o -> MiniObject
+    unsafeCastMiniObject :: MiniObject -> o
+
+instance MiniObjectClass MiniObject where
+    toMiniObject = id
+    unsafeCastMiniObject = id
+
+castToMiniObject :: MiniObjectClass obj
+                 => obj
+                 -> MiniObject
+castToMiniObject = mkMiniObject . castForeignPtr . unMiniObject . toMiniObject
 
 -- The usage of foreignPtrToPtr should be safe as the evaluation will only be
 -- forced if the object is used afterwards
 --
-mkCastToObject :: (GObjectClass obj, GObjectClass obj')
-               => GType
-               -> String
-               -> (obj -> obj')
-mkCastToObject gtype objTypeName obj =
-  case toGObject obj of
-    gobj\@(GObject objFPtr)
+mkCastToMiniObject :: (MiniObjectClass obj, MiniObjectClass obj')
+                   => GType
+                   -> String
+                   -> (obj -> obj')
+mkCastToMiniObject gtype objTypeName obj =
+  case toMiniObject obj of
+    gobj@(MiniObject objFPtr)
       | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
-                  -> unsafeCastGObject gobj
+                  -> unsafeCastMiniObject gobj
       | otherwise -> error $ "Cannot cast object to " ++ objTypeName
 
-mkIsObject :: GObjectClass obj
-           => GType
-           -> obj
-           -> Bool
-mkIsObject gType obj =
+mkIsMiniObject :: MiniObjectClass obj
+               => GType
+               -> obj
+               -> Bool
+mkIsMiniObject gType obj =
     unsafePerformIO $
-        withForeignPtr (unGObject $ toGObject obj) $ \objPtr ->
+        withForeignPtr (unMiniObject $ toMiniObject obj) $ \objPtr ->
             return $ typeInstanceIsA (castPtr objPtr) gType
-
-mkTakeObject, mkPeekObject :: (GObjectClass obj)
-                           => (ForeignPtr obj -> obj)
-                           -> Ptr obj
-                           -> IO obj
-mkPeekObject cons cObject =
-    liftM (cons . castForeignPtr) $ do
-      cObjectRef $ castPtr cObject
-      newForeignPtr (castPtr cObject) objectFinalizer
-foreign import ccall unsafe "&g_object_unref"
-  objectFinalizer :: FunPtr (Ptr () -> IO ())
-foreign import ccall unsafe "g_object_ref"
-  cObjectRef :: Ptr ()
-             -> IO ()
-
-mkTakeObject cons cObject =
-    liftM (cons . castForeignPtr) $
-        newForeignPtr (castPtr cObject) objectFinalizer
-
-@CASTING_FUNCTIONS@
-
-@CLASS_DECLERATIONS@

@@ -23,22 +23,39 @@
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
 
--- #hide
+-- # hide
 
 -- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module @MODULE_NAME@ (
-@MODULE_EXPORTS@
+module Media.Streaming.GStreamer.Core.HierarchyBase (
+  mkCastToGObject,
+  mkIsGObject,
   ) where
 
-import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
-import Foreign.C.Types    (CULong)
-import System.Glib.GType	(GType, typeInstanceIsA)
+import System.Glib.FFI
+import System.Glib.GType
 import System.Glib.GObject
-import Media.Streaming.GStreamer.Core.HierarchyBase
-@IMPORT_PARENT@
 
-{# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
+-- The usage of foreignPtrToPtr should be safe as the evaluation will only be
+-- forced if the object is used afterwards
+--
+mkCastToGObject :: (GObjectClass obj, GObjectClass obj')
+                => GType
+                -> String
+                -> (obj -> obj')
+mkCastToGObject gtype objTypeName obj =
+  case toGObject obj of
+    gobj@(GObject objFPtr)
+      | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
+                  -> unsafeCastGObject gobj
+      | otherwise -> error $ "Cannot cast object to " ++ objTypeName
 
-@DECLERATIONS@
+mkIsGObject :: GObjectClass obj
+            => GType
+            -> obj
+            -> Bool
+mkIsGObject gType obj =
+    unsafePerformIO $
+        withForeignPtr (unGObject $ toGObject obj) $ \objPtr ->
+            return $ typeInstanceIsA (castPtr objPtr) gType

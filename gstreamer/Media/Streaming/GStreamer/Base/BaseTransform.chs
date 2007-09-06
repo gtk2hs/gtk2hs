@@ -102,8 +102,8 @@ baseTransformGetSinkPad :: BaseTransformClass baseTransformT
                         => baseTransformT
                         -> IO Pad
 baseTransformGetSinkPad baseTransform =
-    withBaseTransform (toBaseTransform baseTransform) cBaseTransformGetSinkPad >>=
-        peekPad
+    withObject (toBaseTransform baseTransform) cBaseTransformGetSinkPad >>=
+        peekObject
 foreign import ccall unsafe "_hs_gst_base_transform_get_sink_pad"
     cBaseTransformGetSinkPad :: Ptr BaseTransform
                              -> IO (Ptr Pad)
@@ -112,8 +112,8 @@ baseTransformGetSrcPad :: BaseTransformClass baseTransformT
                         => baseTransformT
                         -> IO Pad
 baseTransformGetSrcPad baseTransform =
-    withBaseTransform (toBaseTransform baseTransform) cBaseTransformGetSrcPad >>=
-        peekPad
+    withObject (toBaseTransform baseTransform) cBaseTransformGetSrcPad >>=
+        peekObject
 foreign import ccall unsafe "_hs_gst_base_transform_get_src_pad"
     cBaseTransformGetSrcPad :: Ptr BaseTransform
                              -> IO (Ptr Pad)

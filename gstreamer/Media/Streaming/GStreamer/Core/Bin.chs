@@ -85,7 +85,7 @@ binGetByName :: BinClass bin =>
              -> String
              -> IO (Maybe Element)
 binGetByName bin name =
-    withUTFString name ({# call bin_get_by_name #} (toBin bin)) >>= maybePeek takeElement
+    withUTFString name ({# call bin_get_by_name #} (toBin bin)) >>= maybePeek takeObject
 
 binGetByNameRecurseUp :: BinClass bin =>
                 bin
@@ -93,7 +93,7 @@ binGetByNameRecurseUp :: BinClass bin =>
              -> IO (Maybe Element)
 binGetByNameRecurseUp bin name =
     withUTFString name ({# call bin_get_by_name_recurse_up #} $ toBin bin) >>=
-        maybePeek takeElement
+        maybePeek takeObject
 
 binGetByInterface :: BinClass bin =>
                      bin
@@ -101,7 +101,7 @@ binGetByInterface :: BinClass bin =>
                   -> IO (Maybe Element)
 binGetByInterface bin iface =
     {# call bin_get_by_interface #} (toBin bin) (fromIntegral iface) >>=
-        maybePeek takeElement
+        maybePeek takeObject
 
 binIterateElements :: BinClass bin =>
                       bin
@@ -152,7 +152,7 @@ binFindUnconnectedPad :: BinClass bin =>
                       -> IO (Maybe Pad)
 binFindUnconnectedPad bin direction =
     {# call bin_find_unconnected_pad #} (toBin bin) (fromIntegral $ fromEnum direction) >>=
-        maybePeek takePad
+        maybePeek takeObject
 
 onBinElementAdded, afterBinElementAdded :: BinClass bin
                                         => bin

@@ -66,7 +66,7 @@ padTemplateNew nameTemplate direction presence caps =
                                     (fromIntegral $ fromEnum direction)
                                     (fromIntegral $ fromEnum presence)
                                     caps' >>=
-            takePadTemplate
+            takeObject
 
 padTemplateGetCaps :: PadTemplateClass padTemplate
                    => padTemplate
@@ -79,7 +79,7 @@ padTemplateGetNameTemplate :: PadTemplateClass padTemplate
                            => padTemplate
                            -> IO String
 padTemplateGetNameTemplate padTemplate =
-    withPadTemplate (toPadTemplate padTemplate) {# get PadTemplate->name_template #} >>=
+    withObject (toPadTemplate padTemplate) {# get PadTemplate->name_template #} >>=
         peekUTFString
 
 padTemplateGetDirection :: PadTemplateClass padTemplate
@@ -87,14 +87,14 @@ padTemplateGetDirection :: PadTemplateClass padTemplate
                         -> IO PadDirection
 padTemplateGetDirection padTemplate =
     liftM (toEnum . fromIntegral) $
-        withPadTemplate (toPadTemplate padTemplate) {# get PadTemplate->direction #}
+        withObject (toPadTemplate padTemplate) {# get PadTemplate->direction #}
 
 padTemplateGetPresence :: PadTemplateClass padTemplate
                        => padTemplate
                        -> IO PadPresence
 padTemplateGetPresence padTemplate =
     liftM (toEnum . fromIntegral) $
-        withPadTemplate (toPadTemplate padTemplate) {# get PadTemplate->presence #}
+        withObject (toPadTemplate padTemplate) {# get PadTemplate->presence #}
 
 onPadTemplatePadCreated, afterPadTemplatePadCreated :: PadTemplateClass padTemplateT
                                                     => padTemplateT

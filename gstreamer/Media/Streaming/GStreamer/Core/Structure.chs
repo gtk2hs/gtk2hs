@@ -45,26 +45,25 @@ module Media.Streaming.GStreamer.Core.Structure (
   StructureM,
   structureCreate,
   structureModify,
-  structureSetName,
-  structureRemoveField,
-  structureSetBool,
-  structureSetInt,
-  structureSetFourCC,
-  structureSetDouble,
-  structureSetString,
-  structureSetDate,
-  structureSetClockTime,
-  structureSetFraction,
-  structureFixateFieldNearestInt,
-  structureFixateFieldNearestDouble,
-  structureFixateFieldNearestFraction,
-  structureFixateFieldBool
+  structureSetNameM,
+  structureRemoveFieldM,
+  structureSetBoolM,
+  structureSetIntM,
+  structureSetFourCCM,
+  structureSetDoubleM,
+  structureSetStringM,
+  structureSetDateM,
+  structureSetClockTimeM,
+  structureSetFractionM,
+  structureFixateFieldNearestIntM,
+  structureFixateFieldNearestDoubleM,
+  structureFixateFieldNearestFractionM,
+  structureFixateFieldBoolM
   ) where
 
 import Data.Ratio ( (%)
                   , numerator
-                  , denominator
-                  )
+                  , denominator )
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.UTFString
@@ -222,131 +221,129 @@ structureModify structure action =
         ({# call structure_copy #} structure)
         action
 
-structureSetName :: String
-                 -> StructureM ()
-structureSetName name =
+structureSetNameM :: String
+                  -> StructureM ()
+structureSetNameM name =
     StructureM $ \structure ->
         withUTFString name $ {# call structure_set_name #} structure
 
-structureRemoveField :: String
-                     -> StructureM ()
-structureRemoveField name =
+structureRemoveFieldM :: String
+                      -> StructureM ()
+structureRemoveFieldM name =
     StructureM $ \structure ->
         withUTFString name $ {# call structure_remove_field #} structure
 
-marshalStructureSet :: (GValue -> a -> IO ())
-                    -> String
-                    -> a
-                    -> StructureM ()
-marshalStructureSet setGValue fieldname value =
+marshalStructureSetM :: (GValue -> a -> IO ())
+                     -> String
+                     -> a
+                     -> StructureM ()
+marshalStructureSetM setGValue fieldname value =
     StructureM $ \structure ->
         withUTFString fieldname $ \cFieldname ->
         allocaGValue $ \gValue ->
             do setGValue gValue value
                {# call structure_set_value #} structure cFieldname gValue
 
-structureSetBool :: String
-                 -> Bool
+structureSetBoolM :: String
+                  -> Bool
+                  -> StructureM ()
+structureSetBoolM =
+    marshalStructureSetM valueSetBool
+
+structureSetIntM :: String
+                 -> Int
                  -> StructureM ()
-structureSetBool =
-    marshalStructureSet valueSetBool
+structureSetIntM =
+    marshalStructureSetM valueSetInt
 
-structureSetInt :: String
-                -> Int
-                -> StructureM ()
-structureSetInt =
-    marshalStructureSet valueSetInt
-
-structureSetFourCC :: String
-                   -> FourCC
-                   -> StructureM ()
-structureSetFourCC =
-    marshalStructureSet $ \gValue fourcc ->
+structureSetFourCCM :: String
+                    -> FourCC
+                    -> StructureM ()
+structureSetFourCCM =
+    marshalStructureSetM $ \gValue fourcc ->
         {# call value_set_fourcc #} gValue $ fromIntegral fourcc
 
-structureSetDouble :: String
-                   -> Double
-                   -> StructureM ()
-structureSetDouble =
-    marshalStructureSet valueSetDouble
+structureSetDoubleM :: String
+                    -> Double
+                    -> StructureM ()
+structureSetDoubleM =
+    marshalStructureSetM valueSetDouble
 
-structureSetString :: String
-                   -> String
-                   -> StructureM ()
-structureSetString =
-    marshalStructureSet valueSetString
+structureSetStringM :: String
+                    -> String
+                    -> StructureM ()
+structureSetStringM =
+    marshalStructureSetM valueSetString
 
-structureSetDate :: String
-                 -> GDate
-                 -> StructureM ()
-structureSetDate =
-    marshalStructureSet $ \gValue date ->
+structureSetDateM :: String
+                  -> GDate
+                  -> StructureM ()
+structureSetDateM =
+    marshalStructureSetM $ \gValue date ->
         with date $ ({# call value_set_date #} gValue) . castPtr
 
-structureSetClockTime :: String
-                      -> ClockTime
-                      -> StructureM ()
-structureSetClockTime =
-    marshalStructureSet $ \gValue clockTime ->
+structureSetClockTimeM :: String
+                       -> ClockTime
+                       -> StructureM ()
+structureSetClockTimeM =
+    marshalStructureSetM $ \gValue clockTime ->
         {# call g_value_set_uint64 #} gValue $ fromIntegral clockTime
 
-structureSetFraction :: String
-                     -> Fraction
-                     -> StructureM ()
-structureSetFraction =
-    marshalStructureSet $ \gValue fraction ->
+structureSetFractionM :: String
+                      -> Fraction
+                      -> StructureM ()
+structureSetFractionM =
+    marshalStructureSetM $ \gValue fraction ->
         {# call value_set_fraction #} gValue
                                       (fromIntegral $ numerator fraction)
                                       (fromIntegral $ denominator fraction)
 
-marshalStructureFixate :: (Structure -> CString -> a -> IO {# type gboolean #})
-                       -> String
-                       -> a
-                       -> StructureM Bool
-marshalStructureFixate fixate fieldname target =
+marshalStructureFixateM :: (Structure -> CString -> a -> IO {# type gboolean #})
+                        -> String
+                        -> a
+                        -> StructureM Bool
+marshalStructureFixateM fixate fieldname target =
     StructureM $ \structure ->
         withUTFString fieldname $ \cFieldname ->
             liftM toBool $
                 fixate structure cFieldname target
 
-structureFixateFieldNearestInt :: String
-                               -> Int
-                               -> StructureM Bool
-structureFixateFieldNearestInt =
-    marshalStructureFixate $ \structure cFieldname target ->
-                {# call structure_fixate_field_nearest_int #}
-                    structure
-                    cFieldname
-                    (fromIntegral target)
+structureFixateFieldNearestIntM :: String
+                                -> Int
+                                -> StructureM Bool
+structureFixateFieldNearestIntM =
+    marshalStructureFixateM $ \structure cFieldname target ->
+        {# call structure_fixate_field_nearest_int #}
+            structure
+            cFieldname
+            (fromIntegral target)
 
-structureFixateFieldNearestDouble :: String
-                                  -> Double
-                                  -> StructureM Bool
-structureFixateFieldNearestDouble =
-    marshalStructureFixate $ \structure cFieldname target ->
-                {# call structure_fixate_field_nearest_double #}
-                    structure
-                    cFieldname
-                    (realToFrac target)
+structureFixateFieldNearestDoubleM :: String
+                                   -> Double
+                                   -> StructureM Bool
+structureFixateFieldNearestDoubleM =
+    marshalStructureFixateM $ \structure cFieldname target ->
+        {# call structure_fixate_field_nearest_double #}
+            structure
+            cFieldname
+            (realToFrac target)
 
-structureFixateFieldNearestFraction :: String
-                                    -> Fraction
-                                    -> StructureM Bool
-structureFixateFieldNearestFraction =
-    marshalStructureFixate $ \structure cFieldname target ->
+structureFixateFieldNearestFractionM :: String
+                                     -> Fraction
+                                     -> StructureM Bool
+structureFixateFieldNearestFractionM =
+    marshalStructureFixateM $ \structure cFieldname target ->
                 {# call structure_fixate_field_nearest_fraction #}
                     structure
                     cFieldname
                     (fromIntegral $ numerator target)
                     (fromIntegral $ denominator target)
 
-structureFixateFieldBool :: String
-                         -> Bool
-                         -> StructureM Bool
-structureFixateFieldBool fieldname target =
-    StructureM $ \structure ->
-        withUTFString fieldname $ \cFieldname ->
-            liftM toBool $
+structureFixateFieldBoolM :: String
+                          -> Bool
+                          -> StructureM Bool
+structureFixateFieldBoolM =
+    marshalStructureFixateM $ \structure cFieldname target ->
                 {# call structure_fixate_field_boolean #}
                     structure
                     cFieldname

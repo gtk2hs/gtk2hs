@@ -28,17 +28,12 @@
 -- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module @MODULE_NAME@ (
-@MODULE_EXPORTS@
+module Media.Streaming.GStreamer.Controller.Types (
+  
+  module Media.Streaming.GStreamer.Core.Types,
+  module Media.Streaming.GStreamer.Controller.GObjectHierarchy,
+  
   ) where
 
-import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
-import Foreign.C.Types    (CULong)
-import System.Glib.GType	(GType, typeInstanceIsA)
-import System.Glib.GObject
-import Media.Streaming.GStreamer.Core.HierarchyBase
-@IMPORT_PARENT@
-
-{# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
-
-@DECLERATIONS@
+{#import Media.Streaming.GStreamer.Core.Types#}
+{#import Media.Streaming.GStreamer.Controller.GObjectHierarchy#}

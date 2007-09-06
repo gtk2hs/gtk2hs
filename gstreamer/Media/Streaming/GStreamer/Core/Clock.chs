@@ -32,6 +32,24 @@ module Media.Streaming.GStreamer.Core.Clock (
   ClockClass,
   castToClock,
   toClock,
+  
+  ClockTime,
+  clockTimeNone,
+  clockTimeIsValid,
+  second,
+  msecond,
+  usecond,
+  nsecond,
+  
+  ClockTimeDiff,
+  ClockReturn(..),
+  ClockID,
+  
+  ClockFlags(..),
+  clockGetFlags,
+  clockSetFlags,
+  clockUnsetFlags,
+  
   clockAddObservation,
   clockSetMaster,
   clockGetMaster,
@@ -66,6 +84,27 @@ import System.Glib.Properties
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
+clockGetFlags :: ClockClass clockT
+              => clockT
+              -> IO [ClockFlags]
+clockGetFlags = mkObjectGetFlags
+
+clockSetFlags :: ClockClass clockT
+              => clockT
+              -> [ClockFlags]
+              -> IO ()
+clockSetFlags = mkObjectSetFlags
+
+clockUnsetFlags :: ClockClass clockT
+                => clockT
+                -> [ClockFlags]
+                -> IO ()
+clockUnsetFlags = mkObjectUnsetFlags
+
+clockTimeIsValid :: ClockTime
+                 -> Bool
+clockTimeIsValid = (/= clockTimeNone)
+
 clockAddObservation :: ClockClass clock
                     => clock
                     -> ClockTime
@@ -92,7 +131,7 @@ clockGetMaster :: ClockClass clock
                => clock
                -> IO (Maybe Clock)
 clockGetMaster clock =
-    {# call clock_get_master #} (toClock clock) >>= maybePeek takeClock
+    {# call clock_get_master #} (toClock clock) >>= maybePeek takeObject
 
 clockSetResolution :: ClockClass clock
                    => clock

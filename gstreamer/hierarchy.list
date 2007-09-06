@@ -21,6 +21,7 @@
 	    GstBus			as Bus,			gst_bus_get_type			if gstreamer-core
 	    GstClock			as Clock,		gst_clock_get_type			if gstreamer-core
 	        GstSystemClock		as SystemClock,		gst_system_clock_get_type		if gstreamer-core
+                GstNetClientClock       as NetClientClock,      gst_net_client_clock_get_type           if gstreamer-net
 	    GstIndex			as Index,		gst_index_get_type			if gstreamer-core
 	    GstPadTemplate		as PadTemplate,		gst_pad_template_get_type		if gstreamer-core
 	    GstTask			as Task,		gst_task_get_type			if gstreamer-core

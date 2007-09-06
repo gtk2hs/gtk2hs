@@ -28,8 +28,17 @@
 --   Portability : portable (depends on GHC)
 module Media.Streaming.GStreamer.Base (
   
-  module Media.Streaming.GStreamer.Base.BaseSrc
+  module Media.Streaming.GStreamer.Base.BaseSrc,
+  module Media.Streaming.GStreamer.Base.BaseSink,
+  module Media.Streaming.GStreamer.Base.BaseTransform,
+  module Media.Streaming.GStreamer.Base.PushSrc,
+  module Media.Streaming.GStreamer.Base.Adapter
   
   ) where
 
 import Media.Streaming.GStreamer.Base.BaseSrc
+import Media.Streaming.GStreamer.Base.BaseSink
+import Media.Streaming.GStreamer.Base.BaseTransform
+import Media.Streaming.GStreamer.Base.PushSrc
+import Media.Streaming.GStreamer.Base.Adapter
+

@@ -142,7 +142,7 @@ baseSinkGetPad :: BaseSinkClass baseSinkT
                => baseSinkT
                -> IO Pad
 baseSinkGetPad baseSink =
-    withBaseSink (toBaseSink baseSink) cBaseSinkGetPad >>= peekPad
+    withObject (toBaseSink baseSink) cBaseSinkGetPad >>= peekObject
 foreign import ccall unsafe "_hs_gst_base_sink_get_pad"
     cBaseSinkGetPad :: Ptr BaseSink
                     -> IO (Ptr Pad)

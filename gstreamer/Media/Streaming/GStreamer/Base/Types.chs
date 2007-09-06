@@ -22,62 +22,36 @@
 --  GStreamer, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
---  
+
+-- #hide
+
 -- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
--- 
--- #hide
 module Media.Streaming.GStreamer.Base.Types (
   
   module Media.Streaming.GStreamer.Core.Types,
   module Media.Streaming.GStreamer.Base.Hierarchy,
+  module Media.Streaming.GStreamer.Base.GObjectHierarchy,
   
-  BaseSrcFlags,
-  baseSrcFlagLast,
-  baseSrcGetFlags,
-  baseSrcSetFlags,
-  baseSrcUnsetFlags,
-  
-  Adapter,
+  CollectData,
   
   ) where
 
 import Data.Bits ( shiftL )
 {#import Media.Streaming.GStreamer.Core.Types#}
 {#import Media.Streaming.GStreamer.Base.Hierarchy#}
+{#import Media.Streaming.GStreamer.Base.GObjectHierarchy#}
 {#import System.Glib.GObject#}
 import System.Glib.Flags
 import System.Glib.FFI
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
-data BaseSrcFlags = BaseSrcStarted
-                deriving (Eq, Bounded)
-instance Enum BaseSrcFlags where
-    toEnum n | n == (shiftL elementFlagLast 0) = BaseSrcStarted
-    fromEnum BaseSrcStarted = (shiftL elementFlagLast 0)
-instance Flags BaseSrcFlags
-baseSrcFlagLast :: Int
-baseSrcFlagLast = shiftL elementFlagLast 2
-
-baseSrcGetFlags :: BaseSrcClass baseSrcT
-                => baseSrcT
-                -> IO [BaseSrcFlags]
-baseSrcGetFlags = mkObjectGetFlags
-
-baseSrcSetFlags :: BaseSrcClass baseSrcT
-                => baseSrcT
-                -> [BaseSrcFlags]
-                -> IO ()
-baseSrcSetFlags = mkObjectSetFlags
-
-baseSrcUnsetFlags :: BaseSrcClass baseSrcT
-                  => baseSrcT
-                  -> [BaseSrcFlags]
-                  -> IO ()
-baseSrcUnsetFlags = mkObjectUnsetFlags
+type CollectPadsFunction = CollectPads
+                        -> IO FlowReturn
+{# pointer *GstCollectData as CollectData newtype #}
 
 -------------------------------------------------------------------
 
-{# pointer *GstAdapter as Adapter foreign newtype #}
+{# enum GstInterpolateMode as InterpolateMode {underscoreToCase} with prefix = "GST" deriving (Eq, Show) #}

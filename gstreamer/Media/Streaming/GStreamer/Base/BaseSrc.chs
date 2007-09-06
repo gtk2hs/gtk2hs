@@ -32,6 +32,9 @@ module Media.Streaming.GStreamer.Base.BaseSrc (
   BaseSrcClass,
   castToBaseSrc,
   toBaseSrc,
+  baseSrcGetFlags,
+  baseSrcSetFlags,
+  baseSrcUnsetFlags,
   baseSrcWaitPlaying,
   baseSrcIsLive,
   baseSrcGetPad,
@@ -43,11 +46,29 @@ module Media.Streaming.GStreamer.Base.BaseSrc (
 
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Base.Types#}
+import Media.Streaming.GStreamer.Base.Constants
 import System.Glib.FFI
 import System.Glib.Attributes
 {#import System.Glib.Properties#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
+
+baseSrcGetFlags :: BaseSrcClass baseSrcT
+                => baseSrcT
+                -> IO [BaseSrcFlags]
+baseSrcGetFlags = mkObjectGetFlags
+
+baseSrcSetFlags :: BaseSrcClass baseSrcT
+                => baseSrcT
+                -> [BaseSrcFlags]
+                -> IO ()
+baseSrcSetFlags = mkObjectSetFlags
+
+baseSrcUnsetFlags :: BaseSrcClass baseSrcT
+                  => baseSrcT
+                  -> [BaseSrcFlags]
+                  -> IO ()
+baseSrcUnsetFlags = mkObjectUnsetFlags
 
 baseSrcWaitPlaying :: BaseSrcClass baseSrcT
                    => baseSrcT
@@ -66,7 +87,7 @@ baseSrcGetPad :: BaseSrcClass baseSrcT
               => baseSrcT
               -> IO Pad
 baseSrcGetPad baseSrc =
-    withBaseSrc (toBaseSrc baseSrc) cBaseSrcGetPad >>= peekPad
+    withObject (toBaseSrc baseSrc) cBaseSrcGetPad >>= peekObject
 foreign import ccall unsafe "_hs_gst_base_src_get_pad"
     cBaseSrcGetPad :: Ptr BaseSrc
                    -> IO (Ptr Pad)

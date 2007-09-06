@@ -49,16 +49,16 @@ import System.Glib.UTFString
 {#import System.Glib.GObject#}
 
 formatGetName :: Format
-              -> String
+              -> IO String
 formatGetName format =
-    unsafePerformIO $ peekUTFString $
+    peekUTFString $
         ({# call fun format_get_name #} $
              fromIntegral $ fromEnum format)
 
 formatToQuark :: Format
-              -> Quark
+              -> IO Quark
 formatToQuark =
-    {# call fun format_to_quark #} . fromIntegral . fromEnum
+    {# call format_to_quark #} . fromIntegral . fromEnum
 
 formatRegister :: String
                -> String
@@ -70,25 +70,24 @@ formatRegister nick description =
                  {# call format_register #} cNick)
 
 formatGetByNick :: String
-                -> Format
+                -> IO Format
 formatGetByNick nick =
-    toEnum $ fromIntegral $ unsafePerformIO $
+    liftM cToEnum $
         withUTFString nick {# call format_get_by_nick #}
 
 formatsContains :: [Format]
                 -> Format
-                -> Bool
+                -> IO Bool
 formatsContains formats format =
-    toBool $ unsafePerformIO $
+    liftM toBool $ 
         withArray0 0 (map cFromEnum formats) $ \cFormats ->
             {# call formats_contains #} cFormats $ cFromEnum format
 
 formatGetDetails :: Format
-                 -> FormatDefinition
+                 -> IO FormatDefinition
 formatGetDetails format =
-    unsafePerformIO $
-        ({# call format_get_details #} $ cFromEnum format) >>=
-            peek . castPtr
+    ({# call format_get_details #} $ cFromEnum format) >>=
+        peek . castPtr
 
 formatIterateDefinitions :: IO (Iterator FormatDefinition)
 formatIterateDefinitions =

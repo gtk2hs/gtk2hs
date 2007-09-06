@@ -39,6 +39,9 @@ module Media.Streaming.GStreamer.Core.Pad (
   FlowReturn(..),
   ActivateMode(..),
   
+  padGetFlags,
+  padSetFlags,
+  padUnsetFlags,
   padNew,
   padGetDirection,
   padGetParentElement,
@@ -88,6 +91,7 @@ import Control.Monad (liftM)
 import Data.Maybe (fromMaybe)
 {#import Media.Streaming.GStreamer.Core.Types#}
 {#import Media.Streaming.GStreamer.Core.Signals#}
+
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList
@@ -95,9 +99,25 @@ import System.Glib.Properties ( objectGetPropertyGObject )
 import System.Glib.Attributes ( ReadAttr
                               , readAttr )
 {#import System.Glib.Signals#}
-import GHC.Base (unsafeCoerce#)
 
 {# context lib = "gstreamer" prefix = "gst" #}
+
+padGetFlags :: PadClass padT
+            => padT
+            -> IO [PadFlags]
+padGetFlags = mkObjectGetFlags
+
+padSetFlags :: PadClass padT
+            => padT
+            -> [PadFlags]
+            -> IO ()
+padSetFlags = mkObjectSetFlags
+
+padUnsetFlags :: PadClass padT
+              => padT
+              -> [PadFlags]
+              -> IO ()
+padUnsetFlags = mkObjectUnsetFlags
 
 padNew :: String
        -> PadDirection
@@ -105,7 +125,7 @@ padNew :: String
 padNew name direction =
     withUTFString name $ \cName ->
         {# call pad_new #} cName (fromIntegral $ fromEnum direction) >>=
-            takePad
+            takeObject
 
 padGetDirection :: PadClass pad
                 => pad
@@ -119,7 +139,7 @@ padGetParentElement :: PadClass pad
                     -> IO Element
 padGetParentElement pad =
     {# call pad_get_parent_element #} (toPad pad) >>=
-        peekElement
+        peekObject
 
 padLink :: (PadClass srcpad, PadClass sinkpad)
         => srcpad
@@ -193,7 +213,7 @@ padGetPeer :: PadClass pad
            => pad
            -> IO (Maybe Pad)
 padGetPeer pad =
-    {# call pad_get_peer #} (toPad pad) >>= maybePeek takePad
+    {# call pad_get_peer #} (toPad pad) >>= maybePeek takeObject
 
 padPeerGetCaps :: PadClass pad
                => pad
@@ -234,7 +254,7 @@ padNewFromTemplate :: PadTemplateClass padTemplate
 padNewFromTemplate padTemplate name =
     withUTFString name $ \cName ->
         {# call pad_new_from_template #} (toPadTemplate padTemplate) cName >>=
-            maybePeek takePad
+            maybePeek takeObject
 
 padAcceptCaps :: PadClass pad
               => pad
@@ -282,7 +302,7 @@ padQuery pad query =
                     newForeignPtr_ . castPtr
        success <- {# call pad_query #} (toPad pad) $ Query query'
        if toBool success
-           then liftM (Just . unsafeCoerce#) $ withForeignPtr query' $ takeQuery . castPtr
+           then liftM Just $ withForeignPtr query' $ takeMiniObject . castPtr
            else return Nothing
 
 padQueryPosition :: PadClass pad

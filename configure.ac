@@ -350,7 +350,13 @@ GTKHS_PKG_CHECK(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0],
 	[build gnome-vfs package (default=auto)],
 	[gnomevfs library requirement not met. Perhaps you need to install libgnomevfs or libgnomevfs-devel])
 
-GTKHS_PKG_CHECK(gstreamer, gstreamer, GSTREAMER, [gstreamer-0.10 >= 0.10],
+GTKHS_PKG_CHECK(gstreamer, gstreamer, GSTREAMER,
+                [gstreamer-0.10 >= 0.10 \
+                 gstreamer-base-0.10 >= 0.10 \
+                 gstreamer-controller-0.10 >= 0.10 
+                 gstreamer-dataprotocol-0.10 >= 0.10 \
+                 gstreamer-net-0.10 >= 0.10 \
+                 gstreamer-plugins-base-0.10],
 	[build gstreamer package (default=auto)],
 	[gstreamer library requirement not met. Perhaps you need to install libgstreamer or libgstreamer-devel])
 

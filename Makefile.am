@@ -1875,35 +1875,45 @@ endif
 libHSgstreamer_a_INTERNALDEPS		= glib
 libHSgstreamer_a_HEADER			= gstreamer/hsgstreamer.h
 libHSgstreamer_a_PRECOMP		= gstreamer/gstreamer.precomp
-libHSgstreamer_a_LIBS			= $(GLIB_LIBS) $(GSTREAMER_LIBS) $(GCONF_LIBS)
+libHSgstreamer_a_LIBS			= $(GLIB_LIBS) $(GSTREAMER_LIBS)
 libHSgstreamer_a_HCFLAGS		= -fffi
 libHSgstreamer_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS))
-libHSgstreamer_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS))
+libHSgstreamer_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS)) -I.
 
 libHSgstreamer_a_SOURCESDIRS		= gstreamer
 
-libHSgstreamer_a_LIBADD			=			\
+libHSgstreamer_a_LIBADD			=				\
 	gstreamer/Media/Streaming/GStreamer/Core/Bus_stub.o		\
-	gstreamer/Media/Streaming/GStreamer/Core/Index_stub.o	\
+	gstreamer/Media/Streaming/GStreamer/Core/Index_stub.o		\
 	gstreamer/Media/Streaming/GStreamer/Core/Iterator_stub.o	\
 	gstreamer/Media/Streaming/GStreamer/Core/Registry_stub.o
+
+if !USE_GCLOSUE_SIGNALS_IMPL
+libHSgstreamer_a_LIBADD += gstreamer/Media/Streaming/GStreamer/Core/Signals_stub.o
+endif
 
 gstreamer/libHSgstreamer_a.deps	: glib/libHSglib_a.deps
 
 libHSgstreamer_a_GENERATEDSOURCES	=				\
+	gstreamer/Media/Streaming/GStreamer/Core/Signals.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs	\
 	gstreamer/Media/Streaming/GStreamer/Core/GObjectHierarchy.chs	\
 	gstreamer/Media/Streaming/GStreamer/Base/Hierarchy.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/GObjectHierarchy.chs	\
-	gstreamer/Media/Streaming/GStreamer/Core/Signals.chs
+	gstreamer/Media/Streaming/GStreamer/Controller/GObjectHierarchy.chs	\
+	gstreamer/Media/Streaming/GStreamer/Net/Hierarchy.chs
 
 nodist_libHSgstreamer_a_SOURCES		= $(libHSgstreamer_a_GENERATEDSOURCES)
 
 libHSgstreamer_a_SOURCES		=               		\
+	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
+	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.chs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Core/Init.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Object.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/MiniObject.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Element.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Pad.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/GhostPad.chs		\
@@ -1913,6 +1923,9 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Caps.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Structure.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Message.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Buffer.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Event.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Query.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Bus.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Clock.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/PadTemplate.chs	\
@@ -1929,46 +1942,53 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/SystemClock.chs	\
 	gstreamer/Media/Streaming/GStreamer/Core/TagList.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core.hs			\
+	gstreamer/Media/Streaming/GStreamer/Base/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Base/Types.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseSrc.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseSink.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseTransform.chs	\
 	gstreamer/Media/Streaming/GStreamer/Base/PushSrc.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/Adapter.chs		\
+	gstreamer/Media/Streaming/GStreamer/Base/CollectPads.chs	\
 	gstreamer/Media/Streaming/GStreamer/Base.hs         		\
+	gstreamer/Media/Streaming/GStreamer/Controller/Types.chs	\
+	gstreamer/Media/Streaming/GStreamer/Controller/Controller.chs	\
+	gstreamer/Media/Streaming/GStreamer/Net/Types.chs		\
+	gstreamer/Media/Streaming/GStreamer/Net/NetClientClock.chs	\
+	gstreamer/Media/Streaming/GStreamer/DataProtocol/Constants.chs	\
+	gstreamer/Media/Streaming/GStreamer/DataProtocol/DataProtocol.chs \
+	gstreamer/Media/Streaming/GStreamer/Audio/Constants.hsc		\
+	gstreamer/Media/Streaming/GStreamer/Audio/Types.chs		\
+	gstreamer/Media/Streaming/GStreamer/Audio/Audio.chs		\
 	gstreamer/Media/Streaming/GStreamer.hs 	        		\
 	gstreamer/hsgstreamer.c
 
 htmldoc_HSFILES_HIDDEN				+=			\
 	$(libHSgstreamer_a_GENERATEDSOURCES:.chs=.hs)			\
+	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
+	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.hs		\
-	gstreamer/Media/Streaming/GStreamer/Base/Types.hs		\
-	gnomevfs/System/Gnome/VFS/Marshal.hs
+	gstreamer/Media/Streaming/GStreamer/Base/Types.hs
 
 EXTRA_DIST +=					\
 	gstreamer/hsgstreamer.h			\
 	gstreamer/hierarchy.list		\
 	gstreamer/mini-hierarchy.list		\
-	gstreamer/gobject-hierarchy.list
-
-gstreamer_Media_Streaming_GStreamer_Core_Types_hs_HCFLAGS	 	= -fglasgow-exts
-gstreamer_Media_Streaming_GStreamer_Core_Pad_hs_HCFLAGS	 		= -fglasgow-exts
-gstreamer_Media_Streaming_GStreamer_Core_Element_hs_HCFLAGS	 	= -fglasgow-exts
-gstreamer_Media_Streaming_GStreamer_Core_Iterator_hs_HCFLAGS	 	= -fglasgow-exts
-gstreamer_Media_Streaming_GStreamer_Core_Plugin_hs_HCFLAGS	 	= -fglasgow-exts
-gstreamer_Media_Streaming_GStreamer_Core_PluginFeature_hs_HCFLAGS	= -fglasgow-exts
+	gstreamer/gobject-hierarchy.list	\
+	gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template	\
+	gstreamer/Media/Streaming/GStreamer/MiniHierarchy.chs.template
 
 libHSgstreamer_a_ALLSOURCES			 = $(libHSgstreamer_a_SOURCES) $(nodist_libHSgstreamer_a_SOURCES)
 
-gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs :			\
-	$(srcdir)/gstreamer/hierarchy.list					\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
+gstreamer/Media/Streaming/GStreamer/Core/Hierarchy.chs :				\
+	$(srcdir)/gstreamer/hierarchy.list						\
+	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
 	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)		\
-	$(srcdir)/gstreamer/hierarchy.list					\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template	\
-	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gstreamer		\
-	--root=GObject								\
+	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
+	$(srcdir)/gstreamer/hierarchy.list						\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
+	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gst				\
+	--root=GObject									\
 	--modname=Media.Streaming.GStreamer.Core.Hierarchy)
 
 gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs :				\
@@ -1978,50 +1998,74 @@ gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchy.chs :				\
 	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
 	$(srcdir)/gstreamer/mini-hierarchy.list						\
 	$(srcdir)/gstreamer/Media/Streaming/GStreamer/MiniHierarchy.chs.template	\
-	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gstreamer			\
+	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gst				\
 	--root=MiniObject								\
 	--modname=Media.Streaming.GStreamer.Core.MiniHierarchy)
 
 gstreamer/Media/Streaming/GStreamer/Core/GObjectHierarchy.chs :				\
-	$(srcdir)/gstreamer/gobject-hierarchy.list						\
+	$(srcdir)/gstreamer/gobject-hierarchy.list					\
 	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/GObjectHierarchy.chs.template
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
 	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/gobject-hierarchy.list						\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/GObjectHierarchy.chs.template	\
-	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gstreamer			\
-	--root=GObject								\
+	$(srcdir)/gstreamer/gobject-hierarchy.list					\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
+	$@ --tag=gstreamer-core --lib=gstreamer --prefix=gst				\
+	--root=GObject									\
 	--modname=Media.Streaming.GStreamer.Core.GObjectHierarchy)
 
-gstreamer/Media/Streaming/GStreamer/Base/Hierarchy.chs :			\
-	$(srcdir)/gstreamer/hierarchy.list					\
-	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
+gstreamer/Media/Streaming/GStreamer/Base/Hierarchy.chs :				\
+	$(srcdir)/gstreamer/hierarchy.list						\
+	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
 	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
-	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)		\
-	$(srcdir)/gstreamer/hierarchy.list					\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template	\
-	$@ --tag=gstreamer-base --lib=gstreamer --prefix=gstreamer		\
-	--root=GObject								\
-	--modname=Media.Streaming.GStreamer.Base.Hierarchy --parentname=Media.Streaming.GStreamer.Core.Types)
+	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
+	$(srcdir)/gstreamer/hierarchy.list						\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
+	$@ --tag=gstreamer-base --lib=gstreamer --prefix=gst				\
+	--root=GObject									\
+	--modname=Media.Streaming.GStreamer.Base.Hierarchy				\
+	--parentname=Media.Streaming.GStreamer.Core.Hierarchy)
 
 gstreamer/Media/Streaming/GStreamer/Base/GObjectHierarchy.chs :				\
-	$(srcdir)/gstreamer/gobject-hierarchy.list						\
+	$(srcdir)/gstreamer/gobject-hierarchy.list					\
 	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/GObjectHierarchy.chs.template
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
 	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
-	$(srcdir)/gstreamer/gobject-hierarchy.list						\
-	$(srcdir)/gstreamer/Media/Streaming/GStreamer/GObjectHierarchy.chs.template	\
-	$@ --tag=gstreamer-base --lib=gstreamer --prefix=gstreamer			\
-	--root=GObject								\
-	--modname=Media.Streaming.GStreamer.Base.GObjectHierarchy --parentname=Media.Streaming.GStreamer.Core.Types)
+	$(srcdir)/gstreamer/gobject-hierarchy.list					\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
+	$@ --tag=gstreamer-base --lib=gstreamer --prefix=gst				\
+	--root=GObject									\
+	--modname=Media.Streaming.GStreamer.Base.GObjectHierarchy)
 
-gstreamer/Media/Streaming/GStreamer/Core/Signals.chs : \
-	$(srcdir)/tools/callbackGen/Signal.chs.template \
-	$(srcdir)/gnomevfs/marshal.list \
+gstreamer/Media/Streaming/GStreamer/Controller/GObjectHierarchy.chs :				\
+	$(srcdir)/gstreamer/gobject-hierarchy.list					\
+	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
+	$(srcdir)/gstreamer/gobject-hierarchy.list					\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
+	$@ --tag=gstreamer-controller --lib=gstreamer --prefix=gst			\
+	--root=GObject									\
+	--modname=Media.Streaming.GStreamer.Controller.GObjectHierarchy)
+
+gstreamer/Media/Streaming/GStreamer/Net/Hierarchy.chs :				\
+	$(srcdir)/gstreamer/hierarchy.list						\
+	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
+	$(srcdir)/gstreamer/hierarchy.list						\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
+	$@ --tag=gstreamer-net --lib=gstreamer --prefix=gst				\
+	--root=GObject									\
+	--modname=Media.Streaming.GStreamer.Net.Hierarchy				\
+	--parentname=Media.Streaming.GStreamer.Core.Hierarchy)
+
+gstreamer/Media/Streaming/GStreamer/Core/Signals.chs : 			\
+	$(srcdir)/tools/callbackGen/Signal.chs.template 		\
+	$(srcdir)/gstreamer/marshal.list 				\
 	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
-	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) \
-	$(srcdir)/gstreamer/marshal.list \
-	$(srcdir)/tools/callbackGen/Signal.chs.template $@ \
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) 	\
+	$(srcdir)/gstreamer/marshal.list 				\
+	$(srcdir)/tools/callbackGen/Signal.chs.template $@ 		\
 	Media.Streaming.GStreamer.Core.Signals)
 
 am_libHSgstreamer_a_OBJECTS			 =	\
@@ -2035,7 +2079,7 @@ libHSgstreamer_a_CHSFILES_HS	= $(libHSgstreamer_a_CHSFILES:.chs=.hs)
 libHSgstreamer_a_HSCFILES	= $(filter %.hsc, $(libHSgstreamer_a_ALLSOURCES))
 libHSgstreamer_a_HSCFILES_HS	= $(libHSgstreamer_a_HSCFILES:.hsc=.hs)
 libHSgstreamer_a_BUILDSOURCES	=			\
-	$(libHSgstreamer_a_HSPPFILES:.hs.pp=.hs)		\
+	$(libHSgstreamer_a_HSPPFILES:.hs.pp=.hs)	\
 	$(libHSgstreamer_a_CHSPPFILES:.chs.pp=.chs)	\
 	$(libHSgstreamer_a_CHSFILES_HS)			\
 	$(libHSgstreamer_a_HSCFILES_HS)			\
@@ -2043,21 +2087,22 @@ libHSgstreamer_a_BUILDSOURCES	=			\
 libHSgstreamer_a_HSFILES  =				\
 	$(filter %.hs,$(libHSgstreamer_a_BUILDSOURCES))	\
 	$(filter %.hs,$(libHSgstreamer_a_ALLSOURCES))
+libHSgstreamer_a_CFILES = $(filter %.c,$(libHSgstreamer_a_ALLSOURCES))
 
 nobase_hi_DATA += $(libHSgstreamer_a_HSFILES:.hs=.hi)
 
 gstreamer_MOSTLYCLEANFILES  = $(am_libHSgstreamer_a_OBJECTS)
 gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_HSFILES:.hs=.hi)
 gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=.chi)
+gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=.h)
 gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=_stub.h)
 gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=_stub.o)
 gstreamer_MOSTLYCLEANFILES += $(libHSgstreamer_a_CHSFILES:.chs=_stub.c)
 gstreamer_CLEANFILES	   = $(libHSgstreamer_a_BUILDSOURCES)
 gstreamer_CLEANFILES 	  += $(libHSgstreamer_a_CHSFILES_HS:.hs=.dep)
 
-$(libHSgstreamer_a_CHSFILES:.chs=.dep) :        \
-       $(libHSgtk_a_GENERATEDSOURCES)          \
-       $(libHSgstreamer_a_GENERATEDSOURCES)
+$(libHSgstreamer_a_CHSFILES:.chs=.dep) :	\
+	$(libHSgstreamer_a_GENERATEDSOURCES)
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 -include $(libHSgstreamer_a_CHSFILES:.chs=.dep) gstreamer/libHSgstreamer_a.deps
@@ -2425,18 +2470,33 @@ mostlyclean: mostlyclean-am
 	rm -f $(doc_MOSTLYCLEANFILES)
 
 clean: mostlyclean clean-am
-	rm -f $(c2hs_CLEANFILES)
-	rm -f $(glib_CLEANFILES)
-	rm -f $(gtk_CLEANFILES)
-	rm -f $(glade_CLEANFILES)
-	rm -f $(gconf_CLEANFILES)
-	rm -f $(sourceview_CLEANFILES)
-	rm -f $(mozembed_CLEANFILES)
-	rm -f $(cairo_CLEANFILES)
-	rm -f $(svgcairo_CLEANFILES)
-	rm -f $(gtkglext_CLEANFILES)
-	rm -f $(soegtk_CLEANFILES)
-	rm -f $(doc_CLEANFILES)
+	rm -f  $(c2hs_CLEANFILES)
+	rm -rf $(c2hs_CLEANFILES_SPLIT)
+	rm -f  $(glib_CLEANFILES)
+	rm -rf $(glib_CLEANFILES_SPLIT)
+	rm -f  $(gtk_CLEANFILES)
+	rm -rf $(gtk_CLEANFILES_SPLIT)
+	rm -f  $(glade_CLEANFILES)
+	rm -rf $(glade_CLEANFILES_SPLIT)
+	rm -f  $(gconf_CLEANFILES)
+	rm -rf $(gconf_CLEANFILES_SPLIT)
+	rm -f  $(sourceview_CLEANFILES)
+	rm -rf $(sourceview_CLEANFILES_SPLIT)
+	rm -f  $(mozembed_CLEANFILES)
+	rm -rf $(mozembed_CLEANFILES_SPLIT)
+	rm -f  $(cairo_CLEANFILES)
+	rm -rf $(cairo_CLEANFILES_SPLIT)
+	rm -f  $(svgcairo_CLEANFILES)
+	rm -rf $(svgcairo_CLEANFILES_SPLIT)
+	rm -f  $(gtkglext_CLEANFILES)
+	rm -rf $(gtkglext_CLEANFILES_SPLIT)
+	rm -f  $(soegtk_CLEANFILES)
+	rm -rf $(soegtk_CLEANFILES_SPLIT)
+	rm -f  $(gnomevfs_CLEANFILES)
+	rm -rf $(gnomevfs_CLEANFILES_SPLIT)
+	rm -f  $(gstreamer_CLEANFILES)
+	rm -rf $(gstreamer_CLEANFILES_SPLIT)
+	rm -f  $(doc_CLEANFILES)
 
 distclean: clean distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)

@@ -60,7 +60,7 @@ import System.Glib.GType     ( GType )
 elementFactoryFind :: String
                    -> IO ElementFactory
 elementFactoryFind name =
-    withUTFString name {# call element_factory_find #} >>= takeElementFactory
+    withUTFString name {# call element_factory_find #} >>= takeObject
 
 elementFactoryGetElementType :: (ElementFactoryClass elementFactory) =>
                                 elementFactory
@@ -127,7 +127,7 @@ elementFactoryCreate :: (ElementFactoryClass elementFactory) =>
 elementFactoryCreate factory name =
     withUTFString name $ \cName ->
         {# call element_factory_create #} (toElementFactory factory) cName >>=
-            maybePeek takeElement
+            maybePeek takeObject
 
 elementFactoryMake :: String
                    -> String
@@ -136,4 +136,4 @@ elementFactoryMake factoryName name =
     withUTFString factoryName $ \cFactoryName ->
         withUTFString name $ \cName ->
             {# call element_factory_make #} cFactoryName cName >>=
-                maybePeek takeElement
+                maybePeek takeObject

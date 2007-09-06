@@ -29,7 +29,7 @@
 module Media.Streaming.GStreamer.Core.Iterator (
   
   Iterator,
-  Iteratable,
+  Iterable,
   IteratorFilter,
   IteratorFoldFunction,
   IteratorResult,
@@ -52,13 +52,13 @@ import Data.IORef
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
-iteratorNext :: Iteratable a
+iteratorNext :: Iterable a
              => Iterator a
              -> IO (IteratorResult, Maybe a)
 iteratorNext (Iterator iterator) =
     alloca $ \elemPtr ->
         do result <- {# call iterator_next #} iterator elemPtr
-           obj <- peek elemPtr >>= maybePeek peekIteratable
+           obj <- peek elemPtr >>= maybePeek peekIterable
            return (toEnum $ fromIntegral result, obj)
 
 iteratorResync :: Iterator a
@@ -69,19 +69,19 @@ iteratorResync (Iterator iterator) =
 type CIteratorFilter =  {# type gpointer #}
                      -> {# type gpointer #}
                      -> IO {# type gint #}
-marshalIteratorFilter :: Iteratable a
+marshalIteratorFilter :: Iterable a
                       => IteratorFilter a
                       -> IO {# type GCompareFunc #}
 marshalIteratorFilter iteratorFilter =
     makeIteratorFilter cIteratorFilter
     where cIteratorFilter elementPtr _ =
-              do include <- peekIteratable elementPtr >>= iteratorFilter
+              do include <- peekIterable elementPtr >>= iteratorFilter
                  return $ if include then 1 else 0
 foreign import ccall "wrapper"
     makeIteratorFilter :: CIteratorFilter
                     -> IO {# type GCompareFunc #}
 
-iteratorFilter :: Iteratable a
+iteratorFilter :: Iterable a
                => Iterator a
                -> IteratorFilter a
                -> IO (Iterator a)
@@ -97,7 +97,7 @@ type CIteratorFoldFunction =  {# type gpointer #}
                            -> GValue
                            -> {# type gpointer #}
                            -> IO {# type gboolean #}
-marshalIteratorFoldFunction :: Iteratable itemT
+marshalIteratorFoldFunction :: Iterable itemT
                             => IteratorFoldFunction itemT accumT
                             -> IORef accumT
                             -> IO {# type GstIteratorFoldFunction #}
@@ -105,7 +105,7 @@ marshalIteratorFoldFunction iteratorFoldFunction accumRef =
     makeIteratorFoldFunction cIteratorFoldFunction
     where cIteratorFoldFunction :: CIteratorFoldFunction
           cIteratorFoldFunction itemPtr _ _ =
-              do item <- peekIteratable itemPtr
+              do item <- peekIterable itemPtr
                  accum <- readIORef accumRef
                  (continue, accum') <- iteratorFoldFunction item accum
                  writeIORef accumRef accum'
@@ -114,7 +114,7 @@ foreign import ccall "wrapper"
     makeIteratorFoldFunction :: CIteratorFoldFunction
                              -> IO {# type GstIteratorFoldFunction #}
 
-iteratorFold :: Iteratable itemT
+iteratorFold :: Iterable itemT
              => Iterator itemT
              -> accumT
              -> IteratorFoldFunction itemT accumT
@@ -130,7 +130,7 @@ iteratorFold (Iterator iterator) init func =
        accum <- readIORef accumRef
        return (toEnum $ fromIntegral result, accum)
 
-iteratorForeach :: Iteratable itemT
+iteratorForeach :: Iterable itemT
                 => Iterator itemT
                 -> (itemT -> IO ())
                 -> IO IteratorResult
@@ -139,7 +139,7 @@ iteratorForeach iterator func =
                           func item >> return (True, ())
        return result
 
-iteratorFind :: Iteratable itemT
+iteratorFind :: Iterable itemT
              => Iterator itemT
              -> (itemT -> IO Bool)
              -> IO (IteratorResult, Maybe itemT)

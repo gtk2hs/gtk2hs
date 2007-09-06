@@ -32,7 +32,9 @@ module Media.Streaming.GStreamer.Core.Object (
   ObjectClass,
   castToObject,
   toObject,
+  objectGetFlags,
   objectSetFlags,
+  objectUnsetFlags,
   objectSetName,
   objectGetName,
   objectSetParent,
@@ -71,6 +73,23 @@ import System.Glib.Signals
 {#import Media.Streaming.GStreamer.Core.Signals#}
 
 {# context lib = "gstreamer" prefix = "gst" #}
+
+objectGetFlags :: ObjectClass objectT
+               => objectT
+               -> IO [ObjectFlags]
+objectGetFlags = mkObjectGetFlags
+
+objectSetFlags :: ObjectClass objectT
+               => objectT
+               -> [ObjectFlags]
+               -> IO ()
+objectSetFlags = mkObjectSetFlags
+
+objectUnsetFlags :: ObjectClass objectT
+                 => objectT
+                 -> [ObjectFlags]
+                 -> IO ()
+objectUnsetFlags = mkObjectUnsetFlags
 
 objectSetName :: ObjectClass obj =>
                  obj

@@ -32,15 +32,36 @@ module Media.Streaming.GStreamer.Core.Message (
   MessageClass,
   castToMessage,
   toMessage,
+  
   MessageType(..),
   messageTypeGetName,
   messageTypeToQuark,
+  
   messageSrc,
   messageTimestamp,
   messageType,
   messageTypeName,
   messageStructure,
+  
   messageNewApplication,
+  messageNewClockProvide,
+  messageNewClockLost,
+  messageNewCustom,
+  messageNewElement,
+  messageNewEOS,
+  messageNewError,
+  messageNewInfo,
+  messageNewNewClock,
+  messageNewSegmentDone,
+  messageNewSegmentStart,
+  messageNewStateChanged,
+  messageNewTag,
+  messageNewBuffering,
+  messageNewWarning,
+  messageNewDuration,
+  messageNewStateDirty,
+  messageNewLatency,
+  
   messageParseClockLost,
   messageParseClockProvide,
   messageParseError,
@@ -80,19 +101,19 @@ messageTypeToQuark messageType =
 messageSrc :: Message
            -> Object
 messageSrc message =
-    unsafePerformIO $ withMessage message {# get GstMessage->src #} >>=
+    unsafePerformIO $ withMiniObject message {# get GstMessage->src #} >>=
         peekObject
 
 messageTimestamp :: Message
                  -> ClockTime
 messageTimestamp message =
-    fromIntegral $ unsafePerformIO $ withMessage message {# get GstMessage->timestamp #}
+    fromIntegral $ unsafePerformIO $ withMiniObject message {# get GstMessage->timestamp #}
 
 messageType :: Message
             -> MessageType
 messageType message =
     toEnum $ fromIntegral $ unsafePerformIO $
-        withMessage message cMessageGetMessageType
+        withMiniObject message cMessageGetMessageType
 foreign import ccall unsafe "_hs_gst_message_get_message_type"
     cMessageGetMessageType :: Ptr Message
                            -> IO {# type GstMessageType #}
@@ -105,137 +126,330 @@ messageTypeName =
 messageStructure :: Message
                  -> Structure
 messageStructure message =
-    unsafePerformIO $ {# call message_get_structure #} message >>= peekStructure
+    unsafePerformIO $
+        {# call message_get_structure #} message >>=
+            peekStructure
 
-messageNewApplication :: Object
+messageNewApplication :: ObjectClass objectT
+                      => objectT
                       -> Structure
-                      -> IO Message
-messageNewApplication object structure =
-    (giveStructure structure $ {# call message_new_application #} object) >>=
-        takeMessage
+                      -> Message
+messageNewApplication src structure =
+    unsafePerformIO $
+        giveStructure structure
+                      ({# call message_new_application #} (toObject src)) >>=
+            takeMiniObject
+
+messageNewClockProvide :: (ObjectClass objectT, ClockClass clockT)
+                       => objectT
+                       -> clockT
+                       -> Bool
+                       -> Message
+messageNewClockProvide src clock ready =
+    unsafePerformIO $
+        {# call message_new_clock_provide #} (toObject src)
+                                             (toClock clock)
+                                             (fromBool ready) >>=
+            takeMiniObject
+
+messageNewClockLost :: (ObjectClass objectT, ClockClass clockT)
+                    => objectT
+                    -> clockT
+                    -> Message
+messageNewClockLost src clock =
+    unsafePerformIO $
+        {# call message_new_clock_lost #} (toObject src)
+                                          (toClock clock) >>=
+            takeMiniObject
+
+messageNewCustom :: ObjectClass objectT
+                 => MessageType
+                 -> objectT
+                 -> Maybe Structure
+                 -> Message
+messageNewCustom messageType src structure =
+    unsafePerformIO $
+        (case structure of
+           Just structure' ->
+               giveStructure structure' messageNewCustom'
+           Nothing ->
+               messageNewCustom' $ Structure nullForeignPtr) >>=
+            takeMiniObject
+    where
+      messageNewCustom' =
+          {# call message_new_custom #} (cFromEnum messageType)
+                                        (toObject src)
+
+messageNewElement :: ObjectClass objectT
+                  => objectT
+                  -> Maybe Structure
+                  -> Message
+messageNewElement src structure =
+    unsafePerformIO $
+        (case structure of
+           Just structure' ->
+               giveStructure structure' messageNewElement'
+           Nothing ->
+               messageNewElement' $ Structure nullForeignPtr) >>=
+            takeMiniObject
+    where
+      messageNewElement' =
+          {# call message_new_element #} (toObject src)
+
+messageNewEOS :: ObjectClass objectT
+              => objectT
+              -> Message
+messageNewEOS src =
+    unsafePerformIO $
+        {# call message_new_eos #} (toObject src) >>=
+            takeMiniObject
+
+messageNewError :: ObjectClass objectT
+                => objectT
+                -> GError
+                -> String
+                -> Message
+messageNewError src error debug =
+    unsafePerformIO $
+       with error $ \gErrorPtr -> withUTFString debug $ \debugPtr ->
+           {# call message_new_error #} (toObject src)
+                                        (castPtr gErrorPtr)
+                                        debugPtr >>=
+               takeMiniObject
+
+messageNewInfo :: ObjectClass objectT
+               => objectT
+               -> GError
+               -> String
+               -> Message
+messageNewInfo src error debug =
+    unsafePerformIO $
+       with error $ \gErrorPtr -> withUTFString debug $ \debugPtr ->
+           {# call message_new_info #} (toObject src)
+                                       (castPtr gErrorPtr)
+                                       debugPtr >>=
+               takeMiniObject
+
+messageNewNewClock :: (ObjectClass objectT, ClockClass clockT)
+                   => objectT
+                   -> clockT
+                   -> Message
+messageNewNewClock src clock =
+    unsafePerformIO $
+        {# call message_new_new_clock #} (toObject src)
+                                         (toClock clock) >>=
+            takeMiniObject
+
+messageNewSegmentDone :: ObjectClass objectT
+                      => objectT
+                      -> Format
+                      -> Int64
+                      -> Message
+messageNewSegmentDone src format position =
+    unsafePerformIO $
+        {# call message_new_segment_done #} (toObject src)
+                                            (cFromEnum format)
+                                            (fromIntegral position) >>=
+            takeMiniObject
+
+messageNewSegmentStart :: ObjectClass objectT
+                       => objectT
+                       -> Format
+                       -> Int64
+                       -> Message
+messageNewSegmentStart src format position =
+    unsafePerformIO $
+        {# call message_new_segment_start #} (toObject src)
+                                             (cFromEnum format)
+                                             (fromIntegral position) >>=
+            takeMiniObject
+
+messageNewStateChanged :: ObjectClass objectT
+                       => objectT
+                       -> State
+                       -> State
+                       -> State
+                       -> Message
+messageNewStateChanged src oldState newState pending =
+    unsafePerformIO $
+       {# call message_new_state_changed #} (toObject src)
+                                            (cFromEnum oldState)
+                                            (cFromEnum newState)
+                                            (cFromEnum pending) >>=
+           takeMiniObject
+
+messageNewTag :: ObjectClass objectT
+              => objectT
+              -> TagList
+              -> Message
+messageNewTag src tagList =
+    unsafePerformIO $ withTagList tagList $ \tagListPtr ->
+        {# call message_new_tag #} (toObject src)
+                                   (castPtr tagListPtr) >>=
+            takeMiniObject
+
+messageNewBuffering :: ObjectClass objectT
+                    => objectT
+                    -> Int
+                    -> Message
+messageNewBuffering src percent =
+    unsafePerformIO $
+        {# call message_new_buffering #} (toObject src)
+                                         (fromIntegral percent) >>=
+            takeMiniObject
+
+messageNewWarning :: ObjectClass objectT
+                  => objectT
+                  -> GError
+                  -> String
+                  -> Message
+messageNewWarning src error debug =
+    unsafePerformIO $
+       with error $ \gErrorPtr -> withUTFString debug $ \debugPtr ->
+           {# call message_new_warning #} (toObject src)
+                                          (castPtr gErrorPtr)
+                                          debugPtr >>=
+               takeMiniObject
+
+messageNewDuration :: ObjectClass objectT
+                   => objectT
+                   -> Format
+                   -> Int64
+                   -> Message
+messageNewDuration src format duration =
+    unsafePerformIO $
+        {# call message_new_duration #} (toObject src)
+                                        (cFromEnum format)
+                                        (fromIntegral duration) >>=
+           takeMiniObject
+
+messageNewStateDirty :: ObjectClass objectT
+                     => objectT
+                     -> Message
+messageNewStateDirty src =
+    unsafePerformIO $
+        {# call message_new_state_dirty #} (toObject src) >>=
+            takeMiniObject
+
+messageNewLatency :: ObjectClass objectT
+                  => objectT
+                  -> Message
+messageNewLatency src =
+    unsafePerformIO $
+        {# call message_new_latency #} (toObject src) >>=
+            takeMiniObject
 
 messageParseClockLost :: Message
                       -> Maybe Clock
-messageParseClockLost message =
-    unsafePerformIO $ alloca $ \clockPtr ->
-        do poke clockPtr nullPtr
-           {# call message_parse_clock_lost #} message $ castPtr clockPtr
-           liftM Just $ peek clockPtr >>= peekClock
+messageParseClockLost message | messageType message == MessageClockLost =
+    Just $ unsafePerformIO $ alloca $ \clockPtr ->
+        do {# call message_parse_clock_lost #} message $ castPtr clockPtr
+           peek clockPtr >>= peekObject
+                              | otherwise = Nothing
 
 messageParseClockProvide :: Message
                          -> Maybe (Clock, Bool)
-messageParseClockProvide message =
-    unsafePerformIO $ alloca $ \clockPtr ->
+messageParseClockProvide message | messageType message == MessageClockProvide =
+    Just $ unsafePerformIO $ alloca $ \clockPtr ->
         alloca $ \readyPtr ->
-            do poke clockPtr nullPtr
-               poke readyPtr $ fromBool False
-               {# call message_parse_clock_provide #} message (castPtr clockPtr) readyPtr
-               clock <- peek clockPtr >>= maybePeek peekClock
-               ready <- peek readyPtr
-               return $ maybe Nothing (\clock -> Just (clock, toBool ready)) clock
+            do {# call message_parse_clock_provide #} message (castPtr clockPtr) readyPtr
+               clock <- peek clockPtr >>= peekObject
+               ready <- liftM toBool $ peek readyPtr
+               return (clock, ready)
+                                 | otherwise = Nothing
 
 messageParseError :: Message
-                  -> (Maybe GError, Maybe String)
-messageParseError message =
-    unsafePerformIO $ alloca $ \gErrorPtr ->
+                  -> Maybe (GError, String)
+messageParseError message | messageType message == MessageError =
+    Just $ unsafePerformIO $ alloca $ \gErrorPtr ->
         alloca $ \debugPtr ->
-            do poke gErrorPtr nullPtr
-               poke debugPtr nullPtr
-               {# call message_parse_error #} message (castPtr gErrorPtr) debugPtr
-               gError <- peek gErrorPtr >>=
-                             (maybePeek $ \ptr ->
-                              do gError <- peek ptr
-                                 {# call g_error_free #} $ castPtr ptr
-                                 return gError)
-               debug <- peek debugPtr >>= maybePeek readUTFString
+            do {# call message_parse_error #} message (castPtr gErrorPtr) debugPtr
+               gError <- do ptr <- peek gErrorPtr
+                            gError <- peek ptr
+                            {# call g_error_free #} $ castPtr ptr
+                            return gError
+               debug <- peek debugPtr >>= readUTFString
                return (gError, debug)
+                          | otherwise = Nothing
 
 messageParseInfo :: Message
-                 -> (Maybe GError, Maybe String)
-messageParseInfo message =
-    unsafePerformIO $ alloca $ \gErrorPtr ->
+                 -> Maybe (GError, String)
+messageParseInfo message | messageType message == MessageInfo =
+    Just $ unsafePerformIO $ alloca $ \gErrorPtr ->
         alloca $ \debugPtr ->
-            do poke gErrorPtr nullPtr
-               poke debugPtr nullPtr
-               {# call message_parse_info #} message (castPtr gErrorPtr) debugPtr
-               gError <- peek gErrorPtr >>=
-                             (maybePeek $ \ptr ->
-                              do gError <- peek ptr
-                                 {# call g_error_free #} $ castPtr ptr
-                                 return gError)
-               debug <- peek debugPtr >>= maybePeek readUTFString
+            do {# call message_parse_info #} message (castPtr gErrorPtr) debugPtr
+               gError <- do ptr <- peek gErrorPtr
+                            gError <- peek ptr
+                            {# call g_error_free #} $ castPtr ptr
+                            return gError
+               debug <- peek debugPtr >>= readUTFString
                return (gError, debug)
+                         | otherwise = Nothing
 
 messageParseNewClock :: Message
                      -> Maybe Clock
-messageParseNewClock message =
-    unsafePerformIO $ alloca $ \clockPtr ->
-        do poke clockPtr nullPtr
-           {# call message_parse_clock_lost #} message $ castPtr clockPtr
-           peek clockPtr >>= maybePeek peekClock
+messageParseNewClock message | messageType message == MessageNewClock =
+    Just $ unsafePerformIO $ alloca $ \clockPtr ->
+        do {# call message_parse_clock_lost #} message $ castPtr clockPtr
+           peek clockPtr >>= peekObject
+                             | otherwise = Nothing
 
 messageParseSegmentDone :: Message
-                        -> (Format, Int64)
-messageParseSegmentDone message =
-    unsafePerformIO $ alloca $ \formatPtr ->
+                        -> Maybe (Format, Int64)
+messageParseSegmentDone message | messageType message == MessageSegmentDone =
+    Just $ unsafePerformIO $ alloca $ \formatPtr ->
         alloca $ \positionPtr ->
-            do poke formatPtr $ fromIntegral $ fromEnum FormatUndefined
-               poke positionPtr 0
-               {# call message_parse_segment_done #} message formatPtr positionPtr
-               format <- peek formatPtr
-               position <- peek positionPtr
-               return (toEnum $ fromIntegral format, fromIntegral position)
+            do {# call message_parse_segment_done #} message formatPtr positionPtr
+               format <- liftM cToEnum $ peek formatPtr
+               position <- liftM fromIntegral $ peek positionPtr
+               return (format, position)
+                                | otherwise = Nothing
 
 messageParseSegmentStart :: Message
-                         -> (Format, Int64)
-messageParseSegmentStart message =
-    unsafePerformIO $ alloca $ \formatPtr ->
+                         -> Maybe (Format, Int64)
+messageParseSegmentStart message | messageType message == MessageSegmentStart =
+    Just $ unsafePerformIO $ alloca $ \formatPtr ->
         alloca $ \positionPtr ->
-            do poke formatPtr $ fromIntegral $ fromEnum FormatUndefined
-               poke positionPtr 0
-               {# call message_parse_segment_start #} message formatPtr positionPtr
-               format <- peek formatPtr
-               position <- peek positionPtr
-               return (toEnum $ fromIntegral format, fromIntegral position)
+            do {# call message_parse_segment_start #} message formatPtr positionPtr
+               format <- liftM cToEnum $ peek formatPtr
+               position <- liftM fromIntegral $ peek positionPtr
+               return (format, position)
+                                 | otherwise = Nothing
 
 messageParseStateChanged :: Message
-                         -> (State, State, State)
-messageParseStateChanged message =
-    unsafePerformIO $ alloca $ \oldStatePtr ->
+                         -> Maybe (State, State, State)
+messageParseStateChanged message | messageType message == MessageStateChanged =
+    Just $ unsafePerformIO $ alloca $ \oldStatePtr ->
         alloca $ \newStatePtr -> alloca $ \pendingPtr ->
-            do poke oldStatePtr 0
-               poke newStatePtr 0
-               poke pendingPtr  0
-               {# call message_parse_state_changed #} message oldStatePtr newStatePtr pendingPtr
-               oldState <- liftM (toEnum . fromIntegral) $ peek oldStatePtr
-               newState <- liftM (toEnum . fromIntegral) $ peek newStatePtr
-               pending  <- liftM (toEnum . fromIntegral) $ peek pendingPtr
+            do {# call message_parse_state_changed #} message oldStatePtr newStatePtr pendingPtr
+               oldState <- liftM cToEnum $ peek oldStatePtr
+               newState <- liftM cToEnum $ peek newStatePtr
+               pending  <- liftM cToEnum $ peek pendingPtr
                return (oldState, newState, pending)
+                                 | otherwise = Nothing
 
 messageParseTag :: Message
-                -> TagList
-messageParseTag message =
-    unsafePerformIO $ alloca $ \tagListPtr ->
-        do poke tagListPtr nullPtr
-           {# call message_parse_tag #} message $ castPtr tagListPtr
+                -> Maybe TagList
+messageParseTag message | messageType message == MessageTag =
+    Just $ unsafePerformIO $ alloca $ \tagListPtr ->
+        do {# call message_parse_tag #} message $ castPtr tagListPtr
            peek tagListPtr >>= takeTagList
+                        | otherwise = Nothing
 
 messageParseBuffering :: Message
-                      -> Int
-messageParseBuffering message =
-    fromIntegral $ unsafePerformIO $ alloca $ \percentPtr ->
-        do poke percentPtr 0
-           {# call message_parse_buffering #} message percentPtr
+                      -> Maybe Int
+messageParseBuffering message | messageType message == MessageBuffering =
+    Just $ fromIntegral $ unsafePerformIO $ alloca $ \percentPtr ->
+        do {# call message_parse_buffering #} message percentPtr
            peek percentPtr
+                              | otherwise = Nothing
 
 messageParseWarning :: Message
-                    -> (Maybe GError, Maybe String)
-messageParseWarning message =
-    unsafePerformIO $ alloca $ \gErrorPtr ->
+                    -> Maybe (Maybe GError, Maybe String)
+messageParseWarning message | messageType message == MessageWarning =
+    Just $ unsafePerformIO $ alloca $ \gErrorPtr ->
         alloca $ \debugPtr ->
-            do poke gErrorPtr nullPtr
-               poke debugPtr nullPtr
-               {# call message_parse_warning #} message (castPtr gErrorPtr) debugPtr
+            do {# call message_parse_warning #} message (castPtr gErrorPtr) debugPtr
                gError <- peek gErrorPtr >>=
                              (maybePeek $ \ptr ->
                               do gError <- peek ptr
@@ -243,15 +457,15 @@ messageParseWarning message =
                                  return gError)
                debug <- peek debugPtr >>= maybePeek readUTFString
                return (gError, debug)
+                            | otherwise = Nothing
 
 messageParseDuration :: Message
-                     -> (Format, Int64)
-messageParseDuration message =
-    unsafePerformIO $ alloca $ \formatPtr ->
+                     -> Maybe (Format, Int64)
+messageParseDuration message | messageType message == MessageDuration =
+    Just $ unsafePerformIO $ alloca $ \formatPtr ->
         alloca $ \positionPtr ->
-            do poke formatPtr $ fromIntegral $ fromEnum FormatUndefined
-               poke positionPtr 0
-               {# call message_parse_duration #} message formatPtr positionPtr
-               format <- peek formatPtr
-               position <- peek positionPtr
-               return (toEnum $ fromIntegral format, fromIntegral position)
+            do {# call message_parse_duration #} message formatPtr positionPtr
+               format <- liftM cToEnum $ peek formatPtr
+               position <- liftM fromIntegral $ peek positionPtr
+               return (format, position)
+                             | otherwise = Nothing

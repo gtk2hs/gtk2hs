@@ -61,9 +61,26 @@ import System.Glib.UTFString
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
+indexGetFlags :: IndexClass indexT
+              => indexT
+              -> IO [IndexFlags]
+indexGetFlags = mkObjectGetFlags
+
+indexSetFlags :: IndexClass indexT
+              => indexT
+              -> [IndexFlags]
+              -> IO ()
+indexSetFlags = mkObjectSetFlags
+
+indexUnsetFlags :: IndexClass indexT
+                => indexT
+                -> [IndexFlags]
+                -> IO ()
+indexUnsetFlags = mkObjectUnsetFlags
+
 indexNew :: IO Index
 indexNew =
-    {# call index_new #} >>= takeIndex
+    {# call index_new #} >>= takeObject
 
 indexCommit :: IndexClass index
             => index
@@ -108,7 +125,7 @@ marshalIndexFilter indexFilter =
     makeIndexFilter cIndexFilter
     where cIndexFilter :: CIndexFilter
           cIndexFilter cIndex cIndexEntry _ =
-              do index <- peekIndex cIndex
+              do index <- peekObject cIndex
                  indexEntry <- peekIndexEntry cIndexEntry
                  liftM fromBool $ indexFilter index indexEntry
 foreign import ccall "wrapper"

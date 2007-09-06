@@ -22,117 +22,22 @@
 --  GStreamer, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
---  
+
+-- #hide
+
 -- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module @MODULE_NAME@ (
-  MiniObject(..),
-  MiniObjectClass,
-  mkMiniObject,
-  unMiniObject,
-  withMiniObject,
-  isMiniObject,
-  toMiniObject,
-  castToMiniObject,
-  peekMiniObject,
-  takeMiniObject,
-  
 @MODULE_EXPORTS@
   ) where
 
-import Control.Monad      (liftM)
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
 import Foreign.C.Types    (CULong)
 import System.Glib.GType	(GType, typeInstanceIsA)
-import System.Glib.FFI
-{#import System.Glib.GObject#}
+import Media.Streaming.GStreamer.Core.MiniHierarchyBase
 @IMPORT_PARENT@
 
 {# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
 
--- The usage of foreignPtrToPtr should be safe as the evaluation will only be
--- forced if the object is used afterwards
---
-mkCastToObject :: (MiniObjectClass obj, MiniObjectClass obj')
-               => GType
-               -> String
-               -> (obj -> obj')
-mkCastToObject gtype objTypeName obj =
-  case toMiniObject obj of
-    gobj\@(MiniObject objFPtr)
-      | typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr) objFPtr) gtype
-                  -> unsafeCastMiniObject gobj
-      | otherwise -> error $ "Cannot cast object to " ++ objTypeName
-
-mkIsObject :: MiniObjectClass obj
-           => GType
-           -> obj
-           -> Bool
-mkIsObject gType obj =
-    unsafePerformIO $
-        withMiniObject (toMiniObject obj) $ \objPtr ->
-            return $ typeInstanceIsA (castPtr objPtr) gType
-
-mkTakeObject, mkPeekObject :: (MiniObjectClass obj)
-                           => (ForeignPtr obj -> obj)
-                           -> Ptr obj
-                           -> IO obj
-mkPeekObject cons cObject =
-    liftM (cons . castForeignPtr) $ do
-      cMiniObjectRef $ castPtr cObject
-      newForeignPtr (castPtr cObject) miniObjectFinalizer
-foreign import ccall unsafe "&gst_mini_object_unref"
-  miniObjectFinalizer :: FunPtr (Ptr () -> IO ())
-foreign import ccall unsafe "gst_mini_object_ref"
-  cMiniObjectRef :: Ptr ()
-                 -> IO (Ptr ())
-
-mkTakeObject cons cObject =
-    liftM (cons . castForeignPtr) $
-        newForeignPtr (castPtr cObject) miniObjectFinalizer
-
-{# pointer *GstMiniObject as MiniObject foreign newtype #}
-
-mkMiniObject = MiniObject
-unMiniObject (MiniObject o) = o
-
-withMiniObject :: MiniObject
-               -> (Ptr MiniObject -> IO a)
-               -> IO a
-withMiniObject = withForeignPtr . unMiniObject
-
-isMiniObject :: MiniObjectClass obj
-             => obj
-             -> Bool
-isMiniObject = mkIsObject {# call fun unsafe gst_mini_object_get_type #}
-
-class MiniObjectClass o where
-    toMiniObject :: o -> MiniObject
-    unsafeCastMiniObject :: MiniObject -> o
-
-instance MiniObjectClass MiniObject where
-    toMiniObject = id
-    unsafeCastMiniObject = id
-
-castToMiniObject :: MiniObjectClass obj
-                 => obj
-                 -> MiniObject
-castToMiniObject =
-    mkCastToObject {# call fun unsafe gst_mini_object_get_type #} "MiniObject"
-
-peekMiniObject, takeMiniObject :: Ptr MiniObject
-                               -> IO MiniObject
-
--- | Use 'newMiniObject' when a function returns an object that must be
---   unreffed when you're done with it; i.e., the object is owned by
---   the caller.
-peekMiniObject = mkPeekObject MiniObject
-
--- | Use 'newMiniObject_' when a function returns an object that is owned
---   elsewhere.
-takeMiniObject = mkTakeObject MiniObject
-
-@CASTING_FUNCTIONS@
-
-@CLASS_DECLERATIONS@
+@DECLERATIONS@

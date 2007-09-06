@@ -61,9 +61,26 @@ import System.Glib.FFI
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
+busGetFlags :: BusClass busT
+            => busT
+            -> IO [BusFlags]
+busGetFlags = mkObjectGetFlags
+
+busSetFlags :: BusClass busT
+            => busT
+            -> [BusFlags]
+            -> IO ()
+busSetFlags = mkObjectSetFlags
+
+busUnsetFlags :: BusClass busT
+              => busT
+              -> [BusFlags]
+              -> IO ()
+busUnsetFlags = mkObjectUnsetFlags
+
 busNew :: IO Bus
 busNew =
-    {# call bus_new #} >>= takeBus
+    {# call bus_new #} >>= takeObject
 
 busPost :: Bus
         -> Message
@@ -80,19 +97,19 @@ busHavePending bus =
 busPeek :: Bus
         -> IO (Maybe Message)
 busPeek bus =
-    {# call bus_peek #} bus >>= maybePeek takeMessage
+    {# call bus_peek #} bus >>= maybePeek takeMiniObject
 
 busPop :: Bus
        -> IO (Maybe Message)
 busPop bus =
-    {# call bus_pop #} bus >>= maybePeek takeMessage
+    {# call bus_pop #} bus >>= maybePeek takeMiniObject
 
 busTimedPop :: Bus
             -> ClockTime
             -> IO (Maybe Message)
 busTimedPop bus timeout =
     {# call bus_timed_pop #} bus (fromIntegral timeout) >>=
-        maybePeek takeMessage
+        maybePeek takeMiniObject
 
 busSetFlushing :: Bus
                -> Bool
@@ -118,8 +135,8 @@ marshalBusFunc busFunc =
     makeBusFunc cBusFunc
     where cBusFunc :: CBusFunc
           cBusFunc busPtr messagePtr userData =
-              do bus <- peekBus busPtr
-                 message <- peekMessage messagePtr
+              do bus <- peekObject busPtr
+                 message <- peekMiniObject messagePtr
                  liftM fromBool $ busFunc bus message
 foreign import ccall "wrapper"
     makeBusFunc :: CBusFunc
@@ -159,13 +176,13 @@ busPoll bus events timeout =
     {# call bus_poll #} bus
                         (fromIntegral $ fromFlags events)
                         (fromIntegral timeout) >>=
-        takeMessage
+        takeMiniObject
 
 onBusMessage, afterBusMessage :: BusClass bus
                               => bus
                               -> (Message -> IO ())
                               -> IO (ConnectId bus)
 onBusMessage =
-    connect_BOXED__NONE "message" peekMessage False
+    connect_BOXED__NONE "message" peekMiniObject False
 afterBusMessage =
-    connect_BOXED__NONE "message" peekMessage True
+    connect_BOXED__NONE "message" peekMiniObject True

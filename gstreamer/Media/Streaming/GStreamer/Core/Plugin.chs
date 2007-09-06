@@ -56,11 +56,11 @@ module Media.Streaming.GStreamer.Core.Plugin (
 
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
+import System.Glib.GObject
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes ( ReadAttr
                               , readAttr )
-import GHC.Base (unsafeCoerce#)
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -154,11 +154,12 @@ pluginLoad :: PluginClass plugin
            => plugin
            -> IO plugin
 pluginLoad plugin =
-    liftM unsafeCoerce# $ {# call plugin_load #} (toPlugin plugin) >>=
-        takePlugin
+    liftM (unsafeCastGObject . toGObject) $
+        {# call plugin_load #} (toPlugin plugin) >>=
+            takeObject
 
 pluginLoadByName :: String
                  -> IO Plugin
 pluginLoadByName name =
     withUTFString name {# call plugin_load_by_name #} >>=
-        takePlugin
+        takeObject

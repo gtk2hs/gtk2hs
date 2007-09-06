@@ -47,16 +47,16 @@ indexFactoryFind :: String
                  -> IO (Maybe IndexFactory)
 indexFactoryFind name =
     withUTFString name {# call index_factory_find #} >>=
-        maybePeek takeIndexFactory
+        maybePeek takeObject
 
 indexFactoryCreate :: IndexFactory
                    -> IO Index
 indexFactoryCreate indexFactory =
     {# call index_factory_create #} indexFactory >>=
-        takeIndex
+        takeObject
 
 indexFactoryMake :: String
                  -> IO Index
 indexFactoryMake name =
     withUTFString name {# call index_factory_make #} >>=
-        takeIndex
+        takeObject

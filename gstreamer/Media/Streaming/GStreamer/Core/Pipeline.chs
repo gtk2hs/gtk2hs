@@ -59,13 +59,13 @@ pipelineNew :: String
             -> IO Element
 pipelineNew name =
     withUTFString name {# call pipeline_new #} >>=
-        takeElement
+        takeObject
 
 pipelineGetBus :: PipelineClass pipeline
                => pipeline
                -> IO Bus
 pipelineGetBus pipeline =
-    {# call pipeline_get_bus #} (toPipeline pipeline) >>= takeBus
+    {# call pipeline_get_bus #} (toPipeline pipeline) >>= takeObject
 
 pipelineSetClock :: (PipelineClass pipeline, ClockClass clock)
                  => pipeline

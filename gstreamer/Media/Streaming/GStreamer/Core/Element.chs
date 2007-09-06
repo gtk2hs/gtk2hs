@@ -101,9 +101,25 @@ import System.Glib.UTFString ( withUTFString
 {#import System.Glib.GObject#}
 {#import Media.Streaming.GStreamer.Core.Types#}
 {#import Media.Streaming.GStreamer.Core.Signals#}
-import GHC.Base              ( unsafeCoerce# )
 
 {# context lib = "gstreamer" prefix = "gst" #}
+
+elementGetFlags :: ElementClass elementT
+                => elementT
+                -> IO [ElementFlags]
+elementGetFlags = mkObjectGetFlags
+
+elementSetFlags :: ElementClass elementT
+                => elementT
+                -> [ElementFlags]
+                -> IO ()
+elementSetFlags = mkObjectSetFlags
+
+elementUnsetFlags :: ElementClass elementT
+                  => elementT
+                  -> [ElementFlags]
+                  -> IO ()
+elementUnsetFlags = mkObjectUnsetFlags
 
 elementAddPad :: (ElementClass elementT, PadClass padT) =>
                  elementT
@@ -118,7 +134,7 @@ elementGetPad :: ElementClass elementT =>
               -> IO (Maybe Pad)
 elementGetPad element name =
     (withUTFString name $ {# call element_get_pad #} (toElement element)) >>=
-        maybePeek takePad
+        maybePeek takeObject
 
 elementGetCompatiblePad :: (ElementClass elementT, PadClass padT) =>
                            elementT
@@ -127,7 +143,7 @@ elementGetCompatiblePad :: (ElementClass elementT, PadClass padT) =>
                         -> IO (Maybe Pad)
 elementGetCompatiblePad element pad caps =
     {# call element_get_compatible_pad #} (toElement element) (toPad pad) caps >>=
-        maybePeek takePad
+        maybePeek takeObject
 
 elementGetCompatiblePadTemplate :: (ElementClass elementT, PadTemplateClass padTemplateT) =>
                                    elementT
@@ -135,7 +151,7 @@ elementGetCompatiblePadTemplate :: (ElementClass elementT, PadTemplateClass padT
                                 -> IO (Maybe PadTemplate)
 elementGetCompatiblePadTemplate element padTemplate =
     {# call element_get_compatible_pad_template #} (toElement element) (toPadTemplate padTemplate) >>=
-        maybePeek takePadTemplate
+        maybePeek takeObject
 
 
 elementGetRequestPad :: ElementClass elementT =>
@@ -144,7 +160,7 @@ elementGetRequestPad :: ElementClass elementT =>
                      -> IO (Maybe Pad)
 elementGetRequestPad element name =
     (withUTFString name $ {# call element_get_request_pad #} (toElement element)) >>=
-        maybePeek peekPad -- no finalizer; use elementReleaseRequestPad
+        maybePeek peekObject
 
 elementGetStaticPad :: ElementClass elementT =>
                        elementT
@@ -152,7 +168,7 @@ elementGetStaticPad :: ElementClass elementT =>
                     -> IO (Maybe Pad)
 elementGetStaticPad element name =
     (withUTFString name $ {# call element_get_static_pad #} (toElement element)) >>=
-        maybePeek takePad
+        maybePeek takeObject
 
 elementNoMorePads :: ElementClass elementT =>
                      elementT
@@ -274,13 +290,13 @@ elementGetBus :: ElementClass elementT =>
                  elementT
               -> IO Bus
 elementGetBus element =
-    {# call element_get_bus #} (toElement element) >>= takeBus
+    {# call element_get_bus #} (toElement element) >>= takeObject
 
 elementGetFactory :: ElementClass elementT =>
                      elementT
                   -> IO ElementFactory
 elementGetFactory element =
-    {# call element_get_factory #} (toElement element) >>= peekElementFactory
+    {# call element_get_factory #} (toElement element) >>= peekObject
 
 elementSetIndex :: (ElementClass elementT, IndexClass indexT) =>
                    elementT
@@ -293,7 +309,7 @@ elementGetIndex :: ElementClass elementT =>
                    elementT
                 -> IO (Maybe Index)
 elementGetIndex element =
-    {# call element_get_index #} (toElement element) >>= maybePeek takeIndex
+    {# call element_get_index #} (toElement element) >>= maybePeek takeObject
 
 elementIsIndexable :: ElementClass elementT =>
                       elementT
@@ -318,7 +334,7 @@ elementGetClock :: ElementClass elementT =>
                    elementT
                 -> IO (Maybe Clock)
 elementGetClock element =
-    {# call element_get_clock #} (toElement element) >>= maybePeek takeClock
+    {# call element_get_clock #} (toElement element) >>= maybePeek takeObject
 
 elementProvidesClock :: ElementClass elementT =>
                         elementT
@@ -330,7 +346,7 @@ elementProvideClock :: ElementClass elementT =>
                        elementT
                     -> IO (Maybe Clock)
 elementProvideClock element =
-    {# call element_provide_clock #} (toElement element) >>= maybePeek takeClock
+    {# call element_provide_clock #} (toElement element) >>= maybePeek takeObject
 
 elementSetState :: ElementClass elementT =>
                    elementT
@@ -406,7 +422,7 @@ elementQuery element query =
                     newForeignPtr_ . castPtr
        success <- {# call element_query #} (toElement element) $ Query query'
        if toBool success
-           then liftM (Just . unsafeCoerce#) $ withForeignPtr query' $ takeQuery . castPtr
+           then liftM Just $ withForeignPtr query' $ takeMiniObject . castPtr
            else return Nothing
 
 elementQueryConvert :: ElementClass element

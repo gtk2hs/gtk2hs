@@ -22,23 +22,18 @@
 --  GStreamer, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
-
--- #hide
-
--- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
+--  
+-- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module @MODULE_NAME@ (
-@MODULE_EXPORTS@
+module Media.Streaming.GStreamer.Audio.Types (
+  
+  module Media.Streaming.GStreamer.Audio.Constants,
+  
+  AudioFieldFlag(..),
+  
   ) where
 
-import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
-import Foreign.C.Types    (CULong)
-import System.Glib.GType	(GType, typeInstanceIsA)
-import System.Glib.GObject
-import Media.Streaming.GStreamer.Core.HierarchyBase
-@IMPORT_PARENT@
+import Media.Streaming.GStreamer.Audio.Constants
 
-{# context lib="@CONTEXT_LIB@" prefix="@CONTEXT_PREFIX@" #}
-
-@DECLERATIONS@
+{# enum GstAudioFieldFlag as AudioFieldFlag {underscoreToCase} with prefix = "GST" #}
