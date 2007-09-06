@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Getting Started</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="index.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4.xhtml">Next</a></span>
+</div>
+
+<h2>Getting Started</h2>
+
+<p>
+The first thing to do, of course, is download Gtk2Hs and install it. You can
+always get the latest version from
+<a href="http://haskell.org/gtk2hs/">http://haskell.org/gtk2hs/</a> and several
+Linux versions have their own Gtk2Hs packages. For Windows there is an
+installer available.
+</p>
+
+<p>
+The next thing is to open the Gtk2Hs API reference documentation for your
+version. You will need to use this extensively to be able to find the names for
+widgets, methods, attributes and signals you might want to use. The contents
+lists all modules and there is also an index. Inside each module description
+there is also a class hierarchy. If a method, attribute or signal you expect is
+missing, it might belong to one of the superclasses of which your widget type
+is an instance.
+</p>
+
+<p>
+To begin our introduction to Gtk2Hs, we'll start with the simplest program
+possible. This program will create a 200x200 pixel window and has no way of
+exiting except to be killed by using the shell.
+</p>
+
+<p><img src="./Images/GtkChap3a.png" alt="GtkChap3a" id="GtkChap3a" /></p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  widgetShowAll window
+  mainGUI
+</pre>
+
+<p>
+You can compile the above program with the Glasgow Haskell Compiler (GHC)
+using:
+</p>
+
+<pre class="codebox">
+ghc --make GtkChap3a.hs -o Chap3a
+</pre>
+
+<p>
+assuming <code>GtkChap3a.hs</code> is the filename. Alternatively you can use
+the interactive GHCi, for earlier and later versions of Gtk2Hs. (Because of
+threading problems intermediate versions will not work interactively. Gtk2Hs
+does not work with Hugs.)
+</p>
+
+<p>
+The first line of the program imports the Gtk2Hs graphics library.
+</p>
+
+<p>
+All Gtk2Hs programs run in <code>main</code>. The first line of that function's
+<code>do</code> block:
+</p>
+
+<pre class="codebox">
+  initGUI
+</pre>
+
+<p>
+is a function called in all Gtk2Hs applications.
+</p>
+
+<p>
+The next two lines in the block create and display a window and its contents:
+</p>
+
+<pre class="codebox">
+  window &lt;- windowNew
+  widgetShowAll window
+</pre>
+
+<p>
+Rather than create a window of 0x0 size, a window without children is set to
+200x200 by default so you can still manipulate it. Widgets that can be visible
+(not all can) may be shown or hidden using their own methods, but the second
+line works on a widget (here the window) and all its children.
+</p>
+
+<p>
+The last line of <code>main</code> enters the Gtk2Hs main processing loop:
+</p>
+
+<pre class="codebox">
+  mainGUI
+</pre>
+
+<p>
+and is another call you will see in every Gtk2Hs application. When control
+reaches this point, Gtk2Hs will sleep waiting for X events (such as button or
+key presses), timeouts, or file IO notifications to occur. In our simple
+example, however, events are ignored.
+</p>
+
+<h3>"Hello World" in Gtk2Hs</h3>
+
+<p>
+Now for a program with a widget (a button): the classic "hello world" &agrave;
+la Gtk2Hs.
+</p>
+
+<p><img src="./Images/GtkChap3b.png" alt="GtkChap3b" id="GtkChap3b" /></p>
+
+<p>
+If the button is clicked it will display the text "Hello World". This is
+implemented in the Haskell function <code>hello</code> with a button
+<var>b</var> as its argument. The type declaration actually states the type
+variable <var>o</var> is an instance of class <code>ButtonClass</code>. Gtk2Hs
+extensively uses Haskell classes to map the object hierarchy of the original
+GTK widgets. Each widget in Gtk2Hs, of course, has a Haskell type.
+</p>
+
+<p>
+Widgets, and the classes their types belong to, usually have attributes. These
+can be set either by named methods or by the general <code>set</code> function,
+which uses a list-like notation as shown below. Of special interest here is the
+<code>containerChild</code> attribute of the window (actually of a superclass
+of the window) which states the relationship with the button. Because of this
+relationship <code>widgetShowAll window</code> will also make the button
+visible.
+</p>
+
+<p>
+Widgets are connected to other widgets in a graphical dependency tree (not to
+be confused with the class hierarchy). Gtk2Hs also works with the Glade visual
+interface designer and, if you use Glade, such connections are visible in the
+<i>Inspector</i> pane. There is a
+<a href="http://haskell.org/gtk2hs/docs/tutorial/glade/">separate introductory
+tutorial</a> on how to use Glade with Gtk2Hs.
+</p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+hello :: (ButtonClass o) =&gt; o -&gt; IO ()
+hello b = set b [buttonLabel := "Hello World"]
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  button &lt;- buttonNew
+  set window [windowDefaultWidth := 200, windowDefaultHeight := 200,
+              containerChild := button, containerBorderWidth := 10 ]
+  onClicked button (hello button)
+  onDestroy window mainQuit
+  widgetShowAll window
+  mainGUI
+</pre>
+
+<p>
+Gtk2Hs is event driven. The <code>mainGUI</code> function will sleep until
+something happens, like a mouse being clicked, a window being destroyed or
+something else typical for a widget. Such events then trigger signals which in
+turn trigger user-defined functions to be evaluated. In this case the
+<code>onClicked</code> signal, emitted by the user clicking the button, is
+linked to the text being displayed on the same button. When the user destroys
+the window, unlike with the first program, <code>main</code> now exits cleanly.
+</p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="index.xhtml">Previous</a><br />Table of Contents</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a><br />&nbsp;</span>
+  <span class="nav-next"><a href="chap4.xhtml">Next</a><br />Packing Widgets</span>
+</div>
+
+</body>
+</html>

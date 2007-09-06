@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Packing Widgets</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap3.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap5a.html">Next</a></span>
+</div>
+
+<h2>Packing Widgets</h2>
+
+<p>
+When creating an application, you'll want to put more than one widget inside a
+window. Our first "hello world" example only used one widget so we could simply
+use <code>set</code> to specify a <code>containerChild</code> widget for
+<code>window</code>, or use <code>containerAdd</code> to "pack" the widget into
+the window. But when you want to put more than one widget into a window, how do
+you control where that widget is positioned? This is where packing comes in.
+</p>
+
+<h3>Theory of Packing Boxes</h3>
+
+<p>
+Most packing is done by creating boxes. These are invisible widget containers
+that we can pack our widgets into which come in two forms: a horizontal box and
+a vertical box. When packing widgets into a horizontal box, the objects are
+inserted horizontally from left to right or right to left depending on the call
+used. In a vertical box, widgets are packed from top to bottom or vice versa.
+You may use any combination of boxes inside or beside other boxes to create the
+desired effect.
+</p>
+
+<p>
+To create a new horizontal box, we use <code>hBoxNew</code>, and for vertical
+boxes, <code>vBoxNew</code>. Both take a <code>Bool</code> and an
+<code>Int</code> parameter. The first parameter will give all children equal
+space allotments if set to <var>True</var> and the second sets the number of
+pixels to place by default between the children.
+</p>
+
+<p>
+The <code>boxPackStart</code> and <code>boxPackEnd</code> functions are used to
+place objects inside of these containers. The <code>boxPackStart</code>
+function will start at the top and work its way down in a <code>VBox</code>,
+and pack left to right in an <code>HBox</code>. <code>boxPackEnd</code> will do
+the opposite, packing from bottom to top in a <code>VBox</code>, and right to
+left in an <code>HBox</code>. Using these functions allows us to right justify
+or left justify our widgets and they may be mixed in any way to achieve the
+desired effect. We will use <code>boxPackStart</code> in most of our examples.
+</p>
+
+<p>
+An object may be another container or a widget. In fact, many widgets are
+actually containers themselves&mdash;including <code>button</code>, but we
+usually only use a <code>label</code> inside a <code>button</code>.
+</p>
+
+<p><img src="Images/GtkChap4.png" alt="GtkChap4" width="210" height="229" id="graphics1" /></p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  hbox    &lt;- hBoxNew True 10
+  button1 &lt;- buttonNewWithLabel "Button 1"
+  button2 &lt;- buttonNewWithLabel "Button 2"
+  set window [windowDefaultWidth := 200, windowDefaultHeight := 200,
+              containerBorderWidth := 10, containerChild := hbox ]
+  boxPackStart hbox button1 PackGrow 0
+  boxPackStart hbox button2 PackGrow 0
+  onDestroy window mainQuit
+  widgetShowAll window
+  mainGUI
+</pre>
+
+<p>
+By using <code>boxPackStart</code> or <code>boxPackEnd</code>, GTK knows where
+you want to place your widgets so it can do automatic resizing and other nifty
+things.
+</p>
+
+<pre class="codebox">
+boxPackStart :: (WidgetClass child, BoxClass self) =&gt; self -&gt; child -&gt; Packing -&gt; Int -&gt; IO ()
+</pre>
+
+<pre class="codebox">
+boxPackEnd :: (WidgetClass child, BoxClass self) =&gt; self -&gt; child -&gt; Packing -&gt; Int -&gt; IO ()
+</pre>
+
+<p>
+The <code>Packing</code> parameter specifies the way the widgets in the
+container behave when the window is resized. <code>PackNatural</code> means the
+widgets will retain their size and stay where they are, <code>PackGrow</code>
+means they will be resized, and using <code>PackRepel</code> the widgets will
+be padded equally on both sides. The last parameter is an <code>Int</code>,
+which specifies any extra padding to be put between this child and its
+neighbours.
+</p>
+
+<p>
+Note that the packing only applies to the dimension of the box. If, for
+example, you specify <code>PackNatural</code> instead of <code>PackGrow</code>
+in the above, resizing horizontally will keep the buttons at their original
+size, but resizing vertically will also resize the buttons. This is because the
+buttons are placed homogeneously in the horizontal box (the first parameter is
+<var>True</var>) and the box itself will resize with the window. The next
+example will make the effects more clear.
+</p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap3.xhtml">Previous</a><br />Getting Started</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap5a.html">Next</a><br />Packing Demonstration Program</span>
+</div>
+
+</body>
+</html>

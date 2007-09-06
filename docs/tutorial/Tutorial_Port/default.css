@@ -1,0 +1,92 @@
+a:link, a:visited {
+    text-decoration: none;
+}
+
+body {
+	margin: 0px;
+	border: 20px solid #e7e7e7;
+	padding: 20px;
+	color: #000000;
+	background-color: #ffffff;
+}
+
+h1 {
+    text-align: center;
+}
+
+h2, h3 {
+	border-bottom: 1px solid #ccc;
+}
+
+.codebox {
+	overflow: auto;
+	margin: 10px;
+	border: 1px solid #ccc;
+	padding: 10px;
+	color: #000000;
+	background-color: #eee;
+}
+
+.nav-home {
+    float: left;
+    width: 34%;
+    text-align: center;
+}
+
+.nav-next {
+    float: left;
+    width: 33%;
+    text-align: right;
+}
+
+.nav-previous {
+    float: left;
+    width: 33%;
+    text-align: left;
+}
+
+#authors {
+    text-align: center;
+}
+
+#authors h3 {
+	border-style: none;
+}
+
+#credits {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+#credits h3 {
+	border-style: none;
+}
+
+#footer {
+	margin: 40px;
+	border: 0px;
+	border-top: 1px solid #ccc;
+}
+
+#header {
+	margin: 0px 40px 40px 40px;
+	border: 0px;
+	border-bottom: 1px solid #ccc;
+}
+
+#header h1 {
+    margin-top: 0px;
+    font-size: medium;
+    text-align: center;
+}
+
+#title h2 {
+	border-style: none;
+    text-align: center;
+}
+
+#toc ol {
+    line-height: 200%;
+    list-style-type: none;
+}
