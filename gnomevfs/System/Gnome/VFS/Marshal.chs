@@ -25,7 +25,9 @@
 --  Copyright (c) 2001 Seth Nickell <snickell@stanford.edu>. The
 --  documentation is covered by the GNU Free Documentation License,
 --  version 1.2.
---  
+
+-- #hide
+
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
