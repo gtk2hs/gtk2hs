@@ -149,6 +149,13 @@ HIDE_ALL_PACKAGES=-hide-all-packages
 ])
 AC_SUBST(HIDE_ALL_PACKAGES)
 
+dnl check for a recent ghc-6.7 or later as a proxy for the base package split
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.7.20070912, [
+HAVE_SPLIT_BASE=yes
+AC_DEFINE([HAVE_SPLIT_BASE], [1], [Using split base package.])
+])
+AM_CONDITIONAL(HAVE_SPLIT_BASE, test "$HAVE_SPLIT_BASE" = "yes")
+AC_SUBST(HAVE_SPLIT_BASE)
 
 GHCBARE=`basename $GHC`
 GHCDIR=`dirname $GHC`

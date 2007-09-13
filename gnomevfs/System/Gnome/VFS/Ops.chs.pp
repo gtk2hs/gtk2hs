@@ -56,7 +56,7 @@ module System.Gnome.VFS.Ops (
   truncate,
   truncateURI,
   truncateHandle,
-  
+
 -- * File Information
   getFileInfo,
   getFileInfoURI,
@@ -144,7 +144,11 @@ read handle bytes =
                           {# call gnome_vfs_read #} handle cBuffer cBytes cBytesReadPtr)
                       (do bytesRead <- liftM fromIntegral $ peek cBytesReadPtr
                           assert (bytesRead /= 0 || cBytes == 0) $ return ()
+#ifdef HAVE_SPLIT_BASE
+                          BS.packCStringLen (castPtr cBuffer, bytesRead))
+#else
                           return $ BS.packCStringLen (castPtr cBuffer, bytesRead))
+#endif
                       (do bytesRead <- liftM fromIntegral $ peek cBytesReadPtr
                           assert (bytesRead == 0) $ return ())
 

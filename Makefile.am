@@ -149,6 +149,9 @@ tools_c2hs_PKGNAME = tools_c2hs_c2hsLocal
 
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
 tools_c2hs_c2hsLocal_EXTERNALDEPS	= base haskell98
+if HAVE_SPLIT_BASE
+tools_c2hs_c2hsLocal_EXTERNALDEPS += pretty containers array
+endif
 tools_c2hs_c2hsLocal_NOSPLITOBJS	= yes
 
 tools_c2hs_c2hsLocal_SOURCESDIRS = 			\
@@ -383,6 +386,9 @@ gtk_PKGNAME = libHSgtk_a
 libHSgtk_a_NAME			= gtk
 libHSgtk_a_CONFIG		= gtk/gtk.$(PKGEXT)
 libHSgtk_a_EXTERNALDEPS		= base
+if HAVE_SPLIT_BASE
+libHSgtk_a_EXTERNALDEPS += containers array
+endif
 if HAVE_MTL_PACKAGE
 libHSgtk_a_EXTERNALDEPS += mtl
 endif
@@ -1610,6 +1616,9 @@ soegtk_PKGNAME = libHSsoegtk_a
 libHSsoegtk_a_NAME		= soegtk
 libHSsoegtk_a_CONFIG		= soegtk/soegtk.$(PKGEXT)
 libHSsoegtk_a_EXTERNALDEPS	= base
+if HAVE_SPLIT_BASE
+libHSsoegtk_a_EXTERNALDEPS += old-time
+endif
 libHSsoegtk_a_INTERNALDEPS	= glib gtk
 libHSsoegtk_a_HEADER		= $(libHSgtk_a_HEADER)
 libHSsoegtk_a_LIBS		= 
@@ -1693,6 +1702,9 @@ gnomevfs_PKGNAME = libHSgnomevfs_a
 libHSgnomevfs_a_NAME			= gnomevfs
 libHSgnomevfs_a_CONFIG			= gnomevfs/gnomevfs.$(PKGEXT)
 libHSgnomevfs_a_EXTERNALDEPS		= base haskell98 mtl
+if HAVE_SPLIT_BASE
+libHSgnomevfs_a_EXTERNALDEPS += bytestring
+endif
 libHSgnomevfs_a_INTERNALDEPS		= glib
 libHSgnomevfs_a_HEADER			= gnomevfs/gnomevfs.h
 libHSgnomevfs_a_PRECOMP			= gnomevfs/gnomevfs.precomp
@@ -1729,7 +1741,7 @@ libHSgnomevfs_a_SOURCES			=               \
 	gnomevfs/System/Gnome/VFS/hsfileinfo.c          \
 	gnomevfs/System/Gnome/VFS/FileInfo.chs          \
 	gnomevfs/System/Gnome/VFS/Monitor.chs           \
-	gnomevfs/System/Gnome/VFS/Ops.chs               \
+	gnomevfs/System/Gnome/VFS/Ops.chs.pp            \
 	gnomevfs/System/Gnome/VFS/Directory.chs         \
 	gnomevfs/System/Gnome/VFS/URI.chs               \
 	gnomevfs/System/Gnome/VFS/Util.chs              \
