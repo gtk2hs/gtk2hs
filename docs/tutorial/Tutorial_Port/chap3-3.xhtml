@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Packing Using Tables</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap3-2.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-1.xhtml">Next</a></span>
+</div>
+
+<h2>3.3 Packing Using Tables</h2>
+
+<p>
+Let's take a look at another way of packing: <em>tables</em>. These can be
+extremely useful in certain situations. Using tables, we create a grid that we
+can place widgets in. The widgets may take up as many spaces as we specify.
+</p>
+
+<p>
+The first thing to look at, of course, is the <code>tableNew</code> function:
+</p>
+
+<pre class="codebox">
+tableNew :: Int -&gt; Int -&gt; Bool -&gt; IO Table
+</pre>
+
+<p>
+The first argument is the number of rows to make in the table, while the
+second, obviously, is the number of columns.
+</p>
+
+<p>
+The boolean argument (<var>homogeneous</var>) has to do with how the table's
+boxes are sized. If <var>homogeneous</var> is set to <var>True</var>, the table
+boxes are resized to the size of the largest widget in the table. If
+<var>homogeneous</var> is <var>False</var>, the size of a table boxes is
+dictated by the tallest widget in its same row, and the widest widget in its
+column.
+</p>
+
+<p>
+The rows and columns are laid out from <var>0</var> to <var>n</var>, where
+<var>n</var> was the number specified in the call to <code>tableNew</code>. So
+if you specify <var>rows</var> = <var>2</var> and <var>columns</var> =
+<var>2</var>, the layout would look something like this:
+</p>
+
+<pre class="codebox">
+ 0          1          2
+0+----------+----------+
+ |          |          |
+1+----------+----------+
+ |          |          |
+2+----------+----------+
+</pre>
+
+<p>
+Note that the coordinate system starts in the upper left hand corner. To place
+a widget into a box, use the following function:
+</p>
+
+<pre class="codebox">
+tableAttach :: (TableClass self, WidgetClass child)
+  =&gt; self            -- self         - The table.
+  -&gt; child           -- child        - The widget to add.
+  -&gt; Int             -- leftAttach   - The column number to attach the left
+                     --                side of a child widget to.
+  -&gt; Int             -- rightAttach  - The column number to attach the right
+                     --                side of a child widget to.
+  -&gt; Int             -- topAttach    - The row number to attach the top of a
+                     --                child widget to.
+  -&gt; Int             -- bottomAttach - The row number to attach the bottom
+                     --                of a child widget to.
+  -&gt; [AttachOptions] -- xoptions     - Used to specify the properties of the
+                     --                child widget when the table is
+                     --                resized.
+  -&gt; [AttachOptions] -- yoptions     - The same as xoptions, except this
+                     --                field determines behaviour of
+                     --                vertical resizing.
+  -&gt; Int             -- xpadding     - An integer value specifying the
+                     --                padding on the left and right of the
+                     --                widget being added to the table.
+  -&gt; Int             -- ypadding     - The amount of padding above and below
+                     --                the child widget.
+  -&gt; IO ()
+</pre>
+
+<p>
+The first argument (<var>self</var>) is the table you've created and the second
+(<var>child</var>) is the widget you wish to place in the table.
+</p>
+
+<p>
+The left and right attach arguments specify where to place the widget, and how
+many boxes to use. If you want a button in the lower right table entry of our
+2x2 table, and want it to fill that entry <em>only</em>,
+<var>leftAttach</var> would be = <var>1</var>, <var>rightAttach</var> =
+<var>2</var>, <var>topAttach</var> = <var>1</var>, and <var>bottomAttach</var>
+= <var>2</var>.
+</p>
+
+<p>
+Now, if you wanted a widget to take up the whole top row of our 2x2 table,
+you'd use <var>leftAttach</var> = <var>0</var>, <var>rightAttach</var> =
+<var>2</var>, <var>topAttach</var> = 0, and <var>bottomAttach</var> =
+<var>1</var>.
+</p>
+
+<p>
+The <var>xoptions</var> and <var>yoptions</var> are used to specify packing
+options and the list may contain more than one to allow multiple options.
+</p>
+
+<p>These options are:</p>
+
+<dl>
+  <dt><code>Fill</code></dt>
+  <dd>
+  If the table box is larger than the widget, and <code>Fill</code> is
+  specified, the widget will expand to use all the room available.
+  </dd>
+
+  <dt><code>Shrink</code></dt>
+  <dd>
+  If the table widget was allocated less space then was requested (usually by
+  the user resizing the window), then the widgets would normally just be pushed
+  off the bottom of the window and disappear. If <code>Shrink</code> is
+  specified, the widgets will shrink with the table.
+  </dd>
+
+  <dt><code>Expand</code></dt>
+  <dd>
+  This will cause the table to expand to use up any remaining space in the
+  window.
+  </dd>
+</dl>
+
+<p>
+Padding is just like in boxes, creating a clear area around the widget
+specified in pixels.
+</p>
+
+<p>
+<code>tableAttach</code> has many options, so there's a shortcut:
+</p>
+
+<pre class="codebox">
+tableAttachDefaults :: (TableClass self, WidgetClass widget)
+  =&gt; self   -- self         - The table.
+  -&gt; widget -- widget       - The child widget to add.
+  -&gt; Int    -- leftAttach   - The column number to attach the left side of
+            --                the child widget to.
+  -&gt; Int    -- rightAttach  - The column number to attach the right side of
+            --                the child widget to.
+  -&gt; Int    -- topAttach    - The row number to attach the top of the child
+            --                widget to.
+  -&gt; Int    -- bottomAttach - The row number to attach the bottom of the
+            --                child widget to.
+  -&gt; IO ()
+</pre>
+
+<p>
+The values used for the <code>[AttachOptions]</code> parameters are
+<var>[Expand, Fill]</var>, and the padding is set to <var>0</var>. The rest of
+the arguments are identical to the previous function.
+</p>
+
+<p>
+We also have <code>tableSetRowSpacing</code> and
+<code>tableSetColSpacing</code>. These place spacing at the specified row or
+column.
+</p>
+
+<pre class="codebox">
+tableSetRowSpacing :: TableClass self=&gt; self-&gt; Int -&gt; Int -&gt; IO ()
+</pre>
+
+<pre class="codebox">
+tableSetColSpacing :: TableClass self =&gt; self -&gt; Int -&gt; Int -&gt; IO ()
+</pre>
+
+<p>
+The first <code>Int</code> argument is the row/column and the second is the
+spacing in pixels. Note that for columns, the space goes to the right of the
+column, and for rows, the space goes below the row.
+</p>
+
+<p>
+You can also set a consistent spacing of all rows and/or columns with:
+</p>
+
+<pre class="codebox">
+tableSetRowSpacings :: TableClass self=&gt; self-&gt; Int -&gt; IO ()
+</pre>
+
+<p>and:</p>
+
+<pre class="codebox">
+tableSetColSpacings :: TableClass self =&gt; self -&gt; Int -&gt; IO ()
+</pre>
+
+<p>
+Note that with these calls, the last row and last column do not get any
+spacing.
+</p>
+
+<h3>Table Packing Example</h3>
+
+<p>
+Here we make a window with three buttons in a 2x2 table. The first two buttons
+will be placed in the upper row. A third button (<em>Quit</em>) is placed in
+the lower row, spanning both columns, which means it should look something like
+this:
+</p>
+
+<p><img src="Images/GtkChap3-3.png" alt="Table packing" id="imgGtkChap3-3" /></p>
+
+<p>Here's the source code:</p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  set window [windowTitle := "Table", containerBorderWidth := 20,
+              windowDefaultWidth := 150, windowDefaultHeight := 100]
+  table   &lt;- tableNew 2 2 True
+  containerAdd window table
+  button1 &lt;- buttonNewWithLabel "On"
+  onClicked button1 (buttonSwitch button1)
+  tableAttachDefaults table button1 0 1 0 1
+  button2 &lt;- buttonNewWithLabel "Off"
+  onClicked button2 (buttonSwitch button2)
+  tableAttachDefaults table button2 1 2 0 1
+  button3 &lt;- buttonNewWithLabel "Quit"
+  onClicked button3 mainQuit
+  tableAttachDefaults table button3 0 2 1 2
+  onDestroy window mainQuit
+  widgetShowAll window
+  mainGUI
+
+buttonSwitch :: Button -&gt; IO ()
+buttonSwitch b = do
+  txt &lt;- buttonGetLabel b
+  let newtxt = case txt of
+                 "Off" -&gt; "On"
+                 "On"  -&gt; "Off"
+  buttonSetLabel b newtxt
+</pre>
+
+<p>
+The <code>buttonSwitch</code> function is attached to both buttons in the top
+row. The <code>buttonGetLabel</code> function is an example of how to get an
+attribute from a widget using a standard method. There is also a more general
+alternative <code>get</code> (analogous to <code>set</code>) which takes a
+widget and an attribute. In the above example this should be:
+</p>
+
+<pre class="codebox">
+  txt &lt;- get b buttonLabel
+</pre>
+
+<p>
+with the same result.
+</p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap3-2.xhtml">Previous</a><br />3.2 Packing Demonstration Program</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-1.xhtml">Next</a><br />4.1 The Button Widget</span>
+</div>
+
+</body>
+</html>

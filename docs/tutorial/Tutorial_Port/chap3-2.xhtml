@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Packing Demonstration Program</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap3-1.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap3-3.xhtml">Next</a></span>
+</div>
+
+<h2>3.2 Packing Demonstration Program</h2>
+
+<p>
+The base of all widgets here is a vertical box, which itself is a child of the
+window. The child widgets are not displayed homogeneously and there is no
+additional spacing (other than the standard spacing). There are six horizontal
+boxes in the vertical box, as defined by the function <code>makeBox</code>,
+which has the type as shown. Furthermore, there are two labels in the vertical
+box as well as two horizontal separators. The last widget is the <em>Quit</em>
+button, whose <code>onClicked</code> signal is attached to the
+<code>mainQuit</code> function.
+</p>
+
+<p>
+The separators are created with <code>hSeparatorNew</code> and they are spaced
+by <code>boxPackStart</code> with a padding of ten pixels. The labels are
+created by <code>labelNew</code> which takes a <code>Maybe String</code> and
+their positioning is set by <code>miscSetAlignment</code> to be left and top
+justified.
+</p>
+
+<p><img src="Images/GtkChap3-2a.png" alt="Packing demo application" id="imgGtkChap3-2a" /></p>
+
+<p>
+The function <code>makeBox :: Bool -&gt; Int -&gt; Packing -&gt; Int -&gt; IO
+HBox</code> demonstrates how Gtk2Hs widgets fit into the Haskell type system.
+<code>Packing</code> is just a type like <code>Int</code> and <code>Bool</code>
+and <code>IO HBox</code> is just like <code>IO String</code> in the usual
+<code>IO</code>. The function creates five buttons, labels them with the
+appropriate text and packs them into a horizontal box. The function is then
+used in the main program to create the desired ways of packing.
+</p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window     &lt;- windowNew
+  vbox       &lt;- vBoxNew False 0
+  set window [containerBorderWidth := 10,
+              windowTitle := "Packing Demonstration",
+              containerChild := vbox]
+  label1     &lt;- labelNew (Just "hBoxNew False 0")
+  miscSetAlignment label1 0 0
+  boxPackStart vbox label1 PackNatural 0
+  box1       &lt;- makeBox False 0 PackNatural 0
+  boxPackStart vbox box1 PackNatural 0
+  box2       &lt;- makeBox False 0 PackRepel 0
+  boxPackStart vbox box2 PackNatural 0
+  box3       &lt;- makeBox False 0 PackGrow 0
+  boxPackStart vbox box3 PackNatural 0
+  sep1       &lt;- hSeparatorNew
+  boxPackStart vbox sep1 PackNatural 10
+  label2     &lt;- labelNew (Just "hBoxNew True 0")
+  miscSetAlignment label2 0 0
+  boxPackStart vbox label2 PackNatural 0
+  box4       &lt;- makeBox True 0 PackNatural 0
+  boxPackStart vbox box4 PackNatural 0
+  box5       &lt;- makeBox True 0 PackRepel 0
+  boxPackStart vbox box5 PackNatural 0
+  box6       &lt;- makeBox False 0 PackGrow 0
+  boxPackStart vbox box6 PackNatural 0
+  sep        &lt;- hSeparatorNew
+  boxPackStart vbox sep PackNatural 10
+  quitbox    &lt;- hBoxNew False 0
+  boxPackStart vbox quitbox PackNatural 0
+  quitbutton &lt;- buttonNewWithLabel "Quit"
+  boxPackStart quitbox quitbutton PackRepel 0
+  onClicked quitbutton mainQuit
+  onDestroy window mainQuit
+  widgetShowAll window
+  mainGUI
+
+
+makeBox :: Bool -&gt; Int -&gt; Packing -&gt; Int -&gt; IO HBox
+makeBox homogeneous spacing packing padding = do
+  box     &lt;- hBoxNew homogeneous spacing
+  button1 &lt;- buttonNewWithLabel "boxPackStart"
+  boxPackStart box button1 packing padding
+  button2 &lt;- buttonNewWithLabel "box"
+  boxPackStart box button2 packing padding
+  button3 &lt;- buttonNewWithLabel "button"
+  boxPackStart box button3 packing padding
+  button4 &lt;- case packing of
+                  PackNatural -&gt; buttonNewWithLabel "PackNatural"
+                  PackRepel   -&gt; buttonNewWithLabel "PackRepel"
+                  PackGrow    -&gt; buttonNewWithLabel "PackGrow"
+  boxPackStart box button4 packing padding
+  button5 &lt;- buttonNewWithLabel (show padding)
+  boxPackStart box button5 packing padding
+  return box
+</pre>
+
+<p>
+The image below shows the effects of resizing the window horizontally. In the
+first group, with <var>homogeneous</var> set to <var>False</var> horizontal
+resizing leaves the first row of buttons as it is, spaces the second row
+evenly, and enlarges the buttons in the third row. In the second group the
+buttons are set to be packed homogeneously, and the first two rows will look
+the same. Resizing the window vertically just adds extra space at the end,
+because the vertical box was initialized with <var>False</var>.
+</p>
+
+<p><img src="Images/GtkChap3-2b.png" alt="Resized packing demo application" id="imgGtkChap3-2b" /></p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap3-1.xhtml">Previous</a><br />3.1 Packing Widgets</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap3-3.xhtml">Next</a><br />3.3 Packing Using Tables</span>
+</div>
+
+</body>
+</html>

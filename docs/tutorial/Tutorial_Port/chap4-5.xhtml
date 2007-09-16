@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Dialogs, Stock Items and Progress Bars</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap4-4.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-6.xhtml">Next</a></span>
+</div>
+
+<h2>4.5 Dialogs, Stock Items and Progress Bars</h2>
+
+<p>
+A dialog is an example of a composite widget. It consists of a window, an upper
+part which is a vertical box, and an action area which is a horizontal box. By
+default, both parts are separated by a horizontal separator.
+</p>
+
+<p>
+The <code>Dialog</code> widget can be used for pop-up messages to the user, and
+other similar tasks. The basic functions needed are:
+</p>
+
+<pre class="codebox">
+dialogNew :: IO Dialog
+
+dialogRun :: DialogClass self =&gt; self -&gt; IO ResponseID
+</pre>
+
+<p>
+You add buttons into the action area with:
+</p>
+
+<pre class="codebox">
+dialogAddButton :: DialogClass self =&gt; self -&gt; String -&gt; ResponseId -&gt; IO Button
+</pre>
+
+<p>
+Any widget can be added in a similar way with
+<code>dialogAddActionWidget</code>.
+</p>
+
+<p>
+The <code>String</code> in <code>dialogAddButton</code> can be the text of the
+button, but since dialogs are mostly used for standard situations a
+<code>StockItem</code> will usually be more appropriate.
+</p>
+
+<p>
+<code>StockItem</code>s are resources which are known throughout Gtk2Hs, such
+as standard <code>IconSet</code>s. You can define your own, but many useful
+ones are listed in the <code>Graphics.UI.Gtk.General.StockItems</code> module.
+They have an identifier <code>StockId</code>, which is a type synonym for
+<code>String</code>. From this identifier a widget (usually a button) with the
+appropriate standard text and icon is automatically selected.
+</p>
+
+<p>
+If you use a <code>StockId</code> when adding a button to a dialog, you can
+also use a pre-defined <code>ResponseId</code> constructor with the buttons.
+(<code>ResponseId</code> is not a <code>String</code>.) Customized responses
+may be constructed with <code>ResponseUser Int</code>.
+</p>
+
+<p>
+Whenever a dialog button is pressed, its response is passed to the calling
+application through <code>dialogRun</code>. According to the Gtk2Hs API
+documentation <code>dialogRun</code> blocks in a recursive main loop until the
+dialog either emits the response signal, or is destroyed. The default mode is
+modal, which means the user cannot access any other window while
+<code>dialogRun</code> is waiting for a response.
+</p>
+
+<p>
+Progress bars are used to show the status of an ongoing operation.
+</p>
+
+<pre class="codebox">
+progressBarNew :: IO ProgressBar
+</pre>
+
+<p>
+Though there is only one type, there are two distinct ways to use a progress
+bar. If it is known how much of the task has been completed, the fraction
+(between 0.0 and 1.0 inclusive) can be set with:
+</p>
+
+<pre class="codebox">
+progressBarSetFraction :: ProgressBarClass self =&gt; self -&gt; Double -&gt; IO ()
+</pre>
+
+<p>
+This causes the progress bar to be filled in with the specified amount (between
+0.0 and 1.0). To trace the progress this function should be called at regular
+times during the operation.
+</p>
+
+<p>
+When it is not known how much of the operation has been completed, the bar can
+be moved back and forth with:
+</p>
+
+<pre class="codebox">
+progressBarPulse :: ProgressBarClass self =&gt; self -&gt; IO ()
+</pre>
+
+<p>
+This function must also be called repeatedly, to show that the activity is
+going on. There are several other functions to control the display of a
+progress bar, like orientation, additional text etc.; they are fairly trivial.
+</p>
+
+<p>
+Application, however, is not trivial because progress bars are usually applied
+with timeouts or other such functions to give the illusion of multitasking.
+With concurrent Haskell you can also use threads and communication between
+threads.
+</p>
+
+<p>
+In the following example we'll simulate an activity using
+<code>timeoutAdd</code>, which runs a function repeatedly at the interval
+specified, in milliseconds. The function is passed to <code>timeoutAdd</code>
+and must return a type of <code>IO Bool</code>. When true the timeout is run
+again, when false it stops. The priority of <code>timeoutAdd</code> is
+<code>priorityDefault</code> of type <code>Priority</code>.
+</p>
+
+<pre class="codebox">
+timeoutAdd :: IO Bool -&gt; Int -&gt; IO HandlerId
+</pre>
+
+<p>
+In the example we define the function <code>showPulse</code>, which causes the
+progress bar to pulse and always returns <code>IO True</code>. The pulse step,
+the amount which the indicator moves through the bar, is set to 1.0 with
+<code>progressBarSetPulseStep</code>.
+</p>
+
+<p><img src="Images/GtkChap4-5.png" alt="Progress bar pulsing" id="imgGtkChap4-5" /></p>
+
+<p>
+The example is somewhat atypical of the use of a dialog, since we keep it to
+show the progress after the user has pressed the apply button. To close the
+application the dialog must be destroyed by destroying the window. The close
+and cancel buttons don't work after apply has been selected. If selected,
+instead of <em>Apply</em>, the first time, the application will close. This is
+done by testing the response from <code>dialogRun</code>.
+</p>
+
+<p>
+If the dialog widget is destroyed, <code>mainQuit</code> is called. As
+mentioned above, a <code>Dialog</code> consists of a window and two boxes. The
+boxes must be accessed through special functions, and the progress bar is
+packed into the upper part using <code>dialogGetUpper</code>. The buttons in a
+dialog are visible by default, but the widgets in the upper part are not. A
+<code>Dialog</code> is an instance of the <code>WindowClass</code>, and so we
+can set the title and/or default length and height if we want.
+</p>
+
+<p>
+A trivial feature to watch out for: A widget can only be made visible if its
+parent is visible. So, to show the progress bar, we use
+<code>widgetShowAll</code> on the vertical box and not <code>widgetShow</code>
+on the progress bar.
+</p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+
+  dia &lt;- dialogNew
+  set dia [windowTitle := "Time Flies"]
+  dialogAddButton dia stockApply  ResponseApply
+  dialogAddButton dia stockCancel ResponseCancel
+  dialogAddButton dia stockClose  ResponseClose
+
+  pr &lt;- progressBarNew
+  progressBarSetPulseStep pr 1.0
+
+  upbox &lt;- dialogGetUpper dia
+  boxPackStart upbox pr PackGrow 10
+  widgetShowAll upbox
+
+  answer &lt;- dialogRun dia
+  if answer == ResponseApply 
+     then do tmhandle &lt;- timeoutAdd (showPulse pr) 500
+             return ()
+     else widgetDestroy dia
+
+  onDestroy dia mainQuit
+  mainGUI
+
+showPulse :: ProgressBar -&gt; IO Bool
+showPulse b = do progressBarPulse b
+                 return True
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap4-4.xhtml">Previous</a><br />4.4 Arrows and Tooltips</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-6.xhtml">Next</a><br />4.6 Text Entries and Status Bars</span>
+</div>
+
+</body>
+</html>

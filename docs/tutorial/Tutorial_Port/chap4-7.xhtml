@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Spin Buttons</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap4-6.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-8.xhtml">Next</a></span>
+</div>
+
+<h2>4.7 Spin Buttons</h2>
+
+<p>
+The <code>SpinButton</code> widget is generally used to allow the user to
+select a value from a range of numeric values. It consists of a text entry box
+with up and down arrow buttons attached to the side. Selecting one of the
+buttons causes the value to "spin" up and down the range of possible values.
+The entry box may also be edited directly to enter a specific value.
+<code>SpinButton</code> is an instance of <code>EditableClass</code>, so the
+attributes and functions defined there are also available.
+</p>
+
+<p>
+The spin button allows the value to have zero or a number of decimal places and
+to be incremented/decremented in configurable steps. The action of holding down
+one of the buttons optionally results in an acceleration of change in the value
+according to how long it is depressed.
+</p>
+
+<p>
+<code>SpinButton</code> uses an <code>Adjustment</code> object to hold
+information about the range of values that the spin button can take. Recall
+that an <code>Adjustment</code> widget is created with the following function:
+</p>
+
+<pre class="codebox">
+adjustmentNew :: Double        -- value
+              -&gt; Double        -- lower
+              -&gt; Double        -- upper
+              -&gt; Double        -- stepIncrement
+              -&gt; Double        -- pageIncrement
+              -&gt; Double        -- pageSize
+              -&gt; IO Adjustment
+</pre>
+
+<p>
+These attributes of an <code>Adjustment</code> are used by the
+<code>SpinButton</code> in the following way:
+</p>
+
+<ul>
+  <li><var>value</var> &mdash; Initial value for the <code>SpinButton</code></li>
+
+  <li><var>lower</var> &mdash; Lower range value</li>
+
+  <li><var>upper</var> &mdash; Upper range value</li>
+
+  <li><var>stepIncrement</var> &mdash; Value to increment/decrement when pressing
+  mouse button 1 on a button</li>
+
+  <li><var>pageIncrement</var> &mdash; Value to increment/decrement when pressing
+  mouse button 2 on a button</li>
+
+  <li><var>pageSize</var> &mdash; Unused</li>
+</ul>
+
+<p>
+Additionally, mouse button 3 can be used to jump directly to the upper or lower
+values when used to select one of the buttons. Note that this may depend on the
+way your mouse is configured on your computer system.
+</p>
+
+<p>
+Let's look at how to create a spin button:
+</p>
+
+<pre class="codebox">
+spinButtonNew :: Adjustment -&gt; Double -&gt; Int -&gt; IO SpinButton
+</pre>
+
+<p>
+The second argument (<var>climbRate</var>) takes a value between 0.0 and 1.0
+and indicates how fast the spin button changes when an arrow is clicked on. The
+third argument specifies the number of decimal places to which the value will
+be displayed.
+</p>
+
+<p>
+There also is a convenience constructor that allows creation of a spin button
+without manually creating an adjustment.
+</p>
+
+<pre class="codebox">
+spinButtonNewWithRange :: Double -&gt; Double -&gt; Double -&gt; IO SpinButton
+</pre>
+
+<p>
+The three arguments, all of type <code>Double</code>, specify the minum
+allowable value, the maximum allowable value, and the increment added or
+subtracted by spinning the widget.
+</p>
+
+<p>
+A <code>SpinButton</code> can be reconfigured after creation using the
+following function:
+</p>
+
+<pre class="codebox">
+spinButtonConfigure :: SpinButtonClass self =&gt; self -. Adjustment -&gt; Double -&gt; Int
+</pre>
+
+<p>
+The first argument specifies the <code>SpinButton</code> widget that is to be
+reconfigured. The other arguments are the <var>climbRate</var> and the number
+of decimal places (digits) to disply.
+</p>
+
+<p>
+The <code>SpinButton</code> attributes, which can be retrieved and changed with
+the generic <code>get</code> and <code>set</code> functions are:
+</p>
+
+<pre class="codebox">
+spinButtonAdjustment :: SpinButtonClass self =&gt; Attr self Adjustment
+spinButtonClimbRate  :: SpinButtonClass self =&gt; Attr self Double
+spinButtonDigits     :: SpinButtonClass self =&gt; Attr self Int
+
+spinButtonSnapToTicks :: SpinButtonClass self =&gt; Attr self Bool
+spinButtonNumeric     :: SpinButtonClass self =&gt; Attr self Bool
+spinButtonWrap        :: SpinButtonClass self =&gt; Attr self Bool
+
+spinButtonValue :: SpinButtonClass self =&gt; Attr self Double
+</pre>
+
+<p>
+The first three are as discussed before. The attribute
+<code>spinButtonSnapToTicks</code> determines whether erroneous values are
+automatically changed to the spin button's nearest increment (default is
+<var>False</var>). Attribute <code>spinButtonNumeric</code> determines whether
+non-numeric characters should be ignored (default <var>False</var>), and
+<code>spinButtonWrap</code> is used to set whether a spin button should
+wraparound upon reaching its limits (default <var>False</var>).
+</p>
+
+<p>
+Attribute <code>spinButtonValue</code> is used to read the current value or set
+a new value (default is 0).
+</p>
+
+<p>
+To change the value of a spin button you can also use:
+</p>
+
+<pre class="codebox">
+spinButtonSpin :: SpinButtonClass self =&gt; self -&gt; SpinType -&gt; Double -&gt; IO ()
+</pre>
+
+<p>
+where <code>SpinType</code> determines the kind of change and
+<code>Double</code> (increment) determines the value.
+</p>
+
+<p>
+<code>SpinType</code> has the following constructors:
+</p>
+
+<ul>
+  <li><code>SpinStepForward</code></li>
+  <li><code>SpinStepBackward</code></li>
+  <li><code>SpinPageForward</code></li>
+  <li><code>SpinPageBackward</code></li>
+  <li><code>SpinHome</code></li>
+  <li><code>SpinEnd</code></li>
+  <li><code>SpinUserDefined</code></li>
+</ul>
+
+<p>
+Many of these settings use values from the <code>Adjustment</code> object that
+is associated with a spin button. <code>SpinStepForward</code> and
+<code>SpinStepBackward</code> change the value of the spin button by the amount
+specified by the increment, unless it is equal to 0, in which case the value is
+changed by the value of the <var>stepIncrement</var> in the adjustment.
+<code>SpinPageForward</code> and <code>SpinPageBackward</code> simply alter the
+value of the <code>SpinButton</code> by the increment.
+<code>SpinPageHome</code> and <code>SpinPageEnd</code> set the value to the
+bottom repectively the top of the <code>Adjustment</code> range.
+<code>i&gt;SpinUserDefined</code> simply alters the value of the spin button by
+the specified amount.</p>
+
+<p>
+A spin button has an update policy:
+</p>
+
+<pre class="codebox">
+spinButtonUpdatePolicy :: SpinButtonClass self =&gt; Attr self SpinButtonUpdatePolicy
+</pre>
+
+<p>
+The constructors of <code>SpinButtonUpdatePolicy</code> are either
+<code>UdateAlways</code> or <code>UpdateIfValid</code>. These policies affect
+the behavior of a <code>SpinButton</code> when parsing inserted text and
+synchronizing its value with the values of the <code>Adjustment</code>. In the
+case of <code>UpdateIfValid</code> the spin button only value gets changed if
+the text input is a numeric value within the range specified by the
+<code>Adjustment</code>. Otherwise the text is reset to the current value. In
+case of <code>UpdateAlways</code> we ignore errors while converting text into a
+numeric value.
+</p>
+
+<p>
+Finally, you can explicitly request that a <code>SpinButton</code> update
+itself:
+</p>
+
+<pre class="codebox">
+spinButtonUpdate :: SpinButtonClass self =&gt; self -&gt; IO ()
+</pre>
+
+<p>
+It's example time again. This is a screenshot after playing around with some of
+the settings:
+</p>
+
+<p><img src="Images/GtkChap4-7.png" alt="Spin button example" id="imgGtkChap4-7" /></p>
+
+<p>
+The spin buttons have all been created with the following function which uses
+<code>spinButtonNewWithRange</code>. Because the <var>stepIncrement</var> will
+be 1.0 in all cases, this is not a parameter in <code>myAddSpinButton</code>.
+</p>
+
+<pre class="codebox">
+myAddSpinButton :: HBox -&gt; String -&gt; Double -&gt; Double -&gt; IO SpinButton
+myAddSpinButton box name min max = do
+    vbox  &lt;- vBoxNew False 0
+    boxPackStart box vbox PackRepel 0
+    label &lt;- labelNew (Just name)
+    miscSetAlignment label 0.0 0.5
+    boxPackStart vbox label PackNatural 0
+    spinb &lt;- spinButtonNewWithRange min max 1.0
+    boxPackStart vbox spinb PackNatural 0
+    return spinb
+</pre>
+
+<p>
+In the <code>main</code> function we use one of the spin buttons which already
+exist, but give it a new adjustment with <code>spinButtonConfigure</code>. The
+old limits of -1000.0 and 1000.0 are now replaced with -100.0 and 100.0. Note
+the brackets around the negative numbers. The initial value is set at 0.0 and
+the step increment is 0.25. The page increment, which is what you get when
+pressing mouse button 2 on the arrow in the spin button, is set at 10.0. The
+page size, which is not used, is 0.0 here. Pressing mouse button 3 on an arrow
+jumps to the appropriate limit of -100.0 or 100.0.
+</p>
+
+<p>
+The new signal here is <code>onValueSpinned</code>, which is emitted whenever
+the user changes the value of a spin button. Here it is used to control the
+number of decimal digits which are to be displayed in the
+<code>spinLarge</code> spin button. Note the rounding of the value, which is
+needed to convert the <code>Double</code> to an <code>Integral</code> type.
+</p>
+
+<p>
+In this example we've used the generic <code>get</code> and <code>set</code>
+functions on attributes rather than the corresponding functions, which are also
+available. This is actually the recommended style when programming Gtk2Hs, and
+in the future many specific functions will be deprecated.
+</p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main:: IO ()
+main = do
+    initGUI
+    window  &lt;- windowNew
+    mainbox &lt;- vBoxNew False 0
+    set window [windowTitle := "Spin Buttons", containerBorderWidth := 10,
+                windowDefaultWidth := 250, windowDefaultHeight := 200,
+                containerChild := mainbox]
+    hbox1   &lt;- hBoxNew False 0
+    frame1  &lt;- frameNew
+    set frame1 [frameLabel := "Simple SpinButtons", containerChild := hbox1,
+                frameLabelYAlign := 0.8, frameShadowType := ShadowOut]
+    boxPackStart mainbox frame1 PackNatural 5
+
+    spinD &lt;- myAddSpinButton hbox1 "Day:" 1.0 31.0
+    spinM &lt;- myAddSpinButton hbox1 "Month:" 1.0 12.0
+    spinY &lt;- myAddSpinButton hbox1 "Year:" 2000.0 2100.0
+    set spinY [spinButtonValue := 2007]
+
+    vbox1  &lt;- vBoxNew False 5
+    frame2 &lt;- frameNew
+    set frame2 [frameLabel := "More Features", containerChild := vbox1,
+                frameLabelYAlign := 0.8, frameShadowType:= ShadowOut]
+    boxPackStart mainbox frame2 PackNatural 5
+
+    hbox2 &lt;- hBoxNew False 0
+    boxPackStart vbox1 hbox2 PackNatural 0
+
+    spinLarge &lt;- myAddSpinButton hbox2 "Value:" (-1000.0) 1000.0
+    adj       &lt;- adjustmentNew 0.0 (-100.0) 100.0 0.25 10.0 0.0
+    spinButtonConfigure spinLarge adj 0.0 2
+    spnctl    &lt;- myAddSpinButton hbox2 "Decimal:" 0.0 10.0
+    set spnctl [spinButtonValue := 2.0]
+
+    tsnap &lt;- checkButtonNewWithLabel "Snap to 0.25-ticks"
+    boxPackStart vbox1 tsnap PackNatural 0
+
+    tnumr &lt;- checkButtonNewWithLabel "Numeric only input mode"
+    boxPackStart vbox1 tnumr PackNatural 0
+
+    twrap &lt;- checkButtonNewWithLabel "Wraparound at limits"
+    boxPackStart vbox1 twrap PackNatural 0
+
+    widgetShowAll window
+
+    onValueSpinned spnctl $ do newdig &lt;- get spnctl spinButtonValue
+                               set spinLarge [spinButtonDigits := (round newdig)]
+
+    onToggled tsnap $ do st &lt;- get tsnap toggleButtonActive
+                         set spinLarge [spinButtonSnapToTicks := st]
+
+    onToggled tnumr $ do st &lt;- get tnumr toggleButtonActive
+                         set spinLarge [spinButtonNumeric := st]
+
+    onToggled twrap $ do st &lt;- get twrap toggleButtonActive
+                         set spinLarge [spinButtonWrap := st]
+
+    onDestroy window mainQuit
+    mainGUI
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap4-6.xhtml">Previous</a><br />4.6 Text Entries and Status Bars</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-8.xhtml">Next</a><br />4.8 Calendar</span>
+</div>
+
+</body>
+</html>

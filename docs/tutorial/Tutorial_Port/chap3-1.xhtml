@@ -11,12 +11,12 @@
 
 <div id="header">
   <h1>Gtk2Hs Tutorial</h1>
-  <span class="nav-previous"><a href="chap3.xhtml">Previous</a></span>
+  <span class="nav-previous"><a href="chap2.xhtml">Previous</a></span>
   <span class="nav-home"><a href="index.xhtml">Home</a></span>
-  <span class="nav-next"><a href="chap5a.html">Next</a></span>
+  <span class="nav-next"><a href="chap3-2.xhtml">Next</a></span>
 </div>
 
-<h2>Packing Widgets</h2>
+<h2>3.1 Packing Widgets</h2>
 
 <p>
 When creating an application, you'll want to put more than one widget inside a
@@ -64,7 +64,7 @@ actually containers themselves&mdash;including <code>button</code>, but we
 usually only use a <code>label</code> inside a <code>button</code>.
 </p>
 
-<p><img src="Images/GtkChap4.png" alt="GtkChap4" width="210" height="229" id="graphics1" /></p>
+<p><img src="Images/GtkChap3-1.png" alt="Packed buttons" id="imgGtkChap3-1" /></p>
 
 <pre class="codebox">
 import Graphics.UI.Gtk
@@ -77,7 +77,7 @@ main = do
   button1 &lt;- buttonNewWithLabel "Button 1"
   button2 &lt;- buttonNewWithLabel "Button 2"
   set window [windowDefaultWidth := 200, windowDefaultHeight := 200,
-              containerBorderWidth := 10, containerChild := hbox ]
+              containerBorderWidth := 10, containerChild := hbox]
   boxPackStart hbox button1 PackGrow 0
   boxPackStart hbox button2 PackGrow 0
   onDestroy window mainQuit
@@ -120,9 +120,9 @@ example will make the effects more clear.
 </p>
 
 <div id="footer">
-  <span class="nav-previous"><a href="chap3.xhtml">Previous</a><br />Getting Started</span>
+  <span class="nav-previous"><a href="chap2.xhtml">Previous</a><br />2. Getting Started</span>
   <span class="nav-home"><a href="index.xhtml">Home</a></span>
-  <span class="nav-next"><a href="chap5a.html">Next</a><br />Packing Demonstration Program</span>
+  <span class="nav-next"><a href="chap3-2.xhtml">Next</a><br />3.2 Packing Demonstration Program</span>
 </div>
 
 </body>

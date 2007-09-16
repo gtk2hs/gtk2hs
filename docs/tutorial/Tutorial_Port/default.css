@@ -45,6 +45,15 @@ h2, h3 {
     text-align: left;
 }
 
+.notebox {
+	margin: 10px;
+	border: 1px solid #ccc;
+	padding: 10px;
+	color: #000000;
+	background-color: #ffe;
+    font-style: italic;
+}
+
 #authors {
     text-align: center;
 }

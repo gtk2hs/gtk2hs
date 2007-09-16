@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Arrows and Tooltips</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap4-3.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-5.xhtml">Next</a></span>
+</div>
+
+<h2>4.4 Arrows and Tooltips</h2>
+
+<p>
+The <code>Arrow</code> widget draws an arrowhead, facing in a number of
+possible directions and having a number of possible styles. Like the
+<code>Label</code> widget, it emits no signals.
+</p>
+
+<p>
+There are only two functions for manipulating an <code>Arrow</code> widget:
+</p>
+
+<pre class="codebox">
+arrowNew :: ArrowType -&gt; ShadowType -&gt; IO Arrow
+
+arrowSet :: ArrowClass self =&gt; self -&gt; ArrowType -&gt; ShadowType -&gt; IO ()
+</pre>
+
+<p>
+The <code>ArrowType</code> has five constructors:
+</p>
+
+<ul>
+  <li><code>ArrowUp</code></li>
+  <li><code>ArrowDown</code></li>
+  <li><code>ArrowLeft</code></li>
+  <li><code>ArrowRight</code></li>
+  <li><code>ArrowNone</code></li>
+</ul>
+
+<p>
+The <code>ShadowType</code> also has five constructors:
+</p>
+
+<ul>
+  <li><code>ShadowIn</code></li>
+  <li><code>ShadowOut</code></li>
+  <li><code>ShadowEtchedIn</code></li>
+  <li><code>ShadowEtchedOut</code></li>
+  <li><code>ShadowNone</code></li>
+</ul>
+
+<p>
+Tooltips are the little text strings that pop up when you leave your pointer
+over a button or other widget for a few seconds.
+</p>
+
+<p>
+Widgets that do not receive events (widgets that do not have their own window)
+will not work with tooltips.
+</p>
+
+<p>
+The first call you will use creates a new tooltip. You only need to do this
+once for a set of tooltips.
+</p>
+
+<pre class="codebox">
+tooltipsNew :: IO Tooltips
+</pre>
+
+<p>
+Then, for every widget, use:
+</p>
+
+<pre class="codebox">
+tooltipsSetTip :: (TooltipsClass self, WidgetClass widget)
+  =&gt; self -&gt; widget -&gt; String -&gt; String -&gt; IO ()
+</pre>
+
+<p>
+The first argument is the tooltip you've already created, followed by the
+widget you wish to have this tooltip pop up for, and the text you wish it to
+say. The last argument is a text string that can be used as an identifier.
+</p>
+
+<p>
+You can turn the tips associated with a <code>Tooltips</code> value on or off
+using:
+</p>
+
+<pre class="codebox">
+tooltipsEnable :: TooltipsClass self =&gt; self -&gt; IO ()
+tooltipsDisable :: TooltipsClass self =&gt; self -&gt; IO ()
+</pre>
+
+<p>
+Here's an example to illustrate the use of arrows and tooltips.
+</p>
+
+<p><img src="Images/GtkChap4-4.png" alt="Arrow and tooltip example" id="imgGtkChap4-4" /></p>
+
+<p>
+The window above has been resized from its default size, to show how the
+packing in a table preserves the spacing of the buttons with their arrows.
+</p>
+
+<p class="notebox">
+<strong>Note:</strong> The tooltips don't work with GHCi (on my machine) but
+they do when compiled. You cannot see them in the screenshot, of course.
+</p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  set window [windowTitle := "Arrow Tips",
+              windowDefaultWidth := 200,
+              windowDefaultHeight := 200, containerBorderWidth := 20]
+
+  table &lt;- tableNew 5 5 True
+  containerAdd window table
+
+  button1 &lt;- buttonNew
+  button2 &lt;- buttonNew
+  button3 &lt;- buttonNew
+  button4 &lt;- buttonNew
+
+  tableAttachDefaults table button1 0 1 2 3
+  tableAttachDefaults table button2 2 3 0 1
+  tableAttachDefaults table button3 4 5 2 3
+  tableAttachDefaults table button4 2 3 4 5
+
+  tlt &lt;- tooltipsNew
+
+  arrow1 &lt;- arrowNew ArrowLeft ShadowEtchedIn
+  containerAdd button1 arrow1
+  tooltipsSetTip tlt button1 "West" "T1"
+
+  arrow2 &lt;- arrowNew ArrowUp ShadowEtchedOut
+  containerAdd button2 arrow2
+  tooltipsSetTip tlt button2 "North" "T2"
+
+  arrow3 &lt;- arrowNew ArrowRight ShadowEtchedIn
+  containerAdd button3 arrow3
+  tooltipsSetTip tlt button3 "East" "T3"
+
+  arrow4 &lt;- arrowNew ArrowDown ShadowEtchedOut
+  containerAdd button4 arrow4
+  tooltipsSetTip tlt button4 "South" "T4"
+
+  tooltipsEnable tlt
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap4-3.xhtml">Previous</a><br />4.3 Labels</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-5.xhtml">Next</a><br />4.5 Dialogs, Stock Items and Progress Bars</span>
+</div>
+
+</body>
+</html>

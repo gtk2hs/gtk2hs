@@ -11,12 +11,12 @@
 
 <div id="header">
   <h1>Gtk2Hs Tutorial</h1>
-  <span class="nav-previous"><a href="index.xhtml">Previous</a></span>
+  <span class="nav-previous"><!-- a href="chap1.xhtml" -->Previous<!-- /a --></span>
   <span class="nav-home"><a href="index.xhtml">Home</a></span>
-  <span class="nav-next"><a href="chap4.xhtml">Next</a></span>
+  <span class="nav-next"><a href="chap3-1.xhtml">Next</a></span>
 </div>
 
-<h2>Getting Started</h2>
+<h2>2. Getting Started</h2>
 
 <p>
 The first thing to do, of course, is download Gtk2Hs and install it. You can
@@ -42,7 +42,7 @@ possible. This program will create a 200x200 pixel window and has no way of
 exiting except to be killed by using the shell.
 </p>
 
-<p><img src="./Images/GtkChap3a.png" alt="GtkChap3a" id="GtkChap3a" /></p>
+<p><img src="Images/GtkChap2a.png" alt="Window" id="imgGtkChap2a" /></p>
 
 <pre class="codebox">
 import Graphics.UI.Gtk
@@ -61,11 +61,11 @@ using:
 </p>
 
 <pre class="codebox">
-ghc --make GtkChap3a.hs -o Chap3a
+ghc --make GtkChap2.hs -o Chap2
 </pre>
 
 <p>
-assuming <code>GtkChap3a.hs</code> is the filename. Alternatively you can use
+assuming <code>GtkChap2.hs</code> is the filename. Alternatively you can use
 the interactive GHCi, for earlier and later versions of Gtk2Hs. (Because of
 threading problems intermediate versions will not work interactively. Gtk2Hs
 does not work with Hugs.)
@@ -126,7 +126,7 @@ Now for a program with a widget (a button): the classic "hello world" &agrave;
 la Gtk2Hs.
 </p>
 
-<p><img src="./Images/GtkChap3b.png" alt="GtkChap3b" id="GtkChap3b" /></p>
+<p><img src="Images/GtkChap2b.png" alt="Hello World application" id="imgGtkChap2b" /></p>
 
 <p>
 If the button is clicked it will display the text "Hello World". This is
@@ -151,7 +151,7 @@ visible.
 Widgets are connected to other widgets in a graphical dependency tree (not to
 be confused with the class hierarchy). Gtk2Hs also works with the Glade visual
 interface designer and, if you use Glade, such connections are visible in the
-<i>Inspector</i> pane. There is a
+<em>Inspector</em> pane. There is a
 <a href="http://haskell.org/gtk2hs/docs/tutorial/glade/">separate introductory
 tutorial</a> on how to use Glade with Gtk2Hs.
 </p>
@@ -168,7 +168,7 @@ main = do
   window &lt;- windowNew
   button &lt;- buttonNew
   set window [windowDefaultWidth := 200, windowDefaultHeight := 200,
-              containerChild := button, containerBorderWidth := 10 ]
+              containerChild := button, containerBorderWidth := 10]
   onClicked button (hello button)
   onDestroy window mainQuit
   widgetShowAll window
@@ -186,9 +186,9 @@ the window, unlike with the first program, <code>main</code> now exits cleanly.
 </p>
 
 <div id="footer">
-  <span class="nav-previous"><a href="index.xhtml">Previous</a><br />Table of Contents</span>
+  <span class="nav-previous"><!-- a href="chap1.xhtml" -->Previous<!-- /a --><br />1. Introduction</span>
   <span class="nav-home"><a href="index.xhtml">Home</a><br />&nbsp;</span>
-  <span class="nav-next"><a href="chap4.xhtml">Next</a><br />Packing Widgets</span>
+  <span class="nav-next"><a href="chap3-1.xhtml">Next</a><br />3.1 Packing Widgets</span>
 </div>
 
 </body>

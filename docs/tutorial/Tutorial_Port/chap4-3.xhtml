@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Labels</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap4-2.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-4.xhtml">Next</a></span>
+</div>
+
+<h2>4.3 Labels</h2>
+
+<p>
+Labels are used a lot in Gtk2Hs, and are relatively simple. Labels emit no
+signals as they do not have an associated X window. If you need to catch
+signals, or do clipping, place it inside an <code>EventBox</code> widget,
+which allows you to catch signals for widgets which do not have their own
+window, or a button.
+</p>
+
+<p>
+To create a new label, use:
+</p>
+
+<pre class="codebox">
+labelNew :: Maybe String -&gt; IO Label
+
+labelNewWithMnemonic :: String -&gt; IO Label
+</pre>
+
+<p>
+With the second function, if characters in the string are preceded by an
+underscore, they are underlined. If you need a literal underscore character in
+a label, use "__" (two underscores). The first underlined character represents
+a keyboard accelerator called a mnemonic. When that key is pressed the
+activable widget which contains the label (e.g. a button) will be activated.
+The widget which is to be affected can also be set by
+<code>labelSetMnemonicWidget</code>.
+</p>
+
+<p>
+To change the label's text after creation, or to get the label's text, use the
+functions:
+</p>
+
+<pre class="codebox">
+labelSetText :: LabelClass self =&gt; self -&gt; String -&gt; IO ()
+
+labelGetLabel :: LabelClass self =&gt; self -&gt; IO String
+</pre>
+
+<p>
+or, of course, the generic <code>set</code> or <code>get</code> functions. The
+space needed for the new string will be automatically adjusted if needed. You
+can produce multi-line labels by putting line breaks in the label string. If
+you have multi-line labels the lines can be justified relatively to each other
+using:
+</p>
+
+<pre class="codebox">
+labelSetJustify :: LabelClass self =&gt; self -&gt; Justification -&gt; IO ()
+</pre>
+
+<p>
+where the type <code>Justification</code> has one of four constructors:
+</p>
+
+<ul>
+  <li><code>JustifyLeft</code></li>
+  <li><code>JustifyRight</code></li>
+  <li><code>JustifyCenter</code></li>
+  <li><code>JustifyFill</code></li>
+</ul>
+
+<p>
+The label widget is also capable of line wrapping the text automatically. This
+can be activated using:
+</p>
+
+<pre class="codebox">
+labelSetLineWrap :: LabelClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+If you want your label underlined, then you can set a pattern on the label:
+</p>
+
+<pre class="codebox">
+labelSetPattern :: LabelClass self =&gt; self -&gt; [Int] -&gt; IO ()
+</pre>
+
+<p>
+The list of <code>Int</code>s marks the underlined parts of the label text
+alternated by the non-interlined parts. For example, <var>[3, 1, 3]</var> means
+first three characters underlined, the next not, and the next three underlined.
+</p>
+
+<p>
+You can also make text in a lable selectable, so the user can copy and paste
+it, and use some formatting options.
+</p>
+
+<p>
+Below is a short example to illustrate a few of these functions. It makes use
+of the <code>Frame</code> widget to better demonstrate the label styles. A
+<code>Frame</code> is just an ornament like a <code>HSeparator</code> and a
+<code>VSeparator</code> but it surrounds the widget and is an instance of
+<code>Container</code>. Therefore the widget it frames must be added to it with
+<code>containerAdd</code>. A frame itself can have a label to convey
+information about its contents.
+</p>
+
+<p><img src="Images/GtkChap4-3.png" alt="Label examples" id="imgGtkChap4-3" /></p>
+
+<p>
+Because all the labels are framed, a function <code>myLabelWithFrameNew</code>
+is defined, which returns a tuple. Gtk2Hs is truly Haskell, so you can use all
+the Haskell data types and features. The justifications are pretty obvious, but
+they only refer to the lines inside the label. So, to right justify
+<var>label2</var> itself, you need <code>miscSetAlignment</code> as shown
+below. The last two widgets in the left horizontal box are packed with
+<code>boxPackEnd</code> instead of the usual <code>boxPackStart</code>. The
+button label demonstrates the use of a mnemonic as an accellerator key.
+Pressing <strong>Alt-C</strong> on the keyboard has the same effect as clicking
+the button.
+</p>
+
+<p class="notebox">
+<strong>Note:</strong> When tested on Fedora 6, pressing <strong>Enter</strong>
+or the space bar also had this effect. Also note the effect of the character
+"y" on the placement of the underline.
+</p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main:: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  set window [windowTitle := "Labels", containerBorderWidth := 10]
+  mainbox &lt;- vBoxNew False 10
+  containerAdd window mainbox
+  hbox    &lt;- hBoxNew True 5
+  boxPackStart mainbox hbox PackNatural 0
+  vbox1   &lt;- vBoxNew False 10
+  vbox2   &lt;- vBoxNew False 0
+  boxPackStart hbox vbox1 PackNatural 0
+  boxPackStart hbox vbox2 PackNatural 0
+
+  (label1,frame1) &lt;- myLabelWithFrameNew
+  boxPackStart vbox1 frame1 PackNatural 0
+  labelSetText label1 "Penny Harter"
+
+  (label2,frame2) &lt;- myLabelWithFrameNew
+  boxPackStart vbox1 frame2 PackNatural 0
+  labelSetText label2 "broken bowl\nthe pieces\nstill rocking"
+  miscSetAlignment label2 0.0 0.0
+  hsep1           &lt;- hSeparatorNew
+  boxPackStart vbox1 hsep1 PackNatural 10
+
+  (label3,frame3) &lt;- myLabelWithFrameNew
+  boxPackStart vbox1 frame3 PackNatural 0
+  labelSetText label3 "Gary Snyder"
+
+  (label4,frame4) &lt;- myLabelWithFrameNew
+  boxPackStart vbox1 frame4 PackNatural 0
+  labelSetText label4 "After weeks of watching the roof leak\nI fixed it tonight\nby moving a single board"
+  labelSetJustify label4 JustifyCenter
+
+  (label5,frame5) &lt;- myLabelWithFrameNew
+  boxPackStart vbox2 frame5 PackNatural 0
+  labelSetText label5 "Kobayashi Issa"
+
+  (label7,frame7) &lt;- myLabelWithFrameNew
+  boxPackEnd vbox2 frame7 PackNatural 0
+  labelSetText label7 "only one guy and\nonly one fly trying to\nmake the guest room do"
+  labelSetJustify label7 JustifyRight
+
+  (label6,frame6) &lt;- myLabelWithFrameNew
+  boxPackEnd vbox2 frame6 PackNatural 10
+  labelSetText label6 "One Guy"
+  frameSetLabel frame6 "Title:"
+  labelSetPattern label6 [3, 1, 3]
+
+  button      &lt;- buttonNew
+  boxPackEnd mainbox button PackNatural 20
+  buttonlabel &lt;- labelNewWithMnemonic "Haiku _Clicked"
+  containerAdd button buttonlabel
+
+  widgetShowAll window
+  onClicked button (putStrLn "button clicked...")
+  onDestroy window mainQuit
+  mainGUI
+
+
+myLabelWithFrameNew :: IO (Label,Frame)
+myLabelWithFrameNew = do
+  label &lt;- labelNew Nothing
+  frame &lt;- frameNew
+  containerAdd frame label
+  frameSetShadowType frame ShadowOut
+  return (label, frame)
+
+
+-- Haikus quoted from X.J. Kennedy, Dana Gioia, Introduction to Poetry, Longman, 1997
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap4-2.xhtml">Previous</a><br />4.2 Adjustments, Scale and Range</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-4.xhtml">Next</a><br />4.4 Arrows and Tooltips</span>
+</div>
+
+</body>
+</html>

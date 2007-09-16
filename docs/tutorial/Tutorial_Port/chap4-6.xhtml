@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Text Entries and Status Bars</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap4-5.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-7.xhtml">Next</a></span>
+</div>
+
+<h2>4.6 Text Entries and Status Bars</h2>
+
+<p>
+The <code>Entry</code> widget allows text to be typed and displayed in a single
+line text box. A fairly large set of key bindings are supported by default. The
+user can choose between insert and overwite mode by toggling the
+<strong>Insert</strong> key.
+</p>
+
+<p>
+Create a new <code>Entry</code> widget with the following function.
+</p>
+
+<pre class="codebox">
+entryNew :: IO Entry
+</pre>
+
+<p>
+To replace or get the text which is currently within the <code>Entry</code>
+widget:
+</p>
+
+<pre class="codebox">
+entrySetText :: EntryClass self =&gt; self -&gt; String -&gt; IO ()
+
+entryGetText :: EntryClass self =&gt; self -&gt; IO String
+</pre>
+
+<p>
+If we don't want the contents of the <code>Entry</code> to be changed by
+someone typing into it, we can change its editable state. We can also set
+visibility (<em>e.g.</em> for passwords), the maximum number of characters (0
+if no maximum), whether the entry has a frame or not, the number of characters
+to leave space for, and a few other attributes. Text completion is also
+possible (see <code>EntryCompletion</code> in the API documentation for its
+use). The <code>Entry</code> attributes, which, of course, can be accessed with
+<code>get</code> and <code>set</code> are:
+</p>
+
+<pre class="codebox">
+entryEditable :: EntryClass self =&gt; Attr self Bool  -- default True
+
+entryVisibility :: EntryClass self =&gt; Attr self Bool  -- default True
+
+entryMaxLength :: EntryClass self =&gt; Attr self Int -- 0 if no maximum, limit 66535
+
+entryHasFrame :: EntryClass self =&gt; Attr self Bool -- default False
+
+entryWidthChars :: EntryClass self =&gt; Attr self Int -- default -1, no space set
+</pre>
+
+<p>
+The <code>Entry</code> type is an instance of <code>EditableClass</code> and
+many attributes and methods are defined there. Some particularly useful ones
+are:
+</p>
+
+<pre class="codebox">
+editableInsertText :: EditableClass self =&gt; self -&gt; String -&gt; Int -&gt; IO Int
+
+editableDeleteText :: EditableClass self -&gt; Int -&gt; Int -&gt; IO ()
+
+editableSelectRegion :: EditableClass self =&gt; self -&gt; Int -&gt; Int -&gt; IO ()
+
+editableDeleteSelection :: EditableClass self -&gt; IO ()
+</pre>
+
+<p>
+where the parameters of type <code>Int</code> denote the appropriate start or
+end positions. The user can also cut, copy and paste to/from the clipboard.
+</p>
+
+<pre class="codebox">
+editableCutClipboard :: EditableClass self =&gt; self -&gt; IO ()
+
+editableCopyClipboard :: EditableClass self =&gt; self -&gt; IO ()
+
+editablePasteClipboard :: EditableClass self =&gt; self -&gt; IO ()
+</pre>
+
+<p>
+These all take the current cursor position. You can get and set that position
+with:
+</p>
+
+<pre class="codebox">
+editableGetPosition :: EditableClass self =&gt; self -&gt; IO Int
+
+editableSetPosition :: EditableClass self =&gt; self -&gt; Int
+</pre>
+
+<p>
+The cursor is displayed before the character with the given (base 0) index in
+the widget. The value must be less than or equal to the number of characters in
+the widget. A value of -1 indicates that the position should be set after the
+last character in the entry.
+</p>
+
+<p>
+The <code>Editable</code> class has a number of signals which use higher order
+functions (not discussed here). The <code>Entry</code> widget itself has a
+signal, which is sent after the user presses the <strong>Enter</strong> key:
+</p>
+
+<pre class="codebox">
+onEntryActivate :: EntryClass ec =&gt; ec -&gt; IO () -&gt; IO (ConnectId ec)
+</pre>
+
+<p>
+There are also signals sent when text is copied, cut or pasted to the
+clipboard, and when the user toggles overwrite/insert mode.
+</p>
+
+<p>
+Status bars are simple widgets used to display a text message. They keep a
+stack of the messages pushed onto them, so that popping the current message
+will re-display the previous text message. A status bar has a resize grip by
+default, so the user can resize it.
+</p>
+
+<p>
+In order to allow different parts of an application to use the same status bar
+to display messages, the status bar widget issues <code>ContextId</code>s which
+are used to identify different "users". The message on top of the stack is the
+one displayed, no matter what context it is in. Messages are stacked in
+last-in-first-out order, not context identifier order. A status bar is created
+with:
+</p>
+
+<pre class="codebox">
+statusbarNew :: IO Statusbar
+</pre>
+
+<p>
+A new <code>ContextId</code> is generated by the following function, with a
+<code>String</code> used as textual description of the context:
+</p>
+
+<pre class="codebox">
+statusbarGetContextId :: StatusbarClass self =&gt; self -&gt; String -&gt; IO ContextId
+</pre>
+
+<p>
+There are three functions that can operate on status bars:
+</p>
+
+<pre class="codebox">
+statusbarPush :: StatusbarClass self =&gt; self -&gt; ContextId -&gt; String -&gt; IO MessageId
+
+statusbarPop :: StatusbarClass self =&gt; self -&gt; ContextId -&gt; IO ()
+
+statusbarRemove :: StatusbarClass self =&gt; self -&gt; ContextId -&gt; MessageId -&gt; IO ()
+</pre>
+
+<p>
+The first, <code>statusbarPush</code>, is used to add a new message to the
+status bar. It returns a <code>MessageId</code>, which can be passed later to
+<code>statusbarRemove</code> to remove the message with the given
+<code>ContextId</code> and <code>MessageId</code> from the status bar's stack.
+Function <code>statusbarPop</code> removes the message highest in the stack
+with the given context identifier.
+</p>
+
+<p>
+Status bars, like progress bars, are used to display messages to the user about
+some ongoing operation. We'll simulate such an operation in the example below,
+by testing whether the text the user submits (by pressing
+<strong>Enter</strong>) is the same as its reverse, and pushing the result on
+the stack. The user can then see the results by pressing the information
+button, which pops the stack of messages. The first time the stack is empty, so
+the button is greyed out using:
+</p>
+
+<pre class="codebox">
+widgetSetSensitivity :: WidgetClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+Note that status bars would not be the first choice here, since there is no
+testing if the stack is empty, but the example does show how they can be
+applied. The resize handle of the status bar is not very clear, but it is
+there, at the bottom right.
+</p>
+
+<p><img src="Images/GtkChap4-6.png" alt="Status bar example" id="imgGtkChap4-6" /></p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main= do
+  initGUI
+  window &lt;- windowNew
+  set window [windowTitle := "Text Entry", containerBorderWidth := 10]
+
+  vb &lt;- vBoxNew False 0
+  containerAdd window vb
+
+  hb &lt;- hBoxNew False 0
+  boxPackStart vb hb PackNatural 0
+
+  txtfield &lt;- entryNew
+  boxPackStart hb txtfield PackNatural 5
+  button &lt;- buttonNewFromStock stockInfo
+  boxPackStart hb button PackNatural 0
+
+  txtstack &lt;- statusbarNew
+  boxPackStart vb txtstack PackNatural 0
+  id &lt;- statusbarGetContextId txtstack "Line"
+
+  widgetShowAll window
+  widgetSetSensitivity button False
+
+  onEntryActivate txtfield (saveText txtfield button txtstack id)
+  onPressed button (statusbarPop txtstack id)
+  onDestroy window mainQuit
+  mainGUI
+
+saveText :: Entry -&gt; Button -&gt; Statusbar -&gt; ContextId -&gt; IO ()
+saveText fld b stk id = do
+    txt &lt;- entryGetText fld
+    let mesg | txt == reverse txt = "\"" ++ txt ++ "\""  ++
+                                    " is equal to its reverse"
+             | otherwise =  "\"" ++ txt ++ "\""  ++
+                            " is not equal to its reverse"
+    widgetSetSensitivity b True
+    msgid &lt;- statusbarPush stk id mesg
+    return ()
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap4-5.xhtml">Previous</a><br />4.5 Dialogs, Stock Items and Progress Bars</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-7.xhtml">Next</a><br />4.7 Spin Buttons</span>
+</div>
+
+</body>
+</html>

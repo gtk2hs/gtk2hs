@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: The Button Widget</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap3-3.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-2.xhtml">Next</a></span>
+</div>
+
+<h2>4.1 The Button Widget</h2>
+
+<h3>Normal Buttons</h3>
+
+<p>
+We've almost seen all there is to see of the button widget. It's pretty simple.
+There is however more than one way to create a button. You can use the
+<code>buttonNewWithLabel</code> or <code>buttonNewWithMnemonic</code> to create
+a button with a label, use <code>buttonNewFromStock</code> to create a button
+containing the image and text from a stock item or use <code>buttonNew</code>
+to create a blank button. It's then up to you to pack a label or pixmap into
+this new button. To do this, create a new box, and then pack your objects into
+this box using the usual <code>boxPackStart</code> (or <code>boxPackEnd</code>
+to pack from the end), and then use <code>containerAdd</code> to pack the box
+into the button.
+</p>
+
+<p>
+<code>buttonNewWithMnemonic</code> and <code>buttonNewFromStock</code> both
+take a string as first argument. Use an underline to mark a character as a
+mnemonic, which is a keyboard accelerator. Pressing <strong>Alt</strong> and
+that key activates the button. In the second function the string is a
+<code>stockId</code>, an identifier to a list of predefined images with labels.
+</p>
+
+<p>
+Here's an example of using <code>buttonNew</code> to create a button with an
+image and a label in it.
+</p>
+
+<p><img src="Images/GtkChap4-1a.png" alt="Button with image" id="imgGtkChap4-1a" /></p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  set window [windowTitle := "Pix",
+              containerBorderWidth := 10]
+  button &lt;- buttonNew
+  onClicked button (putStrLn "button clicked")
+  box    &lt;- labelBox "info.xpm" "cool button"
+  containerAdd button box
+  containerAdd window button
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+
+labelBox :: FilePath -&gt; String -&gt; IO HBox
+labelBox fn txt = do
+  box   &lt;- hBoxNew False 0
+  set box [containerBorderWidth := 2]
+  image &lt;- imageNewFromFile fn
+  label &lt;- labelNew (Just txt)
+  boxPackStart box image PackNatural 3
+  boxPackStart box label PackNatural 3
+  return box
+</pre>
+
+<p>
+The <code>labelBox</code> function could be used to pack images and labels into
+any widget that can be a container. The image comes from a file using
+<code>imageNewFromFile</code> and the label comes from <code>labelNew</code>,
+which takes a <code>Maybe String</code> as its argument. <code>Nothing</code>
+means no label.
+</p>
+
+<p>
+The <code>Button</code> widget has the following basic signals, which are
+almost self-explanatory:
+</p>
+
+<ul>
+  <li>
+  <code>onPressed</code> - emitted when pointer button is pressed within
+  <code>Button</code> widget
+  </li>
+
+  <li>
+  <code>onReleased</code> - emitted when pointer button is released within
+  <code>Button</code> widget
+  </li>
+
+  <li>
+  <code>onClicked</code> - emitted when pointer button is pressed and then
+  released within <code>Button</code> widget
+  </li>
+
+  <li>
+  <code>onEnter</code> - emitted when pointer enters <code>Button</code> widget
+  </li>
+
+  <li>
+  <code>onLeave</code> - emitted when pointer leaves <code>Button</code> widget
+  </li>
+</ul>
+
+<h3>Toggle Buttons</h3>
+
+<p>
+Toggle buttons are derived from normal buttons and are very similar, except
+they will always be in one of two states, alternated by a click. They may be
+depressed, and when you click again, they will pop back up. Click again, and
+they will pop back down.
+</p>
+
+<p>
+Toggle buttons are the basis for check buttons and radio buttons, as such, many
+of the calls used for toggle buttons are inherited by radio and check buttons.
+I will point these out when we come to them.
+</p>
+
+<p>
+Creating a new toggle button:
+</p>
+
+<pre class="codebox">
+toggleButtonNew :: IO ToggleButton
+
+toggleButtonNewWithLabel :: String -&gt; IO Togglebutton
+
+toggleButtonNewWithMnemonic :: String -&gt; IO ToggleButton
+</pre>
+
+<p>
+As you can imagine, these work identically to the normal button widget calls.
+The first creates a blank toggle button, and the last two, a button with a
+label widget already packed into it. The mnemonic variant additionally parses
+the label for "_"-prefixed mnemonic characters.
+</p>
+
+<p>
+To retrieve the state of the toggle widget, including radio and check buttons,
+we use:
+</p>
+
+<pre class="codebox">
+toggleButtonGetActive :: ToggleButtonClass self =&gt; self -&gt; IO Bool
+</pre>
+
+<p>
+This returns <var>True</var> if the toggle button is pressed in and
+<var>False</var> if it is raised.
+</p>
+
+<p>
+To force the state of a toggle button, and its children, the radio and check
+buttons, use this function:
+</p>
+
+<pre class="codebox">
+toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+The above call can be used to set the state of the toggle button, and its
+children the radio and check buttons. Passing in your created button as the
+first argument, and <var>True</var> or <var>False</var> for the second state
+argument to specify whether it should be down (depressed) or up (released).
+Default is up, or <var>False</var>.
+</p>
+
+<p>
+Note that when you use the <code>toggleButtonSetActive</code> function, and the
+state is actually changed, it causes the <code>onClicked</code> and
+<code>onToggled</code> signals to be emitted from the button.
+</p>
+
+<h3>Check Buttons</h3>
+
+<p>
+Check buttons inherit many properties and functions from the the toggle buttons
+above, but look a little different. Rather than being buttons with text inside
+them, they are small squares with the text to the right of them. These are
+often used for toggling options on and off in applications.
+</p>
+
+<p>
+The creation functions are similar to those of the normal button.
+</p>
+
+<pre class="codebox">
+checkButtonNew :: IO CheckButton
+
+checkButtonNewWithLabel :: String -&gt; IO Checkbutton
+
+checkButtonNewWithMnemonic :: String -&gt; IO CheckButton
+</pre>
+
+<p>
+The <code>checkButtonNewWithLabel</code> function creates a check button with a
+label beside it.
+</p>
+
+<p>
+<code>CheckButton</code> is an instance of <code>ToggleButtonClass</code> and
+the <code>onToggled</code> signal is used when a <code>CheckButton</code> is
+checked or unchecked, just as with the toggle button.
+</p>
+
+<h3>Radio Buttons</h3>
+
+<p>
+Radio buttons are similar to check buttons except they are grouped so that only
+one may be selected/depressed at a time. This is good for places in your
+application where you need to select from a short list of options. Creating a
+new radio button is done with one of these calls:
+</p>
+
+<pre class="codebox">
+radioButtonNew :: IO RadioButton
+
+radioButtonNewWithLabel :: String -&gt; IO RadioButton
+
+radioButtonNewWithMnemonic :: String -&gt; IO RadioButton
+
+radioButtonNewFromWidget :: RadioButton -&gt; IO RadioButton
+
+radioButtonNewWithLabelFromWidget :: RadioButton -&gt; String -&gt; IO RadioButton
+
+radioButtonNewWithMnemonicFromWidget :: RadioButton -&gt; String -&gt; IO RadioButton
+</pre>
+
+<p>
+You'll notice the extra argument to the last three functions. They are used to
+link the new buttons to the ones constructed earlier in a group.
+</p>
+
+<p>
+It is also a good idea to explicitly set which button should be the default
+depressed button with:
+</p>
+
+<pre class="codebox">
+toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+This is described in the section on toggle buttons, and works in exactly the
+same way. Once the radio buttons are grouped together, only one of the group
+may be active at a time. If the user clicks on one radio button, and then on
+another, the first radio button will first emit a <code>onToggled</code> signal
+(to report becoming inactive), and then the second will emit its
+<code>onToggled</code> signal (to report becoming active).
+</p>
+
+<p>
+The following example creates a radio button group with three buttons, and when
+the user presses one of the radio buttons, the toggled ones will report this to
+<code>stdout</code>, using <code>putStrLn</code> in the
+<code>setRadioState</code> function defined below.
+</p>
+
+<p><img src="Images/GtkChap4-1b.png" alt="Radio buttons" id="imgGtkChap4-1b" /></p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  set window [windowTitle := "Radio Button", containerBorderWidth := 5,
+              windowDefaultWidth := 200, windowDefaultHeight := 150]
+  box1    &lt;- vBoxNew False 0
+  containerAdd window box1
+  box2    &lt;- vBoxNew False 10
+  containerSetBorderWidth box2 10
+  boxPackStart box1 box2 PackNatural 0
+  button1 &lt;- radioButtonNewWithLabel "button 1"
+  boxPackStart box2 button1 PackNatural 0
+  button2 &lt;- radioButtonNewWithLabelFromWidget button1 "button 2"
+  boxPackStart box2 button2 PackNatural 0
+  button3 &lt;- radioButtonNewWithLabelFromWidget button2 "button 3"
+  boxPackStart box2 button3 PackNatural 0
+  toggleButtonSetActive button2 True
+  onToggled button1 (setRadioState button1)
+  onToggled button2 (setRadioState button2)
+  onToggled button3 (setRadioState button3)
+  sep     &lt;- hSeparatorNew
+  boxPackStart box1 sep PackNatural 0
+  box3    &lt;- vBoxNew False 10
+  containerSetBorderWidth box3 10
+  boxPackStart box1 box3 PackNatural 0
+  closeb  &lt;- buttonNewWithLabel "close"
+  boxPackStart box3 closeb PackNatural 0
+  onClicked closeb mainQuit
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+
+setRadioState :: RadioButton -&gt; IO ()
+setRadioState b = do
+  state &lt;- toggleButtonGetActive b
+  label &lt;- get b buttonLabel
+  putStrLn ("State " ++ label ++ " now is " ++ (show state))
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap3-3.xhtml">Previous</a><br />3.3 Packing Using Tables</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-2.xhtml">Next</a><br />4.2 Adjustments, Scale and Range</span>
+</div>
+
+</body>
+</html>

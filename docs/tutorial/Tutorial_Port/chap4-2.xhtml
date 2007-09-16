@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Adjustments, Scale and Range</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap4-1.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-3.xhtml">Next</a></span>
+</div>
+
+<h2>4.2 Adjustments, Scale and Range</h2>
+
+<p>
+Gtk2Hs has various widgets that can be visually adjusted by the user using the
+mouse or the keyboard, such as the range widgets, described in the range widget
+section. There are also a few widgets that display some adjustable portion of a
+larger area of data, such as the text widget and the viewport widget.
+</p>
+
+<p>
+Obviously, an application needs to be able to react to changes the user makes
+in range widgets. One way to do this would be to have each widget emit its own
+type of signal when its adjustment changes. But you may also want to connect
+the adjustments of several widgets together, so that adjusting one adjusts the
+others. The most obvious example of this is connecting a scrollbar to a panning
+viewport or a scrolling text area.
+</p>
+
+<p>
+The adjustment object can be used to store the configuration parameters and
+values of range widgets, such as scrollbars and scale controls. Because
+<code>Adjustment</code> is derived from <code>GObject</code> and
+<code>Object</code>, adjustments can emit signals, which can be used not only
+to allow your program to react to user input on adjustable widgets, but also to
+propagate adjustment values transparently between adjustable widgets.
+</p>
+
+<p>
+Many of the widgets which use adjustment objects, like
+<code>ScrolledWindow</code>, can create their own adjustments, but you create
+one yourself with:
+</p>
+
+<pre class="codebox">
+adjustmentNew :: Double        -- value         - The initial value of the range
+              -&gt; Double        -- lower         - The minimum value of the range
+              -&gt; Double        -- upper         - The maximum value of the range
+              -&gt; Double        -- stepIncrement - The smaller of two possible increments
+              -&gt; Double        -- pageIncrement - The larger of two possible increments
+              -&gt; Double        -- pageSize      - The size of the visible area
+              -&gt; IO Adjustment
+</pre>
+
+<p>
+The creation function takes every value that is contained in the object:
+<code>value</code> is the initial value and should be between the
+<code>upper</code> and <code>lower</code> bounds of the slider. Clicking on the
+arrows increases this value by <code>stepIncrement</code>. Clicking in the
+slider advances by <code>pageIncrement</code>. The <code>pageSize</code> is
+needed to determine if the end of the slider is still in the range. You can get
+and set all the parameters of an adjustment by methods or using the general
+<code>set</code> and <code>get</code> functions on the adjustment attributes.
+</p>
+
+<pre class="codebox">
+onValueChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
+</pre>
+
+<p>
+is the signal emitted when the value of the adjustment changes, and:
+</p>
+
+<pre class="codebox">
+onAdjChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
+</pre>
+
+<p>
+is the signal emitted when one or more of the other than the value fields have
+changed.
+</p>
+
+<h3>Scale and Range Widgets</h3>
+
+<p>
+Scale widgets are used to allow the user to visually select and manipulate a
+value within a specific range using a slider. You might want to use a scale
+widget, for example, to adjust the magnification level on a zoomed preview of a
+picture, or to control the brightness of a color, or to specify the number of
+minutes of inactivity before a screensaver takes over the screen.
+</p>
+
+<p>
+The following functions create vertical and horizontal scale widgets,
+respectively:
+</p>
+
+<pre class="codebox">
+vScaleNew :: Adjustment -&gt; IO VScale
+
+hScaleNew :: Adjustment -&gt; IO Hscale
+</pre>
+
+<p>
+There are also two constructors which do not take an adjustment:
+</p>
+
+<pre class="codebox">
+vScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO VScale
+
+hScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO Hscale
+</pre>
+
+<p>
+The <code>Double</code> parameters refer to the minimum and maximum values and
+the step. The step increment (preferably a power of 10) is the value the scale
+moves when the arrow keys are used.
+</p>
+
+<p>
+Horizontal and vertical scales are instances of <code>ScaleClass</code> and
+their common behaviors are defined in the module
+<code>Graphics.UI.Gtk.Abstract.Scale</code>.
+</p>
+
+<p>
+Scale widgets can display their current value as a number beside the trough.
+The default behaviour is to show the value, but you can change this with this
+function:
+</p>
+
+<pre class="codebox">
+scaleSetDrawValue :: ScaleClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+The value displayed by a scale widget is rounded to one decimal point by
+default, as is the <var>value</var> field in its <code>Adjustment</code>. You
+can change this with:
+</p>
+
+<pre class="codebox">
+scaleSetDigits :: ScaleClass self =&gt; self -&gt; Int -&gt; IO ()
+</pre>
+
+<p>
+Finally, the value can be drawn in different positions relative to the trough:
+</p>
+
+<pre class="codebox">
+scaleSetValuePos :: ScaleClass self =&gt; self -&gt; PositionType -&gt; IO ()
+</pre>
+
+<p>
+The <code>PositionType</code> is defined as:
+</p>
+
+<pre class="codebox">
+data PositionType = PosLeft | PosRight | PosTop | PosBottom
+</pre>
+
+<p>
+<code>Scale</code> itself inherits many methods form its base class, which is
+<code>Range</code>.
+</p>
+
+<h4>Setting the Update Policy</h4>
+
+<p>
+The update policy of a range widget defines at what points during user
+interaction it will change the <var>value</var> field of its
+<code>Adjustment</code> and emit the <code>onRangeValueChanged</code> signal
+on this <code>Adjustment</code>. The update policies are defined by the
+<code>UpdateType</code>, which has three constructors:
+</p>
+
+<dl>
+  <dt><code>UpdateContinuous</code></dt>
+  <dd>
+  This is the default. The <code>onRangeValueChanged</code> signal is emitted
+  continuously, <em>i.e.</em>, whenever the slider is moved by even the tiniest
+  amount.
+  </dd>
+
+  <dt><code>UpdateDiscontinuous</code></dt>
+  <dd>
+  The <code>onRangeValueChanged</code> signal is only emitted once the slider
+  has stopped moving and the user has released the mouse button.
+  </dd>
+
+  <dt><code>UpdateDelayed</code></dt>
+  <dd>
+  The <code>onRangeValueChanged</code> signal is emitted when the user releases
+  the mouse button, or if the slider stops moving for a short period of time.
+  </dd>
+</dl>
+
+<p>
+The update policy of a range widget can be set by:
+</p>
+
+<pre class="codebox">
+rangeSetUpdatePolicy :: RangeClass self =&gt; self -&gt; UpdateType -&gt; IO ()
+</pre>
+
+<h4>Getting and Setting Adjustments</h4>
+
+<p>
+Getting and setting the adjustment for a range widget on the fly is done,
+predictably, with:
+</p>
+
+<pre class="codebox">
+rangeGetAdjustment :: RangeClass self =&gt; self -&gt; IO Adjustment
+
+rangeSetAdjustment :: RangeClass self =&gt; self -&gt; Adjustment -&gt; IO ()
+</pre>
+
+<p>
+<code>rangeSetAdjustment</code> does absolutely nothing if you pass it the
+adjustment that <em>it</em> is already using, regardless of whether you changed
+any of its fields or not. If you pass it a new <code>Adjustment</code>, it will
+unreference the old one if it exists (possibly destroying it), connect the
+appropriate signals to the new one, and call the private function
+<code>gtk_range_adjustment_changed()</code>, which will (or at least, is
+supposed to...) recalculate the size and/or position of the slider and redraw
+if necessary. As mentioned in the section on adjustments, if you wish to reuse
+the same <code>Adjustment</code>, when you modify its values directly, you
+should emit the <code>changed</code> signal on it.
+</p>
+
+<h3>Key and Mouse Bindings</h3>
+
+<p>
+All of the Gtk2Hs range widgets react to mouse clicks in more or less the same
+way. Clicking mouse button 1 in the trough will cause its adjustment's
+<code>stepIncrement</code> to be added or subtracted from its <var>value</var>,
+and the slider to be moved accordingly. Clicking mouse button 2 in the trough
+will jump the slider to the point at which the button was clicked. Clicking
+mouse button 3 in the trough of a range or any button on a scrollbar's arrows
+will cause its adjustment's value to change by <code>stepIncrement</code> at a
+time.
+</p>
+
+<p class="notebox">
+<strong>Note:</strong> This did not work on Linux Fedora 6 with the standard mouse bindings.
+</p>
+
+<p>
+Scrollbars are not focusable, thus have no key bindings. The key bindings for
+the other range widgets (which are, of course, only active when the widget has
+focus) do <em>not</em> differentiate between horizontal and vertical range
+widgets.
+</p>
+
+<p>
+All range widgets can be operated with the left, right, up and down arrow keys,
+as well as with the <strong>Page Up</strong> and <strong>Page Down</strong>
+keys. The arrows move the slider up and down by <code>stepIncrement</code>,
+while <strong>Page Up</strong> and <strong>Page Down</strong> move it by
+<code>pageIncrement</code>. <strong>Home</strong> and <strong>End</strong> move
+to the beginning and end of the slider.
+</p>
+
+<p>
+The user can also move the slider all the way to one end or the other of the
+trough using the keyboard. This is done with the <strong>Home</strong> and
+<strong>End</strong> keys.
+</p>
+
+<h3>Example</h3>
+
+<p>
+This example puts up a window with three range widgets all connected to the
+same adjustment, and a couple of controls for adjusting some of the parameters
+mentioned above so you can see how they affect the way these widgets work for
+the user.
+</p>
+
+<p><img src="Images/GtkChap4-2.png" alt="Range widgets example" id="imgGtkChap4-2" /></p>
+
+<p>
+The three scales are placed so the vertical is next to the two horizontal ones,
+one above the other. So we need a horizontal box for the vertical scale and a
+vertical box next to it for the horizontal scales. The scales and the boxes
+must be packed with <code>PackGrow</code> so the scales will resize with the
+main box, which is a vertical box in the window.
+</p>
+
+<p>
+All three scales ar constructed with the same adjustment, setting the initial
+value at 0.0, the minimum value at 0.0, the maximum value at 101.0, the step
+increment at 0.1, the page increment at 1.0 and the page size at 1.0.
+</p>
+
+<pre class="codebox">
+  adj1 &lt;- adjustmentNew 0.0 0.0 101.0 0.1 1.0 1.0
+</pre>
+
+<p>
+The user can control whether the scale values are displayed with a
+<code>checkButton</code>. This is packed into the main box and set to be active
+initially. A check button is a toggle button and when the user checks or
+uncehecks it the <code>onToggled</code> signal is sent. this causes the
+<code>toggleDisplay</code> function to be evaluated, which is defined as:
+</p>
+
+<pre class="codebox">
+toggleDisplay :: ScaleClass self =&gt; CheckButton -&gt; [self] -&gt; IO ()
+toggleDisplay b scls = sequence_ (map change scls) where
+                         change sc = do st &lt;- toggleButtonGetActive b
+                                        scaleSetDrawValue sc st
+</pre>
+
+<p>
+The function has a <code>checkButton</code> type as its parameter, and a list
+of instances of <code>ScaleClass</code>. However, a list can only contain
+values of the same type, and <code>vScale</code> and <code>hScale</code> are
+different types. So, we can use the function on lists of vertical scales or
+horizontal scales, but lists containing both types result in a typing error.
+</p>
+
+<p>
+The user can select the <code>positionType</code> using a widget not mentioned
+before, a <code>ComboBox</code>. This allows a selection of choices as shown
+below. The one to be set active is determined by an index, which is 0 here, the
+first one.
+</p>
+
+<pre class="codebox">
+makeOpt1 :: IO ComboBox
+makeOpt1 = do
+  cb &lt;- comboBoxNewText
+  comboBoxAppendText cb "TOP"
+  comboBoxAppendText cb "BOTTOM"
+  comboBoxAppendText cb "LEFT"
+  comboBoxAppendText cb "RIGHT"
+  comboBoxSetActive cb 0
+  return cb
+</pre>
+
+<p>
+A second <code>comboBox</code> lets the user select the update policy, one of
+the three <code>UpdateType</code> constructors.
+</p>
+
+<pre class="codebox">
+makeOpt2 :: IO ComboBox
+makeOpt2 = do
+  cb &lt;- comboBoxNewText
+  comboBoxAppendText cb "Continuous"
+  comboBoxAppendText cb "Discontinuous"
+  comboBoxAppendText cb "Delayed"
+  comboBoxSetActive cb 0
+  return cb
+</pre>
+
+<p>
+The combo boxes themselves just display text, of course. To select the
+position, respectively the update policy, we define:
+</p>
+
+<pre class="codebox">
+setScalePos :: ScaleClass self =&gt; ComboBox -&gt; self -&gt; IO ()
+setScalePos cb sc = do
+    ntxt &lt;- comboBoxGetActiveText cb
+    let pos = case ntxt of
+                (Just "TOP")    -&gt; PosTop
+                (Just "BOTTOM") -&gt; PosBottom
+                (Just "LEFT")   -&gt; PosLeft
+                (Just "RIGHT")  -&gt; PosRight
+                Nothing         -&gt; error "setScalePos: no position set"
+    scaleSetValuePos sc pos
+
+setUpdatePol :: RangeClass self =&gt; ComboBox -&gt; self -&gt; IO ()
+setUpdatePol cb sc = do
+    ntxt &lt;- comboBoxGetActiveText cb
+    let pol = case ntxt of
+                (Just "Continuous")    -&gt; UpdateContinuous
+                (Just "Discontinuous") -&gt; UpdateDiscontinuous
+                (Just "Delayed")       -&gt; UpdateDelayed
+                Nothing                -&gt; error "setUpdatePol: no policy set"
+    rangeSetUpdatePolicy sc pol
+</pre>
+
+<p>
+Here we have not used lists to manage the vertical and horizontal scales, so
+each horizontal scale is addressed separately.
+</p>
+
+<p>
+The number of precision shown on the three scles will be managed with another
+scale, for which we use a new adjustment. The maximum precision is 10 and each
+increment is 1. The precision of this control scale itself is set to 1.
+</p>
+
+<pre class="codebox">
+  adj2 &lt;- adjustmentNew 1.0 0.0 5.0 1.0 1.0 0.0
+</pre>
+
+<p>
+When the control adjustment changes the signal <code>onValueChanged</code> will
+be emitted and then the defined function <code>setDigits</code> is evaluated.
+</p>
+
+<pre class="codebox">
+setDigits :: ScaleClass self =&gt; self -&gt; Adjustment -&gt; IO ()
+setDigits sc adj = do val &lt;- get adj adjustmentValue
+                      set sc [scaleDigits := (round val)]
+</pre>
+
+<p>
+Here we use the general functions <code>set</code> and <code>get</code> on the
+attributes; we might have used the appropriate methods as well. Note that the
+<code>Double</code> of the adjustment value must be rounded to an
+<code>Integral</code> type.
+</p>
+
+<p>
+We use another horizontal scale to manage the page size of the three example
+scales. When set at 0.0 the scales can reach their initial maximum of 100.0 and
+when set at 100.0 the scales are fixed at the lowest value. This involves the
+adjusting of the adjustment by a the <code>onValueChanged</code> signal from a
+third adjustment by this code snippet:
+</p>
+
+<pre class="codebox">
+  onValueChanged adj3 $ do val &lt;- adjustmentGetValue adj3
+                           adjustmentSetPageSize adj1 val
+</pre>
+
+<p>
+The main function is:
+</p>
+
+<pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  set window [windowTitle := "range controls",
+              windowDefaultWidth := 250]
+  mainbox &lt;- vBoxNew False 10
+  containerAdd window mainbox
+  containerSetBorderWidth mainbox 10
+
+  box1 &lt;- hBoxNew False 0
+  boxPackStart mainbox box1 PackGrow 0
+  adj1 &lt;- adjustmentNew 0.0 0.0 101.0 0.1 1.0 1.0
+  vsc  &lt;- vScaleNew adj1
+  boxPackStart box1 vsc PackGrow 0
+
+  box2 &lt;- vBoxNew False 0
+  boxPackStart box1 box2 PackGrow 0
+
+  hsc1 &lt;- hScaleNew adj1
+  boxPackStart box2 hsc1 PackGrow 0
+  hsc2 &lt;- hScaleNew adj1
+  boxPackStart box2 hsc2 PackGrow 0
+
+  chb &lt;- checkButtonNewWithLabel "Display Value on Scale Widgets"
+  boxPackStart mainbox chb PackNatural 10
+  toggleButtonSetActive chb True
+
+  box3   &lt;- hBoxNew False 10
+  boxPackStart mainbox box3 PackNatural 0
+  label1 &lt;- labelNew (Just "Scale Value Position:")
+  boxPackStart box3 label1 PackNatural 0
+  opt1   &lt;- makeOpt1
+  boxPackStart box3 opt1 PackNatural 0
+
+  box4   &lt;- hBoxNew False 10
+  boxPackStart mainbox box4 PackNatural 0
+  label2 &lt;- labelNew (Just "Scale Update Policy:")
+  boxPackStart box4 label2 PackNatural 0
+  opt2   &lt;- makeOpt2
+  boxPackStart box4 opt2 PackNatural 0
+
+  adj2 &lt;- adjustmentNew 1.0 0.0 5.0 1.0 1.0 0.0
+
+  box5   &lt;- hBoxNew False 0
+  containerSetBorderWidth box5 10
+  boxPackStart mainbox box5 PackGrow 0
+  label3 &lt;- labelNew (Just "Scale Digits:")
+  boxPackStart box5 label3 PackNatural 10
+  dsc    &lt;- hScaleNew adj2
+  boxPackStart box5 dsc PackGrow 0
+  scaleSetDigits dsc 0
+
+  adj3 &lt;- adjustmentNew 1.0 1.0 101.0 1.0 1.0 0.0
+
+  box6   &lt;- hBoxNew False 0
+  containerSetBorderWidth box6 10
+  boxPackStart mainbox box6 PackGrow 0
+  label4 &lt;- labelNew (Just "Scrollbar Page Size:")
+  boxPackStart box6 label4 PackNatural 10
+  psc    &lt;- hScaleNew adj3
+  boxPackStart box6 psc PackGrow 0
+  scaleSetDigits psc 0
+
+  onToggled chb $ do toggleDisplay chb [hsc1,hsc2]
+                     toggleDisplay chb [vsc]
+
+  onChanged opt1 $ do setScalePos opt1 hsc1
+                      setScalePos opt1 hsc2
+                      setScalePos opt1 vsc
+
+  onChanged opt2 $ do setUpdatePol opt2 hsc1
+                      setUpdatePol opt2 hsc2
+                      setUpdatePol opt2 vsc
+
+  onValueChanged adj2 $ do setDigits hsc1 adj2
+                           setDigits hsc2 adj2
+                           setDigits vsc  adj2
+
+  onValueChanged adj3 $ do val &lt;- adjustmentGetValue adj3
+                           adjustmentSetPageSize adj1 val
+
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+</pre>
+
+<p>
+The non standard functions used in the listing have already been listed above.
+</p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="chap4-1.xhtml">Previous</a><br />4.1 The Button Widget</span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap4-3.xhtml">Next</a><br />4.3 Labels</span>
+</div>
+
+</body>
+</html>
