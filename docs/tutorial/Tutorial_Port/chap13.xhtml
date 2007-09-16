@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial: Calendar</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>Gtk2Hs Tutorial</h1>
+      <!--  
+<span class="nav-previous"><a href="chap12.xhtml">Previous</a></span>
+-->
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <!-- 
+ <span class="nav-next"><a href="chap14.html">Next</a></span>
+ -->
+    </div>
+    <h3>Calendar</h3>
+    <p>The Calendar widget is an effective way to display and
+    retrieve monthly date related information. It is a very simple
+    widget to create and work with. Use:</p>
+    <pre class="codebox">
+calendarNew: IO Calendar
+</pre>
+    <p>By default the current date is shown. To retrieve the date
+    from a calendar use:</p>
+    <pre class="codebox">
+calendarGetDate :: CalendarClass self =&gt; self -&gt; IO (Int, Int, Int)
+</pre>
+    <p>where the interpretation is (year, month, day). Note that
+    the months start with a 0, so you'll have to add 1 to get it
+    right. The related attributes are:</p>
+    <pre class="codebox">
+calendarYear :: CalendarClass self =&gt; Attr self Int
+calendarMonth :: CalendarClass self =&gt; Attr self Int
+calendarDay :: CalendarClass self =&gt; Attr self Int
+</pre>
+    <p>The Calendar widget has a few options that allow you to
+    change the way the widget looks and operates by using the
+    function 
+    <code>calendarSetDisplayOptions</code>. To retrieve the
+    settings use: 
+    <code>calendarGetDisplayOptions</code>.</p>
+    <pre class="codebox">
+calendarSetDisplayOptions :: CalendarClass self =&gt; self -&gt; [CalendarDisplayOptions] -&gt; IO ()
+calendarGetDisplayOptions :: CalendarClass self =&gt; self -&gt; IO [CalendarDisplayOptions]
+</pre>
+    <p>
+    <code>CalendarDisplayOptions</code>has the following
+    constructors:</p>
+    <ul>
+      <li>CalendarShowHeading: this option specifies that the month
+      and year should be shown when drawing the calendar</li>
+      <li>CalendarShowDayNames: this option specifies that the
+      three letter descriptions should be displayed for each day
+      (eg Mon,Tue, etc.).</li>
+      <li>CalendarNoMonthChange: this option states that the user
+      should not and can not change the currently displayed month.
+      This can be good if you only need to display a particular
+      month such as if you are displaying 12 calendar widgets for
+      every month in a particular year.</li>
+      <li>CalendarShowWeekNumbers: this option specifies that the
+      number for each week should be displayed down the left side
+      of the calendar. (eg. Jan 1 = Week 1,Dec 31 = Week 52).</li>
+      <li>CalendarWeekStartMonday (but see note below): this option
+      states that the calendar week will start on Monday instead of
+      Sunday which is the default. This only affects the order in
+      which days are displayed from left to right.</li>
+    </ul>
+    <p>These options can also be set and retrieved through Boolean
+    attributes using the generic 
+    <code>get</code>and 
+    <code>set</code>functions.</p>
+    <p>Note: there is no attribute for CalendarWeekStartMonday and
+    using the 
+    <code>calendarSetDisplay</code>function resulted in a run-time
+    message that the first day of the week was taken from the
+    locale and GTK_CALENDAR_WEEK_START_MONDAY is ignored.</p>
+    <p>Finally, any number of days in the month may be "marked". A
+    marked day is highlighted within the calendar display. The
+    following functions (there are no attributes) are provided to
+    manipulate marked days:</p>
+    <pre class="codebox">
+calendarMarkDay :: CalendarClass self =&gt; self -&gt; Int -&gt; IO Bool
+calendarUnmarkDay :: CalendarClass self =&gt; self -&gt; Int -&gt; IO Bool
+calendarClearMarks :: CalendarClass self =&gt; self -&gt; IO ()
+</pre>
+    <p>The Boolean value is not used (always True). Note that marks
+    are persistent across month and year changes.</p>
+    <p>The Calendar widget can generate a number of signals
+    indicating date selection and change. The names of these
+    signals are:</p>
+    <ul>
+      <li>onDaySelected</li>
+      <li>onDaySelectedDoubleClick</li>
+    </ul>
+    <p>Note: the following are also mentioned in the API
+    documentation, but appear to implemented as onDaySelected. See
+    the comment in the example code.</p>
+    <ul>
+      <li>onMonthChanged</li>
+      <li>onNextMonth</li>
+      <li>onNextYear</li>
+      <li>onPrevMonth</li>
+      <li>onPrevYear</li>
+    </ul>
+    <p>The following example illustrates the use of the Calendar
+    widget:</p>
+    <p>
+      <img src="./Images/GtkChap13.png" alt="GtkChap13.png"
+      id="graphics1" />
+    </p>
+    <pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Calendar",
+                 windowDefaultWidth:= 200,
+                 windowDefaultHeight:= 100]
+     mainbox &lt;- vBoxNew True 0
+     containerAdd window mainbox
+
+     hbox1 &lt;- hBoxNew True 0
+     boxPackStart mainbox hbox1 PackGrow 0
+
+     cal &lt;-calendarNew
+     boxPackStart hbox1 cal PackGrow 0   
+
+     vbox1 &lt;- vBoxNew True 0
+     frame1 &lt;- frameNew
+     set frame1 [frameLabel := "Display Options",
+                 containerBorderWidth := 10,
+                 frameLabelYAlign := 0.5, 
+                 frameLabelXAlign := 0.5,
+                 containerChild := vbox1 ]
+     boxPackStart hbox1 frame1 PackGrow 0
+     headingopt &lt;- addDisplayOpt vbox1 "Show Heading"
+     daynameopt &lt;- addDisplayOpt vbox1 "Show Day Names"
+     monchngopt &lt;- addDisplayOpt vbox1 "No Month Change"
+     weeknumopt &lt;- addDisplayOpt vbox1 "Show Week Numbers"
+
+     set headingopt [toggleButtonActive := True]
+     set daynameopt [toggleButtonActive := True]
+
+     reslabel &lt;- labelNew Nothing
+     showMess cal reslabel "Nothing Done Yet"
+     frame2 &lt;- frameNew
+     set frame2 [frameLabel := "Last Action:",
+                 containerBorderWidth := 10, 
+                 containerChild := reslabel]
+     boxPackStart mainbox frame2 PackGrow 0     
+
+     mySetOnToggled headingopt cal calendarShowHeading
+     mySetOnToggled daynameopt cal calendarShowDayNames
+     mySetOnToggled monchngopt cal calendarNoMonthChange
+     mySetOnToggled weeknumopt cal calendarShowWeekNumbers
+
+     onDaySelected cal (showMess cal reslabel "Day Selected")
+     onDaySelectedDoubleClick cal 
+            (showMess cal reslabel "Double Click Day Selected")
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+
+addDisplayOpt :: VBox -&gt; String -&gt; IO CheckButton
+addDisplayOpt box lbl = do
+         cb &lt;- checkButtonNewWithLabel lbl
+         boxPackStart box cb PackGrow 5
+         return cb
+
+mySetOnToggled :: CheckButton -&gt; Calendar -&gt; 
+               Attr Calendar Bool -&gt; 
+               IO (ConnectId CheckButton)
+mySetOnToggled cb cl att = onToggled cb $ do
+         cbstate &lt;- get cb toggleButtonActive
+         set cl [att := cbstate]
+
+showMess :: Calendar -&gt; Label -&gt; String -&gt; IO ()
+showMess cal lbl str = do  
+         (year, month, day) &lt;- calendarGetDate cal
+         labelSetText lbl $ str ++ "\n" ++ "Date = " ++
+                      (show year) ++ "//" ++ 
+                      (myshow (month +1))  -- month is 0 to 11
+                       ++ "//" ++ (myshow day) 
+                            where myshow n | n &lt;= 9 = '0':(show
+n)
+                                           | otherwise = show n
+
+{- Commented out for platform specific testing:
+These signals all seem to be implemented as onDaySelected.
+The platform was: Gtk2Hs 0.9.12 on Fedora Core 6
+
+     onMonthChanged cal (showMess cal reslabel "Month Changed")
+     onNextMonth cal (showMess cal reslabel "Next Month Selected")
+     onNextYear cal (showMess cal reslabel "Next Year Selected")
+     onPrevMonth cal (showMess cal reslabel "Previous Month
+Selected")
+     onPrevYear cal (showMess cal reslabel "Previous Year
+Selected")
+-}
+</pre>
+    <div id="footer">
+      <!-- <span class="nav-previous"><a href="chap12.xhtml">Previous</a><br />Spin Buttons</span>
+ -->
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <!--  <span class="nav-next"><a href="chap14.xhtml">Next</a><br />Packing Demonstration Program</span>
+ -->
+    </div>
+  </body>
+</html>
