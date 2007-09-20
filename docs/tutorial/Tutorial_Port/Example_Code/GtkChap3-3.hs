@@ -1,5 +1,3 @@
--- GTK 2.0 Tutorial: Chapter 5b, Table
-
 import Graphics.UI.Gtk
 
 main :: IO ()

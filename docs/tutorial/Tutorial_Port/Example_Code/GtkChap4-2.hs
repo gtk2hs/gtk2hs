@@ -1,12 +1,10 @@
--- Chapter 9, Range Widgets, Example
-
 import Graphics.UI.Gtk
 
 main :: IO ()
 main = do
   initGUI
   window <- windowNew
-  set window [windowTitle := "range controls",
+  set window [windowTitle := "Range Controls",
               windowDefaultWidth := 250 ]
   mainbox <- vBoxNew False 10
   containerAdd window mainbox

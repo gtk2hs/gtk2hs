@@ -1,7 +1,3 @@
--- Chapter 7, Radio Button
-
--- packeds not good!
-
 import Graphics.UI.Gtk
 
 main :: IO ()

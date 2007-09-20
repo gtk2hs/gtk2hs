@@ -1,7 +1,7 @@
-{- GTK 2.0 Tutorial: Chapter 3a, Getting Started
+{- GTK 2.0 Tutorial: Chapter 2: Getting Started
 
-   To run with GHCi: ghci GtkChap3.hs
-   To compile with GHC: ghc --make GtkChap3.hs -o chap
+   To run with GHCi: ghci GtkChap2a.hs
+   To compile with GHC: ghc --make GtkChap2a.hs -o chap
 -}
  
 import Graphics.UI.Gtk
@@ -10,6 +10,7 @@ main :: IO ()
 main = do 
   initGUI
   window <- windowNew
+  windowSetTitle window "Step One"
   widgetShowAll window
   mainGUI
 

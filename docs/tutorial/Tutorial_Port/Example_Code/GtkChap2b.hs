@@ -9,7 +9,8 @@ main = do
   window <- windowNew
   button <- buttonNew
   set window [windowDefaultWidth := 200, windowDefaultHeight := 200,
-              containerChild := button , containerBorderWidth := 10 ]
+              containerChild := button , containerBorderWidth := 10, 
+              windowTitle := "Hello"]
   onClicked button (hello button)
   onDestroy window mainQuit
   widgetShowAll window
