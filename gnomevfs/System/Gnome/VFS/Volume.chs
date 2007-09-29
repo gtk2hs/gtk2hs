@@ -55,7 +55,8 @@ module System.Gnome.VFS.Volume (
   volumeHandlesTrash,
   volumeIsMounted,
   volumeIsReadOnly,
-  volumeIsUserVisible
+  volumeIsUserVisible,
+  volumeUnmount
   
   ) where
 
@@ -293,3 +294,23 @@ volumeIsUserVisible     :: VolumeClass volume =>
                         -> IO Bool -- ^ 'True' if the volume is user visible, otherwise 'False'
 volumeIsUserVisible =
     marshalBool {# call volume_is_user_visible #}
+
+-- Requests unmount of a 'Volume'.
+-- 
+-- Note that 'volumeUnmount' may also unvoke 'volumeEject', if
+-- @volume@ signals that it should be ejected when it is unmounted.
+-- This may be true for CD-ROMs, USB sticks, and other devices,
+-- depending on the backend providing the volume.
+volumeUnmount :: VolumeClass volume
+              => volume                  -- ^ @volume@ - the volume to eject
+              -> VolumeOpSuccessCallback -- ^ @successCallback@ - the
+                                         --   callback to call once
+                                         --   the operation has
+                                         --   completed successfully
+              -> VolumeOpFailureCallback -- ^ @failureCallback@ - the
+                                         --   callback to call if the
+                                         --   operation fails
+              -> IO ()
+volumeUnmount volume successCallback failureCallback =
+    do cCallback <- volumeOpCallbackMarshal successCallback failureCallback
+       {# call volume_unmount #} (castToVolume volume) cCallback $ castFunPtrToPtr cCallback
