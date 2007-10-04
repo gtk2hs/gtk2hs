@@ -106,15 +106,18 @@ instance Flags AttachOptions
 data MouseButton = LeftButton
 		 | MiddleButton
 		 | RightButton
+		 | OtherButton Int
 		   deriving (Eq,Show)
 
 instance Enum MouseButton where
   toEnum 1 = LeftButton
   toEnum 2 = MiddleButton
   toEnum 3 = RightButton
+  toEnum n = OtherButton (fromIntegral n)
   fromEnum LeftButton   = 1
   fromEnum MiddleButton = 2
   fromEnum RightButton  = 3
+  fromEnum (OtherButton n) = fromIntegral n
 
 -- | Dictate the style that a ButtonBox uses to align it contents
 --
