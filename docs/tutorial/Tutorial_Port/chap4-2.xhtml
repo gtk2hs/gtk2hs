@@ -49,8 +49,7 @@ Many of the widgets which use adjustment objects, like
 one yourself with:
 </p>
 
-<pre class="codebox">
-adjustmentNew :: Double        -- value         - The initial value of the range
+<pre class="codebox">adjustmentNew :: Double        -- value         - The initial value of the range
               -&gt; Double        -- lower         - The minimum value of the range
               -&gt; Double        -- upper         - The maximum value of the range
               -&gt; Double        -- stepIncrement - The smaller of two possible increments
@@ -70,16 +69,14 @@ and set all the parameters of an adjustment by methods or using the general
 <code>set</code> and <code>get</code> functions on the adjustment attributes.
 </p>
 
-<pre class="codebox">
-onValueChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
+<pre class="codebox">onValueChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
 </pre>
 
 <p>
 is the signal emitted when the value of the adjustment changes, and:
 </p>
 
-<pre class="codebox">
-onAdjChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
+<pre class="codebox">onAdjChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
 </pre>
 
 <p>
@@ -102,8 +99,7 @@ The following functions create vertical and horizontal scale widgets,
 respectively:
 </p>
 
-<pre class="codebox">
-vScaleNew :: Adjustment -&gt; IO VScale
+<pre class="codebox">vScaleNew :: Adjustment -&gt; IO VScale
 
 hScaleNew :: Adjustment -&gt; IO Hscale
 </pre>
@@ -112,8 +108,7 @@ hScaleNew :: Adjustment -&gt; IO Hscale
 There are also two constructors which do not take an adjustment:
 </p>
 
-<pre class="codebox">
-vScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO VScale
+<pre class="codebox">vScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO VScale
 
 hScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO Hscale
 </pre>
@@ -136,8 +131,7 @@ The default behaviour is to show the value, but you can change this with this
 function:
 </p>
 
-<pre class="codebox">
-scaleSetDrawValue :: ScaleClass self =&gt; self -&gt; Bool -&gt; IO ()
+<pre class="codebox">scaleSetDrawValue :: ScaleClass self =&gt; self -&gt; Bool -&gt; IO ()
 </pre>
 
 <p>
@@ -146,24 +140,21 @@ default, as is the <var>value</var> field in its <code>Adjustment</code>. You
 can change this with:
 </p>
 
-<pre class="codebox">
-scaleSetDigits :: ScaleClass self =&gt; self -&gt; Int -&gt; IO ()
+<pre class="codebox">scaleSetDigits :: ScaleClass self =&gt; self -&gt; Int -&gt; IO ()
 </pre>
 
 <p>
 Finally, the value can be drawn in different positions relative to the trough:
 </p>
 
-<pre class="codebox">
-scaleSetValuePos :: ScaleClass self =&gt; self -&gt; PositionType -&gt; IO ()
+<pre class="codebox">scaleSetValuePos :: ScaleClass self =&gt; self -&gt; PositionType -&gt; IO ()
 </pre>
 
 <p>
 The <code>PositionType</code> is defined as:
 </p>
 
-<pre class="codebox">
-data PositionType = PosLeft | PosRight | PosTop | PosBottom
+<pre class="codebox">data PositionType = PosLeft | PosRight | PosTop | PosBottom
 </pre>
 
 <p>
@@ -206,8 +197,7 @@ on this <code>Adjustment</code>. The update policies are defined by the
 The update policy of a range widget can be set by:
 </p>
 
-<pre class="codebox">
-rangeSetUpdatePolicy :: RangeClass self =&gt; self -&gt; UpdateType -&gt; IO ()
+<pre class="codebox">rangeSetUpdatePolicy :: RangeClass self =&gt; self -&gt; UpdateType -&gt; IO ()
 </pre>
 
 <h4>Getting and Setting Adjustments</h4>
@@ -217,8 +207,7 @@ Getting and setting the adjustment for a range widget on the fly is done,
 predictably, with:
 </p>
 
-<pre class="codebox">
-rangeGetAdjustment :: RangeClass self =&gt; self -&gt; IO Adjustment
+<pre class="codebox">rangeGetAdjustment :: RangeClass self =&gt; self -&gt; IO Adjustment
 
 rangeSetAdjustment :: RangeClass self =&gt; self -&gt; Adjustment -&gt; IO ()
 </pre>
@@ -300,8 +289,7 @@ value at 0.0, the minimum value at 0.0, the maximum value at 101.0, the step
 increment at 0.1, the page increment at 1.0 and the page size at 1.0.
 </p>
 
-<pre class="codebox">
-  adj1 &lt;- adjustmentNew 0.0 0.0 101.0 0.1 1.0 1.0
+<pre class="codebox">  adj1 &lt;- adjustmentNew 0.0 0.0 101.0 0.1 1.0 1.0
 </pre>
 
 <p>
@@ -312,8 +300,7 @@ uncehecks it the <code>onToggled</code> signal is sent. this causes the
 <code>toggleDisplay</code> function to be evaluated, which is defined as:
 </p>
 
-<pre class="codebox">
-toggleDisplay :: ScaleClass self =&gt; CheckButton -&gt; [self] -&gt; IO ()
+<pre class="codebox">toggleDisplay :: ScaleClass self =&gt; CheckButton -&gt; [self] -&gt; IO ()
 toggleDisplay b scls = sequence_ (map change scls) where
                          change sc = do st &lt;- toggleButtonGetActive b
                                         scaleSetDrawValue sc st
@@ -334,8 +321,7 @@ below. The one to be set active is determined by an index, which is 0 here, the
 first one.
 </p>
 
-<pre class="codebox">
-makeOpt1 :: IO ComboBox
+<pre class="codebox">makeOpt1 :: IO ComboBox
 makeOpt1 = do
   cb &lt;- comboBoxNewText
   comboBoxAppendText cb "TOP"
@@ -351,8 +337,7 @@ A second <code>comboBox</code> lets the user select the update policy, one of
 the three <code>UpdateType</code> constructors.
 </p>
 
-<pre class="codebox">
-makeOpt2 :: IO ComboBox
+<pre class="codebox">makeOpt2 :: IO ComboBox
 makeOpt2 = do
   cb &lt;- comboBoxNewText
   comboBoxAppendText cb "Continuous"
@@ -367,8 +352,7 @@ The combo boxes themselves just display text, of course. To select the
 position, respectively the update policy, we define:
 </p>
 
-<pre class="codebox">
-setScalePos :: ScaleClass self =&gt; ComboBox -&gt; self -&gt; IO ()
+<pre class="codebox">setScalePos :: ScaleClass self =&gt; ComboBox -&gt; self -&gt; IO ()
 setScalePos cb sc = do
     ntxt &lt;- comboBoxGetActiveText cb
     let pos = case ntxt of
@@ -401,8 +385,7 @@ scale, for which we use a new adjustment. The maximum precision is 10 and each
 increment is 1. The precision of this control scale itself is set to 1.
 </p>
 
-<pre class="codebox">
-  adj2 &lt;- adjustmentNew 1.0 0.0 5.0 1.0 1.0 0.0
+<pre class="codebox">  adj2 &lt;- adjustmentNew 1.0 0.0 5.0 1.0 1.0 0.0
 </pre>
 
 <p>
@@ -410,8 +393,7 @@ When the control adjustment changes the signal <code>onValueChanged</code> will
 be emitted and then the defined function <code>setDigits</code> is evaluated.
 </p>
 
-<pre class="codebox">
-setDigits :: ScaleClass self =&gt; self -&gt; Adjustment -&gt; IO ()
+<pre class="codebox">setDigits :: ScaleClass self =&gt; self -&gt; Adjustment -&gt; IO ()
 setDigits sc adj = do val &lt;- get adj adjustmentValue
                       set sc [scaleDigits := (round val)]
 </pre>
@@ -431,8 +413,7 @@ adjusting of the adjustment by a the <code>onValueChanged</code> signal from a
 third adjustment by this code snippet:
 </p>
 
-<pre class="codebox">
-  onValueChanged adj3 $ do val &lt;- adjustmentGetValue adj3
+<pre class="codebox">  onValueChanged adj3 $ do val &lt;- adjustmentGetValue adj3
                            adjustmentSetPageSize adj1 val
 </pre>
 
@@ -440,8 +421,7 @@ third adjustment by this code snippet:
 The main function is:
 </p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do

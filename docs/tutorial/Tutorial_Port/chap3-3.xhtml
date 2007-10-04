@@ -28,8 +28,7 @@ can place widgets in. The widgets may take up as many spaces as we specify.
 The first thing to look at, of course, is the <code>tableNew</code> function:
 </p>
 
-<pre class="codebox">
-tableNew :: Int -&gt; Int -&gt; Bool -&gt; IO Table
+<pre class="codebox">tableNew :: Int -&gt; Int -&gt; Bool -&gt; IO Table
 </pre>
 
 <p>
@@ -53,8 +52,7 @@ if you specify <var>rows</var> = <var>2</var> and <var>columns</var> =
 <var>2</var>, the layout would look something like this:
 </p>
 
-<pre class="codebox">
- 0          1          2
+<pre class="codebox"> 0          1          2
 0+----------+----------+
  |          |          |
 1+----------+----------+
@@ -67,8 +65,7 @@ Note that the coordinate system starts in the upper left hand corner. To place
 a widget into a box, use the following function:
 </p>
 
-<pre class="codebox">
-tableAttach :: (TableClass self, WidgetClass child)
+<pre class="codebox">tableAttach :: (TableClass self, WidgetClass child)
   =&gt; self            -- self         - The table.
   -&gt; child           -- child        - The widget to add.
   -&gt; Int             -- leftAttach   - The column number to attach the left
@@ -152,8 +149,7 @@ specified in pixels.
 <code>tableAttach</code> has many options, so there's a shortcut:
 </p>
 
-<pre class="codebox">
-tableAttachDefaults :: (TableClass self, WidgetClass widget)
+<pre class="codebox">tableAttachDefaults :: (TableClass self, WidgetClass widget)
   =&gt; self   -- self         - The table.
   -&gt; widget -- widget       - The child widget to add.
   -&gt; Int    -- leftAttach   - The column number to attach the left side of
@@ -179,12 +175,10 @@ We also have <code>tableSetRowSpacing</code> and
 column.
 </p>
 
-<pre class="codebox">
-tableSetRowSpacing :: TableClass self=&gt; self-&gt; Int -&gt; Int -&gt; IO ()
+<pre class="codebox">tableSetRowSpacing :: TableClass self=&gt; self-&gt; Int -&gt; Int -&gt; IO ()
 </pre>
 
-<pre class="codebox">
-tableSetColSpacing :: TableClass self =&gt; self -&gt; Int -&gt; Int -&gt; IO ()
+<pre class="codebox">tableSetColSpacing :: TableClass self =&gt; self -&gt; Int -&gt; Int -&gt; IO ()
 </pre>
 
 <p>
@@ -197,14 +191,12 @@ column, and for rows, the space goes below the row.
 You can also set a consistent spacing of all rows and/or columns with:
 </p>
 
-<pre class="codebox">
-tableSetRowSpacings :: TableClass self=&gt; self-&gt; Int -&gt; IO ()
+<pre class="codebox">tableSetRowSpacings :: TableClass self=&gt; self-&gt; Int -&gt; IO ()
 </pre>
 
 <p>and:</p>
 
-<pre class="codebox">
-tableSetColSpacings :: TableClass self =&gt; self -&gt; Int -&gt; IO ()
+<pre class="codebox">tableSetColSpacings :: TableClass self =&gt; self -&gt; Int -&gt; IO ()
 </pre>
 
 <p>
@@ -225,8 +217,7 @@ this:
 
 <p>Here's the source code:</p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do
@@ -266,8 +257,7 @@ alternative <code>get</code> (analogous to <code>set</code>) which takes a
 widget and an attribute. In the above example this should be:
 </p>
 
-<pre class="codebox">
-  txt &lt;- get b buttonLabel
+<pre class="codebox">  txt &lt;- get b buttonLabel
 </pre>
 
 <p>

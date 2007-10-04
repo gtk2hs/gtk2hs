@@ -44,8 +44,7 @@ exiting except to be killed by using the shell.
 
 <p><img src="Images/GtkChap2a.png" alt="Window" id="imgGtkChap2a" /></p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do
@@ -60,8 +59,7 @@ You can compile the above program with the Glasgow Haskell Compiler (GHC)
 using:
 </p>
 
-<pre class="codebox">
-ghc --make GtkChap2.hs -o Chap2
+<pre class="codebox">ghc --make GtkChap2.hs -o Chap2
 </pre>
 
 <p>
@@ -80,8 +78,7 @@ All Gtk2Hs programs run in <code>main</code>. The first line of that function's
 <code>do</code> block:
 </p>
 
-<pre class="codebox">
-  initGUI
+<pre class="codebox">  initGUI
 </pre>
 
 <p>
@@ -92,8 +89,7 @@ is a function called in all Gtk2Hs applications.
 The next two lines in the block create and display a window and its contents:
 </p>
 
-<pre class="codebox">
-  window &lt;- windowNew
+<pre class="codebox">  window &lt;- windowNew
   widgetShowAll window
 </pre>
 
@@ -108,8 +104,7 @@ line works on a widget (here the window) and all its children.
 The last line of <code>main</code> enters the Gtk2Hs main processing loop:
 </p>
 
-<pre class="codebox">
-  mainGUI
+<pre class="codebox">  mainGUI
 </pre>
 
 <p>
@@ -156,8 +151,7 @@ interface designer and, if you use Glade, such connections are visible in the
 tutorial</a> on how to use Glade with Gtk2Hs.
 </p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 hello :: (ButtonClass o) =&gt; o -&gt; IO ()
 hello b = set b [buttonLabel := "Hello World"]

@@ -3,11 +3,11 @@ a:link, a:visited {
 }
 
 body {
-	margin: 0px;
-	border: 20px solid #e7e7e7;
-	padding: 20px;
-	color: #000000;
-	background-color: #ffffff;
+    margin: 0px;
+    border: 20px solid #e7e7e7;
+    padding: 20px;
+    color: #000000;
+    background-color: #ffffff;
 }
 
 h1 {
@@ -15,16 +15,16 @@ h1 {
 }
 
 h2, h3 {
-	border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
 }
 
 .codebox {
-	overflow: auto;
-	margin: 10px;
-	border: 1px solid #ccc;
-	padding: 10px;
-	color: #000000;
-	background-color: #eee;
+    overflow: auto;
+    margin: 10px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    color: #000000;
+    background-color: #eee;
 }
 
 .nav-home {
@@ -46,11 +46,11 @@ h2, h3 {
 }
 
 .notebox {
-	margin: 10px;
-	border: 1px solid #ccc;
-	padding: 10px;
-	color: #000000;
-	background-color: #ffe;
+    margin: 10px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    color: #000000;
+    background-color: #ffe;
     font-style: italic;
 }
 
@@ -59,7 +59,7 @@ h2, h3 {
 }
 
 #authors h3 {
-	border-style: none;
+    border-style: none;
 }
 
 #credits {
@@ -69,19 +69,19 @@ h2, h3 {
 }
 
 #credits h3 {
-	border-style: none;
+    border-style: none;
 }
 
 #footer {
-	margin: 40px;
-	border: 0px;
-	border-top: 1px solid #ccc;
+    margin: 40px;
+    border: 0px;
+    border-top: 1px solid #ccc;
 }
 
 #header {
-	margin: 0px 40px 40px 40px;
-	border: 0px;
-	border-bottom: 1px solid #ccc;
+    margin: 0px 40px 40px 40px;
+    border: 0px;
+    border-bottom: 1px solid #ccc;
 }
 
 #header h1 {
@@ -91,7 +91,7 @@ h2, h3 {
 }
 
 #title h2 {
-	border-style: none;
+    border-style: none;
     text-align: center;
 }
 

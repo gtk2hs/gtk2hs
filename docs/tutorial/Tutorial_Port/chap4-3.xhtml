@@ -30,8 +30,7 @@ window, or a button.
 To create a new label, use:
 </p>
 
-<pre class="codebox">
-labelNew :: Maybe String -&gt; IO Label
+<pre class="codebox">labelNew :: Maybe String -&gt; IO Label
 
 labelNewWithMnemonic :: String -&gt; IO Label
 </pre>
@@ -51,8 +50,7 @@ To change the label's text after creation, or to get the label's text, use the
 functions:
 </p>
 
-<pre class="codebox">
-labelSetText :: LabelClass self =&gt; self -&gt; String -&gt; IO ()
+<pre class="codebox">labelSetText :: LabelClass self =&gt; self -&gt; String -&gt; IO ()
 
 labelGetLabel :: LabelClass self =&gt; self -&gt; IO String
 </pre>
@@ -65,8 +63,7 @@ you have multi-line labels the lines can be justified relatively to each other
 using:
 </p>
 
-<pre class="codebox">
-labelSetJustify :: LabelClass self =&gt; self -&gt; Justification -&gt; IO ()
+<pre class="codebox">labelSetJustify :: LabelClass self =&gt; self -&gt; Justification -&gt; IO ()
 </pre>
 
 <p>
@@ -85,16 +82,14 @@ The label widget is also capable of line wrapping the text automatically. This
 can be activated using:
 </p>
 
-<pre class="codebox">
-labelSetLineWrap :: LabelClass self =&gt; self -&gt; Bool -&gt; IO ()
+<pre class="codebox">labelSetLineWrap :: LabelClass self =&gt; self -&gt; Bool -&gt; IO ()
 </pre>
 
 <p>
 If you want your label underlined, then you can set a pattern on the label:
 </p>
 
-<pre class="codebox">
-labelSetPattern :: LabelClass self =&gt; self -&gt; [Int] -&gt; IO ()
+<pre class="codebox">labelSetPattern :: LabelClass self =&gt; self -&gt; [Int] -&gt; IO ()
 </pre>
 
 <p>
@@ -139,8 +134,7 @@ or the space bar also had this effect. Also note the effect of the character
 "y" on the placement of the underline.
 </p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main:: IO ()
 main = do

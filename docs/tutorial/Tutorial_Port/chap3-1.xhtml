@@ -66,8 +66,7 @@ usually only use a <code>label</code> inside a <code>button</code>.
 
 <p><img src="Images/GtkChap3-1.png" alt="Packed buttons" id="imgGtkChap3-1" /></p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do
@@ -91,12 +90,10 @@ you want to place your widgets so it can do automatic resizing and other nifty
 things.
 </p>
 
-<pre class="codebox">
-boxPackStart :: (WidgetClass child, BoxClass self) =&gt; self -&gt; child -&gt; Packing -&gt; Int -&gt; IO ()
+<pre class="codebox">boxPackStart :: (WidgetClass child, BoxClass self) =&gt; self -&gt; child -&gt; Packing -&gt; Int -&gt; IO ()
 </pre>
 
-<pre class="codebox">
-boxPackEnd :: (WidgetClass child, BoxClass self) =&gt; self -&gt; child -&gt; Packing -&gt; Int -&gt; IO ()
+<pre class="codebox">boxPackEnd :: (WidgetClass child, BoxClass self) =&gt; self -&gt; child -&gt; Packing -&gt; Int -&gt; IO ()
 </pre>
 
 <p>

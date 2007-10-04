@@ -29,8 +29,7 @@ The <code>Dialog</code> widget can be used for pop-up messages to the user, and
 other similar tasks. The basic functions needed are:
 </p>
 
-<pre class="codebox">
-dialogNew :: IO Dialog
+<pre class="codebox">dialogNew :: IO Dialog
 
 dialogRun :: DialogClass self =&gt; self -&gt; IO ResponseID
 </pre>
@@ -39,8 +38,7 @@ dialogRun :: DialogClass self =&gt; self -&gt; IO ResponseID
 You add buttons into the action area with:
 </p>
 
-<pre class="codebox">
-dialogAddButton :: DialogClass self =&gt; self -&gt; String -&gt; ResponseId -&gt; IO Button
+<pre class="codebox">dialogAddButton :: DialogClass self =&gt; self -&gt; String -&gt; ResponseId -&gt; IO Button
 </pre>
 
 <p>
@@ -83,8 +81,7 @@ modal, which means the user cannot access any other window while
 Progress bars are used to show the status of an ongoing operation.
 </p>
 
-<pre class="codebox">
-progressBarNew :: IO ProgressBar
+<pre class="codebox">progressBarNew :: IO ProgressBar
 </pre>
 
 <p>
@@ -93,8 +90,7 @@ bar. If it is known how much of the task has been completed, the fraction
 (between 0.0 and 1.0 inclusive) can be set with:
 </p>
 
-<pre class="codebox">
-progressBarSetFraction :: ProgressBarClass self =&gt; self -&gt; Double -&gt; IO ()
+<pre class="codebox">progressBarSetFraction :: ProgressBarClass self =&gt; self -&gt; Double -&gt; IO ()
 </pre>
 
 <p>
@@ -108,8 +104,7 @@ When it is not known how much of the operation has been completed, the bar can
 be moved back and forth with:
 </p>
 
-<pre class="codebox">
-progressBarPulse :: ProgressBarClass self =&gt; self -&gt; IO ()
+<pre class="codebox">progressBarPulse :: ProgressBarClass self =&gt; self -&gt; IO ()
 </pre>
 
 <p>
@@ -134,8 +129,7 @@ again, when false it stops. The priority of <code>timeoutAdd</code> is
 <code>priorityDefault</code> of type <code>Priority</code>.
 </p>
 
-<pre class="codebox">
-timeoutAdd :: IO Bool -&gt; Int -&gt; IO HandlerId
+<pre class="codebox">timeoutAdd :: IO Bool -&gt; Int -&gt; IO HandlerId
 </pre>
 
 <p>
@@ -173,8 +167,7 @@ parent is visible. So, to show the progress bar, we use
 on the progress bar.
 </p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do

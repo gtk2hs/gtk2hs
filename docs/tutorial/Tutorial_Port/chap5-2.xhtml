@@ -62,16 +62,14 @@
   <p>Our first example will use a 
   <code>FileChooserWidget</code> , which can be in Open or Save
   mode.</p>
-  <pre class="codebox">
-fileChooserWidgetNew :: FileChooserAction -&gt; IO FileChooserWidget
+  <pre class="codebox">fileChooserWidgetNew :: FileChooserAction -&gt; IO FileChooserWidget
 </pre>
   <p>We use 
   <code>FileChooserActionOpen</code> here, and when the user
   definitely chooses a file by doubleclicking it or pressing the
   Enter key, the 
   <code>onFileActived</code> signal is emitted. Then we use:</p>  
-  <pre class="codebox">
-fileChooserGetFilename :: FileChooserClass self =&gt; self -&gt; IO (Maybe FilePath)
+  <pre class="codebox">fileChooserGetFilename :: FileChooserClass self =&gt; self -&gt; IO (Maybe FilePath)
 </pre>
   <p>From the filepath, the program can then open the file, or
   possibly do something else. The format of the filepath may depend
@@ -81,15 +79,13 @@ fileChooserGetFilename :: FileChooserClass self =&gt; self -&gt; IO (Maybe FileP
   formats, but those are not discussed here.</p>
   <p>You can determine whether the user can select multiple files
   or not with:</p>
-  <pre class="codebox">
-fileChooserSetselectMultiple :: FileChooserClass self =&gt; self -&gt; Bool -&gt; IO ()
+  <pre class="codebox">fileChooserSetselectMultiple :: FileChooserClass self =&gt; self -&gt; Bool -&gt; IO ()
 </pre>
   <p>and, with the 
   <code>FileChooserWidget</code> , you can easily add a check button
   to let the user determine this. Placing of such a widget is done
   in a standard way with:</p>
-  <pre class="codebox">
-fileChooserSetExtraWidget :: (FileChooserClass self, WidgetClass extraWidget)
+  <pre class="codebox">fileChooserSetExtraWidget :: (FileChooserClass self, WidgetClass extraWidget)
 =&gt; self -&gt; extraWidget -&gt; IO ()
 </pre>
   <p>Another feature is the use of filters to show only files of a
@@ -100,15 +96,13 @@ fileChooserSetExtraWidget :: (FileChooserClass self, WidgetClass extraWidget)
   illustrates filters. The last line just adds the filter to the
   file chooser widget and, as with the extra widget, visual placing
   is done automatically.</p>
-  <pre class="codebox">
-   hsfilt &lt;- fileFilterNew
+  <pre class="codebox">   hsfilt &lt;- fileFilterNew
    fileFilterAddPattern hsfilt "*.hs"
    fileFilterSetName hsfilt "Haskell Source"   
    fileChooserAddFilter fch hsfilt
 </pre>
   <p>You can also add a so-called preview widget with:</p>
-  <pre class="codebox">
-fileChooserSetPreviewWidget :: (FileChooserClass self, WidgetClass
+  <pre class="codebox">fileChooserSetPreviewWidget :: (FileChooserClass self, WidgetClass
 previewWidget) =&gt; self -&gt; previewWidget -&gt; IO ()
 </pre>
   <p>In the example this is used to preview graphics files. The
@@ -125,8 +119,7 @@ previewWidget) =&gt; self -&gt; previewWidget -&gt; IO ()
   accelerator keys. Therefore this signal is more general than the
   name suggests, but here it is actually used for viewing. The code
   snippet is:</p>
-  <pre class="codebox">
-   onUpdatePreview fch $ 
+  <pre class="codebox">   onUpdatePreview fch $ 
         do file &lt;- fileChooserGetPreviewFilename fch
            case file of
                 Nothing -&gt; putStrLn "No File Selected"
@@ -146,8 +139,7 @@ previewWidget) =&gt; self -&gt; previewWidget -&gt; IO ()
   this feature is not treated in the 
   <code>FileChooserWidget</code> example, which has the following
   source code:</p>
-  <pre class="codebox">
-import Graphics.UI.Gtk
+  <pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do
@@ -220,8 +212,7 @@ fpath)
   <p>The second way to use the 
   <code>FileChooser</code> interface is through a 
   <code>FileChooserButton</code> .</p>
-  <pre class="codebox">
-fileChooserButtonNew :: String FileChooserAction -&gt; String -&gt;
+  <pre class="codebox">fileChooserButtonNew :: String FileChooserAction -&gt; String -&gt;
 IO FileChooserButton
 </pre>
   <p>The 
@@ -256,8 +247,7 @@ IO FileChooserButton
   automatically selects it, so in that case 
   <code>onCurrentFolderChanged</code> can be used as well. Here is
   the example code:</p>
-  <pre class="codebox">
-import Graphics.UI.Gtk
+  <pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do
@@ -293,8 +283,7 @@ dpath)
   <code>dialogRun,</code> which produces responses of type 
   <code>ResponseId</code> . A 
   <code>FileChooserDialog</code> is constructed with:</p>
-  <pre class="codebox">
-fileChooserDialogNew ::
+  <pre class="codebox">fileChooserDialogNew ::
 Maybe String                 -- title of the dialog or default
 -&gt; Maybe Window              -- parent window of the dialog or nothing
 -&gt; FileChooserAction         -- open or save mode
@@ -316,8 +305,7 @@ Maybe String                 -- title of the dialog or default
   already exists results in an error message. Overwriting a file,
   however, makes sense and is allowed by default. You can make the
   user confirm any overwite of a file with:</p>
-  <pre class="codebox">
-fileChooserSetDoOverwriteconfirmation :: FileChooserClass self
+  <pre class="codebox">fileChooserSetDoOverwriteconfirmation :: FileChooserClass self
 =&gt; self -&gt; Bool -&gt; IO ()
 </pre>
   <p>As mentioned earlier, no actual save or overwrite is performed
@@ -325,8 +313,7 @@ fileChooserSetDoOverwriteconfirmation :: FileChooserClass self
   <code>FileChooserDialog</code> widget; the application program
   just gets the appropriate file path.</p>
   <p>This is the code of the third example:</p>
-   <pre class="codebox">
-import  Graphics.UI.Gtk 
+   <pre class="codebox">import  Graphics.UI.Gtk 
  
 main :: IO ()
 main = do

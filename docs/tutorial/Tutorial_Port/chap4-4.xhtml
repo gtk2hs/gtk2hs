@@ -28,8 +28,7 @@ possible directions and having a number of possible styles. Like the
 There are only two functions for manipulating an <code>Arrow</code> widget:
 </p>
 
-<pre class="codebox">
-arrowNew :: ArrowType -&gt; ShadowType -&gt; IO Arrow
+<pre class="codebox">arrowNew :: ArrowType -&gt; ShadowType -&gt; IO Arrow
 
 arrowSet :: ArrowClass self =&gt; self -&gt; ArrowType -&gt; ShadowType -&gt; IO ()
 </pre>
@@ -73,16 +72,14 @@ The first call you will use creates a new tooltip. You only need to do this
 once for a set of tooltips.
 </p>
 
-<pre class="codebox">
-tooltipsNew :: IO Tooltips
+<pre class="codebox">tooltipsNew :: IO Tooltips
 </pre>
 
 <p>
 Then, for every widget, use:
 </p>
 
-<pre class="codebox">
-tooltipsSetTip :: (TooltipsClass self, WidgetClass widget)
+<pre class="codebox">tooltipsSetTip :: (TooltipsClass self, WidgetClass widget)
   =&gt; self -&gt; widget -&gt; String -&gt; String -&gt; IO ()
 </pre>
 
@@ -97,8 +94,7 @@ You can turn the tips associated with a <code>Tooltips</code> value on or off
 using:
 </p>
 
-<pre class="codebox">
-tooltipsEnable :: TooltipsClass self =&gt; self -&gt; IO ()
+<pre class="codebox">tooltipsEnable :: TooltipsClass self =&gt; self -&gt; IO ()
 tooltipsDisable :: TooltipsClass self =&gt; self -&gt; IO ()
 </pre>
 
@@ -118,8 +114,7 @@ packing in a table preserves the spacing of the buttons with their arrows.
 they do when compiled. You cannot see them in the screenshot, of course.
 </p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do

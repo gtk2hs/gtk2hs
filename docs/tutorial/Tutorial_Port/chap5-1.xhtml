@@ -21,19 +21,16 @@
     <p>The Calendar widget is an effective way to display and
     retrieve monthly date related information. It is a very simple
     widget to create and work with. Use:</p>
-    <pre class="codebox">
-calendarNew: IO Calendar
+    <pre class="codebox">calendarNew: IO Calendar
 </pre>
     <p>By default the current date is shown. To retrieve the date
     from a calendar use:</p>
-    <pre class="codebox">
-calendarGetDate :: CalendarClass self =&gt; self -&gt; IO (Int, Int, Int)
+    <pre class="codebox">calendarGetDate :: CalendarClass self =&gt; self -&gt; IO (Int, Int, Int)
 </pre>
     <p>where the interpretation is (year, month, day). Note that
     the months start with a 0, so you'll have to add 1 to get it
     right. The related attributes are:</p>
-    <pre class="codebox">
-calendarYear :: CalendarClass self =&gt; Attr self Int
+    <pre class="codebox">calendarYear :: CalendarClass self =&gt; Attr self Int
 calendarMonth :: CalendarClass self =&gt; Attr self Int
 calendarDay :: CalendarClass self =&gt; Attr self Int
 </pre>
@@ -43,8 +40,7 @@ calendarDay :: CalendarClass self =&gt; Attr self Int
     <code>calendarSetDisplayOptions</code>. To retrieve the
     settings use: 
     <code>calendarGetDisplayOptions</code>.</p>
-    <pre class="codebox">
-calendarSetDisplayOptions :: CalendarClass self =&gt; self -&gt; [CalendarDisplayOptions] -&gt; IO ()
+    <pre class="codebox">calendarSetDisplayOptions :: CalendarClass self =&gt; self -&gt; [CalendarDisplayOptions] -&gt; IO ()
 calendarGetDisplayOptions :: CalendarClass self =&gt; self -&gt; IO [CalendarDisplayOptions]
 </pre>
     <p>
@@ -82,8 +78,7 @@ calendarGetDisplayOptions :: CalendarClass self =&gt; self -&gt; IO [CalendarDis
     marked day is highlighted within the calendar display. The
     following functions (there are no attributes) are provided to
     manipulate marked days:</p>
-    <pre class="codebox">
-calendarMarkDay :: CalendarClass self =&gt; self -&gt; Int -&gt; IO Bool
+    <pre class="codebox">calendarMarkDay :: CalendarClass self =&gt; self -&gt; Int -&gt; IO Bool
 calendarUnmarkDay :: CalendarClass self =&gt; self -&gt; Int -&gt; IO Bool
 calendarClearMarks :: CalendarClass self =&gt; self -&gt; IO ()
 </pre>
@@ -112,8 +107,7 @@ calendarClearMarks :: CalendarClass self =&gt; self -&gt; IO ()
       <img src="./Images/GtkChap5-1.png" alt="GtkChap5-1.png"
       id="graphics1" />
     </p>
-    <pre class="codebox">
-import Graphics.UI.Gtk
+    <pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main= do

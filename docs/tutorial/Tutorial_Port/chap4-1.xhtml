@@ -48,8 +48,7 @@ image and a label in it.
 
 <p><img src="Images/GtkChap4-1a.png" alt="Button with image" id="imgGtkChap4-1a" /></p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do
@@ -134,8 +133,7 @@ I will point these out when we come to them.
 Creating a new toggle button:
 </p>
 
-<pre class="codebox">
-toggleButtonNew :: IO ToggleButton
+<pre class="codebox">toggleButtonNew :: IO ToggleButton
 
 toggleButtonNewWithLabel :: String -&gt; IO Togglebutton
 
@@ -154,8 +152,7 @@ To retrieve the state of the toggle widget, including radio and check buttons,
 we use:
 </p>
 
-<pre class="codebox">
-toggleButtonGetActive :: ToggleButtonClass self =&gt; self -&gt; IO Bool
+<pre class="codebox">toggleButtonGetActive :: ToggleButtonClass self =&gt; self -&gt; IO Bool
 </pre>
 
 <p>
@@ -168,8 +165,7 @@ To force the state of a toggle button, and its children, the radio and check
 buttons, use this function:
 </p>
 
-<pre class="codebox">
-toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
+<pre class="codebox">toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
 </pre>
 
 <p>
@@ -199,8 +195,7 @@ often used for toggling options on and off in applications.
 The creation functions are similar to those of the normal button.
 </p>
 
-<pre class="codebox">
-checkButtonNew :: IO CheckButton
+<pre class="codebox">checkButtonNew :: IO CheckButton
 
 checkButtonNewWithLabel :: String -&gt; IO Checkbutton
 
@@ -227,8 +222,7 @@ application where you need to select from a short list of options. Creating a
 new radio button is done with one of these calls:
 </p>
 
-<pre class="codebox">
-radioButtonNew :: IO RadioButton
+<pre class="codebox">radioButtonNew :: IO RadioButton
 
 radioButtonNewWithLabel :: String -&gt; IO RadioButton
 
@@ -251,8 +245,7 @@ It is also a good idea to explicitly set which button should be the default
 depressed button with:
 </p>
 
-<pre class="codebox">
-toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
+<pre class="codebox">toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
 </pre>
 
 <p>
@@ -273,8 +266,7 @@ the user presses one of the radio buttons, the toggled ones will report this to
 
 <p><img src="Images/GtkChap4-1b.png" alt="Radio buttons" id="imgGtkChap4-1b" /></p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main :: IO ()
 main = do

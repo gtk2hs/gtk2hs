@@ -41,8 +41,7 @@ information about the range of values that the spin button can take. Recall
 that an <code>Adjustment</code> widget is created with the following function:
 </p>
 
-<pre class="codebox">
-adjustmentNew :: Double        -- value
+<pre class="codebox">adjustmentNew :: Double        -- value
               -&gt; Double        -- lower
               -&gt; Double        -- upper
               -&gt; Double        -- stepIncrement
@@ -82,8 +81,7 @@ way your mouse is configured on your computer system.
 Let's look at how to create a spin button:
 </p>
 
-<pre class="codebox">
-spinButtonNew :: Adjustment -&gt; Double -&gt; Int -&gt; IO SpinButton
+<pre class="codebox">spinButtonNew :: Adjustment -&gt; Double -&gt; Int -&gt; IO SpinButton
 </pre>
 
 <p>
@@ -98,8 +96,7 @@ There also is a convenience constructor that allows creation of a spin button
 without manually creating an adjustment.
 </p>
 
-<pre class="codebox">
-spinButtonNewWithRange :: Double -&gt; Double -&gt; Double -&gt; IO SpinButton
+<pre class="codebox">spinButtonNewWithRange :: Double -&gt; Double -&gt; Double -&gt; IO SpinButton
 </pre>
 
 <p>
@@ -113,8 +110,7 @@ A <code>SpinButton</code> can be reconfigured after creation using the
 following function:
 </p>
 
-<pre class="codebox">
-spinButtonConfigure :: SpinButtonClass self =&gt; self -. Adjustment -&gt; Double -&gt; Int
+<pre class="codebox">spinButtonConfigure :: SpinButtonClass self =&gt; self -. Adjustment -&gt; Double -&gt; Int
 </pre>
 
 <p>
@@ -128,8 +124,7 @@ The <code>SpinButton</code> attributes, which can be retrieved and changed with
 the generic <code>get</code> and <code>set</code> functions are:
 </p>
 
-<pre class="codebox">
-spinButtonAdjustment :: SpinButtonClass self =&gt; Attr self Adjustment
+<pre class="codebox">spinButtonAdjustment :: SpinButtonClass self =&gt; Attr self Adjustment
 spinButtonClimbRate  :: SpinButtonClass self =&gt; Attr self Double
 spinButtonDigits     :: SpinButtonClass self =&gt; Attr self Int
 
@@ -159,8 +154,7 @@ a new value (default is 0).
 To change the value of a spin button you can also use:
 </p>
 
-<pre class="codebox">
-spinButtonSpin :: SpinButtonClass self =&gt; self -&gt; SpinType -&gt; Double -&gt; IO ()
+<pre class="codebox">spinButtonSpin :: SpinButtonClass self =&gt; self -&gt; SpinType -&gt; Double -&gt; IO ()
 </pre>
 
 <p>
@@ -199,8 +193,7 @@ the specified amount.</p>
 A spin button has an update policy:
 </p>
 
-<pre class="codebox">
-spinButtonUpdatePolicy :: SpinButtonClass self =&gt; Attr self SpinButtonUpdatePolicy
+<pre class="codebox">spinButtonUpdatePolicy :: SpinButtonClass self =&gt; Attr self SpinButtonUpdatePolicy
 </pre>
 
 <p>
@@ -220,8 +213,7 @@ Finally, you can explicitly request that a <code>SpinButton</code> update
 itself:
 </p>
 
-<pre class="codebox">
-spinButtonUpdate :: SpinButtonClass self =&gt; self -&gt; IO ()
+<pre class="codebox">spinButtonUpdate :: SpinButtonClass self =&gt; self -&gt; IO ()
 </pre>
 
 <p>
@@ -237,8 +229,7 @@ The spin buttons have all been created with the following function which uses
 be 1.0 in all cases, this is not a parameter in <code>myAddSpinButton</code>.
 </p>
 
-<pre class="codebox">
-myAddSpinButton :: HBox -&gt; String -&gt; Double -&gt; Double -&gt; IO SpinButton
+<pre class="codebox">myAddSpinButton :: HBox -&gt; String -&gt; Double -&gt; Double -&gt; IO SpinButton
 myAddSpinButton box name min max = do
     vbox  &lt;- vBoxNew False 0
     boxPackStart box vbox PackRepel 0
@@ -276,8 +267,7 @@ available. This is actually the recommended style when programming Gtk2Hs, and
 in the future many specific functions will be deprecated.
 </p>
 
-<pre class="codebox">
-import Graphics.UI.Gtk
+<pre class="codebox">import Graphics.UI.Gtk
 
 main:: IO ()
 main = do
