@@ -98,8 +98,8 @@ module System.Gnome.VFS.Types (
   VolumeOpSuccessCallback,
   VolumeOpFailureCallback,
   CVolumeOpCallback,
-  VolumeType,
-  DeviceType,
+  VolumeType(..),
+  DeviceType(..),
   
   MIMEType,
   

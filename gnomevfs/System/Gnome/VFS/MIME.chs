@@ -80,7 +80,7 @@ mimeTypeFromNameOrDefault filename defaultv =
 --   the function returns \"application\/octet-stream\".
 --   
 --   Note: This function will not necessarily return the same
---   MIME-type as 'getFileInfo'.
+--   MIME-type as 'System.Gnome.VFS.Ops.getFileInfo'.
 getMIMETypeCommon :: URI       -- ^ @uri@ - the URI of the file to examine
                   -> IO String -- ^ the guessed MIME-type
 getMIMETypeCommon uri =

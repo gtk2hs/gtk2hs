@@ -122,11 +122,11 @@ driveCompare a b =
                     | otherwise  = EQ
        return ordering
 
--- | If drive has associated 'Volume' objects, all of them will
---   be unmounted by calling 'volumeUnmount' for each volume in
---   'driveGetMountedVolumes', except for the last one, for which
---   'volumeEject' is called to ensure that the drive's media is
---   ejected.
+-- | If drive has associated 'Volume' objects, all of them will be
+--   unmounted by calling 'System.Gnome.VFS.Volume.volumeUnmount' for
+--   each volume in 'driveGetMountedVolumes', except for the last one,
+--   for which 'System.Gnome.VFS.Volume.volumeEject' is called to
+--   ensure that the drive's media is ejected.
 driveEject :: DriveClass drive =>
               drive                   -- ^ @drive@ - the drive to be ejected
            -> VolumeOpSuccessCallback -- ^ @successCallback@ - the
@@ -148,9 +148,9 @@ marshalMaybeString cAction drive =
 -- | Returns the activation URI of @drive@.
 --   
 --   The returned URI usually refers to a valid location. You can
---   check the validity of the location by calling 'uriFromString'
---   with the URI, and checking whether the return value is not
---   'Nothing'.
+--   check the validity of the location by calling
+--   'System.Gnome.VFS.URI.uriFromString' with the URI, and checking
+--   whether the return value is not 'Nothing'.
 driveGetActivationURI :: DriveClass drive
                       => drive      -- ^ @drive@ - the drive object to query
                       -> IO String  -- ^ the drive's activation URI

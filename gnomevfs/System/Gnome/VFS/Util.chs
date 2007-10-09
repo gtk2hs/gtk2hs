@@ -261,7 +261,7 @@ getLocalPathFromURI uri =
 --   resulting URI may be provided, for instance, to
 --   'System.Gnome.VFS.URI.uriFromString'.
 --   
---   On Windows 'localFullPath' should be in the UTF-8 encoding, and
+--   On Windows @localFullPath@ should be in the UTF-8 encoding, and
 --   can start with a drive letter, but doesn't have to.
 getURIFromLocalPath :: FilePath -- ^ @localFullPath@ - 
                     -> TextURI  -- ^ the resulting URI

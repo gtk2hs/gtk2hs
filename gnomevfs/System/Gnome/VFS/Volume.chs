@@ -146,9 +146,9 @@ marshalMaybeString cAction volume =
 -- | Returns the activation URI of @volume@.
 --   
 --   The returned URI usually refers to a valid location. You can
---   check the validity of the location by calling 'uriFromString'
---   with the URI, and checking whether the return value is not
---   'Nothing'.
+--   check the validity of the location by calling
+--   'System.Gnome.VFS.URI.uriFromString' with the URI, and checking
+--   whether the return value is not 'Nothing'.
 volumeGetActivationURI  :: VolumeClass volume
                         => volume     -- ^ @volume@ - the volume to query
                         -> IO TextURI -- ^ the volume's activation URI.
