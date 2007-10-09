@@ -47,7 +47,7 @@ void     _hs_gst_object_flag_unset (GstObject* obj, guint flags);
 void     _hs_gst_object_lock    (GstObject* obj);
 gboolean _hs_gst_object_trylock (GstObject* obj);
 void     _hs_gst_object_unlock  (GstObject* obj);
-void _hs_gst_object_take_ownership (gpointer obj);
+void _hs_gst_object_unfloat (gpointer obj);
 GstMessageType _hs_gst_message_get_message_type (GstMessage *message);
 void _hs_gst_structure_make_immutable (GstStructure *structure);
 gsize _hs_gst_segment_sizeof (void) G_GNUC_CONST;

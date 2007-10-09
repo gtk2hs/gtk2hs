@@ -231,19 +231,19 @@ withObject object action =
 peekObject, takeObject :: ObjectClass obj
                        => Ptr obj
                        -> IO obj
-peekObject cObject =
-    liftM (unsafeCastGObject . GObject . castForeignPtr) $
-        do cObjectTakeOwnership $ castPtr cObject
-           newForeignPtr (castPtr cObject) objectFinalizer
+peekObject cObject = do
+    cObjectRef cObject
+    takeObject cObject
 foreign import ccall unsafe "&gst_object_unref"
   objectFinalizer :: FunPtr (Ptr () -> IO ())
-foreign import ccall unsafe "_hs_gst_object_take_ownership"
-  cObjectTakeOwnership :: Ptr ()
-                       -> IO ()
+foreign import ccall unsafe "_hs_gst_object_unfloat"
+  cObjectRef :: Ptr ()
+             -> IO (Ptr ())
 
 takeObject cObject =
     liftM (unsafeCastGObject . GObject . castForeignPtr) $
-        newForeignPtr (castPtr cObject) objectFinalizer
+        do cObjectUnfloat
+           newForeignPtr (castPtr cObject) objectFinalizer
 
 mkObjectGetFlags :: (ObjectClass objectT, Flags flagsT)
                  => objectT

@@ -39,15 +39,11 @@ gboolean _hs_gst_object_trylock (GstObject* obj)
 void _hs_gst_object_unlock (GstObject* obj)
 { return GST_OBJECT_UNLOCK (obj); }
 
-void _hs_gst_object_take_ownership (gpointer obj)
+void _hs_gst_object_unfloat (gpointer obj)
 {
   GST_OBJECT_LOCK (obj);
   
-  if (GST_OBJECT_IS_FLOATING (obj)) {
-    GST_OBJECT_FLAG_UNSET (obj, GST_OBJECT_FLOATING);
-  } else {
-    gst_object_ref (obj);
-  }
+  GST_OBJECT_FLAG_UNSET (obj, GST_OBJECT_FLOATING);
   
   GST_OBJECT_UNLOCK (obj);
 }
