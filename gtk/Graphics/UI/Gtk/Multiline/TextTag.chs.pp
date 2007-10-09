@@ -282,8 +282,8 @@ textTagVariant :: TextTagClass self => Attr self Variant
 textTagVariant = newAttrFromEnumProperty "variant"
   {# call pure unsafe pango_variant_get_type #}
 
--- | Font weight as an integer, see predefined values in 'Weight'; for
--- example, 'WeightBold'.
+-- | Font weight as an integer, see predefined values in 'Graphics.UI.Gtk.Pango.Enums.Weight'; for
+-- example, 'Graphics.UI.Gtk.Pango.Enums.WeightBold'.
 --
 -- Allowed values: >= 0
 --

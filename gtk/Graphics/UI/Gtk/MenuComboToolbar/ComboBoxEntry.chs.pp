@@ -34,10 +34,12 @@ module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry (
 -- 'ComboBox', but it displays the selected value in an entry to allow
 -- modifying it.
 --
--- In contrast to a 'ComboBox', the underlying model of a 'ComboBoxEntry'
--- must always have a text column (see 'comboBoxEntrySetTextColumn'), and the
--- entry will show the content of the text column in the selected row. To get
--- the text from the entry, use 'comboBoxGetActiveText'.
+-- In contrast to a 'ComboBox', the underlying model of a
+-- 'ComboBoxEntry' must always have a text column (see
+-- 'comboBoxEntrySetTextColumn'), and the entry will show the content
+-- of the text column in the selected row. To get the text from the
+-- entry, use
+-- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxGetActiveText'.
 --
 -- The convenience API to construct simple text-only 'ComboBox'es can also
 -- be used with 'ComboBoxEntry's which have been constructed with
@@ -90,7 +92,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- Constructors
 
 -- | Creates a new 'ComboBoxEntry' which has a 'Entry' as child. After
--- construction, you should set a model using 'comboBoxSetModel' and a
+-- construction, you should set a model using
+-- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxSetModel' and a
 -- text column using 'comboBoxEntrySetTextColumn'.
 --
 comboBoxEntryNew :: IO ComboBoxEntry
@@ -99,10 +102,12 @@ comboBoxEntryNew =
   liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
   {# call gtk_combo_box_entry_new #}
 
--- | Creates a new 'ComboBoxEntry' which has a 'Entry' as child and a list of
--- strings as popup. You can get the 'Entry' from a 'ComboBoxEntry' using
--- 'binGetChild'. To add and remove strings from the list, just modify @model@
--- using its data manipulation API.
+-- | Creates a new 'ComboBoxEntry' which has a 'Entry' as child and a
+-- list of strings as popup. You can get the 'Entry' from a
+-- 'ComboBoxEntry' using
+-- 'Graphics.UI.Gtk.Abstract.Bin.binGetChild'. To add and remove
+-- strings from the list, just modify @model@ using its data
+-- manipulation API.
 --
 comboBoxEntryNewWithModel :: TreeModelClass model => 
     model            -- ^ @model@ - A 'TreeModel'.
@@ -116,11 +121,15 @@ comboBoxEntryNewWithModel model textColumn =
     (toTreeModel model)
     (fromIntegral textColumn)
 
--- | Convenience function which constructs a new editable text combo box,
--- which is a 'ComboBoxEntry' just displaying strings. If you use this function
--- to create a text combo box, you should only manipulate its data source with
--- the following convenience functions: 'comboBoxAppendText',
--- 'comboBoxInsertText', 'comboBoxPrependText' and 'comboBoxRemoveText'.
+-- | Convenience function which constructs a new editable text combo
+-- box, which is a 'ComboBoxEntry' just displaying strings. If you use
+-- this function to create a text combo box, you should only
+-- manipulate its data source with the following convenience
+-- functions:
+-- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxAppendText',
+-- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxInsertText',
+-- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxPrependText' and
+-- 'Graphics.UI.Gtk.MenuComboToolbar.ComboBox.comboBoxRemoveText'.
 --
 comboBoxEntryNewText :: IO ComboBoxEntry
 comboBoxEntryNewText =

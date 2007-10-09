@@ -353,8 +353,7 @@ foreign import ccall "wrapper"  mkTreeModelForeachFunc ::
 --
 treeModelGetStringFromIter :: TreeModelClass self => self
  -> TreeIter  -- ^ @iter@ - An 'TreeIter'.
- -> IO String -- ^ returns A newly-allocated string. Must be freed with
-              -- 'gFree'.
+ -> IO String -- ^ the returned string representation
 treeModelGetStringFromIter self iter = with iter $ \iter ->
   {# call gtk_tree_model_get_string_from_iter #}
     (toTreeModel self)

@@ -152,7 +152,7 @@ data Click = SingleClick
 --   widget will check if the drag matches this widget's list of possible
 --   targets and actions. GTK+ will then call
 --   'Graphics.UI.Gtk.Gdk.Drag.dragStatus' as appropriate.
--- * 'DestDefaultHightlight':   If set for a widget, GTK+ will draw a
+-- * 'DestDefaultHighlight':   If set for a widget, GTK+ will draw a
 --   highlight on this widget as long as a drag is over this widget and the
 --   widget drag format and action are acceptable.
 -- * 'DestDefaultDrop':   If set for a widget, when a drop occurs, GTK+ will

@@ -136,7 +136,7 @@ initGUI = do
 -- to ensure that all calls to Gtk+ happen on a single OS thread.
 -- If you want to make calls to Gtk2Hs functions from a Haskell thread other
 -- than the one that calls this functions and mainGUI then you will have to
--- 'post' your GUI actions to the main GUI thread. You can do this using
+-- \'post\' your GUI actions to the main GUI thread. You can do this using
 -- 'postGUISync' or 'postGUIAsync'.
 --
 unsafeInitGUIForThreadedRTS :: IO [String]

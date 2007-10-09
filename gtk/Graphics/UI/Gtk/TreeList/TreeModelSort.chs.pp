@@ -179,10 +179,11 @@ treeModelSortResetDefaultSortFunc self =
 -- | Clear the cache of unref'd iterators.
 --
 -- * This function should almost never be called. It clears the
--- 'TreeModelSort' of any cached iterators that haven't been reffed with
--- 'treeModelRefNode'. This might be useful if the child model being sorted is
--- static (and doesn't change often) and there has been a lot of unreffed
--- access to nodes. As a side effect of this function, all unreffed iters will
+-- 'TreeModelSort' of any cached iterators that haven't been reffed
+-- with 'Graphics.UI.Gtk.TreeModel.treeModelRefNode'. This might be
+-- useful if the child model being sorted is static (and doesn't
+-- change often) and there has been a lot of unreffed access to
+-- nodes. As a side effect of this function, all unreffed iters will
 -- be invalid.
 --
 treeModelSortClearCache :: TreeModelSortClass self => self -> IO ()

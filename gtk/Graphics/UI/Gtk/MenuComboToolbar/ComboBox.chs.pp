@@ -199,11 +199,12 @@ comboBoxSetColumnSpanColumn self columnSpan =
     (toComboBox self)
     (fromIntegral columnSpan)
 
--- | Returns the index of the currently active item, or @Nothing@ if there's no
--- active item. If the model is a non-flat treemodel, and the active item is
--- not an immediate child of the root of the tree, this function returns
--- @'treePathGetIndices' path !! 0@, where @path@ is the 'TreePath' of the
--- active item.
+-- | Returns the index of the currently active item, or @Nothing@ if
+-- there's no active item. If the model is a non-flat treemodel, and
+-- the active item is not an immediate child of the root of the tree,
+-- this function returns @'treePathGetIndices' path !! 0@, where
+-- @path@ is the 'Graphics.UI.Gtk.TreeList.TreePath' of the active
+-- item.
 --
 comboBoxGetActive :: ComboBoxClass self => self
  -> IO (Maybe Int) -- ^ returns An integer which is the index of the currently

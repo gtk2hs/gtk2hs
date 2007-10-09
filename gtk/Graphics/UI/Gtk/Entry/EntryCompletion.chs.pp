@@ -34,12 +34,13 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- 'CellLayout' interface, to allow the user to add extra cells to the
 -- 'TreeView' with completion matches.
 --
--- \"Completion functionality\" means that when the user modifies the text
--- in the entry, 'EntryCompletion' checks which rows in the model match the
--- current content of the entry, and displays a list of matches. By default,
--- the matching is done by comparing the entry text case-insensitively against
--- the text in a model (see 'entryCompletionSetTextModel'), but this
--- can be overridden with a custom match function (see
+-- \"Completion functionality\" means that when the user modifies the
+-- text in the entry, 'EntryCompletion' checks which rows in the model
+-- match the current content of the entry, and displays a list of
+-- matches. By default, the matching is done by comparing the entry
+-- text case-insensitively against the text in a model (see
+-- 'Graphics.UI.Gtk.Entry.entryCompletionSetTextModel'), but this can
+-- be overridden with a custom match function (see
 -- 'entryCompletionSetMatchFunc').
 --
 -- When the user selects a completion, the content of the entry is updated.

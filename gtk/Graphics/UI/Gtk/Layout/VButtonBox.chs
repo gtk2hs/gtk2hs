@@ -32,16 +32,23 @@ module Graphics.UI.Gtk.Layout.VButtonBox (
 -- programmer, or if desired, by the user to alter the \'feel\' of a program to
 -- a small degree.
 --
--- A 'VButtonBox' is created with 'vButtonBoxNew'. Buttons are packed into a
--- button box the same way widgets are added to any other container, using
--- 'containerAdd'. You can also use 'boxPackStart' or 'boxPackEnd', but for
--- button boxes both these functions work just like 'containerAdd', ie., they
--- pack the button in a way that depends on the current layout style and on
--- whether the button has had 'buttonBoxSetChildSecondary' called on it.
+-- A 'VButtonBox' is created with 'vButtonBoxNew'. Buttons are packed
+-- into a button box the same way widgets are added to any other
+-- container, using
+-- 'Graphics.UI.Gtk.Abstract.Container.containerAdd'. You can also use
+-- 'Graphics.UI.Gtk.Abstract.Box.boxPackStart' or
+-- 'Graphics.UI.Gtk.Abstract.Box.boxPackEnd', but for button boxes
+-- both these functions work just like
+-- 'Graphics.UI.Gtk.Abstract.Container.containerAdd', ie., they pack
+-- the button in a way that depends on the current layout style and on
+-- whether the button has had
+-- 'Graphics.UI.Gtk.Abstract.ButtonBox.buttonBoxSetChildSecondary'
+-- called on it.
 --
--- The spacing between buttons can be set with 'boxSetSpacing'. The
--- arrangement and layout of the buttons can be changed with
--- 'buttonBoxSetLayout'.
+-- The spacing between buttons can be set with
+-- 'Graphics.UI.Gtk.Abstract.Box.boxSetSpacing'. The arrangement and
+-- layout of the buttons can be changed with
+-- 'Graphics.UI.Gtk.Abstract.ButtonBox.buttonBoxSetLayout'.
 
 -- * Class Hierarchy
 -- |

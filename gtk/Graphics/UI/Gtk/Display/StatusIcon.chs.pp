@@ -179,10 +179,11 @@ statusIconNewFromFile filename =
   {# call gtk_status_icon_new_from_file #}
     filenamePtr
 
--- %hash c:784f d:88a3
--- | Creates a status icon displaying a stock icon. Sample stock icon names
--- are 'stockOpen', 'stockQuit'. You can register your own stock icon names, see
--- 'iconFactoryAddDefault' and 'iconFactoryAdd'.
+-- %hash c:784f d:88a3 | Creates a status icon displaying a stock
+-- icon. Sample stock icon names are 'stockOpen', 'stockQuit'. You can
+-- register your own stock icon names, see
+-- 'Graphics.UI.Gtk.General.IconFactory.iconFactoryAddDefault' and
+-- 'Graphics.UI.Gtk.General.IconFactory.iconFactoryAdd'.
 --
 statusIconNewFromStock ::
     StockId -- ^ @stockId@ - a stock icon id
@@ -263,7 +264,7 @@ statusIconSetFromIconName self iconName =
 -- %hash c:6317 d:d3c5
 -- | Gets the type of representation being used by the 'StatusIcon' to store
 -- image data. If the 'StatusIcon' has no image data, the return value will be
--- 'ImageEmpty'.
+-- 'Graphics.UI.Gtk.Display.Image.ImageEmpty'.
 --
 statusIconGetStorageType :: StatusIconClass self => self
  -> IO ImageType -- ^ returns the image representation being used
@@ -272,11 +273,12 @@ statusIconGetStorageType self =
   {# call gtk_status_icon_get_storage_type #}
     (toStatusIcon self)
 
--- %hash c:cd8a d:9fed
--- | Gets the 'Pixbuf' being displayed by the 'StatusIcon'. The storage type
--- of the status icon must be 'ImageEmpty' or 'ImagePixbuf' (see
--- 'statusIconGetStorageType'). The caller of this function does not own a
--- reference to the returned pixbuf.
+-- %hash c:cd8a d:9fed | Gets the 'Pixbuf' being displayed by the
+-- 'StatusIcon'. The storage type of the status icon must be
+-- 'Graphics.UI.Gtk.Display.Image.ImageEmpty' or
+-- 'Graphics.UI.Gtk.Display.Image.ImagePixbuf' (see
+-- 'statusIconGetStorageType'). The caller of this function does not
+-- own a reference to the returned pixbuf.
 --
 statusIconGetPixbuf :: StatusIconClass self => self
  -> IO (Maybe Pixbuf) -- ^ returns the displayed pixbuf, or @Nothing@ if the
@@ -287,9 +289,10 @@ statusIconGetPixbuf self = do
   maybePeek (makeNewGObject mkPixbuf . return) ptr
   
 
--- %hash c:ecce d:448
--- | Gets the id of the stock icon being displayed by the 'StatusIcon'. The
--- storage type of the status icon must be 'ImageEmpty' or 'ImageStock' (see
+-- %hash c:ecce d:448 | Gets the id of the stock icon being displayed
+-- by the 'StatusIcon'. The storage type of the status icon must be
+-- 'Graphics.UI.Gtk.Display.Image.ImageEmpty' or
+-- 'Graphics.UI.Gtk.Display.Image.ImageStock' (see
 -- 'statusIconGetStorageType'). The returned string is owned by the
 -- 'StatusIcon' and should not be freed or modified.
 --
@@ -301,9 +304,10 @@ statusIconGetStock self =
     (toStatusIcon self)
   >>= maybePeek peekUTFString
 
--- %hash c:6e6b d:273e
--- | Gets the name of the icon being displayed by the 'StatusIcon'. The
--- storage type of the status icon must be 'ImageEmpty' or 'ImageIconName' (see
+-- %hash c:6e6b d:273e | Gets the name of the icon being displayed by
+-- the 'StatusIcon'. The storage type of the status icon must be
+-- 'Graphics.UI.Gtk.Display.Image.ImageEmpty' or
+-- 'Graphics.UI.Gtk.Display.Image.ImageIconName' (see
 -- 'statusIconGetStorageType'). The returned string is owned by the
 -- 'StatusIcon' and should not be freed or modified.
 --
@@ -487,7 +491,7 @@ statusIconIconName = newAttrFromMaybeStringProperty "icon-name"
 -- %hash c:570e d:983f
 -- | The representation being used for image data.
 --
--- Default value: 'ImageEmpty'
+-- Default value: 'Graphics.UI.Gtk.Display.Image.ImageEmpty'
 --
 statusIconStorageType :: StatusIconClass self => ReadAttr self ImageType
 statusIconStorageType = readAttrFromEnumProperty "storage-type"

@@ -168,7 +168,7 @@ instance Flags DragAction
 -- Methods
 
 -- | A set of actions that the source recommends to be taken. Only valid if
---   'dragContextSugestedAction' is set to 'ActionAsk'.
+--   'dragContextSuggestedAction' is set to 'ActionAsk'.
 --
 dragContextActions :: Attr DragContext [DragAction]
 dragContextActions = newAttr (liftM toFlags . dragContextGetActions)
@@ -556,9 +556,12 @@ dragSourceGetTargetList widget = do
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- %hash c:1f25 d:af3f
--- | Add the text targets supported by 'Selection' to the target list of the
--- drag source. The targets are added with @info = 0@. If you need another
--- value, use 'Graphics.UI.Gtk.General.Selection.targetListAddTextTargets' and 'dragSourceSetTargetList'.
+-- | Add the text targets supported by
+-- 'Graphics.UI.Gtk.General.Selection.Selection' to the target list of
+-- the drag source. The targets are added with @info = 0@. If you need
+-- another value, use
+-- 'Graphics.UI.Gtk.General.Selection.targetListAddTextTargets' and
+-- 'dragSourceSetTargetList'.
 --
 -- * Since Gtk 2.6.
 --
@@ -610,10 +613,12 @@ dragDataDelete :: WidgetClass self => Signal self (DragContext -> IO ())
 dragDataDelete = Signal (connect_OBJECT__NONE "drag_data_delete")
 
 -- %hash c:eb9c d:844c
--- | The ::drag-data-get signal is emitted on the drag source when the drop
--- site requests the data which is dragged. It is the responsibility of the
--- signal handler to set the selection data in the format which is indicated
--- by 'InfoId'. See 'selectionDataSet' and 'selectionDataSetText'.
+-- | The ::drag-data-get signal is emitted on the drag source when the
+-- drop site requests the data which is dragged. It is the
+-- responsibility of the signal handler to set the selection data in
+-- the format which is indicated by 'InfoId'. See
+-- 'Graphics.UI.Gtk.General.Selection.selectionDataSet' and
+-- 'Graphics.UI.Gtk.General.Selection.selectionDataSetText'.
 --
 dragDataGet :: WidgetClass self =>
   Signal self (DragContext -> InfoId -> TimeStamp -> SelectionDataM ())

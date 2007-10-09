@@ -24,12 +24,11 @@
 --
 -- A StockItem is a resource that is know throughout Gtk.
 --
--- * Defining you own
---   'IconSet's as 'StockItem's will make it possible for 
---   Gtk to choose
---   the most appropriate sizes and enables themes to override your built in
---   icons. A couple of constants are defined here as well. They are useful 
---   in accessing Gtk's predefined items.
+-- * Defining you own 'Graphics.UI.Gtk.General.IconFactory.IconSet's
+--   as 'StockItem's will make it possible for Gtk to choose the most
+--   appropriate sizes and enables themes to override your built in
+--   icons. A couple of constants are defined here as well. They are
+--   useful in accessing Gtk's predefined items.
 --
 
 module Graphics.UI.Gtk.General.StockItems (
