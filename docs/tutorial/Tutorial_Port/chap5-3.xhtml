@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial: Font and Color Selection</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>Gtk2Hs Tutorial</h1>
+      <span class="nav-previous">
+        <a href="chap5-2.xhtml">Previous</a>
+      </span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+      <!-- a href="chap5-4.xhtml" -->Next 
+      <!--</a>--></span>
+    </div>
+    <h1>5.3 Font and Color Selection</h1>
+    <p>Font and color selection are much like file selection. There
+    are three ways to implement them, as widgets, dialogs and
+    buttons. The user selected values are obtained through the
+    appropriate attributes or functions. We'll discuss font
+    selection first. You can use:</p>
+    <pre class="codebox">
+fontSelectionNew :: IO FontSelection
+fontSelectionDialogNew :: String -&gt; IO FontSelectionDialog
+fontButtonNew :: IO FontButton
+</pre>
+    <p>The 
+    <code>String</code> parameter is the title of the dialog window.
+    There are a host of attributes and functions to manage the
+    display of these widgets, all pretty straightforward. With a
+    dialog you use the appropriate 
+    <code>ResponseId</code> types; with the 
+    <code>FontButton</code>  you use:</p>
+    <pre class="codebox">
+onFontSet:: FontButtonClass self =&gt; self -&gt; IO () -&gt; IO (ConnectId self)
+</pre>
+    <p>Then you use the following function to get the name of the
+    user selected font:</p>
+    <pre class="codebox">
+fontButtonGetFontName :: FontButtonClass self =&gt; self -&gt; IO String
+</pre>
+    <p>The font name will be something like "Courier Italic 10" or
+    "URW Gothic L Semi-Bold Oblique 16", whatever is available on
+    your system. As you can see from the image below, the user can
+    select a family, a style and a size.</p>
+    <p>
+      <img src="Images/GtkChap5-3a.png" alt="Font Select Window"
+      id="imgGtkChap5-3a" />
+    </p>
+    <p>Finding and querying information about fonts is documented
+    in Graphics.UI.Gtk.Pango.Font. Many advanced features are
+    supported, but the general user will only need to know how to
+    get a 
+    <code>FontDescription</code> from a font name.</p>
+    <pre class="codebox">
+fontDescriptionFromString :: String -&gt; IO FontDescription
+</pre>
+    <p>Once you have a 
+    <code>FontDescription</code> you can use:</p>
+    <pre class="codebox">
+widgetModifyFont:: WidgetClass self =&gt; self -&gt; Maybe FontDescription -&gt; IO ()
+</pre>
+    <p>Color selection is analogous to font selection. You have
+    three choices:</p>
+    <pre class="codebox">
+colorSelectionNew :: IO Color Selection
+colorSelectionDialogNew: :: String -&gt; IO ColorSelectionDialog
+colorButtonNew :: IO Color Button
+</pre>
+    <p>Whith a ColorButton use:</p>
+    <pre class="codebox">
+onColorSet :: ColorButtonClass self =&gt; self -&gt; IO () -&gt; IO (ConnectId self)
+</pre>
+    <p>and then:</p>
+    <pre class="codebox">
+colorButtonGetColor :: ColorButtonClass self =&gt; self -&gt; IO Color
+</pre>
+    <p>There is also a function (and an attribute) to get the Alpha
+    value (opacity) if this feature has been enabled.</p>
+    <p>The default color selection window looks like this:</p>
+    <p>
+      <img src="Images/GtkChap5-3b.png"
+      alt="Color Selection Window" id="imgGtkChap5-3b" />
+    </p>
+    <p>Color is a data type of three 
+    <code>Ints</code> , ranging from 0 to 65535, specifying the red,
+    green and blue components. There are functions to set the
+    foreground, background, text and base colors of a widget, and
+    these functions take a 
+    <code>StateType</code> parameter. These are: 
+    <code>StateNormal, StateActive, StatePreLight, StateSelected
+    and StateInsensitive</code> and they depend on whether a widget
+    is active, the mouse pointer is over a widget, a widget is
+    selected and such. Display of widgets has many features, but to
+    change the color of a label text, for example, you just use 
+    <code>StateNormal</code> and the 
+    <code>Color</code> the user has selected.</p>
+    <pre class="codebox">
+widgetModifyFg :: WidgetClass self =&gt; self -&gt; StateType -&gt; Color -&gt; IO ()
+</pre>
+    <p>When in doubt what 
+    <code>StateType</code> the widget has, there is the following
+    function:</p>
+    <pre class="codebox">
+widgetGetState :: WidgetClass w =&gt; w -&gt; IO StateType
+</pre>
+    <p>Here is an example of font and color selection.</p>
+    <p>
+      <img src="Images/GtkChap5-3c.png"
+      alt="FontButton and ColorButton Example"
+      id="imgGtkChap5-3c" />
+    </p>
+    <p>The window automatically resizes to accommodate the larger
+    font.</p>
+    <p>
+      <img src="Images/GtkChap5-3d.png" alt="Window"
+      id="imgGtkChap5-3d" />
+    </p>
+    <pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Font and Color Selection",
+containerBorderWidth := 10 ]
+     vb &lt;- vBoxNew False 0
+     containerAdd window vb
+
+     qtlab &lt;- labelNew (Just "How poor are they that have not
+patience!\nWhat wound did ever heal but by degrees?\nThou know'st
+we work by wit, and not by witchcraft;\nAnd wit depends on dilatory
+time.")
+     boxPackStart vb qtlab PackGrow 0
+
+     srclab &lt;- labelNew (Just "From Othello (II, iii, 376-379)")
+     srcfont &lt;- fontDescriptionFromString "Courier Italic 10"
+     widgetModifyFont srclab (Just srcfont)
+     miscSetAlignment srclab 1.0 0.5
+     boxPackStart vb srclab PackNatural 10
+
+     sep &lt;- hSeparatorNew
+     boxPackStart vb sep PackGrow 10
+     
+     fntb &lt;- fontButtonNew
+     boxPackStart vb fntb PackGrow 0
+
+     colb &lt;- colorButtonNew
+     boxPackStart vb colb PackGrow 0
+
+     onFontSet fntb $ do name &lt;- fontButtonGetFontName fntb
+                         fdesc &lt;- fontDescriptionFromString name
+                         widgetModifyFont qtlab (Just fdesc)
+                         putStrLn name
+
+     onColorSet colb $ do colour &lt;- colorButtonGetColor colb
+                          widgetModifyFg qtlab StateNormal colour
+                          putStrLn (show  colour)
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+instance Show Color where
+         show (Color r g b) = "Red: " ++ (show r) ++ 
+                              " Green: " ++ (show g) ++ 
+                              " Blue: " ++ (show b)
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="chap1.xhtml">Previous</a>
+      <br />5.2 File Selection</span>
+      <span class="nav-home">
+      <a href="index.xhtml">Home</a>
+      <br />&#160;</span>
+      <span class="nav-next">
+      <!--<a href="chap3-1.xhtml">-->Next 
+      <!--</a>-->
+      <br /></span>
+    </div>
+  </body>
+</html>
