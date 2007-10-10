@@ -47,6 +47,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.General.Drag,
   module Graphics.UI.Gtk.Gdk.Keys,
   module Graphics.UI.Gtk.General.Style,
+  module Graphics.UI.Gtk.General.Clipboard,
+
   -- * Drawing and other Low-Level Operations
   module Graphics.UI.Gtk.Gdk.Drawable,
   module Graphics.UI.Gtk.Gdk.DrawWindow,
@@ -220,6 +222,7 @@ import Graphics.UI.Gtk.General.IconFactory
 import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Selection
 import Graphics.UI.Gtk.General.Drag
+import Graphics.UI.Gtk.General.Clipboard
 -- drawing
 import Graphics.UI.Gtk.Gdk.Keys
 import Graphics.UI.Gtk.General.Style

@@ -33,10 +33,7 @@
 --   Maybe TextMark. The same holds for 
 --   'textBufferGetSelectionBound'.
 --
--- If Clipboards are bound, then these functions need to be bound as well:
---     gtk_text_buffer_paste_clipboard
---     gtk_text_buffer_copy_clipboard
---     gtk_text_buffer_cut_clipboard
+-- If Clipboards are fully bound, then these functions need to be bound as well:
 --     gtk_text_buffer_add_selection_clipboard
 --     gtk_text_buffer_remove_selection_clipboard
 --
@@ -139,6 +136,10 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferInsertChildAnchor,
   textBufferCreateChildAnchor,
   textBufferGetIterAtChildAnchor,
+
+  textBufferPasteClipboard,
+  textBufferCopyClipboard,
+  textBufferCutClipboard,
 
 -- * Attributes
   textBufferTagTable,
@@ -957,6 +958,43 @@ textBufferGetBounds self start end =
     (toTextBuffer self)
     start
     end
+
+-- | Pastes the contents of a clipboard at the insertion point,
+-- or at override_location. (Note: pasting is asynchronous, that is,
+-- we'll ask for the paste data and return, and at some point later
+-- after the main loop runs, the paste data will be inserted.)
+textBufferPasteClipboard :: TextBufferClass self => self
+  -> Clipboard  -- ^ @clipboard@ - 	the GtkClipboard to paste from
+  -> TextIter   -- ^ @overrideLocation@ - 	location to insert pasted text
+  -> Bool       -- ^ @defaultEditable@ -   whether the buffer is editable by default
+  -> IO ()
+textBufferPasteClipboard self clipboard overrideLocation defaultEditable =
+  {# call gtk_text_buffer_paste_clipboard #}
+    (toTextBuffer self)
+    clipboard
+    overrideLocation
+    (fromBool defaultEditable)
+
+-- | Copies the currently-selected text to a clipboard.
+textBufferCopyClipboard :: TextBufferClass self => self
+  -> Clipboard -- ^ @clipboard@ - 	the GtkClipboard object to copy to
+  -> IO ()
+textBufferCopyClipboard self clipboard =
+  {# call gtk_text_buffer_copy_clipboard #}
+    (toTextBuffer self)
+    clipboard
+
+-- | Copies the currently-selected text to a clipboard,
+-- then deletes said text if it's editable.
+textBufferCutClipboard :: TextBufferClass self => self
+  -> Clipboard  -- ^ @clipboard@ - 	the GtkClipboard object to cut to
+  -> Bool       -- ^ @defaultEditable@ -   whether the buffer is editable by default
+  -> IO ()
+textBufferCutClipboard self clipboard defaultEditable =
+  {# call gtk_text_buffer_cut_clipboard #}
+    (toTextBuffer self)
+    clipboard
+    (fromBool defaultEditable)
 
 --------------------
 -- Attributes
