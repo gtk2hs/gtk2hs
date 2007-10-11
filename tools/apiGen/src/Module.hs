@@ -443,7 +443,7 @@ makeOldSignals module_ =
   where makeOldSignal (decl@Decl { decl_name = newName,
                                    decl_body = signal@Signal {} } : decls) =
           decl :
-          let oldName = "on" ++ upperCaseFirstChar(decl_name decl) in
+          let oldName = "on" ++ signal_name signal in
           decl {
             decl_name = oldName,
             decl_deprecated = True,
@@ -455,7 +455,7 @@ makeOldSignals module_ =
               signal_is_after     = False
             }
           } :
-          let oldName = "after" ++ upperCaseFirstChar(decl_name decl) in
+          let oldName = "after" ++ signal_name signal in
           decl {
             decl_name = oldName,
             decl_deprecated = True,
