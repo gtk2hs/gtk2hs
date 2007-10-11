@@ -527,46 +527,45 @@ genExports module_ =
      ,(text "castTo" <> text (Module.module_name module_), defaultAttrs)
      ,(text "to"     <> text (Module.module_name module_), defaultAttrs)]
   ++ sectionHeader True "Constructors"
-     [ (text name, (since, deprecated))
+     [ (text name, (since, False))
      | Decl { decl_name = name,
               decl_since = since,
-              decl_deprecated = deprecated,
+              decl_deprecated = False,
               decl_body = Method { method_is_constructor = True }
        } <- exports ]
   ++ sectionHeader True "Methods"
-     [ (text name, (since, deprecated))
+     [ (text name, (since, False))
      | Decl { decl_name = name,
               decl_since = since,
-              decl_deprecated = deprecated,
+              decl_deprecated = False,
               decl_body = Method { method_is_constructor = False }
        } <- exports ]
   ++ sectionHeader True "Attributes"
-     [ (text name, (since, deprecated))
+     [ (text name, (since, False))
      | decl@Decl { decl_since = since,
-                   decl_deprecated = deprecated,
+                   decl_deprecated = False,
                    decl_name = name 
        } <- module_decls module_
        , isAttr decl ]
   ++ sectionHeader True "Child Attributes"
-     [ (text name, (since, deprecated))
+     [ (text name, (since, False))
      | Decl { decl_name = name,
               decl_since = since,
-              decl_deprecated = deprecated,
+              decl_deprecated = False,
               decl_body = AttributeProp { attribute_is_child = True }
        } <- module_decls module_ ]
   ++ sectionHeader True "Signals"
-     [ (text name, (since, deprecated))
+     [ (text name, (since, False))
      | Decl { decl_name = name,
               decl_since = since,
-              decl_deprecated = deprecated,
+              decl_deprecated = False,
               decl_body = Module.Signal { signal_is_old_style = False }
        } <- exports ]
   ++ sectionHeader True "Deprecated"
-     [ (text name, (since, deprecated))
+     [ (text name, (since, True))
      | Decl { decl_name = name,
               decl_since = since,
-              decl_deprecated = deprecated,
-              decl_body = Module.Signal { signal_is_old_style = True }
+              decl_deprecated = True
        } <- exports ]
 
   where defaultAttrs = (Nothing, False)
