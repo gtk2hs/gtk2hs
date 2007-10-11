@@ -297,7 +297,9 @@ convertProperty isChild object property =
 convertSignals :: Api.Object -> Api.Signal -> Decl
 convertSignals object signal =
   declDefaults {
-    decl_name = lowerCaseFirstChar (Api.signal_name signal),
+    decl_name =
+      let objName = lowerCaseFirstChar (Api.object_name object)
+       in objName ++ Api.signal_name signal,
     decl_body = Signal {
       signal_name   = Api.signal_name signal,
       signal_cname  = Api.signal_cname signal,
