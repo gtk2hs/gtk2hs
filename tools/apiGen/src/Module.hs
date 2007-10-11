@@ -513,9 +513,11 @@ makeGetSetProps :: Module -> Module
 makeGetSetProps module_ =
   module_ {
     module_decls =
+      concat
       [ let attrName = Names.cFuncNameToHsPropName (method_cname getter_body)
+            declName = lowerCaseFirstChar (module_name module_) ++ attrName
          in declDefaults {
-              decl_name = lowerCaseFirstChar (module_name module_) ++ attrName,
+              decl_name = declName,
               decl_body = AttributeGetSet {
                 attribute_type = method_return_type getter_body,
                 attribute_readable  = True,
@@ -523,25 +525,60 @@ makeGetSetProps module_ =
                 attribute_getter = getter,
                 attribute_setter = setter
               },
-              decl_doc = Just
-                [ParaText
-                  [SpanText ("'" ++ lowerCaseFirstChar attrName ++ "' property. See ")
-                  ,SpanIdent (Names.cFuncNameToHsName (method_cname getter_body))
-                  ,SpanText " and "
-                  ,SpanIdent (Names.cFuncNameToHsName (method_cname setter_body))]
-                ],
+              decl_doc = Just $
+                   fromMaybe [] (decl_doc setter)
+                ++ fromMaybe [] (decl_doc getter)
+                ++ [ParaText [SpanText $ "TODO: merge attr docs from those of"
+                                      ++ " the setter and getter methods"]],
               decl_module = module_,
               decl_index_api = maxBound :: Int
             }
+            : deprecateGetterMethod getter declName
+            : deprecateSetterMethod setter declName
+            : []
       | (getter@Decl { decl_body = getter_body }
         ,setter@Decl { decl_body = setter_body }) <- extraProps ]
 
    ++ map fst directProps
    ++ genericProps
-   ++ nonPropsDecls
+   ++ filter (not . isGetSetMethod) nonPropsDecls
+   ++ concat
+      [ deprecateGetterMethod getter (decl_name prop)
+      : deprecateSetterMethod setter (decl_name prop) : []
+      | (prop,(getter, setter)) <- directProps ],
+   module_todos = module_todos module_
   }
 
   where
+    deprecateGetterMethod decl attrName = decl {
+        decl_deprecated = True,
+        decl_doc        = Nothing,
+        decl_deprecated_comment =
+             "instead of '" ++ decl_name decl ++ " obj'"
+          ++ " use 'get obj " ++ attrName ++ "'"
+      }
+    deprecateSetterMethod decl attrName = decl {
+        decl_deprecated = True,
+        decl_doc        = Nothing,
+        decl_deprecated_comment =
+             "instead of '" ++ decl_name decl ++ " obj value'"
+          ++ " use 'set obj [ " ++ attrName ++ " := value ]'"
+      }
+
+    -- methods that are getters or setters for properties. We want to deprecate
+    -- these methods and eventually not export the ones that are not needed to
+    -- implement the properties. That is, we'd remove the directProps ones completely
+    -- and keep but not export the extraProps ones. We only want to continue to
+    -- support the attributes as the public API, we don't want duplication in the API
+    -- between attributes and getter/setter methods.
+    getterSetterMethodNames =
+         [ decl_name decl | (_,(get, set)) <- directProps, decl <- [get,set] ]
+      ++ [ decl_name decl |    (get, set)  <- extraProps,  decl <- [get,set] ]
+
+    isGetSetMethod Decl { decl_body = Method {}, decl_name = name }
+                     = name `elem` getterSetterMethodNames
+    isGetSetMethod _ = False
+
     (genericProps, -- existing GObject properties with generic implementation
      directProps,  -- existing GObject properties but with direct implementation
      extraProps)   -- extra properties with direct implementation
