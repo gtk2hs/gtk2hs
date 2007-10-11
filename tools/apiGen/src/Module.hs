@@ -684,8 +684,7 @@ addDeclAvailableSincePara module_@Module { module_since = baseVersion } =
           | not (module_deprecated module_) =
           decl {
             decl_doc =
-              let line = "Warning: this function is deprecated "
-                      ++ "and should not be used in newly-written code."
+              let line = "Warning: " ++ decl_deprecated_comment decl
                in fmap (++[ParaListItem [SpanText line]]) (decl_doc decl)
           }
         addDeprecatedPara decl = decl
