@@ -52,8 +52,9 @@ tuple' xs = parens (hsep $ punctuate comma xs)
 
 genDecl :: KnownSymbols -> Decl -> Doc
 genDecl knownSymbols decl =
-     hashes
-  $$ formattedDocs
+     --TODO: re-enable hashes and make it work reliably
+{-     hashes
+  $$-} formattedDocs
   $$ formattedCode
   $$ deprecatedNote
 
