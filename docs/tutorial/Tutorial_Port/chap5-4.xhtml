@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial: Notebook</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>Gtk2Hs Tutorial</h1>
+      <span class="nav-previous">
+        <a href="chap5-3.xhtml">Previous</a>
+      </span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+        <a href="chap6-1.xhtml">Next</a>
+      </span>
+    </div>
+    <h2>Notebook</h2>
+    <p>The 
+    <code>Notebook</code> widget is a collection of "pages" that
+    overlap each other. Each page is different, and only one will
+    be visible at a time. Pages 'contain' some other widget, which
+    you must supply.</p>
+    <p>To create a new notebook widget:</p>
+    <pre class="codebox">NotebookNew :: IO Notebook
+</pre>
+    <p>Once the notebook has been created, there are a number of
+    functions and attributes to use and to customize it.The
+    following attributes determine the position of the tabs, and
+    whether they are visible at all.</p>
+    <pre class="codebox">notebookTabPos :: NotebookClass self =&gt; Attr self PositionType
+notebookShowTabs :: NotebookClass self =&gt; Attr self Bool
+</pre>
+    <p>The PositionType has constructors 
+    <code>PosLeft</code> , 
+    <code>PosRight</code> , 
+    <code>PosTop</code> (the default) and 
+    <code>PosBottom.</code> </p>
+    <p>Next we will look at how to add pages to the notebook. There
+    are three ways, append, prepend and insert.</p>
+    <pre class="codebox">noteBookAppendPage :: (NotebookClass self, WidgetClass child)
+=&gt; self
+-&gt; child         -- the widget to use as the contents of the page
+-&gt; String        -- the label text
+-&gt; IO Int        -- the index (page number) of the new page (starting at 0)
+</pre>
+    <p>The function 
+    <code>notebookPrependPage</code> has exactly the same signature.
+    It will, of course, return 0 as its index. The function 
+    <code>notebookInsertPage</code> takes the index at which to
+    insert the page as an additional parameter. You can remove
+    pages with 
+    <code>notebookRemovePage.</code> </p>
+    <p>A 
+    <code>Notebook</code> is a container widget and you can use
+    other containers as a child, including horizontal and vertical
+    boxes. Therefore you can build quite complex pages, and set
+    their layouts with the usual packing functions.</p>
+    <p>The listed functions to add, prepend and insert pages only
+    work with textual tabs. All three also have versions which
+    allow for a popup menu to appear, and with those you can use
+    any widget as a label.</p>
+    <pre class="codebox">notebookAppendPageMenu ::
+(NotebookClass self, WidgetClass child, WidgetClass tabLabel, WidgetClass menuLabel)
+=&gt; self
+-&gt; child           -- the widget to use as the contents of the page
+-&gt; tabLabel        -- the widget to use as the label of the page
+-&gt; menuLabel       -- the widget to use as the label of the popup menu
+-&gt; IO Int          -- the index (page number) of the new page (starting at 0)
+</pre>
+    <p>
+    <code>notebookPrependPageMenu </code> and 
+    <code> notebookInsertPageMenu</code>  will place the new page
+    first or at the designated index, respectively.</p>
+    <p>Some useful attributes (but see the API Documentation for
+    more) are:</p>
+    <pre class="codebox">notebookScrollable :: NotebookClass self =&gt; Attr self Bool
+notebookCurrentPage :: NotebookClass self =&gt; Attr self Int
+notebookEnablePopup :: NotebookClass self =&gt; Attr self Bool
+</pre>
+    <p>If the number of pages is large you can set 
+    <code>notebookScrollable</code> . Use 
+    <code>notebookCurrentPage</code> or the function 
+    <code>notebookSetCurrentPage</code> to open the notebook at
+    another page than the (default) first one. The attribute 
+    <code>notebookEnablePopup</code> determines whether the user's
+    clicking the right mouse button on a tab will show a popup menu
+    of all the available pages. That is, if the menu fuctions have
+    been defined.</p>
+    <p>A 
+    <code>Notebook</code> widget has its own signal handling
+    function:</p>
+    <pre class="codebox">onSwitchPage :: NotebookClass nb =&gt; nb -&gt; (Int -&gt; IO ()) -&gt; IO (ConnectId nb)
+</pre>
+    <p>The function you must supply takes a page index returned by 
+    <code>onSwitchPage</code> and must do some output.</p>
+    <p>The examples show a catalogue of 
+    <code>StockItem</code> icon sets in different ways.</p>
+    <p>
+      <img src="Images/GtkChap5-4a.png" alt="Notebook Example 1"
+      id="imgGtkChap5-4a" />
+    </p>
+    <p>Stock items were summarily discussed in chapter 4.5. Recall
+    that a 
+    <code>StockItem</code> is known throughout GTK+ (and Gtk2Hs).
+    The following function produces a list of all stock
+    identifiers.</p>
+    <pre class="codebox">stockListIds :: IO [StockId]
+</pre>
+    <p>A 
+    <code>StockId</code> is a 
+    <code>String</code> and in Gtk2Hs has the form: 
+    <code>stockCopy</code> , 
+    <code>stockDialogError</code> etc. In GTK+ the corresponding
+    form is: gtk-copy, gtk-dialog-error and so on. The example
+    defines a function tabName to convert the GTK+ identifiers in
+    the StockId list to names for the notebook tabs. The function 
+    <code>myNewPage</code> uses 
+    <code>imageNewFromStock</code> to get the icon into an 
+    <code>Image</code> widget, which is then added to the page. It
+    returns the page index, but this is not used. To get a list of
+    all pages use 
+    <code>sequence</code> instead of 
+    <code>sequence_</code> </p>
+    <p>Note that the icon size, in pixels, may be restricted. The
+    default is 4 and the value used here, 6, is also allowed but a
+    size of 8 produces a run time error with GHCi.</p>
+    <pre class="codebox">
+import Graphics.UI.Gtk
+import Data.Char (toUpper)
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Notebook Example 1", windowDefaultWidth := 300,
+                 windowDefaultHeight := 200 ]
+     
+     ntbk &lt;- notebookNew
+     containerAdd window ntbk
+     set ntbk [notebookScrollable := True, notebookTabPos := PosBottom]
+
+     stls &lt;- stockListIds
+     sequence_ (map (myNewPage ntbk) stls)
+
+     onSwitchPage ntbk (putStrLn . ((++)"Page: ") . show)
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+tabName :: StockId -&gt; String
+tabName st = (drop 3) (conv st) where
+                  conv (x:[]) = x:[]
+                  conv (x:y:ys) | x == '-' = (toUpper y):(conv ys)
+                                | otherwise = x: (conv (y:ys))
+
+myNewPage :: Notebook -&gt; StockId -&gt; IO Int
+myNewPage noteb stk = 
+          do img &lt;- imageNewFromStock stk 6
+             pagenum &lt;- notebookAppendPage noteb img (tabName stk)
+             return pagenum          
+</pre>
+    <p>A second way to show the catalogue is to put the icons in
+    the notebook tabs.</p>
+    <p>
+      <img src="Images/GtkChap5-4b.png" alt="Notebook Example 2"
+      id="imgGtkChap5-4a" />
+    </p>
+    <p>To do this we need the menu style of adding pages, and we've
+    also defined a menu tab consisting of the first letter of the
+    name string. The result is a popup menu consisting of 98
+    letters, which itself will scroll. It can simply be disabled
+    through the 
+    <code>notebookEnablePopup</code> attribute. The content of each
+    page is the Gtk2Hs stock item identifier (see
+    Graphics.UI.Gtk.General.StockItems).</p>
+    <pre class="codebox">
+import Graphics.UI.Gtk
+import Data.Char (toUpper)
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Notebook Example 2", windowDefaultWidth := 300,
+                 windowDefaultHeight := 200 ]
+     
+     ntbk &lt;- notebookNew
+     containerAdd window ntbk
+     set ntbk [notebookScrollable := True, notebookEnablePopup := True,
+                    notebookTabPos := PosRight ]
+
+     stls &lt;- stockListIds
+     sequence_ (map (myNewPage ntbk) stls)
+
+     onSwitchPage ntbk (putStrLn . ((++)"Page: ") . show)
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+tabName :: StockId -&gt; String
+tabName st = (drop 3) (conv st) where
+                  conv (x:[]) = x:[]
+                  conv (x:y:ys) | x == '-' = (toUpper y):(conv ys)
+                                | otherwise = x: (conv (y:ys))
+
+myNewPage :: Notebook -&gt; StockId -&gt; IO Int
+myNewPage noteb stk = 
+          do img &lt;- imageNewFromStock stk 4
+             let nmstr = tabName stk
+             men &lt;- labelNew (Just ((take 1) nmstr))
+             cont &lt;- labelNew (Just ("stock" ++ nmstr))
+             pagenum &lt;- notebookAppendPageMenu noteb cont img men
+             return pagenum          
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="chap5-3.xhtml">Previous</a>
+      <br />5.3 Font and Color Selection</span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+      <a href="chap6-1.xhtml">Next</a>
+      <br />To be continued</span>
+    </div>
+  </body>
+</html>
