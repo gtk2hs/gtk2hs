@@ -46,6 +46,10 @@ module Graphics.UI.Gtk.Abstract.Widget (
 -- mechanism is used for configuring such things as the location of the
 -- scrollbar arrows through the theme, giving theme authors more control over
 -- the look of applications without the need to write a theme engine in C.
+-- Widgets receive events, that is, signals that indicate some low-level
+-- user iteraction. The signal handlers for all these events have to
+-- return @True@ if the signal has been dealt with and @False@ if other
+-- signal handlers should be run.
 
 -- * Class Hierarchy
 -- |
