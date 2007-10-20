@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial: Scrolled Windows</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>Gtk2Hs Tutorial</h1>
+      <span class="nav-previous">
+        <a href="chap5-4.xhtml">Previous</a>
+      </span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+        <a href="chap6-2.xhtml">Next</a>
+      </span>
+    </div>
+    <h2>6.1 Scrolled Windows</h2>
+    <p>Scrolled windows are used to create a scrollable area with
+    another widget inside it. You may insert any type of widget
+    into a scrolled window, and it will be accessible regardless of
+    the size by using the scrollbars.</p>
+    <p>The following function is used to create a new scrolled
+    window.</p>
+    <pre class="codebox">scrolledWindowNew :: Maybe Adjustment -&gt; Maybe Adjustment -&gt; IO ScrolledWindow
+</pre>
+    <p>The first argument is the adjustment for the horizontal
+    direction, and the second is for the vertical direction. They
+    are almost always set to 
+    <code>Nothing</code> .</p>
+    <pre class="codebox">scrolledWindowSetPolicy :: ScrolledWindowClass self =&gt;
+self -&gt; PolicyType -&gt; PolicyType -&gt; IO ()
+</pre>
+    <p>This sets the policy to be used with respect to the
+    horizontal and vertical scrollbars. The constructor 
+    <code>PolicyAlways</code> always shows the scrollbar, 
+    <code>PolicyNever</code> never shows it and 
+    <code>PolicyAutomatic</code> shows it only if the page size is
+    larger than the window. The default is 
+    <code>PolicyAlways</code> .</p>
+    <p>You can then place your object into the scrolled window
+    using 
+    <code>containerAdd</code> if that object has a window associated
+    with it. If not, then you'll need a 
+    <code>Viewport</code> , but you can add one automatically
+    with:</p>
+    <pre class="codebox">scrolledWindowAddWithViewport :: (ScrolledWindowClass self, WidgetClass child)
+=&gt; self -&gt; child -&gt; IO ()
+</pre>
+    <p>Should you forget about the viewport, GHCi produces a
+    helpful error message if you use 
+    <code>containerAdd</code> when you should not have done so!</p>
+    <p>Here is an example that packs a table with 100 toggle
+    buttons into a scrolled window. It implements a program from
+    'Yet Another Haskell Tutorial' by Hal Daum&#233; III. This
+    tutorial is freely available from the Haskell website. On page
+    43 there is a small program that lets a user repeatedly guess a
+    number between 1 and 100 and tells whether the guess is too
+    high, too low or correct. The random number is generated with
+    function 
+    <code>randomRIO</code> from module System.Random.</p>
+    <p>The example implements this with a graphical user
+    interface.</p>
+    <p><img src="Images/GtkChap6-1.png" alt="Scrolled Window" id="imgGtkChap6-1" /></p>   
+ 
+    <p>In the main window we use a vertical box to pack a label
+    (for user information), a horizontal separator, a scrolled
+    window, a horizontal separator and a horizontal box for two
+    buttons from stock. The scrolled window is packed with 
+    <code>PackGrow</code> , to let it resize with the window, and
+    the play and quit buttons are packed at the opposite ends of
+    the horizontal box.</p>
+    <p>The 100 buttons are created with:</p>
+    <pre class="codebox">     buttonlist &lt;- sequence (map numButton [1..100])
+</pre>
+    <p>where the function 
+    <code>numButton</code> is defined as:</p>
+    <pre class="codebox">numButton :: Int -&gt; IO Button
+numButton n = do
+        button &lt;- buttonNewWithLabel (show n)
+        return button
+</pre>
+    <p>So, each button automatically gets the appropriate number as
+    its label.</p>
+    <p>Inside the scrolled window we create a 10 by 10 table for
+    the 100 buttons. To position the buttons we use the function 
+    <code>cross</code> , which is based on the 
+    <code>List monad</code> . This function, a very simple way to
+    get a Cartesian product from two or more lists, is also
+    discussed in YAHT (another program).</p>
+    <pre class="codebox">cross :: [Int] -&gt; [Int] -&gt; [(Int,Int)]
+cross row col = do 
+        x &lt;- row
+        y &lt;- col
+        return (x,y)
+</pre>
+    <p>The function 
+    <code>attachButton</code> takes a table, a button and a tuple of
+    coordinates to place a button in the table. (See Chapter 3.3
+    for more on packing tables.)</p>
+    <pre class="codebox">attachButton :: Table -&gt; Button -&gt; (Int,Int) -&gt; IO () attachButton ta bu (x,y) = 
+              tableAttachDefaults ta bu y (y+1) x (x+1)
+</pre>
+    <p>Now the following code segment packs all the buttons in the
+    table, with 
+    <code>buttonlist</code> as described above.</p>
+    <pre class="codebox">     let places = cross [0..9] [0..9]
+     sequence_ (zipWith (attachButton table) buttonlist places)
+</pre>
+    <p>Every time the user presses the play button, a random number
+    must be generated, which can subsequently be compared to the
+    user choice. But the Gtk2Hs signal handler 
+    <code>onClicked</code> takes a button, and a function which
+    takes no parameters and has a value of type 
+    <code>IO ()</code> . We need something like a global variable,
+    and this is provided with the module Data.IORef. We can now use
+    the following snippets, in different functions, to initialize,
+    write and read the random number.</p>
+    <pre class="codebox">snippet 1   --  randstore &lt;- newIORef 50  
+snippet 2   --  writeIORef rst rand  
+snippet 3   --  rand &lt;- readIORef rst
+</pre>
+    <p>The first gets a variable of type 
+    <code>IORef Int</code> and initializes it with 50. The second is
+    implemented in the function 
+    <code>randomButton</code> :</p>
+    <pre class="codebox">randomButton :: ButtonClass b =&gt; Label -&gt; IORef Int -&gt; b -&gt; IO (ConnectId b)
+randomButton inf rst b = 
+    onClicked b $ do rand &lt;- randomRIO (1::Int, 100)
+                     writeIORef rst rand  
+                     set inf [labelLabel := "Ready"]
+                     widgetModifyFg inf StateNormal (Color 0 0 65535)
+</pre>
+    <p>and then used in the following snippet, where 
+    <code>info</code> is the label for the user information.
+    (See Chapter 5.3 for colors and how  they can be changed.)</p>
+    <p>Similar to the writing of the random number, the function 
+    <code>actionButton</code> implements the reading of 
+    <code>randstore.</code> It then compares the number obtained
+    from the label of the button which has been clicked, and
+    displays the relevant information on the 
+    <code>info</code> label. </p>
+    <p>Finally we have to monitor all 100 buttons to find out which
+    one was pressed, if any.</p>
+    <pre class="codebox">     sequence_ (map (actionButton info randstore) buttonlist)
+</pre>
+    <p>The above is analogous to all the other 
+    <code>sequence</code> _ and 
+    <code>map</code> combinations we've used, but in this case
+    exactly one of the 100 signal handlers will be triggered, any
+    time the user presses that particular button.</p>
+    <p>The following is the complete code for the example.</p>
+    <pre class="codebox">
+import Graphics.UI.Gtk
+import Data.IORef 
+import System.Random (randomRIO)
+
+main:: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [ windowTitle := "Guess a Number", 
+                  windowDefaultWidth := 300, windowDefaultHeight := 250]
+     mb &lt;- vBoxNew False 0
+     containerAdd window mb
+
+     info &lt;- labelNew (Just "Press \"New\" for a random number")
+     boxPackStart mb info PackNatural 7
+     sep1 &lt;- hSeparatorNew
+     boxPackStart mb sep1 PackNatural 7
+     
+     scrwin &lt;- scrolledWindowNew Nothing Nothing
+     boxPackStart mb scrwin PackGrow 0
+
+     table &lt;- tableNew 10 10 True
+     scrolledWindowAddWithViewport scrwin table
+
+     buttonlist &lt;- sequence (map numButton [1..100])
+     let places = cross [0..9] [0..9]
+     sequence_ (zipWith (attachButton table) buttonlist places)
+
+     sep2 &lt;- hSeparatorNew
+     boxPackStart mb sep2 PackNatural 7
+     hb &lt;- hBoxNew False 0
+     boxPackStart mb hb PackNatural 0
+     play &lt;- buttonNewFromStock stockNew
+     quit &lt;- buttonNewFromStock stockQuit
+     boxPackStart hb play PackNatural 0
+     boxPackEnd hb quit PackNatural 0
+     
+     randstore &lt;- newIORef 50
+     randomButton info randstore play
+
+     sequence_ (map (actionButton info randstore) buttonlist)  
+
+     widgetShowAll window
+     onClicked quit (widgetDestroy window)
+     onDestroy window mainQuit
+     mainGUI
+
+numButton :: Int -&gt; IO Button
+numButton n = do
+        button &lt;- buttonNewWithLabel (show n)
+        return button
+
+cross :: [Int] -&gt; [Int] -&gt; [(Int,Int)]
+cross row col = do 
+        x &lt;- row
+        y &lt;- col
+        return (x,y)
+
+attachButton :: Table -&gt; Button -&gt; (Int,Int) -&gt; IO ()
+attachButton ta bu (x,y) = 
+              tableAttachDefaults ta bu y (y+1) x (x+1)
+
+actionButton :: ButtonClass b =&gt; Label -&gt; IORef Int -&gt; b -&gt; IO (ConnectId b)
+actionButton inf rst b = 
+  onClicked b $ do label &lt;- get b buttonLabel
+                   let num = (read label):: Int
+                   rand &lt;- readIORef rst
+                   case compare num rand of
+                     GT -&gt; do set inf [labelLabel :=  "Too High"]
+                              widgetModifyFg inf StateNormal (Color 65535 0 0)
+                     LT -&gt; do set inf [labelLabel := "Too Low"]
+                              widgetModifyFg inf StateNormal (Color 65535 0 0)
+                     EQ -&gt; do set inf [labelLabel := "Correct"]
+                              widgetModifyFg inf StateNormal (Color 0 35000 0)
+
+randomButton :: ButtonClass b =&gt; Label -&gt; IORef Int -&gt; b -&gt; IO (ConnectId b)
+randomButton inf rst b = 
+    onClicked b $ do rand &lt;- randomRIO (1::Int, 100)
+                     writeIORef rst rand  
+                     set inf [labelLabel := "Ready"]
+                     widgetModifyFg inf StateNormal (Color 0 0 65535)
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="chap5-4.xhtml">Previous</a>
+      <br />5.4 Notebook</span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+      <a href="chap6-2.xhtml">Next</a>
+      <br />6.2</span>
+    </div>
+  </body>
+</html>

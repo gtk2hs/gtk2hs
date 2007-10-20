@@ -1,122 +1,132 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Gtk2Hs Tutorial</title>
-  <link href="default.css" type="text/css" rel="stylesheet" />
-</head>
-
-<body>
-
-<div id="title">
-  <h2>Gtk2Hs Tutorial</h2>
-</div>
-
-<div id="authors">
-  <h3>Hans van Thiel</h3>
-</div>
-
-<div id="credits">
-  <h4>An Adaptation of the GTK+ 2.0 Tutorial by</h4>
-  <h3>Tony Gale</h3>
-  <h3>Ian Main</h3>
-  <h4>&amp;</h4>
-  <h3>The GTK Team</h3>
-</div>
-
-<div id="toc">
-  <h3>Table of Contents</h3>
-  <ol>
-    <li><a href="chap1.xhtml"></a>1. Introduction <em>&mdash; Not Available Yet</em></li>
-
-    <li><a href="chap2.xhtml">2. Getting Started</a></li>
-
-    <li>3. Packing
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="title">
+      <h2>Gtk2Hs Tutorial</h2>
+    </div>
+    <div id="authors">
+      <h3>Hans van Thiel</h3>
+    </div>
+    <div id="credits">
+      <h4>An Adaptation of the GTK+ 2.0 Tutorial by</h4>
+      <h3>Tony Gale</h3>
+      <h3>Ian Main</h3>
+      <h4>&amp;</h4>
+      <h3>The GTK Team</h3>
+    </div>
+    <div id="toc">
+      <h3>Table of Contents</h3>
       <ol>
-        <li><a href="chap3-1.xhtml">3.1 Packing Widgets</a></li>
-
-        <li><a href="chap3-2.xhtml">3.2 Packing Demonstration Program</a></li>
-
-        <li><a href="chap3-3.xhtml">3.3 Packing Using Tables</a></li>
+        <li>
+        <a href="chap1.xhtml"></a>1. Introduction 
+        <em>&#8212; Not Available Yet</em></li>
+        <li>
+          <a href="chap2.xhtml">2. Getting Started</a>
+        </li>
+        <li>3. Packing 
+        <ol>
+          <li>
+            <a href="chap3-1.xhtml">3.1 Packing Widgets</a>
+          </li>
+          <li>
+            <a href="chap3-2.xhtml">3.2 Packing Demonstration
+            Program</a>
+          </li>
+          <li>
+            <a href="chap3-3.xhtml">3.3 Packing Using Tables</a>
+          </li>
+        </ol></li>
+        <li>4. Miscellaneous Widgets 
+        <ol>
+          <li>
+            <a href="chap4-1.xhtml">4.1 The Button Widget</a>
+          </li>
+          <li>
+            <a href="chap4-2.xhtml">4.2 Adjustments, Scale and
+            Range</a>
+          </li>
+          <li>
+            <a href="chap4-3.xhtml">4.3 Labels</a>
+          </li>
+          <li>
+            <a href="chap4-4.xhtml">4.4 Arrows and Tooltips</a>
+          </li>
+          <li>
+            <a href="chap4-5.xhtml">4.5 Dialogs, Stock Items and
+            Progress Bars</a>
+          </li>
+          <li>
+            <a href="chap4-6.xhtml">4.6 Text Entries and Status
+            Bars</a>
+          </li>
+          <li>
+            <a href="chap4-7.xhtml">4.7 Spin Buttons</a>
+          </li>
+        </ol></li>
+        <li>5. Aggregated Widgets 
+        <ol>
+          <li>
+            <a href="chap5-1.xhtml">5.1 Calendar</a>
+          </li>
+          <li>
+            <a href="chap5-2.xhtml">5.2 File Selection</a>
+          </li>
+          <li>
+            <a href="chap5-3.xhtml">5.3 Font and Color
+            Selection</a>
+          </li>
+          <li>
+            <a href="chap5-4.xhtml">5.4 Notebook</a>
+          </li>
+        </ol></li>
+        <li>6. Supporting Widgets 
+        <ol>
+          <li>
+            <a href="chap6-1.xhtml">6.1 Scrolled Windows</a>
+          </li>
+        </ol></li>
       </ol>
-    </li>
-    <li>4. Miscellaneous Widgets
-     <ol>
-       <li><a href="chap4-1.xhtml">4.1 The Button Widget</a></li>
-
-       <li><a href="chap4-2.xhtml">4.2 Adjustments, Scale and Range</a></li>
-
-       <li><a href="chap4-3.xhtml">4.3 Labels</a></li>
-
-       <li><a href="chap4-4.xhtml">4.4 Arrows and Tooltips</a></li>
-
-       <li><a href="chap4-5.xhtml">4.5 Dialogs, Stock Items and Progress Bars</a></li>
-
-       <li><a href="chap4-6.xhtml">4.6 Text Entries and Status Bars</a></li>
-
-       <li><a href="chap4-7.xhtml">4.7 Spin Buttons</a></li>
-     </ol>
-    </li>
-    <li>5. Aggregated Widgets
-     <ol>
-       <li><a href="chap5-1.xhtml">5.1 Calendar</a></li>
-
-       <li><a href="chap5-2.xhtml">5.2 File Selection</a></li>
-       
-       <li><a href="chap5-3.xhtml">5.3 Font and Color Selection</a></li>
-       
-        <li><a href="chap5-4.xhtml">5.4 Notebook</a></li>
-     </ol>
-    </li>
-  </ol>
-</div>
-
-<h3>Tutorial Copyright and Permissions Notice</h3>
-
-<p>The GTK Tutorial is Copyright &copy; 1997 Ian Main.</p>
-
-<p>Copyright &copy; 1998-2002 Tony Gale.</p>
-
-<p>Copyright &copy; 2007 Hans van Thiel and Alex Tarkovsky.</p>
-
-<p>
-Permission is granted to make and distribute verbatim copies of this manual
-provided the copyright notice and this permission notice are preserved on all
-copies.
-</p>
-
-<p>
-Permission is granted to copy and distribute modified versions of this document
-under the conditions for verbatim copying, provided that this copyright notice
-is included exactly as in the original, and that the entire resulting derived
-work is distributed under the terms of a permission notice identical to this
-one.
-</p>
-
-<p>
-Permission is granted to copy and distribute translations of this document into
-another language, under the above conditions for modified versions.
-</p>
-
-<p>
-If you are intending to incorporate this document into a published work, please
-contact the maintainer, and we will make an effort to ensure that you have the
-most up to date information available.
-</p>
-
-<p>
-There is no guarantee that this document lives up to its intended purpose. This
-is simply provided as a free resource. As such, the authors and maintainers of
-the information provided within can not make any guarantee that the information
-is even accurate.
-</p>
-
-<div id="footer">
-  <span class="nav-previous">&nbsp;</span>
-  <span class="nav-home">&nbsp;</span>
-  <span class="nav-next"><!-- a href="chap1.xhtml" -->Next<!-- /a --><br />1. Introduction</span>
-</div>
-
-</body>
+    </div>
+    <h3>Tutorial Copyright and Permissions Notice</h3>
+    <p>The GTK Tutorial is Copyright &#169; 1997 Ian Main.</p>
+    <p>Copyright &#169; 1998-2002 Tony Gale.</p>
+    <p>Copyright &#169; 2007 Hans van Thiel and Alex Tarkovsky.</p>
+    <p>Permission is granted to make and distribute verbatim copies
+    of this manual provided the copyright notice and this
+    permission notice are preserved on all copies.</p>
+    <p>Permission is granted to copy and distribute modified
+    versions of this document under the conditions for verbatim
+    copying, provided that this copyright notice is included
+    exactly as in the original, and that the entire resulting
+    derived work is distributed under the terms of a permission
+    notice identical to this one.</p>
+    <p>Permission is granted to copy and distribute translations of
+    this document into another language, under the above conditions
+    for modified versions.</p>
+    <p>If you are intending to incorporate this document into a
+    published work, please contact the maintainer, and we will make
+    an effort to ensure that you have the most up to date
+    information available.</p>
+    <p>There is no guarantee that this document lives up to its
+    intended purpose. This is simply provided as a free resource.
+    As such, the authors and maintainers of the information
+    provided within can not make any guarantee that the information
+    is even accurate.</p>
+    <div id="footer">
+      <span class="nav-previous">&#160;</span>
+      <span class="nav-home">&#160;</span>
+      <span class="nav-next">
+      <!-- a href="chap1.xhtml" -->Next 
+      <!-- /a -->
+      <br />1. Introduction</span>
+    </div>
+  </body>
 </html>
