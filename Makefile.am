@@ -1869,6 +1869,9 @@ gstreamer_PKGNAME = libHSgstreamer_a
 libHSgstreamer_a_NAME			= gstreamer
 libHSgstreamer_a_CONFIG			= gstreamer/gstreamer.$(PKGEXT)
 libHSgstreamer_a_EXTERNALDEPS		= base haskell98 mtl
+if HAVE_SPLIT_BASE
+libHSgstreamer_a_EXTERNALDEPS += bytestring
+endif
 libHSgstreamer_a_INTERNALDEPS		= glib
 libHSgstreamer_a_HEADER			= gstreamer/hsgstreamer.h
 libHSgstreamer_a_PRECOMP		= gstreamer/gstreamer.precomp
