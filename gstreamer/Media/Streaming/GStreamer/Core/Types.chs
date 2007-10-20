@@ -232,18 +232,22 @@ peekObject, takeObject :: ObjectClass obj
                        => Ptr obj
                        -> IO obj
 peekObject cObject = do
-    cObjectRef cObject
-    takeObject cObject
+    liftM (unsafeCastGObject . GObject . castForeignPtr) $
+        do cObjectRef $ castPtr cObject
+           newForeignPtr (castPtr cObject) objectFinalizer
 foreign import ccall unsafe "&gst_object_unref"
   objectFinalizer :: FunPtr (Ptr () -> IO ())
-foreign import ccall unsafe "_hs_gst_object_unfloat"
+foreign import ccall unsafe "gst_object_ref"
   cObjectRef :: Ptr ()
              -> IO (Ptr ())
 
 takeObject cObject =
     liftM (unsafeCastGObject . GObject . castForeignPtr) $
-        do cObjectUnfloat
+        do cObjectUnfloat $ castPtr cObject
            newForeignPtr (castPtr cObject) objectFinalizer
+foreign import ccall unsafe "_hs_gst_object_unfloat"
+  cObjectUnfloat :: Ptr ()
+                 -> IO ()
 
 mkObjectGetFlags :: (ObjectClass objectT, Flags flagsT)
                  => objectT
