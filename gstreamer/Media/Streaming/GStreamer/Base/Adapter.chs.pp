@@ -49,7 +49,12 @@ module Media.Streaming.GStreamer.Base.Adapter (
 
 import Control.Monad (liftM)
 import qualified Data.ByteString as BS
+#if __GLASGOW_HASKELL__ < 608
 import qualified Data.ByteString.Base as BS
+#else
+import qualified Data.ByteString.Unsafe as BS
+import qualified Data.ByteString.Internal as BS
+#endif
 {#import Media.Streaming.GStreamer.Base.Types#}
 import System.Glib.FFI
 import System.Glib.GObject
@@ -84,14 +89,18 @@ adapterPeek adapter size =
     do ptr <- {# call adapter_peek #} (toAdapter adapter) (fromIntegral size)
        if ptr == nullPtr
            then return Nothing
+#if __GLASGOW_HASKELL__ < 608
            else liftM Just $ BS.copyCStringLen (castPtr ptr, fromIntegral size)
+#else
+           else liftM Just $ BS.packCStringLen (castPtr ptr, fromIntegral size)
+#endif
 
 adapterCopy :: AdapterClass adapterT
             => adapterT
             -> Word
             -> Word
             -> IO BS.ByteString
-adapterCopy adapter offset size =
+adapterCopy adapter offset size = do
     BS.create (fromIntegral size) $ \dest ->
         {# call adapter_copy #} (toAdapter adapter)
                                 (castPtr dest)
@@ -141,8 +150,11 @@ adapterTake adapter nBytes =
        if ptr == nullPtr
           then do fPtr <- newForeignPtr (castPtr ptr) gFreePtr
                   return $ Just $
-                      BS.fromForeignPtr (castForeignPtr fPtr) $
-                          fromIntegral nBytes
+                      BS.fromForeignPtr (castForeignPtr fPtr)
+#if __GLASGOW_HASKELL__ >= 608
+                                        0
+#endif
+                                        (fromIntegral nBytes)
           else return Nothing
 foreign import ccall unsafe "&g_free"
     gFreePtr :: FunPtr (Ptr () -> IO ())

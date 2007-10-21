@@ -1923,7 +1923,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Caps.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Structure.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Message.chs		\
-	gstreamer/Media/Streaming/GStreamer/Core/Buffer.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Buffer.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Event.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Query.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Bus.chs		\
@@ -1948,7 +1948,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseSink.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseTransform.chs	\
 	gstreamer/Media/Streaming/GStreamer/Base/PushSrc.chs		\
-	gstreamer/Media/Streaming/GStreamer/Base/Adapter.chs		\
+	gstreamer/Media/Streaming/GStreamer/Base/Adapter.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Base/CollectPads.chs	\
 	gstreamer/Media/Streaming/GStreamer/Base.hs         		\
 	gstreamer/Media/Streaming/GStreamer/Controller/Types.chs	\

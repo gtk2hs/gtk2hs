@@ -139,7 +139,11 @@ bufferGetData buffer =
     unsafePerformIO $ withMiniObject buffer $ \bufferPtr ->
         do ptr <- {# get GstBuffer->data #} bufferPtr
            size <- {# get GstBuffer->size #} bufferPtr
+#if __GLASGOW_HASKELL__ < 608
            BS.copyCStringLen (castPtr ptr, fromIntegral size)
+#else
+           BS.packCStringLen (castPtr ptr, fromIntegral size)
+#endif
 
 bufferGetDataM :: BufferClass bufferT
                => MiniObjectM bufferT BS.ByteString
@@ -147,7 +151,11 @@ bufferGetDataM =
     marshalBufferM $ \bufferPtr ->
         do ptr <- {# get GstBuffer->data #} bufferPtr
            size <- {# get GstBuffer->size #} bufferPtr
+#if __GLASGOW_HASKELL__ < 608
            BS.copyCStringLen (castPtr ptr, fromIntegral size)
+#else
+           BS.packCStringLen (castPtr ptr, fromIntegral size)
+#endif
 
 bufferSetDataM :: BufferClass bufferT
                => BS.ByteString
@@ -171,7 +179,11 @@ bufferWithDataM action =
     do bs <- marshalBufferM $ \bufferPtr ->
                  do ptr <- {# get GstBuffer->data #} bufferPtr
                     size <- {# get GstBuffer->size #} bufferPtr
+#if __GLASGOW_HASKELL__ < 608
                     return $ BS.packCStringLen (castPtr ptr, fromIntegral size)
+#else
+                    BS.packCStringLen (castPtr ptr, fromIntegral size)
+#endif
        result <- action bs
        MiniObjectM $ \buffer ->
            let (Buffer bufferFPtr) = toBuffer buffer
