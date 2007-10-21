@@ -5,6 +5,7 @@ import qualified System.Glib as G
 import qualified System.Glib.MainLoop as G
 import qualified System.Glib.Properties as G
 import qualified System.Glib.GError as G
+import Text.Printf
 import Control.Monad
 import System.IO
 import System
@@ -63,6 +64,21 @@ main =
            do sinkPad <- Gst.elementGetPad decoder "sink"
               Gst.padLink pad $ fromJust sinkPad
               return ()
+       
+       flip G.timeoutAdd 100 $ do
+         position <- Gst.elementQueryPosition pipeline Gst.FormatTime
+         duration <- Gst.elementQueryDuration pipeline Gst.FormatTime
+         case position of
+           Just (_, position') ->
+               case duration of
+                 Just (_, duration') -> do
+                   printf "%10d / %10d\r" (position' `div` Gst.second) (duration' `div` Gst.second)
+                 Nothing -> do
+                   putStr "no information\r"
+           Nothing -> do
+             putStr "no information\r"
+         hFlush stdout
+         return True
        
        Gst.elementSetState pipeline Gst.StatePlaying
        
