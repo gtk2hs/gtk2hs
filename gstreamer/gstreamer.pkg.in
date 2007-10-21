@@ -8,7 +8,7 @@ Package {
      extra_libraries = [@GSTREAMER_LIBS_CQ@],
      include_dirs    = [@GSTREAMER_CFLAGS_CQ@],
      c_includes      = ["gst/gst.h"],
-     package_deps    = ["glib"],
+     package_deps    = ["glib","mtl"],
      extra_ghc_opts  = [],
      extra_cc_opts   = [],
      extra_ld_opts   = [@GSTREAMER_LIBEXTRA_CQ@]
