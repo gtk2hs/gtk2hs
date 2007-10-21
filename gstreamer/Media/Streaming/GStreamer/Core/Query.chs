@@ -106,7 +106,7 @@ queryTypeIterateDefinitions =
     {# call query_type_iterate_definitions #} >>= takeIterator
 
 queryNewConvert :: Format
-                -> Int64
+                -> Word64
                 -> Format
                 -> IO Query
 queryNewConvert srcFormat value destFormat =

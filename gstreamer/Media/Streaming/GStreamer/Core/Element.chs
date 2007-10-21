@@ -452,7 +452,8 @@ elementQueryPosition :: ElementClass element
 elementQueryPosition element format =
     alloca $ \formatPtr ->
         alloca $ \curPtr ->
-            do success <- {# call element_query_position #} (toElement element) formatPtr curPtr
+            do poke formatPtr $ fromIntegral $ fromEnum format
+               success <- {# call element_query_position #} (toElement element) formatPtr curPtr
                if toBool success
                    then do format <- peek formatPtr
                            cur    <- peek curPtr
@@ -467,7 +468,8 @@ elementQueryDuration :: ElementClass element
 elementQueryDuration element format =
     alloca $ \formatPtr ->
         alloca $ \durationPtr ->
-            do success <- {# call element_query_duration #} (toElement element) formatPtr durationPtr
+            do poke formatPtr $ fromIntegral $ fromEnum format
+               success <- {# call element_query_duration #} (toElement element) formatPtr durationPtr
                if toBool success
                    then do format   <- peek formatPtr
                            duration <- peek durationPtr
