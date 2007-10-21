@@ -429,7 +429,7 @@ elementQueryConvert :: ElementClass element
                     => element
                     -> Format
                     -> Int64
-                    -> IO (Maybe (Format, Int64))
+                    -> IO (Maybe (Format, Word64))
 elementQueryConvert element srcFormat srcVal =
     alloca $ \destFormatPtr ->
         alloca $ \destValPtr ->
@@ -447,8 +447,9 @@ elementQueryConvert element srcFormat srcVal =
 
 elementQueryPosition :: ElementClass element
                      => element
-                     -> IO (Maybe (Format, Int64))
-elementQueryPosition element =
+                     -> Format
+                     -> IO (Maybe (Format, Word64))
+elementQueryPosition element format =
     alloca $ \formatPtr ->
         alloca $ \curPtr ->
             do success <- {# call element_query_position #} (toElement element) formatPtr curPtr
@@ -461,8 +462,9 @@ elementQueryPosition element =
 
 elementQueryDuration :: ElementClass element
                      => element
-                     -> IO (Maybe (Format, Int64))
-elementQueryDuration element =
+                     -> Format
+                     -> IO (Maybe (Format, Word64))
+elementQueryDuration element format =
     alloca $ \formatPtr ->
         alloca $ \durationPtr ->
             do success <- {# call element_query_duration #} (toElement element) formatPtr durationPtr

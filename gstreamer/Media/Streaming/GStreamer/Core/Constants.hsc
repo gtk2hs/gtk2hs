@@ -54,7 +54,7 @@ module Media.Streaming.GStreamer.Core.Constants (
 import Data.Word
 import System.Glib.Flags
 
-type ClockTime = #{type GstClockTime}
+type ClockTime = Word64
 
 clockTimeNone :: ClockTime
 clockTimeNone = #{const GST_CLOCK_TIME_NONE}
