@@ -2426,7 +2426,7 @@ install-data-hook :
 
 uninstall-hook :
 	$(foreach pkgname,$(pkglib_LIBRARIES), \
-	  $(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) \
+	  $(GHCPKG) $(addprefix --package-conf=,$(PKGCONF)) $(if $(USERPKGCONF),--user) \
 	  unregister $(patsubst libHS%.a,%,$(pkgname))-$(PACKAGE_VERSION);) \
 	$(if $(PKGCONF),if test -f $(PKGCONF); then \
 	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
