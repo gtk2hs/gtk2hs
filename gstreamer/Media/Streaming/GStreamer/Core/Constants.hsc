@@ -288,6 +288,8 @@ instance Enum MessageType where
              | n == #{const GST_MESSAGE_SEGMENT_DONE}      = MessageSegmentDone
              | n == #{const GST_MESSAGE_DURATION}          = MessageDuration
              | n == #{const GST_MESSAGE_LATENCY}           = MessageLatency
+             | n == #{const GST_MESSAGE_ASYNC_START}       = MessageAsyncStart
+             | n == #{const GST_MESSAGE_ASYNC_DONE}        = MessageAsyncDone
     fromEnum MessageEOS             = #{const GST_MESSAGE_EOS}
     fromEnum MessageError           = #{const GST_MESSAGE_ERROR}
     fromEnum MessageWarning         = #{const GST_MESSAGE_WARNING}
@@ -308,6 +310,8 @@ instance Enum MessageType where
     fromEnum MessageSegmentDone     = #{const GST_MESSAGE_SEGMENT_DONE}
     fromEnum MessageDuration        = #{const GST_MESSAGE_DURATION}
     fromEnum MessageLatency         = #{const GST_MESSAGE_LATENCY}
+    fromEnum MessageAsyncStart      = #{const GST_MESSAGE_ASYNC_START}
+    fromEnum MessageAsyncDone       = #{const GST_MESSAGE_ASYNC_DONE}
 instance Flags MessageType
 
 data CapsFlags = CapsAny
