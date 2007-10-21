@@ -2123,8 +2123,10 @@ HSgstreamer.o : $(libHSgstreamer_a_OBJECTS)
 if ENABLE_PROFILING
 libHSgstreamer_a_DEPENDENCIES += libHSgstreamer_p.a
 pkglib_DATA += libHSgstreamer_p.a
-libHSgstreamer_p.a : $(libHSgstreamer_a_HSFILES:.hs=.p_o) \
-	$(libHSgstreamer_a_LIBADD:.o=.p_o)
+libHSgstreamer_p.a :				\
+	$(libHSgstreamer_a_HSFILES:.hs=.p_o)	\
+	$(libHSgstreamer_a_LIBADD:.o=.p_o)	\
+	$(libHSgstreamer_a_CFILES:.c=.o)
 	$(AR) $(ARFLAGS) $@ $^
 
 ifeq (,$(findstring clean,$(MAKECMDGOALS)))
