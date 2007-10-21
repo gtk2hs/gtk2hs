@@ -59,7 +59,7 @@ type ClockTime = #{type GstClockTime}
 clockTimeNone :: ClockTime
 clockTimeNone = #{const GST_CLOCK_TIME_NONE}
 
-second, msecond, usecond :: ClockTime
+second, msecond, usecond, nsecond :: ClockTime
 second  = #{const GST_SECOND}
 msecond = #{const GST_MSECOND}
 usecond = #{const GST_USECOND}
