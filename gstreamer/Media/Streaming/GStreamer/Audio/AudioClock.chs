@@ -26,6 +26,43 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module Media.Streaming.GStreamer.Audio.AudioClock (
-  ) where
+module Media.Streaming.GStreamer.Audio.AudioClock
+    ( AudioClock
+    , 
+    ) where
 
+import Control.Monad (liftM)
+{#import Media.Streaming.GStreamer.Audio.Types#}
+import Media.Streaming.GStreamer.Core
+import System.Glib.FFI
+import System.Glib.UTFString
+
+{# context lib = "gstreamer" prefix = "gst" #}
+
+type AudioClockGetTimeFunc = Clock -> IO ClockTime
+
+type CAudioClockGetTimeFunc =  Ptr Clock
+                            -> {# type gpointer #}
+                            -> IO {# type GstClockTime #}
+marshalAudioClockGetTimeFunc :: AudioClockGetTimeFunc
+                             -> IO {# type GstAudioClockGetTimeFunc #}
+marshalAudioClockGetTimeFunc func =
+    makeAudioClockGetTimeFunc cFunc
+    where cFunc :: CAudioClockGetTimeFunc
+          cFunc cClock _ = do
+            clock <- peekObject cClock
+            liftM fromIntegral $ func clock
+foreign import ccall unsafe "wrapper"
+  makeAudioClockGetTimeFunc :: CAudioClockGetTimeFunc
+                            -> IO {# type GstAudioClockGetTimeFunc #}
+
+audioClockNew :: String
+              -> AudioClockGetTimeFunc
+              -> IO Clock
+audioClockNew name func = do
+  cFunc <- marshalAudioClockGetTimeFunc func
+  withUTFString name $ \cName ->
+      {# call audio_clock_new #} cName
+                                 cFunc
+                                 nullPtr >>=
+          takeObject

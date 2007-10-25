@@ -20,6 +20,7 @@
 	    GstRegistry			as Registry,		gst_registry_get_type			if gstreamer-core
 	    GstBus			as Bus,			gst_bus_get_type			if gstreamer-core
 	    GstClock			as Clock,		gst_clock_get_type			if gstreamer-core
+	        GstAudioClock		as AudioClock,		gst_audio_clock_get_type		if gstreamer-audio
 	        GstSystemClock		as SystemClock,		gst_system_clock_get_type		if gstreamer-core
                 GstNetClientClock       as NetClientClock,      gst_net_client_clock_get_type           if gstreamer-net
 	    GstIndex			as Index,		gst_index_get_type			if gstreamer-core

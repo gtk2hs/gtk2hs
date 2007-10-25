@@ -40,6 +40,7 @@
 #include <gst/net/gstnet.h>
 #include <gst/dataprotocol/dataprotocol.h>
 #include <gst/audio/audio.h>
+#include <gst/audio/gstaudioclock.h>
 
 guint    _hs_gst_object_flags (GstObject* obj);
 void     _hs_gst_object_flag_set (GstObject* obj, guint flags);

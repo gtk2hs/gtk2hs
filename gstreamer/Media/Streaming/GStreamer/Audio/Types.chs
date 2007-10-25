@@ -26,14 +26,17 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module Media.Streaming.GStreamer.Audio.Types (
+module Media.Streaming.GStreamer.Audio.Types
+  ( module Media.Streaming.GStreamer.Core.Types
+  , module Media.Streaming.GStreamer.Audio.Hierarchy
+  , module Media.Streaming.GStreamer.Audio.Constants
   
-  module Media.Streaming.GStreamer.Audio.Constants,
-  
-  AudioFieldFlag(..),
+  , AudioFieldFlag(..)
   
   ) where
 
 import Media.Streaming.GStreamer.Audio.Constants
+{#import Media.Streaming.GStreamer.Audio.Hierarchy#}
+{#import Media.Streaming.GStreamer.Core.Types#}
 
 {# enum GstAudioFieldFlag as AudioFieldFlag {underscoreToCase} with prefix = "GST" #}

@@ -1902,7 +1902,8 @@ libHSgstreamer_a_GENERATEDSOURCES	=				\
 	gstreamer/Media/Streaming/GStreamer/Base/Hierarchy.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/GObjectHierarchy.chs	\
 	gstreamer/Media/Streaming/GStreamer/Controller/GObjectHierarchy.chs	\
-	gstreamer/Media/Streaming/GStreamer/Net/Hierarchy.chs
+	gstreamer/Media/Streaming/GStreamer/Net/Hierarchy.chs		\
+	gstreamer/Media/Streaming/GStreamer/Audio/Hierarchy.chs
 
 nodist_libHSgstreamer_a_SOURCES		= $(libHSgstreamer_a_GENERATEDSOURCES)
 
@@ -1960,6 +1961,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Audio/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Audio/Types.chs		\
 	gstreamer/Media/Streaming/GStreamer/Audio/Audio.chs		\
+	gstreamer/Media/Streaming/GStreamer/Audio/AudioClock.chs	\
 	gstreamer/Media/Streaming/GStreamer.hs 	        		\
 	gstreamer/hsgstreamer.c
 
@@ -2067,6 +2069,18 @@ gstreamer/Media/Streaming/GStreamer/Core/Signals.chs : 			\
 	$(srcdir)/gstreamer/marshal.list 				\
 	$(srcdir)/tools/callbackGen/Signal.chs.template $@ 		\
 	Media.Streaming.GStreamer.Core.Signals)
+
+gstreamer/Media/Streaming/GStreamer/Audio/Hierarchy.chs :				\
+	$(srcdir)/gstreamer/hierarchy.list						\
+	$(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)				\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGenGst/TypeGenerator$(EXEEXT)			\
+	$(srcdir)/gstreamer/hierarchy.list						\
+	$(srcdir)/gstreamer/Media/Streaming/GStreamer/Hierarchy.chs.template		\
+	$@ --tag=gstreamer-audio --lib=gstreamer --prefix=gst				\
+	--root=GObject									\
+	--modname=Media.Streaming.GStreamer.Audio.Hierarchy				\
+	--parentname=Media.Streaming.GStreamer.Core.Hierarchy)
 
 am_libHSgstreamer_a_OBJECTS			 =	\
 	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgstreamer_a_ALLSOURCES))))
