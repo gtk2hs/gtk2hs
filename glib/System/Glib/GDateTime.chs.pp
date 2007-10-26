@@ -28,8 +28,10 @@ module System.Glib.GDateTime (
   gGetCurrentTime,
   gUSleep,
   gTimeValAdd,
+#if GLIB_CHECK_VERSION(2,12,0)
   gTimeValFromISO8601,
   gTimeValToISO8601,
+#endif
   GDate(..),
   GDateDay,
   GDateMonth,
@@ -43,7 +45,9 @@ module System.Glib.GDateTime (
   gDateSetDay,
   gDateSetMonth,
   gDateSetYear,
+#if GLIB_CHECK_VERSION(2,10,0)
   gDateNewTimeVal,
+#endif
   gDateParse,
   gDateAddDays,
   gDateSubtractDays,
@@ -98,6 +102,7 @@ gTimeValAdd time microseconds =
         do {# call g_time_val_add #} (castPtr ptr) microseconds
            peek ptr
 
+#if GLIB_CHECK_VERSION(2,12,0)
 gTimeValFromISO8601 :: String
                     -> Maybe GTimeVal
 gTimeValFromISO8601 isoDate =
@@ -113,6 +118,7 @@ gTimeValToISO8601 :: GTimeVal
 gTimeValToISO8601 time =
     unsafePerformIO $ with time $ \ptr ->
         {# call g_time_val_to_iso8601 #} (castPtr ptr) >>= readUTFString
+#endif
 
 newtype GDateDay = GDateDay {# type GDateDay #}
     deriving (Eq, Ord)
@@ -217,6 +223,7 @@ gDateSetYear date (GDateYear year) =
                then liftM Just $ peek ptr
                else return Nothing
 
+#if GLIB_CHECK_VERSION(2,10,0)
 gDateNewTimeVal :: GTimeVal
                 -> GDate
 gDateNewTimeVal timeVal =
@@ -224,6 +231,7 @@ gDateNewTimeVal timeVal =
         with timeVal $ \timeValPtr ->
         do {# call g_date_set_time_val #} (castPtr ptr) $ castPtr timeValPtr
            peek ptr
+#endif
 
 gDateParse :: String
            -> IO (Maybe GDate)
