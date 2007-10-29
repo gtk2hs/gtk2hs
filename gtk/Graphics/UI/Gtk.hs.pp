@@ -249,7 +249,11 @@ import Graphics.UI.Gtk.Display.Image
 import Graphics.UI.Gtk.Display.Label
 import Graphics.UI.Gtk.Display.ProgressBar
 import Graphics.UI.Gtk.Display.Statusbar
+#ifdef GTK_CHECK_VERSION(2,10,0)
 import Graphics.UI.Gtk.Display.StatusIcon hiding (onActivate,afterActivate,onPopupMenu,afterPopupMenu)
+#else
+import Graphics.UI.Gtk.Display.StatusIcon
+#endif
 -- buttons and toggles
 import Graphics.UI.Gtk.Buttons.Button
 import Graphics.UI.Gtk.Buttons.CheckButton

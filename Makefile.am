@@ -421,7 +421,7 @@ libHSgtk_a_GENERATEDSOURCES =						\
 nodist_libHSgtk_a_SOURCES = $(libHSgtk_a_GENERATEDSOURCES)
 
 libHSgtk_a_SOURCES =					 		\
-	gtk/Graphics/UI/Gtk.hs						\
+	gtk/Graphics/UI/Gtk.hs.pp					\
 	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp				\
 	gtk/Graphics/UI/Gtk/Multiline/Types.chs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp				\
