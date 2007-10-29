@@ -462,6 +462,23 @@ AH_BOTTOM([
 ])
 
 dnl Also allow us to conditionally compile bindings to Glib APIs.
+GSTREAMER_VERSION=`$PKG_CONFIG gstreamer-0.10 --modversion`
+GSTREAMER_MAJOR_VERSION=`echo $GSTREAMER_VERSION | $CUT -d. -f1`
+GSTREAMER_MINOR_VERSION=`echo $GSTREAMER_VERSION | $CUT -d. -f2`
+GSTREAMER_MICRO_VERSION=`echo $GSTREAMER_VERSION | $CUT -d. -f3`
+AC_DEFINE_UNQUOTED(_GSTREAMER_MAJOR_VERSION, ($GSTREAMER_MAJOR_VERSION), [Glib major version number])
+AC_DEFINE_UNQUOTED(_GSTREAMER_MINOR_VERSION, ($GSTREAMER_MINOR_VERSION), [Glib minor version number])
+AC_DEFINE_UNQUOTED(_GSTREAMER_MICRO_VERSION, ($GSTREAMER_MICRO_VERSION), [Glib minor patch level])
+AH_BOTTOM([
+/* Allow code to be compiled differently for different versions of Glib */
+#define GSTREAMER_CHECK_VERSION(major,minor,micro)    \
+    (_GSTREAMER_MAJOR_VERSION > (major) || \
+     (_GSTREAMER_MAJOR_VERSION == (major) && _GSTREAMER_MINOR_VERSION > (minor)) || \
+     (_GSTREAMER_MAJOR_VERSION == (major) && _GSTREAMER_MINOR_VERSION == (minor) && \
+      _GSTREAMER_MICRO_VERSION >= (micro)))
+])
+
+dnl Also allow us to conditionally compile bindings to Glib APIs.
 dnl We also want to know if certain cairo backends are enabled or not
 dnl we can find out by checking the appropriate cpp defines in cairo-features.h
 dnl Actually getting at these cpp defines is a bit tricky, what we do is
