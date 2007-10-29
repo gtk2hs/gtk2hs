@@ -115,8 +115,8 @@ module Graphics.UI.Gtk.ModelView.ComboBox (
 #if GTK_CHECK_VERSION(2,10,0)
   comboBoxTearoffTitle,
   comboBoxPopupShown,
-#endif
   comboBoxTitle,
+#endif
 #endif
 
 -- * Signals
@@ -619,15 +619,17 @@ comboBoxTearoffTitle = newAttrFromStringProperty "tearoff-title"
 --
 comboBoxPopupShown :: ComboBoxClass self => ReadAttr self Bool
 comboBoxPopupShown = readAttrFromBoolProperty "popup-shown"
-#endif
 
 -- %hash c:52a1 d:79e8
 -- | \'title\' property. See 'comboBoxGetTitle' and 'comboBoxSetTitle'
+--
+-- * Available since Gtk+ version 2.10
 --
 comboBoxTitle :: ComboBoxClass self => Attr self String
 comboBoxTitle = newAttr
   comboBoxGetTitle
   comboBoxSetTitle
+#endif
 
 --------------------
 -- Signals
