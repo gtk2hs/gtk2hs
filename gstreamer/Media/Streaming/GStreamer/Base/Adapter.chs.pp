@@ -47,9 +47,13 @@ module Media.Streaming.GStreamer.Base.Adapter (
   
   ) where
 
+#if __GLASGOW_HASKELL__ >= 606 && __GLASGOW_HASKELL__ < 608
+#define OLD_BYTESTRING
+#endif
+
 import Control.Monad (liftM)
 import qualified Data.ByteString as BS
-#if __GLASGOW_HASKELL__ < 608
+#ifdef OLD_BYTESTRING
 import qualified Data.ByteString.Base as BS
 #else
 import qualified Data.ByteString.Unsafe as BS
@@ -89,7 +93,7 @@ adapterPeek adapter size =
     do ptr <- {# call adapter_peek #} (toAdapter adapter) (fromIntegral size)
        if ptr == nullPtr
            then return Nothing
-#if __GLASGOW_HASKELL__ < 608
+#ifdef OLD_BYTESTRING
            else liftM Just $ BS.copyCStringLen (castPtr ptr, fromIntegral size)
 #else
            else liftM Just $ BS.packCStringLen (castPtr ptr, fromIntegral size)
@@ -151,7 +155,7 @@ adapterTake adapter nBytes =
           then do fPtr <- newForeignPtr (castPtr ptr) gFreePtr
                   return $ Just $
                       BS.fromForeignPtr (castForeignPtr fPtr)
-#if __GLASGOW_HASKELL__ >= 608
+#ifndef OLD_BYTESTRING
                                         0
 #endif
                                         (fromIntegral nBytes)

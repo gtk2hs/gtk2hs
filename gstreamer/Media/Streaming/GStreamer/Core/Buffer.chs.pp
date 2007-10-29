@@ -88,6 +88,10 @@ import qualified Data.ByteString as BS
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
 
+#if __GLASGOW_HASKELL__ >= 606 && __GLASGOW_HASKELL__ < 608
+#define OLD_BYTESTRING
+#endif
+
 {# context lib = "gstreamer" prefix = "gst" #}
 
 bufferOffsetNone :: Word64
@@ -138,7 +142,7 @@ bufferGetData buffer =
     unsafePerformIO $ withMiniObject buffer $ \bufferPtr ->
         do ptr <- {# get GstBuffer->data #} bufferPtr
            size <- {# get GstBuffer->size #} bufferPtr
-#if __GLASGOW_HASKELL__ < 608
+#ifdef OLD_BYTESTRING
            BS.copyCStringLen (castPtr ptr, fromIntegral size)
 #else
            BS.packCStringLen (castPtr ptr, fromIntegral size)
@@ -150,7 +154,7 @@ bufferGetDataM =
     marshalBufferM $ \bufferPtr ->
         do ptr <- {# get GstBuffer->data #} bufferPtr
            size <- {# get GstBuffer->size #} bufferPtr
-#if __GLASGOW_HASKELL__ < 608
+#ifdef OLD_BYTESTRING
            BS.copyCStringLen (castPtr ptr, fromIntegral size)
 #else
            BS.packCStringLen (castPtr ptr, fromIntegral size)
