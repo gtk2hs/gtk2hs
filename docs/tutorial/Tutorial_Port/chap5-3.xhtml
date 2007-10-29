@@ -18,17 +18,16 @@
         <a href="index.xhtml">Home</a>
       </span>
       <span class="nav-next">
-      <!-- a href="chap5-4.xhtml" -->Next 
-      <!--</a>--></span>
+      <a href="chap5-4.xhtml">Next 
+      </a></span>
     </div>
-    <h1>5.3 Font and Color Selection</h1>
+    <h2>5.3 Font and Color Selection</h2>
     <p>Font and color selection are much like file selection. There
     are three ways to implement them, as widgets, dialogs and
     buttons. The user selected values are obtained through the
     appropriate attributes or functions. We'll discuss font
     selection first. You can use:</p>
-    <pre class="codebox">
-fontSelectionNew :: IO FontSelection
+    <pre class="codebox">fontSelectionNew :: IO FontSelection
 fontSelectionDialogNew :: String -&gt; IO FontSelectionDialog
 fontButtonNew :: IO FontButton
 </pre>
@@ -39,13 +38,11 @@ fontButtonNew :: IO FontButton
     dialog you use the appropriate 
     <code>ResponseId</code> types; with the 
     <code>FontButton</code>  you use:</p>
-    <pre class="codebox">
-onFontSet:: FontButtonClass self =&gt; self -&gt; IO () -&gt; IO (ConnectId self)
+    <pre class="codebox">onFontSet:: FontButtonClass self =&gt; self -&gt; IO () -&gt; IO (ConnectId self)
 </pre>
     <p>Then you use the following function to get the name of the
     user selected font:</p>
-    <pre class="codebox">
-fontButtonGetFontName :: FontButtonClass self =&gt; self -&gt; IO String
+    <pre class="codebox">fontButtonGetFontName :: FontButtonClass self =&gt; self -&gt; IO String
 </pre>
     <p>The font name will be something like "Courier Italic 10" or
     "URW Gothic L Semi-Bold Oblique 16", whatever is available on
@@ -60,28 +57,23 @@ fontButtonGetFontName :: FontButtonClass self =&gt; self -&gt; IO String
     supported, but the general user will only need to know how to
     get a 
     <code>FontDescription</code> from a font name.</p>
-    <pre class="codebox">
-fontDescriptionFromString :: String -&gt; IO FontDescription
+    <pre class="codebox">fontDescriptionFromString :: String -&gt; IO FontDescription
 </pre>
     <p>Once you have a 
     <code>FontDescription</code> you can use:</p>
-    <pre class="codebox">
-widgetModifyFont:: WidgetClass self =&gt; self -&gt; Maybe FontDescription -&gt; IO ()
+    <pre class="codebox">widgetModifyFont:: WidgetClass self =&gt; self -&gt; Maybe FontDescription -&gt; IO ()
 </pre>
     <p>Color selection is analogous to font selection. You have
     three choices:</p>
-    <pre class="codebox">
-colorSelectionNew :: IO Color Selection
+    <pre class="codebox">colorSelectionNew :: IO Color Selection
 colorSelectionDialogNew: :: String -&gt; IO ColorSelectionDialog
 colorButtonNew :: IO Color Button
 </pre>
     <p>Whith a ColorButton use:</p>
-    <pre class="codebox">
-onColorSet :: ColorButtonClass self =&gt; self -&gt; IO () -&gt; IO (ConnectId self)
+    <pre class="codebox">onColorSet :: ColorButtonClass self =&gt; self -&gt; IO () -&gt; IO (ConnectId self)
 </pre>
     <p>and then:</p>
-    <pre class="codebox">
-colorButtonGetColor :: ColorButtonClass self =&gt; self -&gt; IO Color
+    <pre class="codebox">colorButtonGetColor :: ColorButtonClass self =&gt; self -&gt; IO Color
 </pre>
     <p>There is also a function (and an attribute) to get the Alpha
     value (opacity) if this feature has been enabled.</p>
@@ -103,14 +95,12 @@ colorButtonGetColor :: ColorButtonClass self =&gt; self -&gt; IO Color
     change the color of a label text, for example, you just use 
     <code>StateNormal</code> and the 
     <code>Color</code> the user has selected.</p>
-    <pre class="codebox">
-widgetModifyFg :: WidgetClass self =&gt; self -&gt; StateType -&gt; Color -&gt; IO ()
+    <pre class="codebox">widgetModifyFg :: WidgetClass self =&gt; self -&gt; StateType -&gt; Color -&gt; IO ()
 </pre>
     <p>When in doubt what 
     <code>StateType</code> the widget has, there is the following
     function:</p>
-    <pre class="codebox">
-widgetGetState :: WidgetClass w =&gt; w -&gt; IO StateType
+    <pre class="codebox">widgetGetState :: WidgetClass w =&gt; w -&gt; IO StateType
 </pre>
     <p>Here is an example of font and color selection.</p>
     <p>
@@ -183,9 +173,9 @@ instance Show Color where
       <a href="index.xhtml">Home</a>
       <br />&#160;</span>
       <span class="nav-next">
-      <!--<a href="chap3-1.xhtml">-->Next 
-      <!--</a>-->
-      <br /></span>
+      <a href="chap3-1.xhtml">Next
+      </a>
+      <br />5.4 Notebook</span>
     </div>
   </body>
 </html>
