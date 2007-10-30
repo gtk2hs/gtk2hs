@@ -169,6 +169,8 @@ module Graphics.Rendering.Cairo (
   , createImageSurface
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
+  , imageSurfaceGetStride
+  , imageSurfaceGetData
 
 #ifdef ENABLE_CAIRO_PNG_FUNCTIONS
   -- ** PNG support
@@ -237,6 +239,8 @@ module Graphics.Rendering.Cairo (
 import Control.Monad (unless)
 import Control.Monad.Reader (ReaderT(runReaderT), ask, MonadIO, liftIO)
 import Control.Exception (bracket)
+import Foreign.Ptr (castPtr)
+import qualified Data.ByteString as BS
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
 import Graphics.Rendering.Cairo.Internal (Render(..), bracketR)
@@ -1519,7 +1523,7 @@ withImageSurface format width height f =
 -- Haskell memory manager rather than only being temporaily allocated. This
 -- is more flexible and allows you to create surfaces that persist, which
 -- can be very useful, for example to cache static elements in an animation.
--- 
+--
 -- However you should be careful because surfaces can be expensive resources
 -- and the Haskell memory manager cannot guarantee when it will release them.
 -- You can manually release the resources used by a surface with
@@ -1544,6 +1548,23 @@ imageSurfaceGetWidth a = liftIO $ Internal.imageSurfaceGetWidth a
 --
 imageSurfaceGetHeight :: Surface -> Render Int
 imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
+
+-- | Get the number of bytes from the start of one row to the start of the
+--   next. If the image data contains no padding, then this is equal to
+--   the pixel depth * the width.
+imageSurfaceGetStride :: Surface -> Render Int
+imageSurfaceGetStride = liftIO . Internal.imageSurfaceGetStride
+
+-- | Return a ByteString of the image data for a surface. In order to remain
+--   safe the returned ByteString is a copy of the data. This is a little
+--   slower than returning a pointer into the image surface object itself, but
+--   much safer
+imageSurfaceGetData :: Surface -> IO BS.ByteString
+imageSurfaceGetData a = do
+  height <- Internal.imageSurfaceGetHeight a
+  stride <- Internal.imageSurfaceGetStride a
+  ptr <- Internal.imageSurfaceGetData a
+  BS.copyCStringLen (castPtr ptr, height * stride)
 
 #ifdef ENABLE_CAIRO_PDF_SURFACE
 -- | Creates a PostScript surface of the specified size in points to
