@@ -45,6 +45,7 @@ module Media.Streaming.GStreamer.Core.Constants (
   IndexFlags(..),
   MiniObjectFlags(..),
   BufferFlags(..),
+  bufferOffsetNone,
   EventType(..),
   MessageType(..),
   CapsFlags(..),
@@ -191,6 +192,9 @@ instance Enum BufferFlags where
     fromEnum BufferGap       = #{const GST_BUFFER_FLAG_GAP}
     fromEnum BufferDeltaUnit = #{const GST_BUFFER_FLAG_DELTA_UNIT}
 instance Flags BufferFlags
+
+bufferOffsetNone :: Word64
+bufferOffsetNone = #{const GST_BUFFER_OFFSET_NONE}
 
 data EventType = EventUnknown
                | EventFlushStart

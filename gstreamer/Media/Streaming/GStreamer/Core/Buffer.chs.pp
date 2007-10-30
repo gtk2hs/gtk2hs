@@ -94,8 +94,6 @@ import System.Glib.FFI
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
-bufferOffsetNone :: Word64
-bufferOffsetNone = maxBound -- should be ((guint64) -1)
 
 bufferGetFlags :: BufferClass bufferT
                => bufferT
