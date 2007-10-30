@@ -19,7 +19,6 @@ EXTRA_DIST = \
 	cairo/cairo-gtk2hs.h			\
 	svgcairo/svgcairo.h			\
 	gtk/Graphics/UI/Gtk/General/hsgthread.h	\
-	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h \
 	gnomevfs/System/Gnome/VFS/hsfileinfo.h	\
 	gnomevfs/marshal.list 			\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
