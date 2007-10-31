@@ -82,7 +82,7 @@ import Control.Monad.Reader (ask, liftIO)
 import System.IO (Handle, openFile, IOMode(ReadMode), hGetBuf)
 
 import System.Glib.GError (GError(GError), checkGError)
-import System.Glib.GObject (GObjectClass, constructNewGObject)
+import System.Glib.GObject (GObjectClass(..), constructNewGObject, unGObject, mkGObject)
 
 import Graphics.Rendering.Cairo.Internal (Render, bracketR)
 {# import Graphics.Rendering.Cairo.Types #} (Cairo(Cairo))
@@ -95,7 +95,12 @@ import Graphics.Rendering.Cairo.Internal (Render, bracketR)
 
 {# pointer *RsvgHandle as SVG foreign newtype #}
 
-instance GObjectClass SVG
+mkSVG = SVG
+unSVG (SVG o) = o
+
+instance GObjectClass SVG where
+  toGObject = mkGObject . castForeignPtr . unSVG
+  unsafeCastGObject = mkSVG . castForeignPtr . unGObject
 
 ---------------------
 -- Basic API
