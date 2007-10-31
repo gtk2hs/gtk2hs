@@ -71,7 +71,9 @@ newtype GLDrawingArea = GLDrawingArea DrawingArea
 instance DrawingAreaClass GLDrawingArea
 instance WidgetClass GLDrawingArea
 instance ObjectClass GLDrawingArea
-instance GObjectClass GLDrawingArea
+instance GObjectClass GLDrawingArea where
+  toGObject (GLDrawingArea gd) = toGObject gd
+  unsafeCastGObject = GLDrawingArea . unsafeCastGObject
 
 --------------------
 -- Constructors
