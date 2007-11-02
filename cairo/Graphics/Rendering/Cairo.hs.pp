@@ -169,8 +169,10 @@ module Graphics.Rendering.Cairo (
   , createImageSurface
   , imageSurfaceGetWidth
   , imageSurfaceGetHeight
+#if CAIRO_CHECK_VERSION(1,2,0)
   , imageSurfaceGetStride
   , imageSurfaceGetData
+#endif
 
 #ifdef ENABLE_CAIRO_PNG_FUNCTIONS
   -- ** PNG support
@@ -1549,6 +1551,7 @@ imageSurfaceGetWidth a = liftIO $ Internal.imageSurfaceGetWidth a
 imageSurfaceGetHeight :: Surface -> Render Int
 imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 
+#if CAIRO_CHECK_VERSION(1,2,0)
 -- | Get the number of bytes from the start of one row to the start of the
 --   next. If the image data contains no padding, then this is equal to
 --   the pixel depth * the width.
@@ -1565,6 +1568,7 @@ imageSurfaceGetData a = do
   stride <- Internal.imageSurfaceGetStride a
   ptr <- Internal.imageSurfaceGetData a
   BS.copyCStringLen (castPtr ptr, height * stride)
+#endif
 
 #ifdef ENABLE_CAIRO_PDF_SURFACE
 -- | Creates a PostScript surface of the specified size in points to

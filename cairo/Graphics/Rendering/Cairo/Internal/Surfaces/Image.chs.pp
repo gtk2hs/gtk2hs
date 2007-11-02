@@ -23,6 +23,7 @@ import Foreign.C
 {#fun image_surface_create     as imageSurfaceCreate    { cFromEnum `Format', `Int', `Int' } -> `Surface' mkSurface*#}
 {#fun image_surface_get_width  as imageSurfaceGetWidth  { withSurface* `Surface' } -> `Int'#}
 {#fun image_surface_get_height as imageSurfaceGetHeight { withSurface* `Surface' } -> `Int'#}
+#if CAIRO_CHECK_VERSION(1,2,0)
 {#fun image_surface_get_stride as imageSurfaceGetStride { withSurface* `Surface' } -> `Int'#}
 {#fun image_surface_get_data   as imageSurfaceGetData   { withSurface* `Surface' } -> `(Ptr CUChar)' id#}
-
+#endif
