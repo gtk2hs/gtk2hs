@@ -22,20 +22,21 @@
 --  GStreamer, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
---  
+
+-- #hide
+  
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
 module Media.Streaming.GStreamer.Core.Constants (
-  
   ClockTime,
-  
   clockTimeNone,
   second,
   msecond,
   usecond,
   nsecond,
-  
+  BufferOffset,
+  bufferOffsetNone,
   ObjectFlags(..),
   PadFlags(..),
   ElementFlags(..),
@@ -45,39 +46,53 @@ module Media.Streaming.GStreamer.Core.Constants (
   IndexFlags(..),
   MiniObjectFlags(..),
   BufferFlags(..),
-  bufferOffsetNone,
   EventType(..),
   MessageType(..),
   CapsFlags(..),
-  
   ) where
 
 import Data.Word
 import System.Glib.Flags
 
+-- | A time value in nanoseconds.
 type ClockTime = Word64
 
+-- | The undefined 'ClockTime' value.
 clockTimeNone :: ClockTime
 clockTimeNone = #{const GST_CLOCK_TIME_NONE}
 
 second, msecond, usecond, nsecond :: ClockTime
+-- | One second as a 'ClockTime' value.
 second  = #{const GST_SECOND}
+-- | One millisecond as a 'ClockTime' value.
 msecond = #{const GST_MSECOND}
+-- | One microsecond as a 'ClockTime' value.
 usecond = #{const GST_USECOND}
+-- | One nanosecond as a 'ClockTime' value.
 nsecond = #{const GST_NSECOND}
 
-data ObjectFlags = ObjectDisposing
+-- | The type for buffer offsets.
+type BufferOffset = Word64
+-- | The undefined 'BufferOffset' value.
+bufferOffsetNone :: BufferOffset
+bufferOffsetNone = #{const GST_BUFFER_OFFSET_NONE}
+
+-- | The flags that an 'Object' may have.
+data ObjectFlags = ObjectDisposing  -- ^ The object has been
+                                    --   destroyed, don't use it any
+                                    --   more.
                    deriving (Bounded, Show)
 instance Enum ObjectFlags where
     toEnum n | n == #{const GST_OBJECT_DISPOSING} = ObjectDisposing
     fromEnum ObjectDisposing = #{const GST_OBJECT_DISPOSING}
 instance Flags ObjectFlags
 
-data PadFlags = PadBlocked
-              | PadFlushing
-              | PadInGetCaps
-              | PadInSetCaps
-              | PadBlocking
+-- | The flags that a 'Pad' may have.
+data PadFlags = PadBlocked   -- ^ dataflow on the pad is blocked
+              | PadFlushing  -- ^ the pad is refusing buffers
+              | PadInGetCaps -- ^ 'padGetCaps' is executing
+              | PadInSetCaps -- ^ 'padSetCaps' is executing
+              | PadBlocking  -- ^ the pad is blocking on a buffer or event
                 deriving (Eq, Bounded, Show)
 instance Enum PadFlags where
     toEnum n | n == #{const GST_PAD_BLOCKED}    = PadBlocked
@@ -92,9 +107,11 @@ instance Enum PadFlags where
     fromEnum PadBlocking  = #{const GST_PAD_BLOCKING}
 instance Flags PadFlags
 
-data ElementFlags = ElementLockedState
-                  | ElementIsSink
-                  | ElementUnparenting
+-- | The flags that an 'Element' may have.
+data ElementFlags = ElementLockedState -- ^ parent state changes are ignored
+                  | ElementIsSink      -- ^ the element is a sink
+                  | ElementUnparenting -- ^ child is being removed
+                                       --   from the parent bin
                     deriving (Eq, Bounded, Show)
 instance Enum ElementFlags where
     toEnum n | n == #{const GST_ELEMENT_LOCKED_STATE} = ElementLockedState
@@ -105,12 +122,14 @@ instance Enum ElementFlags where
     fromEnum ElementUnparenting = #{const GST_ELEMENT_UNPARENTING}
 instance Flags ElementFlags
 
-data StateChange = StateChangeNullToReady
-                 | StateChangeReadyToPaused
-                 | StateChangePausedToPlaying
-                 | StateChangePlayingToPaused
-                 | StateChangePausedToReady
-                 | StateChangeReadyToNull
+-- | The different state changes that are passed to the state change
+--   functions of 'Element's.
+data StateChange = StateChangeNullToReady     -- ^ state change from 'StateNull' to 'StateReady'
+                 | StateChangeReadyToPaused   -- ^ state change from 'StateReady' to 'StatePaused'
+                 | StateChangePausedToPlaying -- ^ state change from 'StatePaused' to 'StatePlaying'
+                 | StateChangePlayingToPaused -- ^ state change from 'StatePlaying' to 'StatePaused'
+                 | StateChangePausedToReady   -- ^ state change from 'StatePaused' to 'StateReady'
+                 | StateChangeReadyToNull     -- ^ state change from 'StateReady' to 'StateNull'
                    deriving (Eq, Show)
 instance Enum StateChange where
     toEnum n | n == #{const GST_STATE_CHANGE_NULL_TO_READY}     = StateChangeNullToReady
@@ -127,19 +146,21 @@ instance Enum StateChange where
     fromEnum StateChangePausedToReady   = #{const GST_STATE_CHANGE_PAUSED_TO_READY}
     fromEnum StateChangeReadyToNull     = #{const GST_STATE_CHANGE_READY_TO_NULL}
 
-data BusFlags = BusFlushing
+-- | The flags that a 'Bus' may have.
+data BusFlags = BusFlushing -- ^ the bus is currently dropping all messages
                 deriving (Eq, Bounded, Show)
 instance Enum BusFlags where
     toEnum n | n == #{const GST_BUS_FLUSHING} = BusFlushing
     fromEnum BusFlushing = #{const GST_BUS_FLUSHING}
 instance Flags BusFlags
 
-data ClockFlags = ClockCanDoSingleSync
-                | ClockCanDoSingleAsync
-                | ClockCanDoPeriodicSync
-                | ClockCanDoPeriodicAsync
-                | ClockCanSetResolution
-                | ClockCanSetMaster
+-- | The flags that a 'Clock' may have.
+data ClockFlags = ClockCanDoSingleSync    -- ^ the clock can do a single sync timeout request
+                | ClockCanDoSingleAsync   -- ^ the clock can do a single async timeout request
+                | ClockCanDoPeriodicSync  -- ^ the clock can do periodic sync timeout requests
+                | ClockCanDoPeriodicAsync -- ^ the clock can do periodic async timeout requests
+                | ClockCanSetResolution   -- ^ the clock's resolution can be changed
+                | ClockCanSetMaster       -- ^ the clock can be slaved to a master clock
                   deriving (Eq, Bounded, Show)
 instance Enum ClockFlags where
     toEnum n | n == #{const GST_CLOCK_FLAG_CAN_DO_SINGLE_SYNC}    = ClockCanDoSingleSync
@@ -157,8 +178,9 @@ instance Enum ClockFlags where
     fromEnum ClockCanSetMaster       = #{const GST_CLOCK_FLAG_CAN_SET_MASTER}
 instance Flags ClockFlags
 
-data IndexFlags = IndexWritable
-                | IndexReadable
+-- | The flags an 'Index' may have.
+data IndexFlags = IndexWritable -- ^ the index is writable
+                | IndexReadable -- ^ the index is readable
                   deriving (Eq, Bounded, Show)
 instance Enum IndexFlags where
     toEnum n | n == #{const GST_INDEX_WRITABLE} = IndexWritable
@@ -167,18 +189,20 @@ instance Enum IndexFlags where
     fromEnum IndexReadable = #{const GST_INDEX_READABLE}
 instance Flags IndexFlags
 
-data MiniObjectFlags = MiniObjectReadOnly
+-- | The flags a 'MiniObject' may have.
+data MiniObjectFlags = MiniObjectReadOnly -- ^ the object is not writable
                        deriving (Eq, Bounded, Show)
 instance Enum MiniObjectFlags where
     toEnum n | n == #{const GST_MINI_OBJECT_FLAG_READONLY} = MiniObjectReadOnly
     fromEnum MiniObjectReadOnly = #{const GST_MINI_OBJECT_FLAG_READONLY}
 instance Flags MiniObjectFlags
 
-data BufferFlags = BufferPreroll
-                 | BufferDiscont
-                 | BufferInCaps
-                 | BufferGap
-                 | BufferDeltaUnit
+-- | The flags a 'Buffer' may have.
+data BufferFlags = BufferPreroll   -- ^ the buffer is part of a preroll and should not be displayed
+                 | BufferDiscont   -- ^ the buffer marks a discontinuity in the stream
+                 | BufferInCaps    -- ^ the buffer has been added as a field in a 'Caps'
+                 | BufferGap       -- ^ the buffer has been created to fill a gap in the stream
+                 | BufferDeltaUnit -- ^ the buffer cannot be decoded independently
                    deriving (Eq, Bounded, Show)
 instance Enum BufferFlags where
     toEnum n | n == #{const GST_BUFFER_FLAG_PREROLL}    = BufferPreroll
@@ -193,25 +217,25 @@ instance Enum BufferFlags where
     fromEnum BufferDeltaUnit = #{const GST_BUFFER_FLAG_DELTA_UNIT}
 instance Flags BufferFlags
 
-bufferOffsetNone :: Word64
-bufferOffsetNone = #{const GST_BUFFER_OFFSET_NONE}
-
-data EventType = EventUnknown
-               | EventFlushStart
-               | EventFlushStop
-               | EventEOS
-               | EventNewSegment
-               | EventTag
-               | EventBufferSize
-               | EventQOS
-               | EventSeek
-               | EventNavigation
-               | EventLatency
-               | EventCustomUpstream
-               | EventCustomDownstream
-               | EventCustomDownstreamOOB
-               | EventCustomBoth
-               | EventCustomBothOOB
+-- | The event types that may occur in a pipeline.
+data EventType = EventUnknown             -- ^ an unknown event
+               | EventFlushStart          -- ^ start a flush operation
+               | EventFlushStop           -- ^ stop a flush operation
+               | EventEOS                 -- ^ end of stream
+               | EventNewSegment          -- ^ a new segment follows in the dataflow
+               | EventTag                 -- ^ a new set of metadata tags has been found
+               | EventBufferSize          -- ^ notification of buffering requirements
+               | EventQOS                 -- ^ quality of service notification
+               | EventSeek                -- ^ a request for a new playback position and rate
+               | EventNavigation          -- ^ notification of user request
+#if GSTREAMER_CHECK_VERSION(0, 10, 12)
+               | EventLatency             -- ^ notification of latency adjustment
+#endif
+               | EventCustomUpstream      -- ^ custom upstream event
+               | EventCustomDownstream    -- ^ custom downstream event
+               | EventCustomDownstreamOOB -- ^ custom downstream out-of-band event
+               | EventCustomBoth          -- ^ custom bidirectional event
+               | EventCustomBothOOB       -- ^ custom bidirectional out-of-band event
                  deriving (Eq, Bounded, Show)
 instance Enum EventType where
     toEnum n | n == #{const GST_EVENT_UNKNOWN} = EventUnknown
@@ -224,7 +248,9 @@ instance Enum EventType where
              | n == #{const GST_EVENT_QOS} = EventQOS
              | n == #{const GST_EVENT_SEEK} = EventSeek
              | n == #{const GST_EVENT_NAVIGATION} = EventNavigation
+#if GSTREAMER_CHECK_VERSION(0, 10, 12)
              | n == #{const GST_EVENT_LATENCY} = EventLatency
+#endif
              | n == #{const GST_EVENT_CUSTOM_UPSTREAM} = EventCustomUpstream
              | n == #{const GST_EVENT_CUSTOM_DOWNSTREAM} = EventCustomDownstream
              | n == #{const GST_EVENT_CUSTOM_DOWNSTREAM_OOB} = EventCustomDownstreamOOB
@@ -241,35 +267,41 @@ instance Enum EventType where
     fromEnum EventQOS                 = #{const GST_EVENT_QOS}
     fromEnum EventSeek                = #{const GST_EVENT_SEEK}
     fromEnum EventNavigation          = #{const GST_EVENT_NAVIGATION}
+#if GSTREAMER_CHECK_VERSION(0, 10, 12)
     fromEnum EventLatency             = #{const GST_EVENT_LATENCY}
+#endif
     fromEnum EventCustomUpstream      = #{const GST_EVENT_CUSTOM_UPSTREAM}
     fromEnum EventCustomDownstream    = #{const GST_EVENT_CUSTOM_DOWNSTREAM}
     fromEnum EventCustomDownstreamOOB = #{const GST_EVENT_CUSTOM_DOWNSTREAM_OOB}
     fromEnum EventCustomBoth          = #{const GST_EVENT_CUSTOM_BOTH}
     fromEnum EventCustomBothOOB       = #{const GST_EVENT_CUSTOM_BOTH_OOB}
 
-data MessageType = MessageEOS
-                 | MessageError
-                 | MessageWarning
-                 | MessageInfo
-                 | MessageTag
-                 | MessageBuffering
-                 | MessageStateChanged
-                 | MessageStateDirty
-                 | MessageStepDone
-                 | MessageClockProvide
-                 | MessageClockLost
-                 | MessageNewClock
-                 | MessageStructureChange
-                 | MessageStreamStatus
-                 | MessageApplication
-                 | MessageElement
-                 | MessageSegmentStart
-                 | MessageSegmentDone
-                 | MessageDuration
-                 | MessageLatency
-                 | MessageAsyncStart
+-- | The messages types that may be sent by a pipeline.
+data MessageType = MessageEOS             -- ^ end-of-stream
+                 | MessageError           -- ^ an error message
+                 | MessageWarning         -- ^ a warning message
+                 | MessageInfo            -- ^ an informational message
+                 | MessageTag             -- ^ a metadata tag
+                 | MessageBuffering       -- ^ the pipeline is buffering
+                 | MessageStateChanged    -- ^ the pipeline changed state
+                 | MessageStepDone        -- ^ a framestep finished
+                 | MessageClockProvide    -- ^ an element is able to provide a clock
+                 | MessageClockLost       -- ^ the current clock has become unusable
+                 | MessageNewClock        -- ^ a new clock was selected by the pipeline
+                 | MessageStructureChange -- ^ the structure of the pipeline has changed
+                 | MessageStreamStatus    -- ^ a stream status message
+                 | MessageApplication     -- ^ a message posted by the application
+                 | MessageElement         -- ^ an element specific message
+                 | MessageSegmentStart    -- ^ the pipeline started playback of a segment
+                 | MessageSegmentDone     -- ^ the pipeline finished playback of a segment
+                 | MessageDuration        -- ^ the duration of the pipeline changed
+#if GSTREAMER_CHECK_VERSION(0, 10, 12)
+                 | MessageLatency         -- ^ an element's latency has changed
+#endif
+#if GSTREAMER_CHECK_VERSION(0, 10, 13)
+                 | MessageAsyncStart      -- ^ 
                  | MessageAsyncDone
+#endif
                    deriving (Eq, Bounded, Show)
 instance Enum MessageType where
     toEnum n | n == #{const GST_MESSAGE_EOS}               = MessageEOS
@@ -279,7 +311,6 @@ instance Enum MessageType where
              | n == #{const GST_MESSAGE_TAG}               = MessageTag
              | n == #{const GST_MESSAGE_BUFFERING}         = MessageBuffering
              | n == #{const GST_MESSAGE_STATE_CHANGED}     = MessageStateChanged
-             | n == #{const GST_MESSAGE_STATE_DIRTY}       = MessageStateDirty
              | n == #{const GST_MESSAGE_STEP_DONE}         = MessageStepDone
              | n == #{const GST_MESSAGE_CLOCK_PROVIDE}     = MessageClockProvide
              | n == #{const GST_MESSAGE_CLOCK_LOST}        = MessageClockLost
@@ -301,7 +332,6 @@ instance Enum MessageType where
     fromEnum MessageTag             = #{const GST_MESSAGE_TAG}
     fromEnum MessageBuffering       = #{const GST_MESSAGE_BUFFERING}
     fromEnum MessageStateChanged    = #{const GST_MESSAGE_STATE_CHANGED}
-    fromEnum MessageStateDirty      = #{const GST_MESSAGE_STATE_DIRTY}
     fromEnum MessageStepDone        = #{const GST_MESSAGE_STEP_DONE}
     fromEnum MessageClockProvide    = #{const GST_MESSAGE_CLOCK_PROVIDE}
     fromEnum MessageClockLost       = #{const GST_MESSAGE_CLOCK_LOST}
@@ -318,6 +348,7 @@ instance Enum MessageType where
     fromEnum MessageAsyncDone       = #{const GST_MESSAGE_ASYNC_DONE}
 instance Flags MessageType
 
+-- | The flags that a 'Caps' may have.
 data CapsFlags = CapsAny
                  deriving (Eq, Bounded, Show)
 instance Enum CapsFlags where
