@@ -1267,6 +1267,9 @@ libHScairo_a_EXTERNALDEPS	= base
 if HAVE_MTL_PACKAGE
 libHScairo_a_EXTERNALDEPS	+= mtl
 endif
+if HAVE_SPLIT_BASE
+libHScairo_a_EXTERNALDEPS       += bytestring
+endif
 libHScairo_a_INTERNALDEPS	= glib
 libHScairo_a_HEADER 		= cairo/cairo-gtk2hs.h
 libHScairo_a_PRECOMP		= cairo/cairo.precomp

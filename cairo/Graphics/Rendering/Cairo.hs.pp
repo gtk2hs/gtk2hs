@@ -1567,7 +1567,11 @@ imageSurfaceGetData a = do
   height <- Internal.imageSurfaceGetHeight a
   stride <- Internal.imageSurfaceGetStride a
   ptr <- Internal.imageSurfaceGetData a
+#if __GLASGOW_HASKELL__ < 608
   BS.copyCStringLen (castPtr ptr, height * stride)
+#else
+  BS.packCStringLen (castPtr ptr, height * stride)
+#endif
 #endif
 
 #ifdef ENABLE_CAIRO_PDF_SURFACE
