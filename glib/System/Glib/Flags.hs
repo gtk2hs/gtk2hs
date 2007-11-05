@@ -27,10 +27,12 @@
 module System.Glib.Flags (
   Flags,
   fromFlags,
-  toFlags
+  toFlags,
+  toFlags'
   ) where
 
-import Data.Bits ((.|.), testBit, shiftL, shiftR)
+import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
+import Data.Maybe (catMaybes)
 
 class  (Enum a, Bounded a) => Flags a
   
@@ -50,6 +52,14 @@ toFlags f = testBits f 1
           | f == 0        = []
           | f `testBit` 0 = toEnum n : testBits (f `shiftR` 1) (n `shiftL` 1)
           | otherwise     =            testBits (f `shiftR` 1) (n `shiftL` 1)
+
+-- * Unlike 'toFlags', this function ignores bits set in the passed
+--   'Int' that do not correspond to a flag.
+toFlags' :: Flags a => Int -> [a]
+toFlags' n = catMaybes [ if n .&. fromEnum flag == fromEnum flag
+                            then Just flag
+                            else Nothing
+                       | flag <- [ minBound .. maxBound ] ]
 
 -------------------------
 -- QuickCheck test code
