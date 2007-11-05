@@ -454,7 +454,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Entry/HScale.chs				\
 	gtk/Graphics/UI/Gtk/Entry/SpinButton.chs			\
 	gtk/Graphics/UI/Gtk/Entry/VScale.chs				\
-	gtk/Graphics/UI/Gtk/General/Clipboard.chs			\
+	gtk/Graphics/UI/Gtk/General/Clipboard.chs.pp			\
 	gtk/Graphics/UI/Gtk/General/Enums.chs.pp			\
 	gtk/Graphics/UI/Gtk/General/General.chs				\
 	gtk/Graphics/UI/Gtk/General/hsgthread.c				\

@@ -30,11 +30,13 @@
 --
 module Graphics.UI.Gtk.General.Clipboard (
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- * Types
 ClipboardType(..),
   
 -- * Methods
 clipboardGet
+#endif
   ) where
 
 import System.Glib.FFI
@@ -46,6 +48,7 @@ import System.Glib.GObject
 
 {# context lib="gtk" prefix="gtk" #}
 
+#if GTK_CHECK_VERSION(2,2,0)
 --------------------
 -- Types
 
@@ -79,3 +82,4 @@ clipboardGet clipboardType = do
 clipboardTypeToPointer :: ClipboardType -> Ptr ()
 clipboardTypeToPointer ClipClipboard =   nullPtr `plusPtr` 1
 clipboardTypeToPointer ClipPrimary   =   nullPtr `plusPtr` 69
+#endif

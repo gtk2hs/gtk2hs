@@ -136,10 +136,11 @@ module Graphics.UI.Gtk.Multiline.TextBuffer (
   textBufferInsertChildAnchor,
   textBufferCreateChildAnchor,
   textBufferGetIterAtChildAnchor,
-
+#if GTK_CHECK_VERSION(2,2,0)
   textBufferPasteClipboard,
   textBufferCopyClipboard,
   textBufferCutClipboard,
+#endif
 
 -- * Attributes
   textBufferTagTable,
@@ -959,6 +960,7 @@ textBufferGetBounds self start end =
     start
     end
 
+#if GTK_CHECK_VERSION(2,2,0)
 -- | Pastes the contents of a clipboard at the insertion point,
 -- or at override_location. (Note: pasting is asynchronous, that is,
 -- we'll ask for the paste data and return, and at some point later
@@ -995,6 +997,7 @@ textBufferCutClipboard self clipboard defaultEditable =
     (toTextBuffer self)
     clipboard
     (fromBool defaultEditable)
+#endif
 
 --------------------
 -- Attributes
