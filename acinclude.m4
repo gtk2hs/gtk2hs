@@ -92,12 +92,25 @@ dnl GHC_PKG_CHECK(PKG_NAME)
 AC_DEFUN([GHC_PKG_CHECK],
 [
 AC_MSG_CHECKING([for the GHC package "$1"])
-if ${GHCPKG} --simple-output list $1 > /dev/null 2> /dev/null
+if test "$USERPKGCONF" = "yes"; then
+	C=$(${GHCPKG} list $1 | sed -e '/package.conf:/d')
+else
+	C=$(${GHCPKG} list $1 | sed -e '1d;/package.conf:/,$d')
+fi
+if echo "${C}" | ${GREP} $1 > /dev/null 2> /dev/null
 then
-	AC_MSG_RESULT(yes)
+	if test "$USE_NEW_PKG_FORMAT" = "yes"; then
+		$2=$(echo "${C}" | sed -e 's/,/\n/g' -e 's/[[(), ]]//g' | grep -v '^$' | sed -e 's/[[A-Za-z-]]*//' | sort -r -n | head -n1)
+		AC_MSG_RESULT([yes, version $$2])
+	else
+		AC_MSG_RESULT(yes)
+	fi
 else
 	AC_MSG_ERROR([
-Missing GHC package "$1". Install "$1" and re-run ./configure])
+Missing GHC package "$1". Install "$1" and re-run ./configure
+If $1 is actually installed but per-user rather than globally and
+you want to do a per-user install of gtk2hs then use:
+./configure --with-user-pkgconf --prefix=$HOME/some/path])
 fi
 ])
 

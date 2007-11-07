@@ -150,7 +150,7 @@ tools_c2hs_PKGNAME = tools_c2hs_c2hsLocal
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
 tools_c2hs_c2hsLocal_EXTERNALDEPS	= base haskell98
 if HAVE_SPLIT_BASE
-tools_c2hs_c2hsLocal_EXTERNALDEPS += pretty containers array
+tools_c2hs_c2hsLocal_EXTERNALDEPS	+= pretty containers array
 endif
 tools_c2hs_c2hsLocal_NOSPLITOBJS	= yes
 
@@ -387,10 +387,10 @@ libHSgtk_a_NAME			= gtk
 libHSgtk_a_CONFIG		= gtk/gtk.$(PKGEXT)
 libHSgtk_a_EXTERNALDEPS		= base
 if HAVE_SPLIT_BASE
-libHSgtk_a_EXTERNALDEPS += containers array
+libHSgtk_a_EXTERNALDEPS		+= containers-$(PKG_CONTAINERS_VERSION) array-$(PKG_ARRAY_VERSION)
 endif
 if HAVE_MTL_PACKAGE
-libHSgtk_a_EXTERNALDEPS += mtl
+libHSgtk_a_EXTERNALDEPS		+= mtl-$(PKG_MTL_VERSION)
 endif
 libHSgtk_a_INTERNALDEPS		= glib
 libHSgtk_a_HEADER 		= gtk/gtk.h
@@ -1265,10 +1265,10 @@ libHScairo_a_NAME		= cairo
 libHScairo_a_CONFIG		= cairo/cairo.$(PKGEXT)
 libHScairo_a_EXTERNALDEPS	= base
 if HAVE_MTL_PACKAGE
-libHScairo_a_EXTERNALDEPS	+= mtl
+libHScairo_a_EXTERNALDEPS	+= mtl-$(PKG_MTL_VERSION)
 endif
 if HAVE_SPLIT_BASE
-libHScairo_a_EXTERNALDEPS       += bytestring
+libHScairo_a_EXTERNALDEPS	+= bytestring-$(PKG_BYTESTRING_VERSION)
 endif
 libHScairo_a_INTERNALDEPS	= glib
 libHScairo_a_HEADER 		= cairo/cairo-gtk2hs.h
@@ -1402,7 +1402,7 @@ libHSsvgcairo_a_NAME		= svgcairo
 libHSsvgcairo_a_CONFIG		= svgcairo/svgcairo.$(PKGEXT)
 libHSsvgcairo_a_EXTERNALDEPS	= base
 if HAVE_MTL_PACKAGE
-libHSsvgcairo_a_EXTERNALDEPS	+= mtl
+libHSsvgcairo_a_EXTERNALDEPS	+= mtl-$(PKG_MTL_VERSION)
 endif
 libHSsvgcairo_a_INTERNALDEPS	= glib cairo
 libHSsvgcairo_a_HEADER 		= svgcairo/svgcairo.h
@@ -1621,7 +1621,7 @@ libHSsoegtk_a_NAME		= soegtk
 libHSsoegtk_a_CONFIG		= soegtk/soegtk.$(PKGEXT)
 libHSsoegtk_a_EXTERNALDEPS	= base
 if HAVE_SPLIT_BASE
-libHSsoegtk_a_EXTERNALDEPS += old-time
+libHSsoegtk_a_EXTERNALDEPS	+= old-time-$(PKG_OLDTIME_VERSION)
 endif
 libHSsoegtk_a_INTERNALDEPS	= glib gtk
 libHSsoegtk_a_HEADER		= $(libHSgtk_a_HEADER)
@@ -1636,7 +1636,7 @@ soegtk/libHSsoegtk_a.deps	: gtk/libHSgtk_a.deps
 
 if ENABLE_CAIRO
 if HAVE_MTL_PACKAGE
-libHSsoegtk_a_EXTERNALDEPS += mtl
+libHSsoegtk_a_EXTERNALDEPS += mtl-$(PKG_MTL_VERSION)
 endif
 libHSsoegtk_a_INTERNALDEPS += cairo
 gtk/libHSsoegtk_a.deps	: cairo/libHScairo_a.deps
@@ -1705,9 +1705,9 @@ gnomevfs_PKGNAME = libHSgnomevfs_a
 
 libHSgnomevfs_a_NAME			= gnomevfs
 libHSgnomevfs_a_CONFIG			= gnomevfs/gnomevfs.$(PKGEXT)
-libHSgnomevfs_a_EXTERNALDEPS		= base haskell98 mtl
+libHSgnomevfs_a_EXTERNALDEPS		= base haskell98 mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
-libHSgnomevfs_a_EXTERNALDEPS += bytestring
+libHSgnomevfs_a_EXTERNALDEPS           += bytestring-$(PKG_BYTESTRING_VERSION)
 endif
 libHSgnomevfs_a_INTERNALDEPS		= glib
 libHSgnomevfs_a_HEADER			= gnomevfs/gnomevfs.h
@@ -1870,9 +1870,9 @@ gstreamer_PKGNAME = libHSgstreamer_a
 
 libHSgstreamer_a_NAME			= gstreamer
 libHSgstreamer_a_CONFIG			= gstreamer/gstreamer.$(PKGEXT)
-libHSgstreamer_a_EXTERNALDEPS		= base haskell98 mtl
+libHSgstreamer_a_EXTERNALDEPS		= base haskell98 mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
-libHSgstreamer_a_EXTERNALDEPS += bytestring
+libHSgstreamer_a_EXTERNALDEPS		+= bytestring-$(PKG_BYTESTRING_VERSION)
 endif
 libHSgstreamer_a_INTERNALDEPS		= glib
 libHSgstreamer_a_HEADER			= gstreamer/hsgstreamer.h

@@ -15,5 +15,5 @@ hs-libraries: HSsvgcairo
 extra-libraries: @SVGCAIRO_LIBS_CQ@
 include-dirs: @SVGCAIRO_CFLAGS_CQ@
 includes: librsvg/rsvg-cairo.h, librsvg/rsvg.h
-depends: base mtl glib-@PACKAGE_VERSION@ cairo-@PACKAGE_VERSION@
+depends: base mtl-@PKG_MTL_VERSION@ glib-@PACKAGE_VERSION@ cairo-@PACKAGE_VERSION@
 ld-options: @SVGCAIRO_LIBEXTRA_CQ@

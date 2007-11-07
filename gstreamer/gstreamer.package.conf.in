@@ -13,5 +13,5 @@ hs-libraries: HSgstreamer
 extra-libraries: @GSTREAMER_LIBS_CQ@
 include-dirs: @GSTREAMER_CFLAGS_CQ@
 includes: gst/gst.h
-depends: glib-@PACKAGE_VERSION@, mtl
+depends: glib-@PACKAGE_VERSION@ mtl-@PKG_MTL_VERSION@ @GSTREAMER_SPLITBASE_DEPENDS@
 ld-options: @GSTREAMER_LIBEXTRA_CQ@
