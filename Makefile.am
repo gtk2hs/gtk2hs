@@ -1297,7 +1297,7 @@ libHScairo_a_SOURCES =							\
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Text.chs        \
 	cairo/Graphics/Rendering/Cairo/Internal/Drawing/Transformations.chs \
 	cairo/Graphics/Rendering/Cairo/Internal/Fonts/FontOptions.chs   \
-	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Image.chs      \
+	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/Image.chs.pp	\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PDF.chs.pp	\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PNG.chs.pp	\
 	cairo/Graphics/Rendering/Cairo/Internal/Surfaces/PS.chs.pp	\
