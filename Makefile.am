@@ -2343,7 +2343,8 @@ EXTRA_DIST +=								\
 		demo/noughty/Makefile					\
 	demo/svg/Makefile  demo/svg/Svg2Png.hs  demo/svg/SvgViewer.hs	\
 	demo/soe/BouncingBall.hs demo/soe/Demo1.hs demo/soe/Demo2.hs	\
-		demo/soe/Snowflake.hs demo/soe/Makefile
+		demo/soe/Snowflake.hs demo/soe/Makefile			\
+	demo/statusicon/StatusIcon.hs demo/statusicon/Makefile
 
 
 #
