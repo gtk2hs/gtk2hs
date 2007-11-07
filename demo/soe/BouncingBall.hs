@@ -6,7 +6,7 @@ module Main where
 import Graphics.SOE.Gtk
 
 main = runGraphics $
-       do w <- openWindowEx "Bouncing Ball" Nothing (Just (300, 300)) drawBufferedGraphic (Just 30)
+       do w <- openWindowEx "Bouncing Ball" Nothing (Just (300, 300)) drawBufferedGraphic
           let loop x y xd yd
                   = do setGraphic w $ withColor Yellow $
                                     ellipse (x-5,y-5) (x+5,y+5)
@@ -23,9 +23,8 @@ main = runGraphics $
                                 | otherwise = x''
                            y''' | y'' + 5 > ymax = ymax `div` 2
                                 | otherwise = y''
-                       e <- maybeGetWindowEvent w
-		       case e of Just Closed -> return ()
-                                 _     -> do getWindowTick w
-                                             loop x''' y''' xd' yd'
+                       e <- getWindowEvent w
+		       case e of Closed -> return ()
+                                 _      -> loop x''' y''' xd' yd'
           loop 300 100 5 5
 
