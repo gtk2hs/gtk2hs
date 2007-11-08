@@ -171,7 +171,9 @@ module Graphics.Rendering.Cairo (
   , imageSurfaceGetHeight
 #if CAIRO_CHECK_VERSION(1,2,0)
   , imageSurfaceGetStride
+#if  __GLASGOW_HASKELL__ >= 606
   , imageSurfaceGetData
+#endif
 #endif
 
 #ifdef ENABLE_CAIRO_PNG_FUNCTIONS
@@ -242,7 +244,9 @@ import Control.Monad (unless)
 import Control.Monad.Reader (ReaderT(runReaderT), ask, MonadIO, liftIO)
 import Control.Exception (bracket)
 import Foreign.Ptr (castPtr)
+#if __GLASGOW_HASKELL__ >= 606
 import qualified Data.ByteString as BS
+#endif
 import Graphics.Rendering.Cairo.Types
 import qualified Graphics.Rendering.Cairo.Internal as Internal
 import Graphics.Rendering.Cairo.Internal (Render(..), bracketR)
@@ -1558,6 +1562,7 @@ imageSurfaceGetHeight a = liftIO $ Internal.imageSurfaceGetHeight a
 imageSurfaceGetStride :: Surface -> Render Int
 imageSurfaceGetStride = liftIO . Internal.imageSurfaceGetStride
 
+#if __GLASGOW_HASKELL__ >= 606
 -- | Return a ByteString of the image data for a surface. In order to remain
 --   safe the returned ByteString is a copy of the data. This is a little
 --   slower than returning a pointer into the image surface object itself, but
@@ -1571,6 +1576,7 @@ imageSurfaceGetData a = do
   BS.copyCStringLen (castPtr ptr, height * stride)
 #else
   BS.packCStringLen (castPtr ptr, height * stride)
+#endif
 #endif
 #endif
 

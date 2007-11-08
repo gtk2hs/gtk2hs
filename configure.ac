@@ -100,7 +100,7 @@ AC_PATH_PROG(HC, [$HC ghc], ghc-not-found)
 if test $HC = ghc-not-found; then
  AC_MSG_ERROR([
 Could not find GHC!  This is the only supported compiler.
-You need GHC 6.0 or later.])
+You need GHC 6.4 or later.])
 fi
 
 GHC=$HC
@@ -110,8 +110,8 @@ AC_MSG_CHECKING([version of GHC])
 GHC_VERSION=`$GHC --numeric-version`
 AC_MSG_RESULT([$GHC_VERSION])
 
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 6.0, [
-  AC_MSG_ERROR([Gtk2Hs requires GHC 6.0 or later])])
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 6.4, [
+  AC_MSG_ERROR([Gtk2Hs requires GHC 6.4 or later])])
 
 dnl Calculate a version number with 3 digits (i.e. 502 for 5.2)
 GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/[[0-9]*\.\([0-9]]*\).*/0\1/"`
@@ -120,25 +120,6 @@ GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/\([[0-9]]\).*/\1/"`$GHC_VERSION_
 
 AC_DEFINE_UNQUOTED(__GLASGOW_HASKELL__, $GHC_VERSION_NUMBER,
 	[Version number of GHC.])
-
-dnl From ghc 6.4 onwards, ghc-pkg uses a new package format so we must produce
-dnl and register .package.conf files instead of the old .pkg files.
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4.0, [
-USE_NEW_PKG_FORMAT=yes
-HAVE_DATA_TREE=yes
-HAVE_MTL_PACKAGE=yes
-])
-AM_CONDITIONAL(USE_NEW_PKG_FORMAT, test "$USE_NEW_PKG_FORMAT" = "yes")
-if test "$USE_NEW_PKG_FORMAT" = "yes"; then
-  PKGEXT=package.conf
-else
-  PKGEXT=pkg
-fi
-AM_CONDITIONAL(HAVE_DATA_TREE, test "$HAVE_DATA_TREE" = "yes")
-AM_CONDITIONAL(HAVE_MTL_PACKAGE, test "$HAVE_MTL_PACKAGE" = "yes")
-AC_SUBST(USE_NEW_PKG_FORMAT)
-AC_SUBST(HAVE_DATA_TREE)
-AC_SUBST(HAVE_MTL_PACKAGE)
 
 dnl From ghc-6.4.1 onwards, ghc supports a -hide-all-packages flag which means
 dnl that we start with an empty package environment. This makes it easier to
@@ -231,10 +212,9 @@ AC_ARG_WITH(pkgconf,
 
 
 dnl Check for various GHC packages:
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.4, [GHC_PKG_CHECK(mtl,PKG_MTL_VERSION)])
+GHC_PKG_CHECK(mtl,PKG_MTL_VERSION)
 AC_SUBST(PKG_MTL_VERSION)
-
-GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.8, [
+if test "$HAVE_SPLIT_BASE" = "yes"; then
 	GHC_PKG_CHECK(bytestring,PKG_BYTESTRING_VERSION)
 	CAIRO_SPLITBASE_DEPENDS="bytestring-${PKG_BYTESTRING_VERSION}"
 	GHC_PKG_CHECK(containers, [PKG_CONTAINERS_VERSION])
@@ -244,7 +224,7 @@ GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.8, [
 	SOEGTK_SPLITBASE_DEPENDS="old-time-${PKG_OLDTIME_VERSION}"
 	GNOMEVFS_SPLITBASE_DEPENDS="bytestring-${PKG_BYTESTRING_VERSION}"
 	GSTREAMER_SPLITBASE_DEPENDS="bytestring-${PKG_BYTESTRING_VERSION}"
-])
+fi
 AC_SUBST(PKG_BYTESTRING_VERSION)
 AC_SUBST(PKG_CONTAINERS_VERSION)
 AC_SUBST(PKG_ARRAY_VERSION)
@@ -554,7 +534,6 @@ dnl appropaiate value to substitute into the gtk package files
 
 if test "$HAVE_GTK_VERSION_2_8" = "yes" -a "$ENABLE_CAIRO" = "yes"; then
   GTK_CAIRO_DEPEND=", cairo-${PACKAGE_VERSION}";
-  GTK_CAIRO_DEPEND_NO_CABAL=",\"cairo\"";
 fi
 
 dnl The GtkPlug/GtkSocket widgets have been ported to Win32 as of Gtk+ 2.8.0
@@ -817,11 +796,7 @@ AM_CONDITIONAL(BUILDDOCS, test "$BUILDDOCS" = "yes")
 dnl Define the set of packages that Haddock should cross-reference into. This
 dnl should include all modules of GHC that contain the definitions of e.g.
 dnl Maybe and Bool, etc. This setting is likely dependent on the GHC version.
-if test "$HAVE_MTL_PACKAGE" = "yes"; then
 HADDOCK_PACKAGES="base mtl"
-else
-HADDOCK_PACKAGES="base"
-fi
 
 dnl The preprocessor to use on Haskell sources
 if test "$USE_CPP_LINES" = "yes"; then
@@ -831,11 +806,8 @@ HSCPP='$(CPP) -x c -traditional-cpp -P'
 fi
 
 dnl Needed substitution.
-AC_SUBST(BUILT_IN_C2HS)
-AC_SUBST(MULTIPLE_CHS)
 AC_SUBST(USERPKGCONF)
 AC_SUBST(PKGCONF)
-AC_SUBST(PKGEXT)
 AC_SUBST(HCFLAGS)
 AC_SUBST(C2HS)
 AC_SUBST(HSC2HS)
@@ -849,7 +821,6 @@ dnl Versionitis
 AC_SUBST(CREATE_TYPES)
 dnl Optional packages
 AC_SUBST(GTK_CAIRO_DEPEND)
-AC_SUBST(GTK_CAIRO_DEPEND_NO_CABAL)
 AC_SUBST(CAIRO_HEADERS)
 dnl Documentation
 AC_SUBST(HADDOCK)
@@ -860,62 +831,24 @@ AC_SUBST(CPP)
 dnl write the results...
 AC_CONFIG_FILES([
   Makefile
-])
-
-AC_CONFIG_FILES([
   tools/c2hs/toplevel/C2HSConfig.hs
   gtk2hs.spec
   mk/chsDepend
   mk/link-splitobjs.sh
   docs/prologue.txt
 
-  glib/glib.pkg
-  glib/glib.package.conf
-  glib/glib.cabal
-  
-  gtk/gtk.pkg
-  gtk/gtk.package.conf
-  gtk/gtk.cabal
-  
-  glade/glade.pkg
-  glade/glade.package.conf
-  glade/glade.cabal
-  
-  gconf/gconf.pkg
-  gconf/gconf.package.conf
-  gconf/gconf.cabal
-  
-  sourceview/sourceview.pkg
-  sourceview/sourceview.package.conf
-  sourceview/sourceview.cabal
-
-  mozembed/mozembed.pkg
-  mozembed/mozembed.package.conf
-  mozembed/mozembed.cabal
-  
-  cairo/cairo.pkg
-  cairo/cairo.package.conf
-  cairo/cairo.cabal
-
-  svgcairo/svgcairo.pkg
-  svgcairo/svgcairo.package.conf
-  svgcairo/svgcairo.cabal
-
-  gtkglext/gtkglext.pkg
-  gtkglext/gtkglext.package.conf
-  gtkglext/gtkglext.cabal
-
-  soegtk/soegtk.pkg
-  soegtk/soegtk.package.conf
-  soegtk/soegtk.cabal
-
-  gnomevfs/gnomevfs.pkg
-  gnomevfs/gnomevfs.package.conf
-  gnomevfs/gnomevfs.cabal
-
-  gstreamer/gstreamer.pkg
-  gstreamer/gstreamer.package.conf
-  gstreamer/gstreamer.cabal
+  glib/glib.package.conf		glib/glib.cabal
+  gtk/gtk.package.conf			gtk/gtk.cabal
+  glade/glade.package.conf		glade/glade.cabal
+  gconf/gconf.package.conf		gconf/gconf.cabal
+  sourceview/sourceview.package.conf	sourceview/sourceview.cabal
+  mozembed/mozembed.package.conf	mozembed/mozembed.cabal
+  cairo/cairo.package.conf		cairo/cairo.cabal
+  svgcairo/svgcairo.package.conf	svgcairo/svgcairo.cabal
+  gtkglext/gtkglext.package.conf	gtkglext/gtkglext.cabal
+  soegtk/soegtk.package.conf		soegtk/soegtk.cabal
+  gnomevfs/gnomevfs.package.conf	gnomevfs/gnomevfs.cabal
+  gstreamer/gstreamer.package.conf	gstreamer/gstreamer.cabal
   ])
 AC_CONFIG_COMMANDS([default],[[chmod a+x mk/chsDepend mk/link-splitobjs.sh install-sh]])
 AC_OUTPUT

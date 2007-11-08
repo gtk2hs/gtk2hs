@@ -253,7 +253,7 @@ ifeq (,$(findstring clean,$(MAKECMDGOALS)))
 glib_PKGNAME = libHSglib_a
 
 libHSglib_a_NAME		= glib
-libHSglib_a_CONFIG		= glib/glib.$(PKGEXT)
+libHSglib_a_CONFIG		= glib/glib.package.conf
 libHSglib_a_EXTERNALDEPS	= base
 libHSglib_a_INTERNALDEPS	= 
 libHSglib_a_HEADER 		= glib-object.h
@@ -384,13 +384,10 @@ endif
 gtk_PKGNAME = libHSgtk_a
 
 libHSgtk_a_NAME			= gtk
-libHSgtk_a_CONFIG		= gtk/gtk.$(PKGEXT)
-libHSgtk_a_EXTERNALDEPS		= base
+libHSgtk_a_CONFIG		= gtk/gtk.package.conf
+libHSgtk_a_EXTERNALDEPS		= base mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
 libHSgtk_a_EXTERNALDEPS		+= containers-$(PKG_CONTAINERS_VERSION) array-$(PKG_ARRAY_VERSION)
-endif
-if HAVE_MTL_PACKAGE
-libHSgtk_a_EXTERNALDEPS		+= mtl-$(PKG_MTL_VERSION)
 endif
 libHSgtk_a_INTERNALDEPS		= glib
 libHSgtk_a_HEADER 		= gtk/gtk.h
@@ -401,10 +398,6 @@ libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
 libHSgtk_a_SOURCESDIRS		= gtk
-
-if !HAVE_DATA_TREE
-libHSgtk_a_SOURCESDIRS		+= compat/gtk
-endif
 
 gtk/libHSgtk_a.deps	: glib/libHSglib_a.deps
 
@@ -604,10 +597,6 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/General/Drag.chs.pp \
 	gtk/Graphics/UI/Gtk/General/DNDTypes.chs
 
-if !HAVE_DATA_TREE
-libHSgtk_a_SOURCES += compat/gtk/Data/Tree.hs
-endif
-
 htmldoc_HSFILES_HIDDEN +=						\
 	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
 	gtk/Graphics/UI/Gtk/Signals.hs				\
@@ -771,7 +760,7 @@ if ENABLE_LIBGLADE
 glade_PKGNAME = libHSglade_a
 
 libHSglade_a_NAME		= glade
-libHSglade_a_CONFIG		= glade/glade.$(PKGEXT)
+libHSglade_a_CONFIG		= glade/glade.package.conf
 libHSglade_a_EXTERNALDEPS	= base
 libHSglade_a_INTERNALDEPS	= gtk glib
 libHSglade_a_HEADER 		= glade/glade.h
@@ -886,7 +875,7 @@ if ENABLE_GCONF
 gconf_PKGNAME = libHSgconf_a
 
 libHSgconf_a_NAME		= gconf
-libHSgconf_a_CONFIG		= gconf/gconf.$(PKGEXT)
+libHSgconf_a_CONFIG		= gconf/gconf.package.conf
 libHSgconf_a_EXTERNALDEPS	= base
 libHSgconf_a_INTERNALDEPS	= glib
 libHSgconf_a_HEADER 		= gconf/gconf-client.h
@@ -1022,7 +1011,7 @@ if ENABLE_SOURCEVIEW
 sourceview_PKGNAME = libHSsourceview_a
 
 libHSsourceview_a_NAME		= sourceview
-libHSsourceview_a_CONFIG	= sourceview/sourceview.$(PKGEXT)
+libHSsourceview_a_CONFIG	= sourceview/sourceview.package.conf
 libHSsourceview_a_EXTERNALDEPS	= base
 libHSsourceview_a_INTERNALDEPS	= glib gtk
 libHSsourceview_a_HEADER 	= sourceview.h
@@ -1148,7 +1137,7 @@ if ENABLE_MOZEMBED
 mozembed_PKGNAME = libHSmozembed_a
 
 libHSmozembed_a_NAME		= mozembed
-libHSmozembed_a_CONFIG		= mozembed/mozembed.$(PKGEXT)
+libHSmozembed_a_CONFIG		= mozembed/mozembed.package.conf
 libHSmozembed_a_EXTERNALDEPS	= base
 libHSmozembed_a_INTERNALDEPS	= glib gtk
 libHSmozembed_a_HEADER 		= gtkmozembed.h
@@ -1262,11 +1251,8 @@ if ENABLE_CAIRO
 cairo_PKGNAME = libHScairo_a
 
 libHScairo_a_NAME		= cairo
-libHScairo_a_CONFIG		= cairo/cairo.$(PKGEXT)
-libHScairo_a_EXTERNALDEPS	= base
-if HAVE_MTL_PACKAGE
-libHScairo_a_EXTERNALDEPS	+= mtl-$(PKG_MTL_VERSION)
-endif
+libHScairo_a_CONFIG		= cairo/cairo.package.conf
+libHScairo_a_EXTERNALDEPS	= base mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
 libHScairo_a_EXTERNALDEPS	+= bytestring-$(PKG_BYTESTRING_VERSION)
 endif
@@ -1399,11 +1385,8 @@ if ENABLE_SVGCAIRO
 svgcairo_PKGNAME = libHSsvgcairo_a
 
 libHSsvgcairo_a_NAME		= svgcairo
-libHSsvgcairo_a_CONFIG		= svgcairo/svgcairo.$(PKGEXT)
-libHSsvgcairo_a_EXTERNALDEPS	= base
-if HAVE_MTL_PACKAGE
-libHSsvgcairo_a_EXTERNALDEPS	+= mtl-$(PKG_MTL_VERSION)
-endif
+libHSsvgcairo_a_CONFIG		= svgcairo/svgcairo.package.conf
+libHSsvgcairo_a_EXTERNALDEPS	= base mtl-$(PKG_MTL_VERSION)
 libHSsvgcairo_a_INTERNALDEPS	= glib cairo
 libHSsvgcairo_a_HEADER 		= svgcairo/svgcairo.h
 libHSsvgcairo_a_PRECOMP		= svgcairo/svgcairo.precomp
@@ -1498,7 +1481,7 @@ if ENABLE_GTKGLEXT
 gtkglext_PKGNAME = libHSgtkglext_a
 
 libHSgtkglext_a_NAME		= gtkglext
-libHSgtkglext_a_CONFIG		= gtkglext/gtkglext.$(PKGEXT)
+libHSgtkglext_a_CONFIG		= gtkglext/gtkglext.package.conf
 libHSgtkglext_a_EXTERNALDEPS	= base
 libHSgtkglext_a_INTERNALDEPS	= glib gtk
 libHSgtkglext_a_HEADER 		= gtk/gtkgl.h
@@ -1618,7 +1601,7 @@ endif #ENABLE_GTKGLEXT
 soegtk_PKGNAME = libHSsoegtk_a
 
 libHSsoegtk_a_NAME		= soegtk
-libHSsoegtk_a_CONFIG		= soegtk/soegtk.$(PKGEXT)
+libHSsoegtk_a_CONFIG		= soegtk/soegtk.package.conf
 libHSsoegtk_a_EXTERNALDEPS	= base
 if HAVE_SPLIT_BASE
 libHSsoegtk_a_EXTERNALDEPS	+= old-time-$(PKG_OLDTIME_VERSION)
@@ -1635,9 +1618,7 @@ libHSsoegtk_a_SOURCESDIRS	= soegtk
 soegtk/libHSsoegtk_a.deps	: gtk/libHSgtk_a.deps
 
 if ENABLE_CAIRO
-if HAVE_MTL_PACKAGE
 libHSsoegtk_a_EXTERNALDEPS += mtl-$(PKG_MTL_VERSION)
-endif
 libHSsoegtk_a_INTERNALDEPS += cairo
 gtk/libHSsoegtk_a.deps	: cairo/libHScairo_a.deps
 endif
@@ -1704,7 +1685,7 @@ if ENABLE_GNOMEVFS
 gnomevfs_PKGNAME = libHSgnomevfs_a
 
 libHSgnomevfs_a_NAME			= gnomevfs
-libHSgnomevfs_a_CONFIG			= gnomevfs/gnomevfs.$(PKGEXT)
+libHSgnomevfs_a_CONFIG			= gnomevfs/gnomevfs.package.conf
 libHSgnomevfs_a_EXTERNALDEPS		= base haskell98 mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
 libHSgnomevfs_a_EXTERNALDEPS           += bytestring-$(PKG_BYTESTRING_VERSION)
@@ -1869,7 +1850,7 @@ if ENABLE_GSTREAMER
 gstreamer_PKGNAME = libHSgstreamer_a
 
 libHSgstreamer_a_NAME			= gstreamer
-libHSgstreamer_a_CONFIG			= gstreamer/gstreamer.$(PKGEXT)
+libHSgstreamer_a_CONFIG			= gstreamer/gstreamer.package.conf
 libHSgstreamer_a_EXTERNALDEPS		= base haskell98 mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
 libHSgstreamer_a_EXTERNALDEPS		+= bytestring-$(PKG_BYTESTRING_VERSION)
@@ -1972,7 +1953,8 @@ htmldoc_HSFILES_HIDDEN				+=			\
 	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.hs		\
-	gstreamer/Media/Streaming/GStreamer/Base/Types.hs
+	gstreamer/Media/Streaming/GStreamer/Base/Types.hs		\
+	gstreamer/Media/Streaming/GStreamer/Controller/Types.hs
 
 EXTRA_DIST +=					\
 	gstreamer/hsgstreamer.h			\
@@ -2168,8 +2150,6 @@ endif
 # package.conf.inplace package db and register all our packages in it. Then we
 # use this package db when building the other packages.
 
-if USE_NEW_PKG_FORMAT
-
 package.conf.inplace:
 	echo "[]" > $@
 	$(foreach pkg,$(pkglib_LIBRARIES), \
@@ -2179,20 +2159,6 @@ package.conf.inplace:
 		-e 's|$${modules}|$(call getModules,$(pkg))|' \
 		$(call getVar,$(pkg),CONFIG) \
 		| $(GHCPKG) update - --force --package-conf=$@; )
-
-else
-
-package.conf.inplace:
-	echo "[]" > $@
-	$(foreach pkg,$(pkglib_LIBRARIES), \
-	$(SED)  -e 's|$${pkglibdir}/imports|.|' \
-		-e 's|"$${pkglibdir}/include"|.|' \
-		-e 's|$${pkglibdir}|.|' \
-		-e 's|$${modules}|$(call getModules,$(pkg))|' \
-		$(call getVar,$(pkg),CONFIG) \
-		| $(GHCPKG) --update-package --input=- --force --config-file=$@; )
-
-endif
 
 .DELETE_ON_ERROR: package.conf.inplace
 
@@ -2368,10 +2334,10 @@ install-exec-local:
 	> $(call getVar,$(pkgname),CONFIG).tmp; \
 	mv $(call getVar,$(pkgname),CONFIG).tmp $(call getVar,$(pkgname),CONFIG); \
 	$(SED)	's|$${modules}|$(call getModules,$(pkgname))|' \
-		$(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),CONFIG)) \
-	> $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),CONFIG)).tmp; \
-	mv $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),CONFIG)).tmp \
-	   $(patsubst %.$(PKGEXT),%.cabal,$(call getVar,$(pkgname),CONFIG));)
+		$(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG)) \
+	> $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG)).tmp; \
+	mv $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG)).tmp \
+	   $(patsubst %.package.conf,%.cabal,$(call getVar,$(pkgname),CONFIG));)
 
 else WIN32_INSTALLER
 # Except on Windows if we're makeing an installer where we delay the variable
@@ -2417,8 +2383,6 @@ if ENABLE_PKGREG
 # ghc-pkg at install time. That is usually left for a post-install action.
 # Therefore these actions can be disabled by ./configure --without-pkgreg
 
-if USE_NEW_PKG_FORMAT
-
 install-data-hook :
 	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
 	else echo "[]" > $(PKGCONF); fi;)
@@ -2435,27 +2399,6 @@ uninstall-hook :
 	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
 	  rm -f $(PKGCONF) $(PKGCONF).old; fi; \
 	fi)
-
-else !USE_NEW_PKG_FORMAT
-
-install-data-hook :
-	$(if $(PKGCONF),if test -f $(PKGCONF); then :; \
-	else echo "[]" > $(PKGCONF); fi;)
-	$(foreach pkgname,$(pkglib_LIBRARIES), \
-	$(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
-	--update-package --force \
-	--input-file=$(DESTDIR)$(pkglibdir)/$(patsubst libHS%.a,%.pkg,$(pkgname));)
-
-uninstall-hook :
-	$(foreach pkgname,$(pkglib_LIBRARIES), \
-	  $(GHCPKG) $(addprefix --config-file=,$(PKGCONF)) \
-	  --remove-package=$(patsubst libHS%.a,%,$(pkgname));) \
-	$(if $(PKGCONF),if test -f $(PKGCONF); then \
-	  if test -n `head $(PKGCONF) | $(GREP) -e "\[\]"`; then \
-	  rm -f $(PKGCONF) $(PKGCONF).old; fi; \
-	fi)
-
-endif !USE_NEW_PKG_FORMAT
 
 else !ENABLE_PKGREG
 

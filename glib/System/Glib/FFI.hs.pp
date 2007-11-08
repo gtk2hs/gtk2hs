@@ -30,12 +30,6 @@ module System.Glib.FFI (
   maybeNull,
   newForeignPtr,
   withForeignPtrs,
-#if __GLASGOW_HASKELL__<604
-  withArrayLen,
-#endif
-#if __GLASGOW_HASKELL__<602
-  unsafeForeignPtrToPtr,
-#endif
   module Foreign,
   module Foreign.C
   ) where
@@ -47,39 +41,15 @@ import System.IO.Unsafe (unsafePerformIO)
 
 import Foreign.C
 import qualified Foreign hiding (free)
-# if __GLASGOW_HASKELL__>=602
 import Foreign  hiding	(with, newForeignPtr, free)
-# else
-import Foreign  hiding (with, free)
-# endif
 
 with :: (Storable a) => a -> (Ptr a -> IO b) -> IO b
 with = Foreign.with
 
-#if __GLASGOW_HASKELL__<604
-withArrayLen :: Storable a => [a] -> (Int -> Ptr a -> IO b) -> IO b
-withArrayLen elems act = let len = length elems in withArray elems (act len)
-#endif
-
-
-#if __GLASGOW_HASKELL__>=602
 newForeignPtr = flip Foreign.newForeignPtr
-#endif
 
-#if __GLASGOW_HASKELL__<602
-unsafeForeignPtrToPtr = foreignPtrToPtr
-#endif
-
-#if __GLASGOW_HASKELL__>=602
 nullForeignPtr :: ForeignPtr a
 nullForeignPtr = unsafePerformIO $ newForeignPtr_ nullPtr
-#else
-nullForeignPtr :: ForeignPtr a
-nullForeignPtr = unsafePerformIO $ newForeignPtr nullPtr freePtr
-
-foreign import ccall unsafe "&free"
-  freePtr :: FinalizerPtr a
-#endif
 
 -- This is useful when it comes to marshaling lists of GObjects
 --

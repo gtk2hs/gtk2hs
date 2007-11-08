@@ -99,12 +99,8 @@ else
 fi
 if echo "${C}" | ${GREP} $1 > /dev/null 2> /dev/null
 then
-	if test "$USE_NEW_PKG_FORMAT" = "yes"; then
-		$2=$(echo "${C}" | sed -e 's/,/\n/g' -e 's/[[(), ]]//g' | grep -v '^$' | sed -e 's/[[A-Za-z-]]*//' | sort -r -n | head -n1)
-		AC_MSG_RESULT([yes, version $$2])
-	else
-		AC_MSG_RESULT(yes)
-	fi
+	$2=$(echo "${C}" | sed -e 's/,/\n/g' -e 's/[[(), ]]//g' | grep -v '^$' | sed -e 's/[[A-Za-z-]]*//' | sort -r -n | head -n1)
+	AC_MSG_RESULT([yes, version $$2])
 else
 	AC_MSG_ERROR([
 Missing GHC package "$1". Install "$1" and re-run ./configure
