@@ -27,7 +27,8 @@
 module System.Glib.Flags (
   Flags,
   fromFlags,
-  toFlags
+  toFlags,
+  toFlags'
   ) where
 
 import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
@@ -40,10 +41,22 @@ fromFlags is = orNum 0 is
   where orNum n []     = n
         orNum n (i:is) = orNum (n .|. fromEnum i) is
 
--- * This function ignores bits set in the passed
---   'Int' that do not correspond to a flag.
+-- * Note that this function falls over if bits are set for which no 
+--   constructurs are set. This could only be circumvented by catching
+--   the error raised in toEnum, enumerating all flags with [minBound..
+--   maxBound] does NOT work.
+--
 toFlags :: Flags a => Int -> [a]
-toFlags n = catMaybes [ if n .&. fromEnum flag == fromEnum flag
+toFlags f = testBits f 1
+  where testBits f n
+          | f == 0        = []
+          | f `testBit` 0 = toEnum n : testBits (f `shiftR` 1) (n `shiftL` 1)
+          | otherwise     =            testBits (f `shiftR` 1) (n `shiftL` 1)
+
+-- * Unlike 'toFlags', this function ignores bits set in the passed
+--   'Int' that do not correspond to a flag.
+toFlags' :: Flags a => Int -> [a]
+toFlags' n = catMaybes [ if n .&. fromEnum flag == fromEnum flag
                             then Just flag
                             else Nothing
                        | flag <- [ minBound .. maxBound ] ]
