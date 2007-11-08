@@ -117,6 +117,8 @@ import List       (deleteBy, intersperse, isPrefixOf, find)
 import Maybe	  (isNothing, isJust, fromJust, fromMaybe)
 import Monad	  (when, unless, liftM, mapAndUnzipM)
 
+import Data.Bits  ((.&.), (.|.), xor, complement)
+
 -- Compiler Toolkit
 import Position   (Position, Pos(posOf), nopos, builtinPos)
 import Errors	  (interr, todo)
@@ -574,7 +576,7 @@ enumDef cenum@(CEnum _ list _) hident trans userDerive =
 	defBody  = enumBody (length defHead - 2) enumVals
 	inst	 = makeDerives 
 		   (if enumAuto then "Enum" : userDerive else userDerive) ++
-		   if enumAuto then "\n" else "\n" ++ enumInst hident enumVals
+		   if enumAuto then "\n" else "\n" ++ enumInst hident enumVals (elem "Eq" userDerive)
     return $ defHead ++ defBody ++ inst
   where
     cpos = posOf cenum
@@ -622,11 +624,14 @@ enumBody indent ((ide, _):list)  =
 --   following tags are assigned values continuing from the explicitly
 --   specified one
 --
-enumInst :: String -> [(String, Maybe CExpr)] -> String
-enumInst ident list =
+enumInst :: String -> [(String, Maybe CExpr)] -> Bool -> String
+enumInst ident list haveEq =
   "instance Enum " ++ ident ++ " where\n" 
-  ++ fromDef list 0 ++ "\n" ++ toDef list 0
+  ++ fromDef list 0 ++ "\n" ++ toDef list 0 ++ "\n"
+  ++ succDef names ++ "\n" ++ predDef names ++ "\n"
+  ++ enumFromToDef names
   where
+    names = map fst list
     fromDef []                _ = ""
     fromDef ((ide, exp):list) n = 
       "  fromEnum " ++ ide ++ " = " ++ show' val ++ "\n" 
@@ -654,6 +659,25 @@ enumInst ident list =
 		  interr "GenBind.enumInst: Integer constant expected!"
 	--
         show' x = if x < 0 then "(" ++ show x ++ ")" else show x
+    succDef [] = "  succ _ = undefined\n"
+    succDef [x] = "  succ _ = undefined\n"
+    succDef (x:x':xs) =
+      "  succ " ++ x ++ " = " ++ x' ++ "\n"
+      ++ succDef (x':xs)
+    predDef [] = "  pred _ = undefined\n"
+    predDef [x] = "  pred _ = undefined\n"
+    predDef (x:x':xs) =
+      "  pred " ++ x' ++ " = " ++ x ++ "\n"
+      ++ predDef (x':xs)
+    enumFromToDef [] = ""
+    enumFromToDef names =
+      if haveEq
+         then    "  enumFromTo x y | x == y    = [ y ]\n"
+              ++ "                 | otherwise = x : enumFromTo (succ x) y\n"
+              ++ "  enumFrom x = enumFromTo x " ++ last names ++ "\n"
+              ++ "  enumFromThenTo _ _ _ = undefined\n"
+         else ""
+
 
 -- generate a foreign import declaration that is put into the delayed code
 --
@@ -1865,6 +1889,12 @@ applyBin cpos CShrOp (IntResult   x)
 applyBin cpos CShrOp (FloatResult x) 
 		     (FloatResult y) = 
   illegalConstExprErr cpos "a >> operator applied to a float"
+applyBin cpos CAndOp (IntResult   x)
+                     (IntResult   y) = return $ IntResult (x .&. y)
+applyBin cpos COrOp  (IntResult   x)
+                     (IntResult   y) = return $ IntResult (x .|. y)
+applyBin cpos CXorOp (IntResult   x)
+                     (IntResult   y) = return $ IntResult (x `xor` y)
 applyBin cpos _      (IntResult   x) 
 		     (IntResult   y) = 
   todo "GenBind.applyBin: Not yet implemented operator in constant expression."
@@ -1890,8 +1920,7 @@ applyUnary cpos CIndOp     _               =
 applyUnary cpos CPlusOp    arg             = return arg
 applyUnary cpos CMinOp     (IntResult   x) = return (IntResult (-x))
 applyUnary cpos CMinOp     (FloatResult x) = return (FloatResult (-x))
-applyUnary cpos CCompOp    _		   = 
-  todo "GenBind.applyUnary: ~ not yet implemented."
+applyUnary cpos CCompOp    (IntResult   x) = return (IntResult (complement x))
 applyUnary cpos CNegOp     (IntResult   x) = 
   let r = toInteger . fromEnum $ (x == 0)
   in return (IntResult r)
