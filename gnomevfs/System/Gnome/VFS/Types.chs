@@ -236,69 +236,27 @@ type InodeNumber     = Word64
 type IDs             = (Int, Int)
 
 -- | UNIX-like permissions for a file.
-data FilePermissions = PermSUID              -- ^ the set-user-ID bit
-                     | PermSGID              -- ^ the set-group-ID bit
-                     | PermSticky            -- ^ the \"sticky\" bit
-                     | PermUserRead          -- ^ owner read permission
-                     | PermUserWrite         -- ^ owner write permission
-                     | PermUserExec          -- ^ owner execute permission
-                     | PermUserAll           -- ^ equivalent to
-                                             --   @['PermUserRead', 'PermUserWrite', 'PermUserExec']@
-                     | PermGroupRead         -- ^ group read permission
-                     | PermGroupWrite        -- ^ group write permission
-                     | PermGroupExec         -- ^ group execute permission
-                     | PermGroupAll          -- ^ equivalent to
-                                             --   @['PermGroupRead', 'PermGroupWrite', 'PermGroupExec']@
-                     | PermOtherRead         -- ^ world read permission
-                     | PermOtherWrite        -- ^ world write permission
-                     | PermOtherExec         -- ^ world execute permission
-                     | PermOtherAll          -- ^ equivalent to
-                                             --   @['PermOtherRead', 'PermOtherWrite', 'PermOtherExec']@
-                     | PermAccessReadable    -- ^ readable by the current process
-                     | PermAccessWritable    -- ^ writable by the current process
-                     | PermAccessExecutable  -- ^ executable by the current process
-                       deriving (Eq, Bounded, Show)
+{# enum GnomeVFSFilePermissions as FilePermissions {
+    GNOME_VFS_PERM_SUID              as PermSUID,
+    GNOME_VFS_PERM_SGID              as PermSGID,
+    GNOME_VFS_PERM_STICKY            as PermSticky,
+    GNOME_VFS_PERM_USER_READ         as PermUserRead,
+    GNOME_VFS_PERM_USER_WRITE        as PermUserWrite,
+    GNOME_VFS_PERM_USER_EXEC         as PermUserExec,
+    GNOME_VFS_PERM_USER_ALL          as PermUserAll,
+    GNOME_VFS_PERM_GROUP_READ        as PermGroupRead,
+    GNOME_VFS_PERM_GROUP_WRITE       as PermGroupWrite,
+    GNOME_VFS_PERM_GROUP_EXEC        as PermGroupExec,
+    GNOME_VFS_PERM_GROUP_ALL         as PermGroupAll,
+    GNOME_VFS_PERM_OTHER_READ        as PermOtherRead,
+    GNOME_VFS_PERM_OTHER_WRITE       as PermOtherWrite,
+    GNOME_VFS_PERM_OTHER_EXEC        as PermOtherExec,
+    GNOME_VFS_PERM_OTHER_ALL         as PermOtherAll,
+    GNOME_VFS_PERM_ACCESS_READABLE   as PermAccessReadable,
+    GNOME_VFS_PERM_ACCESS_WRITABLE   as PermAccessWritable,
+    GNOME_VFS_PERM_ACCESS_EXECUTABLE as PermAccessExecutable
+    } deriving (Eq, Bounded, Show) #}
 instance Flags FilePermissions
-instance Enum FilePermissions where
-    fromEnum PermSUID             =   2048
-    fromEnum PermSGID             =   1024
-    fromEnum PermSticky           =    512
-    fromEnum PermUserRead         =    256
-    fromEnum PermUserWrite        =    128
-    fromEnum PermUserExec         =     64
-    fromEnum PermUserAll          =    448
-    fromEnum PermGroupRead        =     32
-    fromEnum PermGroupWrite       =     16
-    fromEnum PermGroupExec        =      8
-    fromEnum PermGroupAll         =     56
-    fromEnum PermOtherRead        =      4
-    fromEnum PermOtherWrite       =      2
-    fromEnum PermOtherExec        =      1
-    fromEnum PermOtherAll         =      7
-    fromEnum PermAccessReadable   =  65536
-    fromEnum PermAccessWritable   = 131072
-    fromEnum PermAccessExecutable = 262144
-    
-    toEnum   2048 = PermSUID
-    toEnum   1024 = PermSGID
-    toEnum    512 = PermSticky
-    toEnum    256 = PermUserRead
-    toEnum    128 = PermUserWrite
-    toEnum     64 = PermUserExec
-    toEnum    448 = PermUserAll
-    toEnum     32 = PermGroupRead
-    toEnum     16 = PermGroupWrite
-    toEnum      8 = PermGroupExec
-    toEnum     56 = PermGroupAll
-    toEnum      4 = PermOtherRead
-    toEnum      2 = PermOtherWrite
-    toEnum      1 = PermOtherExec
-    toEnum      7 = PermOtherAll
-    toEnum  65536 = PermAccessReadable
-    toEnum 131072 = PermAccessWritable
-    toEnum 262144 = PermAccessExecutable
-    
-    toEnum unmatched = error ("FilePermissions.toEnum: Cannot match " ++ show unmatched)
 
 --------------------------------------------------------------------
 
