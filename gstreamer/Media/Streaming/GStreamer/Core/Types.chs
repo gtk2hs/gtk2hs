@@ -153,9 +153,6 @@ module Media.Streaming.GStreamer.Core.Types (
 
 import Control.Monad       ( liftM )
 import Control.Monad.Trans
-import Data.Bits           ( shiftL
-                           , bit
-                           , (.|.) )
 import Data.Ratio          ( Ratio )
 import System.Glib.FFI
 import System.Glib.Flags
@@ -253,7 +250,7 @@ mkObjectGetFlags :: (ObjectClass objectT, Flags flagsT)
                  => objectT
                  -> IO [flagsT]
 mkObjectGetFlags object =
-    liftM (toFlags . fromIntegral) $
+    liftM cToFlags $
         withObject (toObject object) cObjectGetFlags
 foreign import ccall unsafe "_hs_gst_object_flags"
     cObjectGetFlags :: Ptr Object
@@ -489,7 +486,7 @@ mkMiniObjectGetFlags :: (MiniObjectClass miniObjectT, Flags flagsT)
                      => miniObjectT
                      -> [flagsT]
 mkMiniObjectGetFlags miniObject =
-    toFlags $ fromIntegral $ unsafePerformIO $
+    cToFlags $ unsafePerformIO $
         withMiniObject (toMiniObject miniObject) cMiniObjectGetFlags
 foreign import ccall unsafe "_hs_gst_mini_object_flags"
     cMiniObjectGetFlags :: Ptr MiniObject
@@ -745,7 +742,7 @@ instance Storable Segment where
            return $ Segment (realToFrac rate)
                             (realToFrac absRate)
                             (cToEnum format)
-                            (toFlags $ fromIntegral flags)
+                            (cToFlags flags)
                             (fromIntegral start)
                             (fromIntegral stop)
                             (fromIntegral time)
