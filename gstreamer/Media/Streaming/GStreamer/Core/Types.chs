@@ -72,6 +72,7 @@ module Media.Streaming.GStreamer.Core.Types (
   PluginFeatureFilter,
   
   BusFunc,
+  BusSyncHandler,
   BusSyncReply(..),
   
   ClockTimeDiff,
@@ -331,6 +332,9 @@ type PluginFeatureFilter = PluginFeature -> IO Bool
 type BusFunc =  Bus
              -> Message
              -> IO Bool
+type BusSyncHandler =  Bus
+                    -> Message
+                    -> IO BusSyncReply
 
 --------------------------------------------------------------------
 
