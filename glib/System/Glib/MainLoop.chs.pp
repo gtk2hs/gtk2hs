@@ -118,7 +118,7 @@ timeoutAddFull fun pri msec = do
 -- | Remove a previously added timeout handler by its 'HandlerId'.
 --
 timeoutRemove :: HandlerId -> IO ()
-timeoutRemove id = {#call g_source_remove#} id >> return ()
+timeoutRemove id = {#call source_remove#} id >> return ()
 
 -- | Add a callback that is called whenever the system is idle.
 --
@@ -130,13 +130,13 @@ timeoutRemove id = {#call g_source_remove#} id >> return ()
 idleAdd :: IO Bool -> Priority -> IO HandlerId
 idleAdd fun pri = do
   (funPtr, dPtr) <- makeCallback (liftM fromBool fun)
-  {#call unsafe g_idle_add_full#} (fromIntegral pri) funPtr
+  {#call unsafe idle_add_full#} (fromIntegral pri) funPtr
     nullPtr dPtr
 
 -- | Remove a previously added idle handler by its 'HandlerId'.
 --
 idleRemove :: HandlerId -> IO ()
-idleRemove id = {#call g_source_remove#} id >> return ()
+idleRemove id = {#call source_remove#} id >> return ()
 
 -- | Flags representing a condition to watch for on a file descriptor.
 --
@@ -188,7 +188,7 @@ inputAdd fd conds pri fun = do
     dPtr
 
 inputRemove :: HandlerId -> IO ()
-inputRemove id = {#call g_source_remove#} id >> return ()
+inputRemove id = {#call source_remove#} id >> return ()
 
 -- Standard priorities
 
