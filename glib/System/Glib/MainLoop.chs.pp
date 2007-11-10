@@ -49,10 +49,13 @@ module System.Glib.MainLoop (
   mainContextNew,
   mainContextDefault,
   mainContextIteration,
+  mainContextFindSourceById,
   Source(..),
   sourceAttach,
   sourceSetPriority,
-  sourceGetPriority
+  sourceGetPriority,
+  sourceDestroy,
+  sourceIsDestroyed
   ) where
 
 import Control.Monad	(liftM)
@@ -295,6 +298,12 @@ mainContextIteration :: MainContext
 mainContextIteration context mayBlock =
     liftM toBool $ {# call main_context_iteration #} context (fromBool mayBlock)
 
+mainContextFindSourceById :: MainContext
+                          -> Word
+                          -> IO Source
+mainContextFindSourceById context id =
+    {# call main_context_find_source_by_id #} context (fromIntegral id) >>= newSource . castPtr
+
 {# pointer *GSource as Source foreign newtype #}
 newSource :: Ptr Source
           -> IO Source
@@ -320,3 +329,12 @@ sourceGetPriority :: Source
 sourceGetPriority source =
     liftM fromIntegral $ {# call source_get_priority #} source
 
+sourceDestroy :: Source
+              -> IO ()
+sourceDestroy source =
+    {# call source_destroy #} source
+
+sourceIsDestroyed :: Source
+                  -> IO Bool
+sourceIsDestroyed source =
+    liftM toBool $ {# call source_is_destroyed #} source
