@@ -338,3 +338,8 @@ sourceIsDestroyed :: Source
                   -> IO Bool
 sourceIsDestroyed source =
     liftM toBool $ {# call source_is_destroyed #} source
+
+sourceRemove :: Word
+             -> IO Bool
+sourceRemove tag =
+    liftM toBool $ {# call source_remove #} $ fromIntegral tag
