@@ -299,7 +299,7 @@ mainContextIteration context mayBlock =
     liftM toBool $ {# call main_context_iteration #} context (fromBool mayBlock)
 
 mainContextFindSourceById :: MainContext
-                          -> Word
+                          -> HandlerId
                           -> IO Source
 mainContextFindSourceById context id =
     {# call main_context_find_source_by_id #} context (fromIntegral id) >>= newSource . castPtr
@@ -314,7 +314,7 @@ foreign import ccall unsafe "&g_source_unref"
 
 sourceAttach :: Source
              -> MainContext
-             -> IO Word
+             -> IO HandlerId
 sourceAttach source context =
     liftM fromIntegral $ {# call source_attach #} source context
 
@@ -339,7 +339,7 @@ sourceIsDestroyed :: Source
 sourceIsDestroyed source =
     liftM toBool $ {# call source_is_destroyed #} source
 
-sourceRemove :: Word
+sourceRemove :: HandlerId
              -> IO Bool
 sourceRemove tag =
     liftM toBool $ {# call source_remove #} $ fromIntegral tag
