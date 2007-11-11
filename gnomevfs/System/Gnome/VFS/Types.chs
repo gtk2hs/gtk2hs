@@ -121,7 +121,6 @@ module System.Gnome.VFS.Types (
 import Control.Exception (assert)
 import Control.Monad
 import Control.Monad.Reader
-import Data.ByteString (ByteString)
 import Data.Typeable
 import Data.Word (Word64)
 import System.Glib.FFI

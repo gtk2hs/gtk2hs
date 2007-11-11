@@ -66,9 +66,18 @@ module System.Gnome.VFS.Ops (
   
   ) where
 
+#if __GLASGOW_HASKELL__ >= 606 && __GLASGOW_HASKELL__ < 608
+#define OLD_BYTESTRING
+#endif
+
 import Control.Exception
 import Control.Monad (liftM)
-import qualified Data.ByteString as BS (ByteString, useAsCStringLen, packCStringLen)
+import qualified Data.ByteString as BS (ByteString, useAsCStringLen)
+#ifdef OLD_BYTESTRING
+import qualified Data.ByteString.Base as BS (fromForeignPtr)
+#else
+import qualified Data.ByteString.Internal as BS (fromForeignPtr)
+#endif
 import Prelude hiding (read, truncate)
 import System.Glib.FFI
 import System.Glib.UTFString (withUTFString, peekUTFString)
@@ -144,11 +153,11 @@ read handle bytes =
                           {# call gnome_vfs_read #} handle cBuffer cBytes cBytesReadPtr)
                       (do bytesRead <- liftM fromIntegral $ peek cBytesReadPtr
                           assert (bytesRead /= 0 || cBytes == 0) $ return ()
-#ifdef HAVE_SPLIT_BASE
-                          BS.packCStringLen (castPtr cBuffer, bytesRead))
-#else
-                          return $ BS.packCStringLen (castPtr cBuffer, bytesRead))
+                          return $ BS.fromForeignPtr (castForeignPtr buffer)
+#ifndef OLD_BYTESTRING
+                                                     0
 #endif
+                                                     (fromIntegral bytes))
                       (do bytesRead <- liftM fromIntegral $ peek cBytesReadPtr
                           assert (bytesRead == 0) $ return ())
 
