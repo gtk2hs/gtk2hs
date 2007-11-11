@@ -31,7 +31,7 @@ module Media.Streaming.GStreamer.Core.MiniObject (
   MiniObject,
   MiniObjectClass,
   MiniObjectFlags, -- deliberately not exporting constructors
-  MiniObjectM,
+  MiniObjectT,
   toMiniObject,
   castToMiniObject,
   isMiniObject,
@@ -44,6 +44,7 @@ module Media.Streaming.GStreamer.Core.MiniObject (
   ) where
 
 import Control.Monad (liftM)
+import Control.Monad.Trans
 {#import Media.Streaming.GStreamer.Core.Types#}
 import System.Glib.FFI
 
@@ -55,30 +56,30 @@ miniObjectGetFlags :: MiniObjectClass miniObjectT
 miniObjectGetFlags =
     mkMiniObjectGetFlags
 
-miniObjectGetFlagsM :: MiniObjectClass miniObjectT
-                    => MiniObjectM miniObjectT [MiniObjectFlags]
+miniObjectGetFlagsM :: (MiniObjectClass miniObjectT, MonadIO m)
+                    => MiniObjectT miniObjectT m [MiniObjectFlags]
 miniObjectGetFlagsM =
     mkMiniObjectGetFlagsM
 
-miniObjectSetFlagsM :: MiniObjectClass miniObjectT
+miniObjectSetFlagsM :: (MiniObjectClass miniObjectT, MonadIO m)
                     => [MiniObjectFlags]
-                    -> MiniObjectM miniObjectT ()
+                    -> MiniObjectT miniObjectT m ()
 miniObjectSetFlagsM =
     mkMiniObjectSetFlagsM
 
-miniObjectUnsetFlagsM :: MiniObjectClass miniObjectT
+miniObjectUnsetFlagsM :: (MiniObjectClass miniObjectT, MonadIO m)
                       => [MiniObjectFlags]
-                      -> MiniObjectM miniObjectT ()
+                      -> MiniObjectT miniObjectT m ()
 miniObjectUnsetFlagsM =
     mkMiniObjectUnsetFlagsM
 
-miniObjectCreateCopy :: MiniObjectClass miniObjectT
+miniObjectCreateCopy :: (MiniObjectClass miniObjectT, MonadIO m)
                      => miniObjectT
-                     -> MiniObjectM miniObjectT a
-                     -> IO (miniObjectT, a)
+                     -> MiniObjectT miniObjectT m a
+                     -> m (miniObjectT, a)
 miniObjectCreateCopy miniObject action =
     marshalMiniObjectModify
-        (liftM castPtr $
+        (liftIO $ liftM castPtr $
              {# call mini_object_copy #} $
                  toMiniObject miniObject)
         action

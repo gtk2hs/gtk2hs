@@ -108,20 +108,20 @@ bufferGetFlags :: BufferClass bufferT
 bufferGetFlags = mkMiniObjectGetFlags
 
 -- | Get the flags set on the current buffer.
-bufferGetFlagsM :: BufferClass bufferT
-                => MiniObjectM bufferT [BufferFlags]
+bufferGetFlagsM :: (BufferClass bufferT, MonadIO m)
+                => MiniObjectT bufferT m [BufferFlags]
 bufferGetFlagsM = mkMiniObjectGetFlagsM
 
 -- | Set flags on the current buffer.
-bufferSetFlagsM :: BufferClass bufferT
+bufferSetFlagsM :: (BufferClass bufferT, MonadIO m)
                 => [BufferFlags]
-                -> MiniObjectM bufferT () 
+                -> MiniObjectT bufferT m ()
 bufferSetFlagsM = mkMiniObjectSetFlagsM
 
 -- | Unset flags on the current buffer.
-bufferUnsetFlagsM :: BufferClass bufferT
+bufferUnsetFlagsM :: (BufferClass bufferT, MonadIO m)
                   => [BufferFlags]
-                  -> MiniObjectM bufferT ()
+                  -> MiniObjectT bufferT m ()
 bufferUnsetFlagsM = mkMiniObjectUnsetFlagsM
 
 -- | Get the size of the buffer.
@@ -132,15 +132,16 @@ bufferGetSize buffer =
     fromIntegral $ unsafePerformIO $
         withMiniObject buffer {# get GstBuffer->size #}
 
-marshalBufferM :: BufferClass bufferT
+marshalBufferM :: (BufferClass bufferT, MonadIO m)
                => (Ptr Buffer -> IO a)
-               -> MiniObjectM bufferT a
-marshalBufferM action =
-    MiniObjectM $ flip (withMiniObject . toBuffer) $ action
+               -> MiniObjectT bufferT m a
+marshalBufferM action = do
+  buffer <- askMiniObject
+  liftIO $ withMiniObject (toBuffer buffer) action
 
 -- | Get the size of the current buffer.
-bufferGetSizeM :: BufferClass bufferT
-               => MiniObjectM bufferT Word
+bufferGetSizeM :: (BufferClass bufferT, MonadIO m)
+               => MiniObjectT bufferT m Word
 bufferGetSizeM =
     liftM fromIntegral $
         marshalBufferM {# get GstBuffer->size #}
@@ -160,8 +161,8 @@ bufferGetData buffer =
 #endif
 
 -- | Make an O(n) copy of the current buffer.
-bufferGetDataM :: BufferClass bufferT
-               => MiniObjectM bufferT BS.ByteString
+bufferGetDataM :: (BufferClass bufferT, MonadIO m)
+               => MiniObjectT bufferT m BS.ByteString
 bufferGetDataM =
     marshalBufferM $ \bufferPtr ->
         do ptr <- {# get GstBuffer->data #} bufferPtr
@@ -173,9 +174,9 @@ bufferGetDataM =
 #endif
 
 -- | Store an O(n) copy of the provided data in the current buffer.
-bufferSetDataM :: BufferClass bufferT
+bufferSetDataM :: (BufferClass bufferT, MonadIO m)
                => BS.ByteString
-               -> MiniObjectM bufferT ()
+               -> MiniObjectT bufferT m ()
 bufferSetDataM bs =
     marshalBufferM $ \bufferPtr ->
         BS.useAsCStringLen bs $ \(origData, size) ->
@@ -192,13 +193,13 @@ bufferSetDataM bs =
 --   buffer. The pointer may be used to write into the data area if
 --   desired. This function is unsafe in that the pointer should not
 --   be used once the buffer is returned.
-unsafeBufferGetPtrM :: BufferClass bufferT
-                    => MiniObjectM bufferT (Ptr Word8)
-unsafeBufferGetPtrM =
-    MiniObjectM $ \buffer ->
-        liftM castPtr $
-            withMiniObject buffer $
-                {# get GstBuffer->data #} . castPtr
+unsafeBufferGetPtrM :: (BufferClass bufferT, MonadIO m)
+                    => MiniObjectT bufferT m (Ptr Word8)
+unsafeBufferGetPtrM = do
+  buffer <- askMiniObject
+  liftIO $ liftM castPtr $
+      withMiniObject buffer $
+          {# get GstBuffer->data #} . castPtr
 
 marshalGetNum :: (BufferClass bufferT, Integral intT, Num numT)
               => (Ptr Buffer -> IO intT)
@@ -212,10 +213,10 @@ marshalGetNum getAction invalid buffer =
           then Just n
           else Nothing
 
-marshalGetNumM :: (BufferClass bufferT, Integral intT, Num numT)
+marshalGetNumM :: (BufferClass bufferT, Integral intT, Num numT, MonadIO m)
               => (Ptr Buffer -> IO intT)
               -> numT
-              -> MiniObjectM bufferT (Maybe numT)
+              -> MiniObjectT bufferT m (Maybe numT)
 marshalGetNumM getAction invalid =
     marshalBufferM $ \bufferPtr -> do
       n <- liftM fromIntegral $ getAction bufferPtr
@@ -223,11 +224,11 @@ marshalGetNumM getAction invalid =
                   then Just n
                   else Nothing
 
-marshalSetNumM :: (BufferClass bufferT, Integral intT, Num numT)
+marshalSetNumM :: (BufferClass bufferT, Integral intT, Num numT, MonadIO m)
                => (Ptr Buffer -> numT -> IO ())
                -> intT
                -> Maybe intT
-               -> MiniObjectM bufferT ()
+               -> MiniObjectT bufferT m ()
 marshalSetNumM setAction invalid nM =
     let n = case nM of
               Just n' -> n'
@@ -242,15 +243,15 @@ bufferGetTimestamp =
     marshalGetNum {# get GstBuffer->timestamp #} clockTimeNone
 
 -- | Get the timestamp of the current buffer.
-bufferGetTimestampM :: BufferClass bufferT
-                    => MiniObjectM bufferT (Maybe ClockTime)
+bufferGetTimestampM :: (BufferClass bufferT, MonadIO m)
+                    => MiniObjectT bufferT m (Maybe ClockTime)
 bufferGetTimestampM =
     marshalGetNumM {# get GstBuffer->timestamp #} clockTimeNone
 
 -- | Set the timestamp of the current buffer.
-bufferSetTimestampM :: BufferClass bufferT
+bufferSetTimestampM :: (BufferClass bufferT, MonadIO m)
                     => Maybe ClockTime
-                    -> MiniObjectM bufferT ()
+                    -> MiniObjectT bufferT m ()
 bufferSetTimestampM =
     marshalSetNumM {# set GstBuffer->timestamp #} clockTimeNone
 
@@ -262,15 +263,15 @@ bufferGetDuration =
     marshalGetNum {# get GstBuffer->duration #} clockTimeNone
 
 -- | Get the duration of the current buffer.
-bufferGetDurationM :: BufferClass bufferT
-                   => MiniObjectM bufferT (Maybe ClockTime)
+bufferGetDurationM :: (BufferClass bufferT, MonadIO m)
+                   => MiniObjectT bufferT m (Maybe ClockTime)
 bufferGetDurationM =
     marshalGetNumM {# get GstBuffer->duration #} clockTimeNone
 
 -- | Set the duration of the current buffer.
-bufferSetDurationM :: BufferClass bufferT
+bufferSetDurationM :: (BufferClass bufferT, MonadIO m)
                    => Maybe ClockTime
-                   -> MiniObjectM bufferT ()
+                   -> MiniObjectT bufferT m ()
 bufferSetDurationM =
     marshalSetNumM {# set GstBuffer->duration #} clockTimeNone
 
@@ -284,23 +285,23 @@ bufferGetCaps buffer =
             maybePeek takeCaps
 
 -- | Get the caps of the current buffer.
-bufferGetCapsM :: BufferClass bufferT
-               => MiniObjectM bufferT (Maybe Caps)
-bufferGetCapsM =
-    MiniObjectM $ \buffer ->
-        {# call buffer_get_caps #} (toBuffer buffer) >>=
-            maybePeek takeCaps
+bufferGetCapsM :: (BufferClass bufferT, MonadIO m)
+               => MiniObjectT bufferT m (Maybe Caps)
+bufferGetCapsM = do
+  buffer <- askMiniObject
+  liftIO $ {# call buffer_get_caps #} (toBuffer buffer) >>=
+               maybePeek takeCaps
 
 -- | Set the caps of the current buffer.
-bufferSetCapsM :: BufferClass bufferT
+bufferSetCapsM :: (BufferClass bufferT, MonadIO m)
                => Maybe Caps
-               -> MiniObjectM bufferT ()
-bufferSetCapsM capsM =
-    MiniObjectM $ \buffer ->
-        {# call buffer_set_caps #} (toBuffer buffer) $
-            case capsM of
-              Just caps -> caps
-              Nothing   -> Caps nullForeignPtr
+               -> MiniObjectT bufferT m ()
+bufferSetCapsM capsM = do
+  buffer <- askMiniObject
+  liftIO $ {# call buffer_set_caps #} (toBuffer buffer) $
+               case capsM of
+                 Just caps -> caps
+                 Nothing   -> Caps nullForeignPtr
 
 -- | Get the offset of the buffer.
 bufferGetOffset :: BufferClass bufferT
@@ -310,15 +311,15 @@ bufferGetOffset =
     marshalGetNum {# get GstBuffer->offset #} bufferOffsetNone
 
 -- | Get the start offset of the current buffer.
-bufferGetOffsetM :: BufferClass bufferT
-                 => MiniObjectM bufferT (Maybe Word64)
+bufferGetOffsetM :: (BufferClass bufferT, MonadIO m)
+                 => MiniObjectT bufferT m (Maybe Word64)
 bufferGetOffsetM =
     marshalGetNumM {# get GstBuffer->offset #} bufferOffsetNone
 
 -- | Set the start offset of the current buffer.
-bufferSetOffsetM :: BufferClass bufferT
+bufferSetOffsetM :: (BufferClass bufferT, MonadIO m)
                  => Maybe Word64
-                 -> MiniObjectM bufferT ()
+                 -> MiniObjectT bufferT m ()
 bufferSetOffsetM =
     marshalSetNumM {# set GstBuffer->offset #} bufferOffsetNone
 
@@ -330,15 +331,15 @@ bufferGetOffsetEnd =
     marshalGetNum {# get GstBuffer->offset_end #} bufferOffsetNone
 
 -- | Get the end offset of the current buffer.
-bufferGetOffsetEndM :: BufferClass bufferT
-                    => MiniObjectM bufferT (Maybe Word64)
+bufferGetOffsetEndM :: (BufferClass bufferT, MonadIO m)
+                    => MiniObjectT bufferT m (Maybe Word64)
 bufferGetOffsetEndM =
     marshalGetNumM {# get GstBuffer->offset_end #} bufferOffsetNone
 
 -- | Set the end offset of the current buffer.
-bufferSetOffsetEndM :: BufferClass bufferT
+bufferSetOffsetEndM :: (BufferClass bufferT, MonadIO m)
                     => Maybe Word64
-                    -> MiniObjectM bufferT ()
+                    -> MiniObjectT bufferT m ()
 bufferSetOffsetEndM =
     marshalSetNumM {# set GstBuffer->offset_end #} bufferOffsetNone
 
@@ -353,25 +354,27 @@ bufferIsDiscont =
 
 -- | Return 'True' if the current buffer marks a discontinuity in a
 --   stream, or 'False' otherwise.
-bufferIsDiscontM :: BufferClass bufferT
-                 => MiniObjectM bufferT Bool
+bufferIsDiscontM :: (BufferClass bufferT, MonadIO m)
+                 => MiniObjectT bufferT m Bool
 bufferIsDiscontM =
     liftM (elem BufferDiscont) $ bufferGetFlagsM
 
 -- | Create an empty buffer and mutates it according to the given
 --   action. Once this function returns, the buffer is immutable.
-bufferCreateEmpty :: MiniObjectM Buffer a -- ^ the mutating action
-                  -> IO (Buffer, a)       -- ^ the new buffer and the action's result
+bufferCreateEmpty :: MonadIO m
+                  => MiniObjectT Buffer m a -- ^ the mutating action
+                  -> m (Buffer, a)          -- ^ the new buffer and the action's result
 bufferCreateEmpty =
-    marshalMiniObjectModify {# call buffer_new #}
+    marshalMiniObjectModify $ liftIO {# call buffer_new #}
 
 -- | Create and mutate a buffer of the given size.
-bufferCreate :: Word                 -- ^ the size of the buffer to be created
-             -> MiniObjectM Buffer a -- ^ the mutating action
-             -> IO (Buffer, a)       -- ^ the new buffer and the action's result
+bufferCreate :: MonadIO m
+             => Word                   -- ^ the size of the buffer to be created
+             -> MiniObjectT Buffer m a -- ^ the mutating action
+             -> m (Buffer, a)          -- ^ the new buffer and the action's result
 bufferCreate size =
     marshalMiniObjectModify $
-        {# call buffer_new_and_alloc #} $ fromIntegral size
+        liftIO $ {# call buffer_new_and_alloc #} $ fromIntegral size
 
 -- | Create a sub-buffer from an existing buffer with the given offset
 --   and size. This sub-buffer uses the actual memory space of the

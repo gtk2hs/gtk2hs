@@ -93,18 +93,18 @@ module Media.Streaming.GStreamer.Core.Types (
   IndexAssociation(..),
   AssocFlags(..),
   
-  mkMiniObjectGetFlags,
-  mkMiniObjectGetFlagsM,
-  mkMiniObjectSetFlagsM,
-  mkMiniObjectUnsetFlagsM,
-  
   withMiniObject,
   peekMiniObject,
   takeMiniObject,
   giveMiniObject,
-  MiniObjectM(..),
-  liftMiniObjectM,
+  MiniObjectT(..),
+  askMiniObject,
+  runMiniObjectT,
   marshalMiniObjectModify,
+  mkMiniObjectGetFlags,
+  mkMiniObjectGetFlagsM,
+  mkMiniObjectSetFlagsM,
+  mkMiniObjectUnsetFlagsM,
   
   QueryType,
   QueryTypeDefinition(..),
@@ -153,6 +153,7 @@ module Media.Streaming.GStreamer.Core.Types (
   ) where
 
 import Control.Monad       ( liftM )
+import Control.Monad.Reader
 import Control.Monad.Trans
 import Data.Ratio          ( Ratio )
 import System.Glib.FFI
@@ -439,49 +440,33 @@ giveMiniObject obj action =
     do liftIO $ {# call gst_mini_object_ref #} (toMiniObject obj)
        action obj
 
-newtype MiniObjectClass miniObjectT =>
-    MiniObjectM miniObjectT a =
-        MiniObjectM (MiniObjectMRep miniObjectT a)
-type MiniObjectMRep miniObjectT a = miniObjectT -> IO a
+newtype (MiniObjectClass miniObjectT, Monad m) =>
+    MiniObjectT miniObjectT m a =
+        MiniObjectT (ReaderT miniObjectT m a)
+        deriving (Functor, Monad, MonadTrans)
+instance (MiniObjectClass miniObjectT, Monad m, MonadIO m) =>
+    MonadIO (MiniObjectT miniObjectT m) where
+        liftIO = MiniObjectT . liftIO
 
-instance MiniObjectClass miniObjectT =>
-    Monad (MiniObjectM miniObjectT) where
-        (MiniObjectM aM) >>= fbM =
-            MiniObjectM $ \miniObject ->
-                do a <- aM miniObject
-                   let MiniObjectM bM = fbM a
-                   bM miniObject
-        return a = MiniObjectM $ const $ return a
-instance MiniObjectClass miniObjectT =>
-    MonadIO (MiniObjectM miniObjectT) where
-        liftIO aM = MiniObjectM $ const aM
+askMiniObject :: (MiniObjectClass miniObjectT, Monad m)
+              => MiniObjectT miniObjectT m miniObjectT
+askMiniObject = MiniObjectT $ ask
 
-liftMiniObjectM :: MiniObjectClass miniObjectT
-                => (miniObjectT -> a)
-                -> MiniObjectM miniObjectT a
-liftMiniObjectM f =
-    MiniObjectM $ \miniObject ->
-        return $! f miniObject
+runMiniObjectT :: (MiniObjectClass miniObjectT, Monad m)
+               => MiniObjectT miniObjectT m a
+               -> miniObjectT
+               -> m a
+runMiniObjectT (MiniObjectT action) = runReaderT action
 
-runMiniObjectM :: MiniObjectClass miniObjectT
-               => Ptr miniObjectT
-               -> (ForeignPtr miniObjectT -> miniObjectT)
-               -> MiniObjectM miniObjectT a
-               -> IO a
-runMiniObjectM ptr cons (MiniObjectM action) =
-    do object <- liftM cons $ newForeignPtr_ ptr
-       action object
-
-marshalMiniObjectModify :: MiniObjectClass miniObjectT
-                        => IO (Ptr miniObjectT)
-                        -> MiniObjectM miniObjectT a
-                        -> IO (miniObjectT, a)
-marshalMiniObjectModify mkMiniObject (MiniObjectM action) =
-    do ptr <- mkMiniObject >>= cMiniObjectMakeWritable . castPtr
-       object <- liftM MiniObject $ newForeignPtr_ $ castPtr ptr
-       result <- action $ unsafeCastMiniObject object
-       object' <- takeMiniObject $ castPtr ptr
-       return (unsafeCastMiniObject object', result)
+marshalMiniObjectModify :: (MiniObjectClass miniObjectT, MonadIO m)
+                        => m (Ptr miniObjectT)
+                        -> MiniObjectT miniObjectT m a
+                        -> m (miniObjectT, a)
+marshalMiniObjectModify mkMiniObject action =
+    do ptr <- mkMiniObject
+       object <- liftIO $ cMiniObjectMakeWritable (castPtr ptr) >>= takeMiniObject . castPtr
+       result <- runMiniObjectT action object
+       return (object, result)
 foreign import ccall unsafe "gst_mini_object_make_writable"
     cMiniObjectMakeWritable :: Ptr MiniObject
                             -> IO (Ptr MiniObject)
@@ -496,32 +481,29 @@ foreign import ccall unsafe "_hs_gst_mini_object_flags"
     cMiniObjectGetFlags :: Ptr MiniObject
                         -> IO CUInt
 
-mkMiniObjectGetFlagsM :: (MiniObjectClass miniObjectT, Flags flagsT)
-                      => MiniObjectM miniObjectT [flagsT]
-mkMiniObjectGetFlagsM =
-    MiniObjectM $ \miniObject ->
-        withMiniObject (toMiniObject miniObject) $ \cMiniObject ->
-            liftM cToFlags $ cMiniObjectGetFlags cMiniObject
+mkMiniObjectGetFlagsM :: (MiniObjectClass miniObjectT, Flags flagsT, MonadIO m)
+                      => MiniObjectT miniObjectT m [flagsT]
+mkMiniObjectGetFlagsM = do
+  miniObject <- askMiniObject
+  liftIO $ liftM cToFlags $ withMiniObject (toMiniObject miniObject) cMiniObjectGetFlags
 
-mkMiniObjectSetFlagsM :: (MiniObjectClass miniObjectT, Flags flagsT)
+mkMiniObjectSetFlagsM :: (MiniObjectClass miniObjectT, Flags flagsT, MonadIO m)
                       => [flagsT]
-                      -> MiniObjectM miniObjectT ()
-mkMiniObjectSetFlagsM flags =
-    MiniObjectM $ \miniObject ->
-        withMiniObject (toMiniObject miniObject) $ \cMiniObject ->
-            cMiniObjectSetFlags cMiniObject (fromIntegral $ fromFlags flags)
+                      -> MiniObjectT miniObjectT m ()
+mkMiniObjectSetFlagsM flags = do
+  miniObject <- askMiniObject
+  liftIO $ withMiniObject (toMiniObject miniObject) (`cMiniObjectSetFlags`(cFromFlags flags))
 foreign import ccall unsafe "_hs_gst_mini_object_flag_set"
     cMiniObjectSetFlags :: Ptr MiniObject
                         -> CUInt
                         -> IO ()
 
-mkMiniObjectUnsetFlagsM :: (MiniObjectClass miniObjectT, Flags flagsT)
+mkMiniObjectUnsetFlagsM :: (MiniObjectClass miniObjectT, Flags flagsT, MonadIO m)
                         => [flagsT]
-                        -> MiniObjectM miniObjectT ()
-mkMiniObjectUnsetFlagsM flags =
-    MiniObjectM $ \miniObject ->
-        withMiniObject (toMiniObject miniObject) $ \cMiniObject ->
-            cMiniObjectUnsetFlags cMiniObject (fromIntegral $ fromFlags flags)
+                        -> MiniObjectT miniObjectT m ()
+mkMiniObjectUnsetFlagsM flags = do
+  miniObject <- askMiniObject
+  liftIO $ withMiniObject (toMiniObject miniObject) (`cMiniObjectUnsetFlags`(cFromFlags flags))
 foreign import ccall unsafe "_hs_gst_mini_object_flag_unset"
     cMiniObjectUnsetFlags :: Ptr MiniObject
                           -> CUInt
