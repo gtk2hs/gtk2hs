@@ -136,8 +136,8 @@ marshalBufferM :: (BufferClass bufferT, MonadIO m)
                => (Ptr Buffer -> IO a)
                -> MiniObjectT bufferT m a
 marshalBufferM action = do
-  buffer <- askMiniObject
-  liftIO $ withMiniObject (toBuffer buffer) action
+  ptr <- askMiniObjectPtr
+  liftIO $ action $ castPtr ptr
 
 -- | Get the size of the current buffer.
 bufferGetSizeM :: (BufferClass bufferT, MonadIO m)
@@ -196,10 +196,9 @@ bufferSetDataM bs =
 unsafeBufferGetPtrM :: (BufferClass bufferT, MonadIO m)
                     => MiniObjectT bufferT m (Ptr Word8)
 unsafeBufferGetPtrM = do
-  buffer <- askMiniObject
+  ptr <- askMiniObjectPtr
   liftIO $ liftM castPtr $
-      withMiniObject buffer $
-          {# get GstBuffer->data #} . castPtr
+      {# get GstBuffer->data #} ptr
 
 marshalGetNum :: (BufferClass bufferT, Integral intT, Num numT)
               => (Ptr Buffer -> IO intT)
@@ -288,20 +287,22 @@ bufferGetCaps buffer =
 bufferGetCapsM :: (BufferClass bufferT, MonadIO m)
                => MiniObjectT bufferT m (Maybe Caps)
 bufferGetCapsM = do
-  buffer <- askMiniObject
-  liftIO $ {# call buffer_get_caps #} (toBuffer buffer) >>=
+  ptr <- askMiniObjectPtr
+  liftIO $ gst_buffer_get_caps (castPtr ptr) >>=
                maybePeek takeCaps
+  where _ = {# call buffer_get_caps #}
 
 -- | Set the caps of the current buffer.
 bufferSetCapsM :: (BufferClass bufferT, MonadIO m)
                => Maybe Caps
                -> MiniObjectT bufferT m ()
 bufferSetCapsM capsM = do
-  buffer <- askMiniObject
-  liftIO $ {# call buffer_set_caps #} (toBuffer buffer) $
-               case capsM of
-                 Just caps -> caps
-                 Nothing   -> Caps nullForeignPtr
+  ptr <- askMiniObjectPtr
+  liftIO $ withForeignPtr (case capsM of
+                             Just caps -> unCaps caps
+                             Nothing   -> nullForeignPtr)
+                          (gst_buffer_set_caps $ castPtr ptr)
+  where _ = {# call buffer_set_caps #}
 
 -- | Get the offset of the buffer.
 bufferGetOffset :: BufferClass bufferT
