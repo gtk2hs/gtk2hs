@@ -93,11 +93,13 @@ adapterPeek adapter size =
     do ptr <- {# call adapter_peek #} (toAdapter adapter) (fromIntegral size)
        if ptr == nullPtr
            then return Nothing
+           else liftM Just $
 #ifdef OLD_BYTESTRING
-           else liftM Just $ BS.copyCStringLen (castPtr ptr, fromIntegral size)
+                BS.copyCStringLen
 #else
-           else liftM Just $ BS.packCStringLen (castPtr ptr, fromIntegral size)
+                BS.packCStringLen
 #endif
+                     (castPtr ptr, fromIntegral size)
 
 adapterCopy :: AdapterClass adapterT
             => adapterT
