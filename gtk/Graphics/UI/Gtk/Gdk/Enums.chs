@@ -43,7 +43,8 @@ module Graphics.UI.Gtk.Gdk.Enums (
   WindowState(..),
   WindowEdge(..),
   WindowTypeHint(..),
-  Gravity(..)
+  Gravity(..),
+  GrabStatus(..),
   ) where
 
 import System.Glib.Flags	(Flags)
@@ -163,4 +164,21 @@ instance Flags WindowState
 -- section of the extended window manager hints specification for more details.
 --
 {#enum Gravity {underscoreToCase} #}
-    
+
+-- | Returned by 'pointerGrab' and 'keyboardGrab' to indicate success or the
+-- reason for the failure of the grab attempt.
+--
+-- [@GrabSuccess@] the resource was successfully grabbed.
+--
+-- [@GrabAlreadyGrabbed@] the resource is actively grabbed by another client.
+--
+-- [@GrabInvalidTime@] the resource was grabbed more recently than the
+--   specified time.
+--
+-- [@GrabNotViewable@] the grab window or the confine_to window are not
+--   viewable.
+--
+-- [@GrabFrozen@] the resource is frozen by an active grab of another client.
+--
+{#enum GrabStatus {underscoreToCase} #}
+
