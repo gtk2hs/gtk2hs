@@ -50,6 +50,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.General.Clipboard,
 
   -- * Drawing and other Low-Level Operations
+  module Graphics.UI.Gtk.Gdk.Cursor,
   module Graphics.UI.Gtk.Gdk.Drawable,
   module Graphics.UI.Gtk.Gdk.DrawWindow,
   module Graphics.UI.Gtk.Gdk.Region,
@@ -226,6 +227,7 @@ import Graphics.UI.Gtk.General.Clipboard
 -- drawing
 import Graphics.UI.Gtk.Gdk.Keys
 import Graphics.UI.Gtk.General.Style
+import Graphics.UI.Gtk.Gdk.Cursor
 import Graphics.UI.Gtk.Gdk.Drawable
 import Graphics.UI.Gtk.Gdk.DrawWindow
 import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
