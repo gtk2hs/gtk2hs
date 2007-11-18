@@ -27,6 +27,7 @@
 module Graphics.UI.Gtk.Gdk.Events (
   Modifier(..),		-- a mask of control keys
   TimeStamp,
+  currentTime,
   Event(..),		-- information in event callbacks from Gdk
   marshExposeRect,
 
@@ -133,6 +134,10 @@ toModifier i = toFlags ((fromIntegral i) .&. mask)
 --
 type TimeStamp = Word32
 -- TODO: make this a newtype
+
+-- | Represents the current time, and can be used anywhere a time is expected.
+currentTime :: TimeStamp
+currentTime = #{const GDK_CURRENT_TIME}
 
 -- | Events that are delivered to a widget.
 --
