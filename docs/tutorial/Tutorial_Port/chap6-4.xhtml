@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial: Pained Windows and Aspect
+    Frames</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>Gtk2Hs Tutorial</h1>
+      <span class="nav-previous">
+        <a href="chap6-3.xhtml">Previous</a>
+      </span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+        <a href="chap7-1.xhtml">Next</a>
+      </span>
+    </div>
+    <h2>6.4 Paned Windows and Aspect Frames</h2>
+    <p>The paned window widgets are useful when you want to divide
+    an area into two parts, with the relative size of the two parts
+    controlled by the user. A groove is drawn between the two
+    portions, with a handle that the user can drag to change the
+    ratio. The division can either be horizontal, 
+    <code>HPaned</code>, or vertical,  
+    <code>VPaned</code>.</p>
+    <p>To create a new paned window, use one of:</p>
+    <pre class="codebox">hPanedNew :: IO HPaned
+vPanedNew :: IO VPaned 
+</pre>
+    <p>Set the position of the divider with:</p>
+    <pre class="codebox">panedSetPosition :: PanedClass self =&gt; self -&gt; Int -&gt; IO ()
+</pre>
+    <p>After creating the paned window widget, you need to add
+    child widgets to its two halves. </p>
+    <pre class="codebox">panedAdd1 :: (PanedClass self, WidgetClass child) =&gt; self -&gt; child -&gt; IO ()
+panedAdd2 :: (PanedClass self, WidgetClass child) =&gt; self -&gt; child -&gt; IO ()
+</pre>
+    <p>The first adds to the top (right) , the second to the bottom (left) half of the
+    paned window. If you don't want the children to expand or
+    resize with the paned widget use 
+    <code>panedPack1</code> and 
+    <code>panedPack2</code> instead.</p>
+    <p>An Aspect Frame is a frame for which you can define a
+    constant width/height ratio. This so called aspect ratio will
+    not change when the frame is resized. You create one with:</p>
+    <pre class="codebox">aspectFrameNew :: Float -&gt; Float -&gt; Maybe Float -&gt; IO AspectFrame
+</pre>
+    <p>The first parameter sets the horizontal alignment of the
+    child within the frame (between 0.0 and 1.0). The second does
+    the same for the vertical alignment. Optionally, you set the
+    desired aspect ratio with the third parameter. Since an 
+    <code>AspectFrame</code> widget is a 
+    <code>Frame</code> widget, you can also add a label.</p>
+    <p>In the following example we've created a vertical paned
+    window with an aspect frame in the top half.</p>
+    <img src="Images/GtkChap6-4.png" alt="Paned Window"
+    id="imgGtkChap6-4" />
+    <p>We've created a 
+    <code>DrawingArea</code> widget in the 
+    <code>AspectFrame</code>. A 
+    <code>DrawingArea</code> is a blank widget, which can be used to
+    draw on, but here we just set the background color to
+    demonstrate the use of the 
+    <code>AspectFrame</code>. In the lower half of the 
+    <code>VPaned</code> widget we've created a 
+    <code>TextView</code> widget. This is a multi-line text
+    viewer and editor with many powerful features. Here, however, we
+    just take the associated text buffer and count the characters
+    whenever the user edits some text. </p>
+    <pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Paned Window", containerBorderWidth := 10,
+                 windowDefaultWidth := 400, windowDefaultHeight := 400 ]
+
+     pw &lt;- vPanedNew
+     panedSetPosition pw 250
+     containerAdd window pw
+     af &lt;- aspectFrameNew 0.5 0.5 (Just 3.0)
+     frameSetLabel af "Aspect Ratio: 3.0"
+     frameSetLabelAlign af 1.0 0.0
+     panedAdd1 pw af
+
+     da &lt;- drawingAreaNew
+     containerAdd af da
+     widgetModifyBg da StateNormal (Color 65535 0 0)
+   
+     tv &lt;- textViewNew
+     panedAdd2 pw tv
+     buf &lt;- textViewGetBuffer tv
+
+     onBufferChanged buf $ do cn &lt;- textBufferGetCharCount buf
+                              putStrLn (show cn)   
+
+     widgetShowAll window 
+     onDestroy window mainQuit
+     mainGUI
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="chap6-3.xhtml">Previous</a>
+      <br />6.3 The Layout Container</span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+      <a href="chap7-1.xhtml">Next</a>
+      <br />7.1</span>
+    </div>
+  </body>
+</html>
