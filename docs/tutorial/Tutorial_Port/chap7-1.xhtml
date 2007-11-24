@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial: Menus and Toolbars</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>Gtk2Hs Tutorial</h1>
+      <span class="nav-previous">
+        <a href="chap6-4.xhtml">Previous</a>
+      </span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+        <a href="chap7-2.xhtml">Next</a>
+      </span>
+    </div>
+    <h2>7.1 Menus and Toolbars</h2>
+    <p>There are specific APIs for Menus and toolbars, but you
+    should usually deal with them together, using the 
+    <code>UIManager</code> to define actions which you can then
+    arrange in menu and toolbars. Each action can be associated
+    with several 'proxy widgets'. In this way you can handle
+    activation of the action instead of responding to the menu and
+    toolbar items separately. And you can enable or disable both
+    the menu and toolbar item via the action.</p>
+    <pre class="codebox">actionNew ::
+   String              --  name : a unique name for the action
+-&gt; String              --  label : what will be displayed in menu items and on buttons
+-&gt; Maybe String        --  tooltip : a tooltip for the action
+-&gt; Maybe String        --  stockId : the stock item to be displayed
+-&gt; IO Action
+</pre>
+    <p>As you see, an action can be anything. When the user
+    activates an action, through clicking on an associated widget
+    or through an accellarator key (see later), a signal is emitted
+    and you specify what happens with:</p>
+    <pre class="codebox">onActionActivate :: ActionClass self =&gt; self -&gt; IO () -&gt; IO (ConnectId self)
+</pre>
+    <p>An 
+    <code>Action</code> has methods and attributes. For example, you
+    can hide an action or make it insensitive with:</p>
+    <pre class="codebox">actionSetVisible :: ActionClass self =&gt; self -&gt; Bool -&gt; IO ()
+actionSetSensitive :: ActionClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+    <p>However, actions are grouped together, and an action can
+    only be visible (sensitive) if its group is visible
+    (sensitive). Create a new action group with:</p>
+    <pre class="codebox">actionGroupNew :: String -&gt; IO ActionGroup
+</pre>
+    <p>The argument is the name of the 
+    <code>ActionGroup</code> and it is used when associating key
+    bindings with the actions. To add actions to a group, when no
+    accelerator key is used and no stock item:</p>
+    <pre class="codebox">actionGroupAddAction ActionClass action =&gt; ActionGroup -&gt; action -&gt; IO ()
+</pre>
+    <p>If an accelerator key is used , or a stock item:</p>
+    <pre class="codebox">actionGroupAddActionWithAccel :: 
+   ActionClass action =&gt; ActionGroup -&gt; action -&gt; Maybe String -&gt; IO ()
+</pre>
+    <p>If you use a stock item, the 
+    <code>Maybe String</code> argument should be 
+    <code>Nothing</code>. If you don't use a stock item, but you
+    don't specify an accelerator, use 
+    <code>Just ""</code>. Otherwise the string should be in a
+    format that can be parsed (see later). You can set visibility
+    and sensitivity of an 
+    <code>ActionGroup</code> with:</p>
+    <pre class="codebox">actionGroupSetVisible :: ActionGroup -&gt; Bool -&gt; IO ()
+actionGroupSetSensitive :: ActionGroup -&gt; Bool -&gt; IO ()
+</pre>
+    <p>As said, an action in a group can only be visible
+    (sensitive) if both its own and its group attributes are
+    set.</p>
+    <p>Now you can use these actions through binding them to more
+    than one proxy widgets, for example in a menu as well as in a
+    toolbar. Of course you can stick to just one widget, but the
+    idea behind actions is reuse. You do this through a 
+    <code>String</code> in XML format.</p>
+    <p>The allowed XML elements are: ui, menubar, menu, menuitem,
+    toolbar, toolitem and popup. The menuitem and toolitem elements
+    require an action attribute, and this is set to the unique name
+    you've given to the action when you created it. The menubar and
+    toolbar elements can also have actions associated with them,
+    but these are optional. All elements can have names, and these
+    are also optional. Names are needed to distinguish widgets of
+    the same type and the same path, for example two toolbars just
+    beneath the root (the ui element).</p>
+    <p>Additionally you have separator, placeholder and accelerator
+    elements. Separators appear as lines in tool bars and menu
+    bars. Placeholders can be used to group elements and sub trees
+    and accelerators define accelerator keys. The GTK+ reference points out
+    that accelerator keys should not be confused with mnemonics. Mnemonics are
+    activated through a letter in the label, accelerators are activated through
+    a key combination you specify.</p>
+    <p class="notebox"><strong>Note:</strong> Unfortunately the accelerators for action
+    menus and toolbars do not seem to work as advertised. Whether this is due 
+    to GTK+, Gtk2Hs, the platform, or because I've missed something, is not clear to me.
+    You'll just have to try it out!</p>
+    <p>The Graphics.UI.Gtk.ActionMenuToolbar.UIManager section in
+    the API documentation contains a DTD (Document Type Definition)
+    for the XML string, as well as some additional formatting
+    information.</p>
+    <p>Here's an example of an XML 
+    <code>String</code>, which is used in the example below. The
+    slashes at the end and beginning of each line are needed to
+    tell GHCi and GHC that the string is continued there, and the
+    quotes in the XML definition must also be escaped. The
+    indentations have no special meaning here, of course.</p>
+<pre class="codebox"> uiDecl = "&lt;ui&gt;\
+\           &lt;menubar&gt;\
+\            &lt;menu action=\"FMA\"&gt;\
+\              &lt;menuitem action=\"NEWA\" /&gt;\
+\              &lt;menuitem action=\"OPNA\" /&gt;\
+\              &lt;menuitem action=\"SAVA\" /&gt;\
+\              &lt;menuitem action=\"SVAA\" /&gt;\
+\              &lt;separator /&gt;\
+\              &lt;menuitem action=\"EXIA\" /&gt;\
+\            &lt;/menu&gt;\
+\           &lt;menu action=\"EMA\"&gt;\
+\              &lt;menuitem action=\"CUTA\" /&gt;\
+\              &lt;menuitem action=\"COPA\" /&gt;\
+\              &lt;menuitem action=\"PSTA\" /&gt;\
+\           &lt;/menu&gt;\
+\            &lt;separator /&gt;\
+\            &lt;menu action=\"HMA\"&gt;\
+\              &lt;menuitem action=\"HLPA\" /&gt;\
+\            &lt;/menu&gt;\
+\           &lt;/menubar&gt;\
+\           &lt;toolbar&gt;\
+\            &lt;toolitem action=\"NEWA\" /&gt;\
+\            &lt;toolitem action=\"OPNA\" /&gt;\
+\            &lt;toolitem action=\"SAVA\" /&gt;\
+\            &lt;toolitem action=\"EXIA\" /&gt;\
+\            &lt;separator /&gt;\
+\            &lt;toolitem action=\"CUTA\" /&gt;\
+\            &lt;toolitem action=\"COPA\" /&gt;\
+\            &lt;toolitem action=\"PSTA\" /&gt;\
+\            &lt;separator /&gt;\
+\            &lt;toolitem action=\"HLPA\" /&gt;\
+\           &lt;/toolbar&gt;\
+\          &lt;/ui&gt;"
+</pre>
+    <p>All the action attributes are strings which were defined
+    earlier, when the actions were created (see the complete source
+    code below).</p>
+    <p>Now this definition or declaration must be processed by a ui
+    manager. To create one:</p>
+<pre class="codebox">uiManagerNew :: IO UIManager
+</pre>
+    <p>To add the XML string:</p>
+    <pre class="codebox">uiManagerAddUiFromString :: UIManager -&gt; String -&gt; IO MergeId
+</pre>
+    <p>Next the action groups, which have been created earlier,
+    must be inserted:</p>
+    <pre class="codebox">uiManagerInsertActionGroup :: UIManager -&gt; ActionGroup -&gt; Int -&gt; IO ()
+</pre>
+    <p>If you only have one action group the position will be 0,
+    otherwise you have to specify the index in the list you already
+    have.</p>
+    <p>Now you can get all the widgets you want from your 
+    <code>UIManager</code> and the path (including names if
+    necessary) in your XML definition.</p>
+    <pre class="codebox">uiManagerGetWidget :: UIManager -&gt; String -&gt; IO (Maybe Widget)
+</pre>
+    <p>From the definition above, for example, we can get a menubar
+    and a toolbar with:</p>
+    <pre class="codebox">maybeMenubar &lt;- uiManagerGetWidget ui "/ui/menubar"
+     let menubar = case maybeMenubar of
+                        (Just x) -&gt; x
+                        Nothing -&gt; error "Cannot get menubar from string." 
+     boxPackStart box menubar PackNatural 0
+
+     maybeToolbar &lt;- uiManagerGetWidget ui "/ui/toolbar"
+     let toolbar = case maybeToolbar of
+                        (Just x) -&gt; x
+                        Nothing -&gt; error "Cannot get toolbar from string." 
+     boxPackStart box toolbar PackNatural 0
+</pre>
+    <p>The packing has been included in the above snippet, to
+    demonstrate that this still has to be done by you. This is the
+    example with the code:</p>
+    <p>
+      <img src="Images/GtkChap7-1.png" alt="Menus and Toolbars"
+      id="imgGtkChap7-1" />
+    </p>
+<p>We've set one action to be insensitive, to show how it's done. We've also
+added an accelerator to the exit action, which takes the <code>stockQuit</code>
+stockitem, but now displays Ctl + E as the accelerator. According to the GTK+
+reference manual, accelerator keys are defined as:
+&lt;Control&gt;a, &lt;Shift&gt;&lt;Alt&gt;F1, &lt;Release&gt;z and so on. You'll
+have to see what GHCi accepts. As said before, accelerator keys are displayed, but don't
+work on my configuration. Note that in this example we've used the shorter <code>mapM_</code> 
+instead of the <code>sequence_</code> and <code>map</code> combination of the previous chapters.</p>    
+    <pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Menus and Toolbars",
+                 windowDefaultWidth := 450, windowDefaultHeight := 200]
+
+     box &lt;- vBoxNew False 0
+     containerAdd window box
+
+     fma &lt;- actionNew "FMA" "File" Nothing Nothing
+     ema &lt;- actionNew "EMA" "Edit" Nothing Nothing
+     hma &lt;- actionNew "HMA" "Help" Nothing Nothing
+
+     newa &lt;- actionNew "NEWA" "New"     (Just "Just a Stub") (Just stockNew)
+     opna &lt;- actionNew "OPNA" "Open"    (Just "Just a Stub") (Just stockOpen)
+     sava &lt;- actionNew "SAVA" "Save"    (Just "Just a Stub") (Just stockSave)
+     svaa &lt;- actionNew "SVAA" "Save As" (Just "Just a Stub") (Just stockSaveAs)
+     exia &lt;- actionNew "EXIA" "Exit"    (Just "Just a Stub") (Just stockQuit)
+ 
+     cuta &lt;- actionNew "CUTA" "Cut"   (Just "Just a Stub") (Just stockCut)    
+     copa &lt;- actionNew "COPA" "Copy"  (Just "Just a Stub") (Just stockCopy)
+     psta &lt;- actionNew "PSTA" "Paste" (Just "Just a Stub") (Just stockPaste)
+
+     hlpa &lt;- actionNew "HLPA" "Help"  (Just "Just a Stub") (Just stockHelp)
+
+     agr &lt;- actionGroupNew "AGR"
+     mapM_ (actionGroupAddAction agr) [fma, ema, hma]
+     mapM_ (\ act -&gt; actionGroupAddActionWithAccel agr act Nothing) 
+       [newa,opna,sava,svaa,cuta,copa,psta,hlpa]
+
+     actionGroupAddActionWithAccel agr exia (Just "&lt;Control&gt;e")
+
+     ui &lt;- uiManagerNew
+     uiManagerAddUiFromString ui uiDecl
+     uiManagerInsertActionGroup ui agr 0
+
+     maybeMenubar &lt;- uiManagerGetWidget ui "/ui/menubar"
+     let menubar = case maybeMenubar of
+                        (Just x) -&gt; x
+                        Nothing -&gt; error "Cannot get menubar from string." 
+     boxPackStart box menubar PackNatural 0
+
+     maybeToolbar &lt;- uiManagerGetWidget ui "/ui/toolbar"
+     let toolbar = case maybeToolbar of
+                        (Just x) -&gt; x
+                        Nothing -&gt; error "Cannot get toolbar from string." 
+     boxPackStart box toolbar PackNatural 0
+
+     actionSetSensitive cuta False
+
+     onActionActivate exia (widgetDestroy window)
+     mapM_ prAct [fma,ema,hma,newa,opna,sava,svaa,cuta,copa,psta,hlpa]
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+     
+uiDecl=  "&lt;ui&gt;\
+\           &lt;menubar&gt;\
+\            &lt;menu action=\"FMA\"&gt;\
+\              &lt;menuitem action=\"NEWA\" /&gt;\
+\              &lt;menuitem action=\"OPNA\" /&gt;\
+\              &lt;menuitem action=\"SAVA\" /&gt;\
+\              &lt;menuitem action=\"SVAA\" /&gt;\
+\              &lt;separator /&gt;\
+\              &lt;menuitem action=\"EXIA\" /&gt;\
+\            &lt;/menu&gt;\
+\           &lt;menu action=\"EMA\"&gt;\
+\              &lt;menuitem action=\"CUTA\" /&gt;\
+\              &lt;menuitem action=\"COPA\" /&gt;\
+\              &lt;menuitem action=\"PSTA\" /&gt;\
+\           &lt;/menu&gt;\
+\            &lt;separator /&gt;\
+\            &lt;menu action=\"HMA\"&gt;\
+\              &lt;menuitem action=\"HLPA\" /&gt;\
+\            &lt;/menu&gt;\
+\           &lt;/menubar&gt;\
+\           &lt;toolbar&gt;\
+\            &lt;toolitem action=\"NEWA\" /&gt;\
+\            &lt;toolitem action=\"OPNA\" /&gt;\
+\            &lt;toolitem action=\"SAVA\" /&gt;\
+\            &lt;toolitem action=\"EXIA\" /&gt;\
+\            &lt;separator /&gt;\
+\            &lt;toolitem action=\"CUTA\" /&gt;\
+\            &lt;toolitem action=\"COPA\" /&gt;\
+\            &lt;toolitem action=\"PSTA\" /&gt;\
+\            &lt;separator /&gt;\
+\            &lt;toolitem action=\"HLPA\" /&gt;\
+\           &lt;/toolbar&gt;\
+\          &lt;/ui&gt;" &lt;/pre&gt;"
+
+prAct :: ActionClass self =&gt; self -&gt; IO (ConnectId self)
+prAct a = onActionActivate a $ do name &lt;- actionGetName a
+                                  putStrLn ("Action Name: " ++ name)
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="chap6-4.xhtml">Previous</a>
+      <br />6.4 Paned Windows and Aspect Frames</span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+      <a href="chap7-2.xhtml">Next</a>
+      <br />7.2</span>
+    </div>
+  </body>
+</html>
