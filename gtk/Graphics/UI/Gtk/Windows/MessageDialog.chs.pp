@@ -58,6 +58,7 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
   toMessageDialog,
   MessageType(..),
   ButtonsType(..),
+  DialogFlags(..),
   
 -- * Constructors
   messageDialogNew,
