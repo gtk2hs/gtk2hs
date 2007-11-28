@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial: Menus and Toolbars</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="header">
+      <h1>Gtk2Hs Tutorial</h1>
+      <span class="nav-previous">
+        <a href="chap7-1.xhtml">Previous</a>
+      </span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+        <a href="chap8-1.xhtml">Next</a>
+      </span>
+    </div>
+    <h2>7.2 Popup Menus, Radio Actions and Toggle Actions</h2>
+    <p>Menus are normally just added to a window, but they can also
+    be displayed temporarily as the result of a mouse button click.
+    For instance, a context menu might be displayed when the user
+    clicks their right mouse button.</p>
+    <p>The UI layout for a popup menu should use the 
+    <code>popup</code> node. For instance:</p>
+    <pre class="codebox">uiDecl = "&lt;ui&gt; \
+\          &lt;popup&gt;\
+\            &lt;menuitem action=\"EDA\" /&gt;\
+\            &lt;menuitem action=\"PRA\" /&gt;\
+\            &lt;menuitem action=\"RMA\" /&gt;\
+\            &lt;separator /&gt;\
+\            &lt;menuitem action=\"SAA\" /&gt;\
+\          &lt;/popup&gt;\
+\        &lt;/ui&gt;"   
+</pre>
+    <p>Constructing a popup menu takes the same steps as a menu or
+    a toolbar (but also see below). Once you've created the actions 
+    and put them into  one or more groups you create the ui manager, 
+    add the XML string and add the groups. Then you extract the widget(s).
+    In the pop up example we've created the 4 actions with the names
+    listed above. The popup menu doesn't show in a screen shot, so
+    we've omitted the picture.</p>
+    <p>Because it's a popup we don't pack the widget. To show it we
+    need the function:</p>
+    <pre class="codebox">menuPopup :: MenuClass self =&gt; self -&gt; Maybe (MouseButton,TimeStamp)
+</pre>
+    <p>This is documented in Graphics.UI.Gtk.MenuComboToolbar.Menu
+    in the API documentation. In the example we pop up the menu by
+    clicking the right mouse button, and the second argument can be    
+    <code>Nothing</code>. The function is the same as with the
+    event box in Chapter 6.2. Here, however, we can use the
+    window itself instead of an event box.</p>
+    <pre class="codebox">onButtonPress window (\x -&gt; if (eventButton x) == RightButton
+                                    then do menuPopup (castToMenu pop) Nothing
+                                            return (eventSent x)
+                                    else return (eventSent x))
+</pre>
+    <p>The only hitch is that the widget returned by the ui manager
+    is of type <code>Widget</code>and the 
+    <code>menuPopup</code>function takes an argument of a type
+    which is an instance of <code>MenuClass</code>. So we have to use:</p>
+    <pre class="codebox">castToMenu :: GObjectClass obj =&gt; obj -&gt; Menu
+</pre>
+    <p>This function is also documented in the  Graphics.UI.Gtk.MenuComboToolbar.Menu
+    section. The complete listing of the example is:</p>
+    <pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Click Right Popup",
+                 windowDefaultWidth := 250,
+                 windowDefaultHeight := 150 ]
+
+     eda &lt;- actionNew "EDA" "Edit" Nothing Nothing
+     pra &lt;- actionNew "PRA" "Process" Nothing Nothing
+     rma &lt;- actionNew "RMA" "Remove" Nothing Nothing
+     saa &lt;- actionNew "SAA" "Save" Nothing Nothing
+
+     agr &lt;- actionGroupNew "AGR1" 
+     mapM_ (actionGroupAddAction agr) [eda,pra,rma,saa]
+
+     uiman &lt;- uiManagerNew
+     uiManagerAddUiFromString uiman uiDecl
+     uiManagerInsertActionGroup uiman agr 0
+
+     maybePopup &lt;- uiManagerGetWidget uiman "/ui/popup"
+     let pop = case maybePopup of 
+                    (Just x) -&gt; x
+                    Nothing -&gt; error "Cannot get popup from string"
+
+     onButtonPress window (\x -&gt; if (eventButton x) == RightButton
+                                    then do menuPopup (castToMenu pop) Nothing
+                                            return (eventSent x)
+                                    else return (eventSent x))
+
+     mapM_ prAct [eda,pra,rma,saa]
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+uiDecl = "&lt;ui&gt; \
+\          &lt;popup&gt;\
+\            &lt;menuitem action=\"EDA\" /&gt;\
+\            &lt;menuitem action=\"PRA\" /&gt;\
+\            &lt;menuitem action=\"RMA\" /&gt;\
+\            &lt;separator /&gt;\
+\            &lt;menuitem action=\"SAA\" /&gt;\
+\          &lt;/popup&gt;\
+\        &lt;/ui&gt;"   
+
+prAct :: ActionClass self =&gt; self -&gt; IO (ConnectId self)
+prAct a = onActionActivate a $ do name &lt;- actionGetName a
+                                  putStrLn ("Action Name: " ++ name)
+</pre>
+    <p>There is another way to use actions, without explicitly
+    creating them, through the <code>ActionEntry</code> datatype:</p>
+    <pre class="codebox">data ActionEntry = ActionEntry {
+actionEntryName :: String
+actionEntryLabel :: String
+actionEntryStockId :: (Maybe String)
+actionEntryAccelerator :: (Maybe String)
+actionEntryTooltip :: (Maybe String)
+actionEntryCallback :: (IO ())
+}
+</pre>
+    <p>The use of these fields is as their names indicate and as
+    has been described above and in Chapter 7.1. The 
+    <code>actionEntryCallback</code> function must be supplied by
+    the programmer, and will be executed when that particular
+    action is activated.</p>
+    <p>Add a list of entries to an action group with:</p>
+    <pre class="codebox">actionGroupAddActions :: ActionGroup -&gt; [ActionEntry] -&gt; IO ()
+</pre>
+    <p>The group then is inserted using 
+    <code>uiManagerInsertActionGroup</code> as before. </p>
+    <p>Similar functions exist for <code>RadioAction</code> and <code>ToggleAction</code> .
+    Radio actions let the user choose from a number of
+    possibilities, of which only one can be active. Because of this it makes sense 
+    to define them all together. The definition is:</p>
+    <pre class="codebox">data RadioActionEntry = RadioActionEntry {
+radioActionName :: String
+radioActionLabel :: String
+radioActionStockId :: (Maybe String)
+radioActionAccelerator :: (Maybe String)
+radioActionTooltip :: (Maybe String)
+radioActionValue :: Int
+}
+</pre>
+    <p>The first 5 fields are again used as expected. The 
+    <code>radioActionValue</code> identifies each of the possible
+    selections. Addition to a group is done with:</p>
+    <pre class="codebox">actionGroupAddRadioActions :: 
+              ActionGroup -&gt; [RadioActionEntry] -&gt; Int -&gt; (RadioAction -&gt; IO ()) -&gt; IO ()
+</pre>
+    <p>The 
+    <code>Int</code> parameter is the value of the action to
+    activate initially, or -1 for none.</p>
+    <p class="notebox">
+    <strong>Note:</strong> In the example below this appeared to
+    have no effect; the last action is always selected
+    initially.</p>
+    <p>The function of type 
+    <code>(RadioAction -&gt; IO ())</code>is executed whenever that
+    action is activated.</p>
+    <p>Toggle actions have a 
+    <code>Bool</code> value and each may be set or not. The 
+    <code>ToggleActionEntry</code> is defined as:</p>
+    <pre class="codebox">data ToggleActionEntry = ToggleActionEntry {
+toggleActionName :: String
+toggleActionLabel :: String
+toggleActionStockId :: (Maybe String)
+toggleActionAccelerator :: (Maybe String)
+toggleActionTooltip :: (Maybe String)
+toggleActionCallback :: (IO ())
+toggleActionIsActive :: Bool
+}
+</pre>
+    <p>The example below demonstrates the use of toggle
+    actions as well as radio actions.</p>
+    <p class="notebox">
+    <strong>Note:</strong> The 
+    <code>toggleActionCallback</code> function has the wrong
+    value on my platform; the workaround is, of course, to use the
+    <code>not</code> function.</p>
+    <img src="Images/GtkChap7-2.png"
+    alt="RadioAction and ToggleAction" id="imgGtkChap7-2" />
+    <p>The radio buttons could control a highlight mode, as in the
+    gedit text editor, from which this was copied. The first menu
+    has one button and two sub menus which contain the remaining
+    items. Furthermore, one of the radio buttons is an item in a
+    tool bar. This layout is controlled completely by the first XML
+    definition.</p>
+    <p>The toggle actions are items in another menu, and two of
+    those are also placed in a toolbar. This layout is determined by
+    the second XML definition.</p>
+    <p>The interesting thing is that the 
+    <code>uiManager</code> can merge these ui definitions just by
+    adding them, as shown below. So you can define your menus in separate modules
+    and easily combine them later in the main module. According to
+    the documentation the ui manager is quite smart at this, and of
+    course you can also use names in the XML definitions to
+    distinguish paths. But recall that the 
+    <code>String</code> denoting an action name must be unique for each action.</p>
+    <p>It is also possible to unmerge menus and toolbars, using the 
+    <code>MergeId</code> and the <code>uiManagerRemoveUi</code> function. 
+    In this way you can manage menus and toolbars dynamically.</p>
+    <pre class="codebox">
+import Graphics.UI.Gtk
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Radio and Toggle Actions",
+                 windowDefaultWidth := 400,
+                 windowDefaultHeight := 200 ]
+ 
+     mhma &lt;- actionNew "MHMA" "Highlight\nMode" Nothing Nothing
+     msma &lt;- actionNew "MSMA" "Source"          Nothing Nothing
+     mmma &lt;- actionNew "MMMA" "Markup"          Nothing Nothing  
+
+     agr1 &lt;- actionGroupNew "AGR1"
+     mapM_ (actionGroupAddAction agr1) [mhma,msma,mmma]
+     actionGroupAddRadioActions agr1 hlmods 0 myOnChange
+
+     vima &lt;- actionNew "VIMA" "View" Nothing Nothing          
+
+     agr2 &lt;- actionGroupNew "AGR2"
+     actionGroupAddAction agr2 vima
+     actionGroupAddToggleActions agr2 togls
+
+     uiman &lt;- uiManagerNew
+     uiManagerAddUiFromString uiman uiDef1
+     uiManagerInsertActionGroup uiman agr1 0
+
+     uiManagerAddUiFromString uiman uiDef2
+     uiManagerInsertActionGroup uiman agr2 1
+
+     mayMenubar &lt;- uiManagerGetWidget uiman "/ui/menubar"
+     let mb = case mayMenubar of 
+                    (Just x) -&gt; x
+                    Nothing -&gt; error "Cannot get menu bar."
+
+     mayToolbar &lt;- uiManagerGetWidget uiman "/ui/toolbar"
+     let tb = case mayToolbar of 
+                    (Just x) -&gt; x
+                    Nothing -&gt; error "Cannot get tool bar."
+
+     box &lt;- vBoxNew False 0
+     containerAdd window box
+     boxPackStart box mb PackNatural 0
+     boxPackStart box tb PackNatural 0
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+hlmods :: [RadioActionEntry]
+hlmods = [
+     RadioActionEntry "NOA" "None"    Nothing Nothing Nothing 0,   
+     RadioActionEntry "SHA" "Haskell" (Just stockHome)  Nothing Nothing 1, 
+     RadioActionEntry "SCA" "C"       Nothing Nothing Nothing 2,
+     RadioActionEntry "SJA" "Java"    Nothing Nothing Nothing 3,
+     RadioActionEntry "MHA" "HTML"    Nothing Nothing Nothing 4,
+     RadioActionEntry "MXA" "XML"     Nothing Nothing Nothing 5]
+
+myOnChange :: RadioAction -&gt; IO ()
+myOnChange ra = do val &lt;- radioActionGetCurrentValue ra
+                   putStrLn ("RadioAction " ++ (show val) ++ " now active.")
+
+uiDef1 = " &lt;ui&gt; \
+\           &lt;menubar&gt;\
+\              &lt;menu action=\"MHMA\"&gt;\
+\                 &lt;menuitem action=\"NOA\" /&gt;\
+\                 &lt;separator /&gt;\
+\                 &lt;menu action=\"MSMA\"&gt;\
+\                    &lt;menuitem action= \"SHA\" /&gt; \
+\                    &lt;menuitem action= \"SCA\" /&gt; \
+\                    &lt;menuitem action= \"SJA\" /&gt; \
+\                 &lt;/menu&gt;\
+\                 &lt;menu action=\"MMMA\"&gt;\
+\                    &lt;menuitem action= \"MHA\" /&gt; \
+\                    &lt;menuitem action= \"MXA\" /&gt; \
+\                 &lt;/menu&gt;\
+\              &lt;/menu&gt;\
+\           &lt;/menubar&gt;\
+\            &lt;toolbar&gt;\
+\              &lt;toolitem action=\"SHA\" /&gt;\
+\            &lt;/toolbar&gt;\
+\           &lt;/ui&gt; "            
+
+togls :: [ToggleActionEntry]
+togls = let mste = ToggleActionEntry "MST" "Messages" Nothing Nothing Nothing (myTog mste) False   
+            ttte = ToggleActionEntry "ATT" "Attributes" Nothing Nothing Nothing (myTog ttte)  False 
+            erte = ToggleActionEntry "ERT" "Errors" (Just stockInfo) Nothing Nothing (myTog erte)  True 
+        in [mste,ttte,erte]
+
+myTog :: ToggleActionEntry -&gt; IO ()
+myTog te = putStrLn ("The state of " ++ (toggleActionName te) 
+                      ++ " (" ++ (toggleActionLabel te) ++ ") " 
+                      ++ " is now " ++ (show $ not (toggleActionIsActive te)))
+uiDef2 = "&lt;ui&gt;\
+\          &lt;menubar&gt;\
+\            &lt;menu action=\"VIMA\"&gt;\
+\             &lt;menuitem action=\"MST\" /&gt;\
+\             &lt;menuitem action=\"ATT\" /&gt;\
+\             &lt;menuitem action=\"ERT\" /&gt;\
+\            &lt;/menu&gt;\
+\          &lt;/menubar&gt;\
+\            &lt;toolbar&gt;\
+\              &lt;toolitem action=\"MST\" /&gt;\
+\              &lt;toolitem action=\"ERT\" /&gt;\
+\            &lt;/toolbar&gt;\
+\         &lt;/ui&gt;"
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="chap7-1.xhtml">Previous</a>
+      <br />7.1 Menus and Toolbars</span>
+      <span class="nav-home">
+        <a href="index.xhtml">Home</a>
+      </span>
+      <span class="nav-next">
+      <a href="chap8-1.xhtml">Next</a>
+      <br />8.1</span>
+    </div>
+  </body>
+</html>
