@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Introduction</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><!-- a href="chap1.xhtml" --><br />           </span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+  <span class="nav-next"><a href="chap2.xhtml">Next</a></span>
+</div>
+
+<h2>1. Introduction</h2>
+<p>From the Gtk2Hs web site: Gtk2Hs is a GUI library for Haskell based on Gtk+. 
+Gtk+ is an extensive and mature multi-platform toolkit for creating graphical user interfaces.</p>
+<p>This tutorial is aimed at the intermediate level Haskell programmer, and covers what is
+needed to write the most common GUI interfaces. This is summed up by the table of contents of this
+tutorial. For advanced users, however, the Gtk2Hs API documentation contains much more.</p>
+<p>Gtk+ is largely a library of components called 'widgets', which are organized in an object
+oriented hierarchy. In Gtk2Hs this is implemented by giving each widget both a Haskell type and a Haskell 
+type class. Thus the Haskell type system is rigorously preserved, and the programmer has all 
+the advantages of Haskell type checking by the Glasgow Haskell compiler and interpreter. Gtk2Hs also 
+has many functions for type casting.</p>
+<p>Widgets have attributes which control their behavior and appearance. There are two general functions
+to get and to set attributes. </p>
+<p>To set one or more attributes of a widget use:</p>
+<pre class="codebox">set widget [widgetAttr1 := foo, widgetAttr2 := fie, widgetAttr3 := bar]</pre>
+<p>To get an attribute of a widget use:</p>
+<pre class="codebox">x &lt;- get widget widgetAttr1</pre>
+<p>Almost always there are specific functions to set and get widget attributes too, but in future
+these will be deprecated. For now, however, use of the functions is more common.</p>
+<p>What happens in a Gtk2Hs application is determined by user actions, like mouse clicks, button
+presses, selection of radio buttons and so on. These are called events and may result in signals
+ being emitted. Information about events, for example whether the user clicked a right or left
+ mouse button, may be captured in data fields that can be queried by the Gtk2Hs programmer.
+ Signals are usually handled by specific functions for that type of widget. They are listed
+ in the <strong>Signals</strong> section of the API documentation for that widget. 
+ Most take a function of type <code>IO ()</code> as parameter, but many have some result.
+ The Gtk2Hs programmer, of course, must write these parameter functions, which determine the response
+ to the user action.</p>
+ <p>Finally, setting up a widget tree for your application and determining the visual
+ layout (packing) can be done visually with the Glade interface designer. Gtk2Hs fully
+ supports Glade and there is an introductory tutorial on the Gtk2Hs web site. Using Glade
+ is actually recommended over the programmatic approach which is described in this tutorial.</p>
+<div id="footer">
+  <span class="nav-previous"><!-- a href="chap1.xhtml" --><br />           </span>
+  <span class="nav-home"><a href="index.xhtml">Home</a><br />&nbsp;</span>
+  <span class="nav-next"><a href="chap2.xhtml">Next</a><br />2. Getting Started</span>
+</div>
+
+</body>
+</html>
