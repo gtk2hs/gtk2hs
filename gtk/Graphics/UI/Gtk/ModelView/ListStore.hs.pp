@@ -32,6 +32,10 @@ module Graphics.UI.Gtk.ModelView.ListStore (
 -- * Constructors
   listStoreNew,
 
+-- * Implementation of Interfaces
+  listStoreDefaultDragSourceIface,
+  listStoreDefaultDragDestIface,
+  
 -- * Methods
   listStoreGetValue,
   listStoreSetValue,
@@ -60,6 +64,8 @@ import Graphics.UI.Gtk.Types (GObjectClass(..), TreeModelClass)
 import Graphics.UI.Gtk.ModelView.Types (TypedTreeModelClass, TreeIter(..))
 import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.ModelView.TreeModel
+import Graphics.UI.Gtk.ModelView.TreeDrag
+import Control.Monad.Trans ( liftIO )
 
 newtype ListStore a = ListStore (CustomTreeModel (IORef (Seq a)) a)
 
@@ -69,11 +75,22 @@ instance GObjectClass (ListStore a) where
   toGObject (ListStore tm) = toGObject tm
   unsafeCastGObject = ListStore . unsafeCastGObject
 
+-- | Create a new 'TreeModel' that contains a list of elements.
 listStoreNew :: [a] -> IO (ListStore a)
-listStoreNew xs = do
+listStoreNew xs = listStoreNewDND xs (Just listStoreDefaultDragSourceIface)
+                                     (Just listStoreDefaultDragDestIface)
+
+-- | Create a new 'TreeModel' that contains a list of elements. In addition, specify two
+--   interfaces for drag and drop.
+--
+listStoreNewDND :: [a] -- ^ the initial content of the model
+  -> Maybe (DragSourceIface ListStore a) -- ^ an optional interface for drags
+  -> Maybe (DragDestIface ListStore a) -- ^ an optional interface to handle drops
+  -> IO (ListStore a) -- ^ the new model
+listStoreNewDND xs mDSource mDDest = do
   rows <- newIORef (Seq.fromList xs)
 
-  liftM ListStore $ customTreeModelNew rows TreeModelIface {
+  customTreeModelNew rows ListStore TreeModelIface {
       treeModelIfaceGetFlags      = return [TreeModelListOnly],
       treeModelIfaceGetIter       = \[n] -> readIORef rows >>= \rows ->
                                      return (if Seq.null rows then Nothing else
@@ -102,7 +119,46 @@ listStoreNew xs = do
       treeModelIfaceIterParent    = \_ -> return Nothing,
       treeModelIfaceRefNode       = \_ -> return (),
       treeModelIfaceUnrefNode     = \_ -> return ()
-    } Nothing Nothing
+    } mDSource mDDest
+
+
+-- | Default drag functions for 'Graphics.UI.Gtk.ModelView.ListStore'. These
+-- functions allow the rows of the model to serve as drag source. Any row is
+-- allowed to be dragged and the data set in the 'SelectionDataM' object is
+-- set with 'treeSetRowDragData', i.e. it contains the model and the
+-- 'TreePath' to the row.
+listStoreDefaultDragSourceIface :: DragSourceIface ListStore row
+listStoreDefaultDragSourceIface = DragSourceIface {
+    treeDragSourceRowDraggable = \_ _-> return True,
+    treeDragSourceDragDataGet = treeSetRowDragData,
+    treeDragSourceDragDataDelete = \model (dest:_) -> do
+            liftIO $ listStoreRemove model dest
+            return True
+
+  }
+
+-- | Default drop functions for 'Graphics.UI.Gtk.ModelView.ListStore'. These
+--   functions accept a row and insert the row into the new location if it is
+--   dragged into a tree view
+-- that uses the same model.
+listStoreDefaultDragDestIface :: DragDestIface ListStore row
+listStoreDefaultDragDestIface = DragDestIface {
+    treeDragDestRowDropPossible = \model dest -> do
+      mModelPath <- treeGetRowDragData
+      case mModelPath of
+        Nothing -> return False
+        Just (model', source) -> return (treeModelEqual model model'),
+    treeDragDestDragDataReceived = \model (dest:_) -> do
+      mModelPath <- treeGetRowDragData
+      case mModelPath of
+        Nothing -> return False
+        Just (model', (source:_)) ->
+          if not (treeModelEqual model model') then return False
+          else liftIO $ do
+            row <- listStoreGetValue model source
+            listStoreInsert model dest row
+            return True
+  }
 
 -- | Extract the value at the given index.
 --
@@ -227,3 +283,4 @@ listStoreMoveBefore store = undefined
 -- second index. Not yet implemented.
 listStoreMoveAfter :: ListStore a -> Int -> Int -> IO ()
 listStoreMoveAfter store = undefined
+

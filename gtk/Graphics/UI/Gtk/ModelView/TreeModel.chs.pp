@@ -84,7 +84,6 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
   TypedTreeModelClass,
   toTypedTreeModel,
   
-  TreeModelFlags(..),
   TreeIter(..),
   TreePath,
 

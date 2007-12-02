@@ -32,6 +32,10 @@ module Graphics.UI.Gtk.ModelView.TreeStore (
 -- * Constructors
   treeStoreNew,
 
+-- * Implementation of Interfaces
+  treeStoreDefaultDragSourceIface,
+  treeStoreDefaultDragDestIface,
+
 -- * Methods
   treeStoreGetValue,
   treeStoreGetTree,
@@ -57,6 +61,8 @@ import Graphics.UI.Gtk.ModelView.Types
 import Graphics.UI.Gtk.Types (GObjectClass(..), TreeModelClass)
 import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.ModelView.TreeModel
+import Graphics.UI.Gtk.ModelView.TreeDrag
+import Control.Monad.Trans ( liftIO )
 
 --------------------------------------------
 -- internal model data types
@@ -91,7 +97,20 @@ data Store a = Store {
 --   list. Each 'Tree' in the forest corresponds to one top-level node.
 --
 treeStoreNew :: Forest a -> IO (TreeStore a)
-treeStoreNew forest = do
+treeStoreNew forest = treeStoreNewDND forest
+                        (Just treeStoreDefaultDragSourceIface)
+                        (Just treeStoreDefaultDragDestIface)
+
+-- | Create a new list store.
+--
+-- * In addition to 'treeStoreNew', this function takes an two interfaces
+--   to implement user-defined drag-and-drop functionality.
+--
+treeStoreNewDND :: Forest a -- ^ the inital tree stored in this model
+  -> Maybe (DragSourceIface TreeStore a) -- ^ an optional interface for drags
+  -> Maybe (DragDestIface TreeStore a) -- ^ an optional interface to handle drops
+  -> IO (TreeStore a)
+treeStoreNewDND forest mDSource mDDest = do
   storeRef <- newIORef Store {
       depth = calcForestDepth forest,
       content = storeToCache forest
@@ -103,7 +122,7 @@ treeStoreNew forest = do
         writeIORef storeRef store { content = cache' }
         return result
 
-  liftM TreeStore $ customTreeModelNew storeRef TreeModelIface {
+  customTreeModelNew storeRef TreeStore TreeModelIface {
     treeModelIfaceGetFlags = return [],
 
     treeModelIfaceGetIter = \path -> withStore $
@@ -147,7 +166,46 @@ treeStoreNew forest = do
 
     treeModelIfaceRefNode = \_ -> return (),
     treeModelIfaceUnrefNode = \_ -> return ()
-   } Nothing Nothing
+   } mDSource mDDest
+
+
+-- | Default drag functions for
+-- 'Graphics.UI.Gtk.ModelView.TreeStore'. These functions allow the rows of
+-- the model to serve as drag source. Any row is allowed to be dragged and the
+-- data set in the 'SelectionDataM' object is set with 'treeSetRowDragData',
+-- i.e. it contains the model and the 'TreePath' to the row.
+treeStoreDefaultDragSourceIface :: DragSourceIface TreeStore row
+treeStoreDefaultDragSourceIface = DragSourceIface {
+    treeDragSourceRowDraggable = \_ _-> return True,
+    treeDragSourceDragDataGet = treeSetRowDragData,
+    treeDragSourceDragDataDelete = \model dest@(_:_) -> do
+            liftIO $ treeStoreRemove model dest
+            return True
+
+  }
+
+-- | Default drop functions for 'Graphics.UI.Gtk.ModelView.TreeStore'. These
+--   functions accept a row and insert the row into the new location if it is
+--   dragged into a tree view
+-- that uses the same model.
+treeStoreDefaultDragDestIface :: DragDestIface TreeStore row
+treeStoreDefaultDragDestIface = DragDestIface {
+    treeDragDestRowDropPossible = \model dest -> do
+      mModelPath <- treeGetRowDragData
+      case mModelPath of
+        Nothing -> return False
+        Just (model', source) -> return (treeModelEqual model model'),
+    treeDragDestDragDataReceived = \model dest@(_:_) -> do
+      mModelPath <- treeGetRowDragData
+      case mModelPath of
+        Nothing -> return False
+        Just (model', source@(_:_)) ->
+          if not (treeModelEqual model model') then return False
+          else liftIO $ do
+            row <- treeStoreGetTree model source
+            treeStoreInsertTree model (init dest) (last dest) row
+            return True
+  }
 
 --------------------------------------------
 -- low level bit-twiddling utility functions

@@ -59,6 +59,9 @@ module Graphics.UI.Gtk.General.Drag (
 -- * Types
   DragContext,
   DragContextClass,
+  DragAction(..),
+  DestDefaults(..),
+  DragProtocol(..),
   castToDragContext,
   toDragContext,
   
@@ -252,7 +255,7 @@ dragDestFindTarget widget context Nothing = do
   if ttPtr==nullPtr then return Nothing else return (Just (TargetTag ttPtr))
 	
 -- %hash c:41c7 d:af3f
--- | Returns the list of targets this widget can accept from drag-and-drop.
+-- | Returns the list of targets this widget can accept for drag-and-drop.
 --
 dragDestGetTargetList :: WidgetClass widget => widget -> IO (Maybe TargetList)
 dragDestGetTargetList widget = do

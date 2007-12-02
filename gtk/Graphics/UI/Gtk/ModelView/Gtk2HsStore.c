@@ -634,7 +634,7 @@ gtk2hs_store_row_draggable (GtkTreeDragSource *drag_source,
   Gtk2HsStore *store = (Gtk2HsStore *) drag_source;
   g_return_val_if_fail (GTK2HS_IS_STORE (drag_source), FALSE);
                     
-  gboolean result = gtk2hs_store_row_draggable_impl(store->impl, path);
+  gboolean result = gtk2hs_store_row_draggable_impl(drag_source, store->impl, path);
   WHEN_DEBUG(g_debug("return  gtk2hs_store_row_draggable\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
@@ -652,7 +652,7 @@ gtk2hs_store_drag_data_get (GtkTreeDragSource *drag_source,
   g_return_val_if_fail (GTK2HS_IS_STORE (drag_source), FALSE);
   g_return_val_if_fail (selection_data!=NULL, FALSE);
   
-  gboolean result = gtk2hs_store_drag_data_get_impl(store->impl, path, selection_data);
+  gboolean result = gtk2hs_store_drag_data_get_impl(drag_source, store->impl, path, selection_data);
   WHEN_DEBUG(g_debug("return  gtk2hs_store_drag_data_get\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
@@ -668,7 +668,7 @@ gtk2hs_store_drag_data_delete (GtkTreeDragSource *drag_source,
   Gtk2HsStore *store = (Gtk2HsStore *) drag_source;
   g_return_val_if_fail (GTK2HS_IS_STORE (drag_source), FALSE);
 
-  gboolean result = gtk2hs_store_drag_data_delete_impl(store->impl, path);
+  gboolean result = gtk2hs_store_drag_data_delete_impl(drag_source, store->impl, path);
   WHEN_DEBUG(g_debug("return  gtk2hs_store_drag_data_delete\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
@@ -686,7 +686,7 @@ gtk2hs_store_drag_data_received (GtkTreeDragDest  *drag_dest,
   g_return_val_if_fail (GTK2HS_IS_STORE (drag_dest), FALSE);
   g_return_val_if_fail (selection_data!=NULL, FALSE);
 
-  gboolean result = gtk2hs_store_drag_data_received_impl(store->impl, dest_path, selection_data);
+  gboolean result = gtk2hs_store_drag_data_received_impl(drag_dest, store->impl, dest_path, selection_data);
   WHEN_DEBUG(g_debug("return  gtk2hs_store_drag_data_received\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }
@@ -704,7 +704,7 @@ gtk2hs_store_row_drop_possible (GtkTreeDragDest  *drag_dest,
   g_return_val_if_fail (GTK2HS_IS_STORE (drag_dest), FALSE);
   g_return_val_if_fail (selection_data!=NULL, FALSE);
 
-  gboolean result = gtk2hs_store_row_drop_possible_impl(store->impl, dest_path, selection_data);
+  gboolean result = gtk2hs_store_row_drop_possible_impl(drag_dest, store->impl, dest_path, selection_data);
   WHEN_DEBUG(g_debug("return  gtk2hs_store_row_drop_possible\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }

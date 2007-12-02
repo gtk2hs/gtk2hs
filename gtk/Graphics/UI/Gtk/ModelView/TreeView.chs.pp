@@ -80,6 +80,8 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   castToTreeView,
   toTreeView,
   Point,
+  DragAction(..),
+  TreeViewGridLines(..),
 
 -- * Constructors
   treeViewNew,
@@ -102,7 +104,6 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewAppendColumn,
   treeViewRemoveColumn,
   treeViewInsertColumn,
-  treeViewInsertColumnWithAttributes,
   treeViewGetColumn,
   treeViewGetColumns,
   treeViewMoveColumnAfter,
@@ -148,6 +149,29 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewSetHoverSelection,
   treeViewGetHoverExpand,
   treeViewSetHoverExpand,
+#if GTK_CHECK_VERSION(2,10,0)
+  treeViewGetHeadersClickable,
+#endif
+#endif
+#if GTK_CHECK_VERSION(2,8,0)
+  treeViewGetVisibleRange,
+#endif
+  treeViewEnableModelDragDest,
+  treeViewEnableModelDragSource,
+#if GTK_CHECK_VERSION(2,10,0)
+  treeViewGetSearchEntry,
+  treeViewSetSearchEntry,
+#endif
+#if GTK_CHECK_VERSION(2,6,0)
+  treeViewSetRowSeparatorFunc,
+#if GTK_CHECK_VERSION(2,10,0)
+  treeViewGetRubberBanding,
+  treeViewSetRubberBanding,
+  treeViewGetEnableTreeLines,
+  treeViewSetEnableTreeLines,
+  treeViewGetGridLines,
+  treeViewSetGridLines,
+#endif
 #endif
 -- * Attributes
   treeViewModel,
@@ -191,17 +215,20 @@ import Data.Maybe	(fromMaybe)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.GList		(fromGList)
+import System.Glib.Flags
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject, constructNewGObject,
 					 mkFunPtrDestroyNotify)
+import Graphics.UI.Gtk.Gdk.Enums        (DragAction(..))
+import Graphics.UI.Gtk.Gdk.Events       (Modifier(..))					 
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreePath#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#}
 {#import Graphics.UI.Gtk.ModelView.TreeViewColumn#}
+{#import Graphics.UI.Gtk.ModelView.Types#}
+{#import Graphics.UI.Gtk.General.DNDTypes#}     (TargetList(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -383,24 +410,6 @@ treeViewInsertColumn self column position =
     (toTreeView self)
     column
     (fromIntegral position)
-
--- | Insert new 'TreeViewColumn'.
---
--- * Inserts new column into the
--- 'TreeView' @self@ at position @pos@ with title
--- ref argtitle, cell renderer @cr@ and attributes
--- @attribs@. Specify -1 for @pos@ to insert the column at
--- the end.
---
-treeViewInsertColumnWithAttributes :: (TreeViewClass self, CellRendererClass cr)
-   => self -> Int -> String -> cr -> [(String,Int)] -> IO ()
-treeViewInsertColumnWithAttributes self pos title cr attribs = do
-  column <- treeViewColumnNew
-  treeViewColumnSetTitle column title
-  treeViewColumnPackStart column cr True
-  treeViewColumnAddAttributes column cr attribs
-  treeViewInsertColumn self column pos
-  return ()
 
 -- | Retrieve a 'TreeViewColumn'.
 --

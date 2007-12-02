@@ -62,6 +62,8 @@ main = do
 
   onClicked clearButton $ New.treeStoreClear store
 
+  New.treeViewSetReorderable view True
+
   widgetShowAll win
   mainGUI 
 

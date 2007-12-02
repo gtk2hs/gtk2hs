@@ -36,7 +36,8 @@ module Graphics.UI.Gtk.General.Selection (
   SelectionTag,
   TargetList,
   SelectionDataM,
-  
+  TargetFlags(..),
+ 
 -- * Constructors
   targetTagNew,
   selectionTagNew,
@@ -90,7 +91,7 @@ import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}
 import Graphics.UI.Gtk.Gdk.Events (TimeStamp)
-import Graphics.UI.Gtk.General.Enums (TargetFlags)
+import Graphics.UI.Gtk.General.Enums (TargetFlags(..))
 import Graphics.UI.Gtk.Signals
 import System.Glib.UTFString ( peekUTFString, withUTFStringLen,
                                withUTFStringArray0, peekUTFStringArray0 )
@@ -149,7 +150,7 @@ targetListAddUriTargets = {#call unsafe target_list_add_uri_targets#}
 -- | Append all rich text targets registered with
 -- 'Graphics.UI.Gtk.TextBuffer.textBufferRegisterSerializeFormat' to the
 -- target list. All targets are added with the same 'InfoId'. If the boolean
--- flag is @True@ then serializable rich text formats will be added,
+-- flag is @True@ then deserializable rich text formats will be added,
 -- serializable formats otherwise.
 --
 -- * Since Gtk 2.10.

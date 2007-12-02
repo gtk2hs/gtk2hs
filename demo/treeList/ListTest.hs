@@ -64,6 +64,8 @@ main = do
 
   onClicked clearButton $ New.listStoreClear store
   
+  New.treeViewSetReorderable view True
+
 --  containerAdd win view
   widgetShowAll win
   mainGUI 

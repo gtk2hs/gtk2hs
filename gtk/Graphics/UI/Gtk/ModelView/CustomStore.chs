@@ -26,7 +26,7 @@
 --
 module Graphics.UI.Gtk.ModelView.CustomStore (
   TreeModelFlags(..),
-  
+
   ColumnMap,
   ColumnAccess(..),
   ColumnId,
@@ -36,6 +36,8 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
 
   CustomTreeModel,
   TreeModelIface(..),
+  DragSourceIface(..),
+  DragDestIface(..),
   customTreeModelNew,
   customTreeModelGetPrivate,
   customTreeModelInvalidateIters,
@@ -78,7 +80,7 @@ instance Flags TreeModelFlags
 -- which is an instance of the GtkTreeModel GInterface
 -- it also stores some extra per-model-type private data
 newtype CustomTreeModel private row = CustomTreeModel (ForeignPtr (CustomTreeModel private row))
-instance GObjectClass (CustomTreeModel private row)
+
 instance TreeModelClass (CustomTreeModel private row)
 instance GObjectClass (CustomTreeModel private row) where
   toGObject (CustomTreeModel tm) = mkGObject (castForeignPtr tm)
@@ -124,11 +126,11 @@ treeModelUpdateColumn model oldC acc =
          writeIORef cMap (beg++acc:end)
          return oldC
 
-data CustomTreeModelImplementation row = CustomTreeModelImplementation {
-    customTreeModelColumns   	:: ColumnMap row,			-- provide access via columns
+data CustomTreeModelImplementation model row = CustomTreeModelImplementation {
+    customTreeModelColumns   	:: ColumnMap row,	                -- provide access via columns
     customTreeModelIface        :: TreeModelIface row,                  -- functions implementing a tree model
-    customTreeDragSourceIface   :: DragSourceIface,                     -- the drag and drop source interface
-    customTreeDragDestIface     :: DragDestIface                        -- the drag and drop dest interface
+    customTreeDragSourceIface   :: DragSourceIface model row,           -- the drag and drop source interface
+    customTreeDragDestIface     :: DragDestIface model row              -- the drag and drop dest interface
   }
 
 data TreeModelIface row = TreeModelIface {
@@ -146,43 +148,48 @@ data TreeModelIface row = TreeModelIface {
     treeModelIfaceUnrefNode     :: TreeIter -> IO ()                             -- caching hint
   }
 
-data DragSourceIface = DragSourceIface {
-    treeDragSourceRowDraggable  :: TreePath -> IO Bool,                 -- query if the row is draggable
-    treeDragSourceDragDataGet   :: TreePath -> SelectionDataM Bool,     -- store row in selection object
-    treeDragSourceDragDataDelete:: TreePath -> IO Bool                  -- instruct store to delete the row
+data DragSourceIface model row = DragSourceIface {
+    treeDragSourceRowDraggable  :: model row -> TreePath -> IO Bool,                 -- query if the row is draggable
+    treeDragSourceDragDataGet   :: model row -> TreePath -> SelectionDataM Bool,     -- store row in selection object
+    treeDragSourceDragDataDelete:: model row -> TreePath -> IO Bool                  -- instruct store to delete the row
   }
 
-data DragDestIface = DragDestIface {
-    treeDragDestDragDataReceived:: TreePath -> SelectionDataM Bool,     -- insert row from selection object
-    treeDragDestRowDropPossible :: TreePath -> SelectionDataM Bool      -- query if row drop is possible
+data DragDestIface model row = DragDestIface {
+    treeDragDestRowDropPossible :: model row -> TreePath -> SelectionDataM Bool,     -- query if row drop is possible
+    treeDragDestDragDataReceived:: model row -> TreePath -> SelectionDataM Bool      -- insert row from selection object
   }
   
 -- | Create a new store that implements the 'TreeModelIface' interface and
--- optionally the 'DragSourceIface' and the 'DragDestIface'. If the latter to
+-- optionally the 'DragSourceIface' and the 'DragDestIface'. If the latter two
 -- are set to @Nothing@ a dummy interface is substituted that rejects every
--- drag and drops.
-customTreeModelNew :: private   -- | Any private data the store needs to store. Usually an 'IORef'.
-  -> TreeModelIface row         -- | Functions necessary to implement the 'TreeModel' interface.
-  -> Maybe DragSourceIface      -- | Functions to enable this store to generate drag events.
-  -> Maybe DragDestIface        -- | Functions to enable this store to receive drag events.
-  -> IO (CustomTreeModel private row)
-customTreeModelNew priv tmIface mDragSource mDragDest = do
+-- drag and drop.
+customTreeModelNew :: (TreeModelClass (model row), TypedTreeModelClass model) =>
+     private   -- ^ Any private data the store needs to store. Usually an 'IORef'.
+  -> ((CustomTreeModel private row) -> model row)
+  -> TreeModelIface row         -- ^ Functions necessary to implement the 'TreeModel' interface.
+  -> Maybe (DragSourceIface model row)
+                                -- ^ Functions to enable this store to generate drag events.
+  -> Maybe (DragDestIface model row)
+                                -- ^ Functions to enable this store to receive drag events.
+  -> IO (model row)
+customTreeModelNew priv con tmIface mDragSource mDragDest = do
   cMap <- columnMapNew
-  let dummyDragSource = DragSourceIface { treeDragSourceRowDraggable = \_ -> return False,
-                                          treeDragSourceDragDataGet  = \_ -> return False,
-                                          treeDragSourceDragDataDelete = \_ -> return False }
-  let dummyDragDest = DragDestIface { treeDragDestDragDataReceived = \_ -> return False,
-                                      treeDragDestRowDropPossible = \_ -> return False }
-  implPtr <- newStablePtr CustomTreeModelImplementation { customTreeModelColumns = cMap,
-                                                          customTreeModelIface = tmIface,
-                                                          customTreeDragSourceIface = fromMaybe dummyDragSource mDragSource,
-                                                          customTreeDragDestIface = fromMaybe dummyDragDest mDragDest }
+  let dummyDragSource = DragSourceIface { treeDragSourceRowDraggable = \_ _ -> return False,
+                                          treeDragSourceDragDataGet  = \_ _ -> return False,
+                                          treeDragSourceDragDataDelete = \_ _ -> return False }
+  let dummyDragDest = DragDestIface { treeDragDestRowDropPossible = \_ _ -> return False,
+                                      treeDragDestDragDataReceived = \_ _ -> return False }
+  implPtr <- newStablePtr CustomTreeModelImplementation {
+        customTreeModelColumns = cMap,
+        customTreeModelIface = tmIface,
+        customTreeDragSourceIface = fromMaybe dummyDragSource mDragSource,
+        customTreeDragDestIface = fromMaybe dummyDragDest mDragDest }
   privPtr <- newStablePtr priv
-  makeNewGObject CustomTreeModel $
+  liftM con $ makeNewGObject CustomTreeModel $
     gtk2hs_store_new implPtr privPtr
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"
-  gtk2hs_store_new :: StablePtr (CustomTreeModelImplementation row)
+  gtk2hs_store_new :: StablePtr (CustomTreeModelImplementation model row)
                    -> StablePtr private
                    -> IO (Ptr (CustomTreeModel private row))
 
@@ -194,7 +201,7 @@ treeModelGetRow model iter =
       treeModelIfaceGetRow (customTreeModelIface impl) iter
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_get_impl"
-  gtk2hs_store_get_impl :: Ptr (TypedTreeModel row) -> IO (StablePtr (CustomTreeModelImplementation row))
+  gtk2hs_store_get_impl :: Ptr (TypedTreeModel row) -> IO (StablePtr (CustomTreeModelImplementation model row))
 
 customTreeModelGetPrivate :: CustomTreeModel private row -> private
 customTreeModelGetPrivate (CustomTreeModel model) =
@@ -219,14 +226,14 @@ customTreeModelInvalidateIters (CustomTreeModel model) =
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_increment_stamp"
   gtk2hs_store_increment_stamp :: Ptr (CustomTreeModel private row) -> IO ()
 
-treeModelIfaceGetNColumns_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
+treeModelIfaceGetNColumns_static :: StablePtr (CustomTreeModelImplementation model row) -> IO CInt
 treeModelIfaceGetNColumns_static storePtr = do
   store <- deRefStablePtr storePtr
   cmap <- readIORef (customTreeModelColumns store)
   return (fromIntegral (length cmap))
 
 foreign export ccall "gtk2hs_store_get_n_columns_impl"
-  treeModelIfaceGetNColumns_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
+  treeModelIfaceGetNColumns_static :: StablePtr (CustomTreeModelImplementation model row) -> IO CInt
 
 -- Get the 'GType' for a given 'ColumnAccess'.
 caToGType :: ColumnAccess row -> GType
@@ -235,7 +242,7 @@ caToGType (CABool _) = GConst.bool
 caToGType (CAString _) = GConst.string
 caToGType (CAPixbuf _) = {#call fun unsafe gdk_pixbuf_get_type#}
 
-treeModelIfaceGetColumnType_static :: StablePtr (CustomTreeModelImplementation row) -> CInt -> IO GType
+treeModelIfaceGetColumnType_static :: StablePtr (CustomTreeModelImplementation model row) -> CInt -> IO GType
 treeModelIfaceGetColumnType_static storePtr column = do
   store <- deRefStablePtr storePtr
   cols <- readIORef (customTreeModelColumns store)
@@ -244,19 +251,19 @@ treeModelIfaceGetColumnType_static storePtr column = do
      (ca:_) -> return (caToGType ca)
 
 foreign export ccall "gtk2hs_store_get_column_type_impl"
-  treeModelIfaceGetColumnType_static :: StablePtr (CustomTreeModelImplementation row) -> CInt -> IO GType
+  treeModelIfaceGetColumnType_static :: StablePtr (CustomTreeModelImplementation model row) -> CInt -> IO GType
 
 
-treeModelIfaceGetFlags_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
+treeModelIfaceGetFlags_static :: StablePtr (CustomTreeModelImplementation model row) -> IO CInt
 treeModelIfaceGetFlags_static storePtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   liftM (fromIntegral . fromFlags) $ treeModelIfaceGetFlags store
 
 foreign export ccall "gtk2hs_store_get_flags_impl"
-  treeModelIfaceGetFlags_static :: StablePtr (CustomTreeModelImplementation row) -> IO CInt
+  treeModelIfaceGetFlags_static :: StablePtr (CustomTreeModelImplementation model row) -> IO CInt
 
 
-treeModelIfaceGetIter_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
+treeModelIfaceGetIter_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
 treeModelIfaceGetIter_static storePtr iterPtr pathPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   path <- peekTreePath pathPtr
@@ -267,9 +274,9 @@ treeModelIfaceGetIter_static storePtr iterPtr pathPtr = do
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_get_iter_impl"
-  treeModelIfaceGetIter_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
+  treeModelIfaceGetIter_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> Ptr NativeTreePath -> IO CInt
 
-treeModelIfaceGetPath_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO (Ptr NativeTreePath)
+treeModelIfaceGetPath_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO (Ptr NativeTreePath)
 treeModelIfaceGetPath_static storePtr iterPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   iter <- peek iterPtr
@@ -278,10 +285,10 @@ treeModelIfaceGetPath_static storePtr iterPtr = do
   return pathPtr
 
 foreign export ccall "gtk2hs_store_get_path_impl"
-  treeModelIfaceGetPath_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO (Ptr NativeTreePath)
+  treeModelIfaceGetPath_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO (Ptr NativeTreePath)
 
 
-treeModelIfaceGetValue_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
+treeModelIfaceGetValue_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
 treeModelIfaceGetValue_static storePtr iterPtr column gvaluePtr = do
   store <- deRefStablePtr storePtr
   iter <- peek iterPtr
@@ -299,10 +306,10 @@ treeModelIfaceGetValue_static storePtr iterPtr column gvaluePtr = do
 			valueSetGObject gVal (ca row)
 
 foreign export ccall "gtk2hs_store_get_value_impl"
-  treeModelIfaceGetValue_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
+  treeModelIfaceGetValue_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
 
 
-treeModelIfaceIterNext_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+treeModelIfaceIterNext_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO CInt
 treeModelIfaceIterNext_static storePtr iterPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   iter <- peek iterPtr
@@ -313,10 +320,10 @@ treeModelIfaceIterNext_static storePtr iterPtr = do
                      return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_next_impl"
-  treeModelIfaceIterNext_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+  treeModelIfaceIterNext_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO CInt
 
 
-treeModelIfaceIterChildren_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
+treeModelIfaceIterChildren_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
 treeModelIfaceIterChildren_static storePtr iterPtr parentIterPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   parentIter <- maybeNull peek parentIterPtr
@@ -327,30 +334,30 @@ treeModelIfaceIterChildren_static storePtr iterPtr parentIterPtr = do
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_children_impl"
-  treeModelIfaceIterChildren_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
+  treeModelIfaceIterChildren_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
 
 
-treeModelIfaceIterHasChild_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+treeModelIfaceIterHasChild_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO CInt
 treeModelIfaceIterHasChild_static storePtr iterPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   iter <- peek iterPtr
   liftM fromBool $ treeModelIfaceIterHasChild store iter
 
 foreign export ccall "gtk2hs_store_iter_has_child_impl"
-  treeModelIfaceIterHasChild_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+  treeModelIfaceIterHasChild_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO CInt
 
 
-treeModelIfaceIterNChildren_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+treeModelIfaceIterNChildren_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO CInt
 treeModelIfaceIterNChildren_static storePtr iterPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   iter <- maybeNull peek iterPtr
   liftM fromIntegral $ treeModelIfaceIterNChildren store iter
 
 foreign export ccall "gtk2hs_store_iter_n_children_impl"
-  treeModelIfaceIterNChildren_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO CInt
+  treeModelIfaceIterNChildren_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO CInt
 
 
-treeModelIfaceIterNthChild_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
+treeModelIfaceIterNthChild_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
 treeModelIfaceIterNthChild_static storePtr iterPtr parentIterPtr n = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   parentIter <- maybeNull peek parentIterPtr
@@ -361,10 +368,10 @@ treeModelIfaceIterNthChild_static storePtr iterPtr parentIterPtr n = do
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_nth_child_impl"
-  treeModelIfaceIterNthChild_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
+  treeModelIfaceIterNthChild_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> Ptr TreeIter -> CInt -> IO CInt
 
 
-treeModelIfaceIterParent_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
+treeModelIfaceIterParent_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
 treeModelIfaceIterParent_static  storePtr iterPtr childIterPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   childIter <- peek childIterPtr
@@ -375,72 +382,77 @@ treeModelIfaceIterParent_static  storePtr iterPtr childIterPtr = do
                     return (fromBool True)
 
 foreign export ccall "gtk2hs_store_iter_parent_impl"
-  treeModelIfaceIterParent_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
+  treeModelIfaceIterParent_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> Ptr TreeIter -> IO CInt
 
 
-treeModelIfaceRefNode_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO ()
+treeModelIfaceRefNode_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO ()
 treeModelIfaceRefNode_static storePtr iterPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   iter <- peek iterPtr
   treeModelIfaceRefNode store iter
 
 foreign export ccall "gtk2hs_store_ref_node_impl"
-  treeModelIfaceRefNode_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO ()
+  treeModelIfaceRefNode_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO ()
 
 
-treeModelIfaceUnrefNode_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO ()
+treeModelIfaceUnrefNode_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO ()
 treeModelIfaceUnrefNode_static storePtr iterPtr = do
   store <- liftM customTreeModelIface $ deRefStablePtr storePtr
   iter <- peek iterPtr
   treeModelIfaceUnrefNode store iter
 
 foreign export ccall "gtk2hs_store_unref_node_impl"
-  treeModelIfaceUnrefNode_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr TreeIter -> IO ()
+  treeModelIfaceUnrefNode_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> IO ()
 
-treeDragSourceRowDraggable_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> IO CInt
-treeDragSourceRowDraggable_static storePtr pathPtr = do
+treeDragSourceRowDraggable_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> IO CInt
+treeDragSourceRowDraggable_static mPtr storePtr pathPtr = do
+  model <- makeNewGObject mkTreeModel (return mPtr)
   store <- liftM customTreeDragSourceIface $ deRefStablePtr storePtr
   path <- peekTreePath pathPtr
-  liftM fromBool $ treeDragSourceRowDraggable store path
+  liftM fromBool $ treeDragSourceRowDraggable store (unsafeTreeModelToGeneric model) path
 
 foreign export ccall "gtk2hs_store_row_draggable_impl"
-  treeDragSourceRowDraggable_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> IO CInt
+  treeDragSourceRowDraggable_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> IO CInt
 
-treeDragSourceDragDataGet_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
-treeDragSourceDragDataGet_static storePtr pathPtr selectionPtr = do
+treeDragSourceDragDataGet_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
+treeDragSourceDragDataGet_static mPtr storePtr pathPtr selectionPtr = do
+  model <- makeNewGObject mkTreeModel (return mPtr)
   store <- liftM customTreeDragSourceIface $ deRefStablePtr storePtr
   path <- peekTreePath pathPtr
-  liftM fromBool $ runReaderT (treeDragSourceDragDataGet store path) selectionPtr
+  liftM fromBool $ runReaderT (treeDragSourceDragDataGet store (unsafeTreeModelToGeneric model) path) selectionPtr
 
 foreign export ccall "gtk2hs_store_drag_data_get_impl"
-  treeDragSourceDragDataGet_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
+  treeDragSourceDragDataGet_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
 
-treeDragSourceDragDataDelete_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> IO CInt
-treeDragSourceDragDataDelete_static storePtr pathPtr = do
+treeDragSourceDragDataDelete_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> IO CInt
+treeDragSourceDragDataDelete_static mPtr storePtr pathPtr = do
+  model <- makeNewGObject mkTreeModel (return mPtr)
   store <- liftM customTreeDragSourceIface $ deRefStablePtr storePtr
   path <- peekTreePath pathPtr
-  liftM fromBool $ treeDragSourceDragDataDelete store path
+  liftM fromBool $ treeDragSourceDragDataDelete store (unsafeTreeModelToGeneric model) path
 
 foreign export ccall "gtk2hs_store_drag_data_delete_impl"
-  treeDragSourceDragDataDelete_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> IO CInt
+  treeDragSourceDragDataDelete_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> IO CInt
 
-treeDragDestDragDataReceived_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
-treeDragDestDragDataReceived_static storePtr pathPtr selectionPtr = do
+treeDragDestDragDataReceived_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
+treeDragDestDragDataReceived_static mPtr storePtr pathPtr selectionPtr = do
+  model <- makeNewGObject mkTreeModel (return mPtr)
   store <- liftM customTreeDragDestIface $ deRefStablePtr storePtr
   path <- peekTreePath pathPtr
-  liftM fromBool $ runReaderT (treeDragDestDragDataReceived store path) selectionPtr
+  liftM fromBool $ runReaderT (treeDragDestDragDataReceived store (unsafeTreeModelToGeneric model) path) selectionPtr
 
 foreign export ccall "gtk2hs_store_drag_data_received_impl"
-  treeDragDestDragDataReceived_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
+  treeDragDestDragDataReceived_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
 
-treeDragDestRowDropPossible_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
-treeDragDestRowDropPossible_static storePtr pathPtr selectionPtr = do
+treeDragDestRowDropPossible_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
+treeDragDestRowDropPossible_static mPtr storePtr pathPtr selectionPtr = do
+  model <- makeNewGObject mkTreeModel (return mPtr)
   store <- liftM customTreeDragDestIface $ deRefStablePtr storePtr
   path <- peekTreePath pathPtr
-  liftM fromBool $ runReaderT (treeDragDestRowDropPossible store path) selectionPtr
+  liftM fromBool $ runReaderT (treeDragDestRowDropPossible store (unsafeTreeModelToGeneric model) path) selectionPtr
 
 foreign export ccall "gtk2hs_store_row_drop_possible_impl"
-  treeDragDestRowDropPossible_static :: StablePtr (CustomTreeModelImplementation row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
+  treeDragDestRowDropPossible_static :: Ptr TreeModel -> StablePtr (CustomTreeModelImplementation model row) -> Ptr NativeTreePath -> SelectionData -> IO CInt
 
 maybeNull :: (Ptr a -> IO b) -> Ptr a -> IO (Maybe b)
 maybeNull marshal ptr

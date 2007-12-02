@@ -29,6 +29,7 @@ module Graphics.UI.Gtk.Gdk.Enums (
   CrossingMode(..),
   Dither(..),
   DragProtocol(..),
+  DragAction(..),
   EventMask(..),
   ExtensionMode(..),
   Fill(..),
@@ -62,6 +63,11 @@ import System.Glib.Flags	(Flags)
 -- | Used in 'Graphics.UI.Gtk.Gdk.Drag.DragContext' to indicate the protocol according to which DND is done.
 --
 {#enum DragProtocol {underscoreToCase} deriving (Bounded)#}
+
+-- | Specify the kind of action performed on a drag event.
+{#enum DragAction {underscoreToCase} deriving (Bounded)#}
+
+instance Flags DragAction
 
 -- | Specify how to dither colors onto the screen.
 --

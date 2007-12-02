@@ -30,6 +30,7 @@ module Graphics.UI.Gtk.ModelView.Types (
   TypedTreeModel(..),
   TypedTreeModelClass,
   toTypedTreeModel,
+  unsafeTreeModelToGeneric,
   
   -- TreeIter
   TreeIter(..),
@@ -49,7 +50,7 @@ module Graphics.UI.Gtk.ModelView.Types (
 import GHC.Exts (unsafeCoerce#)
 
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Types#}	()
+{#import Graphics.UI.Gtk.Types#}	(TreeModel)
 import Data.Char ( isDigit )
 import Control.Monad ( liftM )
 
@@ -64,6 +65,9 @@ class TypedTreeModelClass model where
 
 toTypedTreeModel :: TypedTreeModelClass model => model row -> TypedTreeModel row
 toTypedTreeModel = unsafeCoerce#
+
+unsafeTreeModelToGeneric :: TreeModel -> model row
+unsafeTreeModelToGeneric = unsafeCoerce#
 
 instance TypedTreeModelClass TypedTreeModel
 

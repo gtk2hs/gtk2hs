@@ -76,6 +76,9 @@ data Modifier
   | Apple
   -- | Compose is often labelled Alt Gr.
   | Compose
+  | ButtonLeft
+  | ButtonRight
+  | ButtonMiddle
   deriving (Eq, Ord, Bounded)
 
 instance Enum Modifier where
@@ -84,11 +87,17 @@ instance Enum Modifier where
   toEnum #{const GDK_MOD1_MASK} = Alt
   toEnum #{const GDK_MOD4_MASK} = Apple
   toEnum #{const GDK_MOD5_MASK} = Compose
+  toEnum #{const GDK_BUTTON1_MASK} = ButtonLeft
+  toEnum #{const GDK_BUTTON2_MASK} = ButtonRight
+  toEnum #{const GDK_BUTTON3_MASK} = ButtonMiddle
   fromEnum Shift = #{const GDK_SHIFT_MASK}
   fromEnum Control = #{const GDK_CONTROL_MASK}
   fromEnum Alt = #{const GDK_MOD1_MASK}
   fromEnum Apple = #{const GDK_MOD4_MASK}
   fromEnum Compose = #{const GDK_MOD5_MASK}
+  fromEnum ButtonLeft = #{const GDK_BUTTON1_MASK}
+  fromEnum ButtonRight = #{const GDK_BUTTON2_MASK}
+  fromEnum ButtonMiddle = #{const GDK_BUTTON3_MASK}
 
 instance Flags Modifier
 

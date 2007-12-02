@@ -556,6 +556,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ModelView/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/ListStore.hs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/Sequence.hs.pp			\
+	gtk/Graphics/UI/Gtk/ModelView/TreeDrag.chs			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeModel.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeModelSort.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeSelection.chs.pp		\
