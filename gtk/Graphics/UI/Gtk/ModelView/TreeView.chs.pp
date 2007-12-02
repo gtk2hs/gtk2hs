@@ -1127,6 +1127,246 @@ treeViewSetHoverExpand self expand =
     (fromBool expand)
 #endif
 
+
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:88cb d:65c9
+-- | Returns whether all header columns are clickable.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewGetHeadersClickable :: TreeViewClass self => self
+ -> IO Bool -- ^ returns @True@ if all header columns are clickable, otherwise
+            -- @False@
+treeViewGetHeadersClickable self =
+  liftM toBool $
+  {# call gtk_tree_view_get_headers_clickable #}
+    (toTreeView self)
+#endif
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- %hash c:1d81 d:3587
+-- | Return the first and last visible path.
+-- Note that there may be invisible paths in between.
+--
+-- * Available since Gtk+ version 2.8
+--
+treeViewGetVisibleRange :: TreeViewClass self => self
+ -> IO (TreePath, TreePath)     -- ^ the first and the last node that is visible
+treeViewGetVisibleRange self  = alloca $ \startPtr -> alloca $ \endPtr -> do
+  valid <- liftM toBool $
+    {# call gtk_tree_view_get_visible_range #}
+    (toTreeView self) (castPtr startPtr) (castPtr endPtr)
+  if not valid then return ([],[]) else do
+    startTPPtr <- peek startPtr
+    endTPPtr <- peek endPtr
+    startPath <- fromTreePath startTPPtr
+    endPath <- fromTreePath endTPPtr
+    return (startPath, endPath)
+    
+#endif
+
+-- %hash c:61e1 d:3a0a
+-- | Turns @treeView@ into a drop destination for automatic DND.
+--
+treeViewEnableModelDragDest :: TreeViewClass self => self
+  -> TargetList                -- ^ @targets@ - the list of targets that the
+                               -- the view will support
+  -> [DragAction]              -- ^ @actions@ - flags denoting the possible actions
+                               -- for a drop into this widget
+  -> IO ()
+treeViewEnableModelDragDest self targets actions =
+  alloca $ \nTargetsPtr -> do
+  tlPtr <- {#call unsafe gtk_target_table_new_from_list#} targets nTargetsPtr
+  nTargets <- peek nTargetsPtr
+  {# call gtk_tree_view_enable_model_drag_dest #}
+    (toTreeView self)
+    tlPtr
+    nTargets
+    ((fromIntegral . fromFlags) actions)
+  {#call unsafe gtk_target_table_free#} tlPtr nTargets
+
+-- %hash c:1df9 d:622
+-- | Turns @treeView@ into a drag source for automatic DND.
+--
+treeViewEnableModelDragSource :: TreeViewClass self => self
+ -> [Modifier]                -- ^ @startButtonMask@ - Mask of allowed buttons
+                              -- to start drag
+ -> TargetList                -- ^ @targets@ - the list of targets that the
+                              -- the view will support
+ -> [DragAction]              -- ^ @actions@ - flags denoting the possible actions
+                              -- for a drag from this widget
+ -> IO ()
+treeViewEnableModelDragSource self startButtonMask targets actions =
+  alloca $ \nTargetsPtr -> do
+  tlPtr <- {#call unsafe gtk_target_table_new_from_list#} targets nTargetsPtr
+  nTargets <- peek nTargetsPtr
+  {# call gtk_tree_view_enable_model_drag_source #}
+    (toTreeView self)
+    ((fromIntegral . fromFlags) startButtonMask)
+    tlPtr
+    nTargets
+    ((fromIntegral . fromFlags) actions)
+  {#call unsafe gtk_target_table_free#} tlPtr nTargets
+  
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:3355 d:3bbe
+-- | Returns the 'Entry' which is currently in use as interactive search entry
+-- for @treeView@. In case the built-in entry is being used, @Nothing@ will be
+-- returned.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewGetSearchEntry :: TreeViewClass self => self
+ -> IO (Maybe Entry) -- ^ returns the entry currently in use as search entry.
+treeViewGetSearchEntry self = do
+  ePtr <- {# call gtk_tree_view_get_search_entry #}
+    (toTreeView self)
+  if ePtr==nullPtr then return Nothing else liftM Just $
+    makeNewObject mkEntry (return ePtr)
+
+-- %hash c:5e11 d:8ec5
+-- | Sets the entry which the interactive search code will use for this
+-- @treeView@. This is useful when you want to provide a search entry in our
+-- interface at all time at a fixed position. Passing @Nothing@ for @entry@
+-- will make the interactive search code use the built-in popup entry again.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewSetSearchEntry :: (TreeViewClass self, EntryClass entry) => self
+ -> (Maybe entry)
+          -- ^ @entry@ - the entry the interactive search code of @treeView@
+          -- should use or @Nothing@
+ -> IO ()
+treeViewSetSearchEntry self (Just entry) =
+  {# call gtk_tree_view_set_search_entry #}
+    (toTreeView self)
+    (toEntry entry)
+treeViewSetSearchEntry self Nothing =
+  {# call gtk_tree_view_set_search_entry #}
+    (toTreeView self)
+    (mkEntry nullForeignPtr)
+#endif
+
+#if GTK_CHECK_VERSION(2,6,0)
+-- %hash c:6326 d:a050
+-- | Sets the row separator function, which is used to determine whether a row
+-- should be drawn as a separator. If the row separator function is @Nothing@,
+-- no separators are drawn. This is the default value.
+--
+-- * Available since Gtk+ version 2.6
+--
+treeViewSetRowSeparatorFunc :: TreeViewClass self => self
+ -> Maybe (TreeIter -> IO Bool)     -- ^ @func@ - a callback function that
+                                    -- returns @True@ if the given row of
+                                    -- the model should be drawn as separator
+ -> IO ()
+treeViewSetRowSeparatorFunc self Nothing =
+  {# call gtk_tree_view_set_row_separator_func #}
+    (toTreeView self) nullFunPtr nullPtr nullFunPtr
+treeViewSetRowSeparatorFunc self (Just func) = do
+  funcPtr <- mkTreeViewRowSeparatorFunc $ \_ tiPtr _ -> do
+    ti <- peekTreeIter tiPtr
+    liftM fromBool $ func ti
+  destroyPtr <- mkFunPtrDestroyNotify funcPtr
+  {# call gtk_tree_view_set_row_separator_func #}
+    (toTreeView self) funcPtr nullPtr destroyPtr
+
+{#pointer TreeViewRowSeparatorFunc #}
+
+foreign import ccall "wrapper" mkTreeViewRowSeparatorFunc ::
+  (Ptr TreeModel -> Ptr TreeIter -> Ptr () -> IO {#type gboolean#}) ->
+  IO TreeViewRowSeparatorFunc
+  
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:778a d:eacd
+-- | Returns whether rubber banding is turned on for @treeView@. If the
+-- selection mode is 'SelectionMultiple', rubber banding will allow the user to
+-- select multiple rows by dragging the mouse.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewGetRubberBanding :: TreeViewClass self => self
+ -> IO Bool -- ^ returns @True@ if rubber banding in @treeView@ is enabled.
+treeViewGetRubberBanding self =
+  liftM toBool $
+  {# call gtk_tree_view_get_rubber_banding #}
+    (toTreeView self)
+
+-- %hash c:4a69 d:93aa
+-- | Enables or disables rubber banding in @treeView@. If the selection mode
+-- is 'SelectionMultiple', rubber banding will allow the user to select
+-- multiple rows by dragging the mouse.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewSetRubberBanding :: TreeViewClass self => self
+ -> Bool -- ^ @enable@ - @True@ to enable rubber banding
+ -> IO ()
+treeViewSetRubberBanding self enable =
+  {# call gtk_tree_view_set_rubber_banding #}
+    (toTreeView self)
+    (fromBool enable)
+
+-- %hash c:c8f8 d:c47
+-- | Returns whether or not tree lines are drawn in @treeView@.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewGetEnableTreeLines :: TreeViewClass self => self
+ -> IO Bool -- ^ returns @True@ if tree lines are drawn in @treeView@, @False@
+            -- otherwise.
+treeViewGetEnableTreeLines self =
+  liftM toBool $
+  {# call gtk_tree_view_get_enable_tree_lines #}
+    (toTreeView self)
+
+-- %hash c:205d d:1df9
+-- | Sets whether to draw lines interconnecting the expanders in @treeView@.
+-- This does not have any visible effects for lists.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewSetEnableTreeLines :: TreeViewClass self => self
+ -> Bool -- ^ @enabled@ - @True@ to enable tree line drawing, @False@
+         -- otherwise.
+ -> IO ()
+treeViewSetEnableTreeLines self enabled =
+  {# call gtk_tree_view_set_enable_tree_lines #}
+    (toTreeView self)
+    (fromBool enabled)
+
+-- | Grid lines.
+{#enum TreeViewGridLines {underscoreToCase}#}
+
+-- %hash c:cd40 d:fe96
+-- | Returns which grid lines are enabled in @treeView@.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewGetGridLines :: TreeViewClass self => self
+ -> IO TreeViewGridLines -- ^ returns a 'TreeViewGridLines' value indicating
+                         -- which grid lines are enabled.
+treeViewGetGridLines self =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_tree_view_get_grid_lines #}
+    (toTreeView self)
+
+-- %hash c:74b0 d:79f0
+-- | Sets which grid lines to draw in @treeView@.
+--
+-- * Available since Gtk+ version 2.10
+--
+treeViewSetGridLines :: TreeViewClass self => self
+ -> TreeViewGridLines -- ^ @gridLines@ - a 'TreeViewGridLines' value
+                      -- indicating which grid lines to enable.
+ -> IO ()
+treeViewSetGridLines self gridLines =
+  {# call gtk_tree_view_set_grid_lines #}
+    (toTreeView self)
+    ((fromIntegral . fromEnum) gridLines)
+#endif
+#endif
+
 --------------------
 -- Attributes
 

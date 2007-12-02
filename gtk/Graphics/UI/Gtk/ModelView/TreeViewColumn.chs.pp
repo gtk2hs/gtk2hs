@@ -75,10 +75,6 @@ module Graphics.UI.Gtk.ModelView.TreeViewColumn (
   treeViewColumnPackEnd,
   treeViewColumnClear,
   treeViewColumnGetCellRenderers,
-  treeViewColumnAddAttribute,
-  treeViewColumnAddAttributes,
-  treeViewColumnSetAttributes,
-  treeViewColumnClearAttributes,
   treeViewColumnSetSpacing,
   treeViewColumnGetSpacing,
   treeViewColumnSetVisible,
@@ -211,57 +207,6 @@ treeViewColumnGetCellRenderers self =
     self
   >>= fromGList
   >>= mapM (makeNewObject mkCellRenderer . return)
-
--- | Insert an attribute to change the behaviour of the column's cell renderer.
---
--- * The 'CellRenderer' @cr@ must already be in 
---   'TreeViewColumn'.
---
-treeViewColumnAddAttribute :: CellRendererClass cellRenderer => TreeViewColumn
- -> cellRenderer
- -> String
- -> Int
- -> IO ()
-treeViewColumnAddAttribute self cellRenderer attribute column =
-  withUTFString attribute $ \attributePtr ->
-  {# call unsafe tree_view_column_add_attribute #}
-    self
-    (toCellRenderer cellRenderer)
-    attributePtr
-    (fromIntegral column)
-
--- | Insert attributes @attribs@ to change the behaviour of column @tvc@'s cell
--- renderer @cr@.
---
-treeViewColumnAddAttributes :: CellRendererClass cr => TreeViewColumn
- -> cr
- -> [(String,Int)]
- -> IO ()
-treeViewColumnAddAttributes self cr attribs = 
-    mapM_ (\ (attr, col) -> treeViewColumnAddAttribute self cr attr col) attribs
-
--- | Set the attributes of the cell renderer @cr@ in the tree column @tvc@
--- be  @attribs@. The attributes are given as a list of attribute\/column pairs.
--- All existing attributes are removed, and replaced with the new attributes.
---
-treeViewColumnSetAttributes :: CellRendererClass cr => TreeViewColumn
- -> cr
- -> [(String, Int)]
- -> IO ()
-treeViewColumnSetAttributes self cr attribs = do
-  treeViewColumnClearAttributes self cr
-  treeViewColumnAddAttributes self cr attribs
-
--- | Clears all existing attributes
--- of the column @tvc@.
---
-treeViewColumnClearAttributes :: CellRendererClass cellRenderer => TreeViewColumn
- -> cellRenderer
- -> IO ()
-treeViewColumnClearAttributes self cellRenderer =
-  {# call tree_view_column_clear_attributes #}
-    self
-    (toCellRenderer cellRenderer)
 
 -- | Set the number of pixels between two cell renderers.
 --
