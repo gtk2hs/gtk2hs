@@ -221,7 +221,7 @@ import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject, constructNewGObject,
 					 mkFunPtrDestroyNotify)
 import Graphics.UI.Gtk.Gdk.Enums        (DragAction(..))
-import Graphics.UI.Gtk.Gdk.Events       (Modifier(..))					 
+import Graphics.UI.Gtk.Gdk.Events       (Modifier(..))
 import Graphics.UI.Gtk.General.Structs	(Point, Rectangle)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
@@ -776,14 +776,14 @@ treeViewGetReorderable self =
 
 -- | Check if rows can be moved around.
 --
--- * Set whether the user can use drag and drop (DND) to reorder the
---   rows in the store. This works on both 'TreeStore' and
---   'ListStore' models. If @ro@ is @True@, then the
---   user can reorder the model by dragging and dropping rows.  The
---   developer can listen to these changes by connecting to the model's
---   signals.  This function does not give you any degree of control over
---   the order -- any reorderering is allowed.  If more control is needed,
---   you should probably handle drag and drop manually.
+-- * Set whether the user can use drag and drop (DND) to reorder the rows in
+--   the store. This works on both 'TreeStore' and 'ListStore' models. If @ro@
+--   is @True@, then the user can reorder the model by dragging and dropping
+--   rows.  The developer can listen to these changes by connecting to the
+--   model's signals. If you need to control which rows may be dragged or
+--   where rows may be dropped, you can override the
+--   'Graphics.UI.Gtk.ModelView.CustomStore.treeDragSourceRowDraggable'
+--   function in the default DND implementation of the model.
 --
 treeViewSetReorderable :: TreeViewClass self => self
  -> Bool
