@@ -472,13 +472,15 @@ treeStoreInsertForest (TreeStore model) path pos nodes = do
            (idx, toggle))
   Store { depth = depth } <- readIORef (customTreeModelGetPrivate model)
   let rpath = reverse path
+  stamp <- customTreeModelGetStamp model
   sequence_ [ let p' = reverse p
                   Just iter = fromPath depth p'
-               in treeModelRowInserted model p' iter
+               in treeModelRowInserted model p' (treeIterSetStamp iter stamp)
             | (i, node) <- zip [idx..] nodes
             , p <- paths (i : rpath) node ]
   let Just iter = fromPath depth path
-  when toggle $ treeModelRowHasChildToggled model path iter
+  when toggle $ treeModelRowHasChildToggled model path
+                (treeIterSetStamp iter stamp)
 
   where paths :: TreePath -> Tree a -> [TreePath]
         paths path Node { subForest = ts } =
@@ -624,7 +626,8 @@ treeStoreChangeM (TreeStore model) path act = do
 				 content = storeToCache newForest }, True)
   writeIORef (customTreeModelGetPrivate model) store'
   let Just iter = fromPath d path
-  when found $ treeModelRowChanged model path iter
+  stamp <- customTreeModelGetStamp model
+  when found $ treeModelRowChanged model path (treeIterSetStamp iter stamp)
   return found
 
 -- | Change a node in the forest.

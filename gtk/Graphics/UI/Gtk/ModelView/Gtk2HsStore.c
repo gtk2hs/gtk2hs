@@ -586,6 +586,7 @@ gtk2hs_store_iter_parent (GtkTreeModel *tree_model,
   g_return_val_if_fail (child->stamp == store->stamp, FALSE);
  
   gboolean result = gtk2hs_store_iter_parent_impl(store->impl, iter, child);
+  if (result) iter->stamp = store->stamp;
   WHEN_DEBUG(g_debug("return  gtk2hs_store_iter_parent\t\t=%s\n", result ? "TRUE" : "FALSE"));
   return result;
 }

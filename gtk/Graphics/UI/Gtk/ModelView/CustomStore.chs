@@ -40,6 +40,7 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   DragDestIface(..),
   customTreeModelNew,
   customTreeModelGetPrivate,
+  customTreeModelGetStamp,
   customTreeModelInvalidateIters,
   ) where
 

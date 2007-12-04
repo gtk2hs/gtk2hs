@@ -36,6 +36,7 @@ module Graphics.UI.Gtk.ModelView.Types (
   TreeIter(..),
   receiveTreeIter,
   peekTreeIter,
+  treeIterSetStamp,
   
   -- TreePath
   TreePath,
@@ -127,6 +128,10 @@ peekTreeIter :: Ptr TreeIter -> IO TreeIter
 peekTreeIter ptr
   | ptr==nullPtr = fail "peekTreeIter: ptr is NULL, tree iterator is invalid"
   | otherwise = peek ptr
+
+-- update the stamp of a tree iter
+treeIterSetStamp :: TreeIter -> CInt -> TreeIter
+treeIterSetStamp (TreeIter _ a b c) s = (TreeIter s a b c)
 
 -- | TreePath : a list of indices to specify a subtree or node in a
 -- 'Graphics.UI.Gtk.ModelView.TreeModel.TreeModel'. The node that correspond
