@@ -90,7 +90,7 @@ module Graphics.UI.Gtk.ModelView.IconView (
   iconViewUnselectAll,
   iconViewItemActivated,
 #if GTK_CHECK_VERSION(2,8,0)
-{-  iconViewGetItemAtPos,
+  iconViewGetItemAtPos,
   iconViewSetCursor,
   iconViewGetCursor,
   iconViewScrollToPath,
@@ -101,10 +101,6 @@ module Graphics.UI.Gtk.ModelView.IconView (
   iconViewUnsetModelDragDest,
   iconViewSetReorderable,
   iconViewGetReorderable,
-  iconViewSetDragDestItem,
-  iconViewGetDragDestItem,
-  iconViewGetDestItemAtPos,
- -} iconViewCreateDragIcon,
 #endif
 
 -- * Attributes
@@ -136,15 +132,19 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.Properties
-{#import System.Glib.GList#}
+import System.Glib.GList                        (fromGList)
+import System.Glib.Flags
 import System.Glib.GObject			(makeNewGObject, constructNewGObject)
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
+import Graphics.UI.Gtk.Gdk.Enums                (DragAction(..))
+import Graphics.UI.Gtk.Gdk.Events               (Modifier(..))
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.General.Enums#}	(Orientation, SelectionMode)
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
 {#import Graphics.UI.Gtk.ModelView.CustomStore#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
+{#import Graphics.UI.Gtk.General.DNDTypes#}     (TargetList(..))
 import Graphics.UI.Gtk.Pango.Markup 		(Markup)
 
 {# context lib="gtk" prefix="gtk" #}
@@ -727,29 +727,30 @@ iconViewGetVisibleRange self = alloca $ \fPtrPtr -> alloca $ \lPtrPtr -> do
   l <- fromTreePath lPtr
   return (Just (f,l))
 
-{-
 -- %hash c:bd16 d:3f4f
 -- | Turns @iconView@ into a drag source for automatic DND.
 --
 -- * Available since Gtk+ version 2.8
 --
 iconViewEnableModelDragSource :: IconViewClass self => self
- -> [ModifierType]            -- ^ @startButtonMask@ - Mask of allowed buttons
-                              -- to start drag
- -> {-const-GtkTargetEntry*-} -- ^ @targets@ - the table of targets that the
-                              -- drag will support
- -> Int                       -- ^ @nTargets@ - the number of items in
-                              -- @targets@
- -> [DragAction]              -- ^ @actions@ - the bitmask of possible actions
-                              -- for a drag from this widget
- -> IO ()
-iconViewEnableModelDragSource self startButtonMask targets nTargets actions =
+  -> [Modifier]         -- ^ @startButtonMask@ - Mask of allowed buttons
+                        -- to start drag
+  -> TargetList         -- ^ @targets@ - the list of targets that the
+                        -- the view will support
+  -> [DragAction]       -- ^ @actions@ - flags denoting the possible actions
+                        -- for a drag from this widget
+  -> IO ()
+iconViewEnableModelDragSource self startButtonMask targets actions =
+  alloca $ \nTargetsPtr -> do
+  tlPtr <- {#call unsafe gtk_target_table_new_from_list#} targets nTargetsPtr
+  nTargets <- peek nTargetsPtr
   {# call gtk_icon_view_enable_model_drag_source #}
     (toIconView self)
     ((fromIntegral . fromFlags) startButtonMask)
-    {-targets-}
-    (fromIntegral nTargets)
+    tlPtr
+    nTargets
     ((fromIntegral . fromFlags) actions)
+  {#call unsafe gtk_target_table_free#} tlPtr nTargets
 
 -- %hash c:b14d d:23d7
 -- | Turns @iconView@ into a drop destination for automatic DND.
@@ -757,18 +758,19 @@ iconViewEnableModelDragSource self startButtonMask targets nTargets actions =
 -- * Available since Gtk+ version 2.8
 --
 iconViewEnableModelDragDest :: IconViewClass self => self
- -> {-const-GtkTargetEntry*-} -- ^ @targets@ - the table of targets that the
-                              -- drag will support
- -> Int                       -- ^ @nTargets@ - the number of items in
-                              -- @targets@
- -> [DragAction]              -- ^ @actions@ - the bitmask of possible actions
-                              -- for a drag to this widget
- -> IO ()
-iconViewEnableModelDragDest self targets nTargets actions =
+  -> TargetList                -- ^ @targets@ - the list of targets that the
+                               -- the view will support
+  -> [DragAction]              -- ^ @actions@ - flags denoting the possible actions
+                               -- for a drop into this widget
+  -> IO ()
+iconViewEnableModelDragDest self targets actions =
+  alloca $ \nTargetsPtr -> do
+  tlPtr <- {#call unsafe gtk_target_table_new_from_list#} targets nTargetsPtr
+  nTargets <- peek nTargetsPtr
   {# call gtk_icon_view_enable_model_drag_dest #}
     (toIconView self)
-    {-targets-}
-    (fromIntegral nTargets)
+    tlPtr
+    nTargets
     ((fromIntegral . fromFlags) actions)
 
 -- %hash c:25b0 d:5a6b
@@ -780,7 +782,6 @@ iconViewUnsetModelDragSource :: IconViewClass self => self -> IO ()
 iconViewUnsetModelDragSource self =
   {# call gtk_icon_view_unset_model_drag_source #}
     (toIconView self)
--}
 
 -- %hash c:d76d d:f18a
 -- | Undoes the effect of 'iconViewEnableModelDragDest'.
@@ -793,17 +794,16 @@ iconViewUnsetModelDragDest self =
     (toIconView self)
 
 -- %hash c:c270 d:b94d
--- | This function is a convenience function to allow you to reorder models
--- that support the {GtkTreeDragSourceIface, FIXME: unknown type\/value} and
--- the {GtkTreeDragDestIface, FIXME: unknown type\/value}. Both 'TreeStore' and
--- 'ListStore' support these. If @reorderable@ is @True@, then the user can
--- reorder the model by dragging and dropping rows. The developer can listen to
--- these changes by connecting to the model's row_inserted and row_deleted
--- signals.
+-- | Check if icons can be moved around.
 --
--- This function does not give you any degree of control over the order --
--- any reordering is allowed. If more control is needed, you should probably
--- handle drag and drop manually.
+-- * Set whether the user can use drag and drop (DND) to reorder the rows in
+--   the store. This works on both 'TreeStore' and 'ListStore' models. If @ro@
+--   is @True@, then the user can reorder the model by dragging and dropping
+--   rows.  The developer can listen to these changes by connecting to the
+--   model's signals. If you need to control which rows may be dragged or
+--   where rows may be dropped, you can override the
+--   'Graphics.UI.Gtk.ModelView.CustomStore.treeDragSourceRowDraggable'
+--   function in the default DND implementation of the model.
 --
 -- * Available since Gtk+ version 2.8
 --
@@ -828,91 +828,6 @@ iconViewGetReorderable self =
   {# call gtk_icon_view_get_reorderable #}
     (toIconView self)
 
-{-
--- %hash c:9574 d:34ea
--- | Sets the item that is highlighted for feedback.
---
--- * Available since Gtk+ version 2.8
---
-iconViewSetDragDestItem :: IconViewClass self => self
- -> TreePath             -- ^ @path@ - The path of the item to highlight, or
-                         -- {@NULL@, FIXME: this should probably be converted
-                         -- to a Maybe data type}.
- -> IconViewDropPosition -- ^ @pos@ - Specifies where to drop, relative to the
-                         -- item
- -> IO ()
-iconViewSetDragDestItem self path pos =
-  withTreePath path $ \path ->
-  {# call gtk_icon_view_set_drag_dest_item #}
-    (toIconView self)
-    path
-    ((fromIntegral . fromEnum) pos)
-
--- %hash c:92a7 d:8b3f
--- | Gets information about the item that is highlighted for feedback.
---
--- * Available since Gtk+ version 2.8
---
-iconViewGetDragDestItem :: IconViewClass self => self
- -> {-GtkTreePath**-}            -- ^ @path@ - Return location for the path of
-                                 -- the highlighted item, or {@NULL@, FIXME:
-                                 -- this should probably be converted to a
-                                 -- Maybe data type}.
- -> {-GtkIconViewDropPosition*-} -- ^ @pos@ - Return location for the drop
-                                 -- position, or {@NULL@, FIXME: this should
-                                 -- probably be converted to a Maybe data type}
- -> IO ()
-iconViewGetDragDestItem self path pos =
-  {# call gtk_icon_view_get_drag_dest_item #}
-    (toIconView self)
-    {-path-}
-    {-pos-}
-
--- %hash c:28ff d:dcf9
--- | Determines the destination item for a given position.
---
--- * Available since Gtk+ version 2.8
---
-iconViewGetDestItemAtPos :: IconViewClass self => self
- -> Int                          -- ^ @dragX@ - the position to determine the
-                                 -- destination item for
- -> Int                          -- ^ @dragY@ - the position to determine the
-                                 -- destination item for
- -> {-GtkTreePath**-}            -- ^ @path@ - Return location for the path of
-                                 -- the item, or {@NULL@, FIXME: this should
-                                 -- probably be converted to a Maybe data
-                                 -- type}.
- -> {-GtkIconViewDropPosition*-} -- ^ @pos@ - Return location for the drop
-                                 -- position, or {@NULL@, FIXME: this should
-                                 -- probably be converted to a Maybe data type}
- -> IO Bool                      -- ^ returns whether there is an item at the
-                                 -- given position.
-iconViewGetDestItemAtPos self dragX dragY path pos =
-  liftM toBool $
-  {# call gtk_icon_view_get_dest_item_at_pos #}
-    (toIconView self)
-    (fromIntegral dragX)
-    (fromIntegral dragY)
-    {-path-}
-    {-pos-}
-
--}
-
--- %hash c:e65a d:3e9
--- | Creates a 'Pixmap' representation of the item at @path@. This image is
--- used for a drag icon.
---
--- * Available since Gtk+ version 2.8
---
-iconViewCreateDragIcon :: IconViewClass self => self
- -> TreePath  -- ^ @path@ - a 'TreePath' in @iconView@
- -> IO Pixmap -- ^ returns a pixmap of the drag icon.
-iconViewCreateDragIcon self path =
-  constructNewGObject mkPixmap $
-  withTreePath path $ \path ->
-  {# call gtk_icon_view_create_drag_icon #}
-    (toIconView self)
-    path
 #endif
 
 --------------------
