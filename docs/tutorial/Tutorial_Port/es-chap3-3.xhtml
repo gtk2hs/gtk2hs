@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Empaquetar mediante tablas</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs</h1>
+  <span class="nav-previous"><a href="es-chap3-2.xhtml">Previo</a></span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-1.xhtml">Siguiente</a></span>
+</div>
+
+<h2>3.3 Empaquetar mediante tablas</h2>
+
+<p>
+Vamos a aprender otro modo de empaquetar: <em>las tablas</em>. Pueden ser extremadamente
+&uacute;tiles en determinadas situaciones. Usando tablas, creamos una cuadr&iacute;cula (grid) en la que podemos situar
+los widgets. Los widgets pueden ocupar tantos espacios como especifiquemos.
+</p>
+
+<p>
+En primer lugar consideraremos la funci&oacute;n <code>tableNew</code> (Nueva tabla)):
+</p>
+
+<pre class="codebox">tableNew :: Int -&gt; Int -&gt; Bool -&gt; IO Table
+</pre>
+
+<p>
+El primer argumento es el n&uacute;mero de filas que tendr&aacute; la tabla, y el segundo,
+el n&uacute;mero de columnas.
+</p>
+
+<p>
+El argumento booleano  (<var>homog&eacute;neo</var>) indica como se establece el tama&ntilde;o 
+de las cajas de la tabla. Si <var>homog&eacute;neo</var> se establece a <var>True</var>, 
+entonces las cajas se crean al tama&ntilde;o del mayor widget de la tabla, y todas iguales. Si 
+<var>homog&eacute;neo</var> se establece a <var>False</var>, el tama&ntilde;o de las cajas de la tabla
+est&aacute; determinado por el widget m&aacute;s alto de su fila, and el widget m&aacute;s ancho de su columna.
+Por ejemplo, sup&oacute;n que tienes una matr&iacute;z de 10x10 botones cada uno etiquetado con los numeros 
+del 1 al 100. As&iacute;, te aparecen tres posibles anchuras, la de los n&uacute;meros del 1 al 9,
+la de los n&uacute;meros del 10 al 99 y la del 100. Si has establecido en True el valor de
+<var>homog&eacute;neo</var>, todos los botones ser&aacute;n iguales y el ancho corresponder&aacute; al del bot&oacute;n 100.
+Sin embargo, si el valor que has puesto es Falso, la &uacute;ltima columna mantendr&aacute; el ancho del bot&oacute;n de 100
+y las otras el de los botones correspondientes al 10 al 99. En este ejemplo las alturas de los botones
+ser&iacute;an iguales con las dos opciones, ya que s&oacute;lo tenemos una posible altura.
+</p>
+
+<p>
+Las filas y colunas se numeran desde <var>0</var> hasta <var>n</var>, donde
+<var>n</var> es el n&uacute;mero especificado en la llamada a <code>tableNew</code>. As&iacute;
+si especificas <var>filas</var> = <var>2</var> y <var>columnas</var> =
+<var>2</var>, la distribuci&oacute;n parecer&aacute; algo as&iacute;:
+</p>
+
+<pre class="codebox"> 0          1          2
+0+----------+----------+
+ |          |          |
+1+----------+----------+
+ |          |          |
+2+----------+----------+
+</pre>
+
+<p>
+F&iacute;jate en que el sistema de coordenadas empieza en la esquina superior
+izquierda. Para colocar un widget en una caja, usa la siguiente funci&oacute;n:
+</p>
+
+<pre class="codebox">tableAttach :: (TableClass self, WidgetClass child)
+  =&gt; self            -- self         - La tabla.
+  -&gt; child           -- child        - El widget a a&ntilde;adir.
+  -&gt; Int             -- leftAttach   - El n&uacute;mero de la columna para situar el lado izquierdo 
+                     --                del widget a colocar.
+  -&gt; Int             -- rightAttach  - El n&uacute;mero de la columna para situar el lado derecho
+                     --                del widget a colocar.
+  -&gt; Int             -- topAttach    - El n&uacute;mero de la fila donde situar la parte superior del
+                     --                widget a colocar.
+  -&gt; Int             -- bottomAttach - El n&uacute;mero de la fila donde situar la parte inferior del
+                     --                widget a colocar.
+  -&gt; [AttachOptions] -- xoptions     - Se emplea para indicar las propiedades del widget hijo
+                     --                cuando la tabla modifica su tama&ntilde;o (horizontales)
+  -&gt; [AttachOptions] -- yoptions     - Igual que xoptions, exceptuando que el campo determina
+                     --                el comportamiento vertical
+  -&gt; Int             -- xpadding     - Un valor entero que especifica el espacio en blanco a
+                     --                izquierda y derecha de la tabla del widget que se a&ntilde;ade.
+  -&gt; Int             -- ypadding     - El espacio arriba y abajo del widget.
+  -&gt; IO ()
+</pre>
+
+<p>
+El primer argumento, (<var>self</var>), es la tabla que has creado y el segundo, 
+(<var>child</var>), es el widget que quieres colocar en la tabla.
+</p>
+
+<p>
+Los argumentos izquierdo y derecho (leftAttach, rightAttach) indican donde debe ponerse
+el widget, y cuantas cajas usar. Si quieres poner un bot&oacute;n en la parte de abajo a la derecha
+de tu tabla de 2x2, y quieres colocar <em>solo</em> esa entrada,
+<var>leftAttach</var> deber&iacute;a ser = <var>1</var>, <var>rightAttach</var> =
+<var>2</var>, <var>topAttach</var> = <var>1</var>, y <var>bottomAttach</var>
+= <var>2</var>.
+</p>
+
+<p>
+Ahora, si quieres que un widget llene completamenta la fila superior 
+de nuestra tabla de 2x2, deber&iacute;as susar los siguientes valores:
+<var>leftAttach</var> = <var>0</var>, <var>rightAttach</var> =
+<var>2</var>, <var>topAttach</var> = 0, and <var>bottomAttach</var> =
+<var>1</var>.
+</p>
+
+<p>
+<var>xoptions</var> y <var>yoptions</var> se usan para indicar las opciones de empaquetado y 
+la lista puede contener m&aacute;s de una para permitir m&uacute;ltiples opciones.
+</p>
+
+<p>Las posibles opciones son:</p>
+
+<dl>
+  <dt><code>Fill</code></dt>
+  <dd>
+  Si la caja de la tabla es mayor que el widget, y se especifica <code>Fill</code>,
+  el widget se expandir&aacute; hasta ocupar todo el espacio disponible. (como un gas cualquiera).
+  </dd>
+
+  <dt><code>Shrink</code></dt>
+  <dd>
+  Si el widget de la tabla tiene disponible menos espacio del que necesita (normalmente
+  porque el usuario ha cambiado el tama&ntilde;o de la tabla), los widgets deber&iacute;an ser empujados
+  de la parte inferior de la tabla y desaparecer&iacute;an. Si se especifica <code>Shrink</code> 
+  los widgets de reducir&aacute;n con la tabla.
+  </dd>
+
+  <dt><code>Expand</code></dt>
+  <dd>
+  Esto originar&aacute; que la tabla se expanda hasta usar todo el espacio disponible en la
+  ventana.
+  </dd>
+</dl>
+
+<p>
+	El padding funciona como en las cajas, dejando un &aacute;rea libre alrededor
+	del widget, del tama&ntilde;o especificado en p&iacute;xeles
+</p>
+
+<p>
+<code>tableAttach</code> tiene muchas opciones, as&iacute; que ponemos un resumen:
+</p>
+
+<pre class="codebox">tableAttachDefaults :: (TableClass self, WidgetClass widget)
+  =&gt; self   -- self         - La tabla.
+  -&gt; widget -- widget       - El widget a a&ntilde;adir.
+  -&gt; Int    -- leftAttach   - El n&uacute;mero de la columna en el que se situar&aacute; el lado
+            --                izquierdo del widget a a&ntilde;adir.
+  -&gt; Int    -- rightAttach  - El n&uacute;mero de la columna en el que se situar&aacute; el lado
+            --                derecho del widget a a&ntilde;adir.
+  -&gt; Int    -- topAttach    - El n&uacute;mero de la fila en el que se situar&aacute; el lado superior
+            --                del widget.
+  -&gt; Int    -- bottomAttach - El n&uacute;mero de la fila en el que se situar&aacute; el lado inferior
+            --                del widget.
+  -&gt; IO ()
+</pre>
+
+<p>
+Los valores usados para los par&aacute;metros de <code>[AttachOptions]</code> son
+<var>[Expand, Fill]</var>, y el espacio (padding) se fija en <var>0</var>. El resto de los
+argumentos son los mismos que para la funci&oacute;n previa.
+</p>
+
+<p>
+Tambi&eacute;n tenemos <code>tableSetRowSpacing</code> y
+<code>tableSetColSpacing</code>. Estas funciones colocan espacios en la fila (row) o columna (col) indicada.
+</p>
+
+<pre class="codebox">tableSetRowSpacing :: TableClass self=&gt; self-&gt; Int -&gt; Int -&gt; IO ()
+</pre>
+
+<pre class="codebox">tableSetColSpacing :: TableClass self =&gt; self -&gt; Int -&gt; Int -&gt; IO ()
+</pre>
+
+<p>
+El primer argumento <code>Int</code> es la fila/columna y el segundo es el espacio
+en p&iacute;xeles. F&iacute;jate que en el caso de las columnas, el espacio se situa a la derecha de
+la columna y en las filas, bajo la fila.
+</p>
+
+<p>
+Puedes fijar un espacio fijo para todas las filas y/o las columnas con:
+</p>
+
+<pre class="codebox">tableSetRowSpacings :: TableClass self=&gt; self-&gt; Int -&gt; IO ()
+</pre>
+
+<p>y:</p>
+
+<pre class="codebox">tableSetColSpacings :: TableClass self =&gt; self -&gt; Int -&gt; IO ()
+</pre>
+
+<p>
+F&iacute;jate que con estas llamadas, la &uacute;ltima fila y la &uacute;ltima columna no
+consiguien ning&uacute;n espacio.
+</p>
+
+<h3>Ejemplo de empaquetado con tabla</h3>
+
+<p>
+Vamos a hacer una ventana con tres botones en una tabla 2x2. Los primeros dos botones
+se colocar&aacute;n en la fila de arriba. Un tercer bot&oacute;n (<em>Quit</em>) se colocar&aacute; en la fila
+de abajo, ocupando ambas columnas. Quedar&aacute; as&iacute;:
+</p>
+
+<p><img src="Images/GtkChap3-3.png" alt="Table packing" id="imgGtkChap3-3" /></p>
+
+<p>Aqu&iacute; est&aacute; el c&oacute;digo fuente:</p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  set window [windowTitle := "Table", containerBorderWidth := 20,
+              windowDefaultWidth := 150, windowDefaultHeight := 100]
+  table   &lt;- tableNew 2 2 True
+  containerAdd window table
+  button1 &lt;- buttonNewWithLabel "On"
+  onClicked button1 (buttonSwitch button1)
+  tableAttachDefaults table button1 0 1 0 1
+  button2 &lt;- buttonNewWithLabel "Off"
+  onClicked button2 (buttonSwitch button2)
+  tableAttachDefaults table button2 1 2 0 1
+  button3 &lt;- buttonNewWithLabel "Quit"
+  onClicked button3 mainQuit
+  tableAttachDefaults table button3 0 2 1 2
+  onDestroy window mainQuit
+  widgetShowAll window
+  mainGUI
+
+buttonSwitch :: Button -&gt; IO ()
+buttonSwitch b = do
+  txt &lt;- buttonGetLabel b
+  let newtxt = case txt of
+                 "Off" -&gt; "On"
+                 "On"  -&gt; "Off"
+  buttonSetLabel b newtxt
+</pre>
+
+<p>
+La funci&oacute;n <code>buttonSwitch</code> es asocia a ambos botones de la fila superior. 
+La funci&oacute;n <code>buttonGetLabel</code> es un ejemplo de c&oacute;mo conseguir un atributo
+de un widget usando un m&eacute;todo est&aacute;ndar. Hay una alternativa m&aacute;s general <code>get</code> 
+(an&aacute;loga a <code>set</code>) que toma un widget y un atributo.
+En el ejemplo anterior ser&iacute;a:
+</p>
+
+<pre class="codebox">  txt &lt;- get b buttonLabel
+</pre>
+
+<p>
+con el mismo resultado.
+</p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap3-2.xhtml">Previo</a><br />3.2 Programa de demostraci&oacute;n del empaquetado</span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-1.xhtml">Siguiente</a><br />4.1 El Widget Button (bot&oacute;n)</span>
+</div>
+
+
+</body></html>

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Programa de demostraci&oacute;n del empaquetado</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs</h1>
+  <span class="nav-previous"><a href="es-chap3-1.xhtml">Previo</a></span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap3-3.xhtml">Siguiente</a></span>
+</div>
+
+<h2>3.2 Programa de demostraci&oacute;n del empaquetado</h2>
+
+<p>
+En este ejemplo, la base de todos los widgets es una caja vertical, que a su vez es hija
+de la ventana. Los widgets hijos no se muestran de modo homog&eacute;neo y no hay un espacio adicional
+(diferente del espaciado est&aacute;ndar). 
+Hay seis cajas horizontales en la caja vertical, tal y como se definen con la funci&oacute;n
+ <code>makeBox</code>, que tiene el tipo mostrado. Adem&aacute;s, hay dos etiquetas en la caja vertical
+as&iacute; como dos separadores horizontales. El &uacute;ltimo widget es el bot&oacute;n <em>Quit</em>
+cuya se&ntilde;al <code>onClicked</code> se engancha a la funci&oacute;n <code>mainQuit</code>.
+</p>
+
+<p>
+Los separadores se crean con <code>hSeparatorNew</code> y est&aacute;n espaciados por <code>boxPackStart</code> 
+con un espacio de separaci&oacute;n de diez p&iacute;xeles. Las etiquetas (label) se crean con <code>labelNew</code> 
+con un <code>Maybe String</code> y su posici&oacute;n se establece con <code>miscSetAlignment</code> para estar 
+justificados a la izquierda y arriba.
+</p>
+
+<p><img src="Images/GtkChap3-2a.png" alt="Packing demo application" id="imgGtkChap3-2a" /></p>
+
+<p>
+La funci&oacute;n <code>makeBox :: Bool -&gt; Int -&gt; Packing -&gt; Int -&gt; IO
+HBox</code> demuestra como los widgets de Gtk2Hs encajan dentro del sistyema de tipos de haskell.
+<code>Packing</code> es simplemente un tipo, como <code>Int</code> y <code>Bool</code>
+y <code>IO HBox</code> es como <code>IO String</code> en el t&iacute;pico <code>IO</code>. 
+La funci&oacute;n crea cinco botones, los etiqueta con el texto apropiado y los empaqueta en una
+caja horizontal. Entonces la funci&oacute;n se emplea en el programa principal para crear los modos de
+empaquetado deseados.</p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window     &lt;- windowNew
+  vbox       &lt;- vBoxNew False 0
+  set window [containerBorderWidth := 10,
+              windowTitle := "Packing Demonstration",
+              containerChild := vbox]
+  label1     &lt;- labelNew (Just "hBoxNew False 0")
+  miscSetAlignment label1 0 0
+  boxPackStart vbox label1 PackNatural 0
+  box1       &lt;- makeBox False 0 PackNatural 0
+  boxPackStart vbox box1 PackNatural 0
+  box2       &lt;- makeBox False 0 PackRepel 0
+  boxPackStart vbox box2 PackNatural 0
+  box3       &lt;- makeBox False 0 PackGrow 0
+  boxPackStart vbox box3 PackNatural 0
+  sep1       &lt;- hSeparatorNew
+  boxPackStart vbox sep1 PackNatural 10
+  label2     &lt;- labelNew (Just "hBoxNew True 0")
+  miscSetAlignment label2 0 0
+  boxPackStart vbox label2 PackNatural 0
+  box4       &lt;- makeBox True 0 PackNatural 0
+  boxPackStart vbox box4 PackNatural 0
+  box5       &lt;- makeBox True 0 PackRepel 0
+  boxPackStart vbox box5 PackNatural 0
+  box6       &lt;- makeBox False 0 PackGrow 0
+  boxPackStart vbox box6 PackNatural 0
+  sep        &lt;- hSeparatorNew
+  boxPackStart vbox sep PackNatural 10
+  quitbox    &lt;- hBoxNew False 0
+  boxPackStart vbox quitbox PackNatural 0
+  quitbutton &lt;- buttonNewWithLabel "Quit"
+  boxPackStart quitbox quitbutton PackRepel 0
+  onClicked quitbutton mainQuit
+  onDestroy window mainQuit
+  widgetShowAll window
+  mainGUI
+
+
+makeBox :: Bool -&gt; Int -&gt; Packing -&gt; Int -&gt; IO HBox
+makeBox homogeneous spacing packing padding = do
+  box     &lt;- hBoxNew homogeneous spacing
+  button1 &lt;- buttonNewWithLabel "boxPackStart"
+  boxPackStart box button1 packing padding
+  button2 &lt;- buttonNewWithLabel "box"
+  boxPackStart box button2 packing padding
+  button3 &lt;- buttonNewWithLabel "button"
+  boxPackStart box button3 packing padding
+  button4 &lt;- case packing of
+                  PackNatural -&gt; buttonNewWithLabel "PackNatural"
+                  PackRepel   -&gt; buttonNewWithLabel "PackRepel"
+                  PackGrow    -&gt; buttonNewWithLabel "PackGrow"
+  boxPackStart box button4 packing padding
+  button5 &lt;- buttonNewWithLabel (show padding)
+  boxPackStart box button5 packing padding
+  return box
+</pre>
+
+<p>
+La imagen de abajo muestra los efectos de modificar el tama&ntilde;o de la ventana horizontalmente.
+En el primer grupo, con <var>homogeneous</var> en <var>False</var>, las modificaciones
+horizontales dejan la frimera fila de botones como estaban, espacian la segunda fila de modo equilibrado
+y agrandan los botones de la tercera fila. En el segundo grupo, los botones se empaquetan homogeneamente, y
+las primeras dos filas se ver&aacute;n iguales. Si modificamos el tama&ntilde;o verticalmente, simplemente a&ntilde;adir&aacute;
+espacios adicionales al final, ya que la caja vertical ha sido inicializada con <var>False</var>.
+</p>
+
+<p><img src="Images/GtkChap3-2b.png" alt="Resized packing demo application" id="imgGtkChap3-2b" /></p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap3-1.xhtml">Previo</a><br />3.1 Empaquetando Widgets</span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap3-3.xhtml">Siguiente</a><br />3.3 Empaquetar mediante tablas</span>
+</div>
+
+
+</body></html>

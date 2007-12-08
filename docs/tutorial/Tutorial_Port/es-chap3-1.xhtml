@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Empaquetando Widgets</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+  
+  <body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs</h1>
+  <span class="nav-previous"><a href="es-chap2.xhtml">Previo</a></span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap3-2.xhtml">Siguiente</a></span>
+</div>
+
+<h2>3.1 Empaquetando Widgets</h2>
+
+<p>
+Al crear una aplicaci&oacute;n, puede que quieras colocar m&aacute;s de un widget dentro de
+una ventana. Nuestro primer ejemplo "hello world" &uacute;nicamente usaba un widget,
+por lo que pudimos usar <code>set</code> para especificar un widget <code>containerChild</code>
+(contenedor de hijo) para <code>window</code>, o usar <code>containerAdd</code> (A&ntilde;ade contenedor)
+para empaquetar el widget en la ventana. Pero cuando quieres poner m&aacute;s de un widget en
+una ventana, c&oacute;mo puedes controlar la posici&oacute;n del  mismo? Para esto sirve el
+empaquetado.</p>
+
+<h3>Teor&iacute;a de las cajas de empaquetado</h3>
+
+<p>
+La mayor&iacute;a del empaquetado se hace creando cajas. Hay contenedores invisibles de 
+widgets en los que podemos empaquetarlos. Los encontramos de dos tipos: 
+Una caja horizontal y una caja vertical.
+Al empaquetar los objetos en una caja horizontal, los objetos se insertan horizontalmente
+de izquierda a derecha o de derecha a izquierda dependiendo de la llamada utilizada. 
+En la caja vertical, los widgets se empaquetan de arriba abajo o viceversa.
+Puedes usar cualquier combinaci&oacute;n de cajas dentro o junto a otras para crear el
+efecto deseado.
+</p>
+<p>
+Para crear una nueva caja horizontal, usamos <code>hBoxNew</code>, y para una caja vertical,
+<code>vBoxNew</code>. Ambos usan un par&aacute;metro de tipo <code>Bool</code> y otro de
+tipo <code>Int</code>. El primer par&aacute;metro dar&aacute; espacios iguales a cada widget hijo si se le pasa el
+ valor <var>True</var> y el segundo establece el n&uacute;mero de p&iacute;xeles a colocar 'por defecto' entre los hijos.
+ </p>
+<p>
+Las funciones <code>boxPackStart</code> y <code>boxPackEnd</code> se usan para colocar objetos dentro de esos
+contenedores. La funci&oacute;n <code>boxPackStart</code> colocar&aacute; los widgets de arriba abajo en una caja vertical, <code>VBox</code>, y de izquierda a derecha en una caja horizontal. <code>boxPackEnd</code> 
+har&aacute; lo opuesto, de abajo arriba en una caja vertical <code>VBox</code>, y de derecha a izquierda en una 
+<code>HBox</code>. 
+Mediante estas funciones podremos justificar por la derecha o por la izquierda nuestros widgets y mezclarlos 
+de modo que obtengamos el efecto deseado. En la mayor&iacute;a de nuestros ejemplos usaremos <code>boxPackStart</code>.
+</p>
+<p>
+Un objeto opuede ser otro contenedor o un widget. De hecho, muchos widgets son a la vez contenedores, incluyendo
+ <code>button</code>,(bot&oacute;n) pero habitualmente s&oacute;lo usamos una <code>label</code> (etiqueta) dentro de un <code>button</code>.
+</p>
+
+<p><img src="Images/GtkChap3-1.png" alt="Packed buttons" id="imgGtkChap3-1" /></p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  hbox    &lt;- hBoxNew True 10
+  button1 &lt;- buttonNewWithLabel "Button 1"
+  button2 &lt;- buttonNewWithLabel "Button 2"
+  set window [windowDefaultWidth := 200, windowDefaultHeight := 200,
+              containerBorderWidth := 10, containerChild := hbox]
+  boxPackStart hbox button1 PackGrow 0
+  boxPackStart hbox button2 PackGrow 0
+  onDestroy window mainQuit
+  widgetShowAll window
+  mainGUI
+</pre>
+
+<p>
+Usando <code>boxPackStart</code> o <code>boxPackEnd</code>, GTK sabe d&oacute;nde quieres colocar
+tus widgets por lo que puede cambiar autom&aacute;ticamente el tama&ntilde;o y otras cosas interesantes.
+</p>
+
+<pre class="codebox">boxPackStart :: (WidgetClass child, BoxClass self) =&gt; self -&gt; child -&gt; Packing -&gt; Int -&gt; IO ()
+</pre>
+
+<pre class="codebox">boxPackEnd :: (WidgetClass child, BoxClass self) =&gt; self -&gt; child -&gt; Packing -&gt; Int -&gt; IO ()
+</pre>
+
+<p>
+El par&aacute;metro de <code>Packing</code> (empaquetado) especifica el modo en que los
+widgets del contenedor se comportan cuando la ventana cambia de tama&ntilde;o. <code>PackNatural</code> 
+indica que los widgets mantendr&aacute;n su tama&ntilde;o y posici&oacute;n, <code>PackGrow</code>
+que su tama&ntilde;o ser&aacute; adaptado, y con <code>PackRepel</code> los widgets ser&aacute;n
+espaciados entre ambos lados (manteniendo el tama&ntilde;o). El &uacute;ltimo par&aacute;metro es un 
+<code>Int</code>, que especifica el espaciado que se dejar&aacute; entre este "hijo" y sus
+vecinos.
+</p>
+
+<p>
+El empaquetado s&oacute;lo se aplica a la dimensi&oacute;n principal de la caja (horizontal o vertical).
+Si, por ejemplo, indicas <code>PackNatural</code> en vez de <code>PackGrow</code>
+en el ejemplo anterior, el cambio de tama&ntilde;o horizontal mantendr&aacute; los botones 
+en su tama&ntilde;o original, pero los cambios verticales s&iacute; le har&aacute;n cambiar de tama&ntilde;o.
+Esto se debe a que los botones se colocan homog&eacute;neamente en la caja horizontal. 
+(El primer par&aacute;metro es <var>True</var>) y la caja se adapta a los cambios de la ventana.
+El pr&oacute;ximo ejemplo clarificar&aacute; m&aacute;s las cosas.
+</p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap2.xhtml">Previo</a><br />2. Empezando</span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap3-2.xhtml">Siguiente</a><br />3.2 Programa de demostraci&oacute;n del empaquetado</span>
+</div>
+
+</body></html>

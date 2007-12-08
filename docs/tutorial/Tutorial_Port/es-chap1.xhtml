@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Introducci&oacute;n</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs</h1>
+  <span class="nav-previous"><!-- a href="chap1.xhtml" --><br />           </span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap2.xhtml">Siguiente</a></span>
+</div>
+
+<h2>1. Introducci&oacute;n</h2>
+<p>Del sitio web de Gtk2Hs: Gtk2Hs es una libreria GUI (Interfaz gr&aacute;fico de usuario) para Haskell basada en
+Gtk+. Gtk+ es un conjunto de herramientas extensivo y maduro, multi-plataforma para crear interfaces gr&aacute;ficos de usuario.</p>
+<p>El objetivo de este tutorial es el programador intermedio de Haskell, y cubre todo lo necesario para escribir los interfaces de usuario m&aacute;s 
+comunes. En particular los contenidos est&aacute;n indicados en el &iacute;ndice de este tutorial. Para los usuarios avanzados la 
+documentaci&oacute;n de la API de Gtk2Hs contiene mucha m&aacute;s informaci&oacute;n.</p>
+<p>Gtk+ es fundamentalmente una biblioteca de componentes llamados 'widgets', 
+que se organizan en una jerarqu&iacute;a orientada a objetos. En Gtk2Hs esto 
+se hace dando a cada widget tanto un tipo como una clase de tipo (type y type 
+class) de Haskell. De este modo el sistema de tipos de Haskell est&aacute; rigurosamente 
+preservado, y el programador tiene todas las ventajas de la comprobaci&oacute;n 
+de tipos del compilador y del interprete de Haskell de Glasgow (ghc).
+Gtk2Hs tiene tambi&eacute;n muchas funciones para el casting de tipos.</p>
+<p>Los widgets tienen atributos que controlan su comportamiento y apariencia, 
+existiendo dos funciones generales para obtener y establecer los atributos 
+de los mismos. </p>
+<p>Para dar/establecer (set) uno o m&aacute;s atributos a un widget usa:</p>
+<pre class="codebox">set widget [widgetAttr1 := foo, widgetAttr2 := fie, widgetAttr3 := bar]</pre>
+<p>Para obtener el valor de un atributo (get) de un widget usa:</p>
+<pre class="codebox">x &lt;- get widget widgetAttr1</pre>
+<p>Casi siempre hay funciones espec&iacute;ficas para obtener y establecer 
+los atributos de los widgets, pero en el futuro ser&aacute;n eliminadas. 
+Actualmente, sin embargo es m&aacute;s com&uacute;n el uso de dichas funciones.</p>
+<p>Todo lo que sucede en una aplicaci&oacute;n en Gtk2Hs est&aacute; determinado
+por las acciones del usuario, como pulsaciones de rat&oacute;n, presionado de 
+botones, selecci&oacute;n de botones de radio y dem&aacute;s.A esto se le llama eventos y resultan en se&ntilde;ales emitidas.
+La informaci&oacute;n sobre los eventos, por ejemplo cuando el usuario pulsa el 
+bot&oacute;n derecho o izquierdo del rat&oacute;n, se captura en campos de 
+datos que pueden ser consultados por el programador de Gtk2Hs.
+Normalmente las se&ntilde;ales se gestionan por funciones espec&iacute;ficas de cada 
+tipo de widget. Se listan en la secci&oacute;n <strong>se&ntilde;ales (*Signals*)</strong>   de 
+la documentaci&oacute;n de la API de ese widget. La mayor&iacute;a toman una funci&oacute;n 
+de tipo <code>IO ()</code> como par&aacute;metro, pero algunas tienen alg&uacute;n resultado. 
+El programador de Gtk2Hs, por supuesto, debe escribir esas funciones que determinan la 
+respuesta del sistema a la acci&oacute;n del usuario.</p>
+ <p>Finalmente, el etablecimiento del &aacute;rbol de widgets para tu aplicaci&oacute;n y
+la determinaci&oacute;n de la disposici&oacute;n (layout) visual (empaquetado) puede 
+hacerse con el dise&ntilde;ador de interfaces de Glade.
+Gtk2Hs se integra perfectamente con Glade y hay un tutorial introductorio 
+en el sitio web de Gtk2Hs.
+Se recomienda el uso de Glade para el seguimiento de este tutorial.</p>
+<div id="footer">
+  <span class="nav-previous"><!-- a href="chap1.xhtml" --><br />           </span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a><br />&nbsp;</span>
+  <span class="nav-next"><a href="es-chap2.xhtml">Siguiente</a><br />2. Empezando</span>
+</div>
+
+</body></html>

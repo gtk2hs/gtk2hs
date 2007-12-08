@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+  <head>
+    <meta http-equiv="Content-Type"
+    content="text/html; charset=utf-8" />
+    <title>Gtk2Hs Tutorial</title>
+    <link href="default.css" type="text/css" rel="stylesheet" />
+  </head>
+<body>
+    <div id="title">
+      <h2>Tutorial de Gtk2Hs</h2>
+    </div>
+    <div id="authors">
+      <h3>Hans van Thiel</h3>
+    </div>
+    <div id="credits">
+      <h4>Una Adaptaci&oacute;n del Tutorial de GTK+ 2.0 por</h4>
+      <h3>Tony Gale</h3>
+      <h3>Ian Main</h3>
+      <h4>&amp;</h4>
+      <h3>The GTK Team</h3>
+    </div>
+    <div id="toc">
+      <h3>Indice</h3>
+      <ol>
+        <li>
+        <a href="es-chap1.xhtml">1. Introducción</a> 
+        </li>
+        <li>
+          <a href="es-chap2.xhtml">2. Empezando</a>
+        </li>
+        <li>3. Empaquetado 
+        <ol>
+          <li>
+            <a href="es-chap3-1.xhtml">3.1 Empaquetando Widgets</a>
+          </li>
+          <li>
+            <a href="es-chap3-2.xhtml">3.2 Programa de demostraci&oacute;n de empaquetado</a>
+          </li>
+          <li>
+            <a href="es-chap3-3.xhtml">3.3 Empaquetado usando tablas</a>
+          </li>        
+        </ol></li> 
+<!--
+          
+        <li>4. Widgets Miscellaneos  
+        <ol>
+          <li>
+            <a href="es-chap4-1.xhtml">4.1 El Widget bot&oacute;n</a>
+          </li>
+          <li>
+            <a href="es-chap4-2.xhtml">4.2 Ajustes, Escala y Rango</a>
+          </li>
+          <li>
+            <a href="es-chap4-3.xhtml">4.3 Etiquetas</a>
+          </li>
+          <li>
+            <a href="es-chap4-4.xhtml">4.4 Flechas y Tooltips</a>
+          </li>
+          <li>
+            <a href="es-chap4-5.xhtml">4.5 Di&aacute;logos, elementos disponibles y barras de progreso</a>
+          </li>
+          <li>
+            <a href="es-chap4-6.xhtml">4.6 Entradas de texto y barras de estado</a>
+          </li>
+          <li>
+            <a href="es-chap4-7.xhtml">4.7 Butones de spin (selecci&oacute;n de valores num&eacute;ricos</a>
+          </li>
+        </ol></li>
+        <li>5. Widgets agregados 
+        <ol>
+          <li>
+            <a href="es-chap5-1.xhtml">5.1 Calendario</a>
+          </li>
+          <li>
+            <a href="es-chap5-2.xhtml">5.2 Selecci&oacute;n de fichero</a>
+          </li>
+          <li>
+            <a href="es-chap5-3.xhtml">5.3 Selecci&oacute;n de Fuente and Color</a>
+          </li>
+          <li>
+            <a href="es-chap5-4.xhtml">5.4 Bloc de notas</a>
+          </li>
+        </ol></li>
+        <li>6. Widgets de apoyo 
+        <ol>
+          <li>
+            <a href="es-chap6-1.xhtml">6.1 Ventanas con desplazamiento(scroll)</a>
+          </li>
+           <li>
+            <a href="es-chap6-2.xhtml">6.2 Cajas de evento y cajas de botones</a>
+          </li>
+           <li>
+            <a href="es-chap6-3.xhtml">6.3 El contenedor de layout</a>
+          </li> 
+          <li>
+            <a href="es-chap6-4.xhtml">6.4 Ventanas con paneles y marcos de ratio constante</a>
+          </li>          
+        </ol></li>
+        <li>7. Widgets basados en acciones
+          <ol>
+          <li>
+          <a href="es-chap7-1.xhtml">7.1 Men&uacute;s and Barras de herramientas</a>
+          </li>
+          <li>
+          <a href="es-chap7-2.xhtml">7.2 Men&uacute;s Popup, acciones de radio y acciones Toggle</a>
+          </li>
+          </ol>        
+        </li>  
+-->
+      </ol>
+    </div>
+    <h3>Copyright del tutorial y nota sobre los permisos</h3>
+    <p>El Tutorial GTK tiene el Copyright © 1997 Ian Main.</p>
+    <p>Copyright © 1998-2002 Tony Gale.</p>
+    <p>Copyright © 2007 Hans van Thiel and Alex Tarkovsky.</p>
+    <p>Copyright © 2007 Traducci&oacute;n espa&ntilde;ola Laszlo Keuschnig</p>
+    <p>Se permite hacer y distribuir copias exactas de este manual 
+    siempre que la informaci&oacute;n del copyright y esta nota 
+    sobre los permisos se mantenga en todas las copias.</p>
+    <p>Se permite copiar y distribuir versiones modificadas de este 
+    documento bajo las condiciones de copia exacta, siempre que esta 
+    informaci&oacute;n sobre el copyright se incluya exactamente como 
+    en el original, y que el trabajo completo derivado de este se 
+    distribuya bajo las condiciones de una nota de permisos id&eacute;ntica
+    a esta.</p>
+    <p>Se permite copiar y distribuir traducciones de este documento 
+    en otras lenguas bajo las condiciones expresadas para las versiones 
+    modificadas.</p>
+    <p>Si pretende incorporar este documento a un trabajo impreso, por
+    favor contacte con el responsable del mantenimiento del mismo, y
+    haremos un esfuerzo para asegiurarle que dispone de la informaci&oacute; 
+    m&aacute;s actualizada disponible.</p>
+    <p>No hay garant&iacute;de que este documento responda a sus 
+    prop&oacute;sitos. Se proporciona como un recurso libre y gratuito.
+    Por tanto, los autores y los responsables del mantenimiento de
+    la informaci&oacute;n no pueden dar ninguna garant&iacute;a de que
+    la informaci&oacute;n sea correcta.</p>
+    <h3>Otros reconocimientos</h3>
+    <p>Hemos usado y agradecemos su uso 'Programming with gtkmm' de Murray Cumming et al.
+     y el tutorial del Inti (Integrated Foundation Classes) tutorial del Inti team.</p>
+    <p>El Cap&iacute;tulo 7 est&aacute; basado principalmente en el Cap&iacute;tulo 11 de 'Programming with gktmm' y la demo
+    inclu&iacute;da en la distribuci&oacute;n de Gtk2Hs.</p>
+    <div id="footer">
+      <span class="nav-previous">&#160;</span>
+      <span class="nav-home">&#160;</span>
+      <span class="nav-next">
+      <a href="es-chap1.xhtml">Next</a >
+      <br />1. Introducci&oacute;n</span>
+    </div>
+  </body>
+</html> 

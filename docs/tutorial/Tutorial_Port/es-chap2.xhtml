@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Empezando</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs </h1>
+  <span class="nav-previous"><a href="es-chap1.xhtml">Previo</a> </span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap3-1.xhtml">Siguiente</a></span>
+</div>
+
+<h2>2. Empezando</h2>
+
+<p>
+Lo primero es bajarse el Gtk2Hs e instalarlo. Siempre se puede conseguir la &uacute;ltima 
+versi&oacute;n de <a href="http://haskell.org/gtk2hs/">http://haskell.org/gtk2hs/</a> y 
+diversas versiones de Linux disponen de sus propios paquetes de Gtk2Hs. Hay un instalador 
+disponible para Windows.
+</p>
+
+<p>
+Lo siguiente es abrir la documentaci&oacute;n de referencia de la API para tu versi&oacute;n.
+La vas a usar a menudo para encontrar los nombres de los widgets, los m&eacute;todos, 
+atributos y se&ntilde;ales que podr&iacute;as querer usar.
+Se listan todos los m&oacute;dulos y adem&aacute;s se dispone de un &iacute;ndice.
+Dentro de cada descripci&oacute;n de m&oacute;dulo se muestra la jerarqu&iacute;a de clases.
+Si un m&eacute;todo, atributo o se&ntilde;al que esperas encontrar no aparece, podr&iacute;a 
+pertenecer a una de las superclases de las que tu tipo de widget es una instancia.
+</p>
+
+<p>
+Nuestra introducci&oacute;n a Gtk2Hs, empieza con el programa m&aacute;s simple posible.
+Este programa crea una ventana de 200x200 pixeles y no hay modo de salir de ella, 
+exceptuando que sea "matada" usando la shell.</p>
+
+<p><img src="Images/GtkChap2a.png" alt="Window" id="imgGtkChap2a" /></p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  widgetShowAll window
+  mainGUI
+</pre>
+
+<p>
+Puedes compilar el programa que aparece arriba con el compilador de Haskell 
+de Glasgow (Glasgow Haskell Compiler) GHC usando:
+</p>
+
+<pre class="codebox">ghc --make GtkChap2.hs -o Chap2
+</pre>
+
+<p>
+asumiendo que <code>GtkChap2.hs</code> es el nombre del fichero. Tambi&eacute;n puedes usar 
+el int&eacute;rprete interactivo GHCi para probarlo, para versiones anteriores y posteriores 
+de Gtk2Hs. Debido a problemas con los hilos (threads) las versiones intermedias no funcionar&aacute;n 
+interactivamente. (Gtk2Hs no funciona con Hugs.)
+</p>
+
+<p>
+La primera l&iacute;nea del programa importa la librer&iacute;a gr&aacute;fica de Gtk2Hs.
+</p>
+
+<p>
+Todos los programas de Gtk2Hs se ejecutan en <code>main</code>. La primera l&iacute;nea de 
+la funci&oacute;n es un bloque <code>do</code>:
+</p>
+
+<pre class="codebox">  initGUI
+</pre>
+
+<p>
+es una funci&oacute;n usada en todas las aplicaciones de Gtk2Hs.
+</p>
+
+<p>
+Las siguientes dos l&iacute;neas del bloque crean y muestran una ventana y sus contenidos:
+</p>
+
+<pre class="codebox">  window &lt;- windowNew
+  widgetShowAll window
+</pre>
+
+<p>
+En vez de crear una ventana de tama&ntilde;o 0x0, una ventana sin hijos se crea por defecto de 
+200x200 puntos, de modo que pueda ser manipulada por el usuario. Los Widgets que se pueden 
+visualizar (no todos pueden visualizarse) deben ser mostrados u ocultados usando sus propios 
+m&eacute;todos, pero la segunda l&iacute;nea funciona en el widget (aqu&iacute; la ventana) y todos sus hijos.
+</p>
+
+<p>
+La &uacute;ltima l&iacute;nea de <code>main</code> activa el bucle principal de proceso de Gtk2Hs:
+</p>
+
+<pre class="codebox">  mainGUI
+</pre>
+
+<p>
+que es otra llamada que ver&aacute;s en todas las aplicaciones Gtk2Hs. Cuando el 
+control alcanza este punto, Gtk2Hs dormir&aacute; esperando alg&uacute;n evento (pulsado 
+de un bot&oacute;n o de una tecla), timeouts, o notificaciones en los ficheros de entrada/salida. 
+En nuestro ejemplo anterior, sin embargo, los eventos son ignorados.
+</p>
+
+<h3>"Hello World" en Gtk2Hs</h3>
+
+<p>
+Vamos ahora por un programa con un widget (un bot&oacute;n): El cl&aacute;sico "hello world" 'a
+la Gtk2Hs'.
+</p>
+
+<p><img src="Images/GtkChap2b.png" alt="Hello World application" id="imgGtkChap2b" /></p>
+
+<p>
+Si se pulsa el bot&oacute;n, mostrar&aacute; el texto "Hello World". Esto est&aacute; implementado 
+en la funci&oacute;n Haskell <code>hello</code> con un bot&oacute;n <var>b</var> como argumento. 
+La declaraci&oacute;n de tipos establece la variable <var>o</var> como una instancia de la clase 
+<code>ButtonClass</code>. Gtk2Hs usa  extensivamente las clases de Haskell para reflejar la 
+jerarqu&iacute;a de objetos de los widgets GTK originales. Cada widget en Gtk2Hs tiene, por 
+supuesto, un tipo de Haskell.
+</p>
+<p>
+Los widgets, y las clases a las que sus tipos pertenecen, normalmente tienen atributos.
+Estos pueden establecerse, por m&eacute;todos espec&iacute;ficos o por la funci&oacute;n 
+general <code>set</code>, que usa una notaci&oacute;n tipo lista como se muestra a continuaci&oacute;n. 
+De especial inter&eacute;s es el atributo <code>containerChild</code> de la ventana (de una superclase 
+de la ventana) que indica la relaci&oacute;n con el bot&oacute;n. Debido a que existe esta relaci&oacute;n 
+<code>widgetShowAll window</code> har&aacute; el bot&oacute;n visible.
+</p>
+<p>
+Los widgets est&aacute;n conectados a otros widgets en un &aacute;rbol de dependencia gr&aacute;fica
+(no deber&iacute;a confundirse con la jerarqu&iacute;a de clases). Gtk2Hs tambi&eacute;n trabaja con el 
+dise&ntilde;ador de interfaz visual de Glade y, si usas Glade, estas relaciones ser&iacute;an visibles 
+en el panel del <em>Inspector</em>.
+<a href="http://haskell.org/gtk2hs/docs/tutorial/glade/">Hay un tutorial independiente</a> sobre como usar 
+Glade con Gtk2Hs.</p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+hello :: (ButtonClass o) =&gt; o -&gt; IO ()
+hello b = set b [buttonLabel := "Hello World"]
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  button &lt;- buttonNew
+  set window [windowDefaultWidth := 200, windowDefaultHeight := 200,
+              containerChild := button, containerBorderWidth := 10]
+  onClicked button (hello button)
+  onDestroy window mainQuit
+  widgetShowAll window
+  mainGUI
+</pre>
+
+<p>
+Gtk2Hs est&aacute; guiado por los sucesos (event driven). La funci&oacute;n 
+<code>mainGUI</code> dormir&aacute; hasta que algo suceda, como que el rat&oacute;n 
+sea pulsado, una ventana sea destruida o alguna otra cosa t&iacute;pica de un widget.
+Los sucesos entonces activan se&ntilde;ales que a su vez activan las funciones que ha 
+definido el usuario para ser evaluadas si se da esa circunstancia.
+En este caso la se&ntilde;al <code>onClicked</code>, emitida por el usuario al pulsar el bot&oacute;n, 
+se engancha al texto que ser&aacute; mostrado en ese mismo bot&oacute;n.
+Al destruir la ventana, no como en el primer programa, <code>main</code> ahora sale limpiamente.
+</p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap1.xhtml">Previo</a><br />1. Introducci&oacute;n</span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a><br />&nbsp;</span>
+  <span class="nav-next"><a href="es-chap3-1.xhtml">Siguiente</a><br />3.1 Empaquetando Widgets</span>
+</div>
+
+</body></html>
