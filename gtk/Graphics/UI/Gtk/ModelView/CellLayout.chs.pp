@@ -74,11 +74,14 @@ import System.Glib.GObject (mkFunPtrDestroyNotify)
 
 #if GTK_CHECK_VERSION(2,4,0)
 
+#if GTK_CHECK_VERSION(2,6,0)
 instance CellLayoutClass CellView
+instance CellLayoutClass IconView
+#endif
+
 instance CellLayoutClass EntryCompletion
 instance CellLayoutClass TreeViewColumn
 instance CellLayoutClass ComboBox
-instance CellLayoutClass IconView
 instance CellLayoutClass ComboBoxEntry
 
 --------------------
