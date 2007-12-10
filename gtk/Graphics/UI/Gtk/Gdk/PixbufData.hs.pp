@@ -27,8 +27,8 @@
 
 -- #hide
 module Graphics.UI.Gtk.Gdk.PixbufData (
-  PixbufData(PixbufData),
-  insertBounds
+  PixbufData,
+  mkPixbufData
   ) where
 
 import System.Glib.FFI
@@ -41,13 +41,24 @@ import Data.Array.Base ( MArray, newArray, newArray_, unsafeRead, unsafeWrite,
 #else
 			 getBounds
 #endif
+#if __GLASGOW_HASKELL__ >= 608
+			 ,getNumElements
+#endif
                        )
 
 -- | An array that stored the raw pixel data of a 'Pixbuf'.
 --
 -- * See 'Graphics.UI.Gtk.Gdk.Pixbuf.pixbufGetPixels'.
 --
-data Ix i => PixbufData i e = PixbufData Pixbuf (Ptr e) (i,i)
+data Ix i => PixbufData i e = PixbufData !Pixbuf
+                          {-# UNPACK #-} !(Ptr e)
+                                         !(i,i)
+                          {-# UNPACK #-} !Int
+
+mkPixbufData :: Storable e => Pixbuf -> Ptr e -> Int -> PixbufData Int e
+mkPixbufData pb (ptr :: Ptr e) size =
+  PixbufData pb ptr (0, count) count
+  where count = fromIntegral (size `div` sizeOf (undefined :: e))
 
 #if __GLASGOW_HASKELL__ < 605
 instance HasBounds PixbufData where
@@ -59,21 +70,19 @@ instance Storable e => MArray PixbufData e IO where
   newArray (l,u) e = error "Gtk.Gdk.Pixbuf.newArray: not implemented"
   newArray_ (l,u)  = error "Gtk.Gdk.Pixbuf.newArray_: not implemented"
   {-# INLINE unsafeRead #-}
-  unsafeRead (PixbufData (Pixbuf pb) pixPtr _) idx = do
+  unsafeRead (PixbufData (Pixbuf pb) pixPtr _ _) idx = do
       e <- peekElemOff pixPtr idx
       touchForeignPtr pb
       return e
   {-# INLINE unsafeWrite #-}
-  unsafeWrite (PixbufData (Pixbuf pb) pixPtr _) idx elem = do
+  unsafeWrite (PixbufData (Pixbuf pb) pixPtr _ _) idx elem = do
       pokeElemOff pixPtr idx elem
       touchForeignPtr pb
 #if __GLASGOW_HASKELL__ >= 605
   {-# INLINE getBounds #-}
-  getBounds (PixbufData pb ptr bd) = return bd
+  getBounds (PixbufData _ _ bd _) = return bd
 #endif
-
--- Insert bounds into a PixbufData.
-insertBounds :: (Num i, Ix i, Storable e) => Int -> 
-		PixbufData i e -> PixbufData i e
-insertBounds size ((PixbufData pb ptr _) :: PixbufData i e) =
-  PixbufData pb ptr (0, fromIntegral (size `div` sizeOf (undefined :: e)))
+#if __GLASGOW_HASKELL__ >= 608
+  {-# INLINE getNumElements #-}
+  getNumElements (PixbufData _ _ _ count) = return count
+#endif

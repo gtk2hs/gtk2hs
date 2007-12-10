@@ -121,10 +121,9 @@ import System.Glib.GObject
 import Graphics.UI.Gtk.General.Structs		(Rectangle(..))
 import System.Glib.GError	(GError(..), GErrorClass(..), GErrorDomain,
 				propagateGError)
-import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData(PixbufData),
-					insertBounds )
+import Graphics.UI.Gtk.Gdk.PixbufData ( PixbufData, mkPixbufData )
 
-{# context lib="gdk-pixbuf" prefix="gdk" #}
+{# context prefix="gdk" #}
 
 -- | Error codes for loading image files.
 --
@@ -199,7 +198,7 @@ pixbufGetBitsPerSample pb = liftM fromIntegral $
 --   Note that these are internal
 --   functions that might change with GHC.
 --
-pixbufGetPixels :: (Ix i, Num i, Storable e) => Pixbuf -> IO (PixbufData i e)
+pixbufGetPixels :: Storable e => Pixbuf -> IO (PixbufData Int e)
 pixbufGetPixels pb = do
   pixPtr_ <- {#call unsafe pixbuf_get_pixels#} pb
   chan <- pixbufGetNChannels pb
@@ -209,7 +208,7 @@ pixbufGetPixels pb = do
   r <- pixbufGetRowstride pb
   let pixPtr = castPtr pixPtr_
   let bytes = (h-1)*r+w*((chan*bits+7) `div` 8)
-  return (insertBounds bytes (PixbufData pb pixPtr undefined))
+  return (mkPixbufData pb pixPtr bytes)
 
 -- | Queries the width of this image.
 --
