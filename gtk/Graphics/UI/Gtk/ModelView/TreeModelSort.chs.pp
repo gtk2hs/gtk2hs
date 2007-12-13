@@ -92,7 +92,7 @@ treeModelSortNewWithModel :: TreeModelClass childModel => childModel -> IO TreeM
 treeModelSortNewWithModel childModel =
   constructNewGObject mkTreeModelSort $
   liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelSort) $
-  {# call unsafe tree_model_sort_new_with_model #}
+  {# call tree_model_sort_new_with_model #}
     (toTreeModel childModel)
 
 --------------------
