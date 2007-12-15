@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Tutorial de Gtk2hs: Di&aacute;logos, Stock Items y barras de Progreso</title>
+  
+  <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2hs</h1>
+  <span class="nav-previous"><a href="es-chap4-4.xhtml">Previo</a></span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-6.xhtml">Siguiente</a></span>
+</div>
+
+<h2>4.5 Di&aacute;logos, Stock Items y barras de Progreso</h2>
+
+<p>
+Un di&aacute;logo es un ejemplo de widget compuesto. Consta de una ventana, una parte
+superior que es una caja vertical, y un &aacute;rea de acci&oacute;n que es una caja horizontal que
+suele constar de uno o varios botones.
+Normalmente ambas partes est&aacute;n separadas por un separador horizontal.
+</p>
+
+<p>
+El widget <code>Dialog</code> puede usarse para mensajes pop-up (surgen de la aplicaci&oacute;n) al usuario, u 
+otras tareas similares. Las funciones b&aacute;sicas necesarias son:
+</p>
+
+<pre class="codebox">dialogNew :: IO Dialog
+
+dialogRun :: DialogClass self =&gt; self -&gt; IO ResponseID
+</pre>
+
+<p>
+Puedes a&ntilde;adir botones al area de acci&oacute;n con:
+</p>
+
+<pre class="codebox">dialogAddButton :: DialogClass self =&gt; self -&gt; String -&gt; ResponseId -&gt; IO Button
+</pre>
+
+<p>
+Cualquier widget puede ser a&ntilde;adido de un modo semejante con <code>dialogAddActionWidget</code>.
+</p>
+
+<p>
+El <code>String</code> en <code>dialogAddButton</code> puede ser el texto del bot&oacute;n, pero como los
+di&aacute;logos se suelen usar en situaciones est&aacute;ndar, un <code>StockItem</code> suele ser m&aacute;s apropiado.
+</p>
+
+<p>
+Los <code>StockItem</code>s son recursos conocidos en Gtk2Hs, como los <code>IconSet</code>s est&aacute;ndar. 
+Puedes definir los tuyos, pero hay muchos predefinidos en el m&oacute;dulo <code>Graphics.UI.Gtk.General.StockItems</code>.
+Tienen un identificador, <code>StockId</code>, que es un tipo sin&oacute;nimo de <code>String</code>. 
+Con este identificador, un widget (normalemente un bot&oacute;n) con el texto y el icono apropiados se
+selecciona autom&aacute;ticamente.
+</p>
+
+<p>
+Si usas un <code>StockId</code> al a&ntilde;adir un bot&oacute;n al di&aacute;logo, puedes usar un constructor <code>ResponseId</code> 
+predefinido con los botones.
+(<code>ResponseId</code> no es un <code>String</code>.) Las respuestas pueden construirse con <code>ResponseUser Int</code>.
+</p>
+
+<p>
+Siempre que se pulsa un bot&oacute;n de di&aacute;logo, su respuesta se pasa a la aplicaci&oacute;n llamante
+a trav&eacute;s de <code>dialogRun</code>. Seg&uacute;n la documentaci&oacute;n de la API de Gtk2Hs, <code>dialogRun</code> 
+se bloquea en un bucle recursivo hasta que al di&aacute;logo o bien emite la se&ntilde;al de respuesta, o es destruido.
+El modo por defecto es modal, lo que indica que el usuario no puede acceder a ninguna otra
+ventana (de esta aplicaci&oacute;n) mientras <code>dialogRun</code> est&eacute; esperando una respuesta.
+</p>
+
+<p>
+Las barras de progreso se emplean para mostrar el estado de una operaci&oacute;n en curso.
+</p>
+
+<pre class="codebox">progressBarNew :: IO ProgressBar
+</pre>
+
+<p>
+A pesar de que s&oacute;lo hay un tipo, hay dos modos diferentes de usar una barra de 
+progreso. Si se conoce la cantidad de tarea realizada, la fracci&oacute;n (entre 0.0 y 1.0 incluido) 
+se puede establecer con:
+</p>
+
+<pre class="codebox">progressBarSetFraction :: ProgressBarClass self =&gt; self -&gt; Double -&gt; IO ()
+</pre>
+
+<p>
+Esto origina que la barra de progreso se "llene" con la cantidad indicada (entre
+0.0 y 1.0). Para marcar el progreso, esta funci&oacute;n se debe llamar cada cierto tiempo durante la operaci&oacute;n.
+</p>
+
+<p>
+Si no se conoce la parte de la operaci&oacute;n completada, la barra puede moverse de atr&aacute;s 
+hacia adelante con:
+</p>
+
+<pre class="codebox">progressBarPulse :: ProgressBarClass self =&gt; self -&gt; IO ()
+</pre>
+
+<p>
+Tambi&eacute;n esta funci&oacute;n debe ser llamada repetidamente, para mostrar que la actividad
+sigue en marcha. Hay otras muchas funciones para controlar la presentaci&oacute;n de
+una barra de progreso, como la orientaci&oacute;n, texto adicional, etc.; Son muy sencillas.
+</p>
+
+<p>
+La aplicaci&oacute;n, sin embargo, no es trivial debido a que las barras de progreso se
+aplican normalmente con temporizadores u otras funciones para dar la ilusi&oacute;n de multitarea.
+Con Haskell concurrente puedes usar hilos(threads) y comunicaci&oacute;n entre hilos.
+</p>
+
+<p>
+En el siguiente ejemplo simulamos una actividad usando <code>timeoutAdd</code>, 
+que ejecuta una funci&oacute;n repetidamente con el intervalo especificado en milisegundos.
+La funci&oacute;n se pasa a <code>timeoutAdd</code> y debe devolver un valor del tipo <code>IO Bool</code>. 
+Cuando el valor es true, el temporizador se vuelve a activar, cuando es falso, se para.
+La prioridad de <code>timeoutAdd</code> es <code>priorityDefault</code> de tipo <code>Priority</code>.
+</p>
+
+<pre class="codebox">timeoutAdd :: IO Bool -&gt; Int -&gt; IO HandlerId
+</pre>
+
+<p>
+En el ejemplo, definimos una funci&oacute;n <code>showPulse</code>, que causa que la barra
+de progreso que compruebe y que siempre devuelva <code>IO True</code>. El paso,
+la cantidad que se mover&aacute; el indicador por la barra, se establece a 1.0 con
+<code>progressBarSetPulseStep</code>.
+</p>
+
+<p><img src="Images/GtkChap4-5.png" alt="Progress bar pulsing" id="imgGtkChap4-5" /></p>
+
+<p>
+El ejemplo es un poco at&iacute;pico en el uso del di&aacute;logo, ya que lo usamos para
+mostrar el progreso tras la pulsaci&oacute;n del bot&oacute;n "aplicar". Para cerrar la aplicaci&oacute;n, 
+el di&aacute;logo debe ser destruido, destruyendo la ventana. Los botones de cerrar
+y cancelar no funcionan despu&eacute;s de que "aplicar" haya sido seleccionada.
+Si han sido seleccionados antes de "aplicar", la aplicaci&oacute;n se cierra. Esto se realiza
+comprobando la respuesta de <code>dialogRun</code>.
+</p>
+
+<p>
+Si el widget de di&aacute;logo se destruye, se llama a <code>mainQuit</code>. Como mencion&eacute;
+arriba, un <code>Dialog</code> consta de una ventana y dos cajas. Se debe acceder a las cajas 
+a trav&eacute;s de funciones especiales, y la barra de progreso se empaqueta en la parte superior con
+ <code>dialogGetUpper</code>. Los botones en un di&aacute;logo son visibles por defecto, pero los widgets
+ de la parte superior, no. Un <code>Dialog</code> es una instancia de la <code>WindowClass</code>, 
+y por tanto, podemos ponerle el t&iacute;tulo y/o definir su tama&ntilde;o si queremos.
+</p>
+
+<p>
+Una caracter&iacute;stica trivial a tener en cuenta: Un widget s&oacute;lo puede ser visible si su
+padre es visible. As&iacute;, para mostrar la barra de progreso, usamos <code>widgetShowAll</code> 
+en la caja vertical y no <code>widgetShow</code> en la barra de progreso.
+</p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+
+  dia &lt;- dialogNew
+  set dia [windowTitle := "Time Flies"]
+  dialogAddButton dia stockapply  Responseapply
+  dialogAddButton dia stockCancel ResponseCancel
+  dialogAddButton dia stockClose  ResponseClose
+
+  pr &lt;- progressBarNew
+  progressBarSetPulseStep pr 1.0
+
+  upbox &lt;- dialogGetUpper dia
+  boxPackStart upbox pr PackGrow 10
+  widgetShowAll upbox
+
+  answer &lt;- dialogRun dia
+  if answer == Responseapply 
+     then do tmhandle &lt;- timeoutAdd (showPulse pr) 500
+             return ()
+     else widgetDestroy dia
+
+  onDestroy dia mainQuit
+  mainGUI
+
+showPulse :: ProgressBar -&gt; IO Bool
+showPulse b = do progressBarPulse b
+                 return True
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap4-4.xhtml">Previo</a><br />4.4 Flechas y Tooltips</span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-6.xhtml">Siguiente</a><br />4.6 Entrada de texto y barras de estado</span>
+</div>
+
+
+</body></html>

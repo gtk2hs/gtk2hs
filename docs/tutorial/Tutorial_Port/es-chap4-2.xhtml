@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es"><head><!--
+<?xml version="1.0" encoding="UTF-8"?>
+-->
+
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Tutorial de Gtk2Hs: Ajustes, escalado y rango</title>
+  
+  <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs</h1>
+  <span class="nav-previous"><a href="es-chap4-1.html">Previo</a></span>
+  <span class="nav-home"><a href="es-index.html">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-3.html">Siguiente</a></span>
+</div>
+
+<h2>4.2 Ajustes, escalado y rango</h2>
+
+<p>
+Gtk2Hs tiene varios widgets que pueden ser ajustados visualmente por el usuario
+usando el rat&oacute;n o el teclado, como los widgets rango, descritos en su secci&oacute;n.
+Tambi&eacute;n hay algunos widgets que muestran una porci&oacute;n de un &aacute;rea de datos mayor,
+como el widget text y el widget viewport. Esta porci&oacute;n tambi&eacute;n puede ser ajustada 
+por el usuario.
+</p>
+
+<p>
+Una aplicaci&oacute;n necesita ser capaz de reaccionar a los cambios que hace el usuario
+en el rango. Un modo de hacerlo podr&iacute;a ser haciendo que cada widget emitiera
+su propio tipo de se&ntilde;al cuando cambiase su ajuste. Pero puede que quisieras enlazar
+los ajustes de varios widgets juntos, de modo que al ajustar uno se ajustasen los otros.
+El ejemplo m&aacute;s claro de esto es la conexi&oacute;n de un scrollbar (barra de deslizamiento) a un 
+panning viewport (ventana de mostrar im&aacute;genes con una subpantalla) o a un &aacute;rea de texto con scroll.
+</p>
+
+<p>
+El objeto <code>Adjustment</code> (ajuste) se puede usar para almacenar los par&aacute;metros y valores de
+configuraci&oacute;n de los widgets de rango, como los scrollbars y controles de escalado.
+Como <code>Adjustment</code> se deriva de <code>GObject</code> y
+<code>Object</code>, los ajustes pueden emitir se&ntilde;ales, que pueden ser usadas no s&oacute;lo para
+que tu programa reaccione a las entradas del usuario en los widgets ajustables, sino
+tambi&eacute;n para propagar los valores de ajuste de un modo transparente entre widgets ajustables.
+</p>
+
+<p>
+Muchos de los widgets que usan objetos <code>Adjustment</code>, como <code>ScrolledWindow</code>, pueden crear
+sus propios objetos <code>Adjustment</code>, pero tu mismo los puedes crear con:
+</p>
+
+<pre class="codebox">adjustmentNew :: Double        -- valor            - El valor inicial del rango
+              -&gt; Double        -- m&iacute;nimo           - Valor m&iacute;nimo del rango
+              -&gt; Double        -- m&aacute;ximo           - Valor m&aacute;ximo del rango
+              -&gt; Double        -- incrementoPaso   - El menor de dos posibles incrementos
+              -&gt; Double        -- incrementoP&aacute;gina - El mayor de dos posibles incrementos
+              -&gt; Double        -- tama&ntilde;oP&aacute;gina     - El tama&ntilde;o del &aacute;rea visible
+              -&gt; IO Adjustment
+</pre>
+
+<p>
+La funci&oacute;n de creaci&oacute;n necesita un valor para cada informaci&oacute;n contenida en el objeto:
+<code>valor</code> Es el valor inicial y debe estar contenido entre el maximo y el m&iacute;nimo.
+<code>m&aacute;ximo</code> y <code>m&iacute;nimo</code> fijan el margen del deslizador. Pulsando en las flechas
+se incrementa el valor en <code>incrementPaso</code>. Pulsando en el deslizador (slider) avanza un 
+<code>incrementoP&aacute;gina</code>. El <code>tama&ntilde;oP&aacute;gina</code> se necesita para determinar si el final 
+del deslizador se mantiene en el rango. Puedes conseguir y establecer todos los par&aacute;metros de un
+<code>Adjustment</code> por m&eacute;todos espec&iacute;ficos o usando las funciones generales <code>set</code> y <code>get</code> 
+en los atributos de <code>Adjustment</code>.
+</p>
+
+<pre class="codebox">onValueChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
+</pre>
+
+<p>
+es la se&ntilde;al emitida cuando el "valor" de un <code>Adjustment</code> cambia, y:
+</p>
+
+<pre class="codebox">onAdjChanged :: Adjustment -&gt; IO () -&gt; IO (ConnectId Adjustment)
+</pre>
+
+<p>
+es la se&ntilde;al emitida cuando cambian uno o m&aacute;s de los otros atributos (diferentes de "valor") de un  <code>Adjustment</code>.
+</p>
+
+<h3>Widgets de escala y rango</h3>
+
+<p>
+Los widgets de escalado se usan para permitir al usuario la selecci&oacute;n visual
+y la manipulaci&oacute;n del valor dentro de un rango especificado usando un deslizador. 
+Podr&iacute;as querer usar un widget escalable, por ejemplo, para ajustar el nivel de
+ampliaci&oacute;n en una previsualizaci&oacute;n reducida de una imagen, o para controlar el
+brillo de un color o para especificar el n&uacute;mero de minutos de inactividad antes de 
+que un salvapantallas se active.</p>
+
+<p>
+Las siguientes funciones crean widgets de escalado vertical y horizontal respectivamente:
+</p>
+
+<pre class="codebox">vScaleNew :: Adjustment -&gt; IO VScale
+
+hScaleNew :: Adjustment -&gt; IO Hscale
+</pre>
+
+<p>
+Tambi&eacute;n hay dos constructores, que no utilizan el <code>Adjustment</code>:
+</p>
+
+<pre class="codebox">vScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO VScale
+
+hScaleNewWithRange :: Double -&gt;. Double -&gt; Double -&gt; IO Hscale
+</pre>
+
+<p>
+Los par&aacute;metros de tipo <code>Double</code> se refieren a los valores m&aacute;ximo, m&iacute;nimo y el
+paso. El incremento del paso (preferiblemente en potencias de 10) es el valor en que se
+mueve la escala cuando se usan las teclas de cursor (flechas).
+</p>
+
+<p>
+Las escalas horizontal y vertical son instancias de <code>ScaleClass</code> y 
+su comportamiento com&uacute;n est&aacute; definido en el m&oacute;dulo
+<code>Graphics.UI.Gtk.Abstract.Scale</code>.
+</p>
+
+<p>
+Los widgets de escalado pueden mostrar su valor actual como un n&uacute;mero junto al canal. 
+(El &aacute;rea donde se mueve el deslizador)
+El comportamiento por defecto es mostrar el valor, pero puedes modificarlo con la funci&oacute;n:
+</p>
+
+<pre class="codebox">scaleSetDrawValue :: ScaleClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+El valor mostrado por un widget de escalado se redondea en un punto decimal
+por defecto, igual que el ajuste del campo <var>valor</var>. Esto se puede cambiar con:
+</p>
+
+<pre class="codebox">scaleSetDigits :: ScaleClass self =&gt; self -&gt; Int -&gt; IO ()
+</pre>
+
+<p>
+Finalmente, el valor puede ser dibujado en diferentes posiciones relativas al canal: 
+</p>
+
+<pre class="codebox">scaleSetValuePos :: ScaleClass self =&gt; self -&gt; PositionType -&gt; IO ()
+</pre>
+
+<p>
+La <code>PositionType</code> (tipo de posici&oacute;n) se define como:
+</p>
+
+<pre class="codebox">data PositionType = PosLeft | PosRight | PosTop | PosBottom
+</pre>
+
+<p>
+<code>Scale</code> hereda diferentes m&eacute;todos de su clase base que es: <code>Range</code>.
+</p>
+
+<h4>Estableciendo la pol&iacute;tica de actualizaciones</h4>
+
+<p>
+La pol&iacute;tica de actualizaciones de un widget rango define los puntos a los que, durante
+la interacci&oacute;n con el usuario, cambiar&aacute; el campo <var>valor</var> de su
+<code>Adjustment</code> y emitir&aacute; la se&ntilde;al <code>onRangeValueChanged</code> 
+de su <code>Adjustment</code>. La pol&iacute;tica de actualizaciones esta definida por el
+<code>UpdateType</code>, que tiene tres constructores:
+</p>
+
+<dl>
+  <dt><code>UpdateContinuous</code> (Actualizaci&oacute;n continua )</dt>
+  <dd>
+  Es el valor por defecto. La se&ntilde;al <code>onRangeValueChanged</code> se emite continuamente, 
+  <em>p.ej.</em>, cuando el deslizador se mueve un valor m&iacute;nimo.
+  </dd>
+
+  <dt><code>UpdateDiscontinuous</code> (Actualizaci&oacute;n discontinua)</dt>
+  <dd>
+  La se&ntilde;al <code>onRangeValueChanged</code> s&oacute;lo se emite cuando el deslizador se ha detenido
+  y el usuario ha levantado el bot&oacute;n del rat&oacute;n.
+  </dd>
+
+  <dt><code>UpdateDelayed</code> (Actualizaci&oacute;n retrasada)</dt>
+  <dd>
+  La se&ntilde;al <code>onRangeValueChanged</code> se emite cuando el usuario levanta el bot&oacute;n del
+  rat&oacute;n o si el deslizador se para de mover durante un corto periodo de tiempo.
+  </dd>
+</dl>
+
+<p>
+La pol&iacute;tica de actualizaciones de un widget range se puede establecer por:
+</p>
+
+<pre class="codebox">rangeSetUpdatePolicy :: RangeClass self =&gt; self -&gt; UpdateType -&gt; IO ()
+</pre>
+
+<h4>Obteniendo y estableciendo los ajustes</h4>
+
+<p>
+La obtenci&oacute;n y el ajuste de un widget rango se hace sobre la marcha con:
+</p>
+
+<pre class="codebox">rangeGetAdjustment :: RangeClass self =&gt; self -&gt; IO Adjustment
+
+rangeSetAdjustment :: RangeClass self =&gt; self -&gt; Adjustment -&gt; IO ()
+</pre>
+
+<p>
+<code>rangeSetAdjustment</code> no hace nada si le pasas el objeto de <code>Adjustment</code> que ya est&aacute; usando, 
+independientemente de que alguno de los valores de sus atributos haya cambiado. 
+Si le pasas un nuevo c&oacute;digo de <code>Adjustment</code>, desconectar&aacute; el antiguo, si exist&iacute;a
+(posiblemente detruy&eacute;ndolo), conectar&aacute; las se&ntilde;ales apropiadas al nuevo, y llamar&aacute; a la funci&oacute;n 
+privada <code>gtk_range_adjustment_changed()</code>, que (o al menos se supone que...) recalcular&aacute;
+el tama&ntilde;o y/o posici&oacute;n del deslizador y lo dibujar&aacute; si fuera necesario.
+Como se ha mencionado en la secci&oacute;n de ajustes, si quieres volver a usar el mismo <code>Adjustment</code>, 
+cuando modificas sus valores directamente, deber&iacute;as emitir la se&ntilde;al <code>changed</code> (cambiado) sobre &eacute;l.
+</p>
+
+<h3>Interacci&oacute;n con teclado y rat&oacute;n </h3>
+
+<p>
+Todos los widgets de rango de Gtk2Hs reaccionan a las pulsaciones de rat&oacute;n m&aacute;s 
+o menos de la misma manera. Pulsando del bot&oacute;n 1 del rat&oacute;n en el canal originar&aacute; 
+que el ajuste de <code>incrementoPaso</code> se a&ntilde;ada o sustraiga de su <var>valor</var>,
+y el deslizador se mueva de acuerdo a ello. Pulsando el bot&oacute;n 2 del rat&oacute;n en el canal
+mover&aacute; el deslizador al punto en que se puls&oacute; el bot&oacute;n. Pulsando el tercer bot&oacute;n en el 
+canal o en las flechas del scroll causar&aacute; que el <var>valor</var> del <code>Adjustment</code> 
+cambie en el valor de <code>incrementoPaso</code>.
+</p>
+
+<p class="notebox">
+<strong>Nota:</strong> Esto no funciona en Linux Fedora 6 con la configuraci&oacute;n est&aacute;ndar del rat&oacute;n.
+</p>
+
+<p>
+No se puede hacer que las barras de scroll tengan el foco, as&iacute; que no disponen de atajos de teclado.
+Para los otros widgets de rango, (que s&oacute;lo est&aacute;n activos cuando el widget tiene el foco) <em>no</em> 
+diferencian entre widgets de rango vertical u horizontal.
+</p>
+
+<p>
+Todos los widgets de rango se pueden usar con las flechas de izquierda, derecha, arriba y abajo,
+as&iacute; como con las teclas <strong>AvP&aacute;g</strong> y <strong>ReP&aacute;g</strong>. Las flechas mueven el 
+deslizador arriba y abajo en <code>incrementoPaso</code>, mientras <strong>AvP&aacute;g</strong> y 
+<strong>ReP&aacute;g</strong> lo mueven en <code>incrementoP&aacute;gina</code>. <strong>Inicio</strong> y <strong>Fin</strong> 
+lo mueven al principio y al final del canal.
+</p>
+
+
+<h3>Ejemplo</h3>
+
+<p>
+Este ejemplo crea una ventana con tres widgets de rango conectados al mismo objeto <code>Adjustment</code>,
+y un par de controles para ajustar algunos de los par&aacute;metros mencionados antes, de modo
+que puedas ver como afecta al modo en que dichos widgets trabajan.
+</p>
+
+<p><img src="Images/GtkChap4-2.png" alt="Range widgets example" id="imgGtkChap4-2" /></p>
+
+<p>
+Las tres escalas se sit&uacute;an de modo que la barra vertical est&aacute; junto a las dos
+horizontales, una sobre la otra. As&iacute; que necesitamos una caja horizontal para la escala vertical
+y una caja vertical junto a ella para las escalas horizontales. Las escalas y las cajas 
+deben empaquetarse con <code>PackGrow</code> de modo que las escalas actualicen su tama&ntilde;o con el de
+la caja principal, que es una caja vertical en la ventana.
+</p>
+
+<p>
+Todas las escalas se construyen con el mismo <code>Adjustment</code>, estableciendo el valor inicial en 0.0, 
+el valor m&iacute;nimo en 0.0, el m&aacute;ximo en 101.0, el incremento del paso en 0.1, el incremento de
+p&aacute;gina en 1.0 y el tama&ntilde;o de la p&aacute;gina en 1.0.
+</p>
+
+<pre class="codebox">  adj1 &lt;- adjustmentNew 0.0 0.0 101.0 0.1 1.0 1.0
+</pre>
+
+<p>
+El usuario puede controlar cuando se muestran los valores de escalado con un
+<code>checkButton</code>. Esto se empaqueta en la caja principal y se establece
+para estar activo inicialmente. Un bot&oacute;n check es un bot&oacute;n toggle, as&iacute; que cuando 
+el usuario lo marca o lo desmarca, se env&iacute;a la se&ntilde;al <code>onToggled</code>. 
+Esto origina que la funci&oacute;n <code>toggleDisplay</code> 
+se eval&uacute;e. La funci&oacute;n <code>toggleDisplay</code> queda definida as&iacute;:
+</p>
+
+<pre class="codebox">toggleDisplay :: ScaleClass self =&gt; CheckButton -&gt; [self] -&gt; IO ()
+toggleDisplay b scls = sequence_ (map change scls) where
+                         change sc = do st &lt;- toggleButtonGetActive b
+                                        scaleSetDrawValue sc st
+</pre>
+
+<p>
+La funci&oacute;n tiene un par&aacute;metro tipo <code>checkButton</code>, y una lista de instancias
+de <code>ScaleClass</code>. Sin embargo, una lista s&oacute;lo puede contener valores del mismo tipo,
+y <code>vScale</code> y <code>hScale</code> son tipos diferentes. Por lo tanto, usamos la funci&oacute;n
+en listas de escalas horizontales o verticales, pero si la lista contuviera los dos tipos se originar&iacute;a un 
+error de tipado.
+</p>
+
+<p>
+El usuario puede elegir el <code>positionType</code> mediante un widget del que todav&iacute;a no hemos hablado, 
+un <code>ComboBox</code>. Esto permite una selecci&oacute;n de elecciones como se muestra m&aacute;s abajo. El primero en
+establecerse como activo se determina por un &iacute;ndice, 0 aqu&iacute; (el primero).
+</p>
+
+<pre class="codebox">makeOpt1 :: IO ComboBox
+makeOpt1 = do
+  cb &lt;- comboBoxNewText
+  comboBoxAppendText cb "TOP"
+  comboBoxAppendText cb "BOTTOM"
+  comboBoxAppendText cb "LEFT"
+  comboBoxAppendText cb "RIGHT"
+  comboBoxSetActive cb 0
+  return cb
+</pre>
+
+<p>
+Un segundo <code>comboBox</code> permite que el usuario seleccione la pol&iacute;tica de actualizaciones, 
+alguno de los tres constructores de <code>UpdateType</code>.
+</p>
+
+<pre class="codebox">makeOpt2 :: IO ComboBox
+makeOpt2 = do
+  cb &lt;- comboBoxNewText
+  comboBoxAppendText cb "Continuous"
+  comboBoxAppendText cb "Discontinuous"
+  comboBoxAppendText cb "Delayed"
+  comboBoxSetActive cb 0
+  return cb
+</pre>
+
+<p>
+Las cajas combo (Combo box) por si mismas s&oacute;lo muestran texto. Para seleccionar
+la posici&oacute;n, definimos:
+</p>
+
+<pre class="codebox">setScalePos :: ScaleClass self =&gt; ComboBox -&gt; self -&gt; IO ()
+setScalePos cb sc = do
+    ntxt &lt;- comboBoxGetActiveText cb
+    let pos = case ntxt of
+                (Just "TOP")    -&gt; PosTop
+                (Just "BOTTOM") -&gt; PosBottom
+                (Just "LEFT")   -&gt; PosLeft
+                (Just "RIGHT")  -&gt; PosRight
+                Nothing         -&gt; error "setScalePos: no position set"
+    scaleSetValuePos sc pos
+
+setUpdatePol :: RangeClass self =&gt; ComboBox -&gt; self -&gt; IO ()
+setUpdatePol cb sc = do
+    ntxt &lt;- comboBoxGetActiveText cb
+    let pol = case ntxt of
+                (Just "Continuous")    -&gt; UpdateContinuous
+                (Just "Discontinuous") -&gt; UpdateDiscontinuous
+                (Just "Delayed")       -&gt; UpdateDelayed
+                Nothing                -&gt; error "setUpdatePol: no policy set"
+    rangeSetUpdatePolicy sc pol
+</pre>
+
+<p>
+Aqu&iacute; no hemos usado listas para gestionar las escalas verticales y horizontales, as&iacute; que
+accedemos por separado a cada escala horizontal.
+</p>
+
+<p>
+El n&uacute;mero de precisi&oacute;n mostrado por las tres escalas debe ser manejado con otra escala,
+para la que usamos un nuevo objeto <code>Adjustment</code>. La precisi&oacute;n m&aacute;xima es 5 y cada incremento es 1.
+La precisi&oacute;n de la propia escala de control se establece a 1.
+</p>
+
+<pre class="codebox">  adj2 &lt;- adjustmentNew 1.0 0.0 5.0 1.0 1.0 0.0
+</pre>
+
+<p>
+Cuando cambia el <code>Adjustment</code> de control, se emite la se&ntilde;al <code>onValueChanged</code> y se 
+eval&uacute;a la funci&oacute;n <code>setDigits</code>.
+</p>
+
+<pre class="codebox">setDigits :: ScaleClass self =&gt; self -&gt; Adjustment -&gt; IO ()
+setDigits sc adj = do val &lt;- get adj adjustmentValue
+                      set sc [scaleDigits := (round val)]
+</pre>
+
+<p>
+Aqu&iacute; usamos las funciones generales <code>set</code> y <code>get</code> sobre los
+atributos; podr&iacute;amos haber usado funciones espec&iacute;ficas tambi&eacute;n. f&iacute;jate en que el
+valor de tipo <code>Double</code> del <var>valor</var> de ajuste, se debe redondear a un valor de
+tipo <code>Integral</code>.
+</p>
+
+<p>
+Usamos otra escala horizontal para gestionar el tama&ntilde;o de p&aacute;gina de las tres
+escalas del ejemplo. Cuando lo ponemos a 0.0, las escalas pueden alcanzar su
+m&aacute;ximo inicial de 100.0 y cuando lo ponemos a 100.0 las escalas quedan fijas 
+en su menor valor. Esto implica el ajuste del 
+<code>adjustment</code> por una se&ntilde;al de <code>onValueChanged</code> desde un tercer 
+<code>adjustment</code> mediante este trozo de c&oacute;digo:
+</p>
+
+<pre class="codebox">  onValueChanged adj3 $ do val &lt;- adjustmentGetValue adj3
+                           adjustmentSetPageSize adj1 val
+</pre>
+
+<p>
+La funci&oacute;n main es:
+</p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  set window [windowTitle := "range controls",
+              windowDefaultWidth := 250]
+  mainbox &lt;- vBoxNew False 10
+  containerAdd window mainbox
+  containerSetBorderWidth mainbox 10
+
+  box1 &lt;- hBoxNew False 0
+  boxPackStart mainbox box1 PackGrow 0
+  adj1 &lt;- adjustmentNew 0.0 0.0 101.0 0.1 1.0 1.0
+  vsc  &lt;- vScaleNew adj1
+  boxPackStart box1 vsc PackGrow 0
+
+  box2 &lt;- vBoxNew False 0
+  boxPackStart box1 box2 PackGrow 0
+
+  hsc1 &lt;- hScaleNew adj1
+  boxPackStart box2 hsc1 PackGrow 0
+  hsc2 &lt;- hScaleNew adj1
+  boxPackStart box2 hsc2 PackGrow 0
+
+  chb &lt;- checkButtonNewWithLabel "Display Value on Scale Widgets"
+  boxPackStart mainbox chb PackNatural 10
+  toggleButtonSetActive chb True
+
+  box3   &lt;- hBoxNew False 10
+  boxPackStart mainbox box3 PackNatural 0
+  label1 &lt;- labelNew (Just "Scale Value Position:")
+  boxPackStart box3 label1 PackNatural 0
+  opt1   &lt;- makeOpt1
+  boxPackStart box3 opt1 PackNatural 0
+
+  box4   &lt;- hBoxNew False 10
+  boxPackStart mainbox box4 PackNatural 0
+  label2 &lt;- labelNew (Just "Scale Update Policy:")
+  boxPackStart box4 label2 PackNatural 0
+  opt2   &lt;- makeOpt2
+  boxPackStart box4 opt2 PackNatural 0
+
+  adj2 &lt;- adjustmentNew 1.0 0.0 5.0 1.0 1.0 0.0
+
+  box5   &lt;- hBoxNew False 0
+  containerSetBorderWidth box5 10
+  boxPackStart mainbox box5 PackGrow 0
+  label3 &lt;- labelNew (Just "Scale Digits:")
+  boxPackStart box5 label3 PackNatural 10
+  dsc    &lt;- hScaleNew adj2
+  boxPackStart box5 dsc PackGrow 0
+  scaleSetDigits dsc 0
+
+  adj3 &lt;- adjustmentNew 1.0 1.0 101.0 1.0 1.0 0.0
+
+  box6   &lt;- hBoxNew False 0
+  containerSetBorderWidth box6 10
+  boxPackStart mainbox box6 PackGrow 0
+  label4 &lt;- labelNew (Just "Scrollbar Page Size:")
+  boxPackStart box6 label4 PackNatural 10
+  psc    &lt;- hScaleNew adj3
+  boxPackStart box6 psc PackGrow 0
+  scaleSetDigits psc 0
+
+  onToggled chb $ do toggleDisplay chb [hsc1,hsc2]
+                     toggleDisplay chb [vsc]
+
+  onChanged opt1 $ do setScalePos opt1 hsc1
+                      setScalePos opt1 hsc2
+                      setScalePos opt1 vsc
+
+  onChanged opt2 $ do setUpdatePol opt2 hsc1
+                      setUpdatePol opt2 hsc2
+                      setUpdatePol opt2 vsc
+
+  onValueChanged adj2 $ do setDigits hsc1 adj2
+                           setDigits hsc2 adj2
+                           setDigits vsc  adj2
+
+  onValueChanged adj3 $ do val &lt;- adjustmentGetValue adj3
+                           adjustmentSetPageSize adj1 val
+
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+</pre>
+
+<p>
+Las funciones no est&aacute;ndar usadas en el listado ya han sido listadas antes.
+</p>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap4-1.html">Previo</a><br />4.1 El widget bot&oacute;n</span>
+  <span class="nav-home"><a href="es-index.html">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-3.html">Siguiente</a><br />4.3 Etiquetas</span>
+</div>
+
+
+</body></html>

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head><!--
+<?xml version="1.0" encoding="UTF-8"?>
+-->
+
+
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Tutorial de Gtk2Hs: Etiquetas</title>
+  
+  <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs</h1>
+  <span class="nav-previous"><a href="es-chap4-2.html">Previo</a></span>
+  <span class="nav-home"><a href="es-index.html">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-4.html">Siguiente</a></span>
+</div>
+
+<h2>4.3 Etiquetas</h2>
+
+<p>
+Las etiquetas se usan mucho en Gtk2Hs, y son relativamente sencillas. Las etiquetas
+no emiten se&ntilde;ales, ya que no tienen una X Window asociada. Si necesitas capturar
+una se&ntilde;al o apilarlas con otros widgets, debes colocarla dentro de un widget <code>EventBox</code> (Caja de eventos),
+Los <code>EventBox</code> te permiten capturar se&ntilde;ales de widgets que no tienen su
+propia ventana o bot&oacute;n.
+</p>
+
+<p>
+Para crear una nueva etiqueta, puedes usar:
+</p>
+
+<pre class="codebox">labelNew :: Maybe String -&gt; IO Label
+
+labelNewWithMnemonic :: String -&gt; IO Label
+</pre>
+
+<p>
+Con la segunda funci&oacute;n, si alg&uacute;n caracter de la cadena est&aacute; precedido de un
+gui&oacute;n bajo (o subrayado), se subraya al representarlo. Si necesitas un car&aacute;cter 
+gui&oacute;n bajo en una etiqueta, debes usar "__" (dos subrayados). El primer caracter subrayado
+que aparece representa un atajo de teclado que denominamos mnem&oacute;nico. Cuando se pulsa esa
+tecla, el widget disponible que contiene esa etiqueta (un bot&oacute;n, por ejemplo) se activa.
+El widget al que queremos asociar un nmem&oacute;nico se puede establecer con
+<code>labelSetMnemonicWidget</code>.
+</p>
+
+<p>
+Para cambiar el texto de la etiqueta despu&eacute;s de haber sido creada, o para
+conseguir el texto de la misma, puedes usar las funciones:
+</p>
+
+<pre class="codebox">labelSetText :: LabelClass self =&gt; self -&gt; String -&gt; IO ()
+
+labelGetLabel :: LabelClass self =&gt; self -&gt; IO String
+</pre>
+
+<p>
+o, por supuesto, las funciones gen&eacute;ricas <code>set</code> o <code>get</code>. El 
+espacio necesario para la nueva cadena (string) ser&iacute;a ajustado autom&aacute;ticamente si
+fuera preciso. Se pueden producir etiquetas multil&iacute;nea, colocando saltos de l&iacute;nea en
+la cadena de la etiqueta. La justificaci&oacute;n del texto en las etiquetas multil&iacute;nea se realiza 
+con la funci&oacute;n:
+</p>
+
+<pre class="codebox">labelSetJustify :: LabelClass self =&gt; self -&gt; Justification -&gt; IO ()
+</pre>
+
+<p>
+donde el tipo <code>Justification</code> puede usar alguno de estos cuatro constructores:
+</p>
+
+<ul>
+  <li><code>JustifyLeft</code> Izquierda</li>
+  <li><code>JustifyRight</code> Derecha</li>
+  <li><code>JustifyCenter</code> Centrado</li>
+  <li><code>JustifyFill</code> Ambos</li>
+</ul>
+
+<p>
+El widget etiqueta es tambi&eacute;n capaz de fijar los saltos de l&iacute;nea en el texto autom&aacute;ticamente.
+Esto se puede activar usando:
+</p>
+
+<pre class="codebox">labelSetLineWrap :: LabelClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+Si quieres que la etiqueta est&eacute; subrayada, puedes establecer un patr&oacute;n para la etiqueta:
+</p>
+
+<pre class="codebox">labelSetPattern :: LabelClass self =&gt; self -&gt; [Int] -&gt; IO ()
+</pre>
+
+<p>
+La lista de <code>Int</code>s (enteros) marca las partes del texto de la etiqueta que se subrayar&aacute;n
+alternando con los caracteres que no se subrayar&aacute;n. Por ejemplo, <var>[3, 1, 3]</var> significa
+que se subrayar&aacute;n los tres primeros caracteres, el siguiente, no y los tres siguientes, s&iacute;.
+</p>
+
+<p>
+Puedes hacer, tambi&eacute;n, que se pueda seleccionar el texto de la etiqueta, de modo
+que el usuario pueda copiarlo y pegarlo, adem&aacute;s de usar algunas opciones de formateo.
+</p>
+
+<p>
+Abajo hay un ejemplo que ilustra algunas de estas funciones. Usa el widget <code>Frame</code> 
+para demostrar mejor los estilos de la etiqueta. Un <code>Frame</code> no es m&aacute;s que un ornamento, 
+igual que un <code>HSeparator</code> y un <code>VSeparator</code> pero en este caso rodea al widget y
+es una instancia de <code>Container</code>. Por tanto, el widget que encuadra debe ser a&ntilde;adido
+con <code>containerAdd</code>. Un <code>Frame</code> puede tener una etiqueta para transmitir 
+informaci&oacute;n sobre su contenido.
+</p>
+
+<p><img src="Images/GtkChap4-3.png" alt="Label examples" id="imgGtkChap4-3" /></p>
+
+<p>
+Como todas las etiquetas del ejemplo tienen un <code>Frame</code>, se define
+una funci&oacute;n <code>myLabelWithFrameNew</code>, que devuelve una tupla. Gtk2Hs es 100% Haskell, 
+por lo que puedes usar todos los tipos de datos y caracter&iacute;stas de Haskell.
+Las justificaciones son obvias pero s&oacute;lo se refieren a las l&iacute;neas de dentro de la etiqueta. 
+As&iacute; que, para justificar a la derecha <var>label2</var>, necesitas <code>miscSetAlignment</code> tal y
+como se muestra m&aacute;s abajo. Los &uacute;ltimos dos widgets en la caja horizontal de la izquierda se 
+empaquetan con <code>boxPackEnd</code> en vez del usual <code>boxPackStart</code>. La 
+etiqueta bot&oacute;n demuestra el uso de un mnem&oacute;nico como atajo. Pulsar <strong>Alt-C</strong> 
+en el teclado provoca el mismo efecto que pulsar el bot&oacute;n con el rat&oacute;n.
+</p>
+
+<p class="notebox">
+<strong>Nota:</strong> Cuando se ha testeado en Fedora 6, pulsar <strong>Enter</strong>
+o la barra espaciadora tiene el mismo efecto. F&iacute;jate adem&aacute;s en el efecto del car&aacute;cter 
+"y" en la colocaci&oacute;n del subrayado.
+</p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main:: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  set window [windowTitle := "Labels", containerBorderWidth := 10]
+  mainbox &lt;- vBoxNew False 10
+  containerAdd window mainbox
+  hbox    &lt;- hBoxNew True 5
+  boxPackStart mainbox hbox PackNatural 0
+  vbox1   &lt;- vBoxNew False 10
+  vbox2   &lt;- vBoxNew False 0
+  boxPackStart hbox vbox1 PackNatural 0
+  boxPackStart hbox vbox2 PackNatural 0
+
+  (label1,frame1) &lt;- myLabelWithFrameNew
+  boxPackStart vbox1 frame1 PackNatural 0
+  labelSetText label1 "Penny Harter"
+
+  (label2,frame2) &lt;- myLabelWithFrameNew
+  boxPackStart vbox1 frame2 PackNatural 0
+  labelSetText label2 "broken bowl\nthe pieces\nstill rocking"
+  miscSetAlignment label2 0.0 0.0
+  hsep1           &lt;- hSeparatorNew
+  boxPackStart vbox1 hsep1 PackNatural 10
+
+  (label3,frame3) &lt;- myLabelWithFrameNew
+  boxPackStart vbox1 frame3 PackNatural 0
+  labelSetText label3 "Gary Snyder"
+
+  (label4,frame4) &lt;- myLabelWithFrameNew
+  boxPackStart vbox1 frame4 PackNatural 0
+  labelSetText label4 "After weeks of watching the roof leak\nI fixed it tonight\nby moving a single board"
+  labelSetJustify label4 JustifyCenter
+
+  (label5,frame5) &lt;- myLabelWithFrameNew
+  boxPackStart vbox2 frame5 PackNatural 0
+  labelSetText label5 "Kobayashi Issa"
+
+  (label7,frame7) &lt;- myLabelWithFrameNew
+  boxPackEnd vbox2 frame7 PackNatural 0
+  labelSetText label7 "only one guy and\nonly one fly trying to\nmake the guest room do"
+  labelSetJustify label7 JustifyRight
+
+  (label6,frame6) &lt;- myLabelWithFrameNew
+  boxPackEnd vbox2 frame6 PackNatural 10
+  labelSetText label6 "One Guy"
+  frameSetLabel frame6 "Title:"
+  labelSetPattern label6 [3, 1, 3]
+
+  button      &lt;- buttonNew
+  boxPackEnd mainbox button PackNatural 20
+  buttonlabel &lt;- labelNewWithMnemonic "Haiku _Clicked"
+  containerAdd button buttonlabel
+
+  widgetShowAll window
+  onClicked button (putStrLn "button clicked...")
+  onDestroy window mainQuit
+  mainGUI
+
+
+myLabelWithFrameNew :: IO (Label,Frame)
+myLabelWithFrameNew = do
+  label &lt;- labelNew Nothing
+  frame &lt;- frameNew
+  containerAdd frame label
+  frameSetShadowType frame ShadowOut
+  return (label, frame)
+
+
+-- Haikus quoted from X.J. Kennedy, Dana Gioia, Introduction to Poetry, Longman, 1997
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap4-2.html">Previo</a><br />4.2 Ajustes, escalado y rango</span>
+  <span class="nav-home"><a href="es-index.html">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-4.html">Siguiente</a><br />4.4 Flechas y Tooltips</span>
+</div>
+
+
+</body></html>

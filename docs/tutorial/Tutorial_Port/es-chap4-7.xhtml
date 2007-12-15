@@ -1,0 +1,330 @@
+<!--<?xml version="1.0" encoding="UTF-8"?-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es"><head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Tutorial de Gtk2Hs: Botones aumentar/disminuir</title>
+  
+  <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs</h1>
+  <span class="nav-previous"><a href="es-chap4-6.xhtml">Previo</a></span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap5-1.xhtml">Siguiente</a></span>
+</div>
+
+<h2>4.7 Botones aumentar/disminuir</h2>
+
+<p>
+El widget <code>SpinButton</code> se usa normalmente para permitir al usuario 
+seleccionar un valor dentro de un rango de valores num&eacute;ricos. Consta de una caja
+de entrada de texto con dos botones flecha (arriba y abajo) enganchados en el
+lateral. Seleccionando alguna de las flechas el valor se modifica subiendo
+o bajando dentro del rango especificado.
+La caja de entrada de texto tambi&eacute;n puede ser editada directamente para introducir
+un valor.
+<code>SpinButton</code> es una instancia de <code>EditableClass</code>, por lo que los
+atributos y funciones definidas all&iacute; tambi&eacute;n est&aacute;n disponibles.
+</p>
+
+<p>
+Los botones aumentar/disminuir permiten definir un valor con cero o 'n' decimales. El incremento, (el paso),
+se define por el programador. Si mantenemos pulsado uno de los botones se puede
+originar una aceleraci&oacute;n en el cambio del valor, en funci&oacute;n del tiempo en que est&eacute; 
+pulsado.</p>
+
+<p>
+<code>SpinButton</code> usa un objeto de <code>Adjustment</code> para almacenar
+la informaci&oacute;n sobre el rango de valores que puede tomar. Recuerda que el widget 
+<code>Adjustment</code> se crea con la siguiente funci&oacute;n:
+</p>
+
+<pre class="codebox">adjustmentNew :: Double        -- valor            - El valor inicial del rango
+              -&gt; Double        -- m&iacute;nimo           - Valor m&iacute;nimo del rango
+              -&gt; Double        -- m&aacute;ximo           - Valor m&aacute;ximo del rango
+              -&gt; Double        -- incrementoPaso   - El menor de dos posibles incrementos
+              -&gt; Double        -- incrementoP&aacute;gina - El mayor de dos posibles incrementos
+              -&gt; Double        -- tama&ntilde;oP&aacute;gina     - El tama&ntilde;o del &aacute;rea visible
+              -&gt; IO Adjustment
+</pre>
+
+<p>
+Los atributos del objeto <code>Adjustment</code> asociado al <code>SpinButton</code> 
+tienen el siguiente uso:
+</p>
+
+<ul>
+  <li><var>valor</var> — Valor inicial del <code>SpinButton</code></li>
+
+  <li><var>m&iacute;nimo</var> — Valor m&iacute;nimo del rango</li>
+
+  <li><var>m&aacute;ximo</var> — Valor m&aacute;ximo del rango</li>
+
+  <li><var>incrementoPaso</var> — Cifra a incrementar/decrementar "valor" cuando 
+  pulsamos el pulsador 1 del rat&oacute;n en un bot&oacute;n flecha</li>
+
+  <li><var>incrementoP&aacute;gina</var> — Cifra a incrementar/decrementar "valor" cuando 
+  pulsamos el pulsador 2 del rat&oacute;n en un bot&oacute;n flecha</li>
+
+  <li><var>tama&ntilde;oP&aacute;gina</var> — Sin uso</li>
+</ul>
+
+<p>
+Adem&aacute;s, el pusador 3 del rat&oacute;n se puede usar para ir directamente a los valores
+m&aacute;ximo y m&iacute;nimo al seleccionar alguno de los botones. Ten en cuenta que esto puede
+depender de la configuraci&oacute;n del rat&oacute;n en tu sistema.
+</p>
+
+<p>
+Vamos a ver como podemos crear un bot&oacute;n aumentar/disminuir:
+</p>
+
+<pre class="codebox">spinButtonNew :: Adjustment -&gt; Double -&gt; Int -&gt; IO SpinButton
+</pre>
+
+<p>
+El segundo argumento (<var>climbRate</var>) (tasa de escalado) es un valor entre 0.0 y 1.0
+e indica la velocidad de cambio del bot&oacute;n aumentar/disminuir cuando se pulsa una tecla. El tercer argumento
+indica el n&uacute;mero de posiciones decimales con que ser&aacute; mostrado el valor.
+</p>
+
+<p>
+Tambi&eacute;n hay un constructor que permite crear un bot&oacute;n aumentar/disminuir sin necesidad de crear un <code>adjustment</code>.
+</p>
+
+<pre class="codebox">spinButtonNewWithRange :: Double -&gt; Double -&gt; Double -&gt; IO SpinButton
+</pre>
+
+<p>
+Los tres argumentos, todos de tipo <code>Double</code>, corresponden al valor
+m&iacute;nimo posible, al m&aacute;ximo, y al incremento a&ntilde;adido o sustra&iacute;do al pulsar
+los botones del widget.
+</p>
+
+<p>
+Una vez creado, el <code>SpinButton</code> se puede reconfigurar mediante la siguiente funci&oacute;n:
+</p>
+
+<pre class="codebox">spinButtonConfigure :: SpinButtonClass self =&gt; self -. Adjustment -&gt; Double -&gt; Int
+</pre>
+
+<p>
+El primer argumento indica el widget <code>SpinButton</code> que debe ser 
+reconfigurado. los otros argumentos son, el <var>climbRate</var> y el n&uacute;mero
+de decimales a mostrar.
+</p>
+
+<p>
+Los atributos del <code>SpinButton</code> que pueden ser modificados o consultados
+con las funciones gen&eacute;ricas <code>get</code> y <code>set</code> son:
+</p>
+
+<pre class="codebox">spinButtonAdjustment :: SpinButtonClass self =&gt; Attr self Adjustment
+spinButtonClimbRate  :: SpinButtonClass self =&gt; Attr self Double
+spinButtonDigits     :: SpinButtonClass self =&gt; Attr self Int
+
+spinButtonSnapToTicks :: SpinButtonClass self =&gt; Attr self Bool
+spinButtonNumeric     :: SpinButtonClass self =&gt; Attr self Bool
+spinButtonWrap        :: SpinButtonClass self =&gt; Attr self Bool
+
+spinButtonValue :: SpinButtonClass self =&gt; Attr self Double
+</pre>
+
+<p>
+Los primeros tres valores ya los hemos analizado. El atributo
+<code>spinButtonSnapToTicks</code> determina si los valores err&oacute;neos 
+se cambian autom&aacute;ticamente a valores v&aacute;lidos del bot&oacute;n aumentar/disminuir (por defecto es
+<var>False</var>). El attributo <code>spinButtonNumeric</code> determina si
+los valores no-num&eacute;ricos deben ser ignorados (por defecto es <var>False</var>), y
+<code>spinButtonWrap</code> se usa si un bot&oacute;n aumentar/disminuir debe funcionar de una manera
+circular. (por defecto es <var>False</var>).
+</p>
+
+<p>
+El atributo <code>spinButtonValue</code> se usa para leer el valor actual o establecer un
+nuevo valor (por defecto es 0).
+</p>
+
+<p>
+Tambi&eacute;n puedes usar:
+</p>
+
+<pre class="codebox">spinButtonSpin :: SpinButtonClass self =&gt; self -&gt; SpinType -&gt; Double -&gt; IO ()
+</pre>
+
+<p>
+donde <code>SpinType</code> determina el tipo de cambio y 
+<code>Double</code> (incremento) determina el valor.
+</p>
+
+<p>
+<code>SpinType</code> tiene los siguientes constructores:
+</p>
+
+<ul>
+  <li><code>SpinStepForward</code> Paso adelante</li>
+  <li><code>SpinStepBackward</code> Paso atr&aacute;s</li>
+  <li><code>SpinPageForward</code> P&aacute;gina adelante</li>
+  <li><code>SpinPageBackward</code> P&aacute;gina atr&aacute;s</li>
+  <li><code>SpinHome</code> Inicio</li>
+  <li><code>SpinEnd</code> Fin</li>
+  <li><code>SpinUserDefined</code> Definido por usuario</li>
+</ul>
+
+<p>
+muchos de estos constructores usan los valores del objeto <code>Adjustment</code> que est&aacute; asociado con
+el bot&oacute;n aumentar/disminuir. <code>SpinStepForward</code> y <code>SpinStepBackward</code> 
+cambian el valor del bot&oacute;n aumentar/disminuir en la cantidad indicada por el incremento, a no ser
+que valga 0, en cuyo caso el valor ser&aacute; cambiado por el <var>stepIncrement</var> del ajuste.
+<code>SpinPageForward</code> y <code>SpinPageBackward</code> cambian el valor del
+<code>SpinButton</code> en el incremento.
+<code>SpinPageHome</code> y <code>SpinPageEnd</code> establecen el valor m&iacute;nimo
+y m&aacute;ximo respectivamente del rango del <code>Adjustment</code>.
+<code>SpinUserDefined</code> modifica el valor del bot&oacute;n aumentar/disminuir en la cantidad
+especificada.</p>
+
+<p>
+Los botones aumentar/disminuir tienen una pol&iacute;tica de actualizaciones:
+</p>
+
+<pre class="codebox">spinButtonUpdatePolicy :: SpinButtonClass self =&gt; Attr self SpinButtonUpdatePolicy
+</pre>
+
+<p>
+Los constructores de <code>SpinButtonUpdatePolicy</code> pueden ser
+<code>UdateAlways</code> o <code>UpdateIfValid</code>. Estas pol&iacute;ticas afectan
+al comportamiento del <code>SpinButton</code> al analizar (procesar) el texto
+insertado y sincronizar su valor con los valores del <code>Adjustment</code>. En el
+caso de <code>UpdateIfValid</code> (actualiza si es v&aacute;lido) el valor del bot&oacute;n aumentar/disminuir s&oacute;lo 
+se cambia si la entrada de texto es un valor num&eacute;rico dentro del rango especificado en
+el <code>Adjustment</code>. Si no es as&iacute; se mantiene el valor actual. En caso de 
+<code>UpdateAlways</code> ignoramos los errores de conversi&oacute;n del "texto" en un valor num&eacute;rico.
+</p>
+
+<p>
+Finalmente, puedes solicitar que el propio <code>SpinButton</code> se actualice:
+</p>
+
+<pre class="codebox">spinButtonUpdate :: SpinButtonClass self =&gt; self -&gt; IO ()
+</pre>
+
+<p>
+Es el momento de volver a los ejemplos. Esta es una imagen despu&eacute;s de juguetear 
+con algunos de los atributos:</p>
+
+<p><img src="Images/GtkChap4-7.png" alt="bot&oacute;n aumentar/disminuir example" id="imgGtkChap4-7" /></p>
+
+<p>
+Todos los botones aumentar/disminuir han sido creados con la siguiente funci&oacute;n. Usa la
+funci&oacute;n <code>spinButtonNewWithRange</code>. Como el <var>stepIncrement</var> ser&aacute; 1.0 
+en todos los casos, no es un par&aacute;metro de la funci&oacute;n <code>myAddSpinButton</code>.
+</p>
+
+<pre class="codebox">myAddSpinButton :: HBox -&gt; String -&gt; Double -&gt; Double -&gt; IO SpinButton
+myAddSpinButton box name min max = do
+    vbox  &lt;- vBoxNew False 0
+    boxPackStart box vbox PackRepel 0
+    label &lt;- labelNew (Just name)
+    miscSetAlignment label 0.0 0.5
+    boxPackStart vbox label PackNatural 0
+    spinb &lt;- spinButtonNewWithRange min max 1.0
+    boxPackStart vbox spinb PackNatural 0
+    return spinb
+</pre>
+
+<p>
+En la funci&oacute;n <code>main</code> usamos uno de los botones aumentar/disminuir existentes,
+pero le damos un nuevo <code>adjustment</code> con <code>spinButtonConfigure</code>. Los
+l&iacute;mites antiguos de -1000.0 y 1000.0 se reemplazan por -100.0 y 100.0. F&iacute;jate en los
+par&eacute;ntesis que rodean a los n&uacute;meros negativos. El valor inicial se establece en 0.0 y
+el incremento de paso es de 0.25. El incremento de p&aacute;gina, que es el que consigues al
+pulsar el segundo bot&oacute;n del rat&oacute;n en la flecha del bot&oacute;n aumentar/disminuir, se
+establece en 10.0. El tama&ntilde;o de p&aacute;gina, que no se usa, es 0 aqu&iacute;. Pulsando el tercer bot&oacute;n
+del rat&oacute;n en una de las flechas, salta hacia el l&iacute;mite correspondiente, -100.0 o 100.0.
+</p>
+
+<p>
+Aqu&iacute;, la nueva se&ntilde;al es <code>onValueSpinned</code>, que se emite siempre que el usuario
+cambie el valor de un bot&oacute;n aumentar/disminuir. Aqu&iacute; se usa para controlar el n&uacute;mero de 
+d&iacute;gitos decimales mostrados en el bot&oacute;n aumentar/disminuir <code>spinLarge</code>. 
+F&iacute;jate en el redondeo del valor, necesario para convertir el tipo <code>Double</code> a un
+tipo <code>Integral</code>.
+</p>
+
+<p>
+En el ejemplo usamos las funciones gen&eacute;ricas <code>get</code> y <code>set</code>
+en los atributos (hay funciones espec&iacute;ficas para ello). Es un estilo de programaci&oacute;n
+recomendado en Gtk2Hs, ya que en el futuro las funciones espec&iacute;ficas ser&aacute;n eliminadas.
+</p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main:: IO ()
+main = do
+    initGUI
+    window  &lt;- windowNew
+    mainbox &lt;- vBoxNew False 0
+    set window [windowTitle := "Spin buttons", containerBorderWidth := 10,
+                windowDefaultWidth := 250, windowDefaultHeight := 200,
+                containerChild := mainbox]
+    hbox1   &lt;- hBoxNew False 0
+    frame1  &lt;- frameNew
+    set frame1 [frameLabel := "Simple SpinButtons", containerChild := hbox1,
+                frameLabelYAlign := 0.8, frameShadowType := ShadowOut]
+    boxPackStart mainbox frame1 PackNatural 5
+
+    spinD &lt;- myAddSpinButton hbox1 "Day:" 1.0 31.0
+    spinM &lt;- myAddSpinButton hbox1 "Month:" 1.0 12.0
+    spinY &lt;- myAddSpinButton hbox1 "Year:" 2000.0 2100.0
+    set spinY [spinButtonValue := 2007]
+
+    vbox1  &lt;- vBoxNew False 5
+    frame2 &lt;- frameNew
+    set frame2 [frameLabel := "More Features", containerChild := vbox1,
+                frameLabelYAlign := 0.8, frameShadowType:= ShadowOut]
+    boxPackStart mainbox frame2 PackNatural 5
+
+    hbox2 &lt;- hBoxNew False 0
+    boxPackStart vbox1 hbox2 PackNatural 0
+
+    spinLarge &lt;- myAddSpinButton hbox2 "Value:" (-1000.0) 1000.0
+    adj       &lt;- adjustmentNew 0.0 (-100.0) 100.0 0.25 10.0 0.0
+    spinButtonConfigure spinLarge adj 0.0 2
+    spnctl    &lt;- myAddSpinButton hbox2 "Decimal:" 0.0 10.0
+    set spnctl [spinButtonValue := 2.0]
+
+    tsnap &lt;- checkButtonNewWithLabel "Snap to 0.25-ticks"
+    boxPackStart vbox1 tsnap PackNatural 0
+
+    tnumr &lt;- checkButtonNewWithLabel "Numeric only input mode"
+    boxPackStart vbox1 tnumr PackNatural 0
+
+    twrap &lt;- checkButtonNewWithLabel "Wraparound at limits"
+    boxPackStart vbox1 twrap PackNatural 0
+
+    widgetShowAll window
+
+    onValueSpinned spnctl $ do newdig &lt;- get spnctl spinButtonValue
+                               set spinLarge [spinButtonDigits := (round newdig)]
+
+    onToggled tsnap $ do st &lt;- get tsnap toggleButtonActive
+                         set spinLarge [spinButtonSnapToTicks := st]
+
+    onToggled tnumr $ do st &lt;- get tnumr toggleButtonActive
+                         set spinLarge [spinButtonNumeric := st]
+
+    onToggled twrap $ do st &lt;- get twrap toggleButtonActive
+                         set spinLarge [spinButtonWrap := st]
+
+    onDestroy window mainQuit
+    mainGUI
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap4-6.xhtml">Previo</a><br />4.6 Entrada de Texto y barras de estado</span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap5-1.xhtml">Siguiente</a><br />5.1 Calendario</span>
+</div>
+
+</body></html>

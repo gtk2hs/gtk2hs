@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: The Button Widget</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="es-chap3-3.xhtml">Previo</a></span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-2.xhtml">Siguiente</a></span>
+</div>
+
+<h2>4.1 El Widget Button (Bot&oacute;n)</h2>
+
+<h3>Los botones normales</h3>
+
+<p>
+Ya casi hemos visto todo lo que hay que ver del widget bot&oacute;n. Es muy sencillo.
+Sin embargo hay m&aacute;s de una manera de crear un bot&oacute;n. Puedes usar las funciones
+<code>buttonNewWithLabel</code> o <code>buttonNewWithMnemonic</code> para crear
+un bot&oacute;n con una etiqueta, usar <code>buttonNewFromStock</code> para crear un bot&oacute;n
+que contenga una imagen y un texto de un "stock item" o usar <code>buttonNew</code>
+para crear un bot&oacute;n vac&iacute;o.Es cosa tuya colocarle una etiqueta o un pixmap en este nuevo bot&oacute;n.
+Para hacer esto, crea una nueva caja y empaqueta los objetos dentro de ella usando 
+la funci&oacute;n <code>boxPackStart</code> (o <code>boxPackEnd</code>
+para empezar desde el final), que ya conoces, y despu&eacute;s usa <code>containerAdd</code> para empaquetar
+la caja en el bot&oacute;n.
+</p>
+
+<p>
+Las funciones <code>buttonNewWithMnemonic</code> y <code>buttonNewFromStock</code> tienen un
+string como primer argumento. Usa el subrayado para marcar un caracter como el "mnemonico", que 
+funcionar&aacute; como un acelerador v&iacute;a teclado. Pulsando <strong>Alt</strong> y esa tecla se activar&aacute; dicho bot&oacute;n, sin
+necesidad de pinchar con el rat&oacute;n. En la segunda funci&oacute;n, la cadena es un <code>stockId</code>, un identificador
+de una lista de im&aacute;genes predefinidas con etiquetas.
+</p>
+
+<p>
+Aqu&iacute; tenemos un ejemplo de uso de <code>buttonNew</code> para crear un bot&oacute;n con una imagen y una etiqueta.
+</p>
+
+<p><img src="Images/GtkChap4-1a.png" alt="Button with image" id="imgGtkChap4-1a" /></p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window &lt;- windowNew
+  set window [windowTitle := "Pix",
+              containerBorderWidth := 10]
+  button &lt;- buttonNew
+  onClicked button (putStrLn "button clicked")
+  box    &lt;- labelBox "info.xpm" "cool button"
+  containerAdd button box
+  containerAdd window button
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+
+labelBox :: FilePath -&gt; String -&gt; IO HBox
+labelBox fn txt = do
+  box   &lt;- hBoxNew False 0
+  set box [containerBorderWidth := 2]
+  image &lt;- imageNewFromFile fn
+  label &lt;- labelNew (Just txt)
+  boxPackStart box image PackNatural 3
+  boxPackStart box label PackNatural 3
+  return box
+</pre>
+
+<p>
+La funci&oacute;n <code>labelBox</code> se puede usar para meter im&aacute;genes y etiquetas en 
+cualquier widget que sea simult&aacute;neamente un contenedor (container). La imagen procede de 
+un fichero, usando <code>imageNewFromFile</code> y la etiqueta viene de <code>labelNew</code>,
+que utiliza un <code>Maybe String</code> como argumento. <code>Nothing</code>
+indica que no hay etiqueta.
+</p>
+
+<p>
+El widget <code>Button</code> tiene las siguientes se&ntilde;ales b&aacute;sicas, que casi se autoexplican (si sabes ingl&eacute;s claro!):
+</p>
+
+<ul>
+  <li>
+  <code>onPressed</code> - se emite cuando el rat&oacute;n es pulsado dentro del widget <code>Button</code>
+  </li>
+
+  <li>
+  <code>onReleased</code> - se emite cuando el rat&oacute;n se deja de pulsar dentro del widget <code>Button</code>
+  </li>
+
+  <li>
+  <code>onClicked</code> - se emite cuando el rat&oacute;n se pulsa y se suelta dentro del widget <code>Button</code>
+  </li>
+
+  <li>
+  <code>onEnter</code> - se emite cuando el rat&oacute;n entra en el widget <code>Button</code>
+  </li>
+
+  <li>
+  <code>onLeave</code> - se emite cuando el rat&oacute;n sale del widget <code>Button</code>
+  </li>
+</ul>
+
+<p>
+Nota: Normalmente el dispositivo se&ntilde;alador es el rat&oacute;n, por eso lo indico. Para cualquier 
+dispositivo se&ntilde;alador, el funcionamiento ser&iacute;a el mismo, as&iacute; rat&oacute;n = dispositivo se&ntilde;alador.
+</p>
+
+
+<h3>Botones Toggle (Alternativos)</h3>
+
+<p>
+Los botones Toggle se derivan de los botones normales y son muy parecidos. Su &uacute;nica
+diferencia estriba en que siempre alternan entre dos estados. La alternancia se
+produce al ser pulsados. 
+</p>
+
+<p>
+Los botones Toggle son la base de de los botones check y radio, por tanto muchas
+de las llamadas usadas por los botones toggle son heredadas por los botones check y
+radio.
+Ya lo recordaremos cuando lleguemos a ellos.
+</p>
+
+<p>
+La creaci&oacute;n de un boton toggle:
+</p>
+
+<pre class="codebox">toggleButtonNew :: IO ToggleButton
+
+toggleButtonNewWithLabel :: String -&gt; IO Togglebutton
+
+toggleButtonNewWithMnemonic :: String -&gt; IO ToggleButton
+</pre>
+
+<p>
+Como puedes imaginar, funcionan exactamente igual que con los widget bot&oacute;n.
+El primero crea un bot&oacute;n toggle vac&iacute;o, y los dos &uacute;ltimos, un bot&oacute;n con un widget 
+de tipo etiqueta(label) ya empaquetado con &eacute;l. La variante "mnemonica" analiza la etiqueta
+buscando el caracter prefijado con un  "_".
+</p>
+
+<p>
+Para conocer el estado del bot&oacute;n toggle (pulsado o no pulsado), incluyendo los 
+botones radio y check, se emplea:
+</p>
+
+<pre class="codebox">toggleButtonGetActive :: ToggleButtonClass self =&gt; self -&gt; IO Bool
+</pre>
+
+<p>
+Devuelve <var>True</var> si el bot&oacute;n toggle est&aacute; pulsado y <var>False</var> si no lo est&aacute;.
+</p>
+
+<p>
+Para forzar el estado de un bot&oacute;n toggle, o sus hijos, los botones radio y check, debes emplear:
+</p>
+
+<pre class="codebox">toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+La llamada anterior se puede usar para establecer el estado del bot&oacute;n toggle, y sus
+hijos los botones radio y check. Hay que pasarle el bot&oacute;n creado como primer argumento
+y <var>True</var> o <var>False</var> como segundo argumento, para especificar el estado an el que 
+queremos dejar el bot&oacute;n. El valor por defecto es "no pulsado" o <var>False</var>.
+</p>
+
+<p>
+F&iacute;jate que cuando usas la funci&oacute;n <code>toggleButtonSetActive</code>, y se cambia el
+estado, origina que se emitan las se&ntilde;ales <code>onClicked</code> y
+<code>onToggled</code> del bot&oacute;n.
+</p>
+
+<h3>Botones Check</h3>
+
+<p>
+Los botones Check heredan muchas propiedades y funciones de los botones toggle, bero
+su apariencia es diferente. M&aacute;s que ser botones con un texto dentro de ellos, son peque&ntilde;os
+cuadrados con el texto a su derecha. A menudo se usan para marcar las opciones
+de una aplicaci&oacute;n como activadas o desactivadas.
+</p>
+
+<p>
+Las funciones de creaci&oacute;n son las mismas que las de los botones normales.
+</p>
+
+<pre class="codebox">checkButtonNew :: IO CheckButton
+
+checkButtonNewWithLabel :: String -&gt; IO Checkbutton
+
+checkButtonNewWithMnemonic :: String -&gt; IO CheckButton
+</pre>
+
+<p>
+La funci&oacute;n <code>checkButtonNewWithLabel</code> crea un bot&oacute;n check con una etiqueta junto a &eacute;l.
+</p>
+
+<p>
+<code>CheckButton</code> es una instancia de <code>ToggleButtonClass</code> y
+la se&ntilde;al <code>onToggled</code> se usa cuando un <code>CheckButton</code> se marca
+o se desmarca, como en el bot&oacute;n toggle.</p>
+
+<h3>Botones Radio</h3>
+
+<p>
+Los botones Radio son parecidos a los botones check excepto que est&aacute;n agrupados de modo que s&oacute;lo uno
+puede seleccionarse en cada momento. Esto es &uacute;til para los lugares del programa donde se debe seleccionar
+una opci&oacute;n de entre varias posibles. Para crear un boton radio utilizo una de estas funciones:
+</p>
+
+<pre class="codebox">radioButtonNew :: IO RadioButton
+
+radioButtonNewWithLabel :: String -&gt; IO RadioButton
+
+radioButtonNewWithMnemonic :: String -&gt; IO RadioButton
+
+radioButtonNewFromWidget :: RadioButton -&gt; IO RadioButton
+
+radioButtonNewWithLabelFromWidget :: RadioButton -&gt; String -&gt; IO RadioButton
+
+radioButtonNewWithMnemonicFromWidget :: RadioButton -&gt; String -&gt; IO RadioButton
+</pre>
+
+<p>
+Como has visto, las &uacute;ltimas tres funciones tienen un argumento extra. Se usa para
+unir los botones nuevos a los ya construidos en un grupo.
+</p>
+
+<p>
+Es una buena opci&oacute;n seleccionar el bot&oacute;n que presenta el valor por defecto con:
+</p>
+
+<pre class="codebox">toggleButtonSetActive :: ToggleButtonClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+Esta funci&oacute;n se describi&oacute; en los botones toggle, y funciona exactamente del mismo modo.
+Una vez que los botones radio se agrupan, s&oacute;lo uno del grupo puede estar activo en un momento 
+determinado. Si el usuario pulsa en uno de los botones, y despu&eacute;s en otro, el primer bot&oacute;n 
+radio emitir&aacute; en primer lugar una se&ntilde;al <code>onToggled</code> (para indicar el cambio a inactivo), y
+despu&eacute;s el segundo emitir&aacute; su se&ntilde;al <code>onToggled</code> (para indicar su cambio a activo).
+</p>
+
+<p>
+El siguiente ejemplo crea un grupo de botones radio con tres botones, y cuando
+el usuario pulsa uno de los botones radio, el desactivado y el activado lo indicar&aacute;n
+a <code>stdout</code>, mediante <code>putStrLn</code> en la funci&oacute;n <code>setRadioState</code> 
+definida al final.
+</p>
+
+<p><img src="Images/GtkChap4-1b.png" alt="Radio buttons" id="imgGtkChap4-1b" /></p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+  initGUI
+  window  &lt;- windowNew
+  set window [windowTitle := "Radio Button", containerBorderWidth := 5,
+              windowDefaultWidth := 200, windowDefaultHeight := 150]
+  box1    &lt;- vBoxNew False 0
+  containerAdd window box1
+  box2    &lt;- vBoxNew False 10
+  containerSetBorderWidth box2 10
+  boxPackStart box1 box2 PackNatural 0
+  button1 &lt;- radioButtonNewWithLabel "button 1"
+  boxPackStart box2 button1 PackNatural 0
+  button2 &lt;- radioButtonNewWithLabelFromWidget button1 "button 2"
+  boxPackStart box2 button2 PackNatural 0
+  button3 &lt;- radioButtonNewWithLabelFromWidget button2 "button 3"
+  boxPackStart box2 button3 PackNatural 0
+  toggleButtonSetActive button2 True
+  onToggled button1 (setRadioState button1)
+  onToggled button2 (setRadioState button2)
+  onToggled button3 (setRadioState button3)
+  sep     &lt;- hSeparatorNew
+  boxPackStart box1 sep PackNatural 0
+  box3    &lt;- vBoxNew False 10
+  containerSetBorderWidth box3 10
+  boxPackStart box1 box3 PackNatural 0
+  closeb  &lt;- buttonNewWithLabel "close"
+  boxPackStart box3 closeb PackNatural 0
+  onClicked closeb mainQuit
+  widgetShowAll window
+  onDestroy window mainQuit
+  mainGUI
+
+setRadioState :: RadioButton -&gt; IO ()
+setRadioState b = do
+  state &lt;- toggleButtonGetActive b
+  label &lt;- get b buttonLabel
+  putStrLn ("State " ++ label ++ " now is " ++ (show state))
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap3-3.xhtml">Previo</a><br />3.3 Empaquetado Usando Tablas</span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-2.xhtml">Siguiente</a><br />4.2 Ajustes, escalado y rango</span>
+</div>
+
+
+</body></html>

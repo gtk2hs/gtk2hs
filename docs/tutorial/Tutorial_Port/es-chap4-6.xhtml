@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es" lang="es"><head>
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>Tutorial de Gtk2Hs: Entrada de texto y barras de estado</title>
+  
+  <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+
+<div id="header">
+  <h1>Tutorial de Gtk2Hs</h1>
+  <span class="nav-previous"><a href="es-chap4-5.xhtml">Previo</a></span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-7.xhtml">Siguiente</a></span>
+</div>
+
+<h2>4.6 Entrada de texto y barras de estado</h2>
+
+<p>
+El widget <code>Entry</code> (Entrada de texto) permite que el texto sea tecleado y mostrado en una 
+simple caja de l&iacute;nea de texto. Hay una gran cantidad de teclas que funcionan por defecto. 
+Además, el usuario puede cambiar entre
+el modo de inserci&oacute;n y el modo de sobreescritura pulsando la tecla <strong>Insert</strong>.
+</p>
+
+<p>
+Para crear un nuevo widget <code>Entry</code>, usa la siguiente funci&oacute;n.
+</p>
+
+<pre class="codebox">entryNew :: IO Entry
+</pre>
+
+<p>
+Para reemplazar o tomar el texto que est&aacute; en el widget <code>Entry</code>:
+</p>
+
+<pre class="codebox">entrySetText :: EntryClass self =&gt; self -&gt; String -&gt; IO ()
+
+entryGetText :: EntryClass self =&gt; self -&gt; IO String
+</pre>
+
+<p>
+Si no queremos que se pueda modificar el contenido de un widget <code>Entry</code> porque
+alguien escriba en &eacute;l, podemos cambiar su estado editable. Tambi&eacute;n podemos modificar su
+visibilidad (<em>p. ej.</em> para passwords), el n&uacute;mero m&aacute;ximo de caracteres (0
+si no hay m&aacute;ximo), si la entrada tiene un marco, o no, el n&uacute;mero de caracteres para el
+que se va a dejar espacio, y algunos otros atributos. Tambi&eacute;n es posible usar completado de texto.
+(mira <code>EntryCompletion</code> en la documentaci&oacute;n de la API). Los atributos de <code>Entry</code>,
+(accesibles por <code>get</code> y <code>set</code>) son:
+</p>
+
+<pre class="codebox">entryEditable :: EntryClass self =&gt; Attr self Bool  -- Por defecto True
+
+entryVisibility :: EntryClass self =&gt; Attr self Bool  -- Por defecto True
+
+entryMaxLength :: EntryClass self =&gt; Attr self Int -- 0 sin m&aacute;ximo, l&iacute;mite 66535
+
+entryHasFrame :: EntryClass self =&gt; Attr self Bool -- Por defecto False
+
+entryWidthChars :: EntryClass self =&gt; Attr self Int -- Por defecto -1, sin espacios
+</pre>
+
+<p>
+El tipo <code>Entry</code> es una instancia de <code>EditableClass</code> (Clase editable) y
+muchos de sus m&eacute;todos y atributos est&aacute;n definidos all&iacute;. Algunos especialmente &uacute;tiles son:
+</p>
+
+<pre class="codebox">editableInsertText :: EditableClass self =&gt; self -&gt; String -&gt; Int -&gt; IO Int
+
+editableDeleteText :: EditableClass self -&gt; Int -&gt; Int -&gt; IO ()
+
+editableSelectRegion :: EditableClass self =&gt; self -&gt; Int -&gt; Int -&gt; IO ()
+
+editableDeleteSelection :: EditableClass self -&gt; IO ()
+</pre>
+
+<p>
+donde los par&aacute;metros de tipo <code>Int</code> denotan las posiciones apropiadas de inicio
+y de finalizaci&oacute;n. El usuario tambi&eacute;n puede cortar, copiar y pegar a/desde el clipboard.
+</p>
+
+<pre class="codebox">editableCutClipboard :: EditableClass self =&gt; self -&gt; IO ()
+
+editableCopyClipboard :: EditableClass self =&gt; self -&gt; IO ()
+
+editablePasteClipboard :: EditableClass self =&gt; self -&gt; IO ()
+</pre>
+
+<p>
+Todas estas toman la posici&oacute;n actual del cursor. Puedes obtener y establecer dicha
+posici&oacute;n con:
+</p>
+
+<pre class="codebox">editableGetPosition :: EditableClass self =&gt; self -&gt; IO Int
+
+editableSetPosition :: EditableClass self =&gt; self -&gt; Int
+</pre>
+
+<p>
+El cursor se muestra antes del caracter con el &iacute;ndice indicado en el widget.
+El valor debe ser menor o igual al n&uacute;mero de caracteres en el widget. El valor -1 
+indica que el cursor debe posicionarse despu&eacute;s del &uacute;ltimo caracter en la entrada.
+</p>
+
+<p>
+La clase <code>Editable</code> tiene unas se&ntilde;ales que usan funciones de orden mayor 
+(no las estudiamos aqu&iacute;). El widget <code>Entry</code> tiene una se&ntilde;al que se envia despu&eacute;s que
+el usuario pulsa la tecla <strong>Enter</strong>:
+</p>
+
+<pre class="codebox">onEntryActivate :: EntryClass ec =&gt; ec -&gt; IO () -&gt; IO (ConnectId ec)
+</pre>
+
+<p>
+Tambi&eacute;n hay se&ntilde;ales que se env&iacute;an cuando el texto se corta, copia o pega, o cuando el 
+usuario cambia del modo insertar a sobreescribir.
+</p>
+
+<p>
+Las barras de estado (Status Bars) son widgets simples usados para mostrar un mensaje de
+texto. Mantienen una pila de los mensajes que se les han enviado, de modo que al mostrar el
+mensaje actual, vuelven a mostrar los mensajes de texto anteriores. Por defecto el usuario puede 
+modificar su tama&ntilde;o.
+</p>
+
+<p>
+Para poder permitir que diferentes partes de una aplicaci&oacute;n usen la misma barra de estado
+para mostrar los mensajes, el widget de la barra de estado emplea <code>ContextId</code>s que 
+sirven para identificar diferentes "usuarios". Se muestra el mensaje en la parte superior de la pila,
+independientemente de su contexto. Los mensajes se almacenan con un criterio ultimo en llegar 
+primero en salir, y no ordenados por identificador de contexto.
+La barra de estado se crea con:
+</p>
+
+<pre class="codebox">statusbarNew :: IO Statusbar
+</pre>
+
+<p>
+Para generar un nuevo <code>ContextId</code> utilizo la siguiente funci&oacute;n, con un 
+<code>String</code> usado como descripci&oacute;n textual del contexto:</p>
+
+<pre class="codebox">statusbarGetContextId :: StatusbarClass self =&gt; self -&gt; String -&gt; IO ContextId
+</pre>
+
+<p>
+Aqu&iacute; hay tres funciones que pueden operar en las barras de estado:
+</p>
+
+<pre class="codebox">statusbarPush :: StatusbarClass self =&gt; self -&gt; ContextId -&gt; String -&gt; IO MessageId
+
+statusbarPop :: StatusbarClass self =&gt; self -&gt; ContextId -&gt; IO ()
+
+statusbarRemove :: StatusbarClass self =&gt; self -&gt; ContextId -&gt; MessageId -&gt; IO ()
+</pre>
+
+<p>
+La primera, <code>statusbarPush</code>, se emplea para a&ntilde;adir un mensaje nuevo
+a la barra de estado. Devuelve un <code>MessageId</code>, que puede ser pasado m&aacute;s tarde a 
+<code>statusbarRemove</code> para eliminar el mensaje en el <code>ContextId</code> y <code>MessageId</code> 
+de la pila de la barra de estado.
+La funci&oacute;n <code>statusbarPop</code> elimina el mensaje m&aacute;s alto de la pila dentro del identificador de contexto
+aportado.
+</p>
+
+<p>
+Las barras de estado, como las barras de progreso, se usan para mostrar mensajes
+al usuario sobre alguna operaci&oacute;n en ejecuci&oacute;n. En el ejemplo inferior, simulamos
+esta operaci&oacute;n comprobando si el texto que env&iacute;a el usuario (pulsando
+<strong>Enter</strong>) es el mismo que su inverso, y enviando el resultado a la pila. 
+El usuario puede ver los resultados pulsando el bot&oacute;n de informaci&oacute;n, que muestra la pila de
+mensajes. La primera vez, la pila est&aacute; vac&iacute;a, as&iacute; que el bot&oacute;n est&aacute; sombreado, usando:
+</p>
+
+<pre class="codebox">widgetSetSensitivity :: WidgetClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+
+<p>
+F&iacute;jate que la barra de estado no ser&iacute;a la primera opci&oacute;n aqu&iacute;, ya que no se comprueba
+si la pila est&aacute; vac&iacute;a, pero el ejemplo muestra como se aplica.
+El manejador del cambio de tama&ntilde;o de la ventana de la barra de estado no est&aacute; muy claro, pero est&aacute; ah&iacute;,
+abajo a la derecha.</p>
+
+<p><img src="Images/GtkChap4-6.png" alt="Status bar example" id="imgGtkChap4-6" /></p>
+
+<pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main= do
+  initGUI
+  window &lt;- windowNew
+  set window [windowTitle := "Text Entry", containerBorderWidth := 10]
+
+  vb &lt;- vBoxNew False 0
+  containerAdd window vb
+
+  hb &lt;- hBoxNew False 0
+  boxPackStart vb hb PackNatural 0
+
+  txtfield &lt;- entryNew
+  boxPackStart hb txtfield PackNatural 5
+  button &lt;- buttonNewFromStock stockInfo
+  boxPackStart hb button PackNatural 0
+
+  txtstack &lt;- statusbarNew
+  boxPackStart vb txtstack PackNatural 0
+  id &lt;- statusbarGetContextId txtstack "Line"
+
+  widgetShowAll window
+  widgetSetSensitivity button False
+
+  onEntryActivate txtfield (saveText txtfield button txtstack id)
+  onPressed button (statusbarPop txtstack id)
+  onDestroy window mainQuit
+  mainGUI
+
+saveText :: Entry -&gt; Button -&gt; Statusbar -&gt; ContextId -&gt; IO ()
+saveText fld b stk id = do
+    txt &lt;- entryGetText fld
+    let mesg | txt == reverse txt = "\"" ++ txt ++ "\""  ++
+                                    " is equal to its reverse"
+             | otherwise =  "\"" ++ txt ++ "\""  ++
+                            " is not equal to its reverse"
+    widgetSetSensitivity b True
+    msgid &lt;- statusbarPush stk id mesg
+    return ()
+</pre>
+
+<div id="footer">
+  <span class="nav-previous"><a href="es-chap4-5.xhtml">Previo</a><br />4.5 Di&aacute;logos, Stock Items y barras de Progreso</span>
+  <span class="nav-home"><a href="es-index.xhtml">Inicio</a></span>
+  <span class="nav-next"><a href="es-chap4-7.xhtml">Siguiente</a><br />4.7 Botones spin</span>
+</div>
+
+
+</body></html>
