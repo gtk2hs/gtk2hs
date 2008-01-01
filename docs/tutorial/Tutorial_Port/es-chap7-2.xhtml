@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head>
+
+
+
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial de Gtk2Hs: Men&uacute;s emergentes (Popup), acciones Radio y acciones Toggle</title>
+    
+    <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+    <div id="header">
+      <h1>Tutorial de Gtk2Hs</h1>
+      <span class="nav-previous">
+        <a href="es-chap7-1.xhtml">Previo</a>
+      </span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+        <!--a href="chap8-1.xhtml">Next</a-->
+      </span>
+    </div>
+    <h2>7.2 Men&uacute;s emergentes (Popup), acciones Radio y acciones Toggle</h2>
+    <p>Los Men&uacute;s normalmente pertenecen a una ventana, pero pueden ser mostrados temporalmente
+    como resultado de la pulsaci&oacute;n de un bot&oacute;n del rat&oacute;n. Por ejemplo, puede mostrarse un men&uacute; 
+    de contexto cuando el usuario pulsa el bot&oacute;n derecho de su rat&oacute;n.</p>
+    <p>La disposici&oacute;n de un men&uacute; popup menu debe usar el nodo  
+    <code>popup</code>. Por ejemplo:</p>
+    <pre class="codebox">uiDecl = "&lt;ui&gt; \
+\          &lt;popup&gt;\
+\            &lt;menuitem action=\"EDA\" /&gt;\
+\            &lt;menuitem action=\"PRA\" /&gt;\
+\            &lt;menuitem action=\"RMA\" /&gt;\
+\            &lt;separator /&gt;\
+\            &lt;menuitem action=\"SAA\" /&gt;\
+\          &lt;/popup&gt;\
+\        &lt;/ui&gt;"   
+</pre>
+    <p>La construcci&oacute;n de un men&uacute; popup lleva los mismos pasos que la
+    construcci&oacute;n de un men&uacute; o un toolbar.(pero... sigue leyendo). Una vez que has creado las acciones 
+    y las has puesto en uno o m&aacute;s grupos, creas el gestor de UI, le
+    a&ntilde;ades la cadena XML y le a&ntilde;ades los grupos. Es el momento
+    de extraer el(los) widget(s). En nuestro ejemplo de popup hemos
+    creado 4 acciones con los nombres listados arriba. La ventana de popup
+    no se muestra en un volcado de pantalla por lo que hemos omitido la
+    imagen.</p>
+    <p>Como es un popup no hemos empaquetado el widget. Para mostralo, necesitamos
+    la funci&oacute;n:</p>
+    <pre class="codebox">menuPopup :: MenuClass self =&gt; self -&gt; Maybe (MouseButton,TimeStamp)
+</pre>
+    <p>Todo esto est&aacute; en la documentaci&oacute;n de la API referente al m&oacute;dulo Graphics.UI.Gtk.MenuComboToolbar.Menu. 
+    En el ejemplo, el men&uacute; aparece cuando pulsamos el bot&oacute;n derecho del rat&oacute;n,
+    el segundo argumento puede ser     
+    <code>Nothing</code>. La funci&oacute;n es la misma que la que vimos en el 
+    cap&iacute;tulo 6.2. Aqu&iacute;, sin embargo, podemos usar la ventana en vez de 
+    una caja de eventos.</p>
+    <pre class="codebox">onButtonPress window (\x -&gt; if (eventButton x) == RightButton
+                                    then do menuPopup (castToMenu pop) Nothing
+                                            return (eventSent x)
+                                    else return (eventSent x))
+</pre>
+    <p>El &uacute;nico truco es que el widget devuelto por el gestor de ui es de
+    tipo <code>Widget</code> y la funci&oacute;n <code>menuPopup</code> necesita un argumento
+    de un tipo que sea una instancia de <code>MenuClass</code>. As&iacute; que tenemos que usar:</p>
+    <pre class="codebox">castToMenu :: GObjectClass obj =&gt; obj -&gt; Menu
+</pre>
+    <p>Esta funci&oacute;n tambi&eacute;n est&aacute; documentada en la secci&oacute;n Graphics.UI.Gtk.MenuComboToolbar.Menu.
+    El listado completo del ejemplo es:</p>
+    <pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Click Right Popup",
+                 windowDefaultWidth := 250,
+                 windowDefaultHeight := 150 ]
+
+     eda &lt;- actionNew "EDA" "Edit" Nothing Nothing
+     pra &lt;- actionNew "PRA" "Process" Nothing Nothing
+     rma &lt;- actionNew "RMA" "Remove" Nothing Nothing
+     saa &lt;- actionNew "SAA" "Save" Nothing Nothing
+
+     agr &lt;- actionGroupNew "AGR1" 
+     mapM_ (actionGroupAddAction agr) [eda,pra,rma,saa]
+
+     uiman &lt;- uiManagerNew
+     uiManagerAddUiFromString uiman uiDecl
+     uiManagerInsertActionGroup uiman agr 0
+
+     maybePopup &lt;- uiManagerGetWidget uiman "/ui/popup"
+     let pop = case maybePopup of 
+                    (Just x) -&gt; x
+                    Nothing -&gt; error "Cannot get popup from string"
+
+     onButtonPress window (\x -&gt; if (eventButton x) == RightButton
+                                    then do menuPopup (castToMenu pop) Nothing
+                                            return (eventSent x)
+                                    else return (eventSent x))
+
+     mapM_ prAct [eda,pra,rma,saa]
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+uiDecl = "&lt;ui&gt; \
+\          &lt;popup&gt;\
+\            &lt;menuitem action=\"EDA\" /&gt;\
+\            &lt;menuitem action=\"PRA\" /&gt;\
+\            &lt;menuitem action=\"RMA\" /&gt;\
+\            &lt;separator /&gt;\
+\            &lt;menuitem action=\"SAA\" /&gt;\
+\          &lt;/popup&gt;\
+\        &lt;/ui&gt;"   
+
+prAct :: ActionClass self =&gt; self -&gt; IO (ConnectId self)
+prAct a = onActionActivate a $ do name &lt;- actionGetName a
+                                  putStrLn ("Action Name: " ++ name)
+</pre>
+    <p>Hay otro modo de usar las acciones, sin crearlas espec&iacute;ficamente, a
+    partir del tipo de datos <code>ActionEntry</code> :</p>
+    <pre class="codebox">data ActionEntry = ActionEntry {
+actionEntryName :: String
+actionEntryLabel :: String
+actionEntryStockId :: (Maybe String)
+actionEntryAccelerator :: (Maybe String)
+actionEntryTooltip :: (Maybe String)
+actionEntryCallback :: (IO ())
+}
+</pre>
+    <p>El uso de estos campos es como su nombre indica y como ha sido descrito m&aacute;s arriba
+    y en el cap&iacute;tulo 7.1. La funci&oacute;n  
+    <code>actionEntryCallback</code> debe ser aportada por el programador, y ser&aacute; ejecutada cuando
+    la acci&oacute;n a la que est&aacute; asociada se active.</p>
+    <p>A&ntilde;ade una lista de entradas a un grupo de acci&oacute;n con:</p>
+    <pre class="codebox">actionGroupAddActions :: ActionGroup -&gt; [ActionEntry] -&gt; IO ()
+</pre>
+    <p>Desp&eacute;s el grupo se inserta usando 
+    <code>uiManagerInsertActionGroup</code> como antes. </p>
+    <p>Hay funciones similares para <code>RadioAction</code> y <code>ToggleAction</code> .
+    Las acciones Radio (Radio actions) permiten al usuario seleccionar entre varias posibilidades,
+    de las que s&oacute;lo una puede estar activa. Debido a esto tiene sentido definirlas todas juntas.
+    La definici&oacute;n es:</p>
+    <pre class="codebox">data RadioActionEntry = RadioActionEntry {
+radioActionName :: String
+radioActionLabel :: String
+radioActionStockId :: (Maybe String)
+radioActionAccelerator :: (Maybe String)
+radioActionTooltip :: (Maybe String)
+radioActionValue :: Int
+}
+</pre>
+    <p>Los primeros 5 campos de nuevo se usan como se podr&iacute;a esperar. El
+    <code>radioActionValue</code> (Valor de acci&oacute;n del radio) identifica cada una de las
+    posibles selecciones. La incorporaci&oacute;n al grupo se realiza con:</p>
+    <pre class="codebox">actionGroupAddRadioActions :: 
+              ActionGroup -&gt; [RadioActionEntry] -&gt; Int -&gt; (RadioAction -&gt; IO ()) -&gt; IO ()
+</pre>
+    <p>El par&aacute;metro 
+    <code>Int</code> es el valor de la acci&oacute;n para ser activada inicialmente, o -1 
+    si no va a ser ninguna.</p>
+    <p class="notebox">
+    <strong>Nota:</strong> En el siguiente ejemplo esto parece no tener efecto; la 
+    &uacute;ltima acci&oacute;n est&aacute; siempre seleccionada inicialmente.</p>
+    <p>La funci&oacute;n de tipo 
+    <code>(RadioAction -&gt; IO ())</code> se ejecuta siempre que esa acci&oacute;n
+    se activa.</p>
+    <p>Las acciones Toggle tienen un valor  
+    <code>Bool</code> y cada una puede establecerse o no. La 
+    <code>ToggleActionEntry</code> se define como:</p>
+    <pre class="codebox">data ToggleActionEntry = ToggleActionEntry {
+toggleActionName :: String
+toggleActionLabel :: String
+toggleActionStockId :: (Maybe String)
+toggleActionAccelerator :: (Maybe String)
+toggleActionTooltip :: (Maybe String)
+toggleActionCallback :: (IO ())
+toggleActionIsActive :: Bool
+}
+</pre>
+    <p>El ejemplo que tenemos a continuaci&oacute;n demuestra el uso de acciones toggle
+    as&iacute; como acciones radio.</p>
+    <p class="notebox">
+    <strong>Nota:</strong> La funci&oacute;n 
+    <code>toggleActionCallback</code> tiene el valor equivocado en
+    mi plataforma; el truco es, por supuesto, usar la funci&oacute;n <code>not</code>.</p>
+    <img src="Images/GtkChap7-2.png" alt="RadioAction and ToggleAction" id="imgGtkChap7-2" />
+    <p>Los botones radio pueden controlar un modo "resaltado", como en el editor de texto gedit,
+    del cual est&aacute; copiado. El primer men&uacute; tiene un bot&oacute;n y dos submen&uacute;s que
+    contienen los items restantes. Adem&aacute;s, uno de los botones radio es un
+    elemento de un toolbar. Esta distribuci&oacute;n est&aacute; controlada completamente
+    por la primera definici&oacute;n XML.</p>
+    <p>Las acciones toggle son elementos de otro men&uacute;, y dos de estos est&aacute;n
+    tambi&eacute;n colocados en una barra de herramientas. Su distribuci&oacute;n est&aacute; 
+    determinada por la segunda definici&oacute;n XML.</p>
+    <p>Lo interesante es que el  
+    <code>uiManager</code> puede fusionar estas definiciones del ui, simplemente 
+    a&ntilde;adiendolas, como se ver&aacute; m&aacute;s adelante. As&iacute; que puedes definir tus men&uacute;s en m&oacute;dulos separados
+    y combinarlos f&aacute;cilmente m&aacute;s tarde en el m&oacute;dulo principal. De acuerdo a la documentaci&oacute;n, 
+    el gestor de ui (ui manager) es suficientemente inteligente en esto, y por supuesto
+    puedes usar nombres iguales en las definiciones XML que se diferencien en los caminos.
+    Pero recuerda que la  
+    <code>String</code> que denota una acci&oacute;n, debe ser &uacute;nica para cada acci&oacute;n.</p>
+    <p>Tambi&eacute;n es posible separar los men&uacute;s y los toolbars, usando las funciones 
+    <code>MergeId</code> y <code>uiManagerRemoveUi</code>. 
+    De este modo puedes gestionar men&uacute;s y toolbars din&aacute;micamente.</p>
+    <pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Radio and Toggle Actions",
+                 windowDefaultWidth := 400,
+                 windowDefaultHeight := 200 ]
+ 
+     mhma &lt;- actionNew "MHMA" "Highlight\nMode" Nothing Nothing
+     msma &lt;- actionNew "MSMA" "Source"          Nothing Nothing
+     mmma &lt;- actionNew "MMMA" "Markup"          Nothing Nothing  
+
+     agr1 &lt;- actionGroupNew "AGR1"
+     mapM_ (actionGroupAddAction agr1) [mhma,msma,mmma]
+     actionGroupAddRadioActions agr1 hlmods 0 myOnChange
+
+     vima &lt;- actionNew "VIMA" "View" Nothing Nothing          
+
+     agr2 &lt;- actionGroupNew "AGR2"
+     actionGroupAddAction agr2 vima
+     actionGroupAddToggleActions agr2 togls
+
+     uiman &lt;- uiManagerNew
+     uiManagerAddUiFromString uiman uiDef1
+     uiManagerInsertActionGroup uiman agr1 0
+
+     uiManagerAddUiFromString uiman uiDef2
+     uiManagerInsertActionGroup uiman agr2 1
+
+     mayMenubar &lt;- uiManagerGetWidget uiman "/ui/menubar"
+     let mb = case mayMenubar of 
+                    (Just x) -&gt; x
+                    Nothing -&gt; error "Cannot get menu bar."
+
+     mayToolbar &lt;- uiManagerGetWidget uiman "/ui/toolbar"
+     let tb = case mayToolbar of 
+                    (Just x) -&gt; x
+                    Nothing -&gt; error "Cannot get tool bar."
+
+     box &lt;- vBoxNew False 0
+     containerAdd window box
+     boxPackStart box mb PackNatural 0
+     boxPackStart box tb PackNatural 0
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+hlmods :: [RadioActionEntry]
+hlmods = [
+     RadioActionEntry "NOA" "None"    Nothing Nothing Nothing 0,   
+     RadioActionEntry "SHA" "Haskell" (Just stockHome)  Nothing Nothing 1, 
+     RadioActionEntry "SCA" "C"       Nothing Nothing Nothing 2,
+     RadioActionEntry "SJA" "Java"    Nothing Nothing Nothing 3,
+     RadioActionEntry "MHA" "HTML"    Nothing Nothing Nothing 4,
+     RadioActionEntry "MXA" "XML"     Nothing Nothing Nothing 5]
+
+myOnChange :: RadioAction -&gt; IO ()
+myOnChange ra = do val &lt;- radioActionGetCurrentValue ra
+                   putStrLn ("RadioAction " ++ (show val) ++ " now active.")
+
+uiDef1 = " &lt;ui&gt; \
+\           &lt;menubar&gt;\
+\              &lt;menu action=\"MHMA\"&gt;\
+\                 &lt;menuitem action=\"NOA\" /&gt;\
+\                 &lt;separator /&gt;\
+\                 &lt;menu action=\"MSMA\"&gt;\
+\                    &lt;menuitem action= \"SHA\" /&gt; \
+\                    &lt;menuitem action= \"SCA\" /&gt; \
+\                    &lt;menuitem action= \"SJA\" /&gt; \
+\                 &lt;/menu&gt;\
+\                 &lt;menu action=\"MMMA\"&gt;\
+\                    &lt;menuitem action= \"MHA\" /&gt; \
+\                    &lt;menuitem action= \"MXA\" /&gt; \
+\                 &lt;/menu&gt;\
+\              &lt;/menu&gt;\
+\           &lt;/menubar&gt;\
+\            &lt;toolbar&gt;\
+\              &lt;toolitem action=\"SHA\" /&gt;\
+\            &lt;/toolbar&gt;\
+\           &lt;/ui&gt; "            
+
+togls :: [ToggleActionEntry]
+togls = let mste = ToggleActionEntry "MST" "Messages" Nothing Nothing Nothing (myTog mste) False   
+            ttte = ToggleActionEntry "ATT" "Attributes" Nothing Nothing Nothing (myTog ttte)  False 
+            erte = ToggleActionEntry "ERT" "Errors" (Just stockInfo) Nothing Nothing (myTog erte)  True 
+        in [mste,ttte,erte]
+
+myTog :: ToggleActionEntry -&gt; IO ()
+myTog te = putStrLn ("The state of " ++ (toggleActionName te) 
+                      ++ " (" ++ (toggleActionLabel te) ++ ") " 
+                      ++ " is now " ++ (show $ not (toggleActionIsActive te)))
+uiDef2 = "&lt;ui&gt;\
+\          &lt;menubar&gt;\
+\            &lt;menu action=\"VIMA\"&gt;\
+\             &lt;menuitem action=\"MST\" /&gt;\
+\             &lt;menuitem action=\"ATT\" /&gt;\
+\             &lt;menuitem action=\"ERT\" /&gt;\
+\            &lt;/menu&gt;\
+\          &lt;/menubar&gt;\
+\            &lt;toolbar&gt;\
+\              &lt;toolitem action=\"MST\" /&gt;\
+\              &lt;toolitem action=\"ERT\" /&gt;\
+\            &lt;/toolbar&gt;\
+\         &lt;/ui&gt;"
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="es-chap7-1.xhtml">Previo</a>
+      <br />7.1 Men&uacute;s y Toolbars (barras de herramientas)</span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+      <!--a href="chap8-1.xhtml">Next</a-->
+      <br />¡Fin!</span>
+    </div>
+  
+</body></html>

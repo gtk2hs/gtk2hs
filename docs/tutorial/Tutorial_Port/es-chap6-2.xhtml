@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head>
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial de Gtk2Hs: Cajas de botones y cajas de eventos</title>
+    
+    <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+    <div id="header">
+      <h1>Tutorial de Gtk2Hs</h1>
+      <span class="nav-previous">
+        <a href="es-chap6-1.xhtml">Previo</a>
+      </span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+        <a href="es-chap6-3.xhtml">Siguiente</a>
+      </span>
+    </div>
+    <h2>6.2 Cajas de botones y cajas de eventos</h2>
+    <p>Un evento en Gtk2Hs es algo que se env&iacute;a a un widget, por
+    el bucle principal, normalmente como resultado de una acci&oacute;n
+    realizada por el usuario. El widget entonces responde emitiendo
+    una se&ntilde;al, y esta es la se&ntilde;al para el programa de hacer algo.
+    Para el programador de aplicaciones de Gtk2Hs, sin embargo, 
+    un evento no es m&aacute;s que un tipo de datos de Haskell con campos 
+    nombrados. La mayor&iacute;a de estos est&aacute;n descritos en
+    la secci&oacute;n de la API correspondiente a Graphics.UI.Gtk.Gdk.Events. Mira, por ejemplo, 
+    la se&ntilde;al del widget:</p>
+    <pre class="codebox">onButtonPress :: WidgetClass w =&gt; w -&gt; (Event -&gt; IO Bool) -&gt; IO (ConnectId w)
+</pre>
+    <p>Esto no debe ser confundido con la se&ntilde;al emitida cuando un 
+    widget de tipo <code>Button</code> es presionado; el bot&oacute;n
+    aqu&iacute; es un bot&oacute;n del rat&oacute;n y la se&ntilde;al se emite cuando se ha pulsado
+    un bot&oacute;n del rat&oacute;n cuando el rat&oacute;n estaba sobre ese widget. El manejador es una funci&oacute;n
+    que toma un evento, que tiene que tener el constructor 
+    <code>Button</code>, y tiene un valor IO boolean. La
+    API lista los siguientes campos para  
+    <code>Button</code> :</p>
+    <pre class="codebox">eventSent :: Bool
+eventClick :: Click
+eventTime :: TimeStamp
+eventModifier :: [Modifier]
+eventButton :: MouseButton
+eventXRoot, eventYRoot :: Double
+</pre>
+    <p>El primero se usa para el retorno. Ocurre en todos los constructores  
+    <code>Event</code> como <code>Motion, Expose, Key, Crossing, Focus, Configure, Scroll,
+    WindowState and Proximity.</code> (movimiento, exposici&oacute;n, llave, cruce, foco, configurar,
+    desplazamiento, estado de la ventana y proximidad). De los 
+    <code>Events</code> puedes obtener todo tipo de informaci&oacute;n sobre lo que est&aacute; haciendo el 
+    usuario. Tienes un ejemplo sencillo en este trozo de c&oacute;digo:</p>
+    <pre class="codebox">onButtonPress eb 
+                 (\x -&gt; if (eventButton x) == LeftButton 
+                           then do widgetSetSensitivity eb False 
+                                   return (eventSent x)
+                           else return (eventSent x))
+</pre>
+    <p>Aqu&iacute;, el par&aacute;metro  
+    <code>eb</code> es el widget sobre el que est&aacute; el rat&oacute;n, y la 
+    funci&oacute;n an&oacute;nima es del tipo descrito arriba. Algo se hace
+    (mira el ejemplo inferior) si el bot&oacute;n izquierdo del rat&oacute;n ha 
+    sido pulsado y entonces, 
+    <code>eventSent</code> devuelve el booleano apropiado.
+    si se pulsa cualquier otro bot&oacute;n del rat&oacute;n, no pasa nada
+    y s&oacute;lo se devuelve el booleano.</p>
+    <p>Ahora, algunos widwets no tienen ventanas asociadas, as&iacute;
+    que est&aacute;n dibujados en sus ventanas padre. Por eso no pueden recibir eventos 
+    y si su tama&ntilde;o est&aacute; puesto incorrectamente, no se superponen con lo
+    que puedes organizar un l&iacute;o de sobreescritura (no seguiremos discutiendo este aspecto). Un 
+    <code>EventBox</code> proporciona una ventana X window para su widget hijo.
+    Es una subclase de <code>Bin</code> que tambi&eacute;n tiene su propia ventana y que es una subclase de 
+    <code>ContainerClass</code> .</p>
+    <p>Para crear un nuevo widget EventBox widget, usa:</p>
+    <pre class="codebox">eventBoxNew :: IO EventBox
+</pre>
+    <p>Para a&ntilde;adir un hijo simplemente tenemos que usar el bien conocido:</p>
+    <pre class="codebox">containerAdd :: (ContainerClass self, WidgetClass widget) =&gt; self -&gt; widget -&gt; IO ()
+</pre>
+    <p>La ventana puede ser visible o invisible, y la caja de eventos puede estar 
+    por encima o por debajo de su hijo en el &aacute;rbol del widget.
+    Esto se determina por:</p>
+    <pre class="codebox">eventBoxVisibleWindow :: Attr EventBox Bool    -- default True
+eventBoxAboveChild :: Attr EventBox Bool       -- default False
+</pre>
+    <p>Si simplemente quieres capturar los eventos, entonces establece la
+    ventana como invisible. Si el
+    <code>eventBox</code> est&aacute; sobre su hijo, todos los eventos ir&aacute;n en primer lugar all&iacute; primero.
+    Si est&aacute; debajo, las ventanas en los widgets hijos del hijo ser&aacute;n 
+    alcanzados primero.</p>
+    <p>Una caja Button es simplemente una caja que puede ser usada para empaquetar botones 
+    de un modo est&aacute;ndar. Hay dos tipos, horizontales and verticales, y puedes 
+    construirlos con:</p>
+    <pre class="codebox">hbuttonBoxNew :: IO HButtonBox
+vButtonBoxNew :: IO VButtonBox
+</pre>
+    <p>La funcionalidad est&aacute; en el 
+    <code>ButtonBoxClass.</code> </p>
+    <pre class="codebox">buttonBoxSetLayout :: ButtonBoxClass self =&gt; self -&gt; ButtonBoxStyle -&gt; IO ()
+</pre>
+    <p>El estilo es uno de los siguientes: 
+    <code>ButtonBoxDefaultStyle, ButtonBoxSpread, ButtonBoxEdge,
+    ButtonBoxStart, ButtonBoxEnd</code> . No se empaquetan los buttons como
+    en las cajas normales verticales y horizontales, sino que debes usar la
+    funci&oacute;n <code>containerAdd</code>.</p>
+    <p>La segunda caracter&iacute;stica de las cajas button boxes es que puedes definir
+    que uno o m&aacute;s de los botones est&eacute;n en un grupo secundario. Estos ser&aacute;n
+    tratados de modo diferente cuando se modifique el tama&ntilde;o de la caja button. 
+    Por ejemplo, un bot&oacute;n de ayuda puede mantenerse visualmente separado de los otros. La funci&oacute;n es:</p>
+    <pre class="codebox">buttonBoxSetChildSecondary :: (ButtonBoxClass self, WidgetClass child)
+=&gt; self -&gt; child -&gt; Bool -&gt; IO ()
+</pre>
+    <p>Esto ilustra el uso de cajas de eventos y cajas de bot&oacute;n:</p>
+    <p>
+      <img src="Images/GtkChap6-2a.png" alt="Slot Machine" id="imgGtkChap6-2a" />
+    </p>
+    <p>Los botones se empaquetan en una caja de botones verticales, con el bot&oacute;n play
+    como un hijo secundario. Adem&aacute;s es un bot&oacute;n mnemónico,
+    con Alt-P como tecla aceleradora. Las im&aacute;genes se colocan en cajas de eventos con ventanas
+    visibles, y su color de fondo se establece en un color verde con:</p>
+     <pre class="codebox">widgetModifyBg eb StateNormal (Color 0 35000 0)</pre>
+    <p>Como se mencion&oacute; en el cap&iacute;tulo 5.3 el 
+    <code>StateType</code> puede ser 
+    <code>StateNormal, StateActive, StatePrelight, StateSelected or
+    StateInsensitive</code> (normal, activo, preiluminado, seleccionado o insensible) .</p>
+    <p>F&iacute;jate en que las im&aacute;genes de abajo no tienen todas el mismo tama&ntilde;o.
+    No tiene especial importancia, pero debemos tener cuidado de asegurarnos de
+    que la ventana principal sea suficientemente grande. De otro modo los
+    bordes desaparecer&aacute;n cuando se cambien las im&aacute;genes.</p>
+    <p>Cuando el usuario pulsa el bot&oacute;n izquierdo del rat&oacute;n cuando el rat&oacute;n
+    est&aacute; sobre una caja de eventos, se puede colocar en el estado insensible con:</p>
+    <pre class="codebox">widgetSetSensitivity :: WidgetClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+    <p>Esto cambia el <code>StateType</code> a 
+    <code>StateInsensitive</code> y el widget no responder&aacute; m&aacute;s a los 
+    eventos del usuario. Ademas su apariencia cambia.
+    En el ejemplo hemos cambiado tambi&eacute;n el color de fondo a
+    un gris.</p>
+    <p>
+      <img src="Images/GtkChap6-2b.png" alt="Slot Machine Insensitive" id="imgGtkChap6-2b" />
+    </p>
+    <p>Hemos usado tooltips para indicar al usuario que las im&aacute;genes pueden ser congeladas.
+    Como se mencion&oacute; en el Cap&iacute;tulo 4.4 no siempre funcionan con el int&eacute;rprete pero si lo
+    hacen con el compilador. Para cambiar las im&aacute;genes aleatoriamente, usamos la funci&oacute;n 
+    RandomRIO, como en el cap&iacute;tulo anterior. Te puede sorprender el porque hemos usado una tupla de  
+    <code>EventBox</code> y 
+    <code>Image</code>, en vez de simplemente usar la  
+    <code>Image</code> del atributo 
+    <code>containerChild</code> de las cajas de evento. Esto se debe a que es
+    un atributo de s&oacute;lo escritura, puede  
+    <code>set</code> (establecerse) pero no recuperarse con 
+    <code>get</code> .</p>
+    <p>Finalmente, si no puedes disponer de las im&aacute;genes en tu directorio de c&oacute;digo fuente,
+    o si quieres extender la m&aacute;quina con m&aacute;s posibilidades, tienes un gran surtido de peces
+    brasile&ntilde;os en 
+      <a href="http://www.pesca.com.br/mundodapesca/peixe/index.htm">
+      peces</a>.  Est&aacute;n clasificados en peces de agua salada (&aacute;gua
+    salgado) y de agua dulce (&aacute;gua doce). </p>
+    <pre class="codebox">import Graphics.UI.Gtk
+import System.Random (randomRIO)
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Slot Machine",
+                 containerBorderWidth := 10,
+                 windowDefaultWidth := 350, 
+                 windowDefaultHeight := 400]                 
+     hb1 &lt;- hBoxNew False 0
+     containerAdd window hb1
+     vb1 &lt;- vBoxNew False 0
+     boxPackStart hb1 vb1 PackGrow 0
+     vbb &lt;- vButtonBoxNew
+     boxPackStart hb1 vbb PackGrow 0
+     resetb &lt;- buttonNewWithLabel "Reset"
+     containerAdd vbb resetb
+     quitb &lt;- buttonNewWithLabel "Quit"
+     containerAdd vbb quitb
+     playb &lt;- buttonNewWithMnemonic "_Play"
+     containerAdd vbb playb
+     set vbb [buttonBoxLayoutStyle := ButtonboxStart, 
+              (buttonBoxChildSecondary playb) := True ]
+
+     let picfiles = ["./jacunda.gif", "./pacu.gif", "./tucunaream.gif"]
+     evimls &lt;- sequence (map (initEvent vb1) picfiles)
+     tips &lt;- tooltipsNew
+     sequence_ $ map ((myTooltip tips) . fst) evimls
+
+     onClicked playb (play evimls picfiles)
+
+     onClicked resetb $ sequence_ (zipWith reSet evimls picfiles)
+
+     onClicked quitb (widgetDestroy window)
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+initEvent :: VBox -&gt; FilePath -&gt; IO (EventBox, Image)
+initEvent vb picfile = do
+              eb &lt;- eventBoxNew
+              boxPackStart vb eb PackGrow 0
+              slot &lt;- imageNewFromFile picfile
+              set eb[containerChild := slot, containerBorderWidth := 10 ]
+              widgetModifyBg eb StateNormal (Color 0 35000 0)
+              widgetModifyBg eb StateInsensitive (Color 50000 50000 50000)
+              onButtonPress eb 
+                 (\x -&gt; if (eventButton x) == LeftButton 
+                           then do widgetSetSensitivity eb False 
+                                   return (eventSent x)
+                           else return (eventSent x))
+              return (eb, slot)
+
+reSet :: (EventBox, Image) -&gt; FilePath -&gt; IO ()
+reSet (eb, im) pf = do widgetSetSensitivity eb True                 
+                       imageSetFromFile im pf  
+
+play :: [(EventBox, Image)] -&gt; [FilePath] -&gt; IO ()
+play eilist fplist = 
+   do let n = length fplist
+      rands &lt;- sequence $ replicate n (randomRIO (0::Int,(n-1)))
+      sequence_ (zipWith display eilist rands) where
+                     display (eb, im) rn = do
+                                  state &lt;- widgetGetState eb
+                                  if state == StateInsensitive 
+                                     then return ()
+                                     else imageSetFromFile im (fplist !! rn)   
+
+myTooltip :: Tooltips -&gt; EventBox -&gt; IO ()
+myTooltip ttp eb = tooltipsSetTip ttp eb "Click Left Mouse Button to Freeze" ""
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="es-chap6-1.xhtml">Previo</a>
+      <br />6.1 Ventanas con desplazamiento (scroll)</span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+      <a href="es-chap6-3.xhtml">Siguiente</a>
+      <br />6.3 El contenedor Layout (distribuci&oacute;n)</span>
+    </div>
+  </body></html>

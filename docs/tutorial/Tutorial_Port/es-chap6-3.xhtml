@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head>
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial de Gtk2Hs: El contenedor Layout (distribuci&oacute;n)</title>
+    
+    <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+    <div id="header">
+      <h1>Tutorial de Gtk2Hs</h1>
+      <span class="nav-previous">
+        <a href="es-chap6-2.xhtml">Previo</a>
+      </span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+        <a href="es-chap6-4.xhtml">Siguiente</a>
+      </span>
+    </div>
+    <h2>6.3 El contenedor Layout (distribuci&oacute;n)</h2>
+    <p>Hasta ahora el empaquetado de widgets se ha realizado por secuenciado
+    en cajas verticales u horizontales, o en una tabla. Puedes, sin embargo, colocar
+    los widgets en la posici&oacute;n que desees usando un widget
+    <code>Fixed</code> (Fijo) o un 
+    <code>Layout</code> (algo as&iacute; como plano de distribuci&oacute;n). No se
+    recomienda usar un contenedor <code>Fixed</code>, ya que no se adapta bien
+    a los cambios de tama&ntilde;o de la ventana.</p>
+    <p>El contenedor Layout es parecido al contenedor Fijo, pero se diferencia en
+    que implementa un &aacute;rea de desplazamiento infinita (cuando infinito es menor que 2^32).
+    El sistema X window (sobre el que est&aacute; basado Gtk+) tiene una limitaci&oacute;n de anchura o
+    altura, y no pueden superar los 32767 pixels. El contenedor Layout puede esquivar
+    este problema haciendo cosas ex&oacute;ticas, lo que permite tener suaves deplazamientos
+    incluso cuando tienes muchos widgets hijos en el &aacute;rea de desplazamiento. De este modo
+    las desventajas del widget <code>Fixed</code> se esquivan.</p>
+    <p>Para crear un contenedor Layout usamos:</p>
+    <pre class="codebox">layoutNew :: Maybe Adjustment -&gt; Maybe Adjustment -&gt; IO Layout
+</pre>
+    <p>Como puedes ver, puedes optar por especificar los objetos <code>Adjustment</code>
+    que el widget Layout usar&aacute; para su desplazamiento.</p>
+    <p>Puedes a&ntilde;adir y mover widgets en el contenedor Layout container usando las
+    dos funciones siguientes:</p>
+    <pre class="codebox">layoutPut :: (LayoutClass self, WidgetClass childWidget)
+=&gt; self -&gt; childWidget -&gt; Int -&gt; Int -&gt; IO ()
+layoutMove :: (LayoutClass self, WidgetClass childWidget)
+=&gt; self -&gt; childWidget -&gt; Int -&gt; Int -&gt; IO ()   
+</pre>
+    <p>El primer argumento es la posici&oacute;n x, el segundo la posici&oacute;n y. La posici&oacute;n
+    superior izquierda es (0,0), x crece de izquierda a derecha e y de arriba abajo.
+    </p>
+    <p>Se puede fijar el tama&ntilde;o del contenedor  
+    <code>Layout</code> usando la siguiente funci&oacute;n:</p>
+    <pre class="codebox">layoutSetSize :: LayoutClass self =&gt; self  -&gt; Int -&gt; Int -&gt; IO ()
+</pre>
+    <p>El primer argumento es la anchura de toda el &aacute;rea desplazable, el segundo su altura.</p>
+    <p>En el ejemplo hemos puesto una lista de etiquetas, cada una con una letra
+    may&uacute;scula del alfabeto, en un c&iacute;rculo. La etiquetas se posicionan perpendicularmente
+    al radio, usando la funci&oacute;n :</p>
+    <pre class="codebox">labelSetAngle :: labelClass self =&gt; self -&gt; Double -&gt; IO ()
+</pre>
+    <p>El &aacute;ngulo se mide en grados, medidos en contra de las agujas del reloj.</p>
+    <img src="Images/GtkChap6-3.png" alt="Alphabet" id="imgGtkChap6-3" />
+    <p>El widget layout se posiciona en una ventana desplazable con <code>containerAdd</code> 
+    ya que en s&iacute; es desplazable, y adem&aacute;s no necesita un viewport, como vimos en 
+    el cap&iacute;tulo 6.1. Las etiquetas se posicionan usando coordenadas angulares,
+    que son transformadas en coordenadas cartesianas con las funciones de Prelude 
+    <code>sin</code> (seno) y 
+    <code>cos</code> (coseno). Estas toman el argumento en radianes
+     (entre 0 y (2 * pi)). En el ejemplo, la anchura y la altura est&aacute;n 
+     parametrizadas, como lo est&aacute; la lista a mostrar.
+    Adem&aacute;s, en 
+    <code>main</code> las esquinas del 
+    <code>Layout</code> se marcan, por lo que es sencillo experimentar con su tama&ntilde;o,
+    si quieres. F&iacute;jate en que el marcador ha sido reemplazado por un '+' debido a 
+    las quejas del validador.</p>
+    <pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Alphabet" , windowDefaultWidth := 350,
+             windowDefaultHeight := 350 , containerBorderWidth := 10]
+     sw &lt;- scrolledWindowNew Nothing Nothing
+     set sw [scrolledWindowPlacement := CornerBottomRight, 
+             scrolledWindowShadowType := ShadowEtchedIn,
+             scrolledWindowHscrollbarPolicy := PolicyAutomatic,
+             scrolledWindowVscrollbarPolicy := PolicyAutomatic ]
+     containerAdd window sw
+
+     layt &lt;- layoutNew Nothing Nothing
+     layoutSetSize layt myLayoutWidth myLayoutHeight
+     widgetModifyBg layt StateNormal (Color 65535 65535 65535)
+     containerAdd sw layt     
+ 
+     upleft  &lt;- labelNew (Just "+(0,0)")
+     layoutPut layt upleft 0 0
+     upright &lt;- labelNew (Just ("+(" ++ (show (myLayoutWidth - 50)) ++",0)"))
+     layoutPut layt upright (myLayoutWidth -50)  0
+     dwnright &lt;- labelNew (Just ("+(0," ++ (show (myLayoutHeight -20)) ++ ")"))
+     layoutPut layt dwnright 0 (myLayoutHeight -20)
+     dwnleft &lt;- labelNew (Just ("+(" ++ (show(myLayoutWidth -70)) ++ "," ++
+                                  (show (myLayoutHeight -20)) ++ ")"))
+     layoutPut layt dwnleft (myLayoutWidth -70) (myLayoutHeight - 20)
+     
+     labels &lt;- sequence $ map (labelNew . Just) txtls
+     sequence_ $ map (\x -&gt; widgetModifyFg x StateNormal (Color 0 0 45000)) labels
+     
+     let wnums = zip labels [0..]
+     sequence_ $ map (myLayoutPut layt) wnums     
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+-- parameters
+myLayoutWidth :: Int
+myLayoutWidth = 800
+
+myLayoutHeight :: Int
+myLayoutHeight = 800
+
+txtls :: [String]
+txtls = map (\x -&gt; x:[]) ['A'..'Z']
+-- end parameters
+
+step :: Double
+step = (2 * pi)/(fromIntegral (length txtls))
+
+ox :: Int
+ox =  myLayoutWidth `div` 2
+
+oy :: Int
+oy = myLayoutHeight `div` 2
+
+radius :: Double
+radius = 0.25 * (fromIntegral ox)
+
+angle :: Int -&gt; Double
+angle num = 1.5 * pi + (fromIntegral num) * step
+
+num2x :: Int -&gt; Int
+num2x n = ox + relx where 
+              relx = round $ radius * (cos (angle n))
+
+num2y :: Int -&gt; Int
+num2y n = oy + rely where
+              rely = round $ radius * (sin (angle n))
+
+myLayoutPut :: Layout -&gt; (Label, Int) -&gt; IO ()
+myLayoutPut lt (lb, n) = do 
+         layoutPut lt lb (num2x n) (num2y n) 
+         labelSetAngle lb (letterAngle n)
+
+letterAngle :: Int -&gt; Double
+letterAngle n = (270 - degree) where
+                    degree = (angle n) * (180.0 /pi)
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="es-chap6-1.xhtml">Previo</a>
+      <br />6.2 Cajas de botones y cajas de eventos</span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+      <a href="es-chap6-4.xhtml">Siguiente</a>
+      <br />6.4 Ventanas panelables y marcos de ratio fijo</span>
+    </div>
+  
+
+</body></html>

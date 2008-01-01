@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head>
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial de Gtk2Hs: Bloc de notas</title>
+    
+    <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+    <div id="header">
+      <h1>Tutorial de Gtk2Hs</h1>
+      <span class="nav-previous">
+        <a href="es-chap5-3.html">Previo</a>
+      </span>
+      <span class="nav-home">
+        <a href="es-index.html">Inicio</a>
+      </span>
+      <span class="nav-next">
+        <a href="es-chap6-1.html">Siguiente</a>
+      </span>
+    </div>
+    <h2>5.4 Bloc de notas</h2>
+    <p>El widget  
+    <code>Notebook</code> (bloc de notas) es una colecci&oacute;n de "p&aacute;ginas" que
+    se superponen. Cada p&aacute;gina es diferente, y s&oacute;lo una es visible en cada
+    momento. Las p&aacute;ginas contienen otros widgets que el programador suministra.</p>
+    <p>Para crear un nuevo widget Notebook:</p>
+    <pre class="codebox">NotebookNew :: IO Notebook
+</pre>
+    <p>Una vez que el bloc de notas ha sido creado, dispones de funciones y atributos
+    para ajustarlo a tus necesidades o gustos. Los siguientes atributos determinan la 
+    posici&oacute;n de las pesta&ntilde;as (tabs), y si son visibles o no.</p>
+    <pre class="codebox">notebookTabPos :: NotebookClass self =&gt; Attr self PositionType
+notebookShowTabs :: NotebookClass self =&gt; Attr self Bool
+</pre>
+    <p>PositionType (tipo de posici&oacute;n) tiene los siguientes cosntructores : 
+    <code>PosLeft</code> , 
+    <code>PosRight</code> , 
+    <code>PosTop</code> (por defecto) y 
+    <code>PosBottom.</code> </p>
+    <p>A continuaci&oacute;n echaremos un vistazo a la manera de a&ntilde;adir p&aacute;ginas
+    al notebook. Hay tres modos, append (a&ntilde;adir detr&aacute;s), prepend (a&ntilde;adir delante) e insert (insertar).</p>
+    <pre class="codebox">noteBookAppendPage :: (NotebookClass self, WidgetClass child)
+=&gt; self
+-&gt; child         -- El widget que tiene los contenidos de la p&aacute;gina
+-&gt; String        -- la etiqueta de texto
+-&gt; IO Int        -- el &iacute;ndice (n&uacute;mero de p&aacute;gina) de la nueva p&aacute;gina (empieza en 0)
+</pre>
+    <p>La funci&oacute;n 
+    <code>notebookPrependPage</code> tiene la misma signatura.
+    Y, por supuesto, devuelve 0 como valor del &iacute;ndice. La funci&oacute;n 
+    <code>notebookInsertPage</code> toma el &iacute;ndice (lugar donde quieres insertar
+    la p&aacute;gina) como un par&aacute;metro adicional. Se pueden eliminar p&aacute;ginas
+    con 
+    <code>notebookRemovePage.</code> </p>
+    <p>Un 
+    <code>Notebook</code> es un widget contenedor y puedes usar otros contenedores como
+    hijos, incluyendo cajas horizontales y verticales. Esto te permite crear p&aacute;ginas
+    bastante complejas, y establecer su distribuci&oacute;n con las funciones de empaquetado
+    habituales.</p>
+    <p>Las funciones listadas para a&ntilde;adir, pre-a&ntilde;adir e insertar p&aacute;ginas, s&oacute;lo sirven
+    con etiquetas de texto. Las tres tienen versiones que permiten que aparezca un men&uacute;
+    emergente (popup), y en los cuales puedes usar cualquier widget como etiqueta.</p>
+    <pre class="codebox">notebookAppendPageMenu ::
+(NotebookClass self, WidgetClass child, WidgetClass tabLabel, WidgetClass menuLabel)
+=&gt; self
+-&gt; child           -- el widget contenido en la p&aacute;gina
+-&gt; tabLabel        -- el widget para usar como etiqueta de la p&aacute;gina
+-&gt; menuLabel       -- el widget para usar como etiqueta del men&uacute; emergente
+-&gt; IO Int          -- el &iacute;ndice (n&uacute;mero de p&aacute;gina) de la nueva p&aacute;gina (empieza en 0)
+</pre>
+    <p>
+    <code>notebookPrependPageMenu </code> y 
+    <code> notebookInsertPageMenu</code>  colocar&aacute;n la p&aacute;gina en primer lugar o en
+    la posici&oacute;n indicada por el &iacute;ndice respectivamente.</p>
+    <p>Algunos atributos interesantes son: (consulta la docuemntaci&oacute;n de la API (en ingl&eacute;s) 
+    para verlos todos):</p>
+    <pre class="codebox">notebookScrollable :: NotebookClass self =&gt; Attr self Bool
+notebookCurrentPage :: NotebookClass self =&gt; Attr self Int
+notebookEnablePopup :: NotebookClass self =&gt; Attr self Bool
+</pre>
+    <p>Si hay muchas p&aacute;ginas puedes usar 
+    <code>notebookScrollable</code> . Usa 
+    <code>notebookCurrentPage</code> o la funci&oacute;n 
+    <code>notebookSetCurrentPage</code> para abrir el notebook en una p&aacute;gina diferente
+    que la primera (valor por defecto). El atributo 
+    <code>notebookEnablePopup</code> determina si la pulsaci&oacute;n del bot&oacute;n derecho
+    del rat&oacute;n en una pesta&ntilde;a mostrar&aacute; un men&uacute; emergente de todas las p&aacute;ginas disponibles, 
+    siempre que las funciones de men&uacute; hayan sido definidas.</p>
+    <p>Un widget
+    <code>Notebook</code> tiene su propia funci&oacute;n de manejo de la se&ntilde;al:</p>
+    <pre class="codebox">onSwitchPage :: NotebookClass nb =&gt; nb -&gt; (Int -&gt; IO ()) -&gt; IO (ConnectId nb)
+</pre>
+    <p>La funci&oacute;n, que t&uacute; debes suministrar, emplea un &iacute;ndice de p&aacute;gina devuelto por
+    <code>onSwitchPage</code> y debe realizar alguna salida.</p>
+    <p>Los ejemplos muestran un cat&aacute;logo <code>StockItem</code> de conjuntos de iconos
+    de maneras diversas.</p>
+    <p>
+      <img src="Images/GtkChap5-4a.png" alt="Notebook Example 1" id="imgGtkChap5-4a" />
+    </p>
+    <p>Vimos los Stock items en el cap&iacute;tulo 4.5. Recuerda
+    que un <code>StockItem</code> se conoce a partir de GTK+ (y Gtk2Hs).
+    La siguiente funci&oacute;n produce una lista de todos los identificadores de Stock Items.</p>
+    <pre class="codebox">stockListIds :: IO [StockId]
+</pre>
+    <p>Un 
+    <code>StockId</code> es una 
+    <code>String</code> y en Gtk2Hs tiene la forma: 
+    <code>stockCopy</code> , 
+    <code>stockDialogError</code> etc. En GTK+ la forma correspondiente
+    es: gtk-copy, gtk-dialog-error y as&iacute; sucesivamente. El ejemplo
+    define una funci&oacute;n tabName para convertir los identificadores GTK+ en
+    la lista de StockId a nombres para las solapas del notebook. La funci&oacute;n
+    <code>myNewPage</code> usa 
+    <code>imageNewFromStock</code> para poner el icono en un widget 
+    <code>Image</code>, que ser&aacute; despu&eacute;s a&ntilde;adido a la p&aacute;gina. Devuelve
+    el &iacute;ndice de la p&aacute;gina, pero no lo usa. Para conseguir una lista de todas las
+    p&aacute;ginas puedes usar <code>sequence</code> en vez de 
+    <code>sequence_</code> </p>
+    <p>F&iacute;jate en que el tama&ntilde;o del icono, en p&iacute;xeles debe ser limitado. El
+    valor por defecto es 4, el valor usado aqu&iacute;, 6, tambi&eacute;n est&aacute; permitido
+    pero un tama&ntilde;o de 8 produce un error de ejecuci&oacute;n con GHCi.</p>
+    <pre class="codebox">import Graphics.UI.Gtk
+import Data.Char (toUpper)
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Notebook Example 1", windowDefaultWidth := 300,
+                 windowDefaultHeight := 200 ]
+     
+     ntbk &lt;- notebookNew
+     containerAdd window ntbk
+     set ntbk [notebookScrollable := True, notebookTabPos := PosBottom]
+
+     stls &lt;- stockListIds
+     sequence_ (map (myNewPage ntbk) stls)
+
+     onSwitchPage ntbk (putStrLn . ((++)"Page: ") . show)
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+tabName :: StockId -&gt; String
+tabName st = (drop 3) (conv st) where
+                  conv (x:[]) = x:[]
+                  conv (x:y:ys) | x == '-' = (toUpper y):(conv ys)
+                                | otherwise = x: (conv (y:ys))
+
+myNewPage :: Notebook -&gt; StockId -&gt; IO Int
+myNewPage noteb stk = 
+          do img &lt;- imageNewFromStock stk 6
+             pagenum &lt;- notebookAppendPage noteb img (tabName stk)
+             return pagenum          
+</pre>
+    <p>Otra manera de mostrar el cat&aacute;logo es poner los iconos en las solapas
+    del notebook.</p>
+    <p>
+      <img src="Images/GtkChap5-4b.png" alt="Notebook Example 2" id="imgGtkChap5-4a" />
+    </p>
+    <p>Para hacer esto necesitamos el estilo de men&uacute; para a&ntilde;adir p&aacute;ginas, y tambi&eacute;n 
+    hemos definido un men&uacute; de solapas que consta de la primera letra de la cadena
+    nombre. El resultado es un men&uacute; emergente de 98 letras, con desplazamiento. 
+    Esto puede ser inhabilitado de un modo sencillo
+    a trav&eacute;s del atributo <code>notebookEnablePopup</code>. El contenido de cada
+    p&aacute;gina es el identificador de icono de Gtk2Hs (mira
+    Graphics.UI.Gtk.General.StockItems).</p>
+    <pre class="codebox">import Graphics.UI.Gtk
+import Data.Char (toUpper)
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Notebook Example 2", windowDefaultWidth := 300,
+                 windowDefaultHeight := 200 ]
+     
+     ntbk &lt;- notebookNew
+     containerAdd window ntbk
+     set ntbk [notebookScrollable := True, notebookEnablePopup := True,
+                    notebookTabPos := PosRight ]
+
+     stls &lt;- stockListIds
+     sequence_ (map (myNewPage ntbk) stls)
+
+     onSwitchPage ntbk (putStrLn . ((++)"Page: ") . show)
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+tabName :: StockId -&gt; String
+tabName st = (drop 3) (conv st) where
+                  conv (x:[]) = x:[]
+                  conv (x:y:ys) | x == '-' = (toUpper y):(conv ys)
+                                | otherwise = x: (conv (y:ys))
+
+myNewPage :: Notebook -&gt; StockId -&gt; IO Int
+myNewPage noteb stk = 
+          do img &lt;- imageNewFromStock stk 4
+             let nmstr = tabName stk
+             men &lt;- labelNew (Just ((take 1) nmstr))
+             cont &lt;- labelNew (Just ("stock" ++ nmstr))
+             pagenum &lt;- notebookAppendPageMenu noteb cont img men
+             return pagenum          
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="es-chap5-3.html">Previo</a>
+      <br />5.3 Seleci&oacute;n de Fuente (tipo de letra)</span>
+      <span class="nav-home">
+        <a href="es-index.html">Inicio</a>
+      </span>
+      <span class="nav-next">
+      <a href="es-chap6-1.html">Siguiente</a>
+      <br />6.1 Ventanas con desplazamiento (scroll)</span>
+    </div>
+  
+</body></html>

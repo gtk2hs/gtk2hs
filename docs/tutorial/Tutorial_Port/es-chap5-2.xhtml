@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial de Gtk2Hs: Selecci&oacute;n de fichero</title>
+    
+    <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+  <div id="header">
+    <h1>Tutorial de Gtk2Hs</h1>
+    <span class="nav-previous">
+      <a href="es-chap5-1.xhtml">Previo</a>
+    </span>
+    <span class="nav-home">
+      <a href="es-index.xhtml">Inicio</a>
+    </span>
+    <span class="nav-next">
+      <a href="es-chap5-3.xhtml">Siguiente</a>
+    </span>
+  </div>
+  <h2>5.2 Selecci&oacute;n de fichero</h2>
+  <p>Los ficheros y los directorios (carpetas) son esenciales en cualquier
+  programa de ordenador y Gtk contiene diversos componentes para facilitar
+  su manejo. La selecci&oacute;n de ficheros y directorios en Gtk2Hs se
+  implementa a trav&eacute;s del interfaz <code>FileChooser</code>. Basicamente hay cuatro
+  modos, como se indica en el tipo <code>FileChooserAction</code>. Sus constructores son:</p>
+  <ul>
+    <li>
+    <code>FileChooserActionOpen</code> usado para que el usuario abra un fichero</li>
+    <li>
+    <code>FileChooserActionSave</code>  usado para que el usuario guarde un fichero</li>
+    <li>
+    <code>FileChooserActionSelectFolder</code>    usado para que el usuario seleccione un directorio</li>
+    <li>
+    <code>FileChooserActionCreateFolder</code>    usado para que el usuario cree un directorio</li>
+  </ul>
+  <p>El interfaz 
+  <code>FileChooser</code> tiene atributos, m&eacute;todos y se&ntilde;ales, pero no es propiamente un widget. Hay tres
+  widgets que usan el interfaz de modo diferente, 
+  <code>FileChooserWidget</code> , 
+  <code>FileChooserButton</code> y 
+  <code>FileChooserDialog</code> . El widget a usar est&aacute; restingido por la
+  <code>FileChooserActionType</code> permitida. Como ver&aacute;s en los ejemplos siguientes,
+  el widget para guardar un fichero o para seleccionar un directorio puede contener
+  tambi&eacute;n un bot&oacute;n que permita al usuario crear un directorio. Adem&aacute;s, el constructor
+  FileActionCreateFolder probablemente nunc&aacute; ser&aacute; usado en ninguno de tus programas.</p>
+  <p>Es importante indicar que, a pesar de que los widgets no guardan ni abren ficheros por
+  s&iacute; mismos, le creaci&oacute;n de los directorios (por el usuario) se implementa a trav&eacute;s de widgets.</p>
+  <p>Nuestro primer ejemplo usar&aacute; <code>FileChooserWidget</code> , que puede emplearse en el modo
+  Abrir y Salvar.</p>
+  <pre class="codebox">fileChooserWidgetNew :: FileChooserAction -&gt; IO FileChooserWidget
+</pre>
+  <p>Aqu&iacute; usamos <code>FileChooserActionOpen</code>, y cuando el usuario elige definitivamente un fichero, ya sea
+  haciendo doble clic en &eacute;l o pulsando la tecla Enter, la se&ntilde;al <code>onFileActived</code> se emite. Usamos:</p>  
+  <pre class="codebox">fileChooserGetFilename :: FileChooserClass self =&gt; self -&gt; IO (Maybe FilePath)
+</pre>
+  <p>Desde la ubicaci&oacute;n del fichero, el programa puede abrir el fichero, o posiblemente hacer otra cosa.
+  El formato del filepath puede depender de la plataforma y est&aacute; determinado por la variable de entorno 
+  G_FILENAME_ENCODING. Hay tambi&eacute;n funciones en <code>FileChooser</code> para formatos URI (Uniform Resource Identifier),
+  pero no las vamos a ver aqu&iacute;.</p>
+  <p>Puedes permitir al usuario seleccionar m&uacute;ltiples ficheros con:</p>
+  <pre class="codebox">fileChooserSetselectMultiple :: FileChooserClass self =&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+  <p>y, con el <code>FileChooserWidget</code> , puedes a&ntilde;adir f&aacute;cilmente un bot&oacute;n check
+  para dejar al usuario determinarlo. La colocaci&oacute;n de un widget de este tipo se hace de modo est&aacute;ndar
+  con:</p>
+  <pre class="codebox">fileChooserSetExtraWidget :: (FileChooserClass self, WidgetClass extraWidget)
+=&gt; self -&gt; extraWidget -&gt; IO ()
+</pre>
+  <p>Otra utilidad es el uso de filtros para mostrar s&oacute;lo ficheros de un tipo, ya
+  sea especificando un tipo MIME, un pattern (plantilla) o un formato a medida. 
+  Los filtros de ficheros se documentan en Graphics.UI.Gtk.Selectors.FileFilter.</p>
+  <p>El siguiente trozo de c&oacute;digo, parte del ejemplo siguiente, muestra los filtros.
+  La &uacute;ltima l&iacute;nea simplemente a&ntilde;ade el filtro al widget selector de fichero y, como ocurre con el widget extra,
+  el posicionamiento visual se hace autom&aacute;ticamente.</p>
+  <pre class="codebox">   hsfilt &lt;- fileFilterNew
+   fileFilterAddPattern hsfilt "*.hs"
+   fileFilterSetName hsfilt "Haskell Source"   
+   fileChooserAddFilter fch hsfilt
+</pre>
+  <p>Puedes tambi&eacute;n a&ntilde;adir un widget "preview" (previsualizaci&oacute;n) con:</p>
+  <pre class="codebox">fileChooserSetPreviewWidget :: (FileChooserClass self, WidgetClass
+previewWidget) =&gt; self -&gt; previewWidget -&gt; IO ()
+</pre>
+  <p>En el ejemplo se usa para previsualizar ficheros gr&aacute;ficos. El ejemplo usa un widget 
+  <code>Image</code> (documentado en Graphics.UI.Gtk.Display.Image) como los usados antes en el
+  Cap&iacute;tulo 4.1.
+  All&iacute; usamos <code>imageNewFromFile</code> para a&ntilde;adir gr&aacute;ficos a un bot&oacute;n; aqu&iacute; constru&iacute;mos
+  un widget <code>Image</code> vac&iacute;o.</p>
+  <p>Para actualizarlo cuando haya cambios, tenemos una se&ntilde;al <code>onUpdatePreview</code>,
+  que se emite cada vez que el usuario cambia la selecci&oacute;n de fichero moviendo el rat&oacute;n o con las teclas
+  de aceleraci&oacute;n. Esta se&ntilde;al es m&aacute;s general que lo que su nombre sugiere, pero aqu&iacute; se usa s&oacute;lo para
+  previsualizar. El c&oacute;digo es el siguiente:</p>
+  <pre class="codebox">   onUpdatePreview fch $ 
+        do file &lt;- fileChooserGetPreviewFilename fch
+           case file of
+                Nothing -&gt; putStrLn "No File Selected"
+                Just fpath -&gt; imageSetFromFile img fpath
+</pre>
+  <p>Hay funciones y atributos para controlar lo que se muestra, por ejemplo
+  lo que sucede cuando el fichero seleccionado no es un fichero gr&aacute;fico, pero
+  no son estrictamente necesarios. En el resto del c&oacute;digo los ficheros no gr&aacute;ficos 
+  se ignoran o se muestra un icono est&aacute;ndar. As&iacute; es como aparecen:</p>
+  <p>
+    <img src="Images/GtkChap5-2a.png" alt="File Selection examples" id="imgGtkChap5-2a" />
+  </p>
+  <p>F&iacute;jate en que el usuario tambi&eacute;n puede a&ntilde;adir y borrar bookmarks, y 
+  <code>FileChooser</code> tiene funciones para gestionar esto tambi&eacute;n. Sin
+  embargo, esta caracter&iacute;stica no se trata en el ejemplo <code>FileChooserWidget</code> , que
+  tiene el siguiente c&oacute;digo fuente:</p>
+  <pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+   initGUI
+   window &lt;- windowNew
+   set window [windowTitle := "File Chooser Widget", 
+               windowDefaultWidth := 500,
+               windowDefaultHeight := 400 ]
+
+   fch &lt;- fileChooserWidgetNew FileChooserActionOpen
+   containerAdd window fch 
+
+   selopt &lt;- checkButtonNewWithLabel "Multiple File Selection"
+   fileChooserSetExtraWidget fch selopt
+
+   hsfilt &lt;- fileFilterNew
+   fileFilterAddPattern hsfilt "*.hs"
+   fileFilterSetName hsfilt "Haskell Source"   
+   fileChooserAddFilter fch hsfilt
+
+   nofilt &lt;- fileFilterNew
+   fileFilterAddPattern nofilt "*.*"
+   fileFilterSetName nofilt "All Files"
+   fileChooserAddFilter fch nofilt
+
+   img &lt;- imageNew
+   fileChooserSetPreviewWidget fch img
+
+
+   onUpdatePreview fch $ 
+        do file &lt;- fileChooserGetPreviewFilename fch
+           case file of
+                Nothing -&gt; putStrLn "No File Selected"
+                Just fpath -&gt; imageSetFromFile img fpath
+
+                           
+   onFileActivated fch $ 
+        do dir &lt;- fileChooserGetCurrentFolder fch
+           case dir of 
+                Just dpath -&gt; putStrLn 
+                               ("The current directory is: " ++
+dpath)
+                Nothing -&gt; putStrLn "Nothing" 
+           mul &lt;- fileChooserGetSelectMultiple fch 
+           if mul 
+              then do
+                fls &lt;- fileChooserGetFilenames fch
+                putStrLn 
+                  ("You selected " ++ (show (length fls)) ++
+"files:")
+                sequence_ (map putStrLn fls)
+              else do
+                file &lt;- fileChooserGetFilename fch
+                case file of
+                     Just fpath -&gt; putStrLn ("You selected: " ++
+fpath)
+                     Nothing -&gt; putStrLn "Nothing"
+
+   onToggled selopt $ do state &lt;- toggleButtonGetActive selopt
+                         fileChooserSetSelectMultiple fch state
+
+   widgetShowAll window
+   onDestroy window mainQuit
+   mainGUI
+</pre>
+  <p class="notebox">Nota: Con Gtk2Hs 0.9-12 y GHC 6.1 en Fedora Core 6, la selecci&oacute;n m&uacute;ltiple 
+  de ficheros funciona visualmente (las teclas Ctrl y Shift funcionan como el usuario
+  supone), pero la lista de direcciones de fichero s&oacute;lo contiene la direcci&oacute;n
+  del &uacute;ltimo fichero seleccionado.</p>
+  <p>El segundo modo de usar el interface <code>FileChooser</code> es a trav&eacute;s de <code>FileChooserButton</code> .</p>
+  <pre class="codebox">fileChooserButtonNew :: String FileChooserAction -&gt; String -&gt;
+IO FileChooserButton
+</pre>
+  <p>El par&aacute;metro tipo <code>String</code> es el nombre de la ventana de di&aacute;logo que salta 
+  cuando el usuario selecciona la opci&oacute;n 'other...' despu&eacute;s de pulsar el bot&oacute;n. En el ejemplo hemos
+  construido un bot&oacute;n de selecci&oacute;n de fichero con FileChooserActionSelectFolder. Tras seleccionar el directorio
+  "Test", se ver&iacute;a as&iacute;.</p>
+  <p>
+    <img src="Images/GtkChap5-2b1.png" alt="File Selection examples" id="imgGtkChap5-2b1" />
+  </p>
+  <p>As&iacute; es como se ver&iacute;a la ventana de di&aacute;logo:</p>
+  <p>
+    <img src="Images/GtkChap5-2b2.png" alt="File Selection examples" id="imgGtkChap5-2b2" />
+  </p>
+  <p>Como puedes ver, hay un bot&oacute;n "Create Folder" (Crea Carpeta) en la parte superior derecha de la ventana
+  de di&aacute;logo. La puedes usar para crear un directorio. Esto es lo que sucede si tratamos de crear una carpeta 
+  existente:</p>
+  <p>
+    <img src="Images/GtkChap5-2b3.png" alt="File Selection examples" id="imgGtkChap5-2b3" />
+  </p>
+  <p>Crear o sobrescribir un directorio existente no tiene sentido y puede ser peligroso. As&iacute;
+  que Gtk2Hs autom&aacute;ticamente lo percibe y lo notifica al usuario. Cuando el usuario selecciona un 
+  directorio existente, la se&ntilde;al <code>onCurrentFolderChanged</code> se emite y el programa puede
+  tomar la acci&oacute;n apropiada. Al crear un directorio se selecciona autom&aacute;ticamente, as&iacute; que, en ese caso,
+  la se&ntilde;al <code>onCurrentFolderChanged</code> tambi&eacute;n puede ser usada. Aqu&iacute; est&aacute; el c&oacute;digo del ejemplo:</p>
+  <pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "File Chooser Button",
+windowDefaultWidth := 250, windowDefaultHeight := 75 ]
+     fchd &lt;- fileChooserButtonNew "Select Folder"
+FileChooserActionSelectFolder
+     containerAdd window fchd
+
+     onCurrentFolderChanged fchd $
+          do dir &lt;- fileChooserGetCurrentFolder fchd   
+             case dir of
+                  Nothing -&gt; putStrLn "Nothing"
+                  Just dpath -&gt; putStrLn ("You selected:\n" ++
+dpath)
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+</pre>
+  <p>La tercera manera de usar el interfaz <code>FileChooser</code> es a trav&eacute;s de  
+  <code>FileChooserDialog</code> . Puede ser construido en modo abrir o salvar, y normalmente se aplica desde 
+  un men&uacute; o una barra de herramientas.</p>
+  <p>
+  <code>FileChooserDialog</code> implementa tanto  
+  <code>FileChooser</code> como 
+  <code>Dialog</code> . Recuerda del Cap&iacute;tulo 4.5 que un "di&aacute;logo" es un widget compuesto con botones, normalmente
+  implementados con <code>dialogRun</code>, que produce respuestas del tipo  
+  <code>ResponseId</code> . Un 
+  <code>FileChooserDialog</code> se construye con:</p>
+  <pre class="codebox">fileChooserDialogNew ::
+Maybe String                 -- t&iacute;tulo del di&aacute;logo o "por defecto"
+-&gt; Maybe Window              -- Ventana "padre" del di&aacute;logo o nada
+-&gt; FileChooserAction         -- modo abrir o salvar
+-&gt; [(String, ResponseId)]    -- lista de botones y sus c&oacute;digos de respuesta
+-&gt; IO FileChooserDialog
+</pre>
+  <p>Todo lo que tienes que hacer es indicar los nombres de los botones y sus respuestas en el cuarto
+  argumento, y ser&aacute;n autom&aacute;ticamente implementados.</p>
+  <p>El ejemplo usa 
+  <code>FileChooserActionSave</code> y la ventana de di&aacute;logo tiene tres botones. As&iacute; es como queda:</p>
+  <p>
+    <img src="Images/GtkChap5-2c.png" alt="File Selection examples" id="imgGtkChap5-2c" />
+  </p>
+  <p>Como puedes ver aqu&iacute; hay un bot&oacute;n en la parte superior derecha para crear una carpeta. Como en el ejemplo
+  anterior, intentar crear una carpeta ya existente genera un mensaje de error. 
+  Sobreescribir un fichero, sin embargo, tiene sentido y es admitido por defecto.
+  Puedes ahcer que el usuario confirme la sobreescritura de ficheros con:</p>
+  <pre class="codebox">fileChooserSetDoOverwriteconfirmation :: FileChooserClass self
+=&gt; self -&gt; Bool -&gt; IO ()
+</pre>
+  <p>Como ya mencion&eacute;, no se realizan escrituras o sobrescrituras de ficheros con el
+  widget <code>FileChooserDialog</code>; El programa simplemente obtiene el path del fichero.</p>
+  <p>Este es el c&oacute;digo del tercer ejemplo:</p>
+   <pre class="codebox">import  Graphics.UI.Gtk 
+ 
+main :: IO ()
+main = do
+     initGUI
+     fchdal &lt;- fileChooserDialogNew (Just "Save As...Dialog")
+Nothing
+                                     FileChooserActionSave
+                                     [("Cancel", ResponseCancel),
+                                      ("Save", ResponseAccept),
+                                      ("Backup", ResponseUser 100)]
+ 
+     fileChooserSetDoOverwriteConfirmation fchdal True
+     widgetShow fchdal
+     response &lt;- dialogRun fchdal
+     case response of
+          ResponseCancel -&gt; putStrLn "You cancelled..."
+          ResponseAccept -&gt; do nwf &lt;- fileChooserGetFilename
+fchdal
+                               case nwf of
+                                    Nothing -&gt; putStrLn
+"Nothing"
+                                    Just path -&gt; putStrLn ("New
+file path is:\n" ++ path)
+          ResponseUser 100 -&gt; putStrLn "You pressed the backup
+button"
+          ResponseDeleteEvent -&gt; putStrLn "You closed the dialog
+window..."
+
+     widgetDestroy fchdal
+     onDestroy fchdal mainQuit
+     mainGUI
+</pre>
+  <p class="notebox">Nota: Al probarlo con Gtk2Hs 0.9-12 y GHC 6.1 en Fedora Core 6,
+  pulsar la tecla "Enter" para guardar el fichero no tiene ning&uacute;n efecto. Cuando
+  se elige un fichero existente, pulsar la tecla "Save" no tiene efecto la primera vez,
+  pero si se pulsa de nuevo provoca la aparici&oacute;n de la ventana de confirmaci&oacute;n. Mi
+  opini&oacute;n es que esto tiene algo que ver con la se&ntilde;al <code>onConfirmOverwrite</code> y 
+  su segundo argumento de tipo <code>IO FileChooserConfirmation.</code> No entiendo bien su uso,
+  y quiz&aacute; el error provenga de mi c&oacute;digo.</p>
+  <div id="footer">
+    <span class="nav-previous">
+    <a href="es-chap5-1.xhtml">Previo</a>
+    <br />Calendario</span>
+    <span class="nav-home">
+      <a href="es-index.xhtml">Inicio</a>
+    </span>
+    <span class="nav-next">
+    <a href="es-chap5-3.xhtml">Siguiente</a>
+    <br />Seleci&oacute;n de Fuente (tipo de letra)</span>
+  </div></body></html>

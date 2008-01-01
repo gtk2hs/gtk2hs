@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head>
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial de Gtk2Hs: Ventanas panelables y marcos de ratio fijo</title>
+    
+    <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+    <div id="header">
+      <h1>Tutorial de Gtk2Hs</h1>
+      <span class="nav-previous">
+        <a href="es-chap6-3.xhtml">Previo</a>
+      </span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+        <a href="es-chap7-1.xhtml">Siguiente</a>
+      </span>
+    </div>
+    <h2>6.4 Ventanas panelables y marcos de ratio fijo</h2>
+    <p>El widged de ventana panelable (paned window) resulta muy &uacute;til cuando
+    quieres dividir un &aacute;rea en dos partes, y que el usuario pueda determinar el
+    tama&ntilde;o relativo de ambas. Se dibuja una l&iacute;nea entre ambas partes, con una flecha
+    doble que el usuario puede arrastrar para cambiar el tama&ntilde;o de ambas porciones 
+    (lo que se agranda una se empeque&ntilde;ece la otra). La divisi&oacute;n puede ser horizontal
+    <code>HPaned</code>, o vertical,  
+    <code>VPaned</code>.</p>
+    <p>Para crear una ventana panelable puedes usar:</p>
+    <pre class="codebox">hPanedNew :: IO HPanel
+vPanedNew :: IO VPaned 
+</pre>
+    <p>La posici&oacute;n del divisor se establece con:</p>
+    <pre class="codebox">panedSetPosition :: PanedClass self =&gt; self -&gt; Int -&gt; IO ()
+</pre>
+    <p>Tras crear la ventana panelable, necesitas a&ntilde;adir widgets hijos a las
+    dos mitades. </p>
+    <pre class="codebox">panedAdd1 :: (PanedClass self, WidgetClass child) =&gt; self -&gt; child -&gt; IO ()
+panedAdd2 :: (PanedClass self, WidgetClass child) =&gt; self -&gt; child -&gt; IO ()
+</pre>
+    <p>El primero se situa en la parte superior (derecha) , el segundo lo hace en la parte inferior (izquierda) 
+    de la ventana panelable. Si no quieres que alg&uacute;n hijo no se expanda o reduzca con el widget 
+    panelable debes usar  
+    <code>panedPack1</code> y 
+    <code>panedPack2</code>.</p>
+    <p>Un marco de ratio fijo (Aspect Frame) es un marco para el que puedes definir una relaci&oacute;n 
+    constante entre la altura y la anchura. Este no cambiar&aacute; al cambiar el tama&ntilde;o del marco. 
+    Para crear uno puedes usar:</p>
+    <pre class="codebox">aspectFrameNew :: Float -&gt; Float -&gt; Maybe Float -&gt; IO AspectFrame
+</pre>
+    <p>El primer par&aacute;metro establece el alineamiento horizontal del hijo dentro del marco (entre 0.0 y 1.0). 
+    El segundo hace lo mismo con el alineamiento vertical. Opcionalmente, puedes establecer la 
+    proporci&oacute;n deseada con el tercer par&aacute;metro. Como un widget 
+    <code>AspectFrame</code> es un widget de tipo <code>Frame</code> , puedes a&ntilde;adirle una 
+    etiqueta.</p>
+    <p>En el ejemplo siguiente hemos creado un panel vertical de ratio fijo con un marco de
+    ratio fijo en la mitad superior.</p>
+    <img src="Images/GtkChap6-4.png" alt="Paned Window" id="imgGtkChap6-4" />
+    <p>Hemos creado un widget <code>DrawingArea</code> (&aacute;rea de dibujo) en el  
+    <code>AspectFrame</code>. Un widget 
+    <code>DrawingArea</code> es un widget vac&iacute;o, que puede usarse para dibujar en &eacute;l, aunque
+    aqu&iacute; s&oacute;lo le hemos puesto un color de fondo para demostrar el uso del
+    <code>AspectFrame</code>. En la mitad inferior del widget 
+    <code>VPaned</code> hemos creado un widget 
+    <code>TextView</code> . Este es un visor y editor de texto multil&iacute;nea con muchas
+    y poderosas caracter&iacute;sticas. Aqu&iacute;, sin embargo, simplemente hemos tomado el 
+    buffer de texto asociado y hemos contado los caracteres cada vez 
+    que el usuario edita alg&uacute;n texto. </p>
+    <pre class="codebox">import Graphics.UI.Gtk
+
+main :: IO ()
+main = do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Paned Window", containerBorderWidth := 10,
+                 windowDefaultWidth := 400, windowDefaultHeight := 400 ]
+
+     pw &lt;- vPanedNew
+     panedSetPosition pw 250
+     containerAdd window pw
+     af &lt;- aspectFrameNew 0.5 0.5 (Just 3.0)
+     frameSetLabel af "Aspect Ratio: 3.0"
+     frameSetLabelAlign af 1.0 0.0
+     panedAdd1 pw af
+
+     da &lt;- drawingAreaNew
+     containerAdd af da
+     widgetModifyBg da StateNormal (Color 65535 0 0)
+   
+     tv &lt;- textViewNew
+     panedAdd2 pw tv
+     buf &lt;- textViewGetBuffer tv
+
+     onBufferChanged buf $ do cn &lt;- textBufferGetCharCount buf
+                              putStrLn (show cn)   
+
+     widgetShowAll window 
+     onDestroy window mainQuit
+     mainGUI
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="es-chap6-3.xhtml">Previo</a>
+      <br />6.3 El contenedor Layout (distribuci&oacute;n)</span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+      <a href="es-chap7-1.xhtml">Siguiente</a>
+      <br />7.1 Men&uacute;s y Toolbars (barras de herramientas)</span>
+    </div>
+  
+</body></html>

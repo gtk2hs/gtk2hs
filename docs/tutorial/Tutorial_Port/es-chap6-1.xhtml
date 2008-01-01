@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="es"><head>
+  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tutorial de Gtk2Hs: Ventanas con desplazamiento (scroll)</title>
+    
+    <link href="default.css" type="text/css" rel="stylesheet" /></head><body>
+    <div id="header">
+      <h1>Tutorial de Gtk2Hs</h1>
+      <span class="nav-previous">
+        <a href="es-chap5-4.xhtml">Previo</a>
+      </span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+        <a href="es-chap6-2.xhtml">Siguiente</a>
+      </span>
+    </div>
+    <h2>6.1 Ventanas con desplazamiento (scroll)</h2>
+    <p>Las ventanas con desplazamiento se usan para crear un &aacute;rea desplazable con otro
+    widget dentro de &eacute;l. Puedes insertar cualquier tipo de widget en una ventana desplazable,
+    y ser&aacute; accesible, sin tener en cuenta su tama&ntilde;o, mediante el uso de las barras de desplazamiento 
+    (scroll bars)</p>
+    <p>La siguiente funci&oacute;n se usa para crear una nueva ventana desplazable.</p>
+    <pre class="codebox">scrolledWindowNew :: Maybe Adjustment -&gt; Maybe Adjustment -&gt; IO ScrolledWindow
+</pre>
+    <p>El primer argumento es el ajuste de la direcci&oacute;n horizontal, y el segundo el de la direcci&oacute;n vertical.
+    Casi siempre se establecen a
+    <code>Nothing</code> (nada) .</p>
+    <pre class="codebox">scrolledWindowSetPolicy :: ScrolledWindowClass self =&gt;
+self -&gt; PolicyType -&gt; PolicyType -&gt; IO ()
+</pre>
+    <p>Este establece la pol&iacute;tica a usar con respecto a las barras de desplazamiento verticales y 
+    horizontales. El constructor <code>PolicyAlways</code> muestra siempre la barra de desplazamiento,
+    <code>PolicyNever</code> no la muestra nunca y 
+    <code>PolicyAutomatic</code> la muestra s&oacute;lo si el tama&ntilde;o de la p&aacute;gina es mayor que la ventana.
+    Por defecto usa  
+    <code>PolicyAlways</code>.</p>
+    <p>A continuaci&oacute;n puedes colocar tu objeto en la ventana con desplazamiento usando
+    <code>containerAdd</code> si el objeto tiene una ventana asociada con &eacute;l. Si no lo tiene,
+    necesitar&aacute;s un <code>Viewport</code> , aunque puedes a&ntilde;adir una autom&aacute;ticamente con:</p>
+    <pre class="codebox">scrolledWindowAddWithViewport :: (ScrolledWindowClass self, WidgetClass child)
+=&gt; self -&gt; child -&gt; IO ()
+</pre>
+    <p>Si te olvidas del <code>viewport</code>, GHCi produce un mensaje de 
+    error si usas <code>containerAdd</code> y no has debido hacerlo.</p>
+    <p>En el ejemplo empaquetamos una tabla con 100 botones toggle en
+    una ventana con desplazamiento. Implementa un programa de 
+    'Yet Another Haskell Tutorial' (y otro tutorial de Haskell) de Hal Daum&eacute; III. 
+    Este tutorial est&aacute; disponible en forma gratuita en el web de Haskell. 
+    En la p&aacute;gina 43 hay un programita que permite adivinar un numero entre 1 y 100, seleccionado
+    al azar por la m&aacute;quina, indicando si nuestra selecci&oacute;n es menor, mayor o igual.
+    El n&uacute;mero se genera con la funci&oacute;n <code>randomRIO</code> del m&oacute;dulo System.Random.</p>
+    <p>Nuestro ejemplo lo implementa con un interfaz gr&aacute;fico.</p>
+    <p><img src="Images/GtkChap6-1.png" alt="Scrolled Window" id="imgGtkChap6-1" /></p>   
+ 
+    <p>En la ventana principal usamos una caja vertical para empaquetar
+    una etiqueta (para informaci&oacute;n del usuario), un separador horizontal, una
+    ventana con desplazamiento, un separador horizontal y una caja
+    horizontal que contiene dos botones de stock.
+    La ventana con desplazamiento se empaqueta con <code>PackGrow</code>, 
+    lo que le permite adaptarse a los cambios de tama&ntilde;o de la ventana principal.
+    Los botones nuevo (new) y salir (quit) se empaquetan en los extremos
+    opuestos de la caja horizontal.</p>
+    <p>Los 100 botones se crean con:</p>
+    <pre class="codebox">     buttonlist &lt;- sequence (map numButton [1..100])
+</pre>
+    <p>donde la funci&oacute;n 
+    <code>numButton</code> se define como:</p>
+    <pre class="codebox">numButton :: Int -&gt; IO Button
+numButton n = do
+        button &lt;- buttonNewWithLabel (show n)
+        return button
+</pre>
+    <p>As&iacute;, cada bot&oacute;n autom&aacute;ticamente obtiene el n&uacute;mero apropiado
+    como etiqueta.</p>
+    <p>Dentro de la ventana con desplazamiento creamos una tabla
+    de 10 por 10 para los 100 botones. Para posicionar los botones
+    usamos la funci&oacute;n <code>cross</code> , que se basa en <code>List monad</code>. 
+    Esta funci&oacute;n, un modo sencillo de obtener un producto cartesiano
+    de dos o m&aacute;s listas, tambi&eacute;n est&aacute; explicado en el tutorial ya citado.</p>
+    <pre class="codebox">cross :: [Int] -&gt; [Int] -&gt; [(Int,Int)]
+cross row col = do 
+        x &lt;- row
+        y &lt;- col
+        return (x,y)
+</pre>
+    <p>La funci&oacute;n 
+    <code>attachButton</code> parte de una tabla, un bot&oacute;n y una
+    tupla de coordenadas para colocar un bot&oacute;n en la tabla. (Repasa el
+    cap&iacute;tulo 3.3 para m&aacute;s informaci&oacute;n sobre empaquetado de tablas.)</p>
+    <pre class="codebox">attachButton :: Table -&gt; Button -&gt; (Int,Int) -&gt; IO () 
+attachButton ta bu (x,y) = tableAttachDefaults ta bu y (y+1) x (x+1)
+</pre>
+    <p>Ahora, el siguiente segmento de c&oacute;digo empaqueta todos los botones en 
+    la tabla con <code>buttonlist</code> seg&uacute;n se ha descrito.</p>
+    <pre class="codebox">     let places = cross [0..9] [0..9]
+     sequence_ (zipWith (attachButton table) buttonlist places)
+</pre>
+    <p>Cada vez que el usuario pulsa el bot&oacute;n play se genera un
+    n&uacute;mero aleatorio, que habr&aacute; que ir comparando con la elecci&oacute;n 
+    del usuario. Pero el manejador de se&ntilde;ales de Gtk2Hs <code>onClicked</code> 
+    emplea un bot&oacute;n y una funci&oacute;n sin par&aacute;metros y tiene un valor de tipo
+    <code>IO ()</code> . Necesitamos algo as&iacute; como una variable global,
+    y esta es aportada por el m&oacute;dulo Data.IORef. Ahora podemos usar los siguientes 
+    snippets, en diferentes funciones, para inicializar, escribir y leer el
+    n&uacute;mero aleatorio.</p>
+    <pre class="codebox">snippet 1   --  randstore &lt;- newIORef 50  
+snippet 2   --  writeIORef rst rand  
+snippet 3   --  rand &lt;- readIORef rst
+</pre>
+    <p>El primero obtiene una variable de tipo <code>IORef Int</code> y la
+    inicializa al valor 50. La segunda se implementa con la funci&oacute;n aleatoria  
+    <code>randomButton</code> :</p>
+    <pre class="codebox">randomButton :: ButtonClass b =&gt; Label -&gt; IORef Int -&gt; b -&gt; IO (ConnectId b)
+randomButton inf rst b = 
+    onClicked b $ do rand &lt;- randomRIO (1::Int, 100)
+                     writeIORef rst rand  
+                     set inf [labelLabel := "Ready"]
+                     widgetModifyFg inf StateNormal (Color 0 0 65535)
+</pre>
+    <p>y despu&eacute;s usa el siguiente snippet, donde <code>info</code> 
+    es la etiqueta que permite acceder a la informaci&oacute;n de usuario.
+    (Mira el cap&iacute;tulo 5.3 para los colores y como cambiarlos.)</p>
+    <p>De un modo parecido a la escritura del n&uacute;mero aleatorio, la
+    funci&oacute;n <code>actionButton</code> implementa la lectura de  
+    <code>randstore.</code> Entonces compara el n&uacute;mero obtenido 
+    de la etiqueta del bot&oacute;n que ha sido pulsado, y muestra la
+    informaci&oacute;n en la etiqueta <code>info</code>. </p>
+    <p>Finalmente debemos monitorizar los 100 botones para saber cual ha
+    sido pulsado, si ha habido alguno.</p>
+    <pre class="codebox">     sequence_ (map (actionButton info randstore) buttonlist)
+</pre>
+    <p>Lo anterior es an&aacute;logo a las combinaciones de <code>sequence</code> _ y 
+    <code>map</code> que hemos usado, pero en este caso exactamente
+    uno de los 100 manejadores de se&ntilde;al ser&aacute; activado, en el momento en
+    que el usuario pulse un bot&oacute;n concreto.</p>
+    <p>A continuaci&oacute;n tienes el c&oacute;digo completo del ejemplo.</p>
+    <pre class="codebox">import Graphics.UI.Gtk
+import Data.IORef 
+import System.Random (randomRIO)
+
+main:: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [ windowTitle := "Guess a Number", 
+                  windowDefaultWidth := 300, windowDefaultHeight := 250]
+     mb &lt;- vBoxNew False 0
+     containerAdd window mb
+
+     info &lt;- labelNew (Just "Press \"New\" for a random number")
+     boxPackStart mb info PackNatural 7
+     sep1 &lt;- hSeparatorNew
+     boxPackStart mb sep1 PackNatural 7
+     
+     scrwin &lt;- scrolledWindowNew Nothing Nothing
+     boxPackStart mb scrwin PackGrow 0
+
+     table &lt;- tableNew 10 10 True
+     scrolledWindowAddWithViewport scrwin table
+
+     buttonlist &lt;- sequence (map numButton [1..100])
+     let places = cross [0..9] [0..9]
+     sequence_ (zipWith (attachButton table) buttonlist places)
+
+     sep2 &lt;- hSeparatorNew
+     boxPackStart mb sep2 PackNatural 7
+     hb &lt;- hBoxNew False 0
+     boxPackStart mb hb PackNatural 0
+     play &lt;- buttonNewFromStock stockNew
+     quit &lt;- buttonNewFromStock stockQuit
+     boxPackStart hb play PackNatural 0
+     boxPackEnd hb quit PackNatural 0
+     
+     randstore &lt;- newIORef 50
+     randomButton info randstore play
+
+     sequence_ (map (actionButton info randstore) buttonlist)  
+
+     widgetShowAll window
+     onClicked quit (widgetDestroy window)
+     onDestroy window mainQuit
+     mainGUI
+
+numButton :: Int -&gt; IO Button
+numButton n = do
+        button &lt;- buttonNewWithLabel (show n)
+        return button
+
+cross :: [Int] -&gt; [Int] -&gt; [(Int,Int)]
+cross row col = do 
+        x &lt;- row
+        y &lt;- col
+        return (x,y)
+
+attachButton :: Table -&gt; Button -&gt; (Int,Int) -&gt; IO ()
+attachButton ta bu (x,y) = 
+              tableAttachDefaults ta bu y (y+1) x (x+1)
+
+actionButton :: ButtonClass b =&gt; Label -&gt; IORef Int -&gt; b -&gt; IO (ConnectId b)
+actionButton inf rst b = 
+  onClicked b $ do label &lt;- get b buttonLabel
+                   let num = (read label):: Int
+                   rand &lt;- readIORef rst
+                   case compare num rand of
+                     GT -&gt; do set inf [labelLabel :=  "Too High"]
+                              widgetModifyFg inf StateNormal (Color 65535 0 0)
+                     LT -&gt; do set inf [labelLabel := "Too Low"]
+                              widgetModifyFg inf StateNormal (Color 65535 0 0)
+                     EQ -&gt; do set inf [labelLabel := "Correct"]
+                              widgetModifyFg inf StateNormal (Color 0 35000 0)
+
+randomButton :: ButtonClass b =&gt; Label -&gt; IORef Int -&gt; b -&gt; IO (ConnectId b)
+randomButton inf rst b = 
+    onClicked b $ do rand &lt;- randomRIO (1::Int, 100)
+                     writeIORef rst rand  
+                     set inf [labelLabel := "Ready"]
+                     widgetModifyFg inf StateNormal (Color 0 0 65535)
+</pre>
+    <div id="footer">
+      <span class="nav-previous">
+      <a href="es-chap5-4.xhtml">Previo</a>
+      <br />5.4 Bloc de Notas</span>
+      <span class="nav-home">
+        <a href="es-index.xhtml">Inicio</a>
+      </span>
+      <span class="nav-next">
+      <a href="es-chap6-2.xhtml">Siguiente</a>
+      <br />6.2 Cajas de botones y cajas de eventos</span>
+    </div>
+  
+</body></html>
