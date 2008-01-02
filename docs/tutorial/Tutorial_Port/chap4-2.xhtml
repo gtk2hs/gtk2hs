@@ -380,7 +380,7 @@ each horizontal scale is addressed separately.
 </p>
 
 <p>
-The number of precision shown on the three scles will be managed with another
+The number of precision shown on the three scales will be managed with another
 scale, for which we use a new adjustment. The maximum precision is 10 and each
 increment is 1. The precision of this control scale itself is set to 1.
 </p>
@@ -389,7 +389,7 @@ increment is 1. The precision of this control scale itself is set to 1.
 </pre>
 
 <p>
-When the control adjustment changes the signal <code>onValueChanged</code> will
+When the control adjustment changes, the signal <code>onValueChanged</code> will
 be emitted and then the defined function <code>setDigits</code> is evaluated.
 </p>
 
@@ -409,7 +409,7 @@ attributes; we might have used the appropriate methods as well. Note that the
 We use another horizontal scale to manage the page size of the three example
 scales. When set at 0.0 the scales can reach their initial maximum of 100.0 and
 when set at 100.0 the scales are fixed at the lowest value. This involves the
-adjusting of the adjustment by a the <code>onValueChanged</code> signal from a
+adjusting of the adjustment by a <code>onValueChanged</code> signal from a
 third adjustment by this code snippet:
 </p>
 

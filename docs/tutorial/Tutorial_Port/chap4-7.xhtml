@@ -116,7 +116,7 @@ following function:
 <p>
 The first argument specifies the <code>SpinButton</code> widget that is to be
 reconfigured. The other arguments are the <var>climbRate</var> and the number
-of decimal places (digits) to disply.
+of decimal places (digits) to display.
 </p>
 
 <p>
@@ -185,7 +185,7 @@ changed by the value of the <var>stepIncrement</var> in the adjustment.
 <code>SpinPageForward</code> and <code>SpinPageBackward</code> simply alter the
 value of the <code>SpinButton</code> by the increment.
 <code>SpinPageHome</code> and <code>SpinPageEnd</code> set the value to the
-bottom repectively the top of the <code>Adjustment</code> range.
+bottom, respectively the top, of the <code>Adjustment</code> range.
 <code>i&gt;SpinUserDefined</code> simply alters the value of the spin button by
 the specified amount.</p>
 
@@ -201,7 +201,7 @@ The constructors of <code>SpinButtonUpdatePolicy</code> are either
 <code>UdateAlways</code> or <code>UpdateIfValid</code>. These policies affect
 the behavior of a <code>SpinButton</code> when parsing inserted text and
 synchronizing its value with the values of the <code>Adjustment</code>. In the
-case of <code>UpdateIfValid</code> the spin button only value gets changed if
+case of <code>UpdateIfValid</code> the spin button value only gets changed if
 the text input is a numeric value within the range specified by the
 <code>Adjustment</code>. Otherwise the text is reset to the current value. In
 case of <code>UpdateAlways</code> we ignore errors while converting text into a

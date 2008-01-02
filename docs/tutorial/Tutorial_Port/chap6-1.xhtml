@@ -34,8 +34,7 @@
     direction, and the second is for the vertical direction. They
     are almost always set to 
     <code>Nothing</code> .</p>
-    <pre class="codebox">scrolledWindowSetPolicy :: ScrolledWindowClass self =&gt;
-self -&gt; PolicyType -&gt; PolicyType -&gt; IO ()
+    <pre class="codebox">scrolledWindowSetPolicy :: ScrolledWindowClass self =&gt; self -&gt; PolicyType -&gt; PolicyType -&gt; IO ()
 </pre>
     <p>This sets the policy to be used with respect to the
     horizontal and vertical scrollbars. The constructor 
@@ -50,8 +49,7 @@ self -&gt; PolicyType -&gt; PolicyType -&gt; IO ()
     with it. If not, then you'll need a 
     <code>Viewport</code> , but you can add one automatically
     with:</p>
-    <pre class="codebox">scrolledWindowAddWithViewport :: (ScrolledWindowClass self, WidgetClass child)
-=&gt; self -&gt; child -&gt; IO ()
+    <pre class="codebox">scrolledWindowAddWithViewport :: (ScrolledWindowClass self, WidgetClass child) =&gt; self -&gt; child -&gt; IO ()
 </pre>
     <p>Should you forget about the viewport, GHCi produces a
     helpful error message if you use 
@@ -104,8 +102,7 @@ cross row col = do
     <code>attachButton</code> takes a table, a button and a tuple of
     coordinates to place a button in the table. (See Chapter 3.3
     for more on packing tables.)</p>
-    <pre class="codebox">attachButton :: Table -&gt; Button -&gt; (Int,Int) -&gt; IO () attachButton ta bu (x,y) = 
-              tableAttachDefaults ta bu y (y+1) x (x+1)
+    <pre class="codebox">attachButton :: Table -&gt; Button -&gt; (Int,Int) -&gt; IO () attachButton ta bu (x,y) = tableAttachDefaults ta bu y (y+1) x (x+1)
 </pre>
     <p>Now the following code segment packs all the buttons in the
     table, with 

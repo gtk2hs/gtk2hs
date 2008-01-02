@@ -17,7 +17,7 @@
       </span>
       <span class="nav-next"><a href="chap5-2.xhtml">Next</a></span>
     </div>
-    <h3>Calendar</h3>
+    <h3>5.1 Calendar</h3>
     <p>The Calendar widget is an effective way to display and
     retrieve monthly date related information. It is a very simple
     widget to create and work with. Use:</p>
@@ -69,7 +69,7 @@ calendarGetDisplayOptions :: CalendarClass self =&gt; self -&gt; IO [CalendarDis
     attributes using the generic 
     <code>get</code>and 
     <code>set</code>functions.</p>
-    <p>Note: there is no attribute for CalendarWeekStartMonday and
+    <p class="notebox"><strong>Note:</strong> there is no attribute for CalendarWeekStartMonday and
     using the 
     <code>calendarSetDisplay</code>function resulted in a run-time
     message that the first day of the week was taken from the
@@ -91,7 +91,7 @@ calendarClearMarks :: CalendarClass self =&gt; self -&gt; IO ()
       <li>onDaySelected</li>
       <li>onDaySelectedDoubleClick</li>
     </ul>
-    <p>Note: the following are also mentioned in the API
+    <p class="notebox"><strong>Note:</strong> the following are also mentioned in the API
     documentation, but appear to implemented as onDaySelected. See
     the comment in the example code.</p>
     <ul>
