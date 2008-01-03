@@ -17,23 +17,6 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- NOTES
---
--- tree_view_column_new_with_attributes and tree_view_column_set_attributes 
---   are variadic and the funcitonality can be achieved through other 
---   functions.
---
--- tree_view_column_set_cell_data and tree_view_column_cell_get_size are not
---   bound because I am not sure what they do and when they are useful
---
--- TODO
---
--- treeViewColumnSetCellData is not bound. With this function the user has
---   control over how data in the store is mapped to the attributes of a
---   cell renderer. This functin should be bound in the future to allow the
---   user to insert Haskell data types into the store and convert these
---   values to attributes of cell renderers.
---
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -49,9 +32,6 @@ module Graphics.UI.Gtk.ModelView.TreeViewColumn (
 -- holding pen for the cell renderers which determine how the data in the
 -- column is displayed.
 --
--- Please refer to the tree widget conceptual overview for an overview of
--- all the objects and data types related to the tree widget and how they work
--- together.
 
 -- * Class Hierarchy
 -- |
@@ -109,6 +89,17 @@ module Graphics.UI.Gtk.ModelView.TreeViewColumn (
   treeViewColumnSetSortOrder,
   treeViewColumnGetSortOrder,
   SortType(..),
+#if GTK_CHECK_VERSION(2,4,0)
+  treeViewColumnSetExpand,
+  treeViewColumnGetExpand,
+#endif
+  treeViewColumnCellIsVisible,
+#if GTK_CHECK_VERSION(2,2,0)
+  treeViewColumnFocusCell,
+#if GTK_CHECK_VERSION(2,8,0)
+  treeViewColumnQueueResize,
+#endif
+#endif
 
 -- * Attributes
   treeViewColumnVisible,
@@ -120,6 +111,7 @@ module Graphics.UI.Gtk.ModelView.TreeViewColumn (
   treeViewColumnMinWidth,
   treeViewColumnMaxWidth,
   treeViewColumnTitle,
+  treeViewColumnExpand,
   treeViewColumnClickable,
   treeViewColumnWidget,
   treeViewColumnAlignment,
@@ -145,6 +137,7 @@ import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums		(TreeViewColumnSizing(..),
 						 SortType(..))
+import Graphics.UI.Gtk.General.Structs          (SortColumnId)
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}	()
 
 {# context lib="gtk" prefix="gtk" #}
@@ -441,10 +434,11 @@ treeViewColumnGetReorderable self =
 --
 -- * Sets the logical @columnId@ that this column sorts on when
 --   this column is selected for sorting. The selected column's header
---   will be clickable after this call. Logical refers to the column in
---   the 'TreeModel'.
+--   will be clickable after this call. Logical refers to the 
+--   'Graphics.UI.Gtk.ModelView.TreeSortable.SortColumnId' for which
+--   a comparison function was set.
 --
-treeViewColumnSetSortColumnId :: TreeViewColumn -> Int -> IO ()
+treeViewColumnSetSortColumnId :: TreeViewColumn -> SortColumnId -> IO ()
 treeViewColumnSetSortColumnId self sortColumnId =
   {# call tree_view_column_set_sort_column_id #}
     self
@@ -452,12 +446,15 @@ treeViewColumnSetSortColumnId self sortColumnId =
 
 -- | Get the column by which to sort.
 --
--- * Retrieves the logical @columnId@ that the model sorts on when
---   this column is selected for sorting.
+-- * Retrieves the logical @columnId@ that the model sorts on when this column
+--   is selected for sorting.
 --
--- * Returns -1 if this column can't be used for sorting.
+-- * Returns
+--   'Graphics.UI.Gtk.ModelView.TreeSortable.treeSortableDefaultSortColumnId'
+--   if this tree view column has no
+--   'Graphics.UI.Gtk.ModelView.TreeSortable.SortColumnId' associated with it.
 --
-treeViewColumnGetSortColumnId :: TreeViewColumn -> IO Int
+treeViewColumnGetSortColumnId :: TreeViewColumn -> IO SortColumnId
 treeViewColumnGetSortColumnId self =
   liftM fromIntegral $
   {# call unsafe tree_view_column_get_sort_column_id #}
@@ -500,6 +497,79 @@ treeViewColumnGetSortOrder self =
   liftM (toEnum . fromIntegral) $
   {# call unsafe tree_view_column_get_sort_order #}
     self
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- %hash c:7808 d:942b
+-- | Sets the column to take available extra space. This space is shared
+-- equally amongst all columns that have the expand set to @True@. If no column
+-- has this option set, then the last column gets all extra space. By default,
+-- every column is created with this @False@.
+--
+-- * Available since Gtk+ version 2.4
+--
+treeViewColumnSetExpand :: TreeViewColumn
+ -> Bool -- ^ @expand@ - @True@ if the column should take available extra
+         -- space, @False@ if not
+ -> IO ()
+treeViewColumnSetExpand self expand =
+  {# call gtk_tree_view_column_set_expand #}
+    self
+    (fromBool expand)
+
+-- %hash c:ee41 d:f16b
+-- | Return @True@ if the column expands to take any available space.
+--
+-- * Available since Gtk+ version 2.4
+--
+treeViewColumnGetExpand :: TreeViewColumn
+ -> IO Bool -- ^ returns @True@, if the column expands
+treeViewColumnGetExpand self =
+  liftM toBool $
+  {# call gtk_tree_view_column_get_expand #}
+    self
+#endif
+
+-- %hash c:77e0 d:e1c7
+-- | Returns @True@ if any of the cells packed into the @treeColumn@ are
+-- visible. For this to be meaningful, you must first initialize the cells with
+-- 'treeViewColumnCellSetCellData'
+--
+treeViewColumnCellIsVisible :: TreeViewColumn
+ -> IO Bool -- ^ returns @True@, if any of the cells packed into the
+            -- @treeColumn@ are currently visible
+treeViewColumnCellIsVisible self =
+  liftM toBool $
+  {# call gtk_tree_view_column_cell_is_visible #}
+    self
+
+#if GTK_CHECK_VERSION(2,2,0)
+-- %hash c:a202 d:1401
+-- | Sets the current keyboard focus to be at @cell@, if the column contains 2
+-- or more editable and activatable cells.
+--
+-- * Available since Gtk+ version 2.2
+--
+treeViewColumnFocusCell :: CellRendererClass cell => TreeViewColumn
+ -> cell -- ^ @cell@ - A 'CellRenderer'
+ -> IO ()
+treeViewColumnFocusCell self cell =
+  {# call gtk_tree_view_column_focus_cell #}
+    self
+    (toCellRenderer cell)
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- %hash c:4420 d:bfde
+-- | Flags the column, and the cell renderers added to this column, to have
+-- their sizes renegotiated.
+--
+-- * Available since Gtk+ version 2.8
+--
+treeViewColumnQueueResize :: TreeViewColumn -> IO ()
+treeViewColumnQueueResize self =
+  {# call gtk_tree_view_column_queue_resize #}
+    self
+#endif
+#endif
 
 --------------------
 -- Attributes
@@ -593,6 +663,14 @@ treeViewColumnTitle = newAttr
   treeViewColumnGetTitle
   treeViewColumnSetTitle
 
+-- %hash c:800 d:eb1a
+-- | Column gets share of extra width allocated to the widget.
+--
+-- Default value: @False@
+--
+treeViewColumnExpand :: Attr TreeViewColumn Bool
+treeViewColumnExpand = newAttrFromBoolProperty "expand"
+
 -- | Whether the header can be clicked.
 --
 -- Default value: @False@
@@ -650,7 +728,7 @@ treeViewColumnSortOrder = newAttr
 -- | \'sortColumnId\' property. See 'treeViewColumnGetSortColumnId' and
 -- 'treeViewColumnSetSortColumnId'
 --
-treeViewColumnSortColumnId :: Attr TreeViewColumn Int
+treeViewColumnSortColumnId :: Attr TreeViewColumn SortColumnId
 treeViewColumnSortColumnId = newAttr
   treeViewColumnGetSortColumnId
   treeViewColumnSetSortColumnId

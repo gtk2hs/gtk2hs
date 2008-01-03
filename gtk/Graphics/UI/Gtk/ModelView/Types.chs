@@ -32,6 +32,9 @@ module Graphics.UI.Gtk.ModelView.Types (
   toTypedTreeModel,
   unsafeTreeModelToGeneric,
   
+  TypedTreeModelSort(..),
+  unsafeTreeModelSortToGeneric,
+  
   -- TreeIter
   TreeIter(..),
   receiveTreeIter,
@@ -51,7 +54,7 @@ module Graphics.UI.Gtk.ModelView.Types (
 import GHC.Exts (unsafeCoerce#)
 
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Types#}	(TreeModel)
+{#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort)
 import Data.Char ( isDigit )
 import Control.Monad ( liftM )
 
@@ -61,6 +64,7 @@ newtype TypedTreeModel row = TypedTreeModel (ForeignPtr (TypedTreeModel row))
 
 class TypedTreeModelClass model where
   dummy :: model a -> a
+  dummy _ = error "not used"
   -- this is to get the right kind for model :: * -> *
   -- TODO: when haddock is fixed we can use an explicit kind annotation
 
@@ -71,6 +75,13 @@ unsafeTreeModelToGeneric :: TreeModel -> model row
 unsafeTreeModelToGeneric = unsafeCoerce#
 
 instance TypedTreeModelClass TypedTreeModel
+
+newtype TypedTreeModelSort row = TypedTreeModelSort (ForeignPtr (TypedTreeModelSort row))
+
+unsafeTreeModelSortToGeneric :: TreeModelSort -> TypedTreeModelSort row
+unsafeTreeModelSortToGeneric = unsafeCoerce#
+
+instance TypedTreeModelClass TypedTreeModelSort
 
 -- | Tree Iterator: a pointer to an entry in a
 -- 'Graphics.UI.Gtk.ModelView.TreeModel'. The constructor of this structure is

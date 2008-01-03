@@ -19,9 +19,6 @@
 --
 -- TODO
 --
--- treeViewMoveColumnAfter and treeViewMoveColumnFirst are not dealt with in
---   Mogul
---
 -- gtk_tree_view_get_bin_window is to compare the GDK window from incoming
 --   events. We don't marshal that window parameter, so this function is not
 --   bound either.
@@ -139,8 +136,6 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewCreateRowDragIcon,
   treeViewGetEnableSearch,
   treeViewSetEnableSearch,
-  treeViewGetSearchColumn,
-  treeViewSetSearchColumn,
   treeViewSetSearchEqualFunc,
 #if GTK_CHECK_VERSION(2,6,0)
   treeViewGetFixedHeightMode,
@@ -183,7 +178,6 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewReorderable,
   treeViewRulesHint,
   treeViewEnableSearch,
-  treeViewSearchColumn,
 #if GTK_CHECK_VERSION(2,6,0)
   treeViewFixedHeightMode,
   treeViewHoverSelection,
@@ -982,7 +976,9 @@ treeViewGetEnableSearch self =
 -- find\").
 --
 -- Note that even if this is @False@, the user can still initiate a search
--- using the \"start-interactive-search\" key binding.
+-- using the \"start-interactive-search\" key binding. In any case,
+-- a predicate that compares a row of the model with the text the user
+-- has typed must be set using 'treeViewSetSearchEqualFunc'.
 --
 treeViewSetEnableSearch :: TreeViewClass self => self -> Bool -> IO ()
 treeViewSetEnableSearch self enableSearch =
@@ -990,55 +986,27 @@ treeViewSetEnableSearch self enableSearch =
     (toTreeView self)
     (fromBool enableSearch)
 
--- | Gets the column searched on by the interactive search.
---
-treeViewGetSearchColumn :: TreeViewClass self => self
- -> IO Int
-treeViewGetSearchColumn self =
-  liftM fromIntegral $
-  {# call unsafe tree_view_get_search_column #}
-    (toTreeView self)
-
--- | Sets @column@ as the column where the interactive search code should
--- search in.
---
--- If the sort column is set, users can use the \"start-interactive-search\"
--- key binding to bring up search popup. The enable-search property controls
--- whether simply typing text will also start an interactive search.
---
--- Note that @column@ refers to a column of the model.
---
-treeViewSetSearchColumn :: TreeViewClass self => self
- -> Int   -- ^ @column@ - the column of the model to search in, or -1 to
-          -- disable searching
- -> IO ()
-treeViewSetSearchColumn self column =
-  {# call tree_view_set_search_column #}
-    (toTreeView self)
-    (fromIntegral column)
-
 -- | Set the predicate to test for equality.
 --
--- * The default function assumes that the column @col@ has contains
---   'Attribute' @cr@ @String@. It conducts a
---   case insensitive comparison of the text typed by the user and the
---   text in the tree model. This function can be used to override this 
---   behaviour. The predicate returns @True@ if the entries should
---   be considered to match. The parameters are the column number, the text
---   the user typed in and a 'TreeIter' which points to the cell
---   to be compared.
+-- * The predicate must returns @True@ if the text entered by the user
+--   and the row of the model match.
 --
 treeViewSetSearchEqualFunc :: TreeViewClass self => self
- -> (Int -> String -> TreeIter -> IO Bool)
+ -> Maybe (String -> TreeIter -> IO Bool)
  -> IO ()
-treeViewSetSearchEqualFunc self pred = do
-  fPtr <- mkTreeViewSearchEqualFunc (\_ col keyPtr iterPtr _ -> do
+treeViewSetSearchEqualFunc self (Just pred) = do
+  fPtr <- mkTreeViewSearchEqualFunc (\_ _ keyPtr iterPtr _ -> do
     key <- peekUTFString keyPtr
     iter <- peek iterPtr
-    liftM (fromBool.not) $ pred (fromIntegral col) key iter)
+    liftM (fromBool . not) $ pred key iter)
   dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_search_equal_func #} (toTreeView self) fPtr 
     nullPtr dPtr
+  {# call tree_view_set_search_column #} (toTreeView self) 0
+treeViewSetSearchEqualFunc self Nothing = do
+  {# call tree_view_set_search_equal_func #} (toTreeView self)
+    nullFunPtr nullPtr nullFunPtr
+  {# call tree_view_set_search_column #} (toTreeView self) (-1)
 
 {#pointer TreeViewSearchEqualFunc#}
 
@@ -1440,17 +1408,6 @@ treeViewEnableSearch :: TreeViewClass self => Attr self Bool
 treeViewEnableSearch = newAttr
   treeViewGetEnableSearch
   treeViewSetEnableSearch
-
--- | Model column to search through when searching through code.
---
--- Allowed values: >= -1
---
--- Default value: -1
---
-treeViewSearchColumn :: TreeViewClass self => Attr self Int
-treeViewSearchColumn = newAttr
-  treeViewGetSearchColumn
-  treeViewSetSearchColumn
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Setting the fixed-height-mode property to @True@ speeds up 'TreeView'

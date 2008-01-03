@@ -29,9 +29,9 @@ module Graphics.UI.Gtk.ModelView.TreeModelSort (
 -- 
 -- | The 'TreeModelSort' is a model which implements the 'TreeSortable'
 -- interface. It does not hold any data itself, but rather is created with a
--- child model and proxies its data. It has identical column types to this
+-- child model and proxies its data. It has identical rows to its
 -- child model, and the changes in the child are propagated. The primary
--- purpose of this model is to provide a way to sort a different model without
+-- purpose of this model is to provide a way to sort a model without
 -- modifying it.
 
 -- * Class Hierarchy
@@ -46,6 +46,8 @@ module Graphics.UI.Gtk.ModelView.TreeModelSort (
   TreeModelSortClass,
   castToTreeModelSort,
   toTreeModelSort,
+
+  TypedTreeModelSort,
 
 -- * Constructors
   treeModelSortNewWithModel,
@@ -74,13 +76,13 @@ import System.Glib.GObject			(constructNewGObject,
 
 {# context lib="gtk" prefix="gtk" #}
 
---------------------
--- Interfaces
-
---instance TreeModelClass TreeModelSort
---TODO: this is only commented out because the old version also defines this
--- instance. When we delete the old api, re-enable this instance. (That is
--- if we keep this module at all)
+instance TreeModelClass (TypedTreeModelSort a)
+instance TreeModelSortClass (TypedTreeModelSort a)
+instance GObjectClass (TypedTreeModelSort a) where
+  toGObject (TypedTreeModelSort tm) = mkGObject (castForeignPtr tm)
+  unsafeCastGObject = TypedTreeModelSort . castForeignPtr . unGObject
+instance TreeSortableClass TreeModelSort
+instance TreeSortableClass (TypedTreeModelSort row)
 
 --------------------
 -- Constructors
@@ -88,8 +90,10 @@ import System.Glib.GObject			(constructNewGObject,
 -- | Creates a new 'TreeModelSort', that will be a sorted view of the given
 -- model.
 --
-treeModelSortNewWithModel :: TreeModelClass childModel => childModel -> IO TreeModelSort
-treeModelSortNewWithModel childModel =
+treeModelSortNewWithModel :: (TreeModelClass (childModel row),
+                              TypedTreeModelClass childModel) =>
+                              childModel row -> IO (TypedTreeModelSort row)
+treeModelSortNewWithModel childModel = liftM unsafeTreeModelSortToGeneric $
   constructNewGObject mkTreeModelSort $
   liftM (castPtr :: Ptr TreeModel -> Ptr TreeModelSort) $
   {# call tree_model_sort_new_with_model #}
@@ -133,7 +137,7 @@ treeModelSortConvertPathToChildPath :: TreeModelSortClass self => self
 treeModelSortConvertPathToChildPath self [] = return []
 treeModelSortConvertPathToChildPath self sortedPath =
   withTreePath sortedPath $ \sortedPath ->
-  {# call unsafe tree_model_sort_convert_path_to_child_path #}
+  {# call tree_model_sort_convert_path_to_child_path #}
     (toTreeModelSort self)
     sortedPath
   >>= fromTreePath
@@ -162,16 +166,14 @@ treeModelSortConvertIterToChildIter :: TreeModelSortClass self => self
 treeModelSortConvertIterToChildIter self sortedIter =
   with sortedIter $ \sortedIterPtr ->
   alloca $ \childIterPtr -> do
-  {# call unsafe tree_model_sort_convert_iter_to_child_iter #}
+  {# call tree_model_sort_convert_iter_to_child_iter #}
     (toTreeModelSort self)
     childIterPtr
     sortedIterPtr
   peek childIterPtr
 
--- | This resets the default sort function to be in the \'unsorted\' state. That
--- is, it is in the same order as the child model. It will re-sort the model to
--- be in the same order as the child model only if the 'TreeModelSort' is in 
--- \'unsorted\' state.
+-- | This resets the default sort function. As a consequence, the order of
+-- this model will be the same order as that of the child model.
 --
 treeModelSortResetDefaultSortFunc :: TreeModelSortClass self => self -> IO ()
 treeModelSortResetDefaultSortFunc self =
