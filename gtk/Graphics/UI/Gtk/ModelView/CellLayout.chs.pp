@@ -58,6 +58,7 @@ module Graphics.UI.Gtk.ModelView.CellLayout (
   cellLayoutReorder,
   cellLayoutClear,
   cellLayoutSetAttributes,
+  cellLayoutSetAttributeFunc,
   cellLayoutClearAttributes
 #endif
   ) where
@@ -141,8 +142,10 @@ cellLayoutClear self =
   {# call gtk_cell_layout_clear #}
     (toCellLayout self)
 
--- | Insert a 'CellRenderer' @cell@ into the layout and specify how a
---   row of the @store@ defines the attributes of this renderer.
+-- | Specify how a row of the @model@ defines the
+-- attributes of the 'CellRenderer' @cell@. This is a convenience wrapper
+-- around 'cellLayoutSetAttributeFunc' which sets the cells of the @cell@ with
+-- the data retrieved from the model.
 --
 cellLayoutSetAttributes :: (CellLayoutClass self,
 			     CellRendererClass cell,
@@ -153,18 +156,32 @@ cellLayoutSetAttributes :: (CellLayoutClass self,
  -> model row -- ^ @model@ - A model containing rows of type @row@.
  -> (row -> [AttrOp cell]) -- ^ Function to set attributes on the cell renderer.
  -> IO ()
-cellLayoutSetAttributes self cell model attributes = do
+cellLayoutSetAttributes self cell model attributes = 
+  cellLayoutSetAttributeFunc self cell model $ \iter -> do
+    row <- treeModelGetRow model iter
+    set cell (attributes row)
+
+-- | Install a function that looks up a row in the model and sets the
+-- attributes of the 'CellRenderer' @cell@ using the row's content.
+--
+cellLayoutSetAttributeFunc :: (CellLayoutClass self,
+			       CellRendererClass cell,
+			       TreeModelClass model)
+ => self
+ -> cell   -- ^ @cell@ - A 'CellRenderer'.
+ -> model  -- ^ @model@ - A model from which to draw data.
+ -> (TreeIter -> IO ()) -- ^ Function to set attributes on the cell renderer.
+ -> IO ()
+cellLayoutSetAttributeFunc self cell model func = do
   fPtr <- mkSetAttributeFunc $ \_ cellPtr' modelPtr' iterPtr _ -> do
     iter <- peek iterPtr
     let (TreeModel modelPtr) = toTreeModel model
     let (CellRenderer cellPtr) = toCellRenderer cell
     if unsafeForeignPtrToPtr modelPtr /= modelPtr' ||
        unsafeForeignPtrToPtr cellPtr  /= cellPtr' then
-      error ("cellLayoutSetAttributes: attempt to set attributes of "++
+      error ("cellLayoutSetAttributeFunc: attempt to set attributes of "++
 	     "CellRenderer from different model.")
-      else do
-    row <- treeModelGetRow model iter
-    set cell (attributes row)
+      else func iter
   destroy <- mkFunPtrDestroyNotify fPtr
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
     (toCellRenderer cell) fPtr nullPtr destroy
