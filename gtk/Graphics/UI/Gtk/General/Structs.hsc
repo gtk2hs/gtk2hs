@@ -89,7 +89,9 @@ module Graphics.UI.Gtk.General.Structs (
   dragContextGetSuggestedAction,
   dragContextSetSuggestedAction,
   dragContextGetAction,
-  dragContextSetAction
+  dragContextSetAction,
+  SortColumnId,
+  treeSortableDefaultSortColumnId
   ) where
 
 import Control.Monad		(liftM)
@@ -933,3 +935,15 @@ dragContextGetSuggestedAction dc = liftM (fromIntegral :: #{type int} -> Int) $
 dragContextSetSuggestedAction :: DragContext -> Int -> IO ()
 dragContextSetSuggestedAction dc val = withForeignPtr (unDragContext dc) $ \ptr ->
   #{poke GdkDragContext, suggested_action} ptr (fromIntegral val :: #{type int})
+
+-- | ID number of a sort column.
+--
+-- * A 'SortColumnId' is a logical number to which a sorting function can
+--   be associated. The number does not have to coincide with any column
+--   number.
+type SortColumnId = Int
+
+-- | A special 'SortColumnId' to indicated that the default sorting function is used.
+--
+treeSortableDefaultSortColumnId :: SortColumnId
+treeSortableDefaultSortColumnId = #{const GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID}

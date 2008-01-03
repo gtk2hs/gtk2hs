@@ -559,6 +559,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeDrag.chs			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeModel.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeModelSort.chs.pp		\
+	gtk/Graphics/UI/Gtk/ModelView/TreeSortable.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeSelection.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/TreeStore.hs			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeView.chs.pp			\
@@ -638,6 +639,7 @@ libHSgtk_a_LIBADD =							\
         gtk/Graphics/UI/Gtk/ModelView/TreeModel_stub.o			\
         gtk/Graphics/UI/Gtk/ModelView/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/ModelView/TreeView_stub.o			\
+	gtk/Graphics/UI/Gtk/ModelView/TreeSortable_stub.o		\
 	gtk/Graphics/UI/Gtk/ModelView/ComboBox_stub.o			\
 	gtk/Graphics/UI/Gtk/ModelView/CustomStore_stub.o
 

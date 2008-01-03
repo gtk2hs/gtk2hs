@@ -168,9 +168,10 @@
 		GtkCellRendererToggle
 		GtkCellRendererProgress	if gtk-2.6
 	    GtkFileFilter		if gtk-2.4
-# This is actually an interface, but all objects that implement it are at
+# These are actually interfaces, but all objects that implement it are at
 # least GObjects.
 	GtkCellLayout			if gtk-2.4
+	GtkTreeSortable			if gtk-2.4
 # These are derived from GObject:
   	GtkStatusIcon                   if gtk-2.10
         GtkTreeSelection
