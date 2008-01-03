@@ -1,6 +1,6 @@
 
-PROGS  = listdemo treedemo listtest treetest dirlist
-SOURCES = ListDemo.hs TreeDemo.hs ListTest.hs TreeTest.hs DirList.hs
+PROGS  = listdemo treedemo listtest treetest dirlist treesort
+SOURCES = ListDemo.hs TreeDemo.hs ListTest.hs TreeTest.hs DirList.hs TreeSort.hs
 
 all : $(PROGS)
 
@@ -17,6 +17,9 @@ treetest : TreeTest.hs
 	$(HC_RULE)
 
 dirlist : DirList.hs
+	$(HC_RULE)
+
+treesort : TreeSort.hs
 	$(HC_RULE)
 
 HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS)
