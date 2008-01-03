@@ -87,17 +87,17 @@ import Graphics.UI.Gtk.Gdk.Enums
 
 -- | State of an accelerator
 --
-{#enum AccelFlags {underscoreToCase} deriving(Eq, Bounded)#}
+{#enum AccelFlags {underscoreToCase} deriving(Bounded,Eq,Show)#}
 
 instance Flags AccelFlags
 
 -- | Arrow directions for the arrow widget
 --
-{#enum ArrowType {underscoreToCase} deriving (Eq)#}
+{#enum ArrowType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Child widget attach options for table containers
 --
-{#enum AttachOptions {underscoreToCase} deriving(Eq, Bounded)#}
+{#enum AttachOptions {underscoreToCase} deriving(Bounded,Eq,Show)#}
 
 instance Flags AttachOptions
 
@@ -121,11 +121,11 @@ instance Enum MouseButton where
 
 -- | Dictate the style that a ButtonBox uses to align it contents
 --
-{#enum ButtonBoxStyle {underscoreToCase} deriving (Eq)#}
+{#enum ButtonBoxStyle {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Specify which items of a calendar should be displayed.
 --
-{#enum CalendarDisplayOptions {underscoreToCase} deriving(Eq, Bounded)#}
+{#enum CalendarDisplayOptions {underscoreToCase} deriving(Bounded,Eq,Show)#}
 
 instance Flags CalendarDisplayOptions
 
@@ -139,11 +139,11 @@ data Click = SingleClick
 
 -- | Specifies in which corner a child widget should be placed
 --
-{#enum CornerType {underscoreToCase} deriving (Eq)#}
+{#enum CornerType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Editing option
 --
-{#enum DeleteType {underscoreToCase} deriving (Eq)#}
+{#enum DeleteType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | The 'DestDefaults' enumeration specifies the various types of action that
 -- will be taken on behalf of the user for a drag destination site.
@@ -165,39 +165,39 @@ data Click = SingleClick
 -- * 'DestDefaultAll':   If set, specifies that all default actions should be
 --   taken.
 --
-{#enum DestDefaults {underscoreToCase} deriving (Bounded,Eq)#}
+{#enum DestDefaults {underscoreToCase} deriving (Bounded,Eq,Show)#}
 
 instance Flags DestDefaults
 
 -- | Editing direction
 --
-{#enum DirectionType {underscoreToCase} deriving (Eq)#}
+{#enum DirectionType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Justification for label and maybe other widgets (text?)
 --
-{#enum Justification {underscoreToCase} deriving (Eq)#}
+{#enum Justification {underscoreToCase} deriving (Eq,Show)#}
 
 #ifndef DISABLE_DEPRECATED
 -- | Some kind of string search options
 --
-{#enum MatchType {underscoreToCase} deriving (Eq)#}
+{#enum MatchType {underscoreToCase} deriving (Eq,Show)#}
 #endif
 
 -- | From where was a menu item entered?
 --
-{#enum MenuDirectionType {underscoreToCase} deriving (Eq)#}
+{#enum MenuDirectionType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Units of measure
 --
-{#enum MetricType {underscoreToCase} deriving (Eq)#}
+{#enum MetricType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Movement in text widget
 --
-{#enum MovementStep {underscoreToCase} deriving (Eq)#}
+{#enum MovementStep {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Orientation is good
 --
-{#enum Orientation {underscoreToCase} deriving (Eq)#}
+{#enum Orientation {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Packing parameters of a widget
 --
@@ -223,7 +223,7 @@ instance Flags DestDefaults
 data Packing = PackRepel
 	     | PackGrow
 	     | PackNatural
-	     deriving (Enum,Eq)
+	     deriving (Enum,Eq,Show)
 
 -- The conversions between our Packing type and Gtk's expand and fill
 -- properties.
@@ -240,33 +240,33 @@ fromPacking PackNatural = (False,False)
 
 -- | Packing of widgets at start or end in a box
 --
-{#enum PackType {underscoreToCase} deriving (Eq)#}
+{#enum PackType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Priorities
 --
-{#enum PathPriorityType {underscoreToCase} deriving (Eq)#}
+{#enum PathPriorityType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Widget identification path
 --
-{#enum PathType {underscoreToCase} deriving (Eq)#}
+{#enum PathType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Scrollbar policy types (for scrolled windows)
 --
-{#enum PolicyType {underscoreToCase} deriving (Eq)#}
+{#enum PolicyType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Position a scale's value is drawn relative to the
 -- trough
 --
-{#enum PositionType {underscoreToCase} deriving (Eq)#}
+{#enum PositionType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Is the ProgressBar horizontally or vertically
 -- directed?
 --
-{#enum ProgressBarOrientation {underscoreToCase} deriving (Eq)#}
+{#enum ProgressBarOrientation {underscoreToCase} deriving (Eq,Show)#}
 
 -- | I don't have a clue.
 --
-{#enum ReliefStyle {underscoreToCase} deriving (Eq)#}
+{#enum ReliefStyle {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Resize mode, for containers
 --
@@ -276,11 +276,11 @@ fromPacking PackNatural = (False,False)
 --
 -- * 'ResizeImmediate' Perform the resizes now
 --
-{#enum ResizeMode {underscoreToCase} deriving (Eq)#}
+{#enum ResizeMode {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Scrolling type
 --
-{#enum ScrollType {underscoreToCase} deriving (Eq)#}
+{#enum ScrollType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Mode in which selections can be performed
 --
@@ -291,39 +291,39 @@ data SelectionMode = SelectionNone
                    | SelectionSingle
                    | SelectionBrowse
                    | SelectionMultiple
-                   deriving (Enum, Eq)
--- {#enum SelectionMode {underscoreToCase} deriving (Eq)#}
+                   deriving (Enum,Eq,Show)
+-- {#enum SelectionMode {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Shadow types
 --
-{#enum ShadowType {underscoreToCase} deriving (Eq)#}
+{#enum ShadowType {underscoreToCase} deriving (Eq,Show)#}
 
 -- Sort a 'Graphics.UI.Gtk.TreeList.TreeViewColumn' in ascending or descending
 -- order.
 --
-{#enum SortType {underscoreToCase} deriving (Eq)#}
+{#enum SortType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Widget states
 --
-{#enum StateType {underscoreToCase} deriving (Eq)#}
+{#enum StateType {underscoreToCase} deriving (Eq,Show)#}
 
 #ifndef DISABLE_DEPRECATED
 -- | Submenu direction policies
 --
-{#enum SubmenuDirection {underscoreToCase} deriving (Eq)#}
+{#enum SubmenuDirection {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Submenu placement policies
 --
-{#enum SubmenuPlacement {underscoreToCase} deriving (Eq)#}
+{#enum SubmenuPlacement {underscoreToCase} deriving (Eq,Show)#}
 #endif
 
 -- | Whether to clamp or ignore illegal values.
 --
-{#enum SpinButtonUpdatePolicy {underscoreToCase} deriving (Eq)#}
+{#enum SpinButtonUpdatePolicy {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Spin a SpinButton with the following method.
 --
-{#enum SpinType {underscoreToCase} deriving (Eq)#}
+{#enum SpinType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | The 'TargetFlags' enumeration is used to specify constraints on an entry
 --	 in a 'Graphics.UI.Gtk.Gdk.Selection.TargetList'. These flags are only
@@ -335,56 +335,56 @@ data SelectionMode = SelectionNone
 -- * If the 'TargetSameWidget' flag is set, the target will only be selected
 --	 for drags within a single widget.
 --
-{#enum TargetFlags {underscoreToCase} deriving(Bounded) #}
+{#enum TargetFlags {underscoreToCase} deriving(Bounded,Eq,Show) #}
 
 instance Flags TargetFlags
 
 -- | Is the text written from left to right or the exotic way?
 --
-{#enum TextDirection {underscoreToCase} deriving (Eq)#}
+{#enum TextDirection {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Specify the way the search function for
 --   'Graphics.UI.Gtk.Multiline.TextBuffer' works.
 --
-{#enum TextSearchFlags {underscoreToCase} deriving(Eq, Bounded)#}
+{#enum TextSearchFlags {underscoreToCase} deriving(Bounded,Eq,Show)#}
 
 instance Flags TextSearchFlags
 
 -- | The window type for coordinate translation.
 --
-{#enum TextWindowType {underscoreToCase} deriving (Eq)#}
+{#enum TextWindowType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Where to place the toolbar?
 --
-{#enum ToolbarStyle {underscoreToCase} deriving (Eq)#}
+{#enum ToolbarStyle {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Wether columns of a tree or list widget can be resized.
 --
-{#enum TreeViewColumnSizing {underscoreToCase} deriving (Eq)#}
+{#enum TreeViewColumnSizing {underscoreToCase} deriving (Eq,Show)#}
 
 -- hm... text editing?
---{#enum TroughType {underscoreToCase} deriving (Eq)#}
+--{#enum TroughType {underscoreToCase} deriving (Eq,Show)#}
 
 
 -- | Updating types for range widgets (determines when the
 -- @\"connectToValueChanged\"@ signal is emitted by the widget)
 --
-{#enum UpdateType {underscoreToCase} deriving (Eq)#}
+{#enum UpdateType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Visibility
 --
-{#enum Visibility {underscoreToCase} deriving (Eq)#}
+{#enum Visibility {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Window position types
 --
-{#enum WindowPosition {underscoreToCase} deriving (Eq)#}
+{#enum WindowPosition {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Interaction of a window with window manager
 --
-{#enum WindowType {underscoreToCase} deriving (Eq)#}
+{#enum WindowType {underscoreToCase} deriving (Eq,Show)#}
 
 -- | Determine how lines are wrapped in a 'Graphics.UI.Gtk.Multiline.TextView'.
 --
-{#enum WrapMode {underscoreToCase} deriving (Eq)#}
+{#enum WrapMode {underscoreToCase} deriving (Eq,Show)#}
 
 
