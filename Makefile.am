@@ -1952,6 +1952,9 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer.hs 	        		\
 	gstreamer/hsgstreamer.c
 
+gstreamer_Media_Streaming_GStreamer_Core_Types_hs_HCFLAGS	= -fglasgow-exts
+gstreamer_Media_Streaming_GStreamer_Core_Caps_hs_HCFLAGS	= -fglasgow-exts
+
 htmldoc_HSFILES_HIDDEN				+=			\
 	$(libHSgstreamer_a_GENERATEDSOURCES:.chs=.hs)			\
 	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
