@@ -125,6 +125,8 @@ module Media.Streaming.GStreamer.Core.Types (
   -- are not copyable
   
   Caps(..),
+  mkCaps,
+  unCaps,
   withCaps,
   takeCaps,
   peekCaps,
@@ -440,6 +442,7 @@ giveMiniObject obj action =
     do liftIO $ {# call gst_mini_object_ref #} (toMiniObject obj)
        action obj
 
+-- | A 'Monad' for sequencing modifications to a 'MiniObject'.
 newtype (MiniObjectClass miniObjectT, Monad m) =>
     MiniObjectT miniObjectT m a =
         MiniObjectT (ReaderT (Ptr miniObjectT) m a)
