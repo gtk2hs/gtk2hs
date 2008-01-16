@@ -23,15 +23,15 @@
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
 --  
--- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
---   Stability   : alpha
---   Portability : portable (depends on GHC)
--- 
---   Base class for elements that can contain other elements.
+--  |
+--  Maintainer  : gtk2hs-devel@lists.sourceforge.net
+--  Stability   : alpha
+--  Portability : portable (depends on GHC)
+--  
+--  Base class for elements that can contain other elements.
 module Media.Streaming.GStreamer.Core.Bin (
 
--- * Types
-
+-- * Detail
   -- | 'Bin' is an element that can contain other 'Element's, allowing
   --   them to be managed as a group. 'Pad's from the child elements
   --   can be ghosted to the bin; see 'GhostPad'. This makes the bin
@@ -57,6 +57,8 @@ module Media.Streaming.GStreamer.Core.Bin (
   --   The 'onBinElementAdded' signal is fired whenever a new element is
   --   added to the bin. Likewise the 'onBinElementRemoved' signal is
   --   fired whenever an element is removed from the bin.
+
+-- * Types
   Bin,
   BinClass,
   -- Safely downcast an 'Object' to a 'Bin'.
