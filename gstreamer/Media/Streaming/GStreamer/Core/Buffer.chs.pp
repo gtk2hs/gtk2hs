@@ -23,11 +23,12 @@
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
 --  
--- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
---   Stability   : alpha
---   Portability : portable (depends on GHC)
---
---   Data-passing buffer type, supporting sub-buffers.
+--  |
+--  Maintainer  : gtk2hs-devel@lists.sourceforge.net
+--  Stability   : alpha
+--  Portability : portable (depends on GHC)
+--  
+--  Data-passing buffer type, supporting sub-buffers.
 module Media.Streaming.GStreamer.Core.Buffer (
   
 -- * Types
@@ -146,7 +147,7 @@ bufferGetSizeM =
     liftM fromIntegral $
         marshalBufferM {# get GstBuffer->size #}
 
--- | Make an O(n) copy of the buffer.
+-- | Make an O(n) copy of the buffer data.
 bufferGetData :: BufferClass bufferT
               => bufferT
               -> BS.ByteString
@@ -360,7 +361,7 @@ bufferIsDiscontM :: (BufferClass bufferT, MonadIO m)
 bufferIsDiscontM =
     liftM (elem BufferDiscont) $ bufferGetFlagsM
 
--- | Create an empty buffer and mutates it according to the given
+-- | Create an empty buffer and mutate it according to the given
 --   action. Once this function returns, the buffer is immutable.
 bufferCreateEmpty :: MonadIO m
                   => MiniObjectT Buffer m a -- ^ the mutating action
@@ -385,15 +386,16 @@ bufferCreate size =
 --   the parent, the duration and offset end fields are also
 --   copied. Otherwise they will be set to 'Nothing'.
 bufferCreateSub :: BufferClass bufferT
-                => bufferT           -- ^ the parent buffer
-                -> Word              -- ^ the offset
-                -> Word              -- ^ the size
-                -> IO (Maybe Buffer) -- ^ the new sub-buffer
+                => bufferT      -- ^ the parent buffer
+                -> Word         -- ^ the offset
+                -> Word         -- ^ the size
+                -> Maybe Buffer -- ^ the new sub-buffer
 bufferCreateSub parent offset size =
-    {# call buffer_create_sub #} (toBuffer parent)
-                                 (fromIntegral offset)
-                                 (fromIntegral size) >>=
-        maybePeek takeMiniObject
+    unsafePerformIO $
+        {# call buffer_create_sub #} (toBuffer parent)
+                                     (fromIntegral offset)
+                                     (fromIntegral size) >>=
+            maybePeek takeMiniObject
 
 -- | Return 'True' if 'bufferSpan' can be done without copying the
 --   data, or 'False' otherwise.
