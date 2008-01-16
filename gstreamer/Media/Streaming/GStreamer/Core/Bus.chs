@@ -23,14 +23,14 @@
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
 --  
--- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
---   Stability   : alpha
---   Portability : portable (depends on GHC)
---   
---   An asynchronous message bus subsystem.
---   
+--  |
+--  Maintainer  : gtk2hs-devel@lists.sourceforge.net
+--  Stability   : alpha
+--  Portability : portable (depends on GHC)
+--  
+--  An asynchronous message bus subsystem.
 module Media.Streaming.GStreamer.Core.Bus (
--- * Types  
+-- * Detail
   -- | The 'Bus' is resposible for delivering 'Message's in a
   --   first-in, first-out order, from the streaming threads to the
   --   application.
@@ -71,6 +71,8 @@ module Media.Streaming.GStreamer.Core.Bus (
   --
   --   Note that a 'Pipeline' will set its bus into flushing state
   --   when changing from 'StateReady' to 'StateNull'.
+
+-- * Types
   Bus,
   -- | The result of a 'BusSyncHandler'.
   BusSyncReply,
