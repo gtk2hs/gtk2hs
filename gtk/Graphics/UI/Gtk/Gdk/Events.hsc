@@ -57,6 +57,9 @@ import Graphics.UI.Gtk.Gdk.Enums	(VisibilityState(..),
 import Graphics.UI.Gtk.General.Enums	(MouseButton(..), Click(..))
 import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 
+import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
+import Data.Maybe (catMaybes)
+
 #include <gdk/gdk.h>
 
 -- | Modifer keys.
@@ -71,33 +74,18 @@ import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
 --
 data Modifier
   = Shift
+  | Lock
   | Control
   | Alt
+  | Mod2
+  | Mod3
   | Apple
   -- | Compose is often labelled Alt Gr.
   | Compose
   | ButtonLeft
   | ButtonRight
   | ButtonMiddle
-  deriving (Eq, Ord, Bounded)
-
-instance Enum Modifier where
-  toEnum #{const GDK_SHIFT_MASK} = Shift
-  toEnum #{const GDK_CONTROL_MASK} = Control
-  toEnum #{const GDK_MOD1_MASK} = Alt
-  toEnum #{const GDK_MOD4_MASK} = Apple
-  toEnum #{const GDK_MOD5_MASK} = Compose
-  toEnum #{const GDK_BUTTON1_MASK} = ButtonLeft
-  toEnum #{const GDK_BUTTON2_MASK} = ButtonRight
-  toEnum #{const GDK_BUTTON3_MASK} = ButtonMiddle
-  fromEnum Shift = #{const GDK_SHIFT_MASK}
-  fromEnum Control = #{const GDK_CONTROL_MASK}
-  fromEnum Alt = #{const GDK_MOD1_MASK}
-  fromEnum Apple = #{const GDK_MOD4_MASK}
-  fromEnum Compose = #{const GDK_MOD5_MASK}
-  fromEnum ButtonLeft = #{const GDK_BUTTON1_MASK}
-  fromEnum ButtonRight = #{const GDK_BUTTON2_MASK}
-  fromEnum ButtonMiddle = #{const GDK_BUTTON3_MASK}
+  deriving (Show, Eq, Ord, Bounded, Enum)
 
 instance Flags Modifier
 
@@ -107,10 +95,10 @@ instance Flags Modifier
 --   if flags are set for which no constructor exists
 --
 toModifier :: #{type guint} -> [Modifier]
-toModifier i = toFlags ((fromIntegral i) .&. mask)
-  where
-  mask = foldl (.|.) 0 (map fromEnum [Shift, Control, Alt, Apple, Compose])
-
+toModifier i = catMaybes [ if i .&. (shiftL 1 (fromEnum flag)) /= 0
+                           then Just flag
+                           else Nothing
+                           | flag <- [ minBound .. maxBound ] ]
 
 -- Note on Event:
 -- * 'Event' can communicate a small array of data to another widget. This
