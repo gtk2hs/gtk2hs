@@ -163,7 +163,7 @@ import Control.Monad.Reader (runReaderT)
 --   something that the source doesn't understand.
 -- * 'ActionAsk': Ask the user what to do with the data.
 
-{#enum GdkDragAction as DragAction {underscoreToCase} deriving (Bounded) #} 
+{#enum GdkDragAction as DragAction {underscoreToCase} deriving (Bounded, Eq, Show) #} 
 
 instance Flags DragAction
   
