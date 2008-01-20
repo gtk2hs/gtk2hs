@@ -576,7 +576,7 @@ enumDef cenum@(CEnum _ list _) hident trans userDerive =
 	defBody  = enumBody (length defHead - 2) enumVals
 	inst	 = makeDerives 
 		   (if enumAuto then "Enum" : userDerive else userDerive) ++
-		   if enumAuto then "\n" else "\n" ++ enumInst hident enumVals (elem "Eq" userDerive)
+		   if enumAuto then "\n" else "\n" ++ enumInst hident enumVals
     return $ defHead ++ defBody ++ inst
   where
     cpos = posOf cenum
@@ -624,8 +624,8 @@ enumBody indent ((ide, _):list)  =
 --   following tags are assigned values continuing from the explicitly
 --   specified one
 --
-enumInst :: String -> [(String, Maybe CExpr)] -> Bool -> String
-enumInst ident list haveEq =
+enumInst :: String -> [(String, Maybe CExpr)] -> String
+enumInst ident list =
   "instance Enum " ++ ident ++ " where\n" 
   ++ fromDef list 0 ++ "\n" ++ toDef list 0 ++ "\n"
   ++ succDef names ++ "\n" ++ predDef names ++ "\n"
@@ -671,12 +671,13 @@ enumInst ident list haveEq =
       ++ predDef (x':xs)
     enumFromToDef [] = ""
     enumFromToDef names =
-      if haveEq
-         then    "  enumFromTo x y | x == y    = [ y ]\n"
-              ++ "                 | otherwise = x : enumFromTo (succ x) y\n"
-              ++ "  enumFrom x = enumFromTo x " ++ last names ++ "\n"
-              ++ "  enumFromThenTo _ _ _ = undefined\n"
-         else ""
+         "  enumFromTo x y | fromEnum x == fromEnum y = [ y ]\n"
+      ++ "                 | otherwise = x : enumFromTo (succ x) y\n"
+      ++ "  enumFrom x = enumFromTo x " ++ last names ++ "\n"
+      ++ "  enumFromThen _ _ = "
+      ++ "    error \"Enum "++ident++": enumFromThen not implemented\"\n"
+      ++ "  enumFromThenTo _ _ _ = "
+      ++ "    error \"Enum "++ident++": enumFromThenTo not implemented\"\n"
 
 
 -- generate a foreign import declaration that is put into the delayed code
