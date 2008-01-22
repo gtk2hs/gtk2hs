@@ -388,7 +388,7 @@ newGCValues = GCValues {
 --
 widgetGetState :: WidgetClass w => w -> IO StateType
 widgetGetState w =
-  liftM (\x -> toEnum (fromIntegral (x :: #type gint8))) $
+  liftM (\x -> toEnum (fromIntegral (x :: #type guint8))) $
   withForeignPtr ((unWidget . toWidget) w) $ #{peek GtkWidget,state}
 
 -- | Retrieve the current state of the widget.
@@ -398,7 +398,7 @@ widgetGetState w =
 --
 widgetGetSavedState :: WidgetClass w => w -> IO StateType
 widgetGetSavedState w =
-  liftM (\x -> toEnum (fromIntegral (x :: #type gint8))) $
+  liftM (\x -> toEnum (fromIntegral (x :: #type guint8))) $
   withForeignPtr ((unWidget . toWidget) w) $ #{peek GtkWidget,saved_state}
 
 
