@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Gtk2Hs Tutorial: Appendix</title>
+  <link href="default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+
+<div id="header">
+  <h1>Gtk2Hs Tutorial</h1>
+  <span class="nav-previous"><a href="chap7-2.xhtml">Previous</a></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a></span>
+</div>
+
+<h2>Drawing with Cairo: Getting Started</h2>
+
+<p>It is possible to draw quite complex figures in Gtk2Hs, on screen and in several file formats,
+using the Cairo drawing library. Drawing in Gtk2Hs is not very different from drawing in original Cairo,
+though that subject is large enough to merit its own tutorials.</p>
+<p>See the <a href="http://cairographics.org/documentation/">Cairo Documentation Site</a> for that.</p>
+<p>Drawing to the screen or in portable network graphics (png), portable document format (pdf),
+postscript (ps) or scaleable vector graphics (svg) formats of any Cairo drawing uses some special syntax in Gtk2Hs. 
+The goal of this appendix is to explain what basic functions you need. 
+<h3>1. Drawing</h3>
+
+First the Cairo Graphics module must be imported with <code>import Graphics.Rendering.Cairo</code>.
+Then the following function defines an actual drawing:</p>
+<pre class="codebox">myDraw :: Render ()
+myDraw = do
+    setSourceRGB 1 1 0
+    setLineWidth 5
+
+    moveTo 120 60
+    lineTo 60 110
+    lineTo 180 110
+    closePath
+    
+    stroke
+</pre>
+<p>The type of this function is <code>Render ()</code> and from the do notation you can gather
+that <code>Render</code> is a monad. Note that this is not the <code>IO</code> monad, which is
+used in <code>Graphics.UI.Gtk</code> . The figure, a triangle, is defined by the <code>moveTo,
+lineTo and closePath</code> functions, which do what the names suggest. They do not, however,
+draw anything, but rather define a path, which is to be followed. The actual drawing of this path is done by the
+<code>stroke</code> function. First, however, the color of the lines and their width must
+be specified.</p>
+<p>Now this figure can be drawn. For this we need a blank widget, with <code>DrawingArea</code> type.
+However, you don't draw on this widget itself, the <code>canvas</code> in the example below,
+but on its <code>DrawWindow</code> . To get it you use:</p>
+<pre class="codebox">widgetGetDrawWindow :: WidgetClass widget => widget -&gt; IO DrawWindow</pre>
+or, alteratively, the simpler:
+<pre class="codebox">drawingAreaGetDrawWindow :: DrawingArea -&gt; IO DrawWindow</pre>
+<p>Now you can use:</p>
+<pre class="codebox">renderWithDrawable :: DrawableClass drawable => drawable -&gt; Render a -&gt; IO a</pre>
+<p>But this drawing must be executed in response to an event. One possibility would be
+an <code>onButtonPress</code> event as used in Chapter 6.2 with the Event Box. This actually works.
+Each time the window is resized the drawing disappears, and it is drawn again when you click
+the button. There is another event, however, the <code>Expose</code> event, which sends a signal
+each time the window is resized or redrawn on the screen. This fits what is required, so we use:</p>
+<pre class= "codebox">onExpose canvas (\x -&gt; do renderWithDrawable drawin myDraw
+                          return (eventSent x))
+</pre>
+<p>This is how it looks:</p>
+<p><img src="Images/GtkApp1a.png" alt="Appendix 1 Example a" id="imgGtkApp1a" /></p>
+<p>A frame has also been included, for visual effect, but this is inessential.
+But note that the <code>widgetShowAll</code> function appears before the 
+<code>widgetGetDrawWindow</code> function in the code below. This is required because only a visible
+window can be used to draw on!</p>
+<pre class="codebox">import Graphics.UI.Gtk
+import Graphics.Rendering.Cairo
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Hello Cairo",
+                 windowDefaultWidth := 300, windowDefaultHeight := 200,
+                 containerBorderWidth := 30 ]
+
+     frame &lt;- frameNew
+     containerAdd window frame
+     canvas &lt;- drawingAreaNew
+     containerAdd frame canvas
+     widgetModifyBg canvas StateNormal (Color 65535 65535 65535)
+
+     widgetShowAll window 
+     drawin &lt;- widgetGetDrawWindow canvas
+     onExpose canvas (\x -&gt; do renderWithDrawable drawin myDraw
+                               return (eventSent x))
+    
+     onDestroy window mainQuit
+     mainGUI
+
+myDraw :: Render ()
+myDraw = do
+    setSourceRGB 1 1 0
+    setLineWidth 5
+
+    moveTo 120 60
+    lineTo 60 110
+    lineTo 180 110
+    closePath
+
+    stroke
+</pre>
+<p>This example does not really do what we want because, though the figure is redrawn,
+it does not resize with the main window. To do this we need:</p>
+<pre class="codebox">myDraw :: Double -&gt; Double -&gt; Render ()
+myDraw w h = do
+    setSourceRGB 1 1 1
+    paint
+
+    setSourceRGB 1 1 0
+    setLineWidth 5
+
+    moveTo (0.5 * w) (0.43 * h)
+    lineTo (0.33 * w) (0.71 * h)
+    lineTo (0.66 * w) (0.71 * h)
+    closePath
+    stroke
+</pre>
+<p>Now the drawing will always fit the borders defined by the parameters. We've also
+set the background color with the paint function, instead of <code>widgetModify</code> .
+The <code>paint</code> function paints the current source everywhere within the current
+clip region. Note that <code>setSourceRGB</code> not only takes a <code>Double</code>
+between 0 and 1 as its parameters instead of <code>Int</code> values between 0 and 65535,
+but also 'lives' within the <code>Render</code> monad instead of the <code>IO</code> monad.</p>
+<p>To draw the resizable figure, we need to get the size of the drawing area each time
+this changes.</p>
+<pre class="codebox">widgetGetSize :: WidgetClass widget => widget -&gt; IO (Int, Int)</pre>
+<p>So the code snippet to draw becomes:</p> 
+<pre class="codebox">onExpose canvas (\x -&gt; do (w,h) &lt;- widgetGetSize canvas
+                          drw &lt;- widgetGetDrawWindow canvas
+                          renderWithDrawable drw (myDraw (fromIntegral w) (fromIntegral h))
+                          return (eventSent x))</pre>
+<p>Because the rest of the code is the same as before we won't list it, but this
+is the result of a resizing to the right:</p>
+<p><img src="Images/GtkApp1b.png" alt="Appendix 1 Example b" id="imgGtkApp1b" /></p>
+<p>Another drawing example, this one taken from the general <a href="http://cairographics.org/tutorial/">Cairo Tutorial</a>
+is:</p>
+<p><img src="Images/GtkApp1c.png" alt="Appendix 1 Example 3" id="imgGtkApp1c" /></p>
+<p>This is the listing:</p>
+<pre class="codebox">import Graphics.UI.Gtk  hiding (fill)
+import Graphics.Rendering.Cairo
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Hello Cairo 4",
+                 windowDefaultWidth := 300, windowDefaultHeight := 200,
+                 containerBorderWidth := 15 ]
+
+     frame &lt;- frameNew
+     containerAdd window frame
+     canvas &lt;- drawingAreaNew
+     containerAdd frame canvas
+
+     widgetShowAll window 
+     onExpose canvas (\x -&gt;  do (w,h) &lt;- widgetGetSize canvas
+                                drawin &lt;- widgetGetDrawWindow canvas
+                                renderWithDrawable drawin 
+                                    (myDraw (fromIntegral w)(fromIntegral h))
+                                return (eventSent x))
+    
+     onDestroy window mainQuit
+     mainGUI
+
+myDraw :: Double -&gt; Double -&gt; Render ()
+myDraw w h = do
+           setSourceRGB 1 1 1
+           paint
+
+           setSourceRGB 0 0 0
+           moveTo 0 0
+           lineTo w h
+           moveTo w 0
+           lineTo 0 h
+           setLineWidth (0.1 * (h + w))
+           stroke
+
+           rectangle 0 0 (0.5 * w) (0.5 * h)
+           setSourceRGBA 1 0 0 0.8
+           fill
+
+           rectangle 0 (0.5 * h) (0.5 * w) (0.5 * h)
+           setSourceRGBA 0 1 0 0.6
+           fill
+
+           rectangle (0.5 * w) 0 (0.5 * w) (0.5 * h)
+           setSourceRGBA 0 0 1 0.4
+           fill
+</pre>
+<p>Note that this is just like the previous example, except for the actual drawing. This introduces
+<code>setSourceRGBA</code> which sets not just the color but also the transparancy, as a 
+measure between 0 and 1. The example also uses a <code>rectangle</code> and a method
+<code>fill</code> which fills closed figures with the specified color and transparancy.</p>
+<p class="notebox"><strong>Note:</strong> Because of a naming conflict with an older
+Gtk2Hs drawing library you must either hide <code>fill</code> in the Graphics.UI.Gtk import 
+statement or use the full name <code>Graphics.Rendering.Cairo.fill</code> .</p>
+<h3>2. Saving to Files</h3>
+<p>It's very easy to save a drawing in png, pdf, ps or svg formats. 'Save' is perhaps not
+the correct expression, since each different format involves its own rendering. The function is:</p>
+<pre class="codebox">renderWith:: MonadIO m => Surface -&gt; Render a -&gt; m a</pre>
+The <code>Surface</code> is that on which the drawing appears. In these cases this is not the screen
+but something you'll have to provide yourself. There are four different functions, one for each type.
+<pre class="codebox">withImageSurface
+:: Format	                -- format of pixels in the surface to create
+-&gt; Int	                        -- width of the surface, in pixels
+-&gt; Int	                        -- height of the surface, in pixels
+-&gt; (Surface -&gt; IO a)	        -- an action that may use the surface. The surface is only valid within in this action.
+-&gt; IO a	</pre>
+
+<p>This is used for portable network graphics (png) files. The <code>Format</code> data type
+has four possible constructors, <code>FormatARGB32, FormatRGB24, FormatA8, FormatA1</code> .
+In the example below we use the first. The action that takes a <code>Surface</code> as its
+argument will usually be the <code>renderWith</code> function followed by a function to
+write to a file. For the png format this would be the function:</p>
+<pre class="codebox">surfaceWriteToPNG
+:: Surface	                    -- a Surface
+-&gt; FilePath	                    -- the name of a file to write to
+-&gt; IO ()</pre>
+<p>So, the recipe to write a drawing to a file in png format would be:</p>
+<pre class="codebox">withImageSurface  FormatARGB32 pnw pnh (\srf -&gt; do renderWith srf (myDraw (fromIntegral pnw) (fromIntegral pnh))
+                                                   surfaceWriteToPNG srf "myDraw.png")</pre>
+<p>where <code>pnw</code> and <code>pnh</code> are the width and the height in type <code>Int</code> .</p>
+<p>To save a drawing in pdf format you use:</p>
+<pre class="codebox">withPDFSurface
+:: FilePath	               -- a filename for the PDF output (must be writable)
+-&gt; Double	               -- width of the surface, in points (1 point == 1/72.0 inch)
+-&gt; Double	               -- height of the surface, in points (1 point == 1/72.0 inch)
+-&gt; (Surface -&gt; IO a)	       -- an action that may use the surface. The surface is only valid within in this action.
+-&gt; IO a</pre>
+<p>This function takes different parameters than the previous on, though it is very similar. The
+recipe to save is now:</p>
+<pre class="codebox">withPDFSurface "myDraw.pdf" pdw pdh (\s -&gt;  renderWith s $ do myDraw pdw pdh
+                                                              showPage )</pre>
+<p>Note the <code>showPage</code> function, without with the program will compile, but
+a .pdf reader will complain there is no page. The API documentation states the width and height
+are in points (and type <code>Double</code> ), so you'll have to check how this works out in practice.</p>
+<p>To save a postscript file:</p>
+<pre class="codebox">withPSSurface
+:: FilePath	                 -- a filename for the PS output (must be writable)
+-&gt; Double	                 -- width of the surface, in points (1 point == 1/72.0 inch)
+-&gt; Double	                 -- height of the surface, in points (1 point == 1/72.0 inch)
+-&gt; (Surface -&gt; IO a)	         -- an action that may use the surface. The surface is only valid within in this action.
+-&gt; IO a</pre>
+<p>To save you could use the same 'recipe' as above, or the shorter notation:</p>
+<pre class="codebox">withPSSurface "myDraw.ps" psw psh (flip renderWith (myDraw psw psh &gt;&gt; showPage))</pre>
+<p>Finally, to save in scaleable vector graphics format, use the same syntax, but with
+<code>withSVGSurface</code> . So this would be:</p> 
+<pre class="codebox">withSVGSurface "myDraw.svg" pgw pgh (flip renderWith $ myDraw pgw pgh &gt;&gt; showPage)</pre>
+<p>An example that saves the last drawing shown above in all four formats (with different sizes) is:</p>
+<pre class="codebox">import Graphics.UI.Gtk  hiding (fill)
+import Graphics.Rendering.Cairo
+
+main :: IO ()
+main= do
+     initGUI
+     window &lt;- windowNew
+     set window [windowTitle := "Save as...",
+                 windowDefaultWidth := 300, windowDefaultHeight := 200] 
+
+     let pnw = 300
+         pnh = 200
+     withImageSurface 
+       FormatARGB32 pnw pnh (\srf -&gt; do renderWith srf (myDraw (fromIntegral pnw) (fromIntegral pnh))
+                                        surfaceWriteToPNG srf "myDraw.png")
+
+
+     let pdw = 720
+         pdh = 720
+     withPDFSurface "myDraw.pdf" pdw pdh (\s -&gt;  renderWith s $ do myDraw pdw pdh
+                                                                   showPage )
+     
+     let psw = 360
+         psh = 540
+     withPSSurface 
+        "myDraw.ps" psw psh (flip renderWith (myDraw psw psh &gt;&gt; showPage))
+
+     let pgw = 180
+         pgh = 360
+     withSVGSurface 
+        "myDraw.svg" pgw pgh (flip renderWith $ myDraw pgw pgh &gt;&gt; showPage)
+         
+     putStrLn "Press any key to quit..."
+     onKeyPress window (\x -&gt; do widgetDestroy window
+                                 return (eventSent x))
+
+     widgetShowAll window
+     onDestroy window mainQuit
+     mainGUI
+
+myDraw :: Double -&gt; Double -&gt; Render ()
+myDraw w h = do
+           setSourceRGB 1 1 1
+           paint
+
+           setSourceRGB 0 0 0
+           moveTo 0 0
+           lineTo w h
+           moveTo w 0
+           lineTo 0 h
+           setLineWidth (0.1 * (h + w))
+           stroke
+
+           rectangle 0 0 (0.5 * w) (0.5 * h)
+           setSourceRGBA 1 0 0 0.8
+           fill
+
+           rectangle 0 (0.5 * h) (0.5 * w) (0.5 * h)
+           setSourceRGBA 0 1 0 0.6
+           fill
+
+           rectangle (0.5 * w) 0 (0.5 * w) (0.5 * h)
+           setSourceRGBA 0 0 1 0.4
+           fill
+</pre>
+<p class="notebox"><strong>Note:</strong> Please see the Graphics.Rendering.Cairo API documentation
+and the general Cairo tutorials and examples for more advanced uses. The Gtk2Hs distribution also
+comes with several interesting demonstration examples.</p>
+ 
+<div id="footer">
+  <span class="nav-previous"><a href="chap7-2.xhtml">Previous</a><br /></span>
+  <span class="nav-home"><a href="index.xhtml">Home</a><br />&nbsp;</span>
+</div>
+
+</body>
+</html>
