@@ -43,13 +43,10 @@ fromFlags is = orNum 0 is
 -- * Note that this function ignores bits set in the passed
 --   'Int' that do not correspond to a flag.
 toFlags :: Flags a => Int -> [a]
-toFlags n = let from x = if fromEnum x==fromEnum (maxBound `asTypeOf` n)
-                         then [x]
-                         else x:from (succ x) in
-            catMaybes [ if n .&. fromEnum flag == fromEnum flag
+toFlags n = catMaybes [ if n .&. fromEnum flag == fromEnum flag
                            then Just flag
                            else Nothing
-                      | flag <- from minBound ]
+                      | flag <- [minBound .. maxBound] ]
 
 -------------------------
 -- QuickCheck test code
