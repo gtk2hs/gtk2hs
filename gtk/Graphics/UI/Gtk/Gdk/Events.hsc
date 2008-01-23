@@ -49,7 +49,8 @@ import System.Glib.FFI
 import System.Glib.Flags
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
-import Graphics.UI.Gtk.Gdk.Enums	(VisibilityState(..),
+import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..),
+                                         VisibilityState(..),
 					 CrossingMode(..),
 					 NotifyType(..),
 					 WindowState(..),
@@ -61,77 +62,6 @@ import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
 import Data.Maybe (catMaybes)
 
 #include <gdk/gdk.h>
-
--- | Modifer keys.
---
--- * This data type is used to build lists of modifers that were active
---   during an event.
---
--- * While 'Apple' stands for the Apple key on Macintoshs, it also
---   stands for the Windows key on PC keyboards or the Super key on
---   Unix machines. It\'s called Apple since it is probably mostly used
---   in the Macintosh environment.
---
-data Modifier
-  = Shift
-  | Lock
-  | Control
-  | Alt
---  | Mod2  we probably don't want them
---  | Mod3
-  | Apple
-  -- | Compose is often labelled Alt Gr.
-  | Compose
-  | ButtonLeft
-  | ButtonRight
-  | ButtonMiddle
-  deriving (Show, Eq, Ord, Bounded)
-
-instance Flags Modifier
-
-instance Enum Modifier where
-  toEnum #{const GDK_SHIFT_MASK} = Shift
-  toEnum #{const GDK_LOCK_MASK} = Lock
-  toEnum #{const GDK_CONTROL_MASK} = Control
-  toEnum #{const GDK_MOD1_MASK} = Alt
---  toEnum #{const GDK_MOD2_MASK} = Mod2
---  toEnum #{const GDK_MOD3_MASK} = Mod3
-  toEnum #{const GDK_MOD4_MASK} = Apple
-  toEnum #{const GDK_MOD5_MASK} = Compose
-  toEnum #{const GDK_BUTTON1_MASK} = ButtonLeft
-  toEnum #{const GDK_BUTTON2_MASK} = ButtonRight
-  toEnum #{const GDK_BUTTON3_MASK} = ButtonMiddle
-  fromEnum Shift = #{const GDK_SHIFT_MASK}
-  fromEnum Lock = #{const GDK_LOCK_MASK}
-  fromEnum Control = #{const GDK_CONTROL_MASK}
-  fromEnum Alt = #{const GDK_MOD1_MASK}
---  fromEnum Mod2 = #{const GDK_MOD2_MASK}
---  fromEnum Mod3 = #{const GDK_MOD3_MASK}
-  fromEnum Apple = #{const GDK_MOD4_MASK}
-  fromEnum Compose = #{const GDK_MOD5_MASK}
-  fromEnum ButtonLeft = #{const GDK_BUTTON1_MASK}
-  fromEnum ButtonRight = #{const GDK_BUTTON2_MASK}
-  fromEnum ButtonMiddle = #{const GDK_BUTTON3_MASK}
-  succ Shift = Lock
-  succ Lock = Control
-  succ Control = Alt
-  succ Alt = Apple -- Mod2
---  succ Mod2 = Mod3
---  succ Mod3 = Apple
-  succ Apple = Compose
-  succ Compose = ButtonLeft
-  succ ButtonLeft = ButtonRight
-  succ ButtonRight = ButtonMiddle
-  pred ButtonMiddle = ButtonRight
-  pred ButtonRight = ButtonLeft
-  pred ButtonLeft = Compose
-  pred Compose = Apple
-  pred Apple = Alt --Mod3
---  pred Mod3 = Mod2
---  pred Mod2 = Alt
-  pred Alt = Control
-  pred Control = Lock
-  pred Lock = Shift
 
 -- Note on Event:
 -- * 'Event' can communicate a small array of data to another widget. This

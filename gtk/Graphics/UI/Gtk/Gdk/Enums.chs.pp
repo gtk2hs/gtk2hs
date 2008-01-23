@@ -31,6 +31,7 @@ module Graphics.UI.Gtk.Gdk.Enums (
   DragProtocol(..),
   DragAction(..),
   EventMask(..),
+  Modifier(..),
   ExtensionMode(..),
   Fill(..),
   Function(..),
@@ -78,6 +79,46 @@ instance Flags DragAction
 {#enum EventMask {underscoreToCase} deriving (Bounded)#}
 
 instance Flags EventMask
+
+-- | Keyboard modifiers that are depressed when the user presses
+--   a key or a mouse button.
+--
+-- * This data type is used to build lists of modifers that were active
+--   during an event.
+--
+-- * The "Apple" key on Macintoshs is mapped to 'Alt2' and the 'Meta'
+--   key (if available).
+--
+-- * Since Gtk 2.10, there are also 'Super', 'Hyper' and 'Meta' modifiers
+--   which are simply generated from 'Alt' .. 'Compose' modifier keys,
+--   depending on the mapping used by the windowing system. Due to one
+--   key being mapped to e.g. 'Alt2' and 'Meta', you shouldn't pattern
+--   match directly against a certain key but check whether a key is
+--   in the list using the 'elem' function, say.
+--
+{#enum ModifierType as Modifier {SHIFT_MASK as Shift,
+                                 LOCK_MASK as Lock,
+                                 CONTROL_MASK as Control,
+                                 MOD1_MASK as Alt,
+                                 MOD2_MASK as Alt2,
+                                 MOD3_MASK as Alt3,
+                                 MOD4_MASK as Alt4,
+                                 MOD5_MASK as Alt5,
+                                 BUTTON1_MASK as Button1,
+                                 BUTTON2_MASK as Button2,
+                                 BUTTON3_MASK as Button3,
+                                 BUTTON4_MASK as Button4,
+                                 BUTTON5_MASK as Button5,
+#if GTK_CHECK_VERSION(2,10,0)
+                                 SUPER_MASK as Super,
+                                 HYPER_MASK as Hyper,
+                                 META_MASK as Meta,
+#endif
+                                 RELEASE_MASK as Release,
+                                 MODIFIER_MASK as ModifierMask
+                                 } deriving(Bounded,Show) #}
+
+instance Flags Modifier
 
 -- | specify which input extension a widget desires
 --

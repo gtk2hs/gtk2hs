@@ -575,7 +575,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/GC.chs					\
 	gtk/Graphics/UI/Gtk/Gdk/Gdk.chs					\
-	gtk/Graphics/UI/Gtk/Gdk/Enums.chs				\
+	gtk/Graphics/UI/Gtk/Gdk/Enums.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/Keys.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Pixbuf.chs.pp				\
