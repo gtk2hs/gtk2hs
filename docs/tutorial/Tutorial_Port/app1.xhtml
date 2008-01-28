@@ -195,7 +195,7 @@ myDraw w h = do
            fill
 </pre>
 <p>Note that this is just like the previous example, except for the actual drawing. This introduces
-<code>setSourceRGBA</code> which sets not just the color but also the transparancy, as a 
+<code>setSourceRGBA</code> which sets not just the color but also the transparency, as a 
 measure between 0 and 1. The example also uses a <code>rectangle</code> and a method
 <code>fill</code> which fills closed figures with the specified color and transparancy.</p>
 <p class="notebox"><strong>Note:</strong> Because of a naming conflict with an older
@@ -238,8 +238,8 @@ write to a file. For the png format this would be the function:</p>
 recipe to save is now:</p>
 <pre class="codebox">withPDFSurface "myDraw.pdf" pdw pdh (\s -&gt;  renderWith s $ do myDraw pdw pdh
                                                               showPage )</pre>
-<p>Note the <code>showPage</code> function, without with the program will compile, but
-a .pdf reader will complain there is no page. The API documentation states the width and height
+<p>Note the <code>showPage</code> function. Without it the program will compile, and even produce a .pdf
+file, but this cannot be read correctly by a pdf reader. The API documentation states the width and height
 are in points (and type <code>Double</code> ), so you'll have to check how this works out in practice.</p>
 <p>To save a postscript file:</p>
 <pre class="codebox">withPSSurface
