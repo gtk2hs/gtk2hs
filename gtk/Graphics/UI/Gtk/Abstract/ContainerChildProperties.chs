@@ -83,7 +83,7 @@ containerChildGetPropertyInternal gtype valueGet prop child container =
   withCString prop $ \propertyNamePtr ->
   allocaGValue $ \gvalue -> do
   valueInit gvalue gtype
-  {# call container_child_set_property #}
+  {# call container_child_get_property #}
     (toContainer container)
     (toWidget child)
     propertyNamePtr
