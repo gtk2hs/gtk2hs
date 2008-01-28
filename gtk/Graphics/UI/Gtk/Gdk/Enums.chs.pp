@@ -116,7 +116,7 @@ instance Flags EventMask
 #endif
                                  RELEASE_MASK as Release,
                                  MODIFIER_MASK as ModifierMask
-                                 } deriving(Bounded,Show) #}
+                                 } deriving(Bounded,Show,Eq) #}
 
 instance Flags Modifier
 
