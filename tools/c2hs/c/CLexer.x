@@ -28,7 +28,7 @@
 --
 --  We assume that the input already went through cpp.  Thus, we do not handle 
 --  comments and preprocessor directives here.  The lexer recognizes all tokens
---  of ANCI C except those occuring only in function bodies.  It supports the
+--  of ANCI C except those occurring only in function bodies.  It supports the
 --  C99 `restrict' extension: <http://www.lysator.liu.se/c/restrict.html> as
 --  well as inline functions.
 --
@@ -79,7 +79,7 @@ import CParserMonad
 
 }
 
-$space = [ \ \t ] -- horazontal white space
+$space = [ \ \t ] -- horizontal white space
 $eol   = \n
 
 $letter   = [a-zA-Z_]
@@ -91,7 +91,7 @@ $hexdigit = [0-9a-fA-F]
 $inchar   = \0-\255 # [ \\ \' \n \r ]
 $instr    = \0-\255 # [ \\ \" \n \r ]
 $anyButNL = \0-\255 # \n
-$infname  = \ -\127 # [ \\ \" ]
+$infname  = \ -\255 # [ \\ \" ]
 $visible  = \ -\127
 
 @int = $digitNZ$digit*
@@ -232,7 +232,7 @@ L\"($instr|@charesc)*\"			{ token CTokSLit (normalizeEscapes . tail) }
 -- We use the odd looking list of string patterns here rather than normal
 -- string literals since GHC converts the latter into a sequence of string
 -- comparisons (ie a linear search) but it translates the former using its
--- effecient pattern matching which gives us the expected radix-style search.
+-- efficient pattern matching which gives us the expected radix-style search.
 -- This gives change makes a significant performance difference.
 --
 idkwtok :: String -> Position -> P CToken
