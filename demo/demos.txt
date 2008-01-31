@@ -1,0 +1,93 @@
+Written by Paul Dufresne <dufresnep@gmail.com>, january, 2008
+This is hereby released in public domain
+
+This describe the demos available with Gtk2HS library, an Haskell GTK+ wrapper.
+
+Sometimes, you may have to press Control-C to quit a program.
+
+actionMenu: Show you how to make a small File and a small Edit menu (also a button bar)
+  You will learn how to attach actions you want to do when they are activated.
+
+buttonBox: Build a window with three buttons, the third one, not following others when you grow the window.
+
+cairo: Contains some examples that use the cairo drawing library: http://cairographics.org/
+  ./graph shows a mathematical curve
+  ./drawing shows some color lines and curves, and some 45 degree text
+  ./drawing2 shows some semi-transparent figures, an apple, and a snake
+  ./text make text.png, an image with some text in it
+  ./starandring make a star inside a circle, in 4 different documents: .png, .pdf, .ps, .svg
+  ./clock shows a very nice looking analog clock
+Needs: --enable-cairo or/and cairo lib installed at build time of gtk2hs
+
+calc: a simple calculator
+
+carsim: on a ring track, up to 40 simulated cars are circulating,
+ you can stop the traffic by putting the mouse cursor in front of a car
+Needs: --enable-cairo or/and cairo lib installed at build time of gtk2hs
+
+concurrent: Show how to let Haskell programs continue while the GUI is running.
+
+fastdraw: shows a palette of colors constantly changing (Example of a drawing graphics onto a canvas)
+
+filechooser: examples of Save and Open dialogs.
+
+fonts: shows info on all your installed fonts.
+
+gconf: at first execution, will show you how to enter values in gnome configuration database (much like
+  Windows registry), and on second execution, will monitor the values
+
+glade: Show how to load a simple made with Glade, and use it
+
+gnomevfs: Gnome virtual file system
+BROKEN (jan 29, 2008): TestSync.hs:3:17:
+    Could not find module `System.Gnome.VFS
+
+graphics: same as ./drawing in Cairo (but without Cairo)
+
+gstreamer: Seems to try to play a sound file (Vorbis)
+BROKEN (jan 29, 2008): VorbisPlay.hs:3:17:
+    Could not find module `Media.Streaming.GStreamer'
+
+hello: just a button HelloWorld that quit program (which is full of comments)
+
+mozembed: Probably show a web page inside a window?
+BROKEN (jan 29,2008):Could not find module `Graphics.UI.Gtk.MozEmbed':
+
+noughty: What I call Tic-Tac-Toe game (2 human players) where one have X the other O, and
+the goal of the game is to make a line of 3 yours symbols
+2 versions, one without glade, and with the GUI built with Glade
+
+opengl: shows how to use HOpenGL inside Gtk2HS to make a rotating cube
+Needs: --enable-opengl and/or mesa? installed a gtk2hs build time
+
+pango: use pango (http://www.pango.org/) layout to make a long paragraph adjust to wide of
+  the window
+Needs: --enable-cairo and/or cairo lib installed at Gtk2HS build time(to render the fonts)
+
+profileviewer: This is a slightly larger demo that combines use of glade, the file chooser
+  dialog, program state (IORefs) and use of the mogul tree view wrapper interface. 
+  The program is a simple viewer for the log files that ghc produces when you do time profiling. 
+
+soe: SOE (School of Expression) is an alternative implementation of the graphics library used in
+  a book by Paul Hudak, http://www.haskell.org/soe/.
+API at http://www.haskell.org/gtk2hs/docs/devel/Graphics-SOE-Gtk.html
+
+sourceview: a program showing itself with syntax highlighting
+Needs: --enable-sourceview and/or sourceview installed at Gtk2HS build time
+
+statusicon: Show a door icon in Gnome (upper right), and give a message when you click on it
+ Use right button on it to get a menu that will allow you to quit the program
+Warning: Deprecated use of `I.onPopupMenu' and `I.onActivate'
+
+svg: Scalable Vector Graphics, see http://www.w3.org/Graphics/SVG/About
+  './svgviewer imagefile.svg' to see a svg image (XML file)
+  './svg2png imagefile.svg imagefile.png' will create imagefile.png from imagefile.svg
+  (avoid thinking about doing the reverse ;-))
+Hint: if you have use starandring from cairo, 'cp ../cairo/StarAndRing.svg .'
+Needs: --enable-cairo and/or cairo lib installed at Gtk2HS build time
+Feature request: avoid svgviewer: user error (Pattern match failure in do expression at SvgViewer.hs:11:2-9)
+  when not giving any parameter
+
+treelist: some examples showing how to use ListView and TreeView widgets
+
+unicode: Example of an international dialog box (in arabic)
