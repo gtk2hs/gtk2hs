@@ -33,7 +33,7 @@ module @MODULE_NAME@ (
   ) where
 
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, unsafeForeignPtrToPtr)
-import Foreign.C.Types    (CULong)
+import Foreign.C.Types
 import System.Glib.GType	(GType, typeInstanceIsA)
 import Media.Streaming.GStreamer.Core.MiniHierarchyBase
 @IMPORT_PARENT@
