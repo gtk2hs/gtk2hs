@@ -34,6 +34,8 @@ module Graphics.UI.Gtk.ModelView.Types (
   
   TypedTreeModelSort(..),
   unsafeTreeModelSortToGeneric,
+  TypedTreeModelFilter(..),
+  unsafeTreeModelFilterToGeneric,
   
   -- TreeIter
   TreeIter(..),
@@ -54,7 +56,7 @@ module Graphics.UI.Gtk.ModelView.Types (
 import GHC.Exts (unsafeCoerce#)
 
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort)
+{#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort, TreeModelFilter)
 import Data.Char ( isDigit )
 import Control.Monad ( liftM )
 
@@ -82,6 +84,13 @@ unsafeTreeModelSortToGeneric :: TreeModelSort -> TypedTreeModelSort row
 unsafeTreeModelSortToGeneric = unsafeCoerce#
 
 instance TypedTreeModelClass TypedTreeModelSort
+
+newtype TypedTreeModelFilter row = TypedTreeModelFilter (ForeignPtr (TypedTreeModelFilter row))
+
+unsafeTreeModelFilterToGeneric :: TreeModelFilter -> TypedTreeModelFilter row
+unsafeTreeModelFilterToGeneric = unsafeCoerce#
+
+instance TypedTreeModelClass TypedTreeModelFilter
 
 -- | Tree Iterator: a pointer to an entry in a
 -- 'Graphics.UI.Gtk.ModelView.TreeModel'. The constructor of this structure is

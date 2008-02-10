@@ -25,23 +25,28 @@
 -- Allows a custom data structure to be used with the 'TreeView'
 --
 module Graphics.UI.Gtk.ModelView.CustomStore (
-  TreeModelFlags(..),
-
-  ColumnMap,
-  ColumnAccess(..),
-  ColumnId,
-
-  treeModelUpdateColumn,
-  treeModelGetRow,
-
+  -- * The definition of a row-based store.  
   CustomTreeModel,
+  TreeModelFlags(..),
   TreeModelIface(..),
   DragSourceIface(..),
   DragDestIface(..),
   customTreeModelNew,
+  treeModelGetRow,
   customTreeModelGetPrivate,
   customTreeModelGetStamp,
   customTreeModelInvalidateIters,
+
+  -- * Extracting a specific datum from the row-oriented store for
+  --   properties that are not drawn by 'CellRenderer's.
+  ColumnId,
+  makeColumnIdInt,
+  makeColumnIdBool,
+  makeColumnIdString,
+  makeColumnIdPixbuf,
+  columnIdToNumber,
+  invalidColumnId,
+  treeModelSetColumn,
   ) where
 
 import Control.Monad	                        (liftM, when)
@@ -89,7 +94,8 @@ instance GObjectClass (CustomTreeModel private row) where
 
 -- | Accessing a row for a specific value. Used for 'ColumnMap'.
 data ColumnAccess row
-  = CAInt (row -> Int)
+  = CAInvalid
+  | CAInt (row -> Int)
   | CABool (row -> Bool)
   | CAString (row -> String)
   | CAPixbuf (row -> Pixbuf)
@@ -102,16 +108,47 @@ columnMapNew :: IO (ColumnMap row)
 columnMapNew = newIORef []
 
 -- | The type of a tree column.
-type ColumnId = Int
-	
--- | Insert or update a column mapping.
-treeModelUpdateColumn :: TypedTreeModelClass model 
+data ColumnId row ty = ColumnId ((row -> ty) -> ColumnAccess row) Int
+
+-- | Create a 'ColumnId' to extract an integer.
+makeColumnIdInt :: Int -> ColumnId row Int
+makeColumnIdInt = ColumnId CAInt
+
+-- | Create a 'ColumnId' to extract an Boolean.
+makeColumnIdBool :: Int -> ColumnId row Bool
+makeColumnIdBool = ColumnId CABool
+
+-- | Create a 'ColumnId' to extract an string.
+makeColumnIdString :: Int -> ColumnId row String
+makeColumnIdString = ColumnId CAString
+
+-- | Create a 'ColumnId' to extract an 'Pixbuf'.
+makeColumnIdPixbuf :: Int -> ColumnId row Pixbuf
+makeColumnIdPixbuf = ColumnId CAPixbuf
+
+-- | Convert a 'ColumnId' to a bare number.
+columnIdToNumber :: ColumnId row ty -> Int
+columnIdToNumber (ColumnId _ i) = i
+
+-- | The invalid 'ColumnId'. Widgets use this value if no column id has
+--   been set.
+invalidColumnId :: ColumnId row ty
+invalidColumnId = ColumnId (error "invalidColumnId: no access type") (-1)
+
+instance Eq (ColumnId row ty) where
+  (ColumnId _ i1) == (ColumnId _ i2) = i1==i2
+
+instance Show (ColumnId row ty) where
+  show (ColumnId _ i) = show i
+  
+-- | Set or update a column mapping.
+treeModelSetColumn :: TypedTreeModelClass model
 	=> model row -- ^ the store in which to allocate a new column
-	-> ColumnId -- ^ the column that should be updated, 
-	            --   or 'invalidColumnId' to request a new column
-	-> ColumnAccess row -- ^ the function that sets the property
-	-> IO ColumnId -- ^ returns the newly assigned column
-treeModelUpdateColumn model oldC acc =
+	-> (ColumnId row ty) -- ^ the column that should be set
+	-> (row -> ty) -- ^ the function that sets the property
+	-> IO () -- ^ returns the newly assigned column
+treeModelSetColumn model (ColumnId setter colId) acc | colId<0 = return ()
+                                                     | otherwise =
   case toTypedTreeModel model of
     TypedTreeModel model -> do
       ptr <- withForeignPtr model gtk2hs_store_get_impl
@@ -119,13 +156,12 @@ treeModelUpdateColumn model oldC acc =
       let cMap = customTreeModelColumns impl
       cols <- readIORef cMap
       let l = length cols
-      if oldC<0 || oldC>=l then do
-         writeIORef cMap (cols++[acc])
-         return l
+      if colId>=l then do
+         let fillers = replicate (colId-l) CAInvalid
+         writeIORef cMap (cols++fillers++[setter acc])
        else do
-         let (beg,_:end) = splitAt oldC cols
-         writeIORef cMap (beg++acc:end)
-         return oldC
+         let (beg,_:end) = splitAt colId cols
+         writeIORef cMap (beg++setter acc:end)
 
 data CustomTreeModelImplementation model row = CustomTreeModelImplementation {
     customTreeModelColumns   	:: ColumnMap row,	                -- provide access via columns
@@ -242,6 +278,7 @@ caToGType (CAInt _) = GConst.int
 caToGType (CABool _) = GConst.bool
 caToGType (CAString _) = GConst.string
 caToGType (CAPixbuf _) = {#call fun unsafe gdk_pixbuf_get_type#}
+caToGType CAInvalid = GConst.invalid
 
 treeModelIfaceGetColumnType_static :: StablePtr (CustomTreeModelImplementation model row) -> CInt -> IO GType
 treeModelIfaceGetColumnType_static storePtr column = do

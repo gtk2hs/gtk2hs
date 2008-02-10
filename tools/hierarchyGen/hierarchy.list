@@ -179,6 +179,7 @@
             GtkTreeStore
             GtkListStore
 	GtkTreeModelSort
+	GtkTreeModelFilter		if gtk-2.4
 	GtkIconFactory
 	GtkSizeGroup
 	GtkClipboard			if gtk-2.2

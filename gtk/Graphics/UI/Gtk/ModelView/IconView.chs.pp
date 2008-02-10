@@ -61,9 +61,12 @@ module Graphics.UI.Gtk.ModelView.IconView (
 -- * Methods
   iconViewSetModel,
   iconViewGetModel,
-  iconViewSetTextSource,
-  iconViewSetMarkupSource,
-  iconViewSetPixbufSource,
+  iconViewSetTextColumn,
+  iconViewGetTextColumn,
+  iconViewSetMarkupColumn,
+  iconViewGetMarkupColumn,
+  iconViewSetPixbufColumn,
+  iconViewGetPixbufColumn,
   iconViewGetPathAtPos,
   iconViewSelectedForeach,
   iconViewSetSelectionMode,
@@ -105,9 +108,9 @@ module Graphics.UI.Gtk.ModelView.IconView (
 
 -- * Attributes
   iconViewSelectionMode,
-  iconViewTextSource,
-  iconViewMarkupSource,
-  iconViewPixbufSource,
+  iconViewTextColumn,
+  iconViewMarkupColumn,
+  iconViewPixbufColumn,
   iconViewModel,
   iconViewColumns,
   iconViewItemWidth,
@@ -209,87 +212,71 @@ iconViewGetModel self =
     (toIconView self)
 
 -- %hash c:c3fe d:fb7b
--- | Sets the source of the text for entries in the 'IconView'. The given
--- model must be set beforehand using 'iconViewSetModel'. If a markup source
--- is set using 'iconViewSetMarkupSource', then the text source is ignored.
+-- | Sets the column of the text for entries in the 'IconView'. If a markup
+-- source is set using 'iconViewSetMarkupSource', then the text source is
+-- ignored.
 --
-iconViewSetTextSource :: (IconViewClass self,
-			  TreeModelClass (model row),
-			  TypedTreeModelClass model)
-  => self -- ^ the 'IconView' widget
-  -> Maybe (model row, row -> String)
-  -- ^ The model and a function to extract	 
-  -- a string from the model. If set to @Nothing@, the mapping is reset.
-  -> IO ()
-iconViewSetTextSource self Nothing =
+iconViewSetTextColumn :: IconViewClass self => self
+ -> ColumnId row String -- ^ @column@ - A column in the currently used model.
+ -> IO ()
+iconViewSetTextColumn self column =
   {# call gtk_icon_view_set_text_column #}
-    (toIconView self) (-1)
-iconViewSetTextSource self (Just (model,extract)) = do
-  modelPtr <- {#call unsafe gtk_icon_view_get_model#} (toIconView self)
-  let (TreeModel modelFPtr) = toTreeModel model
-  if modelPtr/=unsafeForeignPtrToPtr modelFPtr then
-    error ("iconViewSetTextSource: given model is different from what "++
-	   "iconViewGetModel returns") else do
-  col <- {# call gtk_icon_view_get_text_column #} (toIconView self)
-  col <- treeModelUpdateColumn model (fromIntegral col) (CAString extract)
-  {#call gtk_icon_view_set_text_column #} (toIconView self) (fromIntegral col)
+    (toIconView self)
+    ((fromIntegral . columnIdToNumber) column)
 
+-- | Returns the column with text for @iconView@.
+--
+iconViewGetTextColumn :: IconViewClass self => self
+ -> IO (ColumnId row String) -- ^ returns the text column, or 'invalidColumnId' if it's unset.
+iconViewGetTextColumn self =
+  liftM (makeColumnIdString . fromIntegral) $
+  {# call gtk_icon_view_get_text_column #}
+    (toIconView self)
+    
 
 -- %hash c:995f d:801c
--- | Sets the source of the text for entries in the 'IconView' as a markup
--- string (see 'Graphics.UI.Gtk.Pango.Markup'). The given model must be set
--- beforehand using 'iconViewSetModel'. A text source that is set using
--- 'iconViewSetTextSource' is ignored once a markup source is set.
+-- | Sets the column of the text for entries in the 'IconView' as a markup
+-- string (see 'Graphics.UI.Gtk.Pango.Markup'). A text source that is set
+-- using 'iconViewSetTextSource' is ignored once a markup source is set.
 --
-iconViewSetMarkupSource :: (IconViewClass self,
-			  TreeModelClass (model row),
-			  TypedTreeModelClass model)
-  => self -- ^ the 'IconView' widget
-  -> Maybe (model row, row -> Markup)
-  -- ^ The model and a function to extract	 
-  -- a string from the model. If set to @Nothing@, the mapping is reset.
-  -> IO ()
-iconViewSetMarkupSource self Nothing =
+iconViewSetMarkupColumn :: IconViewClass self => self
+ -> ColumnId row Markup -- ^ @column@ - A column in the currently used model.
+ -> IO ()
+iconViewSetMarkupColumn self column =
   {# call gtk_icon_view_set_markup_column #}
-    (toIconView self) (-1)
-iconViewSetMarkupSource self (Just (model,extract)) = do
-  modelPtr <- {#call unsafe gtk_icon_view_get_model#} (toIconView self)
-  let (TreeModel modelFPtr) = toTreeModel model
-  if modelPtr/=unsafeForeignPtrToPtr modelFPtr then
-    error ("iconViewSetMarkupSource: given model is different from what "++
-	   "iconViewGetModel returns") else do
-  col <- {# call gtk_icon_view_get_markup_column #} (toIconView self)
-  col <- treeModelUpdateColumn model (fromIntegral col) (CAString extract)
-  {#call gtk_icon_view_set_markup_column #} (toIconView self)
-    (fromIntegral col)
+    (toIconView self)
+    ((fromIntegral . columnIdToNumber) column)
+
+-- | Returns the column with markup text for @iconView@.
+--
+iconViewGetMarkupColumn :: IconViewClass self => self
+ -> IO (ColumnId row Markup) -- ^ returns the markup column, or 'invalidColumnId' if it's unset.
+iconViewGetMarkupColumn self =
+  liftM (makeColumnIdString . fromIntegral) $
+  {# call gtk_icon_view_get_markup_column #}
+    (toIconView self)
 
 
 -- %hash c:4079 d:bf8
--- | Sets the source of the 'Graphics.UI.Gtk.Gdk.Pixbuf' for entries in the
--- 'IconView'. The given model must be set beforehand using
--- 'iconViewSetModel'.
+-- | Sets the column of the 'Graphics.UI.Gtk.Gdk.Pixbuf' for entries in the
+-- 'IconView'.
 --
-iconViewSetPixbufSource :: (IconViewClass self,
-			  TreeModelClass (model row),
-			  TypedTreeModelClass model)
-  => self -- ^ the 'IconView' widget
-  -> Maybe (model row, row -> Pixbuf)
-  -- ^ The model and a function to extract	 
-  -- a 'Graphics.UI.Gtk.Gdk.Pixbuf' from the model. If set to @Nothing@, the
-  -- mapping is reset.
-  -> IO ()
-iconViewSetPixbufSource self Nothing =
-  {# call gtk_icon_view_set_pixbuf_column #} (toIconView self) (-1)
-iconViewSetPixbufSource self (Just (model,extract)) = do
-  modelPtr <- {#call unsafe gtk_icon_view_get_model#} (toIconView self)
-  let (TreeModel modelFPtr) = toTreeModel model
-  if modelPtr/=unsafeForeignPtrToPtr modelFPtr then
-    error ("iconViewSetPixbufSource: given model is different from what "++
-	   "iconViewGetModel returns") else do
-  col <- {# call gtk_icon_view_get_pixbuf_column #} (toIconView self)
-  col <- treeModelUpdateColumn model (fromIntegral col) (CAPixbuf extract)
-  {#call gtk_icon_view_set_pixbuf_column #} (toIconView self)
-    (fromIntegral col)
+iconViewSetPixbufColumn :: IconViewClass self => self
+ -> ColumnId row Pixbuf -- ^ @column@ - A column in the currently used model.
+ -> IO ()
+iconViewSetPixbufColumn self column =
+  {# call gtk_icon_view_set_pixbuf_column #}
+    (toIconView self)
+    ((fromIntegral . columnIdToNumber) column)
+
+-- | Returns the column with pixbufs for @iconView@.
+--
+iconViewGetPixbufColumn :: IconViewClass self => self
+ -> IO (ColumnId row Pixbuf) -- ^ returns the pixbuf column, or 'invalidColumnId' if it's unset.
+iconViewGetPixbufColumn self =
+  liftM (makeColumnIdPixbuf . fromIntegral) $
+  {# call gtk_icon_view_get_pixbuf_column #}
+    (toIconView self)
 
 -- %hash c:2486 d:5e7
 -- | Finds the path at the point (@x@, @y@), relative to widget coordinates.
@@ -845,38 +832,42 @@ iconViewSelectionMode = newAttr
   iconViewSetSelectionMode
 
 -- %hash c:4ce5 d:c77a
--- | Sets the source of the 'Graphics.UI.Gtk.Gdk.Pixbuf' for entries in the
--- 'IconView'. The given model must be set beforehand using
--- 'iconViewSetModel'.
+-- | The 'iconViewPixbufColumn' property contains the number of the model column
+-- containing the pixbufs which are displayed. Setting this property to
+-- 'invalidColumnId' turns off the display of pixbufs.
 --
-iconViewPixbufSource :: (IconViewClass self,
-		       TreeModelClass (model row),
-		       TypedTreeModelClass model) =>
-		       WriteAttr self (Maybe (model row, row -> Pixbuf))
-iconViewPixbufSource = writeAttr iconViewSetPixbufSource
+-- Default value: 'invalidColumnId'
+--
+iconViewPixbufColumn :: IconViewClass self => Attr self (ColumnId row Pixbuf)
+iconViewPixbufColumn = newAttr
+  iconViewGetPixbufColumn
+  iconViewSetPixbufColumn
 
 -- %hash c:702a d:f7ed
--- | Sets the source of the text for entries in the 'IconView'. The given
--- model must be set beforehand using 'iconViewSetModel'. If a markup source
--- is set using 'iconViewSetMarkupSource', then the text source is ignored.
+-- | The 'iconViewTextColumn' property contains the number of the model column
+-- containing the texts which are displayed. If this property and the
+-- 'iconViewMarkupColumn' property are both set to 'invalidColumnId', no texts
+-- are displayed.
 --
-iconViewTextSource :: (IconViewClass self,
-		       TreeModelClass (model row),
-		       TypedTreeModelClass model) =>
-		       WriteAttr self (Maybe (model row, row -> String))
-iconViewTextSource = writeAttr iconViewSetTextSource
+-- Default value: 'invalidColumnId'
+--
+iconViewTextColumn :: IconViewClass self => Attr self (ColumnId row String)
+iconViewTextColumn = newAttr
+  iconViewGetTextColumn
+  iconViewSetTextColumn
 
 -- %hash c:37cb d:ee83
--- | Sets the source of the text for entries in the 'IconView' as a markup
--- string (see 'Graphics.UI.Gtk.Pango.Markup'). The given model must be set
--- beforehand using 'iconViewSetModel'. A text source that is set using
--- 'iconViewSetTextSource' is ignored once a markup source is set.
+-- | The 'iconViewMarkupColumn' property contains the number of the model column
+-- containing markup information to be displayed. If this property and the
+-- 'iconViewTextColumn' property are both set to column numbers, it overrides the text
+-- column. If both are set to 'invalidColumnId', no texts are displayed.
 --
-iconViewMarkupSource :: (IconViewClass self,
-		       TreeModelClass (model row),
-		       TypedTreeModelClass model) =>
-		       WriteAttr self (Maybe (model row, row -> Markup))
-iconViewMarkupSource = writeAttr iconViewSetMarkupSource
+-- Default value: 'invalidColumnId'
+--
+iconViewMarkupColumn :: IconViewClass self => Attr self (ColumnId row Markup)
+iconViewMarkupColumn = newAttr
+  iconViewGetMarkupColumn
+  iconViewSetMarkupColumn
 
 -- %hash c:723d
 -- | The model for the icon view.

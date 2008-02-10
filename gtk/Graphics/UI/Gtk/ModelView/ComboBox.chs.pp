@@ -22,7 +22,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- A widget used to choose from a list of items
+-- A widget used to choose from a list of items.
 --
 -- * Module available since Gtk+ version 2.4
 --
@@ -74,11 +74,18 @@ module Graphics.UI.Gtk.ModelView.ComboBox (
   comboBoxNewWithModel,
 
 -- * Methods
-  comboBoxSetWrapWidth,
-  comboBoxSetRowSpanSource,
 #if GTK_CHECK_VERSION(2,6,0)
-  comboBoxSetColumnSpanSource,
+  comboBoxGetWrapWidth,
 #endif
+  comboBoxSetWrapWidth,
+#if GTK_CHECK_VERSION(2,6,0)
+  comboBoxGetRowSpanColumn,
+#endif
+  comboBoxSetRowSpanColumn,
+#if GTK_CHECK_VERSION(2,6,0)
+  comboBoxGetColumnSpanColumn,
+#endif
+  comboBoxSetColumnSpanColumn,
   comboBoxGetActive,
   comboBoxSetActive,
   comboBoxGetActiveIter,
@@ -88,25 +95,24 @@ module Graphics.UI.Gtk.ModelView.ComboBox (
   comboBoxPopup,
   comboBoxPopdown,
 #if GTK_CHECK_VERSION(2,6,0)
-  comboBoxGetWrapWidth,
-  comboBoxSetAddTearoffs,
-#endif
-  comboBoxGetAddTearoffs,
-#if GTK_CHECK_VERSION(2,6,0)
-  comboBoxSetFocusOnClick,
-  comboBoxGetFocusOnClick,
   comboBoxSetRowSeparatorSource,
+  comboBoxSetAddTearoffs,
+  comboBoxGetAddTearoffs,
 #if GTK_CHECK_VERSION(2,10,0)
   comboBoxSetTitle,
   comboBoxGetTitle,
 #endif
+  comboBoxSetFocusOnClick,
+  comboBoxGetFocusOnClick,
 #endif
 
 -- * Attributes
   comboBoxModel,
   comboBoxWrapWidth,
+#if GTK_CHECK_VERSION(2,6,0)
   comboBoxRowSpanColumn,
   comboBoxColumnSpanColumn,
+#endif
   comboBoxActive,
 #if GTK_CHECK_VERSION(2,6,0)
   comboBoxAddTearoffs,
@@ -145,9 +151,7 @@ import System.Glib.GObject		(makeNewGObject,
                                             TreeIter,
                                             receiveTreeIter)
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.ModelView.CustomStore#} (treeModelUpdateColumn,
-                                                  treeModelGetRow,
-                                                  ColumnAccess(CAInt))
+{#import Graphics.UI.Gtk.ModelView.CustomStore#} 
 import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew )
 import Graphics.UI.Gtk.ModelView.CellLayout ( cellLayoutSetAttributes,
 					      cellLayoutPackStart )
@@ -200,9 +204,8 @@ comboBoxNewWithModel model =
 --------------------
 -- Methods
 
--- %hash d:566e
--- | Sets the wrap width of @comboBox@ to be @width@. The wrap width is
 #if GTK_CHECK_VERSION(2,6,0)
+-- %hash d:566e
 -- | Returns the wrap width which is used to determine the number of columns
 -- for the popup menu. If the wrap width is larger than 1, the combo box is in
 -- table mode.
@@ -214,6 +217,7 @@ comboBoxGetWrapWidth self =
   liftM fromIntegral $
   {# call gtk_combo_box_get_wrap_width #}
     (toComboBox self)
+#endif
 
 -- | Sets the wrap width of the combo box to be @width@. The wrap width is
 -- basically the preferred number of columns when you want the popup to be
@@ -225,63 +229,51 @@ comboBoxSetWrapWidth self width =
     (toComboBox self)
     (fromIntegral width)
 
--- %hash d:f80b
--- | Sets the source of the row span information for the combo box. The
--- row span source contains integers which indicate how many rows an
--- item should span.
+#if GTK_CHECK_VERSION(2,6,0)
+-- | Gets the column with row span information for @comboBox@.
 --
-comboBoxSetRowSpanSource :: (ComboBoxClass self,
-			     TreeModelClass (model row),
-			     TypedTreeModelClass model)
-  => self -- ^ the 'ComboBox' widget
-  -> Maybe (model row, row -> Int)
-    -- ^ The model and a function to extract the number of rows
-    -- from the model. If set to @Nothing@, the mapping is reset.
-  -> IO ()
-comboBoxSetRowSpanSource self Nothing =
+-- * Available since Gtk+ version 2.6
+--
+comboBoxGetRowSpanColumn :: ComboBoxClass self => self -> IO (ColumnId row Int)
+comboBoxGetRowSpanColumn self =
+  liftM (makeColumnIdInt . fromIntegral) $
+  {# call gtk_combo_box_get_row_span_column #}
+    (toComboBox self)
+#endif
+
+-- %hash d:f80b
+-- | Sets the column with row span information for @comboBox@ to be @rowSpan@.
+-- The row span column contains integers which indicate how many rows an item
+-- should span.
+--
+comboBoxSetRowSpanColumn :: ComboBoxClass self => self -> ColumnId row Int -> IO ()
+comboBoxSetRowSpanColumn self rowSpan =
   {# call gtk_combo_box_set_row_span_column #}
-    (toComboBox self) (-1)
-comboBoxSetRowSpanSource self (Just (model, extract)) = do
-  modelPtr <- {#call unsafe gtk_combo_box_get_model#} (toComboBox self)
-  let (TreeModel modelFPtr) = toTreeModel model
-  if modelPtr/=unsafeForeignPtrToPtr modelFPtr then
-    error ("comboBoxSetRowSpanSource: given model is different from what "++
-	   "comboBoxGetModel returns") else do
-  col <- {# call gtk_combo_box_get_row_span_column #} (toComboBox self)
-  col <- treeModelUpdateColumn model (fromIntegral col) (CAInt extract)
-  {#call gtk_combo_box_set_row_span_column #} (toComboBox self)
-    (fromIntegral col)
+    (toComboBox self)
+    ((fromIntegral . columnIdToNumber) rowSpan)
 
 #if GTK_CHECK_VERSION(2,6,0)
+-- | Gets the source of the column span information for the combo box.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxGetColumnSpanColumn :: ComboBoxClass self => self -> IO (ColumnId row Int)
+comboBoxGetColumnSpanColumn self =
+  liftM (makeColumnIdInt . fromIntegral) $
+  {# call gtk_combo_box_get_column_span_column #}
+    (toComboBox self)
+#endif
+
 -- %hash d:4303
 -- | Sets the source of the column span information for the combo box. The
 -- column span source contains integers which indicate how many columns an
 -- item should span.
 --
--- * Available since Gtk+ version 2.6
---
-comboBoxSetColumnSpanSource ::  (ComboBoxClass self,
-			        TreeModelClass (model row),
-			        TypedTreeModelClass model)
-  => self -- ^ the 'ComboBox' widget
-  -> Maybe (model row, row -> Int)
-    -- ^ The model and a function to extract the number of rows
-    -- from the model. If set to @Nothing@, the mapping is reset.
-  -> IO ()
-comboBoxSetColumnSpanSource self Nothing =
+comboBoxSetColumnSpanColumn :: ComboBoxClass self => self -> ColumnId row Int -> IO ()
+comboBoxSetColumnSpanColumn self columnSpan =
   {# call gtk_combo_box_set_column_span_column #}
-    (toComboBox self) (-1)
-comboBoxSetColumnSpanSource self (Just (model, extract)) = do
-  modelPtr <- {#call unsafe gtk_combo_box_get_model#} (toComboBox self)
-  let (TreeModel modelFPtr) = toTreeModel model
-  if modelPtr/=unsafeForeignPtrToPtr modelFPtr then
-    error ("comboBoxSetRowSpanSource: given model is different from what "++
-	   "comboBoxGetModel returns") else do
-  col <- {# call gtk_combo_box_get_column_span_column #} (toComboBox self)
-  col <- treeModelUpdateColumn model (fromIntegral col) (CAInt extract)
-  {#call gtk_combo_box_set_column_span_column #} (toComboBox self)
-    (fromIntegral col)
-#endif
+    (toComboBox self)
+    ((fromIntegral . columnIdToNumber) columnSpan)
 
 -- %hash c:e719 d:e6a
 -- | Returns the index of the currently active item, or -1 if there's no
@@ -383,60 +375,7 @@ comboBoxPopdown self =
   {# call gtk_combo_box_popdown #}
     (toComboBox self)
 
--- %hash c:5bf8
--- | Sets whether the popup menu should have a tearoff menu item.
---
--- * Available since Gtk+ version 2.6
---
-comboBoxSetAddTearoffs :: ComboBoxClass self => self
- -> Bool -- ^ @addTearoffs@ - @True@ to add tearoff menu items
- -> IO ()
-comboBoxSetAddTearoffs self addTearoffs =
-  {# call gtk_combo_box_set_add_tearoffs #}
-    (toComboBox self)
-    (fromBool addTearoffs)
-#endif
-
--- | Gets the current value of the :add-tearoffs property.
---
-comboBoxGetAddTearoffs :: ComboBoxClass self => self -> IO Bool
-comboBoxGetAddTearoffs self =
-  liftM toBool $
-  {# call gtk_combo_box_get_add_tearoffs #}
-    (toComboBox self)
-
 #if GTK_CHECK_VERSION(2,6,0)
--- %hash c:fe18
--- | Sets whether the combo box will grab focus when it is clicked with the
--- mouse. Making mouse clicks not grab focus is useful in places like toolbars
--- where you don't want the keyboard focus removed from the main area of the
--- application.
---
--- * Available since Gtk+ version 2.6
---
-comboBoxSetFocusOnClick :: ComboBoxClass self => self
- -> Bool  -- ^ @focusOnClick@ - whether the combo box grabs focus when clicked
-          -- with the mouse
- -> IO ()
-comboBoxSetFocusOnClick self focusOnClick =
-  {# call gtk_combo_box_set_focus_on_click #}
-    (toComboBox self)
-    (fromBool focusOnClick)
-
--- %hash c:9168
--- | Returns whether the combo box grabs focus when it is clicked with the
--- mouse. See 'comboBoxSetFocusOnClick'.
---
--- * Available since Gtk+ version 2.6
---
-comboBoxGetFocusOnClick :: ComboBoxClass self => self
- -> IO Bool -- ^ returns @True@ if the combo box grabs focus when it is
-            -- clicked with the mouse.
-comboBoxGetFocusOnClick self =
-  liftM toBool $
-  {# call gtk_combo_box_get_focus_on_click #}
-    (toComboBox self)
-
 -- %hash c:6fec d:a050
 -- | Installs a mapping from the model to a row separator flag, which is used
 -- to determine whether a row should be drawn as a separator. If the row
@@ -469,6 +408,27 @@ comboBoxSetRowSeparatorSource self (Just (model, extract)) = do
 foreign import ccall "wrapper" mkRowSeparatorFunc ::
   (Ptr TreeModel -> Ptr TreeIter -> IO Bool) -> IO TreeViewRowSeparatorFunc
 
+-- %hash c:5bf8
+-- | Sets whether the popup menu should have a tearoff menu item.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxSetAddTearoffs :: ComboBoxClass self => self
+ -> Bool -- ^ @addTearoffs@ - @True@ to add tearoff menu items
+ -> IO ()
+comboBoxSetAddTearoffs self addTearoffs =
+  {# call gtk_combo_box_set_add_tearoffs #}
+    (toComboBox self)
+    (fromBool addTearoffs)
+
+-- | Gets the current value of the :add-tearoffs property.
+--
+comboBoxGetAddTearoffs :: ComboBoxClass self => self -> IO Bool
+comboBoxGetAddTearoffs self =
+  liftM toBool $
+  {# call gtk_combo_box_get_add_tearoffs #}
+    (toComboBox self)
+
 #if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:64db d:ecde
 -- | Sets the menu's title in tearoff mode.
@@ -491,13 +451,43 @@ comboBoxSetTitle self title =
 -- * Available since Gtk+ version 2.10
 --
 comboBoxGetTitle :: ComboBoxClass self => self
- -> IO String -- ^ returns the menu's title in tearoff mode. This is an
-              -- internal copy of the string which must not be freed.
+ -> IO String -- ^ returns the menu's title in tearoff mode.
 comboBoxGetTitle self =
   {# call gtk_combo_box_get_title #}
     (toComboBox self)
   >>= peekUTFString
 #endif
+
+-- %hash c:fe18
+-- | Sets whether the combo box will grab focus when it is clicked with the
+-- mouse. Making mouse clicks not grab focus is useful in places like toolbars
+-- where you don't want the keyboard focus removed from the main area of the
+-- application.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxSetFocusOnClick :: ComboBoxClass self => self
+ -> Bool  -- ^ @focusOnClick@ - whether the combo box grabs focus when clicked
+          -- with the mouse
+ -> IO ()
+comboBoxSetFocusOnClick self focusOnClick =
+  {# call gtk_combo_box_set_focus_on_click #}
+    (toComboBox self)
+    (fromBool focusOnClick)
+
+-- %hash c:9168
+-- | Returns whether the combo box grabs focus when it is clicked with the
+-- mouse. See 'comboBoxSetFocusOnClick'.
+--
+-- * Available since Gtk+ version 2.6
+--
+comboBoxGetFocusOnClick :: ComboBoxClass self => self
+ -> IO Bool -- ^ returns @True@ if the combo box grabs focus when it is
+            -- clicked with the mouse.
+comboBoxGetFocusOnClick self =
+  liftM toBool $
+  {# call gtk_combo_box_get_focus_on_click #}
+    (toComboBox self)
 #endif
 
 --------------------
@@ -521,44 +511,38 @@ comboBoxModel = newAttrFromObjectProperty "model"
 comboBoxWrapWidth :: ComboBoxClass self => Attr self Int
 comboBoxWrapWidth = newAttrFromIntProperty "wrap-width"
 
+#if GTK_CHECK_VERSION(2,6,0)
 -- %hash c:a445
--- | If this is set to a non-negative value, it must be the index of a column
--- of type @G_TYPE_INT@ in the model.
---
--- The values of that column are used to determine how many rows a value in
+-- | The values of that column are used to determine how many rows a value in
 -- the list will span. Therefore, the values in the model column pointed to by
 -- this property must be greater than zero and not larger than wrap-width.
 --
--- Allowed values: >= -1
+-- Default value: 'invalidColumnId'
 --
--- Default value: -1
+-- * Available since Gtk+ version 2.6
 --
-comboBoxRowSpanColumn :: ComboBoxClass self => Attr self Int
-comboBoxRowSpanColumn = newAttrFromIntProperty "row-span-column"
+comboBoxRowSpanColumn :: ComboBoxClass self => Attr self (ColumnId row Int)
+comboBoxRowSpanColumn = newAttr
+  comboBoxGetRowSpanColumn
+  comboBoxSetRowSpanColumn
 
 -- %hash c:7ec7
--- | If this is set to a non-negative value, it must be the index of a column
--- of type @G_TYPE_INT@ in the model.
---
--- The values of that column are used to determine how many columns a value
+-- | The values of that column are used to determine how many columns a value
 -- in the list will span.
 --
--- Allowed values: >= -1
+-- Default value: 'invalidColumnId'
 --
--- Default value: -1
+-- * Available since Gtk+ version 2.6
 --
-comboBoxColumnSpanColumn :: ComboBoxClass self => Attr self Int
-comboBoxColumnSpanColumn = newAttrFromIntProperty "column-span-column"
+comboBoxColumnSpanColumn :: ComboBoxClass self => Attr self (ColumnId row Int)
+comboBoxColumnSpanColumn = newAttr
+  comboBoxGetColumnSpanColumn
+  comboBoxSetColumnSpanColumn
+#endif
 
 -- %hash c:f777 d:507b
--- | The item which is currently active. If the model is a non-flat treemodel,
--- and the active item is not an immediate child of the root of the tree, this
--- property has the value @gtk_tree_path_get_indices (path)[0]@, where @path@
--- is the 'TreePath' of the active item.
---
--- Allowed values: >= -1
---
--- Default value: -1
+-- | The item which is currently active. This value only makes sense for
+--   a list model.
 --
 comboBoxActive :: ComboBoxClass self => Attr self Int
 comboBoxActive = newAttrFromIntProperty "active"
