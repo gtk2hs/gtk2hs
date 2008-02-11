@@ -22,7 +22,7 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- Renders a combobox in a cell
+-- Renders a combo box in a cell
 --
 -- * Module available since Gtk+ version 2.6
 --
