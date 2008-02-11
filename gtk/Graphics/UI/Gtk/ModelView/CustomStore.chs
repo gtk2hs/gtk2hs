@@ -278,7 +278,7 @@ caToGType (CAInt _) = GConst.int
 caToGType (CABool _) = GConst.bool
 caToGType (CAString _) = GConst.string
 caToGType (CAPixbuf _) = {#call fun unsafe gdk_pixbuf_get_type#}
-caToGType CAInvalid = GConst.invalid
+caToGType CAInvalid = GConst.int -- to avoid warnings of functions that iterate through all columns
 
 treeModelIfaceGetColumnType_static :: StablePtr (CustomTreeModelImplementation model row) -> CInt -> IO GType
 treeModelIfaceGetColumnType_static storePtr column = do
@@ -342,7 +342,8 @@ treeModelIfaceGetValue_static storePtr iterPtr column gvaluePtr = do
       (CAString ca) -> valueInit gVal GConst.string >> valueSetString gVal (ca row)
       (CAPixbuf ca) -> valueInit gVal {#call fun unsafe gdk_pixbuf_get_type#} >>
 			valueSetGObject gVal (ca row)
-
+      CAInvalid -> valueInit gVal GConst.int >> valueSetInt gVal 0
+      
 foreign export ccall "gtk2hs_store_get_value_impl"
   treeModelIfaceGetValue_static :: StablePtr (CustomTreeModelImplementation model row) -> Ptr TreeIter -> CInt -> Ptr GValue -> IO ()
 

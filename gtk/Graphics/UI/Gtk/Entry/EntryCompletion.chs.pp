@@ -135,8 +135,10 @@ import System.Glib.GObject		(constructNewGObject,
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.TreeList.TreeIter#} (TreeIter)
-
+{#import Graphics.UI.Gtk.ModelView.Types#} (TreeIter)
+{#import Graphics.UI.Gtk.ModelView.CustomStore#} (ColumnId(..),
+                                                  makeColumnIdString,
+                                                  columnIdToNumber)
 {# context lib="gtk" prefix="gtk" #}
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -303,13 +305,13 @@ entryCompletionDeleteAction self index =
 -- column.
 --
 entryCompletionSetTextColumn :: EntryCompletion
- -> Int             -- ^ @column@ - The column in the model of @completion@ to
-                    -- get strings from.
+ -> ColumnId row String -- ^ @column@ - The column in the model of @completion@ to
+                        -- get strings from.
  -> IO ()
 entryCompletionSetTextColumn self column =
   {# call gtk_entry_completion_set_text_column #}
     self
-    (fromIntegral column)
+    ((fromIntegral . columnIdToNumber) column)
 
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Requests a prefix insertion.
@@ -326,9 +328,9 @@ entryCompletionInsertPrefix self =
 -- * Available since Gtk+ version 2.6
 --
 entryCompletionGetTextColumn :: EntryCompletion
- -> IO Int          -- ^ returns the column containing the strings
+ -> IO (ColumnId row String)  -- ^ returns the column containing the strings
 entryCompletionGetTextColumn self =
-  liftM fromIntegral $
+  liftM (makeColumnIdString . fromIntegral) $
   {# call gtk_entry_completion_get_text_column #}
     self
 
@@ -462,11 +464,9 @@ entryCompletionMinimumKeyLength = newAttr
 #if GTK_CHECK_VERSION(2,6,0)
 -- | The column of the model containing the strings.
 --
--- Allowed values: >= -1
+-- Default value: 'Graphics.UI.Gtk.ModelView.CustomStore.invalidColumnId'
 --
--- Default value: -1
---
-entryCompletionTextColumn :: Attr EntryCompletion Int
+entryCompletionTextColumn :: Attr EntryCompletion (ColumnId row String)
 entryCompletionTextColumn = newAttr
   entryCompletionGetTextColumn
   entryCompletionSetTextColumn
