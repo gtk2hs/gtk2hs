@@ -1960,7 +1960,8 @@ htmldoc_HSFILES_HIDDEN				+=			\
 	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.hs		\
-	gstreamer/Media/Streaming/GStreamer/Base/Types.hs
+	gstreamer/Media/Streaming/GStreamer/Base/Types.hs		\
+	gstreamer/Media/Streaming/GStreamer/Controller/Types.hs
 
 EXTRA_DIST +=					\
 	gstreamer/hsgstreamer.h			\
