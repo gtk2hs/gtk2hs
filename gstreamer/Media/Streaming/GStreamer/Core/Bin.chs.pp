@@ -54,8 +54,8 @@ module Media.Streaming.GStreamer.Core.Bin (
   --   'binIterateElements'. Various other iterators exist to retrieve
   --   the elements in a bin.
   --   
-  --   The 'onBinElementAdded' signal is fired whenever a new element is
-  --   added to the bin. Likewise the 'onBinElementRemoved' signal is
+  --   The 'binElementAdded' signal is fired whenever a new element is
+  --   added to the bin. Likewise the 'binElementRemoved' signal is
   --   fired whenever an element is removed from the bin.
 
 -- * Types
@@ -84,10 +84,8 @@ module Media.Streaming.GStreamer.Core.Bin (
   binFindUnconnectedPad,
   
 -- * Bin Signals
-  onBinElementAdded,
-  afterBinElementAdded,
-  onBinElementRemoved,
-  afterBinElementRemoved
+  binElementAdded,
+  binElementRemoved
   
   ) where
 
@@ -243,23 +241,14 @@ binFindUnconnectedPad bin direction =
         maybePeek takeObject
 #endif
 
+-- | An 'Element' has been added to the 'Bin'.
+binElementAdded :: BinClass bin
+                => Signal bin (Element -> IO ())
+binElementAdded =
+    Signal $ connect_OBJECT__NONE "element-added"
 
--- | Handle the signal emitted when an 'Element' is added to a 'Bin'.
-onBinElementAdded, afterBinElementAdded :: BinClass bin
-                                        => bin                -- ^ a bin
-                                        -> (Element -> IO ()) -- ^ the signal handler
-                                        -> IO (ConnectId bin) -- ^ the connection id
-onBinElementAdded =
-    connect_OBJECT__NONE "element-added" False
-afterBinElementAdded =
-    connect_OBJECT__NONE "element-added" True
-
--- | Handle the signal emitted when an 'Element' is removed from a 'Bin'.
-onBinElementRemoved, afterBinElementRemoved :: BinClass bin
-                                            => bin                -- ^ a bin
-                                            -> (Element -> IO ()) -- ^ the signal handler
-                                            -> IO (ConnectId bin) -- ^ the connection id
-onBinElementRemoved =
-    connect_OBJECT__NONE "element-removed" False
-afterBinElementRemoved =
-    connect_OBJECT__NONE "element-removed" True
+-- | An 'Element' has been removed from the 'Bin'.
+binElementRemoved :: BinClass bin
+                  => Signal bin (Element -> IO ())
+binElementRemoved =
+    Signal $ connect_OBJECT__NONE "element-added"

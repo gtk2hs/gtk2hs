@@ -105,10 +105,8 @@ module Media.Streaming.GStreamer.Core.Bus (
   busPoll,
   
 -- * Bus Signals
-  onBusMessage,
-  afterBusMessage,
-  onBusSyncMessage,
-  afterBusSyncMessage
+  busMessage,
+  busSyncMessage,
   
   ) where
 
@@ -358,7 +356,7 @@ busAddWatch bus priority func =
                nullPtr
                destroyNotify
 
--- | Instructs GStreamer to stop emitting the @"sync-message"@ signal
+-- | Instructs GStreamer to stop emitting the 'busSyncMessage' signal
 --   for this bus. See 'busEnableSyncMessageEmission' for more
 --   information.
 --   
@@ -373,7 +371,7 @@ busDisableSyncMessageEmission :: BusClass busT
 busDisableSyncMessageEmission =
     {# call bus_disable_sync_message_emission #} . toBus
 
--- | Instructs GStreamer to emit the @"sync-message"@ signal after
+-- | Instructs GStreamer to emit the 'busSyncMessage' signal after
 --   running the bus's sync handler. This function is here so that
 --   programmers can ensure that they can synchronously receive
 --   messages without having to affect what the bin's sync handler is.
@@ -386,8 +384,8 @@ busDisableSyncMessageEmission =
 --   not exactly the same -- this function enables synchronous
 --   emission of signals when messages arrive; 'busAddSignalWatch'
 --   adds an idle callback to pop messages off the bus
---   asynchronously. The @"sync-message"@ signal comes from the thread
---   of whatever object posted the message; the @"message"@ signal is
+--   asynchronously. The 'busSyncMessage' signal comes from the thread
+--   of whatever object posted the message; the 'busMessage' signal is
 --   marshalled to the main thread via the main loop.
 busEnableSyncMessageEmission :: BusClass busT
                              => busT
@@ -397,7 +395,7 @@ busEnableSyncMessageEmission =
 
 -- | Adds a bus signal watch to the default main context with the
 --   given priority. After calling this method, the bus will emit the
---   @"message"@ signal for each message posted on the bus.
+--   'busMessage' signal for each message posted on the bus.
 --   
 --   This function may be called multiple times. To clean up, the
 --   caller is responsible for calling 'busRemoveSignalWatch' as many
@@ -423,10 +421,10 @@ busRemoveSignalWatch =
 --   
 --   Messages not in @events@ will be popped off the bus and ignored.
 --   
---   Because 'busPoll' is implemented using the @"message"@ signal
+--   Because 'busPoll' is implemented using the 'busMessage' signal
 --   enabled by 'busAddSignalWatch', calling 'busPoll' will cause the
---   @"message"@ signal to be emitted for every message that the
---   function sees. Thus, a @"message"@ signal handler will see every
+--   'busMessage' signal to be emitted for every message that the
+--   function sees. Thus, a 'busMessage' signal handler will see every
 --   message that 'busPoll' sees -- neither will steal messages from
 --   the other.
 --   
@@ -442,17 +440,12 @@ busPoll bus events timeout =
                         (fromIntegral timeout) >>=
         takeMiniObject
 
--- | Connect to the @"message"@ signal. Emitted from a 'Source' added
---   to the mainloop. This signal will only be emitted when there is a
---   'MainLoop' running.
-onBusMessage, afterBusMessage :: BusClass bus
-                              => bus
-                              -> (Message -> IO ())
-                              -> IO (ConnectId bus)
-onBusMessage =
-    connect_BOXED__NONE "message" peekMiniObject False
-afterBusMessage =
-    connect_BOXED__NONE "message" peekMiniObject True
+-- | A message has been posted on the bus. This signal is emitted from
+--   a 'Source' added to the 'MainLoop', and only when it is running.
+busMessage :: BusClass bus
+           => Signal bus (Message -> IO ())
+busMessage =
+    Signal $ connect_BOXED__NONE "message" peekMiniObject
 
 -- | A message has been posted on the bus. This signal is emitted from
 --   the thread that posted the message so one has to be careful with
@@ -461,11 +454,7 @@ afterBusMessage =
 --   This signal will not be emitted by default, you must first call
 --   'busUseSyncSignalHandler' if you want this signal to be emitted
 --   when a message is posted on the bus.
-onBusSyncMessage, afterBusSyncMessage :: BusClass bus
-                                      => bus
-                                      -> (Message -> IO ())
-                                      -> IO (ConnectId bus)
-onBusSyncMessage =
-    connect_BOXED__NONE "sync-message" peekMiniObject False
-afterBusSyncMessage =
-    connect_BOXED__NONE "sync-message" peekMiniObject True
+busSyncMessage :: BusClass bus
+               => Signal bus (Message -> IO ())
+busSyncMessage =
+    Signal $ connect_BOXED__NONE "sync-message" peekMiniObject
