@@ -172,20 +172,20 @@ import System.Glib.Properties
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
--- | Gets the flags set on the clock.
+-- | Get the flags set on the clock.
 clockGetFlags :: ClockClass clockT
               => clockT          -- ^ @clock@
               -> IO [ClockFlags] -- ^ the flags currently set on the clock
 clockGetFlags = mkObjectGetFlags
 
--- | Sets the given flags on the clock.
+-- | Set the given flags on the clock.
 clockSetFlags :: ClockClass clockT
               => clockT       -- ^ @clock@
               -> [ClockFlags] -- ^ @flags@ - the flags to be set
               -> IO ()
 clockSetFlags = mkObjectSetFlags
 
--- | Unsets the given flags on the clock.
+-- | Unset the given flags on the clock.
 clockUnsetFlags :: ClockClass clockT
                 => clockT       -- ^ @clock@
                 -> [ClockFlags] -- ^ @flags@ - the flags to be unset
