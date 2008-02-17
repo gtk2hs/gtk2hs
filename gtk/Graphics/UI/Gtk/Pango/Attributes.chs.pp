@@ -168,10 +168,10 @@ crAttr c AttrFontDescription { paStart=s, paEnd=e, paFontDescription = fd } =
   setAttrPos c s e $ {#call unsafe attr_font_desc_new#} fd
 crAttr c AttrForeground { paStart=s, paEnd=e, paColor = Color r g b } =
   setAttrPos c s e $ {#call unsafe attr_foreground_new#}
-  (fromIntegral r) (fromIntegral b) (fromIntegral b)
+  (fromIntegral r) (fromIntegral g) (fromIntegral b)
 crAttr c AttrBackground { paStart=s, paEnd=e, paColor = Color r g b } =
   setAttrPos c s e $ {#call unsafe attr_background_new#}
-  (fromIntegral r) (fromIntegral b) (fromIntegral b)
+  (fromIntegral r) (fromIntegral g) (fromIntegral b)
 crAttr c AttrUnderline { paStart=s, paEnd=e, paUnderline = underline } =
   setAttrPos c s e $ do
   {#call unsafe attr_underline_new#} (fromIntegral (fromEnum underline))
@@ -179,7 +179,7 @@ crAttr c AttrUnderline { paStart=s, paEnd=e, paUnderline = underline } =
  || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
 crAttr c AttrUnderlineColor {paStart=s, paEnd=e, paColor = Color r g b } =
   setAttrPos c s e $ {#call unsafe attr_underline_color_new#}
-  (fromIntegral r) (fromIntegral b) (fromIntegral b)
+  (fromIntegral r) (fromIntegral g) (fromIntegral b)
 #endif
 crAttr c AttrStrikethrough { paStart=s, paEnd=e, paStrikethrough = st } =
   setAttrPos c s e $ do
@@ -188,7 +188,7 @@ crAttr c AttrStrikethrough { paStart=s, paEnd=e, paStrikethrough = st } =
  || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
 crAttr c AttrStrikethroughColor {paStart=s, paEnd=e, paColor = Color r g b } =
   setAttrPos c s e $ {#call unsafe attr_strikethrough_color_new#}
-  (fromIntegral r) (fromIntegral b) (fromIntegral b)
+  (fromIntegral r) (fromIntegral g) (fromIntegral b)
 #endif
 crAttr c AttrRise { paStart=s, paEnd=e, paRise = pu } =
   setAttrPos c s e $ {#call unsafe attr_rise_new#} (puToInt pu)
