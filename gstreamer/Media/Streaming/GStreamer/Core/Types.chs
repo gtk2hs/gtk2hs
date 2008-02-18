@@ -62,6 +62,8 @@ module Media.Streaming.GStreamer.Core.Types (
   PadLinkReturn(..),
   FlowReturn(..),
   ActivateMode(..),
+  StaticPadTemplate(..),
+  staticPadTemplateGet,
   
   State(..),
   StateChangeReturn(..),
@@ -305,6 +307,12 @@ giveObject obj action =
 instance Iterable Pad where
     peekIterable = peekObject . castPtr
     withIterable = withObject
+
+{# pointer *GstStaticPadTemplate as StaticPadTemplate #}
+staticPadTemplateGet :: StaticPadTemplate
+                     -> IO PadTemplate
+staticPadTemplateGet =
+    {# call static_pad_template_get #} >=> takeObject
 
 --------------------------------------------------------------------
 
