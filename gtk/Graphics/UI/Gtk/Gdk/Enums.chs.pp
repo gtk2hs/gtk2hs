@@ -55,28 +55,28 @@ import System.Glib.Flags	(Flags)
 
 -- | Specify the how the ends of a line is drawn.
 --
-{#enum CapStyle {underscoreToCase}#}
+{#enum CapStyle {underscoreToCase} deriving(Eq,Show)#}
 
 -- | How focus is crossing the widget.
 --
-{#enum CrossingMode {underscoreToCase} deriving(Show) #}
+{#enum CrossingMode {underscoreToCase} deriving(Eq,Show) #}
 
 -- | Used in 'Graphics.UI.Gtk.Gdk.Drag.DragContext' to indicate the protocol according to which DND is done.
 --
-{#enum DragProtocol {underscoreToCase} deriving (Bounded,Show)#}
+{#enum DragProtocol {underscoreToCase} deriving(Eq,Bounded,Show)#}
 
 -- | Specify the kind of action performed on a drag event.
-{#enum DragAction {underscoreToCase} deriving (Bounded,Show)#}
+{#enum DragAction {underscoreToCase} deriving(Eq,Bounded,Show)#}
 
 instance Flags DragAction
 
 -- | Specify how to dither colors onto the screen.
 --
-{#enum RgbDither as Dither {underscoreToCase} deriving(Show) #}
+{#enum RgbDither as Dither {underscoreToCase} deriving(Eq,Show) #}
 
 -- | specify which events a widget will emit signals on
 --
-{#enum EventMask {underscoreToCase} deriving (Bounded)#}
+{#enum EventMask {underscoreToCase} deriving(Eq,Bounded,Show)#}
 
 instance Flags EventMask
 
@@ -122,32 +122,32 @@ instance Flags Modifier
 
 -- | specify which input extension a widget desires
 --
-{#enum ExtensionMode {underscoreToCase} deriving(Bounded,Show)#}
+{#enum ExtensionMode {underscoreToCase} deriving(Eq,Bounded,Show)#}
 
 instance Flags ExtensionMode
 
 -- | How objects are filled.
 --
-{#enum Fill {underscoreToCase} deriving(Show) #}
+{#enum Fill {underscoreToCase} deriving(Eq,Show) #}
 
 -- | Determine how bitmap operations are carried out.
 --
-{#enum Function {underscoreToCase} deriving(Show) #}
+{#enum Function {underscoreToCase} deriving(Eq,Show) #}
 
 -- | Specify on what file condition a callback should be
 -- done.
 --
-{#enum InputCondition {underscoreToCase} deriving(Bounded) #}
+{#enum InputCondition {underscoreToCase} deriving(Eq,Bounded) #}
 
 instance Flags InputCondition
 
 -- | Determines how adjacent line ends are drawn.
 --
-{#enum JoinStyle {underscoreToCase}#}
+{#enum JoinStyle {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Determines if a line is solid or dashed.
 --
-{#enum LineStyle {underscoreToCase}#}
+{#enum LineStyle {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Information on from what level of the widget hierarchy the mouse
 --   cursor came.
@@ -171,31 +171,31 @@ instance Flags InputCondition
 -- ['NotifyUnknown'] The level change does not fit into any of the other
 -- categories or could not be determined.
 --
-{#enum NotifyType {underscoreToCase} deriving(Show) #}
+{#enum NotifyType {underscoreToCase} deriving(Eq,Show) #}
 
 -- | in which direction was scrolled?
 --
-{#enum ScrollDirection {underscoreToCase} deriving(Show) #}
+{#enum ScrollDirection {underscoreToCase} deriving(Eq,Show) #}
 
 -- | Determine if child widget may be overdrawn.
 --
-{#enum SubwindowMode {underscoreToCase} deriving(Show) #}
+{#enum SubwindowMode {underscoreToCase} deriving(Eq,Show) #}
 
 -- | visibility of a window
 --
 {#enum VisibilityState {underscoreToCase,
 			VISIBILITY_PARTIAL as VisibilityPartialObscured}
-			 deriving(Show) #}
+			 deriving(Eq,Show) #}
 
 -- | The state a @DrawWindow@ is in.
 --
-{#enum WindowState {underscoreToCase} deriving (Bounded,Show)#}
+{#enum WindowState {underscoreToCase} deriving(Eq,Bounded,Show)#}
 
 instance Flags WindowState
 
 -- | Determines a window edge or corner.
 --
-{#enum WindowEdge {underscoreToCase} deriving(Show) #}
+{#enum WindowEdge {underscoreToCase} deriving(Eq,Show) #}
 
 -- | These are hints for the window manager that indicate what type of function
 -- the window has. The window manager can use this when determining decoration
@@ -204,14 +204,14 @@ instance Flags WindowState
 -- See the extended window manager hints specification for more details about
 -- window types.
 --
-{#enum WindowTypeHint {underscoreToCase} #}
+{#enum WindowTypeHint {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Defines the reference point of a window and the meaning of coordinates
 -- passed to 'Graphics.UI.Gtk.Windows.Window.windowMove'. See
 -- 'Graphics.UI.Gtk.Windows.Window.windowMove' and the "implementation notes"
 -- section of the extended window manager hints specification for more details.
 --
-{#enum Gravity {underscoreToCase} deriving(Show) #}
+{#enum Gravity {underscoreToCase} deriving(Eq,Show) #}
 
 -- | Returned by 'pointerGrab' and 'keyboardGrab' to indicate success or the
 -- reason for the failure of the grab attempt.
@@ -228,5 +228,5 @@ instance Flags WindowState
 --
 -- [@GrabFrozen@] the resource is frozen by an active grab of another client.
 --
-{#enum GrabStatus {underscoreToCase} deriving(Show) #}
+{#enum GrabStatus {underscoreToCase} deriving(Eq,Show) #}
 
