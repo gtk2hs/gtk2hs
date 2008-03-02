@@ -74,6 +74,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Embedding.Embedding
+import Graphics.UI.Gtk.General.Structs
 
 {# context lib="gtk" prefix="gtk" #}
 

@@ -47,6 +47,7 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   DrawWindowClass,
   castToDrawWindow,
   WindowState(..),
+  NativeWindowId,
 -- * Methods
   drawWindowGetState,
   drawWindowClear,
@@ -72,12 +73,14 @@ module Graphics.UI.Gtk.Gdk.DrawWindow (
   drawWindowMergeChildShapes,
   drawWindowGetPointer,
   drawWindowGetOrigin,
+  drawWindowForeignNew
   ) where
 
 import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import System.Glib.Flags		(toFlags)
+import System.Glib.GObject	(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Enums#}
 {#import Graphics.UI.Gtk.Gdk.Region#}
@@ -100,7 +103,7 @@ drawWindowGetState self =
 --
 -- * Scroll both, pixels and children, by the given amount.
 --   @DrawWindow@ itself does not move. Portions of the window that the
--- scroll operation brings in from offscreen areas are invalidated. The
+-- scroll operation brings inm from offscreen areas are invalidated. The
 -- invalidated region may be bigger than what would strictly be necessary. (For
 -- X11, a minimum area will be invalidated if the window has no subwindows, or
 -- if the edges of the window's parent do not extend beyond the edges of the
@@ -514,3 +517,10 @@ drawWindowGetOrigin self =
   y <- peek yPtr
   return (fromIntegral x, fromIntegral y)
 
+
+-- | Get the handle to an exising window of the windowing system. The
+-- passed-in handle is a reference to a native window, that is, an Xlib XID
+-- for X windows and a HWND for Win32.
+drawWindowForeignNew :: NativeWindowId -> IO (Maybe DrawWindow)
+drawWindowForeignNew anid = maybeNull (makeNewGObject mkDrawWindow) $
+  liftM castPtr $ {#call gdk_window_foreign_new#} (fromIntegral anid)

@@ -30,7 +30,6 @@
 module Graphics.UI.Gtk.Embedding.Embedding (
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
   socketHasPlug,
-  NativeWindowId
 #endif
   ) where
 
@@ -40,10 +39,6 @@ import Graphics.UI.Gtk.Types
 #include<gtk/gtk.h>
 
 #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
--- | The identifer of a window to be embedded.
---
-type NativeWindowId = #type GdkNativeWindow
-
 -- | Test if a Plug is connected to the socket.
 -- 
 socketHasPlug :: SocketClass s => s -> IO Bool

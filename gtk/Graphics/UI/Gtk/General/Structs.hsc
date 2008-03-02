@@ -43,9 +43,9 @@ module Graphics.UI.Gtk.General.Structs (
   ResponseId(..),
   fromResponse,
   toResponse,
-  --XID,
-  --socketGetXID,
-  --socketHasPlug,
+  #if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
+  NativeWindowId,
+  #endif
 #ifndef DISABLE_DEPRECATED
   toolbarChildButton,
   toolbarChildToggleButton,
@@ -554,29 +554,11 @@ toResponse (-10) = ResponseApply
 toResponse (-11) = ResponseHelp
 toResponse i | i > 0  = ResponseUser $ fromIntegral i
 
--- include<gdk/gdkx.h>
-
-type XID = CUInt	-- unfortunately hsc and c2hs do not agree on the type
-			-- of NativeWindow (Word32 vs. CUInt)
-
--- Query the XID field of the socket widget. This value needs to be
--- sent to the Plug widget of the other application.
+#if !defined(WIN32) || GTK_CHECK_VERSION(2,8,0)
+-- | The identifer of a window of the underlying windowing system.
 --
---socketGetXID :: Socket -> IO XID
---socketGetXID socket = do
---  winPtr <- throwIfNull "socketGetXID: the socket widget is not realized" $
---    withForeignPtr (unSocket socket) #{peek GtkWidget, window}
---  implPtr <- throwIfNull "socketGetXID: no Drawable defined" $
---    #{peek GdkWindowObject, impl} winPtr
---  #{peek GdkDrawableImplX11, xid} implPtr
-
-
--- Test if a Plug is connected to the socket.
--- 
---socketHasPlug :: Socket -> IO Bool
---socketHasPlug socket = do
---  plugPtr <- withForeignPtr (unSocket socket) #{peek GtkSocket, plug_window}
---  return (plugPtr/=nullPtr)
+type NativeWindowId = #type GdkNativeWindow
+#endif
 
 #ifndef DISABLE_DEPRECATED
 -- Static values for different Toolbar widgets.
