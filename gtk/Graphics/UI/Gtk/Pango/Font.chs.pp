@@ -76,6 +76,7 @@ import System.Glib.UTFString
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Pango.Description
+import Graphics.UI.Gtk.Pango.Structs
 
 {# context lib="pango" prefix="pango" #}
 

@@ -18,6 +18,8 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
+-- #hide
+
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
@@ -64,14 +66,6 @@ module Graphics.UI.Gtk.General.Structs (
   widgetGetDrawWindow,
   widgetGetSize,
   layoutGetDrawWindow,
-  pangoScale,
-  PangoDirection(..),
-  pangodirToLevel,
-  setAttrPos,
-  pangoItemRawGetFont,
-  pangoItemRawGetLanguage,
-  pangoItemRawAnalysis,
-  pangoItemRawGetLevel,
   styleGetForeground,
   styleGetBackground,
   styleGetLight,
@@ -117,7 +111,7 @@ type Point = (Int, Int)
 --
 -- * Specifies x, y, width and height
 --
-data Rectangle = Rectangle Int Int Int Int
+data Rectangle = Rectangle Int Int Int Int deriving (Eq,Show)
 
 instance Storable Rectangle where
   sizeOf _ = #{const sizeof(GdkRectangle)}
@@ -141,7 +135,7 @@ instance Storable Rectangle where
 --   All values range from 0 (least intense) to 65535 (highest intensity).
 --
 data Color = Color (#type guint16) (#type guint16) (#type guint16)
-
+	     deriving (Eq,Show)
 instance Storable Color where
   sizeOf _ = #{const sizeof(GdkColor)}
   alignment _ = alignment (undefined::#type guint32)
@@ -413,7 +407,7 @@ type Allocation = Rectangle
 --
 -- * for Widget's size_request
 --
-data Requisition = Requisition Int Int
+data Requisition = Requisition Int Int deriving (Eq,Show)
 
 instance Storable Requisition where
   sizeOf _ = #{const sizeof(GtkRequisition)}
@@ -664,105 +658,6 @@ layoutGetDrawWindow :: Layout -> IO DrawWindow
 layoutGetDrawWindow lay = makeNewGObject mkDrawWindow $
   withForeignPtr (unLayout lay) $
   \lay' -> liftM castPtr $ #{peek GtkLayout, bin_window} lay'
-
--- PangoLayout related constant
-
--- Internal unit of measuring sizes.
---
--- * This constant represents the scale between
---   dimensions used for distances in text rendering and Pango device units.
---   The
---   definition of device unit is dependent on the output device; it will
---   typically be pixels for a screen, and points for a printer.  When
---   setting font sizes, device units are always considered to be points
---   (as in \"12 point font\"), rather than pixels.
---
-pangoScale :: Double
-pangoScale = #const PANGO_SCALE
-
--- | The 'PangoDirection' type represents a direction in the Unicode
--- bidirectional algorithm.
---
--- * The \"weak\" values denote a left-to-right or right-to-left direction
---   only if there is no character with a strong direction in a paragraph.
---   An example is a sequence of special, graphical characters which are
---   neutral with respect to their rendering direction. A fresh
---   'Graphics.UI.Gtk.Pango.Rendering.PangoContext' is by default weakly
---   left-to-right.
---
--- * Not every value in this enumeration makes sense for every usage
---   of 'PangoDirection'; for example, the return value of
---   'unicharDirection' and 'findBaseDir' cannot be 'PangoDirectionWeakLtr'
---   or 'PangoDirectionWeakRtl', since every character is either neutral or
---   has a strong direction; on the other hand 'PangoDirectionNeutral'
---   doesn't make sense to pass to 'log2visGetEmbeddingLevels'.
---
-data PangoDirection = PangoDirectionLtr
-                    | PangoDirectionRtl
-#if PANGO_CHECK_VERSION(1,4,0)
-                    | PangoDirectionWeakLtr
-                    | PangoDirectionWeakRtl
-                    | PangoDirectionNeutral
-#endif
-                    deriving (Eq,Ord)
-
-instance Enum PangoDirection where
-  fromEnum PangoDirectionLtr        = #{const PANGO_DIRECTION_LTR }
-  fromEnum PangoDirectionRtl        = #{const PANGO_DIRECTION_RTL }
-#if PANGO_CHECK_VERSION(1,4,0)
-  fromEnum PangoDirectionWeakLtr    = #{const PANGO_DIRECTION_WEAK_LTR }
-  fromEnum PangoDirectionWeakRtl    = #{const PANGO_DIRECTION_WEAK_RTL }
-  fromEnum PangoDirectionNeutral    = #{const PANGO_DIRECTION_NEUTRAL }
-#endif
-  toEnum #{const PANGO_DIRECTION_LTR } = PangoDirectionLtr
-  toEnum #{const PANGO_DIRECTION_RTL } = PangoDirectionRtl
-  toEnum #{const PANGO_DIRECTION_TTB_LTR } = PangoDirectionLtr
-  toEnum #{const PANGO_DIRECTION_TTB_RTL } = PangoDirectionRtl
-#if PANGO_CHECK_VERSION(1,4,0)
-  toEnum #{const PANGO_DIRECTION_WEAK_LTR } = PangoDirectionWeakLtr
-  toEnum #{const PANGO_DIRECTION_WEAK_RTL } = PangoDirectionWeakRtl
-  toEnum #{const PANGO_DIRECTION_NEUTRAL } = PangoDirectionNeutral
-#endif
-
--- This is a copy of the local function direction_simple in pango-layout.c
-pangodirToLevel :: PangoDirection -> Int
-pangodirToLevel PangoDirectionLtr = 1
-pangodirToLevel PangoDirectionRtl = -1
-#if PANGO_CHECK_VERSION(1,4,0)
-pangodirToLevel PangoDirectionWeakLtr = 1
-pangodirToLevel PangoDirectionWeakRtl = -1
-pangodirToLevel PangoDirectionNeutral = 0
-#endif
-
--- Get the font of a PangoAnalysis within a PangoItem.
-pangoItemRawGetFont :: Ptr pangoItem -> IO Font
-pangoItemRawGetFont ptr =
-  makeNewGObject mkFont (#{peek PangoItem, analysis.font} ptr)
-
--- Get the font of a PangoAnalysis within a PangoItem.
-pangoItemRawGetLanguage :: Ptr pangoItem -> IO (Ptr CChar)
-pangoItemRawGetLanguage ptr =
-  #{peek PangoItem, analysis.language} ptr
-
--- Get the PangoAnalysis within a PangoItem
-pangoItemRawAnalysis :: Ptr pangoItem -> Ptr pangoAnalysis
-pangoItemRawAnalysis = #{ptr PangoItem, analysis}
-
--- Get the text direction of this PangoItem.
-pangoItemRawGetLevel :: Ptr pangoItem -> IO Bool
-pangoItemRawGetLevel ptr = do
-  level <- #{peek PangoItem, analysis.level} ptr
-  return (toBool (level :: #{type guint8}))
-
--- Set the start and end position of an attribute
-setAttrPos :: UTFCorrection -> Int -> Int -> IO (Ptr ()) -> IO (Ptr ())
-setAttrPos correct start end act = do
-  atPtr <- act
-  #{poke PangoAttribute, start_index} atPtr
-    (fromIntegral (ofsToUTF start correct) :: #{type guint})
-  #{poke PangoAttribute, end_index} atPtr
-    (fromIntegral (ofsToUTF end correct) :: #{type guint})
-  return atPtr
 
 -- Styles related methods
 

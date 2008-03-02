@@ -71,6 +71,7 @@ import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs (Color(..))
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Pango.Types#}
+import Graphics.UI.Gtk.Pango.Structs ( pangoItemGetFont )
 import Graphics.UI.Gtk.Pango.Layout ( layoutSetText )
 import Data.IORef
 

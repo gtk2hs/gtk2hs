@@ -45,7 +45,6 @@
 module Graphics.UI.Gtk.Pango.Context (
 -- * Types and Methods for 'PangoContext's
   PangoContext,
-  PangoDirection(..),
   contextListFamilies,
 --  contextLoadFont,
 --  contextLoadFontSet,
@@ -58,17 +57,32 @@ module Graphics.UI.Gtk.Pango.Context (
   contextSetLanguage,
   contextGetLanguage,
   contextSetTextDir,
-  contextGetTextDir
+  contextGetTextDir,
+#if PANGO_CHECK_VERSION(1,16,0)
+  contextSetTextGravity,
+  contextGetTextGravity,
+  contextSetTextGravityHint,
+  contextGetTextGravityHint,
+#endif
+#if PANGO_CHECK_VERSION(1,6,0)
+  contextGetMatrix,
+  contextSetMatrix,
+#endif
   ) where
 
 import Control.Monad    (liftM)
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs  (PangoDirection(..))
+import Graphics.UI.Gtk.Pango.Enums
+import Graphics.UI.Gtk.Pango.Structs
 {#import Graphics.UI.Gtk.Types#}
 import System.Glib.GObject  (makeNewGObject)
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Pango.Font ( FontMetrics(..) )
+#if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+{#import Graphics.Rendering.Cairo.Matrix#}
+#endif
+
 
 {# context lib="pango" prefix="pango" #}
 
@@ -165,3 +179,55 @@ contextGetTextDir :: PangoContext -> IO PangoDirection
 contextGetTextDir pc = liftM (toEnum . fromIntegral) $
 		       {#call unsafe context_get_base_dir#} pc
 
+#if PANGO_CHECK_VERSION(1,16,0)
+-- | Set the text gravity of this context. If the given value is
+-- 'PangoGravityAuto' then the gravity is derived from the current rotation
+-- matrix.
+--
+contextSetTextGravity :: PangoContext -> PangoGravity -> IO ()
+contextSetTextGravity pc gravity =
+  {#call unsafe context_set_base_gravity#} pc (fromIntegral (fromEnum gravity))
+
+-- | Get the current text gravity of this context.
+--
+contextGetTextGravity :: PangoContext -> IO PangoGravity
+contextGetTextGravity pc = liftM (toEnum . fromIntegral) $
+		       {#call unsafe context_get_base_gravity#} pc
+
+-- | Set the text gravity hint of this context.
+--
+contextSetTextGravityHint :: PangoContext -> PangoGravityHint -> IO ()
+contextSetTextGravityHint pc gravity =
+  {#call unsafe context_set_gravity_hint#} pc (fromIntegral (fromEnum gravity))
+
+-- | Get the current text gravity of this context.
+--
+contextGetTextGravityHint :: PangoContext -> IO PangoGravityHint
+contextGetTextGravityHint pc = liftM (toEnum . fromIntegral) $
+		       {#call unsafe context_get_gravity_hint#} pc
+#endif
+
+#if PANGO_CHECK_VERSION(1,6,0)
+-- | Gets the transformation matrix that will be applied when rendering with
+-- this context.
+--
+-- * Since Pango 1.6
+contextGetMatrix :: PangoContext -> IO Matrix
+contextGetMatrix pc = do
+  matPtr <- {#call unsafe context_get_matrix#} pc
+  if matPtr==nullPtr then return identity else peek (castPtr matPtr)
+  
+-- | Sets the transformation matrix that will be applied when rendering with
+-- this context. Note that any metrics reported by other functions are in user
+-- space coordinates before the application of the matrix, not device-space
+-- coordinates after the application of the matrix. So, they don't scale with
+-- the matrix, though they may change slightly for different matrices,
+-- depending on how the text is fit to the pixel grid.
+--
+-- * Since Pango 1.6
+contextSetMatrix :: PangoContext -> Matrix -> IO ()
+contextSetMatrix pc mat
+  | mat==identity = {#call unsafe context_set_matrix#} pc nullPtr
+  | otherwise = with mat $ \matPtr -> 
+                {#call unsafe context_set_matrix#} pc (castPtr matPtr)
+#endif

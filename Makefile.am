@@ -415,6 +415,7 @@ nodist_libHSgtk_a_SOURCES = $(libHSgtk_a_GENERATEDSOURCES)
 libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk.hs.pp					\
 	gtk/Graphics/UI/Gtk/Pango/Types.chs.pp				\
+	gtk/Graphics/UI/Gtk/Pango/Structs.hsc				\
 	gtk/Graphics/UI/Gtk/Multiline/Types.chs.pp			\
 	gtk/Graphics/UI/Gtk/Gdk/Region.chs.pp				\
 	gtk/Graphics/UI/Gtk/Abstract/Bin.chs				\
@@ -606,6 +607,7 @@ htmldoc_HSFILES_HIDDEN +=						\
 	gtk/Graphics/UI/Gtk/Gdk/PixbufData.hs			\
 	gtk/Graphics/UI/Gtk/Pango/Description.hs		\
 	gtk/Graphics/UI/Gtk/Pango/Types.hs			\
+	gtk/Graphics/UI/Gtk/Pango/Structs.hs			\
 	gtk/Graphics/UI/Gtk/Pango/Attributes.hs			\
 	gtk/Graphics/UI/Gtk/Pango/GlyphStorage.hs		\
 	gtk/Graphics/UI/Gtk/TreeList/TreePath.hs		\

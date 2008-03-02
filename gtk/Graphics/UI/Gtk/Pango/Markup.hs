@@ -53,24 +53,19 @@
 -- [@u@] Underline 
 --
 -- The full markup language can be found at
--- <http://developer.gnome.org/doc/API/2.0/pango/PangoMarkupFormat.html>.
+-- <http://library.gnome.org/devel/pango/stable/PangoMarkupFormat.html>.
 --
 module Graphics.UI.Gtk.Pango.Markup (
   Markup,
   SpanAttribute(..),
   markSpan,
-  Size(..)
+  parseMarkup
   ) where
 
-import Graphics.UI.Gtk.Pango.Types ( Language )
+import Graphics.UI.Gtk.Pango.Types ( Markup, Language,
+                                     PangoGravity, PangoGravityHint )
 import qualified Graphics.UI.Gtk.Pango.Enums as Pango
-
--- | Define a synonym for text with embedded markup commands.
---
--- * Markup strings are just simple strings. But it's easier to tell if a
---   method expects text with or without markup.
---
-type Markup = String
+import Graphics.UI.Gtk.Pango.Attributes ( parseMarkup )
 
 -- | These are all the attributes the 'markSpan' function can express.
 --
@@ -91,10 +86,10 @@ data SpanAttribute
   -- * The constuctor takes the size in points (pt) or a predefined
   --   sizes. Setting the absolute size 12.5pt can be achieved by passing
   --   'FontSize' ('SizePoint' 12.5) to 'markSpan'. Next to predefined
-  --   absolute sizes such as 'SizeSmall' the size can be changed by 
+  --   absolute sizes such as 'Pango.SizeSmall' the size can be changed by 
   --   asking for the next larger or smaller front with
-  --   'SizeLarger' and 'SizeSmaller', respectively.
-  | FontSize Size
+  --   'Pango.SizeLarger' and 'Pango.SizeSmaller', respectively.
+  | FontSize Pango.Size
 
   -- | Change the slant of the current font.
   --
@@ -148,6 +143,12 @@ data SpanAttribute
   --
   | FontLang	Language
 
+  -- | Gravity of text, use for ratation.
+  | FontGravity PangoGravity
+  
+  -- | Intensity of gravity.
+  | FontGravityHint PangoGravityHint
+  
 instance Show SpanAttribute where
   showsPrec _ (FontDescr str)    = showString " font_desc=".shows str
   showsPrec _ (FontFamily str)	 = showString " font_family=".shows str
@@ -162,7 +163,9 @@ instance Show SpanAttribute where
   showsPrec _ (FontRise r)	 = showString " rise=".shows 
 				   (show (round (r*10000)))
   showsPrec _ (FontLang l)	 = showString " lang=".shows l
-
+  showsPrec _ (FontGravity g) = showString " gravity=".shows g
+  showsPrec _ (FontGravityHint h) = showString " gravity_hint".shows h
+  
 -- | Create the most generic span attribute.
 --
 markSpan :: [SpanAttribute] -> String -> String
@@ -170,33 +173,4 @@ markSpan attrs text = showString "<span".
 		      foldr (.) (showChar '>') (map shows attrs).
 		      showString text.
 		      showString "</span>" $ ""
-
--- | Define attributes for 'FontSize'.
---
-data Size
-  = SizePoint Double
-  | SizeUnreadable
-  | SizeTiny
-  | SizeSmall
-  | SizeMedium
-  | SizeLarge
-  | SizeHuge
-  | SizeGiant
-  | SizeSmaller
-  | SizeLarger
-
-instance Show Size where
-  showsPrec _ (SizePoint v)        	= shows $ show (round (v*1000))
-  showsPrec _ (SizeUnreadable)		= shows "xx-small"
-  showsPrec _ (SizeTiny)		= shows "x-small"
-  showsPrec _ (SizeSmall)		= shows "small"
-  showsPrec _ (SizeMedium)		= shows "medium"
-  showsPrec _ (SizeLarge)		= shows "large"
-  showsPrec _ (SizeHuge)		= shows "x-large"
-  showsPrec _ (SizeGiant)		= shows "xx-large"
-  showsPrec _ (SizeSmaller)		= shows "smaller"
-  showsPrec _ (SizeLarger)	  	= shows "larger"
-
-
-
 

@@ -19,8 +19,6 @@
 --
 -- Not bound:
 --
---  - pango_layout_get_attributes : need function to convert back to
---    PangoAttribute type
 --  - pango_layout_get_log_attrs : difficult since it returns an array, where
 --    each element corresponds to a UTF8 character, conversion to wide
 --    characters means we need to do some semantic merging
@@ -50,6 +48,7 @@ module Graphics.UI.Gtk.Pango.Layout (
   escapeMarkup,
   layoutSetMarkupWithAccel,
   layoutSetAttributes,
+  layoutGetAttributes,
   layoutSetFontDescription,
 #if PANGO_CHECK_VERSION(1,8,0)
   layoutGetFontDescription,
@@ -128,14 +127,14 @@ import System.Glib.UTFString
 import System.Glib.GList                (readGSList)
 import System.Glib.GObject              (constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
-import Graphics.UI.Gtk.Pango.Markup	(Markup)
 import Graphics.UI.Gtk.General.Structs	(Rectangle)
+import Graphics.UI.Gtk.Pango.Structs
 {#import Graphics.UI.Gtk.Pango.Types#}
 #if PANGO_CHECK_VERSION(1,6,0)
 {#import Graphics.UI.Gtk.Pango.Enums#}	(EllipsizeMode(..))
 #endif
 import Graphics.UI.Gtk.Pango.Rendering  -- for haddock
-import Graphics.UI.Gtk.Pango.Attributes ( PangoAttribute, withAttrList )
+import Graphics.UI.Gtk.Pango.Attributes ( withAttrList, fromAttrList)
 import Data.IORef
 import Control.Exception ( Exception(ArrayException),
                            ArrayException(IndexOutOfBounds) )
@@ -269,7 +268,16 @@ layoutSetAttributes (PangoLayout psRef plr) attrs = do
   withAttrList ps attrs $ \alPtr ->
     {#call unsafe pango_layout_set_attributes#} plr alPtr
 
--- function to extract attributes is missing here
+-- | Gets the list of attributes of the layout, if any.
+--
+-- * The attribute list is a list of lists of attribute. Each list describes
+--   the attributes for the same span.
+--
+layoutGetAttributes :: PangoLayout -> IO [[PangoAttribute]]
+layoutGetAttributes (PangoLayout psRef plr) = do
+  (PangoString correct _ _) <- readIORef psRef
+  attrListPtr <- {#call unsafe pango_layout_get_attributes#} plr
+  fromAttrList correct attrListPtr
 
 -- | Set a specific font description for this layout.
 --

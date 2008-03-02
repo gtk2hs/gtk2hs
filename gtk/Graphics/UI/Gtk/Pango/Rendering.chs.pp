@@ -61,7 +61,8 @@ module Graphics.UI.Gtk.Pango.Rendering (
   ) where
 
 import System.Glib.FFI
-import Graphics.UI.Gtk.General.Structs  ( pangoItemRawAnalysis )
+import Graphics.UI.Gtk.Pango.Structs  ( pangoItemRawAnalysis, intToPu,
+  pangoItemGetFont, pangoItemGetLanguage)
 {#import Graphics.UI.Gtk.Types#}	(PangoContext(..), Font(..))
 {#import Graphics.UI.Gtk.Pango.Types#}
 {#import Graphics.UI.Gtk.Pango.Attributes#}
@@ -123,9 +124,6 @@ pangoItemGetFontMetrics pi = do
 	  (intToPu strikethrough_thickness)
 #endif
 	 )
-
-		       
-
 
 -- | Turn a 'PangoItem' into a 'GlyphItem'.
 --

@@ -27,103 +27,24 @@
 -- Defines text attributes.
 --
 module Graphics.UI.Gtk.Pango.Attributes (
-  PangoAttribute(..),
-  PangoAttrList,
-  withAttrList
+  withAttrList,
+  parseMarkup,
+  fromAttrList
   ) where
 
 import System.Glib.FFI
 import System.Glib.UTFString
-import Graphics.UI.Gtk.General.Structs  (setAttrPos, Color(..))
+import System.Glib.GError
+import System.Glib.GList
+import Graphics.UI.Gtk.General.Structs  (Color(..))
+import Graphics.UI.Gtk.Pango.Structs
 {#import Graphics.UI.Gtk.Pango.Types#}
-{#import Graphics.UI.Gtk.Pango.Enums#}
 import Data.List ( sortBy )
+import Data.Char ( ord, chr )
+import Control.Monad ( liftM )
 
 {# context lib="pango" prefix="pango" #}
 
--- | Attributes for 'PangoItem's.
---
--- * A given attribute is applied from its start position 'paStart' up,
---   but not including the end position, 'paEnd'.
---
-data PangoAttribute
-  -- | A hint as to what language this piece of text is written in.
-  = AttrLanguage { paStart :: Int, paEnd :: Int, paLang :: Language }
-  -- | The font family, e.g. "sans serif".
-  | AttrFamily { paStart :: Int, paEnd :: Int, paFamily :: String }
-  -- | The slant of the current font.
-  | AttrStyle { paStart :: Int, paEnd :: Int, paStyle :: FontStyle }
-  -- | Weight of font, e.g. 'WeightBold'.
-  | AttrWeight { paStart :: Int, paEnd :: Int, paWeight :: Weight }
-  -- | 'VariantSmallCaps' will display lower case letters as small
-  -- upper case letters (if the font supports this).
-  | AttrVariant { paStart :: Int, paEnd :: Int, paVariant :: Variant }
-  -- | Stretch or condense the width of the letters.
-  | AttrStretch { paStart :: Int, paEnd :: Int, paStretch :: Stretch }
-  -- | Specify the size of the font in points.
-  | AttrSize { paStart :: Int, paEnd :: Int, paSize :: Double }
-#if PANGO_CHECK_VERSION(1,8,0)
-  -- | Specify the size of the font in device units (pixels).
-  --
-  -- * Available in Pango 1.8.0 and higher.
-  --
-  | AttrAbsSize { paStart :: Int, paEnd :: Int, paSize :: Double }
-#endif
-  -- | Specify several attributes of a font at once.
-  | AttrFontDescription { paStart :: Int, paEnd :: Int,
-			  paFontDescription :: FontDescription }
-  -- | Specify the foreground color.
-  | AttrForeground { paStart :: Int, paEnd :: Int, paColor :: Color }
-  -- | Specify the background color.
-  | AttrBackground { paStart :: Int, paEnd :: Int, paColor :: Color }
-  -- | Specify the kind of underline, e.g. 'UnderlineSingle'.
-  | AttrUnderline { paStart :: Int, paEnd :: Int, paUnderline :: Underline }
-#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
- || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
-  -- | Specify the color of an underline.
-  --
-  -- * Available in Pango 1.8.0 and higher.
-  --
-  | AttrUnderlineColor { paStart :: Int, paEnd :: Int, paColor :: Color }
-#endif
-  -- | Specify if this piece of text should have a line through it.
-  | AttrStrikethrough { paStart :: Int, paEnd :: Int, paStrikethrough :: Bool }
-#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
- || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
-  -- | Specify the color of the strike through line.
-  --
-  -- * Available in Pango 1.8.0 and higher.
-  --
-  | AttrStrikethroughColor { paStart :: Int, paEnd :: Int, paColor :: Color }
-#endif
-  -- | Displace the text vertically. Positive values move the text upwards.
-  | AttrRise { paStart :: Int, paEnd :: Int, paRise :: Double }
-#if PANGO_CHECK_VERSION(1,8,0)
-  -- | Restrict the amount of what is drawn of the marked shapes.
-  --
-  -- * Available in Pango 1.8.0 and higher.
-  --
-  | AttrShape { paStart :: Int, paEnd :: Int, paInk :: PangoRectangle,
-		paLogical :: PangoRectangle }
-#endif
-  -- | Scale the font up (values greater than one) or shrink the font.
-  | AttrScale { paStart :: Int, paEnd :: Int, paScale :: Double }
-#if PANGO_CHECK_VERSION(1,4,0)
-  -- | Determine if a fall back font should be substituted if no matching
-  -- font is available.
-  | AttrFallback { paStart :: Int, paEnd :: Int, paFallback :: Bool }
-#endif
-#if PANGO_CHECK_VERSION(1,6,0)
-  -- | Add extra space between graphemes of the text.
-  --
-  -- * Available in Pango 1.6.0 and higher.
-  --
-  | AttrLetterSpacing { paStart :: Int, paEnd :: Int, 
-			paLetterSpacing :: Double }
-#endif
- 
--- Attributes
-{#pointer *PangoAttrList #}
 
 -- Create an attribute list.
 withAttrList :: PangoString -> [PangoAttribute] -> (Ptr () -> IO a) -> IO a
@@ -141,7 +62,7 @@ withAttrList (PangoString correct _ _) pas act = do
   return res
 
 -- Create a PangoAttribute.
-crAttr :: UTFCorrection -> PangoAttribute -> IO (Ptr ())
+crAttr :: UTFCorrection -> PangoAttribute -> IO CPangoAttribute
 crAttr c AttrLanguage { paStart=s, paEnd=e, paLang = lang } =
   setAttrPos c s e $ {#call unsafe attr_language_new#} lang
 crAttr c AttrFamily { paStart=s, paEnd=e, paFamily = fam } =
@@ -212,4 +133,75 @@ crAttr c AttrLetterSpacing { paStart=s, paEnd=e, paLetterSpacing = pu } =
   setAttrPos c s e $
   {#call unsafe attr_letter_spacing_new#} (puToInt pu)
 #endif
+#if PANGO_CHECK_VERSION(1,16,0)
+crAttr c AttrGravity { paStart=s, paEnd=e, paGravity = g } =
+  setAttrPos c s e $
+  {#call unsafe attr_gravity_new#} (fromIntegral (fromEnum g))
+crAttr c AttrGravityHint { paStart=s, paEnd=e, paGravityHint = g } =
+  setAttrPos c s e $
+  {#call unsafe attr_gravity_hint_new#} (fromIntegral (fromEnum g))
+#endif
 
+-- | Parse the marked-up text (see 'Graphics.UI.Gtk.Pango.Markup.Markup'
+-- format) to create a plain-text string and an attribute list.
+--
+-- * The attribute list is a list of lists of attribute. Each list describes
+--   the attributes for the same span.
+--
+-- * If @accelMarker@ is not @'\0'@ (a zero character), the given character
+--   will mark the character following it as an accelerator. For example,
+--   @accelMarker@ might be an ampersand or underscore. All characters marked
+--   as an accelerator will receive a 'UnderlineLow' attribute, and the
+--   first character so marked will be returned as @accelChar@. If no
+--   accelerator character is found, the @accelMarker@ character itself is
+--   returned. Two @accelMarker@ characters following each other produce a
+--   single literal @accelMarker@ character.
+--
+-- * If a parsing error occurs a 'System.Glib.GError.GError' is thrown.
+--
+parseMarkup :: Markup -- ^ the string containing markup
+  -> Char -- ^ @accelMarker@ - the character that prefixes an accelerator
+  -> IO ([[PangoAttribute]], Char, String) -- ^ list of attributes, the accelerator character found and the input string
+  -- without markup
+parseMarkup markup accelMarker = propagateGError $ \errPtr ->
+  withUTFStringLen markup $ \(markupPtr,markupLen) ->
+  alloca $ \attrListPtr ->
+  alloca $ \strPtrPtr ->
+  alloca $ \accelPtr -> do
+    poke accelPtr (fromIntegral (ord accelMarker))
+    success <- {#call unsafe pango_parse_markup#} markupPtr
+      (fromIntegral markupLen) (fromIntegral (ord accelMarker))
+      (castPtr attrListPtr) strPtrPtr accelPtr errPtr
+    if not (toBool success) then return undefined else do
+      accel <- peek accelPtr
+      strPtr <- peek strPtrPtr
+      str <- peekUTFString strPtr
+      {#call unsafe g_free#} (castPtr strPtr)
+      attrList <- peek attrListPtr
+      attrs <- fromAttrList (genUTFOfs str) attrList
+      return (attrs, chr (fromIntegral accel), str)
+
+{#pointer *PangoAttrIterator #}
+
+-- | Convert an attribute list into a list of attributes.
+fromAttrList :: UTFCorrection -> PangoAttrList -> IO [[PangoAttribute]]
+fromAttrList correct attrListPtr = do
+  iter <- {#call unsafe pango_attr_list_get_iterator#} attrListPtr
+  let readIter = do
+        list <- {#call unsafe pango_attr_iterator_get_attrs#} iter
+        attrs <- if list==nullPtr then return [] else do
+          attrPtrs <- fromGSList list
+          mapM (fromAttr correct) attrPtrs
+        more <- {#call unsafe pango_attr_iterator_next#} iter
+        if toBool more then liftM ((:) attrs) $ readIter else return []
+  elems <- readIter
+  {#call unsafe pango_attr_iterator_destroy#} iter
+  return elems
+
+-- | Extract and delete an attribute.
+--
+fromAttr :: UTFCorrection -> CPangoAttribute -> IO PangoAttribute
+fromAttr correct attrPtr = do
+  attr <- readAttr correct attrPtr
+  {#call unsafe pango_attribute_destroy#} attrPtr
+  return attr

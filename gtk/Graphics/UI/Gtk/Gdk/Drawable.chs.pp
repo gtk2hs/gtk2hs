@@ -66,6 +66,7 @@ import Control.Monad	(liftM)
 
 import System.Glib.FFI
 import Graphics.UI.Gtk.General.Structs	(Point, Color)
+import Graphics.UI.Gtk.Pango.Structs ( pangoItemGetFont )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region, makeNewRegion)
 {#import Graphics.UI.Gtk.Pango.Types#}

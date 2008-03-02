@@ -27,12 +27,12 @@
 -- Define types used in Pango which are not derived from GObject.
 --
 module Graphics.UI.Gtk.Pango.Types (
+  Markup,
+
+  GInt,
   PangoUnit,
-  puToInt, puToUInt,
-  intToPu, uIntToPu,
   PangoRectangle(PangoRectangle),
-  fromRect,
-  toRect,
+  PangoDirection(..),
 
   PangoString(PangoString),
   makeNewPangoString,
@@ -42,8 +42,6 @@ module Graphics.UI.Gtk.Pango.Types (
   PangoItemRaw(PangoItemRaw),
   makeNewPangoItemRaw,
   withPangoItemRaw,
-  pangoItemGetFont,
-  pangoItemGetLanguage,
 
   GlyphItem(GlyphItem),
   GlyphStringRaw(GlyphStringRaw),
@@ -64,38 +62,46 @@ module Graphics.UI.Gtk.Pango.Types (
   emptyLanguage,
   languageFromString,
 
-  FontMetrics(..)
+  FontMetrics(..),
+  FontStyle(..),
+  Weight(..),
+  Variant(..),
+  Stretch(..),
+  Underline(..),
+#if PANGO_CHECK_VERSION(1,16,0)
+  PangoGravity(..),
+  PangoGravityHint(..),
+#endif
+  PangoAttribute(..),
+  PangoAttrList,
+  CPangoAttribute,
   ) where
 
 import Control.Monad (liftM)
 import Data.IORef ( IORef )
 import System.Glib.FFI
 import System.Glib.UTFString
-import Graphics.UI.Gtk.General.Structs ( pangoScale, Rectangle(..),
-					 pangoItemRawGetFont,
-					 pangoItemRawGetLanguage )
 {#import Graphics.UI.Gtk.Types#} (Font, PangoLayoutRaw)
+import Graphics.UI.Gtk.General.Structs (Color(..))
 
 {# context lib="pango" prefix="pango" #}
+
+-- | Define a synonym for text with embedded markup commands.
+--
+-- * Markup strings are just simple strings. But it's easier to tell if a
+--   method expects text with or without markup.
+--
+type Markup = String
+
+-- because stupid hsc2hs and c2hs do not agree on the type of gint (Int32 vs
+-- CInt)
+type GInt = {#type gint#}
 
 -- A pango unit is an internal euclidian metric, that is, a measure for 
 -- lengths and position.
 --
 -- * Deprecated. Replaced by Double.
 type PangoUnit = Double
-
-puToInt :: Double -> {#type gint#}
-puToInt u = truncate (u*pangoScale)
-
-puToUInt :: Double -> {#type guint#}
-puToUInt u = let u' = u*pangoScale in if u<0 then 0 else truncate u
-
-intToPu :: {#type gint#} -> Double
-intToPu i = fromIntegral i/pangoScale
-
-uIntToPu :: {#type guint#} -> Double
-uIntToPu i = fromIntegral i/pangoScale
-
 
 -- | Rectangles describing an area in 'Double's.
 --
@@ -104,19 +110,31 @@ uIntToPu i = fromIntegral i/pangoScale
 data PangoRectangle = PangoRectangle Double Double Double Double
 		      deriving Show
 
--- Cheating functions: We marshal PangoRectangles as Rectangles.
-fromRect :: Rectangle -> PangoRectangle
-fromRect (Rectangle x y w h) =
-  PangoRectangle (fromIntegral x/pangoScale)
-		 (fromIntegral y/pangoScale)
-		 (fromIntegral w/pangoScale)
-		 (fromIntegral h/pangoScale)
-
-toRect :: PangoRectangle -> Rectangle
-toRect (PangoRectangle x y w h) = Rectangle (truncate (x*pangoScale))
-				            (truncate (y*pangoScale))
-				            (truncate (w*pangoScale))
-				            (truncate (h*pangoScale))
+-- | The 'PangoDirection' type represents a direction in the Unicode
+-- bidirectional algorithm.
+--
+-- * The \"weak\" values denote a left-to-right or right-to-left direction
+--   only if there is no character with a strong direction in a paragraph.
+--   An example is a sequence of special, graphical characters which are
+--   neutral with respect to their rendering direction. A fresh
+--   'Graphics.UI.Gtk.Pango.Rendering.PangoContext' is by default weakly
+--   left-to-right.
+--
+-- * Not every value in this enumeration makes sense for every usage
+--   of 'PangoDirection'; for example, the return value of
+--   'unicharDirection' and 'findBaseDir' cannot be 'PangoDirectionWeakLtr'
+--   or 'PangoDirectionWeakRtl', since every character is either neutral or
+--   has a strong direction; on the other hand 'PangoDirectionNeutral'
+--   doesn't make sense to pass to 'log2visGetEmbeddingLevels'.
+--
+data PangoDirection = PangoDirectionLtr
+                    | PangoDirectionRtl
+#if PANGO_CHECK_VERSION(1,4,0)
+                    | PangoDirectionWeakLtr
+                    | PangoDirectionWeakRtl
+                    | PangoDirectionNeutral
+#endif
+                    deriving (Eq,Ord)
 
 -- A string that is stored with each GlyphString, PangoItem
 data PangoString = PangoString UTFCorrection CInt (ForeignPtr CChar)
@@ -155,18 +173,6 @@ withPangoItemRaw (PangoItemRaw pir) act = withForeignPtr pir act
 
 foreign import ccall unsafe "&pango_item_free"
   pango_item_free :: FinalizerPtr PangoItemRaw
-
--- | Extract the font used for this 'PangoItem'.
---
-pangoItemGetFont :: PangoItem -> IO Font
-pangoItemGetFont (PangoItem _ (PangoItemRaw pir)) =
-  withForeignPtr pir pangoItemRawGetFont
-
--- | Extract the 'Language' used for this 'PangoItem'.
---
-pangoItemGetLanguage :: PangoItem -> IO Language
-pangoItemGetLanguage (PangoItem _ (PangoItemRaw pir)) =
-  liftM (Language . castPtr) $ withForeignPtr pir pangoItemRawGetLanguage
 
 #if PANGO_CHECK_VERSION(1,2,0)
 {#pointer *PangoGlyphItem as GlyphItemRaw #}
@@ -311,4 +317,236 @@ data FontMetrics = FontMetrics {
 #endif
   } deriving Show
 
+-- | The style of a font.
+--
+-- * 'StyleOblique' is a slanted font like 'StyleItalic', 
+--   but in a roman style.
+--
+{#enum Style as FontStyle {underscoreToCase} deriving (Eq)#}
+
+instance Show FontStyle where
+  showsPrec _ StyleNormal	   = shows "normal"
+  showsPrec _ StyleOblique	   = shows "oblique"
+  showsPrec _ StyleItalic	   = shows "italic"
+
+-- | Define attributes for 'Weight'.
+--
+{#enum Weight {underscoreToCase} deriving (Eq)#}
+
+instance Show Weight where
+  showsPrec _ WeightUltralight	= shows "ultralight"
+  showsPrec _ WeightLight	= shows "light"
+  showsPrec _ WeightNormal	= shows "normal"
+  showsPrec _ WeightBold	= shows "bold"
+  showsPrec _ WeightUltrabold 	= shows "ultrabold"
+  showsPrec _ WeightHeavy	= shows "heavy"
+
+-- | The variant of a font.
+--
+-- * The 'VariantSmallCaps' is a version of a font where lower case
+--   letters are shown as physically smaller upper case letters.
+--
+{#enum Variant {underscoreToCase} deriving (Eq)#}
+
+instance Show Variant where
+  showsPrec _ VariantNormal       = shows "normal"
+  showsPrec _ VariantSmallCaps    = shows "smallcaps"
+
+-- | Define how wide characters are.
+--
+{#enum Stretch {underscoreToCase} deriving (Eq)#}
+
+instance Show Stretch where
+  showsPrec _ StretchUltraCondensed	= shows "ultracondensed"
+  showsPrec _ StretchExtraCondensed	= shows "extracondensed"
+  showsPrec _ StretchCondensed		= shows "condensed"
+  showsPrec _ StretchSemiCondensed	= shows "semicondensed"
+  showsPrec _ StretchNormal		= shows "normal"
+  showsPrec _ StretchSemiExpanded	= shows "semiexpanded"
+  showsPrec _ StretchExpanded		= shows "expanded"
+  showsPrec _ StretchExtraExpanded	= shows "extraexpanded"
+  showsPrec _ StretchUltraExpanded	= shows "ultraexpanded"
+
+-- | Define attributes for 'Underline'.
+--
+-- * The squiggly underline for errors is only available in Gtk 2.4 and higher.
+--
+{#enum Underline {underscoreToCase} deriving (Eq)#}
+
+instance Show Underline where
+  showsPrec _ UnderlineNone	= shows "none"
+  showsPrec _ UnderlineSingle	= shows "single"
+  showsPrec _ UnderlineDouble	= shows "double"
+  showsPrec _ UnderlineLow	= shows "low"
+#if GTK_CHECK_VERSION(2,4,0)
+  showsPrec _ UnderlineError	= shows "error"
+#endif
+
+#if PANGO_CHECK_VERSION(1,16,0)
+-- |  The 'PangoGravity' type represents the orientation of glyphs in a
+-- segment of text. The value 'GravitySouth', for instance, indicates that the
+-- text stands upright, i.e. that the base of the letter is directed
+-- downwards.
+--
+-- This is useful when rendering vertical text layouts. In those situations,
+-- the layout is rotated using a non-identity 'PangoMatrix', and then glyph
+-- orientation is controlled using 'PangoGravity'. Not every value in this
+-- enumeration makes sense for every usage of 'Gravity'; for example,
+-- 'PangoGravityAuto' only can be passed to 'pangoContextSetBaseGravity' and
+-- can only be returned by 'pangoContextGetBaseGravity'.
+--
+-- * See also: 'PangoGravityHint'
+--
+-- * Gravity is resolved from the context matrix.
+--
+-- * Since Pango 1.16
+--
+{#enum PangoGravity {underscoreToCase} with prefix="" deriving (Eq)#}
+
+instance Show PangoGravity where
+  show PangoGravitySouth = "south"
+  show PangoGravityEast = "east"
+  show PangoGravityNorth = "north"
+  show PangoGravityWest = "west"
+  show PangoGravityAuto = "auto"
+  
+-- | The 'PangoGravityHint' defines how horizontal scripts should behave in a
+-- vertical context.
+--
+-- * 'PangoGravityHintNatural': scripts will take their natural gravity based
+--   on the base gravity and the script. This is the default.
+--
+-- * 'PangoGravityHintStrong': always use the base gravity set, regardless of
+--   the script.
+--
+-- * 'PangoGravityHintLine': for scripts not in their natural direction (eg.
+--   Latin in East gravity), choose per-script gravity such that every script
+--   respects the line progression. This means, Latin and Arabic will take
+--   opposite gravities and both flow top-to-bottom for example.
+--
+{#enum PangoGravityHint {underscoreToCase} with prefix="" deriving (Eq)#}
+
+instance Show PangoGravityHint where
+  show PangoGravityHintNatural = "natural"
+  show PangoGravityHintStrong = "storng"
+  show PangoGravityHintLine = "line"
+
+#endif
+
+-- | Attributes for 'PangoItem's.
+--
+-- * A given attribute is applied from its start position 'paStart' up,
+--   but not including the end position, 'paEnd'.
+--
+data PangoAttribute
+  -- | A hint as to what language this piece of text is written in.
+  = AttrLanguage { paStart :: Int, paEnd :: Int, paLang :: Language }
+  -- | The font family, e.g. "sans serif".
+  | AttrFamily { paStart :: Int, paEnd :: Int, paFamily :: String }
+  -- | The slant of the current font.
+  | AttrStyle { paStart :: Int, paEnd :: Int, paStyle :: FontStyle }
+  -- | Weight of font, e.g. 'WeightBold'.
+  | AttrWeight { paStart :: Int, paEnd :: Int, paWeight :: Weight }
+  -- | 'VariantSmallCaps' will display lower case letters as small
+  -- upper case letters (if the font supports this).
+  | AttrVariant { paStart :: Int, paEnd :: Int, paVariant :: Variant }
+  -- | Stretch or condense the width of the letters.
+  | AttrStretch { paStart :: Int, paEnd :: Int, paStretch :: Stretch }
+  -- | Specify the size of the font in points.
+  | AttrSize { paStart :: Int, paEnd :: Int, paSize :: Double }
+#if PANGO_CHECK_VERSION(1,8,0)
+  -- | Specify the size of the font in device units (pixels).
+  --
+  -- * Available in Pango 1.8.0 and higher.
+  --
+  | AttrAbsSize { paStart :: Int, paEnd :: Int, paSize :: Double }
+#endif
+  -- | Specify several attributes of a font at once. Note that no deep copy
+  --   of the description is made when this attributes is passed to or received
+  --   from functions.
+    | AttrFontDescription { paStart :: Int, paEnd :: Int,
+			  paFontDescription :: FontDescription }
+  -- | Specify the foreground color.
+  | AttrForeground { paStart :: Int, paEnd :: Int, paColor :: Color }
+  -- | Specify the background color.
+  | AttrBackground { paStart :: Int, paEnd :: Int, paColor :: Color }
+  -- | Specify the kind of underline, e.g. 'UnderlineSingle'.
+  | AttrUnderline { paStart :: Int, paEnd :: Int, paUnderline :: Underline }
+#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
+ || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
+  -- | Specify the color of an underline.
+  --
+  -- * Available in Pango 1.8.0 and higher.
+  --
+  | AttrUnderlineColor { paStart :: Int, paEnd :: Int, paColor :: Color }
+#endif
+  -- | Specify if this piece of text should have a line through it.
+  | AttrStrikethrough { paStart :: Int, paEnd :: Int, paStrikethrough :: Bool }
+#if  (defined (WIN32) && PANGO_CHECK_VERSION(1,10,0)) \
+ || (!defined (WIN32) && PANGO_CHECK_VERSION(1,8,0))
+  -- | Specify the color of the strike through line.
+  --
+  -- * Available in Pango 1.8.0 and higher.
+  --
+  | AttrStrikethroughColor { paStart :: Int, paEnd :: Int, paColor :: Color }
+#endif
+  -- | Displace the text vertically. Positive values move the text upwards.
+  | AttrRise { paStart :: Int, paEnd :: Int, paRise :: Double }
+#if PANGO_CHECK_VERSION(1,8,0)
+  -- | Restrict the amount of what is drawn of the marked shapes.
+  --
+  -- * Available in Pango 1.8.0 and higher.
+  --
+  | AttrShape { paStart :: Int, paEnd :: Int, paInk :: PangoRectangle,
+		paLogical :: PangoRectangle }
+#endif
+  -- | Scale the font up (values greater than one) or shrink the font.
+  | AttrScale { paStart :: Int, paEnd :: Int, paScale :: Double }
+#if PANGO_CHECK_VERSION(1,4,0)
+  -- | Determine if a fall back font should be substituted if no matching
+  -- font is available.
+  | AttrFallback { paStart :: Int, paEnd :: Int, paFallback :: Bool }
+#endif
+#if PANGO_CHECK_VERSION(1,6,0)
+  -- | Add extra space between graphemes of the text.
+  --
+  -- * Available in Pango 1.6.0 and higher.
+  --
+  | AttrLetterSpacing { paStart :: Int, paEnd :: Int, 
+			paLetterSpacing :: Double }
+#endif
+#if PANGO_CHECK_VERSION(1,16,0)
+  -- | Sets the gravity field of a font description. The gravity field specifies
+  -- how the glyphs should be rotated. If gravity is 'GravityAuto', this
+  -- actually unsets the gravity mask on the font description.
+  --
+  -- * This function is seldom useful to the user. Gravity should normally be
+  --   set on a 'PangoContext'.
+  --
+  -- * Available in Pango 1.16.0 and higher.
+  --
+  | AttrGravity { paStart :: Int, paEnd :: Int, 
+			paGravity :: PangoGravity }
+
+	-- | Set the way horizontal scripts behave in a vertical context.
+  --
+  -- * Available in Pango 1.16.0 and higher.
+  --
+	| AttrGravityHint  { paStart :: Int, paEnd :: Int, 
+			paGravityHint :: PangoGravityHint }
+#endif
+  deriving Show
+
+-- dirty hack to make the above showable
+instance Show FontDescription where
+  show fd = unsafePerformIO $ do
+    strPtr <- {#call unsafe font_description_to_string#} fd
+    str <- peekUTFString strPtr
+    {#call unsafe g_free#} (castPtr strPtr)
+    return str
+
+-- Attributes
+{#pointer *PangoAttrList #}
+
+{#pointer *PangoAttribute as CPangoAttribute#}
 

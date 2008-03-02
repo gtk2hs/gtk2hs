@@ -43,8 +43,7 @@ import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#} (Font(..))
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Pango.Types#}
-import Graphics.UI.Gtk.General.Structs (pangoItemRawAnalysis,
-					pangoItemRawGetLevel )
+import Graphics.UI.Gtk.Pango.Structs
 import Control.Exception ( Exception(ArrayException),
 			   ArrayException(IndexOutOfBounds) )
 import Control.Exception (throwIO)

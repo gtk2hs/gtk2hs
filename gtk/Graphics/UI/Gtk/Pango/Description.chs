@@ -63,6 +63,7 @@ import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Types#} ()
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Pango.Enums
+import Graphics.UI.Gtk.Pango.Structs ( puToInt, intToPu )
 
 {# context lib="pango" prefix="pango_font_description" #}
 
@@ -247,7 +248,6 @@ fontDescriptionToString fd = do
   str <- peekUTFString strPtr
   {#call unsafe g_free#} (castPtr strPtr)
   return str
-
 
 
 
