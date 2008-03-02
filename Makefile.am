@@ -2201,7 +2201,7 @@ htmldoc_DATA =									  \
 	docs/reference/index.html docs/reference/doc-index.html			  \
 	docs/reference/gtk2hs.haddock						  \
 	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y	  \
-		58 60 62 124, docs/reference/doc-index-$(LETTER).html) #missing Z
+		58 , docs/reference/doc-index-$(LETTER).html) #missing Z < > |, i.e. 60 62 124
 
 $(htmldoc_DATA) : $(htmldoc_HSFILES)
 	mkdir -p docs/reference
