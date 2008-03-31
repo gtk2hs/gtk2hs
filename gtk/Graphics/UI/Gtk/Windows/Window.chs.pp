@@ -79,7 +79,7 @@ module Graphics.UI.Gtk.Windows.Window (
   windowIsActive,
   windowHasToplevelFocus,
 #endif
--- windowListToplevels,
+  windowListToplevels,
 -- windowAddMnemonic,
 -- windowRemoveMnemonic,
 -- windowSetMnemonicModifier,
@@ -201,6 +201,7 @@ import System.Glib.GError
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(makeNewGObject)
+import System.Glib.GList		(fromGList)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.General.Enums	(WindowType(..), WindowPosition(..))
 {#import Graphics.UI.Gtk.Types#}
@@ -485,6 +486,14 @@ windowHasToplevelFocus self =
   {# call gtk_window_has_toplevel_focus #}
     (toWindow self)
 #endif
+
+-- | Returns a list of all existing toplevel windows.
+--
+windowListToplevels :: IO [Window]
+windowListToplevels = do
+  glistPtr <- {#call unsafe gtk_window_list_toplevels#}
+  winPtrs <- fromGList glistPtr
+  mapM (\ptr -> makeNewGObject mkWindow (return ptr)) winPtrs
 
 -- | Presents a window to the user. This may mean raising the window in the
 -- stacking order, deiconifying it, moving it to the current desktop, and\/or
