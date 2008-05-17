@@ -2200,6 +2200,7 @@ htmldoc_DATA =									  \
 	docs/reference/haddock.css docs/reference/haskell_icon.gif		  \
 	docs/reference/plus.gif docs/reference/minus.gif			  \
 	docs/reference/haddock.js						  \
+	docs/reference/haddock-util.js						  \
 	docs/reference/index.html docs/reference/doc-index.html			  \
 	docs/reference/gtk2hs.haddock						  \
 	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y	  \
