@@ -101,96 +101,95 @@ import System.Glib.GList                      ( GList
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
--- | Creates a new 'Bin' with the given name.
-binNew :: String -- ^ the name of the new bin
-       -> IO Bin -- ^ the new bin
+-- | Create a new 'Bin' with the given name.
+binNew :: String -- ^ @name@ - the name to give the new 'Bin'
+       -> IO Bin -- ^ the new 'Bin'
 binNew name =
     withUTFString name {# call bin_new #} >>= takeObject . castPtr
 
--- | Adds the given 'Element' to the 'Bin'. Sets the element's parent. An
---   element can only be added to one bin.
+-- | Add @element@ to @bin@, and set @element@'s parent to
+--   @bin@. An 'Element' can only be added to one 'Bin' at a time.
 --   
---   If the element's pads are linked to other pads, the pads will be
---   unlinked before the element is added to the bin.
+--   If any of @element@'s pads are linked to other 'Pad's, they will be
+--   unlinked before @element@ is added to @bin@.
 binAdd :: (BinClass bin, ElementClass element)
-       => bin     -- ^ a bin
-       -> element -- ^ the element to be added
+       => bin     -- ^ @bin@ - a 'Bin'
+       -> element -- ^ @element@ - the element to add
        -> IO Bool -- ^ 'True' if the element could be added, 'False'
                   --   if the bin does not want to accept the element
 binAdd bin element =
     liftM toBool $ {# call bin_add #} (toBin bin) (toElement element)
 
--- | Removes the given 'Element' from the 'Bin', unparenting it as well.
+-- | Remove @element@ from @bin@, unparenting it as well.
 --   
---   If the element's pads are linked to other pads, the pads will be
---   unlinked before the element is removed from the bin.
+--   If any @element@'s pads are linked to other pads, they will be
+--   unlinked before @element@ is added to @bin@.
 binRemove :: (BinClass bin, ElementClass element)
-          => bin     -- ^ a bin
-          -> element -- ^ the element to remove
-          -> IO Bool -- ^ 'True' if the element could be removed, 'False'
-                     --   if the bin does not want to remove the element
+          => bin     -- ^ @bin@ - a 'Bin'
+          -> element -- ^ @element@ - the element to remove
+          -> IO Bool -- ^ 'True' if @element@ could be removed, otherwise 'False'
 binRemove bin element =
     liftM toBool $ {# call bin_remove #} (toBin bin) (toElement element)
 
--- | Gets the 'Element' with the given name from a 'Bin'. This
---   function recurses into child bins. Returns 'Nothing' if no element
---   with the given name is found in the bin.
+-- | Get the 'Element' with the given name @name@ from @bin@,
+--   recursing down through @bin@'s children. 'Nothing' is returned if no
+--   'Element' with the given name is found.
 binGetByName :: BinClass bin
-             => bin                -- ^ a bin
-             -> String             -- ^ the element name to search for
-             -> IO (Maybe Element) -- ^ the element with the given name, or 'Nothing'
+             => bin                -- ^ @bin@ - a 'Bin'
+             -> String             -- ^ @name@ - the name to search for
+             -> IO (Maybe Element) -- ^ the 'Element' with the name @name@, or 'Nothing'
 binGetByName bin name =
     withUTFString name ({# call bin_get_by_name #} (toBin bin)) >>= maybePeek takeObject
 
--- | Gets the element with the given name from this bin. If the
---   element is not found, a recursion is performed on the parent
---   bin. Returns 'Nothing' if no element with the given name is
---   found.
+-- | Get the 'Element' with the given name @name@ from @bin@,
+--   recursing up through @bin@'s parents. Returns 'Nothing' if no
+--   element with the given name is found.
 binGetByNameRecurseUp :: BinClass bin
-                      => bin                -- ^ a bin
-                      -> String             -- ^ the element name to search for
-                      -> IO (Maybe Element) -- ^ the element with the given name, or 'Nothing'
+                      => bin                -- ^ @bin@ - a 'Bin'
+                      -> String             -- ^ @element@ - the name to search for
+                      -> IO (Maybe Element) -- ^ the 'Element' with the given name, or 'Nothing'
 binGetByNameRecurseUp bin name =
     withUTFString name ({# call bin_get_by_name_recurse_up #} $ toBin bin) >>=
         maybePeek takeObject
 
--- | Looks for an element inside the bin that implements the given
---   interface. If such an element is found, it returns the
---   element. You can case this element to the given interface
---   afterwards. If you want all the elements that implement an
+-- | Find an 'Element' inside @bin@ that implements the interface
+--   given by @iface@. The returned 'Element' can be casted to
+--   @iface@'s type. If you want all the 'Element's that implement an
 --   interface, use 'binIterateAllByInterface'.
 --   
 --   This function recurses into child bins.
 binGetByInterface :: BinClass bin
-                  => bin                -- ^ a bin
-                  -> GType              -- ^ the interface's type
-                  -> IO (Maybe Element) -- ^ an element inside the bin implementing the interface, or 'Nothing'
+                  => bin                -- ^ @bin@ - a 'Bin'
+                  -> GType              -- ^ @iface@ - the type of the requested interface
+                  -> IO (Maybe Element) -- ^ the 'Element' inside @bin@ that implements @iface@, or 'Nothing'
 binGetByInterface bin iface =
     {# call bin_get_by_interface #} (toBin bin) (fromIntegral iface) >>=
         maybePeek takeObject
 
--- | Gets an 'Iterator' for the 'Element's in this 'Bin'.
+-- | Get an 'Iterator' over the 'Element's in @bin@.
 binIterateElements :: BinClass bin
-                   => bin                           -- ^ a bin
-                   -> IO (Maybe (Iterator Element)) -- ^ an iterator on elements, or 'Nothing'
+                   => bin                           -- ^ @bin@ - a 'Bin'
+                   -> IO (Maybe (Iterator Element)) -- ^ an 'Iterator' over the 'Element's in @bin@,
+                                                    --   or 'Nothing'
 binIterateElements bin =
     {# call bin_iterate_elements #} (toBin bin) >>=
         maybePeek takeIterator
 
--- | Gets an 'Iterator' for the 'Element's in this 'Bin'. This
---   iterator recurses into the bin's children.
+-- | Get an 'Iterator' over the 'Element's in @bin@. This
+--   iterator recurses into @bin@'s children.
 binIterateRecurse :: BinClass bin
-                  => bin                           -- ^ a bin
-                  -> IO (Maybe (Iterator Element)) -- ^ an iterator on elements, or 'Nothing'
+                  => bin                           -- ^ @bin@ - a 'Bin'
+                  -> IO (Maybe (Iterator Element)) -- ^ an 'Iterator' over the 'Element's in @bin@
+                                                   --   and its descendents, or 'Nothing'
 binIterateRecurse bin =
     {# call bin_iterate_recurse #} (toBin bin) >>=
         maybePeek takeIterator
 
--- | Gets an iterator for all elements in the bin that have the
+-- | Get an iterator over the 'Element's in @bin@ that have the
 --   'ElementIsSink' flag set.
 binIterateSinks :: BinClass bin
-                => bin                           -- ^ a bin
-                -> IO (Maybe (Iterator Element)) -- ^ an iterator on elements, or 'Nothing'
+                => bin                           -- ^ @bin@ - a 'Bin'
+                -> IO (Maybe (Iterator Element)) -- ^ an 'Iterator' over the sinks in @bin@, or 'Nothing'
 binIterateSinks bin =
     {# call bin_iterate_sinks #} (toBin bin) >>=
         maybePeek takeIterator
@@ -202,8 +201,8 @@ binIterateSinks bin =
 --   This function is used internally to perform state changes of the
 --   bin elements.
 binIterateSorted :: BinClass bin
-                 => bin                           -- ^ a bin
-                 -> IO (Maybe (Iterator Element)) -- ^ an iterator on elements, or 'Nothing'
+                 => bin                           -- ^ @bin@ - a 'Bin'
+                 -> IO (Maybe (Iterator Element)) -- ^ an 'Iterator' over the 'Element's in @bin@, or 'Nothing'
 binIterateSorted bin =
     {# call bin_iterate_sorted #} (toBin bin) >>=
         maybePeek takeIterator
@@ -211,8 +210,8 @@ binIterateSorted bin =
 -- | Gets an iterator for all elements in the bin that have no sink
 --   pads and have the 'ElementIsSink' flag unset.
 binIterateSources :: BinClass bin
-                  => bin                           -- ^ a bin
-                  -> IO (Maybe (Iterator Element)) -- ^ an iterator on elements, or 'Nothing'
+                  => bin                           -- ^ @bin@ - a 'Bin'
+                  -> IO (Maybe (Iterator Element)) -- ^ an 'Iterator' on elements, or 'Nothing'
 binIterateSources bin =
     {# call bin_iterate_sources #} (toBin bin) >>=
         maybePeek takeIterator
@@ -221,9 +220,9 @@ binIterateSources bin =
 --   interface. You can safely case all elements to the given
 --   interface. The function recurses inside child bins.
 binIterateAllByInterface :: BinClass bin
-                         => bin                           -- ^ a bin
-                         -> GType                         -- ^ the interface's type
-                         -> IO (Maybe (Iterator Element)) -- ^ an iterator on elements, or 'Nothing'
+                         => bin                           -- ^ @bin@ - a 'Bin'
+                         -> GType                         -- ^ @iface@ - the interface's 'GType'
+                         -> IO (Maybe (Iterator Element)) -- ^ an 'Iterator' on elements, or 'Nothing'
 binIterateAllByInterface bin iface =
     {# call bin_iterate_all_by_interface #} (toBin bin) (fromIntegral iface) >>=
         maybePeek takeIterator
@@ -233,9 +232,9 @@ binIterateAllByInterface bin iface =
 --   given direction within the specified bin. Returns an unconnected
 --   pad if one is found, otherwise 'Nothing'.
 binFindUnconnectedPad :: BinClass bin
-                      => bin            -- ^ a bin
-                      -> PadDirection   -- ^ whether to look for a source pad or a sink pad
-                      -> IO (Maybe Pad) -- ^ an unconnected pad or 'Nothing'
+                      => bin            -- ^ @bin@ - a 'Bin'
+                      -> PadDirection   -- ^ @direction@ - the direction of the requested 'Pad'
+                      -> IO (Maybe Pad) -- ^ an unconnected 'Pad', or 'Nothing'
 binFindUnconnectedPad bin direction =
     {# call bin_find_unconnected_pad #} (toBin bin) (fromIntegral $ fromEnum direction) >>=
         maybePeek takeObject
