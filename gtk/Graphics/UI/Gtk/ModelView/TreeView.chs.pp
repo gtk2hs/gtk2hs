@@ -78,7 +78,9 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   toTreeView,
   Point,
   DragAction(..),
+#if GTK_CHECK_VERSION(2,10,0)
   TreeViewGridLines(..),
+#endif
 
 -- * Constructors
   treeViewNew,
