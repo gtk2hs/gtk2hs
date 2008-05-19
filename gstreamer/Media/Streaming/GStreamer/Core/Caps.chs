@@ -103,49 +103,56 @@ capsAny :: Caps
 capsAny =
     unsafePerformIO $ {# call caps_new_any #} >>= takeCaps
 
--- | Returns the number of structures contained in the 'Caps'.
-capsSize :: Caps
-         -> Word
+-- | Get the number of structures contained in the 'Caps'.
+capsSize :: Caps -- ^ @caps@ - a 'Caps'
+         -> Word -- ^ the number of structures contained in the 'Caps'
 capsSize caps =
     fromIntegral $ unsafePerformIO $ {# call caps_get_size #} caps
 
--- | Returns the 'Structure' at the given index.
-capsGetStructure :: Caps
-                 -> Word
-                 -> Maybe Structure
+-- | Get the 'Structure' at the given index.
+capsGetStructure :: Caps            -- ^ @caps@ - a 'Caps'
+                 -> Word            -- ^ @index@ - the index of the 'Structure'
+                 -> Maybe Structure -- ^ the 'Structure' at the given index, or 'Nothing'
+                                    --   if @index@ is invalid
 capsGetStructure caps index =
     unsafePerformIO $
         {# call caps_get_structure #} caps (fromIntegral index) >>=
             maybePeek peekStructure
 
--- | Returns a new 'Caps' containing only the 'Structure' at the given
+-- | Create a new 'Caps' containing only the 'Structure' at the given
 --   index of the caps.
-capsCopyNth :: Caps
-            -> Word
-            -> Maybe Caps
+capsCopyNth :: Caps       -- ^ @caps@ - a 'Caps'
+            -> Word       -- ^ @index@ - the index of the 'Structure'
+            -> Maybe Caps -- ^ the new 'Caps', or 'Nothing'
+                          --   if @index@ is invalid
 capsCopyNth caps index =
     unsafePerformIO $
         {# call caps_copy_nth #} caps (fromIntegral index) >>=
             maybePeek takeCaps
 
--- | Returns 'True' if the caps represents no media formats.
-capsIsEmpty :: Caps
-            -> Bool
+-- | Determine whether @caps@ represents no media formats.
+capsIsEmpty :: Caps -- ^ @caps@ - a 'Caps'
+            -> Bool -- ^ 'True' if @caps@ is empty, otherwise 'False'
 capsIsEmpty caps =
     toBool $ unsafePerformIO $
         {# call caps_is_empty #} caps
 
--- | Returns 'True' if the caps is fixed.
-capsIsFixed :: Caps
-            -> Bool
+-- | Determine whether the @caps@ is fixed; that is, if it has exactly
+--   one structure, and each field in the structure describes a fixed type.
+capsIsFixed :: Caps -- ^ @caps@ - a 'Caps'
+            -> Bool -- ^ 'True' if @caps@ is fixed, otherwise 'False'
 capsIsFixed caps =
     toBool $ unsafePerformIO $
         {# call caps_is_fixed #} caps
 
 -- | Returns 'True' if the caps represent the same set of capabilities.
-capsIsEqual :: Caps
-            -> Caps
-            -> Bool
+--   
+--   This function does not work reliably if optional properties for
+--   'Caps' are included on one 'Caps' but omitted on the other.
+capsIsEqual :: Caps -- ^ @caps1@ - the first 'Caps'
+            -> Caps -- ^ @caps2@ - the second 'Caps'
+            -> Bool -- ^ 'True' if both 'Caps' represent the same set
+                    --   of capabilities.
 capsIsEqual caps1 caps2 =
     toBool $ unsafePerformIO $
         {# call caps_is_equal #} caps1 caps2
@@ -155,9 +162,10 @@ instance Eq Caps where
 
 -- | Returns 'True' if the caps are equal.  The caps must both be
 --   fixed.
-capsIsEqualFixed :: Caps
-                 -> Caps
-                 -> Bool
+capsIsEqualFixed :: Caps -- ^ @caps1@ - the first 'Caps'
+                 -> Caps -- ^ @caps2@ - the second 'Caps'
+                 -> Bool -- ^ 'True' if both 'Caps' represent the same set
+                         --   of capabilities
 capsIsEqualFixed caps1 caps2 =
     toBool $ unsafePerformIO $
         {# call caps_is_equal_fixed #} caps1 caps2
@@ -165,9 +173,9 @@ capsIsEqualFixed caps1 caps2 =
 -- | Returns 'True' if every media format in the first caps is also
 --   contained by the second. That is, the first is a subset of the
 --   second.
-capsIsAlwaysCompatible :: Caps
-                       -> Caps
-                       -> Bool
+capsIsAlwaysCompatible :: Caps -- ^ @caps1@ - the first 'Caps'
+                       -> Caps -- ^ @caps2@ - the second 'Caps'
+                       -> Bool -- ^ 'True' if @caps1@ is a subset of @caps2@, otherwise 'False'
 capsIsAlwaysCompatible caps1 caps2 =
     toBool $ unsafePerformIO $
         {# call caps_is_always_compatible #} caps1 caps2
@@ -177,18 +185,19 @@ capsIsAlwaysCompatible caps1 caps2 =
 --   
 --   This function does not work reliably if optional properties for
 --   caps are included on one caps and omitted on the other.
-capsIsSubset :: Caps
-             -> Caps
-             -> Bool
+capsIsSubset :: Caps -- ^ @caps1@ - the first 'Caps'
+             -> Caps -- ^ @caps2@ - the second 'Caps'
+             -> Bool -- ^ 'True' if @caps1@ is a subset of @caps2@, otherwise 'False'
 capsIsSubset caps1 caps2 =
     toBool $ unsafePerformIO $
         {# call caps_is_subset #} caps1 caps2
 
 -- | Creates a new caps containing all the formats that are common to
 --   both of the caps.
-capsIntersect :: Caps
-              -> Caps
-              -> Caps
+capsIntersect :: Caps -- ^ @caps1@ - the first 'Caps'
+              -> Caps -- ^ @caps2@ - the second 'Caps'
+              -> Caps -- ^ a new 'Caps' containing all capabilities present
+                      --   in both @caps1@ and @caps2@
 capsIntersect caps1 caps2 =
     unsafePerformIO $
         {# call caps_intersect #} caps1 caps2 >>=
@@ -197,9 +206,10 @@ capsIntersect caps1 caps2 =
 -- | Creates a new caps containing all the formats that are common to
 --   either of the caps. If either of the structures are equivalient
 --   to 'capsAny', the result will be 'capsAny'.
-capsUnion :: Caps
-          -> Caps
-          -> Caps
+capsUnion :: Caps -- ^ @caps1@ - the first 'Caps'
+          -> Caps -- ^ @caps2@ - the second 'Caps'
+          -> Caps -- ^ a new 'Caps' containing all capabilities present
+                  --   in either @caps1@ and @caps2@
 capsUnion caps1 caps2 =
     unsafePerformIO $
         {# call caps_union #} caps1 caps2 >>=
@@ -207,9 +217,10 @@ capsUnion caps1 caps2 =
 
 -- | Creates a new caps containing all the formats that are in the
 --   first but not the second.
-capsSubtract :: Caps
-             -> Caps
-             -> Caps
+capsSubtract :: Caps -- ^ @caps1@ - the first 'Caps'
+             -> Caps -- ^ @caps2@ - the second 'Caps'
+             -> Caps -- ^ a new 'Caps' containing all capabilities present
+                     --   in @caps1@ but not @caps2@
 capsSubtract caps1 caps2 =
     unsafePerformIO $
         {# call caps_subtract #} caps1 caps2 >>=
@@ -217,23 +228,23 @@ capsSubtract caps1 caps2 =
 
 -- | Creates a new caps that represents the same set of formats as the
 --   argument, but that contains no lists.
-capsNormalize :: Caps
-              -> Caps
+capsNormalize :: Caps -- ^ @caps@ - a 'Caps'
+              -> Caps -- ^ the new, normalized 'Caps'
 capsNormalize caps =
     unsafePerformIO $
         {# call caps_normalize #} caps >>= takeCaps
 
 -- | Converts the argument to a string representation. The string can
 --   be converted back to a caps using 'capsFromString'.
-capsToString :: Caps
-             -> String
+capsToString :: Caps   -- ^ @caps@ - a 'Caps'
+             -> String -- ^ the string representation of 'Caps'
 capsToString caps =
     unsafePerformIO $
         {# call caps_to_string #} caps >>= readUTFString
 
 -- | Read a caps from a string.
-capsFromString :: String
-               -> Maybe Caps
+capsFromString :: String     -- ^ @string@ - the string representation of a 'Caps'
+               -> Maybe Caps -- ^ the new 'Caps', or 'Nothing' if @string@ is invalid
 capsFromString string =
     unsafePerformIO $
         withUTFString string {# call caps_from_string #} >>=
@@ -258,22 +269,22 @@ marshalCapsModify mkCaps (CapsM action) =
            return (caps, result)
 
 -- | Create a caps and mutate it according to the given action.
-capsCreate :: CapsM a
-           -> (Caps, a)
-capsCreate action =
+capsCreate :: CapsM a   -- ^ @mutate@ - the mutating action
+           -> (Caps, a) -- ^ the new 'Caps' and the action's result
+capsCreate mutate =
     marshalCapsModify
         {# call caps_new_empty #}
-        action
+        mutate
 
 -- | Copy a caps and mutate it according to the given action.
-capsModify :: Caps
-           -> CapsM a
-           -> (Caps, a)
-capsModify caps action =
-    marshalCapsModify ({# call caps_copy #} caps) action
+capsModify :: Caps      -- ^ @caps@ - the 'Caps' to modify
+           -> CapsM a   -- ^ @mutate@ - the mutating action
+           -> (Caps, a) -- ^ the new 'Caps' and the action's result
+capsModify caps mutate =
+    marshalCapsModify ({# call caps_copy #} caps) mutate
 
 -- | Append the given structure to the current caps.
-capsAppendStructure :: Structure
+capsAppendStructure :: Structure -- ^ @structure@ - the 'Structure' to append to the current 'Caps'
                     -> CapsM ()
 capsAppendStructure structure = do
   capsPtr <- askCapsPtr
@@ -285,7 +296,7 @@ capsAppendStructure structure = do
 
 -- | Append the structure to the current caps, if it is not already
 --   expressed by the caps.
-capsMergeStructure :: Structure
+capsMergeStructure :: Structure -- ^ @structure@ - the 'Structure' to merge with the current 'Caps'
                    -> CapsM ()
 capsMergeStructure structure = do
   capsPtr <- askCapsPtr
@@ -296,7 +307,7 @@ capsMergeStructure structure = do
         _ = {# call structure_copy #}
 
 -- | Removes the structure at the given index from the current caps.
-capsRemoveStructure :: Word
+capsRemoveStructure :: Word     -- ^ @idx@ - the index of the 'Structure' to remove
                     -> CapsM ()
 capsRemoveStructure idx = do
   capsPtr <- askCapsPtr
