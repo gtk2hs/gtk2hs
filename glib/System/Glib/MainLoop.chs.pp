@@ -55,7 +55,9 @@ module System.Glib.MainLoop (
   sourceSetPriority,
   sourceGetPriority,
   sourceDestroy,
+#if GLIB_CHECK_VERSION(2,12,0)
   sourceIsDestroyed
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -334,10 +336,12 @@ sourceDestroy :: Source
 sourceDestroy source =
     {# call source_destroy #} source
 
+#if GLIB_CHECK_VERSION(2,12,0)
 sourceIsDestroyed :: Source
                   -> IO Bool
 sourceIsDestroyed source =
     liftM toBool $ {# call source_is_destroyed #} source
+#endif
 
 sourceRemove :: HandlerId
              -> IO Bool
