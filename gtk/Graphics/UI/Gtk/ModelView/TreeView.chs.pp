@@ -151,9 +151,9 @@ module Graphics.UI.Gtk.ModelView.TreeView (
 #if GTK_CHECK_VERSION(2,8,0)
   treeViewGetVisibleRange,
 #endif
+#if GTK_CHECK_VERSION(2,10,0)
   treeViewEnableModelDragDest,
   treeViewEnableModelDragSource,
-#if GTK_CHECK_VERSION(2,10,0)
   treeViewGetSearchEntry,
   treeViewSetSearchEntry,
 #endif
@@ -1133,6 +1133,7 @@ treeViewGetVisibleRange self  = alloca $ \startPtr -> alloca $ \endPtr -> do
     
 #endif
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:61e1 d:3a0a
 -- | Turns @treeView@ into a drop destination for automatic DND.
 --
@@ -1176,7 +1177,6 @@ treeViewEnableModelDragSource self startButtonMask targets actions =
     ((fromIntegral . fromFlags) actions)
   {#call unsafe gtk_target_table_free#} tlPtr nTargets
   
-#if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:3355 d:3bbe
 -- | Returns the 'Entry' which is currently in use as interactive search entry
 -- for @treeView@. In case the built-in entry is being used, @Nothing@ will be
