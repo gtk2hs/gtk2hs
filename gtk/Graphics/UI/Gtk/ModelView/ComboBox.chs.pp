@@ -488,6 +488,8 @@ comboBoxGetFocusOnClick self =
   liftM toBool $
   {# call gtk_combo_box_get_focus_on_click #}
     (toComboBox self)
+#else
+foreign import ccall "wrapper" dummyForStub :: (CInt -> IO ()) -> IO (FunPtr (CInt -> IO ()))
 #endif
 
 --------------------
