@@ -48,7 +48,9 @@ module System.Gnome.VFS.Volume (
   volumeGetDisplayName,
   volumeGetDrive,
   volumeGetFilesystemType,
+#if GNOME_VFS_CHECK_VERSION(2,8,0)
   volumeGetHalUDI,
+#endif
   volumeGetIcon,
   volumeGetID,
   volumeGetVolumeType,
@@ -211,6 +213,7 @@ volumeGetFilesystemType :: VolumeClass volume =>
 volumeGetFilesystemType =
     marshalMaybeString {# call volume_get_filesystem_type #}
 
+#if GNOME_VFS_CHECK_VERSION(2,8,0)
 -- | Returns the HAL UDI of a 'Volume' object.
 --   
 --   For HAL volumes, this matches the value of the @info.udi@ key,
@@ -220,6 +223,7 @@ volumeGetHalUDI :: VolumeClass volume =>
                 -> IO (Maybe String) -- ^ the volume's HAL UDI
 volumeGetHalUDI =
     marshalMaybeString {# call volume_get_hal_udi #}
+#endif
 
 -- | Returns the icon filename for a 'Volume' object.
 volumeGetIcon :: VolumeClass volume =>
