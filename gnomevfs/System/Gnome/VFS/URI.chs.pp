@@ -40,7 +40,9 @@ module System.Gnome.VFS.URI (
 -- * Operations
   uriFromString,
   uriResolveRelative,
+#if GNOME_VFS_CHECK_VERSION(2,16,0)
   uriResolveSymbolicLink,
+#endif
   uriAppendString,
   uriAppendPath,
   uriAppendFileName,
@@ -122,6 +124,7 @@ uriResolveRelative base relativeReference =
     unsafePerformIO $ (withUTFString relativeReference $
                           {# call uri_resolve_relative #} base) >>= maybePeek newURI
 
+#if GNOME_VFS_CHECK_VERSION(2,16,0)
 -- | Create a new uri from @symbolicLink@, relative to @base@.
 --   
 --   If symbolic_link begins with a @\'\/\'@, it replaces the path of base,
@@ -132,6 +135,7 @@ uriResolveSymbolicLink :: URI
 uriResolveSymbolicLink base symbolicLink =
     unsafePerformIO $ (withUTFString symbolicLink $
                           {# call uri_resolve_symbolic_link #} base) >>= maybePeek newURI
+#endif
 
 -- | Create a new URI obtained by appending @uriFragment@ to @uri@. This
 --   will take care of adding an appropriate directory separator
