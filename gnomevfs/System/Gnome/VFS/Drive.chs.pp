@@ -59,7 +59,9 @@ module System.Gnome.VFS.Drive (
   driveIsConnected,
   driveIsMounted,
   driveIsUserVisible,
+#if GNOME_VFS_CHECK_VERSION(2,8,0)
   driveGetMountedVolumes,
+#endif
 
 -- * Drive Operations
   driveEject,
@@ -212,6 +214,8 @@ driveGetID :: DriveClass drive =>
 driveGetID drive =
     {# call drive_get_id #} (castToDrive drive)
 
+
+#if GNOME_VFS_CHECK_VERSION(2,8,0)
 -- | Returns a list of mounted volumes for a 'Drive' object.
 driveGetMountedVolumes :: DriveClass drive =>
                           drive       -- ^ @drive@ - a drive object
@@ -221,6 +225,7 @@ driveGetMountedVolumes drive =
     {# call drive_get_mounted_volumes #} (castToDrive drive) >>=
         fromGList >>=
         mapM newVolume
+#endif
 
 marshalBool cAction drive =
     liftM toBool $ cAction (castToDrive drive)
