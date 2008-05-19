@@ -74,13 +74,13 @@ module Media.Streaming.GStreamer.Core.Bus (
 
 -- * Types
   Bus,
+  BusClass,
   -- | The result of a 'BusSyncHandler'.
   BusSyncReply,
   -- | A handler that will be invoked synchronously when a new message
   --   is injected into the bus. This function is mostly used internally.
   --   Only one sync handler may be attached to a given bus.
   BusSyncHandler,
-  BusClass,
   castToBus,
   toBus,
 -- * Bus Operations
@@ -125,58 +125,62 @@ import System.Glib.FFI
 
 -- | Get the flags set on this bus.
 busGetFlags :: BusClass busT
-            => busT
-            -> IO [BusFlags]
+            => busT          -- ^ @bus@ - a 'Bus'
+            -> IO [BusFlags] -- ^ the flags set on @bus@
 busGetFlags = mkObjectGetFlags
 
 -- | Set flags on this bus.
 busSetFlags :: BusClass busT
-            => busT
-            -> [BusFlags]
+            => busT       -- ^ @bus@ - a 'Bus'
+            -> [BusFlags] -- ^ the flags to set on @bus@
             -> IO ()
 busSetFlags = mkObjectSetFlags
 
 -- | Unset flags on this bus.
 busUnsetFlags :: BusClass busT
-              => busT
-              -> [BusFlags]
+              => busT       -- ^ @bus@ - a 'Bus'
+              -> [BusFlags] -- ^ the flags to unset on @bus@
               -> IO ()
 busUnsetFlags = mkObjectUnsetFlags
 
 -- | Create a new bus.
-busNew :: IO Bus
+busNew :: IO Bus -- ^ the newly created 'Bus' object
 busNew =
     {# call bus_new #} >>= takeObject
 
 -- | Post a message to the bus.
 busPost :: BusClass busT
-        => busT
-        -> Message
-        -> IO Bool
+        => busT    -- ^ @bus@ - a 'Bus'
+        -> Message -- ^ @message@ - the message to post
+        -> IO Bool -- ^ 'True' if the message was posted, or
+                   --   'False' if the bus is flushing
 busPost bus message =
     do {# call gst_mini_object_ref #} (toMiniObject message)
        liftM toBool $ {# call bus_post #} (toBus bus) message
 
 -- | Check if there are pending messages on the bus.
 busHavePending :: BusClass busT
-               => busT
-               -> IO Bool
+               => busT    -- ^ @bus@ - a 'Bus'
+               -> IO Bool -- ^ 'True' if there are messages
+                          --   on the bus to be handled, otherwise 'False'
 busHavePending bus =
     liftM toBool $ {# call bus_have_pending #} $ toBus bus
 
--- | Get the message at the front of the queue.  It will remain on the
---   queue.
+-- | Get the message at the front of the queue.  Any message returned
+--   will remain on the queue.
 busPeek :: BusClass busT
-        => busT
-        -> IO (Maybe Message)
+        => busT               -- ^ @bus@ - a 'Bus'
+        -> IO (Maybe Message) -- ^ the first 'Message' on the bus, or
+                              --   'Nothing' if the bus is empty
 busPeek bus =
     {# call bus_peek #} (toBus bus) >>= maybePeek takeMiniObject
 
 -- | Get the message at the front of the queue.  It will be removed
 --   from the queue.
 busPop :: BusClass busT
-       => busT
-       -> IO (Maybe Message)
+       => busT               -- ^ @bus@ - a 'Bus'
+       -> IO (Maybe Message) -- ^ the first 'Message' on the bus, or
+                             --   'Nothing' if the bus is empty
 busPop bus =
     {# call bus_pop #} (toBus bus) >>= maybePeek takeMiniObject
 
@@ -184,9 +188,11 @@ busPop bus =
 --   If the time given is 'Nothing', the function will wait forever.
 --   If the time given is @0@, the function will behave like 'busPop'.
 busTimedPop :: BusClass busT
-            => busT
-            -> Maybe ClockTime
-            -> IO (Maybe Message)
+            => busT               -- ^ @bus@ - a 'Bus'
+            -> Maybe ClockTime    -- ^ @timeoutM@ - the time to wait for,
+                                  --   or 'Nothing' to wait forever
+            -> IO (Maybe Message) -- ^ the first message recieved, or
+                                  --   'Nothing' if the timeout has expired
 busTimedPop bus timeoutM =
     let timeout = case timeoutM of
                     Just timeout' -> timeout'
@@ -198,13 +204,11 @@ busTimedPop bus timeoutM =
 --   messages, as well as any future messages, until the function is
 --   called with @flushing@ set to 'False'.
 busSetFlushing :: BusClass busT
-               => busT
-               -> Bool
+               => busT  -- ^ @bus@ - a 'Bus'
+               -> Bool  -- ^ @flushing@ - the new flushing state
                -> IO ()
 busSetFlushing bus flushing =
     {# call bus_set_flushing #} (toBus bus) $ fromBool flushing
-
--- these will leak memory, maybe one day we can set a destroy notifier...
 
 type CBusSyncHandler =  Ptr Bus
                      -> Ptr Message
@@ -226,8 +230,9 @@ foreign import ccall "wrapper"
     makeBusSyncHandler :: CBusSyncHandler
                        -> IO {# type GstBusSyncHandler #}
 
--- the following mess is necessary to clean up safely after busSetSyncHandler.
--- gstreamer doesn't give us a nice way to do this (such as a DestroyNotify)
+-- the following mess is necessary to clean up the FunPtr after
+-- busSetSyncHandler.  gstreamer doesn't give us a nice way to do this
+-- (such as a DestroyNotify pointer in the argument list)
 weakNotifyQuark, funPtrQuark :: Quark
 weakNotifyQuark = unsafePerformIO $ quarkFromString "Gtk2HS::SyncHandlerWeakNotify"
 funPtrQuark = unsafePerformIO $ quarkFromString "Gtk2HS::SyncHandlerFunPtr"
@@ -279,8 +284,8 @@ unsetSyncHandler bus = do
 --   handler. If 'Nothing' is passed to this function, it will unset
 --   the handler.
 busSetSyncHandler :: BusClass busT
-                  => busT
-                  -> Maybe BusSyncHandler
+                  => busT                 -- ^ @bus@ - a 'Bus'
+                  -> Maybe BusSyncHandler -- ^ @busSyncHandlerM@ - the new 'BusSyncHandler'
                   -> IO ()
 busSetSyncHandler bus busSyncHandlerM = do
   objectWithLock bus $ do
@@ -297,7 +302,7 @@ busSetSyncHandler bus busSyncHandlerM = do
 
 -- | Use a synchronous message handler that converts all messages to signals.
 busUseSyncSignalHandler :: BusClass busT
-                        => busT
+                        => busT  -- ^ @bus@ - a 'Bus'
                         -> IO ()
 busUseSyncSignalHandler bus = do
   objectWithLock bus $ do
@@ -310,8 +315,8 @@ foreign import ccall unsafe "&gst_bus_sync_signal_handler"
 --   whenever a message is on the bus. After the signal is dispatched,
 --   the message is popped off the bus.
 busCreateWatch :: BusClass busT
-               => busT
-               -> IO Source
+               => busT      -- ^ @bus@ - a 'Bus'
+               -> IO Source -- ^ the new event 'Source'
 busCreateWatch bus =
     liftM Source $ {# call bus_create_watch #} (toBus bus) >>=
         flip newForeignPtr sourceFinalizer
@@ -341,10 +346,10 @@ foreign import ccall "wrapper"
 --   
 --   The watch can be removed by calling 'System.Glib.MainLoop.sourceRemove'.
 busAddWatch :: BusClass busT
-            => busT
-            -> Priority
-            -> BusFunc
-            -> IO HandlerId
+            => busT         -- ^ @bus@ - a 'Bus'
+            -> Priority     -- ^ @priority@ - the priority of the watch
+            -> BusFunc      -- ^ @func@ - the action to perform when a message is recieved
+            -> IO HandlerId -- ^ the event source ID
 busAddWatch bus priority func =
     do busFuncPtr <- marshalBusFunc func
        destroyNotify <- mkFunPtrDestroyNotify busFuncPtr
@@ -366,7 +371,7 @@ busAddWatch bus priority func =
 --   'busEnableSyncMessageEmission' were "cancelled" by
 --   calling this function.
 busDisableSyncMessageEmission :: BusClass busT
-                              => busT
+                              => busT  -- ^ @bus@ - a 'Bus'
                               -> IO ()
 busDisableSyncMessageEmission =
     {# call bus_disable_sync_message_emission #} . toBus
@@ -388,7 +393,7 @@ busDisableSyncMessageEmission =
 --   of whatever object posted the message; the 'busMessage' signal is
 --   marshalled to the main thread via the main loop.
 busEnableSyncMessageEmission :: BusClass busT
-                             => busT
+                             => busT  -- ^ @bus@ - a 'Bus'
                              -> IO ()
 busEnableSyncMessageEmission =
     {# call bus_enable_sync_message_emission #} . toBus
@@ -401,15 +406,15 @@ busEnableSyncMessageEmission =
 --   caller is responsible for calling 'busRemoveSignalWatch' as many
 --   times.
 busAddSignalWatch :: BusClass busT
-                  => busT
-                  -> Priority
+                  => busT     -- ^ @bus@ - a 'Bus'
+                  -> Priority -- ^ @priority@ - the priority of the watch
                   -> IO ()
 busAddSignalWatch bus priority =
     {# call bus_add_signal_watch_full #} (toBus bus) $ fromIntegral priority
 
 -- | Remove the signal watch that was added with 'busAddSignalWatch'.
 busRemoveSignalWatch :: BusClass busT
-                     => busT
+                     => busT  -- ^ @bus@ - a 'Bus'
                      -> IO ()
 busRemoveSignalWatch =
     {# call bus_remove_signal_watch #} . toBus
@@ -430,20 +435,21 @@ busRemoveSignalWatch =
 --   
 --   This function will run a main loop in the default main context
 --   while polling.
-busPoll :: Bus
-        -> [MessageType]
-        -> ClockTimeDiff
+busPoll :: BusClass busT
+        => busT          -- ^ @bus@ - a 'Bus'
+        -> [MessageType] -- ^ @events@ - the set of messages to poll for
+        -> ClockTimeDiff -- ^ @timeout@ - the time to wait, or -1 to wait indefinitely
         -> IO Message
 busPoll bus events timeout =
-    {# call bus_poll #} bus
+    {# call bus_poll #} (toBus bus)
                         (fromIntegral $ fromFlags events)
                         (fromIntegral timeout) >>=
         takeMiniObject
 
 -- | A message has been posted on the bus. This signal is emitted from
 --   a 'Source' added to the 'MainLoop', and only when it is running.
-busMessage :: BusClass bus
-           => Signal bus (Message -> IO ())
+busMessage :: BusClass busT
+           => Signal busT (Message -> IO ())
 busMessage =
     Signal $ connect_BOXED__NONE "message" peekMiniObject
 
@@ -454,7 +460,7 @@ busMessage =
 --   This signal will not be emitted by default, you must first call
 --   'busUseSyncSignalHandler' if you want this signal to be emitted
 --   when a message is posted on the bus.
-busSyncMessage :: BusClass bus
-               => Signal bus (Message -> IO ())
+busSyncMessage :: BusClass busT
+               => Signal busT (Message -> IO ())
 busSyncMessage =
     Signal $ connect_BOXED__NONE "sync-message" peekMiniObject
