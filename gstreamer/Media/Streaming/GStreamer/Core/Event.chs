@@ -23,11 +23,56 @@
 --  available under LGPL Version 2. The documentation included with
 --  this library is based on the original GStreamer documentation.
 -- 
--- | Maintainer  : gtk2hs-devel\@lists.sourceforge.net
---   Stability   : alpha
---   Portability : portable (depends on GHC)
+--  |
+--  Maintainer  : gtk2hs-devel\@lists.sourceforge.net
+--  Stability   : alpha
+--  Portability : portable (depends on GHC)
+--  
+--  An object describing events that are passed up and down a pipeline.
 module Media.Streaming.GStreamer.Core.Event (
+
+-- * Detail
+
+  -- | An 'Event' is a message that is passed up and down a pipeline.
+  --   
+  --   There are a number of predefined events and functions returning
+  --   events. To send an event an application will usually use
+  --   'Media.Streaming.GStreamer.Core.Element.elementSendEvent', and
+  --   elements will use
+  --   'Media.Streaming.GStreamer.Core.Pad.padSendEvent' or
+  --   'Media.Streaming.GStreamer.Core.padPushEvent'.
+  --   
+  --   
+
+-- * Types
+  Event,
+  EventClass,
+  EventType(..),
+
+-- * Event Operations
+  eventType,
+  eventNewCustom,
+  eventNewEOS,
+  eventNewFlushStart,
+  eventNewFlushStop,
+  eventNewLatency,
+  eventNewNavigation,
+  eventNewNewSegment,
+  eventNewNewSegmentFull,
+  eventNewQOS,
+  eventNewSeek,
+  eventNewTag,
+  eventParseBufferSize,
+  eventParseLatency,
+  eventParseNewSegment,
+  eventParseNewSegmentFull,
+  eventParseQOS,
+  eventParseSeek,
+  eventParseTag,
+  eventTypeGetName,
+  eventTypeGetFlags,
   ) where
+
 
 import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
@@ -38,10 +83,11 @@ import System.Glib.GError
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
-eventType :: Event
+eventType :: EventClass event
+          => event
           -> EventType
 eventType event =
-    cToEnum $ unsafePerformIO $ withMiniObject event cEventType
+    cToEnum $ unsafePerformIO $ withMiniObject (toEvent event) cEventType
 foreign import ccall unsafe "_hs_gst_event_type"
     cEventType :: Ptr Event
                -> IO {# type GstEventType #}
@@ -139,12 +185,13 @@ eventNewTag tagList =
     withTagList tagList ({# call event_new_tag #} . castPtr) >>=
         takeMiniObject
 
-eventParseBufferSize :: Event
+eventParseBufferSize :: EventClass event
+                     => event
                      -> Maybe (Format, Int64, Int64, Bool)
 eventParseBufferSize event | eventType event == EventBufferSize =
     Just $ unsafePerformIO $ alloca $ \formatPtr -> alloca $ \minSizePtr ->
         alloca $ \maxSizePtr -> alloca $ \asyncPtr ->
-            do {# call event_parse_buffer_size #} event
+            do {# call event_parse_buffer_size #} (toEvent event)
                                                   formatPtr
                                                   minSizePtr
                                                   maxSizePtr
@@ -156,23 +203,25 @@ eventParseBufferSize event | eventType event == EventBufferSize =
                return (format, minSize, maxSize, async)
                            | otherwise = Nothing
 
-eventParseLatency :: Event
+eventParseLatency :: EventClass event
+                  => event
                   -> Maybe ClockTime
 eventParseLatency event | eventType event == EventLatency =
     Just $ unsafePerformIO $ alloca $ \latencyPtr ->
-        do {# call event_parse_latency #} event
+        do {# call event_parse_latency #} (toEvent event)
                                           latencyPtr
            liftM fromIntegral $ peek latencyPtr
                         | otherwise = Nothing
 
-eventParseNewSegment :: Event
+eventParseNewSegment :: EventClass event
+                     => event
                      -> Maybe (Bool, Double, Format, Int64, Int64, Int64)
 eventParseNewSegment event | eventType event == EventNewSegment =
     Just $ unsafePerformIO $ alloca $ \updatePtr ->
         alloca $ \ratePtr -> alloca $ \formatPtr ->
             alloca $ \startPtr -> alloca $ \stopPtr ->
                 alloca $ \positionPtr ->
-                    do {# call event_parse_new_segment #} event
+                    do {# call event_parse_new_segment #} (toEvent event)
                                                           ratePtr
                                                           updatePtr
                                                           formatPtr
@@ -188,14 +237,15 @@ eventParseNewSegment event | eventType event == EventNewSegment =
                        return (update, rate, format, start, stop, position)
                            | otherwise = Nothing
 
-eventParseNewSegmentFull :: Event
+eventParseNewSegmentFull :: EventClass event
+                         => event
                          -> Maybe (Bool, Double, Double, Format, Int64, Int64, Int64)
 eventParseNewSegmentFull event | eventType event == EventNewSegment =
     Just $ unsafePerformIO $ alloca $ \updatePtr ->
         alloca $ \ratePtr -> alloca $ \appliedRatePtr ->
             alloca $ \formatPtr -> alloca $ \startPtr ->
                 alloca $ \stopPtr -> alloca $ \positionPtr ->
-                    do {# call event_parse_new_segment_full #} event
+                    do {# call event_parse_new_segment_full #} (toEvent event)
                                                                ratePtr
                                                                appliedRatePtr
                                                                updatePtr
@@ -213,12 +263,13 @@ eventParseNewSegmentFull event | eventType event == EventNewSegment =
                        return (update, rate, appliedRate, format, start, stop, position)
                            | otherwise = Nothing
 
-eventParseQOS :: Event
+eventParseQOS :: EventClass event
+              => event
               -> Maybe (Double, ClockTimeDiff, ClockTime)
 eventParseQOS event | eventType event == EventQOS =
     Just $ unsafePerformIO $ alloca $ \proportionPtr ->
         alloca $ \diffPtr -> alloca $ \timestampPtr ->
-            do {# call event_parse_qos #} event
+            do {# call event_parse_qos #} (toEvent event)
                                           proportionPtr
                                           diffPtr
                                           timestampPtr
@@ -228,14 +279,15 @@ eventParseQOS event | eventType event == EventQOS =
                return (proportion, diff, timestamp)
                     | otherwise = Nothing
 
-eventParseSeek :: Event
+eventParseSeek :: EventClass event
+               => event
                -> Maybe (Double, Format, [SeekFlags], SeekType, Int64, SeekType, Int64)
 eventParseSeek event | eventType event == EventSeek =
     Just $ unsafePerformIO $ alloca $ \ratePtr ->
         alloca $ \formatPtr -> alloca $ \flagsPtr ->
             alloca $ \startTypePtr -> alloca $ \startPtr ->
                 alloca $ \stopTypePtr -> alloca $ \stopPtr ->
-                    do {# call event_parse_seek #} event
+                    do {# call event_parse_seek #} (toEvent event)
                                                    ratePtr
                                                    formatPtr
                                                    flagsPtr
@@ -253,12 +305,14 @@ eventParseSeek event | eventType event == EventSeek =
                        return (rate, format, flags, startType, start, stopType, stop)
                      | otherwise = Nothing
 
-eventParseTag :: Event
+eventParseTag :: EventClass event
+              => event
               -> Maybe TagList
 eventParseTag event | eventType event == EventTag =
     Just $ unsafePerformIO $ alloca $ \tagListPtr ->
-        do {# call event_parse_tag #} event (castPtr tagListPtr)
+        do {# call event_parse_tag #} (toEvent event) (castPtr tagListPtr)
            peek tagListPtr >>= peekTagList
+                    | otherwise = Nothing
 
 eventTypeGetName :: EventType
                  -> String
