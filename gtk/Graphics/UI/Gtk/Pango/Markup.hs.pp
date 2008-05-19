@@ -63,7 +63,10 @@ module Graphics.UI.Gtk.Pango.Markup (
   ) where
 
 import Graphics.UI.Gtk.Pango.Types ( Markup, Language,
-                                     PangoGravity, PangoGravityHint )
+#if PANGO_CHECK_VERSION(1,16,0)
+                                     PangoGravity, PangoGravityHint
+#endif
+                                   )
 import qualified Graphics.UI.Gtk.Pango.Enums as Pango
 import Graphics.UI.Gtk.Pango.Attributes ( parseMarkup )
 
@@ -143,11 +146,13 @@ data SpanAttribute
   --
   | FontLang	Language
 
+#if PANGO_CHECK_VERSION(1,16,0)
   -- | Gravity of text, use for ratation.
   | FontGravity PangoGravity
   
   -- | Intensity of gravity.
   | FontGravityHint PangoGravityHint
+#endif
   
 instance Show SpanAttribute where
   showsPrec _ (FontDescr str)    = showString " font_desc=".shows str
@@ -163,8 +168,10 @@ instance Show SpanAttribute where
   showsPrec _ (FontRise r)	 = showString " rise=".shows 
 				   (show (round (r*10000)))
   showsPrec _ (FontLang l)	 = showString " lang=".shows l
+#if PANGO_CHECK_VERSION(1,16,0)
   showsPrec _ (FontGravity g) = showString " gravity=".shows g
   showsPrec _ (FontGravityHint h) = showString " gravity_hint".shows h
+#endif
   
 -- | Create the most generic span attribute.
 --
