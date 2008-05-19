@@ -1739,7 +1739,7 @@ libHSgnomevfs_a_SOURCES			=               \
 	gnomevfs/System/Gnome/VFS/Xfer.chs              \
 	gnomevfs/System/Gnome/VFS/Cancellation.chs      \
 	gnomevfs/System/Gnome/VFS/Volume.chs.pp         \
-	gnomevfs/System/Gnome/VFS/Drive.chs             \
+	gnomevfs/System/Gnome/VFS/Drive.chs.pp          \
 	gnomevfs/System/Gnome/VFS/VolumeMonitor.chs     \
 	gnomevfs/System/Gnome/VFS/MIME.chs              \
 	gnomevfs/System/Gnome/VFS.hs

@@ -49,7 +49,9 @@ module System.Gnome.VFS.Drive (
   driveGetDevicePath,
   driveGetDeviceType,
   driveGetDisplayName,
+#if GNOME_VFS_CHECK_VERSION(2,8,0)
   driveGetHalUDI,
+#endif
   driveGetIcon,
   driveGetID,
 
@@ -184,6 +186,7 @@ driveGetDisplayName :: DriveClass drive =>
 driveGetDisplayName =
     marshalString {# call drive_get_display_name #}
 
+#if GNOME_VFS_CHECK_VERSION(2,8,0)
 -- | Returns the HAL UDI of a 'Drive' object.
 --   
 --   For HAL drives, this matches the value of the @info.udi@ key,
@@ -193,6 +196,7 @@ driveGetHalUDI :: DriveClass drive =>
                -> IO (Maybe String) -- ^ the drive's HAL UDI
 driveGetHalUDI =
     marshalMaybeString {# call drive_get_hal_udi #}
+#endif
 
 -- | Returns the icon filename for a 'Drive' object.
 driveGetIcon :: DriveClass drive =>
