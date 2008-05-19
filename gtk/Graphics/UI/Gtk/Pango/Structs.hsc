@@ -247,6 +247,8 @@ readAttr correct attrPtr = do
     #{const PANGO_ATTR_FALLBACK} -> do
       v <- #{peek PangoAttrInt, value} attrPtr
       return $ AttrFallback b e (toBool (v::#{type int}))
+#endif
+#if PANGO_CHECK_VERSION(1,6,0)
     #{const PANGO_ATTR_LETTER_SPACING} -> do
       v <- #{peek PangoAttrFloat, value} attrPtr
       return $ AttrLetterSpacing b e (realToFrac (v::#{type double}))
