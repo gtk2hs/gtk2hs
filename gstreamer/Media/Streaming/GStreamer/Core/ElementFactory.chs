@@ -64,8 +64,7 @@ module Media.Streaming.GStreamer.Core.ElementFactory (
   
   ) where
 
-import Control.Monad         ( liftM
-                             , (>=>) )
+import Control.Monad         ( liftM )
 import Data.Maybe            ( fromMaybe )
 import System.Glib.FFI
 import System.Glib.UTFString ( withUTFString
@@ -214,3 +213,5 @@ elementFactoryGetPadTemplates :: (ElementFactoryClass elementFactory)
 elementFactoryGetPadTemplates =
     {# call element_factory_get_static_pad_templates #} . toElementFactory >=>
         readGList >=> mapM staticPadTemplateGet
+    where infixr 8 >=>
+          a >=> b = \x -> a x >>= b
