@@ -62,7 +62,7 @@ module Media.Streaming.GStreamer.Core.Types (
   PadLinkReturn(..),
   FlowReturn(..),
   ActivateMode(..),
-  StaticPadTemplate(..),
+  StaticPadTemplate {-(..)-},
   staticPadTemplateGet,
   
   State(..),
@@ -311,8 +311,8 @@ instance Iterable Pad where
 {# pointer *GstStaticPadTemplate as StaticPadTemplate #}
 staticPadTemplateGet :: StaticPadTemplate
                      -> IO PadTemplate
-staticPadTemplateGet =
-    {# call static_pad_template_get #} >=> takeObject
+staticPadTemplateGet staticPadTemplate =
+    {# call static_pad_template_get #} staticPadTemplate >>= takeObject
 
 --------------------------------------------------------------------
 
