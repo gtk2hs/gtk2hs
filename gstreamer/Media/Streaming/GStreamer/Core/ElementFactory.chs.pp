@@ -55,7 +55,9 @@ module Media.Streaming.GStreamer.Core.ElementFactory (
   elementFactoryGetNumPadTemplates,
   elementFactoryGetURIType,
   elementFactoryGetURIProtocols,
+#if GSTREAMER_CHECK_VERSION(0,10,14)
   elementFactoryHasInterface,
+#endif
   elementFactoryCreate,
   elementFactoryMake,
   elementFactoryCanSinkCaps,
@@ -153,6 +155,7 @@ elementFactoryGetURIProtocols factory =
     {# call element_factory_get_uri_protocols #} (toElementFactory factory) >>=
         liftM (fromMaybe []) . maybePeek peekUTFStringArray0
 
+#if GSTREAMER_CHECK_VERSION(0,10,14)
 -- | Check if the given factory implements the interface with the given name.
 elementFactoryHasInterface :: (ElementFactoryClass elementFactory)
                            => elementFactory -- ^ @factory@ - an element factory
@@ -164,6 +167,7 @@ elementFactoryHasInterface factory name =
         {# call element_factory_has_interface #} .
         toElementFactory $
         factory
+#endif
 
 -- | Create a new element of the type supplied by the given
 --   factory. It will be given the name supplied.

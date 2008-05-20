@@ -1909,7 +1909,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/GhostPad.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Bin.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Format.chs		\
-	gstreamer/Media/Streaming/GStreamer/Core/ElementFactory.chs	\
+	gstreamer/Media/Streaming/GStreamer/Core/ElementFactory.chs.pp	\
 	gstreamer/Media/Streaming/GStreamer/Core/Caps.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Structure.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Message.chs		\
