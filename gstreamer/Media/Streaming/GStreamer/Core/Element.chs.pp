@@ -115,7 +115,9 @@ module Media.Streaming.GStreamer.Core.Element (
   elementIsLockedState,
   elementAbortState,
   elementStateGetName,
+#if GSTREAMER_CHECK_VERSION(0,10,11)
   elementStateChangeReturnGetName,
+#endif
   elementSyncStateWithParent,
   elementGetQueryTypes,
   elementQuery,
@@ -123,7 +125,9 @@ module Media.Streaming.GStreamer.Core.Element (
   elementQueryPosition,
   elementQueryDuration,
   elementSendEvent, 
+#if GSTREAMER_CHECK_VERSION(0,10,7)
   elementSeekSimple,
+#endif
   elementSeek,
   elementNoMorePads,
   elementPadAdded,
@@ -578,11 +582,13 @@ elementStateGetName :: State  -- ^ @state@ -
 elementStateGetName state =
     unsafePerformIO $ ({# call element_state_get_name #} $ fromIntegral $ fromEnum state) >>= peekUTFString
 
+#if GSTREAMER_CHECK_VERSION(0,10,11)
 -- | Get a string representation of @stateRet@.
 elementStateChangeReturnGetName :: StateChangeReturn -- ^ @stateRet@ - 
                                 -> String            -- ^ the name of @stateRet@
 elementStateChangeReturnGetName stateRet =
     unsafePerformIO $ ({# call element_state_change_return_get_name #} $ fromIntegral $ fromEnum stateRet) >>= peekUTFString
+#endif
 
 -- | Try to change the state of @element@ to the same as its
 --   parent. If this function returns 'False', the state of the
@@ -687,6 +693,7 @@ elementSendEvent element event =
     liftM toBool $
         giveMiniObject (toEvent event) $ {# call element_send_event #} (toElement element)
 
+#if GSTREAMER_CHECK_VERSION(0,10,7)
 -- | Perform a seek on the given element. This function only supports
 --   seeking to a position relative to the start of the stream. For
 --   more complex operations like segment seeks (such as for looping),
@@ -722,6 +729,7 @@ elementSeekSimple element format seekFlags seekPos =
                                        (fromIntegral $ fromEnum format)
                                        (fromIntegral $ fromFlags seekFlags)
                                        (fromIntegral seekPos)
+#endif
 
 -- | Send a seek event to an element. See
 --   'Media.Streaming.GStreamer.Core.Event.eventNewSeek' for the
