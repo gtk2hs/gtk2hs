@@ -35,7 +35,9 @@ module Media.Streaming.GStreamer.Core.TagList (
   tagGetFlag,
   tagIsFixed,
   tagListEmpty,
+#if GSTREAMER_CHECK_VERSION(0,10,11)
   tagListIsEmpty,
+#endif
   tagListMerge,
   tagListGetTagSize,
   tagListCreate,
@@ -194,10 +196,12 @@ tagListEmpty :: TagList
 tagListEmpty =
     unsafePerformIO $ {# call tag_list_new #} >>= takeTagList . castPtr
 
+#if GSTREAMER_CHECK_VERSION(0,10,11)
 tagListIsEmpty :: TagList
                -> Bool
 tagListIsEmpty tagList =
     toBool $ unsafePerformIO $ withTagList tagList $ {# call tag_list_is_empty #} . castPtr
+#endif
 
 tagListMerge :: TagList
              -> TagList

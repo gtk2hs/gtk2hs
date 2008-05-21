@@ -1939,7 +1939,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Registry.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Segment.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/SystemClock.chs	\
-	gstreamer/Media/Streaming/GStreamer/Core/TagList.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/TagList.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core.hs			\
 	gstreamer/Media/Streaming/GStreamer/Base/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Base/Types.chs		\
