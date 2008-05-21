@@ -63,6 +63,9 @@ import Control.Exception     ( bracket,
 import Control.Monad         ( liftM,
                                when )
 import System.Glib.FFI
+#if __GLASGOW_HASKELL__ < 606
+    hiding ( withObject )
+#endif
 import System.Glib.GObject
 import System.Glib.UTFString ( withUTFString
                              , readUTFString )
