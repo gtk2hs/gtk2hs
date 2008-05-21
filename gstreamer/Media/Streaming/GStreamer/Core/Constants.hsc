@@ -92,19 +92,25 @@ data PadFlags = PadBlocked   -- ^ dataflow on the pad is blocked
               | PadFlushing  -- ^ the pad is refusing buffers
               | PadInGetCaps -- ^ 'padGetCaps' is executing
               | PadInSetCaps -- ^ 'padSetCaps' is executing
+#if GSTREAMER_CHECK_VERSION(0,10,11)
               | PadBlocking  -- ^ the pad is blocking on a buffer or event
+#endif
                 deriving (Eq, Bounded, Show)
 instance Enum PadFlags where
     toEnum n | n == #{const GST_PAD_BLOCKED}    = PadBlocked
              | n == #{const GST_PAD_FLUSHING}   = PadFlushing
              | n == #{const GST_PAD_IN_GETCAPS} = PadInGetCaps
              | n == #{const GST_PAD_IN_SETCAPS} = PadInSetCaps
+#if GSTREAMER_CHECK_VERSION(0,10,11)
              | n == #{const GST_PAD_BLOCKING}   = PadBlocking
+#endif
     fromEnum PadBlocked   = #{const GST_PAD_BLOCKED}
     fromEnum PadFlushing  = #{const GST_PAD_FLUSHING}
     fromEnum PadInGetCaps = #{const GST_PAD_IN_GETCAPS}
     fromEnum PadInSetCaps = #{const GST_PAD_IN_SETCAPS}
+#if GSTREAMER_CHECK_VERSION(0,10,11)
     fromEnum PadBlocking  = #{const GST_PAD_BLOCKING}
+#endif
 instance Flags PadFlags
 
 -- | The flags that an 'Element' may have.
@@ -299,8 +305,8 @@ data MessageType = MessageEOS             -- ^ end-of-stream
                  | MessageLatency         -- ^ an element's latency has changed
 #endif
 #if GSTREAMER_CHECK_VERSION(0, 10, 13)
-                 | MessageAsyncStart      -- ^ 
-                 | MessageAsyncDone
+                 | MessageAsyncStart      -- ^ an element has started an async state change; used internally
+                 | MessageAsyncDone       -- ^ an element has completed an async state change; used internally
 #endif
                    deriving (Eq, Bounded, Show)
 instance Enum MessageType where
@@ -322,9 +328,13 @@ instance Enum MessageType where
              | n == #{const GST_MESSAGE_SEGMENT_START}     = MessageSegmentStart
              | n == #{const GST_MESSAGE_SEGMENT_DONE}      = MessageSegmentDone
              | n == #{const GST_MESSAGE_DURATION}          = MessageDuration
+#if GSTREAMER_CHECK_VERSION(0, 10, 12)
              | n == #{const GST_MESSAGE_LATENCY}           = MessageLatency
+#endif
+#if GSTREAMER_CHECK_VERSION(0, 10, 13)
              | n == #{const GST_MESSAGE_ASYNC_START}       = MessageAsyncStart
              | n == #{const GST_MESSAGE_ASYNC_DONE}        = MessageAsyncDone
+#endif
     fromEnum MessageEOS             = #{const GST_MESSAGE_EOS}
     fromEnum MessageError           = #{const GST_MESSAGE_ERROR}
     fromEnum MessageWarning         = #{const GST_MESSAGE_WARNING}
@@ -343,9 +353,13 @@ instance Enum MessageType where
     fromEnum MessageSegmentStart    = #{const GST_MESSAGE_SEGMENT_START}
     fromEnum MessageSegmentDone     = #{const GST_MESSAGE_SEGMENT_DONE}
     fromEnum MessageDuration        = #{const GST_MESSAGE_DURATION}
+#if GSTREAMER_CHECK_VERSION(0, 10, 12)
     fromEnum MessageLatency         = #{const GST_MESSAGE_LATENCY}
+#endif
+#if GSTREAMER_CHECK_VERSION(0, 10, 13)
     fromEnum MessageAsyncStart      = #{const GST_MESSAGE_ASYNC_START}
     fromEnum MessageAsyncDone       = #{const GST_MESSAGE_ASYNC_DONE}
+#endif
 instance Flags MessageType
 
 -- | The flags that a 'Caps' may have.
