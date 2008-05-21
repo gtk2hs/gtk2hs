@@ -36,24 +36,30 @@ module Media.Streaming.GStreamer.Base.Adapter (
   adapterNew,
   adapterClear,
   adapterPush,
+#if __GLASGOW_HASKELL__ >= 606
   adapterPeek,
 #if GSTREAMER_CHECK_VERSION(0,10,12)
   adapterCopy,
   adapterCopyInto,
 #endif
+#endif
   adapterFlush,
   adapterAvailable,
   adapterAvailableFast,
+#if __GLASGOW_HASKELL__ >= 606
   adapterTake,
+#endif
   adapterTakeBuffer
   
   ) where
 
-#if __GLASGOW_HASKELL__ >= 606 && __GLASGOW_HASKELL__ < 608
+import Control.Monad (liftM)
+
+#if __GLASGOW_HASKELL__ >= 606
+#if __GLASGOW_HASKELL__ < 608
 #define OLD_BYTESTRING
 #endif
 
-import Control.Monad (liftM)
 import qualified Data.ByteString as BS
 #ifdef OLD_BYTESTRING
 import qualified Data.ByteString.Base as BS
@@ -61,6 +67,8 @@ import qualified Data.ByteString.Base as BS
 import qualified Data.ByteString.Unsafe as BS
 import qualified Data.ByteString.Internal as BS
 #endif
+#endif
+
 {#import Media.Streaming.GStreamer.Base.Types#}
 import System.Glib.FFI
 import System.Glib.GObject
@@ -87,6 +95,7 @@ adapterPush :: (AdapterClass adapterT, BufferClass bufferT)
 adapterPush adapter buffer =
     {# call adapter_push #} (toAdapter adapter) (toBuffer buffer)
 
+#if __GLASGOW_HASKELL__ >= 606
 adapterPeek :: AdapterClass adapterT
             => adapterT
             -> Word
@@ -128,6 +137,7 @@ adapterCopyInto adapter dest offset =
                                 (fromIntegral offset)
                                 (fromIntegral size)
 #endif
+#endif
 
 adapterFlush :: AdapterClass adapterT
              => adapterT
@@ -150,6 +160,7 @@ adapterAvailableFast adapter =
     liftM fromIntegral $
         {# call adapter_available_fast #} $ toAdapter adapter
 
+#if __GLASGOW_HASKELL__ >= 606
 adapterTake :: AdapterClass adapterT
             => adapterT
             -> Word
@@ -168,6 +179,7 @@ adapterTake adapter nBytes =
           else return Nothing
 foreign import ccall unsafe "&g_free"
     gFreePtr :: FunPtr (Ptr () -> IO ())
+#endif
 
 adapterTakeBuffer :: AdapterClass adapterT
                   => adapterT
