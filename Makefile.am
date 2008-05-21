@@ -1955,7 +1955,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Net/Types.chs		\
 	gstreamer/Media/Streaming/GStreamer/Net/NetClientClock.chs	\
 	gstreamer/Media/Streaming/GStreamer/DataProtocol/Constants.hsc	\
-	gstreamer/Media/Streaming/GStreamer/DataProtocol/DataProtocol.chs \
+	gstreamer/Media/Streaming/GStreamer/DataProtocol/DataProtocol.chs.pp \
 	gstreamer/Media/Streaming/GStreamer/Audio/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Audio/Types.chs		\
 	gstreamer/Media/Streaming/GStreamer/Audio/Audio.chs		\
