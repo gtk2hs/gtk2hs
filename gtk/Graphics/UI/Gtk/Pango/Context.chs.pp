@@ -64,7 +64,7 @@ module Graphics.UI.Gtk.Pango.Context (
   contextSetTextGravityHint,
   contextGetTextGravityHint,
 #endif
-#if PANGO_CHECK_VERSION(1,6,0)
+#if PANGO_CHECK_VERSION(1,6,0) && GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
   contextGetMatrix,
   contextSetMatrix,
 #endif
@@ -207,7 +207,7 @@ contextGetTextGravityHint pc = liftM (toEnum . fromIntegral) $
 		       {#call unsafe context_get_gravity_hint#} pc
 #endif
 
-#if PANGO_CHECK_VERSION(1,6,0)
+#if PANGO_CHECK_VERSION(1,6,0) && GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
 -- | Gets the transformation matrix that will be applied when rendering with
 -- this context.
 --
