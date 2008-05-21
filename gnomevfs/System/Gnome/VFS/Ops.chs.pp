@@ -46,8 +46,10 @@ module System.Gnome.VFS.Ops (
   create,
   createURI,
   close,
+#if __GLASGOW_HASKELL__ >= 606
   read,
   write,
+#endif
   seek,
   tell,
   forgetCache,
@@ -72,11 +74,13 @@ module System.Gnome.VFS.Ops (
 
 import Control.Exception
 import Control.Monad (liftM)
+#if __GLASGOW_HASKELL__ >= 606
 import qualified Data.ByteString as BS (ByteString, useAsCStringLen)
 #ifdef OLD_BYTESTRING
 import qualified Data.ByteString.Base as BS (fromForeignPtr)
 #else
 import qualified Data.ByteString.Internal as BS (fromForeignPtr)
+#endif
 #endif
 import Prelude hiding (read, truncate)
 import System.Glib.FFI
@@ -139,6 +143,7 @@ close :: Handle -- ^ @handle@ -
 close handle =
     voidResultMarshal $ {# call gnome_vfs_close #} handle
 
+#if __GLASGOW_HASKELL__ >= 606
 -- | Read data from a file.
 read :: Handle           -- ^ @handle@ - 
      -> FileSize         -- ^ @bytes@ - 
@@ -177,6 +182,7 @@ write handle byteString =
                     return bytesWritten)
                 (do bytesWritten <- liftM fromIntegral $ peek cBytesWrittenPtr
                     assert (bytesWritten == 0) $ return ())
+#endif
 
 -- | Seek to a position in a file.
 seek :: Handle       -- ^ @handle@ - 
