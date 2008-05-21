@@ -59,7 +59,9 @@ module Media.Streaming.GStreamer.Core.Pad (
   padIsActive,
   padSetBlocked,
   padIsBlocked,
+#if GSTREAMER_CHECK_VERSION(0,10,11)
   padIsBlocking,
+#endif
   padNewFromTemplate,
   padAcceptCaps,
   padProxyGetcaps,
@@ -241,11 +243,13 @@ padIsBlocked :: PadClass pad
 padIsBlocked =
     (liftM toBool) . {# call pad_is_blocked #} . toPad
 
+#if GSTREAMER_CHECK_VERSION(0,10,11)
 padIsBlocking :: PadClass pad
               => pad
               -> IO Bool
 padIsBlocking =
     (liftM toBool) . {# call pad_is_blocking #} . toPad
+#endif
 
 padNewFromTemplate :: PadTemplateClass padTemplate
                    => padTemplate

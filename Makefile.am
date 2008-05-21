@@ -1914,7 +1914,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Object.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniObject.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Element.chs.pp		\
-	gstreamer/Media/Streaming/GStreamer/Core/Pad.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Pad.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/GhostPad.chs.pp	\
 	gstreamer/Media/Streaming/GStreamer/Core/Bin.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Format.chs		\
