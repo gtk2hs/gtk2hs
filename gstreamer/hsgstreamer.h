@@ -33,7 +33,9 @@
 #include <gst/base/gstbasesrc.h>
 #include <gst/base/gstbasetransform.h>
 #include <gst/base/gstcollectpads.h>
+#if GST_VERSION_MAJOR > 0 || GST_VERSION_MINOR > 10 || GST_VERSION_MICRO > 10
 #include <gst/base/gstdataqueue.h>
+#endif
 #include <gst/base/gstpushsrc.h>
 #include <gst/base/gsttypefindhelper.h>
 #include <gst/controller/gstcontroller.h>
