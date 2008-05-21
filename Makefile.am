@@ -1923,7 +1923,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Structure.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Message.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Buffer.chs.pp		\
-	gstreamer/Media/Streaming/GStreamer/Core/Event.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Event.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Query.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Bus.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Clock.chs		\
