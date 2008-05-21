@@ -102,11 +102,16 @@ instance Storable FileInfo where
                     liftM fromIntegral $ cFileInfoGetInode ptr
            linkCount <- maybeField FileInfoFieldsLinkCount $
                         liftM fromIntegral $ {# get GnomeVFSFileInfo->link_count #} ptr
-           
+#if GNOME_VFS_CHECK_VERSION(2,14,0)           
            ids <- maybeField FileInfoFieldsIds $
                   do uid <- liftM fromIntegral $ {# get GnomeVFSFileInfo->uid #} ptr
                      gid <- liftM fromIntegral $ {# get GnomeVFSFileInfo->gid #} ptr
                      return $ (uid, gid)
+#else
+           uid <- liftM fromIntegral $ {# get GnomeVFSFileInfo->uid #} ptr
+           gid <- liftM fromIntegral $ {# get GnomeVFSFileInfo->gid #} ptr
+           let ids = Just (uid, gid)
+#endif
            
            size <- maybeField FileInfoFieldsSize $
                    liftM fromIntegral $ cFileInfoGetSize ptr
@@ -124,8 +129,10 @@ instance Storable FileInfo where
                     liftM cToEnum $ {# get GnomeVFSFileInfo->ctime #} ptr
            symlinkName <-  maybeField FileInfoFieldsSymlinkName $
                            {# get GnomeVFSFileInfo->symlink_name #} ptr >>= peekUTFString
+#if GNOME_VFS_CHECK_VERSION(2,14,0)
            mimeType <- maybeField FileInfoFieldsMimeType $
                        {# call file_info_get_mime_type #} (castPtr ptr) >>= peekUTFString
+#endif
            return $ FileInfo name
                              fileType
                              permissions
@@ -141,7 +148,9 @@ instance Storable FileInfo where
                              mTime
                              cTime
                              symlinkName
+#if GNOME_VFS_CHECK_VERSION(2,14,0)
                              mimeType
+#endif
     poke ptr (FileInfo name
                        fileType
                        permissions
@@ -157,7 +166,10 @@ instance Storable FileInfo where
                        mTime
                        cTime
                        symlinkName
-                       mimeType) =
+#if GNOME_VFS_CHECK_VERSION(2,14,0)
+                       mimeType
+#endif
+             ) =
         do let marshaller :: FileInfoFields
                           -> Maybe a
                           -> b
@@ -211,7 +223,8 @@ instance Storable FileInfo where
                                        0
                                        (return . fromIntegral)
                                        {# set GnomeVFSFileInfo->link_count #},
-                            
+
+#if GTK_CHECK_VERSION(2,14,0)                            
                             marshaller FileInfoFieldsIds
                                        ids
                                        (0, 0)
@@ -219,6 +232,7 @@ instance Storable FileInfo where
                                        (\ptr (uid, gid) ->
                                         do {# set GnomeVFSFileInfo->uid #} ptr uid
                                            {# set GnomeVFSFileInfo->gid #} ptr gid),
+#endif
                             
                             marshaller FileInfoFieldsSize
                                        size
@@ -272,6 +286,15 @@ instance Storable FileInfo where
                                         do {# get GnomeVFSFileInfo->mime_type #} ptr >>= (gFree . castPtr)
                                            {# set GnomeVFSFileInfo->mime_type #} ptr str) ]
            
+#if !GTK_CHECK_VERSION(2,14,0)
+           case ids of
+             Just (uid, gid) ->
+               do {# set GnomeVFSFileInfo->uid #} ptr $ fromIntegral uid
+                  {# set GnomeVFSFileInfo->gid #} ptr $ fromIntegral gid
+             Nothing ->
+               return ()
+#endif
+
            {# set GnomeVFSFileInfo->valid_fields #} ptr $ cFromFlags validFields
 
 gFree = {# call g_free #}

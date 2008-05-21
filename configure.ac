@@ -478,6 +478,26 @@ AH_BOTTOM([
       _GSTREAMER_MICRO_VERSION >= (micro)))
 ])
 
+dnl Also allow us to conditionally compile bindings to GnomeVFS APIs.
+GNOME_VFS_VERSION=`$PKG_CONFIG gnome-vfs-2.0 --modversion`
+GNOME_VFS_MAJOR_VERSION=`echo $GNOME_VFS_VERSION | $CUT -d. -f1`
+GNOME_VFS_MINOR_VERSION=`echo $GNOME_VFS_VERSION | $CUT -d. -f2`
+GNOME_VFS_MICRO_VERSION=`echo $GNOME_VFS_VERSION | $CUT -d. -f3`
+AC_DEFINE_UNQUOTED(_GNOME_VFS_MAJOR_VERSION, ($GNOME_VFS_MAJOR_VERSION), [Glib major version number])
+AC_DEFINE_UNQUOTED(_GNOME_VFS_MINOR_VERSION, ($GNOME_VFS_MINOR_VERSION), [Glib minor version number])
+AC_DEFINE_UNQUOTED(_GNOME_VFS_MICRO_VERSION, ($GNOME_VFS_MICRO_VERSION), [Glib minor patch level])
+AH_BOTTOM([
+/* Allow code to be compiled differently for different versions of Glib */
+#define GNOME_VFS_CHECK_VERSION(major,minor,micro)    \
+    (_GNOME_VFS_MAJOR_VERSION > (major) || \
+     (_GNOME_VFS_MAJOR_VERSION == (major) && _GNOME_VFS_MINOR_VERSION > (minor)) || \
+     (_GNOME_VFS_MAJOR_VERSION == (major) && _GNOME_VFS_MINOR_VERSION == (minor) && \
+      _GNOME_VFS_MICRO_VERSION >= (micro)))
+])
+HAVE_GNOME_VFS_VERSION_2_14=`$PKG_CONFIG gnome-vfs-2.0 --atleast-version=2.14 && echo yes || echo no`
+AM_CONDITIONAL(HAVE_GNOME_VFS_VERSION_2_14, test "$HAVE_GNOME_VFS_VERSION_2_14" = "yes")
+
+
 dnl Also allow us to conditionally compile bindings to Glib APIs.
 dnl We also want to know if certain cairo backends are enabled or not
 dnl we can find out by checking the appropriate cpp defines in cairo-features.h

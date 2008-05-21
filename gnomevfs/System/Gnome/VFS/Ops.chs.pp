@@ -52,7 +52,9 @@ module System.Gnome.VFS.Ops (
 #endif
   seek,
   tell,
+#if GNOME_VFS_CHECK_VERSION(2,12,0)
   forgetCache,
+#endif
   
 -- * Truncation
   truncate,
@@ -206,6 +208,7 @@ tell handle =
             (do cOffsetReturn <- peek cOffsetReturnPtr
                 assert (cOffsetReturn == 0) $ return ())
 
+#if GNOME_VFS_CHECK_VERSION(2,12,0)
 -- | Free any cache associated with the file opened on @handle@,
 --   in the region of @size@ bytes starting at @offset@.
 forgetCache :: Handle
@@ -216,6 +219,7 @@ forgetCache handle offset size =
     let cOffset = fromIntegral offset
         cSize = fromIntegral size
     in voidResultMarshal $ {# call forget_cache #} handle cOffset cSize
+#endif
 
 -- | Truncate the file at @textURI@ to @length@ bytes.
 truncate :: String

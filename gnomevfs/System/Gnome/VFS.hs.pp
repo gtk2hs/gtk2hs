@@ -37,7 +37,9 @@ module System.Gnome.VFS (
   module System.Gnome.VFS.Error,
   module System.Gnome.VFS.FileInfo,
   module System.Gnome.VFS.Init,
+#if GNOME_VFS_CHECK_VERSION(2,14,0)
   module System.Gnome.VFS.MIME,
+#endif
   module System.Gnome.VFS.Monitor,
   module System.Gnome.VFS.Ops,
   module System.Gnome.VFS.URI,
@@ -54,7 +56,9 @@ import System.Gnome.VFS.Drive
 import System.Gnome.VFS.Error
 import System.Gnome.VFS.FileInfo
 import System.Gnome.VFS.Init
+#if GNOME_VFS_CHECK_VERSION(2,14,0)
 import System.Gnome.VFS.MIME
+#endif
 import System.Gnome.VFS.Monitor
 import System.Gnome.VFS.Ops
 import System.Gnome.VFS.URI

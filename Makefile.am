@@ -19,6 +19,7 @@ EXTRA_DIST = \
 	cairo/cairo-gtk2hs.h			\
 	svgcairo/svgcairo.h			\
 	gtk/Graphics/UI/Gtk/General/hsgthread.h	\
+	gnomevfs/hsgnomevfs-2.16.h		\
 	gnomevfs/System/Gnome/VFS/hsfileinfo.h	\
 	gnomevfs/marshal.list 			\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
@@ -1697,7 +1698,11 @@ if HAVE_SPLIT_BASE
 libHSgnomevfs_a_EXTERNALDEPS           += bytestring-$(PKG_BYTESTRING_VERSION)
 endif
 libHSgnomevfs_a_INTERNALDEPS		= glib
-libHSgnomevfs_a_HEADER			= gnomevfs/gnomevfs.h
+if HAVE_GNOME_VFS_VERSION_2_14
+libHSgnomevfs_a_HEADER			= gnomevfs/hsgnomevfs-2.14.h
+else
+libHSgnomevfs_a_HEADER			= libgnomevfs/gnome-vfs.h
+endif
 libHSgnomevfs_a_PRECOMP			= gnomevfs/gnomevfs.precomp
 libHSgnomevfs_a_LIBS			= $(GLIB_LIBS) $(GNOMEVFS_LIBS) $(GCONF_LIBS)
 libHSgnomevfs_a_HCFLAGS			= -fffi
@@ -1725,24 +1730,28 @@ libHSgnomevfs_a_GENERATEDSOURCES	=		\
 nodist_libHSgnomevfs_a_SOURCES		= $(libHSgnomevfs_a_GENERATEDSOURCES)
 
 libHSgnomevfs_a_SOURCES			=               \
-	gnomevfs/System/Gnome/VFS/Types.chs             \
+	gnomevfs/System/Gnome/VFS/Types.chs.pp          \
 	gnomevfs/System/Gnome/VFS/Error.hs		\
 	gnomevfs/System/Gnome/VFS/Marshal.chs		\
 	gnomevfs/System/Gnome/VFS/Init.chs              \
 	gnomevfs/System/Gnome/VFS/hsfileinfo.c          \
-	gnomevfs/System/Gnome/VFS/FileInfo.chs          \
+	gnomevfs/System/Gnome/VFS/FileInfo.chs.pp       \
 	gnomevfs/System/Gnome/VFS/Monitor.chs           \
 	gnomevfs/System/Gnome/VFS/Ops.chs.pp            \
 	gnomevfs/System/Gnome/VFS/Directory.chs         \
 	gnomevfs/System/Gnome/VFS/URI.chs               \
 	gnomevfs/System/Gnome/VFS/Util.chs              \
-	gnomevfs/System/Gnome/VFS/Xfer.chs              \
+	gnomevfs/System/Gnome/VFS/Xfer.chs.pp           \
 	gnomevfs/System/Gnome/VFS/Cancellation.chs      \
 	gnomevfs/System/Gnome/VFS/Volume.chs.pp         \
 	gnomevfs/System/Gnome/VFS/Drive.chs.pp          \
 	gnomevfs/System/Gnome/VFS/VolumeMonitor.chs     \
-	gnomevfs/System/Gnome/VFS/MIME.chs              \
-	gnomevfs/System/Gnome/VFS.hs
+	gnomevfs/System/Gnome/VFS.hs.pp
+
+if HAVE_GNOME_VFS_VERSION_2_14
+libHSgnomevfs_a_SOURCES += \
+	gnomevfs/System/Gnome/VFS/MIME.chs
+endif
 
 htmldoc_HSFILES_HIDDEN				+=	\
 	$(libHSgnomevfs_a_GENERATEDSOURCES:.chs=.hs)	\

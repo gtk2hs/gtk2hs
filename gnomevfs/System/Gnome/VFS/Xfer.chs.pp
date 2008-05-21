@@ -43,7 +43,10 @@ module System.Gnome.VFS.Xfer (
                     , XferUseUniqueNames
                     , XferLinkItems
                     , XferFollowLinksRecursive
-                    , XferTargetDefaultPerms ),
+#if GNOME_VFS_CHECK_VERSION(2,12,0)
+                    , XferTargetDefaultPerms 
+#endif
+                    ),
   XferOverwriteMode ( XferOverwriteModeAbort
                     , XferOverwriteModeReplace
                     , XferOverwriteModeSkip ),

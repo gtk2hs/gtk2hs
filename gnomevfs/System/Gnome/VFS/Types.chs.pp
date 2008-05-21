@@ -101,7 +101,9 @@ module System.Gnome.VFS.Types (
   VolumeType(..),
   DeviceType(..),
   
+#if GNOME_VFS_CHECK_VERSION(2,14,0)
   MIMEType,
+#endif
   
   module System.Gnome.VFS.Hierarchy,
   
@@ -196,11 +198,14 @@ data FileInfo = FileInfo {
   fileInfoATime       :: Maybe EpochTime,         -- ^ the time of last access
   fileInfoMTime       :: Maybe EpochTime,         -- ^ the time of last modification
   fileInfoCTime       :: Maybe EpochTime,         -- ^ the time of last attribute modification
-  fileInfoSymlinkName :: Maybe String,            -- ^ the location this
+  fileInfoSymlinkName :: Maybe String             -- ^ the location this
                                                   --   symlink points to, if
                                                   --   @fileInfoFlags@ contains 'FileFlagsSymlink'
+#if GNOME_VFS_CHECK_VERSION(2,14,0)
+  ,
   fileInfoMIMEType    :: Maybe MIMEType           -- ^ the MIME-type of the
                                                   --   file
+#endif
   } deriving (Eq, Show)
 
 {# enum GnomeVFSFileInfoFields  as FileInfoFields  {underscoreToCase} with prefix = "GNOME_VFS" deriving (Eq, Bounded, Show) #}
@@ -488,5 +493,7 @@ wrapVolumeMonitor cVolumeMonitor | cVolumeMonitor /= nullPtr =
 
 --------------------------------------------------------------------
 
+#if GNOME_VFS_CHECK_VERSION(2,14,0)
 -- | A string that will be treated as a MIME-type.
 type MIMEType = String
+#endif
