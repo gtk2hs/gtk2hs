@@ -34,8 +34,10 @@ module Media.Streaming.GStreamer.Core.GhostPad (
   toGhostPad,
   ghostPadNew,
   ghostPadNewNoTarget,
+#if GSTREAMER_CHECK_VERSION(0,10,10)
   ghostPadNewFromTemplate,
   ghostPadNewNoTargetFromTemplate,
+#endif
   ghostPadSetTarget,
   ghostPadGetTarget
   
@@ -65,6 +67,7 @@ ghostPadNewNoTarget name dir =
          flip {# call ghost_pad_new_no_target #} $ cFromEnum dir) >>=
         maybePeek takeObject
 
+#if GSTREAMER_CHECK_VERSION(0,10,10)
 ghostPadNewFromTemplate :: String
                         -> Pad
                         -> PadTemplate
@@ -81,6 +84,7 @@ ghostPadNewNoTargetFromTemplate name templ =
     withUTFString name $ \cName ->
         {# call ghost_pad_new_no_target_from_template #} cName templ >>=
             maybePeek takeObject
+#endif
 
 ghostPadSetTarget :: GhostPad
                   -> Pad
