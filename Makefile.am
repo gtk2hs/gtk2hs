@@ -1926,7 +1926,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Event.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Query.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Bus.chs.pp		\
-	gstreamer/Media/Streaming/GStreamer/Core/Clock.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Clock.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/PadTemplate.chs	\
 	gstreamer/Media/Streaming/GStreamer/Core/ImplementsInterface.chs \
 	gstreamer/Media/Streaming/GStreamer/Core/Index.chs		\
