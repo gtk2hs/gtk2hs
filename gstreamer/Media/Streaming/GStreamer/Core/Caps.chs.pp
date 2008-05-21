@@ -79,8 +79,10 @@ module Media.Streaming.GStreamer.Core.Caps (
   capsCreate,
   capsModify,
   capsAppendStructure,
+#if GSTREAMER_CHECK_VERSION(0,10,10)
   capsMergeStructure,
   capsRemoveStructure,
+#endif
   capsTruncate
   
   ) where
@@ -294,6 +296,7 @@ capsAppendStructure structure = do
   where _ = {# call caps_append_structure #}
         _ = {# call structure_copy #}
 
+#if GSTREAMER_CHECK_VERSION(0,10,10)
 -- | Append the structure to the current caps, if it is not already
 --   expressed by the caps.
 capsMergeStructure :: Structure -- ^ @structure@ - the 'Structure' to merge with the current 'Caps'
@@ -313,6 +316,7 @@ capsRemoveStructure idx = do
   capsPtr <- askCapsPtr
   CapsM $ liftIO $ gst_caps_remove_structure capsPtr $ fromIntegral idx
   where _ = {# call caps_remove_structure #}
+#endif
 
 -- | Discard all but the first structure from the current caps.
 capsTruncate :: CapsM ()
