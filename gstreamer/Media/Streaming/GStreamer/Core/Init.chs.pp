@@ -38,7 +38,9 @@ module Media.Streaming.GStreamer.Core.Init (
   registryForkIsEnabled,
   registryForkSetEnabled,
 #endif
+#if GSTREAMER_CHECK_VERSION(0,10,12)
   updateRegistry
+#endif
   ) where
 
 import Control.Exception     ( assert )
@@ -109,6 +111,8 @@ registryForkSetEnabled enabled =
     {# call registry_fork_set_enabled #} $ fromBool enabled
 #endif
 
+#if GSTREAMER_CHECK_VERSION(0,10,12)
 updateRegistry :: IO Bool
 updateRegistry =
     liftM toBool {# call update_registry #}
+#endif
