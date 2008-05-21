@@ -62,7 +62,7 @@ mkPixbufData pb (ptr :: Ptr e) size =
 
 #if __GLASGOW_HASKELL__ < 605
 instance HasBounds PixbufData where
-  bounds (PixbufData pb ptr bd) = bd
+  bounds (PixbufData pb ptr bd cnt) = bd
 #endif
 
 -- | 'PixbufData' is a mutable array.
