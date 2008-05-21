@@ -1944,7 +1944,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Base/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Base/Types.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseSrc.chs.pp		\
-	gstreamer/Media/Streaming/GStreamer/Base/BaseSink.chs		\
+	gstreamer/Media/Streaming/GStreamer/Base/BaseSink.chs.pp	\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseTransform.chs	\
 	gstreamer/Media/Streaming/GStreamer/Base/PushSrc.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/Adapter.chs.pp		\
