@@ -50,28 +50,38 @@ module Media.Streaming.GStreamer.Core.Message (
   messageNewElement,
   messageNewEOS,
   messageNewError,
+#if GSTREAMER_CHECK_VERSION(0,10,12)
   messageNewInfo,
+#endif
   messageNewNewClock,
   messageNewSegmentDone,
   messageNewSegmentStart,
   messageNewStateChanged,
   messageNewTag,
+#if GSTREAMER_CHECK_VERSION(0,10,11)
   messageNewBuffering,
+#endif
   messageNewWarning,
   messageNewDuration,
   messageNewStateDirty,
+#if GSTREAMER_CHECK_VERSION(0,10,12)
   messageNewLatency,
+#endif
   
   messageParseClockLost,
   messageParseClockProvide,
   messageParseError,
+#if GSTREAMER_CHECK_VERSION(0,10,12)
   messageParseInfo,
+#endif
   messageParseNewClock,
   messageParseSegmentDone,
   messageParseSegmentStart,
   messageParseStateChanged,
   messageParseTag,
+#if GSTREAMER_CHECK_VERSION(0,10,11)
   messageParseBuffering,
+#endif
   messageParseWarning,
   messageParseDuration, 
   
@@ -217,6 +227,7 @@ messageNewError src error debug =
                                         debugPtr >>=
                takeMiniObject
 
+#if GSTREAMER_CHECK_VERSION(0,10,12)
 messageNewInfo :: ObjectClass objectT
                => objectT
                -> GError
@@ -229,6 +240,7 @@ messageNewInfo src error debug =
                                        (castPtr gErrorPtr)
                                        debugPtr >>=
                takeMiniObject
+#endif
 
 messageNewNewClock :: (ObjectClass objectT, ClockClass clockT)
                    => objectT
@@ -288,6 +300,7 @@ messageNewTag src tagList =
                                    (castPtr tagListPtr) >>=
             takeMiniObject
 
+#if GSTREAMER_CHECK_VERSION(0,10,11)
 messageNewBuffering :: ObjectClass objectT
                     => objectT
                     -> Int
@@ -297,6 +310,7 @@ messageNewBuffering src percent =
         {# call message_new_buffering #} (toObject src)
                                          (fromIntegral percent) >>=
             takeMiniObject
+#endif
 
 messageNewWarning :: ObjectClass objectT
                   => objectT
@@ -331,6 +345,7 @@ messageNewStateDirty src =
         {# call message_new_state_dirty #} (toObject src) >>=
             takeMiniObject
 
+#if GSTREAMER_CHECK_VERSION(0,10,12)
 messageNewLatency :: ObjectClass objectT
                   => objectT
                   -> Message
@@ -338,6 +353,7 @@ messageNewLatency src =
     unsafePerformIO $
         {# call message_new_latency #} (toObject src) >>=
             takeMiniObject
+#endif
 
 messageParseClockLost :: Message
                       -> Maybe Clock
@@ -372,6 +388,7 @@ messageParseError message | messageType message == MessageError =
                return (gError, debug)
                           | otherwise = Nothing
 
+#if GSTREAMER_CHECK_VERSION(0,10,12)
 messageParseInfo :: Message
                  -> Maybe (GError, String)
 messageParseInfo message | messageType message == MessageInfo =
@@ -385,6 +402,7 @@ messageParseInfo message | messageType message == MessageInfo =
                debug <- peek debugPtr >>= readUTFString
                return (gError, debug)
                          | otherwise = Nothing
+#endif
 
 messageParseNewClock :: Message
                      -> Maybe Clock
@@ -436,6 +454,7 @@ messageParseTag message | messageType message == MessageTag =
            peek tagListPtr >>= takeTagList
                         | otherwise = Nothing
 
+#if GSTREAMER_CHECK_VERSION(0,10,11)
 messageParseBuffering :: Message
                       -> Maybe Int
 messageParseBuffering message | messageType message == MessageBuffering =
@@ -443,6 +462,7 @@ messageParseBuffering message | messageType message == MessageBuffering =
         do {# call message_parse_buffering #} message percentPtr
            peek percentPtr
                               | otherwise = Nothing
+#endif
 
 messageParseWarning :: Message
                     -> Maybe (Maybe GError, Maybe String)
