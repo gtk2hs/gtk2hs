@@ -37,8 +37,10 @@ module Media.Streaming.GStreamer.Base.Adapter (
   adapterClear,
   adapterPush,
   adapterPeek,
+#if GSTREAMER_CHECK_VERSION(0,10,12)
   adapterCopy,
   adapterCopyInto,
+#endif
   adapterFlush,
   adapterAvailable,
   adapterAvailableFast,
@@ -101,6 +103,7 @@ adapterPeek adapter size =
 #endif
                      (castPtr ptr, fromIntegral size)
 
+#if GSTREAMER_CHECK_VERSION(0,10,12)
 adapterCopy :: AdapterClass adapterT
             => adapterT
             -> Word
@@ -124,6 +127,7 @@ adapterCopyInto adapter dest offset =
                                 (castPtr destPtr)
                                 (fromIntegral offset)
                                 (fromIntegral size)
+#endif
 
 adapterFlush :: AdapterClass adapterT
              => adapterT
