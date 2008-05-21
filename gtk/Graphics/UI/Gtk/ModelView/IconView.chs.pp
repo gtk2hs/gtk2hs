@@ -98,10 +98,12 @@ module Graphics.UI.Gtk.ModelView.IconView (
   iconViewGetCursor,
   iconViewScrollToPath,
   iconViewGetVisibleRange,
+#if GTK_CHECK_VERSION(2,10,0)
   iconViewEnableModelDragSource,
   iconViewEnableModelDragDest,
   iconViewUnsetModelDragSource,
   iconViewUnsetModelDragDest,
+#endif
   iconViewSetReorderable,
   iconViewGetReorderable,
 #endif
@@ -714,10 +716,11 @@ iconViewGetVisibleRange self = alloca $ \fPtrPtr -> alloca $ \lPtrPtr -> do
   l <- fromTreePath lPtr
   return (Just (f,l))
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- %hash c:bd16 d:3f4f
 -- | Turns @iconView@ into a drag source for automatic DND.
 --
--- * Available since Gtk+ version 2.8
+-- * Available since Gtk+ version 2.10
 --
 iconViewEnableModelDragSource :: IconViewClass self => self
   -> [Modifier]         -- ^ @startButtonMask@ - Mask of allowed buttons
@@ -742,7 +745,7 @@ iconViewEnableModelDragSource self startButtonMask targets actions =
 -- %hash c:b14d d:23d7
 -- | Turns @iconView@ into a drop destination for automatic DND.
 --
--- * Available since Gtk+ version 2.8
+-- * Available since Gtk+ version 2.10
 --
 iconViewEnableModelDragDest :: IconViewClass self => self
   -> TargetList                -- ^ @targets@ - the list of targets that the
@@ -763,7 +766,7 @@ iconViewEnableModelDragDest self targets actions =
 -- %hash c:25b0 d:5a6b
 -- | Undoes the effect of 'iconViewEnableModelDragSource'.
 --
--- * Available since Gtk+ version 2.8
+-- * Available since Gtk+ version 2.10
 --
 iconViewUnsetModelDragSource :: IconViewClass self => self -> IO ()
 iconViewUnsetModelDragSource self =
@@ -773,12 +776,13 @@ iconViewUnsetModelDragSource self =
 -- %hash c:d76d d:f18a
 -- | Undoes the effect of 'iconViewEnableModelDragDest'.
 --
--- * Available since Gtk+ version 2.8
+-- * Available since Gtk+ version 2.10
 --
 iconViewUnsetModelDragDest :: IconViewClass self => self -> IO ()
 iconViewUnsetModelDragDest self =
   {# call gtk_icon_view_unset_model_drag_dest #}
     (toIconView self)
+#endif
 
 -- %hash c:c270 d:b94d
 -- | Check if icons can be moved around.
