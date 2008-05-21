@@ -57,9 +57,11 @@ module Media.Streaming.GStreamer.Core.Buffer (
   bufferUnsetFlagsM,
   bufferGetSize,
   bufferGetSizeM,
+#if __GLASGOW_HASKELL__ >= 606
   bufferGetData,
   bufferGetDataM,
   bufferSetDataM,
+#endif
   unsafeBufferGetPtrM,
   bufferGetTimestamp,
   bufferGetTimestampM,
@@ -92,13 +94,15 @@ module Media.Streaming.GStreamer.Core.Buffer (
 import Control.Monad ( liftM
                      , when )
 import Control.Monad.Trans
+#if __GLASGOW_HASKELL__ >= 606
 import qualified Data.ByteString as BS
-{#import Media.Streaming.GStreamer.Core.Types#}
-import System.Glib.FFI
-
-#if __GLASGOW_HASKELL__ >= 606 && __GLASGOW_HASKELL__ < 608
+#if __GLASGOW_HASKELL__ < 608
 #define OLD_BYTESTRING
 #endif
+#endif
+
+{#import Media.Streaming.GStreamer.Core.Types#}
+import System.Glib.FFI
 
 {# context lib = "gstreamer" prefix = "gst" #}
 
@@ -147,6 +151,7 @@ bufferGetSizeM =
     liftM fromIntegral $
         marshalBufferM {# get GstBuffer->size #}
 
+#if __GLASGOW_HASKELL__ >= 606
 -- | Make an O(n) copy of the data stored in @buffer@.
 bufferGetData :: BufferClass bufferT
               => bufferT       -- ^ @buffer@ - a 'Buffer'
@@ -189,6 +194,7 @@ bufferSetDataM bs =
                {# set GstBuffer->data #} bufferPtr newData
                {# set GstBuffer->malloc_data #} bufferPtr newData
                {# set GstBuffer->size #} bufferPtr $ fromIntegral size
+#endif
 
 -- | Get a raw pointer to the internal data area for the current
 --   buffer. The pointer may be used to write into the data area if
