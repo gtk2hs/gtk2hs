@@ -348,7 +348,7 @@ GTKHS_PKG_CHECK(opengl, gtkglext, GTKGLEXT, [gtkglext-1.0 >= 1.0.5],
  	[build bindings for the Gtk OpenGL extension (default=auto)],
  	[GtkGLExt library requirement not met. Perhaps you need to install gtkglext or gtkglext-devel])
 
-GTKHS_PKG_CHECK(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0],
+GTKHS_PKG_CHECK(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0 gnome-vfs-module-2.0 >= 2.0.0 ],
 	[build gnome-vfs package (default=auto)],
 	[gnomevfs library requirement not met. Perhaps you need to install libgnomevfs or libgnomevfs-devel])
 
