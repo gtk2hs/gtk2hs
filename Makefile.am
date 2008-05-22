@@ -1927,7 +1927,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/Query.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/Bus.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Clock.chs.pp		\
-	gstreamer/Media/Streaming/GStreamer/Core/PadTemplate.chs	\
+	gstreamer/Media/Streaming/GStreamer/Core/PadTemplate.chs.pp	\
 	gstreamer/Media/Streaming/GStreamer/Core/ImplementsInterface.chs \
 	gstreamer/Media/Streaming/GStreamer/Core/Index.chs		\
 	gstreamer/Media/Streaming/GStreamer/Core/IndexFactory.chs	\
@@ -1945,7 +1945,7 @@ libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Base/Types.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseSrc.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Base/BaseSink.chs.pp	\
-	gstreamer/Media/Streaming/GStreamer/Base/BaseTransform.chs	\
+	gstreamer/Media/Streaming/GStreamer/Base/BaseTransform.chs.pp	\
 	gstreamer/Media/Streaming/GStreamer/Base/PushSrc.chs		\
 	gstreamer/Media/Streaming/GStreamer/Base/Adapter.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Base/CollectPads.chs	\

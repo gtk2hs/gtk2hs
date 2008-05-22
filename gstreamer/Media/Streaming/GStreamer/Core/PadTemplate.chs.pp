@@ -49,6 +49,9 @@ import Control.Monad (liftM)
 {#import Media.Streaming.GStreamer.Core.Types#}
 {#import Media.Streaming.GStreamer.Core.Signals#}
 import System.Glib.FFI
+#if __GLASGOW_HASKELL__ < 606
+    hiding ( withObject )
+#endif
 import System.Glib.UTFString
 import System.Glib.Signals
 
