@@ -1908,7 +1908,7 @@ nodist_libHSgstreamer_a_SOURCES		= $(libHSgstreamer_a_GENERATEDSOURCES)
 libHSgstreamer_a_SOURCES		=               		\
 	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.chs	\
-	gstreamer/Media/Streaming/GStreamer/Core/Types.chs		\
+	gstreamer/Media/Streaming/GStreamer/Core/Types.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Constants.hsc		\
 	gstreamer/Media/Streaming/GStreamer/Core/Init.chs.pp		\
 	gstreamer/Media/Streaming/GStreamer/Core/Object.chs.pp		\
