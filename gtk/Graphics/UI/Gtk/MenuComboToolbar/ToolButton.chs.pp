@@ -114,6 +114,7 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -144,7 +145,7 @@ toolButtonNew iconWidget label =
 -- It is an error if @stockId@ is not a name of a stock item.
 --
 toolButtonNewFromStock :: 
-    String        -- ^ @stockId@ - the name of the stock item
+    StockId       -- ^ @stockId@ - the name of the stock item
  -> IO ToolButton
 toolButtonNewFromStock stockId =
   makeNewObject mkToolButton $
@@ -211,7 +212,7 @@ toolButtonGetUseUnderline self =
 -- \"label\" and \"icon_widget\" properties.
 --
 toolButtonSetStockId :: ToolButtonClass self => self
- -> Maybe String -- ^ @stockId@ - a name of a stock item, or @Nothing@
+ -> Maybe StockId -- ^ @stockId@ - a name of a stock item, or @Nothing@
  -> IO ()
 toolButtonSetStockId self stockId =
   maybeWith withUTFString stockId $ \stockIdPtr ->

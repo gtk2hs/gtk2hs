@@ -83,6 +83,7 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -104,7 +105,7 @@ toggleToolButtonNew =
 -- It is an error if @stockId@ is not a name of a stock item.
 --
 toggleToolButtonNewFromStock :: 
-    String              -- ^ @stockId@ - the name of the stock item
+    StockId             -- ^ @stockId@ - the name of the stock item
  -> IO ToggleToolButton
 toggleToolButtonNewFromStock stockId =
   makeNewObject mkToggleToolButton $

@@ -129,6 +129,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.General.Enums	(ReliefStyle(..))
+import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -179,7 +180,7 @@ buttonNewWithMnemonic label =
 -- for 'buttonNewWithMnemonic').
 --
 buttonNewFromStock :: 
-    String    -- ^ @stockId@ - the name of the stock item
+    StockId   -- ^ @stockId@ - the name of the stock item
  -> IO Button
 buttonNewFromStock stockId =
   makeNewObject mkButton $

@@ -149,6 +149,7 @@ import System.Glib.Properties
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
+import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeMenu,
 					 iconSizeSmallToolbar, iconSizeButton,
                                          iconSizeLargeToolbar, iconSizeDialog)
@@ -214,7 +215,7 @@ imageNewFromPixbuf pixbuf =
 -- known, the image will be empty.
 --
 imageNewFromStock :: 
-    String   -- ^ @stockId@ - a stock icon name
+    StockId  -- ^ @stockId@ - a stock icon name
  -> IconSize -- ^ @size@ - a stock icon size
  -> IO Image
 imageNewFromStock stockId size =
@@ -290,7 +291,7 @@ imageSetFromFile self filename =
 -- | See 'imageNewFromStock' for details.
 --
 imageSetFromStock :: Image
- -> String   -- ^ @stockId@ - a stock icon name
+ -> StockId  -- ^ @stockId@ - a stock icon name
  -> IconSize -- ^ @size@ - a stock icon size
  -> IO ()
 imageSetFromStock self stockId size =

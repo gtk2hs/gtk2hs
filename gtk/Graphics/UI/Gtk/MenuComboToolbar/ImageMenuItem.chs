@@ -77,6 +77,7 @@ import System.Glib.UTFString
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
+import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -95,7 +96,7 @@ imageMenuItemNew =
 -- item.
 --
 imageMenuItemNewFromStock :: 
-    String           -- ^ @stockId@ - the name of the stock item.
+    StockId          -- ^ @stockId@ - the name of the stock item.
  -> IO ImageMenuItem
 imageMenuItemNewFromStock stockId =
   makeNewObject mkImageMenuItem $

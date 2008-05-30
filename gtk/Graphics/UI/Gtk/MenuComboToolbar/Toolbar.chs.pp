@@ -168,6 +168,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import Graphics.UI.Gtk.Abstract.ContainerChildProperties
 import Graphics.UI.Gtk.General.Enums	(Orientation(..), ToolbarStyle(..),
 					 ReliefStyle(..))
+import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Structs	(
 #ifndef DISABLE_DEPRECATED
 					 toolbarChildToggleButton,
@@ -222,7 +223,7 @@ mkToolText (Just (text,private)) fun = withUTFString text $ \txtPtr ->
 --
 toolbarInsertNewButton :: ToolbarClass self => self
  -> Int
- -> String
+ -> StockId
  -> Maybe (String,String)
  -> IO Button
 toolbarInsertNewButton self pos stockId tooltips = 
@@ -273,7 +274,7 @@ toolbarPrependNewButton self = toolbarInsertNewButton self 0
 --
 toolbarInsertNewToggleButton :: ToolbarClass self => self
  -> Int
- -> String
+ -> StockId
  -> Maybe (String, String)
  -> IO ToggleButton
 toolbarInsertNewToggleButton self pos stockId tooltips = do
@@ -333,7 +334,7 @@ toolbarPrependNewToggleButton self = toolbarInsertNewToggleButton self 0
 --
 toolbarInsertNewRadioButton :: (ToolbarClass self, RadioButtonClass rb) => self
  -> Int
- -> String
+ -> StockId
  -> Maybe (String,String)
  -> Maybe rb
  -> IO RadioButton

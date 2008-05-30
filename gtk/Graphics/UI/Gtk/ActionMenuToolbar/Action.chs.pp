@@ -145,6 +145,7 @@ import System.Glib.GObject		(constructNewGObject)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -159,12 +160,12 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 -- allowed action names.
 --
 actionNew :: 
-    String       -- ^ @name@ - A unique name for the action
- -> String       -- ^ @label@ - the label displayed in menu items and on
-                 -- buttons
- -> Maybe String -- ^ @tooltip@ - a tooltip for the action
- -> Maybe String -- ^ @stockId@ - the stock icon to display in widgets
-                 -- representing the action
+    String        -- ^ @name@ - A unique name for the action
+ -> String        -- ^ @label@ - the label displayed in menu items and on
+                  -- buttons
+ -> Maybe String  -- ^ @tooltip@ - a tooltip for the action
+ -> Maybe StockId -- ^ @stockId@ - the stock icon to display in widgets
+                  -- representing the action
  -> IO Action
 actionNew name label tooltip stockId =
   constructNewGObject mkAction $

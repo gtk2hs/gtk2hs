@@ -83,6 +83,7 @@ import System.Glib.GList
 import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
+import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -104,7 +105,7 @@ radioToolButtonNew =
 -- indicated by @stockId@.
 --
 radioToolButtonNewFromStock :: 
-    String             -- ^ @stockId@ - the name of a stock item
+    StockId            -- ^ @stockId@ - the name of a stock item
  -> IO RadioToolButton
 radioToolButtonNewFromStock stockId =
   makeNewObject mkRadioToolButton $
@@ -134,7 +135,7 @@ radioToolButtonNewFromWidget group =
 radioToolButtonNewWithStockFromWidget :: RadioToolButtonClass groupMember => 
     groupMember        -- ^ @groupMember@ - a member of an existing radio group,
                        -- to which the new radio tool button will be added.
- -> String             -- ^ @stockId@ - the name of a stock item
+ -> StockId            -- ^ @stockId@ - the name of a stock item
  -> IO RadioToolButton
 radioToolButtonNewWithStockFromWidget group stockId =
   makeNewObject mkRadioToolButton $

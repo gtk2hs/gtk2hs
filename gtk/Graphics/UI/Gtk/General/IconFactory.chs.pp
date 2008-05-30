@@ -123,6 +123,7 @@ import System.Glib.UTFString
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums	(TextDirection(..), StateType(..))
+import Graphics.UI.Gtk.General.StockItems
 import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid,
 					 iconSizeMenu, iconSizeSmallToolbar,
 					 iconSizeLargeToolbar, iconSizeButton,
@@ -158,7 +159,7 @@ iconFactoryNew  =
 -- In order to use the new stock object, the factory as to be added to the
 -- default factories by 'iconFactoryAddDefault'.
 --
-iconFactoryAdd :: IconFactory -> String -> IconSet -> IO ()
+iconFactoryAdd :: IconFactory -> StockId -> IconSet -> IO ()
 iconFactoryAdd i stockId iconSet = withUTFString stockId $ \strPtr ->
   {#call unsafe icon_factory_add#} i strPtr iconSet
 
@@ -177,7 +178,7 @@ iconFactoryAddDefault  = {#call unsafe icon_factory_add_default#}
 -- for the widget that will display the icon, instead of using this function
 -- directly, so that themes are taken into account.
 --
-iconFactoryLookup :: IconFactory -> String -> IO (Maybe IconSet)
+iconFactoryLookup :: IconFactory -> StockId -> IO (Maybe IconSet)
 iconFactoryLookup i stockId =
   withUTFString stockId $ \strPtr -> do
   iconSetPtr <- {#call unsafe icon_factory_lookup#} i strPtr
@@ -192,7 +193,7 @@ iconFactoryLookup i stockId =
 -- for the widget that will display the icon, instead of using this function
 -- directly, so that themes are taken into account.
 --
-iconFactoryLookupDefault :: String -> IO (Maybe IconSet)
+iconFactoryLookupDefault :: StockId -> IO (Maybe IconSet)
 iconFactoryLookupDefault stockId =
   withUTFString stockId $ \strPtr -> do
   iconSetPtr <- {#call unsafe icon_factory_lookup_default#} strPtr

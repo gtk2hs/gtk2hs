@@ -81,6 +81,7 @@ import System.Glib.Properties
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -97,7 +98,7 @@ radioActionNew ::
  -> String         -- ^ @label@ - The label displayed in menu items and on
                    -- buttons
  -> Maybe String   -- ^ @tooltip@ - A tooltip for this action
- -> Maybe String   -- ^ @stockId@ - The stock icon to display in widgets
+ -> Maybe StockId  -- ^ @stockId@ - The stock icon to display in widgets
                    -- representing this action
  -> Int            -- ^ @value@ - The value which 'radioActionGetCurrentValue'
                    -- should return if this action is selected.

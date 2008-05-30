@@ -76,6 +76,7 @@ import System.Glib.Attributes
 import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
+import Graphics.UI.Gtk.General.StockItems
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -92,7 +93,7 @@ toggleActionNew ::
  -> String          -- ^ @label@ - The label displayed in menu items and on
                     -- buttons
  -> Maybe String    -- ^ @tooltip@ - A tooltip for the action
- -> Maybe String    -- ^ @stockId@ - The stock icon to display in widgets
+ -> Maybe StockId   -- ^ @stockId@ - The stock icon to display in widgets
                     -- representing the action
  -> IO ToggleAction
 toggleActionNew name label tooltip stockId =
