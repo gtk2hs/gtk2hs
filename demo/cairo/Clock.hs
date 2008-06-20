@@ -290,7 +290,11 @@ main = do
     (Just (32, 32)) (Just (512, 512))
     Nothing Nothing (Just (1,1))
 
---  on_alpha_screen_changed (pWindow, NULL, NULL);
+  let setAlpha widget = do
+        screen <- widgetGetScreen widget
+        colormap <- screenGetRGBAColormap screen
+        maybe (return ()) (widgetSetColormap widget) colormap
+  setAlpha window --TODO: also call setAlpha on alpha screen change
 
   onKeyPress window $ \Key { eventKeyName = key } ->
     when (key == "Escape") mainQuit >> return True
@@ -370,8 +374,11 @@ main = do
       region exposeRegion
       clip
 
-      setSourceRGB 1 1 1
+      save
+      setOperator OperatorSource
+      setSourceRGBA 0 0 0 0
       paint
+      restore
 
       case background of
         Nothing -> drawClockBackground False width height
