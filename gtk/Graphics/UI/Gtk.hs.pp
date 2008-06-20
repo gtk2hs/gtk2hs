@@ -58,6 +58,7 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.Events,
   module Graphics.UI.Gtk.Gdk.Pixbuf,
   module Graphics.UI.Gtk.Gdk.Pixmap,
+  module Graphics.UI.Gtk.Gdk.Screen,
   module Graphics.UI.Gtk.Gdk.Gdk,
   -- ** cairo integration
   module Graphics.UI.Gtk.Cairo,
@@ -236,6 +237,7 @@ import Graphics.UI.Gtk.Gdk.Events		hiding (marshExposeRect,
 							marshalEvent)
 import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
+import Graphics.UI.Gtk.Gdk.Screen
 import Graphics.UI.Gtk.Gdk.Gdk
 -- cairo integration
 import Graphics.UI.Gtk.Cairo
