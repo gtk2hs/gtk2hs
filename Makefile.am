@@ -1743,7 +1743,7 @@ libHSgnomevfs_a_SOURCES			=               \
 	gnomevfs/System/Gnome/VFS/Monitor.chs           \
 	gnomevfs/System/Gnome/VFS/Ops.chs.pp            \
 	gnomevfs/System/Gnome/VFS/Directory.chs         \
-	gnomevfs/System/Gnome/VFS/URI.chs               \
+	gnomevfs/System/Gnome/VFS/URI.chs.pp            \
 	gnomevfs/System/Gnome/VFS/Util.chs              \
 	gnomevfs/System/Gnome/VFS/Xfer.chs.pp           \
 	gnomevfs/System/Gnome/VFS/Cancellation.chs      \
