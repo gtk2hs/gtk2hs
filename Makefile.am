@@ -2284,6 +2284,12 @@ endif
 if ENABLE_GTKGLEXT
 DEMOS += demo/opengl
 endif
+if ENABLE_GSTREAMER
+DEMOS += demo/gstreamer
+endif
+if ENABLE_GNOMEVFS
+DEMOS += demo/gnomevfs
+endif
 
 # For the install check just make sure all the demo programs compile and link
 DEMO_MAKE_ARGS= $(if $(PKGCONF), HCFLAGS="-package-conf $(PKGCONF)") HC=$(HC)
