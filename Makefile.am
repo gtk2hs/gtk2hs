@@ -22,6 +22,7 @@ EXTRA_DIST = \
 	gnomevfs/hsgnomevfs-2.14.h		\
 	gnomevfs/System/Gnome/VFS/hsfileinfo.h	\
 	gnomevfs/marshal.list 			\
+	gstreamer/marshal.list 			\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
 
 # There are no other files in these dirs and tar excludes empty dirs
@@ -1875,7 +1876,7 @@ endif
 libHSgstreamer_a_INTERNALDEPS		= glib
 libHSgstreamer_a_HEADER			= gstreamer/hsgstreamer.h
 libHSgstreamer_a_PRECOMP		= gstreamer/gstreamer.precomp
-$(libHSgnomevfs_a_PRECOMP): $(libHSgnomevfs_a_HEADER)
+$(libHSgstreamer_a_PRECOMP): $(libHSgstreamer_a_HEADER)
 libHSgstreamer_a_LIBS			= $(GLIB_LIBS) $(GSTREAMER_LIBS)
 libHSgstreamer_a_HCFLAGS		= -fffi
 libHSgstreamer_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS))
