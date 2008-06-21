@@ -150,7 +150,7 @@ import System.Glib.UTFString ( withUTFString
 
 -- | Get the flags set on the element.
 elementGetFlags :: ElementClass elementT
-                => elementT
+                => elementT          -- ^ @element@ - an element
                 -> IO [ElementFlags]
 elementGetFlags = mkObjectGetFlags
 
@@ -179,23 +179,21 @@ elementUnsetFlags = mkObjectUnsetFlags
 --   This function will emit the 'elementPadAdded' signal on the
 --   element.
 elementAddPad :: (ElementClass elementT, PadClass padT)
-              => elementT -- ^ @element@ - 
+              => elementT -- ^ @element@ - an element
               -> padT     -- ^ @pad@ - 
               -> IO Bool
 elementAddPad element pad =
     liftM toBool $ {# call element_add_pad #} (toElement element) (toPad pad)
 
--- | Look for an unlinked pad to which the given pad can link. It is not
+-- | Look for an unlinked pad to which the @pad@ can link. It is not
 --   guaranteed that linking the pads will work, though it should work in most
 --   cases.
 elementGetCompatiblePad :: (ElementClass elementT, PadClass padT)
-                        => elementT       -- ^ @element@ - the element for
-                                          --   which a pad should be found
-                        -> padT           -- ^ @pad@ - the pad to find
-                                          --   a compatible one for
+                        => elementT       -- ^ @element@ - an element
+                        -> padT           -- ^ @pad@ - a pad
                         -> Caps           -- ^ @caps@ - the 'Caps' to
                                           --   use as a filter
-                        -> IO (Maybe Pad) -- ^ the compatible 'Pad', or
+                        -> IO (Maybe Pad) -- ^ a 'Pad' that is compatible with @pad@, or
                                           --   'Nothing' if none was found
 elementGetCompatiblePad element pad caps =
     {# call element_get_compatible_pad #} (toElement element) (toPad pad) caps >>=
@@ -205,10 +203,10 @@ elementGetCompatiblePad element pad caps =
 --   @padTemplate@.  Pads from compatible templates can be linked
 --   together.
 elementGetCompatiblePadTemplate :: (ElementClass elementT, PadTemplateClass padTemplateT)
-                                => elementT               -- ^ @element@ - 
-                                -> padTemplateT           -- ^ @padTemplate@ - 
-                                -> IO (Maybe PadTemplate) -- ^ the compatible'PadTemplate',
-                                                          -- or 'Nothing' if none was found
+                                => elementT               -- ^ @element@ - an element
+                                -> padTemplateT           -- ^ @padTemplate@ - a pad template
+                                -> IO (Maybe PadTemplate) -- ^ the compatible 'PadTemplate',
+                                                          --   or 'Nothing' if none was found
 elementGetCompatiblePadTemplate element padTemplate =
     {# call element_get_compatible_pad_template #} (toElement element) (toPadTemplate padTemplate) >>=
         maybePeek takeObject
@@ -217,7 +215,7 @@ elementGetCompatiblePadTemplate element padTemplate =
 --   retrieves request pads. The pad should be released with
 --   'elementReleaseRequestPad'.
 elementGetRequestPad :: ElementClass elementT
-                     => elementT       -- ^ @element@ - 
+                     => elementT       -- ^ @element@ - an element
                      -> String         -- ^ @name@ - 
                      -> IO (Maybe Pad) -- ^ the requested 'Pad' if
                                        --   found, otherwise 'Nothing'.
@@ -228,7 +226,7 @@ elementGetRequestPad element name =
 -- | Retreive a pad from @element@ by name. This version only
 --   retrieves already-existing (i.e. "static") pads.
 elementGetStaticPad :: ElementClass elementT
-                    => elementT -- ^ @element@ - 
+                    => elementT -- ^ @element@ - an element
                     -> String   -- ^ @name@ - 
                     -> IO (Maybe Pad) -- ^ the requested 'Pad' if
                                       --   found, otherwise 'Nothing'.

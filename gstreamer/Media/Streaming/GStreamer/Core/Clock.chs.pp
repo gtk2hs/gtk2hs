@@ -277,13 +277,13 @@ clockSetResolution clock resolution =
 -- | Get the resolution of the @clock@. The resolution of the clock is
 --   the granularity of the values returned by 'clockGetTime'.
 clockGetResolution :: ClockClass clock
-                   => clock        -- ^ @clock@
+                   => clock        -- ^ @clock@ - 
                    -> IO ClockTime -- ^ the resolution currently set in @clock@
 clockGetResolution clock =
     liftM fromIntegral $
         {# call clock_get_resolution #} (toClock clock)
 
--- | Gets the current time of @clock@. The time is always
+-- | Get the current time stored in @clock@. The time is always
 --   monotonically increasing and adjusted according to the current
 --   offset and rate.
 clockGetTime :: ClockClass clock
