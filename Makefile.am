@@ -1710,7 +1710,7 @@ endif
 libHSgnomevfs_a_LIBS			= $(GLIB_LIBS) $(GNOMEVFS_LIBS) $(GCONF_LIBS)
 libHSgnomevfs_a_HCFLAGS			= -fffi
 libHSgnomevfs_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GNOMEVFS_CFLAGS))
-libHSgnomevfs_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GNOMEVFS_CFLAGS))
+libHSgnomevfs_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GNOMEVFS_CFLAGS)) -I.
 
 libHSgnomevfs_a_SOURCESDIRS		= gnomevfs
 
@@ -1733,6 +1733,7 @@ libHSgnomevfs_a_GENERATEDSOURCES	=		\
 nodist_libHSgnomevfs_a_SOURCES		= $(libHSgnomevfs_a_GENERATEDSOURCES)
 
 libHSgnomevfs_a_SOURCES			=               \
+	gnomevfs/System/Gnome/VFS/Constants.hsc		\
 	gnomevfs/System/Gnome/VFS/Types.chs.pp          \
 	gnomevfs/System/Gnome/VFS/Error.hs		\
 	gnomevfs/System/Gnome/VFS/Marshal.chs		\

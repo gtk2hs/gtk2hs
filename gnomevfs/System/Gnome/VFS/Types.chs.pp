@@ -33,6 +33,8 @@
 --   Portability : portable (depends on GHC)
 module System.Gnome.VFS.Types (
   
+  module System.Gnome.VFS.Constants,
+  
   Handle(..),
   withHandle,
   
@@ -47,7 +49,6 @@ module System.Gnome.VFS.Types (
   FileInfoFields(..),
   SetFileInfoMask(..),
   FileInfoOptions(..),
-  FilePermissions(..),
   FileSize,
   FileOffset,
   FileType(..),
@@ -134,6 +135,7 @@ import System.Glib.Flags
 {#import System.Glib.GType#} (GType,
                               typeInstanceIsA)
 {#import System.Gnome.VFS.Hierarchy#}
+import System.Gnome.VFS.Constants
 
 import System.Posix.Types (DeviceID, EpochTime)
 
@@ -238,29 +240,6 @@ type InodeNumber     = Word64
 
 -- | A pair holding the user ID and group ID of a file owner.
 type IDs             = (Int, Int)
-
--- | UNIX-like permissions for a file.
-{# enum GnomeVFSFilePermissions as FilePermissions {
-    GNOME_VFS_PERM_SUID              as PermSUID,
-    GNOME_VFS_PERM_SGID              as PermSGID,
-    GNOME_VFS_PERM_STICKY            as PermSticky,
-    GNOME_VFS_PERM_USER_READ         as PermUserRead,
-    GNOME_VFS_PERM_USER_WRITE        as PermUserWrite,
-    GNOME_VFS_PERM_USER_EXEC         as PermUserExec,
-    GNOME_VFS_PERM_USER_ALL          as PermUserAll,
-    GNOME_VFS_PERM_GROUP_READ        as PermGroupRead,
-    GNOME_VFS_PERM_GROUP_WRITE       as PermGroupWrite,
-    GNOME_VFS_PERM_GROUP_EXEC        as PermGroupExec,
-    GNOME_VFS_PERM_GROUP_ALL         as PermGroupAll,
-    GNOME_VFS_PERM_OTHER_READ        as PermOtherRead,
-    GNOME_VFS_PERM_OTHER_WRITE       as PermOtherWrite,
-    GNOME_VFS_PERM_OTHER_EXEC        as PermOtherExec,
-    GNOME_VFS_PERM_OTHER_ALL         as PermOtherAll,
-    GNOME_VFS_PERM_ACCESS_READABLE   as PermAccessReadable,
-    GNOME_VFS_PERM_ACCESS_WRITABLE   as PermAccessWritable,
-    GNOME_VFS_PERM_ACCESS_EXECUTABLE as PermAccessExecutable
-    } deriving (Eq, Bounded, Show) #}
-instance Flags FilePermissions
 
 --------------------------------------------------------------------
 
