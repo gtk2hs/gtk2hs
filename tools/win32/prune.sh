@@ -8,7 +8,7 @@ cd zips
 ##################
 
 # don't need makefiles or docs
-rm -rf */make/ */man/ */share/gtk-doc/ */share/doc/
+rm -rf */make/ */share/man/ */man/ */share/gtk-doc/ */share/doc/
 
 # only needed for rebuilding gtk libs
 rm -rf */share/aclocal/
@@ -29,32 +29,27 @@ rm -rf */lib/locale/ */share/locale/
 ## package-specific pruning
 ###########################
 
+pushd gtk+-bundle-${GTK_VERSION}
 # don't need the gtk demo
-pushd gtk+-dev-${GTK_VERSION}
-rm -rf share/gtk-2.0
-popd
-
+rm -rf share/gtk-2.0/
+rmdir share/gtk-2.0
 # don't need the glib gettext stuff
-pushd glib-dev-${GLIB_VERSION}
-rm -rf share/glib-2.0
-popd
-
-pushd pango-${PANGO_VERSION}
+rm -rf share/glib-2.0/
+rmdir share/glib-2.0
 rm bin/pango-querymodules.exe
+rm lib/libz.a lib/zdll.lib
 popd
 
 pushd libiconv-${LIBICONV_VERSION}.bin.woe32
 rm -rf README.libiconv share/doc share/man lib/libiconv.a bin/iconv.exe
 popd
 
-pushd gettext-dev-${GETTEXT_VERSION}
-rm -rf share
+#pushd gettext-dev-${GETTEXT_VERSION}
+#rm -rf share
+#popd
+
+pushd gtkglext-${GTKGLEXT_VERSION}
+rm -rf bin/gtkglext-env.{bat,sh}
 popd
 
-pushd libglade-dev-${LIBGLADE_VERSION}
-rm -rf share/xml
-popd
-
-pushd libxml2-dev-${LIBXML_VERSION}
-rm -rf include
-popd
+find -depth -type d -empty -exec rmdir -v {} \;

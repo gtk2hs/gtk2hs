@@ -1,0 +1,14 @@
+prefix=/c/gtk/gtk+-2.12.10
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+toolsdir=${exec_prefix}/bin
+pluginsdir=${exec_prefix}/lib/gstreamer-0.10
+gstcontrol_libs=-lgstcontrol-0.10
+
+Name: GStreamer
+Description: Streaming media framework
+Requires: glib-2.0, gobject-2.0, gmodule-no-export-2.0, gthread-2.0, libxml-2.0
+Version: 0.10.17
+Libs: -L${libdir} -lgstreamer-0.10
+Cflags: -I${includedir}

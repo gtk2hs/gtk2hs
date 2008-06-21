@@ -1,0 +1,12 @@
+prefix=/c/gtk/gtk+-2.12.10
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: GStreamer SDP Library
+Description: SDP helper functions
+Requires: glib-2.0
+Version: 0.10.17
+Libs: -L${libdir} -lgstsdp-0.10
+Cflags: -I${includedir}
+

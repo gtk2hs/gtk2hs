@@ -1,0 +1,11 @@
+prefix=/c/gtk/gtk+-2.12.10
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: GStreamer data protocol library
+Description: Data protocol for plug-ins
+Requires: gstreamer-0.10
+Version: 0.10.17
+Libs: -L${libdir} -lgstdataprotocol-0.10
+Cflags: -I${includedir}

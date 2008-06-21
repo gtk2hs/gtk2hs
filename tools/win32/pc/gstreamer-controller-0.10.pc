@@ -1,0 +1,11 @@
+prefix=/c/gtk/gtk+-2.12.10
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: GStreamer controller
+Description: Dynamic parameter control for GStreamer elements
+Requires: gstreamer-0.10
+Version: 0.10.17
+Libs: -L${libdir} -lgstcontroller-0.10
+Cflags: -I${includedir}

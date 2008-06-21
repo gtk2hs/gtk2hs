@@ -1,0 +1,12 @@
+prefix=/c/gtk/gtk+-2.12.10
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: GStreamer CDDA Library
+Description: CDDA base classes
+Requires: gstreamer-0.10 gstreamer-base-0.10 gstreamer-tag-0.10
+Version: 0.10.17
+Libs: -L${libdir} -lgstcdda-0.10
+Cflags: -I${includedir}
+

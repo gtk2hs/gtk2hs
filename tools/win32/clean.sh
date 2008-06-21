@@ -2,11 +2,13 @@
 
 . ./versions.conf
 
-rm -rf zips/*/
-rm -f zips/*.tar
+pushd zips
+rm -rf */
+rm -f *.tar
+popd
 
-rm -rf gtk+-${GTK_VERSION}
-rm -f gtk+-${GTK_VERSION}.tar.gz
+rm -rf gtk2hs-clibs-${GTK_VERSION}
+rm -f gtk2hs-clibs-${GTK_VERSION}.tar.gz
 
-rm -rf gtk+-dev-${GTK_VERSION}
-rm -f gtk+-dev-${GTK_VERSION}.tar.gz
+rm -rf gtk2hs-clibs-dev-${GTK_VERSION}
+rm -f gtk2hs-clibs-dev-${GTK_VERSION}.tar.gz

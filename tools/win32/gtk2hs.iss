@@ -4,18 +4,18 @@
 [Setup]
 AppName=Gtk2Hs
 AppId=Gtk2Hs
-AppVerName=Gtk2Hs 0.9.12
-AppVersion=0.9.12
+AppVerName=Gtk2Hs 0.9.13
+AppVersion=0.9.13
 AppPublisher=The Gtk2Hs Team
 AppPublisherURL=http://haskell.org/gtk2hs/
 AppSupportURL=http://haskell.org/gtk2hs/
 AppUpdatesURL=http://haskell.org/gtk2hs/
 
 DefaultDirName={pf}\Gtk2Hs
-OutputBaseFilename=gtk2hs-0.9.12
+OutputBaseFilename=gtk2hs-0.9.13
 
-VersionInfoVersion=0.9.12
-VersionInfoCopyright=Copyright (C) 2001-2007 The Gtk2Hs Team
+VersionInfoVersion=0.9.13
+VersionInfoCopyright=Copyright (C) 2001-2008 The Gtk2Hs Team
 
 Compression=lzma/max
 SolidCompression=yes
@@ -23,18 +23,16 @@ SolidCompression=yes
 ChangesEnvironment=yes
 
 [Components]
-Name: "gtk";     Description: "Gtk+ libraries"; Types: full compact custom; Flags: fixed
-;Name: "gtk2hs1"; Description: "Gtk2Hs libraries for GHC 6.4.2"; Check: UseWithGhcVersion('6.4.2'); Types: full compact custom; Flags: fixed
-Name: "gtk2hs2"; Description: "Gtk2Hs libraries for GHC 6.6.1"; Check: UseWithGhcVersion('6.6.1'); Types: full compact custom; Flags: fixed
+Name: "clibs";   Description: "Required C libraries"; Types: full compact custom; Flags: fixed
+Name: "gtk2hs";  Description: "Gtk2Hs libraries for GHC 6.8.3"; Check: UseWithGhcVersion('6.8.3'); Types: full compact custom; Flags: fixed
 Name: "docs";    Description: "API reference documentation"; Types: full
 Name: "demos";   Description: "Source files for the Gtk2Hs demo programs"; Types: full
 
 [Files]
-Source: "gtk+-2.10.14\*";                     DestDir: "{app}";       Components: gtk;     Flags: ignoreversion recursesubdirs createallsubdirs;
-;Source: "gtk2hs-0.9.12-ghc-6.4.2-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs1; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-0.9.12-ghc-6.6.1-gtk-2.10\*"; DestDir: "{app}";       Components: gtk2hs2; Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
-Source: "gtk2hs-0.9.12-demo\*";               DestDir: "{app}\demos"; Components: demos;   Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "gtk2hs-0.9.12-docs\*";               DestDir: "{app}\docs";  Components: docs;    Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk2hs-clibs-0.9.13\*";              DestDir: "{app}";       Components: clibs;   Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk2hs-0.9.13-ghc-6.8.3\*";          DestDir: "{app}";       Components: gtk2hs;  Flags: ignoreversion recursesubdirs createallsubdirs; AfterInstall: AfterPkgInstall;
+Source: "gtk2hs-demo-0.9.13\*";               DestDir: "{app}\demos"; Components: demos;   Flags: ignoreversion recursesubdirs createallsubdirs;
+Source: "gtk2hs-docs-0.9.13\*";               DestDir: "{app}\docs";  Components: docs;    Flags: ignoreversion recursesubdirs createallsubdirs;
 Source: "COPYING.txt";                        DestDir: "{app}";                            Flags: ignoreversion;
 Source: "AUTHORS.txt";                        DestDir: "{app}";                            Flags: ignoreversion;
 
@@ -42,23 +40,28 @@ Source: "AUTHORS.txt";                        DestDir: "{app}";                 
 Root: HKCU; Subkey: "Environment"; ValueName: "Path"; ValueType: "string"; ValueData: "{app}\bin;{olddata}"; Check: NotOnPathAlready(); Flags: preservestringtype;
 
 [Run]
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glib.package.conf""";     StatusMsg: "Registering glib package...";     Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\cairo.package.conf""";    StatusMsg: "Registering cairo package...";    Flags: runhidden
-;Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\svgcairo.package.conf"""; StatusMsg: "Registering svgcairo package..."; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtk.package.conf""";      StatusMsg: "Registering gtk package...";      Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf""";    StatusMsg: "Registering glade package...";    Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\soegtk.package.conf""";   StatusMsg: "Registering soegtk package...";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkglext.package.conf"""; StatusMsg: "Registering gtkglext package..."; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\sourceview.package.conf"""; StatusMsg: "Registering sourceview package..."; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glib.package.conf""";       StatusMsg: "Registering glib package...";       Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\cairo.package.conf""";      StatusMsg: "Registering cairo package...";      Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\svgcairo.package.conf""";   StatusMsg: "Registering svgcairo package...";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtk.package.conf""";        StatusMsg: "Registering gtk package...";        Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\glade.package.conf""";      StatusMsg: "Registering glade package...";      Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\soegtk.package.conf""";     StatusMsg: "Registering soegtk package...";     Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gtkglext.package.conf""";   StatusMsg: "Registering gtkglext package...";   Flags: runhidden
+;Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\sourceview.package.conf"""; StatusMsg: "Registering sourceview package..."; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gnomevfs.package.conf""";   StatusMsg: "Registering gnomevfs package...";   Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "update ""{app}\gstreamer.package.conf""";  StatusMsg: "Registering gstreamer package...";  Flags: runhidden
+
 [UninstallRun]
-Filename: "{code:ghcpkg}"; Parameters: "unregister sourceview-0.9.12"; RunOnceId: "gtkglext"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtkglext-0.9.12";   RunOnceId: "gtkglext"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.12";     RunOnceId: "soegtk";   Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.12";      RunOnceId: "glade";    Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.12";        RunOnceId: "gtk";      Flags: runhidden
-;Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.12";   RunOnceId: "svgcairo"; Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.12";      RunOnceId: "cairo";    Flags: runhidden
-Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.12";       RunOnceId: "glib";     Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gstreamer-0.9.13";  RunOnceId: "gstreamer"; Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gnomevfs-0.9.13";   RunOnceId: "gnomevfs";  Flags: runhidden
+;Filename: "{code:ghcpkg}"; Parameters: "unregister sourceview-0.9.13"; RunOnceId: "gtkglext";  Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtkglext-0.9.13";   RunOnceId: "gtkglext";  Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister soegtk-0.9.13";     RunOnceId: "soegtk";    Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glade-0.9.13";      RunOnceId: "glade";     Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister gtk-0.9.13";        RunOnceId: "gtk";       Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister svgcairo-0.9.13";   RunOnceId: "svgcairo";  Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister cairo-0.9.13";      RunOnceId: "cairo";     Flags: runhidden
+Filename: "{code:ghcpkg}"; Parameters: "unregister glib-0.9.13";       RunOnceId: "glib";      Flags: runhidden
 
 [Code]
 var
@@ -135,8 +138,7 @@ begin
   Version := ExecOutput(AddBackslash(Path) + 'bin\ghc.exe', '--numeric-version');
   GhcInstallVersion := Version;
   
-  Result := {-(Version = '6.4.2')
-           or-} (Version = '6.6.1');
+  Result := (Version = '6.8.3');
 end;
 
 var
@@ -280,17 +282,60 @@ begin
       ChecksOk := False
     else
     begin
-      DllFiles := ['charset.dll', 'gspawn-win32-helper-console.exe',
-        'gspawn-win32-helper.exe', 'iconv.dll', 'intl.dll', 'jpeg62.dll',
-        'libatk-1.0-0.dll', 'libcairo-2.dll', 'libgdk_pixbuf-2.0-0.dll',
-        'libgdkglext-win32-1.0-0.dll', 'libgdk-win32-2.0-0.dll',
-        'libglade-2.0-0.dll', 'libglib-2.0-0.dll',
-        'libgmodule-2.0-0.dll', 'libgobject-2.0-0.dll',
-        'libgthread-2.0-0.dll', 'libgtkglext-win32-1.0-0.dll',
-        'libgtksourceview-1.0-0.dll', 'libgtk-win32-2.0-0.dll',
-        'libpango-1.0-0.dll', 'libpangocairo-1.0-0.dll',
-        'libpangoft2-1.0-0.dll', 'libpangowin32-1.0-0.dll',
-        'libpng13.dll', 'libxml2.dll', 'zlib1.dll'];
+      DllFiles := [
+        'gspawn-win32-helper-console.exe',
+        'gspawn-win32-helper.exe',
+        'gst-inspect-0.10.exe',
+        'gst-launch-0.10.exe',
+        'charset.dll',
+        'iconv.dll',
+        'intl.dll',
+        'jpeg62.dll',
+        'libORBit-2-0.dll',
+        'libORBit-imodule-2-0.dll',
+        'libORBitCosNaming-2-0.dll',
+        'libatk-1.0-0.dll',
+        'libcairo-2.dll',
+        'libgconf-2-4.dll',
+        'libgdk-win32-2.0-0.dll',
+        'libgdk_pixbuf-2.0-0.dll',
+        'libgdkglext-win32-1.0-0.dll',
+        'libgio-2.0-0.dll',
+        'libglade-2.0-0.dll',
+        'libglib-2.0-0.dll',
+        'libgmodule-2.0-0.dll',
+        'libgnomevfs-2-0.dll',
+        'libgobject-2.0-0.dll',
+        'libgstaudio-0.10.dll',
+        'libgstbase-0.10.dll',
+        'libgstcdda-0.10.dll',
+        'libgstcontroller-0.10.dll',
+        'libgstdataprotocol-0.10.dll',
+        'libgstfft-0.10.dll',
+        'libgstinterfaces-0.10.dll',
+        'libgstnet-0.10.dll',
+        'libgstnetbuffer-0.10.dll',
+        'libgstpbutils-0.10.dll',
+        'libgstreamer-0.10.dll',
+        'libgstriff-0.10.dll',
+        'libgstrtp-0.10.dll',
+        'libgstrtsp-0.10.dll',
+        'libgstsdp-0.10.dll',
+        'libgsttag-0.10.dll',
+        'libgstvideo-0.10.dll',
+        'libgthread-2.0-0.dll',
+        'libgtk-win32-2.0-0.dll',
+        'libgtkglext-win32-1.0-0.dll',
+        'libpango-1.0-0.dll',
+        'libpangocairo-1.0-0.dll',
+        'libpangoft2-1.0-0.dll',
+        'libpangowin32-1.0-0.dll',
+        'libpng12-0.dll',
+        'librsvg-2-2.dll',
+        'libtiff3.dll',
+        'libxml2.dll',
+        'zlib1.dll'
+        ];
       NumFiles := GetArrayLength(DllFiles);
       SetArrayLength(Offenders, NumFiles);
 

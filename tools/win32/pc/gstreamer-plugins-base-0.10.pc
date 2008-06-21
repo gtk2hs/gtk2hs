@@ -1,0 +1,14 @@
+prefix=/c/gtk/gtk+-2.12.10
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+pluginsdir=${exec_prefix}/lib/gstreamer-0.10
+
+Name: GStreamer Base Plugins Libraries
+Description: Streaming media framework, base plugins libraries
+Requires: gstreamer-0.10 
+Version: 0.10.17
+Libs: -L${libdir}
+Cflags: -I${includedir}
+
+libraries=audio cdda fft floatcast interfaces netbuffer riff rtp tag pbutils video
