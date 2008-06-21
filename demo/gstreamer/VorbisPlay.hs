@@ -5,6 +5,7 @@ import qualified System.Glib as G
 import qualified System.Glib.MainLoop as G
 import qualified System.Glib.Properties as G
 import qualified System.Glib.GError as G
+import qualified System.Glib.Signals as G
 import Text.Printf
 import Control.Monad
 import System.IO
@@ -30,11 +31,11 @@ main =
        mainLoop <- G.mainLoopNew Nothing True
        
        pipeline <- Gst.pipelineNew "audio-player"
-       source <- mkElement $ Gst.elementFactoryMake "filesrc" "file-source"
-       parser <- mkElement $ Gst.elementFactoryMake "oggdemux" "ogg-parser"
-       decoder <- mkElement $ Gst.elementFactoryMake "vorbisdec" "vorbis-decoder"
-       conv <- mkElement $ Gst.elementFactoryMake "audioconvert" "convert"
-       sink <- mkElement $ Gst.elementFactoryMake "alsasink" "alsa-output"
+       source <- mkElement $ Gst.elementFactoryMake "filesrc" $ Just "file-source"
+       parser <- mkElement $ Gst.elementFactoryMake "oggdemux" $ Just "ogg-parser"
+       decoder <- mkElement $ Gst.elementFactoryMake "vorbisdec" $ Just "vorbis-decoder"
+       conv <- mkElement $ Gst.elementFactoryMake "audioconvert" $ Just "convert"
+       sink <- mkElement $ Gst.elementFactoryMake "alsasink" $ Just "alsa-output"
        
        let elements = [source, parser, decoder, conv, sink]
        
@@ -60,8 +61,8 @@ main =
        Gst.elementLink decoder conv
        Gst.elementLink conv sink
        
-       Gst.onElementPadAdded parser $ \pad ->
-           do sinkPad <- Gst.elementGetPad decoder "sink"
+       G.on parser Gst.elementPadAdded $ \pad ->
+           do sinkPad <- Gst.elementGetStaticPad decoder "sink"
               Gst.padLink pad $ fromJust sinkPad
               return ()
        
