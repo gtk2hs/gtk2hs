@@ -1699,12 +1699,13 @@ if HAVE_SPLIT_BASE
 libHSgnomevfs_a_EXTERNALDEPS           += bytestring-$(PKG_BYTESTRING_VERSION)
 endif
 libHSgnomevfs_a_INTERNALDEPS		= glib
+libHSgnomevfs_a_PRECOMP			= gnomevfs/gnomevfs.precomp
 if HAVE_GNOME_VFS_VERSION_2_14
 libHSgnomevfs_a_HEADER			= gnomevfs/hsgnomevfs-2.14.h
+$(libHSgnomevfs_a_PRECOMP): $(libHSgnomevfs_a_HEADER)
 else
 libHSgnomevfs_a_HEADER			= libgnomevfs/gnome-vfs.h
 endif
-libHSgnomevfs_a_PRECOMP			= gnomevfs/gnomevfs.precomp
 libHSgnomevfs_a_LIBS			= $(GLIB_LIBS) $(GNOMEVFS_LIBS) $(GCONF_LIBS)
 libHSgnomevfs_a_HCFLAGS			= -fffi
 libHSgnomevfs_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GNOMEVFS_CFLAGS))
@@ -1874,6 +1875,7 @@ endif
 libHSgstreamer_a_INTERNALDEPS		= glib
 libHSgstreamer_a_HEADER			= gstreamer/hsgstreamer.h
 libHSgstreamer_a_PRECOMP		= gstreamer/gstreamer.precomp
+$(libHSgnomevfs_a_PRECOMP): $(libHSgnomevfs_a_HEADER)
 libHSgstreamer_a_LIBS			= $(GLIB_LIBS) $(GSTREAMER_LIBS)
 libHSgstreamer_a_HCFLAGS		= -fffi
 libHSgstreamer_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS))
