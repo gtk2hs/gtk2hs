@@ -71,9 +71,11 @@ main = do
   dialogRun dia
   return ()
 
+{-
 instance Show Rectangle where
   show (Rectangle x y w h) = "x="++show x++", y="++show y++
 			     ", w="++show w++", h="++show h++";"
+-}
 
 updateCanvas :: DrawingArea -> Pixbuf -> Event -> IO Bool
 updateCanvas canvas pb Expose { eventRegion = region } = do
