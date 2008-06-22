@@ -135,6 +135,9 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetRenderIcon,
   widgetGetCanFocus,
   widgetSetCanFocus,
+  widgetGetColormap,
+  widgetSetColormap,
+  widgetGetScreen,
 
 -- * Attributes
   widgetExtensionEvents,
@@ -1152,6 +1155,40 @@ widgetSetCanFocus = objectSetPropertyBool "can_focus"
 --
 widgetGetCanFocus :: WidgetClass self => self -> IO Bool
 widgetGetCanFocus = objectGetPropertyBool "can_focus"
+
+widgetGetColormap :: WidgetClass self => self
+ -> IO Colormap -- ^ returns the colormap used by @widget@
+widgetGetColormap self =
+  makeNewGObject mkColormap $
+  {# call gtk_widget_get_colormap #}
+    (toWidget self)
+
+widgetSetColormap :: WidgetClass self => self
+ -> Colormap -- ^ @colormap@ - a colormap
+ -> IO ()
+widgetSetColormap self colormap =
+  {# call gtk_widget_set_colormap #}
+    (toWidget self)
+    colormap
+
+#if GTK_CHECK_VERSION(2,2,0)
+-- | Get the 'Screen' from the toplevel window associated with this widget.
+-- This function can only be called after the widget has been added to a widget
+-- hierarchy with a 'Window' at the top.
+--
+-- In general, you should only create screen specific resources when a
+-- widget has been realized, and you should free those resources when the
+-- widget is unrealized.
+--
+-- * Available since Gtk+ version 2.2
+--
+widgetGetScreen :: WidgetClass self => self
+ -> IO Screen -- ^ returns the 'Screen' for the toplevel for this widget.
+widgetGetScreen self =
+  makeNewGObject mkScreen $
+    {# call gtk_widget_get_screen #}
+      (toWidget self)
+#endif
 
 --------------------
 -- Attributes
