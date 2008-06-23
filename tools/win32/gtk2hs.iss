@@ -22,6 +22,8 @@ SolidCompression=yes
 
 ChangesEnvironment=yes
 
+PrivilegesRequired=none
+
 [Components]
 Name: "clibs";   Description: "Required C libraries"; Types: full compact custom; Flags: fixed
 Name: "gtk2hs";  Description: "Gtk2Hs libraries for GHC 6.8.3"; Check: UseWithGhcVersion('6.8.3'); Types: full compact custom; Flags: fixed
