@@ -143,6 +143,7 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetExtensionEvents,
   widgetDirection,
   widgetCanFocus,
+  widgetSensitivity,
 
 -- * Signals
   onButtonPress,
@@ -1213,6 +1214,15 @@ widgetDirection = newAttr
 --
 widgetCanFocus :: WidgetClass self => Attr self Bool
 widgetCanFocus = newAttrFromBoolProperty "can_focus"
+
+-- | The sensitivity of a widget. A widget is sensitive if the user can
+-- interact with it. Insensitive widgets are \"grayed out\" and the user can't
+-- interact with them. Insensitive widgets are known as \"inactive\",
+-- \"disabled\", or \"ghosted\" in some other toolkits.
+--
+widgetSensitivity :: WidgetClass self => WriteAttr self Bool
+widgetSensitivity = writeAttr
+  widgetSetSensitivity
 
 --------------------
 -- Signals
