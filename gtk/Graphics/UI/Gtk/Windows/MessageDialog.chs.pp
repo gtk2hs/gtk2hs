@@ -37,7 +37,7 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
 -- though you can also pass in the 'DialogModal' flag, 'dialogRun'
 -- automatically makes the dialog modal and waits for the user to respond to
 -- it. 'dialogRun' returns when any dialog button is clicked.
---
+
 -- * Class Hierarchy
 -- |
 -- @
@@ -135,12 +135,17 @@ instance Flags DialogFlags
 
 -- | Create a new message dialog, which is a simple dialog with an icon 
 --   indicating the dialog type (error, warning, etc.) and some text the 
---   user may want to see. When the user clicks a button a "response" signal
+--   user may want to see. When the user clicks a button a \"response\" signal
 --   is emitted with response IDs from 'ResponseType'. See 'Dialog' for more
 --   details.
 -- 
-messageDialogNew :: Maybe Window -> [DialogFlags] -> MessageType ->
-		    ButtonsType -> String -> IO MessageDialog
+messageDialogNew
+  :: Maybe Window  -- ^ Transient parent of the dialog (or none)
+  -> [DialogFlags]
+  -> MessageType
+  -> ButtonsType
+  -> String        -- ^ The text of the message
+  -> IO MessageDialog
 messageDialogNew mWindow flags mType bType msg =
   withUTFString (unPrintf msg) $ \msgPtr ->
   makeNewObject mkMessageDialog $
@@ -169,14 +174,18 @@ foreign import ccall unsafe "gtk_message_dialog_new"
 -- | Creates a new message dialog, which is a simple dialog with an icon
 --   indicating the dialog type (error, warning, etc.) and some text which
 --   is marked up with the Pango text markup language. When the user clicks
---   a button a "response" signal is emitted with response IDs from
+--   a button a \"response\" signal is emitted with response IDs from
 --   'ResponseType'. See 'Dialog' and 'PangoMarkup' for more details.
 --
 -- * Available since Gtk+ version 2.4
 --
-messageDialogNewWithMarkup ::  Maybe Window -> [DialogFlags] -> 
-			       MessageType -> ButtonsType -> Markup ->
-			       IO MessageDialog
+messageDialogNewWithMarkup
+  :: Maybe Window  -- ^ Transient parent of the dialog (or none)
+  -> [DialogFlags]
+  -> MessageType
+  -> ButtonsType
+  -> Markup        -- ^ The text of the message
+  -> IO MessageDialog
 messageDialogNewWithMarkup mWindow flags mType bType msg = do
   md <- makeNewObject mkMessageDialog $
     liftM (castPtr :: Ptr Widget -> Ptr MessageDialog) $
