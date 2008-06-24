@@ -176,41 +176,23 @@ begin
   begin
     Log('DetectValidGhcInstallation: found HKCU\Software\Haskell\GHC');
     HaveSomeGHCInstalled := True;
-    RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Haskell\GHC\ghc-6.6.1', 'InstallDir', GhcInstallDir);
+    RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Haskell\GHC\ghc-6.8.3', 'InstallDir', GhcInstallDir);
     Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
   end;
-{-
-  if (Result = False) and RegKeyExists(HKEY_CURRENT_USER, 'Software\Haskell\GHC') then
-  begin
-    Log('DetectValidGhcInstallation: found HKCU\Software\Haskell\GHC');
-    HaveSomeGHCInstalled := True;
-    RegQueryStringValue(HKEY_CURRENT_USER, 'Software\Haskell\GHC\ghc-6.4.2', 'InstallDir', GhcInstallDir);
-    Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
-  end;
--}
   if (Result = False) and RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC') then
   begin
     Log('DetectValidGhcInstallation: found HKLM\SOFTWARE\Haskell\GHC');
     HaveSomeGHCInstalled := True;
-    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC\ghc-6.6.1', 'InstallDir', GhcInstallDir);
+    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC\ghc-6.8.3', 'InstallDir', GhcInstallDir);
     Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
   end;
-{-
-  if (Result = False) and RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC') then
-  begin
-    Log('DetectValidGhcInstallation: found HKLM\SOFTWARE\Haskell\GHC');
-    HaveSomeGHCInstalled := True;
-    RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Haskell\GHC\ghc-6.4.2', 'InstallDir', GhcInstallDir);
-    Result := CheckGhcVersionIsOk(GhcInstallDir, GHCVersion);
-  end;
--}
   if Result then
     Log('DetectValidGhcInstallation: correct version of ghc found at: ' + GhcInstallDir)
   else if HaveSomeGHCInstalled and (GHCVersion <> '') then
   begin
     Log('DetectValidGhcInstallation: incorrect ghc version installed: ' + GHCVersion);
     InstallationErrorCaption := 'The version of GHC currently installed is not suitable.';
-    InstallationErrorMessage := 'This version of Gtk2Hs requires GHC version 6.6.1.' #13#10 #13#10
+    InstallationErrorMessage := 'This version of Gtk2Hs requires GHC version 6.8.3.' #13#10 #13#10
                                 'Setup found GHC version ' + GHCVersion + ' installed in the folder:' #13#10
                               + GhcInstallDir
   end
@@ -218,7 +200,7 @@ begin
   begin
     Log('DetectValidGhcInstallation: some non-working version of ghc appears to be installed at: ' + GhcInstallDir);
     InstallationErrorCaption := 'GHC does not seem to be working.';
-    InstallationErrorMessage := 'GHC does not appear to be installed correctly, try reinstalling GHC version 6.6.1' #13#10 #13#10
+    InstallationErrorMessage := 'GHC does not appear to be installed correctly, try reinstalling GHC version 6.8.3' #13#10 #13#10
                                 'Setup found what appears to be a non-working installation of GHC in the folder:' #13#10
                               + GhcInstallDir
   end
@@ -226,13 +208,13 @@ begin
   begin
     Log('DetectValidGhcInstallation: corrupted ghc installation detected, probably messed up registry keys');
     InstallationErrorCaption := 'Setup did not find GHC on your computer.';
-    InstallationErrorMessage := 'GHC does not appear to be installed (or the installation is corrupted), please install GHC version 6.6.1';
+    InstallationErrorMessage := 'GHC does not appear to be installed (or the installation is corrupted), please install GHC version 6.8.3';
   end
   else
   begin
     Log('DetectValidGhcInstallation: no installation of ghc detected');
     InstallationErrorCaption := 'Setup did not find GHC on your computer.';
-    InstallationErrorMessage := 'Gtk2Hs requires GHC to be installed first, please install GHC version 6.6.1' #13#10 #13#10
+    InstallationErrorMessage := 'Gtk2Hs requires GHC to be installed first, please install GHC version 6.8.3' #13#10 #13#10
                                 'If you installed GHC manually then make sure ghc.exe is on the path.';
   end;
   
