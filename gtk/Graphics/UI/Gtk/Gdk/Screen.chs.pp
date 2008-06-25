@@ -455,6 +455,7 @@ screenGetSetting self name value =
     {-value-}
 -}
 
+#if GTK_CHECK_VERSION(2,10,0)
 -- | Returns the screen's currently active window.
 --
 -- On X11, this is done by inspecting the _NET_ACTIVE_WINDOW property on the
@@ -474,6 +475,7 @@ screenGetActiveWindow self =
   maybeNull (makeNewGObject mkDrawWindow) $
   {# call gdk_screen_get_active_window #}
     self
+#endif
 
 {-
 -- | Returns a {GList, FIXME: struct type} of 'DrawWindow's representing the
