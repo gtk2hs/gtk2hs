@@ -69,7 +69,7 @@ module Graphics.UI.Gtk.Windows.Dialog (
 -- convenience functions
 -- for creating standard dialogs containing simple messages to inform
 -- or ask the user.
---
+
 -- * Class Hierarchy
 -- |
 -- @
