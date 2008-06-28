@@ -1116,7 +1116,7 @@ widgetGetPangoContext self =
 -- 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf'.
 -- The icon should be one of the stock id constants such as
 -- 'Graphics.UI.Gtk.General.StockItems.stockOpen'. @size@ should be a
--- size such as 'Graphics.UI.Gtk.General.IconFactory.iconSizeMenu'.
+-- size such as 'Graphics.UI.Gtk.General.IconFactory.IconSizeMenu'.
 -- @detail@ should be a string that identifies the
 -- widget or code doing the rendering, so that theme engines can special-case
 -- rendering for that widget or code.
@@ -1128,7 +1128,7 @@ widgetGetPangoContext self =
 widgetRenderIcon :: WidgetClass self => self
  -> StockId    -- ^ the stock ID of the icon
  -> IconSize  -- ^ @size@ - a stock size. The size
-	      -- 'Graphics.UI.Gtk.General.IconFactory.iconSizeInvalid' means
+	      -- 'Graphics.UI.Gtk.General.IconFactory.IconSizeInvalid' means
               -- render at the size of the source and don't scale (if there are
               -- multiple source sizes, Gtk+ picks one of the available sizes).
  -> String    -- ^ @detail@ - render detail to pass to theme engine

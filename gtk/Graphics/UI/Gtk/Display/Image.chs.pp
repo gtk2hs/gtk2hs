@@ -116,12 +116,7 @@ module Graphics.UI.Gtk.Display.Image (
 #endif
 
 -- * Icon Sizes
-  IconSize,
-  iconSizeMenu,
-  iconSizeSmallToolbar,
-  iconSizeLargeToolbar,
-  iconSizeButton,
-  iconSizeDialog,
+  IconSize(..),
 
 -- * Attributes
   imagePixbuf,
@@ -150,9 +145,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 import System.Glib.GObject		(makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.StockItems
-import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeMenu,
-					 iconSizeSmallToolbar, iconSizeButton,
-                                         iconSizeLargeToolbar, iconSizeDialog)
+import Graphics.UI.Gtk.General.Structs	(IconSize(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -224,7 +217,7 @@ imageNewFromStock stockId size =
   withUTFString stockId $ \stockIdPtr ->
   {# call unsafe image_new_from_stock #}
     stockIdPtr
-    (fromIntegral size)
+    ((fromIntegral . fromEnum) size)
 
 -- | Creates a new empty 'Image' widget.
 --

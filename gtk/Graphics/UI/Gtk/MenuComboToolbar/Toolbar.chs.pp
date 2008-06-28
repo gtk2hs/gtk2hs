@@ -111,10 +111,7 @@ module Graphics.UI.Gtk.MenuComboToolbar.Toolbar (
   toolbarUnsetStyle,
   toolbarSetTooltips,
   toolbarGetTooltips,
-  IconSize,
-  iconSizeInvalid,
-  iconSizeSmallToolbar,
-  iconSizeLargeToolbar,
+  IconSize(..),
 #ifndef DISABLE_DEPRECATED
   toolbarSetIconSize,
 #endif
@@ -174,9 +171,7 @@ import Graphics.UI.Gtk.General.Structs	(
 					 toolbarChildToggleButton,
 					 toolbarChildRadioButton,
 #endif
-					 IconSize, iconSizeInvalid,
-					 iconSizeSmallToolbar,
-					 iconSizeLargeToolbar)
+					 IconSize(..))
 import Graphics.UI.Gtk.General.StockItems	(stockLookupItem, siLabel, stockMissingImage)
 import Graphics.UI.Gtk.Display.Image	(imageNewFromStock)
 
@@ -508,7 +503,7 @@ toolbarSetIconSize :: ToolbarClass self => self -> IconSize -> IO ()
 toolbarSetIconSize self iconSize =
   {# call toolbar_set_icon_size #}
     (toToolbar self)
-    (fromIntegral iconSize)
+    ((fromIntegral . fromEnum) iconSize)
 #endif
 
 -- | Retrieves the icon size for the toolbar. See 'toolbarSetIconSize'.

@@ -102,13 +102,7 @@ module Graphics.UI.Gtk.General.IconFactory (
   iconSourceGetState,
   iconSourceSetState,
   iconSourceResetState,
-  IconSize,
-  iconSizeInvalid,
-  iconSizeMenu,
-  iconSizeSmallToolbar,
-  iconSizeLargeToolbar,
-  iconSizeButton,
-  iconSizeDialog,
+  IconSize(..),
   iconSizeCheck,
   iconSizeRegister,
   iconSizeRegisterAlias,
@@ -124,10 +118,7 @@ import System.Glib.GObject		(constructNewGObject, makeNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 import Graphics.UI.Gtk.General.Enums	(TextDirection(..), StateType(..))
 import Graphics.UI.Gtk.General.StockItems
-import Graphics.UI.Gtk.General.Structs	(IconSize, iconSizeInvalid,
-					 iconSizeMenu, iconSizeSmallToolbar,
-					 iconSizeLargeToolbar, iconSizeButton,
-					 iconSizeDialog)
+import Graphics.UI.Gtk.General.Structs	(IconSize(..))
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -272,12 +263,12 @@ foreign import ccall unsafe "&gtk_icon_set_unref"
 --
 iconSizeCheck :: IconSize -> IO Bool
 iconSizeCheck size = liftM toBool $
-  {#call icon_size_lookup#} (fromIntegral size) nullPtr nullPtr
+  {#call icon_size_lookup#} ((fromIntegral . fromEnum) size) nullPtr nullPtr
 
 -- | Register a new IconSize.
 --
 iconSizeRegister :: Int -> String -> Int -> IO IconSize
-iconSizeRegister height name width = liftM fromIntegral $
+iconSizeRegister height name width = liftM (toEnum . fromIntegral) $
   withUTFString name $ \strPtr -> {#call unsafe icon_size_register#} 
   strPtr (fromIntegral width) (fromIntegral height)
 
@@ -285,7 +276,7 @@ iconSizeRegister height name width = liftM fromIntegral $
 --
 iconSizeRegisterAlias :: IconSize -> String -> IO ()
 iconSizeRegisterAlias target alias = withUTFString alias $ \strPtr ->
-  {#call unsafe icon_size_register_alias#} strPtr (fromIntegral target)
+  {#call unsafe icon_size_register_alias#} strPtr ((fromIntegral . fromEnum) target)
 
 -- | Lookup an IconSize by name.
 --
@@ -293,7 +284,7 @@ iconSizeRegisterAlias target alias = withUTFString alias $ \strPtr ->
 --   not found.
 --
 iconSizeFromName :: String -> IO IconSize
-iconSizeFromName name = liftM fromIntegral $
+iconSizeFromName name = liftM (toEnum . fromIntegral) $
   withUTFString name {#call unsafe icon_size_from_name#}
 
 -- | Lookup the name of an IconSize.
@@ -302,7 +293,7 @@ iconSizeFromName name = liftM fromIntegral $
 --
 iconSizeGetName :: IconSize -> IO (Maybe String)
 iconSizeGetName size = do
-  strPtr <- {#call unsafe icon_size_get_name#} (fromIntegral size)
+  strPtr <- {#call unsafe icon_size_get_name#} ((fromIntegral . fromEnum) size)
   if strPtr==nullPtr then return Nothing else liftM Just $ peekUTFString strPtr
 
 -- | Retrieve the 'TextDirection' of
@@ -339,7 +330,7 @@ iconSourceGetFilename is = do
 iconSourceGetSize :: IconSource -> IO (Maybe IconSize)
 iconSourceGetSize is = do
   res <- {#call unsafe icon_source_get_size_wildcarded#} is
-  if (toBool res) then return Nothing else liftM (Just .fromIntegral) $
+  if (toBool res) then return Nothing else liftM (Just . toEnum . fromIntegral) $
     {#call unsafe icon_source_get_size#} is
 
 -- | Retrieve the 'StateType' of this
@@ -412,7 +403,7 @@ iconSourceSetPixbuf is pb = do
 iconSourceSetSize :: IconSource -> IconSize -> IO ()
 iconSourceSetSize is size = do
   {#call unsafe icon_source_set_size_wildcarded#} is (fromBool False)
-  {#call unsafe icon_source_set_size#} is (fromIntegral size)
+  {#call unsafe icon_source_set_size#} is ((fromIntegral . fromEnum) size)
 
 -- | Reset the 'IconSize' of this
 -- 'IconSource' so that is matches anything.

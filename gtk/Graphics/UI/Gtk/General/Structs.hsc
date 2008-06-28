@@ -53,13 +53,7 @@ module Graphics.UI.Gtk.General.Structs (
   toolbarChildToggleButton,
   toolbarChildRadioButton,
 #endif
-  IconSize,
-  iconSizeInvalid,
-  iconSizeMenu,
-  iconSizeSmallToolbar,
-  iconSizeLargeToolbar,
-  iconSizeButton,
-  iconSizeDialog,
+  IconSize(..),
 #ifndef DISABLE_DEPRECATED
   comboGetList,
 #endif
@@ -568,31 +562,28 @@ toolbarChildRadioButton  = #const GTK_TOOLBAR_CHILD_RADIOBUTTON
 
 -- | The size of an icon in pixels.
 --
-type IconSize = Int
+data IconSize =
+  -- | Don't scale but use any of the available sizes.
+  IconSizeInvalid
 
--- | Don't scale but use any of the available sizes.
-iconSizeInvalid      :: IconSize
-iconSizeInvalid      = #const GTK_ICON_SIZE_INVALID
+  -- | Icon size to use in next to menu items in drop-down menus.
+  | IconSizeMenu
 
--- | Icon size to use in next to menu items in drop-down menus.
-iconSizeMenu	     :: IconSize
-iconSizeMenu	     = #const GTK_ICON_SIZE_MENU
+  -- | Icon size for small toolbars.
+  | IconSizeSmallToolBar
 
--- | Icon size for small toolbars.
-iconSizeSmallToolbar :: IconSize
-iconSizeSmallToolbar = #const GTK_ICON_SIZE_SMALL_TOOLBAR
+  -- | Icon size for larger toolbars.
+  | IconSizeLargeToolBar
 
--- | Icon size for larger toolbars.
-iconSizeLargeToolbar :: IconSize
-iconSizeLargeToolbar = #const GTK_ICON_SIZE_LARGE_TOOLBAR
+  -- | Icon size for icons in buttons, next to the label.
+  | IconSizeButton
 
--- | Icon size for icons in buttons, next to the label.
-iconSizeButton	     :: IconSize
-iconSizeButton	     = #const GTK_ICON_SIZE_BUTTON
+  -- | Icon size for icons in DragNDrop.
+  | IconSizeDnd
 
--- | Icon size for icons next to dialog text.
-iconSizeDialog	     :: IconSize
-iconSizeDialog	     = #const GTK_ICON_SIZE_DIALOG
+  -- | Icon size for icons next to dialog text.
+  | IconSizeDialog
+  deriving (Show, Eq, Enum)
 
 -- entry Widget Combo
 
