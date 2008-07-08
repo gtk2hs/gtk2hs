@@ -176,6 +176,13 @@ module Graphics.UI.Gtk.Abstract.Container (
   containerFocusVAdjustment,
 
 -- * Signals
+  add,
+  checkResize,
+  remove,
+  setFocusChild,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onAdd,
   afterAdd,
   onCheckResize,
@@ -184,6 +191,7 @@ module Graphics.UI.Gtk.Abstract.Container (
   afterRemove,
   onSetFocusChild,
   afterSetFocusChild,
+#endif
   ) where
 
 import Control.Monad	(liftM)
@@ -499,35 +507,87 @@ containerFocusVAdjustment = newAttr
 --------------------
 -- Signals
 
--- | This signal is called each time a new widget is added to this container.
+-- %hash c:26b d:af3f
+-- |
 --
-onAdd, afterAdd :: ContainerClass self => self
+add :: ContainerClass self => Signal self (Widget -> IO ())
+add = Signal (connect_OBJECT__NONE "add")
+
+-- %hash c:f43a d:af3f
+-- |
+--
+remove :: ContainerClass self => Signal self (Widget -> IO ())
+remove = Signal (connect_OBJECT__NONE "remove")
+
+-- %hash c:21a9 d:af3f
+-- |
+--
+checkResize :: ContainerClass self => Signal self (IO ())
+checkResize = Signal (connect_NONE__NONE "check_resize")
+
+-- %hash c:b3a d:af3f
+-- |
+--
+setFocusChild :: ContainerClass self => Signal self (Widget -> IO ())
+setFocusChild = Signal (connect_OBJECT__NONE "set-focus-child")
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
+-- %hash c:fb37
+onAdd :: ContainerClass self => self
  -> (Widget -> IO ())
  -> IO (ConnectId self)
 onAdd = connect_OBJECT__NONE "add" False
-afterAdd = connect_OBJECT__NONE "add" True
+{-# DEPRECATED onAdd "instead of 'onAdd obj' use 'on obj add'" #-}
 
--- | This signal is called when the widget is resized.
---
-onCheckResize, afterCheckResize :: ContainerClass self => self
- -> IO ()
+-- %hash c:c9d6
+afterAdd :: ContainerClass self => self
+ -> (Widget -> IO ())
  -> IO (ConnectId self)
-onCheckResize = connect_NONE__NONE "check-resize" False
-afterCheckResize = connect_NONE__NONE "check-resize" True
+afterAdd = connect_OBJECT__NONE "add" True
+{-# DEPRECATED afterAdd "instead of 'afterAdd obj' use 'after obj add'" #-}
 
--- | This signal is called for each widget that is removed from the container.
---
-onRemove, afterRemove :: ContainerClass self => self
+-- %hash c:9b66
+onRemove :: ContainerClass self => self
  -> (Widget -> IO ())
  -> IO (ConnectId self)
 onRemove = connect_OBJECT__NONE "remove" False
-afterRemove = connect_OBJECT__NONE "remove" True
+{-# DEPRECATED onRemove "instead of 'onRemove obj' use 'on obj remove'" #-}
 
--- | This signal is called if a child in the container receives the input
--- focus.
---
-onSetFocusChild, afterSetFocusChild :: ContainerClass self => self
+-- %hash c:f165
+afterRemove :: ContainerClass self => self
+ -> (Widget -> IO ())
+ -> IO (ConnectId self)
+afterRemove = connect_OBJECT__NONE "remove" True
+{-# DEPRECATED afterRemove "instead of 'afterRemove obj' use 'after obj remove'" #-}
+
+-- %hash c:8424
+onCheckResize :: ContainerClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+onCheckResize = connect_NONE__NONE "check_resize" False
+{-# DEPRECATED onCheckResize "instead of 'onCheckResize obj' use 'on obj checkResize'" #-}
+
+-- %hash c:6803
+afterCheckResize :: ContainerClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+afterCheckResize = connect_NONE__NONE "check_resize" True
+{-# DEPRECATED afterCheckResize "instead of 'afterCheckResize obj' use 'after obj checkResize'" #-}
+
+-- %hash c:1ac6
+onSetFocusChild :: ContainerClass self => self
  -> (Widget -> IO ())
  -> IO (ConnectId self)
 onSetFocusChild = connect_OBJECT__NONE "set-focus-child" False
+{-# DEPRECATED onSetFocusChild "instead of 'onSetFocusChild obj' use 'on obj setFocusChild'" #-}
+
+-- %hash c:23e5
+afterSetFocusChild :: ContainerClass self => self
+ -> (Widget -> IO ())
+ -> IO (ConnectId self)
 afterSetFocusChild = connect_OBJECT__NONE "set-focus-child" True
+{-# DEPRECATED afterSetFocusChild "instead of 'afterSetFocusChild obj' use 'after obj setFocusChild'" #-}
+#endif
