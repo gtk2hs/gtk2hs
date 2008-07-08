@@ -129,8 +129,13 @@ module Graphics.UI.Gtk.ActionMenuToolbar.Action (
 #endif
 
 -- * Signals
+  actionActivated,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onActionActivate,
   afterActionActivate,
+#endif
 #endif
   ) where
 
@@ -499,6 +504,16 @@ actionAccelPath = newAttr
 --------------------
 -- Signals
 
+-- %hash c:4608 d:49a3
+-- | The \"activate\" signal is emitted when the action is activated.
+--
+actionActivated :: ActionClass self => Signal self (IO ())
+actionActivated = Signal (connect_NONE__NONE "activate")
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
 -- | The \"activate\" signal is emitted when the action is activated.
 --
 onActionActivate, afterActionActivate :: ActionClass self => self
@@ -506,4 +521,5 @@ onActionActivate, afterActionActivate :: ActionClass self => self
  -> IO (ConnectId self)
 onActionActivate = connect_NONE__NONE "activate" False
 afterActionActivate = connect_NONE__NONE "activate" True
+#endif
 #endif

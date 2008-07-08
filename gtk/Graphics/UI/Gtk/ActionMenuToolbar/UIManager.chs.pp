@@ -231,6 +231,11 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
   uiManagerUi,
 
 -- * Signals
+  addWidget,
+  actionsChanged,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onAddWidget,
   afterAddWidget,
   onActionsChanged,
@@ -243,6 +248,7 @@ module Graphics.UI.Gtk.ActionMenuToolbar.UIManager (
   afterPreActivate,
   onPostActivate,
   afterPostActivate,
+#endif
 #endif
   ) where
 
@@ -553,6 +559,25 @@ uiManagerUi = readAttrFromStringProperty "ui"
 --------------------
 -- Signals
 
+-- %hash c:58ec d:2a79
+-- | The add_widget signal is emitted for each generated menubar and toolbar.
+-- It is not emitted for generated popup menus, which can be obtained by
+-- 'uiManagerGetWidget'.
+--
+addWidget :: UIManagerClass self => Signal self (Widget -> IO ())
+addWidget = Signal (connect_OBJECT__NONE "add_widget")
+
+-- %hash c:2480 d:366c
+-- | The \"actions-changed\" signal is emitted whenever the set of actions
+-- changes.
+--
+actionsChanged :: UIManagerClass self => Signal self (IO ())
+actionsChanged = Signal (connect_NONE__NONE "actions_changed")
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
 -- | The add_widget signal is emitted for each generated menubar and toolbar.
 -- It is not emitted for generated popup menus, which can be obtained by
 -- 'uiManagerGetWidget'.
@@ -615,4 +640,5 @@ onPostActivate, afterPostActivate :: UIManagerClass self => self
  -> IO (ConnectId self)
 onPostActivate = connect_OBJECT__NONE "post_activate" False
 afterPostActivate = connect_OBJECT__NONE "post_activate" True
+#endif
 #endif

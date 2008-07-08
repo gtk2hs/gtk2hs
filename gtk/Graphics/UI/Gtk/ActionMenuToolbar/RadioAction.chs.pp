@@ -63,11 +63,17 @@ module Graphics.UI.Gtk.ActionMenuToolbar.RadioAction (
   radioActionGetCurrentValue,
 
 -- * Attributes
+  radioActionValueAttr,
   radioActionGroup,
+#if GTK_CHECK_VERSION(2,10,0)
+  radioActionCurrentValue,
+#endif
 
--- * Signals
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onRadioActionChanged,
   afterRadioActionChanged,
+#endif
 #endif
   ) where
 
@@ -153,15 +159,19 @@ radioActionGetCurrentValue self =
 --------------------
 -- Attributes
 
+-- %hash d:1bcf
 -- | The value is an arbitrary integer which can be used as a convenient way
--- to determine which action in the group is currently active in an activate
--- or changed signal handler.
+-- to determine which action in the group is currently active in an ::activate
+-- or ::changed signal handler. See 'radioActionGetCurrentValue' and
+-- 'RadioActionEntry' for convenient ways to get and set
+-- this property.
 --
 -- Default value: 0
 --
-radioActionValue :: RadioActionClass self => Attr self Int
-radioActionValue = newAttrFromIntProperty "value"
+radioActionValueAttr :: RadioActionClass self => Attr self Int
+radioActionValueAttr = newAttrFromIntProperty "value"
 
+-- %hash c:a380
 -- | Sets a new group for a radio action.
 --
 radioActionGroup :: RadioActionClass self => ReadWriteAttr self [RadioAction] RadioAction
@@ -169,9 +179,23 @@ radioActionGroup = newAttr
   radioActionGetGroup
   radioActionSetGroup
 
---------------------
--- Signals
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:4cec d:1710
+-- | The value property of the currently active member of the group to which
+-- this action belongs.
+--
+-- Default value: 0
+--
+-- * Available since Gtk+ version 2.10
+--
+radioActionCurrentValue :: RadioActionClass self => Attr self Int
+radioActionCurrentValue = newAttrFromIntProperty "current-value"
+#endif
 
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
 -- | The changed signal is emitted on every member of a radio group when the
 -- active member is changed. The signal gets emitted after the activate
 -- signals for the previous and current active members.
@@ -181,4 +205,5 @@ onRadioActionChanged, afterRadioActionChanged :: RadioActionClass self => self
  -> IO (ConnectId self)
 onRadioActionChanged = connect_OBJECT__NONE "changed" False
 afterRadioActionChanged = connect_OBJECT__NONE "changed" True
+#endif
 #endif

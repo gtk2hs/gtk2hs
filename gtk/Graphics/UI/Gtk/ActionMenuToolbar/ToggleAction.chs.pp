@@ -60,11 +60,19 @@ module Graphics.UI.Gtk.ActionMenuToolbar.ToggleAction (
 
 -- * Attributes
   toggleActionDrawAsRadio,
+#if GTK_CHECK_VERSION(2,10,0)
   toggleActionActive,
+#endif
 
 -- * Signals
-  onToggleActionToggled,
-  afterToggleActionToggled,
+  actionToggled,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
+  onActionToggled,
+  afterActionToggled,
+#endif
+
 #endif
   ) where
 
@@ -73,6 +81,7 @@ import Control.Monad	(liftM)
 import System.Glib.FFI
 import System.Glib.UTFString
 import System.Glib.Attributes
+import System.Glib.Properties
 import System.Glib.GObject		(constructNewGObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
@@ -164,22 +173,43 @@ toggleActionDrawAsRadio = newAttr
   toggleActionGetDrawAsRadio
   toggleActionSetDrawAsRadio
 
--- | \'active\' property. See 'toggleActionGetActive' and
--- 'toggleActionSetActive'
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:cd0e d:4024
+-- | If the toggle action should be active in or not.
+--
+-- Default value: @False@
+--
+-- * Available since Gtk+ version 2.10
 --
 toggleActionActive :: ToggleActionClass self => Attr self Bool
-toggleActionActive = newAttr
-  toggleActionGetActive
-  toggleActionSetActive
+toggleActionActive = newAttrFromBoolProperty "active"
+#endif
 
 --------------------
 -- Signals
 
--- | 
+-- %hash c:3829 d:af3f
+-- |
 --
-onToggleActionToggled, afterToggleActionToggled :: ToggleActionClass self => self
+actionToggled :: ToggleActionClass self => Signal self (IO ())
+actionToggled = Signal (connect_NONE__NONE "toggled")
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
+-- %hash c:9cc4
+onActionToggled :: ToggleActionClass self => self
  -> IO ()
  -> IO (ConnectId self)
-onToggleActionToggled = connect_NONE__NONE "toggled" False
-afterToggleActionToggled = connect_NONE__NONE "toggled" True
+onActionToggled = connect_NONE__NONE "toggled" False
+{-# DEPRECATED onActionToggled "instead of 'onActionToggled obj' use 'on obj actionToggled'" #-}
+
+-- %hash c:61e3
+afterActionToggled :: ToggleActionClass self => self
+ -> IO ()
+ -> IO (ConnectId self)
+afterActionToggled = connect_NONE__NONE "toggled" True
+{-# DEPRECATED afterActionToggled "instead of 'afterActionToggled obj' use 'after obj actionToggled'" #-}
+#endif
 #endif
