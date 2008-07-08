@@ -90,7 +90,6 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetSetSensitivity,
   widgetSetSizeRequest,
   widgetGetSizeRequest,
-  widgetIsFocus,
   widgetGrabFocus,
   widgetSetAppPaintable,
   widgetSetName,		-- Naming, Themes
@@ -140,9 +139,26 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetGetScreen,
 
 -- * Attributes
-  widgetExtensionEvents,
-  widgetDirection,
+  widgetName,
+  widgetParent,
+  widgetWidthRequest,
+  widgetHeightRequest,
+  widgetVisible,
+  widgetSensitive,
+  widgetAppPaintable,
   widgetCanFocus,
+  widgetHasFocus,
+  widgetIsFocus,
+  widgetCanDefault,
+  widgetHasDefault,
+  widgetReceivesDefault,
+  widgetCompositeChild,
+  widgetStyle,
+  widgetEvents,
+  widgetExtensionEvents,
+  widgetNoShowAll,
+  widgetCompositeName,
+  widgetDirection,
   widgetSensitivity,
 
 -- * Signals
@@ -496,15 +512,6 @@ widgetGetSizeRequest self =
   width <- peek widthPtr
   height <- peek heightPtr
   return (fromIntegral width, fromIntegral height)
-
--- | Determines if the widget is the focus widget within its toplevel.
---
-widgetIsFocus :: WidgetClass self => self
- -> IO Bool -- ^ returns @True@ if the widget is the focus widget.
-widgetIsFocus self =
-  liftM toBool $
-  {# call unsafe widget_is_focus #}
-    (toWidget self)
 
 -- | Causes the widget to have the keyboard focus for the 'Window' it's inside.
 -- The widget must be a focusable widget, such as a 'Entry'; something like
@@ -1194,6 +1201,142 @@ widgetGetScreen self =
 --------------------
 -- Attributes
 
+-- %hash c:6f7f d:9384
+-- | The name of the widget.
+--
+-- Default value: {@NULL@, FIXME: this should probably be converted to a
+-- Maybe data type}
+--
+widgetName :: WidgetClass self => Attr self String
+widgetName = newAttrFromStringProperty "name"
+
+-- %hash c:1533 d:3213
+-- | The parent widget of this widget. Must be a Container widget.
+--
+widgetParent :: (WidgetClass self, ContainerClass container) => ReadWriteAttr self Container container
+widgetParent = newAttrFromObjectProperty "parent"
+                 {# call pure unsafe gtk_container_get_type #}
+
+-- %hash c:2b4c d:3c31
+-- | Override for width request of the widget, or -1 if natural request should
+-- be used.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+widgetWidthRequest :: WidgetClass self => Attr self Int
+widgetWidthRequest = newAttrFromIntProperty "width-request"
+
+-- %hash c:fa97 d:172a
+-- | Override for height request of the widget, or -1 if natural request
+-- should be used.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+widgetHeightRequest :: WidgetClass self => Attr self Int
+widgetHeightRequest = newAttrFromIntProperty "height-request"
+
+-- %hash c:70d0 d:e8e2
+-- | Whether the widget is visible.
+--
+-- Default value: @False@
+--
+widgetVisible :: WidgetClass self => Attr self Bool
+widgetVisible = newAttrFromBoolProperty "visible"
+
+-- %hash c:4dd4 d:594e
+-- | Whether the widget responds to input.
+--
+-- Default value: @True@
+--
+widgetSensitive :: WidgetClass self => Attr self Bool
+widgetSensitive = newAttrFromBoolProperty "sensitive"
+
+-- %hash c:7506 d:1dde
+-- | Whether the application will paint directly on the widget.
+--
+-- Default value: @False@
+--
+widgetAppPaintable :: WidgetClass self => Attr self Bool
+widgetAppPaintable = newAttrFromBoolProperty "app-paintable"
+
+-- %hash c:6289 d:72ab
+-- | Whether the widget can accept the input focus.
+--
+-- Default value: @False@
+--
+widgetCanFocus :: WidgetClass self => Attr self Bool
+widgetCanFocus = newAttrFromBoolProperty "can-focus"
+
+-- %hash c:8e7 d:2645
+-- | Whether the widget has the input focus.
+--
+-- Default value: @False@
+--
+widgetHasFocus :: WidgetClass self => Attr self Bool
+widgetHasFocus = newAttrFromBoolProperty "has-focus"
+
+-- %hash c:7547 d:1d78
+-- | Whether the widget is the focus widget within the toplevel.
+--
+-- Default value: @False@
+--
+widgetIsFocus :: WidgetClass self => Attr self Bool
+widgetIsFocus = newAttrFromBoolProperty "is-focus"
+
+-- %hash c:f2d8 d:1cbb
+-- | Whether the widget can be the default widget.
+--
+-- Default value: @False@
+--
+widgetCanDefault :: WidgetClass self => Attr self Bool
+widgetCanDefault = newAttrFromBoolProperty "can-default"
+
+-- %hash c:836 d:4cbe
+-- | Whether the widget is the default widget.
+--
+-- Default value: @False@
+--
+widgetHasDefault :: WidgetClass self => Attr self Bool
+widgetHasDefault = newAttrFromBoolProperty "has-default"
+
+-- %hash c:f964 d:b62f
+-- | If @True@, the widget will receive the default action when it is focused.
+--
+-- Default value: @False@
+--
+widgetReceivesDefault :: WidgetClass self => Attr self Bool
+widgetReceivesDefault = newAttrFromBoolProperty "receives-default"
+
+-- %hash c:2ca6 d:cad8
+-- | Whether the widget is part of a composite widget.
+--
+-- Default value: @False@
+--
+widgetCompositeChild :: WidgetClass self => ReadAttr self Bool
+widgetCompositeChild = readAttrFromBoolProperty "composite-child"
+
+-- %hash c:4f01 d:bd3
+-- | The style of the widget, which contains information about how it will
+-- look (colors etc).
+--
+widgetStyle :: WidgetClass self => Attr self Style
+widgetStyle = newAttrFromObjectProperty "style"
+                {# call pure unsafe gtk_style_get_type #}
+
+-- %hash c:e2a4 d:9296
+-- | The event mask that decides what kind of GdkEvents this widget gets.
+--
+-- Default value: 'StructureMask'
+--
+widgetEvents :: WidgetClass self => Attr self [EventMask]
+widgetEvents = newAttrFromFlagsProperty "events"
+                 {# call pure unsafe gdk_event_mask_get_type #}
+
+-- %hash c:ba80
 -- | The mask that decides what kind of extension events this widget gets.
 --
 -- Default value: 'ExtensionEventsNone'
@@ -1203,17 +1346,30 @@ widgetExtensionEvents = newAttr
   widgetGetExtensionEvents
   widgetSetExtensionEvents
 
+-- %hash c:1605 d:48ea
+-- | Whether 'widgetShowAll' should not affect this widget.
+--
+-- Default value: @False@
+--
+widgetNoShowAll :: WidgetClass self => Attr self Bool
+widgetNoShowAll = newAttrFromBoolProperty "no-show-all"
+
+-- %hash c:a7fd d:55b8
+-- | \'compositeName\' property. See 'widgetGetCompositeName' and
+-- 'widgetSetCompositeName'
+--
+widgetCompositeName :: WidgetClass self => ReadWriteAttr self (Maybe String) String
+widgetCompositeName = newAttr
+  widgetGetCompositeName
+  widgetSetCompositeName
+
+-- %hash c:6c03 d:ce3b
 -- | \'direction\' property. See 'widgetGetDirection' and 'widgetSetDirection'
 --
 widgetDirection :: WidgetClass self => Attr self TextDirection
 widgetDirection = newAttr
   widgetGetDirection
   widgetSetDirection
-
--- | Whether the widget can have the input focus.
---
-widgetCanFocus :: WidgetClass self => Attr self Bool
-widgetCanFocus = newAttrFromBoolProperty "can_focus"
 
 -- | The sensitivity of a widget. A widget is sensitive if the user can
 -- interact with it. Insensitive widgets are \"grayed out\" and the user can't
