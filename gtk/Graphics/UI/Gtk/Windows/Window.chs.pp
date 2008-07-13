@@ -80,6 +80,9 @@ module Graphics.UI.Gtk.Windows.Window (
   windowHasToplevelFocus,
 #endif
   windowListToplevels,
+  windowGetFocus,
+  windowSetFocus,
+  windowSetDefault,
 -- windowAddMnemonic,
 -- windowRemoveMnemonic,
 -- windowSetMnemonicModifier,
@@ -494,6 +497,46 @@ windowListToplevels = do
   glistPtr <- {#call unsafe gtk_window_list_toplevels#}
   winPtrs <- fromGList glistPtr
   mapM (\ptr -> makeNewGObject mkWindow (return ptr)) winPtrs
+
+-- | Retrieves the current focused widget within the window.
+-- | Note that this is the widget that would have the focus if the toplevel
+-- | window focused; if the toplevel window is not focused then
+-- | 'widgetHasFocus' will not be True for the widget.
+--
+windowGetFocus :: WindowClass self => self -> IO (Maybe Widget)
+windowGetFocus self =
+  maybeNull (makeNewObject mkWidget) $
+  {# call unsafe gtk_window_get_focus #}
+    (toWindow self)
+
+-- | If focus is not the current focus widget, and is focusable, sets it as
+-- | the focus widget for the window. If focus is Nothing, unsets the focus
+-- | widget for this window. To set the focus to a particular widget in the
+-- | toplevel, it is usually more convenient to use 'widgetGrabFocus' instead
+-- | of this function.
+--
+windowSetFocus :: (WindowClass self, WidgetClass widget) => self
+  -> Maybe widget
+  -> IO ()
+windowSetFocus self focus =
+  {# call unsafe gtk_window_set_focus #}
+    (toWindow self)
+    (maybe (Widget nullForeignPtr) toWidget focus)
+
+-- | The default widget is the widget that's activated when the user presses
+-- | Enter in a dialog (for example). This function sets or unsets the default
+-- | widget for a Window about. When setting (rather than unsetting) the
+-- | default widget it's generally easier to call widgetGrabDefault on the
+-- | widget. Before making a widget the default widget, you must set the
+-- | 'widgetCanDefault' flag on the widget.
+--
+windowSetDefault :: (WindowClass self, WidgetClass widget) => self
+  -> Maybe widget
+  -> IO ()
+windowSetDefault self defaultWidget =
+  {# call unsafe gtk_window_set_focus #}
+    (toWindow self)
+    (maybe (Widget nullForeignPtr) toWidget defaultWidget)
 
 -- | Presents a window to the user. This may mean raising the window in the
 -- stacking order, deiconifying it, moving it to the current desktop, and\/or
