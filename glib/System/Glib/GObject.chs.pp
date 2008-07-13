@@ -41,6 +41,9 @@ module System.Glib.GObject (
   makeNewGObject,
   constructNewGObject,
   
+  -- ** GType queries
+  isA,
+
   -- ** Callback support
   DestroyNotify,
   mkFunPtrDestroyNotify,
@@ -65,7 +68,7 @@ import System.Glib.FFI
 import System.Glib.UTFString
 {#import System.Glib.Types#}
 import System.Glib.GValue (GValue)
-import System.Glib.GType  (GType)
+import System.Glib.GType  (GType, typeInstanceIsA)
 import System.Glib.GParameter
 import System.Glib.Attributes (newAttr, Attr)
 import Foreign.StablePtr
@@ -230,3 +233,10 @@ objectGetAttributeUnsafe attr obj = do
   sPtr <- {#call unsafe object_get_qdata#} (toGObject obj) attr
   if sPtr==nullPtr then return Nothing else
     liftM Just $! deRefStablePtr (castPtrToStablePtr sPtr)
+
+-- | Determine if this is an instance of a particular GTK type
+--
+isA :: GObjectClass o => o -> GType -> Bool
+isA obj gType = 
+	typeInstanceIsA ((unsafeForeignPtrToPtr.castForeignPtr.unGObject.toGObject) obj) gType
+

@@ -187,7 +187,7 @@ generateExports parent objs =
     [ indent 1.ss n.ss "(".ss n.ss "), ".ss n.ss "Class,".
       indent 1.ss "to".ss n.ss ", ".
       indent 1.ss "mk".ss n.ss ", un".ss n.sc ','.
-      indent 1.ss "castTo".ss n
+      indent 1.ss "castTo".ss n.ss ", gType".ss n
     | (n:_) <- objs
     , n /= "GObject" ]
 
@@ -195,19 +195,27 @@ generateDeclerations :: String -> [[String]] -> TypeTable -> ShowS
 generateDeclerations prefix objs typeTable =
   foldl (.) id
   [ makeClass prefix typeTable obj
-  . makeUpcast typeTable obj
+  . makeUpcast obj
+  . makeGType typeTable obj
   | obj <- objs ]
 
-makeUpcast :: TypeTable -> [String] -> ShowS
-makeUpcast table [obj]	   = id -- no casting for GObject
-makeUpcast table (obj:_:_) = 
+makeUpcast :: [String] -> ShowS
+makeUpcast [obj]	   = id -- no casting for GObject
+makeUpcast (obj:_:_) = 
   indent 0.ss "castTo".ss obj.ss " :: GObjectClass obj => obj -> ".ss obj.
-  indent 0.ss "castTo".ss obj.ss " = castTo".
+  indent 0.ss "castTo".ss obj.ss " = castTo gType".ss obj.ss " \"".ss obj.ss "\"".
+  indent 0
+
+makeGType :: TypeTable -> [String] -> ShowS
+makeGType table [obj] = id -- no GType for GObject
+makeGType table (obj:_:_) = 
+  indent 0.ss "gType".ss obj.ss " :: GType".
+  indent 0.ss "gType".ss obj.ss " =".
   indent 1.ss "{# call fun unsafe ".
     ss (case lookup obj table of 
          (Just (_, Just get_type_func)) -> get_type_func
 	 (Just (cname, _)) -> tail $ c2u True cname++"_get_type").
-    ss " #} \"".ss obj.ss "\"".
+    ss " #}".
   indent 0
   where
     -- case to underscore translation: the boolean arg specifies whether
