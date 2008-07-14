@@ -217,8 +217,7 @@ tools_c2hs_c2hsLocal_ALLSOURCES =		\
 tools_c2hs_base_general_Binary_hs_HCFLAGS = -O -funbox-strict-fields
 tools_c2hs_base_general_FastMutInt_hs_HCFLAGS = -O
 tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
-tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi -fvia-C \
-	'-\#include<c2hs_config.h>'
+tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi '-\#include<c2hs_config.h>'
 
 tools/c2hs/c/CLexer.hs : tools/c2hs/c/CLexer.x
 	$(ALEX) --ghc -o $@ $<
