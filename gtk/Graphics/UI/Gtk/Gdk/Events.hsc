@@ -321,7 +321,7 @@ data Event =
     eventTime	:: TimeStamp,
     -- | Whether the stylus has moved in or out of contact with the tablet.
     eventInContact     :: Bool
-  }
+  } deriving Show
 
 marshalEvent :: Ptr Event -> IO Event
 marshalEvent ptr = do

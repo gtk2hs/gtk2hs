@@ -64,6 +64,9 @@ import Graphics.UI.Gtk.General.Structs	(Point, Rectangle(..))
 
 {#pointer *GdkRegion as Region foreign newtype #}
 
+instance Show Region where
+  show r = show (unsafePerformIO (regionGetRectangles r))
+  
 -- Construct a region from a pointer.
 --
 makeNewRegion :: Ptr Region -> IO Region

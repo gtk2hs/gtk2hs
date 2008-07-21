@@ -135,7 +135,7 @@ data Click = SingleClick
 	   | DoubleClick
 	   | TripleClick
 	   | ReleaseClick
-  deriving Eq
+  deriving (Eq,Show,Enum)
 
 -- | Specifies in which corner a child widget should be placed
 --
