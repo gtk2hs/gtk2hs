@@ -146,7 +146,7 @@ treeModelSetColumn :: TypedTreeModelClass model
 	=> model row -- ^ the store in which to allocate a new column
 	-> (ColumnId row ty) -- ^ the column that should be set
 	-> (row -> ty) -- ^ the function that sets the property
-	-> IO () -- ^ returns the newly assigned column
+	-> IO ()
 treeModelSetColumn model (ColumnId setter colId) acc | colId<0 = return ()
                                                      | otherwise =
   case toTypedTreeModel model of

@@ -194,7 +194,8 @@ listStoreInsert (ListStore model) index value = do
     let index' | index > Seq.length seq = Seq.length seq
                | otherwise              = index
     writeIORef (customTreeModelGetPrivate model) (insert index' value seq)
-    treeModelRowInserted model [index'] (TreeIter 0 (fromIntegral index') 0 0)
+    stamp <- customTreeModelGetStamp model
+    treeModelRowInserted model [index'] (TreeIter stamp (fromIntegral index') 0 0)
 
   where insert :: Int -> a -> Seq a -> Seq a
         insert i x xs = front Seq.>< x Seq.<| back
@@ -205,11 +206,13 @@ listStorePrepend :: ListStore a -> a -> IO ()
 listStorePrepend (ListStore model) value = do
   modifyIORef (customTreeModelGetPrivate model)
               (\seq -> value Seq.<| seq)
-  treeModelRowInserted model [0] (TreeIter 0 0 0 0)
+  stamp <- customTreeModelGetStamp model
+  treeModelRowInserted model [0] (TreeIter stamp 0 0 0)
 
 -- | Prepend a list to the store. Not implemented yet.
 listStorePrependList :: ListStore a -> [a] -> IO ()
-listStorePrependList = undefined
+listStorePrependList store list =
+  mapM_ (listStoreInsert store 0) (reverse list)
 
 -- | Append an element to the store. Returns the index of the inserted
 -- element.
@@ -217,7 +220,8 @@ listStoreAppend :: ListStore a -> a -> IO Int
 listStoreAppend (ListStore model) value = do
   index <- atomicModifyIORef (customTreeModelGetPrivate model)
                              (\seq -> (seq Seq.|> value, Seq.length seq))
-  treeModelRowInserted model [index] (TreeIter 0 (fromIntegral index) 0 0)
+  stamp <- customTreeModelGetStamp model
+  treeModelRowInserted model [index] (TreeIter stamp (fromIntegral index) 0 0)
   return index
 
 {-
@@ -228,8 +232,9 @@ listStoreAppendList (ListStore model) values = do
       startIndex = Seq.length seq
       endIndex = startIndex + Seq.length seq' - 1
   writeIORef (customTreeModelGetPrivate model) (seq Seq.>< seq')
+  stamp <- customTreeModelGetStamp model
   flip mapM [startIndex..endIndex] $ \index ->    
-    treeModelRowInserted model [index] (TreeIter 0 (fromIntegral index) 0 0)
+    treeModelRowInserted model [index] (TreeIter stamp (fromIntegral index) 0 0)
 -}
 
 -- | Remove the element at the given index.

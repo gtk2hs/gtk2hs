@@ -599,10 +599,6 @@ gtk2hs_store_ref_node (GtkTreeModel *tree_model,
   WHEN_DEBUG(g_debug("calling gtk2hs_store_ref_node\t\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
   g_return_if_fail (GTK2HS_IS_STORE (tree_model));
-  
-  if (iter->stamp != store->stamp)
-    g_critical ("iter->stamp == %d\t\tstore->stamp == %d\n", iter->stamp, store->stamp);
-  
   g_return_if_fail (iter->stamp == store->stamp);
 
   gtk2hs_store_ref_node_impl(store->impl, iter);
@@ -615,10 +611,6 @@ gtk2hs_store_unref_node (GtkTreeModel *tree_model,
   WHEN_DEBUG(g_debug("calling gtk2hs_store_unref_node\t\t(%p, %p)\n", tree_model, iter));
   Gtk2HsStore *store = (Gtk2HsStore *) tree_model;
   g_return_if_fail (GTK2HS_IS_STORE (tree_model));
-
-  if (iter->stamp != store->stamp)
-    g_critical ("iter->stamp == %d\t\tstore->stamp == %d\n", iter->stamp, store->stamp);
-
   g_return_if_fail (iter->stamp == store->stamp);
 
   gtk2hs_store_unref_node_impl(store->impl, iter);
