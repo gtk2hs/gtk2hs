@@ -5,7 +5,7 @@
 --
 --  Created: 27 April 2001
 --
---  Copyright (C) 2001-2005 Axel Simon
+--  Copyright (C) 2001-2008 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
@@ -17,41 +17,37 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- TODO
---
--- unimplemented methods that seem to be useful in user programs:
---      widgetSizeRequest, widgetAddAccelerator, widgetRemoveAccelerator,
---	widgetAcceleratorSignal, widgetGrabDefault,
---	widgetPango*, widgetSetAdjustments
---
--- implement the following methods in GtkWindow object:
---      widget_set_uposition, widget_set_usize
 --
 -- |
 -- Maintainer  : gtk2hs-users@lists.sourceforge.net
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
--- The base class for all widgets. While a widget cannot be created directly,
+-- The base class for all widgets.
+--
+module Graphics.UI.Gtk.Abstract.Widget (
+
+-- * Detail
+--
+-- | The base class for all widgets. While a widget cannot be created directly,
 -- this module contains many useful methods common to all widgets. In
 -- particular, these functions are needed to add functionality to
 -- blank widgets such as 'DrawingArea' or 'Layout'.
 --
-module Graphics.UI.Gtk.Abstract.Widget (
--- * Detail
--- 
--- | 'Widget' introduces style properties - these are basically object
+-- 'Widget' introduces style properties - these are basically object
 -- properties that are stored not on the object, but in the style object
 -- associated to the widget. Style properties are set in resource files. This
 -- mechanism is used for configuring such things as the location of the
 -- scrollbar arrows through the theme, giving theme authors more control over
 -- the look of applications without the need to write a theme engine in C.
+--
 -- Widgets receive events, that is, signals that indicate some low-level
 -- user iteraction. The signal handlers for all these events have to
 -- return @True@ if the signal has been dealt with and @False@ if other
 -- signal handlers should be run.
 
 -- * Class Hierarchy
+--
 -- |
 -- @
 -- |  'GObject'
@@ -65,62 +61,79 @@ module Graphics.UI.Gtk.Abstract.Widget (
   WidgetClass,
   castToWidget,
   toWidget,
-  Allocation,
+  EventMask(..),
+  ExtensionMode(..),
+  GType,
+  KeyVal,
+  Region,
+  Bitmap,
   Requisition(..),
   Rectangle(..),
+  Color,
+  IconSize(..),
+  StateType(..),
+  TextDirection(..),
   AccelFlags(..),
   DirectionType(..),
-  
+  StockId,
+  WidgetHelpType(..),
+
 -- * Methods
-  widgetGetState,
-  widgetGetSavedState,
-  widgetShow,			-- Showing and hiding a widget.
+  widgetShow,
   widgetShowNow,
   widgetHide,
   widgetShowAll,
   widgetHideAll,
   widgetDestroy,
-  widgetQueueDraw,		-- Functions to be used with DrawingArea.
-  widgetGetDrawWindow,
-  widgetGetSize,
-  widgetHasIntersection,
+  widgetQueueDraw,
+  widgetAddAccelerator,
+  widgetRemoveAccelerator,
+  widgetSetAccelPath,
+#if GTK_CHECK_VERSION(2,4,0)
+  widgetCanActivateAccel,
+#endif
+  widgetActivate,
   widgetIntersect,
-  widgetRegionIntersect,
-  widgetActivate,		-- Manipulate widget state.
-  widgetSetSensitivity,
-  widgetSetSizeRequest,
-  widgetGetSizeRequest,
+  widgetHasIntersection,
   widgetGrabFocus,
-  widgetSetAppPaintable,
-  widgetSetName,		-- Naming, Themes
+  widgetGrabDefault,
+  widgetSetName,
   widgetGetName,
-  EventMask(..),
+  widgetSetSensitive,
+  widgetSetSensitivity,
+  widgetGetParentWindow,
+  widgetGetDrawWindow,
   widgetDelEvents,
   widgetAddEvents,
   widgetGetEvents,
-  ExtensionMode(..),
+  widgetSetEvents,
   widgetSetExtensionEvents,
   widgetGetExtensionEvents,
-  widgetGetToplevel,		-- Widget browsing.
-  widgetIsAncestor,
-  widgetReparent,
-  TextDirection(..),
-  widgetSetDirection,		-- General Setup.
-  widgetGetDirection,
-  widgetQueueDrawArea,
-  widgetSetDoubleBuffered,
-  widgetSetRedrawOnAllocate,
-  widgetGetParentWindow,
+  widgetGetToplevel,
+  widgetGetAncestor,
+  widgetGetColormap,
+  widgetSetColormap,
   widgetGetPointer,
+  widgetIsAncestor,
   widgetTranslateCoordinates,
+  widgetSetStyle,
+  widgetGetStyle,
+  widgetPushColormap,
+  widgetPopColormap,
+  widgetSetDefaultColormap,
+  widgetGetDefaultStyle,
+  widgetGetDefaultColormap,
+  widgetSetDirection,
+  widgetGetDirection,
+  widgetSetDefaultDirection,
+  widgetGetDefaultDirection,
+  widgetShapeCombineMask,
+#if GTK_CHECK_VERSION(2,10,0)
+  widgetInputShapeCombineMask,
+#endif
   widgetPath,
   widgetClassPath,
   widgetGetCompositeName,
-  widgetSetCompositeName,
-  widgetGetParent,
-  widgetSetDefaultDirection,
-  widgetGetDefaultDirection,
-  widgetGetStyle,
   widgetModifyStyle,
   widgetGetModifierStyle,
   widgetModifyFg,
@@ -128,15 +141,50 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetModifyText,
   widgetModifyBase,
   widgetModifyFont,
-  widgetCreateLayout,		-- Drawing text.
   widgetCreatePangoContext,
   widgetGetPangoContext,
+  widgetCreateLayout,
   widgetRenderIcon,
+  widgetQueueDrawArea,
+  widgetResetShapes,
+  widgetSetAppPaintable,
+  widgetSetDoubleBuffered,
+  widgetSetRedrawOnAllocate,
+  widgetSetCompositeName,
+  widgetSetScrollAdjustments,
+  widgetRegionIntersect,
+  widgetGetAccessible,
+  widgetChildFocus,
+  widgetGetChildVisible,
+  widgetGetParent,
+  widgetGetSettings,
+#if GTK_CHECK_VERSION(2,2,0)
+  --widgetGetClipboard,
+  widgetGetDisplay,
+  widgetGetRootWindow,
+  widgetGetScreen,
+  widgetHasScreen,
+#endif
+  widgetGetSizeRequest,
+  widgetSetChildVisible,
+  widgetSetSizeRequest,
+#if GTK_CHECK_VERSION(2,4,0)
+  widgetSetNoShowAll,
+  widgetGetNoShowAll,
+  widgetListMnemonicLabels,
+  widgetAddMnemonicLabel,
+  widgetRemoveMnemonicLabel,
+#if GTK_CHECK_VERSION(2,10,0)
+  widgetGetAction,
+  widgetIsComposited,
+#endif
+#endif
+  widgetReparent,
   widgetGetCanFocus,
   widgetSetCanFocus,
-  widgetGetColormap,
-  widgetSetColormap,
-  widgetGetScreen,
+  widgetGetState,
+  widgetGetSavedState,
+  widgetGetSize,
 
 -- * Attributes
   widgetName,
@@ -157,11 +205,60 @@ module Graphics.UI.Gtk.Abstract.Widget (
   widgetEvents,
   widgetExtensionEvents,
   widgetNoShowAll,
+  widgetChildVisible,
+  widgetColormap,
   widgetCompositeName,
   widgetDirection,
-  widgetSensitivity,
 
 -- * Signals
+  realize,
+  unrealize,
+  mapSignal,
+  unmapSignal,
+  sizeRequest,
+  sizeAllocate,
+  showSignal,
+  hideSignal,
+  focus,
+  stateChanged,
+  parentSet,
+  hierarchyChanged,
+  styleSet,
+  directionChanged,
+  grabNotify,
+  popupMenuSignal,
+  showHelp,
+  accelClosuresChanged,
+  screenChanged,
+
+-- * Events
+  buttonPressEvent,
+  buttonReleaseEvent,
+  configureEvent,
+  deleteEvent,
+  destroyEvent,
+  enterNotifyEvent,
+  exposeEvent,
+  focusInEvent,
+  focusOutEvent,
+#if GTK_CHECK_VERSION(2,8,0)
+  grabBrokenEvent,
+#endif
+  keyPressEvent,
+  keyReleaseEvent,
+  leaveNotifyEvent,
+  mapEvent,
+  motionNotifyEvent,
+  noExposeEvent,
+  proximityInEvent,
+  proximityOutEvent,
+  scrollEvent,
+  unmapEvent,
+  visibilityNotifyEvent,
+  windowStateEvent,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onButtonPress,
   afterButtonPress,
   onButtonRelease,
@@ -224,7 +321,6 @@ module Graphics.UI.Gtk.Abstract.Widget (
   afterSizeAllocate,
   onSizeRequest,
   afterSizeRequest,
-  StateType(..),
   onStateChanged,
   afterStateChanged,
   onUnmap,
@@ -235,30 +331,49 @@ module Graphics.UI.Gtk.Abstract.Widget (
   afterVisibilityNotify,
   onWindowState,
   afterWindowState
+#endif
   ) where
 
 import Control.Monad	(liftM, unless)
 import Data.Maybe	(fromMaybe)
 
+import Data.Bits ((.&.), complement)
 import System.Glib.FFI
 import System.Glib.Flags		(fromFlags, toFlags)
 import System.Glib.UTFString
 import System.Glib.Attributes
 import System.Glib.Properties
 import System.Glib.GObject		(constructNewGObject, makeNewGObject)
+import System.Glib.GType      (GType)
+import System.Glib.GList      (GList, fromGList)
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 import Graphics.UI.Gtk.Gdk.Enums	(EventMask(..), ExtensionMode(..))
+import Graphics.UI.Gtk.Gdk.Keys         (KeyVal)
 {#import Graphics.UI.Gtk.Gdk.Region#}	(Region(..), makeNewRegion)
+{#import Graphics.UI.Gtk.Gdk.Pixmap#} (Bitmap)
 import Graphics.UI.Gtk.General.Structs	(Allocation, Rectangle(..)
-					,Requisition(..), Color, IconSize
+					,Requisition(..), Color, IconSize(..)
 					,widgetGetState, widgetGetSavedState
 					,widgetGetDrawWindow, widgetGetSize)
 import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
-					 marshExposeRect)
+  marshExposeRect,
+  EventButton,
+  EventScroll,
+  EventMotion,
+  EventExpose,
+  EventKey,
+  EventConfigure,
+  EventCrossing,
+  EventFocus,
+  EventProperty,
+  EventProximity,
+  EventVisibility,
+  EventWindowState,
+  EventGrabBroken)
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
-					 AccelFlags(..), DirectionType(..))
+					 AccelFlags(..), DirectionType(..), Modifier)
 {#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription),
 					 PangoLayout(PangoLayout),
 					 makeNewPangoString )
@@ -266,6 +381,7 @@ import Graphics.UI.Gtk.General.StockItems (StockId)
 import Data.IORef ( newIORef )
 
 {# context lib="gtk" prefix="gtk" #}
+
 
 --------------------
 -- Methods
@@ -338,37 +454,7 @@ widgetDestroy self =
   {# call widget_destroy #}
     (toWidget self)
 
--- Functions to be used with DrawingArea.
-
--- | Prepare text for display.
---
--- The 'PangoLayout' represents the rendered text. It can be shown on screen
--- by calling 'Graphics.UI.Gtk.Gdk.Drawable.drawLayout'.
---
--- The returned 'PangoLayout' shares the same font information ('PangoContext') as this
--- widget. If this information changes, the 'PangoLayout' should change. The
--- following code ensures that the displayed text always reflects the widget's
--- settings:
---
--- > l <- widgetCreateLayout w "My Text."
--- > let update = do
--- >                layoutContextChanged l
--- > 		    -- update the Drawables which show this layout
--- > w `onDirectionChanged` update
--- > w `onStyleChanged` update
---
-widgetCreateLayout :: WidgetClass self => self
- -> String    -- ^ @text@ - text to set on the layout
- -> IO PangoLayout
-widgetCreateLayout self text = do
-  pl <- constructNewGObject mkPangoLayoutRaw $
-    withUTFString text $ \textPtr ->
-    {# call unsafe widget_create_pango_layout #}
-      (toWidget self)
-      textPtr
-  ps <- makeNewPangoString text
-  psRef <- newIORef ps
-  return (PangoLayout psRef pl)
+-- * Functions to be used with 'Graphics.UI.Gtk.Misc.DrawingArea'.
 
 -- | Send a redraw request to a widget. Equivalent to calling
 -- 'widgetQueueDrawArea' for the entire area of a widget.
@@ -378,18 +464,115 @@ widgetQueueDraw self =
   {# call widget_queue_draw #}
     (toWidget self)
 
--- | Check if the widget intersects with a given area.
+-- %hash c:1e14 d:53c5
+-- | Installs an accelerator for this @widget@ in @accelGroup@ that causes
+-- @accelSignal@ to be emitted if the accelerator is activated. The
+-- @accelGroup@ needs to be added to the widget's toplevel via
+-- 'windowAddAccelGroup', and the signal must be of type @G_RUN_ACTION@.
+-- Accelerators added through this function are not user changeable during
+-- runtime. If you want to support accelerators that can be changed by the
+-- user, use 'accelMapAddEntry' and 'widgetSetAccelPath' or
+-- 'menuItemSetAccelPath' instead.
 --
-widgetHasIntersection :: WidgetClass self => self
- -> Rectangle -- ^ @area@ - a rectangle
- -> IO Bool   -- ^ returns @True@ if there was an intersection
-widgetHasIntersection self area = 
-  liftM toBool $
-  with area $ \areaPtr ->
-  {# call unsafe widget_intersect #}
+widgetAddAccelerator :: WidgetClass self => self
+ -> String         -- ^ @accelSignal@ - widget signal to emit on accelerator
+                   -- activation
+ -> AccelGroup     -- ^ @accelGroup@ - accel group for this widget, added to
+                   -- its toplevel
+ -> KeyVal            -- ^ @accelKey@ - the key of the accelerator
+ -> [Modifier]     -- ^ @accelMods@ - modifier key combination of the
+                   -- accelerator
+ -> [AccelFlags]   -- ^ @accelFlags@ - flag accelerators, e.g. 'AccelVisible'
+ -> IO ()
+widgetAddAccelerator self accelSignal accelGroup accelKey accelMods accelFlags =
+  withUTFString accelSignal $ \accelSignalPtr ->
+  {# call gtk_widget_add_accelerator #}
     (toWidget self)
-    (castPtr areaPtr)
-    (castPtr nullPtr)
+    accelSignalPtr
+    accelGroup
+    (fromIntegral accelKey)
+    ((fromIntegral . fromFlags) accelMods)
+    ((fromIntegral . fromFlags) accelFlags)
+
+-- %hash c:3442 d:dfe8
+-- | Removes an accelerator from @widget@, previously installed with
+-- 'widgetAddAccelerator'.
+--
+widgetRemoveAccelerator :: WidgetClass self => self
+ -> AccelGroup     -- ^ @accelGroup@ - accel group for this widget
+ -> KeyVal            -- ^ @accelKey@ - the key of the accelerator
+ -> [Modifier]     -- ^ @accelMods@ - modifier key combination of the
+                   -- accelerator
+ -> IO Bool        -- ^ returns whether an accelerator was installed and could
+                   -- be removed
+widgetRemoveAccelerator self accelGroup accelKey accelMods =
+  liftM toBool $
+  {# call gtk_widget_remove_accelerator #}
+    (toWidget self)
+    accelGroup
+    (fromIntegral accelKey)
+    ((fromIntegral . fromFlags) accelMods)
+
+-- %hash c:f8d4 d:bd7f
+-- | Given an accelerator group, @accelGroup@, and an accelerator path,
+-- @accelPath@, sets up an accelerator in @accelGroup@ so whenever the key
+-- binding that is defined for @accelPath@ is pressed, @widget@ will be
+-- activated. This removes any accelerators (for any accelerator group)
+-- installed by previous calls to 'widgetSetAccelPath'. Associating
+-- accelerators with paths allows them to be modified by the user and the
+-- modifications to be saved for future use. (See 'accelMapSave'.)
+--
+-- This function is a low level function that would most likely be used by a
+-- menu creation system like 'ItemFactory'. If you use 'ItemFactory', setting
+-- up accelerator paths will be done automatically.
+--
+-- Even when you you aren't using 'ItemFactory', if you only want to set up
+-- accelerators on menu items 'menuItemSetAccelPath' provides a somewhat more
+-- convenient interface.
+--
+widgetSetAccelPath :: WidgetClass self => self
+ -> String     -- ^ @accelPath@ - path used to look up the accelerator
+ -> AccelGroup -- ^ @accelGroup@ - a 'AccelGroup'.
+ -> IO ()
+widgetSetAccelPath self accelPath accelGroup =
+  withUTFString accelPath $ \accelPathPtr ->
+  {# call gtk_widget_set_accel_path #}
+    (toWidget self)
+    accelPathPtr
+    accelGroup
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- %hash c:157e d:82ae
+-- | Determines whether an accelerator that activates the signal identified by
+-- @signalId@ can currently be activated. This is done by emitting the
+-- 'canActivateAccel' signal on the widget the signal is attached to; if the
+-- signal isn't overridden by a handler or in a derived widget, then the
+-- default check is that the widget must be sensitive, and the widget and all
+-- its ancestors mapped.
+--
+-- * Available since Gtk+ version 2.4
+--
+widgetCanActivateAccel :: WidgetClass self =>
+ (ConnectId self) -- ^ @signalId@ - the ID of a signal installed on @widget@
+ -> IO Bool -- ^ returns @True@ if the accelerator can be activated.
+widgetCanActivateAccel (ConnectId signalId self) =
+  liftM toBool $
+  {# call gtk_widget_can_activate_accel #}
+    (toWidget self)
+    (fromIntegral signalId)
+#endif
+
+-- | For widgets that can be \"activated\" (buttons, menu items, etc.) this
+-- function activates them. Activation is what happens when you press Enter on
+-- a widget during key navigation. If @widget@ isn't activatable, the function
+-- returns @False@.
+--
+widgetActivate :: WidgetClass self => self
+ -> IO Bool -- ^ returns @True@ if the widget was activatable
+widgetActivate self =
+  liftM toBool $
+  {# call widget_activate #}
+    (toWidget self)
 
 -- | Computes the intersection of a widget's area and @area@, returning the
 -- intersection, and returns @Nothing@ if there was no intersection.
@@ -408,139 +591,56 @@ widgetIntersect self area =
     then liftM Just $ peek intersectionPtr
     else return Nothing
 
--- | Computes the intersection of a widget's area and @region@, returning
--- the intersection. The result may be empty, use
--- 'Graphics.UI.Gtk.Gdk.Region.regionEmpty' to check.
+-- | Check if the widget intersects with a given area.
 --
-widgetRegionIntersect :: WidgetClass self => self
- -> Region    -- ^ @region@ - a 'Region' in the same coordinate system as the
-              -- widget's allocation. That is, relative to the widget's
-              -- 'DrawWindow' for 'NoWindow' widgets; relative to the parent
-              -- 'DrawWindow' of the widget's 'DrawWindow' for widgets with
-              -- their own 'DrawWindow'.
- -> IO Region -- ^ returns A region holding the intersection of the widget and
-              --  @region@. The coordinates of the return value are relative to
-              -- the widget's 'DrawWindow', if it has one, otherwise
-              -- it is relative to the parent's 'DrawWindow'.
-widgetRegionIntersect self region = do
-  intersectionPtr <- {# call gtk_widget_region_intersect #}
-    (toWidget self)
-    region
-  makeNewRegion intersectionPtr
-
--- Manipulate widget state.
-
--- | For widgets that can be \"activated\" (buttons, menu items, etc.) this
--- function activates them. Activation is what happens when you press Enter on
--- a widget during key navigation. If @widget@ isn't activatable, the function
--- returns @False@.
---
-widgetActivate :: WidgetClass self => self
- -> IO Bool -- ^ returns @True@ if the widget was activatable
-widgetActivate self =
+widgetHasIntersection :: WidgetClass self => self
+ -> Rectangle -- ^ @area@ - a rectangle
+ -> IO Bool   -- ^ returns @True@ if there was an intersection
+widgetHasIntersection self area = 
   liftM toBool $
-  {# call widget_activate #}
+  with area $ \areaPtr ->
+  {# call unsafe widget_intersect #}
+    (toWidget self)
+    (castPtr areaPtr)
+    (castPtr nullPtr)
+
+-- %hash d:1cab
+-- | Determines if the widget is the focus widget within its toplevel. (This
+-- does not mean that the 'widgetHasFocus' attribute is necessarily set;
+-- 'widgetHasFocus' will only be set if the toplevel widget additionally has
+-- the global input focus.)
+--
+widgetGetIsFocus :: WidgetClass self => self
+ -> IO Bool -- ^ returns @True@ if the widget is the focus widget.
+widgetGetIsFocus self =
+  liftM toBool $
+  {# call unsafe widget_is_focus #}
     (toWidget self)
 
--- | Sets the sensitivity of a widget. A widget is sensitive if the user can
--- interact with it. Insensitive widgets are \"grayed out\" and the user can't
--- interact with them. Insensitive widgets are known as \"inactive\",
--- \"disabled\", or \"ghosted\" in some other toolkits.
---
-widgetSetSensitivity :: WidgetClass self => self
- -> Bool  -- ^ @sensitive@ - @True@ to make the widget sensitive
- -> IO ()
-widgetSetSensitivity self sensitive =
-  {# call widget_set_sensitive #}
-    (toWidget self)
-    (fromBool sensitive)
-
--- | Sets the minimum size of a widget; that is, the widget's size request
--- will be @width@ by @height@. You can use this function to force a widget to
--- be either larger or smaller than it normally would be.
---
--- In most cases, 'Graphics.UI.Gtk.Windows.Window.windowSetDefaultSize'
--- is a better choice for toplevel
--- windows than this function; setting the default size will still allow users
--- to shrink the window. Setting the size request will force them to leave the
--- window at least as large as the size request. When dealing with window
--- sizes, 'Graphics.UI.Gtk.Windows.Window.windowSetGeometryHints' can be a
--- useful function as well.
---
--- Note the inherent danger of setting any fixed size - themes, translations
--- into other languages, different fonts, and user action can all change the
--- appropriate size for a given widget. So, it's basically impossible to
--- hardcode a size that will always be correct.
---
--- The size request of a widget is the smallest size a widget can accept
--- while still functioning well and drawing itself correctly. However in some
--- strange cases a widget may be allocated less than its requested size, and in
--- many cases a widget may be allocated more space than it requested.
---
--- If the size request in a given direction is -1 (unset), then the
--- \"natural\" size request of the widget will be used instead.
---
--- Widgets can't actually be allocated a size less than 1 by 1, but you can
--- pass 0,0 to this function to mean \"as small as possible.\"
---
-widgetSetSizeRequest :: WidgetClass self => self
- -> Int   -- ^ @width@ - width @widget@ should request, or -1 to unset
- -> Int   -- ^ @height@ - height @widget@ should request, or -1 to unset
- -> IO ()
-widgetSetSizeRequest self width height =
-  {# call widget_set_size_request #}
-    (toWidget self)
-    (fromIntegral width)
-    (fromIntegral height)
-
--- | Gets the size request that was explicitly set for the widget using
--- 'widgetSetSizeRequest'. A value of -1 for @width@ or @height@
--- indicates that that dimension has not been set explicitly and the natural
--- requisition of the widget will be used intead. See 'widgetSetSizeRequest'.
--- To get the size a widget will actually use, call connect to the
--- signal 'onSizeRequest' instead of calling this function.
---
-widgetGetSizeRequest :: WidgetClass self => self
- -> IO (Int, Int) -- ^ @(width, height)@
-widgetGetSizeRequest self =
-  alloca $ \widthPtr ->
-  alloca $ \heightPtr -> do
-  {# call gtk_widget_get_size_request #}
-    (toWidget self)
-    widthPtr
-    heightPtr
-  width <- peek widthPtr
-  height <- peek heightPtr
-  return (fromIntegral width, fromIntegral height)
-
--- | Causes the widget to have the keyboard focus for the 'Window' it's inside.
--- The widget must be a focusable widget, such as a 'Entry'; something like
--- 'Frame' won't work. (More precisely, it must have the "CanFocus" flag set.)
+-- %hash d:e1e
+-- | Causes @widget@ to have the keyboard focus for the 'Window' it's inside.
+-- @widget@ must be a focusable widget, such as a
+-- 'Graphics.UI.Gtk.Entry.Entry'; something like
+-- 'Graphics.UI.Gtk.Ornaments.Frame' won't work. (More precisely, it must have
+-- the 'widgetCanFocus' flag set.)
 --
 widgetGrabFocus :: WidgetClass self => self -> IO ()
 widgetGrabFocus self =
   {# call widget_grab_focus #}
     (toWidget self)
 
--- | Sets whether the application intends to draw on the widget in response
---   to an 'onExpose' signal.
+-- %hash c:e5e9 d:412a
+-- | Causes @widget@ to become the default widget. @widget@ must have the
+-- 'canDefault' flag set. The default widget is
+-- activated when the user presses Enter in a window. Default widgets must be
+-- activatable, that is, 'widgetActivate' should affect them.
 --
--- * This is a hint to the widget and does not affect the behavior of the
---   GTK+ core; many widgets ignore this flag entirely. For widgets that do
---   pay attention to the flag, such as 'EventBox' and 'Window', the effect
---   is to suppress default themed drawing of the widget's background.
---   (Children of the widget will still be drawn.) The application is then
---   entirely responsible for drawing the widget background.
---
-widgetSetAppPaintable :: WidgetClass self => self
- -> Bool  -- ^ @appPaintable@ - @True@ if the application will paint on the
-          -- widget
- -> IO ()
-widgetSetAppPaintable self appPaintable =
-  {# call widget_set_app_paintable #}
+widgetGrabDefault :: WidgetClass self => self -> IO ()
+widgetGrabDefault self =
+  {# call gtk_widget_grab_default #}
     (toWidget self)
-    (fromBool appPaintable)
 
+-- %hash c:4f62 d:d05a
 -- | Widgets can be named, which allows you to refer to them from a gtkrc
 -- file. You can apply a style to widgets with a particular name in the gtkrc
 -- file. See the documentation for gtkrc files.
@@ -566,6 +666,32 @@ widgetGetName self =
     (toWidget self)
   >>= peekUTFString
 
+-- %hash c:25b1 d:f898
+-- | Sets the sensitivity of a widget. A widget is sensitive if the user can
+-- interact with it. Insensitive widgets are \"grayed out\" and the user can't
+-- interact with them. Insensitive widgets are known as \"inactive\",
+-- \"disabled\", or \"ghosted\" in some other toolkits.
+--
+widgetSetSensitive :: WidgetClass self => self
+ -> Bool -- ^ @sensitive@ - @True@ to make the widget sensitive
+ -> IO ()
+widgetSetSensitive self sensitive =
+  {# call gtk_widget_set_sensitive #}
+    (toWidget self)
+    (fromBool sensitive)
+                                                        
+-- bad spelling backwards compatability definition
+widgetSetSensitivity :: WidgetClass self => self -> Bool -> IO ()
+widgetSetSensitivity = widgetSetSensitive
+
+-- | Gets the widget's parent window.
+--
+widgetGetParentWindow :: WidgetClass self => self -> IO DrawWindow
+widgetGetParentWindow self =
+  makeNewGObject mkDrawWindow $
+  {# call gtk_widget_get_parent_window #}
+    (toWidget self)
+
 -- | Disable event signals.
 --
 -- * Remove events from the 'EventMask' of this widget. The event mask
@@ -573,7 +699,8 @@ widgetGetName self =
 --   that return an 'Event' data type. On connecting to a such a signal,
 --   the event mask is automatically adjusted so that he signal is emitted.
 --   This function is useful to disable the reception of the signal. It
---   should be called whenever a signal receiving an 'Event' is disconected. 
+--   should be called whenever all signals receiving an 'Event'
+--   have been disconected. 
 --
 widgetDelEvents :: WidgetClass self => self -> [EventMask] -> IO ()
 widgetDelEvents self events = do
@@ -590,7 +717,7 @@ widgetAddEvents self [] = return ()
  -- special [] case to work around a GTK+ bug, see:
  -- http://bugzilla.gnome.org/show_bug.cgi?id=316702
 widgetAddEvents self events =
-  {# call widget_add_events #}
+  {# call unsafe widget_add_events #}
     (toWidget self)
     (fromIntegral $ fromFlags events)
 
@@ -604,7 +731,28 @@ widgetGetEvents self =
   {# call unsafe widget_get_events #}
     (toWidget self)
 
--- | Sets the extension events.
+-- %hash c:468a d:49a0
+-- | Sets the event mask (see 'EventMask') for a widget. The event mask
+-- determines which events a widget will receive. Keep in mind that different
+-- widgets have different default event masks, and by changing the event mask
+-- you may disrupt a widget's functionality, so be careful. This function must
+-- be called while a widget is unrealized. Consider 'widgetAddEvents' for
+-- widgets that are already realized, or if you want to preserve the existing
+-- event mask. This function can't be used with 'NoWindow' widgets; to get
+-- events on those widgets, place them inside a
+-- 'Graphics.UI.Gtk.Misc.EventBox' and receive events on the event box.
+--
+widgetSetEvents :: WidgetClass self => self
+ -> [EventMask] -- ^ @events@ - event mask
+ -> IO ()
+widgetSetEvents self events =
+  {# call unsafe widget_set_events #}
+    (toWidget self)
+    (fromIntegral $ fromFlags events)
+
+-- %hash c:4f2c d:781
+-- | Sets the extension events mask to @mode@. See 'ExtensionMode' and
+-- 'inputSetExtensionEvents'.
 --
 widgetSetExtensionEvents :: WidgetClass self => self
  -> [ExtensionMode]
@@ -614,6 +762,7 @@ widgetSetExtensionEvents self mode =
     (toWidget self)
     ((fromIntegral . fromFlags) mode)
 
+-- %hash c:c824 d:e611
 -- | Retrieves the extension events the widget will receive; see
 -- 'widgetSetExtensionEvents'.
 --
@@ -624,8 +773,7 @@ widgetGetExtensionEvents self =
   {# call widget_get_extension_events #}
     (toWidget self)
 
--- Widget browsing.
-
+-- %hash c:270b d:8877
 -- | This function returns the topmost widget in the container hierarchy
 -- @widget@ is a part of. If @widget@ has no parent widgets, it will be
 -- returned as the topmost widget.
@@ -639,155 +787,50 @@ widgetGetToplevel self =
   {# call unsafe widget_get_toplevel #}
     (toWidget self)
 
--- | Determines whether @widget@ is somewhere inside @ancestor@, possibly with
--- intermediate containers.
+-- %hash c:17bc d:f8f9
+-- | Gets the first ancestor of @widget@ with type @widgetType@. For example,
+-- @widgetGetAncestor widget gTypeBox@ gets the first 'Box' that's
+-- an ancestor of @widget@.  See note about checking for a toplevel
+-- 'Window' in the docs for 'widgetGetToplevel'.
 --
-widgetIsAncestor :: (WidgetClass self, WidgetClass ancestor) =>
-    self     -- ^ @widget@ - the widget in question
- -> ancestor -- ^ @ancestor@ - another 'Widget'
- -> IO Bool  -- ^ returns @True@ if @ancestor@ contains @widget@ as a child,
-             -- grandchild, great grandchild, etc.
-widgetIsAncestor self ancestor =
-  liftM toBool $
-  {# call unsafe widget_is_ancestor #}
+-- Note that unlike 'widgetIsAncestor', 'widgetGetAncestor' considers
+-- @widget@ to be an ancestor of itself.
+--
+widgetGetAncestor :: WidgetClass self => self
+ -> GType -- ^ @widgetType@ - ancestor type
+ -> IO (Maybe Widget) -- ^ returns the ancestor widget, or @Nothing@ if not found
+widgetGetAncestor self widgetType = do
+  ptr <- {# call gtk_widget_get_ancestor #}
     (toWidget self)
-    (toWidget ancestor)
+    widgetType
+  if ptr==nullPtr then return Nothing else
+    liftM Just $ makeNewObject mkWidget (return ptr)
 
--- | Moves a widget from one 'Container' to another.
+
+-- %hash c:bd95 d:eb94
+-- | Gets the colormap that will be used to render @widget@.
 --
-widgetReparent :: (WidgetClass self, WidgetClass newParent) => self
- -> newParent -- ^ @newParent@ - a 'Container' to move the widget into
+widgetGetColormap :: WidgetClass self => self
+ -> IO Colormap -- ^ returns the colormap used by @widget@
+widgetGetColormap self =
+  makeNewGObject mkColormap $
+  {# call gtk_widget_get_colormap #}
+    (toWidget self)
+
+-- %hash c:cba1 d:ffeb
+-- | Sets the colormap for the widget to the given value. Widget must not have
+-- been previously realized. This probably should only be used from an 'init'
+-- function (i.e. from the constructor for the widget).
+--
+widgetSetColormap :: WidgetClass self => self
+ -> Colormap -- ^ @colormap@ - a colormap
  -> IO ()
-widgetReparent self newParent =
-  {# call widget_reparent #}
+widgetSetColormap self colormap =
+  {# call gtk_widget_set_colormap #}
     (toWidget self)
-    (toWidget newParent)
+    colormap
 
--- | Sets the reading direction on a particular widget. This direction
--- controls the primary direction for widgets containing text, and also the
--- direction in which the children of a container are packed. The ability to
--- set the direction is present in order so that correct localization into
--- languages with right-to-left reading directions can be done. Generally,
--- applications will let the default reading direction present, except for
--- containers where the containers are arranged in an order that is explicitely
--- visual rather than logical (such as buttons for text justification).
---
--- If the direction is set to 'TextDirNone', then the value set by
--- 'widgetSetDefaultDirection' will be used.
---
-widgetSetDirection :: WidgetClass self => self -> TextDirection -> IO ()
-widgetSetDirection self dir =
-  {# call widget_set_direction #}
-    (toWidget self)
-    ((fromIntegral . fromEnum) dir)
-
--- | Gets the reading direction for a particular widget. See
--- 'widgetSetDirection'.
---
-widgetGetDirection :: WidgetClass self => self -> IO TextDirection
-widgetGetDirection self =
-  liftM (toEnum . fromIntegral) $
-  {# call widget_get_direction #}
-    (toWidget self)
-
--- | Invalidates the rectangular area of @widget@ defined by @x@, @y@, @width@
--- and @height@ by calling
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowInvalidateRect' on the widget's
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' and
--- all its child windows. Once the main loop becomes idle (after the current
--- batch of events has been processed, roughly), the window will receive expose
--- events for the union of all regions that have been invalidated.
---
--- Normally you would only use this function in widget implementations. You
--- might also use it, or 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowInvalidateRect'
--- directly, to schedule a redraw
--- of a 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawingArea' or some portion thereof.
---
--- Frequently you can just call
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.windowInvalidateRect' or
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.windowInvalidateRegion' instead of this
--- function. Those functions will
--- invalidate only a single window, instead of the widget and all its children.
---
--- The advantage of adding to the invalidated region compared to simply
--- drawing immediately is efficiency; using an invalid region ensures that you
--- only have to redraw one time.
---
-widgetQueueDrawArea :: WidgetClass self => self
- -> Int   -- ^ @x@ - x coordinate of upper-left corner of rectangle to redraw
- -> Int   -- ^ @y@ - y coordinate of upper-left corner of rectangle to redraw
- -> Int   -- ^ @width@ - width of region to draw
- -> Int   -- ^ @height@ - height of region to draw
- -> IO ()
-widgetQueueDrawArea self x y width height =
-  {# call gtk_widget_queue_draw_area #}
-    (toWidget self)
-    (fromIntegral x)
-    (fromIntegral y)
-    (fromIntegral width)
-    (fromIntegral height)
-
--- | Widgets are double buffered by default; you can use this function to turn
--- off the buffering. \"Double buffered\" simply means that
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaintRegion' and
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowEndPaint' are called automatically
--- around expose events sent to the widget.
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaintRegion' diverts all
--- drawing to a widget's window to an offscreen buffer, and
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowEndPaint'
--- draws the buffer to the screen. The result is that users see the window
--- update in one smooth step, and don't see individual graphics primitives
--- being rendered.
---
--- In very simple terms, double buffered widgets don't flicker, so you would
--- only use this function to turn off double buffering if you had special needs
--- and really knew what you were doing.
---
--- Note: if you turn off double-buffering, you have to handle expose events,
--- since even the clearing to the background color or pixmap will not happen
--- automatically (as it is done in
--- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaint').
---
-widgetSetDoubleBuffered :: WidgetClass self => self
- -> Bool  -- ^ @doubleBuffered@ - @True@ to double-buffer a widget
- -> IO ()
-widgetSetDoubleBuffered self doubleBuffered =
-  {# call gtk_widget_set_double_buffered #}
-    (toWidget self)
-    (fromBool doubleBuffered)
-
--- | Sets whether the entire widget is queued for drawing when its size
--- allocation changes. By default, this setting is @True@ and the entire widget
--- is redrawn on every size change. If your widget leaves the upper left
--- unchanged when made bigger, turning this setting on will improve
--- performance.
---
--- Note that for \"no window\" widgets setting this flag to @False@ turns off
--- all allocation on resizing: the widget will not even redraw if its position
--- changes; this is to allow containers that don't draw anything to avoid
--- excess invalidations. If you set this flag on a \"no window\" widget that
--- /does/ draw its window, you are responsible for invalidating both
--- the old and new allocation of the widget when the widget is moved and
--- responsible for invalidating regions newly when the widget increases size.
---
-widgetSetRedrawOnAllocate :: WidgetClass self => self
- -> Bool  -- ^ @redrawOnAllocate@ - if @True@, the entire widget will be
-          -- redrawn when it is allocated to a new size. Otherwise, only the
-          -- new portion of the widget will be redrawn.
- -> IO ()
-widgetSetRedrawOnAllocate self redrawOnAllocate =
-  {# call gtk_widget_set_redraw_on_allocate #}
-    (toWidget self)
-    (fromBool redrawOnAllocate)
-
--- | Gets the widget's parent window.
---
-widgetGetParentWindow :: WidgetClass self => self -> IO DrawWindow
-widgetGetParentWindow self =
-  makeNewGObject mkDrawWindow $
-  {# call gtk_widget_get_parent_window #}
-    (toWidget self)
-
+-- %hash c:3522 d:5637
 -- | Obtains the location of the mouse pointer in widget coordinates. Widget
 -- coordinates are a bit odd; for historical reasons, they are defined as
 -- 'widgetGetParentWindow' coordinates for widgets that are not 'NoWindow' widgets,
@@ -808,6 +851,22 @@ widgetGetPointer self =
   peek yPtr >>= \y ->
   return (fromIntegral x, fromIntegral y)
 
+-- %hash c:499d
+-- | Determines whether @widget@ is somewhere inside @ancestor@, possibly with
+-- intermediate containers.
+--
+widgetIsAncestor :: (WidgetClass self, WidgetClass ancestor) =>
+    self     -- ^ @widget@ - the widget in question
+ -> ancestor -- ^ @ancestor@ - another 'Widget'
+ -> IO Bool  -- ^ returns @True@ if @ancestor@ contains @widget@ as a child,
+             -- grandchild, great grandchild, etc.
+widgetIsAncestor self ancestor =
+  liftM toBool $
+  {# call unsafe widget_is_ancestor #}
+    (toWidget self)
+    (toWidget ancestor)
+
+-- %hash c:8661
 -- | Translate coordinates relative to @srcWidget@'s allocation to coordinates
 -- relative to @destWidget@'s allocations. In order to perform this operation,
 -- both widgets must be realized, and must share a common toplevel.
@@ -837,7 +896,169 @@ widgetTranslateCoordinates self destWidget srcX srcY =
             return (Just (fromIntegral destX, fromIntegral destY))
     else return Nothing
 
--- | Obtains the full path to the widget. The path is simply the name of a
+-- %hash c:596c d:b7e5
+-- | Sets the 'Style' for a widget. You probably don't want
+-- to use this function; it interacts badly with themes, because themes work by
+-- replacing the 'Style'. Instead, use 'widgetModifyStyle'.
+--
+widgetSetStyle :: WidgetClass self => self
+ -> Maybe Style -- ^ @style@ - a 'Style', or @Nothing@ to remove the effect of a previous
+           -- 'widgetSetStyle' and go back to the default style
+ -> IO ()
+widgetSetStyle self style =
+  {# call gtk_widget_set_style #}
+    (toWidget self)
+    (fromMaybe (mkStyle nullForeignPtr) style)
+
+-- | Retrieve the 'Style' associated with the widget.
+--
+widgetGetStyle :: WidgetClass widget => widget -> IO Style
+widgetGetStyle widget = do
+  {# call gtk_widget_ensure_style #} (toWidget widget)
+  makeNewGObject mkStyle $ {# call gtk_widget_get_style #} (toWidget widget)
+
+-- %hash c:d5ed d:dc10
+-- | Pushes @cmap@ onto a global stack of colormaps; the topmost colormap on
+-- the stack will be used to create all widgets. Remove @cmap@ with
+-- 'widgetPopColormap'. There's little reason to use this function.
+--
+widgetPushColormap ::
+    Colormap -- ^ @cmap@ - a 'Colormap'
+ -> IO ()
+widgetPushColormap cmap =
+  {# call gtk_widget_push_colormap #}
+    cmap
+
+-- %hash c:7300 d:2920
+-- | Removes a colormap pushed with 'widgetPushColormap'.
+--
+widgetPopColormap :: IO ()
+widgetPopColormap =
+  {# call gtk_widget_pop_colormap #}
+
+-- %hash c:1f73 d:590e
+-- | Sets the default colormap to use when creating widgets.
+-- 'widgetPushColormap' is a better function to use if you only want to affect
+-- a few widgets, rather than all widgets.
+--
+widgetSetDefaultColormap ::
+    Colormap -- ^ @colormap@ - a 'Colormap'
+ -> IO ()
+widgetSetDefaultColormap colormap =
+  {# call gtk_widget_set_default_colormap #}
+    colormap
+
+-- %hash c:e71b d:72c2
+-- | Returns the default style used by all widgets initially.
+--
+widgetGetDefaultStyle ::
+    IO Style -- ^ returns the default style. This 'Style' object is owned by
+             -- Gtk and should not be modified.
+widgetGetDefaultStyle =
+  makeNewGObject mkStyle $
+  {# call gtk_widget_get_default_style #}
+
+-- %hash c:d731 d:52bf
+-- | Obtains the default colormap used to create widgets.
+--
+widgetGetDefaultColormap ::
+    IO Colormap -- ^ returns default widget colormap
+widgetGetDefaultColormap =
+  makeNewGObject mkColormap $
+  {# call gtk_widget_get_default_colormap #}
+
+-- | Sets the reading direction on a particular widget. This direction
+-- controls the primary direction for widgets containing text, and also the
+-- direction in which the children of a container are packed. The ability to
+-- set the direction is present in order so that correct localization into
+-- languages with right-to-left reading directions can be done. Generally,
+-- applications will let the default reading direction present, except for
+-- containers where the containers are arranged in an order that is explicitely
+-- visual rather than logical (such as buttons for text justification).
+--
+-- If the direction is set to 'TextDirNone', then the value set by
+-- 'widgetSetDefaultDirection' will be used.
+--
+widgetSetDirection :: WidgetClass self => self -> TextDirection -> IO ()
+widgetSetDirection self dir =
+  {# call widget_set_direction #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) dir)
+
+-- | Gets the reading direction for a particular widget. See
+-- 'widgetSetDirection'.
+--
+widgetGetDirection :: WidgetClass self => self -> IO TextDirection
+widgetGetDirection self =
+  liftM (toEnum . fromIntegral) $
+  {# call widget_get_direction #}
+    (toWidget self)
+
+-- %hash c:ff9a
+-- | Sets the default reading direction for widgets where the direction has
+-- not been explicitly set by 'widgetSetDirection'.
+--
+widgetSetDefaultDirection :: 
+    TextDirection -- ^ @dir@ - the new default direction. This cannot be
+                  -- 'TextDirNone'.
+ -> IO ()
+widgetSetDefaultDirection dir =
+  {# call gtk_widget_set_default_direction #}
+    ((fromIntegral . fromEnum) dir)
+
+-- | Obtains the current default reading direction. See
+-- 'widgetSetDefaultDirection'.
+--
+widgetGetDefaultDirection :: IO TextDirection
+widgetGetDefaultDirection =
+  liftM (toEnum . fromIntegral) $
+  {# call gtk_widget_get_default_direction #}
+
+-- %hash c:c7ba d:3a9c
+-- | Sets a shape for this widget's 'DrawWindow'. This allows for transparent
+-- windows etc., see 'windowShapeCombineMask' for more information.
+--
+widgetShapeCombineMask :: WidgetClass self => self
+ -> Maybe Bitmap -- ^ @shapeMask@ - shape to be added, or @Nothint@ to remove an
+            -- existing shape.
+ -> Int    -- ^ @offsetX@ - X position of shape mask with respect to @window@.
+ -> Int    -- ^ @offsetY@ - Y position of shape mask with respect to @window@.
+ -> IO ()
+widgetShapeCombineMask self shapeMask offsetX offsetY =
+  case (fromMaybe (mkPixmap nullForeignPtr) shapeMask) of
+    Pixmap fPtr -> withForeignPtr fPtr $ \bitmapPtr ->
+      {# call gtk_widget_shape_combine_mask #}
+        (toWidget self)
+        (castPtr bitmapPtr)
+        (fromIntegral offsetX)
+        (fromIntegral offsetY)
+
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:3c29 d:68e2
+-- | Sets an input shape for this widget's GDK window. This allows for windows
+-- which react to mouse click in a nonrectangular region, see
+-- 'windowInputShapeCombineMask' for more information.
+--
+-- * Available since Gtk+ version 2.10
+--
+widgetInputShapeCombineMask :: WidgetClass self => self
+ -> Maybe Bitmap -- ^ @shapeMask@ - shape to be added, or @Nothint@ to remove an
+            -- existing shape.
+ -> Int    -- ^ @offsetX@ - X position of shape mask with respect to @window@.
+ -> Int    -- ^ @offsetY@ - Y position of shape mask with respect to @window@.
+ -> IO ()
+widgetInputShapeCombineMask self shapeMask offsetX offsetY =
+  case (fromMaybe (mkPixmap nullForeignPtr) shapeMask) of
+    Pixmap fPtr -> withForeignPtr fPtr $ \bitmapPtr ->
+      {# call gtk_widget_input_shape_combine_mask #}
+        (toWidget self)
+        (castPtr bitmapPtr)
+        (fromIntegral offsetX)
+        (fromIntegral offsetY)
+#endif
+
+-- %hash c:7e36 d:616f
+-- | Obtains the full path to @widget@. The path is simply the name of a
 -- widget and all its parents in the container hierarchy, separated by periods.
 -- The name of a widget comes from 'widgetGetName'. Paths are used to apply
 -- styles to a widget in gtkrc configuration files. Widget names are the type
@@ -867,6 +1088,7 @@ widgetPath self =
   peek pathReversedPtr >>= readUTFString >>= \pathReversed ->
   return (fromIntegral pathLength, path, pathReversed)
 
+-- %hash c:d4a6
 -- | Same as 'widgetPath', but always uses the name of a widget's type, never
 -- uses a custom name set with 'widgetSetName'.
 --
@@ -889,6 +1111,7 @@ widgetClassPath self =
   peek pathReversedPtr >>= readUTFString >>= \pathReversed ->
   return (fromIntegral pathLength, path, pathReversed)
 
+-- %hash c:769e
 -- | Obtains the composite name of a widget.
 --
 widgetGetCompositeName :: WidgetClass self => self
@@ -898,56 +1121,6 @@ widgetGetCompositeName self =
   {# call gtk_widget_get_composite_name #}
     (toWidget self)
   >>= maybePeek peekUTFString
-
--- | Sets a widgets composite name. A child widget of a container is
---   composite if it serves as an internal widget and, thus, is not
---   added by the user.
---
-widgetSetCompositeName :: WidgetClass self => self
- -> String -- ^ @name@ - the name to set.
- -> IO ()
-widgetSetCompositeName self name =
-  withUTFString name $ \namePtr ->
-  {# call gtk_widget_set_composite_name #}
-    (toWidget self)
-    namePtr
-
--- | Returns the parent container of @widget@.
---
--- * Returns the parent container of @widget@ if it has one.
---
-widgetGetParent :: WidgetClass self => self
- -> IO (Maybe Widget) 
-widgetGetParent self = do
-  parentPtr <- {# call gtk_widget_get_parent #} (toWidget self)
-  if parentPtr==nullPtr then return Nothing else
-    liftM Just $ makeNewObject mkWidget (return parentPtr)
-
--- | Sets the default reading direction for widgets where the direction has
--- not been explicitly set by 'widgetSetDirection'.
---
-widgetSetDefaultDirection :: 
-    TextDirection -- ^ @dir@ - the new default direction. This cannot be
-                  -- 'TextDirNone'.
- -> IO ()
-widgetSetDefaultDirection dir =
-  {# call gtk_widget_set_default_direction #}
-    ((fromIntegral . fromEnum) dir)
-
--- | Obtains the current default reading direction. See
--- 'widgetSetDefaultDirection'.
---
-widgetGetDefaultDirection :: IO TextDirection
-widgetGetDefaultDirection =
-  liftM (toEnum . fromIntegral) $
-  {# call gtk_widget_get_default_direction #}
-
--- | Retrieve the 'Style' associated with the widget.
---
-widgetGetStyle :: WidgetClass widget => widget -> IO Style
-widgetGetStyle widget = do
-  {# call gtk_widget_ensure_style #} (toWidget widget)
-  makeNewGObject mkStyle $ {# call gtk_widget_get_style #} (toWidget widget)
 
 -- | Modifies style values on the widget. Modifications made using this
 -- technique take precedence over style values set via an RC file, however,
@@ -992,6 +1165,7 @@ widgetGetModifierStyle self =
   {# call gtk_widget_get_modifier_style #}
     (toWidget self)
 
+-- %hash c:5550
 -- | Sets the foreground color for a widget in a particular state. All other
 -- style values are left untouched. See also 'widgetModifyStyle'.
 --
@@ -1008,6 +1182,7 @@ widgetModifyFg self state color =
     ((fromIntegral . fromEnum) state)
     (castPtr colorPtr)
 
+-- %hash c:2c5
 -- | Sets the background color for a widget in a particular state. All other
 -- style values are left untouched. See also 'widgetModifyStyle'.
 --
@@ -1031,6 +1206,7 @@ widgetModifyBg self state color =
     ((fromIntegral . fromEnum) state)
     (castPtr colorPtr)
 
+-- %hash c:d2ba
 -- | Sets the text color for a widget in a particular state. All other style
 -- values are left untouched. The text color is the foreground color used along
 -- with the base color (see 'widgetModifyBase') for widgets such as 'Entry' and
@@ -1049,6 +1225,7 @@ widgetModifyText self state color =
     ((fromIntegral . fromEnum) state)
     (castPtr colorPtr)
 
+-- %hash c:ac08
 -- | Sets the base color for a widget in a particular state. All other style
 -- values are left untouched. The base color is the background color used along
 -- with the text color (see 'widgetModifyText') for widgets such as 'Entry' and
@@ -1074,6 +1251,7 @@ widgetModifyBase self state color =
     ((fromIntegral . fromEnum) state)
     (castPtr colorPtr)
 
+-- %hash c:38d7
 -- | Sets the font to use for a widget. All other style values are left
 -- untouched. See also 'widgetModifyStyle'.
 --
@@ -1118,6 +1296,37 @@ widgetGetPangoContext self =
   {# call gtk_widget_get_pango_context #}
     (toWidget self)
 
+-- | Prepare text for display.
+--
+-- The 'PangoLayout' represents the rendered text. It can be shown on screen
+-- by calling 'Graphics.UI.Gtk.Gdk.Drawable.drawLayout'.
+--
+-- The returned 'PangoLayout' shares the same font information ('PangoContext') as this
+-- widget. If this information changes, the 'PangoLayout' should change. The
+-- following code ensures that the displayed text always reflects the widget's
+-- settings:
+--
+-- > l <- widgetCreateLayout w "My Text."
+-- > let update = do
+-- >                layoutContextChanged l
+-- > 		    -- update the Drawables which show this layout
+-- > w `onDirectionChanged` update
+-- > w `onStyleChanged` update
+--
+widgetCreateLayout :: WidgetClass self => self
+ -> String    -- ^ @text@ - text to set on the layout
+ -> IO PangoLayout
+widgetCreateLayout self text = do
+  pl <- constructNewGObject mkPangoLayoutRaw $
+    withUTFString text $ \textPtr ->
+    {# call unsafe widget_create_pango_layout #}
+      (toWidget self)
+      textPtr
+  ps <- makeNewPangoString text
+  psRef <- newIORef ps
+  return (PangoLayout psRef pl)
+
+-- %hash c:cee d:1d29
 -- | A convenience function that uses the theme engine and RC file settings
 -- for @widget@ to look up the stock icon and render it to a
 -- 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf'.
@@ -1133,22 +1342,561 @@ widgetGetPangoContext self =
 -- application and should not be modified.
 --
 widgetRenderIcon :: WidgetClass self => self
- -> StockId    -- ^ the stock ID of the icon
- -> IconSize  -- ^ @size@ - a stock size. The size
-	      -- 'Graphics.UI.Gtk.General.IconFactory.IconSizeInvalid' means
-              -- render at the size of the source and don't scale (if there are
-              -- multiple source sizes, Gtk+ picks one of the available sizes).
- -> String    -- ^ @detail@ - render detail to pass to theme engine
- -> IO (Maybe Pixbuf) -- ^ the new 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf'
-		      --   if the stock icon was found
-widgetRenderIcon self stockId size detail = do
-  pixbufPtr <-
-    withUTFString detail $ \detailPtr ->
-    withUTFString stockId $ \stockIdPtr ->
-    {# call gtk_widget_render_icon #}
-      (toWidget self) stockIdPtr  ((fromIntegral . fromEnum) size) detailPtr
-  if pixbufPtr==nullPtr then return Nothing else 
-    liftM Just $ constructNewGObject mkPixbuf (return pixbufPtr)
+ -> String            -- ^ @stockId@ - a stock ID
+ -> IconSize          -- ^ @size@ - a stock size
+ -> String            -- ^ @detail@ - render detail to pass to theme engine
+ -> IO (Maybe Pixbuf) -- ^ returns a new pixbuf, or @Nothing@ if the stock ID
+                      -- wasn't known
+widgetRenderIcon self stockId size detail =
+  maybeNull (makeNewGObject mkPixbuf) $
+  withUTFString detail $ \detailPtr ->
+  withUTFString stockId $ \stockIdPtr ->
+  {# call gtk_widget_render_icon #}
+    (toWidget self)
+    stockIdPtr
+    ((fromIntegral . fromEnum) size)
+    detailPtr
+
+-- %hash c:62f d:1863
+-- | Invalidates the rectangular area of @widget@ defined by @x@, @y@, @width@
+-- and @height@ by calling
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowInvalidateRect' on the widget's
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' and all its child windows. Once
+-- the main loop becomes idle (after the current batch of events has been
+-- processed, roughly), the window will receive expose events for the union of
+-- all regions that have been invalidated.
+--
+-- Normally you would only use this function in widget implementations. In
+-- particular, you might use it, or
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowInvalidateRect' directly, to
+-- schedule a redraw of a 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawingArea' or some
+-- portion thereof.
+--
+-- Frequently you can just call
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.windowInvalidateRect' or
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.windowInvalidateRegion' instead of this
+-- function. Those functions will invalidate only a single window, instead of
+-- the widget and all its children.
+--
+-- The advantage of adding to the invalidated region compared to simply
+-- drawing immediately is efficiency; using an invalid region ensures that you
+-- only have to redraw one time.
+--
+widgetQueueDrawArea :: WidgetClass self => self
+ -> Int   -- ^ @x@ - x coordinate of upper-left corner of rectangle to redraw
+ -> Int   -- ^ @y@ - y coordinate of upper-left corner of rectangle to redraw
+ -> Int   -- ^ @width@ - width of region to draw
+ -> Int   -- ^ @height@ - height of region to draw
+ -> IO ()
+widgetQueueDrawArea self x y width height =
+  {# call gtk_widget_queue_draw_area #}
+    (toWidget self)
+    (fromIntegral x)
+    (fromIntegral y)
+    (fromIntegral width)
+    (fromIntegral height)
+
+-- %hash c:5ffb d:3e1a
+-- | Recursively resets the shape on this widget and its descendants.
+--
+widgetResetShapes :: WidgetClass self => self -> IO ()
+widgetResetShapes self =
+  {# call gtk_widget_reset_shapes #}
+    (toWidget self)
+
+-- | Sets whether the application intends to draw on the widget in response
+--   to an 'onExpose' signal.
+--
+-- * This is a hint to the widget and does not affect the behavior of the
+--   GTK+ core; many widgets ignore this flag entirely. For widgets that do
+--   pay attention to the flag, such as 'EventBox' and 'Window', the effect
+--   is to suppress default themed drawing of the widget's background.
+--   (Children of the widget will still be drawn.) The application is then
+--   entirely responsible for drawing the widget background.
+--
+widgetSetAppPaintable :: WidgetClass self => self
+ -> Bool  -- ^ @appPaintable@ - @True@ if the application will paint on the
+          -- widget
+ -> IO ()
+widgetSetAppPaintable self appPaintable =
+  {# call widget_set_app_paintable #}
+    (toWidget self)
+    (fromBool appPaintable)
+
+-- %hash c:89b2 d:e14d
+-- | Widgets are double buffered by default; you can use this function to turn
+-- off the buffering. \"Double buffered\" simply means that
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaintRegion' and
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowEndPaint' are called automatically
+-- around expose events sent to the widget.
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaintRegion' diverts all
+-- drawing to a widget's window to an offscreen buffer, and
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowEndPaint'
+-- draws the buffer to the screen. The result is that users see the window
+-- update in one smooth step, and don't see individual graphics primitives
+-- being rendered.
+--
+-- In very simple terms, double buffered widgets don't flicker, so you would
+-- only use this function to turn off double buffering if you had special needs
+-- and really knew what you were doing.
+--
+-- Note: if you turn off double-buffering, you have to handle expose events,
+-- since even the clearing to the background color or pixmap will not happen
+-- automatically (as it is done in
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowBeginPaint').
+--
+widgetSetDoubleBuffered :: WidgetClass self => self
+ -> Bool  -- ^ @doubleBuffered@ - @True@ to double-buffer a widget
+ -> IO ()
+widgetSetDoubleBuffered self doubleBuffered =
+  {# call gtk_widget_set_double_buffered #}
+    (toWidget self)
+    (fromBool doubleBuffered)
+
+-- %hash c:d61 d:ac24
+-- | Sets whether the entire widget is queued for drawing when its size
+-- allocation changes. By default, this setting is @True@ and the entire widget
+-- is redrawn on every size change. If your widget leaves the upper left
+-- unchanged when made bigger, turning this setting on will improve
+-- performance.
+--
+-- Note that for \"no window\" widgets setting this flag to @False@ turns off
+-- all allocation on resizing: the widget will not even redraw if its position
+-- changes; this is to allow containers that don't draw anything to avoid
+-- excess invalidations. If you set this flag on a \"no window\" widget that
+-- /does/ draw its window, you are responsible for invalidating both
+-- the old and new allocation of the widget when the widget is moved and
+-- responsible for invalidating regions newly when the widget increases size.
+--
+widgetSetRedrawOnAllocate :: WidgetClass self => self
+ -> Bool  -- ^ @redrawOnAllocate@ - if @True@, the entire widget will be
+          -- redrawn when it is allocated to a new size. Otherwise, only the
+          -- new portion of the widget will be redrawn.
+ -> IO ()
+widgetSetRedrawOnAllocate self redrawOnAllocate =
+  {# call gtk_widget_set_redraw_on_allocate #}
+    (toWidget self)
+    (fromBool redrawOnAllocate)
+
+-- | Sets a widgets composite name. A child widget of a container is
+--   composite if it serves as an internal widget and, thus, is not
+--   added by the user.
+--
+widgetSetCompositeName :: WidgetClass self => self
+ -> String -- ^ @name@ - the name to set.
+ -> IO ()
+widgetSetCompositeName self name =
+  withUTFString name $ \namePtr ->
+  {# call gtk_widget_set_composite_name #}
+    (toWidget self)
+    namePtr
+
+-- %hash c:5c58 d:6895
+-- | For widgets that support scrolling, sets the scroll adjustments and
+-- returns @True@. For widgets that don't support scrolling, does nothing and
+-- returns @False@. Widgets that don't support scrolling can be scrolled by
+-- placing them in a 'Viewport', which does support scrolling.
+--
+widgetSetScrollAdjustments :: WidgetClass self => self
+ -> Maybe Adjustment -- ^ @hadjustment@ - an adjustment for horizontal scrolling, or
+               -- @Nothing@
+ -> Maybe Adjustment -- ^ @vadjustment@ - an adjustment for vertical scrolling, or
+               -- @Nothing@
+ -> IO Bool    -- ^ returns @True@ if the widget supports scrolling
+widgetSetScrollAdjustments self hadjustment vadjustment =
+  liftM toBool $
+  {# call gtk_widget_set_scroll_adjustments #}
+    (toWidget self)
+    (fromMaybe (mkAdjustment nullForeignPtr) hadjustment)
+    (fromMaybe (mkAdjustment nullForeignPtr) vadjustment)
+
+-- | Computes the intersection of a widget's area and @region@, returning
+-- the intersection. The result may be empty, use
+-- 'Graphics.UI.Gtk.Gdk.Region.regionEmpty' to check.
+--
+widgetRegionIntersect :: WidgetClass self => self
+ -> Region    -- ^ @region@ - a 'Region' in the same coordinate system as the
+              -- widget's allocation. That is, relative to the widget's
+              -- 'DrawWindow' for 'NoWindow' widgets; relative to the parent
+              -- 'DrawWindow' of the widget's 'DrawWindow' for widgets with
+              -- their own 'DrawWindow'.
+ -> IO Region -- ^ returns A region holding the intersection of the widget and
+              --  @region@. The coordinates of the return value are relative to
+              -- the widget's 'DrawWindow', if it has one, otherwise
+              -- it is relative to the parent's 'DrawWindow'.
+widgetRegionIntersect self region = do
+  intersectionPtr <- {# call gtk_widget_region_intersect #}
+    (toWidget self)
+    region
+  makeNewRegion intersectionPtr
+
+-- %hash c:3c94 d:cdb6
+-- | Returns the accessible object that describes the widget to an assistive
+-- technology.
+--
+-- If no accessibility library is loaded (i.e. no ATK implementation library
+-- is loaded via GTK_MODULES or via another application library, such as
+-- libgnome), then this 'Object' instance may be a no-op. Likewise, if no
+-- class-specific 'Object' implementation is available for the widget instance
+-- in question, it will inherit an 'Object' implementation from the first
+-- ancestor class for which such an implementation is defined.
+--
+-- The documentation of the ATK library contains more information about
+-- accessible objects and their uses.
+--
+widgetGetAccessible :: WidgetClass self => self
+ -> IO Object -- ^ returns the 'Object' associated with @widget@
+widgetGetAccessible self =
+  makeNewGObject mkObject $
+  liftM castPtr $
+  {# call gtk_widget_get_accessible #}
+    (toWidget self)
+
+-- %hash c:713d d:c4fc
+-- | This function is used by custom widget implementations; if you\'re
+-- writing an app, you\'d use 'widgetGrabFocus' to move the focus to a
+-- particular widget, and 'containerSetFocusChain' to change the focus tab
+-- order. So you may want to investigate those functions instead.
+--
+-- The \"focus\" default handler for a widget should return @True@ if moving
+-- in @direction@ left the focus on a focusable location inside that widget,
+-- and @False@ if moving in @direction@ moved the focus outside the widget. If
+-- returning @True@, widgets normally call 'widgetGrabFocus' to place the focus
+-- accordingly; if returning @False@, they don't modify the current focus
+-- location.
+--
+widgetChildFocus :: WidgetClass self => self
+ -> DirectionType -- ^ @direction@ - direction of focus movement
+ -> IO Bool       -- ^ returns @True@ if focus ended up inside @widget@
+widgetChildFocus self direction =
+  liftM toBool $
+  {# call gtk_widget_child_focus #}
+    (toWidget self)
+    ((fromIntegral . fromEnum) direction)
+
+-- %hash c:de20 d:5300
+-- | Gets the value set with 'widgetSetChildVisible'. If you feel a need to
+-- use this function, your code probably needs reorganization.
+--
+-- This function is only useful for container implementations and never
+-- should be called by an application.
+--
+widgetGetChildVisible :: WidgetClass self => self
+ -> IO Bool -- ^ returns @True@ if the widget is mapped with the parent.
+widgetGetChildVisible self =
+  liftM toBool $
+  {# call gtk_widget_get_child_visible #}
+    (toWidget self)
+
+-- %hash c:9320 d:367
+-- | Returns the parent container of @widget@.
+--
+-- * Returns the parent container of @widget@ if it has one.
+--
+widgetGetParent :: WidgetClass self => self
+ -> IO (Maybe Widget) 
+widgetGetParent self = do
+  parentPtr <- {# call gtk_widget_get_parent #} (toWidget self)
+  if parentPtr==nullPtr then return Nothing else
+    liftM Just $ makeNewObject mkWidget (return parentPtr)
+
+-- %hash c:85e3 d:a962
+-- | Gets the settings object holding the settings (global property settings,
+-- RC file information, etc) used for this widget.
+--
+-- Note that this function can only be called when the 'Widget' is attached
+-- to a toplevel, since the settings object is specific to a particular
+-- 'Screen'.
+--
+widgetGetSettings :: WidgetClass self => self
+ -> IO Settings -- ^ returns the relevant 'Settings' object
+widgetGetSettings self =
+  makeNewGObject mkSettings $
+  {# call gtk_widget_get_settings #}
+    (toWidget self)
+
+#if GTK_CHECK_VERSION(2,2,0)
+
+-- %hash c:45ed d:52ef
+-- | Get the 'Display' for the toplevel window associated with this widget.
+-- This function can only be called after the widget has been added to a widget
+-- hierarchy with a 'Window' at the top.
+--
+-- In general, you should only create display specific resources when a
+-- widget has been realized, and you should free those resources when the
+-- widget is unrealized.
+--
+-- * Available since Gtk+ version 2.2
+--
+widgetGetDisplay :: WidgetClass self => self
+ -> IO Display -- ^ returns the 'Display' for the toplevel for this widget.
+widgetGetDisplay self =
+  makeNewGObject mkDisplay $
+  {# call gtk_widget_get_display #}
+    (toWidget self)
+
+-- %hash c:8e4e d:252b
+-- | Get the root window where this widget is located. This function can only
+-- be called after the widget has been added to a widget heirarchy with
+-- 'Window' at the top.
+--
+-- The root window is useful for such purposes as creating a popup
+-- 'DrawWindow' associated with the window. In general, you should only create
+-- display specific resources when a widget has been realized, and you should
+-- free those resources when the widget is unrealized.
+--
+-- * Available since Gtk+ version 2.2
+--
+widgetGetRootWindow :: WidgetClass self => self
+ -> IO DrawWindow -- ^ returns the 'DrawWindow' root window for the toplevel
+                  -- for this widget.
+widgetGetRootWindow self =
+  makeNewGObject mkDrawWindow $
+  {# call gtk_widget_get_root_window #}
+    (toWidget self)
+
+-- %hash c:b929 d:67f0
+-- | Get the 'Screen' from the toplevel window associated with this widget.
+-- This function can only be called after the widget has been added to a widget
+-- hierarchy with a 'Window' at the top.
+--
+-- In general, you should only create screen specific resources when a
+-- widget has been realized, and you should free those resources when the
+-- widget is unrealized.
+--
+-- * Available since Gtk+ version 2.2
+--
+widgetGetScreen :: WidgetClass self => self
+ -> IO Screen -- ^ returns the 'Screen' for the toplevel for this widget.
+widgetGetScreen self =
+  makeNewGObject mkScreen $
+  {# call gtk_widget_get_screen #}
+    (toWidget self)
+
+-- %hash c:4fab d:aae2
+-- | Checks whether there is a 'Screen' is associated with this widget. All
+-- toplevel widgets have an associated screen, and all widgets added into a
+-- heirarchy with a toplevel window at the top.
+--
+-- * Available since Gtk+ version 2.2
+--
+widgetHasScreen :: WidgetClass self => self
+ -> IO Bool -- ^ returns @True@ if there is a 'Screen' associcated with the
+            -- widget.
+widgetHasScreen self =
+  liftM toBool $
+  {# call gtk_widget_has_screen #}
+    (toWidget self)
+#endif
+
+-- %hash c:dabc d:8275
+-- | Gets the size request that was explicitly set for the widget using
+-- 'widgetSetSizeRequest'. A value of -1 for @width@ or @height@
+-- indicates that that dimension has not been set explicitly and the natural
+-- requisition of the widget will be used intead. See 'widgetSetSizeRequest'.
+-- To get the size a widget will actually use, call 'widgetSizeRequest' instead
+-- of this function.
+--
+widgetGetSizeRequest :: WidgetClass self => self
+ -> IO (Int, Int) -- ^ @(width, height)@
+widgetGetSizeRequest self =
+  alloca $ \widthPtr ->
+  alloca $ \heightPtr -> do
+  {# call gtk_widget_get_size_request #}
+    (toWidget self)
+    widthPtr
+    heightPtr
+  width <- peek widthPtr
+  height <- peek heightPtr
+  return (fromIntegral width, fromIntegral height)
+
+-- %hash c:546d d:3c7f
+-- | Sets whether @widget@ should be mapped along with its when its parent is
+-- mapped and @widget@ has been shown with 'widgetShow'.
+--
+-- The child visibility can be set for widget before it is added to a
+-- container with 'widgetSetParent', to avoid mapping children unnecessary
+-- before immediately unmapping them. However it will be reset to its default
+-- state of @True@ when the widget is removed from a container.
+--
+-- Note that changing the child visibility of a widget does not queue a
+-- resize on the widget. Most of the time, the size of a widget is computed
+-- from all visible children, whether or not they are mapped. If this is not
+-- the case, the container can queue a resize itself.
+--
+-- This function is only useful for container implementations and never
+-- should be called by an application.
+--
+widgetSetChildVisible :: WidgetClass self => self
+ -> Bool -- ^ @isVisible@ - if @True@, @widget@ should be mapped along with
+         -- its parent.
+ -> IO ()
+widgetSetChildVisible self isVisible =
+  {# call gtk_widget_set_child_visible #}
+    (toWidget self)
+    (fromBool isVisible)
+
+-- | Sets the minimum size of a widget; that is, the widget's size request
+-- will be @width@ by @height@. You can use this function to force a widget to
+-- be either larger or smaller than it normally would be.
+--
+-- In most cases, 'Graphics.UI.Gtk.Windows.Window.windowSetDefaultSize'
+-- is a better choice for toplevel
+-- windows than this function; setting the default size will still allow users
+-- to shrink the window. Setting the size request will force them to leave the
+-- window at least as large as the size request. When dealing with window
+-- sizes, 'Graphics.UI.Gtk.Windows.Window.windowSetGeometryHints' can be a
+-- useful function as well.
+--
+-- Note the inherent danger of setting any fixed size - themes, translations
+-- into other languages, different fonts, and user action can all change the
+-- appropriate size for a given widget. So, it's basically impossible to
+-- hardcode a size that will always be correct.
+--
+-- The size request of a widget is the smallest size a widget can accept
+-- while still functioning well and drawing itself correctly. However in some
+-- strange cases a widget may be allocated less than its requested size, and in
+-- many cases a widget may be allocated more space than it requested.
+--
+-- If the size request in a given direction is -1 (unset), then the
+-- \"natural\" size request of the widget will be used instead.
+--
+-- Widgets can't actually be allocated a size less than 1 by 1, but you can
+-- pass 0,0 to this function to mean \"as small as possible.\"
+--
+widgetSetSizeRequest :: WidgetClass self => self
+ -> Int   -- ^ @width@ - width @widget@ should request, or -1 to unset
+ -> Int   -- ^ @height@ - height @widget@ should request, or -1 to unset
+ -> IO ()
+widgetSetSizeRequest self width height =
+  {# call widget_set_size_request #}
+    (toWidget self)
+    (fromIntegral width)
+    (fromIntegral height)
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- %hash c:83c3 d:e6f1
+-- | Sets the 'noShowAll' property, which determines whether calls to
+-- 'widgetShowAll' and 'widgetHideAll' will affect this widget.
+--
+-- This is mostly for use in constructing widget hierarchies with externally
+-- controlled visibility, see 'UIManager'.
+--
+-- * Available since Gtk+ version 2.4
+--
+widgetSetNoShowAll :: WidgetClass self => self
+ -> Bool -- ^ @noShowAll@ - the new value for the 'noShowAll' property
+ -> IO ()
+widgetSetNoShowAll self noShowAll =
+  {# call gtk_widget_set_no_show_all #}
+    (toWidget self)
+    (fromBool noShowAll)
+
+-- %hash c:218d d:e07e
+-- | Returns the current value of the 'noShowAll' property, which
+-- determines whether calls to 'widgetShowAll' and 'widgetHideAll' will affect
+-- this widget.
+--
+-- * Available since Gtk+ version 2.4
+--
+widgetGetNoShowAll :: WidgetClass self => self
+ -> IO Bool -- ^ returns the current value of the \"no_show_all\" property.
+widgetGetNoShowAll self =
+  liftM toBool $
+  {# call gtk_widget_get_no_show_all #}
+    (toWidget self)
+
+-- %hash c:205b d:c518
+-- | Returns a list of the widgets, normally labels, for which
+-- this widget is a the target of a mnemonic (see for example,
+-- 'labelSetMnemonicWidget').
+--
+-- * Available since Gtk+ version 2.4
+--
+widgetListMnemonicLabels :: WidgetClass self => self
+ -> IO [Widget] -- ^ returns the list of mnemonic labels
+widgetListMnemonicLabels self =
+  {# call gtk_widget_list_mnemonic_labels #}
+    (toWidget self)
+  >>= fromGList
+  >>= mapM (makeNewGObject mkWidget . return)
+
+-- %hash c:eb76 d:28a2
+-- | Adds a widget to the list of mnemonic labels for this widget. (See
+-- 'widgetListMnemonicLabels'). Note the list of mnemonic labels for the widget
+-- is cleared when the widget is destroyed, so the caller must make sure to
+-- update its internal state at this point as well, by using a connection to
+-- the 'destroy' signal or a weak notifier.
+--
+-- * Available since Gtk+ version 2.4
+--
+widgetAddMnemonicLabel :: (WidgetClass self, WidgetClass label) => self
+ -> label -- ^ @label@ - a 'Widget' that acts as a mnemonic label for
+          -- @widget@.
+ -> IO ()
+widgetAddMnemonicLabel self label =
+  {# call gtk_widget_add_mnemonic_label #}
+    (toWidget self)
+    (toWidget label)
+
+-- %hash c:7831 d:d10b
+-- | Removes a widget from the list of mnemonic labels for this widget. (See
+-- 'widgetListMnemonicLabels'). The widget must have previously been added to
+-- the list with 'widgetAddMnemonicLabel'.
+--
+-- * Available since Gtk+ version 2.4
+--
+widgetRemoveMnemonicLabel :: (WidgetClass self, WidgetClass label) => self
+ -> label -- ^ @label@ - a 'Widget' that was previously set as a mnemnic label
+          -- for @widget@ with 'widgetAddMnemonicLabel'.
+ -> IO ()
+widgetRemoveMnemonicLabel self label =
+  {# call gtk_widget_remove_mnemonic_label #}
+    (toWidget self)
+    (toWidget label)
+
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:5c70 d:cbf9
+-- | Returns the 'Action' that @widget@ is a proxy for. See also
+-- 'actionGetProxies'.
+--
+-- * Available since Gtk+ version 2.10
+--
+widgetGetAction :: WidgetClass self => self
+ -> IO (Maybe Action)
+   -- ^ returns the action that a widget is a proxy for, or
+   -- @Nothing@, if it is not attached to an action.
+widgetGetAction self = do
+  ptr <- {# call gtk_widget_get_action #} (toWidget self)
+  if ptr==nullPtr then return Nothing else liftM Just $
+    makeNewGObject mkAction (return ptr)
+
+-- %hash c:7ea0 d:2560
+-- | Whether @widget@ can rely on having its alpha channel drawn correctly. On
+-- X11 this function returns whether a compositing manager is running for
+-- @widget@'s screen
+--
+-- * Available since Gtk+ version 2.10
+--
+widgetIsComposited :: WidgetClass self => self
+ -> IO Bool -- ^ returns @True@ if the widget can rely on its alpha channel
+            -- being drawn correctly.
+widgetIsComposited self =
+  liftM toBool $
+  {# call gtk_widget_is_composited #}
+    (toWidget self)
+#endif
+#endif
+
+-- | Moves a widget from one 'Container' to another.
+--
+widgetReparent :: (WidgetClass self, WidgetClass newParent) => self
+ -> newParent -- ^ @newParent@ - a 'Container' to move the widget into
+ -> IO ()
+widgetReparent self newParent =
+  {# call widget_reparent #}
+    (toWidget self)
+    (toWidget newParent)
 
 -- | Set if this widget can receive keyboard input.
 --
@@ -1164,58 +1912,22 @@ widgetSetCanFocus = objectSetPropertyBool "can_focus"
 widgetGetCanFocus :: WidgetClass self => self -> IO Bool
 widgetGetCanFocus = objectGetPropertyBool "can_focus"
 
-widgetGetColormap :: WidgetClass self => self
- -> IO Colormap -- ^ returns the colormap used by @widget@
-widgetGetColormap self =
-  makeNewGObject mkColormap $
-  {# call gtk_widget_get_colormap #}
-    (toWidget self)
-
-widgetSetColormap :: WidgetClass self => self
- -> Colormap -- ^ @colormap@ - a colormap
- -> IO ()
-widgetSetColormap self colormap =
-  {# call gtk_widget_set_colormap #}
-    (toWidget self)
-    colormap
-
-#if GTK_CHECK_VERSION(2,2,0)
--- | Get the 'Screen' from the toplevel window associated with this widget.
--- This function can only be called after the widget has been added to a widget
--- hierarchy with a 'Window' at the top.
---
--- In general, you should only create screen specific resources when a
--- widget has been realized, and you should free those resources when the
--- widget is unrealized.
---
--- * Available since Gtk+ version 2.2
---
-widgetGetScreen :: WidgetClass self => self
- -> IO Screen -- ^ returns the 'Screen' for the toplevel for this widget.
-widgetGetScreen self =
-  makeNewGObject mkScreen $
-    {# call gtk_widget_get_screen #}
-      (toWidget self)
-#endif
-
 --------------------
 -- Attributes
 
 -- %hash c:6f7f d:9384
 -- | The name of the widget.
 --
--- Default value: {@NULL@, FIXME: this should probably be converted to a
--- Maybe data type}
+-- Default value: @Nothing@
 --
-widgetName :: WidgetClass self => Attr self String
-widgetName = newAttrFromStringProperty "name"
+widgetName :: WidgetClass self => Attr self (Maybe String)
+widgetName = newAttrFromMaybeStringProperty "name"
 
 -- %hash c:1533 d:3213
 -- | The parent widget of this widget. Must be a Container widget.
 --
-widgetParent :: (WidgetClass self, ContainerClass container) => ReadWriteAttr self Container container
-widgetParent = newAttrFromObjectProperty "parent"
-                 {# call pure unsafe gtk_container_get_type #}
+widgetParent :: (WidgetClass self, ContainerClass container) => ReadWriteAttr self (Maybe Container) (Maybe container)
+widgetParent = newAttrFromMaybeObjectProperty "parent" gTypeContainer
 
 -- %hash c:2b4c d:3c31
 -- | Override for width request of the widget, or -1 if natural request should
@@ -1324,8 +2036,7 @@ widgetCompositeChild = readAttrFromBoolProperty "composite-child"
 -- look (colors etc).
 --
 widgetStyle :: WidgetClass self => Attr self Style
-widgetStyle = newAttrFromObjectProperty "style"
-                {# call pure unsafe gtk_style_get_type #}
+widgetStyle = newAttrFromObjectProperty "style" gTypeStyle
 
 -- %hash c:e2a4 d:9296
 -- | The event mask that decides what kind of GdkEvents this widget gets.
@@ -1354,6 +2065,23 @@ widgetExtensionEvents = newAttr
 widgetNoShowAll :: WidgetClass self => Attr self Bool
 widgetNoShowAll = newAttrFromBoolProperty "no-show-all"
 
+-- %hash c:cd8d d:59b2
+-- | \'childVisible\' property. See 'widgetGetChildVisible' and
+-- 'widgetSetChildVisible'
+--
+widgetChildVisible :: WidgetClass self => Attr self Bool
+widgetChildVisible = newAttr
+  widgetGetChildVisible
+  widgetSetChildVisible
+
+-- %hash c:a20a d:646f
+-- | \'colormap\' property. See 'widgetGetColormap' and 'widgetSetColormap'
+--
+widgetColormap :: WidgetClass self => Attr self Colormap
+widgetColormap = newAttr
+  widgetGetColormap
+  widgetSetColormap
+
 -- %hash c:a7fd d:55b8
 -- | \'compositeName\' property. See 'widgetGetCompositeName' and
 -- 'widgetSetCompositeName'
@@ -1371,27 +2099,421 @@ widgetDirection = newAttr
   widgetGetDirection
   widgetSetDirection
 
--- | The sensitivity of a widget. A widget is sensitive if the user can
--- interact with it. Insensitive widgets are \"grayed out\" and the user can't
--- interact with them. Insensitive widgets are known as \"inactive\",
--- \"disabled\", or \"ghosted\" in some other toolkits.
---
-widgetSensitivity :: WidgetClass self => WriteAttr self Bool
-widgetSensitivity = writeAttr
-  widgetSetSensitivity
-
 --------------------
 -- Signals
+
+
+-- %hash c:4cf5 d:af3f
+-- | The widget appears on screen.
+--
+mapSignal :: WidgetClass self => Signal self (IO ())
+mapSignal = Signal (connect_NONE__NONE "map")
+
+-- %hash c:e33e d:af3f
+-- | The widget disappears from the screen.
+--
+unmapSignal :: WidgetClass self => Signal self (IO ())
+unmapSignal = Signal (connect_NONE__NONE "unmap")
+
+-- %hash c:1f7f d:af3f
+-- | The widget should allocate any resources needed, in particular, the
+--   widget's 'DrawWindow' is created. If you connect to this signal and
+--   you rely on some of these resources to be present, you have to use
+--   'System.Glib.Signals.after'.
+--
+realize :: WidgetClass self => Signal self (IO ())
+realize = Signal (connect_NONE__NONE "realize")
+
+-- %hash c:7948 d:af3f
+-- | The widget should deallocate any resources. This signal is emitted before
+-- the widget is destroyed.
+--
+unrealize :: WidgetClass self => Signal self (IO ())
+unrealize = Signal (connect_NONE__NONE "unrealize")
+
+-- %hash c:9f6f d:af3f
+-- | Query the widget for the size it likes to
+-- have.
+--
+-- * A parent container emits this signal to its child to query the needed
+--   height and width of the child. There is not guarantee that the widget
+--   will actually get this area.
+--
+sizeRequest :: WidgetClass self => Signal self (IO Requisition)
+sizeRequest = Signal (\after w fun ->
+  connect_PTR__NONE "size_request" after w
+    (\rqPtr -> fun >>= \req -> unless (rqPtr==nullPtr) $ poke rqPtr req))
+
+-- %hash c:8ec5 d:af3f
+-- | Inform widget about the size it has.
+--
+-- * After querying a widget for the size it wants to have (through emitting
+--   the @\"sizeRequest\"@ signal) a container will emit this signal to
+--   inform the widget about the real size it should occupy.
+--
+sizeAllocate :: WidgetClass self => Signal self (Allocation -> IO ())
+sizeAllocate = Signal (connect_BOXED__NONE "size_allocate" peek)
+
+-- %hash c:ae3e d:af3f
+-- | The widget is shown.
+--
+showSignal :: WidgetClass self => Signal self (IO ())
+showSignal = Signal (connect_NONE__NONE "show")
+
+-- %hash c:f589 d:af3f
+-- | The widget is hidden.
+--
+hideSignal :: WidgetClass self => Signal self (IO ())
+hideSignal = Signal (connect_NONE__NONE "hide")
+
+-- %hash c:a285 d:af3f
+-- | The widget gains focus via the given user action.
+--
+focus :: WidgetClass self => Signal self (DirectionType -> IO Bool)
+focus = Signal (connect_ENUM__BOOL "focus")
+
+-- %hash c:78ae d:af3f
+-- | The state of the widget (input focus, insensitive, etc.) has changed.
+--
+stateChanged :: WidgetClass self => Signal self (StateType -> IO ())
+stateChanged = Signal (connect_ENUM__NONE "state_changed")
+
+-- %hash c:bef2 d:1d66
+-- | The parent-set signal is emitted when a new parent has been set on a
+-- widget. The parameter is the new parent.
+--
+parentSet :: WidgetClass self => Signal self (Widget -> IO ())
+parentSet = Signal (connect_OBJECT__NONE "parent_set")
+
+-- %hash c:7e2b d:4049
+-- | Emitted when there is a change in the hierarchy to which a widget belong.
+-- More precisely, a widget is anchored when its toplevel ancestor is a
+-- 'Window'. This signal is emitted when a widget changes from un-anchored to
+-- anchored or vice-versa.
+--
+hierarchyChanged :: WidgetClass self => Signal self (Widget -> IO ())
+hierarchyChanged = Signal (connect_OBJECT__NONE "hierarchy_changed")
+
+-- %hash c:5894 d:ba10
+-- | The style-set signal is emitted when a new style has been set on a
+-- widget. Note that style-modifying functions like 'widgetModifyBase' also
+-- cause this signal to be emitted.
+--
+styleSet :: WidgetClass self => Signal self (Style -> IO ())
+styleSet = Signal (connect_OBJECT__NONE "style_set")
+
+-- %hash c:6bb1 d:af3f
+-- | The default direction of text writing has changed.
+--
+directionChanged :: WidgetClass self => Signal self (TextDirection -> IO ())
+directionChanged = Signal (connect_ENUM__NONE "direction_changed")
+
+-- %hash c:c28c d:d116
+-- | The 'grabNotify' signal is emitted when a widget becomes shadowed by a
+-- Gtk+ grab (not a pointer or keyboard grab) on another widget, or when it
+-- becomes unshadowed due to a grab being removed.
+--
+-- A widget is shadowed by a 'grabAdd' when the topmost grab widget in the
+-- grab stack of its window group is not its ancestor.
+--
+grabNotify :: WidgetClass self => Signal self (Bool -> IO ())
+grabNotify = Signal (connect_BOOL__NONE "grab_notify")
+
+-- %hash c:e06c d:a681
+-- | This signal gets emitted whenever a widget should pop up a
+-- context-sensitive menu. This usually happens through the standard key
+-- binding mechanism; by pressing a certain key while a widget is focused, the
+-- user can cause the widget to pop up a menu. For example, the 'Entry' widget
+-- creates a menu with clipboard commands.
+--
+popupMenuSignal :: WidgetClass self => Signal self (IO Bool)
+popupMenuSignal = Signal (connect_NONE__BOOL "popup_menu")
+
+-- | Specify what kind of help the user wants.
+{#enum GtkWidgetHelpType as WidgetHelpType {underscoreToCase} deriving (Eq,Show) #}
+
+-- %hash c:b18e d:af3f
+-- | Tell the widget to show an explanatory help text. Should return @True@
+--   if help has been shown.
+--
+showHelp :: WidgetClass self => Signal self (WidgetHelpType -> IO Bool)
+showHelp = Signal (connect_ENUM__BOOL "show_help")
+
+-- %hash c:6a8f d:af3f
+-- | The set of keyboard accelerators has changed.
+--
+accelClosuresChanged :: WidgetClass self => Signal self (IO ())
+accelClosuresChanged = Signal (connect_NONE__NONE "accel_closures_changed")
+
+-- %hash c:5ca d:af3f
+-- | The widget moved to a new screen.
+--
+screenChanged :: WidgetClass self => Signal self (Screen -> IO ())
+screenChanged = Signal (connect_OBJECT__NONE "screen_changed")
+
+-- * Events
+--
+-- An event is a signal that indicates that some low-level interaction like a
+-- button or key press, mouse movement, etc. has occurred. In particular,
+-- events relate to operations on 'DrawWindow's which are a concept of the
+-- underlying OS rather than the logical widget concept. Some widgets have no
+-- window and use their parent to receive these events. Widgets normally
+-- synthesize more sophistiacted signals from events. For instance, the
+-- 'focusIn' and a 'focusOut' signal indicate that the widget gains or looses
+-- the input focus. From these events a 'focus' signal is synthesized that
+-- indicates what maneuver lead to the input focus change (i.e. a tab or
+-- shift-tab key press).
+--
+-- For applications it is often sufficient to connect to the high-level
+-- signals rather than the low-level events. Only in cases where a custom
+-- widget is built based on the 'DarwingArea' skeleton, the functionality of
+-- such an application-specific widget needs to be implemented using events.
+--
+-- Every event is passed an 'Event' structure that contains the data of the
+-- event. The return value should be @True@ if the handler has dealt with the
+-- event and @False@ if the event should be propagated further. For instance,
+-- if a key press event that isn't meaningful in the widget, the handler can
+-- return @False@ such that the key is handled by the other widgets (the main
+-- menu, for instance).
+--
+
 
 -- Because there are so many similar signals (those that take an Event and
 -- return a Bool) we will abstract out the skeleton. As some of these events
 -- are emitted at a high rate often a bit has to be set to enable emission.
+
+
 event :: WidgetClass w => SignalName -> [EventMask] ->
   ConnectAfter -> w -> (Event -> IO Bool) -> IO (ConnectId w)
 event name eMask after obj fun = do
   id <- connect_BOXED__BOOL name marshalEvent after obj fun
   widgetAddEvents obj eMask
   return id
+
+-- %hash c:6cc d:af3f
+-- | A mouse button has been depressed while the mouse pointer was within the
+-- widget area. Sets the widget's 'ButtonPressMask' flag.
+--
+buttonPressEvent :: WidgetClass self => Signal self (EventButton -> IO Bool)
+buttonPressEvent = Signal (event "button_press_event" [ButtonPressMask])
+
+-- %hash c:62e8 d:af3f
+-- | A mouse button has been released. Sets the widget's 'ButtonReleaseMask'
+-- flag.
+--
+buttonReleaseEvent :: WidgetClass self => Signal self (EventButton -> IO Bool)
+buttonReleaseEvent = Signal (event "button_release_event" [ButtonReleaseMask])
+
+-- %hash c:23e5 d:af3f
+-- | The scroll wheel of the mouse has been used.  Sets the widget's
+-- 'ScrollMask' flag.
+--
+scrollEvent :: WidgetClass self => Signal self (EventScroll -> IO Bool)
+scrollEvent = Signal (event "scroll_event" [ScrollMask])
+
+-- %hash c:ee92 d:af3f
+-- | The mouse pointer has moved. Since receiving all mouse movements is
+--   expensive, it is necessary to specify exactly what mouse motions are
+--   required by calling 'widgetAddEvents' on this widget with one or more of
+--   the following flags:
+--
+--   * 'PointerMotionMask': Track all movements.
+--   * 'ButtonMotionMask': Only track movements if a button is depressed.
+--   * 'Button1MotionMask': Only track movments if the left button is depressed.
+--   * 'Button2MotionMask': Only track movments if the middle button is depressed.
+--   * 'Button3MotionMask': Only track movments if the right button is depressed.
+--
+--   If the application cannot respond quickly enough to all mouse motions,
+--   it is possible to only receive motion signals on request. In this case,
+--   you need to add 'PointerMotionHintMask' to the flags above and call
+--   'Graphics.UI.Gtk.Gdk.DrawWindow.drawWindowGetPointer' each time a
+--   motion even is received. Motion events will then be delayed until the
+--   function is called.
+--
+motionNotifyEvent :: WidgetClass self => Signal self (EventMotion -> IO Bool)
+motionNotifyEvent = Signal (event "motion_notify_event" [])
+
+-- %hash c:8783 d:3e27
+-- | The 'deleteEvent' signal is emitted if a user requests that a toplevel
+-- window is closed. The default handler for this signal destroys the window.
+-- Calling 'widgetHide' and returning @True@ on reception of this signal will
+-- cause the window to be hidden instead, so that it can later be shown again
+-- without reconstructing it.
+--
+deleteEvent :: WidgetClass self => Signal self (Event -> IO Bool)
+deleteEvent = Signal (event "delete_event" [])
+
+-- %hash c:c408 d:5514
+-- | The 'destroyEvent' signal is emitted when a 'DrawWindow' is destroyed.
+-- You rarely get this signal, because most widgets disconnect themselves from
+-- their window before they destroy it, so no widget owns the window at
+-- destroy time.
+--
+destroyEvent :: WidgetClass self => Signal self (Event -> IO Bool)
+destroyEvent = Signal (event "destroy_event" [])
+
+-- %hash c:c79e d:af3f
+
+-- | Instructs the widget to redraw.
+--
+-- * This event is useful for the 'DrawingArea'. On receiving this signal
+--   the content of the passed 'Rectangle' or 'Region' needs to be redrawn.
+--   If a client will redraw the whole area and is not interested in the
+--   extra information in 'Expose', it is more efficient
+--   to use 'exposeEventRect'.
+--
+-- * Widgets that are very expensive to re-render, such as an image editor,
+--   may prefer to use the 'exposeEvent' which delivers a
+--   'Region' in addition to a 'Rectangle'. A 'Region' consists of several
+--   rectangles that need redrawing.
+--
+exposeEvent :: WidgetClass self => Signal self (EventExpose -> IO Bool)
+exposeEvent = Signal (event "expose_event" [])
+
+-- %hash c:5ccd d:af3f
+-- | A key has been depressed. Sets the widget's 'KeyPressMask' flag.
+--
+keyPressEvent :: WidgetClass self => Signal self (EventKey -> IO Bool)
+keyPressEvent = Signal (event "key_press_event" [KeyPressMask])
+
+-- %hash c:bd29 d:af3f
+-- | A key has been released. Sets the widget's 'KeyReleaseMask' flag.
+--
+keyReleaseEvent :: WidgetClass self => Signal self (EventKey -> IO Bool)
+keyReleaseEvent = Signal (event "key_release_event" [KeyReleaseMask])
+
+-- %hash c:602e d:af3f
+-- | The mouse pointer has entered the widget. Sets the widget's
+-- 'EnterNotifyMask' flag.
+--
+enterNotifyEvent :: WidgetClass self => Signal self (EventCrossing -> IO Bool)
+enterNotifyEvent = Signal (event "enter_notify_event" [EnterNotifyMask])
+
+-- %hash c:3bfb d:af3f
+-- | The mouse pointer has left the widget. Sets the widget's
+-- 'LeaveNotifyMask' flag.
+--
+leaveNotifyEvent :: WidgetClass self => Signal self (EventCrossing -> IO Bool)
+leaveNotifyEvent = Signal (event "leave_notify_event" [LeaveNotifyMask])
+
+-- %hash c:2b64 d:af3f
+-- | The size of the window has changed.
+--
+configureEvent :: WidgetClass self => Signal self (EventConfigure -> IO Bool)
+configureEvent = Signal (event "configure_event" [])
+
+-- %hash c:427e d:af3f
+-- | The widget gets the input focus.  Sets the widget's 'FocusChangeMask' flag.
+--
+focusInEvent :: WidgetClass self => Signal self (EventFocus -> IO Bool)
+focusInEvent = Signal (event "focus_in_event" [FocusChangeMask])
+
+-- %hash c:5281 d:af3f
+-- | The widget lost the input focus. Sets the widget's 'FocusChangeMask' flag.
+--
+focusOutEvent :: WidgetClass self => Signal self (EventFocus -> IO Bool)
+focusOutEvent = Signal (event "focus_out_event" [FocusChangeMask])
+
+-- %hash c:63c4 d:af3f
+-- | The window is put onto the screen.
+--
+mapEvent :: WidgetClass self => Signal self (Event -> IO Bool)
+mapEvent = Signal (event "map_event" [])
+
+-- %hash c:342d d:af3f
+-- | The window is taken off the screen.
+--
+unmapEvent :: WidgetClass self => Signal self (Event -> IO Bool)
+unmapEvent = Signal (event "unmap_event" [])
+
+-- %hash c:a1dd d:af3f
+-- | A 'DrawWindow' may be associated with a set of properties that are
+-- identified by a 'PropertyTag'. This event is triggered if a property is
+-- changed or deleted. Sets the widget's 'PropertyChangeMask' flag.
+--
+propertyNotifyEvent :: WidgetClass self => Signal self (EventProperty -> IO Bool)
+propertyNotifyEvent = Signal (event "property_notify_event" [PropertyChangeMask])
+{- not sure if these are useful
+-- %hash c:58cc d:af3f
+-- | 
+--
+selectionClearEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} -> IO Bool)
+selectionClearEvent = Signal (connect_{-GdkEventSelection*-}__BOOL "selection_clear_event")
+
+-- %hash c:4f92 d:af3f
+-- |
+--
+selectionRequestEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} -> IO Bool)
+selectionRequestEvent = Signal (connect_{-GdkEventSelection*-}__BOOL "selection_request_event")
+
+-- %hash c:b842 d:af3f
+-- |
+--
+selectionNotifyEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} -> IO Bool)
+selectionNotifyEvent = Signal (connect_{-GdkEventSelection*-}__BOOL "selection_notify_event")
+-}
+
+-- %hash c:b027 d:af3f
+-- | The pen of a graphics tablet was put down. Sets the widget's
+-- 'ProximityInMask' flag.
+--
+proximityInEvent :: WidgetClass self => Signal self (EventProximity -> IO Bool)
+proximityInEvent = Signal (event "proximity_in_event" [ProximityInMask])
+
+-- %hash c:faca d:af3f
+-- | The pen of a graphics tablet was lifted off the tablet. Sets the widget's
+-- 'ProximityOutMask' flag.
+--
+proximityOutEvent :: WidgetClass self => Signal self (EventProximity -> IO Bool)
+proximityOutEvent = Signal (event "proximity_out_event" [ProximityOutMask])
+
+-- %hash c:db2c d:af3f
+-- | Emitted when the window visibility status has changed. Sets the widget's
+-- 'VisibilityNotifyMask' flag.
+--
+visibilityNotifyEvent :: WidgetClass self => Signal self (EventVisibility -> IO Bool)
+visibilityNotifyEvent = Signal (event "visibility_notify_event" [VisibilityNotifyMask])
+{-
+-- %hash c:3f5 d:af3f
+-- |
+--
+clientEvent :: WidgetClass self => Signal self ({-GdkEventClient*-} -> IO Bool)
+clientEvent = Signal (connect_{-GdkEventClient*-}__BOOL "client_event")
+-}
+
+-- %hash c:643c d:af3f
+-- | Generated when the area of a 'Drawable' being copied using, e.g.
+-- 'Graphics.UI.Gtk.Gdk.Drawable.drawDrawable', is completely available.
+--
+noExposeEvent :: WidgetClass self => Signal self (Event -> IO Bool)
+noExposeEvent = Signal (event "no_expose_event" [])
+
+-- %hash c:63b6 d:af3f
+-- | Emitted when the state of the window changes, i.e. when it is minimized,
+-- moved to the top, etc.
+--
+windowStateEvent :: WidgetClass self => Signal self (EventWindowState -> IO Bool)
+windowStateEvent = Signal (event "window_state_event" [])
+
+#if GTK_CHECK_VERSION(2,8,0)
+-- %hash c:502a d:e47a
+-- | Emitted when a pointer or keyboard grab on a window belonging to @widget@
+-- gets broken.
+--
+-- On X11, this happens when the grab window becomes unviewable (i.e. it or
+-- one of its ancestors is unmapped), or if the same application grabs the
+-- pointer or keyboard again.
+--
+-- * Available since Gtk+ version 2.8
+--
+grabBrokenEvent :: WidgetClass self => Signal self (EventGrabBroken -> IO Bool)
+grabBrokenEvent = Signal (event "grab_broken_event" [])
+#endif
+
+--------------------
+-- Deprecated Signals and Events
+
+#ifndef DISABLE_DEPRECATED
 
 -- | A Button was pressed.
 --
@@ -1723,4 +2845,4 @@ onWindowState, afterWindowState :: WidgetClass w => w -> (Event -> IO Bool) ->
                                    IO (ConnectId w)
 onWindowState = event "window_state_event" [] False
 afterWindowState = event "window_state_event" [] True
-
+#endif

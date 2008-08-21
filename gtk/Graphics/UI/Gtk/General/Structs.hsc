@@ -562,9 +562,9 @@ toolbarChildRadioButton  = #const GTK_TOOLBAR_CHILD_RADIOBUTTON
 
 -- | The size of an icon in pixels.
 --
-data IconSize =
+data IconSize
   -- | Don't scale but use any of the available sizes.
-  IconSizeInvalid
+  = IconSizeInvalid
 
   -- | Icon size to use in next to menu items in drop-down menus.
   | IconSizeMenu
@@ -584,7 +584,7 @@ data IconSize =
   -- | Icon size for icons next to dialog text.
   | IconSizeDialog
   deriving (Show, Eq, Enum)
-
+                             
 -- entry Widget Combo
 
 #ifndef DISABLE_DEPRECATED

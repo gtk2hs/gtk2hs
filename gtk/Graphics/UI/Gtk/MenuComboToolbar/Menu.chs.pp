@@ -167,7 +167,7 @@ menuPopup :: MenuClass self => self -- ^ The menu to be shown.
   -> Maybe (MouseButton, TimeStamp)
   -- ^ The mouse button from the 'Graphics.UI.Gtk.Gdk.Events.Button' event and
   -- the time of the event. These values are used to match the corresponding
-  -- relase of the button. If this context menu is shown by programmatic
+  -- release of the button. If this context menu is shown by programmatic
   -- means, supply @Nothing@.
   -> IO ()
 menuPopup self (Just (b,t)) =

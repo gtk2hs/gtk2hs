@@ -29,6 +29,7 @@ module Graphics.UI.Gtk.General.DNDTypes (
   InfoId,
   TargetTag(TargetTag),
   SelectionTag(SelectionTag),
+  PropertyTag(PropertyTag),
   TargetList(TargetList),
   SelectionData,
   SelectionDataM,
@@ -63,6 +64,14 @@ newtype SelectionTag = SelectionTag (Ptr ()) deriving Eq
 
 instance Show SelectionTag where
   show (SelectionTag ptr) = atomToString ptr
+
+-- | A tag that uniquely identifies a property of a
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow'.
+--
+newtype PropertyTag = PropertyTag (Ptr ()) deriving Eq
+
+instance Show PropertyTag where
+  show (PropertyTag ptr) = atomToString ptr
 
 atomToString ptr = unsafePerformIO $ do
 	strPtr <- {#call unsafe gdk_atom_name#} ptr

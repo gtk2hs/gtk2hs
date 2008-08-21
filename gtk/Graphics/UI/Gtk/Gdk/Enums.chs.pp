@@ -74,7 +74,7 @@ instance Flags DragAction
 --
 {#enum RgbDither as Dither {underscoreToCase} deriving(Eq,Show) #}
 
--- | specify which events a widget will emit signals on
+-- | Specify which events a widget will emit signals on.
 --
 {#enum EventMask {underscoreToCase} deriving(Eq,Bounded,Show)#}
 

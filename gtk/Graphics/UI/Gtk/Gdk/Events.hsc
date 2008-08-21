@@ -29,6 +29,20 @@ module Graphics.UI.Gtk.Gdk.Events (
   TimeStamp,
   currentTime,
   Event(..),		-- information in event callbacks from Gdk
+  EventButton,
+  EventScroll,
+  EventMotion,
+  EventExpose,
+  EventKey,
+  EventConfigure,
+  EventCrossing,
+  EventFocus,
+  EventProperty,
+  EventProximity,
+  EventVisibility,
+  EventWindowState,
+  EventGrabBroken,
+
   marshExposeRect,
 
   -- selector functions
@@ -98,6 +112,46 @@ type TimeStamp = Word32
 -- | Represents the current time, and can be used anywhere a time is expected.
 currentTime :: TimeStamp
 currentTime = #{const GDK_CURRENT_TIME}
+
+-- | An event that contains information on a button press.
+type EventButton = Event
+
+-- | An event that contains information on scrolling.
+type EventScroll = Event
+
+-- | An event that contains information on the movement of the mouse pointer.
+type EventMotion = Event
+
+-- | An area of the 'DrawWindow' needs redrawing.
+type EventExpose = Event
+
+-- | An event that contains information about a key press.
+type EventKey = Event
+
+-- | An event that contains the new size of a window.
+type EventConfigure = Event
+
+-- | Generated when the pointer enters or leaves a window.
+type EventCrossing = Event
+
+-- | An event that informs about a change of the input focus.
+type EventFocus = Event
+
+-- | An event that indicates a property of the window changed.
+type EventProperty = Event
+
+-- | An event that indicates that the pen of a graphics table is touching or
+--   not touching the tablet.
+type EventProximity = Event
+
+-- | Parts of the window have been exposed or obscured.
+type EventVisibility = Event
+
+-- | The window state has changed.
+type EventWindowState = Event
+
+-- | A grab has been broken by unusual means.
+type EventGrabBroken = Event
 
 -- | Events that are delivered to a widget.
 --

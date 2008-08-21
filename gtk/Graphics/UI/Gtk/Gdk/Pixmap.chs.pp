@@ -44,6 +44,7 @@ module Graphics.UI.Gtk.Gdk.Pixmap (
 
 -- * Types
   Pixmap, PixmapClass, 
+  Bitmap,
 
 -- * Constructors
   pixmapNew
@@ -56,6 +57,11 @@ import System.Glib.GObject           (constructNewGObject)
 import Graphics.UI.Gtk.Gdk.Drawable  (Drawable, DrawableClass(..))
 
 {# context lib="gdk" prefix="gdk" #}
+
+-- | A 'Bitmap' is a special 'Pixmap' in that the number of bits per pixel
+--   is one, that is, a pixel is either set or unset. Whenever a function
+--   expects a 'Bitmap', a 'Pixmap' of depth one must be supplied.
+type Bitmap = Pixmap
 
 -- | Create a new pixmap.
 --
