@@ -60,6 +60,7 @@ module System.Glib.GValueTypes (
   valueSetGObject,
   valueGetGObject,
   valueSetMaybeGObject,
+  valueGetMaybeGObject,
   ) where
 
 import Control.Monad	(liftM)
@@ -222,11 +223,6 @@ valueSetGObject gvalue obj =
   withForeignPtr ((unGObject.toGObject) obj) $ \objPtr ->
     {# call unsafe g_value_set_object #} gvalue (castPtr objPtr)
 
-valueSetMaybeGObject :: GObjectClass gobj => GValue -> (Maybe gobj) -> IO ()
-valueSetMaybeGObject gvalue (Just obj) = valueSetGObject gvalue obj
-valueSetMaybeGObject gvalue Nothing =
-    {# call unsafe g_value_set_object #} gvalue nullPtr
-
 -- Unsafe because it performs an unchecked downcast. Only for internal use.
 --
 valueGetGObject :: GObjectClass gobj => GValue -> IO gobj
@@ -234,5 +230,17 @@ valueGetGObject gvalue =
   liftM unsafeCastGObject $
   makeNewGObject mkGObject $
   throwIfNull "GValue.valueGetObject: extracting invalid object" $
+  liftM castPtr $
+  {# call unsafe value_get_object #} gvalue
+
+valueSetMaybeGObject :: GObjectClass gobj => GValue -> (Maybe gobj) -> IO ()
+valueSetMaybeGObject gvalue (Just obj) = valueSetGObject gvalue obj
+valueSetMaybeGObject gvalue Nothing =
+    {# call unsafe g_value_set_object #} gvalue nullPtr
+
+valueGetMaybeGObject :: GObjectClass gobj => GValue -> IO (Maybe gobj)
+valueGetMaybeGObject gvalue =
+  liftM (liftM unsafeCastGObject) $
+  maybeNull (makeNewGObject mkGObject) $
   liftM castPtr $
   {# call unsafe value_get_object #} gvalue

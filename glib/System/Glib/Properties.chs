@@ -81,7 +81,8 @@ module System.Glib.Properties (
   newAttrFromBoxedStorableProperty,
   newAttrFromObjectProperty,
   writeAttrFromObjectProperty,
-
+  newAttrFromMaybeObjectProperty,
+  
   -- TODO: do not export these once we dump the old TreeList API:
   objectGetPropertyInternal,
   objectSetPropertyInternal,
@@ -213,6 +214,12 @@ objectSetPropertyGObject gtype = objectSetPropertyInternal gtype valueSetGObject
 objectGetPropertyGObject :: (GObjectClass gobj, GObjectClass gobj') => GType -> String -> gobj -> IO gobj'
 objectGetPropertyGObject gtype = objectGetPropertyInternal gtype valueGetGObject
 
+objectSetPropertyMaybeGObject :: (GObjectClass gobj, GObjectClass gobj') => GType -> String -> gobj -> (Maybe gobj') -> IO ()
+objectSetPropertyMaybeGObject gtype = objectSetPropertyInternal gtype valueSetMaybeGObject
+
+objectGetPropertyMaybeGObject :: (GObjectClass gobj, GObjectClass gobj') => GType -> String -> gobj -> IO (Maybe gobj')
+objectGetPropertyMaybeGObject gtype = objectGetPropertyInternal gtype valueGetMaybeGObject
+
 
 -- Convenience functions to make attribute implementations in the other modules
 -- shorter and more easily extensible.
@@ -306,6 +313,10 @@ newAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClas
 newAttrFromObjectProperty propName gtype =
   newAttr (objectGetPropertyGObject gtype propName) (objectSetPropertyGObject gtype propName)
 
+newAttrFromMaybeObjectProperty :: (GObjectClass gobj, GObjectClass gobj', GObjectClass gobj'') => String -> GType -> ReadWriteAttr gobj (Maybe gobj') (Maybe gobj'')
+newAttrFromMaybeObjectProperty propName gtype =
+  newAttr (objectGetPropertyMaybeGObject gtype propName) (objectSetPropertyMaybeGObject gtype propName)
+ 
 writeAttrFromObjectProperty :: (GObjectClass gobj, GObjectClass gobj') => String -> GType -> WriteAttr gobj gobj'
 writeAttrFromObjectProperty propName gtype =
   writeAttr (objectSetPropertyGObject gtype propName)
