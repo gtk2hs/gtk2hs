@@ -28,28 +28,7 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module Media.Streaming.GStreamer.Core.Constants (
-  ClockTime,
-  clockTimeNone,
-  second,
-  msecond,
-  usecond,
-  nsecond,
-  BufferOffset,
-  bufferOffsetNone,
-  ObjectFlags(..),
-  PadFlags(..),
-  ElementFlags(..),
-  StateChange(..),
-  BusFlags(..),
-  ClockFlags(..),
-  IndexFlags(..),
-  MiniObjectFlags(..),
-  BufferFlags(..),
-  EventType(..),
-  MessageType(..),
-  CapsFlags(..),
-  ) where
+module Media.Streaming.GStreamer.Core.Constants where
 
 import Data.Word
 import System.Glib.Flags
