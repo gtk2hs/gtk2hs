@@ -422,17 +422,20 @@ clockIDUnschedule :: ClockID -- ^ @clockID@
 clockIDUnschedule clockID =
     withClockID clockID $ {# call clock_id_unschedule #} . castPtr
 
+-- | The amount of time, in nanoseconds, between samples.
 clockTimeout :: ClockClass clockT
              => Attr clockT ClockTime
 clockTimeout = newAttr
     (objectGetPropertyUInt64 "timeout")
     (objectSetPropertyUInt64 "timeout")
 
+-- | The size of the window used to calculate rate and offset.
 clockWindowSize :: ClockClass clockT
                 => Attr clockT Int
 clockWindowSize =
     newAttrFromIntProperty "window-size"
 
+-- | The threshold to start calculating rate and offset.
 clockWindowThreshold :: ClockClass clockT
                      => Attr clockT Int
 clockWindowThreshold =
