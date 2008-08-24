@@ -40,7 +40,6 @@ module Media.Streaming.GStreamer.Core.Format (
   formatToQuark,
   formatRegister,
   formatGetByNick,
-  formatsContains,
   formatGetDetails,
   formatIterateDefinitions
   
@@ -55,47 +54,48 @@ import System.Glib.FFI
 import System.Glib.UTFString
 {#import System.Glib.GObject#}
 
-formatGetName :: Format
-              -> IO String
+-- | Get a printable name for the given format.
+formatGetName :: Format    -- ^ @format@ - a format
+              -> IO String -- ^ the name of the format
 formatGetName format =
     peekUTFString $
         ({# call fun format_get_name #} $
              fromIntegral $ fromFormat format)
 
-formatToQuark :: Format
-              -> IO Quark
+-- | Get the unique quark for the given format.
+formatToQuark :: Format   -- ^ @format@ - a format
+              -> IO Quark -- ^ the unique quark for the format
 formatToQuark =
     {# call format_to_quark #} . fromIntegral . fromFormat
 
-formatRegister :: String
-               -> String
-               -> IO Format
+-- | Create a new format based on the given nickname, or register a new format with that nickname.
+formatRegister :: String    -- ^ @nick@ - the nickname for the format
+               -> String    -- ^ @description@ - the description for the format
+               -> IO Format -- ^ the format with the given nickname
 formatRegister nick description =
     liftM (toFormat . fromIntegral) $
         withUTFString nick $ \cNick ->
             (withUTFString description $
                  {# call format_register #} cNick)
 
-formatGetByNick :: String
-                -> IO Format
+-- | Get the format with the given nickname, or 'FormatUndefined' if
+--   no format by that nickname was found.
+formatGetByNick :: String    -- ^ @nick@ - the nickname for the format
+                -> IO Format -- ^ the format with the given nickname,
+                             --   or 'FormatUndefined' if it was not found
 formatGetByNick nick =
     liftM (toFormat . fromIntegral) $
         withUTFString nick {# call format_get_by_nick #}
 
-formatsContains :: [Format]
-                -> Format
-                -> IO Bool
-formatsContains formats format =
-    liftM toBool $ 
-        withArray0 0 (map cFromEnum formats) $ \cFormats ->
-            {# call formats_contains #} cFormats $ cFromEnum format
-
-formatGetDetails :: Format
-                 -> IO FormatDefinition
+-- | Get the given format's definition.
+formatGetDetails :: Format                      -- ^ @format@ - a format
+                 -> IO (Maybe FormatDefinition) -- ^ the definition for the given format, or 
+                                                --   'Nothing' if the format was not found
 formatGetDetails format =
     ({# call format_get_details #} $ fromIntegral $ fromFormat format) >>=
         maybePeek peek . castPtr
 
+-- | Get an Iterator over all registered formats.
 formatIterateDefinitions :: IO (Iterator FormatDefinition)
 formatIterateDefinitions =
     {# call format_iterate_definitions #} >>= takeIterator
