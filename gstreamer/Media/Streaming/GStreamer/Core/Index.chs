@@ -160,7 +160,7 @@ indexAddFormat :: IndexClass index
 indexAddFormat index id format =
     {# call index_add_format #} (toIndex index)
                                 (fromIntegral id)
-                                (cFromEnum format) >>=
+                                (fromIntegral $ fromFormat format) >>=
         peekIndexEntry
 
 indexAddAssociations :: IndexClass index
@@ -201,7 +201,7 @@ indexGetAssocEntry index id method flags format value =
                                      (fromIntegral id)
                                      (cFromEnum method)
                                      (fromIntegral $ fromFlags flags)
-                                     (cFromEnum format)
+                                     (fromIntegral $ fromFormat format)
                                      (fromIntegral value) >>=
         maybePeek peekIndexEntry
 
@@ -211,7 +211,7 @@ indexEntryAssocMap :: IndexEntry
 indexEntryAssocMap entry format =
     unsafePerformIO $ alloca $ \valuePtr ->
         do result <- {# call gst_index_entry_assoc_map #} entry
-                                                          (cFromEnum format)
+                                                          (fromIntegral $ fromFormat format)
                                                           valuePtr
            if toBool result
                then liftM (Just . fromIntegral) $ peek valuePtr

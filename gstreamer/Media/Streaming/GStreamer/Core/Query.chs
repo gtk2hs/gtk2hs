@@ -110,7 +110,7 @@ queryNewConvert :: Format
                 -> Format
                 -> IO Query
 queryNewConvert srcFormat value destFormat =
-    {# call query_new_convert #} (cFromEnum srcFormat)
+    {# call query_new_convert #} (fromIntegral $ fromFormat srcFormat)
                                  (fromIntegral value)
-                                 (cFromEnum destFormat) >>=
+                                 (fromIntegral $ fromFormat destFormat) >>=
         takeMiniObject

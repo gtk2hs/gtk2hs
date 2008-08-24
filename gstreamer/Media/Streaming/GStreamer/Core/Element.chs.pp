@@ -633,16 +633,16 @@ elementQueryConvert :: ElementClass element
 elementQueryConvert element srcFormat srcVal destFormat =
     alloca $ \destFormatPtr ->
         alloca $ \destValPtr ->
-            do poke destFormatPtr $ fromIntegral $ fromEnum destFormat
+            do poke destFormatPtr $ fromIntegral $ fromFormat destFormat
                success <- {# call element_query_convert #} (toElement element)
-                                                       (fromIntegral $ fromEnum srcFormat)
-                                                       (fromIntegral srcVal)
-                                                       destFormatPtr
-                                                       destValPtr
+                                                           (fromIntegral $ fromFormat srcFormat)
+                                                           (fromIntegral srcVal)
+                                                           destFormatPtr
+                                                           destValPtr
                if toBool success
                    then do destFormat <- peek destFormatPtr
                            destVal    <- peek destValPtr
-                           return $ Just (toEnum $ fromIntegral destFormat,
+                           return $ Just (toFormat $ fromIntegral destFormat,
                                           fromIntegral destVal)
                    else return Nothing
 
@@ -654,12 +654,12 @@ elementQueryPosition :: ElementClass element
 elementQueryPosition element format =
     alloca $ \formatPtr ->
         alloca $ \curPtr ->
-            do poke formatPtr $ fromIntegral $ fromEnum format
+            do poke formatPtr $ fromIntegral $ fromFormat format
                success <- {# call element_query_position #} (toElement element) formatPtr curPtr
                if toBool success
                    then do format <- peek formatPtr
                            cur    <- peek curPtr
-                           return $ Just (toEnum $ fromIntegral format,
+                           return $ Just (toFormat $ fromIntegral format,
                                           fromIntegral cur)
                    else return Nothing
 
@@ -671,12 +671,12 @@ elementQueryDuration :: ElementClass element
 elementQueryDuration element format =
     alloca $ \formatPtr ->
         alloca $ \durationPtr ->
-            do poke formatPtr $ fromIntegral $ fromEnum format
+            do poke formatPtr $ fromIntegral $ fromFormat format
                success <- {# call element_query_duration #} (toElement element) formatPtr durationPtr
                if toBool success
                    then do format   <- peek formatPtr
                            duration <- peek durationPtr
-                           return $ Just (toEnum $ fromIntegral format,
+                           return $ Just (toFormat $ fromIntegral format,
                                           fromIntegral duration)
                    else return Nothing
 
@@ -726,7 +726,7 @@ elementSeekSimple :: ElementClass element
 elementSeekSimple element format seekFlags seekPos =
     liftM toBool $
         {# call element_seek_simple #} (toElement element)
-                                       (fromIntegral $ fromEnum format)
+                                       (fromIntegral $ fromFormat format)
                                        (fromIntegral $ fromFlags seekFlags)
                                        (fromIntegral seekPos)
 #endif
@@ -749,7 +749,7 @@ elementSeek element rate format flags curType cur stopType stop =
     liftM toBool $
         {# call element_seek #} (toElement element)
                                 (realToFrac rate)
-                                (fromIntegral $ fromEnum format)
+                                (fromIntegral $ fromFormat format)
                                 (fromIntegral $ fromFlags flags)
                                 (fromIntegral $ fromEnum curType)
                                 (fromIntegral cur)

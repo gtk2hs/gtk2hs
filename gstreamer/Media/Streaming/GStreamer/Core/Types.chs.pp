@@ -45,7 +45,6 @@ module Media.Streaming.GStreamer.Core.Types (
   FourCC,
   Fraction,
   
-  Format(..),
   FormatDefinition(..),
   
   mkObjectGetFlags,
@@ -203,18 +202,17 @@ cFromEnum = fromIntegral . fromEnum
 
 --------------------------------------------------------------------
 
-{# enum GstFormat as Format {underscoreToCase} with prefix = "GST" deriving (Eq, Show) #}
-
-data FormatDefinition = FormatDefinition { formatValue       :: Format
-                                         , formatNick        :: String
-                                         , formatDescription :: String
-                                         , formatQuark       :: Quark }
-                        deriving (Eq, Show)
+-- | A format definition.
+data FormatDefinition = FormatDefinition { formatValue       :: FormatId -- ^ the unique id of this format
+                                         , formatNick        :: String   -- ^ a short nickname for the format
+                                         , formatDescription :: String   -- ^ a longer description of the format
+                                         , formatQuark       :: Quark    -- ^ a quark for the nickname
+                                         } deriving (Eq, Show)
 instance Storable FormatDefinition where
     sizeOf = undefined
     alignment = undefined
     peek ptr =
-        do value       <- liftM cToEnum $ {# get GstFormatDefinition->value #} ptr
+        do value       <- liftM (FormatId . fromIntegral) $ {# get GstFormatDefinition->value #} ptr
            nick        <- {# get GstFormatDefinition->nick #} ptr >>= peekUTFString
            description <- {# get GstFormatDefinition->description #} ptr >>= peekUTFString
            quark       <- {# get GstFormatDefinition->quark #} ptr
@@ -405,9 +403,9 @@ instance Storable IndexAssociation where
     peek ptr =
         do format <- {# get GstIndexAssociation->format #} ptr
            value <- {# get GstIndexAssociation->value #} ptr
-           return $ IndexAssociation (cToEnum format) (fromIntegral value)
+           return $ IndexAssociation (toFormat $ fromIntegral format) (fromIntegral value)
     poke ptr (IndexAssociation format value) =
-        do {# set GstIndexAssociation->format #} ptr $ cFromEnum format
+        do {# set GstIndexAssociation->format #} ptr $ fromIntegral (fromFormat format)
            {# set GstIndexAssociation->value #} ptr $ fromIntegral value
 
 {# enum GstAssocFlags as AssocFlags {underscoreToCase} with prefix = "GST" deriving (Eq, Bounded, Show) #}
@@ -740,7 +738,7 @@ instance Storable Segment where
            duration    <- {# get GstSegment->duration #} ptr
            return $ Segment (realToFrac rate)
                             (realToFrac absRate)
-                            (cToEnum format)
+                            (toFormat $ fromIntegral format)
                             (cToFlags flags)
                             (fromIntegral start)
                             (fromIntegral stop)
@@ -759,10 +757,10 @@ instance Storable Segment where
                       lastStop
                       duration) =
         do {# call segment_init #} (castPtr ptr)
-                                   (cFromEnum format)
+                                   (fromIntegral $ fromFormat format)
            {# set GstSegment->rate #} ptr $ realToFrac rate
            {# set GstSegment->abs_rate #} ptr $ realToFrac absRate
-           {# set GstSegment->format #} ptr $ cFromEnum format
+           {# set GstSegment->format #} ptr $ fromIntegral (fromFormat format)
            {# set GstSegment->flags #} ptr $ fromIntegral $ fromFlags flags
            {# set GstSegment->start #} ptr $ fromIntegral start
            {# set GstSegment->stop #} ptr $ fromIntegral stop

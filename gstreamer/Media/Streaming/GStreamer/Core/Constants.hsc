@@ -30,6 +30,7 @@
 --   Portability : portable (depends on GHC)
 module Media.Streaming.GStreamer.Core.Constants where
 
+import Data.Int
 import Data.Word
 import System.Glib.Flags
 
@@ -55,6 +56,45 @@ type BufferOffset = Word64
 -- | The undefined 'BufferOffset' value.
 bufferOffsetNone :: BufferOffset
 bufferOffsetNone = #{const GST_BUFFER_OFFSET_NONE}
+
+-- | A format identifier.
+newtype FormatId = FormatId #{type GstFormat}
+    deriving (Eq, Ord, Show)
+
+-- | An enumeration of standard predefined formats.
+data Format = FormatUndefined     -- ^ no format
+            | FormatDefault       -- ^ the default format of the pad or element; this can be, e.g., samples for raw audio
+            | FormatBytes         -- ^ bytes
+            | FormatTime          -- ^ time in nanoseconds
+            | FormatBuffers       -- ^ buffers
+            | FormatPercent       -- ^ percentage of stream
+            | FormatUser FormatId -- ^ a user defined format
+              deriving (Eq, Ord, Show)
+toFormat :: #{type GstFormat} -> Format
+toFormat n | n == #{const GST_FORMAT_UNDEFINED} = FormatUndefined
+           | n == #{const GST_FORMAT_DEFAULT}   = FormatDefault
+           | n == #{const GST_FORMAT_BYTES}     = FormatBytes
+           | n == #{const GST_FORMAT_TIME}      = FormatTime
+           | n == #{const GST_FORMAT_BUFFERS}   = FormatBuffers
+           | n == #{const GST_FORMAT_PERCENT}   = FormatPercent
+           | otherwise                          = FormatUser (FormatId n)
+fromFormat :: Format -> #{type GstFormat}
+fromFormat FormatUndefined = #{const GST_FORMAT_UNDEFINED}
+fromFormat FormatDefault   = #{const GST_FORMAT_DEFAULT}
+fromFormat FormatBytes     = #{const GST_FORMAT_BYTES}
+fromFormat FormatTime      = #{const GST_FORMAT_TIME}
+fromFormat FormatBuffers   = #{const GST_FORMAT_BUFFERS}
+fromFormat FormatPercent   = #{const GST_FORMAT_PERCENT}
+fromFormat (FormatUser (FormatId id)) = id
+
+-- | The format value for 'FormatPercent' is between 0 and this value.
+formatPercentMax :: Int64
+formatPercentMax = #{const GST_FORMAT_PERCENT_MAX}
+
+-- | The value used to scale down the reported 'FormatPercent' format
+--   value to its real value.
+formatPercentScale :: Int64
+formatPercentScale = #{const GST_FORMAT_PERCENT_SCALE}
 
 -- | The flags that an 'Object' may have.
 data ObjectFlags = ObjectDisposing  -- ^ The object has been

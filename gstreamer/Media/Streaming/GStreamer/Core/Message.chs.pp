@@ -260,7 +260,7 @@ messageNewSegmentDone :: ObjectClass objectT
 messageNewSegmentDone src format position =
     unsafePerformIO $
         {# call message_new_segment_done #} (toObject src)
-                                            (cFromEnum format)
+                                            (fromIntegral $ fromFormat format)
                                             (fromIntegral position) >>=
             takeMiniObject
 
@@ -272,7 +272,7 @@ messageNewSegmentStart :: ObjectClass objectT
 messageNewSegmentStart src format position =
     unsafePerformIO $
         {# call message_new_segment_start #} (toObject src)
-                                             (cFromEnum format)
+                                             (fromIntegral $ fromFormat format)
                                              (fromIntegral position) >>=
             takeMiniObject
 
@@ -333,7 +333,7 @@ messageNewDuration :: ObjectClass objectT
 messageNewDuration src format duration =
     unsafePerformIO $
         {# call message_new_duration #} (toObject src)
-                                        (cFromEnum format)
+                                        (fromIntegral $ fromFormat format)
                                         (fromIntegral duration) >>=
            takeMiniObject
 
@@ -418,7 +418,7 @@ messageParseSegmentDone message | messageType message == MessageSegmentDone =
     Just $ unsafePerformIO $ alloca $ \formatPtr ->
         alloca $ \positionPtr ->
             do {# call message_parse_segment_done #} message formatPtr positionPtr
-               format <- liftM cToEnum $ peek formatPtr
+               format <- liftM (toFormat . fromIntegral) $ peek formatPtr
                position <- liftM fromIntegral $ peek positionPtr
                return (format, position)
                                 | otherwise = Nothing
@@ -429,7 +429,7 @@ messageParseSegmentStart message | messageType message == MessageSegmentStart =
     Just $ unsafePerformIO $ alloca $ \formatPtr ->
         alloca $ \positionPtr ->
             do {# call message_parse_segment_start #} message formatPtr positionPtr
-               format <- liftM cToEnum $ peek formatPtr
+               format <- liftM (toFormat . fromIntegral) $ peek formatPtr
                position <- liftM fromIntegral $ peek positionPtr
                return (format, position)
                                  | otherwise = Nothing
@@ -485,7 +485,7 @@ messageParseDuration message | messageType message == MessageDuration =
     Just $ unsafePerformIO $ alloca $ \formatPtr ->
         alloca $ \positionPtr ->
             do {# call message_parse_duration #} message formatPtr positionPtr
-               format <- liftM cToEnum $ peek formatPtr
+               format <- liftM (toFormat . fromIntegral) $ peek formatPtr
                position <- liftM fromIntegral $ peek positionPtr
                return (format, position)
                              | otherwise = Nothing

@@ -28,7 +28,14 @@
 --   Portability : portable (depends on GHC)
 module Media.Streaming.GStreamer.Core.Format (
   
+  -- * Types
   Format(..),
+  FormatDefinition(..),
+  FormatId,
+  
+  -- * Format Operations
+  formatPercentMax,
+  formatPercentScale,
   formatGetName,
   formatToQuark,
   formatRegister,
@@ -53,18 +60,18 @@ formatGetName :: Format
 formatGetName format =
     peekUTFString $
         ({# call fun format_get_name #} $
-             fromIntegral $ fromEnum format)
+             fromIntegral $ fromFormat format)
 
 formatToQuark :: Format
               -> IO Quark
 formatToQuark =
-    {# call format_to_quark #} . fromIntegral . fromEnum
+    {# call format_to_quark #} . fromIntegral . fromFormat
 
 formatRegister :: String
                -> String
                -> IO Format
 formatRegister nick description =
-    liftM (toEnum . fromIntegral) $
+    liftM (toFormat . fromIntegral) $
         withUTFString nick $ \cNick ->
             (withUTFString description $
                  {# call format_register #} cNick)
@@ -72,7 +79,7 @@ formatRegister nick description =
 formatGetByNick :: String
                 -> IO Format
 formatGetByNick nick =
-    liftM cToEnum $
+    liftM (toFormat . fromIntegral) $
         withUTFString nick {# call format_get_by_nick #}
 
 formatsContains :: [Format]
@@ -86,8 +93,8 @@ formatsContains formats format =
 formatGetDetails :: Format
                  -> IO FormatDefinition
 formatGetDetails format =
-    ({# call format_get_details #} $ cFromEnum format) >>=
-        peek . castPtr
+    ({# call format_get_details #} $ fromIntegral $ fromFormat format) >>=
+        maybePeek peek . castPtr
 
 formatIterateDefinitions :: IO (Iterator FormatDefinition)
 formatIterateDefinitions =

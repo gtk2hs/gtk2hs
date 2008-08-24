@@ -319,7 +319,7 @@ padQueryPosition pad =
                if toBool success
                    then do format <- peek formatPtr
                            cur    <- peek curPtr
-                           return $ Just (toEnum $ fromIntegral format,
+                           return $ Just (toFormat $ fromIntegral format,
                                           fromIntegral cur)
                    else return Nothing
 
@@ -333,7 +333,7 @@ padQueryDuration pad =
                if toBool success
                    then do format   <- peek formatPtr
                            duration <- peek durationPtr
-                           return $ Just (toEnum $ fromIntegral format,
+                           return $ Just (toFormat $ fromIntegral format,
                                           fromIntegral duration)
                    else return Nothing
 
@@ -346,14 +346,14 @@ padQueryConvert pad srcFormat srcVal =
     alloca $ \destFormatPtr ->
         alloca $ \destValPtr ->
             do success <- {# call pad_query_convert #} (toPad pad)
-                                                       (fromIntegral $ fromEnum srcFormat)
+                                                       (fromIntegral $ fromFormat srcFormat)
                                                        (fromIntegral srcVal)
                                                        destFormatPtr
                                                        destValPtr
                if toBool success
                    then do destFormat <- peek destFormatPtr
                            destVal    <- peek destValPtr
-                           return $ Just (toEnum $ fromIntegral destFormat,
+                           return $ Just (toFormat $ fromIntegral destFormat,
                                           fromIntegral destVal)
                    else return Nothing
 
@@ -367,7 +367,7 @@ padQueryPeerPosition pad =
                if toBool success
                    then do format <- peek formatPtr
                            cur    <- peek curPtr
-                           return $ Just (toEnum $ fromIntegral format,
+                           return $ Just (toFormat $ fromIntegral format,
                                           fromIntegral cur)
                    else return Nothing
 
@@ -381,7 +381,7 @@ padQueryPeerDuration pad =
                if toBool success
                    then do format   <- peek formatPtr
                            duration <- peek durationPtr
-                           return $ Just (toEnum $ fromIntegral format,
+                           return $ Just (toFormat $ fromIntegral format,
                                           fromIntegral duration)
                    else return Nothing
 
@@ -394,14 +394,14 @@ padQueryPeerConvert pad srcFormat srcVal =
     alloca $ \destFormatPtr ->
         alloca $ \destValPtr ->
             do success <- {# call pad_query_peer_convert #} (toPad pad)
-                                                            (fromIntegral $ fromEnum srcFormat)
+                                                            (fromIntegral $ fromFormat srcFormat)
                                                             (fromIntegral srcVal)
                                                             destFormatPtr
                                                             destValPtr
                if toBool success
                    then do destFormat <- peek destFormatPtr
                            destVal    <- peek destValPtr
-                           return $ Just (toEnum $ fromIntegral destFormat,
+                           return $ Just (toFormat $ fromIntegral destFormat,
                                           fromIntegral destVal)
                    else return Nothing
 

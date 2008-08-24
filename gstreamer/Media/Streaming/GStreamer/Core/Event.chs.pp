@@ -133,7 +133,7 @@ eventNewNewSegment :: Bool
 eventNewNewSegment update rate format start stop position =
     {# call event_new_new_segment #} (fromBool update)
                                      (realToFrac rate)
-                                     (cFromEnum format)
+                                     (fromIntegral $ fromFormat format)
                                      (fromIntegral start)
                                      (fromIntegral stop)
                                      (fromIntegral position) >>=
@@ -151,7 +151,7 @@ eventNewNewSegmentFull update appliedRate rate format start stop position =
     {# call event_new_new_segment_full #} (fromBool update)
                                           (realToFrac rate)
                                           (realToFrac appliedRate)
-                                          (cFromEnum format)
+                                          (fromIntegral $ fromFormat format)
                                           (fromIntegral start)
                                           (fromIntegral stop)
                                           (fromIntegral position) >>=
@@ -177,7 +177,7 @@ eventNewSeek :: Double
              -> IO Event
 eventNewSeek rate format flags startType start stopType stop =
     {# call event_new_seek #} (realToFrac rate)
-                              (cFromEnum format)
+                              (fromIntegral $ fromFormat format)
                               (cFromFlags flags)
                               (cFromEnum startType)
                               (fromIntegral start)
@@ -202,7 +202,7 @@ eventParseBufferSize event | eventType event == EventBufferSize =
                                                   minSizePtr
                                                   maxSizePtr
                                                   asyncPtr
-               format <- liftM cToEnum $ peek formatPtr
+               format <- liftM (toFormat . fromIntegral) $ peek formatPtr
                minSize <- liftM fromIntegral $ peek minSizePtr
                maxSize <- liftM fromIntegral $ peek maxSizePtr
                async <- liftM toBool $ peek asyncPtr
@@ -238,7 +238,7 @@ eventParseNewSegment event | eventType event == EventNewSegment =
                                                           positionPtr
                        update <- liftM toBool $ peek updatePtr
                        rate <- liftM realToFrac $ peek ratePtr
-                       format <- liftM cToEnum $ peek formatPtr
+                       format <- liftM (toFormat . fromIntegral) $ peek formatPtr
                        start <- liftM fromIntegral $ peek startPtr
                        stop <- liftM fromIntegral $ peek stopPtr
                        position <- liftM fromIntegral $ peek positionPtr
@@ -264,7 +264,7 @@ eventParseNewSegmentFull event | eventType event == EventNewSegment =
                        update <- liftM toBool $ peek updatePtr
                        rate <- liftM realToFrac $ peek ratePtr
                        appliedRate <- liftM realToFrac $ peek appliedRatePtr
-                       format <- liftM cToEnum $ peek formatPtr
+                       format <- liftM (toFormat . fromIntegral) $ peek formatPtr
                        start <- liftM fromIntegral $ peek startPtr
                        stop <- liftM fromIntegral $ peek stopPtr
                        position <- liftM fromIntegral $ peek positionPtr
@@ -304,7 +304,7 @@ eventParseSeek event | eventType event == EventSeek =
                                                    stopTypePtr
                                                    stopPtr
                        rate <- liftM realToFrac $ peek ratePtr
-                       format <- liftM cToEnum $ peek formatPtr
+                       format <- liftM (toFormat . fromIntegral) $ peek formatPtr
                        flags <- liftM cToFlags $ peek flagsPtr
                        startType <- liftM cToEnum $ peek startTypePtr
                        start <- liftM fromIntegral $ peek startPtr

@@ -58,7 +58,7 @@ segmentClip segment format start stop =
             with segment $ \segmentPtr ->
                 do result <- liftM toBool $
                                  {# call segment_clip #} (castPtr segmentPtr)
-                                                         (cFromEnum format)
+                                                         (fromIntegral $ fromFormat format)
                                                          (fromIntegral start)
                                                          (fromIntegral stop)
                                                          clipStartPtr
@@ -75,7 +75,7 @@ segmentSetDuration :: Segment
 segmentSetDuration segment format duration =
     unsafePerformIO $ with segment $ \segmentPtr ->
         do {# call segment_set_duration #} (castPtr segmentPtr)
-                                           (cFromEnum format)
+                                           (fromIntegral $ fromFormat format)
                                            (fromIntegral duration)
            peek segmentPtr
 
@@ -86,7 +86,7 @@ segmentSetLastStop :: Segment
 segmentSetLastStop segment format position =
     unsafePerformIO $ with segment $ \segmentPtr ->
         do {# call segment_set_last_stop #} (castPtr segmentPtr)
-                                            (cFromEnum format)
+                                            (fromIntegral $ fromFormat format)
                                             (fromIntegral position)
            peek segmentPtr
 
@@ -103,7 +103,7 @@ segmentSetNewsegment segment update rate format start stop time =
         do {# call segment_set_newsegment #} (castPtr segmentPtr)
                                              (fromBool update)
                                              (realToFrac rate)
-                                             (cFromEnum format)
+                                             (fromIntegral $ fromFormat format)
                                              (fromIntegral start)
                                              (fromIntegral stop)
                                              (fromIntegral time)
@@ -123,7 +123,7 @@ segmentSetSeek segment rate format flags startType start stopType stop =
         alloca $ \updatePtr ->
             do {# call segment_set_seek #} (castPtr segmentPtr)
                                            (realToFrac rate)
-                                           (cFromEnum format)
+                                           (fromIntegral $ fromFormat format)
                                            (fromIntegral $ fromFlags flags)
                                            (cFromEnum startType)
                                            (fromIntegral start)
@@ -141,7 +141,7 @@ segmentToRunningTime :: Segment
 segmentToRunningTime segment format position =
     fromIntegral $ unsafePerformIO $ with segment $ \segmentPtr ->
         {# call segment_to_running_time #} (castPtr segmentPtr)
-                                           (cFromEnum format)
+                                           (fromIntegral $ fromFormat format)
                                            (fromIntegral position)
 
 segmentToStreamTime :: Segment
@@ -151,5 +151,5 @@ segmentToStreamTime :: Segment
 segmentToStreamTime segment format position =
     fromIntegral $ unsafePerformIO $ with segment $ \segmentPtr ->
         {# call segment_to_stream_time #} (castPtr segmentPtr)
-                                          (cFromEnum format)
+                                          (fromIntegral $ fromFormat format)
                                           (fromIntegral position)
