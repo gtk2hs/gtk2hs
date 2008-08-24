@@ -157,6 +157,8 @@ elementFactoryGetURIProtocols factory =
 
 #if GSTREAMER_CHECK_VERSION(0,10,14)
 -- | Check if the given factory implements the interface with the given name.
+--   
+--   Since 0.10.14.
 elementFactoryHasInterface :: (ElementFactoryClass elementFactory)
                            => elementFactory -- ^ @factory@ - an element factory
                            -> String         -- ^ @name@ - the interface name

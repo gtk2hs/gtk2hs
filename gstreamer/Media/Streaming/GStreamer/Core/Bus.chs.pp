@@ -190,6 +190,8 @@ busPop bus =
 -- | Get a message from the bus, waiting up to the specified timeout.
 --   If the time given is 'Nothing', the function will wait forever.
 --   If the time given is @0@, the function will behave like 'busPop'.
+--   
+--   Since 0.10.12.
 busTimedPop :: BusClass busT
             => busT               -- ^ @bus@ - a 'Bus'
             -> Maybe ClockTime    -- ^ @timeoutM@ - the time to wait for,

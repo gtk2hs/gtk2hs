@@ -582,6 +582,8 @@ elementStateGetName state =
 
 #if GSTREAMER_CHECK_VERSION(0,10,11)
 -- | Get a string representation of @stateRet@.
+--   
+--   Since 0.10.11.
 elementStateChangeReturnGetName :: StateChangeReturn -- ^ @stateRet@ - 
                                 -> String            -- ^ the name of @stateRet@
 elementStateChangeReturnGetName stateRet =

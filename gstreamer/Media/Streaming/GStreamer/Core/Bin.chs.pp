@@ -231,6 +231,8 @@ binIterateAllByInterface bin iface =
 -- | Recursively looks for elements with an unconnected pad of the
 --   given direction within the specified bin. Returns an unconnected
 --   pad if one is found, otherwise 'Nothing'.
+--
+--   Since 0.10.3.
 binFindUnconnectedPad :: BinClass bin
                       => bin            -- ^ @bin@ - a 'Bin'
                       -> PadDirection   -- ^ @direction@ - the direction of the requested 'Pad'

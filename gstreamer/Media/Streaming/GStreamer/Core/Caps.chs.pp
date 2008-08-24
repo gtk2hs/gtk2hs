@@ -299,6 +299,8 @@ capsAppendStructure structure = do
 #if GSTREAMER_CHECK_VERSION(0,10,10)
 -- | Append the structure to the current caps, if it is not already
 --   expressed by the caps.
+--   
+--   Since 0.10.10.
 capsMergeStructure :: Structure -- ^ @structure@ - the 'Structure' to merge with the current 'Caps'
                    -> CapsM ()
 capsMergeStructure structure = do
