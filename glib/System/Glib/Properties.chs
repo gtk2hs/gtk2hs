@@ -137,16 +137,16 @@ objectGetPropertyUInt :: GObjectClass gobj => String -> gobj -> IO Int
 objectGetPropertyUInt = objectGetPropertyInternal GType.uint (\gv -> liftM fromIntegral $ valueGetUInt gv)
 
 objectSetPropertyInt64 :: GObjectClass gobj => String -> gobj -> Int64 -> IO ()
-objectSetPropertyInt64 = objectSetPropertyInternal GType.int valueSetInt64
+objectSetPropertyInt64 = objectSetPropertyInternal GType.int64 valueSetInt64
 
 objectGetPropertyInt64 :: GObjectClass gobj => String -> gobj -> IO Int64
-objectGetPropertyInt64 = objectGetPropertyInternal GType.int valueGetInt64
+objectGetPropertyInt64 = objectGetPropertyInternal GType.int64 valueGetInt64
 
 objectSetPropertyUInt64 :: GObjectClass gobj => String -> gobj -> Word64 -> IO ()
-objectSetPropertyUInt64 = objectSetPropertyInternal GType.uint (\gv v -> valueSetUInt64 gv (fromIntegral v))
+objectSetPropertyUInt64 = objectSetPropertyInternal GType.uint64 (\gv v -> valueSetUInt64 gv (fromIntegral v))
 
 objectGetPropertyUInt64 :: GObjectClass gobj => String -> gobj -> IO Word64
-objectGetPropertyUInt64 = objectGetPropertyInternal GType.uint (\gv -> liftM fromIntegral $ valueGetUInt64 gv)
+objectGetPropertyUInt64 = objectGetPropertyInternal GType.uint64 (\gv -> liftM fromIntegral $ valueGetUInt64 gv)
 
 objectSetPropertyChar :: GObjectClass gobj => String -> gobj -> Char -> IO ()
 objectSetPropertyChar = objectSetPropertyInternal GType.uint (\gv v -> valueSetUInt gv (fromIntegral (fromEnum v)))

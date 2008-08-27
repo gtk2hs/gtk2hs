@@ -25,6 +25,7 @@
 module System.Glib.GTypeConstants (
   invalid,
   uint, int,
+  uint64, int64,
   uchar, char,
   bool,
   enum, flags,
@@ -37,12 +38,14 @@ module System.Glib.GTypeConstants (
 
 import System.Glib.GType	(GType)
 
-invalid, uint, int, uchar, char, bool, enum, flags,
+invalid, uint, int, uint64, int64, uchar, char, bool, enum, flags,
  pointer, float, double, string, object, boxed :: GType
 
 invalid	= #const G_TYPE_INVALID
 uint	= #const G_TYPE_UINT
 int	= #const G_TYPE_INT
+uint64	= #const G_TYPE_UINT64
+int64	= #const G_TYPE_INT64
 uchar	= #const G_TYPE_UCHAR
 char	= #const G_TYPE_CHAR
 bool	= #const G_TYPE_BOOLEAN
