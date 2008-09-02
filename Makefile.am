@@ -2320,7 +2320,15 @@ EXTRA_DIST +=								\
 	demo/treeList/ListDemo.hs demo/treeList/TreeDemo.hs		\
 		demo/treeList/ListTest.hs demo/treeList/ListTest.glade	\
 		demo/treeList/TreeTest.hs demo/treeList/TreeTest.glade	\
-		demo/treeList/DirList.hs demo/treeList/Makefile		\
+		demo/treeList/DirList.hs demo/treeList/Completion.hs	\
+		demo/treeList/ListDND.hs				\
+		demo/treeList/resListDND/desktop.png			\
+		demo/treeList/resListDND/laptop.png			\
+		demo/treeList/resListDND/laptopSmall.png		\
+		demo/treeList/resListDND/printer.png			\
+		demo/treeList/resListDND/server.png			\
+		demo/treeList/resListDND/tower.png			\
+		demo/treeList/Makefile					\
 	demo/unicode/Arabic.hs demo/unicode/Makefile			\
 	demo/calc/CalcModel.hs demo/calc/Calc.hs demo/calc/Makefile	\
 		demo/calc/calc.glade					\

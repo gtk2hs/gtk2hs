@@ -1,7 +1,9 @@
 
-PROGS  = listdemo treedemo listtest treetest dirlist treesort completion
+PROGS  = listdemo treedemo listtest treetest dirlist treesort completion \
+	 listdnd
+
 SOURCES = ListDemo.hs TreeDemo.hs ListTest.hs TreeTest.hs DirList.hs \
-	TreeSort.hs Completion.hs
+	TreeSort.hs Completion.hs ListDND.hs
 
 all : $(PROGS)
 
@@ -24,6 +26,9 @@ treesort : TreeSort.hs
 	$(HC_RULE)
 
 completion : Completion.hs
+	$(HC_RULE)
+
+listdnd : ListDND.hs
 	$(HC_RULE)
 
 HC_RULE = $(HC) --make $< -o $@ $(HCFLAGS)
