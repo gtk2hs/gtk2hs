@@ -74,6 +74,8 @@ module Graphics.UI.Gtk.Gdk.Screen (
   screenGetHeight,
   screenGetWidthMm,
   screenGetHeightMm,
+  screenGetWidthMM,
+  screenGetHeightMM,
 --  screenListVisuals,
 --  screenGetToplevelWindows,
   screenMakeDisplayName,
@@ -296,23 +298,26 @@ screenGetHeight self =
 -- | Gets the width of @screen@ in millimeters. Note that on some X servers
 -- this value will not be correct.
 --
-screenGetWidthMm :: Screen
+screenGetWidthMM :: Screen
  -> IO Int -- ^ returns the width of @screen@ in millimeters.
-screenGetWidthMm self =
+screenGetWidthMM self =
   liftM fromIntegral $
   {# call gdk_screen_get_width_mm #}
     self
 
+screenGetWidthMm = screenGetWidthMM
+
 -- | Returns the height of @screen@ in millimeters. Note that on some X
 -- servers this value will not be correct.
 --
-screenGetHeightMm :: Screen
+screenGetHeightMM :: Screen
  -> IO Int -- ^ returns the heigth of @screen@ in millimeters.
-screenGetHeightMm self =
+screenGetHeightMM self =
   liftM fromIntegral $
   {# call gdk_screen_get_height_mm #}
     self
 
+screenGetHeightMm = screenGetHeightMM
 {-
 -- | Lists the available visuals for the specified @screen@. A visual
 -- describes a hardware image data format. For example, a visual might support
