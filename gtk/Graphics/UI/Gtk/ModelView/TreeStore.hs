@@ -31,6 +31,7 @@ module Graphics.UI.Gtk.ModelView.TreeStore (
 
 -- * Constructors
   treeStoreNew,
+  treeStoreNewDND,
 
 -- * Implementation of Interfaces
   treeStoreDefaultDragSourceIface,
@@ -39,6 +40,7 @@ module Graphics.UI.Gtk.ModelView.TreeStore (
 -- * Methods
   treeStoreGetValue,
   treeStoreGetTree,
+  treeStoreLookup,
 
   treeStoreSetValue,
 --  treeStoreSetTree,
@@ -549,7 +551,7 @@ treeStoreRemove (TreeStore model) path = do
     case deleteFromForest (cacheToStore cache) path of
       Nothing -> (store, (False, False))
       Just (newForest, toggle) ->
-        (Store { depth = d,
+        (Store { depth = d, -- this might be a space leak
 		 content = storeToCache newForest }, (True, toggle))
   when found $ do
     when (toggle && not (null path)) $ do
@@ -672,3 +674,19 @@ treeStoreGetTree (TreeStore model) path = do
         ((_,node:_):_) | res -> return node
         _ -> fail ("treeStoreGetTree: path does not exist " ++ show path)
     _ -> fail ("treeStoreGetTree: path does not exist " ++ show path)
+
+-- | Extract a subtree from the current model. Like 'treeStoreGetTree'
+--   but returns @Nothing@ if the path refers to a non-existant node.
+--
+treeStoreLookup :: TreeStore a -> TreePath -> IO (Maybe (Tree a))
+treeStoreLookup (TreeStore model) path = do
+  store@Store { depth = d, content = cache } <- 
+      readIORef (customTreeModelGetPrivate model)
+  case fromPath d path of
+    (Just iter) -> do
+      let (res, cache') = checkSuccess d iter cache
+      writeIORef (customTreeModelGetPrivate model) store { content = cache' }
+      case cache' of
+        ((_,node:_):_) | res -> return (Just node)
+        _ -> return Nothing
+    _ -> return Nothing

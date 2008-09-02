@@ -31,7 +31,8 @@ module Graphics.UI.Gtk.ModelView.ListStore (
 
 -- * Constructors
   listStoreNew,
-
+  listStoreNewDND,
+  
 -- * Implementation of Interfaces
   listStoreDefaultDragSourceIface,
   listStoreDefaultDragDestIface,
@@ -40,6 +41,7 @@ module Graphics.UI.Gtk.ModelView.ListStore (
   listStoreGetValue,
   listStoreSetValue,
   listStoreToList,
+  listStoreGetSize,
   listStoreInsert,
   listStorePrepend,
   listStoreAppend,
@@ -185,6 +187,11 @@ listStoreToList (ListStore model) =
 #endif
   $ readIORef (customTreeModelGetPrivate model)
 
+-- | Query the number of elements in the store.
+listStoreGetSize :: ListStore a -> IO Int
+listStoreGetSize (ListStore model) =
+  liftM Seq.length $ readIORef (customTreeModelGetPrivate model)
+  
 -- | Insert an element in front of the given element. The element is appended
 -- if the index is greater or equal to the size of the list.
 listStoreInsert :: ListStore a -> Int -> a -> IO ()

@@ -136,6 +136,7 @@ import Graphics.UI.Gtk.General.StockItems ( StockId )
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}
 {#import Graphics.UI.Gtk.General.Selection#} ( TargetList )
+import Graphics.UI.Gtk.Gdk.Enums ( DragAction(..) )
 import Graphics.UI.Gtk.General.Enums ( DestDefaults(..), DragProtocol(..) )
 import Graphics.UI.Gtk.Gdk.Events ( TimeStamp, Modifier )
 import Graphics.UI.Gtk.General.Structs ( Point, 
@@ -147,25 +148,6 @@ import Control.Monad.Reader (runReaderT)
 
 {# context lib="gtk" prefix="gtk" #}
 
---------------------
--- Types
-
--- | Used in 'DragContext' to indicate what the destination should do with the
--- dropped data.
---
--- * 'ActionDefault': Initialisation value, should not be used.
--- * 'ActionCopy': Copy the data.
--- * 'ActionMove': Move the data, i.e. first copy it, then delete it from the source using
---   the DELETE target of the X selection protocol.
--- * 'ActionLink':  Add a link to the data. Note that this is only useful if source and
---   destination agree on what it means.
--- * 'ActionPrivate': Special action which tells the source that the destination will do
---   something that the source doesn't understand.
--- * 'ActionAsk': Ask the user what to do with the data.
-
-{#enum GdkDragAction as DragAction {underscoreToCase} deriving (Bounded, Eq, Show) #} 
-
-instance Flags DragAction
   
 --------------------
 -- Methods
@@ -245,14 +227,14 @@ dragDestFindTarget widget context (Just targetList) = do
     (toWidget widget)
     (toDragContext context)
     targetList
-  if ttPtr==nullPtr then return Nothing else return (Just (TargetTag ttPtr))
+  if ttPtr==nullPtr then return Nothing else return (Just (Atom ttPtr))
 dragDestFindTarget widget context Nothing = do
   ttPtr <-
     {# call gtk_drag_dest_find_target #}
     (toWidget widget)
     (toDragContext context)
     (TargetList nullForeignPtr)
-  if ttPtr==nullPtr then return Nothing else return (Just (TargetTag ttPtr))
+  if ttPtr==nullPtr then return Nothing else return (Just (Atom ttPtr))
 	
 -- %hash c:41c7 d:af3f
 -- | Returns the list of targets this widget can accept for drag-and-drop.
@@ -342,7 +324,7 @@ dragGetData :: (WidgetClass widget, DragContextClass context)
   -> TimeStamp -- ^ A timestamp for retrieving the data. This will generally be
                -- the time received in a 'dragMotion' or 'dragDrop' signal.
   -> IO ()
-dragGetData widget context (TargetTag target) time =
+dragGetData widget context (Atom target) time =
   {# call gtk_drag_get_data #}
     (toWidget widget)
     (toDragContext context)

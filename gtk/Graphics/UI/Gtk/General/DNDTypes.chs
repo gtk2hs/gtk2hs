@@ -21,29 +21,30 @@
 -- functions that relate to target tables are not bound since they seem
 -- superfluous
 --
--- Type declarations for DND and Selections
+-- Type declarations for Selections that are used for DND and Clipboards.
 -- #hide
 module Graphics.UI.Gtk.General.DNDTypes (
 
 -- * Types
   InfoId,
-  TargetTag(TargetTag),
-  SelectionTag(SelectionTag),
-  PropertyTag(PropertyTag),
+  TargetTag,
+  SelectionTag,
+  SelectionTypeTag,
+  PropertyTag,
+  Atom(Atom),
   TargetList(TargetList),
   SelectionData,
   SelectionDataM,
   
 -- * Constructors
-  targetTagNew,
-  selectionTagNew,
+  tagNew,
   targetListNew,
   mkTargetList  
   ) where
 
 import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#} ()
-import System.Glib.UTFString ( peekUTFString, withUTFString )
+import System.Glib.UTFString ( readUTFString, withUTFString )
 import Control.Monad ( liftM )
 import Control.Monad.Reader ( ReaderT )
 
@@ -53,31 +54,45 @@ import Control.Monad.Reader ( ReaderT )
 --   data types or application states.
 type InfoId = {#type guint#}
 
--- | A tag that uniquely identifies a target.
-newtype TargetTag = TargetTag (Ptr ()) deriving Eq
+-- | A tag that uniquely identifies a selection. A selection denotes the
+-- exchange mechanism that is being used, for instance, the clipboard is the
+-- most common exchange mechanism. For drag and drop applications, a new
+-- selection tag is usually created for each different kind of data that is
+-- being exchanged.
+type SelectionTag = Atom
 
-instance Show TargetTag where
-  show (TargetTag ptr) = atomToString ptr
+-- | A tag that uniquely identifies a target. A target describes the format of
+-- the underlying data source, for instance, it might be a string. A single
+-- selection may support multiple targets: suppose a new target is created for
+-- the Haskell data type 'Double'. In this case, the value of the floating
+-- point number could also be offered as a string.
+type TargetTag = Atom
 
--- | A tag that uniquely identifies a selection.
-newtype SelectionTag = SelectionTag (Ptr ()) deriving Eq
+-- | A tag that defines the encoding of the binary data. For instance, a
+-- string might be encoded as UTF-8 or in a different locale. Each encoding
+-- would use the same 'TargetTag' but a different 'SelectionTypeTag'.
+type SelectionTypeTag = Atom
 
-instance Show SelectionTag where
-  show (SelectionTag ptr) = atomToString ptr
-
--- | A tag that uniquely identifies a property of a
+-- | A tag
+-- that uniquely identifies a property of a
 -- 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow'.
 --
-newtype PropertyTag = PropertyTag (Ptr ()) deriving Eq
+type PropertyTag = Atom
 
-instance Show PropertyTag where
-  show (PropertyTag ptr) = atomToString ptr
+-- | An atom is an index into a global string table. It is possible to
+-- associate binary data with each entry. This facility is used for
+-- inter-application data exchange such as properties of
+-- 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' (using 'PropertyTag'),
+-- 'Graphics.UI.Gtk.Clipboard.Clipboard' or 'Graphics.UI.Gtk.General.Drag'
+-- ('SelectionId' and 'TargetId').
+newtype Atom = Atom (Ptr ()) deriving Eq
+
+instance Show Atom where
+  show (Atom ptr) = atomToString ptr
 
 atomToString ptr = unsafePerformIO $ do
 	strPtr <- {#call unsafe gdk_atom_name#} ptr
-	str <- peekUTFString strPtr
-	{#call unsafe g_free#} (castPtr strPtr)
-	return str
+	readUTFString strPtr
 
 -- | A 'TargetList' contains information about all possible formats
 -- (represented as 'TargetTag') that a widget can create or receive in form of
@@ -89,21 +104,15 @@ atomToString ptr = unsafePerformIO $ do
 -- Constructors
 
 
--- | Create a new 'TargetTag'. Note that creating two target tags with the
---   same name will yield two different tags. The name is merely meant to
---   ease application development.
+-- | Create a new 'TargetTag', 'SelectionTag', 'SelectionTypeTag' or
+--   'PropertyTag'. Note that creating two target tags with the same name will
+--   create the same tag, in particular, the tag will be the same across
+--   different applications. Note that the name of an 'Atom' can be printed
+--   by 'show' though comparing the atom is merely an integer comparison.
 --
-targetTagNew :: String -> IO TargetTag
-targetTagNew name = withUTFString name $ \strPtr ->
-  liftM TargetTag $ {#call unsafe gdk_atom_intern#} strPtr 0
-
--- | Create a new 'SelectionTag'. Note that creating two selection tags with the
---   same name will yield two different tags. The name is merely meant to
---   ease application development.
---
-selectionTagNew :: String -> IO SelectionTag
-selectionTagNew name = withUTFString name $ \strPtr ->
-  liftM SelectionTag $ {#call unsafe gdk_atom_intern#} strPtr 0
+tagNew :: String -> IO Atom
+tagNew name = withUTFString name $ \strPtr ->
+  liftM Atom $ {#call unsafe gdk_atom_intern#} strPtr 0
 
 -- | Create a new, empty 'TargetList'.
 --

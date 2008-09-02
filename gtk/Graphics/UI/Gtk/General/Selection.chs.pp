@@ -32,15 +32,22 @@ module Graphics.UI.Gtk.General.Selection (
 
 -- * Types
   InfoId,
+  Atom,
   TargetTag,
   SelectionTag,
+  SelectionTypeTag,
   TargetList,
   SelectionDataM,
   TargetFlags(..),
- 
+
+-- * Constants
+  targetString,
+  selectionTypeAtom,
+  selectionTypeInteger,
+  selectionTypeString,
+
 -- * Constructors
-  targetTagNew,
-  selectionTagNew,
+  tagNew,
   targetListNew,
   
 -- * Methods
@@ -63,6 +70,7 @@ module Graphics.UI.Gtk.General.Selection (
 
   selectionDataSet,
   selectionDataGet,
+  selectionDataGetLength,
   selectionDataSetText,
   selectionDataGetText,
 #if GTK_CHECK_VERSION(2,6,0)
@@ -72,6 +80,9 @@ module Graphics.UI.Gtk.General.Selection (
   selectionDataGetURIs,
   selectionDataTargetsIncludeImage,
 #endif
+  selectionDataGetTarget,
+  selectionDataSetTarget,
+  selectionDataGetTargets,
   selectionDataTargetsIncludeText,
 #if GTK_CHECK_VERSION(2,10,0)
   selectionDataTargetsIncludeUri,
@@ -92,12 +103,20 @@ import System.Glib.GObject
 {#import Graphics.UI.Gtk.General.DNDTypes#}
 import Graphics.UI.Gtk.Gdk.Events (TimeStamp)
 import Graphics.UI.Gtk.General.Enums (TargetFlags(..))
+import Graphics.UI.Gtk.General.Structs (
+  targetString,
+  selectionTypeAtom,
+  selectionTypeInteger,
+  selectionTypeString,
+  selectionDataGetType)
+
 import Graphics.UI.Gtk.Signals
 import System.Glib.UTFString ( peekUTFString, withUTFStringLen,
                                withUTFStringArray0, peekUTFStringArray0 )
 import Control.Monad ( liftM )
 import Control.Monad.Trans ( liftIO )
 import Control.Monad.Reader (runReaderT, ask)
+import Data.Word ( Word32 )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -111,7 +130,7 @@ import Control.Monad.Reader (runReaderT, ask)
 --   selection handling.
 --
 targetListAdd :: TargetList -> TargetTag -> [TargetFlags] -> InfoId -> IO ()
-targetListAdd tl (TargetTag tagPtr) flags info = do
+targetListAdd tl (Atom tagPtr) flags info = do
   {#call unsafe target_list_add#} tl tagPtr (fromIntegral (fromFlags flags)) info
 
 #if GTK_CHECK_VERSION(2,6,0)
@@ -166,7 +185,7 @@ targetListAddRichTextTargets tl info deser tb =
 -- | Remove a target from a target list.
 --
 targetListRemove :: TargetList -> TargetTag -> IO ()
-targetListRemove tl (TargetTag t)= {#call unsafe target_list_remove#} tl t
+targetListRemove tl (Atom t)= {#call unsafe target_list_remove#} tl t
 
 
 -- %hash c:9971 d:af3f
@@ -175,7 +194,7 @@ targetListRemove tl (TargetTag t)= {#call unsafe target_list_remove#} tl t
 --
 selectionAddTarget :: WidgetClass widget => widget -> SelectionTag ->
  					  TargetTag -> InfoId -> IO ()
-selectionAddTarget widget (SelectionTag selection) (TargetTag target) info =
+selectionAddTarget widget (Atom selection) (Atom target) info =
   {#call unsafe gtk_selection_add_target #}
     (toWidget widget)
     selection
@@ -186,7 +205,7 @@ selectionAddTarget widget (SelectionTag selection) (TargetTag target) info =
 -- | Remove all targets registered for the given selection for the widget.
 --
 selectionClearTargets :: WidgetClass widget => widget -> SelectionTag -> IO ()
-selectionClearTargets widget (SelectionTag selection) =
+selectionClearTargets widget (Atom selection) =
   {#call unsafe gtk_selection_clear_targets #}
     (toWidget widget)
     selection
@@ -197,7 +216,7 @@ selectionClearTargets widget (SelectionTag selection) =
 --
 selectionOwnerSet :: WidgetClass widget => Maybe widget -> SelectionTag ->
 					 TimeStamp -> IO Bool
-selectionOwnerSet widget (SelectionTag selection) time =
+selectionOwnerSet widget (Atom selection) time =
   liftM toBool $
   {#call unsafe gtk_selection_owner_set #}
     (maybe (mkWidget nullForeignPtr) toWidget widget)
@@ -205,7 +224,7 @@ selectionOwnerSet widget (SelectionTag selection) time =
     (fromIntegral time)
 
 -- %hash c:174 d:af3f
--- |
+-- 
 --
 --selectionOwnerSetForDisplay :: WidgetClass widget => Display -> widget -> {-GdkAtom-} -> Word32 -> IO Bool
 --selectionOwnerSetForDisplay display widget selection time =
@@ -230,29 +249,37 @@ selectionRemoveAll widget =
 -- | Stores new data in the 'SelectionDataM' monad. The stored data may only
 -- be an array of integer types that are no larger than 32 bits.
 --
-selectionDataSet :: (Integral a, Storable a) => SelectionTag -> [a] ->
+selectionDataSet :: (Integral a, Storable a) => SelectionTypeTag -> [a] ->
                                                 SelectionDataM ()
-selectionDataSet (SelectionTag tagPtr) values@(~(v:_)) = ask >>= \selPtr ->
+selectionDataSet (Atom tagPtr) values@(~(v:_)) = ask >>= \selPtr ->
   liftIO $ withArrayLen values $ \arrayLen arrayPtr ->
   {#call unsafe gtk_selection_data_set #} selPtr tagPtr (fromIntegral (8*sizeOf v))
-    (castPtr arrayPtr) (fromIntegral arrayLen)
+    (castPtr arrayPtr) (fromIntegral (arrayLen*sizeOf v))
 
 -- | Retreives the data in the 'SelectionDataM' monad. The returned array
 --   must have elements of the size that were used to set this data. If
---   the size does not match, @Nothing@ is returned.
+--   the size or the type tag does not match, @Nothing@ is returned.
 --
-selectionDataGet :: (Integral a, Storable a) => SelectionDataM (Maybe [a])
-selectionDataGet = do
+selectionDataGet :: (Integral a, Storable a) => 
+                    SelectionTypeTag -> SelectionDataM (Maybe [a])
+selectionDataGet tagPtr = do
   selPtr <- ask
   liftIO $ do
+    typeTag <- selectionDataGetType selPtr
+    if typeTag/=tagPtr then return Nothing else do
     bitSize <- liftM fromIntegral $ {#get SelectionData -> format#} selPtr
-    lenUnits <- {#get SelectionData -> length#} selPtr
+    lenBytes <- liftM fromIntegral $ {#get SelectionData -> length#} selPtr
     dataPtr <- liftM castPtr $ {#get SelectionData -> data#} selPtr
-    if lenUnits<0 || bitSize/=sizeOf (unsafePerformIO (peek dataPtr))*8
+    if lenBytes<=0 || bitSize/=sizeOf (unsafePerformIO (peek dataPtr))*8
       then return Nothing
       else liftM Just $ do
-        peekArray (fromIntegral lenUnits) dataPtr
-    
+        peekArray (fromIntegral (lenBytes `quot` (bitSize `quot` 8))) dataPtr
+
+selectionDataGetLength :: SelectionDataM Int
+selectionDataGetLength = do
+  selPtr <- ask
+  liftIO $ liftM fromIntegral $ {#get SelectionData -> length#} selPtr    
+
 -- %hash c:9bdf d:af3f
 -- | Sets the contents of the selection from a string. The
 -- string is converted to the form determined by the allowed targets of the
@@ -332,9 +359,24 @@ selectionDataGetURIs = do
       return (Just uris)
 #endif
 
+-- | Retrieve the currently set 'TargetTag' in the selection.
+selectionDataGetTarget :: SelectionDataM TargetTag
+selectionDataGetTarget = do
+  selPtr <- ask
+  liftM Atom $ liftIO $ {#get SelectionData -> target#} selPtr
+
+-- | Set the selection to the given 'TargetTag'.
+selectionDataSetTarget :: TargetTag -> SelectionDataM ()
+selectionDataSetTarget (Atom targetTag) = do
+  selPtr <- ask
+  liftIO $ {#set SelectionData -> target#} selPtr targetTag
+
 -- %hash c:e659 d:af3f
--- | Queries the content type of the selection by extracting the targets that
---   the contained data can be converted into.
+-- | Queries the content type of the selection data as a list of targets.
+--   Whenever the application is asked whether certain targets are acceptable,
+--   it is handed a selection that contains a list of 'TargetTag's as payload.
+--   A similar result could be achieved using 'selectionDataGet
+--   selectionTypeAtom'.
 --
 selectionDataGetTargets :: SelectionDataM [TargetTag]
 selectionDataGetTargets = do
@@ -347,7 +389,7 @@ selectionDataGetTargets = do
       targetPtr <- peek targetPtrPtr
       targetPtrs <- peekArray (fromIntegral len) targetPtr
       {#call unsafe g_free#} (castPtr targetPtr)
-      return (map TargetTag targetPtrs)
+      return (map Atom targetPtrs)
       
 #if GTK_CHECK_VERSION(2,6,0)
 -- %hash c:5a8 d:af3f

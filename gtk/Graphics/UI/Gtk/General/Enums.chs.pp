@@ -148,20 +148,23 @@ data Click = SingleClick
 -- | The 'DestDefaults' enumeration specifies the various types of action that
 -- will be taken on behalf of the user for a drag destination site.
 --
--- * 'DestDefaultMotion':   If set for a widget, GTK+, during a drag over this
+-- * 'DestDefaultMotion': If set for a widget, GTK+, during a drag over this
 --   widget will check if the drag matches this widget's list of possible
 --   targets and actions. GTK+ will then call
 --   'Graphics.UI.Gtk.Gdk.Drag.dragStatus' as appropriate.
--- * 'DestDefaultHighlight':   If set for a widget, GTK+ will draw a
+--
+-- * 'DestDefaultHighlight': If set for a widget, GTK+ will draw a
 --   highlight on this widget as long as a drag is over this widget and the
 --   widget drag format and action are acceptable.
--- * 'DestDefaultDrop':   If set for a widget, when a drop occurs, GTK+ will
+--
+-- * 'DestDefaultDrop': If set for a widget, when a drop occurs, GTK+ will
 --   will check if the drag matches this widget's list of possible targets and
 --   actions. If so, GTK+ will call 'Graphics.UI.Gtk.Gdk.Drag.dragGetData' on
 --   behalf of the widget. Whether or not the drop is successful, GTK+ will
 --   call 'Graphics.UI.Gtk.Gdk.Drag.dragFinish'. If the action was a move,
 --   then if the drag was successful, then @True@ will be passed for the
 --   delete parameter to 'Graphics.UI.Gtk.Gdk.Drag.dragFinish'
+--
 -- * 'DestDefaultAll':   If set, specifies that all default actions should be
 --   taken.
 --

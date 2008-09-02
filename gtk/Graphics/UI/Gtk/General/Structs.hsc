@@ -79,7 +79,16 @@ module Graphics.UI.Gtk.General.Structs (
   dragContextGetAction,
   dragContextSetAction,
   SortColumnId,
-  treeSortableDefaultSortColumnId
+  treeSortableDefaultSortColumnId,
+  tagInvalid,
+  selectionPrimary,
+  selectionSecondary,
+  selectionClipboard,
+  targetString,
+  selectionTypeAtom,
+  selectionTypeInteger,
+  selectionTypeString,
+  selectionDataGetType
   ) where
 
 import Control.Monad		(liftM)
@@ -94,7 +103,8 @@ import Graphics.UI.Gtk.Types
 import Graphics.UI.Gtk.Gdk.Enums	(Function, Fill, SubwindowMode,
 					 LineStyle, CapStyle, JoinStyle)
 import Graphics.UI.Gtk.General.Enums	(StateType)
-
+import Graphics.UI.Gtk.General.DNDTypes (Atom(Atom) , SelectionTag,
+                                         TargetTag, SelectionTypeTag)
 -- | Represents the x and y coordinate of a point.
 --
 type Point = (Int, Int)
@@ -817,3 +827,49 @@ type SortColumnId = Int
 --
 treeSortableDefaultSortColumnId :: SortColumnId
 treeSortableDefaultSortColumnId = #{const GTK_TREE_SORTABLE_DEFAULT_SORT_COLUMN_ID}
+
+intToAtom :: Int -> Atom
+intToAtom = Atom . plusPtr nullPtr
+
+-- | An invalid 'TargetTag', 'SelectionTag', 'SelectionTypeTag' or 'PropertyTag'.
+--
+tagInvalid :: Atom
+tagInvalid = intToAtom #{const GDK_NONE}
+
+-- | The primary selection (the currently highlighted text in X11 that can
+--   in many applications be pasted using the middle button).
+selectionPrimary :: SelectionTag
+selectionPrimary = intToAtom #{const GDK_SELECTION_PRIMARY}
+
+-- | The secondary selection. Rarely used.
+selectionSecondary :: SelectionTag
+selectionSecondary = intToAtom #{const GDK_SELECTION_SECONDARY}
+
+-- | The modern clipboard that is filled by copy or cut commands.
+selectionClipboard :: SelectionTag
+selectionClipboard = intToAtom #{const GDK_SELECTION_CLIPBOARD}
+
+-- | If this target is provided by a selection, then the data is a string.
+targetString :: TargetTag
+targetString = intToAtom #{const GDK_TARGET_STRING}
+
+-- | The type indicating that the associated data is itself a (list of)
+-- 'Graphics.UI.Gtk.General.Selection.Atom's.
+selectionTypeAtom :: SelectionTypeTag
+selectionTypeAtom = intToAtom #{const GDK_SELECTION_TYPE_ATOM}
+
+-- | The type indicating that the associated data consists of integers.
+selectionTypeInteger :: SelectionTypeTag
+selectionTypeInteger = intToAtom #{const GDK_SELECTION_TYPE_INTEGER}
+
+-- | The type indicating that the associated data is a string without further
+-- information on its encoding.
+selectionTypeString :: SelectionTypeTag
+selectionTypeString = intToAtom #{const GDK_SELECTION_TYPE_STRING}
+
+-- | Extract the type field of SelectionData*. This should be in the
+--   Selection modules but c2hs chokes on the 'type' field.
+selectionDataGetType :: Ptr () -> IO SelectionTypeTag
+selectionDataGetType selPtr =
+  liftM intToAtom $ #{peek GtkSelectionData, type} selPtr
+

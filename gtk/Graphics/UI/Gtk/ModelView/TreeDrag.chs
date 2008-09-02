@@ -39,11 +39,11 @@ module Graphics.UI.Gtk.ModelView.TreeDrag (
 -- 'Graphics.UI.Gtk.ModelView.TreeStore' that allows to permute rows and move
 -- them between hierarchy levels.
 
--- * Utility functions
+-- * DND information for exchanging a model and a path.
   treeModelEqual,
+  targetTreeModelRow,
   treeGetRowDragData,
-  treeSetRowDragData
-
+  treeSetRowDragData,
   ) where
 
 -- I've decided not to bind the DragSource and DragDest interfaces. They seem
@@ -60,7 +60,8 @@ import System.Glib.GObject
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}      (TreePath, fromTreePath, withTreePath,
                                                  NativeTreePath(..))
-import Graphics.UI.Gtk.General.DNDTypes         (SelectionDataM, SelectionData)
+import Graphics.UI.Gtk.General.DNDTypes         (SelectionDataM, SelectionData,
+                                                 TargetTag, tagNew)
 import Control.Monad                            (liftM)
 import Control.Monad.Trans                      (liftIO)
 import Control.Monad.Reader                     (ask)
@@ -71,9 +72,21 @@ import Control.Monad.Reader                     (ask)
 treeModelEqual :: (TreeModelClass tm1, TreeModelClass tm2) => tm1 -> tm2 -> Bool
 treeModelEqual tm1 tm2 = unTreeModel (toTreeModel tm1) == unTreeModel (toTreeModel tm2)
 
+-- | The 'SelectionTag', 'TargetTag' and 'SelectionTypeTag' of the DND
+-- mechanism of 'Graphics.UI.Gtk.ModelView.ListStore' and
+-- 'Graphics.UI.Gtk.ModelView.TreeStore'. This tag is used by
+-- 'treeGetRowDragData' and 'treeSetRowDragData' to store a store and a
+-- 'TreePath' in a 'SelectionDataM'. This target should be added to a
+-- 'Graphics.UI.Gtk.General.Selection.TargetList' using
+-- 'Graphics.UI.Gtk.General.Seleciton.TargetSameWidget' flag and an
+-- 'Graphics.UI.Gtk.General.Selection.InfoId' of @0@.
+--
+targetTreeModelRow :: TargetTag
+targetTreeModelRow = unsafePerformIO $ tagNew "GTK_TREE_MODEL_ROW"
+
 -- %hash c:8dcb d:af3f
--- | Obtains a 'TreeModel' and a path from 'SelectionDataM' whenever the target name is
--- "GTK_TREE_MODEL_ROW". Normally called from a 'treeDragDestDragDataReceived' handler.
+-- | Obtains a 'TreeModel' and a path from 'SelectionDataM' whenever the target is
+-- 'targetTreeModelRow'. Normally called from a 'treeDragDestDragDataReceived' handler.
 --
 treeGetRowDragData :: SelectionDataM (Maybe (TreeModel, TreePath))
 treeGetRowDragData = ask >>= \selPtr -> liftIO $ alloca $ \tmPtrPtr -> alloca $ \pathPtrPtr -> do
@@ -88,7 +101,7 @@ treeGetRowDragData = ask >>= \selPtr -> liftIO $ alloca $ \tmPtrPtr -> alloca $ 
     else return Nothing
 
 -- %hash c:e3e3 d:af3f
--- | Sets selection data with the target name "GTK_TREE_MODEL_ROW", consisting
+-- | Sets selection data with the target 'targetTreeModelRow', consisting
 -- of a 'TreeModel' and a 'TreePath'. Normally used in a
 -- 'treeDragSourceDragDataGet' handler.
 --

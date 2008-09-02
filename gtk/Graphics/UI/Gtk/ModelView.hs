@@ -44,6 +44,7 @@ module Graphics.UI.Gtk.ModelView (
   module Graphics.UI.Gtk.ModelView.EntryCompletion,
   module Graphics.UI.Gtk.ModelView.IconView,
   module Graphics.UI.Gtk.ModelView.ListStore,
+  module Graphics.UI.Gtk.ModelView.TreeDrag,
   module Graphics.UI.Gtk.ModelView.TreeModel,
   module Graphics.UI.Gtk.ModelView.TreeModelSort,
   module Graphics.UI.Gtk.ModelView.TreeSortable,
@@ -68,6 +69,7 @@ import Graphics.UI.Gtk.ModelView.CustomStore
 import Graphics.UI.Gtk.ModelView.EntryCompletion
 import Graphics.UI.Gtk.ModelView.IconView
 import Graphics.UI.Gtk.ModelView.ListStore
+import Graphics.UI.Gtk.ModelView.TreeDrag
 import Graphics.UI.Gtk.ModelView.TreeModel
 import Graphics.UI.Gtk.ModelView.TreeModelSort
 import Graphics.UI.Gtk.ModelView.TreeSortable

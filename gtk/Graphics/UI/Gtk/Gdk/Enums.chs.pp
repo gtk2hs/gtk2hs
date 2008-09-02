@@ -65,7 +65,24 @@ import System.Glib.Flags	(Flags)
 --
 {#enum DragProtocol {underscoreToCase} deriving(Eq,Bounded,Show)#}
 
--- | Specify the kind of action performed on a drag event.
+
+-- | Used in 'Graphics.UI.Gtk.Genearl.Drag.DragContext' to indicate what the
+-- destination should do with the dropped data.
+--
+--   * 'ActionDefault': Initialisation value, should not be used.
+--
+--   * 'ActionCopy': Copy the data.
+--
+--   * 'ActionMove': Move the data, i.e. first copy it, then delete it from the source.
+--
+--   * 'ActionLink':  Add a link to the data. Note that this is only useful if source and
+--     destination agree on what it means.
+--
+--   * 'ActionPrivate': Special action which tells the source that the destination will do
+--     something that the source doesn't understand.
+--
+--   * 'ActionAsk': Ask the user what to do with the data.
+--
 {#enum DragAction {underscoreToCase} deriving(Eq,Bounded,Show)#}
 
 instance Flags DragAction
