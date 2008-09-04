@@ -2,6 +2,7 @@ module Main where
 
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.ModelView as New
+import System.Glib.Signals (on)
 
 data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
@@ -44,6 +45,12 @@ main = do
   New.treeViewAppendColumn view col1
   New.treeViewAppendColumn view col2
   New.treeViewAppendColumn view col3
+
+  -- update the model when the toggle buttons are activated
+  on renderer3 New.toggled $ \pathStr -> do
+    let (i:_) = New.stringToTreePath pathStr
+    val <- New.listStoreGetValue model i
+    New.listStoreSetValue model i val { marked = not (marked val) }
 
   containerAdd win view
   widgetShowAll win
