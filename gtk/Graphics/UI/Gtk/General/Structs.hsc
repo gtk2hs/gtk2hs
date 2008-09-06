@@ -88,7 +88,8 @@ module Graphics.UI.Gtk.General.Structs (
   selectionTypeAtom,
   selectionTypeInteger,
   selectionTypeString,
-  selectionDataGetType
+  selectionDataGetType,
+  withTargetEntries
   ) where
 
 import Control.Monad		(liftM)
@@ -103,7 +104,7 @@ import Graphics.UI.Gtk.Types
 import Graphics.UI.Gtk.Gdk.Enums	(Function, Fill, SubwindowMode,
 					 LineStyle, CapStyle, JoinStyle)
 import Graphics.UI.Gtk.General.Enums	(StateType)
-import Graphics.UI.Gtk.General.DNDTypes (Atom(Atom) , SelectionTag,
+import Graphics.UI.Gtk.General.DNDTypes (InfoId, Atom(Atom) , SelectionTag,
                                          TargetTag, SelectionTypeTag)
 -- | Represents the x and y coordinate of a point.
 --
@@ -873,3 +874,36 @@ selectionDataGetType :: Ptr () -> IO SelectionTypeTag
 selectionDataGetType selPtr =
   liftM intToAtom $ #{peek GtkSelectionData, type} selPtr
 
+-- A type that identifies a target. This is needed to marshal arrays of
+-- GtkTargetEntries.
+data TargetEntry = TargetEntry (Ptr #{type gchar}) InfoId
+
+-- brain damaged API: the whole selection API doesn't need GtkTargetEntry
+-- structure, but stupid Clipboard has two functions that only provide this
+-- interface. Thus, convert the efficient Atoms back into strings, have
+-- the clipboard functions convert them back to string before we get a
+-- chance to free the freshly allocated strings.
+
+withTargetEntries :: [(TargetTag, InfoId)] -> (Int -> Ptr () -> IO a) -> IO a
+withTargetEntries tags fun = do
+  ptrsInfo <- mapM (\(Atom tag, info) -> gdk_atom_name tag >>= \strPtr ->
+                     return (TargetEntry strPtr info)) tags
+  let len = length tags
+  res <- withArrayLen ptrsInfo (\len ptr -> fun len (castPtr ptr))
+  mapM_ (\(TargetEntry ptr _) -> g_free ptr) ptrsInfo
+  return res
+
+foreign import ccall unsafe "gdk_atom_name"
+  gdk_atom_name :: Ptr () -> IO (Ptr #{type gchar})
+
+foreign import ccall unsafe "g_free"
+  g_free :: Ptr #{type gchar} -> IO ()
+
+instance Storable TargetEntry where
+  sizeOf _ = #{const sizeof(GtkTargetEntry)}
+  alignment _ = alignment (undefined::#type guint32)
+  peek ptr = undefined
+  poke ptr (TargetEntry cPtr info) = do
+    #{poke GtkTargetEntry, target} ptr cPtr
+    #{poke GtkTargetEntry, flags} ptr (0::#{type guint})
+    #{poke GtkTargetEntry, info} ptr info
