@@ -1,7 +1,7 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Clipboard
 --
---  Author : Juergen Nicklisch Axel Simon
+--  Author : Axel Simon
 --
 --  Created: 26 March 2007
 --
@@ -17,7 +17,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 --  Lesser General Public License for more details.
 --
--- I remove all definitions for the clipboard by Juergen Nicklisch since
+-- I removed all definitions for the clipboard by Juergen Nicklisch since
 -- the way the clipboards were selected didn't tie in with the Selection
 -- module.
 --
