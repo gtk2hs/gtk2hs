@@ -65,12 +65,12 @@ module Graphics.UI.Gtk.General.Selection (
   selectionAddTarget,
   selectionClearTargets,
   selectionOwnerSet,
---  selectionOwnerSetForDisplay,
+  selectionOwnerSetForDisplay,
   selectionRemoveAll,
 
   selectionDataSet,
   selectionDataGet,
-  selectionDataGetLength,
+  selectionDataIsValid,
   selectionDataSetText,
   selectionDataGetText,
 #if GTK_CHECK_VERSION(2,6,0)
@@ -193,7 +193,7 @@ targetListRemove tl (Atom t)= {#call unsafe target_list_remove#} tl t
 -- widget and selection.
 --
 selectionAddTarget :: WidgetClass widget => widget -> SelectionTag ->
- 					  TargetTag -> InfoId -> IO ()
+                      TargetTag -> InfoId -> IO ()
 selectionAddTarget widget (Atom selection) (Atom target) info =
   {#call unsafe gtk_selection_add_target #}
     (toWidget widget)
@@ -215,7 +215,7 @@ selectionClearTargets widget (Atom selection) =
 -- widget is 'Nothing', release ownership of the selection.
 --
 selectionOwnerSet :: WidgetClass widget => Maybe widget -> SelectionTag ->
-					 TimeStamp -> IO Bool
+  TimeStamp -> IO Bool
 selectionOwnerSet widget (Atom selection) time =
   liftM toBool $
   {#call unsafe gtk_selection_owner_set #}
@@ -224,16 +224,17 @@ selectionOwnerSet widget (Atom selection) time =
     (fromIntegral time)
 
 -- %hash c:174 d:af3f
--- 
+-- | Set the ownership of a given selection and display.
 --
---selectionOwnerSetForDisplay :: WidgetClass widget => Display -> widget -> {-GdkAtom-} -> Word32 -> IO Bool
---selectionOwnerSetForDisplay display widget selection time =
--- liftM toBool $
---  {#call unsafe gtk_selection_owner_set_for_display #}
---    display
---    (toWidget widget)
---    {-selection-}
---    (fromIntegral time)
+selectionOwnerSetForDisplay :: WidgetClass widget => Display -> Maybe widget ->
+  SelectionTag -> TimeStamp -> IO Bool
+selectionOwnerSetForDisplay display widget (Atom selection) time =
+ liftM toBool $
+  {#call unsafe gtk_selection_owner_set_for_display #}
+    display
+    (maybe (mkWidget nullForeignPtr) toWidget widget)
+    selection
+    (fromIntegral time)
 
 -- %hash c:c29 d:af3f
 -- | Removes all handlers and unsets ownership of all selections for a widget.
@@ -280,6 +281,17 @@ selectionDataGetLength = do
   selPtr <- ask
   liftIO $ liftM fromIntegral $ {#get SelectionData -> length#} selPtr    
 
+-- | Check if the currently stored data is valid.
+--
+-- * If this function returns @False@, no data is set in this selection
+--   and 'selectionDataGet' will return @Nothing@ no matter what type
+--   is requested.
+--
+selectionDataIsValid :: SelectionDataM Bool
+selectionDataIsValid = do
+  len <- selectionDataGetLength
+  return (len>=0)
+  
 -- %hash c:9bdf d:af3f
 -- | Sets the contents of the selection from a string. The
 -- string is converted to the form determined by the allowed targets of the
