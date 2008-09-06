@@ -520,11 +520,11 @@ treeViewSetColumnDragFunction self (Just pred) = do
       makeNewObject mkTreeViewColumn (return next)
     res <- pred target' prev' next'
     return (fromBool res)
+  dPtr <- mkFunPtrDestroyNotify fPtr
   {# call tree_view_set_column_drag_function #}
     (toTreeView self)
     fPtr
-    nullPtr nullFunPtr
-  freeHaskellFunPtr fPtr
+    nullPtr dPtr
 
 {#pointer TreeViewColumnDropFunc#}
 
