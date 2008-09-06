@@ -47,7 +47,7 @@ module Graphics.UI.Gtk.General.Selection (
   selectionTypeString,
 
 -- * Constructors
-  tagNew,
+  atomNew,
   targetListNew,
   
 -- * Methods

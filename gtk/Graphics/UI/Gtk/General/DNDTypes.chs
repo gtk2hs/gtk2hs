@@ -37,7 +37,7 @@ module Graphics.UI.Gtk.General.DNDTypes (
   SelectionDataM,
   
 -- * Constructors
-  tagNew,
+  atomNew,
   targetListNew,
   mkTargetList  
   ) where
@@ -110,8 +110,8 @@ atomToString ptr = unsafePerformIO $ do
 --   different applications. Note that the name of an 'Atom' can be printed
 --   by 'show' though comparing the atom is merely an integer comparison.
 --
-tagNew :: String -> IO Atom
-tagNew name = withUTFString name $ \strPtr ->
+atomNew :: String -> IO Atom
+atomNew name = withUTFString name $ \strPtr ->
   liftM Atom $ {#call unsafe gdk_atom_intern#} strPtr 0
 
 -- | Create a new, empty 'TargetList'.
