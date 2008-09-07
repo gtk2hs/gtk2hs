@@ -175,12 +175,12 @@ cellRendererTextSetFixedHeightFromFont self numberOfRows =
 -- Default value: @\"\"@
 --
 cellTextBackground :: CellRendererClass self => WriteAttr self String
-cellTextBackground = writeAttrFromStringProperty "cell-background"
+cellTextBackground = writeAttrFromStringProperty "background"
 
 -- | Text background color as a 'Color'.
 --
 cellTextBackgroundColor :: CellRendererClass self => Attr self Color
-cellTextBackgroundColor = newAttrFromBoxedStorableProperty "cell-background-gdk"
+cellTextBackgroundColor = newAttrFromBoxedStorableProperty "background-gdk"
   {# call pure unsafe gdk_color_get_type #}
 
 -- | Whether the 'cellTextBackground'\/'cellTextBackgroundColor' attribute is set.
@@ -188,7 +188,7 @@ cellTextBackgroundColor = newAttrFromBoxedStorableProperty "cell-background-gdk"
 -- Default value: @False@
 --
 cellTextBackgroundSet :: CellRendererClass self => Attr self Bool
-cellTextBackgroundSet = newAttrFromBoolProperty "cell-background-set"
+cellTextBackgroundSet = newAttrFromBoolProperty "background-set"
 
 -- | Whether the text can be modified by the user.
 --
@@ -248,12 +248,12 @@ cellTextFontDesc = newAttrFromBoxedOpaqueProperty makeNewFontDescription
 -- Default value: @\"\"@
 --
 cellTextForeground :: CellRendererClass self => WriteAttr self String
-cellTextForeground = writeAttrFromStringProperty "cell-foreground"
+cellTextForeground = writeAttrFromStringProperty "foreground"
 
 -- | Text foreground color as a 'Color'.
 --
 cellTextForegroundColor :: CellRendererClass self => Attr self Color
-cellTextForegroundColor = newAttrFromBoxedStorableProperty "cell-foreground-gdk"
+cellTextForegroundColor = newAttrFromBoxedStorableProperty "foreground-gdk"
   {# call pure unsafe gdk_color_get_type #}
 
 -- | Whether the 'cellTextForeground'\/'cellTextForegroundColor' attribute is set.
@@ -261,7 +261,7 @@ cellTextForegroundColor = newAttrFromBoxedStorableProperty "cell-foreground-gdk"
 -- Default value: @False@
 --
 cellTextForegroundSet :: CellRendererClass self => Attr self Bool
-cellTextForegroundSet = newAttrFromBoolProperty "cell-foreground-set"
+cellTextForegroundSet = newAttrFromBoolProperty "foreground-set"
 
 -- | The language this text is in, as an ISO code. Pango can use this as
 --   a hint when rendering the text. If you don't understand this parameter,
