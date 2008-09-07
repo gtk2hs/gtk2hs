@@ -63,12 +63,12 @@ module Graphics.UI.Gtk.ModelView.CellRendererToggle (
   cellToggleIndicatorSize,
 
 -- * Signals
-  toggled,
+  cellToggled,
 
 -- * Deprecated
 #ifndef DISABLE_DEPRECATED
-  onToggled,
-  afterToggled
+  onCellToggled,
+  afterCellToggled
 #endif
   ) where
 
@@ -205,26 +205,26 @@ cellToggleIndicatorSize = newAttrFromIntProperty "indicator-size"
 -- Signals
 
 -- %hash c:33ab d:1ba3
--- | The 'toggled' signal is emitted when the cell is toggled.
+-- | The 'cellToggled' signal is emitted when the cell is toggled.
 --
-toggled :: CellRendererToggleClass self => Signal self (String -> IO ())
-toggled = Signal (connect_STRING__NONE "toggled")
+cellToggled :: CellRendererToggleClass self => Signal self (String -> IO ())
+cellToggled = Signal (connect_STRING__NONE "toggled")
 
 --------------------
 -- Deprecated Signals
 
 #ifndef DISABLE_DEPRECATED
 -- %hash c:21f7
-onToggled :: CellRendererToggleClass self => self
+onCellToggled :: CellRendererToggleClass self => self
  -> (String -> IO ())
  -> IO (ConnectId self)
-onToggled = connect_STRING__NONE "toggled" False
-{-# DEPRECATED onToggled "instead of 'onToggled obj' use 'on obj toggled'" #-}
+onCellToggled = connect_STRING__NONE "toggled" False
+{-# DEPRECATED onCellToggled "instead of 'onCellToggled obj' use 'on obj cellToggled'" #-}
 
 -- %hash c:82f6
-afterToggled :: CellRendererToggleClass self => self
+afterCellToggled :: CellRendererToggleClass self => self
  -> (String -> IO ())
  -> IO (ConnectId self)
-afterToggled = connect_STRING__NONE "toggled" True
-{-# DEPRECATED afterToggled "instead of 'afterToggled obj' use 'after obj toggled'" #-}
+afterCellToggled = connect_STRING__NONE "toggled" True
+{-# DEPRECATED afterCellToggled "instead of 'afterCellToggled obj' use 'after obj cellToggled'" #-}
 #endif
