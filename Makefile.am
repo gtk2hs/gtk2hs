@@ -632,6 +632,7 @@ gtk_Graphics_UI_Gtk_General_General_hs_HCFLAGS	= '-\#include"gtk/wingtk.h"' -I.
 endif
 
 libHSgtk_a_LIBADD =							\
+	gtk/Graphics/UI/Gtk/General/Clipboard_stub.o			\
 	gtk/Graphics/UI/Gtk/Abstract/Container_stub.o			\
 	gtk/Graphics/UI/Gtk/Multiline/TextIter_stub.o			\
         gtk/Graphics/UI/Gtk/Multiline/TextTagTable_stub.o		\
