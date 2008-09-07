@@ -45,7 +45,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 --
 -- When the user selects a completion, the content of the entry is updated.
 -- By default, the content of the entry is replaced by the text column of the
--- model, but this can be overridden by connecting to the ::match-selected
+-- model, but this can be overridden by connecting to the 'matchSelected'
 -- signal and updating the entry in the signal handler. Note that you should
 -- return @True@ from the signal handler to suppress the default behaviour.
 --
@@ -56,7 +56,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 -- the entry when they are selected, 'EntryCompletion' also allows to display
 -- \"actions\" in the popup window. Their appearance is similar to menu items,
 -- to differentiate them clearly from completion strings. When an action is
--- selected, the ::action-activated signal is emitted.
+-- selected, the 'completionActionActivated' signal is emitted.
 
 -- * Class Hierarchy
 -- |
@@ -79,6 +79,7 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
   entryCompletionGetEntry,
   entryCompletionSetModel,
   entryCompletionGetModel,
+  entryCompletionSetTextModel,
   entryCompletionSetMatchFunc,
   entryCompletionSetMinimumKeyLength,
   entryCompletionGetMinimumKeyLength,
@@ -117,11 +118,20 @@ module Graphics.UI.Gtk.Entry.EntryCompletion (
 
 -- * Signals
 #if GTK_CHECK_VERSION(2,6,0)
+  insertPrefix,
+#endif
+  completionActionActivated,
+  matchSelected,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
+#if GTK_CHECK_VERSION(2,6,0)
   onInsertPrefix,
   afterInsertPrefix,
 #endif
   onActionActivated,
   afterActionActivated,
+#endif
 #endif
   ) where
 
@@ -135,10 +145,12 @@ import System.Glib.GObject		(constructNewGObject,
 import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
-{#import Graphics.UI.Gtk.ModelView.Types#} (TreeIter)
+{#import Graphics.UI.Gtk.ModelView.Types#} (TreeIter, peekTreeIter,
+                                            TypedTreeModelClass)
 {#import Graphics.UI.Gtk.ModelView.CustomStore#} (ColumnId(..),
                                                   makeColumnIdString,
-                                                  columnIdToNumber)
+                                                  columnIdToNumber,
+                                                  treeModelSetColumn)
 {# context lib="gtk" prefix="gtk" #}
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -188,13 +200,29 @@ entryCompletionGetModel self =
   {# call gtk_entry_completion_get_model #}
     self
 
+-- | Convenience function for setting up the most used case of this code: a
+-- completion list with just strings. This function will set up @completion@ to
+-- have a list displaying all (and just) strings in the completion list, and to
+-- get those strings from @model@. This functions creates and adds a 
+-- 'CellRendererText' which retrieves its content from the given model.
+--
+entryCompletionSetTextModel :: (TreeModelClass (model String),
+                                TypedTreeModelClass model)
+ => EntryCompletion -- ^ @completion@
+ -> model String    -- ^ the model containing 'String's
+ -> IO ()
+entryCompletionSetTextModel self model = do
+  let strCol = makeColumnIdString 0
+  treeModelSetColumn model strCol id
+  set self [entryCompletionTextColumn := strCol]
+
 -- | Sets the match function for @completion@ to be @func@. The match function
 -- is used to determine if a row should or should not be in the completion
 -- list.
 --
 -- * The passed-in function decides whether the row indicated by the
 --   'TreeIter' matches a given key, and should be displayed as a possible
---   completion for key. Note that key is normalized and case-folded.
+--   completion for key. Note that the key is normalized and case-folded.
 --   Normalization will standardizing such issues as whether a character
 --   with an accent is represented as a base character and combining accent
 --   or as a single precomposed character. If this is not appropriate you
@@ -518,7 +546,37 @@ entryCompletionPopupSingleMatch = newAttr
 
 --------------------
 -- Signals
+#if GTK_CHECK_VERSION(2,6,0)
+-- %hash c:f4eb d:9ccf
+-- | Gets emitted when the inline autocompletion is triggered. The default
+-- behaviour is to make the entry display the whole prefix and select the newly
+-- inserted part.
+--
+-- Applications may connect to this signal in order to insert only a smaller
+-- part of the @prefix@ into the entry - e.g. the entry used in the
+-- 'FileChooser' inserts only the part of the prefix up to the next \'\/\'.
+--
+-- * Available since Gtk+ version 2.6
+--
+insertPrefix :: EntryCompletionClass self => Signal self (String -> IO Bool)
+insertPrefix = Signal (connect_STRING__BOOL "insert_prefix")
+#endif
 
+-- %hash c:d50e d:ad7e
+-- | Gets emitted when a match from the list is selected. The default
+-- behaviour is to replace the contents of the entry with the contents of the
+-- text column in the row pointed to by @iter@.
+--
+matchSelected :: EntryCompletionClass self => Signal self (TreeModel -> TreeIter -> IO Bool)
+matchSelected = Signal (connect_OBJECT_BOXED__BOOL "match_selected" peekTreeIter)
+
+-- %hash c:21ac d:2cbc
+-- | Gets emitted when an action is activated.
+--
+completionActionActivated :: EntryCompletionClass self => Signal self (Int -> IO ())
+completionActionActivated = Signal (connect_INT__NONE "action_activated")
+
+#ifndef DISABLE_DEPRECATED
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Gets emitted when the inline autocompletion is triggered. The default
 -- behaviour is to make the entry display the whole prefix and select the newly
@@ -542,4 +600,5 @@ onActionActivated, afterActionActivated :: EntryCompletionClass self => self
  -> IO (ConnectId self)
 onActionActivated = connect_INT__NONE "action_activated" False
 afterActionActivated = connect_INT__NONE "action_activated" True
+#endif
 #endif
