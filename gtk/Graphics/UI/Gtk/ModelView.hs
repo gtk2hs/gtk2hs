@@ -24,10 +24,10 @@
 --
 -- New model-based tree\/list widget system.
 -- 
--- This just re-exports the Graphics.UI.Gtk.* modules.
+-- This just re-exports the Graphics.UI.Gtk.ModelView.* modules.
 --
--- * Note: In the next version of Gtk2Hs this system will be the default
--- so it will not be necessary to explicitly import this module in future.
+-- * Note: From this version of Gtk2Hs this system will be the default
+-- so it will not be necessary to explicitly import this module.
 --
 module Graphics.UI.Gtk.ModelView (
   module Graphics.UI.Gtk.ModelView.CellLayout,
@@ -38,10 +38,10 @@ module Graphics.UI.Gtk.ModelView (
   module Graphics.UI.Gtk.ModelView.CellRendererText,
   module Graphics.UI.Gtk.ModelView.CellRendererToggle,
   module Graphics.UI.Gtk.ModelView.CellView,
-  module Graphics.UI.Gtk.ModelView.ComboBox,
-  module Graphics.UI.Gtk.ModelView.ComboBoxEntry,
+  module Graphics.UI.Gtk.MenuComboToolbar.ComboBox,
+  module Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry,
   module Graphics.UI.Gtk.ModelView.CustomStore,
-  module Graphics.UI.Gtk.ModelView.EntryCompletion,
+  module Graphics.UI.Gtk.Entry.EntryCompletion,
   module Graphics.UI.Gtk.ModelView.IconView,
   module Graphics.UI.Gtk.ModelView.ListStore,
   module Graphics.UI.Gtk.ModelView.TreeDrag,
@@ -63,10 +63,10 @@ import Graphics.UI.Gtk.ModelView.CellRendererProgress
 import Graphics.UI.Gtk.ModelView.CellRendererText
 import Graphics.UI.Gtk.ModelView.CellRendererToggle
 import Graphics.UI.Gtk.ModelView.CellView
-import Graphics.UI.Gtk.ModelView.ComboBox
-import Graphics.UI.Gtk.ModelView.ComboBoxEntry
+import Graphics.UI.Gtk.MenuComboToolbar.ComboBox -- these moved back to MenuComboToolbar
+import Graphics.UI.Gtk.MenuComboToolbar.ComboBoxEntry
 import Graphics.UI.Gtk.ModelView.CustomStore
-import Graphics.UI.Gtk.ModelView.EntryCompletion
+import Graphics.UI.Gtk.Entry.EntryCompletion -- this moved back to Entry
 import Graphics.UI.Gtk.ModelView.IconView
 import Graphics.UI.Gtk.ModelView.ListStore
 import Graphics.UI.Gtk.ModelView.TreeDrag

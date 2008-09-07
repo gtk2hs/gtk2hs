@@ -24,6 +24,9 @@
 --
 -- The database for simple (non-hierarchical) tables.
 --
+-- * This module and all other modules in 'Graphics.UI.Gtk.TreeList' are
+--   deprecated. Please use the modules in 'Graphics.UI.Gtk.ModelView'.
+--
 module Graphics.UI.Gtk.TreeList.ListStore (
 -- * Detail
 -- 

@@ -526,6 +526,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserWidget.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileChooserDialog.chs.pp		\
 	gtk/Graphics/UI/Gtk/Selectors/FileFilter.chs.pp			\
+	gtk/Graphics/UI/Gtk/TreeList.hs					\
 	gtk/Graphics/UI/Gtk/TreeList/CellRenderer.hs			\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererPixbuf.chs		\
 	gtk/Graphics/UI/Gtk/TreeList/CellRendererText.chs		\
@@ -550,10 +551,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererText.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CellRendererToggle.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CellView.chs.pp			\
-	gtk/Graphics/UI/Gtk/ModelView/ComboBox.chs.pp			\
-	gtk/Graphics/UI/Gtk/ModelView/ComboBoxEntry.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/CustomStore.chs			\
-	gtk/Graphics/UI/Gtk/ModelView/EntryCompletion.chs.pp		\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.c			\
 	gtk/Graphics/UI/Gtk/ModelView/IconView.chs.pp			\
 	gtk/Graphics/UI/Gtk/ModelView/ListStore.hs.pp			\

@@ -24,6 +24,9 @@
 --
 -- A tree-like data structure that can be used with the 'TreeView'
 --
+-- * This module and all other modules in 'Graphics.UI.Gtk.TreeList' are
+--   deprecated. Please use the modules in 'Graphics.UI.Gtk.ModelView'.
+--
 module Graphics.UI.Gtk.TreeList.TreeStore (
 -- * Detail
 -- 

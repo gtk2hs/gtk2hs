@@ -52,6 +52,9 @@
 --
 -- A widget for displaying both trees and lists.
 --
+-- * This module and all other modules in 'Graphics.UI.Gtk.TreeList' are
+--   deprecated. Please use the modules in 'Graphics.UI.Gtk.ModelView'.
+--
 module Graphics.UI.Gtk.TreeList.TreeView (
 -- * Description
 -- 

@@ -24,6 +24,9 @@
 --
 -- Renders a toggle button in a cell
 --
+-- * This module and all other modules in 'Graphics.UI.Gtk.TreeList' are
+--   deprecated. Please use the modules in 'Graphics.UI.Gtk.ModelView'.
+--
 module Graphics.UI.Gtk.TreeList.CellRendererToggle (
 -- * Detail
 -- 

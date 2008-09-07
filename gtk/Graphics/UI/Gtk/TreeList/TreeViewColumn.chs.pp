@@ -41,6 +41,9 @@
 --
 -- A visible column in a 'TreeView' widget
 --
+-- * This module and all other modules in 'Graphics.UI.Gtk.TreeList' are
+--   deprecated. Please use the modules in 'Graphics.UI.Gtk.ModelView'.
+--
 module Graphics.UI.Gtk.TreeList.TreeViewColumn (
 -- * Detail
 -- 

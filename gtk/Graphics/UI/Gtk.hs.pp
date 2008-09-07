@@ -95,24 +95,26 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Multiline.TextTagTable,
   module Graphics.UI.Gtk.Multiline.TextView,
   -- * Tree and list widget
-  module Graphics.UI.Gtk.TreeList.TreeModel,
-  module Graphics.UI.Gtk.TreeList.TreeSelection,
---  module Graphics.UI.Gtk.TreeList.CellLayout,
-  module Graphics.UI.Gtk.TreeList.TreeViewColumn,
-  module Graphics.UI.Gtk.TreeList.TreeView,
-  module Graphics.UI.Gtk.TreeList.IconView,
-  module Graphics.UI.Gtk.TreeList.CellView,
---  module TreeSortable,
-  module Graphics.UI.Gtk.TreeList.TreeModelSort,
-  module Graphics.UI.Gtk.TreeList.CellRenderer,
---  module CellEditable,
-  module Graphics.UI.Gtk.TreeList.CellRendererPixbuf,
-  module Graphics.UI.Gtk.TreeList.CellRendererText,
-  module Graphics.UI.Gtk.TreeList.CellRendererToggle,
---  module Graphics.UI.Gtk.TreeList.CellRendererProgress,
---  module Graphics.UI.Gtk.TreeList.CellRendererCombo,
-  module Graphics.UI.Gtk.TreeList.ListStore,
-  module Graphics.UI.Gtk.TreeList.TreeStore,
+  module Graphics.UI.Gtk.ModelView.CellLayout,
+  module Graphics.UI.Gtk.ModelView.CellRenderer,
+  module Graphics.UI.Gtk.ModelView.CellRendererCombo,
+  module Graphics.UI.Gtk.ModelView.CellRendererPixbuf,
+  module Graphics.UI.Gtk.ModelView.CellRendererProgress,
+  module Graphics.UI.Gtk.ModelView.CellRendererText,
+  module Graphics.UI.Gtk.ModelView.CellRendererToggle,
+  module Graphics.UI.Gtk.ModelView.CellView,
+  module Graphics.UI.Gtk.ModelView.CustomStore,
+  module Graphics.UI.Gtk.ModelView.IconView,
+  module Graphics.UI.Gtk.ModelView.ListStore,
+  module Graphics.UI.Gtk.ModelView.TreeDrag,
+  module Graphics.UI.Gtk.ModelView.TreeModel,
+  module Graphics.UI.Gtk.ModelView.TreeModelSort,
+  module Graphics.UI.Gtk.ModelView.TreeSortable,
+  module Graphics.UI.Gtk.ModelView.TreeRowReference,
+  module Graphics.UI.Gtk.ModelView.TreeSelection,
+  module Graphics.UI.Gtk.ModelView.TreeStore,
+  module Graphics.UI.Gtk.ModelView.TreeView,
+  module Graphics.UI.Gtk.ModelView.TreeViewColumn,
   -- * Menus, combo box, toolbar
   module Graphics.UI.Gtk.MenuComboToolbar.CheckMenuItem,
   module Graphics.UI.Gtk.MenuComboToolbar.Combo,
@@ -283,25 +285,26 @@ import Graphics.UI.Gtk.Multiline.TextView hiding (afterSetScrollAdjustments,
 		onInsertAtCursor, afterPasteClipboard, onPasteClipboard,
 		afterToggleOverwrite, onToggleOverwrite)
 -- tree and list widget
-import Graphics.UI.Gtk.TreeList.TreeModel hiding (
-		gtk_tree_model_get_iter_from_string)
-import Graphics.UI.Gtk.TreeList.TreeSelection
---import Graphics.UI.Gtk.TreeList.CellLayout
-import Graphics.UI.Gtk.TreeList.TreeViewColumn
-import Graphics.UI.Gtk.TreeList.TreeView
-import Graphics.UI.Gtk.TreeList.IconView
-import Graphics.UI.Gtk.TreeList.CellView
---import TreeSortable
-import Graphics.UI.Gtk.TreeList.TreeModelSort
-import Graphics.UI.Gtk.TreeList.CellRenderer
---import CellEditable
-import Graphics.UI.Gtk.TreeList.CellRendererPixbuf
-import Graphics.UI.Gtk.TreeList.CellRendererText
-import Graphics.UI.Gtk.TreeList.CellRendererToggle
---import Graphics.UI.Gtk.TreeList.CellRendererProgress
---import Graphics.UI.Gtk.TreeList.CellRendererCombo
-import Graphics.UI.Gtk.TreeList.ListStore
-import Graphics.UI.Gtk.TreeList.TreeStore
+import Graphics.UI.Gtk.ModelView.CellLayout
+import Graphics.UI.Gtk.ModelView.CellRenderer
+import Graphics.UI.Gtk.ModelView.CellRendererCombo
+import Graphics.UI.Gtk.ModelView.CellRendererPixbuf
+import Graphics.UI.Gtk.ModelView.CellRendererProgress
+import Graphics.UI.Gtk.ModelView.CellRendererText
+import Graphics.UI.Gtk.ModelView.CellRendererToggle
+import Graphics.UI.Gtk.ModelView.CellView
+import Graphics.UI.Gtk.ModelView.CustomStore
+import Graphics.UI.Gtk.ModelView.IconView
+import Graphics.UI.Gtk.ModelView.ListStore
+import Graphics.UI.Gtk.ModelView.TreeDrag
+import Graphics.UI.Gtk.ModelView.TreeModel
+import Graphics.UI.Gtk.ModelView.TreeModelSort
+import Graphics.UI.Gtk.ModelView.TreeSortable
+import Graphics.UI.Gtk.ModelView.TreeRowReference
+import Graphics.UI.Gtk.ModelView.TreeSelection
+import Graphics.UI.Gtk.ModelView.TreeStore
+import Graphics.UI.Gtk.ModelView.TreeView
+import Graphics.UI.Gtk.ModelView.TreeViewColumn
 -- menus, combo box, toolbar
 import Graphics.UI.Gtk.MenuComboToolbar.Combo
 import Graphics.UI.Gtk.MenuComboToolbar.ComboBox

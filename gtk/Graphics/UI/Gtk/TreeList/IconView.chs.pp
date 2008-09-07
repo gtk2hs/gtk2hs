@@ -26,6 +26,9 @@
 --
 -- * Module available since Gtk+ version 2.6
 --
+-- * This module and all other modules in 'Graphics.UI.Gtk.TreeList' are
+--   deprecated. Please use the modules in 'Graphics.UI.Gtk.ModelView'.
+--
 module Graphics.UI.Gtk.TreeList.IconView (
 -- * Detail
 -- 
