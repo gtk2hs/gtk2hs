@@ -50,7 +50,7 @@ main = do
   onDestroy win mainQuit
 
   -- create a tag that we use as selection, target and selection type
-  compTypeTag <- tagNew "_CompType"
+  compTypeTag <- atomNew "_CompType"
 
   let pNames = map ("resListDND" </>)
                ["laptop.png","laptopSmall.png","printer.png",
@@ -114,8 +114,6 @@ main = do
         ty <- selectionDataGetTarget
         ct <- liftIO $ listStoreGetValue store i
         selectionDataSet compTypeTag [fromEnum ct]
-        t <- selectionDataGetTarget
-        l <- selectionDataGetLength
         return True,
       treeDragSourceDragDataDelete = \store path -> return True
     })
