@@ -1,8 +1,9 @@
 module Main where
 
 import Graphics.UI.Gtk
-import Graphics.UI.Gtk.ModelView as New
 import System.Glib.Signals (on)
+import Data.List ( isPrefixOf )
+import Data.Char ( toLower )
 
 data Phone = Phone { name :: String, number :: Int, marked :: Bool }
 
@@ -13,45 +14,53 @@ main = do
   onDestroy win mainQuit
 
   -- create a new list model
-  model <- New.listStoreNew
+  model <- listStoreNew
     [Phone { name = "Foo", number = 12345, marked = False }
     ,Phone { name = "Bar", number = 67890, marked = True  }
     ,Phone { name = "Baz", number = 39496, marked = False }]
-  view <- New.treeViewNewWithModel model
-
-  New.treeViewSetHeadersVisible view True
+  view <- treeViewNewWithModel model
+  
+  treeViewSetHeadersVisible view True
 
   -- add a couple columns
-  col1 <- New.treeViewColumnNew
-  col2 <- New.treeViewColumnNew
-  col3 <- New.treeViewColumnNew
+  col1 <- treeViewColumnNew
+  col2 <- treeViewColumnNew
+  col3 <- treeViewColumnNew
 
-  New.treeViewColumnSetTitle col1 "String column"
-  New.treeViewColumnSetTitle col2 "Int column"
-  New.treeViewColumnSetTitle col3 "Bool column"
+  treeViewColumnSetTitle col1 "String column"
+  treeViewColumnSetTitle col2 "Int column"
+  treeViewColumnSetTitle col3 "Bool column"
 
-  renderer1 <- New.cellRendererTextNew
-  renderer2 <- New.cellRendererTextNew
-  renderer3 <- New.cellRendererToggleNew
+  renderer1 <- cellRendererTextNew
+  renderer2 <- cellRendererTextNew
+  renderer3 <- cellRendererToggleNew
 
-  New.cellLayoutPackStart col1 renderer1 True
-  New.cellLayoutPackStart col2 renderer2 True
-  New.cellLayoutPackStart col3 renderer3 True
+  cellLayoutPackStart col1 renderer1 True
+  cellLayoutPackStart col2 renderer2 True
+  cellLayoutPackStart col3 renderer3 True
 
-  New.cellLayoutSetAttributes col1 renderer1 model $ \row -> [ New.cellText := name row ]
-  New.cellLayoutSetAttributes col2 renderer2 model $ \row -> [ New.cellText := show (number row) ]
-  New.cellLayoutSetAttributes col3 renderer3 model $ \row -> [ New.cellToggleActive := marked row ]
+  cellLayoutSetAttributes col1 renderer1 model $ \row -> [ cellText := name row ]
+  cellLayoutSetAttributes col2 renderer2 model $ \row -> [ cellText := show (number row) ]
+  cellLayoutSetAttributes col3 renderer3 model $ \row -> [ cellToggleActive := marked row ]
 
-  New.treeViewAppendColumn view col1
-  New.treeViewAppendColumn view col2
-  New.treeViewAppendColumn view col3
+  treeViewAppendColumn view col1
+  treeViewAppendColumn view col2
+  treeViewAppendColumn view col3
 
   -- update the model when the toggle buttons are activated
-  on renderer3 New.toggled $ \pathStr -> do
-    let (i:_) = New.stringToTreePath pathStr
-    val <- New.listStoreGetValue model i
-    New.listStoreSetValue model i val { marked = not (marked val) }
+  on renderer3 cellToggled $ \pathStr -> do
+    let (i:_) = stringToTreePath pathStr
+    val <- listStoreGetValue model i
+    listStoreSetValue model i val { marked = not (marked val) }
 
+
+  -- enable interactive search
+  treeViewSetEnableSearch view True
+  treeViewSetSearchEqualFunc view $ Just $ \str iter -> do
+    (i:_) <- treeModelGetPath model iter
+    row <- listStoreGetValue model i
+    return (map toLower str `isPrefixOf` map toLower (name row))
+ 
   containerAdd win view
   widgetShowAll win
   mainGUI 
