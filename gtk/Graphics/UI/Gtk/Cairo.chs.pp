@@ -46,6 +46,9 @@ module Graphics.UI.Gtk.Cairo (
   cairoContextGetResolution,
   cairoContextSetFontOptions,
   cairoContextGetFontOptions,
+  -- * Using 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf' functions together with Cairo
+  cairoImageSurfaceFromPixbuf,
+  pixbufFromImageSurface,
   -- * Functions for the 'Render' monad.
   renderWithDrawable,
   setSourceColor,
@@ -69,10 +72,14 @@ import System.Glib.FFI
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Gdk.Region#} (Region(..))
 import Graphics.UI.Gtk.General.Structs (Color(..))
-import System.Glib.GObject		(constructNewGObject, makeNewGObject)
+import System.Glib.GObject		(constructNewGObject, makeNewGObject,
+  objectRef, objectUnref)
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Pango.Structs ( pangoItemGetFont )
 import Graphics.UI.Gtk.Pango.Layout ( layoutSetText )
+{#import Graphics.UI.Gtk.Gdk.Pixbuf#} ( pixbufGetHasAlpha, pixbufGetNChannels,
+  pixbufGetColorSpace, pixbufGetWidth, pixbufGetHeight, pixbufGetRowstride,
+  Colorspace(..) )
 import Data.IORef
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
@@ -89,6 +96,84 @@ import Control.Monad.Reader
 -- Methods
 
 #if GTK_CHECK_VERSION(2,8,0) && defined(ENABLE_CAIRO)
+-- | Treat a 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf' as an image
+--   'Graphics..Rendering.Cairo.Surface'.
+--
+-- * The image data is shared between the two objects. Note that everytime you
+--   use 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf' functions on the image, it is
+--   necessary to tell Cairo that the image data has changed using
+--   'Graphics..Rendering.Cairo.surfaceMarkDirty' since it might cache certain areas of
+--   an image.
+--
+cairoImageSurfaceFromPixbuf :: Pixbuf -> IO Surface
+cairoImageSurfaceFromPixbuf pb = do
+  alpha <- pixbufGetHasAlpha pb
+  chan <- pixbufGetNChannels pb
+  cs <- pixbufGetColorSpace pb
+  width <- pixbufGetWidth pb
+  height <- pixbufGetHeight pb
+  stride <- pixbufGetRowstride pb
+  cairoFormat <- case (alpha, chan, cs) of
+    (True, 4, ColorspaceRgb) -> return FormatARGB32
+    (False, 3, ColorspaceRgb) -> return FormatRGB24
+    (_, 1, _) -> return FormatA8 -- pixbuf doesn't actually do that
+    _ -> error "cairoImageSurfaceFromPixbuf: cannot create cairo context form given format"
+  dPtr <- {#call unsafe pixbuf_get_pixels#} pb
+  sfPtr <- {#call cairo_image_surface_create_for_data#} dPtr
+    (fromIntegral (fromEnum cairoFormat)) (fromIntegral width)
+    (fromIntegral height) (fromIntegral stride)
+  sf <- mkSurface sfPtr
+  let pbPtr = unsafeForeignPtrToPtr (unPixbuf pb)
+  objectRef pbPtr
+  {#call cairo_surface_set_user_data#} sf (castPtr pbPtr)
+    (castPtr pbPtr) objectUnref
+  manageSurface sf
+  return sf
+  
+-- | Treat an image 'Graphics.Rendering.Cairo.Surface' as a
+-- 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf'.
+--
+-- * The image data is shared between the two objects. Note that everytime you
+--   use 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf' functions on the image, it is
+--   necessary to tell Cairo that the image data has changed using
+--   'Graphics.Rendering.Cairo.surfaceMarkDirty' since it might cache certain
+--   areas of an image. This function throws an error if the
+--   'Graphics.Rendering.Cairo.Surface' has any other format than
+--   'Graphics.Rendering.Cairo.FormatARGB32' or
+--   'Graphics.Rendering.Cairo.FormatRGB32' since
+--   'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf' can currently only handle these two
+--   formats.
+--
+pixbufFromImageSurface :: Surface -> IO Pixbuf
+pixbufFromImageSurface sf = do
+  con <- Cairo.Internal.surfaceGetContent sf
+  hasAlpha <- case con of
+    Cairo.Internal.ContentColor -> return False
+    Cairo.Internal.ContentColorAlpha -> return True
+    _ -> error ("pixbufFromImageSurface: Pixbufs do not support Cairo format "++show con)    
+  width <- Cairo.Internal.imageSurfaceGetWidth sf
+  height <- Cairo.Internal.imageSurfaceGetHeight sf
+  stride <- Cairo.Internal.imageSurfaceGetStride sf
+  dPtr <- Cairo.Internal.imageSurfaceGetData sf
+  let (Cairo.Surface sfFPtr) = sf
+  let sfPtr = unsafeForeignPtrToPtr sfFPtr
+  Cairo.Internal.surfaceReference sf
+  fPtrRef <- newIORef nullFunPtr
+  fPtr <- mkPixbufDestroyNotify $ \_ _ -> do
+    Cairo.Internal.surfaceDestroy sf
+    fPtr <- readIORef fPtrRef
+    freeHaskellFunPtr fPtr
+  writeIORef fPtrRef fPtr
+  makeNewGObject mkPixbuf $
+    {#call unsafe gdk_pixbuf_new_from_data#} dPtr 0 (fromBool hasAlpha)
+      8 (fromIntegral width) (fromIntegral height) (fromIntegral stride)
+      fPtr nullPtr
+
+{#pointer GdkPixbufDestroyNotify as PixbufDestroyNotify#}
+
+foreign import ccall "wrapper" mkPixbufDestroyNotify ::
+  (Ptr () -> Ptr Surface -> IO ()) -> IO PixbufDestroyNotify
+
 -- | Creates a Cairo context for drawing to a 'Drawable'.
 --
 renderWithDrawable :: DrawableClass drawable =>

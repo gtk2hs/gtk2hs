@@ -97,11 +97,11 @@ unPattern (Pattern x) = x
 --   'Graphics.Rendering.Cairo.Render', the last error, if any, is stored
 --   in the monad and can be retrieved with 'Graphics.Rendering.Cairo.status'.
 --
-{#enum status_t as Status {underscoreToCase} deriving(Eq)#}
+{#enum status_t as Status {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Composition operator for all drawing operations.
 --
-{#enum operator_t as Operator {underscoreToCase}#}
+{#enum operator_t as Operator {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Specifies the type of antialiasing to do when rendering text or shapes
 --
@@ -116,7 +116,7 @@ unPattern (Pattern x) = x
 -- ['AntialiasSubpixel']  Perform antialiasing by taking advantage of
 -- the order of subpixel elements on devices such as LCD panels.
 --
-{#enum antialias_t as Antialias {underscoreToCase}#}
+{#enum antialias_t as Antialias {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Specify how paths are filled.
 --
@@ -138,7 +138,7 @@ unPattern (Pattern x) = x
 --   without regard to the orientation of the contour. If the total number
 --   of intersections is odd, the point will be filled.
 --
-{#enum fill_rule_t as FillRule {underscoreToCase}#}
+{#enum fill_rule_t as FillRule {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Specify line endings.
 --
@@ -150,11 +150,11 @@ unPattern (Pattern x) = x
 -- ['LineCapSquare'] Use squared ending, the center of the square is the
 --   end point
 --
-{#enum line_cap_t as LineCap {underscoreToCase}#}
+{#enum line_cap_t as LineCap {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Specify how lines join.
 --
-{#enum line_join_t as LineJoin {underscoreToCase}#}
+{#enum line_join_t as LineJoin {underscoreToCase} deriving(Eq,Show)#}
 
 {#pointer *scaled_font_t as ScaledFont newtype#}
 unScaledFont (ScaledFont x) = x
@@ -230,10 +230,10 @@ instance Storable FontExtents where
     return ()
 
 -- | Specify font slant.
-{#enum font_slant_t as FontSlant {underscoreToCase}#}
+{#enum font_slant_t as FontSlant {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Specify font weight.
-{#enum font_weight_t as FontWeight {underscoreToCase}#}
+{#enum font_weight_t as FontWeight {underscoreToCase} deriving(Eq,Show)#}
 
 -- | The subpixel order specifies the order of color elements within each pixel
 -- on the display device when rendering with an antialiasing mode of
@@ -254,7 +254,7 @@ instance Storable FontExtents where
 -- ['SubpixelOrderVbgr']    Subpixel elements are arranged vertically
 --                          with blue at the top 
 --
-{#enum subpixel_order_t as SubpixelOrder {underscoreToCase}#}
+{#enum subpixel_order_t as SubpixelOrder {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Specifies the type of hinting to do on font outlines.
 --
@@ -294,7 +294,7 @@ instance Storable FontExtents where
 -- ['HintMetricsOn']       Hint font metrics
 --
 --
-{#enum hint_metrics_t as HintMetrics {underscoreToCase}#}
+{#enum hint_metrics_t as HintMetrics {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Specifies how to render text.
 {#pointer *font_options_t as FontOptions foreign newtype#}
@@ -331,19 +331,19 @@ foreign import ccall unsafe "&cairo_font_options_destroy"
 {#pointer *path_t as Path newtype#}
 unPath (Path x) = x
 
-{#enum content_t as Content {underscoreToCase}#}
+{#enum content_t as Content {underscoreToCase} deriving(Eq,Show)#}
 
 data Format = FormatARGB32
             | FormatRGB24
             | FormatA8
             | FormatA1
-            deriving (Enum)
+            deriving (Enum,Show,Eq)
 
 -- | FIXME: We should find out about this.
-{#enum extend_t as Extend {underscoreToCase}#}
+{#enum extend_t as Extend {underscoreToCase} deriving(Eq,Show)#}
 
 -- | Specify how filtering is done.
-{#enum filter_t as Filter {underscoreToCase}#}
+{#enum filter_t as Filter {underscoreToCase} deriving(Eq,Show)#}
 
 -- Marshalling functions
 
