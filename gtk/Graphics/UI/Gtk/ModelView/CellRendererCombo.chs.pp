@@ -78,7 +78,7 @@ import System.Glib.GObject			(constructNewGObject)
 import Graphics.UI.Gtk.Abstract.Object		(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
-{#import Graphics.UI.Gtk.ModelView.CustomStore#}
+{#import Graphics.UI.Gtk.ModelView.TreeModel#}
 
 {# context lib="gtk" prefix="gtk" #}
 

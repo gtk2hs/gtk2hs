@@ -23,7 +23,11 @@
 --   events. We don't marshal that window parameter, so this function is not
 --   bound either.
 --
--- All functions related to drag and drop are missing.
+-- The following functions related to drag and drop:
+--   treeViewSetDragDestRow, treeViewGetDragDestRow, treeViewGetDestRowAtPos
+-- these seem to be useful only in cases when the user wants to implement
+-- drag and drop himself rather than use the widget's implementation. I
+-- think this would be a bad idea in the first place.
 --
 -- get_search_equal_func is missing: proper memory management is impossible
 --
@@ -138,6 +142,8 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewCreateRowDragIcon,
   treeViewGetEnableSearch,
   treeViewSetEnableSearch,
+  treeViewGetSearchColumn,
+  treeViewSetSearchColumn,
   treeViewSetSearchEqualFunc,
 #if GTK_CHECK_VERSION(2,6,0)
   treeViewGetFixedHeightMode,
@@ -156,6 +162,8 @@ module Graphics.UI.Gtk.ModelView.TreeView (
 #if GTK_CHECK_VERSION(2,10,0)
   treeViewEnableModelDragDest,
   treeViewEnableModelDragSource,
+  treeViewUnsetRowsDragSource,
+  treeViewUnsetRowsDragDest,
   treeViewGetSearchEntry,
   treeViewSetSearchEntry,
 #endif
@@ -180,13 +188,32 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   treeViewReorderable,
   treeViewRulesHint,
   treeViewEnableSearch,
-#if GTK_CHECK_VERSION(2,6,0)
+  treeViewSearchColumn,
+#if GTK_CHECK_VERSION(2,4,0)
   treeViewFixedHeightMode,
+#if GTK_CHECK_VERSION(2,6,0)
   treeViewHoverSelection,
   treeViewHoverExpand,
 #endif
+#endif
+  treeViewShowExpanders,
+  treeViewLevelIndentation,
+  treeViewRubberBanding,
+  treeViewEnableGridLines,
+  treeViewEnableTreeLines,
+  treeViewGridLines,
+  treeViewSearchEntry,
 
 -- * Signals
+  columnsChanged,
+  cursorChanged,
+  rowCollapsed,
+  rowExpanded,
+  testCollapseRow,
+  testExpandRow,
+
+-- * Deprecated
+#ifndef DISABLE_DEPRECATED
   onColumnsChanged,
   afterColumnsChanged,
   onCursorChanged,
@@ -203,6 +230,7 @@ module Graphics.UI.Gtk.ModelView.TreeView (
   afterTestCollapseRow,
   onTestExpandRow,
   afterTestExpandRow
+#endif
   ) where
 
 import Control.Monad	(liftM, mapM)
@@ -223,6 +251,8 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.TreeViewColumn#}
+import Graphics.UI.Gtk.ModelView.TreeModel (ColumnId, columnIdToNumber,
+                                            makeColumnIdString)
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.General.DNDTypes#}     (TargetList(..))
 
@@ -988,10 +1018,44 @@ treeViewSetEnableSearch self enableSearch =
     (toTreeView self)
     (fromBool enableSearch)
 
+-- %hash c:ecc5 d:bed6
+-- | Gets the column searched on by the interactive search code.
+--
+treeViewGetSearchColumn :: TreeViewClass self => self
+ -> IO (ColumnId row String) -- ^ returns the column the interactive search code searches in.
+treeViewGetSearchColumn self =
+  liftM (makeColumnIdString . fromIntegral) $
+  {# call unsafe tree_view_get_search_column #}
+    (toTreeView self)
+
+-- %hash c:d0d0
+-- | Sets @column@ as the column where the interactive search code should
+-- search in.
+--
+-- If the sort column is set, users can use the \"start-interactive-search\"
+-- key binding to bring up search popup. The enable-search property controls
+-- whether simply typing text will also start an interactive search.
+--
+-- Note that @column@ refers to a column of the model. Furthermore, the
+-- search column is not used if a comparison function is set, see
+-- 'treeViewSetSearchEqualFunc'.
+--
+treeViewSetSearchColumn :: TreeViewClass self => self
+ -> (ColumnId row String) -- ^ @column@ - the column of the model to search in, or -1 to disable
+        -- searching
+ -> IO ()
+treeViewSetSearchColumn self column =
+  {# call tree_view_set_search_column #}
+    (toTreeView self)
+    (fromIntegral (columnIdToNumber column))
+
+
 -- | Set the predicate to test for equality.
 --
 -- * The predicate must returns @True@ if the text entered by the user
---   and the row of the model match.
+--   and the row of the model match. Calling this function will overwrite
+--   the 'treeViewSearchColumn' (which isn't used anyway when a comparison
+--   function is installed).
 --
 treeViewSetSearchEqualFunc :: TreeViewClass self => self
  -> Maybe (String -> TreeIter -> IO Bool)
@@ -1178,7 +1242,23 @@ treeViewEnableModelDragSource self startButtonMask targets actions =
     nTargets
     ((fromIntegral . fromFlags) actions)
   {#call unsafe gtk_target_table_free#} tlPtr nTargets
-  
+
+-- %hash c:5201 d:f3be
+-- | Undoes the effect of 'treeViewEnableModelDragSource'.
+--
+treeViewUnsetRowsDragSource :: TreeViewClass self => self -> IO ()
+treeViewUnsetRowsDragSource self =
+  {# call gtk_tree_view_unset_rows_drag_source #}
+    (toTreeView self)
+
+-- %hash c:e31e d:323d
+-- | Undoes the effect of 'treeViewEnableModelDragDest'.
+--
+treeViewUnsetRowsDragDest :: TreeViewClass self => self -> IO ()
+treeViewUnsetRowsDragDest self =
+  {# call gtk_tree_view_unset_rows_drag_dest #}
+    (toTreeView self)
+
 -- %hash c:3355 d:3bbe
 -- | Returns the 'Entry' which is currently in use as interactive search entry
 -- for @treeView@. In case the built-in entry is being used, @Nothing@ will be
@@ -1411,49 +1491,171 @@ treeViewEnableSearch = newAttr
   treeViewGetEnableSearch
   treeViewSetEnableSearch
 
-#if GTK_CHECK_VERSION(2,6,0)
--- | Setting the fixed-height-mode property to @True@ speeds up 'TreeView'
+-- %hash c:e732
+-- | Model column to search through when searching through code.
+--
+-- Allowed values: >= -1
+--
+-- Default value: -1
+--
+treeViewSearchColumn :: TreeViewClass self => Attr self (ColumnId row String)
+treeViewSearchColumn = newAttr
+  treeViewGetSearchColumn
+  treeViewSetSearchColumn
+
+#if GTK_CHECK_VERSION(2,4,0)
+-- %hash c:c7ff d:24d1
+-- | Setting the 'treeViewFixedHeightMode' property to @True@ speeds up 'TreeView'
 -- by assuming that all rows have the same height. Only enable this option if
 -- all rows are the same height. Please see 'treeViewSetFixedHeightMode' for
 -- more information on this option.
 --
 -- Default value: @False@
 --
+-- * Available since Gtk+ version 2.4
+--
 treeViewFixedHeightMode :: TreeViewClass self => Attr self Bool
-treeViewFixedHeightMode = newAttr
-  treeViewGetFixedHeightMode
-  treeViewSetFixedHeightMode
+treeViewFixedHeightMode = newAttrFromBoolProperty "fixed-height-mode"
 
--- | Enables of disables the hover selection mode of the tree view. Hover
+#if GTK_CHECK_VERSION(2,6,0)
+-- %hash c:2026 d:839a
+-- | Enables of disables the hover selection mode of @treeView@. Hover
 -- selection makes the selected row follow the pointer. Currently, this works
 -- only for the selection modes 'SelectionSingle' and 'SelectionBrowse'.
 --
--- This mode is primarily indended for treeviews in popups, e.g. in
+-- This mode is primarily intended for 'TreeView's in popups, e.g. in
 -- 'ComboBox' or 'EntryCompletion'.
 --
 -- Default value: @False@
+--
+-- * Available since Gtk+ version 2.6
 --
 treeViewHoverSelection :: TreeViewClass self => Attr self Bool
-treeViewHoverSelection = newAttr
-  treeViewGetHoverSelection
-  treeViewSetHoverSelection
+treeViewHoverSelection = newAttrFromBoolProperty "hover-selection"
 
--- | Enables of disables the hover expansion mode of the tree view. Hover
+-- %hash c:c694 d:3f15
+-- | Enables of disables the hover expansion mode of @treeView@. Hover
 -- expansion makes rows expand or collaps if the pointer moves over them.
 --
--- This mode is primarily indended for treeviews in popups, e.g. in
+-- This mode is primarily intended for 'TreeView's in popups, e.g. in
 -- 'ComboBox' or 'EntryCompletion'.
 --
 -- Default value: @False@
 --
+-- * Available since Gtk+ version 2.6
+--
 treeViewHoverExpand :: TreeViewClass self => Attr self Bool
-treeViewHoverExpand = newAttr
-  treeViewGetHoverExpand
-  treeViewSetHoverExpand
+treeViewHoverExpand = newAttrFromBoolProperty "hover-expand"
 #endif
+#endif
+
+-- %hash c:b409 d:2ed2
+-- | View has expanders.
+--
+-- Default value: @True@
+--
+treeViewShowExpanders :: TreeViewClass self => Attr self Bool
+treeViewShowExpanders = newAttrFromBoolProperty "show-expanders"
+
+-- %hash c:f0e5 d:9017
+-- | Extra indentation for each level.
+--
+-- Allowed values: >= 0
+--
+-- Default value: 0
+--
+treeViewLevelIndentation :: TreeViewClass self => Attr self Int
+treeViewLevelIndentation = newAttrFromIntProperty "level-indentation"
+
+-- %hash c:a647 d:9e53
+-- | Whether to enable selection of multiple items by dragging the mouse
+-- pointer.
+--
+-- Default value: @False@
+--
+treeViewRubberBanding :: TreeViewClass self => Attr self Bool
+treeViewRubberBanding = newAttrFromBoolProperty "rubber-banding"
+
+-- %hash c:e926 d:86a8
+-- | Whether grid lines should be drawn in the tree view.
+--
+-- Default value: 'TreeViewGridLinesNone'
+--
+treeViewEnableGridLines :: TreeViewClass self => Attr self TreeViewGridLines
+treeViewEnableGridLines = newAttrFromEnumProperty "enable-grid-lines"
+                            {# call pure unsafe gtk_tree_view_grid_lines_get_type #}
+
+-- %hash c:a7eb d:4c53
+-- | Whether tree lines should be drawn in the tree view.
+--
+-- Default value: @False@
+--
+treeViewEnableTreeLines :: TreeViewClass self => Attr self Bool
+treeViewEnableTreeLines = newAttrFromBoolProperty "enable-tree-lines"
+
+-- %hash c:688c d:cbcd
+-- | \'gridLines\' property. See 'treeViewGetGridLines' and
+-- 'treeViewSetGridLines'
+--
+treeViewGridLines :: TreeViewClass self => Attr self TreeViewGridLines
+treeViewGridLines = newAttr
+  treeViewGetGridLines
+  treeViewSetGridLines
+
+-- %hash c:9cbe d:2962
+-- | \'searchEntry\' property. See 'treeViewGetSearchEntry' and
+-- 'treeViewSetSearchEntry'
+--
+treeViewSearchEntry :: (TreeViewClass self, EntryClass entry) => ReadWriteAttr self (Maybe Entry) (Maybe entry)
+treeViewSearchEntry = newAttr
+  treeViewGetSearchEntry
+  treeViewSetSearchEntry
 
 --------------------
 -- Signals
+
+-- %hash c:9fc5 d:3e66
+-- | The given row is about to be expanded (show its children nodes). Use this
+-- signal if you need to control the expandability of individual rows.
+--
+testExpandRow :: TreeViewClass self => Signal self (TreeIter -> TreePath -> IO Bool)
+testExpandRow = Signal (connect_BOXED_BOXED__BOOL "test-expand-row" peek readNTP)
+
+-- %hash c:20de d:96a3
+-- | The given row is about to be collapsed (hide its children nodes). Use
+-- this signal if you need to control the collapsibility of individual rows.
+--
+testCollapseRow :: TreeViewClass self => Signal self (TreeIter -> TreePath -> IO Bool)
+testCollapseRow = Signal (connect_BOXED_BOXED__BOOL "test-collapse-row" peek readNTP)
+
+-- %hash c:16dc d:b113
+-- | The given row has been expanded (child nodes are shown).
+--
+rowExpanded :: TreeViewClass self => Signal self (TreeIter -> TreePath -> IO ())
+rowExpanded = Signal (connect_BOXED_BOXED__NONE "row-expanded" peek readNTP)
+
+-- %hash c:9ee6 d:325e
+-- | The given row has been collapsed (child nodes are hidden).
+--
+rowCollapsed :: TreeViewClass self => Signal self (TreeIter -> TreePath -> IO ())
+rowCollapsed = Signal (connect_BOXED_BOXED__NONE "row-collapsed" peek readNTP)
+
+-- %hash c:4350 d:4f94
+-- | The number of columns of the treeview has changed.
+--
+columnsChanged :: TreeViewClass self => Signal self (IO ())
+columnsChanged = Signal (connect_NONE__NONE "columns-changed")
+
+-- %hash c:6487 d:5b57
+-- | The position of the cursor (focused cell) has changed.
+--
+cursorChanged :: TreeViewClass self => Signal self (IO ())
+cursorChanged = Signal (connect_NONE__NONE "cursor-changed")
+
+--------------------
+-- Deprecated Signals
+
+#ifndef DISABLE_DEPRECATED
 
 -- | The user has dragged a column to another position.
 --
@@ -1552,3 +1754,4 @@ onTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
   peek readNTP False
 afterTestExpandRow = connect_BOXED_BOXED__BOOL "test_expand_row"
   peek readNTP True
+#endif

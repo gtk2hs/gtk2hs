@@ -26,13 +26,15 @@
 --
 module Graphics.UI.Gtk.ModelView.TreeModel (
 -- * Detail
---        
+--               
 -- | The 'TreeModel' interface defines a generic storage object for use by the
--- 'TreeView' widget. In other words, this module exposes the C interface that
--- Gtk uses to populate the 'TreeView' widget. While this module is an
--- interface from the perspective of Gtk, this module provides a skeleton to
--- create an object that implements this interface. Two implementations that
--- come with Gtk2Hs are 'ListStore' and 'TreeStore'.
+-- 'TreeView' and similar widgets. Specifically, the functions in defined here
+-- are used by Gtk's widgets to access the stored data. Thus, rather than
+-- calling these functions, an application programmer has to implement them.
+-- While the module "Graphics.UI.Gtk.ModelView.CustomStore" provides the
+-- necessary functions to implement the 'TreeMode' interface, it is often
+-- sufficient to use the wo implementations that come with Gtk2Hs, namely are
+-- 'ListStore' and 'TreeStore'.
 --
 -- The model is represented as a hierarchical tree of values. It is important
 -- to note that this interface only provides a way of examining a model and
@@ -43,7 +45,26 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
 -- the 'TreeStore' and the 'ListStore'. To use these, the developer simply
 -- inserts data into these models as necessary. These models provide the data
 -- structure as well as the 'TreeModel' interface. In fact, they implement
--- other interfaces making drag and drop and storing data trivial.
+-- other interfaces, making drag and drop and storing data trivial.
+--
+-- A 'TreeModel' stores records of the same type. Each record is referred to
+-- as row, just like in a relational database. Defining how the information of
+-- a row is displayed can be done in two ways: If the widget displays data
+-- using 'Graphics.UI.Gtk.ModelView.CellRenderer.CellRenderer' or one of its
+-- derivatives, it is possible to state how a row is mapped to the attributes
+-- of a renderer using the
+-- 'Graphics.UI.Gtk.ModelView.CellLayout.cellLayoutSetAttributes' function.
+-- Some widgets do not use
+-- 'Graphics.UI.Gtk.ModelView.CellRenderer.CellRenderer's to display their
+-- data. In this case an extraction function can be defined that maps a row to
+-- one of a few basic types (like 'String's or 'Int's). This extraction
+-- function is associated with a 'ColumnId' using
+-- 'Graphics.UI.Gtk.ModelView.CustomStore.treeModelSetColumn'. The latter can
+-- be set in the widget for the property that should be set. The widget then
+-- uses the function 'treeModelGetValue' and the 'ColumnId' to extract the
+-- value from the model. As the name suggests, using 'ColumnId's creates a
+-- view of the data as if each row were divided into a well-defined set of
+-- columns, again, like a relational database.
 --
 -- Models are accessed on a node level of granularity. There are two index
 -- types used to reference a particular node in a model. They are the
@@ -87,13 +108,24 @@ module Graphics.UI.Gtk.ModelView.TreeModel (
   TreeIter(..),
   TreePath,
 
+  ColumnId,
+
+-- * Constructors
+  makeColumnIdInt,
+  makeColumnIdBool,
+  makeColumnIdString,
+  makeColumnIdPixbuf,
+  invalidColumnId,
+
 -- * Methods
+  columnIdToNumber,
   stringToTreePath,
   treeModelGetFlags,
   treeModelGetIter,
   treeModelGetIterFromString,
   treeModelGetIterFirst,
   treeModelGetPath,
+  treeModelGetValue,
   treeModelIterNext,
   treeModelIterChildren,
   treeModelIterHasChild,
@@ -144,10 +176,49 @@ import System.Glib.StoreValue		(TMType, GenericValue,
                                              withTreePath,
                                              fromTreePath,
                                              peekTreePath,
-                                             stringToTreePath)
-
+                                             stringToTreePath,
+                                             ColumnId(..),
+                                             ColumnAccess(..))
+{#import System.Glib.GValueTypes#} ( valueGetInt, valueGetBool,
+                                     valueGetString, valueGetGObject )
 {# context lib="gtk" prefix="gtk" #}
 
+--------------------
+-- Constructors
+
+
+-- | Create a 'ColumnId' to extract an integer.
+makeColumnIdInt :: Int -> ColumnId row Int
+makeColumnIdInt = ColumnId valueGetInt CAInt
+
+-- | Create a 'ColumnId' to extract an Boolean.
+makeColumnIdBool :: Int -> ColumnId row Bool
+makeColumnIdBool = ColumnId valueGetBool CABool
+
+-- | Create a 'ColumnId' to extract an string.
+makeColumnIdString :: Int -> ColumnId row String
+makeColumnIdString = ColumnId valueGetString CAString
+
+-- | Create a 'ColumnId' to extract an 'Pixbuf'.
+makeColumnIdPixbuf :: Int -> ColumnId row Pixbuf
+makeColumnIdPixbuf = ColumnId valueGetGObject CAPixbuf
+
+-- | Convert a 'ColumnId' to a bare number.
+columnIdToNumber :: ColumnId row ty -> Int
+columnIdToNumber (ColumnId _ _ i) = i
+
+-- | The invalid 'ColumnId'. Widgets use this value if no column id has
+--   been set.
+invalidColumnId :: ColumnId row ty
+invalidColumnId = ColumnId (error "invalidColumnId: no GValue extractor")
+  (error "invalidColumnId: no access type") (-1)
+
+instance Eq (ColumnId row ty) where
+  (ColumnId _ _ i1) == (ColumnId _ _ i2) = i1==i2
+
+instance Show (ColumnId row ty) where
+  show (ColumnId _ _ i) = show i
+  
 
 --------------------
 -- Methods
@@ -226,6 +297,22 @@ treeModelGetPath self iter =
     (toTreeModel self)
     iterPtr
   >>= fromTreePath
+
+-- | Read the value of at a specific column and 'TreeIter'.
+--
+treeModelGetValue :: TreeModelClass self => self
+ -> TreeIter
+ -> ColumnId row ty         -- ^ @column@ - The column to lookup the value at.
+ -> IO ty
+treeModelGetValue self iter (ColumnId getter _ colId) =
+  allocaGValue $ \gVal ->
+  with iter $ \iterPtr -> do
+  {# call tree_model_get_value #}
+    (toTreeModel self)
+    iterPtr
+    (fromIntegral colId)
+    gVal
+  getter gVal  
 
 -- %hash c:5c12 d:d7db
 -- | Retrieve an iterator to the node following it at the current level. If

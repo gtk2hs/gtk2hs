@@ -50,13 +50,19 @@ module Graphics.UI.Gtk.ModelView.Types (
   withTreePath,
   peekTreePath,
   fromTreePath,
-  stringToTreePath  
+  stringToTreePath,
+  
+  -- Columns
+  ColumnAccess(..),
+  ColumnId(..),  
   ) where
 
 import GHC.Exts (unsafeCoerce#)
 
 import System.Glib.FFI
-{#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort, TreeModelFilter)
+import System.Glib.GValue         (GValue)
+{#import Graphics.UI.Gtk.Types#}	(TreeModel, TreeModelSort, TreeModelFilter,
+                                   Pixbuf)
 import Data.Char ( isDigit )
 import Control.Monad ( liftM )
 
@@ -224,3 +230,16 @@ stringToTreePath path = getNum 0 (dropWhile (not . isDigit) path)
   getNum acc ('8':xs) = getNum (10*acc+8) xs
   getNum acc ('9':xs) = getNum (10*acc+9) xs
   getNum acc xs = acc:stringToTreePath (dropWhile (not . isDigit) xs)
+
+-- | Accessing a row for a specific value. Used for 'ColumnMap'.
+data ColumnAccess row
+  = CAInvalid
+  | CAInt (row -> Int)
+  | CABool (row -> Bool)
+  | CAString (row -> String)
+  | CAPixbuf (row -> Pixbuf)
+
+-- | The type of a tree column.
+data ColumnId row ty 
+  = ColumnId (GValue -> IO ty) ((row -> ty) -> ColumnAccess row) Int
+

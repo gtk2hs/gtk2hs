@@ -147,10 +147,11 @@ import Graphics.UI.Gtk.Abstract.Object  (makeNewObject)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.Types#} (TreeIter, peekTreeIter,
                                             TypedTreeModelClass)
-{#import Graphics.UI.Gtk.ModelView.CustomStore#} (ColumnId(..),
-                                                  makeColumnIdString,
-                                                  columnIdToNumber,
-                                                  treeModelSetColumn)
+{#import Graphics.UI.Gtk.ModelView.CustomStore#} (customStoreSetColumn)
+{#import Graphics.UI.Gtk.ModelView.TreeModel#} (ColumnId(..),
+                                                makeColumnIdString,
+                                                columnIdToNumber)
+
 {# context lib="gtk" prefix="gtk" #}
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -213,7 +214,7 @@ entryCompletionSetTextModel :: (TreeModelClass (model String),
  -> IO ()
 entryCompletionSetTextModel self model = do
   let strCol = makeColumnIdString 0
-  treeModelSetColumn model strCol id
+  customStoreSetColumn model strCol id
   set self [entryCompletionTextColumn := strCol]
 
 -- | Sets the match function for @completion@ to be @func@. The match function

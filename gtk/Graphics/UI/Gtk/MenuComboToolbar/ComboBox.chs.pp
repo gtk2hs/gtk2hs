@@ -152,6 +152,7 @@ import System.Glib.GObject		(makeNewGObject,
                                             receiveTreeIter)
 {#import Graphics.UI.Gtk.Signals#}
 {#import Graphics.UI.Gtk.ModelView.CustomStore#} 
+{#import Graphics.UI.Gtk.ModelView.TreeModel#} 
 import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew )
 import Graphics.UI.Gtk.ModelView.CellLayout ( cellLayoutSetAttributes,
 					      cellLayoutPackStart )
@@ -397,7 +398,7 @@ comboBoxSetRowSeparatorSource self Nothing  =
 comboBoxSetRowSeparatorSource self (Just (model, extract)) = do
   funPtr <- mkRowSeparatorFunc $ \_ iterPtr -> do
 	iter <- peek iterPtr
-	value <- treeModelGetRow model iter
+	value <- customStoreGetRow model iter
 	return (extract value)
   desPtr <- mkFunPtrDestroyNotify funPtr
   {# call gtk_combo_box_set_row_separator_func #}

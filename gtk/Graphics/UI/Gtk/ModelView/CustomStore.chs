@@ -32,20 +32,13 @@ module Graphics.UI.Gtk.ModelView.CustomStore (
   DragSourceIface(..),
   DragDestIface(..),
   customTreeModelNew,
-  treeModelGetRow,
+  customStoreGetRow,
+  customStoreSetColumn,
   customTreeModelGetPrivate,
   customTreeModelGetStamp,
   customTreeModelInvalidateIters,
-
-  -- * Extracting a specific datum from the row-oriented store for
-  --   properties that are not drawn by 'CellRenderer's.
-  ColumnId,
-  makeColumnIdInt,
-  makeColumnIdBool,
-  makeColumnIdString,
-  makeColumnIdPixbuf,
-  columnIdToNumber,
-  invalidColumnId,
+  -- for backwards compatability, not documented
+  treeModelGetRow,
   treeModelSetColumn,
   ) where
 
@@ -92,14 +85,6 @@ instance GObjectClass (CustomTreeModel private row) where
   toGObject (CustomTreeModel tm) = mkGObject (castForeignPtr tm)
   unsafeCastGObject = CustomTreeModel . castForeignPtr . unGObject
 
--- | Accessing a row for a specific value. Used for 'ColumnMap'.
-data ColumnAccess row
-  = CAInvalid
-  | CAInt (row -> Int)
-  | CABool (row -> Bool)
-  | CAString (row -> String)
-  | CAPixbuf (row -> Pixbuf)
-
 -- | Type synonym for viewing the store as a set of columns.
 type ColumnMap row = IORef [ColumnAccess row]
 
@@ -107,48 +92,16 @@ type ColumnMap row = IORef [ColumnAccess row]
 columnMapNew :: IO (ColumnMap row)
 columnMapNew = newIORef []
 
--- | The type of a tree column.
-data ColumnId row ty = ColumnId ((row -> ty) -> ColumnAccess row) Int
-
--- | Create a 'ColumnId' to extract an integer.
-makeColumnIdInt :: Int -> ColumnId row Int
-makeColumnIdInt = ColumnId CAInt
-
--- | Create a 'ColumnId' to extract an Boolean.
-makeColumnIdBool :: Int -> ColumnId row Bool
-makeColumnIdBool = ColumnId CABool
-
--- | Create a 'ColumnId' to extract an string.
-makeColumnIdString :: Int -> ColumnId row String
-makeColumnIdString = ColumnId CAString
-
--- | Create a 'ColumnId' to extract an 'Pixbuf'.
-makeColumnIdPixbuf :: Int -> ColumnId row Pixbuf
-makeColumnIdPixbuf = ColumnId CAPixbuf
-
--- | Convert a 'ColumnId' to a bare number.
-columnIdToNumber :: ColumnId row ty -> Int
-columnIdToNumber (ColumnId _ i) = i
-
--- | The invalid 'ColumnId'. Widgets use this value if no column id has
---   been set.
-invalidColumnId :: ColumnId row ty
-invalidColumnId = ColumnId (error "invalidColumnId: no access type") (-1)
-
-instance Eq (ColumnId row ty) where
-  (ColumnId _ i1) == (ColumnId _ i2) = i1==i2
-
-instance Show (ColumnId row ty) where
-  show (ColumnId _ i) = show i
-  
--- | Set or update a column mapping.
-treeModelSetColumn :: TypedTreeModelClass model
+-- | Set or update a column mapping. This function should be used before
+--   the model is installed into a widget since the number of defined
+--   columns are only checked once by widgets.
+customStoreSetColumn :: TypedTreeModelClass model
 	=> model row -- ^ the store in which to allocate a new column
 	-> (ColumnId row ty) -- ^ the column that should be set
 	-> (row -> ty) -- ^ the function that sets the property
 	-> IO ()
-treeModelSetColumn model (ColumnId setter colId) acc | colId<0 = return ()
-                                                     | otherwise =
+customStoreSetColumn model (ColumnId _ setter colId) acc | colId<0 = return ()
+                                                         | otherwise =
   case toTypedTreeModel model of
     TypedTreeModel model -> do
       ptr <- withForeignPtr model gtk2hs_store_get_impl
@@ -162,6 +115,14 @@ treeModelSetColumn model (ColumnId setter colId) acc | colId<0 = return ()
        else do
          let (beg,_:end) = splitAt colId cols
          writeIORef cMap (beg++setter acc:end)
+
+-- this is a backwards compatability definition
+treeModelSetColumn :: TypedTreeModelClass model
+	=> model row -- ^ the store in which to allocate a new column
+	-> (ColumnId row ty) -- ^ the column that should be set
+	-> (row -> ty) -- ^ the function that sets the property
+	-> IO ()
+treeModelSetColumn = customStoreSetColumn
 
 data CustomTreeModelImplementation model row = CustomTreeModelImplementation {
     customTreeModelColumns   	:: ColumnMap row,	                -- provide access via columns
@@ -230,12 +191,18 @@ foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_new"
                    -> StablePtr private
                    -> IO (Ptr (CustomTreeModel private row))
 
-treeModelGetRow :: TypedTreeModelClass model => model row -> TreeIter -> IO row
-treeModelGetRow model iter = 
+-- | Extract a row of the given model at the given 'TreeIter'.
+--
+customStoreGetRow :: TypedTreeModelClass model => model row -> TreeIter -> IO row
+customStoreGetRow model iter = 
   case toTypedTreeModel model of
     TypedTreeModel model -> do
       impl <- withForeignPtr model gtk2hs_store_get_impl >>= deRefStablePtr
       treeModelIfaceGetRow (customTreeModelIface impl) iter
+
+-- this is a backwards compatability definition
+treeModelGetRow :: TypedTreeModelClass model => model row -> TreeIter -> IO row
+treeModelGetRow = customStoreGetRow
 
 foreign import ccall unsafe "Gtk2HsStore.h gtk2hs_store_get_impl"
   gtk2hs_store_get_impl :: Ptr (TypedTreeModel row) -> IO (StablePtr (CustomTreeModelImplementation model row))

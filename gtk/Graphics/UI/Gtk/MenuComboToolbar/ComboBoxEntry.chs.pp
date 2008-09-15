@@ -88,10 +88,11 @@ import System.Glib.Attributes
 import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 {#import Graphics.UI.Gtk.Types#} hiding ( ListStore )
 import Graphics.UI.Gtk.ModelView.Types
-import Graphics.UI.Gtk.ModelView.ComboBox
+import Graphics.UI.Gtk.MenuComboToolbar.ComboBox
 import Graphics.UI.Gtk.ModelView.CellRendererText
 import Graphics.UI.Gtk.ModelView.CellLayout
 {#import Graphics.UI.Gtk.ModelView.CustomStore#}
+{#import Graphics.UI.Gtk.ModelView.TreeModel#} 
 import Graphics.UI.Gtk.ModelView.ListStore ( ListStore, listStoreNew )
 
 {# context lib="gtk" prefix="gtk" #}
@@ -136,7 +137,7 @@ comboBoxEntryNewText ::
 comboBoxEntryNewText extract initial = do
   store <- listStoreNew initial
   let colId = makeColumnIdString 0
-  treeModelSetColumn store colId extract
+  customStoreSetColumn store colId extract
   combo <- makeNewObject mkComboBoxEntry $
     liftM (castPtr :: Ptr Widget -> Ptr ComboBoxEntry) $
     {# call gtk_combo_box_entry_new_with_model #}
