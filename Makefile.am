@@ -636,6 +636,7 @@ libHSgtk_a_LIBADD =							\
 	gtk/Graphics/UI/Gtk/Abstract/Container_stub.o			\
 	gtk/Graphics/UI/Gtk/Multiline/TextIter_stub.o			\
         gtk/Graphics/UI/Gtk/Multiline/TextTagTable_stub.o		\
+	gtk/Graphics/UI/Gtk/MenuComboToolbar/ComboBox_stub.o		\
         gtk/Graphics/UI/Gtk/TreeList/TreeModel_stub.o			\
         gtk/Graphics/UI/Gtk/TreeList/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/TreeList/TreeView_stub.o			\
@@ -643,13 +644,11 @@ libHSgtk_a_LIBADD =							\
         gtk/Graphics/UI/Gtk/ModelView/TreeSelection_stub.o		\
         gtk/Graphics/UI/Gtk/ModelView/TreeView_stub.o			\
 	gtk/Graphics/UI/Gtk/ModelView/TreeSortable_stub.o		\
-	gtk/Graphics/UI/Gtk/ModelView/ComboBox_stub.o			\
 	gtk/Graphics/UI/Gtk/ModelView/CustomStore_stub.o
 
 if HAVE_GTK_VERSION_2_4
 libHSgtk_a_LIBADD +=							\
 	gtk/Graphics/UI/Gtk/Entry/EntryCompletion_stub.o		\
-	gtk/Graphics/UI/Gtk/ModelView/EntryCompletion_stub.o		\
 	gtk/Graphics/UI/Gtk/ModelView/CellLayout_stub.o			\
 	gtk/Graphics/UI/Gtk/Selectors/FileFilter_stub.o			\
 	gtk/Graphics/UI/Gtk/ActionMenuToolbar/ActionGroup_stub.o
