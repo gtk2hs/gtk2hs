@@ -57,6 +57,7 @@ module Graphics.UI.Gtk.Selectors.FileFilter (
   FileFilterClass,
   castToFileFilter,
   toFileFilter,
+  FileFilterFlags(..),
 
 -- * Constructors
   fileFilterNew,
@@ -90,7 +91,7 @@ import Graphics.UI.Gtk.Abstract.Object	(makeNewObject)
 
 #if GTK_CHECK_VERSION(2,4,0)
 
-{# enum FileFilterFlags {underscoreToCase} deriving(Bounded) #}
+{# enum FileFilterFlags {underscoreToCase} deriving(Bounded,Show,Eq) #}
 instance Flags FileFilterFlags
 
 --------------------
