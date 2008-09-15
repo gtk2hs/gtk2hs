@@ -30,9 +30,9 @@
 --
 -- Functions to run the rendering pipeline.
 --
--- * The objects in this model contain a rendered paragraph of text. This
---   interface is the easiest way to render text with Cairo or into a
---   'Graphics.UI.Gtk.Gdk.DrawWindow'.
+-- * The 'PangoLayout' object defined in this module contain a rendered
+--   paragraph of text. This interface is the easiest way to render text into
+--   a 'Graphics.UI.Gtk.Gdk.DrawWindow.DrawWindow' using Cairo.
 --
 module Graphics.UI.Gtk.Pango.Layout (
   PangoRectangle(..),
