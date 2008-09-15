@@ -1,11 +1,11 @@
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Widget MessageDialog
 --
---  Author : [Insert your full name here]
+--  Author : Axel Simon
 --
 --  Created: 20 October 2006
 --
---  Copyright (C) 2006 [Insert your full name here]
+--  Copyright (C) 2006 Axel Simon
 --
 --  This library is free software; you can redistribute it and/or
 --  modify it under the terms of the GNU Lesser General Public
