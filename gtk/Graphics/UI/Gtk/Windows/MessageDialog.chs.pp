@@ -71,7 +71,7 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
   messageDialogSetMarkup,
 #endif
 #if GTK_CHECK_VERSION(2,10,0)
-  --todo: messageDialogSetImage,
+  messageDialogSetImage,
 #endif
 #if GTK_CHECK_VERSION(2,6,0)
   messageDialogSetSecondaryMarkup,
@@ -80,6 +80,13 @@ module Graphics.UI.Gtk.Windows.MessageDialog (
 
 -- * Attributes
   messageDialogMessageType,
+#if GTK_CHECK_VERSION(2,10,0)
+  messageDialogText,
+  messageDialogUseMarkup,
+  messageDialogSecondaryText,
+  messageDialogSecondaryUseMarkup,
+  messageDialogImage,
+#endif
   messageDialogButtons,
   ) where
 
@@ -107,14 +114,14 @@ import Graphics.UI.Gtk.Pango.Markup (Markup)
 --   own image using 'messageDialogSetImage'.
 --
 #endif
-{#enum MessageType {underscoreToCase} deriving(Eq)#}
+{#enum MessageType {underscoreToCase} deriving(Show,Eq)#}
 
 -- | Specify what buttons this dialog should show.
 --
 -- * Prebuilt sets of buttons for the dialog. If none of these choices
 --   are appropriate, simply use 'ButtonsNone' then call 'dialogAddButtons'.
 --
-{#enum ButtonsType {underscoreToCase} deriving(Eq)#}
+{#enum ButtonsType {underscoreToCase} deriving(Show,Eq)#}
 
 -- | Flags used to influence dialog construction.
 --
@@ -126,7 +133,7 @@ import Graphics.UI.Gtk.Pango.Markup (Markup)
 --   the action area and the dialog content which is preferable for
 --   very simple messages, i.e. those that only contain one button.
 --
-{#enum DialogFlags {underscoreToCase} deriving (Eq,Bounded)#}
+{#enum DialogFlags {underscoreToCase} deriving (Show,Eq,Bounded)#}
 
 instance Flags DialogFlags
 
@@ -239,6 +246,21 @@ messageDialogSetSecondaryText self str =
 foreign import ccall unsafe "gtk_message_dialog_format_secondary_text"
   message_dialog_format_secondary_text :: Ptr MessageDialog -> 
  					 Ptr CChar -> IO ()
+
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:6cb7 d:ebdd
+-- | Sets the dialog's image to @image@.
+--
+-- * Available since Gtk+ version 2.10
+--
+messageDialogSetImage :: (MessageDialogClass self, WidgetClass image) => self
+ -> image -- ^ @image@ - the image
+ -> IO ()
+messageDialogSetImage self image =
+  {# call gtk_message_dialog_set_image #}
+    (toMessageDialog self)
+    (toWidget image)
+#endif
 #endif
 
 
@@ -252,6 +274,56 @@ foreign import ccall unsafe "gtk_message_dialog_format_secondary_text"
 messageDialogMessageType :: MessageDialogClass self => Attr self MessageType
 messageDialogMessageType = newAttrFromEnumProperty "message-type"
   {#call pure unsafe gtk_message_type_get_type #}
+
+#if GTK_CHECK_VERSION(2,10,0)
+-- %hash c:a2fe d:e4a2
+-- | The primary text of the message dialog. If the dialog has a secondary
+-- text, this will appear as the title.
+--
+-- Default value: @Nothing@
+--
+-- * Available since Gtk+ version 2.10
+--
+messageDialogText :: MessageDialogClass self => Attr self (Maybe String)
+messageDialogText = newAttrFromMaybeStringProperty "text"
+
+-- %hash c:e1dd d:ca3
+-- | Interpret the string 'messageDialogText' as markup.
+--
+-- Default value: @False@
+--
+-- * Available since Gtk+ version 2.10
+--
+messageDialogUseMarkup :: MessageDialogClass self => Attr self Bool
+messageDialogUseMarkup = newAttrFromBoolProperty "use-markup"
+
+-- %hash c:9623 d:1fbe
+-- | The secondary text of the message dialog.
+--
+-- Default value: @Nothing@
+--
+-- * Available since Gtk+ version 2.10
+--
+messageDialogSecondaryText :: MessageDialogClass self => Attr self (Maybe String)
+messageDialogSecondaryText = newAttrFromMaybeStringProperty "secondary-text"
+
+-- %hash c:1ce2 d:ca3
+-- | Default value: @False@
+--
+-- * Available since Gtk+ version 2.10
+--
+messageDialogSecondaryUseMarkup :: MessageDialogClass self => Attr self Bool
+messageDialogSecondaryUseMarkup = newAttrFromBoolProperty "secondary-use-markup"
+
+-- %hash c:da36 d:b7dd
+-- | The image for this dialog.
+--
+-- * Available since Gtk+ version 2.10
+--
+messageDialogImage :: (MessageDialogClass self, WidgetClass widget) => ReadWriteAttr self Widget widget
+messageDialogImage = newAttrFromObjectProperty "image"
+                       {# call pure unsafe gtk_widget_get_type #}
+#endif
 
 -- | The buttons shown in the message dialog.
 --
