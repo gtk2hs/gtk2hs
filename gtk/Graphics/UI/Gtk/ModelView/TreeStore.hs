@@ -72,7 +72,7 @@ import Control.Monad.Trans ( liftIO )
 
 -- | A store for hierarchical data.
 --
-newtype TreeStore a = TreeStore (CustomTreeModel (IORef (Store a)) a)
+newtype TreeStore a = TreeStore (CustomStore (IORef (Store a)) a)
 
 instance TypedTreeModelClass TreeStore
 instance TreeModelClass (TreeStore a)
@@ -124,7 +124,7 @@ treeStoreNewDND forest mDSource mDDest = do
         writeIORef storeRef store { content = cache' }
         return result
 
-  customTreeModelNew storeRef TreeStore TreeModelIface {
+  customStoreNew storeRef TreeStore TreeModelIface {
     treeModelIfaceGetFlags = return [],
 
     treeModelIfaceGetIter = \path -> withStore $
@@ -462,8 +462,8 @@ treeStoreInsertForest ::
  -> Forest a    -- ^ the list of trees to be inserted
  -> IO ()
 treeStoreInsertForest (TreeStore model) path pos nodes = do
-  customTreeModelInvalidateIters model
-  (idx, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
+  customStoreInvalidateIters model
+  (idx, toggle) <- atomicModifyIORef (customStoreGetPrivate model) $
     \store@Store { depth = d, content = cache } ->
     case insertIntoForest (cacheToStore cache) nodes path pos of
       Nothing -> error ("treeStoreInsertForest: path does not exist " ++ show path)
@@ -472,9 +472,9 @@ treeStoreInsertForest (TreeStore model) path pos nodes = do
         in (Store { depth = depth,
                     content = storeToCache newForest },
            (idx, toggle))
-  Store { depth = depth } <- readIORef (customTreeModelGetPrivate model)
+  Store { depth = depth } <- readIORef (customStoreGetPrivate model)
   let rpath = reverse path
-  stamp <- customTreeModelGetStamp model
+  stamp <- customStoreGetStamp model
   sequence_ [ let p' = reverse p
                   Just iter = fromPath depth p'
                in treeModelRowInserted model p' (treeIterSetStamp iter stamp)
@@ -544,8 +544,8 @@ treeStoreRemove :: TreeStore a -> TreePath -> IO Bool
   --TODO: eliminate this special case without segfaulting!
 treeStoreRemove (TreeStore model) [] = return False
 treeStoreRemove (TreeStore model) path = do
-  customTreeModelInvalidateIters model
-  (found, toggle) <- atomicModifyIORef (customTreeModelGetPrivate model) $
+  customStoreInvalidateIters model
+  (found, toggle) <- atomicModifyIORef (customStoreGetPrivate model) $
     \store@Store { depth = d, content = cache } ->
     if null cache then (store, (False, False)) else
     case deleteFromForest (cacheToStore cache) path of
@@ -555,7 +555,7 @@ treeStoreRemove (TreeStore model) path = do
 		 content = storeToCache newForest }, (True, toggle))
   when found $ do
     when (toggle && not (null path)) $ do
-      Store { depth = depth } <- readIORef (customTreeModelGetPrivate model)
+      Store { depth = depth } <- readIORef (customStoreGetPrivate model)
       let parent = init path
 	  Just iter = fromPath depth parent
       treeModelRowHasChildToggled model parent iter
@@ -564,10 +564,10 @@ treeStoreRemove (TreeStore model) path = do
 
 treeStoreClear :: TreeStore a -> IO ()
 treeStoreClear (TreeStore model) = do
-  customTreeModelInvalidateIters model
-  Store { content = cache } <- readIORef (customTreeModelGetPrivate model)
+  customStoreInvalidateIters model
+  Store { content = cache } <- readIORef (customStoreGetPrivate model)
   let forest = cacheToStore cache
-  writeIORef (customTreeModelGetPrivate model) Store {
+  writeIORef (customStoreGetPrivate model) Store {
       depth = calcForestDepth [],
       content = storeToCache []
     }
@@ -617,18 +617,18 @@ treeStoreChange store path func = treeStoreChangeM store path (return . func)
 --
 treeStoreChangeM :: TreeStore a -> TreePath -> (a -> IO a) -> IO Bool
 treeStoreChangeM (TreeStore model) path act = do
-  customTreeModelInvalidateIters model
+  customStoreInvalidateIters model
   store@Store { depth = d, content = cache } <- 
-      readIORef (customTreeModelGetPrivate model)
+      readIORef (customStoreGetPrivate model)
   (store'@Store { depth = d, content = cache }, found) <- do
     mRes <- changeForest (cacheToStore cache) act path
     return $ case mRes of
       Nothing -> (store, False)
       Just newForest -> (Store { depth = d,
 				 content = storeToCache newForest }, True)
-  writeIORef (customTreeModelGetPrivate model) store'
+  writeIORef (customStoreGetPrivate model) store'
   let Just iter = fromPath d path
-  stamp <- customTreeModelGetStamp model
+  stamp <- customStoreGetStamp model
   when found $ treeModelRowChanged model path (treeIterSetStamp iter stamp)
   return found
 
@@ -665,11 +665,11 @@ treeStoreGetValue model path = fmap rootLabel (treeStoreGetTree model path)
 treeStoreGetTree :: TreeStore a -> TreePath -> IO (Tree a)
 treeStoreGetTree (TreeStore model) path = do
   store@Store { depth = d, content = cache } <- 
-      readIORef (customTreeModelGetPrivate model)
+      readIORef (customStoreGetPrivate model)
   case fromPath d path of
     (Just iter) -> do
       let (res, cache') = checkSuccess d iter cache
-      writeIORef (customTreeModelGetPrivate model) store { content = cache' }
+      writeIORef (customStoreGetPrivate model) store { content = cache' }
       case cache' of
         ((_,node:_):_) | res -> return node
         _ -> fail ("treeStoreGetTree: path does not exist " ++ show path)
@@ -681,11 +681,11 @@ treeStoreGetTree (TreeStore model) path = do
 treeStoreLookup :: TreeStore a -> TreePath -> IO (Maybe (Tree a))
 treeStoreLookup (TreeStore model) path = do
   store@Store { depth = d, content = cache } <- 
-      readIORef (customTreeModelGetPrivate model)
+      readIORef (customStoreGetPrivate model)
   case fromPath d path of
     (Just iter) -> do
       let (res, cache') = checkSuccess d iter cache
-      writeIORef (customTreeModelGetPrivate model) store { content = cache' }
+      writeIORef (customStoreGetPrivate model) store { content = cache' }
       case cache' of
         ((_,node:_):_) | res -> return (Just node)
         _ -> return Nothing

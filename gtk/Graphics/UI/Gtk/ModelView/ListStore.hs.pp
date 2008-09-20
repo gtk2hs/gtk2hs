@@ -69,7 +69,7 @@ import Graphics.UI.Gtk.ModelView.TreeModel
 import Graphics.UI.Gtk.ModelView.TreeDrag
 import Control.Monad.Trans ( liftIO )
 
-newtype ListStore a = ListStore (CustomTreeModel (IORef (Seq a)) a)
+newtype ListStore a = ListStore (CustomStore (IORef (Seq a)) a)
 
 instance TypedTreeModelClass ListStore
 instance TreeModelClass (ListStore a)
@@ -92,7 +92,7 @@ listStoreNewDND :: [a] -- ^ the initial content of the model
 listStoreNewDND xs mDSource mDDest = do
   rows <- newIORef (Seq.fromList xs)
 
-  customTreeModelNew rows ListStore TreeModelIface {
+  customStoreNew rows ListStore TreeModelIface {
       treeModelIfaceGetFlags      = return [TreeModelListOnly],
       treeModelIfaceGetIter       = \[n] -> readIORef rows >>= \rows ->
                                      return (if Seq.null rows then Nothing else
@@ -166,13 +166,13 @@ listStoreDefaultDragDestIface = DragDestIface {
 --
 listStoreGetValue :: ListStore a -> Int -> IO a
 listStoreGetValue (ListStore model) index =
-  readIORef (customTreeModelGetPrivate model) >>= return . (`Seq.index` index)
+  readIORef (customStoreGetPrivate model) >>= return . (`Seq.index` index)
 
 -- | Update the value at the given index. The index must exist.
 --
 listStoreSetValue :: ListStore a -> Int -> a -> IO ()
 listStoreSetValue (ListStore model) index value = do
-  modifyIORef (customTreeModelGetPrivate model) (Seq.update index value)
+  modifyIORef (customStoreGetPrivate model) (Seq.update index value)
   treeModelRowChanged model [index] (TreeIter 0 (fromIntegral index) 0 0)
 
 -- | Extract all data from the store.
@@ -185,23 +185,23 @@ listStoreToList (ListStore model) =
 #else
   Seq.toList
 #endif
-  $ readIORef (customTreeModelGetPrivate model)
+  $ readIORef (customStoreGetPrivate model)
 
 -- | Query the number of elements in the store.
 listStoreGetSize :: ListStore a -> IO Int
 listStoreGetSize (ListStore model) =
-  liftM Seq.length $ readIORef (customTreeModelGetPrivate model)
+  liftM Seq.length $ readIORef (customStoreGetPrivate model)
   
 -- | Insert an element in front of the given element. The element is appended
 -- if the index is greater or equal to the size of the list.
 listStoreInsert :: ListStore a -> Int -> a -> IO ()
 listStoreInsert (ListStore model) index value = do
-  seq <- readIORef (customTreeModelGetPrivate model)
+  seq <- readIORef (customStoreGetPrivate model)
   when (index >= 0) $ do
     let index' | index > Seq.length seq = Seq.length seq
                | otherwise              = index
-    writeIORef (customTreeModelGetPrivate model) (insert index' value seq)
-    stamp <- customTreeModelGetStamp model
+    writeIORef (customStoreGetPrivate model) (insert index' value seq)
+    stamp <- customStoreGetStamp model
     treeModelRowInserted model [index'] (TreeIter stamp (fromIntegral index') 0 0)
 
   where insert :: Int -> a -> Seq a -> Seq a
@@ -211,9 +211,9 @@ listStoreInsert (ListStore model) index value = do
 -- | Prepend the element to the store.
 listStorePrepend :: ListStore a -> a -> IO ()
 listStorePrepend (ListStore model) value = do
-  modifyIORef (customTreeModelGetPrivate model)
+  modifyIORef (customStoreGetPrivate model)
               (\seq -> value Seq.<| seq)
-  stamp <- customTreeModelGetStamp model
+  stamp <- customStoreGetStamp model
   treeModelRowInserted model [0] (TreeIter stamp 0 0 0)
 
 -- | Prepend a list to the store. Not implemented yet.
@@ -225,21 +225,21 @@ listStorePrependList store list =
 -- element.
 listStoreAppend :: ListStore a -> a -> IO Int
 listStoreAppend (ListStore model) value = do
-  index <- atomicModifyIORef (customTreeModelGetPrivate model)
+  index <- atomicModifyIORef (customStoreGetPrivate model)
                              (\seq -> (seq Seq.|> value, Seq.length seq))
-  stamp <- customTreeModelGetStamp model
+  stamp <- customStoreGetStamp model
   treeModelRowInserted model [index] (TreeIter stamp (fromIntegral index) 0 0)
   return index
 
 {-
 listStoreAppendList :: ListStore a -> [a] -> IO ()
 listStoreAppendList (ListStore model) values = do
-  seq <- readIORef (customTreeModelGetPrivate model)
+  seq <- readIORef (customStoreGetPrivate model)
   let seq' = Seq.fromList values
       startIndex = Seq.length seq
       endIndex = startIndex + Seq.length seq' - 1
-  writeIORef (customTreeModelGetPrivate model) (seq Seq.>< seq')
-  stamp <- customTreeModelGetStamp model
+  writeIORef (customStoreGetPrivate model) (seq Seq.>< seq')
+  stamp <- customStoreGetStamp model
   flip mapM [startIndex..endIndex] $ \index ->    
     treeModelRowInserted model [index] (TreeIter stamp (fromIntegral index) 0 0)
 -}
@@ -248,9 +248,9 @@ listStoreAppendList (ListStore model) values = do
 --
 listStoreRemove :: ListStore a -> Int -> IO ()
 listStoreRemove (ListStore model) index = do
-  seq <- readIORef (customTreeModelGetPrivate model)
+  seq <- readIORef (customStoreGetPrivate model)
   when (index >=0 && index < Seq.length seq) $ do
-    writeIORef (customTreeModelGetPrivate model) (delete index seq)
+    writeIORef (customStoreGetPrivate model) (delete index seq)
     treeModelRowDeleted model [index]
   --TODO we should probably fail on a bad index
 
@@ -271,11 +271,11 @@ listStoreClear (ListStore model) =
   --
   let loop (-1) Seq.EmptyR = return ()
       loop n (seq Seq.:> _) = do
-        writeIORef (customTreeModelGetPrivate model) seq
+        writeIORef (customStoreGetPrivate model) seq
 	treeModelRowDeleted model [n]
 	loop (n-1) (Seq.viewr seq)
 
-   in do seq <- readIORef (customTreeModelGetPrivate model)
+   in do seq <- readIORef (customStoreGetPrivate model)
          loop (Seq.length seq - 1) (Seq.viewr seq)
 
 -- | Permute the rows of the store. Not yet implemented.
