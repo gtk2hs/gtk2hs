@@ -66,6 +66,7 @@ module Graphics.UI.Gtk.ModelView.CellLayout (
 import System.Glib.FFI
 import System.Glib.Attributes
 import System.Glib.GObject (mkFunPtrDestroyNotify)
+import System.Glib.GType
 {#import Graphics.UI.Gtk.Types#}
 {#import Graphics.UI.Gtk.ModelView.Types#}
 {#import Graphics.UI.Gtk.ModelView.TreeModel#}
@@ -144,8 +145,19 @@ cellLayoutClear self =
 
 -- | Specify how a row of the @model@ defines the
 -- attributes of the 'CellRenderer' @cell@. This is a convenience wrapper
--- around 'cellLayoutSetAttributeFunc' which sets the cells of the @cell@ with
--- the data retrieved from the model.
+-- around 'cellLayoutSetAttributeFunc' in that it sets the cells of the @cell@
+-- with the data retrieved from the model.
+--
+-- * Note on using 'Graphics.UI.Gtk.ModelView.TreeModelSort.TreeModelSort' and
+-- 'Graphics.UI.Gtk.ModelView.TreeModelFilter.TreeModelFilter': These two models
+-- wrap another model, the so-called child model, instead of storing their own
+-- data. This raises the problem that the data of cell renderers must be set
+-- using the child model, while the 'TreeIter's that the view works with refer to
+-- the model that encapsulates the child model. For convenience, this function
+-- transparently translates an iterator to the child model before extracting the
+-- data using e.g. 'Graphics.UI.Gtk.TreeModel.TreeModelSort.treeModelSortConvertIterToChildIter'.
+-- Hence, it is possible to install the encapsulating model in the view and to
+-- pass the child model to this function.
 --
 cellLayoutSetAttributes :: (CellLayoutClass self,
 			     CellRendererClass cell,
@@ -174,13 +186,12 @@ cellLayoutSetAttributeFunc :: (CellLayoutClass self,
  -> IO ()
 cellLayoutSetAttributeFunc self cell model func = do
   fPtr <- mkSetAttributeFunc $ \_ cellPtr' modelPtr' iterPtr _ -> do
-    iter <- peek iterPtr
-    let (TreeModel modelPtr) = toTreeModel model
+    iter <- convertIterFromParentToChildModel iterPtr modelPtr' 
+      (toTreeModel model)
     let (CellRenderer cellPtr) = toCellRenderer cell
-    if unsafeForeignPtrToPtr modelPtr /= modelPtr' ||
-       unsafeForeignPtrToPtr cellPtr  /= cellPtr' then
+    if unsafeForeignPtrToPtr cellPtr  /= cellPtr' then
       error ("cellLayoutSetAttributeFunc: attempt to set attributes of "++
-	     "CellRenderer from different model.")
+	     "a different CellRenderer.")
       else func iter
   destroy <- mkFunPtrDestroyNotify fPtr
   {#call gtk_cell_layout_set_cell_data_func #} (toCellLayout self)
@@ -191,6 +202,59 @@ cellLayoutSetAttributeFunc self cell model func = do
 foreign import ccall "wrapper" mkSetAttributeFunc ::
   (Ptr CellLayout -> Ptr CellRenderer -> Ptr TreeModel -> Ptr TreeIter ->
    Ptr () -> IO ()) -> IO CellLayoutDataFunc
+
+-- Given a 'TreeModelFilter' or a 'TreeModelSort' and a 'TreeIter', get the
+-- child model of these models and convert the iter to an iter of the child
+-- model. This is an ugly internal function that is needed for some widgets
+-- which pass iterators to the callback function of set_cell_data_func that
+-- refer to some internal TreeModelFilter models that they create around the
+-- user model. This is a bug but since C programs mostly use the columns
+-- rather than the cell_layout way to extract attributes, this bug does not
+-- show up in many programs. Reported in the case of EntryCompletion as bug
+-- #551202.
+--
+convertIterFromParentToChildModel ::
+     Ptr TreeIter -- ^ the iterator
+  -> Ptr TreeModel -- ^ the model that we got from the all back
+  -> TreeModel -- ^ the model that we actually want
+  -> IO TreeIter
+convertIterFromParentToChildModel iterPtr parentModelPtr childModel =
+  let (TreeModel modelFPtr) = childModel
+      modelPtr = unsafeForeignPtrToPtr modelFPtr in
+  if modelPtr==parentModelPtr then peek iterPtr else
+  if typeInstanceIsA (castPtr parentModelPtr) gTypeTreeModelFilter then
+    alloca $ \childIterPtr -> do
+      treeModelFilterConvertIterToChildIter parentModelPtr childIterPtr iterPtr
+      childPtr <- treeModelFilterGetModel parentModelPtr
+      if childPtr==modelPtr then peek childIterPtr else
+        convertIterFromParentToChildModel childIterPtr childPtr childModel
+  else if typeInstanceIsA (castPtr parentModelPtr) gTypeTreeModelSort then
+    alloca $ \childIterPtr -> do
+      treeModelSortConvertIterToChildIter parentModelPtr childIterPtr iterPtr
+      childPtr <- treeModelSortGetModel parentModelPtr
+      if childPtr==modelPtr then peek childIterPtr else
+        convertIterFromParentToChildModel childIterPtr childPtr childModel
+  else do
+    iter <- peek iterPtr
+    error ("CellLayout: don't know how to convert iter "++show  iter++
+           " from model "++show parentModelPtr++" to model "++
+           show modelPtr++". Is it possible that you are setting the "++
+           "attributes of a CellRenderer using a different model than "++
+           "that which was set in the view?")
+
+foreign import ccall unsafe "gtk_tree_model_filter_get_model"
+  treeModelFilterGetModel :: Ptr TreeModel -> IO (Ptr TreeModel)
+
+foreign import ccall safe "gtk_tree_model_filter_convert_iter_to_child_iter"
+  treeModelFilterConvertIterToChildIter :: Ptr TreeModel -> Ptr TreeIter ->
+    Ptr TreeIter -> IO () 
+
+foreign import ccall unsafe "gtk_tree_model_sort_get_model"
+  treeModelSortGetModel :: Ptr TreeModel -> IO (Ptr TreeModel)
+  
+foreign import ccall safe "gtk_tree_model_sort_convert_iter_to_child_iter"
+  treeModelSortConvertIterToChildIter :: Ptr TreeModel -> Ptr TreeIter ->
+    Ptr TreeIter -> IO () 
 
 -- | Clears all existing attributes previously set with
 -- 'cellLayoutSetAttributes'.
