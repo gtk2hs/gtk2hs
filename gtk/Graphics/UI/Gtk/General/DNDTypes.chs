@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Type declarations for DND and Selections
 --

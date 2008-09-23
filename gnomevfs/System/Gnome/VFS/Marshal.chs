@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
 --  Author : Peter Gavin

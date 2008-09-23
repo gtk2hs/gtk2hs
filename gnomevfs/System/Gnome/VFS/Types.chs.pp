@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 --  GIMP Toolkit (GTK) Binding for Haskell: binding to libgnomevfs -*-haskell-*-
 --
 --  Author : Peter Gavin
@@ -300,10 +301,17 @@ instance Flags DirectoryVisitOptions
 -- | A callback that will be called for each entry when passed to
 --   'directoryVisit', 'directoryVisitURI', 'directoryVisitFiles', or
 --   'directoryVisitFilesAtURI'.
-type DirectoryVisitCallback =  String                  -- ^ the path of the visited file, relative to the base directory
-                            -> FileInfo                -- ^ the 'FileInfo' for the visited file
-                            -> Bool                    -- ^ 'True' if returning 'DirectoryVisitRecurse' will cause a loop
-                            -> IO DirectoryVisitResult -- ^ the next action to be taken
+--   
+--   The parameters, from left to right, are:
+--     * the path of the visited file, relative to the base directory,
+--     * the 'FileInfo' for the visited file,
+--     * 'True' if returning 'DirectoryVisitRecurse' will cause a loop, otherwise 'False'.
+--   
+--   The callback must return the next action to be taken.
+type DirectoryVisitCallback =  String
+                            -> FileInfo
+                            -> Bool
+                            -> IO DirectoryVisitResult
 
 -- | An enumerated value that must be returned from a
 --   'DirectoryVisitCallback'. The 'directoryVisit' and related
@@ -332,10 +340,16 @@ withMonitorHandle (MonitorHandle (monitorHandleForeignPtr, _)) = withForeignPtr 
 
 -- | A callback that must be passed to 'monitorAdd'.  It will be
 --   called any time a file or directory is changed.
-type MonitorCallback =  MonitorHandle    -- ^ the handle to a filesystem monitor
-                     -> TextURI          -- ^ the URI being monitored
-                     -> TextURI          -- ^ the actual file that was modified
-                     -> MonitorEventType -- ^ the event that occured
+--   
+--   The parameters, from left to right, are:
+--     * the handle to a filesystem monitor,
+--     * the URI being monitored,
+--     * the actual file that was modified,
+--     * the event that occured.
+type MonitorCallback =  MonitorHandle
+                     -> TextURI
+                     -> TextURI
+                     -> MonitorEventType
                      -> IO ()
 
 -- | The type of filesystem object that is to be monitored.
@@ -381,28 +395,41 @@ data XferProgressInfo = XferProgressInfo {
 --   'System.Gnome.VFS.Xfer.xferURI' and related functions. This
 --   callback will be called periodically during transfers that are
 --   progressing normally.
-type XferProgressCallback  =  XferProgressInfo -- ^ @info@ - information about the progress of the current transfer
-                           -> IO Bool          -- ^ return 'Prelude.False' to abort the transfer, 'Prelude.True' otherwise.
+--
+--   The callback must return 'Prelude.False' to abort the transfer, or 'Prelude.True' otherwise.
+type XferProgressCallback  =  XferProgressInfo
+                           -> IO Bool
 
 -- | The type of the second callback that is passed to
 --   'System.Gnome.VFS.Xfer.xferURI'. This callback will be called
 --   whenever an error occurs.
-type XferErrorCallback     =  XferProgressInfo   -- ^ @info@ - information about the progress of the current transfer
-                           -> IO XferErrorAction -- ^ the action to be performed in response to the error
+--
+--   The callback must return the action to be performed in response to the error.
+type XferErrorCallback     =  XferProgressInfo
+                           -> IO XferErrorAction
 
 -- | The type of the third callback that is passed to
 --   'System.Gnome.VFS.Xfer.xferURI'. This callback will be called
 --   when a file would be overwritten.
-type XferOverwriteCallback =  XferProgressInfo       -- ^ @info@ - information about the progress of the current transfer
-                           -> IO XferOverwriteAction -- ^ the action to be performed when the target file already exists
+--
+--   The callback must return the action to be performed when the target file already exists.
+type XferOverwriteCallback =  XferProgressInfo
+                           -> IO XferOverwriteAction
 
 -- | The type of the fourth callback that is passed to
 --   'System.Gnome.VFS.Xfer.xferURI'. This callback will be called
 --   when a duplicate filename is found.
-type XferDuplicateCallback =  XferProgressInfo   -- ^ @info@ - information about the progress of the current transfer
-                           -> String             -- ^ @duplicateName@ - the name of the target file
-                           -> Int                -- ^ @duplicateCount@ - the number of duplicates that exist
-                           -> IO (Maybe String)  -- ^ the new filename that should be used, or 'Prelude.Nothing' to abort.
+--
+--   The parameters, from left to right, are:
+--     * @info@ - information about the progress of the current transfer,
+--     * @duplicateName@ - the name of the target file,
+--     * @duplicateCount@ - the number of duplicates that exist.
+--
+--   The callback must return the new filename that should be used, or 'Prelude.Nothing' to abort.
+type XferDuplicateCallback =  XferProgressInfo
+                           -> String
+                           -> Int
+                           -> IO (Maybe String)
 
 --------------------------------------------------------------------
 

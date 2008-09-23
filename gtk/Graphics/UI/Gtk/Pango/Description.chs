@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) - text layout functions: Font Descriptions
 --

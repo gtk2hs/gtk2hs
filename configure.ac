@@ -830,9 +830,11 @@ if test "$BUILDDOCS" = "yes"; then
     AC_MSG_ERROR([I need haddock 0.7 or later to build the documentation.
     Upgrade your version of haddock or re-run configure without --enable-docs])])
   GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 0.8, [USE_CPP_LINES="yes";])
+  GTKHS_PROG_CHECK_VERSION($HADDOCK_VERSION, -ge, 2.0, [HADDOCK2="yes";])
 else
   USE_CPP_LINES="yes"
 fi
+AM_CONDITIONAL(HADDOCK2,  test "$HADDOCK2"  = "yes")
 AM_CONDITIONAL(BUILDDOCS, test "$BUILDDOCS" = "yes")
 
 dnl Define the set of packages that Haddock should cross-reference into. This

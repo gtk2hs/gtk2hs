@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 -- -------------------- automatically generated file - do not edit ----------
 --  Object hierarchy for the GIMP Toolkit (GTK) Binding for Haskell

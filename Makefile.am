@@ -1765,7 +1765,7 @@ htmldoc_HSFILES_HIDDEN				+=	\
 	gnomevfs/System/Gnome/VFS/Types.hs		\
 	gnomevfs/System/Gnome/VFS/Marshal.hs
 
-gnomevfs_System_Gnome_VFS_FileInfo_hs_HCFLAGS	 = '-\#include "hsfileinfo.h"'
+gnomevfs_System_Gnome_VFS_FileInfo_hs_HCFLAGS	 = '-\#include"hsfileinfo.h"'
 gnomevfs_System_Gnome_VFS_Types_hs_HCFLAGS	 = -fglasgow-exts
 gnomevfs_System_Gnome_VFS_Directory_hs_HCFLAGS	 = -fglasgow-exts
 
@@ -1976,6 +1976,7 @@ gstreamer_Media_Streaming_GStreamer_Core_Caps_hs_HCFLAGS	= -fglasgow-exts
 
 htmldoc_HSFILES_HIDDEN				+=			\
 	$(libHSgstreamer_a_GENERATEDSOURCES:.chs=.hs)			\
+	gstreamer/Media/Streaming/GStreamer/Core/GObjectHierarchyBase.hs \
 	gstreamer/Media/Streaming/GStreamer/Core/HierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/MiniHierarchyBase.hs	\
 	gstreamer/Media/Streaming/GStreamer/Core/Types.hs		\
@@ -2204,10 +2205,7 @@ htmldocdir = $(datadir)/doc/gtk2hs/html
 
 PACKAGES = $(foreach PACKAGE,$(pkglib_LIBRARIES), $(patsubst libHS%.a,%,$(PACKAGE)))
 
-htmldoc_HSFILES =  $(filter-out $(htmldoc_HSFILES_EXCLUDE),	\
-		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))
-
-htmldoc_DATA =									  \
+htmldoc_haddock_files =								  \
 	$(foreach HSFILE, $(filter-out						  \
 	$(htmldoc_HSFILES_HIDDEN),$(htmldoc_HSFILES)),				  \
 	    $(patsubst $(firstword $(subst /,					  \
@@ -2220,13 +2218,117 @@ htmldoc_DATA =									  \
 	docs/reference/haddock-util.js						  \
 	docs/reference/index.html docs/reference/doc-index.html			  \
 	docs/reference/gtk2hs.haddock
+
 if !WIN32
-htmldoc_DATA +=
+if !HADDOCK2
+htmldoc_haddock_files +=
 	$(foreach LETTER, A B C D E F G H I J K L M N O P Q R S T U V W X Y
 		58 , docs/reference/doc-index-$(LETTER).html) #missing Z < > |, i.e. 60 62 124
 endif
+endif
 
-$(htmldoc_DATA) : $(htmldoc_HSFILES)
+htmldoc_images =								  \
+	docs/reference/images/stock-icons/stock_about_24.png			  \
+	docs/reference/images/stock-icons/stock_add_24.png			  \
+	docs/reference/images/stock-icons/stock_align_center_24.png		  \
+	docs/reference/images/stock-icons/stock_align_justify_24.png		  \
+	docs/reference/images/stock-icons/stock_align_left_24.png		  \
+	docs/reference/images/stock-icons/stock_align_right_24.png		  \
+	docs/reference/images/stock-icons/stock_apply_20.png			  \
+	docs/reference/images/stock-icons/stock_bottom_24.png			  \
+	docs/reference/images/stock-icons/stock_broken_image_24.png		  \
+	docs/reference/images/stock-icons/stock_cancel_20.png			  \
+	docs/reference/images/stock-icons/stock_cdrom_24.png			  \
+	docs/reference/images/stock-icons/stock_clear_24.png			  \
+	docs/reference/images/stock-icons/stock_close_24.png			  \
+	docs/reference/images/stock-icons/stock_color_picker_25.png		  \
+	docs/reference/images/stock-icons/stock_colorselector_24.png		  \
+	docs/reference/images/stock-icons/stock_connect_24.png			  \
+	docs/reference/images/stock-icons/stock_convert_24.png			  \
+	docs/reference/images/stock-icons/stock_copy_24.png			  \
+	docs/reference/images/stock-icons/stock_cut_24.png			  \
+	docs/reference/images/stock-icons/stock_dialog_authentication_48.png	  \
+	docs/reference/images/stock-icons/stock_dialog_error_48.png		  \
+	docs/reference/images/stock-icons/stock_dialog_info_48.png		  \
+	docs/reference/images/stock-icons/stock_dialog_question_48.png		  \
+	docs/reference/images/stock-icons/stock_dialog_warning_48.png		  \
+	docs/reference/images/stock-icons/stock_directory_24.png		  \
+	docs/reference/images/stock-icons/stock_disconnect_24.png		  \
+	docs/reference/images/stock-icons/stock_dnd_32.png			  \
+	docs/reference/images/stock-icons/stock_dnd_multiple_32.png		  \
+	docs/reference/images/stock-icons/stock_down_arrow_24.png		  \
+	docs/reference/images/stock-icons/stock_edit_24.png			  \
+	docs/reference/images/stock-icons/stock_exec_24.png			  \
+	docs/reference/images/stock-icons/stock_exit_24.png			  \
+	docs/reference/images/stock-icons/stock_file_24.png			  \
+	docs/reference/images/stock-icons/stock_first_24.png			  \
+	docs/reference/images/stock-icons/stock_font_24.png			  \
+	docs/reference/images/stock-icons/stock_fullscreen_24.png		  \
+	docs/reference/images/stock-icons/stock_harddisk_24.png			  \
+	docs/reference/images/stock-icons/stock_help_24.png			  \
+	docs/reference/images/stock-icons/stock_home_24.png			  \
+	docs/reference/images/stock-icons/stock_index_24.png			  \
+	docs/reference/images/stock-icons/stock_info_24.png			  \
+	docs/reference/images/stock-icons/stock_jump_to_24.png			  \
+	docs/reference/images/stock-icons/stock_last_24.png			  \
+	docs/reference/images/stock-icons/stock_leave_fullscreen_24.png		  \
+	docs/reference/images/stock-icons/stock_left_arrow_24.png		  \
+	docs/reference/images/stock-icons/stock_media_forward_24.png		  \
+	docs/reference/images/stock-icons/stock_media_next_24.png		  \
+	docs/reference/images/stock-icons/stock_media_pause_24.png		  \
+	docs/reference/images/stock-icons/stock_media_play_24.png		  \
+	docs/reference/images/stock-icons/stock_media_previous_24.png		  \
+	docs/reference/images/stock-icons/stock_media_record_24.png		  \
+	docs/reference/images/stock-icons/stock_media_rewind_24.png		  \
+	docs/reference/images/stock-icons/stock_media_stop_24.png		  \
+	docs/reference/images/stock-icons/stock_network_24.png			  \
+	docs/reference/images/stock-icons/stock_new_24.png			  \
+	docs/reference/images/stock-icons/stock_no_20.png			  \
+	docs/reference/images/stock-icons/stock_ok_20.png			  \
+	docs/reference/images/stock-icons/stock_open_24.png			  \
+	docs/reference/images/stock-icons/stock_paste_24.png			  \
+	docs/reference/images/stock-icons/stock_preferences_24.png		  \
+	docs/reference/images/stock-icons/stock_print_24.png			  \
+	docs/reference/images/stock-icons/stock_print_preview_24.png		  \
+	docs/reference/images/stock-icons/stock_properties_24.png		  \
+	docs/reference/images/stock-icons/stock_redo_24.png			  \
+	docs/reference/images/stock-icons/stock_refresh_24.png			  \
+	docs/reference/images/stock-icons/stock_remove_24.png			  \
+	docs/reference/images/stock-icons/stock_revert_24.png			  \
+	docs/reference/images/stock-icons/stock_right_arrow_24.png		  \
+	docs/reference/images/stock-icons/stock_save_24.png			  \
+	docs/reference/images/stock-icons/stock_save_as_24.png			  \
+	docs/reference/images/stock-icons/stock_search_24.png			  \
+	docs/reference/images/stock-icons/stock_search_replace_24.png		  \
+	docs/reference/images/stock-icons/stock_sort_ascending_24.png		  \
+	docs/reference/images/stock-icons/stock_sort_descending_24.png		  \
+	docs/reference/images/stock-icons/stock_spellcheck_24.png		  \
+	docs/reference/images/stock-icons/stock_stop_24.png			  \
+	docs/reference/images/stock-icons/stock_text_bold_24.png		  \
+	docs/reference/images/stock-icons/stock_text_indent_24.png		  \
+	docs/reference/images/stock-icons/stock_text_italic_24.png		  \
+	docs/reference/images/stock-icons/stock_text_strikethrough_24.png	  \
+	docs/reference/images/stock-icons/stock_text_underline_24.png		  \
+	docs/reference/images/stock-icons/stock_text_unindent_24.png		  \
+	docs/reference/images/stock-icons/stock_top_24.png			  \
+	docs/reference/images/stock-icons/stock_trash_24.png			  \
+	docs/reference/images/stock-icons/stock_undelete_24.png			  \
+	docs/reference/images/stock-icons/stock_undo_24.png			  \
+	docs/reference/images/stock-icons/stock_up_arrow_24.png			  \
+	docs/reference/images/stock-icons/stock_yes_20.png			  \
+	docs/reference/images/stock-icons/stock_zoom_1_24.png			  \
+	docs/reference/images/stock-icons/stock_zoom_fit_24.png			  \
+	docs/reference/images/stock-icons/stock_zoom_in_24.png			  \
+	docs/reference/images/stock-icons/stock_zoom_out_24.png
+
+htmldoc_DATA = $(htmldoc_haddock_files) $(htmldoc_images)
+
+if !HADDOCK2
+
+htmldoc_HSFILES =  $(filter-out $(htmldoc_HSFILES_EXCLUDE),	\
+		$(foreach PACKAGE,$(PACKAGES),$(libHS$(PACKAGE)_a_HSFILES)))
+
+$(htmldoc_haddock_files) : $(htmldoc_HSFILES)
 	mkdir -p docs/reference
 	$(strip $(HADDOCK) --html --odir=docs/reference \
 		--title="Gtk2Hs" \
@@ -2234,8 +2336,33 @@ $(htmldoc_DATA) : $(htmldoc_HSFILES)
 		--prologue=docs/prologue.txt \
 		$(addprefix --use-package=,$(HADDOCK_PACKAGES)) \
 		$(HADDOCK_FLAGS) $^)
+else
 
-doc_CLEANFILES  = $(htmldoc_DATA)
+htmldoc_HSFILES = $(foreach DEPPKG,$(PACKAGES),$(libHS$(DEPPKG)_a_HSFILES))
+
+htmldoc_HSFILES_AM = $(foreach HSFILE, $(htmldoc_HSFILES), $(subst .,_,$(subst /,_,$(HSFILE))))
+
+all_externaldeps = $(sort $(foreach DEPPKG,$(PACKAGES),$(libHS$(DEPPKG)_a_EXTERNALDEPS)))
+
+htmldoc_haddock_interfaces = \
+	$(foreach DEPPKG,$(all_externaldeps),$(shell $(GHCPKG) field $(DEPPKG) haddock-interfaces | sed 's,^[^:]*:,,' ))
+
+$(htmldoc_haddock_files) : $(htmldoc_HSFILES)
+	mkdir -p docs/reference
+	echo $(all_externaldeps)
+	echo $(htmldoc_haddock_interfaces)
+	$(strip $(HADDOCK) --html --odir=docs/reference \
+		--title="Gtk2Hs" \
+		--dump-interface=docs/reference/gtk2hs.haddock \
+		--prologue=docs/prologue.txt \
+	        $(addprefix --read-interface=, $(htmldoc_haddock_interfaces)) \
+		$(addprefix --optghc=,$(sort $(foreach PACKAGE, $(PACKAGES), $(libHS$(PACKAGE)_a_HCFLAGS) $(libHS$(PACKAGE)_a_CPPFLAGS))) \
+		                      $(sort $(foreach HSFILE, $(htmldoc_HSFILES_AM), $($(HSFILE)_HCFLAGS)))) \
+		$(HADDOCK_FLAGS) $^)
+
+endif
+
+doc_CLEANFILES  = $(htmldoc_haddock_files)
 
 docdistdir = $(PACKAGE)-docs-$(VERSION)
 dist-docs : $(htmldoc_DATA)
