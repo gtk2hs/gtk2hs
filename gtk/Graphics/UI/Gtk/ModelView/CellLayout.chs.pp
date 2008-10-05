@@ -211,7 +211,7 @@ foreign import ccall "wrapper" mkSetAttributeFunc ::
 -- user model. This is a bug but since C programs mostly use the columns
 -- rather than the cell_layout way to extract attributes, this bug does not
 -- show up in many programs. Reported in the case of EntryCompletion as bug
--- #551202.
+-- \#551202.
 --
 convertIterFromParentToChildModel ::
      Ptr TreeIter -- ^ the iterator
