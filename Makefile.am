@@ -662,6 +662,11 @@ libHSgtk_a_LIBADD +=							\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog_stub.o
 endif
 
+if HAVE_GTK_VERSION_2_8
+libHSgtk_a_LIBADD +=							\
+	gtk/Graphics/UI/Gtk/Cairo_stub.o                
+endif
+
 if !USE_GCLOSUE_SIGNALS_IMPL
 libHSgtk_a_LIBADD += gtk/Graphics/UI/Gtk/Signals_stub.o
 endif
