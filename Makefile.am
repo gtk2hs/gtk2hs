@@ -4,6 +4,12 @@ MOSTLYCLEANFILES = */*.bak tools/*/*.bak
 CLEANFILES = */*.precomp $(pkglib_LIBRARIES:.a=_p.a) */*.deps */*.p_deps
 DISTCLEANFILES =
 
+if GHC_VERSION_610
+FFI = -XForeignFunctionInterface
+else
+FFI = -fffi
+endif
+
 EXTRA_DIST = \
 	tools/callbackGen/Signal.chs.template	\
 	tools/callbackGen/gtkmarshal.list	\
@@ -217,7 +223,7 @@ tools_c2hs_c2hsLocal_ALLSOURCES =		\
 tools_c2hs_base_general_Binary_hs_HCFLAGS = -O -funbox-strict-fields
 tools_c2hs_base_general_FastMutInt_hs_HCFLAGS = -O
 tools_c2hs_base_syntax_Parsers_hs_HCFLAGS = -fglasgow-exts
-tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = -fffi '-\#include<c2hs_config.h>'
+tools_c2hs_toplevel_C2HSConfig_hs_HCFLAGS = $(FFI) '-\#include<c2hs_config.h>'
 
 tools/c2hs/c/CLexer.hs : tools/c2hs/c/CLexer.x
 	$(ALEX) --ghc -o $@ $<
@@ -260,7 +266,7 @@ libHSglib_a_INTERNALDEPS	=
 libHSglib_a_HEADER 		= glib-object.h
 libHSglib_a_PRECOMP		= glib/glib.precomp
 libHSglib_a_LIBS		= $(GLIB_LIBS)
-libHSglib_a_HCFLAGS		= -fffi
+libHSglib_a_HCFLAGS		= $(FFI)
 libHSglib_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS))
 libHSglib_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS))
 
@@ -394,7 +400,7 @@ libHSgtk_a_INTERNALDEPS		= glib
 libHSgtk_a_HEADER 		= gtk/gtk.h
 libHSgtk_a_PRECOMP		= gtk/gtk.precomp
 libHSgtk_a_LIBS			= $(GLIB_LIBS) $(GTK_LIBS)
-libHSgtk_a_HCFLAGS		= -fffi
+libHSgtk_a_HCFLAGS		= $(FFI)
 libHSgtk_a_CFLAGS 		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 libHSgtk_a_CPPFLAGS 		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS))
 
@@ -778,7 +784,7 @@ libHSglade_a_INTERNALDEPS	= gtk glib
 libHSglade_a_HEADER 		= glade/glade.h
 libHSglade_a_PRECOMP		= glade/glade.precomp
 libHSglade_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(LIBGLADE_LIBS)
-libHSglade_a_HCFLAGS		= -fffi
+libHSglade_a_HCFLAGS		= $(FFI)
 libHSglade_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 libHSglade_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(LIBGLADE_CFLAGS))
 
@@ -1029,7 +1035,7 @@ libHSsourceview_a_INTERNALDEPS	= glib gtk
 libHSsourceview_a_HEADER 	= sourceview.h
 libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
 libHSsourceview_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(SOURCEVIEW_LIBS)
-libHSsourceview_a_HCFLAGS	= -fffi
+libHSsourceview_a_HCFLAGS	= $(FFI)
 libHSsourceview_a_CFLAGS	= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS))
 libHSsourceview_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(SOURCEVIEW_CFLAGS)) -Isourceview
 
@@ -1155,7 +1161,7 @@ libHSmozembed_a_INTERNALDEPS	= glib gtk
 libHSmozembed_a_HEADER 		= gtkmozembed.h
 libHSmozembed_a_PRECOMP		= mozembed/mozembed.precomp
 libHSmozembed_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(MOZEMBED_LIBS)
-libHSmozembed_a_HCFLAGS		= -fffi
+libHSmozembed_a_HCFLAGS		= $(FFI)
 libHSmozembed_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 libHSmozembed_a_CPPFLAGS	= $(filter -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(MOZEMBED_CFLAGS))
 
@@ -1272,7 +1278,7 @@ libHScairo_a_INTERNALDEPS	= glib
 libHScairo_a_HEADER 		= cairo/cairo-gtk2hs.h
 libHScairo_a_PRECOMP		= cairo/cairo.precomp
 libHScairo_a_LIBS		= $(CAIRO_LIBS)
-libHScairo_a_HCFLAGS		= -fffi
+libHScairo_a_HCFLAGS		= $(FFI)
 libHScairo_a_CFLAGS		= $(filter-out -I% -D%,$(CAIRO_CFLAGS))
 libHScairo_a_CPPFLAGS		= $(filter -I% -D%,$(CAIRO_CFLAGS))
 
@@ -1403,7 +1409,7 @@ libHSsvgcairo_a_INTERNALDEPS	= glib cairo
 libHSsvgcairo_a_HEADER 		= svgcairo/svgcairo.h
 libHSsvgcairo_a_PRECOMP		= svgcairo/svgcairo.precomp
 libHSsvgcairo_a_LIBS		= $(SVGCAIRO_LIBS)
-libHSsvgcairo_a_HCFLAGS		= -fffi
+libHSsvgcairo_a_HCFLAGS		= $(FFI)
 libHSsvgcairo_a_CFLAGS		= $(filter-out -I% -D%,$(CAIRO_CFLAGS) $(SVGCAIRO_CFLAGS))
 libHSsvgcairo_a_CPPFLAGS	= $(filter -I% -D%,$(CAIRO_CFLAGS) $(SVGCAIRO_CFLAGS))
 
@@ -1499,7 +1505,7 @@ libHSgtkglext_a_INTERNALDEPS	= glib gtk
 libHSgtkglext_a_HEADER 		= gtk/gtkgl.h
 libHSgtkglext_a_PRECOMP		= gtkglext/gtkglext.precomp
 libHSgtkglext_a_LIBS		= $(GLIB_LIBS) $(GTK_LIBS) $(GTKGLEXT_LIBS)
-libHSgtkglext_a_HCFLAGS		= -fffi
+libHSgtkglext_a_HCFLAGS		= $(FFI)
 libHSgtkglext_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GTKGLEXT_CFLAGS))
 libHSgtkglext_a_CPPFLAGS	= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GTK_CFLAGS) $(GTKGLEXT_CFLAGS))
 
@@ -1711,7 +1717,7 @@ else
 libHSgnomevfs_a_HEADER			= libgnomevfs/gnome-vfs.h
 endif
 libHSgnomevfs_a_LIBS			= $(GLIB_LIBS) $(GNOMEVFS_LIBS) $(GCONF_LIBS)
-libHSgnomevfs_a_HCFLAGS			= -fffi
+libHSgnomevfs_a_HCFLAGS			= $(FFI)
 libHSgnomevfs_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GNOMEVFS_CFLAGS))
 libHSgnomevfs_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GNOMEVFS_CFLAGS)) -I.
 
@@ -1882,7 +1888,7 @@ libHSgstreamer_a_HEADER			= gstreamer/hsgstreamer.h
 libHSgstreamer_a_PRECOMP		= gstreamer/gstreamer.precomp
 $(libHSgstreamer_a_PRECOMP): $(libHSgstreamer_a_HEADER)
 libHSgstreamer_a_LIBS			= $(GLIB_LIBS) $(GSTREAMER_LIBS)
-libHSgstreamer_a_HCFLAGS		= -fffi
+libHSgstreamer_a_HCFLAGS		= $(FFI)
 libHSgstreamer_a_CFLAGS			= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS))
 libHSgstreamer_a_CPPFLAGS		= $(filter     -I% -D%,$(GLIB_CFLAGS) $(GSTREAMER_CFLAGS)) -I.
 
