@@ -113,6 +113,10 @@ AC_MSG_RESULT([$GHC_VERSION])
 GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -lt, 6.4, [
   AC_MSG_ERROR([Gtk2Hs requires GHC 6.4 or later])])
 
+GTKHS_PROG_CHECK_VERSION($GHC_VERSION, -ge, 6.10,
+  GHC_VERSION_610=yes, GHC_VERSION_610=no)
+AM_CONDITIONAL(GHC_VERSION_610, test "$GHC_VERSION_610" = "yes")
+
 dnl Calculate a version number with 3 digits (i.e. 502 for 5.2)
 GHC_VERSION_NUMBER=`echo $GHC_VERSION | $SED "s/[[0-9]*\.\([0-9]]*\).*/0\1/"`
 GHC_VERSION_NUMBER=`echo $GHC_VERSION_NUMBER | $SED "s/[[0-9]*\([0-9][0-9]]\)/\1/"`
