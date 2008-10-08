@@ -15,5 +15,5 @@ hs-libraries: HScairo
 extra-libraries: @CAIRO_LIBS_CQ@
 include-dirs: @CAIRO_CFLAGS_CQ@
 includes: @CAIRO_HEADERS@
-depends: base mtl-@PKG_MTL_VERSION@ glib-@PACKAGE_VERSION@ @CAIRO_SPLITBASE_DEPENDS@
+depends: base-@PKG_BASE_VERSION@ mtl-@PKG_MTL_VERSION@ glib-@PACKAGE_VERSION@ @CAIRO_SPLITBASE_DEPENDS@
 ld-options: @CAIRO_LIBEXTRA_CQ@

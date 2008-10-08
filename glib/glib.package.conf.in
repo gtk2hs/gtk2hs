@@ -13,5 +13,5 @@ hs-libraries: HSglib
 extra-libraries: @GLIB_LIBS_CQ@
 include-dirs: @GLIB_CFLAGS_CQ@, "${pkglibdir}/include"
 includes: glib.h, glib-object.h
-depends: base
+depends: base-@PKG_BASE_VERSION@
 ld-options: @GLIB_LIBEXTRA_CQ@

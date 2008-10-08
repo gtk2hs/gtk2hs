@@ -13,5 +13,5 @@ hs-libraries: HSgtk
 extra-libraries: @GTK_LIBS_CQ@
 include-dirs: @GTK_CFLAGS_CQ@
 includes: gtk/gtk.h
-depends: base mtl-@PKG_MTL_VERSION@ glib-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@ @GTK_SPLITBASE_DEPENDS@
+depends: base-@PKG_BASE_VERSION@ mtl-@PKG_MTL_VERSION@ glib-@PACKAGE_VERSION@ @GTK_CAIRO_DEPEND@ @GTK_SPLITBASE_DEPENDS@
 ld-options: @GTK_LIBEXTRA_CQ@

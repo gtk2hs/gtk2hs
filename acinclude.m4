@@ -92,14 +92,13 @@ dnl GHC_PKG_CHECK(PKG_NAME)
 AC_DEFUN([GHC_PKG_CHECK],
 [
 AC_MSG_CHECKING([for the GHC package "$1"])
+C="$(${GHCPKG} list --simple-output --global $1)"
 if test "$USERPKGCONF" = "yes"; then
-	C=$(${GHCPKG} list $1 | sed -e '/package.conf:/d')
-else
-	C=$(${GHCPKG} list $1 | sed -e '1d;/package.conf:/,$d')
+	C="${C} $(${GHCPKG} list --simple-output --user $1)"
 fi
 if echo "${C}" | ${GREP} $1 > /dev/null 2> /dev/null
 then
-	$2=$(echo "${C}" | sed -e 's/,/\n/g' -e 's/[[(), ]]//g' | grep -v '^$' | sed -e 's/[[A-Za-z-]]*//' | sort -r -n | head -n1)
+	$2=$(for pkg in ${C} ; do echo "${pkg}" | sed -e 's/^[[A-Za-z0-9-]]*-\([[0-9.]]*\)$/\1/' ; done | sort -r -n | head -n1)
 	AC_MSG_RESULT([yes, version $$2])
 else
 	AC_MSG_ERROR([

@@ -96,7 +96,7 @@ tools_hierarchyGen_PKGNAME = tools_hierarchyGen_TypeGenerator
 
 tools_hierarchyGen_TypeGenerator_MAIN = \
   $(tools_hierarchyGen_TypeGenerator_SOURCES)
-tools_hierarchyGen_TypeGenerator_EXTERNALDEPS = base
+tools_hierarchyGen_TypeGenerator_EXTERNALDEPS = base-$(PKG_BASE_VERSION)
 tools_hierarchyGen_TypeGenerator_NOSPLITOBJS = yes
 tools_hierarchyGen_TypeGenerator_SOURCESDIRS = tools/hierarchyGen
 tools_hierarchyGen_TypeGenerator_SOURCES = \
@@ -111,7 +111,7 @@ tools_hierarchyGenGst_PKGNAME = tools_hierarchyGenGst_TypeGenerator
 
 tools_hierarchyGenGst_TypeGenerator_MAIN = \
   $(tools_hierarchyGenGst_TypeGenerator_SOURCES)
-tools_hierarchyGenGst_TypeGenerator_EXTERNALDEPS = base
+tools_hierarchyGenGst_TypeGenerator_EXTERNALDEPS = base-$(PKG_BASE_VERSION)
 tools_hierarchyGenGst_TypeGenerator_NOSPLITOBJS = yes
 tools_hierarchyGenGst_TypeGenerator_SOURCESDIRS = tools/hierarchyGenGst
 tools_hierarchyGenGst_TypeGenerator_SOURCES = \
@@ -131,7 +131,7 @@ tools_callbackGen_PKGNAME = tools_callbackGen_HookGenerator
 
 tools_callbackGen_HookGenerator_MAIN = \
   $(tools_callbackGen_HookGenerator_SOURCES)
-tools_callbackGen_HookGenerator_EXTERNALDEPS = base
+tools_callbackGen_HookGenerator_EXTERNALDEPS = base-$(PKG_BASE_VERSION)
 tools_callbackGen_HookGenerator_NOSPLITOBJS = yes
 tools_callbackGen_HookGenerator_SOURCESDIRS = tools/callbackGen
 tools_callbackGen_HookGenerator_SOURCES = \
@@ -150,9 +150,9 @@ MOSTLYCLEANFILES+= $(tools_callbackGen_HookGenerator_SOURCES:.hs=.hi)
 tools_c2hs_PKGNAME = tools_c2hs_c2hsLocal
 
 tools_c2hs_c2hsLocal_MAIN = c2hs/toplevel/Main.hs
-tools_c2hs_c2hsLocal_EXTERNALDEPS	= base haskell98
+tools_c2hs_c2hsLocal_EXTERNALDEPS	= base-$(PKG_BASE_VERSION) haskell98-$(PKG_HASKELL98_VERSION)
 if HAVE_SPLIT_BASE
-tools_c2hs_c2hsLocal_EXTERNALDEPS	+= pretty containers array
+tools_c2hs_c2hsLocal_EXTERNALDEPS	+= pretty-$(PKG_PRETTY_VERSION) containers-$(PKG_CONTAINERS_VERSION) array-$(PKG_ARRAY_VERSION)
 endif
 tools_c2hs_c2hsLocal_NOSPLITOBJS	= yes
 
@@ -255,7 +255,7 @@ glib_PKGNAME = libHSglib_a
 
 libHSglib_a_NAME		= glib
 libHSglib_a_CONFIG		= glib/glib.package.conf
-libHSglib_a_EXTERNALDEPS	= base
+libHSglib_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
 libHSglib_a_INTERNALDEPS	= 
 libHSglib_a_HEADER 		= glib-object.h
 libHSglib_a_PRECOMP		= glib/glib.precomp
@@ -386,7 +386,7 @@ gtk_PKGNAME = libHSgtk_a
 
 libHSgtk_a_NAME			= gtk
 libHSgtk_a_CONFIG		= gtk/gtk.package.conf
-libHSgtk_a_EXTERNALDEPS		= base mtl-$(PKG_MTL_VERSION)
+libHSgtk_a_EXTERNALDEPS		= base-$(PKG_BASE_VERSION) mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
 libHSgtk_a_EXTERNALDEPS		+= containers-$(PKG_CONTAINERS_VERSION) array-$(PKG_ARRAY_VERSION)
 endif
@@ -773,7 +773,7 @@ glade_PKGNAME = libHSglade_a
 
 libHSglade_a_NAME		= glade
 libHSglade_a_CONFIG		= glade/glade.package.conf
-libHSglade_a_EXTERNALDEPS	= base
+libHSglade_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
 libHSglade_a_INTERNALDEPS	= gtk glib
 libHSglade_a_HEADER 		= glade/glade.h
 libHSglade_a_PRECOMP		= glade/glade.precomp
@@ -888,7 +888,7 @@ gconf_PKGNAME = libHSgconf_a
 
 libHSgconf_a_NAME		= gconf
 libHSgconf_a_CONFIG		= gconf/gconf.package.conf
-libHSgconf_a_EXTERNALDEPS	= base
+libHSgconf_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
 libHSgconf_a_INTERNALDEPS	= glib
 libHSgconf_a_HEADER 		= gconf/gconf-client.h
 libHSgconf_a_PRECOMP		= gconf/gconf.precomp
@@ -1024,7 +1024,7 @@ sourceview_PKGNAME = libHSsourceview_a
 
 libHSsourceview_a_NAME		= sourceview
 libHSsourceview_a_CONFIG	= sourceview/sourceview.package.conf
-libHSsourceview_a_EXTERNALDEPS	= base
+libHSsourceview_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
 libHSsourceview_a_INTERNALDEPS	= glib gtk
 libHSsourceview_a_HEADER 	= sourceview.h
 libHSsourceview_a_PRECOMP	= sourceview/sourceview.precomp
@@ -1150,7 +1150,7 @@ mozembed_PKGNAME = libHSmozembed_a
 
 libHSmozembed_a_NAME		= mozembed
 libHSmozembed_a_CONFIG		= mozembed/mozembed.package.conf
-libHSmozembed_a_EXTERNALDEPS	= base
+libHSmozembed_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
 libHSmozembed_a_INTERNALDEPS	= glib gtk
 libHSmozembed_a_HEADER 		= gtkmozembed.h
 libHSmozembed_a_PRECOMP		= mozembed/mozembed.precomp
@@ -1264,7 +1264,7 @@ cairo_PKGNAME = libHScairo_a
 
 libHScairo_a_NAME		= cairo
 libHScairo_a_CONFIG		= cairo/cairo.package.conf
-libHScairo_a_EXTERNALDEPS	= base mtl-$(PKG_MTL_VERSION)
+libHScairo_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION) mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
 libHScairo_a_EXTERNALDEPS	+= bytestring-$(PKG_BYTESTRING_VERSION)
 endif
@@ -1398,7 +1398,7 @@ svgcairo_PKGNAME = libHSsvgcairo_a
 
 libHSsvgcairo_a_NAME		= svgcairo
 libHSsvgcairo_a_CONFIG		= svgcairo/svgcairo.package.conf
-libHSsvgcairo_a_EXTERNALDEPS	= base mtl-$(PKG_MTL_VERSION)
+libHSsvgcairo_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION) mtl-$(PKG_MTL_VERSION)
 libHSsvgcairo_a_INTERNALDEPS	= glib cairo
 libHSsvgcairo_a_HEADER 		= svgcairo/svgcairo.h
 libHSsvgcairo_a_PRECOMP		= svgcairo/svgcairo.precomp
@@ -1494,7 +1494,7 @@ gtkglext_PKGNAME = libHSgtkglext_a
 
 libHSgtkglext_a_NAME		= gtkglext
 libHSgtkglext_a_CONFIG		= gtkglext/gtkglext.package.conf
-libHSgtkglext_a_EXTERNALDEPS	= base
+libHSgtkglext_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
 libHSgtkglext_a_INTERNALDEPS	= glib gtk
 libHSgtkglext_a_HEADER 		= gtk/gtkgl.h
 libHSgtkglext_a_PRECOMP		= gtkglext/gtkglext.precomp
@@ -1614,7 +1614,7 @@ soegtk_PKGNAME = libHSsoegtk_a
 
 libHSsoegtk_a_NAME		= soegtk
 libHSsoegtk_a_CONFIG		= soegtk/soegtk.package.conf
-libHSsoegtk_a_EXTERNALDEPS	= base
+libHSsoegtk_a_EXTERNALDEPS	= base-$(PKG_BASE_VERSION)
 if HAVE_SPLIT_BASE
 libHSsoegtk_a_EXTERNALDEPS	+= old-time-$(PKG_OLDTIME_VERSION)
 endif
@@ -1698,7 +1698,7 @@ gnomevfs_PKGNAME = libHSgnomevfs_a
 
 libHSgnomevfs_a_NAME			= gnomevfs
 libHSgnomevfs_a_CONFIG			= gnomevfs/gnomevfs.package.conf
-libHSgnomevfs_a_EXTERNALDEPS		= base haskell98 mtl-$(PKG_MTL_VERSION)
+libHSgnomevfs_a_EXTERNALDEPS		= base-$(PKG_BASE_VERSION) mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
 libHSgnomevfs_a_EXTERNALDEPS           += bytestring-$(PKG_BYTESTRING_VERSION)
 endif
@@ -1873,7 +1873,7 @@ gstreamer_PKGNAME = libHSgstreamer_a
 
 libHSgstreamer_a_NAME			= gstreamer
 libHSgstreamer_a_CONFIG			= gstreamer/gstreamer.package.conf
-libHSgstreamer_a_EXTERNALDEPS		= base haskell98 mtl-$(PKG_MTL_VERSION)
+libHSgstreamer_a_EXTERNALDEPS		= base-$(PKG_BASE_VERSION) mtl-$(PKG_MTL_VERSION)
 if HAVE_SPLIT_BASE
 libHSgstreamer_a_EXTERNALDEPS		+= bytestring-$(PKG_BYTESTRING_VERSION)
 endif

@@ -6,5 +6,5 @@ maintainer: gtk2hs-users@lists.sourceforge.net
 stability: provisional
 homepage: http://haskell.org/gtk2hs/
 category: Graphics
-build-depends: base gtk==@PACKAGE_VERSION@, cairo==@PACKAGE_VERSION@
+build-depends: base-@PKG_BASE_VERSION@ gtk==@PACKAGE_VERSION@, cairo==@PACKAGE_VERSION@
 exposed-modules: Graphics.SOE.Gtk

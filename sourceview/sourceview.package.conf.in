@@ -16,5 +16,5 @@ includes: gtksourceview/gtksourcelanguagesmanager.h,
           gtksourceview/gtksourcetag.h,
           gtksourceview/gtksourceiter.h,
 	  gtksourceview/gtksourceview.h
-depends: base gtk-@PACKAGE_VERSION@
+depends: base-@PKG_BASE_VERSION@ gtk-@PACKAGE_VERSION@
 ld-options: @SOURCEVIEW_LIBEXTRA_CQ@

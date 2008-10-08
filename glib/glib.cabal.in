@@ -6,5 +6,5 @@ maintainer: gtk2hs-users@lists.sourceforge.net
 stability: provisional
 homepage: http://haskell.org/gtk2hs/
 category: System
-build-depends: base
+build-depends: base-@PKG_BASE_VERSION@
 exposed-modules: ${modules}
