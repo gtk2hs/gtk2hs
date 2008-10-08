@@ -580,7 +580,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Windows/WindowGroup.chs			\
 	gtk/Graphics/UI/Gtk/Gdk/Cursor.chs				\
 	gtk/Graphics/UI/Gtk/Gdk/Drawable.chs.pp				\
-	gtk/Graphics/UI/Gtk/Gdk/GC.chs					\
+	gtk/Graphics/UI/Gtk/Gdk/GC.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/Gdk.chs					\
 	gtk/Graphics/UI/Gtk/Gdk/Enums.chs.pp				\
 	gtk/Graphics/UI/Gtk/Gdk/Keys.chs				\
@@ -1744,7 +1744,7 @@ nodist_libHSgnomevfs_a_SOURCES		= $(libHSgnomevfs_a_GENERATEDSOURCES)
 libHSgnomevfs_a_SOURCES			=               \
 	gnomevfs/System/Gnome/VFS/Constants.hsc		\
 	gnomevfs/System/Gnome/VFS/Types.chs.pp          \
-	gnomevfs/System/Gnome/VFS/Error.hs		\
+	gnomevfs/System/Gnome/VFS/Error.hs.pp		\
 	gnomevfs/System/Gnome/VFS/Marshal.chs		\
 	gnomevfs/System/Gnome/VFS/Init.chs              \
 	gnomevfs/System/Gnome/VFS/hsfileinfo.c          \

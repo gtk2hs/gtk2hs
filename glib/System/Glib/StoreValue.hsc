@@ -33,7 +33,13 @@ module System.Glib.StoreValue (
   ) where
 
 import Control.Monad	(liftM)
-import Control.Exception  (throw, Exception(AssertionFailed))
+
+#if HAVE_NEW_CONTROL_EXCEPTION
+import Control.OldException
+#else
+import Control.Exception
+                          (throw, Exception(AssertionFailed))
+#endif
 
 import System.Glib.FFI
 import System.Glib.GValue	(GValue, valueInit, valueGetType)

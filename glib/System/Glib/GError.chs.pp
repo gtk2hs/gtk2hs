@@ -88,7 +88,12 @@ module System.Glib.GError (
 import Foreign
 import Foreign.C
 import System.Glib.UTFString
+#if HAVE_NEW_CONTROL_EXCEPTION
+import Control.OldException
+#else
 import Control.Exception
+#endif
+
 import Data.Dynamic
 
 {# context lib="gtk" prefix ="gtk" #}

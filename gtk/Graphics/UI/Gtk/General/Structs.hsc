@@ -94,7 +94,11 @@ module Graphics.UI.Gtk.General.Structs (
 
 import Control.Monad		(liftM)
 import Data.IORef
+#ifdef HAVE_NEW_CONTROL_EXCEPTION
+import Control.OldException
+#else
 import Control.Exception
+#endif
 
 import System.Glib.FFI
 import System.Glib.UTFString ( UTFCorrection, ofsToUTF )

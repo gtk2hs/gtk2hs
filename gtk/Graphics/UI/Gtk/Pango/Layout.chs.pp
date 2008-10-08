@@ -136,9 +136,15 @@ import Graphics.UI.Gtk.Pango.Structs
 import Graphics.UI.Gtk.Pango.Rendering  -- for haddock
 import Graphics.UI.Gtk.Pango.Attributes ( withAttrList, fromAttrList)
 import Data.IORef
+#ifdef HAVE_NEW_CONTROL_EXCEPTION
+import Control.OldException ( Exception(ArrayException),
+                              ArrayException(IndexOutOfBounds),
+                              throwIO )
+#else
 import Control.Exception ( Exception(ArrayException),
-                           ArrayException(IndexOutOfBounds) )
-import Control.Exception (throwIO)
+                           ArrayException(IndexOutOfBounds),
+                           throwIO )
+#endif
 
 {# context lib="pango" prefix="pango" #}
 

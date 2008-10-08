@@ -45,8 +45,13 @@ import System.Glib.FFI
 import System.Glib.UTFString
 {#import Graphics.UI.Gtk.Pango.Types#}
 import Graphics.UI.Gtk.Pango.Structs
+#ifdef HAVE_NEW_CONTROL_EXCEPTION
+import Control.OldException ( Exception(ArrayException),
+			      ArrayException(IndexOutOfBounds) )
+#else
 import Control.Exception ( Exception(ArrayException),
 			   ArrayException(IndexOutOfBounds) )
+#endif
 import Control.Exception (throwIO)
 
 {# context lib="pango" prefix="pango" #}

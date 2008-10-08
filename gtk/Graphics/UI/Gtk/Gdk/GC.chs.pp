@@ -77,7 +77,11 @@ module Graphics.UI.Gtk.Gdk.GC (
 
 import Control.Monad	(when)
 import Data.Maybe	(fromJust, isJust)
+#ifdef HAVE_NEW_CONTROL_EXCEPTION
+import Control.OldException (handle)
+#else
 import Control.Exception (handle)
+#endif
 
 import System.Glib.FFI
 import System.Glib.GObject		(constructNewGObject)

@@ -40,7 +40,11 @@ module System.Gnome.VFS.Error (
   ) where
 
 import Control.Monad (join)
+#ifdef HAVE_NEW_CONTROL_EXCEPTION
+import qualified Control.OldException as E
+#else
 import qualified Control.Exception as E
+#endif
 import Data.Dynamic
 import System.Gnome.VFS.Types
 import Prelude hiding (error)
