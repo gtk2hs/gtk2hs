@@ -38,10 +38,12 @@ module Binary
    lazyGet,
    lazyPut,
 
+#if __GLASGOW_HASKELL__<610
    -- GHC only:
    ByteArray(..),
    getByteArray,
    putByteArray,
+#endif
 
    getBinFileWithDict,	-- :: Binary a => FilePath -> IO a
    putBinFileWithDict,	-- :: Binary a => FilePath -> ModuleName -> a -> IO ()
@@ -70,7 +72,11 @@ import Data.IORef
 import Data.Char		( ord, chr )
 import Data.Array.Base  	( unsafeRead, unsafeWrite )
 import Control.Monad		( when, liftM )
+# if __GLASGOW_HASKELL__<610
 import Control.Exception	( throwDyn )
+# else
+import Control.OldException	( throwDyn )
+# endif
 import System.IO as IO
 import System.IO.Unsafe		( unsafeInterleaveIO )
 import System.IO.Error		( mkIOError, eofErrorType )
@@ -474,6 +480,7 @@ instance (Binary key, Ord key, Binary elem) => Binary (Map key elem) where
                 return (Map.fromList list)
 
 #ifdef __GLASGOW_HASKELL__
+#if __GLASGOW_HASKELL__<610
 instance Binary Integer where
     put_ bh (S# i#) = do putByte bh 0; put_ bh (I# i#)
     put_ bh (J# s# a#) = do
@@ -549,6 +556,37 @@ indexByteArray a# n# = W8# (indexWord8Array# a# n#)
 instance (Integral a, Binary a) => Binary (Ratio a) where
     put_ bh (a :% b) = do put_ bh a; put_ bh b
     get bh = do a <- get bh; b <- get bh; return (a :% b)
+
+#else
+
+instance Binary Integer where
+    put_ h n = do
+      put h ((fromIntegral $ signum n) :: Int8)
+      when (n /= 0) $ do
+        let n' = abs n
+            nBytes = byteSize n'
+        put h (fromIntegral nBytes :: Word64)
+        mapM_ (putByte h) [ fromIntegral ((n' `shiftR` (b * 8)) .&. 0xff)
+                          | b <- [ nBytes-1, nBytes-2 .. 0 ] ]
+      where byteSize n =
+                let f b = if (1 `shiftL` (b * 8)) > n
+                             then b
+                             else f (b + 1)
+                in f 0
+    get h = do
+      sign :: Int8 <- get h
+      if sign == 0
+         then return 0
+         else do
+           nBytes :: Word64 <- get h
+           n <- accumBytes nBytes 0
+           return $ fromIntegral sign * n
+      where accumBytes nBytes acc | nBytes == 0 = return acc
+                                  | otherwise = do
+                b <- getByte h
+                accumBytes (nBytes - 1) ((acc `shiftL` 8) .|. fromIntegral b)
+#endif
+
 #endif
 
 instance Binary (Bin a) where
