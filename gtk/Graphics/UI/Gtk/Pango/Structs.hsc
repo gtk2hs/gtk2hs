@@ -1,4 +1,5 @@
 {-# OPTIONS -cpp #-}
+{-# OPTIONS_HADDOCK hide #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Structures for Pango
 --
