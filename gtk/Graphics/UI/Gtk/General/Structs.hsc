@@ -1,3 +1,4 @@
+{-# OPTIONS_HADDOCK hide #-}
 {-# OPTIONS -cpp #-}
 -- -*-haskell-*-
 --  GIMP Toolkit (GTK) Structures
