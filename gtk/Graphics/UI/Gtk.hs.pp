@@ -55,7 +55,8 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.DrawWindow,
   module Graphics.UI.Gtk.Gdk.Region,
   module Graphics.UI.Gtk.Gdk.GC,
-  module Graphics.UI.Gtk.Gdk.Events,
+-- include this if the Events module is definitely deprecated
+-- module Graphics.UI.Gtk.Gdk.EventM,
   module Graphics.UI.Gtk.Gdk.Pixbuf,
   module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Screen,
@@ -235,6 +236,7 @@ import Graphics.UI.Gtk.Gdk.Drawable
 import Graphics.UI.Gtk.Gdk.DrawWindow
 import Graphics.UI.Gtk.Gdk.Region		hiding (makeNewRegion)
 import Graphics.UI.Gtk.Gdk.GC
+--import Graphics.UI.Gtk.Gdk.EventM
 import Graphics.UI.Gtk.Gdk.Events		hiding (marshExposeRect,
 							marshalEvent)
 import Graphics.UI.Gtk.Gdk.Pixbuf

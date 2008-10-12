@@ -25,6 +25,7 @@
 # If it is a Boxed type check that the reference counting is right.
  
 BOOLEAN:BOXED
+BOOLEAN:POINTER
 BOOLEAN:BOXED,BOXED
 BOOLEAN:ENUM
 BOOLEAN:INT

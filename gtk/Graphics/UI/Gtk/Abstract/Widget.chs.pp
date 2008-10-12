@@ -372,6 +372,28 @@ import Graphics.UI.Gtk.Gdk.Events	(Event(..), marshalEvent,
   EventVisibility,
   EventWindowState,
   EventGrabBroken)
+import Graphics.UI.Gtk.Gdk.EventM	(EventM,
+  EventM,
+  EAny,
+  EKey,
+  EButton,
+  EScroll,
+  EMotion,
+  EExpose,
+  EVisibility,
+  ECrossing,
+  EFocus,
+  EConfigure,
+  EProperty,
+  EProximity,
+  EWindowState,
+#if GTK_CHECK_VERSION(2,6,0)
+  EOwnerChange,
+#endif
+#if GTK_CHECK_VERSION(2,8,0)
+  EGrabBroken,
+#endif
+  )
 import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
 					 AccelFlags(..), DirectionType(..), Modifier)
 {#import Graphics.UI.Gtk.Pango.Types#}	(FontDescription(FontDescription),
@@ -379,6 +401,7 @@ import Graphics.UI.Gtk.General.Enums	(StateType(..), TextDirection(..),
 					 makeNewPangoString )
 import Graphics.UI.Gtk.General.StockItems (StockId)
 import Data.IORef ( newIORef )
+import Control.Monad.Reader ( runReaderT )
 
 {# context lib="gtk" prefix="gtk" #}
 
@@ -2283,10 +2306,10 @@ screenChanged = Signal (connect_OBJECT__NONE "screen_changed")
 -- are emitted at a high rate often a bit has to be set to enable emission.
 
 
-event :: WidgetClass w => SignalName -> [EventMask] ->
-  ConnectAfter -> w -> (Event -> IO Bool) -> IO (ConnectId w)
-event name eMask after obj fun = do
-  id <- connect_BOXED__BOOL name marshalEvent after obj fun
+eventM :: WidgetClass w => SignalName -> [EventMask] ->
+  ConnectAfter -> w -> (EventM t Bool) -> IO (ConnectId w)
+eventM name eMask after obj fun = do
+  id <- connect_PTR__BOOL name after obj (runReaderT fun)
   widgetAddEvents obj eMask
   return id
 
@@ -2294,22 +2317,22 @@ event name eMask after obj fun = do
 -- | A mouse button has been depressed while the mouse pointer was within the
 -- widget area. Sets the widget's 'ButtonPressMask' flag.
 --
-buttonPressEvent :: WidgetClass self => Signal self (EventButton -> IO Bool)
-buttonPressEvent = Signal (event "button_press_event" [ButtonPressMask])
+buttonPressEvent :: WidgetClass self => Signal self (EventM EButton Bool)
+buttonPressEvent = Signal (eventM "button_press_event" [ButtonPressMask])
 
 -- %hash c:62e8 d:af3f
 -- | A mouse button has been released. Sets the widget's 'ButtonReleaseMask'
 -- flag.
 --
-buttonReleaseEvent :: WidgetClass self => Signal self (EventButton -> IO Bool)
-buttonReleaseEvent = Signal (event "button_release_event" [ButtonReleaseMask])
+buttonReleaseEvent :: WidgetClass self => Signal self (EventM EButton Bool)
+buttonReleaseEvent = Signal (eventM "button_release_event" [ButtonReleaseMask])
 
 -- %hash c:23e5 d:af3f
 -- | The scroll wheel of the mouse has been used.  Sets the widget's
 -- 'ScrollMask' flag.
 --
-scrollEvent :: WidgetClass self => Signal self (EventScroll -> IO Bool)
-scrollEvent = Signal (event "scroll_event" [ScrollMask])
+scrollEvent :: WidgetClass self => Signal self (EventM EScroll Bool)
+scrollEvent = Signal (eventM "scroll_event" [ScrollMask])
 
 -- %hash c:ee92 d:af3f
 -- | The mouse pointer has moved. Since receiving all mouse movements is
@@ -2330,8 +2353,8 @@ scrollEvent = Signal (event "scroll_event" [ScrollMask])
 --   motion even is received. Motion events will then be delayed until the
 --   function is called.
 --
-motionNotifyEvent :: WidgetClass self => Signal self (EventMotion -> IO Bool)
-motionNotifyEvent = Signal (event "motion_notify_event" [])
+motionNotifyEvent :: WidgetClass self => Signal self (EventM EMotion Bool)
+motionNotifyEvent = Signal (eventM "motion_notify_event" [])
 
 -- %hash c:8783 d:3e27
 -- | The 'deleteEvent' signal is emitted if a user requests that a toplevel
@@ -2340,8 +2363,8 @@ motionNotifyEvent = Signal (event "motion_notify_event" [])
 -- cause the window to be hidden instead, so that it can later be shown again
 -- without reconstructing it.
 --
-deleteEvent :: WidgetClass self => Signal self (Event -> IO Bool)
-deleteEvent = Signal (event "delete_event" [])
+deleteEvent :: WidgetClass self => Signal self (EventM EAny Bool)
+deleteEvent = Signal (eventM "delete_event" [])
 
 -- %hash c:c408 d:5514
 -- | The 'destroyEvent' signal is emitted when a 'DrawWindow' is destroyed.
@@ -2349,8 +2372,8 @@ deleteEvent = Signal (event "delete_event" [])
 -- their window before they destroy it, so no widget owns the window at
 -- destroy time.
 --
-destroyEvent :: WidgetClass self => Signal self (Event -> IO Bool)
-destroyEvent = Signal (event "destroy_event" [])
+destroyEvent :: WidgetClass self => Signal self (EventM EAny Bool)
+destroyEvent = Signal (eventM "destroy_event" [])
 
 -- %hash c:c79e d:af3f
 
@@ -2367,89 +2390,89 @@ destroyEvent = Signal (event "destroy_event" [])
 --   'Region' in addition to a 'Rectangle'. A 'Region' consists of several
 --   rectangles that need redrawing.
 --
-exposeEvent :: WidgetClass self => Signal self (EventExpose -> IO Bool)
-exposeEvent = Signal (event "expose_event" [])
+exposeEvent :: WidgetClass self => Signal self (EventM EExpose Bool)
+exposeEvent = Signal (eventM "expose_event" [])
 
 -- %hash c:5ccd d:af3f
 -- | A key has been depressed. Sets the widget's 'KeyPressMask' flag.
 --
-keyPressEvent :: WidgetClass self => Signal self (EventKey -> IO Bool)
-keyPressEvent = Signal (event "key_press_event" [KeyPressMask])
+keyPressEvent :: WidgetClass self => Signal self (EventM EKey Bool)
+keyPressEvent = Signal (eventM "key_press_event" [KeyPressMask])
 
 -- %hash c:bd29 d:af3f
 -- | A key has been released. Sets the widget's 'KeyReleaseMask' flag.
 --
-keyReleaseEvent :: WidgetClass self => Signal self (EventKey -> IO Bool)
-keyReleaseEvent = Signal (event "key_release_event" [KeyReleaseMask])
+keyReleaseEvent :: WidgetClass self => Signal self (EventM EKey Bool)
+keyReleaseEvent = Signal (eventM "key_release_event" [KeyReleaseMask])
 
 -- %hash c:602e d:af3f
 -- | The mouse pointer has entered the widget. Sets the widget's
 -- 'EnterNotifyMask' flag.
 --
-enterNotifyEvent :: WidgetClass self => Signal self (EventCrossing -> IO Bool)
-enterNotifyEvent = Signal (event "enter_notify_event" [EnterNotifyMask])
+enterNotifyEvent :: WidgetClass self => Signal self (EventM ECrossing Bool)
+enterNotifyEvent = Signal (eventM "enter_notify_event" [EnterNotifyMask])
 
 -- %hash c:3bfb d:af3f
 -- | The mouse pointer has left the widget. Sets the widget's
 -- 'LeaveNotifyMask' flag.
 --
-leaveNotifyEvent :: WidgetClass self => Signal self (EventCrossing -> IO Bool)
-leaveNotifyEvent = Signal (event "leave_notify_event" [LeaveNotifyMask])
+leaveNotifyEvent :: WidgetClass self => Signal self (EventM ECrossing Bool)
+leaveNotifyEvent = Signal (eventM "leave_notify_event" [LeaveNotifyMask])
 
 -- %hash c:2b64 d:af3f
 -- | The size of the window has changed.
 --
-configureEvent :: WidgetClass self => Signal self (EventConfigure -> IO Bool)
-configureEvent = Signal (event "configure_event" [])
+configureEvent :: WidgetClass self => Signal self (EventM EConfigure Bool)
+configureEvent = Signal (eventM "configure_event" [])
 
 -- %hash c:427e d:af3f
 -- | The widget gets the input focus.  Sets the widget's 'FocusChangeMask' flag.
 --
-focusInEvent :: WidgetClass self => Signal self (EventFocus -> IO Bool)
-focusInEvent = Signal (event "focus_in_event" [FocusChangeMask])
+focusInEvent :: WidgetClass self => Signal self (EventM EFocus Bool)
+focusInEvent = Signal (eventM "focus_in_event" [FocusChangeMask])
 
 -- %hash c:5281 d:af3f
 -- | The widget lost the input focus. Sets the widget's 'FocusChangeMask' flag.
 --
-focusOutEvent :: WidgetClass self => Signal self (EventFocus -> IO Bool)
-focusOutEvent = Signal (event "focus_out_event" [FocusChangeMask])
+focusOutEvent :: WidgetClass self => Signal self (EventM EFocus Bool)
+focusOutEvent = Signal (eventM "focus_out_event" [FocusChangeMask])
 
 -- %hash c:63c4 d:af3f
 -- | The window is put onto the screen.
 --
-mapEvent :: WidgetClass self => Signal self (Event -> IO Bool)
-mapEvent = Signal (event "map_event" [])
+mapEvent :: WidgetClass self => Signal self (EventM EAny Bool)
+mapEvent = Signal (eventM "map_event" [])
 
 -- %hash c:342d d:af3f
 -- | The window is taken off the screen.
 --
-unmapEvent :: WidgetClass self => Signal self (Event -> IO Bool)
-unmapEvent = Signal (event "unmap_event" [])
+unmapEvent :: WidgetClass self => Signal self (EventM EAny Bool)
+unmapEvent = Signal (eventM "unmap_event" [])
 
 -- %hash c:a1dd d:af3f
 -- | A 'DrawWindow' may be associated with a set of properties that are
 -- identified by a 'PropertyTag'. This event is triggered if a property is
 -- changed or deleted. Sets the widget's 'PropertyChangeMask' flag.
 --
-propertyNotifyEvent :: WidgetClass self => Signal self (EventProperty -> IO Bool)
-propertyNotifyEvent = Signal (event "property_notify_event" [PropertyChangeMask])
+propertyNotifyEvent :: WidgetClass self => Signal self (EventM EProperty Bool)
+propertyNotifyEvent = Signal (eventM "property_notify_event" [PropertyChangeMask])
 {- not sure if these are useful
 -- %hash c:58cc d:af3f
 -- | 
 --
-selectionClearEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} -> IO Bool)
+selectionClearEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} Bool)
 selectionClearEvent = Signal (connect_{-GdkEventSelection*-}__BOOL "selection_clear_event")
 
 -- %hash c:4f92 d:af3f
 -- |
 --
-selectionRequestEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} -> IO Bool)
+selectionRequestEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} Bool)
 selectionRequestEvent = Signal (connect_{-GdkEventSelection*-}__BOOL "selection_request_event")
 
 -- %hash c:b842 d:af3f
 -- |
 --
-selectionNotifyEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} -> IO Bool)
+selectionNotifyEvent :: WidgetClass self => Signal self ({-GdkEventSelection*-} Bool)
 selectionNotifyEvent = Signal (connect_{-GdkEventSelection*-}__BOOL "selection_notify_event")
 -}
 
@@ -2457,27 +2480,27 @@ selectionNotifyEvent = Signal (connect_{-GdkEventSelection*-}__BOOL "selection_n
 -- | The pen of a graphics tablet was put down. Sets the widget's
 -- 'ProximityInMask' flag.
 --
-proximityInEvent :: WidgetClass self => Signal self (EventProximity -> IO Bool)
-proximityInEvent = Signal (event "proximity_in_event" [ProximityInMask])
+proximityInEvent :: WidgetClass self => Signal self (EventM EProximity Bool)
+proximityInEvent = Signal (eventM "proximity_in_event" [ProximityInMask])
 
 -- %hash c:faca d:af3f
 -- | The pen of a graphics tablet was lifted off the tablet. Sets the widget's
 -- 'ProximityOutMask' flag.
 --
-proximityOutEvent :: WidgetClass self => Signal self (EventProximity -> IO Bool)
-proximityOutEvent = Signal (event "proximity_out_event" [ProximityOutMask])
+proximityOutEvent :: WidgetClass self => Signal self (EventM EProximity Bool)
+proximityOutEvent = Signal (eventM "proximity_out_event" [ProximityOutMask])
 
 -- %hash c:db2c d:af3f
 -- | Emitted when the window visibility status has changed. Sets the widget's
 -- 'VisibilityNotifyMask' flag.
 --
-visibilityNotifyEvent :: WidgetClass self => Signal self (EventVisibility -> IO Bool)
-visibilityNotifyEvent = Signal (event "visibility_notify_event" [VisibilityNotifyMask])
+visibilityNotifyEvent :: WidgetClass self => Signal self (EventM EVisibility Bool)
+visibilityNotifyEvent = Signal (eventM "visibility_notify_event" [VisibilityNotifyMask])
 {-
 -- %hash c:3f5 d:af3f
 -- |
 --
-clientEvent :: WidgetClass self => Signal self ({-GdkEventClient*-} -> IO Bool)
+clientEvent :: WidgetClass self => Signal self ({-GdkEventClient*-} Bool)
 clientEvent = Signal (connect_{-GdkEventClient*-}__BOOL "client_event")
 -}
 
@@ -2485,15 +2508,15 @@ clientEvent = Signal (connect_{-GdkEventClient*-}__BOOL "client_event")
 -- | Generated when the area of a 'Drawable' being copied using, e.g.
 -- 'Graphics.UI.Gtk.Gdk.Drawable.drawDrawable', is completely available.
 --
-noExposeEvent :: WidgetClass self => Signal self (Event -> IO Bool)
-noExposeEvent = Signal (event "no_expose_event" [])
+noExposeEvent :: WidgetClass self => Signal self (EventM EAny Bool)
+noExposeEvent = Signal (eventM "no_expose_event" [])
 
 -- %hash c:63b6 d:af3f
 -- | Emitted when the state of the window changes, i.e. when it is minimized,
 -- moved to the top, etc.
 --
-windowStateEvent :: WidgetClass self => Signal self (EventWindowState -> IO Bool)
-windowStateEvent = Signal (event "window_state_event" [])
+windowStateEvent :: WidgetClass self => Signal self (EventM EWindowState Bool)
+windowStateEvent = Signal (eventM "window_state_event" [])
 
 #if GTK_CHECK_VERSION(2,8,0)
 -- %hash c:502a d:e47a
@@ -2506,14 +2529,21 @@ windowStateEvent = Signal (event "window_state_event" [])
 --
 -- * Available since Gtk+ version 2.8
 --
-grabBrokenEvent :: WidgetClass self => Signal self (EventGrabBroken -> IO Bool)
-grabBrokenEvent = Signal (event "grab_broken_event" [])
+grabBrokenEvent :: WidgetClass self => Signal self (EventM EGrabBroken Bool)
+grabBrokenEvent = Signal (eventM "grab_broken_event" [])
 #endif
-
+             
 --------------------
 -- Deprecated Signals and Events
 
 #ifndef DISABLE_DEPRECATED
+
+event :: WidgetClass w => SignalName -> [EventMask] ->
+  ConnectAfter -> w -> (Event -> IO Bool) -> IO (ConnectId w)
+event name eMask after obj fun = do
+  id <- connect_BOXED__BOOL name marshalEvent after obj fun
+  widgetAddEvents obj eMask
+  return id
 
 -- | A Button was pressed.
 --

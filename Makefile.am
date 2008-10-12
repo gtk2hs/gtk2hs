@@ -599,6 +599,7 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/General/StockItems.hsc			\
 	gtk/Graphics/UI/Gtk/General/Structs.hsc				\
 	gtk/Graphics/UI/Gtk/Gdk/Events.hsc				\
+	gtk/Graphics/UI/Gtk/Gdk/EventM.hsc				\
 	gtk/Graphics/UI/Gtk/Abstract/Scrollbar.hs			\
 	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
@@ -628,6 +629,7 @@ gtk_Graphics_UI_Gtk_Gdk_Enums_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Types_hs_HCFLAGS	        = -fglasgow-exts
 gtk_Graphics_UI_Gtk_General_Structs_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Events_hs_HCFLAGS	= -fglasgow-exts
+gtk_Graphics_UI_Gtk_Gdk_EventM_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_General_StockItems_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Region_hs_HCFLAGS	= -fglasgow-exts
 gtk_Graphics_UI_Gtk_Gdk_Drawable_hs_HCFLAGS	= -fglasgow-exts

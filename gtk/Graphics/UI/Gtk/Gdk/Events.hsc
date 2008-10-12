@@ -22,12 +22,15 @@
 -- Stability   : provisional
 -- Portability : portable (depends on GHC)
 --
-
--- #prune
+-- Definiton of a record that contains event information. Deprecated in
+-- favor of 'Graphics.UI.Gtk.Gdk.EventM'.
+--
 module Graphics.UI.Gtk.Gdk.Events (
   Modifier(..),		-- a mask of control keys
   TimeStamp,
   currentTime,
+
+  -- | Deprecated way of conveying event information.
   Event(..),		-- information in event callbacks from Gdk
   EventButton,
   EventScroll,
@@ -61,6 +64,7 @@ module Graphics.UI.Gtk.Gdk.Events (
 import System.IO.Unsafe (unsafeInterleaveIO)
 import System.Glib.FFI
 import System.Glib.Flags
+import System.Glib.GObject ( makeNewGObject )
 import Graphics.UI.Gtk.Gdk.Keys		(KeyVal, keyvalToChar, keyvalName)
 import Graphics.UI.Gtk.Gdk.Region       (Region, makeNewRegion)
 import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..),
@@ -71,11 +75,22 @@ import Graphics.UI.Gtk.Gdk.Enums	(Modifier(..),
 					 ScrollDirection(..))
 import Graphics.UI.Gtk.General.Enums	(MouseButton(..), Click(..))
 import Graphics.UI.Gtk.General.Structs	(Rectangle(..))
+import Graphics.UI.Gtk.Types ( DrawWindow, mkDrawWindow )
 
 import Data.Bits ((.|.), (.&.), testBit, shiftL, shiftR)
 import Data.Maybe (catMaybes)
 
 #include <gdk/gdk.h>
+
+-- | The time (in milliseconds) when an event happened. This is used mostly
+-- for ordering events and responses to events.
+--
+type TimeStamp = Word32
+-- TODO: make this a newtype
+
+-- | Represents the current time, and can be used anywhere a time is expected.
+currentTime :: TimeStamp
+currentTime = #{const GDK_CURRENT_TIME}
 
 -- Note on Event:
 -- * 'Event' can communicate a small array of data to another widget. This
@@ -102,16 +117,6 @@ import Data.Maybe (catMaybes)
 --
 -- * Property is a TODO. These come from RC files which are useful for
 --   custom widgets.
-
--- | The time (in milliseconds) when an event happened. This is used mostly
--- for ordering events and responses to events.
---
-type TimeStamp = Word32
--- TODO: make this a newtype
-
--- | Represents the current time, and can be used anywhere a time is expected.
-currentTime :: TimeStamp
-currentTime = #{const GDK_CURRENT_TIME}
 
 -- | An event that contains information on a button press.
 type EventButton = Event
