@@ -101,6 +101,7 @@ module Graphics.UI.Gtk.Gdk.Pixbuf (
   pixbufScale,
   pixbufComposite,
 #if GTK_CHECK_VERSION(2,6,0)
+  pixbufFlipHorizontally,
   pixbufFlipHorazontally,
   pixbufFlipVertically,
   pixbufRotateSimple,
@@ -605,12 +606,13 @@ pixbufComposite src dest destX destY destWidth destHeight
 #if GTK_CHECK_VERSION(2,6,0)
 -- | Flips a pixbuf horizontally and returns the result in a new pixbuf.
 --
-pixbufFlipHorazontally :: Pixbuf -> IO Pixbuf
-pixbufFlipHorazontally self =
+pixbufFlipHorizontally :: Pixbuf -> IO Pixbuf
+pixbufFlipHorizontally self =
   constructNewGObject mkPixbuf $
   {# call pixbuf_flip #}
     self
     (fromBool True)
+pixbufFlipHorazontally = pixbufFlipHorizontally
 
 -- | Flips a pixbuf vertically and returns the result in a new pixbuf.
 --
