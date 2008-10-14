@@ -48,7 +48,9 @@ module Graphics.UI.Gtk.Cairo (
   cairoContextGetFontOptions,
   -- * Using 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf' functions together with Cairo
   cairoImageSurfaceFromPixbuf,
+#if CAIRO_CHECK_VERSION(1,2,0)
   pixbufFromImageSurface,
+#endif
   -- * Functions for the 'Render' monad.
   renderWithDrawable,
   setSourceColor,
@@ -129,7 +131,8 @@ cairoImageSurfaceFromPixbuf pb = do
     (castPtr pbPtr) objectUnref
   manageSurface sf
   return sf
-  
+
+#if CAIRO_CHECK_VERSION(1,2,0)
 -- | Treat an image 'Graphics.Rendering.Cairo.Surface' as a
 -- 'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf'.
 --
@@ -143,6 +146,8 @@ cairoImageSurfaceFromPixbuf pb = do
 --   'Graphics.Rendering.Cairo.FormatRGB32' since
 --   'Graphics.UI.Gtk.Gdk.Pixbuf.Pixbuf' can currently only handle these two
 --   formats.
+--
+-- * Requires Cairo 1.2 or higher.
 --
 pixbufFromImageSurface :: Surface -> IO Pixbuf
 pixbufFromImageSurface sf = do
@@ -173,6 +178,7 @@ pixbufFromImageSurface sf = do
 
 foreign import ccall "wrapper" mkPixbufDestroyNotify ::
   (Ptr () -> Ptr Surface -> IO ()) -> IO PixbufDestroyNotify
+#endif
 
 -- | Creates a Cairo context for drawing to a 'Drawable'.
 --
