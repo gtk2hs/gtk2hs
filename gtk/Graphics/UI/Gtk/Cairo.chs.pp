@@ -173,12 +173,14 @@ pixbufFromImageSurface sf = do
     {#call unsafe gdk_pixbuf_new_from_data#} dPtr 0 (fromBool hasAlpha)
       8 (fromIntegral width) (fromIntegral height) (fromIntegral stride)
       fPtr nullPtr
+#endif
 
+-- the following should be ifdef'd out as well but then we need to conditionally
+-- link in the _stub.o file of that is then only sometimes generated...
 {#pointer GdkPixbufDestroyNotify as PixbufDestroyNotify#}
 
 foreign import ccall "wrapper" mkPixbufDestroyNotify ::
   (Ptr () -> Ptr Surface -> IO ()) -> IO PixbufDestroyNotify
-#endif
 
 -- | Creates a Cairo context for drawing to a 'Drawable'.
 --
