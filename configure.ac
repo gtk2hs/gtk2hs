@@ -514,11 +514,14 @@ dnl Also allow us to conditionally compile bindings to Glib APIs.
 dnl We also want to know if certain cairo backends are enabled or not
 dnl we can find out by checking the appropriate cpp defines in cairo-features.h
 dnl Actually getting at these cpp defines is a bit tricky, what we do is
-dnl pre-process a shell file and include cairo-features.h then we run that
+dnl pre-process a shell file and include cairo.h then we run that
 dnl shell file to bring in the values of the shell vars it defines.
 dnl Then finally we substitute those into our config header file.
-CAIRO_CPP_FLAGS="`$PKG_CONFIG --cflags cairo` -include cairo-features.h"
+CAIRO_CPP_FLAGS="`$PKG_CONFIG --cflags cairo`"
 $CPP $CAIRO_CPP_FLAGS - > conftest.sh <<_ACEOF
+true <<_GIGO
+#include <cairo.h>
+_GIGO
 #ifdef CAIRO_HAS_PS_SURFACE
 _CAIRO_HAS_PS_SURFACE=1
 #endif
