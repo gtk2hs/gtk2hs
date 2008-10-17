@@ -418,7 +418,8 @@ libHSgio_a_SOURCES =	        		\
 	gio/System/GIO/Types.chs		\
 	gio/System/GIO/Signals.chs		\
 	gio/System/GIO/Cancellable.chs		\
-	gio/System/GIO/File.chs
+	gio/System/GIO/File.chs			\
+	gio/System/GIO.hs
 
 libHSgio_a_GENERATEDSOURCES =			\
 	gio/System/GIO/Types.chs		\
