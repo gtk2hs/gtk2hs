@@ -29,7 +29,11 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module System.GIO.AsyncResult where
+module System.GIO.AsyncResult (
+    AsyncResult,
+    AsyncResultClass,
+    AsyncReadyCallback
+    ) where
 
 import System.Glib.FFI
 
