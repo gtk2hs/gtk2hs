@@ -446,6 +446,8 @@ GTKHS_PACKAGE_ADD_CHECK_VERSION(gnome-vfs-2.0, GNOME_VFS, gnome-vfs)
 HAVE_GNOME_VFS_VERSION_2_14=`$PKG_CONFIG gnome-vfs-2.0 --atleast-version=2.14 && echo yes || echo no`
 AM_CONDITIONAL(HAVE_GNOME_VFS_VERSION_2_14, test "$HAVE_GNOME_VFS_VERSION_2_14" = "yes")
 
+dnl Allow us to conditionally compile bindings to librsvg APIs
+GTKHS_PACKAGE_ADD_CHECK_VERSION(librsvg-2.0, LIBRSVG, librsvg)
 
 dnl Also allow us to conditionally compile bindings to Glib APIs.
 dnl We also want to know if certain cairo backends are enabled or not

@@ -196,10 +196,19 @@ svgParseFromString str svg = do
 
 -- actually render it
 
-svgRender :: SVG -> Render ()
+-- | render an SVG file
+--
+-- Returns @False@ if an error was detected.
+-- On librsvg before 2.22.3, @svgRender@ always returns @True@.
+svgRender :: SVG -> Render Bool
 svgRender svg = do
   cr <- ask
-  liftIO $ {# call unsafe render_cairo #} svg cr
+  ret <- liftIO $ {# call unsafe render_cairo #} svg cr
+#if ! LIBRSVG_CHECK_VERSION(2,22,3)
+  return True
+#else
+  return (ret /= 0)
+#endif
 
 -- | Get the width and height of the SVG image.
 --
@@ -217,13 +226,13 @@ svgGetSize svg = unsafePerformIO $
 -- Convenience API
 -- 
 
-svgRenderFromFile :: FilePath -> Render ()
+svgRenderFromFile :: FilePath -> Render Bool
 svgRenderFromFile file = withSvgFromFile file svgRender
 
-svgRenderFromHandle :: Handle -> Render ()
+svgRenderFromHandle :: Handle -> Render Bool
 svgRenderFromHandle hnd = withSvgFromHandle hnd svgRender
 
-svgRenderFromString :: String -> Render ()
+svgRenderFromString :: String -> Render Bool
 svgRenderFromString str = withSvgFromString str svgRender
 
 ---------------------

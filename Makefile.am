@@ -1578,7 +1578,7 @@ libHSsvgcairo_a_GENERATEDSOURCES =
 nodist_libHSsvgcairo_a_SOURCES = $(libHSsvgcairo_a_GENERATEDSOURCES)
 
 libHSsvgcairo_a_SOURCES =							\
-	svgcairo/Graphics/Rendering/Cairo/SVG.chs
+	svgcairo/Graphics/Rendering/Cairo/SVG.chs.pp
 
 libHSsvgcairo_a_ALLSOURCES = $(libHSsvgcairo_a_SOURCES) $(nodist_libHSsvgcairo_a_SOURCES)
 
