@@ -130,7 +130,8 @@ for internaldep in $5 ; do
 Another gtk2hs package that $2 depends on is not being built.
 Generally this means that the gtk package cannot be built, but
 you explicitly enabled one of the other packages.  Please make sure
-you have all the prerequisites enabled.])
+you have all the prerequisites enabled, or remove --enable-$1 from
+the configure commandline.])
     else
       ENABLE_$3=no
     fi
