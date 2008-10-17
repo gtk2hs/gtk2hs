@@ -32,7 +32,7 @@ module Media.Streaming.GStreamer.Core.Iterator (
   Iterable,
   IteratorFilter,
   IteratorFoldFunction,
-  IteratorResult,
+  IteratorResult(..),
   
   iteratorNext,
   iteratorResync,
