@@ -36,16 +36,15 @@ module System.GIO.File (
     FilesystemPreviewType,
     FileProgressCallback,
     FileReadMoreCallback,
-    fileNewForPath,
-    fileNewForURI,
-    fileNewForCommandlineArg,
-    fileParseName,
-    fileDup,
+    fileFromPath,
+    fileFromURI,
+    fileFromCommandlineArg,
+    fileFromParseName,
     fileEqual,
-    fileGetBasename,
-    fileGetPath,
-    fileGetURI,
-    fileGetParseName,
+    fileBasename,
+    filePath,
+    fileURI,
+    fileParseName,
     fileGetChild,
     fileGetChildForDisplayName,
     fileHasPrefix,
@@ -53,7 +52,7 @@ module System.GIO.File (
     fileResolveRelativePath,
     fileIsNative,
     fileHasURIScheme,
-    fileGetURIScheme,
+    fileURIScheme,
     fileRead,
     fileReadAsync,
     fileReadFinish,
@@ -68,8 +67,23 @@ module System.GIO.File (
     fileReplaceFinish,
     fileQueryInfo,
     fileQueryInfoAsync,
+    fileQueryInfoFinish,
     fileQueryExists,
-    fileQueryFilesystemInfo
+    fileQueryFilesystemInfo,
+    fileQueryFilesystemInfoAsync,
+    fileQueryFilesystemInfoFinish,
+    fileQueryDefaultHandler,
+    fileFindEnclosingMount,
+    fileFindEnclosingMountAsync,
+    fileFindEnclosingMountFinish,
+    fileEnumerateChildren,
+    fileEnumerateChildrenAsync,
+    fileEnumerateChildrenFinish,
+    fileSetDisplayName,
+    fileSetDisplayNameAsync,
+    fileSetDisplayNameFinish,
+    fileDelete,
+    fileTrash,
     ) where
 
 import Control.Monad
@@ -103,88 +117,95 @@ instance Flags FileMonitorFlags
 type FileProgressCallback = {# type goffset #} -> {# type goffset #} -> IO ()
 type FileReadMoreCallback = BS.ByteString -> IO Bool
 
-fileNewForPath :: FilePath -> IO File
-fileNewForPath path =
-    withUTFString path $ {# call file_new_for_path #} >=> takeGObject
+fileFromPath :: FilePath -> File
+fileFromPath path =
+    unsafePerformIO $ withUTFString path $ {# call file_new_for_path #} >=> takeGObject
 
-fileNewForURI :: String -> IO File
-fileNewForURI uri =
-    withUTFString uri $ {# call file_new_for_uri #} >=> takeGObject
+fileFromURI :: String -> File
+fileFromURI uri =
+    unsafePerformIO $ withUTFString uri $ {# call file_new_for_uri #} >=> takeGObject
 
-fileNewForCommandlineArg :: String -> IO File
-fileNewForCommandlineArg arg =
-    withUTFString arg $ {# call file_new_for_commandline_arg #} >=> takeGObject
+fileFromCommandlineArg :: String -> File
+fileFromCommandlineArg arg =
+    unsafePerformIO $ withUTFString arg $ {# call file_new_for_commandline_arg #} >=> takeGObject
 
-fileParseName :: String -> IO File
-fileParseName parseName =
-    withUTFString parseName $ {# call file_parse_name #} >=> takeGObject
-
-fileDup :: FileClass file
-        => file -> IO file
-fileDup =
-    {# call file_dup #} . toFile >=> takeGObject . castPtr
+fileFromParseName :: String -> File
+fileFromParseName parseName =
+    unsafePerformIO $ withUTFString parseName $ {# call file_parse_name #} >=> takeGObject
 
 fileEqual :: (FileClass file1, FileClass file2)
-          => file1 -> file2 -> IO Bool
+          => file1 -> file2 -> Bool
 fileEqual file1 file2 =
-    liftM toBool $ {# call file_equal #} (toFile file1) (toFile file2)
+    unsafePerformIO $ liftM toBool $ {# call file_equal #} (toFile file1) (toFile file2)
 
-fileGetBasename :: FileClass file => file -> IO String
-fileGetBasename =
-    {# call file_get_basename #} . toFile >=> readUTFString
+instance Eq File where
+    (==) = fileEqual
 
-fileGetPath :: FileClass file => file -> IO FilePath
-fileGetPath =
-    {# call file_get_path #} . toFile >=> readUTFString
+fileBasename :: FileClass file => file -> String
+fileBasename =
+    unsafePerformIO . ({# call file_get_basename #} . toFile >=> readUTFString)
 
-fileGetURI :: FileClass file => file -> IO String
-fileGetURI =
-    {# call file_get_uri #} . toFile >=> readUTFString
+filePath :: FileClass file => file -> FilePath
+filePath =
+    unsafePerformIO . ({# call file_get_path #} . toFile >=> readUTFString)
 
-fileGetParseName :: FileClass file => file -> IO String
-fileGetParseName =
-    {# call file_get_parse_name #} . toFile >=> readUTFString
+fileURI :: FileClass file => file -> String
+fileURI =
+    unsafePerformIO . ({# call file_get_uri #} . toFile >=> readUTFString)
 
-fileGetParent :: FileClass file => file -> IO (Maybe File)
-fileGetParent =
-    {# call file_get_parent #} . toFile >=> maybePeek takeGObject
+fileParseName :: FileClass file => file -> String
+fileParseName =
+    unsafePerformIO . ({# call file_get_parse_name #} . toFile >=> readUTFString)
 
-fileGetChild :: FileClass file => file -> String -> IO (Maybe File)
+fileParent :: FileClass file => file -> Maybe File
+fileParent =
+    unsafePerformIO . ({# call file_get_parent #} . toFile >=> maybePeek takeGObject)
+
+fileGetChild :: FileClass file => file -> String -> File
 fileGetChild file name =
-    withUTFString name $ {# call file_get_child #} (toFile file) >=> maybePeek takeGObject
+    unsafePerformIO $
+        withUTFString name $
+        {# call file_get_child #} (toFile file) >=> takeGObject
 
-fileGetChildForDisplayName :: FileClass file => file -> String -> IO File
+fileGetChildForDisplayName :: FileClass file => file -> String -> Maybe File
 fileGetChildForDisplayName file displayName =
-    withUTFString displayName $ \cDisplayName ->
+    unsafePerformIO $
+        withUTFString displayName $ \cDisplayName ->
         propagateGError ({# call file_get_child_for_display_name #} (toFile file) cDisplayName) >>=
-        takeGObject
+        maybePeek takeGObject
 
-fileHasPrefix :: (FileClass file1, FileClass file2) => file1 -> file2 -> IO Bool
+fileHasPrefix :: (FileClass file1, FileClass file2) => file1 -> file2 -> Bool
 fileHasPrefix file1 file2 =
-    liftM toBool $ {# call file_has_prefix #} (toFile file1) (toFile file2)
+    unsafePerformIO $
+        liftM toBool $ {# call file_has_prefix #} (toFile file1) (toFile file2)
 
-fileGetRelativePath :: (FileClass file1, FileClass file2) => file1 -> file2 -> IO FilePath
+fileGetRelativePath :: (FileClass file1, FileClass file2) => file1 -> file2 -> Maybe FilePath
 fileGetRelativePath file1 file2 =
-    {# call file_get_relative_path #} (toFile file1) (toFile file2) >>= readUTFString
+    unsafePerformIO $
+        {# call file_get_relative_path #} (toFile file1) (toFile file2) >>=
+        maybePeek readUTFString
 
-fileResolveRelativePath :: FileClass file => file -> FilePath -> IO (Maybe File)
+fileResolveRelativePath :: FileClass file => file -> FilePath -> Maybe File
 fileResolveRelativePath file relativePath =
-    withUTFString relativePath $ \cRelativePath ->
+    unsafePerformIO $
+        withUTFString relativePath $ \cRelativePath ->
         {# call file_resolve_relative_path #} (toFile file) cRelativePath >>=
         maybePeek takeGObject
 
-fileIsNative :: FileClass file => file -> IO Bool
+fileIsNative :: FileClass file => file -> Bool
 fileIsNative =
-    liftM toBool . {# call file_is_native #} . toFile
+    unsafePerformIO .
+        liftM toBool . {# call file_is_native #} . toFile
 
-fileHasURIScheme :: FileClass file => file -> String -> IO Bool
+fileHasURIScheme :: FileClass file => file -> String -> Bool
 fileHasURIScheme file uriScheme =
-    withUTFString uriScheme $ \cURIScheme ->
+    unsafePerformIO $
+        withUTFString uriScheme $ \cURIScheme ->
         liftM toBool $ {# call file_has_uri_scheme #} (toFile file) cURIScheme
 
-fileGetURIScheme :: FileClass file => file -> IO String
-fileGetURIScheme =
-    {# call file_get_uri_scheme #} . toFile >=> readUTFString
+fileURIScheme :: FileClass file => file -> String
+fileURIScheme =
+    unsafePerformIO . ({# call file_get_uri_scheme #} . toFile >=> readUTFString)
 
 fileRead :: FileClass file => file -> Maybe Cancellable -> IO FileInputStream
 fileRead file cancellable =
@@ -378,6 +399,13 @@ fileQueryInfoAsync file attributes flags ioPriority cancellable callback =
                                   (castFunPtrToPtr cCallback)
     where _ = {# call file_query_info_async #}
 
+fileQueryInfoFinish :: FileClass file
+                    => file
+                    -> AsyncResult
+                    -> IO FileInfo
+fileQueryInfoFinish file asyncResult =
+    propagateGError ({#call file_query_info_finish #} (toFile file) asyncResult) >>= takeGObject
+
 fileQueryExists :: FileClass file
                 => file
                 -> Maybe Cancellable
@@ -400,3 +428,184 @@ fileQueryFilesystemInfo file attributes cancellable =
         propagateGError (g_file_query_filesystem_info cFile cAttributes cCancellable) >>=
         takeGObject
     where _ = {# call file_query_filesystem_info #}
+
+fileQueryFilesystemInfoAsync :: FileClass file
+                             => file
+                             -> String
+                             -> Int
+                             -> Maybe Cancellable
+                             -> AsyncReadyCallback
+                             -> IO ()
+fileQueryFilesystemInfoAsync file attributes ioPriority cancellable callback =
+    withGObject (toFile file) $ \cFile ->
+        withUTFString attributes $ \cAttributes ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          cCallback <- marshalAsyncReadyCallback callback
+          g_file_query_filesystem_info_async cFile
+                                             cAttributes
+                                             (fromIntegral ioPriority)
+                                             cCancellable
+                                             cCallback
+                                             (castFunPtrToPtr cCallback)
+    where _ = {# call file_query_filesystem_info_async #}
+
+fileQueryFilesystemInfoFinish :: FileClass file
+                              => file
+                              -> AsyncResult
+                              -> IO FileInfo
+fileQueryFilesystemInfoFinish file asyncResult =
+    propagateGError ({# call file_query_filesystem_info_finish #} (toFile file) asyncResult) >>=
+        takeGObject
+
+fileQueryDefaultHandler :: FileClass file
+                        => file
+                        -> Maybe Cancellable
+                        -> IO AppInfo
+fileQueryDefaultHandler file cancellable =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_query_default_handler cFile cCancellable) >>=
+        takeGObject
+    where _ = {# call file_query_default_handler #}
+
+fileFindEnclosingMount :: FileClass file
+                       => file
+                       -> Maybe Cancellable
+                       -> IO Mount
+fileFindEnclosingMount file cancellable =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_find_enclosing_mount cFile cCancellable) >>=
+        takeGObject
+    where _ = {# call file_find_enclosing_mount #}
+
+fileFindEnclosingMountAsync :: FileClass file
+                            => file
+                            -> Int
+                            -> Maybe Cancellable
+                            -> AsyncReadyCallback
+                            -> IO ()
+fileFindEnclosingMountAsync file ioPriority cancellable callback =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          cCallback <- marshalAsyncReadyCallback callback
+          g_file_find_enclosing_mount_async cFile
+                                            (fromIntegral ioPriority)
+                                            cCancellable
+                                            cCallback
+                                            (castFunPtrToPtr cCallback)
+    where _ = {# call file_find_enclosing_mount_async #}
+
+fileFindEnclosingMountFinish :: FileClass file
+                             => file
+                             -> AsyncResult
+                             -> IO Mount
+fileFindEnclosingMountFinish file asyncResult =
+    propagateGError ({# call file_find_enclosing_mount_finish #} (toFile file) asyncResult) >>=
+        takeGObject
+
+fileEnumerateChildren :: FileClass file
+                      => file
+                      -> String
+                      -> [FileQueryInfoFlags]
+                      -> Maybe Cancellable
+                      -> IO FileEnumerator
+fileEnumerateChildren file attributes flags cancellable =
+    withGObject (toFile file) $ \cFile ->
+        withUTFString attributes $ \cAttributes ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_enumerate_children cFile cAttributes (cFromFlags flags) cCancellable) >>=
+        takeGObject
+    where _ = {# call file_enumerate_children #}
+
+fileEnumerateChildrenAsync :: FileClass file
+                           => file
+                           -> String
+                           -> [FileQueryInfoFlags]
+                           -> Int
+                           -> Maybe Cancellable
+                           -> AsyncReadyCallback
+                           -> IO ()
+fileEnumerateChildrenAsync file attributes flags ioPriority cancellable callback =
+    withGObject (toFile file) $ \cFile ->
+        withUTFString attributes $ \cAttributes ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          cCallback <- marshalAsyncReadyCallback callback
+          g_file_enumerate_children_async cFile
+                                          cAttributes
+                                          (cFromFlags flags)
+                                          (fromIntegral ioPriority)
+                                          cCancellable
+                                          cCallback
+                                          (castFunPtrToPtr cCallback)
+    where _ = {# call file_enumerate_children_async #}
+
+fileEnumerateChildrenFinish :: FileClass file
+                             => file
+                             -> AsyncResult
+                             -> IO FileEnumerator
+fileEnumerateChildrenFinish file asyncResult =
+    propagateGError ({# call file_enumerate_children_finish #} (toFile file) asyncResult) >>=
+        takeGObject
+
+fileSetDisplayName :: FileClass file
+                   => file
+                   -> String
+                   -> Maybe Cancellable
+                   -> IO File
+fileSetDisplayName file displayName cancellable =
+    withGObject (toFile file) $ \cFile ->
+        withUTFString displayName $ \cDisplayName ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_set_display_name cFile cDisplayName cCancellable) >>=
+        takeGObject
+    where _ = {# call file_set_display_name #}
+
+fileSetDisplayNameAsync :: FileClass file
+                        => file
+                        -> String
+                        -> Int
+                        -> Maybe Cancellable
+                        -> AsyncReadyCallback
+                        -> IO ()
+fileSetDisplayNameAsync file displayName ioPriority cancellable callback =
+    withGObject (toFile file) $ \cFile ->
+        withUTFString displayName $ \cDisplayName ->
+        maybeWith withGObject cancellable $ \cCancellable -> do
+          cCallback <- marshalAsyncReadyCallback callback
+          g_file_set_display_name_async cFile
+                                        cDisplayName
+                                        (fromIntegral ioPriority)
+                                        cCancellable
+                                        cCallback
+                                        (castFunPtrToPtr cCallback)
+    where _ = {# call file_set_display_name_async #}
+
+fileSetDisplayNameFinish :: FileClass file
+                         => file
+                         -> AsyncResult
+                         -> IO File
+fileSetDisplayNameFinish file asyncResult =
+    propagateGError ({# call file_set_display_name_finish #} (toFile file) asyncResult) >>=
+        takeGObject
+
+fileDelete :: FileClass file
+           => file
+           -> Maybe Cancellable
+           -> IO ()
+fileDelete file cancellable =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_delete cFile cCancellable) >> return ()
+    where _ = {# call file_delete #}
+
+fileTrash :: FileClass file
+           => file
+           -> Maybe Cancellable
+           -> IO ()
+fileTrash file cancellable =
+    withGObject (toFile file) $ \cFile ->
+        maybeWith withGObject cancellable $ \cCancellable ->
+        propagateGError (g_file_trash cFile cCancellable) >> return ()
+    where _ = {# call file_trash #}
+
