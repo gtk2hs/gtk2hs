@@ -414,6 +414,7 @@ libHSgio_a_CPPFLAGS		= $(filter -I% -D%,$(GIO_CFLAGS))
 libHSgio_a_SOURCESDIRS		= gio
 
 libHSgio_a_SOURCES =	        		\
+	gio/System/GIO/AsyncResult.chs		\
 	gio/System/GIO/Base.chs			\
 	gio/System/GIO/Types.chs		\
 	gio/System/GIO/Signals.chs		\
