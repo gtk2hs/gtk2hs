@@ -264,8 +264,11 @@ As a last resort you may set the environment variables GLIB_CFLAGS
 and GLIB_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details.
 ]))
-PKG_CHECK_MODULES(GTK,[pango >= 1.0.0 gdk-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0 gtk+-2.0 >= 2.0.0 gthread-2.0 >= 2.0.0], [], AC_MSG_ERROR([
+ENABLE_GLIB=yes
 
+GTKHS_PKG_CHECK(gtk, gtk, GTK, [pango >= 1.0.0 gdk-2.0 >= 2.0.0 gdk-pixbuf-2.0 >= 0.12.0 gtk+-2.0 >= 2.0.0 gthread-2.0 >= 2.0.0], [GLIB],
+                [build gtk and soegtk packages (default=auto)],
+AC_MSG_ERROR([
 The development files for the gtk-2.x library were not found.
 Perhaps you need to install gtk or gtk-devel.
 
@@ -287,34 +290,34 @@ AC_SUBST(GTK_BASEPATH)
 
 dnl Check if user wants various optional bindings.
 dnl Defaults to auto, or in packager mode it defaults to no.
-GTKHS_PKG_CHECK(libglade, glade, LIBGLADE, [libglade-2.0 >= 2.0.0],
+GTKHS_PKG_CHECK(libglade, glade, LIBGLADE, [libglade-2.0 >= 2.0.0], [GLIB GTK],
 	[build glade package (default=auto)],
 	[libglade library requirement not met. Perhaps you need to install libglade or libglade-devel])
 
-GTKHS_PKG_CHECK(gconf, gconf, GCONF, [gconf-2.0 >= 2.0.0],
+GTKHS_PKG_CHECK(gconf, gconf, GCONF, [gconf-2.0 >= 2.0.0], [GLIB],
 	[build gconf package (default=auto)],
 	[GConf requirement not met. Perhaps you need to install gconf or gconf-devel])
 
-GTKHS_PKG_CHECK(sourceview, sourceview, SOURCEVIEW, [gtksourceview-1.0 >= 0.6.0],
+GTKHS_PKG_CHECK(sourceview, sourceview, SOURCEVIEW, [gtksourceview-1.0 >= 0.6.0], [GLIB GTK],
 	[build sourceview package (default=auto)],
 	[GtkSourceView requirement not met. Perhaps you need to install gtksourceview or gtksourceview-devel])
 
-GTKHS_PKG_CHECK(mozilla, mozembed, MOZILLA_MOZEMBED, [mozilla-gtkmozembed >= 1.4],
+GTKHS_PKG_CHECK(mozilla, mozembed, MOZILLA_MOZEMBED, [mozilla-gtkmozembed >= 1.4], [GLIB GTK],
 	[build bindings for the Mozilla display widget (default=auto)],
 	[Mozilla requirement not met. Perhaps you need to install mozilla or mozilla-devel])
 MOZILLA_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir mozilla-gtkmozembed)
 
-GTKHS_PKG_CHECK(seamonkey, mozembed, SEAMONKEY_MOZEMBED, [seamonkey-gtkmozembed >= 1.0],
+GTKHS_PKG_CHECK(seamonkey, mozembed, SEAMONKEY_MOZEMBED, [seamonkey-gtkmozembed >= 1.0], [GLIB GTK],
         [build bindings for the Mozilla display widget using the Seamonkey libs (default=auto)],
         [Seamonkey requirement not met. Perhaps you need to install seamonkey or seamonkey-devel])
 SEAMONKEY_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir seamonkey-gtkmozembed)
 
-GTKHS_PKG_CHECK(firefox, mozembed, FIREFOX_MOZEMBED, [firefox-gtkmozembed >= 1.0],
+GTKHS_PKG_CHECK(firefox, mozembed, FIREFOX_MOZEMBED, [firefox-gtkmozembed >= 1.0], [GLIB GTK],
 	[build bindings for the Mozilla display widget using the Firefox libs (default=auto)],
 	[Mozilla Firefox requirement not met. Perhaps you need to install firefox or firefox-devel])
 FIREFOX_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir firefox-gtkmozembed)
 
-GTKHS_PKG_CHECK(xulrunner, mozembed, XULRUNNER_MOZEMBED, [xulrunner-gtkmozembed >= 1.8.0.1],
+GTKHS_PKG_CHECK(xulrunner, mozembed, XULRUNNER_MOZEMBED, [xulrunner-gtkmozembed >= 1.8.0.1], [GLIB GTK],
 	[build bindings for the Mozilla display widget using the XULRunner libs (default=auto)],
 	[XULRunner requirement not met. Perhaps you need to install xulrunner or xulrunner-devel])
 XULRUNNER_MOZEMBED_LIBDIR=$(${PKG_CONFIG} --variable=libdir xulrunner-gtkmozembed)
@@ -348,19 +351,19 @@ AM_CONDITIONAL(ENABLE_MOZEMBED, test "$ENABLE_MOZEMBED" = "yes")
 AC_SUBST(MOZEMBED_CFLAGS)
 AC_SUBST(MOZEMBED_LIBS)
 
-GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0],
+GTKHS_PKG_CHECK(cairo, cairo, CAIRO, [cairo >= 1.0.0], [GLIB],
 	[build bindings for the cairo vector graphics system (default=auto)],
 	[cairo requirement not met. Perhaps you need to install cairo or cairo-devel])
 
-GTKHS_PKG_CHECK(svg, svgcairo, SVGCAIRO, [librsvg-2.0 >= 2.16.0],
+GTKHS_PKG_CHECK(svg, svgcairo, SVGCAIRO, [librsvg-2.0 >= 2.16.0], [GLIB CAIRO],
 	[build bindings for the cairo svg extension (default=auto)],
 	[librsvg requirement not met. Perhaps you need to install librsvg or librsvg-devel])
 
-GTKHS_PKG_CHECK(opengl, gtkglext, GTKGLEXT, [gtkglext-1.0 >= 1.0.5],
+GTKHS_PKG_CHECK(opengl, gtkglext, GTKGLEXT, [gtkglext-1.0 >= 1.0.5], [GLIB GTK],
  	[build bindings for the Gtk OpenGL extension (default=auto)],
  	[GtkGLExt library requirement not met. Perhaps you need to install gtkglext or gtkglext-devel])
 
-GTKHS_PKG_CHECK(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0 gnome-vfs-module-2.0 >= 2.0.0 ],
+GTKHS_PKG_CHECK(gnomevfs, gnomevfs, GNOMEVFS, [gnome-vfs-2.0 >= 2.0.0 gnome-vfs-module-2.0 >= 2.0.0 ], [GLIB],
 	[build gnome-vfs package (default=auto)],
 	[gnomevfs library requirement not met. Perhaps you need to install libgnomevfs or libgnomevfs-devel])
 
@@ -370,7 +373,7 @@ GTKHS_PKG_CHECK(gstreamer, gstreamer, GSTREAMER,
                  gstreamer-controller-0.10 >= 0.10 
                  gstreamer-dataprotocol-0.10 >= 0.10 \
                  gstreamer-net-0.10 >= 0.10 \
-                 gstreamer-plugins-base-0.10],
+                 gstreamer-plugins-base-0.10], [GLIB],
 	[build gstreamer package (default=auto)],
 	[gstreamer library requirement not met. Perhaps you need to install libgstreamer or libgstreamer-devel])
 
@@ -919,7 +922,7 @@ echo "*                                                 "
 echo "* The following packages will be built:           "
 echo "*                                                 "
 echo "* glib          : yes                             "
-echo "* gtk           : yes                             "
+echo "* gtk           : ${ENABLE_GTK}                   "
 echo "* glade         : ${ENABLE_LIBGLADE}              "
 echo "* cairo         : ${ENABLE_CAIRO}                 "
 echo "* svgcairo      : ${ENABLE_SVGCAIRO}              "
@@ -927,7 +930,7 @@ echo "* gtkglext      : ${ENABLE_GTKGLEXT}              "
 echo "* gconf         : ${ENABLE_GCONF}                 "
 echo "* sourceview    : ${ENABLE_SOURCEVIEW}            "
 echo "* mozembed      : ${ENABLE_MOZEMBED}              "
-echo "* soegtk        : yes                             "
+echo "* soegtk        : ${ENABLE_GTK}                   "
 echo "* gnomevfs      : ${ENABLE_GNOMEVFS}              "
 echo "* gstreamer     : ${ENABLE_GSTREAMER}             "
 echo "* documentation : ${BUILDDOCS}                    "

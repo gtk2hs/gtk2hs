@@ -49,9 +49,11 @@ endif
 if ENABLE_SVGCAIRO
 pkglib_LIBRARIES += libHSsvgcairo.a
 endif
+if ENABLE_GTK
 pkglib_LIBRARIES +=	\
 	libHSgtk.a	\
 	libHSsoegtk.a
+endif
 if ENABLE_LIBGLADE
 pkglib_LIBRARIES += libHSglade.a
 endif
@@ -387,6 +389,8 @@ endif
 #	gtk package
 #
 ################################################################################
+
+if ENABLE_GTK
 
 gtk_PKGNAME = libHSgtk_a
 
@@ -768,6 +772,8 @@ nobase_hi_DATA       += $(libHSgtk_a_HSFILES:.hs=.p_hi)
 gtk_MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.p_hi)
 gtk_MOSTLYCLEANFILES += $(libHSgtk_a_HSFILES:.hs=.p_o)
 gtk_MOSTLYCLEANFILES += $(libHSgtk_a_LIBADD:.o=.p_o)
+endif
+
 endif
 
 #
@@ -1618,6 +1624,8 @@ endif #ENABLE_GTKGLEXT
 #
 ################################################################################
 
+if ENABLE_GTK
+
 soegtk_PKGNAME = libHSsoegtk_a
 
 libHSsoegtk_a_NAME		= soegtk
@@ -1693,6 +1701,8 @@ nobase_hi_DATA          += $(libHSsoegtk_a_HSFILES:.hs=.p_hi)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.p_hi)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_HSFILES:.hs=.p_o)
 soegtk_MOSTLYCLEANFILES += $(libHSsoegtk_a_LIBADD:.o=.p_o)
+endif
+
 endif
 
 #
@@ -2385,7 +2395,10 @@ endif #BUILDDOCS
 #
 ################################################################################
 
-DEMOS = demo/hello demo/buttonbox demo/concurrent \
+DEMOS =
+
+if ENABLE_GTK
+DEMOS += demo/hello demo/buttonbox demo/concurrent \
 	demo/graphic demo/unicode demo/soe
 if HAVE_GTK_VERSION_2_2
 DEMOS += demo/fastdraw
@@ -2409,6 +2422,7 @@ endif
 endif
 if HAVE_GTK_VERSION_2_10
 DEMOS += demo/statusicon
+endif
 endif
 if ENABLE_GCONF
 DEMOS += demo/gconf

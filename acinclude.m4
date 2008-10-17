@@ -111,6 +111,7 @@ fi
 
 dnl GTKHS_PKG_CHECK(arg enable name, package name, package var name,
 dnl                 pkg-config version requirements,
+dnl                 internal dependency package var names,
 dnl                 arg enable help string,
 dnl                 error if false)
 dnl perform the AC_ARG_ENABLE, PKG_CHECK_MODULES and AM_CONDITIONAL for a
@@ -120,15 +121,27 @@ AC_DEFUN([GTKHS_PKG_CHECK],
 # Check if user wants $1 bindings. Defaults to auto, or in packager
 # mode it defaults to no.
 AC_ARG_ENABLE($1,
-	AS_HELP_STRING([--enable-$1],[$5]),
+	AS_HELP_STRING([--enable-$1],[$6]),
 	[ENABLE_$3=[$]enableval],[ENABLE_$3=[$]ENABLE_PKG_DEFAULT])
-
+for internaldep in $5 ; do
+  if test "`eval echo [\$]\{ENABLE_[$]{internaldep}\}`" != "yes" ; then
+    if test "[$]ENABLE_$3" = yes ; then
+       AC_MSG_ERROR([
+Another gtk2hs package that $2 depends on is not being built.
+Generally this means that the gtk package cannot be built, but
+you explicitly enabled one of the other packages.  Please make sure
+you have all the prerequisites enabled.])
+    else
+      ENABLE_$3=no
+    fi
+  fi
+done
 if test "[$]ENABLE_$3" = "yes" || test "[$]ENABLE_$3" = "auto"; then
   PKG_CHECK_MODULES($3,$4,[ENABLE_$3=yes],
   		[if test "[$]ENABLE_$3" = "auto"; then
 			ENABLE_$3=no
 		 else
-		 	AC_MSG_ERROR([$6])
+		 	AC_MSG_ERROR([$7])
 		 fi])
 fi
 AC_MSG_CHECKING([whether to build $2 package])
