@@ -61,8 +61,10 @@ module Graphics.UI.Gtk (
   module Graphics.UI.Gtk.Gdk.Pixmap,
   module Graphics.UI.Gtk.Gdk.Screen,
   module Graphics.UI.Gtk.Gdk.Gdk,
+#ifdef ENABLE_CAIRO
   -- ** cairo integration
   module Graphics.UI.Gtk.Cairo,
+#endif
   -- * Windows
   module Graphics.UI.Gtk.Windows.Window,
   module Graphics.UI.Gtk.Windows.Dialog,
@@ -243,8 +245,10 @@ import Graphics.UI.Gtk.Gdk.Pixbuf
 import Graphics.UI.Gtk.Gdk.Pixmap
 import Graphics.UI.Gtk.Gdk.Screen
 import Graphics.UI.Gtk.Gdk.Gdk
+#ifdef ENABLE_CAIRO
 -- cairo integration
 import Graphics.UI.Gtk.Cairo
+#endif
 -- windows
 import Graphics.UI.Gtk.Windows.Dialog
 import Graphics.UI.Gtk.Windows.Window

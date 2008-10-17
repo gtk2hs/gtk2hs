@@ -524,6 +524,7 @@ dnl Actually getting at these cpp defines is a bit tricky, what we do is
 dnl pre-process a shell file and include cairo.h then we run that
 dnl shell file to bring in the values of the shell vars it defines.
 dnl Then finally we substitute those into our config header file.
+if test "$ENABLE_CAIRO" = "yes" ; then
 CAIRO_CPP_FLAGS="`$PKG_CONFIG --cflags cairo`"
 $CPP $CAIRO_CPP_FLAGS - > conftest.sh <<_ACEOF
 true <<_GIGO
@@ -573,7 +574,7 @@ AH_BOTTOM([
      (_CAIRO_MAJOR_VERSION == (major) && _CAIRO_MINOR_VERSION == (minor) && \
       _CAIRO_MICRO_VERSION >= (micro)))
 ])
-
+fi
 
 dnl For reasons know only to themselves, Sun decided to ship a development
 dnl version of Gtk+ (version 2.1.0). Being an intermediate development version

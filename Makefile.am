@@ -745,10 +745,14 @@ libHSgtk_a_SOURCES =					 		\
 	gtk/Graphics/UI/Gtk/Abstract/Separator.hs			\
 	gtk/Graphics/UI/Gtk/Gdk/DrawWindow.chs.pp			\
 	gtk/Graphics/UI/Gtk/Pango/Markup.hs.pp				\
-	gtk/Graphics/UI/Gtk/Cairo.chs.pp \
 	gtk/Graphics/UI/Gtk/General/Selection.chs.pp \
 	gtk/Graphics/UI/Gtk/General/Drag.chs.pp \
 	gtk/Graphics/UI/Gtk/General/DNDTypes.chs
+
+if ENABLE_CAIRO
+libHSgtk_a_SOURCES +=					 		\
+	gtk/Graphics/UI/Gtk/Cairo.chs.pp
+endif
 
 htmldoc_HSFILES_HIDDEN +=						\
 	$(libHSgtk_a_GENERATEDSOURCES:.chs=.hs)			\
@@ -811,9 +815,11 @@ libHSgtk_a_LIBADD +=							\
 	gtk/Graphics/UI/Gtk/Windows/AboutDialog_stub.o
 endif
 
+if ENABLE_CAIRO
 if HAVE_GTK_VERSION_2_8
 libHSgtk_a_LIBADD +=							\
 	gtk/Graphics/UI/Gtk/Cairo_stub.o                
+endif
 endif
 
 if !USE_GCLOSUE_SIGNALS_IMPL
