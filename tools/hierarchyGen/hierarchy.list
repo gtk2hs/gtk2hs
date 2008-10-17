@@ -223,3 +223,41 @@
 	GnomeVFSDrive		as Drive, gnome_vfs_drive_get_type if gnomevfs
 	GnomeVFSVolumeMonitor	as VolumeMonitor, gnome_vfs_volume_monitor_get_type if gnomevfs
 
+## GIO classes
+#        GUnixMountMonitor		as UnixMountMonitor, g_unix_mount_monitor_get_type if gio
+        GOutputStream			as OutputStream, g_output_stream_get_type if gio
+            GFilterOutputStream		as FilterOutputStream, g_filter_output_stream_get_type if gio
+                GDataOutputStream	as DataOutputStream, g_data_output_stream_get_type if gio
+                GBufferedOutputStream   as BufferedOutputStream, g_buffered_output_stream_get_type if gio
+#            GUnixOutputStream		as UnixOutputStream, g_unix_output_stream_get_type if gio
+            GFileOutputStream           as FileOutputStream, g_file_output_stream_get_type if gio
+            GMemoryOutputStream		as MemoryOutputStream, g_memory_output_stream_get_type if gio
+        GInputStream			as InputStream, g_input_stream_get_type if gio
+#            GUnixInputStream		as UnixInputStream, g_unix_input_stream_get_type if gio
+            GMemoryInputStream		as MemoryInputStream, g_memory_input_stream_get_type if gio
+            GFilterInputStream		as FilterInputStream, g_filter_input_stream_get_type if gio
+                GBufferedInputStream	as BufferedInputStream, g_buffered_input_stream_get_type if gio
+                    GDataInputStream	as DataInputStream, g_data_input_stream_get_type if gio
+            GFileInputStream		as FileInputStream, g_file_input_stream_get_type if gio
+#        GDesktopAppInfo			as DesktopAppInfo, g_desktop_app_info_get_type if gio
+        GFileMonitor			as FileMonitor, g_file_monitor_get_type if gio
+        GVfs				as Vfs, g_vfs_get_type if gio
+        GMountOperation			as MountOperation, g_mount_operation_get_type if gio
+        GThemedIcon			as ThemedIcon, g_themed_icon_get_type if gio
+        GFileEnumerator			as FileEnumerator, g_file_enumerator_get_type if gio
+        GFilenameCompleter		as FilenameCompleter, g_filename_completer_get_type if gio
+        GFileIcon			as FileIcon, g_file_icon_get_type if gio
+        GVolumeMonitor			as VolumeMonitor, g_volume_monitor_get_type if gio
+        GCancellable			as Cancellable, g_cancellable_get_type if gio
+        GSimpleAsyncResult		as SimpleAsyncResult, g_async_result_get_type if gio
+        GFileInfo			as FileInfo, g_file_info_get_type if gio
+## these are actually GInterfaces
+        GIcon				as Icon, g_icon_get_type if gio
+        GSeekable			as Seekable, g_seekable_get_type if gio
+        GAppInfo			as AppInfo, g_app_info_get_type if gio
+        GVolume				as Volume, g_volume_get_type if gio
+        GAsyncResult			as AsyncResult, g_async_result_get_type if gio
+        GLoadableIcon			as LoadableIcon, g_loadable_icon_get_type if gio
+        GDrive				as Drive, g_drive_get_type if gio
+        GFile				as File, g_file_get_type if gio
+        GMount				as Mount, g_mount_get_type if gio

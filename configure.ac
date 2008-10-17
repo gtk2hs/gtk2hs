@@ -290,6 +290,10 @@ AC_SUBST(GTK_BASEPATH)
 
 dnl Check if user wants various optional bindings.
 dnl Defaults to auto, or in packager mode it defaults to no.
+GTKHS_PKG_CHECK(gio, gio, GIO, [gio-2.0 >= 2.16.4], [GLIB],
+        [build gio package (default=auto)],
+        [gio requirement not met.  Perhaps you need to install a newer GLib (>= 2.6.14) or the gio-devel package])
+
 GTKHS_PKG_CHECK(libglade, glade, LIBGLADE, [libglade-2.0 >= 2.0.0], [GLIB GTK],
 	[build glade package (default=auto)],
 	[libglade library requirement not met. Perhaps you need to install libglade or libglade-devel])
@@ -608,6 +612,9 @@ GTKHS_PACKAGE_FILTER_LIBS([GLIB_LIBS], [], [$GLIB_LIBS])
 GTKHS_PACKAGE_FILTER_CFLAGS([GTK_CFLAGS], [$GLIB_CFLAGS], [$GTK_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([GTK_LIBS], [$GLIB_LIBS], [$GTK_LIBS $STARTUP_CODE])
 
+GTKHS_PACKAGE_FILTER_CFLAGS([GIO_CFLAGS], [$GLIB_CFLAGS], [$GIO_CFLAGS])
+GTKHS_PACKAGE_FILTER_LIBS([GIO_LIBS], [$GLIB_LIBS], [$GIO_LIBS])
+
 GTKHS_PACKAGE_FILTER_CFLAGS([SOURCEVIEW_CFLAGS], [$GLIB_CFLAGS $GTK_CFLAGS], [$SOURCEVIEW_CFLAGS])
 GTKHS_PACKAGE_FILTER_LIBS([SOURCEVIEW_LIBS], [$GLIB_LIBS $GTK_LIBS], [$SOURCEVIEW_LIBS])
 
@@ -650,6 +657,13 @@ AC_SUBST(GTK_CFLAGS_CQ)
 AC_SUBST(GTK_LIBS_CQ)
 AC_SUBST(GTK_LIBDIR_CQ)
 AC_SUBST(GTK_LIBEXTRA_CQ)
+
+GTKHS_REFORMAT_PACKAGE_CFLAGS(GIO_CFLAGS, GIO_CFLAGS_CQ)
+GTKHS_REFORMAT_PACKAGE_LIBS(GIO_LIBS, GIO_LIBS_CQ, GIO_LIBDIR_CQ, GIO_LIBEXTRA_CQ)
+AC_SUBST(GIO_CFLAGS_CQ)
+AC_SUBST(GIO_LIBS_CQ)
+AC_SUBST(GIO_LIBDIR_CQ)
+AC_SUBST(GIO_LIBEXTRA_CQ)
 
 dnl Fix another bug in ghc-pkg where it doesn't look into directories
 dnl for dependant packages when building the .o file.
@@ -901,6 +915,7 @@ AC_CONFIG_FILES([
 
   glib/glib.package.conf		glib/glib.cabal
   gtk/gtk.package.conf			gtk/gtk.cabal
+  gio/gio.package.conf			gio/gio.cabal
   glade/glade.package.conf		glade/glade.cabal
   gconf/gconf.package.conf		gconf/gconf.cabal
   sourceview/sourceview.package.conf	sourceview/sourceview.cabal
@@ -923,6 +938,7 @@ echo "* The following packages will be built:           "
 echo "*                                                 "
 echo "* glib          : yes                             "
 echo "* gtk           : ${ENABLE_GTK}                   "
+echo "* gio           : ${ENABLE_GIO}                   "
 echo "* glade         : ${ENABLE_LIBGLADE}              "
 echo "* cairo         : ${ENABLE_CAIRO}                 "
 echo "* svgcairo      : ${ENABLE_SVGCAIRO}              "

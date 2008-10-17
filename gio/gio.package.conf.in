@@ -1,0 +1,17 @@
+name: gio
+version: @PACKAGE_VERSION@
+license: LGPL
+license-file: COPYING.LIB
+maintainer: gtk2hs-users@lists.sourceforge.net
+stability: provisional
+homepage: http://haskell.org/gtk2hs/
+exposed: True
+exposed-modules: ${modules}
+import-dirs: "${pkglibdir}/imports/gio"
+library-dirs: @GIO_LIBDIR_CQ@
+hs-libraries: HSgio
+extra-libraries: @GIO_LIBS_CQ@
+include-dirs: @GIO_CFLAGS_CQ@, "${pkglibdir}/include"
+includes: gio/gio.h
+depends: base-@PKG_BASE_VERSION@ glib-@PACKAGE_VERSION@
+ld-options: @GIO_LIBEXTRA_CQ@

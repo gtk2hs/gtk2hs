@@ -29,6 +29,7 @@ EXTRA_DIST = \
 	gnomevfs/System/Gnome/VFS/hsfileinfo.h	\
 	gnomevfs/marshal.list 			\
 	gstreamer/marshal.list 			\
+	gio/marshal.list			\
 	gtk/Graphics/UI/Gtk/ModelView/Gtk2HsStore.h
 
 # There are no other files in these dirs and tar excludes empty dirs
@@ -53,6 +54,10 @@ if ENABLE_GTK
 pkglib_LIBRARIES +=	\
 	libHSgtk.a	\
 	libHSsoegtk.a
+endif
+
+if ENABLE_GIO
+pkglib_LIBRARIES += libHSgio.a
 endif
 if ENABLE_LIBGLADE
 pkglib_LIBRARIES += libHSglade.a
@@ -383,6 +388,136 @@ nobase_hi_DATA        += $(libHSglib_a_HSFILES:.hs=.p_hi)
 glib_MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.p_hi)
 glib_MOSTLYCLEANFILES += $(libHSglib_a_HSFILES:.hs=.p_o)
 glib_MOSTLYCLEANFILES += $(libHSglib_a_LIBADD:.o=.p_o)
+endif
+
+#
+#	gio package
+#
+################################################################################
+
+gio_PKGNAME = libHSgio_a
+
+libHSgio_a_NAME			= gio
+libHSgio_a_CONFIG		= gio/gio.package.conf
+libHSgio_a_EXTERNALDEPS		= base-$(PKG_BASE_VERSION)
+if HAVE_SPLIT_BASE
+libHSgio_a_EXTERNALDEPS		+= bytestring-$(PKG_BYTESTRING_VERSION)
+endif
+libHSgio_a_INTERNALDEPS		= glib
+libHSgio_a_HEADER 		= gio/gio.h
+libHSgio_a_PRECOMP		= gio/gio.precomp
+libHSgio_a_LIBS			= $(GIO_LIBS)
+libHSgio_a_HCFLAGS		= $(FFI) -fglasgow-exts
+libHSgio_a_CFLAGS		= $(filter-out -I% -D%,$(GIO_CFLAGS))
+libHSgio_a_CPPFLAGS		= $(filter -I% -D%,$(GIO_CFLAGS))
+
+libHSgio_a_SOURCESDIRS		= gio
+
+libHSgio_a_SOURCES =	        		\
+	gio/System/GIO/Base.chs			\
+	gio/System/GIO/Types.chs		\
+	gio/System/GIO/Signals.chs		\
+	gio/System/GIO/Cancellable.chs		\
+	gio/System/GIO/File.chs
+
+libHSgio_a_GENERATEDSOURCES =			\
+	gio/System/GIO/Types.chs		\
+	gio/System/GIO/Signals.chs
+
+libHSgio_a_LIBADD  = 				\
+	gio/System/GIO/Base_stub.o
+
+nodist_libHSgio_a_SOURCES = $(libHSgio_a_GENERATEDSOURCES)
+
+htmldoc_HSFILES_HIDDEN +=			\
+	glib/System/GIO/Types.chs
+
+gio/System/GIO/Types.chs : \
+	$(srcdir)/tools/hierarchyGen/hierarchy.list \
+	$(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT)  \
+	$(srcdir)/tools/hierarchyGen/Hierarchy.chs.template
+	$(strip $(srcdir)/tools/hierarchyGen/TypeGenerator$(EXEEXT) \
+        $(srcdir)/tools/hierarchyGen/hierarchy.list \
+        $(srcdir)/tools/hierarchyGen/Hierarchy.chs.template \
+        $@ --tag=gio --lib=gio --prefix=g \
+	--modname=System.GIO.Types \
+        --parentname=System.Glib.GObject)
+
+gio/System/GIO/Signals.chs : \
+	$(srcdir)/tools/callbackGen/Signal.chs.template \
+	$(srcdir)/gio/marshal.list \
+	$(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT)
+	$(strip $(srcdir)/tools/callbackGen/HookGenerator$(EXEEXT) \
+	$(srcdir)/gio/marshal.list \
+	$(srcdir)/tools/callbackGen/Signal.chs.template $@ \
+	System.GIO.Signals)
+
+am_libHSgio_a_OBJECTS = \
+	$(addsuffix .$(OBJEXT),$(basename $(basename $(libHSgio_a_SOURCES))))
+
+libHSgio_a_HSPPFILES  = $(filter %.hs.pp, $(libHSgio_a_SOURCES))
+libHSgio_a_CHSPPFILES = $(filter %.chs.pp,$(libHSgio_a_SOURCES))
+libHSgio_a_CHSFILES = \
+  $(filter %.chs,$(libHSgio_a_SOURCES:.chs.pp=.chs))
+libHSgio_a_CHSFILES_HS = $(libHSgio_a_CHSFILES:.chs=.hs)
+libHSgio_a_HSCFILES    = $(filter %.hsc, $(libHSgio_a_SOURCES))
+libHSgio_a_HSCFILES_HS = $(libHSgio_a_HSCFILES:.hsc=.hs)
+libHSgio_a_BUILDSOURCES = \
+	$(libHSgio_a_GENERATEDSOURCES) \
+	$(libHSgio_a_HSPPFILES:.hs.pp=.hs) \
+	$(libHSgio_a_CHSPPFILES:.chs.pp=.chs) \
+	$(libHSgio_a_CHSFILES_HS) \
+	$(libHSgio_a_HSCFILES_HS)
+libHSgio_a_HSFILES  = \
+	$(filter %.hs,$(libHSgio_a_BUILDSOURCES)) \
+	$(filter %.hs,$(libHSgio_a_SOURCES))
+libHSgio_a_CFILES  = $(filter %.c,$(libHSgio_a_SOURCES))
+
+nobase_hi_DATA += $(libHSgio_a_HSFILES:.hs=.hi)
+
+gio_MOSTLYCLEANFILES  = $(am_libHSgio_a_OBJECTS)
+gio_MOSTLYCLEANFILES += $(libHSgio_a_HSFILES:.hs=.hi)
+gio_MOSTLYCLEANFILES += \
+	$(libHSgio_a_CHSFILES:.chs=.chi)	\
+	$(libHSgio_a_CHSFILES:.chs=.h)	\
+	$(libHSgio_a_CHSFILES:.chs=_stub.h)	\
+	$(libHSgio_a_CHSFILES:.chs=_stub.o)	\
+	$(libHSgio_a_CHSFILES:.chs=_stub.c)
+gio_CLEANFILES  = $(libHSgio_a_BUILDSOURCES)
+gio_CLEANFILES += $(libHSgio_a_CHSFILES_HS:.hs=.dep)
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include $(libHSgio_a_CHSFILES:.chs=.dep) gio/libHSgio_a.deps
+ endif
+
+if ENABLE_SPLITOBJS
+libHSgio_a_AR = $(srcdir)/mk/link-splitobjs.sh
+gio_CLEANFILES_SPLIT = $(libHSgio_a_HSFILES:.hs=_split/)
+else
+libHSgio_a_AR = $(AR) $(ARFLAGS)
+endif
+
+libHSgio_a_DEPENDENCIES = HSgio.o
+pkglib_DATA += HSgio.o
+HSgio.o : $(libHSgio_a_OBJECTS)
+	$(LD) -r $(LD_X) -o $@ $(libHSgio_a_OBJECTS) $(libHSgio_a_LIBADD)
+
+if ENABLE_PROFILING
+libHSgio_a_DEPENDENCIES += libHSgio_p.a
+pkglib_DATA += libHSgio_p.a
+libHSgio_p.a : $(libHSgio_a_HSFILES:.hs=.p_o) \
+		$(libHSgio_a_CFILES:.c=.o) \
+		$(libHSgio_a_LIBADD:.o=.p_o)
+	$(AR) $(ARFLAGS) $@ $^
+
+ifeq (,$(findstring clean,$(MAKECMDGOALS)))
+-include gio/libHSgio_a.p_deps
+ endif
+
+nobase_hi_DATA        += $(libHSgio_a_HSFILES:.hs=.p_hi)
+gio_MOSTLYCLEANFILES += $(libHSgio_a_HSFILES:.hs=.p_hi)
+gio_MOSTLYCLEANFILES += $(libHSgio_a_HSFILES:.hs=.p_o)
+gio_MOSTLYCLEANFILES += $(libHSgio_a_LIBADD:.o=.p_o)
 endif
 
 #
@@ -2612,6 +2747,7 @@ mostlyclean: mostlyclean-am
 	rm -f $(c2hs_MOSTLYCLEANFILES)
 	rm -f $(glib_MOSTLYCLEANFILES)
 	rm -f $(gtk_MOSTLYCLEANFILES)
+	rm -f $(gio_MOSTLYCLEANFILES)
 	rm -f $(glade_MOSTLYCLEANFILES)
 	rm -f $(gconf_MOSTLYCLEANFILES)
 	rm -f $(sourceview_MOSTLYCLEANFILES)
@@ -2631,6 +2767,8 @@ clean: mostlyclean clean-am
 	rm -rf $(glib_CLEANFILES_SPLIT)
 	rm -f  $(gtk_CLEANFILES)
 	rm -rf $(gtk_CLEANFILES_SPLIT)
+	rm -f  $(gio_CLEANFILES)
+	rm -rf $(gio_CLEANFILES_SPLIT)
 	rm -f  $(glade_CLEANFILES)
 	rm -rf $(glade_CLEANFILES_SPLIT)
 	rm -f  $(gconf_CLEANFILES)
