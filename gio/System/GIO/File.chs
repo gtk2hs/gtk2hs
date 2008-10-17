@@ -29,7 +29,51 @@
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
 --   Portability : portable (depends on GHC)
-module System.GIO.File where
+module System.GIO.File (
+    File,
+    FileClass,
+    FileQueryInfoFlags,
+    FileCreateFlags,
+    FileCopyFlags,
+    FileMonitorFlags,
+    FilesystemPreviewType,
+    FileProgressCallback,
+    FileReadMoreCallback,
+    fileNewForPath,
+    fileNewForURI,
+    fileNewForCommandlineArg,
+    fileParseName,
+    fileDup,
+    fileEqual,
+    fileGetBasename,
+    fileGetPath,
+    fileGetURI,
+    fileGetParseName,
+    fileGetChild,
+    fileGetChildForDisplayName,
+    fileHasPrefix,
+    fileGetRelativePath,
+    fileResolveRelativePath,
+    fileIsNative,
+    fileHasURIScheme,
+    fileGetURIScheme,
+    fileRead,
+    fileReadAsync,
+    fileReadFinish,
+    fileAppendTo,
+    fileCreate,
+    fileReplace,
+    fileAppendToAsync,
+    fileAppendToFinish,
+    fileCreateAsync,
+    fileCreateFinish,
+    fileReplaceAsync,
+    fileReplaceFinish,
+    fileQueryInfo,
+    fileQueryInfoAsync,
+    fileQueryExists,
+    fileQueryFilesystemInfo
+    ) where
 
 import Control.Monad
 import qualified Data.ByteString as BS
