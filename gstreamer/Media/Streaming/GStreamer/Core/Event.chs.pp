@@ -48,6 +48,8 @@ module Media.Streaming.GStreamer.Core.Event (
   Event,
   EventClass,
   EventType(..),
+  SeekFlags(..),
+  SeekType(..),
 
 -- * Event Operations
   eventType,
