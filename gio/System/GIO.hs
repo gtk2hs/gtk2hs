@@ -21,10 +21,7 @@
 --  
 --  GIO, the C library which this Haskell library depends on, is
 --  available under LGPL Version 2. The documentation included with
---  this library is based on the original GIO documentation,
---  Copyright (c) 2001 Seth Nickell <snickell@stanford.edu>. The
---  documentation is covered by the GNU Free Documentation License,
---  version 1.2.
+--  this library is based on the original GIO documentation.
 --  
 -- | Maintainer  : gtk2hs-devel@lists.sourceforge.net
 --   Stability   : alpha
