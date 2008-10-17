@@ -1042,7 +1042,12 @@ libHSgconf_a_INTERNALDEPS	= glib
 libHSgconf_a_HEADER 		= gconf/gconf-client.h
 libHSgconf_a_PRECOMP		= gconf/gconf.precomp
 libHSgconf_a_LIBS		= $(GLIB_LIBS) $(GCONF_LIBS)
-libHSgconf_a_HCFLAGS		= -fglasgow-exts -fallow-overlapping-instances
+libHSgconf_a_HCFLAGS		= -fglasgow-exts
+if GHC_VERSION_610
+libHSgconf_a_HCFLAGS		+= -XOverlappingInstances
+else
+libHSgconf_a_HCFLAGS		+= -fallow-overlapping-instances
+endif
 libHSgconf_a_CFLAGS		= $(filter-out -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 libHSgconf_a_CPPFLAGS		= $(filter -I% -D%,$(GLIB_CFLAGS) $(GCONF_CFLAGS))
 
